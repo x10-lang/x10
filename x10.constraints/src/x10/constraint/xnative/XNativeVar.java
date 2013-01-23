@@ -31,7 +31,7 @@ public abstract class XNativeVar extends XNativeTerm implements XVar  {
 	}
 	@Override
 	public String toString() {
-		return this.toString(); 
+		return "Native var !!"; 
 	}
 	
 	@Override public boolean isAtomicFormula() {return false;}

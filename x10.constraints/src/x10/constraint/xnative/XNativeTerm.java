@@ -204,6 +204,6 @@ public abstract class XNativeTerm implements XTerm, Serializable, Cloneable {
     }
     @Override
     public String toString() {
-    	return "Native term !!" + this.toString(); 
+    	return "Native term !!"; 
     }
 }
