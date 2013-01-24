@@ -102,7 +102,7 @@ public final class X10JavaDeserializer implements SerializationConstants {
                 throw new RuntimeException(e);
             }
             idsToClass.put(Short.valueOf(id), clazz);
-            if (x10.serialization.X10JavaSerializable.class.isAssignableFrom(clazz)) {
+            if (x10.serialization.X10JavaSerializable.class.isAssignableFrom(clazz) && !clazz.isInterface()) {
                 Method m;
                 try {
                     m = clazz.getMethod("$_deserializer", X10JavaDeserializer.class);
