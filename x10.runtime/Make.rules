@@ -96,13 +96,7 @@ ifdef JAVA_HOME
     JNI_INCLUDES = -I"$(JAVA_CYGPATH)"/include -I"$(JAVA_CYGPATH)"/include/win32
   else
   ifeq ($(shell uname -s),Darwin)
-    ifeq ($(shell test -r "$(JAVA_HOME)"/bundle/Headers/jni.h && printf hi),hi)
-      JNI_INCLUDES = -I"$(JAVA_HOME)"/bundle/Headers
-    else
-      ifeq ($(shell test -r "$(JAVA_HOME)"/include/jni.h && printf hi),hi)
-        JNI_INCLUDES = -I"$(JAVA_HOME)"/include
-      endif
-    endif
+    JNI_INCLUDES = -I"$(JAVA_HOME)"/include -I"$(JAVA_HOME)"/include/darwin
   else
   ifeq ($(shell uname -s),SunOS)
     JNI_INCLUDES = -I"$(JAVA_HOME)"/include -I"$(JAVA_HOME)"/include/solaris
