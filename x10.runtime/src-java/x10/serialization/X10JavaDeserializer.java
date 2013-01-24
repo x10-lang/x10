@@ -130,7 +130,7 @@ public final class X10JavaDeserializer implements SerializationConstants {
             return null;
         }
         
-        if (serializationID == REF_VALUE) {
+        if (serializationID == REPEATED_OBJECT_ID) {
             return getObjectAtPosition(readInt());
         }
         
@@ -382,7 +382,7 @@ public final class X10JavaDeserializer implements SerializationConstants {
             }
             return null;
         }
-        if (serializationID == REF_VALUE) {
+        if (serializationID == REPEATED_OBJECT_ID) {
             return (String) getObjectAtPosition(readInt());
         }
         assert serializationID == STRING_ID;
@@ -419,7 +419,7 @@ public final class X10JavaDeserializer implements SerializationConstants {
             }
             return null;
         }
-        if (serializationID == REF_VALUE) {
+        if (serializationID == REPEATED_OBJECT_ID) {
             return getObjectAtPosition(readInt());
         }
         if (serializationID <= MAX_HARDCODED_ID) {
@@ -502,7 +502,7 @@ public final class X10JavaDeserializer implements SerializationConstants {
             }
             return null;
         }
-        if (serializationID == REF_VALUE) {
+        if (serializationID == REPEATED_OBJECT_ID) {
             return getObjectAtPosition(readInt());
         }
         if (componentType.isPrimitive()) {

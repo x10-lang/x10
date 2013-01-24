@@ -470,7 +470,7 @@ public final class X10JavaSerializer implements SerializationConstants {
             }
             // We have serialized this object before hence no need to do it again
             if (writeRef) {
-                write(REF_VALUE);
+                write(REPEATED_OBJECT_ID);
                 write(pos.intValue());
             }
         } else {
