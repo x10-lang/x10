@@ -301,6 +301,10 @@ ifndef CROSS_COMPILE_BLUEGENE
       XARGS ?= /usr/bin/xargs
     else
     ifeq ($(shell uname -s),Darwin)
+      ifeq ($(shell readlink `which $(CXX)`),clang++) # avoid clang++ on Mountain Lion
+        CXX = g++
+        CC = gcc
+      endif
       export X10RT_PLATFORM=$(shell echo | gcc -E -dM - | grep -q x86_64 && echo darwin64 || echo darwin)
       ifndef X10_STATIC_LIB
         override CXXFLAGS_SHARED += -fPIC
