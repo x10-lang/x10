@@ -41,7 +41,6 @@ public final class AtomicReference<T> extends java.util.concurrent.atomic.Atomic
     }
 
     public final AtomicReference x10$util$concurrent$AtomicReference$$init$S(Type<T> T, T initialValue) {
-        // TODO
         set(initialValue);
         this.T = T;
         return this;
