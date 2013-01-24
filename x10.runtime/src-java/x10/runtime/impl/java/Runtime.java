@@ -139,29 +139,6 @@ public abstract class Runtime implements x10.core.fun.VoidFun_0_0 {
     }
 
     public void $apply() {
-        // try { Class.forName("x10.lang.Place"); } catch
-        // (ClassNotFoundException e) { }
-
-        // preload classes by default
-        // TODO: Dave.  I will delete this functionality tomorrow assuming no large-scale regressions tonight
-        if (false && !Boolean.getBoolean("x10.NO_PRELOAD_CLASSES")) {
-            // System.out.println("start preloading of classes");
-            Class<?> userMain = this.getClass().getEnclosingClass();
-            String extraClassesString = System.getProperty("x10.EXTRA_PRELOAD_CLASSES");
-            java.util.ArrayList<String> extraClasses;
-            if (extraClassesString != null) {
-                extraClasses = new java.util.ArrayList<String>();
-                java.util.StringTokenizer tokenizer = new java.util.StringTokenizer(extraClassesString, java.io.File.pathSeparator);
-                while (tokenizer.hasMoreTokens()) {
-                    String name = tokenizer.nextToken();
-                    extraClasses.add(name);
-                }
-            } else {
-                extraClasses = null;
-            }
-            x10.runtime.impl.java.PreLoader.preLoad(userMain, extraClasses, Boolean.getBoolean("x10.PRELOAD_STRINGS"));
-        }
-
         // x10rt-level registration of MessageHandlers
         if (X10RT.numPlaces() > 1) {
             x10.x10rt.MessageHandlers.registerHandlers();

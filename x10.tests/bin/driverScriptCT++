@@ -96,8 +96,6 @@ cleanUpExit() {
 			-e 's;@x10_BIND_THREADS@;"'"${__cat_x10_BIND_THREADS}"'";' \
 			-e 's;@x10_BIND_THREADS_DIAGNOSTICS@;"'"${__cat_x10_BIND_THREADS_DIAGNOSTICS}"'";' \
 			-e 's;@x10_OPTIMIZE_FOREACH@;"'"${__cat_x10_OPTIMIZE_FOREACH}"'";' \
-			-e 's;@x10_PRELOAD_CLASSES@;"'"${__cat_x10_PRELOAD_CLASSES}"'";' \
-			-e 's;@x10_PRELOAD_STRINGS@;"'"${__cat_x10_PRELOAD_STRINGS}"'";' \
 			-e 's;@x10_LOAD@;"'"${__cat_x10_LOAD}"'";' \
 			-e 's;@test_configuration@;'"${__cat_test_configuration}"';' \
 			$DATADIR/test_configurationH.xml.tmpl >> $REPORTF
@@ -352,8 +350,6 @@ __cat_x10_ABSTRACT_EXECUTION_TIMES="false"
 __cat_x10_BIND_THREADS="false"
 __cat_x10_BIND_THREADS_DIAGNOSTICS="false"
 __cat_x10_OPTIMIZE_FOREACH="false"
-__cat_x10_PRELOAD_CLASSES="false"
-__cat_x10_PRELOAD_STRINGS="false"
 __cat_x10_LOAD=""
 
 if [[ -n "$TMPDIR" && -d "$TMPDIR" ]]; then
