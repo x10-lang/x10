@@ -333,8 +333,9 @@ abstract class DeserializerThunk {
         @SuppressWarnings({ "unchecked", "rawtypes" })
         protected <T> T deserializeBody(Class<?> clazz, T obj, int i, X10JavaDeserializer jds) throws IOException {
             if ("java.lang.String".equals(clazz.getName())) {
-                obj = (T) jds.readStringValue();
-                return obj;
+                String realVal = jds.readStringValue();
+                jds.update_reference(i, realVal);
+                return (T) realVal;
             } else if ("x10.rtt.NamedType".equals(clazz.getName())) {
                 NamedType.$_deserialize_body((NamedType) obj, jds);
                 return obj;
