@@ -2570,6 +2570,12 @@ public class TypeSystem_c implements TypeSystem
         return perProcessType_;
     }
 
+    protected X10ClassType remoteInvocationType_;
+    public X10ClassType RemoteInvocation() {
+        if (remoteInvocationType_ == null)
+            remoteInvocationType_ = load("x10.compiler.RemoteInvocation");
+        return remoteInvocationType_;
+    }
 
     protected X10ClassType arrayType_ = null;
     public X10ClassType Array() {

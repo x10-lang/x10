@@ -955,6 +955,7 @@ public interface TypeSystem {
     X10ClassType SuppressTransientError();
     X10ClassType Embed();
     X10ClassType PerProcess();
+    X10ClassType RemoteInvocation();
 
     //Type Value();
 

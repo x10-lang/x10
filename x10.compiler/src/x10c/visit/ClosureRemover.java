@@ -11,6 +11,9 @@
 package x10c.visit;
 
 
+import static x10cpp.visit.ASTQuery.assertNumberOfInitializers;
+import static x10cpp.visit.ASTQuery.getStringPropertyInit;
+
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -59,6 +62,7 @@ import polyglot.util.Position;
 import polyglot.util.UniqueID;
 import x10.ast.AnnotationNode;
 import x10.extension.X10Ext_c;
+import x10.util.AnnotationUtils;
 import x10.util.CollectionFactory;
 import polyglot.visit.ContextVisitor;
 import polyglot.visit.NodeVisitor;
@@ -83,6 +87,7 @@ import x10.types.X10LocalDef;
 import x10.types.X10LocalInstance;
 import x10.types.X10MethodDef;
 import x10.types.constraints.TypeConstraint;
+import x10cpp.visit.ASTQuery;
 
 public class ClosureRemover extends ContextVisitor {
     
@@ -335,7 +340,19 @@ public class ClosureRemover extends ContextVisitor {
                     
                     Block closureBody = (Block) cl.body();
                     
-                    Id staticNestedClassName = xnf.Id(pos, UniqueID.newID(STATIC_NESTED_CLASS_BASE_NAME));
+                    List<X10ClassType> riAnnotations = AnnotationUtils.annotationsMatching(closureBody, xts.RemoteInvocation());
+                    Id staticNestedClassName = null;
+                    if (!riAnnotations.isEmpty()) {
+                        assert riAnnotations.size() == 1;
+                        String suffix = ASTQuery.getStringPropertyInit(riAnnotations.get(0), 0);
+                        if (suffix != null) {
+                            staticNestedClassName = xnf.Id(pos, STATIC_NESTED_CLASS_BASE_NAME + "_"+suffix);
+                        }
+                    }
+                    
+                    if (null == staticNestedClassName) {
+                        staticNestedClassName = xnf.Id(pos, UniqueID.newID(STATIC_NESTED_CLASS_BASE_NAME));
+                    }
                     
                     // DEBUG
 //                    System.out.println(n.position() + " " + staticNestedClassName + " " + cl);

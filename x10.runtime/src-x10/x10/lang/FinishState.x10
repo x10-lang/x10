@@ -126,12 +126,12 @@ abstract class FinishState {
                 val ref = this.ref();
                 val closure:()=>void;
                 if (null != t) {
-                    closure = ()=>@RemoteInvocation {
+                    closure = ()=>@RemoteInvocation("notifyActivityTermination_1") {
                         deref[FinishState](ref).pushException(t);
                         deref[FinishState](ref).notifyActivityTermination();
                     };
                 } else {
-                    closure = ()=>@RemoteInvocation {
+                    closure = ()=>@RemoteInvocation("notifyActivityTermination_2") {
                         deref[FinishState](ref).notifyActivityTermination();
                     };
                 }
@@ -198,12 +198,12 @@ abstract class FinishState {
             val ref = this.ref();
             val closure:()=>void;
             if (null != t) {
-                closure = ()=>@RemoteInvocation {
+                closure = ()=>@RemoteInvocation("notifyActivityTermination_1") {
                     deref[FinishState](ref).pushException(t);
                     deref[FinishState](ref).notifyActivityTermination();
                 };
             } else {
-                closure = ()=>@RemoteInvocation {
+                closure = ()=>@RemoteInvocation("notifyActivityTermination_2") {
                     deref[FinishState](ref).notifyActivityTermination();
                 };
             }
@@ -520,9 +520,9 @@ abstract class FinishState {
                     val message = IndexedMemoryChunk.allocateUninitialized[Int](counts.length());
                     IndexedMemoryChunk.copy(counts, 0, message, 0, counts.length());
                     if (null != t) {
-                        closure = ()=>@RemoteInvocation { deref[RootFinish](ref).notify(message, t); };
+                        closure = ()=>@RemoteInvocation("notifyActivityTermination_1") { deref[RootFinish](ref).notify(message, t); };
                     } else {
-                        closure = ()=>@RemoteInvocation { deref[RootFinish](ref).notify(message); };
+                        closure = ()=>@RemoteInvocation("notifyActivityTermination_2") { deref[RootFinish](ref).notify(message); };
                     }
                 } else {
                     val message = IndexedMemoryChunk.allocateUninitialized[Pair[Int,Int]](length);
@@ -530,9 +530,9 @@ abstract class FinishState {
                         message(i) = Pair[Int,Int](places(i), counts(places(i)));
                     }
                     if (null != t) {
-                        closure = ()=>@RemoteInvocation { deref[RootFinish](ref).notify(message, t); };
+                        closure = ()=>@RemoteInvocation("notifyActivityTermination_3") { deref[RootFinish](ref).notify(message, t); };
                     } else {
-                        closure = ()=>@RemoteInvocation { deref[RootFinish](ref).notify(message); };
+                        closure = ()=>@RemoteInvocation("notifyActivityTermination_4") { deref[RootFinish](ref).notify(message); };
                     }
                 }
                 counts.clear(0, counts.length());
@@ -541,9 +541,9 @@ abstract class FinishState {
                 val message = IndexedMemoryChunk.allocateUninitialized[Pair[Int,Int]](1);
                 message(0) = Pair[Int,Int](Runtime.hereInt(), count);
                 if (null != t) {
-                    closure = ()=>@RemoteInvocation { deref[RootFinish](ref).notify(message, t); };
+                    closure = ()=>@RemoteInvocation("notifyActivityTermination_5") { deref[RootFinish](ref).notify(message, t); };
                 } else {
-                    closure = ()=>@RemoteInvocation { deref[RootFinish](ref).notify(message); };
+                    closure = ()=>@RemoteInvocation("notifyActivityTermination_6") { deref[RootFinish](ref).notify(message); };
                 }
             }
             count = 0;
@@ -635,9 +635,9 @@ abstract class FinishState {
                     val message = IndexedMemoryChunk.allocateUninitialized[Int](counts.length());
                     IndexedMemoryChunk.copy(counts, 0, message, 0, counts.length());
                     if (null != t) {
-                        closure = ()=>@RemoteInvocation { deref[RootFinish](ref).notify(message, t); };
+                        closure = ()=>@RemoteInvocation("notifyActivityTermination_1") { deref[RootFinish](ref).notify(message, t); };
                     } else {
-                        closure = ()=>@RemoteInvocation { deref[RootFinish](ref).notify(message); };
+                        closure = ()=>@RemoteInvocation("notifyActivityTermination_2") { deref[RootFinish](ref).notify(message); };
                     }
                 } else {
                     val message = IndexedMemoryChunk.allocateUninitialized[Pair[Int,Int]](length);
@@ -645,9 +645,9 @@ abstract class FinishState {
                         message(i) = Pair[Int,Int](places(i), counts(places(i)));
                     }
                     if (null != t) {
-                        closure = ()=>@RemoteInvocation { deref[RootFinish](ref).notify(message, t); };
+                        closure = ()=>@RemoteInvocation("notifyActivityTermination_3") { deref[RootFinish](ref).notify(message, t); };
                     } else {
-                        closure = ()=>@RemoteInvocation { deref[RootFinish](ref).notify(message); };
+                        closure = ()=>@RemoteInvocation("notifyActivityTermination_4") { deref[RootFinish](ref).notify(message); };
                     }
                 }
                 counts.clear(0, counts.length());
@@ -656,9 +656,9 @@ abstract class FinishState {
                 val message = IndexedMemoryChunk.allocateUninitialized[Pair[Int,Int]](1);
                 message(0) = Pair[Int,Int](Runtime.hereInt(), count);
                 if (null != t) {
-                    closure = ()=>@RemoteInvocation { deref[RootFinish](ref).notify(message, t); };
+                    closure = ()=>@RemoteInvocation("notifyActivityTermination_5") { deref[RootFinish](ref).notify(message, t); };
                 } else {
-                    closure = ()=>@RemoteInvocation { deref[RootFinish](ref).notify(message); };
+                    closure = ()=>@RemoteInvocation("notifyActivityTermination_6") { deref[RootFinish](ref).notify(message); };
                 }
             }
             count = 0;
@@ -668,7 +668,7 @@ abstract class FinishState {
             if ((Place.MAX_PLACES < 1024) || (h%32 == 0) || (h-h%32 == ref.home.id)) {
                 Runtime.x10rtSendMessage(ref.home.id, closure, null);
             } else {
-                val clx = ()=>@RemoteInvocation { Runtime.x10rtSendMessage(ref.home.id, closure, null); };
+                val clx = ()=>@RemoteInvocation("notifyActivityTermination_7") { Runtime.x10rtSendMessage(ref.home.id, closure, null); };
                 Runtime.x10rtSendMessage(h-h%32, clx, null);
                 Runtime.dealloc(clx);
             }
@@ -798,9 +798,9 @@ abstract class FinishState {
                     val message = IndexedMemoryChunk.allocateUninitialized[Int](counts.length());
                     IndexedMemoryChunk.copy(counts, 0, message, 0, counts.length());
                     if (null != t) {
-                        closure = ()=>@RemoteInvocation { deref[RootCollectingFinish[T]](ref).notify(message, t); };
+                        closure = ()=>@RemoteInvocation("notifyActivityTermination_1") { deref[RootCollectingFinish[T]](ref).notify(message, t); };
                     } else {
-                        closure = ()=>@RemoteInvocation { deref[RootCollectingFinish[T]](ref).notifyValue(message, result); };
+                        closure = ()=>@RemoteInvocation("notifyActivityTermination_2") { deref[RootCollectingFinish[T]](ref).notifyValue(message, result); };
                     }
                 } else {
                     val message = IndexedMemoryChunk.allocateUninitialized[Pair[Int,Int]](length);
@@ -808,9 +808,9 @@ abstract class FinishState {
                         message(i) = Pair[Int,Int](places(i), counts(places(i)));
                     }
                     if (null != t) {
-                        closure = ()=>@RemoteInvocation { deref[RootCollectingFinish[T]](ref).notify(message, t); };
+                        closure = ()=>@RemoteInvocation("notifyActivityTermination_3") { deref[RootCollectingFinish[T]](ref).notify(message, t); };
                     } else {
-                        closure = ()=>@RemoteInvocation { deref[RootCollectingFinish[T]](ref).notifyValue(message, result); };
+                        closure = ()=>@RemoteInvocation("notifyActivityTermination_4") { deref[RootCollectingFinish[T]](ref).notifyValue(message, result); };
                     }
                 }
                 counts.clear(0, counts.length());
@@ -819,9 +819,9 @@ abstract class FinishState {
                 val message = IndexedMemoryChunk.allocateUninitialized[Pair[Int,Int]](1);
                 message(0) = Pair[Int,Int](Runtime.hereInt(), count);
                 if (null != t) {
-                    closure = ()=>@RemoteInvocation { deref[RootCollectingFinish[T]](ref).notify(message, t); };
+                    closure = ()=>@RemoteInvocation("notifyActivityTermination_5") { deref[RootCollectingFinish[T]](ref).notify(message, t); };
                 } else {
-                    closure = ()=>@RemoteInvocation { deref[RootCollectingFinish[T]](ref).notifyValue(message, result); };
+                    closure = ()=>@RemoteInvocation("notifyActivityTermination_6") { deref[RootCollectingFinish[T]](ref).notifyValue(message, result); };
                 }
             }
             count = 0;

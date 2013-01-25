@@ -108,18 +108,18 @@ public final class Worker {
     }
 
     public static def runAsyncAt(place:Place, frame:RegularFrame){
-        val body = ()=> @x10.compiler.RemoteInvocation { Runtime.wsFIFO().push(frame); };
+        val body = ()=> @x10.compiler.RemoteInvocation("runAsyncAt") { Runtime.wsFIFO().push(frame); };
         wsRunAsync(place.id, body);
     }
 
     @NoReturn static public def runAt(place:Place, frame:RegularFrame){
-        val body = ()=> @x10.compiler.RemoteInvocation { Runtime.wsFIFO().push(frame); };
+        val body = ()=> @x10.compiler.RemoteInvocation("runAt") { Runtime.wsFIFO().push(frame); };
         wsRunAsync(place.id, body);
         throw Abort.ABORT;
     }
 
     public static def stop(){
-        val body = ()=> @x10.compiler.RemoteInvocation { Runtime.wsEnd(); };
+        val body = ()=> @x10.compiler.RemoteInvocation("stop") { Runtime.wsEnd(); };
         for (var i:Int = 1; i<Place.MAX_PLACES; i++) {
             Runtime.x10rtSendMessage(i, body, null);
         }

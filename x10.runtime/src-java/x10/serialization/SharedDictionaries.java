@@ -93,7 +93,50 @@ class SharedDictionaries {
                 "x10.rtt.NamedStructType",
                 "x10.rtt.NamedType",
                 "x10.rtt.ParameterizedType",
-                "x10.rtt.RuntimeType"
+                "x10.rtt.RuntimeType",
+                
+                /* Types that correspond to closures in XRX annotated with @RemoteInvocation */
+                /* TODO: This list should be machine generated; this is way too fragile! */
+                "x10.lang.FinishState$RemoteFinishSPMD$$Closure_notifyActivityTermination_1",
+                "x10.lang.FinishState$RemoteFinishSPMD$$Closure_notifyActivityTermination_2",
+
+                "x10.lang.FinishState$RemoteFinishAsync$$Closure_notifyActivityTermination_1",
+                "x10.lang.FinishState$RemoteFinishAsync$$Closure_notifyActivityTermination_2",
+                
+                "x10.lang.FinishState$RemoteFinish$$Closure_notifyActivityTermination_1",
+                "x10.lang.FinishState$RemoteFinish$$Closure_notifyActivityTermination_2",
+                "x10.lang.FinishState$RemoteFinish$$Closure_notifyActivityTermination_3",
+                "x10.lang.FinishState$RemoteFinish$$Closure_notifyActivityTermination_4",
+                "x10.lang.FinishState$RemoteFinish$$Closure_notifyActivityTermination_5",
+                "x10.lang.FinishState$RemoteFinish$$Closure_notifyActivityTermination_6",
+      
+                "x10.lang.FinishState$DenseRemoteFinish$$Closure_notifyActivityTermination_1",
+                "x10.lang.FinishState$DenseRemoteFinish$$Closure_notifyActivityTermination_2",
+                "x10.lang.FinishState$DenseRemoteFinish$$Closure_notifyActivityTermination_3",
+                "x10.lang.FinishState$DenseRemoteFinish$$Closure_notifyActivityTermination_4",
+                "x10.lang.FinishState$DenseRemoteFinish$$Closure_notifyActivityTermination_5",
+                "x10.lang.FinishState$DenseRemoteFinish$$Closure_notifyActivityTermination_6",
+                "x10.lang.FinishState$DenseRemoteFinish$$Closure_notifyActivityTermination_7",
+                
+                "x10.lang.FinishState$RemoteCollectingFinish$$Closure_notifyActivityTermination_1",
+                "x10.lang.FinishState$RemoteCollectingFinish$$Closure_notifyActivityTermination_2",
+                "x10.lang.FinishState$RemoteCollectingFinish$$Closure_notifyActivityTermination_3",
+                "x10.lang.FinishState$RemoteCollectingFinish$$Closure_notifyActivityTermination_4",
+                "x10.lang.FinishState$RemoteCollectingFinish$$Closure_notifyActivityTermination_5",
+                "x10.lang.FinishState$RemoteCollectingFinish$$Closure_notifyActivityTermination_6",
+
+                "x10.lang.Runtime$$Closure_start_1",
+                "x10.lang.Runtime$$Closure_start_2",
+                "x10.lang.Runtime$$Closure_start_3",
+                "x10.lang.Runtime$$Closure_runAsync",
+                "x10.lang.Runtime$$Closure_runUncountedAsync",
+                "x10.lang.Runtime$$Closure_runAt_1",
+                "x10.lang.Runtime$$Closure_runAt_2",
+                "x10.lang.Runtime$$Closure_runAtSimple_1",
+                "x10.lang.Runtime$$Closure_runAtSimple_2",
+                "x10.lang.Runtime$$Closure_runAtSimple_3",
+                "x10.lang.Runtime$$Closure_evalAt_1",
+                "x10.lang.Runtime$$Closure_evalAt_2"
         };
         
         for (String type : builtInTypes) {
