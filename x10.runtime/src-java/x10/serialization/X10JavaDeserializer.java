@@ -33,20 +33,12 @@ public final class X10JavaDeserializer implements SerializationConstants {
     DataInputStream in;
     private int counter = 0;
     
-    // Per message deserialization mapping;
-    private HashMap<Short,Method> idsToMethod = new HashMap<Short,Method>();
-    private HashMap<Short,Class<?>> idsToClass = new HashMap<Short,Class<?>>();
+    private DeserializationDictionary dict; 
     
     public X10JavaDeserializer(DataInputStream in) {
         this.in = in;
         objectList = new ArrayList<Object>();
-        try {
-            readMessageDictionary();
-        } catch (IOException e) {
-            throw new RuntimeException("Failure while reading message dictionary", e);
-        } catch (ClassNotFoundException e) {
-            throw new RuntimeException("Failure while reading message dictionary", e);
-        }
+        dict = new DeserializationDictionary(this);
     }
 
     public DataInput getInpForHadoop() {
@@ -76,44 +68,7 @@ public final class X10JavaDeserializer implements SerializationConstants {
     }
 
     public Class<?> getClassForID(short sid) {
-        Class<?> clazz = idsToClass.get(Short.valueOf(sid));
-        if (clazz == null) {
-            throw new RuntimeException("MessageDictionary: id "+sid+" is not mapped to a class!");
-        }
-        return clazz;
-    }
-    
-    void readMessageDictionary() throws IOException, ClassNotFoundException {
-        short numEntries = in.readShort();
-        if (Runtime.TRACE_SER) {
-            Runtime.printTraceMessage("\tReceiving "+numEntries+" serialization ids");                
-        }
-        for (short i=0; i<numEntries; i++) {
-            short id = in.readShort();
-            String name = readStringValue();
-            if (Runtime.TRACE_SER) {
-                Runtime.printTraceMessage("\tserialization id: "+id+" = "+name);                
-            }
-            Class<?> clazz;
-            try {
-                clazz = Class.forName(name);
-            } catch (ClassNotFoundException e) {
-                System.err.println("readMessageDictionary: failed to load class "+name);
-                throw new RuntimeException(e);
-            }
-            idsToClass.put(Short.valueOf(id), clazz);
-            if (x10.serialization.X10JavaSerializable.class.isAssignableFrom(clazz) && !clazz.isInterface()) {
-                Method m;
-                try {
-                    m = clazz.getMethod("$_deserializer", X10JavaDeserializer.class);
-                } catch (NoSuchMethodException e) {
-                    throw new RuntimeException("readMessageDictionary: class "+clazz+
-                                               " implements X10JavaSerializable but does not have a $_deserializer method", e);
-                }
-                m.setAccessible(true);
-                idsToMethod.put(Short.valueOf(id), m);
-            }
-        }
+        return dict.getClassForID(sid);
     }
     
     @SuppressWarnings("unchecked")
@@ -181,15 +136,12 @@ public final class X10JavaDeserializer implements SerializationConstants {
         }
         
         try {
-            Method method = idsToMethod.get(Short.valueOf(serializationID));
+            Method method = dict.getMethod(serializationID);
             if (method != null) {
                 // A class that implements X10JavaSerializable.  Call _deserialize
                 return method.invoke(null, this);
             } else {
-                Class<?> clazz = idsToClass.get(serializationID);
-                if (null == clazz) {
-                    throw new RuntimeException("Unexpected serializationID "+serializationID+" "+idsToClass.get(serializationID));
-                }
+                Class<?> clazz = dict.getClassForID(serializationID);
                 DeserializerThunk dt = DeserializerThunk.getDeserializerThunk(clazz);
                 return dt.deserializeObject(clazz, this);
             }

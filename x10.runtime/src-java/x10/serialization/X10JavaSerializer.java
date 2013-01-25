@@ -42,8 +42,7 @@ public final class X10JavaSerializer implements SerializationConstants {
     public java.util.Map<x10.core.GlobalRef<?>, Integer> getGrefMap() { return grefMap; }
     
     // Build up per-message id dictionary
-    protected HashMap<Class<?>,Short> idDictionary = new HashMap<Class<?>,Short>();
-    protected short nextId = FIRST_DYNAMIC_ID;
+    protected SerializationDictionary idDictionary = new SerializationDictionary(FIRST_DYNAMIC_ID);
 
     public X10JavaSerializer() {
         this.b_out = new ByteArrayOutputStream();
@@ -65,18 +64,7 @@ public final class X10JavaSerializer implements SerializationConstants {
             Runtime.printTraceMessage("Sending per-message serialization ids: "+idDictionary);
         }
 
-        ByteArrayOutputStream baos = new ByteArrayOutputStream();
-        DataOutputStream dos = new DataOutputStream(baos);
-        dos.writeShort(idDictionary.size());
-        for (Entry<Class<?>, Short> es  : idDictionary.entrySet()) {
-            dos.writeShort(es.getValue());
-            String name = es.getKey().getName();
-            dos.writeInt(name.length());
-            dos.write(name.getBytes());
-        }
-        dos.close();
-
-        byte[] dictBytes = baos.toByteArray();
+        byte[] dictBytes = idDictionary.encode();
         byte[] dataBytes = b_out.toByteArray();
         byte[] message = new byte[dictBytes.length + dataBytes.length];
         System.arraycopy(dictBytes, 0, message, 0, dictBytes.length);
@@ -85,18 +73,7 @@ public final class X10JavaSerializer implements SerializationConstants {
     }
     
     public short getSerializationId(Class<?> clazz, Object obj) {
-        if (obj instanceof RuntimeType<?>) {
-            short sid = ((RuntimeType<?>)obj).$_get_serialization_id();
-            if (sid <= MAX_HARDCODED_ID) {
-                return sid;
-            }
-        }
-        Short id = idDictionary.get(clazz);
-        if (null == id) {
-            id = Short.valueOf(nextId++);
-            idDictionary.put(clazz, id);
-        }
-        return id.shortValue();
+        return idDictionary.getSerializationId(clazz, obj);
     }
     
     public void write(X10JavaSerializable obj) throws IOException {
