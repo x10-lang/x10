@@ -257,7 +257,6 @@ public class Basic {
             deserializer.record_reference(_obj);
             return $_deserialize_body(_obj, deserializer);
         }
-        public short $_get_serialization_id() { return _Handler_id; }
         public void $_serialize(x10.serialization.X10JavaSerializer serializer) throws java.io.IOException {
             serializer.write((x10.serialization.X10JavaSerializable) this.id);
             if (this.buf == null) {
