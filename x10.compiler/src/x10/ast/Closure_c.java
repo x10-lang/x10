@@ -69,6 +69,7 @@ import x10.types.constants.ConstantValue;
 import x10.types.constraints.CConstraint;
 import x10.types.constraints.TypeConstraint;
 import x10.types.constraints.XConstrainedTerm;
+import x10.util.AnnotationUtils;
 import x10.util.ClosureSynthesizer;
 
 /**
@@ -569,6 +570,8 @@ public class Closure_c extends Expr_c implements Closure {
 	}
 
 	public boolean isConstant() {
+	    // TODO: Dave G.  Hack around replication of closures by constant propagation.
+	    if (AnnotationUtils.hasAnnotation(this.body, type.typeSystem().RemoteInvocation())) return false;
 		return true;
 	}
 
