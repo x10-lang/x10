@@ -88,6 +88,9 @@ install: $(LIBS) $(PROPERTIES)
 	$(CP) include/*.h "$(X10_HOME)"/x10.dist/include
 	(test -n "$(EXECUTABLES)" && $(CP) $(EXECUTABLES) "$(X10_HOME)"/x10.dist/bin) || true
 
+headers:
+	$(CP) include/*.h "$(X10_HOME)"/x10.dist/include
+
 tests: $(TESTS)
 
 all: $(TESTS) $(PROPERTIES) $(LIBS) $(EXECUTABLES) $(TGZ) debug

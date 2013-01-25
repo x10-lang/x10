@@ -414,7 +414,25 @@
         </exec>
     </target>
 
-    <target name="build-cpp" depends="init,dist-bdwgc,available-procs">
+    <target name="x10rt-headers" depends="init,init-x10rt">
+        <exec executable="${make.exe}" failonerror="true" dir="${basedir}/x10rt">
+            <env key="ANT_JAVA_HOME" value="${java.home}" />
+            <arg value="-j1" />
+            <arg value="headers" />
+            <arg value="${cppmake.optimize}" />
+            <arg value="${cppmake.homogeneous}" />
+            <arg value="${cppmake.debug}" />
+            <arg value="${cppmake.gcc_symbols}" />
+            <arg value="${cppmake.x10rt_mpi}" />
+       	    <arg value="${cppmake.x10rt_pami}" />
+            <arg value="${cppmake.x10rt_pgas}" />
+            <arg value="${cppmake.x10rt_cuda}" />
+            <arg value="${cppmake.cross_compile_bgp}" />
+            <arg value="${cppmake.cross_compile_bgq}" />
+        </exec>
+    </target>
+
+    <target name="build-cpp" depends="init,dist-bdwgc,available-procs,x10rt-headers">
         <exec executable="${make.exe}" failonerror="true" dir="${basedir}/src-cpp">
             <env key="ANT_JAVA_HOME" value="${java.home}" />
             <arg value="-j${available.procs}" />
