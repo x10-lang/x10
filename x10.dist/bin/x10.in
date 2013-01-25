@@ -213,12 +213,6 @@ esac
 if [ -n "${ibmj9vm}" ]; then
     ibmj9vmjitopts=
 
-    # use default jit optlevel while preloading
-    if [ -n "${ibmj9vmjitopts}" ]; then
-        ibmj9vmjitopts="${ibmj9vmjitopts},"
-    fi
-    ibmj9vmjitopts="${ibmj9vmjitopts}classLoadPhaseThreshold=10000"
-
     if [ -n "${ibmj9vmr26}" ]; then
         # experimental support for java7
         if [ -n "${ibmj9vmjitopts}" ]; then
