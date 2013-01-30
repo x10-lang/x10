@@ -87,7 +87,7 @@ public class InputStream extends Ref {
     }
 
     // XTENLANG-2680
-    public void read__0$1x10$lang$Byte$2(x10.array.Array r, int off, int len) {
+    public void read__0$1x10$lang$Byte$2(x10.lang.Rail r, int off, int len) {
         try {
             stream.read(r.raw().getByteArray(), off, len);
         } catch (java.io.IOException e) {

@@ -13,7 +13,7 @@ import x10.interop.Java;
 
 
 public class RunJava {
-    public static def main(args:Rail[String]):void {
+    public static def main(args:Array[String](1)):void {
         try {
             if (args.size < 1) {
                 Console.ERR.println("Please specify the Java Main class");

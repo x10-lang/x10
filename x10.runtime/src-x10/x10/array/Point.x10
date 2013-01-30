@@ -103,7 +103,7 @@ public final class Point(rank:Int) implements (Int) => Int,
             case 2: return new Point(r(0), r(1)) as Point(r.size);
             case 3: return new Point(r(0), r(1), r(2)) as Point(r.size);
             case 4: return new Point(r(0), r(1), r(2), r(3)) as Point(r.size);
-            default: return new Point(new Array[int](r.size, (i:int)=>r(i)));
+            default: return new Point(new Rail[int](r.size, (i:int)=>r(i)));
         }
     }
 
@@ -116,7 +116,7 @@ public final class Point(rank:Int) implements (Int) => Int,
 	        case 2: return new Point(init(0), init(1)) as Point(rank);
             case 3: return new Point(init(0), init(1), init(2)) as Point(rank);
             case 4: return new Point(init(0), init(1), init(2), init(3)) as Point(rank);
-            default: return new Point(new Array[int](rank, init));
+            default: return new Point(new Rail[int](rank, init));
         }
     }
 

@@ -41,8 +41,8 @@ public final class SparsePlaceGroup extends PlaceGroup {
    * if this is not true then an IllegalArgumentException will be thrown.
    */
   public def this(ps:Sequence[Place]) {
-    places = new Array[Place](ps.size(), (i:int)=>ps(i));
-    for ([i] in 1..(places.size-1)) {
+    places = new Rail[Place](ps.size(), (i:int)=>ps(i));
+    for (var i:Int=1; i<places.size; ++i) {
         if (places(i).id <= places(i-1).id) {
             throw new IllegalArgumentException("Argument sequence was not sorted");
         }
@@ -54,24 +54,24 @@ public final class SparsePlaceGroup extends PlaceGroup {
    * @param p the place 
    */
   public def this(p:Place) {
-    places = [p as Place];
+    places = new Rail(1, p as Place);
   }
 
   public operator this(i:int):Place = places(i);
 
-  public def iterator() = places.values().iterator();
+  public def iterator() = places.iterator();
 
   public def numPlaces() = places.size;
 
   public def contains(id:int):Boolean {
-    for ([i] in places) {
+    for (var i:Int=0; i<places.size; ++i) {
         if (places(i).id == id) return true;
     }
     return false;
   }
 
   public def indexOf(id:int):int {
-    for ([i] in places) {
+      for (var i:Int=0; i<places.size; ++i) {
         if (places(i).id == id) return i;
     }
     return -1;

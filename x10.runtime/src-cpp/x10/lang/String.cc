@@ -18,6 +18,7 @@
 #include <x10aux/throw.h>
 
 #include <x10/lang/Char.h>
+#include <x10/lang/Rail.h>
 #include <x10/lang/String.h>
 #include <x10/lang/StringIndexOutOfBoundsException.h>
 
@@ -67,12 +68,12 @@ String::_constructor(String* s) {
 }
 
 String*
-String::_make(x10::array::Array<x10_byte>* array) {
+String::_make(x10::lang::Rail<x10_byte>* array) {
     return _make(array, 0, array->FMGL(size));
 }
 
 void
-String::_constructor(x10::array::Array<x10_byte>* array, x10_int start, x10_int length) {
+String::_constructor(x10::lang::Rail<x10_byte>* array, x10_int start, x10_int length) {
     nullCheck(array);
     x10_int i = 0;
     char *content= x10aux::alloc<char>(length+1);
@@ -85,12 +86,12 @@ String::_constructor(x10::array::Array<x10_byte>* array, x10_int start, x10_int 
 }
 
 String*
-String::_make(x10::array::Array<x10_char>* array) {
+String::_make(x10::lang::Rail<x10_char>* array) {
     return _make(array, 0, array->FMGL(size));
 }
 
 void
-String::_constructor(x10::array::Array<x10_char>* array, x10_int start, x10_int length) {
+String::_constructor(x10::lang::Rail<x10_char>* array, x10_int start, x10_int length) {
     nullCheck(array);
     x10_int i = 0;
     char *content= x10aux::alloc<char>(length+1);
@@ -253,17 +254,17 @@ x10_char String::charAt(x10_int i) {
 }
 
 
-x10::array::Array<x10_char>* String::chars() {
+x10::lang::Rail<x10_char>* String::chars() {
     x10_int sz = length();
-    x10::array::Array<x10_char>* array = x10::array::Array<x10_char>::_make(sz);
+    x10::lang::Rail<x10_char>* array = x10::lang::Rail<x10_char>::_make(sz);
     for (int i = 0; i < sz; ++i)
         array->__set(i, (x10_char) FMGL(content)[i]);
     return array;
 }
 
-x10::array::Array<x10_byte>* String::bytes() {
+x10::lang::Rail<x10_byte>* String::bytes() {
     x10_int sz = length();
-    x10::array::Array<x10_byte>* array = x10::array::Array<x10_byte>::_make(sz);
+    x10::lang::Rail<x10_byte>* array = x10::lang::Rail<x10_byte>::_make(sz);
     for (int i = 0; i < sz; ++i)
         array->__set(i, FMGL(content)[i]); 
     return array;

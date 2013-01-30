@@ -199,8 +199,8 @@ class PolyRegion extends Region {
     }
 
     protected def computeBoundingBox(): Region(rank){self.rect} {
-        val min = new Rail[int](rank);
-        val max = new Rail[int](rank);
+        val min = new Vector[int](rank);
+        val max = new Vector[int](rank);
         var pm: PolyMat{self.rank==this.rank} = mat;
         for (var axis: int = 0; axis<rank; axis++) {
             var x: PolyMat = pm;

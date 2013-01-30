@@ -85,7 +85,7 @@ class PolyMat(rank: int) extends Mat[PolyRow] {
             return this;
 
         val pmb = new PolyMatBuilder(rank);
-        val removed = new Rail[boolean](rows, (Int)=>false);
+        val removed = new Vector[boolean](rows, (Int)=>false);
 
         for (var i: int = 0; i<rows; i++) {
             val r = this(i);
@@ -128,7 +128,7 @@ class PolyMat(rank: int) extends Mat[PolyRow] {
             } else {
                 for (jr:PolyRow in this) {
                     val ja = jr(k);
-                    val as_ = new Rail[int](rank+1);
+                    val as_ = new Vector[int](rank+1);
                     if (ia>0 && ja<0) {
                         for (var l: int = 0; l<=rank; l++)
                             as_(l) = ia*jr(l) - ja*ir(l);
@@ -195,9 +195,9 @@ class PolyMat(rank: int) extends Mat[PolyRow] {
         throw new UnboundedRegionException(msg);
     }
 
-    def rectMin() = new Rail[int](rank, (i:Int)=>rectMin(i));
+    def rectMin() = new Vector[int](rank, (i:Int)=>rectMin(i));
 
-    def rectMax() = new Rail[int](rank, (i:Int)=>rectMax(i));
+    def rectMax() = new Vector[int](rank, (i:Int)=>rectMax(i));
 
     def isZeroBased(): boolean {
         if (!isRect())

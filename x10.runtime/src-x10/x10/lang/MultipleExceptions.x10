@@ -29,12 +29,12 @@ public class MultipleExceptions(exceptions:Rail[Exception]) extends Exception {
     }
 
     public def this(t:Exception) {
-        property(new Array[Exception](1, t));
+        property(new Rail[Exception](1, t));
     }
 
     public def printStackTrace(): void {
-        for (t in exceptions.values()) {
-            t.printStackTrace();
+        for (var i:Int=0; i<exceptions.size; ++i) {
+            exceptions(i).printStackTrace();
         }
     }
 

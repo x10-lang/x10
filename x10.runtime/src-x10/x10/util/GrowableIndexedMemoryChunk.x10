@@ -165,7 +165,18 @@ public final class GrowableIndexedMemoryChunk[T] implements CustomSerialization 
     }
 
     public def moveSectionToArray(i:Int, j:Int):Rail[T] {
-        return new Array[T](moveSectionToIndexedMemoryChunk(i, j));
+        val len = j - i + 1;
+        if (len < 1) return new Rail[T]();
+        val tmp = new Rail[T](len, imc(i));
+        for (var k:Int=1; k<len; ++k) {
+//          IndexedMemoryChunk.copy(imc, i, tmp, 0, len);
+            tmp(k) = imc(i+k);
+        }
+        IndexedMemoryChunk.copy(imc, j+1, imc, i, length-j-1);
+        imc.clear(length-len, len);
+        length-=len;
+        shrink(length+1);
+        return tmp;
     }
 
     /**
@@ -181,7 +192,11 @@ public final class GrowableIndexedMemoryChunk[T] implements CustomSerialization 
      * Copy current data into an Array.
      */
     public def toArray():Rail[T] {
-      return new Array[T](toIndexedMemoryChunk());
+        val ans = length > 0 ? new Rail[T](length, imc(0)) : new Rail[T]();
+        for (var i:Int=1; i<length; ++i) {
+            ans(i) = imc(i);
+        }
+        return ans;
     }
 
     public def grow(var newCapacity:int):void {

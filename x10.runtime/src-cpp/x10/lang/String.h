@@ -22,8 +22,9 @@
 
 namespace x10 {
     namespace array { template<class T> class Array; }
-    
+
     namespace lang {
+        template<class T> class Rail;
 
         class String : public X10Class {
             const char *FMGL(content);
@@ -67,19 +68,19 @@ namespace x10 {
                 return this_;
             }
 
-            static String* _make(x10::array::Array<x10_byte>* array);
+            static String* _make(x10::lang::Rail<x10_byte>* array);
 
-            void _constructor(x10::array::Array<x10_byte>* array, x10_int start, x10_int length);
-            static String* _make(x10::array::Array<x10_byte>* array, x10_int start, x10_int length) {
+            void _constructor(x10::lang::Rail<x10_byte>* array, x10_int start, x10_int length);
+            static String* _make(x10::lang::Rail<x10_byte>* array, x10_int start, x10_int length) {
                 String* this_ = new (x10aux::alloc<String>()) String();
                 this_->_constructor(array, start, length);
                 return this_;
             }
 
-            static String* _make(x10::array::Array<x10_char>* array);
+            static String* _make(x10::lang::Rail<x10_char>* array);
             
-            void _constructor(x10::array::Array<x10_char>* array, x10_int start, x10_int length);
-            static String* _make(x10::array::Array<x10_char>* array, x10_int start, x10_int length) {
+            void _constructor(x10::lang::Rail<x10_char>* array, x10_int start, x10_int length);
+            static String* _make(x10::lang::Rail<x10_char>* array, x10_int start, x10_int length) {
                 String* this_ = new (x10aux::alloc<String>()) String();
                 this_->_constructor(array, start, length);
                 return this_;
@@ -129,9 +130,9 @@ namespace x10 {
             
             x10_char charAt(x10_int i);
 
-            x10::array::Array<x10_char>* chars();
+            x10::lang::Rail<x10_char>* chars();
 
-            x10::array::Array<x10_byte>* bytes();
+            x10::lang::Rail<x10_byte>* bytes();
 
             static const x10aux::serialization_id_t _serialization_id;
 
