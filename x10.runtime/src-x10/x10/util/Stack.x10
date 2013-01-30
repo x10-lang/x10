@@ -20,7 +20,7 @@ public class Stack[T] extends ArrayList[T] {
     /** Remove and return the top element of the stack. */
     public def pop(): T = removeLast();
     
-    public def pop(k:Int):Array[T](1){rect,rail,zeroBased} {
+    public def pop(k:Int):Rail[T] {
     	val n = size();
     	if (n < k) 
     		return null;
