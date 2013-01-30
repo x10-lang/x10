@@ -9,6 +9,6 @@
  *  (C) Copyright IBM Corporation 2006-2010.
  */
 
-package x10.lang;
+package x10.array;
 
 public type Vector[T] = Array[T]{self.rank==1,self.zeroBased,self.rect,self.rail};
