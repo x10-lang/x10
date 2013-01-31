@@ -72,7 +72,7 @@ public class CheckedThrowable {
     @Native("java", "x10.runtime.impl.java.ThrowableUtils.getStackTrace(#this)")
     //@Native("java", "#this.$getStackTrace()")
     @Native("c++", "(#this)->getStackTrace()")
-    public final native def getStackTrace() : Array[String](1);
+    public final native def getStackTrace() : Rail[String];
 
     @Native("java", "#this.printStackTrace()")
     @Native("c++", "(#this)->printStackTrace()")
