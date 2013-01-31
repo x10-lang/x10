@@ -953,7 +953,7 @@ int Launcher::handleControlMessage(int fd)
 		{
 			case PORT_REQUEST:
 			{
-				while (_runtimePort[0] == '\0')
+				while (strchr(_runtimePort, ':') == NULL)
 				{
 					sched_yield();
 					handleRequestsLoop(true);
