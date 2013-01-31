@@ -85,20 +85,20 @@ public final struct Place(id: Int)  {
     public static def childIndex(id:Int):Int { throw new BadPlaceException(); }
 
     private static childrenArray = 
-        new Array[Array[Place](1)](ALL_PLACES,
-                                   (p: Int) => new Array[Place](numChildren(p), (i:Int) => Place(child(p,i))));
+        new Rail[Rail[Place]](ALL_PLACES,
+                                   (p: Int) => new Rail[Place](numChildren(p), (i:Int) => Place(child(p,i))));
 
-    private static places:Array[Place](1) = new Array[Place](MAX_PLACES, ((id:Int) => Place(id)));
+    private static places:Rail[Place] = new Rail[Place](MAX_PLACES, ((id:Int) => Place(id)));
 
     /**
      * A convenience for iterating over all host places.
      */
-    public static def places():Sequence[Place]=places.sequence();
+    public static def places():Sequence[Place]=places;
 
     /**
      * A convenience for iterating over all accelerators.
      */
-    public static children = childrenArray.values();
+    public static children = childrenArray;
 
     /**
      * The place that runs 'main'.
