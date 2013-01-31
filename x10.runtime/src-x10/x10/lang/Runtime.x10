@@ -191,10 +191,10 @@ public final class Runtime {
         val lock = new Lock(); // master lock for all thread pool adjustments
 
         // every x10 thread (including promoted native threads)
-        val workers = new Array[Worker](MAX_THREADS);
+        val workers = new Rail[Worker](MAX_THREADS);
 
         // parked x10 threads (parkedCount == spareCount + idleCount)
-        val parkedWorkers = new Array[Worker](MAX_THREADS);
+        val parkedWorkers = new Rail[Worker](MAX_THREADS);
 
         var count:Int = 0; // count every x10 threads (including promoted native threads)
         var spareCount:Int = 0; // spare thread count

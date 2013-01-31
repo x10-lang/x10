@@ -14,7 +14,9 @@ package x10.lang;
 import x10.compiler.Inline;
 import x10.util.IndexedMemoryChunk;
 
-public class Rail[T](size:Int) implements Iterable[T] {
+public class Rail[T](size:Int) implements Sequence[T] {
+    public property size() = size;
+
     private val raw:IndexedMemoryChunk[T];
 
     public @Inline def raw() = raw;

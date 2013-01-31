@@ -35,12 +35,18 @@ public class Accumulator[T] extends Acc implements CustomSerialization {
     }
     public def this(data:SerialData) {
         //owner = null;
-        val arr:Array[Any](1) = data.data as Array[Any](1);
+        val arr:Rail[Any] = data.data as Rail[Any];
         this.red = arr(0) as Reducible[T];
         this.root = arr(1) as GlobalRef[Acc];
         this.curr = red.zero();
     }
-    public def serialize():SerialData = new SerialData([red as Any, root as Any], null);
+//    public def serialize():SerialData = new SerialData([red as Any, root as Any], null);
+    public def serialize():SerialData = {
+        val arr = new Rail[Any](2);
+        arr(0) = red;
+        arr(1) = root;
+        return new SerialData(arr, null);
+    }
 
     /*
     private def isSync():Boolean {
