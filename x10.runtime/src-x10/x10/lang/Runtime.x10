@@ -248,8 +248,8 @@ public final class Runtime {
         // check max thread count has not been reached
         def check(i:Int):void {
             if (i >= MAX_THREADS) {
-                println(here+": TOO MANY THREADS... ABORTING");
-                System.exit(1);
+                println(here+": TOO MANY THREADS");
+                throw new InternalError(here+": TOO MANY THREADS");
             }
             if (WARN_ON_THREAD_CREATION) {
                 println(here+": WARNING: A new OS-level thread was discovered (there are now "+i+" threads).");

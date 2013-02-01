@@ -309,7 +309,9 @@ public class Types {
                     return CHECKED_EXCEPTION;
                 }
             } else if (java.lang.Error.class.isAssignableFrom(javaClass)) {
-                if (java.lang.OutOfMemoryError.class.equals(javaClass)) {
+                if (java.lang.InternalError.class.equals(javaClass)) {
+                    return INTERNAL_ERROR;
+                } else if (java.lang.OutOfMemoryError.class.equals(javaClass)) {
                     return OUT_OF_MEMORY_ERROR;
                 } else if (java.lang.StackOverflowError.class.equals(javaClass)) {
                     return STACK_OVERFLOW_ERROR;
@@ -531,6 +533,17 @@ public class Types {
 	private Object readResolve() throws java.io.ObjectStreamException {
 	    return OUT_OF_MEMORY_ERROR;
 	}
+    };
+    public static final RuntimeType<java.lang.InternalError> INTERNAL_ERROR = new NamedType<java.lang.InternalError>(
+        "x10.lang.InternalError",
+        java.lang.InternalError.class,
+        null,
+        new Type[] { ERROR }
+    ) {
+        // make sure deserialized RTT object is not duplicated
+        private Object readResolve() throws java.io.ObjectStreamException {
+            return INTERNAL_ERROR;
+        }
     };
 
     public static final RuntimeType<x10.core.Boolean> BOOLEAN = new BooleanType();
