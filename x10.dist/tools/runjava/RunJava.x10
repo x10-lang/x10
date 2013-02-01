@@ -9,6 +9,7 @@
  *  (C) Copyright IBM Corporation 2006-2012.
  */
 
+import x10.array.Array;
 import x10.interop.Java;
 
 

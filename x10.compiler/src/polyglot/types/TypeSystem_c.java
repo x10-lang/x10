@@ -3172,7 +3172,7 @@ public class TypeSystem_c implements TypeSystem
         List<QName> l = new ArrayList<QName>(1);
         l.add(QName.make("x10.lang"));
         l.add(QName.make("x10.lang", TypeSystem.DUMMY_PACKAGE_CLASS_NAME.toString()));
-        l.add(QName.make("x10.array"));
+//        l.add(QName.make("x10.array"));
         return l;
     }
 
@@ -3674,7 +3674,6 @@ public class TypeSystem_c implements TypeSystem
         return l;
     }
     public MethodInstance findImplementingMethod(ClassType ct, MethodInstance mi, boolean includeAbstract, Context context) {
-
         XVar thisVar = ((X10ClassDef) ct.def()).thisVar(); // XTerms.makeLocal(XTerms.makeFreshName("this"));
 
         List<XVar> ys = new ArrayList<XVar>(2);
