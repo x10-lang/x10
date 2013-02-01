@@ -60,7 +60,7 @@ public struct IntRange(
      * Return a new IntRange of the same size of this, but
      * with min/max shifted by p(0).
      */    
-    public def translate(p:Point(1)) = new IntRange(min+p(0), max+p(0));
+//    public def translate(p:Point(1)) = new IntRange(min+p(0), max+p(0));
     
     // FIX RAIL
     //    public operator this && (that:Region(1)): Region(1) = (this as Region(1)) && that;

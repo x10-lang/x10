@@ -132,7 +132,7 @@ public abstract class Reader {
      * Fill the argument array by reading the next a.size elements. 
      * Throws IOException if not enough elements.
      */
-    public final def read[T](m:Marshal[T], a:Array[T](1)):void { 
+    public final def read[T](m:Marshal[T], a:Rail[T]):void { 
         read[T](m, a, 0, a.size); 
     }
 
@@ -140,7 +140,7 @@ public abstract class Reader {
      * Fill len elements of the argument array starting at off.
      * Throws IOException if not enough elements.
      */
-    public final def read[T](m: Marshal[T], a:Array[T](1), off:Int, len:Int):void {
+    public final def read[T](m: Marshal[T], a:Rail[T], off:Int, len:Int):void {
         for (var i: Int = off; i < off+len; i++) {
             a(i) = read[T](m);
         }
