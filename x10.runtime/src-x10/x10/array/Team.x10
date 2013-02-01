@@ -9,11 +9,12 @@
  *  (C) Copyright IBM Corporation 2006-2010.
  */
 
-package x10.util;
+package x10.array;
 
 import x10.compiler.Native;
 import x10.compiler.NativeRep;
 import x10.compiler.StackAllocate;
+import x10.util.IndexedMemoryChunk;
 
 /** Interface to low level collective operations.  A team is a collection of
  * activities that work together by simultaneously doing 'collective

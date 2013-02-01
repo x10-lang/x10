@@ -9,9 +9,11 @@
  *  (C) Copyright IBM Corporation 2006-2010.
  */
 
-package x10.util;
+package x10.array;
 
 import x10.compiler.Native;
+import x10.util.IndexedMemoryChunk;
+import x10.util.RemoteIndexedMemoryChunk;
 
 /** A collection of functions useful in/around CUDA kernels.
  */
@@ -50,7 +52,7 @@ public class CUDAUtilities {
         val reg = (0 .. (numElements-1)) as Region;
         @Native("c++",
             "x10_ulong addr = x10aux::remote_alloc(gpu.FMGL(id), ((size_t)numElements)*sizeof(TPMGL(T)));\n"+
-            "RemoteIndexedMemoryChunk<TPMGL(T)> rimc(addr, numElements, gpu);\n"+
+            "x10::util::RemoteIndexedMemoryChunk<TPMGL(T)> rimc(addr, numElements, gpu);\n"+
             "initCUDAArray<TPMGL(T)>(init,rimc,numElements);\n"+
             "return x10::array::RemoteArray<TPMGL(T)>::_make(reg, rimc);\n"
         ) { }
@@ -102,7 +104,7 @@ public class CUDAUtilities {
         val place = arr.home;
         if (place.isCUDA()) {
             @Native("c++",
-                "RemoteIndexedMemoryChunk<TPMGL(T)> rimc = arr->FMGL(rawData);\n"+
+                "x10::util::RemoteIndexedMemoryChunk<TPMGL(T)> rimc = arr->FMGL(rawData);\n"+
                 "x10aux::remote_free(place.FMGL(id), (x10_ulong)(size_t)rimc->data);\n"
             ) { }
         }

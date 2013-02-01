@@ -17,20 +17,6 @@ package x10.util;
  * IndexedMemoryChunk instances.
  */
 public class ArrayUtils {
-    /**
-     * Sorts the given array into ascending order.
-     * @param a the array to be sorted
-     * @param cmp the comparison function to use
-     * @see qsort
-     */
-    public static def sort[T](a:Array[T], cmp:(T,T)=>Int) {
-        qsort[T](a.raw(), 0, (a.size-1), cmp);
-    }
-
-    public static def sort[T](a:Array[T]){T<:Comparable[T]} {
-        sort[T](a, (x:T,y:T) => x.compareTo(y));
-    }
-
     //
     // quick&dirty sort
     //
@@ -54,45 +40,6 @@ public class ArrayUtils {
         a(i) = a(j);
         a(j) = temp;
     }
-
-    /**
-     * Searches the specified array for the key using the binary search
-     * algorithm.  The array must be sorted (e.g. by the qsort method).
-     * If the key is found, return its index in the array.
-     * Otherwise, return (-(insertion point) -1), where insertion point is the
-     * index at which the key would be inserted into the sorted array.
-     * @param a the array to be searched
-     * @param key the value to find
-     * @param cmp the comparison function to use
-     */
-    public static def binarySearch[T](a:Array[T], key:T, cmp:(T,T)=>Int) {
-        return binarySearch[T](a.raw(), key, 0, a.size, cmp);
-    }
-
-    public static def binarySearch[T](a:Array[T], key:T){T<:Comparable[T]} {
-        return binarySearch[T](a.raw(), key, 0, a.size, (x:T,y:T) => x.compareTo(y));
-    }
-
-    /**
-     * Searches the given array for the key using the binary search
-     * algorithm.  The array must be sorted (e.g. by the sort method).
-     * If the key is found, return its index in the array.
-     * Otherwise, return (-(insertion point) -1), where insertion point is the
-     * index at which the key would be inserted into the sorted array.
-     * @param a the array to be searched
-     * @param key the value to find
-     * @param min the index of the first element to be searched
-     * @param max the index of the last element (exclusive) to be searched 
-     * @param cmp the comparison function to use
-     */
-    public static def binarySearch[T](a:Array[T], key:T, min:Int, max:Int, cmp:(T,T)=>Int) {
-        return binarySearch[T](a.raw(), key, 0, a.size, cmp);
-    }
-
-    public static def binarySearch[T](a:Array[T], key:T, min:Int, max:Int){T<:Comparable[T]} {
-        return binarySearch[T](a.raw(), key, 0, a.size, (x:T,y:T) => x.compareTo(y));
-    }
-
     static def binarySearch[T](a:IndexedMemoryChunk[T], key:T, min:Int, max:Int, cmp:(T,T)=>Int):Int {
         var low:Int = min;
         var high:Int = max-1;

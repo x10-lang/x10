@@ -34,7 +34,7 @@ package x10.util;
  */
 public class WorkerLocalStorage[Key,Value] {
     private val store = PlaceLocalHandle.make(PlaceGroup.WORLD,
-            ()=>new Array[HashMap[Key,Value]](Runtime.MAX_THREADS, null as HashMap[Key,Value]));
+            ()=>new Rail[HashMap[Key,Value]](Runtime.MAX_THREADS, null as HashMap[Key,Value]));
 
     public def get(key:Key):Box[Value] {
         val id = Runtime.workerId();

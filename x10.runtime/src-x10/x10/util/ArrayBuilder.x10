@@ -27,7 +27,7 @@ public class ArrayBuilder[T] implements Builder[T,Rail[T]] {
         return this;
     }
 
-    public def insert(loc:Int, items:Array[T]) {
+    public def insert(loc:Int, items:Rail[T]) {
         buf.insert(loc, items.raw());
         return this;
     }
