@@ -572,7 +572,9 @@ public class TypeTransformer extends NodeTransformer {
         if (mld != null) {
             if (sigChanged) {
                 // validate the type
-                if (mld == ld || !xts.typeEquals(d.type().type(), Types.get(mld.type()), visitor().context())) {
+            	Type t1 = d.type().type();
+            	Type t2 = Types.get(mld.type());
+                if (mld == ld || !xts.typeEquals(t1, t2, visitor().context())) {
                     throw new InternalCompilerError("Inconsistent local mapping for "+d.name().id(), d.position());
                 }
                 // adjust the return type node's type reference to match that of the stored localdef

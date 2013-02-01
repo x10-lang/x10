@@ -104,7 +104,7 @@ public class LocalDef_c extends VarDef_c implements LocalDef
 
 	@Override
 	public Type resultType() {
-		return Types.baseTypeRec(asInstance().type());
+		return asInstance().type();
 	}
 	
 	@Override

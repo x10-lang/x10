@@ -93,7 +93,7 @@ public class CNativeConstraintSystem extends XNativeConstraintSystem<Type> imple
 	@Override
 	public XTypeLit makeTypeLit(Type type) {
 		Type kind = type; // [DC] HACK!!! need to use a proper 'kind' type
-		return new XNativeTypeLit(kind, Types.baseTypeRec(type));
+		return new XNativeTypeLit(kind, type);
 	}
 	@Override
 	public XLit<Type,?> makeZero(Type type) {
@@ -135,7 +135,7 @@ public class CNativeConstraintSystem extends XNativeConstraintSystem<Type> imple
         
     @Override
     public CConstraint makeCConstraint(Type t, TypeSystem ts) {
-    	assert !(t instanceof ConstrainedType);
+    	assert t!=null;
     	return new CNativeConstraint(this, t==null ? null : makeSelf(t), ts); 
     }
     @Override
@@ -144,7 +144,7 @@ public class CNativeConstraintSystem extends XNativeConstraintSystem<Type> imple
     }
     
 	@Override
-	public CConstraint makeCConstraint(TypeSystem ts) {
+	public CConstraint makeCConstraintNoSelf(TypeSystem ts) {
     	return new CNativeConstraint(this, (XVar<Type>)null, ts); 
 	}
     

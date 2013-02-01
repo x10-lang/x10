@@ -1531,15 +1531,16 @@ public class Synthesizer {
     
     // lshadare w
     Expr makeExpr(CQualifiedVar v, Position pos) {
-        TypeNode tn = null;
         ClassType ct = v.type().toClass();
         
         XTerm<Type> var = v.receiver();
         
         if (var.isUQVOfName("this")) {
         	// create a C.this AST
-            return makeExpr((XUQV<Type>) var, pos);
+            TypeNode tn = xnf.CanonicalTypeNode(pos, ct);
+            return xnf.Special(pos, X10Special.THIS, tn);
         }
+
         
         // otherwise, we're accessing the outer this on a generic expression
         // make a call to the outer this accessor we generate earlier 
@@ -1555,7 +1556,6 @@ public class Synthesizer {
     Expr makeExpr(CThis ct, Type type, Type baseType, Position pos) {
         TypeNode tn = null;
         if (type != null) {
-            tn = xnf.CanonicalTypeNode(pos, type);
         }
         return tn == null ? xnf.Special(pos, X10Special.THIS)
                 : xnf.Special(pos, X10Special.THIS, tn);

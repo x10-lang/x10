@@ -12,7 +12,9 @@
 package x10.ast;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import polyglot.ast.Assign;
 import polyglot.ast.Expr;
@@ -25,6 +27,7 @@ import polyglot.ast.Term;
 import polyglot.ast.TypeNode;
 import polyglot.frontend.Job;
 import polyglot.types.ClassType;
+import polyglot.types.ContainerType;
 import polyglot.types.Context;
 import polyglot.types.FieldInstance;
 import polyglot.types.LocalInstance;
@@ -250,84 +253,108 @@ public class AssignPropertyCall_c extends Stmt_c implements AssignPropertyCall {
         }
     }
 
-    protected void checkReturnType(ContextVisitor tc, Position pos,
-                                   X10ConstructorDef thisConstructor, List<FieldInstance> definedProperties,
-                                   List<Expr> args)
+    protected void checkReturnType(ContextVisitor tc, Position pos, X10ConstructorDef thisConstructor,
+    		                       List<FieldInstance> definedProperties, List<Expr> args)
     {
-        TypeSystem ts =  tc.typeSystem();
-        final Context ctx =  tc.context();
-        if (ts.hasUnknown(Types.getCached(thisConstructor.returnType()))) {
-            return;
-        }
+    	TypeSystem ts =  tc.typeSystem();
+    	final Context ctx =  tc.context();
+    	if (ts.hasUnknown(Types.getCached(thisConstructor.returnType()))) {
+    		return;
+    	}
 
-        Type returnType = Types.getCached(thisConstructor.returnType());
-        CConstraint result = Types.xclause(returnType);
+    	Type returnType = Types.getCached(thisConstructor.returnType());
+    	CConstraint result = Types.xclause(returnType);
 
-        if (result != null && result.valid())
-            result = null;   
-        // FIXME: the code below that infers the return type of a ctor is buggy, 
-        // since it infers "this". see XTENLANG-1770
+    	if (result != null && result.valid())
+    		result = null;   
 
-        {
-            Type supType = thisConstructor.supType();
-            CConstraint known = Types.realX(supType,ts);
-            known = (known==null ? ConstraintManager.getConstraintSystem().makeCConstraint(Types.baseType(supType),ts) : known.copy());
-            try {
-                known.addIn(Types.get(thisConstructor.guard()));
+    	// [DC] note: the constructor return type does not mention 'this' since it is essentially a static method
+    	// - therefore when adding the class invariant one must substitute 'self' for 'this'
+    	{
+    		assert returnType != null;
+    		
+    		// 'known' will be
+    		// * the constructor guard,
+    		// * anything from the return type of the super() call (i.e. 'known' from super constructor)
+    		// * whatever we know from the property() call 
+    		// [DC] note: thisConstructor.container() does not include type params!  use returnType instead
+    		CConstraint known = ConstraintManager.getConstraintSystem().makeCConstraint(Types.baseType(returnType),ts);
 
-                XVar<Type> thisVar = thisConstructor.thisVar();
+    		try {
 
-                for (int i = 0; i < args.size() && i < definedProperties.size(); i++) {
-                    Expr initializer = args.get(i);
-                    Type initType = initializer.type();
-                    final FieldInstance fii = definedProperties.get(i);
-                    XTerm<Type> prop = (XTerm<Type>) ts.xtypeTranslator().translate(known.self(), fii);
+    			// constructor guard
+    			known.addIn(Types.get(thisConstructor.guard()));
 
-                    // Add in the real clause of the initializer with [self.prop/self]
-                    CConstraint c = Types.realX(initType,ts);
-                    if (! c.consistent()) {
-                        Errors.issue(tc.job(), 
-                                     new Errors.InconsistentContext(initType, pos));
-                    }
-                    if (c != null)
-                        known.addIn(c.instantiateSelf(prop));
-                    try {
-                     XTerm<Type> initVar = ts.xtypeTranslator().translate(known, initializer, ctx, false); // it cannot be top-level, because the constraint will be "prop==initVar"
-                     if (initVar != null)
-                         known.addEquality(prop, initVar);
-                    } catch (IllegalConstraint z) {
-                    	  Errors.issue(tc.job(), z);     
-                    }
-                   
-                }
-                                
-                X10ConstructorCall_c.checkSuperType(tc,supType, position);
+    			// 'known' from superconstructor
+    			CConstraint supConstraint = Types.realX(thisConstructor.supType(), ts);
+    			known.addIn(supConstraint);
 
-                if (thisConstructor.inferReturnType()) {
-                    // Set the return type of the enclosing constructor to be this inferred type.
-                    Type inferredResultType = Types.addConstraint(Types.baseType(returnType), known);
-                    inferredResultType = Types.removeLocals( tc.context(), inferredResultType);
-                    if (! Types.consistent(inferredResultType)) {
-                        Errors.issue(tc.job(), 
-                                     new Errors.InconsistentType(inferredResultType, pos));
-                    }
-                    Ref <? extends Type> r = thisConstructor.returnType();
-                    ((Ref<Type>) r).update(inferredResultType);
-                }
-               
+    			// the arguments of the 'property()' statement
+    			for (int i = 0; i < args.size() && i < definedProperties.size(); i++) {
+    				Expr initializer = args.get(i);
+    				Type initType = initializer.type();
+    				final FieldInstance fii = definedProperties.get(i);
+    				XTerm<Type> prop = (XTerm<Type>) ts.xtypeTranslator().translate(known.self(), fii);
+
+    				// Add in the real clause of the initializer with [self.prop/self]
+    				CConstraint c = Types.realX(initType,ts);
+    				Map<XTerm<Type>, CConstraint> m = new HashMap<XTerm<Type>, CConstraint>();
+    				// include guards from the types (these do not mention self)
+					c.addIn(c.constraintProjection(m));
+    				if (! c.consistent()) {
+    					Errors.issue(tc.job(), 
+    							new Errors.InconsistentContext(initType, pos));
+    				}
+					known.addIn(c.instantiateSelf(prop));
+    				
+    				// [DC] Presumably the following is for the case when c == null,
+    				// e.g. initializer is a formal param without a constrained type
+    				try {
+    					boolean toplevel = false; // it cannot be top-level, because the constraint will be "prop==initVar"
+    					XTerm<Type> initVar = ts.xtypeTranslator().translate(known, initializer, ctx, toplevel); 
+						if (initVar != null)
+							known.addEquality(prop, initVar);
+    				} catch (IllegalConstraint z) {
+    					Errors.issue(tc.job(), z);     
+    				}
+    			}
+
+    			// [DC] not sure what this is for, maybe a sanity check?
+    			X10ConstructorCall_c.checkSuperType(tc,thisConstructor.supType(), position);
+
+    			if (thisConstructor.inferReturnType()) {
+    				// Set the return type of the enclosing constructor to be this inferred type.
+    				Type inferredResultType = Types.addConstraint(returnType, known);
+    				inferredResultType = Types.removeLocals( tc.context(), inferredResultType);
+    				if (! Types.consistent(inferredResultType)) {
+    					Errors.issue(tc.job(), 
+    							new Errors.InconsistentType(inferredResultType, pos));
+    				}
+    				Ref <? extends Type> r = thisConstructor.returnType();
+    				((Ref<Type>) r).update(inferredResultType);
+    			}
+    			// note that Types.get(thisConstructor.returnType()) make be stronger than returnType at this point!
+
+
+    			/* [DC] don't think so
                 // bind this==self; sup clause may constrain this.
+                XVar<Type> thisVar = thisConstructor.thisVar();
                 if (thisVar != null) {
                     known = known.instantiateSelf(thisVar);
 
                     // known.addSelfBinding(thisVar);
                     // known.setThisVar(thisVar);
-                    
+
                 }
+    			 */
+
+    			// check that the constructor's return type is entailed by 'known'
+    			/* [DC] why all this stuff?
                 final CConstraint k = known;
                 if (result != null) {
-                    final CConstraint rr =  result.instantiateSelf(thisVar);
-                   
-                    if (!k.entails(rr, new ConstraintMaker() {
+                    final CConstraint rr =  result.instantiateSelf(known.self());
+
+                    if (!known.entails(rr, new ConstraintMaker() {
                         public CConstraint make() throws XFailure {
                             return ctx.constraintProjection(k, rr);
                         }}))
@@ -335,51 +362,80 @@ public class AssignPropertyCall_c extends Stmt_c implements AssignPropertyCall {
                         Errors.issue(tc.job(),
                                      new Errors.ConstructorReturnTypeNotEntailed(known, result, pos));
                 }
-                // Check that the class invariant is satisfied.
-                X10ClassType ctype =  (X10ClassType) Types.getClassType(Types.get(thisConstructor.container()),ts,ctx);
-                CConstraint _inv = Types.get(ctype.x10Def().classInvariant()).copy();
-                X10TypeEnv env = ts.env(tc.context());
-                boolean isThis = true; // because in the class invariant we use this (and not self)
-                X10TypeEnv_c env_c = (X10TypeEnv_c) env;
-                _inv = X10TypeEnv_c.ifNull(env_c.expandProperty(isThis,ctype,_inv),_inv);
-                final CConstraint inv = _inv;
+    			 */
+    			// [DC] surely just:
+    			if (result != null) {
+    				// [DC] make sure the selfs match...
+                    final CConstraint rr =  result.instantiateSelf(known.self());
+
+                    if (!known.entails(rr)) {
+    					Errors.issue(tc.job(),
+    							new Errors.ConstructorReturnTypeNotEntailed(known, result, pos));
+                    }
+    			}
+
+    			// Check that the class invariant is satisfied.
+    			X10ClassType ctype =  (X10ClassType) Types.getClassType(Types.get(thisConstructor.container()),ts,ctx);
+    			CConstraint inv = Types.get(ctype.x10Def().classInvariant()).copy();
+    			X10TypeEnv env = ts.env(tc.context());
+    			boolean isThis = true; // because in the class invariant we use this (and not self)
+    			X10TypeEnv_c env_c = (X10TypeEnv_c) env;
+    			//[DC] the following line is an attempt to handle abstract property methods 
+    			//inv = X10TypeEnv_c.ifNull(env_c.expandProperty(isThis,ctype,inv),inv);
+    			/* [DC] why why why?
+                final CConstraint inv_ = inv;
                  if (!k.entails(inv, new ConstraintMaker() {
                      public CConstraint make() throws XFailure {
-                         return ctx.constraintProjection(k, inv);
+                         return ctx.constraintProjection(k, inv_);
                      }}))
 
                      Errors.issue(tc.job(),
                                   new Errors.InvariantNotEntailed(known, inv, pos));
-                
-                // Check that every super interface is entailed.
-             
-                 
-                 for (Type intfc : ctype.interfaces()) {
-                	 CConstraint cc = Types.realX(intfc,ts);
-                     cc = cc.instantiateSelf(thisVar); // for some reason, the invariant has "self" instead of this, so I fix it here.
-                	 if (thisVar != null) {
-                		 XVar<Type> intfcThisVar = ((X10ClassType) intfc.toClass()).x10Def().thisVar();
-                		 cc = cc.substitute(thisVar, intfcThisVar);
-                	 }
-                	 cc = X10TypeEnv_c.ifNull(env_c.expandProperty(true,ctype,cc),cc);  
-                	 final CConstraint ccc=cc;
+    			 */
+    			// [DC] if the class invariant mentions 'this' then we better substitute 'self' for that
+    			// otherwise there's no need
+    			CConstraint known_with_this = known.instantiateSelf(ctype.x10Def().thisVar());
+    			if (!known_with_this.entails(inv)) {
+    				Errors.issue(tc.job(), new Errors.InvariantNotEntailed(known_with_this, inv, pos));
+    			}
+
+    			// Check that every super interface is entailed.
+    			/* [DC] commenting this out until i understand it better...
+    			 * is this checking the invariant on the interfaces?  or the dependent type that is implemented?
+    			 * interface I {c1} class C implements I{c2} { } // c1 or c2
+    			 */
+    			/*
+    			for (Type intfc : ctype.interfaces()) {
+    				XVar<Type> thisVar = thisConstructor.thisVar();
+    				CConstraint cc = Types.realX(intfc,ts);
+    				cc = cc.instantiateSelf(thisVar); // for some reason, the invariant has "self" instead of this, so I fix it here.
+    				if (thisVar != null) {
+    					XVar<Type> intfcThisVar = ((X10ClassType) intfc.toClass()).x10Def().thisVar();
+    					cc = cc.substitute(thisVar, intfcThisVar);
+    				}
+    				//[DC] the following line is an attempt to handle abstract property methods 
+    				//cc = X10TypeEnv_c.ifNull(env_c.expandProperty(true,ctype,cc),cc);
+    				 final CConstraint ccc=cc;
                 	 if (!k.entails(cc, new ConstraintMaker() {
                          public CConstraint make() throws XFailure {
                              return ctx.constraintProjection(k, ccc);
                          }}))
                 		    Errors.issue(tc.job(),
                                     new Errors.InterfaceInvariantNotEntailed(known, intfc, cc, pos));
-                	 
-                 }
-                 // Install the known constraint in the context.
-                 CConstraint c = ctx.currentConstraint();
-                 known.addIn(c);
-                 ctx.setCurrentConstraint(known);
-            }
-            catch (XFailure e) {
-                Errors.issue(tc.job(), new Errors.GeneralError(e.getMessage(), position), this);
-            }
-        }
+    				
+    			}
+    			*/
+    			// Install the known constraint in the context.
+    			CConstraint c = ctx.currentConstraint().copy();
+    			c.addIn(known.instantiateSelf(thisConstructor.thisVar()));
+    			ctx.setCurrentConstraint(c);
+    			
+    			if (false) throw new XFailure(); // shut up javac
+    		}
+    		catch (XFailure e) {
+    			Errors.issue(tc.job(), new Errors.GeneralError(e.getMessage(), position), this);
+    		}
+    	}
     }
 
     /** Visit the children of the statement. */

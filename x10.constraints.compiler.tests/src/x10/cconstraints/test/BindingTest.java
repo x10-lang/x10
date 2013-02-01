@@ -66,7 +66,7 @@ public class BindingTest extends X10TestCase {
      * @throws Throwable
      */
     public void test3() throws Throwable {
-        CConstraint c = sys.makeCConstraint(ts);
+        CConstraint c = sys.makeCConstraintNoSelf(ts);
         c.addEquality(a,u);
         System.out.print("(test3: Should print a=u) "); print(c);
         c.addEquality(v, u);
@@ -78,7 +78,7 @@ public class BindingTest extends X10TestCase {
      * @throws Throwable
      */
     public void test4() throws Throwable {
-        CConstraint c = sys.makeCConstraint(ts);
+        CConstraint c = sys.makeCConstraintNoSelf(ts);
         c.addEquality(a,u);
         c.addEquality(v,u);
         c=c.substitute(e0,u);
@@ -90,7 +90,7 @@ public class BindingTest extends X10TestCase {
      * @throws Throwable
      */
     public void test5() throws Throwable {
-        CConstraint c = sys.makeCConstraint(ts);
+        CConstraint c = sys.makeCConstraintNoSelf(ts);
         c.addEquality(u,a);
         c.addEquality(u,v);
         c=c.substitute(e0,u);
@@ -103,7 +103,7 @@ public class BindingTest extends X10TestCase {
      * @throws Throwable
      */
     public void test6() throws Throwable {
-        CConstraint c = sys.makeCConstraint(ts);
+        CConstraint c = sys.makeCConstraintNoSelf(ts);
         XField<Type,XDef<Type>> ar = sys.makeField(a, rank);
         XField<Type,XDef<Type>>  ur = sys.makeField(u, rank);
         XField<Type,XDef<Type>>  vr = sys.makeField(v, rank);
@@ -120,7 +120,7 @@ public class BindingTest extends X10TestCase {
      * @throws Throwable
      */
     public void test7() throws Throwable {
-        CConstraint c = sys.makeCConstraint(ts);
+        CConstraint c = sys.makeCConstraintNoSelf(ts);
         XField<Type,XDef<Type>>  ar = sys.makeField(a, rank);
         XField<Type,XDef<Type>>  ur = sys.makeField(u, rank);
         XField<Type,XDef<Type>>  vr = sys.makeField(v, rank);
@@ -137,7 +137,7 @@ public class BindingTest extends X10TestCase {
      * @throws Throwable
      */
     public void test8() throws Throwable {
-        CConstraint c = sys.makeCConstraint(ts);
+        CConstraint c = sys.makeCConstraintNoSelf(ts);
         XField<Type,XDef<Type>> aRegion = sys.makeField(a, region);
         XField<Type,XDef<Type>> aRegionRank = sys.makeField(aRegion, rank);
         XField<Type,XDef<Type>> uRegion = sys.makeField(u, region);
@@ -165,7 +165,7 @@ public class BindingTest extends X10TestCase {
      * @throws Throwable
      */
     public void test9() throws Throwable {
-        CConstraint c = sys.makeCConstraint(ts);
+        CConstraint c = sys.makeCConstraintNoSelf(ts);
         XField<Type,XDef<Type>> aRank = sys.makeField(a, rank);
         XField<Type,XDef<Type>> uRank = sys.makeField(u, rank);
         XField<Type,XDef<Type>> uSize = sys.makeField(u, size);
@@ -186,7 +186,7 @@ public class BindingTest extends X10TestCase {
      * @throws Throwable
      */
     public void test10() throws Throwable {
-        CConstraint c = sys.makeCConstraint(ts);
+        CConstraint c = sys.makeCConstraintNoSelf(ts);
         XField<Type,XDef<Type>> aRegion = sys.makeField(a, region);
         XField<Type,XDef<Type>> aRegionRank = sys.makeField(aRegion, rank);
         XField<Type,XDef<Type>> uRegion = sys.makeField(u, region);
@@ -209,7 +209,7 @@ public class BindingTest extends X10TestCase {
      * @throws Throwable
      */
     public void test11() throws Throwable {
-        CConstraint c = sys.makeCConstraint(ts);
+        CConstraint c = sys.makeCConstraintNoSelf(ts);
         XField<Type,XDef<Type>> aRegion = sys.makeField(a, region);
         XField<Type,XDef<Type>> aRegionRank = sys.makeField(aRegion, rank);
         XField<Type,XDef<Type>> uRegion = sys.makeField(u, region);

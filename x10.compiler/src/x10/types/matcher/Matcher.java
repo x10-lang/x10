@@ -513,7 +513,7 @@ public class Matcher {
 				env = ConstraintManager.getConstraintSystem().makeCConstraint(Types.baseType(thisType),xts);
 			else
 				// the self variable will be substituted anyway (I hope)
-				env = ConstraintManager.getConstraintSystem().makeCConstraint(xts);
+				env = ConstraintManager.getConstraintSystem().makeCConstraintNoSelf(xts);
 		}
 	    for (int i = 0; i < actuals.size(); i++) { // conjoin ytype's realX
 	    		Type ytype = actuals.get(i);
@@ -555,7 +555,7 @@ public class Matcher {
 				env = ConstraintManager.getConstraintSystem().makeCConstraint(Types.baseType(thisType),xts);
 			else
 				// the self variable will be substituted anyway (I hope)
-				env = ConstraintManager.getConstraintSystem().makeCConstraint(xts);
+				env = ConstraintManager.getConstraintSystem().makeCConstraintNoSelf(xts);
 		}
 	
 		//To do: Not sure these need to be added to Gamma. Constraint projection will retrieve them

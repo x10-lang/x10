@@ -198,7 +198,7 @@ public class XTypeTranslator {
                     throw new Errors.CannotTranslateStaticField(container, fi.position());
                 }
             }
-            //lshadare not sure this is right, look at CField vs CAtom differences
+        	assert target != null;
             return ConstraintManager.getConstraintSystem().makeField(target, fi.def());
         } catch (SemanticException z) {
             return null;
@@ -401,7 +401,7 @@ public class XTypeTranslator {
      * @throws SemanticException
      */
     public CConstraint constraint(List<Formal> ignore, Expr term, Context xc) throws SemanticException {
-        CConstraint c = ConstraintManager.getConstraintSystem().makeCConstraint(xc.typeSystem());
+        CConstraint c = ConstraintManager.getConstraintSystem().makeCConstraintNoSelf(xc.typeSystem());
         if (term == null)
             return c;
 

@@ -430,7 +430,7 @@ public class Context implements Resolver, Cloneable
 
     CConstraint outerThisEquivalences() {
         Type curr = currentClass();
-    	CConstraint result = ConstraintManager.getConstraintSystem().makeCConstraint(curr,typeSystem());
+    	CConstraint result = ConstraintManager.getConstraintSystem().makeCConstraintNoSelf(typeSystem());
         
         List<X10ClassDef> outers = Types.outerTypes(curr); 
         for (int i=0; i < outers.size(); i++) {
@@ -450,7 +450,7 @@ public class Context implements Resolver, Cloneable
         CConstraint result = currentConstraint;
         if (result == null) {
         	// CONSTRAINT_QUESTION: what is the original type of the currentConstraint
-            result = ConstraintManager.getConstraintSystem().makeCConstraint(typeSystem());
+            result = ConstraintManager.getConstraintSystem().makeCConstraintNoSelf(typeSystem());
             if (! inStaticContext()) {
                 result.setThisVar(thisVar());
                 CConstraint d = outerThisEquivalences();
@@ -573,8 +573,13 @@ public class Context implements Resolver, Cloneable
                 return r;
         }
         Type type = Types.baseType(this.currentDepType());
-        if (r == null) 
-            r = ConstraintManager.getConstraintSystem().makeCConstraint(type,typeSystem());
+        if (r == null) {
+        	if (type == null) {
+                r = ConstraintManager.getConstraintSystem().makeCConstraintNoSelf(typeSystem());
+        	} else {
+                r = ConstraintManager.getConstraintSystem().makeCConstraint(type,typeSystem());
+        	}
+        }
         // fold in the current constraint
         r.addSigma(currentConstraint(), m);
         r.addSigma(currentPlaceTerm, typeSystem().Place(), m);

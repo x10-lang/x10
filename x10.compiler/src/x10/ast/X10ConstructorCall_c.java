@@ -287,6 +287,7 @@ public class X10ConstructorCall_c extends ConstructorCall_c implements X10Constr
 		return n;
 	}
 
+    /*** Test whether returnType is a subtype of the superclass at the current context of the visitor */
     public static void checkSuperType(ContextVisitor tc, Type returnType, Position position) {
         Context context = tc.context();
         X10ClassDef classDef = context.currentClassDef();

@@ -442,7 +442,7 @@ public class MethodInstance_c extends FunctionInstance_c<MethodDef> implements M
                     CConstraint c = rc.copy();
 
                     // TODO: handle non-vars, like rail().body
-                    if (self == null || ! (self instanceof XVar)) {
+                    if (self == null) {
                         self = xts.xtypeTranslator().translate(receiver, this);
                     }
 

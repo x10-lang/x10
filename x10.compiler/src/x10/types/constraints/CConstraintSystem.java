@@ -115,6 +115,6 @@ public interface CConstraintSystem extends XConstraintSystem<Type> {
      * @param ts the type system
      * @return
      */
-    public CConstraint makeCConstraint(TypeSystem ts);
+    public CConstraint makeCConstraintNoSelf(TypeSystem ts);
 
 }

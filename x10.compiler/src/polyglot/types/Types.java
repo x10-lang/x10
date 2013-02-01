@@ -152,6 +152,7 @@ public class Types {
 	public static Type addSelfBinding(Type t, XTerm<Type> t1) {
 	    assert (! (t instanceof UnknownType));
 	    CConstraint c = Types.xclause(t);
+	    if (c==null || c.self() == null) return t;
 	    c = c == null ? ConstraintManager.getConstraintSystem().makeCConstraint(baseType(t), t.typeSystem()) :c.copy();
 	    c.addSelfEquality(t1);
 	    return Types.xclause(Types.baseType(t), c); 
@@ -975,6 +976,9 @@ public class Types {
 	 * @return -- always a non-null constraint. May be inconsistent.
 	 */
 	public static CConstraint realX(Type t, TypeSystem ts) {
+		if (t == null) {
+			return ConstraintManager.getConstraintSystem().makeCConstraintNoSelf(ts);
+		}
 		// [DC] note: t can be null
 		if (t instanceof ParameterType) {
 			return ConstraintManager.getConstraintSystem().makeCConstraint(baseType(t), t.typeSystem());
@@ -1856,7 +1860,7 @@ public class Types {
 	 * @return
 	 */
 	public static CConstraint removeLocals(Context cxt, CConstraint c0) {
-		CConstraint c = c0.self() == null ? ConstraintManager.getConstraintSystem().makeCConstraint(cxt.typeSystem())
+		CConstraint c = c0.self() == null ? ConstraintManager.getConstraintSystem().makeCConstraintNoSelf(cxt.typeSystem())
 				                          : ConstraintManager.getConstraintSystem().makeCConstraint(c0.self(), cxt.typeSystem());
 	    c.addIn(c0); // ensure that this has a different selfVar.
 	    Set<? extends XTerm<Type>> roots = c.getVarsAndFields();

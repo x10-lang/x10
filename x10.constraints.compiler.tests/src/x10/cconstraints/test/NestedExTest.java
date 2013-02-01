@@ -21,7 +21,7 @@ public class NestedExTest extends X10TestCase{
         
     }
     public void test1() throws Throwable {
-        CConstraint c = sys.makeCConstraint(ts);
+        CConstraint c = sys.makeCConstraintNoSelf(ts);
         XUQV<Type> a = sys.makeUQV(ts.Any(), "a");
         XUQV<Type> x = sys.makeUQV(ts.Any(), "x");
         XUQV<Type> b = sys.makeUQV(ts.Any(), "b");

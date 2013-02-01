@@ -122,7 +122,7 @@ public class CSmtConstraintSystem extends XSmtConstraintSystem<Type> implements 
 	}
 
 	@Override
-	public CConstraint makeCConstraint(TypeSystem ts) {
+	public CConstraint makeCConstraintNoSelf(TypeSystem ts) {
 		return new CSmtConstraint(this, ts); 
 	}
 

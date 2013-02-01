@@ -107,7 +107,7 @@ public abstract class MethodDef_c extends ProcedureDef_c implements MethodDef
     
     @Override
     public Type resultType() {
-    	return Types.baseTypeRec(returnType().get()); 
+    	return returnType().get(); 
     } 
     @Override
 	public String getName() {
