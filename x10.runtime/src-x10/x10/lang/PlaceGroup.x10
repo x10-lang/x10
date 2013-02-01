@@ -10,7 +10,7 @@
  *  (C) Copyright Australian National University 2010.
  */
 
-package x10.array;
+package x10.lang;
 
 import x10.compiler.Pragma;
 

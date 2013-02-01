@@ -146,7 +146,7 @@ namespace x10 {
 
             virtual void _destructor();
 
-            static String* format(String* format, x10::array::Array<Any*>* parms);
+            static String* format(String* format, x10::lang::Rail<Any*>* parms);
 
             virtual x10_boolean equals(x10::lang::Any* p0);
 

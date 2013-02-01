@@ -9,7 +9,7 @@
  *  (C) Copyright IBM Corporation 2006-2010.
  */
 
-package x10.array;
+package x10.lang;
 
 /**
  * <p>An implementation of PlaceGroup that simply uses a sorted Array[Place] to

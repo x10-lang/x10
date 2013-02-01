@@ -60,9 +60,9 @@ public final struct PlaceLocalHandle[T]{T isref} {
      * @param init the initialization closure used to create the local object.
      * @return a PlaceLocalHandle that can be used to access the local objects.
      */
-    public static def make[T](dist:Dist, init:()=>T){T isref}:PlaceLocalHandle[T] {
-        return make(dist.places(), init);
-    }
+//    public static def make[T](dist:Dist, init:()=>T){T isref}:PlaceLocalHandle[T] {
+//        return make(dist.places(), init);
+//    }
 
     /**
      * Create a distributed object with local state of type T
@@ -78,9 +78,9 @@ public final struct PlaceLocalHandle[T]{T isref} {
      * @param init_there a closure to be evaluated in each place to create the local objects.
      * @return a PlaceLocalHandle that can be used to access the local objects.
      */
-    public static def make[T,U](dist:Dist, init_here:(Place)=>U, init_there:(U)=>T){T isref}:PlaceLocalHandle[T] {
-        return make(dist.places(), init_here, init_there);
-    }
+//    public static def make[T,U](dist:Dist, init_here:(Place)=>U, init_there:(U)=>T){T isref}:PlaceLocalHandle[T] {
+//        return make(dist.places(), init_here, init_there);
+//    }
 
     /**
      * Create a distributed object with local state of type T
@@ -141,9 +141,9 @@ public final struct PlaceLocalHandle[T]{T isref} {
      * @param init the initialization closure used to create the local object.
      * @return a PlaceLocalHandle that can be used to access the local objects.
      */
-    public static def makeFlat[T](dist:Dist, init:()=>T){T isref}:PlaceLocalHandle[T] {
-        return makeFlat(dist.places(), init);
-    }
+//    public static def makeFlat[T](dist:Dist, init:()=>T){T isref}:PlaceLocalHandle[T] {
+//        return makeFlat(dist.places(), init);
+//    }
 
     /**
      * Create a distributed object with local state of type T
@@ -161,9 +161,9 @@ public final struct PlaceLocalHandle[T]{T isref} {
      * @param init_there a closure to be evaluated in each place to create the local objects.
      * @return a PlaceLocalHandle that can be used to access the local objects.
      */
-    public static def makeFlat[T,U](dist:Dist, init_here:(Place)=>U, init_there:(U)=>T){T isref}:PlaceLocalHandle[T] {
-        return makeFlat(dist.places(), init_here, init_there);
-    }
+//    public static def makeFlat[T,U](dist:Dist, init_here:(Place)=>U, init_there:(U)=>T){T isref}:PlaceLocalHandle[T] {
+//        return makeFlat(dist.places(), init_here, init_there);
+//    }
 
     /**
      * Create a distributed object with local state of type T

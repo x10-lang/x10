@@ -306,7 +306,7 @@ void String::_formatHelper(std::ostringstream &ss, char* fmt, Any* p) {
         dealloc(buf);
 }
 
-String* String::format(String* format, x10::array::Array<Any*>* parms) {
+String* String::format(String* format, x10::lang::Rail<Any*>* parms) {
     std::ostringstream ss;
     nullCheck(format);
     nullCheck(parms);
