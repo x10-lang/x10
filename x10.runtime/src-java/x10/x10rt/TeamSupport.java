@@ -49,7 +49,7 @@ public class TeamSupport {
     
     private static void aboutToDie(String methodName) {
         System.err.println("About to die in " + methodName);
-        System.exit(1);
+        throw new java.lang.UnsupportedOperationException("About to die in " + methodName);
     }
 
 	public static void nativeMake(IndexedMemoryChunk<Place> places, int count, IndexedMemoryChunk<x10.core.Int> result) {
