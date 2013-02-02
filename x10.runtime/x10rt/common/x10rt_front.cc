@@ -7,8 +7,20 @@
 
 #include <x10rt_front.h>
 #include <x10rt_logical.h>
+#include <x10rt_net.h>
 
 static x10rt_msg_type counter = 0;
+
+char* x10rt_preinit() {
+	// Because we don't want to break the old PGAS-BG/P implementation of x10rt_net.h, we
+	// can't add methods to lower API layers.  So instead, we set environment variables
+	// to pass & return values needed inside the regular x10rt_init method call of sockets.
+	// Yuck.
+	setenv("X10_LIBRARY_MODE", "preinit", 1);
+	x10rt_net_init(NULL, NULL, &counter);
+	char* connInfo = getenv("X10_LIBRARY_MODE");
+	return connInfo;
+}
 
 void x10rt_init (int *argc, char ***argv)
 { x10rt_lgl_init(argc, argv, &counter); }

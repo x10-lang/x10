@@ -14,19 +14,19 @@ package x10.rtt;
 
 import java.lang.reflect.Array;
 
-import x10.x10rt.X10JavaDeserializer;
-import x10.x10rt.X10JavaSerializable;
-import x10.x10rt.X10JavaSerializer;
+import x10.serialization.SerializationConstants;
 
 public final class UByteType extends RuntimeType<x10.core.UByte> {
-//public final class UByteType extends RuntimeType<x10.core.UByte> implements X10JavaSerializable {
 
     private static final long serialVersionUID = 1L;
-//    private static final short _serialization_id = x10.x10rt.DeserializationDispatcher.addDispatcher(DeserializationDispatcher.ClosureKind.CLOSURE_KIND_NOT_ASYNC, UByteType.class.getName());
 
     // make sure deserialized RTT object is not duplicated
     private Object readResolve() throws java.io.ObjectStreamException {
         return Types.UBYTE;
+    }
+    @Override
+    public short $_get_serialization_id() {
+        return SerializationConstants.RTT_UBYTE_ID;
     }
 
     public UByteType() {
@@ -91,21 +91,8 @@ public final class UByteType extends RuntimeType<x10.core.UByte> {
     	return ((byte[]) array).length;
     }
 
-//    public void $_serialize(X10JavaSerializer serializer) throws java.io.IOException {
-//    }
-//
-//    public short $_get_serialization_id() {
-//        return _serialization_id;
-//    }
-//
-//    public static X10JavaSerializable $_deserializer(X10JavaDeserializer deserializer) throws java.io.IOException {
-//		return $_deserialize_body(null, deserializer);
-//	}
-//
-//    public static X10JavaSerializable $_deserialize_body(UByteType t, X10JavaDeserializer deserializer) throws java.io.IOException {
-//        UByteType uByteType = (UByteType) Types.UBYTE;
-//        deserializer.record_reference(uByteType);
-//        return uByteType;
-//    }
-    
+    @Override
+    public boolean isref() {
+        return false;
+    }
 }

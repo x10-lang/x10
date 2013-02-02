@@ -1,0 +1,20 @@
+diff -c -r include/private/pthread_support.h trunk/include/private/pthread_support.h
+*** include/private/pthread_support.h	2012-05-11 13:09:00.000000000 -0400
+--- trunk/include/private/pthread_support.h	2012-06-01 14:08:02.000000000 -0400
+***************
+*** 114,120 ****
+  #   endif
+  } * GC_thread;
+  
+! # define THREAD_TABLE_SZ 256    /* Must be power of 2   */
+  GC_EXTERN volatile GC_thread GC_threads[THREAD_TABLE_SZ];
+  
+  GC_EXTERN GC_bool GC_thr_initialized;
+--- 114,120 ----
+  #   endif
+  } * GC_thread;
+  
+! # define THREAD_TABLE_SZ 4096    /* Must be power of 2   */
+  GC_EXTERN volatile GC_thread GC_threads[THREAD_TABLE_SZ];
+  
+  GC_EXTERN GC_bool GC_thr_initialized;

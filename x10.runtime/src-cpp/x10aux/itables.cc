@@ -9,6 +9,7 @@
  *  (C) Copyright IBM Corporation 2006-2010.
  */
 
+#include <stdlib.h>
 #include <stdio.h>
 
 #include <x10aux/itables.h>

@@ -42,7 +42,7 @@ public class StringUtil
      * qualified (i.e., it has no dot.)
      **/
     public static boolean isNameShort(String name) {
-        return name.indexOf('.') < 0;
+        return name.indexOf('.') < 0 || name.equals("operator..");
     }
 
     public static String getFirstComponent(String fullName) {

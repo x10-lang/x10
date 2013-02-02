@@ -6,16 +6,6 @@
  * This file is part of X10 Runtime on MPI layer implementation.
  */
 
-/*
- * C++ Style Guide:
- * http://google-styleguide.googlecode.com/svn/trunk/cppguide.xml
- *
- * C++ Lint:
- * http://google-styleguide.googlecode.com/svn/trunk/cpplint/cpplint.py
- *
- */
-
-
 /* MPICH2 mpi.h wants to not have SEEK_SET etc defined for C++ bindings */
 #include <mpi.h>
 

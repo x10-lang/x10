@@ -16,7 +16,6 @@
 #include <x10aux/reference_logger.h>
 
 #include <x10/lang/Reference.h>
-#include <x10/lang/Object.h>
 #include <x10/lang/Comparable.h>
 
 #include <cstdarg>
@@ -83,14 +82,14 @@ bool RuntimeType::subtypeOf(const RuntimeType * const other) const {
     return false;
 }
 
-bool RuntimeType::instanceOf (const ref<Reference> &other) const {
-    if (other.isNull())
+bool RuntimeType::instanceOf (const Reference* other) const {
+    if (NULL == other)
         return false;
     return other->_type()->subtypeOf(this);
 }
 
-bool RuntimeType::concreteInstanceOf (const ref<Reference> &other) const {
-    if (other.isNull())
+bool RuntimeType::concreteInstanceOf (const Reference* other) const {
+    if (NULL == other)
         return false;
     return other->_type()->equals(this);
 }

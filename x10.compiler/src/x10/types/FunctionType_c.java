@@ -111,9 +111,7 @@ public class FunctionType_c extends X10ParsedClassType_c implements FunctionType
         for (int i=0; i < formals.size(); ++i) {
             LocalInstance f = formals.get(i);
             if (sb.length() > 0)
-                sb.append(", ");
-            sb.append(f.name());
-            sb.append(':');
+                sb.append(",");
             sb.append(f.type());
         }
         return "(" + sb.toString() + ")" + guardToString(guard()) + "=>" + mi.returnType();

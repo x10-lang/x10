@@ -10,7 +10,6 @@ optimize=""
 
 if [ "$CROSS_COMPILE_BGP" = "true" ]; then
     x10rt_impl="pgas_bgp"
-    args="$args -STATEMENT_EXPR_GCC_WORKAROUND=true"
 elif [ "$CROSS_COMPILE_BGQ" = "true" ]; then
     x10rt_impl="pami"
 else
@@ -53,7 +52,7 @@ where [options] includes:
     -buildx10lib <dummy>     build an x10 library
     -config <conf>           read configuration <conf> from etc${FILE_SEP}<conf>.cfg
     -version                 print version info
-    -x10rt <impl>            select x10rt impl (lapi, pgp, sockets, mpi, standalone)
+    -x10rt <impl>            select x10rt impl (sockets, standalone, pami, mpi, bgas_bgp)
     -t -time                 display execution time
     -v -verbose --verbose    print verbose debugging information
     -h -help --help          print this message
@@ -99,7 +98,7 @@ export X10RT_IMPL=$x10rt_impl
 
 [ -z "$MAIN" ] && MAIN="polyglot.main.Main"
 
-command="\"$JAVA\" -Xmx768m -Dfile.encoding=UTF-8 -Dx10.dist=\"$TOP\" -Dx10c.ecj.jar=\"$ECJ_JAR\" -Dx10c.math.jar=\"$MATH_JAR\" $config $profile -classpath \"$classpath\" ${java_args} $MAIN -extclass $ext $args"
+command="\"$JAVA\" -Xmx1024m -Dfile.encoding=UTF-8 -Dx10.dist=\"$TOP\" -Dx10c.ecj.jar=\"$ECJ_JAR\" -Dx10c.math.jar=\"$MATH_JAR\" $config $profile -classpath \"$classpath\" ${java_args} $MAIN -extclass $ext $args"
 
 [ -n "$verbose" ] && echo "$command"
 

@@ -3,6 +3,8 @@
 
 #include <x10rt.h>
 
+#include <x10/lang/Any.h>
+
 namespace x10 {
     namespace lang { 
         template<class T> class GlobalRef  {
@@ -21,7 +23,7 @@ namespace x10 {
             x10_ulong value; 
             x10aux::place location;	
 
-            GlobalRef(T obj = NULL) : value((size_t)(obj.operator->())), location(x10aux::here) { }
+        GlobalRef(T obj = NULL) : value((size_t)(obj)), location(x10aux::here) { }
             GlobalRef(x10aux::place p, x10_ulong obj = 0) : value(obj), location(p) { }
 	
             static inline GlobalRef<T> _make(T obj) { return GlobalRef<T>(obj); }
@@ -29,11 +31,11 @@ namespace x10 {
             static GlobalRef<T> _alloc () {GlobalRef<T> t; return t;} // Note: no need to zero t
 
             void _constructor (T t) {
-                value = (size_t) t.operator->();
+                value = (size_t)t;
             }
             
-            // we are assuming T is always of the form x10aux::ref<U> and use T::Type to get U
-            inline T __apply() { return (typename T::Type*)(size_t)value; }
+            // we are assuming T is always a pointer type, becasue of the isRef constraint on GlobalRef
+            inline T __apply() { return (T)(size_t)value; }
 
             GlobalRef<T>* operator->() { return this; }
         
@@ -47,19 +49,19 @@ namespace x10 {
     
             void _deserialize_body(x10aux::deserialization_buffer& buf);
             
-            x10_boolean equals(x10aux::ref<x10::lang::Any> that) { return _struct_equals(that); }
+            x10_boolean equals(x10::lang::Any* that) { return _struct_equals(that); }
     
             x10_boolean equals(GlobalRef<T> that) { return _struct_equals(that); }
     
-            x10_boolean _struct_equals(x10aux::ref<x10::lang::Any>);
+            x10_boolean _struct_equals(x10::lang::Any*);
     
             x10_boolean _struct_equals(GlobalRef<T> that);
     
-            x10aux::ref<x10::lang::String> toString();
+            x10::lang::String* toString();
     
             x10_int hashCode();
 
-            x10aux::ref<x10::lang::String> typeName();
+            x10::lang::String* typeName();
         };
 
         template <> class GlobalRef<void> {
@@ -97,16 +99,16 @@ namespace x10 {
         template<class T> class GlobalRef_iboxithunk0 : public x10::lang::IBox<x10::lang::GlobalRef<T> > {
         public:
             static x10::lang::Any::itable<GlobalRef_iboxithunk0<T> > itable;
-            x10_boolean equals(x10aux::ref<x10::lang::Any> arg0) {
+            x10_boolean equals(x10::lang::Any* arg0) {
                 return this->value->equals(arg0);
             }
             x10_int hashCode() {
                 return this->value->hashCode();
             }
-            x10aux::ref<x10::lang::String> toString() {
+            x10::lang::String* toString() {
                 return this->value->toString();
             }
-            x10aux::ref<x10::lang::String> typeName() {
+            x10::lang::String* typeName() {
                 return this->value->typeName();
             }
         };
@@ -121,7 +123,7 @@ namespace x10 {
 
 namespace x10 {
     namespace lang {
-        extern void logGlobalReference(x10aux::ref<x10::lang::Object> obj);
+        extern void logGlobalReference(x10::lang::Reference* obj);
     }
 }
 
@@ -132,7 +134,7 @@ template<class T> void x10::lang::GlobalRef<T>::_serialize(x10::lang::GlobalRef<
     buf.write(this_->value);
     #if defined(X10_USE_BDWGC) || defined(X10_DEBUG_REFERENCE_LOGGER)
     if (this_->location == x10aux::here) {
-        if (!this_->__apply().isNull()) logGlobalReference(this_->__apply());
+        if (NULL != this_->__apply()) logGlobalReference(this_->__apply());
     }
     #endif
 }
@@ -143,7 +145,7 @@ template<class T> void x10::lang::GlobalRef<T>::_deserialize_body(x10aux::deseri
 }
 
 
-template<class T> x10_boolean x10::lang::GlobalRef<T>::_struct_equals(x10aux::ref<x10::lang::Any> that) {
+template<class T> x10_boolean x10::lang::GlobalRef<T>::_struct_equals(x10::lang::Any* that) {
     if ((!(x10aux::instanceof<x10::lang::GlobalRef<T> >(that)))) {
         return false;
     }
@@ -154,7 +156,7 @@ template<class T> x10_boolean x10::lang::GlobalRef<T>::_struct_equals(x10::lang:
     return (location == that->location) && x10aux::struct_equals(value, that->value);
 }
 
-template<class T> x10aux::ref<x10::lang::String> x10::lang::GlobalRef<T>::toString() {
+template<class T> x10::lang::String* x10::lang::GlobalRef<T>::toString() {
     char* tmp = x10aux::alloc_printf("x10.lang.GlobalRef<%s>", x10aux::getRTT<T>()->name());
     return x10::lang::String::Steal(tmp);
 }
@@ -163,7 +165,7 @@ template<class T> x10_int x10::lang::GlobalRef<T>::hashCode() {
     return (x10_int)value;
 }
 
-template<class T> x10aux::ref<x10::lang::String> x10::lang::GlobalRef<T>::typeName() {
+template<class T> x10::lang::String* x10::lang::GlobalRef<T>::typeName() {
     char* tmp = x10aux::alloc_printf("x10.lang.GlobalRef<%s>", x10aux::getRTT<T>()->name());
     return x10::lang::String::Steal(tmp);
 }

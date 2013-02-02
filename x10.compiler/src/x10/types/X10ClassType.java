@@ -15,6 +15,7 @@ import java.util.List;
 
 import polyglot.ast.Expr;
 import polyglot.types.ClassType;
+import polyglot.types.CodeInstance;
 import polyglot.types.FieldInstance;
 import polyglot.types.Matcher;
 import polyglot.types.SemanticException;
@@ -28,7 +29,7 @@ import polyglot.types.Type;
  * @author vj
  *
  */
-public interface X10ClassType extends ClassType,  X10Use<X10ClassDef> {
+public interface X10ClassType extends ClassType,  X10Use<X10ClassDef>, CodeInstance<X10ClassDef> {
 
 	/** Property initializers, used in annotations. */
 	List<Expr> propertyInitializers();

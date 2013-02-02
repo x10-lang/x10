@@ -12,8 +12,6 @@
 package x10.rtt;
 
 import x10.core.Any;
-import x10.core.RefI;
-import x10.core.StructI;
 
 
 public class Types {
@@ -177,9 +175,6 @@ public class Types {
         if (o instanceof java.lang.Boolean) {
             return x10.core.Boolean.$box(((java.lang.Boolean) o).booleanValue());
         }
-        if (o instanceof java.lang.String) {
-            return x10.core.String.$box((java.lang.String) o);
-        }
         return o;
     }
     public static x10.core.Byte $box(byte o) {
@@ -205,9 +200,6 @@ public class Types {
     }
     public static x10.core.Boolean $box(boolean o) {
         return x10.core.Boolean.$box(o);
-    }
-    public static x10.core.String $box(java.lang.String o) {
-        return x10.core.String.$box(o);
     }
     public static Object $boxu(Object o) {
         if (o instanceof java.lang.Byte) {
@@ -257,11 +249,90 @@ public class Types {
         return x10.core.ULong.$box(o);
     }
     
+
+    /*
+     * returns runtime type for known types.
+     * mainly for primitives, string and exceptions.
+     */
+    public static RuntimeType/*<?>*/ getRTTForKnownType(Class<?> javaClass) {
+        if (java.lang.Object.class.equals(javaClass)) {
+            return ANY;
+        } else if (java.lang.String.class.equals(javaClass)) {
+            return STRING;
+        } else if (java.lang.Comparable.class.equals(javaClass)) {
+            return COMPARABLE;
+        } else if (javaClass.isPrimitive()) {
+            if (byte.class.equals(javaClass)) {
+                return BYTE;
+            } else if (short.class.equals(javaClass)) {
+                return SHORT;
+            } else if (int.class.equals(javaClass)) {
+                return INT;
+            } else if (long.class.equals(javaClass)) {
+                return LONG;
+            } else if (float.class.equals(javaClass)) {
+                return FLOAT;
+            } else if (double.class.equals(javaClass)) {
+                return DOUBLE;
+            } else if (char.class.equals(javaClass)) {
+                return CHAR;
+            } else if (boolean.class.equals(javaClass)) {
+                return BOOLEAN;
+            }
+        } else if (java.lang.Throwable.class.isAssignableFrom(javaClass)) {
+            if (java.lang.RuntimeException.class.isAssignableFrom(javaClass)) {
+                if (java.lang.NullPointerException.class.equals(javaClass)) {
+                    return NULL_POINTER_EXCEPTION;
+                } else if (java.lang.ClassCastException.class.equals(javaClass)) {
+                    return CLASS_CAST_EXCEPTION;
+                } else if (java.lang.ArithmeticException.class.equals(javaClass)) {
+                    return ARITHMETIC_EXCEPTION;
+                } else if (java.lang.UnsupportedOperationException.class.equals(javaClass)) {
+                    return UNSUPPORTED_OPERATION_EXCEPTION;
+                } else if (java.util.NoSuchElementException.class.equals(javaClass)) {
+                    return NO_SUCH_ELEMENT_EXCEPTION;
+                } else if (java.lang.ArrayIndexOutOfBoundsException.class.equals(javaClass)) {
+                    return ARRAY_INDEX_OUT_OF_BOUNDS_EXCEPTION;
+                } else if (java.lang.StringIndexOutOfBoundsException.class.equals(javaClass)) {
+                    return STRING_INDEX_OUT_OF_BOUNDS_EXCEPTION;
+                } else if (java.lang.IndexOutOfBoundsException.class.equals(javaClass)) {
+                    return INDEX_OUT_OF_BOUNDS_EXCEPTION;
+                } else if (java.lang.NumberFormatException.class.equals(javaClass)) {
+                    return NUMBER_FORMAT_EXCEPTION;
+                } else if (java.lang.IllegalArgumentException.class.equals(javaClass)) {
+                    return ILLEGAL_ARGUMENT_EXCEPTION;
+                } else if (java.lang.RuntimeException.class.equals(javaClass)) {
+                    return EXCEPTION;
+                }
+            } else if (java.lang.Exception.class.isAssignableFrom(javaClass)) {
+                if (java.lang.Exception.class.equals(javaClass)) {
+                    return CHECKED_EXCEPTION;
+                }
+            } else if (java.lang.Error.class.isAssignableFrom(javaClass)) {
+                if (java.lang.InternalError.class.equals(javaClass)) {
+                    return INTERNAL_ERROR;
+                } else if (java.lang.OutOfMemoryError.class.equals(javaClass)) {
+                    return OUT_OF_MEMORY_ERROR;
+                } else if (java.lang.StackOverflowError.class.equals(javaClass)) {
+                    return STACK_OVERFLOW_ERROR;
+                } else if (java.lang.AssertionError.class.equals(javaClass)) {
+                    return ASSERTION_ERROR;
+                } else if (java.lang.Error.class.equals(javaClass)) {
+                    return ERROR;
+                }
+            } else {
+                if (java.lang.Throwable.class.equals(javaClass)) {
+                    return CHECKED_THROWABLE;
+                }
+            }
+        }
+        return null;
+    }
+
     public static final RuntimeType<Object> ANY = new AnyType();
-    public static final RuntimeType<RefI> OBJECT = new ObjectType();
     // Struct is not an X10 type, but it has RTT for runtime type checking such as instanceof
     // create rtt of struct before all struct types (e.g. int)
-    public static final RuntimeType<StructI> STRUCT = new StructType();
+    public static final RuntimeType<x10.core.StructI> STRUCT = new StructType();
 
     // create rtt of comparable before all types that implement comparable (e.g. int)
     public static final RuntimeType<Comparable> COMPARABLE = new NamedType<Comparable>(
@@ -273,6 +344,205 @@ public class Types {
         // make sure deserialized RTT object is not duplicated
         private Object readResolve() throws java.io.ObjectStreamException {
             return COMPARABLE;
+        }
+    };
+
+    public static final RuntimeType<java.lang.Throwable> CHECKED_THROWABLE = new NamedType<java.lang.Throwable>(
+	"x10.lang.CheckedThrowable",
+	java.lang.Throwable.class,
+	null,
+	new Type[] { ANY }
+    ) {
+	// make sure deserialized RTT object is not duplicated
+	private Object readResolve() throws java.io.ObjectStreamException {
+	    return CHECKED_THROWABLE;
+	}
+    };
+    public static final RuntimeType<java.lang.Exception> CHECKED_EXCEPTION = new NamedType<java.lang.Exception>(
+	"x10.lang.CheckedException",
+	java.lang.Exception.class,
+	null,
+	new Type[] { CHECKED_THROWABLE }
+    ) {
+	// make sure deserialized RTT object is not duplicated
+	private Object readResolve() throws java.io.ObjectStreamException {
+	    return CHECKED_EXCEPTION;
+	}
+    };
+    public static final RuntimeType<java.lang.RuntimeException> EXCEPTION = new NamedType<java.lang.RuntimeException>(
+	"x10.lang.Exception",
+	java.lang.RuntimeException.class,
+	null,
+	new Type[] { CHECKED_EXCEPTION }
+    ) {
+	// make sure deserialized RTT object is not duplicated
+	private Object readResolve() throws java.io.ObjectStreamException {
+	    return EXCEPTION;
+	}
+    };
+    public static final RuntimeType<java.lang.NullPointerException> NULL_POINTER_EXCEPTION = new NamedType<java.lang.NullPointerException>(
+	"x10.lang.NullPointerException",
+	java.lang.NullPointerException.class,
+	null,
+	new Type[] { EXCEPTION }
+    ) {
+	// make sure deserialized RTT object is not duplicated
+	private Object readResolve() throws java.io.ObjectStreamException {
+	    return NULL_POINTER_EXCEPTION;
+	}
+    };
+    public static final RuntimeType<java.lang.ClassCastException> CLASS_CAST_EXCEPTION = new NamedType<java.lang.ClassCastException>(
+	"x10.lang.ClassCastException",
+	java.lang.ClassCastException.class,
+	null,
+	new Type[] { EXCEPTION }
+    ) {
+	// make sure deserialized RTT object is not duplicated
+	private Object readResolve() throws java.io.ObjectStreamException {
+	    return CLASS_CAST_EXCEPTION;
+	}
+    };
+    public static final RuntimeType<java.lang.IndexOutOfBoundsException> INDEX_OUT_OF_BOUNDS_EXCEPTION = new NamedType<java.lang.IndexOutOfBoundsException>(
+	"x10.lang.IndexOutOfBoundsException",
+	java.lang.IndexOutOfBoundsException.class,
+	null,
+	new Type[] { EXCEPTION }
+    ) {
+	// make sure deserialized RTT object is not duplicated
+	private Object readResolve() throws java.io.ObjectStreamException {
+	    return INDEX_OUT_OF_BOUNDS_EXCEPTION;
+	}
+    };
+    public static final RuntimeType<java.lang.ArrayIndexOutOfBoundsException> ARRAY_INDEX_OUT_OF_BOUNDS_EXCEPTION = new NamedType<java.lang.ArrayIndexOutOfBoundsException>(
+	"x10.lang.ArrayIndexOutOfBoundsException",
+	java.lang.ArrayIndexOutOfBoundsException.class,
+	null,
+	new Type[] { INDEX_OUT_OF_BOUNDS_EXCEPTION }
+    ) {
+	// make sure deserialized RTT object is not duplicated
+	private Object readResolve() throws java.io.ObjectStreamException {
+	    return ARRAY_INDEX_OUT_OF_BOUNDS_EXCEPTION;
+	}
+    };
+    public static final RuntimeType<java.lang.StringIndexOutOfBoundsException> STRING_INDEX_OUT_OF_BOUNDS_EXCEPTION = new NamedType<java.lang.StringIndexOutOfBoundsException>(
+	"x10.lang.StringIndexOutOfBoundsException",
+	java.lang.StringIndexOutOfBoundsException.class,
+	null,
+	new Type[] { INDEX_OUT_OF_BOUNDS_EXCEPTION }
+    ) {
+	// make sure deserialized RTT object is not duplicated
+	private Object readResolve() throws java.io.ObjectStreamException {
+	    return STRING_INDEX_OUT_OF_BOUNDS_EXCEPTION;
+	}
+    };
+    public static final RuntimeType<java.lang.ArithmeticException> ARITHMETIC_EXCEPTION = new NamedType<java.lang.ArithmeticException>(
+	"x10.lang.ArithmeticException",
+	java.lang.ArithmeticException.class,
+	null,
+	new Type[] { EXCEPTION }
+    ) {
+	// make sure deserialized RTT object is not duplicated
+	private Object readResolve() throws java.io.ObjectStreamException {
+	    return ARITHMETIC_EXCEPTION;
+	}
+    };
+    public static final RuntimeType<java.lang.IllegalArgumentException> ILLEGAL_ARGUMENT_EXCEPTION = new NamedType<java.lang.IllegalArgumentException>(
+	"x10.lang.IllegalArgumentException",
+	java.lang.IllegalArgumentException.class,
+	null,
+	new Type[] { EXCEPTION }
+    ) {
+	// make sure deserialized RTT object is not duplicated
+	private Object readResolve() throws java.io.ObjectStreamException {
+	    return ILLEGAL_ARGUMENT_EXCEPTION;
+	}
+    };
+    public static final RuntimeType<java.lang.NumberFormatException> NUMBER_FORMAT_EXCEPTION = new NamedType<java.lang.NumberFormatException>(
+	"x10.lang.NumberFormatException",
+	java.lang.NumberFormatException.class,
+	null,
+	new Type[] { ILLEGAL_ARGUMENT_EXCEPTION }
+    ) {
+	// make sure deserialized RTT object is not duplicated
+	private Object readResolve() throws java.io.ObjectStreamException {
+	    return NUMBER_FORMAT_EXCEPTION;
+	}
+    };
+    public static final RuntimeType<java.lang.UnsupportedOperationException> UNSUPPORTED_OPERATION_EXCEPTION = new NamedType<java.lang.UnsupportedOperationException>(
+	"x10.lang.UnsupportedOperationException",
+	java.lang.UnsupportedOperationException.class,
+	null,
+	new Type[] { EXCEPTION }
+    ) {
+	// make sure deserialized RTT object is not duplicated
+	private Object readResolve() throws java.io.ObjectStreamException {
+	    return UNSUPPORTED_OPERATION_EXCEPTION;
+	}
+    };
+    public static final RuntimeType<java.util.NoSuchElementException> NO_SUCH_ELEMENT_EXCEPTION = new NamedType<java.util.NoSuchElementException>(
+	"x10.util.NoSuchElementException",
+	java.util.NoSuchElementException.class,
+	null,
+	new Type[] { EXCEPTION }
+    ) {
+	// make sure deserialized RTT object is not duplicated
+	private Object readResolve() throws java.io.ObjectStreamException {
+	    return NO_SUCH_ELEMENT_EXCEPTION;
+	}
+    };
+    public static final RuntimeType<java.lang.Error> ERROR = new NamedType<java.lang.Error>(
+	"x10.lang.Error",
+	java.lang.Error.class,
+	null,
+	new Type[] { CHECKED_THROWABLE }
+    ) {
+	// make sure deserialized RTT object is not duplicated
+	private Object readResolve() throws java.io.ObjectStreamException {
+	    return ERROR;
+	}
+    };
+    public static final RuntimeType<java.lang.AssertionError> ASSERTION_ERROR = new NamedType<java.lang.AssertionError>(
+	"x10.lang.AssertionError",
+	java.lang.AssertionError.class,
+	null,
+	new Type[] { ERROR }
+    ) {
+	// make sure deserialized RTT object is not duplicated
+	private Object readResolve() throws java.io.ObjectStreamException {
+	    return ASSERTION_ERROR;
+	}
+    };
+    public static final RuntimeType<java.lang.StackOverflowError> STACK_OVERFLOW_ERROR = new NamedType<java.lang.StackOverflowError>(
+	"x10.lang.StackOverflowError",
+	java.lang.StackOverflowError.class,
+	null,
+	new Type[] { ERROR }
+    ) {
+	// make sure deserialized RTT object is not duplicated
+	private Object readResolve() throws java.io.ObjectStreamException {
+	    return STACK_OVERFLOW_ERROR;
+	}
+    };
+    public static final RuntimeType<java.lang.OutOfMemoryError> OUT_OF_MEMORY_ERROR = new NamedType<java.lang.OutOfMemoryError>(
+	"x10.lang.OutOfMemoryError",
+	java.lang.OutOfMemoryError.class,
+	null,
+	new Type[] { ERROR }
+    ) {
+	// make sure deserialized RTT object is not duplicated
+	private Object readResolve() throws java.io.ObjectStreamException {
+	    return OUT_OF_MEMORY_ERROR;
+	}
+    };
+    public static final RuntimeType<java.lang.InternalError> INTERNAL_ERROR = new NamedType<java.lang.InternalError>(
+        "x10.lang.InternalError",
+        java.lang.InternalError.class,
+        null,
+        new Type[] { ERROR }
+    ) {
+        // make sure deserialized RTT object is not duplicated
+        private Object readResolve() throws java.io.ObjectStreamException {
+            return INTERNAL_ERROR;
         }
     };
 
@@ -311,8 +581,14 @@ public class Types {
         }
         return false;
     }
+    public static boolean isPrimitiveType(Type<?> rtt) {
+        return isNumericType(rtt) || rtt == CHAR || rtt == BOOLEAN;
+    }
     static boolean isStructType(Type<?> rtt) {
-    	return isNumericType(rtt) || rtt == CHAR || rtt == BOOLEAN || rtt.isAssignableTo(STRUCT);
+    	return isPrimitiveType(rtt) || rtt.isAssignableTo(STRUCT);
+    }
+    public static boolean isStringType(Type<?> rtt) {
+        return rtt == STRING;
     }
 
     
@@ -320,14 +596,14 @@ public class Types {
         if (typeParamOrAny == null) {nullIsCastToStruct("x10.lang.Boolean");}
         if (typeParamOrAny instanceof x10.core.Boolean) return x10.core.Boolean.$unbox((x10.core.Boolean)typeParamOrAny);
         else if (typeParamOrAny instanceof java.lang.Boolean) {return (java.lang.Boolean) typeParamOrAny;}
-        throw new ClassCastException("x10.lang.Boolean");
+        throw new java.lang.ClassCastException("x10.lang.Boolean");
     }
     
     public static char aschar(Object typeParamOrAny, Type<?> origRTT) {
         if (typeParamOrAny == null) {nullIsCastToStruct("x10.lang.Char");}
         if (typeParamOrAny instanceof x10.core.Char) return x10.core.Char.$unbox((x10.core.Char)typeParamOrAny);
         else if (typeParamOrAny instanceof java.lang.Character) {return (java.lang.Character) typeParamOrAny;}
-        throw new ClassCastException("x10.lang.Char");
+        throw new java.lang.ClassCastException("x10.lang.Char");
     }
 
     public static byte asbyte(Object typeParamOrAny, Type<?> origRTT){
@@ -338,7 +614,7 @@ public class Types {
         	if (typeParamOrAny instanceof x10.core.Byte) return x10.core.Byte.$unbox((x10.core.Byte)typeParamOrAny);
         	else if (typeParamOrAny instanceof java.lang.Byte) {return (java.lang.Byte) typeParamOrAny;}
         }
-        throw new ClassCastException("x10.lang.Byte");
+        throw new java.lang.ClassCastException("x10.lang.Byte");
     }
     
     public static short asshort(Object typeParamOrAny, Type<?> origRTT){
@@ -349,7 +625,7 @@ public class Types {
         	if (typeParamOrAny instanceof x10.core.Short) return x10.core.Short.$unbox((x10.core.Short)typeParamOrAny);
         	else if (typeParamOrAny instanceof java.lang.Short) {return (java.lang.Short) typeParamOrAny;}
         }
-        throw new ClassCastException("x10.lang.Short");
+        throw new java.lang.ClassCastException("x10.lang.Short");
     }
     
     public static int asint(Object typeParamOrAny, Type<?> origRTT){
@@ -360,7 +636,7 @@ public class Types {
             if (typeParamOrAny instanceof x10.core.Int) return x10.core.Int.$unbox((x10.core.Int) typeParamOrAny);
             else if (typeParamOrAny instanceof java.lang.Integer) {return (java.lang.Integer) typeParamOrAny;}
         }
-        throw new ClassCastException("x10.lang.Int");
+        throw new java.lang.ClassCastException("x10.lang.Int");
     }
 
     public static long aslong(Object typeParamOrAny, Type<?> origRTT){
@@ -371,7 +647,7 @@ public class Types {
         	if (typeParamOrAny instanceof x10.core.Long) {return x10.core.Long.$unbox((x10.core.Long)typeParamOrAny);}
         	else if (typeParamOrAny instanceof java.lang.Long) {return (java.lang.Long) typeParamOrAny;}
         }
-        throw new ClassCastException("x10.lang.Long");
+        throw new java.lang.ClassCastException("x10.lang.Long");
     }
 
     public static float asfloat(Object typeParamOrAny, Type<?> origRTT){
@@ -382,7 +658,7 @@ public class Types {
         	if (typeParamOrAny instanceof x10.core.Float) {return x10.core.Float.$unbox((x10.core.Float)typeParamOrAny);}
         	else if (typeParamOrAny instanceof java.lang.Float) {return (java.lang.Float) typeParamOrAny;}
         }
-        throw new ClassCastException("x10.lang.Float");
+        throw new java.lang.ClassCastException("x10.lang.Float");
     }
 
     public static double asdouble(Object typeParamOrAny, Type<?> origRTT){
@@ -393,7 +669,7 @@ public class Types {
         	if (typeParamOrAny instanceof x10.core.Double) {return x10.core.Double.$unbox((x10.core.Double)typeParamOrAny);}
         	else if (typeParamOrAny instanceof java.lang.Double) {return (java.lang.Double) typeParamOrAny;}
         }
-        throw new ClassCastException("x10.lang.Double");
+        throw new java.lang.ClassCastException("x10.lang.Double");
     }
 
     public static byte asUByte(Object typeParamOrAny, Type<?> origRTT){
@@ -404,11 +680,12 @@ public class Types {
             if (typeParamOrAny instanceof x10.core.UByte) {return x10.core.UByte.$unbox((x10.core.UByte)typeParamOrAny);}
             else if (typeParamOrAny instanceof java.lang.Byte) {return (java.lang.Byte)typeParamOrAny;}
         }
-        throw new ClassCastException("x10.lang.UByte");
+        throw new java.lang.ClassCastException("x10.lang.UByte");
     }
-    public static Object asBoxedUByte(Object typeParamOrAny, Type<?> origRTT){
-    	return x10.core.UByte.$box(asUByte(typeParamOrAny, origRTT));
-    }
+    // not used
+//    public static Object asBoxedUByte(Object typeParamOrAny, Type<?> origRTT){
+//    	return x10.core.UByte.$box(asUByte(typeParamOrAny, origRTT));
+//    }
 
     public static short asUShort(Object typeParamOrAny, Type<?> origRTT){
         if (typeParamOrAny == null) {nullIsCastToStruct("x10.lang.UShort");}
@@ -418,25 +695,27 @@ public class Types {
             if (typeParamOrAny instanceof x10.core.UShort) {return x10.core.UShort.$unbox((x10.core.UShort)typeParamOrAny);}
             else if (typeParamOrAny instanceof java.lang.Short) {return (java.lang.Short)typeParamOrAny;}
         }
-        throw new ClassCastException("x10.lang.UShort");
+        throw new java.lang.ClassCastException("x10.lang.UShort");
     }
-    public static Object asBoxedUShort(Object typeParamOrAny, Type<?> origRTT){
-    	return x10.core.UShort.$box(asUShort(typeParamOrAny, origRTT));
-    }
+    // not used
+//    public static Object asBoxedUShort(Object typeParamOrAny, Type<?> origRTT){
+//    	return x10.core.UShort.$box(asUShort(typeParamOrAny, origRTT));
+//    }
 
     public static int asUInt(Object typeParamOrAny, Type<?> origRTT){
         if (typeParamOrAny == null) {nullIsCastToStruct("x10.lang.UInt");}
         if (isNumericType(origRTT)) {
         	return ((java.lang.Number) typeParamOrAny).intValue();
         } else {
-        	if (typeParamOrAny instanceof x10.core.UInt) {return x10.core.UInt.$unbox((x10.core.Byte)typeParamOrAny);}
+        	if (typeParamOrAny instanceof x10.core.UInt) {return x10.core.UInt.$unbox((x10.core.UInt)typeParamOrAny);}
         	else if (typeParamOrAny instanceof java.lang.Integer) {return (java.lang.Integer)typeParamOrAny;}
         }
-        throw new ClassCastException("x10.lang.UInt");
+        throw new java.lang.ClassCastException("x10.lang.UInt");
     }
-    public static Object asBoxedUInt(Object typeParamOrAny, Type<?> origRTT){
-    	return x10.core.UInt.$box(asUInt(typeParamOrAny, origRTT));
-    }
+    // not used
+//    public static Object asBoxedUInt(Object typeParamOrAny, Type<?> origRTT){
+//    	return x10.core.UInt.$box(asUInt(typeParamOrAny, origRTT));
+//    }
 
     public static long asULong(Object typeParamOrAny, Type<?> origRTT){
         if (typeParamOrAny == null) {nullIsCastToStruct("x10.lang.ULong");}
@@ -446,11 +725,12 @@ public class Types {
             if (typeParamOrAny instanceof x10.core.ULong) {return x10.core.ULong.$unbox((x10.core.ULong)typeParamOrAny);}
             else if (typeParamOrAny instanceof java.lang.Long) {return (java.lang.Long)typeParamOrAny;}
         }
-        throw new ClassCastException("x10.lang.ULong");
+        throw new java.lang.ClassCastException("x10.lang.ULong");
     }
-    public static Object asBoxedULong(Object typeParamOrAny, Type<?> origRTT){
-    	return x10.core.ULong.$box(asULong(typeParamOrAny, origRTT));
-    }
+    // not used
+//    public static Object asBoxedULong(Object typeParamOrAny, Type<?> origRTT){
+//    	return x10.core.ULong.$box(asULong(typeParamOrAny, origRTT));
+//    }
 
     public static Object asStruct(Type<?> rtt, Object typeParamOrAny) {
         if (typeParamOrAny == null) {nullIsCastToStruct(rtt);}
@@ -477,19 +757,11 @@ public class Types {
         if (rtt == LONG) {return x10.core.Long.$box(aslong(primOrTypeParam, convert ? LONG : null));}
         if (rtt == FLOAT) {return x10.core.Float.$box(asfloat(primOrTypeParam, convert ? FLOAT : null));}
         if (rtt == DOUBLE) {return x10.core.Double.$box(asdouble(primOrTypeParam, convert ? DOUBLE : null));}
-        if (rtt == UBYTE) {return asBoxedUByte(primOrTypeParam, convert ? UBYTE : null);}
-        if (rtt == USHORT) {return asBoxedUShort(primOrTypeParam, convert ? USHORT : null);}
-        if (rtt == UINT) {return asBoxedUInt(primOrTypeParam, convert ? UINT : null);}
-        if (rtt == ULONG) {return asBoxedULong(primOrTypeParam, convert ? ULONG : null);}
-        
-        if (rtt == STRING) {
-            if (primOrTypeParam instanceof x10.core.String) return x10.core.String.$unbox((x10.core.String) primOrTypeParam);
-            return primOrTypeParam;
-        }
-        else if (primOrTypeParam instanceof java.lang.String) { // i.e. rtt==Any|Object|Fun
-            return x10.core.String.$box((java.lang.String) primOrTypeParam);
-        }
-        
+        if (rtt == UBYTE) {return x10.core.UByte.$box(asUByte(primOrTypeParam, convert ? UBYTE : null));}
+        if (rtt == USHORT) {return x10.core.UShort.$box(asUShort(primOrTypeParam, convert ? USHORT : null));}
+        if (rtt == UINT) {return x10.core.UInt.$box(asUInt(primOrTypeParam, convert ? UINT : null));}
+        if (rtt == ULONG) {return x10.core.ULong.$box(asULong(primOrTypeParam, convert ? ULONG : null));}
+
         return primOrTypeParam;
     }
 
@@ -500,43 +772,35 @@ public class Types {
     private static void nullIsCastToStruct(Type<?> rtt) {throw new java.lang.ClassCastException(rtt.typeName());}
     private static void nullIsCastToStruct(String msg){throw new java.lang.ClassCastException(msg);}
 
+    private static boolean isNullable(Type<?> rtt) {
+        return rtt.isref();
+    }
+
     public static boolean hasNaturalZero(Type<?> rtt) {
-    	return rtt.isAssignableTo(OBJECT) || isNumericType(rtt) || rtt == CHAR || rtt == BOOLEAN;
+    	return isNullable(rtt) || isPrimitiveType(rtt);
     }
 
     public static <T> T cast(final java.lang.Object self, Type<?> rtt) {
-        if (self == null) return null;
-        if (rtt != null && !rtt.isInstance(self)) throw new x10.lang.ClassCastException(rtt.typeName());
+        // XTENLANG-3093
+        if (self == null) {
+            if (rtt == null || isNullable(rtt)) return null;
+            throw new java.lang.ClassCastException(rtt.typeName());
+        }
+        if (rtt != null && !rtt.isInstance(self)) throw new java.lang.ClassCastException(rtt.typeName());
         return (T) self;
     }
     
     public static <T> T castConversion(final java.lang.Object self, Type<?> rtt) {
-        if (self == null) return null;
+        // XTENLANG-3093
+        if (self == null) {
+            if (rtt == null || isNullable(rtt)) return null;
+            throw new java.lang.ClassCastException(rtt.typeName());
+        }
         T ret = (T) conversion(rtt, self, true);
-        if (rtt != null && !rtt.isInstance(ret)) throw new x10.lang.ClassCastException(rtt.typeName());
+        if (rtt != null && !rtt.isInstance(ret)) throw new java.lang.ClassCastException(rtt.typeName());
         return ret;
     }
 
-    // TODO haszero
-    /*
-    private static Object zeroValue(Class<?> c) {
-        if (c.equals(BYTE.getJavaClass()) || c.equals(Byte.class)) return BYTE_ZERO;
-        if (c.equals(SHORT.getJavaClass()) || c.equals(Short.class)) return SHORT_ZERO;
-        if (c.equals(INT.getJavaClass()) || c.equals(Integer.class)) return INT_ZERO;
-        if (c.equals(LONG.getJavaClass()) || c.equals(Long.class)) return LONG_ZERO;
-        if (c.equals(UBYTE.getJavaClass())) return UBYTE_ZERO;
-        if (c.equals(USHORT.getJavaClass())) return USHORT_ZERO;
-        if (c.equals(UINT.getJavaClass())) return UINT_ZERO;
-        if (c.equals(ULONG.getJavaClass())) return ULONG_ZERO;
-        if (c.equals(FLOAT.getJavaClass()) || c.equals(Float.class)) return FLOAT_ZERO;
-        if (c.equals(DOUBLE.getJavaClass()) || c.equals(Double.class)) return DOUBLE_ZERO;
-        if (c.equals(CHAR.getJavaClass()) || c.equals(Character.class)) return CHAR_ZERO;
-        if (c.equals(BOOLEAN.getJavaClass()) || c.equals(Boolean.class)) return BOOLEAN_ZERO;
-        // Note: user defined structs is not supported
-//        assert !STRUCT.getJavaClass().isAssignableFrom(c) : "user defined structs is not supported";
-        return null;
-    }
-    */
     public static Object zeroValue(Type<?> rtt) {
         Type<?>[] actualTypeArguments = null;
         if (rtt instanceof ParameterizedType) {
@@ -576,19 +840,6 @@ public class Types {
                 assert ctor != null;
                 Object[] params = new Object[paramTypes.length];
                 
-                /*
-                int i = 0;
-                if (actualTypeArguments != null) {
-                    for ( ; i < actualTypeArguments.length; ++i) {
-                        // pass type params
-                        params[i] = actualTypeArguments[i];
-                    }
-                }
-                for ( ; i < paramTypes.length; ++i) {
-                    // these values are not necessarily zero value
-                    params[i] = zeroValue(paramTypes[i]);
-                }
-                */
                 assert actualTypeArguments == null ? paramTypes.length == 1/*(java.lang.System)null*/ : paramTypes.length == actualTypeArguments.length/*T1,T2,...*/ + 1/*(java.lang.System)null*/;
                 int i = 0;
                 if (actualTypeArguments != null) {

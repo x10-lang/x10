@@ -31,7 +31,7 @@ public class GenericInstanceof14 extends GenericTest {
     class Sub extends Super {};
     
     public def run() = {
-        var a:Object = new A();
+        var a:Any = new A();
         return !(a instanceof I[I[Sub]]) && a instanceof I[I[Super]];
     }
     

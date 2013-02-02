@@ -224,8 +224,6 @@ public interface NodeFactory
 
     Switch Switch(Position pos, Expr expr, List<SwitchElement> elements);
 
-    Synchronized Synchronized(Position pos, Expr expr, Block body);
-
     Throw Throw(Position pos, Expr expr);
 
     Try Try(Position pos, Block tryBlock, List<Catch> catchBlocks);
@@ -277,7 +275,7 @@ public interface NodeFactory
     Async Async(Position pos, List<Expr> clocks, Stmt body);
     Async Async(Position pos, Stmt body, boolean clocked);
     Atomic Atomic(Position pos, Expr place, Stmt body);
-    Here Here(Position pos);
+    Here_c Here(Position pos);
 
     /**
      * Return an immutable representation of a 1-armed When.
@@ -313,7 +311,7 @@ public interface NodeFactory
             List<Formal> formals,  Block body);
     X10MethodDecl X10MethodDecl(Position pos, FlagsNode flags,
             TypeNode returnType, Id name, List<TypeParamNode> typeParams,
-            List<Formal> formals, DepParameterExpr guard,  TypeNode offerType, Block body);
+            List<Formal> formals, DepParameterExpr guard,  TypeNode offerType, List<TypeNode> throwsopt, Block body);
     SettableAssign SettableAssign(Position pos, Expr a, List<Expr> indices, Assign.Operator op, Expr rhs);
 
     Tuple Tuple(Position pos, List<Expr> args);
@@ -325,7 +323,7 @@ public interface NodeFactory
     
     X10ConstructorDecl X10ConstructorDecl(Position pos, FlagsNode flags, Id name,
             TypeNode returnType, List<TypeParamNode> typeParams, List<Formal> formals, 
-            DepParameterExpr guard,  TypeNode offerType, Block body);
+            DepParameterExpr guard,  TypeNode offerType, List<TypeNode> throwTypes, Block body);
     PropertyDecl PropertyDecl(Position pos, FlagsNode flags, TypeNode type, Id name);
     PropertyDecl PropertyDecl(Position pos, FlagsNode flags, TypeNode type, Id name, Expr init);
     X10Special Self(Position pos);
@@ -365,4 +363,6 @@ public interface NodeFactory
     FinishExpr FinishExpr(Position p, Expr e, Stmt s);
 
 	CUDAKernel CUDAKernel(Position position, List<Stmt> statements, Block body);
+
+	public IsRefTest IsRefTest(Position pos, TypeNode t1);
 }

@@ -133,6 +133,7 @@ import x10.visit.CheckEscapingThis;
 import x10.visit.AnnotationChecker;
 import x10.visit.ErrChecker;
 import x10cpp.postcompiler.PrecompiledLibrary;
+import x10.visit.DotTranslator;
 import x10.visit.CommunicationOptimizer;
 
 /**
@@ -536,12 +537,12 @@ public class ExtensionInfo extends polyglot.frontend.ParserlessJLExtensionInfo {
            final Goal nativeClassVisitorGoal = NativeClassVisitor(job);
            goals.add(nativeClassVisitorGoal);
 
+           goals.add(TypeParameterAlphaRenamer(job));
+
            final Goal innerClassRemoverGoal = InnerClassRemover(job);
            goals.add(innerClassRemoverGoal); // TODO: move even earlier
            innerClassRemoverGoal.addPrereq(nativeClassVisitorGoal);
            innerClassRemoverGoal.addPrereq(typeCheckBarrierGoal);
-
-           goals.add(TypeParameterAlphaRenamer(job));
 
            goals.add(Serialized(job));
            if (opts.x10_config.WORK_STEALING) {
@@ -914,6 +915,12 @@ public class ExtensionInfo extends polyglot.frontend.ParserlessJLExtensionInfo {
        public Goal Parsed(Job job) {
            return new X10ParserGoal(extInfo.compiler(), job).intern(this);
        }
+       
+       public Goal DotOutputted(Job job, String name) {
+    	   Goal cg = new OutputGoal(job, new DotTranslator(job, extInfo.typeSystem(), extInfo.nodeFactory(), extInfo.targetFactory(), name), name);
+    	   return cg.intern(this);
+       }
+
 
        @Override
        public Goal constructTypesInitialized(Job job) {

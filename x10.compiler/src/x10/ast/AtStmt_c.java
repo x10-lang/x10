@@ -53,6 +53,7 @@ import x10.constraint.XTerm;
 import x10.errors.Errors;
 import x10.extension.X10Del;
 import x10.extension.X10Del_c;
+import x10.extension.X10Ext;
 import x10.types.AtDef;
 import x10.types.ClosureDef;
 import x10.types.ParameterType;
@@ -272,8 +273,17 @@ public class AtStmt_c extends Stmt_c implements AtStmt {
         }
         Stmt body = (Stmt) visitChild(this.body, childtc.context(c));
         AtStmt_c n = this.reconstruct(place, body);
+
+		List<AnnotationNode> oldAnnotations = ((X10Ext)n.ext()).annotations();
+		if (oldAnnotations != null && !oldAnnotations.isEmpty()) {
+			List<AnnotationNode> newAnnotations = visitList(oldAnnotations, v);
+			if (! CollectionUtil.allEqual(oldAnnotations, newAnnotations)) {
+				n = (AtStmt_c) ((X10Del) n.del()).annotations(newAnnotations);
+			}
+		}
+
         return tc.leave(parent, this, n, childtc);
-    }
+}
 
     @Override
     public Node typeCheck(ContextVisitor tc) {

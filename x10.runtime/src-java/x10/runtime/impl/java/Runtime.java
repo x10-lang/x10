@@ -11,30 +11,21 @@
 
 package x10.runtime.impl.java;
 
-import x10.core.ThrowableUtilities;
-import x10.core.io.InputStream;
-import x10.core.io.OutputStream;
-import x10.io.InputStreamReader;
-import x10.io.OutputStreamWriter;
+import java.io.ByteArrayInputStream;
+import java.io.DataInputStream;
+import java.lang.reflect.InvocationTargetException;
+import java.util.Map;
+
 import x10.io.Reader;
 import x10.io.Writer;
 import x10.lang.FinishState;
 import x10.rtt.RuntimeType;
 import x10.rtt.Type;
 import x10.rtt.Types;
-import x10.x10rt.DeserializationDispatcher;
-import x10.x10rt.X10JavaDeserializer;
-import x10.x10rt.X10JavaSerializable;
-import x10.x10rt.X10JavaSerializer;
+import x10.serialization.X10JavaDeserializer;
+import x10.serialization.X10JavaSerializable;
+import x10.serialization.X10JavaSerializer;
 import x10.x10rt.X10RT;
-
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.DataInputStream;
-import java.io.DataOutputStream;
-import java.io.IOException;
-import java.lang.reflect.InvocationTargetException;
-import java.util.Map;
 
 public abstract class Runtime implements x10.core.fun.VoidFun_0_0 {
 
@@ -48,7 +39,7 @@ public abstract class Runtime implements x10.core.fun.VoidFun_0_0 {
         return null;
     }
 
-    private String[] args;
+    protected String[] args;
 
     // not used
 //    // constructor just for allocation
@@ -77,10 +68,6 @@ public abstract class Runtime implements x10.core.fun.VoidFun_0_0 {
                 System.loadLibrary(libs[i]);
         }
 
-        // @MultiVM, the following is right ??
-        // FIXME: By here it is already too late because statics in Runtime
-        // refer to X10RT. Need to restructure this so that we can call
-        // X10RT.init explicitly from here.
         X10RT.init();
 
         x10.lang.Runtime.get$staticMonitor();
@@ -103,7 +90,8 @@ public abstract class Runtime implements x10.core.fun.VoidFun_0_0 {
         worker.start();
         try {
             worker.join();
-        } catch (InterruptedException e) {
+        } catch (java.lang.InterruptedException e) {
+            // Note: since this isn't user visible, java.lang.InterruptedException is used.
         }
 
         // shutdown
@@ -128,7 +116,7 @@ public abstract class Runtime implements x10.core.fun.VoidFun_0_0 {
             } catch (java.lang.Error e) {
                 throw e;
             } catch (java.lang.Throwable t) {
-                throw new x10.runtime.impl.java.UnknownJavaThrowable(t);
+                throw new x10.lang.WrappedThrowable(t);
             }
         }
 
@@ -141,49 +129,27 @@ public abstract class Runtime implements x10.core.fun.VoidFun_0_0 {
 
         public Type<?> $getParam(int i) { return null; }
 
-        public void $_serialize(X10JavaSerializer serializer) throws IOException {
-            throw new UnsupportedOperationException("Serialization not supported for " + getClass());
+        public void $_serialize(X10JavaSerializer $serializer) throws java.io.IOException {
+            throw new java.lang.UnsupportedOperationException("Serialization not supported for " + getClass());
         }
 
         public short $_get_serialization_id() {
-            throw new UnsupportedOperationException("Serialization not supported for " + getClass());
+            throw new java.lang.UnsupportedOperationException("Serialization not supported for " + getClass());
         }
     }
 
     public void $apply() {
-        // try { Class.forName("x10.lang.Place"); } catch
-        // (ClassNotFoundException e) { }
-
-        // preload classes by default
-        if (!Boolean.getBoolean("x10.NO_PRELOAD_CLASSES")) {
-            // System.out.println("start preloading of classes");
-            Class<?> userMain = this.getClass().getEnclosingClass();
-            String extraClassesString = System.getProperty("x10.EXTRA_PRELOAD_CLASSES");
-            java.util.ArrayList<String> extraClasses;
-            if (extraClassesString != null) {
-                extraClasses = new java.util.ArrayList<String>();
-                java.util.StringTokenizer tokenizer = new java.util.StringTokenizer(extraClassesString, java.io.File.pathSeparator);
-                while (tokenizer.hasMoreTokens()) {
-                    String name = tokenizer.nextToken();
-                    extraClasses.add(name);
-                }
-            } else {
-                extraClasses = null;
-            }
-            x10.runtime.impl.java.PreLoader.preLoad(userMain, extraClasses, Boolean.getBoolean("x10.PRELOAD_STRINGS"));
-        }
-
-        // Obtain message ID's for each async
+        // x10rt-level registration of MessageHandlers
         if (X10RT.numPlaces() > 1) {
-            DeserializationDispatcher.registerHandlers();
+            x10.x10rt.MessageHandlers.registerHandlers();
         }
 
         // build up Array[String] for args
-        // XTENLANG-3063
-//        final x10.array.Array<String> aargs = new x10.array.Array<String>((java.lang.System[]) null, Types.STRING).$init(args.length);
-        final x10.array.Array<String> aargs = new x10.array.Array<String>((java.lang.System[]) null, Types.STRING).x10$array$Array$$init$S(args.length);
-        for (int i = 0; i < args.length; i++) {
-            aargs.$set__1x10$array$Array$$T$G(i, args[i]);
+        final x10.array.Array<String> aargs = new x10.array.Array<String>((java.lang.System[]) null, Types.STRING).x10$array$Array$$init$S((args == null)?0:args.length);
+        if (args != null) {
+	        for (int i = 0; i < args.length; i++) {
+	            aargs.$set__1x10$array$Array$$T$G(i, args[i]);
+	        }
         }
 
         // execute root x10 activity
@@ -194,7 +160,7 @@ public abstract class Runtime implements x10.core.fun.VoidFun_0_0 {
                                    new $Closure$Main(this, aargs));
         } catch (java.lang.Throwable t) {
             // XTENLANG=2686: Unwrap UnknownJavaThrowable to get the original Throwable object
-            if (t instanceof UnknownJavaThrowable) t = t.getCause();
+            if (t instanceof x10.lang.WrappedThrowable) t = t.getCause();
             t.printStackTrace();
             setExitCode(1);
         }
@@ -221,7 +187,7 @@ public abstract class Runtime implements x10.core.fun.VoidFun_0_0 {
     /**
      * The number of places in the system
      */
-    public static int MAX_PLACES = X10RT.numPlaces();
+    public static int MAX_PLACES = 0; // updated in initialization
     
     /**
      * Disable Assertions
@@ -243,18 +209,6 @@ public abstract class Runtime implements x10.core.fun.VoidFun_0_0 {
      * Emit detail serialization traces for java serialization. Using for debugging in preliminary stage
      */
     public static final boolean TRACE_SER_DETAIL = Boolean.getBoolean("x10.TRACE_SER_DETAIL");
-    
-    /**
-     * Time serialization/deserialization operations.
-     */
-    public static final boolean PROF_SER = Boolean.getBoolean("x10.PROF_SER");
-    
-    /**
-     * Minimum threshold in for reporting serialization/deserialization times.
-     * The property is a value in milliseconds, we convert to nanoSeconds for efficiency when using System.nanoTime.
-     * The default value is 10ms.
-     */
-    public static final long PROF_SER_FILTER = 1000 * 1000 * Long.getLong("x10.PROF_SER_FILTER", 10);
 
     public static final boolean X10_TRACE_ANSI_COLORS = Boolean.getBoolean("X10_TRACE_ANSI_COLORS");
 
@@ -276,18 +230,20 @@ public abstract class Runtime implements x10.core.fun.VoidFun_0_0 {
         System.out.println(ANSI_BOLD + X10RT.here() + ": " + col + type + ": " + ANSI_RESET + message);
     }
 
-    public static void runAsyncAt(int place, x10.core.fun.VoidFun_0_0 body, FinishState finishState, int endpoint) {
-         runAsyncAt(place, body, finishState);
+    public static void runAsyncAt(int place, x10.core.fun.VoidFun_0_0 body, FinishState finishState, x10.lang.Runtime.Profile prof, int endpoint) {
+         runAsyncAt(place, body, finishState, prof);
     }
 
-    public static void runAsyncAt(int place, x10.core.fun.VoidFun_0_0 body, FinishState finishState) {
-        short sid = body.$_get_serialization_id();
-        int messageID = DeserializationDispatcher.getMessageID(sid);
+    public static void runAsyncAt(int place, x10.core.fun.VoidFun_0_0 body, FinishState finishState, x10.lang.Runtime.Profile prof) {
         try {
-            byte[] bytes = serialize(body, finishState);
-            x10.x10rt.MessageHandlers.runClosureAtSend(place, bytes.length, bytes, messageID);
-        } catch (IOException e) {
-            x10.core.Throwable xe = ThrowableUtilities.getCorrespondingX10Throwable(e);
+            byte[] bytes = serialize(body, finishState, prof);
+			long start = prof!=null ? System.nanoTime() : 0;
+            x10.x10rt.MessageHandlers.runSimpleAsyncAtSend(place, bytes.length, bytes);
+            if (prof!=null) {
+                prof.communicationNanos += System.nanoTime() - start;
+            }
+        } catch (java.io.IOException e) {
+            java.lang.RuntimeException xe = x10.runtime.impl.java.ThrowableUtils.ensureX10Exception(e);
             xe.printStackTrace();
             throw xe;
         }
@@ -296,99 +252,75 @@ public abstract class Runtime implements x10.core.fun.VoidFun_0_0 {
     /**
      * Synchronously executes body at place(id)
      */
-    public static void runClosureAt(int place, x10.core.fun.VoidFun_0_0 body) {
-        runAt(place, body);
+    public static void runClosureAt(int place, x10.core.fun.VoidFun_0_0 body, x10.lang.Runtime.Profile prof) {
+        runAt(place, body, prof);
     }
 
     /**
      * Synchronously executes body at place(id)
      */
-    public static void runClosureCopyAt(int place, x10.core.fun.VoidFun_0_0 body) {
-        runAt(place, body);
+    public static void runClosureCopyAt(int place, x10.core.fun.VoidFun_0_0 body, x10.lang.Runtime.Profile prof) {
+        runAt(place, body, prof);
     }
 
     /**
      * Copy body (same place)
      */
     @SuppressWarnings("unchecked")
-    public static <T> T deepCopy(T body) {
+    public static <T> T deepCopy(T body, x10.lang.Runtime.Profile prof) {
 
     	try {
     		if (TRACE_SER_DETAIL) {
     			System.out.println("Starting deepCopy of " + body.getClass());
     		}
-    		long start = PROF_SER ? System.nanoTime() : 0;
+    		long start = prof!=null ? System.nanoTime() : 0;
 
-    		byte[] ba = serialize(body);
+    		byte[] ba = serialize(body, null);
     		DataInputStream ois = new DataInputStream(new ByteArrayInputStream(ba));
     		X10JavaDeserializer deserializer = new X10JavaDeserializer(ois);
     		body = (T) deserializer.readRef();
 
-    		if (PROF_SER) {
+    		if (prof!=null) {
     			long stop = System.nanoTime();
     			long duration = stop-start;
-    			if (duration >= PROF_SER_FILTER) {
-    				System.out.println("Deep copy took "+(((double)duration)/1e6)+" ms.");
-    			}
+                prof.bytes += ba.length;
+                prof.serializationNanos += duration;
     		}
     		if (TRACE_SER_DETAIL) {
     			System.out.println("Done with deserialization for deepCopy of " + body.getClass());
     		}
     		return body;
     	} catch (java.io.IOException e) {
-    		x10.core.Throwable xe = ThrowableUtilities.getCorrespondingX10Throwable(e);
+    		java.lang.RuntimeException xe = x10.runtime.impl.java.ThrowableUtils.ensureX10Exception(e);
     		xe.printStackTrace();
     		throw xe;
     	}
     }
 
-    public static <T> byte[] serialize(T body) throws IOException {
+    public static <T> byte[] serialize(T body, x10.lang.Runtime.Profile prof) throws java.io.IOException {
     	if (TRACE_SER_DETAIL) {
     		System.out.println("Starting serialization for runAtAll  " + body.getClass());
     	}
-    	long start = PROF_SER ? System.nanoTime() : 0;
-    	ByteArrayOutputStream baos = new ByteArrayOutputStream();
-    	DataOutputStream oos = new DataOutputStream(baos);
-    	X10JavaSerializer serializer = new X10JavaSerializer(oos);
+    	long start = prof!=null ? System.nanoTime() : 0;
+
+    	X10JavaSerializer serializer = new X10JavaSerializer();
     	if (body instanceof X10JavaSerializable) {
     		serializer.write((X10JavaSerializable) body);
     	} else {
     		serializer.write(body);
     	}
-    	oos.close();
-    	byte[] ba = baos.toByteArray();
-    	if (PROF_SER) {
+    	byte[] ba = serializer.toMessage();
+    	if (prof != null) {
     		long stop = System.nanoTime();
     		long duration = stop-start;
-    		if (duration >= PROF_SER_FILTER) {
-    			System.out.println("Serialization took "+(((double)duration)/1e6)+" ms.");
-    		}
+            prof.bytes += ba.length;
+            prof.serializationNanos += duration;
     	}
     	if (TRACE_SER_DETAIL) {
     		System.out.println("Done with serialization for runAtAll " + body.getClass());
     	}
     	return ba;
     }
-
-    // not used
-//    public static <T> byte[] serializeUsingReflection(T body) throws IOException {
-//    	long start = PROF_SER ? System.nanoTime() : 0;
-//    	ByteArrayOutputStream baos = new ByteArrayOutputStream();
-//    	DataOutputStream oos = new DataOutputStream(baos);
-//    	X10JavaSerializer serializer = new X10JavaSerializer(oos);
-//    	serializer.writeObjectUsingReflection(body);
-//    	oos.close();
-//    	byte[] ba = baos.toByteArray();
-//    	if (PROF_SER) {
-//    		long stop = System.nanoTime();
-//    		long duration = stop-start;
-//    		if (duration >= PROF_SER_FILTER) {
-//    			System.out.println("Serialization took "+(((double)duration)/1e6)+" ms.");
-//    		}
-//    	}
-//    	return ba;
-//    }
-
 
 	private static Class<? extends Object> hadoopWritableClass = getHadoopClass();
 	private static Class<? extends Object> getHadoopClass() {
@@ -406,25 +338,23 @@ public abstract class Runtime implements x10.core.fun.VoidFun_0_0 {
 		return hadoopWritableClass.isAssignableFrom(clazz);
 	}
 	
-	private static byte[] serialize(x10.core.fun.VoidFun_0_0 body, FinishState finishState) throws IOException {
+	private static byte[] serialize(x10.core.fun.VoidFun_0_0 body, FinishState finishState, x10.lang.Runtime.Profile prof) throws java.io.IOException {
 		if (TRACE_SER_DETAIL) {
 			System.out.println("Starting serialization for runAtAll  " + body.getClass());
 		}
-		long start = PROF_SER ? System.nanoTime() : 0;
-		ByteArrayOutputStream baos = new ByteArrayOutputStream();
-		DataOutputStream oos = new DataOutputStream(baos);
-		X10JavaSerializer serializer = new X10JavaSerializer(oos);
+		long start = prof!=null ? System.nanoTime() : 0;
+		X10JavaSerializer serializer = new X10JavaSerializer();
 		serializer.write(finishState);
-		serializer.recordReference(body);
-		body.$_serialize(serializer);
-		oos.close();
-		byte[] ba = baos.toByteArray();
-		if (PROF_SER) {
+        long before_bytes = serializer.numBytesWritten();
+        serializer.write(body);
+        long ser_bytes = serializer.numBytesWritten() - before_bytes;
+
+		byte[] ba = serializer.toMessage();
+		if (prof != null) {
 			long stop = System.nanoTime();
 			long duration = stop-start;
-			if (duration >= PROF_SER_FILTER) {
-				System.out.println("Serialization took "+(((double)duration)/1e6)+" ms.");
-			}
+            prof.bytes += ser_bytes;
+            prof.serializationNanos += duration;
 		}
 		if (TRACE_SER_DETAIL) {
 			System.out.println("Done with serialization for runAtAll " + body.getClass());
@@ -432,58 +362,53 @@ public abstract class Runtime implements x10.core.fun.VoidFun_0_0 {
 		return ba;
 	}
     
-    // @MultiVM, add this method
-	public static void runAt(int place, x10.core.fun.VoidFun_0_0 body) {
-		byte[] msg;
+	public static void runAt(int place, x10.core.fun.VoidFun_0_0 body, x10.lang.Runtime.Profile prof) {
 		try {
-			// Cannot use the serialize() method here cause we need to serialize the outer serialization ID too
-			// (This is not serialized by the serialize method as an optimization)
 			if (TRACE_SER_DETAIL) {
 				System.out.println("Starting serialization for runAtAll  " + body.getClass());
 			}
-			long start = PROF_SER ? System.nanoTime() : 0;
-			ByteArrayOutputStream baos = new ByteArrayOutputStream();
-			DataOutputStream oos = new DataOutputStream(baos);
-			X10JavaSerializer serializer = new X10JavaSerializer(oos);
-			serializer.recordReference(body);
-			body.$_serialize(serializer);
-			oos.close();
-			msg = baos.toByteArray();
-			if (PROF_SER) {
+			long start = prof!=null ? System.nanoTime() : 0;
+			X10JavaSerializer serializer = new X10JavaSerializer();
+			serializer.write(body);
+			byte[] msgBody = serializer.toMessage();
+			if (prof!=null) {
 				long stop = System.nanoTime();
 				long duration = stop-start;
-				if (duration >= PROF_SER_FILTER) {
-					System.out.println("Serialization took "+(((double)duration)/1e6)+" ms.");
-				}
+                prof.bytes += msgBody.length;
+                prof.serializationNanos += duration;
 			}
 			if (TRACE_SER_DETAIL) {
 				System.out.println("Done with serialization for runAtAll " + body.getClass());
 			}
 
-			int msg_id = DeserializationDispatcher.getMessageID(body.$_get_serialization_id());
-			int msgLen = msg.length;
+			int msgLen = msgBody.length;
 			if (X10RT.VERBOSE) System.out.println("@MultiVM: sendJavaRemote");
-			x10.x10rt.MessageHandlers.runClosureAtSend(place, msgLen, msg, msg_id);
+			if (prof!=null) {
+                start = System.nanoTime();
+            }
+			x10.x10rt.MessageHandlers.runClosureAtSend(place, msgLen, msgBody);
+			if (prof!=null) {
+                prof.communicationNanos += System.nanoTime() - start;
+            }
 		} catch (java.io.IOException e) {
 			e.printStackTrace();
-                        throw new x10.runtime.impl.java.UnknownJavaThrowable(e);
+			throw new x10.lang.WrappedThrowable(e);
 		} finally {
-			if (X10RT.VERBOSE) System.out.println("@MULTIVM: finally section");
+			if (X10RT.VERBOSE) System.out.println("@MultiVM: finally section");
 		}
 	}
 
     // Special version of runAt for broadcast type communication
     // (Serialize once, run everywhere)
 
-    public static void runAtAll(boolean includeHere, byte[] msg, short serializationID) {
-        int msg_id = DeserializationDispatcher.getMessageID(serializationID);
+    public static void runAtAll(boolean includeHere, byte[] msg) {
         int hereId = X10RT.here();
         for (int place = hereId + 1; place < Runtime.MAX_PLACES; ++place) {
-            x10.x10rt.MessageHandlers.runClosureAtSend(place, msg.length, msg, msg_id);
+            x10.x10rt.MessageHandlers.runClosureAtSend(place, msg.length, msg);
         }
         int endPlace = includeHere ? hereId : hereId - 1;
         for (int place = 0; place <= endPlace; ++place) {
-            x10.x10rt.MessageHandlers.runClosureAtSend(place, msg.length, msg, msg_id);
+            x10.x10rt.MessageHandlers.runClosureAtSend(place, msg.length, msg);
         }
     }
 
@@ -514,8 +439,6 @@ public abstract class Runtime implements x10.core.fun.VoidFun_0_0 {
      */
     public static x10.util.HashMap<String, String> loadenv() {
         Map<String, String> env = System.getenv();
-        // XTENLANG-3063
-//        x10.util.HashMap<String, String> map = new x10.util.HashMap<String, String>((java.lang.System[]) null, Types.STRING, Types.STRING).$init();
         x10.util.HashMap<String, String> map = new x10.util.HashMap<String, String>((java.lang.System[]) null, Types.STRING, Types.STRING).x10$util$HashMap$$init$S();
         for (Map.Entry<String, String> e : env.entrySet()) {
             map.put__0x10$util$HashMap$$K__1x10$util$HashMap$$V(e.getKey(), e.getValue());
@@ -527,8 +450,8 @@ public abstract class Runtime implements x10.core.fun.VoidFun_0_0 {
         try {
             Process proc = java.lang.Runtime.getRuntime().exec(command);
             return new x10.io.InputStreamReader(new x10.core.io.InputStream(proc.getInputStream()));
-        } catch (IOException e) {
-            x10.core.Throwable xe = ThrowableUtilities.getCorrespondingX10Throwable(e);
+        } catch (java.io.IOException e) {
+            java.lang.RuntimeException xe = x10.runtime.impl.java.ThrowableUtils.ensureX10Exception(e);
             xe.printStackTrace();
             throw xe;
         }
@@ -538,8 +461,8 @@ public abstract class Runtime implements x10.core.fun.VoidFun_0_0 {
         try {
             Process proc = java.lang.Runtime.getRuntime().exec(command);
             return new x10.io.OutputStreamWriter(new x10.core.io.OutputStream(proc.getOutputStream()));
-        } catch (IOException e) {
-            x10.core.Throwable xe = ThrowableUtilities.getCorrespondingX10Throwable(e);
+        } catch (java.io.IOException e) {
+            java.lang.RuntimeException xe = x10.runtime.impl.java.ThrowableUtils.ensureX10Exception(e);
             xe.printStackTrace();
             throw xe;
         }
@@ -584,10 +507,24 @@ public abstract class Runtime implements x10.core.fun.VoidFun_0_0 {
     }
 
     public short $_get_serialization_id() {
-		throw new x10.lang.UnsupportedOperationException("Cannot serialize " + getClass());
+		throw new java.lang.UnsupportedOperationException("Cannot serialize " + getClass());
 	}
 
-    public void $_serialize(X10JavaSerializer serializer) throws IOException {
-        throw new x10.lang.UnsupportedOperationException("Cannot serialize " + getClass());
+    public void $_serialize(X10JavaSerializer $serializer) throws java.io.IOException {
+        throw new java.lang.UnsupportedOperationException("Cannot serialize " + getClass());
 	}
+
+    
+    /**
+     * Time serialization/deserialization operations.
+     */
+    public static final boolean PROF_SER = Boolean.getBoolean("x10.PROF_SER");
+    
+    /**
+     * Minimum threshold in for reporting serialization/deserialization times.
+     * The property is a value in milliseconds, we convert to nanoSeconds for efficiency when using System.nanoTime.
+     * The default value is 10ms.
+     */
+    public static final long PROF_SER_FILTER = 1000 * 1000 * Long.getLong("x10.PROF_SER_FILTER", 10);
+
 }

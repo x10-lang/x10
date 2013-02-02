@@ -41,7 +41,7 @@ namespace x10 {
 
         
         void IMC_notifyEnclosingFinish(deserialization_buffer& buf) {
-            ref<x10::lang::FinishState> fs = buf.read<ref<x10::lang::FinishState> >();
+            x10::lang::FinishState* fs = buf.read<x10::lang::FinishState*>();
             // olivier says the incr should be just after the notifySubActivitySpawn
             fs->notifyActivityCreation();
             fs->notifyActivityTermination();
@@ -50,12 +50,12 @@ namespace x10 {
         void IMC_serialize_finish_state(place dst, serialization_buffer &buf) {
             // dst is the place where the finish update will occur, i.e. where the notifier runs
             dst = parent(dst);
-            ref<x10::lang::FinishState> fs = Runtime::activity()->finishState();
+            x10::lang::FinishState* fs = Runtime::activity()->finishState();
             fs->notifySubActivitySpawn(Place::_make(dst));
             buf.write(fs);
         }
 
-        void IMC_copyToBody(void *srcAddr, void *dstAddr, x10_int numBytes, Place dstPlace, bool overlap, x10aux::ref<Reference> notif) {
+        void IMC_copyToBody(void *srcAddr, void *dstAddr, x10_int numBytes, Place dstPlace, bool overlap, VoidFun_0_0* notif) {
             if (dstPlace->FMGL(id) == x10aux::here) {
                 if (overlap) {
                     // potentially overlapping, use memmove
@@ -63,14 +63,14 @@ namespace x10 {
                 } else {
                     memcpy(dstAddr, srcAddr, numBytes);
                 }                
-                if (!notif.isNull()) {
+                if (NULL != notif) {
                     VoidFun_0_0::__apply(notif);
                 }
             } else {
                 x10aux::place dst_place = dstPlace->FMGL(id);
                 x10aux::serialization_buffer buf;
                 buf.write((x10_long)(size_t)(dstAddr));
-                if (notif.isNull()) {
+                if (NULL == notif) {
                     IMC_serialize_finish_state(dst_place, buf);
                     x10aux::send_put(dst_place, IMC_copy_to_serialization_id, buf, srcAddr, numBytes);
                 } else {
@@ -80,7 +80,7 @@ namespace x10 {
             }
         }
 
-        void IMC_copyFromBody(void *srcAddr, void *dstAddr, x10_int numBytes, Place srcPlace, bool overlap, x10aux::ref<Reference> notif) {
+        void IMC_copyFromBody(void *srcAddr, void *dstAddr, x10_int numBytes, Place srcPlace, bool overlap, VoidFun_0_0* notif) {
             if (srcPlace->FMGL(id) == x10aux::here) {
                 if (overlap) {
                     // potentially overlapping, use memmove
@@ -88,14 +88,14 @@ namespace x10 {
                 } else {
                     memcpy(dstAddr, srcAddr, numBytes);
                 }
-                if (!notif.isNull()) {
+                if (NULL != notif) {
                     VoidFun_0_0::__apply(notif);
                 }
             } else {
                 x10aux::place src_place = srcPlace->FMGL(id);
                 x10aux::serialization_buffer buf;
                 buf.write((x10_long)(size_t)(srcAddr));
-                if (notif.isNull()) {
+                if (NULL == notif) {
                     IMC_serialize_finish_state(x10aux::here, buf);
                     x10aux::send_get(src_place, IMC_copy_from_serialization_id, buf, dstAddr, numBytes);
                 } else {
@@ -126,18 +126,17 @@ namespace x10 {
 
         void IMC_uncounted_notifier(deserialization_buffer &buf, x10_int) {
             buf.read<x10_long>();  // Read and discard data used by IMC_copy_to_buffer_finder
-            ref<Reference> notif = buf.read<x10aux::ref<x10::lang::Reference> >();
+            VoidFun_0_0* notif = buf.read<VoidFun_0_0*>();
             VoidFun_0_0::__apply(notif);
         }
 
-        void checkCongruentArgs (x10_boolean zeroed, x10_boolean containsPtrs)
-        {
-                if (!zeroed) 
-                    throwException(x10::lang::IllegalArgumentException::_make(String::Lit("Congruent memory must be zeroed")));
+        void checkCongruentArgs (x10_boolean zeroed, x10_boolean containsPtrs) {
+            if (!zeroed) 
+                throwException(x10::lang::IllegalArgumentException::_make(String::Lit("Congruent memory must be zeroed")));
 
-                if (containsPtrs) 
-                    throwException(x10::lang::IllegalArgumentException::_make(
-                        String::Lit("Congruent memory is not garbage collected thus cannot contain pointers")));
+            if (containsPtrs) 
+                throwException(x10::lang::IllegalArgumentException::_make(
+                                   String::Lit("Congruent memory is not garbage collected thus cannot contain pointers")));
         }
 
 

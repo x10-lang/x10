@@ -300,7 +300,7 @@ class X10IdentityMapper {
           }
         }
         if (type instanceof ParameterType) {
-            Type bound = type.typeSystem().Object(); // How to get the real bound?
+            Type bound = type.typeSystem().Any(); // How to get the real bound?
             return typeToTypeID(bound);
         }
         if (type instanceof MacroType) {

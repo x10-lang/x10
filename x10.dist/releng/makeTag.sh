@@ -9,6 +9,7 @@
 
 DO_CODE=0
 DO_MAN=0
+DO_X10DT=0
 
 while [ $# != 0 ]; do
 
@@ -29,6 +30,10 @@ while [ $# != 0 ]; do
 
 	-man)
 	    DO_MAN=1;
+	    ;;
+
+	-x10dt)
+	    DO_X10DT=1;
 	    ;;
 
 
@@ -64,6 +69,12 @@ if [[ $DO_MAN == 1 ]]; then
     svn copy -r $REVISION https://x10.svn.sourceforge.net/svnroot/x10/documentation/trunk/ \
         https://x10.svn.sourceforge.net/svnroot/x10/documentation/tags/$TAG \
         -m "Tagging documentation trunk revision $REVISION as $TAG release of X10"
+fi
+
+if [[ $DO_X10DT == 1 ]]; then
+    svn copy -r $REVISION https://x10.svn.sourceforge.net/svnroot/x10/x10dt/trunk/ \
+        https://x10.svn.sourceforge.net/svnroot/x10/x10dt/tags/$TAG \
+        -m "Tagging X10DT trunk revision $REVISION as $TAG release of X10DT"
 fi
 
 

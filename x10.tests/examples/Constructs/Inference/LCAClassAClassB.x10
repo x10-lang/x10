@@ -23,8 +23,8 @@ public class LCAClassAClassB extends x10Test {
 	public def run() {
 	  val x = new A();
       val y = new B();
-	// should succeed. LCA of A and B is Object.
-      val z:Array[Object{ self !=null}] = [x as A{self!=null},y as B{self!=null}];
+	// should succeed. LCA of A and B is Any.
+      val z:Array[Any{ self !=null}] = [x as A{self!=null},y as B{self!=null}];
 	  return true;
 	}
 

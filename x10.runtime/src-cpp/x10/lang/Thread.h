@@ -13,12 +13,11 @@
 #define X10_LANG_THREAD_H
 
 #include <x10aux/config.h>
-#include <x10aux/ref.h>
+#include <x10aux/serialization.h>
 
-#include <x10/lang/Object.h>
+#include <x10/lang/X10Class.h>
 #include <x10/lang/String.h>
 #include <x10/lang/VoidFun_0_0.h>
-#include <x10aux/serialization.h>
 
 #include <pthread.h>
 
@@ -50,22 +49,21 @@ namespace x10 {
         * augmented with the park/unpark API of java.util.concurrent.
         * locks.LockSupport.
         */
-        class Thread : public x10::lang::Object {
+        class Thread : public x10::lang::X10Class {
         public:
             RTT_H_DECLS_CLASS;
 
             // [constructors] Allocates a new Thread object.
-            static x10aux::ref<Thread> _make(x10aux::ref<x10::lang::String> name);
+            static Thread* _make(x10::lang::String* name);
 
-            x10aux::ref<Thread> _constructor(x10aux::ref<x10::lang::String> name) {
-                this->x10::lang::Object::_constructor();
+            Thread* _constructor(x10::lang::String* name) {
                 thread_init(name);
                 return this;
             }
 
-            static x10aux::ref<Thread> _make();
+            static Thread* _make();
 
-            x10aux::ref<Thread> _constructor() {
+            Thread* _constructor() {
                 return NULL;
             }
 
@@ -75,7 +73,7 @@ namespace x10 {
 
             virtual void _serialize_body(x10aux::serialization_buffer &buf);
 
-            static x10aux::ref<x10::lang::Reference> _deserializer(x10aux::deserialization_buffer &buf);
+            static x10::lang::Reference* _deserializer(x10aux::deserialization_buffer &buf);
 
             virtual void _deserialize_body(x10aux::deserialization_buffer& buf);
 
@@ -83,7 +81,7 @@ namespace x10 {
             ~Thread();
 
             // Returns a reference to the currently executing thread object.
-            static x10aux::ref<Thread> currentThread(void);
+            static Thread* currentThread(void);
 
             /**
              * Causes this thread to begin execution; the XRX runtime
@@ -178,16 +176,16 @@ namespace x10 {
             void unpark();
 
             // Returns the current worker.
-            x10aux::ref<x10::lang::Runtime__Worker> worker(void);
+            x10::lang::Runtime__Worker* worker(void);
 
             // API matching for Java runtime.  Not actually needed for C++ runtime.
             x10::lang::Place home(void);
             
             // Set the current worker.
-            void worker(x10aux::ref<x10::lang::Runtime__Worker> worker);
+            void worker(x10::lang::Runtime__Worker* worker);
 
             // Returns this thread's name.
-            const x10aux::ref<x10::lang::String> name(void);
+            x10::lang::String* name(void);
 
             /**
              * Returns the identifier of this thread. The thread ID is
@@ -202,7 +200,7 @@ namespace x10 {
             static x10_long getTid();
 
             // Changes the name of this thread to be equal to the argument name.
-            void name(const x10aux::ref<x10::lang::String> name);
+            void name(x10::lang::String* name);
 
             /**
              * This method does nothing and returns.
@@ -219,7 +217,7 @@ namespace x10 {
             
         protected:
             // Helper method to initialize a Thread object.
-            void thread_init(const x10aux::ref<x10::lang::String> name);
+            void thread_init(x10::lang::String* name);
             // Thread start routine.
             static void *thread_start_routine(void *arg);
             // Clean-up routine for sleep method call.
@@ -239,13 +237,13 @@ namespace x10 {
 
         private:
             // the current worker
-            x10aux::ref<x10::lang::Runtime__Worker> __current_worker;
+            x10::lang::Runtime__Worker* __current_worker;
             // internal thread id counter (monotonically increasing only)
             static long __thread_cnt;
             // thread id
             long __thread_id;
             // thread name
-            x10aux::ref<x10::lang::String> __thread_name;
+            x10::lang::String* __thread_name;
             // thread's pthread id
             // ??using __thread clashes with already existing identifier??
             pthread_t __xthread;

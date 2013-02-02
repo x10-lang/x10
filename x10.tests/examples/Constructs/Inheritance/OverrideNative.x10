@@ -21,14 +21,14 @@ public class OverrideNative extends x10Test {
         public def foo(a:int):int = a + 10;
     
         @Native("c++", "(#1)+100")
-        @Native("java", "(#1)+100")
+        @Native("java", "(#a)+100")
         public native def bar(a:int):int;
     }
 
     static class Child extends Parent {
 
         @Native("c++", "(#1)+200")
-        @Native("java", "(#1)+200")
+        @Native("java", "(#a)+200")
         public native def foo(a:int):int;
     
         public def bar(a:int):int = a + 20;

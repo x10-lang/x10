@@ -34,28 +34,30 @@ public class SubtypeConstraint implements Copy, Serializable {
     public enum Kind {
         SUBTYPE, // <:
         EQUAL, // ==
-        HASZERO
+        HASZERO,
+        ISREF
     }; // haszero
     
-    Kind KIND;
-    Type subtype;
-    Type supertype;
+    protected Kind KIND;
+    protected Type subtype;
+    protected Type supertype;
     public SubtypeConstraint(Type subtype, Type supertype, Kind kind) {
         this.subtype = subtype;
         this.supertype = supertype;
         this.KIND = kind;
-        if (isHaszero()) assert subtype!=null && supertype==null;
+        if (isHaszero() || isIsRef()) assert subtype!=null && supertype==null;
         else assert subtype!=null && supertype!=null;
     }
 
     public SubtypeConstraint(Type subtype, Type supertype, boolean equals) {
         this(subtype, supertype, equals ? Kind.EQUAL : Kind.SUBTYPE);
     }
-    public boolean isEqualityConstraint() {return KIND==Kind.EQUAL;}
-    public boolean isSubtypeConstraint()  {return KIND==Kind.SUBTYPE;}
-    public boolean isHaszero() {           return KIND==Kind.HASZERO;}
-    public boolean isKind(Kind k) { return k==KIND;}
-    public Kind kind() { return KIND;}
+    public boolean isEqualityConstraint() { return KIND==Kind.EQUAL; }
+    public boolean isSubtypeConstraint()  { return KIND==Kind.SUBTYPE; }
+    public boolean isHaszero() {            return KIND==Kind.HASZERO; }
+    public boolean isIsRef() {              return KIND==Kind.ISREF; }
+
+    public Kind kind() { return KIND;} 
 
     /*
      * (non-Javadoc)
@@ -70,7 +72,8 @@ public class SubtypeConstraint implements Copy, Serializable {
      * @see x10.types.SubtypeConstraint#supertype()
      */
     public Type supertype() {
-        assert !isHaszero(); // it returns null if it is haszero constraint, so you don't want to call supertype()
+    	// [DC] sometimes you want to create a new SubtypeConstraint based on an old SubtypeConstraint, so null is OK
+        //assert !isHaszero(); // it returns null if it is haszero constraint, so you don't want to call supertype()
         return supertype;
     }
 
@@ -104,7 +107,16 @@ public class SubtypeConstraint implements Copy, Serializable {
     }
 
     @Override public String toString() {
-        return subtype() + (isHaszero() ? " haszero" :
-            (isEqualityConstraint() ? " == " : " <: ") + supertype());
+    	if (isHaszero()) {
+    		return subtype() + " haszero";
+    	} else if (isIsRef()) {
+			return subtype() + " isref";
+    	} else if (isEqualityConstraint()) {
+            return subtype() + " == " + supertype();
+    	} else if (isSubtypeConstraint()) {
+            return subtype() + " <: " + supertype();
+    	} else {
+    		throw new RuntimeException("Internal compiler error"); 
+    	}
     }
 }

@@ -17,7 +17,7 @@ import x10.compiler.NativeRep;
 /**
  * A set of common bitwise operations.
  */
-@NativeRep("c++", "x10aux::ref<x10::lang::Bitwise<#T > >", "x10::lang::Bitwise<#T >", null)
+@NativeRep("c++", "x10::lang::Bitwise<#T >*", "x10::lang::Bitwise<#T >", null)
 public interface Bitwise[T] {
     /**
      * A bitwise complement operator.

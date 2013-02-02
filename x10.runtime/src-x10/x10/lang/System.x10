@@ -12,12 +12,15 @@
 package x10.lang;
 
 import x10.compiler.Native;
+import x10.compiler.NativeCPPInclude;
+
 import x10.io.Console;
 import x10.util.HashMap;
 import x10.util.Map;
 import x10.util.Timer;
 import x10.util.Pair;
 
+@NativeCPPInclude("x10/lang/RuntimeNatives.h")
 public class System {
 
     private def this() {}
@@ -46,7 +49,7 @@ public class System {
      * @see #setExitCode(Int)
      */
     @Native("java", "java.lang.System.exit(#code)")
-    @Native("c++", "x10aux::system_utils::exit(#code)")
+    @Native("c++", "x10::lang::RuntimeNatives::exit(#code)")
     static native def exit(code: Int): void;
 
     /**
@@ -111,6 +114,20 @@ public class System {
     @Native("java", "java.lang.System.setProperty(#p,#v)")
     @Native("c++", "printf(\"not setting %s\\n\", (#p)->c_str())") // FIXME: Trivial definition to allow XRX compilation to go through.
     public static native def setProperty(p:String,v:String):void;
+
+
+
+    @Native("java", "x10.rtt.Types.typeName(#o)")
+    @Native("c++", "x10aux::type_name(#o)")
+    public static native def identityTypeName(o:Any) : String;
+
+    @Native("java", "java.lang.System.identityHashCode(#o)")
+    @Native("c++", "x10aux::identity_hash_code(reinterpret_cast<x10::lang::Reference*>(#o))")
+    public static native def identityHashCode(o:Any) : Int;
+
+    public static def identityToString(o:Any) : String = o.typeName() + "@" + System.identityHashCode(o).toHexString();
+
+    public static def identityEquals(o1:Any, o2:Any) : Boolean = o1==o2;
 
     /**
      * Sleep for the specified number of milliseconds.

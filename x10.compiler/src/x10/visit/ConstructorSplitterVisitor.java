@@ -174,8 +174,6 @@ public class ConstructorSplitterVisitor extends ContextVisitor {
         assert null != type;
         TypeSystem ts = type.typeSystem();
         assert null != ts;
-        if (ts.typeEquals(type, ts.Object(), ts.emptyContext()))
-            return false;
         if (hasNativeAnnotation(type))
             return true;
         if (type instanceof ObjectType) {
@@ -192,8 +190,7 @@ public class ConstructorSplitterVisitor extends ContextVisitor {
     public static boolean inheritsUnsplittability(Type type, TypeSystem ts) {
         if (null == type)
             return false; // some non-Native ObjectClass's (x10.array.RectLayout for one) don't have a superClass ????
-        if (ts.typeEquals(type, ts.Object(), ts.emptyContext()))
-            return false;  // inheriting from x10.lang.object is ok
+
         if (hasNativeAnnotation(type)) 
             return true;   // inheriting from any other native class is not
         return inheritsUnsplittability(((ObjectType) type).superClass(), ts);

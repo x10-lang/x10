@@ -96,13 +96,7 @@ ifdef JAVA_HOME
     JNI_INCLUDES = -I"$(JAVA_CYGPATH)"/include -I"$(JAVA_CYGPATH)"/include/win32
   else
   ifeq ($(shell uname -s),Darwin)
-    ifeq ($(shell test -r "$(JAVA_HOME)"/bundle/Headers/jni.h && printf hi),hi)
-      JNI_INCLUDES = -I"$(JAVA_HOME)"/bundle/Headers
-    else
-      ifeq ($(shell test -r "$(JAVA_HOME)"/include/jni.h && printf hi),hi)
-        JNI_INCLUDES = -I"$(JAVA_HOME)"/include
-      endif
-    endif
+    JNI_INCLUDES = -I"$(JAVA_HOME)"/include -I"$(JAVA_HOME)"/include/darwin
   else
   ifeq ($(shell uname -s),SunOS)
     JNI_INCLUDES = -I"$(JAVA_HOME)"/include -I"$(JAVA_HOME)"/include/solaris
@@ -307,6 +301,10 @@ ifndef CROSS_COMPILE_BLUEGENE
       XARGS ?= /usr/bin/xargs
     else
     ifeq ($(shell uname -s),Darwin)
+      ifeq ($(shell readlink `which $(CXX)`),clang++) # avoid clang++ on Mountain Lion
+        CXX = g++
+        CC = gcc
+      endif
       export X10RT_PLATFORM=$(shell echo | gcc -E -dM - | grep -q x86_64 && echo darwin64 || echo darwin)
       ifndef X10_STATIC_LIB
         override CXXFLAGS_SHARED += -fPIC

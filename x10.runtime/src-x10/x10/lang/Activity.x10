@@ -17,8 +17,6 @@ import x10.util.HashMap;
 
 /**
  * Runtime representation of an async. Only to be used in the runtime implementation.
- * 
- * @author tardieu
  */
 class Activity {
 
@@ -146,7 +144,9 @@ class Activity {
     def run():void {
         try {
             body();
-        } catch (t:Throwable) {
+        } catch (t:Error) {
+            finishState.pushException(new WrappedThrowable(t));
+        } catch (t:Exception) {
             finishState.pushException(t);
         }
         if (null != clockPhases) clockPhases.drop();

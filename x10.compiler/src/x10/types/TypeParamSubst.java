@@ -130,6 +130,8 @@ public class TypeParamSubst {
 			if (typeArgs == null && forceTypeArguments && !tParams.isEmpty()) {
 			    typeArgs = new ArrayList<Type>(tParams);
 			}
+			// [DC] surely the following is an error in the compiler -- any pass that changes
+			// the def should also update the types to avoid such inconsistencies
 			if (typeArgs != null && typeArgs.size() < tParams.size()) {
 			    typeArgs = new ArrayList<Type>(typeArgs);
 			    // The def changed since the type was created; params were added
@@ -342,7 +344,7 @@ public class TypeParamSubst {
 		List<SubtypeConstraint> terms = new ArrayList<SubtypeConstraint>(c.terms().size());
 		for (SubtypeConstraint s : c.terms()) {
 			Type sub = s.subtype();
-			Type sup = s.isHaszero() ? null : s.supertype();
+			Type sup = s.supertype();
 			Type sub1 = reinstantiate(sub);
 			Type sup1 = reinstantiate(sup);
 			if (sub != sub1 || sup != sup1) {

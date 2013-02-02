@@ -49,6 +49,7 @@ import polyglot.visit.ContextVisitor;
 import polyglot.visit.NodeVisitor;
 import x10.ast.Closure;
 import x10.errors.Warnings;
+import x10.types.TypeParamSubst;
 import x10.util.AltSynthesizer;
 import x10.util.CollectionFactory;
 
@@ -59,7 +60,7 @@ import x10.util.CollectionFactory;
 public class FinallyEliminator extends ContextVisitor {
 
     private static final boolean INLINE_FOR_BRANCH = false;
-    private static final boolean INLINE_FOR_RETURN = false;
+    private static final boolean INLINE_FOR_RETURN = true;
 
     private static final Name THROW_RETURN    = Name.make("throwReturn");
     private static final Name THROW_BREAK     = Name.make("throwBreak");
@@ -192,7 +193,8 @@ public class FinallyEliminator extends ContextVisitor {
             s = t.tryBlock();
         }
         Name name           = Name.makeFresh("throwable");
-        Type throwableType  = ts.Throwable();
+        // [DC] throwing CheckedThrowable might be a problem here... but hopefully after exception checking so ok
+        Type throwableType  = ts.CheckedThrowable();
         LocalDecl throwDecl = syn.createLocalDecl(pos, Flags.NONE, name, throwableType, syn.createLiteral(pos, null));
         Block tryBody       = syn.createBlock(pos, s, syn.createStaticCall(pos, Finalization(), PLAUSIBLE_THROW));
         Formal f            = syn.createFormal(pos, throwableType);
@@ -374,8 +376,6 @@ public class FinallyEliminator extends ContextVisitor {
          *   1) Replicate and reinstantiate the finally block before the exit, and
          *   2) Create and throw a custom Finalization which will be caught before the finally block and processed after it.
          * 
-         * TODO: implement both possibiities and choose between them at compile time.
-         * 
          * @see x10.visit.FinallyEliminator#leaveCall(polyglot.ast.Node)
          */
         @Override
@@ -444,8 +444,11 @@ public class FinallyEliminator extends ContextVisitor {
          */
         private Stmt replicate(Position pos, Block block) {
             Block b = (Block) block.copy();
-            Warnings.issue(job(), "Finally block reinstantiation not yet implemented", pos);
-            // TODO: reinstantiate b
+            
+            Reinstantiator reinstantiator= new Reinstantiator(TypeParamSubst.IDENTITY);
+            ContextVisitor visitor= new NodeTransformingVisitor(job, ts, nf, reinstantiator).context(context());
+            b = (Block) b.visit(visitor); // reinstantiate locals in the body
+
             return b;
         }
     

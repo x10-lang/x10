@@ -15,6 +15,5 @@ import x10.lang.annotations.ExpressionAnnotation;
 
 /** An annotation that requests the compiler to...
  * EXPERIMENTAL
- * @author Olivier Tardieu
  */
 public interface NativeString extends ExpressionAnnotation { }

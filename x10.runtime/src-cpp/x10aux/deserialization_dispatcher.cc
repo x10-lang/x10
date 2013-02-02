@@ -229,12 +229,12 @@ void DeserializationDispatcher::registerHandlers_ () {
 }
 
 
-ref<Reference> DeserializationDispatcher::create_(deserialization_buffer &buf, serialization_id_t id) {
+Reference* DeserializationDispatcher::create_(deserialization_buffer &buf, serialization_id_t id) {
     _S_("Dispatching deserialisation using id: "<<id);
     return data_v[id].deser(buf);
 }
 
-ref<Reference> DeserializationDispatcher::create_(deserialization_buffer &buf) {
+Reference* DeserializationDispatcher::create_(deserialization_buffer &buf) {
     serialization_id_t id = buf.read<serialization_id_t>();
     return create_(buf, id);
 }

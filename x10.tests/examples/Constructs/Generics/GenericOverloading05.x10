@@ -32,10 +32,10 @@ public class GenericOverloading05 extends GenericTest {
 
     public def run(): boolean = {
 
-        check("m(\"1\")", m("1"), 0);
-        check("m(1)", m(1), 1);
-        check("m([\"0\"])", m(["0" as String]), 2);
-        check("m([0])", m([0 as Int]), 3);
+        genericCheck("m(\"1\")", m("1"), 0);
+        genericCheck("m(1)", m(1), 1);
+        genericCheck("m([\"0\"])", m(["0" as String]), 2);
+        genericCheck("m([0])", m([0 as Int]), 3);
 
         return result;
     }

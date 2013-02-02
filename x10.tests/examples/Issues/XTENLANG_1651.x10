@@ -22,7 +22,7 @@ interface MyTypeName {
 
 struct MyComplex(r:Int,i:Int) implements MyTypeName {
     @Native("c++", "x10aux::type_name(#0)")
-    @Native("java", "x10.rtt.Types.typeName(#0)")
+    @Native("java", "x10.rtt.Types.typeName(#this)")
     public native def myTypeName():String;
 }
 

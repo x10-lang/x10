@@ -43,6 +43,7 @@ import polyglot.types.SemanticException;
 import polyglot.types.ContainerType;
 import polyglot.types.Type;
 import polyglot.types.TypeSystem;
+import polyglot.types.TypeSystem_c;
 import polyglot.types.Types;
 import polyglot.util.Position;
 import polyglot.visit.ContextVisitor;
@@ -50,6 +51,7 @@ import polyglot.visit.InnerClassRemover;
 import polyglot.visit.NodeVisitor;
 import x10.ast.DepParameterExpr;
 import x10.ast.TypeParamNode;
+import x10.ast.X10Call;
 import x10.ast.X10ClassDecl;
 import x10.ast.X10ConstructorDecl;
 import x10.ast.X10FieldDecl;
@@ -162,7 +164,7 @@ public class X10InnerClassRemover extends InnerClassRemover {
             List<SubtypeConstraint> terms = c.terms();
             for (SubtypeConstraint t : terms) {
                 Type sub = t.subtype();
-                Type sup = t.isHaszero() ? null : t.supertype();
+                Type sup = t.supertype();
                 Type nsub = transformType(sub);
                 Type nsup = transformType(sup);
                 if (nsub != sub || nsup != sup) {
@@ -220,7 +222,8 @@ public class X10InnerClassRemover extends InnerClassRemover {
 
         @Override
         protected MethodInstance transformMethodInstance(MethodInstance mi) {
-            Type returnType = mi.returnType();
+        	
+        	Type returnType = mi.returnType();
             Type newReturnType = transformType(returnType);
             if (newReturnType != returnType) {
                 mi = (MethodInstance) mi.returnType(newReturnType);
@@ -236,6 +239,7 @@ public class X10InnerClassRemover extends InnerClassRemover {
                 LocalInstance newLI = transformLocalInstance((X10LocalInstance) li);
                 if (newLI != li) changed = true;
                 newFormalNames.add(newLI);
+            	TypeSystem_c.internalConsistencyCheck(newLI.type());
             }
             if (changed) {
                 mi = (MethodInstance) mi.formalNames(newFormalNames);
@@ -255,6 +259,9 @@ public class X10InnerClassRemover extends InnerClassRemover {
             if (newTypeGuard != typeGuard) {
                 mi = (MethodInstance) mi.typeGuard(newTypeGuard);
             }
+
+    		TypeSystem_c.internalConsistencyCheck(mi);
+            
             return mi;
         }
 
@@ -271,6 +278,16 @@ public class X10InnerClassRemover extends InnerClassRemover {
                 fi = (X10FieldInstance) fi.container(newContainer);
             }
             return fi;
+        }
+        
+        @Override
+        protected X10LocalInstance transformLocalInstance(X10LocalInstance li) {
+            Type type = li.type();
+            Type newType = transformType(type);
+            if (newType != type) {
+                li = (X10LocalInstance) li.type(newType);
+            }
+            return li;
         }
 
         @Override
@@ -372,6 +389,11 @@ public class X10InnerClassRemover extends InnerClassRemover {
                 updateRefUnsafe(dotr, Types.get(otr));
             }
         }
+        ContainerType container = def.container().get();
+        Ref<? extends ContainerType> newContainer = Types.ref((ContainerType)fixType(container));
+        if (newContainer != container) {
+            def.setContainer(newContainer);
+        }        
         return md;
     }
 
@@ -419,6 +441,11 @@ public class X10InnerClassRemover extends InnerClassRemover {
                 updateRefUnsafe(dotr, Types.get(otr));
             }
         }
+        ContainerType container = def.container().get();
+        Ref<? extends ContainerType> newContainer = Types.ref((ContainerType)fixType(container));
+        if (newContainer != container) {
+            def.setContainer(newContainer);
+        }        
         return cd;
     }
 
@@ -497,6 +524,8 @@ public class X10InnerClassRemover extends InnerClassRemover {
                         Stmt stmt = block.statements().get(0);
                         if (stmt instanceof ConstructorCall) {
                             statements.add(0, stmt);
+                        } else {
+                        	statements.add(stmt);
                         }
                         statements.addAll(block.statements().subList(1, block.statements().size()));
                     }
@@ -506,7 +535,9 @@ public class X10InnerClassRemover extends InnerClassRemover {
             cd = cd.body(cd.body().members(newMember));
             def.setWasInner(true);
             Ref<? extends Type> st = def.superType();
-            ((Ref<Type>) st).update(Types.instantiateTypeParametersExplicitly(Types.get(st)));
+            if (st != null) {
+            	((Ref<Type>) st).update(Types.instantiateTypeParametersExplicitly(Types.get(st)));
+            }
             for (Ref<? extends Type> it : def.interfaces()) {
                 ((Ref<Type>) it).update(Types.instantiateTypeParametersExplicitly(Types.get(it)));
             }
@@ -576,6 +607,8 @@ public class X10InnerClassRemover extends InnerClassRemover {
             for (int p = 0; p < typeParameters.size(); p++) {
                 ParameterType tp = typeParameters.get(p);
                 // FIXME: [IP] this is a hack.  We should really rename type parameters.
+                // rename it here, see what breaks...
+                //tp = new ParameterType(ts, Position.COMPILER_GENERATED, Position.COMPILER_GENERATED, Name.makeFresh("_T"), Types.ref(def));
                 def.addTypeParameter(tp, variances.get(p));
             }
             def.setWasInner(true);

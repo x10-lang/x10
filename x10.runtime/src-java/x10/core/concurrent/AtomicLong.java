@@ -11,21 +11,19 @@
 
 package x10.core.concurrent;
 
-import x10.core.RefI;
+import java.io.IOException;
+
+import x10.core.Any;
 import x10.rtt.NamedType;
 import x10.rtt.RuntimeType;
 import x10.rtt.Type;
-import x10.rtt.Types;
-import x10.x10rt.X10JavaDeserializer;
-import x10.x10rt.X10JavaSerializable;
-import x10.x10rt.X10JavaSerializer;
+import x10.serialization.X10JavaDeserializer;
+import x10.serialization.X10JavaSerializable;
+import x10.serialization.X10JavaSerializer;
 
-import java.io.IOException;
-
-public final class AtomicLong extends java.util.concurrent.atomic.AtomicLong implements RefI, X10JavaSerializable {
+public final class AtomicLong extends java.util.concurrent.atomic.AtomicLong implements Any, X10JavaSerializable {
 
     private static final long serialVersionUID = 1L;
-    private static final short _serialization_id = x10.x10rt.DeserializationDispatcher.addDispatcher(x10.x10rt.DeserializationDispatcher.ClosureKind.CLOSURE_KIND_NOT_ASYNC, AtomicLong.class);
 
     // constructor just for allocation
     public AtomicLong(java.lang.System[] $dummy) {
@@ -33,9 +31,6 @@ public final class AtomicLong extends java.util.concurrent.atomic.AtomicLong imp
     }
     
     public final AtomicLong x10$util$concurrent$AtomicLong$$init$S() {return this;}
-    // XTENLANG-3063
-    // not used if X10PrettyPrinterVisitor.supportConstructorWithThrows == true
-    public AtomicLong $init() {return x10$util$concurrent$AtomicLong$$init$S();}
 
     public AtomicLong() {
         super();
@@ -45,11 +40,6 @@ public final class AtomicLong extends java.util.concurrent.atomic.AtomicLong imp
         // TODO
         set(initialValue);
         return this;
-    }
-    // XTENLANG-3063
-    // not used if X10PrettyPrinterVisitor.supportConstructorWithThrows == true
-    public AtomicLong $init(long initialValue) {
-        return x10$util$concurrent$AtomicLong$$init$S(initialValue);
     }
     
     public AtomicLong(long initialValue) {
@@ -61,8 +51,7 @@ public final class AtomicLong extends java.util.concurrent.atomic.AtomicLong imp
     //
     public static final RuntimeType<AtomicLong> $RTT = NamedType.<AtomicLong> make(
         "x10.util.concurrent.AtomicLong",
-        AtomicLong.class,
-        new Type[] { Types.OBJECT }
+        AtomicLong.class
     );
     public RuntimeType<AtomicLong> $getRTT() {return $RTT;}
     public Type<?> $getParam(int i) { return null; }
@@ -74,10 +63,6 @@ public final class AtomicLong extends java.util.concurrent.atomic.AtomicLong imp
     public static X10JavaSerializable $_deserializer(X10JavaDeserializer deserializer) throws IOException {
         return $_deserialize_body(null, deserializer);
     }
-
-	public short $_get_serialization_id() {
-		return _serialization_id;
-	}
 
     public static X10JavaSerializable $_deserialize_body(AtomicLong atomicLong, X10JavaDeserializer deserializer) throws IOException {
         long l = deserializer.readLong();

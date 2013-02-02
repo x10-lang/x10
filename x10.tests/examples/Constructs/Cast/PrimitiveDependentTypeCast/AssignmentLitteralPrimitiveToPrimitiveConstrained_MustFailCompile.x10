@@ -23,7 +23,7 @@ public class AssignmentLitteralPrimitiveToPrimitiveConstrained_MustFailCompile e
 		try { 
 			var i: int{self == 0} = 0;
 			i = 1; // ERR
-		}catch(e: Throwable) {
+		}catch(e: Exception) {
 			return false;
 		}
 

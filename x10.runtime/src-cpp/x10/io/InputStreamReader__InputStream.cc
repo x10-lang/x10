@@ -22,7 +22,8 @@ using namespace x10::io;
 using namespace x10aux;
 
 static InputStreamReader__InputStream* _STANDARD_IN_cache = NULL;
-x10aux::ref<InputStreamReader__InputStream> InputStreamReader__InputStream::STANDARD_IN()
+
+InputStreamReader__InputStream* InputStreamReader__InputStream::STANDARD_IN()
 {
 	if (NULL == _STANDARD_IN_cache)
 		_STANDARD_IN_cache = new (x10aux::alloc<FileReader__FileInputStream>()) FileReader__FileInputStream(stdin);
@@ -43,13 +44,11 @@ x10_int InputStreamReader__InputStream::read(x10::util::IndexedMemoryChunk<x10_b
 }
 
 void InputStreamReader__InputStream::_serialize_body(x10aux::serialization_buffer& buf) {
-    x10::lang::Object::_serialize_body(buf);
 }
 
 void InputStreamReader__InputStream::_deserialize_body(x10aux::deserialization_buffer& buf) {
-    x10::lang::Object::_deserialize_body(buf);
 }
 
-RTT_CC_DECLS1(InputStreamReader__InputStream, "x10.io.InputStreamReader.InputStream", RuntimeType::class_kind, Object)
+RTT_CC_DECLS0(InputStreamReader__InputStream, "x10.io.InputStreamReader.InputStream", RuntimeType::class_kind)
 
 // vim:tabstop=4:shiftwidth=4:expandtab

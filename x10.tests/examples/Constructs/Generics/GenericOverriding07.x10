@@ -34,12 +34,12 @@ public class GenericOverriding07 extends GenericTest {
 
     public def run(): boolean = {
 
-        check("a.m()", a.m(), 0);
-        check("a.m(0)", a.m(0), 1);
-        check("a.m(0,0)", a.m(0,0), 2);
-        check("b.m()", b.m(), 0);
-        check("b.m(0)", b.m(0), 1);
-        check("b.m(0,0)", b.m(0,0), 5);
+        genericCheck("a.m()", a.m(), 0);
+        genericCheck("a.m(0)", a.m(0), 1);
+        genericCheck("a.m(0,0)", a.m(0,0), 2);
+        genericCheck("b.m()", b.m(), 0);
+        genericCheck("b.m(0)", b.m(0), 1);
+        genericCheck("b.m(0,0)", b.m(0,0), 5);
 
         return result;
     }

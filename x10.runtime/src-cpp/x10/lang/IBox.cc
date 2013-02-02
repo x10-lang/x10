@@ -27,21 +27,21 @@ namespace x10 {
             static Comparable<x10_boolean>::itable<Boolean_iboxthunk> comparable_itable;
 
             /* Methods of Any */
-            x10_boolean equals(ref<Any> arg0) {
+            x10_boolean equals(Any* arg0) {
                 return x10aux::equals(value, arg0);
             }
             x10_int hashCode() {
                 return x10aux::hash_code(value);
             }
-            ref<String> toString() {
+            String* toString() {
                 return x10aux::to_string(value);
             }
-            ref<String> typeName() {
+            String* typeName() {
                 return x10aux::type_name(value);
             }
             /* Methods of Comparable */
             x10_int compareTo(x10_boolean arg0) {
-                return x10aux::boolean_utils::compareTo(value, arg0);
+                return BooleanNatives::compareTo(value, arg0);
             }
         };
 
@@ -59,21 +59,21 @@ namespace x10 {
             static x10::util::Ordered<x10_char>::itable<Char_iboxthunk> ordered_itable;
 
             /* Methods of Any */
-            x10_boolean equals(ref<Any> arg0) {
+            x10_boolean equals(Any* arg0) {
                 return x10aux::equals(value, arg0);
             }
             x10_int hashCode() {
                 return x10aux::hash_code(value);
             }
-            ref<String> toString() {
+            String* toString() {
                 return x10aux::to_string(value);
             }
-            ref<String> typeName() {
+            String* typeName() {
                 return x10aux::type_name(value);
             }
             /* Methods of Comparable */
             x10_int compareTo(x10_char arg0) {
-                return x10aux::char_utils::compareTo(value, arg0);
+                return CharNatives::compareTo(value, arg0);
             }
             /* Methods of Ordered */
             x10_boolean __lt(x10_char arg0) {
@@ -108,21 +108,21 @@ namespace x10 {
             static x10::util::Ordered<CPRIM>::itable<PRIMCLASS##_iboxthunk> ordered_itable;       \
                                                                         \
             /* Methods of Any */                                        \
-            x10_boolean equals(ref<Any> arg0) {                         \
+            x10_boolean equals(Any* arg0) {                             \
                 return x10aux::equals(value, arg0);                     \
             }                                                           \
             x10_int hashCode() {                                        \
                 return x10aux::hash_code(value);                        \
             }                                                           \
-            ref<String> toString() {                                    \
+            String* toString() {                                        \
                 return x10aux::to_string(value);                        \
             }                                                           \
-            ref<String> typeName() {                                    \
+            String* typeName() {                                        \
                 return x10aux::type_name(value);                        \
             }                                                           \
             /* Methods of Comparable */                                 \
             x10_int compareTo(CPRIM arg0) {                             \
-                return x10aux::UTILS::compareTo(value, arg0);           \
+                return UTILS::compareTo(value, arg0);                   \
             }                                                           \
             /* Methods of Arithmetic */                                 \
             CPRIM __plus() {                                            \
@@ -179,21 +179,21 @@ namespace x10 {
             static x10::util::Ordered<CPRIM>::itable<PRIMCLASS##_iboxthunk> ordered_itable;       \
                                                                         \
             /* Methods of Any */                                        \
-            x10_boolean equals(ref<Any> arg0) {                         \
+            x10_boolean equals(Any* arg0) {                             \
                 return x10aux::equals(value, arg0);                     \
             }                                                           \
             x10_int hashCode() {                                        \
                 return x10aux::hash_code(value);                        \
             }                                                           \
-            ref<String> toString() {                                    \
+            String* toString() {                                        \
                 return x10aux::to_string(value);                        \
             }                                                           \
-            ref<String> typeName() {                                    \
+            String* typeName() {                                        \
                 return x10aux::type_name(value);                        \
             }                                                           \
             /* Methods of Comparable */                                 \
             x10_int compareTo(CPRIM arg0) {                             \
-                return x10aux::UTILS::compareTo(value, arg0);           \
+                return UTILS::compareTo(value, arg0);                   \
             }                                                           \
             /* Methods of Arithmetic */                                 \
             CPRIM __plus() {                                            \
@@ -264,16 +264,16 @@ namespace x10 {
                                                itable_entry(&x10aux::getRTT<x10::util::Ordered<CPRIM> >, &PRIMCLASS##_iboxthunk::ordered_itable), \
                                                itable_entry(NULL, (void*)&x10aux::RuntimeType::PRIMCLASS##Type) }; \
 
-        BOXED_PRIM_ITABLES_CABO(x10_byte, Byte, byte_utils)
-        BOXED_PRIM_ITABLES_CABO(x10_ubyte, UByte, byte_utils)
-        BOXED_PRIM_ITABLES_CABO(x10_short, Short, short_utils)
-        BOXED_PRIM_ITABLES_CABO(x10_ushort, UShort, short_utils)
-        BOXED_PRIM_ITABLES_CABO(x10_int, Int, int_utils)
-        BOXED_PRIM_ITABLES_CABO(x10_uint, UInt, int_utils)
-        BOXED_PRIM_ITABLES_CAO(x10_float, Float, float_utils)
-        BOXED_PRIM_ITABLES_CABO(x10_long, Long, long_utils)
-        BOXED_PRIM_ITABLES_CABO(x10_ulong, ULong, long_utils)
-        BOXED_PRIM_ITABLES_CAO(x10_double, Double, double_utils)
+        BOXED_PRIM_ITABLES_CABO(x10_byte, Byte, ByteNatives)
+        BOXED_PRIM_ITABLES_CABO(x10_ubyte, UByte, UByteNatives)
+        BOXED_PRIM_ITABLES_CABO(x10_short, Short, ShortNatives)
+        BOXED_PRIM_ITABLES_CABO(x10_ushort, UShort, UShortNatives)
+        BOXED_PRIM_ITABLES_CABO(x10_int, Int, IntNatives)
+        BOXED_PRIM_ITABLES_CABO(x10_uint, UInt, UIntNatives)
+        BOXED_PRIM_ITABLES_CAO(x10_float, Float, FloatNatives)
+        BOXED_PRIM_ITABLES_CABO(x10_long, Long, LongNatives)
+        BOXED_PRIM_ITABLES_CABO(x10_ulong, ULong, ULongNatives)
+        BOXED_PRIM_ITABLES_CAO(x10_double, Double, DoubleNatives)
 
     }
 }

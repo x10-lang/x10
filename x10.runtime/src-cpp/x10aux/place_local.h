@@ -13,10 +13,10 @@
 #define X10AUX_PLACELOCAL_H
 
 #include <x10aux/config.h>
-#include <x10aux/ref.h>
-#include <x10aux/lock.h>
+#include <x10aux/basic_functions.h>
 
 namespace x10aux {
+    class reentrant_lock;
 
     class place_local {
     private:
@@ -41,9 +41,10 @@ namespace x10aux {
         template<class T> friend const char *x10aux::typeName();
     };
 
-	template<> inline const char *typeName<place_local>() { return "place_local"; }
+    template<> inline const char *typeName<place_local>() { return "place_local"; }
     template<> inline const char *typeName<place_local::Bucket*>() { return "place_local::Bucket *"; }
     template<> inline const char *typeName<place_local::Bucket>() { return "place_local::Bucket"; }
+
 }
 
 #endif

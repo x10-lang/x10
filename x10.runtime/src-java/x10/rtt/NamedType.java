@@ -11,18 +11,16 @@
 
 package x10.rtt;
 
-import x10.x10rt.DeserializationDispatcher;
-import x10.x10rt.X10JavaDeserializer;
-import x10.x10rt.X10JavaSerializable;
-import x10.x10rt.X10JavaSerializer;
-
 import java.io.IOException;
 import java.util.concurrent.ConcurrentHashMap;
+
+import x10.serialization.X10JavaDeserializer;
+import x10.serialization.X10JavaSerializable;
+import x10.serialization.X10JavaSerializer;
 
 public class NamedType<T> extends RuntimeType<T> implements X10JavaSerializable {
 
     private static final long serialVersionUID = 1L;
-    private static final short _serialization_id = x10.x10rt.DeserializationDispatcher.addDispatcher(x10.x10rt.DeserializationDispatcher.ClosureKind.CLOSURE_KIND_NOT_ASYNC, NamedType.class);
     
     public String typeName;
 
@@ -30,22 +28,6 @@ public class NamedType<T> extends RuntimeType<T> implements X10JavaSerializable 
     public NamedType() {
         super();
     }
-    
-    // not used
-//    protected NamedType(String typeName, Class<?> javaClass) {
-//        super(javaClass);
-//        this.typeName = typeName;
-//    }
-//
-//    protected NamedType(String typeName, Class<?> javaClass, Variance[] variances) {
-//        super(javaClass, variances);
-//        this.typeName = typeName;
-//    }
-//
-//    protected NamedType(String typeName, Class<?> javaClass, Type<?>[] parents) {
-//        super(javaClass, parents);
-//        this.typeName = typeName;
-//    }
     
     // N.B. this is also used to implement readResolve() in place for Types.COMPARABLE
     protected NamedType(String typeName, Class<?> javaClass, Variance[] variances, Type<?>[] parents) {
@@ -119,24 +101,18 @@ public class NamedType<T> extends RuntimeType<T> implements X10JavaSerializable 
     @Override
     public void $_serialize(X10JavaSerializer serializer) throws IOException {
         super.$_serialize(serializer);
-        serializer.writeClassID(typeName);
-    }
-
-    @Override
-    public short $_get_serialization_id() {
-        return _serialization_id;
+        serializer.write(typeName);
     }
 
     public static X10JavaSerializable $_deserializer(X10JavaDeserializer deserializer) throws IOException {
         NamedType namedType = new NamedType();
         deserializer.record_reference(namedType);
-		return $_deserialize_body(namedType, deserializer);
-	}
+        return $_deserialize_body(namedType, deserializer);
+    }
 
     public static X10JavaSerializable $_deserialize_body(NamedType nt, X10JavaDeserializer deserializer) throws IOException {
         RuntimeType.$_deserialize_body(nt, deserializer);
-        short classId = deserializer.readShort();
-        nt.typeName = DeserializationDispatcher.getClassNameForID(classId, deserializer);
+        nt.typeName = deserializer.readString();
         return nt;
     }
 }

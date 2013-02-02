@@ -1,91 +1,107 @@
 package com.ibm.apgas;
 
-import java.io.IOException;
-import java.io.ObjectOutputStream;
-
-import x10.core.Ref;
-import x10.core.X10Generated;
-import x10.core.fun.VoidFun_0_0;
-import x10.rtt.NamedType;
-import x10.rtt.RuntimeType;
-import x10.rtt.Type;
-import x10.rtt.Types;
-import x10.x10rt.DeserializationDispatcher;
-import x10.x10rt.X10JavaDeserializer;
-import x10.x10rt.X10JavaSerializable;
-import x10.x10rt.X10JavaSerializer;
-
 /**
- * Wrapper class to provide X10 serialization behavior.
- * This class was created by compiling the X10 class below:
- * <code>
+ * Wrapper class to provide X10 serialization behavior. This class was created
+ * by compiling the X10 class below: <code>
  * import com.ibm.apgas.Task;
  * class TaskWrapper implements ()=>void {
  *   val task:Task;
- *
+ * 
  *   def this(t:Task) {
  *     this.task = t;
  *    }
- *
+ * 
  *   public operator this() { task.body(); }
  * }
- * </code>
- * Also possible that we could do this in Task instead,
- * and avoid a wrapper object. But doing it this way is
- * is marginally easy to maintain because we can just regenerate
- * this class when serialization logic changes.
+ * </code> Also possible that we could do this in Task instead, and avoid a
+ * wrapper object. But doing it this way is is marginally easy to maintain
+ * because we can just regenerate this class when serialization logic changes.
  */
-@X10Generated class TaskWrapper extends Ref implements VoidFun_0_0, X10JavaSerializable {
+@x10.runtime.impl.java.X10Generated
+public class TaskWrapper extends x10.core.Ref implements
+		x10.core.fun.VoidFun_0_0, x10.serialization.X10JavaSerializable {
 	private static final long serialVersionUID = 1L;
-	private static final short $_serialization_id = DeserializationDispatcher.addDispatcher(DeserializationDispatcher.ClosureKind.CLOSURE_KIND_SIMPLE_ASYNC, TaskWrapper.class);
 
-	@SuppressWarnings("unchecked")
-	public static final RuntimeType<TaskWrapper> $RTT = NamedType.<TaskWrapper> make("TaskWrapper", TaskWrapper.class,new Type[] {VoidFun_0_0.$RTT, Types.OBJECT});
-	public x10.rtt.RuntimeType<?> $getRTT() {return $RTT;}
+	public static final x10.rtt.RuntimeType<TaskWrapper> $RTT = x10.rtt.NamedType
+			.<TaskWrapper> make("TaskWrapper", /* base class */
+					TaskWrapper.class, /* parents */
+					new x10.rtt.Type[] { x10.core.fun.VoidFun_0_0.$RTT });
 
-	private Task task;
-
-	private void writeObject(ObjectOutputStream oos) throws java.io.IOException { 
-		if (x10.runtime.impl.java.Runtime.TRACE_SER) { 
-			System.out.println("Serializer: writeObject(ObjectOutputStream) of " + this + " calling"); 
-		} 
-		oos.defaultWriteObject(); 
+	public x10.rtt.RuntimeType<?> $getRTT() {
+		return $RTT;
 	}
 
-	public static X10JavaSerializable $_deserialize_body(TaskWrapper obj, X10JavaDeserializer deserializer) throws IOException { 
-		if (x10.runtime.impl.java.Runtime.TRACE_SER) { 
-			x10.runtime.impl.java.Runtime.printTraceMessage("X10JavaSerializable: $_deserialize_body() of " + TaskWrapper.class + " calling"); 
-		} 
-		Task task = (Task) deserializer.readRefUsingReflection();
-		obj.task = task;
-		return obj;
+	public x10.rtt.Type<?> $getParam(int i) {
+		return null;
 	}
 
-	public static X10JavaSerializable $_deserializer(X10JavaDeserializer deserializer) throws IOException { 
-		TaskWrapper obj = new TaskWrapper((java.lang.System[]) null);
-		deserializer.record_reference(obj);
-		return $_deserialize_body(obj, deserializer);
+	private void writeObject(java.io.ObjectOutputStream oos)
+			throws java.io.IOException {
+		if (x10.runtime.impl.java.Runtime.TRACE_SER) {
+			java.lang.System.out
+					.println("Serializer: writeObject(ObjectOutputStream) of "
+							+ this + " calling");
+		}
+		oos.defaultWriteObject();
 	}
 
-	public short $_get_serialization_id() {
-		return $_serialization_id;
+	public static x10.serialization.X10JavaSerializable $_deserialize_body(
+			TaskWrapper $_obj, x10.serialization.X10JavaDeserializer $deserializer)
+			throws java.io.IOException {
+
+		if (x10.runtime.impl.java.Runtime.TRACE_SER) {
+			x10.runtime.impl.java.Runtime
+					.printTraceMessage("X10JavaSerializable: $_deserialize_body() of "
+							+ TaskWrapper.class + " calling");
+		}
+		com.ibm.apgas.Task task = (com.ibm.apgas.Task) $deserializer
+				.readRefUsingReflection();
+		$_obj.task = task;
+		return $_obj;
+
 	}
 
-	public void $_serialize(X10JavaSerializer serializer) throws java.io.IOException {
-		serializer.writeObjectUsingReflection(this.task);
+	public static x10.serialization.X10JavaSerializable $_deserializer(
+			x10.serialization.X10JavaDeserializer $deserializer)
+			throws java.io.IOException {
+		TaskWrapper $_obj = new TaskWrapper((java.lang.System[]) null);
+		$deserializer.record_reference($_obj);
+		return $_deserialize_body($_obj, $deserializer);
+
+	}
+
+	public void $_serialize(x10.serialization.X10JavaSerializer $serializer)
+			throws java.io.IOException {
+		$serializer.writeObjectUsingReflection(this.task);
 	}
 
 	// constructor just for allocation
-	public TaskWrapper(final java.lang.System[] $dummy) { 
-		super($dummy);
+	public TaskWrapper(final java.lang.System[] $dummy) {
 	}
 
-	TaskWrapper(Task t) {
-		this.task = t;
+	public com.ibm.apgas.Task task;
+
+	// creation method for java code (1-phase java constructor)
+	public TaskWrapper(final com.ibm.apgas.Task t) {
+		this((java.lang.System[]) null);
+		TaskWrapper$$init$S(t);
 	}
 
-	@Override
+	// constructor for non-virtual call
+	final public TaskWrapper TaskWrapper$$init$S(final com.ibm.apgas.Task t) {
+
+		this.task = ((com.ibm.apgas.Task) (t));
+
+		return this;
+	}
+
 	public void $apply() {
-		task.body();
+		final com.ibm.apgas.Task t1 = ((com.ibm.apgas.Task) (task));
+		t1.body();
 	}
+
+	final public TaskWrapper TaskWrapper$$TaskWrapper$this() {
+		return TaskWrapper.this;
+	}
+
 }

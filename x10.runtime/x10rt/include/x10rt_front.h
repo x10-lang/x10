@@ -153,6 +153,17 @@
 
 /** \{ */
 
+
+/**
+ * This preinit method allows the runtime network code to be partially initialized ahead of the 
+ * rest of the runtime.  The return value is a connection string (likely hostname:port), which can 
+ * be used by other runtimes to find this one.  When this method is called ahead of the regular 
+ * x10rt_init(), it puts the runtime into a library mode, so that the runtime can be used more as 
+ * a library in other programs, by using less CPU, and not calling system exit when errors occur.
+ */
+X10RT_C char* x10rt_preinit();
+
+
 /** Initialize the X10RT API.
  *
  * This should be the first call made by a process into X10RT.  This allows the X10RT implementation

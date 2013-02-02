@@ -13,17 +13,22 @@
 #define X10AUX_ASSERT_H
 
 #include <x10aux/config.h>
-#include <x10aux/ref.h>
+#include <x10aux/basic_functions.h>
 
 namespace x10 { namespace lang { class String; } }
 
 namespace x10aux {
 
-    void x10__assertion_failed(const ref<x10::lang::String>& message) X10_PRAGMA_NORETURN;
+    void x10__assertion_failed(x10::lang::String* message) X10_PRAGMA_NORETURN;
 
-    inline void x10__assert(x10_boolean val, const ref<x10::lang::String>& message = X10_NULL) {
+    inline void x10__assert(x10_boolean val) {
         if (!val)
-            x10__assertion_failed(message);
+            x10__assertion_failed(NULL);
+    }
+    
+    template <class T> inline void x10__assert(x10_boolean val, T message) {
+        if (!val)
+            x10__assertion_failed(x10aux::safe_to_string(message));
     }
 }
 

@@ -58,11 +58,9 @@ case "$UNAME" in
   Linux,*86_64*,*) 
       SHORT_HOSTNAME=`hostname -s`
       if [[ "$SHORT_HOSTNAME" == "triloka4" ]]; then 
-          X10_PLATFORM='linux_rh6_x86_64'
           EXTRA_X10RT_BUILD_ARG="-DX10RT_PAMI=true"
-      else
-          X10_PLATFORM='linux_x86_64'
       fi
+      X10_PLATFORM='linux_x86_64'
       ;;
   Linux,*86*,*) X10_PLATFORM='linux_x86';;
   Linux,ppc*,*) X10_PLATFORM='linux_ppc';;
@@ -105,7 +103,7 @@ for i in \
 	x10.tests \
 	x10.wala
 do
-    svn $svn_command https://x10.svn.sourceforge.net/svnroot/x10/tags/$X10_TAG/$i
+    svn $svn_command -q https://x10.svn.sourceforge.net/svnroot/x10/tags/$X10_TAG/$i
 done
 )
 
@@ -121,6 +119,6 @@ if [[ -z "$SKIP_X10_BUILD" ]]; then
         ant -Ddebug=true dist-cpp
     fi 
     ant xrx-xdoc
-    $distdir/x10.dist/releng/packageCPPRelease.sh -version $X10_VERSION -platform $X10_PLATFORM
+    $distdir/x10.dist/releng/packageRelease.sh -version $X10_VERSION -platform $X10_PLATFORM
     echo "Platform specific distribuiton tarball created"
 fi

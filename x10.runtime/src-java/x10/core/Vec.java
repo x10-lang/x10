@@ -11,23 +11,20 @@
 
 package x10.core;
 
-import x10.array.Array;
+import java.io.IOException;
+
 import x10.rtt.NamedType;
 import x10.rtt.ParameterizedType;
 import x10.rtt.RuntimeType;
-import x10.rtt.RuntimeType.Variance;
 import x10.rtt.Type;
 import x10.rtt.Types;
-import x10.x10rt.X10JavaDeserializer;
-import x10.x10rt.X10JavaSerializable;
-import x10.x10rt.X10JavaSerializer;
-
-import java.io.IOException;
+import x10.serialization.X10JavaDeserializer;
+import x10.serialization.X10JavaSerializable;
+import x10.serialization.X10JavaSerializer;
 
 public final class Vec<T> extends x10.core.Struct {
 
     private static final long serialVersionUID = 1L;
-    private static final short _serialization_id = x10.x10rt.DeserializationDispatcher.addDispatcher(x10.x10rt.DeserializationDispatcher.ClosureKind.CLOSURE_KIND_NOT_ASYNC, Vec.class);
 
     public int size;
     public x10.array.Array<T> backing;
@@ -44,9 +41,7 @@ public final class Vec<T> extends x10.core.Struct {
         RuntimeType.INVARIANTS(1),
         new Type[] { Types.STRUCT }
     );
-    @Override
     public RuntimeType<Vec<?>> $getRTT() { return $RTT; }
-    @Override
     public Type<?> $getParam(int i) { if (i == 0) return T; return null; }
 
     private void writeObject(java.io.ObjectOutputStream oos) throws java.io.IOException {
@@ -65,44 +60,26 @@ public final class Vec<T> extends x10.core.Struct {
     public final Vec<T> x10$util$Vec$$init$S(final Type<T> T, final int s) {
         this.T = T;
         this.size = s;
-        // XTENLANG-3063
-//        this.backing = new x10.array.Array<T>((java.lang.System[]) null, T).$init(size);
         this.backing = new x10.array.Array<T>((java.lang.System[]) null, T).x10$array$Array$$init$S(size);
         return this;
-    }
-    // XTENLANG-3063
-    // not used if X10PrettyPrinterVisitor.supportConstructorWithThrows == true
-    public Vec<T> $init(final Type<T> T, final int s) {
-        return x10$util$Vec$$init$S(T, s);
     }
 
     public Vec(final Type<T> T, final int s) {
         this.T = T;
         this.size = s;
-        // XTENLANG-3063
-//        this.backing = new x10.array.Array<T>((java.lang.System[]) null, T).$init(size);
         this.backing = new x10.array.Array<T>((java.lang.System[]) null, T).x10$array$Array$$init$S(size);
     }
 
     public final Vec<T> x10$util$Vec$$init$S(final Type<T> T, Vec<T> other) {
         this.T = T;
         this.size = other.size;
-        // XTENLANG-3063
-//        this.backing = new x10.array.Array<T>((java.lang.System[]) null, T).$init(other.backing, (x10.array.Array.__0$1x10$array$Array$$T$2) null);
         this.backing = new x10.array.Array<T>((java.lang.System[]) null, T).x10$array$Array$$init$S(other.backing, (x10.array.Array.__0$1x10$array$Array$$T$2) null);
         return this;
-    }
-    // XTENLANG-3063
-    // not used if X10PrettyPrinterVisitor.supportConstructorWithThrows == true
-    public Vec<T> $init(final Type<T> T, Vec<T> other) {
-        return x10$util$Vec$$init$S(T, other);
     }
 
     public Vec(final Type<T> T, Vec<T> other) {
         this.T = T;
         this.size = other.size;
-        // XTENLANG-3063
-//        this.backing = new x10.array.Array<T>((java.lang.System[]) null, T).$init(other.backing, (x10.array.Array.__0$1x10$array$Array$$T$2) null);
         this.backing = new x10.array.Array<T>((java.lang.System[]) null, T).x10$array$Array$$init$S(other.backing, (x10.array.Array.__0$1x10$array$Array$$T$2) null);
     }
 
@@ -210,29 +187,22 @@ public final class Vec<T> extends x10.core.Struct {
         return this;
     }
 
-    public void $_serialize(X10JavaSerializer serializer) throws IOException {
-        serializer.write(T);
-        serializer.write(size);
-        serializer.write(backing);
+    public void $_serialize(X10JavaSerializer $serializer) throws IOException {
+        $serializer.write(T);
+        $serializer.write(size);
+        $serializer.write(backing);
     }
 
-    public short $_get_serialization_id() {
-        return _serialization_id;
+    public static X10JavaSerializable $_deserializer(X10JavaDeserializer $deserializer) throws IOException {
+        Vec $_obj = new Vec(null);
+        $deserializer.record_reference($_obj);
+        return $_deserialize_body($_obj, $deserializer);
     }
 
-    public static X10JavaSerializable $_deserializer(X10JavaDeserializer deserializer) throws IOException {
-        Vec vec = new Vec(null);
-        deserializer.record_reference(vec);
-		return $_deserialize_body(vec, deserializer);
-	}
-
-    public static X10JavaSerializable $_deserialize_body(Vec vec, X10JavaDeserializer deserializer) throws IOException {
-        Type T = (Type) deserializer.readRef();
-        int size = deserializer.readInt();
-        x10.array.Array backing = (Array) deserializer.readRef();
-        vec.T = T;
-        vec.size = size;
-        vec.backing = backing;
-        return vec;
+    public static X10JavaSerializable $_deserialize_body(Vec $_obj, X10JavaDeserializer $deserializer) throws IOException {
+        $_obj.T = $deserializer.readRef();
+        $_obj.size = $deserializer.readInt();
+        $_obj.backing = $deserializer.readRef();
+        return $_obj;
     }
 }

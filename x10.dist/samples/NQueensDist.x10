@@ -14,7 +14,6 @@
  * A distributed version of NQueens. Runs over NUM_PLACES.
  * Identical to NQueensPar, except that work is distributed 
  * over multiple places rather than shared between threads.
- * Converted to 2.2 on 27/4/2011
  */
 public class NQueensDist {
     public static val EXPECTED_SOLUTIONS =

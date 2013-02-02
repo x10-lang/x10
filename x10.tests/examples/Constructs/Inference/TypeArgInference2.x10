@@ -21,7 +21,7 @@ public class TypeArgInference2 extends x10Test {
            val intSet = new HashSet[Int]();
            val stringList = new ArrayList[String]();
            val x = choose(intSet, stringList);
-           val xx : Object /*Collection[Any]*/ = x; // cannot be Collection[Any], since we dont support covariance.
+           val xx : Any /*Collection[Any]*/ = x; // cannot be Collection[Any], since we dont support covariance.
            val intList = new ArrayList[Int]();
            val y = choose(intSet, intList);
            val yy : Collection[Int] = y;

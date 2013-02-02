@@ -30,6 +30,7 @@
 #include <unistd.h> // for close() and sleep()
 #include <errno.h> // for the strerror function
 #include <sys/socket.h> // for sockets
+#include <arpa/inet.h>
 #include <sys/param.h>
 #include <pthread.h> // for locks on the sockets
 #include <poll.h> // for poll()
@@ -77,7 +78,6 @@ struct x10SocketState
 	x10rt_place myPlaceId; // which place we're at.  Also used as the index to the array below. Local per-place memory is used.
 	x10SocketCallback* callBackTable; // I'm told message ID's run from 0 to n, so a simple array using message indexes is the best solution for this table.  Local per-place memory is used.
 	x10rt_msg_type callBackTableSize; // length of the above array
-	char* myhost; // my own hostname, so I can detect places that are on the same machine and use localhost instead.
 	bool yieldAfterProbe; // a little flag that adds sched_yield() after probe, for better performance when there are more workers than processors on a machine (or when debugging).
 	bool linkAtStartup; // this flag tells us that we should establish all our connections at startup, not on-demand.  It gets flipped after all links are up.
 	pthread_mutex_t readLock; // a lock to prevent overlapping reads on each socket
@@ -89,6 +89,7 @@ struct x10SocketState
 	bool useNonblockingLinks; // flag to enable/disable buffered writes.  True by default
 	struct x10SocketDataToWrite* pendingWrites;
 	pthread_mutex_t pendingWriteLock;
+	bool runAsLibrary; // main() is not X10... operate with an external launcher, act as a library, don't call system exit, etc.
 } state;
 
 bool probe (bool onlyProcessAccept, bool block);
@@ -104,7 +105,7 @@ void error(const char* message)
 	else
 		fprintf(stderr, "Fatal Error at place %u: %s\n", state.myPlaceId, message);
 	fflush(stderr);
-	abort();
+	if (!state.runAsLibrary) abort();
 }
 
 /*
@@ -129,8 +130,10 @@ int getPortEnv(unsigned int whichPlace)
 		{
 			for (unsigned int i=1; i<=whichPlace; i++)
 			{
-				if (end == NULL)
+				if (end == NULL) {
 					error("Not enough ports defined in "X10_FORCEPORTS);
+					return -1;
+				}
 				start = end+1;
 				end = strchr(start, ',');
 			}
@@ -178,9 +181,12 @@ bool flushPendingData()
 					if (errno == EAGAIN) break;
 					fprintf(stderr, "flush errno=%i", errno);
 					error("Unable to flush data");
+					return false;
 				}
-				if (rc == 0)
+				if (rc == 0) {
 					error("Unable to flush data - socket closed");
+					return false;
+				}
 				src += rc;
 				state.pendingWrites->remainingToWrite -= rc;
 			}
@@ -255,12 +261,18 @@ int nonBlockingWrite(int dest, void * p, unsigned cnt, bool copyBuffer=true)
 		#endif
 		// save the remaining data for later writing
 		struct x10SocketDataToWrite* pendingData = (struct x10SocketDataToWrite *)malloc(sizeof(struct x10SocketDataToWrite));
-		if (pendingData == NULL) error("Allocating memory for a pending write");
+		if (pendingData == NULL) {
+			error("Allocating memory for a pending write");
+			return -1;
+		}
 		pendingData->deleteBufferWhenComplete = copyBuffer;
 		if (copyBuffer)
 		{
 			pendingData->data = (char *)malloc(bytesleft);
-			if (pendingData->data == NULL) error("Allocating memory for pending write data");
+			if (pendingData->data == NULL) {
+				error("Allocating memory for pending write data");
+				return -1;
+			}
 			memcpy(pendingData->data, src, bytesleft);
 		}
 		else
@@ -325,7 +337,7 @@ int nonBlockingRead(int fd, void * p, unsigned cnt)
 	return cnt;
 }
 
-void handleConnectionRequest()
+int handleConnectionRequest()
 {
 	#ifdef DEBUG
 		fprintf(stderr, "X10rt.Sockets: place %u handling a connection request.\n", state.myPlaceId);
@@ -352,7 +364,7 @@ void handleConnectionRequest()
 					#ifdef DEBUG
 						fprintf(stderr, "X10rt.Sockets: place %u got a redundant connection from place %u\n", state.myPlaceId, from);
 					#endif
-					return;
+					return 0;
 				}
 				else
 				{
@@ -373,22 +385,26 @@ void handleConnectionRequest()
 			struct linger linger;
 			linger.l_onoff = 1;
 			linger.l_linger = 1;
-			if (setsockopt(newFD, SOL_SOCKET, SO_LINGER, &linger, sizeof(linger)) < 0)
+			if (setsockopt(newFD, SOL_SOCKET, SO_LINGER, &linger, sizeof(linger)) < 0) {
 				error("Error setting SO_LINGER on incoming socket");
+				return -1;
+			}
 			if (state.useNonblockingLinks)
 			{
 				int flags = fcntl(newFD, F_GETFL, 0);
 				fcntl(newFD, F_SETFL, flags | O_NONBLOCK);
 			}
-			return;
+			return 0;
 		}
 	}
 	#ifdef DEBUG
 		fprintf(stderr, "X10rt.Sockets: place %u got a bad connection request\n", state.myPlaceId);
 	#endif
+	return -1;
 }
 
-int initLink(uint32_t remotePlace)
+// Initialise a link to a place.  The connectionInfo may be a host:port, or may be null
+int initLink(uint32_t remotePlace, char* connectionInfo)
 {
 	if (remotePlace > state.numPlaces || remotePlace == state.myPlaceId)
 		return -1;
@@ -401,87 +417,84 @@ int initLink(uint32_t remotePlace)
 		#ifdef DEBUG
 			fprintf(stderr, "X10rt.Sockets: Place %u looking up place %u for a new connection\n", state.myPlaceId, remotePlace);
 		#endif
-		char link[1024];
-		pthread_mutex_lock(&state.writeLocks[state.myPlaceId]); // because the lookup isn't currently thread-safe
+		int newFD;
 
-		int port = getPortEnv(remotePlace);
-		if (port == 0)
-		{
-			int r = Launcher::lookupPlace(state.myPlaceId, remotePlace, link, sizeof(link));
-			if (r <= 0)
-			{
-				pthread_mutex_unlock(&state.writeLocks[state.myPlaceId]);
-				return -1;
-			}
-
-			// check that the other end didn't connect to us while we were waiting for our lookup to complete.
-			if (state.socketLinks[remotePlace].fd > 0)
-			{
-				pthread_mutex_unlock(&state.writeLocks[state.myPlaceId]);
-				return state.socketLinks[remotePlace].fd;
-			}
-
-			// break apart the link into host and port
-			char * c = strchr(link, ':');
-			if (c == NULL)
-			{
-				char* suicideNote = (char*)alloca(512);
-				sprintf(suicideNote, "Unable to establish a connection to place %u because %s!", remotePlace, link);
-				error(suicideNote);
-			}
-			c[0] = '\0';
-			port = atoi(c + 1);
-		}
+		if (connectionInfo)
+			newFD = TCP::connect(connectionInfo, 10, true);
 		else
 		{
-			char* p = getenv(X10_HOSTLIST);
-			if (p != NULL)
-			{
-				// find our port number in the list
-				char * start = p;
-				char * end = strchr(start, ',');
-				for (unsigned int i=1; i<=remotePlace; i++)
-				{
-					if (end == NULL)
-						error("Not enough hosts defined in "X10_HOSTLIST);
+			int port;
+			char* link;
 
-					start = end+1;
-					end = strchr(start, ',');
-				}
-				if (end == NULL)
-					strcpy(link, start);
-				else
+			// ask the launcher
+			link = (char *)alloca(1024);
+			pthread_mutex_lock(&state.writeLocks[state.myPlaceId]); // because the lookup isn't currently thread-safe
+
+			port = getPortEnv(remotePlace);
+			if (port == 0)
+			{
+				int r = Launcher::lookupPlace(state.myPlaceId, remotePlace, link, 1024);
+				if (r <= 0)
 				{
-					strncpy(link, start, end-start);
-					link[end-start] = '\0';
+					pthread_mutex_unlock(&state.writeLocks[state.myPlaceId]);
+					return -1;
 				}
+
+				// check that the other end didn't connect to us while we were waiting for our lookup to complete.
+				if (state.socketLinks[remotePlace].fd > 0)
+				{
+					pthread_mutex_unlock(&state.writeLocks[state.myPlaceId]);
+					return state.socketLinks[remotePlace].fd;
+				}
+
+				// break apart the link into host and port
+				char * c = strchr(link, ':');
+				if (c == NULL)
+				{
+					char* suicideNote = (char*)alloca(512);
+					sprintf(suicideNote, "Unable to establish a connection to place %u because %s!", remotePlace, link);
+					error(suicideNote);
+					return -1;
+				}
+				c[0] = '\0';
+				port = atoi(c + 1);
 			}
 			else
 			{
-				strcpy(link, "localhost\0");
-				if (getenv(X10_HOSTFILE)) fprintf(stderr, "WARNING: "X10_HOSTFILE" is ignored when using "X10_FORCEPORTS);
+				char* p = getenv(X10_HOSTLIST);
+				if (p != NULL)
+				{
+					// find our port number in the list
+					char * start = p;
+					char * end = strchr(start, ',');
+					for (unsigned int i=1; i<=remotePlace; i++)
+					{
+						if (end == NULL) {
+							error("Not enough hosts defined in "X10_HOSTLIST);
+							return -1;
+						}
+
+						start = end+1;
+						end = strchr(start, ',');
+					}
+					if (end == NULL)
+						strcpy(link, start);
+					else
+					{
+						strncpy(link, start, end-start);
+						link[end-start] = '\0';
+					}
+				}
+				else
+				{
+					strcpy(link, "localhost\0");
+					if (getenv(X10_HOSTFILE)) fprintf(stderr, "WARNING: "X10_HOSTFILE" is ignored when using "X10_FORCEPORTS);
+				}
 			}
+			newFD = TCP::connect(link, port, 10, true);
 		}
 
-		// check to see if the host is our host, and if so, change it to "localhost"
-		// to take advantage of any localhost OS efficiencies
-		bool noDelay;
-		if (strcmp(state.myhost, link) == 0)
-		{
-			strcpy(link, "localhost\0");
-			#ifdef DEBUG
-				fprintf(stderr, "X10rt.Sockets: Place %u changed hostname for place %u to %s\n", state.myPlaceId, remotePlace, link);
-			#endif
-//			noDelay = true;
-		}
-// performance seems to be better when we disable nagle for everything.
-//		else if (strcmp("localhost", link) == 0)
-			noDelay = true;
-//		else
-//			noDelay = false;
-
-		int newFD;
-		if ((newFD = TCP::connect(link, port, 10, noDelay)) > 0)
+		if (newFD > 0)
 		{
 			struct ctrl_msg m;
 			m.type = HELLO;
@@ -520,8 +533,10 @@ int initLink(uint32_t remotePlace)
 				struct linger linger;
 				linger.l_onoff = 1;
 				linger.l_linger = 1;
-				if (setsockopt(newFD, SOL_SOCKET, SO_LINGER, &linger, sizeof(linger)) < 0)
+				if (setsockopt(newFD, SOL_SOCKET, SO_LINGER, &linger, sizeof(linger)) < 0) {
 					error("Error setting SO_LINGER on outgoing socket");
+					return -1;
+				}
 				if (state.useNonblockingLinks)
 				{
 					int flags = fcntl(newFD, F_GETFL, 0);
@@ -556,84 +571,137 @@ int initLink(uint32_t remotePlace)
 *******************************************************/
 void x10rt_net_init (int * argc, char ***argv, x10rt_msg_type *counter)
 {
-	// If this is to be a launcher process, this method will not return.
-	Launcher::Setup(*argc, *argv);
+	char* libraryModeString = getenv(X10_LIBRARY_MODE);
+	if (libraryModeString && strcmp(libraryModeString, "preinit") == 0) {
+		// initial entry into the init in library mode.  We *only* open a random listen port,
+		// and return the port information back.
+		state.runAsLibrary = true;
 
-	// give parallel debugger opportunity to attach...
-	if (getenv(X10_DEBUGGER_ID))
-		DebugHelper::attachDebugger();
+		// open listen port
+		unsigned listenPort;
+		int fd = TCP::listen(&listenPort, 10);
+		if (fd < 0)
+			error("cannot create listener port");
 
-	// determine the number of places
-	char* NPROCS = getenv(X10_NPLACES);
-	if (NPROCS == NULL)
-	{
-//		fprintf(stderr, "%s not set.  Assuming 1 place, running locally\n", X10_NPLACES);
-		state.numPlaces = 1;
+		// set the environment variable to return information about the listen port
+		char str[1000];
+		TCP::getname(fd, str, 1000);
+		setenv(X10_LIBRARY_MODE, str, 1);
+		#ifdef DEBUG
+			fprintf(stderr, "X10rt.Sockets in library mode at %s\n", str);
+		#endif
+
+		// store the listen port into the placeid variable temporarily, until phase 2 just below
+		state.myPlaceId = (uint)fd;
+		return;
 	}
-	else
-	{
-		state.numPlaces = atol(NPROCS);
-		if (state.numPlaces <= 0) // atol failed
-			error(X10_NPLACES" is not set to a valid number of places!");
+	else if (libraryModeString) {
+		// phase 2 of the library mode.  Basically, initialize everything other than what was done above.  The arguments
+		// list is expected to contain the connection information needed to link up to the other runtimes, as well as the
+		// number of places and which one is us
+
+		// TODO: get the number of places
+
+		state.linkAtStartup = true;
+		state.yieldAfterProbe = true;
+		state.useNonblockingLinks = !checkBoolEnvVar(getenv(X10_NOWRITEBUFFER));
+
+		state.nextSocketToCheck = 0;
+		pthread_mutex_init(&state.readLock, NULL);
+		state.socketLinks = safe_malloc<pollfd>(state.numPlaces);
+		state.writeLocks = safe_malloc<pthread_mutex_t>(state.numPlaces);
+		for (unsigned int i=0; i<state.numPlaces; i++)
+		{
+			state.socketLinks[i].fd = -1;
+			state.socketLinks[i].events = 0;
+		}
+
+		// TODO: get my place ID
+
+		// TODO: save the listen port FD from phase 1
+
+		// TODO: connect to other places
+
+		unsetenv(X10_LIBRARY_MODE);
 	}
+	else {
+		state.runAsLibrary = false;
 
-	if (state.numPlaces == 1)
-	{
-		state.myPlaceId = 0;
-		return; // If there is only 1 place, then there are no sockets to set up.
+		// If this is to be a launcher process, this method will not return.
+		Launcher::Setup(*argc, *argv);
+
+		// give parallel debugger opportunity to attach...
+		if (getenv(X10_DEBUGGER_ID))
+			DebugHelper::attachDebugger();
+		// determine the number of places
+		char* NPROCS = getenv(X10_NPLACES);
+		if (NPROCS == NULL)
+		{
+	//		fprintf(stderr, "%s not set.  Assuming 1 place, running locally\n", X10_NPLACES);
+			state.numPlaces = 1;
+		}
+		else
+		{
+			state.numPlaces = atol(NPROCS);
+			if (state.numPlaces <= 0) // atol failed
+				error(X10_NPLACES" is not set to a valid number of places!");
+		}
+
+		if (state.numPlaces == 1)
+		{
+			state.myPlaceId = 0;
+			return; // If there is only 1 place, then there are no sockets to set up.
+		}
+
+		// determine my place ID
+		char* ID = getenv(X10_LAUNCHER_PLACE);
+		if (ID == NULL)
+			error(X10_LAUNCHER_PLACE" not set!");
+		else
+			state.myPlaceId = atol(ID);
+
+		state.yieldAfterProbe = !checkBoolEnvVar(getenv(X10_NOYIELD));
+		state.linkAtStartup = !checkBoolEnvVar(getenv(X10_LAZYLINKS));
+		state.useNonblockingLinks = !checkBoolEnvVar(getenv(X10_NOWRITEBUFFER));
+
+		state.nextSocketToCheck = 0;
+		pthread_mutex_init(&state.readLock, NULL);
+		state.socketLinks = safe_malloc<pollfd>(state.numPlaces);
+		state.writeLocks = safe_malloc<pthread_mutex_t>(state.numPlaces);
+		for (unsigned int i=0; i<state.numPlaces; i++)
+		{
+			state.socketLinks[i].fd = -1;
+			state.socketLinks[i].events = 0;
+		}
+
+		// open local listen port.
+		unsigned listenPort = getPortEnv(state.myPlaceId);
+		bool useLauncher = (listenPort == 0);
+		state.socketLinks[state.myPlaceId].fd = TCP::listen(&listenPort, 10);
+		if (state.socketLinks[state.myPlaceId].fd < 0)
+			error("cannot create listener port");
+		pthread_mutex_init(&state.writeLocks[state.myPlaceId], NULL);
+		state.socketLinks[state.myPlaceId].events = POLLIN | POLLPRI;
+
+		if (useLauncher)
+		{   // Tell our launcher our communication port number
+			sockaddr_in addr;
+			socklen_t len = sizeof(addr);
+			if (getsockname(state.socketLinks[state.myPlaceId].fd, (sockaddr *) &addr, &len) < 0)
+				error("failed to get the local socket information");
+
+			pthread_mutex_lock(&state.writeLocks[state.myPlaceId]);
+			if (Launcher::setPort(state.myPlaceId, addr.sin_port) < 0)
+				error("failed to connect to the local runtime");
+			pthread_mutex_unlock(&state.writeLocks[state.myPlaceId]);
+		}
 	}
-
-	// determine my place ID
-	char* ID = getenv(X10_LAUNCHER_PLACE);
-	if (ID == NULL)
-		error(X10_LAUNCHER_PLACE" not set!");
-	else
-		state.myPlaceId = atol(ID);
-
-	state.yieldAfterProbe = !checkBoolEnvVar(getenv(X10_NOYIELD));
-	state.linkAtStartup = !checkBoolEnvVar(getenv(X10_LAZYLINKS));
-	state.useNonblockingLinks = !checkBoolEnvVar(getenv(X10_NOWRITEBUFFER));
-
-	state.nextSocketToCheck = 0;
-	pthread_mutex_init(&state.readLock, NULL);
-	state.socketLinks = safe_malloc<pollfd>(state.numPlaces);
-	state.writeLocks = safe_malloc<pthread_mutex_t>(state.numPlaces);
-	for (unsigned int i=0; i<state.numPlaces; i++)
-	{
-		state.socketLinks[i].fd = -1;
-		state.socketLinks[i].events = 0;
-	}
-
-	// open local listen port.
-	unsigned listenPort = getPortEnv(state.myPlaceId);
-	bool useLauncher = (listenPort == 0);
-	state.socketLinks[state.myPlaceId].fd = TCP::listen(&listenPort, 10);
-	if (state.socketLinks[state.myPlaceId].fd < 0)
-		error("cannot create listener port");
-	pthread_mutex_init(&state.writeLocks[state.myPlaceId], NULL);
-	state.socketLinks[state.myPlaceId].events = POLLIN | POLLPRI;
-
-	char portname[1024];
-	TCP::getname(state.socketLinks[state.myPlaceId].fd, portname, sizeof(portname));
-	if (useLauncher)
-	{   // Tell our launcher our communication port number
-		pthread_mutex_lock(&state.writeLocks[state.myPlaceId]);
-		if (Launcher::setPort(state.myPlaceId, portname) < 0)
-			error("failed to connect to the local runtime");
-		pthread_mutex_unlock(&state.writeLocks[state.myPlaceId]);
-	}
-
-	// save our hostname for later
-	char * c = strchr(portname, ':');
-	c[0] = '\0';
-	state.myhost = (char*)malloc(strlen(portname)+1);
-	strcpy(state.myhost, portname);
 
 	state.pendingWrites = NULL;
 	if (state.useNonblockingLinks)
 		pthread_mutex_init(&state.pendingWriteLock, NULL);
 	#ifdef DEBUG
-		fprintf(stderr, "X10rt.Sockets: place %u running on %s\n", state.myPlaceId, state.myhost);
+		fprintf(stderr, "X10rt.Sockets: place %u running\n", state.myPlaceId);
 	#endif
 }
 
@@ -715,17 +783,14 @@ x10rt_place x10rt_net_here (void)
 
 void x10rt_net_send_msg (x10rt_msg_params *parameters)
 {
-    x10rt_lgl_stats.msg.messages_sent++ ;
-    x10rt_lgl_stats.msg.bytes_sent += parameters->len;
-	flushPendingData();
-	if (initLink(parameters->dest_place) < 0)
-		error("establishing a connection");
 	#ifdef DEBUG_MESSAGING
 		fprintf(stderr, "X10rt.Sockets: place %u sending a %d byte message of type %d to place %u\n", state.myPlaceId, parameters->len, (int)parameters->type, parameters->dest_place);
 	#endif
-	#ifdef DEBUG_MESSAGING
-		fprintf(stderr, "X10rt.Sockets: place %u sending a %d byte message to place %u\n", state.myPlaceId, parameters->len, parameters->dest_place);
-	#endif
+    x10rt_lgl_stats.msg.messages_sent++ ;
+    x10rt_lgl_stats.msg.bytes_sent += parameters->len;
+	flushPendingData();
+	if (initLink(parameters->dest_place, NULL) < 0)
+		error("establishing a connection");
 	pthread_mutex_lock(&state.writeLocks[parameters->dest_place]);
 
 	// write out the x10SocketMessage data
@@ -745,14 +810,14 @@ void x10rt_net_send_msg (x10rt_msg_params *parameters)
 
 void x10rt_net_send_get (x10rt_msg_params *parameters, void *buffer, x10rt_copy_sz bufferLen)
 {
-    x10rt_lgl_stats.get.messages_sent++ ;
-    x10rt_lgl_stats.get.bytes_sent += parameters->len;
-	flushPendingData();
-	if (initLink(parameters->dest_place) < 0)
-		error("establishing a connection");
 	#ifdef DEBUG_MESSAGING
 		fprintf(stderr, "X10rt.Sockets: place %u sending a %d byte GET message with %d byte payload to place %u\n", state.myPlaceId, parameters->len, bufferLen, parameters->dest_place);
 	#endif
+    x10rt_lgl_stats.get.messages_sent++ ;
+    x10rt_lgl_stats.get.bytes_sent += parameters->len;
+	flushPendingData();
+	if (initLink(parameters->dest_place, NULL) < 0)
+		error("establishing a connection");
 	pthread_mutex_lock(&state.writeLocks[parameters->dest_place]);
 
 	// write out the x10SocketMessage data
@@ -777,17 +842,17 @@ void x10rt_net_send_get (x10rt_msg_params *parameters, void *buffer, x10rt_copy_
 
 void x10rt_net_send_put (x10rt_msg_params *parameters, void *buffer, x10rt_copy_sz bufferLen)
 {
+	#ifdef DEBUG_MESSAGING
+		fprintf(stderr, "X10rt.Sockets: place %u sending a %d byte PUT message with %d byte payload to place %u\n", state.myPlaceId, parameters->len, bufferLen, parameters->dest_place);
+	#endif
     x10rt_lgl_stats.put.messages_sent++ ;
     x10rt_lgl_stats.put.bytes_sent += parameters->len;
     x10rt_lgl_stats.put_copied_bytes_sent += bufferLen;
 	flushPendingData();
-	if (initLink(parameters->dest_place) < 0)
+	if (initLink(parameters->dest_place, NULL) < 0)
 		error("establishing a connection");
 	pthread_mutex_lock(&state.writeLocks[parameters->dest_place]);
 
-	#ifdef DEBUG_MESSAGING
-		fprintf(stderr, "X10rt.Sockets: place %u sending a %d byte PUT message with %d byte payload to place %u\n", state.myPlaceId, parameters->len, bufferLen, parameters->dest_place);
-	#endif
 	// write out the x10SocketMessage data
 	// Format: type, p.type, p.len, p.msg, bufferlen, buffer contents
 	enum MSGTYPE m = PUT;
@@ -815,7 +880,7 @@ void x10rt_net_probe ()
 	else if (state.linkAtStartup)
 	{
 		for (unsigned i=0; i<state.myPlaceId; i++)
-			initLink(i); // connect to all lower places
+			initLink(i, NULL); // connect to all lower places
 		for (unsigned i=state.myPlaceId+1; i<state.numPlaces; i++)
 			while (state.socketLinks[i].fd <= 0)
 				probe(true, false); // wait for connections from all upper places
@@ -1137,7 +1202,6 @@ void x10rt_net_finalize (void)
 		#endif
 	}
 	pthread_mutex_destroy(&state.readLock);
-	free(state.myhost);
 	free(state.socketLinks);
 	free(state.writeLocks);
 }

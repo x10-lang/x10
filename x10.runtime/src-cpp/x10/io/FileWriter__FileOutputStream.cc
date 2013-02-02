@@ -10,73 +10,73 @@
  */
 
 #include <x10/io/FileWriter__FileOutputStream.h>
+
 #include <x10/util/IndexedMemoryChunk.h>
+#include <x10/io/FileNotFoundException.h>
+#include <x10/io/NotSerializableException.h>
 
 using namespace x10aux;
 using namespace x10::lang;
 using namespace x10::io;
 
-x10aux::ref<FileWriter__FileOutputStream>
-FileWriter__FileOutputStream::_make(x10aux::ref<x10::lang::String> name, bool append) {
-    x10aux::ref<FileWriter__FileOutputStream> this_ = new (x10aux::alloc<FileWriter__FileOutputStream>()) FileWriter__FileOutputStream ();
+FileWriter__FileOutputStream*
+FileWriter__FileOutputStream::_make(x10::lang::String* name, bool append) {
+    FileWriter__FileOutputStream* this_ = new (x10aux::alloc<FileWriter__FileOutputStream>()) FileWriter__FileOutputStream ();
     this_->_constructor(name, append);
     return this_;
 }
 
-void FileWriter__FileOutputStream::_constructor(x10aux::ref<x10::lang::String> file, bool append) {
+void FileWriter__FileOutputStream::_constructor(x10::lang::String* name, bool append) {
     this->OutputStreamWriter__OutputStream::_constructor();
-    x10aux::io::FILEPtrOutputStream fpos(x10aux::io::FILEPtrStream::open_file(file, (append ? "a" : "w")));
-    _outputStream = fpos;
+
+    const char *filename = name->c_str();
+    FMGL(file) = fopen(filename, (append ? "a" : "w"));
+#ifndef NO_EXCEPTIONS
+    if (NULL == FMGL(file))
+        throwException(FileNotFoundException::_make(name));
+#endif
 }
 
 void FileWriter__FileOutputStream::_constructor(FILE* file) {
     this->OutputStreamWriter__OutputStream::_constructor();
-    x10aux::io::FILEPtrOutputStream fpos(file);
-    _outputStream = fpos;
+    FMGL(file) = file;
 }
 
-void FileWriter__FileOutputStream::_constructor() {
-    this->OutputStreamWriter__OutputStream::_constructor();
-    x10aux::io::FILEPtrOutputStream fpos(NULL);
-    _outputStream = fpos;
+void FileWriter__FileOutputStream::write(const char *str) {
+    ::fprintf(FMGL(file), "%s", str);
+}
+
+void FileWriter__FileOutputStream::write(x10_int i) {
+    ::fputc((char)i, FMGL(file));
 }
 
 void FileWriter__FileOutputStream::write(x10::util::IndexedMemoryChunk<x10_byte> b, x10_int off, x10_int len) {
-    _outputStream.write(b, off, len);
+    ::fwrite(((x10_byte*)b->raw())+off*sizeof(x10_byte), sizeof(x10_byte), len*sizeof(x10_byte), FMGL(file));
+}
+
+void FileWriter__FileOutputStream::flush() {
+    ::fflush(FMGL(file));
+}
+
+void FileWriter__FileOutputStream::close() {
+    ::fclose(FMGL(file));
 }
 
 const x10aux::serialization_id_t FileWriter__FileOutputStream::_serialization_id = 
     x10aux::DeserializationDispatcher::addDeserializer(FileWriter__FileOutputStream::_deserializer, x10aux::CLOSURE_KIND_NOT_ASYNC);
 
 void FileWriter__FileOutputStream::_serialize_body(x10aux::serialization_buffer& buf) {
-    OutputStreamWriter__OutputStream::_serialize_body(buf);
-    // This class simply has no global state.
-    // TODO: attempting to serialize _outputStream is nonsensical.
-    //       The old 1.7 definition of this class simply didn't work either,
-    //       it just silently didn't serialize the FILEPtrInputSteam field.
-    // assert(false);
-    // buf.write(this->_outputStream);
+    x10aux::throwException(NotSerializableException::_make(String::Lit("FileWriter.FileOutputStream")));
 }
 
 void FileWriter__FileOutputStream::_deserialize_body(x10aux::deserialization_buffer& buf) {
-    OutputStreamWriter__OutputStream::_deserialize_body(buf);
-    // This class simply has no global state.
-    // TODO: attempting to serialize _outputStream is nonsensical.
-    //       The old 1.7 definition of this class simply didn't work either,
-    //       it just silently didn't serialize the FILEPtrInputSteam field.
-    // assert(false);
-    // _outputStream = buf.read<x10aux::io::FILEPtrOutputStream>();
+    // Should be unreachable, since serialize_body throws an exception.
+    assert(false);
 }
 
-x10aux::ref<Reference> FileWriter__FileOutputStream::_deserializer(x10aux::deserialization_buffer& buf) {
-    // TODO: attempting to serialize _outputStream is nonsensical.
-    //       The old 1.7 definition of this class simply didn't work either,
-    //       it just silently didn't serialize the FILEPtrInputSteam field.
-    // assert(false);
-    x10aux::ref<FileWriter__FileOutputStream> this_ = new (x10aux::alloc<FileWriter__FileOutputStream>()) FileWriter__FileOutputStream();
-    buf.record_reference(this_);
-    this_->_deserialize_body(buf);
-    return this_;
+Reference* FileWriter__FileOutputStream::_deserializer(x10aux::deserialization_buffer& buf) {
+    // Should be unreachable, since serialize_body throws an exception.
+    assert(false);
 }
 
 RTT_CC_DECLS1(FileWriter__FileOutputStream, "x10.io.FileWriter.FileOutputStream", RuntimeType::class_kind, OutputStreamWriter__OutputStream)

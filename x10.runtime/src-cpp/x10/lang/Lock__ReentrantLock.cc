@@ -14,7 +14,7 @@
 
 #include <x10/lang/Lock__ReentrantLock.h>
 
-#include <x10/lang/IllegalMonitorStateException.h>
+#include <x10/lang/IllegalOperationException.h>
 
 #include <errno.h>
 #ifdef XRX_DEBUG
@@ -24,18 +24,16 @@
 using namespace x10::lang;
 using namespace x10aux;
 
-x10aux::ref<Lock__ReentrantLock>
-Lock__ReentrantLock::_make() {
-    x10aux::ref<Lock__ReentrantLock> this_ = new (x10aux::alloc<Lock__ReentrantLock>()) Lock__ReentrantLock();
-    this_->x10::lang::Object::_constructor();
+Lock__ReentrantLock* Lock__ReentrantLock::_make() {
+    Lock__ReentrantLock* this_ = new (x10aux::alloc<Lock__ReentrantLock>()) Lock__ReentrantLock();
     return this_;
 }
 
 void
 Lock__ReentrantLock::raiseException() {
-    throwException<IllegalMonitorStateException>();
+    throwException<IllegalOperationException>();
 }
 
-RTT_CC_DECLS1(Lock__ReentrantLock, "x10.lang.Lock__ReentrantLock", RuntimeType::class_kind, Object)
+RTT_CC_DECLS0(Lock__ReentrantLock, "x10.lang.Lock__ReentrantLock", RuntimeType::class_kind)
 
 // vim:tabstop=4:shiftwidth=4:expandtab

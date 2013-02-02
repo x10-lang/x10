@@ -13,50 +13,51 @@
 #define X10AUX_BASIC_FUNCTIONS_H
 
 #include <x10aux/config.h>
-#include <x10aux/ref.h>
-#include <x10aux/hash.h>
-#include <x10aux/double_utils.h>
-#include <x10aux/float_utils.h>
-#include <x10aux/string_utils.h>
+
+#ifndef X10AUX_THROW_H_NODEPS
+#define X10AUX_THROW_H_NODEPS
+#include <x10aux/throw.h>
+#undef X10AUX_THROW_H_NODEPS
+#endif
 
 #define X10_LANG_IBOX_NODEPS
 #include <x10/lang/IBox.h>
 #undef X10_LANG_IBOX_NODEPS
 
-namespace x10 {
-    namespace lang {
-        class String;
-    }
-}
+namespace x10 { namespace lang { class String; } }
 
 namespace x10aux {
 
+    // Break header file circularity with String.h
+    extern x10::lang::String* makeStringLit(const char*);
+    
     /******* type_name ********/
 
-    template<class T> inline ref<x10::lang::String> type_name(ref<T> x) {
-        return string_utils::lit((ref<x10::lang::Reference>(nullCheck(x)))->_type()->name());
+    template<class T> inline x10::lang::String* type_name(T* x) {
+        x10::lang::Reference* xAsRef = reinterpret_cast<x10::lang::Reference*>(x);
+        return makeStringLit(nullCheck(xAsRef)->_type()->name());
     }
 
-    template<class T> inline ref<x10::lang::String> type_name(captured_ref_lval<T> x) {
+    template<class T> inline x10::lang::String* type_name(captured_ref_lval<T> x) {
         return type_name(*x);
     }
 
-    template<class T> inline ref<x10::lang::String> type_name(captured_struct_lval<T> x) {
+    template<class T> inline x10::lang::String* type_name(captured_struct_lval<T> x) {
         return type_name(*x);
     }
 
-    template<typename T> inline ref<x10::lang::String> type_name(T x) {
-        return string_utils::lit(getRTT<T>()->name());
+    template<typename T> inline x10::lang::String* type_name(T x) {
+        return makeStringLit(getRTT<T>()->name());
     }
 
 
     /******* struct_equals ********/
 
-    extern GPUSAFE x10_boolean compare_references_slow(ref<x10::lang::Reference> x, ref<x10::lang::Reference> y);
-    inline GPUSAFE x10_boolean compare_references(ref<x10::lang::Reference> x, ref<x10::lang::Reference> y) {
+    extern GPUSAFE x10_boolean compare_references_slow(x10::lang::Reference* x, x10::lang::Reference* y);
+    inline GPUSAFE x10_boolean compare_references(x10::lang::Reference* x, x10::lang::Reference* y) {
         if (x == y) return true;
-        if (x.isNull()) return y.isNull();
-        if (y.isNull()) return false;
+        if (NULL == x) return NULL == y;
+        if (NULL == y) return false;
         return compare_references_slow(x, y);
     }        
 
@@ -81,30 +82,32 @@ namespace x10aux {
         return x._struct_equals(y); // two structs
     }
 
-    template<class T, class U> inline x10_boolean struct_equals_inner(ref<T> x, U y) {
+    template<class T, class U> inline x10_boolean struct_equals_inner(T* x, U y) {
         // ref and struct. The ref could be an IBox<U>, so we have to handle that special case
-        ref<x10::lang::Reference> xAsRef(x);
-        if (!x.isNull() && xAsRef->_type()->equals(getRTT<U>())) {
-            ref<x10::lang::IBox<U> > xAsIBox(x);
+        x10::lang::Reference* xAsRef = reinterpret_cast<x10::lang::Reference*>(x);
+        if (NULL != x && xAsRef->_type()->equals(getRTT<U>())) {
+            x10::lang::IBox<U>* xAsIBox = reinterpret_cast<x10::lang::IBox<U>*>(x);
             return struct_equals_inner(xAsIBox->value, y);
         } else {
             return false;
         }
     }
 
-    template<class T, class U> inline x10_boolean struct_equals_inner(T x, ref<U> y) {
+    template<class T, class U> inline x10_boolean struct_equals_inner(T x, U* y) {
         // struct and ref. The ref could be an IBox<T>, so we have to handle that special case
-        ref<x10::lang::Reference> yAsRef(y);
-        if (!y.isNull() && yAsRef->_type()->equals(getRTT<T>())) {
-            ref<x10::lang::IBox<T> > yAsIBox(y);
+        x10::lang::Reference* yAsRef = reinterpret_cast<x10::lang::Reference*>(y);
+        if (NULL != y && yAsRef->_type()->equals(getRTT<T>())) {
+            x10::lang::IBox<T>* yAsIBox = reinterpret_cast<x10::lang::IBox<T>*>(y);
             return struct_equals_inner(x, yAsIBox->value);
         } else {
             return false;
         }
     }
 
-    template<class T, class U> inline GPUSAFE x10_boolean struct_equals_inner(ref<T> x, ref<U> y) {
-        return compare_references(x, y); // two refs
+    template<class T, class U> inline GPUSAFE x10_boolean struct_equals_inner(T* x, U* y) {
+        x10::lang::Reference* xAsRef = reinterpret_cast<x10::lang::Reference*>(x);
+        x10::lang::Reference* yAsRef = reinterpret_cast<x10::lang::Reference*>(y);
+        return compare_references(xAsRef, yAsRef); // two refs
     }
 
     /*
@@ -116,13 +119,13 @@ namespace x10aux {
         return struct_equals_inner(x, y);
     }
     template<class T, class U> inline x10_boolean struct_equals(captured_ref_lval<T> x, U y) {
-        return struct_equals_inner(ref<T>(*x), y);
+        return struct_equals_inner(*x, y);
     }
     template<class T, class U> inline x10_boolean struct_equals(T x, captured_ref_lval<U> y) {
-        return struct_equals_inner(x, ref<U>(*y));
+        return struct_equals_inner(x, *y);
     }
     template<class T, class U> inline x10_boolean struct_equals(captured_ref_lval<T> x, captured_ref_lval<U> y) {
-        return struct_equals_inner(ref<T>(*x), ref<U>(*y));
+        return struct_equals_inner(*x, *y);
     }
     template<class T, class U> inline x10_boolean struct_equals(captured_struct_lval<T> x, U y) {
         return struct_equals_inner(*x, y);
@@ -137,137 +140,137 @@ namespace x10aux {
     /******* equals ********/
 
     // covers all heap-allocated values (Objects, Functions, Structs boxes to interface types)
-    template<class T> inline x10_boolean equals(ref<T> x, ref<x10::lang::Any> y) {
-        ref<x10::lang::Reference> xAsRef(x);
+    template<class T> inline x10_boolean equals(T* x, x10::lang::Any* y) {
+        x10::lang::Reference* xAsRef = reinterpret_cast<x10::lang::Reference*>(x);
         return nullCheck(xAsRef)->equals(y);
     }
 
-    template<class T> inline x10_boolean equals(captured_ref_lval<T> x, ref<x10::lang::Any> y) {
+    template<class T> inline x10_boolean equals(captured_ref_lval<T> x, x10::lang::Any* y) {
         return equals(*x, y);
     }
 
-    template<class T> inline x10_boolean equals(captured_struct_lval<T> x, ref<x10::lang::Any> y) {
+    template<class T> inline x10_boolean equals(captured_struct_lval<T> x, x10::lang::Any* y) {
         return equals(*x, y);
     }
     
     // covers all X10 Structs that are not built-in C++ types and NativeRep'ed
-    template<class T> inline x10_boolean equals(T x, ref<x10::lang::Any>  y) { return x->equals(y); }
+    template<class T> inline x10_boolean equals(T x, x10::lang::Any*  y) { return x->equals(y); }
 
     // Cover all X10 Structs that are built-in C++ types
-    inline x10_boolean equals(x10_boolean x, ref<x10::lang::Any> y) {
-        ref<x10::lang::Reference> yAsRef(y);
-        if (!y.isNull() && yAsRef->_type()->equals(getRTT<x10_boolean>())) {
-            ref<x10::lang::IBox<x10_boolean> > yAsIBox(y);
+    inline x10_boolean equals(x10_boolean x, x10::lang::Any* y) {
+        x10::lang::Reference* yAsRef = reinterpret_cast<x10::lang::Reference*>(y);
+        if (NULL != y && yAsRef->_type()->equals(getRTT<x10_boolean>())) {
+            x10::lang::IBox<x10_boolean>* yAsIBox = reinterpret_cast<x10::lang::IBox<x10_boolean>*>(y);
             return x == yAsIBox->value;
         } else {
             return false;
         }
     }
 
-    inline x10_boolean equals(x10_byte x, ref<x10::lang::Any> y) {
-        ref<x10::lang::Reference> yAsRef(y);
-        if (!y.isNull() && yAsRef->_type()->equals(getRTT<x10_byte>())) {
-            ref<x10::lang::IBox<x10_byte> > yAsIBox(y);
+    inline x10_boolean equals(x10_byte x, x10::lang::Any* y) {
+        x10::lang::Reference* yAsRef = reinterpret_cast<x10::lang::Reference*>(y);
+        if (NULL != y && yAsRef->_type()->equals(getRTT<x10_byte>())) {
+            x10::lang::IBox<x10_byte>* yAsIBox = reinterpret_cast<x10::lang::IBox<x10_byte>*>(y);
             return x == yAsIBox->value;
         } else {
             return false;
         }
     }
 
-    inline x10_boolean equals(x10_ubyte x, ref<x10::lang::Any> y) {
-        ref<x10::lang::Reference> yAsRef(y);
-        if (!y.isNull() && yAsRef->_type()->equals(getRTT<x10_ubyte>())) {
-            ref<x10::lang::IBox<x10_ubyte> > yAsIBox(y);
+    inline x10_boolean equals(x10_ubyte x, x10::lang::Any* y) {
+        x10::lang::Reference* yAsRef = reinterpret_cast<x10::lang::Reference*>(y);
+        if (NULL != y && yAsRef->_type()->equals(getRTT<x10_ubyte>())) {
+            x10::lang::IBox<x10_ubyte>* yAsIBox = reinterpret_cast<x10::lang::IBox<x10_ubyte>*>(y);
             return x == yAsIBox->value;
         } else {
             return false;
         }
     }
 
-    inline x10_boolean equals(x10_char x, ref<x10::lang::Any> y) {
-        ref<x10::lang::Reference> yAsRef(y);
-        if (!y.isNull() && yAsRef->_type()->equals(getRTT<x10_char>())) {
-            ref<x10::lang::IBox<x10_char> > yAsIBox(y);
+    inline x10_boolean equals(x10_char x, x10::lang::Any* y) {
+        x10::lang::Reference* yAsRef = reinterpret_cast<x10::lang::Reference*>(y);
+        if (NULL != y && yAsRef->_type()->equals(getRTT<x10_char>())) {
+            x10::lang::IBox<x10_char>* yAsIBox = reinterpret_cast<x10::lang::IBox<x10_char>*>(y);
             return x.v == yAsIBox->value.v;
         } else {
             return false;
         }
     }
 
-    inline x10_boolean equals(x10_short x, ref<x10::lang::Any> y) {
-        ref<x10::lang::Reference> yAsRef(y);
-        if (!y.isNull() && yAsRef->_type()->equals(getRTT<x10_short>())) {
-            ref<x10::lang::IBox<x10_short> > yAsIBox(y);
+    inline x10_boolean equals(x10_short x, x10::lang::Any* y) {
+        x10::lang::Reference* yAsRef = reinterpret_cast<x10::lang::Reference*>(y);
+        if (NULL != y && yAsRef->_type()->equals(getRTT<x10_short>())) {
+            x10::lang::IBox<x10_short>* yAsIBox = reinterpret_cast<x10::lang::IBox<x10_short>*>(y);
             return x == yAsIBox->value;
         } else {
             return false;
         }
     }
 
-    inline x10_boolean equals(x10_ushort x, ref<x10::lang::Any> y) {
-        ref<x10::lang::Reference> yAsRef(y);
-        if (!y.isNull() && yAsRef->_type()->equals(getRTT<x10_ushort>())) {
-            ref<x10::lang::IBox<x10_ushort> > yAsIBox(y);
+    inline x10_boolean equals(x10_ushort x, x10::lang::Any* y) {
+        x10::lang::Reference* yAsRef = reinterpret_cast<x10::lang::Reference*>(y);
+        if (NULL != y && yAsRef->_type()->equals(getRTT<x10_ushort>())) {
+            x10::lang::IBox<x10_ushort>* yAsIBox = reinterpret_cast<x10::lang::IBox<x10_ushort>*>(y);
             return x == yAsIBox->value;
         } else {
             return false;
         }
     }
 
-    inline x10_boolean equals(x10_int x, ref<x10::lang::Any> y) {
-        ref<x10::lang::Reference> yAsRef(y);
-        if (!y.isNull() && yAsRef->_type()->equals(getRTT<x10_int>())) {
-            ref<x10::lang::IBox<x10_int> > yAsIBox(y);
+    inline x10_boolean equals(x10_int x, x10::lang::Any* y) {
+        x10::lang::Reference* yAsRef = reinterpret_cast<x10::lang::Reference*>(y);
+        if (NULL != y && yAsRef->_type()->equals(getRTT<x10_int>())) {
+            x10::lang::IBox<x10_int>* yAsIBox = reinterpret_cast<x10::lang::IBox<x10_int>*>(y);
             return x == yAsIBox->value;
         } else {
             return false;
         }
     }
 
-    inline x10_boolean equals(x10_uint x, ref<x10::lang::Any> y) {
-        ref<x10::lang::Reference> yAsRef(y);
-        if (!y.isNull() && yAsRef->_type()->equals(getRTT<x10_uint>())) {
-            ref<x10::lang::IBox<x10_uint> > yAsIBox(y);
+    inline x10_boolean equals(x10_uint x, x10::lang::Any* y) {
+        x10::lang::Reference* yAsRef = reinterpret_cast<x10::lang::Reference*>(y);
+        if (NULL != y && yAsRef->_type()->equals(getRTT<x10_uint>())) {
+            x10::lang::IBox<x10_uint>* yAsIBox = reinterpret_cast<x10::lang::IBox<x10_uint>*>(y);
             return x == yAsIBox->value;
         } else {
             return false;
         }
     }
 
-    inline x10_boolean equals(x10_long x, ref<x10::lang::Any> y) {
-        ref<x10::lang::Reference> yAsRef(y);
-        if (!y.isNull() && yAsRef->_type()->equals(getRTT<x10_long>())) {
-            ref<x10::lang::IBox<x10_long> > yAsIBox(y);
+    inline x10_boolean equals(x10_long x, x10::lang::Any* y) {
+        x10::lang::Reference* yAsRef = reinterpret_cast<x10::lang::Reference*>(y);
+        if (NULL != y && yAsRef->_type()->equals(getRTT<x10_long>())) {
+            x10::lang::IBox<x10_long>* yAsIBox = reinterpret_cast<x10::lang::IBox<x10_long>*>(y);
             return x == yAsIBox->value;
         } else {
             return false;
         }
     }
 
-    inline x10_boolean equals(x10_ulong x, ref<x10::lang::Any> y) {
-        ref<x10::lang::Reference> yAsRef(y);
-        if (!y.isNull() && yAsRef->_type()->equals(getRTT<x10_ulong>())) {
-            ref<x10::lang::IBox<x10_ulong> > yAsIBox(y);
+    inline x10_boolean equals(x10_ulong x, x10::lang::Any* y) {
+        x10::lang::Reference* yAsRef = reinterpret_cast<x10::lang::Reference*>(y);
+        if (NULL != y && yAsRef->_type()->equals(getRTT<x10_ulong>())) {
+            x10::lang::IBox<x10_ulong>* yAsIBox = reinterpret_cast<x10::lang::IBox<x10_ulong>*>(y);
             return x == yAsIBox->value;
         } else {
             return false;
         }
     }
 
-    inline x10_boolean equals(x10_float x, ref<x10::lang::Any> y) {
-        ref<x10::lang::Reference> yAsRef(y);
-        if (!y.isNull() && yAsRef->_type()->equals(getRTT<x10_float>())) {
-            ref<x10::lang::IBox<x10_float> > yAsIBox(y);
+    inline x10_boolean equals(x10_float x, x10::lang::Any* y) {
+        x10::lang::Reference* yAsRef = reinterpret_cast<x10::lang::Reference*>(y);
+        if (NULL != y && yAsRef->_type()->equals(getRTT<x10_float>())) {
+            x10::lang::IBox<x10_float>* yAsIBox = reinterpret_cast<x10::lang::IBox<x10_float>*>(y);
             return x == yAsIBox->value;
         } else {
             return false;
         }
     }
 
-    inline x10_boolean equals(x10_double x, ref<x10::lang::Any> y) {
-        ref<x10::lang::Reference> yAsRef(y);
-        if (!y.isNull() && yAsRef->_type()->equals(getRTT<x10_double>())) {
-            ref<x10::lang::IBox<x10_double> > yAsIBox(y);
+    inline x10_boolean equals(x10_double x, x10::lang::Any* y) {
+        x10::lang::Reference* yAsRef = reinterpret_cast<x10::lang::Reference*>(y);
+        if (NULL != y && yAsRef->_type()->equals(getRTT<x10_double>())) {
+            x10::lang::IBox<x10_double>* yAsIBox = reinterpret_cast<x10::lang::IBox<x10_double>*>(y);
             return x == yAsIBox->value;
         } else {
             return false;
@@ -289,8 +292,9 @@ namespace x10aux {
 
     /******* hash_code ********/
 
-    template<class T> inline x10_int hash_code(ref<T> x) {
-        return (ref<x10::lang::Reference>(nullCheck(x)))->hashCode();
+    template<class T> inline x10_int hash_code(T* x) {
+        x10::lang::Reference* xAsRef = reinterpret_cast<x10::lang::Reference*>(x);
+        return nullCheck(xAsRef)->hashCode();
     }
 
     template<class T> inline x10_int hash_code(captured_ref_lval<T> x) {
@@ -319,62 +323,73 @@ namespace x10aux {
     inline x10_int hash_code(const x10_long x) {
         return hash_code((x10_ulong)x);
     }
-    inline x10_int hash_code(const x10_double x) {
-        return hash_code(double_utils::toLongBits(x));
-    }
-    inline x10_int hash_code(const x10_float x) {
-        return hash_code(float_utils::toIntBits(x));
-    }
+    x10_int hash_code(const x10_double x);
+    x10_int hash_code(const x10_float x);
 
+
+    /******* identity hash_code ********/
+    inline x10_int identity_hash_code(x10::lang::Reference* ptr) {
+        // Combine the bits of the pointer into a 32 bit integer.
+        uint64_t v2 = (uint64_t)ptr;
+        x10_int lower = (x10_int)(v2 & 0xffffffff);
+        x10_int upper = (x10_int)(v2 >> 32);
+        x10_int hc = lower ^ upper;
+        return hc; 
+    }
     
     /******* to_string ********/
 
-    template<class T> ref<x10::lang::String> to_string(ref<T> x) {
-        return (ref<x10::lang::Reference>(nullCheck(x)))->toString();
+    template<class T> x10::lang::String* to_string(T* x) {
+        x10::lang::Reference* xAsRef = reinterpret_cast<x10::lang::Reference*>(x);
+        return nullCheck(xAsRef)->toString();
     }
-    template<class T> ref<x10::lang::String> to_string(captured_ref_lval<T> x) {
+    template<class T> x10::lang::String* to_string(captured_ref_lval<T> x) {
         return to_string(*x);
     }
-    template<class T> ref<x10::lang::String> to_string(captured_struct_lval<T> x) {
+    template<class T> x10::lang::String* to_string(captured_struct_lval<T> x) {
         return to_string(*x);
     }
 
-    template<class T> ref<x10::lang::String> to_string(T x) {
+    template<class T> x10::lang::String* to_string(T x) {
         return x.toString();
     }
 
-    ref<x10::lang::String> to_string(x10_boolean v);
-    ref<x10::lang::String> to_string(x10_ubyte v);
-    ref<x10::lang::String> to_string(x10_byte v);
-    ref<x10::lang::String> to_string(x10_ushort v);
-    ref<x10::lang::String> to_string(x10_short v);
-    ref<x10::lang::String> to_string(x10_uint v);
-    ref<x10::lang::String> to_string(x10_int v);
-    ref<x10::lang::String> to_string(x10_ulong v);
-    ref<x10::lang::String> to_string(x10_long v);
+    x10::lang::String* to_string(x10_boolean v);
+    x10::lang::String* to_string(x10_ubyte v);
+    x10::lang::String* to_string(x10_byte v);
+    x10::lang::String* to_string(x10_ushort v);
+    x10::lang::String* to_string(x10_short v);
+    x10::lang::String* to_string(x10_uint v);
+    x10::lang::String* to_string(x10_int v);
+    x10::lang::String* to_string(x10_ulong v);
+    x10::lang::String* to_string(x10_long v);
 
-    ref<x10::lang::String> to_string(x10_float v);
-    ref<x10::lang::String> to_string(x10_double v);
+    x10::lang::String* to_string(x10_float v);
+    x10::lang::String* to_string(x10_double v);
 
-    ref<x10::lang::String> to_string(x10_char v);
+    x10::lang::String* to_string(x10_char v);
 
 
     /*
      * Wrapers around to_string to translate null to "null"
      */
-    template<class T> ref<x10::lang::String> safe_to_string(ref<T> v) {
-        if (v.isNull()) return string_utils::lit("null");
+    template<class T> x10::lang::String* safe_to_string(T* v) {
+        if (NULL == v) return makeStringLit("null");
         return to_string(v);
     }
-    template<class T> ref<x10::lang::String> safe_to_string(captured_ref_lval<T> v) {
+    template<class T> x10::lang::String* safe_to_string(captured_ref_lval<T> v) {
         return safe_to_string(*v);
     }
-    template<class T> ref<x10::lang::String> safe_to_string(captured_struct_lval<T> v) {
+    template<class T> x10::lang::String* safe_to_string(captured_struct_lval<T> v) {
         return to_string(*v);
     }
-    template<class T> ref<x10::lang::String> safe_to_string(T v) {
+    template<class T> x10::lang::String* safe_to_string(T v) {
         return to_string(v);
     }
+
+    extern x10::lang::String* identity_type_name (x10::lang::Reference* ptr);
+
+    extern x10::lang::String* identity_to_string(x10::lang::Reference* ptr);
     
     /******* zeroValue ********/
     template<class T> struct Zero {
@@ -384,8 +399,8 @@ namespace x10aux {
             return ans;
         }
     };
-    template<class T> struct Zero<ref<T> > {
-        static ref<T> _() { return X10_NULL; }
+    template<class T> struct Zero<T*> {
+        static T* _() { return NULL; }
     };
     #define X10_PRIM_ZERO(T) template<> struct Zero<T> { static T _() { return static_cast<T>(0); } };
     X10_PRIM_ZERO(x10_byte)

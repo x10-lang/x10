@@ -18,23 +18,21 @@ import x10.rtt.RuntimeType;
 import x10.rtt.RuntimeType.Variance;
 import x10.rtt.Type;
 import x10.rtt.Types;
+import x10.serialization.X10JavaDeserializer;
+import x10.serialization.X10JavaSerializable;
+import x10.serialization.X10JavaSerializer;
 
 public class LocalVar<T> extends x10.core.Ref {
 
     private static final long serialVersionUID = 1L;
     
-    private static final short $_serialization_id = x10.x10rt.DeserializationDispatcher.addDispatcher(x10.x10rt.DeserializationDispatcher.ClosureKind.CLOSURE_KIND_NOT_ASYNC, LocalVar.class);
-
     public static final RuntimeType<LocalVar<?>> $RTT =
         x10.rtt.NamedType.<LocalVar<?>> make(
                 "x10.compiler.LocalVar",
                 /* base class */ LocalVar.class,
-                /* variances */ RuntimeType.INVARIANTS(1),
-                /* parents */ new Type[] { Types.OBJECT }
+                /* variances */ RuntimeType.INVARIANTS(1)
     );
-    @Override
     public RuntimeType<?> $getRTT() { return $RTT; }
-    @Override
     public Type<?> $getParam(int i) { if (i == 0) return T; return null; }
 
     private void writeObject(java.io.ObjectOutputStream oos) throws java.io.IOException {
@@ -57,8 +55,6 @@ public class LocalVar<T> extends x10.core.Ref {
     }
 
     public final LocalVar<T> x10$compiler$LocalVar$$init$S(final Type<?> T, final T local, __0x10$compiler$LocalVar$$T $dummy) {
-        // XTENLANG-3063
-//        super.$init();
         super.x10$lang$Object$$init$S();
         this.T = T;
         long temp = lastId.getAndIncrement();
@@ -68,11 +64,6 @@ public class LocalVar<T> extends x10.core.Ref {
         id = temp;
         idToObject.put(id, local == null ? nullObject : local);
         return this;
-    }
-    // XTENLANG-3063
-    // not used if X10PrettyPrinterVisitor.supportConstructorWithThrows == true
-    public LocalVar<T> $init(final Type<?> T, final T local, __0x10$compiler$LocalVar$$T $dummy) {
-        return x10$compiler$LocalVar$$init$S(T, local, $dummy);
     }
 
     public LocalVar(final Type<?> T, final T local, __0x10$compiler$LocalVar$$T $dummy) {
@@ -107,21 +98,17 @@ public class LocalVar<T> extends x10.core.Ref {
         return LocalVar.this;
     }
         
-    public static x10.x10rt.X10JavaSerializable $_deserialize_body(Ref $_obj, x10.x10rt.X10JavaDeserializer $deserializer) throws java.io.IOException {
+    public static X10JavaSerializable $_deserialize_body(Ref $_obj, X10JavaDeserializer $deserializer) throws java.io.IOException {
         return $_obj;
     }
     
-    public static x10.x10rt.X10JavaSerializable $_deserializer(x10.x10rt.X10JavaDeserializer $deserializer) throws java.io.IOException { 
+    public static X10JavaSerializable $_deserializer(X10JavaDeserializer $deserializer) throws java.io.IOException { 
         LocalVar $_obj = new LocalVar((java.lang.System[]) null);
         $deserializer.record_reference($_obj);
         return $_deserialize_body($_obj, $deserializer);
     }
     
-    public short $_get_serialization_id() {
-         return $_serialization_id;
-    }
-    
-    public void $_serialize(x10.x10rt.X10JavaSerializer $serializer) throws java.io.IOException {
+    public void $_serialize(X10JavaSerializer $serializer) throws java.io.IOException {
         
     }
 }

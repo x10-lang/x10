@@ -40,7 +40,7 @@ public class RegionWithHoles extends x10Test {
                     x10.io.Console.OUT.println("val[" + i + "] = " + a(i));
             }
         }
-        catch (var t: Throwable) {
+        catch (var t: Exception) {
             x10.io.Console.OUT.println(t);
             return false;
         }
@@ -71,7 +71,7 @@ public class RegionWithHoles extends x10Test {
                     x10.io.Console.OUT.println("val[" + i + "] = " + a(i, j));
             }
         }
-        catch (var t: Throwable) {
+        catch (var t: Exception) {
             x10.io.Console.OUT.println(t);
             return false;
         }
@@ -99,7 +99,7 @@ public class RegionWithHoles extends x10Test {
                     x10.io.Console.OUT.println("val[" + i + "] = " + a(i, j, k));
             }
         }
-        catch (var t: Throwable) {
+        catch (var t: Exception) {
             x10.io.Console.OUT.println(t);
             return false;
         }
@@ -164,7 +164,7 @@ public class RegionWithHoles extends x10Test {
                     x10.io.Console.OUT.println("val[" + p + "] = " + a(p as Point{rank==1}));
             }
         }
-        catch (var t: Throwable) {
+        catch (var t: Exception) {
             x10.io.Console.OUT.println(t);
             return false;
         }

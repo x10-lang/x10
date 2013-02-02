@@ -11,23 +11,13 @@
 
 package x10.core;
 
-import x10.rtt.NamedType;
-import x10.rtt.RuntimeType;
-import x10.rtt.Type;
-import x10.rtt.Types;
-import x10.x10rt.X10JavaSerializable;
-import x10.x10rt.X10JavaSerializer;
-
-import java.io.IOException;
 
 
 // Base class of all X10 ref objects -- should be generated, but we need this class to get Box to compile.
-public class Ref implements RefI {
+public abstract class Ref implements Any {
     
     private static final long serialVersionUID = 1L;
     
-    private static final short $_serialization_id = x10.x10rt.DeserializationDispatcher.addDispatcher(x10.x10rt.DeserializationDispatcher.ClosureKind.CLOSURE_KIND_NOT_ASYNC, Ref.class);
-
     // N.B. this is called implicitly by all subclasses of Ref
     public Ref() {}
 
@@ -37,9 +27,6 @@ public class Ref implements RefI {
     // constructor for non-virtual call
     public final Ref x10$lang$Object$$init$S() {return this;}
     
-    // XTENLANG-3063
-    // not used if X10PrettyPrinterVisitor.supportConstructorWithThrows == true
-    public Ref $init(){return x10$lang$Object$$init$S();}
 	
     // not used
 //    public static Ref $make() { return new Ref(); }
@@ -51,31 +38,41 @@ public class Ref implements RefI {
     public Ref(Object out$) {}
     */
 
-    public static final RuntimeType<Ref> $RTT = NamedType.<Ref> make("x10.lang.Object", Ref.class);
-    public RuntimeType<?> $getRTT() {return $RTT;}
-    public Type<?> $getParam(int i) {return null;}
-
     @Override
     public java.lang.String toString() {
-        return Types.typeName(this) + "@" + Integer.toHexString(System.identityHashCode(this));
+        return x10.lang.System.identityToString(this);
     }
+
+    // not used (same as Java)
+//    @Override
+//    public int hashCode() {
+//        return x10.lang.System.identityHashCode$O(this);
+//    }
+//
+//    @Override
+//    public boolean equals(java.lang.Object other) {
+//        return x10.lang.System.identityEquals$O(this, other);
+//    }
     
-    public static x10.x10rt.X10JavaSerializable $_deserialize_body(Ref $_obj, x10.x10rt.X10JavaDeserializer $deserializer) throws java.io.IOException { 
-        return $_obj;
-    }
-    
-    public static x10.x10rt.X10JavaSerializable $_deserializer(x10.x10rt.X10JavaDeserializer $deserializer) throws java.io.IOException { 
-        Ref $_obj = new Ref((java.lang.System[]) null);
-        $deserializer.record_reference($_obj);
-        return $_deserialize_body($_obj, $deserializer);
-    }
-    
-    public short $_get_serialization_id() {
-         return $_serialization_id;
-    }
-    
-    public void $_serialize(x10.x10rt.X10JavaSerializer $serializer) throws java.io.IOException {
-        
-    }
-    
+    // not used
+//    public static x10.x10rt.X10JavaSerializable $_deserialize_body(Ref $_obj, x10.x10rt.X10JavaDeserializer $deserializer) throws java.io.IOException { 
+//        return $_obj;
+//    }
+
+    // not used
+//    public static x10.x10rt.X10JavaSerializable $_deserializer(x10.x10rt.X10JavaDeserializer $deserializer) throws java.io.IOException { 
+//        Ref $_obj = new Ref((java.lang.System[]) null);
+//        $deserializer.record_reference($_obj);
+//        return $_deserialize_body($_obj, $deserializer);
+//    }
+
+    // not used (really?)
+//    public short $_get_serialization_id() {
+//         return $_serialization_id;
+//    }
+//    
+//    public void $_serialize(x10.x10rt.X10JavaSerializer $serializer) throws java.io.IOException {
+//        
+//    }
+
 }

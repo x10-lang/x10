@@ -5,18 +5,27 @@ import polyglot.ast.ArrayInit;
 import polyglot.ast.LocalClassDecl;
 import polyglot.ast.New;
 import polyglot.ast.Node;
+import polyglot.ast.Try;
 import polyglot.frontend.Job;
 import polyglot.util.ErrorInfo;
 import polyglot.visit.NodeVisitor;
 import x10.ast.Async;
+import x10.ast.Async_c;
 import x10.ast.AtExpr;
+import x10.ast.AtExpr_c;
 import x10.ast.AtStmt;
+import x10.ast.AtStmt_c;
 import x10.ast.Atomic;
+import x10.ast.Atomic_c;
 import x10.ast.Finish;
+import x10.ast.Finish_c;
 import x10.ast.Here;
+import x10.ast.Here_c;
 import x10.ast.Next;
+import x10.ast.Next_c;
 import x10.ast.SettableAssign;
 import x10.ast.When;
+import x10.ast.When_c;
 import x10.ast.X10Loop;
 
 /**
@@ -54,9 +63,9 @@ public class PreCodeGenASTChecker extends NodeVisitor {
             return "LocalClasses should have been rewritten before codegen";
         }
         
-        if (n instanceof Atomic || n instanceof Next || n instanceof Finish ||
-                n instanceof AtExpr  || n instanceof AtStmt || n instanceof Here ||
-                n instanceof When || n instanceof Async) {
+        if (n instanceof Atomic_c || n instanceof Next_c || n instanceof Finish_c ||
+                n instanceof AtExpr_c  || n instanceof AtStmt_c || n instanceof Here_c ||
+                n instanceof When_c || n instanceof Async_c) {
             return "High-level X10 construct should have been lowered";
         }
 
@@ -66,6 +75,10 @@ public class PreCodeGenASTChecker extends NodeVisitor {
         
         if (n instanceof SettableAssign) {
             return "Settable assign should have been expanded";
+        }
+        
+        if (n instanceof Try && ((Try) n).finallyBlock() != null) {
+            return "Finally block not eliminated before codegen";
         }
 
         return null;

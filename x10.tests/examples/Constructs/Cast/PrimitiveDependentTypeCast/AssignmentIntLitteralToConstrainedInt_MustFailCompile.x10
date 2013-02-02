@@ -22,7 +22,7 @@ public class AssignmentIntLitteralToConstrainedInt_MustFailCompile extends x10Te
 		
 		try { 
          val j = 1 as Int(0); // ERR
-		}catch (e: Throwable) {
+		}catch (e: Exception) {
 			return false;
 		}
 

@@ -33,7 +33,7 @@ public class DynamicCast3_Object extends x10Test {
 
 			// identity cast, widening assignment
 			var convertedObject5: X10DepTypeClassTwo{p==0} = (X10DepTypeClassTwo{p==0&&q==1})) object;
-		}catch(var e: Throwable) {
+		}catch(var e: Exception) {
 			return false;
 		}
 

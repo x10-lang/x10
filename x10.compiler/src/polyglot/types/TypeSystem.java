@@ -438,7 +438,7 @@ public interface TypeSystem extends XTypeSystem<Type> {
     /**
      * <code>java.lang.Throwable</code>
      */
-    Type Throwable();
+    Type CheckedThrowable();
 
     /**
      * <code>java.lang.Error</code>
@@ -454,6 +454,11 @@ public interface TypeSystem extends XTypeSystem<Type> {
      * <code>java.lang.Cloneable</code>
      */
     Type Cloneable();
+
+    /**
+     * <code>java.lang.Iterable</code>
+     */
+    Type JLIterable();
 
     /**
      * <code>java.io.Serializable</code>
@@ -899,7 +904,7 @@ public interface TypeSystem extends XTypeSystem<Type> {
     
     /**
      * Returns an immutable list of all the interfaces
-     * which the type implements excluding itself and x10.lang.Object.
+     * which the type implements excluding itself.
      * This is different from {@link #Interface()} in that this method
      * traverses the class hierarchy to collect all implemented interfaces
      * instead of shallowly returning just the interfaces directly implemented
@@ -951,12 +956,11 @@ public interface TypeSystem extends XTypeSystem<Type> {
     X10ClassType Uninitialized();
     X10ClassType SuppressTransientError();
     X10ClassType Embed();
-    X10ClassType Throws();
     X10ClassType PerProcess();
+    X10ClassType RemoteInvocation();
 
     //Type Value();
 
-    Type Object();
     X10ClassType GlobalRef();
     X10ClassType Any();
 
@@ -966,6 +970,7 @@ public interface TypeSystem extends XTypeSystem<Type> {
     X10ClassType CompileTimeConstant();
 
     X10ClassType Endpoint();
+    X10ClassType RuntimeProfile();
 
     XLit<Type, Boolean> FALSE();
 
@@ -1091,8 +1096,6 @@ public interface TypeSystem extends XTypeSystem<Type> {
 
     boolean isStruct(Type me);
 
-    boolean isObject(Type me);
-
     boolean isString(Type me);
 
     boolean isIndexedMemoryChunk(Type me);
@@ -1210,6 +1213,10 @@ public interface TypeSystem extends XTypeSystem<Type> {
 
     boolean isObjectOrInterfaceType(Type t, Context context);
 
+    boolean isInterfaceType(Type t, Context context);
+    
+    public boolean isHandOptimizedInterface(Type t);
+
     boolean isParameterType(Type toType);
 
     X10ClassType Region();
@@ -1287,11 +1294,11 @@ public interface TypeSystem extends XTypeSystem<Type> {
     X10ClassType JavaArray();
     boolean isJavaArray(Type me);
     boolean isPrimitiveJavaArray(Type type);
-    X10ClassType JavaThrowable();
-    boolean isJavaThrowable(Type me);
-    X10ClassType JavaException();
-    X10ClassType JavaRuntimeException();
+    //boolean isJavaThrowable(Type me);
 
     public <T extends ProcedureDef> boolean throwsSubset(ProcedureInstance<T> p1, ProcedureInstance<T> p2);
 
+	X10ClassType System();
+
+	Type Profile();
 }

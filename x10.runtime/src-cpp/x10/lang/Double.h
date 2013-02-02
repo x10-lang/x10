@@ -9,7 +9,42 @@
  *  (C) Copyright IBM Corporation 2006-2010.
  */
 
-/*
- * Empty header file for NativeRep class that doesn't require a
- * C++ implementation
- */
+#ifndef X10_LANG_DOUBLE_H
+#define X10_LANG_DOUBLE_H
+
+#include <x10aux/config.h>
+#include <x10aux/math.h>
+
+namespace x10 {
+    namespace lang {
+        class String;
+        
+        class DoubleNatives {
+        public:
+            static String* toHexString(x10_double value);
+            static String* toString(x10_double value);
+            static x10_double parseDouble(String* s);
+            static x10_boolean isNaN(x10_double value);
+            static x10_boolean isInfinite(x10_double value);
+            static x10_long toLongBits(x10_double value);
+            static x10_long toRawLongBits(x10_double value);
+            static x10_double fromLongBits(x10_long value);
+            static inline x10_int compareTo(x10_double v1, x10_double v2) {
+                return v1 == v2 ? 0 : (v1 < v2 ? -1 : 1);
+            }
+            static x10_byte toByte(x10_double value);
+            static x10_ubyte toUByte(x10_double value);
+            static x10_short toShort(x10_double value);
+            static x10_ushort toUShort(x10_double value);
+            static x10_int toInt(x10_double value);
+            static x10_uint toUInt(x10_double value);
+            static x10_long toLong(x10_double value);
+            static x10_ulong toULong(x10_double value);
+            static inline x10_double mod(x10_double a, x10_double b) {
+                return (x10_double)::fmod(a, b);
+            }
+        };
+    }
+}
+
+#endif /* X10_LANG_DOUBLE_H */

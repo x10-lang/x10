@@ -213,21 +213,20 @@ esac
 if [ -n "${ibmj9vm}" ]; then
     ibmj9vmjitopts=
 
-    # use default jit optlevel while preloading
-    if [ -n "${ibmj9vmjitopts}" ]; then
-        ibmj9vmjitopts="${ibmj9vmjitopts},"
-    fi
-    ibmj9vmjitopts="${ibmj9vmjitopts}classLoadPhaseThreshold=10000"
-
     if [ -n "${ibmj9vmr26}" ]; then
         # experimental support for java7
         if [ -n "${ibmj9vmjitopts}" ]; then
             ibmj9vmjitopts="${ibmj9vmjitopts},"
         fi
         ibmj9vmjitopts="${ibmj9vmjitopts}count=1000,bcount=250,milcount=1"
+        if [ -n "${ibmj9vm64bit}" ]; then
+            java_args=("-Xgcpolicy:balanced" "${java_args[@]}")
+        else
+            java_args=("-Xgcpolicy:gencon" "${java_args[@]}")
+        fi
+    else
+        java_args=("-Xgcpolicy:gencon" "${java_args[@]}")
     fi
-
-    java_args=("-Xgcpolicy:gencon" "${java_args[@]}")
 
     if [ -n "${ibmj9vm64bit}" ]; then
         if [ -z "${nocompressedrefs}" ]; then
@@ -244,9 +243,9 @@ fi
 command=("$JAVA" "${java_args[@]}" $config "${args[@]}")
 [ -n "$verbose" ] && echo "${command[*]}"
 if [[ "$UNAME" = CYGWIN* && -z "$ENABLE_CYGWIN_MULTIVM" ]]; then
-    $time$timelimit "${command[@]}"
+    exec $time$timelimit "${command[@]}"
 else 
-    $time$timelimit$launcher "${command[@]}"
+    exec $time$timelimit$launcher "${command[@]}"
 fi
 
 exit $?

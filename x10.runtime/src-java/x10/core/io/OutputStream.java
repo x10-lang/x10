@@ -15,11 +15,25 @@ import x10.core.Ref;
 import x10.rtt.NamedType;
 import x10.rtt.RuntimeType;
 import x10.rtt.Type;
-import x10.rtt.Types;
 
 public class OutputStream extends Ref {
   
     private static final long serialVersionUID = 1L;
+
+    public void $_serialize(x10.serialization.X10JavaSerializer $serializer) throws java.io.IOException {
+        // TODO need check
+        $serializer.write(stream);
+    }
+    public static x10.serialization.X10JavaSerializable $_deserialize_body(OutputStream $_obj, x10.serialization.X10JavaDeserializer $deserializer) throws java.io.IOException {
+        // TODO need check
+        $_obj.stream = (java.io.OutputStream) $deserializer.readRef();
+        return $_obj;
+    }
+    public static x10.serialization.X10JavaSerializable $_deserializer(x10.serialization.X10JavaDeserializer $deserializer) throws java.io.IOException {
+        OutputStream $_obj = new OutputStream((java.lang.System[]) null);
+        $deserializer.record_reference($_obj);
+        return $_deserialize_body($_obj, $deserializer);
+    }
 
     // XTENLANG-2680
     /*private*/public java.io.OutputStream stream;
@@ -33,17 +47,10 @@ public class OutputStream extends Ref {
         this.stream = stream;
         return this;
     }
-    // XTENLANG-3063
-    // not used if X10PrettyPrinterVisitor.supportConstructorWithThrows == true
-    public OutputStream $init(java.io.OutputStream stream) {
-        return x10$io$OutputStreamWriter$OutputStream$$init$S(stream);
-    }
     
     // creation method for java code (1-phase java constructor)
     public OutputStream(java.io.OutputStream stream) {
         this((java.lang.System[]) null);
-        // XTENLANG-3063
-//        $init(stream);
         x10$io$OutputStreamWriter$OutputStream$$init$S(stream);
     }
     
@@ -51,7 +58,7 @@ public class OutputStream extends Ref {
         try {
             stream.close();
         } catch (java.io.IOException e) {
-            throw x10.core.ThrowableUtilities.getCorrespondingX10Throwable(e);
+            throw new x10.io.IOException(e.getMessage());
         }
     }
     
@@ -59,7 +66,7 @@ public class OutputStream extends Ref {
         try {
             stream.flush();
         } catch (java.io.IOException e) {
-            throw x10.core.ThrowableUtilities.getCorrespondingX10Throwable(e);
+            throw new x10.io.IOException(e.getMessage());
         }
     }
     
@@ -67,7 +74,7 @@ public class OutputStream extends Ref {
         try {
             stream.write(b);
         } catch (java.io.IOException e) {
-            throw x10.core.ThrowableUtilities.getCorrespondingX10Throwable(e);
+            throw new x10.io.IOException(e.getMessage());
         }
     }
     
@@ -75,7 +82,7 @@ public class OutputStream extends Ref {
         try {
             stream.write(b);
         } catch (java.io.IOException e) {
-            throw x10.core.ThrowableUtilities.getCorrespondingX10Throwable(e);
+            throw new x10.io.IOException(e.getMessage());
         }
     }
     
@@ -85,7 +92,7 @@ public class OutputStream extends Ref {
         try {
             stream.write(buf.raw().getByteArray());
         } catch (java.io.IOException e) {
-            throw x10.core.ThrowableUtilities.getCorrespondingX10Throwable(e);
+            throw new x10.io.IOException(e.getMessage());
         }
     }
 //    // for Emitter.manglePrimitivesAsShortName
@@ -93,7 +100,7 @@ public class OutputStream extends Ref {
 //        try {
 //            stream.write(buf.raw().getByteArray());
 //        } catch (java.io.IOException e) {
-//            throw x10.core.ThrowableUtilities.getCorrespondingX10Throwable(e);
+//            throw x10.runtime.impl.java.ThrowableUtils.getCorrespondingX10Throwable(e);
 //        }
 //    }
 
@@ -101,7 +108,7 @@ public class OutputStream extends Ref {
         try {
             stream.write(b, off, len);
         } catch (java.io.IOException e) {
-            throw x10.core.ThrowableUtilities.getCorrespondingX10Throwable(e);
+            throw new x10.io.IOException(e.getMessage());
         }
     }
     
@@ -111,7 +118,7 @@ public class OutputStream extends Ref {
         try {
             stream.write(buf.raw().getByteArray(), off, len);
         } catch (java.io.IOException e) {
-            throw x10.core.ThrowableUtilities.getCorrespondingX10Throwable(e);
+            throw new x10.io.IOException(e.getMessage());
         }
     }
 //    // for Emitter.manglePrimitivesAsShortName
@@ -119,7 +126,7 @@ public class OutputStream extends Ref {
 //        try {
 //            stream.write(buf.raw().getByteArray(), off, len);
 //        } catch (java.io.IOException e) {
-//            throw x10.core.ThrowableUtilities.getCorrespondingX10Throwable(e);
+//            throw x10.runtime.impl.java.ThrowableUtils.getCorrespondingX10Throwable(e);
 //        }
 //    }
 
@@ -155,12 +162,9 @@ public class OutputStream extends Ref {
     //
     public static final RuntimeType<OutputStream> $RTT = NamedType.<OutputStream> make(
         "x10.io.OutputStreamWriter.OutputStream",
-        OutputStream.class,
-        new Type[] { Types.OBJECT }
+        OutputStream.class
     );
-    @Override
     public RuntimeType<?> $getRTT() { return $RTT; }
-    @Override
     public Type<?> $getParam(int i) { return null; }
 
 
@@ -177,16 +181,9 @@ public class OutputStream extends Ref {
 
         public final WriterOutputStream x10$io$OutputStreamWriter$OutputStream$WriterOutputStream$$init$S(x10.io.Writer w) {
             // NOTE: since the backing stream is not set, all APIs of OutputStream must be overridden.
-            // XTENLANG-3063
-//            super.$init((java.io.OutputStream)null);
             super.x10$io$OutputStreamWriter$OutputStream$$init$S((java.io.OutputStream)null);
             this.w = w;
             return this;
-        }
-        // XTENLANG-3063
-        // not used if X10PrettyPrinterVisitor.supportConstructorWithThrows == true
-        public WriterOutputStream $init(x10.io.Writer w) {
-            return x10$io$OutputStreamWriter$OutputStream$WriterOutputStream$$init$S(w);
         }
         
         public WriterOutputStream(x10.io.Writer w) {
@@ -201,19 +198,19 @@ public class OutputStream extends Ref {
         }
         @Override
         public void close() {
-            throw new x10.lang.UnsupportedOperationException();
+            throw new java.lang.UnsupportedOperationException();
         }
         @Override
         public void flush() {
-            throw new x10.lang.UnsupportedOperationException();
+            throw new java.lang.UnsupportedOperationException();
         }
         @Override
         public void write(byte[] b) {
-            throw new x10.lang.UnsupportedOperationException();
+            throw new java.lang.UnsupportedOperationException();
         }
         @Override
         public void write(byte[] b, int off, int len) {
-            throw new x10.lang.UnsupportedOperationException();
+            throw new java.lang.UnsupportedOperationException();
         }
         public static final RuntimeType<WriterOutputStream> $RTT = NamedType.<WriterOutputStream> make(
             "x10.io.OutputStreamWriter.OutputStream.WriterOutputStream",

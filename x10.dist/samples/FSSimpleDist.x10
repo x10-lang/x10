@@ -13,9 +13,11 @@ import x10.util.Timer;
 import x10.io.Console;
 
 /**
- * Version of Stream with a collection of local arrays implementing a
- * global array.
- * Converted to 2.1.
+ * Simple version of HPC Challenge Stream benchmark with a collection 
+ * of local arrays implementing a global array.
+ * 
+ * For a scalable, high-performance version of this benchmark see
+ * Stream.x10 in the X10 Benchmarks (separate download from x10-lang.org)
  */
 public class FSSimpleDist {
 

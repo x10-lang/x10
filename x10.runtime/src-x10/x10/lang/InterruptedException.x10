@@ -6,10 +6,14 @@
  *  You may obtain a copy of the License at
  *      http://www.opensource.org/licenses/eclipse-1.0.php
  *
- *  (C) Copyright IBM Corporation 2006-2010.
+ *  (C) Copyright IBM Corporation 2006-2012.
  */
 
 package x10.lang;
+
+import x10.compiler.Native;
+import x10.compiler.NativeRep;
+
 
 /*
  * This class is in the runtime package instead of x10.lang because
@@ -23,6 +27,11 @@ package x10.lang;
  * InterruptedException that may be thrown by NativeWorker.sleep.
  */
 class InterruptedException extends Exception {
+
+    public def this() { super(); }
+
+    public def this(message: String) { super(message); }
+
 }
 
 // vim:shiftwidth=4:tabstop=4:expandtab

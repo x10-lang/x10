@@ -48,6 +48,8 @@ import polyglot.util.TransformingList;
 import polyglot.visit.ContextVisitor;
 import x10.ast.HasZeroTest;
 import x10.ast.Here;
+import x10.ast.Here_c;
+import x10.ast.IsRefTest;
 import x10.ast.ParExpr;
 
 import x10.ast.SubtypeTest;
@@ -446,7 +448,7 @@ public class Types {
 			return ((Variable) r).flags().isFinal();
 		if (r instanceof Field)
 			return contextKnowsType( ((Field) r).target());
-		if (r instanceof Special || r instanceof Here || r instanceof Lit)
+		if (r instanceof Special || r instanceof Here_c || r instanceof Lit)
 			return true;
 		if (r instanceof ParExpr) 
 			return contextKnowsType(((ParExpr) r).expr());
@@ -653,6 +655,8 @@ public class Types {
 	        // So, type bounds (e.g., T<:Int) do not help, because  Int{self!=0}<:Int
 	        // Similarly, Int<:T doesn't help, because  Int<:Any{self!=null}
 	        // However, T==Int does help, and so does an explicit T hasZero
+	    	// isref implies haszero which is good too
+	    	// [DC] shouldn't we be using some kind of entailment check here?
 	        TypeConstraint typeConst = xc.currentTypeConstraint();
 	        List<SubtypeConstraint> env =  typeConst.terms();
 	        for (SubtypeConstraint sc : env) {
@@ -665,15 +669,18 @@ public class Types {
 	                    if (!ts.isParameterType(sup)) other = sup;
 	                }
 	                if (other!=null &&                                 
-	                        isHaszero(other,xc)) // careful of infinite recursion when calling isHaszero
+	                        isHaszero(other,xc)) { // careful of infinite recursion when calling isHaszero
 	                                    // We cannot have infinite recursion because other is not a ParameterType
 	                                    // (we can have that T==U, U==Int. but then typeEquals(T,Int,xc) should return true)
+	        	        //zeroLit = ConstraintManager.getConstraintSystem().makeZero(t);
 	                    return true; // T is equal to another type that has zero
+	                }
 	            } else if (sc.isSubtypeConstraint()) {
 	                // doesn't help
 	            } else {
-	                assert sc.isHaszero();
+	                assert sc.isHaszero() || sc.isIsRef();
 	                if (ts.typeEquals(t,sc.subtype(),xc)) {
+	        	        //zeroLit = ConstraintManager.getConstraintSystem().makeZero(t);
 	                    return true;
 	                }
 	            }
@@ -725,6 +732,7 @@ public class Types {
 	        }
 	        return true;
 	    }
+	    /*
 	    if (ts.isParameterType(t)) { // FIXME: why is this code duplicated?
 	        // we have some type "T" which is a type parameter. Does it have a zero value?
 	        // So, type bounds (e.g., T<:Int) do not help, because  Int{self!=0}<:Int
@@ -753,6 +761,7 @@ public class Types {
 	            }
 	        }
 	    }
+	    */
 	    if (zeroLit == null) return false;
 	    if (!isConstrained(t)) return true;
 	    final CConstraint constraint = Types.xclause(t);
@@ -760,6 +769,39 @@ public class Types {
 	    // make sure the zeroLit is not in the constraint
 	    zeroCons.addSelfEquality(zeroLit);
 	    return zeroCons.entails(constraint);
+	}
+
+	public static boolean isIsRef(Type t, Context xc) {
+	    TypeSystem ts = xc.typeSystem();
+	    if (ts.isObjectOrInterfaceType(t, xc)) {
+	    	return true;
+	    } else if (ts.isParameterType(t)) {
+	        // we have some type "T" which is a type parameter. Is it a reference?
+	    	// Anything <: another type that is isref ought to do it. 
+	        TypeConstraint typeConst = xc.currentTypeConstraint();
+	        List<SubtypeConstraint> env =  typeConst.terms();
+	        for (SubtypeConstraint sc : env) {
+	            if (sc.isEqualityConstraint()) {
+	                Type other = null;
+	                final Type sub = sc.subtype();
+	                final Type sup = sc.supertype();
+	                if (ts.typeEquals(t, sub,xc)) { // if this guy is T <: sup or T == sup
+	                    if (!ts.isParameterType(sup)) other = sup;
+	                }
+	                if (other!=null &&                                 
+	                		isIsRef(other,xc)) // careful of infinite recursion when calling isIsref
+	                                    // We cannot have infinite recursion because other is not a ParameterType
+	                                    // (we can have that T==U, U==Int. but then typeEquals(T,Int,xc) should return true)
+	                    return true; // T is under some other type that is a ref
+	            } else if (sc.isIsRef()) {
+	                if (ts.typeEquals(t,sc.subtype(),xc)) {
+			        	//System.out.println("ASDASD isIsRef "+t+" using "+sc);
+	                    return true;
+	                }
+	            }
+	        }
+	    }
+	    return false;
 	}
 
 	public static Expr getZeroVal(TypeNode typeNode, Position p, ContextVisitor tc) { // see X10FieldDecl_c.typeCheck
@@ -1492,7 +1534,8 @@ public class Types {
 	    	} catch (SemanticException z) {  		
 	    		return false;
 	    	}
-	// I have kept the logic below from 2.0.6 for now. 
+	// I have kept the logic below from 2.0.6 for now.
+	// [DC] I have changed it post 2.3 to handle generics properly
 	// TODO: Determine whether this should stay or not.
 	    // If the formal types are all equal, check the containers; otherwise p1 is more specific.
 	    XVar<Type>[] ys = toVarArray(toLocalDefList(xp2.formalNames()));
@@ -1503,22 +1546,40 @@ public class Types {
 	    
 	    xp1 = orig(xp1);
 	    xp2 = orig(xp2);
-	    boolean descends2 = descends 
-	       || (t1 != null && t2 != null && ts.descendsFrom(ts.classDefOf(t2), ts.classDefOf(t1)));
+	    boolean ascends = t1 != null && t2 != null && ts.descendsFrom(ts.classDefOf(t2), ts.classDefOf(t1));
+	    boolean stacked = descends || ascends;
+	    TypeParamSubst tps = null;
 	    
-	    XVar<Type> p1This = descends2 ? xp1.def().thisVar(): null;
-	    XVar<Type> p2This = descends2 ? xp2.def().thisVar() : null;
+	    List<ParameterType> tps1 = xp1.def().typeParameters();
+	    List<ParameterType> tps2 = xp2.def().typeParameters();
+	    if (tps1.size() == tps2.size()) {
+		    if (ascends) {
+		    	tps = new TypeParamSubst(ts, tps2, tps1);
+		    } else if (descends) {
+		    	tps = new TypeParamSubst(ts, tps1, tps2);
+		    }
+	    }
 	    
+	    XVar<Type> p1This = stacked ? xp1.def().thisVar(): null;
+	    XVar<Type> p2This = stacked ? xp2.def().thisVar() : null;
 	    XVar<Type> thisVar = ConstraintManager.getConstraintSystem().makeUQV(baseTypeRec(ct1));
-	    
 	    for (int i = 0; i < xp1.formalTypes().size(); i++) {
 	    	// Need to use original type information. The current type
 	    	// information may have call specific uqv's in the constraints
 	    	// rather than the declared formals.
-	        Type f1 = xp1.formalTypes().get(i);
+
+	    	Type f1 = xp1.formalTypes().get(i);
+	        Type f2 = xp2.formalTypes().get(i);
+	        
+	        if (tps != null) {
+		        f1 = tps.reinstantiate(f1);
+		        f2 = tps.reinstantiate(f2);
+	        }
+	       
+	    	// [DC] in that case need to do the type substitution
 	        try {
 	            f1 = Subst.subst(f1, ys, xs); // , new Type[]{}, new ParameterType[]{});
-	            if (descends2) {
+	            if (stacked) {
 	                // Substitute for both p1This and p2This, since only one of them
 	                // might occur in both.
 	                f1 = Subst.subst(f1, thisVar, p1This);
@@ -1527,8 +1588,7 @@ public class Types {
 	        } catch (SemanticException e) {
 	            throw new InternalCompilerError("Unexpected exception while comparing methods", e);
 	        }
-	        Type f2 = xp2.formalTypes().get(i);
-	        if (descends2)try { 
+	        if (stacked)try { 
 	            
 	                // Substitute for both p1This and p2This, since only one of them
                     // might occur in both.
@@ -1573,6 +1633,8 @@ public class Types {
 	    else if (e instanceof SubtypeTest)
 	        return true;
 	    else if (e instanceof HasZeroTest)
+	        return true;
+	    else if (e instanceof IsRefTest)
 	        return true;
 	    return false;
 	}
@@ -1817,6 +1879,16 @@ public class Types {
                     Type arg = classType.typeArguments().get(0);
                     CConstraint xclause = Types.xclause(t);
 			        final XVar<Type> tt = ConstraintManager.getConstraintSystem().makeEQV(baseTypeRec(t));
+                    try {
+                        xclause = Subst.subst(xclause, tt, xclause.self());
+                    } catch (SemanticException e) {
+                        assert false;
+                    }
+                    res.add(Types.xclause(arg, xclause));
+                } else if (ts.typeEquals(classType, ts.JLIterable(), context)) {
+                    Type arg = ts.Any();
+                    CConstraint xclause = Types.xclause(t);
+			        final XVar tt = ConstraintManager.getConstraintSystem().makeEQV(t);
                     try {
                         xclause = Subst.subst(xclause, tt, xclause.self());
                     } catch (SemanticException e) {

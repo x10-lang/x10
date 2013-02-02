@@ -33,9 +33,9 @@ public class GenericOverloading06 extends GenericTest {
 
     public def run(): boolean = {
 
-        check("a.m()", a.m(), 0);
-        check("a.m(0)", a.m(0), 1);
-        check("a.m(0,0)", a.m(0,0), 2);
+        genericCheck("a.m()", a.m(), 0);
+        genericCheck("a.m(0)", a.m(0), 1);
+        genericCheck("a.m(0,0)", a.m(0,0), 2);
 
         return result;
     }

@@ -33,7 +33,7 @@ import x10.compiler.Incomplete;
  */
 public class File {
     @NativeRep("java", "x10.core.io.NativeFile", null, "x10.core.io.NativeFile.$RTT")
-    @NativeRep("c++", "x10aux::ref<x10::io::File__NativeFile>", "x10::io::File__NativeFile", null)
+    @NativeRep("c++", "x10::io::File__NativeFile*", "x10::io::File__NativeFile", null)
     protected final static class NativeFile {
         native def this(String);
 
@@ -93,7 +93,7 @@ public class File {
         @Native("c++", "false")
         native def delete(): Boolean;
         @Native("java", "#this.listInternal()")
-        @Native("c++", "X10_NULL")
+        @Native("c++", "reinterpret_cast<x10::array::Array<x10::lang::String*>*>(X10_NULL)")
         native def list(): Rail[String];
         @Native("java", "#this.mkdir()")
         @Native("c++", "false")

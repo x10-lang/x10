@@ -13,9 +13,6 @@
 #define X10_LANG_CLOSURE_H
 
 #include <x10aux/config.h>
-#include <x10aux/ref.h>
-#include <x10aux/serialization.h>
-#include <x10aux/RTT.h>
 
 #include <x10/lang/Reference.h>
 
@@ -46,11 +43,11 @@ namespace x10 {
 
             virtual x10_int hashCode();
             
-            virtual x10aux::ref<String> toString();
+            virtual String* toString();
             
             virtual const char* toNativeString();
 
-            virtual x10aux::ref<x10::lang::String> typeName();
+            virtual x10::lang::String* typeName();
         };
     }
 }

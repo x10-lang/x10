@@ -12,23 +12,23 @@
 package x10.rtt;
 
 
-import x10.x10rt.X10JavaDeserializer;
-import x10.x10rt.X10JavaSerializable;
-import x10.x10rt.X10JavaSerializer;
-
-import java.io.IOException;
 import java.lang.reflect.Array;
 
+import x10.serialization.SerializationConstants;
+
 public final class FloatType extends RuntimeType<x10.core.Float> {
-//public final class FloatType extends RuntimeType<x10.core.Float> implements X10JavaSerializable {
 
     private static final long serialVersionUID = 1L;
-//    private static final short _serialization_id = x10.x10rt.DeserializationDispatcher.addDispatcher(DeserializationDispatcher.ClosureKind.CLOSURE_KIND_NOT_ASYNC, FloatType.class.getName());
 
     // make sure deserialized RTT object is not duplicated
     private Object readResolve() throws java.io.ObjectStreamException {
         return Types.FLOAT;
     }
+    @Override
+    public short $_get_serialization_id() {
+        return SerializationConstants.RTT_FLOAT_ID;
+    }
+
 
     public FloatType() {
         super(x10.core.Float.class,
@@ -91,20 +91,8 @@ public final class FloatType extends RuntimeType<x10.core.Float> {
     	return ((float[]) array).length;
     }
 
-//    public void $_serialize(X10JavaSerializer serializer) throws IOException {
-//    }
-//
-//    public short $_get_serialization_id() {
-//        return _serialization_id;
-//    }
-//
-//    public static X10JavaSerializable $_deserializer(X10JavaDeserializer deserializer) throws IOException {
-//		return $_deserialize_body(null, deserializer);
-//	}
-//
-//    public static X10JavaSerializable $_deserialize_body(FloatType t, X10JavaDeserializer deserializer) throws IOException {
-//        FloatType floatType = (FloatType) Types.FLOAT;
-//        deserializer.record_reference(floatType);
-//        return floatType;
-//    }
+    @Override
+    public boolean isref() {
+        return false;
+    }
 }

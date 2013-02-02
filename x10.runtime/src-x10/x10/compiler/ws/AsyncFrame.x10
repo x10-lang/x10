@@ -40,7 +40,7 @@ public abstract class AsyncFrame extends Frame {
         worker.unroll(ff);
     }
 
-    @NoInline public final def caught(t:Throwable) {
+    @NoInline public final def caught(t:Exception) {
         ff().caught(t);
     }
 }

@@ -11,25 +11,26 @@
 
 package x10.core;
 
+import java.io.IOException;
+
 import x10.rtt.RuntimeType;
 import x10.rtt.Type;
 import x10.rtt.Types;
-import x10.x10rt.X10JavaDeserializer;
-import x10.x10rt.X10JavaSerializable;
-import x10.x10rt.X10JavaSerializer;
-
-import java.io.IOException;
+import x10.serialization.X10JavaDeserializer;
+import x10.serialization.X10JavaSerializable;
+import x10.serialization.X10JavaSerializer;
 
 /**
  * Represents a boxed Byte value. Boxed representation is used when casting
  * an Byte value to type Any, parameter type T or superinterfaces such
  * as Comparable<Byte>.
  */
-final public class Byte extends Number implements StructI, java.lang.Comparable<Byte>,
-    x10.lang.Arithmetic<Byte>, x10.lang.Bitwise<Byte>, x10.util.Ordered<Byte>
+final public class Byte extends java.lang.Number implements StructI, java.lang.Comparable<Byte>,
+// for X10PrettyPrinterVisitor.exposeSpecialDispatcherThroughSpecialInterface
+//    x10.lang.Arithmetic<Byte>, x10.lang.Bitwise<Byte>, x10.util.Ordered<Byte>
+    x10.core.Arithmetic.x10$lang$Byte, x10.core.Bitwise.x10$lang$Byte, x10.util.Ordered<Byte>
 {
     private static final long serialVersionUID = 1L;
-    private static final short _serialization_id = x10.x10rt.DeserializationDispatcher.addDispatcher(x10.x10rt.DeserializationDispatcher.ClosureKind.CLOSURE_KIND_NOT_ASYNC, Byte.class);
     
     public static final RuntimeType<?> $RTT = Types.BYTE;
     public RuntimeType<?> $getRTT() {return $RTT;}
@@ -132,15 +133,24 @@ final public class Byte extends Number implements StructI, java.lang.Comparable<
     public Byte $minus(java.lang.Object b, Type t) { return Byte.$box($value - ((Byte)b).$value); }
     public Byte $times(java.lang.Object b, Type t) { return Byte.$box($value * ((Byte)b).$value); }
     public Byte $over(java.lang.Object b, Type t) { return Byte.$box($value / ((Byte)b).$value); }
+    // for X10PrettyPrinterVisitor.exposeSpecialDispatcherThroughSpecialInterface
+    public byte $plus$B(java.lang.Object b, Type t) { return (byte) ($value + ((Byte)b).$value); }
+    public byte $minus$B(java.lang.Object b, Type t) { return (byte) ($value - ((Byte)b).$value); }
+    public byte $times$B(java.lang.Object b, Type t) { return (byte) ($value * ((Byte)b).$value); }
+    public byte $over$B(java.lang.Object b, Type t) { return (byte) ($value / ((Byte)b).$value); }
     
     // implements Bitwise<Byte>
     public Byte $tilde$G() { return Byte.$box(~$value); }
     public Byte $ampersand(java.lang.Object b, Type t) { return Byte.$box($value & ((Byte)b).$value); }
     public Byte $bar(java.lang.Object b, Type t) { return Byte.$box($value | ((Byte)b).$value); }
     public Byte $caret(java.lang.Object b, Type t) { return Byte.$box($value ^ ((Byte)b).$value); }
-    public Byte $left$G(final int count) { return Byte.$box($value << count); }
-    public Byte $right$G(final int count) { return Byte.$box($value >> count); }
-    public Byte $unsigned_right$G(final int count) { return Byte.$box($value >>> count); }
+    public Byte $left$G(int count) { return Byte.$box($value << count); }
+    public Byte $right$G(int count) { return Byte.$box($value >> count); }
+    public Byte $unsigned_right$G(int count) { return Byte.$box($value >>> count); }
+    // for X10PrettyPrinterVisitor.exposeSpecialDispatcherThroughSpecialInterface
+    public byte $ampersand$B(java.lang.Object b, Type t) { return (byte) ($value & ((Byte)b).$value); }
+    public byte $bar$B(java.lang.Object b, Type t) { return (byte) ($value | ((Byte)b).$value); }
+    public byte $caret$B(java.lang.Object b, Type t) { return (byte) ($value ^ ((Byte)b).$value); }
     
     // implements Ordered<Byte>
     public java.lang.Object $lt(java.lang.Object b, Type t) { return x10.core.Boolean.$box($value < ((Byte)b).$value); }
@@ -154,40 +164,36 @@ final public class Byte extends Number implements StructI, java.lang.Comparable<
     public boolean $ge$Z(java.lang.Object b, Type t) { return $value >= ((Byte)b).$value; }
     
     // extends abstract class java.lang.Number
-//    @Override
+    @Override
     public int intValue() {
         return (int)$value;
     }
-//    @Override
+    @Override
     public long longValue() {
         return (long)$value;
     }
-//    @Override
+    @Override
     public float floatValue() {
         return (float)$value;
     }
-//    @Override
+    @Override
     public double doubleValue() {
         return (double)$value;
     }
 
-    public void $_serialize(X10JavaSerializer serializer) throws IOException {
-        serializer.write($value);
+    public void $_serialize(X10JavaSerializer $serializer) throws IOException {
+        $serializer.write($value);
     }
 
-    public short $_get_serialization_id() {
-        return _serialization_id;
+    public static X10JavaSerializable $_deserializer(X10JavaDeserializer $deserializer) throws IOException {
+        return $_deserialize_body(null, $deserializer);
     }
 
-    public static X10JavaSerializable $_deserializer(X10JavaDeserializer deserializer) throws IOException {
-        return $_deserialize_body(null, deserializer);
-    }
-
-    public static X10JavaSerializable $_deserialize_body(Byte b, X10JavaDeserializer deserializer) throws IOException {
-        byte value  = deserializer.readByte();
-        b = new Byte(value);
-        deserializer.record_reference(b);
-        return b;
+    public static X10JavaSerializable $_deserialize_body(Byte $_obj, X10JavaDeserializer $deserializer) throws IOException {
+        byte value  = $deserializer.readByte();
+        $_obj = new Byte(value);
+        $deserializer.record_reference($_obj);
+        return $_obj;
     }
     
     // imitate java.lang.Byte

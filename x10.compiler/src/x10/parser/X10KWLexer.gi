@@ -138,6 +138,7 @@
     in
     instanceof
     interface
+    isref
     native
     new
     null
@@ -157,6 +158,7 @@
     switch
     this
     throw
+    throws
     transient
     true
     try
@@ -330,6 +332,11 @@
                 $setResult($_interface);
           $EndAction
         ./
+              | i s r e f
+        /.$BeginAction
+                $setResult($_isref);
+          $EndAction
+        ./
               | n a t i v e
         /.$BeginAction
                 $setResult($_native);
@@ -423,6 +430,11 @@
               | t h r o w
         /.$BeginAction
                 $setResult($_throw);
+          $EndAction
+        ./
+              | t h r o w s
+        /.$BeginAction
+                $setResult($_throws);
           $EndAction
         ./
               | t r a n s i e n t

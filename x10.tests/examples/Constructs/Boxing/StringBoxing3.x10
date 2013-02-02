@@ -12,18 +12,16 @@
 import harness.x10Test;
 
 /**
- * Test Array[UInt]
- *
  * @author Salikh Zakirov 5/2011
  */
 public class StringBoxing3 extends x10Test {
 
-    static def makefun[X](a:Object): ()=>X = {
+    static def makefun[X](a:Any): ()=>X = {
 	() => a as X // ERR: Warning: This is an unsound cast because X10 currently does not perform constraint solving at runtime for generic parameters.
     }
 
-    static def makefun2[X](): (Object)=>X = {
-	(a:Object) => a as X // ERR: Warning: This is an unsound cast because X10 currently does not perform constraint solving at runtime for generic parameters.
+    static def makefun2[X](): (Any)=>X = {
+	(a:Any) => a as X // ERR: Warning: This is an unsound cast because X10 currently does not perform constraint solving at runtime for generic parameters.
     }
 
     public def run(): boolean = {

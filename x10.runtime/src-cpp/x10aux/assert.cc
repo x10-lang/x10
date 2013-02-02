@@ -20,8 +20,8 @@
 using namespace x10aux;
 using namespace x10::lang;
 
-void x10aux::x10__assertion_failed(const ref<x10::lang::String>& message) {
-    if (message.isNull()) {
+void x10aux::x10__assertion_failed(x10::lang::String* message) {
+    if (NULL == message) {
         x10aux::throwException(x10::lang::AssertionError::_make());
     } else {
         x10aux::throwException(x10::lang::AssertionError::_make(message));

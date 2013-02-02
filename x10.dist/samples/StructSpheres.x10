@@ -12,14 +12,17 @@
 import x10.io.Console;
 import x10.util.Random;
 
-/* This class represents a real-world problem in graphics engines --
+/**
+ * This class represents a real-world problem in graphics engines --
  * determining which objects in a large sprawling world are close enough to the
- * camera to be considered for rendering.  The naive implementation produces a
- * lot of objects and is thus a good benchmark for garbage collection in X10.
+ * camera to be considered for rendering.  The naive implementation (GCSpheres) 
+ * produces a lot of objects and is thus a good benchmark for 
+ * garbage collection in X10.
+ * This version uses structs to significantly reduce heap allocation.
  *
  * @Author Dave Cunningham
  * @Author Vijay Saraswat
-*/
+ */
 class StructSpheres {
 
     static type Real = Float;

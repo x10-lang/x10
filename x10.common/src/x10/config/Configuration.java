@@ -130,22 +130,22 @@ public abstract class Configuration {
 			if (t == String.class) {
 				f.set(o, val);
 			} else if (t == Integer.TYPE) {
-				f.setInt(o, new Integer(val).intValue());
+				f.setInt(o, Integer.parseInt(val));
 			} else if (t == Float.TYPE) {
-				f.setFloat(o, new Float(val).floatValue());
+				f.setFloat(o, Float.parseFloat(val));
 			} else if (t == Double.TYPE) {
-				f.setDouble(o, new Double(val).doubleValue());
+				f.setDouble(o, Double.parseDouble(val));
 			} else if (t == Long.TYPE) {
-				f.setLong(o, new Long(val).longValue());
+				f.setLong(o, Long.parseLong(val));
 			} else if (t == Short.TYPE) {
-				f.setShort(o, new Short(val).shortValue());
+				f.setShort(o, Short.parseShort(val));
 			} else if (t == Byte.TYPE) {
-				f.setByte(o, new Byte(val).byteValue());
+				f.setByte(o, Byte.parseByte(val));
 			} else if (t == Character.TYPE) {
 				if (val.length() != 1)
 					throw new OptionError("Parameter "+key+
 							" expects exactly one character; got '"+val+"'");
-				f.setChar(o, new Character(val.charAt('0')).charValue());
+				f.setChar(o, val.charAt(0));
 			} else if (t == Boolean.TYPE) {
 				if (val.equalsIgnoreCase("true")) {
 					f.setBoolean(o, true);

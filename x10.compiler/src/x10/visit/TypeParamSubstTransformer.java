@@ -12,6 +12,7 @@
 package x10.visit;
 
 import polyglot.types.Type;
+import x10.types.ClosureInstance;
 import x10.types.ParameterType;
 import x10.types.TypeParamSubst;
 import x10.types.X10ConstructorInstance;
@@ -25,7 +26,7 @@ import x10.types.MethodInstance;
  * to each type object.
  */
 public class TypeParamSubstTransformer extends TypeTransformer {
-    protected final TypeParamSubst subst;
+    protected TypeParamSubst subst;
 
     protected TypeParamSubstTransformer(TypeParamSubst subst) {
         this.subst = subst;
@@ -33,6 +34,10 @@ public class TypeParamSubstTransformer extends TypeTransformer {
 
     protected TypeParamSubst subst() {
         return subst;
+    }
+
+    protected void subst(TypeParamSubst v) {
+        this.subst = v;
     }
 
     @Override
@@ -64,5 +69,10 @@ public class TypeParamSubstTransformer extends TypeTransformer {
     @Override
     protected X10ConstructorInstance transformConstructorInstance(X10ConstructorInstance ci) {
         return super.transformConstructorInstance(subst().reinstantiate(ci));
+    }
+
+    @Override
+    protected ClosureInstance transformClosureInstance(ClosureInstance ci) {
+        return super.transformClosureInstance(subst().reinstantiate(ci));
     }
 }

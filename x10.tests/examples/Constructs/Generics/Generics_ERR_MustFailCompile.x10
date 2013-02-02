@@ -2,7 +2,7 @@ struct Struct1 {}
 //struct Struct2 extends Struct1 {} // I would prefer it was a semantic error and not a parsing error!
 class AClass extends Struct1 {} // ERR: Struct1 cannot be the superclass for AClass; a class must subclass a class.
 
-class Bla[T] extends Throwable
+class Bla[T] extends Exception
 	{T<:
 		Bla} // ERR
 	{

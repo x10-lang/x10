@@ -11,25 +11,26 @@
 
 package x10.core;
 
+import java.io.IOException;
+
 import x10.rtt.RuntimeType;
 import x10.rtt.Type;
 import x10.rtt.Types;
-import x10.x10rt.X10JavaDeserializer;
-import x10.x10rt.X10JavaSerializable;
-import x10.x10rt.X10JavaSerializer;
-
-import java.io.IOException;
+import x10.serialization.X10JavaDeserializer;
+import x10.serialization.X10JavaSerializable;
+import x10.serialization.X10JavaSerializer;
 
 /**
  * Represents a boxed Short value. Boxed representation is used when casting
  * an Short value to type Any, parameter type T or superinterfaces such
  * as Comparable<Short>.
  */
-final public class Short extends Number implements StructI, java.lang.Comparable<Short>,
-    x10.lang.Arithmetic<Short>, x10.lang.Bitwise<Short>, x10.util.Ordered<Short>
+final public class Short extends java.lang.Number implements StructI, java.lang.Comparable<Short>,
+// for X10PrettyPrinterVisitor.exposeSpecialDispatcherThroughSpecialInterface
+//    x10.lang.Arithmetic<Short>, x10.lang.Bitwise<Short>, x10.util.Ordered<Short>
+    x10.core.Arithmetic.x10$lang$Short, x10.core.Bitwise.x10$lang$Short, x10.util.Ordered<Short>
 {
     private static final long serialVersionUID = 1L;
-    private static final short _serialization_id = x10.x10rt.DeserializationDispatcher.addDispatcher(x10.x10rt.DeserializationDispatcher.ClosureKind.CLOSURE_KIND_NOT_ASYNC, Short.class);
     
     public static final RuntimeType<?> $RTT = Types.SHORT;
     public RuntimeType<?> $getRTT() {return $RTT;}
@@ -134,15 +135,24 @@ final public class Short extends Number implements StructI, java.lang.Comparable
     public Short $minus(java.lang.Object b, Type t) { return Short.$box($value - ((Short)b).$value); }
     public Short $times(java.lang.Object b, Type t) { return Short.$box($value * ((Short)b).$value); }
     public Short $over(java.lang.Object b, Type t) { return Short.$box($value / ((Short)b).$value); }
+    // for X10PrettyPrinterVisitor.exposeSpecialDispatcherThroughSpecialInterface
+    public short $plus$S(java.lang.Object b, Type t) { return (short) ($value + ((Short)b).$value); }
+    public short $minus$S(java.lang.Object b, Type t) { return (short) ($value - ((Short)b).$value); }
+    public short $times$S(java.lang.Object b, Type t) { return (short) ($value * ((Short)b).$value); }
+    public short $over$S(java.lang.Object b, Type t) { return (short) ($value / ((Short)b).$value); }
     
     // implements Bitwise<Short>
     public Short $tilde$G() { return Short.$box(~$value); }
     public Short $ampersand(java.lang.Object b, Type t) { return Short.$box($value & ((Short)b).$value); }
     public Short $bar(java.lang.Object b, Type t) { return Short.$box($value | ((Short)b).$value); }
     public Short $caret(java.lang.Object b, Type t) { return Short.$box($value ^ ((Short)b).$value); }
-    public Short $left$G(final int count) { return Short.$box($value << count); }
-    public Short $right$G(final int count) { return Short.$box($value >> count); }
-    public Short $unsigned_right$G(final int count) { return Short.$box($value >>> count); }
+    public Short $left$G(int count) { return Short.$box($value << count); }
+    public Short $right$G(int count) { return Short.$box($value >> count); }
+    public Short $unsigned_right$G(int count) { return Short.$box($value >>> count); }
+    // for X10PrettyPrinterVisitor.exposeSpecialDispatcherThroughSpecialInterface
+    public short $ampersand$S(java.lang.Object b, Type t) { return (short) ($value & ((Short)b).$value); }
+    public short $bar$S(java.lang.Object b, Type t) { return (short) ($value | ((Short)b).$value); }
+    public short $caret$S(java.lang.Object b, Type t) { return (short) ($value ^ ((Short)b).$value); }
     
     // implements Ordered<Short>
     public java.lang.Object $lt(java.lang.Object b, Type t) { return x10.core.Boolean.$box($value < ((Short)b).$value); }
@@ -173,22 +183,18 @@ final public class Short extends Number implements StructI, java.lang.Comparable
         return (double)$value;
     }
 
-    public void $_serialize(X10JavaSerializer serializer) throws IOException {
-        serializer.write($value);
+    public void $_serialize(X10JavaSerializer $serializer) throws IOException {
+        $serializer.write($value);
     }
 
-    public short $_get_serialization_id() {
-        return _serialization_id;
+    public static X10JavaSerializable $_deserializer(X10JavaDeserializer $deserializer) throws IOException {
+        return $_deserialize_body(null, $deserializer);
     }
 
-    public static X10JavaSerializable $_deserializer(X10JavaDeserializer deserializer) throws IOException {
-        return $_deserialize_body(null, deserializer);
-    }
-
-    public static X10JavaSerializable $_deserialize_body(Short s, X10JavaDeserializer deserializer) throws IOException {
-        short value  = deserializer.readShort();
-        s = new Short(value);
-        deserializer.record_reference(s);
-        return s;
+    public static X10JavaSerializable $_deserialize_body(Short $_obj, X10JavaDeserializer $deserializer) throws IOException {
+        short value  = $deserializer.readShort();
+        $_obj = new Short(value);
+        $deserializer.record_reference($_obj);
+        return $_obj;
     }
 }

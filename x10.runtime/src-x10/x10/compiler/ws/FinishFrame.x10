@@ -13,7 +13,7 @@ import x10.util.Stack;
 
 abstract public class FinishFrame extends Frame {
     @Uninitialized public var asyncs:Int;
-    @Uninitialized transient protected var stack:Stack[Throwable];
+    @Uninitialized transient protected var stack:Stack[Exception];
 
     @Ifdef("__CPP__")
     @Uninitialized public var redirect:FinishFrame;
@@ -45,7 +45,7 @@ abstract public class FinishFrame extends Frame {
         val tmp = remap();
         tmp.redirect = tmp;
         if (null != stack) {
-            tmp.stack = new Stack[Throwable]();
+            tmp.stack = new Stack[Exception]();
             Runtime.atomicMonitor.lock();
             while (!stack.isEmpty()) tmp.stack.push(stack.pop());
             stack = null;
@@ -71,10 +71,10 @@ abstract public class FinishFrame extends Frame {
         worker.throwable = MultipleExceptions.make(stack);
     }
 
-    @Inline public final def append(s:Stack[Throwable]) {
+    @Inline public final def append(s:Stack[Exception]) {
         if (null != s) { //nobody will change s again. No need lock to protect s.
             Runtime.atomicMonitor.lock();
-            if (null == stack) stack = new Stack[Throwable]();
+            if (null == stack) stack = new Stack[Exception]();
             while (!s.isEmpty()) stack.push(s.pop());
             Runtime.atomicMonitor.unlock();
         }
@@ -84,11 +84,11 @@ abstract public class FinishFrame extends Frame {
         append(ff.stack);
     }
 
-    @NoInline public final def caught(t:Throwable) {
+    @NoInline public final def caught(t:Exception) {
 //        Runtime.println("CAUGHT: " + t);
-        if (t == Abort.ABORT) throw t;
+        if (t == Abort.ABORT) throw Abort.ABORT;
         Runtime.atomicMonitor.lock();
-        if (null == stack) stack = new Stack[Throwable]();
+        if (null == stack) stack = new Stack[Exception]();
         stack.push(t);
         Runtime.atomicMonitor.unlock();
     }

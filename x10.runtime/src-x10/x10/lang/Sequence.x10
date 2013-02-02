@@ -23,8 +23,6 @@ import x10.compiler.Native;
  * happens, it happens through some other (non-Sequence) reference to underlying implementation objects. 
  * It is up to the implementer of the class or interface implementing Sequence to provide any additional 
  * guarantees.
- * 
- * @author vj 10/10
  */
 public interface Sequence[T] extends (Int)=> T, Iterable[T] {
     @Native("cuda", "(#0).raw[#1]")

@@ -100,17 +100,16 @@ namespace x10aux {
 
         GPUSAFE captured_ref_lval(const captured_ref_lval<T>& _ref) : captured_lval(_ref._val) { }
 
-        GPUSAFE captured_ref_lval(ref<T> const *val) : captured_lval((x10_long)(size_t)(void*)val) { }
+        GPUSAFE captured_ref_lval(T* const *val) : captured_lval((x10_long)(size_t)(void*)val) { }
 
         GPUSAFE const captured_ref_lval<T>& operator=(const captured_ref_lval<T>& _ref) {
             _val = _ref._val;
             return *this;
         }
 
-        T* operator=(const ref<T> &ref) {
-            T* value = ref.operator->();
-            *((T**)(size_t)_val) = value;
-            return value;
+        T* operator=(const T* value) {
+            *((T**)(size_t)_val) = const_cast<T*>(value);
+            return const_cast<T*>(value);
         }
         
         // &<captured_ref_lval<T> can simply be the thing itself.
@@ -123,8 +122,8 @@ namespace x10aux {
             return *this;
         }
         
-        GPUSAFE operator ref<T>() {
-            return ref<T>(*(T**)(size_t)_val);
+        GPUSAFE operator T*() {
+            return (*(T**)(size_t)_val);
         }
 
         T& GPUSAFE operator*() const {

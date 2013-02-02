@@ -31,6 +31,10 @@ mkdir -p "$TMP_DIR"
 
 echo "Testing"
 
+echo "TODO: Running front-end RunTestSuite on FrontEndTests_MustFailCompile.x10"
+# cd "$TMP_DIR"
+# nice $JAVA -Xmx1G -ea -DQUIET=true -cp "$ROOT"/x10.dist/lib/x10c.jar:"$ROOT"/x10.dist/lib/lpg.jar x10.util.RunTestSuite "$ROOT"/x10.tests/examples/Misc/x10/frontend/tests/FrontEndTests_MustFailCompile.x10 -extclass x10c.ExtensionInfo -sourcepath "$ROOT"/x10.dist/stdlib/x10.jar -sourcepath "$ROOT"/x10.tests/examples/x10lib || testFailed
+
 if [ "$target" != "dist-java" ]; then
 
 echo "Compiling PreCommit.x10 with x10c++"

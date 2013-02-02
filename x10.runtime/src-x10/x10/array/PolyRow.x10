@@ -23,8 +23,6 @@ import x10.io.Printer;
  *
  * Equivalently, this class may be considered to represent a linear
  * inequality constraint, or a row in a constraint matrix.
- *
- * @author bdlucas
  */
 class PolyRow(rank:Int) extends ValRow {
 

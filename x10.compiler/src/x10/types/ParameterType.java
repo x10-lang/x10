@@ -46,6 +46,7 @@ public class ParameterType extends Type_c implements Named {
     private static final long serialVersionUID = 995307749745291345L;
 
     Name name;
+    // [DC] I presume that def is the definition that is parameterised by this?
 	Ref<? extends Def> def;
 	
 	public ParameterType(TypeSystem ts, Position pos, Position errorPos, Name name, Ref<? extends Def> def) {

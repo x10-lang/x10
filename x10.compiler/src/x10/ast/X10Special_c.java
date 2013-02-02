@@ -17,6 +17,7 @@ import polyglot.ast.TypeNode;
 import polyglot.types.ClassType;
 import polyglot.types.CodeDef;
 import polyglot.types.Context;
+import polyglot.types.SemanticException;
 import polyglot.types.Type;
 import polyglot.types.TypeSystem;
 import polyglot.types.Types;
@@ -170,21 +171,27 @@ public class X10Special_c extends Special_c implements X10Special {
         }
         else if (kind == SUPER) {
             Type superClass =  Types.superClass(t);
-            Type tt = Types.baseType(superClass);
-            CConstraint cc = Types.xclause(superClass);
-            cc = cc == null ? ConstraintManager.getConstraintSystem().makeCConstraint(tt,xts) : cc.copy();
-            try {
-                XVar<Type> var = (XVar) xts.xtypeTranslator().translate(cc, this, c);
-                if (var != null) {
-                    cc.addSelfEquality(var);
-                    //PlaceChecker.AddThisHomeEqualsPlaceTerm(cc, var, c);
-                }
-            } catch (IllegalConstraint z) {
-            	Errors.issue(tc.job(), z);
+            if (superClass == null) {
+            	Errors.issue(tc.job(), new SemanticException("One cannot use super in a class that does not extend anything.", position()));
+            	// [DC] this seems like a reasonable substitute...
+	            result = (X10Special) type(ts.Null());
+            } else {
+	            Type tt = Types.baseType(superClass);
+	            CConstraint cc = Types.xclause(superClass);
+	            cc = cc == null ? ConstraintManager.getConstraintSystem().makeCConstraint(tt, xts) : cc.copy();
+	            try {
+	                XTerm<Type> var = xts.xtypeTranslator().translate(cc, this, c);
+	                if (var != null) {
+	                    cc.addSelfEquality(var);
+	                    //PlaceChecker.AddThisHomeEqualsPlaceTerm(cc, var, c);
+	                }
+	            } catch (IllegalConstraint z) {
+	            	Errors.issue(tc.job(), z);
+	            }
+	            
+	            tt = Types.xclause(Types.baseType(tt), cc);
+	            result = (X10Special) type(tt);
             }
-           
-            tt = Types.xclause(Types.baseType(tt), cc);
-            result = (X10Special) type(tt);
         }
        
         assert result.type() != null;

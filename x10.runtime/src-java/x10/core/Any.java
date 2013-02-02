@@ -14,7 +14,7 @@ package x10.core;
 import x10.rtt.RuntimeType;
 import x10.rtt.Type;
 import x10.rtt.Types;
-import x10.x10rt.X10JavaSerializable;
+import x10.serialization.X10JavaSerializable;
 
 // Base interface of all X10 entities.
 public interface Any extends java.io.Serializable, X10JavaSerializable {

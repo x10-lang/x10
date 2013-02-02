@@ -36,10 +36,10 @@ public struct Complex implements Arithmetic[Complex] {
     @Native("c++", "x10::lang::Complex::_make(0.0,1.0)")
     public static I : Complex = Complex(0.0, 1.0);
     /** The complex number that corresponds to +Inf + +Inf*i */
-    @Native("c++", "x10::lang::Complex::_make(x10aux::double_utils::fromLongBits(0x7ff0000000000000LL),x10aux::double_utils::fromLongBits(0x7ff0000000000000LL))")
+    @Native("c++", "x10::lang::Complex::_make(x10::lang::DoubleNatives::fromLongBits(0x7ff0000000000000LL),x10::lang::DoubleNatives::fromLongBits(0x7ff0000000000000LL))")
     public static INF : Complex = Complex(Double.POSITIVE_INFINITY, Double.POSITIVE_INFINITY);
     /** The complex number that corresponds to NaN + NaN*i */
-    @Native("c++", "x10::lang::Complex::_make(x10aux::double_utils::fromLongBits(0x7ff8000000000000LL),x10aux::double_utils::fromLongBits(0x7ff8000000000000LL))")
+    @Native("c++", "x10::lang::Complex::_make(x10::lang::DoubleNatives::fromLongBits(0x7ff8000000000000LL),x10::lang::DoubleNatives::fromLongBits(0x7ff8000000000000LL))")
     public static NaN : Complex = Complex(Double.NaN, Double.NaN);
 
     /**

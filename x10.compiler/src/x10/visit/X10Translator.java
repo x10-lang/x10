@@ -109,71 +109,68 @@ public class X10Translator extends Translator {
     }
 
     public boolean inInnerClass() {
-		return inInnerClass;
-	}
+        return inInnerClass;
+    }
 
-	public X10Translator inInnerClass(boolean inInnerClass) {
-		if (inInnerClass == this.inInnerClass) return this;
-		X10Translator tr = (X10Translator) shallowCopy();
-		tr.inInnerClass = inInnerClass;
-		return tr;
-	}
-	
-	private static boolean generateJavaFile(SourceFile sfn) {
-	    for (Iterator<TopLevelDecl> i = sfn.decls().iterator(); i.hasNext(); ) {
-	        TopLevelDecl decl = i.next();
-	        if (decl instanceof TypeDecl) continue;  // public type Int(b:Int) = Int{self==b};
-	        if (!(decl instanceof ClassDecl)) return true;
-	        if (Emitter.getJavaRep(((ClassDecl) decl).classDef()) == null) {
-//	            System.out.println("will generate " + sfn);
-	            return true;
-	        }
-	    }
-//            System.out.println("will NOT generate " + sfn);
-	    return false;
-	}
-	/** Override to not open a new file for each declaration. */
-	@Override
-	protected boolean translateSource(SourceFile sfn) {
-	    TypeSystem ts = typeSystem();
-	    NodeFactory nf = nodeFactory();
-	    TargetFactory tf = this.tf;
-	    int outputWidth = job.compiler().outputWidth();
-	    CodeWriter w= null;
+    public X10Translator inInnerClass(boolean inInnerClass) {
+        if (inInnerClass == this.inInnerClass) return this;
+        X10Translator tr = (X10Translator) shallowCopy();
+        tr.inInnerClass = inInnerClass;
+        return tr;
+    }
 
-	    // if all toplevel decls are @NativeRep'ed, stop generating Java file
-	    if (!generateJavaFile(sfn)) return true;
+    private static boolean generateJavaFile(TopLevelDecl decl) {
+        if (decl instanceof TypeDecl) return false;  // public type Int(b:Int) = Int{self==b};
+//        assert decl instanceof ClassDecl;
+        if (!(decl instanceof ClassDecl)) return true; // for safety
+        if (Emitter.getJavaRep(((ClassDecl) decl).classDef()) == null) return true; // not @NativeRep'ed
+        return false;
+    }
+    private static boolean generateJavaFile(SourceFile sfn) {
+        for (TopLevelDecl decl : sfn.decls()) {
+            if (generateJavaFile(decl)) return true;
+        }
+        return false;
+    }
+    /** Override to not open a new file for each declaration. */
+    @Override
+    protected boolean translateSource(SourceFile sfn) {
+        TypeSystem ts = typeSystem();
+        NodeFactory nf = nodeFactory();
+        TargetFactory tf = this.tf;
+        int outputWidth = job.compiler().outputWidth();
+        CodeWriter w= null;
 
-	    try {
-	        File of;
+        // if all toplevel decls are @NativeRep'ed, stop generating Java file
+        if (!generateJavaFile(sfn)) return true;
 
-	        QName pkg = null;
+        try {
+            QName pkg = null;
 
-	        if (sfn.package_() != null) {
-	            Package p = sfn.package_().package_().get();
-	            pkg = p.fullName();
-	        }
+            if (sfn.package_() != null) {
+                Package p = sfn.package_().package_().get();
+                pkg = p.fullName();
+            }
 
-	        // Use the source name to derive a default output file name.
-	        of = tf.outputFile(pkg, sfn.source());
+            // Use the source name to derive a default output file name.
+            File of = tf.outputFile(pkg, sfn.source());
 
-	        String opfPath = of.getPath();
-	        if (!opfPath.endsWith("$")) job.compiler().addOutputFile(sfn, of.getPath());
-	        w = tf.outputCodeWriter(of, outputWidth);
+            String opfPath = of.getPath();
+            if (!opfPath.endsWith("$")) job.compiler().addOutputFile(sfn, of.getPath());
+            w = tf.outputCodeWriter(of, outputWidth);
 
-	        writeHeader(sfn, w);
+            writeHeader(sfn, w);
 
-	        for (Iterator<TopLevelDecl> i = sfn.decls().iterator(); i.hasNext(); ) {
-	            TopLevelDecl decl = i.next();
+            for (TopLevelDecl decl : sfn.decls()) {
 
-	            translateTopLevelDecl(w, sfn, decl);
+                if (!generateJavaFile(decl)) continue;
 
-	            if (i.hasNext()) {
-	                w.newline(0);
-	            }
-	        }
+                translateTopLevelDecl(w, sfn, decl);
 
-	        w.flush();
+                w.newline(0);
+            }
+
+            w.flush();
 
             X10CompilerOptions options = (X10CompilerOptions) ts.extensionInfo().getOptions();
             if (options.post_compiler != null && !options.output_stdout && options.executable_path != null) {
@@ -200,23 +197,21 @@ public class X10Translator extends Translator {
                 }
             }
 
-	        return true;
-	    }
-	    catch (IOException e) {
-	        job.compiler().errorQueue().enqueue(ErrorInfo.IO_ERROR,
-	                "I/O error while translating: " + e.getMessage());
-	        return false;
-	    } finally {
-	        if (w != null) {
-	            try {
-	                w.close();
-	            } catch (IOException e) {
-	                job.compiler().errorQueue().enqueue(ErrorInfo.IO_ERROR,
-	                        "I/O error while closing output file: " + e.getMessage());
-	            }
-	        }
-	    }
-	}
+            return true;
+
+        } catch (IOException e) {
+            job.compiler().errorQueue().enqueue(ErrorInfo.IO_ERROR, "I/O error while translating: " + e.getMessage());
+            return false;
+        } finally {
+            if (w != null) {
+                try {
+                    w.close();
+                } catch (IOException e) {
+                    job.compiler().errorQueue().enqueue(ErrorInfo.IO_ERROR, "I/O error while closing output file: " + e.getMessage());
+                }
+            }
+        }
+    }
 
     public static final String postcompile = "postcompile";
 

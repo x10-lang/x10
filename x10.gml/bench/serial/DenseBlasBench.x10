@@ -17,7 +17,7 @@ import x10.matrix.Debug;
 import x10.matrix.DenseMatrix;
 import x10.matrix.DenseMultXTen;
 import x10.matrix.VerifyTools;
-import x10.matrix.blas.DenseMultBLAS;
+import x10.matrix.blas.DenseMatrixBLAS;
 
 
 /**
@@ -81,7 +81,7 @@ class RunBlasComp{
 
     	val stt = Timer.milliTime();
     	for (1..iter) {
-    		DenseMultBLAS.comp(A, B, C, true);
+    		DenseMatrixBLAS.comp(A, B, C, true);
     	}
     	val avgt= (1.0*Timer.milliTime()-stt) /1000/iter;
     	Console.OUT.printf("Benchmark BLAS driver dense mult --- Time:%8.3f Sec, Mfps:%f\n", 
@@ -98,7 +98,7 @@ class RunBlasComp{
 
     	val stt = Timer.milliTime();
     	for (1..iter) {
-    		DenseMultBLAS.compMultTrans(A, tB, C, true);
+    		DenseMatrixBLAS.compMultTrans(A, tB, C, true);
     	}
     	val avgt= (1.0*Timer.milliTime()-stt) /1000/iter;
     	Console.OUT.printf("Benchmark BLAS driver multTrans --- Time:%8.3f Sec, Mfps:%f\n", 

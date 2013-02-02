@@ -11,7 +11,6 @@
 
 import harness.x10Test;
 import x10.compiler.Native;
-import x10.interop.java.Throws;
 
 // MANAGED_X10_ONLY
 
@@ -19,11 +18,11 @@ public class JavaException6 extends x10Test {
 
     public abstract static class Base {
     	@Native("java", "null")
-        public native def f(): Any @Throws[java.io.IOException];
+        public native def f() throws java.io.IOException : Any;
     }
 
     public static class Derived extends Base {
-        public def f(): Any @Throws[java.io.IOException] {
+        public def f() throws java.io.IOException : Any {
         	return super.f();
         }
     }

@@ -1209,7 +1209,7 @@ public class Context implements Resolver, Cloneable
     public void setAnnotation() { inAnnotation = true; }
     public void setAnonObjectScope() { inAnonObjectScope = true;}
     public void clearAnnotation() { inAnnotation = false; }
-    private void setCurrentTypeConstraint(Ref<TypeConstraint> c) {
+    public void setCurrentTypeConstraint(Ref<TypeConstraint> c) {
         currentTypeConstraint = c;
     }
     public void setTypeConstraintWithContextTerms(TypeConstraint c) {  

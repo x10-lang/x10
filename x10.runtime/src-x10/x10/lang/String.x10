@@ -30,8 +30,8 @@ import x10.util.ArrayList;
  * is defined in {@link x10.lang.Char}.
  */
 @NativeRep("java", "java.lang.String", null, "x10.rtt.Types.STRING")
-@NativeRep("c++", "x10aux::ref<x10::lang::String>", "x10::lang::String", null)
-public final class String implements (Int) => Char, Ordered[String], Comparable[String] {
+@NativeRep("c++", "x10::lang::String*", "x10::lang::String", null)
+public final class String implements Comparable[String] {
 
     /**
      * Default constructor.
@@ -46,11 +46,23 @@ public final class String implements (Int) => Char, Ordered[String], Comparable[
     /**
      * Construct a String from an Array[Byte].
      */
+    @Native("java", "new java.lang.String((#r).raw().getByteArray())")
+    public native def this(r:Array[Byte]): String;
+
+    /**
+     * Construct a String from an Array[Byte], offset and length.
+     */
     @Native("java", "new java.lang.String((#r).raw().getByteArray(),#offset,#length)")
     public native def this(r:Array[Byte], offset:Int, length:Int): String;
 
     /**
      * Construct a String from an Array[Char].
+     */
+    @Native("java", "new java.lang.String((#r).raw().getCharArray())")
+    public native def this(r:Array[Char]): String;
+
+    /**
+     * Construct a String from an Array[Char], offset and length.
      */
     @Native("java", "new java.lang.String((#r).raw().getCharArray(),#offset,#length)")
     public native def this(r:Array[Char], offset:Int, length:Int): String;
@@ -136,7 +148,7 @@ public final class String implements (Int) => Char, Ordered[String], Comparable[
      *         whose contents are initialized to contain the Chars in this String.
      * @see #bytes()
      */
-    @Native("java", "x10.core.ArrayFactory.<x10.core.Char>makeArrayFromJavaArray(x10.rtt.Types.CHAR, (#this).toCharArray())")
+    @Native("java", "x10.runtime.impl.java.ArrayUtils.<x10.core.Char>makeArrayFromJavaArray(x10.rtt.Types.CHAR, (#this).toCharArray())")
     @Native("c++", "(#this)->chars()")
     public native def chars():Rail[Char];
 
@@ -145,7 +157,7 @@ public final class String implements (Int) => Char, Ordered[String], Comparable[
      * @return the Array of Bytes representing this String in the default charset.
      * @see #chars()
      */
-    @Native("java", "x10.core.ArrayFactory.<java.lang.Byte>makeArrayFromJavaArray(x10.rtt.Types.BYTE, (#this).getBytes())")
+    @Native("java", "x10.runtime.impl.java.ArrayUtils.<x10.core.Byte>makeArrayFromJavaArray(x10.rtt.Types.BYTE, (#this).getBytes())")
     @Native("c++", "(#this)->bytes()")
     public native def bytes():Rail[Byte];
 
@@ -386,7 +398,7 @@ public final class String implements (Int) => Char, Ordered[String], Comparable[
      * @param args the arguments referenced by the format specifiers in the format string.
      * @return a formatted string.
      */
-    @Native("java", "x10.core.String.format(#fmt,(Object[]) (#args).raw().value)")
+    @Native("java", "x10.runtime.impl.java.StringUtils.format(#fmt,(java.lang.Object[]) (#args).raw().value)")
     @Native("c++", "x10::lang::String::format(#fmt,#args)")
     public native static def format(fmt: String, args:Array[Any]): String;
 
@@ -522,7 +534,7 @@ public final class String implements (Int) => Char, Ordered[String], Comparable[
      * @return the resulting String
      */
     @Native("java", "((#x) + (#y))")
-    @Native("c++",  "((#x) + (#y))")
+    @Native("c++",  "x10::lang::String::__plus(#x, #y)")
     public native static operator[T] (x:String) + (y:T): String;
 
     /**
@@ -534,7 +546,7 @@ public final class String implements (Int) => Char, Ordered[String], Comparable[
      * @return the resulting String
      */
     @Native("java", "((#x) + (#y))")
-    @Native("c++",  "((#x) + (#y))")
+    @Native("c++",  "x10::lang::String::__plus(#x, #y)")
     public native static operator[T] (x:T) + (y:String): String;
 
     /**
@@ -545,7 +557,7 @@ public final class String implements (Int) => Char, Ordered[String], Comparable[
      * @return the resulting String
      */
     @Native("java", "((#x) + (#y))")
-    @Native("c++",  "((#x) + (#y))")
+    @Native("c++",  "x10::lang::String::__plus(#x, #y)")
     public native static operator (x:String) + (y:String): String;
 }
 

@@ -24,7 +24,7 @@ public class AssignmentPrimitiveConstrainedIdentity extends x10Test {
          var i: int(0) = 0;
          var j: int(0) = 0;
          return i == j;
-		}catch(e: Throwable) {
+		}catch(e: Exception) {
 			return false;
 		}
 

@@ -4,7 +4,6 @@
 #include <x10rt.h>
 
 #include <x10aux/config.h>
-#include <x10aux/ref.h>
 #include <x10aux/RTT.h>
 #include <x10aux/serialization.h>
 
@@ -54,19 +53,19 @@ namespace x10 {
     
             void _deserialize_body(x10aux::deserialization_buffer& buf);
             
-            x10_boolean equals(x10aux::ref<x10::lang::Any> that) { return _struct_equals(that); }
+            x10_boolean equals(x10::lang::Any* that) { return _struct_equals(that); }
     
             x10_boolean equals(x10::util::RemoteIndexedMemoryChunk<T> that) { return _struct_equals(that); }
     
-            x10_boolean _struct_equals(x10aux::ref<x10::lang::Any>);
+            x10_boolean _struct_equals(x10::lang::Any*);
     
             x10_boolean _struct_equals(x10::util::RemoteIndexedMemoryChunk<T> that);
     
-            x10aux::ref<x10::lang::String> toString();
+            x10::lang::String* toString();
     
             x10_int hashCode() { return (x10_int)data; }
 
-            x10aux::ref<x10::lang::String> typeName();
+            x10::lang::String* typeName();
 
             void remoteAdd(x10_int idx, x10_ulong v)
             { x10aux::remote_op(home->FMGL(id), (x10rt_remote_ptr)(size_t)&raw()[idx], X10RT_OP_ADD, v); }
@@ -125,16 +124,16 @@ namespace x10 {
         template<class T> class RemoteIndexedMemoryChunk_iboxithunk0 : public x10::lang::IBox<x10::util::RemoteIndexedMemoryChunk<T> > {
         public:
             static x10::lang::Any::itable<RemoteIndexedMemoryChunk_iboxithunk0<T> > itable;
-            x10_boolean equals(x10aux::ref<x10::lang::Any> arg0) {
+            x10_boolean equals(x10::lang::Any* arg0) {
                 return this->value->equals(arg0);
             }
             x10_int hashCode() {
                 return this->value->hashCode();
             }
-            x10aux::ref<x10::lang::String> toString() {
+            x10::lang::String* toString() {
                 return this->value->toString();
             }
-            x10aux::ref<x10::lang::String> typeName() {
+            x10::lang::String* typeName() {
                 return this->value->typeName();
             }
         };
@@ -162,7 +161,7 @@ template<class T> void x10::util::RemoteIndexedMemoryChunk<T>::_deserialize_body
 }
 
 
-template<class T> x10_boolean x10::util::RemoteIndexedMemoryChunk<T>::_struct_equals(x10aux::ref<x10::lang::Any> that) {
+template<class T> x10_boolean x10::util::RemoteIndexedMemoryChunk<T>::_struct_equals(x10::lang::Any* that) {
     if ((!(x10aux::instanceof<x10::util::RemoteIndexedMemoryChunk<T> >(that)))) {
         return false;
     }
@@ -173,12 +172,12 @@ template<class T> x10_boolean x10::util::RemoteIndexedMemoryChunk<T>::_struct_eq
     return x10aux::struct_equals(data, that->data) && x10aux::struct_equals(len, that->len) && x10aux::struct_equals(home, that->home);
 }
 
-template<class T> x10aux::ref<x10::lang::String> x10::util::RemoteIndexedMemoryChunk<T>::toString() {
+template<class T> x10::lang::String* x10::util::RemoteIndexedMemoryChunk<T>::toString() {
     char* tmp = x10aux::alloc_printf("x10.util.RemoteIndexedMemoryChunk<%s>(%llx of %llx elements)", x10aux::getRTT<T>()->name(), data, (unsigned long long)len);
     return x10::lang::String::Steal(tmp);
 }
 
-template<class T> x10aux::ref<x10::lang::String> x10::util::RemoteIndexedMemoryChunk<T>::typeName() {
+template<class T> x10::lang::String* x10::util::RemoteIndexedMemoryChunk<T>::typeName() {
     char* tmp = x10aux::alloc_printf("x10.util.RemoteIndexedMemoryChunk<%s>", x10aux::getRTT<T>()->name());
     return x10::lang::String::Steal(tmp);
 }

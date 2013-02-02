@@ -56,10 +56,6 @@ fi
 cp="${TOP}${FILE_SEP}lib${FILE_SEP}RunJava.jar"
 [ -n "${extra_cp}" ] && cp="${extra_cp}${PATH_SEP}${cp}"
 
-preload="-EXTRA_PRELOAD_CLASSES=${java_main}"
-[ -n "${extra_preload}" ] && preload="${preload}${PATH_SEP}${extra_preload}"
-x10_args="${x10_args} ${preload}"
-
 command="\"${TOP}${FILE_SEP}bin${FILE_SEP}x10\" ${x10_args} -classpath \"${cp}\" RunJava ${args}"
 
 [ -n "$verbose" ] && echo "$command"

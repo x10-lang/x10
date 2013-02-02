@@ -22,6 +22,7 @@ import polyglot.frontend.Source;
 import polyglot.types.ClassDef;
 import polyglot.types.ClassDef_c;
 import polyglot.types.ClassType;
+import polyglot.types.CodeInstance;
 import polyglot.types.ConstructorDef;
 import polyglot.types.ContainerType;
 import polyglot.types.Context;
@@ -51,6 +52,7 @@ import x10.constraint.XVar;
 import x10.types.constraints.CConstraint;
 import x10.types.constraints.ConstraintManager;
 import x10.types.constraints.TypeConstraint;
+import x10.types.constraints.XConstrainedTerm;
 
 
 public class X10ClassDef_c extends ClassDef_c implements X10ClassDef {
@@ -763,4 +765,39 @@ public class X10ClassDef_c extends ClassDef_c implements X10ClassDef {
     public void setWasInner(boolean v) {
         wasInner = v;
     }
+
+    
+    // [DC] the following 5 functions added to allow ClassDef to be a CodeDef
+    // which I wanted to do so that the code reference stored in a context can understand
+    // when an expression is within an inner class scope (e.g. invariant of a local class)
+	@Override
+	public CodeInstance<?> asInstance() {
+		return asType();
+	}
+
+	@Override
+	public void setTypeParameters(List<ParameterType> typeParameters) {
+		this.typeParameters = typeParameters;
+		
+	}
+
+	@Override
+	public boolean staticContext() {
+		// [DC] A class guard is never in a static context
+		return false;
+	}
+
+	// [DC] assuming this is the correct thing to do, have to implement the following methods so do it as a setter/getter...
+	XConstrainedTerm placeTerm;
+
+	@Override
+	public XConstrainedTerm placeTerm() {
+		return placeTerm;
+	}
+
+	@Override
+	public void setPlaceTerm(XConstrainedTerm xt) {
+		placeTerm = xt;
+		
+	}
 }

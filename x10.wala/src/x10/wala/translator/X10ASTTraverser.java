@@ -51,7 +51,6 @@ import polyglot.ast.Special;
 import polyglot.ast.StringLit;
 import polyglot.ast.Switch;
 import polyglot.ast.SwitchBlock;
-import polyglot.ast.Synchronized;
 import polyglot.ast.Throw;
 import polyglot.ast.Try;
 import polyglot.ast.Unary;
@@ -208,8 +207,6 @@ public class X10ASTTraverser {
         return xtv.visit((While) n, wc);
       } else if (n instanceof Switch) {
         return xtv.visit((Switch) n, wc);
-      } else if (n instanceof Synchronized) {
-        return xtv.visit((Synchronized) n, wc);
       } else if (n instanceof Try) {
         return xtv.visit((Try) n, wc);
       } else if (n instanceof Empty) {

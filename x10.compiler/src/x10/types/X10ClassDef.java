@@ -15,6 +15,7 @@ import java.util.List;
 
 import polyglot.types.ClassDef;
 import polyglot.types.ClassType;
+import polyglot.types.CodeDef;
 import polyglot.types.Context;
 import polyglot.types.FieldDef;
 import polyglot.types.Ref;
@@ -23,7 +24,7 @@ import x10.types.constraints.CConstraint;
 import x10.types.constraints.TypeConstraint;
 
 
-public interface X10ClassDef extends X10Def, ClassDef, X10MemberDef {
+public interface X10ClassDef extends X10Def, ClassDef, X10MemberDef, X10CodeDef {
     TypeParamSubst subst();
     void setSubst(TypeParamSubst subst);
 }

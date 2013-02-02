@@ -11,73 +11,79 @@
 
 #include <x10/io/FileReader__FileInputStream.h>
 
+#include <x10/util/IndexedMemoryChunk.h>
+#include <x10/io/FileNotFoundException.h>
+#include <x10/io/NotSerializableException.h>
+
 using namespace x10aux;
 using namespace x10::lang;
 using namespace x10::io;
 
-x10aux::ref<FileReader__FileInputStream>
-FileReader__FileInputStream::_make(x10aux::ref<x10::lang::String> name) {
-    x10aux::ref<FileReader__FileInputStream> this_ = new (x10aux::alloc<FileReader__FileInputStream>()) FileReader__FileInputStream ();
+FileReader__FileInputStream*
+FileReader__FileInputStream::_make(x10::lang::String* name) {
+    FileReader__FileInputStream* this_ = new (x10aux::alloc<FileReader__FileInputStream>()) FileReader__FileInputStream ();
     this_->_constructor(name);
     return this_;
 }
 
-void FileReader__FileInputStream::_constructor(x10aux::ref<x10::lang::String> file) {
+void FileReader__FileInputStream::_constructor(x10::lang::String* name) {
     this->InputStreamReader__InputStream::_constructor();
-    x10aux::io::FILEPtrInputStream fpis(x10aux::io::FILEPtrStream::open_file(file, "r"));
-    _inputStream = fpis;
+
+    const char *filename = name->c_str();
+    this->FMGL(file) = fopen(filename, "r");
+#ifndef NO_EXCEPTIONS
+    if (NULL == this->FMGL(file))
+        throwException(FileNotFoundException::_make(name));
+#endif
 }
 
 void FileReader__FileInputStream::_constructor(FILE* file) {
     this->InputStreamReader__InputStream::_constructor();
-    x10aux::io::FILEPtrInputStream fpis(file);
-    _inputStream = fpis;
+    FMGL(file) = file;
 }
 
-void FileReader__FileInputStream::_constructor() {
-    this->InputStreamReader__InputStream::_constructor();
-    x10aux::io::FILEPtrInputStream fpis(NULL);
-    _inputStream = fpis;
+char * FileReader__FileInputStream::gets(char *buf, int sz) {
+    return ::fgets(buf, sz, FMGL(file));
+}
+
+void FileReader__FileInputStream::close() {
+    ::fclose(FMGL(file));
+}
+
+x10_int FileReader__FileInputStream::read() {
+    int c = ::fgetc(FMGL(file));
+    return (x10_int)c;
 }
 
 x10_int FileReader__FileInputStream::read(x10::util::IndexedMemoryChunk<x10_byte> b,
                                           x10_int off,
                                           x10_int len) {
-    return _inputStream.read(b, off, len);
+    int res = ::fread(((x10_byte*)b->raw())+off*sizeof(x10_byte),
+                      sizeof(x10_byte),
+                      len*sizeof(x10_byte),
+                      FMGL(file));
+    return (x10_int)res;
+}
+
+void FileReader__FileInputStream::skip(x10_int bytes) {
+    ::fseek(FMGL(file), bytes, SEEK_CUR);
 }
 
 const x10aux::serialization_id_t FileReader__FileInputStream::_serialization_id = 
     x10aux::DeserializationDispatcher::addDeserializer(FileReader__FileInputStream::_deserializer, x10aux::CLOSURE_KIND_NOT_ASYNC);
 
 void FileReader__FileInputStream::_serialize_body(x10aux::serialization_buffer& buf) {
-    InputStreamReader__InputStream::_serialize_body(buf);
-    // This class simply has no global state.
-    // TODO: attempting to serialize _inputStream is nonsensical.
-    //       The old 1.7 definition of this class simply didn't work either,
-    //       it just silently didn't serialize the FILEPtrInputSteam field.
-    // assert(false);
-    // buf.write(this->_inputStream);
+    x10aux::throwException(NotSerializableException::_make(String::Lit("FileReader.FileInputStream")));
 }
 
 void FileReader__FileInputStream::_deserialize_body(x10aux::deserialization_buffer& buf) {
-    InputStreamReader__InputStream::_deserialize_body(buf);
-    // This class simply has no global state.
-    // TODO: attempting to serialize _inputStream is nonsensical.
-    //       The old 1.7 definition of this class simply didn't work either,
-    //       it just silently didn't serialize the FILEPtrInputSteam field.
-    // assert(false);
-    // _inputStream = buf.read<x10aux::io::FILEPtrInputStream>();
+    // Should be unreachable, since serialize_body throws an exception.
+    assert(false);
 }
 
-x10aux::ref<x10::lang::Reference> FileReader__FileInputStream::_deserializer(x10aux::deserialization_buffer& buf) {
-    // TODO: attempting to serialize _outputStream is nonsensical.
-    //       The old 1.7 definition of this class simply didn't work either,
-    //       it just silently didn't serialize the FILEPtrInputSteam field.
-    // assert(false);
-    x10aux::ref<FileReader__FileInputStream> this_ = new (x10aux::alloc<FileReader__FileInputStream>()) FileReader__FileInputStream(NULL);
-    buf.record_reference(this_);
-    this_->_deserialize_body(buf);
-    return this_;
+x10::lang::Reference* FileReader__FileInputStream::_deserializer(x10aux::deserialization_buffer& buf) {
+    // Should be unreachable, since serialize_body throws an exception.
+    assert(false);
 }
 
 

@@ -11,14 +11,14 @@
 
 package x10.core;
 
+import java.io.IOException;
+
 import x10.rtt.RuntimeType;
 import x10.rtt.Type;
 import x10.rtt.Types;
-import x10.x10rt.X10JavaDeserializer;
-import x10.x10rt.X10JavaSerializable;
-import x10.x10rt.X10JavaSerializer;
-
-import java.io.IOException;
+import x10.serialization.X10JavaDeserializer;
+import x10.serialization.X10JavaSerializable;
+import x10.serialization.X10JavaSerializer;
 
 /**
  * Represents a boxed Char value. Boxed representation is used when casting
@@ -28,7 +28,6 @@ import java.io.IOException;
 final public class Char extends Struct implements java.lang.Comparable<Char>, x10.util.Ordered<Char>
 {
     private static final long serialVersionUID = 1L;
-    private static final short _serialization_id = x10.x10rt.DeserializationDispatcher.addDispatcher(x10.x10rt.DeserializationDispatcher.ClosureKind.CLOSURE_KIND_NOT_ASYNC, Char.class);
     
     public static final RuntimeType<?> $RTT = Types.CHAR;
     public RuntimeType<?> $getRTT() {return $RTT;}
@@ -115,23 +114,19 @@ final public class Char extends Struct implements java.lang.Comparable<Char>, x1
         return 0;
     }
 
-    public void $_serialize(X10JavaSerializer serializer) throws IOException {
-        serializer.write($value);
+    public void $_serialize(X10JavaSerializer $serializer) throws IOException {
+        $serializer.write($value);
     }
 
-    public short $_get_serialization_id() {
-        return _serialization_id;
+    public static X10JavaSerializable $_deserializer(X10JavaDeserializer $deserializer) throws IOException {
+        return $_deserialize_body(null, $deserializer);
     }
 
-    public static X10JavaSerializable $_deserializer(X10JavaDeserializer deserializer) throws IOException {
-        return $_deserialize_body(null, deserializer);
-    }
-
-    public static X10JavaSerializable $_deserialize_body(Char c, X10JavaDeserializer deserializer) throws IOException {
-        char value  = deserializer.readChar();
-        c = new Char(value);
-        deserializer.record_reference(c);
-        return c;
+    public static X10JavaSerializable $_deserialize_body(Char $_obj, X10JavaDeserializer $deserializer) throws IOException {
+        char value  = $deserializer.readChar();
+        $_obj = new Char(value);
+        $deserializer.record_reference($_obj);
+        return $_obj;
     }
     
     // implements Ordered<Char>

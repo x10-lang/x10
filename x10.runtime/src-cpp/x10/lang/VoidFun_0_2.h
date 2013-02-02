@@ -14,7 +14,6 @@
 
 #include <x10aux/config.h>
 #include <x10aux/RTT.h>
-#include <x10aux/fun_utils.h>
 
 #include <x10/lang/Any.h>
 
@@ -25,40 +24,45 @@ namespace x10 {
                                         const x10aux::RuntimeType *rtt1,
                                         const x10aux::RuntimeType *rtt2);
 
-        template<class P1, class P2> class VoidFun_0_2 : public x10aux::AnyFun {
+        template<class P1, class P2> class VoidFun_0_2 {
             public:
             static x10aux::RuntimeVoidFunType rtt;
             static const x10aux::RuntimeType* getRTT() { if (!rtt.isInitialized) _initRTT(); return &rtt; }
             static void _initRTT();
 
             template <class I> struct itable {
-                itable(x10_boolean (I::*equals)(x10aux::ref<x10::lang::Any>),
+                itable(x10_boolean (I::*equals)(x10::lang::Any*),
                        x10_int (I::*hashCode)(),
                        void(I::*__apply)(P1,P2),
-                       x10aux::ref<x10::lang::String> (I::*toString)(),
-                       x10aux::ref<x10::lang::String> (I::*typeName)()
+                       x10::lang::String* (I::*toString)(),
+                       x10::lang::String* (I::*typeName)()
                     ) : equals(equals), hashCode(hashCode), __apply(__apply), toString(toString), typeName(typeName) {}
-                x10_boolean (I::*equals)(x10aux::ref<x10::lang::Any>);
+                x10_boolean (I::*equals)(x10::lang::Any*);
                 x10_int (I::*hashCode)();
                 void (I::*__apply)(P1,P2);
-                x10aux::ref<x10::lang::String> (I::*toString)();
-                x10aux::ref<x10::lang::String> (I::*typeName)();
+                x10::lang::String* (I::*toString)();
+                x10::lang::String* (I::*typeName)();
             };
 
-            static void __apply(x10aux::ref<x10::lang::Reference> recv, P1 arg1, P2 arg2) {
-                return (recv.operator->()->*(x10aux::findITable<VoidFun_0_2<P1,P2> >(recv->_getITables())->__apply))(arg1, arg2);
+            static void __apply(VoidFun_0_2<P1,P2>* fun, P1 arg1, P2 arg2) {
+                x10::lang::Reference* recv = reinterpret_cast<x10::lang::Reference*>(fun);
+                return (recv->*(x10aux::findITable<VoidFun_0_2<P1,P2> >(recv->_getITables())->__apply))(arg1, arg2);
             }
-            static x10_boolean equals(x10aux::ref<x10::lang::Reference> recv, x10aux::ref<x10::lang::Any> arg1) {
-                return (recv.operator->()->*(x10aux::findITable<VoidFun_0_2<P1,P2> >(recv->_getITables())->equals))(arg1);
+            static x10_boolean equals(VoidFun_0_2<P1,P2>* fun, x10::lang::Any* arg1) {
+                x10::lang::Reference* recv = reinterpret_cast<x10::lang::Reference*>(fun);
+                return (recv->*(x10aux::findITable<VoidFun_0_2<P1,P2> >(recv->_getITables())->equals))(arg1);
             }
-            static x10_int hashCode(x10aux::ref<x10::lang::Reference> recv) {
-                return (recv.operator->()->*(x10aux::findITable<VoidFun_0_2<P1,P2> >(recv->_getITables())->hashCode))();
+            static x10_int hashCode(VoidFun_0_2<P1,P2>* fun) {
+                x10::lang::Reference* recv = reinterpret_cast<x10::lang::Reference*>(fun);
+                return (recv->*(x10aux::findITable<VoidFun_0_2<P1,P2> >(recv->_getITables())->hashCode))();
             }
-            static x10aux::ref<x10::lang::String> toString(x10aux::ref<x10::lang::Reference> recv) {
-                return (recv.operator->()->*(x10aux::findITable<VoidFun_0_2<P1,P2> >(recv->_getITables())->toString))();
+            static x10::lang::String* toString(VoidFun_0_2<P1,P2>* fun) {
+                x10::lang::Reference* recv = reinterpret_cast<x10::lang::Reference*>(fun);
+                return (recv->*(x10aux::findITable<VoidFun_0_2<P1,P2> >(recv->_getITables())->toString))();
             }
-            static x10aux::ref<x10::lang::String> typeName(x10aux::ref<x10::lang::Reference> recv) {
-                return (recv.operator->()->*(x10aux::findITable<VoidFun_0_2<P1,P2> >(recv->_getITables())->typeName))();
+            static x10::lang::String* typeName(VoidFun_0_2<P1,P2>* fun) {
+                x10::lang::Reference* recv = reinterpret_cast<x10::lang::Reference*>(fun);
+                return (recv->*(x10aux::findITable<VoidFun_0_2<P1,P2> >(recv->_getITables())->typeName))();
             }
         };
 

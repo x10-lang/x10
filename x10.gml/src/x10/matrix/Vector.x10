@@ -45,7 +45,7 @@ public class Vector(M:Int) implements (Int) => Double {
 	//================================================================
 	// Vector data
 	//================================================================
-    public val d:Array[Double](1){rail};
+    public val d:Rail[Double];
 
 	//================================================================
 	// Constructor, and maker
@@ -53,12 +53,12 @@ public class Vector(M:Int) implements (Int) => Double {
 	/**
 	 * Constructor based ib a Rail in Double
 	 */
-    public def this(n:Int, x:Array[Double](1){rail}):Vector(n) {
+    public def this(n:Int, x:Rail[Double]):Vector(n) {
 		property(n);
 		this.d=x;
     }
 
-    public def this(x:Array[Double](1){rail}):Vector(x.size) {
+    public def this(x:Rail[Double]):Vector(x.size) {
     	property(x.size);
     	this.d=x;
     }
@@ -436,6 +436,17 @@ public class Vector(M:Int) implements (Int) => Double {
  	
  	public static def norm(a:Vector, b:Vector(a.M))=compDistance(a,b);
  	public def norm(V:Vector(M)) = compDistance(this, V);
+
+    /**
+     * Compute the maximum absolute value of all elements of this vector
+     * (the vector norm with p==Inf)
+     *
+     * @return max absolute value of any element
+     */
+    public def maxNorm():Double {
+        val maxAbsReducer = ((res : Double, a : Double) => Math.max(Math.abs(a), res));
+        return d.reduce(maxAbsReducer, 0.0);
+    }
  	
  	// Sum
  	public def sum():Double {

@@ -26,6 +26,7 @@ import polyglot.types.SemanticException;
 import polyglot.types.Type;
 import polyglot.types.Types;
 import polyglot.util.CodeWriter;
+import polyglot.util.CollectionUtil;
 import polyglot.util.Position;
 import polyglot.util.InternalCompilerError;
 import polyglot.visit.CFGBuilder;
@@ -48,6 +49,8 @@ import polyglot.types.TypeSystem;
 import x10.types.checker.Converter;
 import x10.types.checker.PlaceChecker;
 import x10.errors.Errors;
+import x10.extension.X10Del;
+import x10.extension.X10Ext;
 
 
 /** A <code>AtExpr</code> is a representation of the X10 at construct:
@@ -170,6 +173,16 @@ public class AtExpr_c extends Closure_c implements AtExpr {
 
     	AtExpr_c n = this.place(place);
     	n = (AtExpr_c) n.superVisitChildren(childtc.context(c));
+    	
+
+		List<AnnotationNode> oldAnnotations = ((X10Ext)n.ext()).annotations();
+		if (oldAnnotations != null && !oldAnnotations.isEmpty()) {
+			List<AnnotationNode> newAnnotations = visitList(oldAnnotations, v);
+			if (! CollectionUtil.allEqual(oldAnnotations, newAnnotations)) {
+				n = (AtExpr_c) ((X10Del) n.del()).annotations(newAnnotations);
+			}
+		}
+		
     	return tc.leave(parent, this, n, childtc);
     }
 

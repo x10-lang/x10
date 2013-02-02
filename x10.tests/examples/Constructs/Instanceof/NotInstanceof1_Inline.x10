@@ -31,11 +31,11 @@ public class NotInstanceof1_Inline extends x10Test {
 		return !(diffType instanceof X10DepTypeClassOneB{p==1});
 	}
 
-	private def getSameType():Object = {
+	private def getSameType():Any = {
 		return new X10DepTypeClassOneB(1);
 	}
 	
-	private def getDifferentType():Object = {
+	private def getDifferentType():Any = {
 		return new OtherClass(1);
 	}
 	

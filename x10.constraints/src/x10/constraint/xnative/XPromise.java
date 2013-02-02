@@ -313,7 +313,7 @@ public class XPromise<T extends XType> implements Serializable{
                                        + " cannot be bound to the already disequated " 
                                        + target + ".");
             }
-        if (!(target.equals(value)) && !target.equals(nodeLabel)) {
+        if (!target.equals(value) /*&& !target.equals(nodeLabel)*//*always true*/) {
             if (forwarded()) throw new XFailure("The promise " + this + 
                                    " is already bound to " + value 
                                    + "; cannot bind it to " + target + ".");
@@ -481,7 +481,7 @@ public class XPromise<T extends XType> implements Serializable{
             disEquals = CollectionFactory.newHashSet();
         disEquals.add(other);
     }
-    public boolean hasDisBindings() { return disEquals != null || ! disEquals.isEmpty();}
+    public boolean hasDisBindings() { return disEquals != null && ! disEquals.isEmpty();}
     
     /**
      * Is this promise asserted to be disequal to other?

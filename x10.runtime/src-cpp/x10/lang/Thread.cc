@@ -24,7 +24,7 @@
 
 #include <x10/lang/Debug.h>
 #include <x10/lang/InterruptedException.h>
-#include <x10/lang/IllegalThreadStateException.h>
+#include <x10/lang/IllegalArgumentException.h>
 #include <x10/lang/Runtime__Worker.h>
 
 #include <unistd.h>
@@ -85,13 +85,11 @@ x10::lang::Thread::thread_start_routine(void *arg)
 }
 
 
-ref<Thread>
-Thread::_make(ref<x10::lang::String> name) {
+Thread* Thread::_make(x10::lang::String* name) {
     return (new (alloc<Thread>()) Thread())->_constructor(name);
 }
 
-ref<Thread>
-Thread::_make() {
+Thread* Thread::_make() {
     return NULL;
 }
 
@@ -149,7 +147,7 @@ void Thread::thread_bind_cpu()
 
 // Helper method to initialize a Thread object.
 void
-Thread::thread_init(const ref<String> name)
+Thread::thread_init(String* name)
 {
     __xrxDPrStart();
     // increment the overall thread count
@@ -162,7 +160,7 @@ Thread::thread_init(const ref<String> name)
     __thread_already_started = false;
     __thread_running = false;
 
-	__current_worker = X10_NULL;
+	__current_worker = NULL;
     __thread_name = String::_make(name);
 
     // create start condition object with default attributes
@@ -272,11 +270,10 @@ Thread::~Thread()
 }
 
 // Returns a reference to the currently executing thread object.
-ref<Thread>
-Thread::currentThread(void)
+Thread* Thread::currentThread(void)
 {
     Thread *tp = (Thread *)pthread_getspecific(__thread_mapper);
-    return ref<Thread>(tp);
+    return tp;
 }
 
 // Begin thread execution.
@@ -285,7 +282,7 @@ Thread::start(void)
 {
     __xrxDPrStart();
     if (__thread_already_started) {
-        throwException<IllegalThreadStateException>();
+        throwException<IllegalArgumentException>();
     }
     pthread_mutex_lock(&__thread_start_lock);
     __thread_already_started = true;
@@ -444,7 +441,7 @@ Thread::thread_permit_cleanup(void *arg)
 void
 Thread::park(void)
 {
-    ref<Thread> th = currentThread();
+    Thread* th = currentThread();
     permit_t *perm = &(th->__thread_permit);
 
     pthread_mutex_lock(&(perm->mutex));
@@ -464,7 +461,7 @@ Thread::park(void)
 void
 Thread::parkNanos(x10_long nanos)
 {
-    ref<Thread> th = currentThread();
+    Thread* th = currentThread();
     permit_t *perm = &(th->__thread_permit);
     struct timeval tval;
     struct timespec tout;
@@ -512,7 +509,7 @@ Thread::unpark()
 }
 
 // Returns the current worker.
-ref<Runtime__Worker>
+Runtime__Worker*
 Thread::worker(void)
 {
     return __current_worker;
@@ -526,7 +523,7 @@ Thread::home(void)
 
 // Set the current worker.
 void
-Thread::worker(ref<Runtime__Worker> worker)
+Thread::worker(Runtime__Worker* worker)
 {
     __current_worker = worker;
 }
@@ -546,7 +543,7 @@ Thread::getTid()
 }
 
 // Returns this thread's name.
-const ref<String>
+String*
 Thread::name(void)
 {
     return __thread_name;
@@ -554,7 +551,7 @@ Thread::name(void)
 
 // Set the name of this thread.
 void
-Thread::name(ref<String> name)
+Thread::name(String* name)
 {
     __thread_name = name;
 }
@@ -564,20 +561,18 @@ void Thread::__apply()
 }
 
 void Thread::_serialize_body(serialization_buffer &buf) {
-    this->Object::_serialize_body(buf);
 }
 
 void Thread::_deserialize_body(deserialization_buffer& buf) {
-    this->Object::_deserialize_body(buf);
 }
 
-x10aux::ref<x10::lang::Reference> Thread::_deserializer(x10aux::deserialization_buffer &buf) {
-    x10aux::ref<Thread> this_ = new (x10aux::alloc<Thread>()) Thread();
+x10::lang::Reference* Thread::_deserializer(x10aux::deserialization_buffer &buf) {
+    Thread* this_ = new (x10aux::alloc<Thread>()) Thread();
     buf.record_reference(this_); 
     this_->_deserialize_body(buf);
     return this_;
 }
 
-RTT_CC_DECLS1(Thread, "x10.lang.Thread", RuntimeType::class_kind, Object)
+RTT_CC_DECLS0(Thread, "x10.lang.Thread", RuntimeType::class_kind)
 
 // vim:tabstop=4:shiftwidth=4:expandtab

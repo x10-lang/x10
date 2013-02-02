@@ -31,8 +31,6 @@ package x10.util;
  *   }
  * }
  * 
- * @author tardieu
- * 
  */
 public class WorkerLocalStorage[Key,Value] {
     private val store = PlaceLocalHandle.make(PlaceGroup.WORLD,

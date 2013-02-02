@@ -13,14 +13,15 @@
 #define X10AUX_NETWORK_H
 
 #include <x10aux/config.h>
-#include <x10aux/network.h>
 
 #include <x10rt_front.h>
 #include <x10rt_cpp.h>
 
 namespace x10 { namespace lang { class VoidFun_0_0; } }
+namespace x10 { namespace lang { class FinishState; } }
 namespace x10 { namespace lang { class Reference; } }
 namespace x10 { namespace lang { class String; } }
+namespace x10 { namespace lang { class Runtime__Profile; } }
 namespace x10 { namespace util { template <class K, class V> class HashMap; } }
 
 namespace x10aux {
@@ -145,14 +146,12 @@ namespace x10aux {
 
 }
 
-#include <x10aux/ref.h>
-
 namespace x10aux {
 
-    x10aux::ref<x10::util::HashMap<x10aux::ref<x10::lang::String>,x10aux::ref<x10::lang::String> > > loadenv();
+    x10::util::HashMap<x10::lang::String*, x10::lang::String*>* loadenv();
 
-    void run_closure_at (place p, x10aux::ref<x10::lang::Reference> body, endpoint e=0);
-    void run_async_at (place p, x10aux::ref<x10::lang::Reference> body, x10aux::ref<x10::lang::Reference> fs, endpoint e=0);
+    void run_closure_at (place p, x10::lang::VoidFun_0_0* body, x10::lang::Runtime__Profile *prof=NULL, endpoint e=0);
+    void run_async_at (place p, x10::lang::VoidFun_0_0* body, x10::lang::FinishState* fs, x10::lang::Runtime__Profile *prof=NULL, endpoint e=0);
 
     class serialization_buffer;
 

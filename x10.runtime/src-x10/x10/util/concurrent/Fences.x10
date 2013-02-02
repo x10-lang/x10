@@ -12,21 +12,23 @@
 package x10.util.concurrent;
 
 import x10.compiler.Native;
+import x10.compiler.NativeCPPInclude;
 
+@NativeCPPInclude("x10aux/atomic_ops.h")
 public class Fences {
-    @Native("java", "x10.runtime.impl.java.Fences.loadLoadBarrier()")
+    @Native("java", "x10.runtime.impl.java.FencesUtils.loadLoadBarrier()")
     @Native("c++", "x10aux::atomic_ops::load_load_barrier()")
     public static native def loadLoadBarrier():void;
 
-    @Native("java", "x10.runtime.impl.java.Fences.loadStoreBarrier()")
+    @Native("java", "x10.runtime.impl.java.FencesUtils.loadStoreBarrier()")
     @Native("c++", "x10aux::atomic_ops::load_store_barrier()")
     public static native def loadStoreBarrier():void;
 
-    @Native("java", "x10.runtime.impl.java.Fences.storeLoadBarrier()")
+    @Native("java", "x10.runtime.impl.java.FencesUtils.storeLoadBarrier()")
     @Native("c++", "x10aux::atomic_ops::store_load_barrier()")
     public static native def storeLoadBarrier():void;
 
-    @Native("java", "x10.runtime.impl.java.Fences.storeStoreBarrier()")
+    @Native("java", "x10.runtime.impl.java.FencesUtils.storeStoreBarrier()")
     @Native("c++", "x10aux::atomic_ops::store_store_barrier()")
     public static native def storeStoreBarrier():void;
 }

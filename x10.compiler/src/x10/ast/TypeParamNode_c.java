@@ -117,6 +117,7 @@ public class TypeParamNode_c extends Term_c implements TypeParamNode {
 	    pp.print(this, name, w);
 	}
 	public List<Type> upperBounds() {
+	    assert false : "X10 compiler doesn't support this. see XTENLANG-3086";
 		Type type = type();
 		TypeSystem ts = (TypeSystem) type.typeSystem();
 		Context xc =  ts.emptyContext();

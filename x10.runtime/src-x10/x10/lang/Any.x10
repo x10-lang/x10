@@ -18,12 +18,9 @@ import x10.compiler.NoThisAccess;
 /**
  * The top of the type hierarchy.
  * Implemented by all classes and structs.
- * 
- *
- * @author vj 12/14/09
  */
 @NativeRep("java", "java.lang.Object", null, "x10.rtt.Types.ANY")
-@NativeRep("c++", "x10aux::ref<x10::lang::Any>", "x10::lang::Any", null)
+@NativeRep("c++", "x10::lang::Any*", "x10::lang::Any", null)
 public interface Any {
 
     /**

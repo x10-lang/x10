@@ -6,10 +6,14 @@
  *  You may obtain a copy of the License at
  *      http://www.opensource.org/licenses/eclipse-1.0.php
  *
- *  (C) Copyright IBM Corporation 2006-2010.
+ *  (C) Copyright IBM Corporation 2006-2012.
  */
 
 package x10.lang;
+
+import x10.compiler.Native;
+import x10.compiler.NativeRep;
+
 
 /**
  * An Error is a subclass of Throwable that indicates serious problems that a reasonable
@@ -20,19 +24,30 @@ package x10.lang;
  * might be thrown during the execution of the method but not caught, since these errors
  * are abnormal conditions that should never occur.
  */
-public class Error extends Throwable {
+@NativeRep("java", "java.lang.Error", null, "x10.rtt.Types.ERROR")
+public class Error extends CheckedThrowable {
 
     /**
      * Construct an Error with no detail message and no cause.
      */
-    public def this() { super(); } 
+    @Native("java", "new java.lang.Error()")
+    public def this() { super(); }
 
     /**
      * Construct an Error with the specified detail message and no cause.
      *
      * @param message the detail message
      */
-    public def this(message: String) { super(message); } 
+    @Native("java", "new java.lang.Error(#message)")
+    public def this(message: String) { super(message); }
+
+    /**
+     * Construct an Error with no detail message and the specified cause.
+     *
+     * @param cause the cause
+     */
+    @Native("java", "new java.lang.Error(#cause)")
+    public def this(cause: CheckedThrowable) { super(cause); }
 
     /**
      * Construct an Error with the specified detail message and the specified cause.
@@ -40,14 +55,9 @@ public class Error extends Throwable {
      * @param message the detail message
      * @param cause the cause
      */
-    public def this(message: String, cause: Throwable) { super(message, cause); }
+    @Native("java", "new java.lang.Error(#message, #cause)")
+    public def this(message: String, cause: CheckedThrowable) { super(message, cause); }
 
-    /**
-     * Construct an Error with no detail message and the specified cause.
-     *
-     * @param cause the cause
-     */
-    public def this(cause: Throwable) { super(cause); } 
 }
 
 // vim:tabstop=4:shiftwidth=4:expandtab

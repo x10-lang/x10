@@ -21,14 +21,14 @@ public class GenericOverPrimitives3x extends GenericTest {
 
     public def run(): boolean = {
         
-        class A[T]{T<:(int)=>char} {
+        class A[T]{T<:Comparable[T]} {
             val t:T;
             def this(t:T) = {this.t=t;}
-            def get(i:int) = t(i);
+            def get(that:T) = t.compareTo(that);
         }
 
         a:A[String] = new A[String]("012");
-        check("a.get(1)", a.get(1), '1');
+        genericCheck("a.get(1)", a.get("013"), -1);
 
         return result;
     }

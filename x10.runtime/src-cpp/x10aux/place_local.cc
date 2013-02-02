@@ -12,6 +12,7 @@
 #include <assert.h>
 
 #include <x10aux/place_local.h>
+#include <x10aux/lock.h>
 #include <x10aux/basic_functions.h>
 
 using namespace x10::lang;

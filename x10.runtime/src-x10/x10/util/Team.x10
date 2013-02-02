@@ -21,9 +21,6 @@ import x10.compiler.StackAllocate;
  * of the team identifies itself using the 'role' integer, which is a value
  * from 0 to team.size() - 1.  Each member can only live at a particular place,
  * which is indicated by the user when the Team is created.
- *
- * @author Dave Cunningham
- * @author tardieu
  */
 public struct Team {
 

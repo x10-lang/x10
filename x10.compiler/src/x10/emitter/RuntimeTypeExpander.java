@@ -115,10 +115,10 @@ final public class RuntimeTypeExpander extends Expander {
             Type ret = ct.returnType();
             
             // XTENLANG-1102
-            if (args.size() > 0) {
+            if (args.size() > 0 || !ret.isVoid()) {
                 er.w.write("x10.rtt.ParameterizedType.make(");
-                printFunRTT(ct, args, ret);
-                for (Type a:args) {
+                printFunRTT(ct);
+                for (Type a : args) {
                     er.w.write(",");
                     new RuntimeTypeExpander(er, a).expand(tr);
                 }
@@ -129,7 +129,7 @@ final public class RuntimeTypeExpander extends Expander {
                 er.w.write(")");
             }
             else {
-                printFunRTT(ct, args, ret);
+                printFunRTT(ct);
             }
             return;
         }
@@ -190,10 +190,12 @@ final public class RuntimeTypeExpander extends Expander {
                     } else {
                         name = null;
                     }
-            		component = new TypeExpander(er, at, PRINT_TYPE_PARAMS);
+                    // for RTT of Java.array[Comparable[Int]] -> x10.rtt.Types.getRTT(java.lang.Comparable/*<x10.core.Int>*/[].class)
+                    int printTypeParamsIfNotNativeRepedToJava = Emitter.isNativeRepedToJava(at) ? 0 : PRINT_TYPE_PARAMS;
+                    component = new TypeExpander(er, at, printTypeParamsIfNotNativeRepedToJava);
 //                	components.put(String.valueOf(i++), component); // N.B. don't use number index to avoid breaking existing code
                     if (name != null) { components.put(name, component); }
-            		component = new TypeExpander(er, at, PRINT_TYPE_PARAMS | BOX_PRIMITIVES);
+                    component = new TypeExpander(er, at, printTypeParamsIfNotNativeRepedToJava | BOX_PRIMITIVES);
                 	components.put(String.valueOf(i++), component);
                     if (name != null) { components.put(name+Emitter.NATIVE_ANNOTATION_BOXED_REP_SUFFIX, component); }
             		component = new RuntimeTypeExpander(er, at);
@@ -218,47 +220,47 @@ final public class RuntimeTypeExpander extends Expander {
         er.w.write(")");
     }
 
-    private void printFunRTT(FunctionType ct, List<Type> args, Type ret) {
-        if (ret.isVoid()) {
+    private void printFunRTT(FunctionType ct) {
+        if (ct.returnType().isVoid()) {
             er.w.write(X10PrettyPrinterVisitor.X10_VOIDFUN_CLASS_PREFIX);
         } else {
             er.w.write(X10PrettyPrinterVisitor.X10_FUN_CLASS_PREFIX);
         }
         er.w.write("_" + ct.typeParameters().size());
-        er.w.write("_" + args.size());
+        er.w.write("_" + ct.argumentTypes().size());
         er.w.write("." + X10PrettyPrinterVisitor.RTT_NAME);
     }
 
     String typeof(Type t) {
         if (t.isBoolean())
-            return "x10.rtt.Types.BOOLEAN";
+            return X10PrettyPrinterVisitor.X10_RTT_TYPES + ".BOOLEAN";
         if (t.isChar())
-            return "x10.rtt.Types.CHAR";
+            return X10PrettyPrinterVisitor.X10_RTT_TYPES + ".CHAR";
         if (t.isNumeric()) {
             TypeSystem ts = (TypeSystem) er.tr.typeSystem();
             if (t.isUnsignedNumeric()) {
                 if (t.isUByte())
-                    return "x10.rtt.Types.UBYTE";
+                    return X10PrettyPrinterVisitor.X10_RTT_TYPES + ".UBYTE";
                 if (t.isUShort())
-                    return "x10.rtt.Types.USHORT";
+                    return X10PrettyPrinterVisitor.X10_RTT_TYPES + ".USHORT";
                 if (t.isUInt())
-                    return "x10.rtt.Types.UINT";
+                    return X10PrettyPrinterVisitor.X10_RTT_TYPES + ".UINT";
                 if (t.isULong())
-                    return "x10.rtt.Types.ULONG";
+                    return X10PrettyPrinterVisitor.X10_RTT_TYPES + ".ULONG";
             } else if (t.isSignedNumeric()) {
                 if (t.isByte())
-                    return "x10.rtt.Types.BYTE";
+                    return X10PrettyPrinterVisitor.X10_RTT_TYPES + ".BYTE";
                 if (t.isShort())
-                    return "x10.rtt.Types.SHORT";
+                    return X10PrettyPrinterVisitor.X10_RTT_TYPES + ".SHORT";
                 if (t.isInt())
-                    return "x10.rtt.Types.INT";
+                    return X10PrettyPrinterVisitor.X10_RTT_TYPES + ".INT";
                 if (t.isLong())
-                    return "x10.rtt.Types.LONG";
+                    return X10PrettyPrinterVisitor.X10_RTT_TYPES + ".LONG";
             } else {
                 if (t.isFloat())
-                    return "x10.rtt.Types.FLOAT";
+                    return X10PrettyPrinterVisitor.X10_RTT_TYPES + ".FLOAT";
                 if (t.isDouble())
-                    return "x10.rtt.Types.DOUBLE";
+                    return X10PrettyPrinterVisitor.X10_RTT_TYPES + ".DOUBLE";
             }
         }
         return null;

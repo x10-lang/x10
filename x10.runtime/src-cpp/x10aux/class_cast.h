@@ -14,12 +14,9 @@
 
 #include <x10aux/config.h>
 #include <x10aux/throw.h>
-
 #include <x10aux/RTT.h>
-#include <x10aux/ref.h>
 #include <x10aux/basic_functions.h>
 
-#include <x10/lang/Reference.h>
 #include <x10/lang/IBox.h>
 
 namespace x10aux {
@@ -30,17 +27,13 @@ namespace x10aux {
      *  F stands for "from"
      */
     
-    extern void throwClassCastException(const RuntimeType *from, const RuntimeType *to) X10_PRAGMA_NORETURN;
-    extern void throwClassCastException(const char *msg) X10_PRAGMA_NORETURN;
-
-    
     template<typename T, typename F> GPUSAFE T class_cast(F obj);
     template<typename T, typename F> GPUSAFE T class_cast(F obj, bool checked);
 
-    template<class T> static inline GPUSAFE ref<T> real_class_cast(ref<x10::lang::Reference> obj, bool checked) {
-        if (checked && !obj.isNull()) {
+    template<class T> static inline GPUSAFE T* real_class_cast(x10::lang::Reference* obj, bool checked) {
+        if (checked && NULL != obj) {
             const RuntimeType *from = obj->_type();
-            const RuntimeType *to = getRTT<ref<T> >();
+            const RuntimeType *to = getRTT<T>();
             #ifndef NO_EXCEPTIONS
             _CAST_(from->name()<<" to "<<to->name());
             if (!from->subtypeOf(to)) {
@@ -51,7 +44,7 @@ namespace x10aux {
             _CAST_("UNCHECKED! "<<from->name()<<" to "<<to->name());
             #endif
         }
-        return static_cast<ref<T> >(obj);
+        return reinterpret_cast<T*>(obj);
     }
 
     // ClassCastNotPrimitive
@@ -77,19 +70,20 @@ namespace x10aux {
         return dummy;
     } };
 
-    template<class T, class F> struct ClassCastNotPrimitive<ref<T>,ref<F> > {
-        static GPUSAFE ref<T> _(ref<F> obj, bool checked) {
+    template<class T, class F> struct ClassCastNotPrimitive<T*, F*> {
+        static GPUSAFE T* _(F* obj, bool checked) {
             _CAST_("Ref to ref cast "<<TYPENAME(F)<<" to "<<TYPENAME(T));
-            return real_class_cast<T>(obj, checked);
+            x10::lang::Reference* objAsRef = reinterpret_cast<x10::lang::Reference*>(obj);
+            return real_class_cast<T>(objAsRef, checked);
         }
     };
 
-    template<class T, class F> struct ClassCastNotPrimitive<ref<T>,F> {
-        static GPUSAFE ref<T> _(F val, bool checked) {
+    template<class T, class F> struct ClassCastNotPrimitive<T*, F> {
+        static GPUSAFE T* _(F val, bool checked) {
             _CAST_("Struct to ref cast "<<TYPENAME(F)<<" to "<<TYPENAME(T));
             if (checked) {
                 const RuntimeType *from = getRTT<F>();
-                const RuntimeType *to = getRTT<ref<T> >();
+                const RuntimeType *to = getRTT<T>();
                 #ifndef NO_EXCEPTIONS
                 _CAST_(from->name()<<" to "<<to->name());
                 if (!from->subtypeOf(to)) {
@@ -100,22 +94,22 @@ namespace x10aux {
                 _CAST_("UNCHECKED! "<<from->name()<<" to "<<to->name());
                 #endif
             }
-            x10aux::ref<x10::lang::IBox<F> > obj = new (x10aux::alloc<x10::lang::IBox<F> >()) x10::lang::IBox<F>(val);
-            return obj;
+            x10::lang::IBox<F>* obj = new (x10aux::alloc<x10::lang::IBox<F> >()) x10::lang::IBox<F>(val);
+            return reinterpret_cast<T*>(obj);
         }
     };
     
-    template<class T, class F> struct ClassCastNotPrimitive<T,ref<F> > {
-        static GPUSAFE T _(ref<F> val, bool checked) {
+    template<class T, class F> struct ClassCastNotPrimitive<T, F*> {
+        static GPUSAFE T _(F* val, bool checked) {
             const RuntimeType *to = getRTT<T>();
             _CAST_("Ref to struct cast "<<TYPENAME(F)<<" to "<<TYPENAME(T));
-            if (val.isNull()) {
+            if (NULL == val) {
                 // NULL cannot be cast to a struct.
                 _CAST_("Special case: null cannot be cast to "<<TYPENAME(T));
                 throwClassCastException(NULL, to);
             }
             if (checked) {
-                x10aux::ref<x10::lang::Reference> asRef = val;
+                x10::lang::Reference* asRef = reinterpret_cast<x10::lang::Reference*>(val);
                 const RuntimeType *from = asRef->_type();
                 #ifndef NO_EXCEPTIONS
                 _CAST_(from->name()<<" to "<<to->name());
@@ -127,7 +121,7 @@ namespace x10aux {
                 _CAST_("UNCHECKED! "<<from->name()<<" to "<<to->name());
                 #endif
             }
-            x10aux::ref<x10::lang::IBox<T> > ibox = val;
+            x10::lang::IBox<T>* ibox = reinterpret_cast<x10::lang::IBox<T>*>(val);
             return ibox->value; 
         }
     };
@@ -264,8 +258,6 @@ namespace x10aux {
         return ClassCast<T,F>::_(obj, false);
     }
 }
-
-    
 
 #endif
 // vim:tabstop=4:shiftwidth=4:expandtab

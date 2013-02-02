@@ -11,25 +11,26 @@
 
 package x10.core;
 
+import java.io.IOException;
+
 import x10.rtt.RuntimeType;
 import x10.rtt.Type;
 import x10.rtt.Types;
-import x10.x10rt.X10JavaDeserializer;
-import x10.x10rt.X10JavaSerializable;
-import x10.x10rt.X10JavaSerializer;
-
-import java.io.IOException;
+import x10.serialization.X10JavaDeserializer;
+import x10.serialization.X10JavaSerializable;
+import x10.serialization.X10JavaSerializer;
 
 /**
  * Represents a boxed Int value. Boxed representation is used when casting
  * an Int value to type Any, parameter type T or superinterfaces such
  * as Comparable<Int>.
  */
-final public class Int extends Number implements StructI, java.lang.Comparable<Int>,
-    x10.lang.Arithmetic<Int>, x10.lang.Bitwise<Int>, x10.util.Ordered<Int>
+final public class Int extends java.lang.Number implements StructI, java.lang.Comparable<Int>,
+// for X10PrettyPrinterVisitor.exposeSpecialDispatcherThroughSpecialInterface
+//    x10.lang.Arithmetic<Int>, x10.lang.Bitwise<Int>, x10.util.Ordered<Int>
+    x10.core.Arithmetic.x10$lang$Int, x10.core.Bitwise.x10$lang$Int, x10.util.Ordered<Int>
 {
     private static final long serialVersionUID = 1L;
-    private static final short _serialization_id = x10.x10rt.DeserializationDispatcher.addDispatcher(x10.x10rt.DeserializationDispatcher.ClosureKind.CLOSURE_KIND_NOT_ASYNC, Int.class);
     
     public static final RuntimeType<?> $RTT = Types.INT;
     public RuntimeType<?> $getRTT() {return $RTT;}
@@ -138,15 +139,24 @@ final public class Int extends Number implements StructI, java.lang.Comparable<I
     public Int $minus(java.lang.Object b, Type t) { return Int.$box($value - ((Int)b).$value); }
     public Int $times(java.lang.Object b, Type t) { return Int.$box($value * ((Int)b).$value); }
     public Int $over(java.lang.Object b, Type t) { return Int.$box($value / ((Int)b).$value); }
+    // for X10PrettyPrinterVisitor.exposeSpecialDispatcherThroughSpecialInterface
+    public int $plus$I(java.lang.Object b, Type t) { return $value + ((Int)b).$value; }
+    public int $minus$I(java.lang.Object b, Type t) { return $value - ((Int)b).$value; }
+    public int $times$I(java.lang.Object b, Type t) { return $value * ((Int)b).$value; }
+    public int $over$I(java.lang.Object b, Type t) { return $value / ((Int)b).$value; }
     
     // implements Bitwise<Int>
     public Int $tilde$G() { return Int.$box(~$value); }
     public Int $ampersand(java.lang.Object b, Type t) { return Int.$box($value & ((Int)b).$value); }
     public Int $bar(java.lang.Object b, Type t) { return Int.$box($value | ((Int)b).$value); }
     public Int $caret(java.lang.Object b, Type t) { return Int.$box($value ^ ((Int)b).$value); }
-    public Int $left$G(final int count) { return Int.$box($value << count); }
-    public Int $right$G(final int count) { return Int.$box($value >> count); }
-    public Int $unsigned_right$G(final int count) { return Int.$box($value >>> count); }
+    public Int $left$G(int count) { return Int.$box($value << count); }
+    public Int $right$G(int count) { return Int.$box($value >> count); }
+    public Int $unsigned_right$G(int count) { return Int.$box($value >>> count); }
+    // for X10PrettyPrinterVisitor.exposeSpecialDispatcherThroughSpecialInterface
+    public int $ampersand$I(java.lang.Object b, Type t) { return $value & ((Int)b).$value; }
+    public int $bar$I(java.lang.Object b, Type t) { return $value | ((Int)b).$value; }
+    public int $caret$I(java.lang.Object b, Type t) { return $value ^ ((Int)b).$value; }
     
     // implements Ordered<Int>
     public java.lang.Object $lt(java.lang.Object b, Type t) { return x10.core.Boolean.$box($value < ((Int)b).$value); }
@@ -177,22 +187,18 @@ final public class Int extends Number implements StructI, java.lang.Comparable<I
         return (double)$value;
     }
 
-    public void $_serialize(X10JavaSerializer serializer) throws IOException {
-        serializer.write($value);
+    public void $_serialize(X10JavaSerializer $serializer) throws IOException {
+        $serializer.write($value);
     }
 
-    public short $_get_serialization_id() {
-        return _serialization_id;
+    public static X10JavaSerializable $_deserializer(X10JavaDeserializer $deserializer) throws IOException {
+        return $_deserialize_body(null, $deserializer);
     }
 
-    public static X10JavaSerializable $_deserializer(X10JavaDeserializer deserializer) throws IOException {
-        return $_deserialize_body(null, deserializer);
-    }
-
-    public static X10JavaSerializable $_deserialize_body(Int i, X10JavaDeserializer deserializer) throws IOException {
-        int value  = deserializer.readInt();
-        i = new Int(value);
-        deserializer.record_reference(i);
-        return i;
+    public static X10JavaSerializable $_deserialize_body(Int $_obj, X10JavaDeserializer $deserializer) throws IOException {
+        int value  = $deserializer.readInt();
+        $_obj = new Int(value);
+        $deserializer.record_reference($_obj);
+        return $_obj;
     }
 }

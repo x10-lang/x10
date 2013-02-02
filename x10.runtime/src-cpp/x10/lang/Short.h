@@ -9,7 +9,27 @@
  *  (C) Copyright IBM Corporation 2006-2010.
  */
 
-/*
- * Empty header file for NativeRep class that doesn't require a
- * C++ implementation
- */
+#ifndef X10_LANG_SHORT_H
+#define X10_LANG_SHORT_H
+
+#include <x10aux/config.h>
+
+namespace x10 {
+    namespace lang {
+        class String;
+        
+        class ShortNatives {
+        public:
+            static String* toString(x10_short value, x10_int radix);
+            static String* toString(x10_short value);
+            static x10_short parseShort(String* s, x10_int radix);
+            static x10_short parseShort(String* s) { return parseShort(s, 10); }
+            static x10_short reverseBytes(x10_short value);
+            static inline x10_int compareTo(x10_short v1, x10_short v2) {
+                return v1 == v2 ? 0 : (v1 < v2 ? -1 : 1);
+        }
+        };
+    }
+}
+
+#endif /* X10_LANG_SHORT_H */

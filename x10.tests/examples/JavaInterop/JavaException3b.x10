@@ -10,7 +10,6 @@
  */
 
 import harness.x10Test;
-import x10.interop.java.Throws;
 
 // MANAGED_X10_ONLY
 
@@ -20,10 +19,10 @@ public class JavaException3b extends x10Test {
 	}
 	
 	static class Sub extends Sup {
-		def this():Sub @Throws[java.lang.Throwable] {
-			throw new java.lang.Throwable("I like Java.");          
+		def this() throws x10.lang.CheckedThrowable : Sub {
+			throw new x10.lang.CheckedThrowable("I like Java.");          
 		}
-		def this(a:Int):Sub @Throws[java.lang.Throwable] {
+		def this(a:Int) throws x10.lang.CheckedThrowable : Sub {
 			this();
 		}
 	}
@@ -32,7 +31,7 @@ public class JavaException3b extends x10Test {
     	var pass: Boolean = false;
     	try {
     		new Sub();
-    	} catch (e:java.lang.Throwable) {
+    	} catch (e:x10.lang.CheckedThrowable) {
     		pass = true;
     		//e.printStackTrace();
     	}

@@ -28,7 +28,7 @@ public class GenericOverPrimitives2 extends GenericTest {
         }
 
         a:A[double] = new A[double](1);
-        check("a.get()", a.get(), 1.0);
+        genericCheck("a.get()", a.get(), 1.0);
 
         return result;
     }

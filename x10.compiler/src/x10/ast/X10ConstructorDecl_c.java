@@ -95,11 +95,12 @@ public class X10ConstructorDecl_c extends ConstructorDecl_c implements X10Constr
     protected List<TypeParamNode> typeParameters;
     protected TypeNode hasType;
     protected TypeNode offerType; 
+    protected List<TypeNode> throwsTypes;
     
     public X10ConstructorDecl_c(Position pos, FlagsNode flags, 
             Id name, TypeNode returnType, 
             List<TypeParamNode> typeParams, List<Formal> formals, 
-            DepParameterExpr guard,  TypeNode offerType, Block body) {
+            DepParameterExpr guard,  TypeNode offerType, List<TypeNode> throwsTypes, Block body) {
         super(pos, flags,  name, formals,  body);
         // null, not unknown. 
         this.returnType = returnType instanceof HasTypeNode_c ? null : returnType; 
@@ -108,6 +109,7 @@ public class X10ConstructorDecl_c extends ConstructorDecl_c implements X10Constr
         this.guard = guard;
         this.typeParameters = TypedList.copyAndCheck(typeParams, TypeParamNode.class, true);
         this.offerType = offerType;
+        this.throwsTypes = throwsTypes;
     }
     
     public TypeNode returnType() {
@@ -133,6 +135,17 @@ public class X10ConstructorDecl_c extends ConstructorDecl_c implements X10Constr
             return n;
         }
         return this;
+    }
+    public List<TypeNode> throwsTypes() {
+    	return throwsTypes;
+    }
+    public X10ConstructorDecl_c throwsTypes(List<TypeNode> throwsTypes) {
+    	if (this.throwsTypes != throwsTypes)  {
+    		X10ConstructorDecl_c n = (X10ConstructorDecl_c) copy();
+    		n.throwsTypes = throwsTypes;
+    		return n;
+    	}
+    	return this;
     }
     protected X10ConstructorDecl_c hasType(TypeNode hasType) {
     	if (this.hasType != hasType)  {
@@ -301,6 +314,12 @@ public class X10ConstructorDecl_c extends ConstructorDecl_c implements X10Constr
         }
         ci.setFormalNames(formalNames);
 
+        List<Ref<? extends Type>> throw_types = new ArrayList<Ref<? extends Type>>();
+        for (TypeNode tn : n.throwsTypes()) {
+            throw_types.add(tn.typeRef());
+        }
+        ci.setThrowTypes(throw_types);
+        
         // add sythetic super and property call to the body (if there isn't this(...) call)
         Block body = n.body();
         if (body!=null) {
@@ -445,6 +464,8 @@ public class X10ConstructorDecl_c extends ConstructorDecl_c implements X10Constr
     	result = (X10ConstructorDecl_c) result.guard(guard);
     	TypeNode htn = (TypeNode) result.visitChild(result.hasType, v);
     	result = (X10ConstructorDecl_c) result.hasType(htn);
+		List<TypeNode> throwsTypes = visitList(result.throwsTypes, v);
+    	result = (X10ConstructorDecl_c) result.throwsTypes(throwsTypes);
     	return result;
     }
 
@@ -579,7 +600,8 @@ public class X10ConstructorDecl_c extends ConstructorDecl_c implements X10Constr
         }
 
         // Step I.c. Check the throw types
-    
+        List<TypeNode> processedThrowsTypes = nn.visitList(nn.throwsTypes(), childtc);
+        nn = (X10ConstructorDecl) nn.throwsTypes(processedThrowsTypes);        
 
         X10ConstructorDef nnci = (X10ConstructorDef) nn.constructorDef();
 
@@ -642,28 +664,7 @@ public class X10ConstructorDecl_c extends ConstructorDecl_c implements X10Constr
                 }
             }
         }
-        
-        List<Ref<? extends Type>> throw_types = new ArrayList<Ref<? extends Type>>();
-        for (Type t : AnnotationUtils.getThrowsTypes(this)) {
-            throw_types.add(Types.ref(t));
-        }
-        nn.constructorDef().setThrowTypes(throw_types);
-
-        // [DC] cannot use annotationNodesMatching as it does not handle the [T] in Throws[T]
-        List<AnnotationNode> bodyAnnotations = AnnotationUtils.annotationNodesNamed(nn.body(), xts.Throws().fullName());
-        List<AnnotationNode> rtypeAnnotations = AnnotationUtils.annotationNodesNamed(nn.returnType(), xts.Throws().fullName());
-        if ((bodyAnnotations != null && !bodyAnnotations.isEmpty()) ||
-            (rtypeAnnotations != null && !rtypeAnnotations.isEmpty()))
-        {
-            List<Ref<? extends Type>> annotations = new ArrayList<Ref<? extends Type>>(nn.constructorDef().defAnnotations());
-            for (AnnotationNode an : bodyAnnotations) {
-                annotations.add(an.annotationType().typeRef());
-            }
-            for (AnnotationNode an : rtypeAnnotations) {
-                annotations.add(an.annotationType().typeRef());
-            }
-            nn.constructorDef().setDefAnnotations(annotations);
-        }
+       
 
         return nn;
     }

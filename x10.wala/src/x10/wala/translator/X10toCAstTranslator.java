@@ -79,7 +79,6 @@ import polyglot.ast.StringLit;
 import polyglot.ast.Switch;
 import polyglot.ast.SwitchBlock;
 import polyglot.ast.SwitchElement;
-import polyglot.ast.Synchronized;
 import polyglot.ast.Throw;
 import polyglot.ast.TopLevelDecl;
 import polyglot.ast.Try;
@@ -1287,22 +1286,6 @@ public class X10toCAstTranslator implements TranslatorToCAst {
         return makeNode(wc, fFactory, s, CAstNode.BLOCK_STMT, switchAst, breakAst);
       }
 
-      public CAstNode visit(Synchronized s, WalkContext wc) {
-        CAstNode exprNode = walkNodes(s.expr(), wc);
-        String exprName = fFactory.makeUnique();
-        CAstNode declStmt = makeNode(wc, fFactory, s, CAstNode.DECL_STMT, fFactory.makeConstant(new CAstSymbolImpl(exprName, true)),
-            exprNode);
-        CAstNode monitorEnterNode = makeNode(wc, fFactory, s, CAstNode.MONITOR_ENTER, makeNode(wc, fFactory, s, CAstNode.VAR,
-            fFactory.makeConstant(exprName)));
-        CAstNode bodyNodes = walkNodes(s.body(), wc);
-        CAstNode monitorExitNode = makeNode(wc, fFactory, s, CAstNode.MONITOR_EXIT, makeNode(wc, fFactory, s, CAstNode.VAR, fFactory
-            .makeConstant(exprName)));
-        CAstNode tryBody = makeNode(wc, fFactory, s, CAstNode.BLOCK_STMT, monitorEnterNode, bodyNodes);
-        CAstNode bigBody = makeNode(wc, fFactory, s, CAstNode.UNWIND, tryBody, monitorExitNode);
-
-        return makeNode(wc, fFactory, s, CAstNode.BLOCK_STMT, declStmt, bigBody);
-      }
-
       public CAstNode visit(Try t, WalkContext wc) {
         List catchBlocks = t.catchBlocks();
         Block finallyBlock = t.finallyBlock();
@@ -1523,8 +1506,8 @@ public class X10toCAstTranslator implements TranslatorToCAst {
         // TODO this is a source entity, but it might actually be the root type
         // (Object), so assume # intfs + 1
         Type superType;
-        if (fType.superClass() == null && fType != fSystem.Object()) {
-          superType = fSystem.Object(); // fSystem.Object() MUST be the root of the class hierarchy
+        if (fType.superClass() == null) {
+          superType = fSystem.Any(); // fSystem.Object() MUST be the root of the class hierarchy
         } else {
           superType = fType.superClass();
         }
@@ -1540,9 +1523,10 @@ public class X10toCAstTranslator implements TranslatorToCAst {
           Type t = (Type) iter.next();
           if (t instanceof ClassType) {
             ClassType classType = (ClassType) t;
-            if (classType == fSystem.Object()) {
-              continue; // Skip fSystem.Object() as a super-interface; it really MUST be a class as far as WALA is concerned
-            }
+            // [DC] seems that this no-longer applies in an Object-less X10
+            //if (classType == fSystem.Object()) {
+            //  continue; // Skip fSystem.Object() as a super-interface; it really MUST be a class as far as WALA is concerned
+            //}
           }
           fSuperTypes.add(fDict.getCAstTypeFor(t));
         }
@@ -1553,9 +1537,10 @@ public class X10toCAstTranslator implements TranslatorToCAst {
       }
 
       public boolean isInterface() {
-        if (fType == fSystem.Object()) {
-          return false; // fSystem.Object() MUST be a class, as far as WALA is concerned
-        }
+        // [DC] seems that this no-longer applies in an Object-less X10
+        //if (fType == fSystem.Object()) {
+        //  return false; // fSystem.Object() MUST be a class, as far as WALA is concerned
+        //}
         return fType.flags().isInterface();
       }
     }
@@ -1678,9 +1663,10 @@ public class X10toCAstTranslator implements TranslatorToCAst {
       }
 
       public Collection getQualifiers() {
-        if (fCT == fTypeSystem.Object()) { // pretend the root of the hierarchy is always a class
-          return mapFlagsToQualifiers(fCT.flags().clear(Flags.INTERFACE));
-        }
+        // [DC] seems this does not apply in an object-less X10
+        //if (fCT == fTypeSystem.Object()) { // pretend the root of the hierarchy is always a class
+        //  return mapFlagsToQualifiers(fCT.flags().clear(Flags.INTERFACE));
+        //}
         return mapFlagsToQualifiers(fCT.flags());
       }
 
@@ -2906,7 +2892,9 @@ public class X10toCAstTranslator implements TranslatorToCAst {
 	}
 
 	public Collection getSupertypes() {
-	    return Collections.singleton(getTypeDict().getCAstTypeFor(fTypeSystem.Object()));
+        // [DC] don't know why an async body had type Object, assuming it's a placeholder
+        // so Any seems like a reasonable replacement
+	    return Collections.singleton(getTypeDict().getCAstTypeFor(fTypeSystem.Any()));
 	}
 
 	public CAstType getDeclaringType() {

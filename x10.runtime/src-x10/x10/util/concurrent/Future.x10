@@ -19,11 +19,6 @@ import x10.util.GrowableIndexedMemoryChunk;
 
 /**
  * The representation of an X10 future expression.
- * @author Christian Grothoff
- * @author Christoph von Praun
- * @author tardieu
- *
- *
  */
 public class Future[T] implements ()=>T { 
     private val root = GlobalRef[Future[T]](this);
@@ -40,7 +35,7 @@ public class Future[T] implements ()=>T {
      */
     // This cant be Cell because I need to create it before I know the value
     // that will go in.
-    @SuppressTransientError transient private val exception = new GrowableIndexedMemoryChunk[Throwable]();
+    @SuppressTransientError transient private val exception = new GrowableIndexedMemoryChunk[Exception]();
     @SuppressTransientError transient private val result = new GrowableIndexedMemoryChunk[T]();
     transient private val eval:()=>T;
 
@@ -80,7 +75,7 @@ public class Future[T] implements ()=>T {
         try {
             finish result.add(eval());
             latch.release();
-        } catch (t:Throwable) {
+        } catch (t:Exception) {
             exception.add(t);
             latch.release();
         }

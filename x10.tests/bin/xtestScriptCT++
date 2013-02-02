@@ -516,19 +516,15 @@ function xmlLog {
 	printf "\t\t<name>${__cat_test_name}</name>\n" >> $TLOGF
 	printf "\t\t<command>\n" >> $TLOGF
 	printf "## compilation:\n" >> $TLOGF
-	echo "${__cat_test_x10c_command}" | sed -e 's/</\&lt;/g' \
-		-e 's/>/\&gt;/g' \
-		-e 's/&&/\&amp;\&amp;/g' \
-		-e 's/&/\&amp;/g' \
-		-e 's/ & / \&amp; /g' >> $TLOGF
+	echo "${__cat_test_x10c_command}" | sed	-e 's/&/\&amp;/g' \
+	        -e 's/</\&lt;/g' \
+		-e 's/>/\&gt;/g' >> $TLOGF
 	printf "\n\n" >> $TLOGF
 	if [[ -n "${__cat_test_x10_command}" ]]; then
 	printf "## execution:\n" >> $TLOGF
-	echo "${__cat_test_x10_command}" | sed -e 's/</\&lt;/g' \
-		-e 's/>/\&gt;/g' \
-		-e 's/&&/\&amp;\&amp;/g' \
-		-e 's/&/\&amp;/g' \
-		-e 's/ & / \&amp; /g' >> $TLOGF
+	echo "${__cat_test_x10_command}" |  sed	-e 's/&/\&amp;/g' \
+	        -e 's/</\&lt;/g' \
+		-e 's/>/\&gt;/g' >> $TLOGF
 	printf "\n\n" >> $TLOGF
 	fi
 	printf "\t\t</command>\n" >> $TLOGF
@@ -553,13 +549,6 @@ function xmlLog {
 	          s/"/\&quot;/g;
 	          s/'"'"'/\&apos;/g;
 	          s/([^[:print:]\t\n\r])/sprintf("\&#%04x;", ord($1))/eg' $1 >> $TOUTF
-#	sed -e 's/</\&lt;/g' \
-#		-e 's/>/\&gt;/g' \
-#		-e 's/&&/\&amp;\&amp;/g' \
-#		-e 's/ & / \&amp; /g' \
-#		-e 's/&/\&amp;/g' \
-#		-e '/Unexpected character ignored:/d' \
-#		$1 >> $TOUTF
 	printf "\t\t\t</output>\n" >> $TLOGF
 	printf "\t\t</test-execution>\n" >> $TLOGF
 	printf "\t</test>\n" >> $TLOGF

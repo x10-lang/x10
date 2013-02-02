@@ -29,7 +29,7 @@ public class GenericCast09 extends GenericTest {
 
     public def run() = {
 
-        var a:Object = new A();
+        var a:Any = new A();
 
         try {
             var i:I[String] = a as I[String]; // ERR: Warning: This is an unsound cast because X10 currently does not perform constraint solving at runtime for generic parameters.

@@ -15,13 +15,17 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
+import java.util.ListIterator;
 
+import polyglot.ast.Block;
+import polyglot.ast.Catch;
 import polyglot.ast.Expr;
 import polyglot.ast.Node;
 import polyglot.ast.NodeFactory;
 import polyglot.ast.Stmt;
 import polyglot.ast.Stmt_c;
 import polyglot.ast.Term;
+import polyglot.ast.Try_c;
 import polyglot.main.Reporter;
 import polyglot.types.CodeDef;
 import polyglot.types.Context;
@@ -33,10 +37,12 @@ import polyglot.types.Type;
 import polyglot.types.TypeSystem;
 import polyglot.types.Types;
 import polyglot.util.CodeWriter;
-import polyglot.util.CollectionUtil; import x10.util.CollectionFactory;
+import polyglot.util.CollectionUtil; import polyglot.util.SubtypeSet;
+import x10.util.CollectionFactory;
 import polyglot.util.Position;
 import polyglot.visit.CFGBuilder;
 import polyglot.visit.ContextVisitor;
+import polyglot.visit.ExceptionChecker;
 import polyglot.visit.FlowGraph;
 import polyglot.visit.NodeVisitor;
 import polyglot.visit.PrettyPrinter;
@@ -296,6 +302,32 @@ public class Async_c extends Stmt_c implements Async {
 		return succs;
 	}
 
+    /**
+     * Bypass all children when peforming an exception check.
+     * exceptionCheck(), called from ExceptionChecker.leave(),
+     * will handle visiting children.
+     */
+    public NodeVisitor exceptionCheckEnter(ExceptionChecker ec) {
+        return new PruningVisitor();
+    }
+	
+    /**
+     * Visit the clocks as normal.  Add CheckedThrowable to the list of caught exceptions when visiting body.
+     */
+    public Node exceptionCheck(ExceptionChecker ec) {
+        TypeSystem ts = ec.typeSystem();
+
+        List<Expr> clocks = this.visitList(this.clocks, ec);        
+        
+        ExceptionChecker newec = ec.push();
+        newec = newec.push(ts.CheckedThrowable());
+        Block body = (Block) this.visitChild(this.body, newec);
+        
+        Async_c t = (Async_c)super.exceptionCheck(ec);
+
+        return t.reconstruct(clocks, body);
+    }
+	
 	private static final Collection<String> TOPICS =
 		CollectionUtil.list(Reporter.types, Reporter.context);
 }

@@ -14,25 +14,14 @@
 
 #include <cstdlib>
 #include <x10aux/config.h>
-#include <x10aux/ref.h>
-
-#include <x10/lang/Throwable.h>
 
 namespace x10aux {
 
-    template<class T> void throwException() X10_PRAGMA_NORETURN;
-
-    void throwException(x10aux::ref<x10::lang::Throwable> e) X10_PRAGMA_NORETURN;
-
+    /*
+     * Helper function for arithmetic exceptions
+     */
+    
     void throwArithmeticException() X10_PRAGMA_NORETURN;
-
-    inline void throwException(x10aux::ref<x10::lang::Throwable> e) {
-        throw e->fillInStackTrace();
-    }
-
-    template<class T> void throwException() {
-        throwException(T::_make());
-    }
 
     inline x10_byte zeroCheck(x10_byte val) {
         #if !defined(NO_CHECKS) && !defined(NO_EXCEPTIONS)
@@ -82,7 +71,59 @@ namespace x10aux {
         #endif
         return val;
     }
+
+    /*
+     * Helper function for null pointer exceptions
+     */
+    void throwNPE() X10_PRAGMA_NORETURN;
+
+    template <class T> inline T* nullCheck(T* obj) {
+        #if !defined(NO_NULL_CHECKS) && !defined(NO_EXCEPTIONS)
+        if (NULL == obj) throwNPE();
+        #endif
+        return obj;
+    }
+
+    // A no-op for non-pointers (they can't be null)
+    template <class T> inline T nullCheck(T x) {
+        return x;
+    }
+
+
+    /*
+     * Helper function for class cast exceptions
+     */
+    class RuntimeType;
+
+    extern void throwClassCastException(const RuntimeType *from, const RuntimeType *to) X10_PRAGMA_NORETURN;
+    extern void throwClassCastException(const char *msg) X10_PRAGMA_NORETURN;
 }
 
-#endif
+#endif /* X10AUX_THROW_H */
+
+
+
+#ifndef X10AUX_THROW_H_NODEPS
+#define X10AUX_THROW_H_NODEPS
+
+#include <x10/lang/CheckedThrowable.h>
+
+namespace x10aux {
+
+    template<class T> void throwException() X10_PRAGMA_NORETURN;
+
+    void throwException(x10::lang::CheckedThrowable* e) X10_PRAGMA_NORETURN;
+
+    inline void throwException(x10::lang::CheckedThrowable* e) {
+        throw e->fillInStackTrace();
+    }
+
+    template<class T> void throwException() {
+        throwException(T::_make());
+    }
+
+}
+
+#endif /* X10AUX_THROW_H_NODEPS */
+
 // vim:tabstop=4:shiftwidth=4:expandtab

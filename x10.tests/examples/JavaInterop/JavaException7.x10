@@ -10,24 +10,23 @@
  */
 
 import harness.x10Test;
-import x10.interop.java.Throws;
 
 // MANAGED_X10_ONLY
 
 public class JavaException7 extends x10Test {
 
     static class Base {
-        def f():Any @Throws[java.io.IOException] { throw new java.io.IOException("Exception from Base."); }
+        def f() throws java.io.IOException : Any { throw new java.io.IOException("Exception from Base."); }
     }
 
     public def run(): Boolean {
         var ok:Boolean = true;
-        var ex:java.lang.Throwable;
+        var ex:x10.lang.CheckedThrowable;
         
         try {
         	ex = null;
             new Base().f();
-        } catch (e:java.lang.Throwable) {
+        } catch (e:x10.lang.CheckedThrowable) {
             ex = e;
         } finally {
         	if (ex == null) {
@@ -40,9 +39,9 @@ public class JavaException7 extends x10Test {
         try {
         	ex = null;
         	new Base() {
-        		def f():Any @Throws[java.io.IOException] { throw new java.io.IOException("Exception from a local class."); }
+        		def f() throws java.io.IOException : Any { throw new java.io.IOException("Exception from a local class."); }
             }.f();
-        } catch (e:java.lang.Throwable) {
+        } catch (e:x10.lang.CheckedThrowable) {
             ex = e;
         } finally {
         	if (ex == null) {

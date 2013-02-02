@@ -105,9 +105,12 @@ public class X10TypeEnv_c extends TypeEnv_c implements X10TypeEnv {
         // extends/implements that may contain abstract methods that 
         // ct must define.
         List<Type> superInterfaces = ts.abstractSuperInterfaces(ct);
-
+        
         // check each abstract method of the classes and interfaces in superInterfaces
         for (Type it : superInterfaces) {
+        	// Everything from Any you get 'for free'
+        	// [DC] perhaps it == ts.Any() is more appropriate here?
+        	if (ts.typeEquals(it, ts.Any(), context)) continue;
             if (it instanceof ContainerType) {
                 ContainerType rt = (ContainerType) it;
                 for (MethodInstance mi : rt.methods()) {
@@ -120,6 +123,7 @@ public class X10TypeEnv_c extends TypeEnv_c implements X10TypeEnv {
                     MethodInstance mj = ts.findImplementingMethod(ct, mi, context);
                     if (mj == null) {
                     	if (Types.isX10Struct(ct)) {
+                    		// [DC] what about toString and typeName() ???
                     		// Ignore checking requirement if the method is equals(Any), and ct is a struct.
                     		if (mi.name().toString().equals("equals")) {
                     			List<Type> argTypes = mi.formalTypes();
@@ -135,7 +139,17 @@ public class X10TypeEnv_c extends TypeEnv_c implements X10TypeEnv {
                     			}
                     		}
                     	}
-                        if (!ct.flags().isAbstract()) {
+                    	// [DC] hack: need to figure out what to do about toString in the absence of x10.lang.Object
+                    	if (mi.name().toString().equals("hashCode"))
+                    		continue;
+                    	if (mi.name().toString().equals("equals"))
+                    		continue;
+                    	if (mi.name().toString().equals("toString"))
+                    		continue;
+                    	if (mi.name().toString().equals("typeName"))
+                    		continue;
+
+                    	if (!ct.flags().isAbstract()) {
                             SemanticException e = new SemanticException(ct.fullName()
                                     + " should be declared abstract; it does not define "
                                     + mi.signature()
@@ -230,37 +244,50 @@ public class X10TypeEnv_c extends TypeEnv_c implements X10TypeEnv {
     public boolean consistent(Type t) {
         if (t instanceof ConstrainedType) {
             ConstrainedType ct = (ConstrainedType) t;
-            if (!consistent(Types.get(ct.baseType())))
+            if (!consistent(Types.get(ct.baseType()))) {
+            	//System.out.println("INCONSISTENT: base type "+t);
                 return false;
-            if (!consistent(Types.get(ct.constraint())))
+            }
+            if (!consistent(Types.get(ct.constraint()))) {
+            	//System.out.println("INCONSISTENT: constraint "+t);
                 return false;
+            }
         }
         if (t instanceof MacroType) {
             MacroType mt = (MacroType) t;
             for (Type ti : mt.typeParameters()) {
-                if (!consistent(ti))
+                if (!consistent(ti)) {
+                	//System.out.println("INCONSISTENT: macrotype param "+t);
                     return false;
+                }
             }
             for (Type ti : mt.formalTypes()) {
-                if (!consistent(ti))
+                if (!consistent(ti)) {
+                	//System.out.println("INCONSISTENT: macrotype formal "+t);
                     return false;
+                }
             }
         }
         if (t instanceof X10ParsedClassType) {
-            X10ParsedClassType ct = (X10ParsedClassType) t;
-            if (ct.typeArguments() != null) {
-            for (Type ti : ct.typeArguments()) {
-                if (!consistent(ti))
-                    return false;
-            }
-            final X10ClassDef def = ct.x10Def();
-            TypeConstraint c = Types.get(def.typeBounds());
-            if (c != null) { // We need to prove the context entails "c" (the class invariant) after we substituted the type arguments
-                TypeConstraint equals = ct.subst().reinstantiate(c);
-                if (!new X10TypeEnv_c(context).consistent(equals))
-                    return false;
-            }
-            }
+        	X10ParsedClassType ct = (X10ParsedClassType) t;
+        	if (ct.typeArguments() != null) {
+        		for (Type ti : ct.typeArguments()) {
+        			if (!consistent(ti)) {
+                    	//System.out.println("INCONSISTENT: type argument "+t);
+        				return false;
+        			}
+        		}
+        		final X10ClassDef def = ct.x10Def();
+        		TypeConstraint c = Types.get(def.typeBounds());
+        		if (c != null) { // We need to prove the context entails "c" (the class invariant) after we substituted the type arguments
+        			TypeConstraint equals = ct.subst().reinstantiate(c);
+        			if (!new X10TypeEnv_c(context).consistent(equals)) {
+                    	//System.out.println("INCONSISTENT: entailment "+t+" => "+c+"      "+equals);
+                    	//System.out.println(context);
+        				return false;
+        			}
+        		}
+        	}
         }
         //if (!consistent(X10TypeMixin.realX(t)))
         //    return false;
@@ -419,6 +446,8 @@ public class X10TypeEnv_c extends TypeEnv_c implements X10TypeEnv {
 //            }
         
             if (expanded instanceof ParameterType) {
+            	/* [DC] this code cannot handle more general type constraints like == haszero and isref
+            	 * let us remove it and implement the same functionality via appending to the context
                 ParameterType pt = (ParameterType) expanded;
                 X10Def def = (X10Def) Types.get(pt.def());
                 Ref<TypeConstraint> ref = def.typeGuard();
@@ -427,6 +456,7 @@ public class X10TypeEnv_c extends TypeEnv_c implements X10TypeEnv {
                      List<Type> b = getBoundsFromConstraint(pt, c, kind);
                      worklist.addAll(b);
                 }
+                */
                 continue;
             }
             // vj:
@@ -1702,7 +1732,7 @@ public class X10TypeEnv_c extends TypeEnv_c implements X10TypeEnv {
         // let's intersect all the interfaces type1 and type2 implement,
         // then let's return the one that is a subtype of all those in the intersection.
         // see XTENLANG-2635
-        if (ts.Any()!=res && ts.Object()!=res)
+        if (ts.Any()!=res)
             return res;
         if (ts.isAny(type1) || ts.isAny(type2)) // optimization
             return res;
@@ -1840,17 +1870,19 @@ public class X10TypeEnv_c extends TypeEnv_c implements X10TypeEnv {
     	}
     	// XTENLANG-2118: Since they are not equal, and one is not a subtype of another
     	// and one of them is not a subtype of Object, the lub has to be Any.
-    	if (!ts.isSubtype(type1, ts.Object()) || !ts.isSubtype(type2, ts.Object())) {
-    		return ts.Any();
-    	}
+    	// [DC] hmm... this code assumed that the only hierarchy was under Object?  The only other types were function types?
+    	// Commenting it out, let the code underneath do the work...
+    	//if (!ts.isSubtype(type1, ts.Object()) || !ts.isSubtype(type2, ts.Object())) {
+    	//	return ts.Any();
+    	//}
     	// Now neither is a struct. Neither is null.
     	if (type1 instanceof ObjectType && type2 instanceof ObjectType) {
     		// Walk up the hierarchy
     		Type sup1 = ((ObjectType) type1).superClass();
     		Type sup2 = ((ObjectType) type2).superClass();
 
-    		if (sup1 == null) return ts.Object();
-    		if (sup2 == null) return ts.Object();
+    		if (sup1 == null) return ts.Any();
+    		if (sup2 == null) return ts.Any();
 
     		Type t1 = leastCommonAncestor(sup1, type2);
     		Type t2 = leastCommonAncestor(sup2, type1);
@@ -2129,12 +2161,12 @@ public class X10TypeEnv_c extends TypeEnv_c implements X10TypeEnv {
             });          
         }
 
-        final TypeConstraint mitg = Subst.subst(mi.typeGuard(), newSymbols, miSymbols);
-        final TypeConstraint mjtg = Subst.subst(mj.typeGuard(), newSymbols, mjSymbols);
+        TypeConstraint mitg = Subst.subst(mi.typeGuard(), newSymbols, miSymbols);
+        TypeConstraint mjtg = Subst.subst(mj.typeGuard(), newSymbols, mjSymbols);
         if (mjtg == null) {
             entails &= mitg == null;
-        }
-        else {
+        } else {
+        	mjtg = (TypeConstraint)tps.reinstantiate(mjtg);
             entails &= mitg == null || mjtg.entails(mitg, context);          
         }
 

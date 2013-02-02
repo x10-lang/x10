@@ -257,7 +257,7 @@ public struct Int implements Comparable[Int], Arithmetic[Int], Bitwise[Int], Ord
      * @return the given Float converted to an Int.
      */
     @Native("java", "((int)(float)(#x))")
-    @Native("c++",  "x10aux::float_utils::toInt(#1)")
+    @Native("c++",  "x10::lang::FloatNatives::toInt(#1)")
     @Native("cuda",  "((x10_int)#1)")
     public native static operator (x:Float) as Int;
 
@@ -267,7 +267,7 @@ public struct Int implements Comparable[Int], Arithmetic[Int], Bitwise[Int], Ord
      * @return the given Double converted to an Int.
      */
     @Native("java", "((int)(double)(#x))")
-    @Native("c++",  "x10aux::double_utils::toInt(#1)")
+    @Native("c++",  "x10::lang::DoubleNatives::toInt(#1)")
     public native static operator (x:Double) as Int;
 
     /**
@@ -318,7 +318,7 @@ public struct Int implements Comparable[Int], Arithmetic[Int], Bitwise[Int], Ord
      * @return a String representation of this Int in the specified radix.
      */
     @Native("java", "java.lang.Integer.toString(#this, #radix)")
-    @Native("c++", "x10aux::int_utils::toString(#0, #1)")
+    @Native("c++", "x10::lang::IntNatives::toString(#0, #1)")
     public native def toString(radix:Int): String;
 
     /**
@@ -331,7 +331,7 @@ public struct Int implements Comparable[Int], Arithmetic[Int], Bitwise[Int], Ord
      * @return a String representation of this Int in base 16.
      */
     @Native("java", "java.lang.Integer.toString(#this, 16)")
-    @Native("c++", "x10aux::int_utils::toString(#0, 16)")
+    @Native("c++", "x10::lang::IntNatives::toString(#0, 16)")
     public native def toHexString(): String;
 
     /**
@@ -344,7 +344,7 @@ public struct Int implements Comparable[Int], Arithmetic[Int], Bitwise[Int], Ord
      * @return a String representation of this Int in base 8.
      */
     @Native("java", "java.lang.Integer.toString(#this, 8)")
-    @Native("c++", "x10aux::int_utils::toString(#0, 8)")
+    @Native("c++", "x10::lang::IntNatives::toString(#0, 8)")
     public native def toOctalString(): String;
 
     /**
@@ -357,7 +357,7 @@ public struct Int implements Comparable[Int], Arithmetic[Int], Bitwise[Int], Ord
      * @return a String representation of this Int in base 2.
      */
     @Native("java", "java.lang.Integer.toString(#this, 2)")
-    @Native("c++", "x10aux::int_utils::toString(#0, 2)")
+    @Native("c++", "x10::lang::IntNatives::toString(#0, 2)")
     public native def toBinaryString(): String;
 
     /**
@@ -372,14 +372,14 @@ public struct Int implements Comparable[Int], Arithmetic[Int], Bitwise[Int], Ord
      * @deprecated use {@link #parse(String,Int)} instead
      */
     @Native("java", "java.lang.Integer.parseInt(#s, #radix)")
-    @Native("c++", "x10aux::int_utils::parseInt(#1, #2)")
+    @Native("c++", "x10::lang::IntNatives::parseInt(#1, #2)")
     public native static def parseInt(s:String, radix:Int): Int; //throwsNumberFormatException;
 
     /**
      * @deprecated use {@link #parse(String)} instead
      */
     @Native("java", "java.lang.Integer.parseInt(#s)")
-    @Native("c++", "x10aux::int_utils::parseInt(#1)")
+    @Native("c++", "x10::lang::IntNatives::parseInt(#1)")
     public native static def parseInt(s:String): Int; //throwsNumberFormatException;
 
     /**
@@ -390,7 +390,7 @@ public struct Int implements Comparable[Int], Arithmetic[Int], Bitwise[Int], Ord
      * @throws NumberFormatException if the String does not contain a parsable Int.
      */
     @Native("java", "java.lang.Integer.parseInt(#s, #radix)")
-    @Native("c++", "x10aux::int_utils::parseInt(#1, #2)")
+    @Native("c++", "x10::lang::IntNatives::parseInt(#1, #2)")
     public native static def parse(s:String, radix:Int): Int; //throwsNumberFormatException;
 
     /**
@@ -400,7 +400,7 @@ public struct Int implements Comparable[Int], Arithmetic[Int], Bitwise[Int], Ord
      * @throws NumberFormatException if the String does not contain a parsable Int.
      */
     @Native("java", "java.lang.Integer.parseInt(#s)")
-    @Native("c++", "x10aux::int_utils::parseInt(#1)")
+    @Native("c++", "x10::lang::IntNatives::parseInt(#1)")
     public native static def parse(s:String): Int; //throwsNumberFormatException;
 
 
@@ -412,7 +412,7 @@ public struct Int implements Comparable[Int], Arithmetic[Int], Bitwise[Int], Ord
      * @return an Int value with a single one-bit, in the position of the highest-order one-bit in this Int, or zero if this Int is itself equal to zero.
      */
     @Native("java", "java.lang.Integer.highestOneBit(#this)")
-    @Native("c++", "x10aux::int_utils::highestOneBit(#0)")
+    @Native("c++", "x10::lang::IntNatives::highestOneBit(#0)")
     public native def highestOneBit(): Int;
 
     /**
@@ -423,7 +423,7 @@ public struct Int implements Comparable[Int], Arithmetic[Int], Bitwise[Int], Ord
      * @return an Int value with a single one-bit, in the position of the lowest-order one-bit in this Int, or zero if this Int is itself equal to zero.
      */
     @Native("java", "java.lang.Integer.lowestOneBit(#this)")
-    @Native("c++", "x10aux::int_utils::lowestOneBit(#0)")
+    @Native("c++", "x10::lang::IntNatives::lowestOneBit(#0)")
     public native def lowestOneBit(): Int;
 
     /**
@@ -434,7 +434,7 @@ public struct Int implements Comparable[Int], Arithmetic[Int], Bitwise[Int], Ord
      * @return the number of zero bits preceding the highest-order one-bit in the two's complement binary representation of this Int, or 32 if this Int is equal to zero.
      */
     @Native("java", "java.lang.Integer.numberOfLeadingZeros(#this)")
-    @Native("c++", "x10aux::int_utils::numberOfLeadingZeros(#0)")
+    @Native("c++", "x10::lang::IntNatives::numberOfLeadingZeros(#0)")
     public native def numberOfLeadingZeros(): Int;
 
     /**
@@ -445,7 +445,7 @@ public struct Int implements Comparable[Int], Arithmetic[Int], Bitwise[Int], Ord
      * @return the number of zero bits following the lowest-order one-bit in the two's complement binary representation of this Int, or 32 if this Int is equal to zero.
      */
     @Native("java", "java.lang.Integer.numberOfTrailingZeros(#this)")
-    @Native("c++", "x10aux::int_utils::numberOfTrailingZeros(#0)")
+    @Native("c++", "x10::lang::IntNatives::numberOfTrailingZeros(#0)")
     public native def numberOfTrailingZeros(): Int;
 
     /**
@@ -455,7 +455,7 @@ public struct Int implements Comparable[Int], Arithmetic[Int], Bitwise[Int], Ord
      * @return the number of one-bits in the two's complement binary representation of this Int.
      */
     @Native("java", "java.lang.Integer.bitCount(#this)")
-    @Native("c++", "x10aux::int_utils::bitCount(#0)")
+    @Native("c++", "x10::lang::IntNatives::bitCount(#0)")
     public native def bitCount(): Int;
 
     /**
@@ -475,7 +475,7 @@ public struct Int implements Comparable[Int], Arithmetic[Int], Bitwise[Int], Ord
      * @see #rotateRight(Int)
      */
     @Native("java", "java.lang.Integer.rotateLeft(#this, #distance)")
-    @Native("c++", "x10aux::int_utils::rotateLeft(#0, #1)")
+    @Native("c++", "x10::lang::IntNatives::rotateLeft(#0, #1)")
     public native def rotateLeft(distance:Int): Int;
 
     /**
@@ -495,7 +495,7 @@ public struct Int implements Comparable[Int], Arithmetic[Int], Bitwise[Int], Ord
      * @see #rotateLeft(Int)
      */
     @Native("java", "java.lang.Integer.rotateRight(#this, #distance)")
-    @Native("c++", "x10aux::int_utils::rotateRight(#0, #1)")
+    @Native("c++", "x10::lang::IntNatives::rotateRight(#0, #1)")
     public native def rotateRight(distance:Int): Int;
 
     /**
@@ -504,7 +504,7 @@ public struct Int implements Comparable[Int], Arithmetic[Int], Bitwise[Int], Ord
      * @return the value obtained by reversing order of the bits in this Int.
      */
     @Native("java", "java.lang.Integer.reverse(#this)")
-    @Native("c++", "x10aux::int_utils::reverse(#0)")
+    @Native("c++", "x10::lang::IntNatives::reverse(#0)")
     public native def reverse(): Int;
 
     /**
@@ -514,7 +514,7 @@ public struct Int implements Comparable[Int], Arithmetic[Int], Bitwise[Int], Ord
      * @return the signum function of this Int.
      */
     @Native("java", "java.lang.Integer.signum(#this)")
-    @Native("c++", "x10aux::int_utils::signum(#0)")
+    @Native("c++", "x10::lang::IntNatives::signum(#0)")
     public native def signum(): Int;
 
     /**
@@ -523,7 +523,7 @@ public struct Int implements Comparable[Int], Arithmetic[Int], Bitwise[Int], Ord
      * @return the value obtained by reversing the bytes in this Int.
      */
     @Native("java", "java.lang.Integer.reverseBytes(#this)")
-    @Native("c++", "x10aux::int_utils::reverseBytes(#0)")
+    @Native("c++", "x10::lang::IntNatives::reverseBytes(#0)")
     public native def reverseBytes(): Int;
 
 
@@ -554,7 +554,7 @@ public struct Int implements Comparable[Int], Arithmetic[Int], Bitwise[Int], Ord
      * to, or greater than the given Int.
      */
     @Native("java", "x10.rtt.Equality.compareTo(#this, #x)")
-    @Native("c++", "x10aux::int_utils::compareTo(#0, #1)")
+    @Native("c++", "x10::lang::IntNatives::compareTo(#0, #1)")
     public native def compareTo(x:Int):Int;
 
     /**
@@ -564,8 +564,6 @@ public struct Int implements Comparable[Int], Arithmetic[Int], Bitwise[Int], Ord
      * @param upper the upper bound
      * @return a range from lower to upper, inclusive.
      */
-    // XTENLANG-3063
-    // @Native("java", "new x10.lang.IntRange((java.lang.System[]) null).$init(#x, #y)")
     @Native("java", "new x10.lang.IntRange((java.lang.System[]) null).x10$lang$IntRange$$init$S(#x, #y)")
     @Native("c++", "x10::lang::IntRange::_make(#1, #2)")
     public native static operator (x:Int) .. (y:Int):IntRange{min==x,max==y};

@@ -204,7 +204,7 @@ public class Synthesizer {
 
 	    // Create the method declaration node and the CI.
 	    MethodDecl result = 
-	        xnf.X10MethodDecl(CG, newFlags, rt, xnf.Id(CG,name), typeParamNodes, formals, null, null, block);
+	        xnf.X10MethodDecl(CG, newFlags, rt, xnf.Id(CG,name), typeParamNodes, formals, null, null, Collections.<TypeNode>emptyList(), block);
 
 	    MethodDef rmi = xts.methodDef(CG, CG, Types.ref(ct.classDef().asType()), 
 	            newFlags.flags(), rt.typeRef(), name, typeParameters, argTypes, throwTypes, ct.classDef().thisDef(), formalNames, null, null, null, null);
@@ -1568,7 +1568,11 @@ public class Synthesizer {
             return xnf.Special(pos, X10Special.THIS);
         
         String str = t.toString();
+        // [DC] the following check doesn't always work -- we get 'here' that does match the 'global'
         if (t == PlaceChecker.here(t.type().typeSystem()))
+            return xnf.Here(pos);
+        // [DC] this seems like a reasonable hack at this point:
+        if (str.equals("here"))
             return xnf.Here(pos);
         return xnf.AmbExpr(pos, xnf.Id(pos,Name.make(t.toString())));
     }

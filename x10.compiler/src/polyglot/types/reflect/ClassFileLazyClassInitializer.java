@@ -344,7 +344,8 @@ public class ClassFileLazyClassInitializer {
                     for (Ref<? extends Type> a : targs) {
                         typeArgs.add(a.get());
                     }
-                    t = Types.ref(cType.typeArguments(typeArgs));
+                    // [DC] hacky way of turning off type arguments here -- we don't want them in X10
+                    //t = Types.ref(cType.typeArguments(typeArgs));
                 }
                 } while (str.charAt(i) == '.'); // Some signatures have generic info for containers
                 assert (i < str.length() && str.charAt(i) == ';');
@@ -439,7 +440,6 @@ public class ClassFileLazyClassInitializer {
         boxedPrimitives.put("x10.core.UShort", "x10.lang.UShort");
         boxedPrimitives.put("x10.core.UInt", "x10.lang.UInt");
         boxedPrimitives.put("x10.core.ULong", "x10.lang.ULong");
-        boxedPrimitives.put("x10.core.RefI", "x10.lang.Object");
     }
     protected Ref<? extends Type> typeForName(String name, Flags flags) {
         String unboxed = boxedPrimitives.get(name);

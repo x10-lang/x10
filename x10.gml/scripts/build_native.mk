@@ -34,7 +34,7 @@ x10src		= $(target).x10
 
 
 ##----------------------------------
-## This directory is required for building mative backend
+## This directory is required for building native backend
 GML_NAT_OPT	= -classpath $(gml_lib)/native_gml.jar -x10lib $(gml_path)/native_gml.properties
 
 ###################################################
@@ -66,7 +66,7 @@ lapi		: $(target)_lapi
 #build in native for pami transport
 pami		: $(target)_pami
 #build in native for pgas blue gene/P
-bgp			: $(target)_bgp 
+bgp		: $(target)_bgp
 
 ###
 all_sock	:
@@ -88,18 +88,18 @@ clean	::
 
 clean_all ::
 		$(foreach f, $(target_list), rm -f $(f)_sock $(f)_lapi; )
-		
+
 ###----------
 help	::
 	@echo "------------------- build for native sock or lapi transport ------------";
 	@echo " make sock       : build default target $(target) for native backend running on socket transport";
-	@echo " make all_mpi    : build all targets [ $(target_list) ] for native backend running on socket transport";
-	@echo " make lapi       : build default target $(target) for native backend running on socket transport";
-	@echo " make all_lapi   : build all targets [ $(target_list) ] for native backend running on socket transport";
+	@echo " make all_sock   : build all targets [ $(target_list) ] for native backend running on socket transport";
+	@echo " make lapi       : build default target $(target) for native backend running on lapi transport";
+	@echo " make all_lapi   : build all targets [ $(target_list) ] for native backend running on lapi transport";
 	@echo " make pami       : build default target $(target) for native backend running on pami transport";
 	@echo " make all_pami   : build all targets [ $(target_list) ] for native backend running on pami transport";
 	@echo " make bgp        : build default target $(target) for native backend running on BlueGene/P system";
 	@echo " make all_bgp    : build all targets [ $(target_list) ] for native backend running on BlueGene/P system";
 	@echo " make clean      : remove default built binary $(target)_sock $(target)_lapi";
-	@echo " make clean_all  : remove all builds for the list of tragets";
+	@echo " make clean_all  : remove all builds for the list of targets";
 	@echo "";

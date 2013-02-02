@@ -16,22 +16,17 @@ import java.io.ObjectInput;
 import java.io.ObjectOutput;
 import java.lang.ref.ReferenceQueue;
 import java.lang.ref.WeakReference;
-import java.util.Map;
-import java.util.WeakHashMap;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicLong;
 
-import x10.io.Console;
 import x10.lang.Place;
 import x10.lang.Runtime.Mortal;
 import x10.rtt.RuntimeType;
-import x10.rtt.RuntimeType.Variance;
 import x10.rtt.Type;
 import x10.rtt.Types;
-import x10.x10rt.DeserializationDispatcher;
-import x10.x10rt.X10JavaDeserializer;
-import x10.x10rt.X10JavaSerializable;
-import x10.x10rt.X10JavaSerializer;
+import x10.serialization.X10JavaDeserializer;
+import x10.serialization.X10JavaSerializable;
+import x10.serialization.X10JavaSerializer;
 
 /*
  * [GlobalGC] Managed X10 (X10 on Java) supports distributed GC, which is mainly implemented here, in GlobalRef.java.
@@ -39,17 +34,13 @@ import x10.x10rt.X10JavaSerializer;
  */
 public final class GlobalRef<T> extends x10.core.Struct implements Externalizable, X10JavaSerializable {
 	
-    private static final short _serialization_id = x10.x10rt.DeserializationDispatcher.addDispatcher(x10.x10rt.DeserializationDispatcher.ClosureKind.CLOSURE_KIND_NOT_ASYNC, GlobalRef.class, "x10.lang.GlobalRef");
-
     public static final RuntimeType<GlobalRef<?>> $RTT = x10.rtt.NamedType.<GlobalRef<?>> make(
         "x10.lang.GlobalRef",
         GlobalRef.class,
         RuntimeType.INVARIANTS(1),
         new Type[] { Types.STRUCT }
     );
-    @Override
     public RuntimeType<GlobalRef<?>> $getRTT() { return $RTT; }
-    @Override
     public Type<?> $getParam(int i) { return i == 0 ? T : null; }
 
     /*
@@ -353,19 +344,14 @@ public final class GlobalRef<T> extends x10.core.Struct implements Externalizabl
         // Closure for calling GlobalizedObjectTracker.changeRemoteCount(id, delta)
         // modified from the compiled code of "async at (place) { changeRemoteCount(id, delta); }"
         private /*@@public@@*/ static class $Closure$0 extends x10.core.Ref implements x10.core.fun.VoidFun_0_0,
-                x10.x10rt.X10JavaSerializable {
+                x10.serialization.X10JavaSerializable {
             private static final long serialVersionUID = 1L;
-            private static final short $_serialization_id = x10.x10rt.DeserializationDispatcher
-                    .addDispatcher(x10.x10rt.DeserializationDispatcher.ClosureKind.CLOSURE_KIND_SIMPLE_ASYNC,
-                                   $Closure$0.class);
 
             public static final x10.rtt.RuntimeType<$Closure$0> $RTT = x10.rtt.StaticVoidFunType.<$Closure$0> make(
-            /* base class */$Closure$0.class, /* parents */new x10.rtt.Type[] { x10.core.fun.VoidFun_0_0.$RTT,
-                    x10.rtt.Types.OBJECT });
+            /* base class */$Closure$0.class, /* parents */new x10.rtt.Type[] { x10.core.fun.VoidFun_0_0.$RTT });
 
-            public x10.rtt.RuntimeType<?> $getRTT() {
-                return $RTT;
-            }
+            public x10.rtt.RuntimeType<?> $getRTT() {return $RTT;}
+            public Type<?> $getParam(int i) {return null;}
 
             private void writeObject(java.io.ObjectOutputStream oos) throws java.io.IOException {
                 if (x10.runtime.impl.java.Runtime.TRACE_SER) {
@@ -374,10 +360,7 @@ public final class GlobalRef<T> extends x10.core.Struct implements Externalizabl
                 oos.defaultWriteObject();
             }
 
-            public static x10.x10rt.X10JavaSerializable $_deserialize_body($Closure$0 $_obj,
-                                                                           x10.x10rt.X10JavaDeserializer $deserializer)
-                    throws java.io.IOException {
-
+            public static x10.serialization.X10JavaSerializable $_deserialize_body($Closure$0 $_obj, X10JavaDeserializer $deserializer) throws java.io.IOException {
                 if (x10.runtime.impl.java.Runtime.TRACE_SER) {
                     x10.runtime.impl.java.Runtime.printTraceMessage("X10JavaSerializable: $_deserialize_body() of "
                             + $Closure$0.class + " calling");
@@ -385,29 +368,17 @@ public final class GlobalRef<T> extends x10.core.Struct implements Externalizabl
                 $_obj.id = $deserializer.readLong();
                 $_obj.delta = $deserializer.readInt();
                 return $_obj;
-
             }
 
-            public static x10.x10rt.X10JavaSerializable $_deserializer(x10.x10rt.X10JavaDeserializer $deserializer)
-                    throws java.io.IOException {
-
+            public static x10.serialization.X10JavaSerializable $_deserializer(X10JavaDeserializer $deserializer) throws java.io.IOException {
                 $Closure$0 $_obj = new $Closure$0((java.lang.System[]) null);
                 $deserializer.record_reference($_obj);
                 return $_deserialize_body($_obj, $deserializer);
-
             }
 
-            public short $_get_serialization_id() {
-
-                return $_serialization_id;
-
-            }
-
-            public void $_serialize(x10.x10rt.X10JavaSerializer $serializer) throws java.io.IOException {
-
+            public void $_serialize(X10JavaSerializer $serializer) throws java.io.IOException {
                 $serializer.write(this.id);
                 $serializer.write(this.delta);
-
             }
 
             // constructor just for allocation
@@ -462,11 +433,6 @@ public final class GlobalRef<T> extends x10.core.Struct implements Externalizabl
         obj = null;
         return this;
     }
-    // XTENLANG-3063
-    // not used if X10PrettyPrinterVisitor.supportConstructorWithThrows == true
-    public GlobalRef<T> $init() {
-        return x10$lang$GlobalRef$$init$S();
-    }
 
     public final GlobalRef<T> x10$lang$GlobalRef$$init$S(final Type<?> T, T obj, __0x10$lang$GlobalRef$$T $dummy) {
         GlobalGCDebug(3, "GlobalRef.$init(T=" + T + ", obj=" + obj + ", $dummy) called, isMortal=" + (obj instanceof Mortal));
@@ -474,11 +440,6 @@ public final class GlobalRef<T> extends x10.core.Struct implements Externalizabl
         this.home = x10.lang.Runtime.home();
         this.obj = obj;
         return this;
-    }
-    // XTENLANG-3063
-    // not used if X10PrettyPrinterVisitor.supportConstructorWithThrows == true
-    public GlobalRef<T> $init(final Type<?> T, T obj, __0x10$lang$GlobalRef$$T $dummy) {
-        return x10$lang$GlobalRef$$init$S(T, obj, $dummy);
     }
 
     public GlobalRef(final Type<?> T, T obj, __0x10$lang$GlobalRef$$T $dummy) {
@@ -586,51 +547,45 @@ public final class GlobalRef<T> extends x10.core.Struct implements Externalizabl
         }
     }
 
-    public void $_serialize(X10JavaSerializer serializer) throws IOException {
+    public void $_serialize(X10JavaSerializer $serializer) throws IOException {
         globalize();
         int weight = adjustWeight();
         assert((id > 0 && weight > 0) || (id < 0 && weight == 0)); // weight should be > 0 for non-Mortal GlobalRef
         GlobalGCDebug(3, "GlobalRef.$_serialize: id=" + id + " at place=" + home.id + " serializing, weight=" + weight);
         //changeRemoteCount(+1); // speculatively increment the remoteCount to avoid racing
-        serializer.write(T);
-        serializer.write(home);
-        serializer.write(id);
-        serializer.write(weight); // send the weight 
+        $serializer.write(T);
+        $serializer.write(home);
+        $serializer.write(id);
+        $serializer.write(weight); // send the weight 
         
-        serializer.addToGrefMap(this, weight); // to adjust the weight when serialized data is used more than once
+        $serializer.addToGrefMap(this, weight); // to adjust the weight when serialized data is used more than once
 	}
 
-    public static X10JavaSerializable $_deserializer(X10JavaDeserializer deserializer) throws java.io.IOException {
-        GlobalRef gr = new GlobalRef();
-        int pos = deserializer.record_reference(gr);
-        X10JavaSerializable returned = $_deserialize_body(gr, deserializer); // remote GlobalRefs are merged if they have same id
-        if (returned != gr) deserializer.update_reference(pos, returned);
+    public static X10JavaSerializable $_deserializer(X10JavaDeserializer $deserializer) throws java.io.IOException {
+        GlobalRef $_obj = new GlobalRef();
+        int pos = $deserializer.record_reference($_obj);
+        X10JavaSerializable returned = $_deserialize_body($_obj, $deserializer); // remote GlobalRefs are merged if they have same id
+        if (returned != $_obj) $deserializer.update_reference(pos, returned);
         return returned;
     }
 
-    public short $_get_serialization_id() {
-        return _serialization_id;
-    }
-
-    public static X10JavaSerializable $_deserialize_body(GlobalRef gr, X10JavaDeserializer deserializer) throws IOException {
-        Type<?> T = (Type<?>) deserializer.readRef();
-        Place home = (Place) deserializer.readRef();
-        long id = deserializer.readLong();
-        int weight = deserializer.readInt(); // weight got from sender
+    public static X10JavaSerializable $_deserialize_body(GlobalRef $_obj, X10JavaDeserializer $deserializer) throws IOException {
+        $_obj.T = $deserializer.readRef();
+        $_obj.home = $deserializer.readRef();
+        long id = $deserializer.readLong();
+        $_obj.id = id;
+        int weight = $deserializer.readInt(); // weight got from sender
         assert((id > 0 && weight > 0) || (id < 0 && weight == 0)); // weight should be > 0 for non-Mortal GlobalRef
-        gr.home = home;
-        gr.id = id;
-        gr.T = T;
-        if (gr.home.id == x10.lang.Runtime.home().id) { // local GlobalRef
-            gr.obj = GlobalizedObjectTracker.getObject(id);
-            GlobalGCDebug(3, "GlobalRef.$_deserialize_body: id=" + gr.id + " deserialized, weight=" + weight + ", localObj=" + gr.obj);
-            GlobalizedObjectTracker.changeRemoteCount(gr.id, -weight); // decrement speculatively-incremented remoteCount, this must be done after the object is got
+        if ($_obj.home.id == x10.lang.Runtime.home().id) { // local GlobalRef
+            $_obj.obj = GlobalizedObjectTracker.getObject(id);
+            GlobalGCDebug(3, "GlobalRef.$_deserialize_body: id=" + $_obj.id + " deserialized, weight=" + weight + ", localObj=" + $_obj.obj);
+            GlobalizedObjectTracker.changeRemoteCount($_obj.id, -weight); // decrement speculatively-incremented remoteCount, this must be done after the object is got
         } else { // remote GlobalRef
-            gr.obj = null;
-            GlobalGCDebug(3, "GlobalRef.$_deserialize_body: id=" + gr.id + " at place=" + gr.home.id + " deserialized, weight=" + weight);
-            gr = RemoteReferenceTracker.registerRemoteGlobalRef(gr, weight); // remoteCount may be merged
+            $_obj.obj = null;
+            GlobalGCDebug(3, "GlobalRef.$_deserialize_body: id=" + $_obj.id + " at place=" + $_obj.home.id + " deserialized, weight=" + weight);
+            $_obj = RemoteReferenceTracker.registerRemoteGlobalRef($_obj, weight); // remoteCount may be merged
         }
-        return gr;
+        return $_obj;
     }
     
     private void changeRemoteCount(int delta) {
@@ -688,24 +643,18 @@ public final class GlobalRef<T> extends x10.core.Struct implements Externalizabl
     public static class LocalEval extends x10.core.Ref {
 
 	private static final long serialVersionUID = 1L;
-	private static final short _serialization_id = x10.x10rt.DeserializationDispatcher.addDispatcher(DeserializationDispatcher.ClosureKind.CLOSURE_KIND_NOT_ASYNC, LocalEval.class);
-	public static final RuntimeType<LocalEval> $RTT = x10.rtt.NamedType.<LocalEval> make("x10.lang.GlobalRef.LocalEval", LocalEval.class, new Type[] {Types.OBJECT});
-	@Override
+	public static final RuntimeType<LocalEval> $RTT = x10.rtt.NamedType.<LocalEval> make("x10.lang.GlobalRef.LocalEval", LocalEval.class);
 	public RuntimeType<?> $getRTT() {return $RTT;}
+	public Type<?> $getParam(int i) {return null;}
     
 	// constructor just for allocation
 	public LocalEval(final java.lang.System[] $dummy) { super($dummy);}
 	
         public final LocalEval x10$lang$GlobalRef$LocalEval$$init$S() {return this;}
-        // XTENLANG-3063
-        // not used if X10PrettyPrinterVisitor.supportConstructorWithThrows == true
-	public LocalEval $init() {return x10$lang$GlobalRef$LocalEval$$init$S();}
 	
 	// creation method for java code (1-phase java constructor)
         public LocalEval() {
             this((java.lang.System[]) null);
-            // XTENLANG-3063
-//            $init();
             x10$lang$GlobalRef$LocalEval$$init$S();
         }
         // not used
@@ -717,7 +666,7 @@ public final class GlobalRef<T> extends x10.core.Struct implements Externalizabl
 	    if (x10.lang.Runtime.home().id == ref.home.id) {
 		return eval.$apply(ref.$apply$G(),$T);
 	    } else {
-                return x10.lang.Runtime.<$U>evalAt__1$1x10$lang$Runtime$$T$2$G($U, ref.home, new $Closure$Eval<$T, $U>($T, $U, ref, eval, (x10.core.GlobalRef.LocalEval.$Closure$Eval.__0$1x10$lang$GlobalRef$LocalEval$$Closure$Eval$$T$2__1$1x10$lang$GlobalRef$LocalEval$$Closure$Eval$$T$3x10$lang$GlobalRef$LocalEval$$Closure$Eval$$U$2) null));
+                return x10.lang.Runtime.<$U>evalAt__1$1x10$lang$Runtime$$T$2$G($U, ref.home, new $Closure$Eval<$T, $U>($T, $U, ref, eval, (x10.core.GlobalRef.LocalEval.$Closure$Eval.__0$1x10$lang$GlobalRef$LocalEval$$Closure$Eval$$T$2__1$1x10$lang$GlobalRef$LocalEval$$Closure$Eval$$T$3x10$lang$GlobalRef$LocalEval$$Closure$Eval$$U$2) null), null);
 	    }
 	}
         
@@ -726,38 +675,31 @@ public final class GlobalRef<T> extends x10.core.Struct implements Externalizabl
             if (x10.lang.Runtime.home().id == ref.home.id) {
 		return ref.$apply$G();
 	    } else {
-                return x10.lang.Runtime.<$T>evalAt__1$1x10$lang$Runtime$$T$2$G($T, ref.home, new $Closure$Apply<$T>($T, ref, (x10.core.GlobalRef.LocalEval.$Closure$Apply.__0$1x10$lang$GlobalRef$LocalEval$$Closure$Apply$$T$2) null));
+                return x10.lang.Runtime.<$T>evalAt__1$1x10$lang$Runtime$$T$2$G($T, ref.home, new $Closure$Apply<$T>($T, ref, (x10.core.GlobalRef.LocalEval.$Closure$Apply.__0$1x10$lang$GlobalRef$LocalEval$$Closure$Apply$$T$2) null), null);
 	    }
 	}
 
-    public void $_serialize(X10JavaSerializer serializer) throws IOException {
+    public void $_serialize(X10JavaSerializer $serializer) throws IOException {
 	}
 
-	public static X10JavaSerializable $_deserializer(X10JavaDeserializer deserializer) throws java.io.IOException {
-       LocalEval obj = new LocalEval((System []) null);
-        deserializer.record_reference(obj);
-        return $_deserialize_body(obj, deserializer);
+	public static X10JavaSerializable $_deserializer(X10JavaDeserializer $deserializer) throws java.io.IOException {
+       LocalEval $_obj = new LocalEval((System []) null);
+        $deserializer.record_reference($_obj);
+        return $_deserialize_body($_obj, $deserializer);
 	}
 
-	public short $_get_serialization_id() {
-		return _serialization_id;
-	}
-
-    public static X10JavaSerializable $_deserialize_body(LocalEval obj, X10JavaDeserializer deserializer) throws IOException {
-           return obj;
+	public static X10JavaSerializable $_deserialize_body(LocalEval $_obj, X10JavaDeserializer $deserializer) throws IOException {
+           return $_obj;
     }
 
 
 	public static class $Closure$Eval<$T, $U> extends x10.core.Ref implements x10.core.fun.Fun_0_0 {
 	    private static final long serialVersionUID = 1L;
-	    private static final short _serialization_id = x10.x10rt.DeserializationDispatcher.addDispatcher(DeserializationDispatcher.ClosureKind.CLOSURE_KIND_SIMPLE_ASYNC, $Closure$Eval.class);
 	    public static final RuntimeType<$Closure$Eval> $RTT =
 		x10.rtt.StaticFunType.<$Closure$Eval> make($Closure$Eval.class, 
 							 RuntimeType.INVARIANTS(2),
-							 new Type[] {x10.rtt.ParameterizedType.make(x10.core.fun.Fun_0_0.$RTT, x10.rtt.UnresolvedType.PARAM(1)), Types.OBJECT});
-	    @Override
+							 new Type[] {x10.rtt.ParameterizedType.make(x10.core.fun.Fun_0_0.$RTT, x10.rtt.UnresolvedType.PARAM(1))});
 	    public RuntimeType<?> $getRTT() {return $RTT;}
-	    @Override
 	    public Type<?> $getParam(int i) {if (i ==0)return $T;if (i ==1)return $U;return null;}
 
 	    // constructor just for allocation
@@ -786,47 +728,36 @@ public final class GlobalRef<T> extends x10.core.Struct implements Externalizabl
 		return this.eval.$apply(this.ref.$apply$G(),$T);
 	    }
 
-        public void $_serialize(X10JavaSerializer serializer) throws IOException {
-            serializer.write($T);
-            serializer.write($U);
-            serializer.write(ref);
-            serializer.write(eval);
+        public void $_serialize(X10JavaSerializer $serializer) throws IOException {
+            $serializer.write($T);
+            $serializer.write($U);
+            $serializer.write(ref);
+            $serializer.write(eval);
         }
 
-        public static X10JavaSerializable $_deserializer(X10JavaDeserializer deserializer) throws java.io.IOException {
-            $Closure$Eval obj = new $Closure$Eval((System[]) null);
-            deserializer.record_reference(obj);
-            return $_deserialize_body(obj, deserializer);
+        public static X10JavaSerializable $_deserializer(X10JavaDeserializer $deserializer) throws java.io.IOException {
+            $Closure$Eval $_obj = new $Closure$Eval((System[]) null);
+            $deserializer.record_reference($_obj);
+            return $_deserialize_body($_obj, $deserializer);
         }
 
-        public short $_get_serialization_id() {
-            return _serialization_id;
-        }
-
-        public static X10JavaSerializable $_deserialize_body($Closure$Eval obj, X10JavaDeserializer deserializer) throws IOException {
-            Type $T = (Type) deserializer.readRef();
-            obj.$T = $T;
-            Type $U = (Type) deserializer.readRef();
-            obj.$U = $U;
-            GlobalRef ref = (GlobalRef) deserializer.readRef();
-            obj.ref = ref;
-            x10.core.fun.Fun_0_1 eval = ( x10.core.fun.Fun_0_1)deserializer.readRef();
-            obj.eval = eval;
-            return obj;
+        public static X10JavaSerializable $_deserialize_body($Closure$Eval $_obj, X10JavaDeserializer $deserializer) throws IOException {
+            $_obj.$T = $deserializer.readRef();
+            $_obj.$U = $deserializer.readRef();
+            $_obj.ref = $deserializer.readRef();
+            $_obj.eval = $deserializer.readRef();
+            return $_obj;
         }
 	}
 
             
 	public static class $Closure$Apply<$T> extends x10.core.Ref implements x10.core.fun.Fun_0_0 {
 	    private static final long serialVersionUID = 1L;
-	    private static final short _serialization_id = x10.x10rt.DeserializationDispatcher.addDispatcher(DeserializationDispatcher.ClosureKind.CLOSURE_KIND_SIMPLE_ASYNC, $Closure$Apply.class);
 	    public static final RuntimeType<$Closure$Apply> $RTT =
 		x10.rtt.StaticFunType.<$Closure$Apply> make($Closure$Apply.class,
                                                           RuntimeType.INVARIANTS(1),
-							  new Type[] {x10.rtt.ParameterizedType.make(x10.core.fun.Fun_0_0.$RTT, x10.rtt.UnresolvedType.PARAM(0)), Types.OBJECT});
-	    @Override
+							  new Type[] {x10.rtt.ParameterizedType.make(x10.core.fun.Fun_0_0.$RTT, x10.rtt.UnresolvedType.PARAM(0))});
 	    public RuntimeType<?> $getRTT() {return $RTT;}
-	    @Override
 	    public Type<?> $getParam(int i) {if (i ==0)return $T;return null;}
 
 	    // constructor just for allocation
@@ -851,27 +782,21 @@ public final class GlobalRef<T> extends x10.core.Struct implements Externalizabl
 		return this.ref.$apply$G();
 	    }
 
-        public void $_serialize(X10JavaSerializer serializer) throws IOException {
-            serializer.write($T);
-            serializer.write(ref);
+        public void $_serialize(X10JavaSerializer $serializer) throws IOException {
+            $serializer.write($T);
+            $serializer.write(ref);
         }
 
-        public static X10JavaSerializable $_deserializer(X10JavaDeserializer deserializer) throws java.io.IOException {
-            $Closure$Apply obj = new $Closure$Apply((System[]) null);
-            deserializer.record_reference(obj);
-            return $_deserialize_body(obj, deserializer);
+        public static X10JavaSerializable $_deserializer(X10JavaDeserializer $deserializer) throws java.io.IOException {
+            $Closure$Apply $_obj = new $Closure$Apply((System[]) null);
+            $deserializer.record_reference($_obj);
+            return $_deserialize_body($_obj, $deserializer);
         }
 
-        public short $_get_serialization_id() {
-            return _serialization_id;
-        }
-
-        public static X10JavaSerializable $_deserialize_body($Closure$Apply obj, X10JavaDeserializer deserializer) throws IOException {
-            Type $T = (Type) deserializer.readRef();
-            obj.$T = $T;
-            GlobalRef ref = (GlobalRef) deserializer.readRef();
-            obj.ref = ref;
-            return obj;
+        public static X10JavaSerializable $_deserialize_body($Closure$Apply $_obj, X10JavaDeserializer $deserializer) throws IOException {
+            $_obj.$T = $deserializer.readRef();
+            $_obj.ref = $deserializer.readRef();
+            return $_obj;
         }
 	}
     }

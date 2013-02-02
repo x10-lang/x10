@@ -11,22 +11,19 @@
 
 package x10.core.concurrent;
 
-import x10.core.RefI;
-import x10.rtt.NamedType;
-import x10.rtt.RuntimeType;
-import x10.rtt.RuntimeType.Variance;
-import x10.rtt.Type;
-import x10.rtt.Types;
-import x10.x10rt.X10JavaDeserializer;
-import x10.x10rt.X10JavaSerializable;
-import x10.x10rt.X10JavaSerializer;
-
 import java.io.IOException;
 
-public final class AtomicReference<T> extends java.util.concurrent.atomic.AtomicReference<T> implements RefI, X10JavaSerializable {
+import x10.core.Any;
+import x10.rtt.NamedType;
+import x10.rtt.RuntimeType;
+import x10.rtt.Type;
+import x10.serialization.X10JavaDeserializer;
+import x10.serialization.X10JavaSerializable;
+import x10.serialization.X10JavaSerializer;
+
+public final class AtomicReference<T> extends java.util.concurrent.atomic.AtomicReference<T> implements Any, X10JavaSerializable {
 
     private static final long serialVersionUID = 1L;
-    private static final short _serialization_id = x10.x10rt.DeserializationDispatcher.addDispatcher(x10.x10rt.DeserializationDispatcher.ClosureKind.CLOSURE_KIND_NOT_ASYNC, AtomicReference.class);
 
     // constructor just for allocation
     public AtomicReference(java.lang.System[] $dummy) {
@@ -37,11 +34,6 @@ public final class AtomicReference<T> extends java.util.concurrent.atomic.Atomic
         this.T = T;
         return this;
     }
-    // XTENLANG-3063
-    // not used if X10PrettyPrinterVisitor.supportConstructorWithThrows == true
-    public AtomicReference $init(Type<T> T) {
-        return x10$util$concurrent$AtomicReference$$init$S(T);
-    }
 	
     public AtomicReference(Type<T> T) {
         super();
@@ -49,15 +41,9 @@ public final class AtomicReference<T> extends java.util.concurrent.atomic.Atomic
     }
 
     public final AtomicReference x10$util$concurrent$AtomicReference$$init$S(Type<T> T, T initialValue) {
-        // TODO
         set(initialValue);
         this.T = T;
         return this;
-    }
-    // XTENLANG-3063
-    // not used if X10PrettyPrinterVisitor.supportConstructorWithThrows == true
-    public AtomicReference $init(Type<T> T, T initialValue) {
-        return x10$util$concurrent$AtomicReference$$init$S(T, initialValue);
     }
     
     public AtomicReference(Type<T> T, T initialValue) {
@@ -71,8 +57,7 @@ public final class AtomicReference<T> extends java.util.concurrent.atomic.Atomic
     public static final RuntimeType<AtomicReference> $RTT = NamedType.<AtomicReference> make(
         "x10.util.concurrent.AtomicReference",
         AtomicReference.class,
-        RuntimeType.INVARIANTS(1),
-        new Type[] { Types.OBJECT }
+        RuntimeType.INVARIANTS(1)
     );
     public RuntimeType<AtomicReference> $getRTT() {return $RTT;}
     public Type<?> $getParam(int i) { return i == 0 ? T : null; }
@@ -82,10 +67,6 @@ public final class AtomicReference<T> extends java.util.concurrent.atomic.Atomic
 	public void $_serialize(X10JavaSerializer serializer) throws IOException {
 		serializer.write(this.T);
 		serializer.write(get());
-	}
-
-	public short $_get_serialization_id() {
-		return _serialization_id;
 	}
 
     public static X10JavaSerializable $_deserializer(X10JavaDeserializer deserializer) throws IOException {

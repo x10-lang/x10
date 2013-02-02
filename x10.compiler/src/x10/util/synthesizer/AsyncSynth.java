@@ -71,9 +71,6 @@ public class AsyncSynth extends AbstractStateSynth implements IStmtSynth {
         }
         else{ //place != null;
             //process places
-            if (xts.isImplicitCastValid(place.type(), xts.Object(), xct)) {
-                place = synth.makeFieldAccess(pos,place, xts.homeName(), xct);
-            }
             exprs.add(place);
             types.add(xts.Place());
             

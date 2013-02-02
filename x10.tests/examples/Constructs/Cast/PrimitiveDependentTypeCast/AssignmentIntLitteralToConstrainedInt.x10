@@ -23,7 +23,7 @@ public class AssignmentIntLitteralToConstrainedInt extends x10Test {
 			var i: int{self == 0} = 0;
 			i = 0;
          
-		}catch (e: Throwable) {
+		}catch (e: Exception) {
 			return false;
 		}
 

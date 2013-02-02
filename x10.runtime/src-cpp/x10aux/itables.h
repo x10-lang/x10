@@ -13,7 +13,7 @@
 #define X10AUX_ITABLES_H
 
 #include <x10aux/config.h>
-#include <x10aux/ref.h>
+#include <x10aux/RTT.h>
 
 /*
  * Implementation of X10 interface dispatching using "searched itables."
@@ -96,6 +96,7 @@ namespace x10aux {
             }
         }
     }
+
 }
 
 #endif

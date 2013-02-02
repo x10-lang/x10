@@ -494,14 +494,6 @@ public abstract class TypeEnv_c implements TypeEnv, Cloneable {
 	if (child instanceof ObjectType) {
 	    ObjectType childRT = (ObjectType) child;
 
-	    if (typeEquals(ancestor, ts.Object())) {
-		return true;
-	    }
-
-	    if (typeEquals(childRT, ts.Object())) {
-		return false;
-	    }
-
 	    // Check subclass relation.
 	    if (childRT.superClass() != null) {
 		if (isSubtype(childRT.superClass(), ancestor)) {
@@ -559,7 +551,7 @@ public abstract class TypeEnv_c implements TypeEnv, Cloneable {
 		return ts.arrayOf(leastCommonAncestor(type1.toArray().base(), type2.toArray().base()));
 	    }
 	    else {
-		return ts.Object();
+		return ts.Any();
 	    }
 	}
 
@@ -570,18 +562,12 @@ public abstract class TypeEnv_c implements TypeEnv, Cloneable {
 
 	// Don't consider interfaces.
 	if (type1.isClass() && type1.toClass().flags().isInterface()) {
-	    return ts.Object();
+	    return ts.Any();
 	}
 
 	if (type2.isClass() && type2.toClass().flags().isInterface()) {
-	    return ts.Object();
+	    return ts.Any();
 	}
-
-	// Check against Object to ensure superType() is not null.
-	if (typeEquals(type1, ts.Object()))
-	    return type1;
-	if (typeEquals(type2, ts.Object()))
-	    return type2;
 
 	if (isSubtype(type1, type2))
 	    return type2;
@@ -596,7 +582,7 @@ public abstract class TypeEnv_c implements TypeEnv, Cloneable {
 	    if (typeEquals(t1, t2))
 		return t1;
 
-	    return ts.Object();
+	    return ts.Any();
 	}
 
 	return ts.Any(); 
@@ -678,61 +664,65 @@ public abstract class TypeEnv_c implements TypeEnv, Cloneable {
      * correctly.
      */
     public void checkClassConformance(ClassType ct) throws SemanticException {
-	if (ct.flags().isAbstract()) {
-	    // don't need to check interfaces or abstract classes
-	    return;
-	}
+    	assert false;
+    	if (ct.flags().isAbstract()) {
+    		// don't need to check interfaces or abstract classes
+    		return;
+    	}
 
-	// build up a list of superclasses and interfaces that ct
-	// extends/implements that may contain abstract methods that
-	// ct must define.
-	List<Type> superInterfaces = ts.abstractSuperInterfaces(ct);
+    	// build up a list of superclasses and interfaces that ct
+    	// extends/implements that may contain abstract methods that
+    	// ct must define.
+    	List<Type> superInterfaces = ts.abstractSuperInterfaces(ct);
 
-	// check each abstract method of the classes and interfaces in
-	// superInterfaces
-	for (Iterator<Type> i = superInterfaces.iterator(); i.hasNext();) {
-	    Type it = i.next();
-	    if (it instanceof ContainerType) {
-		ContainerType rt = (ContainerType) it;
-		for (Iterator<MethodInstance> j = rt.methods().iterator(); j.hasNext();) {
-		    MethodInstance mi = j.next();
-		    if (!mi.flags().isAbstract()) {
-			// the method isn't abstract, so ct doesn't have to
-			// implement it.
-			continue;
-		    }
+    	// check each abstract method of the classes and interfaces in
+    	// superInterfaces
+    	for (Iterator<Type> i = superInterfaces.iterator(); i.hasNext();) {
+    		Type it = i.next();
+    		// Everything from Any you get 'for free'
+    		// [DC] perhaps it == ts.Any() is more appropriate here?
+    		if (ts.typeEquals(it, ts.Any(), context)) continue;
+    		if (it instanceof ContainerType) {
+    			ContainerType rt = (ContainerType) it;
+    			for (Iterator<MethodInstance> j = rt.methods().iterator(); j.hasNext();) {
+    				MethodInstance mi = j.next();
+    				if (!mi.flags().isAbstract()) {
+    					// the method isn't abstract, so ct doesn't have to
+    					// implement it.
+    					continue;
+    				}
 
-		    MethodInstance mj = ts.findImplementingMethod(ct, mi, context);
-		    if (mj == null) {
-			if (!ct.flags().isAbstract()) {
-			    throw new SemanticException(ct.fullName() + " should be declared abstract; it does not define " + mi.signature()+ ", which is declared in " + rt.toClass().fullName(), ct.errorPosition());
-			}
-			else {
-			    // no implementation, but that's ok, the class is
-			    // abstract.
-			}
-		    }
-		    else if (!typeEquals(ct, mj.container()) && !typeEquals(ct, mi.container())) {
-			try {
-			    // check that mj can override mi, which
-			    // includes access protection checks.
-			    checkOverride(mj, mi);
-			}
-			catch (SemanticException e) {
-			    // change the position of the semantic
-			    // exception to be the class that we
-			    // are checking.
-			    throw new SemanticException(e.getMessage(), ct.errorPosition());
-			}
-		    }
-		    else {
-			// the method implementation mj or mi was
-			// declared in ct. So other checks will take
-			// care of access issues
-		    }
-		}
-	    }
-	}
+    				MethodInstance mj = ts.findImplementingMethod(ct, mi, context);
+    				if (mj == null) {
+    					if (!ct.flags().isAbstract()) {
+    						throw new SemanticException(ct.fullName() + " should be declared abstract; it does not define " + mi.signature()+ ", which is declared in " + rt.toClass().fullName(), ct.errorPosition());
+    					}
+    					else {
+    						// no implementation, but that's ok, the class is
+    						// abstract.
+    					}
+    				}
+    				else if (!typeEquals(ct, mj.container()) && !typeEquals(ct, mi.container())) {
+    					try {
+    						// check that mj can override mi, which
+    						// includes access protection checks.
+    						checkOverride(mj, mi);
+    					}
+    					catch (SemanticException e) {
+    						// change the position of the semantic
+    						// exception to be the class that we
+    						// are checking.
+    						throw new SemanticException(e.getMessage(), ct.errorPosition());
+    					}
+    				}
+    				else {
+    					// the method implementation mj or mi was
+    					// declared in ct. So other checks will take
+    					// care of access issues
+    				}
+    			}
+    		}
+    	}
     }
 
     public boolean canOverride(MethodInstance mi, MethodInstance mj) {

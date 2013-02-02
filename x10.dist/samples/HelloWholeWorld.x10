@@ -12,13 +12,13 @@
 import x10.io.Console;
 
 /**
- * The classic hello world program, with a twist - lists each place
- * Converted to 2.1 9/1/2010
+ * The classic hello world program, with a twist - prints hello
+ * from every Place.
  */
 class HelloWholeWorld {
   public static def main(Array[String]):void {
      finish for (p in Place.places()) {
-     	async at (p) Console.OUT.println("Hello World from place "+p.id);
+     	at (p) async Console.OUT.println("Hello World from place "+p.id);
      }
   }
 }

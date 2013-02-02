@@ -12,8 +12,8 @@
 import harness.x10Test;
 
 /**
- * Testing the ability to assign to the field of an object
- * at place here a reference to an object at place here.next().
+ * Testing the ability to assign to the field of an Any
+ * at place here a reference to an Any at place here.next().
  *
  * @author vj
  */
@@ -36,6 +36,6 @@ public class AsyncNext extends x10Test {
 
 	static class T {
 		private val root = GlobalRef[T](this);
-		transient var val_:Object;
+		transient var val_:Any;
 	}
 }

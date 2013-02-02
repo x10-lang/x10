@@ -128,6 +128,10 @@ public class CastInjector extends ContextVisitor {
             List<Expr> args = call.arguments();
             List<Type> formals = call.methodInstance().formalTypes();
             List<Expr> newArgs = castActualsToFormals(args, formals);
+            MethodInstance mi = call.methodInstance();
+            if (!mi.flags().isStatic() && ts.isParameterType(call.target().type()) && !ts.isHandOptimizedInterface(mi.container())) {
+                call = (Call_c)call.target(makeCast(call.target().position(), (Expr)call.target(), mi.container()));
+             }
             return null == newArgs ? call : call.arguments(newArgs);            
         } else if (n instanceof New_c) {
             New_c asNew = (New_c)n;
@@ -224,21 +228,20 @@ public class CastInjector extends ContextVisitor {
      * given type requires an explicit cast operation to perform
      * a C++-level representation change (eg boxing). 
      * If the cast is needed, insert it.
-     * If the cast is not needed (eg if both types are x10aux:ref<...>)
+     * If the cast is not needed (eg if both types are classes and is is an upcast)
      * then do nothing, even if the types are not equal.
      */
     private Expr boxingUpcastIfNeeded(Expr a, Type fType) {
         if (a instanceof NullLit_c) {
-            // X10_NULL is x10aux:ref<>; implicit C++ level ref casts are enough
-            return a;
+            return makeCast(a.position(), a, fType);
         }
 
         if (Types.baseType(fType) instanceof FunctionType) {
             return upcastToFunctionType(a, (FunctionType)Types.baseType(fType), true);
         }
                 
-        if (ts.isObjectOrInterfaceType(a.type(), context)) {
-            // already a x10aux::ref; implicit C++ level ref casts are enough
+        if (ts.isObjectType(a.type(), context) && ts.isObjectType(fType, context)) {
+            // implicit C++ level upcast is good enough (C++ and X10 have same class hierarchy structure)
             return a;
         }
         

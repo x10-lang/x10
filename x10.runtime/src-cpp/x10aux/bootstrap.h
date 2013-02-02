@@ -14,33 +14,25 @@
 
 #include <x10aux/config.h>
 #include <x10aux/alloc.h>
-#include <x10aux/place_local.h>
-#include <x10aux/string_utils.h>
-#include <x10aux/system_utils.h>
 #include <x10aux/deserialization_dispatcher.h>
 
 #include <x10/lang/VoidFun_0_0.h>
 
-#include <x10/lang/Throwable.h>
-
-#include <x10/lang/Thread.h>
-#include <x10/lang/Runtime__Worker.h>
 #include <x10/lang/Closure.h>
 
-#include <stdio.h>
-#include <unistd.h>
+#include <x10/lang/String.h>
 
 namespace x10 { namespace array { template<class T> class Array; } }
 
 namespace x10aux {
-    typedef void (*ApplicationMainFunction)(ref<x10::array::Array<ref<x10::lang::String> > >);
+    typedef void (*ApplicationMainFunction)(x10::array::Array<x10::lang::String*>*);
 
     class BootStrapClosure : public x10::lang::Closure
     {
         protected:
 
         ApplicationMainFunction main;
-        ref<x10::array::Array<ref<x10::lang::String> > > args;
+        x10::array::Array<x10::lang::String*>* args;
         public:
 
         static x10::lang::VoidFun_0_0::itable<BootStrapClosure> _itable;
@@ -55,14 +47,14 @@ namespace x10aux {
         }
 
         BootStrapClosure(ApplicationMainFunction main_,
-                         ref<x10::array::Array<ref<x10::lang::String> > > args_)
+                         x10::array::Array<x10::lang::String*>* args_)
           : main(main_), args(args_)
         { }
 
         const x10aux::RuntimeType *_type() const {return x10aux::getRTT<x10::lang::VoidFun_0_0>();}
 
-        ref<x10::lang::String> toString() {
-            return x10aux::string_utils::lit("x10aux::BootStrapClosure ("__FILELINE__")");
+        x10::lang::String* toString() {
+            return x10::lang::String::Lit("x10aux::BootStrapClosure ("__FILELINE__")");
         }
 
         virtual x10aux::serialization_id_t _get_serialization_id() {

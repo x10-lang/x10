@@ -294,7 +294,6 @@ final class PolyScanner(rank:Int)/*(C:PolyMat)*/ {
     	val it = new RailIt();
         public final def hasNext() = it.hasNext();
         public final def next(): Point(rank) = it.next(); 
-        public final def remove() { it.remove(); }
     };
 
 

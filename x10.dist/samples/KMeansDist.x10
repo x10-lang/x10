@@ -12,6 +12,12 @@
 import x10.io.Console;
 import x10.util.Random;
 
+/**
+ * A low performance formulation of KMeans using DistArray.
+ *
+ * For a scalable, high-performance version of this benchmark see
+ * KMeans.x10 in the X10 Benchmarks (separate download from x10-lang.org)
+ */
 public class KMeansDist {
 
     static val DIM=2;
@@ -52,7 +58,7 @@ public class KMeansDist {
 
             finish {
                 // reset state
-                for (d in points_dist.places()) async at(d) {
+                for (d in points_dist.places()) at (d) async {
                     for (var j:Int=0 ; j<DIM*CLUSTERS ; ++j) {
                         local_curr_clusters()(j) = central_clusters(j);
                         local_new_clusters()(j) = 0;
@@ -67,7 +73,7 @@ public class KMeansDist {
                 // compute new clusters and counters
                 for (var p_:Int=0 ; p_<POINTS ; ++p_) {
                     val p = p_;
-                    async at(points_dist(p,0)) {
+                    at (points_dist(p,0)) async {
                         var closest:Int = -1;
                         var closest_dist:Float = Float.MAX_VALUE;
                         for (var k:Int=0 ; k<CLUSTERS ; ++k) { 
@@ -81,10 +87,12 @@ public class KMeansDist {
                                 closest = k;
                             }
                         }
-                        for (var d:Int=0 ; d<DIM ; ++d) { 
-                            local_new_clusters()(closest*DIM+d) += points(Point.make(p,d));
+			atomic {
+                            for (var d:Int=0 ; d<DIM ; ++d) { 
+                                local_new_clusters()(closest*DIM+d) += points(Point.make(p,d));
+                            }
+                            local_cluster_counts()(closest)++;
                         }
-                        local_cluster_counts()(closest)++;
                     }
                 }
             }
@@ -103,7 +111,7 @@ public class KMeansDist {
                 val central_clusters_gr = GlobalRef(central_clusters);
                 val central_cluster_counts_gr = GlobalRef(central_cluster_counts);
                 val there = here;
-                for (d in points_dist.places()) async {
+                for (d in points_dist.places()) at (d) async {
                     // access PlaceLocalHandles 'here' and then data will be captured by at and transfered to 'there' for accumulation
                     val tmp_new_clusters = local_new_clusters();
                     val tmp_cluster_counts = local_cluster_counts();

@@ -11,21 +11,19 @@
 
 package x10.core.concurrent;
 
-import x10.core.RefI;
+import java.io.IOException;
+
+import x10.core.Any;
 import x10.rtt.NamedType;
 import x10.rtt.RuntimeType;
 import x10.rtt.Type;
-import x10.rtt.Types;
-import x10.x10rt.X10JavaDeserializer;
-import x10.x10rt.X10JavaSerializable;
-import x10.x10rt.X10JavaSerializer;
+import x10.serialization.X10JavaDeserializer;
+import x10.serialization.X10JavaSerializable;
+import x10.serialization.X10JavaSerializer;
 
-import java.io.IOException;
-
-public final class AtomicBoolean extends java.util.concurrent.atomic.AtomicBoolean implements RefI, X10JavaSerializable {
+public final class AtomicBoolean extends java.util.concurrent.atomic.AtomicBoolean implements Any, X10JavaSerializable {
 
     private static final long serialVersionUID = 1L;
-    private static final short _serialization_id = x10.x10rt.DeserializationDispatcher.addDispatcher(x10.x10rt.DeserializationDispatcher.ClosureKind.CLOSURE_KIND_NOT_ASYNC, AtomicBoolean.class);
 
     // constructor just for allocation
     public AtomicBoolean(java.lang.System[] $dummy) {
@@ -33,9 +31,6 @@ public final class AtomicBoolean extends java.util.concurrent.atomic.AtomicBoole
     }
     
     public final AtomicBoolean x10$util$concurrent$AtomicBoolean$$init$S() {return this;}
-    // XTENLANG-3063
-    // not used if X10PrettyPrinterVisitor.supportConstructorWithThrows == true
-    public AtomicBoolean $init() {return x10$util$concurrent$AtomicBoolean$$init$S();}
 
     public AtomicBoolean() {
         super();
@@ -45,11 +40,6 @@ public final class AtomicBoolean extends java.util.concurrent.atomic.AtomicBoole
         // TODO
         set(initialValue);
         return this;
-    }
-    // XTENLANG-3063
-    // not used if X10PrettyPrinterVisitor.supportConstructorWithThrows == true
-    public AtomicBoolean $init(boolean initialValue) {
-        return x10$util$concurrent$AtomicBoolean$$init$S(initialValue);
     }
 
     public AtomicBoolean(boolean initialValue) {
@@ -61,8 +51,7 @@ public final class AtomicBoolean extends java.util.concurrent.atomic.AtomicBoole
     //
     public static final RuntimeType<AtomicBoolean> $RTT = NamedType.<AtomicBoolean> make(
         "x10.util.concurrent.AtomicBoolean",
-        AtomicBoolean.class,
-        new Type[] { Types.OBJECT }
+        AtomicBoolean.class
     );
     public RuntimeType<AtomicBoolean> $getRTT() {return $RTT;}
     public Type<?> $getParam(int i) { return null; }
@@ -81,9 +70,4 @@ public final class AtomicBoolean extends java.util.concurrent.atomic.AtomicBoole
         deserializer.record_reference(ab);
         return ab;
     }
-
-	public short $_get_serialization_id() {
-		return _serialization_id;
-	}
-
 }

@@ -18,6 +18,5 @@ import x10.lang.annotations.StatementAnnotation;
  * must be used *exactly* as the following for now:
  *   @StackAllocate val v = @StackAllocate new T(...);
  * EXPERIMENTAL
- * @author Olivier Tardieu
  */
 public interface StackAllocate extends ExpressionAnnotation,StatementAnnotation { }

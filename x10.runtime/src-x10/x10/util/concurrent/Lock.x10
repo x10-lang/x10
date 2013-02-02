@@ -26,8 +26,6 @@ import x10.io.SerialData;
  * since that is very likely to lead to concurrency errors in the program.
  * If the serialize method of a Lock instance is invoked, an UnsupportedOperationException
  * will be thrown.</p>
- *
- * @author tardieu
  */
 @NativeClass("java", "java.util.concurrent.locks", "ReentrantLock")
 @NativeClass("c++", "x10.lang", "Lock__ReentrantLock")

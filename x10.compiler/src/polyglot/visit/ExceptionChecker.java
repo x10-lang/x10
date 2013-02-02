@@ -75,24 +75,24 @@ public class ExceptionChecker extends ErrorHandlingVisitor
     public ExceptionChecker push(UncaughtReporter reporter) {
         ExceptionChecker ec = this.push();
         ec.reporter = reporter;
-        ec.throwsSet = new SubtypeSet(ts.Throwable());
+        ec.throwsSet = new SubtypeSet(ts.CheckedThrowable());
         return ec;
     }
     public ExceptionChecker push(Type catchableType) {
         ExceptionChecker ec = this.push();
         ec.catchable = Collections.<Type>singleton(catchableType);
-        ec.throwsSet = new SubtypeSet(ts.Throwable());
+        ec.throwsSet = new SubtypeSet(ts.CheckedThrowable());
         return ec;
     }
     public ExceptionChecker push(Collection<Type> catchableTypes) {
         ExceptionChecker ec = this.push();
         ec.catchable = CollectionFactory.newHashSet(catchableTypes);
-        ec.throwsSet = new SubtypeSet(ts.Throwable());
+        ec.throwsSet = new SubtypeSet(ts.CheckedThrowable());
         return ec;
     }
     public ExceptionChecker pushCatchAllThrowable() {
         ExceptionChecker ec = this.push();
-        ec.throwsSet = new SubtypeSet(ts.Throwable());
+        ec.throwsSet = new SubtypeSet(ts.CheckedThrowable());
         ec.catchAllThrowable = true;
         return ec;
     }
@@ -201,7 +201,7 @@ public class ExceptionChecker extends ErrorHandlingVisitor
 
     public SubtypeSet throwsSet() {
         if (this.throwsSet == null) {
-            this.throwsSet = new SubtypeSet(ts.Throwable());
+            this.throwsSet = new SubtypeSet(ts.CheckedThrowable());
         }
         return this.throwsSet;
     }

@@ -63,7 +63,7 @@ namespace x10 {
                 return FMGL(localStorage);
             }
 
-            x10aux::ref<x10::lang::String> toString() {
+            x10::lang::String* toString() {
                 if (FMGL(cached)) {
                     return x10aux::to_string(FMGL(localStorage));
                 } else {

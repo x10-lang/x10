@@ -11,24 +11,25 @@
 
 package x10.core;
 
+import java.io.IOException;
+
 import x10.rtt.RuntimeType;
 import x10.rtt.Type;
 import x10.rtt.Types;
-import x10.x10rt.X10JavaDeserializer;
-import x10.x10rt.X10JavaSerializable;
-import x10.x10rt.X10JavaSerializer;
-
-import java.io.IOException;
+import x10.serialization.X10JavaDeserializer;
+import x10.serialization.X10JavaSerializable;
+import x10.serialization.X10JavaSerializer;
 
 /**
  * Represents a boxed UShort value. Boxed representation is used when casting
  * a UShort value into type Any or parameter type T.
  */
-final public class UShort extends Number implements StructI, java.lang.Comparable<UShort>,
-    x10.lang.Arithmetic<UShort>, x10.lang.Bitwise<UShort>, x10.util.Ordered<UShort>
+final public class UShort extends java.lang.Number implements StructI, java.lang.Comparable<UShort>,
+// for X10PrettyPrinterVisitor.exposeSpecialDispatcherThroughSpecialInterface
+//    x10.lang.Arithmetic<UShort>, x10.lang.Bitwise<UShort>, x10.util.Ordered<UShort>
+    x10.core.Arithmetic.x10$lang$UShort, x10.core.Bitwise.x10$lang$UShort, x10.util.Ordered<UShort>
 {
     private static final long serialVersionUID = 1L;
-    private static final short _serialization_id = x10.x10rt.DeserializationDispatcher.addDispatcher(x10.x10rt.DeserializationDispatcher.ClosureKind.CLOSURE_KIND_NOT_ASYNC, UShort.class);
 
     public static final RuntimeType<?> $RTT = Types.USHORT;
     public RuntimeType<?> $getRTT() {return $RTT;}
@@ -129,44 +130,49 @@ final public class UShort extends Number implements StructI, java.lang.Comparabl
     public UShort $minus(java.lang.Object a, Type t) { return UShort.$box($value - ((UShort)a).$value); }
     public UShort $times(java.lang.Object a, Type t) { return UShort.$box($value * ((UShort)a).$value); }
     public UShort $over(java.lang.Object a, Type t) { return UShort.$box((short)((0xffff & $value) / (0xffff & ((UShort)a).$value))); }
+    // for X10PrettyPrinterVisitor.exposeSpecialDispatcherThroughSpecialInterface
+    public short $plus$s(java.lang.Object a, Type t) { return (short) ($value + ((UShort)a).$value); }
+    public short $minus$s(java.lang.Object a, Type t) { return (short) ($value - ((UShort)a).$value); }
+    public short $times$s(java.lang.Object a, Type t) { return (short) ($value * ((UShort)a).$value); }
+    public short $over$s(java.lang.Object a, Type t) { return (short) ((0xffff & $value) / (0xffff & ((UShort)a).$value)); }
     
     // implements Bitwise<UShort>
     public UShort $tilde$G() { return UShort.$box(~$value); }
     public UShort $ampersand(java.lang.Object a, Type t) { return UShort.$box($value & ((UShort)a).$value); }
     public UShort $bar(java.lang.Object a, Type t) { return UShort.$box($value | ((UShort)a).$value); }
     public UShort $caret(java.lang.Object a, Type t) { return UShort.$box($value ^ ((UShort)a).$value); }
-    public UShort $left$G(final int count) { return UShort.$box($value << count); }
-    public UShort $right$G(final int count) { return UShort.$box((0xffff & $value) >>> count); } // UShort is always unsigned
-    public UShort $unsigned_right$G(final int count) { return UShort.$box((0xffff & $value) >>> count); }
+    public UShort $left$G(int count) { return UShort.$box($value << count); }
+    public UShort $right$G(int count) { return UShort.$box((0xffff & $value) >>> count); } // UShort is always unsigned
+    public UShort $unsigned_right$G(int count) { return UShort.$box((0xffff & $value) >>> count); }
+    // for X10PrettyPrinterVisitor.exposeSpecialDispatcherThroughSpecialInterface
+    public short $ampersand$s(java.lang.Object a, Type t) { return (short) ($value & ((UShort)a).$value); }
+    public short $bar$s(java.lang.Object a, Type t) { return (short) ($value | ((UShort)a).$value); }
+    public short $caret$s(java.lang.Object a, Type t) { return (short) ($value ^ ((UShort)a).$value); }
     
     // implements Ordered<UShort>
-    public java.lang.Object $lt(java.lang.Object a, Type t) { return x10.core.Boolean.$box(Unsigned.lt($value,((UShort)a).$value)); }
-    public java.lang.Object $gt(java.lang.Object a, Type t) { return x10.core.Boolean.$box(Unsigned.gt($value,((UShort)a).$value)); }
-    public java.lang.Object $le(java.lang.Object a, Type t) { return x10.core.Boolean.$box(Unsigned.le($value,((UShort)a).$value)); }
-    public java.lang.Object $ge(java.lang.Object a, Type t) { return x10.core.Boolean.$box(Unsigned.ge($value,((UShort)a).$value)); }
+    public java.lang.Object $lt(java.lang.Object a, Type t) { return x10.core.Boolean.$box(x10.runtime.impl.java.UIntUtils.lt($value,((UShort)a).$value)); }
+    public java.lang.Object $gt(java.lang.Object a, Type t) { return x10.core.Boolean.$box(x10.runtime.impl.java.UIntUtils.gt($value,((UShort)a).$value)); }
+    public java.lang.Object $le(java.lang.Object a, Type t) { return x10.core.Boolean.$box(x10.runtime.impl.java.UIntUtils.le($value,((UShort)a).$value)); }
+    public java.lang.Object $ge(java.lang.Object a, Type t) { return x10.core.Boolean.$box(x10.runtime.impl.java.UIntUtils.ge($value,((UShort)a).$value)); }
     // for X10PrettyPrinterVisitor.generateSpecialDispatcher
-    public boolean $lt$Z(java.lang.Object a, Type t) { return Unsigned.lt($value,((UShort)a).$value); }
-    public boolean $gt$Z(java.lang.Object a, Type t) { return Unsigned.gt($value,((UShort)a).$value); }
-    public boolean $le$Z(java.lang.Object a, Type t) { return Unsigned.le($value,((UShort)a).$value); }
-    public boolean $ge$Z(java.lang.Object a, Type t) { return Unsigned.ge($value,((UShort)a).$value); }
+    public boolean $lt$Z(java.lang.Object a, Type t) { return x10.runtime.impl.java.UIntUtils.lt($value,((UShort)a).$value); }
+    public boolean $gt$Z(java.lang.Object a, Type t) { return x10.runtime.impl.java.UIntUtils.gt($value,((UShort)a).$value); }
+    public boolean $le$Z(java.lang.Object a, Type t) { return x10.runtime.impl.java.UIntUtils.le($value,((UShort)a).$value); }
+    public boolean $ge$Z(java.lang.Object a, Type t) { return x10.runtime.impl.java.UIntUtils.ge($value,((UShort)a).$value); }
 
-    public void $_serialize(X10JavaSerializer serializer) throws IOException {
-        serializer.write($value);
+    public void $_serialize(X10JavaSerializer $serializer) throws IOException {
+        $serializer.write($value);
     }
 
-    public short $_get_serialization_id() {
-        return _serialization_id;
+    public static X10JavaSerializable $_deserializer(X10JavaDeserializer $deserializer) throws IOException {
+        return $_deserialize_body(null, $deserializer);
     }
 
-    public static X10JavaSerializable $_deserializer(X10JavaDeserializer deserializer) throws IOException {
-        return $_deserialize_body(null, deserializer);
-    }
-
-    public static X10JavaSerializable $_deserialize_body(UShort us, X10JavaDeserializer deserializer) throws IOException {
-        short value  = deserializer.readShort();
-        us = new UShort(value);
-        deserializer.record_reference(us);
-        return us;
+    public static X10JavaSerializable $_deserialize_body(UShort $_obj, X10JavaDeserializer $deserializer) throws IOException {
+        short value = $deserializer.readShort();
+        $_obj = new UShort(value);
+        $deserializer.record_reference($_obj);
+        return $_obj;
     }
 
     // extends abstract class java.lang.Number

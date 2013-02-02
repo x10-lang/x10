@@ -22,7 +22,7 @@ public class CastPrimitiveLitteralToPrimitiveConstrained_MustFailCompile extends
 		
 		try { 
            val j: int(0) = 1; // ERR
-		}catch(e: Throwable) {
+		}catch(e: Exception) {
 			return false;
 		}
 

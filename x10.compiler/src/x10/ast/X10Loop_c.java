@@ -162,6 +162,9 @@ public abstract class X10Loop_c extends Loop_c implements X10Loop {
             if (ts.hasSameClassDef(base, ts.Iterable())) {
                 return Types.getParameterType(base, 0);
             }
+            if (ts.hasSameClassDef(base, ts.JLIterable())) {
+                return ts.Any();
+            }
             else {
                 Type sup = ts.superClass(domainType);
                 if (sup != null) {

@@ -221,29 +221,12 @@ public class X10ClassDecl_c extends ClassDecl_c implements X10ClassDecl {
         // during bootstrapping: Object, refers to Int, refers to Object, ...
         final LazyRef<Type> superRef = Types.lazyRef(null);
 
-        if (thisType.fullName().equals(QName.make("x10.lang.Object"))) {
-        	thisType.superType(null);
-        }
-        else if (flags().flags().isInterface()) {
-        	thisType.superType(null);
-        }
-        else if (superClass == null && flags().flags().isStruct()) {
-        	/* final LazyRef<Type> Struct = Types.lazyRef(null);
-     		Struct.setResolver(new Runnable() {
-     			public void run() {
-     				Struct.update(xts.Struct());
-     			}
-     		}); */
+        if (flags().flags().isInterface()) {
         	thisType.superType(null);
         }
         else if (superClass == null) {
-        	// The default superclass is Object
-        	superRef.setResolver(new Runnable() {
-        		public void run() {
-        			superRef.update(xts.Object());
-        		}
-        	});
-        	thisType.superType(superRef);
+        	// [DC] no root for classes anymore
+        	thisType.superType(null);
         }
         else {
         	superSetSuperClass(ts, thisType);
@@ -254,27 +237,19 @@ public class X10ClassDecl_c extends ClassDecl_c implements X10ClassDecl {
         TypeNode superClass = this.superClass;
         Reporter reporter = ts.extensionInfo().getOptions().reporter;
         
-        QName objectName = ((ClassType) ts.Object()).fullName();
-
         if (superClass != null) {
             Ref<? extends Type> t = superClass.typeRef();
             if (reporter.should_report(Reporter.types, 3))
                 reporter.report(3, "setting superclass of " + this.type + " to " + t);
             thisType.superType(t);
         }
-        else if (thisType.asType().equals((Object) ts.Object()) || thisType.fullName().equals(objectName)) {
-            // the type is the same as ts.Object(), so it has no superclass.
-            if (reporter.should_report(Reporter.types, 3))
-                reporter.report(3, "setting superclass of " + thisType + " to " + null);
-            thisType.superType(null);
-        }
         else {
             // the superclass was not specified, and the type is not the same
             // as ts.Object() (which is typically java.lang.Object)
             // As such, the default superclass is ts.Object().
             if (reporter.should_report(Reporter.types, 3))
-                reporter.report(3, "setting superclass of " + this.type + " to " + ts.Object());
-            thisType.superType(Types.<Type>ref(ts.Object()));
+                reporter.report(3, "setting superclass of " + this.type + " to " + null);
+            thisType.superType(null);
         }
     }
     
@@ -339,6 +314,7 @@ public class X10ClassDecl_c extends ClassDecl_c implements X10ClassDecl {
 
     @Override
     public Context enterScope(Context c) {
+    	c = c.pushCode(classDef());
     	return c.pushBlock();
     }
 
@@ -356,6 +332,12 @@ public class X10ClassDecl_c extends ClassDecl_c implements X10ClassDecl {
     			// hierarchy, but avoids an infinite loop.
     			c = c.pushBlock();
     			c.addNamed(type.asType());
+    			
+    			// add class invariant, XTENLANG-3125
+    			if (classInvariant != null) {
+					c.addConstraint(type.classInvariant()); // is this needed too?
+					c.setCurrentTypeConstraint(classInvariant.typeConstraint());
+    			}
     		}
 
     		// Add type parameters
@@ -448,9 +430,11 @@ public class X10ClassDecl_c extends ClassDecl_c implements X10ClassDecl {
             def.addTypeParameter(tpn.type(), tpn.variance());
         }
 
+        ///* [DC] going to hack the typesystem to allow calls to these special Any methods even if they don't exist.
+        // [DC] actually, no.  going to do that for objects but not structs, and do something else for structs later
         if (flags().flags().isStruct())
             n = x10.util.Struct.addStructMethods(tb,n);
-
+		//*/
 
 
         //I need a way to access the outer instance when generating dynamic_checks.
@@ -518,10 +502,9 @@ public class X10ClassDecl_c extends ClassDecl_c implements X10ClassDecl {
     }
     public static Name getThisMethod(QName containerName, QName n) {
         return Name.make(
-                containerName.toString().replace('.','$')+
-                        "$$"+
-                n.toString().replace('.','$')+
-                        "$this");
+            containerName.toString().replace('.','$')+ "$"+ "$this"
+                +"$"+ n.toString().replace('.','$')
+            );
     }
 
     private SemanticException errorInAST;
@@ -672,6 +655,10 @@ public class X10ClassDecl_c extends ClassDecl_c implements X10ClassDecl {
      * @return
      */
     public Node adjustAbstractMethods( ContextVisitor tc) {
+    	// [DC] it seems this function exists so that one can dispatch through an
+    	// abstract method in the c++ backend using the standard vtable dispatch mechanism
+    	// rather than having to go through itables.  This makes the codegen simpler and is faster at runtime.
+
     	X10ClassDecl_c n = this;
     	
     	if (n.flags().flags().isInterface())
@@ -689,10 +676,19 @@ public class X10ClassDecl_c extends ClassDecl_c implements X10ClassDecl {
     	for (X10ClassType intface : interfaces) {
     	    List<MethodInstance> oldMethods = intface.methods();
     	    for (MethodInstance mi : oldMethods) {
-    	        MethodInstance mj = xts.findImplementingMethod(targetType, mi, true, tc.context());
+    	    	
+    	    	// [DC] leave these guys out of the picture -- backends handle them specially
+    	    	// testing mi.container().isAny() does not work since an interface I can redeclare these methods as abstract, in which
+    	    	// case their container is I, not Any
+    	    	if (mi.name().toString().equals("toString") && mi.formalNames().isEmpty()) continue;
+    	    	if (mi.name().toString().equals("hashCode") && mi.formalNames().isEmpty()) continue;
+    	    	if (mi.name().toString().equals("typeName") && mi.formalNames().isEmpty()) continue;
+    	    	if (mi.name().toString().equals("equals") && mi.formalNames().size()==1 && mi.formalTypes().get(0).isAny()) continue;
+    	        
+    	    	MethodInstance mj = xts.findImplementingMethod(targetType, mi, true, tc.context());
 
     	        if (mj == null) { // This method is not already defined for this class
-    	            candidates.add(mi);
+    	        	candidates.add(mi);
     	        }
     	    }
     	} // interfaces
@@ -725,6 +721,73 @@ public class X10ClassDecl_c extends ClassDecl_c implements X10ClassDecl {
     	            formalNames,
     	            mi.throwTypes(),
     	            mi.returnType(), null);
+    	}
+    	return n;
+    }
+ 
+    /**
+     * If the class does not have a super type and does not define a method from Any, add a default one.
+     */
+    public Node addDefaultAnyMethods( ContextVisitor tc) {
+    	X10ClassDecl_c n = this;
+    	
+    	if (n.flags().flags().isInterface())
+    		return n;
+    	if (n.flags().flags().isStruct())
+    		return n;
+    	if (n.superClass() != null)
+    		return n;
+    	
+    	TypeSystem xts =  tc.typeSystem();
+    	NodeFactory xnf = (NodeFactory) tc.nodeFactory();
+    	X10ClassType targetType = (X10ClassType) n.classDef().asType();
+
+    	LinkedList<MethodInstance> results = new LinkedList<MethodInstance>();
+
+    	X10ClassType intface = xts.Any();
+	    for (MethodInstance mi : xts.Any().methods()) {   	
+	        MethodInstance mj = xts.findImplementingMethod(targetType, mi, true, tc.context());
+	        if (mj == null) { // This method is not already defined for this class
+	        	results.add(mi);
+	        }
+    	}
+
+    	Position CG = Position.compilerGenerated(body().position());
+    	Synthesizer synth = new Synthesizer(xnf, xts);
+    	for (MethodInstance mi : results) {
+    	    Id name = xnf.Id(CG, mi.name());
+    	    List<LocalDef> formalNames = new ArrayList<LocalDef>();
+    	    for (LocalDef f : ((X10MethodDef) mi.def()).formalNames()) {
+    	        X10LocalDef tf = (X10LocalDef) f.copy();
+    	        tf.setType(f.type());
+                formalNames.add(tf);
+            }
+    	    Type system = xts.System();
+    	    Name system_name = null;
+    	    X10Call call = null;
+    	    try {
+	    	    if (mi.name().toString().equals("hashCode")) {
+	    	    	List<Expr> args = Collections.<Expr>singletonList(xnf.Special(CG, Special.THIS).type(targetType));
+	        	    call = (X10Call) synth.makeStaticCall(CG, system, Name.make("identityHashCode"), args, mi.returnType(), tc.context());
+	    	    }
+	    	    //if (mi.name().toString().equals("typeName")) system_name = Name.make("identityTypeName");
+	    	    //if (mi.name().toString().equals("toString")) system_name = Name.make("identityToString");
+	    	    //if (mi.name().toString().equals("equals")) system_name = Name.make("identityEquals");
+	    	    //call = null;
+	    	    if (call != null) {
+		    	    assert call != null : mi.name().toString();
+		    	    System.out.println("Adding hashCode method... calling: " + call);
+		            n = synth.addSyntheticMethod(n,
+		            		Flags.PUBLIC,
+		    	            ((X10MethodDef) mi.def()).typeParameters(),
+		    	            mi.name(),
+		    	            formalNames,
+		    	            mi.throwTypes(),
+		    	            mi.returnType(), xnf.Block(CG,xnf.Return(CG, call)));
+	    	    }
+    	    } catch (SemanticException e) {
+    	    	Errors.issue(tc.job(), e, this);
+    	    }
     	}
     	return n;
     }
@@ -797,6 +860,9 @@ public class X10ClassDecl_c extends ClassDecl_c implements X10ClassDecl {
 
     	n = (X10ClassDecl_c) n.typeCheckProperties(parent, tc, childtc);
     	n = (X10ClassDecl_c) n.typeCheckClassInvariant(parent, tc, childtc);
+
+    	// have to run this before adjustAbstractMethods so that it doesn't create an abstract method for these guys
+    	//n = (X10ClassDecl_c) n.addDefaultAnyMethods(oldtc);
 
     	n = (X10ClassDecl_c) n.adjustAbstractMethods(oldtc);
 
@@ -888,8 +954,8 @@ public class X10ClassDecl_c extends ClassDecl_c implements X10ClassDecl {
     			n.classDef().setFlags(n.classDef().flags().Static());
     			n = (X10ClassDecl_c) n.flags(n.flags().flags(flags.Static()));
     		}
-    		n.checkStructMethods(parent, tc);
     	}
+    	n.checkStructMethods(parent, tc);
 
         // a superclass/interface is a covariant position (+)
         if (n.superClass!=null) Types.checkVariance(n.superClass, ParameterType.Variance.COVARIANT,tc.job());
@@ -1136,11 +1202,6 @@ public class X10ClassDecl_c extends ClassDecl_c implements X10ClassDecl {
                                 position()));
             }
 
-            if (objectIsRoot() && type.typeEquals(ts.Object(), context)) {
-                Errors.issue(tc.job(),
-                        new Errors.CannotHaveSuperclass(type,
-                                superClass.position()));
-            }
         }
 
         for (Iterator<TypeNode> i = interfaces.iterator(); i.hasNext(); ) {
@@ -1153,11 +1214,6 @@ public class X10ClassDecl_c extends ClassDecl_c implements X10ClassDecl {
                                 tn.position()));
             }
 
-            if (objectIsRoot() && type.typeEquals(ts.Object(), context)) {
-                Errors.issue(tc.job(),
-                        new Errors.ClassCannotHaveSuperInterface(type,
-                                tn.position()));
-            }
         }
 
 
@@ -1177,8 +1233,8 @@ public class X10ClassDecl_c extends ClassDecl_c implements X10ClassDecl {
             int len = directSuperTypes.size();
             for (int i1=0; i1<len; i1++) {
                 X10ParsedClassType_c it1 = directSuperTypes.get(i1);
-                // we can skip Any or Object
-                if (ts.isAny(it1) || ts.typeBaseEquals(ts.Object(), it1, context)) continue;
+                // we can skip Any
+                if (ts.isAny(it1)) continue;
                 final List<MethodInstance> methods1 = it1.getAllMethods();
                 if (methods1.size()==0) continue;
                 for (int i2=i1+1; i2<len; i2++) {
@@ -1299,10 +1355,6 @@ public class X10ClassDecl_c extends ClassDecl_c implements X10ClassDecl {
         return !xts.hasUnknown(type);
     }
 
-    protected boolean objectIsRoot() {
-        return false;
-    }
-
     public Term firstChild() {
         return listChild(properties, this.body);
     }
@@ -1412,6 +1464,7 @@ public class X10ClassDecl_c extends ClassDecl_c implements X10ClassDecl {
                 formals,
                 guard,
                 null, // offerType
+                Collections.<TypeNode>emptyList(),
                 block);
         return cd;
     }

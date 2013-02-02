@@ -30,7 +30,7 @@ public class GenericInheritance04 extends GenericTest {
     public def run() = {
 
         val a = new A[int]();
-        check("a.m(0)", a.m(0), 0);
+        genericCheck("a.m(0)", a.m(0), 0);
 
         return result;
     }

@@ -18,7 +18,7 @@ import harness.x10Test;
 
 class XTENLANG_244 extends x10Test {
 
-    static def check(a:Object, b:Object) = a==b;
+    static def check(a:Any, b:Any) = a==b;
     
     public def run():boolean {
         return check(new Box[Int](1), new Box[Int](1))==false;

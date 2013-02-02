@@ -16,12 +16,6 @@ import x10.compiler.CompilerFlags;
 
 /**
  * Representation of a place within the APGAS model.
- *
- * @author Christian Grothoff
- * @author Raj Barik, Vivek Sarkar
- * @author tardieu
- * @author vj
- * @author Dave Cunningham
  */
 public final struct Place(id: Int)  {
     public property id():Int = id;
@@ -209,7 +203,7 @@ public final struct Place(id: Int)  {
      */
     @Native("java", "(#r).home")
     @Native("c++", "x10::lang::Place::place((#r)->location)")
-    public static native operator[T] (r:GlobalRef[T]){T <: Object}: Place{self==r.home};
+    public static native operator[T] (r:GlobalRef[T]){T isref}: Place{self==r.home};
 
 }
 public type Place(id:Int) = Place{self.id==id};

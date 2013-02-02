@@ -13,17 +13,18 @@ package x10.util;
 
 import x10.util.HashMap;
 import x10.util.GrowableIndexedMemoryChunk;
+import x10.util.StringBuilder;
 
 /**
- * @author Dave Cunningham
-*/
+ */
 public final class OptionsParser {
 
     public static final class Err extends Exception {
         private val msg:String;
         public def this (m:String) { this.msg = m; }
         public def this () {this.msg = null;}
-         public def toString() = "Commandline error: "+msg;
+        // FIXME CheckedThrowable.toString() is now final
+        // public def toString() = "Commandline error: "+msg;
     }
 
     private val map : HashMap[String,String];
@@ -129,16 +130,15 @@ public final class OptionsParser {
     public def filteredArgs() = filteredArgs.toArray();
 
     static def padding (p:Int) {
-        // need a more efficient way of doing this:
-        var r:String = new String();
-        for ([i] in 1..p) r += " ";
-        return r;
+        var r:StringBuilder = new StringBuilder();
+        for ([i] in 1..p) r.add(" ");
+        return r.toString();
     }
         
 
     public def usage() {
-        var r:String = new String();
-        r += "Usage:";
+        var r:StringBuilder = new StringBuilder();
+        r.add("Usage:");
         var shortWidth:Int = 0;
         for (opt in flags.values()) {
 	    if (opt.short_ != null) {
@@ -165,16 +165,16 @@ public final class OptionsParser {
             // the 8 is to match the " <param>"
             val shortPadding = 8+shortWidth - opt.short_.length();
             val longPadding = longWidth - opt.long_.length();
-            r += "\n    "+opt.short_+padding(shortPadding)
-               + " ("+opt.long_+") "+padding(longPadding)+opt.description;
+            r.add("\n    "+opt.short_+padding(shortPadding)
+               + " ("+opt.long_+") "+padding(longPadding)+opt.description);
         }
         for (opt in specs.values()) {
             val shortPadding = shortWidth - opt.short_.length();
             val longPadding = longWidth - opt.long_.length();
-            r += "\n    "+opt.short_+" <param>"+padding(shortPadding)
-               + " ("+opt.long_+") "+padding(longPadding)+opt.description;
+            r.add("\n    "+opt.short_+" <param>"+padding(shortPadding)
+               + " ("+opt.long_+") "+padding(longPadding)+opt.description);
         }
-        return r;
+        return r.toString();
     }
 
     public operator this (key:String):Boolean = set.containsKey(key) || map.containsKey(key);

@@ -10,23 +10,22 @@
  */
 
 import harness.x10Test;
-import x10.interop.java.Throws;
 
 // MANAGED_X10_ONLY
 
 public class JavaException5 extends x10Test {
 
     public abstract static class Base {
-        public def f() @Throws[java.io.IOException] {
+        public def f() throws java.io.IOException {
             return null;
         }
-        private def g() @Throws[java.io.IOException] {
+        private def g() throws java.io.IOException {
             return null;
         }
     }
 
     public static class Derived extends Base {
-        public def f() @Throws[java.io.IOException] {
+        public def f() throws java.io.IOException {
             return super.f();
         }
     }

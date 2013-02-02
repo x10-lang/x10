@@ -6,12 +6,16 @@
  *  You may obtain a copy of the License at
  *      http://www.opensource.org/licenses/eclipse-1.0.php
  *
- *  (C) Copyright IBM Corporation 2006-2010.
+ *  (C) Copyright IBM Corporation 2006-2012.
  */
 
 package x10.io;
 
+
 public class IOException extends Exception {
+
     public def this() { super(); }
+
     public def this(message: String) { super(message); }
+
 }

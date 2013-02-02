@@ -11,18 +11,15 @@
 
 package x10.compiler;
 
+import x10.io.CustomSerialization;
+import x10.io.SerialData;
+
 /** 
  * A class that is used in elimination of finally clauses for the C++ backend.
  * 
  * NOT INTENDED FOR USE BY X10 PROGRAMMERS
- * 
- * @author Bowen Alpern
  */
-
-import x10.io.CustomSerialization;
-import x10.io.SerialData;
-
-public class Finalization extends x10.lang.Throwable implements CustomSerialization {
+public class Finalization extends x10.lang.Exception implements CustomSerialization {
     
     public var value: Any          = null;
     public var label: String       = null;
@@ -30,11 +27,20 @@ public class Finalization extends x10.lang.Throwable implements CustomSerializat
     public var isBreak: boolean    = false;
     public var isContinue: boolean = false;
 
+    public static val FALLTHROUGH = new Finalization(false, false, false);
+    public static val RETURN_VOID = new Finalization(true, false, false);
+    public static val SIMPLE_BREAK = new Finalization(false, true, false);
+    public static val SIMPLE_CONTINUE = new Finalization(false, false, true);
+
+    public def this(ret:boolean, br:boolean, cont:boolean) {
+        isReturn = ret;
+        isBreak = br;
+        isContinue = cont;
+    }
+
     /** */
     public static def throwReturn(): void {
-        val f      = new Finalization();
-        f.isReturn = true;
-        throw f;
+        throw RETURN_VOID;
     }
 
     /** */
@@ -47,9 +53,7 @@ public class Finalization extends x10.lang.Throwable implements CustomSerializat
 
     /** */
     public static def throwBreak(): void {
-        val f     = new Finalization();
-        f.isBreak = true;
-        throw f;
+        throw SIMPLE_BREAK;
     }
 
     /** */
@@ -62,9 +66,7 @@ public class Finalization extends x10.lang.Throwable implements CustomSerializat
 
     /** */
     public static def throwContinue(): void {
-        val f        = new Finalization();
-        f.isContinue = true;
-        throw f;
+        throw SIMPLE_CONTINUE;
     }
 
     /** */
@@ -78,7 +80,7 @@ public class Finalization extends x10.lang.Throwable implements CustomSerializat
     /** */ // justify a catch block for the Java compiler
     public static def plausibleThrow(): void {
         if (x10.compiler.CompilerFlags.TRUE()) return;
-        throw new Finalization();
+        throw FALLTHROUGH;
     }
 
     /**

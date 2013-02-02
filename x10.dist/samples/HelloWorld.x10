@@ -13,7 +13,6 @@ import x10.io.Console;
 
 /**
  * The classic hello world program, shows how to output to the console.
- * Converted to 2.1 9/1/2010
  */
 class HelloWorld {
   public static def main(Array[String]) {

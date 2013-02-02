@@ -28,13 +28,6 @@ public class Pool extends x10.runtime.impl.java.Runtime {
      * Initialize the runtime system and start executing the mainTask of the pool.
      */
     public void start() {    	
-    	// We have to force early loading of com.ibm.apgas.TaskWrapper to ensure
-    	// it gets a deserialization id before the x10rt message ids are finalized by start.
-        System.setProperty("x10.NO_PRELOAD_CLASSES", "false");
-        String preload = System.getProperty("x10.EXTRA_PRELOAD_CLASSES");
-        preload = ((null == preload) ? "" : ",")+com.ibm.apgas.TaskWrapper.class.getName();
-        System.setProperty("x10.EXTRA_PRELOAD_CLASSES", preload);
-    	
         start(new String[]{});
     }
     
@@ -54,13 +47,13 @@ public class Pool extends x10.runtime.impl.java.Runtime {
     }
     
     /**
-     * Schedule the arugment task as an async to be executed in the argument place.
+     * Schedule the argument task as an async to be executed in the argument place.
      * @param place
      * @param task
      */
     public static void runAsync(int place, Task task) {
         Place p =  x10.lang.Place.place(place);
-        x10.lang.Runtime.runAsync(p, new TaskWrapper(task));
+        x10.lang.Runtime.runAsync(p, new TaskWrapper(task), null);
     }
 
     /**

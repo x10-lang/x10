@@ -10,28 +10,37 @@
  */
 
 import x10.interop.Java;
-import x10.interop.java.Throws;
-import x10.runtime.impl.java.InteropFuns;
+
 
 public class RunJava {
-    public static def main(args: Array[String](1)) @Throws[java.lang.Throwable] {
-        if (args.size < 1) {
-            Console.ERR.println("Please specify the Java Main class");
-            return;
-        }
+    public static def main(args:Rail[String]):void {
+        try {
+            if (args.size < 1) {
+                Console.ERR.println("Please specify the Java Main class");
+                return;
+            }
                 
-        val className = args(0);
-        val numRestArgs = args.size - 1;
-        val restArgs =  new Array[String](numRestArgs);
-        Array.copy(args, 1, restArgs, 0, numRestArgs);
-        val javaArgs = Java.convert(restArgs);
+            val className = args(0);
+            val numRestArgs = args.size - 1;
+            val restArgs =  new Array[String](numRestArgs);
+            Array.copy(args, 1, restArgs, 0, numRestArgs);
+            val javaArgs = Java.convert(restArgs);
                 
-        val mainClass = java.lang.Class.forName(className);
-        val stringArrayClass = java.lang.Class.forName("[Ljava.lang.String;");
-        val argsClasses = Java.convert([stringArrayClass]);
-        val javaArgsArray = Java.convert([javaArgs]);
-        val mainMethod = mainClass.getMethod("main", argsClasses);
+            val mainClass = java.lang.Class.forName(className);
+            val stringArrayClass = java.lang.Class.forName("[Ljava.lang.String;");
+            val argsClasses = Java.convert([stringArrayClass]);
+            val javaArgsArray = Java.convert([javaArgs]);
+            val mainMethod = mainClass.getMethod("main", argsClasses);
 
-        InteropFuns.invokeAndUnwrapExceptions(mainMethod, null, javaArgsArray);
+            mainMethod.invoke(null, javaArgsArray);
+        } catch (e:java.lang.reflect.InvocationTargetException) {
+            var cause:CheckedThrowable = e.getCheckedCause();
+            while (cause instanceof x10.lang.WrappedThrowable) {
+                cause = cause.getCheckedCause();
+            }
+            cause.printStackTrace();
+        } catch (e:CheckedThrowable) {
+            e.printStackTrace();
+        }
     }
 }

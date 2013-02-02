@@ -71,7 +71,7 @@ public class JavaCaster extends ContextVisitor {
         n = typeBoundsReturnCast(parent, old, n);
         n = covReturnCast(parent, n);
         n = stringReturnCast(parent, n);
-        if (X10PrettyPrinterVisitor.isSelfDispatch) {
+        if (X10PrettyPrinterVisitor.useSelfDispatch) {
             n = typeParamCast(parent, n);
         }
         return n;
@@ -261,7 +261,7 @@ public class JavaCaster extends ContextVisitor {
         TypeConstraint ctc = context.currentTypeConstraint();
         List<SubtypeConstraint> terms = ctc.terms();
         for (SubtypeConstraint sc : terms) {
-            if (sc.isHaszero()) continue;
+            if (sc.isHaszero() || sc.isIsRef()) continue;
             if (sc.subtype().typeEquals(Types.baseType(e.type()), context) && sc.subtype() instanceof ParameterType) {
                 superType = sc.supertype();
             }

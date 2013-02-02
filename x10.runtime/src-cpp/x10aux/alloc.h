@@ -53,6 +53,16 @@ namespace x10aux {
 
 }
 
+// Some C stdlib functions that internally allocate
+// need to be re-implemented to allocate out of the
+// BDWGC managed heap.
+namespace x10aux {
+    namespace alloc_utils {
+        char *strdup(const char*);
+        char *strndup(const char*, x10_int len);
+    }
+}
+
 #include <x10aux/RTT.h>
 
 namespace x10aux {

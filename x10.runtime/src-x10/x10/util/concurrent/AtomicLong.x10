@@ -14,28 +14,41 @@ package x10.util.concurrent;
 import x10.compiler.Native;
 import x10.compiler.NativeRep;
 import x10.compiler.Volatile;
+import x10.compiler.NativeCPPInclude;
 
+@NativeCPPInclude("x10/util/concurrent/AtomicLongNatives.h")
 @NativeRep("java", "x10.core.concurrent.AtomicLong", null, "x10.core.concurrent.AtomicLong.$RTT")
 public final class AtomicLong {
     private @Volatile var value:Long;
     
     public def this() { value = 0; }
-    public def this(v:Long) { value = v; }
+    public def this(v:Long) { 
+        value = v; 
+        // Memory model: acts like store of volatile field
+        Fences.storeLoadBarrier();
+    }
     
     @Native("java", "#this.get()")
-    public def get():Long = value;
+    public def get():Long {
+      // Memory model: acts like read of volatile field;
+      Fences.loadStoreBarrier();
+      Fences.storeLoadBarrier();
+      return value;
+    }
     
     @Native("java", "#this.set(#newV)")
     public def set(newV:Long):void {
         value = newV;
+        // Memory model: acts like store of volatile field
+        Fences.storeLoadBarrier();
     }
     
     @Native("java", "#this.compareAndSet(#expect,#update)")
-    @Native("c++", "x10aux::atomic_long_funs::compareAndSet(#this,#expect,#update)")
+    @Native("c++", "x10::util::concurrent::AtomicLongNatives::compareAndSet(#this,#expect,#update)")
     public native def compareAndSet(expect:Long, update:Long):Boolean;
 
     @Native("java", "#this.weakCompareAndSet(#expect,#update)")
-    @Native("c++", "x10aux::atomic_long_funs::weakCompareAndSet(#this,#expect,#update)")
+    @Native("c++", "x10::util::concurrent::AtomicLongNatives::weakCompareAndSet(#this,#expect,#update)")
     public native def weakCompareAndSet(expect:Long, update:Long):Boolean;
     
     @Native("java", "#this.getAndIncrement()")
@@ -45,7 +58,7 @@ public final class AtomicLong {
     public def getAndDecrement():Long = getAndAdd(-1);
     
     @Native("java", "#this.getAndAdd(#delta)")
-    @Native("c++", "x10aux::atomic_long_funs::getAndAdd(#this,#delta)")
+    @Native("c++", "x10::util::concurrent::AtomicLongNatives::getAndAdd(#this,#delta)")
     public native def getAndAdd(delta:Long):Long;
     
     @Native("java", "#this.incrementAndGet()")
@@ -55,7 +68,7 @@ public final class AtomicLong {
     public def decrementAndGet():Long = addAndGet(-1);
     
     @Native("java", "#this.addAndGet(#delta)")
-    @Native("c++", "x10aux::atomic_long_funs::addAndGet(#this, #delta)")
+    @Native("c++", "x10::util::concurrent::AtomicLongNatives::addAndGet(#this, #delta)")
     public native def addAndGet(delta:Long):Long;
     
     @Native("java", "#this.toString()")

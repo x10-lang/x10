@@ -108,7 +108,7 @@ public class ConstantPropagator extends ContextVisitor {
         //   (b) Propagated one or more closure literals into the body of the construct,
         //       which can increase the captured environment. 
         if (n instanceof Async) {
-            n.visit(new ClosureCaptureVisitor(this.context(), ((Async)n).asyncDef()));
+            ((Async)n).body().visit(new ClosureCaptureVisitor(this.context(), ((Async)n).asyncDef()));
         } else if (n instanceof AtStmt) {
             ((AtStmt)n).body().visit(new ClosureCaptureVisitor(this.context(), ((AtStmt)n).atDef()));                
         } else if (n instanceof AtEach) {

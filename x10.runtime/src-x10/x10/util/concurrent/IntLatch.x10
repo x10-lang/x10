@@ -16,8 +16,6 @@ import x10.compiler.Pinned;
 /**
  * Int latch.
  * Inherited look/unlock/tryLock method from superclass can be used.
- *
- * @author tardieu
  */
 @Pinned public class IntLatch extends Monitor implements ()=>Int {
     public def this() { super(); }

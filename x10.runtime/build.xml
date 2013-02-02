@@ -2,6 +2,11 @@
 <!DOCTYPE project [<!ENTITY buildfile SYSTEM "./build-user.xml">]>
 <project name="x10.runtime" default="dist" basedir=".">
     &buildfile;
+    <condition property="bdwgc.version" value="7.2d" else="7.1">
+      <or>
+        <os family="mac"/>
+      </or>
+    </condition>
     <property name="x10.home" value="${basedir}/.."/>
     <property name="x10.dist.location" value="${x10.home}/x10.dist"/>
     <property name="x10.constraints.location" location="${x10.home}/x10.constraints"/>
@@ -14,8 +19,8 @@
     <property name="stdlib" location="${x10.dist.location}/stdlib"/>
     <property name="jar" value="x10.jar"/>
     <property name="math.jar" value="${lib}/commons-math3-3.0.jar"/>
-    <property name="bdwgc.dir" location="${basedir}/src-cpp/bdwgc"/>
-    <property name="bdwgc.tar" value="bdwgc-7.1.tar.gz"/>
+    <property name="bdwgc.dir" location="${basedir}/src-cpp/bdwgc-${bdwgc.version}"/>
+    <property name="bdwgc.tar" value="bdwgc-${bdwgc.version}.tar.gz"/>
     <property name="bdwgc.url" value="http://x10.sourceforge.net/dependencies/${bdwgc.tar}"/>
     <property name="make.exe" value="make"/>
     <property name="bash.exe" value="bash"/>
@@ -417,7 +422,25 @@
         </exec>
     </target>
 
-    <target name="build-cpp" depends="init,dist-bdwgc,available-procs">
+    <target name="x10rt-headers" depends="init,init-x10rt">
+        <exec executable="${make.exe}" failonerror="true" dir="${basedir}/x10rt">
+            <env key="ANT_JAVA_HOME" value="${java.home}" />
+            <arg value="-j1" />
+            <arg value="headers" />
+            <arg value="${cppmake.optimize}" />
+            <arg value="${cppmake.homogeneous}" />
+            <arg value="${cppmake.debug}" />
+            <arg value="${cppmake.gcc_symbols}" />
+            <arg value="${cppmake.x10rt_mpi}" />
+       	    <arg value="${cppmake.x10rt_pami}" />
+            <arg value="${cppmake.x10rt_pgas}" />
+            <arg value="${cppmake.x10rt_cuda}" />
+            <arg value="${cppmake.cross_compile_bgp}" />
+            <arg value="${cppmake.cross_compile_bgq}" />
+        </exec>
+    </target>
+
+    <target name="build-cpp" depends="init,dist-bdwgc,available-procs,x10rt-headers">
         <exec executable="${make.exe}" failonerror="true" dir="${basedir}/src-cpp">
             <env key="ANT_JAVA_HOME" value="${java.home}" />
             <arg value="-j${available.procs}" />
@@ -594,8 +617,10 @@
 
 	<target name="download-bdwgc" depends="check-bdwgc,convert-bdwgc-paths" unless="bdwgc.skip.download">
 		<sequential>
-			<mkdir dir="${bdwgc.dir}/src" />
+		  <mkdir dir="${bdwgc.dir}/src" />
+		  <retry>
 		    <get usetimestamp="true" src="${bdwgc.url}" dest="${bdwgc.dir}/${bdwgc.tar}"/>
+		  </retry>
 		</sequential>
 	</target>
 			
@@ -606,25 +631,49 @@
                 <arg value="xzf" />
                 <arg value="${bdwgc.platform.dir}/${bdwgc.tar}" />
             </exec>
-            <if>
-              <conditions>
-                <os family="unix" name="aix"/>
-              </conditions>
-              <then>
-                <patch patchfile="${basedir}/src-cpp/bdwgc-patches/fixPPCHeaderFiles.patch.txt"
+
+	    <!-- Patches to apply for bdwgc version 7.1 -->
+	    <if>
+	      <conditions>
+		<equals arg1="${bdwgc.version}" arg2="7.1" />
+	      </conditions>
+	      <then>
+		<if>
+		  <conditions>
+                    <os family="unix" name="aix"/>
+		  </conditions>
+		  <then>
+                    <patch patchfile="${basedir}/src-cpp/bdwgc-patches-${bdwgc.version}/fixPPCHeaderFiles.patch.txt"
+			   dir="${bdwgc.dir}/src" strip="0" />
+                    <patch patchfile="${basedir}/src-cpp/bdwgc-patches-${bdwgc.version}/linkerHackConfigure.patch.txt"
+			   dir="${bdwgc.dir}/src" strip="0" />
+		  </then>
+		</if>
+		<patch patchfile="${basedir}/src-cpp/bdwgc-patches-${bdwgc.version}/enableRTSignals.patch.txt"
                        dir="${bdwgc.dir}/src" strip="0" />
-                <patch patchfile="${basedir}/src-cpp/bdwgc-patches/linkerHackConfigure.patch.txt"
+		<patch patchfile="${basedir}/src-cpp/bdwgc-patches-${bdwgc.version}/pthread_support.patch.txt"
                        dir="${bdwgc.dir}/src" strip="0" />
-              </then>
-            </if>
-            <patch patchfile="${basedir}/src-cpp/bdwgc-patches/enableRTSignals.patch.txt"
-                   dir="${bdwgc.dir}/src" strip="0" />
-            <patch patchfile="${basedir}/src-cpp/bdwgc-patches/pthread_support.patch.txt"
-                   dir="${bdwgc.dir}/src" strip="0" />
-            <patch patchfile="${basedir}/src-cpp/bdwgc-patches/bluegeneStackHeuristic.patch.txt"
-                   dir="${bdwgc.dir}/src" strip="0" />
-            <patch patchfile="${basedir}/src-cpp/bdwgc-patches/unsigned_char.patch.txt"
-                   dir="${bdwgc.dir}/src" strip="0" />
+		<patch patchfile="${basedir}/src-cpp/bdwgc-patches-${bdwgc.version}/bluegeneStackHeuristic.patch.txt"
+                       dir="${bdwgc.dir}/src" strip="0" />
+		<patch patchfile="${basedir}/src-cpp/bdwgc-patches-${bdwgc.version}/unsigned_char.patch.txt"
+                       dir="${bdwgc.dir}/src" strip="0" />
+	      </then>
+	    </if>
+
+	    <!-- Patches to apply for bdwgc version 7.2d -->
+	    <if>
+	      <conditions>
+		<equals arg1="${bdwgc.version}" arg2="7.2d" />
+	      </conditions>
+	      <then>
+		<patch patchfile="${basedir}/src-cpp/bdwgc-patches-${bdwgc.version}/enableRTSignals.patch.txt"
+                       dir="${bdwgc.dir}/src" strip="0" />
+		<patch patchfile="${basedir}/src-cpp/bdwgc-patches-${bdwgc.version}/pthread_support.patch.txt"
+                       dir="${bdwgc.dir}/src" strip="0" />
+		<patch patchfile="${basedir}/src-cpp/bdwgc-patches-${bdwgc.version}/bluegeneStackHeuristic.patch.txt"
+                       dir="${bdwgc.dir}/src" strip="0" />
+	      </then>
+	    </if>
         </sequential>
     </target>
 

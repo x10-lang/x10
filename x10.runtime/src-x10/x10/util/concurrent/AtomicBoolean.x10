@@ -14,7 +14,9 @@ package x10.util.concurrent;
 import x10.compiler.Native;
 import x10.compiler.NativeRep;
 import x10.compiler.Volatile;
+import x10.compiler.NativeCPPInclude;
 
+@NativeCPPInclude("x10/util/concurrent/AtomicBooleanNatives.h")
 @NativeRep("java", "x10.core.concurrent.AtomicBoolean", null, "x10.core.concurrent.AtomicBoolean.$RTT")
 public final class AtomicBoolean {
    /*
@@ -26,25 +28,36 @@ public final class AtomicBoolean {
     
     public def this():AtomicBoolean {
         value = 0;
+        // Memory model: acts like store of volatile field
+        Fences.storeLoadBarrier();
     }
     public def this(v:Boolean):AtomicBoolean {
         value = v ? 1 : 0;
+        // Memory model: acts like store of volatile field
+        Fences.storeLoadBarrier();
     }
     
     @Native("java", "#this.get()")
-    public def get():Boolean = value == 1;
+    public def get():Boolean {
+      // Memory model: acts like read of volatile field;
+      Fences.loadStoreBarrier();
+      Fences.storeLoadBarrier();
+      return value == 1;
+   }
 
     @Native("java", "#this.set(#v)")
     public def set(v:Boolean):void {
         value = v ? 1 : 0;
+        // Memory model: acts like store of volatile field
+        Fences.storeLoadBarrier();
     }
 
     @Native("java", "#this.compareAndSet(#expect,#update)")
-    @Native("c++", "x10aux::atomic_boolean_funs::compareAndSet(#this, #expect, #update)")
+    @Native("c++", "x10::util::concurrent::AtomicBooleanNatives::compareAndSet(#this, #expect, #update)")
     public native def compareAndSet(expect:Boolean, update:Boolean):Boolean;
 
     @Native("java", "#this.weakCompareAndSet(#expect,#update)")
-    @Native("c++", "x10aux::atomic_boolean_funs::weakCompareAndSet(#this, #expect, #update)")
+    @Native("c++", "x10::util::concurrent::AtomicBooleanNatives::weakCompareAndSet(#this, #expect, #update)")
     public native def weakCompareAndSet(expect:Boolean, update:Boolean):Boolean;
     
     @Native("java", "#this.getAndSet(#v)")

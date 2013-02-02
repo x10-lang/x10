@@ -18,5 +18,5 @@ import x10.lang.annotations.StatementAnnotation;
  * This annotation is used internally by the runtime to mark
  * closures that will be used as parameters to runClosureAt methods.
  */
-public interface RemoteInvocation extends NoInline,ExpressionAnnotation,StatementAnnotation {
+public interface RemoteInvocation(suffix:String) extends NoInline,ExpressionAnnotation,StatementAnnotation {
 }

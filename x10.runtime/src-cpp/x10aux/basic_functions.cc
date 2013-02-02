@@ -11,20 +11,40 @@
 
 #include <x10aux/config.h>
 #include <x10aux/basic_functions.h>
-#include <x10aux/string_utils.h>
 #include <x10aux/math.h>
+
+#include <x10/lang/Double.h>
+#include <x10/lang/Float.h>
+#include <x10/lang/String.h>
+
 #include <stdio.h>
 
 using namespace x10aux;
 using namespace x10::lang;
 
+x10_int x10aux::hash_code(const x10_double x) {
+    return hash_code(x10::lang::DoubleNatives::toLongBits(x));
+}
+
+x10_int x10aux::hash_code(const x10_float x) {
+    return hash_code(x10::lang::FloatNatives::toIntBits(x));
+}
+
+String* x10aux::identity_type_name (Reference* ptr) {
+    return String::Lit(alloc_printf("%s",ptr->_type()->name()));
+}
+
+String* x10aux::identity_to_string (Reference* ptr) {
+    return String::Lit(alloc_printf("%s@%p",ptr->_type()->name(),(void*)ptr));
+}
+
 #define TO_STRING(SZ,T,C,FMT) \
-ref<String> x10aux::to_string(T v) { \
+String* x10aux::to_string(T v) { \
     char buf[SZ]; \
     int amt = ::snprintf(buf, sizeof(buf), FMT, (C)v); \
     (void)amt; \
     assert((size_t)amt<sizeof(buf) && "buf too small "__TOKEN_STRING(SZ)" for "__TOKEN_STRING(T)); \
-    return x10aux::string_utils::lit(buf); \
+    return x10::lang::String::Lit(buf);              \
 }
 
 // hh is C99, not ansi c, so we use h instead.
@@ -40,7 +60,7 @@ TO_STRING(12, x10_int, signed long, "%ld")
 TO_STRING(21, x10_ulong, unsigned long long, "%llu")
 TO_STRING(21, x10_long, signed long long, "%lld")
 
-ref<String> x10aux::to_string(x10_float v) {
+String* x10aux::to_string(x10_float v) {
     return x10aux::to_string((x10_double)v);
 }
 
@@ -54,7 +74,7 @@ void kill_excess_zeroes(char *buf, size_t sz) {
 }   
 
 
-ref<String> x10aux::to_string(x10_double v_) {
+String* x10aux::to_string(x10_double v_) {
     double v = (double)v_;
     char buf[120] = "";
     if (x10aux::math::isnan(v)) {
@@ -87,23 +107,27 @@ ref<String> x10aux::to_string(x10_double v_) {
         char *rest = buf + strlen(buf);
         ::snprintf(rest, sizeof(buf) + buf - rest, "E%d", e);
     }   
-    return x10aux::string_utils::lit(buf);
+    return x10::lang::String::Lit(buf);
 }   
     
 
-ref<String> x10aux::to_string(x10_boolean v) {
-    static ref<String> t = x10aux::string_utils::lit("true");
-    static ref<String> f = x10aux::string_utils::lit("false");
+String* x10aux::to_string(x10_boolean v) {
+    static String* t = x10::lang::String::Lit("true");
+    static String* f = x10::lang::String::Lit("false");
     return ((bool)v) ? t : f;
 }   
     
-ref<String> x10aux::to_string(x10_char v) {
+String* x10aux::to_string(x10_char v) {
     char v_[] = {(char)v.v,'\0'};
-    return x10aux::string_utils::lit(v_);
+    return x10::lang::String::Lit(v_);
 }
 
+String* x10aux::makeStringLit(const char* s) {
+    return x10::lang::String::Lit(s);
+}    
 
-GPUSAFE x10_boolean x10aux::compare_references_slow(ref<x10::lang::Reference> x, ref<x10::lang::Reference> y) {
+GPUSAFE x10_boolean x10aux::compare_references_slow(x10::lang::Reference* x,
+                                                    x10::lang::Reference* y) {
     return x->_struct_equals(y);
 }
 

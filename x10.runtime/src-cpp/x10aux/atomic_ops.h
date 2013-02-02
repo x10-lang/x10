@@ -13,7 +13,6 @@
 #define X10AUX_ATOMIC_OPS_H
 
 #include <x10aux/config.h>
-#include <x10aux/ref.h>
 
 #if !defined(_LP64)
 #include <x10aux/lock.h>

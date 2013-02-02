@@ -33,7 +33,7 @@ public class Foreach2 extends x10Test {
                 // and that the hasbug array was
                 // all false initially
                 if (P0 != d(p) || P0 != here)
-                    throw new Error("Test failed.");
+                    throw new Exception("Test failed.");
                 atomic { nActivities++; }
             }
         return nActivities == N;

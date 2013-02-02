@@ -12,7 +12,7 @@
 #ifndef X10_IO_NATIVEINPUTSTREAM_H
 #define X10_IO_NATIVEINPUTSTREAM_H
 
-#include <x10/lang/Object.h>
+#include <x10/lang/X10Class.h>
 
 namespace x10 {
 
@@ -22,7 +22,7 @@ namespace x10 {
 
     namespace io {
 
-        class InputStreamReader__InputStream : public x10::lang::Object {
+        class InputStreamReader__InputStream : public x10::lang::X10Class {
         public:
             RTT_H_DECLS_CLASS;
 
@@ -33,8 +33,7 @@ namespace x10 {
 
 
         public:
-            x10aux::ref<InputStreamReader__InputStream> _constructor() {
-                this->x10::lang::Object::_constructor();
+            InputStreamReader__InputStream* _constructor() {
                 return this;
             }
             
@@ -58,7 +57,7 @@ namespace x10 {
 
             virtual x10_boolean markSupported() { return false; }
 
-            static x10aux::ref<InputStreamReader__InputStream> STANDARD_IN();
+            static InputStreamReader__InputStream* STANDARD_IN();
 
             // Serialization
             virtual void _serialize_body(x10aux::serialization_buffer& buf);

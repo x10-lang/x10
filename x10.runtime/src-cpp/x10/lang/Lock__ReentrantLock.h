@@ -12,7 +12,7 @@
 #ifndef X10_LANG_LOCK__REENTRANT_LOCK_H
 #define X10_LANG_LOCK__REENTRANT_LOCK_H
 
-#include <x10/lang/Object.h>
+#include <x10/lang/X10Class.h>
 
 #include <x10aux/lock.h>
 
@@ -29,11 +29,22 @@ namespace x10 {
         * is not owned by another thread.  The method will return
         * immediately if the calling thread already owns the lock.
         */
-        class Lock__ReentrantLock : public x10::lang::Object {
+        class Lock__ReentrantLock : public x10::lang::X10Class {
         public:
             RTT_H_DECLS_CLASS;
+    
+            virtual x10aux::serialization_id_t _get_serialization_id() {
+                fprintf(stderr, "Lock cannot be serialized.  (Lock__ReentrantLock.h)\n");
+                abort();
+            }
+            virtual void _serialize_body(x10aux::serialization_buffer&) {
+                fprintf(stderr, "Lock cannot be serialized.  (Lock__ReentrantLock.h)\n");
+                abort();
+            }
 
-            static x10aux::ref<Lock__ReentrantLock> _make();
+            virtual void _constructor (void) { }
+
+            static Lock__ReentrantLock* _make();
             ~Lock__ReentrantLock() { }
 
         public:

@@ -15,7 +15,7 @@ import harness.x10Test;
  */
 public class InlineConstraint extends x10Test {
     public def run()  {
-	val v:Object = (0..5) as Region;
+	val v:Any = (0..5) as Region;
 	var result:boolean=true;
 	val c = v instanceof Region{self.rank==1};
 	if (!c) {

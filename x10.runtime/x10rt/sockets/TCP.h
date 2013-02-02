@@ -19,7 +19,6 @@
 
 namespace TCP
 {
-	void FATAL(const char * msg);
 	int read(int fd, void * p, unsigned cnt);
 	int write(int fd, void * p, unsigned cnt);
 	int listen(unsigned * port, unsigned backlog);

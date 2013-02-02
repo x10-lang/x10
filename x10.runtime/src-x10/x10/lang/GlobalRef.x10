@@ -29,7 +29,7 @@ import x10.compiler.Native;
 public struct GlobalRef[T](
     @Native("java", "(#this).home")
     @Native("c++", "x10::lang::Place::place((#this)->location)")
-    home:Place) {T <: Object} {
+    home:Place) {T isref} {
 
     //@Native("java", "(#this).home")
     //@Native("c++", "x10::lang::Place::place((#this)->location)")
@@ -112,7 +112,7 @@ public struct GlobalRef[T](
          * However, as it does not use a place constraint on the
          * method, it avoids a dynamic place check on the first branch.
          */
-        public static def evalAtHome[T,U](ref:GlobalRef[T], eval:(T)=> U){T <: Object}:U {
+        public static def evalAtHome[T,U](ref:GlobalRef[T], eval:(T)=> U){T isref}:U {
             if (here == ref.home) {
                 return eval(ref.localApply());
             } else {
@@ -130,7 +130,7 @@ public struct GlobalRef[T](
          * However, as it does not use a place constraint on the
          * method, it avoids a dynamic place check on the first branch.
          */
-        public static def getLocalOrCopy[T](ref:GlobalRef[T]){T <: Object}:T {
+        public static def getLocalOrCopy[T](ref:GlobalRef[T]){T isref}:T {
             if (here == ref.home) {
                 return ref.localApply();
             } else {
@@ -140,4 +140,4 @@ public struct GlobalRef[T](
     }
 
 }
-public type GlobalRef[T](p:Place) {T<:Object} = GlobalRef[T]{self.home==p};
+//public type GlobalRef[T](p:Place) {T isref} = GlobalRef[T]{self.home==p};

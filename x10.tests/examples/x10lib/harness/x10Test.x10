@@ -32,7 +32,7 @@ abstract public class x10Test {
         val b = new Cell[Boolean](false);  
         try {
             finish async b(this.run());
-        } catch (e: Throwable) {
+        } catch (e: CheckedThrowable) {
             e.printStackTrace();
         }
         reportResult(b());
@@ -42,7 +42,7 @@ abstract public class x10Test {
         var b: boolean = false;
         try {
             finish b = this.run();
-        } catch (e: Throwable) {
+        } catch (e: CheckedThrowable) {
             e.printStackTrace();
         }
         reportResult(b);
@@ -82,11 +82,23 @@ abstract public class x10Test {
         if (b) success(); else failure();
     }
 
+    public static class TestException extends Exception {
+
+        public def this() { super(); }
+
+        public def this(cause: CheckedThrowable) { super(cause); }
+
+        public def this(message: String) { super(message); }
+
+        public def this(message: String, cause: CheckedThrowable) { super(message, cause); }
+
+    }
+
     /**
      * Check if a given condition is true, and throw an error if not.
      */
     public static def chk(b: boolean): void = {
-        if (!b) throw new Error();
+        if (!b) throw new TestException();
     }
 
     /**
@@ -94,7 +106,7 @@ abstract public class x10Test {
      * message if not.
      */
     public static def chk(b: boolean, s: String): void = {
-        if (!b) throw new Error(s);
+        if (!b) throw new TestException(s);
     }
 
     private var myRand:Random = new Random(1L);

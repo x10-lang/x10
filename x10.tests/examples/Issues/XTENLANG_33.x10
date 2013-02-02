@@ -21,7 +21,7 @@ class XTENLANG_33 extends x10Test {
     
     public def run():boolean {
         val c:C= null;
-        val o:Object = c;
+        val o:Any = c;
         val x = o as C;
         return true;
     }

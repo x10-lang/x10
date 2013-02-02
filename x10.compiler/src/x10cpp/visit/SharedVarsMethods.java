@@ -80,6 +80,7 @@ public class SharedVarsMethods {
     static final String STRUCT_EQUALS = "x10aux::struct_equals";
     public static final String STRUCT_EQUALS_METHOD = "_struct_equals";
     public static final String REFERENCE_TYPE = "x10::lang::Reference";
+    public static final String CLASS_TYPE = "x10::lang::X10Class";
     public static final String CLOSURE_TYPE = "x10::lang::Closure";
 
     static final String VIM_MODELINE = "vim:tabstop=4:shiftwidth=4:expandtab";
@@ -94,9 +95,7 @@ public class SharedVarsMethods {
     }
 
 	public static String make_ref(String type) {
-		if (refsAsPointers)
-			return type+"*";
-		return "x10aux::ref"+chevrons(type);
+	    return type+"*";
 	}
 	
 	public static String make_captured_lval(Type type) {

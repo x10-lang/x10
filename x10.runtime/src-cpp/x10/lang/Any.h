@@ -14,12 +14,10 @@
 
 #include <x10aux/config.h>
 #include <x10aux/RTT.h>
-#include <x10aux/ref.h>
 #include <x10/lang/Reference.h>
 
 namespace x10 {
     namespace lang {
-        class Object;
         class String;
         
         class Any {
@@ -27,16 +25,16 @@ namespace x10 {
             RTT_H_DECLS_INTERFACE
 
             template <class I> struct itable {
-                itable(x10_boolean (I::*equals)(x10aux::ref<x10::lang::Any>),
+                itable(x10_boolean (I::*equals)(x10::lang::Any*),
                        x10_int (I::*hashCode)(),
-                       x10aux::ref<x10::lang::String> (I::*toString)(),
-                       x10aux::ref<x10::lang::String> (I::*typeName)()) : equals(equals), hashCode(hashCode),
-                                                                          toString(toString), typeName(typeName) {}
+                       x10::lang::String* (I::*toString)(),
+                       x10::lang::String* (I::*typeName)()) : equals(equals), hashCode(hashCode),
+                                                              toString(toString), typeName(typeName) {}
 
-                x10_boolean (I::*equals)(x10aux::ref<x10::lang::Any>);
+                x10_boolean (I::*equals)(x10::lang::Any*);
                 x10_int (I::*hashCode)();
-                x10aux::ref<x10::lang::String> (I::*toString)();
-                x10aux::ref<x10::lang::String> (I::*typeName)();
+                x10::lang::String* (I::*toString)();
+                x10::lang::String* (I::*typeName)();
             };
         };
     }

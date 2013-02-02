@@ -44,6 +44,8 @@ import polyglot.types.Types;
 import polyglot.util.InternalCompilerError;
 import x10.ast.HasZeroTest;
 import x10.ast.Here;
+import x10.ast.Here_c;
+import x10.ast.IsRefTest;
 import x10.ast.ParExpr;
 import x10.ast.SubtypeTest;
 import x10.ast.Tuple;
@@ -116,14 +118,15 @@ public class XTypeTranslator {
             return null;
         if (term instanceof Lit)
             return translate((Lit) term);
-        if (term instanceof Here)
-            return trans(c, (Here) term, xc, tl);
+        if (term instanceof Here_c)
+            return trans(c, (Here_c) term, xc, tl);
         if (term instanceof Variable)
             return trans(c, (Variable) term, xc, tl);
         if (term instanceof X10Special)
             return trans(c, (X10Special) term, xc, tl);
-        if (term instanceof Expr && ts.isUnknown(term.type()))
+        if (term instanceof Expr && ts.isUnknown(term.type())) {
             return null;
+        }
         if (term instanceof Expr) {
             Expr e = (Expr) term;
             if (e.isConstant()) {
@@ -474,7 +477,7 @@ public class XTypeTranslator {
     
     // *********************************************************************************************
     // *********************************** private help routines for translation********************
-    private XTerm<Type> trans(CConstraint c, Here h, Context xc, boolean tl) {
+    private XTerm<Type> trans(CConstraint c, Here_c h, Context xc, boolean tl) {
         XConstrainedTerm placeTerm = xc.currentPlaceTerm();
         //XConstrainedTerm placeTerm = h.placeTerm();
         if (placeTerm == null) return ConstraintManager.getConstraintSystem().makeEQV(xc.typeSystem().Place());
@@ -517,7 +520,9 @@ public class XTypeTranslator {
             transType(c, (SubtypeTest) t, xc);
         } else if (t instanceof HasZeroTest) {
             transType(c, (HasZeroTest) t, xc);
-        }
+	    } else if (t instanceof IsRefTest) {
+	        transType(c, (IsRefTest) t, xc);
+	    }
         else {
             throw new SemanticException("Cannot translate " + t 
             		+ " into a type constraint.", t.position());
@@ -528,6 +533,10 @@ public class XTypeTranslator {
     private void transType(TypeConstraint c, HasZeroTest t, Context xc) throws SemanticException {
         TypeNode left = t.parameter();
         c.addTerm(new SubtypeConstraint(left.type(), null, SubtypeConstraint.Kind.HASZERO));
+    }
+    private void transType(TypeConstraint c, IsRefTest t, Context xc) throws SemanticException {
+        TypeNode left = t.parameter();
+        c.addTerm(new SubtypeConstraint(left.type(), null, SubtypeConstraint.Kind.ISREF));
     }
     private void transType(TypeConstraint c, SubtypeTest t, Context xc) throws SemanticException {
         TypeNode left = t.subtype();

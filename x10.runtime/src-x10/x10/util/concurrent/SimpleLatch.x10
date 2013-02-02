@@ -14,9 +14,6 @@ package x10.util.concurrent;
 import x10.compiler.Pinned;
 import x10.io.SerialData;
 
-/**
- * @author tardieu
- */
 @Pinned public class SimpleLatch extends Lock {
     public def this() { super(); }
 
@@ -37,6 +34,10 @@ import x10.io.SerialData;
     public def await():void {
         if (state) return;
         lock();
+        if (state) {
+            unlock();
+            return;
+        }
         Runtime.increaseParallelism(); // likely to be blocked for a while
         worker = Runtime.worker();
         while (!state) {

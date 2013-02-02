@@ -119,5 +119,5 @@ if [ $? != 0 ]; then
     exit 1
 fi
 
-$distdir/x10.dist/releng/packageCPPRelease.sh -version tib_$rev -platform $X10_PLATFORM
+$distdir/x10.dist/releng/packageRelease.sh -version tib_$rev -platform $X10_PLATFORM
 echo "Platform specific distribution tarball created"

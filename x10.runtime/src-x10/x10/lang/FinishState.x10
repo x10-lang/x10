@@ -29,7 +29,7 @@ abstract class FinishState {
     abstract def notifySubActivitySpawn(place:Place):void;
     abstract def notifyActivityCreation():void;
     abstract def notifyActivityTermination():void;
-    abstract def pushException(t:Throwable):void;
+    abstract def pushException(t:Exception):void;
     abstract def waitForFinish():void;
     abstract def simpleLatch():SimpleLatch;
 
@@ -39,7 +39,7 @@ abstract class FinishState {
     static class LocalFinish extends FinishState {
         @Embed private val count = @Embed new AtomicInteger(1);
         @Embed private val latch = @Embed new SimpleLatch();
-        private var exceptions:Stack[Throwable]; // lazily initialized
+        private var exceptions:Stack[Exception]; // lazily initialized
         public def notifySubActivitySpawn(place:Place) {
             assert place.id == Runtime.hereInt();
             count.getAndIncrement();
@@ -48,9 +48,9 @@ abstract class FinishState {
         public def notifyActivityTermination() {
             if (count.decrementAndGet() == 0) latch.release();
         }
-        public def pushException(t:Throwable) {
+        public def pushException(t:Exception) {
             latch.lock();
-            if (null == exceptions) exceptions = new Stack[Throwable]();
+            if (null == exceptions) exceptions = new Stack[Exception]();
             exceptions.push(t);
             latch.unlock();
         }
@@ -85,16 +85,16 @@ abstract class FinishState {
     static class RootFinishSPMD extends RootFinishSkeleton {
         @Embed protected val latch = @Embed new SimpleLatch();
         @Embed private val count = @Embed new AtomicInteger(1);
-        private var exceptions:Stack[Throwable]; // lazily initialized
+        private var exceptions:Stack[Exception]; // lazily initialized
         public def notifySubActivitySpawn(place:Place) {
             count.incrementAndGet();
         }
         public def notifyActivityTermination() {
             if (count.decrementAndGet() == 0) latch.release();
         }
-        public def pushException(t:Throwable) {
+        public def pushException(t:Exception) {
             latch.lock();
-            if (null == exceptions) exceptions = new Stack[Throwable]();
+            if (null == exceptions) exceptions = new Stack[Exception]();
             exceptions.push(t);
             latch.unlock();
         }
@@ -110,7 +110,7 @@ abstract class FinishState {
 
     static class RemoteFinishSPMD extends RemoteFinishSkeleton {
         @Embed private val count = @Embed new AtomicInteger(1);
-        private var exceptions:Stack[Throwable]; // lazily initialized
+        private var exceptions:Stack[Exception]; // lazily initialized
         @Embed private val lock = @Embed new Lock();
         def this(ref:GlobalRef[FinishState]) {
             super(ref);
@@ -126,22 +126,22 @@ abstract class FinishState {
                 val ref = this.ref();
                 val closure:()=>void;
                 if (null != t) {
-                    closure = ()=>@RemoteInvocation {
+                    closure = ()=>@RemoteInvocation("notifyActivityTermination_1") {
                         deref[FinishState](ref).pushException(t);
                         deref[FinishState](ref).notifyActivityTermination();
                     };
                 } else {
-                    closure = ()=>@RemoteInvocation {
+                    closure = ()=>@RemoteInvocation("notifyActivityTermination_2") {
                         deref[FinishState](ref).notifyActivityTermination();
                     };
                 }
-                Runtime.x10rtSendMessage(ref.home.id, closure);
+                Runtime.x10rtSendMessage(ref.home.id, closure, null);
                 Runtime.dealloc(closure);
             }
         }
-        public def pushException(t:Throwable) {
+        public def pushException(t:Exception) {
             lock.lock();
-            if (null == exceptions) exceptions = new Stack[Throwable]();
+            if (null == exceptions) exceptions = new Stack[Exception]();
             exceptions.push(t);
             lock.unlock();
         }
@@ -167,12 +167,12 @@ abstract class FinishState {
 
     static class RootFinishAsync extends RootFinishSkeleton{
         @Embed protected val latch = @Embed new SimpleLatch();
-        protected var exception:Throwable = null;
+        protected var exception:Exception = null;
         public def notifySubActivitySpawn(place:Place):void {}
         public def notifyActivityTermination():void {
             latch.release();
         }
-        public def pushException(t:Throwable):void {
+        public def pushException(t:Exception):void {
             exception = t;
         }
         public def waitForFinish():void {
@@ -184,13 +184,13 @@ abstract class FinishState {
     }
 
     static class RemoteFinishAsync extends RemoteFinishSkeleton {
-        protected var exception:Throwable;
+        protected var exception:Exception;
         def this(ref:GlobalRef[FinishState]) {
             super(ref);
         }
         public def notifyActivityCreation():void {}
         public def notifySubActivitySpawn(place:Place):void {}
-        public def pushException(t:Throwable):void {
+        public def pushException(t:Exception):void {
             exception = t;
         }
         public def notifyActivityTermination():void {
@@ -198,16 +198,16 @@ abstract class FinishState {
             val ref = this.ref();
             val closure:()=>void;
             if (null != t) {
-                closure = ()=>@RemoteInvocation {
+                closure = ()=>@RemoteInvocation("notifyActivityTermination_1") {
                     deref[FinishState](ref).pushException(t);
                     deref[FinishState](ref).notifyActivityTermination();
                 };
             } else {
-                closure = ()=>@RemoteInvocation {
+                closure = ()=>@RemoteInvocation("notifyActivityTermination_2") {
                     deref[FinishState](ref).notifyActivityTermination();
                 };
             }
-            Runtime.x10rtSendMessage(ref.home.id, closure);
+            Runtime.x10rtSendMessage(ref.home.id, closure, null);
             Runtime.dealloc(closure);
         }
     }
@@ -235,7 +235,7 @@ abstract class FinishState {
         public def notifySubActivitySpawn(place:Place) {}
         public def notifyActivityCreation() {}
         public def notifyActivityTermination() {}
-        public def pushException(t:Throwable) {
+        public def pushException(t:Exception) {
             Runtime.println("Uncaught exception in uncounted activity");
             t.printStackTrace();
         }
@@ -305,7 +305,7 @@ abstract class FinishState {
         public def notifySubActivitySpawn(place:Place) { me.notifySubActivitySpawn(place); }
         public def notifyActivityCreation() { me.notifyActivityCreation(); }
         public def notifyActivityTermination() { me.notifyActivityTermination(); }
-        public def pushException(t:Throwable) { me.pushException(t); }
+        public def pushException(t:Exception) { me.pushException(t); }
         public def waitForFinish() { me.waitForFinish(); }
         public def simpleLatch() = me.simpleLatch();
     }
@@ -338,7 +338,7 @@ abstract class FinishState {
     static class RootFinish extends RootFinishSkeleton {
         @Embed protected transient var latch:SimpleLatch;
         protected var count:Int = 1;
-        protected var exceptions:Stack[Throwable]; // lazily initialized
+        protected var exceptions:Stack[Exception]; // lazily initialized
         protected var counts:IndexedMemoryChunk[Int];
 //        protected var seen:IndexedMemoryChunk[Boolean];
         def this() {
@@ -379,11 +379,11 @@ abstract class FinishState {
             latch.unlock();
             latch.release();
         }
-        public def process(t:Throwable):void {
-            if (null == exceptions) exceptions = new Stack[Throwable]();
+        public def process(t:Exception):void {
+            if (null == exceptions) exceptions = new Stack[Exception]();
             exceptions.push(t);
         }
-        public def pushException(t:Throwable):void {
+        public def pushException(t:Exception):void {
             latch.lock();
             process(t);
             latch.unlock();
@@ -400,7 +400,7 @@ abstract class FinishState {
                 val closure = ()=>@RemoteInvocation { Runtime.finishStates.remove(root); };
                 seen(Runtime.hereInt()) = false;
                 for(var i:Int=0; i<Place.MAX_PLACES; i++) {
-                    if (seen(i)) Runtime.x10rtSendMessage(i, closure);
+                    if (seen(i)) Runtime.x10rtSendMessage(i, closure, null);
                 }
                 Runtime.dealloc(closure);
             }
@@ -447,14 +447,14 @@ abstract class FinishState {
             latch.unlock();
         }
 
-        def notify(rail:IndexedMemoryChunk[Int], t:Throwable):void {
+        def notify(rail:IndexedMemoryChunk[Int], t:Exception):void {
             latch.lock();
             process(t);
             process(rail);
             latch.unlock();
         }
 
-        def notify(rail:IndexedMemoryChunk[Pair[Int,Int]], t:Throwable):void {
+        def notify(rail:IndexedMemoryChunk[Pair[Int,Int]], t:Exception):void {
             latch.lock();
             process(t);
             process(rail);
@@ -465,7 +465,7 @@ abstract class FinishState {
     }
 
     static class RemoteFinish extends RemoteFinishSkeleton {
-        protected var exceptions:Stack[Throwable];
+        protected var exceptions:Stack[Exception];
         @Embed protected transient var lock:Lock = @Embed new Lock();
         protected var count:Int = 0;
         protected var counts:IndexedMemoryChunk[Int];
@@ -498,9 +498,9 @@ abstract class FinishState {
             }
             lock.unlock();
         }
-        public def pushException(t:Throwable):void {
+        public def pushException(t:Exception):void {
             lock.lock();
-            if (null == exceptions) exceptions = new Stack[Throwable]();
+            if (null == exceptions) exceptions = new Stack[Exception]();
             exceptions.push(t);
             lock.unlock();
         }
@@ -520,9 +520,9 @@ abstract class FinishState {
                     val message = IndexedMemoryChunk.allocateUninitialized[Int](counts.length());
                     IndexedMemoryChunk.copy(counts, 0, message, 0, counts.length());
                     if (null != t) {
-                        closure = ()=>@RemoteInvocation { deref[RootFinish](ref).notify(message, t); };
+                        closure = ()=>@RemoteInvocation("notifyActivityTermination_1") { deref[RootFinish](ref).notify(message, t); };
                     } else {
-                        closure = ()=>@RemoteInvocation { deref[RootFinish](ref).notify(message); };
+                        closure = ()=>@RemoteInvocation("notifyActivityTermination_2") { deref[RootFinish](ref).notify(message); };
                     }
                 } else {
                     val message = IndexedMemoryChunk.allocateUninitialized[Pair[Int,Int]](length);
@@ -530,9 +530,9 @@ abstract class FinishState {
                         message(i) = Pair[Int,Int](places(i), counts(places(i)));
                     }
                     if (null != t) {
-                        closure = ()=>@RemoteInvocation { deref[RootFinish](ref).notify(message, t); };
+                        closure = ()=>@RemoteInvocation("notifyActivityTermination_3") { deref[RootFinish](ref).notify(message, t); };
                     } else {
-                        closure = ()=>@RemoteInvocation { deref[RootFinish](ref).notify(message); };
+                        closure = ()=>@RemoteInvocation("notifyActivityTermination_4") { deref[RootFinish](ref).notify(message); };
                     }
                 }
                 counts.clear(0, counts.length());
@@ -541,15 +541,15 @@ abstract class FinishState {
                 val message = IndexedMemoryChunk.allocateUninitialized[Pair[Int,Int]](1);
                 message(0) = Pair[Int,Int](Runtime.hereInt(), count);
                 if (null != t) {
-                    closure = ()=>@RemoteInvocation { deref[RootFinish](ref).notify(message, t); };
+                    closure = ()=>@RemoteInvocation("notifyActivityTermination_5") { deref[RootFinish](ref).notify(message, t); };
                 } else {
-                    closure = ()=>@RemoteInvocation { deref[RootFinish](ref).notify(message); };
+                    closure = ()=>@RemoteInvocation("notifyActivityTermination_6") { deref[RootFinish](ref).notify(message); };
                 }
             }
             count = 0;
             exceptions = null;
             lock.unlock();
-            Runtime.x10rtSendMessage(ref.home.id, closure);
+            Runtime.x10rtSendMessage(ref.home.id, closure, null);
             Runtime.dealloc(closure);
             Runtime.finishStates.remove(ref);
         }
@@ -580,7 +580,7 @@ abstract class FinishState {
     }
 
     static class DenseRemoteFinish extends RemoteFinishSkeleton {
-        protected var exceptions:Stack[Throwable];
+        protected var exceptions:Stack[Exception];
         @Embed protected transient var lock:Lock = @Embed new Lock();
         protected var count:Int = 0;
         protected var counts:IndexedMemoryChunk[Int];
@@ -613,9 +613,9 @@ abstract class FinishState {
             }
             lock.unlock();
         }
-        public def pushException(t:Throwable):void {
+        public def pushException(t:Exception):void {
             lock.lock();
-            if (null == exceptions) exceptions = new Stack[Throwable]();
+            if (null == exceptions) exceptions = new Stack[Exception]();
             exceptions.push(t);
             lock.unlock();
         }
@@ -635,9 +635,9 @@ abstract class FinishState {
                     val message = IndexedMemoryChunk.allocateUninitialized[Int](counts.length());
                     IndexedMemoryChunk.copy(counts, 0, message, 0, counts.length());
                     if (null != t) {
-                        closure = ()=>@RemoteInvocation { deref[RootFinish](ref).notify(message, t); };
+                        closure = ()=>@RemoteInvocation("notifyActivityTermination_1") { deref[RootFinish](ref).notify(message, t); };
                     } else {
-                        closure = ()=>@RemoteInvocation { deref[RootFinish](ref).notify(message); };
+                        closure = ()=>@RemoteInvocation("notifyActivityTermination_2") { deref[RootFinish](ref).notify(message); };
                     }
                 } else {
                     val message = IndexedMemoryChunk.allocateUninitialized[Pair[Int,Int]](length);
@@ -645,9 +645,9 @@ abstract class FinishState {
                         message(i) = Pair[Int,Int](places(i), counts(places(i)));
                     }
                     if (null != t) {
-                        closure = ()=>@RemoteInvocation { deref[RootFinish](ref).notify(message, t); };
+                        closure = ()=>@RemoteInvocation("notifyActivityTermination_3") { deref[RootFinish](ref).notify(message, t); };
                     } else {
-                        closure = ()=>@RemoteInvocation { deref[RootFinish](ref).notify(message); };
+                        closure = ()=>@RemoteInvocation("notifyActivityTermination_4") { deref[RootFinish](ref).notify(message); };
                     }
                 }
                 counts.clear(0, counts.length());
@@ -656,9 +656,9 @@ abstract class FinishState {
                 val message = IndexedMemoryChunk.allocateUninitialized[Pair[Int,Int]](1);
                 message(0) = Pair[Int,Int](Runtime.hereInt(), count);
                 if (null != t) {
-                    closure = ()=>@RemoteInvocation { deref[RootFinish](ref).notify(message, t); };
+                    closure = ()=>@RemoteInvocation("notifyActivityTermination_5") { deref[RootFinish](ref).notify(message, t); };
                 } else {
-                    closure = ()=>@RemoteInvocation { deref[RootFinish](ref).notify(message); };
+                    closure = ()=>@RemoteInvocation("notifyActivityTermination_6") { deref[RootFinish](ref).notify(message); };
                 }
             }
             count = 0;
@@ -666,10 +666,10 @@ abstract class FinishState {
             lock.unlock();
             val h = Runtime.hereInt();
             if ((Place.MAX_PLACES < 1024) || (h%32 == 0) || (h-h%32 == ref.home.id)) {
-                Runtime.x10rtSendMessage(ref.home.id, closure);
+                Runtime.x10rtSendMessage(ref.home.id, closure, null);
             } else {
-                val clx = ()=>@RemoteInvocation { Runtime.x10rtSendMessage(ref.home.id, closure); };
-                Runtime.x10rtSendMessage(h-h%32, clx);
+                val clx = ()=>@RemoteInvocation("notifyActivityTermination_7") { Runtime.x10rtSendMessage(ref.home.id, closure, null); };
+                Runtime.x10rtSendMessage(h-h%32, clx, null);
                 Runtime.dealloc(clx);
             }
             Runtime.dealloc(closure);
@@ -798,9 +798,9 @@ abstract class FinishState {
                     val message = IndexedMemoryChunk.allocateUninitialized[Int](counts.length());
                     IndexedMemoryChunk.copy(counts, 0, message, 0, counts.length());
                     if (null != t) {
-                        closure = ()=>@RemoteInvocation { deref[RootCollectingFinish[T]](ref).notify(message, t); };
+                        closure = ()=>@RemoteInvocation("notifyActivityTermination_1") { deref[RootCollectingFinish[T]](ref).notify(message, t); };
                     } else {
-                        closure = ()=>@RemoteInvocation { deref[RootCollectingFinish[T]](ref).notifyValue(message, result); };
+                        closure = ()=>@RemoteInvocation("notifyActivityTermination_2") { deref[RootCollectingFinish[T]](ref).notifyValue(message, result); };
                     }
                 } else {
                     val message = IndexedMemoryChunk.allocateUninitialized[Pair[Int,Int]](length);
@@ -808,9 +808,9 @@ abstract class FinishState {
                         message(i) = Pair[Int,Int](places(i), counts(places(i)));
                     }
                     if (null != t) {
-                        closure = ()=>@RemoteInvocation { deref[RootCollectingFinish[T]](ref).notify(message, t); };
+                        closure = ()=>@RemoteInvocation("notifyActivityTermination_3") { deref[RootCollectingFinish[T]](ref).notify(message, t); };
                     } else {
-                        closure = ()=>@RemoteInvocation { deref[RootCollectingFinish[T]](ref).notifyValue(message, result); };
+                        closure = ()=>@RemoteInvocation("notifyActivityTermination_4") { deref[RootCollectingFinish[T]](ref).notifyValue(message, result); };
                     }
                 }
                 counts.clear(0, counts.length());
@@ -819,15 +819,15 @@ abstract class FinishState {
                 val message = IndexedMemoryChunk.allocateUninitialized[Pair[Int,Int]](1);
                 message(0) = Pair[Int,Int](Runtime.hereInt(), count);
                 if (null != t) {
-                    closure = ()=>@RemoteInvocation { deref[RootCollectingFinish[T]](ref).notify(message, t); };
+                    closure = ()=>@RemoteInvocation("notifyActivityTermination_5") { deref[RootCollectingFinish[T]](ref).notify(message, t); };
                 } else {
-                    closure = ()=>@RemoteInvocation { deref[RootCollectingFinish[T]](ref).notifyValue(message, result); };
+                    closure = ()=>@RemoteInvocation("notifyActivityTermination_6") { deref[RootCollectingFinish[T]](ref).notifyValue(message, result); };
                 }
             }
             count = 0;
             exceptions = null;
             lock.unlock();
-            Runtime.x10rtSendMessage(ref.home.id, closure);
+            Runtime.x10rtSendMessage(ref.home.id, closure, null);
             Runtime.dealloc(closure);
             Runtime.finishStates.remove(ref);
         }

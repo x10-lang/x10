@@ -119,10 +119,6 @@ public abstract class ClassDecl_c extends Term_c implements ClassDecl
      */
     protected abstract boolean isValidType(Type type);
 
-    /**
-     * Returns true if Object is the root of the hierarchy.  Otherwise it can implement interfaces.
-     */
-    protected abstract boolean objectIsRoot();
 
     public abstract String toString();
 

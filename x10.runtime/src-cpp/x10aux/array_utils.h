@@ -31,9 +31,9 @@ namespace x10aux {
     //
     // @Native("c++", "f(lookup_or_null(#arr, #offset))")
     // static def f(arr:Array[C], offset:Int) { }
-    template<class T> T *lookup_or_null (x10aux::ref<x10::array::Array<T> > arr, x10_int offset)
+    template<class T> T *lookup_or_null (x10::array::Array<T>* arr, x10_int offset)
     {
-        if (arr.isNull()) return NULL;
+        if (NULL == arr) return NULL;
         return &arr->raw()->raw()[offset];
     }
 
