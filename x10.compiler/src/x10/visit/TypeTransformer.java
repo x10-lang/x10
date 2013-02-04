@@ -559,7 +559,10 @@ public class TypeTransformer extends NodeTransformer {
     }
 
     private VarDecl transformVarDecl(VarDecl d, VarDecl old) {
-        boolean sigChanged = d.type() != old.type(); // conservative compare detects changes in substructure
+        TypeNode tn1 = d.type();
+        TypeNode tn2 = old.type();
+        boolean sigChanged = tn1 != tn2; // conservative compare detects changes in substructure
+        
         // There may already be a localdef mapping for this variable.  This happens when variable references
         // are encountered before the declaration, e.g., in return types and in the variable initializer type
         // (the self binding).  If that happens, use the existing mapping, but validate.
@@ -570,11 +573,13 @@ public class TypeTransformer extends NodeTransformer {
         X10LocalDef ld = (X10LocalDef) d.localDef();
         X10LocalDef mld = vars.get(ld);
         if (mld != null) {
-            if (sigChanged) {
+        	// [DC] sigChanged is a conservative approximation, now we check the actual types, which really indicate if something has changed
+        	Type t1 = d.type().type();
+        	Type t2 = Types.get(mld.type());
+        	boolean reallySigChanged = sigChanged && !xts.typeEquals(t1, t2, visitor().context());
+            if (reallySigChanged) {
                 // validate the type
-            	Type t1 = d.type().type();
-            	Type t2 = Types.get(mld.type());
-                if (mld == ld || !xts.typeEquals(t1, t2, visitor().context())) {
+                if (mld == ld) {
                     throw new InternalCompilerError("Inconsistent local mapping for "+d.name().id(), d.position());
                 }
                 // adjust the return type node's type reference to match that of the stored localdef
