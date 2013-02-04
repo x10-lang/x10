@@ -234,7 +234,9 @@ public class X10ParameterizedType extends X10Type implements ParameterizedType {
 		if (pType instanceof ConstrainedType) {
 			ConstrainedType ct = ((ConstrainedType) pType);
 			XConstraint<?> xc = ct.constraint().get();
-			String str = ct.name() + "{";
+			String str = ct.name() + xc.toString();
+            /* [DC] if toString is not good enough, we should do something else, but do it in XConstraint.
+            "{";
 			boolean first = true;
 			for (XTerm<?> t :xc.terms()) {
 				if (first) {
@@ -245,6 +247,7 @@ public class X10ParameterizedType extends X10Type implements ParameterizedType {
 					str += ", " + t.prettyPrint(); 
 				}
 			}
+            */
 //			// lshadare may have more than two children?
 			// why was this not printing properties?
 //			for (XExpr<?> f: xc.atoms()) {
