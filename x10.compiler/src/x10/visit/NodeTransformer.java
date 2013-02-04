@@ -45,6 +45,7 @@ import x10.ast.X10MethodDecl;
  */
 public abstract class NodeTransformer {
     private ContextVisitor v; // FIXME: refactor later
+    // [DC] some quick investigation tells me v is only used for getting typesystem, context, and nodefactory 
     protected ContextVisitor visitor() { return v; }
 
     public Node transform(Node n, Node old, ContextVisitor v) {

@@ -25,6 +25,9 @@ import polyglot.visit.NodeVisitor;
 import x10.ast.Closure;
 import x10.util.CollectionFactory;
 
+/** Convert all locally-scoped variables to have fresh names,
+ * while preserving the validity of dependent types that may mention these names.
+ */
 public class X10AlphaRenamer extends AlphaRenamer {
 
     protected Map<Name, LocalDef> localDefMap = CollectionFactory.newHashMap();
