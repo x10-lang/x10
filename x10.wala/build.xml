@@ -3,6 +3,7 @@
     <property name="x10.home" value="${basedir}/.."/>
     <property name="x10.dist.location" location="${x10.home}/x10.dist"/>
     <property name="x10.compiler.location" location="${x10.home}/x10.compiler"/>
+    <property name="x10.constraints.location" location="${x10.home}/x10.constraints"/>
     <property name="build" location="${basedir}/bin"/>
     <property name="src" location="${basedir}/src"/>
     <property name="lib" location="${x10.dist.location}/lib"/>
@@ -17,6 +18,7 @@
     </path>
     <path id="compiler.classpath">
         <pathelement location="${x10.compiler.location}/classes"/>
+        <pathelement location="${x10.constraints.location}/classes"/>
     </path>
     <path id="lib.classpath">
       <fileset dir="${lib}" includes="com.ibm.wala.cast.java_1.0.0.201101071300.jar,com.ibm.wala.cast_1.0.0.201101071300.jar,com.ibm.wala.core_1.1.3.201101071300.jar,com.ibm.wala.shrike_1.3.1.201101071300.jar,org.eclipse.equinox.common_3.6.0.v20100503.jar"/> 
