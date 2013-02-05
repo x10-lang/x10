@@ -96,7 +96,19 @@ public class TeamSupport {
 	
     public static void nativeScatter(int id, int role, int root, IndexedMemoryChunk<?> src, int src_off, 
 	                                 IndexedMemoryChunk<?> dst, int dst_off, int count) {
-        aboutToDie("nativeScatter");
+        Object srcRaw = src.getBackingArray();
+        Object dstRaw = dst.getBackingArray();
+
+        int typeCode = getTypeCode(src);
+        assert getTypeCode(dst) == typeCode : "Incompatible src and dst arrays";
+
+        FinishState fs = ActivityManagement.activityCreationBookkeeping();
+
+        try {
+            nativeScatterImpl(id, role, root, srcRaw, src_off, dstRaw, dst_off, count, typeCode, fs);
+        } catch (UnsatisfiedLinkError e) {
+            aboutToDie("nativeScatter");
+        }
     }
 	
     public static void nativeBcast(int id, int role, int root, IndexedMemoryChunk<?> src, int src_off, 
@@ -112,13 +124,25 @@ public class TeamSupport {
         try {
             nativeBcastImpl(id, role, root, srcRaw, src_off, dstRaw, dst_off, count, typeCode, fs);
         } catch (UnsatisfiedLinkError e) {
-	    aboutToDie("nativeBcast");
+            aboutToDie("nativeBcast");
         }
     }
     
     public static void nativeAllToAll(int id, int role, IndexedMemoryChunk<?> src, int src_off, 
                                       IndexedMemoryChunk<?> dst, int dst_off, int count) {
-        aboutToDie("nativeAllToAll");
+        Object srcRaw = src.getBackingArray();
+        Object dstRaw = dst.getBackingArray();
+
+        int typeCode = getTypeCode(src);
+        assert getTypeCode(dst) == typeCode : "Incompatible src and dst arrays";
+
+        FinishState fs = ActivityManagement.activityCreationBookkeeping();
+
+        try {
+            nativeAllToAllImpl(id, role, srcRaw, src_off, dstRaw, dst_off, count, typeCode, fs);
+        } catch (UnsatisfiedLinkError e) {
+            aboutToDie("nativeAllToAll");
+        }
     }
     
     public static void nativeAllReduce(int id, int role, IndexedMemoryChunk<?> src, int src_off, 
@@ -168,7 +192,15 @@ public class TeamSupport {
 	
 	private static native void nativeBarrierImpl(int id, int role, FinishState fs);
 	
+	private static native void nativeScatterImpl(int id, int role, int root, Object srcRaw, int src_off, 
+	                                               Object dstRaw, int dst_off,
+	                                               int count, int typecode, FinishState fs);
+
 	private static native void nativeBcastImpl(int id, int role, int root, Object srcRaw, int src_off, 
+	                                               Object dstRaw, int dst_off,
+	                                               int count, int typecode, FinishState fs);
+
+	private static native void nativeAllToAllImpl(int id, int role, Object srcRaw, int src_off, 
 	                                               Object dstRaw, int dst_off,
 	                                               int count, int typecode, FinishState fs);
 
