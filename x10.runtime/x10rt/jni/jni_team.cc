@@ -138,6 +138,230 @@ JNIEXPORT void JNICALL Java_x10_x10rt_TeamSupport_nativeBarrierImpl(JNIEnv *env,
 
 
 /*****************************************************
+ * nativeBcastImpl
+ *****************************************************/
+
+typedef struct bcastStruct {
+    jobject globalFinishState;
+    jobject globalDstArray;
+    jint typecode;
+    jint dstOffset;
+    jint count;
+    void *srcData;
+    void *dstData;
+} bcastStruct;
+
+static void bcastCallback(void *arg) {
+    bcastStruct *callbackArg = (bcastStruct*)arg;
+    JNIEnv *env = jniHelper_getEnv();
+
+    // Copy from native buffer to dstArray
+    switch(callbackArg->typecode) {
+    case 1:
+        // byte[]
+        env->SetByteArrayRegion((jbyteArray)callbackArg->globalDstArray,
+                                callbackArg->dstOffset,
+                                callbackArg->count,
+                                (jbyte*)callbackArg->dstData);
+        break;
+    case 2:
+        // short[]
+        env->SetShortArrayRegion((jshortArray)callbackArg->globalDstArray,
+                                 callbackArg->dstOffset,
+                                 callbackArg->count,
+                                 (jshort*)callbackArg->dstData);
+        break;
+    case 4:
+        // int[]
+        env->SetIntArrayRegion((jintArray)callbackArg->globalDstArray,
+                               callbackArg->dstOffset,
+                               callbackArg->count,
+                               (jint*)callbackArg->dstData);
+        break;
+    case 6:
+        // long[]
+        env->SetLongArrayRegion((jlongArray)callbackArg->globalDstArray,
+                               callbackArg->dstOffset,
+                               callbackArg->count,
+                               (jlong*)callbackArg->dstData);
+        break;
+    case 8:
+        // double[]
+        env->SetDoubleArrayRegion((jdoubleArray)callbackArg->globalDstArray,
+                                  callbackArg->dstOffset,
+                                  callbackArg->count,
+                                  (jdouble*)callbackArg->dstData);
+        break;
+    case 9:
+        // float[]
+        env->SetFloatArrayRegion((jfloatArray)callbackArg->globalDstArray,
+                                 callbackArg->dstOffset,
+                                 callbackArg->count,
+                                 (jfloat*)callbackArg->dstData);
+        break;
+    default:
+        fprintf(stderr, "Unsupported typecode %d in bcastCallback\n", callbackArg->typecode);
+        abort();
+    }
+    
+    // notify that the activity that was performing the barrier has finished.
+    env->CallStaticVoidMethod(activityTerminationFunc.targetClass,
+                              activityTerminationFunc.targetMethod,
+                              callbackArg->globalFinishState);
+
+    // Free resources
+    env->DeleteGlobalRef(callbackArg->globalFinishState);
+    env->DeleteGlobalRef(callbackArg->globalDstArray);
+    if (callbackArg->srcData != NULL)
+    free(callbackArg->srcData);
+    free(callbackArg->dstData);
+    free(callbackArg);
+}
+
+
+/*
+ * Class:     x10_x10rt_TeamSupport
+ * Method:    nativeBcastImpl
+ * Signature: (IIILjava/lang/Object;ILjava/lang/Object;IIILx10/lang/FinishState;)V
+ */
+JNIEXPORT void JNICALL Java_x10_x10rt_TeamSupport_nativeBcastImpl(JNIEnv *env, jclass klazz,
+                                                                      jint id, jint role, jint root,
+                                                                      jobject src, jint src_off,
+                                                                      jobject dst, jint dst_off,
+                                                                      jint count, jint typecode,
+                                                                      jobject finishState) {
+    jobject globalDst = env->NewGlobalRef(dst);
+    jobject globalFinishState = env->NewGlobalRef(finishState);
+    if (NULL == globalDst || NULL == globalFinishState) {
+        fprintf(stderr, "OOM while attempting to create GlobalRef in nativeBcastImpl\n");
+        abort();
+    }
+
+    int el = 0;
+    void *srcData = NULL;
+    void *dstData = NULL;
+    switch(typecode) {
+    case 1:
+        // byte []
+        el = 1;
+        dstData = malloc(count*sizeof(jbyte));
+        if (NULL == dstData) {
+            fprintf(stderr, "OOM while attempting to allocate malloced storage in nativeBcastImpl\n");
+            abort();
+        }
+        if (role == root) {
+        srcData = malloc(count*sizeof(jbyte));
+        if (NULL == srcData) {
+            fprintf(stderr, "OOM while attempting to allocate malloced storage in nativeBcastImpl\n");
+            abort();
+        }
+        env->GetByteArrayRegion((jbyteArray)src, src_off, count, (jbyte*)srcData);
+        }
+        break;
+    case 2:
+        // short []
+        el = 2;
+        dstData = malloc(count*sizeof(jshort));
+        if (NULL == dstData) {
+            fprintf(stderr, "OOM while attempting to allocate malloced storage in nativeBcastImpl\n");
+            abort();
+        }
+        if (role == root) {
+        srcData = malloc(count*sizeof(jshort));
+        if (NULL == srcData) {
+            fprintf(stderr, "OOM while attempting to allocate malloced storage in nativeBcastImpl\n");
+            abort();
+        }
+        env->GetShortArrayRegion((jshortArray)src, src_off, count, (jshort*)srcData);
+        }
+        break;
+    case 4:
+        // int[]
+        el = 4;
+        dstData = malloc(count*sizeof(jint));
+        if (NULL == dstData) {
+            fprintf(stderr, "OOM while attempting to allocate malloced storage in nativeBcastImpl\n");
+            abort();
+        }
+        if (role == root) {
+        srcData = malloc(count*sizeof(jint));
+        if (NULL == srcData) {
+            fprintf(stderr, "OOM while attempting to allocate malloced storage in nativeBcastImpl\n");
+            abort();
+        }
+        env->GetIntArrayRegion((jintArray)src, src_off, count, (jint*)srcData);
+        }
+        break;
+    case 6:
+        // long[]
+        el = 8;
+        dstData = malloc(count*sizeof(jlong));
+        if (NULL == dstData) {
+            fprintf(stderr, "OOM while attempting to allocate malloced storage in nativeBcastImpl\n");
+            abort();
+        }
+        if (role == root) {
+        srcData = malloc(count*sizeof(jlong));
+        if (NULL == srcData) {
+            fprintf(stderr, "OOM while attempting to allocate malloced storage in nativeBcastImpl\n");
+            abort();
+        }
+        env->GetLongArrayRegion((jlongArray)src, src_off, count, (jlong*)srcData);
+        }
+        break;
+    case 8:
+        // double[]
+        el = 8;
+        dstData = malloc(count*sizeof(jdouble));
+        if (NULL == dstData) {
+            fprintf(stderr, "OOM while attempting to allocate malloced storage in nativeBcastImpl\n");
+            abort();
+        }
+        if (role == root) {
+        srcData = malloc(count*sizeof(jdouble));
+        if (NULL == srcData) {
+            fprintf(stderr, "OOM while attempting to allocate malloced storage in nativeBcastImpl\n");
+            abort();
+        }
+        env->GetDoubleArrayRegion((jdoubleArray)src, src_off, count, (jdouble*)srcData);
+        }
+        break;
+    case 9:
+        // float[]
+        el = 4;
+        dstData = malloc(count*sizeof(jfloat));
+        if (NULL == dstData) {
+            fprintf(stderr, "OOM while attempting to allocate malloced storage in nativeBcastImpl\n");
+            abort();
+        }
+        if (role == root) {
+        srcData = malloc(count*sizeof(jfloat));
+        if (NULL == srcData) {
+            fprintf(stderr, "OOM while attempting to allocate malloced storage in nativeBcastImpl\n");
+            abort();
+        }
+        env->GetFloatArrayRegion((jfloatArray)src, src_off, count, (jfloat*)srcData);
+        }
+        break;
+    default:
+        fprintf(stderr, "Unsupported typecode %d in nativeBcastImpl\n", typecode);
+        abort();
+    }        
+
+    bcastStruct* callbackArg = (bcastStruct*)malloc(sizeof(bcastStruct));
+    callbackArg->globalFinishState = globalFinishState;
+    callbackArg->globalDstArray = globalDst;
+    callbackArg->typecode = typecode;
+    callbackArg->dstOffset = dst_off;
+    callbackArg->count = count;
+    callbackArg->srcData = srcData;
+    callbackArg->dstData = dstData;
+
+    x10rt_bcast(id, role, root, srcData, dstData, el, count, &bcastCallback, callbackArg);
+}
+
+
+/*****************************************************
  * nativeAllReduceImpl
  *****************************************************/
 
