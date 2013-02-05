@@ -173,7 +173,15 @@ public class TeamSupport {
     }
 
     public static void nativeSplit(int id, int role, int color, int new_role, IndexedMemoryChunk<x10.core.Int> result) {
-        aboutToDie("nativeSplit");
+        int[] nr = result.getIntArray();
+
+        FinishState fs = ActivityManagement.activityCreationBookkeeping();
+
+        try {
+            nativeSplitImpl(id, role, color, new_role, nr, fs);
+        } catch (UnsatisfiedLinkError e) {
+            aboutToDie("nativeSplit");
+        }
     }
     
     public static void nativeDel(int id, int role) {
@@ -208,7 +216,9 @@ public class TeamSupport {
 	                                               Object dstRaw, int dst_off,
 	                                               int count, int op, int typecode, FinishState fs);
 
+        private static native void nativeSplitImpl(int id, int role, int color, int new_role, int[] nr, FinishState fs);
+
 	private static native void nativeDelImpl(int id, int role, FinishState fs);
 	
-	static native void initialize();
+        static native void initialize();
 }

@@ -49,7 +49,7 @@ static void nativeMakeCallback(x10rt_team team, void *arg) {
 /*
  * Class:     x10_x10rt_TeamSupport
  * Method:    nativeMakeImpl
- * Signature: ([Lx10/lang/Place;I[I)V
+ * Signature: ([II[ILx10/lang/FinishState;)V
  */
 JNIEXPORT void JNICALL Java_x10_x10rt_TeamSupport_nativeMakeImpl(JNIEnv *env, jclass klazz,
                                                                  jintArray places, jint count,
@@ -205,7 +205,7 @@ static void postCopyCallback(void *arg) {
         abort();
     }
     
-    // notify that the activity that was performing the barrier has finished.
+    // notify that the activity that was performing the copy has finished.
     env->CallStaticVoidMethod(activityTerminationFunc.targetClass,
                               activityTerminationFunc.targetMethod,
                               callbackArg->globalFinishState);
@@ -655,7 +655,7 @@ JNIEXPORT void JNICALL Java_x10_x10rt_TeamSupport_nativeAllToAllImpl(JNIEnv *env
 /*
  * Class:     x10_x10rt_TeamSupport
  * Method:    nativeAllReduceImpl
- * Signature: (IILjava/lang/Object;ILjava/lang/Object;IIILx10/lang/FinishState;)V
+ * Signature: (IILjava/lang/Object;ILjava/lang/Object;IIIILx10/lang/FinishState;)V
  */
 JNIEXPORT void JNICALL Java_x10_x10rt_TeamSupport_nativeAllReduceImpl(JNIEnv *env, jclass klazz,
                                                                       jint id, jint role,
@@ -749,6 +749,64 @@ JNIEXPORT void JNICALL Java_x10_x10rt_TeamSupport_nativeAllReduceImpl(JNIEnv *en
 
     x10rt_allreduce(id, role, srcData, dstData, (x10rt_red_op_type)op, (x10rt_red_type)typecode,
                     count, &postCopyCallback, callbackArg);
+}
+
+
+/*****************************************************
+ * nativeSplitImpl
+ *****************************************************/
+
+typedef struct splitImplStruct {
+    jobject globalFinishState;
+    jintArray globalResult;
+} splitImplStruct;
+
+static void splitCallback(x10rt_team team, void *arg) {
+    splitImplStruct* callbackArg = (splitImplStruct*)arg;
+    JNIEnv *env = jniHelper_getEnv();
+    jint tmp = (jint)team;
+
+    // put team id into backing int[]
+    env->SetIntArrayRegion(callbackArg->globalResult, 0, 1, &tmp);
+
+    // notify that the activity that was performing the split has finished.
+    env->CallStaticVoidMethod(activityTerminationFunc.targetClass,
+                              activityTerminationFunc.targetMethod,
+                              callbackArg->globalFinishState);
+
+    // Free resources
+    env->DeleteGlobalRef(callbackArg->globalFinishState);
+    env->DeleteGlobalRef(callbackArg->globalResult);
+    free(callbackArg);
+}
+    
+
+/*
+ * Class:     x10_x10rt_TeamSupport
+ * Method:    nativeSplitImpl
+ * Signature: (IIII[ILx10/lang/FinishState;)V
+ */
+JNIEXPORT void JNICALL Java_x10_x10rt_TeamSupport_nativeSplitImpl(JNIEnv *env, jclass klazz,
+                                                                jint id, jint role,
+                                                                jint color, jint new_role, jintArray nr,
+                                                                jobject finishState) {
+    jobject globalResult = env->NewGlobalRef(nr);
+    jobject globalFinishState = env->NewGlobalRef(finishState);
+    if (NULL == globalResult || NULL == globalFinishState) {
+        fprintf(stderr, "OOM while attempting to create GlobalRef in nativeSplitImpl\n");
+        abort();
+    }
+
+    splitImplStruct *callbackArg = (splitImplStruct*)malloc(sizeof(splitImplStruct));
+    if (NULL == callbackArg) {
+        fprintf(stderr, "OOM while attempting to allocate malloced storage in nativeSplitImpl\n");
+        abort();
+    }
+
+    callbackArg->globalFinishState = globalFinishState;
+    callbackArg->globalResult = (jintArray) globalResult;
+    
+    x10rt_team_split(id, role, color, new_role, &splitCallback, callbackArg);
 }
 
 
