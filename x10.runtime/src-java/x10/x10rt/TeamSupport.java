@@ -52,50 +52,49 @@ public class TeamSupport {
         throw new java.lang.UnsupportedOperationException("About to die in " + methodName);
     }
 
-	public static void nativeMake(IndexedMemoryChunk<Place> places, int count, IndexedMemoryChunk<x10.core.Int> result) {
-	    Place[] np = (Place[])places.getBackingArray();
-	    int[] int_places = new int[np.length];
-	    for (int i=0; i<places.length; i++) {
-	        int_places[i] = np[i].id;
-	    }
-	    int[] nr = result.getIntArray();
+    public static void nativeMake(IndexedMemoryChunk<Place> places, int count, IndexedMemoryChunk<x10.core.Int> result) {
+        Place[] np = (Place[])places.getBackingArray();
+        int[] int_places = new int[np.length];
+        for (int i=0; i<places.length; i++) {
+            int_places[i] = np[i].id;
+        }
+        int[] nr = result.getIntArray();
 
-	    FinishState fs = ActivityManagement.activityCreationBookkeeping();
+        FinishState fs = ActivityManagement.activityCreationBookkeeping();
 
-	    try {
-	        nativeMakeImpl(int_places, count, nr, fs);
-	    } catch (UnsatisfiedLinkError e) {
-	        aboutToDie("nativeMake");
-	    }
-	}
-	
-	
-	public static int nativeSize(int id) {
-	    if (!X10RT.forceSinglePlace){
-		    int size = 0;
-		    try {
-		        size = nativeSizeImpl(id);
-		    } catch (UnsatisfiedLinkError e) {
-		        aboutToDie("nativeSize");
-		    }
-		    return size;
-	    }
-	    return 1;
-	}
-	
-	public static void nativeBarrier(int id, int role) {
-	    if (!X10RT.forceSinglePlace){
-	    	FinishState fs = ActivityManagement.activityCreationBookkeeping();
-		    try {
-		    	nativeBarrierImpl(id, role, fs);
-		    } catch (UnsatisfiedLinkError e) {
-		        aboutToDie("nativeBarrier");
-		    }
-	    }
-	}
-	
+        try {
+            nativeMakeImpl(int_places, count, nr, fs);
+        } catch (UnsatisfiedLinkError e) {
+            aboutToDie("nativeMake");
+        }
+    }
+        
+    public static int nativeSize(int id) {
+        if (!X10RT.forceSinglePlace) {
+            int size = 0;
+            try {
+                size = nativeSizeImpl(id);
+            } catch (UnsatisfiedLinkError e) {
+                aboutToDie("nativeSize");
+            }
+            return size;
+        }
+        return 1;
+    }
+
+    public static void nativeBarrier(int id, int role) {
+        if (!X10RT.forceSinglePlace) {
+            FinishState fs = ActivityManagement.activityCreationBookkeeping();
+            try {
+                nativeBarrierImpl(id, role, fs);
+            } catch (UnsatisfiedLinkError e) {
+                aboutToDie("nativeBarrier");
+            }
+        }
+    }
+        
     public static void nativeScatter(int id, int role, int root, IndexedMemoryChunk<?> src, int src_off, 
-	                                 IndexedMemoryChunk<?> dst, int dst_off, int count) {
+                                     IndexedMemoryChunk<?> dst, int dst_off, int count) {
         if (!X10RT.forceSinglePlace) {
         Object srcRaw = src.getBackingArray();
         Object dstRaw = dst.getBackingArray();
@@ -112,7 +111,7 @@ public class TeamSupport {
         }
         }
     }
-	
+        
     public static void nativeBcast(int id, int role, int root, IndexedMemoryChunk<?> src, int src_off, 
                                    IndexedMemoryChunk<?> dst, int dst_off, int count) {
         if (!X10RT.forceSinglePlace) {
@@ -172,12 +171,50 @@ public class TeamSupport {
 
     public static void nativeIndexOfMax(int id, int role, IndexedMemoryChunk<?> src,
                                         IndexedMemoryChunk<?> dst) {
-        aboutToDie("nativeIndexOfMax");
+        if (!X10RT.forceSinglePlace) {
+        double v = ((x10.util.Team.DoubleIdx[])src.getBackingArray())[0].value;
+        double[] value = new double[] { v };
+        int[] idx = new int[1];
+        FinishState fs = ActivityManagement.activityCreationBookkeeping();
+
+        try {
+            nativeIndexOfMaxImpl(id, role, value, idx, fs);
+            x10.util.Team.DoubleIdx dstTuple = ((x10.util.Team.DoubleIdx[])dst.getBackingArray())[0];
+            dstTuple.value = value[0];
+            dstTuple.idx = idx[0];
+        } catch (UnsatisfiedLinkError e) {
+            aboutToDie("nativeIndexOfMax");
+        }
+        } else {
+            x10.util.Team.DoubleIdx dstTuple = ((x10.util.Team.DoubleIdx[])dst.getBackingArray())[0];
+            x10.util.Team.DoubleIdx srcTuple = ((x10.util.Team.DoubleIdx[])src.getBackingArray())[0];
+            dstTuple.value = srcTuple.value;
+            dstTuple.idx = srcTuple.idx;
+        }
     }
 
     public static void nativeIndexOfMin(int id, int role, IndexedMemoryChunk<?> src,
                                         IndexedMemoryChunk<?> dst) {
-        aboutToDie("nativeIndexOfMin");
+        if (!X10RT.forceSinglePlace) {
+        double v = ((x10.util.Team.DoubleIdx[])src.getBackingArray())[0].value;
+        double[] value = new double[] { v };
+        int[] idx = new int[1];
+        FinishState fs = ActivityManagement.activityCreationBookkeeping();
+
+        try {
+            nativeIndexOfMinImpl(id, role, value, idx, fs);
+            x10.util.Team.DoubleIdx dstTuple = ((x10.util.Team.DoubleIdx[])dst.getBackingArray())[0];
+            dstTuple.value = value[0];
+            dstTuple.idx = idx[0];
+        } catch (UnsatisfiedLinkError e) {
+            aboutToDie("nativeIndexOfMin");
+        }
+        } else {
+            x10.util.Team.DoubleIdx dstTuple = ((x10.util.Team.DoubleIdx[])dst.getBackingArray())[0];
+            x10.util.Team.DoubleIdx srcTuple = ((x10.util.Team.DoubleIdx[])src.getBackingArray())[0];
+            dstTuple.value = srcTuple.value;
+            dstTuple.idx = srcTuple.idx;
+        }
     }
 
     public static void nativeSplit(int id, int role, int color, int new_role, IndexedMemoryChunk<x10.core.Int> result) {
@@ -202,31 +239,35 @@ public class TeamSupport {
         }
     }
     
-	private static native void nativeMakeImpl(int[] places, int count, int[] result, FinishState fs);
-	
-	private static native int nativeSizeImpl(int id);
-	
-	private static native void nativeBarrierImpl(int id, int role, FinishState fs);
-	
-	private static native void nativeScatterImpl(int id, int role, int root, Object srcRaw, int src_off, 
-	                                               Object dstRaw, int dst_off,
-	                                               int count, int typecode, FinishState fs);
-
-	private static native void nativeBcastImpl(int id, int role, int root, Object srcRaw, int src_off, 
-	                                               Object dstRaw, int dst_off,
-	                                               int count, int typecode, FinishState fs);
-
-	private static native void nativeAllToAllImpl(int id, int role, Object srcRaw, int src_off, 
-	                                               Object dstRaw, int dst_off,
-	                                               int count, int typecode, FinishState fs);
-
-	private static native void nativeAllReduceImpl(int id, int role, Object srcRaw, int src_off, 
-	                                               Object dstRaw, int dst_off,
-	                                               int count, int op, int typecode, FinishState fs);
-
-        private static native void nativeSplitImpl(int id, int role, int color, int new_role, int[] nr, FinishState fs);
-
-	private static native void nativeDelImpl(int id, int role, FinishState fs);
-	
-        static native void initialize();
+    private static native void nativeMakeImpl(int[] places, int count, int[] result, FinishState fs);
+    
+    private static native int nativeSizeImpl(int id);
+    
+    private static native void nativeBarrierImpl(int id, int role, FinishState fs);
+    
+    private static native void nativeScatterImpl(int id, int role, int root, Object srcRaw, int src_off, 
+                                                 Object dstRaw, int dst_off,
+                                                 int count, int typecode, FinishState fs);
+    
+    private static native void nativeBcastImpl(int id, int role, int root, Object srcRaw, int src_off, 
+                                               Object dstRaw, int dst_off,
+                                               int count, int typecode, FinishState fs);
+    
+    private static native void nativeAllToAllImpl(int id, int role, Object srcRaw, int src_off, 
+                                                  Object dstRaw, int dst_off,
+                                                  int count, int typecode, FinishState fs);
+    
+    private static native void nativeAllReduceImpl(int id, int role, Object srcRaw, int src_off, 
+                                                   Object dstRaw, int dst_off,
+                                                   int count, int op, int typecode, FinishState fs);
+    
+    private static native void nativeIndexOfMaxImpl(int id, int role, double[] value, int[] idx, FinishState fs);
+    
+    private static native void nativeIndexOfMinImpl(int id, int role, double[] value, int[] idx, FinishState fs);
+    
+    private static native void nativeSplitImpl(int id, int role, int color, int new_role, int[] nr, FinishState fs);
+    
+    private static native void nativeDelImpl(int id, int role, FinishState fs);
+    
+    static native void initialize();
 }

@@ -755,6 +755,132 @@ JNIEXPORT void JNICALL Java_x10_x10rt_TeamSupport_nativeAllReduceImpl(JNIEnv *en
 }
 
 
+/*
+ * Common struct and callback for min and max
+ */
+
+typedef struct DoubleIdx {
+    double value;
+    int idx;
+} DoubleIdx;
+
+typedef struct minmaxStruct {
+    jobject globalFinishState;
+    jdoubleArray globalValueArray;
+    jintArray globalIdxArray;
+    DoubleIdx *srcData;
+    DoubleIdx *dstData;
+} minmaxStruct;
+
+static void minmaxCallback(void *arg) {
+    minmaxStruct *callbackArg = (minmaxStruct*)arg;
+    JNIEnv *env = jniHelper_getEnv();
+
+    // double[]
+    env->SetDoubleArrayRegion((jdoubleArray)callbackArg->globalValueArray,
+			      0, 1,
+			      (jdouble*)&(callbackArg->dstData[0].value));
+    
+    // int[]
+    env->SetIntArrayRegion((jintArray)callbackArg->globalIdxArray,
+			   0, 1,
+			   (jint*)&(callbackArg->dstData[0].idx));
+
+    // notify that the activity that was performing min max has finished.
+    env->CallStaticVoidMethod(activityTerminationFunc.targetClass,
+                              activityTerminationFunc.targetMethod,
+                              callbackArg->globalFinishState);
+
+    // Free resources
+    env->DeleteGlobalRef(callbackArg->globalFinishState);
+    env->DeleteGlobalRef(callbackArg->globalValueArray);
+    env->DeleteGlobalRef(callbackArg->globalIdxArray);
+    free(callbackArg->srcData);
+    free(callbackArg->dstData);
+    free(callbackArg);
+}
+
+
+/*****************************************************
+ * nativeIndexOfMaxImpl
+ *****************************************************/
+
+/*
+ * Class:     x10_x10rt_TeamSupport
+ * Method:    nativeIndexOfMaxImpl
+ * Signature: (II[D[ILx10/lang/FinishState;)V
+ */
+JNIEXPORT void JNICALL Java_x10_x10rt_TeamSupport_nativeIndexOfMaxImpl(JNIEnv *env, jclass klazz,
+                                                                       jint id, jint role,
+                                                                       jdoubleArray value, jintArray idx,
+                                                                       jobject finishState) {
+    jdoubleArray globalValueArray = (jdoubleArray)env->NewGlobalRef(value);
+    jintArray globalIdxArray = (jintArray)env->NewGlobalRef(idx);
+    jobject globalFinishState = env->NewGlobalRef(finishState);
+    if (NULL == globalValueArray || NULL == globalIdxArray || NULL == globalFinishState) {
+        fprintf(stderr, "OOM while attempting to create GlobalRef in nativeIndexOfMaxImpl\n");
+        abort();
+    }
+
+    DoubleIdx* srcData = (DoubleIdx*)malloc(sizeof(DoubleIdx));
+    DoubleIdx* dstData = (DoubleIdx*)malloc(sizeof(DoubleIdx));
+    if (NULL == srcData || NULL == dstData) {
+        fprintf(stderr, "OOM while attempting to allocate malloced storage in nativeIndexOfMaxImpl\n");
+        abort();
+    }
+    env->GetDoubleArrayRegion(value, 0, 1, (jdouble*)&(srcData->value));
+
+    minmaxStruct* callbackArg = (minmaxStruct*)malloc(sizeof(minmaxStruct));
+    callbackArg->globalFinishState = globalFinishState;
+    callbackArg->globalValueArray = globalValueArray;
+    callbackArg->globalIdxArray = globalIdxArray;
+    callbackArg->srcData = srcData;
+    callbackArg->dstData = dstData;
+
+    x10rt_allreduce(id, role, srcData, dstData, X10RT_RED_OP_MAX, X10RT_RED_TYPE_DBL_S32, 1, &minmaxCallback, callbackArg);
+}
+
+
+/*****************************************************
+ * nativeIndexOfMinImpl
+ *****************************************************/
+
+/*
+ * Class:     x10_x10rt_TeamSupport
+ * Method:    nativeIndexOfMinImpl
+ * Signature: (II[D[ILx10/lang/FinishState;)V
+ */
+JNIEXPORT void JNICALL Java_x10_x10rt_TeamSupport_nativeIndexOfMinImpl(JNIEnv *env, jclass klazz,
+                                                                       jint id, jint role,
+                                                                       jdoubleArray value, jintArray idx,
+                                                                       jobject finishState) {
+    jdoubleArray globalValueArray = (jdoubleArray)env->NewGlobalRef(value);
+    jintArray globalIdxArray = (jintArray)env->NewGlobalRef(idx);
+    jobject globalFinishState = env->NewGlobalRef(finishState);
+    if (NULL == globalValueArray || NULL == globalIdxArray || NULL == globalFinishState) {
+        fprintf(stderr, "OOM while attempting to create GlobalRef in nativeIndexOfMinImpl\n");
+        abort();
+    }
+
+    DoubleIdx* srcData = (DoubleIdx*)malloc(sizeof(DoubleIdx));
+    DoubleIdx* dstData = (DoubleIdx*)malloc(sizeof(DoubleIdx));
+    if (NULL == srcData || NULL == dstData) {
+        fprintf(stderr, "OOM while attempting to allocate malloced storage in nativeIndexOfMinImpl\n");
+        abort();
+    }
+    env->GetDoubleArrayRegion(value, 0, 1, (jdouble*)&(srcData->value));
+
+    minmaxStruct* callbackArg = (minmaxStruct*)malloc(sizeof(minmaxStruct));
+    callbackArg->globalFinishState = globalFinishState;
+    callbackArg->globalValueArray = globalValueArray;
+    callbackArg->globalIdxArray = globalIdxArray;
+    callbackArg->srcData = srcData;
+    callbackArg->dstData = dstData;
+
+    x10rt_allreduce(id, role, srcData, dstData, X10RT_RED_OP_MIN, X10RT_RED_TYPE_DBL_S32, 1, &minmaxCallback, callbackArg);
+}
+
+
 /*****************************************************
  * nativeSplitImpl
  *****************************************************/
