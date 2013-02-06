@@ -760,8 +760,8 @@ JNIEXPORT void JNICALL Java_x10_x10rt_TeamSupport_nativeAllReduceImpl(JNIEnv *en
  */
 
 typedef struct DoubleIdx {
-    double value;
-    int idx;
+    jdouble value;
+    jint idx;
 } DoubleIdx;
 
 typedef struct minmaxStruct {
