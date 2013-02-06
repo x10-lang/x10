@@ -90,20 +90,19 @@ JNIEXPORT jint JNICALL Java_x10_x10rt_TeamSupport_nativeSizeImpl(JNIEnv *env, jc
 }
 
 
+/*
+ * Common struct and callback for finish only
+ */
 
-/*****************************************************
- * nativeBarrierImpl
- *****************************************************/
-
-typedef struct barrierImplStruct {
+typedef struct finishOnlyStruct {
     jobject globalFinishState;
-} barrierImplStruct;
+} finishOnlyStruct;
 
-static void barrierCallback(void *arg) {
-    barrierImplStruct* callbackArg = (barrierImplStruct*)arg;
+static void finishOnlyCallback(void *arg) {
+    finishOnlyStruct* callbackArg = (finishOnlyStruct*)arg;
     JNIEnv *env = jniHelper_getEnv();
 
-    // notify that the activity that was performing the barrier has finished.
+    // notify that the activity has finished.
     env->CallStaticVoidMethod(activityTerminationFunc.targetClass,
                               activityTerminationFunc.targetMethod,
                               callbackArg->globalFinishState);
@@ -113,6 +112,10 @@ static void barrierCallback(void *arg) {
     free(callbackArg);
 }
     
+
+/*****************************************************
+ * nativeBarrierImpl
+ *****************************************************/
 
 /*
  * Class:     x10_x10rt_TeamSupport
@@ -126,14 +129,14 @@ JNIEXPORT void JNICALL Java_x10_x10rt_TeamSupport_nativeBarrierImpl(JNIEnv *env,
         fprintf(stderr, "OOM while attempting to create GlobalRef in nativeBarrierImpl\n");
         abort();
     }
-    barrierImplStruct *callbackArg = (barrierImplStruct*)malloc(sizeof(barrierImplStruct));
+    finishOnlyStruct *callbackArg = (finishOnlyStruct*)malloc(sizeof(finishOnlyStruct));
     if (NULL == callbackArg) {
         fprintf(stderr, "OOM while attempting to allocate malloced storage in nativeBarrierImpl\n");
         abort();
     }
     callbackArg->globalFinishState = globalFinishState;
 
-    x10rt_barrier(id, role, &barrierCallback, callbackArg);
+    x10rt_barrier(id, role, &finishOnlyCallback, callbackArg);
 }
 
 
@@ -205,7 +208,7 @@ static void postCopyCallback(void *arg) {
         abort();
     }
     
-    // notify that the activity that was performing the copy has finished.
+    // notify that the activity that was performing post copy has finished.
     env->CallStaticVoidMethod(activityTerminationFunc.targetClass,
                               activityTerminationFunc.targetMethod,
                               callbackArg->globalFinishState);
@@ -814,25 +817,6 @@ JNIEXPORT void JNICALL Java_x10_x10rt_TeamSupport_nativeSplitImpl(JNIEnv *env, j
  * nativeDelImpl
  *****************************************************/
 
-typedef struct delImplStruct {
-    jobject globalFinishState;
-} delImplStruct;
-
-static void delCallback(void *arg) {
-    delImplStruct* callbackArg = (delImplStruct*)arg;
-    JNIEnv *env = jniHelper_getEnv();
-
-    // notify that the activity that was deleting the team has finished.
-    env->CallStaticVoidMethod(activityTerminationFunc.targetClass,
-                              activityTerminationFunc.targetMethod,
-                              callbackArg->globalFinishState);
-
-    // Free resources
-    env->DeleteGlobalRef(callbackArg->globalFinishState);
-    free(callbackArg);
-}
-    
-
 /*
  * Class:     x10_x10rt_TeamSupport
  * Method:    nativeDelImpl
@@ -846,14 +830,14 @@ JNIEXPORT void JNICALL Java_x10_x10rt_TeamSupport_nativeDelImpl(JNIEnv *env, jcl
         abort();
     }
 
-    delImplStruct *callbackArg = (delImplStruct*)malloc(sizeof(delImplStruct));
+    finishOnlyStruct *callbackArg = (finishOnlyStruct*)malloc(sizeof(finishOnlyStruct));
     if (NULL == callbackArg) {
         fprintf(stderr, "OOM while attempting to allocate malloced storage in nativeDelImpl\n");
         abort();
     }
     callbackArg->globalFinishState = globalFinishState;
     
-    x10rt_team_del(id, role, &delCallback, callbackArg);
+    x10rt_team_del(id, role, &finishOnlyCallback, callbackArg);
 }
 
 

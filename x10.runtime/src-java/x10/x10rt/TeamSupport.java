@@ -96,6 +96,7 @@ public class TeamSupport {
 	
     public static void nativeScatter(int id, int role, int root, IndexedMemoryChunk<?> src, int src_off, 
 	                                 IndexedMemoryChunk<?> dst, int dst_off, int count) {
+        if (!X10RT.forceSinglePlace) {
         Object srcRaw = src.getBackingArray();
         Object dstRaw = dst.getBackingArray();
 
@@ -109,10 +110,12 @@ public class TeamSupport {
         } catch (UnsatisfiedLinkError e) {
             aboutToDie("nativeScatter");
         }
+        }
     }
 	
     public static void nativeBcast(int id, int role, int root, IndexedMemoryChunk<?> src, int src_off, 
                                    IndexedMemoryChunk<?> dst, int dst_off, int count) {
+        if (!X10RT.forceSinglePlace) {
         Object srcRaw = src.getBackingArray();
         Object dstRaw = dst.getBackingArray();
 
@@ -126,10 +129,12 @@ public class TeamSupport {
         } catch (UnsatisfiedLinkError e) {
             aboutToDie("nativeBcast");
         }
+        }
     }
     
     public static void nativeAllToAll(int id, int role, IndexedMemoryChunk<?> src, int src_off, 
                                       IndexedMemoryChunk<?> dst, int dst_off, int count) {
+        if (!X10RT.forceSinglePlace) {
         Object srcRaw = src.getBackingArray();
         Object dstRaw = dst.getBackingArray();
 
@@ -143,10 +148,12 @@ public class TeamSupport {
         } catch (UnsatisfiedLinkError e) {
             aboutToDie("nativeAllToAll");
         }
+        }
     }
     
     public static void nativeAllReduce(int id, int role, IndexedMemoryChunk<?> src, int src_off, 
                                        IndexedMemoryChunk<?> dst, int dst_off, int count, int op) {
+        if (!X10RT.forceSinglePlace) {
         Object srcRaw = src.getBackingArray();
         Object dstRaw = dst.getBackingArray();
         
@@ -159,6 +166,7 @@ public class TeamSupport {
             nativeAllReduceImpl(id, role, srcRaw, src_off, dstRaw, dst_off, count, op, typeCode, fs);
         } catch (UnsatisfiedLinkError e) {
             aboutToDie("nativeAllReduce");
+        }
         }
     }
 
