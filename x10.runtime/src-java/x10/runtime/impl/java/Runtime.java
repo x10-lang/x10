@@ -56,6 +56,7 @@ public abstract class Runtime implements x10.core.fun.VoidFun_0_0 {
 
     /**
      * Body of main java thread
+     * (only called in non-library mode)
      */
     protected void start(final String[] args) {
         this.args = args;
