@@ -232,6 +232,7 @@ public class XNativeConstraint<T extends XType> implements Cloneable, XConstrain
 	 * */
     @Override
     public XNativeTerm<T> bindingForVar(XTerm<T> v) {
+    	assert v != null;
 		XPromise<T> p = nfp((XNativeTerm<T>)v);
     	if (p != null && ! p.term().equals(v)) {
     		// [DC] why not just return p.term() at this point?

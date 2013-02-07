@@ -94,7 +94,7 @@ public class CNativeConstraint extends XNativeConstraint<Type>  implements CCons
      */
     @SuppressWarnings("unchecked")
     @Override
-	public XTerm<Type> selfVarBinding() {return  bindingForVar(self());}
+	public XTerm<Type> selfVarBinding() {return self()==null ? null : bindingForVar(self());}
     @Override
     public XVar<Type> thisVar() {return thisVar;}
     @Override
