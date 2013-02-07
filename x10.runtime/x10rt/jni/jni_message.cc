@@ -40,8 +40,7 @@ void jni_messageReceiver_runClosure(const x10rt_msg_params *msg) {
     jint jtype = type;
     jbyteArray arg = env->NewByteArray(numElems);
     if (NULL == arg) {
-        fprintf(stderr, "OOM from NewByteArray (num elements = %d)\n", (int)numElems);
-        abort();
+        jniHelper_abort("OOM from NewByteArray (num elements = %d)\n", (int)numElems);
     }
 
     env->SetByteArrayRegion(arg, 0, numElems, (jbyte*)reader.cursor);
@@ -58,8 +57,7 @@ void jni_messageReceiver_runSimpleAsync(const x10rt_msg_params *msg) {
     jint jtype = type;
     jbyteArray arg = env->NewByteArray(numElems);
     if (NULL == arg) {
-        fprintf(stderr, "OOM from NewByteArray (num elements = %d)\n", (int)numElems);
-        abort();
+        jniHelper_abort("OOM from NewByteArray (num elements = %d)\n", (int)numElems);
     }
 
     env->SetByteArrayRegion(arg, 0, numElems, (jbyte*)reader.cursor);
@@ -146,18 +144,15 @@ JNIEXPORT void JNICALL Java_x10_x10rt_MessageHandlers_registerHandlers(JNIEnv *e
     /* Get a hold of MessageHandlers.receiveAsync and stash away its invoke information */
     jmethodID receiveId1 = env->GetStaticMethodID(klazz, "runClosureAtReceive", "([B)V");
     if (NULL == receiveId1) {
-        fprintf(stderr, "Unable to resolve methodID for MessageHandlers.runClosureAtReceive");
-        abort();
+        jniHelper_abort("Unable to resolve methodID for MessageHandlers.runClosureAtReceive\n");
     }
     jmethodID receiveId2 = env->GetStaticMethodID(klazz, "runSimpleAsyncAtReceive", "([B)V");
     if (NULL == receiveId1) {
-        fprintf(stderr, "Unable to resolve methodID for MessageHandlers.runSimpleAsyncAtReceive");
-        abort();
+        jniHelper_abort("Unable to resolve methodID for MessageHandlers.runSimpleAsyncAtReceive\n");
     }
     jclass globalClass = (jclass)env->NewGlobalRef(klazz);
     if (NULL == globalClass) {
-        fprintf(stderr, "OOM while attempting to allocate global reference for MessageHandlers class\n");
-        abort();
+        jniHelper_abort("OOM while attempting to allocate global reference for MessageHandlers class\n");
     }
     runClosure.targetClass  = globalClass;
     runClosure.targetMethod = receiveId1;
@@ -170,14 +165,12 @@ JNIEXPORT void JNICALL Java_x10_x10rt_MessageHandlers_registerHandlers(JNIEnv *e
 
     jfieldID clsFieldId = env->GetStaticFieldID(klazz, "closureMessageID", "I");
     if (NULL == clsFieldId) {
-        fprintf(stderr, "Unable to resolve fieldID for MessageHandlers.closureMessageID");
-        abort();
+        jniHelper_abort("Unable to resolve fieldID for MessageHandlers.closureMessageID\n");
     }
 
     jfieldID asyncFieldId = env->GetStaticFieldID(klazz, "simpleAsyncMessageID", "I");
     if (NULL == asyncFieldId) {
-        fprintf(stderr, "Unable to resolve fieldID for MessageHandlers.simpleAsyncMessageID");
-        abort();
+        jniHelper_abort("Unable to resolve fieldID for MessageHandlers.simpleAsyncMessageID\n");
     }
     
     env->SetStaticIntField(klazz, clsFieldId, closureId);

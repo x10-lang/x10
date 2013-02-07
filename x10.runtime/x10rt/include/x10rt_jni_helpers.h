@@ -25,6 +25,8 @@ extern JNIEnv* jniHelper_getEnv();
 
 extern void initCachedJVM(JNIEnv*);
 
+extern void jniHelper_abort(const char* format, ...);
+
 extern const char* X10_PAUSE_GC_ON_SEND;
     
 

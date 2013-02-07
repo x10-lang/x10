@@ -6,6 +6,8 @@
 #define __stdcall
 #include "x10rt_jni_helpers.h"
 
+#include <stdio.h>
+
 static JavaVM* theJVM;
 
 const char* X10_PAUSE_GC_ON_SEND = getenv("X10_PAUSE_GC_ON_SEND");
@@ -25,11 +27,9 @@ JNIEnv* jniHelper_getEnv() {
         // Not attached to JVM.  Attempt to attach
         rc = theJVM->AttachCurrentThread((void**)&env, &args);
         if (0 == rc) return env;
-        fprintf(stderr, "Failed to attach unattached thread to JavaVM\n");
-        abort();
+        jniHelper_abort("Failed to attach unattached thread to JavaVM\n");
     }
-    fprintf(stderr, "GetEnv failed with return code %d\n", (int)rc);
-    abort();
+    jniHelper_abort("GetEnv failed with return code %d\n", (int)rc);
 
     return NULL;
 }
@@ -37,11 +37,25 @@ JNIEnv* jniHelper_getEnv() {
 
 
 /*
- * Stash away JavaVM* so we can later use it in callback functions invoked by x10rt
+ * Stash away JavaVM so we can later use it in callback functions invoked by x10rt
  */
 void initCachedJVM(JNIEnv* env) {
     if (env->GetJavaVM(&theJVM) != 0) {
-        fprintf(stderr, "Unable to acquire JavaVM*");
-        abort();
+        jniHelper_abort("Unable to acquire JavaVM\n");
     }
+}
+
+
+/*
+ * Print error message and abort JavaVM
+ */
+void jniHelper_abort(const char* format, ...) {
+    va_list ap;
+
+    va_start(ap, format);
+    vfprintf(stderr, format, ap);
+    va_end(ap);
+
+    // FIXME don't call abort in library mode
+    abort();
 }
