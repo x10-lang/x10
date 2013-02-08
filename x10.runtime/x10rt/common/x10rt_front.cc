@@ -99,7 +99,7 @@ static uint32_t print_headers = getenv("X10RT_PRINT_MSG_HEADERS") != NULL
 void x10rt_send_msg (x10rt_msg_params *p)
 {
     if (p->len > print_headers) {
-        ::fprintf(stderr,"p%llu --%llu--> p%llu (%'llu bytes)\n",
+        ::fprintf(stderr,"p%llu --%llu--> p%llu (%llu bytes)\n",
                   (unsigned long long)x10rt_lgl_here(),
                   (unsigned long long)p->type,
                   (unsigned long long)p->dest_place,
