@@ -163,6 +163,11 @@
  */
 X10RT_C char* x10rt_preinit();
 
+/** Whether or not X10 is running as library.
+ * \returns Whether or not X10 is running as library.
+ */
+X10RT_C bool x10rt_run_as_library (void);
+
 
 /** Initialize the X10RT API.
  *
