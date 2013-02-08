@@ -40,7 +40,7 @@ public final class Cell[T] {
      * @return the String object being constructed by the StringBuilder
      */
     public def toString() {
-        return "Cell(" + this.value.toString() + ")";
+        return "Cell(" + (value == null ? "null" : this.value.toString()) + ")";
     }
 
 
