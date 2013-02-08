@@ -51,11 +51,8 @@ void initCachedJVM(JNIEnv* env) {
  */
 void jniHelper_abort(const char* format, ...) {
     va_list ap;
-
     va_start(ap, format);
     vfprintf(stderr, format, ap);
     va_end(ap);
-
-    // FIXME don't call abort in library mode
-    abort();
+    if (!x10rt_run_as_library()) abort();
 }

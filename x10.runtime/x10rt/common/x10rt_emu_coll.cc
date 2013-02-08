@@ -14,6 +14,7 @@ _CRTIMP int __cdecl __MINGW_NOTHROW     vswprintf (wchar_t*, const wchar_t*, __V
 #include <x10rt_net.h>
 #include <x10rt_ser.h>
 #include <x10rt_cpp.h>
+#include <x10rt_front.h>
 
 #define BARRIER_TREE 1
 
@@ -937,13 +938,13 @@ void x10rt_emu_alltoall (x10rt_team team, x10rt_place role,
 namespace {
 
     // help avoid warnings about functions not returning when they call abort()
-    template<class T> T abortv (void) { abort(); return T(); }
+    template<class T> T abortv (void) { if (!x10rt_run_as_library()) abort(); return T(); }
 
     template<class T> T zero (void) { return 0; }
     template<class T> T one (void) { return 1; }
     // only min/max need be defined for x10rt_dbl_s32
-    template<> x10rt_dbl_s32 zero<x10rt_dbl_s32> (void) { abort(); }
-    template<> x10rt_dbl_s32 one<x10rt_dbl_s32> (void) { abort(); }
+    template<> x10rt_dbl_s32 zero<x10rt_dbl_s32> (void) { if (!x10rt_run_as_library()) abort(); }
+    template<> x10rt_dbl_s32 one<x10rt_dbl_s32> (void) { if (!x10rt_run_as_library()) abort(); }
 
     template<class T> T min (void) { return 0; } // cover unsigned cases
     template<> int8_t   min<int8_t>   (void) { return (int8_t)0x80; }
@@ -1131,7 +1132,7 @@ namespace {
             BORING_MACRO(X10RT_RED_OP_MAX);
             BORING_MACRO(X10RT_RED_OP_MIN);
             #undef BORING_MACRO
-            default: fprintf(stderr, "Corrupted operation? %x\n", op); abort();
+            default: fprintf(stderr, "Corrupted operation? %x\n", op); if (!x10rt_run_as_library()) abort();
         }
     }
 }
@@ -1156,7 +1157,7 @@ void x10rt_emu_allreduce (x10rt_team team, x10rt_place role,
         BORING_MACRO(X10RT_RED_TYPE_FLT);
         BORING_MACRO(X10RT_RED_TYPE_DBL_S32);
         #undef BORING_MACRO
-        default: fprintf(stderr, "Corrupted type? %x\n", dtype); abort();
+        default: fprintf(stderr, "Corrupted type? %x\n", dtype); if (!x10rt_run_as_library()) abort();
     }
 }
 

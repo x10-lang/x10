@@ -1,4 +1,5 @@
 #include <cstdio>
+#include <cstdarg>
 #include <cstring>
 #include <cassert>
 #include <cctype>
@@ -10,6 +11,16 @@
 #include <x10rt_cuda.h>
 #include <x10rt_internal.h>
 #include <x10rt_ser.h>
+#include <x10rt_front.h>
+
+static void error(const char* format, ...)
+{
+    va_list ap;
+    va_start(ap, format);
+    vfprintf(stderr, format, ap);
+    va_end(ap);
+    if (!x10rt_run_as_library()) abort();
+}
 
 namespace {
 
@@ -98,8 +109,7 @@ unsigned int x10rt_lgl_local_accels (x10rt_lgl_cat cat)
         return x10rt_cuda_ndevs();
 
         default:
-        fprintf(stderr,"Invalid parameter.\n");
-        abort();
+        error("Invalid parameter.\n");
         return 0;
 
     }
@@ -209,24 +219,21 @@ namespace {
                 case X10RT_LGL_CUDA:
                 num_local_cudas++;
                 if (cfg->index >= cuda_max_dev) {
-                    fprintf(stderr,"CUDA reports %u devices, you cannot use device %u.\n",
+                    error("CUDA reports %u devices, you cannot use device %u.\n",
                                    cuda_max_dev, cfg->index);
-                    abort();
                 }
                 break;
 
                 case X10RT_LGL_SPE:
                 num_local_spes++;
                 if (cfg->index >= cell_max_dev) {
-                    fprintf(stderr,"Cell reports %u devices, you cannot use device %u.\n",
+                    error("Cell reports %u devices, you cannot use device %u.\n",
                                    cell_max_dev, cfg->index);
-                    abort();
                 }
                 break;
 
                 default:
-                fprintf(stderr,"Invalid node category.\n");
-                abort();
+                error("Invalid node category.\n");
             }
         }
 
@@ -245,8 +252,7 @@ namespace {
                 break;
 
                 default:
-                fprintf(stderr,"Invalid node category.\n");
-                abort();
+                error("Invalid node category.\n");
             }
         }
 
@@ -397,9 +403,8 @@ void x10rt_lgl_init (int *argc, char ***argv, x10rt_msg_type *counter)
                 while (isspace(*str)) str++; // chase up white space
                 int chars = strcspn(str,",");
                 if (chars<5) {
-                    fprintf(stderr,"%s contains invalid element at "
+                    error("%s contains invalid element at "
                                    "index %d: \"%.*s\"\n", env, i, chars, str);
-                    abort();
                 }
                 if (!strncmp(str,"CELL",4) || !strncmp(str,"cell",4)) {
                     str += 4; chars -= 4;
@@ -407,9 +412,8 @@ void x10rt_lgl_init (int *argc, char ***argv, x10rt_msg_type *counter)
                     long index = strtol(str,&endptr,10);
                     while (isspace(*endptr)) endptr++; // chase up white space
                     if (endptr-str != chars) {
-                        fprintf(stderr,"%s contains invalid number at "
+                        error("%s contains invalid number at "
                                        "index %d: \"%.*s\"\n", env, i, chars, str);
-                        abort();
                     }
                     cfg[i].cat = X10RT_LGL_SPE;
                     cfg[i].index = index;
@@ -419,16 +423,14 @@ void x10rt_lgl_init (int *argc, char ***argv, x10rt_msg_type *counter)
                     long index = strtol(str,&endptr,10);
                     while (isspace(*endptr)) endptr++; // chase up white space
                     if (endptr-str != chars) {
-                        fprintf(stderr,"%s contains invalid number at "
+                        error("%s contains invalid number at "
                                        "index %d: \"%.*s\"\n", env, i, chars, str);
-                        abort();
                     }
                     cfg[i].cat = X10RT_LGL_CUDA;
                     cfg[i].index = index;
                 } else {
-                    fprintf(stderr,"%s contains invalid element at "
+                    error("%s contains invalid element at "
                                    "index %d: \"%.*s\"\n", env, i, chars, str);
-                    abort();
                 }
                 str += chars;
                 str++; // the comma
@@ -462,7 +464,7 @@ void x10rt_lgl_register_msg_receiver_cuda (x10rt_msg_type msg_type,
             } break;
             case X10RT_LGL_SPE: break;
             default:
-            abort();
+            error("Invalid node category.\n");
         }
     }
 }
@@ -478,7 +480,7 @@ void x10rt_lgl_register_get_receiver_cuda (x10rt_msg_type msg_type,
             } break;
             case X10RT_LGL_SPE: break;
             default:
-            abort();
+            error("Invalid node category.\n");
         }
     }
 }
@@ -494,7 +496,7 @@ void x10rt_lgl_register_put_receiver_cuda (x10rt_msg_type msg_type,
             } break;
             case X10RT_LGL_SPE: break;
             default:
-            abort();
+            error("Invalid node category.\n");
         }
     }
 }
@@ -512,7 +514,7 @@ void x10rt_lgl_registration_complete (void)
             } break;
             case X10RT_LGL_SPE: break;
             default:
-            abort();
+            error("Invalid node category.\n");
         }
     }
 }
@@ -533,18 +535,15 @@ void x10rt_lgl_send_msg (x10rt_msg_params *p)
                 x10rt_cuda_send_msg(cctx, p);
             } break;
             case X10RT_LGL_SPE: {
-                fprintf(stderr,"SPE send_msg still unsupported.\n");
-                abort();
+                error("SPE send_msg still unsupported.\n");
             } break;
             default: {
-                fprintf(stderr,"Place %lu has invalid type %d in send_msg.\n",
+                error("Place %lu has invalid type %d in send_msg.\n",
                         (unsigned long)d, (int)x10rt_lgl_type(d));
-                abort();
             }
         }
     } else {
-        fprintf(stderr,"Routing of send_msg still unsupported.\n");
-        abort();
+        error("Routing of send_msg still unsupported.\n");
     }
 }
 
@@ -564,18 +563,15 @@ void x10rt_lgl_send_get (x10rt_msg_params *p, void *buf, x10rt_copy_sz len)
                 x10rt_cuda_send_get(cctx, p, buf, len);
             } break;
             case X10RT_LGL_SPE: {
-                fprintf(stderr,"SPE send_get still unsupported.\n");
-                abort();
+                error("SPE send_get still unsupported.\n");
             } break;
             default: {
-                fprintf(stderr,"Place %lu has invalid type %d in send_get.\n",
+                error("Place %lu has invalid type %d in send_get.\n",
                         (unsigned long)d, (int)x10rt_lgl_type(d));
-                abort();
             }
         }
     } else {
-        fprintf(stderr,"Routing of send_get still unsupported.\n");
-        abort();
+        error("Routing of send_get still unsupported.\n");
     }
 }
 
@@ -595,18 +591,15 @@ void x10rt_lgl_send_put (x10rt_msg_params *p, void *buf, x10rt_copy_sz len)
                 x10rt_cuda_send_put(cctx, p, buf, len);
             } break;
             case X10RT_LGL_SPE: {
-                fprintf(stderr,"SPE send_put still unsupported.\n");
-                abort();
+                error("SPE send_put still unsupported.\n");
             } break;
             default: {
-                fprintf(stderr,"Place %lu has invalid type %d in send_put.\n",
+                error("Place %lu has invalid type %d in send_put.\n",
                         (unsigned long)d, (int)x10rt_lgl_type(d));
-                abort();
             }
         }
     } else {
-        fprintf(stderr,"Routing of send_put still unsupported.\n");
-        abort();
+        error("Routing of send_put still unsupported.\n");
     }
 }
 
@@ -616,8 +609,7 @@ void x10rt_lgl_remote_alloc (x10rt_place d, x10rt_remote_ptr sz,
     assert(d < x10rt_lgl_nplaces());
 
     if (d < x10rt_lgl_nhosts()) {
-        fprintf(stderr,"Host remote_alloc still unsupported.\n");
-        abort();
+        error("Host remote_alloc still unsupported.\n");
     } else if (x10rt_lgl_parent(d) == x10rt_lgl_here()) {
         // local accelerator
         switch (x10rt_lgl_type(d)) {
@@ -627,18 +619,15 @@ void x10rt_lgl_remote_alloc (x10rt_place d, x10rt_remote_ptr sz,
                 break;
             }
             case X10RT_LGL_SPE: {
-                fprintf(stderr,"SPE remote_alloc still unsupported.\n");
-                abort();
+                error("SPE remote_alloc still unsupported.\n");
             }
             default: {
-                fprintf(stderr,"Place %lu has invalid type %d in remote_alloc.\n",
+                error("Place %lu has invalid type %d in remote_alloc.\n",
                                (unsigned long)d, (int)x10rt_lgl_type(d));
-                abort();
             }
         }
     } else {
-        fprintf(stderr,"Routing of remote_alloc still unsupported.\n");
-        abort();
+        error("Routing of remote_alloc still unsupported.\n");
     }
 }
 void x10rt_lgl_remote_free (x10rt_place d, x10rt_remote_ptr ptr)
@@ -646,8 +635,7 @@ void x10rt_lgl_remote_free (x10rt_place d, x10rt_remote_ptr ptr)
     assert(d < x10rt_lgl_nplaces());
 
     if (d < x10rt_lgl_nhosts()) {
-        fprintf(stderr,"Host remote_free still unsupported.\n");
-        abort();
+        error("Host remote_free still unsupported.\n");
     } else if (x10rt_lgl_parent(d) == x10rt_lgl_here()) {
         // local accelerator
         switch (x10rt_lgl_type(d)) {
@@ -656,18 +644,15 @@ void x10rt_lgl_remote_free (x10rt_place d, x10rt_remote_ptr ptr)
                 x10rt_cuda_device_free(cctx, (void*)ptr);
             } break;
             case X10RT_LGL_SPE: {
-                fprintf(stderr,"SPE remote_free still unsupported.\n");
-                abort();
+                error("SPE remote_free still unsupported.\n");
             } break;
             default: {
-                fprintf(stderr,"Place %lu has invalid type %d in remote_free.\n",
+                error("Place %lu has invalid type %d in remote_free.\n",
                                (unsigned long)d, (int)x10rt_lgl_type(d));
-                abort();
             }
         }
     } else {
-        fprintf(stderr,"Routing of remote_free still unsupported.\n");
-        abort();
+        error("Routing of remote_free still unsupported.\n");
     }
 }
 
@@ -686,22 +671,18 @@ void x10rt_lgl_remote_op (x10rt_place d, x10rt_remote_ptr remote_addr,
         // local accelerator
         switch (x10rt_lgl_type(d)) {
             case X10RT_LGL_CUDA: {
-                fprintf(stderr,"CUDA remote ops still unsupported.\n");
-                abort();
+                error("CUDA remote ops still unsupported.\n");
             } break;
             case X10RT_LGL_SPE: {
-                fprintf(stderr,"SPE remote ops still unsupported.\n");
-                abort();
+                error("SPE remote ops still unsupported.\n");
             } break;
             default: {
-                fprintf(stderr,"Place %lu has invalid type %d in remote_op_xor.\n",
+                error("Place %lu has invalid type %d in remote_op_xor.\n",
                                (unsigned long)d, (int)x10rt_lgl_type(d));
-                abort();
             }
         }
     } else {
-        fprintf(stderr,"Routing of remote ops still unsupported.\n");
-        abort();
+        error("Routing of remote ops still unsupported.\n");
     }
 }
     
@@ -720,22 +701,18 @@ void x10rt_lgl_remote_ops (x10rt_remote_op_params *opv, size_t opc)
                     // local accelerator
                     switch (x10rt_lgl_type(d)) {
                         case X10RT_LGL_CUDA: {
-                            fprintf(stderr,"CUDA remote ops still unsupported.\n");
-                            abort();
+                            error("CUDA remote ops still unsupported.\n");
                         } break;
                         case X10RT_LGL_SPE: {
-                            fprintf(stderr,"SPE remote ops still unsupported.\n");
-                            abort();
+                            error("SPE remote ops still unsupported.\n");
                         } break;
                         default: {
-                            fprintf(stderr,"Place %lu has invalid type %d in remote_op_xor.\n",
+                            error("Place %lu has invalid type %d in remote_op_xor.\n",
                                            (unsigned long)d, (int)x10rt_lgl_type(d));
-                            abort();
                         }
                     }
                 } else {
-                    fprintf(stderr,"Routing of remote ops still unsupported.\n");
-                    abort();
+                    error("Routing of remote ops still unsupported.\n");
                 }
             }
         #endif
@@ -770,14 +747,12 @@ void x10rt_lgl_blocks_threads (x10rt_place d, x10rt_msg_type type, int dyn_shm,
                 *blocks = 8; *threads = 1;
             } break;
             default: {
-                fprintf(stderr,"Place %lu has invalid type %d in remote_op_xor.\n",
+                error("Place %lu has invalid type %d in remote_op_xor.\n",
                                (unsigned long)d, (int)x10rt_lgl_type(d));
-                abort();
             }
         }
     } else {
-        fprintf(stderr,"Routing of remote ops still unsupported.\n");
-        abort();
+        error("Routing of remote ops still unsupported.\n");
     }
 }
 
@@ -791,10 +766,10 @@ void x10rt_lgl_probe (void)
             x10rt_cuda_probe(static_cast<x10rt_cuda_ctx*>(g.accel_ctxs[i]));
             break;
             case X10RT_LGL_SPE:
-            fprintf(stderr,"SPE still unsupported\n");
+            error("SPE still unsupported\n");
             break;
             default:
-            abort();
+            error("Invalid node category.\n");
         }
     }
     // advance collectives as much as possible
@@ -860,10 +835,10 @@ void x10rt_lgl_finalize (void)
             x10rt_cuda_finalize(static_cast<x10rt_cuda_ctx*>(g.accel_ctxs[i]));
             break;
             case X10RT_LGL_SPE:
-            fprintf(stderr,"SPE still unsupported\n");
+            error("SPE still unsupported\n");
             break;
             default:
-            abort();
+            error("Invalid node category.\n");
         }
     }
     free(g.accel_ctxs);
@@ -886,8 +861,7 @@ void x10rt_lgl_team_new (x10rt_place placec, x10rt_place *placev,
 {
     for (x10rt_place i=0 ; i<placec ; ++i) {
         if (placev[i] >= x10rt_lgl_nhosts()) {
-            fprintf(stderr,"teams can only be across non-accelerator places.\n");
-            abort();
+            error("teams can only be across non-accelerator places.\n");
         }
     }
     if (has_collectives) {

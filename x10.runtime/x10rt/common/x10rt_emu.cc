@@ -2,6 +2,7 @@
 #include <x10rt_internal.h>
 #include <x10rt_types.h>
 #include <x10rt_ser.h>
+#include <x10rt_front.h>
 
 #include <cstring>
 #include <cstdio>
@@ -63,7 +64,7 @@ void x10rt_emu_remote_op (x10rt_place place, x10rt_remote_ptr victim,
         case X10RT_OP_XOR: id=REMOTE_XOR_ID; break;
         default:
             fprintf(stderr,"Garbage op type given to x10rt_remote_op.\n");
-            abort();
+            if (!x10rt_run_as_library()) abort();
     }
     x10rt_serbuf b; x10rt_serbuf_init(&b, place, id);
     x10rt_serbuf_write(&b, &victim);
