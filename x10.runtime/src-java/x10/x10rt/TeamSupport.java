@@ -53,6 +53,7 @@ public class TeamSupport {
     }
 
     public static void nativeMake(IndexedMemoryChunk<Place> places, int count, IndexedMemoryChunk<x10.core.Int> result) {
+        if (!X10RT.forceSinglePlace) {
         Place[] np = (Place[])places.getBackingArray();
         int[] int_places = new int[np.length];
         for (int i=0; i<places.length; i++) {
@@ -66,6 +67,10 @@ public class TeamSupport {
             nativeMakeImpl(int_places, count, nr, fs);
         } catch (UnsatisfiedLinkError e) {
             aboutToDie("nativeMake");
+        }
+        } else {
+        int[] nr = result.getIntArray();
+        nr[0] = 0;
         }
     }
         
@@ -218,6 +223,7 @@ public class TeamSupport {
     }
 
     public static void nativeSplit(int id, int role, int color, int new_role, IndexedMemoryChunk<x10.core.Int> result) {
+        if (!X10RT.forceSinglePlace) {
         int[] nr = result.getIntArray();
 
         FinishState fs = ActivityManagement.activityCreationBookkeeping();
@@ -227,15 +233,18 @@ public class TeamSupport {
         } catch (UnsatisfiedLinkError e) {
             aboutToDie("nativeSplit");
         }
+        }
     }
     
     public static void nativeDel(int id, int role) {
+        if (!X10RT.forceSinglePlace) {
         FinishState fs = ActivityManagement.activityCreationBookkeeping();
         
         try {
             nativeDelImpl(id, role, fs);
         } catch (UnsatisfiedLinkError e) {
             aboutToDie("nativeDel");
+        }
         }
     }
     
