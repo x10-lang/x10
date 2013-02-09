@@ -301,6 +301,8 @@ public class Types {
                     return NUMBER_FORMAT_EXCEPTION;
                 } else if (java.lang.IllegalArgumentException.class.equals(javaClass)) {
                     return ILLEGAL_ARGUMENT_EXCEPTION;
+                } else if (java.lang.IllegalStateException.class.equals(javaClass)) {
+                    return ILLEGAL_STATE_EXCEPTION;
                 } else if (java.lang.RuntimeException.class.equals(javaClass)) {
                     return EXCEPTION;
                 }
@@ -445,6 +447,17 @@ public class Types {
 	private Object readResolve() throws java.io.ObjectStreamException {
 	    return ARITHMETIC_EXCEPTION;
 	}
+    };
+    public static final RuntimeType<java.lang.IllegalStateException> ILLEGAL_STATE_EXCEPTION = new NamedType<java.lang.IllegalStateException>(
+        "x10.lang.IllegalStateException",
+        java.lang.IllegalStateException.class,
+        null,
+        new Type[] { EXCEPTION }
+    ) {
+        // make sure deserialized RTT object is not duplicated
+        private Object readResolve() throws java.io.ObjectStreamException {
+            return ILLEGAL_STATE_EXCEPTION;
+        }
     };
     public static final RuntimeType<java.lang.IllegalArgumentException> ILLEGAL_ARGUMENT_EXCEPTION = new NamedType<java.lang.IllegalArgumentException>(
 	"x10.lang.IllegalArgumentException",
