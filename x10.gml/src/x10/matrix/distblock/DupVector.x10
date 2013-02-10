@@ -42,9 +42,9 @@ public class DupVector(M:Int) {
 	
 	//===================================================================================
 	public val dupV:PlaceLocalHandle[Vector];
-	private val dupData:PlaceLocalHandle[Array[Double](1){rail}];//Repackage vector.d
+	private val dupData:PlaceLocalHandle[Rail[Double]];//Repackage vector.d
 	//===================================================================================
-	public  var tmpData:PlaceLocalHandle[Array[Double](1){rail}];
+	public  var tmpData:PlaceLocalHandle[Rail[Double]];
 	private transient var tmpReady:Boolean;
 	//===================================================================================
 	/*
@@ -62,7 +62,7 @@ public class DupVector(M:Int) {
 		property(m);
 		dupV  = vs;
 		tmpReady = false;
-		dupData = PlaceLocalHandle.make[Array[Double](1){rail}](Dist.makeUnique(), ()=>vs().d);
+		dupData = PlaceLocalHandle.make[Rail[Double]](Dist.makeUnique(), ()=>vs().d);
 	}
 	//===================================================================================
 	//====================================================================================
@@ -101,7 +101,7 @@ public class DupVector(M:Int) {
 	public def allocTmp() : void {
 		if (tmpReady) return;
 		tmpReady = true;
-		tmpData = PlaceLocalHandle.make[Array[Double](1){rail}](Dist.makeUnique(), ()=>new Array[Double](dupV().M));
+		tmpData = PlaceLocalHandle.make[Rail[Double]](Dist.makeUnique(), ()=>new Array[Double](dupV().M));
 	}
 	//====================================================================================
 	public def init(dv:Double) : DupVector(this) {

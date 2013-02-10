@@ -22,9 +22,9 @@ import x10.compiler.Uninitialized;
 import x10.matrix.sparse.CompressArray;
 import x10.matrix.Debug;
 
-public type RemotePair    =Pair[RemoteArray[Int], RemoteArray[Double]];
-public type DataArrayPLH  =PlaceLocalHandle[Array[Double](1){rail}];
-public type CompArrayPLH  =PlaceLocalHandle[CompressArray];
+
+
+
 
 /**
  * This class supports inter-place communication for data arrays which are defined
@@ -129,6 +129,22 @@ public class ArrayRemoteCopy {
 		val srcpid = here.id();
 		val dstbuf = at (new Place(dstpid)) 
 			new RemoteArray[Double](dstplh() as Array[Double](1){self!=null});
+		finish {
+			Array.asyncCopy[Double](src, srcOff, dstbuf, dstOff, dataCnt);
+		}
+	}
+	
+	//TODO: Check this code. Introduced to support a method in DistArrayScatter.
+	// unsure of how to get an Array[Double] at remote place from a 
+	// DistDataArray.
+	protected static def x10Copy(
+			src:Array[Double](1), srcOff:Int, 
+			dst:DistDataArray, dstpid:Int, dstOff:Int, 
+			dataCnt:Int) :void  {
+
+		val srcpid = here.id();
+		val dstbuf = at (new Place(dstpid)) 
+		new RemoteArray[Double](dst.getLocalPortion()(0) as Array[Double]{self!=null});
 		finish {
 			Array.asyncCopy[Double](src, srcOff, dstbuf, dstOff, dataCnt);
 		}

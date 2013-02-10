@@ -68,12 +68,16 @@ public class DistDistSummaMult {
 		panelSize = ps;
 		A = a; B=b; C=c;
 
-		A.buildRowCastPlaceMap();
-		B.buildColCastPlaceMap();
+		
+		//A.buildRowCastPlaceMap(); // unimplemented!
+		//B.buildColCastPlaceMap(); // unimplemented!
 		
 		//alpha = al;
 		beta  = be;
+		
+		throw new Error("Unimplemented");
 	}
+	 
 	/**
 	 * Estimate the panel size.
 	 */

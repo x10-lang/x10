@@ -46,7 +46,7 @@ public class DistVector(M:Int) {
 	//===================================================================================
 	public val distV:PlaceLocalHandle[Vector];
 	//Repack dist vector to dist array
-	public val distData:PlaceLocalHandle[Array[Double](1){rail}];
+	public val distData:PlaceLocalHandle[Rail[Double]];
 	//===================================================================================
 	public transient val segSize:Array[Int](1){rail};
 	//===================================================================================
@@ -64,7 +64,7 @@ public class DistVector(M:Int) {
 		property(m);
 		distV  = vs;
 		segSize = segsz;
-		distData = PlaceLocalHandle.make[Array[Double](1){rail}](Dist.makeUnique(), ()=>vs().d);
+		distData = PlaceLocalHandle.make[Rail[Double]](Dist.makeUnique(), ()=>vs().d);
 	}
 	//===================================================================================
 	//====================================================================================

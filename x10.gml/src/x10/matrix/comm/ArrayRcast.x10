@@ -25,8 +25,6 @@ import x10.matrix.DenseMatrix;
 import x10.matrix.sparse.CompressArray;
 import x10.matrix.sparse.SparseCSC;
 
-//public type DistDataArray =DistArray[Array[Double](1)](1);
-//public type DistCompArray =DistArray[CompressArray](1);
 
 /**
  * Ring cast, similar to broadcast, sends data to selected places, while using place-to-place

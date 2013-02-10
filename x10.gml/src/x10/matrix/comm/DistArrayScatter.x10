@@ -36,7 +36,7 @@ import x10.matrix.sparse.CompressArray;
  * <p>For more information on how to build different backends and runtime, 
  * run command "make help" at the root directory of GML library.
  */
-public class ArrayScatter extends ArrayRemoteCopy {
+public class DistArrayScatter extends ArrayRemoteCopy {
 	//==============================================
 	// Constructor
 	//==============================================
@@ -54,7 +54,7 @@ public class ArrayScatter extends ArrayRemoteCopy {
 	 * @param dst      target distributed arrays
 	 */
 	public static def scatter(
-			src:Array[Array[Double](1)](1), 
+			src:Array[Rail[Double]](1), 
 			dst:DistDataArray) : void {
 		
 		val nb = dst.region.size();

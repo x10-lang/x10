@@ -22,9 +22,7 @@ import x10.compiler.Uninitialized;
 import x10.matrix.sparse.CompressArray;
 import x10.matrix.Debug;
 
-public type DistDataArray =DistArray[Array[Double](1){rail}](1);
-public type DistCompArray =DistArray[CompressArray](1);
-public type RemotePair    =Pair[RemoteArray[Int], RemoteArray[Double]];
+
 
 /**
  * This class supports inter-place communication for data arrays which are defined

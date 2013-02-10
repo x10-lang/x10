@@ -27,8 +27,6 @@ import x10.matrix.comm.ArrayGather;
 import x10.matrix.comm.ArrayScatter;
 import x10.matrix.comm.ArrayReduce;
 
-public type DataArrayPLH  =PlaceLocalHandle[Array[Double](1){rail}];
-
 
 /**
    This class contains test cases for dense matrix multiplication.

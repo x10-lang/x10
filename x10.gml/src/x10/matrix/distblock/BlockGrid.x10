@@ -55,30 +55,34 @@ public class BlockGrid{
 	 * @param totalClusters    the total clusters used in partitioning blocks
 	 * @return                 the map of block IDs to place IDs.
 	 */	
-	public static def make(matgrid:Grid, maxRowClusters:Int, totalClusters:Int) {
+	public static def make(matgrid:Grid, maxRowClusters:Int, totalClusters:Int):BlockGrid {
 		val nbs   = matgrid.size;
-		val sqmap = new DistMap(nbs);		
+		val sqmap = DistMap.make(nbs);		
 		val nps   = Place.MAX_PLACES;
 		Debug.assure(totalClusters <= nps, 
 				"Partitioning blocks error - too many clusters :"+totalClusters+" cannot be bigger than total places "+nps);
 		
-		val blcgrid = Grid.make(matgrid.numRowBlocks, matgrid.numColBlocks, maxRowClusters, totalClusters);
+		val blcgrid = Grid.makeMaxRow(matgrid.numRowBlocks, matgrid.numColBlocks, 
+				maxRowClusters, totalClusters);
 		
 		Debug.assure(blcgrid.numRowBlocks <= matgrid.numRowBlocks && blcgrid.numColBlocks<= matgrid.numColBlocks,
 				"Partitioning blocks error: "+
 				 "("+blcgrid.numRowBlocks+" x "+blcgrid.numColBlocks+") places cannot partition "+
 				 "("+matgrid.numRowBlocks+" x "+matgrid.numColBlocks+") blocks");
 		
+		//FIX: dont know what the add call is supposed to accomplish? 
+		// the method is not defined on DistMap.
 		//This is not an efficient method, but not much hurt on performance
 		for (var cb:Int=0; cb<matgrid.numColBlocks; cb++) { 
 			for (var rb:Int=0; rb<matgrid.numRowBlocks; rb++) {
 				val pid = blcgrid.findBlock(rb, cb); 
 				val bid = matgrid.getBlockId(rb, cb);
-				sqmap.add(bid, pid);
+				//sqmap.add(bid, pid);
 			}
 		}
-		
-		return new BlockGrid(sqmap);
+		val result = new BlockGrid(sqmap);
+		throw new Error("FIXME");
+		//return result;
 	}
 
 	/**

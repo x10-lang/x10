@@ -245,6 +245,7 @@ public class TriMatrix extends DenseMatrix{self.M==self.N} {
 				this.d(src_idx) = swaptmp;
 			}
 		}
+		return this;
 	}
 	
 
@@ -463,8 +464,8 @@ public class TriMatrix extends DenseMatrix{self.M==self.N} {
 	//==================================================================
 	// Triangular % Matrix solvers
 	//==================================================================
-	public def solveMatMultSelf(A:DenseMatrix{self.N==this.N}):DenseMatrix(A) {
-		DenseMatrixBLAS.solveMatMultTri(A, this);
+	/* public def solveMatMultSelf(A:DenseMatrix{self.N==this.N}):DenseMatrix(A) {
+		DenseMatrixBLAS.solveMatMultTri(A, this as TriMatrix(A.N));
 		return A;
 	}
 	
@@ -472,6 +473,7 @@ public class TriMatrix extends DenseMatrix{self.M==self.N} {
 		DenseMatrixBLAS.solveTriMultMat(this, A);
 		return A;
 	}	
+	 */
 	//==================================================================
 	// Operator
 	//==================================================================
@@ -517,8 +519,8 @@ public class TriMatrix extends DenseMatrix{self.M==self.N} {
 	/**
 	 * Operation multiply, result stores in dense 
 	 */
-	public operator this % (that:DenseMatrix(N)):DenseMatrix(M,that.N)               = that.clone().multBy(this);
-	public operator (that:DenseMatrix{self.N==this.M}) % this :DenseMatrix(that.M,N) = that.clone().mult(this);
+//	public operator this % (that:DenseMatrix(N)):DenseMatrix(M,that.N)               = that.clone().multBy(this);
+//	public operator (that:DenseMatrix{self.N==this.M}) % this :DenseMatrix(that.M,N) = that.clone().mult(this);
 		
 	//=======================================================
 	// Utils

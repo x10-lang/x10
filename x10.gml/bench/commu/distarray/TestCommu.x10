@@ -28,8 +28,8 @@ import x10.matrix.comm.ArrayGather;
 import x10.matrix.comm.ArrayScatter;
 import x10.matrix.comm.ArrayReduce;
 
-public type DataArrayPLH  =PlaceLocalHandle[Array[Double](1){rail}];
-public type DistDataArray =DistArray[Array[Double](1){rail}](1);
+import x10.matrix.comm.DataArrayPLH;
+import x10.matrix.comm.DistDataArray;
 
 
 /**
