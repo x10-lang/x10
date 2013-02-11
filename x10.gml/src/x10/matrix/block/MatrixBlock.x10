@@ -102,7 +102,10 @@ public abstract class MatrixBlock(myRowId:Int, myColId:Int) {
 	 * @param f         function given global row and column indexes returns a double value
 	 */
 	public def init(f:(Int,Int)=>Double) : void {
-		getBuilder().init(f);
+		// see XTENLANG-3167
+		// must apply f to offset row,column for this block
+		val offsetF = (a:Int,b:Int)=> f(a+rowOffset,b+colOffset);
+		getBuilder().init(offsetF);
 	}
 	
 	/**
