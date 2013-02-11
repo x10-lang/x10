@@ -16,11 +16,12 @@
 			</arguments>
 		</buildCommand>
 		<buildCommand>
-			<name>org.eclipse.imp.smapifier.SmapieBuilder</name>
+			<name>org.eclipse.ui.externaltools.ExternalToolBuilder</name>
+			<triggers>full,incremental,</triggers>
 			<arguments>
 				<dictionary>
-					<key>exten</key>
-					<value>x10</value>
+					<key>LaunchConfigHandle</key>
+					<value>&lt;project&gt;/.externalToolBuilders/org.eclipse.imp.smapifier.SmapieBuilder.launch</value>
 				</dictionary>
 			</arguments>
 		</buildCommand>
