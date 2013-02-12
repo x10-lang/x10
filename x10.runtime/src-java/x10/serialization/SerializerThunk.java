@@ -84,7 +84,7 @@ abstract class SerializerThunk {
         // We need to handle these classes in a special way because their 
         // implementation of serialization/deserialization is not straight forward.
         if ("java.lang.String".equals(clazz.getName())) {
-            return new SerializerThunk.SpecialCaseSerializerThunk(clazz);
+            return new SerializerThunk.JavaLangStringSerializerThunk(clazz);
         } else if ("x10.rtt.NamedType".equals(clazz.getName())) {
             SerializerThunk superThunk = getSerializerThunk(clazz.getSuperclass());
             return new SerializerThunk.SpecialCaseSerializerThunk(clazz, superThunk);
@@ -271,6 +271,16 @@ abstract class SerializerThunk {
         }
     }
 
+    private static class JavaLangStringSerializerThunk extends SerializerThunk {
+        JavaLangStringSerializerThunk(Class <? extends Object> clazz) {
+            super(null);
+        }
+
+        <T> void serializeBody(T obj, Class<? extends Object> clazz, X10JavaSerializer xjs) throws IOException, SecurityException, NoSuchFieldException, IllegalArgumentException, IllegalAccessException {
+            xjs.writeStringValue((String) obj);
+        }
+    }
+    
     private static class SpecialCaseSerializerThunk extends SerializerThunk {
 
         SpecialCaseSerializerThunk(Class <? extends Object> clazz) {
@@ -283,9 +293,7 @@ abstract class SerializerThunk {
 
         @SuppressWarnings("rawtypes")
         <T> void serializeBody(T obj, Class<? extends Object> clazz, X10JavaSerializer xjs) throws IOException, SecurityException, NoSuchFieldException, IllegalArgumentException, IllegalAccessException {
-            if ("java.lang.String".equals(clazz.getName())) {
-                xjs.writeStringValue((String) obj);
-            } else if ("x10.rtt.NamedType".equals(clazz.getName())) {
+            if ("x10.rtt.NamedType".equals(clazz.getName())) {
                 Field typeNameField = clazz.getDeclaredField("typeName");
                 String typeName = (String) typeNameField.get(obj);
                 xjs.write(typeName);

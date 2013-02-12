@@ -137,7 +137,7 @@ abstract class DeserializerThunk {
         // We need to handle these classes in a special way cause there implementation of serialization/deserialization is
         // not straight forward. Hence we just call into the custom serialization of these classes.
         if ("java.lang.String".equals(clazz.getName())) {
-            return new SpecialCaseDeserializerThunk(null);
+            return new JavaLangStringDeserializerThunk(null);
         } else if ("x10.rtt.NamedType".equals(clazz.getName())) {
             return new SpecialCaseDeserializerThunk(null);
         } else if ("x10.rtt.NamedStructType".equals(clazz.getName())) {
@@ -320,6 +320,31 @@ abstract class DeserializerThunk {
         }
     }
 
+    private static class JavaLangStringDeserializerThunk extends DeserializerThunk {
+
+        JavaLangStringDeserializerThunk(Class <? extends Object> clazz) {
+            super(null);
+        }
+        
+        @Override
+        <T> T deserializeObject(Class<?> clazz, X10JavaDeserializer jds) throws IOException, IllegalArgumentException, IllegalAccessException, InvocationTargetException, InstantiationException {
+            int i = jds.record_reference(null);
+            return deserializeObject(clazz, null, i, jds);
+        }
+
+        @Override
+        <T> T deserializeObject(Class<?> clazz, T obj, int i, X10JavaDeserializer jds) throws IOException, IllegalArgumentException, IllegalAccessException, InvocationTargetException, InstantiationException {
+            return deserializeBody(clazz, obj, i, jds);
+        }
+
+        @SuppressWarnings("unchecked")
+        protected <T> T deserializeBody(Class<?> clazz, T obj, int i, X10JavaDeserializer jds) throws IOException {
+            String realVal = jds.readStringValue();
+            jds.update_reference(i, realVal);
+            return (T) realVal;
+        }
+    }
+    
     private static class SpecialCaseDeserializerThunk extends DeserializerThunk {
 
         SpecialCaseDeserializerThunk(Class <? extends Object> clazz) {
@@ -332,11 +357,7 @@ abstract class DeserializerThunk {
 
         @SuppressWarnings({ "unchecked", "rawtypes" })
         protected <T> T deserializeBody(Class<?> clazz, T obj, int i, X10JavaDeserializer jds) throws IOException {
-            if ("java.lang.String".equals(clazz.getName())) {
-                String realVal = jds.readStringValue();
-                jds.update_reference(i, realVal);
-                return (T) realVal;
-            } else if ("x10.rtt.NamedType".equals(clazz.getName())) {
+            if ("x10.rtt.NamedType".equals(clazz.getName())) {
                 NamedType.$_deserialize_body((NamedType) obj, jds);
                 return obj;
             } else if ("x10.rtt.NamedStructType".equals(clazz.getName())) {
