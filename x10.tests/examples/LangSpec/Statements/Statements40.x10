@@ -26,7 +26,7 @@ public class Statements40 extends x10Test {
     }
 
 
-// file Statements line 269
+// file Statements line 266
  static class StmtEx {
   def this() {
      x10.io.Console.OUT.println("New StmtEx made");  }

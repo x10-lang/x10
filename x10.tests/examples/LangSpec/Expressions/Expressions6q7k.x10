@@ -26,7 +26,7 @@ public class Expressions6q7k extends x10Test {
     }
 
 
-// file Expressions line 908
+// file Expressions line 905
 
  static  class Example{ static def example() {
 //ERROR: for(var i : Long = 0; i != 100; i++)  {}

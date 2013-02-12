@@ -26,7 +26,7 @@ public class Classes7a5j extends x10Test {
     }
 
 
-// file Classes line 824
+// file Classes line 955
  // If example4() compiles, then the limitation in Classes7a5j's section is
  // gone, so delete the whole subsection from the spec.
  static class Cls {

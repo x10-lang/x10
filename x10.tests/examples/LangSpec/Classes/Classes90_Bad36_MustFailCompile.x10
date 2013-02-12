@@ -26,7 +26,7 @@ public class Classes90_Bad36_MustFailCompile extends x10Test {
     }
 
 
-// file Classes line 602
+// file Classes line 733
 //OPTIONS: -STATIC_CHECKS
  static  class Example {var f : String = ""; def example(x:Any){x != null} = {this.f = x.toString();}}
  static  class Eyample {

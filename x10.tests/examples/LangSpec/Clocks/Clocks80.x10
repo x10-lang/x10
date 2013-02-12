@@ -26,7 +26,7 @@ public class Clocks80 extends x10Test {
     }
 
 
-// file Clocks line 310
+// file Clocks line 315
  static  class Example{
  def example() {
 val c:Clock = Clock.make();

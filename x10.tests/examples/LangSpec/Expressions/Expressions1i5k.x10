@@ -26,7 +26,7 @@ public class Expressions1i5k extends x10Test {
     }
 
 
-// file Expressions line 870
+// file Expressions line 867
  static  class Example{
  def example( something: ()=>Int, something_else: ()=>Int,
    any_code_at_all: () => Int) {

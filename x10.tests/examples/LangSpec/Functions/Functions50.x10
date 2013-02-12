@@ -26,7 +26,7 @@ public class Functions50 extends x10Test {
     }
 
 
-// file Functions line 311
+// file Functions line 306
  static  class Finder {
  static
 def find[T](f: (T) => Boolean, xs: List[T], no:T): T = {

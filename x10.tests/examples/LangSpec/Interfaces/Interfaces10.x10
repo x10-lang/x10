@@ -26,7 +26,7 @@ public class Interfaces10 extends x10Test {
     }
 
 
-// file Interfaces line 185
+// file Interfaces line 218
  static interface KnowsPi {
   PI = 3.14159265358;
 }

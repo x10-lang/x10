@@ -26,15 +26,24 @@ public class Types130 extends x10Test {
     }
 
 
-// file Types line 413
+// file Types line 604
  static interface Named {
   def name():String;
 }
  static interface Mobile {
+  def where():Int;
   def move(howFar:Int):void;
 }
- static interface Person extends Named, Mobile {}
  static interface NamedPoint extends Named, Mobile {}
+ static class Person implements Named, Mobile {
+   var name:String; var pos: Int;
+   public def name() = this.name;
+   public def move(howFar:Int) { pos += howFar; }
+   public def where() = this.pos;
+   public def example(putAt:Mobile) {
+      this.pos = putAt.where();
+   }
+}
 
  static class Hook {
    def run():Boolean = true;

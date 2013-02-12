@@ -26,7 +26,7 @@ public class Functions60 extends x10Test {
     }
 
 
-// file Functions line 330
+// file Functions line 325
  static  class Finderator {
  static def find[T](f: (T) => Boolean, xs: x10.util.List[T], absent:T): T = {
   for (x: T in xs)

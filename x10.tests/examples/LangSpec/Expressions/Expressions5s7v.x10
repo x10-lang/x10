@@ -26,7 +26,7 @@ public class Expressions5s7v extends x10Test {
     }
 
 
-// file Expressions line 147
+// file Expressions line 144
  static class Fielded {
   public val a : Int = 1;
   public val b : Int{this.a == b} = this.a;

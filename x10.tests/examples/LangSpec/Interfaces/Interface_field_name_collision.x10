@@ -1,4 +1,4 @@
-/* Current test harness gets confused by packages, but it would be in package Interface_field_name_collision_Interfaces6;
+/* Current test harness gets confused by packages, but it would be in package Interface_field_name_collision_Interfaces7;
 */
 // Warning: This file is auto-generated from the TeX source of the language spec.
 // If you need it changed, work with the specification writers.
@@ -26,7 +26,7 @@ public class Interface_field_name_collision extends x10Test {
     }
 
 
-// file Interfaces line 220
+// file Interfaces line 253
 
 
  static interface E1 {static val a = 1;}

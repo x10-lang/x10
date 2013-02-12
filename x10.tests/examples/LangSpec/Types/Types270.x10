@@ -17,7 +17,7 @@
 
 import harness.x10Test;
 
- import x10.util.*;
+import x10.util.*;
 
 public class Types270 extends x10Test {
    public def run() : boolean = (new Hook()).run();
@@ -26,7 +26,8 @@ public class Types270 extends x10Test {
     }
 
 
-// file Types line 858
+// file Types line 1021
+
  static class TypeExamples {
   static type StringSet = Set[String];
   static type MapToList[K,V] = Map[K,List[V]];

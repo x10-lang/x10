@@ -26,7 +26,7 @@ public class Statements100 extends x10Test {
     }
 
 
-// file Statements line 809
+// file Statements line 806
 
  static class Example {
   public static def main(argv:Array[String](1)) {

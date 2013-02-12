@@ -26,7 +26,7 @@ public class Expressions70_Bad36_MustFailCompile extends x10Test {
     }
 
 
-// file Expressions line 432
+// file Expressions line 429
  static  class Example {
  static def exasmple() {
   var x : Int;

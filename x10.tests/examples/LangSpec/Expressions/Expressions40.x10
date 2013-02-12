@@ -26,7 +26,7 @@ public class Expressions40 extends x10Test {
     }
 
 
-// file Expressions line 276
+// file Expressions line 273
  static class Callsome {
   static val closure : () => Int = () => 1;
   static def method()            = 2;

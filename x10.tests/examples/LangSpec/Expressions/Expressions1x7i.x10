@@ -26,7 +26,7 @@ public class Expressions1x7i extends x10Test {
     }
 
 
-// file Expressions line 997
+// file Expressions line 1006
  static  class Example { static def example() {
    val a : Any = 0;
    val b : Any = 0L;

@@ -26,7 +26,7 @@ public class Interfaces_static_val extends x10Test {
     }
 
 
-// file Interfaces line 12
+// file Interfaces line 16
 
  static interface Pushable{prio() != 0} {
   def push(): void;
