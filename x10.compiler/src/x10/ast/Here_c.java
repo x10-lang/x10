@@ -68,6 +68,7 @@ public class Here_c extends Expr_c implements Here {
     	return "here";
     }
 
+    /*
     protected XConstrainedTerm placeTerm;
     public XConstrainedTerm placeTerm() { return placeTerm; }
     public Here_c placeTerm(XConstrainedTerm pt) {
@@ -76,6 +77,7 @@ public class Here_c extends Expr_c implements Here {
         h.placeTerm = pt;
         return h;
     }
+    */
 
     /** Type check the expression. */
     public Node typeCheck(ContextVisitor tc) {
@@ -85,22 +87,18 @@ public class Here_c extends Expr_c implements Here {
         Type tt = ts.Place();
         XConstrainedTerm h = xc.currentPlaceTerm();
         if (h == null) {
-            Errors.issue(tc.job(), new Errors.CannotUseHereInThisContext(position()));
-            try {
-                CConstraint d = ConstraintManager.getConstraintSystem().makeCConstraint(ts.Place(),ts);
-                XTerm<Type> term = PlaceChecker.here(ts); // to avoid further errors
-                h = XConstrainedTerm.instantiate(d, term);
-            } catch (XFailure e) {
-                throw new InternalCompilerError("Cannot construct a place term", position());
-            }
+            //Errors.issue(tc.job(), new Errors.CannotUseHereInThisContext(position()));
+            CConstraint d = ConstraintManager.getConstraintSystem().makeCConstraint(ts.Place(),ts);
+			h = XConstrainedTerm.instantiate(d, PlaceChecker.here(ts));
         }
+
         if (h != null) {
             CConstraint cc = ConstraintManager.getConstraintSystem().makeCConstraint(ts.Place(),ts);
             cc.addSelfEquality(h);
             tt = Types.xclause(Types.baseType(tt), cc);
         }
 
-        return this.placeTerm(h).type(tt);
+        return this.type(tt);
     }
 
     /** Write the statement to an output file. */

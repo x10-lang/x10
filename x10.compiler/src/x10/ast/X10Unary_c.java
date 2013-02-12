@@ -380,13 +380,6 @@ public class X10Unary_c extends Unary_c {
                     nf.Id(pos, methodName), Collections.<TypeNode>emptyList(),
                     Collections.singletonList(left)).methodInstance(mi).type(mi.returnType());
         }
-        try {
-            result = (X10Call_c) PlaceChecker.makeReceiverLocalIfNecessary(result, tc);
-        } catch (SemanticException e) {
-            MethodInstance mi = (MethodInstance) result.methodInstance();
-            if (mi.error() == null)
-                result = (X10Call_c) result.methodInstance(mi.error(e));
-        }
         if (n.isConstant())
             result = result.constantValue(n.constantValue());
         return result;

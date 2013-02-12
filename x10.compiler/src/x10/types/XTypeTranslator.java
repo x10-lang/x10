@@ -64,6 +64,7 @@ import x10.constraint.XVar;
 import x10.constraint.xnative.XNativeField;
 import x10.errors.Errors;
 import x10.errors.Errors.IllegalConstraint;
+import x10.types.checker.PlaceChecker;
 import x10.types.constants.ClosureValue;
 import x10.types.constants.ConstantValue;
 import x10.types.constraints.CConstraint;
@@ -478,10 +479,11 @@ public class XTypeTranslator {
     // *********************************************************************************************
     // *********************************** private help routines for translation********************
     private XTerm<Type> trans(CConstraint c, Here_c h, Context xc, boolean tl) {
-        XConstrainedTerm placeTerm = xc.currentPlaceTerm();
-        //XConstrainedTerm placeTerm = h.placeTerm();
-        if (placeTerm == null) return ConstraintManager.getConstraintSystem().makeEQV(xc.typeSystem().Place());
-        return placeTerm.term();
+    	return PlaceChecker.here(xc.typeSystem());
+        //return ConstraintManager.getConstraintSystem().makeUQV(xc.typeSystem().Place(), "here");
+        //XConstrainedTerm placeTerm = xc.currentPlaceTerm();
+        //if (placeTerm == null) return ConstraintManager.getConstraintSystem().makeEQV(xc.typeSystem().Place());
+        //return placeTerm.term();
         //return PlaceChecker.here();
     }
     private CLocal trans(Local t) {

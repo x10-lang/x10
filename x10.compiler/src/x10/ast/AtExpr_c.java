@@ -146,12 +146,8 @@ public class AtExpr_c extends Closure_c implements AtExpr {
     	if (def.placeTerm() == null) {
     	    XConstrainedTerm placeTerm;
     	    CConstraint d = ConstraintManager.getConstraintSystem().makeCConstraint(ts.Place(),ts);
-    	    XTerm<Type> term = PlaceChecker.makePlace(ts);
-    	    try {
-    	        placeTerm = XConstrainedTerm.instantiate(d, term);
-    	    } catch (XFailure z) {
-    	        throw new InternalCompilerError("Cannot construct placeTerm from term and constraint.");
-    	    }
+    	    XTerm<Type> term = PlaceChecker.makeHereUQV(ts);
+	        placeTerm = XConstrainedTerm.instantiate(d, term);
     	    try {
     	        XConstrainedTerm realPlaceTerm = PlaceChecker.computePlaceTerm(place, tc.context(), ts);
     	        d.addEquality(placeTerm, realPlaceTerm);

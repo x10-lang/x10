@@ -408,7 +408,7 @@ public class X10ConstructorDecl_c extends ConstructorDecl_c implements X10Constr
         if (child == body || child == returnType || child == hasType ||  child == offerType || (formals != null && formals.contains(child))) {
             if (oldC==c)
                 c = c.pushBlock();
-            PlaceChecker.setHereIsThisHome(c);
+            //PlaceChecker.setHereIsThisHome(c);
         }
 
         if (child == body && offerType != null && offerType.typeRef()!=null && offerType.typeRef().known()) {

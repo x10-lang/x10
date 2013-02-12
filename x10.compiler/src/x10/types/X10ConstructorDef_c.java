@@ -135,7 +135,9 @@ public class X10ConstructorDef_c extends ConstructorDef_c implements X10Construc
     }
     
     protected XConstrainedTerm placeTerm;
+    @Override
     public XConstrainedTerm placeTerm() { return placeTerm; }
+    @Override
     public void setPlaceTerm(XConstrainedTerm pt) {
         if (placeTerm != null)
             assert (placeTerm == null);

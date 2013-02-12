@@ -85,7 +85,7 @@ public class ForLoop_c extends X10Loop_c implements ForLoop {
 	    Expr domain = result.domain();
 	    mi = Checker.findAppropriateMethod(tc, domain.type(), ITERATOR, Collections.<Type>emptyList(), Collections.<Type>emptyList());
 	    assert (mi != null);
-	    domain = (Expr) PlaceChecker.makeReceiverLocalIfNecessary(tc, domain, mi.flags());
+	    domain = (Expr) domain;
 	    if (domain != null) {
 	        if (domain != result.domain()) result = result.domain(domain);
 	    } else if (!xts.isUnknown(result.domain().type())) {

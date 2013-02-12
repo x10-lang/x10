@@ -1621,8 +1621,15 @@ public class Types {
 	}
 
 	public static XVar<Type> getPlaceTerm(ProcedureInstance<?> mi) {
+    	return ConstraintManager.getConstraintSystem().makeUQV(mi.typeSystem().Place());
+    	/* [DC] old implementation -- don't want to have a placeTerm on methods...
 	    XConstrainedTerm pt = ((ProcedureDef) mi.def()).placeTerm();
-	    return pt != null && pt.term() instanceof XVar<?> ? (XVar<Type>) pt.term() : ConstraintManager.getConstraintSystem().makeUQV(mi.typeSystem().Place());
+	    if (pt == null) {
+    		return ConstraintManager.getConstraintSystem().makeUQV(mi.typeSystem().Place());
+	    } else {
+	    	return pt.term();
+	    }
+	    */
 	}
 
 	public static boolean isTypeConstraintExpression(Expr e) {

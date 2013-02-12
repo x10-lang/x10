@@ -53,7 +53,7 @@ public class XConstrainedTerm  {
      * @return
      * @throws XFailure
      */
-    public static XConstrainedTerm instantiate(CConstraint c, XTerm<Type> t) throws XFailure {
+    public static XConstrainedTerm instantiate(CConstraint c, XTerm<Type> t) {
         c.addSelfEquality(t);
         // the self variable in c is now bound.
         return new XConstrainedTerm(t, c);
@@ -65,11 +65,7 @@ public class XConstrainedTerm  {
      * @return
      */
     public static XConstrainedTerm make(XTerm<Type> t, Type type) {
-        try {
-            return instantiate(ConstraintManager.getConstraintSystem().makeCConstraint(type,type.typeSystem()), t);
-        } catch (XFailure r) {
-            throw new InternalCompilerError("Cannot constrain " + t);
-        }
+        return instantiate(ConstraintManager.getConstraintSystem().makeCConstraint(type,type.typeSystem()), t);
     }
     /**
      * Returns a constrained term. 

@@ -2408,10 +2408,12 @@ public class X10TypeEnv_c extends TypeEnv_c implements X10TypeEnv {
 	                newRetType = PlaceChecker.ReplaceHereByPlaceTerm(newRetType, (Context) context);
 	                final boolean isStatic =  zmj.flags().isStatic();
 	                // add in this.home=here clause.
+	                /* [DC] doubt this is necessary now
 	                if (! isStatic  && ! Types.isX10Struct(mi.container())) {
 	                    if (y.length > 0 && y[0] instanceof XEQV)
 	                        newRetType = Subst.addIn(newRetType, PlaceChecker.ThisHomeEqualsHere(y[0], ts));
 	                }
+	                */
 	                if (y.length > 0 && y[0] instanceof XEQV) // this is a synthetic variable
 	                    newRetType = Subst.project(newRetType, (XVar<Type>) y[0]);  			
 	                tref.update(newRetType);

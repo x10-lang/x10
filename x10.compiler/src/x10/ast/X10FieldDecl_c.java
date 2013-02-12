@@ -158,7 +158,7 @@ public class X10FieldDecl_c extends FieldDecl_c implements X10FieldDecl {
 	    if (child == this.init) {
 	        c = c.pushBlock();
 	        addInClassInvariantIfNeeded(c);
-	    	PlaceChecker.setHereTerm(fieldDef(), c);
+	    	//PlaceChecker.setHereTerm(fieldDef(), c);
 		}
 		c = super.enterChildScope(child, c);
 		return c;

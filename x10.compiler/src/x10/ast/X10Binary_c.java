@@ -953,13 +953,6 @@ public class X10Binary_c extends Binary_c {
             result = (X10Call_c) result.methodInstance(mi).type(type);
         }
         }
-        try {
-            result = (X10Call_c) PlaceChecker.makeReceiverLocalIfNecessary(result, tc);
-        } catch (SemanticException e) {
-            MethodInstance mi = (MethodInstance) result.methodInstance();
-            if (mi.error() == null)
-                result = (X10Call_c) result.methodInstance(mi.error(e));
-        }
         if (n.isConstant())
             result = result.constantValue(n.constantValue());
         return result;

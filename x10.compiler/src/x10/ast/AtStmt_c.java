@@ -246,12 +246,8 @@ public class AtStmt_c extends Stmt_c implements AtStmt {
             XConstrainedTerm finishPlaceTerm = c.currentFinishPlaceTerm();
 
             CConstraint d = ConstraintManager.getConstraintSystem().makeCConstraint(ts.Place(),ts);
-            XTerm<Type> term = PlaceChecker.makePlace(ts);
-            try {
-                placeTerm = XConstrainedTerm.instantiate(d, term);
-            } catch (XFailure z) {
-                throw new InternalCompilerError("Cannot construct placeTerm from term and constraint.");
-            }
+            XTerm<Type> term = PlaceChecker.makeHereUQV(ts);
+            placeTerm = XConstrainedTerm.instantiate(d, term);
             try {
                 XConstrainedTerm realPlaceTerm = PlaceChecker.computePlaceTerm(place, c, ts);
                 d.addEquality(placeTerm, realPlaceTerm);
