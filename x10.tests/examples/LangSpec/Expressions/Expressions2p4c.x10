@@ -26,7 +26,7 @@ public class Expressions2p4c extends x10Test {
     }
 
 
-// file Expressions line 1293
+// file Expressions line 1304
  static class Knot(s:String){
   public def is(t:String):Boolean = s.equals(t);
   // explicit conversion

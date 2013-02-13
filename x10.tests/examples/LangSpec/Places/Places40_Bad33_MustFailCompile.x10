@@ -26,7 +26,7 @@ public class Places40_Bad33_MustFailCompile extends x10Test {
     }
 
 
-// file Places line 878
+// file Places line 885
 
  static class Trans {
    val a : Int = 1;

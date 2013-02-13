@@ -26,7 +26,7 @@ public class extern20 extends x10Test {
     }
 
 
-// file NativeCode line 42
+// file NativeCode line 53
  static class Land {
   @Native("c++", "printf(\"Hi from C++!\")")
   static def example():void = {

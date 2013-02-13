@@ -26,7 +26,7 @@ public class Interfaces7n1z extends x10Test {
     }
 
 
-// file Interfaces line 293
+// file Interfaces line 326
  static interface ListOfFuns[T,U] extends x10.util.List[(T)=>U] {}
 
  static class Hook {

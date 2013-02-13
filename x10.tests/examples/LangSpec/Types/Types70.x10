@@ -1,4 +1,4 @@
-/* Current test harness gets confused by packages, but it would be in package typesome_Types7;
+/* Current test harness gets confused by packages, but it would be in package typesome_Types4;
 */
 // Warning: This file is auto-generated from the TeX source of the language spec.
 // If you need it changed, work with the specification writers.
@@ -26,9 +26,9 @@ public class Types70 extends x10Test {
     }
 
 
-// file Types line 176
+// file Types line 201
  static class Outer { static class Inner { /* ... */ }}
- static class Types7TypeTest{
+ static class Types4TypeTest{
   def check()  { 
      var checkycheck : Outer.Inner;  }}
 

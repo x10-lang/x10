@@ -26,13 +26,14 @@ public class Classes5l3r extends x10Test {
     }
 
 
-// file Classes line 999
+// file Classes line 1130
+ // FOR-ERR-CASE-DELETE: def recip(m:Int){true} = 1.0/m;
  static class Super {
   def recip(n:Int){n != 0} = 1.0/n;
 }
  static class Sub extends Super{
   //ERROR: def recip(n:Int){n != 0, n != 3} = 1.0/(n * (n-3));
-  def recip(n:Int){true} = 1.0/n;
+  def recip(m:Int){true} = 1.0/m;
 }
  static class Example{
   static def example() {

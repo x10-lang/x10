@@ -26,7 +26,7 @@ public class Classes250 extends x10Test {
     }
 
 
-// file Classes line 2004
+// file Classes line 2185
  static class Oddvec {
   var v : Array[Int](1) = new Array[Int](3, (Int)=>0);
   public operator this () =

@@ -26,7 +26,7 @@ public class Expressions3f6f extends x10Test {
     }
 
 
-// file Expressions line 1962
+// file Expressions line 1974
  static class Funny {
   def f () = 1;
   val f = () => 2;

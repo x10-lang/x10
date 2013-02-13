@@ -26,11 +26,11 @@ public class Classes80 extends x10Test {
     }
 
 
-// file Classes line 560
+// file Classes line 691
 
  static class Example {
    var f : String = "";
-   def setF(x:Any){x != null} = {
+   def setF(x:Any){x != null} : void = {
       this.f = x.toString();
    }
 }

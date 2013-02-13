@@ -1,4 +1,4 @@
-/* Current test harness gets confused by packages, but it would be in package stmtsome_Types57;
+/* Current test harness gets confused by packages, but it would be in package stmtsome_Types48;
 */
 // Warning: This file is auto-generated from the TeX source of the language spec.
 // If you need it changed, work with the specification writers.
@@ -26,9 +26,9 @@ public class Types470 extends x10Test {
     }
 
 
-// file Types.tex,  line 2193
+// file Types.tex,  line 2467
 
- static class Types57TestStmt{
+ static class Types48TestStmt{
   def check()  {
     val seven = 7;
   }}

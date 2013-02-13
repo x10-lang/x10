@@ -26,11 +26,17 @@ public class Types100 extends x10Test {
     }
 
 
-// file Types line 263
- static class Position {
+// file Types line 518
+ static interface Poser {
+  def pos():Int;
+  }
+ static class Position implements Poser {
   private var x : Int = 0;
   public def move(dx:Int) { x += dx; }
   public def pos() : Int = x;
+  static def example() {
+    var p : Position;
+  }
 }
 
  static class Hook {

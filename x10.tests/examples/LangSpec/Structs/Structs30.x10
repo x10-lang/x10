@@ -26,7 +26,7 @@ public class Structs30 extends x10Test {
     }
 
 
-// file Structs line 317
+// file Structs line 320
  static struct Pair[T,U] {
     public val first:T;
     public val second:U;

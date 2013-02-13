@@ -26,7 +26,7 @@ public class Interfaces_multi extends x10Test {
     }
 
 
-// file Interfaces line 237
+// file Interfaces line 270
  static interface I1 { static val a = 1;}
  static interface I2 extends I1 {}
  static interface I3 extends I1 {}

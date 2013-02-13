@@ -1,4 +1,4 @@
-/* Current test harness gets confused by packages, but it would be in package typesome_Types33;
+/* Current test harness gets confused by packages, but it would be in package typesome_Types26;
 */
 // Warning: This file is auto-generated from the TeX source of the language spec.
 // If you need it changed, work with the specification writers.
@@ -26,9 +26,9 @@ public class Types300 extends x10Test {
     }
 
 
-// file Types line 960
+// file Types line 1134
  static class Matrix(rows:Int,cols:Int){}
- static class Types33TypeTest{
+ static class Types26TypeTest{
   def check()  { 
      var checkycheck : Matrix{self.rows == self.cols};  }}
 

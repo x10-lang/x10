@@ -26,7 +26,7 @@ public class TypesHaszero10 extends x10Test {
     }
 
 
-// file Types line 1656
+// file Types line 2083
  static class Cell0[T]{T haszero} {
   public var contents : T;
   public def put(t:T) { contents = t; }

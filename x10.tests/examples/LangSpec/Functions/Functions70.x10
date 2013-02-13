@@ -26,7 +26,7 @@ public class Functions70 extends x10Test {
     }
 
 
-// file Functions line 381
+// file Functions line 376
  static class Lambda {
    var a : Int = 0;
    val b = 0;

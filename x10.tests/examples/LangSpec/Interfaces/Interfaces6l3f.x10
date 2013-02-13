@@ -26,7 +26,7 @@ public class Interfaces6l3f extends x10Test {
     }
 
 
-// file Interfaces line 65
+// file Interfaces line 69
  static interface Star { def rise():void; }
  static class AlphaCentauri implements Star {
    public def rise() {}

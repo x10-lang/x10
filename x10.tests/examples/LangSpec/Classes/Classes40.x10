@@ -26,7 +26,7 @@ public class Classes40 extends x10Test {
     }
 
 
-// file Classes line 279
+// file Classes line 283
 
  static class Trans {
    val copied = "copied";

@@ -1,4 +1,4 @@
-/* Current test harness gets confused by packages, but it would be in package ClassCtor30_MustFailCompile_Classes22;
+/* Current test harness gets confused by packages, but it would be in package ClassCtor30_MustFailCompile_Classes24;
 */
 // Warning: This file is auto-generated from the TeX source of the language spec.
 // If you need it changed, work with the specification writers.
@@ -26,7 +26,7 @@ public class ClassCtor30_MustFailCompile extends x10Test {
     }
 
 
-// file Classes line 1127
+// file Classes line 1260
 
  
 // THIS CODE DOES NOT COMPILE

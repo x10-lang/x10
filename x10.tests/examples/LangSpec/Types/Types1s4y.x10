@@ -26,7 +26,7 @@ public class Types1s4y extends x10Test {
     }
 
 
-// file Types line 2513
+// file Types line 2814
  static class Cl[C1, C2, C3]{}
  static class Example {
   static def me[X1, X2](Cl[Int, X1, X2]) =

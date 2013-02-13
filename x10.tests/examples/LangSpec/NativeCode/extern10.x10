@@ -26,7 +26,7 @@ public class extern10 extends x10Test {
     }
 
 
-// file NativeCode line 25
+// file NativeCode line 36
  static class Son {
   @Native("c++", "printf(\"Hi!\")")
   @Native("java", "System.out.println(\"Hi!\")")
