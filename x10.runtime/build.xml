@@ -2,13 +2,7 @@
 <!DOCTYPE project [<!ENTITY buildfile SYSTEM "./build-user.xml">]>
 <project name="x10.runtime" default="dist" basedir=".">
     &buildfile;
-    <condition property="bdwgc.version" value="7.2d" else="7.1">
-      <or>
-        <os family="mac"/>
-        <os family="unix" name="linux"/>
-        <os family="windows"/>
-      </or>
-    </condition>
+    <property name="bdwgc.version" value="7.2d"/>
     <property name="x10.home" value="${basedir}/.."/>
     <property name="x10.dist.location" value="${x10.home}/x10.dist"/>
     <property name="x10.constraints.location" location="${x10.home}/x10.constraints"/>
@@ -625,34 +619,6 @@
                 <arg value="xzf" />
                 <arg value="${bdwgc.platform.dir}/${bdwgc.tar}" />
             </exec>
-
-	    <!-- Patches to apply for bdwgc version 7.1 -->
-	    <if>
-	      <conditions>
-		<equals arg1="${bdwgc.version}" arg2="7.1" />
-	      </conditions>
-	      <then>
-		<if>
-		  <conditions>
-                    <os family="unix" name="aix"/>
-		  </conditions>
-		  <then>
-                    <patch patchfile="${basedir}/src-cpp/bdwgc-patches-${bdwgc.version}/fixPPCHeaderFiles.patch.txt"
-			   dir="${bdwgc.dir}/src" strip="0" />
-                    <patch patchfile="${basedir}/src-cpp/bdwgc-patches-${bdwgc.version}/linkerHackConfigure.patch.txt"
-			   dir="${bdwgc.dir}/src" strip="0" />
-		  </then>
-		</if>
-		<patch patchfile="${basedir}/src-cpp/bdwgc-patches-${bdwgc.version}/enableRTSignals.patch.txt"
-                       dir="${bdwgc.dir}/src" strip="0" />
-		<patch patchfile="${basedir}/src-cpp/bdwgc-patches-${bdwgc.version}/pthread_support.patch.txt"
-                       dir="${bdwgc.dir}/src" strip="0" />
-		<patch patchfile="${basedir}/src-cpp/bdwgc-patches-${bdwgc.version}/bluegeneStackHeuristic.patch.txt"
-                       dir="${bdwgc.dir}/src" strip="0" />
-		<patch patchfile="${basedir}/src-cpp/bdwgc-patches-${bdwgc.version}/unsigned_char.patch.txt"
-                       dir="${bdwgc.dir}/src" strip="0" />
-	      </then>
-	    </if>
 
 	    <!-- Patches to apply for bdwgc version 7.2d -->
 	    <if>
