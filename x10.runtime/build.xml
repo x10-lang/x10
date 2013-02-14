@@ -6,6 +6,7 @@
       <or>
         <os family="mac"/>
         <os family="unix" name="linux"/>
+        <os family="windows"/>
       </or>
     </condition>
     <property name="x10.home" value="${basedir}/.."/>
