@@ -5,6 +5,7 @@
     <condition property="bdwgc.version" value="7.2d" else="7.1">
       <or>
         <os family="mac"/>
+        <os family="unix" name="linux"/>
       </or>
     </condition>
     <property name="x10.home" value="${basedir}/.."/>
