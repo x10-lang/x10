@@ -1,31 +1,9 @@
-Release 2.3.0
+Release 2.3.1
 
 MAJOR CHANGES
 
-The following major changes were made in the X10 language
+No major changes were made in the X10 language
 specification and implementation in this release.
-
-X10 2.3.0 introduces significant improvements in X10/Java
-interoperability.  A few backwards compatible language enhancements
-and some some non backwards-compatible class library changes were made
-to improve the quality of Java interoperability.
-  - Java types may now be imported/used in X10 programs just 
-    as-if they were X10 types.
-  - An isref predicate (similar to iszero) has been added to
-    X10's constraint language to enable identification of types
-    that are constrained to be representable as a pointer.
-  - X10 classes are no longer required to inherit from a single
-    root class (x10.lang.Object).  
-  - x10.lang.Object has been removed from the standard library.
-  - The exception hierarchy has been changed and checked exceptions
-    and a throws clauses were reintroduced.  The exception hierarchy 
-    now aligns neatly with Java's, although X10 prefers using 
-    unchecked exceptions as much as possible.
-For more details on these changes, please see the Changelog section 
-of the X10 language specification. 
-For advice on porting code from X10 2.2.3 to X10 2.3.0 please see
-the "Porting notes for X10 2.3" email message available at:
-https://sourceforge.net/mailarchive/message.php?msg_id=29741534
 
 Please consult the language specification for the details of
 any minor language changes and specification clarifications made in
@@ -33,7 +11,7 @@ this release.
 
 LIMITATIONS OF THIS RELEASE
 
-The following features described in the 2.3.0 language manual do not
+The following features described in the 2.3 language manual do not
 currently work and may be fixed in the subsequent releases:
   - Non-static type definitions as class or interface members
     (static type defs do work)
@@ -43,8 +21,7 @@ for situations in which a constraint implies an infinite number of
 distinct constraints.
 
 Additionally, the following features described in the language
-manual do not currently work with the C++ backend and will be fixed in
-the subsequent releases:
+manual do not currently work with Native X10.
   - Garbage collection on AIX
   - Non-final generic instance methods
   - Exception stack traces on Cygwin
@@ -65,62 +42,29 @@ we do almost all of our testing against g++ 4.4.
 
 SUMMARY OF ISSUES RESOLVED IN THIS RELEASE
 
-Below is a summary of JIRA issues addressed for the X10 2.3.0
+Below is a summary of JIRA issues addressed for the X10 2.3.1
 
-** New Features and Improvements 
-    * [XTENLANG-1391] - Move .h and .cc files that contain implementation for x10.lang classes from x10aux into x10/lang
-    * [XTENLANG-2118] - Java interoperability
-    * [XTENLANG-2911] - Consolidate RuntimeException into Exception
-    * [XTENLANG-3076] - java-interop: make static fields private to avoid java programmers accidentally see uninitialized fields
-    * [XTENLANG-3012] - Java Interop Iterators
-    * [XTENLANG-3068] - java-interop: write sample applications
-    * [XTENLANG-3069] - java-interop: write test cases
-    * [XTENLANG-3079] - java-interop: if possible, don't print method return type with @Throws annotation in error message
+Release Notes - X10 - Version X10 2.3.1
 
-** Task
-    * [XTENLANG-3091] - introduce x10.lang.IndexOutOfBoundsException to make exception hierarchy as close as Java
-    * [XTENLANG-3102] - remove boxing of String
-    * [XTENLANG-3105] - clean up exception handling mechanism by removing nested try-catch for conversion of exceptions and removing reordering catch blocks for multiple exception hierarchies
-    * [XTENLANG-3106] - clean up runtime type system by removing ObjectType, Ref, RefI, StructType, Struct, StructI etc.
-
+** New Features and Improvements
+    * [XTENLANG-2069] - Implement Team API for Managed X10
+    * [XTENLANG-3145] - Need a way to configure machines with multiple IP addresses
+    * [XTENLANG-3165] - Eliminate requirement to preload all X10 classes by Managed X10
 
 ** Bug
-    * [XTENLANG-2868] - Captured environment calculation is incorrect for anonymous inner class
-    * [XTENLANG-2892] - java.lang.IndexOutOfBoundsException in constraint system (SelfArrayReference_7)
-    * [XTENLANG-2986] - java interop: parser does not accept @Throws annotation with constructor without specifying return type (JavaException3)
-    * [XTENLANG-2989] - java-interop: Cannot call an @Throws method inside of an async or an at
-    * [XTENLANG-3062] - java exceptions not propagated through at / async
-    * [XTENLANG-3087] - Reachability test not working for generic methods that throw exceptions
-    * [XTENLANG-3089] - getCause() in @NativeRep("java") x10.lang.Throwable returns too broad type
-    * [XTENLANG-3090] - use x10.lang.AssertionError instead of java.lang.AssertionError for assertions
-    * [XTENLANG-3092] - T haszero expression broken in managed backend (HasZero1.x10)
-    * [XTENLANG-3093] - assigning null to T field broken when T is bound to struct (GenericCast14.x10)
-    * [XTENLANG-3095] - New method x10.matrix.Vector.maxNorm()
-    * [XTENLANG-3097] - java-interop: type system should consider every type has methods of Any (Any1.x10)
-    * [XTENLANG-3099] - -CHECK_INVARIANTS is broken
-    * [XTENLANG-3100] - -DEBUG_CODEGEN is broken
-    * [XTENLANG-3101] - Instance fields of clusure are not initialized when compiled with -O
-    * [XTENLANG-3104] - Initialization of properties is broken (SelfArrayReference_1.x10)
-    * [XTENLANG-3108] - Incorrect order of initialization for properties and fields (XTENLANG_215.x10)
-    * [XTENLANG-3109] - Unresolved RTT type parameter in local class inside generic class
-    * [XTENLANG-3110] - Generic method with local class causes NPE in LocalClassRemover
-    * [XTENLANG-3111] - Java arrays not serialised properly when cast to Any (JavaArray3.x10)
-    * [XTENLANG-3112] - Java exceptions stack trace not serialised via reflection-based serialisation mechanism
-    * [XTENLANG-3113] - Class extending Exception cannot be serialised in managed backend (JavaSerialization4.x10)
-    * [XTENLANG-3115] - Exception message not serialized in Java backend (ExceptionsRemote.x10)
-    * [XTENLANG-3116] - Stop instantiating abstract class with unsafe (JavaSerialization4b.x10)
-    * [XTENLANG-3121] - Serialization of Java arrays doesn't preserve isomorphism (JavaType2.x10)
-    * [XTENLANG-3123] - x10.lang.Error is not translated to x10.lang.MultipleExceptions (FinishTest3.x10)
-    * [XTENLANG-3125] - typeGuard of generic subtype should be propagated to its generic supertype (GenericsInheritance4.x10)
-    * [XTENLANG-3127] - Serialization of exceptions that has a field of Array[Exception] is broken (RootException11b)
-    * [XTENLANG-3129] - Native backend generates invalid C++ code for user-defined operator ..
-    * [XTENLANG-3130] - Ambiguous _deserialize_body
-    * [XTENLANG-3131] - Class tangle up in local class properties.
-    * [XTENLANG-3133] - Bug in typedef for RemoteRail[T] = GlobalRef[Rail[T]]
-    * [XTENLANG-3138] - class C[T] { class D[T] { } } broken
+    * [XTENLANG-2793] - Fallback path in pure Java for forceSinglePlace not available in some Team methods (KMeansSPMD)
+    * [XTENLANG-3140] - Exception checking fails if the methods of a class are in the wrong order
+    * [XTENLANG-3143] - Compiler not allowing a method override when there is a simple subtyping constraint
+    * [XTENLANG-3144] - Generic overridden overloaded method with parameter does not match with superclass method
+    * [XTENLANG-3159] - CUDA broken on 2.3 release (X10RT: async 72 is not a CUDA kernel)
+    * [XTENLANG-3163] - Failure to generate dynamic constraint check on access to global reference
+
+** Task
+    * [XTENLANG-3142] - Synchronize languagespec testcases with language spec document
+    * [XTENLANG-3160] - Use balanced gc policy for IBM Java 7 64bit
 
 For the details of JIRA issues fixed in this release, see
-http://jira.codehaus.org/secure/ReleaseNote.jspa?projectId=11812&version=17009
+http://jira.codehaus.org/secure/ReleaseNote.jspa?projectId=11812&version=18657:
 
 Please use the X10 JIRA to report bugs, after ensuring the problem is
 not already reported:
