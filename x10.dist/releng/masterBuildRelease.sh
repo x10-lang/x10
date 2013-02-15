@@ -2,9 +2,9 @@
 
 # Dave Grove
 
-hosts="condor.watson.ibm.com triloka4.pok.ibm.com bellatrix.watson.ibm.com nashira.watson.ibm.com rlsedx10.watson.ibm.com rlsecomp1.watson.ibm.com"
+hosts="condor.watson.ibm.com triloka1.pok.ibm.com bellatrix.watson.ibm.com nashira.watson.ibm.com rlsedx10.watson.ibm.com rlsecomp1.watson.ibm.com"
 
-x10dt_hosts="condor.watson.ibm.com triloka4.pok.ibm.com bellatrix.watson.ibm.com nashira.watson.ibm.com"
+x10dt_hosts="condor.watson.ibm.com triloka1.pok.ibm.com bellatrix.watson.ibm.com nashira.watson.ibm.com"
 
 # TODO: we should get svn info by parsing svn info URL and extracting revision from there.
 while [ $# != 0 ]; do
