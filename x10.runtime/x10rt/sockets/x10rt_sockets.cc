@@ -1289,6 +1289,16 @@ void x10rt_net_alltoall (x10rt_team team, x10rt_place role, const void *sbuf, vo
 	error("x10rt_net_alltoall not implemented");
 }
 
+void x10rt_net_reduce (x10rt_team team, x10rt_place role,
+                        x10rt_place root, const void *sbuf, void *dbuf,
+                        x10rt_red_op_type op, 
+                        x10rt_red_type dtype,
+                        size_t count,
+                        x10rt_completion_handler *ch, void *arg)
+{
+	error("x10rt_net_reduce not implemented");
+}
+
 void x10rt_net_allreduce (x10rt_team team, x10rt_place role, const void *sbuf, void *dbuf,
 		x10rt_red_op_type op, x10rt_red_type dtype, size_t count, x10rt_completion_handler *ch, void *arg)
 {

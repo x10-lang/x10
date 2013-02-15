@@ -947,6 +947,20 @@ void x10rt_lgl_alltoall (x10rt_team team, x10rt_place role,
     }
 }
 
+void x10rt_lgl_reduce (x10rt_team team, x10rt_place role,
+                        x10rt_place root, const void *sbuf, void *dbuf,
+                        x10rt_red_op_type op, 
+                        x10rt_red_type dtype,
+                        size_t count,
+                        x10rt_completion_handler *ch, void *arg)
+{
+    if (has_collectives) {
+        x10rt_net_reduce(team, role, root, sbuf, dbuf, op, dtype, count, ch, arg);
+    } else {
+        x10rt_emu_reduce(team, role, root, sbuf, dbuf, op, dtype, count, ch, arg, false);
+    }
+}
+
 void x10rt_lgl_allreduce (x10rt_team team, x10rt_place role,
                           const void *sbuf, void *dbuf,
                           x10rt_red_op_type op, 
@@ -957,7 +971,7 @@ void x10rt_lgl_allreduce (x10rt_team team, x10rt_place role,
     if (has_collectives) {
         x10rt_net_allreduce(team, role, sbuf, dbuf, op, dtype, count, ch, arg);
     } else {
-        x10rt_emu_allreduce(team, role, sbuf, dbuf, op, dtype, count, ch, arg);
+        x10rt_emu_reduce(team, role, 0, sbuf, dbuf, op, dtype, count, ch, arg, true);
     }
 }
 

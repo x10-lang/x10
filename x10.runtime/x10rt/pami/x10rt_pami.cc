@@ -36,6 +36,7 @@
 #define X10RT_PAMI_SCATTER_ALG "X10RT_PAMI_SCATTER_ALG"
 #define X10RT_PAMI_ALLTOALL_ALG "X10RT_PAMI_ALLTOALL_ALG"
 #define X10RT_PAMI_ALLTOALL_CHUNKS "X10RT_PAMI_ALLTOALL_CHUNKS"
+#define X10RT_PAMI_REDUCE_ALG "X10RT_PAMI_REDUCE_ALG"
 #define X10RT_PAMI_ALLREDUCE_ALG "X10RT_PAMI_ALLREDUCE_ALG"
 #define X10RT_PAMI_ALLGATHER_ALG "X10RT_PAMI_ALLGATHER_ALG"
 
@@ -269,6 +270,9 @@ void determineCollectiveAlgorithms(x10rt_pami_team* team)
 	}
 	else
 		queryAvailableAlgorithms(team, PAMI_XFER_ALLTOALL, userChoiceInt);
+
+	userChoice = getenv(X10RT_PAMI_REDUCE_ALG);
+	queryAvailableAlgorithms(team, PAMI_XFER_REDUCE, userChoice?atoi(userChoice):0);
 
 	userChoice = getenv(X10RT_PAMI_ALLREDUCE_ALG);
 	queryAvailableAlgorithms(team, PAMI_XFER_ALLREDUCE, userChoice?atoi(userChoice):0);
@@ -2154,6 +2158,61 @@ void x10rt_net_alltoall (x10rt_team team, x10rt_place role, const void *sbuf, vo
 		memcpy(((char*)dbuf)+(blockSize*role), ((char*)sbuf)+(blockSize*role), blockSize);
 	*/
 	}
+}
+
+void x10rt_net_reduce (x10rt_team team, x10rt_place role,
+                        x10rt_place root, const void *sbuf, void *dbuf,
+                        x10rt_red_op_type op, 
+                        x10rt_red_type dtype,
+                        size_t count,
+                        x10rt_completion_handler *ch, void *arg)
+{
+	pami_result_t status = PAMI_ERROR;
+	pami_context_t context;
+	if (state.numParallelContexts)
+		context = getConcurrentContext();
+	else
+	{
+		context = state.context[0];
+		status = PAMI_Context_lock(context);
+		if (status != PAMI_SUCCESS) error("Unable to lock the context to send a message");
+	}
+
+	// Issue the collective
+	x10rt_pami_team_callback *tcb = (x10rt_pami_team_callback *)malloc(sizeof(x10rt_pami_team_callback));
+	if (tcb == NULL) error("Unable to allocate memory for a reduce callback header");
+	tcb->tcb = ch;
+	tcb->arg = arg;
+	memset(&tcb->operation, 0, sizeof (tcb->operation));
+	tcb->operation.cb_done = collective_operation_complete;
+	tcb->operation.cookie = tcb;
+	tcb->operation.algorithm = state.teams[team].algorithm[PAMI_XFER_REDUCE];
+	tcb->operation.cmd.xfer_reduce.sndbuf = (char*)sbuf;
+	tcb->operation.cmd.xfer_reduce.stype = DATATYPE_CONVERSION_TABLE[dtype];
+	tcb->operation.cmd.xfer_reduce.stypecount = count;
+	tcb->operation.cmd.xfer_reduce.rcvbuf = (char*)dbuf;
+	tcb->operation.cmd.xfer_reduce.rtype = DATATYPE_CONVERSION_TABLE[dtype];
+	tcb->operation.cmd.xfer_reduce.rtypecount = count;
+	if (dtype == X10RT_RED_TYPE_DBL_S32)
+	{   // operations on LOC datatypes are different from regular types
+		if (OPERATION_CONVERSION_TABLE[op] == PAMI_DATA_MAX)
+			tcb->operation.cmd.xfer_reduce.op = PAMI_DATA_MAXLOC;
+		else if (OPERATION_CONVERSION_TABLE[op] == PAMI_DATA_MIN)
+			tcb->operation.cmd.xfer_reduce.op = PAMI_DATA_MINLOC;
+		else
+			error("Unknown operation type %i", op);
+	}
+	else
+		tcb->operation.cmd.xfer_reduce.op = OPERATION_CONVERSION_TABLE[op];
+	tcb->operation.cmd.xfer_reduce.data_cookie = NULL;
+	tcb->operation.cmd.xfer_reduce.commutative = 1;
+	#ifdef DEBUG
+		fprintf(stderr, "Place %u executing reduce, with type=%u and op=%u\n", state.myPlaceId, dtype, op);
+	#endif
+	status = PAMI_Collective(context, &tcb->operation);
+	if (status != PAMI_SUCCESS) error("Unable to issue a reduce on team %u", team);
+	if (!state.numParallelContexts)
+		PAMI_Context_unlock(context);
 }
 
 void x10rt_net_allreduce (x10rt_team team, x10rt_place role, const void *sbuf, void *dbuf,

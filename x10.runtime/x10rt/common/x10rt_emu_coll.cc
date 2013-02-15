@@ -1,3 +1,24 @@
+/*
+ *  This file is part of the X10 project (http://x10-lang.org).
+ *
+ *  This file is licensed to You under the Eclipse Public License (EPL);
+ *  You may not use this file except in compliance with the License.
+ *  You may obtain a copy of the License at
+ *      http://www.opensource.org/licenses/eclipse-1.0.php
+ *
+ *  (C) Copyright IBM Corporation 2006-2011.
+ *  (C) Copyright Australian National University 2013.
+ *
+ * This code emulates collective operations using point-to-point messages
+ * between places.  Barrier, bcast, reduce and allreduce operations are
+ * emulated by a two phase blocking tree communication.  In the first phase
+ * messages travel down to the root (which is place 0 for a barrier); in the
+ * second phase messages travel up from the root to all children. Reduction
+ * data may be piggybacked on messages in the first phase, and broadcast data
+ * may be piggybacked in the second phase.  Allreduce is thus implemented as
+ * a reduce followed by a broadcast.
+ */
+
 #include <cstdlib>
 #include <cstdio>
 #include <cassert>
@@ -15,8 +36,6 @@ _CRTIMP int __cdecl __MINGW_NOTHROW     vswprintf (wchar_t*, const wchar_t*, __V
 #include <x10rt_ser.h>
 #include <x10rt_cpp.h>
 #include <x10rt_front.h>
-
-#define BARRIER_TREE 1
 
 namespace {
 
@@ -51,17 +70,12 @@ namespace {
         x10rt_team team;
         x10rt_team role;
         struct {
-            #if BARRIER_TREE == 1 
+            x10rt_place root;
             int childToReceive;
             int parentToSend; // threadlocal
             int parentToReceive;
             x10rt_completion_handler *ch;
             void *arg;
-            #else
-            int wait;
-            x10rt_completion_handler *ch;
-            void *arg;
-            #endif
         } barrier; // other collectives use barrier so keep its state separate
         struct {
             x10rt_place root;
@@ -82,8 +96,6 @@ namespace {
             size_t count;
             x10rt_completion_handler *ch;
             void *arg;
-            bool barrier_done;
-            bool data_done;
         } bcast;
         struct {
             const void *sbuf;
@@ -95,14 +107,17 @@ namespace {
             void *arg;
         } alltoall;
         struct {
-            char *sbuf; // not const because it is not the buffer given by the user
+            x10rt_place root;
+            const void *sbuf;
             void *dbuf;
-            char *rbuf; // a temporary buffer allocated large enough to hold everything
+            void *rbuf; // temporary buffer to store received reduction data
+            void *rbuf2;
             size_t el; // element size
             size_t count;
             x10rt_completion_handler *ch;
             void *arg;
-        } allreduce;
+            bool started;
+        } reduce;
         struct {
             x10rt_place *sbuf;
             x10rt_place role; // this member's role in the new team
@@ -118,6 +133,7 @@ namespace {
         {
             memset(&bcast,0,sizeof(bcast));
             memset(&alltoall,0,sizeof(alltoall));
+            memset(&reduce,0,sizeof(reduce));
             memset(&barrier,0,sizeof(barrier));
         }
     };
@@ -245,26 +261,6 @@ namespace {
 
     x10rt_msg_type SCATTER_COPY_ID;
 
-    x10rt_msg_type BCAST_COPY_ID;
-
-}
-
-// functions that define the shape of a balanced binary tree
-
-// return role that acts as parent to a given role r
-static x10rt_place get_parent (x10rt_place r)
-{
-    return  (long(r) - 1)/2;
-}
-
-// given role r and size sz, provide the number of children under r and their identities
-static x10rt_place get_children (x10rt_place r, x10rt_place sz,
-                                 x10rt_place &left, x10rt_place &right)
-{
-    assert(r<sz);
-    left = r*2 + 1;
-    right = r*2 + 2;
-    return x10rt_place(left<sz) + x10rt_place(right<sz);
 }
 
 static void team_new_decrement_counter (int *counter, x10rt_completion_handler2 *ch,
@@ -418,6 +414,7 @@ namespace {
         CollOp (x10rt_team team_, x10rt_place role_)
           : team(team_), role(role_) { }
         bool progress (void);
+        void handlePendingReduce(MemberObj *m);
     };
 }
 
@@ -455,11 +452,33 @@ namespace {
  * the condition >0 rather than !=0 in the 'process' function above.
  */
 
-#if BARRIER_TREE==1
+// functions that define the shape of a balanced binary tree
+
+// return role that acts as parent to a given role r
+static x10rt_place get_parent (x10rt_place r, x10rt_place sz, x10rt_place root)
+{
+    x10rt_place rel_r = (r - root + sz) % sz;
+    return  ((long(rel_r) - 1)/2 + root) % sz;
+}
+
+// given role r and size sz, provide the number of children under r and their identities
+static x10rt_place get_children (x10rt_place r, x10rt_place sz, x10rt_place root, 
+                                 x10rt_place &left, x10rt_place &right)
+{
+    assert(r<sz);
+    x10rt_place rel_r = (r - root + sz) % sz;
+    x10rt_place rel_left = rel_r*2 + 1;
+    x10rt_place rel_right = rel_r*2 + 2;
+    left = (rel_left + root) % sz;
+    right = (rel_right + root) % sz;
+    return x10rt_place(rel_left<sz) + x10rt_place(rel_right<sz);
+}
 
 static x10rt_msg_type BARRIER_C_TO_P_UPDATE_ID; // child to parent
+static x10rt_msg_type REDUCE_C_TO_P_UPDATE_ID; // child to parent
 
 static x10rt_msg_type BARRIER_P_TO_C_UPDATE_ID; // parent to child
+static x10rt_msg_type BCAST_P_TO_C_UPDATE_ID; // parent to child
 
 static void barrier_c_to_p_update_recv (const x10rt_msg_params *p)
 {
@@ -470,7 +489,37 @@ static void barrier_c_to_p_update_recv (const x10rt_msg_params *p)
 
     TeamObj &t = *gtdb[team];
     MemberObj &m = *t[role];
-    
+    //fprintf(stderr, "%d: Decrementing child from %d to %d\n", (int)role, (int) m.barrier.wait, (int) m.barrier.wait-1);
+    SYNCHRONIZED (global_lock);
+    m.barrier.childToReceive--;
+}
+
+static void reduce_c_to_p_update_recv (const x10rt_msg_params *p)
+{
+    x10rt_deserbuf b;
+    x10rt_deserbuf_init(&b, p);
+    x10rt_team team; x10rt_deserbuf_read(&b, &team);
+    x10rt_place role; x10rt_deserbuf_read(&b, &role);
+    size_t el; x10rt_deserbuf_read(&b, &el);
+    size_t count; x10rt_deserbuf_read(&b, &count);
+
+    TeamObj &t = *gtdb[team];
+    MemberObj &m = *t[role];
+    if (m.reduce.rbuf != NULL) {
+        // already a pending reduce - swap
+        m.reduce.rbuf2 = m.reduce.rbuf;
+        m.reduce.rbuf = NULL;
+    }
+    void* recv = malloc(el * count);
+    x10rt_deserbuf_read_ex(&b, recv, el, count);
+    fflush(stderr);
+    m.reduce.rbuf = recv;
+    if (m.reduce.started) {
+        m.reduce.ch(m.reduce.arg);
+        m.reduce.rbuf = NULL;
+        free(recv);
+    }
+    fflush(stderr);
     //fprintf(stderr, "%d: Decrementing child from %d to %d\n", (int)role, (int) m.barrier.wait, (int) m.barrier.wait-1);
     SYNCHRONIZED (global_lock);
     m.barrier.childToReceive--;
@@ -485,8 +534,22 @@ static void barrier_p_to_c_update_recv (const x10rt_msg_params *p)
 
     TeamObj &t = *gtdb[team];
     MemberObj &m = *t[role];
-    
-    //fprintf(stderr, "%d: Decrementing parent from %d to %d\n", (int)role, (int) m.barrier.wait, (int) m.barrier.wait-1);
+    //fprintf(stderr, "%d: Decrementing parent from %d to %d\n", (int)role, (int) m.barrier.parentToReceive, (int) m.barrier.parentToReceive-1);
+    SYNCHRONIZED (global_lock);
+    m.barrier.parentToReceive--;
+}
+
+static void bcast_p_to_c_update_recv (const x10rt_msg_params *p)
+{
+    x10rt_deserbuf b;
+    x10rt_deserbuf_init(&b, p);
+    x10rt_team team; x10rt_deserbuf_read(&b, &team);
+    x10rt_place role; x10rt_deserbuf_read(&b, &role);
+
+    TeamObj &t = *gtdb[team];
+    MemberObj &m = *t[role];
+    x10rt_deserbuf_read_ex(&b, m.bcast.dbuf, m.bcast.el, m.bcast.count);
+    //fprintf(stderr, "%d: Decrementing parent from %d to %d\n", (int)role, (int) m.barrier.parentToReceive, (int) m.barrier.parentToReceive-1);
     SYNCHRONIZED (global_lock);
     m.barrier.parentToReceive--;
 }
@@ -494,7 +557,9 @@ static void barrier_p_to_c_update_recv (const x10rt_msg_params *p)
 static void init_barrier (x10rt_msg_type *counter)
 {
     x10rt_net_register_msg_receiver(BARRIER_C_TO_P_UPDATE_ID = (*counter)++, barrier_c_to_p_update_recv);
+    x10rt_net_register_msg_receiver(REDUCE_C_TO_P_UPDATE_ID = (*counter)++, reduce_c_to_p_update_recv);
     x10rt_net_register_msg_receiver(BARRIER_P_TO_C_UPDATE_ID = (*counter)++, barrier_p_to_c_update_recv);
+    x10rt_net_register_msg_receiver(BCAST_P_TO_C_UPDATE_ID = (*counter)++, bcast_p_to_c_update_recv);
 }
 
 bool CollOp::progress (void)
@@ -505,65 +570,127 @@ bool CollOp::progress (void)
         // still waiting for message from children, do nothing
         gtdb.fifo_push_back(this);
         return false;
-    } else if (m.barrier.parentToSend > 0) {
-        // received messages from children, will now send to parent
-        x10rt_place parent_role = get_parent(role);
-        x10rt_place parent_role_place = t.placev[parent_role];
-        if (parent_role_place==x10rt_net_here()) {
-            //decrement counter locally;
-            MemberObj *m2 = t.memberv[parent_role];
-            assert(m2!=NULL);
-            {
-                SYNCHRONIZED (global_lock);
-                //fprintf(stderr, "%d: Locally decrementing from %d to %d\n", (int)role, (int) m2->barrier.wait, (int) m2->barrier.wait-1);
-                m2->barrier.childToReceive--;
-            }
-        } else {
-            //send a message there to decrement the counter
-            x10rt_serbuf b;
-            x10rt_serbuf_init(&b, parent_role_place, BARRIER_C_TO_P_UPDATE_ID);
-            x10rt_serbuf_write(&b, &team);
-            x10rt_serbuf_write(&b, &parent_role);
-            //fprintf(stderr, "%d: Sending to %d\n", (int)role , (int)parent_role_place);
-            x10rt_net_send_msg(&b.p);
-            x10rt_serbuf_free(&b);
-        }
-        m.barrier.parentToSend--;
-        gtdb.fifo_push_back(this);
-        return true;
-    } else if (m.barrier.parentToReceive > 0) {
-        // still waiting for message from parent, do nothing
-        gtdb.fifo_push_back(this);
-        return false;
     } else {
-        x10rt_place left, right;
-        x10rt_place num_children = get_children(role, t.memberc, left, right);
-        for (unsigned i=0 ; i<num_children ; ++i) {
-            x10rt_place child_role = i==0 ? left : right;
-            x10rt_place child_role_place = t.placev[child_role];
-            if (child_role_place==x10rt_net_here()) {
+        handlePendingReduce(&m);
+        if (m.barrier.parentToSend > 0) {
+            // received messages from children, will now send to parent
+            
+            x10rt_place parent_role = get_parent(role, t.memberc, m.barrier.root);
+            x10rt_place parent_role_place = t.placev[parent_role];
+            if (parent_role_place==x10rt_net_here()) {
                 //decrement counter locally;
-                MemberObj *m2 = t.memberv[child_role];
+                MemberObj *m2 = t.memberv[parent_role];
                 assert(m2!=NULL);
+
+                if (m.reduce.count > 0) {
+                    //fprintf(stderr, "%d: copy locally %p\n", (int)parent_role, m.reduce.dbuf);
+                    if (m2->reduce.rbuf == NULL) {
+                        m2->reduce.rbuf = malloc(m.reduce.count * m.reduce.el);
+                        memcpy(m2->reduce.rbuf, m.reduce.dbuf, m.reduce.count * m.reduce.el);
+                    } else {
+                        m2->reduce.rbuf2 = malloc(m.reduce.count * m.reduce.el);
+                        memcpy(m2->reduce.rbuf2, m.reduce.dbuf, m.reduce.count * m.reduce.el);
+                    }
+                }
                 {
                     SYNCHRONIZED (global_lock);
-                    //fprintf(stderr, "%d: Locally decrementing from %d to %d\n", (int)role, (int) m2->barrier.wait, (int) m2->barrier.wait-1);
-                    m2->barrier.parentToReceive--;
+                    //fprintf(stderr, "%d: Locally decrementing child from %d to %d\n", (int)parent_role, (int) m2->barrier.childToReceive, (int) m2->barrier.childToReceive-1);
+                    m2->barrier.childToReceive--;
                 }
             } else {
                 //send a message there to decrement the counter
                 x10rt_serbuf b;
-                x10rt_serbuf_init(&b, child_role_place, BARRIER_P_TO_C_UPDATE_ID);
+                if (m.reduce.count > 0) {
+                    x10rt_serbuf_init(&b, parent_role_place, REDUCE_C_TO_P_UPDATE_ID);
+                } else {
+                    x10rt_serbuf_init(&b, parent_role_place, BARRIER_C_TO_P_UPDATE_ID);
+                }
                 x10rt_serbuf_write(&b, &team);
-                x10rt_serbuf_write(&b, &child_role);
-                //fprintf(stderr, "%d: Sending to %d\n", (int)role , (int)child_role_place);
+                x10rt_serbuf_write(&b, &parent_role);
+                if (m.reduce.count > 0) {
+                    x10rt_serbuf_write(&b, &(m.reduce.el));
+                    x10rt_serbuf_write(&b, &(m.reduce.count));
+                    x10rt_serbuf_write_ex(&b, m.reduce.dbuf, m.reduce.el, m.reduce.count);
+                }
+                //fprintf(stderr, "%d: Sending to parent %d\n", (int)role , (int)parent_role_place);
                 x10rt_net_send_msg(&b.p);
                 x10rt_serbuf_free(&b);
             }
+            m.reduce.count = 0; m.reduce.started = false; // reduce completed
+            {
+                SYNCHRONIZED (global_lock);
+                //fprintf(stderr, "%d: Locally decrementing parentToSend from %d to %d\n", (int)role, (int) m.barrier.parentToSend, (int) m.barrier.parentToSend-1);
+                m.barrier.parentToSend--;
+            }
+            gtdb.fifo_push_back(this);
+            return true;
+
+        } else if (m.barrier.parentToReceive > 0) {
+            // still waiting for message from parent, do nothing
+            gtdb.fifo_push_back(this);
+            return false;
+        } else {
+            x10rt_place left, right;
+            x10rt_place num_children = get_children(role, t.memberc, m.barrier.root, left, right);
+            for (unsigned i=0 ; i<num_children ; ++i) {
+                x10rt_place child_role = i==0 ? left : right;
+                x10rt_place child_role_place = t.placev[child_role];
+                if (child_role_place==x10rt_net_here()) {
+                    //decrement counter locally;
+                    MemberObj *m2 = t.memberv[child_role];
+                    assert(m2!=NULL);
+                    if (m.bcast.count > 0) {
+                        // perform bcast locally
+                        memcpy(m2->bcast.dbuf, m.bcast.dbuf, m.bcast.count * m.bcast.el);
+                    }
+                    {
+                        SYNCHRONIZED (global_lock);
+                        //fprintf(stderr, "%d: Locally decrementing parent from %d to %d\n", (int)child_role, (int) m2->barrier.parentToReceive, (int) m2->barrier.parentToReceive-1);
+                        m2->barrier.parentToReceive--;
+                    }
+                } else {
+                    //send a message there to decrement the counter
+                    x10rt_serbuf b;
+                    if (m.bcast.count > 0) {
+                        x10rt_serbuf_init(&b, child_role_place, BCAST_P_TO_C_UPDATE_ID);
+                    } else {
+                        x10rt_serbuf_init(&b, child_role_place, BARRIER_P_TO_C_UPDATE_ID);
+                    }
+                    x10rt_serbuf_write(&b, &team);
+                    x10rt_serbuf_write(&b, &child_role);
+                    if (m.bcast.count > 0) {
+                        x10rt_serbuf_write_ex(&b, m.bcast.dbuf, m.bcast.el, m.bcast.count);
+                    }
+                    //fprintf(stderr, "%d: Sending to child %d\n", (int)role , (int)child_role_place);
+                    x10rt_net_send_msg(&b.p);
+                    x10rt_serbuf_free(&b);
+                }
+            }
+            safe_free(this);
+            m.bcast.count = 0; // bcast completed
+            m.barrier.ch(m.barrier.arg);
+            return true;
         }
-        safe_free(this);
-        m.barrier.ch(m.barrier.arg);
-        return true;
+    }
+}
+
+// handle any reduction data that arrived before m called into the reduce
+void CollOp::handlePendingReduce(MemberObj *m) {
+    if (m->reduce.count > 0) {
+        if (m->reduce.rbuf != NULL) {
+            //fprintf(stderr, "%d: pending rbuf %p\n", (int)role, m->reduce.rbuf);
+            m->reduce.ch(m->reduce.arg);
+            free(m->reduce.rbuf);
+            m->reduce.rbuf = NULL;
+        }
+        if (m->reduce.rbuf2 != NULL) {
+            //fprintf(stderr, "%d: pending rbuf2 %p\n", (int)role, m->reduce.rbuf2);
+            m->reduce.rbuf = m->reduce.rbuf2;
+            m->reduce.rbuf2 = NULL;
+            m->reduce.ch(m->reduce.arg);
+            free(m->reduce.rbuf);
+            m->reduce.rbuf = NULL;
+        }
     }
 }
 
@@ -571,10 +698,9 @@ void x10rt_emu_barrier (x10rt_team team, x10rt_place role, x10rt_completion_hand
 {
     TeamObj &t = *gtdb[team];
     MemberObj &m = *t[role];
-    // role == 0: root
     x10rt_place left, right;
-    x10rt_place num_children = get_children(role, t.memberc, left, right);
-    x10rt_place parent = get_parent(role);
+    x10rt_place num_children = get_children(role, t.memberc, m.barrier.root, left, right);
+    x10rt_place parent = get_parent(role, t.memberc, m.barrier.root);
     {
         SYNCHRONIZED (global_lock);
         //fprintf(stderr, "%d: Incrementing from %d to %d\n", (int)role, m.barrier.wait, m.barrier.wait+t.memberc);
@@ -592,85 +718,6 @@ void x10rt_emu_barrier (x10rt_team team, x10rt_place role, x10rt_completion_hand
         gtdb.fifo_push_back(new (safe_malloc<CollOp>()) CollOp(team, role));
     }
 }
-
-#else
-
-static x10rt_msg_type BARRIER_UPDATE_ID;
-
-static void barrier_update_recv (const x10rt_msg_params *p)
-{
-    x10rt_deserbuf b;
-    x10rt_deserbuf_init(&b, p);
-    x10rt_team team; x10rt_deserbuf_read(&b, &team);
-    x10rt_place role; x10rt_deserbuf_read(&b, &role);
-
-    TeamObj &t = *gtdb[team];
-    MemberObj &m = *t[role];
-    
-    //fprintf(stderr, "%d: Decrementing from %d to %d\n", (int)role, (int) m.barrier.wait, (int) m.barrier.wait-1);
-    SYNCHRONIZED (global_lock);
-    m.barrier.wait--;
-}
-
-static void init_barrier (x10rt_msg_type *counter)
-{
-    x10rt_net_register_msg_receiver(BARRIER_UPDATE_ID = (*counter)++, barrier_update_recv);
-}
-
-bool CollOp::progress (void)
-{
-    TeamObj &t = *gtdb[team];
-    MemberObj &m = *t[role];
-    if (m.barrier.wait > 0) { // cannot use != 0, see below
-        gtdb.fifo_push_back(this);
-        return false;
-    } else {
-        safe_free(this);
-        //if (x10rt_net_here()==0) fprintf(stderr,"before callback\n");
-        m.barrier.ch(m.barrier.arg);
-        return true;
-    }
-}
-
-void x10rt_emu_barrier (x10rt_team team, x10rt_place role, x10rt_completion_handler *ch, void *arg)
-{
-    TeamObj &t = *gtdb[team];
-    MemberObj &m = *t[role];
-    {
-        SYNCHRONIZED (global_lock);
-        //fprintf(stderr, "%d: Incrementing from %d to %d\n", (int)role, m.barrier.wait, m.barrier.wait+t.memberc);
-        m.barrier.wait += t.memberc;
-    }
-    m.barrier.ch = ch;
-    m.barrier.arg = arg;
-    for (x10rt_place i=0 ; i<t.memberc ; ++i) {
-        x10rt_place role_place = t.placev[i];
-        if (role_place==x10rt_net_here()) {
-            //decrement counter locally;
-            MemberObj *m2 = t.memberv[i];
-            assert(m2!=NULL);
-            {
-                SYNCHRONIZED (global_lock);
-                //fprintf(stderr, "%d: Locally decrementing from %d to %d\n", (int)role, (int) m2->barrier.wait, (int) m2->barrier.wait-1);
-                m2->barrier.wait--;
-            }
-        } else {
-            //send a message there to decrement the counter
-            x10rt_serbuf b;
-            x10rt_serbuf_init(&b, role_place, BARRIER_UPDATE_ID);
-            x10rt_serbuf_write(&b, &team);
-            x10rt_serbuf_write(&b, &i);
-            //fprintf(stderr, "%d: Sending to %d\n", (int)role , (int)role_place);
-            x10rt_net_send_msg(&b.p);
-            x10rt_serbuf_free(&b);
-        }
-    }
-    if (ch!=NULL) {
-        //if (x10rt_net_here()==0) fprintf(stderr,"before pushd\n");
-        gtdb.fifo_push_back(new (safe_malloc<CollOp>()) CollOp(team, role));
-    }
-}
-#endif
 
 static void scatter_copy_recv (const x10rt_msg_params *p)
 {
@@ -784,77 +831,6 @@ void x10rt_emu_scatter (x10rt_team team, x10rt_place role,
     // 'run into' the current barrier causing race conditions
 }
 
-static void bcast_copy_recv (const x10rt_msg_params *p)
-{
-    x10rt_deserbuf b;
-    x10rt_deserbuf_init(&b, p);
-    x10rt_team team; x10rt_deserbuf_read(&b, &team);
-    x10rt_place role; x10rt_deserbuf_read(&b, &role);
-    TeamObj &t = *gtdb[team];
-    MemberObj &m = *t[role];
-    x10rt_deserbuf_read_ex(&b, m.bcast.dbuf, m.bcast.el, m.bcast.count);
-
-    SYNCHRONIZED (global_lock);
-    m.bcast.data_done = true;
-    if (m.bcast.barrier_done && m.bcast.ch != NULL) {
-        PREEMPT (global_lock);
-        m.bcast.ch(m.bcast.arg);
-    }
-}
-
-static void bcast_after_barrier (void *arg)
-{
-    MemberObj &m = *(static_cast<MemberObj*>(arg));
-    TeamObj &t = *gtdb[m.team];
-
-    if (m.bcast.root == m.role) {
-
-        // send data to everyone
-        for (x10rt_place i=0 ; i<t.memberc ; ++i) {
-            x10rt_place role_place = t.placev[i];
-            if (role_place==x10rt_net_here()) {
-                MemberObj *m2 = t.memberv[i];
-                assert(m2!=NULL);
-                memcpy(m2->bcast.dbuf, m.bcast.sbuf, m.bcast.count * m.bcast.el);
-                if (i != m.role) {
-                    SYNCHRONIZED (global_lock);
-                    m2->bcast.data_done = true;
-                    if (m2->bcast.barrier_done && m2->bcast.ch != NULL) {
-                        PREEMPT (global_lock);
-                        m2->bcast.ch(m2->bcast.arg);
-                    }
-                }
-            } else {
-                // serialise all the data
-                // TODO: hoist some of this serialisation out of the loop (reuse buffer)
-                x10rt_serbuf b;
-                x10rt_serbuf_init(&b, role_place, BCAST_COPY_ID);
-                x10rt_serbuf_write(&b, &m.team);
-                x10rt_serbuf_write(&b, &i);
-                x10rt_serbuf_write_ex(&b, m.bcast.sbuf, m.bcast.el, m.bcast.count);
-                x10rt_net_send_msg(&b.p);
-                x10rt_serbuf_free(&b);
-            }
-        }
-
-        // the barrier must have completed or we wouldn't even be here
-        // signal completion to root role
-        if (m.bcast.ch != NULL) {
-            m.bcast.ch(m.bcast.arg);
-        }
-
-    } else {
-
-        // if we have already received the data (rare) then signal completion to non-root role
-        SYNCHRONIZED (global_lock);
-        m.bcast.barrier_done = true;
-        if (m.bcast.data_done && m.bcast.ch != NULL) {
-            PREEMPT (global_lock);
-            m.bcast.ch(m.bcast.arg);
-        }
-    }
-}
-
 void x10rt_emu_bcast (x10rt_team team, x10rt_place role,
                       x10rt_place root, const void *sbuf, void *dbuf,
                       size_t el, size_t count, x10rt_completion_handler *ch, void *arg)
@@ -870,23 +846,14 @@ void x10rt_emu_bcast (x10rt_team team, x10rt_place role,
     m.bcast.count = count;
     m.bcast.ch = ch;
     m.bcast.arg = arg;
-    m.bcast.barrier_done = false;
-    m.bcast.data_done = false;
+    if (m.bcast.root == m.role) {
+        // root just copies from source to destination
+        memcpy(m.bcast.dbuf, m.bcast.sbuf, m.bcast.count * m.bcast.el);
+    }
 
-    // FIXME: there is currently no support for preventing, warning, or
-    // accepting two 'concurrent' collective operations from the same role of
-    // the same team.  In other words.  This looks like an atomicity violation
-    // here because m.bcast.* may change but this in fact will not happen
-    // unless operations are invoked in this way..
+    m.barrier.root = root;
 
-    x10rt_emu_barrier (team, role, bcast_after_barrier, &m);
-
-    // after barrier:
-    // root sends to everyone else and immediately signals completion
-    // everyone else signals completion when they receive root's message
-    //    AND after the barrier is done
-    // if you don't wait until after the barrier is done then the next barrier will
-    // 'run into' the current barrier causing race conditions
+    x10rt_emu_barrier (team, role, ch, arg);
 }
 
 
@@ -1060,70 +1027,64 @@ namespace {
     };
 
     template<x10rt_red_op_type op, x10rt_red_type dtype>
-    void allreduce3 (void *arg)
+    void reduce3 (void *arg)
     {
         MemberObj &m = *(static_cast<MemberObj*>(arg));
-        TeamObj &t = *gtdb[m.team];
 
         typedef typename x10rt_red_type_info<dtype>::Type T;
 
-        T *tmp = reinterpret_cast<T*>(m.allreduce.rbuf);
+        const T *tmp = reinterpret_cast<const T*>(m.reduce.rbuf);
 
-        for (size_t i=0 ; i<m.allreduce.count ; ++i) {
-            T &dest = static_cast<T*>(m.allreduce.dbuf)[i];
-            dest = ident<T,op>::_();
-            for (x10rt_place j=0 ; j<t.memberc ; ++j) {
-                dest = reduce<T,op>::_(dest,tmp[i+j*m.allreduce.count]);
-            }
-        }
-
-        free(tmp);
-        free(m.allreduce.sbuf);
-
-        if (m.allreduce.ch != NULL) {
-            m.allreduce.ch(m.allreduce.arg);
+        for (size_t i=0 ; i<m.reduce.count ; ++i) {
+            T &dest = static_cast<T*>(m.reduce.dbuf)[i];
+            dest = reduce<T,op>::_(dest,tmp[i]);
         }
     }
 
     template<x10rt_red_op_type op, x10rt_red_type dtype>
-    void allreduce2 (x10rt_team team, x10rt_place role, const void *sbuf, void *dbuf, size_t count,
-                     x10rt_completion_handler *ch, void *arg)
+    void reduce2 (x10rt_team team, x10rt_place role, x10rt_place root, 
+                    const void *sbuf, void *dbuf, size_t count, 
+                    x10rt_completion_handler *ch, void *arg,
+                    bool allreduce)
     {
-
-        // allocate memory
-        // do the alltoall
-        // calculate reduction locally
-        // free memory
-        // signal completion
-
         TeamObj &t = *gtdb[team];
 
         MemberObj &m = *t[role];
 
-        m.allreduce.el = sizeof(typename x10rt_red_type_info<dtype>::Type);
-        m.allreduce.sbuf = safe_malloc<char>(x10rt_emu_team_sz(team) * count * m.allreduce.el);
-        m.allreduce.dbuf = dbuf;
-        m.allreduce.rbuf = safe_malloc<char>(x10rt_emu_team_sz(team) * count * m.allreduce.el);
-        m.allreduce.count = count;
-        m.allreduce.ch = ch;
-        m.allreduce.arg = arg;
+        m.reduce.root = root;
+        m.reduce.sbuf = sbuf;
+        m.reduce.dbuf = dbuf;
+        m.reduce.el = sizeof(typename x10rt_red_type_info<dtype>::Type);
+        m.reduce.count = count;
+        m.reduce.ch = reduce3<op,dtype>;
+        m.reduce.arg = &m;
 
-        for (x10rt_place p=0 ; p<x10rt_emu_team_sz(team) ; ++p) {
-            memcpy(&m.allreduce.sbuf[p*count*m.allreduce.el], sbuf, count*m.allreduce.el);
+        if (allreduce) {
+            // as reduce is piggybacked on a blocking barrier, just add a bcast
+            m.bcast.root = root;
+            m.bcast.sbuf = dbuf; // use result from reduce
+            m.bcast.dbuf = dbuf;
+            m.bcast.el = m.reduce.el;
+            m.bcast.count = count;
         }
 
-        x10rt_emu_alltoall(team, role, m.allreduce.sbuf, m.allreduce.rbuf, m.allreduce.el, count,
-                           allreduce3<op,dtype>, &m);
+        m.barrier.root = root;
+
+        memcpy(m.reduce.dbuf, m.reduce.sbuf, m.reduce.count * m.reduce.el);
+        m.reduce.started = true;
+
+        x10rt_emu_barrier (team, role, ch, arg);
     }
 
     template<x10rt_red_type dtype>
-    void allreduce1 (x10rt_team team, x10rt_place role,
+    void reduce1 (x10rt_team team, x10rt_place role, x10rt_place root,
                      const void *sbuf, void *dbuf, x10rt_red_op_type op, size_t count,
-                     x10rt_completion_handler *ch, void *arg)
+                     x10rt_completion_handler *ch, void *arg,
+                     bool allreduce)
     {
         switch (op) {
             #define BORING_MACRO(x) \
-            case x: allreduce2<x,dtype>(team,role,sbuf,dbuf,count,ch,arg); return
+            case x: reduce2<x,dtype>(team,role,root,sbuf,dbuf,count,ch,arg,allreduce); return
             BORING_MACRO(X10RT_RED_OP_ADD);
             BORING_MACRO(X10RT_RED_OP_MUL);
             BORING_MACRO(X10RT_RED_OP_AND);
@@ -1137,14 +1098,15 @@ namespace {
     }
 }
 
-void x10rt_emu_allreduce (x10rt_team team, x10rt_place role,
+void x10rt_emu_reduce (x10rt_team team, x10rt_place role, x10rt_place root,
                           const void *sbuf, void *dbuf, x10rt_red_op_type op,
                           x10rt_red_type dtype, size_t count,
-                          x10rt_completion_handler *ch, void *arg)
+                          x10rt_completion_handler *ch, void *arg,
+                          bool allreduce)
 {
     switch (dtype) {
         #define BORING_MACRO(x) \
-        case x: allreduce1<x>(team,role,sbuf,dbuf,op,count,ch,arg); return
+        case x: reduce1<x>(team,role,root,sbuf,dbuf,op,count,ch,arg,allreduce); return
         BORING_MACRO(X10RT_RED_TYPE_U8);
         BORING_MACRO(X10RT_RED_TYPE_S8);
         BORING_MACRO(X10RT_RED_TYPE_S16);
@@ -1159,6 +1121,14 @@ void x10rt_emu_allreduce (x10rt_team team, x10rt_place role,
         #undef BORING_MACRO
         default: fprintf(stderr, "Corrupted type? %x\n", dtype); if (ABORT_NEEDED && !x10rt_run_as_library()) abort();
     }
+}
+
+void x10rt_emu_allreduce (x10rt_team team, x10rt_place role,
+                          const void *sbuf, void *dbuf, x10rt_red_op_type op,
+                          x10rt_red_type dtype, size_t count,
+                          x10rt_completion_handler *ch, void *arg)
+{
+    x10rt_emu_reduce(team, role, 0, sbuf, dbuf, op, dtype, count, ch, arg, true);
 }
 
 static void split_recv (const x10rt_msg_params *p)
@@ -1324,15 +1294,9 @@ void x10rt_emu_coll_init (x10rt_msg_type *counter)
     x10rt_net_register_msg_receiver(SCATTER_COPY_ID = (*counter)++,
                                     scatter_copy_recv);
 
-    x10rt_net_register_msg_receiver(BCAST_COPY_ID = (*counter)++,
-                                    bcast_copy_recv);
-
     x10rt_net_register_msg_receiver(SPLIT_ID = (*counter)++,
                                     split_recv);
 
-    // sometimes these are not used due to #ifdef, this suppresses the warnings
-    (void) get_parent;
-    (void) get_children;
 }
 
 void x10rt_emu_coll_finalize (void)

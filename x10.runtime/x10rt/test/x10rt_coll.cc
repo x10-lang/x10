@@ -1,3 +1,15 @@
+/*
+ *  This file is part of the X10 project (http://x10-lang.org).
+ *
+ *  This file is licensed to You under the Eclipse Public License (EPL);
+ *  You may not use this file except in compliance with the License.
+ *  You may obtain a copy of the License at
+ *      http://www.opensource.org/licenses/eclipse-1.0.php
+ *
+ *  (C) Copyright IBM Corporation 2006-2011.
+ *  (C) Copyright Australian National University 2013.
+ */
+
 #include <cstdlib>
 #include <cstdio>
 #include <cstring>
@@ -238,6 +250,51 @@ static void coll_test (x10rt_team team, x10rt_place role, x10rt_place per_place)
         delete [] sbuf;
         delete [] dbuf;
     }
+
+    if (getenv("NO_REDUCE")==NULL) {
+        x10rt_place root = 43 % x10rt_team_sz(team);
+        float sbuf[1234];
+        float dbuf[1234];
+        size_t count = sizeof(sbuf)/sizeof(*sbuf);
+
+        for (size_t i=0 ; i<count ; ++i) sbuf[i] = float(role+1) * i * i;
+        for (size_t i=0 ; i<count ; ++i) dbuf[i] = -(float)i;
+
+        if (0==role)
+            std::cout<<team<<": reduce to " << root
+                        << " correctness (if no errors then OK):" << std::endl;
+        finished = 0;
+        x10rt_reduce(team, role, root, sbuf, dbuf, X10RT_RED_OP_ADD, X10RT_RED_TYPE_FLT, count,
+                            x10rt_one_setter, &finished);
+        while (!finished) { x10rt_probe(); }
+        if (root==role) {
+            float oracle_base = (x10rt_team_sz(team)*x10rt_team_sz(team) + x10rt_team_sz(team))/2;
+            for (size_t i=0 ; i<count ; ++i) {
+                float oracle = oracle_base * i * i;
+                if (fabs(dbuf[i] / oracle - 1)>0.00001) {
+                    std::cout << team << ": role " << role
+                              << " has received invalid sum at ["<<i<<"]:  " << dbuf[i]
+                              << " (not " << oracle << ")" << std::endl;
+                }
+            }
+        }
+
+
+        if (0==role) std::cout << team << ": reduce to " << root
+                        << " timing test..." << std::endl;
+        x10rt_barrier_b(team,role);
+        taken = -nano_time();
+        for (int i=0 ; i<long_tests ; ++i) {
+            finished = 0;
+            x10rt_reduce(team, role, root, sbuf, dbuf, X10RT_RED_OP_ADD, X10RT_RED_TYPE_FLT, count,
+                                x10rt_one_setter, &finished);
+            while (!finished) { sched_yield(); x10rt_probe(); }
+        }
+        taken += nano_time();
+        if (root==role) std::cout << team << ": reduce time:  "
+                               << ((double)taken)/long_tests/1000 << " μs" << std::endl;
+    }
+
 
     if (getenv("NO_ALLREDUCE")==NULL) {
         float sbuf[1134];

@@ -155,6 +155,25 @@ public class TeamSupport {
         }
     }
     
+    public static void nativeReduce(int id, int role, IndexedMemoryChunk<?> src, int src_off, 
+            IndexedMemoryChunk<?> dst, int dst_off, int count, int op) {
+		if (!X10RT.forceSinglePlace) {
+			Object srcRaw = src.getBackingArray();
+			Object dstRaw = dst.getBackingArray();
+			
+			int typeCode = getTypeCode(src);
+			assert getTypeCode(dst) == typeCode : "Incompatible src and dst arrays";
+			
+			FinishState fs = ActivityManagement.activityCreationBookkeeping();
+			
+			try {
+				nativeReduceImpl(id, role, srcRaw, src_off, dstRaw, dst_off, count, op, typeCode, fs);
+				} catch (UnsatisfiedLinkError e) {
+				aboutToDie("nativeReduce");
+			}
+		}
+	}
+    
     public static void nativeAllReduce(int id, int role, IndexedMemoryChunk<?> src, int src_off, 
                                        IndexedMemoryChunk<?> dst, int dst_off, int count, int op) {
         if (!X10RT.forceSinglePlace) {
@@ -266,6 +285,10 @@ public class TeamSupport {
                                                   Object dstRaw, int dst_off,
                                                   int count, int typecode, FinishState fs);
     
+    private static native void nativeReduceImpl(int id, int role, Object srcRaw, int src_off, 
+    											Object dstRaw, int dst_off, int count,
+            									int op, int typecode, FinishState fs);
+
     private static native void nativeAllReduceImpl(int id, int role, Object srcRaw, int src_off, 
                                                    Object dstRaw, int dst_off,
                                                    int count, int op, int typecode, FinishState fs);

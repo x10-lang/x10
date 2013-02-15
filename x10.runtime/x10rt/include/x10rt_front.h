@@ -717,6 +717,37 @@ X10RT_C void x10rt_alltoall (x10rt_team team, x10rt_place role,
                              size_t el, size_t count,
                              x10rt_completion_handler *ch, void *arg);
 
+/** Asynchronously blocks until root has received data from each member.
+ * Data are combined using the specified reduction operation, and the result
+ * is available at root only.
+ *
+ * \param team Team that identifies the members who are participating in this operation
+ *
+ * \param role Our role in the team
+ *
+ * \param root The member who is receiving the data
+ *
+ * \param sbuf The data that is offered by each member
+ *
+ * \param dbuf The array into which the data will be received at root
+ *
+ * \param op The operation to perform
+ *
+ * \param dtype The type of data being supplied
+ *
+ * \param count The number of elements being transferred
+ *
+ * \param ch Will be called when the operation is complete
+ *
+ * \param arg User pointer that is passed to the completion handler
+ */
+X10RT_C void x10rt_reduce (x10rt_team team, x10rt_place role,
+                          x10rt_place root, const void *sbuf, void *dbuf,
+                          x10rt_red_op_type op,
+                          x10rt_red_type dtype,
+                          size_t count,
+                          x10rt_completion_handler *ch, void *arg);
+
 /** Asynchronously blocks until all members have received the computed results.  This call is
  * similar to #x10rt_alltoall except that instead of each member receiving the data from each other
  * member, this data is instead reduced to a single array of count elements.  Also, the same data is
