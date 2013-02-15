@@ -105,7 +105,7 @@ void error(const char* message)
 	else
 		fprintf(stderr, "Fatal Error at place %u: %s\n", state.myPlaceId, message);
 	fflush(stderr);
-	if (!state.runAsLibrary) abort();
+	if (ABORT_NEEDED && !state.runAsLibrary) abort();
 }
 
 /*

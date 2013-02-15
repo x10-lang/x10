@@ -9,6 +9,8 @@
 #include <x10rt_logical.h>
 #include <x10rt_net.h>
 
+x10rt_errno __x10rt_errno = X10RT_ERR_OK;
+
 static x10rt_msg_type counter = 0;
 
 static bool run_as_library = false;

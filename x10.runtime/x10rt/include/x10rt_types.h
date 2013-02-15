@@ -226,6 +226,16 @@ typedef struct {
     uint64_t get_copied_bytes_received;
 } x10rt_stats;
 
+/**
+ * Error code for x10rt apis.
+ */
+typedef enum {
+    X10RT_ERR_OK       = 0,   /* No error */
+    X10RT_ERR_MEM      = 1,   /* Out of memory error */
+    X10RT_ERR_INTL     = 254, /* Internal implementation error */
+    X10RT_ERR_OTHER    = 255  /* Other unclassified runtime error */
+} x10rt_errno;
+
 #endif
 
 // vim: tabstop=4:shiftwidth=4:expandtab:textwidth=100

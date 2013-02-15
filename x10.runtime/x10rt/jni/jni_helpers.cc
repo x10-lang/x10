@@ -8,6 +8,8 @@
 
 #include <stdio.h>
 
+#include <x10rt_internal.h>
+
 static JavaVM* theJVM;
 
 const char* X10_PAUSE_GC_ON_SEND = getenv("X10_PAUSE_GC_ON_SEND");
@@ -28,9 +30,9 @@ JNIEnv* jniHelper_getEnv() {
         rc = theJVM->AttachCurrentThread((void**)&env, &args);
         if (0 == rc) return env;
         jniHelper_abort("Failed to attach unattached thread to JavaVM\n");
+        return NULL;
     }
     jniHelper_abort("GetEnv failed with return code %d\n", (int)rc);
-
     return NULL;
 }
 
@@ -54,5 +56,5 @@ void jniHelper_abort(const char* format, ...) {
     va_start(ap, format);
     vfprintf(stderr, format, ap);
     va_end(ap);
-    if (!x10rt_run_as_library()) abort();
+    if (ABORT_NEEDED && !x10rt_run_as_library()) abort();
 }

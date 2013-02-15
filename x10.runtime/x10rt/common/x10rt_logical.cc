@@ -19,7 +19,7 @@ static void error(const char* format, ...)
     va_start(ap, format);
     vfprintf(stderr, format, ap);
     va_end(ap);
-    if (!x10rt_run_as_library()) abort();
+    if (ABORT_NEEDED && !x10rt_run_as_library()) abort();
 }
 
 namespace {
