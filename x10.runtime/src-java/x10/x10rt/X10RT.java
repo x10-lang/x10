@@ -41,10 +41,11 @@ public class X10RT {
                 System.loadLibrary(libs[i]);
         }
 
-        String libName = System.getProperty("X10RT_IMPL", "x10rt_sockets");
+        String libName = System.getProperty("X10RT_IMPL", "sockets");
         if (libName.equals("disabled")) {
             forceSinglePlace = true;
         } else {
+            libName = "x10rt_" + libName;
             try {
                 System.loadLibrary(libName);
             } catch (UnsatisfiedLinkError e) {
@@ -96,10 +97,11 @@ public class X10RT {
     public static synchronized void init() {
       if (state != State.UNINITIALIZED) return;
 
-      String libName = System.getProperty("X10RT_IMPL", "x10rt_sockets");
+      String libName = System.getProperty("X10RT_IMPL", "sockets");
       if (libName.equals("disabled")) {
           forceSinglePlace = true;
       } else {
+          libName = "x10rt_" + libName;
           try {
               System.loadLibrary(libName);
           } catch (UnsatisfiedLinkError e) {
