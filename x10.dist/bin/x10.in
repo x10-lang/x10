@@ -15,6 +15,7 @@ nocompressedrefs=""
 noassert=""
 java_args=()
 args=()
+x10rt_impl=""
 
 PRINT_DIR=""
 
@@ -48,6 +49,7 @@ while [ -n "$1" ]; do
             fi
             ;;
         -libpath) shift; extra_lib="$1";;
+        -x10rt) shift; x10rt_impl="$1";;
         -config) shift; config="$1.cfg";;
         -nocompressedrefs) nocompressedrefs="true";;
         -noassert) noassert="true";;
@@ -148,7 +150,23 @@ if [[ "$UNAME" = CYGWIN* ]]; then
         java_args=("-DX10RT_IMPL=disabled" "${java_args[@]}")
     fi
 else
-    launcher="${TOP}${FILE_SEP}bin${FILE_SEP}X10Launcher"
+    if [ -z "${x10rt_impl}" ]; then
+        launcher="${TOP}${FILE_SEP}bin${FILE_SEP}X10Launcher"
+    elif [ "${x10rt_impl}" = "sockets" ]; then
+        launcher="${TOP}${FILE_SEP}bin${FILE_SEP}X10Launcher"
+        java_args=("-DX10RT_IMPL=${x10rt_impl}" "${java_args[@]}")
+#    elif [ "${x10rt_impl}" = "standalone" ]; then
+#        launcher="${TOP}${FILE_SEP}bin${FILE_SEP}X10Launcher"
+#        java_args=("-DX10RT_IMPL=${x10rt_impl}" "${java_args[@]}")
+#    elif [ "${x10rt_impl}" = "mpi" ]; then
+#        launcher="mpirun"
+#        java_args=("-DX10RT_IMPL=${x10rt_impl}" "${java_args[@]}")
+    elif [ "${x10rt_impl}" = "disabled" ]; then
+        java_args=("-DX10RT_IMPL=${x10rt_impl}" "${java_args[@]}")
+    else
+        echo >&2 "Error: Unsupported x10rt implementation"
+        exit 1
+    fi
 fi
 
 
