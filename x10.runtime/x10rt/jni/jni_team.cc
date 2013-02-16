@@ -905,7 +905,7 @@ JNIEXPORT void JNICALL Java_x10_x10rt_TeamSupport_nativeDelImpl(JNIEnv *env, jcl
 
 
 /*****************************************************
- * initializeTeamSupport 
+ * initialize
  *****************************************************/
 
 /*
