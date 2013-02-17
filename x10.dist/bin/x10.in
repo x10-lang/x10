@@ -1,3 +1,4 @@
+JAVACMD="$JAVA"
 MAIN_CLASS='$Main'
 
 help=""
@@ -13,9 +14,11 @@ defs=""
 dev=""
 nocompressedrefs=""
 noassert=""
+noclassloadtest=""
 java_args=()
 args=()
 x10rt_impl=""
+launcher_args=()
 
 PRINT_DIR=""
 
@@ -53,10 +56,14 @@ while [ -n "$1" ]; do
             fi
             ;;
         -libpath) shift; extra_lib="$1";;
+        -np|--np) shift; export X10_NPLACES="$1";;
+        -host|--host) shift; export X10_HOSTLIST="$1";;
+        -hostfile|--hostfile) shift; export X10_HOSTFILE="$1";;
         -x10rt) shift; x10rt_impl="$1";;
         -config) shift; config="$1.cfg";;
         -nocompressedrefs) nocompressedrefs="true";;
         -noassert) noassert="true";;
+        -noclassloadtest) noclassloadtest="true";;
         -dev) dev="true";;
         -pkg-conf=) echo "Please use the -help option to get a list of valid options"; exit 1;;
         -pkg-conf=*) PRINT_DIR="${1##-pkg-conf=}" ; args=(dummy argument) ;;
@@ -87,9 +94,14 @@ where [options] includes:
     -D<name>=<value>         set system property <name> to <value>
     -classpath <path>        search path for class files
     -libpath <path>          search path for native libraries
+    -np <num>                number of places to launch (overrides X10_NPLACES)
+    -host <host1,host2,...>  list of hosts to launch places on (overrides X10_HOSTLIST)
+    -hostfile <file>         provide a hostfile (overrides X10_HOSTFILE)
+    -x10rt <impl>            select X10RT implementation
     -config <conf>           (IGNORED) read configuration from etc${FILE_SEP}<conf>.cfg
     -nocompressedrefs        disable compressed references (64-bit JVM only)
     -noassert                disable assertion check
+    -noclassloadtest         disable class load test
     -dev                     developer mode (use unpackaged X10 libraries)
     -pkg-conf=dir            print absolute directory, where dir is one of
                                [bin, etc, include, lib, stdlib]
@@ -143,7 +155,7 @@ if [ -n "$LD_LIBRARY_PATH" ] ; then
     IFS="$OLD_IFS"
 fi
 if [ -n "$extra_lib" ]; then
-   externpath="$extra_lib${PATH_SEP}$externpath"
+    externpath="$extra_lib${PATH_SEP}$externpath"
 fi
 
 if [[ "$UNAME" = CYGWIN* ]]; then 
@@ -162,9 +174,13 @@ else
 #    elif [ "${x10rt_impl}" = "standalone" ]; then
 #        launcher="${TOP}${FILE_SEP}bin${FILE_SEP}X10Launcher"
 #        java_args=("-DX10RT_IMPL=${x10rt_impl}" "${java_args[@]}")
-#    elif [ "${x10rt_impl}" = "mpi" ]; then
-#        launcher="mpirun"
-#        java_args=("-DX10RT_IMPL=${x10rt_impl}" "${java_args[@]}")
+    elif [ "${x10rt_impl}" = "mpi" ]; then
+        launcher="mpirun"
+        [ -n "$X10_NPLACES" ] && launcher_args=("-np" "$X10_NPLACES" "${launcher_args[@]}")
+        [ -n "$X10_HOSTLIST" ] && launcher_args=("--host" "$X10_HOSTLIST" "${launcher_args[@]}")
+        [ -n "$X10_HOSTFILE" ] && launcher_args=("--hostfile" "$X10_HOSTFILE" "${launcher_args[@]}")
+        JAVA="${TOP}${FILE_SEP}bin${FILE_SEP}X10MPIJava"
+        java_args=("-DX10RT_IMPL=${x10rt_impl}" "${java_args[@]}")
     elif [ "${x10rt_impl}" = "disabled" ]; then
         java_args=("-DX10RT_IMPL=${x10rt_impl}" "${java_args[@]}")
     else
@@ -197,7 +213,7 @@ java_args=("${java_args[@]}" ${defs})
 
 java_version=
 # skip loading test in case of executable jar
-if [ -n "$main" ]; then
+if [ -n "$noclassloadtest" -o -n "$main" ]; then
 command=("$JAVA" -showversion "${java_args[@]}" x10.runtime.impl.java.TestClassLoading "$main\$${MAIN_CLASS}")
 #[ -n "$verbose" ] && echo "${command[*]}"
 java_version=`(
@@ -210,7 +226,7 @@ fi
 )`
 fi
 
-[ -n "${java_version}" ] || java_version=`"$JAVA" -version 2>&1`
+[ -n "${java_version}" ] || java_version=`"$JAVACMD" -version 2>&1`
 
 
 #
@@ -267,7 +283,7 @@ command=("$JAVA" "${java_args[@]}" $config "${args[@]}")
 if [[ "$UNAME" = CYGWIN* && -z "$ENABLE_CYGWIN_MULTIVM" ]]; then
     exec $time$timelimit "${command[@]}"
 else 
-    exec $time$timelimit$launcher "${command[@]}"
+    exec $time$timelimit$launcher "${launcher_args[@]}" "${command[@]}"
 fi
 
 exit $?
