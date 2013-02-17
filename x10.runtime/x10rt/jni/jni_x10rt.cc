@@ -127,3 +127,11 @@ JNIEXPORT void JNICALL Java_x10_x10rt_X10RT_x10rt_1probe(JNIEnv *, jclass) {
 JNIEXPORT void JNICALL Java_x10_x10rt_X10RT_x10rt_1blocking_1probe(JNIEnv *, jclass) {
     x10rt_blocking_probe();
 }
+
+
+/*
+ * Following functions are optionally called by JVM to determine
+ * what level of JNI functions are used with this library.
+ */
+JNIEXPORT jint JNICALL JNI_OnLoad(JavaVM *, void *) { return JNI_VERSION_1_4; }
+/*JNIEXPORT void JNICALL JNI_OnUnload(JavaVM *, void *) {}*/
