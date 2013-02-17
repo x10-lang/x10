@@ -38,6 +38,10 @@ while [ -n "$1" ]; do
                  echo >&2 "Error: Cannot reset java.library.path, use -libpath instead"
                  exit 1
              fi
+             if [[ "${1##-D}" = java.class.path=* ]]; then
+                 echo >&2 "Error: Cannot reset java.class.path, use -classpath instead"
+                 exit 1
+             fi
              # TODO: add tests for more system properties above
              defs="${defs} $1";;
         -classpath|-cp)
@@ -172,7 +176,7 @@ fi
 
 # TODO: executable jar
 # Note: use bootstrap class path instead of user class path to make it visible from jar file
-java_args=("-Djava.library.path=$externpath" -classpath "$classpath" "${java_args[@]}")
+java_args=("-Djava.library.path=$externpath" "-Djava.class.path=$classpath" "${java_args[@]}")
 #java_args=("-Djava.library.path=$externpath" "-Xbootclasspath/a:$classpath" "${java_args[@]}")
 
 if [ -z "$noassert" ]; then
