@@ -234,7 +234,7 @@ typedef enum {
     X10RT_ERR_MEM      = 1,   /* Out of memory error */
     X10RT_ERR_INTL     = 254, /* Internal implementation error */
     X10RT_ERR_OTHER    = 255  /* Other unclassified runtime error */
-} x10rt_errno;
+} x10rt_error;
 
 #endif
 

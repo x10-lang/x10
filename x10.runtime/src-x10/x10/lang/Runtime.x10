@@ -626,51 +626,47 @@ public final class Runtime {
      * @param body Main activity
      */
     public static def start(body:()=>void):void {
-        try {
-            // initialize thread pool for the current process
-            // initialize runtime
-            x10rtInit();
+        // initialize thread pool for the current process
+        // initialize runtime
+        x10rtInit();
 
-            if (hereInt() == 0) {
-                val rootFinish = new FinishState.Finish(pool.latch);
-                // in place 0 schedule the execution of the main activity
-                executeLocal(new Activity(body, rootFinish));
+        if (hereInt() == 0) {
+            val rootFinish = new FinishState.Finish(pool.latch);
+            // in place 0 schedule the execution of the main activity
+            executeLocal(new Activity(body, rootFinish));
 
-                // wait for thread pool to die
-                // (happens when main activity terminates)
-                pool(NTHREADS);
+            // wait for thread pool to die
+            // (happens when main activity terminates)
+            pool(NTHREADS);
 
-                // we need to call waitForFinish here to see the exceptions thrown by main if any
-                try {
-                    rootFinish.waitForFinish();
-                } finally {
-                    // root finish has terminated, kill remote processes if any
-                    if (Place.MAX_PLACES >= 1024) {
-                        val cl1 = ()=> @x10.compiler.RemoteInvocation("start_1") {
-                            val h = hereInt();
-                            val cl = ()=> @x10.compiler.RemoteInvocation("start_2") {pool.latch.release();};
-                            for (var j:Int=Math.max(1, h-31); j<h; ++j) {
-                                x10rtSendMessage(j, cl, null);
-                            }
-                            pool.latch.release();
-                        };
-                        for(var i:Int=Place.MAX_PLACES-1; i>0; i-=32) {
-                            x10rtSendMessage(i, cl1, null);
+            // we need to call waitForFinish here to see the exceptions thrown by main if any
+            try {
+                rootFinish.waitForFinish();
+            } finally {
+                // root finish has terminated, kill remote processes if any
+                if (Place.MAX_PLACES >= 1024) {
+                    val cl1 = ()=> @x10.compiler.RemoteInvocation("start_1") {
+                        val h = hereInt();
+                        val cl = ()=> @x10.compiler.RemoteInvocation("start_2") {pool.latch.release();};
+                        for (var j:Int=Math.max(1, h-31); j<h; ++j) {
+                            x10rtSendMessage(j, cl, null);
                         }
-                    } else {
-                        val cl = ()=> @x10.compiler.RemoteInvocation("start_3") {pool.latch.release();};
-                        for (var i:Int=Place.MAX_PLACES-1; i>0; --i) {
-                            x10rtSendMessage(i, cl, null);
-                        }
+                        pool.latch.release();
+                    };
+                    for(var i:Int=Place.MAX_PLACES-1; i>0; i-=32) {
+                        x10rtSendMessage(i, cl1, null);
+                    }
+                } else {
+                    val cl = ()=> @x10.compiler.RemoteInvocation("start_3") {pool.latch.release();};
+                    for (var i:Int=Place.MAX_PLACES-1; i>0; --i) {
+                        x10rtSendMessage(i, cl, null);
                     }
                 }
-            } else {
-                // wait for thread pool to die
-                // (happens when a kill signal is received from place 0)
-                pool(NTHREADS);
             }
-        } finally {
-            GlobalCounters.printStats();
+        } else {
+            // wait for thread pool to die
+            // (happens when a kill signal is received from place 0)
+            pool(NTHREADS);
         }
     }
 

@@ -43,6 +43,12 @@ struct x10rt_lgl_cfg_accel {
     unsigned index;
 };
 
+
+/** Get a detailed user-readable error about the fatal error that has rendered X10RT inoperable. 
+ * \returns Text describing the error, or NULL if no error has occured.
+ */
+X10RT_C const char *x10rt_lgl_error_msg (void);
+
 /** Initialize the X10RT API logical layer.  This versions uses the X10RT_ACCELS environment
  * variable.
  *
@@ -55,7 +61,7 @@ struct x10rt_lgl_cfg_accel {
  * \param counter A counter that is used to find the next available message type for any internal
  * message types needed by the various backends.
 */
-X10RT_C void x10rt_lgl_init (int *argc, char ***argv, x10rt_msg_type *counter);
+X10RT_C x10rt_error x10rt_lgl_init (int *argc, char ***argv, x10rt_msg_type *counter);
 
 /** Initialize the X10RT API logical layer (alternate extended version).  This version configures
  * the accelerators using an explicit list instead of reading the X10RT_ACCELS environment variable.
@@ -73,8 +79,8 @@ X10RT_C void x10rt_lgl_init (int *argc, char ***argv, x10rt_msg_type *counter);
  * \param counter As in x10rt_lgl_init.
 */
 
-X10RT_C void x10rt_lgl_init_ex (int *argc, char ***argv, x10rt_lgl_cfg_accel *cfgv,
-                                x10rt_place cfgc, x10rt_msg_type *counter);
+X10RT_C x10rt_error x10rt_lgl_init_ex (int *argc, char ***argv, x10rt_lgl_cfg_accel *cfgv,
+                                       x10rt_place cfgc, x10rt_msg_type *counter);
 
 /** Register handlers for a plain message.
  *
@@ -222,10 +228,6 @@ X10RT_C void x10rt_lgl_send_get (x10rt_msg_params *p, void *buf, x10rt_copy_sz l
  */
 X10RT_C void x10rt_lgl_send_put (x10rt_msg_params *p, void *buf, x10rt_copy_sz len);
 
-X10RT_C void x10rt_lgl_get_stats (x10rt_stats *s);
-X10RT_C void x10rt_lgl_set_stats (x10rt_stats *s);
-X10RT_C void x10rt_lgl_zero_stats (x10rt_stats *s);
-
 
 /** \see #x10rt_remote_alloc
  * \param place As in x10rt_remote_alloc.
@@ -279,12 +281,12 @@ X10RT_C void x10rt_lgl_blocks_threads (x10rt_place d, x10rt_msg_type type, int d
 
 /** Probe all the underlying backends. \see #x10rt_probe
  */
-X10RT_C void x10rt_lgl_probe (void);
+X10RT_C x10rt_error x10rt_lgl_probe (void);
 
 
 /** Probe all the underlying backends, blocking if nothing is available.  \see #x10rt_blocking_probe
  */
-X10RT_C void x10rt_lgl_blocking_probe (void);
+X10RT_C x10rt_error x10rt_lgl_blocking_probe (void);
 
 
 /** Clean up the logical layer.  Called by #x10rt_finalize.

@@ -9,8 +9,6 @@
 #include <x10rt_logical.h>
 #include <x10rt_net.h>
 
-x10rt_errno __x10rt_errno = X10RT_ERR_OK;
-
 static x10rt_msg_type counter = 0;
 
 static bool run_as_library = false;
@@ -30,8 +28,12 @@ char* x10rt_preinit() {
 bool x10rt_run_as_library (void)
 { return run_as_library; }
 
-void x10rt_init (int *argc, char ***argv)
-{ x10rt_lgl_init(argc, argv, &counter); }
+const char *x10rt_error_msg (void) {
+    return x10rt_lgl_error_msg();
+}
+
+x10rt_error x10rt_init (int *argc, char ***argv)
+{ return x10rt_lgl_init(argc, argv, &counter); }
 
 x10rt_msg_type x10rt_register_msg_receiver (x10rt_handler *cb,
                                             x10rt_cuda_pre *pre, x10rt_cuda_post *post,
@@ -139,11 +141,11 @@ void x10rt_blocks_threads (x10rt_place d, x10rt_msg_type type, int dyn_shm,
 { x10rt_lgl_blocks_threads (d, type, dyn_shm, blocks, threads, cfg); }
 
 
-void x10rt_probe (void)
-{ x10rt_lgl_probe(); }
+x10rt_error x10rt_probe (void)
+{ return x10rt_lgl_probe(); }
 
-void x10rt_blocking_probe (void)
-{ x10rt_lgl_blocking_probe(); }
+x10rt_error x10rt_blocking_probe (void)
+{ return x10rt_lgl_blocking_probe(); }
 
 
 void x10rt_finalize (void)
@@ -235,15 +237,4 @@ void x10rt_team_setter (x10rt_team v, void *arg)
 
 void x10rt_remote_ptr_setter (x10rt_remote_ptr v, void *arg)
 { *((x10rt_remote_ptr*)arg) = v; }
-
-
-
-void x10rt_get_stats (x10rt_stats *s)
-{ x10rt_lgl_get_stats(s); }
-
-void x10rt_set_stats (x10rt_stats *s)
-{ x10rt_lgl_set_stats(s); }
-
-void x10rt_zero_stats (x10rt_stats *s)
-{ x10rt_lgl_zero_stats(s); }
 

@@ -169,6 +169,11 @@ X10RT_C char* x10rt_preinit();
 X10RT_C bool x10rt_run_as_library (void);
 
 
+/** Get a detailed user-readable error about the fatal error that has rendered X10RT inoperable. 
+ * \returns Text describing the error, or NULL if no error has occured.
+ */
+X10RT_C const char *x10rt_error_msg (void);
+
 /** Initialize the X10RT API.
  *
  * This should be the first call made by a process into X10RT.  This allows the X10RT implementation
@@ -188,8 +193,11 @@ X10RT_C bool x10rt_run_as_library (void);
  * \param argc A pointer to the argc parameter from the application's ``main'' function.
  *
  * \param argv A pointer to the argv parameter from the application's ``main'' function.
+ *
+ * \returns X10RT_ERR_OK if successful, otherwise some other error code.  Upon failure, an error
+ * string is available via x10rt_error_msg() and x10rt_finalize must be called to shut down.
 */
-X10RT_C void x10rt_init (int *argc, char ***argv);
+X10RT_C x10rt_error x10rt_init (int *argc, char ***argv);
 
 /** Register a new type of 'plain' message.  Messages are used to send serialized object graphs to
  * another place.  They are intended for when the data is not organized in a sequential fashion and
@@ -410,10 +418,6 @@ X10RT_C void x10rt_send_get (x10rt_msg_params *p, void *buf, x10rt_copy_sz len);
  */
 X10RT_C void x10rt_send_put (x10rt_msg_params *p, void *buf, x10rt_copy_sz len);
 
-X10RT_C void x10rt_get_stats (x10rt_stats *s);
-X10RT_C void x10rt_set_stats (x10rt_stats *s);
-X10RT_C void x10rt_zero_stats (x10rt_stats *s);
-
 /** Asynchronously allocate memory at a remote place.
  *
  * \param place The location where memory will be allocated.
@@ -510,9 +514,12 @@ X10RT_C void x10rt_blocks_threads (x10rt_place d, x10rt_msg_type type, int dyn_s
  * In all cases X10RT is responsible for freeing the buffer within the x10rt_msg_params structure
  * after the callbacks have used it.
  *
+ * \returns X10RT_ERR_OK if successful, otherwise some other error code.  Upon failure, an error
+ * string is available via x10rt_error_msg() and x10rt_finalize must be called to shut down.
+ *
  * \see \ref callbacks
  */
-X10RT_C void x10rt_probe (void);
+X10RT_C x10rt_error x10rt_probe (void);
 
 
 /** Handle outstanding incoming messages, and block on the network if nothing is available.
@@ -520,7 +527,7 @@ X10RT_C void x10rt_probe (void);
  * available from the network.  This mechanism allows an X10 program to go idle on the CPU.  The
  * network probe will attempt to block if possible, but this is not guaranteed.
  */
-X10RT_C void x10rt_blocking_probe (void);
+X10RT_C x10rt_error x10rt_blocking_probe (void);
 
 /** \} */
 

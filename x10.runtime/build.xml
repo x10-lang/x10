@@ -465,6 +465,7 @@
                     <istrue value="${CROSS_COMPILE_BGP}" />
                   </conditions>
                   <then>
+                    <echo message="Configuring BDWGC for BGP cross compile"/>
                     <exec executable="${bash.exe}" dir="${bdwgc.dir}/src" failonerror="true">
                       <env key="CXX" value="/bgsys/drivers/ppcfloor/gnu-linux/bin/powerpc-bgp-linux-g++"/>
                       <env key="CC" value="/bgsys/drivers/ppcfloor/gnu-linux/bin/powerpc-bgp-linux-gcc"/>
@@ -486,6 +487,7 @@
                         </or>
                       </conditions>
                       <then>
+                        <echo message="Configuring BDWGC for PPC linux"/>
                         <exec executable="${bash.exe}" dir="${bdwgc.dir}/src" failonerror="true">
                           <arg value="${bdwgc.dir}/src/configure" />
                           <arg value="-enable-threads=posix" />
@@ -497,6 +499,7 @@
                         </exec>
                       </then>
                       <else>
+                        <echo message="Configuring BDWGC for generic linux"/>
                         <exec executable="${bash.exe}" dir="${bdwgc.dir}/src" failonerror="true">
                           <arg value="${bdwgc.dir}/src/configure" />
                           <arg value="-enable-threads=posix" />
@@ -516,6 +519,7 @@
                 <os family="mac"/>
               </conditions>
               <then>
+                <echo message="Configuring BDWGC for mac"/>
                 <exec executable="${bash.exe}" dir="${bdwgc.dir}/src" failonerror="true">
                   <arg value="${bdwgc.dir}/src/configure" />
                   <arg value="-enable-threads=posix" />
@@ -535,6 +539,7 @@
                 <os family="unix" name="aix"/>
               </conditions>
               <then>
+                <echo message="Configuring BDWGC for aix"/>
                 <exec executable="${bash.exe}" dir="${bdwgc.dir}/src" failonerror="true">
                   <env key="OBJECT_MODE" value="32_64" />
                   <env key="CFLAGS" value="-Wa,-mppc64 -Wa,-a64 -maix64 -D__ppc64__" />
@@ -553,6 +558,7 @@
                 <os family="windows"/>
               </conditions>
               <then>
+                <echo message="Configuring BDWGC for windows"/>
                 <exec executable="${bash.exe}" dir="${bdwgc.dir}/src" failonerror="true">
                   <arg value="${bdwgc.dir}/src/configure" />
                   <arg value="-enable-threads=posix" />
@@ -568,6 +574,7 @@
                 <os family="unix" name="freebsd"/>
               </conditions>
               <then>
+                <echo message="Configuring BDWGC for freebsd"/>
                 <exec executable="${bash.exe}" dir="${bdwgc.dir}/src" failonerror="true">
                   <arg value="${bdwgc.dir}/src/configure" />
                   <arg value="-enable-threads=posix" />
@@ -578,10 +585,12 @@
                 </exec>
               </then>
             </if>
+            <echo message="Running make"/>
             <exec executable="${make.exe}" dir="${bdwgc.dir}/src" failonerror="true">
                 <env key="OBJECT_MODE" value="32_64" />
                 <arg value="-j${available.procs}" />
             </exec>
+            <echo message="Running make install"/>
             <exec executable="${make.exe}" dir="${bdwgc.dir}/src" failonerror="true">
                 <env key="OBJECT_MODE" value="32_64" />
                 <arg value="install" />

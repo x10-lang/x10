@@ -5,8 +5,6 @@
 
 #include <x10rt_types.h>
 
-extern x10rt_errno __x10rt_errno;
-
 // set false to remove abort
 #define ABORT_NEEDED	true
 

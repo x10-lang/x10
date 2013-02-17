@@ -22,7 +22,12 @@
  *
  * \param counter As in x10rt_lgl_init.
  */
-X10RT_C void x10rt_net_init (int *argc, char ***argv, x10rt_msg_type *counter);
+X10RT_C x10rt_error x10rt_net_init (int *argc, char ***argv, x10rt_msg_type *counter);
+
+/** Get a detailed user-readable error about the fatal error that has rendered X10RT inoperable. 
+ * \returns Text describing the error, or NULL if no error has occured.
+ */
+X10RT_C const char *x10rt_net_error_msg (void);
 
 /** Register handlers for a plain message.
  *
@@ -92,13 +97,13 @@ X10RT_C void x10rt_net_send_put (x10rt_msg_params *p, void *buf, x10rt_copy_sz l
 
 /** Handle any oustanding message from the network by calling the registered callbacks.  \see #x10rt_lgl_probe
  */
-X10RT_C void x10rt_net_probe (void);
+X10RT_C x10rt_error x10rt_net_probe (void);
 
 
 /** Handle any oustanding message from the network by calling the registered callbacks, blocking if nothing is available.
  * \see #x10rt_lgl_probe
  */
-X10RT_C void x10rt_net_blocking_probe (void);
+X10RT_C x10rt_error x10rt_net_blocking_probe (void);
 
 
 /** \see #x10rt_lgl_remote_op

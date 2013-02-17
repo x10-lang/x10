@@ -511,7 +511,7 @@ void insertNewMessage(MSGTYPE mt, x10rt_msg_params *p, void *dataPtr, x10rt_copy
  *  Main API calls.  See x10rt_net.h for documentation
 *******************************************************/
 
-void x10rt_net_init (int *argc, char ***argv, x10rt_msg_type *counter)
+x10rt_error x10rt_net_init (int *argc, char ***argv, x10rt_msg_type *counter)
 {
 	// determine the number of places (processes) to create, using an environment variable
 	char* NPROCS = getenv(X10_NPLACES);
@@ -579,6 +579,8 @@ void x10rt_net_init (int *argc, char ***argv, x10rt_msg_type *counter)
 			break; // out of the spawning for loop
 		}
 	}
+
+    return X10RT_ERR_OK;
 }
 
 void x10rt_net_register_msg_receiver (x10rt_msg_type msg_type, x10rt_handler *cb)
@@ -708,7 +710,7 @@ void x10rt_net_send_put (x10rt_msg_params *p, void *buf, x10rt_copy_sz len)
 	insertNewMessage(PUT, p, buf, len, NULL);
 }
 
-void x10rt_net_probe (void)
+x10rt_error x10rt_net_probe (void)
 {
 	// the receiving side calls this regularly, to see if messages have come in to be processed.  This is
 	// a thread that's part of the receiving end, and this is the thread that will begin execution of the function registered
@@ -733,7 +735,7 @@ void x10rt_net_probe (void)
 
 			if (pthread_mutex_unlock(&myPlace->messageQueueLock) != 0) error("Unable to unlock the message queue after finding it empty");
 			sched_yield(); // to help prevent the constant probes from preventing anything else from getting done.
-			return;
+            return X10RT_ERR_OK;
 		}
 
 		x10StandaloneMessageQueueEntry *entry = (x10StandaloneMessageQueueEntry *)(myPlace->dataBuffer + myPlace->messageQueueHead);
@@ -759,7 +761,7 @@ void x10rt_net_probe (void)
 				#endif
 
 				if (pthread_mutex_unlock(&myPlace->messageQueueLock) != 0) error("Unable to unlock the message queue after finding it empty");
-				return;
+                return X10RT_ERR_OK;
 			}
 
 			entrySize = getTotalLength(entry);
@@ -862,7 +864,7 @@ void x10rt_net_probe (void)
 
 			// this message was not the previous head.  We're done.
 			if (pthread_mutex_unlock(&myPlace->messageQueueLock) != 0) error("Unable to unlock the message queue after processing a message");
-			return;
+            return X10RT_ERR_OK;
 		}
 
 		// skip the head along to the next used message position
@@ -882,7 +884,7 @@ void x10rt_net_probe (void)
 					fflush(stdout);
 				#endif
 				if (pthread_mutex_unlock(&myPlace->messageQueueLock) != 0) error("Unable to unlock the message queue after finding it empty");
-				return;
+                return X10RT_ERR_OK;
 			}
 
 			entry = (x10StandaloneMessageQueueEntry *)(myPlace->dataBuffer + myPlace->messageQueueHead);
@@ -902,12 +904,14 @@ void x10rt_net_probe (void)
 
 		// we still have the messageQueueLock locked here, for our loop back around
 	}
+
+    return X10RT_ERR_OK;
 }
 
-void x10rt_net_blocking_probe (void)
+x10rt_error x10rt_net_blocking_probe (void)
 {
 	// TODO: make this blocking.  For now, just call probe.
-	x10rt_net_probe();
+	return x10rt_net_probe();
 }
 
 void x10rt_net_finalize (void)
@@ -1017,3 +1021,4 @@ void x10rt_net_allreduce (x10rt_team team, x10rt_place role,
     abort();
 }
 
+const char *x10rt_net_error_msg (void) { return NULL; }

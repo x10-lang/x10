@@ -569,7 +569,7 @@ int initLink(uint32_t remotePlace, char* connectionInfo)
 /******************************************************
  *  Main API calls.  See x10rt_net.h for documentation
 *******************************************************/
-void x10rt_net_init (int * argc, char ***argv, x10rt_msg_type *counter)
+x10rt_error x10rt_net_init (int * argc, char ***argv, x10rt_msg_type *counter)
 {
 	char* libraryModeString = getenv(X10_LIBRARY_MODE);
 	if (libraryModeString && strcmp(libraryModeString, "preinit") == 0) {
@@ -593,7 +593,7 @@ void x10rt_net_init (int * argc, char ***argv, x10rt_msg_type *counter)
 
 		// store the listen port into the placeid variable temporarily, until phase 2 just below
 		state.myPlaceId = (uint)fd;
-		return;
+		return X10RT_ERR_OK;
 	}
 	else if (libraryModeString) {
 		// phase 2 of the library mode.  Basically, initialize everything other than what was done above.  The arguments
@@ -650,7 +650,7 @@ void x10rt_net_init (int * argc, char ***argv, x10rt_msg_type *counter)
 		if (state.numPlaces == 1)
 		{
 			state.myPlaceId = 0;
-			return; // If there is only 1 place, then there are no sockets to set up.
+            return X10RT_ERR_OK; // If there is only 1 place, then there are no sockets to set up.
 		}
 
 		// determine my place ID
@@ -873,7 +873,7 @@ void x10rt_net_send_put (x10rt_msg_params *parameters, void *buffer, x10rt_copy_
 	pthread_mutex_unlock(&state.writeLocks[parameters->dest_place]);
 }
 
-void x10rt_net_probe ()
+x10rt_error x10rt_net_probe ()
 {
 	if (state.numPlaces == 1)
 		sched_yield(); // why is the runtime calling probe() with only one place?  It looses its CPU as punishment. ;-)
@@ -888,14 +888,18 @@ void x10rt_net_probe ()
 	}
 	else
 		while (probe(false, false)) { }
+
+    return X10RT_ERR_OK;
 }
 
-void x10rt_net_blocking_probe ()
+x10rt_error x10rt_net_blocking_probe ()
 {
 	// Call the blocking form of probe, returning after the one call.
 	probe(false, true);
 	// then, loop again to gather everything from the network before returning.
 	while (probe(false, false)) { }
+
+    return X10RT_ERR_OK;
 }
 
 // return T if data was processed or sent, F if not
@@ -1304,3 +1308,5 @@ void x10rt_net_allreduce (x10rt_team team, x10rt_place role, const void *sbuf, v
 {
 	error("x10rt_net_allreduce not implemented");
 }
+
+const char *x10rt_net_error_msg (void) { return NULL; }

@@ -122,19 +122,6 @@ namespace x10aux {
         return U::_make(m.bytes_sent, m.messages_sent, m.bytes_received, m.messages_received);
     }
 
-    template<class T, class U> T get_X10RTStats (void)
-    {
-        x10rt_stats s;
-        x10rt_get_stats(&s);
-        return T::_make(x10aux::get_X10RTMessageStats<U>(s.msg),
-                        x10aux::get_X10RTMessageStats<U>(s.put),
-                        s.put_copied_bytes_sent,
-                        s.put_copied_bytes_received,
-                        x10aux::get_X10RTMessageStats<U>(s.get),
-                        s.get_copied_bytes_sent,
-                        s.get_copied_bytes_received);
-    }
-
     extern x10_int platform_max_threads;
     extern x10_boolean default_static_threads;
 
