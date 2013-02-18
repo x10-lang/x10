@@ -501,6 +501,7 @@
                       <else>
                         <echo message="Configuring BDWGC for generic linux"/>
                         <exec executable="${bash.exe}" dir="${bdwgc.dir}/src" failonerror="true">
+                          <env key="CONFIG_SHELL" value="/bin/bash" />
                           <arg value="${bdwgc.dir}/src/configure" />
                           <arg value="-enable-threads=posix" />
                           <arg value="-enable-thread-local-alloc" />

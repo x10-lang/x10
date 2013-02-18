@@ -39,11 +39,21 @@ x10rt_msg_type TEST_ID, PRINT_ID, FINISH_ID;
 
 int time_to_quit;
 
+static void x10rt_aborting_probe (void)
+{
+    x10rt_error err = x10rt_probe();
+    if (err != X10RT_ERR_OK) {
+        if (x10rt_error_msg() != NULL)
+            std::cerr << "X10RT fatal error: " << x10rt_error_msg() << std::endl;
+        abort();
+    }
+}
+
 static void x10rt_barrier_b(x10rt_team t, x10rt_place r)
 {
     int finished = 0;
     x10rt_barrier(t, r, x10rt_one_setter, &finished);
-    while (!finished) x10rt_probe();
+    while (!finished) x10rt_aborting_probe();
 }
 
 static void recv_finish(const x10rt_msg_params *p)
@@ -101,7 +111,7 @@ static void coll_test (x10rt_team team, x10rt_place role, x10rt_place per_place)
                     x10rt_serbuf_write(&b, &finish_counter_);
                     x10rt_send_msg(&b.p);
                     x10rt_serbuf_free(&b);
-                    while (finish_counter) { x10rt_probe(); }
+                    while (finish_counter) { x10rt_aborting_probe(); }
                 }
             }
             x10rt_barrier_b(team,role);
@@ -113,7 +123,7 @@ static void coll_test (x10rt_team team, x10rt_place role, x10rt_place per_place)
         for (int i=0 ; i<short_tests ; ++i) {
             finished = 0;
             x10rt_barrier(team, role, x10rt_one_setter, &finished);
-            while (!finished) { sched_yield(); x10rt_probe(); }
+            while (!finished) { sched_yield(); x10rt_aborting_probe(); }
         }
         taken += nano_time();
         if (0==role) std::cout << team << ": barrier time:  "
@@ -136,7 +146,7 @@ static void coll_test (x10rt_team team, x10rt_place role, x10rt_place per_place)
         finished = 0;
         x10rt_bcast(team, role, root, root==role ? sbuf : NULL, dbuf,
                     el, count, x10rt_one_setter, &finished);
-        while (!finished) { x10rt_probe(); }
+        while (!finished) { x10rt_aborting_probe(); }
         for (size_t i=0 ; i<count ; ++i) {
             float oracle = float(root) * i * i + 1;
             if (dbuf[i] != oracle) {
@@ -152,7 +162,7 @@ static void coll_test (x10rt_team team, x10rt_place role, x10rt_place per_place)
         for (int i=0 ; i<long_tests ; ++i) {
             finished = 0;
             x10rt_bcast(team, role, root, sbuf, dbuf, el, count, x10rt_one_setter, &finished);
-            while (!finished) { sched_yield(); x10rt_probe(); }
+            while (!finished) { sched_yield(); x10rt_aborting_probe(); }
         }
         taken += nano_time();
         if (0==role) std::cout << team << ": bcast time:  "
@@ -180,7 +190,7 @@ static void coll_test (x10rt_team team, x10rt_place role, x10rt_place per_place)
         finished = 0;
         x10rt_scatter(team, role, root, root==role ? sbuf : NULL, dbuf,
                       el, count, x10rt_one_setter, &finished);
-        while (!finished) { x10rt_probe(); }
+        while (!finished) { x10rt_aborting_probe(); }
         for (size_t i=0 ; i<count ; ++i) {
             test_t oracle = pow(test_t(role+2),test_t(root+1)) + i;
             if (dbuf[i] != oracle) {
@@ -196,7 +206,7 @@ static void coll_test (x10rt_team team, x10rt_place role, x10rt_place per_place)
         for (int i=0 ; i<long_tests ; ++i) {
             finished = 0;
             x10rt_scatter(team, role, root, sbuf, dbuf, el, count, x10rt_one_setter, &finished);
-            while (!finished) { sched_yield(); x10rt_probe(); }
+            while (!finished) { sched_yield(); x10rt_aborting_probe(); }
         }
         taken += nano_time();
         if (0==role) std::cout << team << ": scatter time:  "
@@ -221,7 +231,7 @@ static void coll_test (x10rt_team team, x10rt_place role, x10rt_place per_place)
             std::cout<<team<<": alltoall correctness (if no errors then OK):" << std::endl;
         finished = 0;
         x10rt_alltoall(team, role, sbuf, dbuf, el, count,x10rt_one_setter, &finished);
-        while (!finished) { x10rt_probe(); }
+        while (!finished) { x10rt_aborting_probe(); }
         for (size_t p=0 ; p<x10rt_team_sz(team) ; ++p) {
             for (size_t i=0 ; i<count ; ++i) {
                 test_t oracle = pow(test_t(role+2),test_t(p+1)) + i;
@@ -241,7 +251,7 @@ static void coll_test (x10rt_team team, x10rt_place role, x10rt_place per_place)
         for (int i=0 ; i<long_tests ; ++i) {
             finished = 0;
             x10rt_alltoall(team, role, sbuf, dbuf, el, count, x10rt_one_setter, &finished);
-            while (!finished) { sched_yield(); x10rt_probe(); }
+            while (!finished) { sched_yield(); x10rt_aborting_probe(); }
         }
         taken += nano_time();
         if (0==role) std::cout << team << ": alltoall time:  "
@@ -266,7 +276,7 @@ static void coll_test (x10rt_team team, x10rt_place role, x10rt_place per_place)
         finished = 0;
         x10rt_reduce(team, role, root, sbuf, dbuf, X10RT_RED_OP_ADD, X10RT_RED_TYPE_FLT, count,
                             x10rt_one_setter, &finished);
-        while (!finished) { x10rt_probe(); }
+        while (!finished) { x10rt_aborting_probe(); }
         if (root==role) {
             float oracle_base = (x10rt_team_sz(team)*x10rt_team_sz(team) + x10rt_team_sz(team))/2;
             for (size_t i=0 ; i<count ; ++i) {
@@ -288,7 +298,7 @@ static void coll_test (x10rt_team team, x10rt_place role, x10rt_place per_place)
             finished = 0;
             x10rt_reduce(team, role, root, sbuf, dbuf, X10RT_RED_OP_ADD, X10RT_RED_TYPE_FLT, count,
                                 x10rt_one_setter, &finished);
-            while (!finished) { sched_yield(); x10rt_probe(); }
+            while (!finished) { sched_yield(); x10rt_aborting_probe(); }
         }
         taken += nano_time();
         if (root==role) std::cout << team << ": reduce time:  "
@@ -309,7 +319,7 @@ static void coll_test (x10rt_team team, x10rt_place role, x10rt_place per_place)
         finished = 0;
         x10rt_allreduce(team, role, sbuf, dbuf, X10RT_RED_OP_ADD, X10RT_RED_TYPE_FLT, count,
                             x10rt_one_setter, &finished);
-        while (!finished) { x10rt_probe(); }
+        while (!finished) { x10rt_aborting_probe(); }
         float oracle_base = (x10rt_team_sz(team)*x10rt_team_sz(team) + x10rt_team_sz(team))/2;
         for (size_t i=0 ; i<count ; ++i) {
             float oracle = oracle_base * i * i;
@@ -328,7 +338,7 @@ static void coll_test (x10rt_team team, x10rt_place role, x10rt_place per_place)
             finished = 0;
             x10rt_allreduce(team, role, sbuf, dbuf, X10RT_RED_OP_ADD, X10RT_RED_TYPE_FLT, count,
                                 x10rt_one_setter, &finished);
-            while (!finished) { sched_yield(); x10rt_probe(); }
+            while (!finished) { sched_yield(); x10rt_aborting_probe(); }
         }
         taken += nano_time();
         if (0==role) std::cout << team << ": allreduce time:  "
@@ -357,7 +367,7 @@ static void spmd_test (x10rt_team team, x10rt_place role, x10rt_place per_place)
     x10rt_place colour = role%2;
     x10rt_place new_role = role/2;
     x10rt_team_split(team, role, colour, new_role, x10rt_team_setter, &odds_n_evens);
-    while (odds_n_evens == 0) x10rt_probe();
+    while (odds_n_evens == 0) x10rt_aborting_probe();
     if (0==role) std::cout << "Evens team is:  " << odds_n_evens << std::endl;
     if (1==role) std::cout << "Odds team is:  " << odds_n_evens << std::endl;
 
@@ -374,7 +384,7 @@ static void spmd_test (x10rt_team team, x10rt_place role, x10rt_place per_place)
     if (0==role || 1==role) std::cout << odds_n_evens << ": Destroying team... " << std::endl;
     int finished = 0;
     x10rt_team_del(odds_n_evens, new_role, x10rt_one_setter, &finished);
-    while (!finished) x10rt_probe();
+    while (!finished) x10rt_aborting_probe();
     if (0==role || 1==role) std::cout << odds_n_evens << ": Destroyed team. " << std::endl;
 
     x10rt_barrier_b(team,role); // wait for everyone to finish
@@ -398,7 +408,7 @@ static void *thread_routine (void *arg)
 
     int finished = 0;
     x10rt_team_del(state.team, state.role, x10rt_one_setter, &finished);
-    while (!finished) x10rt_probe();
+    while (!finished) x10rt_aborting_probe();
 
     return NULL;
 }
@@ -418,7 +428,7 @@ static void recv_test(const x10rt_msg_params *p)
 
     int finished = 0;
     x10rt_team_del(team, role, x10rt_one_setter, &finished);
-    while (!finished) x10rt_probe();
+    while (!finished) x10rt_aborting_probe();
 
     pthread_join(thread, NULL);
 
@@ -439,7 +449,7 @@ static void apgas_test (void)
     }
     x10rt_team nu_team = 0;
     x10rt_team_new(2*x10rt_nplaces(), memberv, x10rt_team_setter, &nu_team);
-    while (nu_team == 0) x10rt_probe();
+    while (nu_team == 0) x10rt_aborting_probe();
     delete [] memberv;
     std::cout << "New team is:  " << nu_team << std::endl;
 
@@ -463,7 +473,7 @@ static void apgas_test (void)
     std::cout << nu_team << ": Destroying team...  " << std::endl;
     int finished = 0;
     x10rt_team_del(nu_team, 0, x10rt_one_setter, &finished);
-    while (!finished) x10rt_probe();
+    while (!finished) x10rt_aborting_probe();
     std::cout << nu_team << ": Destroyed team.  " << std::endl;
 
     if (pthread_join(thread, NULL)) {
@@ -474,7 +484,12 @@ static void apgas_test (void)
 
 int main (int argc, char **argv)
 {
-    x10rt_init(&argc, &argv);
+    x10rt_error init_err = x10rt_init(&argc, &argv);
+    if (init_err != X10RT_ERR_OK) {
+        if (x10rt_error_msg() != NULL)
+            std::cerr << "X10RT fatal initialization error:  " << x10rt_error_msg() << std::endl;
+        abort();
+    }
     TEST_ID = x10rt_register_msg_receiver(&recv_test,NULL,NULL,NULL,NULL);
     PRINT_ID = x10rt_register_msg_receiver(&recv_print,NULL,NULL,NULL,NULL);
     FINISH_ID = x10rt_register_msg_receiver(&recv_finish,NULL,NULL,NULL,NULL);
@@ -497,7 +512,7 @@ int main (int argc, char **argv)
             apgas_test();
         } else {
             time_to_quit = 1;
-            while (time_to_quit != 0) x10rt_probe();
+            while (time_to_quit != 0) x10rt_aborting_probe();
         }
     }
 

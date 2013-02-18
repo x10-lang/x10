@@ -15,7 +15,12 @@ const char *typestr(x10rt_place p) {
 
 int main(int argc, char **argv)
 {
-    x10rt_init(&argc, &argv);
+    x10rt_error init_err = x10rt_init(&argc, &argv);
+    if (init_err != X10RT_ERR_OK) {
+        if (x10rt_error_msg() != NULL)
+            std::cerr << "X10RT fatal initialization error:  " << x10rt_error_msg() << std::endl;
+        abort();
+    }
     std::cout << "Initialisation of x10rt complete." << std::endl;
     x10rt_registration_complete();
 

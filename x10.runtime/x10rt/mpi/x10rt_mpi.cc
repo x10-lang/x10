@@ -1018,8 +1018,10 @@ static void check_pending_receives() {
     }
 }
 
-x10rt_remote_ptr x10rt_net_register_mem (void *ptr, size_t)
-{ return (x10rt_remote_ptr)(size_t)ptr; }
+void x10rt_net_register_mem (void *ptr, size_t)
+{
+    // nothing to do
+}
 
 void x10rt_register_thread (void) { }
 

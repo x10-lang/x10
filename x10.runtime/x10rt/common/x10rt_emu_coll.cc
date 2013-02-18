@@ -905,13 +905,12 @@ void x10rt_emu_alltoall (x10rt_team team, x10rt_place role,
 namespace {
 
     // help avoid warnings about functions not returning when they call abort()
-    template<class T> T abortv (void) { if (ABORT_NEEDED && !x10rt_run_as_library()) abort(); return T(); }
+    template<class T> T abortv (void) { abort(); return T(); }
 
     template<class T> T zero (void) { return 0; }
     template<class T> T one (void) { return 1; }
-    // only min/max need be defined for x10rt_dbl_s32
-    template<> x10rt_dbl_s32 zero<x10rt_dbl_s32> (void) { if (ABORT_NEEDED && !x10rt_run_as_library()) abort(); }
-    template<> x10rt_dbl_s32 one<x10rt_dbl_s32> (void) { if (ABORT_NEEDED && !x10rt_run_as_library()) abort(); }
+    template<> x10rt_dbl_s32 zero<x10rt_dbl_s32> (void) { x10rt_dbl_s32 r; r.val = 0.0; r.idx = 0; return r; }
+    template<> x10rt_dbl_s32 one<x10rt_dbl_s32> (void) { x10rt_dbl_s32 r; r.val = 1.0; r.idx = 1; return r; }
 
     template<class T> T min (void) { return 0; } // cover unsigned cases
     template<> int8_t   min<int8_t>   (void) { return (int8_t)0x80; }
@@ -1078,9 +1077,9 @@ namespace {
 
     template<x10rt_red_type dtype>
     void reduce1 (x10rt_team team, x10rt_place role, x10rt_place root,
-                     const void *sbuf, void *dbuf, x10rt_red_op_type op, size_t count,
-                     x10rt_completion_handler *ch, void *arg,
-                     bool allreduce)
+                  const void *sbuf, void *dbuf, x10rt_red_op_type op, size_t count,
+                  x10rt_completion_handler *ch, void *arg,
+                  bool allreduce)
     {
         switch (op) {
             #define BORING_MACRO(x) \
@@ -1099,10 +1098,10 @@ namespace {
 }
 
 void x10rt_emu_reduce (x10rt_team team, x10rt_place role, x10rt_place root,
-                          const void *sbuf, void *dbuf, x10rt_red_op_type op,
-                          x10rt_red_type dtype, size_t count,
-                          x10rt_completion_handler *ch, void *arg,
-                          bool allreduce)
+                       const void *sbuf, void *dbuf, x10rt_red_op_type op,
+                       x10rt_red_type dtype, size_t count,
+                       x10rt_completion_handler *ch, void *arg,
+                       bool allreduce)
 {
     switch (dtype) {
         #define BORING_MACRO(x) \

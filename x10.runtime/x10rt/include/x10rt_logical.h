@@ -274,9 +274,8 @@ X10RT_C void x10rt_lgl_remote_ops (x10rt_remote_op_params *ops, size_t num_ops);
 /** \see #x10rt_register_mem
  * \param ptr As in #x10rt_register_mem
  * \param len As in #x10rt_register_mem
- * \returns As in #x10rt_register_mem
  */
-X10RT_C x10rt_remote_ptr x10rt_lgl_register_mem (void *ptr, size_t len);
+X10RT_C void x10rt_lgl_register_mem (void *ptr, size_t len);
 
 
 /** \see #x10rt_blocks_threads

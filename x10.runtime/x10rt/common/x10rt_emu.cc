@@ -67,15 +67,15 @@ namespace {
 void x10rt_emu_remote_op (x10rt_place place, x10rt_remote_ptr victim,
                           x10rt_op_type type, unsigned long long value)
 {
-    x10rt_msg_type id;
+    x10rt_msg_type id = REMOTE_ADD_ID;
     switch (type) {
         case X10RT_OP_ADD: id=REMOTE_ADD_ID; break;
         case X10RT_OP_AND: id=REMOTE_AND_ID; break;
         case X10RT_OP_OR:  id=REMOTE_OR_ID; break;
         case X10RT_OP_XOR: id=REMOTE_XOR_ID; break;
         default:
-            fprintf(stderr,"Garbage op type given to x10rt_remote_op.\n");
-            if (ABORT_NEEDED && !x10rt_run_as_library()) abort();
+            // caller should ensure this never happens
+            fprintf(stderr,"Garbage op type given to x10rt_emu_remote_op.\n");
     }
     x10rt_serbuf b; x10rt_serbuf_init(&b, place, id);
     x10rt_serbuf_write(&b, &victim);

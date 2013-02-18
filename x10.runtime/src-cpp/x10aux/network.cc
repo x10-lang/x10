@@ -155,7 +155,12 @@ size_t x10aux::opc;
 size_t x10aux::remote_op_batch;
 
 void x10aux::network_init (int ac, char **av) {
-    x10rt_init(&ac, &av);
+    x10rt_error err = x10rt_init(&ac, &av);
+    if (err != X10RT_ERR_OK) {
+        if (x10rt_error_msg() != NULL)
+            fprintf(stderr,"X10RT fatal initialization error: %s\n", x10rt_error_msg());
+        abort();
+    }
     x10aux::here = x10rt_here();
     x10aux::num_places = x10rt_nplaces();
     x10aux::num_hosts = x10rt_nhosts();
@@ -223,7 +228,7 @@ void x10aux::run_async_at(x10aux::place p, x10::lang::VoidFun_0_0* body_fun,
     if (prof!=NULL) {
         before_nanos = x10::lang::RuntimeNatives::nanoTime();
     }
-    x10rt_msg_params params = {p, real_id, buf.borrow(), sz, endpoint};
+    x10rt_msg_params params = {x10rt_place(p), real_id, buf.borrow(), sz, endpoint};
     x10rt_send_msg(&params);
     if (prof!=NULL) {
         prof->FMGL(communicationNanos) += x10::lang::RuntimeNatives::nanoTime() - before_nanos;
@@ -274,7 +279,7 @@ void x10aux::run_closure_at(x10aux::place p, x10::lang::VoidFun_0_0* body_fun,
 
     _X_(ANSI_BOLD<<ANSI_X10RT<<"async size: "<<ANSI_RESET<<sz);
 
-    x10rt_msg_params params = {p, id, buf.borrow(), sz, endpoint};
+    x10rt_msg_params params = {x10rt_place(p), id, buf.borrow(), sz, endpoint};
     x10rt_send_msg(&params);
 
 }
@@ -283,7 +288,7 @@ void x10aux::send_get (x10aux::place place, x10aux::serialization_id_t id_,
                        serialization_buffer &buf, void *data, x10aux::copy_sz len, x10aux::endpoint endpoint)
 {
     msg_type id = DeserializationDispatcher::getMsgType(id_);
-    x10rt_msg_params p = { place, id, buf.borrow(), buf.length(), endpoint};
+    x10rt_msg_params p = { x10rt_place(place), id, buf.borrow(), buf.length(), endpoint};
     _X_(ANSI_BOLD<<ANSI_X10RT<<"Transmitting a get: "<<ANSI_RESET<<data<<" sid "<<id_<<" id "<<id
     		<<" size "<<len<<" header "<<buf.length()<<" to place: "<<place<<" endpoint: "<<endpoint);
     x10rt_send_get(&p, data, len);
@@ -293,7 +298,7 @@ void x10aux::send_put (x10aux::place place, x10aux::serialization_id_t id_,
                        serialization_buffer &buf, void *data, x10aux::copy_sz len, x10aux::endpoint endpoint)
 {
     msg_type id = DeserializationDispatcher::getMsgType(id_);
-    x10rt_msg_params p = { place, id, buf.borrow(), buf.length(), endpoint};
+    x10rt_msg_params p = { x10rt_place(place), id, buf.borrow(), buf.length(), endpoint};
     _X_(ANSI_BOLD<<ANSI_X10RT<<"Transmitting a put: "<<ANSI_RESET<<data<<" sid "<<id_<<" id "<<id
     		<<" size "<<len<<" header "<<buf.length()<<" to place: "<<place<<" endpoint: "<<endpoint);
     x10rt_send_put(&p, data, len);
@@ -476,7 +481,7 @@ void x10aux::cuda_put (place gpu, x10_ulong addr, void *var, size_t sz)
     buf.write((x10_ulong)(size_t)&finished);
     buf.write(addr);
     size_t len = buf.length();
-    x10rt_msg_params p = {gpu, kernel_put, buf.borrow(), len, 0};
+    x10rt_msg_params p = {x10rt_place(gpu), kernel_put, buf.borrow(), len, 0};
     x10rt_send_put(&p, var, sz);
     while (!finished) x10rt_probe();
 }

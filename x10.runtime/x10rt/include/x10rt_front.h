@@ -467,10 +467,8 @@ X10RT_C void x10rt_remote_ops (x10rt_remote_op_params *ops, size_t num_ops);
 /** Prepare memory for use by #x10rt_remote_op.
  * \param ptr Some memory at the local place.
  * \param len The amount of memory to register (should be a multiple of 8).
- * \returns An integer that should be used by remote places in calls to #x10rt_remote_op (can be
- * offset in the positive direction my a multiple of 8, up to len).
  */
-X10RT_C x10rt_remote_ptr x10rt_register_mem (void *ptr, size_t len);
+X10RT_C void x10rt_register_mem (void *ptr, size_t len);
 
 /** Automatically configure a CUDA kernel.  By studying the characteristics of the hardware upon
  * which the kernel will be executed, and the kernel itself, we can traverse a list of supported

@@ -62,7 +62,12 @@ JNIEXPORT jint JNICALL Java_x10_x10rt_X10RT_x10rt_1init(JNIEnv *env, jclass, jin
     char *argv_0[] = { exe, NULL };
     int argc = 1;
     char** argv = argv_0;
-    x10rt_init(&argc, &argv);
+    x10rt_error err = x10rt_init(&argc, &argv);
+    if (err != X10RT_ERR_OK) {
+        if (x10rt_error_msg() != NULL)
+            fprintf(stderr,"X10RT fatal initialization error: %s\n", x10rt_error_msg());
+        abort();
+    }
     return 0;
 }
     
@@ -115,7 +120,12 @@ JNIEXPORT jint JNICALL Java_x10_x10rt_X10RT_x10rt_1here(JNIEnv *, jclass) {
  * Signature: ()V
  */
 JNIEXPORT void JNICALL Java_x10_x10rt_X10RT_x10rt_1probe(JNIEnv *, jclass) {
-    x10rt_probe();
+    x10rt_error err = x10rt_probe();
+    if (err != X10RT_ERR_OK) {
+        if (x10rt_error_msg() != NULL)
+            fprintf(stderr,"X10RT fatal error: %s\n", x10rt_error_msg());
+        abort();
+    }
 }
 
 
@@ -125,7 +135,12 @@ JNIEXPORT void JNICALL Java_x10_x10rt_X10RT_x10rt_1probe(JNIEnv *, jclass) {
  * Signature: ()V
  */
 JNIEXPORT void JNICALL Java_x10_x10rt_X10RT_x10rt_1blocking_1probe(JNIEnv *, jclass) {
-    x10rt_blocking_probe();
+    x10rt_error err = x10rt_blocking_probe();
+    if (err != X10RT_ERR_OK) {
+        if (x10rt_error_msg() != NULL)
+            fprintf(stderr,"X10RT fatal error: %s\n", x10rt_error_msg());
+        abort();
+    }
 }
 
 

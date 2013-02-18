@@ -132,7 +132,7 @@ typedef void x10rt_notifier(const x10rt_msg_params *, x10rt_copy_sz);
  * The numerical values used correspond to the PAMI HFI operation values
  */
 typedef enum {
-    X10RT_OP_ADD = 0x00,
+    X10RT_OP_ADD = 0x00, // the ordering of these is important
     X10RT_OP_AND = 0x01,
     X10RT_OP_OR  = 0x02,
     X10RT_OP_XOR = 0x03
