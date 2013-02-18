@@ -181,6 +181,7 @@ else
         [ -n "$X10_HOSTFILE" ] && launcher_args=("--hostfile" "$X10_HOSTFILE" "${launcher_args[@]}")
         JAVA="${TOP}${FILE_SEP}bin${FILE_SEP}X10MPIJava"
         java_args=("-DX10RT_IMPL=${x10rt_impl}" "${java_args[@]}")
+        noclassloadtest="true"
     elif [ "${x10rt_impl}" = "disabled" ]; then
         java_args=("-DX10RT_IMPL=${x10rt_impl}" "${java_args[@]}")
     else
@@ -213,7 +214,7 @@ java_args=("${java_args[@]}" ${defs})
 
 java_version=
 # skip loading test in case of executable jar
-if [ -n "$noclassloadtest" -o -n "$main" ]; then
+if [ -z "$noclassloadtest" -a -n "$main" ]; then
 command=("$JAVA" -showversion "${java_args[@]}" x10.runtime.impl.java.TestClassLoading "$main\$${MAIN_CLASS}")
 #[ -n "$verbose" ] && echo "${command[*]}"
 java_version=`(
