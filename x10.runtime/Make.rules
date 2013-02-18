@@ -86,23 +86,46 @@ endif
 
 ifdef JAVA_HOME
   ifeq ($(shell uname -s),AIX)
-      JNI_INCLUDES = -I"$(JAVA_HOME)"/include -I"$(JAVA_HOME)"/include/aix
+    JNI_INCLUDES = -I"$(JAVA_HOME)"/include -I"$(JAVA_HOME)"/include/aix
+    jarch=$(shell uname -p)
+    JNI_LIBS = -L"$(JAVA_HOME)"/jre/lib/$(jarch)/j9vm
   else
   ifeq ($(shell uname -s),Linux)
     JNI_INCLUDES = -I"$(JAVA_HOME)"/include -I"$(JAVA_HOME)"/include/linux
+    jarch=$(shell uname -p)
+    ifeq ($(jarch),x86_64)
+      jarch=amd64
+    endif
+    JNI_LIBS = -L"$(JAVA_HOME)"/jre/lib/$(jarch)/j9vm -L"$(JAVA_HOME)"/jre/lib/$(jarch)/server -L"$(JAVA_HOME)"/jre/lib/$(jarch)/client
   else
   ifeq ($(firstword $(subst _, ,$(shell uname -s))),CYGWIN)
     JAVA_CYGPATH = $(shell cygpath '$(JAVA_HOME)')
     JNI_INCLUDES = -I"$(JAVA_CYGPATH)"/include -I"$(JAVA_CYGPATH)"/include/win32
+    JNI_LIBS = -I"$(JAVA_CYGPATH)"/lib
   else
   ifeq ($(shell uname -s),Darwin)
     JNI_INCLUDES = -I"$(JAVA_HOME)"/include -I"$(JAVA_HOME)"/include/darwin
+    jarch=$(shell uname -p)
+    ifeq ($(jarch),x86_64)
+      jarch=amd64
+    endif
+    JNI_LIBS = -L"$(JAVA_HOME)"/jre/lib/$(jarch)/server -L"$(JAVA_HOME)"/jre/lib/$(jarch)/client
   else
   ifeq ($(shell uname -s),SunOS)
     JNI_INCLUDES = -I"$(JAVA_HOME)"/include -I"$(JAVA_HOME)"/include/solaris
+    jarch=$(shell uname -p)
+    ifeq ($(jarch),x86_64)
+      jarch=amd64
+    endif
+    JNI_LIBS = -L"$(JAVA_HOME)"/jre/lib/$(jarch)/server -L"$(JAVA_HOME)"/jre/lib/$(jarch)/client
   else
   ifeq ($(shell uname -s),FreeBSD)
     JNI_INCLUDES = -I"$(JAVA_HOME)"/include -I"$(JAVA_HOME)"/include/freebsd
+    jarch=$(shell uname -p)
+    ifeq ($(jarch),x86_64)
+      jarch=amd64
+    endif
+    JNI_LIBS = -L"$(JAVA_HOME)"/jre/lib/$(jarch)/server -L"$(JAVA_HOME)"/jre/lib/$(jarch)/client
   endif
   endif
   endif
