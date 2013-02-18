@@ -764,7 +764,7 @@ CROSS_COMPILE_BGQ='${CROSS_COMPILE_BGQ}'
 
     	<echo message="Copying bin, etc, include, lib and stdlib files to ${targetDir}..."/>
         <copy todir="${targetDir}">
-            <fileset dir="." includes="bin/x10c,bin/x10cj,bin/runjava,bin/runx10,bin/x10c++,bin/X10Launcher,etc/*.properties,include/**,lib/**,samples/HelloWorld.x10,stdlib/**"/>
+            <fileset dir="." includes="bin/x10c,bin/x10cj,bin/runjava,bin/runx10,bin/x10c++,bin/X10Launcher,bin/X10MPIJava,etc/*.properties,include/**,lib/**,samples/HelloWorld.x10,stdlib/**"/>
         </copy>
         <chmod file="${targetDir}/bin/x10c" perm="u+x"/>
         <chmod file="${targetDir}/bin/x10cj" perm="u+x"/>
@@ -772,6 +772,7 @@ CROSS_COMPILE_BGQ='${CROSS_COMPILE_BGQ}'
         <chmod file="${targetDir}/bin/runx10" perm="u+x"/>
         <chmod file="${targetDir}/bin/x10c++" perm="u+x"/>
         <chmod file="${targetDir}/bin/X10Launcher" perm="u+x"/>
+        <chmod file="${targetDir}/bin/X10MPIJava" perm="u+x"/>
 
         <echo message="Attempting to compile Hello, World..."/>
         <exec executable="${bash.exe}" failonerror="true" dir="${targetDir}">
