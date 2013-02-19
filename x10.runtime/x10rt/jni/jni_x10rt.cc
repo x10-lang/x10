@@ -29,6 +29,7 @@
 #include "x10rt_jni_helpers.h"
 
 #include <x10rt_front.h>
+#include <x10rt_internal.h>
 #include <string.h>
 
 
@@ -66,9 +67,10 @@ JNIEXPORT jint JNICALL Java_x10_x10rt_X10RT_x10rt_1init(JNIEnv *env, jclass, jin
     if (err != X10RT_ERR_OK) {
         if (x10rt_error_msg() != NULL)
             fprintf(stderr,"X10RT fatal initialization error: %s\n", x10rt_error_msg());
-        abort();
+        if (ABORT_NEEDED && !x10rt_run_as_library()) abort();
+        return err;
     }
-    return 0;
+    return X10RT_ERR_OK;
 }
     
 
@@ -117,30 +119,34 @@ JNIEXPORT jint JNICALL Java_x10_x10rt_X10RT_x10rt_1here(JNIEnv *, jclass) {
 /*
  * Class:     x10_x10rt_X10RT
  * Method:    x10rt_probe
- * Signature: ()V
+ * Signature: ()I
  */
-JNIEXPORT void JNICALL Java_x10_x10rt_X10RT_x10rt_1probe(JNIEnv *, jclass) {
+JNIEXPORT jint JNICALL Java_x10_x10rt_X10RT_x10rt_1probe(JNIEnv *, jclass) {
     x10rt_error err = x10rt_probe();
     if (err != X10RT_ERR_OK) {
         if (x10rt_error_msg() != NULL)
             fprintf(stderr,"X10RT fatal error: %s\n", x10rt_error_msg());
-        abort();
+        if (ABORT_NEEDED && !x10rt_run_as_library()) abort();
+        return err;
     }
+    return X10RT_ERR_OK;
 }
 
 
 /*
  * Class:     x10_x10rt_X10RT
  * Method:    x10rt_blocking_probe
- * Signature: ()V
+ * Signature: ()I
  */
-JNIEXPORT void JNICALL Java_x10_x10rt_X10RT_x10rt_1blocking_1probe(JNIEnv *, jclass) {
+JNIEXPORT jint JNICALL Java_x10_x10rt_X10RT_x10rt_1blocking_1probe(JNIEnv *, jclass) {
     x10rt_error err = x10rt_blocking_probe();
     if (err != X10RT_ERR_OK) {
         if (x10rt_error_msg() != NULL)
             fprintf(stderr,"X10RT fatal error: %s\n", x10rt_error_msg());
-        abort();
+        if (ABORT_NEEDED && !x10rt_run_as_library()) abort();
+        return err;
     }
+    return X10RT_ERR_OK;
 }
 
 

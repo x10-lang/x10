@@ -220,7 +220,7 @@ public class X10RT {
      * to be exposed at the Java level (as opposed to being used
      * in the native code backing the native methods of MessageHandlers.
      */
-    private static native void x10rt_probe();
+    private static native int x10rt_probe();
     
-    private static native void x10rt_blocking_probe();
+    private static native int x10rt_blocking_probe();
 }
