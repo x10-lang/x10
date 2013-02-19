@@ -901,8 +901,9 @@ static void team_destroy_complete (pami_context_t context, void* cookie, pami_re
  *
  * \param counter As in x10rt_lgl_init.
  */
-void x10rt_net_init (int *argc, char ***argv, x10rt_msg_type *counter)
+x10rt_error x10rt_net_init (int *argc, char ***argv, x10rt_msg_type *counter)
 {
+	// TODO - return proper error codes upon failure, in place of calling the error() method.
 	pami_result_t   status = PAMI_ERROR;
 	setenv("MP_MSG_API", "X10", 0);
 	const char *name = getenv("MP_MSG_API");
@@ -1022,6 +1023,8 @@ void x10rt_net_init (int *argc, char ***argv, x10rt_msg_type *counter)
 		state.blockingSend = true;
 	else
 		state.blockingSend = false;
+
+	return X10RT_ERR_OK;
 }
 
 
@@ -1394,8 +1397,9 @@ void x10rt_net_send_get (x10rt_msg_params *p, void *buf, x10rt_copy_sz len)
 
 /** Handle any oustanding message from the network by calling the registered callbacks.  \see #x10rt_lgl_probe
  */
-void x10rt_net_probe()
+x10rt_error x10rt_net_probe()
 {
+	// TODO - return proper error codes upon failure, in place of calling the error() method.
 	pami_result_t status = PAMI_ERROR;
 	if (state.numParallelContexts)
 	{
@@ -1407,7 +1411,7 @@ void x10rt_net_probe()
 	else
 	{
 		status = PAMI_Context_trylock(state.context[0]);
-		if (status == PAMI_EAGAIN) return; // context is already in use
+		if (status == PAMI_EAGAIN) return X10RT_ERR_OK; // context is already in use
 		if (status != PAMI_SUCCESS) error ("Unable to lock the PAMI context");
 
 		do { status = x10rt_PAMI_Context_advance(state.context[0], 1);
@@ -1416,12 +1420,13 @@ void x10rt_net_probe()
 
 		if (PAMI_Context_unlock(state.context[0]) != PAMI_SUCCESS) error ("Unable to unlock the PAMI context");
 	}
+	return X10RT_ERR_OK;
 }
 
-void x10rt_net_blocking_probe (void)
+x10rt_error x10rt_net_blocking_probe (void)
 {
 	// TODO: make this blocking.  For now, just call probe.
-	x10rt_net_probe();
+	return x10rt_net_probe();
 }
 
 /** Shut down the network layer.  \see #x10rt_lgl_finalize
@@ -1613,7 +1618,7 @@ void x10rt_net_remote_ops (x10rt_remote_op_params *ops, size_t numOps)
 		error("Unable to execute the remote operation");
 }
 
-x10rt_remote_ptr x10rt_net_register_mem (void *ptr, size_t len)
+void x10rt_net_register_mem (void *ptr, size_t len)
 {
 	pami_result_t status = PAMI_ERROR;
 	pami_memregion_t registration;
@@ -1634,7 +1639,6 @@ x10rt_remote_ptr x10rt_net_register_mem (void *ptr, size_t len)
 	#ifdef DEBUG
 		fprintf(stderr, "Place %u registered %lu bytes at %p for remote operations\n", state.myPlaceId, len, ptr);
 	#endif
-	return (x10rt_remote_ptr)ptr;
 }
 
 void x10rt_net_team_new (x10rt_place placec, x10rt_place *placev,
