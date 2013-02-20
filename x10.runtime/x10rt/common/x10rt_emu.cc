@@ -9,6 +9,10 @@
  *  (C) Copyright IBM Corporation 2006-2013.
  */
 
+#if defined(__CYGWIN__) || defined(__FreeBSD__)
+#undef __STRICT_ANSI__ // Strict ANSI mode is too strict in Cygwin and FreeBSD
+#endif
+
 #include <x10rt_net.h>
 #include <x10rt_internal.h>
 #include <x10rt_types.h>
