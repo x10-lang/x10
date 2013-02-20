@@ -37,26 +37,6 @@ namespace {
 // win32 implementation
 #endif
 
-static inline void vfatal (char *&err_msg, const char *format, va_list va_args)
-{
-    //TODO: make build allow vsnprintf
-    int sz = vsnprintf(NULL, 0, format, va_args);
-    //int sz = 1024;
-    free(err_msg);
-    err_msg = (char*)malloc(sz);
-    vsprintf(err_msg, format, va_args);
-}
-
-static inline void fatal (char *&err_msg, const char *format, ...)
-{
-    va_list va_args;
-    va_start(va_args, format);
-
-    vfatal(err_msg, format, va_args);
-
-    va_end(va_args);
-}
-
 template<class T> static inline T* safe_malloc (size_t f=1, size_t a=0) {
     size_t sz = f*sizeof(T) + a;
     return sz==0 ? 0 : (T*)malloc(sz);

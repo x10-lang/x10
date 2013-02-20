@@ -90,6 +90,8 @@ struct x10SocketState
 	struct x10SocketDataToWrite* pendingWrites;
 	pthread_mutex_t pendingWriteLock;
 	bool runAsLibrary; // main() is not X10... operate with an external launcher, act as a library, don't call system exit, etc.
+    x10rt_error errorCode;
+    char *errorMsg;
 } state;
 
 bool probe (bool onlyProcessAccept, bool block);
@@ -98,14 +100,31 @@ bool probe (bool onlyProcessAccept, bool block);
  *  utility methods
 *********************************************/
 
-void error(const char* message)
+static x10rt_error fatal (const char *format, ...)
+{
+    va_list va_args;
+    va_start(va_args, format);
+
+    x10rt_error e = X10RT_ERR_INTL;
+
+    int sz = vsnprintf(NULL, 0, format, va_args);
+    free(state.errorMsg);
+    state.errorMsg = (char*)malloc(sz);
+    vsprintf(state.errorMsg, format, va_args);
+
+    state.errorCode = e;
+
+    va_end(va_args);
+
+    return e;
+}
+
+x10rt_error fatal_error(const char* message)
 {
 	if (errno)
-		fprintf(stderr, "Fatal Error at place %u: %s: %s\n", state.myPlaceId, message, strerror(errno));
+		return fatal("(at place %u): %s: %s\n", state.myPlaceId, message, strerror(errno));
 	else
-		fprintf(stderr, "Fatal Error at place %u: %s\n", state.myPlaceId, message);
-	fflush(stderr);
-	if (ABORT_NEEDED && !state.runAsLibrary) abort();
+		return fatal("(at place %u): %s\n", state.myPlaceId, message);
 }
 
 /*
@@ -131,7 +150,7 @@ int getPortEnv(unsigned int whichPlace)
 			for (unsigned int i=1; i<=whichPlace; i++)
 			{
 				if (end == NULL) {
-					error("Not enough ports defined in "X10_FORCEPORTS);
+					fatal_error("Not enough ports defined in "X10_FORCEPORTS);
 					return -1;
 				}
 				start = end+1;
@@ -180,11 +199,11 @@ bool flushPendingData()
 					if (errno == EINTR) continue;
 					if (errno == EAGAIN) break;
 					fprintf(stderr, "flush errno=%i", errno);
-					error("Unable to flush data");
+					fatal_error("Unable to flush data");
 					return false;
 				}
 				if (rc == 0) {
-					error("Unable to flush data - socket closed");
+					fatal_error("Unable to flush data - socket closed");
 					return false;
 				}
 				src += rc;
@@ -262,7 +281,7 @@ int nonBlockingWrite(int dest, void * p, unsigned cnt, bool copyBuffer=true)
 		// save the remaining data for later writing
 		struct x10SocketDataToWrite* pendingData = (struct x10SocketDataToWrite *)malloc(sizeof(struct x10SocketDataToWrite));
 		if (pendingData == NULL) {
-			error("Allocating memory for a pending write");
+			fatal_error("Allocating memory for a pending write");
 			return -1;
 		}
 		pendingData->deleteBufferWhenComplete = copyBuffer;
@@ -270,7 +289,7 @@ int nonBlockingWrite(int dest, void * p, unsigned cnt, bool copyBuffer=true)
 		{
 			pendingData->data = (char *)malloc(bytesleft);
 			if (pendingData->data == NULL) {
-				error("Allocating memory for pending write data");
+				fatal_error("Allocating memory for pending write data");
 				return -1;
 			}
 			memcpy(pendingData->data, src, bytesleft);
@@ -386,7 +405,7 @@ int handleConnectionRequest()
 			linger.l_onoff = 1;
 			linger.l_linger = 1;
 			if (setsockopt(newFD, SOL_SOCKET, SO_LINGER, &linger, sizeof(linger)) < 0) {
-				error("Error setting SO_LINGER on incoming socket");
+				fatal_error("Error setting SO_LINGER on incoming socket");
 				return -1;
 			}
 			if (state.useNonblockingLinks)
@@ -453,7 +472,7 @@ int initLink(uint32_t remotePlace, char* connectionInfo)
 				{
 					char* suicideNote = (char*)alloca(512);
 					sprintf(suicideNote, "Unable to establish a connection to place %u because %s!", remotePlace, link);
-					error(suicideNote);
+					fatal_error(suicideNote);
 					return -1;
 				}
 				c[0] = '\0';
@@ -470,7 +489,7 @@ int initLink(uint32_t remotePlace, char* connectionInfo)
 					for (unsigned int i=1; i<=remotePlace; i++)
 					{
 						if (end == NULL) {
-							error("Not enough hosts defined in "X10_HOSTLIST);
+							fatal_error("Not enough hosts defined in "X10_HOSTLIST);
 							return -1;
 						}
 
@@ -534,7 +553,7 @@ int initLink(uint32_t remotePlace, char* connectionInfo)
 				linger.l_onoff = 1;
 				linger.l_linger = 1;
 				if (setsockopt(newFD, SOL_SOCKET, SO_LINGER, &linger, sizeof(linger)) < 0) {
-					error("Error setting SO_LINGER on outgoing socket");
+					fatal_error("Error setting SO_LINGER on outgoing socket");
 					return -1;
 				}
 				if (state.useNonblockingLinks)
@@ -581,7 +600,7 @@ x10rt_error x10rt_net_init (int * argc, char ***argv, x10rt_msg_type *counter)
 		unsigned listenPort;
 		int fd = TCP::listen(&listenPort, 10);
 		if (fd < 0)
-			error("cannot create listener port");
+			return fatal_error("cannot create listener port");
 
 		// set the environment variable to return information about the listen port
 		char str[1000];
@@ -644,7 +663,7 @@ x10rt_error x10rt_net_init (int * argc, char ***argv, x10rt_msg_type *counter)
 		{
 			state.numPlaces = atol(NPROCS);
 			if (state.numPlaces <= 0) // atol failed
-				error(X10_NPLACES" is not set to a valid number of places!");
+				return fatal_error(X10_NPLACES" is not set to a valid number of places!");
 		}
 
 		if (state.numPlaces == 1)
@@ -656,7 +675,7 @@ x10rt_error x10rt_net_init (int * argc, char ***argv, x10rt_msg_type *counter)
 		// determine my place ID
 		char* ID = getenv(X10_LAUNCHER_PLACE);
 		if (ID == NULL)
-			error(X10_LAUNCHER_PLACE" not set!");
+			return fatal_error(X10_LAUNCHER_PLACE" not set!");
 		else
 			state.myPlaceId = atol(ID);
 
@@ -679,7 +698,7 @@ x10rt_error x10rt_net_init (int * argc, char ***argv, x10rt_msg_type *counter)
 		bool useLauncher = (listenPort == 0);
 		state.socketLinks[state.myPlaceId].fd = TCP::listen(&listenPort, 10);
 		if (state.socketLinks[state.myPlaceId].fd < 0)
-			error("cannot create listener port");
+			return fatal_error("cannot create listener port");
 		pthread_mutex_init(&state.writeLocks[state.myPlaceId], NULL);
 		state.socketLinks[state.myPlaceId].events = POLLIN | POLLPRI;
 
@@ -688,11 +707,11 @@ x10rt_error x10rt_net_init (int * argc, char ***argv, x10rt_msg_type *counter)
 			sockaddr_in addr;
 			socklen_t len = sizeof(addr);
 			if (getsockname(state.socketLinks[state.myPlaceId].fd, (sockaddr *) &addr, &len) < 0)
-				error("failed to get the local socket information");
+				return fatal_error("failed to get the local socket information");
 
 			pthread_mutex_lock(&state.writeLocks[state.myPlaceId]);
 			if (Launcher::setPort(state.myPlaceId, addr.sin_port) < 0)
-				error("failed to connect to the local runtime");
+				return fatal_error("failed to connect to the local runtime");
 			pthread_mutex_unlock(&state.writeLocks[state.myPlaceId]);
 		}
 	}
@@ -714,7 +733,7 @@ void x10rt_net_register_msg_receiver (x10rt_msg_type msg_type, x10rt_handler *ca
 	if (msg_type >= state.callBackTableSize)
 	{
 		state.callBackTable = (x10SocketCallback*)realloc(state.callBackTable, sizeof(struct x10SocketCallback)*(msg_type+1));
-		if (state.callBackTable == NULL) error("Unable to allocate space for the callback table");
+		if (state.callBackTable == NULL) return (void)fatal_error("Unable to allocate space for the callback table");
 		state.callBackTableSize = msg_type+1;
 	}
 
@@ -736,7 +755,7 @@ void x10rt_net_register_put_receiver (x10rt_msg_type msg_type, x10rt_finder *fin
 	if (msg_type >= state.callBackTableSize)
 	{
 		state.callBackTable = (x10SocketCallback*)realloc(state.callBackTable, sizeof(struct x10SocketCallback)*(msg_type+1));
-		if (state.callBackTable == NULL) error("Unable to allocate space for the callback table");
+		if (state.callBackTable == NULL) (void)fatal_error("Unable to allocate space for the callback table");
 	}
 
 	state.callBackTable[msg_type].handler = NULL;
@@ -757,7 +776,7 @@ void x10rt_net_register_get_receiver (x10rt_msg_type msg_type, x10rt_finder *fin
 	if (msg_type >= state.callBackTableSize)
 	{
 		state.callBackTable = (x10SocketCallback*)realloc(state.callBackTable, sizeof(struct x10SocketCallback)*(msg_type+1));
-		if (state.callBackTable == NULL) error("Unable to allocate space for the callback table");
+		if (state.callBackTable == NULL) (void)fatal_error("Unable to allocate space for the callback table");
 	}
 
 	state.callBackTable[msg_type].handler = NULL;
@@ -790,21 +809,21 @@ void x10rt_net_send_msg (x10rt_msg_params *parameters)
     x10rt_lgl_stats.msg.bytes_sent += parameters->len;
 	flushPendingData();
 	if (initLink(parameters->dest_place, NULL) < 0)
-		error("establishing a connection");
+		return (void)fatal_error("establishing a connection");
 	pthread_mutex_lock(&state.writeLocks[parameters->dest_place]);
 
 	// write out the x10SocketMessage data
 	// Format: type, p.type, p.len, p.msg
 	enum MSGTYPE m = STANDARD;
 	if (nonBlockingWrite(parameters->dest_place, &m, sizeof(m)) < (int)sizeof(m))
-		error("sending STANDARD type");
+		return (void)fatal_error("sending STANDARD type");
 	if (nonBlockingWrite(parameters->dest_place, &parameters->type, sizeof(parameters->type)) < (int)sizeof(parameters->type))
-		error("sending STANDARD x10rt_msg_params.type");
+		return (void)fatal_error("sending STANDARD x10rt_msg_params.type");
 	if (nonBlockingWrite(parameters->dest_place, &parameters->len, sizeof(parameters->len)) < (int)sizeof(parameters->len))
-		error("sending STANDARD x10rt_msg_params.len");
+		return (void)fatal_error("sending STANDARD x10rt_msg_params.len");
 	if (parameters->len > 0)
 		if (nonBlockingWrite(parameters->dest_place, parameters->msg, parameters->len) < (int)parameters->len)
-			error("sending STANDARD msg");
+			return (void)fatal_error("sending STANDARD msg");
 	pthread_mutex_unlock(&state.writeLocks[parameters->dest_place]);
 }
 
@@ -817,26 +836,26 @@ void x10rt_net_send_get (x10rt_msg_params *parameters, void *buffer, x10rt_copy_
     x10rt_lgl_stats.get.bytes_sent += parameters->len;
 	flushPendingData();
 	if (initLink(parameters->dest_place, NULL) < 0)
-		error("establishing a connection");
+		return (void)fatal_error("establishing a connection");
 	pthread_mutex_lock(&state.writeLocks[parameters->dest_place]);
 
 	// write out the x10SocketMessage data
 	// Format: type, p.type, p.len, p.msg, bufferlen, bufferADDRESS
 	enum MSGTYPE m = GET;
 	if (nonBlockingWrite(parameters->dest_place, &m, sizeof(m)) < (int)sizeof(m))
-		error("sending GET MSGTYPE");
+		return (void)fatal_error("sending GET MSGTYPE");
 	if (nonBlockingWrite(parameters->dest_place, &parameters->type, sizeof(parameters->type)) < (int)sizeof(parameters->type))
-		error("sending GET x10rt_msg_params.type");
+		return (void)fatal_error("sending GET x10rt_msg_params.type");
 	if (nonBlockingWrite(parameters->dest_place, &parameters->len, sizeof(parameters->len)) < (int)sizeof(parameters->len))
-		error("sending GET x10rt_msg_params.len");
+		return (void)fatal_error("sending GET x10rt_msg_params.len");
 	if (parameters->len > 0)
 		if (nonBlockingWrite(parameters->dest_place, parameters->msg, parameters->len) < (int)parameters->len)
-			error("sending GET x10rt_msg_params.msg");
+			return (void)fatal_error("sending GET x10rt_msg_params.msg");
 	if (nonBlockingWrite(parameters->dest_place, &bufferLen, sizeof(x10rt_copy_sz)) < (int)sizeof(x10rt_copy_sz))
-		error("sending GET bufferLen");
+		return (void)fatal_error("sending GET bufferLen");
 	if (bufferLen > 0)
 		if (nonBlockingWrite(parameters->dest_place, &buffer, sizeof(void*), COPY_PUT_GET_BUFFER) < (int)sizeof(void*))
-			error("sending GET buffer pointer");
+			return (void)fatal_error("sending GET buffer pointer");
 	pthread_mutex_unlock(&state.writeLocks[parameters->dest_place]);
 }
 
@@ -850,26 +869,26 @@ void x10rt_net_send_put (x10rt_msg_params *parameters, void *buffer, x10rt_copy_
     x10rt_lgl_stats.put_copied_bytes_sent += bufferLen;
 	flushPendingData();
 	if (initLink(parameters->dest_place, NULL) < 0)
-		error("establishing a connection");
+		return (void)fatal_error("establishing a connection");
 	pthread_mutex_lock(&state.writeLocks[parameters->dest_place]);
 
 	// write out the x10SocketMessage data
 	// Format: type, p.type, p.len, p.msg, bufferlen, buffer contents
 	enum MSGTYPE m = PUT;
 	if (nonBlockingWrite(parameters->dest_place, &m, sizeof(m)) < (int)sizeof(m))
-		error("sending PUT MSGTYPE");
+		return (void)fatal_error("sending PUT MSGTYPE");
 	if (nonBlockingWrite(parameters->dest_place, &parameters->type, sizeof(parameters->type)) < (int)sizeof(parameters->type))
-		error("sending PUT x10rt_msg_params.type");
+		return (void)fatal_error("sending PUT x10rt_msg_params.type");
 	if (nonBlockingWrite(parameters->dest_place, &parameters->len, sizeof(parameters->len)) < (int)sizeof(parameters->len))
-		error("sending PUT x10rt_msg_params.len");
+		return (void)fatal_error("sending PUT x10rt_msg_params.len");
 	if (parameters->len > 0)
 		if (nonBlockingWrite(parameters->dest_place, parameters->msg, parameters->len) < (int)parameters->len)
-			error("sending PUT x10rt_msg_params.len");
+			return (void)fatal_error("sending PUT x10rt_msg_params.len");
 	if (nonBlockingWrite(parameters->dest_place, &bufferLen, sizeof(x10rt_copy_sz)) < (int)sizeof(x10rt_copy_sz))
-		error("sending PUT bufferLen");
+		return (void)fatal_error("sending PUT bufferLen");
 	if (bufferLen > 0)
 		if (nonBlockingWrite(parameters->dest_place, buffer, bufferLen, COPY_PUT_GET_BUFFER) < (int)bufferLen)
-			error("sending PUT buffer");
+			return (void)fatal_error("sending PUT buffer");
 	pthread_mutex_unlock(&state.writeLocks[parameters->dest_place]);
 }
 
@@ -889,7 +908,7 @@ x10rt_error x10rt_net_probe ()
 	else
 		while (probe(false, false)) { }
 
-    return X10RT_ERR_OK;
+    return state.errorCode;
 }
 
 x10rt_error x10rt_net_blocking_probe ()
@@ -899,7 +918,7 @@ x10rt_error x10rt_net_blocking_probe ()
 	// then, loop again to gather everything from the network before returning.
 	while (probe(false, false)) { }
 
-    return X10RT_ERR_OK;
+    return state.errorCode;
 }
 
 // return T if data was processed or sent, F if not
@@ -984,9 +1003,9 @@ bool probe (bool onlyProcessAccept, bool block)
 				mp.dest_endpoint = 0;
 				mp.dest_place = state.myPlaceId;
 				if (nonBlockingRead(state.socketLinks[whichPlaceToHandle].fd, &mp.type, sizeof(x10rt_msg_type)) < (int)sizeof(x10rt_msg_type))
-					error("reading x10rt_msg_params.type");
+					return fatal_error("reading x10rt_msg_params.type"), false;
 				if (nonBlockingRead(state.socketLinks[whichPlaceToHandle].fd, &mp.len, sizeof(uint32_t)) < (int)sizeof(uint32_t))
-					error("reading x10rt_msg_params.len");
+					return fatal_error("reading x10rt_msg_params.len"), false;
 				#ifdef DEBUG_MESSAGING
 					fprintf(stderr, "X10rt.Sockets: place %u decoded a message of type %d from place %u\n", state.myPlaceId, (int)mp.type, whichPlaceToHandle);
 				#endif
@@ -1001,11 +1020,11 @@ bool probe (bool onlyProcessAccept, bool block)
 					{
 						mp.msg = malloc(mp.len);
 						if (mp.msg == NULL)
-							error("unable to allocate memory for an incoming message");
+							return fatal_error("unable to allocate memory for an incoming message"), false;
 						heapAllocated = true;
 					}
 					if (nonBlockingRead(state.socketLinks[whichPlaceToHandle].fd, mp.msg, mp.len) < (int)mp.len)
-						error("reading x10rt_msg_params.msg");
+						return fatal_error("reading x10rt_msg_params.msg"), false;
 				}
 				else
 					mp.msg = NULL;
@@ -1027,16 +1046,16 @@ bool probe (bool onlyProcessAccept, bool block)
 					{
 						x10rt_copy_sz dataLen;
 						if (nonBlockingRead(state.socketLinks[whichPlaceToHandle].fd, &dataLen, sizeof(x10rt_copy_sz)) < (int)sizeof(x10rt_copy_sz))
-							error("reading PUT datalen");
+							return fatal_error("reading PUT datalen"), false;
 
 						finderCallback fcb = state.callBackTable[mp.type].finder;
                         x10rt_lgl_stats.put.messages_received++;
                         x10rt_lgl_stats.put.bytes_received += mp.len;
 						void* dest = fcb(&mp, dataLen); // get the pointer to the destination location
 						if (dest == NULL)
-							error("invalid buffer provided for a PUT");
+							return fatal_error("invalid buffer provided for a PUT"), false;
 						if (nonBlockingRead(state.socketLinks[whichPlaceToHandle].fd, dest, dataLen) < (int)dataLen)
-							error("reading PUT data");
+							return fatal_error("reading PUT data"), false;
 						pthread_mutex_lock(&state.readLock);
 						state.socketLinks[whichPlaceToHandle].events = POLLIN | POLLPRI;
 						pthread_mutex_unlock(&state.readLock);
@@ -1052,10 +1071,10 @@ bool probe (bool onlyProcessAccept, bool block)
 						x10rt_copy_sz dataLen;
 						void* remotePtr; // THIS IS A POINTER ON A REMOTE MACHINE.  NOT VALID HERE
 						if (nonBlockingRead(state.socketLinks[whichPlaceToHandle].fd, &dataLen, sizeof(x10rt_copy_sz)) < (int)sizeof(x10rt_copy_sz))
-							error("reading GET dataLen");
+							return fatal_error("reading GET dataLen"), false;
 						if (dataLen > 0)
 							if (nonBlockingRead(state.socketLinks[whichPlaceToHandle].fd, &remotePtr, sizeof(void*)) < (int)sizeof(void*))
-								error("reading GET pointer");
+								return fatal_error("reading GET pointer"), false;
 
 						pthread_mutex_lock(&state.readLock);
 						state.socketLinks[whichPlaceToHandle].events = POLLIN | POLLPRI;
@@ -1072,22 +1091,22 @@ bool probe (bool onlyProcessAccept, bool block)
 						// Format: type, p.type, p.len, p.msg, bufferlen, bufferADDRESS, buffer
 						enum MSGTYPE m = GET_COMPLETED;
 						if (nonBlockingWrite(whichPlaceToHandle, &m, sizeof(m)) < (int)sizeof(m))
-							error("sending GET_COMPLETED MSGTYPE");
+							return fatal_error("sending GET_COMPLETED MSGTYPE"), false;
 						if (nonBlockingWrite(whichPlaceToHandle, &mp.type, sizeof(mp.type)) < (int)sizeof(mp.type))
-							error("sending GET_COMPLETED x10rt_msg_params.type");
+							return fatal_error("sending GET_COMPLETED x10rt_msg_params.type"), false;
 						if (nonBlockingWrite(whichPlaceToHandle, &mp.len, sizeof(mp.len)) < (int)sizeof(mp.len))
-							error("sending GET_COMPLETED x10rt_msg_params.len");
+							return fatal_error("sending GET_COMPLETED x10rt_msg_params.len"), false;
 						if (mp.len > 0)
 							if (nonBlockingWrite(whichPlaceToHandle, mp.msg, mp.len) < (int)mp.len)
-								error("sending GET_COMPLETED x10rt_msg_params.msg");
+								return fatal_error("sending GET_COMPLETED x10rt_msg_params.msg"), false;
 						if (nonBlockingWrite(whichPlaceToHandle, &dataLen, sizeof(x10rt_copy_sz)) < (int)sizeof(x10rt_copy_sz))
-							error("sending GET_COMPLETED dataLen");
+							return fatal_error("sending GET_COMPLETED dataLen"), false;
 						if (dataLen > 0)
 						{
 							if (nonBlockingWrite(whichPlaceToHandle, &remotePtr, sizeof(void*)) < (int)sizeof(void*))
-								error("sending GET_COMPLETED remotePtr");
+								return fatal_error("sending GET_COMPLETED remotePtr"), false;
 							if (nonBlockingWrite(whichPlaceToHandle, src, dataLen) < (int)dataLen)
-								error("sending GET_COMPLETED data");
+								return fatal_error("sending GET_COMPLETED data"), false;
 						}
 						pthread_mutex_unlock(&state.writeLocks[whichPlaceToHandle]);
 					}
@@ -1098,13 +1117,13 @@ bool probe (bool onlyProcessAccept, bool block)
 						void* buffer;
 
 						if (nonBlockingRead(state.socketLinks[whichPlaceToHandle].fd, &dataLen, sizeof(x10rt_copy_sz)) < (int)sizeof(x10rt_copy_sz))
-							error("reading GET_COMPLETED dataLen");
+							return fatal_error("reading GET_COMPLETED dataLen"), false;
 						if (dataLen > 0)
 						{
 							if (nonBlockingRead(state.socketLinks[whichPlaceToHandle].fd, &buffer, sizeof(void*)) < (int)sizeof(void*))
-								error("reading GET_COMPLETED pointer");
+								return fatal_error("reading GET_COMPLETED pointer"), false;
 							if (nonBlockingRead(state.socketLinks[whichPlaceToHandle].fd, buffer, dataLen) < (int)dataLen)
-								error("reading GET_COMPLETED data");
+								return fatal_error("reading GET_COMPLETED data"), false;
 						}
 						pthread_mutex_lock(&state.readLock);
 						state.socketLinks[whichPlaceToHandle].events = POLLIN | POLLPRI;
@@ -1117,7 +1136,7 @@ bool probe (bool onlyProcessAccept, bool block)
 					}
 					break;
 					default: // this should never happen
-						error("Unknown message type found");
+						return fatal_error("Unknown message type found"), false;
 					break;
 				}
 				if (heapAllocated)
@@ -1165,6 +1184,8 @@ bool probe (bool onlyProcessAccept, bool block)
 
 void x10rt_net_finalize (void)
 {
+    free(state.errorMsg);
+
 	if (state.numPlaces == 1)
 		return;
 
@@ -1231,12 +1252,12 @@ int x10rt_net_supports (x10rt_opt o)
 
 void x10rt_net_remote_op (x10rt_place place, x10rt_remote_ptr victim, x10rt_op_type type, unsigned long long value)
 {
-	error("x10rt_net_remote_op not implemented");
+	fatal_error("x10rt_net_remote_op not implemented");
 }
 
 void x10rt_net_remote_ops (x10rt_remote_op_params *ops, size_t numOps)
 {
-	error("x10rt_net_remote_ops not implemented");
+	fatal_error("x10rt_net_remote_ops not implemented");
 }
 
 void x10rt_net_register_mem (void *ptr, size_t len)
@@ -1248,48 +1269,48 @@ void x10rt_net_register_mem (void *ptr, size_t len)
 void x10rt_net_team_new (x10rt_place placec, x10rt_place *placev,
                          x10rt_completion_handler2 *ch, void *arg)
 {
-	error("x10rt_net_team_new not implemented");
+	fatal_error("x10rt_net_team_new not implemented");
 }
 
 void x10rt_net_team_del (x10rt_team team, x10rt_place role,
                          x10rt_completion_handler *ch, void *arg)
 {
-	error("x10rt_net_team_del not implemented");
+	fatal_error("x10rt_net_team_del not implemented");
 }
 
 x10rt_place x10rt_net_team_sz (x10rt_team team)
 {
-	error("x10rt_net_team_sz not implemented");
+	fatal_error("x10rt_net_team_sz not implemented");
     return 0;
 }
 
 void x10rt_net_team_split (x10rt_team parent, x10rt_place parent_role, x10rt_place color,
 		x10rt_place new_role, x10rt_completion_handler2 *ch, void *arg)
 {
-	error("x10rt_net_team_split not implemented");
+	fatal_error("x10rt_net_team_split not implemented");
 }
 
 void x10rt_net_barrier (x10rt_team team, x10rt_place role, x10rt_completion_handler *ch, void *arg)
 {
-	error("x10rt_net_barrier not implemented");
+	fatal_error("x10rt_net_barrier not implemented");
 }
 
 void x10rt_net_bcast (x10rt_team team, x10rt_place role, x10rt_place root, const void *sbuf,
 		void *dbuf, size_t el, size_t count, x10rt_completion_handler *ch, void *arg)
 {
-	error("x10rt_net_bcast not implemented");
+	fatal_error("x10rt_net_bcast not implemented");
 }
 
 void x10rt_net_scatter (x10rt_team team, x10rt_place role, x10rt_place root, const void *sbuf,
 		void *dbuf, size_t el, size_t count, x10rt_completion_handler *ch, void *arg)
 {
-	error("x10rt_net_scatter not implemented");
+	fatal_error("x10rt_net_scatter not implemented");
 }
 
 void x10rt_net_alltoall (x10rt_team team, x10rt_place role, const void *sbuf, void *dbuf,
 		size_t el, size_t count, x10rt_completion_handler *ch, void *arg)
 {
-	error("x10rt_net_alltoall not implemented");
+	fatal_error("x10rt_net_alltoall not implemented");
 }
 
 void x10rt_net_reduce (x10rt_team team, x10rt_place role,
@@ -1299,13 +1320,13 @@ void x10rt_net_reduce (x10rt_team team, x10rt_place role,
                         size_t count,
                         x10rt_completion_handler *ch, void *arg)
 {
-	error("x10rt_net_reduce not implemented");
+	fatal_error("x10rt_net_reduce not implemented");
 }
 
 void x10rt_net_allreduce (x10rt_team team, x10rt_place role, const void *sbuf, void *dbuf,
 		x10rt_red_op_type op, x10rt_red_type dtype, size_t count, x10rt_completion_handler *ch, void *arg)
 {
-	error("x10rt_net_allreduce not implemented");
+	fatal_error("x10rt_net_allreduce not implemented");
 }
 
-const char *x10rt_net_error_msg (void) { return NULL; }
+const char *x10rt_net_error_msg (void) { return state.errorMsg; }

@@ -27,8 +27,8 @@
 #define X10RT_NET_PROBE_PROP_ERR PROP_ERR(x10rt_net_probe(), x10rt_net_error_msg())
 
 #ifndef NDEBUG
-#define tame_assert(x) if (!(x)) { lgl_fatal("Assertion failure (%s;%d): %s\n", __FILE__, __LINE__, #x); g.error_code = X10RT_ERR_INTL; return; } else { }
-#define tame_assert_r(x,r) if (!(x)) { lgl_fatal("Assertion failure (%s;%d): %s\n", __FILE__, __LINE__, #x); g.error_code = X10RT_ERR_INTL; return r; } else { }
+#define tame_assert(x) if (!(x)) { fatal("Assertion failure (%s;%d): %s\n", __FILE__, __LINE__, #x); g.error_code = X10RT_ERR_INTL; return; } else { }
+#define tame_assert_r(x,r) if (!(x)) { fatal("Assertion failure (%s;%d): %s\n", __FILE__, __LINE__, #x); g.error_code = X10RT_ERR_INTL; return r; } else { }
 #else
 // sizeof avoids warnings about unused vars, etc without actually executing x or r
 #define tame_assert(x) ((void)sizeof(x)) 
@@ -60,14 +60,18 @@ namespace {
     x10rt_lgl_ctx g; // note that being a global var, this is zero-initialised
 }
 
-static x10rt_error lgl_fatal (const char *format, ...)
+static x10rt_error fatal (const char *format, ...)
 {
     va_list va_args;
     va_start(va_args, format);
 
     x10rt_error e = X10RT_ERR_INTL;
 
-    vfatal(g.error_msg, format, va_args);
+    int sz = vsnprintf(NULL, 0, format, va_args);
+    free(g.error_msg);
+    g.error_msg = (char*)malloc(sz);
+    vsprintf(g.error_msg, format, va_args);
+
     g.error_code = e;
 
     va_end(va_args);
@@ -260,7 +264,7 @@ namespace {
                 case X10RT_LGL_CUDA:
                 num_local_cudas++;
                 if (cfg->index >= cuda_max_dev) {
-                    return lgl_fatal("CUDA reports %u devices, you cannot use device %u.\n",
+                    return fatal("CUDA reports %u devices, you cannot use device %u.\n",
                                    cuda_max_dev, cfg->index);
                 }
                 break;
@@ -268,13 +272,13 @@ namespace {
                 case X10RT_LGL_SPE:
                 num_local_spes++;
                 if (cfg->index >= cell_max_dev) {
-                    return lgl_fatal("Cell reports %u devices, you cannot use device %u.\n",
+                    return fatal("Cell reports %u devices, you cannot use device %u.\n",
                                    cell_max_dev, cfg->index);
                 }
                 break;
 
                 default:
-                return lgl_fatal("Invalid node category.\n");
+                return fatal("Invalid node category.\n");
             }
         }
 
@@ -293,7 +297,7 @@ namespace {
                 break;
 
                 default:
-                return lgl_fatal("Invalid node category.\n");
+                return fatal("Invalid node category.\n");
             }
         }
 
@@ -454,7 +458,7 @@ x10rt_error x10rt_lgl_init (int *argc, char ***argv, x10rt_msg_type *counter)
                 while (isspace(*str)) str++; // chase up white space
                 int chars = strcspn(str,",");
                 if (chars<5) {
-                    return lgl_fatal("%s contains invalid element at "
+                    return fatal("%s contains invalid element at "
                                    "index %d: \"%.*s\"\n", env, i, chars, str);
                 }
                 if (!strncmp(str,"CELL",4) || !strncmp(str,"cell",4)) {
@@ -463,7 +467,7 @@ x10rt_error x10rt_lgl_init (int *argc, char ***argv, x10rt_msg_type *counter)
                     long index = strtol(str,&endptr,10);
                     while (isspace(*endptr)) endptr++; // chase up white space
                     if (endptr-str != chars) {
-                        return lgl_fatal("%s contains invalid number at "
+                        return fatal("%s contains invalid number at "
                                        "index %d: \"%.*s\"\n", env, i, chars, str);
                     }
                     cfg[i].cat = X10RT_LGL_SPE;
@@ -474,13 +478,13 @@ x10rt_error x10rt_lgl_init (int *argc, char ***argv, x10rt_msg_type *counter)
                     long index = strtol(str,&endptr,10);
                     while (isspace(*endptr)) endptr++; // chase up white space
                     if (endptr-str != chars) {
-                        return lgl_fatal("%s contains invalid number at "
+                        return fatal("%s contains invalid number at "
                                        "index %d: \"%.*s\"\n", env, i, chars, str);
                     }
                     cfg[i].cat = X10RT_LGL_CUDA;
                     cfg[i].index = index;
                 } else {
-                    return lgl_fatal("%s contains invalid element at "
+                    return fatal("%s contains invalid element at "
                                    "index %d: \"%.*s\"\n", env, i, chars, str);
                 }
                 str += chars;
@@ -526,7 +530,7 @@ void x10rt_lgl_register_msg_receiver_cuda (x10rt_msg_type msg_type,
             } break;
             case X10RT_LGL_SPE: break;
             default:
-            lgl_fatal("Invalid node category.\n");
+            fatal("Invalid node category.\n");
         }
     }
 }
@@ -543,7 +547,7 @@ void x10rt_lgl_register_get_receiver_cuda (x10rt_msg_type msg_type,
             } break;
             case X10RT_LGL_SPE: break;
             default:
-            lgl_fatal("Invalid node category.\n");
+            fatal("Invalid node category.\n");
         }
     }
 }
@@ -560,7 +564,7 @@ void x10rt_lgl_register_put_receiver_cuda (x10rt_msg_type msg_type,
             } break;
             case X10RT_LGL_SPE: break;
             default:
-            lgl_fatal("Invalid node category.\n");
+            fatal("Invalid node category.\n");
         }
     }
 }
@@ -581,7 +585,7 @@ void x10rt_lgl_registration_complete (void)
             } break;
             case X10RT_LGL_SPE: break;
             default:
-            lgl_fatal("Invalid node category.\n");
+            fatal("Invalid node category.\n");
         }
     }
 }
@@ -603,15 +607,15 @@ void x10rt_lgl_send_msg (x10rt_msg_params *p)
                 x10rt_cuda_send_msg(cctx, p);
             } break;
             case X10RT_LGL_SPE: {
-                lgl_fatal("SPE send_msg still unsupported.\n");
+                fatal("SPE send_msg still unsupported.\n");
             } break;
             default: {
-                lgl_fatal("Place %lu has invalid type %d in send_msg.\n",
+                fatal("Place %lu has invalid type %d in send_msg.\n",
                         (unsigned long)d, (int)x10rt_lgl_type(d));
             }
         }
     } else {
-        lgl_fatal("Routing of send_msg still unsupported.\n");
+        fatal("Routing of send_msg still unsupported.\n");
     }
 }
 
@@ -632,15 +636,15 @@ void x10rt_lgl_send_get (x10rt_msg_params *p, void *buf, x10rt_copy_sz len)
                 x10rt_cuda_send_get(cctx, p, buf, len);
             } break;
             case X10RT_LGL_SPE: {
-                lgl_fatal("SPE send_get still unsupported.\n");
+                fatal("SPE send_get still unsupported.\n");
             } break;
             default: {
-                lgl_fatal("Place %lu has invalid type %d in send_get.\n",
+                fatal("Place %lu has invalid type %d in send_get.\n",
                         (unsigned long)d, (int)x10rt_lgl_type(d));
             }
         }
     } else {
-        lgl_fatal("Routing of send_get still unsupported.\n");
+        fatal("Routing of send_get still unsupported.\n");
     }
 }
 
@@ -661,15 +665,15 @@ void x10rt_lgl_send_put (x10rt_msg_params *p, void *buf, x10rt_copy_sz len)
                 x10rt_cuda_send_put(cctx, p, buf, len);
             } break;
             case X10RT_LGL_SPE: {
-                lgl_fatal("SPE send_put still unsupported.\n");
+                fatal("SPE send_put still unsupported.\n");
             } break;
             default: {
-                lgl_fatal("Place %lu has invalid type %d in send_put.\n",
+                fatal("Place %lu has invalid type %d in send_put.\n",
                         (unsigned long)d, (int)x10rt_lgl_type(d));
             }
         }
     } else {
-        lgl_fatal("Routing of send_put still unsupported.\n");
+        fatal("Routing of send_put still unsupported.\n");
     }
 }
 
@@ -680,7 +684,7 @@ void x10rt_lgl_remote_alloc (x10rt_place d, x10rt_remote_ptr sz,
     assert(d < x10rt_lgl_nplaces());
 
     if (d < x10rt_lgl_nhosts()) {
-        lgl_fatal("Host remote_alloc still unsupported.\n");
+        fatal("Host remote_alloc still unsupported.\n");
     } else if (x10rt_lgl_parent(d) == x10rt_lgl_here()) {
         // local accelerator
         switch (x10rt_lgl_type(d)) {
@@ -690,15 +694,15 @@ void x10rt_lgl_remote_alloc (x10rt_place d, x10rt_remote_ptr sz,
                 break;
             }
             case X10RT_LGL_SPE: {
-                lgl_fatal("SPE remote_alloc still unsupported.\n");
+                fatal("SPE remote_alloc still unsupported.\n");
             }
             default: {
-                lgl_fatal("Place %lu has invalid type %d in remote_alloc.\n",
+                fatal("Place %lu has invalid type %d in remote_alloc.\n",
                                (unsigned long)d, (int)x10rt_lgl_type(d));
             }
         }
     } else {
-        lgl_fatal("Routing of remote_alloc still unsupported.\n");
+        fatal("Routing of remote_alloc still unsupported.\n");
     }
 }
 void x10rt_lgl_remote_free (x10rt_place d, x10rt_remote_ptr ptr)
@@ -707,7 +711,7 @@ void x10rt_lgl_remote_free (x10rt_place d, x10rt_remote_ptr ptr)
     assert(d < x10rt_lgl_nplaces());
 
     if (d < x10rt_lgl_nhosts()) {
-        lgl_fatal("Host remote_free still unsupported.\n");
+        fatal("Host remote_free still unsupported.\n");
     } else if (x10rt_lgl_parent(d) == x10rt_lgl_here()) {
         // local accelerator
         switch (x10rt_lgl_type(d)) {
@@ -716,15 +720,15 @@ void x10rt_lgl_remote_free (x10rt_place d, x10rt_remote_ptr ptr)
                 x10rt_cuda_device_free(cctx, (void*)ptr);
             } break;
             case X10RT_LGL_SPE: {
-                lgl_fatal("SPE remote_free still unsupported.\n");
+                fatal("SPE remote_free still unsupported.\n");
             } break;
             default: {
-                lgl_fatal("Place %lu has invalid type %d in remote_free.\n",
+                fatal("Place %lu has invalid type %d in remote_free.\n",
                                (unsigned long)d, (int)x10rt_lgl_type(d));
             }
         }
     } else {
-        lgl_fatal("Routing of remote_free still unsupported.\n");
+        fatal("Routing of remote_free still unsupported.\n");
     }
 }
 
@@ -745,18 +749,18 @@ void x10rt_lgl_remote_op (x10rt_place d, x10rt_remote_ptr remote_addr,
         // local accelerator
         switch (x10rt_lgl_type(d)) {
             case X10RT_LGL_CUDA: {
-                lgl_fatal("CUDA remote ops still unsupported.\n");
+                fatal("CUDA remote ops still unsupported.\n");
             } break;
             case X10RT_LGL_SPE: {
-                lgl_fatal("SPE remote ops still unsupported.\n");
+                fatal("SPE remote ops still unsupported.\n");
             } break;
             default: {
-                lgl_fatal("Place %lu has invalid type %d in remote_op_xor.\n",
+                fatal("Place %lu has invalid type %d in remote_op_xor.\n",
                                (unsigned long)d, (int)x10rt_lgl_type(d));
             }
         }
     } else {
-        lgl_fatal("Routing of remote ops still unsupported.\n");
+        fatal("Routing of remote ops still unsupported.\n");
     }
 }
     
@@ -828,13 +832,13 @@ void x10rt_lgl_blocks_threads (x10rt_place d, x10rt_msg_type type, int dyn_shm,
                 *blocks = 8; *threads = 1;
             } break;
             default: {
-                lgl_fatal("Place %lu has invalid type %d in remote_op_xor.\n",
+                fatal("Place %lu has invalid type %d in remote_op_xor.\n",
                                (unsigned long)d, (int)x10rt_lgl_type(d));
                 return;
             }
         }
     } else {
-        lgl_fatal("Routing of remote ops still unsupported.\n");
+        fatal("Routing of remote ops still unsupported.\n");
         return;
     }
 }
@@ -850,11 +854,11 @@ x10rt_error x10rt_lgl_probe (void)
             x10rt_cuda_probe(static_cast<x10rt_cuda_ctx*>(g.accel_ctxs[i]));
             break;
             case X10RT_LGL_SPE:
-            return lgl_fatal("SPE still unsupported\n");
+            return fatal("SPE still unsupported\n");
             return g.error_code;
             break;
             default:
-            return lgl_fatal("Invalid node category.\n");
+            return fatal("Invalid node category.\n");
             return g.error_code;
         }
     }
@@ -956,7 +960,7 @@ void x10rt_lgl_team_new (x10rt_place placec, x10rt_place *placev,
     ESCAPE_IF_ERR;
     for (x10rt_place i=0 ; i<placec ; ++i) {
         if (placev[i] >= x10rt_lgl_nhosts()) {
-            lgl_fatal("teams can only be across non-accelerator places.\n");
+            fatal("teams can only be across non-accelerator places.\n");
             return;
         }
     }
