@@ -49,7 +49,7 @@ else
 endif
 
 mpi/X10MPIJava: mpi/Java.cc
-	$(MPICXX) $(CXXFLAGS) $(APP_LDFLAGS_MPI) $(APP_LDLIBS_MPI_NO_X10RT) $(JNI_LIBS) -ljvm mpi/Java.cc -o mpi/X10MPIJava
+	$(MPICXX) $(CXXFLAGS) $(APP_LDFLAGS_MPI) $(APP_LDLIBS_MPI_NO_X10RT) -ljvm mpi/Java.cc -o mpi/X10MPIJava $(JNI_LIBS)
 
 etc/x10rt_mpi.properties:
 	@echo "X10LIB_PLATFORM=$(X10RT_PLATFORM)" > $@
