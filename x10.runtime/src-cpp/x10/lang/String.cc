@@ -309,20 +309,27 @@ String* String::format(String* format, x10::array::Array<Any*>* parms) {
     std::ostringstream ss;
     nullCheck(format);
     nullCheck(parms);
-    //size_t len = format->FMGL(content_length);
     char* orig = alloc_utils::strdup(format->c_str());
     char* fmt = orig;
     char* next = NULL;
-    for (x10_int i = 0; fmt != NULL; ++i, fmt = next) {
-        next = strchr(fmt+1, '%'); // FIXME: this is only ok if we always null-terminate content
+    for (x10_int i = 0; fmt != NULL; fmt = next) {
+        next = strchr(fmt+1, '%');
         if (next != NULL)
             *next = '\0';
         if (*fmt != '%') {
             ss << fmt;
-            --i;
         } else {
-            Any* p = parms->__apply(i);
-            _formatHelper(ss, fmt, p);
+            if (next == fmt+1) {
+                *next = '%';
+                next = strchr(next+1, '%');
+                if (next != NULL)
+                    *next = '\0';
+                _formatHelper(ss, fmt, NULL);
+            } else {
+                Any* p = parms->__apply(i);
+                _formatHelper(ss, fmt, p);
+                i += 1;
+            }
         }
         if (next != NULL)
             *next = '%';
