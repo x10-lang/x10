@@ -31,7 +31,7 @@ public class X10RT {
      * related class can be successfully invoked.
      */
     public static synchronized String init_library() {
-    	if (state != State.UNINITIALIZED) return null;
+    	if (state != State.UNINITIALIZED) return null; // already initialized
 
         // load libraries
         String property = System.getProperty("x10.LOAD");
@@ -82,20 +82,33 @@ public class X10RT {
      * myPlace is which place this runtime is in the whole computation.
      * connectionInfo is an array the size of nplaces, and contains the connection string for each
      * remote place.  The connection string for myPlace may be null.
+     * 
+     * This method returns true if the runtime was successfully initialized.
+     * If false is returned, the caller should call this method again until true is returned.
      */
-    public static synchronized void connect_library(int myPlace, String[] connectionInfo) {
-    	if (state != State.INITIALIZED) return;
-    	x10rt_init(0, null); // TODO: fill in properly, using the arguments
+    public static synchronized boolean connect_library(int myPlace, String[] connectionInfo) {
+    	if (state != State.INITIALIZED) return true; // already initialized
+        int err = x10rt_init(0, null); // TODO: fill in properly, using the arguments
+        if (err != 0) {
+            System.err.println("Failed to initialize X10RT.");
+            x10rt_finalize();
+            return false;
+        }
         TeamSupport.initialize();
         here = myPlace;
         numPlaces = connectionInfo.length;
         x10.runtime.impl.java.Runtime.MAX_PLACES = numPlaces;
         state = State.RUNNING;
+        return true;
     }
 
     
-    public static synchronized void init() {
-      if (state != State.UNINITIALIZED) return;
+    /*
+     * This method returns true if the runtime was successfully initialized.
+     * If false is returned, the caller should call this method again until true is returned.
+     */
+    public static synchronized boolean init() {
+      if (state != State.UNINITIALIZED) return true; // already initialized
 
       String libName = System.getProperty("X10RT_IMPL", "sockets");
       if (libName.equals("disabled")) {
@@ -120,7 +133,12 @@ public class X10RT {
           //       X10RT instead of doing it in the class initializer.  
     	  // bherta: fix in progress, via the init_library() and connect_library() methods above
 
-          x10rt_init(0, null);
+          int err = x10rt_init(0, null);
+          if (err != 0) {
+              System.err.println("Failed to initialize X10RT.");
+              x10rt_finalize();
+              return false;
+          }
 
           TeamSupport.initialize();
 
@@ -147,6 +165,7 @@ public class X10RT {
       }
       x10.runtime.impl.java.Runtime.MAX_PLACES = numPlaces;
       state = State.RUNNING;
+      return true;
     }
 
     /**
