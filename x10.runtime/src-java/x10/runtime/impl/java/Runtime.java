@@ -69,7 +69,11 @@ public abstract class Runtime implements x10.core.fun.VoidFun_0_0 {
                 System.loadLibrary(libs[i]);
         }
 
-        X10RT.init();
+        boolean initialized = X10RT.init(); // TODO retry?
+        if (!initialized) {
+            System.err.println("Failed to initialize X10RT.");
+            throw new InternalError("Failed to initialize X10RT.");
+        }
 
         x10.lang.Runtime.get$staticMonitor();
         x10.lang.Runtime.get$STRICT_FINISH();

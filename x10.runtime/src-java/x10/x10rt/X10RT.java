@@ -135,7 +135,7 @@ public class X10RT {
 
           int err = x10rt_init(0, null);
           if (err != 0) {
-              System.err.println("Failed to initialize X10RT.");
+//              System.err.println("Failed to initialize X10RT.");
               x10rt_finalize();
               return false;
           }
