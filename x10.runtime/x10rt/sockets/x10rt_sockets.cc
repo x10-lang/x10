@@ -100,6 +100,9 @@ bool probe (bool onlyProcessAccept, bool block);
  *  utility methods
 *********************************************/
 
+#define ESCAPE_IF_ERR if (state.errorCode != X10RT_ERR_OK) return; else { }
+#define CHECK_ERR_AND_RETURN if (state.errorCode != X10RT_ERR_OK) return state.errorCode; else { }
+
 static x10rt_error fatal (const char *format, ...)
 {
     va_list va_args;
@@ -726,6 +729,7 @@ x10rt_error x10rt_net_init (int * argc, char ***argv, x10rt_msg_type *counter)
 
 void x10rt_net_register_msg_receiver (x10rt_msg_type msg_type, x10rt_handler *callback)
 {
+    ESCAPE_IF_ERR;
 	// register a pointer to methods that will handle specific message types.
 	// add an entry to our type/handler table
 
@@ -748,6 +752,7 @@ void x10rt_net_register_msg_receiver (x10rt_msg_type msg_type, x10rt_handler *ca
 
 void x10rt_net_register_put_receiver (x10rt_msg_type msg_type, x10rt_finder *finderCallback, x10rt_notifier *notifierCallback)
 {
+    ESCAPE_IF_ERR;
 	// register a pointer to methods that will handle specific message types.
 	// add an entry to our type/handler table
 
@@ -769,6 +774,7 @@ void x10rt_net_register_put_receiver (x10rt_msg_type msg_type, x10rt_finder *fin
 
 void x10rt_net_register_get_receiver (x10rt_msg_type msg_type, x10rt_finder *finderCallback, x10rt_notifier *notifierCallback)
 {
+    ESCAPE_IF_ERR;
 	// register a pointer to methods that will handle specific message types.
 	// add an entry to our type/handler table
 
@@ -802,6 +808,7 @@ x10rt_place x10rt_net_here (void)
 
 void x10rt_net_send_msg (x10rt_msg_params *parameters)
 {
+    ESCAPE_IF_ERR;
 	#ifdef DEBUG_MESSAGING
 		fprintf(stderr, "X10rt.Sockets: place %u sending a %d byte message of type %d to place %u\n", state.myPlaceId, parameters->len, (int)parameters->type, parameters->dest_place);
 	#endif
@@ -829,6 +836,7 @@ void x10rt_net_send_msg (x10rt_msg_params *parameters)
 
 void x10rt_net_send_get (x10rt_msg_params *parameters, void *buffer, x10rt_copy_sz bufferLen)
 {
+    ESCAPE_IF_ERR;
 	#ifdef DEBUG_MESSAGING
 		fprintf(stderr, "X10rt.Sockets: place %u sending a %d byte GET message with %d byte payload to place %u\n", state.myPlaceId, parameters->len, bufferLen, parameters->dest_place);
 	#endif
@@ -861,6 +869,7 @@ void x10rt_net_send_get (x10rt_msg_params *parameters, void *buffer, x10rt_copy_
 
 void x10rt_net_send_put (x10rt_msg_params *parameters, void *buffer, x10rt_copy_sz bufferLen)
 {
+    ESCAPE_IF_ERR;
 	#ifdef DEBUG_MESSAGING
 		fprintf(stderr, "X10rt.Sockets: place %u sending a %d byte PUT message with %d byte payload to place %u\n", state.myPlaceId, parameters->len, bufferLen, parameters->dest_place);
 	#endif
@@ -894,6 +903,7 @@ void x10rt_net_send_put (x10rt_msg_params *parameters, void *buffer, x10rt_copy_
 
 x10rt_error x10rt_net_probe ()
 {
+    CHECK_ERR_AND_RETURN;
 	if (state.numPlaces == 1)
 		sched_yield(); // why is the runtime calling probe() with only one place?  It looses its CPU as punishment. ;-)
 	else if (state.linkAtStartup)
@@ -913,6 +923,7 @@ x10rt_error x10rt_net_probe ()
 
 x10rt_error x10rt_net_blocking_probe ()
 {
+    CHECK_ERR_AND_RETURN;
 	// Call the blocking form of probe, returning after the one call.
 	probe(false, true);
 	// then, loop again to gather everything from the network before returning.
