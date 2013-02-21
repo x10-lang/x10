@@ -428,15 +428,15 @@ public abstract class Runtime implements x10.core.fun.VoidFun_0_0 {
     /**
      * @MultiVM: mapped to Runtime.x10 -> event_probe(): void
      */
-    public static void eventProbe() {
-        X10RT.probe();
+    public static int eventProbe() {
+        return X10RT.probe();
     }
 
     /**
      * @MultiVM: mapped to Runtime.x10 -> blocking_probe(): void
      */
-    public static void blockingProbe() {
-        X10RT.blockingProbe();
+    public static int blockingProbe() {
+        return X10RT.blockingProbe();
     }
 
     /**

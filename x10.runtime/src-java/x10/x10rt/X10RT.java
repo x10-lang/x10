@@ -172,17 +172,19 @@ public class X10RT {
      * This is a non-blocking call.
      * Checks network for incoming messages and returns.
      */
-    public static void probe() {
+    public static int probe() {
         assert isBooted();
-        if (!forceSinglePlace) x10rt_probe();
+        if (!forceSinglePlace) return x10rt_probe();
+        return 0;
     }
 
     /**
      * This is a blocking call.
      */
-    public static void blockingProbe() {
+    public static int blockingProbe() {
         assert isBooted();
-        if (!forceSinglePlace) x10rt_blocking_probe();
+        if (!forceSinglePlace) return x10rt_blocking_probe();
+        return 0;
     }
 
     /**
