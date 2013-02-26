@@ -12,6 +12,7 @@
 package x10.types;
 
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -45,7 +46,34 @@ import polyglot.util.InternalCompilerError;
  * within class files. It does not load from source files.
  */
 public class X10SourceClassResolver implements TopLevelResolver {
-    protected TypeSystem ts;
+
+	/** Classes that are targets of @NativeRep annotations and thus exist in X10 already with an X10 name */
+	final static HashMap<String,String> managedRepClasses = new HashMap<String,String>();
+	static {
+		managedRepClasses.put("java.lang.ArithmeticException", "x10.lang.ArithmeticException"); 
+		managedRepClasses.put("java.lang.ArrayIndexOutOfBoundsException", "x10.lang.ArrayIndexOutOfBoundsException");; 
+		managedRepClasses.put("java.lang.AssertionError", "x10.lang.AssertionError"); 
+		managedRepClasses.put("java.lang.ClassCastException", "jx10.lang.ClassCastException"); 
+		managedRepClasses.put("java.lang.Comparable", "x10.lang.Comparable"); 
+		managedRepClasses.put("java.lang.Error", "x10.lang.Error"); 
+		managedRepClasses.put("java.lang.Exception", "x10.lang.CheckedException"); 
+		managedRepClasses.put("java.lang.IllegalArgumentException", "x10.lang.IllegalArgumentException"); 
+		managedRepClasses.put("java.lang.IllegalStateException", "x10.lang.IllegalStateException"); 
+		managedRepClasses.put("java.lang.IndexOutOfBoundsException", "x10.lang.IndexOutOfBoundsException"); 
+		managedRepClasses.put("java.lang.NullPointerException", "x10.lang.NullPointerException"); 
+		managedRepClasses.put("java.lang.NumberFormatException", "x10.lang.NumberFormatException"); 
+		managedRepClasses.put("java.lang.Object", "x10.lang.Any"); 
+		managedRepClasses.put("java.lang.OutOfMemoryError", "x10.lang.OutOfMemoryError"); 
+		managedRepClasses.put("java.lang.RuntimeException", "x10.lang.Exception"); 
+		managedRepClasses.put("java.lang.StackOverflowError", "x10.lang.StackOverflowError"); 
+		managedRepClasses.put("java.lang.String", "x10.lang.String"); 
+		managedRepClasses.put("java.lang.StringIndexOutOfBoundsException", "x10.lang.StringIndexOutOfBoundsException"); 
+		managedRepClasses.put("java.lang.Throwable", "x10.lang.CheckedThrowable"); 
+		managedRepClasses.put("java.lang.UnsupportedOperationException", "x10.lang.UnsupportedOperationException"); 
+		managedRepClasses.put("java.util.NoSuchElementException", "x10.util.NoSuchElementException"); 
+	}
+	
+	protected TypeSystem ts;
     protected Reporter reporter;
     protected String classpath;
     protected Set<QName> nocache;
@@ -271,13 +299,20 @@ public class X10SourceClassResolver implements TopLevelResolver {
             return result;
         }
 
+        String repped = managedRepClasses.get(name.toString());
+        if (repped != null) {
+        	return find(QName.make(repped));
+        }
+        
+        /*
         // XTENLANG-2118: Intercept some known Java types
         if (name.equals(JAVA_LANG_OBJECT)) return CollectionUtil.<Type>list(ts.Any());
         if (name.equals(JAVA_LANG_STRING)) return CollectionUtil.<Type>list(ts.String());
         if (name.equals(JAVA_LANG_THROWABLE)) return CollectionUtil.<Type>list(ts.CheckedThrowable());
         if (name.equals(JAVA_LANG_EXCEPTION)) return CollectionUtil.<Type>list(ts.CheckedException());
         if (name.equals(JAVA_LANG_RUNTIMEEXCEPTION)) return CollectionUtil.<Type>list(ts.Exception());
-
+		*/
+        
         // XTENLANG-2118: Load the type from a Java class file
         ClassFile jClazz = loadJavaClassFile(name);
         if (jClazz != null) {

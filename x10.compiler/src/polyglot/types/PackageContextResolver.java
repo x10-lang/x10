@@ -72,11 +72,14 @@ public class PackageContextResolver extends AbstractAccessControlResolver
                 if (! canAccess(n, context)) {
                     throw new SemanticException("Cannot access " + n + " from " + context.currentClassDef() + ".");
                 }
+                
                 try {
+                	// [DC] what is this for?  some sort of validity check?
                     n = matcher.instantiate(n);
                 } catch (SemanticException e) {
                     n = null;
                 }
+                
                 if (n != null)
                     newTL.add(n);
             }
