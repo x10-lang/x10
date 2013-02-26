@@ -1,0 +1,4 @@
+00 14 * * * /home/x10reg/bin/autorunCT.release
+00 2 * * * /home/x10reg/bin/autorunCT++.release
+#10 0 * * * /home/x10reg/bin/autorunCT++.opt
+#10 6 * * * /home/x10reg/bin/autorunCT.opt

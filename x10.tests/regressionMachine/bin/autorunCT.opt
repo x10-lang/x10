@@ -1,0 +1,11 @@
+#!/bin/bash
+
+export X10_HOME=/tmp/x10reg_c.opt
+export X10_SVNROOT="http://x10.svn.sf.net/svnroot/x10/trunk"
+export X10C_EXTRA_OPTS="-O"
+export X10_OPTIMIZED=true
+export CAT_BACKEND_NAME=x10c-opt
+
+. /home/x10reg/bin/autorunCT_common
+
+exit $status

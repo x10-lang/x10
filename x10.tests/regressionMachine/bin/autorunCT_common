@@ -1,0 +1,35 @@
+#!/bin/bash
+
+. /home/x10reg/.bash_profile
+export LANG="C"
+
+if [[ ! -d "$X10_HOME" ]]; then
+	mkdir -p $X10_HOME
+fi
+
+export LOGD=$HOME/log
+if [[ ! -d "$LOGD" ]]; then
+	mkdir -p $LOGD
+fi
+
+( \
+	cd $X10_HOME; \
+	if [[ -d "${X10_HOME}/bin" ]]; then
+		rm -rf ${X10_HOME}/bin
+	fi
+	svn co ${X10_SVNROOT}/x10.tests/bin
+	if (( $? != 0 )); then
+		printf "$0: failed to checkout test scripts from the x10 repository!\n"
+		exit 1
+	fi
+	if [[ -d "${X10_HOME}/data" ]]; then
+		rm -rf ${X10_HOME}/data
+	fi
+	svn co ${X10_SVNROOT}/x10.tests/data
+	if (( $? != 0 )); then
+		printf "$0: failed to checkout test data files from the x10 repository!\n"
+		exit 1
+	fi
+	./bin/driverScriptCT; \
+)
+exit $?
