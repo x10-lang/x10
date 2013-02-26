@@ -2119,13 +2119,7 @@ public class TypeSystem_c implements TypeSystem
     protected X10ClassType STRING_;
     protected X10ClassType EXCEPTION_;
 
-    public Type JavaClass()   { 
-        if (CLASS_ != null) return CLASS_;
-        return CLASS_ = load("java.lang.Class"); 
-    }
-    public Type Cloneable() { return load("java.lang.Cloneable"); }
-    public Type JLIterable() { return load("java.lang.Iterable"); }
-    public Type Serializable() { return load("java.io.Serializable"); }
+    //public Type JLIterable() { return load("java.lang.Iterable"); }
 
     protected NullType createJavaNull() {
 	return new NullType(this);
@@ -4640,4 +4634,13 @@ public class TypeSystem_c implements TypeSystem
     		TypeSystem_c.internalConsistencyCheck(li.type());
     	}    	
     }
+
+
+    // Key thing here is to avoid loading java.lang.Iterable since that gives us a dependency
+    // on JRE class loading capability even when we're compiling native
+	@Override
+	public boolean typeIsJLIterable(Type classType) {
+		Type c = Types.baseType(classType); // chase typedefs
+		return c.fullName().toString().equals("java.lang.Iterable");
+	}
 }

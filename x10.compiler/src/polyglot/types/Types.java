@@ -1842,7 +1842,7 @@ public class Types {
                         assert false;
                     }
                     res.add(Types.xclause(arg, xclause));
-                } else if (ts.typeEquals(classType, ts.JLIterable(), context)) {
+                } else if (ts.typeIsJLIterable(classType)) {
                     Type arg = ts.Any();
                     CConstraint xclause = Types.xclause(t);
 			        final XVar tt = ConstraintManager.getConstraintSystem().makeEQV();

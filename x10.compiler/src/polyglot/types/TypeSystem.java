@@ -449,21 +449,6 @@ public interface TypeSystem {
     Type Exception();
 
     /**
-     * <code>java.lang.Cloneable</code>
-     */
-    Type Cloneable();
-
-    /**
-     * <code>java.lang.Iterable</code>
-     */
-    Type JLIterable();
-
-    /**
-     * <code>java.io.Serializable</code>
-     */
-    Type Serializable();
-
-    /**
      * <code>java.lang.NullPointerException</code>
      */
     Type NullPointerException();
@@ -1297,4 +1282,6 @@ public interface TypeSystem {
 	X10ClassType System();
 
 	Type Profile();
+
+	boolean typeIsJLIterable(Type classType);
 }
