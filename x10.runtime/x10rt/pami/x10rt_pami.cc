@@ -159,6 +159,7 @@ struct x10rt_pami_state
 #endif
 	pami_extension_t async_extension; // for async progress
 	bool blockingSend; // flag based on X10RT_PAMI_BLOCKING_SEND
+	char errorMessageBuffer[1200]; // buffer to hold the most recent error message
 } state;
 
 static void local_msg_dispatch (pami_context_t context, void* cookie, const void* header_addr, size_t header_size,
@@ -195,20 +196,19 @@ pami_result_t x10rt_PAMI_Context_advance(pami_context_t context, size_t maximum)
  */
 void error(const char* msg, ...)
 {
-	char buffer[1200];
 	va_list ap;
 	va_start(ap, msg);
-	vsnprintf(buffer, sizeof(buffer), msg, ap);
+	vsnprintf(state.errorMessageBuffer, sizeof(state.errorMessageBuffer), msg, ap);
 	va_end(ap);
-	strcat(buffer, "  ");
-	int blen = strlen(buffer);
-	PAMI_Error_text(buffer+blen, 1199-blen);
-	fprintf(stderr, "X10 PAMI error: %s\n", buffer);
+	strcat(state.errorMessageBuffer, "  ");
+	int blen = strlen(state.errorMessageBuffer);
+	PAMI_Error_text(state.errorMessageBuffer+blen, 1199-blen);
+	fprintf(stderr, "X10 PAMI error: %s\n", state.errorMessageBuffer);
 	if (errno != 0)
 		fprintf(stderr, "X10 PAMI errno: %s\n", strerror(errno));
 
 	fflush(stderr);
-	exit(EXIT_FAILURE);
+	exit(EXIT_FAILURE); // TODO - support the non-exit on error mode
 }
 
 bool checkBoolEnvVar(char* value)
@@ -1029,6 +1029,10 @@ x10rt_error x10rt_net_init (int *argc, char ***argv, x10rt_msg_type *counter)
 	return X10RT_ERR_OK;
 }
 
+const char *x10rt_net_error_msg (void)
+{
+	return state.errorMessageBuffer;
+}
 
 void x10rt_net_register_msg_receiver (x10rt_msg_type msg_type, x10rt_handler *callback)
 {
