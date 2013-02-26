@@ -94,4 +94,8 @@ public class CheckedThrowable {
     @Native("c++", "do { } while (0)")
     public static native def pretendToThrow[T] () { T<: CheckedThrowable } : void;
 
+    @Native("java", "false ? throw (#T)null : (#x)")
+    @Native("c++", "(#x)")
+    public static native def pretendToThrow[T,R] (x:R) { T<: CheckedThrowable } : R;
+
 }

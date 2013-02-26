@@ -92,6 +92,7 @@ import x10.ast.X10CanonicalTypeNode;
 import x10.ast.X10Cast;
 import x10.ast.X10Formal;
 import x10.ast.X10Instanceof;
+import x10.ast.X10LocalDecl_c;
 import x10.ast.X10New;
 import x10.ast.X10Special;
 import x10.ast.X10Unary_c;
@@ -390,8 +391,87 @@ public class Lowerer extends ContextVisitor {
         return n;
     }
 
+    /** Wrap the given statement in code to catch all exceptions and rethrow them wrapped to
+     * avoid having a checked exception escape a closure.  This is necessary since in javac
+     * we cannot generate code for a closure that throws a checked exception.  XRX code unwraps
+     * them on the completion message, or puts them into the MultipleExceptions in their wrapped form.
+     * @param useReturn whether or not to return a value of type returnType in the catch block
+     * @author Dave Cunningham
+     */
+    private Block atExceptionWrap(Position pos, Stmt atBody, boolean useReturn, Type returnType) throws SemanticException {
+    	TypeNode returnTypeNode = nf.CanonicalTypeNode(pos, returnType); 
+
+    	// try { at_body }
+        Block tryBlock = synth.toBlock(atBody);
+
+        List<Catch> catches = new ArrayList<Catch>();
+        // if return_type is null, return is omitted and T is Int, otherwise T is return_type 
+        { // catch (e:CheckedThrowable) { /*return*/ Runtime.wrapAtChecked[T](e); }
+	        Name catchFormalName = getTmp();
+	        LocalDef catchFormalLocalDef = ts.localDef(pos, ts.NoFlags(), Types.ref(ts.CheckedThrowable()), catchFormalName);
+	        Formal catchFormal = nf.Formal(pos, nf.FlagsNode(pos, ts.NoFlags()),
+	                nf.CanonicalTypeNode(pos, ts.CheckedThrowable()), nf.Id(pos, catchFormalName)).localDef(catchFormalLocalDef);                
+	        Expr catchLocal = nf.Local(pos, nf.Id(pos, catchFormalName)).localInstance(catchFormalLocalDef.asInstance()).type(ts.CheckedThrowable());
+	        Expr wrap = synth.makeStaticCall(pos, ts.Runtime(), Name.make("wrapAtChecked"), Collections.singletonList(returnTypeNode), Collections.singletonList(catchLocal), ts.Exception(), context());
+
+	        // [DC] managed backend weirdness... If i just return wrap here, i get errors due to missing $unbox call.  I have to put it in a local var and return the local var.
+	        Name wrapStoreName = getTmp();
+	        Id wrapStoreId = nf.Id(pos, wrapStoreName);
+	        LocalDef wrapStoreLocalDef = ts.localDef(pos, ts.NoFlags(), Types.ref(returnType), wrapStoreName);
+	        LocalDecl wrapStoreLocalDecl = nf.LocalDecl(pos, nf.FlagsNode(pos, ts.NoFlags()), returnTypeNode, wrapStoreId, wrap).localDef(wrapStoreLocalDef);
+	        Expr wrapStoreLocal = nf.Local(pos, wrapStoreId).localInstance(wrapStoreLocalDef.asInstance()).type(returnType);
+	        
+	        Block catchBlock;
+	        if (useReturn) {
+	        	catchBlock= nf.Block(pos, wrapStoreLocalDecl, nf.Return(pos, wrapStoreLocal));
+	        } else {
+	        	catchBlock= nf.Block(pos, wrapStoreLocalDecl);
+	        }
+	        catches.add(nf.Catch(pos, catchFormal, catchBlock));
+        }
+	        
+        Block closure_body = synth.toBlock(nf.Try(pos, tryBlock, catches, null));
+        
+        return closure_body;
+    }
+
     private Expr visitAtExpr(AtExpr e) throws SemanticException {
-        return visitRemoteClosure(e, EVAL_AT, e.place());
+		Position pos = e.position();
+		Expr place = getPlace(pos, e.place());
+
+		Position bPos = e.body().position();
+		ClosureDef cDef = e.closureDef().position(bPos);
+		
+		// If in a clocked context, must capture implicit clock variable 
+		// being added by the lowering phase.
+		if (!clockStack.isEmpty()) {
+		    cDef.addCapturedVariable(clockStack.peek().localInstance());
+		}
+		
+		Block at_body = e.body();
+		at_body = atExceptionWrap(bPos, at_body, true, e.returnType().type());
+		
+		Closure closure_ = nf.Closure(bPos,  e.formals(), e.guard(), e.returnType(), at_body);
+		Expr closure = closure_.closureDef(cDef).type(cDef.classDef().asType());
+
+		List<TypeNode> typeArgs = Arrays.asList(new TypeNode[] { e.returnType() });
+		Expr prof = getProfile(e.closureDef()); 
+		List<Expr> args = new ArrayList<Expr>(Arrays.asList(new Expr[] { place, closure, prof }));
+		Expr result = synth.makeStaticCall(pos, ts.Runtime(), EVAL_AT,
+				typeArgs, args, e.type(), context());
+
+		// [DC] It seems this can sometimes be null, even though it ought not to be.
+		// I suspect some pass before this one is not filling it in, in some new code.
+		if (at_body.exceptions() != null) {
+		    for (Type thrown : at_body.exceptions()) {
+		    	TypeNode thrown_node = nf.UnknownTypeNode(pos).typeRef(Types.ref(thrown));
+		        //XTENLANG-3086 change from ts.CheckedThrowable() to ts.Runtime()
+				List<TypeNode> typeArgs2 = Arrays.asList(new TypeNode[] { thrown_node, e.returnType() });
+		        result = synth.makeStaticCall(pos, ts.CheckedThrowable(), Name.make("pretendToThrow"), typeArgs2, Collections.<Expr>singletonList(result),  e.returnType().type(), context());
+		    }
+		}
+
+		return result;
     }
 
     Expr getPlace(Position pos, Expr place) throws SemanticException{
@@ -399,27 +479,6 @@ public class Lowerer extends ContextVisitor {
             throw new InternalCompilerError("The place argument of an \"at\" is not of type Place", place.position());
         }
         return place;
-    }
-
-    private Expr visitRemoteClosure(Closure c, Name implName, Expr place) throws SemanticException {
-        Position pos = c.position();
-        place = getPlace(pos, place);
-        List<TypeNode> typeArgs = Arrays.asList(new TypeNode[] { c.returnType() });
-        Position bPos = c.body().position();
-        ClosureDef cDef = c.closureDef().position(bPos);
-        // If in a clocked context, must capture implicit clock variable 
-        // being added by the lowering phase.
-        if (!clockStack.isEmpty()) {
-            cDef.addCapturedVariable(clockStack.peek().localInstance());
-        }
-        Expr closure = nf.Closure(c, bPos)
-            .closureDef(cDef)
-        	.type(cDef.classDef().asType());
-        Expr prof = getProfile(c.closureDef()); 
-        List<Expr> args = new ArrayList<Expr>(Arrays.asList(new Expr[] { place, closure, prof }));
-        Expr result = synth.makeStaticCall(pos, ts.Runtime(), implName,
-        		typeArgs, args, c.type(), context());
-        return result;
     }
 
     private static CodeInstance<?> findEnclosingCode(CodeInstance<?> ci) {
@@ -472,59 +531,7 @@ public class Lowerer extends ContextVisitor {
         }
         return nodeFactory().NullLit(at.position()).type(typeSystem().Null());
     }
-
-    private Stmt atStmt(Position pos, Stmt at_body, Expr place,
-            List<VarInstance<? extends VarDef>> env, AtDef def) throws SemanticException {
-        place = getPlace(pos, place);
-        
-    	// try { at_body }
-        Block tryBlock = synth.toBlock(at_body);
-
-        List<Catch> catches = new ArrayList<Catch>();
-        { // catch (e:CheckedThrowable) { Runtime.wrapAtChecked(e); }
-	        Name catchFormalName = getTmp();
-	        LocalDef catchFormalLocalDef = ts.localDef(pos, ts.NoFlags(), Types.ref(ts.CheckedThrowable()), catchFormalName);
-	        Formal catchFormal = nf.Formal(pos, nf.FlagsNode(pos, ts.NoFlags()),
-	                nf.CanonicalTypeNode(pos, ts.CheckedThrowable()), nf.Id(pos, catchFormalName)).localDef(catchFormalLocalDef);                
-	        Expr catchLocal = nf.Local(pos, nf.Id(pos, catchFormalName)).localInstance(catchFormalLocalDef.asInstance()).type(ts.Error());
-	        Expr wrap = synth.makeStaticCall(pos, ts.Runtime(), Name.make("wrapAtChecked"), Collections.singletonList(catchLocal), ts.Exception(), context());
-	        Block catchBlock = nf.Block(pos, nf.Eval(pos, wrap));
-	        catches.add(nf.Catch(pos, catchFormal, catchBlock));
-        }
-	        
-        Block closure_body = synth.toBlock(nf.Try(pos, tryBlock, catches, null));
-        
-        Closure closure = synth.makeClosure(at_body.position(), ts.Void(), closure_body, context());
-        closure.closureDef().setCapturedEnvironment(env);
-        CodeInstance<?> mi = findEnclosingCode(Types.get(closure.closureDef().methodContainer()));
-        closure.closureDef().setMethodContainer(Types.ref(mi));
-        Expr[] args;
-        Expr profile = getProfile(def);
-        Expr endpoint = getEndpoint(def);
-        if (null != endpoint) {
-            args = new Expr[] { place, closure, profile, endpoint };
-        } else {
-            args = new Expr[] { place, closure, profile };
-        }
-        List<Stmt> statements = new ArrayList<Stmt>();
-        Stmt run_at = nf.Eval(pos,
-        		synth.makeStaticCall(pos, ts.Runtime(), RUN_AT,
-        				Arrays.asList(args), ts.Void(),
-        				context()));
-        statements.add(run_at);
-    	// [DC] It seems this can sometimes be null, even though it ought not to be.
-    	// I suspect some pass before this one is not filling it in, in some new code.
-        if (at_body.exceptions() != null) {
-	        for (Type thrown : at_body.exceptions()) {
-	        	TypeNode thrown_node = nf.UnknownTypeNode(pos).typeRef(Types.ref(thrown));
-	            //XTENLANG-3086 change from ts.CheckedThrowable() to ts.Runtime()
-		        Expr pretendToThrow = synth.makeStaticCall(pos, ts.CheckedThrowable(), Name.make("pretendToThrow"), Collections.singletonList(thrown_node), Collections.<Expr>emptyList(),  ts.Void(), context());
-	        	statements.add(nf.Eval(pos, pretendToThrow));
-	        }
-        }
-        return nf.Block(pos, statements);
-    }
-
+    
     private Stmt visitAtStmt(AtStmt a) throws SemanticException {
         Position pos = a.position();
 
@@ -535,8 +542,45 @@ public class Lowerer extends ContextVisitor {
             env = new ArrayList<VarInstance<? extends VarDef>>(env);
             env.add(clockStack.peek().localInstance());
         }
+
         
-        return atStmt(pos, a.body(), a.place(), env, a.atDef());
+        Stmt at_body = a.body();
+		Expr place = a.place();
+		AtDef def = a.atDef();
+        
+        place = getPlace(pos, place);
+		
+		Block closure_body = atExceptionWrap(pos, at_body, false, ts.Int());
+		
+		Closure closure = synth.makeClosure(at_body.position(), ts.Void(), closure_body, context());
+		closure.closureDef().setCapturedEnvironment(env);
+		CodeInstance<?> mi = findEnclosingCode(Types.get(closure.closureDef().methodContainer()));
+		closure.closureDef().setMethodContainer(Types.ref(mi));
+		Expr[] args;
+		Expr profile = getProfile(def);
+		Expr endpoint = getEndpoint(def);
+		if (null != endpoint) {
+		    args = new Expr[] { place, closure, profile, endpoint };
+		} else {
+		    args = new Expr[] { place, closure, profile };
+		}
+		List<Stmt> statements = new ArrayList<Stmt>();
+		Stmt run_at = nf.Eval(pos,
+				synth.makeStaticCall(pos, ts.Runtime(), RUN_AT,
+						Arrays.asList(args), ts.Void(),
+						context()));
+		statements.add(run_at);
+		// [DC] It seems this can sometimes be null, even though it ought not to be.
+		// I suspect some pass before this one is not filling it in, in some new code.
+		if (at_body.exceptions() != null) {
+		    for (Type thrown : at_body.exceptions()) {
+		    	TypeNode thrown_node = nf.UnknownTypeNode(pos).typeRef(Types.ref(thrown));
+		        //XTENLANG-3086 change from ts.CheckedThrowable() to ts.Runtime()
+		        Expr pretendToThrow = synth.makeStaticCall(pos, ts.CheckedThrowable(), Name.make("pretendToThrow"), Collections.singletonList(thrown_node), Collections.<Expr>emptyList(),  ts.Void(), context());
+		    	statements.add(nf.Eval(pos, pretendToThrow));
+		    }
+		}
+		return nf.Block(pos, statements);
     }
 
     private AtStmt toAtStmt(Stmt body) {

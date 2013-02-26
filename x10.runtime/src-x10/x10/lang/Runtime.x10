@@ -795,9 +795,12 @@ public final class Runtime {
     }
 
     /**
-      * Used in codegen at the root of an at closure, upon catching something that is not below Error
+      * Used in codegen at the root of an at closure, upon catching something that is not below Exception or Error.
+      * Has a return type to avoid post compile errors.  The function never returns but it may still
+      * be called like this: return wrapAtChecked[Int](e).  That will satisfy the checking for return
+      * statements in the calling function.
       */
-    public static def wrapAtChecked (caught:CheckedThrowable) : void {
+    public static def wrapAtChecked[T] (caught:CheckedThrowable) : T {
         // Only wrap if necessary
         if (caught instanceof Exception) throw caught as Exception;
         if (caught instanceof Error) throw caught as Error;
