@@ -725,6 +725,7 @@ x10rt_error x10rt_net_init (int * argc, char ***argv, x10rt_msg_type *counter)
 	#ifdef DEBUG
 		fprintf(stderr, "X10rt.Sockets: place %u running\n", state.myPlaceId);
 	#endif
+	return state.errorCode;
 }
 
 void x10rt_net_register_msg_receiver (x10rt_msg_type msg_type, x10rt_handler *callback)
