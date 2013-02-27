@@ -19,12 +19,10 @@ import java.io.ObjectOutputStream;
 import java.lang.reflect.Array;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
-import java.util.HashMap;
-import java.util.Map.Entry;
 
 import x10.io.CustomSerialization;
-import x10.rtt.RuntimeType;
 import x10.runtime.impl.java.Runtime;
+import x10.serialization.SerializationDictionary.LocalSerializationDictionary;
 
 public final class X10JavaSerializer implements SerializationConstants {
         
@@ -41,12 +39,13 @@ public final class X10JavaSerializer implements SerializationConstants {
     public void addToGrefMap(x10.core.GlobalRef<?> gr, int weight) { grefMap.put(gr, weight); }
     public java.util.Map<x10.core.GlobalRef<?>, Integer> getGrefMap() { return grefMap; }
     
-    // Build up per-message id dictionary
-    protected SerializationDictionary idDictionary = new SerializationDictionary(FIRST_DYNAMIC_ID);
-
+    // per-message id dictionary
+    protected final LocalSerializationDictionary idDictionary;
+    
     public X10JavaSerializer() {
         this.b_out = new ByteArrayOutputStream();
         this.out = new DataOutputStream(this.b_out);
+        this.idDictionary = new LocalSerializationDictionary(SharedDictionaries.getSerializationDictionary(), FIRST_DYNAMIC_ID);
     }
 
     public DataOutput getOutForHadoop() {

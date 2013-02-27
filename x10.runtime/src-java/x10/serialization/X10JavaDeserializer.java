@@ -20,11 +20,11 @@ import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 
 import x10.rtt.Types;
 import x10.runtime.impl.java.Runtime;
+import x10.serialization.DeserializationDictionary.LocalDeserializationDictionary;
 
 public final class X10JavaDeserializer implements SerializationConstants {
         
@@ -33,12 +33,12 @@ public final class X10JavaDeserializer implements SerializationConstants {
     DataInputStream in;
     private int counter = 0;
     
-    private DeserializationDictionary dict; 
+    private LocalDeserializationDictionary dict; 
     
     public X10JavaDeserializer(DataInputStream in) {
         this.in = in;
         objectList = new ArrayList<Object>();
-        dict = new DeserializationDictionary(this);
+        dict = new LocalDeserializationDictionary(this, SharedDictionaries.getDeserializationDictionary());
     }
 
     public DataInput getInpForHadoop() {
