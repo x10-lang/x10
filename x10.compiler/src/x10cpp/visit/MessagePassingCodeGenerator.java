@@ -3201,6 +3201,8 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
         X10CPPContext_c c = (X10CPPContext_c) tr.context();
 
         emitter.enterClosure(c);
+        boolean oldPrintType = tr.printType(true);
+        boolean oldSemiColon = tr.appendSemicolon(true);
 
         ClosureDef closureDef = n.closureDef();
         CodeInstance<?> ci = closureDef.methodContainer().get();
@@ -3506,6 +3508,8 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
             sw.write("))");
         }
 
+        tr.printType(oldPrintType);
+        tr.appendSemicolon(oldSemiColon);
         c.finalizeClosureInstance();
         emitter.exitClosure(c);
     }
