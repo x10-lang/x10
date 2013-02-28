@@ -14,7 +14,7 @@ package x10.lang;
 import x10.compiler.Inline;
 import x10.util.IndexedMemoryChunk;
 
-public final class Rail[T](size:Long) implements Iterable[T] {
+public final class Rail[T](size:Long) implements Iterable[T],(Int)=>T,(Long)=>T {
 
     public property def range() = new LongRange(0, size-1);
 
