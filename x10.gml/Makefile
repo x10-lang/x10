@@ -100,17 +100,17 @@ lapack_src=\
 	x10/matrix/lapack/DriverLAPACK.x10
 
 sparse_src=\
-  	x10/matrix/sparse/Compress1D.x10 \
-   	x10/matrix/sparse/Compress2D.x10 \
-   	x10/matrix/sparse/DenseMultSparseToDense.x10 \
-    	x10/matrix/sparse/SparseCSR.x10 \
-    	x10/matrix/sparse/SparseMultSparseToDense.x10 \
-    	x10/matrix/sparse/SparseAddToDense.x10 \
-    	x10/matrix/sparse/SparseDivToDense.x10 \
-    	x10/matrix/sparse/SparseSubToDense.x10 \
-    	x10/matrix/sparse/CompressArray.x10  \
-    	x10/matrix/sparse/SparseCSC.x10  \
-    	x10/matrix/sparse/SparseMultDenseToDense.x10 
+	x10/matrix/sparse/Compress1D.x10 \
+	x10/matrix/sparse/Compress2D.x10 \
+	x10/matrix/sparse/DenseMultSparseToDense.x10 \
+	x10/matrix/sparse/SparseCSR.x10 \
+	x10/matrix/sparse/SparseMultSparseToDense.x10 \
+	x10/matrix/sparse/SparseAddToDense.x10 \
+	x10/matrix/sparse/SparseDivToDense.x10 \
+	x10/matrix/sparse/SparseSubToDense.x10 \
+	x10/matrix/sparse/CompressArray.x10  \
+	x10/matrix/sparse/SparseCSC.x10  \
+	x10/matrix/sparse/SparseMultDenseToDense.x10 
 
 
 block_src=\
@@ -270,7 +270,7 @@ check_blas:
 
 chk_jblas	: chk_blas jblas 
 			cp $(bwrap_path)/WrapBLAS.java $(build_path)/x10/matrix/blas
-			
+
 chk_blas	: 
 			mkdir -p $(build_path)/x10/matrix/blas 
 
