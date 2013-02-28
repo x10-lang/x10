@@ -24,7 +24,7 @@ import x10.compiler.NoInline;
 public class FunctionUpcast1 extends x10Test {
     public static @NoInline def eval1(cls:(Int,Int)=>Any) = cls(1000, 1);
     public static @NoInline def eval2(cls:()=>Any) = cls();
-    public static @NoInline def eval3(i:Point(1), cls:(Point(1))=>Any) = cls(i);
+    public static @NoInline def eval3(i:Int, cls:(Int)=>Any) = cls(i);
 
     public def run(): boolean = {
         val e1 = eval1((a:Any, b:Any)=>((a as Int)+(b as Int)+10));
