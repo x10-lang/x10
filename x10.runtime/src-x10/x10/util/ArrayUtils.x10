@@ -16,7 +16,7 @@ package x10.util;
  * This class contains utility methods for manipulating Rail and
  * IndexedMemoryChunk instances.
  */
-public class RailUtils {
+public class ArrayUtils {
     /**
      * Sorts the given rail into ascending order.
      * @param a the rail to be sorted
