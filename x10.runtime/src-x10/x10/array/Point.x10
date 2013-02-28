@@ -109,6 +109,7 @@ public final class Point(rank:Int) implements (Int) => Int,
 
     /**
      * Constructs a Point from a Rail[int]
+     * LONG_RAIL: unsafe int cast
      */
     public static def make[T](r:Rail[T]){T<: Int}:Point(r.size as Int) {
         switch(r.size as Int) {
@@ -146,6 +147,7 @@ public final class Point(rank:Int) implements (Int) => Int,
 
     /** A <code>Rail</code> <code>r</code> of length <code>k</code> can be converted to a point <code>p</code>
      * of rank <code>k</code> with <code>p(i)=r(i)</code>.
+      * LONG_RAIL: unsafe int cast
      */
     public static operator[T] (r:Rail[T]){T <: Int}:Point(r.size as Int) = make(r);
 
