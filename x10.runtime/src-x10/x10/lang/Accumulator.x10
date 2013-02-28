@@ -35,9 +35,9 @@ public class Accumulator[T] extends Acc implements CustomSerialization {
     }
     public def this(data:SerialData) {
         //owner = null;
-        val arr:Array[Any](1) = data.data as Array[Any](1);
-        this.red = arr(0) as Reducible[T];
-        this.root = arr(1) as GlobalRef[Acc];
+        val rail:Rail[Any] = data.data as Rail[Any];
+        this.red = rail(0) as Reducible[T];
+        this.root = rail(1) as GlobalRef[Acc];
         this.curr = red.zero();
     }
     public def serialize():SerialData = new SerialData([red as Any, root as Any], null);

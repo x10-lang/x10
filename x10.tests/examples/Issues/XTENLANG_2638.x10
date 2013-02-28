@@ -38,7 +38,7 @@ class XTENLANG_2638 extends x10Test
         return true;
     }
 
-    public static def main (arg:Array[String](1)) : void
+    public static def main (arg:Rail[String]) : void
     {
         new XTENLANG_2638().execute();
     }

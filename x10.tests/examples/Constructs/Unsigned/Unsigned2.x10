@@ -35,7 +35,7 @@ public class Unsigned2 extends x10Test {
             && (z as int) == 1;
     }
 
-    public static def main(Array[String](1)) = {
+    public static def main(Rail[String]) = {
         new Unsigned2().execute();
     }
 }

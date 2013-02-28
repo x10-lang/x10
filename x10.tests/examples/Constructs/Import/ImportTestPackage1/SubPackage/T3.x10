@@ -25,7 +25,7 @@ public class T3 extends x10Test {
 		return m3(49);
 	}
 
-	public static def main(var args: Array[String](1)): void = {
+	public static def main(var args: Rail[String]): void = {
 		new T3().execute();
 	}
 }

@@ -22,7 +22,7 @@ public class Prop(i: int,  j: int) extends x10Test  {
 	    property(i,j);
 	}
 	public def run(): boolean = true;
-	public static def main(var args: Array[String](1)): void = {
+	public static def main(var args: Rail[String]): void = {
 		new Prop(2,3).execute();
 	}
 	}

@@ -33,7 +33,7 @@ public class FlattenCast extends x10Test {
         return 2.0==x;
     }
     
-    public static def main(var args: Array[String](1)): void = {
+    public static def main(var args: Rail[String]): void = {
         new FlattenCast().execute();
     }
 }

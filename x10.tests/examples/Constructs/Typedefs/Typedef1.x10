@@ -26,7 +26,7 @@ public class Typedef1 extends x10Test {
 		return x == 3 && y == this;
 	}
 
-	public static def main(var args: Array[String](1)): void = {
+	public static def main(var args: Rail[String]): void = {
 		new Typedef1().execute();
 	}
 }

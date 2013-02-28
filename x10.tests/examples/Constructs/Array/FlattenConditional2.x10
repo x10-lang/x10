@@ -36,7 +36,7 @@ public class FlattenConditional2 extends x10Test {
         return x==4;
     }
 
-    public static def main(Array[String](1))  {
+    public static def main(Rail[String])  {
         new FlattenConditional2().execute();
     }
 }

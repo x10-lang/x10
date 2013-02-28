@@ -107,7 +107,7 @@ public class ObjectArrayTest  extends x10Test {
     return true;
   }
 
-  public static def main(args:Array[String](1)) {
+  public static def main(args:Rail[String]) {
     val n:int;
     if (args.size > 0) {
         n = Int.parseInt(args(0));

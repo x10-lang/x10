@@ -39,7 +39,7 @@ public class VariableScope extends x10Test {
         return n == 2 * N * N;
     }
 
-    public static def main(var args: Array[String](1)): void = {
+    public static def main(var args: Rail[String]): void = {
         new VariableScope().execute();
     }
 }

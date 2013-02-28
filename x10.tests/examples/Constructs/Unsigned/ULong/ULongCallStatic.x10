@@ -33,7 +33,7 @@ public class ULongCallStatic extends x10Test {
 	return (s0.equals("long = 0") && s1.equals("ulong = 1"));
     }
 
-    public static def main(Array[String]) {
+    public static def main(Rail[String]) {
         new ULongCallStatic().execute();
     }
 }

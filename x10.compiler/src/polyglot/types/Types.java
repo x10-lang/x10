@@ -875,6 +875,30 @@ public class Types {
 		}
 	}
 
+    /**
+     * Return the type Rail[type]{self.size==size}.
+     * @param type
+     * @param pos
+     * @return
+     */
+    public static Type makeRailOf(Type type, int size, Position pos) {
+        TypeSystem ts = type.typeSystem();
+        X10ClassType t = ts.Rail(type);
+        CConstraint c = Types.xclause(t);
+        FieldInstance sizeField = t.toClass().fieldNamed(Name.make("size"));
+        if (sizeField == null)
+            throw new InternalCompilerError("Could not find size field of " + t, pos);
+        try {
+            XTerm selfSize = ts.xtypeTranslator().translate(c.self(), sizeField);
+            XLit sizeLiteral = ConstraintManager.getConstraintSystem().makeLit(size, ts.Int());
+            c.addBinding(selfSize, sizeLiteral);
+            Type result = Types.xclause(t, c);
+            return result;
+        } catch (InternalCompilerError z) {
+            throw new InternalCompilerError("Could not create Rail[T]{self.size==size}");
+        }
+    }
+
 	/**
 	 * Return the type Array[type]{self.rail==true,self.size==size}.
 	 * @param type

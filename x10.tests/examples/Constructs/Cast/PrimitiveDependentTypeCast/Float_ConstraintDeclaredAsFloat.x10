@@ -26,7 +26,7 @@ public class Float_ConstraintDeclaredAsFloat extends x10Test {
 		return ((j == 0.00001F) && (i==0.00002F));
 	}
 
-	public static def main(var args: Array[String](1)): void = {
+	public static def main(var args: Rail[String]): void = {
 		new Float_ConstraintDeclaredAsFloat().execute();
 	}
 

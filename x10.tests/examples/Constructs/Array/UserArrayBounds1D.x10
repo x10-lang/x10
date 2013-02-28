@@ -71,7 +71,7 @@ public class UserArrayBounds1D extends x10Test {
     */
    private static def iff(x: boolean, y: boolean)= x == y;
 
-   public static def main(Array[String](1)){
+   public static def main(Rail[String]){
       new UserArrayBounds1D().execute();
    }
 

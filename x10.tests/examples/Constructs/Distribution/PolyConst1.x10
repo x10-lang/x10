@@ -42,7 +42,7 @@ class PolyConst1 extends TestDist {
         "a DistArray(Dist([0..9,0..9]->0))\n"+
         "b DistArray(Dist([0..9,0..9]->0))\n";
     
-    public static def main(Array[String](1)) {
+    public static def main(Rail[String]) {
         new PolyConst1().execute();
     }
 }

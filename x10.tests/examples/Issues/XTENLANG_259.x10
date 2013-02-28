@@ -27,7 +27,7 @@ public class XTENLANG_259 extends x10Test implements (int)=>int {
         return true;
     }
 
-    public static def main(Array[String](1)) {
+    public static def main(Rail[String]) {
         new XTENLANG_259().execute();
     }
 }

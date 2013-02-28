@@ -46,7 +46,7 @@ public class CF6 extends x10Test{
             Console.OUT.println("result =" + result + " P=" + Place.MAX_PLACES);
             return result == Totals2(iteration * Place.MAX_PLACES,iteration * 2 *Place.MAX_PLACES);
     }
-        public static def main(args: Array[String](1)) {
+        public static def main(args: Rail[String]) {
                 new CF6().execute();
         }
 

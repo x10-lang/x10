@@ -12,12 +12,12 @@
 
 public class WSNQueensParTest{
     public def run():boolean {
-         val args = new Array[String](0);
+         val args = new Rail[String](0);
          NQueensPar.main(args);
          return true;
     }
 
-    public static def main(args:Array[String](1)) {
+    public static def main(args:Rail[String]) {
         val r = new WSNQueensParTest().run();
         if(r){
               x10.io.Console.OUT.println("++++++Test succeeded.");

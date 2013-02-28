@@ -29,7 +29,7 @@ public class ArrayLiteralTest extends x10Test {
         return suma==6 && sumr==6;
     }
 
-    public static def main(Array[String](1)): void = {
+    public static def main(Rail[String]): void = {
         new ArrayLiteralTest().execute();
     }
 }

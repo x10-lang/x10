@@ -34,7 +34,7 @@ import x10.matrix.comm.CommHandle;
  */
 
 public class TestSparseColl{
-    public static def main(args:Array[String](1)) {
+    public static def main(args:Rail[String]) {
 		val m = args.size > 0 ?Int.parse(args(0)):10;
 		val n = args.size > 1 ?Int.parse(args(1)):m+1;
 		val d = args.size > 2 ?Double.parse(args(2)):0.9;

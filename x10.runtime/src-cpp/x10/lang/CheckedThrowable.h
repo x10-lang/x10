@@ -17,12 +17,13 @@
 #include <x10/lang/X10Class.h>
 
 namespace x10 { namespace io { class Printer; } }
-namespace x10 { namespace array { template <class T> class Array; } }
 
 namespace x10 {
     namespace lang {
 
         class String;
+
+        template <class T> class Rail;
 
         class CheckedThrowable : public X10Class {
         public:
@@ -42,7 +43,7 @@ namespace x10 {
 
             // Computing the human-readable form of the backtrace is expensive.
             // Once we do it, keep it around for future use.
-            x10::array::Array<x10::lang::String*>* FMGL(cachedStackTrace);
+            x10::lang::Rail<x10::lang::String*>* FMGL(cachedStackTrace);
             
             static CheckedThrowable* _make();
             static CheckedThrowable* _make(String* message);
@@ -67,7 +68,7 @@ namespace x10 {
             virtual CheckedThrowable* getCause() { return FMGL(cause); }
             virtual String* toString();
             virtual CheckedThrowable* fillInStackTrace();
-            virtual x10::array::Array<String*>* getStackTrace();
+            virtual x10::lang::Rail<String*>* getStackTrace();
             virtual void printStackTrace();
             virtual void printStackTrace(x10::io::Printer*);
             

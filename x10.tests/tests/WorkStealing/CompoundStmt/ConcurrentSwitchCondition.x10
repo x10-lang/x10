@@ -37,7 +37,7 @@ public class ConcurrentSwitchCondition {
         return r;
     }
 
-    public static def main(args:Array[String](1)) {
+    public static def main(args:Rail[String]) {
         val r = new ConcurrentSwitchCondition().run();
         if(r){
              x10.io.Console.OUT.println("++++++Test succeeded.");

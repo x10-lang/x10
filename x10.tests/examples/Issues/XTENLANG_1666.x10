@@ -16,7 +16,7 @@ import harness.x10Test;
  * Testing a bug in definite-assignment rules
  */
 public class XTENLANG_1666 extends x10Test {
-    public static def main(Array[String](1)) {
+    public static def main(Rail[String]) {
         new XTENLANG_1666().execute();
     }
     var flag:Boolean;

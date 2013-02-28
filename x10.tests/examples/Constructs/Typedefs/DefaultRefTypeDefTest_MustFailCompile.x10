@@ -28,7 +28,7 @@ public class DefaultRefTypeDefTest_MustFailCompile extends x10Test {
         true
     }
 
-    public static def main(var args: Array[String](1)): void = {
+    public static def main(var args: Rail[String]): void = {
         new DefaultRefTypeDefTest_MustFailCompile().execute();
     }
 }

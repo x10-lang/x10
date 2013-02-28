@@ -33,7 +33,7 @@ import x10.matrix.comm.MatrixRemoteCopy;
  */
 
 public class TestMatP2P{
-    public static def main(args:Array[String](1)) {
+    public static def main(args:Rail[String]) {
 		val testcase = new TestMatP2PCopy(args);
 		testcase.run(); 
 	}
@@ -51,7 +51,7 @@ class TestMatP2PCopy {
 	public val checkTime:Array[Long](1);
 	//==============
 
-    public def this(args:Array[String](1)) {
+    public def this(args:Rail[String]) {
 		M = args.size > 0 ?Int.parse(args(0)):50;
 		N = args.size > 1 ?Int.parse(args(1)):M;
 		iter = args.size > 2 ? Int.parse(args(2)):1;

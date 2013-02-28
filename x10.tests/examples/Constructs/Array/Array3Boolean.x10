@@ -23,7 +23,7 @@ public class Array3Boolean extends x10Test {
         return ia(1, 1);
     }
 
-    public static def main(var args: Array[String](1)): void = {
+    public static def main(var args: Rail[String]): void = {
         new Array3Boolean().execute();
     }
 }

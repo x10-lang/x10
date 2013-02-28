@@ -19,7 +19,7 @@ public class XTENLANG_1367 extends x10Test {
     public def run(): boolean {
         return true;
     }
-    public static def main(Array[String](1)) {
+    public static def main(Rail[String]) {
         new XTENLANG_1367().execute();
     }
 }

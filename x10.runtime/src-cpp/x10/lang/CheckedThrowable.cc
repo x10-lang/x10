@@ -14,10 +14,9 @@
 #include <x10aux/class_cast.h>
 
 #include <x10/lang/CheckedThrowable.h>
+#include <x10/lang/Rail.h>
 #include <x10/lang/String.h>
 #include <x10/io/Printer.h>
-
-#include <x10/array/Array.h>
 
 #if defined(__GLIBC__) || defined(__APPLE__)
 #   include <execinfo.h> // for backtrace()
@@ -37,7 +36,6 @@
 #include <stdio.h>
 
 using namespace x10::lang;
-using namespace x10::array;
 using namespace x10aux;
 
 const serialization_id_t CheckedThrowable::_serialization_id =
@@ -55,7 +53,7 @@ void
 CheckedThrowable::_deserialize_body(x10aux::deserialization_buffer &buf) {
     FMGL(cause) = buf.read<CheckedThrowable*>();
     FMGL(message) = buf.read<String*>();
-    FMGL(cachedStackTrace) = buf.read<Array<String*>*>();
+    FMGL(cachedStackTrace) = buf.read<Rail<String*>*>();
     FMGL(trace_size) = 0;
     FMGL(trace) = NULL;
 }
@@ -320,31 +318,31 @@ static char* demangle_symbol(char* name) {
 }
 #endif
 
-Array<String*>* CheckedThrowable::getStackTrace() {
+Rail<String*>* CheckedThrowable::getStackTrace() {
     if (NULL == FMGL(cachedStackTrace)) {
         #if defined(__GLIBC__) || defined(__APPLE__)
         if (FMGL(trace_size) <= 0) {
             const char *msg = "No stacktrace recorded.";
-            FMGL(cachedStackTrace) = Array<String*>::_make(1);
+            FMGL(cachedStackTrace) = Rail<String*>::_make(1);
             FMGL(cachedStackTrace)->__set(0, String::Lit(msg));
         } else {
-            Array<String*>* array = Array<String*>::_make(FMGL(trace_size));
+            Rail<String*>* rail = Rail<String*>::_make(FMGL(trace_size));
             char **messages = ::backtrace_symbols(FMGL(trace), FMGL(trace_size));
             for (int i=0 ; i<FMGL(trace_size) ; ++i) {
                 char *filename; char *symbol; size_t addr;
                 extract_frame_ct(messages[i],filename,symbol,addr);
                 char *msg = symbol;
-                array->__set(i, String::Lit(msg));
+                rail->__set(i, String::Lit(msg));
                 ::free(msg);
                 ::free(filename);
             }
             ::free(messages); // malloced by backtrace_symbols
-            FMGL(cachedStackTrace) = array;
+            FMGL(cachedStackTrace) = rail;
         }
         #elif defined(_AIX)
         if (FMGL(trace_size) <= 0) {
             const char *msg = "No stacktrace recorded.";
-            FMGL(cachedStackTrace) = Array<String*>::_make(1);
+            FMGL(cachedStackTrace) = Rail<String*>::_make(1);
             FMGL(cachedStackTrace)->__set(0, String::Lit(msg));
         } else {
 			// build up a fake stack from our saved addresses
@@ -383,13 +381,13 @@ Array<String*>* CheckedThrowable::getStackTrace() {
 			free(fakeStack);
 
 			// from here on down, proceed as before
-            Array<String*>* array = Array<String*>::_make(FMGL(trace_size));
+            Rail<String*>* rail = Rail<String*>::_make(FMGL(trace_size));
 			char *msg;
 			for (int i=0 ; i<FMGL(trace_size) ; ++i) {
 				char* s = (char*)FMGL(trace)[i];
 				char* c = strstr(s, " : ");
 				if (c == NULL) {
-					array->__set(i, String::Lit("???????"));
+					rail->__set(i, String::Lit("???????"));
 					continue;
 				}
 				c[0] = '\0';
@@ -415,15 +413,15 @@ Array<String*>* CheckedThrowable::getStackTrace() {
 					msg = alloc_printf("%s (offset %s)", s, c);
 					f = c;
 				}
-				array->__set(i, String::Lit(msg));
+				rail->__set(i, String::Lit(msg));
 				::free(msg);
 
 			}
-			FMGL(cachedStackTrace) = array;
+			FMGL(cachedStackTrace) = rail;
         }
     #else
         const char *msg = "Detailed stacktraces not supported on this platform.";
-        FMGL(cachedStackTrace) = Array<String*>::_make(1);
+        FMGL(cachedStackTrace) = Rail<String*>::_make(1);
         FMGL(cachedStackTrace)->__set(0, String::Lit(msg));
     #endif
     }
@@ -433,7 +431,7 @@ Array<String*>* CheckedThrowable::getStackTrace() {
 
 void CheckedThrowable::printStackTrace() {
     fprintf(stderr, "%s\n", this->toString()->c_str());
-    Array<String*>* trace = this->getStackTrace();
+    Rail<String*>* trace = this->getStackTrace();
     for (int i = 0; i < trace->FMGL(size); ++i)
         fprintf(stderr, "\tat %s\n", trace->__apply(i)->c_str());
     CheckedThrowable* cause = getCause();
@@ -445,7 +443,7 @@ void CheckedThrowable::printStackTrace() {
 
 void CheckedThrowable::printStackTrace(x10::io::Printer* printer) {
     printer->println(class_cast<Any*,String*>(toString()));
-    Array<String*>* trace = this->getStackTrace();
+    Rail<String*>* trace = this->getStackTrace();
     String* atStr = String::Lit("\tat ");
     for (int i=0 ; i<trace->FMGL(size) ; ++i) { 
         printer->print(atStr);

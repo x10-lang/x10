@@ -63,7 +63,7 @@ public class UserDefinedArray extends x10Test {
         return i0 + 1 == i1;
     }
 
-    public static def main(var args: Array[String](1)): void = {
+    public static def main(var args: Rail[String]): void = {
         new UserDefinedArray().execute();
     }
 

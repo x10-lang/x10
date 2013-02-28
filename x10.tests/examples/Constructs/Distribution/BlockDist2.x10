@@ -3,7 +3,7 @@ import x10.util.*;
 import harness.x10Test;
 
 public class BlockDist2 extends x10Test.BardTest {
-  public static def main(Array[String](1)){
+  public static def main(Rail[String]){
      val p:x10Test = new BlockDist2();
      p.execute();
   }

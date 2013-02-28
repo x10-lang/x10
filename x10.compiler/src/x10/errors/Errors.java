@@ -824,15 +824,15 @@ public class Errors {
         }
     }
 	
-	public static class ArrayLiteralMustBeOfArrayType extends EqualByTypeAndPosException {
+	public static class RailLiteralMustBeOfArrayType extends EqualByTypeAndPosException {
 		private static final long serialVersionUID = 3059270665285777371L;
-		public ArrayLiteralMustBeOfArrayType(String typeName,   Position pos) {
-	        super("An array literal must start with 'new Array...'.", pos);
+		public RailLiteralMustBeOfArrayType(String typeName,   Position pos) {
+	        super("A rail literal must start with 'new Rail...'.", pos);
 	    }
 	}
-	public static class ArrayLiteralTypeMismatch extends EqualByTypeAndPosException {
+	public static class RailLiteralTypeMismatch extends EqualByTypeAndPosException {
 		private static final long serialVersionUID = -8344153029213631407L;
-		public ArrayLiteralTypeMismatch(Expr e, Type itype) {
+		public RailLiteralTypeMismatch(Expr e, Type itype) {
 	        super("The literal is not of the given type" +
 	        		"\n\t expr:" + e +
 	        		"\n\t type: " + e.type() +

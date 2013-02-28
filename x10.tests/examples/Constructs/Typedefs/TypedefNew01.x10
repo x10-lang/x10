@@ -48,7 +48,7 @@ public class TypedefNew01 extends TypedefTest {
         return result;
     }
 
-    public static def main(Array[String](1)) {
+    public static def main(Rail[String]) {
         new TypedefNew01().execute();
     }
 }

@@ -51,7 +51,7 @@ class PolyEquality1 extends TestRegion {
         "[1..5,2..6]==[0..5,1..6] false false\n"+
         "[1..5,2..6]==[1..5,2..6] true true\n";
     
-    public static def main(Array[String](1)) {
+    public static def main(Rail[String]) {
         new PolyEquality1().execute();
     }
 }

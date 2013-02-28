@@ -4190,7 +4190,8 @@ public class Emitter {
                 w.write(".value");
                 w.write(")");
 
-                w.write("[");
+                // LONG_RAIL: unsafe int cast
+                w.write("[(int)");
                 c.print(c.arguments().get(0), w, tr);
                 w.write("]");
 
@@ -4210,7 +4211,8 @@ public class Emitter {
                 w.write(".value");
                 w.write(")");
 
-                w.write("[");
+                // LONG_RAIL: unsafe int cast
+                w.write("[(int)");
                 c.print(c.arguments().get(0), w, tr);
                 w.write("]");
 
@@ -4431,7 +4433,7 @@ public class Emitter {
                 "}\n" +
                 "\n" +
                 "// called by native runtime inside main x10 thread\n" +
-                "public void runtimeCallback(final x10.array.Array<java.lang.String> args) #throws {\n" +
+                "public void runtimeCallback(final x10.lang.Rail<java.lang.String> args) #throws {\n" +
                     "// call the original app-main method\n" +
                     "#mainclass.main(args);\n" +
                 "}\n" +

@@ -37,7 +37,7 @@ public class TypedefExample2 extends TypedefTest {
 
 
 
-    public static def main(var args: Array[String](1)): void = {
+    public static def main(var args: Rail[String]): void = {
         new TypedefExample2().execute();
     }
 }

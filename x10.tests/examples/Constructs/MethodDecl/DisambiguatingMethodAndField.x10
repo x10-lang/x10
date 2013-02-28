@@ -19,7 +19,7 @@ import x10.util.*;
  */
 
 class DisambiguatingMethodAndField extends x10Test {
-    public static def main(Array[String](1)) {
+    public static def main(Rail[String]) {
         new DisambiguatingMethodAndField().execute();
     }
     

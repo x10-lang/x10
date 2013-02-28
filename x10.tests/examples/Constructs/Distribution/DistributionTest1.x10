@@ -27,7 +27,7 @@ public class DistributionTest1 extends x10Test {
             (R.max(1) - R.min(1) + 1 == 101));
     }
 
-    public static def main(var args: Array[String](1)): void = {
+    public static def main(var args: Rail[String]): void = {
         new DistributionTest1().execute();
     }
 }

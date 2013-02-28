@@ -24,7 +24,7 @@ class XTENLANG_244 extends x10Test {
         return check(new Box[Int](1), new Box[Int](1))==false;
     }
 
-    public static def main(Array[String](1)) {
+    public static def main(Rail[String]) {
         new XTENLANG_244().execute();
     }
 }

@@ -24,7 +24,7 @@ import linreg.SeqLinearRegression;
  */
 public class RunLinReg {
 
-	public static def main(args:Array[String](1)): void {
+	public static def main(args:Rail[String]): void {
 		
 		val mV = args.size > 0 ? Int.parse(args(0)):100; // Rows and columns of V
 		val nV = args.size > 1 ? Int.parse(args(1)):100; //column of V

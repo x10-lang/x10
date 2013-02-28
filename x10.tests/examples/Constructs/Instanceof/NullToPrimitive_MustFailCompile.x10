@@ -22,7 +22,7 @@ public class NullToPrimitive_MustFailCompile extends x10Test {
 		return !(null instanceof Int); // ERR
 	}
 	
-	public static def main(var args: Array[String](1)): void = {
+	public static def main(var args: Rail[String]): void = {
 		new NullToPrimitive_MustFailCompile().execute();
 	}
 }

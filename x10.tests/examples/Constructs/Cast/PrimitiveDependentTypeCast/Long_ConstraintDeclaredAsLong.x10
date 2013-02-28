@@ -27,7 +27,7 @@ public class Long_ConstraintDeclaredAsLong extends x10Test {
 		return ((j == 2147493647L) && (i==2147493647L));
 	}
 
-	public static def main(var args: Array[String](1)): void = {
+	public static def main(var args: Rail[String]): void = {
 		new Long_ConstraintDeclaredAsLong().execute();
 	}
 

@@ -32,7 +32,7 @@ public class JavaException5 extends x10Test {
 
     public def run(): Boolean = true;
 
-    public static def main(args: Array[String](1)) {
+    public static def main(args: Rail[String]) {
         new JavaException5().execute();
     }
 

@@ -24,7 +24,7 @@ public class PointBinding extends x10Test {
         return (i == 1 && j == 2);
     }
 
-    public static def main(Array[String](1)) {
+    public static def main(Rail[String]) {
         new PointBinding().execute();
     }
 }

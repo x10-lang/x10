@@ -145,7 +145,7 @@ public class ClockTest6 extends x10Test {
 		chk((tick+1) * N_KINDS * N_INSTANCES == tmp);
 	}
 
-	public static def main(var args: Array[String](1)): void = {
+	public static def main(var args: Rail[String]): void = {
 		new ClockTest6().executeAsync();
 	}
 }

@@ -93,7 +93,7 @@ public class DistBounds2D extends x10Test {
         return x == y;
     }
 
-    public static def main(var args: Array[String](1)): void = {
+    public static def main(var args: Rail[String]): void = {
         new DistBounds2D().execute();
     }
 

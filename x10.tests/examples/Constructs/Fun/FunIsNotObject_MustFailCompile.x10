@@ -25,7 +25,7 @@ public class FunIsNotObject_MustFailCompile extends x10Test {
 		val x:Empty = f;  // ERR: Cannot assign expression to target.
 		return false;
 	}
-	public static def main(Array[String](1)) {
+	public static def main(Rail[String]) {
 		new FunIsNotObject_MustFailCompile().execute();
 	}
 }

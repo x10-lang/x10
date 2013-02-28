@@ -33,7 +33,7 @@ public class ThisPropogatedToReturnType extends x10Test {
 		var one: int{self==1} = t.test();
 		return true;
 	}
-	public static def main(Array[String](1)): void = {
+	public static def main(Rail[String]): void = {
 		 new ThisPropogatedToReturnType().execute();
 	}
 }

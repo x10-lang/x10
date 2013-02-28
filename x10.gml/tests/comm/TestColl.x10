@@ -29,7 +29,7 @@ import x10.matrix.comm.CommHandle;
  */
 
 public class TestColl{
-    public static def main(args:Array[String](1)) {
+    public static def main(args:Rail[String]) {
 		val m = args.size > 0 ?Int.parse(args(0)):30;
 		val n = args.size > 1 ?Int.parse(args(1)):m+1;
 

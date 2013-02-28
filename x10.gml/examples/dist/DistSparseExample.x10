@@ -18,7 +18,7 @@ import x10.matrix.dist.DistSparseMatrix;
  */
 public class DistSparseExample {
 	
-	public static def main(args:Array[String](1)) {
+	public static def main(args:Rail[String]) {
 		val m = args.size > 0 ?Int.parse(args(0)):100;
 		val n = args.size > 1 ?Int.parse(args(1)):m+1;
 		val k = args.size > 2 ?Int.parse(args(2)):m+2;	    	

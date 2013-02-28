@@ -106,7 +106,7 @@ public abstract class Runtime implements x10.core.fun.VoidFun_0_0 {
     static class $Closure$Main implements x10.core.fun.VoidFun_0_0 {
         private static final long serialVersionUID = 1L;
         private final Runtime out$;
-        private final x10.array.Array<String> aargs;
+        private final x10.lang.Rail<String> aargs;
 
         public void $apply() {
             // catch and rethrow checked exceptions (closures cannot throw
@@ -123,7 +123,7 @@ public abstract class Runtime implements x10.core.fun.VoidFun_0_0 {
             }
         }
 
-        $Closure$Main(Runtime out$, x10.array.Array<String> aargs) {
+        $Closure$Main(Runtime out$, x10.lang.Rail<String> aargs) {
             this.out$ = out$;
             this.aargs = aargs;
         }
@@ -147,11 +147,11 @@ public abstract class Runtime implements x10.core.fun.VoidFun_0_0 {
             x10.x10rt.MessageHandlers.registerHandlers();
         }
 
-        // build up Array[String] for args
-        final x10.array.Array<String> aargs = new x10.array.Array<String>((java.lang.System[]) null, Types.STRING).x10$array$Array$$init$S((args == null)?0:args.length);
+        // build up Rail[String] for args
+        final x10.lang.Rail<String> aargs = new x10.lang.Rail<String>((java.lang.System[]) null, Types.STRING).x10$lang$Rail$$init$S((args == null)?0:args.length);
         if (args != null) {
 	        for (int i = 0; i < args.length; i++) {
-	            aargs.$set__1x10$array$Array$$T$G(i, args[i]);
+	            aargs.$set__1x10$lang$Rail$$T$G(i, args[i]);
 	        }
         }
 
@@ -173,7 +173,7 @@ public abstract class Runtime implements x10.core.fun.VoidFun_0_0 {
      * User code provided by Main template - start xrx runtime - run main
      * activity
      */
-    public abstract void runtimeCallback(x10.array.Array<java.lang.String> args) throws java.lang.Throwable;
+    public abstract void runtimeCallback(x10.lang.Rail<java.lang.String> args) throws java.lang.Throwable;
 
     /**
      * Application exit code

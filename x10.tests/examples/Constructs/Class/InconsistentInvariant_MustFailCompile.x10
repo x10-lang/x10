@@ -25,7 +25,7 @@ public class InconsistentInvariant_MustFailCompile extends x10Test {
         public property i():int;
     }
     public def run()=false;
-    public static def main(Array[String](1)) {
+    public static def main(Rail[String]) {
         new InconsistentInvariant_MustFailCompile().execute();
     }
 }

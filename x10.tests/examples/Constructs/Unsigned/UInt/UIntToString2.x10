@@ -36,7 +36,7 @@ public class UIntToString2 extends x10Test {
 	return (s1.equals("4294967295") && s2.equals("4294967295") && s3.equals("4294967295"));
     }
 
-    public static def main(Array[String]) {
+    public static def main(Rail[String]) {
         new UIntToString2().execute();
     }
 }

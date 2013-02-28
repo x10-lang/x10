@@ -76,7 +76,7 @@ public class Unsigned3 extends x10Test {
             && s && t && u && v && w && x;
     }
 
-    public static def main(Array[String](1)) = {
+    public static def main(Rail[String]) = {
         new Unsigned3().execute();
     }
 }

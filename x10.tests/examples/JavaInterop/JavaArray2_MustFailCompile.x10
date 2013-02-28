@@ -23,7 +23,7 @@ public class JavaArray2_MustFailCompile extends x10Test {
         return ijaui;
     }
 
-    public static def main(args: Array[String](1)) {
+    public static def main(args: Rail[String]) {
         new JavaArray2_MustFailCompile().execute();
     }
 

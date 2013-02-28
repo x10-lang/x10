@@ -22,7 +22,7 @@
 #include <x10/lang/Runtime.h>
 #include <x10/io/Console.h>
 #include <x10/lang/Thread.h>
-#include <x10/array/Array.h>
+#include <x10/lang/Rail.h>
 #include <x10/lang/String.h>
 #include <x10/lang/Runtime__Worker.h>
 
@@ -58,10 +58,10 @@ struct x10_main_args {
     ApplicationMainFunction mainFunc;    
 };
 
-static x10::array::Array<x10::lang::String*>* convert_args(int ac, char **av) {
+static x10::lang::Rail<x10::lang::String*>* convert_args(int ac, char **av) {
     assert(ac>=1);
     x10_int x10_argc = ac  - 1;
-    x10::array::Array<x10::lang::String*>* arr(x10::array::Array<x10::lang::String*>::_make(x10_argc));
+    x10::lang::Rail<x10::lang::String*>* arr(x10::lang::Rail<x10::lang::String*>::_make(x10_argc));
     for (int i = 1; i < ac; i++) {
         x10::lang::String* val = x10::lang::String::Lit(av[i]);
         arr->__set(i-1, val);
@@ -130,10 +130,10 @@ static void* real_x10_main_inner(void* _main_args) {
         // (e.g. make Thread::CurrentThread work properly).
         x10::lang::Runtime__Worker::_make((x10_int)0);
 
-        // Get the args into an X10 Array[String]
-        x10::array::Array<x10::lang::String*>* args = convert_args(main_args->ac, main_args->av);
+        // Get the args into an X10 Rail[String]
+        x10::lang::Rail<x10::lang::String*>* args = convert_args(main_args->ac, main_args->av);
 
-        // Construct closure to invoke the user's "public static def main(Array[String]) : void"
+        // Construct closure to invoke the user's "public static def main(Rail[String]) : void"
         // if at place 0 otherwise wait for asyncs.
         x10::lang::VoidFun_0_0* main_closure =
             reinterpret_cast<x10::lang::VoidFun_0_0*>(new (x10aux::alloc<x10::lang::VoidFun_0_0>(sizeof(x10aux::BootStrapClosure))) x10aux::BootStrapClosure(main_args->mainFunc, args));

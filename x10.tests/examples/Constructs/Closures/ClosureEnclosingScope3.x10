@@ -41,7 +41,7 @@ public class ClosureEnclosingScope3 extends ClosureTest {
         return result;
     }
 
-    public static def main(Array[String](1)) {
+    public static def main(Rail[String]) {
         new ClosureEnclosingScope3().execute();
     }
 }

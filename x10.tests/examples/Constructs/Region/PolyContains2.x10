@@ -69,7 +69,7 @@ class PolyContains2 extends TestRegion {
         "    2  0 2 4 . . . . . . . \n"+
         "    3  0 3 6 9 . . . . . . \n";
     
-    public static def main(Array[String](1)) {
+    public static def main(Rail[String]) {
         new PolyContains2().execute();
     }
 }

@@ -33,7 +33,7 @@ public class UShortTypename extends x10Test {
 	}
     }
 
-    public static def main(Array[String]) {
+    public static def main(Rail[String]) {
         new UShortTypename().execute();
     }
 }

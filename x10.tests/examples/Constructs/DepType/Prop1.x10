@@ -23,7 +23,7 @@ public class Prop1(i:int, j:int){i == j} extends x10Test {
 	}
 	public def run()=true;
 	
-	public static def main(a:Array[String](1)):void = {
+	public static def main(a:Rail[String]):void = {
 		new Prop1(2).execute();
 	}
 }

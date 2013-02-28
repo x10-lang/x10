@@ -26,7 +26,7 @@ import gnmf.SeqGNNMF;
  */
 public class RunGNMF {
 
-	public static def main(args:Array[String](1)): void {
+	public static def main(args:Rail[String]): void {
 		
 		val mD = args.size > 0 ? Int.parse(args(0)):1000; //
 		val nZ = args.size > 1 ? Double.parse(args(1)):0.001;

@@ -23,7 +23,7 @@ class XTENLANG_345 extends x10Test {
     
     public def run()=true;
     public  static def all[T](x:Array[T]):Set[Any] { throw new Exception(); }
-    public static def main(Array[String](1)) {
+    public static def main(Rail[String]) {
         new XTENLANG_345().execute();
     }
 }

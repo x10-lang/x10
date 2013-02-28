@@ -29,11 +29,11 @@ public final class OptionsParser {
 
     private val map : HashMap[String,String];
     private val set : HashMap[String,Boolean];
-    private val flags : Array[Option](1);
-    private val specs : Array[Option](1);
+    private val flags : Rail[Option];
+    private val specs : Rail[Option];
     private val filteredArgs : GrowableIndexedMemoryChunk[String];
 
-    public def this (args:Array[String](1), flags:Array[Option](1), specs:Array[Option](1)) { //throws Err {
+    public def this (args:Rail[String], flags:Rail[Option], specs:Rail[Option]) { //throws Err {
         val map = new HashMap[String,String]();
         val set = new HashMap[String,Boolean]();
         val filteredArgs = new GrowableIndexedMemoryChunk[String]();
@@ -58,12 +58,12 @@ public final class OptionsParser {
                     for ([index] in 1..(s.length()-1)) {
                         val char = s(index);
                         var char_recognised:Boolean = false;
-                        if (flags!=null) for (flag in flags.values()) {
+                        if (flags!=null) for (flag in flags) {
                             if (flag.short_ != null && char.equals(flag.short_(0))) {
                                 char_recognised = true;
                             }
                         }
-                        if (specs!=null && index==s.length()-1) for (spec in specs.values()) {
+                        if (specs!=null && index==s.length()-1) for (spec in specs) {
                             if (spec.short_ != null && char.equals(spec.short_(0))) {
                                 char_recognised = true;
                             }
@@ -77,13 +77,13 @@ public final class OptionsParser {
                     if (recognised) {
                         for ([index] in 1..(s.length()-1)) {
                             val char = s(index);
-                            if (flags!=null) for (flag in flags.values()) {
+                            if (flags!=null) for (flag in flags) {
                                 if (flag.short_!=null && char.equals(flag.short_(0))) {
                                     set.put("-"+flag.short_, true);
                                     if (flag.long_!=null) set.put(flag.long_, true);
                                 }
                             }
-                            if (specs!=null && index==s.length()-1) for (spec in specs.values()) {
+                            if (specs!=null && index==s.length()-1) for (spec in specs) {
                                 if (spec.short_!=null && char.equals(spec.short_(0))) {
                                     ++i;
                                     if (i>=args.size) throw new Err("Expected another arg after: \""+s+"\"");
@@ -97,7 +97,7 @@ public final class OptionsParser {
 
                 } else {
                     // of the form --stuff, just compare with all the long_ fields in the options
-                    if (flags!=null) for (flag in flags.values()) {
+                    if (flags!=null) for (flag in flags) {
                         if (recognised) break;
                         if (s.equals(flag.long_)) {
                             if (flag.short_!=null) set.put("-"+flag.short_, true);
@@ -105,7 +105,7 @@ public final class OptionsParser {
                             recognised = true;
                         }
                     }
-                    if (specs!=null) for (spec in specs.values()) {
+                    if (specs!=null) for (spec in specs) {
                         if (recognised) break;
                         if (s.equals(spec.long_)) {
                             recognised = true;
@@ -127,7 +127,7 @@ public final class OptionsParser {
         this.filteredArgs = filteredArgs;
     }
 
-    public def filteredArgs() = filteredArgs.toArray();
+    public def filteredArgs() = filteredArgs.toRail();
 
     static def padding (p:Int) {
         var r:StringBuilder = new StringBuilder();
@@ -140,35 +140,35 @@ public final class OptionsParser {
         var r:StringBuilder = new StringBuilder();
         r.add("Usage:");
         var shortWidth:Int = 0;
-        for (opt in flags.values()) {
+        for (opt in flags) {
 	    if (opt.short_ != null) {
                 shortWidth = Math.max(shortWidth, opt.short_.length());
             }
         }
-        for (opt in specs.values()) {
+        for (opt in specs) {
 	    if (opt.short_ != null) {
                 shortWidth = Math.max(shortWidth, opt.short_.length());
             }
         }
         var longWidth:Int = 0;
-        for (opt in flags.values()) {
+        for (opt in flags) {
 	    if (opt.long_ != null) {
                 longWidth = Math.max(longWidth, opt.long_.length());
             }
         }
-        for (opt in specs.values()) {
+        for (opt in specs) {
 	    if (opt.long_ != null) {
                 longWidth = Math.max(longWidth, opt.long_.length());
             }
         }
-        for (opt in flags.values()) {
+        for (opt in flags) {
             // the 8 is to match the " <param>"
             val shortPadding = 8+shortWidth - opt.short_.length();
             val longPadding = longWidth - opt.long_.length();
             r.add("\n    "+opt.short_+padding(shortPadding)
                + " ("+opt.long_+") "+padding(longPadding)+opt.description);
         }
-        for (opt in specs.values()) {
+        for (opt in specs) {
             val shortPadding = shortWidth - opt.short_.length();
             val longPadding = longWidth - opt.long_.length();
             r.add("\n    "+opt.short_+" <param>"+padding(shortPadding)

@@ -17,7 +17,7 @@
  *     static tasks = 8;
  *     static iterations = 100000;
  *
- *     public static def main(Array[String]) {
+ *     public static def main(Rail[String]) {
  *         val time = System.nanoTime();
  *         finish {
  *             val b = new x10.util.concurrent.SPMDBarrier(tasks);

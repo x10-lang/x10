@@ -37,7 +37,7 @@ public class UByteInstanceOf extends x10Test {
 	Console.OUT.println(m);
     }
 
-    public static def main(Array[String]) {
+    public static def main(Rail[String]) {
         new UByteInstanceOf().execute();
     }
 }

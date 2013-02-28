@@ -27,7 +27,7 @@ public class Transitive extends x10Test {
 	    var c: Region{rank==2} = b;
 	    return true;
 	}
-	public static def main(var args: Array[String](1)): void = {
+	public static def main(var args: Rail[String]): void = {
 		new Transitive().execute();
 	}
 }

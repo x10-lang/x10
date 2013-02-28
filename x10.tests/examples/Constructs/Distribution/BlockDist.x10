@@ -41,7 +41,7 @@ class BlockDist extends TestDist {
         "    3  . 0 0 1 1 2 2 3 . . \n"+
         "    4  . 0 0 1 1 2 2 3 . . \n";
     
-    public static def main(var args: Array[String](1)) {
+    public static def main(var args: Rail[String]) {
         new BlockDist().execute();
     }
 }

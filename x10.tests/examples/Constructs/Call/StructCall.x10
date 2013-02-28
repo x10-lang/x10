@@ -29,7 +29,7 @@ public class StructCall extends x10Test  {
       return a.sum() == 7;
     }
 
-    public static def main(var args: Array[String](1)): void = {
+    public static def main(var args: Rail[String]): void = {
         new StructCall().execute();
     }
 }

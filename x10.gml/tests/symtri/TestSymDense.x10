@@ -18,7 +18,7 @@ import x10.matrix.SymDense;
  */
 public class TestSymDense{
 
-    public static def main(args:Array[String](1)) {
+    public static def main(args:Rail[String]) {
 		val m = (args.size > 0) ? Int.parse(args(0)):4;
 		val testcase = new CellWiseSymMatTest(m);
 		testcase.run();

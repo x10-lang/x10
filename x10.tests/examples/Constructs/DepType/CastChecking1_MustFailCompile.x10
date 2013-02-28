@@ -36,7 +36,7 @@ public class CastChecking1_MustFailCompile extends x10Test {
         var c: Test = 5 as Test;  // ERR must fail compile
         return true;
     }
-    public static def main(var args: Array[String](1)): void = {
+    public static def main(var args: Rail[String]): void = {
         new CastChecking1_MustFailCompile().execute();
     }
 }

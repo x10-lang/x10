@@ -29,7 +29,7 @@ public class CastPrimitiveLitteralToPrimitiveConstrained_MustFailCompile extends
 		return true;
 	}
 
-	public static def main(args: Array[String](1)): void {
+	public static def main(args: Rail[String]): void {
 		new CastPrimitiveLitteralToPrimitiveConstrained_MustFailCompile().execute();
 	}
 

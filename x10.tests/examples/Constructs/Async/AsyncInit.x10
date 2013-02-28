@@ -27,7 +27,7 @@ public class AsyncInit extends x10Test {
         Runtime.println(test(2));
         return true;
     }
-    public static def main(Array[String](1)) {
+    public static def main(Rail[String]) {
         new AsyncInit().execute();
     }
 }

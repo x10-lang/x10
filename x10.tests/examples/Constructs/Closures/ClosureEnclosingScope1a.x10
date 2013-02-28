@@ -31,7 +31,7 @@ public class ClosureEnclosingScope1a extends ClosureTest {
         return result;
     }
 
-    public static def main(var args: Array[String](1)): void = {
+    public static def main(var args: Rail[String]): void = {
         new ClosureEnclosingScope1a().execute();
     }
 }

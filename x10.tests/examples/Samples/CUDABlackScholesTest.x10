@@ -14,12 +14,12 @@ import harness.x10Test;
 
 public class CUDABlackScholesTest extends x10Test {
     public def run():boolean {
-         val args = new Array[String](0);
+         val args = new Rail[String](0);
          CUDABlackScholes.main(args);
          return true;
     }
 
-    public static def main(args:Array[String](1)) {
+    public static def main(args:Rail[String]) {
 	new CUDABlackScholesTest().execute();
     }
 }

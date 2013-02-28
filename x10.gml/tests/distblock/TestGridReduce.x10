@@ -32,7 +32,7 @@ import x10.matrix.distblock.summa.AllGridReduce;
  */
 
 public class TestGridReduce{
-    public static def main(args:Array[String](1)) {
+    public static def main(args:Rail[String]) {
 		val m = args.size > 0 ?Int.parse(args(0)):2;
 		val n = args.size > 1 ?Int.parse(args(1)):2;
 		val bm= args.size > 2 ?Int.parse(args(2)):2;

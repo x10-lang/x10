@@ -53,7 +53,7 @@ public class Generics3 {
 		return passed;
 	}
 
-	public static def main(Array[String](1)) {
+	public static def main(Rail[String]) {
             val r = new Generics3().run();
             if (r) {
                 x10.io.Console.OUT.println("++++++Test succeeded.");

@@ -22,7 +22,7 @@ public class NoDepClause extends x10Test {
 	    val r:String = "abcd";
 	    return r != "a";
 	}
-	public static def main(val args: Array[String](1)): void = {
+	public static def main(val args: Rail[String]): void = {
 	    new NoDepClause().execute();
 	}
 }

@@ -78,7 +78,7 @@ class FormalParameters {
 	}
 }
 class Locals {
-	static def main(r: Array[String](1)):void {
+	static def main(r: Rail[String]):void {
 		val a : Int;
 		a = r.size;
 		val b : String;

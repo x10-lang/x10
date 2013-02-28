@@ -21,7 +21,7 @@ package x10.util;
  * class Foo {
  *   static store = new x10.util.WorkerLocalStorage[String,String]();
  * 
- *   public static def main(Array[String]) {
+ *   public static def main(Rail[String]) {
  *     finish at (here.next()) async {
  *       store.put("salutation", "Hello");
  *     }
@@ -34,7 +34,7 @@ package x10.util;
  */
 public class WorkerLocalStorage[Key,Value] {
     private val store = PlaceLocalHandle.make(PlaceGroup.WORLD,
-            ()=>new Array[HashMap[Key,Value]](Runtime.MAX_THREADS, null as HashMap[Key,Value]));
+            ()=>new Rail[HashMap[Key,Value]](Runtime.MAX_THREADS, null as HashMap[Key,Value]));
 
     public def get(key:Key):Box[Value] {
         val id = Runtime.workerId();

@@ -23,7 +23,7 @@ class XTENLANG_262 extends x10Test {
         return x.toString().equals("1.0");
     }
 
-    public static def main(Array[String](1)) {
+    public static def main(Rail[String]) {
         new XTENLANG_262().execute();
     }
 }

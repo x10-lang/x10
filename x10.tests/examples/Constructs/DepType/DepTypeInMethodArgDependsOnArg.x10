@@ -27,7 +27,7 @@ public class DepTypeInMethodArgDependsOnArg extends x10Test {
 		return true;
 	}
 	
-	public static def main(var args: Array[String](1)): void = {
+	public static def main(var args: Rail[String]): void = {
 		new DepTypeInMethodArgDependsOnArg().execute();
 	}
 }

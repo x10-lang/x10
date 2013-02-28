@@ -22,17 +22,17 @@
 
 #include <x10/lang/String.h>
 
-namespace x10 { namespace array { template<class T> class Array; } }
+namespace x10 { namespace lang { template<class T> class Rail; } }
 
 namespace x10aux {
-    typedef void (*ApplicationMainFunction)(x10::array::Array<x10::lang::String*>*);
+    typedef void (*ApplicationMainFunction)(x10::lang::Rail<x10::lang::String*>*);
 
     class BootStrapClosure : public x10::lang::Closure
     {
         protected:
 
         ApplicationMainFunction main;
-        x10::array::Array<x10::lang::String*>* args;
+        x10::lang::Rail<x10::lang::String*>* args;
         public:
 
         static x10::lang::VoidFun_0_0::itable<BootStrapClosure> _itable;
@@ -47,7 +47,7 @@ namespace x10aux {
         }
 
         BootStrapClosure(ApplicationMainFunction main_,
-                         x10::array::Array<x10::lang::String*>* args_)
+                         x10::lang::Rail<x10::lang::String*>* args_)
           : main(main_), args(args_)
         { }
 

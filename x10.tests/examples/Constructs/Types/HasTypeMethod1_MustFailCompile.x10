@@ -21,7 +21,7 @@ public class HasTypeMethod1_MustFailCompile extends x10Test {
 	def m(x:Int{self==1}) <: Boolean =x; // ERR
 	public def run() = true;
 
-	public static def main(Array[String](1))  {
+	public static def main(Rail[String])  {
 		new HasTypeMethod1_MustFailCompile().execute();
 	}
 }

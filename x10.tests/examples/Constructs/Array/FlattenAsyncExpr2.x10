@@ -39,7 +39,7 @@ public class FlattenAsyncExpr2 extends x10Test {
         return a(1)== (2^2);
     }
 
-    public static def main(Array[String](1)) {
+    public static def main(Rail[String]) {
         new FlattenAsyncExpr2().execute();
     }
 }

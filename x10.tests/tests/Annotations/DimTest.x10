@@ -29,7 +29,7 @@ public class DimTest extends harness.x10Test {
         return x1 == 4.9;
     }
 
-    public static def main(var args: Array[String](1)): void = {
+    public static def main(var args: Rail[String]): void = {
         new DimTest().execute();
     }
 }

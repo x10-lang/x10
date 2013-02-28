@@ -24,7 +24,7 @@ public class StaticReturn extends x10Test {
 		var d: Dist{rank==2} = Dist.makeConstant((0..1)*(0..1), here);
 		return d;
 	}
-	public static def main(Array[String](1))  {
+	public static def main(Rail[String])  {
 		new StaticReturn().execute();
 	}
 }

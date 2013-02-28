@@ -32,7 +32,7 @@ class FinishTest3 extends x10Test {
         return test();
     }
 
-    public static def main(args: Array[String](1)):void {
+    public static def main(args: Rail[String]):void {
         new FinishTest3().execute();
     }
 

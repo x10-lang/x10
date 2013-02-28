@@ -50,7 +50,7 @@ public class TestBlockBlockDist extends x10Test {
         }
     } 
 
-    public static def main(args:Array[String]) {
+    public static def main(args:Rail[String]) {
         new TestBlockBlockDist().execute();
     }
 }

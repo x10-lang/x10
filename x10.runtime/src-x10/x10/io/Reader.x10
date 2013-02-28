@@ -36,12 +36,12 @@ public abstract class Reader {
     public abstract def read(): Byte; //throws IOException
 
     /**
-     * Fill len bytes of the argument array starting at off.
+     * Fill len bytes of the argument rail starting at off.
      * Throws IOException if not enough elements.
      * This is significantly faster than read(Marshal.BYTE,r,off,len)
      * since this reads multiple bytes at once if possible.
      */
-    public abstract def read(r:Rail[Byte], off:Int, len:Int): void; //throws IOException
+    public abstract def read(r:Rail[Byte], off:Long, len:Long): void; //throws IOException
 
     /**
      * How many bytes can be read from this stream without blocking?
@@ -129,19 +129,19 @@ public abstract class Reader {
     public final def read[T](m:Marshal[T]):T = m.read(this);
 
     /**
-     * Fill the argument array by reading the next a.size elements. 
+     * Fill the argument rail by reading the next a.size elements. 
      * Throws IOException if not enough elements.
      */
-    public final def read[T](m:Marshal[T], a:Array[T](1)):void { 
+    public final def read[T](m:Marshal[T], a:Rail[T]):void { 
         read[T](m, a, 0, a.size); 
     }
 
     /**
-     * Fill len elements of the argument array starting at off.
+     * Fill len elements of the argument rail starting at off.
      * Throws IOException if not enough elements.
      */
-    public final def read[T](m: Marshal[T], a:Array[T](1), off:Int, len:Int):void {
-        for (var i: Int = off; i < off+len; i++) {
+    public final def read[T](m: Marshal[T], a:Rail[T], off:Long, len:Long):void {
+        for (var i: Long = off; i < off+len; i++) {
             a(i) = read[T](m);
         }
     }

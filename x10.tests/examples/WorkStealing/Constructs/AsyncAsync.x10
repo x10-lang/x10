@@ -33,7 +33,7 @@ public class AsyncAsync extends x10Test{
 		return value == 6;
 	}
 
-	public static def main(Array[String](1)) {
+	public static def main(Rail[String]) {
         new AsyncAsync().execute();
 	}
 }

@@ -28,7 +28,7 @@ import x10.matrix.dist.summa.SummaSparseMultDense;
  */
 
 public class TestSparse{
-    public static def main(args:Array[String](1)) {
+    public static def main(args:Rail[String]) {
 		val testcase = new SummaSparseMultTest(args);
 		testcase.run();
 	}
@@ -45,7 +45,7 @@ class SummaSparseMultTest {
 	public val pB:Grid;
 	public val pC:Grid;
 	
-    public def this(args:Array[String](1)) {
+    public def this(args:Rail[String]) {
 		M   = args.size > 0 ?Int.parse(args(0)):21;
 		N   = args.size > 1 ?Int.parse(args(1)):31;
 		K   = args.size > 2 ?Int.parse(args(2)):17;	

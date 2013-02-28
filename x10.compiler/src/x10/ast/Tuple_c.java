@@ -50,8 +50,8 @@ import x10.types.constraints.CConstraint;
 import x10.errors.Errors;
 
 /** 
- * An immutable representation of the list of elements in an X10 array constructor
- * new Array[T]{ e1,..., ek}. 
+ * An immutable representation of the list of elements in an X10 rail constructor
+ * new Rail[T]{ e1,..., ek}. 
  * 
  * There is no surface syntax for a Tuple_c. Rather it is access
  */
@@ -168,13 +168,13 @@ public class Tuple_c extends Expr_c implements Tuple {
                 if (newE==null) {
                     newE = e;
                     Errors.issue(tc.job(),
-                        new Errors.ArrayLiteralTypeMismatch(e, type));
+                        new Errors.RailLiteralTypeMismatch(e, type));
                 }
                 newChildren.add(newE);
 	        }
             me = this.reconstruct(indexType,newChildren);
         }
-	    Type resultType = Types.makeArrayRailOf(type, elements.size(), position());
+	    Type resultType = Types.makeRailOf(type, elements.size(), position());
 	    if (! Types.consistent(resultType))
 	        Errors.issue(tc.job(), new Errors.InconsistentType(resultType, position()));
 	    return me.type(resultType);
@@ -184,7 +184,7 @@ public class Tuple_c extends Expr_c implements Tuple {
 	public String toString() {
 	    StringBuilder sb = new StringBuilder();
         if (indexType!=null) {
-            sb.append("new Array[").append(indexType).append("]");
+            sb.append("new Rail[").append(indexType).append("]");
         }
 	    sb.append("[");
 	    for (Iterator<Expr> i = elements.iterator(); i.hasNext(); ) {
@@ -203,7 +203,7 @@ public class Tuple_c extends Expr_c implements Tuple {
 	@Override
 	public void prettyPrint(CodeWriter w, PrettyPrinter tr) {
         if (indexType!=null) {
-            w.write("new Array[");
+            w.write("new Rail[");
 	    	printBlock(indexType, w, tr);
 	    	w.write("]");
         }

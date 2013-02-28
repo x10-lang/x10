@@ -46,7 +46,7 @@ public class PointIndexTuple extends x10Test {
         return sum == 0 && gotException;
     }
 
-    public static def main(var args: Array[String](1)): void = {
+    public static def main(var args: Rail[String]): void = {
         new PointIndexTuple().execute();
     }
 }

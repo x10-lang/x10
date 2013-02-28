@@ -3941,7 +3941,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 		sw.newline(4); sw.begin(0);
 		sw.write(make_ref(type)+" "+tmp+"(");
 
-		sw.write("x10::array::Array"+chevrons(Emitter.translateType(T, true)));
+		sw.write("x10::lang::Rail"+chevrons(Emitter.translateType(T, true)));
 		sw.writeln("::_make("+c.arguments().size()+"));");
 		int count = 0;
 		for (Expr e : c.arguments()) {

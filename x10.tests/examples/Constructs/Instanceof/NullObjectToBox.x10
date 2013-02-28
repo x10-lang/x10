@@ -44,7 +44,7 @@ public class NullObjectToBox extends x10Test {
     public def getNullNullable() = null;
 
 	
-    public static def main(Array[String](1)) = {
+    public static def main(Rail[String]) = {
 	new NullObjectToBox().execute();
     }
 }

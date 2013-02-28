@@ -22,7 +22,7 @@ import harness.x10Test;
 public class XTENLANG_2367 extends x10Test { 
     public def run() = true;
 
-    public static def main(Array[String](1)) {
+    public static def main(Rail[String]) {
         new XTENLANG_2367().execute();
     }
 

@@ -28,7 +28,7 @@ public class PointDiv extends x10Test {
         return p.equals(a*q);
     }
 
-    public static def main(var args: Array[String](1)): void = {
+    public static def main(var args: Rail[String]): void = {
         new PointDiv().execute();
     }
 }

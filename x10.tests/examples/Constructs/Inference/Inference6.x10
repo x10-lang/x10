@@ -26,7 +26,7 @@ public class Inference6 extends x10Test {
 		return y == 1;
 	}
 
-	public static def main(var args: Array[String](1)): void = {
+	public static def main(var args: Rail[String]): void = {
 		new Inference6().execute();
 	}
 }

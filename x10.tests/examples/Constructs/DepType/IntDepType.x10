@@ -32,7 +32,7 @@ public class IntDepType extends x10Test {
 		var i: int{self == 0} = 0;
 	   return true;
 	}
-	public static def main(var args: Array[String](1)): void = {
+	public static def main(var args: Rail[String]): void = {
 		new IntDepType().execute();
 	}
 }

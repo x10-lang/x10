@@ -46,7 +46,7 @@ public class DepTypeThisClause(i:int, j:int) extends x10Test {
     }
 
 
-    public static def main(Array[String](1)) = {
+    public static def main(Rail[String]) = {
         new DepTypeThisClause(3,9).execute();
     }
 

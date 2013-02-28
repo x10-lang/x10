@@ -61,7 +61,7 @@ public class UByteOps2 extends x10Test {
     }
 
 
-    public static def main(Array[String]) {
+    public static def main(Rail[String]) {
         new UByteOps2().execute();
     }
 }

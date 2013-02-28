@@ -72,7 +72,7 @@ public class ClockTest9 extends x10Test {
 		// val[i] should be 0 by now
 	}
 
-	public static def main(Array[String])  {
+	public static def main(Rail[String])  {
 		new ClockTest9().executeAsync();
 	}
 }

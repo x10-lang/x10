@@ -27,7 +27,7 @@ public class ImplicitCastFromArray extends x10Test {
         return m(p).equals(Point.make(p));
     }
 
-    public static def main(Array[String](1)) {
+    public static def main(Rail[String]) {
         new  ImplicitCastFromArray().execute();
     }
 }

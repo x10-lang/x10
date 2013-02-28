@@ -33,7 +33,7 @@ public final class SparsePlaceGroup extends PlaceGroup {
    * The array is in sorted order by Place.id.
    * Only places that are in the group are in the array.
    */
-  private val places:Rail[Place];
+  private val places:Array[Place]{self.rank==1,self.zeroBased,self.rect,self.rail};
 
   /**
    * Construct a SparsePlaceGroup from a Sequence[Place].
@@ -54,7 +54,7 @@ public final class SparsePlaceGroup extends PlaceGroup {
    * @param p the place 
    */
   public def this(p:Place) {
-    places = [p as Place];
+    places = new Array[Place](1, p);
   }
 
   public operator this(i:int):Place = places(i);

@@ -36,7 +36,7 @@ public class ConStructInstance2Arg_2 extends x10Test {
 		}
 	}
 
-	public static def main(Array[String](1)) {
+	public static def main(Rail[String]) {
 		new ConStructInstance2Arg_2().execute();
 	}
 

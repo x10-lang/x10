@@ -23,7 +23,7 @@ public class ConstructDist2D extends x10Test {
         return d.equals(Dist.makeConstant(e*e, here));
     }
 
-    public static def main(var args: Array[String](1)): void = {
+    public static def main(var args: Rail[String]): void = {
         new ConstructDist2D().execute();
     }
 }

@@ -22,7 +22,7 @@ public class DepTypeInMethodRet1_MustFailCompile extends x10Test {
     public def m(var t: boolean): boolean(t)= t; // ERR: A var local variable is not allowed in a constraint.
 	public def run() = m(true);
 
-	public static def main(Array[String](1)) {
+	public static def main(Rail[String]) {
 		new DepTypeInMethodRet1_MustFailCompile().execute();
 	}
 }

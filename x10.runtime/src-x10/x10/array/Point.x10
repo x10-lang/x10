@@ -29,9 +29,9 @@ public final class Point(rank:Int) implements (Int) => Int,
     private val c1:int;
     private val c2:int;
     private val c3:int;
-    private val cs:Rail[int];  // Will be null if rank<5
+    private val cs:Array[int]{self.rank==1,self.zeroBased,self.rect,self.rail};  // Will be null if rank<5
 
-    def this(coords:Rail[int]):Point(coords.size) {
+    def this(coords:Array[int]{self.rank==1,self.zeroBased,self.rect,self.rail}):Point(coords.size) {
         property(coords.size);
 
 	c0 = coords(0);
@@ -108,6 +108,19 @@ public final class Point(rank:Int) implements (Int) => Int,
     }
 
     /**
+     * Constructs a Point from a Rail[int]
+     */
+    public static def make[T](r:Rail[T]){T<: Int}:Point(r.size as Int) {
+        switch(r.size as Int) {
+        case 1: return new Point(r(0)) as Point(r.size as Int);//{self.rank==r.size};
+        case 2: return new Point(r(0), r(1)) as Point(r.size as Int);
+        case 3: return new Point(r(0), r(1), r(2)) as Point(r.size as Int);
+        case 4: return new Point(r(0), r(1), r(2), r(3)) as Point(r.size as Int);
+        default: return new Point(new Array[int](r.size as Int, (i:int)=>r(i)));
+        }
+    }
+
+    /**
      * Returns a <code>Point p</code> of rank <code>rank</code> with <code>p(i)=init(i)</code>.
      */
     public static def make(rank:Int, init:(i:Int)=>int):Point(rank) {
@@ -131,6 +144,10 @@ public final class Point(rank:Int) implements (Int) => Int,
      */
     public static operator[T] (a:Array[T](1)){T <: Int}:Point(a.size) = make(a);
 
+    /** A <code>Rail</code> <code>r</code> of length <code>k</code> can be converted to a point <code>p</code>
+     * of rank <code>k</code> with <code>p(i)=r(i)</code>.
+     */
+    public static operator[T] (r:Rail[T]){T <: Int}:Point(r.size as Int) = make(r);
 
     /**  The point <code>+p</code> is the same as <code>p</code>.
      */

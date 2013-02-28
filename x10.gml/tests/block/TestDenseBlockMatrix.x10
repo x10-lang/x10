@@ -25,7 +25,7 @@ import x10.matrix.block.DenseBlockMatrix;
  */
 public class TestDenseBlockMatrix {
 	
-    public static def main(args:Array[String](1)) {
+    public static def main(args:Rail[String]) {
 		val testcase = new TestDBMatrix(args);
 		testcase.run();
 	}
@@ -38,7 +38,7 @@ class TestDBMatrix {
 	public val C:Int;
 	public val grid:Grid;
 
-    public def this(args:Array[String](1)) {
+    public def this(args:Rail[String]) {
 		M = args.size > 0 ?Int.parse(args(0)):50;
 		N = args.size > 1 ?Int.parse(args(1)):M+1;
 		R = args.size > 2 ?Int.parse(args(2)):3;

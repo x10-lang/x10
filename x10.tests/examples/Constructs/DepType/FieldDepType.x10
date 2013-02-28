@@ -25,7 +25,7 @@ public class FieldDepType extends x10Test {
         m(f as Array[Double]{zeroBased, rect, rank==1});
         return f(0)==10.0D;
     }
-    public static def main(Array[String](1)): void = {
+    public static def main(Rail[String]): void = {
         new FieldDepType().execute();
     }
 }

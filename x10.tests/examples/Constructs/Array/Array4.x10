@@ -36,7 +36,7 @@ public class Array4 extends x10Test {
         return (new Array4(new Array[int]((1..10)*(1..10), 0))).runtest();
     }
 
-    public static def main(var args: Array[String](1)): void = {
+    public static def main(var args: Rail[String]): void = {
         new Array4().execute();
     }
 }

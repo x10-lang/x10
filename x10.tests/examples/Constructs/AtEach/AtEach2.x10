@@ -35,7 +35,7 @@ public class AtEach2 extends x10Test {
         return nplaces == Place.MAX_PLACES;
     }
 
-    public static def main(Array[String](1))  {
+    public static def main(Rail[String])  {
         new AtEach2().execute();
     }
 }

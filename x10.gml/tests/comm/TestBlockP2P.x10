@@ -28,7 +28,7 @@ import x10.matrix.comm.BlockRemoteCopy;
  */
 
 public class TestBlockP2P{
-    public static def main(args:Array[String](1)) {
+    public static def main(args:Rail[String]) {
 		val m = args.size > 0 ?Int.parse(args(0)):60;
 		val n = args.size > 1 ?Int.parse(args(1)):60;
 		val bm= args.size > 2 ?Int.parse(args(2)):2;

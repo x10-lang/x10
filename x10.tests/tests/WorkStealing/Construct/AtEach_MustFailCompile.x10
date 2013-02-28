@@ -38,7 +38,7 @@ public class AtEach_MustFailCompile {
         return result;
     }
     
-    public static def main(Array[String](1)) {
+    public static def main(Rail[String]) {
         val r = new AtEach_MustFailCompile().run();
         if(r){
              x10.io.Console.OUT.println("++++++Test succeeded.");

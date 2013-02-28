@@ -118,7 +118,7 @@ public class HierarchyUtils {
 	        mi.returnType().isVoid() &&
 	        mi.typeParameters().size() == 0 &&
 	        mi.formalTypes().size() == 1 &&
-	        ts.isSubtype(mi.formalTypes().get(0), ts.Array(ts.String()), context);
+	        ts.isSubtype(mi.formalTypes().get(0), ts.Rail(ts.String()), context);
 	    return result;
 	}
 

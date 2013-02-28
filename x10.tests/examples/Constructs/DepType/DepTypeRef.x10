@@ -22,7 +22,7 @@ public class DepTypeRef extends x10Test {
 	  var a: Array[double]{rect} = new Array[double](R, (p: Point) => 1.0);
 	   return true;
 	}
-	public static def main(var args: Array[String](1)): void = {
+	public static def main(var args: Rail[String]): void = {
 		new DepTypeRef().execute();
 	}
 }

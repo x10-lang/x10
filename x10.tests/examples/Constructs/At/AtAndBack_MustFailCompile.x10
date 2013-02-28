@@ -29,7 +29,7 @@ public class AtAndBack_MustFailCompile extends x10Test {
 	return x == 20;
     }
 
-    public static def main(Array[String](1)) {
+    public static def main(Rail[String]) {
         new AtAndBack_MustFailCompile().execute();
     }
 }

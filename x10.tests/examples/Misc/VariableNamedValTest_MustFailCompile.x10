@@ -43,7 +43,7 @@ public class VariableNamedValTest_MustFailCompile extends x10Test {
 	/**
 	 * Testing comments for main
 	 */
-	public static def main(var args: Array[String](1)): void = {
+	public static def main(var args: Rail[String]): void = {
 		new VariableNamedValTest_MustFailCompile().execute();
 	}
 }

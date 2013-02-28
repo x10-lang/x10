@@ -16,7 +16,7 @@ public class WSIntegrateTest {
         return (res > 4196352.000 && res < 4196352.001);
     }
 
-    public static def main(args:Array[String](1)) {
+    public static def main(args:Rail[String]) {
         val r = new WSIntegrateTest().run();
         if(r){
              x10.io.Console.OUT.println("++++++Test succeeded.");

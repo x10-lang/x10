@@ -29,7 +29,7 @@ public class GenericMethods3 extends GenericTest {
         return result;
     }
 
-    public static def main(var args: Array[String](1)): void = {
+    public static def main(var args: Rail[String]): void = {
         new GenericMethods3().execute();
     }
 }

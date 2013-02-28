@@ -25,7 +25,7 @@ import x10.compiler.NativeRep;
  * this memory.<p>
  *
  * This abstraction is provide to enable other higher-level
- * abstractions (such as Array) to be implemented efficiently
+ * abstractions (such as Rail) to be implemented efficiently
  * and to allow low-level programming of memory regions at the
  * X10 level when absolutely required for performance. This class
  * is not intended for general usage, since it is inherently unsafe.<p>

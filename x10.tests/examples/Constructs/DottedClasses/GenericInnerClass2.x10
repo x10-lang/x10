@@ -19,7 +19,7 @@ This test just has to compile.
 */
 
 public class GenericInnerClass2[T] extends x10Test {
-  public static def main(Array[String](1)){
+  public static def main(Rail[String]){
      val p = new GenericInnerClass2[Int](3);
      p.execute();
   }

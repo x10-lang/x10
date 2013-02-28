@@ -18,7 +18,7 @@ import x10.matrix.TriDense;
  */
 public class TestTriDense{
 
-    public static def main(args:Array[String](1)) {
+    public static def main(args:Rail[String]) {
 		val m = (args.size > 0) ? Int.parse(args(0)):5;
 		val testcase = new TriMatTest(m);
 		testcase.run();

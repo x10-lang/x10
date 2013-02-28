@@ -20,7 +20,7 @@ public class NestedClass1[T] extends x10Test {
         return true;
     }
 
-    public static def main(args: Array[String](1)) {
+    public static def main(args: Rail[String]) {
         new NestedClass1[Int]().execute();
     }
 

@@ -42,7 +42,7 @@ public class SeqGenMatMultAdd1[T]{T<:Arithmetic[T]} extends Benchmark {
         return expected(); // HACK since we can't cast from T to double
     }
 
-    public static def main(Array[String](1)) {
+    public static def main(Rail[String]) {
         val a_init = (p:Point)=>p(0)*p(1) as double;
         val b_init = (p:Point)=>p(0)-p(1) as double;
         val c_init = (p:Point)=>p(0)+p(1) as double;

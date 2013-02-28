@@ -56,7 +56,7 @@ public class Atomic1 extends x10Test {
 		return t1 == 8*N && t1 >= t2;
 	}
 
-	public static def main(Array[String](1)) {
+	public static def main(Rail[String]) {
 		new Atomic1().execute();
 	}
 }

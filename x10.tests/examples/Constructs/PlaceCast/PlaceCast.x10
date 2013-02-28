@@ -35,7 +35,7 @@ public class PlaceCast extends x10Test {
 	  return nplaces == 0;
     }
 
-    public static def main(Array[String](1)) {
+    public static def main(Rail[String]) {
 	  new PlaceCast().execute();
     }
 

@@ -15,7 +15,7 @@ import harness.x10Test;
 // A static nested class with instance methods, fields, etc.
 
 public class GenericNested2[T] extends x10Test {
-  public static def main(Array[String](1)){
+  public static def main(Rail[String]){
      val p = new GenericNested2[Int]();
      p.execute();
   } 

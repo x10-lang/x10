@@ -58,7 +58,7 @@ public class Congruent extends x10Test {
         }
         return true;
     }
-    public static def main(args:Array[String]{rank==1}) {
+    public static def main(args:Rail[String]) {
         var kBytes:int = 4;
         if (args.size>0) {
             kBytes = Int.parseInt(args(0));

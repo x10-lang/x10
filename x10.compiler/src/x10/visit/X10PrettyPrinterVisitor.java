@@ -1962,7 +1962,8 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
                 tr.print(n, array, w);
                 w.write(".value");
                 w.write(")");
-                w.write("[");
+                // LONG_RAIL: unsafe int cast
+                w.write("[(int)");
                 new Join(er, ", ", index).expand(tr);
                 w.write("]");
                 w.write(" ");
@@ -2008,7 +2009,8 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
                 tr.print(n, array, w);
                 w.write(".value");
                 w.write(")");
-                w.write("[");
+                // LONG_RAIL: unsafe int cast
+                w.write("[(int)");
                 new Join(er, ", ", index).expand(tr);
                 w.write("]");
                 w.write(" ");
@@ -3110,7 +3112,7 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
         w.write(X10_RUNTIME_IMPL_JAVA_ARRAYUTILS + ".<");
         er.printType(t, PRINT_TYPE_PARAMS | BOX_PRIMITIVES);
         w.write("> ");
-        w.write("makeArrayFromJavaArray(");
+        w.write("makeRailFromJavaArray(");
         new RuntimeTypeExpander(er, t).expand();
         w.write(", ");
         if (t.isParameterType()) {

@@ -23,7 +23,7 @@ public class ObjectToNullablePrimitiveConstrained1 extends x10Test {
 		return (primitive instanceof int{self==3});
 	}
 	
-	public static def main(Array[String](1))  {
+	public static def main(Rail[String])  {
 		new ObjectToNullablePrimitiveConstrained1().execute();
 	}
 }

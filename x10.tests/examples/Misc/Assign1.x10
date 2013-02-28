@@ -24,7 +24,7 @@ public class Assign1 extends x10Test {
                 return r(0) == 5;
 	}
 
-	public static def main(var args: Array[String](1)): void = {
+	public static def main(var args: Rail[String]): void = {
 		new Assign1().execute();
 	}
 }

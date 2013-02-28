@@ -24,7 +24,7 @@ public class Stack[T] extends ArrayList[T] {
     	val n = size();
     	if (n < k) 
     		return null;
-    	return moveSectionToArray(n-k, n-1);
+    	return moveSectionToRail(n-k, n-1);
     }
 
     /** Return, but do not remove, the top element of the stack. */

@@ -43,7 +43,7 @@ public class UIntCast0 extends x10Test {
 	return true;
     }
 
-    public static def main(Array[String]) {
+    public static def main(Rail[String]) {
         new UIntCast0().execute();
     }
 }

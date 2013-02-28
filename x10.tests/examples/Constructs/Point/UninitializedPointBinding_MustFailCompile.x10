@@ -27,7 +27,7 @@ public class UninitializedPointBinding_MustFailCompile extends x10Test {
         return (i == 1 && j == 2); // ERR ERR: "i" may not have been initialized "j" may not have been initialized
     }
 
-    public static def main(args: Array[String](1)): void = {
+    public static def main(args: Rail[String]): void = {
         new UninitializedPointBinding_MustFailCompile().execute();
     }
 }

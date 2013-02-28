@@ -22,7 +22,7 @@ public class NullToConstrainedType extends x10Test {
 		return !(null instanceof X10DepTypeClassOneB{p==1});
 	}
 	
-	public static def main(var args: Array[String](1)): void = {
+	public static def main(var args: Rail[String]): void = {
 		new NullToConstrainedType().execute();
 	}
 }

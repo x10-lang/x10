@@ -148,7 +148,7 @@ public class FutureTest3 extends x10Test {
 		return (!x||y);
 	}
 
-	public static def main(Array[String](1)) {
+	public static def main(Rail[String]) {
 		new FutureTest3().execute();
 	}
 }

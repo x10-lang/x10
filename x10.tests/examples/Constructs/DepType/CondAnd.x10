@@ -25,7 +25,7 @@ public class CondAnd extends x10Test {
 	   val r3 = r1 && r2;
 	   return true;
 	}
-	public static def main(var args: Array[String](1)): void = {
+	public static def main(var args: Rail[String]): void = {
 		new CondAnd().execute();
 	}
 }

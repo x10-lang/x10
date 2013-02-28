@@ -21,7 +21,7 @@ import harness.x10Test;
 
 public class B_CheckThisTypeInCallMacro extends x10Test {
     public def run() = true;
-    public static def main(Array[String](1)) {
+    public static def main(Rail[String]) {
 	  new 
 	  B_CheckThisTypeInCallMacro().execute();
     }

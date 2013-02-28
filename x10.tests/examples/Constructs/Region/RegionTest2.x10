@@ -27,7 +27,7 @@ public class RegionTest2 extends x10Test {
         return sum == 0;
     }
 
-    public static def main(var args: Array[String](1)): void = {
+    public static def main(var args: Rail[String]): void = {
         new RegionTest2().execute();
     }
 }
