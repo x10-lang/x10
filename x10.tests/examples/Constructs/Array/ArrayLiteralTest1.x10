@@ -24,8 +24,8 @@ public class ArrayLiteralTest1 extends x10Test {
         val a = [1 as Int{self!=0},2 as Int{self!=0},3 as Int{self!=0}];
         var sumr:int=0;
         var suma:int=0;
-        for (i in a.values()) suma += i;
-        for (i in r.values()) sumr +=i;
+        for (i in a) suma += i;
+        for (i in r) sumr +=i;
         return suma==6 && sumr==6;
     }
 
