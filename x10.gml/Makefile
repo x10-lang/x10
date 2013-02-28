@@ -300,7 +300,7 @@ jni_lapack.o: jni_lapack.c
 			g++ -I $(JNI_inc) -c -v -fPIC $< -o $@
 
 libjlapack.so: wrap_lapack.o jni_lapack.o $(lapack_lib)
-			g++ -shared -fPIC $^ $(lapack_lib) -lgfortran -o $@
+			g++ -shared -fPIC $^ -lgfortran -o $@
 
 jlapack		: libjlapack.so
 			cp $< $(lib_path)/.
