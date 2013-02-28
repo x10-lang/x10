@@ -40,6 +40,11 @@ public class MessageHandlers {
      */
     private static native void sendMessage(int place, int msg_id, int arraylen, byte[] rawBytes);
 
+    /**
+     * Send an active message.
+     */
+    private static native void sendMessage(int place, int msg_id, int len1, byte[] rawBytes1, int len2, byte[] rawBytes2);
+
 	/*
 	 * This send/receive pair is used to serialize a ()=>void closure to
 	 * a remote place, which will deserialize the closure object and calls apply on it.
@@ -48,9 +53,14 @@ public class MessageHandlers {
 	 * x10.lang.Runtime.runClosureAt and x10.lang.Runtime.runClosureCopyAt. 
 	 */
 	
-    public static void runClosureAtSend(int place, int arraylen, byte[] rawBytes) {
-        sendMessage(place, closureMessageID, arraylen, rawBytes);
+    public static void runClosureAtSend(int place, byte[] rawBytes) {
+        sendMessage(place, closureMessageID, rawBytes.length, rawBytes);
     }
+    
+    public static void runClosureAtSend(int place, byte[] rawBytes1, byte[] rawBytes2) {
+        sendMessage(place, closureMessageID, rawBytes1.length, rawBytes1, rawBytes2.length, rawBytes2);
+    }
+
     
     // Invoked from native code at receiving place
     // This function gets called by the x10rt callback that is registered to handle
@@ -100,10 +110,14 @@ public class MessageHandlers {
      * This is the "normal" case of used to implement a typical X10-level async.
      */
     
-    public static void runSimpleAsyncAtSend(int place, int arraylen, byte[] rawBytes) { 
-        sendMessage(place, simpleAsyncMessageID, arraylen, rawBytes);
+    public static void runSimpleAsyncAtSend(int place, byte[] rawBytes) { 
+        sendMessage(place, simpleAsyncMessageID, rawBytes.length, rawBytes);
     }
-        
+
+    public static void runSimpleAsyncAtSend(int place, byte[] rawBytes1, byte[] rawBytes2) { 
+        sendMessage(place, simpleAsyncMessageID, rawBytes1.length, rawBytes1, rawBytes2.length, rawBytes2);
+    }
+    
     /**
      * Receive a simple async
      */

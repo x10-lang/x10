@@ -29,6 +29,11 @@ public final class X10JavaSerializer implements SerializationConstants {
     protected final DataOutputStream out;
     protected final ByteArrayOutputStream b_out;
     
+    protected byte[] dictBytes;
+    protected byte[] dataBytes;
+    
+    protected boolean messagePrepared = false;
+    
     // When a Object is serialized record its position
     // N.B. use custom IdentityHashMap class, as standard one has poor performance on J9
     X10IdentityHashMap<Object, Integer> objectMap = new X10IdentityHashMap<Object, Integer>();
@@ -52,25 +57,48 @@ public final class X10JavaSerializer implements SerializationConstants {
         return out;
     }
     
-    public int numBytesWritten() {
+    public int numDataBytesWritten() {
         return b_out.size();
     }
     
-    public byte[] toMessage() throws IOException {
+    public void prepareMessage(boolean dataOnly) throws IOException {
+        if (messagePrepared) return; // make it cheap to call prepareMessage multiple times
         out.close();
-
-        if (Runtime.TRACE_SER) {
-            Runtime.printTraceMessage("Sending per-message serialization ids: "+idDictionary);
+        
+        if (dataOnly) {
+            dictBytes = new byte[0];
+        } else {
+            if (Runtime.TRACE_SER) {
+                Runtime.printTraceMessage("Encoding per-message serialization ids: "+idDictionary);
+            }
+            dictBytes = idDictionary.encode();
         }
-
-        byte[] dictBytes = idDictionary.encode();
-        byte[] dataBytes = b_out.toByteArray();
-        byte[] message = new byte[dictBytes.length + dataBytes.length];
-        System.arraycopy(dictBytes, 0, message, 0, dictBytes.length);
-        System.arraycopy(dataBytes, 0, message, dictBytes.length, dataBytes.length);
-        return message;
+        dataBytes = b_out.toByteArray();
+        messagePrepared = true;
     }
     
+    public byte[] getDictionaryBytes() {
+        if (Runtime.TRACE_SER && !messagePrepared) {
+            Runtime.printTraceMessage("Fatal error: getDictionaryBytes call before prepareMessage)");
+        }
+            
+        assert messagePrepared : "Must call prepareMessage before asking for dictBytes";
+        return dictBytes;
+    }
+    
+    public byte[] getDataBytes() {
+        if (Runtime.TRACE_SER && !messagePrepared) {
+            Runtime.printTraceMessage("Fatal error: getDataBytes call before prepareMessage)");
+        }
+            
+        assert messagePrepared : "Must call prepareMessage before asking for dataBytes";
+        return dataBytes;
+    }
+    
+    public int getTotalMessageBytes() {
+        return getDictionaryBytes().length + getDataBytes().length;
+    }
+        
     public short getSerializationId(Class<?> clazz, Object obj) {
         return idDictionary.getSerializationId(clazz, obj);
     }

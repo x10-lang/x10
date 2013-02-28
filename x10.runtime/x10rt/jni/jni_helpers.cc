@@ -69,3 +69,19 @@ void jniHelper_abort(const char* format, ...) {
     va_end(ap);
     if (ABORT_NEEDED && !x10rt_run_as_library()) abort();
 }
+
+
+/*
+ * Raise an OutOfMemoryError.
+ * If throwing the exception fails, abort.
+ */
+void jniHelper_oom(JNIEnv* env, const char* msg) {
+    jclass oom = env->FindClass("java/lang/OutOfMemoryError");
+    if (NULL == oom) {
+        jniHelper_abort(msg);
+    }
+    jint rc = env->ThrowNew(oom, msg);
+    if (rc != 0) {
+        jniHelper_abort(msg);
+    }
+}

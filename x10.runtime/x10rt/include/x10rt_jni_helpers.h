@@ -38,6 +38,8 @@ extern void initCachedJVM(JNIEnv*);
 
 extern void jniHelper_abort(const char* format, ...);
 
+extern void jniHelper_oom(JNIEnv*, const char* msg);
+
 extern const char* X10_PAUSE_GC_ON_SEND;
     
 

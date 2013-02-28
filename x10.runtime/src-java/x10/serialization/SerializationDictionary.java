@@ -44,6 +44,10 @@ abstract class SerializationDictionary implements SerializationConstants {
     }
 
     byte[] encode() throws IOException {
+        if (dict.size() == 0) {
+            return new byte[2]; // zero initialized, so 2 bytes of 0 is the short 0.
+        }
+        
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
         DataOutputStream dos = new DataOutputStream(baos);
         dos.writeShort(dict.size());

@@ -37,7 +37,11 @@ abstract class DeserializationDictionary implements SerializationConstants {
             if (Runtime.TRACE_SER) Runtime.printTraceMessage(msg);
             throw new RuntimeException(msg, e);
         }
-        idsToClass.put(Short.valueOf(id), clazz);
+        addEntry(Short.valueOf(id), clazz);
+    }
+
+    void addEntry(Short id, Class<?> clazz) {
+        idsToClass.put(id, clazz);
         if (x10.serialization.X10JavaSerializable.class.isAssignableFrom(clazz) && !clazz.isInterface()) {
             Method m;
             try {
@@ -47,7 +51,7 @@ abstract class DeserializationDictionary implements SerializationConstants {
                                            " implements X10JavaSerializable but does not have a $_deserializer method", e);
             }
             m.setAccessible(true);
-            idsToMethod.put(Short.valueOf(id), m);
+            idsToMethod.put(id, m);
         }
     }
 
@@ -113,6 +117,24 @@ abstract class DeserializationDictionary implements SerializationConstants {
             } catch (IOException e) {
                 throw new RuntimeException("Failure while reading message dictionary", e);
             }
+        }
+        
+        public LocalDeserializationDictionary(SerializationDictionary js, DeserializationDictionary parent) {
+            this(parent);
+            
+            if (Runtime.TRACE_SER) {
+                Runtime.printTraceMessage("\tLocal copy of "+js.dict.size()+" serialization ids");                
+            }
+            
+            for (Map.Entry<Class<?>,Short> entry : js.dict.entrySet()) {
+                Short id = entry.getValue();
+                Class<?> clazz = entry.getKey();
+                if (Runtime.TRACE_SER) {
+                    Runtime.printTraceMessage("\tserialization id: "+id+" = "+clazz.getName());                
+                }
+                addEntry(id, clazz);
+            }
+        
         }
 
         Class<?> getClassForID(short sid) {
