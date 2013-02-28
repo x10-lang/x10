@@ -45,7 +45,7 @@ public class AsyncTest3 extends x10Test {
             x10.io.Console.OUT.println("3");
             return false;
         } catch (z:MultipleExceptions) {
-            return (z.exceptions.size == 1 && z.exceptions(0) instanceof BadPlaceException);
+            return (z.exceptions.size == 1L && z.exceptions(0) instanceof BadPlaceException);
         }
     }
 
@@ -58,7 +58,7 @@ public class AsyncTest3 extends x10Test {
      * for a typical compiler
      */
     @Pinned static class X {
-        public var z: Array[int](1){rect} = [ 1, 0 ];
+        public var z: Rail[int] = [ 1, 0 ];
         def zero() = z(z(z(1))); 
         def one() = z(z(z(0))); 
         def modify() { z(0)++; }
