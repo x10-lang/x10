@@ -77,6 +77,10 @@ public final class X10JavaSerializer implements SerializationConstants {
         messagePrepared = true;
     }
     
+    public boolean mustSendDictionary() { 
+        return idDictionary.dict.size() > 0;
+    }
+    
     public byte[] getDictionaryBytes() {
         if (Runtime.TRACE_SER && !messagePrepared) {
             Runtime.printTraceMessage("Fatal error: getDictionaryBytes call before prepareMessage)");

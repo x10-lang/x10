@@ -239,9 +239,33 @@ public abstract class Runtime implements x10.core.fun.VoidFun_0_0 {
 
     public static void runAsyncAt(int place, x10.core.fun.VoidFun_0_0 body, FinishState finishState, x10.lang.Runtime.Profile prof) {
         try {
-            X10JavaSerializer serializer = serialize(body, finishState, prof);
-			long start = prof!=null ? System.nanoTime() : 0;
-            x10.x10rt.MessageHandlers.runSimpleAsyncAtSend(place, serializer.getDictionaryBytes(), serializer.getDataBytes());
+            if (TRACE_SER_DETAIL) {
+            	System.out.println("Starting serialization for runAsyncAt  " + body.getClass());
+            }
+            long start = prof!=null ? System.nanoTime() : 0;
+            X10JavaSerializer serializer = new X10JavaSerializer();
+         
+            serializer.write(finishState);
+            long before_bytes = serializer.numDataBytesWritten();
+            serializer.write(body);
+            long ser_bytes = serializer.numDataBytesWritten() - before_bytes;
+            serializer.prepareMessage(false);
+            
+            if (prof != null) {
+            	long stop = System.nanoTime();
+            	long duration = stop-start;
+                prof.bytes += ser_bytes;
+                prof.serializationNanos += duration;
+            }
+            if (TRACE_SER_DETAIL) {
+            	System.out.println("Done with serialization for runAsyncAt " + body.getClass());
+            }
+            start = prof!=null ? System.nanoTime() : 0;
+            if (serializer.mustSendDictionary()) {
+                x10.x10rt.MessageHandlers.runSimpleAsyncAtSend(place, serializer.getDictionaryBytes(), serializer.getDataBytes());
+            } else {
+                x10.x10rt.MessageHandlers.runSimpleAsyncAtSend(place, serializer.getDataBytes());                
+            }
             if (prof!=null) {
                 prof.communicationNanos += System.nanoTime() - start;
             }
@@ -325,35 +349,10 @@ public abstract class Runtime implements x10.core.fun.VoidFun_0_0 {
 		return hadoopWritableClass.isAssignableFrom(clazz);
 	}
 	
-	private static X10JavaSerializer serialize(x10.core.fun.VoidFun_0_0 body, FinishState finishState, x10.lang.Runtime.Profile prof) throws java.io.IOException {
-		if (TRACE_SER_DETAIL) {
-			System.out.println("Starting serialization for runAtAll  " + body.getClass());
-		}
-		long start = prof!=null ? System.nanoTime() : 0;
-		X10JavaSerializer serializer = new X10JavaSerializer();
-		
-		serializer.write(finishState);
-        long before_bytes = serializer.numDataBytesWritten();
-        serializer.write(body);
-        long ser_bytes = serializer.numDataBytesWritten() - before_bytes;
-        serializer.prepareMessage(false);
-        
-		if (prof != null) {
-			long stop = System.nanoTime();
-			long duration = stop-start;
-            prof.bytes += ser_bytes;
-            prof.serializationNanos += duration;
-		}
-		if (TRACE_SER_DETAIL) {
-			System.out.println("Done with serialization for runAtAll " + body.getClass());
-		}
-		return serializer;
-	}
-    
 	public static void runAt(int place, x10.core.fun.VoidFun_0_0 body, x10.lang.Runtime.Profile prof) {
 		try {
 			if (TRACE_SER_DETAIL) {
-				System.out.println("Starting serialization for runAtAll  " + body.getClass());
+				System.out.println("Starting serialization for runAt  " + body.getClass());
 			}
 			long start = prof!=null ? System.nanoTime() : 0;
 			X10JavaSerializer serializer = new X10JavaSerializer();
@@ -366,13 +365,15 @@ public abstract class Runtime implements x10.core.fun.VoidFun_0_0 {
                 prof.serializationNanos += duration;
 			}
 			if (TRACE_SER_DETAIL) {
-				System.out.println("Done with serialization for runAtAll " + body.getClass());
+				System.out.println("Done with serialization for runAt " + body.getClass());
 			}
 
-			if (prof!=null) {
-                start = System.nanoTime();
-            }
-			x10.x10rt.MessageHandlers.runClosureAtSend(place, serializer.getDictionaryBytes(), serializer.getDataBytes());
+			start = prof!=null ? System.nanoTime() : 0;
+			if (serializer.mustSendDictionary()) {			
+			    x10.x10rt.MessageHandlers.runClosureAtSend(place, serializer.getDictionaryBytes(), serializer.getDataBytes());
+			} else {
+                x10.x10rt.MessageHandlers.runClosureAtSend(place, serializer.getDataBytes());			    
+			}
 			if (prof!=null) {
                 prof.communicationNanos += System.nanoTime() - start;
             }
@@ -381,20 +382,6 @@ public abstract class Runtime implements x10.core.fun.VoidFun_0_0 {
 			throw new x10.lang.WrappedThrowable(e);
 		}
 	}
-
-    // Special version of runAt for broadcast type communication
-    // (Serialize once, run everywhere)
-
-    public static void runAtAll(boolean includeHere, byte[] msg) {
-        int hereId = X10RT.here();
-        for (int place = hereId + 1; place < Runtime.MAX_PLACES; ++place) {
-            x10.x10rt.MessageHandlers.runClosureAtSend(place, msg);
-        }
-        int endPlace = includeHere ? hereId : hereId - 1;
-        for (int place = 0; place <= endPlace; ++place) {
-            x10.x10rt.MessageHandlers.runClosureAtSend(place, msg);
-        }
-    }
 
     /**
      * Return true if place(id) is local to this node
