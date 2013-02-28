@@ -1218,7 +1218,7 @@ public class AltSynthesizer {
         for (int i=0; i<numElems; i++) {
             tupleVals.add(initForAllElems);
         }
-        Type elemType = ts.Array(initForAllElems.type());
+        Type elemType = ts.Rail(initForAllElems.type());
         return nf.Tuple(pos, tupleVals).type(elemType);
     }
 
