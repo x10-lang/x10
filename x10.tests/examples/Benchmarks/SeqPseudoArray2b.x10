@@ -44,7 +44,7 @@ public class SeqPseudoArray2b extends Benchmark {
         def this(m0:int, m1:int) {
             this.m0 = m0;
             this.m1 = m1;
-            this.raw = new Array[T](m0*m1);
+            this.raw = new Rail[T](m0*m1);
         }
         
         final operator this(i0: int, i1: int)=(v:T) {

@@ -71,7 +71,7 @@ public class BenchmarkIterateDistArray(elementsPerPlace : Int) extends x10Test {
             for ([t] in 1..100) {
                 // iterate and update each element of the distributed array
                 finish for (place in a.dist.places()) async at (place) {
-                    val aLocal = a.getLocalPortion() as Rail[Int];
+                    val aLocal = a.getLocalPortion();
                     for ([i] in aLocal) {
                         aLocal(i) = i;
                     }
