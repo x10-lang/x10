@@ -1,4 +1,4 @@
-/* Current test harness gets confused by packages, but it would be in package Expressions_ArrayCtor_Details;
+/* Current test harness gets confused by packages, but it would be in package Expressions_RailCtor_Details;
 */
 // Warning: This file is auto-generated from the TeX source of the language spec.
 // If you need it changed, work with the specification writers.
@@ -30,11 +30,11 @@ public class Expressions170 extends x10Test {
  static class Eel{}
  static class Example{
 def example(){
-val zero <: Array[Int{self == 0}](1)
+val zero <: Rail[Int{self == 0}]
           = [0];
-val non1 <: Array[Int{self != 1}](1)
+val non1 <: Rail[Int{self != 1}]
           = [0 as Int{self != 1}];
-val eels <: Array[Eel{self != null}](1)
+val eels <: Rail[Eel{self != null}]
           = [new Eel() as Eel{self != null},
              new Eel(), new Eel()];
 }}

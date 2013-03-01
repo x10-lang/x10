@@ -1,4 +1,4 @@
-/* Current test harness gets confused by packages, but it would be in package Expressions_ArrayCtor_Primo;
+/* Current test harness gets confused by packages, but it would be in package Expressions_RailCtor_Primo;
 */
 // Warning: This file is auto-generated from the TeX source of the language spec.
 // If you need it changed, work with the specification writers.
@@ -29,7 +29,7 @@ public class Expressions140 extends x10Test {
 // file Expressions line 1903
  static  class Example {
  def example() {
-val ints <: Array[Int](1) = [1,3,7,21];
+val ints <: Rail[Int] = [1,3,7,21];
 }}
 
  static class Hook {

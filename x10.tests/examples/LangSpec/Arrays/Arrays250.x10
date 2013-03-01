@@ -31,6 +31,6 @@ public class Arrays250 extends x10Test {
 static def example(a:Array[Double]) {
 for (p in a) a(p) = Math.log(a(p));
 }}
- static  class Hook{ def run() { val a = [1.0,2.0]; Example.example(a); return a(0)==Math.log(1.0) && a(1)==Math.log(2.0); }}
+ static  class Hook{ def run() { val a = new Array[Double](2, [1.0,2.0]); Example.example(a); return a(0)==Math.log(1.0) && a(1)==Math.log(2.0); }}
 
 }

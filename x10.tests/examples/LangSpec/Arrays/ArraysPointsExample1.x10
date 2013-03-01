@@ -31,7 +31,7 @@ public class ArraysPointsExample1 extends x10Test {
  def example1() {
 val origin_1 : Point{rank==1} = Point.make(0);
 val origin_2 : Point{rank==2} = Point.make(0,0);
-val origin_5 : Point{rank==5} = Point.make([0,0,0,0,0]);
+val origin_5 : Point{rank==5} = Point.make(new Array[Int](5, [0,0,0,0,0]));
  } }
 
  static class Hook {
