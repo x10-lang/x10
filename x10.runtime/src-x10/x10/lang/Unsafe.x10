@@ -18,7 +18,7 @@ public final class Unsafe {
 
     static class Token {}
 
-    static val token = new Token();
+    private static val token = new Token();
 
     public static def allocRailUninitialized[T](size:Long) {
         return new Rail[T](token, size);
