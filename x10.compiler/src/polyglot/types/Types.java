@@ -881,7 +881,7 @@ public class Types {
      * @param pos
      * @return
      */
-    public static Type makeRailOf(Type type, int size, Position pos) {
+    public static Type makeRailOf(Type type, long size, Position pos) {
         TypeSystem ts = type.typeSystem();
         X10ClassType t = ts.Rail(type);
         CConstraint c = Types.xclause(t);
@@ -890,7 +890,7 @@ public class Types {
             throw new InternalCompilerError("Could not find size field of " + t, pos);
         try {
             XTerm selfSize = ts.xtypeTranslator().translate(c.self(), sizeField);
-            XLit sizeLiteral = ConstraintManager.getConstraintSystem().makeLit(size, ts.Int());
+            XLit sizeLiteral = ConstraintManager.getConstraintSystem().makeLit(size, ts.Long());
             c.addBinding(selfSize, sizeLiteral);
             Type result = Types.xclause(t, c);
             return result;
