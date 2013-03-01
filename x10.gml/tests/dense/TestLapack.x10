@@ -22,7 +22,7 @@ import x10.matrix.lapack.DenseMatrixLAPACK;
  */
 public class TestLapack {
 
-    public static def main(args:Array[String](1)) {
+    public static def main(args:Rail[String]) {
 		val m = (args.size > 0) ? Int.parse(args(0)):4;
 		val n = (args.size > 1) ? Int.parse(args(1)):1;
 		val testcase = new LapackTest(m, n);

@@ -24,7 +24,7 @@ import x10.matrix.distblock.DistBlockMatrix;
  */
 public class DistBlockExample {
 	
-    public static def main(args:Array[String](1)) {
+    public static def main(args:Rail[String]) {
 		val testcase = new RunExample(args);
 		testcase.run();
 	}
@@ -39,7 +39,7 @@ class RunExample {
 	public val bN:Int;
 
 
-    public def this(args:Array[String](1)) {
+    public def this(args:Rail[String]) {
 		M = args.size > 0 ?Int.parse(args(0)):30;
 		nzp = args.size > 1 ?Double.parse(args(1)):0.9;
 		N = args.size > 2 ?Int.parse(args(2)):M+1;

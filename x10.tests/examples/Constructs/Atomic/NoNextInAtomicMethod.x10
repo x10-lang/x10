@@ -31,7 +31,7 @@ public class NoNextInAtomicMethod extends x10Test {
 		Clock.advanceAll();
 	}
 
-	public static def main(Array[String](1)){
+	public static def main(Rail[String]){
 		new NoNextInAtomicMethod().execute();
 	}
 }

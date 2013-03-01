@@ -20,7 +20,7 @@ public class PrimitiveLiteralIsAnAny extends x10Test {
 
 	public def run() = 3 instanceof Any;
 
-	public static def main(Array[String](1)) {
+	public static def main(Rail[String]) {
 		new PrimitiveLiteralIsAnAny().execute();
 	}
 }

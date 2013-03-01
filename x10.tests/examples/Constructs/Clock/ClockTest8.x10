@@ -57,7 +57,7 @@ public class ClockTest8 extends x10Test {
 		}
 		} catch (e: MultipleExceptions) {
 			x10.io.Console.OUT.println("MultipleExceptions");
-			return e.exceptions.size == 1 && e.exceptions(0) instanceof ClockUseException;
+			return e.exceptions.size == 1L && e.exceptions(0) instanceof ClockUseException;
 		} catch (e: ClockUseException) {
 			x10.io.Console.OUT.println("ClockUseException");
 			return true;
@@ -65,7 +65,7 @@ public class ClockTest8 extends x10Test {
 		return true;
 	}
 
-	public static def main(var args: Array[String](1)): void = {
+	public static def main(var args: Rail[String]): void = {
 		new ClockTest8().executeAsync();
 	}
 

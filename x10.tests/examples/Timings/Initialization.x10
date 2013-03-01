@@ -59,7 +59,7 @@ public class Initialization extends x10Test {
 		return true;
 	}
 
-	public static def main(Array[String](1)):void {
+	public static def main(Rail[String]):void {
 		new Initialization().execute();
 	}
 }

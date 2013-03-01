@@ -26,7 +26,7 @@ import x10.matrix.dist.DistMatrix;
  */
 public class TestDist {
 	
-    public static def main(args:Array[String](1)) {
+    public static def main(args:Rail[String]) {
 		val testcase = new TestGridDist(args);
 		testcase.run();
 	}
@@ -37,7 +37,7 @@ class TestGridDist {
 	public val N:Int;
 	public val K:Int;	
 
-    public def this(args:Array[String](1)) {
+    public def this(args:Rail[String]) {
 		M = args.size > 0 ?Int.parse(args(0)):4;
 		nzp = args.size > 1 ?Double.parse(args(1)):0.5;
 		N = args.size > 2 ?Int.parse(args(2)):M+1;

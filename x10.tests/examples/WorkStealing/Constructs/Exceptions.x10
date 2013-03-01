@@ -79,7 +79,7 @@ public class Exceptions extends x10Test {
             //correct
             val es = e.exceptions();
             Console.OUT.println("In multiple exception handling: size =" + es.size);
-            ok = (es.size == 2);
+            ok = (es.size == 2L);
             //should capture 3 & 4
             var ok3:boolean = false;
             var ok4:boolean = false;
@@ -102,7 +102,7 @@ public class Exceptions extends x10Test {
         return ok;
     }
 
-    public static def main(Array[String](1)) {
+    public static def main(Rail[String]) {
         new Exceptions().execute();
     }
 }

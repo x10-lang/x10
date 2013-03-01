@@ -22,7 +22,7 @@ public class ObjectToPrimitive extends x10Test {
 		return (primitive instanceof Int);
 	}
 	
-	public static def main(Array[String](1))  {
+	public static def main(Rail[String])  {
 		new ObjectToPrimitive().execute();
 	}
 }

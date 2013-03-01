@@ -33,7 +33,7 @@ public class FrontEndTests_MustFailCompile extends x10Test {
 	public def run():Boolean {
 		return true;
 	}
-	public static def main(Array[String]) {
+	public static def main(Rail[String]) {
 		new FrontEndTests_MustFailCompile().execute();
 	}
 }
@@ -829,7 +829,7 @@ class TestAsync {
 	
 	static def use(a:Int) {}
 	
-	public static def main(Array[String]) {
+	public static def main(Rail[String]) {
 	     var i:Int;
 	     var j:Int;
 	     var k:Int;
@@ -891,7 +891,7 @@ class TestAsync {
 	}
 	static def use2(loc:Int,expected:Int,a:Int) { if (expected!=a) throw new Exception("ERROR! loc="+loc+" expected="+expected+" a="+a); }
 	
-	public static def main2(Array[String]) {
+	public static def main2(Rail[String]) {
 	     var i:Int;
 	     var j:Int;
 	     var k:Int;
@@ -1354,7 +1354,7 @@ class SuperCallTest extends SuperTest22 {
 class TestOverLoadingWithLiterals {
 	static def f(Byte)=1;
 	static def f(Int)=2;
-	public static def main(Array[String]) {
+	public static def main(Rail[String]) {
 		val i1:Int{self==1} = f(1y);
 		val i2:Int{self==2} = f(1);
 		if (i1!=1 || i2!=2) throw new Exception("Failed");
@@ -1434,7 +1434,7 @@ class SimpleUserDefinedStructTest {
 
 	  var s6:S{self.y==0};  // ERR (any constrained user-defined struct, doesn't haszero. because of a bug in ConstrainedType_c.fields())
 	}
-	def main(Array[String]) {
+	def main(Rail[String]) {
 		Console.OUT.println( Zero.get[S5[S5[Int]]]().t.t );
 	}
 }
@@ -2370,7 +2370,7 @@ class NullaryPropertyMethod {
 			var e4:E{z()} = null; // ShouldNotBeERR: Cannot access a non-static method from a static context
 			e4 = e as E{z()}; // ShouldNotBeERR: Cannot access a non-static method from a static context
 		}
-		public static def main(Array[String]) {
+		public static def main(Rail[String]) {
 			val e = new E(2);
 			var e1:E{self.y()} = null;
 			e1 = e as E{self.y()};
@@ -2384,7 +2384,7 @@ class NullaryPropertyMethod {
 	}
 }
 class TestXtenLang1938 { // see XTENLANG-1938
-	public static def main(Array[String]) {
+	public static def main(Rail[String]) {
 		val h = new TestXtenLang1938();
 		val x = h+h; // ShouldNotBeERR: Local variable cannot have type void
 		// h+h; // doesn't parse! maybe it should?
@@ -3244,7 +3244,7 @@ class TestOperatorResolutionWithoutCoercions { // XTENLANG-1692
 		}
 	}
 	static  class Main {
-	  public static def main(args: Array[String]) {
+	  public static def main(args: Rail[String]) {
 		  new Example().example( new A(), new B(), new C() );
 		  Console.OUT.println("Now let's test dynamic dispatching!"); 
 		  new Example().example( new C(), new C(), new C() );
@@ -3510,7 +3510,7 @@ class CastToTypeParam[T] {
 		val f:String = a.f1;
 		val s = 0 as String; // ERR: Cannot cast expression to type
 	}
-	public static def main(Array[String]) {
+	public static def main(Rail[String]) {
 		Console.OUT.println(new CastToTypeParam[String]().f1); // throws x10.lang.ClassCastException
 	}
 }
@@ -3639,7 +3639,7 @@ class hasZeroTests {
 
 }
 class RuntimeTestsOfHaszero {
-	public static def main(Array[String]) {
+	public static def main(Rail[String]) {
 		new RuntimeTestsOfHaszero().m();
 	}
 
@@ -4139,7 +4139,7 @@ class TestCircularStructs { // see XTENLANG-2187
 	static struct U(u:U) {} // ERR ERR: A class can only have properties of a 'simpler' type
 
 
-    public static def main(Array[String]{rail}) {
+    public static def main(Rail[String]) {
         val x1 = new Array[S](2);
     }
 }
@@ -5496,7 +5496,7 @@ class XTENLANG_2491 {
 		}
 	}
 	static class Hello {
-		public def main(Array[String]) {
+		public def main(Rail[String]) {
 			val map = new MyHashMap[String,Int](5);
 			Console.OUT.println(map.get());
 		}
@@ -5625,7 +5625,7 @@ struct StructCannotBeUsedInGlobalRef {
 }
 
 class RuntimeChecksOfConstraintsInGenerics {
-    public static def main(args: Array[String]) {
+    public static def main(args: Rail[String]) {
         val arr = new Array[Int{self==3}](0..100, ([p]:Point(1))=>3);
 		//arr(0) = 1; // err: Cannot assign expression to array element of given type.             Expression: 1             Type: x10.lang.Int{self==1}             Array element: arr(0)             Type: x10.lang.Int{self==3}    
 		arr(0) = 3; 
@@ -6553,7 +6553,7 @@ class LCATests { // see XTENLANG-2635
 
 class TestClassConformance { // XTENLANG-2509
 
-	public static def main(args:Array[String](1)) { }
+	public static def main(args:Rail[String]) { }
 
 	public abstract static class Matrix(M:Int, N:Int) {
 		protected def this(m:Int, n:Int) = property(m, n);

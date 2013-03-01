@@ -28,7 +28,7 @@ public class StructCall_MustFailCompile extends x10Test  {
 		  val a:S1 = S1(1); // ERR: Method or static constructor not found for given call.	 Call: S1(x10.lang.Int{self==1})
           return true;
 	}
-	public static def main(var args: Array[String](1)): void = {
+	public static def main(var args: Rail[String]): void = {
 		new StructCall_MustFailCompile().execute();
 	}
 }

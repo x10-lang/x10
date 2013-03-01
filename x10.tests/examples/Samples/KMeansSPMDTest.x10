@@ -13,7 +13,7 @@ import harness.x10Test;
 
 public class KMeansSPMDTest extends x10Test {
     public def run():boolean {
-         val args = new Array[String](2);
+         val args = new Rail[String](2);
          val x10home = System.getenv("X10_HOME");
          args(0) = "-p"; 
          args(1) = (x10home == null ? "../../.." : x10home) + "/x10.dist/samples/points.dat";
@@ -21,7 +21,7 @@ public class KMeansSPMDTest extends x10Test {
          return true;
     }
 
-    public static def main(args:Array[String](1)) {
+    public static def main(args:Rail[String]) {
 	new KMeansSPMDTest().execute();
     }
 }

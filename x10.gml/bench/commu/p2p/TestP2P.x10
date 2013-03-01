@@ -25,7 +25,7 @@ public type DataDA   =DistArray[Array[Double](1){rail}](1);
  */
 
 public class TestP2P{
-    public static def main(args:Array[String](1)) {
+    public static def main(args:Rail[String]) {
 		val testcase = new TestArrayP2PCopy(args);
 		testcase.run();
 	}
@@ -48,7 +48,7 @@ class TestArrayP2PCopy {
 	val darray:DataDA;
 	
 	//=================
-    public def this(args:Array[String](1)) {
+    public def this(args:Rail[String]) {
 		M = args.size > 0 ?Int.parse(args(0)):500;
 		N = args.size > 1 ?Int.parse(args(1)):M;
 		dlen = M * N;

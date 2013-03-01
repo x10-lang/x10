@@ -102,7 +102,7 @@ public class StringBuilder implements Builder[Any,String] {
     }
 
     public def result():String {
-        val array = buf.toArray();
-        return new String(array, 0, array.size);
+        val rail = buf.toRail();
+        return new String(rail, 0, rail.size);
     }
 }

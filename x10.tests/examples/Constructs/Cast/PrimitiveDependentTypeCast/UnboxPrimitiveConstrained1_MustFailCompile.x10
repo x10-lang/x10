@@ -34,7 +34,7 @@ import harness.x10Test;
 		return res2;
 	}
 
-	public static def main(var args: Array[String](1)): void = {
+	public static def main(var args: Rail[String]): void = {
 		new UnboxPrimitiveConstrained1_MustFailCompile().execute();
 	}
 }

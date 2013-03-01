@@ -35,7 +35,7 @@ public class GenericInstanceof14 extends GenericTest {
         return !(a instanceof I[I[Sub]]) && a instanceof I[I[Super]];
     }
     
-    public static def main(var args: Array[String](1)): void = {
+    public static def main(var args: Rail[String]): void = {
         new GenericInstanceof14().execute();
     }
 }

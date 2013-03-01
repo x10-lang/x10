@@ -12,14 +12,14 @@
 
 public class WSHistogramTest {
      public def run():boolean {
-          val args = new Array[String](2);
+          val args = new Rail[String](2);
           args(0) = "1000";
           args(1) = "10";
           Histogram.main(args);
           return true;
      }
 
-     public static def main(args:Array[String](1)) {
+     public static def main(args:Rail[String]) {
           val r = new WSHistogramTest().run();
           if(r){
                 x10.io.Console.OUT.println("++++++Test succeeded.");

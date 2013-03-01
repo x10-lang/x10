@@ -26,7 +26,7 @@ public class PrimitiveToBoxPrimitive1_MustFailCompile extends x10Test {
         val x = 3 as Box[int]; // ERR: Box is no longer covariant
     }
 	
-	public static def main(var args: Array[String](1)): void = {
+	public static def main(var args: Rail[String]): void = {
 		new PrimitiveToBoxPrimitive1_MustFailCompile().execute();
 	}
 }

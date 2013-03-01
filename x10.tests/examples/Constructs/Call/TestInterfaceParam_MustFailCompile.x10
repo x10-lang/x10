@@ -26,7 +26,7 @@ public class TestInterfaceParam_MustFailCompile extends x10Test {
         return doSomething(new C());  // ERR
     }
 
-    public static def main(args : Array[String](1)) {
+    public static def main(args : Rail[String]) {
         new TestInterfaceParam_MustFailCompile().execute();
     }
 }

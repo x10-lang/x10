@@ -26,7 +26,7 @@ import x10.io.SerialData;
  * insertion operations. 
  * 
  * @See ArrayList, which provides a similar abstraction of a 
- *      Growable Array. Like Array, ArrayList is type safe.
+ *      Growable Rail. Like Rail, ArrayList is type safe.
  */
 public final class GrowableIndexedMemoryChunk[T] implements CustomSerialization {
     private var imc:IndexedMemoryChunk[T];
@@ -164,8 +164,8 @@ public final class GrowableIndexedMemoryChunk[T] implements CustomSerialization 
         return tmp;
     }
 
-    public def moveSectionToArray(i:Int, j:Int):Rail[T] {
-        return new Array[T](moveSectionToIndexedMemoryChunk(i, j));
+    public def moveSectionToRail(i:Int, j:Int):Rail[T] {
+        return new Rail[T](moveSectionToIndexedMemoryChunk(i, j));
     }
 
     /**
@@ -178,10 +178,10 @@ public final class GrowableIndexedMemoryChunk[T] implements CustomSerialization 
     }
 
     /** 
-     * Copy current data into an Array.
+     * Copy current data into an Rail.
      */
-    public def toArray():Rail[T] {
-      return new Array[T](toIndexedMemoryChunk());
+    public def toRail():Rail[T] {
+      return new Rail[T](toIndexedMemoryChunk());
     }
 
     public def grow(var newCapacity:int):void {

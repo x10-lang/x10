@@ -33,7 +33,7 @@ class PolyFull1 extends TestRegion {
         "region: full(3)\n"+
         "x10.array.UnboundedRegionException: iterator not supported\n";
     
-    public static def main(Array[String](1)) {
+    public static def main(Rail[String]) {
         new PolyFull1().execute();
     }
 }

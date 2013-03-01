@@ -66,7 +66,7 @@ public class DepType(i:int, j:int) extends x10Test {
         x10.io.Console.OUT.println("i (=3?) = " + i);
         return true;
     }
-    public static def main(args: Array[String](1)):void = {
+    public static def main(args: Rail[String]):void = {
         new DepType(3,9).execute();
     }
 }

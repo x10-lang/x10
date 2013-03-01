@@ -32,7 +32,7 @@ public class NoResumeInWhenMethod extends x10Test {
 		Clock.resumeAll();
 	}
 
-	public static def main(Array[String](1)){
+	public static def main(Rail[String]){
 		new NoResumeInWhenMethod().execute();
 	}
 }

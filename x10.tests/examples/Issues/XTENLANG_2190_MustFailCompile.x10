@@ -36,7 +36,7 @@ class XTENLANG_2190_MustFailCompile extends x10Test {
       return true;
     }
 
-    public static def main(Array[String](1)) {
+    public static def main(Rail[String]) {
         new XTENLANG_2190_MustFailCompile(10).execute();
     }
 }

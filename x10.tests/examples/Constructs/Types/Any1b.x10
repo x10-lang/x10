@@ -54,7 +54,7 @@ public class Any1b extends x10Test {
         return true;
     }
 
-    public static def main(Array[String](1)) {
+    public static def main(Rail[String]) {
         new Any1b().execute();
     }
 

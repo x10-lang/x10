@@ -24,7 +24,7 @@ public class XTENLANG_643 extends x10Test {
     public def run() = test();
 
 
-    public static def main(Array[String](1)) {
+    public static def main(Rail[String]) {
         new XTENLANG_643().execute();
     }
 

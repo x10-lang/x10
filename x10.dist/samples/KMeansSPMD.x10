@@ -39,7 +39,7 @@ public class KMeansSPMD {
         }
     }
 
-    public static def main (args:Array[String](1)) {here == Place.FIRST_PLACE } {
+    public static def main (args:Rail[String]) {here == Place.FIRST_PLACE } {
 
         val opts = new OptionsParser(args, [
             Option("q","quiet","just print time taken"),

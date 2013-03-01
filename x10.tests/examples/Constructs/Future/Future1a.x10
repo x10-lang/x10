@@ -16,7 +16,7 @@ import x10.util.concurrent.Future;
  */
 public class Future1a extends x10Test {
 	public def run() = (Future.make[int](()=>41))()+1 == 42;
-	public static def main(var args: Array[String](1)): void = {
+	public static def main(var args: Rail[String]): void = {
 		new Future1a().execute();
 	}
 }

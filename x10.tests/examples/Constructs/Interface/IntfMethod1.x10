@@ -22,7 +22,7 @@ public class IntfMethod1 extends x10Test {
         public def compare(a:T, b:T):Int = 0;
     }
     public def run():Boolean = true;
-    public static def main(Array[String](1)) {
+    public static def main(Rail[String]) {
         new IntfMethod1().execute();
     }
 }

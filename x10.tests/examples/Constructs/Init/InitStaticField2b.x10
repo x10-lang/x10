@@ -71,7 +71,7 @@ public class InitStaticField2b extends x10Test {
         return ok && count() == 1;
     }
 
-    public static def main(Array[String](1)) {
+    public static def main(Rail[String]) {
         new InitStaticField2b().execute();
     }
 

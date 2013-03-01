@@ -30,7 +30,7 @@ public class IntArrayMaxAbs extends x10Test {
 	    return absMax==10;
     }
 
-    public static def main(Array[String](1)) {
+    public static def main(Rail[String]) {
         new IntArrayMaxAbs().execute();
     }
 }

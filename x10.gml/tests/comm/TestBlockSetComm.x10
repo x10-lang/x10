@@ -31,7 +31,7 @@ import x10.matrix.comm.BlockSetReduce;
  */
 
 public class TestBlockSetComm{
-    public static def main(args:Array[String](1)) {
+    public static def main(args:Rail[String]) {
 		val m = args.size > 0 ?Int.parse(args(0)):40;
 		val n = args.size > 1 ?Int.parse(args(1)):40;
 		val bm= args.size > 2 ?Int.parse(args(2)):3;

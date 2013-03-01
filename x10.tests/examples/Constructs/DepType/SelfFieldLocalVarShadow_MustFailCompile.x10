@@ -34,7 +34,7 @@ public class SelfFieldLocalVarShadow_MustFailCompile extends x10Test {
         // should fail to compile since Test(:self.i==j) is not a subtype of Test(:self.i==self.j)
         return m(t); 
     }
-    public static def main(var args: Array[String](1)): void = {
+    public static def main(var args: Rail[String]): void = {
         new SelfFieldLocalVarShadow_MustFailCompile().execute();
     }
 }

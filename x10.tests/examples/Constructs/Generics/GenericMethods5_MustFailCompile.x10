@@ -28,7 +28,7 @@ public class GenericMethods5_MustFailCompile extends GenericTest {
         return result;
     }
 
-    public static def main(var args: Array[String](1)): void = {
+    public static def main(var args: Rail[String]): void = {
         new GenericMethods5_MustFailCompile().execute();
     }
 }

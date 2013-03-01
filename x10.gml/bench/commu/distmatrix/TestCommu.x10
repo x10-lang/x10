@@ -39,7 +39,7 @@ import x10.matrix.comm.MatrixReduce;
  */
 
 public class TestCommu{
-    public static def main(args:Array[String](1)) {
+    public static def main(args:Rail[String]) {
 		val testcase = new TestDistMatrixCommu(args);
 		testcase.run();
 	}
@@ -80,7 +80,7 @@ class TestDistMatrixCommu {
 	
 	public val checkTime:Array[Long](1) = new Array[Long](Place.MAX_PLACES);
 	
-	public def this(args:Array[String](1)) {
+	public def this(args:Rail[String]) {
 		val m = args.size > 0 ?Int.parse(args(0)):1024;
 		M = m;
 		iter = args.size > 1 ? Int.parse(args(1)):1;

@@ -46,7 +46,7 @@ public class UShortArray0 extends x10Test {
 	return true;
     }
 
-    public static def main(Array[String]) {
+    public static def main(Rail[String]) {
         new UShortArray0().execute();
     }
 }

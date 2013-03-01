@@ -29,7 +29,7 @@ public class FinishTest1 extends x10Test {
 		return b;
 	}
 
-	public static def main(args: Array[String](1)) {
+	public static def main(args: Rail[String]) {
 		new FinishTest1().execute();
 	}
 }

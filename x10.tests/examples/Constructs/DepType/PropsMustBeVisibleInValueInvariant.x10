@@ -27,7 +27,7 @@ public class PropsMustBeVisibleInValueInvariant extends x10Test {
         Value2(4);
         return true;
     }
-    public static def main(Array[String](1)): void = {
+    public static def main(Rail[String]): void = {
         new PropsMustBeVisibleInValueInvariant().execute();
     }
 }

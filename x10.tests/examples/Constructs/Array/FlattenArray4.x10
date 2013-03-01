@@ -36,7 +36,7 @@ public class FlattenArray4 extends x10Test {
         return x+y==1+1+2+2;
     }
 
-    public static def main(var args: Array[String](1)): void = {
+    public static def main(var args: Rail[String]): void = {
         new FlattenArray4().execute();
     }
 }

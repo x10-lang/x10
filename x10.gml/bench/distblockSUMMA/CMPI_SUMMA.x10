@@ -28,7 +28,7 @@ import x10.matrix.dist.summa.mpi.SummaMPI;
  */
 
 public class CMPI_SUMMA {
-	public static def main(args:Array[String](1)) {
+	public static def main(args:Rail[String]) {
 		val M   = args.size > 0 ?Int.parse(args(0)):100;
 		val K   = args.size > 1 ?Int.parse(args(1)):100;
 		val N   = args.size > 2 ?Int.parse(args(2)):100;

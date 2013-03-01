@@ -44,7 +44,7 @@ public class GenericCast08 extends GenericTest {
         return result;
     }
 
-    public static def main(var args: Array[String](1)): void = {
+    public static def main(var args: Rail[String]): void = {
         new GenericCast08().execute();
     }
 }

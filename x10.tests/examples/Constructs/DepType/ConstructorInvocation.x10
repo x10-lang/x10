@@ -37,7 +37,7 @@ public class ConstructorInvocation extends x10Test {
     }
     public def run() = true;
 	
-    public static def main(a:Array[String](1)):void = {
+    public static def main(a:Rail[String]):void = {
         new ConstructorInvocation().execute();
     }
    

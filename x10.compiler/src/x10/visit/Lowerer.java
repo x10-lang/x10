@@ -774,7 +774,7 @@ public class Lowerer extends ContextVisitor {
         }
         if (clocks.size() == 0)
         	return async(pos, body, place, annotations, env, prof);
-        Type clockRailType = Types.makeArrayRailOf(ts.Clock(), pos);
+        Type clockRailType = ts.Rail(ts.Clock());
         Tuple clockRail = (Tuple) nf.Tuple(pos, clocks).type(clockRailType);
 
         return makeAsyncBody(pos, new ArrayList<Expr>(Arrays.asList(new Expr[] { place, clockRail })),
@@ -795,7 +795,7 @@ public class Lowerer extends ContextVisitor {
             List<VarInstance<? extends VarDef>> env) throws SemanticException {
         if (clocks.size() == 0)
         	return async(pos, body, annotations, env);
-        Type clockRailType = Types.makeArrayRailOf(ts.Clock(), pos);
+        Type clockRailType = ts.Rail(ts.Clock());
         Tuple clockRail = (Tuple) nf.Tuple(pos, clocks).type(clockRailType);
         return makeAsyncBody(pos, new ArrayList<Expr>(Arrays.asList(new Expr[] { clockRail })),
                              new ArrayList<Type>(Arrays.asList(new Type[] { clockRailType})), body,

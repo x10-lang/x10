@@ -18,7 +18,7 @@ public class WorkStealingIntegrateTest extends x10Test {
         return precision.is_equal(res, 4196352.000021513551474);
     }
 
-    public static def main(args:Array[String](1)) {
+    public static def main(args:Rail[String]) {
         new WorkStealingIntegrateTest().execute();
     }
 }

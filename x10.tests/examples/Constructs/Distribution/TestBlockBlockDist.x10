@@ -45,12 +45,12 @@ public class TestBlockBlockDist extends x10Test {
             val place = dist(p);
             placeCounts(place.id)++;
         }
-        for ([q] in 0..(placeCounts.size-1)) {
-            chk(placeCounts(q) == dist(Place(q)).size());
+        for (q in 0..(placeCounts.size-1)) {
+            chk(placeCounts(q) == dist(Place(q as Int)).size());
         }
     } 
 
-    public static def main(args:Array[String]) {
+    public static def main(args:Rail[String]) {
         new TestBlockBlockDist().execute();
     }
 }

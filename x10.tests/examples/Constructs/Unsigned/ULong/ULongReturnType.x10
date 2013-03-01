@@ -55,7 +55,7 @@ public class ULongReturnType extends x10Test {
 	return true;
     }
 
-    public static def main(Array[String]) {
+    public static def main(Rail[String]) {
         new ULongReturnType().execute();
     }
 }

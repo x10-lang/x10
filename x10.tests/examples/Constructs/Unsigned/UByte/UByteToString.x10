@@ -36,7 +36,7 @@ public class UByteToString extends x10Test {
 	return (s1.equals("1") && s2.equals("1") && s3.equals("1"));
     }
 
-    public static def main(Array[String]) {
+    public static def main(Rail[String]) {
         new UByteToString().execute();
     }
 }

@@ -21,7 +21,7 @@ import harness.x10Test;
 
 public class Types6s1l extends x10Test {
    public def run() : boolean = (new Hook()).run();
-   public static def main(var args: Array[String](1)): void = {
+   public static def main(var args: Rail[String]): void = {
         new Types6s1l().execute();
     }
 
@@ -36,7 +36,7 @@ public class Types6s1l extends x10Test {
   public def key():Int{self==this.k} = this.k;
 }
  static class Snooper {
-  public static def main(argv:Array[String](1)) {
+  public static def main(argv:Rail[String]) {
     val keyed : Keyed = new Keyed(8);
     //ERROR: keyed.secret(keyed.k);
     //ERROR: keyed.secret(8);

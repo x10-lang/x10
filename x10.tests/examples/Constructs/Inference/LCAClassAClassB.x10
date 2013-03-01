@@ -24,11 +24,11 @@ public class LCAClassAClassB extends x10Test {
 	  val x = new A();
       val y = new B();
 	// should succeed. LCA of A and B is Any.
-      val z:Array[Any{ self !=null}] = [x as A{self!=null},y as B{self!=null}];
+      val z:Rail[Any{ self !=null}] = [x as A{self!=null},y as B{self!=null}];
 	  return true;
 	}
 
-	public static def main(Array[String](1)) {
+	public static def main(Rail[String]) {
 		new LCAClassAClassB().execute();
 	}
 }

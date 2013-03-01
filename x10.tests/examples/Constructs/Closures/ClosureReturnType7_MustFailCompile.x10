@@ -32,7 +32,7 @@ public class ClosureReturnType7_MustFailCompile extends ClosureTest {
     }
 
 
-    public static def main(var args: Array[String](1)): void = {
+    public static def main(var args: Rail[String]): void = {
         new ClosureReturnType7_MustFailCompile().execute();
     }
 }

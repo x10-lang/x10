@@ -33,7 +33,7 @@ public class UIntCallStatic extends x10Test {
 	return (s0.equals("int = 0") && s1.equals("uint = 1"));
     }
 
-    public static def main(Array[String]) {
+    public static def main(Rail[String]) {
         new UIntCallStatic().execute();
     }
 }

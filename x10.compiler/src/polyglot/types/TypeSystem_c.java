@@ -2578,6 +2578,13 @@ public class TypeSystem_c implements TypeSystem
         return arrayType_;
     }
 
+    protected X10ClassType railType_ = null;
+    public X10ClassType Rail() {
+        if (railType_ == null)
+            railType_ = load("x10.lang.Rail");
+        return railType_;
+    }
+
     protected X10ClassType remoteArrayType_ = null;
     public X10ClassType RemoteArray() {
         if (remoteArrayType_ == null)
@@ -4016,6 +4023,10 @@ public class TypeSystem_c implements TypeSystem
         return finalSubtype(t, Array());
     }
 
+    public boolean isRail(Type t) {
+        return finalSubtype(t, Rail());
+    }
+
     public static Type getArrayComponentType(Type t) {
         List<Type> ta = ((X10ClassType)Types.baseType(t)).typeArguments();
         assert (ta.size() == 1);
@@ -4024,6 +4035,16 @@ public class TypeSystem_c implements TypeSystem
     public boolean isArrayOf(Type t, Type p) {
         if (!isArray(t)) return false;
         return getArrayComponentType(t).typeEquals(p, createContext());
+    }
+
+    public static Type getRailComponentType(Type t) {
+        List<Type> ta = ((X10ClassType)Types.baseType(t)).typeArguments();
+        assert (ta.size() == 1);
+        return ta.get(0);
+    }
+    public boolean isRailOf(Type t, Type p) {
+        if (!isRail(t)) return false;
+        return getRailComponentType(t).typeEquals(p, createContext());
     }
 
     public boolean isRemoteArray(Type t) {
@@ -4053,6 +4074,10 @@ public class TypeSystem_c implements TypeSystem
 
     public X10ClassType Array(Type arg) {
         return Types.instantiate(Array(), arg);
+    }
+
+    public X10ClassType Rail(Type arg) {
+        return Types.instantiate(Rail(), arg);
     }
 
     public X10ClassType Settable(Type domain, Type range) {

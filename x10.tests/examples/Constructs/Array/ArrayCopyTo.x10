@@ -53,7 +53,7 @@ public class ArrayCopyTo extends x10Test {
        return !fail;    
     }
 
-    public static def main(var args: Array[String](1)) {
+    public static def main(var args: Rail[String]) {
         new ArrayCopyTo().execute();
     }
 

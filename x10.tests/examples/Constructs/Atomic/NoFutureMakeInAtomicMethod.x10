@@ -30,7 +30,7 @@ public class NoFutureMakeInAtomicMethod extends x10Test {
 		return Future.make[int](()=>0);
 	}
 
-	public static def main(Array[String](1)){
+	public static def main(Rail[String]){
 		new NoFutureMakeInAtomicMethod().execute();
 	}
 }

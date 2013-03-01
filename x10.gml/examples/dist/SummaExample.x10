@@ -31,7 +31,7 @@ import x10.matrix.dist.summa.SummaSparse;
  */
 public class SummaExample{
 	
-    public static def main(args:Array[String](1)) {
+    public static def main(args:Rail[String]) {
     	val m = args.size > 0 ?Int.parse(args(0)):21;
     	val n = args.size > 1 ?Int.parse(args(1)):23;
     	val k = args.size > 2 ?Int.parse(args(2)):25;	

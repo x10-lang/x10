@@ -29,7 +29,7 @@ public class ThisInConstructorReturn_MustFailCompile extends x10Test {
         var t: Test = new Test();
         return t.R1==t.a;
     }
-    public static def main(var args: Array[String](1)): void = {
+    public static def main(var args: Rail[String]): void = {
         new ThisInConstructorReturn_MustFailCompile().execute();
     }
 }

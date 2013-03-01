@@ -13,31 +13,31 @@
 package x10.util;
 
 /**
- * This class contains utility methods for manipulating Array and
+ * This class contains utility methods for manipulating Rail and
  * IndexedMemoryChunk instances.
  */
 public class ArrayUtils {
     /**
-     * Sorts the given array into ascending order.
-     * @param a the array to be sorted
+     * Sorts the given rail into ascending order.
+     * @param a the rail to be sorted
      * @param cmp the comparison function to use
      * @see qsort
      */
-    public static def sort[T](a:Array[T], cmp:(T,T)=>Int) {
+    public static def sort[T](a:Rail[T], cmp:(T,T)=>Int) {
         qsort[T](a.raw(), 0, (a.size-1), cmp);
     }
 
-    public static def sort[T](a:Array[T]){T<:Comparable[T]} {
+    public static def sort[T](a:Rail[T]){T<:Comparable[T]} {
         sort[T](a, (x:T,y:T) => x.compareTo(y));
     }
 
     //
     // quick&dirty sort
     //
-    static def qsort[T](a:IndexedMemoryChunk[T], lo:Int, hi:Int, cmp:(T,T)=>Int) {
+    static def qsort[T](a:IndexedMemoryChunk[T], lo:Long, hi:Long, cmp:(T,T)=>Int) {
         if (hi <= lo) return;
-        var l:Int = lo - 1;
-        var h:Int = hi;
+        var l:Long = lo - 1;
+        var h:Long = hi;
         while (true) {
             while (cmp(a(++l), a(hi))<0);
             while (cmp(a(hi), a(--h))<0 && h>lo);
@@ -49,55 +49,55 @@ public class ArrayUtils {
         qsort[T](a, l+1, hi, cmp);
     }
 
-    private static def exch[T](a:IndexedMemoryChunk[T], i:Int, j:Int):void {
+    private static def exch[T](a:IndexedMemoryChunk[T], i:Long, j:Long):void {
         val temp = a(i);
         a(i) = a(j);
         a(j) = temp;
     }
 
     /**
-     * Searches the specified array for the key using the binary search
-     * algorithm.  The array must be sorted (e.g. by the qsort method).
-     * If the key is found, return its index in the array.
+     * Searches the specified rail for the key using the binary search
+     * algorithm.  The rail must be sorted (e.g. by the qsort method).
+     * If the key is found, return its index in the rail.
      * Otherwise, return (-(insertion point) -1), where insertion point is the
-     * index at which the key would be inserted into the sorted array.
-     * @param a the array to be searched
+     * index at which the key would be inserted into the sorted rail.
+     * @param a the rail to be searched
      * @param key the value to find
      * @param cmp the comparison function to use
      */
-    public static def binarySearch[T](a:Array[T], key:T, cmp:(T,T)=>Int) {
+    public static def binarySearch[T](a:Rail[T], key:T, cmp:(T,T)=>Int) {
         return binarySearch[T](a.raw(), key, 0, a.size, cmp);
     }
 
-    public static def binarySearch[T](a:Array[T], key:T){T<:Comparable[T]} {
+    public static def binarySearch[T](a:Rail[T], key:T){T<:Comparable[T]} {
         return binarySearch[T](a.raw(), key, 0, a.size, (x:T,y:T) => x.compareTo(y));
     }
 
     /**
-     * Searches the given array for the key using the binary search
-     * algorithm.  The array must be sorted (e.g. by the sort method).
-     * If the key is found, return its index in the array.
+     * Searches the given rail for the key using the binary search
+     * algorithm.  The rail must be sorted (e.g. by the sort method).
+     * If the key is found, return its index in the rail.
      * Otherwise, return (-(insertion point) -1), where insertion point is the
-     * index at which the key would be inserted into the sorted array.
-     * @param a the array to be searched
+     * index at which the key would be inserted into the sorted rail.
+     * @param a the rail to be searched
      * @param key the value to find
      * @param min the index of the first element to be searched
      * @param max the index of the last element (exclusive) to be searched 
      * @param cmp the comparison function to use
      */
-    public static def binarySearch[T](a:Array[T], key:T, min:Int, max:Int, cmp:(T,T)=>Int) {
+    public static def binarySearch[T](a:Rail[T], key:T, min:Long, max:Long, cmp:(T,T)=>Int) {
         return binarySearch[T](a.raw(), key, 0, a.size, cmp);
     }
 
-    public static def binarySearch[T](a:Array[T], key:T, min:Int, max:Int){T<:Comparable[T]} {
+    public static def binarySearch[T](a:Rail[T], key:T, min:Long, max:Long){T<:Comparable[T]} {
         return binarySearch[T](a.raw(), key, 0, a.size, (x:T,y:T) => x.compareTo(y));
     }
 
-    static def binarySearch[T](a:IndexedMemoryChunk[T], key:T, min:Int, max:Int, cmp:(T,T)=>Int):Int {
-        var low:Int = min;
-        var high:Int = max-1;
+    static def binarySearch[T](a:IndexedMemoryChunk[T], key:T, min:Long, max:Long, cmp:(T,T)=>Int) {
+        var low:Long = min;
+        var high:Long = max-1;
         while (low <= high) {
-            var mid:Int = (low + high) / 2;
+            var mid:Long = (low + high) / 2;
             val compare = cmp(a(mid), key);
             if(compare < 0) {
                 low = mid + 1;

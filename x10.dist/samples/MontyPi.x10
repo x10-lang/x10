@@ -18,7 +18,7 @@ import x10.io.Console;
  * in the unit circle).
  */
 public class MontyPi {
-    public static def main(args:Array[String](1)) {
+    public static def main(args:Rail[String]) {
         if (args.size != 1) {
             Console.OUT.println("Usage: MontyPi <number of points>");
             return;

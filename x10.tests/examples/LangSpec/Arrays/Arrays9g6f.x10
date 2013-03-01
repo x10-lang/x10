@@ -21,7 +21,7 @@ import harness.x10Test;
 
 public class Arrays9g6f extends x10Test {
    public def run() : boolean = (new Hook()).run();
-   public static def main(var args: Array[String](1)): void = {
+   public static def main(var args: Rail[String]): void = {
         new Arrays9g6f().execute();
     }
 

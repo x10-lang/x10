@@ -103,7 +103,7 @@ public class JavaSerialization5b extends x10Test {
         return true;
     }
 
-    public static def main(args: Array[String](1)) {
+    public static def main(args: Rail[String]) {
         new JavaSerialization5b().execute();
     }
 

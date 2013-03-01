@@ -37,7 +37,7 @@ public class JavaSerialization6 extends x10Test {
         return testArray();
     }
 
-    public static def main(args: Array[String](1)) {
+    public static def main(args: Rail[String]) {
         new JavaSerialization6().execute();
     }
 }

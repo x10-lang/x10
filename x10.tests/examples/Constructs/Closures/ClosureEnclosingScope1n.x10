@@ -39,7 +39,7 @@ public class ClosureEnclosingScope1n extends ClosureTest {
         return result;
     }
 
-    public static def main(Array[String](1)) {
+    public static def main(Rail[String]) {
         new ClosureEnclosingScope1n().execute();
     }
 }

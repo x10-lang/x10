@@ -21,7 +21,7 @@ public class IntegrateTest extends x10Test {
 	    return true;
     }
 
-    public static def main(args:Array[String](1)) {
+    public static def main(args:Rail[String]) {
 	    new IntegrateTest().execute();
     }
 }

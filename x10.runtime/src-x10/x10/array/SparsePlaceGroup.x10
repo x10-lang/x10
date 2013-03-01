@@ -33,18 +33,19 @@ public final class SparsePlaceGroup extends PlaceGroup {
    * The array is in sorted order by Place.id.
    * Only places that are in the group are in the array.
    */
-  private val places:Rail[Place];
+  private val places:Array[Place]{self.rank==1,self.zeroBased,self.rect,self.rail};
 
   /**
-   * Construct a SparsePlaceGroup from a Sequence[Place].
-   * The argument sequence must be a set and be sorted in order of increasing id;
+   * Construct a SparsePlaceGroup from a Rail[Place].
+   * The argument rail must be a set and be sorted in order of increasing id;
    * if this is not true then an IllegalArgumentException will be thrown.
+   * LONG_RAIL: unsafe int cast
    */
-  public def this(ps:Sequence[Place]) {
-    places = new Array[Place](ps.size(), (i:int)=>ps(i));
+  public def this(ps:Rail[Place]) {
+    places = new Array[Place](ps.size as Int, (i:int)=>ps(i));
     for ([i] in 1..(places.size-1)) {
         if (places(i).id <= places(i-1).id) {
-            throw new IllegalArgumentException("Argument sequence was not sorted");
+            throw new IllegalArgumentException("Argument rail was not sorted");
         }
     }
   }
@@ -54,7 +55,7 @@ public final class SparsePlaceGroup extends PlaceGroup {
    * @param p the place 
    */
   public def this(p:Place) {
-    places = [p as Place];
+    places = new Array[Place](1, p);
   }
 
   public operator this(i:int):Place = places(i);

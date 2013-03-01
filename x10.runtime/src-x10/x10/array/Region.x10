@@ -136,6 +136,22 @@ public abstract class Region(
     }
 
     /**
+     * Construct a rectangular region whose bounds are specified as
+     * rails of ints.
+     * LONG_RAIL: unsafe int cast
+     */
+    public static def makeRectangular[S,T](minArg:Rail[S], maxArg:Rail[T]){S<:Int,T<:Int}:Region(minArg.size as Int){self.rect} {
+        if (minArg.size == 1L) {
+            // To remove the cast, the constraint solver should be able to handle arithmetic.
+            return new RectRegion1D(minArg(0), maxArg(0)) as Region(minArg.size as Int){rect}; 
+        } else {
+            val minArray = new Array[int](minArg.size as Int, (i:int)=>minArg(i));
+            val maxArray = new Array[int](maxArg.size as Int, (i:int)=>maxArg(i));
+            return new RectRegion(minArray, maxArray);
+        }
+    }
+
+    /**
      * Construct a rank-1 rectangular region with the specified bounds.
      */
     // XTENLANG-109 prevents zeroBased==(min==0)

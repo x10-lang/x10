@@ -26,7 +26,7 @@ public class TestCustomSerialization1 extends x10Test {
      public def serialize() = new SerialData([x,y], null);
   
      def this(a:SerialData) {
-        val t = a.data as Array[int](1); // ERR: Warning: This is an unsound cast because X10 currently does not perform constraint solving at runtime for generic parameters.
+        val t = a.data as Rail[int]; // ERR: Warning: This is an unsound cast because X10 currently does not perform constraint solving at runtime for generic parameters.
         x = t(0);
         y = t(1);
         sum = x + y;
@@ -45,7 +45,7 @@ public class TestCustomSerialization1 extends x10Test {
     return true;
   }
 
-  public static def main(Array[String]) {
+  public static def main(Rail[String]) {
       new TestCustomSerialization1().execute();
   }
 

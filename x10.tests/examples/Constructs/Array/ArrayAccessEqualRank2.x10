@@ -43,7 +43,7 @@ public class ArrayAccessEqualRank2 extends x10Test {
         return true;
     }
 
-    public static def main(Array[String](1)) = {
+    public static def main(Rail[String]) = {
         new ArrayAccessEqualRank2().execute();
     }
 }

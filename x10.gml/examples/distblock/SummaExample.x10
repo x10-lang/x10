@@ -29,7 +29,7 @@ import x10.matrix.distblock.summa.SummaMultTrans;
  */
 public class SummaExample {
 	
-    public static def main(args:Array[String](1)) {
+    public static def main(args:Rail[String]) {
 		val testcase = new RunSummaExample(args);
 		testcase.run();
 	}
@@ -52,7 +52,7 @@ class RunSummaExample {
 	val vrf:Boolean;
 	//-------------
 	
-	public def this(args:Array[String](1)) {
+	public def this(args:Rail[String]) {
 		M = args.size   > 0 ?Int.parse(args(0)):4;
 		K = args.size   > 1 ?Int.parse(args(1)):6;
 		N = args.size   > 2 ?Int.parse(args(2)):4;

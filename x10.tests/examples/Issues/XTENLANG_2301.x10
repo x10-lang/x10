@@ -32,7 +32,7 @@ class XTENLANG_2301 extends x10Test {
       def m[U](U):void;
   }
   
-  public static def main(Array[String](1)) {
+  public static def main(Rail[String]) {
     new XTENLANG_2301().execute();
   }
 }

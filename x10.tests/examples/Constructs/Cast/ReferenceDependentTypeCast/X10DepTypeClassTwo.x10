@@ -27,7 +27,7 @@ public class X10DepTypeClassTwo(p: int, q: int) extends x10Test {
         return one.p() == 0;
     }
     
-    public static def main(args: Array[String](1)): void = {
+    public static def main(args: Rail[String]): void = {
         new X10DepTypeClassTwo(0,0).execute();
     }
 }

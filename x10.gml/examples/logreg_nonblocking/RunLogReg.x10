@@ -30,7 +30,7 @@ import logreg.LogisticRegression;
 
 public class RunLogReg {
 
-	public static def main(args:Array[String](1)): void {
+	public static def main(args:Rail[String]): void {
 		
 		val mX = args.size > 0 ? Int.parse(args(0)):1000; //
 		val nX = args.size > 1 ? Int.parse(args(1)):1000; //

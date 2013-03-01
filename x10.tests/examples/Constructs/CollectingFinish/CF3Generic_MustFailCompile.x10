@@ -37,7 +37,7 @@ public class CF3Generic_MustFailCompile extends x10Test {
   	}
 	public def run() = 6==new C[Int]().m(Reducer(), 3);
 
-	public static def main(Array[String](1)) {
+	public static def main(Rail[String]) {
 		new CF3Generic_MustFailCompile().execute();
 	}
 }

@@ -16,7 +16,7 @@ import java.lang.management.ManagementFactory;
  * Uses Java interop to get hostname and pid.
  */
 public class HelloWholeJavaWorld {
-    public static def main(Array[String]):void {
+    public static def main(Rail[String]):void {
         finish for (p in Place.places()) {
             at (p) async {
                 val vmName = ManagementFactory.getRuntimeMXBean().getName(); // pid@hostname

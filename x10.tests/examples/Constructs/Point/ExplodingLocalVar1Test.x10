@@ -26,7 +26,7 @@ public class ExplodingLocalVar1Test extends x10Test {
 		return x+y==4 && p(0)+p(1)==4;
 		}
 
-	public static def main(Array[String](1)) {
+	public static def main(Rail[String]) {
 		new ExplodingLocalVar1Test().execute();
 	}
 }

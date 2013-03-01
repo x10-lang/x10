@@ -32,7 +32,7 @@ public class JavaException3 extends x10Test {
 		return pass;
 	}
 
-    public static def main(args: Array[String](1)) {
+    public static def main(args: Rail[String]) {
     	new JavaException3().execute();
     }
 }

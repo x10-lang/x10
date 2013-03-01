@@ -35,7 +35,7 @@ public class GenericInheritance01 extends GenericTest {
         return result;
     }
 
-    public static def main(var args: Array[String](1)): void = {
+    public static def main(var args: Rail[String]): void = {
         new GenericInheritance01().execute();
     }
 }

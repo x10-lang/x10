@@ -18,7 +18,7 @@ import x10.matrix.distblock.DistVector;
  */
 public class TestDistVector{
 
-    public static def main(args:Array[String](1)) {
+    public static def main(args:Rail[String]) {
 		val n = (args.size > 0) ? Int.parse(args(0)):4;
 		val testcase = new DistVectorTest(n);
 		testcase.run();

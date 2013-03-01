@@ -47,7 +47,7 @@ public class GenericIterableTest  extends x10Test {
 
     def doit(x:CoalescingPairIterator[String,String,ValueList[String]]) = x.advance();
 
-    public static def main(Array[String]) {
+    public static def main(Rail[String]) {
         new GenericIterableTest().execute();
     }
 }

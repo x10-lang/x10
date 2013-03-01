@@ -22,7 +22,7 @@ import x10.compiler.*; // @Uncounted @NonEscaping @NoThisAccess
 import x10.compiler.tests.*; // err markers
 
 public class StructObscuringExample_MustFailCompile extends x10Test { 
-  public static def main(Array[String](1)){
+  public static def main(Rail[String]){
      val p = new StructObscuringExample_MustFailCompile();
      p.execute();
   }

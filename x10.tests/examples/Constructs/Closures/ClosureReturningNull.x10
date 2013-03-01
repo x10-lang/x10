@@ -31,7 +31,7 @@ public class ClosureReturningNull extends ClosureTest {
     public def test1(c:()=>Any) = c();
     public def test2(c:()=>String) = c();
 
-    public static def main(var args: Array[String](1)): void = {
+    public static def main(var args: Rail[String]): void = {
         new ClosureReturningNull().execute();
     }
 }

@@ -40,7 +40,7 @@ public class AtomicTest extends x10Test {
 	return b;
     }
 
-	public static def main(Array[String](1)) {
+	public static def main(Rail[String]) {
 	    new AtomicTest().execute();
 	}
 }

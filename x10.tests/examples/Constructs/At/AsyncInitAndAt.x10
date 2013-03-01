@@ -39,7 +39,7 @@ public class AsyncInitAndAt extends x10Test {
 	return y.data == 10; // original unchanged
     }
 
-    public static def main(Array[String](1)) {
+    public static def main(Rail[String]) {
         new AsyncInitAndAt().execute();
     }
 }

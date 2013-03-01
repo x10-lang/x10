@@ -61,7 +61,7 @@ public class ConditionalAtomicTest extends x10Test {
 		return temp == 42;
 	}
 
-	public static def main(Array[String](1)) {
+	public static def main(Rail[String]) {
 		new ConditionalAtomicTest().executeAsync();
 	}
 }

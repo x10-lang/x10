@@ -28,7 +28,7 @@ public class ClockedFinish extends x10Test {
 
     public def run() = m();
 
-    public static def main(Array[String](1)) {
+    public static def main(Rail[String]) {
 	   new ClockedFinish().execute();
     }
 }

@@ -23,7 +23,7 @@ import x10.compiler.NativeRep;
  * values of type T.<p>
  *
  * This abstraction is provide to enable other higher-level
- * abstractions (such as Array) to be implemented efficiently
+ * abstractions (such as Rail) to be implemented efficiently
  * and to allow low-level programming of memory regions at the
  * X10 level when absolutely required for performance. Most of the API
  * of this class is safe, but there are some loopholes that can be 

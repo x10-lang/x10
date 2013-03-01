@@ -29,7 +29,7 @@ public class AtNext extends x10Test {
 		return (t().val_ as T).root.home == Other;
 	}
 
-	public static def main(Array[String](1)) {
+	public static def main(Rail[String]) {
 		new AtNext().execute();
 	}
 

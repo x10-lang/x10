@@ -32,7 +32,7 @@ public class NoWhenInAtomicMethod extends x10Test {
 		   b = true;
 	}
 
-	public static def main(Array[String](1)){
+	public static def main(Rail[String]){
 		new NoWhenInAtomicMethod().execute();
 	}
 }

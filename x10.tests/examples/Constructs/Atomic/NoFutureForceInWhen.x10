@@ -30,7 +30,7 @@ public class NoFutureForceInWhen extends x10Test {
 	   return false;
 	}
 
-	public static def main(Array[String](1)){
+	public static def main(Rail[String]){
 		new NoFutureForceInWhen().execute();
 	}
 }

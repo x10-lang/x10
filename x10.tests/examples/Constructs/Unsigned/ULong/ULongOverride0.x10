@@ -59,7 +59,7 @@ public class ULongOverride0 extends x10Test {
 	return r;
     }
 
-    public static def main(Array[String]) {
+    public static def main(Rail[String]) {
         new ULongOverride0().execute();
     }
 }

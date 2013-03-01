@@ -29,7 +29,7 @@ public class NoFutureForceInAtomic extends x10Test {
 	   return false;
 	}
 
-	public static def main(Array[String](1)){
+	public static def main(Rail[String]){
 		new NoFutureForceInAtomic().execute();
 	}
 }

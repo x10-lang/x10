@@ -39,7 +39,7 @@ public class Foreach2 extends x10Test {
         return nActivities == N;
     }
 
-    public static def main(var args: Array[String](1)): void = {
+    public static def main(var args: Rail[String]): void = {
         new Foreach2().execute();
     }
 }

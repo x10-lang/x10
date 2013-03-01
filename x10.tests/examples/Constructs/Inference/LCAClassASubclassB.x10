@@ -20,7 +20,7 @@ public class LCAClassASubclassB extends x10Test {
 	class A {}
 	class B extends A {}
 	
-	static def covArray[T](x:Array[T]){T <: A}=x;
+	static def covArray[T](x:Rail[T]){T <: A}=x;
 	public def run() {
 	  val x = new A();
       val y = new B();
@@ -29,7 +29,7 @@ public class LCAClassASubclassB extends x10Test {
 	  return true;
 	}
 
-	public static def main(Array[String](1)) {
+	public static def main(Rail[String]) {
 		new LCAClassASubclassB().execute();
 	}
 }

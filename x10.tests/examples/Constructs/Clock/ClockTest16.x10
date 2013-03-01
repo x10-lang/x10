@@ -118,7 +118,7 @@ public class ClockTest16 extends x10Test {
 			return false;
 		} catch (e: ClockUseException) {
 		} catch ( e: MultipleExceptions) {
-		    for (ex:Exception in e.exceptions().values())
+		    for (ex:Exception in e.exceptions())
 		       if (! (ex instanceof ClockUseException))
 		          return false;
 		}
@@ -126,7 +126,7 @@ public class ClockTest16 extends x10Test {
 		return true;
 	}
 
-	public static def main(Array[String](1)) {
+	public static def main(Rail[String]) {
 		new ClockTest16().execute();
 	}
 

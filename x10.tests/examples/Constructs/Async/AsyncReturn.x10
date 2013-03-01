@@ -40,7 +40,7 @@ public class AsyncReturn extends x10Test {
 		return (f.t == 1);
 	}
 
-	public static def main(Array[String](1)) {
+	public static def main(Rail[String]) {
 		new AsyncReturn().execute();
 	}
 }

@@ -25,7 +25,7 @@ public class Bounds1 extends x10Test {
                 return new C[String]().x.equals("");
 	}
 
-	public static def main(var args: Array[String](1)): void = {
+	public static def main(var args: Rail[String]): void = {
 		new Bounds1().execute();
 	}
 }

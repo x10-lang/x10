@@ -27,7 +27,7 @@ import x10.matrix.comm.MatrixRemoteCopy;
  */
 
 public class TestP2P{
-    public static def main(args:Array[String](1)) {
+    public static def main(args:Rail[String]) {
 		val m = args.size > 0 ?Int.parse(args(0)):50;
 		val n = args.size > 1 ?Int.parse(args(1)):50;
 		val d = args.size > 2 ? Double.parse(args(2)):0.5;

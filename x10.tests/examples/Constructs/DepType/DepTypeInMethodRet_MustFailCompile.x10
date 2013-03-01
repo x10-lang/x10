@@ -25,7 +25,7 @@ public class DepTypeInMethodRet_MustFailCompile extends x10Test {
     
     @ERR public def m(var t: boolean): boolean(true) = t; 
 	public def run()=m(false);
-	public static def main(var args: Array[String](1)): void = {
+	public static def main(var args: Rail[String]): void = {
 		new DepTypeInMethodRet_MustFailCompile().execute();
 	}
 }

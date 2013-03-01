@@ -27,7 +27,7 @@ public class XTENLANG_242 extends x10Test {
         return new B().name1.equals("XTENLANG_242.B") && new B().name2().equals("XTENLANG_242.B");
     }
 
-    public static def main(Array[String](1)) {
+    public static def main(Rail[String]) {
         new XTENLANG_242().execute();
     }
 }

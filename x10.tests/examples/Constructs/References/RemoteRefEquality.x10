@@ -32,7 +32,7 @@ class RemoteRefEquality extends x10Test {
         return at (remote) remote().rr == local_;
     }
 
-    public static def main(Array[String](1)) {
+    public static def main(Rail[String]) {
         new RemoteRefEquality().execute();
     }
 }

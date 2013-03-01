@@ -1231,7 +1231,7 @@ public final class Array[T] (
      * layout(2*(i-2)) is the stride for dimension i.
      * layout(2*(i-2)+1) is the min value for dimension i.
      */
-    val layout:Rail[int];
+    val layout:Array[int]{self.rank==1,self.zeroBased,self.rect,self.rail};
 
     // NOTE: Hand-inlined into operator this() 
     private @Inline def offset(i0:int) = i0 - layout_min0;
@@ -1280,7 +1280,7 @@ public final class Array[T] (
         val stride1:int;
         val min1:int;
         val size:int;
-        val layout:Rail[int];
+        val layout:Array[int]{self.rank==1,self.zeroBased,self.rect,self.rail};
 
         def this(reg:Region) {
             if (reg.isEmpty()) {
@@ -1301,7 +1301,7 @@ public final class Array[T] (
                     size = stride1 * (reg.max(0)-reg.min(0)+1);
                     layout = null;
                 } else {
-                    layout = new Rail[int](2*(reg.rank-2));
+                    layout = new Array[int](2*(reg.rank-2));
                     min0 = reg.min(0);
                     min1 = reg.min(1);
                     stride1 = reg.max(1) - reg.min(1) + 1;

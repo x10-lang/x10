@@ -20,7 +20,7 @@ public class PrimitiveToNullablePrimitiveConstrained1 extends x10Test {
 	val three:Box[Int(3)] = new Box[int(3)](3);
 	public def run()= three instanceof Box[Int(3)];
 	
-	public static def main(var args: Array[String](1)): void = {
+	public static def main(var args: Rail[String]): void = {
 		new PrimitiveToNullablePrimitiveConstrained1().execute();
 	}
 }

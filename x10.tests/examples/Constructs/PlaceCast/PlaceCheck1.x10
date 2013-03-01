@@ -154,7 +154,7 @@ public class PlaceCheck1 extends x10Test {
 		return ret;
 	}
 
-	public static def main(Array[String](1)): void = {
+	public static def main(Rail[String]): void = {
 		new PlaceCheck1().execute();
 	}
 }

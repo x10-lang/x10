@@ -61,7 +61,7 @@ public class XTENLANG_636 extends x10Test {
         return test1 && !test2 && (!test3) && (!test4) && (!test5);
     }
 
-    public static def main(var args: Array[String](1)): void = {
+    public static def main(var args: Rail[String]): void = {
         new XTENLANG_636().execute();
     }
 }

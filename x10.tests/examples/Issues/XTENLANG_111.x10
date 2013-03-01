@@ -18,7 +18,7 @@ import harness.x10Test;
 class XTENLANG_111 extends x10Test {
 
     static class P {
-        public static operator (r: Array[int]): P { throw new Exception(); }
+        public static operator (r: Rail[int]): P { throw new Exception(); }
     }
     
     static class A {
@@ -34,7 +34,7 @@ class XTENLANG_111 extends x10Test {
         return true;
     }
 
-    public static def main(Array[String](1)) {
+    public static def main(Rail[String]) {
         new XTENLANG_111().execute();
     }
 }

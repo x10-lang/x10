@@ -45,7 +45,7 @@ class XTENLANG_203 extends x10Test {
         return a && b && c && d;
     }
 
-    public static def main(Array[String](1)) {
+    public static def main(Rail[String]) {
         new XTENLANG_203().execute();
     }
 }

@@ -284,7 +284,7 @@ public class ForLoopOptimizer extends ContextVisitor {
             if (named) {
                 // create an array to contain the value of the formal at each iteration
                 Name       indexName  = Name.makeFresh(prefix);
-                           indexType  = Types.makeArrayRailOf(xts.Int(), rank, pos);           
+                           indexType  = Types.makeRailOf(xts.Int(), rank, pos);           
                 Expr       indexInit  = syn.createTuple(pos, rank, syn.createIntLit(0));
                            indexLDecl = syn.createLocalDecl(pos, Flags.FINAL, indexName, indexType, indexInit);
                 // add the declaration of the index rail to the list of statements to be executed before the loop nest

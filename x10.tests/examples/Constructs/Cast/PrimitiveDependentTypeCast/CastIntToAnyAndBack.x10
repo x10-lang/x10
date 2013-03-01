@@ -23,7 +23,7 @@ import harness.x10Test;
    }
    
    public def mth() = 3 as Any;
-   public static def main(Array[String](1)) {
+   public static def main(Rail[String]) {
       new CastIntToAnyAndBack().execute();
    }
 }

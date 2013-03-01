@@ -31,7 +31,7 @@ class XTENLANG_732 extends x10Test {
 	
 	}
 
-    public static def main(Array[String](1)) {
+    public static def main(Rail[String]) {
         new XTENLANG_732().execute();
     }
 }

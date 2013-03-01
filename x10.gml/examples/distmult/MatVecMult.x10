@@ -37,7 +37,7 @@ import x10.matrix.distblock.DistDupVectorMult;
  */
 public class MatVecMult {
 	
-    public static def main(args:Array[String](1)) {
+    public static def main(args:Rail[String]) {
 		val testcase = new MatVecMult(args);
 		testcase.run();
 	}
@@ -49,7 +49,7 @@ public class MatVecMult {
 	public val nzd:Double;
 	public val verify:Boolean;
 	
-	public def this(args:Array[String](1)) {
+	public def this(args:Rail[String]) {
 		M = args.size > 0      ? Int.parse(args(0)):10;
 		N = args.size > 1      ? Int.parse(args(1)):M+1;
 		bM = args.size > 2     ? Int.parse(args(2)):4;

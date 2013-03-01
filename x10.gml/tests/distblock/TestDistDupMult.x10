@@ -33,7 +33,7 @@ import x10.matrix.distblock.DistDupMult;
  */
 public class TestDistDupMult {
 	
-    public static def main(args:Array[String](1)) {
+    public static def main(args:Rail[String]) {
 		val testcase = new RunDistDupMult(args);
 		testcase.run();
 	}
@@ -56,7 +56,7 @@ class RunDistDupMult {
 	val dA:DistMap, dTransA:DistMap;
 	val dC:DistMap, dTransC:DistMap;
 	
-    public def this(args:Array[String](1)) {
+    public def this(args:Rail[String]) {
 		M = args.size > 0 ?Int.parse(args(0)):20;
 		K = args.size > 1 ?Int.parse(args(1)):M+1;
 		N = args.size > 2 ?Int.parse(args(2)):M+2;

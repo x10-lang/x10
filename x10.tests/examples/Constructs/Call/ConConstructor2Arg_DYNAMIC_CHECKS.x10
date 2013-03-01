@@ -33,7 +33,7 @@ public class ConConstructor2Arg_DYNAMIC_CHECKS extends x10Test {
 		}
 	}
 
-	public static def main(Array[String](1)) {
+	public static def main(Rail[String]) {
 		new ConConstructor2Arg_DYNAMIC_CHECKS().execute();
 	}
 

@@ -46,7 +46,9 @@ public struct IntRange(
      * were first converted to Region(1) and then the * operator applied.
      */
     public operator this * (that:IntRange):Region(2){rect} {
-        return Region.makeRectangular([min, that.min], [max, that.max]);
+        val minArg = new Array[Int](2); minArg(0) = min; minArg(1) = that.min;
+        val maxArg = new Array[Int](2); maxArg(0) = max; maxArg(1) = that.max;;
+        return Region.makeRectangular(minArg, maxArg);
     }
 
     /**

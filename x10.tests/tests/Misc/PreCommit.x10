@@ -95,7 +95,7 @@ public class PreCommit extends x10Test {
         return passed;
     }
 
-    public static def main(args:Array[String](1)) {
+    public static def main(args:Rail[String]) {
 	new PreCommit().execute();
     }
 }

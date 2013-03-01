@@ -29,7 +29,7 @@ public class ConcurrentConstructor1_MustFailCompile {
 		return value == 1;
 	}
 	
-	public static def main(Array[String](1)) {
+	public static def main(Rail[String]) {
         val r = new ConcurrentConstructor1_MustFailCompile().run();
         if(r){
              x10.io.Console.OUT.println("++++++Test succeeded.");

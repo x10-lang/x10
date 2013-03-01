@@ -102,13 +102,13 @@ public abstract class ThrowableUtils {
         return message == null ? typeName : typeName + ": " + message;
     }
 
-    public static x10.array.Array<java.lang.String> getStackTrace(java.lang.Throwable e) {
+    public static x10.lang.Rail<java.lang.String> getStackTrace(java.lang.Throwable e) {
         java.lang.StackTraceElement[] elements = e.getStackTrace();
         java.lang.String str[] = new java.lang.String[elements.length];
         for (int i = 0; i < elements.length; ++i) {
             str[i] = elements[i].toString();
         }
-        return x10.runtime.impl.java.ArrayUtils.<java.lang.String>makeArrayFromJavaArray(x10.rtt.Types.STRING, str);
+        return x10.runtime.impl.java.ArrayUtils.<java.lang.String>makeRailFromJavaArray(x10.rtt.Types.STRING, str);
     }
     
     public static void printStackTrace(java.lang.Throwable t, x10.io.Printer p) {

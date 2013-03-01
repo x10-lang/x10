@@ -21,7 +21,7 @@ public class FilterReader extends Reader {
     { r.close(); }
     public def read(): Byte //throws IOException 
     = r.read();
-    public def read(r:Rail[Byte], off:Int, len:Int): void //throws IOException 
+    public def read(r:Rail[Byte], off:Long, len:Long): void //throws IOException 
     { this.r.read(r,off,len); }
     
     public def available(): Int //throws IOException 

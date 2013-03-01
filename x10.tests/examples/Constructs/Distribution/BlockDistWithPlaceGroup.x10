@@ -87,10 +87,10 @@ public class BlockDistWithPlaceGroup extends x10Test {
                 }
             }
         } while (places.size() == 0);
-        return new SparsePlaceGroup(places.toArray().sequence());
+        return new SparsePlaceGroup(places.toRail());
     }
 
-    public static def main(var args: Array[String](1)): void = {
+    public static def main(var args: Rail[String]): void = {
         new BlockDistWithPlaceGroup().execute();
     }
 }

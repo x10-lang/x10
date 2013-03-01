@@ -41,7 +41,7 @@ public class XTENLANG_423 extends x10Test {
         return Y.b == 3 && W.d == 5;
     }
 
-    public static def main(Array[String](1)) {
+    public static def main(Rail[String]) {
         new XTENLANG_423().execute();
     }
 }

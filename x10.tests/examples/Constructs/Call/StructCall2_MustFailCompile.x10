@@ -43,7 +43,7 @@ static struct S2 extends struct S1 {
 		  val a: S1 = S1(1, 3, "You looked like you were loathing the simple cobweb."); // ERR: Method or static constructor not found for given call.
           return true;
 	}
-	public static def main(var args: Array[String](1)): void = {
+	public static def main(var args: Rail[String]): void = {
 		new StructCall2_MustFailCompile().execute();
 	}
 }

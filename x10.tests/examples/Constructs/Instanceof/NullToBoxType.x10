@@ -24,7 +24,7 @@ public class NullToBoxType extends x10Test {
 		return !(null instanceof Box[ValueClass]);
 	}
 	
-	public static def main(var args: Array[String](1)): void = {
+	public static def main(var args: Rail[String]): void = {
 		new NullToBoxType().execute();
 	}
 }

@@ -32,7 +32,7 @@ public class CheckEqualTypes extends x10Test {
 	    // should compile since the type entails Test{i==j}.
 	    return m(t); 
 	}
-	public static def main(var args: Array[String](1)): void = {
+	public static def main(var args: Rail[String]): void = {
 		new CheckEqualTypes().execute();
 	}
 }

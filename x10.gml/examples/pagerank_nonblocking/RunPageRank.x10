@@ -25,7 +25,7 @@ import pagerank.SeqPageRank;
  */
 public class RunPageRank {
 
-	public static def main(args:Array[String](1)): void {
+	public static def main(args:Rail[String]): void {
 		
 		val mG = args.size > 0 ? Int.parse(args(0)):10000; // Rows and columns of G
 		val iT = args.size > 1 ? Int.parse(args(1)):20;//Iterations

@@ -42,7 +42,7 @@ public class Fibonacci {
     return f1 + f2;
   }
 
-  public static def main(args:Array[String](1)) {
+  public static def main(args:Rail[String]) {
     val n = (args.size > 0) ? int.parse(args(0)) : 10;
     Console.OUT.println("Computing fib("+n+")");
     val f = fib(n);

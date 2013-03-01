@@ -60,14 +60,14 @@ public abstract class Writer {
     public final def write[T](m: Marshal[T], x: T): void //throws IOException 
     { m.write(this, x); }
 
-    public def write(buf: Array[Byte](1)): void //throws IOException 
+    public def write(buf: Rail[Byte]): void //throws IOException 
     {
         write(buf, 0, buf.size);
     }
 
-    public def write(buf: Array[Byte](1), off: Int, len: Int): void //throws IOException 
+    public def write(buf: Rail[Byte], off: Long, len: Long): void //throws IOException 
     {
-        for (var i: Int = off; i < off+len; i++) {
+        for (var i: Long = off; i < off+len; i++) {
             write(buf(i));
         }
     }

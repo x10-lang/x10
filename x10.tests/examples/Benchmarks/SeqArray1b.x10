@@ -44,7 +44,7 @@ public class SeqArray1b extends Benchmark {
     // boilerplate
     //
 
-    public static def main(Array[String](1)) {
+    public static def main(Rail[String]) {
         new SeqArray1b().execute();
     }
 }

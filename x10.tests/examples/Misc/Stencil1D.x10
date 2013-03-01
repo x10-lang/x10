@@ -62,7 +62,7 @@ public class Stencil1D extends x10Test {
         })
     }
 
-    public static def main(args: Array[String](1)) {
+    public static def main(args: Rail[String]) {
        var n: int = args.size > 0 ? Int.parse(args(0)) : 100;
        var p: int = args.size > 1 ? Int.parse(args(1)) : 2;
        val s = new Stencil1D(n, p); s.execute();

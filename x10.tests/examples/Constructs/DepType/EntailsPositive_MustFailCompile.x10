@@ -35,7 +35,7 @@ public class EntailsPositive_MustFailCompile(i:int, j:int) extends x10Test {
 	    return true;
 	}
 	def one():Int = 1;
-	public static def main(Array[String](1)) {
+	public static def main(Rail[String]) {
 		new EntailsPositive_MustFailCompile(1,2).execute();
 	}
 }
