@@ -18,7 +18,7 @@ import harness.x10Test;
 class XTENLANG_13 extends x10Test {
 
     class AL[T]{ T haszero} {
-        private var a: Rail[T] = new Array[T](10);
+        private var a: Rail[T] = new Rail[T](10);
     }
 
     public def run(): boolean {
