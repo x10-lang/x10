@@ -29,10 +29,10 @@ public class Structs3q6l extends x10Test {
 // file Structs line 187
  static struct Horse(x:Int){
   static def example(){
-    val aa : Array[Any](1) = ["a String" as Any, "another one"];
+    val aa : Rail[Any] = ["a String" as Any, "another one"];
     aa(0) = Horse(8);
     aa(1) = 13;
-    val ah : Array[Horse](1) = [Horse(7), Horse(13)];
+    val ah : Rail[Horse] = [Horse(7), Horse(13)];
   }
 }
 

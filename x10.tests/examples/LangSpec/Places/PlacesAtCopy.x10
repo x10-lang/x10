@@ -31,7 +31,7 @@ public class PlacesAtCopy extends x10Test {
 static def Example() {
 
 val c = new Cell[Int](5);
-val a : Array[Cell[Int]](1) = [c,c as Cell[Int]];
+val a : Rail[Cell[Int]] = [c,c as Cell[Int]];
 assert(a(0)() == 5 && a(1)() == 5);     // (A)
 c.set(6);                               // (B)
 assert(a(0)() == 6 && a(1)() == 6);     // (C)

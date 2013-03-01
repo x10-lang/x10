@@ -29,12 +29,12 @@ public class Places60 extends x10Test {
 // file Places line 1010
  static  class GR2 {
 
-  public static def main(argv: Array[String](1)) {
-    val argref = GlobalRef[Array[String](1)](argv);
+  public static def main(argv:Rail[String]) {
+    val argref = GlobalRef[Rail[String]](argv);
     at(here.next())
         use(argref);
   }
-  static def use(argref : GlobalRef[Array[String](1)]) {
+  static def use(argref : GlobalRef[Rail[String]]) {
     at(argref) {
       val argv = argref();
       argv(0) = "Hi!";

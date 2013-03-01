@@ -28,8 +28,8 @@ public class Types1l5a extends x10Test {
 
 // file Types line 3078
  static class Extra {
-  static def useArray(Array[Extra]) {}
-  public static def main(argv:Array[String](1)) {
+  static def useArray(Rail[Extra]) {}
+  public static def main(argv:Rail[String]) {
      val x : Extra = new Extra();
      //ERROR: useArray([x]);
      useArray([x as Extra]);
