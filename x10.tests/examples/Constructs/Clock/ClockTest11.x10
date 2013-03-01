@@ -44,7 +44,7 @@ public class ClockTest11 extends x10Test {
 		    }
 		    return false;
 		} catch (var e: MultipleExceptions) {
-            return (e.exceptions.size == 1 && e.exceptions(0) instanceof ClockUseException);
+            return (e.exceptions.size == 1L && e.exceptions(0) instanceof ClockUseException);
 		}
 	}
 

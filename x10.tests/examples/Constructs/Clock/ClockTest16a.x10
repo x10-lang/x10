@@ -120,7 +120,7 @@ public class ClockTest16a extends x10Test {
 			}
 		}
 		} catch (e: MultipleExceptions) {
-            return (e.exceptions.size == 1 && e.exceptions(0) instanceof ClockUseException);
+            return (e.exceptions.size == 1L && e.exceptions(0) instanceof ClockUseException);
 		}
 		return false;
 	}
