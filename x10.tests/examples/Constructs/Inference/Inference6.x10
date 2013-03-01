@@ -18,7 +18,7 @@ import harness.x10Test;
  * @author nystrom 8/2008
  */
 public class Inference6 extends x10Test {
-        def m[T](x: Array[T](1)) = x(0);
+        def m[T](x: Rail[T]) = x(0);
 
 	public def run(): boolean = {
                 val x = m([1]);

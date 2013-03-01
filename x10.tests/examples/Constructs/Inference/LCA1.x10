@@ -21,7 +21,7 @@ public class LCA1 extends x10Test {
 	  val x:double = 1.2345678;
       val y:int = 2;
 	// should succeed. LCA of double and int is Any.
-      val z:Array[Any] = [x,y];
+      val z:Rail[Any] = [x,y];
 	  return true;
 	}
 
