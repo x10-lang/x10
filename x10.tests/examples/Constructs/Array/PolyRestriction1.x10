@@ -18,10 +18,10 @@ class PolyRestriction1 extends TestArray {
 
     public def run() {
 
-        val r1 = Region.makeRectangular([0,0], [5,5]);
+        val r1 = Region.makeRectangular([0,0], [5,5]) as Region(2);
         val a1 = prArray("whole array", r1);
 
-        val r2 = Region.makeRectangular([1,2], [3,4]);
+        val r2 = Region.makeRectangular([1,2], [3,4]) as Region(2);
         val a2 = a1.restriction(r2);
         prArray("restricted array", a2);
 

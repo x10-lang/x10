@@ -21,7 +21,7 @@ import harness.x10Test;
  public class CallMethodTest extends x10Test { 
   
   public def run(): boolean = { 
-       val r:Region(2) = Region.makeRectangular([1,1], [10,10]);
+       val r:Region(2) = Region.makeRectangular([1,1], [10,10]) as Region(2);
         return true;
     }
    public static def main(var args: Rail[String]): void = {

@@ -25,7 +25,7 @@ import harness.x10Test;
         return true;
     }
     public def m(): Dist{rank==2} = {
-        val r:Region(2) = Region.makeRectangular([1,1], [10,10]);
+        val r:Region(2) = Region.makeRectangular([1,1], [10,10]) as Region(2);
     	return Dist.makeConstant(r, here);
     }
    public static def main(var args: Rail[String]): void = {

@@ -17,7 +17,7 @@
 class PolyIntersection3 extends TestRegion {
 
     public def run() {
-        val r1 = Region.makeRectangular([1,2], [3,4]);
+        val r1 = Region.makeRectangular([1,2], [3,4]) as Region(2);
         val r2 = Region.makeFull(2);
         val r3 = r1.intersection(r2);
         prArray("full intersected with rectangle", r3);

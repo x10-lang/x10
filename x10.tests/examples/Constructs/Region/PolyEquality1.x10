@@ -19,9 +19,9 @@ class PolyEquality1 extends TestRegion {
 
     public def run() {
 
-        val r1 = Region.makeRectangular([0,1], [5,6]);
-        val r2 = Region.makeRectangular([1,2], [6,7]);
-        val r3 = Region.makeRectangular([1,2], [5,6]);
+        val r1 = Region.makeRectangular([0,1], [5,6]) as Region(2);
+        val r2 = Region.makeRectangular([1,2], [6,7]) as Region(2);
+        val r3 = Region.makeRectangular([1,2], [5,6]) as Region(2);
         val r4 = r1.intersection(r2);
 
         comp(r1,r2);

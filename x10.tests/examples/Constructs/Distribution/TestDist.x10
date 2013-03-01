@@ -235,7 +235,7 @@ abstract public class TestDist extends x10Test {
 
     // substitute for [a:b,c:d]
     def r(a: int, b: int, c: int, d: int): Region(2) {
-        return Region.makeRectangular([a,c], [b,d]);
+        return Region.makeRectangular([a,c], [b,d]) as Region(2);
     }
 
 }
