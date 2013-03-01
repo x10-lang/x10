@@ -21,12 +21,12 @@ import harness.x10Test;
 
 public class Places50 extends x10Test {
    public def run() : boolean = (new Hook()).run();
-   public static def main(var args: Rail[String]): void = {
+   public static def main(args:Rail[String]):void {
         new Places50().execute();
     }
 
 
-// file Places line 947
+// file Places line 950
  static  class GR {
   static def use(Any){}
   static def example() {

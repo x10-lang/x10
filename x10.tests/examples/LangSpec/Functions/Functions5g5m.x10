@@ -21,14 +21,14 @@ import harness.x10Test;
 
 public class Functions5g5m extends x10Test {
    public def run() : boolean = (new Hook()).run();
-   public static def main(var args: Rail[String]): void = {
+   public static def main(args:Rail[String]):void {
         new Functions5g5m().execute();
     }
 
 
 // file Functions line 269
  static  class clogua {
-  public static def main(argv:Rail[String]) {
+  public static def main(argv:Array[String](1)) {
     val n = 3;
     val f : (x:Int){x != n} => Int
           = (x:Int){x != n} => (12/(n-x));

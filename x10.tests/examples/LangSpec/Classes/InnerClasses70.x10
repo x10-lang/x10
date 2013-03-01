@@ -21,7 +21,7 @@ import harness.x10Test;
 
 public class InnerClasses70 extends x10Test {
    public def run() : boolean = (new Hook()).run();
-   public static def main(var args: Rail[String]): void = {
+   public static def main(args:Rail[String]):void {
         new InnerClasses70().execute();
     }
 
@@ -36,7 +36,7 @@ abstract static  class Choice(name: String) {
 }
 
  static class Example {
-  static def main(Rail[String]) {
+  static def main(Array[String]) {
     val n = new Cell[Int](0);
     val c = new Choice("Inc Or Dec") {
       def yes() { n() += 1; }

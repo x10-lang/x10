@@ -21,7 +21,7 @@ import harness.x10Test;
 
 public class Types6s1l_Bad40_MustFailCompile extends x10Test {
    public def run() : boolean = (new Hook()).run();
-   public static def main(var args: Rail[String]): void = {
+   public static def main(args:Rail[String]):void {
         new Types6s1l_Bad40_MustFailCompile().execute();
     }
 
@@ -36,7 +36,7 @@ public class Types6s1l_Bad40_MustFailCompile extends x10Test {
   public def key():Int{self==this.k} = this.k;
 }
  static class Snooper {
-  public static def main(argv:Rail[String]) {
+  public static def main(argv:Array[String](1)) {
     val keyed : Keyed = new Keyed(8);
  keyed.secret(keyed.k); // ERR
     //ERROR: keyed.secret(8);

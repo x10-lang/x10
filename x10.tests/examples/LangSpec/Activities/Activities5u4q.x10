@@ -21,12 +21,12 @@ import harness.x10Test;
 
 public class Activities5u4q extends x10Test {
    public def run() : boolean = (new Hook()).run();
-   public static def main(var args: Rail[String]): void = {
+   public static def main(args:Rail[String]):void {
         new Activities5u4q().execute();
     }
 
 
-// file Activities line 747
+// file Activities line 735
  static  class Example {
  def example() {
 var n : Int = 0;

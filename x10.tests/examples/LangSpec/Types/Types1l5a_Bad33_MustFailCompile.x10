@@ -21,7 +21,7 @@ import harness.x10Test;
 
 public class Types1l5a_Bad33_MustFailCompile extends x10Test {
    public def run() : boolean = (new Hook()).run();
-   public static def main(var args: Rail[String]): void = {
+   public static def main(args:Rail[String]):void {
         new Types1l5a_Bad33_MustFailCompile().execute();
     }
 
@@ -29,7 +29,7 @@ public class Types1l5a_Bad33_MustFailCompile extends x10Test {
 // file Types line 3078
  static class Extra {
   static def useArray(Array[Extra]) {}
-  public static def main(argv:Rail[String]) {
+  public static def main(argv:Array[String](1)) {
      val x : Extra = new Extra();
  useArray([x]); // ERR
      useArray([x as Extra]);

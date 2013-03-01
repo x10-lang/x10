@@ -21,7 +21,7 @@ import harness.x10Test;
 
 public class MethodResolution10 extends x10Test {
    public def run() : boolean = (new Hook()).run();
-   public static def main(var args: Rail[String]): void = {
+   public static def main(args:Rail[String]):void {
         new MethodResolution10().execute();
     }
 
@@ -63,7 +63,7 @@ public class MethodResolution10 extends x10Test {
      // Direct matches always win.
      assert m(true) == 2 : "Boolean";
   }
-  public static def main(argv:Rail[String]) {(new Res()).example(); Console.OUT.println("That's all!");}
+  public static def main(argv:Array[String](1)) {(new Res()).example(); Console.OUT.println("That's all!");}
  public def claim() { val ace : Ace = here; assert m(ace)==3; }
  }
  static  class Hook{ def run(){ (new Res()).example(); return true;} }

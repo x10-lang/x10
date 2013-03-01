@@ -21,7 +21,7 @@ import harness.x10Test;
 
 public class Classes160 extends x10Test {
    public def run() : boolean = (new Hook()).run();
-   public static def main(var args: Rail[String]): void = {
+   public static def main(args:Rail[String]):void {
         new Classes160().execute();
     }
 
@@ -100,11 +100,11 @@ public class Classes160 extends x10Test {
       return (ai == 1) ? xpow : "" + Math.abs(ai) + xpow;
    }
 
-   public static def Main(ss:Rail[String]):void {main(ss);};
+   public static def Main(ss:Array[String](1)):void {main(ss);};
 
 
 
-  public static def main(Rail[String]):void {
+  public static def main(Array[String](1)):void {
      val X = new Poly([0,1]);
      val t <: Poly = 7 * X + 6 * X * X * X;
      val u <: Poly = 3 + 5*X - 7*X*X;

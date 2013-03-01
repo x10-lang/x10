@@ -21,12 +21,12 @@ import harness.x10Test;
 
 public class Places40_Bad33_MustFailCompile extends x10Test {
    public def run() : boolean = (new Hook()).run();
-   public static def main(var args: Rail[String]): void = {
+   public static def main(args:Rail[String]):void {
         new Places40_Bad33_MustFailCompile().execute();
     }
 
 
-// file Places line 885
+// file Places line 888
 
  static class Trans {
    val a : Int = 1;

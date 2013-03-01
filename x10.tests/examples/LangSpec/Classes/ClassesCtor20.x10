@@ -21,7 +21,7 @@ import harness.x10Test;
 
 public class ClassesCtor20 extends x10Test {
    public def run() : boolean = (new Hook()).run();
-   public static def main(var args: Rail[String]): void = {
+   public static def main(args:Rail[String]):void {
         new ClassesCtor20().execute();
     }
 

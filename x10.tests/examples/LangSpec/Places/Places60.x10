@@ -21,20 +21,20 @@ import harness.x10Test;
 
 public class Places60 extends x10Test {
    public def run() : boolean = (new Hook()).run();
-   public static def main(var args: Rail[String]): void = {
+   public static def main(args:Rail[String]):void {
         new Places60().execute();
     }
 
 
-// file Places line 1007
+// file Places line 1010
  static  class GR2 {
 
-  public static def main(argv: Rail[String]) {
-    val argref = GlobalRef[Rail[String]](argv);
+  public static def main(argv: Array[String](1)) {
+    val argref = GlobalRef[Array[String](1)](argv);
     at(here.next())
         use(argref);
   }
-  static def use(argref : GlobalRef[Rail[String]]) {
+  static def use(argref : GlobalRef[Array[String](1)]) {
     at(argref) {
       val argv = argref();
       argv(0) = "Hi!";

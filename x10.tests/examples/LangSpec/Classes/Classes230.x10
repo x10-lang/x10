@@ -21,7 +21,7 @@ import harness.x10Test;
 
 public class Classes230 extends x10Test {
    public def run() : boolean = (new Hook()).run();
-   public static def main(var args: Rail[String]): void = {
+   public static def main(args:Rail[String]):void {
         new Classes230().execute();
     }
 
@@ -31,7 +31,7 @@ public class Classes230 extends x10Test {
   public val coeff : Array[Int](1);
   public def this(coeff: Array[Int](1)) { this.coeff = coeff;}
   public static operator (a:Int) as ? = new Poly([a as Int]);
-  public static def main(Rail[String]):void {
+  public static def main(Array[String](1)):void {
      val three : Poly = 3 as Poly;
   }
 }

@@ -21,12 +21,12 @@ import harness.x10Test;
 
 public class Activities130 extends x10Test {
    public def run() : boolean = (new Hook()).run();
-   public static def main(var args: Rail[String]): void = {
+   public static def main(args:Rail[String]):void {
         new Activities130().execute();
     }
 
 
-// file Activities line 628
+// file Activities line 616
  static class OneBuffer[T] {
   var datum: T;
   def this(t:T) { this.datum = t; this.filled = true; }

@@ -21,7 +21,7 @@ import x10.compiler.Native;
 
 public class extern70 extends x10Test {
    public def run() : boolean = (new Hook()).run();
-   public static def main(var args: Rail[String]): void = {
+   public static def main(args:Rail[String]):void {
         new extern70().execute();
     }
 
