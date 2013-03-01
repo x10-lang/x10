@@ -25,7 +25,7 @@
 x10src		= $(target).x10
 
 ##----------------------------------
-GML_LIB_JAVA= -x10lib $(gml_path)/managed_gml.properties -cp $(gml_lib)/managed_gml.jar
+GML_LIB_JAVA= -x10lib $(gml_path)/managed_gml.properties
 
 ###################################################
 # X10 file built rules
