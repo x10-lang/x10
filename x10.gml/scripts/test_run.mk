@@ -37,13 +37,13 @@ endif
 
 ##--------------------------------
 Xrun  = $(shell which X10Launcher)
-Xjvm  = $(shell which x10) 
+Xjvm  = $(shell which x10)
 
 ###-----------------------------------------------
 # run tests short-keys
 
 run_java	: java
-		$(Xrun) -np $(numplaces) $(Xjvm) -classpath $(build_path):$(gml_lib)/managed_gml.jar -libpath $(build_path):$(gml_lib) $(target) $(test_args) 
+		$(Xjvm) -np $(numplaces) -classpath $(build_path):$(gml_lib)/managed_gml.jar -libpath $(build_path):$(gml_lib) $(target) $(test_args)
 
 run_mpi		: mpi
 			$(Srun) -n $(numplaces) ./$(target)_mpi $(test_args)
