@@ -63,7 +63,7 @@ public final class Rail[T](size:Long) implements Iterable[T],(Int)=>T,(Long)=>T 
 
     // primary api: long indices
 
-    public @Inline def this(size:Long){T haszero} {
+    public def this(size:Long){T haszero} {
         property(size);
         raw = IndexedMemoryChunk.allocateZeroed[T](size);
     }
@@ -126,12 +126,4 @@ public final class Rail[T](size:Long) implements Iterable[T],(Int)=>T,(Long)=>T 
             dst(dstIndex + i) = src(srcIndex + i);
         }
     }
-
-    // LONG_RAIL: unsafe int cast
-    public def sequence():Sequence[T] = new Sequence[T]() {
-        public def iterator() = Rail.this.iterator();
-        // The :T below should not be needed, see XTENLANG-2700.
-        public operator this(i:Int):T=Rail.this(i);
-        public property def size()=Rail.this.size as Int;
-    };
 }
