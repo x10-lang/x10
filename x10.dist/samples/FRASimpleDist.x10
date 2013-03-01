@@ -90,7 +90,7 @@ class FRASimpleDist {
     }
 
 
-    public static def main(args: Array[String](1)) {
+    public static def main(args: Rail[String]) {
         if ((Place.MAX_PLACES & (Place.MAX_PLACES-1)) > 0) {
             println("The number of places must be a power of 2.");
             return;

@@ -58,7 +58,7 @@ public class QuickSortSeq {
       }
   }
 
-  public static def main(args:Array[String](1)) {
+  public static def main(args:Rail[String]) {
       val N = args.size>0 ? Int.parse(args(0)) : 1000;
       val r = new x10.util.Random(0);
       var avgDur:Double = 0;

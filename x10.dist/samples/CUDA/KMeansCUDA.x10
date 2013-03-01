@@ -44,7 +44,7 @@ public class KMeansCUDA {
 
     private static def round_up (x:Int, n:Int) = (x-1) - ((x-1)%n) + n;
 
-    public static def main (args : Array[String](1)) {
+    public static def main (args : Rail[String]) {
         val opts = new OptionsParser(args, [
             Option("q","quiet","just print time taken"),
             Option("v","verbose","print out each iteration")

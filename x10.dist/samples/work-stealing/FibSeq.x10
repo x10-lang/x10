@@ -25,7 +25,7 @@ class FibSeq {
         return t1 + t2;
     }
 
-    public static def main(args:Array[String](1)) {
+    public static def main(args:Rail[String]) {
         val n = args.size > 0 ? Int.parse(args(0)) : 10;
         var avgDur:Double = 0;
         for (var i:Int = 0; i < 10; ++i) {

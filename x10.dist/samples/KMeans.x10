@@ -140,7 +140,7 @@ public class KMeans(myDim:Int) {
         return redCluster;  
     }
   
-    public static def main (Array[String]) {
+    public static def main (Rail[String]) {
         val rnd = new Random(0);
         val points = new Array[ValVector](POINTS, 
                         (int)=>new Array[Float](DIM, (int)=>rnd.nextFloat()) as ValVector);

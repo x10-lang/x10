@@ -80,7 +80,7 @@ public class CUDABlackScholes {
         }
     }
 
-    public static def main (Array[String]) {
+    public static def main (Rail[String]) {
 
         // Problem parameters
         val OPT_N = 4000000;

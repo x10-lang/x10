@@ -53,7 +53,7 @@ public class Integrate {
     return expr1 + expr2;
   }
  
-  public static def main(args:Array[String](1)) {
+  public static def main(args:Rail[String]) {
     val xMax = args.size > 0 ? Int.parse(args(0)) : 10;
     var avgDur:Double = 0;
     for (var i:Int = 0; i < 10; ++i) {
