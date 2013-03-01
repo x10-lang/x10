@@ -51,7 +51,7 @@ public final class String implements Comparable[String] {
 
     /**
      * Construct a String from a Rail[Byte], offset and length.
-     * LONGRAIL: unsafe int cast
+     * LONG_RAIL: unsafe int cast
      */
     @Native("java", "new java.lang.String((#r).raw().getByteArray(),(int)#offset,(int)#length)")
     public native def this(r:Rail[Byte], offset:Long, length:Long): String;
