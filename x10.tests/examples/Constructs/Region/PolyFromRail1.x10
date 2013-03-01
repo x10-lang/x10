@@ -17,7 +17,7 @@
 class PolyFromRail1 extends TestRegion {
 
     public def run() {
-        val a = [5.0,4.0,3.0,2.0,1.0];
+        val a = new Array[Double](5, [5.0,4.0,3.0,2.0,1.0]);
         prArray("from native rail", a);
         return status();
     }
