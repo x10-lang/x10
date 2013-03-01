@@ -30,9 +30,9 @@ public class Classes170 extends x10Test {
 
  // Integer-coefficient polynomials of one variable.
  static  class UglyPoly {
-   public val coeff : Array[Int](1);
-   public def this(coeff: Array[Int](1)) { this.coeff = coeff;}
-   public def degree() = coeff.size-1;
+   public val coeff : Rail[Int];
+   public def this(coeff: Rail[Int]) { this.coeff = coeff;}
+   public def degree() = (coeff.size-1) as Int;
    public  def  a(i:Int) = (i<0 || i>this.degree()) ? 0 : coeff(i);
 
    public static operator (c : Int) as UglyPoly = new UglyPoly([c as Int]);
@@ -47,14 +47,14 @@ public class Classes170 extends x10Test {
    }
 
    public operator this + (p:UglyPoly) =  new UglyPoly(
-      new Array[Int](
-         Math.max(this.coeff.size, p.coeff.size),
+      new Rail[Int](
+         Math.max(this.coeff.size, p.coeff.size) as Int,
          (i:Int) => this.a(i) + p.a(i)
       ));
    public operator this - (p:UglyPoly) = this + (-1)*p;
 
    public operator this * (p:UglyPoly) = new UglyPoly(
-      new Array[Int](
+      new Rail[Int](
         this.degree() + p.degree() + 1,
         (k:Int) => sumDeg(k, this, p)
         )
@@ -68,7 +68,7 @@ public class Classes170 extends x10Test {
    public operator this - (n : Int) = ((-n) as UglyPoly) + this;
 
    public operator (n : Int) * this = new UglyPoly(
-      new Array[Int](
+      new Rail[Int](
         this.degree()+1,
         (k:Int) => n * this.a(k)
       ));

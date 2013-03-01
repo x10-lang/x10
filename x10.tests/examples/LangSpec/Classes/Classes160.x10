@@ -29,16 +29,16 @@ public class Classes160 extends x10Test {
 // file Classes line 1461
  // Integer-coefficient polynomials of one variable.
  static  class Poly {
-   public val coeff : Array[Int](1);
-   public def this(coeff: Array[Int](1)) { this.coeff = coeff;}
-   public def degree() = coeff.size-1;
+   public val coeff : Rail[Int];
+   public def this(coeff: Rail[Int]) { this.coeff = coeff;}
+   public def degree() = (coeff.size-1) as Int;
    public def a(i:Int) = (i<0 || i>this.degree()) ? 0 : coeff(i);
 
    public static operator (c : Int) as Poly = new Poly([c as Int]);
 
-   public operator this(x:Int) {
+   public operator this(x:Long) {
      val d = this.degree();
-     var s : Int = this.a(d);
+     var s : Long = this.a(d);
      for( i in 1 .. this.degree() ) {
         s = x * s + a(d-i);
      }
@@ -46,14 +46,14 @@ public class Classes160 extends x10Test {
    }
 
    public operator this + (p:Poly) =  new Poly(
-      new Array[Int](
-         Math.max(this.coeff.size, p.coeff.size),
+      new Rail[Int](
+         Math.max(this.coeff.size, p.coeff.size) as Int,
          (i:Int) => this.a(i) + p.a(i)
       ));
    public operator this - (p:Poly) = this + (-1)*p;
 
    public operator this * (p:Poly) = new Poly(
-      new Array[Int](
+      new Rail[Int](
         this.degree() + p.degree() + 1,
         (k:Int) => sumDeg(k, this, p)
         )
@@ -67,7 +67,7 @@ public class Classes160 extends x10Test {
    public operator this - (n : Int) = ((-n) as Poly) + this;
 
    public operator (n : Int) * this = new Poly(
-      new Array[Int](
+      new Rail[Int](
         this.degree()+1,
         (k:Int) => n * this.a(k)
       ));

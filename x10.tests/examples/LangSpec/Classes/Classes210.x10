@@ -28,13 +28,13 @@ public class Classes210 extends x10Test {
 
 // file Classes line 1904
  static  class Poly {
-   public val coeff : Array[Int](1);
-   public def this(coeff: Array[Int](1)) { this.coeff = coeff;}
-   public def degree() = coeff.size-1;
+   public val coeff : Rail[Int];
+   public def this(coeff: Rail[Int]) { this.coeff = coeff;}
+   public def degree() = coeff.size-1 as Int;
    public def  a(i:Int) = (i<0 || i>this.degree()) ? 0 : coeff(i);
   public static operator (p:Poly) + (q:Poly) =  new Poly(
-     new Array[Int](
-        Math.max(q.coeff.size, p.coeff.size),
+     new Rail[Int](
+        Math.max(q.coeff.size, p.coeff.size) as Int,
         (i:Int) => q.a(i) + p.a(i)
      ));
 

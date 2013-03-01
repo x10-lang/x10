@@ -28,8 +28,8 @@ public class Classes230 extends x10Test {
 
 // file Classes line 2018
  static class Poly {
-  public val coeff : Array[Int](1);
-  public def this(coeff: Array[Int](1)) { this.coeff = coeff;}
+  public val coeff : Rail[Int];
+  public def this(coeff: Rail[Int]) { this.coeff = coeff;}
   public static operator (a:Int) as ? = new Poly([a as Int]);
   public static def main(Rail[String]):void {
      val three : Poly = 3 as Poly;
