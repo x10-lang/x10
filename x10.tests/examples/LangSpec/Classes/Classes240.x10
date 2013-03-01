@@ -64,7 +64,7 @@ public class Classes240 extends x10Test {
         (i:Int) => p.a(i) + q.a(i)
      ));
 
-  public static def main(Array[String](1)):void {
+  public static def main(Rail[String]):void {
      val x = new Poly([0,1]);
      x10.io.Console.OUT.println("1+x=" + (1+x));
   }

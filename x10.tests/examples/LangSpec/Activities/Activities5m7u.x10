@@ -26,7 +26,7 @@ public class Activities5m7u extends x10Test {
     }
 
 
-// file Activities line 677
+// file Activities line 672
  static  class Example {
 static def good() {
   val c = new Cell[Boolean](false);

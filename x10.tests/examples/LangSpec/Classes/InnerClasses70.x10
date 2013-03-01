@@ -36,7 +36,7 @@ abstract static  class Choice(name: String) {
 }
 
  static class Example {
-  static def main(Array[String]) {
+  static def main(Rail[String]) {
     val n = new Cell[Int](0);
     val c = new Choice("Inc Or Dec") {
       def yes() { n() += 1; }

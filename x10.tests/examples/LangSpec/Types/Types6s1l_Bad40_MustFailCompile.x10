@@ -36,7 +36,7 @@ public class Types6s1l_Bad40_MustFailCompile extends x10Test {
   public def key():Int{self==this.k} = this.k;
 }
  static class Snooper {
-  public static def main(argv:Array[String](1)) {
+  public static def main(argv:Rail[String]) {
     val keyed : Keyed = new Keyed(8);
  keyed.secret(keyed.k); // ERR
     //ERROR: keyed.secret(8);

@@ -31,7 +31,7 @@ public class Types6m9z extends x10Test {
   val f : Long;
   def this(n:Int, f:Long) { property(n); this.f = f; }
   static def typeIs[T](val x:T) {}
-  public static def main(argv:Array[String](1)) {
+  public static def main(argv:Rail[String]) {
      val x : Extra = new Extra(1,2L);
      typeIs[ Extra{self==x} ]   (x);    //(A)
      val nx: Extra = new Extra(1,2L);

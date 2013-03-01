@@ -63,7 +63,7 @@ public class MethodResolution10_Bad55_MustFailCompile extends x10Test {
      // Direct matches always win.
      assert m(true) == 2 : "Boolean";
   }
-  public static def main(argv:Array[String](1)) {(new Res()).example(); Console.OUT.println("That's all!");}
+  public static def main(argv:Rail[String]) {(new Res()).example(); Console.OUT.println("That's all!");}
  public def claim() { val ace : Ace = here; assert m(ace)==3; }
  }
  static  class Hook{ def run(){ (new Res()).example(); return true;} }
