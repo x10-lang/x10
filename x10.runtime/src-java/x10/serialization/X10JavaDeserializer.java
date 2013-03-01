@@ -33,11 +33,18 @@ public final class X10JavaDeserializer implements SerializationConstants {
     private int counter = 0;
     
     protected final DataInputStream in;
-    protected final LocalDeserializationDictionary dict; 
+    protected final DeserializationDictionary dict; 
     
-    public X10JavaDeserializer(DataInputStream in) {
+    public X10JavaDeserializer(DataInputStream in, boolean readMessageDictionary) {
         this.in = in;
-        dict = new LocalDeserializationDictionary(this, SharedDictionaries.getDeserializationDictionary());
+        if (readMessageDictionary) {
+            dict = new LocalDeserializationDictionary(this, SharedDictionaries.getDeserializationDictionary());
+        } else {
+            if (Runtime.TRACE_SER) {
+                Runtime.printTraceMessage("\tMessage has no per-message serialization ids");                
+            }
+            dict = SharedDictionaries.getDeserializationDictionary();
+        }
     }
     
     /**
