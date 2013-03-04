@@ -43,7 +43,7 @@ public class NQueensPar {
 
         def this(b:Board) {
             this.q = new Rail[Int](N);
-            Array.copy(b.q, q);
+	    Rail.copy(b.q, q);
             this.fixed = b.fixed;
         }
 

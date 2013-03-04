@@ -87,6 +87,11 @@ public final class Rail[T](size:Long) implements Iterable[T],(Int)=>T,(Long)=>T 
         return v;
     }
 
+    public static def copy[T](src:Rail[T], dst:Rail[T]) {
+        if (src.size != dst.size) throw new IllegalArgumentException("source and destination do not have equal size");
+        IndexedMemoryChunk.copy(src.raw, 0, dst.raw, 0, src.raw.length());
+    }
+
     public static def copy[T](src:Rail[T], srcIndex:Long, 
             dst:Rail[T], dstIndex:Long, numElems:Long) {
        for (var i:Long=0L; i<numElems; ++i) {
