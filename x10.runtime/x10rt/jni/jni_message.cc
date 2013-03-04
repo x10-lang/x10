@@ -13,6 +13,10 @@
 #define __int64 __int64_t
 #endif
 
+#if defined(__CYGWIN__) || defined(__FreeBSD__)
+#undef __STRICT_ANSI__ // Strict ANSI mode is too strict in Cygwin and FreeBSD
+#endif
+
 #include <unistd.h>
 #include <sys/types.h>
 #include <assert.h>

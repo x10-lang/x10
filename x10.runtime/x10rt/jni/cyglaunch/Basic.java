@@ -272,10 +272,11 @@ public class Basic {
             VoidFun_0_0 body = new Handler(runner, buf, len);
             x10.serialization.X10JavaSerializer serializer = new x10.serialization.X10JavaSerializer();
             serializer.write((x10.serialization.X10JavaSerializable) body);
-            byte[] msg = serializer.toMessage();
-            int msgLen = msg.length;
+	    serializer.prepareMessage(false);
             //System.err.println(X10RT.here()+": About to send a message to place "+place);
-            x10.x10rt.MessageHandlers.runClosureAtSend(place, msgLen, msg);
+            x10.x10rt.MessageHandlers.runClosureAtSend(place, 
+                                                       serializer.getDictionaryBytes(), 
+                                                       serializer.getDataBytes());
             //System.err.println(X10RT.here()+": Sent a message to place "+place);
         } catch (java.io.IOException e){
             e.printStackTrace();
