@@ -11,8 +11,8 @@
 
 public class Histogram {
     public static def compute(data:Rail[Int], numBins:Int) {
-        val bins = new Array[Int](numBins);
-        finish for ([i] in data) async {
+        val bins = new Rail[Int](numBins);
+        finish for (i in data.range) async {
            val b = data(i) % numBins;
            atomic bins(b)++;
         }
@@ -20,16 +20,16 @@ public class Histogram {
     }
 
     public static def run(N:Int, S:Int):Boolean {
-        val a = new Array[Int](N, (i:Int)=> i);
+        val a = new Rail[Int](N, (i:Int)=> i);
         val b = compute(a, S);
         val v = b(0);
         var ok:Boolean = true;
-        for ([x] in b) ok &= (b(x)==v);
+        for (x in b.range) ok &= (b(x)==v);
         return ok;
     }
 
     public static def main(args:Rail[String]) {
-        if (args.size != 2) {
+        if (args.size != 2L) {
             Console.OUT.println("Usage: Histogram SizeOfArray NumberOfBins");
             return;
         }
