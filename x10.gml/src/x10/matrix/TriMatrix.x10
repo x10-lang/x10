@@ -34,6 +34,7 @@ public type TriMatrix(C:Matrix)=TriMatrix{self==C};
  * By default, the lower part is accessed. 
  * Results of cell-wise operations on triangulor matrix is stored in dense instance.
  * 
+ * @deprecated use {@link TriDense} instead
  */
 public class TriMatrix extends DenseMatrix{self.M==self.N} {
 	

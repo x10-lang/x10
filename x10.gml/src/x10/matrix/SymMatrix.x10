@@ -32,6 +32,8 @@ public type SymMatrix(C:Matrix)=SymMatrix{self==C};
  * Result of cell-wise operations on symmetric matrix is stored in dense instances.
  * Most cellwise operations resort to the super dense class's operations without
  * optimization.
+ * 
+ * @deprecated use {@link SymDense} instead
  */
 public class SymMatrix extends DenseMatrix{self.M==self.N} {
 	
