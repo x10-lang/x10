@@ -19,11 +19,7 @@ public final class Rail[T](size:Long) implements Iterable[T],(Int)=>T,(Long)=>T 
     public property def range() = new LongRange(0, size-1);
 
     // Iterable for now. Eventually rails will support comprehension loops without implementing Iterable
-    public def iterator():Iterator[T] = new Iterator[T]() {
-        var cur:Long = 0;
-        public def next():T = raw(cur++);
-        public def hasNext() = cur < size;
-    };
+    public def iterator():Iterator[T] = new RailIterator[T](this);
 
     public def toString():String {
         val sb = new x10.util.StringBuilder();
@@ -145,3 +141,4 @@ public final class Rail[T](size:Long) implements Iterable[T],(Int)=>T,(Long)=>T 
         IndexedMemoryChunk.copy[T](src.raw, srcIndex, dst.raw, dstIndex, numElems);
     }
 }
+
