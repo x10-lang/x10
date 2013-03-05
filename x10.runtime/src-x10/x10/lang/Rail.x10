@@ -61,6 +61,16 @@ public final class Rail[T](size:Long) implements Iterable[T],(Int)=>T,(Long)=>T 
         raw = IndexedMemoryChunk.allocateUninitialized[T](size);
     }
 
+    /* Construct a copy of the given Rail */
+    @Inline def this(src:Rail[T]) {
+        property(src.size);
+        val size = src.size as Int; // TODO remove alias
+        val dst = IndexedMemoryChunk.allocateUninitialized[T](size);
+        // TODO use Long indices for IMC.copy
+        IndexedMemoryChunk.copy[T](src.raw, 0, dst, 0, size);
+        raw = dst;
+    }
+
     // primary api: long indices
 
     public def this(size:Long){T haszero} {
@@ -99,6 +109,10 @@ public final class Rail[T](size:Long) implements Iterable[T],(Int)=>T,(Long)=>T 
        }
     }
 
+    public def clear(){T haszero} {
+        raw.clear(0, size);
+    }
+
     // secondary api: int indices
 
     public @Inline def this(size:Int){T haszero} {
@@ -127,8 +141,7 @@ public final class Rail[T](size:Long) implements Iterable[T],(Int)=>T,(Long)=>T 
 
     public static def copy[T](src:Rail[T], srcIndex:Int, 
             dst:Rail[T], dstIndex:Int, numElems:Int) {
-        for (var i:Int=0; i<numElems; ++i) {
-            dst(dstIndex + i) = src(srcIndex + i);
-        }
+        // TODO use Long indices for IMC.copy
+        IndexedMemoryChunk.copy[T](src.raw, srcIndex, dst.raw, dstIndex, numElems);
     }
 }
