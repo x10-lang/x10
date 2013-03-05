@@ -58,11 +58,9 @@ ifndef BGP
         # BLAS settings:
 	blas_path  	=/usr/lib
 	blas_name	=blas
-	blas_lib	= $(blas_path)/lib$(blas_name).so
         # LAPACK settings:
 	lapack_path =/usr/lib
 	lapack_name =lapack
-	lapack_lib  =$(lapack_path)/lib$(lapack_name).so
         #
 
         #--------- Server settings --------
@@ -73,11 +71,9 @@ ifndef BGP
                 #BLAS settings:
 		blas_path   =/usr/lib64
 		blas_name	=blas
-		blas_lib	=$(blas_path)/lib$(blas_name).so
                 #LAPACK settings:
 		lapack_path =/usr/lib64
 		lapack_name =lapack
-		lapack_lib  =$(lapack_path)/lib$(lapack_name).so
                 #
                 #post compile for mpi transport on slurm 
                 #mpi_path 	= -L/usr/lib64/slurm 
