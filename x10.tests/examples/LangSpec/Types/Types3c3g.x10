@@ -26,7 +26,7 @@ public class Types3c3g extends x10Test {
     }
 
 
-// file Types line 927
+// file Types line 928
  static class ConstructorExample {
   static  class Cont[X]{}
   static  interface Inte[X]{

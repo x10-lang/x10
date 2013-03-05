@@ -26,7 +26,7 @@ public class Types1l5a extends x10Test {
     }
 
 
-// file Types line 3078
+// file Types line 3081
  static class Extra {
   static def useArray(Rail[Extra]) {}
   public static def main(argv:Rail[String]) {

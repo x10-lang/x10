@@ -26,7 +26,7 @@ public class Types110 extends x10Test {
     }
 
 
-// file Types line 723
+// file Types line 724
 
  static class Bottle[T] {
   var contents : T;

@@ -26,7 +26,7 @@ public class Types3d5j extends x10Test {
     }
 
 
-// file Types line 2673
+// file Types line 2675
  static  class Example {
 static def first[T](x:Rail[T]) = x(0);
 static def example() {

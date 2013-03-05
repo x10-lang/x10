@@ -27,6 +27,7 @@ public class ReTypes6w6h extends x10Test {
 
 
 // file Types line 311
+//OPTIONS: -STATIC_CHECKS
  static  class Example {
  static public def example() {
 // ERROR: p : Point{self!=null} = null;

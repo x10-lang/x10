@@ -26,7 +26,7 @@ public class Types520 extends x10Test {
     }
 
 
-// file Types line 2554
+// file Types line 2556
  static  class voidddd {
  static
 def m():void {return;}

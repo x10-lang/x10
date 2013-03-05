@@ -26,7 +26,7 @@ public class Types460 extends x10Test {
     }
 
 
-// file Types line 2360
+// file Types line 2362
  static interface I1 {}
  static interface I2 {}
  static class A implements I1, I2 {}

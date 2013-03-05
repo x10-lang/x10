@@ -26,7 +26,8 @@ public class Types6s1l_Bad41_MustFailCompile extends x10Test {
     }
 
 
-// file Types line 1413
+// file Types line 1414
+//OPTIONS: -STATIC_CHECKS
  static class Keyed {
   private val k : Int;
   public def this(k : Int) {
@@ -38,8 +39,8 @@ public class Types6s1l_Bad41_MustFailCompile extends x10Test {
  static class Snooper {
   public static def main(argv:Rail[String]) {
     val keyed : Keyed = new Keyed(8);
-    //ERROR: keyed.secret(keyed.k);
- keyed.secret(8); // ERR
+ keyed.secret(keyed.k); // ERR
+    //ERROR: keyed.secret(8);
     val kk = keyed.key();
     keyed.secret(kk);
   }

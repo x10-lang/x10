@@ -26,7 +26,8 @@ public class Types6s1l extends x10Test {
     }
 
 
-// file Types line 1413
+// file Types line 1414
+//OPTIONS: -STATIC_CHECKS
  static class Keyed {
   private val k : Int;
   public def this(k : Int) {

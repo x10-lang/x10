@@ -26,7 +26,7 @@ public class Types530 extends x10Test {
     }
 
 
-// file Types line 2572
+// file Types line 2574
  static  class EEEEVil {
   static def eval[T] (f:()=>T):T = f();
  }

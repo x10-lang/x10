@@ -26,7 +26,7 @@ public class Types120 extends x10Test {
     }
 
 
-// file Types line 560
+// file Types line 561
  static struct Position {
   public val x:Double; public val y:Double; public val z:Double;
   def this(x:Double, y:Double, z:Double) {

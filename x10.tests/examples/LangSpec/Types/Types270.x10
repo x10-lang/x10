@@ -26,7 +26,7 @@ public class Types270 extends x10Test {
     }
 
 
-// file Types line 1021
+// file Types line 1022
 
  static class TypeExamples {
   static type StringSet = Set[String];

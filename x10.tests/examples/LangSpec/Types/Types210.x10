@@ -26,7 +26,7 @@ public class Types210 extends x10Test {
     }
 
 
-// file Types line 754
+// file Types line 755
  static class NonGeneric {
   static def first[T](x:List[T]):T = x(0);
   def m(z:List[Int]) {
