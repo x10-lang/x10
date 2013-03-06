@@ -109,7 +109,7 @@ class BlockSetCommTest {
 		var ds:Int = 0;
 		
 		Console.OUT.println("\nTest P2P copyTo dup block set matrix ("+M+","+N+") "+
-				"partitioned in ("+bM+","+bN+") blocks duplicated over "+ numplace+" placaces");
+				"partitioned in ("+bM+","+bN+") blocks duplicated over "+ numplace+" places");
 		//src.printMatrix("CopyTo source");
 		dst.reset();
 		dst.local().initRandom();

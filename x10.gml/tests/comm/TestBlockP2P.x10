@@ -109,7 +109,7 @@ class BlockP2PTest {
 		var ds:Int = 0;
 		
 		Console.OUT.println("\nTest P2P copyTo dist block matrix ("+M+"x"+N+") "+
-				"("+bM+","+bN+") blocks over "+ numplace+" placaces");
+				"("+bM+","+bN+") blocks over "+ numplace+" places");
 		//src.printMatrix("CopyTo source");
 		var st:Long =  Timer.milliTime();
 		for (var b:Int=0; b<bM*bN; b++) {
@@ -140,7 +140,7 @@ class BlockP2PTest {
 		var tt:Long = 0;//Timer.milliTime() - st;
 		
 		Console.OUT.println("\nTest P2P copyFrom dist block matrix ("+M+"x"+N+") "+
-				"("+bM+","+bN+") blocks over "+ numplace+" placaces");
+				"("+bM+","+bN+") blocks over "+ numplace+" places");
 
 		//src.printMatrix("CopyFrom Source matrix");
 		for (var b:Int=0; b<bM*bN; b++) {
