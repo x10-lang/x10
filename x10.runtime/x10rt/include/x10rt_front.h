@@ -330,18 +330,45 @@ X10RT_C void x10rt_finalize (void);
 
 /** \{ */
 
-/** Number of places.  The total number of places (which is constant throughout a particular
- * execution), including accelerators and hosts.
+/** Number of places.  The total number of places (which may grow, but not shrink, throughout
+ * a particular execution), including accelerators and hosts.
  * \returns The number of places.
  */
 X10RT_C x10rt_place x10rt_nplaces (void);
 
-/** Number of hosts.  The total number of hosts (which is constant throughout a particular
- * execution).  Hosts can contain accelerators and are never accelerators themselves.  Note that
- * place ids for the hosts range from 0 to #x10rt_nhosts()-1.
+/** Number of hosts.  The total number of hosts (which may grow, but not shrink, throughout
+ * a particular execution).  Hosts can contain accelerators and are never accelerators
+ * themselves.  Note that place ids for the hosts range from 0 to #x10rt_nhosts()-1.
  * \returns The number of hosts.
  */
 X10RT_C x10rt_place x10rt_nhosts (void);
+
+/** Number of dead hosts.  The total number of hosts which have died since computation began.
+ * \returns The number of dead hosts.
+ */
+X10RT_C x10rt_place x10rt_ndead (void);
+
+/** Ask if a place is known to be dead at the time of this call.  Note that a place may have died,
+ * but not been detected as dead yet, or a place may die immediately after this call returns.  So a return
+ * value of true (dead) is more concrete than a return value of false (likely still alive).
+ *
+ * \param *p 	Which place we want to know about.
+ *
+ * \returns true if the place is known to be dead, or false if the place is not known to be dead.
+ */
+X10RT_C bool x10rt_is_place_dead (x10rt_place p);
+
+/** Get the list of known dead places.  The user should call x10rt_ndead() to determine a minimum
+ * reasonable size to use for this array.
+ *
+ * \param *dead_places 	A pointer to an array of x10rt_places, which will be filled in by the network
+ *
+ * \param len	The number of elements in the dead_places array.
+ *
+ * \returns X10RT_ERR_OK if successful, otherwise some other error code.  Upon failure, an error
+ * string is available via x10rt_error_msg() and x10rt_finalize must be called to shut down.
+ */
+X10RT_C x10rt_error x10rt_get_dead (x10rt_place *dead_places, x10rt_place len);
 
 /** The local place.  An X10 process will discover its
  * own identity by calling this function.

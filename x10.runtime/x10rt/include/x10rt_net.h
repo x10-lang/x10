@@ -93,6 +93,15 @@ X10RT_C void x10rt_net_internal_barrier (void);
 /** \see #x10rt_lgl_nhosts */
 X10RT_C x10rt_place x10rt_net_nhosts (void);
 
+/** \see #x10rt_ndead */
+X10RT_C x10rt_place x10rt_net_ndead (void);
+
+/** \see #x10rt_is_place_dead */
+X10RT_C bool x10rt_net_is_place_dead (x10rt_place p);
+
+/** \see #x10rt_get_dead */
+X10RT_C x10rt_error x10rt_net_get_dead (x10rt_place *dead_places, x10rt_place len);
+
 /** \see #x10rt_lgl_here */
 X10RT_C x10rt_place x10rt_net_here (void);
 

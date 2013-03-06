@@ -197,6 +197,15 @@ x10rt_place x10rt_lgl_nplaces (void);
 /** \see #x10rt_nhosts */
 x10rt_place x10rt_lgl_nhosts (void);
 
+/** \see #x10rt_ndead */
+x10rt_place x10rt_lgl_ndead (void);
+
+/** \see #x10rt_is_place_dead */
+bool x10rt_lgl_is_place_dead (x10rt_place p);
+
+/** \see #x10rt_get_dead */
+x10rt_error x10rt_lgl_get_dead (x10rt_place *dead_places, x10rt_place len);
+
 /** \see #x10rt_here */
 x10rt_place x10rt_lgl_here (void);
 

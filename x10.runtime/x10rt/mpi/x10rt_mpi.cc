@@ -515,6 +515,18 @@ x10rt_place x10rt_net_nhosts(void) {
     return global_state.nprocs;
 }
 
+x10rt_place x10rt_net_ndead (void) {
+	return 0; // place failure is not handled by this implementation.
+}
+
+bool x10rt_net_is_place_dead (x10rt_place p) {
+	return false; // place failure is not handled by this implementation.
+}
+
+x10rt_error x10rt_net_get_dead (x10rt_place *dead_places, x10rt_place len) {
+	return X10RT_ERR_UNSUPPORTED; // place failure is not handled by this implementation.
+}
+
 x10rt_place x10rt_net_here(void) {
     assert(global_state.init);
     assert(!global_state.finalized);

@@ -110,6 +110,21 @@ x10rt_place x10rt_lgl_nplaces (void)
     return g.nplaces;
 }
 
+x10rt_place x10rt_lgl_ndead (void)
+{
+	return x10rt_net_ndead();
+}
+
+bool x10rt_lgl_is_place_dead (x10rt_place p)
+{
+	return x10rt_net_is_place_dead(p);
+}
+
+x10rt_error x10rt_lgl_get_dead (x10rt_place *dead_places, x10rt_place len)
+{
+	return x10rt_net_get_dead(dead_places, len);
+}
+
 x10rt_place x10rt_lgl_here (void)
 {
     return x10rt_net_here();

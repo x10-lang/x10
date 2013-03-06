@@ -75,6 +75,15 @@ x10rt_place x10rt_nplaces (void)
 x10rt_place x10rt_nhosts (void)
 { return x10rt_lgl_nhosts(); }
 
+x10rt_place x10rt_ndead (void)
+{ return x10rt_lgl_ndead(); }
+
+bool x10rt_is_place_dead (x10rt_place p)
+{ return x10rt_lgl_is_place_dead(p); }
+
+x10rt_error x10rt_get_dead (x10rt_place *dead_places, x10rt_place len)
+{ return x10rt_lgl_get_dead(dead_places, len); }
+
 x10rt_place x10rt_here (void)
 { return x10rt_lgl_here(); }
 
