@@ -241,10 +241,12 @@ typedef struct {
  * Error code for x10rt apis.
  */
 typedef enum {
-    X10RT_ERR_OK       = 0,   /* No error */
-    X10RT_ERR_MEM      = 1,   /* Out of memory error */
-    X10RT_ERR_INTL     = 254, /* Internal implementation error */
-    X10RT_ERR_OTHER    = 255  /* Other unclassified runtime error */
+    X10RT_ERR_OK			= 0,   /* No error */
+    X10RT_ERR_MEM			= 1,   /* Out of memory error */
+    X10RT_ERR_INVALID		= 2,   /* Invalid method call, at this time (e.g. probe() before init()) */
+    X10RT_ERR_UNSUPPORTED	= 3,   /* Not supported by this implementation of X10RT */
+    X10RT_ERR_INTL			= 254, /* Internal implementation error */
+    X10RT_ERR_OTHER			= 255  /* Other unclassified runtime error */
 } x10rt_error;
 
 #endif

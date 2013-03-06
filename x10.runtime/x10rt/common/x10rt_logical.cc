@@ -418,6 +418,11 @@ namespace {
 
 }
 
+x10rt_error x10rt_lgl_preinit(char* connInfoBuffer, int connInfoBufferSize)
+{
+    return x10rt_net_preinit(connInfoBuffer, connInfoBufferSize);
+}
+
 x10rt_error x10rt_lgl_init (int *argc, char ***argv,
                      x10rt_lgl_cfg_accel *cfgv, x10rt_place cfgc, x10rt_msg_type *counter)
 {

@@ -40,8 +40,12 @@
  */
 JNIEXPORT jstring JNICALL Java_x10_x10rt_X10RT_x10rt_1preinit(JNIEnv *env, jclass) {
     initCachedJVM(env);
-    char* connInfo = x10rt_preinit();
-    return env->NewStringUTF(connInfo);
+    char buffer[1024];
+    int errorcode = x10rt_preinit(buffer, sizeof(buffer));
+    if (errorcode == X10RT_ERR_OK)
+    	return env->NewStringUTF(buffer);
+    else
+    	return NULL;
 }
 
 /*

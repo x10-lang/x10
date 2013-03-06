@@ -378,6 +378,10 @@ class x10rt_internal_state {
 
 static x10rt_internal_state     global_state;
 
+x10rt_error x10rt_net_preinit(char* connInfoBuffer, int connInfoBufferSize) {
+	return X10RT_ERR_UNSUPPORTED;
+}
+
 x10rt_error x10rt_net_init(int *argc, char ** *argv, x10rt_msg_type *counter) {
     assert(!global_state.finalized);
     assert(!global_state.init);

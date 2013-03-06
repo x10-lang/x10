@@ -891,16 +891,10 @@ static void team_destroy_complete (pami_context_t context, void* cookie, pami_re
 }
 
 
-/** Initialize the X10RT API logical layer.
- *
- * \see #x10rt_lgl_init
- *
- * \param argc As in x10rt_lgl_init.
- *
- * \param argv As in x10rt_lgl_init.
- *
- * \param counter As in x10rt_lgl_init.
- */
+x10rt_error x10rt_net_preinit(char* connInfoBuffer, int connInfoBufferSize) {
+	return X10RT_ERR_UNSUPPORTED;
+}
+
 x10rt_error x10rt_net_init (int *argc, char ***argv, x10rt_msg_type *counter)
 {
 	// TODO - return proper error codes upon failure, in place of calling the error() method.

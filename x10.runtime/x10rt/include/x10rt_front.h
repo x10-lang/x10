@@ -167,12 +167,20 @@
 
 /**
  * This preinit method allows the runtime network code to be partially initialized ahead of the 
- * rest of the runtime.  The return value is a connection string (likely hostname:port), which can 
- * be used by other runtimes to find this one.  When this method is called ahead of the regular 
+ * rest of the runtime.  The connInfoBuffer is a connection string (likely "hostname:port"), which
+ * can be used by other runtimes to find this one.  When this method is called ahead of the regular
  * x10rt_init(), it puts the runtime into a library mode, so that the runtime can be used more as 
  * a library in other programs, by using less CPU, and not calling system exit when errors occur.
+ *
+ * \param connInfoBuffer A pointer to a pre-existing buffer into which the connection information
+ * for the local runtime is written
+ *
+ * \param connInfoBufferSize The size of the connInfoBuffer
+ *
+ * \returns X10RT_ERR_OK if successful, otherwise some other error code.  Upon failure, an error
+ * string is available via x10rt_error_msg() and x10rt_finalize must be called to shut down.
  */
-X10RT_C char* x10rt_preinit();
+X10RT_C x10rt_error x10rt_preinit (char* connInfoBuffer, int connInfoBufferSize);
 
 /** Whether or not X10 is running as library.
  * \returns Whether or not X10 is running as library.
@@ -187,7 +195,8 @@ X10RT_C const char *x10rt_error_msg (void);
 
 /** Initialize the X10RT API.
  *
- * This should be the first call made by a process into X10RT.  This allows the X10RT implementation
+ * This should be the first call made by a process into X10RT, with the exception of x10rt_preinit,
+ * which is optionally called before this.  This allows the X10RT implementation
  * to inspect and modify the command-line parameters to the X10 process.  This is needed e.g. for
  * the implementation of X10RT on MPI.
  *
@@ -201,9 +210,15 @@ X10RT_C const char *x10rt_error_msg (void);
  * piece of available hardware exactly once, or "NONE" (the default) to use no accelerators.
  * Lowercase can also be used.
  *
- * \param argc A pointer to the argc parameter from the application's ``main'' function.
+ * In the event that x10rt_preinit() was called before this method, the parameters have a different
+ * meaning, as described.
  *
- * \param argv A pointer to the argv parameter from the application's ``main'' function.
+ * \param argc A pointer to the argc parameter from the application's ``main'' function.  If called
+ * after preinit, this is still a counter for the size of argv, but is not related to the main argc.
+ *
+ * \param argv A pointer to the argv parameter from the application's ``main'' function.  If called
+ * after preinit, instead, this is an array of connection strings, one per place.  The local place
+ * is identified in the array by a null string.
  *
  * \returns X10RT_ERR_OK if successful, otherwise some other error code.  Upon failure, an error
  * string is available via x10rt_error_msg() and x10rt_finalize must be called to shut down.

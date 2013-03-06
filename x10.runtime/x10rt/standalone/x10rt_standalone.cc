@@ -510,6 +510,9 @@ void insertNewMessage(MSGTYPE mt, x10rt_msg_params *p, void *dataPtr, x10rt_copy
 /******************************************************
  *  Main API calls.  See x10rt_net.h for documentation
 *******************************************************/
+x10rt_error x10rt_net_preinit(char* connInfoBuffer, int connInfoBufferSize) {
+	return X10RT_ERR_UNSUPPORTED;
+}
 
 x10rt_error x10rt_net_init (int *argc, char ***argv, x10rt_msg_type *counter)
 {

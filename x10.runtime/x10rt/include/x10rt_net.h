@@ -22,6 +22,15 @@
  * functionality on top of a network library.  \see \ref structure
  */
 
+/** Partially initialize the X10RT API logical layer.
+ *
+ * \see #x10rt_lgl_preinit
+ *
+ * \param connInfoBuffer As in x10rt_lgl_preinit.
+ *
+ * \param connInfoBufferSize As in x10rt_lgl_preinit.
+ */
+X10RT_C x10rt_error x10rt_net_preinit(char* connInfoBuffer, int connInfoBufferSize);
 
 /** Initialize the X10RT API logical layer.  
  *

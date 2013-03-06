@@ -60,6 +60,16 @@ struct x10rt_lgl_cfg_accel {
  */
 X10RT_C const char *x10rt_lgl_error_msg (void);
 
+/** Partially initialize the X10RT API logical layer.
+ *
+ * \see #x10rt_preinit
+ *
+ * \param connInfoBuffer As in x10rt_preinit.
+ *
+ * \param connInfoBufferSize As in x10rt_preinit.
+ */
+X10RT_C x10rt_error x10rt_lgl_preinit (char* connInfoBuffer, int connInfoBufferSize);
+
 /** Initialize the X10RT API logical layer.  This versions uses the X10RT_ACCELS environment
  * variable.
  *
