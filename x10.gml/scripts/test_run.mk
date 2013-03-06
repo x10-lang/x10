@@ -43,7 +43,8 @@ Xjvm  = $(shell which x10)
 # run tests short-keys
 
 run_java	: java
-		$(Xjvm) -np $(numplaces) -classpath $(build_path):$(gml_lib)/managed_gml.jar -libpath $(build_path):$(gml_lib) $(target) $(test_args)
+		X10_NPLACES=$(numplaces) $(Xjvm) -classpath $(build_path):$(gml_lib)/managed_gml.jar -libpath $(build_path):$(gml_lib) $(target) $(test_args)
+#		$(Xjvm) -np $(numplaces) -classpath $(build_path):$(gml_lib)/managed_gml.jar -libpath $(build_path):$(gml_lib) $(target) $(test_args)
 
 run_mpi		: mpi
 			$(Srun) -n $(numplaces) ./$(target)_mpi $(test_args)
