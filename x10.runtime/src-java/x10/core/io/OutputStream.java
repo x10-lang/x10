@@ -88,7 +88,7 @@ public class OutputStream extends Ref {
     
     // XTENLANG-2680
     // for !Emitter.manglePrimitivesAsShortName
-    public void write__0$1x10$lang$Byte$2(x10.lang.Rail buf) {
+    public void write__0$1x10$lang$Byte$2(x10.core.Rail buf) {
         try {
             stream.write(buf.raw().getByteArray());
         } catch (java.io.IOException e) {
@@ -115,7 +115,7 @@ public class OutputStream extends Ref {
     // XTENLANG-2680
     // for !Emitter.manglePrimitivesAsShortName
     // LONG_RAIL: unsafe int cast
-    public void write__0$1x10$lang$Byte$2(x10.lang.Rail buf, long off, long len) {
+    public void write__0$1x10$lang$Byte$2(x10.core.Rail buf, long off, long len) {
         try {
             stream.write(buf.raw().getByteArray(), (int)off, (int)len);
         } catch (java.io.IOException e) {

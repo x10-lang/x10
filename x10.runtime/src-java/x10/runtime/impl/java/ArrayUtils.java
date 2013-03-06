@@ -21,9 +21,9 @@ public abstract class ArrayUtils {
         return array;
     }
 
-    public static <T> x10.lang.Rail<T> makeRailFromJavaArray(x10.rtt.Type type, java.lang.Object value) {
+    public static <T> x10.core.Rail<T> makeRailFromJavaArray(x10.rtt.Type type, java.lang.Object value) {
         int length = type.arrayLength(value);
-        x10.lang.Rail<T> rail = new x10.lang.Rail<T>((java.lang.System[]) null, type).x10$lang$Rail$$init$S(length);
+        x10.core.Rail<T> rail = new x10.core.Rail<T>((java.lang.System[]) null, type).x10$lang$Rail$$init$S(length);
         java.lang.System.arraycopy(value, 0, rail.raw.value, 0, length);
         return rail;
     }

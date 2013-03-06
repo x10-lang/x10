@@ -40,7 +40,7 @@ public final class NativeFile extends java.io.File implements Any {
         }
     }
 
-    public x10.lang.Rail listInternal() {
+    public x10.core.Rail listInternal() {
         return x10.runtime.impl.java.ArrayUtils.makeRailFromJavaArray(Types.STRING, list());
     }
 

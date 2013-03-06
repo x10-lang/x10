@@ -12,133 +12,69 @@
 package x10.lang;
 
 import x10.compiler.Inline;
+import x10.compiler.NativeRep;
 import x10.util.IndexedMemoryChunk;
 
+
+@NativeRep("java", "x10.core.Rail<#T$box>", null, "x10.rtt.ParameterizedType.make(x10.core.Rail.$RTT, #T$rtt)")
+@NativeRep("c++", "x10::lang::Rail<#T >*", "x10::lang::Rail<#T >", null)
 public final class Rail[T](size:Long) implements Iterable[T],(Int)=>T,(Long)=>T {
 
-    public property def range() = new LongRange(0, size-1);
+    public native property def range():LongRange;
 
-    // Iterable for now. Eventually rails will support comprehension loops without implementing Iterable
-    public def iterator():Iterator[T] = new RailIterator[T](this);
+    public native def iterator():Iterator[T];
 
-    public def toString():String {
-        val sb = new x10.util.StringBuilder();
-        sb.add("[");
-        val sz = Math.min(size, 10L);
-        for (var i:Long=0L; i<sz; ++i) {
-            if (i > 0L) sb.add(",");
-            sb.add("" + raw(i));
-        }
-        if (sz < size) sb.add("...(omitted " + (size - sz) + " elements)");
-        sb.add("]");
-        return sb.toString();
-    }
+    public native def toString():String;
 
-    // temporary implementation using IndexedMemoryChunk
+    // TODO: This will go away as soon as we switch to
+    //       the optimized @Native implementations.
+    public native def raw():IndexedMemoryChunk[T];
 
-    private val raw:IndexedMemoryChunk[T];
+    /**
+     * @deprecated x10.util.IndexedMemoryChunk will be removed in X10 2.4.1
+     */
+    public native def this(backingStore:IndexedMemoryChunk[T]):Rail[T];
 
-    public @Inline def raw() = raw;
-
-    public @Inline def this(backingStore:IndexedMemoryChunk[T]) {
-        property(backingStore.length() as Long);
-        raw = backingStore;
-    }
-
-    // empty rail constructor
-    public @Inline def this() {
-        property(0L);
-        raw = IndexedMemoryChunk.allocateUninitialized[T](0);
-    }
+    public native def this():Rail[T]{self.size==0L};
 
     // unsafe constructor
-    @Inline def this(Unsafe.Token, size:Long) {
-        property(size);
-        raw = IndexedMemoryChunk.allocateUninitialized[T](size);
-    }
+    native def this(Unsafe.Token, size:Long):Rail[T]{self.size==size};
 
-    /* Construct a copy of the given Rail */
-    @Inline def this(src:Rail[T]) {
-        property(src.size);
-        val size = src.size as Int; // TODO remove alias
-        val dst = IndexedMemoryChunk.allocateUninitialized[T](size);
-        // TODO use Long indices for IMC.copy
-        IndexedMemoryChunk.copy[T](src.raw, 0, dst, 0, size);
-        raw = dst;
-    }
+    public native def this(src:Rail[T]):Rail[T]{self.size==src.size};
 
-    // primary api: long indices
+    public native def this(size:Long){T haszero}:Rail[T]{self.size==size};
 
-    public def this(size:Long){T haszero} {
-        property(size);
-        raw = IndexedMemoryChunk.allocateZeroed[T](size);
-    }
+    public native def this(size:Long, init:T):Rail[T]{self.size==size};
 
-    public @Inline def this(size:Long, init:T) {
-        property(size);
-        raw = IndexedMemoryChunk.allocateUninitialized[T](size);
-        for (var i:Long=0L; i<size; ++i) raw(i) = init;
-    }
+    public native def this(size:Long, init:(Long)=>T):Rail[T]{self.size==size};
 
-    public @Inline def this(size:Long, init:(Long)=>T) {
-        property(size);
-        raw = IndexedMemoryChunk.allocateUninitialized[T](size);
-        for (var i:Long=0; i<size; ++i) raw(i) = init(i);
-    }
+    public native operator this(index:Long):T;
 
-    public @Inline operator this(index:Long):T = raw(index);
+    public native operator this(index:Long)=(v:T):T{self==v};
 
-    public @Inline operator this(index:Long)=(v:T):T{self==v} {
-        raw(index) = v;
-        return v;
-    }
+    public static native def copy[T](src:Rail[T], dst:Rail[T]):void;
 
-    public static def copy[T](src:Rail[T], dst:Rail[T]) {
-        if (src.size != dst.size) throw new IllegalArgumentException("source and destination do not have equal size");
-        IndexedMemoryChunk.copy(src.raw, 0, dst.raw, 0, src.raw.length());
-    }
+    public static native def copy[T](src:Rail[T], srcIndex:Long, 
+                                     dst:Rail[T], dstIndex:Long, numElems:Long):void;
 
-    public static def copy[T](src:Rail[T], srcIndex:Long, 
-            dst:Rail[T], dstIndex:Long, numElems:Long) {
-       for (var i:Long=0L; i<numElems; ++i) {
-           dst(dstIndex + i) = src(srcIndex + i);
-       }
-    }
-
-    public def clear(){T haszero} {
-        raw.clear(0, size);
-    }
+    public native def clear(){T haszero}:void;
 
     // secondary api: int indices
 
-    public @Inline def this(size:Int){T haszero} {
-        property(size as Long);
-        raw = IndexedMemoryChunk.allocateZeroed[T](size);
-    }
+    // TODO: Returned rail should have constraint on size
+    public native def this(size:Int){T haszero}:Rail[T];
 
-    public @Inline def this(size:Int, init:T) {
-        property(size as Long);
-        raw = IndexedMemoryChunk.allocateUninitialized[T](size);
-        for (var i:Int=0; i<size; ++i) raw(i) = init;
-    }
+    // TODO: Returned rail should have constraint on size
+    public native def this(size:Int, init:T):Rail[T];
 
-    public @Inline def this(size:Int, init:(Int)=>T) {
-        property(size as Long);
-        raw = IndexedMemoryChunk.allocateUninitialized[T](size);
-        for (var i:Int=0; i<size; ++i) raw(i) = init(i);
-    }
+    // TODO: Returned rail should have constraint on size
+    public native def this(size:Int, init:(Int)=>T):Rail[T];
 
-    public @Inline operator this(index:Int):T = raw(index);
+    public native operator this(index:Int):T;
 
-    public @Inline operator this(index:int)=(v:T):T{self==v} {
-        raw(index) = v;
-        return v;
-    }
+    public native operator this(index:int)=(v:T):T{self==v};
 
-    public static def copy[T](src:Rail[T], srcIndex:Int, 
-            dst:Rail[T], dstIndex:Int, numElems:Int) {
-        // TODO use Long indices for IMC.copy
-        IndexedMemoryChunk.copy[T](src.raw, srcIndex, dst.raw, dstIndex, numElems);
-    }
+    public native static def copy[T](src:Rail[T], srcIndex:Int, 
+                                     dst:Rail[T], dstIndex:Int, numElems:Int):void;
 }
 

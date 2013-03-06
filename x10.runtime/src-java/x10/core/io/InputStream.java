@@ -88,7 +88,7 @@ public class InputStream extends Ref {
 
     // XTENLANG-2680
     // LONG_RAIL: unsafe int cast
-    public void read__0$1x10$lang$Byte$2(x10.lang.Rail r, long off, long len) {
+    public void read__0$1x10$lang$Byte$2(x10.core.Rail r, long off, long len) {
         try {
             stream.read(r.raw().getByteArray(), (int)off, (int)len);
         } catch (java.io.IOException e) {

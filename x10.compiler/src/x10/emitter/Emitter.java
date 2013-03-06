@@ -4433,7 +4433,7 @@ public class Emitter {
                 "}\n" +
                 "\n" +
                 "// called by native runtime inside main x10 thread\n" +
-                "public void runtimeCallback(final x10.lang.Rail<java.lang.String> args) #throws {\n" +
+                "public void runtimeCallback(final x10.core.Rail<java.lang.String> args) #throws {\n" +
                     "// call the original app-main method\n" +
                     "#mainclass.main(args);\n" +
                 "}\n" +
