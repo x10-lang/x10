@@ -109,18 +109,17 @@ static x10rt_error fatal (const char *format, ...)
     va_list va_args;
     va_start(va_args, format);
 
-    x10rt_error e = X10RT_ERR_INTL;
+    if (context.errorCode == X10RT_ERR_OK)
+    	context.errorCode = X10RT_ERR_INTL;
 
     int sz = vsnprintf(NULL, 0, format, va_args);
     free(context.errorMsg);
     context.errorMsg = (char*)malloc(sz);
     vsprintf(context.errorMsg, format, va_args);
 
-    context.errorCode = e;
-
     va_end(va_args);
 
-    return e;
+    return context.errorCode;
 }
 
 x10rt_error fatal_error(const char* message)
@@ -154,6 +153,7 @@ int getPortEnv(unsigned int whichPlace)
 			for (unsigned int i=1; i<=whichPlace; i++)
 			{
 				if (end == NULL) {
+					context.errorCode = X10RT_ERR_OTHER;
 					fatal_error("Not enough ports defined in "X10_FORCEPORTS);
 					return -1;
 				}
@@ -203,11 +203,17 @@ bool flushPendingData()
 					if (errno == EINTR) continue;
 					if (errno == EAGAIN) break;
 					fprintf(stderr, "flush errno=%i", errno);
-					fatal_error("Unable to flush data");
+					context.socketLinks[context.pendingWrites->place].fd = -1;
+					pthread_mutex_unlock(&context.writeLocks[context.pendingWrites->place]);
+					pthread_mutex_destroy(&context.writeLocks[context.pendingWrites->place]);
+					fatal_error("Unable to flush data"); // TODO: remove this fatal error and return a proper return code
 					return false;
 				}
 				if (rc == 0) {
-					fatal_error("Unable to flush data - socket closed");
+					context.socketLinks[context.pendingWrites->place].fd = -1;
+					pthread_mutex_unlock(&context.writeLocks[context.pendingWrites->place]);
+					pthread_mutex_destroy(&context.writeLocks[context.pendingWrites->place]);
+					fatal_error("Unable to flush data - socket closed"); // TODO: remove this fatal error and return a proper return code
 					return false;
 				}
 				src += rc;
@@ -262,7 +268,7 @@ int nonBlockingWrite(int dest, void * p, unsigned cnt, bool copyBuffer=true)
 		while (bytesleft > 0)
 		{
 			int rc = ::write(context.socketLinks[dest].fd, src, bytesleft);
-			if (rc == -1) /* !!!! read interrupted */
+			if (rc == -1) /* !!!! write interrupted */
 			{
 				if (errno == EINTR) continue;
 				if (errno == EAGAIN) break;
@@ -285,6 +291,7 @@ int nonBlockingWrite(int dest, void * p, unsigned cnt, bool copyBuffer=true)
 		// save the remaining data for later writing
 		struct x10SocketDataToWrite* pendingData = (struct x10SocketDataToWrite *)malloc(sizeof(struct x10SocketDataToWrite));
 		if (pendingData == NULL) {
+			context.errorCode = X10RT_ERR_MEM;
 			fatal_error("Allocating memory for a pending write");
 			return -1;
 		}
@@ -293,6 +300,7 @@ int nonBlockingWrite(int dest, void * p, unsigned cnt, bool copyBuffer=true)
 		{
 			pendingData->data = (char *)malloc(bytesleft);
 			if (pendingData->data == NULL) {
+				context.errorCode = X10RT_ERR_MEM;
 				fatal_error("Allocating memory for pending write data");
 				return -1;
 			}
@@ -409,6 +417,7 @@ int handleConnectionRequest()
 			linger.l_onoff = 1;
 			linger.l_linger = 1;
 			if (setsockopt(newFD, SOL_SOCKET, SO_LINGER, &linger, sizeof(linger)) < 0) {
+				context.errorCode = X10RT_ERR_OTHER;
 				fatal_error("Error setting SO_LINGER on incoming socket");
 				return -1;
 			}
@@ -476,6 +485,7 @@ int initLink(uint32_t remotePlace, char* connectionInfo)
 				{
 					char* suicideNote = (char*)alloca(512);
 					sprintf(suicideNote, "Unable to establish a connection to place %u because %s!", remotePlace, link);
+					context.errorCode = X10RT_ERR_OTHER;
 					fatal_error(suicideNote);
 					return -1;
 				}
@@ -493,6 +503,7 @@ int initLink(uint32_t remotePlace, char* connectionInfo)
 					for (unsigned int i=1; i<=remotePlace; i++)
 					{
 						if (end == NULL) {
+							context.errorCode = X10RT_ERR_OTHER;
 							fatal_error("Not enough hosts defined in "X10_HOSTLIST);
 							return -1;
 						}
@@ -557,6 +568,7 @@ int initLink(uint32_t remotePlace, char* connectionInfo)
 				linger.l_onoff = 1;
 				linger.l_linger = 1;
 				if (setsockopt(newFD, SOL_SOCKET, SO_LINGER, &linger, sizeof(linger)) < 0) {
+					context.errorCode = X10RT_ERR_OTHER;
 					fatal_error("Error setting SO_LINGER on outgoing socket");
 					return -1;
 				}
@@ -598,8 +610,10 @@ x10rt_error x10rt_net_preinit(char* connInfoBuffer, int connInfoBufferSize) {
 	// open listen port
 	unsigned listenPort;
 	int fd = TCP::listen(&listenPort, 10);
-	if (fd < 0)
+	if (fd < 0) {
+		context.errorCode = X10RT_ERR_OTHER;
 		return fatal_error("cannot create listener port");
+	}
 
 	// set the environment variable to return information about the listen port
 	TCP::getname(fd, connInfoBuffer, connInfoBufferSize);
@@ -664,8 +678,10 @@ x10rt_error x10rt_net_init (int * argc, char ***argv, x10rt_msg_type *counter)
 		else
 		{
 			context.numPlaces = atol(NPROCS);
-			if (context.numPlaces <= 0) // atol failed
+			if (context.numPlaces <= 0) {// atol failed
+				context.errorCode = X10RT_ERR_OTHER;
 				return fatal_error(X10_NPLACES" is not set to a valid number of places!");
+			}
 		}
 
 		if (context.numPlaces == 1)
@@ -676,8 +692,10 @@ x10rt_error x10rt_net_init (int * argc, char ***argv, x10rt_msg_type *counter)
 
 		// determine my place ID
 		char* ID = getenv(X10_LAUNCHER_PLACE);
-		if (ID == NULL)
+		if (ID == NULL) {
+			context.errorCode = X10RT_ERR_OTHER;
 			return fatal_error(X10_LAUNCHER_PLACE" not set!");
+		}
 		else
 			context.myPlaceId = atol(ID);
 
@@ -699,8 +717,10 @@ x10rt_error x10rt_net_init (int * argc, char ***argv, x10rt_msg_type *counter)
 		unsigned listenPort = getPortEnv(context.myPlaceId);
 		bool useLauncher = (listenPort == 0);
 		context.socketLinks[context.myPlaceId].fd = TCP::listen(&listenPort, 10);
-		if (context.socketLinks[context.myPlaceId].fd < 0)
+		if (context.socketLinks[context.myPlaceId].fd < 0) {
+			context.errorCode = X10RT_ERR_OTHER;
 			return fatal_error("cannot create listener port");
+		}
 		pthread_mutex_init(&context.writeLocks[context.myPlaceId], NULL);
 		context.socketLinks[context.myPlaceId].events = POLLIN | POLLPRI;
 
@@ -708,12 +728,15 @@ x10rt_error x10rt_net_init (int * argc, char ***argv, x10rt_msg_type *counter)
 		{   // Tell our launcher our communication port number
 			sockaddr_in addr;
 			socklen_t len = sizeof(addr);
-			if (getsockname(context.socketLinks[context.myPlaceId].fd, (sockaddr *) &addr, &len) < 0)
+			if (getsockname(context.socketLinks[context.myPlaceId].fd, (sockaddr *) &addr, &len) < 0) {
+				context.errorCode = X10RT_ERR_OTHER;
 				return fatal_error("failed to get the local socket information");
-
+			}
 			pthread_mutex_lock(&context.writeLocks[context.myPlaceId]);
-			if (Launcher::setPort(context.myPlaceId, addr.sin_port) < 0)
+			if (Launcher::setPort(context.myPlaceId, addr.sin_port) < 0) {
+				context.errorCode = X10RT_ERR_OTHER;
 				return fatal_error("failed to connect to the local runtime");
+			}
 			pthread_mutex_unlock(&context.writeLocks[context.myPlaceId]);
 		}
 	}
@@ -737,7 +760,10 @@ void x10rt_net_register_msg_receiver (x10rt_msg_type msg_type, x10rt_handler *ca
 	if (msg_type >= context.callBackTableSize)
 	{
 		context.callBackTable = (x10SocketCallback*)realloc(context.callBackTable, sizeof(struct x10SocketCallback)*(msg_type+1));
-		if (context.callBackTable == NULL) return (void)fatal_error("Unable to allocate space for the callback table");
+		if (context.callBackTable == NULL) {
+			context.errorCode = X10RT_ERR_MEM;
+			return (void)fatal_error("Unable to allocate space for the callback table");
+		}
 		context.callBackTableSize = msg_type+1;
 	}
 
@@ -760,7 +786,10 @@ void x10rt_net_register_put_receiver (x10rt_msg_type msg_type, x10rt_finder *fin
 	if (msg_type >= context.callBackTableSize)
 	{
 		context.callBackTable = (x10SocketCallback*)realloc(context.callBackTable, sizeof(struct x10SocketCallback)*(msg_type+1));
-		if (context.callBackTable == NULL) (void)fatal_error("Unable to allocate space for the callback table");
+		if (context.callBackTable == NULL) {
+			context.errorCode = X10RT_ERR_MEM;
+			return (void)fatal_error("Unable to allocate space for the callback table");
+		}
 	}
 
 	context.callBackTable[msg_type].handler = NULL;
@@ -782,7 +811,10 @@ void x10rt_net_register_get_receiver (x10rt_msg_type msg_type, x10rt_finder *fin
 	if (msg_type >= context.callBackTableSize)
 	{
 		context.callBackTable = (x10SocketCallback*)realloc(context.callBackTable, sizeof(struct x10SocketCallback)*(msg_type+1));
-		if (context.callBackTable == NULL) (void)fatal_error("Unable to allocate space for the callback table");
+		if (context.callBackTable == NULL) {
+			context.errorCode = X10RT_ERR_MEM;
+			return (void)fatal_error("Unable to allocate space for the callback table");
+		}
 	}
 
 	context.callBackTable[msg_type].handler = NULL;
@@ -795,15 +827,28 @@ void x10rt_net_register_get_receiver (x10rt_msg_type msg_type, x10rt_finder *fin
 }
 
 x10rt_place x10rt_net_ndead (void) {
-	return 0; // place failure is not handled by this implementation.
+	x10rt_place count = 0;
+	for (x10rt_place i=0; i<context.numPlaces; i++)
+		if (context.socketLinks[i].fd == -1) count++;
+	return count;
 }
 
 bool x10rt_net_is_place_dead (x10rt_place p) {
-	return false; // place failure is not handled by this implementation.
+	if (p >= context.numPlaces) return true;
+
+	return (context.socketLinks[p].fd == -1);
 }
 
 x10rt_error x10rt_net_get_dead (x10rt_place *dead_places, x10rt_place len) {
-	return X10RT_ERR_UNSUPPORTED; // place failure is not handled by this implementation.
+	x10rt_place position = 0;
+	for (x10rt_place i=0; i<context.numPlaces; i++)
+		if (context.socketLinks[i].fd == -1) {
+			dead_places[position] = i;
+			if (position == len)
+				return X10RT_ERR_OK;
+			position++;
+		}
+	return X10RT_ERR_OK;
 }
 
 x10rt_place x10rt_net_nhosts (void)
@@ -1016,6 +1061,7 @@ bool probe (bool onlyProcessAccept, bool block)
 					#endif
 					close(context.socketLinks[whichPlaceToHandle].fd);
 					context.socketLinks[whichPlaceToHandle].fd = -1;
+					pthread_mutex_destroy(&context.writeLocks[whichPlaceToHandle]);
 					return false;
 				}
 				#ifdef DEBUG_MESSAGING
@@ -1181,7 +1227,7 @@ bool probe (bool onlyProcessAccept, bool block)
 				close(context.socketLinks[whichPlaceToHandle].fd);
 			#endif
 			context.socketLinks[whichPlaceToHandle].fd = -1;
-			// TODO - notify the runtime of this?
+			pthread_mutex_destroy(&context.writeLocks[whichPlaceToHandle]);
 		}
 		else
 		{
