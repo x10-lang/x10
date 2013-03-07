@@ -30,7 +30,7 @@ public class InputStreamReader extends Reader {
         public native def read(): Int; //throws IOException;
 
         @Native("java", "#this.read((#r).raw().getByteArray(), #off, #len)")
-        @Native("c++", "(#this)->read((#r)->raw(),#off,#len)")
+        @Native("c++", "(#this)->read(#r,#off,#len)")
         public native def read(r:Rail[Byte], off: Long, len: Long): void; //throws IOException;
 
         @Native("java", "#this.available()")

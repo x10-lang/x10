@@ -76,7 +76,7 @@ String::_constructor(x10::lang::Rail<x10_byte>* rail, x10_int start, x10_int len
     x10_int i = 0;
     char *content= x10aux::alloc<char>(length+1);
     for (i=0; i<length; i++) {
-        content[i] = (char)(rail->raw()[start + i]);
+        content[i] = (char)(rail->FMGL(raw)[start + i]);
     }
     content[i] = '\0';
     this->FMGL(content) = content;
@@ -94,7 +94,7 @@ String::_constructor(x10::lang::Rail<x10_char>* rail, x10_int start, x10_int len
     x10_int i = 0;
     char *content= x10aux::alloc<char>(length+1);
     for (i=0; i<length; i++) {
-        content[i] = (char)(rail->raw()[start + i].v);
+        content[i] = (char)(rail->FMGL(raw)[start + i].v);
     }
     content[i] = '\0';
     this->FMGL(content) = content;

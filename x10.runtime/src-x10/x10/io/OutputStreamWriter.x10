@@ -31,11 +31,11 @@ public class OutputStreamWriter extends Writer {
         public native def write(v:Int): void; //throws IOException
         
         @Native("java", "#this.write((#r).raw().getByteArray())")
-        @Native("c++", "(#this)->write((#r)->raw())")
+        @Native("c++", "(#this)->write(#r)")
         public native def write(r:Rail[Byte]): void; //throws IOException
         
         @Native("java", "#this.write((#r).raw().getByteArray(), #off, #len)")
-        @Native("c++", "(#this)->write((#r)->raw())")
+        @Native("c++", "(#this)->write(#r)")
         public native def write(r:Rail[Byte], off:Long, len:Long): void; //throws IOException
     }
 

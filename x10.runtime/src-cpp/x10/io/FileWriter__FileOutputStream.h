@@ -40,7 +40,7 @@ namespace x10 {
 
             virtual void write(x10_int i);
 
-            virtual void write(x10::util::IndexedMemoryChunk<x10_byte> b, x10_int off, x10_int len);
+            virtual void write(x10::lang::Rail<x10_byte>* b, x10_int off, x10_int len);
 
             virtual void flush();
 

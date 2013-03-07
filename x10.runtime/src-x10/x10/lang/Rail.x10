@@ -11,7 +11,6 @@
 
 package x10.lang;
 
-import x10.compiler.Inline;
 import x10.compiler.NativeRep;
 import x10.util.IndexedMemoryChunk;
 
@@ -26,10 +25,6 @@ public final class Rail[T](size:Long) implements Iterable[T],(Int)=>T,(Long)=>T 
 
     public native def toString():String;
 
-    // TODO: This will go away as soon as we switch to
-    //       the optimized @Native implementations.
-    public native def raw():IndexedMemoryChunk[T];
-
     /**
      * @deprecated x10.util.IndexedMemoryChunk will be removed in X10 2.4.1
      */
@@ -37,7 +32,12 @@ public final class Rail[T](size:Long) implements Iterable[T],(Int)=>T,(Long)=>T 
 
     public native def this():Rail[T]{self.size==0L};
 
-    // unsafe constructor
+    /*
+     * Unsafe constructor for allocating either a completely uninitialized
+     * or zeroInitialized (without requiring T haszero). 
+     * Since it is not type safe, it is only packaged accessible
+     * and is exposed to general clients via methods of x10.lang.Unsafe.
+     */
     native def this(Unsafe.Token, size:Long, zeroInitialized:Boolean):Rail[T]{self.size==size};
 
     public native def this(src:Rail[T]):Rail[T]{self.size==src.size};
@@ -59,14 +59,15 @@ public final class Rail[T](size:Long) implements Iterable[T],(Int)=>T,(Long)=>T 
 
     /**
      * Clears the entire Rail by zeroing the storage.  
-     * Note that this is intentionally not type safe because it does require T hasZero.
+     * Since it is not type safe, it is only packaged accessible
+     * and is exposed to general clients via methods of x10.lang.Unsafe.
      */
     native def clear():void;
 
     /**
-     * Clears numElems of the backing storage starting at index start
-     * by zeroing the storage.  
-     * Note that this is intentionally not type safe because it does require T hasZero.
+     * Clears numElems of the backing storage begining at index start by zeroing the storage.  
+     * Since it is not type safe, it is only packaged accessible
+     * and is exposed to general clients via methods of x10.lang.Unsafe.
      */
     native def clear(start:Long, numElems:Long):void;
 

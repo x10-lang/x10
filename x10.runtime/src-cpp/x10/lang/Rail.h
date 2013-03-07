@@ -60,8 +60,6 @@ namespace x10 {
             virtual x10::lang::Iterator<T>* iterator();
             virtual x10::lang::String* toString();
     
-            virtual x10::util::IndexedMemoryChunk<T > raw();
-
             void _constructor(x10::util::IndexedMemoryChunk<T > backingStore);
             static x10::lang::Rail<T>* _make(x10::util::IndexedMemoryChunk<T > backingStore);
     
@@ -220,10 +218,6 @@ template<class T> x10::lang::String* x10::lang::Rail<T>::toString() {
     }
     tmp = x10aux::realloc_printf(tmp, "]");
     return x10::lang::String::Steal(tmp);
-}
-
-template<class T> x10::util::IndexedMemoryChunk<T >  x10::lang::Rail<T>::raw() {
-    return this->FMGL(raw);
 }
 
 template<class T> void x10::lang::Rail<T>::_constructor(x10::util::IndexedMemoryChunk<T > backingStore) {
