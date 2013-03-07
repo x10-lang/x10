@@ -68,8 +68,8 @@ namespace x10 {
             void _constructor();
             static x10::lang::Rail<T>* _make();
     
-            void _constructor(x10::lang::Unsafe__Token* id__123, x10_long size);
-            static x10::lang::Rail<T>* _make(x10::lang::Unsafe__Token* id__123, x10_long size);
+            void _constructor(x10::lang::Unsafe__Token* id__123, x10_long size, x10_boolean allocatedZeroed);
+            static x10::lang::Rail<T>* _make(x10::lang::Unsafe__Token* id__123, x10_long size, x10_boolean allocatedZeroed);
     
             void _constructor(x10::lang::Rail<T>* src);
             static x10::lang::Rail<T>* _make(x10::lang::Rail<T>* src);
@@ -99,6 +99,7 @@ namespace x10 {
             virtual T __set(x10_int index, T v);
 
             virtual void clear();
+            virtual void clear(x10_long start, x10_long numElems);
     
             // Serialization
             static const x10aux::serialization_id_t _serialization_id;
@@ -247,11 +248,11 @@ template<class T> x10::lang::Rail<T>* x10::lang::Rail<T>::_make() {
 }
 
 
-template<class T> void x10::lang::Rail<T>::_constructor(x10::lang::Unsafe__Token* id__123, x10_long size) {
+template<class T> void x10::lang::Rail<T>::_constructor(x10::lang::Unsafe__Token* id__123, x10_long size, x10_boolean allocateZeroed) {
     FMGL(size) = size;
-    this->FMGL(raw) = x10::util::IndexedMemoryChunk<void>::allocate<T >(size, 8, false, false);
+    this->FMGL(raw) = x10::util::IndexedMemoryChunk<void>::allocate<T >(size, 8, false, allocateZeroed);
 }
-template<class T> x10::lang::Rail<T>* x10::lang::Rail<T>::_make(x10::lang::Unsafe__Token* id__123, x10_long size) {
+template<class T> x10::lang::Rail<T>* x10::lang::Rail<T>::_make(x10::lang::Unsafe__Token* id__123, x10_long size, x10_boolean allocateZeroed) {
     x10::lang::Rail<T>* this_ = new (memset(x10aux::alloc<x10::lang::Rail<T> >(), 0, sizeof(x10::lang::Rail<T>))) x10::lang::Rail<T>();
     this_->_constructor(id__123, size);
     return this_;
@@ -321,8 +322,14 @@ template<class T> T x10::lang::Rail<T>::__set(x10_long index, T v) {
 }
 
 template<class T> void x10::lang::Rail<T>::clear() {
-    (this->FMGL(raw))->clear(0ll, this->FMGL(size));
+    this->FMGL(raw)->clear(0ll, this->FMGL(size));
 }
+
+
+template<class T> void x10::lang::Rail<T>::clear(x10_long start, x10_long numElems) {
+    this->FMGL(raw)->clear(start, numElems);
+}
+
 
 template<class T> void x10::lang::Rail<T>::_constructor(x10_int size) {
     FMGL(size) = ((x10_long) (size));

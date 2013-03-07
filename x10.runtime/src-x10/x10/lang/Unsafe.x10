@@ -11,8 +11,7 @@
 
 package x10.lang;
 
-import x10.compiler.Inline;
-import x10.util.IndexedMemoryChunk;
+import x10.compiler.Native;
 
 public final class Unsafe {
 
@@ -20,11 +19,30 @@ public final class Unsafe {
 
     private static val token = new Token();
 
-    public static def allocRailUninitialized[T](size:Long) {
-        return new Rail[T](token, size);
+    public static def allocRailUninitialized[T](size:Long):Rail[T]{self.size==size} {
+        return new Rail[T](token, size, false);
     }
 
-    public static def allocRailUninitialized[T](size:Int) {
-        return new Rail[T](token, size);
+    public static def allocRailUninitialized[T](size:Int):Rail[T] {
+        return new Rail[T](token, size, false);
     }
+
+    public static def allocRailZeroed[T](size:Long):Rail[T]{self.size==size} {
+        return new Rail[T](token, size, true);
+    }
+
+    public static def allocRailZeroed[T](size:Int):Rail[T] {
+        return new Rail[T](token, size, true);
+    }
+
+    public static def clearRail[T](x:Rail[T]):void {
+        x.clear();
+    }
+
+    public static def clearRail[T](x:Rail[T], start:long, numElems:long):void {
+        x.clear(start, numElems);
+    }
+
+    @Native("c++", "x10aux::dealloc(#o)")
+    public static def dealloc[T](o:T){ T isref } :void {}
 }

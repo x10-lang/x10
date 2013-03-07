@@ -24,7 +24,7 @@ public class ArrayUtils {
      * @see qsort
      */
     public static def sort[T](a:Rail[T], cmp:(T,T)=>Int) {
-        qsort[T](a.raw(), 0, (a.size-1), cmp);
+        qsort[T](a, 0, (a.size-1), cmp);
     }
 
     public static def sort[T](a:Rail[T]){T<:Comparable[T]} {
@@ -55,6 +55,27 @@ public class ArrayUtils {
         a(j) = temp;
     }
 
+    static def qsort[T](a:Rail[T], lo:Long, hi:Long, cmp:(T,T)=>Int) {
+        if (hi <= lo) return;
+        var l:Long = lo - 1;
+        var h:Long = hi;
+        while (true) {
+            while (cmp(a(++l), a(hi))<0);
+            while (cmp(a(hi), a(--h))<0 && h>lo);
+            if (l >= h) break;
+            exch(a, l, h);
+        }
+        exch[T](a, l, hi);
+        qsort[T](a, lo, l-1, cmp);
+        qsort[T](a, l+1, hi, cmp);
+    }
+
+    private static def exch[T](a:Rail[T], i:Long, j:Long):void {
+        val temp = a(i);
+        a(i) = a(j);
+        a(j) = temp;
+    }
+
     /**
      * Searches the specified rail for the key using the binary search
      * algorithm.  The rail must be sorted (e.g. by the qsort method).
@@ -66,11 +87,11 @@ public class ArrayUtils {
      * @param cmp the comparison function to use
      */
     public static def binarySearch[T](a:Rail[T], key:T, cmp:(T,T)=>Int) {
-        return binarySearch[T](a.raw(), key, 0, a.size, cmp);
+        return binarySearch[T](a, key, 0, a.size, cmp);
     }
 
     public static def binarySearch[T](a:Rail[T], key:T){T<:Comparable[T]} {
-        return binarySearch[T](a.raw(), key, 0, a.size, (x:T,y:T) => x.compareTo(y));
+        return binarySearch[T](a, key, 0, a.size, (x:T,y:T) => x.compareTo(y));
     }
 
     /**
@@ -86,11 +107,25 @@ public class ArrayUtils {
      * @param cmp the comparison function to use
      */
     public static def binarySearch[T](a:Rail[T], key:T, min:Long, max:Long, cmp:(T,T)=>Int) {
-        return binarySearch[T](a.raw(), key, 0, a.size, cmp);
+        var low:Long = min;
+        var high:Long = max-1;
+        while (low <= high) {
+            var mid:Long = (low + high) / 2;
+            val compare = cmp(a(mid), key);
+            if(compare < 0) {
+                low = mid + 1;
+            } else if (compare > 0) {
+                high = mid - 1;
+            } else {
+                return mid;
+            }
+        }
+
+        return -(low + 1);
     }
 
     public static def binarySearch[T](a:Rail[T], key:T, min:Long, max:Long){T<:Comparable[T]} {
-        return binarySearch[T](a.raw(), key, 0, a.size, (x:T,y:T) => x.compareTo(y));
+        return binarySearch[T](a, key, 0, a.size, (x:T,y:T) => x.compareTo(y));
     }
 
     static def binarySearch[T](a:IndexedMemoryChunk[T], key:T, min:Long, max:Long, cmp:(T,T)=>Int) {

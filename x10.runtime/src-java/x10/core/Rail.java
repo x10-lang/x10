@@ -342,7 +342,7 @@ final public class Rail<$T> extends x10.core.Ref implements x10.lang.Iterable, x
 
     // #line 55 "/home/dgrove/x10-trunk/x10.runtime/src-x10/x10/lang/Rail.x10"
     // creation method for java code (1-phase java constructor)
-    public Rail(final x10.rtt.Type $T, final x10.lang.Unsafe.Token id$123, final long size) {
+    public Rail(final x10.rtt.Type $T, final x10.lang.Unsafe.Token id$123, final long size, boolean allocateZeroed) {
         this((java.lang.System[]) null, $T);
         x10$lang$Rail$$init$S(id$123, size);
     }
@@ -798,6 +798,11 @@ final public class Rail<$T> extends x10.core.Ref implements x10.lang.Iterable, x
         (((x10.core.IndexedMemoryChunk<$T>) (t69398))).clear((int) (((long) (t69399))), (int) (((long) (t69400))));
     }
 
+    public void clear(long start, long numElems) {
+        final x10.core.IndexedMemoryChunk t69398 = ((x10.core.IndexedMemoryChunk) (raw));
+        (((x10.core.IndexedMemoryChunk<$T>) (t69398))).clear((int)start, (int)numElems);
+    }
+    
     // #line 114 "/home/dgrove/x10-trunk/x10.runtime/src-x10/x10/lang/Rail.x10"
     // creation method for java code (1-phase java constructor)
     public Rail(final x10.rtt.Type $T, final int size) {

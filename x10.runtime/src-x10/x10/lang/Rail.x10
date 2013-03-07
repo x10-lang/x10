@@ -38,7 +38,7 @@ public final class Rail[T](size:Long) implements Iterable[T],(Int)=>T,(Long)=>T 
     public native def this():Rail[T]{self.size==0L};
 
     // unsafe constructor
-    native def this(Unsafe.Token, size:Long):Rail[T]{self.size==size};
+    native def this(Unsafe.Token, size:Long, zeroInitialized:Boolean):Rail[T]{self.size==size};
 
     public native def this(src:Rail[T]):Rail[T]{self.size==src.size};
 
@@ -57,7 +57,18 @@ public final class Rail[T](size:Long) implements Iterable[T],(Int)=>T,(Long)=>T 
     public static native def copy[T](src:Rail[T], srcIndex:Long, 
                                      dst:Rail[T], dstIndex:Long, numElems:Long):void;
 
-    public native def clear(){T haszero}:void;
+    /**
+     * Clears the entire Rail by zeroing the storage.  
+     * Note that this is intentionally not type safe because it does require T hasZero.
+     */
+    native def clear():void;
+
+    /**
+     * Clears numElems of the backing storage starting at index start
+     * by zeroing the storage.  
+     * Note that this is intentionally not type safe because it does require T hasZero.
+     */
+    native def clear(start:Long, numElems:Long):void;
 
     // secondary api: int indices
 

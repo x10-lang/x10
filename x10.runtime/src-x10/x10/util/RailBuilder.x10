@@ -12,14 +12,14 @@
 package x10.util;
 
 public class RailBuilder[T] implements Builder[T,Rail[T]] {
-    val buf: GrowableIndexedMemoryChunk[T];
+    val buf:GrowableRail[T];
 
     public def this() {
-        buf = new GrowableIndexedMemoryChunk[T]();
+        buf = new GrowableRail[T]();
     }
 
-    public def this(size: Int) {
-        buf = new GrowableIndexedMemoryChunk[T](size);
+    public def this(size:Long) {
+        buf = new GrowableRail[T](size);
     }
 
     public def add(x: T) {
@@ -27,13 +27,13 @@ public class RailBuilder[T] implements Builder[T,Rail[T]] {
         return this;
     }
 
-    public def insert(loc:Int, items:Rail[T]) {
-        buf.insert(loc, items.raw());
+    public def insert(loc:Long, items:Rail[T]) {
+        buf.insert(loc, items);
         return this;
     }
 
-    public def length():Int {
-        return buf.length();
+    public def length():Long {
+        return buf.size();
     }
 
     public def result():Rail[T] {
