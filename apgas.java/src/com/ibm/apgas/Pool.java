@@ -34,7 +34,7 @@ public class Pool extends x10.runtime.impl.java.Runtime {
     // called by native runtime inside main x10 thread.
     // Should not be called by usercode.  
     // Only made public to conform to superclass API.  Really should be protected. 
-    public void runtimeCallback(final x10.array.Array<java.lang.String> args) {
+    public void runtimeCallback(final x10.core.Rail<java.lang.String> args) {
         mainTask.body();
     }
     
