@@ -16,8 +16,6 @@
 #include <x10/io/FileNotFoundException.h>
 #include <x10/io/NotSerializableException.h>
 
-#include <x10/util/IndexedMemoryChunk.h> // TMP while work on Rail NativeRep
-
 using namespace x10aux;
 using namespace x10::lang;
 using namespace x10::io;
@@ -54,8 +52,7 @@ void FileWriter__FileOutputStream::write(x10_int i) {
 }
 
 void FileWriter__FileOutputStream::write(x10::lang::Rail<x10_byte>* b, x10_int off, x10_int len) {
-    x10::util::IndexedMemoryChunk<x10_byte> tmp = b->FMGL(raw);
-    ::fwrite(((x10_byte*)tmp->raw())+off*sizeof(x10_byte), sizeof(x10_byte), len*sizeof(x10_byte), FMGL(file));
+    ::fwrite(&b->raw[off], sizeof(x10_byte), len*sizeof(x10_byte), FMGL(file));
 }
 
 void FileWriter__FileOutputStream::flush() {

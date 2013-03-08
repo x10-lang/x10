@@ -17,8 +17,6 @@
 #include <x10/io/FileWriter__FileOutputStream.h>
 #include <x10/lang/Rail.h>
 
-#include <x10/util/IndexedMemoryChunk.h> // TMP while work on Rail NativeRep
-
 using namespace x10::lang;
 using namespace x10::io;
 using namespace x10aux;
@@ -44,9 +42,8 @@ void OutputStreamWriter__OutputStream::write(Rail<x10_byte>* b) {
 }
 
 void OutputStreamWriter__OutputStream::write(Rail<x10_byte>* b, x10_int off, x10_int len) {
-    x10::util::IndexedMemoryChunk<x10_byte> raw = b->FMGL(raw);
     for (x10_int i = 0; i < len; i++)
-        this->write((x10_int) raw->operator[](off + i));
+        this->write((x10_int) b->raw[off + i]);
 }
 
 void OutputStreamWriter__OutputStream::_serialize_body(x10aux::serialization_buffer& buf) {

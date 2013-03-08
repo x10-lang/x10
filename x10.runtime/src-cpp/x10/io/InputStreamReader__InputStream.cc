@@ -17,8 +17,6 @@
 #include <x10/io/FileReader__FileInputStream.h>
 #include <x10/lang/Rail.h>
 
-#include <x10/util/IndexedMemoryChunk.h> // TMP while work on Rail NativeRep
-
 using namespace x10::lang;
 using namespace x10::io;
 using namespace x10aux;
@@ -40,9 +38,8 @@ x10_int InputStreamReader__InputStream::read(x10::lang::Rail<x10_byte>* b,
                                              x10_int off, x10_int len) {
     x10_int val;
     x10_int i;
-    x10::util::IndexedMemoryChunk<x10_byte> raw = b->FMGL(raw);
     for (i = 0; i < len && (val = this->read()) != -1; i++)
-        raw->operator[](off + i) = (x10_byte) (val & 0xFF);
+        b->raw[off + i] = (x10_byte) (val & 0xFF);
     return i;
 }
 

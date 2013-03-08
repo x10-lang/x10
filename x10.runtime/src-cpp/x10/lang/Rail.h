@@ -44,11 +44,26 @@ namespace x10 {
         template<class T> class Rail;
         template <> class Rail<void>;
 
+        void throwArrayIndexOutOfBoundsException(x10_long index, x10_long size) X10_PRAGMA_NORETURN;
+    
+        inline void checkBounds(x10_long index, x10_long size) {
+            #ifndef NO_BOUNDS_CHECKS
+            // Since we know length is non-negative and Rails are zero-based,
+            // the bounds check can be optimized to a single unsigned comparison.
+            // The C++ compiler won't do this for us, since it doesn't know that length is non-negative.
+            if (((x10_ulong)index) >= ((x10_ulong)size)) {
+                x10::util::throwArrayIndexOutOfBoundsException(index, size);
+            }
+            #endif
+        }
+
+        extern void rail_copyRaw(void *srcAddr, void *dstAddr, x10_long numBytes, bool overlap);
+
         template<class T> class Rail : public x10::lang::X10Class   {
           public:
             RTT_H_DECLS_CLASS
             x10_long FMGL(size);
-            x10::util::IndexedMemoryChunk<T > FMGL(raw);
+            T raw[0];
     
             static x10aux::itable_entry _itables[4];
             virtual x10aux::itable_entry* _getITables() { return _itables; }
@@ -56,39 +71,34 @@ namespace x10 {
             static typename x10::lang::Fun_0_1<x10_int, T>::template itable<x10::lang::Rail<T> > _itable_1;
             static typename x10::lang::Fun_0_1<x10_long, T>::template itable<x10::lang::Rail<T> > _itable_2;
     
+            static x10::lang::Rail<T>* _make(x10::util::IndexedMemoryChunk<T > backingStore);
+    
+            static x10::lang::Rail<T>* _make();
+    
+            static x10::lang::Rail<T>* _make(x10::lang::Unsafe__Token* id__123, x10_long size, x10_boolean allocatedZeroed);
+    
+            static x10::lang::Rail<T>* _make(x10::lang::Rail<T>* src);
+    
+            static x10::lang::Rail<T>* _make(x10_long size);
+    
+            static x10::lang::Rail<T>* _make(x10_int size) {
+                return _make((x10_long)size);
+            }
+
+            static x10::lang::Rail<T>* _make(x10_long size, T init);
+
+            static x10::lang::Rail<T>* _make(x10_int size, T init) {
+                return _make((x10_long)size, init);
+            }
+            
+            static x10::lang::Rail<T>* _make(x10_long size, x10::lang::Fun_0_1<x10_long, T>* init);
+
+            // NB:  Can't redirect this one to the long variant because of the function!
+            static x10::lang::Rail<T>* _make(x10_int size, x10::lang::Fun_0_1<x10_int, T>* init);
+
             x10::lang::LongRange range();
             virtual x10::lang::Iterator<T>* iterator();
             virtual x10::lang::String* toString();
-    
-            void _constructor(x10::util::IndexedMemoryChunk<T > backingStore);
-            static x10::lang::Rail<T>* _make(x10::util::IndexedMemoryChunk<T > backingStore);
-    
-            void _constructor();
-            static x10::lang::Rail<T>* _make();
-    
-            void _constructor(x10::lang::Unsafe__Token* id__123, x10_long size, x10_boolean allocatedZeroed);
-            static x10::lang::Rail<T>* _make(x10::lang::Unsafe__Token* id__123, x10_long size, x10_boolean allocatedZeroed);
-    
-            void _constructor(x10::lang::Rail<T>* src);
-            static x10::lang::Rail<T>* _make(x10::lang::Rail<T>* src);
-    
-            void _constructor(x10_long size);
-            static x10::lang::Rail<T>* _make(x10_long size);
-    
-            void _constructor(x10_int size);
-            static x10::lang::Rail<T>* _make(x10_int size);
-
-            void _constructor(x10_long size, T init);
-            static x10::lang::Rail<T>* _make(x10_long size, T init);
-
-            void _constructor(x10_int size, T init);
-            static x10::lang::Rail<T>* _make(x10_int size, T init);
-            
-            void _constructor(x10_long size, x10::lang::Fun_0_1<x10_long, T>* init);
-            static x10::lang::Rail<T>* _make(x10_long size, x10::lang::Fun_0_1<x10_long, T>* init);
-    
-            void _constructor(x10_int size, x10::lang::Fun_0_1<x10_int, T>* init);
-            static x10::lang::Rail<T>* _make(x10_int size, x10::lang::Fun_0_1<x10_int, T>* init);
 
             virtual T __apply(x10_long index);
             virtual T __apply(x10_int index);
@@ -96,6 +106,16 @@ namespace x10 {
             virtual T __set(x10_long index, T v);
             virtual T __set(x10_int index, T v);
 
+            T &operator[] (x10_long index) {
+                checkBounds(index, FMGL(size));
+                return raw[index];
+            }
+            const T &operator[] (x10_long index) const {
+                checkBounds(index, FMGL(size));
+                return raw[index];
+            }
+
+            
             virtual void clear();
             virtual void clear(x10_long start, x10_long numElems);
     
@@ -144,7 +164,9 @@ namespace x10 {
             template<class T> static void copy(x10::lang::Rail<T>* src,
                                                x10_int srcIndex, x10::lang::Rail<T>* dst,
                                                x10_int dstIndex,
-                                               x10_int numElems);
+                                               x10_int numElems) {
+                copy(src, (x10_long)srcIndex, dst, (x10_long)dstIndex, (x10_long)numElems);
+            }
         };
     }
 } 
@@ -195,6 +217,112 @@ template<class T> x10aux::itable_entry x10::lang::Rail<T>::_itables[4] = {
     x10aux::itable_entry(NULL, (void*)x10aux::getRTT<x10::lang::Rail<T> >())
 };
 
+template<class T> x10::lang::Rail<T>* x10::lang::Rail<T>::_make(x10::util::IndexedMemoryChunk<T > backingStore) {
+    bool containsPtrs = x10aux::getRTT<T>()->containsPtrs;
+    x10_long numElems = backingStore->length();
+    size_t numBytes = sizeof(x10::lang::Rail<T>) + (numElems * sizeof(T));
+    x10::lang::Rail<T>* this_ = new (x10aux::alloc_internal(numBytes, containsPtrs)) x10::lang::Rail<T>();
+
+    this_->FMGL(size) = numElems;
+    rail_copyRaw(backingStore->raw(), &this_->raw, sizeof(T)*backingStore->length(), false);
+
+    return this_;
+}
+
+
+template<class T> x10::lang::Rail<T>* x10::lang::Rail<T>::_make() {
+    x10::lang::Rail<T>* this_ = new (x10aux::alloc_internal(sizeof(x10::lang::Rail<T>), false)) x10::lang::Rail<T>();
+
+    this_->FMGL(size) = 0ll;
+    return this_;
+}
+
+
+template<class T> x10::lang::Rail<T>* x10::lang::Rail<T>::_make(x10::lang::Unsafe__Token* id__123, x10_long size, x10_boolean allocateZeroed) {
+    bool containsPtrs = x10aux::getRTT<T>()->containsPtrs;
+    x10_long numElems = size;
+    size_t numBytes = sizeof(x10::lang::Rail<T>) + (numElems * sizeof(T));
+    x10::lang::Rail<T>* this_ = new (x10aux::alloc_internal(numBytes, containsPtrs)) x10::lang::Rail<T>();
+
+    this_->FMGL(size) = numElems;
+    if (allocateZeroed) {
+        memset(&(this_->raw), 0, numElems*sizeof(T));
+    }
+    return this_;
+}
+
+
+template<class T> x10::lang::Rail<T>* x10::lang::Rail<T>::_make(x10::lang::Rail<T>* src) {
+    bool containsPtrs = x10aux::getRTT<T>()->containsPtrs;
+    x10_long numElems = x10aux::nullCheck(src)->FMGL(size);
+    size_t numBytes = sizeof(x10::lang::Rail<T>) + (numElems * sizeof(T));
+    x10::lang::Rail<T>* this_ = new (x10aux::alloc_internal(numBytes, containsPtrs)) x10::lang::Rail<T>();
+
+    this_->FMGL(size) = numElems;
+    rail_copyRaw(&src->raw, &this_->raw, numElems*sizeof(T), false);
+    return this_;
+}
+
+
+template<class T> x10::lang::Rail<T>* x10::lang::Rail<T>::_make(x10_long size) {
+    bool containsPtrs = x10aux::getRTT<T>()->containsPtrs;
+    x10_long numElems = size;
+    size_t numBytes = sizeof(x10::lang::Rail<T>) + (numElems * sizeof(T));
+    x10::lang::Rail<T>* this_ = new (x10aux::alloc_internal(numBytes, containsPtrs)) x10::lang::Rail<T>();
+
+    this_->FMGL(size) = numElems;
+    memset(&(this_->raw), 0, size*sizeof(T));
+    return this_;
+}
+
+
+template<class T> x10::lang::Rail<T>* x10::lang::Rail<T>::_make(x10_long size, T init) {
+    bool containsPtrs = x10aux::getRTT<T>()->containsPtrs;
+    x10_long numElems = size;
+    size_t numBytes = sizeof(x10::lang::Rail<T>) + (numElems * sizeof(T));
+    x10::lang::Rail<T>* this_ = new (x10aux::alloc_internal(numBytes, containsPtrs)) x10::lang::Rail<T>();
+
+    this_->FMGL(size) = numElems;
+    for (x10_long i = 0ll; i < size; i++) {
+        this_->raw[i] = init;
+    }
+    return this_;
+}
+
+template<class T> x10::lang::Rail<T>* x10::lang::Rail<T>::_make(x10_long size, x10::lang::Fun_0_1<x10_long, T>* init) {
+    bool containsPtrs = x10aux::getRTT<T>()->containsPtrs;
+    x10_long numElems = size;
+    size_t numBytes = sizeof(x10::lang::Rail<T>) + (numElems * sizeof(T));
+    x10::lang::Rail<T>* this_ = new (x10aux::alloc_internal(numBytes, containsPtrs)) x10::lang::Rail<T>();
+
+    this_->FMGL(size) = numElems;
+    if (size > 0) {
+        x10aux::nullCheck(init);
+        // TODO: hoist itable lookup out of loop to get a straight function pointer to use in the loop itself.
+        for (x10_long i = 0ll; i < size; i++) {
+            this_->raw[i] = x10::lang::Fun_0_1<x10_long, T>::__apply(init, i);
+        }
+    }
+    return this_;
+}
+
+template<class T> x10::lang::Rail<T>* x10::lang::Rail<T>::_make(x10_int size, x10::lang::Fun_0_1<x10_int, T>* init) {
+    bool containsPtrs = x10aux::getRTT<T>()->containsPtrs;
+    x10_long numElems = (x10_long)size;
+    size_t numBytes = sizeof(x10::lang::Rail<T>) + (numElems * sizeof(T));
+    x10::lang::Rail<T>* this_ = new (x10aux::alloc_internal(numBytes, containsPtrs)) x10::lang::Rail<T>();
+
+    this_->FMGL(size) = numElems;
+    if (size > 0) {
+        x10aux::nullCheck(init);
+        // TODO: hoist itable lookup out of loop to get a straight function pointer to use in the loop itself.
+        for (x10_int i = 0; i < size; i++) {
+            this_->raw[i] = x10::lang::Fun_0_1<x10_int, T>::__apply(init, i);
+        }
+    }
+    return this_;
+}
+
 template<class T> x10::lang::LongRange x10::lang::Rail<T>::range() {
     return x10::lang::LongRange::_make(0, FMGL(size)-1);
 }    
@@ -220,155 +348,34 @@ template<class T> x10::lang::String* x10::lang::Rail<T>::toString() {
     return x10::lang::String::Steal(tmp);
 }
 
-template<class T> void x10::lang::Rail<T>::_constructor(x10::util::IndexedMemoryChunk<T > backingStore) {
-    FMGL(size) = ((x10_long) ((backingStore)->length()));
-    this->FMGL(raw) = backingStore;
-}
-template<class T> x10::lang::Rail<T>* x10::lang::Rail<T>::_make(x10::util::IndexedMemoryChunk<T > backingStore) {
-    x10::lang::Rail<T>* this_ = new (memset(x10aux::alloc<x10::lang::Rail<T> >(), 0, sizeof(x10::lang::Rail<T>))) x10::lang::Rail<T>();
-    this_->_constructor(backingStore);
-    return this_;
-}
-
-
-template<class T> void x10::lang::Rail<T>::_constructor() {
-    FMGL(size) = 0ll;
-    this->FMGL(raw) = x10::util::IndexedMemoryChunk<void>::allocate<T >(((x10_int)0), 8, false, false);
-}
-template<class T> x10::lang::Rail<T>* x10::lang::Rail<T>::_make() {
-    x10::lang::Rail<T>* this_ = new (memset(x10aux::alloc<x10::lang::Rail<T> >(), 0, sizeof(x10::lang::Rail<T>))) x10::lang::Rail<T>();
-    this_->_constructor();
-    return this_;
-}
-
-
-template<class T> void x10::lang::Rail<T>::_constructor(x10::lang::Unsafe__Token* id__123, x10_long size, x10_boolean allocateZeroed) {
-    FMGL(size) = size;
-    this->FMGL(raw) = x10::util::IndexedMemoryChunk<void>::allocate<T >(size, 8, false, allocateZeroed);
-}
-template<class T> x10::lang::Rail<T>* x10::lang::Rail<T>::_make(x10::lang::Unsafe__Token* id__123, x10_long size, x10_boolean allocateZeroed) {
-    x10::lang::Rail<T>* this_ = new (memset(x10aux::alloc<x10::lang::Rail<T> >(), 0, sizeof(x10::lang::Rail<T>))) x10::lang::Rail<T>();
-    this_->_constructor(id__123, size);
-    return this_;
-}
-
-template<class T> void x10::lang::Rail<T>::_constructor(x10::lang::Rail<T>* src) {
-    FMGL(size) = x10aux::nullCheck(src)->FMGL(size);
-    x10_int size = (x10_int)FMGL(size);
-    
-    x10::util::IndexedMemoryChunk<T > dst = x10::util::IndexedMemoryChunk<void>::allocate<T >(size, 8, false, false);
-    x10::util::IndexedMemoryChunk<void>::copy<T >(src->FMGL(raw), 0, dst, 0, size);
-    this->FMGL(raw) = dst;
-}
-template<class T> x10::lang::Rail<T>* x10::lang::Rail<T>::_make(x10::lang::Rail<T>* src) {
-    x10::lang::Rail<T>* this_ = new (memset(x10aux::alloc<x10::lang::Rail<T> >(), 0, sizeof(x10::lang::Rail<T>))) x10::lang::Rail<T>();
-    this_->_constructor(src);
-    return this_;
-}
-
-
-template<class T> void x10::lang::Rail<T>::_constructor(x10_long size) {
-    FMGL(size) = size;
-    this->FMGL(raw) = x10::util::IndexedMemoryChunk<void>::allocate<T >(size, 8, false, true);
-}
-template<class T> x10::lang::Rail<T>* x10::lang::Rail<T>::_make(x10_long size) {
-    x10::lang::Rail<T>* this_ = new (memset(x10aux::alloc<x10::lang::Rail<T> >(), 0, sizeof(x10::lang::Rail<T>))) x10::lang::Rail<T>();
-    this_->_constructor(size);
-    return this_;
-}
-
-template<class T> void x10::lang::Rail<T>::_constructor(x10_long size, T init) {
-    FMGL(size) = size;
-    this->FMGL(raw) = x10::util::IndexedMemoryChunk<void>::allocate<T >(size, 8, false, false);
-    for (x10_long i = 0ll; i < size; i++) {
-        (this->FMGL(raw))->__set(i, init);
-    }
-}
-template<class T> x10::lang::Rail<T>* x10::lang::Rail<T>::_make(x10_long size, T init) {
-    x10::lang::Rail<T>* this_ = new (memset(x10aux::alloc<x10::lang::Rail<T> >(), 0, sizeof(x10::lang::Rail<T>))) x10::lang::Rail<T>();
-    this_->_constructor(size, init);
-    return this_;
-}
-
-
-template<class T> void x10::lang::Rail<T>::_constructor(x10_long size, x10::lang::Fun_0_1<x10_long, T>* init) {
-    FMGL(size) = size;
-    this->FMGL(raw) = x10::util::IndexedMemoryChunk<void>::allocate<T >(size, 8, false, false);
-    
-    for (x10_long i = 0ll; i < size; i++) {
-        (this->FMGL(raw))->__set(i, x10::lang::Fun_0_1<x10_long, T>::__apply(x10aux::nullCheck(init), i));
-    }
-}
-template<class T> x10::lang::Rail<T>* x10::lang::Rail<T>::_make(x10_long size, x10::lang::Fun_0_1<x10_long, T>* init) {
-    x10::lang::Rail<T>* this_ = new (memset(x10aux::alloc<x10::lang::Rail<T> >(), 0, sizeof(x10::lang::Rail<T>))) x10::lang::Rail<T>();
-    this_->_constructor(size, init);
-    return this_;
-}
-
-
 template<class T> T x10::lang::Rail<T>::__apply(x10_long index) {
-    return (this->FMGL(raw))->__apply(index);
+    checkBounds(index, FMGL(size));
+    return raw[index];
 }
 
 template<class T> T x10::lang::Rail<T>::__set(x10_long index, T v) {
-    (this->FMGL(raw))->__set(index, v);
+    checkBounds(index, FMGL(size));
+    raw[index] = v;
     return v;
 }
 
 template<class T> void x10::lang::Rail<T>::clear() {
-    this->FMGL(raw)->clear(0ll, this->FMGL(size));
+    memset(&raw, 0, sizeof(T)*FMGL(size));
 }
 
 
 template<class T> void x10::lang::Rail<T>::clear(x10_long start, x10_long numElems) {
-    this->FMGL(raw)->clear(start, numElems);
+    memset(&raw[start], 0, sizeof(T)*numElems);
 }
-
-
-template<class T> void x10::lang::Rail<T>::_constructor(x10_int size) {
-    FMGL(size) = ((x10_long) (size));
-    this->FMGL(raw) = x10::util::IndexedMemoryChunk<void>::allocate<T >(size, 8, false, true);
-}
-template<class T> x10::lang::Rail<T>* x10::lang::Rail<T>::_make(x10_int size) {
-    x10::lang::Rail<T>* this_ = new (memset(x10aux::alloc<x10::lang::Rail<T> >(), 0, sizeof(x10::lang::Rail<T>))) x10::lang::Rail<T>();
-    this_->_constructor(size);
-    return this_;
-}
-
-template<class T> void x10::lang::Rail<T>::_constructor(x10_int size, T init) {
-    FMGL(size) = ((x10_long) (size));
-    this->FMGL(raw) = x10::util::IndexedMemoryChunk<void>::allocate<T >(size, 8, false, false);
-    for (x10_int i = 0; i < size; i++) { 
-        (this->FMGL(raw))->__set(i, init);
-    }
-}
-template<class T> x10::lang::Rail<T>* x10::lang::Rail<T>::_make(x10_int size, T init) {
-    x10::lang::Rail<T>* this_ = new (memset(x10aux::alloc<x10::lang::Rail<T> >(), 0, sizeof(x10::lang::Rail<T>))) x10::lang::Rail<T>();
-    this_->_constructor(size, init);
-    return this_;
-}
-
-template<class T> void x10::lang::Rail<T>::_constructor(x10_int size, x10::lang::Fun_0_1<x10_int, T>* init) {
-    FMGL(size) = ((x10_long) (size));
-    this->FMGL(raw) = x10::util::IndexedMemoryChunk<void>::allocate<T >(size, 8, false, false);
-    
-    for (x10_int i = 0; i < size; i++) {
-        (this->FMGL(raw))->__set(i, x10::lang::Fun_0_1<x10_int, T>::__apply(x10aux::nullCheck(init), i));
-    }
-}
-template<class T> x10::lang::Rail<T>* x10::lang::Rail<T>::_make(x10_int size, x10::lang::Fun_0_1<x10_int, T>* init) {
-    x10::lang::Rail<T>* this_ = new (memset(x10aux::alloc<x10::lang::Rail<T> >(), 0, sizeof(x10::lang::Rail<T>))) x10::lang::Rail<T>();
-    this_->_constructor(size, init);
-    return this_;
-}
-
 
 template<class T> T x10::lang::Rail<T>::__apply(x10_int index) {
-    return (this->FMGL(raw))->__apply(index);
+    checkBounds(index, FMGL(size));
+    return raw[index];
 }
 
 template<class T> T x10::lang::Rail<T>::__set(x10_int index, T v) {
-    (this->FMGL(raw))->__set(index, v);
+    checkBounds(index, FMGL(size));
+    raw[index] = v;
     return v;
 }
 
@@ -378,32 +385,45 @@ template<class T> const x10aux::serialization_id_t x10::lang::Rail<T>::_serializ
     x10aux::DeserializationDispatcher::addDeserializer(x10::lang::Rail<T>::_deserializer, x10aux::CLOSURE_KIND_NOT_ASYNC);
 
 template<class T> void x10::lang::Rail<T>::_serialize_body(x10aux::serialization_buffer& buf) {
-    buf.write(this->FMGL(raw));
     buf.write(this->FMGL(size));
+    for (x10_long i=0; i<FMGL(size); i++) {
+        buf.write(raw[i]);
+    }
 }
 
+// TODO: Replicate template specialization for primitives & Complex from IMC class for rails
 template<class T> x10::lang::Reference* x10::lang::Rail<T>::_deserializer(x10aux::deserialization_buffer& buf) {
-    x10::lang::Rail<T>* this_ = new (memset(x10aux::alloc<x10::lang::Rail<T> >(), 0, sizeof(x10::lang::Rail<T>))) x10::lang::Rail<T>();
+    bool containsPtrs = x10aux::getRTT<T>()->containsPtrs;
+    x10_long numElems = buf.read<x10_long>();
+    size_t numBytes = sizeof(x10::lang::Rail<T>) + (numElems * sizeof(T));
+    x10::lang::Rail<T>* this_ = new (x10aux::alloc_internal(numBytes, containsPtrs)) x10::lang::Rail<T>();
+
+    this_->FMGL(size) = numElems;
     buf.record_reference(this_);
     this_->_deserialize_body(buf);
     return this_;
 }
 
 template<class T> void x10::lang::Rail<T>::_deserialize_body(x10aux::deserialization_buffer& buf) {
-    FMGL(raw) = buf.read<x10::util::IndexedMemoryChunk<T > >();
-    FMGL(size) = buf.read<x10_long>();
+    for (x10_long i=0; i<FMGL(size); i++) {
+        raw[i] = buf.read<T>();
+    }
 }
+
+
 
 template<class T> void x10::lang::Rail<void>::copy(x10::lang::Rail<T>* src,
                                                    x10::lang::Rail<T>* dst) {
+    x10aux::nullCheck(src);
+    x10aux::nullCheck(dst);
+
+    if (src == dst) return;
     
-    if ((!x10aux::struct_equals(x10aux::nullCheck(src)->FMGL(size), x10aux::nullCheck(dst)->FMGL(size)))) {
+    if (src->FMGL(size) != dst->FMGL(size)) {
         x10aux::throwException(x10::lang::IllegalArgumentException::_make(x10aux::makeStringLit("source and destination do not have equal size")));
     }
 
-    x10::util::IndexedMemoryChunk<void>::copy<T >(x10aux::nullCheck(src)->
-                                                  FMGL(raw),((x10_int)0),x10aux::nullCheck(dst)->
-                                                  FMGL(raw),((x10_int)0),(x10aux::nullCheck(src)->FMGL(raw))->length());
+    rail_copyRaw(&src->raw[0], &dst->raw[0], sizeof(T)*src->FMGL(size), false);
 }
 
 template<class T> void x10::lang::Rail<void>::copy(x10::lang::Rail<T>* src,
@@ -411,24 +431,16 @@ template<class T> void x10::lang::Rail<void>::copy(x10::lang::Rail<T>* src,
                                                    x10::lang::Rail<T>* dst,
                                                    x10_long dstIndex,
                                                    x10_long numElems) {
+    if (numElems <= 0) return;
+    void* srcAddr = (void*)(&src->raw[srcIndex]);
+    void* dstAddr = (void*)(&dst->raw[dstIndex]);
+    size_t numBytes = numElems * sizeof(T);
+    checkBounds(srcIndex, src->FMGL(size));
+    checkBounds(srcIndex+numElems, src->FMGL(size)+1ll);
+    checkBounds(dstIndex, dst->FMGL(size));
+    checkBounds(dstIndex+numElems, dst->FMGL(size)+1ll);
 
-    x10::util::IndexedMemoryChunk<void>::copy<T >(x10aux::nullCheck(src)->FMGL(raw),
-                                                  (x10_int)srcIndex,
-                                                  x10aux::nullCheck(dst)->FMGL(raw),
-                                                  (x10_int)dstIndex,
-                                                  (x10_int)numElems);
-}
-
-template<class T> void x10::lang::Rail<void>::copy(x10::lang::Rail<T>* src,
-                                                   x10_int srcIndex,
-                                                   x10::lang::Rail<T>* dst,
-                                                   x10_int dstIndex,
-                                                   x10_int numElems) {
-    x10::util::IndexedMemoryChunk<void>::copy<T >(x10aux::nullCheck(src)->FMGL(raw),
-                                                  srcIndex,
-                                                  x10aux::nullCheck(dst)->FMGL(raw),
-                                                  dstIndex,
-                                                  numElems);
+    rail_copyRaw(srcAddr, dstAddr, numBytes, src == dst);
 }
 
 #endif // X10_LANG_RAIL_H_IMPLEMENTATION

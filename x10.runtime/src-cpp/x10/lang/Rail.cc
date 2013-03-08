@@ -9,11 +9,30 @@
  *  (C) Copyright IBM Corporation 2006-2013.
  */
 
-/*************************************************/
-/* START of Rail */
 #include <x10/lang/Rail.h>
 
 x10aux::RuntimeType x10::lang::Rail<void>::rtt;
 
-/* END of Rail */
-/*************************************************/
+using namespace x10aux;
+
+namespace x10 {
+    namespace lang {
+
+        void throwArrayIndexOutOfBoundsException(x10_long index, x10_long length) {
+            #ifndef NO_EXCEPTIONS
+            char *msg = alloc_printf("Index %lld out of range (length is %lld)", (long long)index, (long long)length);
+            throwException(x10::lang::ArrayIndexOutOfBoundsException::_make(String::Lit(msg)));
+            #endif
+        }
+
+        void rail_copyRaw(void *srcAddr, void *dstAddr, x10_long numBytes, bool overlap) {
+            if (overlap) {
+                // potentially overlapping, use memmove
+                memmove(dstAddr, srcAddr, (size_t)numBytes);
+            } else {
+                memcpy(dstAddr, srcAddr, (size_t)numBytes);
+            }
+        }
+
+    }
+}
