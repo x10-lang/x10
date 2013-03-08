@@ -48,9 +48,9 @@ namespace x10 {
     
         inline void checkBounds(x10_long index, x10_long size) {
             #ifndef NO_BOUNDS_CHECKS
-            // Since we know length is non-negative and Rails are zero-based,
+            // Since we know size is non-negative and Rails are zero-based,
             // the bounds check can be optimized to a single unsigned comparison.
-            // The C++ compiler won't do this for us, since it doesn't know that length is non-negative.
+            // The C++ compiler won't do this for us, since it doesn't know that size is non-negative.
             if (((x10_ulong)index) >= ((x10_ulong)size)) {
                 x10::util::throwArrayIndexOutOfBoundsException(index, size);
             }
@@ -62,9 +62,11 @@ namespace x10 {
         template<class T> class Rail : public x10::lang::X10Class   {
           public:
             RTT_H_DECLS_CLASS
-            x10_long FMGL(size);
-            T raw[0];
-    
+            const x10_long FMGL(size);
+            T raw[1]; // It's not really 1, but this is how one declares the variable array at end of a struct in ISO C++
+
+            Rail(x10_long numElems) : FMGL(size)(numElems) { }
+            
             static x10aux::itable_entry _itables[4];
             virtual x10aux::itable_entry* _getITables() { return _itables; }
             static typename x10::lang::Iterable<T>::template itable<x10::lang::Rail<T> > _itable_0;
@@ -97,7 +99,9 @@ namespace x10 {
             static x10::lang::Rail<T>* _make(x10_int size, x10::lang::Fun_0_1<x10_int, T>* init);
 
             x10::lang::LongRange range();
+
             virtual x10::lang::Iterator<T>* iterator();
+
             virtual x10::lang::String* toString();
 
             virtual T __apply(x10_long index);
@@ -183,16 +187,10 @@ namespace x10 {
 #include <x10/lang/Iterable.h>
 #include <x10/lang/Fun_0_1.h>
 #include <x10/util/IndexedMemoryChunk.h>
-#include <x10/lang/Long.h>
-#include <x10/lang/Int.h>
 #include <x10/lang/LongRange.h>
-#include <x10/lang/Boolean.h>
 #include <x10/lang/Iterator.h>
 #include <x10/lang/RailIterator.h>
 #include <x10/lang/String.h>
-#include <x10/util/StringBuilder.h>
-#include <x10/util/ArrayList.h>
-#include <x10/lang/Char.h>
 #include <x10/lang/Unsafe__Token.h>
 #include <x10/lang/IllegalArgumentException.h>
 #ifndef X10_LANG_RAIL_H_GENERICS
@@ -202,38 +200,23 @@ namespace x10 {
 #define X10_LANG_RAIL_H_IMPLEMENTATION
 #include <x10/lang/Rail.h>
 
-
-// ITABLES
-template<class T> typename x10::lang::Iterable<T>::template itable<x10::lang::Rail<T> >  x10::lang::Rail<T>::_itable_0(&x10::lang::Rail<T>::equals, &x10::lang::Rail<T>::hashCode, &x10::lang::Rail<T>::iterator, &x10::lang::Rail<T>::toString, &x10::lang::Rail<T>::typeName);
-
-template<class T> typename x10::lang::Fun_0_1<x10_int, T>::template itable<x10::lang::Rail<T> >  x10::lang::Rail<T>::_itable_1(&x10::lang::Rail<T>::equals, &x10::lang::Rail<T>::hashCode, &x10::lang::Rail<T>::__apply, &x10::lang::Rail<T>::toString, &x10::lang::Rail<T>::typeName);
-
-template<class T> typename x10::lang::Fun_0_1<x10_long, T>::template itable<x10::lang::Rail<T> >  x10::lang::Rail<T>::_itable_2(&x10::lang::Rail<T>::equals, &x10::lang::Rail<T>::hashCode, &x10::lang::Rail<T>::__apply, &x10::lang::Rail<T>::toString, &x10::lang::Rail<T>::typeName);
-
-template<class T> x10aux::itable_entry x10::lang::Rail<T>::_itables[4] = {
-    x10aux::itable_entry(&x10aux::getRTT<x10::lang::Iterable<T> >, &_itable_0),
-    x10aux::itable_entry(&x10aux::getRTT<x10::lang::Fun_0_1<x10_int, T> >, &_itable_1),
-    x10aux::itable_entry(&x10aux::getRTT<x10::lang::Fun_0_1<x10_long, T> >, &_itable_2),
-    x10aux::itable_entry(NULL, (void*)x10aux::getRTT<x10::lang::Rail<T> >())
-};
+/*
+ * Construction (_make methods)
+ */
 
 template<class T> x10::lang::Rail<T>* x10::lang::Rail<T>::_make(x10::util::IndexedMemoryChunk<T > backingStore) {
     bool containsPtrs = x10aux::getRTT<T>()->containsPtrs;
     x10_long numElems = backingStore->length();
-    size_t numBytes = sizeof(x10::lang::Rail<T>) + (numElems * sizeof(T));
-    x10::lang::Rail<T>* this_ = new (x10aux::alloc_internal(numBytes, containsPtrs)) x10::lang::Rail<T>();
+    size_t numBytes = sizeof(x10::lang::Rail<T>) - sizeof(T) + (numElems * sizeof(T)); // -sizeof(T) accounts for raw[1]
+    x10::lang::Rail<T>* this_ = new (x10aux::alloc_internal(numBytes, containsPtrs)) x10::lang::Rail<T>(numElems);
 
-    this_->FMGL(size) = numElems;
     rail_copyRaw(backingStore->raw(), &this_->raw, sizeof(T)*backingStore->length(), false);
-
     return this_;
 }
 
 
 template<class T> x10::lang::Rail<T>* x10::lang::Rail<T>::_make() {
-    x10::lang::Rail<T>* this_ = new (x10aux::alloc_internal(sizeof(x10::lang::Rail<T>), false)) x10::lang::Rail<T>();
-
-    this_->FMGL(size) = 0ll;
+    x10::lang::Rail<T>* this_ = new (x10aux::alloc_internal(sizeof(x10::lang::Rail<T>), false)) x10::lang::Rail<T>(0);
     return this_;
 }
 
@@ -241,10 +224,9 @@ template<class T> x10::lang::Rail<T>* x10::lang::Rail<T>::_make() {
 template<class T> x10::lang::Rail<T>* x10::lang::Rail<T>::_make(x10::lang::Unsafe__Token* id__123, x10_long size, x10_boolean allocateZeroed) {
     bool containsPtrs = x10aux::getRTT<T>()->containsPtrs;
     x10_long numElems = size;
-    size_t numBytes = sizeof(x10::lang::Rail<T>) + (numElems * sizeof(T));
-    x10::lang::Rail<T>* this_ = new (x10aux::alloc_internal(numBytes, containsPtrs)) x10::lang::Rail<T>();
+    size_t numBytes = sizeof(x10::lang::Rail<T>) -sizeof(T) + (numElems * sizeof(T)); // -sizeof(T) accounts for raw[1]
+    x10::lang::Rail<T>* this_ = new (x10aux::alloc_internal(numBytes, containsPtrs)) x10::lang::Rail<T>(numElems);
 
-    this_->FMGL(size) = numElems;
     if (allocateZeroed) {
         memset(&(this_->raw), 0, numElems*sizeof(T));
     }
@@ -255,10 +237,9 @@ template<class T> x10::lang::Rail<T>* x10::lang::Rail<T>::_make(x10::lang::Unsaf
 template<class T> x10::lang::Rail<T>* x10::lang::Rail<T>::_make(x10::lang::Rail<T>* src) {
     bool containsPtrs = x10aux::getRTT<T>()->containsPtrs;
     x10_long numElems = x10aux::nullCheck(src)->FMGL(size);
-    size_t numBytes = sizeof(x10::lang::Rail<T>) + (numElems * sizeof(T));
-    x10::lang::Rail<T>* this_ = new (x10aux::alloc_internal(numBytes, containsPtrs)) x10::lang::Rail<T>();
+    size_t numBytes = sizeof(x10::lang::Rail<T>) -sizeof(T) + (numElems * sizeof(T)); // -sizeof(T) accounts for raw[1]
+    x10::lang::Rail<T>* this_ = new (x10aux::alloc_internal(numBytes, containsPtrs)) x10::lang::Rail<T>(numElems);
 
-    this_->FMGL(size) = numElems;
     rail_copyRaw(&src->raw, &this_->raw, numElems*sizeof(T), false);
     return this_;
 }
@@ -267,10 +248,9 @@ template<class T> x10::lang::Rail<T>* x10::lang::Rail<T>::_make(x10::lang::Rail<
 template<class T> x10::lang::Rail<T>* x10::lang::Rail<T>::_make(x10_long size) {
     bool containsPtrs = x10aux::getRTT<T>()->containsPtrs;
     x10_long numElems = size;
-    size_t numBytes = sizeof(x10::lang::Rail<T>) + (numElems * sizeof(T));
-    x10::lang::Rail<T>* this_ = new (x10aux::alloc_internal(numBytes, containsPtrs)) x10::lang::Rail<T>();
+    size_t numBytes = sizeof(x10::lang::Rail<T>) -sizeof(T) + (numElems * sizeof(T)); // -sizeof(T) accounts for raw[1]
+    x10::lang::Rail<T>* this_ = new (x10aux::alloc_internal(numBytes, containsPtrs)) x10::lang::Rail<T>(numElems);
 
-    this_->FMGL(size) = numElems;
     memset(&(this_->raw), 0, size*sizeof(T));
     return this_;
 }
@@ -279,10 +259,9 @@ template<class T> x10::lang::Rail<T>* x10::lang::Rail<T>::_make(x10_long size) {
 template<class T> x10::lang::Rail<T>* x10::lang::Rail<T>::_make(x10_long size, T init) {
     bool containsPtrs = x10aux::getRTT<T>()->containsPtrs;
     x10_long numElems = size;
-    size_t numBytes = sizeof(x10::lang::Rail<T>) + (numElems * sizeof(T));
-    x10::lang::Rail<T>* this_ = new (x10aux::alloc_internal(numBytes, containsPtrs)) x10::lang::Rail<T>();
+    size_t numBytes = sizeof(x10::lang::Rail<T>) -sizeof(T) + (numElems * sizeof(T)); // -sizeof(T) accounts for raw[1]
+    x10::lang::Rail<T>* this_ = new (x10aux::alloc_internal(numBytes, containsPtrs)) x10::lang::Rail<T>(numElems);
 
-    this_->FMGL(size) = numElems;
     for (x10_long i = 0ll; i < size; i++) {
         this_->raw[i] = init;
     }
@@ -292,10 +271,9 @@ template<class T> x10::lang::Rail<T>* x10::lang::Rail<T>::_make(x10_long size, T
 template<class T> x10::lang::Rail<T>* x10::lang::Rail<T>::_make(x10_long size, x10::lang::Fun_0_1<x10_long, T>* init) {
     bool containsPtrs = x10aux::getRTT<T>()->containsPtrs;
     x10_long numElems = size;
-    size_t numBytes = sizeof(x10::lang::Rail<T>) + (numElems * sizeof(T));
-    x10::lang::Rail<T>* this_ = new (x10aux::alloc_internal(numBytes, containsPtrs)) x10::lang::Rail<T>();
+    size_t numBytes = sizeof(x10::lang::Rail<T>) -sizeof(T) + (numElems * sizeof(T)); // -sizeof(T) accounts for raw[1]
+    x10::lang::Rail<T>* this_ = new (x10aux::alloc_internal(numBytes, containsPtrs)) x10::lang::Rail<T>(numElems);
 
-    this_->FMGL(size) = numElems;
     if (size > 0) {
         x10aux::nullCheck(init);
         // TODO: hoist itable lookup out of loop to get a straight function pointer to use in the loop itself.
@@ -309,10 +287,9 @@ template<class T> x10::lang::Rail<T>* x10::lang::Rail<T>::_make(x10_long size, x
 template<class T> x10::lang::Rail<T>* x10::lang::Rail<T>::_make(x10_int size, x10::lang::Fun_0_1<x10_int, T>* init) {
     bool containsPtrs = x10aux::getRTT<T>()->containsPtrs;
     x10_long numElems = (x10_long)size;
-    size_t numBytes = sizeof(x10::lang::Rail<T>) + (numElems * sizeof(T));
-    x10::lang::Rail<T>* this_ = new (x10aux::alloc_internal(numBytes, containsPtrs)) x10::lang::Rail<T>();
+    size_t numBytes = sizeof(x10::lang::Rail<T>) -sizeof(T) + (numElems * sizeof(T)); // -sizeof(T) accounts for raw[1]
+    x10::lang::Rail<T>* this_ = new (x10aux::alloc_internal(numBytes, containsPtrs)) x10::lang::Rail<T>(numElems);
 
-    this_->FMGL(size) = numElems;
     if (size > 0) {
         x10aux::nullCheck(init);
         // TODO: hoist itable lookup out of loop to get a straight function pointer to use in the loop itself.
@@ -322,6 +299,11 @@ template<class T> x10::lang::Rail<T>* x10::lang::Rail<T>::_make(x10_int size, x1
     }
     return this_;
 }
+
+
+/*
+ * Instance functions 
+ */
 
 template<class T> x10::lang::LongRange x10::lang::Rail<T>::range() {
     return x10::lang::LongRange::_make(0, FMGL(size)-1);
@@ -379,41 +361,11 @@ template<class T> T x10::lang::Rail<T>::__set(x10_int index, T v) {
     return v;
 }
 
-/// More serialization stuff
+/*
+ * Static functions 
+ */
 
-template<class T> const x10aux::serialization_id_t x10::lang::Rail<T>::_serialization_id = 
-    x10aux::DeserializationDispatcher::addDeserializer(x10::lang::Rail<T>::_deserializer, x10aux::CLOSURE_KIND_NOT_ASYNC);
-
-template<class T> void x10::lang::Rail<T>::_serialize_body(x10aux::serialization_buffer& buf) {
-    buf.write(this->FMGL(size));
-    for (x10_long i=0; i<FMGL(size); i++) {
-        buf.write(raw[i]);
-    }
-}
-
-// TODO: Replicate template specialization for primitives & Complex from IMC class for rails
-template<class T> x10::lang::Reference* x10::lang::Rail<T>::_deserializer(x10aux::deserialization_buffer& buf) {
-    bool containsPtrs = x10aux::getRTT<T>()->containsPtrs;
-    x10_long numElems = buf.read<x10_long>();
-    size_t numBytes = sizeof(x10::lang::Rail<T>) + (numElems * sizeof(T));
-    x10::lang::Rail<T>* this_ = new (x10aux::alloc_internal(numBytes, containsPtrs)) x10::lang::Rail<T>();
-
-    this_->FMGL(size) = numElems;
-    buf.record_reference(this_);
-    this_->_deserialize_body(buf);
-    return this_;
-}
-
-template<class T> void x10::lang::Rail<T>::_deserialize_body(x10aux::deserialization_buffer& buf) {
-    for (x10_long i=0; i<FMGL(size); i++) {
-        raw[i] = buf.read<T>();
-    }
-}
-
-
-
-template<class T> void x10::lang::Rail<void>::copy(x10::lang::Rail<T>* src,
-                                                   x10::lang::Rail<T>* dst) {
+template<class T> void x10::lang::Rail<void>::copy(x10::lang::Rail<T>* src, x10::lang::Rail<T>* dst) {
     x10aux::nullCheck(src);
     x10aux::nullCheck(dst);
 
@@ -432,16 +384,67 @@ template<class T> void x10::lang::Rail<void>::copy(x10::lang::Rail<T>* src,
                                                    x10_long dstIndex,
                                                    x10_long numElems) {
     if (numElems <= 0) return;
-    void* srcAddr = (void*)(&src->raw[srcIndex]);
-    void* dstAddr = (void*)(&dst->raw[dstIndex]);
-    size_t numBytes = numElems * sizeof(T);
+
+    x10aux::nullCheck(src);
+    x10aux::nullCheck(dst);
     checkBounds(srcIndex, src->FMGL(size));
     checkBounds(srcIndex+numElems, src->FMGL(size)+1ll);
     checkBounds(dstIndex, dst->FMGL(size));
     checkBounds(dstIndex+numElems, dst->FMGL(size)+1ll);
 
-    rail_copyRaw(srcAddr, dstAddr, numBytes, src == dst);
+    rail_copyRaw(&src->raw[srcIndex], &dst->raw[dstIndex], sizeof(T)*numElems, src == dst);
 }
+
+/*
+ * Serialization and Deserialization
+ */
+
+template<class T> const x10aux::serialization_id_t x10::lang::Rail<T>::_serialization_id = 
+    x10aux::DeserializationDispatcher::addDeserializer(x10::lang::Rail<T>::_deserializer, x10aux::CLOSURE_KIND_NOT_ASYNC);
+
+template<class T> void x10::lang::Rail<T>::_serialize_body(x10aux::serialization_buffer& buf) {
+    buf.write(this->FMGL(size));
+    for (x10_long i=0; i<FMGL(size); i++) {
+        buf.write(raw[i]);
+    }
+}
+
+// TODO: Replicate template specialization for primitives & Complex from IMC class for rails
+template<class T> x10::lang::Reference* x10::lang::Rail<T>::_deserializer(x10aux::deserialization_buffer& buf) {
+    bool containsPtrs = x10aux::getRTT<T>()->containsPtrs;
+    x10_long numElems = buf.read<x10_long>();
+    size_t numBytes = sizeof(x10::lang::Rail<T>) -sizeof(T) + (numElems * sizeof(T)); // -sizeof(T) accounts for raw[1]
+    x10::lang::Rail<T>* this_ = new (x10aux::alloc_internal(numBytes, containsPtrs)) x10::lang::Rail<T>(numElems);
+
+    buf.record_reference(this_);
+    this_->_deserialize_body(buf);
+    return this_;
+}
+
+template<class T> void x10::lang::Rail<T>::_deserialize_body(x10aux::deserialization_buffer& buf) {
+    for (x10_long i=0; i<FMGL(size); i++) {
+        raw[i] = buf.read<T>();
+    }
+}
+
+
+/*
+ * ITables and object model support code
+ */
+
+template<class T> typename x10::lang::Iterable<T>::template itable<x10::lang::Rail<T> >  x10::lang::Rail<T>::_itable_0(&x10::lang::Rail<T>::equals, &x10::lang::Rail<T>::hashCode, &x10::lang::Rail<T>::iterator, &x10::lang::Rail<T>::toString, &x10::lang::Rail<T>::typeName);
+
+template<class T> typename x10::lang::Fun_0_1<x10_int, T>::template itable<x10::lang::Rail<T> >  x10::lang::Rail<T>::_itable_1(&x10::lang::Rail<T>::equals, &x10::lang::Rail<T>::hashCode, &x10::lang::Rail<T>::__apply, &x10::lang::Rail<T>::toString, &x10::lang::Rail<T>::typeName);
+
+template<class T> typename x10::lang::Fun_0_1<x10_long, T>::template itable<x10::lang::Rail<T> >  x10::lang::Rail<T>::_itable_2(&x10::lang::Rail<T>::equals, &x10::lang::Rail<T>::hashCode, &x10::lang::Rail<T>::__apply, &x10::lang::Rail<T>::toString, &x10::lang::Rail<T>::typeName);
+
+template<class T> x10aux::itable_entry x10::lang::Rail<T>::_itables[4] = {
+    x10aux::itable_entry(&x10aux::getRTT<x10::lang::Iterable<T> >, &_itable_0),
+    x10aux::itable_entry(&x10aux::getRTT<x10::lang::Fun_0_1<x10_int, T> >, &_itable_1),
+    x10aux::itable_entry(&x10aux::getRTT<x10::lang::Fun_0_1<x10_long, T> >, &_itable_2),
+    x10aux::itable_entry(NULL, (void*)x10aux::getRTT<x10::lang::Rail<T> >())
+};
+
 
 #endif // X10_LANG_RAIL_H_IMPLEMENTATION
 #endif // __X10_LANG_RAIL_H_NODEPS
