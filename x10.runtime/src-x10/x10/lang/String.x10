@@ -46,27 +46,27 @@ public final class String implements Comparable[String] {
     /**
      * Construct a String from a Rail[Byte].
      */
-    @Native("java", "new java.lang.String((#r).raw().getByteArray())")
+    @Native("java", "new java.lang.String((#r).getByteArray())")
     public native def this(r:Rail[Byte]): String;
 
     /**
      * Construct a String from a Rail[Byte], offset and length.
      * LONG_RAIL: unsafe int cast
      */
-    @Native("java", "new java.lang.String((#r).raw().getByteArray(),(int)#offset,(int)#length)")
+    @Native("java", "new java.lang.String((#r).getByteArray(),(int)#offset,(int)#length)")
     public native def this(r:Rail[Byte], offset:Long, length:Long): String;
 
     /**
      * Construct a String from a Rail[Char].
      */
-    @Native("java", "new java.lang.String((#r).raw().getCharArray())")
+    @Native("java", "new java.lang.String((#r).getCharArray())")
     public native def this(r:Rail[Char]): String;
 
     /**
      * Construct a String from a Rail[Char], offset and length.
      * LONG_RAIL: unsafe int cast
      */
-    @Native("java", "new java.lang.String((#r).raw().getCharArray(),(int)#offset,(int)#length)")
+    @Native("java", "new java.lang.String((#r).getCharArray(),(int)#offset,(int)#length)")
     public native def this(r:Rail[Char], offset:Long, length:Long): String;
 
     /**
@@ -400,7 +400,7 @@ public final class String implements Comparable[String] {
      * @param args the arguments referenced by the format specifiers in the format string.
      * @return a formatted string.
      */
-    @Native("java", "x10.runtime.impl.java.StringUtils.format(#fmt,(java.lang.Object[]) (#args).raw().value)")
+    @Native("java", "x10.runtime.impl.java.StringUtils.format(#fmt,(java.lang.Object[]) (#args).value)")
     @Native("c++", "x10::lang::String::format(#fmt,#args)")
     public native static def format(fmt: String, args:Rail[Any]): String;
 

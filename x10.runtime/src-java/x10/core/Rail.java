@@ -11,6 +11,8 @@
 
 package x10.core;
 
+import java.util.Arrays;
+
 import x10.lang.LongRange;
 import x10.lang.RailIterator;
 import x10.rtt.NamedType;
@@ -58,7 +60,38 @@ public final class Rail<T> extends x10.core.Ref implements x10.lang.Iterable,
 
     public long size;
 
-    public x10.core.IndexedMemoryChunk<T> raw;
+    public Object value; // Will be a Java [] 
+    
+    public Object getBackingArray() { 
+        return value;
+    }
+    public boolean[] getBooleanArray() {
+        return (boolean[]) value;
+    }
+    public byte[] getByteArray() {
+        return (byte[]) value;
+    }
+    public short[] getShortArray() {
+        return (short[]) value;
+    }
+    public char[] getCharArray() {
+        return (char[]) value;
+    }
+    public int[] getIntArray() {
+        return (int[]) value;
+    }
+    public long[] getLongArray() {
+        return (long[]) value;
+    }
+    public float[] getFloatArray() {
+        return (float[]) value;
+    }
+    public double[] getDoubleArray() {
+        return (double[]) value;
+    }
+    public Object[] getObjectArray() {
+        return (Object[]) value;
+    }
 
     /*
      * Constructors
@@ -72,89 +105,90 @@ public final class Rail<T> extends x10.core.Ref implements x10.lang.Iterable,
     public Rail(Type T) {
         this.T = T;
         this.size = 0L;
-        this.raw = x10.core.IndexedMemoryChunk.<T> allocate(T, 0, false);
+        this.value = T.makeArray(0);
     }
 
     // For Java interop:  value is a Java[] of some form.
     public Rail(Type T, int size, Object value) {
         this.T = T;
         this.size = size;
-        this.raw = new x10.core.IndexedMemoryChunk<T>(T, size, value);
+        this.value = value;
     }
 
     public Rail(Type T, int size) {
         this.T = T;
         this.size = size;
-        this.raw =  x10.core.IndexedMemoryChunk.<T> allocate(T, size, true);
-    }
+        this.value = T.makeArray(size);
+     }
 
     public Rail(Type T, int size, T init, __initVal $dummy) {
         this.T = T;
         this.size = size;
-        this.raw = x10.core.IndexedMemoryChunk.<T> allocate(T, size, false);
-        
+        this.value = T.makeArray(size);
         for (int i=0; i<size; i++) {
-            this.raw.$set(i, init);
+            T.setArray(this.value, i, init);
         }
     }
 
     public Rail(Type T, int size, x10.core.fun.Fun_0_1<x10.core.Int, T> init, __initFunInt $dummy) {
         this.T = T;
         this.size = size;
-        this.raw = x10.core.IndexedMemoryChunk.<T> allocate(T, size, false);
+        this.value = T.makeArray(size);
 
         for (int i=0; i<size; i++) {
             T v =  init.$apply(x10.core.Int.$box(i), Types.INT);
-            this.raw.$set(i, v);
+            T.setArray(this.value, i, v);
         }
     }
 
     public Rail(Type T, long size) {
-        this.T = T;
-        this.size = size;
-        this.raw = x10.core.IndexedMemoryChunk.<T> allocate(T, size, true);
+        this(T, allocCheckSize(size));
     }
 
     public Rail(Type T, long size, T init, __initVal $dummy) {
-        this.T = T;
-        this.size = size;
-        this.raw = x10.core.IndexedMemoryChunk.<T> allocate(T, size, true);
-
-        for (int i=0; i<size; i++) {
-            this.raw.$set(i, init);
-        }    
+        this(T, allocCheckSize(size), init, $dummy);
     }
 
-    public Rail(Type T, long size, x10.core.fun.Fun_0_1<x10.core.Long, T> init,
-                __initFunLong $dummy) {
+    public Rail(Type T, long size, x10.core.fun.Fun_0_1<x10.core.Long, T> init, __initFunLong $dummy) {
         this.T = T;
         this.size = size;
-        this.raw = x10.core.IndexedMemoryChunk.<T> allocate(T, size, false);
+        this.value = T.makeArray(allocCheckSize(size));
 
-        for (long i=0; i<size; i++) {
+        for (int i=0; i<(int)size; i++) {
             T v =  init.$apply(x10.core.Long.$box(i), Types.LONG);
-            this.raw.$set((int)i, v);
+            T.setArray(this.value, i, v);
         }
     }
 
     public Rail(Type T, x10.core.IndexedMemoryChunk<T> backingStore) {
         this.T = T;
         this.size = backingStore.length;
-        this.raw = backingStore;
+        this.value = T.makeArray(allocCheckSize(size));
+        System.arraycopy(backingStore.value, 0, value, 0, (int)this.size);
     }
 
     public Rail(Type T, Rail<T> src) {
         this.T = T;
-        
         this.size = src.size;
-        this.raw = x10.core.IndexedMemoryChunk.<T> allocate(T, (int)size, false);
-        x10.core.IndexedMemoryChunk.<T> copy(src.raw, 0, raw, 0, (int)size);
+        this.value = T.makeArray(allocCheckSize(src.size));
+        System.arraycopy(src.value, 0, value, 0, (int)this.size);
     }
 
     public Rail(Type T, x10.lang.Unsafe.Token id$123, long size, boolean allocateZeroed) {
         this.T = T;
         this.size = size;
-        this.raw = x10.core.IndexedMemoryChunk.<T> allocate(T, size, allocateZeroed);
+        this.value = T.makeArray(allocCheckSize(size));
+        if (allocateZeroed && !Types.hasNaturalZero(T)) {
+            Object zeroValue = Types.zeroValue(T);
+            java.util.Arrays.fill((Object[])value, zeroValue);
+        }
+    }
+
+    private static int allocCheckSize(long size) {
+        if (size >= (long)java.lang.Integer.MAX_VALUE) {
+            throw new IllegalArgumentException("Array size must be less than Integer.MAX_VALUE");
+        }
+        return (int)size;
     }
 
     /*
@@ -162,13 +196,28 @@ public final class Rail<T> extends x10.core.Ref implements x10.lang.Iterable,
      */
 
     public void $_serialize(X10JavaSerializer serializer) throws java.io.IOException {
-        serializer.write((X10JavaSerializable) this.T);
-        if (raw instanceof X10JavaSerializable) {
-            serializer.write((X10JavaSerializable) this.raw);
+        serializer.write(T);
+        serializer.write(size);
+
+        // If the T is a java primitive type, we use default java serialization here
+        // cause its much faster than writing a single element at a time
+        if (Types.isPrimitiveType(T)) {
+            serializer.writeUsingObjectOutputStream(value);
+        } else if (Types.isStringType(T)) {
+            java.lang.String[] castValue = (java.lang.String[]) value;
+            for (java.lang.String v : castValue) {
+                serializer.write(v);
+            }
         } else {
-            serializer.write(this.raw);
-        }
-        serializer.write(this.size);
+            Object[] castValue = (Object[]) value;
+            for (Object v : castValue) {
+                if (v instanceof X10JavaSerializable) {
+                    serializer.write((X10JavaSerializable) v);
+                } else {
+                    serializer.write(v);
+                }
+            }
+        }        
     }
     
     @SuppressWarnings("unchecked")
@@ -180,10 +229,27 @@ public final class Rail<T> extends x10.core.Ref implements x10.lang.Iterable,
     
     public static <T> X10JavaSerializable $_deserialize_body(Rail<T> obj, 
                                                              X10JavaDeserializer deserializer) throws java.io.IOException {
-       obj.T = (Type) deserializer.readRef();
-       obj.raw = deserializer.readRef();
-       obj.size = deserializer.readLong();
-       return obj;
+        obj.T = deserializer.readRef();
+        obj.size = deserializer.readLong();
+
+        // If the T is a java primitive type, we use default java serialization here
+        // cause its much faster than reading a single element at a time
+        if (Types.isPrimitiveType(obj.T)) {
+            obj.value = deserializer.readUsingObjectInputStream();
+        } else if (Types.isStringType(obj.T)) {
+            java.lang.String[] values = (java.lang.String[]) obj.T.makeArray(allocCheckSize(obj.size));
+            for (int i = 0; i < (int)obj.size; i++) {
+                values[i] = deserializer.readString();
+            }
+            obj.value = values;
+        } else {
+            Object[] values = (Object[]) obj.T.makeArray(allocCheckSize(obj.size));
+            for (int i = 0; i < (int)obj.size; i++) {
+                values[i] = deserializer.readRef();
+            }
+            obj.value = values;
+        }
+        return obj;
    }
 
    /*
@@ -202,29 +268,52 @@ public final class Rail<T> extends x10.core.Ref implements x10.lang.Iterable,
     }
 
     public T $apply$G(int index) {
-        return raw.$apply$G(index);
+        return (T) T.getArray(value, index);
     }
 
     public T $apply$G(long index) {
-        return raw.$apply$G((int)index);
+        return (T) T.getArray(value, (int)index);
     }
 
     public T $set__1x10$lang$Rail$$T$G(int index, T v) {
-        raw.$set(index, v);
+        T.setArray(value, index, v);
         return v;
     }
 
     public T $set__1x10$lang$Rail$$T$G(long index, T v) {
-        raw.$set((int)index, v);
+        T.setArray(value, (int)index, v);
         return v;
     }
 
     public void clear() {
-        raw.clear(0, (int)size);
+        clear(0, size);
     }
 
     public void clear(long start, long numElems) {
-        raw.clear((int)start, (int)numElems);
+        if (numElems <= 0)
+            return;
+        int begin = (int)start;
+        int end = (int)(start + numElems);
+        if (value instanceof boolean[]) {
+            Arrays.fill(getBooleanArray(), begin, end, false);
+        } else if (value instanceof byte[]) {
+            Arrays.fill(getByteArray(), begin, end, (byte) 0);
+        } else if (value instanceof char[]) {
+            Arrays.fill(getCharArray(), begin, end, (char) 0);
+        } else if (value instanceof short[]) {
+            Arrays.fill(getShortArray(), begin, end, (short) 0);
+        } else if (value instanceof int[]) {
+            Arrays.fill(getIntArray(), begin, end, 0);
+        } else if (value instanceof float[]) {
+            Arrays.fill(getFloatArray(), begin, end, 0.0F);
+        } else if (value instanceof long[]) {
+            Arrays.fill(getLongArray(), begin, end, 0L);
+        } else if (value instanceof double[]) {
+            Arrays.fill(getDoubleArray(), begin, end, 0.0);
+        } else {
+            Object zeroValue = Types.zeroValue(T);
+            Arrays.fill(getObjectArray(), begin, end, zeroValue);
+        }
     }
 
     public x10.lang.Iterator iterator() {
@@ -233,10 +322,6 @@ public final class Rail<T> extends x10.core.Ref implements x10.lang.Iterable,
     
     public x10.lang.LongRange range() {
         return new LongRange(0, size-1);
-    }
-
-    public x10.core.IndexedMemoryChunk<T> raw() {
-        return raw;
     }
 
     public String toString() {
@@ -267,7 +352,7 @@ public final class Rail<T> extends x10.core.Ref implements x10.lang.Iterable,
             throw new java.lang.IllegalArgumentException("source and destination do not have equal sizes");
         }
 
-        x10.core.IndexedMemoryChunk.<T> copy(src.raw, 0, dst.raw, 0, (int)src.size);
+        System.arraycopy(src.value, 0, dst.value, 0, (int)src.size);
     }
 
     public static <T> void copy__0$1x10$lang$Rail$$T$2__2$1x10$lang$Rail$$T$2(Type T,
@@ -276,7 +361,7 @@ public final class Rail<T> extends x10.core.Ref implements x10.lang.Iterable,
                                                                               Rail<T> dst,
                                                                               int dstIndex, 
                                                                               int numElems) {
-        x10.core.IndexedMemoryChunk.<T> copy(src.raw, srcIndex, dst.raw, dstIndex, numElems);
+        System.arraycopy(src.value, srcIndex, dst.value, dstIndex, numElems);
     }
 
     public static <T> void copy__0$1x10$lang$Rail$$T$2__2$1x10$lang$Rail$$T$2(Type T,
@@ -285,7 +370,7 @@ public final class Rail<T> extends x10.core.Ref implements x10.lang.Iterable,
                                                                               Rail<T> dst,
                                                                               long dstIndex, 
                                                                               long numElems) {
-        x10.core.IndexedMemoryChunk.<T> copy(src.raw, (int)srcIndex, dst.raw, (int)dstIndex, (int)numElems);
+        System.arraycopy(src.value, (int)srcIndex, dst.value, (int)dstIndex, (int)numElems);
     }
 
 }

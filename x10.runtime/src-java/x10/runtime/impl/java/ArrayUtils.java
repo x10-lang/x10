@@ -24,7 +24,7 @@ public abstract class ArrayUtils {
     public static <T> x10.core.Rail<T> makeRailFromJavaArray(x10.rtt.Type type, java.lang.Object value) {
         int length = type.arrayLength(value);
         x10.core.Rail<T> rail = new x10.core.Rail<T>(type, length);
-        java.lang.System.arraycopy(value, 0, rail.raw.value, 0, length);
+        java.lang.System.arraycopy(value, 0, rail.value, 0, length);
         return rail;
     }
 }

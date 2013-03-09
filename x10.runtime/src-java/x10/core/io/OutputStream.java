@@ -90,7 +90,7 @@ public class OutputStream extends Ref {
     // for !Emitter.manglePrimitivesAsShortName
     public void write__0$1x10$lang$Byte$2(x10.core.Rail buf) {
         try {
-            stream.write(buf.raw().getByteArray());
+            stream.write(buf.getByteArray());
         } catch (java.io.IOException e) {
             throw new x10.io.IOException(e.getMessage());
         }
@@ -117,7 +117,7 @@ public class OutputStream extends Ref {
     // LONG_RAIL: unsafe int cast
     public void write__0$1x10$lang$Byte$2(x10.core.Rail buf, long off, long len) {
         try {
-            stream.write(buf.raw().getByteArray(), (int)off, (int)len);
+            stream.write(buf.getByteArray(), (int)off, (int)len);
         } catch (java.io.IOException e) {
             throw new x10.io.IOException(e.getMessage());
         }

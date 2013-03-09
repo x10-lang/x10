@@ -90,7 +90,7 @@ public class InputStream extends Ref {
     // LONG_RAIL: unsafe int cast
     public void read__0$1x10$lang$Byte$2(x10.core.Rail r, long off, long len) {
         try {
-            stream.read(r.raw().getByteArray(), (int)off, (int)len);
+            stream.read(r.getByteArray(), (int)off, (int)len);
         } catch (java.io.IOException e) {
             throw new x10.io.IOException(e.getMessage());
         }
