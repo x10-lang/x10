@@ -11,6 +11,7 @@
 
 package x10.lang;
 
+import x10.compiler.Native;
 import x10.compiler.NativeRep;
 import x10.util.IndexedMemoryChunk;
 
@@ -28,8 +29,10 @@ public final class Rail[T](size:Long) implements Iterable[T],(Int)=>T,(Long)=>T 
     /**
      * @deprecated x10.util.IndexedMemoryChunk will be removed in X10 2.4.1
      */
+    @Native("java", "new x10.core.Rail<#T$box>(#T$rtt, #backingStore)")
     public native def this(backingStore:IndexedMemoryChunk[T]):Rail[T];
 
+    @Native("java", "new x10.core.Rail<#T$box>(#T$rtt)")
     public native def this():Rail[T]{self.size==0L};
 
     /*
@@ -38,14 +41,19 @@ public final class Rail[T](size:Long) implements Iterable[T],(Int)=>T,(Long)=>T 
      * Since it is not type safe, it is only packaged accessible
      * and is exposed to general clients via methods of x10.lang.Unsafe.
      */
-    native def this(Unsafe.Token, size:Long, zeroInitialized:Boolean):Rail[T]{self.size==size};
+    @Native("java", "new x10.core.Rail<#T$box>(#T$rtt, #token, #size, #zeroInitialized)")
+    native def this(token:Unsafe.Token, size:Long, zeroInitialized:Boolean):Rail[T]{self.size==size};
 
+    @Native("java", "new x10.core.Rail<#T$box>(#T$rtt, #src)")
     public native def this(src:Rail[T]):Rail[T]{self.size==src.size};
 
+    @Native("java", "new x10.core.Rail<#T$box>(#T$rtt, #size)")
     public native def this(size:Long){T haszero}:Rail[T]{self.size==size};
 
+    @Native("java", "new x10.core.Rail<#T$box>(#T$rtt, #size, #init, (x10.core.Rail.__initVal)null)")
     public native def this(size:Long, init:T):Rail[T]{self.size==size};
 
+    @Native("java", "new x10.core.Rail<#T$box>(#T$rtt, #size, #init, (x10.core.Rail.__initFunLong)null)")
     public native def this(size:Long, init:(Long)=>T):Rail[T]{self.size==size};
 
     public native operator this(index:Long):T;
@@ -74,12 +82,15 @@ public final class Rail[T](size:Long) implements Iterable[T],(Int)=>T,(Long)=>T 
     // secondary api: int indices
 
     // TODO: Returned rail should have constraint on size
+    @Native("java", "new x10.core.Rail<#T$box>(#T$rtt, #size)")
     public native def this(size:Int){T haszero}:Rail[T];
 
     // TODO: Returned rail should have constraint on size
+    @Native("java", "new x10.core.Rail<#T$box>(#T$rtt, #size, #init, (x10.core.Rail.__initVal)null)")
     public native def this(size:Int, init:T):Rail[T];
 
     // TODO: Returned rail should have constraint on size
+    @Native("java", "new x10.core.Rail<#T$box>(#T$rtt, #size, #init, (x10.core.Rail.__initFunInt)null)")
     public native def this(size:Int, init:(Int)=>T):Rail[T];
 
     public native operator this(index:Int):T;

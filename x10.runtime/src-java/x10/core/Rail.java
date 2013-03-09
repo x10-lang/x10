@@ -13,203 +13,208 @@ package x10.core;
 
 import x10.lang.LongRange;
 import x10.lang.RailIterator;
-import x10.lang.RailIterator.__0$1x10$lang$RailIterator$$T$2;
+import x10.rtt.NamedType;
+import x10.rtt.ParameterizedType;
+import x10.rtt.RuntimeType;
+import x10.rtt.Type;
+import x10.rtt.Types;
+import x10.rtt.UnresolvedType;
+import x10.serialization.X10JavaDeserializer;
+import x10.serialization.X10JavaSerializable;
+import x10.serialization.X10JavaSerializer;
 
+@SuppressWarnings("rawtypes")
 public final class Rail<T> extends x10.core.Ref implements x10.lang.Iterable, 
                                                            x10.core.fun.Fun_0_1,
-                                                           x10.serialization.X10JavaSerializable {
+                                                           X10JavaSerializable {
     
     // synthetic types for parameter mangling
-    public static final class __0$1x10$lang$Rail$$T$2 { }
-    public static final class __1$1x10$lang$Int$3x10$lang$Rail$$T$2 { }
-    public static final class __1$1x10$lang$Long$3x10$lang$Rail$$T$2 { }
-    public static final class __1x10$lang$Rail$$T { }
+    public static final class __initFunInt { }
+    public static final class __initFunLong { }
+    public static final class __initVal { }
 
     private static final long serialVersionUID = 1L;
 
-    public static final x10.rtt.RuntimeType<Rail> $RTT = 
-            x10.rtt.NamedType.<Rail> make("x10.lang.Rail", /* base class */
-                                          Rail.class,
-                                          x10.rtt.RuntimeType.INVARIANTS(1),
-                                          new x10.rtt.Type[] {
-                                               x10.rtt.ParameterizedType.make(x10.lang.Iterable.$RTT, x10.rtt.UnresolvedType.PARAM(0)),
-                                               x10.rtt.ParameterizedType.make(x10.core.fun.Fun_0_1.$RTT, x10.rtt.Types.INT,
-                                                                              x10.rtt.UnresolvedType.PARAM(0)),
-                                               x10.rtt.ParameterizedType.make(x10.core.fun.Fun_0_1.$RTT, x10.rtt.Types.LONG,
-                                                                              x10.rtt.UnresolvedType.PARAM(0)) 
+    @SuppressWarnings("unchecked")
+    public static final RuntimeType<Rail> $RTT = 
+            NamedType.<Rail> make("x10.lang.Rail", /* base class */
+                                  Rail.class,
+                                  RuntimeType.INVARIANTS(1),
+                                  new Type[] {
+                                      ParameterizedType.make(x10.lang.Iterable.$RTT, UnresolvedType.PARAM(0)),
+                                      ParameterizedType.make(x10.core.fun.Fun_0_1.$RTT, Types.INT, UnresolvedType.PARAM(0)),
+                                      ParameterizedType.make(x10.core.fun.Fun_0_1.$RTT, Types.LONG, UnresolvedType.PARAM(0)) 
             });
 
-    private x10.rtt.Type T;
+    private Type T;
+    
+    public Type<?> $getParam(int i) { 
+        return i == 0 ? T : null;
+    }
+
+    public RuntimeType<?> $getRTT() {
+        return $RTT;
+    }
 
     public long size;
 
     public x10.core.IndexedMemoryChunk<T> raw;
 
+    /*
+     * Constructors
+     */
+    
     // constructor just for allocation
-    public Rail(final java.lang.System[] $dummy, final x10.rtt.Type T) {
-        x10.core.Rail.$initParams(this, T);
+    public Rail(java.lang.System[] $dummy, Type T) {
+        this.T = T;
     }
 
-    // creation method for java code (1-phase java constructor)
-    public Rail(final x10.rtt.Type T) {
-        this((java.lang.System[]) null, T);
-        x10$lang$Rail$$init$S();
+    public Rail(Type T) {
+        this.T = T;
+        this.size = 0L;
+        this.raw = x10.core.IndexedMemoryChunk.<T> allocate(T, 0, false);
     }
 
-    // creation method for java code (1-phase java constructor)
-    public Rail(final x10.rtt.Type T, final int size) {
-        this((java.lang.System[]) null, T);
-        x10$lang$Rail$$init$S(size);
+    // For Java interop:  value is a Java[] of some form.
+    public Rail(Type T, int size, Object value) {
+        this.T = T;
+        this.size = size;
+        this.raw = new x10.core.IndexedMemoryChunk<T>(T, size, value);
     }
 
-    // creation method for java code (1-phase java constructor)
-    public Rail(final x10.rtt.Type T, final int size, final T init, __1x10$lang$Rail$$T $dummy) {
-        this((java.lang.System[]) null, T);
-        x10$lang$Rail$$init$S(size, init, (x10.core.Rail.__1x10$lang$Rail$$T) null);
+    public Rail(Type T, int size) {
+        this.T = T;
+        this.size = size;
+        this.raw =  x10.core.IndexedMemoryChunk.<T> allocate(T, size, true);
     }
 
-    // #line 125 "/home/dgrove/x10-trunk/x10.runtime/src-x10/x10/lang/Rail.x10"
-    // creation method for java code (1-phase java constructor)
-    public Rail(final x10.rtt.Type T, final int size, final x10.core.fun.Fun_0_1<x10.core.Int, T> init,
-                __1$1x10$lang$Int$3x10$lang$Rail$$T$2 $dummy) {
-        this((java.lang.System[]) null, T);
-        x10$lang$Rail$$init$S(size, init, (x10.core.Rail.__1$1x10$lang$Int$3x10$lang$Rail$$T$2) null);
-    }
-
-    // creation method for java code (1-phase java constructor)
-    public Rail(final x10.rtt.Type T, final long size) {
-        this((java.lang.System[]) null, T);
-        x10$lang$Rail$$init$S(size);
-    }
-
-    // creation method for java code (1-phase java constructor)
-    public Rail(final x10.rtt.Type T, final long size, final T init, __1x10$lang$Rail$$T $dummy) {
-        this((java.lang.System[]) null, T);
-        x10$lang$Rail$$init$S(size, init, (x10.core.Rail.__1x10$lang$Rail$$T) null);
-    }
-
-    // creation method for java code (1-phase java constructor)
-    public Rail(final x10.rtt.Type T, final long size, final x10.core.fun.Fun_0_1<x10.core.Long, T> init,
-            __1$1x10$lang$Long$3x10$lang$Rail$$T$2 $dummy) {
-        this((java.lang.System[]) null, T);
-        x10$lang$Rail$$init$S(size, init, (x10.core.Rail.__1$1x10$lang$Long$3x10$lang$Rail$$T$2) null);
-    }
-
-    // creation method for java code (1-phase java constructor)
-    public Rail(final x10.rtt.Type T, final x10.core.IndexedMemoryChunk<T> backingStore,
-            __0$1x10$lang$Rail$$T$2 $dummy) {
-        this((java.lang.System[]) null, T);
-        x10$lang$Rail$$init$S(backingStore, (x10.core.Rail.__0$1x10$lang$Rail$$T$2) null);
-    }
-
-    // creation method for java code (1-phase java constructor)
-    public Rail(final x10.rtt.Type T, final x10.core.Rail<T> src, __0$1x10$lang$Rail$$T$2 $dummy) {
-        this((java.lang.System[]) null, T);
-        x10$lang$Rail$$init$S(src, (x10.core.Rail.__0$1x10$lang$Rail$$T$2) null);
-    }
-
-    // creation method for java code (1-phase java constructor)
-    public Rail(final x10.rtt.Type T, final x10.lang.Unsafe.Token id$123, final long size, boolean allocateZeroed) {
-        this((java.lang.System[]) null, T);
-        x10$lang$Rail$$init$S(id$123, size);
-    }
-
-    public static <T> x10.serialization.X10JavaSerializable $_deserialize_body(x10.core.Rail<T> $_obj,
-                                                                                x10.serialization.X10JavaDeserializer $deserializer)
-            throws java.io.IOException {
-
-        $_obj.T = (x10.rtt.Type) $deserializer.readRef();
-        $_obj.raw = $deserializer.readRef();
-        $_obj.size = $deserializer.readLong();
-        return $_obj;
-    }
-
-    public static x10.serialization.X10JavaSerializable $_deserializer(x10.serialization.X10JavaDeserializer $deserializer)
-            throws java.io.IOException {
-
-        Rail $_obj = new Rail((java.lang.System[]) null, (x10.rtt.Type) null);
-        $deserializer.record_reference($_obj);
-        return $_deserialize_body($_obj, $deserializer);
-
-    }
-
-    // initializer of type parameters
-    public static void $initParams(final Rail $this, final x10.rtt.Type T) {
-        $this.T = T;
-    }
-
-    public static <T> void copy__0$1x10$lang$Rail$$T$2__1$1x10$lang$Rail$$T$2(final x10.rtt.Type T,
-                                                                              final x10.core.Rail<T> src,
-                                                                              final x10.core.Rail<T> dst) {
-
-        if (src.size != dst.size) {
-            throw new java.lang.IllegalArgumentException("source and destination do not have equal sizes");
+    public Rail(Type T, int size, T init, __initVal $dummy) {
+        this.T = T;
+        this.size = size;
+        this.raw = x10.core.IndexedMemoryChunk.<T> allocate(T, size, false);
+        
+        for (int i=0; i<size; i++) {
+            this.raw.$set(i, init);
         }
-
-        x10.core.IndexedMemoryChunk.<T> copy(src.raw, 0, dst.raw, 0, (int)src.size);
     }
 
-    public static <T> void copy__0$1x10$lang$Rail$$T$2__2$1x10$lang$Rail$$T$2(final x10.rtt.Type T,
-                                                                               final x10.core.Rail<T> src,
-                                                                               final int srcIndex,
-                                                                               final x10.core.Rail<T> dst,
-                                                                               final int dstIndex, final int numElems) {
-        x10.core.IndexedMemoryChunk.<T> copy(src.raw, srcIndex, dst.raw, dstIndex, numElems);
+    public Rail(Type T, int size, x10.core.fun.Fun_0_1<x10.core.Int, T> init, __initFunInt $dummy) {
+        this.T = T;
+        this.size = size;
+        this.raw = x10.core.IndexedMemoryChunk.<T> allocate(T, size, false);
+
+        for (int i=0; i<size; i++) {
+            T v =  init.$apply(x10.core.Int.$box(i), Types.INT);
+            this.raw.$set(i, v);
+        }
     }
 
-    public static <T> void copy__0$1x10$lang$Rail$$T$2__2$1x10$lang$Rail$$T$2(final x10.rtt.Type T,
-                                                                               final x10.core.Rail<T> src,
-                                                                               final long srcIndex,
-                                                                               final x10.core.Rail<T> dst,
-                                                                               final long dstIndex, final long numElems) {
-        x10.core.IndexedMemoryChunk.<T> copy(src.raw, (int)srcIndex, dst.raw, (int)dstIndex, (int)numElems);
+    public Rail(Type T, long size) {
+        this.T = T;
+        this.size = size;
+        this.raw = x10.core.IndexedMemoryChunk.<T> allocate(T, size, true);
     }
 
-    public void $_serialize(x10.serialization.X10JavaSerializer $serializer) throws java.io.IOException {
+    public Rail(Type T, long size, T init, __initVal $dummy) {
+        this.T = T;
+        this.size = size;
+        this.raw = x10.core.IndexedMemoryChunk.<T> allocate(T, size, true);
 
-        $serializer.write((x10.serialization.X10JavaSerializable) this.T);
-        if (raw instanceof x10.serialization.X10JavaSerializable) {
-            $serializer.write((x10.serialization.X10JavaSerializable) this.raw);
+        for (int i=0; i<size; i++) {
+            this.raw.$set(i, init);
+        }    
+    }
+
+    public Rail(Type T, long size, x10.core.fun.Fun_0_1<x10.core.Long, T> init,
+                __initFunLong $dummy) {
+        this.T = T;
+        this.size = size;
+        this.raw = x10.core.IndexedMemoryChunk.<T> allocate(T, size, false);
+
+        for (long i=0; i<size; i++) {
+            T v =  init.$apply(x10.core.Long.$box(i), Types.LONG);
+            this.raw.$set((int)i, v);
+        }
+    }
+
+    public Rail(Type T, x10.core.IndexedMemoryChunk<T> backingStore) {
+        this.T = T;
+        this.size = backingStore.length;
+        this.raw = backingStore;
+    }
+
+    public Rail(Type T, Rail<T> src) {
+        this.T = T;
+        
+        this.size = src.size;
+        this.raw = x10.core.IndexedMemoryChunk.<T> allocate(T, (int)size, false);
+        x10.core.IndexedMemoryChunk.<T> copy(src.raw, 0, raw, 0, (int)size);
+    }
+
+    public Rail(Type T, x10.lang.Unsafe.Token id$123, long size, boolean allocateZeroed) {
+        this.T = T;
+        this.size = size;
+        this.raw = x10.core.IndexedMemoryChunk.<T> allocate(T, size, allocateZeroed);
+    }
+
+    /*
+     * Serialization
+     */
+
+    public void $_serialize(X10JavaSerializer serializer) throws java.io.IOException {
+        serializer.write((X10JavaSerializable) this.T);
+        if (raw instanceof X10JavaSerializable) {
+            serializer.write((X10JavaSerializable) this.raw);
         } else {
-            $serializer.write(this.raw);
+            serializer.write(this.raw);
         }
-        $serializer.write(this.size);
+        serializer.write(this.size);
     }
+    
+    @SuppressWarnings("unchecked")
+    public static X10JavaSerializable $_deserializer(X10JavaDeserializer deserializer) throws java.io.IOException {
+        Rail obj = new Rail((java.lang.System[]) null, (Type) null);
+        deserializer.record_reference(obj);
+        return $_deserialize_body(obj, deserializer);
+    }
+    
+    public static <T> X10JavaSerializable $_deserialize_body(Rail<T> obj, 
+                                                             X10JavaDeserializer deserializer) throws java.io.IOException {
+       obj.T = (Type) deserializer.readRef();
+       obj.raw = deserializer.readRef();
+       obj.size = deserializer.readLong();
+       return obj;
+   }
 
+   /*
+    * Source-level instance methods
+    */
+   
     // dispatcher for method abstract public (Z1)=>U.operator()(a1:Z1){}:U
-    public java.lang.Object $apply(final java.lang.Object a1, final x10.rtt.Type t1) {
-        if (t1.equals(x10.rtt.Types.LONG)) {
+    public java.lang.Object $apply(java.lang.Object a1, Type t1) {
+        if (t1.equals(Types.LONG)) {
             return $apply$G(x10.core.Long.$unbox(a1));
         }
-        if (t1.equals(x10.rtt.Types.INT)) {
+        if (t1.equals(Types.INT)) {
             return $apply$G(x10.core.Int.$unbox(a1));
         }
         throw new java.lang.Error("dispatch mechanism not completely implemented for contra-variant types.");
     }
 
-    public T $apply$G(final int index) {
+    public T $apply$G(int index) {
         return raw.$apply$G(index);
     }
 
-    public T $apply$G(final long index) {
+    public T $apply$G(long index) {
         return raw.$apply$G((int)index);
     }
 
-    public x10.rtt.Type<?> $getParam(int i) {
-        if (i == 0) return T;
-        return null;
-    }
-
-    public x10.rtt.RuntimeType<?> $getRTT() {
-        return $RTT;
-    }
-
-    public T $set__1x10$lang$Rail$$T$G(final int index, final T v) {
+    public T $set__1x10$lang$Rail$$T$G(int index, T v) {
         raw.$set(index, v);
         return v;
     }
 
-    public T $set__1x10$lang$Rail$$T$G(final long index, final T v) {
+    public T $set__1x10$lang$Rail$$T$G(long index, T v) {
         raw.$set((int)index, v);
         return v;
     }
@@ -223,12 +228,10 @@ public final class Rail<T> extends x10.core.Ref implements x10.lang.Iterable,
     }
 
     public x10.lang.Iterator iterator() {
-        final x10.lang.RailIterator<T> it = new x10.lang.RailIterator<T>((java.lang.System[]) null, T);
-        it.x10$lang$RailIterator$$init$S(this, (__0$1x10$lang$RailIterator$$T$2)null);
-        return it;
+       return new RailIterator<T>(T, this, null);
     }
     
-    final public x10.lang.LongRange range() {
+    public x10.lang.LongRange range() {
         return new LongRange(0, size-1);
     }
 
@@ -236,7 +239,7 @@ public final class Rail<T> extends x10.core.Ref implements x10.lang.Iterable,
         return raw;
     }
 
-    public java.lang.String toString() {
+    public String toString() {
         StringBuilder sb = new StringBuilder();
         sb.append("[");
         int sz = size > 10 ? 10 : (int)size;
@@ -251,107 +254,38 @@ public final class Rail<T> extends x10.core.Ref implements x10.lang.Iterable,
         return sb.toString();
 
     }
+    
+    /*
+     * Static methods
+     */
 
-    // constructor for non-virtual call
-    final public x10.core.Rail<T> x10$lang$Rail$$init$S() {
-        this.size = 0L;
-        this.raw = x10.core.IndexedMemoryChunk.<T> allocate(T, 0, false);
-        return this;
-    }
+    public static <T> void copy__0$1x10$lang$Rail$$T$2__1$1x10$lang$Rail$$T$2(Type T,
+                                                                              Rail<T> src,
+                                                                              Rail<T> dst) {
 
-    // constructor for non-virtual call
-    final public x10.core.Rail<T> x10$lang$Rail$$init$S(final int size) {
-        this.size = size;
-        this.raw =  x10.core.IndexedMemoryChunk.<T> allocate(T, size, true);
-        return this;
-    }
-
-    // constructor for non-virtual call
-    final public x10.core.Rail<T> x10$lang$Rail$$init$S(final int size, final T init, __1x10$lang$Rail$$T $dummy) {
-        this.size = size;
-        this.raw = x10.core.IndexedMemoryChunk.<T> allocate(T, size, false);
-        
-        for (int i=0; i<size; i++) {
-            this.raw.$set(i, init);
+        if (src.size != dst.size) {
+            throw new java.lang.IllegalArgumentException("source and destination do not have equal sizes");
         }
-        
-        return this;
+
+        x10.core.IndexedMemoryChunk.<T> copy(src.raw, 0, dst.raw, 0, (int)src.size);
     }
 
-    // constructor for non-virtual call
-    final public x10.core.Rail<T> x10$lang$Rail$$init$S(final int size,
-                                                         final x10.core.fun.Fun_0_1<x10.core.Int, T> init,
-                                                         __1$1x10$lang$Int$3x10$lang$Rail$$T$2 $dummy) {
-        this.size = size;
-        this.raw = x10.core.IndexedMemoryChunk.<T> allocate(T, size, false);
-
-        for (int i=0; i<size; i++) {
-            T v =  init.$apply(x10.core.Int.$box(i), x10.rtt.Types.INT);
-            this.raw.$set(i, v);
-        }
-        
-        return this;
+    public static <T> void copy__0$1x10$lang$Rail$$T$2__2$1x10$lang$Rail$$T$2(Type T,
+                                                                              Rail<T> src,
+                                                                              int srcIndex,
+                                                                              Rail<T> dst,
+                                                                              int dstIndex, 
+                                                                              int numElems) {
+        x10.core.IndexedMemoryChunk.<T> copy(src.raw, srcIndex, dst.raw, dstIndex, numElems);
     }
 
-    // constructor for non-virtual call
-    final public x10.core.Rail<T> x10$lang$Rail$$init$S(final long size) {
-        this.size = size;
-        this.raw = x10.core.IndexedMemoryChunk.<T> allocate(T, size, true);
-
-        return this;
-    }
-
-    // constructor for non-virtual call
-    final public x10.core.Rail<T> x10$lang$Rail$$init$S(final long size, final T init, __1x10$lang$Rail$$T $dummy) {
-        this.size = size;
-        this.raw = x10.core.IndexedMemoryChunk.<T> allocate(T, size, true);
-
-        for (int i=0; i<size; i++) {
-            this.raw.$set(i, init);
-        }            
-
-        return this;
-    }
-
-    // constructor for non-virtual call
-    final public x10.core.Rail<T> x10$lang$Rail$$init$S(final long size,
-                                                         final x10.core.fun.Fun_0_1<x10.core.Long, T> init,
-                                                         __1$1x10$lang$Long$3x10$lang$Rail$$T$2 $dummy) {
-        this.size = size;
-        this.raw = x10.core.IndexedMemoryChunk.<T> allocate(T, size, false);
-
-        for (long i=0; i<size; i++) {
-            T v =  init.$apply(x10.core.Long.$box(i), x10.rtt.Types.LONG);
-            this.raw.$set((int)i, v);
-        }
-        
-        return this;
-    }
-
-    // constructor for non-virtual call
-    final public x10.core.Rail<T> x10$lang$Rail$$init$S(final x10.core.IndexedMemoryChunk<T> backingStore,
-                                                         __0$1x10$lang$Rail$$T$2 $dummy) {
-        this.size = backingStore.length;
-        this.raw = backingStore;
-
-        return this;
-    }
-
-    // constructor for non-virtual call
-    final public x10.core.Rail<T> x10$lang$Rail$$init$S(final x10.core.Rail<T> src, __0$1x10$lang$Rail$$T$2 $dummy) {
-        this.size = src.size;
-        this.raw = x10.core.IndexedMemoryChunk.<T> allocate(T, (int)size, false);
-        x10.core.IndexedMemoryChunk.<T> copy(src.raw, 0, raw, 0, (int)size);
-
-        return this;
-    }
-
-    // constructor for non-virtual call
-    final public x10.core.Rail<T> x10$lang$Rail$$init$S(final x10.lang.Unsafe.Token id$123, final long size) {
-        this.size = size;
-        this.raw = x10.core.IndexedMemoryChunk.<T> allocate(T, size, false);
-
-        return this;
+    public static <T> void copy__0$1x10$lang$Rail$$T$2__2$1x10$lang$Rail$$T$2(Type T,
+                                                                              Rail<T> src,
+                                                                              long srcIndex,
+                                                                              Rail<T> dst,
+                                                                              long dstIndex, 
+                                                                              long numElems) {
+        x10.core.IndexedMemoryChunk.<T> copy(src.raw, (int)srcIndex, dst.raw, (int)dstIndex, (int)numElems);
     }
 
 }

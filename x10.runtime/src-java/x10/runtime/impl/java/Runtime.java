@@ -148,7 +148,7 @@ public abstract class Runtime implements x10.core.fun.VoidFun_0_0 {
         }
 
         // build up Rail[String] for args
-        final x10.core.Rail<String> aargs = new x10.core.Rail<String>((java.lang.System[]) null, Types.STRING).x10$lang$Rail$$init$S((args == null)?0:args.length);
+        final x10.core.Rail<String> aargs = new x10.core.Rail<String>(Types.STRING, (args == null) ? 0 : args.length);
         if (args != null) {
 	        for (int i = 0; i < args.length; i++) {
 	            aargs.$set__1x10$lang$Rail$$T$G(i, args[i]);
