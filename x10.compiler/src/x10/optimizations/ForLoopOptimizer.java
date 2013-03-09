@@ -80,7 +80,9 @@ public class ForLoopOptimizer extends ContextVisitor {
     private static final Name RANK     = Name.make("rank");
     private static final Name MIN      = Name.make("min");
     private static final Name MAX      = Name.make("max");
+    private static final Name SIZE     = Name.make("size");
     private static final Name SET      = SettableAssign.SET;
+    private static final Name APPLY    = ClosureCall.APPLY;
 
     private final TypeSystem xts;
     private AltSynthesizer   syn;
@@ -372,6 +374,33 @@ public class ForLoopOptimizer extends ContextVisitor {
             Block result = syn.createBlock(pos, stmts);
             if (VERBOSE) result.dump(System.out);
             return result;
+        }
+        
+        // for (d in aRail) BODY ===> t = aRail; max = t.size; for (long idx = 0; idx < max; idx += 1) { d = t(i); BODY }
+        if (xts.isRail(domainType)) {
+            Name varName  = Name.makeFresh("idx");
+
+            LocalDecl domLDecl   = syn.createLocalDecl(domain.position(), Flags.FINAL, Name.makeFresh("rail"), domain);
+            Expr size = syn.createFieldRef(pos, syn.createLocal(pos, domLDecl), SIZE);
+            LocalDecl sizeLDecl  = syn.createLocalDecl(domain.position(), Flags.FINAL, Name.makeFresh("size"), size);
+            
+            LocalDecl varLDecl = syn.createLocalDecl(pos, Flags.NONE, varName, xts.Long(), syn.createLongLit(0));
+            Expr cond = syn.createBinary(domain.position(), syn.createLocal(pos, varLDecl), Binary.LT, syn.createLocal(pos, sizeLDecl), this);
+            Expr update = syn.createAssign(domain.position(), syn.createLocal(pos, varLDecl), Assign.ADD_ASSIGN, syn.createLongLit(1), this);
+
+            Expr valueExpr = syn.createInstanceCall(pos, syn.createLocal(domain.position(), domLDecl), APPLY, context, syn.createLocal(pos, varLDecl));
+            LocalDecl formalLDecl = syn.createLocalDecl(formal, valueExpr);
+
+            List<Stmt> bodyStmts = new ArrayList<Stmt>();           
+            bodyStmts.add(formalLDecl);
+            bodyStmts.add(body);
+            body = syn.createBlock(loop.body().position(), bodyStmts);
+            For forLoop = syn.createStandardFor(pos, varLDecl, cond, update, body);
+            Stmt newLoop = forLoop;
+            if (label() != null) {
+                newLoop = syn.createLabeledStmt(pos, label(), forLoop);
+            }
+            return syn.createBlock(pos, domLDecl, sizeLDecl , newLoop);
         }
 
         assert Types.getIterableIndex(domainType, context).size()>=1; // When Iterable was covariant:  (xts.isSubtype(domainType, xts.Iterable(xts.Any()), context)); 
