@@ -31,9 +31,10 @@ public final class Rail<T> extends x10.core.Ref implements x10.lang.Iterable,
                                                            X10JavaSerializable {
     
     // synthetic types for parameter mangling
-    public static final class __initFunInt { }
-    public static final class __initFunLong { }
-    public static final class __initVal { }
+    public static final class __0$1x10$lang$Rail$$T$2 { }
+    public static final class __1$1x10$lang$Int$3x10$lang$Rail$$T$2 { }
+    public static final class __1$1x10$lang$Long$3x10$lang$Rail$$T$2 { }
+    public static final class __1x10$lang$Rail$$T { }
 
     private static final long serialVersionUID = 1L;
 
@@ -121,7 +122,7 @@ public final class Rail<T> extends x10.core.Ref implements x10.lang.Iterable,
         this.value = T.makeArray(size);
      }
 
-    public Rail(Type T, int size, T init, __initVal $dummy) {
+    public Rail(Type T, int size, T init, __1x10$lang$Rail$$T $dummy) {
         this.T = T;
         this.size = size;
         this.value = T.makeArray(size);
@@ -130,7 +131,7 @@ public final class Rail<T> extends x10.core.Ref implements x10.lang.Iterable,
         }
     }
 
-    public Rail(Type T, int size, x10.core.fun.Fun_0_1<x10.core.Int, T> init, __initFunInt $dummy) {
+    public Rail(Type T, int size, x10.core.fun.Fun_0_1<x10.core.Int, T> init, __1$1x10$lang$Int$3x10$lang$Rail$$T$2 $dummy) {
         this.T = T;
         this.size = size;
         this.value = T.makeArray(size);
@@ -145,11 +146,11 @@ public final class Rail<T> extends x10.core.Ref implements x10.lang.Iterable,
         this(T, allocCheckSize(size));
     }
 
-    public Rail(Type T, long size, T init, __initVal $dummy) {
+    public Rail(Type T, long size, T init, __1x10$lang$Rail$$T $dummy) {
         this(T, allocCheckSize(size), init, $dummy);
     }
 
-    public Rail(Type T, long size, x10.core.fun.Fun_0_1<x10.core.Long, T> init, __initFunLong $dummy) {
+    public Rail(Type T, long size, x10.core.fun.Fun_0_1<x10.core.Long, T> init, __1$1x10$lang$Long$3x10$lang$Rail$$T$2 $dummy) {
         this.T = T;
         this.size = size;
         this.value = T.makeArray(allocCheckSize(size));
@@ -160,14 +161,14 @@ public final class Rail<T> extends x10.core.Ref implements x10.lang.Iterable,
         }
     }
 
-    public Rail(Type T, x10.core.IndexedMemoryChunk<T> backingStore) {
+    public Rail(Type T, x10.core.IndexedMemoryChunk<T> backingStore, __0$1x10$lang$Rail$$T$2 dummy) {
         this.T = T;
         this.size = backingStore.length;
         this.value = T.makeArray(allocCheckSize(size));
         System.arraycopy(backingStore.value, 0, value, 0, (int)this.size);
     }
 
-    public Rail(Type T, Rail<T> src) {
+    public Rail(Type T, Rail<T> src, __0$1x10$lang$Rail$$T$2 dummy) {
         this.T = T;
         this.size = src.size;
         this.value = T.makeArray(allocCheckSize(src.size));
