@@ -16,6 +16,7 @@ import java.util.List;
 
 import polyglot.ast.Assign;
 import polyglot.ast.Binary;
+import polyglot.ast.Binary.Operator;
 import polyglot.ast.Block;
 import polyglot.ast.Branch;
 import polyglot.ast.Call;
@@ -78,6 +79,7 @@ public class ForLoopOptimizer extends ContextVisitor {
     private static final Name NEXT     = Name.make("next");
     private static final Name MAKE     = Name.make("make");
     private static final Name RANK     = Name.make("rank");
+    private static final Name RANGE    = Name.make("range");
     private static final Name MIN      = Name.make("min");
     private static final Name MAX      = Name.make("max");
     private static final Name SIZE     = Name.make("size");
@@ -216,6 +218,7 @@ public class ForLoopOptimizer extends ContextVisitor {
             Expr low;
             Expr high;
             LocalDecl  domLDecl;
+            Operator compareOp = Binary.LE;
             if (domain instanceof Call && ((Call)domain).name().id().equals(X10Binary_c.binaryMethodName(Binary.DOT_DOT))) {
                 // SPECIAL CASE: if The IntRange is being created in the for loop header itself with the .. operator, avoid creating it entirely.
                 List<Expr> args = ((Call) loop.domain()).arguments();
@@ -223,6 +226,13 @@ public class ForLoopOptimizer extends ContextVisitor {
                 low = args.get(0);
                 high = args.get(1);
                 domLDecl = null;
+            } else if (domain instanceof Call && ((Call)domain).name().id().equals(RANGE) &&
+                    ((Call)domain).target() instanceof Expr && xts.isRail(((Call)domain).target().type())){
+                // SPECIAL CASE: if the LongRange is being returned from Rail.range(), then avoid creating it and use 0..size-1
+                domLDecl   = syn.createLocalDecl(domain.position(), Flags.FINAL, Name.makeFresh("rail"), (Expr)((Call)domain).target());
+                low = syn.createLongLit(0);
+                high =  syn.createFieldRef(pos, syn.createLocal(pos, domLDecl), SIZE);
+                compareOp = Binary.LT;
             } else {
                 domLDecl   = syn.createLocalDecl(domain.position(), Flags.FINAL, Name.makeFresh(varName+"domain"), domain);
                 low = syn.createFieldRef(pos, syn.createLocal(pos, domLDecl), MIN);
@@ -233,16 +243,16 @@ public class ForLoopOptimizer extends ContextVisitor {
             LocalDecl maxLDecl = syn.createLocalDecl(pos, Flags.FINAL, maxName, high);
            
             LocalDecl varLDecl = syn.createLocalDecl(pos, Flags.NONE, varName, isLong ? xts.Long() : xts.Int(), syn.createLocal(pos, minLDecl));
-            Expr cond = syn.createBinary( domain.position(),
-                                          syn.createLocal(pos, varLDecl),
-                                          Binary.LE,
-                                          syn.createLocal(pos, maxLDecl),
-                                          this );
-            Expr update = syn.createAssign( domain.position(),
-                                            syn.createLocal(pos, varLDecl),
-                                            Assign.ADD_ASSIGN,
-                                            isLong ? syn.createLongLit(1) : syn.createIntLit(1),
-                                            this);
+            Expr cond = syn.createBinary(domain.position(),
+                                         syn.createLocal(pos, varLDecl),
+                                         compareOp,
+                                         syn.createLocal(pos, maxLDecl),
+                                         this );
+            Expr update = syn.createAssign(domain.position(),
+                                           syn.createLocal(pos, varLDecl),
+                                           Assign.ADD_ASSIGN,
+                                           isLong ? syn.createLongLit(1) : syn.createIntLit(1),
+                                           this);
             
             List<Stmt> bodyStmts = new ArrayList<Stmt>();
             if (named) {
