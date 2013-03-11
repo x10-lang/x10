@@ -276,9 +276,10 @@ template<class T> x10::lang::Rail<T>* x10::lang::Rail<T>::_make(x10_long size, x
 
     if (size > 0) {
         x10aux::nullCheck(init);
-        // TODO: hoist itable lookup out of loop to get a straight function pointer to use in the loop itself.
+        x10::lang::Reference* recv = reinterpret_cast<x10::lang::Reference*>(init);
+        T (x10::lang::Reference::*fun)(x10_long) = x10aux::findITable<Fun_0_1<x10_long, T> >(recv->_getITables())->__apply;
         for (x10_long i = 0ll; i < size; i++) {
-            this_->raw[i] = x10::lang::Fun_0_1<x10_long, T>::__apply(init, i);
+            this_->raw[i] = (recv->*(fun))(i);
         }
     }
     return this_;
@@ -292,9 +293,10 @@ template<class T> x10::lang::Rail<T>* x10::lang::Rail<T>::_make(x10_int size, x1
 
     if (size > 0) {
         x10aux::nullCheck(init);
-        // TODO: hoist itable lookup out of loop to get a straight function pointer to use in the loop itself.
+        x10::lang::Reference* recv = reinterpret_cast<x10::lang::Reference*>(init);
+        T (x10::lang::Reference::*fun)(x10_int) = x10aux::findITable<Fun_0_1<x10_int, T> >(recv->_getITables())->__apply;
         for (x10_int i = 0; i < size; i++) {
-            this_->raw[i] = x10::lang::Fun_0_1<x10_int, T>::__apply(init, i);
+            this_->raw[i] = (recv->*(fun))(i);
         }
     }
     return this_;
