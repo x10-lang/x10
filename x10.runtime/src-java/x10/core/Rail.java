@@ -175,14 +175,13 @@ public final class Rail<T> extends x10.core.Ref implements x10.lang.Iterable,
         System.arraycopy(src.value, 0, value, 0, (int)this.size);
     }
 
-    public Rail(Type T, x10.lang.Unsafe.Token id$123, long size, boolean allocateZeroed) {
-        this.T = T;
-        this.size = size;
-        this.value = T.makeArray(allocCheckSize(size));
+    public static <T> Rail<T> makeUnsafe(Type T, long size, boolean allocateZeroed) {
+        Rail<T> me = new Rail<T>(T, size);
         if (allocateZeroed && !Types.hasNaturalZero(T)) {
             Object zeroValue = Types.zeroValue(T);
-            java.util.Arrays.fill((Object[])value, zeroValue);
+            java.util.Arrays.fill((Object[])me.value, zeroValue);
         }
+        return me;
     }
 
     private static int allocCheckSize(long size) {
@@ -295,6 +294,33 @@ public final class Rail<T> extends x10.core.Ref implements x10.lang.Iterable,
             return;
         int begin = (int)start;
         int end = (int)(start + numElems);
+        if (value instanceof boolean[]) {
+            Arrays.fill(getBooleanArray(), begin, end, false);
+        } else if (value instanceof byte[]) {
+            Arrays.fill(getByteArray(), begin, end, (byte) 0);
+        } else if (value instanceof char[]) {
+            Arrays.fill(getCharArray(), begin, end, (char) 0);
+        } else if (value instanceof short[]) {
+            Arrays.fill(getShortArray(), begin, end, (short) 0);
+        } else if (value instanceof int[]) {
+            Arrays.fill(getIntArray(), begin, end, 0);
+        } else if (value instanceof float[]) {
+            Arrays.fill(getFloatArray(), begin, end, 0.0F);
+        } else if (value instanceof long[]) {
+            Arrays.fill(getLongArray(), begin, end, 0L);
+        } else if (value instanceof double[]) {
+            Arrays.fill(getDoubleArray(), begin, end, 0.0);
+        } else {
+            Object zeroValue = Types.zeroValue(T);
+            Arrays.fill(getObjectArray(), begin, end, zeroValue);
+        }
+    }
+
+    public void clear(int start, int numElems) {
+        if (numElems <= 0)
+            return;
+        int begin = start;
+        int end = start + numElems;
         if (value instanceof boolean[]) {
             Arrays.fill(getBooleanArray(), begin, end, false);
         } else if (value instanceof byte[]) {

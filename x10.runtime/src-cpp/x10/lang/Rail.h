@@ -34,7 +34,6 @@ namespace x10 {
         template<class T> class Iterator;
         template<class T> class RailIterator;
         class String;
-        class Unsafe__Token;
     }
 }
 
@@ -77,7 +76,7 @@ namespace x10 {
     
             static x10::lang::Rail<T>* _make();
     
-            static x10::lang::Rail<T>* _make(x10::lang::Unsafe__Token* id__123, x10_long size, x10_boolean allocatedZeroed);
+            static x10::lang::Rail<T>* _makeUnsafe(x10_long size, x10_boolean allocatedZeroed);
     
             static x10::lang::Rail<T>* _make(x10::lang::Rail<T>* src);
     
@@ -122,6 +121,7 @@ namespace x10 {
             
             virtual void clear();
             virtual void clear(x10_long start, x10_long numElems);
+            virtual void clear(x10_int start, x10_int numElems);
     
             // Serialization
             static const x10aux::serialization_id_t _serialization_id;
@@ -191,7 +191,6 @@ namespace x10 {
 #include <x10/lang/Iterator.h>
 #include <x10/lang/RailIterator.h>
 #include <x10/lang/String.h>
-#include <x10/lang/Unsafe__Token.h>
 #include <x10/lang/IllegalArgumentException.h>
 #ifndef X10_LANG_RAIL_H_GENERICS
 #define X10_LANG_RAIL_H_GENERICS
@@ -221,7 +220,7 @@ template<class T> x10::lang::Rail<T>* x10::lang::Rail<T>::_make() {
 }
 
 
-template<class T> x10::lang::Rail<T>* x10::lang::Rail<T>::_make(x10::lang::Unsafe__Token* id__123, x10_long size, x10_boolean allocateZeroed) {
+template<class T> x10::lang::Rail<T>* x10::lang::Rail<T>::_makeUnsafe(x10_long size, x10_boolean allocateZeroed) {
     bool containsPtrs = x10aux::getRTT<T>()->containsPtrs;
     x10_long numElems = size;
     size_t numBytes = sizeof(x10::lang::Rail<T>) -sizeof(T) + (numElems * sizeof(T)); // -sizeof(T) accounts for raw[1]
@@ -349,6 +348,10 @@ template<class T> void x10::lang::Rail<T>::clear() {
 
 
 template<class T> void x10::lang::Rail<T>::clear(x10_long start, x10_long numElems) {
+    memset(&raw[start], 0, sizeof(T)*numElems);
+}
+
+template<class T> void x10::lang::Rail<T>::clear(x10_int start, x10_int numElems) {
     memset(&raw[start], 0, sizeof(T)*numElems);
 }
 

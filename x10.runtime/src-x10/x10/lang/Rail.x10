@@ -29,16 +29,6 @@ public final class Rail[T](size:Long) implements Iterable[T],(Int)=>T,(Long)=>T 
      */
     public native def this(backingStore:IndexedMemoryChunk[T]):Rail[T];
 
-    public native def this():Rail[T]{self.size==0L};
-
-    /*
-     * Unsafe constructor for allocating either a completely uninitialized
-     * or zeroInitialized (without requiring T haszero). 
-     * Since it is not type safe, it is only packaged accessible
-     * and is exposed to general clients via methods of x10.lang.Unsafe.
-     */
-    native def this(token:Unsafe.Token, size:Long, zeroInitialized:Boolean):Rail[T]{self.size==size};
-
     public native def this(src:Rail[T]):Rail[T]{self.size==src.size};
 
     public native def this(size:Long){T haszero}:Rail[T]{self.size==size};
@@ -51,24 +41,20 @@ public final class Rail[T](size:Long) implements Iterable[T],(Int)=>T,(Long)=>T 
 
     public native operator this(index:Long)=(v:T):T{self==v};
 
-    public static native def copy[T](src:Rail[T], dst:Rail[T]):void;
+    public static native def copy[T](src:Rail[T], dst:Rail[T]){src.size==dst.size}:void;
 
     public static native def copy[T](src:Rail[T], srcIndex:Long, 
                                      dst:Rail[T], dstIndex:Long, numElems:Long):void;
 
     /**
      * Clears the entire Rail by zeroing the storage.  
-     * Since it is not type safe, it is only packaged accessible
-     * and is exposed to general clients via methods of x10.lang.Unsafe.
      */
-    native def clear():void;
+    public native def clear(){T haszero}:void;
 
     /**
      * Clears numElems of the backing storage begining at index start by zeroing the storage.  
-     * Since it is not type safe, it is only packaged accessible
-     * and is exposed to general clients via methods of x10.lang.Unsafe.
      */
-    native def clear(start:Long, numElems:Long):void;
+    public native def clear(start:Long, numElems:Long){T haszero}:void;
 
     // secondary api: int indices
 
@@ -87,5 +73,9 @@ public final class Rail[T](size:Long) implements Iterable[T],(Int)=>T,(Long)=>T 
 
     public native static def copy[T](src:Rail[T], srcIndex:Int, 
                                      dst:Rail[T], dstIndex:Int, numElems:Int):void;
-}
 
+    /**
+     * Clears numElems of the backing storage begining at index start by zeroing the storage.  
+     */
+    public native def clear(start:Int, numElems:Int){T haszero}:void;
+}

@@ -15,33 +15,33 @@ import x10.compiler.Native;
 
 public final class Unsafe {
 
-    static class Token {}
+    @Native("c++", "x10::lang::Rail<#T >::_makeUnsafe(#size, false)")
+    @Native("java", "x10.core.Rail.<#T$box>makeUnsafe(#T$rtt, #size, false)")
+    public native static def allocRailUninitialized[T](size:Long):Rail[T]{self.size==size};
 
-    private static val token = new Token();
+    @Native("c++", "x10::lang::Rail<#T >::_makeUnsafe(#size, false)")
+    @Native("java", "x10.core.Rail.<#T$box>makeUnsafe(#T$rtt, #size, false)")
+    public native static def allocRailUninitialized[T](size:Int):Rail[T];
 
-    public static def allocRailUninitialized[T](size:Long):Rail[T]{self.size==size} {
-        return new Rail[T](token, size, false);
-    }
+    @Native("c++", "x10::lang::Rail<#T >::_makeUnsafe(#size, true)")
+    @Native("java", "x10.core.Rail.<#T$box>makeUnsafe(#T$rtt, #size, true)")
+    public native static def allocRailZeroed[T](size:Long):Rail[T]{self.size==size}; 
 
-    public static def allocRailUninitialized[T](size:Int):Rail[T] {
-        return new Rail[T](token, size, false);
-    }
+    @Native("c++", "x10::lang::Rail<#T >::_makeUnsafe(#size, true)")
+    @Native("java", "x10.core.Rail.<#T$box>makeUnsafe(#T$rtt, #size, true)")
+    public native static def allocRailZeroed[T](size:Int):Rail[T];
 
-    public static def allocRailZeroed[T](size:Long):Rail[T]{self.size==size} {
-        return new Rail[T](token, size, true);
-    }
+    @Native("c++", "(#x)->clear()")
+    @Native("java", "(#x).clear()")
+    public native static def clearRail[T](x:Rail[T]):void;
 
-    public static def allocRailZeroed[T](size:Int):Rail[T] {
-        return new Rail[T](token, size, true);
-    }
+    @Native("c++", "(#x)->clear(#start, #numElems)")
+    @Native("java", "(#x).clear(#start, #numElems)")
+    public native static def clearRail[T](x:Rail[T], start:long, numElems:long):void;
 
-    public static def clearRail[T](x:Rail[T]):void {
-        x.clear();
-    }
-
-    public static def clearRail[T](x:Rail[T], start:long, numElems:long):void {
-        x.clear(start, numElems);
-    }
+    @Native("c++", "(#x)->clear(#start, #numElems)")
+    @Native("java", "(#x).clear(#start, #numElems)")
+    public native static def clearRail[T](x:Rail[T], start:int, numElems:int):void;
 
     @Native("c++", "x10aux::dealloc(#o)")
     public static def dealloc[T](o:T){ T isref } :void {}
