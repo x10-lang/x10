@@ -224,7 +224,7 @@ void queryAvailableAlgorithms(x10rt_pami_team* team, pami_xfer_type_t collective
 	// figure out how many different algorithms are available
 	size_t num_algorithms[2] = {0,0}; // [0]=always works, and [1]=sometimes works lists
 	status = PAMI_Geometry_algorithms_num(team->geometry, collective, num_algorithms);
-	if (status != PAMI_SUCCESS || num_algorithms[0]==0) error("Unable to query the algorithm counts for collective %i. num_algorithms[0]=%u, [1]=%u, Status=%i", collective, num_algorithms[0], num_algorithms[1], status);
+	if (status != PAMI_SUCCESS || (num_algorithms[0]==0 && num_algorithms[1]==0)) error("Unable to query the algorithm counts for collective %i. num_algorithms[0]=%u, [1]=%u, Status=%i", collective, num_algorithms[0], num_algorithms[1], status);
 
 	// query what the different algorithms are
 	pami_algorithm_t *always_works_alg = (pami_algorithm_t*)alloca(sizeof(pami_algorithm_t)*num_algorithms[0]);
