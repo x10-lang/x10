@@ -449,7 +449,6 @@ x10rt_error x10rt_lgl_init (int *argc, char ***argv,
 
 x10rt_error x10rt_lgl_init (int *argc, char ***argv, x10rt_msg_type *counter)
 {
-
     PROP_ERR(x10rt_net_init(argc, argv, counter), x10rt_net_error_msg());
     char env[1024] = "";
     sprintf(env, ENV"%lu",  (unsigned long)x10rt_net_here());
@@ -531,6 +530,7 @@ x10rt_error x10rt_lgl_init (int *argc, char ***argv, x10rt_msg_type *counter)
             return code;
         }
     }
+    return X10RT_ERR_OK; // never reached, but needed for compiling on some systems
 }
 
 void x10rt_lgl_register_msg_receiver (x10rt_msg_type msg_type, x10rt_handler *cb)
