@@ -11,7 +11,6 @@
 
 package x10.lang;
 
-import x10.compiler.Native;
 import x10.compiler.NativeRep;
 import x10.util.IndexedMemoryChunk;
 
@@ -49,24 +48,16 @@ public final class Rail[T](size:Long) implements Iterable[T],(Int)=>T,(Long)=>T 
     public static native def copy[T](src:Rail[T], srcIndex:Long, 
                                      dst:Rail[T], dstIndex:Long, numElems:Long):void;
 
-    @Native("java", "x10.core.Rail.<#T$box>asyncCopy(#src,(int)#srcIndex,#dst,(int)#dstIndex,(int)#numElems)")
-    @Native("c++", "x10::lang::Rail<void>::asyncCopy<#T >(#src,#srcIndex,#dst,#dstIndex,#numElems,NULL)")
     public static native def asyncCopy[T](src:Rail[T], srcIndex:Long, 
             dst:GlobalRef[Rail[T]], dstIndex:Long, numElems:Long):void;
 
-    @Native("java", "x10.core.Rail.<#T$box>asyncCopy(#src,(int)#srcIndex,#dst,(int)#dstIndex,(int)#numElems)")
-    @Native("c++", "x10::lang::Rail<void>::asyncCopy<#T >(#src,#srcIndex,#dst,#dstIndex,#numElems,NULL)")
     public static native def asyncCopy[T](src:GlobalRef[Rail[T]], srcIndex:Long, 
             dst:Rail[T], dstIndex:Long, numElems:Long):void;
 
-    @Native("java", "x10.core.Rail.<#T$box>asyncCopy(#src,(int)#srcIndex,#dst,(int)#dstIndex,(int)#numElems,#notifier)")
-    @Native("c++", "x10::lang::Rail<void>::asyncCopy<#T >(#src,#srcIndex,#dst,#dstIndex,#numElems,#notifier)")
     public static native def uncountedCopy[T](src:Rail[T], srcIndex:Long, 
             dst:GlobalRef[Rail[T]], dstIndex:Long, numElems:Long, 
             notifier:()=>void):void;
 
-    @Native("java", "x10.core.Rail.<#T$box>asyncCopy(#src,(int)#srcIndex,#dst,(int)#dstIndex,(int)#numElems,#notifier)")
-    @Native("c++", "x10::lang::Rail<void>::asyncCopy<#T >(#src,#srcIndex,#dst,#dstIndex,#numElems,#notifier)")
     public static native def uncountedCopy[T](src:GlobalRef[Rail[T]], srcIndex:Long, 
             dst:Rail[T], dstIndex:Long, numElems:Long, 
             notifier:()=>void):void;

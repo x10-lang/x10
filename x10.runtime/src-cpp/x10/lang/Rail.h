@@ -175,13 +175,21 @@ namespace x10 {
 
             template<class T> static void asyncCopy(x10::lang::Rail<T>* src, x10_long srcIndex,
                                                     x10::lang::GlobalRef<x10::lang::Rail<T>*> dst, x10_long dstIndex,
-                                                    x10_long numElems,
-                                                    x10::lang::VoidFun_0_0* notif);
+                                                    x10_long numElems);
 
             template<class T> static void asyncCopy(x10::lang::GlobalRef<x10::lang::Rail<T>*> src, x10_long srcIndex,
                                                     x10::lang::Rail<T>* dst, x10_long dstIndex,
-                                                    x10_long numElems,
-                                                    x10::lang::VoidFun_0_0* notif);
+                                                    x10_long numElems);
+
+            template<class T> static void uncountedCopy(x10::lang::Rail<T>* src, x10_long srcIndex,
+                                                        x10::lang::GlobalRef<x10::lang::Rail<T>*> dst, x10_long dstIndex,
+                                                        x10_long numElems,
+                                                        x10::lang::VoidFun_0_0* notif);
+
+            template<class T> static void uncountedCopy(x10::lang::GlobalRef<x10::lang::Rail<T>*> src, x10_long srcIndex,
+                                                        x10::lang::Rail<T>* dst, x10_long dstIndex,
+                                                        x10_long numElems,
+                                                        x10::lang::VoidFun_0_0* notif);
         };
     }
 } 
@@ -413,8 +421,20 @@ template<class T> void x10::lang::Rail<void>::copy(x10::lang::Rail<T>* src,
 
 template<class T> void x10::lang::Rail<void>::asyncCopy(x10::lang::Rail<T>* src, x10_long srcIndex,
                                                         x10::lang::GlobalRef<x10::lang::Rail<T>*> dst, x10_long dstIndex,
-                                                        x10_long numElems,
-                                                        x10::lang::VoidFun_0_0* notif) {
+                                                        x10_long numElems) {
+    x10::lang::Rail<void>::uncountedCopy(src, srcIndex, dst, dstIndex, numElems, NULL);
+}
+
+template<class T> void x10::lang::Rail<void>::asyncCopy(x10::lang::GlobalRef<x10::lang::Rail<T>*> src, x10_long srcIndex,
+                                                        x10::lang::Rail<T>* dst, x10_long dstIndex,
+                                                        x10_long numElems) {
+    x10::lang::Rail<void>::uncountedCopy(src, srcIndex, dst, dstIndex, numElems, NULL);
+}
+
+template<class T> void x10::lang::Rail<void>::uncountedCopy(x10::lang::Rail<T>* src, x10_long srcIndex,
+                                                            x10::lang::GlobalRef<x10::lang::Rail<T>*> dst, x10_long dstIndex,
+                                                            x10_long numElems,
+                                                            x10::lang::VoidFun_0_0* notif) {
     if (numElems <= 0) return;
     void* srcAddr = (void*)(&src->raw[srcIndex]);
     void* dstAddr = (void*)(&dst->__apply()->raw[dstIndex]);
@@ -426,10 +446,10 @@ template<class T> void x10::lang::Rail<void>::asyncCopy(x10::lang::Rail<T>* src,
     x10::util::IMC_copyToBody(srcAddr, dstAddr, numBytes, x10::lang::Place::place(dst.location), src->raw == dst->__apply()->raw, notif);
 }
 
-template<class T> void x10::lang::Rail<void>::asyncCopy(x10::lang::GlobalRef<x10::lang::Rail<T>*> src, x10_long srcIndex,
-                                                        x10::lang::Rail<T>* dst, x10_long dstIndex,
-                                                        x10_long numElems,
-                                                        x10::lang::VoidFun_0_0* notif) {
+template<class T> void x10::lang::Rail<void>::uncountedCopy(x10::lang::GlobalRef<x10::lang::Rail<T>*> src, x10_long srcIndex,
+                                                            x10::lang::Rail<T>* dst, x10_long dstIndex,
+                                                            x10_long numElems,
+                                                            x10::lang::VoidFun_0_0* notif) {
     if (numElems <= 0) return;
     void* srcAddr = (void*)(&src->__apply()->raw[srcIndex]);
     void* dstAddr = (void*)(&dst->raw[dstIndex]);

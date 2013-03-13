@@ -404,7 +404,10 @@ public final class Rail<T> extends x10.core.Ref implements x10.lang.Iterable,
     }
 
 
-    public static <T> void asyncCopy(Rail<T> src, final int srcIndex, final GlobalRef<Rail<T>> dst, final int dstIndex, final int numElems) {
+    public static <T> void asyncCopy__0$1x10$lang$Rail$$T$2__2$1x10$lang$Rail$1x10$lang$Rail$$T$2$2(Type T, Rail<T> src, final long srcIndexL, final GlobalRef<Rail<T>> dst, final long dstIndexL, final long numElemsL) {
+        int srcIndex = (int)srcIndexL;
+        int dstIndex = (int)dstIndexL;
+        int numElems = (int)numElemsL;
         // synchronous version for the same place
         if (dst.home.id == x10.lang.Runtime.home().id) {
             System.arraycopy(src.value, srcIndex, dst.$apply$G().value, dstIndex, numElems);
@@ -501,7 +504,10 @@ public final class Rail<T> extends x10.core.Ref implements x10.lang.Iterable,
         }
     }
 
-    public static <T> void asyncCopy(Rail<T> src, int srcIndex, GlobalRef<Rail<T>> dst, int dstIndex, int numElems, VoidFun_0_0 notifier) {
+    public static <T> void uncountedCopy__0$1x10$lang$Rail$$T$2__2$1x10$lang$Rail$1x10$lang$Rail$$T$2$2(Type T, Rail<T> src, long srcIndexL, GlobalRef<Rail<T>> dst, long dstIndexL, long numElemsL, VoidFun_0_0 notifier) {
+        int srcIndex = (int)srcIndexL;
+        int dstIndex = (int)dstIndexL;
+        int numElems = (int)numElemsL;
         // synchronous version for the same place
         if (dst.home.id == x10.lang.Runtime.home().id) {
             System.arraycopy(src.value, srcIndex, dst.$apply$G().value, dstIndex, numElems);
@@ -509,11 +515,14 @@ public final class Rail<T> extends x10.core.Ref implements x10.lang.Iterable,
             return;
         }
 
-        throw new java.lang.UnsupportedOperationException("asyncCopy with notifier not implemented for multivm");
+        throw new java.lang.UnsupportedOperationException("uncountedCopy not implemented for multivm");
         // notifier.$apply();
     }
 
-    public static <T> void asyncCopy(final GlobalRef<Rail<T>> src, final int srcIndex, Rail<T> dst, final int dstIndex, final int numElems) {
+    public static <T> void asyncCopy__0$1x10$lang$Rail$1x10$lang$Rail$$T$2$2__2$1x10$lang$Rail$$T$2(Type T, final GlobalRef<Rail<T>> src, final long srcIndexL, Rail<T> dst, final long dstIndexL, final long numElemsL) {
+        int srcIndex = (int)srcIndexL;
+        int dstIndex = (int)dstIndexL;
+        int numElems = (int)numElemsL;
         // synchronous version for the same place
         if (src.home.id == x10.lang.Runtime.home().id) {
             System.arraycopy(src.$apply$G().value, srcIndex, dst.value, dstIndex, numElems);
@@ -601,7 +610,10 @@ public final class Rail<T> extends x10.core.Ref implements x10.lang.Iterable,
         }
     }
 
-    public static <T> void asyncCopy(GlobalRef<Rail<T>> src, int srcIndex, Rail<T> dst, int dstIndex, int numElems, VoidFun_0_0 notifier) {
+    public static <T> void uncountedCopy__0$1x10$lang$Rail$1x10$lang$Rail$$T$2$2__2$1x10$lang$Rail$$T$2(Type T, GlobalRef<Rail<T>> src, long srcIndexL, Rail<T> dst, long dstIndexL, long numElemsL, VoidFun_0_0 notifier) {
+        int srcIndex = (int)srcIndexL;
+        int dstIndex = (int)dstIndexL;
+        int numElems = (int)numElemsL;
         // synchronous version for the same place
         if (src.home.id == x10.lang.Runtime.home().id) {
             System.arraycopy(src.$apply$G().value, srcIndex, dst.value, dstIndex, numElems);
@@ -609,7 +621,7 @@ public final class Rail<T> extends x10.core.Ref implements x10.lang.Iterable,
             return;
         }
 
-        throw new java.lang.UnsupportedOperationException("asyncCopy with notifier not implemented for multivm");
+        throw new java.lang.UnsupportedOperationException("uncountedCopy not implemented for multivm");
         // notifier.$apply();
     }
 }
