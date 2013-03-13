@@ -33,6 +33,7 @@ namespace x10 {
         class LongRange;
         template<class T> class Iterator;
         template<class T> class RailIterator;
+        template<class T> class GlobalRef;
         class String;
     }
 }
@@ -171,6 +172,24 @@ namespace x10 {
                                                x10_int numElems) {
                 copy(src, (x10_long)srcIndex, dst, (x10_long)dstIndex, (x10_long)numElems);
             }
+
+            template<class T> static void asyncCopy(x10::lang::Rail<T>* src, x10_long srcIndex,
+                                                    x10::lang::GlobalRef<x10::lang::Rail<T>*> dst, x10_long dstIndex,
+                                                    x10_long numElems);
+
+            template<class T> static void asyncCopy(x10::lang::Rail<T>* src, x10_long srcIndex,
+                                                    x10::lang::GlobalRef<x10::lang::Rail<T>*> dst, x10_long dstIndex,
+                                                    x10_long numElems,
+                                                    x10::lang::VoidFun_0_0* notif);
+
+            template<class T> static void asyncCopy(x10::lang::GlobalRef<x10::lang::Rail<T>*> src, x10_long srcIndex,
+                                                    x10::lang::Rail<T>* dst, x10_long dstIndex,
+                                                    x10_long numElems);
+
+            template<class T> static void asyncCopy(x10::lang::GlobalRef<x10::lang::Rail<T>*> src, x10_long srcIndex,
+                                                    x10::lang::Rail<T>* dst, x10_long dstIndex,
+                                                    x10_long numElems,
+                                                    x10::lang::VoidFun_0_0* notif);
         };
     }
 } 
@@ -398,6 +417,16 @@ template<class T> void x10::lang::Rail<void>::copy(x10::lang::Rail<T>* src,
     checkBounds(dstIndex+numElems, dst->FMGL(size)+1ll);
 
     rail_copyRaw(&src->raw[srcIndex], &dst->raw[dstIndex], sizeof(T)*numElems, src == dst);
+}
+
+template<class T> void x10::lang::Rail<void>::asyncCopy(x10::lang::Rail<T>* src, x10_long srcIndex,
+                                                        x10::lang::GlobalRef<x10::lang::Rail<T>*> dst, x10_long dstIndex,
+                                                        x10_long numElems) {
+}
+
+template<class T> void x10::lang::Rail<void>::asyncCopy(x10::lang::GlobalRef<x10::lang::Rail<T>*> src, x10_long srcIndex,
+                                                        x10::lang::Rail<T>* dst, x10_long dstIndex,
+                                                        x10_long numElems) {
 }
 
 /*
