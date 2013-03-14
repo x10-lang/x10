@@ -88,7 +88,7 @@ public class X10RT {
      */
     public static synchronized boolean connect_library(int myPlace, String[] connectionInfo) {
     	if (state != State.INITIALIZED) return true; // already initialized
-        int err = x10rt_init(0, null); // TODO: fill in properly, using the arguments
+        int err = x10rt_init(myPlace, connectionInfo);
         if (err != 0) {
             System.err.println("Failed to initialize X10RT.");
             x10rt_finalize();

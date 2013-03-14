@@ -25,6 +25,7 @@ static x10rt_msg_type counter = 0;
 static bool run_as_library = false;
 
 x10rt_error x10rt_preinit (char* connInfoBuffer, int connInfoBufferSize) {
+	run_as_library = true;
 	return x10rt_lgl_preinit(connInfoBuffer, connInfoBufferSize);
 }
 

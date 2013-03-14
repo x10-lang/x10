@@ -106,19 +106,21 @@ bool probe (bool onlyProcessAccept, bool block);
 
 static x10rt_error fatal (const char *format, ...)
 {
-    va_list va_args;
-    va_start(va_args, format);
-
     if (context.errorCode == X10RT_ERR_OK)
     	context.errorCode = X10RT_ERR_INTL;
 
-    int sz = vsnprintf(NULL, 0, format, va_args);
-    free(context.errorMsg);
-    context.errorMsg = (char*)malloc(sz);
+    va_list va_args;
+    va_start(va_args, format);
+
+    //int sz = vsnprintf(NULL, 0, format, va_args);
+    //free(context.errorMsg);
+    //context.errorMsg = (char*)malloc(sz);
+    context.errorMsg = (char*)malloc(1200);
     vsprintf(context.errorMsg, format, va_args);
 
     va_end(va_args);
 
+    fprintf(stderr, "%s\n", context.errorMsg);
     return context.errorCode;
 }
 
@@ -611,6 +613,7 @@ x10rt_error x10rt_net_preinit(char* connInfoBuffer, int connInfoBufferSize) {
 	unsigned listenPort;
 	int fd = TCP::listen(&listenPort, 10);
 	if (fd < 0) {
+		context.myPlaceId = 0;
 		context.errorCode = X10RT_ERR_OTHER;
 		return fatal_error("cannot create listener port");
 	}
@@ -630,33 +633,54 @@ x10rt_error x10rt_net_preinit(char* connInfoBuffer, int connInfoBufferSize) {
 
 x10rt_error x10rt_net_init (int * argc, char ***argv, x10rt_msg_type *counter)
 {
+	context.pendingWrites = NULL;
+	context.useNonblockingLinks = !checkBoolEnvVar(getenv(X10_NOWRITEBUFFER));
+	if (context.useNonblockingLinks)
+		pthread_mutex_init(&context.pendingWriteLock, NULL);
+
 	if (context.state == PREINITIALIZED) {
 		// phase 2 of the library mode.  Basically, initialize everything other than what was done above.  The arguments
 		// list is expected to contain the connection information needed to link up to the other runtimes, as well as the
 		// number of places and which one is us
-
-		// TODO: get the number of places
-
-		context.linkAtStartup = true;
+		context.numPlaces = *argc;
+		#ifdef DEBUG		
+			fprintf(stderr, "There are %u places!\n", context.numPlaces);
+		#endif		
 		context.yieldAfterProbe = true;
-		context.useNonblockingLinks = !checkBoolEnvVar(getenv(X10_NOWRITEBUFFER));
-
 		context.nextSocketToCheck = 0;
+		context.linkAtStartup = false;
+		context.state = RUNNING_LIBRARY;
 		pthread_mutex_init(&context.readLock, NULL);
 		context.socketLinks = safe_malloc<pollfd>(context.numPlaces);
 		context.writeLocks = safe_malloc<pthread_mutex_t>(context.numPlaces);
 		for (unsigned int i=0; i<context.numPlaces; i++)
 		{
-			context.socketLinks[i].fd = -1;
 			context.socketLinks[i].events = 0;
+			if (NULL == (*argv)[i]) {
+				#ifdef DEBUG
+					fprintf(stderr, "My Place is %u!\n", i);
+				#endif
+				context.socketLinks[i].fd = context.myPlaceId;
+				context.myPlaceId = i;
+			}
+			else {
+				#ifdef DEBUG			
+					fprintf(stderr, "Place %u is at %s!\n", i, (*argv)[i]);
+				#endif
+				context.socketLinks[i].fd = -1;
+			}
 		}
-
-		// TODO: get my place ID
-
-		// TODO: save the listen port FD from phase 1
-
-		// TODO: connect to other places
-		context.state = RUNNING_LIBRARY;
+		// establish connections to remote places with lower place IDs
+		for (unsigned i=0; i<context.myPlaceId; i++) {
+			int ret = initLink(i, (*argv)[i]); // connect to all lower places
+			if (ret <= 0) {
+				fatal("Unable to connect to %s", (*argv)[i]);
+				return X10RT_ERR_INVALID;
+			}
+		}
+		for (unsigned i=context.myPlaceId+1; i<context.numPlaces; i++)
+			while (context.socketLinks[i].fd <= 0)
+				probe(true, false); // wait for connections from all upper places
 	}
 	else {
 		context.state = RUNNING;
@@ -701,7 +725,6 @@ x10rt_error x10rt_net_init (int * argc, char ***argv, x10rt_msg_type *counter)
 
 		context.yieldAfterProbe = !checkBoolEnvVar(getenv(X10_NOYIELD));
 		context.linkAtStartup = !checkBoolEnvVar(getenv(X10_LAZYLINKS));
-		context.useNonblockingLinks = !checkBoolEnvVar(getenv(X10_NOWRITEBUFFER));
 
 		context.nextSocketToCheck = 0;
 		pthread_mutex_init(&context.readLock, NULL);
@@ -741,9 +764,6 @@ x10rt_error x10rt_net_init (int * argc, char ***argv, x10rt_msg_type *counter)
 		}
 	}
 
-	context.pendingWrites = NULL;
-	if (context.useNonblockingLinks)
-		pthread_mutex_init(&context.pendingWriteLock, NULL);
 	#ifdef DEBUG
 		fprintf(stderr, "X10rt.Sockets: place %u running\n", context.myPlaceId);
 	#endif

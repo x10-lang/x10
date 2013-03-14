@@ -55,25 +55,47 @@ JNIEXPORT jstring JNICALL Java_x10_x10rt_X10RT_x10rt_1preinit(JNIEnv *env, jclas
  */
 JNIEXPORT jint JNICALL Java_x10_x10rt_X10RT_x10rt_1init(JNIEnv *env, jclass, jint numArgs, jobjectArray args) {
     initCachedJVM(env);
+    if (args == NULL) {
 #ifdef __CYGWIN__
-    char exe[MAX_PATH];
-    long res = GetModuleFileName(NULL, exe, MAX_PATH);
-    if (res == 0 || res == MAX_PATH) {
-        strcpy(exe, "java");
-    }
+		char exe[MAX_PATH];
+		long res = GetModuleFileName(NULL, exe, MAX_PATH);
+		if (res == 0 || res == MAX_PATH) {
+			strcpy(exe, "java");
+		}
 #else
-    char *exe = const_cast<char*>("java");
+		char *exe = const_cast<char*>("java");
 #endif
-    char *argv_0[] = { exe, NULL };
-    int argc = 1;
-    char** argv = argv_0;
-    x10rt_error err = x10rt_init(&argc, &argv);
-    if (err != X10RT_ERR_OK) {
-        if (x10rt_error_msg() != NULL)
-            fprintf(stderr,"X10RT fatal initialization error: %s\n", x10rt_error_msg());
-        if (ABORT_NEEDED && !x10rt_run_as_library()) abort();
-        return err;
+		char *argv_0[] = { exe, NULL };
+		int argc = 1;
+		char** argv = argv_0;
+		x10rt_error err = x10rt_init(&argc, &argv);
+		if (err != X10RT_ERR_OK) {
+			if (x10rt_error_msg() != NULL)
+				fprintf(stderr,"X10RT fatal initialization error: %s\n", x10rt_error_msg());
+			if (ABORT_NEEDED && !x10rt_run_as_library()) abort();
+			return err;
+		}
     }
+	else {
+		// this is the second part of a 2-phase init
+		// numArgs is our place ID
+		// args contains an array of connection strings, one per place
+		jsize nplaces = env->GetArrayLength(args);
+		char** connStrings = (char**)malloc(nplaces*sizeof(char*));
+		for (int i=0; i<nplaces; i++) {
+			if (i==numArgs)
+				connStrings[i] = NULL;
+			else {
+				jstring connString = (jstring)env->GetObjectArrayElement(args, i);
+				connStrings[i] = (char *)env->GetStringUTFChars(connString, 0);
+			}
+		}
+		x10rt_error err = x10rt_init(&nplaces, &connStrings);
+		for (int i=0; i<nplaces; i++)
+			env->ReleaseStringUTFChars((jstring)env->GetObjectArrayElement(args, i), connStrings[i]);
+		free(connStrings);
+		return err;
+	}
     return X10RT_ERR_OK;
 }
     

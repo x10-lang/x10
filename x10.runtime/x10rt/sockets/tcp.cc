@@ -162,7 +162,7 @@ int TCP::connect(const char *host, unsigned port, unsigned retries, bool noDelay
 	int rc;
 	hostent *remoteInfo = gethostbyname(host);
 	if (!remoteInfo) {
-		fprintf(stderr, "TCP::connect cannot resolve remote hostname");
+		fprintf(stderr, "TCP::connect cannot resolve remote hostname \"%s\"\n", host);
 		return -1;
 	}
 
@@ -180,7 +180,7 @@ int TCP::connect(const char *host, unsigned port, unsigned retries, bool noDelay
 	{
 		connectionFd = ::socket(AF_INET, SOCK_STREAM, 0);
 		if (connectionFd == -1) {
-			fprintf(stderr, "TCP::connect cannot create socket");
+			fprintf(stderr, "TCP::connect cannot create socket\n");
 			return -1;
 		}
 		rc = ::connect(connectionFd, (sockaddr *) &ra, sizeof(ra));
@@ -188,7 +188,7 @@ int TCP::connect(const char *host, unsigned port, unsigned retries, bool noDelay
 
 		close(connectionFd);
 		if (retry++ >= retries) {
-			fprintf(stderr, "TCP::connect timeout");
+			fprintf(stderr, "TCP::connect timeout\n");
 			return -1;
 		}
 		sleep(1);
@@ -199,7 +199,7 @@ int TCP::connect(const char *host, unsigned port, unsigned retries, bool noDelay
 		int enable = 1;
 		rc = setsockopt(connectionFd, IPPROTO_TCP, TCP_NODELAY, &enable, sizeof(enable));
 		if (rc < 0) {
-			fprintf(stderr, "TCP::connect Cannot set socket options on fd");
+			fprintf(stderr, "TCP::connect Cannot set socket options on fd\n");
 			return -1;
 		}
 	}
@@ -215,7 +215,7 @@ int TCP::connect(const char * hostport, unsigned retries, bool noDelay)
 	strcpy(hostport2, hostport);
 	char * c = strchr(hostport2, ':');
 	if (c == NULL) {
-		fprintf(stderr, "TCP::connect Malformed host:port");
+		fprintf(stderr, "TCP::connect Malformed host:port\n");
 		return -1;
 	}
 	c[0] = '\0';
@@ -235,7 +235,7 @@ int TCP::getname(int fd, char * name, unsigned namelen)
 	}
 
 	if (gethostname(name, namelen-10) == -1) {
-		fprintf(stderr, "TCP::getname Error getting hostname");
+		fprintf(stderr, "TCP::getname Error getting hostname from socket\n");
 		return -1;
 	}
 	int lenofName = strlen(name);
