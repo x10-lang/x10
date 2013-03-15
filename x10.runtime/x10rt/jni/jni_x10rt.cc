@@ -90,7 +90,7 @@ JNIEXPORT jint JNICALL Java_x10_x10rt_X10RT_x10rt_1init(JNIEnv *env, jclass, jin
 				connStrings[i] = (char *)env->GetStringUTFChars(connString, 0);
 			}
 		}
-		x10rt_error err = x10rt_init(&nplaces, &connStrings);
+		x10rt_error err = x10rt_init((int*)(&nplaces), &connStrings);
 		for (int i=0; i<nplaces; i++)
 			env->ReleaseStringUTFChars((jstring)env->GetObjectArrayElement(args, i), connStrings[i]);
 		free(connStrings);
