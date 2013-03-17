@@ -59,7 +59,7 @@
     <target name="init">
         <mkdir dir="${build}"/>
         <mkdir dir="${gen}"/>
-        <javac destdir="${build}" source="1.5" target="1.5" debug="on" nowarn="on">
+        <javac destdir="${build}" source="1.6" target="1.6" debug="on" nowarn="on">
             <src path="${x10.common.location}/contrib/ant"/>
             <include name="Ejc.java"/>
             <include name="IfTask.java"/>
@@ -311,7 +311,7 @@
         <java classname="x10c.util.MakeFun" classpath="${x10.dist.location}/lib/x10c.jar" fork="true" dir="${gen}"/>
     </target>
     <target name="build-java" depends="init,gen-xrx,gen-xrj">
-        <ejc destdir="${build}" source="1.5" target="1.5" debug="on" nowarn="on">
+        <ejc destdir="${build}" source="1.6" target="1.6" debug="on" nowarn="on">
             <src path="${src}"/>
             <size value="50" when="more"/>
             <classpath>
@@ -323,7 +323,7 @@
         </ejc>
     </target>
     <target name="build-x10-x10rt" depends="init">
-        <ejc destdir="${build}" source="1.5" target="1.5" debug="on" nowarn="on">
+        <ejc destdir="${build}" source="1.6" target="1.6" debug="on" nowarn="on">
             <src path="${src}/x10/x10rt"/>
             <size value="50" when="more"/>
             <classpath>
@@ -360,7 +360,7 @@
     </target>
     <target name="build-xrx" depends="init,gen-xrx,build-java">
         <!--
-        <ejc destdir="${build}" source="1.5" target="1.5" debug="on" nowarn="on">
+        <ejc destdir="${build}" source="1.6" target="1.6" debug="on" nowarn="on">
             <src path="${gen}"/>
             <size value="50" when="more"/>
             <classpath>
