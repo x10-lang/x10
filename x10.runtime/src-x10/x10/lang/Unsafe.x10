@@ -17,19 +17,19 @@ public final class Unsafe {
 
     @Native("c++", "x10::lang::Rail<#T >::_makeUnsafe(#size, false)")
     @Native("java", "x10.core.Rail.<#T$box>makeUnsafe(#T$rtt, #size, false)")
-    public native static def allocRailUninitialized[T](size:Long):Rail[T]{self.size==size};
+    public native static def allocRailUninitialized[T](size:Long):Rail[T]{self.size==size, self!=null};
 
     @Native("c++", "x10::lang::Rail<#T >::_makeUnsafe(#size, false)")
     @Native("java", "x10.core.Rail.<#T$box>makeUnsafe(#T$rtt, #size, false)")
-    public native static def allocRailUninitialized[T](size:Int):Rail[T];
+    public native static def allocRailUninitialized[T](size:Int):Rail[T]{self!=null};
 
     @Native("c++", "x10::lang::Rail<#T >::_makeUnsafe(#size, true)")
     @Native("java", "x10.core.Rail.<#T$box>makeUnsafe(#T$rtt, #size, true)")
-    public native static def allocRailZeroed[T](size:Long):Rail[T]{self.size==size}; 
+    public native static def allocRailZeroed[T](size:Long):Rail[T]{self.size==size,self!=null}; 
 
     @Native("c++", "x10::lang::Rail<#T >::_makeUnsafe(#size, true)")
     @Native("java", "x10.core.Rail.<#T$box>makeUnsafe(#T$rtt, #size, true)")
-    public native static def allocRailZeroed[T](size:Int):Rail[T];
+    public native static def allocRailZeroed[T](size:Int):Rail[T]{self!=null};
 
     @Native("c++", "(#x)->clear()")
     @Native("java", "(#x).clear()")

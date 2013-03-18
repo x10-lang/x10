@@ -22,8 +22,6 @@ import x10.compiler.Incomplete;
 import x10.io.CustomSerialization;
 import x10.io.SerialData;
 
-import x10.util.IndexedMemoryChunk;
-
 /**
  * <p>A distributed array (DistArray) defines a mapping from {@link Point}s to data 
  * values of some type T. The Points in the DistArray's domain are defined by
@@ -70,8 +68,8 @@ public final class DistArray[T] (
      */
     public property rank(): int = dist.rank;
 
-    protected static class LocalState[T](dist:Dist, data:IndexedMemoryChunk[T]) {
-      public def this(d:Dist, c:IndexedMemoryChunk[T]) { 
+    protected static class LocalState[T](dist:Dist, data:Rail[T]) {
+      public def this(d:Dist, c:Rail[T]) { 
           property(d, c);
 
           // Calling operator this here serves to force initialization of any 
@@ -87,13 +85,13 @@ public final class DistArray[T] (
     /** Can the backing storage be obtained from cachedRaw? */
     protected transient var cachedRawValid:boolean;
     /** Cached pointer to the backing storage */
-    protected transient var cachedRaw:IndexedMemoryChunk[T];
+    protected transient var cachedRaw:Rail[T];
     
     /**
      * Method to acquire a pointer to the backing storage for the 
      * array's data in the current place.
      */
-    protected final def raw():IndexedMemoryChunk[T] {
+    protected final def raw():Rail[T] {
         if (!cachedRawValid) {
             cachedRaw = localHandle().data;
             x10.util.concurrent.Fences.storeStoreBarrier();
@@ -125,7 +123,7 @@ public final class DistArray[T] (
 
         val plsInit:()=>LocalState[T] = () => {
             val size = dist.places().contains(here) ? dist.maxOffset()+1 : 0;
-            val localRaw = IndexedMemoryChunk.allocateZeroed[T](size);
+            val localRaw = new Rail[T](size);
             return new LocalState(dist, localRaw);
         };
 
@@ -163,20 +161,19 @@ public final class DistArray[T] (
      */
     public static def make[T](dist:Dist, init:(Point(dist.rank))=>T)= new DistArray[T](dist, init);
 
-    // TODO: consider making this constructor public
     def this(dist:Dist, init:(Point(dist.rank))=>T):DistArray[T]{self.dist==dist} {
         property(dist);
 
         val plsInit:()=>LocalState[T] = () => {
-            val localRaw:IndexedMemoryChunk[T];
+            val localRaw:Rail[T];
             if (dist.places().contains(here)) {
-                localRaw = IndexedMemoryChunk.allocateUninitialized[T](dist.maxOffset()+1);
+                localRaw = Unsafe.allocRailUninitialized[T](dist.maxOffset()+1);
                 val reg = dist.get(here);
                 for (pt in reg) {
                     localRaw(dist.offset(pt)) = init(pt);
                 }
             } else {
-                localRaw = IndexedMemoryChunk.allocateUninitialized[T](0);
+                localRaw = new Rail[T]();
             }
             return new LocalState(dist, localRaw);
         };
@@ -196,20 +193,19 @@ public final class DistArray[T] (
      */
     public static def make[T](dist:Dist, init:T)= new DistArray[T](dist, init);
 
-    // TODO: consider making this constructor public
     def this(dist:Dist, init:T):DistArray[T]{self.dist==dist} {
         property(dist);
 
         val plsInit:()=>LocalState[T] = () => {
-            val localRaw:IndexedMemoryChunk[T];
+            val localRaw:Rail[T];
             if (dist.places().contains(here)) {
-                localRaw = IndexedMemoryChunk.allocateUninitialized[T](dist.maxOffset()+1);
+                localRaw = Unsafe.allocRailUninitialized[T](dist.maxOffset()+1);
                 val reg = dist.get(here);
                 for (pt in reg) {
                     localRaw(dist.offset(pt)) = init;
                 }
             } else {
-                localRaw = IndexedMemoryChunk.allocateUninitialized[T](0);
+                localRaw = new Rail[T]();
             }
             return new LocalState(dist, localRaw);
         };
@@ -518,10 +514,10 @@ public final class DistArray[T] (
     public def fill(v:T) {
         finish for (where in dist.places()) {
             at (where) async {
-                val imc = raw();
+                val rail = raw();
                 val reg = dist.get(here);
                 for (pt in reg) {
-                    imc(dist.offset(pt)) = v;
+                    rail(dist.offset(pt)) = v;
                 }
             }
         }
@@ -538,19 +534,19 @@ public final class DistArray[T] (
      */
     public final def map[U](op:(T)=>U):DistArray[U](this.dist) {
         val plh = PlaceLocalHandle.make[LocalState[U]](PlaceGroup.WORLD, ()=> {
-            val newImc:IndexedMemoryChunk[U];
+            val newRail:Rail[U];
             if (dist.places().contains(here)) {
-                val srcImc = raw();
-                newImc = IndexedMemoryChunk.allocateUninitialized[U](dist.maxOffset()+1);
+                val srcRail = raw();
+                newRail = Unsafe.allocRailUninitialized[U](dist.maxOffset()+1);
                 val reg = dist.get(here);
                 for (pt in reg) {
                     val offset = dist.offset(pt);
-                    newImc(offset) = op(srcImc(offset));
+                    newRail(offset) = op(srcRail(offset));
                 }
             } else {
-                newImc = IndexedMemoryChunk.allocateUninitialized[U](0);
+                newRail = new Rail[U]();
             }
-            return new LocalState[U](dist, newImc);
+            return new LocalState[U](dist, newRail);
         });
         return new DistArray[U](dist, plh);                       
     }
@@ -570,11 +566,11 @@ public final class DistArray[T] (
             for (where in dist.places()) {
                 at(where) async {
                     val reg = dist.get(here);
-                    val srcImc = raw();
-                    val dstImc = dst.raw();
+                    val srcRail = raw();
+                    val dstRail = dst.raw();
                     for (pt in reg) {
                         val offset = dist.offset(pt);
-                        dstImc(offset) = op(srcImc(offset));
+                        dstRail(offset) = op(srcRail(offset));
                     }
                 }
             }
@@ -600,11 +596,11 @@ public final class DistArray[T] (
                 at(where) async {
                     val reg = dist.get(here);
                     val freg = reg && filter;
-                    val srcImc = raw();
-                    val dstImc = dst.raw();
+                    val srcRail = raw();
+                    val dstRail = dst.raw();
                     for (pt in freg) {
                         val offset = dist.offset(pt);
-                        dstImc(offset) = op(srcImc(offset));
+                        dstRail(offset) = op(srcRail(offset));
                     }
                 }
             }
@@ -624,20 +620,20 @@ public final class DistArray[T] (
      */
     public final def map[S,U](src:DistArray[U](this.dist), op:(T,U)=>S):DistArray[S](dist) {
         val plh = PlaceLocalHandle.make[LocalState[S]](PlaceGroup.WORLD, ()=> {
-            val newImc:IndexedMemoryChunk[S];
+            val newRail:Rail[S];
             if (dist.places().contains(here)) {
-                val src1Imc = raw();
-                val src2Imc = src.raw();
-                newImc = IndexedMemoryChunk.allocateUninitialized[S](dist.maxOffset()+1);
+                val src1Rail = raw();
+                val src2Rail = src.raw();
+                newRail = Unsafe.allocRailUninitialized[S](dist.maxOffset()+1);
                 val reg = dist.get(here);
                 for (pt in reg) {
                     val offset = dist.offset(pt);
-                    newImc(offset) = op(src1Imc(offset), src2Imc(offset));
+                    newRail(offset) = op(src1Rail(offset), src2Rail(offset));
                 }
             } else {
-                newImc = IndexedMemoryChunk.allocateUninitialized[S](0);
+                newRail = new Rail[S]();
             }
-            return new LocalState[S](dist, newImc);
+            return new LocalState[S](dist, newRail);
         });
         return new DistArray[S](dist, plh);                       
     }
@@ -658,12 +654,12 @@ public final class DistArray[T] (
             for (where in dist.places()) {
                 at(where) async {
                     val reg = dist.get(here);
-                    val src1Imc = raw();
-                    val src2Imc = src.raw();
-                    val dstImc = dst.raw();
+                    val src1Rail = raw();
+                    val src2Rail = src.raw();
+                    val dstRail = dst.raw();
                     for (pt in reg) {
                         val offset = dist.offset(pt);
-                        dstImc(offset) = op(src1Imc(offset), src2Imc(offset));
+                        dstRail(offset) = op(src1Rail(offset), src2Rail(offset));
                     }
                 }
             }
@@ -689,12 +685,12 @@ public final class DistArray[T] (
                 at(where) async {
                     val reg = dist.get(here);
                     val freg = reg && filter;
-                    val src1Imc = raw();
-                    val src2Imc = src.raw();
-                    val dstImc = dst.raw();
+                    val src1Rail = raw();
+                    val src2Rail = src.raw();
+                    val dstRail = dst.raw();
                     for (pt in freg) {
                         val offset = dist.offset(pt);
-                        dstImc(offset) = op(src1Imc(offset), src2Imc(offset));
+                        dstRail(offset) = op(src1Rail(offset), src2Rail(offset));
                     }
                 }
             }
@@ -739,9 +735,9 @@ public final class DistArray[T] (
                 at (where) async {
                     val reg = dist.get(here);
                     var localRes:U = unit;
-                    val imc = raw();
+                    val rail = raw();
                     for (pt in reg) {
-                       localRes = lop(localRes, imc(dist.offset(pt)));
+                       localRes = lop(localRes, rail(dist.offset(pt)));
                     }
                     offer(localRes);
                 }

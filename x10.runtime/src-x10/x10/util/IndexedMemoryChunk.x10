@@ -22,12 +22,8 @@ import x10.compiler.NativeRep;
  * contains a dense, indexed from 0 collection of 
  * values of type T.<p>
  *
- * This abstraction is provide to enable other higher-level
- * abstractions (such as Rail) to be implemented efficiently
- * and to allow low-level programming of memory regions at the
- * X10 level when absolutely required for performance. Most of the API
- * of this class is safe, but there are some loopholes that can be 
- * used when absolutely necessary for performance..<p>
+ * @Deprecated  This class has been superceded by x10.lang.Rail. 
+ *              IndexedMemoryChunk will be removed in X10 2.4.1.
  */
 @NativeRep("java", "x10.core.IndexedMemoryChunk<#T$box>", null, "x10.rtt.ParameterizedType.make(x10.core.IndexedMemoryChunk.$RTT, #T$rtt)")
 @NativeRep("c++", "x10::util::IndexedMemoryChunk<#T >", "x10::util::IndexedMemoryChunk<#T >", null)

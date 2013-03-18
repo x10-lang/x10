@@ -61,7 +61,8 @@ public class CUDAUtilities {
         : RemoteArray[T]{self.rank==1, self.array.home==place}
     {
         if (place.isCUDA()) {
-            return makeCUDAArray(place, numElements, init.raw());
+//            return makeCUDAArray(place, numElements, init.raw());
+              throw new UnsupportedOperationException("TODO: port CUDA to Rails");
         } else {
             return (at (place) new RemoteArray(new Array[T](numElements, (p:Int)=>init(p)))) as RemoteArray[T]{self.rank==1, self.array.home==place};
         }

@@ -41,9 +41,12 @@ public struct Team {
     /** Create a team by defining the place where each member lives.  This would usually be called before creating an async for each member of the team.
      * @param places The place of each member
      */
+/*
+ FIXME: IMC===>Rail hack.  Comment out API while Olivier is fixing Team
     public def this (places:Array[Place]) {
         this(places.raw(), places.size);
     }
+*/
 
     private def this (places:IndexedMemoryChunk[Place], count:Int) {
         val result = IndexedMemoryChunk.allocateUninitialized[Int](1);
@@ -98,9 +101,11 @@ public struct Team {
      *
      * @param count The number of elements being transferred
      */
+/* FIXME: IMC===>Rail hack.  Comment out API while Olivier is fixing Team
     public def scatter[T] (role:Int, root:Int, src:Array[T], src_off:Int, dst:Array[T], dst_off:Int, count:Int) : void {
         finish nativeScatter(id, role, root, src.raw(), src_off, dst.raw(), dst_off, count);
     }
+*/
 
     private static def nativeScatter[T] (id:Int, role:Int, root:Int, src:IndexedMemoryChunk[T], src_off:Int, dst:IndexedMemoryChunk[T], dst_off:Int, count:Int) : void {
         @Native("java", "x10.x10rt.TeamSupport.nativeScatter(id, role, root, src, src_off, dst, dst_off, count);")
@@ -123,9 +128,12 @@ public struct Team {
      *
      * @param count The number of elements being transferred
      */
+/*
+ FIXME: IMC===>Rail hack.  Comment out API while Olivier is fixing Team
     public def bcast[T] (role:Int, root:Int, src:Array[T], src_off:Int, dst:Array[T], dst_off:Int, count:Int) : void {
         finish nativeBcast(id, role, root, src.raw(), src_off, dst.raw(), dst_off, count);
     }
+*/
 
     private static def nativeBcast[T] (id:Int, role:Int, root:Int, src:IndexedMemoryChunk[T], src_off:Int, dst:IndexedMemoryChunk[T], dst_off:Int, count:Int) : void {
         @Native("java", "x10.x10rt.TeamSupport.nativeBcast(id, role, root, src, src_off, dst, dst_off, count);")
@@ -151,10 +159,12 @@ public struct Team {
      *
      * @param count The number of elements being transferred
      */
+/*
+ FIXME: IMC===>Rail hack.  Comment out API while Olivier is fixing Team
     public def alltoall[T] (role:Int, src:Array[T], src_off:Int, dst:Array[T], dst_off:Int, count:Int) : void {
         finish nativeAlltoall(id, role, src.raw(), src_off, dst.raw(), dst_off, count);
     }
-
+*/
     private static def nativeAlltoall[T](id:Int, role:Int, src:IndexedMemoryChunk[T], src_off:Int, dst:IndexedMemoryChunk[T], dst_off:Int, count:Int) : void {
         @Native("java", "x10.x10rt.TeamSupport.nativeAllToAll(id, role, src, src_off, dst, dst_off, count);")
         @Native("c++", "x10rt_alltoall(id, role, &src->raw()[src_off], &dst->raw()[dst_off], sizeof(TPMGL(T)), count, x10aux::coll_handler, x10aux::coll_enter());") {}
@@ -198,9 +208,12 @@ public struct Team {
      *
      * @param op The operation to perform
      */
+/*
+ FIXME: IMC===>Rail hack.  Comment out API while Olivier is fixing Team
     public def reduce[T] (role:Int, root:Int, src:Array[T], src_off:Int, dst:Array[T], dst_off:Int, count:Int, op:Int) : void {
         finish nativeReduce(id, role, root, src.raw(), src_off, dst.raw(), dst_off, count, op);
     }
+*/
 
     private static def nativeReduce[T](id:Int, role:Int, root:Int, src:IndexedMemoryChunk[T], src_off:Int, dst:IndexedMemoryChunk[T], dst_off:Int, count:Int, op:Int) : void {
         @Native("java", "x10.x10rt.TeamSupport.nativeReduce(id, role, root, src, src_off, dst, dst_off, count, op);")
@@ -259,9 +272,12 @@ public struct Team {
      *
      * @param op The operation to perform
      */
+/*
+ FIXME: IMC===>Rail hack.  Comment out API while Olivier is fixing Team
     public def allreduce[T] (role:Int, src:Array[T], src_off:Int, dst:Array[T], dst_off:Int, count:Int, op:Int) : void {
         finish nativeAllreduce(id, role, src.raw(), src_off, dst.raw(), dst_off, count, op);
     }
+*/
 
     private static def nativeAllreduce[T](id:Int, role:Int, src:IndexedMemoryChunk[T], src_off:Int, dst:IndexedMemoryChunk[T], dst_off:Int, count:Int, op:Int) : void {
         @Native("java", "x10.x10rt.TeamSupport.nativeAllReduce(id, role, src, src_off, dst, dst_off, count, op);")
