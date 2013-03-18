@@ -44,6 +44,24 @@ namespace x10 {
         template<class T> class Rail;
         template <> class Rail<void>;
 
+        extern const x10aux::serialization_id_t Rail_copy_to_serialization_id;
+        extern const x10aux::serialization_id_t Rail_copy_from_serialization_id;
+
+        extern const x10aux::serialization_id_t Rail_uncounted_copy_to_serialization_id;
+        extern const x10aux::serialization_id_t Rail_unconuted_copy_from_serialization_id;
+        
+        extern void Rail_notifyEnclosingFinish(x10aux::deserialization_buffer&);
+        extern void Rail_serialize_finish_state(x10aux::place, x10aux::serialization_buffer&);
+	    extern void *Rail_buffer_finder(x10aux::deserialization_buffer&, x10_int);
+        extern void Rail_notifier(x10aux::deserialization_buffer&, x10_int);
+        extern void Rail_uncounted_notifier(x10aux::deserialization_buffer&, x10_int);
+
+        extern void Rail_copyToBody(void *srcAddr, void *dstAddr, x10_int numBytes,
+                                   x10::lang::Place dstPlace, bool overlap, x10::lang::VoidFun_0_0* notif);
+        extern void Rail_copyFromBody(void *srcAddr, void *dstAddr, x10_int numBytes,
+                                     x10::lang::Place srcPlace, bool overlap, x10::lang::VoidFun_0_0* notif);
+        extern void Rail_copyBody(void *srcAddr, void *dstAddr, x10_int numBytes, bool overlap);
+        
         void throwArrayIndexOutOfBoundsException(x10_long index, x10_long size) X10_PRAGMA_NORETURN;
     
         inline void checkBounds(x10_long index, x10_long size) {
@@ -441,9 +459,10 @@ template<class T> void x10::lang::Rail<void>::uncountedCopy(x10::lang::Rail<T>* 
     size_t numBytes = numElems * sizeof(T);
     checkBounds(srcIndex, src->FMGL(size));
     checkBounds(srcIndex+numElems, src->FMGL(size)+1);
+// FIXME: copyToBody doesn't do checking, so this method has now become non-memory safe with the switch to GlobalRef instead of RemoteRail
 //    checkBounds(dstIndex, dst.len);
 //    checkBounds(dstIndex+numElems, dst.len+1);
-    x10::util::IMC_copyToBody(srcAddr, dstAddr, numBytes, x10::lang::Place::place(dst.location), src->raw == dst->__apply()->raw, notif);
+    x10::lang::Rail_copyToBody(srcAddr, dstAddr, numBytes, x10::lang::Place::place(dst.location), src->raw == dst->__apply()->raw, notif);
 }
 
 template<class T> void x10::lang::Rail<void>::uncountedCopy(x10::lang::GlobalRef<x10::lang::Rail<T>*> src, x10_long srcIndex,
@@ -454,11 +473,12 @@ template<class T> void x10::lang::Rail<void>::uncountedCopy(x10::lang::GlobalRef
     void* srcAddr = (void*)(&src->__apply()->raw[srcIndex]);
     void* dstAddr = (void*)(&dst->raw[dstIndex]);
     size_t numBytes = numElems * sizeof(T);
+// FIXME: copyToBody doesn't do checking, so this method has now become non-memory safe with the switch to GlobalRef instead of RemoteRail
 //    checkBounds(srcIndex, src.len);
 //    checkBounds(srcIndex+numElems, src.len+1);
     checkBounds(dstIndex, dst->FMGL(size));
     checkBounds(dstIndex+numElems, dst->FMGL(size)+1);
-    x10::util::IMC_copyFromBody(srcAddr, dstAddr, numBytes, x10::lang::Place::place(src.location), src->__apply()->raw == dst->raw, notif);
+    x10::lang::Rail_copyFromBody(srcAddr, dstAddr, numBytes, x10::lang::Place::place(src.location), src->__apply()->raw == dst->raw, notif);
 }
 
 /*
