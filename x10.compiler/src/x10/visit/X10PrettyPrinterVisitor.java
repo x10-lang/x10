@@ -355,7 +355,7 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
         w.write(")");
 
         er.prettyPrint(n.array(), tr);
-        w.write("[");
+        w.write("[(int)");
         er.prettyPrint(n.index(), tr);
         w.write("]");
         w.write(")");
@@ -363,7 +363,7 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 
     public void visit(X10CBackingArrayAccessAssign_c n) {
         er.prettyPrint(n.array(), tr);
-        w.write("[");
+        w.write("[(int)");
         er.prettyPrint(n.index(), tr);
         w.write("]");
 
@@ -1954,7 +1954,7 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
             Binary.Operator op = n.operator().binaryOperator();
             Name methodName = X10Binary_c.binaryMethodName(op);
             TypeSystem xts = ts;
-            if (isPrimitive(t) && isIndexedMemoryChunk(array.type())) {
+            if (isPrimitive(t) && (isIndexedMemoryChunk(array.type()) || isRail(array.type()))) {
                 w.write("(");
                 w.write("(");
                 er.printType(t, 0);
@@ -2001,7 +2001,7 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
             Binary.Operator op = n.operator().binaryOperator();
             Name methodName = X10Binary_c.binaryMethodName(op);
             TypeSystem xts = ts;
-            if (isPrimitive(t) && isIndexedMemoryChunk(array.type())) {
+            if (isPrimitive(t) && (isIndexedMemoryChunk(array.type()) || isRail(array.type()))) {
                 w.write("(");
                 w.write("(");
                 er.printType(t, 0);
@@ -4391,6 +4391,11 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
     public static boolean isIndexedMemoryChunk(Type type) {
         return Types.baseType(type).isIndexedMemoryChunk();
     }
+    
+    public static boolean isRail(Type type) {
+        return Types.baseType(type).isRail();
+    }
+
 
     // TODO consolidate isPrimitive(Type) and needExplicitBoxing(Type).
     public static boolean isPrimitive(Type t) {

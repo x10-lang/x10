@@ -224,7 +224,7 @@ public class JavaCaster extends ContextVisitor {
         if (n instanceof X10Call) {
             X10Call call = (X10Call) n;
             if (!xts.isParameterType(call.type())) {
-                if (call.target() != null && (isIMC(call.target().type()))) {
+                if (call.target() != null && (isIMC(call.target().type()) || isRail(call.target().type()))) {
                     // e.g) val str = rail(0) = "str";
                     //   -> val str = (String)(rail(0) = "str");
                     if (!(parent instanceof Eval)) {
@@ -242,6 +242,12 @@ public class JavaCaster extends ContextVisitor {
         Type tbase = Types.baseType(type);
         return tbase instanceof X10ParsedClassType_c && ((X10ParsedClassType_c) tbase).def().asType().typeEquals(xts.IndexedMemoryChunk(), context);
     }
+    
+    private boolean isRail(Type type) {
+        Type tbase = Types.baseType(type);
+        return tbase instanceof X10ParsedClassType_c && ((X10ParsedClassType_c) tbase).def().asType().typeEquals(xts.Rail(), context);
+    }
+
 
     // add casts for type constraints to type parameters
     // e.g) class C[T1,T2]{T1 <: T2} { def test(t1:T1):T2 {return t1;}}
