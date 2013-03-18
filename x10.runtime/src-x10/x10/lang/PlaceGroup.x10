@@ -10,7 +10,7 @@
  *  (C) Copyright Australian National University 2010.
  */
 
-package x10.array;
+package x10.lang;
 
 import x10.compiler.Pragma;
 
@@ -19,12 +19,10 @@ import x10.compiler.Pragma;
  * PlaceGroups are represented by a specialized set of classes (instead of using
  * arbitrary collection types) because it is necessary for performance/scalability
  * to have optimized representations of specific special cases.  The API is also 
- * designed specifically to efficiently support the operations needed by Dist, 
- * DistArray, and Team.</p>
+ * designed specifically to efficiently support the operations needed by Team
+ * and DistArray.<p>
  *
  * @see Place
- * @see Dist
- * @see DistArray
  * @see x10.util.Team
  */
 public abstract class PlaceGroup implements Sequence[Place] {
