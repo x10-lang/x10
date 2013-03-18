@@ -11,7 +11,7 @@ public class Congruent extends x10Test {
 
     public def run () {
         val elements = probsize * 1024/8;
-        val imcplh = PlaceLocalHandle.make(Dist.makeUnique(), ()=>new Box(IndexedMemoryChunk.allocateZeroed[Long](elements, 8, true)));
+        val imcplh = PlaceLocalHandle.make(PlaceGroup.WORLD, ()=>new Box(IndexedMemoryChunk.allocateZeroed[Long](elements, 8, true)));
         Console.OUT.println("Construction complete.");
         val str0 = imcplh()().toString();
         for (p in Place.places()) {
