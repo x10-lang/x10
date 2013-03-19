@@ -10,6 +10,7 @@
  */
 
 import harness.x10Test;
+import x10.array.*;
 
 /**
  * This must compile and run fine. Checks that the initializer may not specify

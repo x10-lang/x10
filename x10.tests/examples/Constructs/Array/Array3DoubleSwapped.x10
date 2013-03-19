@@ -10,6 +10,7 @@
  */
 
 import harness.x10Test;
+import x10.array.*;
 
 /**
  * Ensures double arrays are implemented. Tests literal occurring in RHS of an ==, with array

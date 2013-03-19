@@ -9,6 +9,7 @@
  *  (C) Copyright Australian National University 2012.
  */
 import harness.x10Test;
+import x10.array.*;
 
 import x10.util.ArrayList;
 import x10.util.ArrayUtils;

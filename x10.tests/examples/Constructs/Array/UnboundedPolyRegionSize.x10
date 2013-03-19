@@ -10,6 +10,7 @@
  */
 
 import harness.x10Test;
+import x10.array.*;
 /**
  *Check that an UnboundedRegionException is thrown when you attempt to compute
  *the size of an unbounded region.

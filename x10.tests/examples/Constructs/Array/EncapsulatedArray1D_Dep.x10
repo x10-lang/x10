@@ -17,6 +17,7 @@
  *
  */
 import harness.x10Test;
+import x10.array.*;
 
 /**
  * Building arrays distributed across places using the encapsulation approach 

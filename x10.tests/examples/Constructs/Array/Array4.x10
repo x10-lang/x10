@@ -10,6 +10,7 @@
  */
 
 import harness.x10Test;
+import x10.array.*;
 
 /**
  * Test for X10 arrays -- tests arrays passed as parameters and stored in fields.

@@ -10,6 +10,7 @@
  */
 
 import harness.x10Test;
+import x10.array.*;
 
 /**
  * Array Literal test. Same as ArrayLiteralTest except that the declared type of the array is more precise.

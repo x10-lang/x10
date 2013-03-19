@@ -10,6 +10,7 @@
  */
 
 import harness.x10Test;
+import x10.array.*;
 
 public class ArrayStaticPlusEqual extends x10Test {
 

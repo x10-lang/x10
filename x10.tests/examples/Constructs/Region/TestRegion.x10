@@ -10,6 +10,7 @@
  */
 
 import x10.io.Printer;
+import x10.array.*;
 import x10.io.StringWriter;
 
 

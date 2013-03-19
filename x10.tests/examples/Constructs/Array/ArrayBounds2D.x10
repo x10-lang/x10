@@ -10,6 +10,7 @@
  */
 
 import x10.util.Random;
+import x10.array.*;
 import harness.x10Test;
 
 /**
