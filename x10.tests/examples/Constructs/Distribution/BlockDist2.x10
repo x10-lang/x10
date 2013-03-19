@@ -1,5 +1,6 @@
 
 import x10.util.*;
+import x10.array.*;
 import harness.x10Test;
 
 public class BlockDist2 extends x10Test.BardTest {
