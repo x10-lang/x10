@@ -29,7 +29,7 @@ public class SeqNewArray1b extends Benchmark {
     // the benchmark
     //
 
-    val a = new Array[int](N+M-1, 1);
+    val a = new Array[int](N+M, 1);
 
     def once() {
         var sum: int = 0;
