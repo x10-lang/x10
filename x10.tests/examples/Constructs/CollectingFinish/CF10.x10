@@ -14,11 +14,9 @@ import harness.x10Test;
 /**
  * This is to test the collecting finish 
  * should cast the offer parameter
- * @author Li Yan
  * 
+ * @author Li Yan
  */
-
-
 public class CF10 extends x10Test{
 
     static class Blig implements Reducible[Any] {

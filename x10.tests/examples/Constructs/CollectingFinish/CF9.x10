@@ -14,11 +14,9 @@ import harness.x10Test;
 /**
  * This is to test the collecting finish sum 
  * with nested collecting finish
- * @author Li Yan
  * 
+ * @author Li Yan
  */
-
-
 public class CF9 extends x10Test{
 
     public static class TotalsReducer1 implements Reducible[Totals2] {

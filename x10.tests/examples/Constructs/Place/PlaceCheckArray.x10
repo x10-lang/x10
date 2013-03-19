@@ -10,11 +10,11 @@
  */
 
 import harness.x10Test;
+import x10.array.*;
 
 /**
  * @author bdlucas
  */
-
 public class PlaceCheckArray extends x10Test {
 
 

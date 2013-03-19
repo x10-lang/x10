@@ -12,14 +12,13 @@
 
 
 import harness.x10Test;
+
 /**
  * This is to test the collecting finish sum 
  * with at each 
+ *
  * @author Li Yan
- * 
  */
-
-
 public class CF6 extends x10Test{
 
     public static class TotalsReducer1 implements Reducible[Totals2] {
