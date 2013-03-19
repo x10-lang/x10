@@ -11,6 +11,10 @@
 
 package x10.util;
 
+import x10.array.Array;
+import x10.array.Region;
+import x10.array.RemoteArray;
+
 import x10.compiler.Native;
 
 /** A collection of functions useful in/around CUDA kernels.

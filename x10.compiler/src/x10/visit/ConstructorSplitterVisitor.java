@@ -189,7 +189,7 @@ public class ConstructorSplitterVisitor extends ContextVisitor {
      */
     public static boolean inheritsUnsplittability(Type type, TypeSystem ts) {
         if (null == type)
-            return false; // some non-Native ObjectClass's (x10.array.RectLayout for one) don't have a superClass ????
+            return false; // hit the top of the class hierarchy
 
         if (hasNativeAnnotation(type)) 
             return true;   // inheriting from any other native class is not

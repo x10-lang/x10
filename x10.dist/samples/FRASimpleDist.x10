@@ -20,12 +20,12 @@ import x10.util.Timer;
  */
 class LocalTable {
 
-    val a: Array[long](1);
+    val a: Rail[long];
     val mask: int;
 
     def this(size:int) {
         mask = size-1;
-        a = new Array[long](size, (i:int)=>i as long);
+        a = new Rail[long](size, (i:long)=>i);
     }
 
     public def update(ran:long) {
@@ -45,7 +45,7 @@ class FRASimpleDist {
     static def HPCC_starts(var n:long): long {
         var i:int;
         var j:int;
-        val m2 = new Array[long](64);
+        val m2 = new Rail[long](64);
         while (n < 0L) n += PERIOD;
         while (n > PERIOD) n -= PERIOD;
         if (n == 0L) return 0x1L;

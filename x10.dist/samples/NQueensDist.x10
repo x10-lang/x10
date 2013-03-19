@@ -10,6 +10,10 @@
  *  (C) Copyright Australian National University 2011.
  */
 
+import x10.array.Dist;
+import x10.array.DistArray;
+import x10.array.Region;
+
 /**
  * A distributed version of NQueens. Runs over NUM_PLACES.
  * Identical to NQueensPar, except that work is distributed 

@@ -11,6 +11,11 @@
 
 package x10.lang;
 
+import x10.array.Array;
+import x10.array.Dist;
+import x10.array.Point;
+import x10.array.Region;
+
 /**
  * A representation of the range of integers [min..max].
  */

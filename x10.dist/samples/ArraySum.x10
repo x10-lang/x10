@@ -17,15 +17,15 @@ import x10.io.Console;
 public class ArraySum {
 
     var sum:Int;
-    val data:Array[Int](1);
+    val data:Rail[Int];
 
     public def this(n:Int) {
-	// Create an Array of rank 1 with n elements (0..(n-1)), all initialized to 1.
-        data = new Array[Int](n, 1);
+	// Create a Rail with n elements (0..(n-1)), all initialized to 1.
+        data = new Rail[Int](n, 1);
         sum = 0;
     }
 
-    def sum(a:Array[Int](1), start:Int, last:Int) {
+    def sum(a:Rail[Int], start:Int, last:Int) {
         var mySum: Int = 0;
         for (i in start..(last-1)) { 
         	mySum += a(i);

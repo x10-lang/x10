@@ -9,8 +9,8 @@
  *  (C) Copyright IBM Corporation 2006-2010.
  */
 
-import x10.util.Random;
 import x10.io.Console;
+import x10.util.Random;
 
 /**
  * Calculation of an approximation to pi by using a Monte Carlo simulation

@@ -11,6 +11,7 @@
 
 import harness.x10Test;
 
+import x10.array.*;
 import x10.compiler.Pinned;
 /**
  * Remote accesses must be flagged by the compiler.
