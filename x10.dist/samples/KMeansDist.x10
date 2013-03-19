@@ -9,6 +9,7 @@
  *  (C) Copyright IBM Corporation 2006-2010.
  */
 
+import x10.array.*;
 import x10.io.Console;
 import x10.util.Random;
 
@@ -29,24 +30,24 @@ public class KMeansDist {
 
     public static def main (Rail[String]) {
         val rnd = PlaceLocalHandle.make[Random](PlaceGroup.WORLD, () => new Random(0));
-        val local_curr_clusters = PlaceLocalHandle.make[Array[Float](1)](PlaceGroup.WORLD, 
-                                                                            () => new Array[Float](CLUSTERS*DIM));
-        val local_new_clusters = PlaceLocalHandle.make[Array[Float](1)](PlaceGroup.WORLD,
-							                   () =>  new Array[Float](CLUSTERS*DIM));
-        val local_cluster_counts = PlaceLocalHandle.make[Array[Int](1)](PlaceGroup.WORLD, 
-                                                                           ()=> new Array[Int](CLUSTERS));
+        val local_curr_clusters = 
+            PlaceLocalHandle.make[Rail[Float]](PlaceGroup.WORLD, () => new Rail[Float](CLUSTERS*DIM));
+        val local_new_clusters = 
+            PlaceLocalHandle.make[Rail[Float]](PlaceGroup.WORLD, () =>  new Rail[Float](CLUSTERS*DIM));
+        val local_cluster_counts = 
+            PlaceLocalHandle.make[Rail[Int]](PlaceGroup.WORLD, ()=> new Rail[Int](CLUSTERS));
 
         val points_dist = Dist.makeBlock(points_region, 0);
         val points = DistArray.make[Float](points_dist, (p:Point)=>rnd().nextFloat());
 
-        val central_clusters = new Array[Float](CLUSTERS*DIM, (i:int) => {
+        val central_clusters = new Rail[Float](CLUSTERS*DIM, (i:int) => {
             val p = Point.make([i/DIM, i%DIM]);
             return at (points_dist(p)) points(p);
         });
 
-	val old_central_clusters = new Array[Float](CLUSTERS*DIM);
+	val old_central_clusters = new Rail[Float](CLUSTERS*DIM);
 
-        val central_cluster_counts = new Array[Int](CLUSTERS);
+        val central_cluster_counts = new Rail[Int](CLUSTERS);
 
         for (i in 1..ITERATIONS) {
 
@@ -61,7 +62,7 @@ public class KMeansDist {
                 for (d in points_dist.places()) at (d) async {
                     for (var j:Int=0 ; j<DIM*CLUSTERS ; ++j) {
                         local_curr_clusters()(j) = central_clusters(j);
-                        local_new_clusters()(j) = 0;
+                        local_new_clusters()(j) = 0f;
                     }
                     for (var j:Int=0 ; j<CLUSTERS ; ++j) {
                         local_cluster_counts()(j) = 0;
@@ -100,7 +101,7 @@ public class KMeansDist {
 
             for (var j:Int=0 ; j<DIM*CLUSTERS ; ++j) {
                 old_central_clusters(j) = central_clusters(j);
-                central_clusters(j) = 0;
+                central_clusters(j) = 0f;
             }
 
             for (var j:Int=0 ; j<CLUSTERS ; ++j) {

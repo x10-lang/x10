@@ -126,7 +126,7 @@ class FRASimpleDist {
             at (Place.place(i)) async {
                 val table = tables();
                 var err:int = 0;
-                for ([j] in table.a) 
+                for (j in table.a.range) 
                     if (table.a(j) != j as Long) err++;
                 println("Found " + err + " errors.");
             }

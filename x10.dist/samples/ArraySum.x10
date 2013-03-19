@@ -25,7 +25,7 @@ public class ArraySum {
         sum = 0;
     }
 
-    def sum(a:Rail[Int], start:Int, last:Int) {
+    def sum(a:Rail[Int], start:Long, last:Long) {
         var mySum: Int = 0;
         for (i in start..(last-1)) { 
         	mySum += a(i);
@@ -43,7 +43,7 @@ public class ArraySum {
         }
     }
     
-    public static def main(args: Rail[String]) {
+    public static def main(args:Rail[String]) {
         var size:Int = 5*1000*1000;
         if (args.size >=1)
             size = Int.parse(args(0));
@@ -53,23 +53,20 @@ public class ArraySum {
         val P = [1,2,4];
 
         //warmup loop
-        val R = 0..(P.size-1);
         Console.OUT.println("Warming up.");
-        for (i in R)
-            a.sum(P(i));
+        for (numThreads in P)
+            a.sum(numThreads);
         
-        for (i in R) {
-            Console.OUT.println("Starting with " + P(i) + " threads.");
+        for (numThreads in P) {
+            Console.OUT.println("Starting with " + numThreads + " threads.");
             a.sum=0;
             var time: long = - System.nanoTime();
-            a.sum(P(i));
+            a.sum(numThreads);
             time += System.nanoTime();
-            Console.OUT.println("For p=" + P(i) 
+            Console.OUT.println("For p=" + numThreads
                     + " result: " + a.sum 
                     + ((size==a.sum)? " ok" : "  bad") 
                     + " (time=" + (time/(1000*1000)) + " ms)");
         }
-        
-        
     }
 }
