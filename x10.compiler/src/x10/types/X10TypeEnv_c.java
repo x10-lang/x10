@@ -1507,6 +1507,9 @@ public class X10TypeEnv_c extends TypeEnv_c implements X10TypeEnv {
             if (value == null)
                 return false;
             
+            // [DC] seems this code is now redundant since we have user-defined operators
+            if (true) return false;
+            
             if (value instanceof Float || value instanceof Double)
                 return false;
 

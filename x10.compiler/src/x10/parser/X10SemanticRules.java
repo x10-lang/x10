@@ -3312,6 +3312,7 @@ public class X10SemanticRules implements Parser, ParseErrorCodes
         List<Node> modifiers = checkMethodModifiers(MethodModifiersopt);
         Name opName = X10Binary_c.invBinaryMethodName(BinOp);
         if (opName == null) {
+        	// [DC] doesn't look like this can ever happen?
             syntaxError("Cannot override binary operator '"+BinOp+"'.", pos());
             opName = Name.make("invalid operator");
         }
