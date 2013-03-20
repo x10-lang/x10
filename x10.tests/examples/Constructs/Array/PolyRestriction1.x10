@@ -9,11 +9,12 @@
  *  (C) Copyright IBM Corporation 2006-2010.
  */
 
+import x10.array.*;
+
 /**
  * Construct a rectangular array, make an array view on it, modify it,
  * and examine the results in the original array.
  */
-
 class PolyRestriction1 extends TestArray {
 
     public def run() {
