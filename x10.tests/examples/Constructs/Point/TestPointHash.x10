@@ -11,6 +11,7 @@
  */
 
 import harness.x10Test;
+import x10.array.*;
 
 /**
  * Tests Point equals and hashCode operations.

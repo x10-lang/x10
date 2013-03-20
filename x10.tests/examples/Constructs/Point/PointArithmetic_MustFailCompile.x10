@@ -14,6 +14,7 @@
 //OPTIONS: -STATIC_CHECKS
 
 import harness.x10Test;
+import x10.array.*;
 
 /**
  * Testing point arithmetic operations.

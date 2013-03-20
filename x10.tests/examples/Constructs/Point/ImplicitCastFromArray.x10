@@ -10,6 +10,7 @@
  */
 
 import harness.x10Test;
+import x10.array.*;
 
 /**
  * Test that there is an implicit conversion from Array[Int] to Point.
