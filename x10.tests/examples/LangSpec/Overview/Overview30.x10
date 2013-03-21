@@ -30,7 +30,7 @@ public class Overview30 extends x10Test {
  static  class Whatevermore {
   def plzchk(){
     val square = (i:Int) => i*i;
-  val r : Array[Int](1) = new Array[Int](10, square);
+  val r : Rail[Int] = new Rail[Int](10, square);
 }}
 
  static class Hook {

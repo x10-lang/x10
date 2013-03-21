@@ -30,7 +30,7 @@ public class Types170 extends x10Test {
  static class Stack[T]{}
  static class Types14TypeTest{
   def check()  { 
-     var checkycheck : Stack[Point {self!=null}];  }}
+     var checkycheck : Stack[x10.array.Point {self!=null}];  }}
 
  static class Hook {
    def run():Boolean = true;

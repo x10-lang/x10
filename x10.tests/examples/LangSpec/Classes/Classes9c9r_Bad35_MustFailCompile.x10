@@ -28,12 +28,12 @@ public class Classes9c9r_Bad35_MustFailCompile extends x10Test {
 
 // file Classes line 442
  static class Init(n:Int) {
-  val a = new Array[String](0..n, "");
+  val a = new Rail[String](n, "");
   def this(n:Int) { property(n); }
 }
  static class Outit {
   val n : Int;
- val a = new Array[String](0..n, ""); // ERR
+ val a = new Rail[String](n, ""); // ERR
   def this(m:Int) { this.n = m; }
 }
 

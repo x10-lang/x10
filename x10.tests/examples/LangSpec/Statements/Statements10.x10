@@ -28,9 +28,9 @@ public class Statements10 extends x10Test {
 
 // file Statements line 18
  static  class EmptyStatementExample {
-static def search[T](a: Array[T](1), v: T):Int {
-  var i : Int;
-  for(i = a.region.min(0); a(i) != v; i++)
+static def search[T](a: Rail[T], v: T):Long {
+  var i : Long;
+  for(i = 0L; a(i) != v; i++)
      ;
   return i;
 }

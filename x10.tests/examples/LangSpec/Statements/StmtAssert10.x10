@@ -26,7 +26,7 @@ public class StmtAssert10 extends x10Test {
     }
 
 
-// file Statements line 1012
+// file Statements line 1010
  static  class Example {
 static def percentDiff(x:Double, y:Double) {
   val diff = x-y;

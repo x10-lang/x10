@@ -26,9 +26,9 @@ public class Statements110 extends x10Test {
     }
 
 
-// file Statements line 885
+// file Statements line 883
  static  class ThrowStatementExample {
- def thingie(i:Int, x:Array[Boolean](1))  {
+ def thingie(i:Int, x:Rail[Boolean])  {
 if (i < 0 || i >= x.size)
     throw new MyIndexOutOfBoundsException();
 } }

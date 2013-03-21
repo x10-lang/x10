@@ -26,11 +26,11 @@ public class Statements2d4h extends x10Test {
     }
 
 
-// file Statements line 708
+// file Statements line 706
  static  class Example {
-static def sum(a: Array[Int]): Int {
+static def sum(a: Rail[Int]): Int {
   var s : Int = 0;
-  for(p in a) s += a(p);
+  for(v in a) s += v;
   return s;
 }
 }

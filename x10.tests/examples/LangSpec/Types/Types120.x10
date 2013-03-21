@@ -32,7 +32,7 @@ public class Types120 extends x10Test {
   def this(x:Double, y:Double, z:Double) {
      this.x = x; this.y = y; this.z = z;
   }
-  static def example(p: Position, q: Array[Position]) {
+  static def example(p: Position, q: Rail[Position]) {
      var r : Position = p;
   }
 }

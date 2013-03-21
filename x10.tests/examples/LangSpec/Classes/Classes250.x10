@@ -28,11 +28,11 @@ public class Classes250 extends x10Test {
 
 // file Classes line 2185
  static class Oddvec {
-  var v : Array[Int](1) = new Array[Int](3, (Int)=>0);
+  var v : Rail[Int] = new Rail[Int](3);
   public operator this () =
       "(" + v(0) + "," + v(1) + "," + v(2) + ")";
   public operator this () = (newval: Int) {
-    for(p in v) v(p) = newval;
+    for(p in v.range) v(p) = newval;
   }
   public operator this(i:Int) = v(i);
   public operator this(i:Int, j:Int) = [v(i),v(j)];

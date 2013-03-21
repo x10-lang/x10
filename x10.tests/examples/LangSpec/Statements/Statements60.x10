@@ -28,10 +28,10 @@ public class Statements60 extends x10Test {
 
 // file Statements line 386
  static  class LabelledBreakeyBreakyHeart {
- def findy(a:Array[Array[Int](1)](1), v:Int): Boolean {
+ def findy(a:Rail[Rail[Int]], v:Int): Boolean {
 var found: Boolean = false;
-outer: for (var i: Int = 0; i < a.size; i++)
-    for (var j: Int = 0; j < a(i).size; j++)
+outer: for (i in a.range)
+    for (j in a(i).range)
         if (a(i)(j) == v) {
             found = true;
             break outer;

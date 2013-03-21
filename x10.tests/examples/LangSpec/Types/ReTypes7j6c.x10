@@ -30,7 +30,7 @@ public class ReTypes7j6c extends x10Test {
  static  class Example {
  static public def example() {
 var gotNPE: Boolean = false;
-val p : Point = null;
+val p : x10.array.Point = null;
 try {
   val q = p * 2; // method invocation, NPE
 }

@@ -31,7 +31,7 @@ public class Types320 extends x10Test {
  static  class ConstraintsMayReferToValues {
  def thoseValues() {
      val n = 1;
-     var p : Point{rank == n};
+     var p : x10.array.Point{rank == n};
 }}
 
  static class Hook {

@@ -26,7 +26,7 @@ public class Vars_Var_Bounded_Bad38_MustFailCompile extends x10Test {
     }
 
 
-// file Vars line 503
+// file Vars line 505
  static  class Tub(p:Int){
    def this(pp:Int):Tub{self.p==pp} {property(pp);}
    def example() {

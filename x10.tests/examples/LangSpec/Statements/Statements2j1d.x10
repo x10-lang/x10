@@ -26,7 +26,7 @@ public class Statements2j1d extends x10Test {
     }
 
 
-// file Statements line 766
+// file Statements line 764
  static  class Example {
 def method(x:Int) {
   val closure = (y:Int) => {return x+y;};
