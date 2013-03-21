@@ -10,9 +10,10 @@
  */
 
 import harness.x10Test;
+import x10.array.*;
 
 /**
- * Synthetic benchmark to time arary accesses.
+ * Synthetic benchmark to time array initialization.
  */
 public class Initialization extends x10Test {
 
