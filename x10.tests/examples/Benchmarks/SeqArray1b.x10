@@ -9,7 +9,7 @@
  *  (C) Copyright IBM Corporation 2006-2010.
  */
 
-import x10.array.*;
+import x10.simplearray.Array;
 
 /**
  * @author bdlucas
@@ -20,8 +20,8 @@ public class SeqArray1b extends Benchmark {
     // parameters
     //
 
-    val N = 1000000;
-    val M = 20;
+    val N = 1000000L;
+    val M = 20L;
     def expected() = N*M as double;
     def operations() = N*M as double;
 

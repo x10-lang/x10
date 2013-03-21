@@ -9,43 +9,43 @@
  *  (C) Copyright IBM Corporation 2006-2010.
  */
 
+import x10.simplearray.Array;
+
 /**
  * Variant of SeqMatMultAdd1a that uses a generic matrix bounded by Arithmetic[T].
  * When instantiated on Double, we expect performance to be identical to SeqMatMultAdd1a.
  */
 public class SeqGenMatMultAdd1[T]{T<:Arithmetic[T]} extends Benchmark {
 
-    val N = 55*5;
+    val N:Long = 55*5;
     def expected() = -6866925.0;
     def operations() = N*N*N as double;
 
-    val r = 0..(N-1)*0..(N-1);
+    val a:Array[T](2);
+    val b:Array[T](2);
+    val c:Array[T](2);
 
-    val a:Array[T](2){rect,self!=null};
-    val b:Array[T](2){rect,self!=null};
-    val c:Array[T](2){rect,self!=null};
-
-    def this(a_init:(Point(2))=>T,
-             b_init:(Point(2))=>T,
-             c_init:(Point(2))=>T) {
-        a = new Array[T](r, a_init);
-        b = new Array[T](r, b_init);
-        c = new Array[T](r, c_init);
+    def this(a_init:(long,long)=>T,
+             b_init:(long,long)=>T,
+             c_init:(long,long)=>T) {
+        a = new Array[T](N, N, a_init);
+        b = new Array[T](N, N, b_init);
+        c = new Array[T](N, N, c_init);
     }
 
     def once() {
-        for (var i:int=0; i<N; i++)
-            for (var j:int=0; j<N; j++)
-                for (var k:int=0; k<N; k++)
+        for (i in 0L..(N-1))
+            for (j in 0L..(N-1))
+                for (k in 0L..(N-1))
                     a(i,j) += b(i,k)*c(k,j);
 //        return a(10,10);
         return expected(); // HACK since we can't cast from T to double
     }
 
     public static def main(Rail[String]) {
-        val a_init = (p:Point)=>p(0)*p(1) as double;
-        val b_init = (p:Point)=>p(0)-p(1) as double;
-        val c_init = (p:Point)=>p(0)+p(1) as double;
+        val a_init = (i:long,j:long)=>(i*j) as double;
+        val b_init = (i:long,j:long)=>(i-j) as double;
+        val c_init = (i:long,j:long)=>(i+j) as double;
 
         new SeqGenMatMultAdd1[double](a_init, b_init, c_init).execute();
     }

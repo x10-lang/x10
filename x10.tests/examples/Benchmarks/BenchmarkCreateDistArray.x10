@@ -8,7 +8,9 @@
  *
  *  (C) Copyright Australian National University 2010.
  */
+
 import harness.x10Test;
+import x10.array.*;
 
 /**
  * Tests performance of DistArray creation

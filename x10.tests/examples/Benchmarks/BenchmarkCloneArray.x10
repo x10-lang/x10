@@ -8,7 +8,9 @@
  *
  *  (C) Copyright Australian National University 2011.
  */
+
 import harness.x10Test;
+import x10.simplearray.Array;
 
 /**
  * Tests base performance of "at" closures with arrays 
