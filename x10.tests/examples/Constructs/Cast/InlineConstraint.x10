@@ -10,6 +10,7 @@
  */
 
 import harness.x10Test;
+import x10.array.Region;
 
 /**
  */
@@ -24,18 +25,18 @@ public class InlineConstraint extends x10Test {
 	}
 	val d = v instanceof Region{self.rank==2};
 	if (d) {
-	    Console.OUT.println("WTF, it's a two-dimensional region?!");
+	    Console.OUT.println("Huh?, it's a two-dimensional region?!");
 	    result=false;
 	}
 	try {
 	    val e = v as Region{self.rank==1};
 	} catch (ClassCastException) {
-	    Console.OUT.println("WTF, cast to a single-dimensional region failed?!");
+	    Console.OUT.println("Huh?, cast to a single-dimensional region failed?!");
 	    result=false;
 	}
 	try {
 	    val f = v as Region{self.rank==2};
-	    Console.OUT.println("WTF, cast to a two-dimensional region succeeded?!");
+	    Console.OUT.println("Huh?, cast to a two-dimensional region succeeded?!");
 	    result = false;
 	} catch (ClassCastException) {
 	}
