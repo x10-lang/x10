@@ -10,6 +10,7 @@
  */
 
 import harness.x10Test;
+import x10.array.*;
 
 public class HeatTransferTest_v0 extends x10Test {
     public def run():boolean {
