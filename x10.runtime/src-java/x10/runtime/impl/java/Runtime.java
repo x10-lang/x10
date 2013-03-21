@@ -12,6 +12,7 @@
 package x10.runtime.impl.java;
 
 import java.lang.reflect.InvocationTargetException;
+import java.nio.ByteBuffer;
 import java.util.Map;
 
 import x10.io.Reader;
@@ -24,6 +25,7 @@ import x10.serialization.X10JavaDeserializer;
 import x10.serialization.X10JavaSerializable;
 import x10.serialization.X10JavaSerializer;
 import x10.x10rt.X10RT;
+import x10.x10rt.net.Sockets;
 
 public abstract class Runtime implements x10.core.fun.VoidFun_0_0 {
 
@@ -143,9 +145,7 @@ public abstract class Runtime implements x10.core.fun.VoidFun_0_0 {
 
     public void $apply() {
         // x10rt-level registration of MessageHandlers
-        if (X10RT.numPlaces() > 1) {
-            x10.x10rt.MessageHandlers.registerHandlers();
-        }
+        X10RT.registerHandlers();
 
         // build up Rail[String] for args
         final x10.core.Rail<String> aargs = new x10.core.Rail<String>(Types.STRING, (args == null) ? 0 : args.length);
@@ -238,6 +238,8 @@ public abstract class Runtime implements x10.core.fun.VoidFun_0_0 {
     }
 
     public static void runAsyncAt(int place, x10.core.fun.VoidFun_0_0 body, FinishState finishState, x10.lang.Runtime.Profile prof) {
+		// TODO: bherta - all of this serialization needs to be reworked to write directly to the network (when possible), 
+		// skipping the intermediate buffers contained within the X10JavaSerializer class.
         try {
             if (TRACE_SER_DETAIL) {
             	System.out.println("Starting serialization for runAsyncAt  " + body.getClass());
@@ -262,9 +264,15 @@ public abstract class Runtime implements x10.core.fun.VoidFun_0_0 {
             }
             start = prof!=null ? System.nanoTime() : 0;
             if (serializer.mustSendDictionary()) {
-                x10.x10rt.MessageHandlers.runSimpleAsyncAtSend(place, serializer.getDictionaryBytes(), serializer.getDataBytes());
+            	if (X10RT.javaSockets != null)
+					X10RT.javaSockets.sendMessage(place, Sockets.CALLBACKID.simpleAsyncMessageID.ordinal(), new ByteBuffer[]{ByteBuffer.wrap(serializer.getDictionaryBytes()), ByteBuffer.wrap(serializer.getDataBytes())});
+				else
+					x10.x10rt.MessageHandlers.runSimpleAsyncAtSend(place, serializer.getDictionaryBytes(), serializer.getDataBytes());
             } else {
-                x10.x10rt.MessageHandlers.runSimpleAsyncAtSend(place, serializer.getDataBytes());                
+            	if (X10RT.javaSockets != null)
+					X10RT.javaSockets.sendMessage(place, Sockets.CALLBACKID.simpleAsyncMessageNoDictionaryID.ordinal(), new ByteBuffer[]{ByteBuffer.wrap(serializer.getDataBytes())});
+				else
+					x10.x10rt.MessageHandlers.runSimpleAsyncAtSend(place, serializer.getDataBytes());
             }
             if (prof!=null) {
                 prof.communicationNanos += System.nanoTime() - start;
@@ -351,6 +359,8 @@ public abstract class Runtime implements x10.core.fun.VoidFun_0_0 {
 	
 	public static void runAt(int place, x10.core.fun.VoidFun_0_0 body, x10.lang.Runtime.Profile prof) {
 		try {
+			// TODO: bherta - all of this serialization needs to be reworked to write directly to the network (when possible), 
+			// skipping the intermediate buffers contained within the X10JavaSerializer class.
 			if (TRACE_SER_DETAIL) {
 				System.out.println("Starting serialization for runAt  " + body.getClass());
 			}
@@ -369,10 +379,16 @@ public abstract class Runtime implements x10.core.fun.VoidFun_0_0 {
 			}
 
 			start = prof!=null ? System.nanoTime() : 0;
-			if (serializer.mustSendDictionary()) {			
-			    x10.x10rt.MessageHandlers.runClosureAtSend(place, serializer.getDictionaryBytes(), serializer.getDataBytes());
+			if (serializer.mustSendDictionary()) {
+				if (X10RT.javaSockets != null)
+					X10RT.javaSockets.sendMessage(place, Sockets.CALLBACKID.closureMessageID.ordinal(), new ByteBuffer[]{ByteBuffer.wrap(serializer.getDictionaryBytes()), ByteBuffer.wrap(serializer.getDataBytes())});
+				else
+					x10.x10rt.MessageHandlers.runClosureAtSend(place, serializer.getDictionaryBytes(), serializer.getDataBytes());
 			} else {
-                x10.x10rt.MessageHandlers.runClosureAtSend(place, serializer.getDataBytes());			    
+				if (X10RT.javaSockets != null)
+					X10RT.javaSockets.sendMessage(place, Sockets.CALLBACKID.closureMessageNoDictionaryID.ordinal(), new ByteBuffer[]{ByteBuffer.wrap(serializer.getDataBytes())});
+				else
+					x10.x10rt.MessageHandlers.runClosureAtSend(place, serializer.getDataBytes());			    
 			}
 			if (prof!=null) {
                 prof.communicationNanos += System.nanoTime() - start;
