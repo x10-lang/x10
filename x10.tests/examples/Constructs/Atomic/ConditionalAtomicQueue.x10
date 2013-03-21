@@ -13,7 +13,7 @@ import harness.x10Test;
 
 import x10.util.Box;
 import x10.compiler.Pinned;
-import x10.compiler.Global; 
+import x10.array.*;
 
 /**
  * When test using producer-consumer paradigm.
@@ -23,151 +23,151 @@ import x10.compiler.Global;
  */
 public class ConditionalAtomicQueue extends x10Test {
     private val root = GlobalRef[ConditionalAtomicQueue](this);
-	transient private val siz: int;
-	transient private val Q: Rail[T]; // The circular buffer
-	transient private var nelems: int; // number of items in buffer Q
-	transient private var tail: int; // next free slot to insert incoming items
-	// at tail of queue
-	transient private var head: int; // pointer to item to remove from the front
+    transient private val siz: int;
+    transient private val Q: Rail[T]; // The circular buffer
+    transient private var nelems: int; // number of items in buffer Q
+    transient private var tail: int; // next free slot to insert incoming items
+    // at tail of queue
+    transient private var head: int; // pointer to item to remove from the front
 
-	public def this(): ConditionalAtomicQueue = {
+    public def this(): ConditionalAtomicQueue = {
                 val sz = 3;
-		Q = new Rail[T](sz);
+        Q = new Rail[T](sz);
                 siz = sz;
-		nelems = 0;
-		tail = 0;
-		head = 0;
-	}
+        nelems = 0;
+        tail = 0;
+        head = 0;
+    }
 
-	/**
-	 * insert i at the tail end of fifo queue.
-	 */
-	@Pinned def insert(var i: T): void = {
-		Q(tail) = i;
-		tail = inc(tail, siz);
-		nelems++;
-	}
+    /**
+     * insert i at the tail end of fifo queue.
+     */
+    @Pinned def insert(var i: T): void = {
+        Q(tail) = i;
+        tail = inc(tail, siz);
+        nelems++;
+    }
 
-	/**
-	 * remove an item from the queue
-	 */
-	@Pinned def remove(): T = {
-		var t: T = Q(head);
-		head = inc(head, siz);
-		nelems--;
-		return t;
-	}
-	/**
-	 * increment x modulo n
-	 */
-	static def inc(var x: int, var n: int): int = {
-		var y: int = x+1;
-		return y == n ? 0 : y;
-	}
+    /**
+     * remove an item from the queue
+     */
+    @Pinned def remove(): T = {
+        var t: T = Q(head);
+        head = inc(head, siz);
+        nelems--;
+        return t;
+    }
+    /**
+     * increment x modulo n
+     */
+    static def inc(var x: int, var n: int): int = {
+        var y: int = x+1;
+        return y == n ? 0 : y;
+    }
 
-	/**
-	 * true iff queue is empty
-	 */
-	@Pinned def empty(): boolean = {
-		chk(nelems> -1);
-		return nelems <= 0;
-	}
+    /**
+     * true iff queue is empty
+     */
+    @Pinned def empty(): boolean = {
+        chk(nelems> -1);
+        return nelems <= 0;
+    }
 
-	/**
-	 * true iff queue is full
-	 */
-	@Pinned def full(): boolean = {
-		chk(nelems < siz+1);
-		return nelems >= siz;
-	}
+    /**
+     * true iff queue is full
+     */
+    @Pinned def full(): boolean = {
+        chk(nelems < siz+1);
+        return nelems >= siz;
+    }
 
-	@Pinned public def run(): boolean = {
-		val N = T.N;
-		val NP = Place.MAX_PLACES;
-		val D2  = MyDist.val_(N*NP);
-		val received = DistArray.make[int](D2);
+    @Pinned public def run(): boolean = {
+        val N = T.N;
+        val NP = Place.MAX_PLACES;
+        val D2  = MyDist.val_(N*NP);
+        val received = DistArray.make[int](D2);
         val root = this.root;
-		finish {
-			// spawn producer activities on each place
-			async 
-				ateach (val [i]: Point in MyDist.unique()) {
-					for (val [j] in 0..(N-1)) {
-						val t = new T(i, j); // produce a T
-						async at(root) {
-							val me = root();
-							when (! me.full()) { me.insert(t); }
-						}
-					}
-				}
-			// spawn a single consumer activity in place P0
-			async {
-				for (val p in D2.region) {
-					var t: Box[T];
-					when (!empty()) { t = new Box[T](remove()); }
-					val t1 = t.value;
-					async   { t1.consume(); } // consume the T
-					val m =  t1.getval();
-					received(m) += 1;
-					// remember how many times
-					// we received this item
-				}
-			}
-		}
+        finish {
+            // spawn producer activities on each place
+            async 
+                ateach (val [i]: Point in MyDist.unique()) {
+                    for (val [j] in 0..(N-1)) {
+                        val t = new T(i, j); // produce a T
+                        async at(root) {
+                            val me = root();
+                            when (! me.full()) { me.insert(t); }
+                        }
+                    }
+                }
+            // spawn a single consumer activity in place P0
+            async {
+                for (val p in D2.region) {
+                    var t: Box[T];
+                    when (!empty()) { t = new Box[T](remove()); }
+                    val t1 = t.value;
+                    async   { t1.consume(); } // consume the T
+                    val m =  t1.getval();
+                    received(m) += 1;
+                    // remember how many times
+                    // we received this item
+                }
+            }
+        }
 
-		// Ensure all messages were received exactly once
-		for (val p in D2.region) chk(received(p) == 1);
+        // Ensure all messages were received exactly once
+        for (val p in D2.region) chk(received(p) == 1);
 
-		// Ensure the FIFO queue is empty now
-		chk(empty());
+        // Ensure the FIFO queue is empty now
+        chk(empty());
 
-		return true;
-	}
+        return true;
+    }
 
-	public static def main(Rail[String])  {
-		new ConditionalAtomicQueue().execute();
-	}
+    public static def main(Rail[String])  {
+        new ConditionalAtomicQueue().execute();
+    }
 
-	/**
-	 * T is the type of the item that is being produced and consumed
-	 */
-	static class T {
+    /**
+     * T is the type of the item that is being produced and consumed
+     */
+    static class T {
 
-		public static N: int = 2;
+        public static N: int = 2;
 
-		var val_: int; // the id of the item
+        var val_: int; // the id of the item
 
-		def this(var i: int, var j: int) = { // produce a T
-			val_ = N*i+j;
-		}
+        def this(var i: int, var j: int) = { // produce a T
+            val_ = N*i+j;
+        }
 
-		public def consume(): void = { // consume a T
-		}
+        public def consume(): void = { // consume a T
+        }
 
-		public def getval(): int = { return val_; }
-	}
+        public def getval(): int = { return val_; }
+    }
 
-	/**
-	 * Utility routines to create simple common dists
-	 */
-	static class MyDist {
-		/**
-		 * create a simple 1D blocked dist
-		 */
-		static def block(var arraySize: int) = {
-			return Dist.makeBlock(0..(arraySize-1), 0);
-		}
-		/**
-		 * create a unique dist (mapping each i to place i)
-		 */
-		static def unique() =  {
-			return Dist.makeUnique();
-		}
+    /**
+     * Utility routines to create simple common dists
+     */
+    static class MyDist {
+        /**
+         * create a simple 1D blocked dist
+         */
+        static def block(var arraySize: int) = {
+            return Dist.makeBlock(0..(arraySize-1), 0);
+        }
+        /**
+         * create a unique dist (mapping each i to place i)
+         */
+        static def unique() =  {
+            return Dist.makeUnique();
+        }
 
-		/**
-		 * create a constant-Here dist
-		 */
-		static def val_(var arraySize: int) = {
-			return 0..(arraySize-1)->here;
-		}
-	}
+        /**
+         * create a constant-Here dist
+         */
+        static def val_(var arraySize: int) = {
+            return 0..(arraySize-1)->here;
+        }
+    }
 }

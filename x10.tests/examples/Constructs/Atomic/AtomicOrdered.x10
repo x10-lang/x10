@@ -25,7 +25,7 @@ public class AtomicOrdered extends x10Test {
 	public static LINESIZE: int = 128/4;
 	public static MAX_ASSOC: int = 8;
 
-	val A = new Array[int](0..(CACHESIZE*(MAX_ASSOC+2)-1));
+	val A = new Rail[int](CACHESIZE*(MAX_ASSOC+2));
 
 	public def run(): boolean = {
 		val r  = new pair();
