@@ -10,6 +10,7 @@
  */
 
 import harness.x10Test;
+import x10.array.*;
 
 /**
  * A simple 1-D stencil example in X10. Uses multiple asyncs in a single place.

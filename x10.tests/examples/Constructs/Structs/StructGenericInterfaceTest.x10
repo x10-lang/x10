@@ -10,6 +10,7 @@
  */
 
 import harness.x10Test;
+import x10.array.*;
 
 struct S58[T] implements (Int,Int)=>T {
   private val data:Array[T](2);

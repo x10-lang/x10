@@ -9,11 +9,12 @@
  *  (C) Copyright IBM Corporation 2006-2010.
  */
 
+import x10.array.*;
+
 /**
  * Construct a 3-d rectangular region, make an array from from it, and
  * examine it.
  */
-
 class PolyRectangular1 extends TestRegion {
 
     public def run() {

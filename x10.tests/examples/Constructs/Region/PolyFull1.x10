@@ -9,11 +9,12 @@
  *  (C) Copyright IBM Corporation 2006-2010.
  */
 
+import x10.array.*;
+
 /**
  * Make a full region, examine it, observing an
  * UnboundedRegionException when attemppting to scan it
  */
-
 class PolyFull1 extends TestRegion {
 
     public def run() {

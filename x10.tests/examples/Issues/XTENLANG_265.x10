@@ -10,11 +10,11 @@
  */
 
 import harness.x10Test;
+import x10.util.*;
 
 /**
  * @author bdlucas 12/2008
  */
-
 class XTENLANG_265 extends x10Test {
 
     public def run(): boolean = {

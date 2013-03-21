@@ -10,12 +10,12 @@
  */
 
 import harness.x10Test;
+import x10.array.*;
 
-/*
+/**
  *     author: r lesniak 10/27/10
  *     extracted from SelfArrayReference_7.x10 by by Dave C
  */
-
 public class XTENLANG_3103[T] extends x10Test {
     class C[U](a:Array[U]{rank==1}) {
     }

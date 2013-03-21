@@ -19,27 +19,15 @@ import harness.x10Test;
 public class UByteArray0 extends x10Test {
     public def run(): boolean = {
 	if (!test_simple()) return false;
-	if (!test_range()) return false;
-	return true;
-    }
-
-    public def test_range():boolean {
-	val aaa = new Array[UByte](1..10);
-	for (i in 1..10) aaa(i) = i as UByte;
-
-	var s : UByte = 0;
-	for (i in aaa.region) s += aaa(i);
-
-	if (s != 55uy) return false;
 	return true;
     }
 
     public def test_simple():boolean {
-	val aaa = new Array[UByte](10);
+	val aaa = new Rail[UByte](10);
 	for (i in 0..9) aaa(i) = i as UByte;
 
 	var s : UByte = 0;
-	for (i in aaa.region) s += aaa(i);
+	for (i in aaa.range) s += aaa(i);
 
 	if (s != 45uy) return false;
 

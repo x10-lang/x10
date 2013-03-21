@@ -19,18 +19,6 @@ import harness.x10Test;
 public class UShortArray0 extends x10Test {
     public def run(): boolean = {
 	if (!test_simple()) return false;
-	if (!test_range()) return false;
-	return true;
-    }
-
-    public def test_range():boolean {
-	val aaa = new Array[UShort](1..10);
-	for (i in 1..10) aaa(i) = i as UShort;
-
-	var s : UShort = 0;
-	for (i in aaa.region) s += aaa(i);
-
-	if (s != 55us) return false;
 	return true;
     }
 
@@ -39,7 +27,7 @@ public class UShortArray0 extends x10Test {
 	for (i in 0..9) aaa(i) = i as UShort;
 
 	var s : UShort = 0;
-	for (i in aaa.region) s += aaa(i);
+	for (i in aaa.range) s += aaa(i);
 
 	if (s != 45us) return false;
 

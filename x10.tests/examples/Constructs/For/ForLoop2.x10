@@ -12,6 +12,7 @@
 import x10.util.Box;
 
 import harness.x10Test;
+import x10.array.*;
 
 /**
  * Test #2 for for loop with for (Point p: D) syntax

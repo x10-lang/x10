@@ -9,11 +9,12 @@
  *  (C) Copyright IBM Corporation 2006-2010.
  */
 
+import x10.array.*;
+
 /**
  * Take an intersection of two rectangular regions, construct an array
  * from it, and examine it.
  */
-
 class PolyIntersection2 extends TestRegion {
 
     public def run() {

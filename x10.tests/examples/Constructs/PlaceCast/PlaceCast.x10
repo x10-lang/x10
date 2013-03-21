@@ -11,6 +11,8 @@
 
 import harness.x10Test;
 import x10.io.Console;
+import x10.array.*;
+
 public class PlaceCast extends x10Test {
     var nplaces: int = 0;
     private val root=GlobalRef[PlaceCast](this);

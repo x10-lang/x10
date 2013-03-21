@@ -10,27 +10,26 @@
  */
 
 import harness.x10Test;
-import x10.array.*;
 
 /**
- * Test for for loop on an array.
+ * Test for for loop on a Rail.
  *
  * @author vj
  */
-public class ForLoopOnArray extends x10Test {
+public class ForLoopOnRail extends x10Test {
 
     public static N: int = 3;
 
     public def run(): boolean = {
-        val a = new Array[double](0..10, ([i]: Point): double => i as double);
+        val a = new Rail[double](11, (i:int) => i as double);
 
-        for (val [i]: Point in a.region) {
+        for (i in a.range) {
             if (a(i) != i as Double) return false;
         }
         return true;
     }
 
     public static def main(var args: Rail[String]): void = {
-        new ForLoopOnArray().execute();
+        new ForLoopOnRail().execute();
     }
 }

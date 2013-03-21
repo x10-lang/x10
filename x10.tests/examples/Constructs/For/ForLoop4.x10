@@ -9,8 +9,9 @@
  *  (C) Copyright IBM Corporation 2006-2010.
  */
 
-import x10.util.Box;
 import harness.x10Test;
+import x10.array.*;
+import x10.util.Box;
 
 /**
  * Test for for loop with for (Point p:[1:N,1:N,1:N]) syntax.

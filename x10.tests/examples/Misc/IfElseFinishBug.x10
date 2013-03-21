@@ -22,7 +22,7 @@ public class IfElseFinishBug extends x10Test {
 
 	public def run(): boolean = {
 		if (true) x10.io.Console.OUT.println("True branch");
-		else finish for (val [i]: Point in 0..1) async { throw new Exception("Throwing "+i); }
+		else finish for (i in 0..1) async { throw new Exception("Throwing "+i); }
 		return true;
 	}
 

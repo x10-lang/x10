@@ -9,12 +9,13 @@
  *  (C) Copyright IBM Corporation 2006-2010.
  */
 
+import x10.array.*;
+
 /**
  * Take a cross product of a 1-d rectange with a 2-d triangular
  * region, forming an extrusion, construct an array from it, and
  * examine it.
  */
-
 class PolyProduct1 extends TestRegion {
 
     public def run() {

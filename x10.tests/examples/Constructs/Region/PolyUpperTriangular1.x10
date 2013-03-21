@@ -9,11 +9,12 @@
  *  (C) Copyright IBM Corporation 2006-2010.
  */
 
+import x10.array.*;
+
 /**
  * Construct an upper triangular region, make an array from it, and
  * examine it.
  */
-
 class PolyUpperTriangular1 extends TestRegion {
 
     public def run() {

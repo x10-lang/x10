@@ -10,6 +10,7 @@
  */
 
 import harness.x10Test;
+import x10.array.*;
 
 /**
  * Testing new implicit final rule (lack thereof).

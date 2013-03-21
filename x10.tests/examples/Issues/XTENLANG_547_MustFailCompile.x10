@@ -190,13 +190,13 @@ class B_static547 extends A_static547 { // ERR
 
 class XTENLANG_2641 {
 	class Parent {
-	  def foo(x:Array[byte]) {
+	  def foo(x:x10.array.Array[byte]) {
 		Console.OUT.println("hi p");
 	  }
 	}
 
 	class Child extends Parent { // ERR
-	  def foo(x:Array[byte](1)) {
+	  def foo(x:x10.array.Array[byte](1)) {
 		Console.OUT.println("hi c");
 	  }
 	}

@@ -10,11 +10,11 @@
  */
 
 import harness.x10Test;
+import x10.array.*;
 
 /**
  * @author bdlucas 10/2008
  */
-
 class XTENLANG_133 extends x10Test {
 
     public def run():boolean {

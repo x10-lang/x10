@@ -33,8 +33,8 @@ public class FutureTest3 extends x10Test {
 	/**
 	 * Spawns subactivities that cause delayed side-effects.
 	 */
-	def m1(val A: Array[int](1), val K: int): int = {
-		for (val [i]: Point in A) async {
+	def m1(val A: Rail[int], val K: long): int = {
+		for (i in A.range) async {
 			System.sleep(3000);
 			atomic A(i) += 1;
 		}
@@ -47,8 +47,8 @@ public class FutureTest3 extends x10Test {
 	 * Spawns subactivities that cause delayed side-effects
 	 * and exceptions.
 	 */
-	def m2(val A: Array[int](1), val K: int): int = {
-		for (val p[i]: Point in A) async {
+	def m2(val A: Rail[int], val K: long): int = {
+		for (i in A.range) async {
 			System.sleep(3000);
 			atomic A(i) += 1;
 			atomic A(OUTOFRANGE) = -1;
@@ -63,8 +63,8 @@ public class FutureTest3 extends x10Test {
 	 * side effects and exceptions.
 	 */
 	public def run(): boolean = {
-		val A = new Array[int](0..(N-1), (Point)=>0);
-		val K: int = 3;
+		val A = new Rail[int](N, 0);
+		val K:Long = 3;
 		var gotException: boolean;
 
 		// side effect in expression
@@ -98,9 +98,9 @@ public class FutureTest3 extends x10Test {
 		x10.io.Console.OUT.println("3");
 		chk(r3 == 1 && !gotException);
 		// must read new values of A here
-		for (val [i]: Point in A) x10.io.Console.OUT.println("A["+i+"] = "+A(i));
+		for (i in A.range) x10.io.Console.OUT.println("A["+i+"] = "+A(i));
 		chk(A(K) == 2);
-		for (val [i]: Point in A) atomic chk(imp(i != K, A(i) == 1));
+		for (i in A.range) atomic chk(imp(i != K, A(i) == 1));
 
 		//future { e }.force() must throw
 		//exceptions from subactivities of e
@@ -114,9 +114,9 @@ public class FutureTest3 extends x10Test {
 		x10.io.Console.OUT.println("4" + gotException + " r4 = " + r4);
 		chk(r4 ==-1 && gotException);
 		// must read new values of A here
-		for (val [i]: Point in A) x10.io.Console.OUT.println("A["+i+"] = "+A(i));
+		for (i in A.range) x10.io.Console.OUT.println("A["+i+"] = "+A(i));
 		atomic chk(A(K) == 3);
-		for (val [i]: Point in A) atomic chk(imp(i != K, A(i) == 2));
+		for (i in A.range) atomic chk(imp(i != K, A(i) == 2));
 
 		//Only force() throws the exception,
 		//a plain future call just spawns the expression
@@ -124,7 +124,7 @@ public class FutureTest3 extends x10Test {
 		x10.io.Console.OUT.println("5");
 		// must read old values of A here
 		//atomic chk(A(K) == 3);
-		//for (val (i): Point in A) atomic chk(imp(i != K, A(i) == 2));
+		//for (i in A.range) atomic chk(imp(i != K, A(i) == 2));
 		var r5: int = -1;
 		gotException = false;
 		try {
@@ -134,9 +134,9 @@ public class FutureTest3 extends x10Test {
 		}
 		chk(r5 ==-1 && gotException);
 		// must read new values of A here
-		for (val [i]: Point in A) x10.io.Console.OUT.println("A["+i+"] = "+A(i));
+		for (i in A.range) x10.io.Console.OUT.println("A["+i+"] = "+A(i));
 		atomic chk(A(K) == 4);
-		for (val [i]: Point in A) atomic chk(imp(i != K, A(i) == 3));
+		for (i in A.range) atomic chk(imp(i != K, A(i) == 3));
 
 		return true;
 	}
