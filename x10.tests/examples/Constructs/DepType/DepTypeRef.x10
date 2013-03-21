@@ -10,6 +10,7 @@
  */
 
 import harness.x10Test;
+import x10.array.*;
 
 /**
  * Check that array deptypes are properly processed.
@@ -17,12 +18,13 @@ import harness.x10Test;
  * @author vj
  */
 public class DepTypeRef extends x10Test {
-	public def run(): boolean = {
-  	  var R: Region{rect} = (1..2)*(1..2);
-	  var a: Array[double]{rect} = new Array[double](R, (p: Point) => 1.0);
-	   return true;
-	}
-	public static def main(var args: Rail[String]): void = {
-		new DepTypeRef().execute();
-	}
+    public def run(): boolean = {
+      var R: Region{rect} = (1..2)*(1..2);
+      var a: Array[double]{rect} = new Array[double](R, (p: Point) => 1.0);
+      return true;
+    }
+
+    public static def main(var args: Rail[String]): void = {
+        new DepTypeRef().execute();
+    }
 }

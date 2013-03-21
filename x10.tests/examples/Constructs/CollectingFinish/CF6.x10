@@ -36,7 +36,7 @@ public class CF6 extends x10Test{
             val b = new TotalsReducer1();
             val iteration = 100;
             val result = finish(b) {
-                 ateach(p in Dist.makeUnique()){
+                 for (p in Place.places()) at (p) async {
                       val v = Totals2(1,2);
                       for (var i:Int = 0; i < iteration; i++)
                         offer v;

@@ -9,12 +9,13 @@
  *  (C) Copyright IBM Corporation 2006-2010.
  */
 
+import x10.array.*;        
+
 /**
  * Constant distribution
  *
  * (Was ConstDist)
  */
-
 class PolyConst1 extends TestDist {
 
     public def run() {

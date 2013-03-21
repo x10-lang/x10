@@ -17,7 +17,7 @@ import x10.compiler.tests.*; // err markers
  */
 public class SubtypeCheckForUserDefinedConversion_MustFailCompile extends x10Test {
     static class Foo {}
-    @ERR public static operator (p:Array[Int]) = new Foo(); // (because the return type should be a subtype of the container's type)
+    @ERR public static operator (p:Rail[Int]) = new Foo(); // (because the return type should be a subtype of the container's type)
     public def run()=true;
     public static def main(Rail[String]) {
 	new SubtypeCheckForUserDefinedConversion_MustFailCompile().execute();

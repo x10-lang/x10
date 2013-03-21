@@ -37,7 +37,7 @@ public class CF8 extends x10Test{
             val result : Totals2;
             finish {
             result = finish(b) {
-            ateach(p in Dist.makeUnique()){
+                 for (p in Place.places()) at (p) async {
                       var case_ :Totals2 =new  Totals2(1,2);
                       for (var i:Int = 0; i < iteration; i++)
                       offer case_;

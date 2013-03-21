@@ -9,16 +9,17 @@
  *  (C) Copyright IBM Corporation 2006-2010.
  */
 
- /**  Check that the return type of a call to a method which has a deptype as its return
- type is handled correctly. 
- 
- *@author vj,10/20/2006
+import harness.x10Test;
+import x10.array.*;
+
+/**  
+ * Check that the return type of a call to a method which has a deptype as its return
+ * type is handled correctly. 
  *
+ * @author vj,10/20/2006
  */
 
-import harness.x10Test;
-
- public class CallLaterMethod extends x10Test { 
+public class CallLaterMethod extends x10Test { 
   
   public def run(): boolean = { 
         var d: Dist{rank==2} = m();
@@ -32,4 +33,4 @@ import harness.x10Test;
         new CallLaterMethod().execute();
     }
    
-    }
+}
