@@ -382,4 +382,6 @@ public final class Array[T] (
     }
 }
 
+public type Array[T](r:Int) = Array[T]{self.rank==r};
+
 // vim:tabstop=4:shiftwidth=4:expandtab
