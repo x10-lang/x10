@@ -979,8 +979,9 @@ void x10rt_net_init (int *argc, char ***argv, x10rt_msg_type *counter)
 		fprintf(stderr, "Hello from process %u of %u\n", state.myPlaceId, state.numPlaces);
 	#endif
 
+#if !defined(__bgq__)
 	state.hfi_update = NULL;
-#if defined(_POWER) && !defined(__bgq__)
+#if defined(_POWER)
 	// see if HFI should be used
 	if (!checkBoolEnvVar(getenv(X10RT_PAMI_DISABLE_HFI)))
 	{
@@ -1000,7 +1001,8 @@ void x10rt_net_init (int *argc, char ***argv, x10rt_msg_type *counter)
 				fprintf(stderr, "HFI present but disabled at place %u because PAMI_Extension_open status=%u\n", state.myPlaceId, status);
 		}
 	}
-#endif
+#endif // power CPU
+#endif // not BlueGeneQ
 
 	// create the world geometry
 	if (pthread_mutex_init(&state.stateLock, NULL) != 0) error("Unable to initialize the team lock");
