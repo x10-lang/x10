@@ -9,6 +9,7 @@ import x10.util.Timer;
 //
 import x10.matrix.Debug;
 //
+import x10.matrix.MathTool;
 import x10.matrix.Matrix;
 import x10.matrix.DenseMatrix;
 import x10.matrix.Vector;
@@ -25,6 +26,21 @@ import linreg.SeqLinearRegression;
  * Demo of linear regression test
  */
 public class RunLinReg {
+
+	/*
+	 * Vector.equals(Vector) modified to allow NaN.
+	 */
+	public static def equalsRespectNaN(w:Vector, v:Vector):Boolean {
+		val M = w.M;
+		if (M != v.M) return false;
+		for (var c:Int=0; c< M; c++)
+			if (MathTool.isZero(w.d(c) - v.d(c)) == false && !(w.d(c).isNaN() && v.d(c).isNaN())) {
+				Console.OUT.println("Diff found [" + c + "] : "+ 
+									w.d(c) + " <> "+ v.d(c));
+				return false;
+			}
+		return true;
+	}
 
 	public static def main(args:Rail[String]): void {
 		
@@ -81,7 +97,7 @@ public class RunLinReg {
 				// Verification of parallel against sequential
 				Debug.flushln("Start verifying results");
 				
-				if (parLR.w.equals(seqLR.w as Vector(parLR.w.M))) {
+				if (equalsRespectNaN(parLR.w, seqLR.w as Vector(parLR.w.M))) {
 					Console.OUT.println("Verification passed! "+
 										"Parallel linear reqresion is same as sequential version");
 				} else {
