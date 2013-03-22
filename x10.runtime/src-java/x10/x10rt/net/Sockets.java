@@ -6,6 +6,7 @@ import java.io.IOException;
 import java.net.ConnectException;
 import java.net.InetSocketAddress;
 import java.nio.ByteBuffer;
+import java.nio.ByteOrder;
 import java.nio.channels.SelectionKey;
 import java.nio.channels.Selector;
 import java.nio.channels.ServerSocketChannel;
@@ -20,6 +21,7 @@ public class Sockets {
 	public static final String X10_FORCEPORTS = "X10_FORCEPORTS";
 	public static final String X10_LAUNCHER_PLACE = "X10_LAUNCHER_PLACE";
 	public static final String X10_NPLACES = "X10_NPLACES";
+	public static final String X10_LAUNCHER_PARENT = "X10_LAUNCHER_PARENT";
 	private static enum CTRL_MSG_TYPE {HELLO, GOODBYE, PORT_REQUEST, PORT_RESPONSE};
 	private static enum MSGTYPE {STANDARD, PUT, GET, GET_COMPLETED};
 	public static enum CALLBACKID {closureMessageID, closureMessageNoDictionaryID, simpleAsyncMessageID, simpleAsyncMessageNoDictionaryID};
@@ -32,26 +34,28 @@ public class Sockets {
 	    X10RT_ERR_OTHER /* Other unclassified runtime error */
 	};
 	
-	private int nplaces = -1; // number of places
-	private int myPlaceId = -1; // my place ID
+	private int nplaces = 1; // number of places
+	private int myPlaceId = 0; // my place ID
 	private ServerSocketChannel localListenSocket = null;
-	private SocketChannel channels[] = null; // communication links to remote places
+	private SocketChannel channels[] = null; // communication links to remote places, and launcher at [myPlaceId]
 	private Selector selector = null;
 	
 	
 	public Sockets() {
-		String nplacesFlag = System.getProperty(X10_NPLACES);
+		String nplacesFlag = System.getenv(X10_NPLACES);
 		if (nplacesFlag != null) {
 			nplaces = Integer.parseInt(nplacesFlag);
 			channels = new SocketChannel[nplaces];
 		}
+		else 
+			channels = new SocketChannel[1];
 		
-		String placeFlag = System.getProperty(X10_LAUNCHER_PLACE);
+		String placeFlag = System.getenv(X10_LAUNCHER_PLACE);
 		if (placeFlag != null) myPlaceId = Integer.parseInt(placeFlag);
 		
 		try {
 			localListenSocket = ServerSocketChannel.open();
-			String forcePortsFlag = System.getProperty(X10_FORCEPORTS);
+			String forcePortsFlag = System.getenv(X10_FORCEPORTS);
 			if (forcePortsFlag != null && myPlaceId >= 0)
 				localListenSocket.socket().bind(new InetSocketAddress(Integer.parseInt(forcePortsFlag) + myPlaceId));
 			else
@@ -60,6 +64,13 @@ public class Sockets {
 			
 			selector = Selector.open();
 			localListenSocket.register(selector, SelectionKey.OP_ACCEPT);
+			
+			if (nplaces > 1) {
+				// we may be under the control of a launcher.  If so, link up
+				String launcherLocation = System.getenv(X10_LAUNCHER_PARENT);
+				if (launcherLocation != null)
+					initLink(myPlaceId, launcherLocation);
+			}
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -74,10 +85,7 @@ public class Sockets {
 	}
 	
 	public int establishLinks() {
-		if (myPlaceId == -1) 
-			return RETURNCODE.X10RT_ERR_INVALID.ordinal();
-		
-		if (myPlaceId >= 0 && nplaces > 0) {
+		if (nplaces > 1) {
 			for (int i=0; i<myPlaceId; i++) {
 				try {
 					initLink(i, null);
@@ -90,19 +98,24 @@ public class Sockets {
 				while (channels[i] == null)
 					x10rt_probe(true, 0); // wait for connections from all upper places
 		}
-		else
-			return RETURNCODE.X10RT_ERR_INVALID.ordinal();
-					
+	
 		return RETURNCODE.X10RT_ERR_OK.ordinal();
 	}
 	
     public int establishLinks(int myPlaceId, String[] connectionStrings) {
-    	if (myPlaceId != -1) 
+    	if (myPlaceId != 0 || nplaces != 1) 
     		return RETURNCODE.X10RT_ERR_INVALID.ordinal();
-    	
+    		
     	this.myPlaceId = myPlaceId;
     	this.nplaces = connectionStrings.length;
-    	channels = new SocketChannel[nplaces];
+    	if (channels.length == 1 && channels[0] != null) {
+    		// save the launcher link
+    		SocketChannel ll = channels[0];
+    		channels = new SocketChannel[nplaces];
+    		channels[myPlaceId] = ll;
+    	}
+    	else
+    		channels = new SocketChannel[nplaces];
     	
     	for (int i=0; i<myPlaceId; i++) {
 			try {
@@ -134,8 +147,8 @@ public class Sockets {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-    	myPlaceId = -1;
-    	nplaces = -1;
+    	myPlaceId = 0;
+    	nplaces = 1;
     	return RETURNCODE.X10RT_ERR_OK.ordinal();
     }
 
@@ -287,14 +300,40 @@ public class Sockets {
     	String hostname;
     	int port;
     	
-    	if (connectionInfo == null) {
-    		// TODO connect to launcher, to get connection information.  Meanwhile....
-    		hostname = "localhost";
-    		String forcePortsFlag = System.getProperty(X10_FORCEPORTS);
+    	if (connectionInfo == null && channels[myPlaceId] == null) {
+    		String forcePortsFlag = System.getenv(X10_FORCEPORTS);
     		if (forcePortsFlag == null) throw new IOException("Unknown location for place "+remotePlace);
+    		hostname = "localhost";		
     		port = Integer.parseInt(forcePortsFlag)+remotePlace;
     	}
     	else {
+    		if (connectionInfo == null) {
+    			// ask the launcher
+    			ByteBuffer placeRequest = ByteBuffer.allocateDirect(16);
+    			placeRequest.order(ByteOrder.nativeOrder());
+    			placeRequest.putInt(CTRL_MSG_TYPE.PORT_REQUEST.ordinal());
+    			placeRequest.putInt(remotePlace);
+    			placeRequest.putInt(myPlaceId);
+    			placeRequest.putInt(0);
+    			placeRequest.flip();
+    			Sockets.writeNBytes(channels[myPlaceId], placeRequest, placeRequest.capacity());
+    			placeRequest.clear();
+    			Sockets.readNBytes(channels[myPlaceId], placeRequest, placeRequest.capacity());
+    			placeRequest.flip();
+    			int type = placeRequest.getInt();
+    			if (type != CTRL_MSG_TYPE.PORT_RESPONSE.ordinal()) 
+    				throw new IOException("Invalid response to launcher lookup for place "+remotePlace);
+    			placeRequest.getInt();
+    			placeRequest.getInt();
+    			int strlen = placeRequest.getInt();
+    			if (strlen <=0)
+    				throw new IOException("Invalid response length to launcher lookup for place "+remotePlace);
+    			byte[] chars = new byte[strlen];
+    			ByteBuffer bb = ByteBuffer.wrap(chars);
+    			Sockets.readNBytes(channels[myPlaceId], bb, strlen);
+    			connectionInfo = new String(chars);
+    			if (DEBUG) System.out.println("Lookup of place "+remotePlace+" returned \""+connectionInfo+"\" (len="+strlen+")");
+    		}
     		String[] split = connectionInfo.split(":");
     		hostname = split[0];
     		port = Integer.parseInt(split[1]);
@@ -319,24 +358,42 @@ public class Sockets {
 	    	}
     	} while (sc == null);
 		
-		ByteBuffer controlMsg = ByteBuffer.allocateDirect(16);
+		ByteBuffer controlMsg = ByteBuffer.allocateDirect(20);
+		if (remotePlace == myPlaceId)
+			controlMsg.order(ByteOrder.nativeOrder()); // the launcher is native code, and probably uses a different endian order
 		controlMsg.putInt(CTRL_MSG_TYPE.HELLO.ordinal());
 		controlMsg.putInt(remotePlace);
 		controlMsg.putInt(myPlaceId);
-		controlMsg.putInt(0);
-		controlMsg.flip();
-		Sockets.writeNBytes(sc, controlMsg, controlMsg.capacity());
-		controlMsg.clear();
-		Sockets.readNBytes(sc, controlMsg, controlMsg.capacity());
-		controlMsg.flip();
-		if (controlMsg.getInt() == CTRL_MSG_TYPE.HELLO.ordinal()) {
-			channels[remotePlace] = sc;
+		if (remotePlace == myPlaceId) { // send connection details to launcher
+			int myPort = localListenSocket.socket().getLocalPort();
+			controlMsg.putInt(4);
+			// the launcher is expecting an unsigned short, in network order
+			controlMsg.put((byte)(myPort >>> 8));
+			controlMsg.put((byte)myPort);
+			controlMsg.putShort((short)0);
+			controlMsg.flip();
+			Sockets.writeNBytes(sc, controlMsg, 20);
+			channels[myPlaceId] = sc;
 			sc.configureBlocking(false);
 			sc.register(selector, SelectionKey.OP_READ);
-			if (DEBUG) System.out.println("Place "+myPlaceId+" established a link to place "+remotePlace);
+			if (DEBUG) System.out.println("Place "+myPlaceId+" established a link to local launcher, sent local port="+myPort);
 		}
-		else
-			System.err.println("Bad response to HELLO");
+		else {
+			controlMsg.putInt(0);
+			controlMsg.flip();
+			Sockets.writeNBytes(sc, controlMsg, 16);
+			controlMsg.clear();
+			Sockets.readNBytes(sc, controlMsg, 16);
+			controlMsg.flip();
+			if (controlMsg.getInt() == CTRL_MSG_TYPE.HELLO.ordinal()) {
+				channels[remotePlace] = sc;
+				sc.configureBlocking(false);
+				sc.register(selector, SelectionKey.OP_READ);
+				if (DEBUG) System.out.println("Place "+myPlaceId+" established a link to place "+remotePlace);
+			}
+			else
+				System.err.println("Bad response to HELLO");
+		}
 	}
     
     // simple utility method which forces the read of a specific number of bytes before returning
