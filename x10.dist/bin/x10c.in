@@ -28,7 +28,9 @@ while [ -n "$1" ]; do
         -v|-verbose|--verbose) verbose="1";;
         -t|-time) time="time ";;
         -classpath|-cp) shift; extra_cp="$1";;
-        -x10lib) shift; propfile="$(cd $(dirname "$1") && pwd)/$(basename "$1")"; args="$args -x10lib '$propfile'";;
+        -x10lib) shift; propfile="$(cd $(dirname "$1") && pwd)/$(basename "$1")"
+                 [[ "$UNAME" = CYGWIN* ]] && propfile="$(cygpath -am "$propfile")"
+                 args="$args -x10lib '$propfile'";;
         -profile) profile="-Xrunhprof:cpu=samples";;
         -config) shift; config="$1.cfg";;
         -extclass) shift; ext=$1;;
