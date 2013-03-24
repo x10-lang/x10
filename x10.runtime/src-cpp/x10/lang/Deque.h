@@ -46,7 +46,11 @@ namespace x10 {
 
             virtual void _deserialize_body(x10aux::deserialization_buffer& buf);
 
+#ifndef ENABLE_CROSS_COMPILE_FX10
         private:
+#else
+        public:
+#endif
             struct Slots {
             public:
                 x10_int capacity;
