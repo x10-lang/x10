@@ -10,7 +10,7 @@
  */
 
 import harness.x10Test;
-import x10.util.*;
+import x10.array.*;
 
 /**
  * @author bdlucas 12/2008
