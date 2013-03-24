@@ -141,9 +141,6 @@ public class X10Translator extends Translator {
         int outputWidth = job.compiler().outputWidth();
         CodeWriter w= null;
 
-        // if all toplevel decls are @NativeRep'ed, stop generating Java file
-        if (!generateJavaFile(sfn)) return true;
-
         try {
             QName pkg = null;
 
@@ -151,6 +148,9 @@ public class X10Translator extends Translator {
                 Package p = sfn.package_().package_().get();
                 pkg = p.fullName();
             }
+
+            // if all toplevel decls are @NativeRep'ed, stop generating Java file
+            if (generateJavaFile(sfn)) {
 
             // Use the source name to derive a default output file name.
             File of = tf.outputFile(pkg, sfn.source());
@@ -171,6 +171,8 @@ public class X10Translator extends Translator {
             }
 
             w.flush();
+
+            }
 
             X10CompilerOptions options = (X10CompilerOptions) ts.extensionInfo().getOptions();
             if (options.post_compiler != null && !options.output_stdout && options.executable_path != null) {
