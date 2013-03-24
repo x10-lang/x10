@@ -18,7 +18,7 @@ public class WorkStealingQuickSortTest extends x10Test {
     	val r = new x10.util.Random();
         //val data = new Array[int](N, (int)=>r.nextInt(9999));
         //Use loop to create data before FIX XTENLANG-2300
-        val data:Array[int](1){rail,rect,zeroBased} = new Array[int](N);
+        val data:Rail[int] = new Rail[int](N);
         for(var j:Int = 0; j < N; j++) { data(j) = r.nextInt(9999);}
     	QuickSort.qsort(data, 0, N-1);
 
