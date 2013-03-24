@@ -33,12 +33,12 @@ public class SeqArray2b extends Benchmark {
     val a = new Array[double](N, N, 0.0);
 
     def once() {
-        for (i in 0..N)
-            for (j in 0..N)
+        for (i in 0..(N-1))
+            for (j in 0..(N-1))
                 a(i,j) = (i+j) as double;
         var sum:double = 0.0;
-        for (i in 0..N)
-            for (j in 0..N)
+        for (i in 0..(N-1))
+            for (j in 0..(N-1))
             sum += a(i,j);
         return sum;
     }

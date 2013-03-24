@@ -9,6 +9,7 @@
  *  (C) Copyright IBM Corporation 2006-2010.
  */
 
+import x10.simplearray.*;
 
 /**
  * Basic array, c-style loop.
@@ -29,7 +30,7 @@ public class SeqArray2a extends Benchmark {
     // the benchmark
     //
 
-    val a = new Array[double](0..(N-1)*0..(N-1), (Point)=>0.0);
+    val a = new Array[double](N, N, 0.0);
 
     def once() {
         for (var i:int=0; i<N; i++)
