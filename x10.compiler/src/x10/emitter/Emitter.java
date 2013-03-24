@@ -4107,21 +4107,13 @@ public class Emitter {
             String lhs = "this." + mangleToJava(field.name()) + " = ";
             String zero = null;
             if (xts.isStruct(type)) {
-                if (xts.isUByte(type)) {
-                    zero = "(x10.core.UByte) " + X10PrettyPrinterVisitor.X10_RTT_TYPES + ".UBYTE_ZERO";
-                } else if (xts.isUShort(type)) {
-                    zero = "(x10.core.UShort) " + X10PrettyPrinterVisitor.X10_RTT_TYPES + ".USHORT_ZERO";
-                } else if (xts.isUInt(type)) {
-                    zero = "(x10.core.UInt) " + X10PrettyPrinterVisitor.X10_RTT_TYPES + ".UINT_ZERO";
-                } else if (xts.isULong(type)) {
-                    zero = "(x10.core.ULong) " + X10PrettyPrinterVisitor.X10_RTT_TYPES + ".ULONG_ZERO";
-                } else if (xts.isByte(type)) {
+                if (xts.isByte(type) || xts.isUByte(type)) {
                     zero = "(byte) 0";
-                } else if (xts.isShort(type)) {
+                } else if (xts.isShort(type) || xts.isUShort(type)) {
                     zero = "(short) 0";
-                } else if (xts.isInt(type)) {
+                } else if (xts.isInt(type) || xts.isUInt(type)) {
                     zero = "0";
-                } else if (xts.isLong(type)) {
+                } else if (xts.isLong(type) || xts.isULong(type)) {
                     zero = "0L";
                 } else if (xts.isFloat(type)) {
                     zero = "0.0F";

@@ -576,13 +576,13 @@ public class Types {
     public static final x10.core.Byte BYTE_ZERO = x10.core.Byte.$box(0);
     public static final x10.core.Short SHORT_ZERO = x10.core.Short.$box(0);
     public static final x10.core.Int INT_ZERO = x10.core.Int.$box(0);
-    public static final x10.core.Long LONG_ZERO = x10.core.Long.$box(0l);
+    public static final x10.core.Long LONG_ZERO = x10.core.Long.$box(0L);
     public static final x10.core.Float FLOAT_ZERO = x10.core.Float.$box(0.0F);
     public static final x10.core.Double DOUBLE_ZERO = x10.core.Double.$box(0.0);
-    public static final x10.core.UByte UBYTE_ZERO = x10.core.UByte.$box((byte)0);
-    public static final x10.core.UShort USHORT_ZERO = x10.core.UShort.$box((short)0);
+    public static final x10.core.UByte UBYTE_ZERO = x10.core.UByte.$box(0);
+    public static final x10.core.UShort USHORT_ZERO = x10.core.UShort.$box(0);
     public static final x10.core.UInt UINT_ZERO = x10.core.UInt.$box(0);
-    public static final x10.core.ULong ULONG_ZERO = x10.core.ULong.$box((long)0);
+    public static final x10.core.ULong ULONG_ZERO = x10.core.ULong.$box(0L);
 
     public static final RuntimeType<String> STRING = new StringType();
 
