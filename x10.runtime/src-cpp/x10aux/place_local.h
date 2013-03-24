@@ -19,7 +19,11 @@ namespace x10aux {
     class reentrant_lock;
 
     class place_local {
+#ifndef ENABLE_CROSS_COMPILE_FX10
     private:
+#else
+    public:
+#endif
         class Bucket {
         public:
             x10_int _id;

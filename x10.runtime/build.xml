@@ -155,6 +155,9 @@
     <condition property="cppmake.cross_compile_bgq" value="ENABLE_CROSS_COMPILE_BGQ=1" else="DISABLE_CROSS_COMPILE_BGQ=1">
         <istrue value="${CROSS_COMPILE_BGQ}" />
     </condition>
+    <condition property="cppmake.cross_compile_fx10" value="ENABLE_CROSS_COMPILE_FX10=1" else="DISABLE_CROSS_COMPILE_FX10=1">
+        <istrue value="${CROSS_COMPILE_FX10}" />
+    </condition>
     <condition property="cppmake.homogeneous" value="HOMOGENEOUS=1" else="DUMMY_ARG=1">
         <istrue value="${HOMOGENEOUS}" />
     </condition>
@@ -234,6 +237,7 @@
             <arg value="${cppmake.x10rt_cuda}" />
             <arg value="${cppmake.cross_compile_bgp}" />
             <arg value="${cppmake.cross_compile_bgq}" />
+            <arg value="${cppmake.cross_compile_fx10}" />
         </exec>
     </target>
     <target name="dist-java" depends="jar,dist-stdlibprops">
@@ -257,6 +261,7 @@
             <arg value="${cppmake.no_checks}" />
             <arg value="${cppmake.cross_compile_bgp}" />
             <arg value="${cppmake.cross_compile_bgq}" />
+            <arg value="${cppmake.cross_compile_fx10}" />
         </exec>
     </target>
     <target name="dist-cpp-no-x10rt" depends="build-cpp,available-procs">
@@ -407,6 +412,7 @@
             <arg value="${cppmake.x10rt_cuda}" />
             <arg value="${cppmake.cross_compile_bgp}" />
             <arg value="${cppmake.cross_compile_bgq}" />
+            <arg value="${cppmake.cross_compile_fx10}" />
         </exec>
     </target>
 
@@ -445,6 +451,7 @@
             <arg value="${cppmake.x10rt_cuda}" />
             <arg value="${cppmake.cross_compile_bgp}" />
             <arg value="${cppmake.cross_compile_bgq}" />
+            <arg value="${cppmake.cross_compile_fx10}" />
         </exec>
     </target>
 
@@ -460,6 +467,29 @@
                   <os family="unix" name="linux" />
               </conditions>
               <then>
+		<if>
+		  <conditions>
+                    <istrue value="${CROSS_COMPILE_FX10}" />
+		  </conditions>
+		  <then>
+                    <sequential>
+                      <echo message="Installing BDWGC to FX10"/>
+                      <exec executable="${bash.exe}" dir="${bdwgc.dir}/src" failonerror="true">
+			<env key="CXX" value="/opt/FJSVfxlang/GM-1.2.1-03/bin/FCCpx"/>
+			<env key="CC" value="/opt/FJSVfxlang/GM-1.2.1-03/bin/fccpx"/>
+			<env key="CFLAGS" value="-Xg" />
+			<env key="CXXFLAGS" value="-Xg" />
+			<arg value="${bdwgc.dir}/src/configure" />
+			<arg value="--host=sparc64-unknown-linux-gnu" />
+			<arg value="-enable-threads=posix" />
+			<arg value="-enable-thread-local-alloc" />
+			<arg value="-enable-large-config" />
+			<arg value="-enable-parallel-mark" />
+			<arg value="--prefix=${bdwgc.platform.dir}/install" />
+                      </exec>
+                    </sequential>
+		  </then>
+		</if>
                 <if>
                   <conditions>
                     <istrue value="${CROSS_COMPILE_BGP}" />
