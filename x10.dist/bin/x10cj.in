@@ -21,7 +21,7 @@ done
 cp="${TOP}${FILE_SEP}stdlib${FILE_SEP}x10.jar${PATH_SEP}${TOP}${FILE_SEP}lib${FILE_SEP}${MATH_JAR}"
 [ -n "${extra_cp}" ] && cp="${extra_cp}${PATH_SEP}${cp}"
 
-command="\"${JAVA}\" -jar \"${TOP}${FILE_SEP}lib${FILE_SEP}${ECJ_JAR}\" -1.5 -nowarn -encoding utf-8 -classpath \"${cp}\" ${args}"
+command="\"${JAVA}\" -jar \"${TOP}${FILE_SEP}lib${FILE_SEP}${ECJ_JAR}\" -1.6 -nowarn -encoding utf-8 -classpath \"${cp}\" ${args}"
 
 [ -n "$verbose" ] && echo "$command"
 
