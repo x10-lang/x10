@@ -322,7 +322,7 @@ public class X10Translator extends Translator {
                         out.println("Main-Class: " + main_class + "$" + X10PrettyPrinterVisitor.MAIN_CLASS);
                         // N.B. Following jar files should be same as the ones used in X10CCompilerOptions.setDefaultValues()
                         String x10_jar = "x10.jar";
-                        String math_jar = System.getProperty("x10c.math.jar", "commons-math3-3.0.jar");
+                        String math_jar = System.getProperty("x10c.math.jar", "commons-math3-3.1.1.jar");
                         // XTENLANG-2722
                         // need a new preloading mechanism which does not use classloader to determine system classes
                         out.println("Class-Path: " + x10_jar + " " + math_jar);
