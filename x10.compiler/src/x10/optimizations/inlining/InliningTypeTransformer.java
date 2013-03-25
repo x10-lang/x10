@@ -11,6 +11,9 @@
 package x10.optimizations.inlining;
 
 import polyglot.ast.Node;
+import polyglot.ast.NodeFactory;
+import polyglot.types.Context;
+import polyglot.types.TypeSystem;
 import polyglot.types.Types;
 import polyglot.util.Position;
 import polyglot.visit.ContextVisitor;
@@ -66,16 +69,16 @@ public class InliningTypeTransformer extends Reinstantiator {
         Closure c = super.transform(d, old);
         ClosureDef cd = c.closureDef();
         cd.setStaticContext(caller.staticContext());
-        X10CodeDef currentCode = visitor().context().currentCode();
+        X10CodeDef currentCode = context().currentCode();
         if (currentCode == callee) currentCode = caller; // minor hack: remap callee to caller
         cd.setMethodContainer(Types.ref(currentCode.asInstance()));
-        cd.setTypeContainer(Types.ref(visitor().context().currentClass()));
+        cd.setTypeContainer(Types.ref(context().currentClass()));
         return c.closureDef(cd);
     }
 
     @Override
-    public Node transform(Node n, Node old, ContextVisitor v) {
-        n = super.transform(n, old, v);
+    public Node transform(Node n, Node old, Context context, TypeSystem typeSystem, NodeFactory nodeFactory) {
+        n = super.transform(n, old, context, typeSystem, nodeFactory);
         if (n.position() != position) { // may happen when inlining closures
             n = n.position(n.position().addOuter(position));
         }

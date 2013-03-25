@@ -32,6 +32,6 @@ public class NodeTransformingVisitor extends ContextVisitor {
 
     @Override
     protected Node leaveCall(Node old, Node n, NodeVisitor v) {
-        return xform.transform(n, old, this);
+        return xform.transform(n, old, this.context(), this.typeSystem(), this.nodeFactory());
     }
 }

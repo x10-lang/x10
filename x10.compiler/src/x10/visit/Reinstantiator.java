@@ -241,7 +241,7 @@ public class Reinstantiator extends TypeParamSubstTransformer {
             }
             sigChanged |= d.guard() != old.guard();
             List<Ref<? extends Type>> excTypes = new ArrayList<Ref<? extends Type>>();
-            SubtypeSet excs = d.exceptions() == null ? new SubtypeSet(visitor().typeSystem()) : d.exceptions();
+            SubtypeSet excs = d.exceptions() == null ? new SubtypeSet(typeSystem()) : d.exceptions();
             SubtypeSet oldExcs = old.exceptions();
             if (null != excs) {
                 for (Type et : excs) {
@@ -273,7 +273,7 @@ public class Reinstantiator extends TypeParamSubstTransformer {
             }
             sigChanged |= d.guard() != old.guard();
             List<Ref<? extends Type>> excTypes = new ArrayList<Ref<? extends Type>>();
-            SubtypeSet excs = d.exceptions() == null ? new SubtypeSet(visitor().typeSystem()) : d.exceptions();
+            SubtypeSet excs = d.exceptions() == null ? new SubtypeSet(typeSystem()) : d.exceptions();
             SubtypeSet oldExcs = old.exceptions();
             if (null != excs) {
                 for (Type et : excs) {
@@ -305,7 +305,7 @@ public class Reinstantiator extends TypeParamSubstTransformer {
             X10MethodDef md = d.methodDef();
             DepParameterExpr g = d.guard();
             TypeNode ot = d.offerType();
-            return visitor().typeSystem().methodDef( md.position(), md.errorPosition(),
+            return typeSystem().methodDef( md.position(), md.errorPosition(),
                                                      md.container(), 
                                                      md.flags(), 
                                                      d.returnType().typeRef(), 
@@ -337,7 +337,7 @@ public class Reinstantiator extends TypeParamSubstTransformer {
             } else {
                 returnTypeRef = cd.returnType();
             }
-            return visitor().typeSystem().constructorDef(
+            return typeSystem().constructorDef(
                     cd.position(), cd.errorPosition(),
                     cd.container(), 
                     cd.flags(), 

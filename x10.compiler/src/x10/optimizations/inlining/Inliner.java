@@ -266,7 +266,7 @@ public class Inliner extends ContextVisitor {
             report("of failure to instatiate closure", c);
             return null;
         }
-        lit = (Closure) lit.visit(new X10AlphaRenamer(this));
+        lit = (Closure) lit.visit(new X10AlphaRenamer(context(), typeSystem(), nodeFactory(), true));
         // Ensure that the last statement of the body is the only return in the closure
         Block body = InliningRewriter.rewriteClosureBody(lit, job(), context());
         if (null == body) {
@@ -353,7 +353,7 @@ public class Inliner extends ContextVisitor {
             report("instantiation failure for " + signature, call);
             return null;
         }
-        decl = (ProcedureDecl) decl.visit(new X10AlphaRenamer(this));
+        decl = (ProcedureDecl) decl.visit(new X10AlphaRenamer(context(), typeSystem(), nodeFactory(), true));
         Expr result = rewriteDecl(call, decl);
         if (null == result) {
             report("cannot rewrite decl", call);

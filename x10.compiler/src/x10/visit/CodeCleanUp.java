@@ -52,7 +52,6 @@ public class CodeCleanUp extends ContextVisitor {
     final protected boolean reportStats;
     static protected long blockCount;
     static protected long unreachableCount;
-    protected X10AlphaRenamer alphaRenamer;
     protected Map<Name, Integer> labelInfo;
 
     /**
@@ -66,7 +65,6 @@ public class CodeCleanUp extends ContextVisitor {
         xnf = nf;
         this.report = reporter.should_report("CodeCleanUp", 1);
         this.reportStats = reporter.should_report("CodeCleanUpStats", 1);
-        this.alphaRenamer = new X10AlphaRenamer(this, true);
         this.labelInfo = CollectionFactory.newHashMap();
     }
 
@@ -157,7 +155,7 @@ public class CodeCleanUp extends ContextVisitor {
                     // flattening.
                     if (report) System.out.println("Cleaning up a block" + inner.position());
                     if (reportStats) blockCount++;
-                    if (!innerIsStmtSeq) inner = (Block) inner.visit(alphaRenamer);
+                    if (!innerIsStmtSeq) inner = (Block) inner.visit(new X10AlphaRenamer(context(), ts, nf, true));
                     // Could add a check here that scopeLevel is back to 0???
                     stmtList.addAll(inner.statements());
                     changeMade = true;

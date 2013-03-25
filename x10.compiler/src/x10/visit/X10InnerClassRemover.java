@@ -131,7 +131,8 @@ public class X10InnerClassRemover extends InnerClassRemover {
     @Override
     protected Node leaveCall(Node old, Node n, NodeVisitor v) {
         Node res = super.leaveCall(old, n, v);
-        return xform.transform(res, old, (ContextVisitor) v);
+        ContextVisitor v2 = (ContextVisitor) v;
+        return xform.transform(res, old, v2.context(), v2.typeSystem(), v2.nodeFactory());
     }
 
     private InnerClassTypeExpander xform = new InnerClassTypeExpander();

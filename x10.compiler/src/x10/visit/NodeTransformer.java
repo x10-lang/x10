@@ -19,9 +19,12 @@ import polyglot.ast.Local;
 import polyglot.ast.LocalDecl;
 import polyglot.ast.New;
 import polyglot.ast.Node;
+import polyglot.ast.NodeFactory;
 import polyglot.ast.Special;
 import polyglot.ast.Stmt;
 import polyglot.ast.TypeNode;
+import polyglot.types.Context;
+import polyglot.types.TypeSystem;
 import polyglot.visit.ContextVisitor;
 import x10.ast.AssignPropertyCall;
 import x10.ast.Async;
@@ -44,12 +47,18 @@ import x10.ast.X10MethodDecl;
  * type information.
  */
 public abstract class NodeTransformer {
-    private ContextVisitor v; // FIXME: refactor later
-    // [DC] some quick investigation tells me v is only used for getting typesystem, context, and nodefactory 
-    protected ContextVisitor visitor() { return v; }
+    private Context context;
+    private TypeSystem typeSystem;
+    private NodeFactory nodeFactory;
 
-    public Node transform(Node n, Node old, ContextVisitor v) {
-        this.v = v;
+    protected Context context() { return context; }
+    protected TypeSystem typeSystem() { return typeSystem; }
+    protected NodeFactory nodeFactory() { return nodeFactory; }
+
+    public Node transform(Node n, Node old, Context context, TypeSystem typeSystem, NodeFactory nodeFactory) {
+        this.context = context;
+        this.typeSystem = typeSystem;
+        this.nodeFactory = nodeFactory;
         if (n instanceof TypeParamNode) {
             return transform((TypeParamNode) n, (TypeParamNode) old);
         } else if (n instanceof TypeNode) {

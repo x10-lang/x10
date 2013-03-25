@@ -28,6 +28,7 @@ import polyglot.ast.Local;
 import polyglot.ast.LocalDecl;
 import polyglot.ast.New;
 import polyglot.ast.Node;
+import polyglot.ast.NodeFactory;
 import polyglot.ast.Special;
 import polyglot.ast.Term;
 import polyglot.ast.TypeNode;
@@ -35,6 +36,7 @@ import polyglot.ast.VarDecl;
 import polyglot.types.ClassType;
 import polyglot.types.CodeDef;
 import polyglot.types.CodeInstance;
+import polyglot.types.Context;
 import polyglot.types.LocalDef;
 import polyglot.types.LocalInstance;
 import polyglot.types.Ref;
@@ -94,6 +96,40 @@ import x10.util.CollectionFactory;
  */
 public class TypeTransformer extends NodeTransformer {
 
+    private static final class IdentityRefKey {
+        private Ref<?> v;
+        public IdentityRefKey(Ref<?> v) { this.v = v; }
+        public int hashCode() { return System.identityHashCode(v); }
+        public boolean equals(Object o) {
+            return o instanceof IdentityRefKey && ((IdentityRefKey)o).v == this.v;
+        }
+    }
+
+    private final Map<IdentityRefKey, Ref<?>> refs = CollectionFactory.newHashMap();
+
+    @SuppressWarnings("unchecked")
+    protected <T> Ref<T> remapRef(Ref<T> ref) {
+        if (ref == null) return null;
+        IdentityRefKey key = new IdentityRefKey(ref);
+        Ref<T> remappedRef = (Ref<T>) refs.get(key);
+        if (remappedRef == null) {
+            refs.put(key, remappedRef = Types.ref(ref.get()));
+        }
+        return remappedRef;
+    }
+
+    protected final Map<X10LocalDef, X10LocalDef> vars = CollectionFactory.newHashMap();
+
+    protected void mapLocal(X10LocalDef def, X10LocalDef newDef) {
+    	//System.out.println("Mapping "+def.name()+" ("+def.hashCode()+") to "+newDef.name()+" ("+newDef.hashCode()+")");
+        vars.put(def, newDef);
+    }
+
+    protected X10LocalDef getLocal(X10LocalDef def) {
+        X10LocalDef remappedDef = vars.get(def);
+        return remappedDef != null ? remappedDef : def;
+    }
+
     protected Type transformType(Type type) {
         Type nt = transformTypeRecursively(type);
         //if (nt != null && nt.toString().contains("!!!")) { // validation
@@ -105,7 +141,7 @@ public class TypeTransformer extends NodeTransformer {
     protected CConstraint transformConstraint(CConstraint c) {
         if (c == null)
             return null;
-        VarDef currentLocal = this.visitor().context().varWhoseTypeIsBeingElaborated();
+        VarDef currentLocal = this.context().varWhoseTypeIsBeingElaborated();
 
         List<XTerm<Type>> oldvars = new ArrayList<XTerm<Type>>();
         List<XTerm<Type>> newvars = new ArrayList<XTerm<Type>>();
@@ -295,8 +331,8 @@ public class TypeTransformer extends NodeTransformer {
     }
 
     @Override
-    public Node transform(Node n, Node old, ContextVisitor v) {
-        n = super.transform(n, old, v);
+    public Node transform(Node n, Node old, Context context, TypeSystem typeSystem, NodeFactory nodeFactory) {
+        n = super.transform(n, old, context, typeSystem, nodeFactory);
         if (n instanceof Term) {
             X10Ext_c ext = (X10Ext_c) n.ext();
             Set<LocalDef> initVals = ext.initVals;
@@ -317,7 +353,7 @@ public class TypeTransformer extends NodeTransformer {
         ParameterType type = pn.type();
         ParameterType pt = transformParameterType(type);
         if (!pt.name().equals(type.name()))
-            pn = pn.name(visitor().nodeFactory().Id(pn.position(), pt.name()));
+            pn = pn.name(nodeFactory().Id(pn.position(), pt.name()));
         pn = pn.type(pt);
         return pn;
     }
@@ -434,7 +470,7 @@ public class TypeTransformer extends NodeTransformer {
                 argTypes.add(p.type().typeRef());
                 formalNames.add(p.localDef());
             }
-            TypeSystem xts = visitor().typeSystem();
+            TypeSystem xts = typeSystem();
             ClosureDef icd = (ClosureDef) cd.copy();
             icd.setReturnType(d.returnType().typeRef());
             icd.setFormalTypes(argTypes);
@@ -558,45 +594,61 @@ public class TypeTransformer extends NodeTransformer {
         return (X10Formal) transformVarDecl(f, old);
     }
 
-    private VarDecl transformVarDecl(VarDecl d, VarDecl old) {
-        TypeNode tn1 = d.type();
-        TypeNode tn2 = old.type();
-        boolean sigChanged = tn1 != tn2; // conservative compare detects changes in substructure
-        
-        // There may already be a localdef mapping for this variable.  This happens when variable references
+    private VarDecl transformVarDecl(VarDecl nu, VarDecl old) {
+        TypeSystem xts = typeSystem();
+
+        TypeNode nu_tn = nu.type();
+    	Type nu_t = nu_tn.type();
+        X10LocalDef nu_ld = (X10LocalDef) nu.localDef();
+
+        TypeNode old_tn = old.type();
+    	Type old_t = old_tn.type();
+        X10LocalDef old_ld = (X10LocalDef) old.localDef();
+
+        assert nu_ld == old_ld; // we're about to update this, it should not have changed yet
+
+        // There may already be a new localdef for this variable.  This happens when variable references
         // are encountered before the declaration, e.g., in return types and in the variable initializer type
         // (the self binding).  If that happens, use the existing mapping, but validate.
         // We use a mapping of a localdef to itself to indicate that a reference was encountered before the
         // declaration, but processing the reference did not change the local def (which means that this
         // method cannot change the local def either).
-        TypeSystem xts = visitor().typeSystem();
-        X10LocalDef ld = (X10LocalDef) d.localDef();
-        X10LocalDef mld = vars.get(ld);
-        if (mld != null) {
-        	// [DC] sigChanged is a conservative approximation, now we check the actual types, which really indicate if something has changed
-        	Type t1 = d.type().type();
-        	Type t2 = Types.get(mld.type());
-        	boolean reallySigChanged = sigChanged && !xts.typeEquals(t1, t2, visitor().context());
-            if (reallySigChanged) {
+        X10LocalDef vars_ld = vars.get(nu_ld);
+        //if (vars_ld != null) System.out.println("Was mapped: "+nu_ld.name()+" ("+nu_ld.hashCode()+") to "+vars_ld.name()+" ("+nu_ld.hashCode()+")");
+        
+        // The plan is, if the types have changed, to assign vars_ld to replace nu_ld, or create a new local def if vars_ld is null
+
+        // if the type has changed then the localdef needs replacing
+        boolean sigChanged =  !xts.typeEquals(nu_t, old_t, context());
+        
+        if (vars_ld != null) {
+        	// We have already updated some other node that used old_ld, to use vars_ld instead.
+        	// Since the defs are aliased in polyglot, we therefore update nu to also use vars_ld (instead of old_ld)
+
+        	Type vars_ld_t = Types.get(vars_ld.type());
+
+        	assert xts.typeEquals(nu_t, vars_ld_t, context());
+        	
+            if (sigChanged) {
                 // validate the type
-                if (mld == ld) {
-                    throw new InternalCompilerError("Inconsistent local mapping for "+d.name().id(), d.position());
+                if (vars_ld == nu_ld) {
+                    throw new InternalCompilerError("Inconsistent local mapping for "+nu.name().id(), nu.position());
                 }
                 // adjust the return type node's type reference to match that of the stored localdef
-                d = d.type(d.type().typeRef(mld.type()));
+                nu = nu.type(nu.type().typeRef(vars_ld.type()));
             }
             // now use the new mapping
-            return d.localDef(mld);
+            return nu.localDef(vars_ld);
         }
         if (sigChanged) {
-            X10LocalDef ild = copyLocalDef(ld);
-            ild.setType(d.type().typeRef());
-            mapLocal(ld, ild);
-            return d.localDef(ild);
+            X10LocalDef ild = copyLocalDef(nu_ld);
+            ild.setType(nu.type().typeRef());
+            mapLocal(nu_ld, ild);
+            return nu.localDef(ild);
         } else {
-            mapLocal(ld, ld); // mark this localdef as having been processed
+            mapLocal(nu_ld, nu_ld); // mark this localdef as having been processed
         }
-        return d;
+        return nu;
     }
 
     protected static final X10LocalDef copyLocalDef(X10LocalDef ld) {
@@ -606,35 +658,4 @@ public class TypeTransformer extends NodeTransformer {
         return res;
     }
 
-    private static final class IdentityRefKey {
-        private Ref<?> v;
-        public IdentityRefKey(Ref<?> v) { this.v = v; }
-        public int hashCode() { return System.identityHashCode(v); }
-        public boolean equals(Object o) {
-            return o instanceof IdentityRefKey && ((IdentityRefKey)o).v == this.v;
-        }
-    }
-    private final Map<IdentityRefKey, Ref<?>> refs = CollectionFactory.newHashMap();
-
-    @SuppressWarnings("unchecked")
-    protected <T> Ref<T> remapRef(Ref<T> ref) {
-        if (ref == null) return null;
-        IdentityRefKey key = new IdentityRefKey(ref);
-        Ref<T> remappedRef = (Ref<T>) refs.get(key);
-        if (remappedRef == null) {
-            refs.put(key, remappedRef = Types.ref(ref.get()));
-        }
-        return remappedRef;
-    }
-
-    protected final Map<X10LocalDef, X10LocalDef> vars = CollectionFactory.newHashMap();
-
-    protected void mapLocal(X10LocalDef def, X10LocalDef newDef) {
-        vars.put(def, newDef);
-    }
-
-    protected X10LocalDef getLocal(X10LocalDef def) {
-        X10LocalDef remappedDef = vars.get(def);
-        return remappedDef != null ? remappedDef : def;
-    }
 }

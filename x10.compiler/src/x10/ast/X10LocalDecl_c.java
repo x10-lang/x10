@@ -60,11 +60,12 @@ import polyglot.types.TypeSystem;
 import x10.types.checker.Converter;
 import x10.types.checker.PlaceChecker;
 import x10.types.constraints.XConstrainedTerm;
+import x10.visit.X10AlphaRenamer;
 import x10.visit.X10PrettyPrinterVisitor;
 import x10.visit.X10TypeChecker;
 
 public class X10LocalDecl_c extends LocalDecl_c implements X10VarDecl {
-	TypeNode hasType;
+	private TypeNode hasType;
     private final List<Id> exploded;
 
     public X10LocalDecl_c(NodeFactory nf, Position pos, FlagsNode flags, TypeNode type,

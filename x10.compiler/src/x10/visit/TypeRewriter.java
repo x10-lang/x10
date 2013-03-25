@@ -43,6 +43,8 @@ public class TypeRewriter extends TypeTransformer {
      * @param renamingMap 
      */
     TypeRewriter(Map<Name, Name> renamingMap, Map<Name, LocalDef> localDefMap) {
+    	assert renamingMap != null;
+    	assert localDefMap != null;
         this.renamingMap = renamingMap;
         this.localDefMap = localDefMap;
     }

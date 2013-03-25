@@ -189,7 +189,7 @@ public class TypeParamAlphaRenamer extends ContextVisitor {
 
         // First, apply the subst
         tpst.subst(subst);
-        n = tpst.transform(n, old, v2);
+        n = tpst.transform(n, old, v2.context(), v2.typeSystem(), v2.nodeFactory());
         
         // Now, fix the defs which apparently are not changed by the type substitution
         if (n instanceof X10ClassDecl_c) {
