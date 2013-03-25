@@ -39,6 +39,7 @@ public class Sockets {
 	private ServerSocketChannel localListenSocket = null;
 	private SocketChannel channels[] = null; // communication links to remote places, and launcher at [myPlaceId]
 	private Selector selector = null;
+	private Iterator<SelectionKey> events = null;
 	
 	
 	public Sockets() {
@@ -165,12 +166,18 @@ public class Sockets {
     	try {
     		SelectionKey key;
     		synchronized (selector) {
-    			eventCount = selector.select(timeout);
-    			if (eventCount == 0) return false;
-    			
-    			Iterator<SelectionKey> it = selector.selectedKeys().iterator();
-    			key = it.next();
-    			it.remove();
+    			if (events != null && events.hasNext()) {
+    				key = events.next();
+	    			events.remove();
+    			}
+	    		else {
+	    			eventCount = selector.select(timeout);
+	    			if (eventCount == 0) return false;
+	    			
+	    			events = selector.selectedKeys().iterator();
+	    			key = events.next();
+	    			events.remove();
+    			}
     		}
 			if (key.isAcceptable()) {
 				ServerSocketChannel ssc = (ServerSocketChannel)key.channel();
@@ -210,7 +217,7 @@ public class Sockets {
 			}
 			if (onlyProcessAccept) return false;
 			if (key.isReadable()) {
-				if (DEBUG) System.out.println("Detected incoming messaged");
+				if (DEBUG) System.out.println("Place "+myPlaceId+" detected incoming message");
 				SocketChannel sc = (SocketChannel) key.channel();
 				ByteBuffer controlData = ByteBuffer.allocateDirect(12);
 				Sockets.readNBytes(sc, controlData, controlData.capacity());
@@ -219,8 +226,11 @@ public class Sockets {
 				int msgType = controlData.getInt();
 				if (msgType == MSGTYPE.STANDARD.ordinal()) {
 					int callbackId = controlData.getInt();
-					int datalen = controlData.getInt(); // not needed here, because we don't create an intermediate buffer :-)
-					if (DEBUG) System.out.println("Processing an incoming message of type "+callbackId+" and size "+datalen);
+					int datalen = controlData.getInt();
+					if (DEBUG) {
+						System.out.print("Place "+myPlaceId+" processing an incoming message of type "+callbackId+" and size "+datalen+"...");
+						System.out.flush();
+					}
 					
 					//TODO - eliminate this buffer by modifying the deserializer to take the channel as input
 					ByteBuffer bb = ByteBuffer.allocate(datalen);
@@ -238,7 +248,8 @@ public class Sockets {
 					else
 						System.err.println("Unknown message callback type: "+callbackId);
 					
-					if (DEBUG) System.out.println("Finished processing message type "+callbackId+" and size "+datalen);
+					//if (DEBUG) System.out.println("Place "+myPlaceId+" finished processing message type "+callbackId+" and size "+datalen);
+					if (DEBUG) System.out.println("done");
 				}
 				else 
 					System.err.println("Unknown message type: "+msgType);
@@ -267,7 +278,7 @@ public class Sockets {
     }
     
     public int sendMessage(int place, int msg_id, ByteBuffer[] bytes) throws IOException {
-   		initLink(place, null);
+    	initLink(place, null);
     	
     	// write out the x10SocketMessage data
     	// Format: type, p.type, p.len, p.msg
@@ -281,15 +292,17 @@ public class Sockets {
     	controlData.putInt(len);
     	controlData.flip();
     	if (DEBUG) {
-    		System.out.print("Sending a message to place "+place+" of type "+msg_id+" and size "+len+"...");
+    		System.out.print("Place "+myPlaceId+" sending a message to place "+place+" of type "+msg_id+" and size "+len+"...");
     		System.out.flush();
     	}
-    	Sockets.writeNBytes(channels[place], controlData, controlData.capacity());
-		//channels[place].write(controlData);
-    	if (bytes != null)
-    		for (int i=0; i<bytes.length; i++)
-    			Sockets.writeNBytes(channels[place], bytes[i], bytes[i].remaining());
-		if (DEBUG) System.out.println("Sent");
+    	synchronized (channels[place]) {
+	    	Sockets.writeNBytes(channels[place], controlData, controlData.capacity());
+			//channels[place].write(controlData);
+	    	if (bytes != null)
+	    		for (int i=0; i<bytes.length; i++)
+	    			Sockets.writeNBytes(channels[place], bytes[i], bytes[i].remaining());
+			if (DEBUG) System.out.println("Sent");
+    	}
 		
     	return RETURNCODE.X10RT_ERR_OK.ordinal();
     }
@@ -332,7 +345,7 @@ public class Sockets {
     			ByteBuffer bb = ByteBuffer.wrap(chars);
     			Sockets.readNBytes(channels[myPlaceId], bb, strlen);
     			connectionInfo = new String(chars);
-    			if (DEBUG) System.out.println("Lookup of place "+remotePlace+" returned \""+connectionInfo+"\" (len="+strlen+")");
+    			if (DEBUG) System.out.println("Place "+myPlaceId+" lookup of place "+remotePlace+" returned \""+connectionInfo+"\" (len="+strlen+")");
     		}
     		String[] split = connectionInfo.split(":");
     		hostname = split[0];
@@ -350,7 +363,7 @@ public class Sockets {
 					Thread.sleep(100);
 					delay-=100;
 					if (delay <= 0)
-						throw new IOException("Unable to connect to place "+remotePlace);
+						throw new IOException("Place "+myPlaceId+" unable to connect to place "+remotePlace);
 				} catch (InterruptedException e1) {
 					// TODO Auto-generated catch block
 					e1.printStackTrace();
@@ -398,9 +411,11 @@ public class Sockets {
     
     // simple utility method which forces the read of a specific number of bytes before returning
     static void readNBytes(SocketChannel sc, ByteBuffer data, int bytes) throws IOException {
-    	int bytesRead = 0;
-		do { bytesRead+=sc.read(data);
-		} while (bytesRead < bytes);
+    	synchronized (sc) {
+	    	int bytesRead = 0;
+			do { bytesRead+=sc.read(data);
+			} while (bytesRead < bytes);
+    	}
     }
     
     // simple utility method which forces out a specific number of bytes before returning
