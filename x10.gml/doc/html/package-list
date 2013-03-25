@@ -3,7 +3,9 @@ x10.lang
 x10.matrix
 x10.matrix.blas
 x10.matrix.block
+x10.matrix.builder
 x10.matrix.comm
+x10.matrix.comm.mpi
 x10.matrix.dist
 x10.matrix.dist.summa
 x10.matrix.dist.summa.mpi
