@@ -1804,6 +1804,13 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
         gh.write("() {");
         gh.newline(4); gh.begin(0);
 
+        gh.write("if ("+status+" != " + STATIC_FIELD_INITIALIZED + ") {");
+        gh.newline(4); gh.begin(0);
+        gh.write(init + "();");
+        gh.end(); gh.newline();
+        gh.write("}");
+        gh.newline();
+
         gh.write("return ");
         gh.write(container+"::");
         gh.write(fname);
