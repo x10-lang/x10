@@ -21,7 +21,7 @@ import x10.matrix.sparse.SparseCSC;
  */
 
 public class TestCSC{
-    public static def main(args:Array[String](1)) {
+    public static def main(args:Rail[String]) {
 		val testcase = new AddSubCSC(args);
 		testcase.run();
 	}
@@ -32,7 +32,7 @@ class AddSubCSC {
 	public val M:Int;
 	public val N:Int;
 
-    public def this(args:Array[String](1)) {
+    public def this(args:Rail[String]) {
 		M = args.size > 0 ?Int.parse(args(0)):8;
 		N = args.size > 1 ?Int.parse(args(1)):8;
 		nzp = args.size > 2 ?Double.parse(args(2)):0.99;

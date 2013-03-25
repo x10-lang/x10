@@ -27,7 +27,7 @@ import x10.matrix.distblock.DupVector;
  */
 public class DistDupToDist{
 	
-    public static def main(args:Array[String](1)) {
+    public static def main(args:Rail[String]) {
     	
     	val M   = args.size > 0 ?Int.parse(args(0)):100;
     	val bM  = args.size > 1 ?Int.parse(args(1)):-1;

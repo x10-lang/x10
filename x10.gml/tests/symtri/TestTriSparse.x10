@@ -20,7 +20,7 @@ import x10.matrix.builder.TriSparseBuilder;
  */
 public class TestTriSparse{
 
-    public static def main(args:Array[String](1)) {
+    public static def main(args:Rail[String]) {
 		val m = (args.size > 0) ? Int.parse(args(0)):5;
 		val d = (args.size > 1) ? Double.parse(args(1)):1.0;
 		val testcase = new TriSpaTest(m, d);

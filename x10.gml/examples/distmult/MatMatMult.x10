@@ -29,7 +29,7 @@ import x10.matrix.distblock.summa.SummaMult;
  */
 public class MatMatMult {
 	
-    public static def main(args:Array[String](1)) {
+    public static def main(args:Rail[String]) {
 		val testcase = new MatMatMult(args);
 		testcase.run();
 	}
@@ -42,7 +42,7 @@ public class MatMatMult {
 	public val bN:Int;
 	public val vrf:Boolean;
 
-    public def this(args:Array[String](1)) {
+    public def this(args:Rail[String]) {
 		M = args.size > 0 ?Int.parse(args(0)):30;
 		N = args.size > 1 ?Int.parse(args(1)):M+1;
 		K = args.size > 2 ?Int.parse(args(2)):M+2;

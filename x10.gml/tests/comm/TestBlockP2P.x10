@@ -28,7 +28,7 @@ import x10.matrix.comm.BlockRemoteCopy;
  */
 
 public class TestBlockP2P{
-    public static def main(args:Array[String](1)) {
+    public static def main(args:Rail[String]) {
 		val m = args.size > 0 ?Int.parse(args(0)):60;
 		val n = args.size > 1 ?Int.parse(args(1)):60;
 		val bm= args.size > 2 ?Int.parse(args(2)):2;
@@ -109,7 +109,7 @@ class BlockP2PTest {
 		var ds:Int = 0;
 		
 		Console.OUT.println("\nTest P2P copyTo dist block matrix ("+M+"x"+N+") "+
-				"("+bM+","+bN+") blocks over "+ numplace+" placaces");
+				"("+bM+","+bN+") blocks over "+ numplace+" places");
 		//src.printMatrix("CopyTo source");
 		var st:Long =  Timer.milliTime();
 		for (var b:Int=0; b<bM*bN; b++) {
@@ -140,7 +140,7 @@ class BlockP2PTest {
 		var tt:Long = 0;//Timer.milliTime() - st;
 		
 		Console.OUT.println("\nTest P2P copyFrom dist block matrix ("+M+"x"+N+") "+
-				"("+bM+","+bN+") blocks over "+ numplace+" placaces");
+				"("+bM+","+bN+") blocks over "+ numplace+" places");
 
 		//src.printMatrix("CopyFrom Source matrix");
 		for (var b:Int=0; b<bM*bN; b++) {

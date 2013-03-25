@@ -10,6 +10,7 @@
 ###################################################
 # Source and target file
 ###################################################
+#target_list 	= TestMult TestSparse TestSparseDense TestDenseSparse TestDistBlockMatrix TestMultMPI
 target_list 	= TestMult TestSparse TestSparseDense TestDenseSparse TestDistBlockMatrix
 
 target		= TestDistBlockMatrix

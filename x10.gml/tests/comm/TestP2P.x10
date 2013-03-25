@@ -27,7 +27,7 @@ import x10.matrix.comm.MatrixRemoteCopy;
  */
 
 public class TestP2P{
-    public static def main(args:Array[String](1)) {
+    public static def main(args:Rail[String]) {
 		val m = args.size > 0 ?Int.parse(args(0)):50;
 		val n = args.size > 1 ?Int.parse(args(1)):50;
 		val d = args.size > 2 ? Double.parse(args(2)):0.5;
@@ -86,7 +86,7 @@ class TestMatrixCopy {
 		dmat.local().initRandom();
 		
 		Console.OUT.println("\nTest P2P copyTo dense matrix("+M+"x"+N+") in double over "
-							+ numplace+" placaces");
+							+ numplace+" places");
 
 		var st:Long =  Timer.milliTime();
 		val ddm : DistArray[DenseMatrix](1) = dmat.dupMs;
@@ -121,7 +121,7 @@ class TestMatrixCopy {
 		dmat.local().initRandom();
 		
 		Console.OUT.println("\nTest P2P copyFrom dense matrix("+M+"x"+N+") in double over "
-							+ numplace+" placaces");
+							+ numplace+" places");
 		val root = here.id();
 		for (var i:Int=0; i<iter; i++) {
 			for (var p:Int=0; p<numplace; p++) {
@@ -158,7 +158,7 @@ class TestMatrixCopy {
 
 		val dsm : DistArray[SparseCSC](1) = smat.dupMs;
 		Console.OUT.println("\nTest P2P copyTo sparse matrix("+M+"x"+N+") in double over "
-							+ numplace+" placaces");
+							+ numplace+" places");
 		//dsm.print("Source matrix");
 		for (var i:Int=0; i<iter; i++) {
 			for (var p:Int=0; p<numplace; p++) {
@@ -192,7 +192,7 @@ class TestMatrixCopy {
 		//smat.local().printSparse();
 
 		Console.OUT.println("\nTest P2P copyFrom sparse matrix("+M+"x"+N+") in double over "
-							+ numplace+" placaces");
+							+ numplace+" places");
 		
 		val root = here.id();
 		//val dsm : DistArray[SparseCSC](1) = smat.dupMs;

@@ -31,7 +31,7 @@ import x10.matrix.comm.BlockSetReduce;
  */
 
 public class TestBlockSetComm{
-    public static def main(args:Array[String](1)) {
+    public static def main(args:Rail[String]) {
 		val m = args.size > 0 ?Int.parse(args(0)):40;
 		val n = args.size > 1 ?Int.parse(args(1)):40;
 		val bm= args.size > 2 ?Int.parse(args(2)):3;
@@ -109,7 +109,7 @@ class BlockSetCommTest {
 		var ds:Int = 0;
 		
 		Console.OUT.println("\nTest P2P copyTo dup block set matrix ("+M+","+N+") "+
-				"partitioned in ("+bM+","+bN+") blocks duplicated over "+ numplace+" placaces");
+				"partitioned in ("+bM+","+bN+") blocks duplicated over "+ numplace+" places");
 		//src.printMatrix("CopyTo source");
 		dst.reset();
 		dst.local().initRandom();

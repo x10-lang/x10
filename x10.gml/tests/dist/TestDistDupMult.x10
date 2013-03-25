@@ -30,7 +30,7 @@ import x10.matrix.dist.DistMultDupToDist;
  */
 
 public class TestDistDupMult{
-    public static def main(args:Array[String](1)) {
+    public static def main(args:Rail[String]) {
 		val testcase = new DDMult(args);
 		testcase.run();
 	}
@@ -43,7 +43,7 @@ class DDMult {
 	public val N:Int;
 	public val K:Int;
 
-    public def this(args:Array[String](1)) {
+    public def this(args:Rail[String]) {
 		M = args.size > 0 ?Int.parse(args(0)):50;
 		nnz = args.size > 1 ?Double.parse(args(1)):0.5;
 		N = args.size > 2 ?Int.parse(args(2)):M+1;

@@ -13,8 +13,6 @@
 target_list = TestCompress TestCSC TestCSR TestSparseMult TestSparseTrans
 
 target		= TestCSC
-#target		= TestMultDense
-#target		= TestTrans
 
 # build path
 build_path	= build

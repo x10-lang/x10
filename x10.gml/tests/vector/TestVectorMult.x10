@@ -12,8 +12,8 @@ import x10.matrix.Vector;
 import x10.matrix.Debug;
 
 import x10.matrix.DenseMatrix;
-import x10.matrix.SymMatrix;
-import x10.matrix.TriMatrix;
+import x10.matrix.SymDense;
+import x10.matrix.TriDense;
 import x10.matrix.MathTool;
 
 /**
@@ -24,7 +24,7 @@ import x10.matrix.MathTool;
  */
 public class TestVectorMult{
 
-    public static def main(args:Array[String](1)) {
+    public static def main(args:Rail[String]) {
 		val n = (args.size > 0) ? Int.parse(args(0)):4;
 		val testcase = new VectorMult(n);
 		testcase.run();
@@ -93,7 +93,7 @@ class VectorMult {
 		var ret:Boolean= true;
 		Console.OUT.println("Starting vector-symmetric matrix multiply test");
 		val v:Vector(N)          = Vector.make(N).initRandom();
-		val s:SymMatrix(N)       = SymMatrix.make(N).initRandom(); 
+		val s:SymDense(N)        = SymDense.make(N).initRandom(); 
 		val m1:DenseMatrix(N,1)  = new DenseMatrix(N, 1, v.d);
 		val sm:DenseMatrix(N,N)  = s.toDense();
 
@@ -120,7 +120,7 @@ class VectorMult {
 		var ret:Boolean= true;
 		Console.OUT.println("Starting vector-triangular matrix multiply test");
 		val v:Vector(N)          = Vector.make(N).init(1);
-		val t:TriMatrix(N)       = TriMatrix.make(N).init(1); 
+		val t:TriDense(N)        = TriDense.make(N).init(1); 
 		val m1:DenseMatrix(N,1)  = new DenseMatrix(N, 1, t.d);
 		val tm:DenseMatrix(N,N)  = t.toDense();
 
@@ -147,7 +147,7 @@ class VectorMult {
 		var ret:Boolean = true;
 		Console.OUT.println("Starting vector-triangular matrix multiply test");
 		
-		val t:TriMatrix(N) = TriMatrix.make(N).init(1);
+		val t:TriDense(N)  = TriDense.make(N).init(1);
 		val v:Vector(N)    = Vector.make(N).init(1);
 		val b:Vector(N)    = t % v;
 		

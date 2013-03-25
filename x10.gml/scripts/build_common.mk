@@ -49,7 +49,7 @@ all	:
 ###
 clean	::
 		rm -rf $(build_path)  $(target)_mpi $(target)_sock $(target)_lapi
-		
+
 clean_all:: 
 		rm -rf $(build_path)
 		$(foreach f, $(target_list), rm -f $(f)_mpi $(f)_sock $(f)_lapi $(f)_pami $(f)_bgp;)

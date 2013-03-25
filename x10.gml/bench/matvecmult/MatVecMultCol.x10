@@ -29,7 +29,7 @@ import x10.matrix.dist.DistMultDistToDup;
 
 public class MatVecMultCol{
 	
-    public static def main(args:Array[String](1)) {
+    public static def main(args:Rail[String]) {
     	
     	val M   = args.size > 0 ?Int.parse(args(0)):100;
     	val nnz = args.size > 1 ?Double.parse(args(1)):0.5;

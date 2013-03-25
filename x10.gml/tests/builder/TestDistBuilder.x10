@@ -24,7 +24,7 @@ import x10.matrix.builder.distblock.DistMatrixBuilder;
  */
 public class TestDistBuilder {
 
-    public static def main(args:Array[String](1)) {
+    public static def main(args:Rail[String]) {
 		val m = (args.size > 0) ? Int.parse(args(0)):8;
 		val n = (args.size > 1) ? Int.parse(args(1)):9;
 		val z = (args.size > 2) ? Double.parse(args(2)):0.5;

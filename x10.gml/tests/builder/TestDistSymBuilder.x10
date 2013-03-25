@@ -25,7 +25,7 @@ import x10.matrix.builder.distblock.DistSymMatrixBuilder;
  */
 public class TestDistSymBuilder {
 
-    public static def main(args:Array[String](1)) {
+    public static def main(args:Rail[String]) {
 		val m = (args.size > 0) ? Int.parse(args(0)):8;
 		val z = (args.size > 1) ? Double.parse(args(1)):0.5;
 		val testcase = new SymTest(m, z);

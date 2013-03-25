@@ -27,7 +27,7 @@ import x10.matrix.block.SparseBlockMatrix;
  */
 public class TestSparseBlockMatrix {
 	
-    public static def main(args:Array[String](1)) {
+    public static def main(args:Rail[String]) {
 		val testcase = new TestSBMatrix(args);
 		testcase.run();
 	}
@@ -41,7 +41,7 @@ class TestSBMatrix {
 	public val grid:Grid;
 	public val nzd:Double;
 
-    public def this(args:Array[String](1)) {
+    public def this(args:Rail[String]) {
 		M = args.size > 0 ?Int.parse(args(0)):40;
 		N = args.size > 1 ?Int.parse(args(1)):M+2;
 		R = args.size > 2 ?Int.parse(args(2)):2;

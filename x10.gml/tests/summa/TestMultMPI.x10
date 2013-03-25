@@ -18,7 +18,7 @@ import x10.matrix.dist.DistDenseMatrix;
 import x10.matrix.dist.DistSparseMatrix;
 import x10.matrix.dist.DupDenseMatrix;
 
-//import x10.matrix.dist.summa.mpi.SummaMPI;
+import x10.matrix.dist.summa.mpi.SummaMPI; 
 import x10.matrix.dist.summa.SummaDense;
 
 /**
@@ -28,8 +28,8 @@ import x10.matrix.dist.summa.SummaDense;
    <p>
  */
 
-public class TestMult{
-    public static def main(args:Rail[String]) {
+public class TestMultMPI{
+    public static def main(args:Array[String](1)) {
 		val testcase = new SummaMultTest(args);
 		testcase.run();
 	}
@@ -45,7 +45,7 @@ class SummaMultTest {
 	public val pB:Grid;
 	public val pC:Grid;
 	
-    public def this(args:Rail[String]) {
+    public def this(args:Array[String](1)) {
 		M = args.size > 0 ?Int.parse(args(0)):21;
 		N = args.size > 1 ?Int.parse(args(1)):23;
 		K = args.size > 2 ?Int.parse(args(2)):25;	
@@ -60,12 +60,10 @@ class SummaMultTest {
 	public def run(): void {
 		var ret:Boolean = true;
  		// Set the matrix function
-		/*
 		@Ifdef("MPI_COMMU") {		
 			ret &= (testMPI());
 			ret &= (testMultTransMPI());
 		}
-		*/
 		
 		ret &= (testDenseMult());
 		ret &= (testDenseMultTrans());
@@ -76,7 +74,6 @@ class SummaMultTest {
 			Console.OUT.println("--------SUMMA distributed dense matrix multiply test failed!--------");
 	}
 	//------------------------------------------------
-	/*
 	//------------------------------------------------
 	//This method only works for native C++ and MPI transport
 	public def testMPI():Boolean {
@@ -151,8 +148,7 @@ class SummaMultTest {
 			Console.OUT.println("-----SUMMA C-MPI distributed dense matrix multTrans test failed!-----");
 		return ret;
 	}	
-	*/
-
+	
 	//------------------------------------------------
 	public def testDenseMult():Boolean {
 		val numP = Place.numPlaces();//Place.MAX_PLACES;
