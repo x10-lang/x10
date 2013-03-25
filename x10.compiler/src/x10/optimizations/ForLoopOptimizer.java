@@ -353,7 +353,7 @@ public class ForLoopOptimizer extends ContextVisitor {
                                                            syn.createLocal(pos, indexLDecl), 
                                                            SET, 
                                                            context,
-                                                           syn.createIntLit(r),
+                                                           syn.createLongLit(r),
                                                            syn.createLocal(pos, varLDecl) );
                     bodyStmts.addAll(syn.convertToStmtList(setExpr));
                     if (r+1 == rank) { // the innermost loop

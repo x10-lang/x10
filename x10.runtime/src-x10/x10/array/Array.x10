@@ -323,6 +323,35 @@ public final class Array[T] (
         raw = r;
     }
     
+    /**
+     * Construct Array over the region 0..(size-1) whose
+     * values are initialized as specified by the init function.
+     * The function will be evaluated exactly once for each point
+     * in reg in an arbitrary order to 
+     * compute the initial value for each array element.</p>
+     * 
+     * It is unspecified whether the function evaluations will
+     * be done sequentially for each point by the current activity 
+     * or concurrently for disjoint sets of points by one or more 
+     * child activities. 
+     * 
+     * 
+     * @param reg The region over which to construct the array.
+     * @param init The function to use to initialize the array.
+     */    
+    public @Inline def this(size:int, init:(long)=>T)
+    {
+        val myReg = new RectRegion1D(size-1);
+        property(myReg, 1, true, true, true, size);
+        
+        layout_min0 = layout_stride1 = layout_min1 = 0;
+        layout = null;
+        val r  = Unsafe.allocRailUninitialized[T](size);
+        for (i in 0..(size-1)) {
+            r(i)= init(i);
+        }
+        raw = r;
+    }
     
     /**
      * Construct Array over the region 0..(size-1) whose

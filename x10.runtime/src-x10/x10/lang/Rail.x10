@@ -16,7 +16,7 @@ import x10.util.IndexedMemoryChunk;
 
 @NativeRep("java", "x10.core.Rail<#T$box>", null, "x10.rtt.ParameterizedType.make(x10.core.Rail.$RTT, #T$rtt)")
 @NativeRep("c++", "x10::lang::Rail<#T >*", "x10::lang::Rail<#T >", null)
-public final class Rail[T](size:Long) implements Iterable[T],(Int)=>T,(Long)=>T {
+public final class Rail[T](size:Long) implements Iterable[T],(Long)=>T {
 
     public native property def range():LongRange;
 
@@ -71,27 +71,4 @@ public final class Rail[T](size:Long) implements Iterable[T],(Int)=>T,(Long)=>T 
      * Clears numElems of the backing storage begining at index start by zeroing the storage.
      */
     public native def clear(start:Long, numElems:Long){T haszero}:void;
-
-    // secondary api: int indices
-
-    // TODO: Returned rail should have constraint on size
-    public native def this(size:Int){T haszero}:Rail[T];
-
-    // TODO: Returned rail should have constraint on size
-    public native def this(size:Int, init:T):Rail[T];
-
-    // TODO: Returned rail should have constraint on size
-    public native def this(size:Int, init:(Int)=>T):Rail[T];
-
-    public native operator this(index:Int):T;
-
-    public native operator this(index:int)=(v:T):T{self==v};
-
-    public native static def copy[T](src:Rail[T], srcIndex:Int, 
-                                     dst:Rail[T], dstIndex:Int, numElems:Int):void;
-
-    /**
-     * Clears numElems of the backing storage begining at index start by zeroing the storage.
-     */
-    public native def clear(start:Int, numElems:Int){T haszero}:void;
 }

@@ -307,7 +307,7 @@ import x10.io.SerialData;
             val size = map.size();
             val it = map.entriesIterator();
             content = new Rail[Pair[Key,Value]](size,
-              (p:Int) => {
+              (p:Long) => {
                    val entry = it.next();
                    return Pair[Key,Value](entry.getKey(),entry.getValue());
               }

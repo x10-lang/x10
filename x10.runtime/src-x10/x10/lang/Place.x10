@@ -86,9 +86,9 @@ public final struct Place(id: Int)  {
 
     public static children =
         new Rail[Rail[Place]](ALL_PLACES,
-            (p: Int) => new Rail[Place](numChildren(p), (i:Int) => Place(child(p,i))));
+            (p: Long) => new Rail[Place](numChildren(p as Int), (i:Long) => Place(child(p as Int,i as Int))));
 
-    private static places:Rail[Place] = new Rail[Place](MAX_PLACES, ((id:Int) => Place(id)));
+    private static places:Rail[Place] = new Rail[Place](MAX_PLACES, ((id:Long) => Place(id as Int)));
 
     /**
      * A convenience for iterating over all host places.

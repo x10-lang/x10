@@ -568,7 +568,7 @@ public type String(s:String) = String{self==s};
 class StringHelper {
     static def split(delim:String, str:String):Rail[String] {
         if (delim.equals("")) {
-            return new Rail[String](str.length(), (i:int)=>str.substring(i, i+1));
+            return new Rail[String](str.length(), (i:long)=>str.substring(i as int, (i+1) as int));
         }
         val ans = new ArrayList[String]();
         var pos:int = 0;
