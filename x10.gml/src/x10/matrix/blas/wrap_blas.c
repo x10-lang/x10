@@ -962,16 +962,24 @@ extern "C"  {
   
 void scale(int n, double alpha, double* x) 
 {
+#ifdef ENABLE_BLAS
   int incx = 1;
 #if defined(__bgp__)
   dscal(&n, &alpha, x, &incx);
 #else
   dscal_(&n, &alpha, x, &incx);
 #endif
+#else
+  printf("BLAS is not added in GML build.\n");
+  printf("Uncomment the line: add_blas = yes in system_setting.mk, and make sure blas lib and path names are correct\n");
+  fflush(stdout);
+  exit(1);
+#endif
 }
 // Copy: Y <- X
 void copy(int n, double* x, double* y)
 {
+#ifdef ENABLE_BLAS
   int incx = 1;
   int incy = 1;
 #if defined(__bgp__)
@@ -979,10 +987,17 @@ void copy(int n, double* x, double* y)
 #else
   dcopy_(&n, x, &incx, y, &incy);
 #endif
+#else
+  printf("BLAS is not added in GML build.\n");
+  printf("Uncomment the line: add_blas = yes in system_setting.mk, and make sure blas lib and path names are correct\n");
+  fflush(stdout);
+  exit(1);
+#endif
 }
 // Dot product
 double dot_prod(int n, double* x, double* y)
 {
+#ifdef ENABLE_BLAS
   int incx = 1;
   int incy = 1;
 #if defined(__bgp__)
@@ -990,27 +1005,47 @@ double dot_prod(int n, double* x, double* y)
 #else
   return ddot_(&n, x, &incx, y, &incy);
 #endif
+#else
+  printf("BLAS is not added in GML build.\n");
+  printf("Uncomment the line: add_blas = yes in system_setting.mk, and make sure blas lib and path names are correct\n");
+  fflush(stdout);
+  exit(1);
+#endif
 }
 
 // Euclidean norm2
 double norm2(int n, double* x)
 {
+#ifdef ENABLE_BLAS
   int incx = 1;
 #if defined(__bgp__)
   return dnrm2(&n, x, &incx);
 #else
   return dnrm2_(&n, x, &incx);
 #endif
+#else
+  printf("BLAS is not added in GML build.\n");
+  printf("Uncomment the line: add_blas = yes in system_setting.mk, and make sure blas lib and path names are correct\n");
+  fflush(stdout);
+  exit(1);
+#endif
 }
 
 // Sum of absolute value
 double abs_sum(int n, double* x)
 {
+#ifdef ENABLE_BLAS
   int incx = 1;
 #if defined(__bgp__)
   return dasum(&n, x, &incx);
 #else
   return dasum_(&n, x, &incx);
+#endif
+#else
+  printf("BLAS is not added in GML build.\n");
+  printf("Uncomment the line: add_blas = yes in system_setting.mk, and make sure blas lib and path names are correct\n");
+  fflush(stdout);
+  exit(1);
 #endif
 }
 
@@ -1021,6 +1056,7 @@ double abs_sum(int n, double* x)
 //y = alpha*op(A)*x + beta * y
 void matrix_vector_mult(double* A, double* x, double* y, int* dim, double* scale, int transA)
 {
+#ifdef ENABLE_BLAS
   char tA = transA?'T':'N';
 
   double alpha = scale[0];
@@ -1040,11 +1076,18 @@ void matrix_vector_mult(double* A, double* x, double* y, int* dim, double* scale
 		         x, &incx,
 		 &beta,  y, &incy);
 #endif
+#else
+  printf("BLAS is not added in GML build.\n");
+  printf("Uncomment the line: add_blas = yes in system_setting.mk, and make sure blas lib and path names are correct\n");
+  fflush(stdout);
+  exit(1);
+#endif
 }
 
 //y = alpha*A*x + beta * y, A is symmetrix matrix of lower triangular part
 void sym_vector_mult(double* A, double* x, double* y, int* dim, double* scale)
 {
+#ifdef ENABLE_BLAS
   char uplo = 'L';
   double alpha = scale[0];
   double beta  = scale[1];
@@ -1067,16 +1110,21 @@ void sym_vector_mult(double* A, double* x, double* y, int* dim, double* scale)
  		         x, &incx,
  		 &beta,  y, &incy);
 #endif
-
-   //printf("%f %f %f %f \n", y[0], y[1], y[2], y[3]);
+  //printf("%f %f %f %f \n", y[0], y[1], y[2], y[3]);
+  //fflush(stdout);
+#else
+  printf("BLAS is not added in GML build.\n");
+  printf("Uncomment the line: add_blas = yes in system_setting.mk, and make sure blas lib and path names are correct\n");
   fflush(stdout);
-
+  exit(1);
+#endif
 }
 
 //SUBROUTINE DTRMV(UPLO,TRANS,DIAG,N,A,LDA,X,INCX)
 //   A*x = b,   or   A'*x = b,
 void tri_vector_mult(double* A, int ul, double* bx, int lda, int transA)
 {
+#ifdef ENABLE_BLAS
 	char uplo = ul?'U':'L';
 	char trnA = transA?'T':'N';
 	char diag = 'N';
@@ -1087,9 +1135,13 @@ void tri_vector_mult(double* A, int ul, double* bx, int lda, int transA)
 #else
 	dtrmv_(&uplo, &trnA, &diag, &N, A, &lda, bx, &incx);
 #endif
-
 	//dtrmv_(char* uplo, char* trans, char* diag, int N, double* A, int lda, double* X, int incx);
-
+#else
+  printf("BLAS is not added in GML build.\n");
+  printf("Uncomment the line: add_blas = yes in system_setting.mk, and make sure blas lib and path names are correct\n");
+  fflush(stdout);
+  exit(1);
+#endif
 }
 //------------------------------------------------------------------------
 // Level Three 
@@ -1103,6 +1155,7 @@ void tri_vector_mult(double* A, int ul, double* bx, int lda, int transA)
 void matrix_matrix_mult(double* A, double* B, double* C, int* dim, 
 						  double* scale, int* trans)
 {
+#ifdef ENABLE_BLAS
   char transA = (trans[0])?'T':'N';
   char transB = (trans[1])?'T':'N';
   int  m = dim[0];
@@ -1127,6 +1180,12 @@ void matrix_matrix_mult(double* A, double* B, double* C, int* dim,
 		         B, &ldb, 
 		 &beta,  C, &ldc);
 #endif
+#else
+  printf("BLAS is not added in GML build.\n");
+  printf("Uncomment the line: add_blas = yes in system_setting.mk, and make sure blas lib and path names are correct\n");
+  fflush(stdout);
+  exit(1);
+#endif
 }
 
 //-------------------------------------------------------------------------------
@@ -1135,6 +1194,7 @@ void matrix_matrix_mult(double* A, double* B, double* C, int* dim,
 // side = "L", Lower symmetric-triangular data, Non-unit triangular
 void sym_matrix_mult(double* A, double* B, double* C, int* dim, double* scale)
 {
+#ifdef ENABLE_BLAS
   char side = 'L'; // alpha*A*B
   char uplo = 'L'; // Lower triangular
   
@@ -1155,10 +1215,17 @@ void sym_matrix_mult(double* A, double* B, double* C, int* dim, double* scale)
 		         B, &n, 
 		 &beta,  C, &n);
 #endif
+#else
+  printf("BLAS is not added in GML build.\n");
+  printf("Uncomment the line: add_blas = yes in system_setting.mk, and make sure blas lib and path names are correct\n");
+  fflush(stdout);
+  exit(1);
+#endif
 }
 
 void matrix_sym_mult(double* B, double* A, double* C, int* dim, double* scale)
 {
+#ifdef ENABLE_BLAS
   char side = 'R'; // alpha*B*A
   char uplo = 'L'; // Lower triangular
   
@@ -1179,13 +1246,19 @@ void matrix_sym_mult(double* B, double* A, double* C, int* dim, double* scale)
 		         B, &n,
 		 &beta,  C, &n);
 #endif
-
+#else
+  printf("BLAS is not added in GML build.\n");
+  printf("Uncomment the line: add_blas = yes in system_setting.mk, and make sure blas lib and path names are correct\n");
+  fflush(stdout);
+  exit(1);
+#endif
 }
 
 //-------------------------------------------------------
 // B := alpha*op( A )*B, A is lower-non-unit triangular
 void tri_matrix_mult(double* A, double* B, int* dim, int tranA)
 {
+#ifdef ENABLE_BLAS
   char side = 'L'; //alpha * op(A) * B;
   char uplo = dim[2]?'U':'L'; //A is lower triangular
   char diag = 'N'; //Non-unit triagnular
@@ -1202,10 +1275,17 @@ void tri_matrix_mult(double* A, double* B, int* dim, int tranA)
   dtrmm_(&side, &uplo, &tran, &diag, 
 		 &m, &n, &alpha, A, &lda, B, &ldb);
 #endif
+#else
+  printf("BLAS is not added in GML build.\n");
+  printf("Uncomment the line: add_blas = yes in system_setting.mk, and make sure blas lib and path names are correct\n");
+  fflush(stdout);
+  exit(1);
+#endif
 }
 // B := alpha*A*op( B ), B is lower-non-unit triangular
 void matrix_tri_mult(double* B, double* A, int* dim, int tranB)
 {
+#ifdef ENABLE_BLAS
   char side = 'R'; //alpha * A * op(B);
   char uplo = dim[2]?'U':'L'; //A is lower triangular
   char diag = 'N'; //Non-unit triagnular
@@ -1222,7 +1302,12 @@ void matrix_tri_mult(double* B, double* A, int* dim, int tranB)
   dtrmm_(&side, &uplo, &tTri, &diag,
 		 &m, &n, &alpha, A, &lda, B, &ldb);
 #endif
-
+#else
+  printf("BLAS is not added in GML build.\n");
+  printf("Uncomment the line: add_blas = yes in system_setting.mk, and make sure blas lib and path names are correct\n");
+  fflush(stdout);
+  exit(1);
+#endif
 }
 
 //------------------------------------------------------------------------
@@ -1230,6 +1315,7 @@ void matrix_tri_mult(double* B, double* A, int* dim, int tranB)
 // A*x = b
 void tri_vector_solve(double* A, double* bx, int* dim, int tranA)
 {
+#ifdef ENABLE_BLAS
   char uplo = dim[2]?'U':'L';
   char trans= (tranA)?'T':'N';
   char diag = 'N';
@@ -1245,11 +1331,17 @@ void tri_vector_solve(double* A, double* bx, int* dim, int tranA)
 		 &n, A,  &m,
 		 bx, &incx);
 #endif
-
+#else
+  printf("BLAS is not added in GML build.\n");
+  printf("Uncomment the line: add_blas = yes in system_setting.mk, and make sure blas lib and path names are correct\n");
+  fflush(stdout);
+  exit(1);
+#endif
 }
 
 void tri_matrix_solve(double* A, double* BX, int* dim, int tranA)
 {
+#ifdef ENABLE_BLAS
 	char side = 'L'; //op(A) X = B
 	char uplo = dim[2]?'U':'L';
 	char trans= (tranA)?'T':'N';
@@ -1266,15 +1358,21 @@ void tri_matrix_solve(double* A, double* BX, int* dim, int tranA)
 	dtrsm_(&side, &uplo, &trans, &diag,
 		   &m, &n, &alpha, A, &lda, BX, &ldb);
 #endif
-
 //void dtrsm_(char* side, char* uplo, char* transA, char* diag, int* M, int* N,
 //			  double* alpha, double* A, int* lda,
 //			  double* B, int* ldb);
+#else
+  printf("BLAS is not added in GML build.\n");
+  printf("Uncomment the line: add_blas = yes in system_setting.mk, and make sure blas lib and path names are correct\n");
+  fflush(stdout);
+  exit(1);
+#endif
 }
 
 
 void matrix_tri_solve(double* BX, double* A, int* dim, int tranA)
 {
+#ifdef ENABLE_BLAS
 	char side = 'R'; //X op(A) = B
 	char uplo = dim[2]?'U':'L';
 	char trans= (tranA)?'T':'N';
@@ -1291,10 +1389,15 @@ void matrix_tri_solve(double* BX, double* A, int* dim, int tranA)
 	dtrsm_(&side, &uplo, &trans, &diag,
 		   &m, &n, &alpha, A, &lda, BX, &ldb);
 #endif
-
 //void dtrsm_(char* side, char* uplo, char* transA, char* diag, int* M, int* N,
 //			  double* alpha, double* A, int* lda,
 //			  double* B, int* ldb);
+#else
+  printf("BLAS is not added in GML build.\n");
+  printf("Uncomment the line: add_blas = yes in system_setting.mk, and make sure blas lib and path names are correct\n");
+  fflush(stdout);
+  exit(1);
+#endif
 }
 
 
@@ -1359,5 +1462,3 @@ void c_mat_mat_mult(double* A, double* B, double* C, int M, int N, int K)
 		}
 	}
 }
-
-
