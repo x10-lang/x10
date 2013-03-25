@@ -1199,6 +1199,17 @@ public class Types {
 	    return false;
 	}
 
+    public static boolean isX10Rail(Type t) {
+        TypeSystem ts = (TypeSystem) t.typeSystem();
+        Type tt = baseType(t);
+        Type at = baseType(ts.Rail());
+        if (tt instanceof ClassType && at instanceof ClassType) {
+            ClassDef tdef = ((ClassType) tt).def();
+            ClassDef adef = ((ClassType) at).def();
+            return ts.descendsFrom(tdef, adef);
+        }
+        return false;
+    }
 	public static boolean isX10DistArray(Type t) {
 	    TypeSystem ts = (TypeSystem) t.typeSystem();
 	    Type tt = baseType(t);
