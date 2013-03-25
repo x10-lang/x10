@@ -220,23 +220,25 @@ public class Sockets {
 				if (DEBUG) System.out.println("Place "+myPlaceId+" detected incoming message");
 				SocketChannel sc = (SocketChannel) key.channel();
 				ByteBuffer controlData = ByteBuffer.allocateDirect(12);
-				Sockets.readNBytes(sc, controlData, controlData.capacity());
-				controlData.flip(); // switch from write to read mode
-				// Format: type, p.type, p.len, p.msg
-				int msgType = controlData.getInt();
-				if (msgType == MSGTYPE.STANDARD.ordinal()) {
-					int callbackId = controlData.getInt();
-					int datalen = controlData.getInt();
+				ByteBuffer bb = null;
+				int msgType, callbackId, datalen;
+				synchronized (sc) {
+					Sockets.readNBytes(sc, controlData, controlData.capacity());
+					controlData.flip(); // switch from write to read mode
+					// Format: type, p.type, p.len, p.msg
+					msgType = controlData.getInt();
+					callbackId = controlData.getInt();
+					datalen = controlData.getInt();
 					if (DEBUG) {
 						System.out.print("Place "+myPlaceId+" processing an incoming message of type "+callbackId+" and size "+datalen+"...");
 						System.out.flush();
 					}
-					
 					//TODO - eliminate this buffer by modifying the deserializer to take the channel as input
-					ByteBuffer bb = ByteBuffer.allocate(datalen);
+					bb = ByteBuffer.allocate(datalen);
 					Sockets.readNBytes(sc, bb, datalen);
 					bb.flip();
-
+				}
+				if (msgType == MSGTYPE.STANDARD.ordinal()) {
 					if (callbackId == CALLBACKID.closureMessageID.ordinal())
 						Sockets.runClosureAtReceive(bb, true);
 					else if (callbackId == CALLBACKID.closureMessageNoDictionaryID.ordinal())
@@ -411,11 +413,9 @@ public class Sockets {
     
     // simple utility method which forces the read of a specific number of bytes before returning
     static void readNBytes(SocketChannel sc, ByteBuffer data, int bytes) throws IOException {
-    	synchronized (sc) {
-	    	int bytesRead = 0;
-			do { bytesRead+=sc.read(data);
-			} while (bytesRead < bytes);
-    	}
+    	int bytesRead = 0;
+		do { bytesRead+=sc.read(data);
+		} while (bytesRead < bytes);
     }
     
     // simple utility method which forces out a specific number of bytes before returning
