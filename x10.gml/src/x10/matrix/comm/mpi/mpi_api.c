@@ -37,7 +37,7 @@ void mpi_get_comm_pid(int* rk)
 #endif
 }
 
-void mpi_get_comm_nporc(int* np)
+void mpi_get_comm_nproc(int* np)
 {
 #ifdef MPI_COMMU
   MPI_Comm_size(GML_COMM_WORLD, np);
