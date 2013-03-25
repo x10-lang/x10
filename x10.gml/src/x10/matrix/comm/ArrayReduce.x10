@@ -19,6 +19,7 @@ import x10.compiler.Ifndef;
 import x10.compiler.Uninitialized;
 
 import x10.matrix.Debug;
+import x10.matrix.comm.mpi.WrapMPI;
 
 /**
  * This class provides implementation for reduce-sum  operation for data arrays which

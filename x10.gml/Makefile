@@ -176,8 +176,8 @@ summa_src=\
 ##----
 ## for mpi binding
 comm_mpi_src=\
-	x10/matrix/comm/RequestHandleMPI.x10  \
-	x10/matrix/comm/WrapMPI.x10
+	x10/matrix/comm/mpi/RequestHandleMPI.x10  \
+	x10/matrix/comm/mpi/WrapMPI.x10
 
 summa_mpi_src=\
 	x10/matrix/dist/summa/mpi/SummaMPI.x10

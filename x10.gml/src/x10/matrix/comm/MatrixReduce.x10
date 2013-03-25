@@ -21,6 +21,7 @@ import x10.compiler.Uninitialized;
 import x10.matrix.Debug;
 import x10.matrix.Matrix;
 import x10.matrix.DenseMatrix;
+import x10.matrix.comm.mpi.WrapMPI;
 
 /**
  * The class provides reduce-sum communication for distributed matrix,

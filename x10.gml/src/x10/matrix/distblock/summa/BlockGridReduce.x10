@@ -26,7 +26,7 @@ import x10.matrix.DenseMatrix;
 import x10.matrix.sparse.SparseCSC;
 import x10.matrix.block.MatrixBlock;
 
-import x10.matrix.comm.WrapMPI;
+import x10.matrix.comm.mpi.WrapMPI;
 
 import x10.matrix.distblock.CastPlaceMap;
 import x10.matrix.distblock.BlockSet;
