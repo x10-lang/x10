@@ -30,7 +30,7 @@ public class SeqArray2b extends Benchmark {
     // the benchmark
     //
 
-    val a = new Array[double](N, N, 0.0);
+    val a = new Array[double](N, N);
 
     def once() {
         for (i in 0..(N-1))

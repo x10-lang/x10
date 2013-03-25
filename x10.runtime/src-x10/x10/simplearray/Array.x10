@@ -122,29 +122,41 @@ public final class Array[T] (
     }
 
     /**
-     * Construct a rank-1 array with indices 0..n-1 whose elements are initialized to init.
+     * Construct a rank-1 array with indices 0..n-1 whose elements are initialized 
+     * by evaluating the initialization closure init for each element.
      */
-    public def this(n:Long, init:T) {
+    public def this(n:Long, init:()=>T) {
         property(n, n, 0L, 0L, 1);
-        raw = new Rail[T](n, init);
+        raw = Unsafe.allocRailUninitialized[T](n);
+	for (i in raw.range()) {
+            raw(i) = init();
+        }
     }
 
     /**
-     * Construct a rank-2 array with indices [0..m-1][0..n-1] whose elements are initialized to init.
+     * Construct a rank-2 array with indices [0..m-1][0..n-1] whose elements are initialized
+     * by evaluating the initialization closure init for each element.
      */
-    public def this(m:Long, n:Long, init:T) {
+    public def this(m:Long, n:Long, init:()=>T) {
         val rawSize = n*m;
         property(rawSize, m, n, 0L, 2);
-        raw = new Rail[T](rawSize, init);
+        raw = Unsafe.allocRailUninitialized[T](rawSize);
+	for (i in raw.range()) {
+            raw(i) = init();
+        }
     }
 
     /**
-     * Construct a rank-3 array with indices [0..m-1][0..n-1][0..p-1] whose elements are initialized to init.
+     * Construct a rank-3 array with indices [0..m-1][0..n-1][0..p-1] whose elements are initialized
+     * by evaluating the initialization closure init for each element.
      */
-    public def this(m:Long, n:Long, p:Long, init:T) {
+    public def this(m:Long, n:Long, p:Long, init:()=>T) {
         val rawSize = n*m*p;
         property(rawSize, m, n, p, 3);
-        raw = new Rail[T](rawSize, init);
+        raw = Unsafe.allocRailUninitialized[T](rawSize);
+	for (i in raw.range()) {
+            raw(i) = init();
+        }
     }
 
     /**
