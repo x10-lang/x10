@@ -9,7 +9,7 @@
  *  (C) Copyright IBM Corporation 2006-2011.
  */
 
-package x10.matrix.comm;
+package x10.matrix.comm.mpi;
 
 import x10.io.Console;
 import x10.compiler.Ifdef;
@@ -20,9 +20,9 @@ import x10.compiler.NativeCPPCompilationUnit;
 
 import x10.matrix.Debug;
 
-@NativeCPPInclude("mpi/mpi_api.h")
+@NativeCPPInclude("mpi_api.h")
 
-@NativeCPPCompilationUnit("mpi/mpi_api.c")
+@NativeCPPCompilationUnit("mpi_api.c")
 
 /**
  * This class provides methods in X10 to invoke MPI routines.  

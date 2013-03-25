@@ -19,6 +19,7 @@ import x10.compiler.Ifdef;
 import x10.compiler.Ifndef;
 import x10.compiler.Uninitialized;
 
+import x10.matrix.comm.mpi.WrapMPI;
 import x10.matrix.sparse.CompressArray;
 import x10.matrix.Debug;
 

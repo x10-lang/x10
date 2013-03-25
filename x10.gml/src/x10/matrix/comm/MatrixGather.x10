@@ -24,6 +24,7 @@ import x10.matrix.Debug;
 
 import x10.matrix.Matrix;
 import x10.matrix.DenseMatrix;
+import x10.matrix.comm.mpi.WrapMPI;
 import x10.matrix.sparse.SparseCSC;
 
 import x10.matrix.block.Grid;

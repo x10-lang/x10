@@ -9,15 +9,15 @@
  *  (C) Copyright IBM Corporation 2006-2011.
  */
 
-package x10.matrix.comm;
+package x10.matrix.comm.mpi;
 
 import x10.io.Console;
 import x10.compiler.Native;
 import x10.compiler.NativeCPPInclude;
 import x10.compiler.NativeCPPCompilationUnit;
 
-@NativeCPPInclude("mpi/mpi_api.h")		
-@NativeCPPCompilationUnit("mpi/mpi_api.c")
+@NativeCPPInclude("mpi_api.h")		
+@NativeCPPCompilationUnit("mpi_api.c")
 	
 //===================================================================
 /**
