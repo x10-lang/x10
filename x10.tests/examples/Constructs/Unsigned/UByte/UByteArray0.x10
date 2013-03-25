@@ -26,7 +26,7 @@ public class UByteArray0 extends x10Test {
 	val aaa = new Rail[UByte](10);
 	for (i in 0..9) aaa(i) = i as UByte;
 
-	var s : UByte = 0;
+	var s : UByte = 0uy;
 	for (i in aaa.range) s += aaa(i);
 
 	if (s != 45uy) return false;

@@ -45,13 +45,13 @@ public class UByteReturnType extends x10Test {
 	}
 
 	def bbb():Byte {
-	    return aaa()-1;
+	    return aaa()-1y;
 	}
     }
 
     public def run() : Boolean {
 	if (new AUByte(1uy).bbb() != 0uy) return false;
-	if (new AByte(1).bbb() != 0y) return false;
+	if (new AByte(1y).bbb() != 0y) return false;
 	return true;
     }
 

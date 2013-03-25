@@ -23,7 +23,7 @@ public class ULongArray0 extends x10Test {
     }
 
     public def test_simple():boolean {
-	val aaa = new Array[ULong](10);
+	val aaa = new Rail[ULong](10);
 	for (i in 0..9) aaa(i) = i as ULong;
 
 	var s : ULong = 0;

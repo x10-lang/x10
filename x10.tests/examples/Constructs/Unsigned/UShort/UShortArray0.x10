@@ -23,10 +23,10 @@ public class UShortArray0 extends x10Test {
     }
 
     public def test_simple():boolean {
-	val aaa = new Array[UShort](10);
+	val aaa = new Rail[UShort](10);
 	for (i in 0..9) aaa(i) = i as UShort;
 
-	var s : UShort = 0;
+	var s : UShort = 0us;
 	for (i in aaa.range) s += aaa(i);
 
 	if (s != 45us) return false;
