@@ -17,11 +17,14 @@ lib_path	=lib
 build_path	=include
 
 ###
-# Configure system settings for blas library
+# Configure system settings for blas and lapack libraries
 # check script/system_settings.mk
+# add_blas  = ...
 # blas_path = ... 
 # blas_name = ...
 # add_lapack= ...
+# lapack_path = ... 
+# lapack_name = ...
 
 #----
 # Output libs, properties, and tar files
@@ -206,13 +209,13 @@ X10_FLAG	= -VERBOSE_CHECKS #-O -NO_CHECKS
 
 MPI_CFLAG   = -define MPI_COMMU -cxx-prearg -DMPI_COMMU 
 
-POST_CPP	= $(LAPACK_CFLAG) -post $(CPP) \# $(POST_PATH) \# $(POST_LIBS)
-POST_MPI	= $(MPI_CFLAG) $(LAPACK_CFLAG) -post $(MCC) \# $(POST_PATH) \# $(POST_LIBS)
+POST_CPP	= $(BLAS_CFLAG) $(LAPACK_CFLAG) -post $(CPP) \# $(POST_PATH) \# $(POST_LIBS)
+POST_MPI	= $(MPI_CFLAG) $(BLAS_CFLAG) $(LAPACK_CFLAG) -post $(MCC) \# $(POST_PATH) \# $(POST_LIBS)
 
 ###
 # __bgp__ should be defined on Blue gene env
 
-POST_CPP_SLNK = $(LAPACK_CFLAG) -cxx-postarg $(CPP) \# $(POST_PATH) \# $(POST_LIBS)
+POST_CPP_SLNK = $(BLAS_CFLAG) $(LAPACK_CFLAG) -cxx-postarg $(CPP) \# $(POST_PATH) \# $(POST_LIBS)
 
 ###################################################
 # X10 file built rules
@@ -223,7 +226,7 @@ POST_CPP_SLNK = $(LAPACK_CFLAG) -cxx-postarg $(CPP) \# $(POST_PATH) \# $(POST_LI
 ###----------------------------------------------------
 ### build dist lib, multi-place parallel execution 
 ## build for managed backend
-jlib : $(src) chk_dir chk_jblas $(add_jlapack)
+jlib : $(src) chk_dir $(add_jblas) $(add_jlapack)
 	@echo "------------------ build lib for $(target) on $(server)-------------------"
 	cd $(src_path) && $(XJ) $(X10_FLAG) -buildx10lib ../. $(src) -d ../include -o ../lib/$(target).jar
 	@echo "------------ making properties file for $(target) ------------"

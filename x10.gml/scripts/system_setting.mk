@@ -15,6 +15,8 @@
 # Change server to your computing system hostname (run "hostname" to get it)
 server		=triloka
 
+#Comment following line, if do not want build with blas library.
+add_blas	= yes
 #Comment following line, if do not want build with lapack library.
 add_lapack	= yes
 
@@ -84,28 +86,31 @@ ifndef BGP
 	server=$(shell hostname)
 
         #------------------------------------------------------
-        #------------------------------------------------------
         #
         # Post compiling options
-	ifdef blas_path
-		POST_PATH   += -L$(blas_path)
-	endif
-	ifdef  blas_name
+        #
+        #------------------------------------------------------
+
+        # add blas, optional.
+        # blas_path and blas_name must be defined correctly
+	ifdef add_blas
+		POST_PATH	+= -L$(blas_path)
 		POST_LIBS	+= -l$(blas_name)
-	endif
-	ifdef  gfortran
-		POST_LIBS	+= -l$(gfortran)
+		BLAS_CFLAG	= -cxx-prearg -DENABLE_BLAS
+		add_jblas	= chk_jblas
 	endif
 
         #------------------------------------------------------
         # add lapack, optional.
         # lapack_path and lapack_name must be defined correctly
-
 	ifdef add_lapack
 		POST_PATH	+= -L$(lapack_path)
 		POST_LIBS	+= -l$(lapack_name)		
-		LAPACK_CFLAG = -cxx-prearg -DENABLE_LAPACK
-		add_jlapack =chk_jlapack
+		LAPACK_CFLAG	= -cxx-prearg -DENABLE_LAPACK
+		add_jlapack	= chk_jlapack
+	endif
 
+	ifdef  gfortran
+		POST_LIBS	+= -l$(gfortran)
 	endif
 endif
