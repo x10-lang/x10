@@ -16,35 +16,32 @@ import x10.compiler.Inline;
 import x10.compiler.NoInline;
 import x10.compiler.NoReturn;
 
+    /*
+     * TODO: Add Destructurable and associated methods (and compiler support...)
+     */
+
 /**
- * FIXME: Update header comment for this implmentation.
- * <p>An array defines a mapping from {@link Point}s to data values of some type T.
- * The Points in the Array's domain are defined by specifying a {@link Region}
- * over which the Array is defined.  Attempting to access a data value
- * at a Point not included in the Array's Region will result in a 
- * {@link ArrayIndexOutOfBoundsException} being raised.</p>
+ * <p> This class provides a high-performance implementation of
+ * a simple multi-dimensional Array that maps indices to values.  
+ * This array implementation only supports zero-based, dense indexing.
+ * For example, a two dimensional array of N by M elements is indexed by 
+ * (0..N-1,0..M-1).</p>
  * 
- * <p>All of the data in an Array is stored in a single Place, the 
- * Array's object home.  Data values may only be accessed at
- * the Array's home place.</p>
+ * <p> Related classes in this package {@link DistArray} provide a similar
+ * simple array abstraction whose data is distributed across multiple
+ * places.</p>
  * 
- * <p>The Array implementation is optimized for relatively dense 
- * region of points. In particular, to compute the storage required
- * to store an array instance's data, the array's Region is asked
- * for its bounding box (n-dimensional box such that all points in
- * the Region are contained within the bounding box). Backing storage 
- * is allocated for every Point in the bounding box of the array's Region.
- * Using the Array with partially defined Regions (ie, Regions that do 
- * not include every point in the Region's bounding box) is supported
- * and will operate as expected, however if the Region is sparse and large
- * there will be significant space overheads incurred for defining an Array
- * over the Region.  In future versions of X10, we may support a more 
- * space efficient implementation of Arrays over sparse regions, but 
- * such an implementation is not yet available as part of the x10.array package.</p>
+ * <p>The {@link x10.lang.Rail} class also provides a similar, high-performance
+ * implementation of a one dimensional array.  The expectation should be that
+ * a Array(1) and a Rail should have very similar performance characteristics,
+ * although the Array(1) has an additional wrapper object and thus may have
+ * marginally lower performance in some situations.</p>
  * 
- * <p>The closely related class {@link DistArray} is used to define 
- * distributed arrays where the data values for the Points in the 
- * array's domain are distributed over multiple places.</p>
+ * <p>A more general, but lower performance, array abstraction is provided 
+ * by {@link x10.array.Array} and {@link x10.array.DistArray} which support 
+ * more general indexing operations via user-extensible {@link x10.array.Region}s 
+ * and {@link x10.array.Dist}s. See the package documentation of {@link x10.array}
+ * for more details.</p>
  */
 public final class Array[T] (
         /**
@@ -78,12 +75,12 @@ public final class Array[T] (
     /**
      * The backing storage for the array's elements
      */
-    private val raw:Rail[T]/*{self!=null, size.size==this.size}*/;
+    private val raw:Rail[T]{self!=null, self.size==this.size};
 
     /**
-     * Return the Rail[T] that is providing the backing storage for the array.
+     * <p>Return the Rail[T] that is providing the backing storage for the array.
      * This method is primarily intended to be used to interface with native libraries 
-     * (eg BLAS, ESSL). <p>
+     * (eg BLAS, ESSL). </p>
      * 
      * This method should be used sparingly, since it may make client code dependent on the layout
      * algorithm used to map rank-dimensional array indicies to 1-dimensional indicies in the backing Rail.
@@ -356,25 +353,36 @@ public final class Array[T] (
      * TODO: Consider adding methods for map, scan, reduce operations
      */    
 
-    /*
-     * TODO: Add copy methods (both local & remote)
+
+    /**
+     * Copy all of the values from the source Array to the destination Array.
+     * The two arrays must be of equal size, but do not necessarily need
+     * to be the same rank or have the same dimensions.
+     *
+     * @param src the source array.
+     * @param dst the destination array.
      */
-    
-    /*
-     * TODO: Add a range method that will return a IndexSpace structure
-     *       for use in for loop comrhensions.  
-     *       Key design question: how best to make this general so we don't have
-     *         lots of special cases in the ForLoopOptimizer (and so users can do
-     *         it for their classes just as easily).
+    public static def copy[T](src:Array[T], dst:Array[T]){src.size==dst.size} {
+        Rail.copy(src.raw, 0L, dst.raw, 0L, src.raw.size);
+    }
+
+    /**
+     * Copy numElems values starting from srcIndex from the source Array 
+     * to the destination Array starting at dstIndex.
      *
-     *       for ([i,j] in a.range) S
-     *
-     *  should be transformable by the compiler to        
-     *
-     *       for (i in 0..(a.numElems_1-1)) 
-     *           for (j in 0..a.numElems_2-1) S
+     * @param src the source array.
+     * @param srcIndex the index of the first element in this array
+     *        to be copied.  
+     * @param dst the destination array.
+     * @param dstIndex the index of the first element in the destination
+     *        array where copied data elements will be stored.
+     * @param numElems the number of elements to be copied.
      */
-    
+    public static def copy[T](src:Array[T], srcIndex:long, 
+                              dst:Array[T], dstIndex:long, numElems:long) {
+        Rail.copy(src.raw, srcIndex, dst.raw, dstIndex, numElems);
+    }
+
     private static @NoInline @NoReturn def raiseBoundsError(i:long) {
         throw new ArrayIndexOutOfBoundsException("(" + i + ") not contained in array");
     }    
