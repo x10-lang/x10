@@ -469,44 +469,74 @@
               <then>
 		<if>
 		  <conditions>
-                    <istrue value="${CROSS_COMPILE_FX10}" />
+		    <or>
+                      <istrue value="${CROSS_COMPILE_FX10}" />
+                      <istrue value="${CROSS_COMPILE_BGP}" />
+                      <istrue value="${CROSS_COMPILE_BGQ}" />
+		    </or>
 		  </conditions>
 		  <then>
-                    <sequential>
-                      <echo message="Installing BDWGC to FX10"/>
-                      <exec executable="${bash.exe}" dir="${bdwgc.dir}/src" failonerror="true">
-			<env key="CXX" value="/opt/FJSVfxlang/GM-1.2.1-03/bin/FCCpx"/>
-			<env key="CC" value="/opt/FJSVfxlang/GM-1.2.1-03/bin/fccpx"/>
-			<env key="CFLAGS" value="-Xg" />
-			<env key="CXXFLAGS" value="-Xg" />
-			<arg value="${bdwgc.dir}/src/configure" />
-			<arg value="--host=sparc64-unknown-linux-gnu" />
-			<arg value="-enable-threads=posix" />
-			<arg value="-enable-thread-local-alloc" />
-			<arg value="-enable-large-config" />
-			<arg value="-enable-parallel-mark" />
-			<arg value="--prefix=${bdwgc.platform.dir}/install" />
-                      </exec>
-                    </sequential>
+		    <!-- Various cross-compilation with linux as the host os scenarios -->
+		    <if>
+		      <conditions>
+			<istrue value="${CROSS_COMPILE_FX10}" />
+		      </conditions>
+		      <then>
+			<sequential>
+			  <echo message="Configuring BDWGC for FX10 cross compile"/>
+			  <exec executable="${bash.exe}" dir="${bdwgc.dir}/src" failonerror="true">
+			    <env key="CXX" value="/opt/FJSVfxlang/GM-1.2.1-03/bin/FCCpx"/>
+			    <env key="CC" value="/opt/FJSVfxlang/GM-1.2.1-03/bin/fccpx"/>
+			    <env key="CFLAGS" value="-Xg" />
+			    <env key="CXXFLAGS" value="-Xg" />
+			    <arg value="${bdwgc.dir}/src/configure" />
+			    <arg value="--host=sparc64-unknown-linux-gnu" />
+			    <arg value="-enable-threads=posix" />
+			    <arg value="-enable-thread-local-alloc" />
+			    <arg value="-enable-large-config" />
+			    <arg value="-enable-parallel-mark" />
+			    <arg value="--prefix=${bdwgc.platform.dir}/install" />
+			  </exec>
+			</sequential>
+		      </then>
+		    </if>
+                    <if>
+                      <conditions>
+			<istrue value="${CROSS_COMPILE_BGP}" />
+                      </conditions>
+                      <then>
+			<echo message="Configuring BDWGC for BGP cross compile"/>
+			<exec executable="${bash.exe}" dir="${bdwgc.dir}/src" failonerror="true">
+			  <env key="CXX" value="/bgsys/drivers/ppcfloor/gnu-linux/bin/powerpc-bgp-linux-g++"/>
+			  <env key="CC" value="/bgsys/drivers/ppcfloor/gnu-linux/bin/powerpc-bgp-linux-gcc"/>
+			  <arg value="${bdwgc.dir}/src/configure" />
+			  <arg value="--host=powerpc-bgp-linux" />
+			  <arg value="-enable-threads=posix" />
+			  <arg value="--disable-shared" />
+			  <arg value="--prefix=${bdwgc.platform.dir}/install" />
+			</exec>
+                      </then>
+		    </if>
+                    <if>
+                      <conditions>
+			<istrue value="${CROSS_COMPILE_BGQ}" />
+                      </conditions>
+                      <then>
+			<echo message="Configuring BDWGC for BGQ cross compile"/>
+			<exec executable="${bash.exe}" dir="${bdwgc.dir}/src" failonerror="true">
+			  <env key="CXX" value="/bgsys/drivers/ppcfloor/gnu-linux/bin/powerpc64-bgq-linux-g++"/>
+			  <env key="CC" value="/bgsys/drivers/ppcfloor/gnu-linux/bin/powerpc64-bgq-linux-gcc"/>
+			  <arg value="${bdwgc.dir}/src/configure" />
+			  <arg value="--host=powerpc64-bgq-linux" />
+			  <arg value="-enable-threads=posix" />
+			  <arg value="--disable-shared" />
+			  <arg value="--prefix=${bdwgc.platform.dir}/install" />
+			</exec>
+                      </then>
+		    </if>
 		  </then>
-		</if>
-                <if>
-                  <conditions>
-                    <istrue value="${CROSS_COMPILE_BGP}" />
-                  </conditions>
-                  <then>
-                    <echo message="Configuring BDWGC for BGP cross compile"/>
-                    <exec executable="${bash.exe}" dir="${bdwgc.dir}/src" failonerror="true">
-                      <env key="CXX" value="/bgsys/drivers/ppcfloor/gnu-linux/bin/powerpc-bgp-linux-g++"/>
-                      <env key="CC" value="/bgsys/drivers/ppcfloor/gnu-linux/bin/powerpc-bgp-linux-gcc"/>
-                      <arg value="${bdwgc.dir}/src/configure" />
-                      <arg value="--host=powerpc-bgp-linux" />
-                      <arg value="-enable-threads=posix" />
-                      <arg value="--disable-shared" />
-                      <arg value="--prefix=${bdwgc.platform.dir}/install" />
-                    </exec>
-                  </then>
                   <else>
+		    <!-- Linux, but not a cross-compilation -->
                     <if>
                       <conditions>
                         <or>
