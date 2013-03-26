@@ -40,8 +40,8 @@ public class KMeansDist {
         val points_dist = Dist.makeBlock(points_region, 0);
         val points = DistArray.make[Float](points_dist, (p:Point)=>rnd().nextFloat());
 
-        val central_clusters = new Rail[Float](CLUSTERS*DIM, (i:int) => {
-            val p = Point.make([i/DIM, i%DIM]);
+        val central_clusters = new Rail[Float](CLUSTERS*DIM, (i:long) => {
+            val p = Point.make([(i as int)/DIM, (i as int)%DIM]);
             return at (points_dist(p)) points(p);
         });
 

@@ -20,7 +20,7 @@ public class Histogram {
     }
 
     public static def run(N:Int, S:Int):Boolean {
-        val a = new Rail[Int](N, (i:Int)=> i);
+        val a = new Rail[Int](N, (i:long)=> i as int);
         val b = compute(a, S);
         val v = b(0);
         var ok:Boolean = true;
