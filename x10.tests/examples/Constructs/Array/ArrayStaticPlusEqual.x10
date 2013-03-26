@@ -14,7 +14,7 @@ import x10.array.*;
 
 public class ArrayStaticPlusEqual extends x10Test {
 
-    val v  = GlobalRef[Rail[int]](new Rail[int](2, (x:int)=>0));
+    val v  = GlobalRef[Rail[int]](new Rail[int](2, 0));
 
     public def run() {
 	    at (v) {

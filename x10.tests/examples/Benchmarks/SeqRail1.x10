@@ -29,7 +29,7 @@ public class SeqRail1 extends Benchmark {
     // the benchmark
     //
 
-    val a = new Rail[double](N+M, (int)=>1.0);
+    val a = new Rail[double](N+M, 1.0);
 
     def once() {
         var sum: double = 0.0;

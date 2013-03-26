@@ -18,7 +18,7 @@ import harness.x10Test;
 class XTENLANG_193 extends x10Test {
 
     public static final class Bug[T]  {
-        private static x = new Rail[int](0, (int)=>0);
+        private static x = new Rail[int](0, 0);
     }
 
     public def run(): boolean {
