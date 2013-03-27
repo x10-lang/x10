@@ -1,72 +1,20 @@
-Release 2.3.1
+Release 2.3.1.1
 
-MAJOR CHANGES
+This is a minor release of X10 that fixes the appended list of issues 
+reported with X10 2.3.1.  For details on X10 2.3.1, please see the
+X10 2.3.1 Release notes in the X10 2.3.1 Release.
 
-No major changes were made in the X10 language
-specification and implementation in this release.
+XTENLANG-3191. post-compilation error with properties of unsigned types
+XTENLANG-3192. fix for missing typedef only .x10 files in jar file. 
+XTENLANG-3194. Enable building X10 on FX10
+XTENLANG-3195. x10c doesn't accept relative path with -x10lib option
+XTENLANG-3196. Update to commons-math3-3.1.1.jar
 
-Please consult the language specification for the details of
-any minor language changes and specification clarifications made in
-this release.
+The additional change sets with no associated JIRA issue are also included
+in the 2.3.1.1 release of X10
 
-LIMITATIONS OF THIS RELEASE
-
-The following features described in the 2.3 language manual do not
-currently work and may be fixed in the subsequent releases:
-  - Non-static type definitions as class or interface members
-    (static type defs do work)
-
-The constraint solver used by X10 typechecker is known to be incomplete 
-for situations in which a constraint implies an infinite number of 
-distinct constraints.
-
-Additionally, the following features described in the language
-manual do not currently work with Native X10.
-  - Garbage collection on AIX
-  - Non-final generic instance methods
-  - Exception stack traces on Cygwin
-
-Although greatly improved from previous releases, the X10 runtime 
-still uses a modified "busy wait" loop in the worker threads that 
-execute asyncs. A consequence of this is that even if a Place has 
-no asyncs to execute, one worker thread in the Place will still consume
-CPU cycles busy waiting for messages to arrive from the network.  
-
-The generated C++ code requires g++ 4.2 or better to be compiled; 
-we do almost all of our testing against g++ 4.4.
-  + On AIX and Power/Linux, you may either use g++ 4.2 or better or 
-    xlC 10.1.0.4 or better. 
-  + Some versions of Xcode on MacOS default to using the Clang C++
-    front-end; Clang cannot compile the generated C++ code; you need to
-    use the g++ front-end.  To do this export CC=gcc; CXX=g++.  
-
-SUMMARY OF ISSUES RESOLVED IN THIS RELEASE
-
-Below is a summary of JIRA issues addressed for the X10 2.3.1
-
-Release Notes - X10 - Version X10 2.3.1
-
-** New Features and Improvements
-    * [XTENLANG-2069] - Implement Team API for Managed X10
-    * [XTENLANG-3145] - Need a way to configure machines with multiple IP addresses
-    * [XTENLANG-3165] - Eliminate requirement to preload all X10 classes by Managed X10
-
-** Bug
-    * [XTENLANG-2793] - Fallback path in pure Java for forceSinglePlace not available in some Team methods (KMeansSPMD)
-    * [XTENLANG-3140] - Exception checking fails if the methods of a class are in the wrong order
-    * [XTENLANG-3143] - Compiler not allowing a method override when there is a simple subtyping constraint
-    * [XTENLANG-3144] - Generic overridden overloaded method with parameter does not match with superclass method
-    * [XTENLANG-3159] - CUDA broken on 2.3 release (X10RT: async 72 is not a CUDA kernel)
-    * [XTENLANG-3163] - Failure to generate dynamic constraint check on access to global reference
-
-** Task
-    * [XTENLANG-3142] - Synchronize languagespec testcases with language spec document
-    * [XTENLANG-3160] - Use balanced gc policy for IBM Java 7 64bit
-
-For the details of JIRA issues fixed in this release, see
-http://jira.codehaus.org/secure/ReleaseNote.jspa?projectId=11812&version=18657:
-
-Please use the X10 JIRA to report bugs, after ensuring the problem is
-not already reported:
-http://jira.codehaus.org/secure/IssueNavigator.jspa?reset=true&&pid=11812&resolution=-1
-
+  r24981,r24988,r24989,r24992 (fixes to x10.in to enable -np,-host,-hostfile options)
+  r25029 (fix for PAMI build of BG/Q)
+  r25141 (remove preloading related stuff from runjava.in)
+  r25176 and 25177 (fixes to PAMI for BlueGene/Q)
+  r25189 (change Java source and target versions to 1.6)
