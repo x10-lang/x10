@@ -807,7 +807,13 @@ public class XTypeTranslator {
             }
             return v;
         }
+
+        if (xc0.inStaticContext()) {
+            return null;
+        }
+        
         // this. why are we doing nothing about super..?
+        //[DC] seems like super is useless in constraints, since we do not have virtual property methods
         XVar<Type> baseThisVar = null;
         for (Context outer = xc; outer != null && baseThisVar == null; outer = outer.pop()) {
             baseThisVar = outer.thisVar();

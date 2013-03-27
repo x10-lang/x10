@@ -619,6 +619,7 @@ public class X10ConstructorDecl_c extends ConstructorDecl_c implements X10Constr
     	nn.visitList(nn.typeParameters(),childtc1);
     	nn.visitList(nn.formals(),childtc1);
     	childtc1.context().setVarWhoseTypeIsBeingElaborated(null);
+    	childtc1 = (TypeChecker)childtc1.context(childtc1.context().pushStatic());
     	TypeNode r = (TypeNode) nn.visitChild(nn.returnType(), childtc1);
     	Ref<? extends Type> ref = r.typeRef();
     	Type type = Types.get(ref);
