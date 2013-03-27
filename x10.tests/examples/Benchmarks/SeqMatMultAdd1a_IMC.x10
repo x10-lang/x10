@@ -16,7 +16,7 @@ import x10.util.IndexedMemoryChunk;
  */
 public class SeqMatMultAdd1a_IMC extends Benchmark {
 
-    val N:long = 55*5;
+    val N = 55*5;
     def expected() = -6866925.0;
     def operations() = N*N*N as double;
 
@@ -30,8 +30,8 @@ public class SeqMatMultAdd1a_IMC extends Benchmark {
 
     private def initA() {
         val t = IndexedMemoryChunk.allocateUninitialized[double](N*N);
-        for (i in 0L..(N-1)) {
-            for (j in 0L..(N-1)) {
+        for (i in 0..(N-1)) {
+            for (j in 0..(N-1)) {
                 t(i*N+j) = (i*j) as double;
             }
         }
@@ -40,8 +40,8 @@ public class SeqMatMultAdd1a_IMC extends Benchmark {
 
     private def initB() {
         val t = IndexedMemoryChunk.allocateUninitialized[double](N*N);
-        for (i in 0L..(N-1)) {
-            for (j in 0L..(N-1)) {
+        for (i in 0..(N-1)) {
+            for (j in 0..(N-1)) {
                 t(i*N+j) = (i-j) as double;
             }
         }
@@ -50,8 +50,8 @@ public class SeqMatMultAdd1a_IMC extends Benchmark {
 
     private def initC() {
         val t = IndexedMemoryChunk.allocateUninitialized[double](N*N);
-        for (i in 0L..(N-1)) {
-            for (j in 0L..(N-1)) {
+        for (i in 0..(N-1)) {
+            for (j in 0..(N-1)) {
                 t(i*N+j) = (i+j) as double;
             }
         }
@@ -59,9 +59,9 @@ public class SeqMatMultAdd1a_IMC extends Benchmark {
     }
 
     def once() {
-        for (i in 0L..(N-1))
-            for (j in 0L..(N-1))
-                for (k in 0L..(N-1))
+        for (i in 0..(N-1))
+            for (j in 0..(N-1))
+                for (k in 0..(N-1))
                     a(i*N+j) += b(i*N+k)*c(k*N+j);
         return a(10*N+10);
     }

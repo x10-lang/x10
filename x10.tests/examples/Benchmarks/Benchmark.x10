@@ -37,7 +37,7 @@ abstract class Benchmark extends x10Test {
     @Native("c++", "x10::lang::String::Lit(\"cpp\")")
     static lg:String = "";
 
-    static WARMUP = 30.0;  // java warmup time in secs
+    static WARMUP = 60.0;  // java warmup time in secs
     static TIMING = 10.0;  // how long to run tests in secs
 
     def this() {

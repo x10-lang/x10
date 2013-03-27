@@ -23,7 +23,7 @@ abstract public class Benchmark {
     abstract double operations();
 
     double TIMING = 10.0;
-    double WARMUP = 30.0;
+    double WARMUP = 60.0;
 
     void run() {
 
