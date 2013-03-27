@@ -115,6 +115,7 @@ import x10c.visit.StaticInitializer;
 import static x10.visit.X10PrettyPrinterVisitor.hasParams;
 import static x10.visit.X10PrettyPrinterVisitor.isBoxedType;
 import static x10.visit.X10PrettyPrinterVisitor.isIndexedMemoryChunk;
+import static x10.visit.X10PrettyPrinterVisitor.isRail;
 import static x10.visit.X10PrettyPrinterVisitor.isPrimitive;
 import static x10.visit.X10PrettyPrinterVisitor.isPrimitiveGenericMethod;
 import static x10.visit.X10PrettyPrinterVisitor.isSpecialType;
@@ -4217,7 +4218,7 @@ public class Emitter {
 
     public boolean isMethodInlineTarget(TypeSystem xts, Type ttype) {
         ttype = Types.baseType(ttype);
-        if (!isIndexedMemoryChunk(ttype)) {
+        if (!(isIndexedMemoryChunk(ttype) || isRail(ttype))) {
             return false;
         }
         if (!hasParams(ttype)) {
