@@ -14,7 +14,7 @@ const int N = 55*5;
 double operations() {return 1.0*N*N*N;}
 double expected() {return -6866925;}
         
-char *name = "SeqMatMultAdd1a";
+const char *name = "SeqMatMultAdd1a";
 
 
 //
@@ -25,9 +25,9 @@ const int Na = N;
 const int Nb = N;
 const int Nc = N;
 
-double * static a = new double[Na*Na];
-double * static b = new double[Nb*Nb];
-double * static c = new double[Nc*Nc];
+static double *a = new double[Na*Na];
+static double *b = new double[Nb*Nb];
+static double *c = new double[Nc*Nc];
 
 void init() {
     for (int i=0; i<Na; i++) {
