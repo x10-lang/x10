@@ -1,0 +1,87 @@
+/*
+ *  This file is part of the X10 project (http://x10-lang.org).
+ * 
+ *  This file is licensed to You under the Eclipse Public License (EPL);
+ *  You may not use this file except in compliance with the License.
+ *  You may obtain a copy of the License at
+ *      http://www.opensource.org/licenses/eclipse-1.0.php
+ * 
+ *  (C) Copyright IBM Corporation 2006-2013.
+ */
+
+package x10.simplearray2;
+
+import x10.compiler.Inline;
+
+/**
+ * Implementation of 1-dimensional Array.
+ */
+public final class Array_1[T] extends Array[T] {
+    
+    /**
+     * Construct a 1-dimensional array with indices 0..n-1 whose elements are zero-initialized.
+     */
+    public def this(n:Long) { T haszero } {
+        super(n, true);
+    }
+
+    /**
+     * Construct a 1-dimensional array with indices 0..n-1 whose elements are initialized to init.
+     */
+    public def this(n:Long, init:T) {
+        super(n, false);
+	for (i in raw.range()) {
+            raw(i) = init;
+        }
+    }
+
+    /**
+     * Construct a 1-dimensional array with indices 0..n-1 whose elements are initialized to 
+     * the value computed by the init closure when applied to the element index.
+     */
+    public @Inline def this(n:Long, init:(long)=>T) {
+        super(n, false);
+	for (i in raw.range()) {
+            raw(i) = init(i);
+        }
+    }
+
+
+    /**
+     * Return the string representation of this array.
+     * 
+     * @return the string representation of this array.
+     */
+    public def toString():String = raw.toString();
+
+    
+    /**
+     * Return the element of this array corresponding to the given index.
+     * 
+     * @param i the given index in the first dimension
+     * @return the element of this array corresponding to the given index.
+     * @see #set(T, Int)
+     */
+    public @Inline operator this(i:long):T {
+        // Bounds checking by backing Rail is sufficient
+        return raw(i);
+    }
+
+    
+    /**
+     * Set the element of this array corresponding to the given index to the given value.
+     * Return the new value of the element.
+     * 
+     * @param v the given value
+     * @param i the given index in the first dimension
+     * @return the new value of the element of this array corresponding to the given index.
+     * @see #operator(Int)
+     */
+    public @Inline operator this(i:long)=(v:T):T{self==v} {
+        // Bounds checking by backing Rail is sufficient
+        raw(i) = v;
+        return v;
+    }
+}
+
+// vim:tabstop=4:shiftwidth=4:expandtab

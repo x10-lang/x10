@@ -1,0 +1,167 @@
+/*
+ *  This file is part of the X10 project (http://x10-lang.org).
+ * 
+ *  This file is licensed to You under the Eclipse Public License (EPL);
+ *  You may not use this file except in compliance with the License.
+ *  You may obtain a copy of the License at
+ *      http://www.opensource.org/licenses/eclipse-1.0.php
+ * 
+ *  (C) Copyright IBM Corporation 2006-2013.
+ */
+
+package x10.simplearray2;
+
+import x10.compiler.Inline;
+import x10.compiler.NoInline;
+import x10.compiler.NoReturn;
+
+/**
+ * <p> This class provides a high-performance implementation of
+ * a simple multi-dimensional Array that maps long indices to values.  
+ * This array implementation only supports zero-based, dense indexing.
+ * For example, a two dimensional array of N by M elements is indexed by 
+ * (0..N-1,0..M-1).</p>
+ * 
+ * <p> Related classes in this package {@link DistArray} provide a similar
+ * simple array abstraction whose data is distributed across multiple
+ * places.</p>
+ * 
+ * <p>The {@link x10.lang.Rail} class also provides a similar, high-performance
+ * implementation of a one dimensional array.  The expectation should be that
+ * a Array_1 and a Rail should have very similar performance characteristics,
+ * although the Array_1 has an additional wrapper object and thus may have
+ * marginally lower performance in some situations.</p>
+ * 
+ * <p>A more general, but lower performance, array abstraction is provided 
+ * by {@link x10.array.Array} and {@link x10.array.DistArray} which support 
+ * more general indexing operations via user-extensible {@link x10.array.Region}s 
+ * and {@link x10.array.Dist}s. See the package documentation of {@link x10.array}
+ * for more details.</p>
+ */
+public abstract class Array[T] (
+        /**
+         * The number of data values in the array.
+         */
+        size:Long
+) implements Iterable[T] {
+    
+    /**
+     * The backing storage for the array's elements
+     */
+    protected val raw:Rail[T]{self!=null, self.size==this.size};
+
+    protected def this(s:Long, zero:boolean) {
+        property(s);
+        raw = zero ? Unsafe.allocRailZeroed[T](s) : Unsafe.allocRailUninitialized[T](s);
+    }
+
+
+    /**
+     * <p>Return the Rail[T] that is providing the backing storage for the array.
+     * This method is primarily intended to be used to interface with native libraries 
+     * (eg BLAS, ESSL). </p>
+     * 
+     * This method should be used sparingly, since it may make client code dependent on the layout
+     * algorithm used to map rank-dimensional array indicies to 1-dimensional indicies in the backing Rail.
+     * 
+     * @return the Rail[T] that is the backing storage for the Array object.
+     */
+    public final @Inline def raw() = raw;
+
+
+    /**
+     * Return an iterator over the values of this array.
+     * 
+     * @return an iterator over the values of this array.
+     * @see x10.lang.Iterable[T]#iterator()
+     */
+    public final def iterator():Iterator[T] = raw.iterator(); 
+    
+
+    /**
+     * Fill all elements of the array to contain the argument value.
+     * 
+     * @param v the value with which to fill the array
+     */
+    public def fill(v:T) {
+        for (i in raw.range) {
+            raw(i) = v;
+        }
+    }
+
+
+    /**
+     * Fill all elements of the array with the zero value of type T 
+     * @see x10.lang.Zero.get[T]()
+     */
+    public def clear(){T haszero} {
+        raw.clear();
+    }
+
+
+    /*
+     * TODO: Consider adding methods for map, scan, reduce operations
+     */    
+
+    /*
+     * TODO: Figure out some acceptable mechansim for efficient 
+     *       'destructuring' and use it to define for loop comprehensions 
+     *       over the index space of the array
+     */
+
+
+    /*
+     * TODO: Consider adding array-views factory methods (makeView(...)) 
+     * to enable the same backing Rail to be viewed with multiple index spaces.
+     */
+
+
+    /*
+     * TODO: Any additional used abstract methods to allow rank-generic client
+     *       code to be written that will still be reasonably efficient?
+     */
+
+
+    /**
+     * Copy all of the values from the source Array to the destination Array.
+     * The two arrays must be of equal size, but do not necessarily need
+     * to be the same rank or have the same dimensions.
+     *
+     * @param src the source array.
+     * @param dst the destination array.
+     */
+    public static def copy[T](src:Array[T], dst:Array[T]){src.size==dst.size} {
+        Rail.copy(src.raw, 0L, dst.raw, 0L, src.raw.size);
+    }
+
+
+    /**
+     * Copy numElems values starting from srcIndex from the source Array 
+     * to the destination Array starting at dstIndex.
+     *
+     * @param src the source array.
+     * @param srcIndex the index of the first element in this array
+     *        to be copied.  
+     * @param dst the destination array.
+     * @param dstIndex the index of the first element in the destination
+     *        array where copied data elements will be stored.
+     * @param numElems the number of elements to be copied.
+     */
+    public static def copy[T](src:Array[T], srcIndex:long, 
+                              dst:Array[T], dstIndex:long, numElems:long) {
+        Rail.copy(src.raw, srcIndex, dst.raw, dstIndex, numElems);
+    }
+
+
+    protected static @NoInline @NoReturn def raiseBoundsError(i:long) {
+        throw new ArrayIndexOutOfBoundsException("(" + i + ") not contained in array");
+    }    
+    protected static @NoInline @NoReturn def raiseBoundsError(i:long, j:long) {
+        throw new ArrayIndexOutOfBoundsException("(" + i + ", "+j+") not contained in array");
+    }    
+    protected static @NoInline @NoReturn def raiseBoundsError(i:long, j:long, k:long) {
+        throw new ArrayIndexOutOfBoundsException("(" + i + ", "+j+", "+k+") not contained in array");
+    }    
+}
+
+// vim:tabstop=4:shiftwidth=4:expandtab
