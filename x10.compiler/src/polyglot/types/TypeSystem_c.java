@@ -608,6 +608,8 @@ public class TypeSystem_c implements TypeSystem
     public boolean typeEquals(Type type1, Type type2, Context context) {
 	assert_(type1);
 	assert_(type2);
+	TypeSystem_c.internalConsistencyCheck(type1);
+	TypeSystem_c.internalConsistencyCheck(type2);
 	return env(context).typeEquals(type1, type2);
     }
 
@@ -4620,17 +4622,21 @@ public class TypeSystem_c implements TypeSystem
     		internalConsistencyCheck(t2.baseType().get());
     		// Look for broken types inside variables in the constraint
     		CConstraint c = t2.constraint().get();
-    		for (XTerm<Type> xt : c.getVarsAndFields()) {
-    			if (xt instanceof CLocal) {
-    				X10LocalDef xld = ((CLocal) xt).def();
-    				Type t3 = xld.type().get();
-    				if (t3 == t) return; // simple cycle check
-    				internalConsistencyCheck(t3);
-    			}
-    		}
+    		internalConsistencyCheck(t, c);
     	}
     	
 	}
+    
+    public static void internalConsistencyCheck (Type t, CConstraint c) {
+		for (XTerm<Type> xt : c.getVarsAndFields()) {
+			if (xt instanceof CLocal) {
+				X10LocalDef xld = ((CLocal) xt).def();
+				Type t3 = xld.type().get();
+				if (t3 == t) return; // simple cycle check
+				internalConsistencyCheck(t3);
+			}
+		}
+    }
     
     // calling this on unpopulated mi may result in a runtime error
     public static void internalConsistencyCheck (MethodInstance mi) {

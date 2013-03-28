@@ -41,6 +41,7 @@ import polyglot.types.LocalDef;
 import polyglot.types.LocalInstance;
 import polyglot.types.Ref;
 import polyglot.types.Type;
+import polyglot.types.TypeSystem_c;
 import polyglot.types.Types;
 import polyglot.types.VarDef;
 import polyglot.types.VarInstance;
@@ -130,14 +131,6 @@ public class TypeTransformer extends NodeTransformer {
         return remappedDef != null ? remappedDef : def;
     }
 
-    protected Type transformType(Type type) {
-        Type nt = transformTypeRecursively(type);
-        //if (nt != null && nt.toString().contains("!!!")) { // validation
-        //    throw new InternalCompilerError("Type was not fully transformed: "+nt, nt.position());
-        //}
-        return nt;
-    }
-
     protected CConstraint transformConstraint(CConstraint c) {
         if (c == null)
             return null;
@@ -158,6 +151,7 @@ public class TypeTransformer extends NodeTransformer {
                     mapLocal(ld, newld); // have to do this first, else get infinite recursion
                     mapLocal(newld, newld); // just in case some client substitutes first
                     Type newrt = transformType(rt);
+                	TypeSystem_c.internalConsistencyCheck(newrt);
                     newld.setType(Types.ref(newrt));
                 }
                 if (newld == null || newld == ld) continue;
@@ -169,6 +163,7 @@ public class TypeTransformer extends NodeTransformer {
         }
         try {
             CConstraint newC = c.substitute(newvars.toArray(new XTerm[0]), oldvars.toArray(new XVar[0]));
+            TypeSystem_c.internalConsistencyCheck(null, newC);
             if (newC != c && (!newC.entails(c) || !c.entails(newC))) {
                 c = newC;
             }
@@ -232,23 +227,24 @@ public class TypeTransformer extends NodeTransformer {
         return res;
     }
 
-    private Type transformTypeRecursively(Type t) {
+    protected Type transformType(Type t) {
         if (t instanceof ConstrainedType) {
             ConstrainedType ct = (ConstrainedType) t;
             Type bt = Types.get(ct.baseType());
-            Type newbt = transformTypeRecursively(bt);
+            Type newbt = transformType(bt);
             CConstraint constraint = ct.getRealXClause();
             CConstraint newConstraint = transformConstraint(constraint);
             if (newbt != bt || newConstraint != constraint) {
                 t = Types.xclause(newbt, newConstraint);
             }
+            TypeSystem_c.internalConsistencyCheck(t);
         } else if (t instanceof ClosureType) { // order matters!
             ClosureType ft = (ClosureType) t; // TODO
             X10ClassType ct = (X10ClassType) ft.outer();
             FunctionType fi = ft.functionInterface();
             CodeInstance<?> cm = ft.methodContainer();
             X10ClassType nct = (X10ClassType) transformType(ct);
-            FunctionType nfi = (FunctionType) transformTypeRecursively(fi);
+            FunctionType nfi = (FunctionType) transformType(fi);
             CodeInstance<?> ncm = transformCodeInstance(cm);
             if (nct != ct || nfi != fi || ncm != cm) {
                 List<Ref<? extends Type>> fts = new ArrayList<Ref<? extends Type>>();
@@ -619,7 +615,7 @@ public class TypeTransformer extends NodeTransformer {
         // The plan is, if the types have changed, to assign vars_ld to replace nu_ld, or create a new local def if vars_ld is null
 
         // if the type has changed then the localdef needs replacing
-        boolean sigChanged =  !xts.typeEquals(nu_t, old_t, context());
+        boolean sigChanged = nu_t != old_t; // !xts.typeEquals(nu_t, old_t, context());
         
         if (vars_ld != null) {
         	// We have already updated some other node that used old_ld, to use vars_ld instead.

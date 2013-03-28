@@ -153,10 +153,6 @@ public class X10InnerClassRemover extends InnerClassRemover {
             return fixFieldDecl(d);
         }
 
-        protected CConstraint transformConstraint(CConstraint c) {
-            return super.transformConstraint(c);
-        }
-
         protected TypeConstraint transformTypeConstraint(TypeConstraint c) {
             if (c == null)
                 return null;
@@ -232,6 +228,9 @@ public class X10InnerClassRemover extends InnerClassRemover {
             List<Type> formalTypes = mi.formalTypes();
             List<Type> newFormalTypes = transformTypeList(formalTypes);
             if (newFormalTypes != formalTypes) {
+            	for (Type t : newFormalTypes) {
+                	TypeSystem_c.internalConsistencyCheck(t);
+            	}
                 mi = (MethodInstance) mi.formalTypes(newFormalTypes);
             }
             List<LocalInstance> newFormalNames = new ArrayList<LocalInstance>();
@@ -339,8 +338,9 @@ public class X10InnerClassRemover extends InnerClassRemover {
         @Override
         protected Type transformType(Type t) {
             Type nt = fixType(t);
-            nt = super.transformType(nt);
-            return nt;
+            Type nt2 = super.transformType(nt);
+        	TypeSystem_c.internalConsistencyCheck(nt2);
+            return nt2;
         }
 
     }
@@ -355,7 +355,7 @@ public class X10InnerClassRemover extends InnerClassRemover {
         // Adjust various types in the def.
         Ref<? extends Type> dtr = def.returnType();
         Ref<? extends Type> tr = md.returnType().typeRef();
-        if (dtr != tr && !ts.typeEquals(Types.get(tr), Types.get(dtr), context)) {
+        if (dtr != tr) {
             updateRefUnsafe(dtr, Types.get(tr));
         }
         List<Formal> formals = md.formals();
@@ -404,7 +404,7 @@ public class X10InnerClassRemover extends InnerClassRemover {
         if (cd.returnType() != null) {
             Ref<? extends Type> dtr = def.returnType();
             Ref<? extends Type> tr = cd.returnType().typeRef();
-            if (dtr != tr && !ts.typeEquals(Types.get(tr), Types.get(dtr), context)) {
+            if (dtr != tr) {
                 updateRefUnsafe(dtr, Types.get(tr));
             }
         }
