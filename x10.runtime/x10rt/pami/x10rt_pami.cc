@@ -159,6 +159,7 @@ struct x10rt_pami_state
 #endif
 	pami_extension_t async_extension; // for async progress
 	bool blockingSend; // flag based on X10RT_PAMI_BLOCKING_SEND
+	pami_task_t *stepOrder; // this array is allocated and used only when the internal all-to-all collective has been specified
 	char errorMessageBuffer[1200]; // buffer to hold the most recent error message
 } state;
 
@@ -264,12 +265,27 @@ void determineCollectiveAlgorithms(x10rt_pami_team* team)
 	{
 		userChoice = getenv(X10RT_PAMI_ALLTOALL_CHUNKS);
 		team->algorithm[PAMI_XFER_ALLTOALL] = -1*(userChoice?atoi(userChoice):1); // default to 1 chunk
+		// initialize random order array
+		state.stepOrder = (pami_task_t *)malloc(state.numPlaces*sizeof(pami_task_t));
+		if (state.stepOrder == NULL) error("Unable to allocate memory for internal alltoall step order");
+		srand(state.myPlaceId);
+		for (int i=0; i<state.numPlaces; i++)
+			state.stepOrder[i] = i;
+		// shuffle values around the array randomly
+		for (int i=state.numPlaces-1; i>0; --i) {
+			int j=rand()%(i+1);
+			int tmp = state.stepOrder[j];
+			state.stepOrder[j] = state.stepOrder[i];
+			state.stepOrder[i] = tmp;
+		}
 		#ifdef DEBUG
 			fprintf(stderr, "Switching AllToAll to internal implementation, chunksize = %u bytes\n", -1*team->algorithm[PAMI_XFER_ALLTOALL]);
 		#endif
 	}
-	else
+	else {
 		queryAvailableAlgorithms(team, PAMI_XFER_ALLTOALL, userChoiceInt);
+		state.stepOrder = NULL;
+	}
 
 	userChoice = getenv(X10RT_PAMI_REDUCE_ALG);
 	queryAvailableAlgorithms(team, PAMI_XFER_REDUCE, userChoice?atoi(userChoice):0);
@@ -1494,6 +1510,8 @@ void x10rt_net_finalize()
 			free(state.teams[i].places);
 
 	free(state.teams);
+	if (state.stepOrder != NULL)
+		free(state.stepOrder);
 }
 
 int x10rt_net_supports (x10rt_opt o)
@@ -1938,7 +1956,8 @@ static void internal_alltoall_step (pami_context_t   context,
 	x10rt_pami_internal_alltoall *cbd = (x10rt_pami_internal_alltoall*)cookie;
 	// no need to lock the context in here, as it was already locked by the surrounding callback
 
-	int64_t remotePlace = (state.myPlaceId + cbd->currentPlaceOffset) % state.teams[cbd->teamid].size; // shift the place we start with
+	//int64_t remotePlace = (state.myPlaceId + cbd->currentPlaceOffset) % state.teams[cbd->teamid].size; // shift the place we start with
+	int64_t remotePlace = state.stepOrder[cbd->currentPlaceOffset];
 	cbd->parameters.rma.dest = remotePlace;
 	cbd->parameters.addr.local = (void*)((char*)(cbd->sbuf) + (remotePlace * cbd->dataSize) + cbd->currentChunkOffset);
 	cbd->parameters.addr.remote = (void*)((char*)(cbd->dbuf) + (state.myPlaceId * cbd->dataSize) + cbd->currentChunkOffset);
