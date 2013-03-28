@@ -46,5 +46,14 @@ public class CNativeLocal extends XNativeVar<Type> implements CLocal,Typed {
 		return new CNativeLocal(this);
 	}
 
+	@Override
+	public boolean equals (Object o) {
+		if (this == o) return true;
+		if (o instanceof CNativeLocal) {
+			CNativeLocal other = (CNativeLocal) o;
+			return name.equals(other.name()) && def == other.def;
+		}
+		return false;
+	}
     
 }
