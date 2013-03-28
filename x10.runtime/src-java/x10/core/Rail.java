@@ -35,7 +35,6 @@ public final class Rail<T> extends x10.core.Ref implements x10.lang.Iterable,
     
     // synthetic types for parameter mangling
     public static final class __0$1x10$lang$Rail$$T$2 { }
-    public static final class __1$1x10$lang$Int$3x10$lang$Rail$$T$2 { }
     public static final class __1$1x10$lang$Long$3x10$lang$Rail$$T$2 { }
     public static final class __1x10$lang$Rail$$T { }
 
@@ -48,7 +47,6 @@ public final class Rail<T> extends x10.core.Ref implements x10.lang.Iterable,
                                   RuntimeType.INVARIANTS(1),
                                   new Type[] {
                                       ParameterizedType.make(x10.lang.Iterable.$RTT, UnresolvedType.PARAM(0)),
-                                      ParameterizedType.make(x10.core.fun.Fun_0_1.$RTT, Types.INT, UnresolvedType.PARAM(0)),
                                       ParameterizedType.make(x10.core.fun.Fun_0_1.$RTT, Types.LONG, UnresolvedType.PARAM(0)) 
             });
 
@@ -119,38 +117,19 @@ public final class Rail<T> extends x10.core.Ref implements x10.lang.Iterable,
         this.value = value;
     }
 
-    public Rail(Type T, int size) {
-        this.T = T;
-        this.size = size;
-        this.value = T.makeArray(size);
-     }
-
-    public Rail(Type T, int size, T init, __1x10$lang$Rail$$T $dummy) {
-        this.T = T;
-        this.size = size;
-        this.value = T.makeArray(size);
-        for (int i=0; i<size; i++) {
-            T.setArray(this.value, i, init);
-        }
-    }
-
-    public Rail(Type T, int size, x10.core.fun.Fun_0_1<x10.core.Int, T> init, __1$1x10$lang$Int$3x10$lang$Rail$$T$2 $dummy) {
-        this.T = T;
-        this.size = size;
-        this.value = T.makeArray(size);
-
-        for (int i=0; i<size; i++) {
-            T v =  init.$apply(x10.core.Int.$box(i), Types.INT);
-            T.setArray(this.value, i, v);
-        }
-    }
-
     public Rail(Type T, long size) {
-        this(T, allocCheckSize(size));
+        this.T = T;
+        this.size = size;
+        this.value = T.makeArray(allocCheckSize(size));
     }
 
     public Rail(Type T, long size, T init, __1x10$lang$Rail$$T $dummy) {
-        this(T, allocCheckSize(size), init, $dummy);
+        this.T = T;
+        this.size = size;
+        this.value = T.makeArray(allocCheckSize(size));
+        for (int i=0; i<size; i++) {
+            T.setArray(this.value, i, init);
+        }
     }
 
     public Rail(Type T, long size, x10.core.fun.Fun_0_1<x10.core.Long, T> init, __1$1x10$lang$Long$3x10$lang$Rail$$T$2 $dummy) {
@@ -189,7 +168,7 @@ public final class Rail<T> extends x10.core.Ref implements x10.lang.Iterable,
 
     private static int allocCheckSize(long size) {
         if (size >= (long)java.lang.Integer.MAX_VALUE) {
-            throw new IllegalArgumentException("Array size must be less than Integer.MAX_VALUE");
+            throw new IllegalArgumentException("Rail size must be less than Integer.MAX_VALUE");
         }
         return (int)size;
     }
@@ -261,26 +240,11 @@ public final class Rail<T> extends x10.core.Ref implements x10.lang.Iterable,
    
     // dispatcher for method abstract public (Z1)=>U.operator()(a1:Z1){}:U
     public java.lang.Object $apply(java.lang.Object a1, Type t1) {
-        if (t1.equals(Types.LONG)) {
-            return $apply$G(x10.core.Long.$unbox(a1));
-        }
-        if (t1.equals(Types.INT)) {
-            return $apply$G(x10.core.Int.$unbox(a1));
-        }
-        throw new java.lang.Error("dispatch mechanism not completely implemented for contra-variant types.");
-    }
-
-    public T $apply$G(int index) {
-        return (T) T.getArray(value, index);
+        return $apply$G(x10.core.Long.$unbox(a1));
     }
 
     public T $apply$G(long index) {
         return (T) T.getArray(value, (int)index);
-    }
-
-    public T $set__1x10$lang$Rail$$T$G(int index, T v) {
-        T.setArray(value, index, v);
-        return v;
     }
 
     public T $set__1x10$lang$Rail$$T$G(long index, T v) {
@@ -319,34 +283,7 @@ public final class Rail<T> extends x10.core.Ref implements x10.lang.Iterable,
         }
     }
 
-    public void clear(int start, int numElems) {
-        if (numElems <= 0)
-            return;
-        int begin = start;
-        int end = start + numElems;
-        if (value instanceof boolean[]) {
-            Arrays.fill(getBooleanArray(), begin, end, false);
-        } else if (value instanceof byte[]) {
-            Arrays.fill(getByteArray(), begin, end, (byte) 0);
-        } else if (value instanceof char[]) {
-            Arrays.fill(getCharArray(), begin, end, (char) 0);
-        } else if (value instanceof short[]) {
-            Arrays.fill(getShortArray(), begin, end, (short) 0);
-        } else if (value instanceof int[]) {
-            Arrays.fill(getIntArray(), begin, end, 0);
-        } else if (value instanceof float[]) {
-            Arrays.fill(getFloatArray(), begin, end, 0.0F);
-        } else if (value instanceof long[]) {
-            Arrays.fill(getLongArray(), begin, end, 0L);
-        } else if (value instanceof double[]) {
-            Arrays.fill(getDoubleArray(), begin, end, 0.0);
-        } else {
-            Object zeroValue = Types.zeroValue(T);
-            Arrays.fill(getObjectArray(), begin, end, zeroValue);
-        }
-    }
-
-    public x10.lang.Iterator iterator() {
+   public x10.lang.Iterator iterator() {
        return new RailIterator<T>(T, this, null);
     }
     
@@ -383,15 +320,6 @@ public final class Rail<T> extends x10.core.Ref implements x10.lang.Iterable,
         }
 
         System.arraycopy(src.value, 0, dst.value, 0, (int)src.size);
-    }
-
-    public static <T> void copy__0$1x10$lang$Rail$$T$2__2$1x10$lang$Rail$$T$2(Type T,
-                                                                              Rail<T> src,
-                                                                              int srcIndex,
-                                                                              Rail<T> dst,
-                                                                              int dstIndex, 
-                                                                              int numElems) {
-        System.arraycopy(src.value, srcIndex, dst.value, dstIndex, numElems);
     }
 
     public static <T> void copy__0$1x10$lang$Rail$$T$2__2$1x10$lang$Rail$$T$2(Type T,

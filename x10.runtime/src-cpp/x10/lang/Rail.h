@@ -85,11 +85,10 @@ namespace x10 {
 
             Rail(x10_long numElems) : FMGL(size)(numElems) { }
             
-            static x10aux::itable_entry _itables[4];
+            static x10aux::itable_entry _itables[3];
             virtual x10aux::itable_entry* _getITables() { return _itables; }
             static typename x10::lang::Iterable<T>::template itable<x10::lang::Rail<T> > _itable_0;
-            static typename x10::lang::Fun_0_1<x10_int, T>::template itable<x10::lang::Rail<T> > _itable_1;
-            static typename x10::lang::Fun_0_1<x10_long, T>::template itable<x10::lang::Rail<T> > _itable_2;
+            static typename x10::lang::Fun_0_1<x10_long, T>::template itable<x10::lang::Rail<T> > _itable_1;
     
             static x10::lang::Rail<T>* _make(x10::util::IndexedMemoryChunk<T > backingStore);
     
@@ -101,20 +100,9 @@ namespace x10 {
     
             static x10::lang::Rail<T>* _make(x10_long size);
     
-            static x10::lang::Rail<T>* _make(x10_int size) {
-                return _make((x10_long)size);
-            }
-
             static x10::lang::Rail<T>* _make(x10_long size, T init);
 
-            static x10::lang::Rail<T>* _make(x10_int size, T init) {
-                return _make((x10_long)size, init);
-            }
-            
             static x10::lang::Rail<T>* _make(x10_long size, x10::lang::Fun_0_1<x10_long, T>* init);
-
-            // NB:  Can't redirect this one to the long variant because of the function!
-            static x10::lang::Rail<T>* _make(x10_int size, x10::lang::Fun_0_1<x10_int, T>* init);
 
             x10::lang::LongRange range();
 
@@ -126,14 +114,7 @@ namespace x10 {
                 checkBounds(index, FMGL(size));
                 return raw[index];
             }
-            virtual T __apply(x10_int index) {
-                checkBounds(index, FMGL(size));
-                return raw[index];
-            }
             virtual T unchecked_apply(x10_long index) {
-                return raw[index];
-            }                
-            virtual T unchecked_apply(x10_int index) {
                 return raw[index];
             }                
 
@@ -142,19 +123,10 @@ namespace x10 {
                 raw[index] = v;
                 return v;
             }
-            virtual T __set(x10_int index, T v) {
-                checkBounds(index, FMGL(size));
-                raw[index] = v;
-                return v;
-            }
             virtual T unchecked_set(x10_long index, T v) {
                 raw[index] = v;
                 return v;
             }
-            virtual T unchecked_set(x10_int index, T v) {
-                raw[index] = v;
-                return v;
-            }                
             
             T &operator[] (x10_long index) {
                 checkBounds(index, FMGL(size));
@@ -168,7 +140,6 @@ namespace x10 {
             
             virtual void clear();
             virtual void clear(x10_long start, x10_long numElems);
-            virtual void clear(x10_int start, x10_int numElems);
     
             // Serialization
             static const x10aux::serialization_id_t _serialization_id;
@@ -189,14 +160,13 @@ namespace x10 {
         template<class T> void x10::lang::Rail<T>::_initRTT() {
             const x10aux::RuntimeType *canonical = x10aux::getRTT<x10::lang::Rail<void> >();
             if (rtt.initStageOne(canonical)) return;
-            const x10aux::RuntimeType* parents[3] = { x10aux::getRTT<x10::lang::Iterable<T> >(),
-                                                      x10aux::getRTT<x10::lang::Fun_0_1<x10_int, T> >(),
+            const x10aux::RuntimeType* parents[2] = { x10aux::getRTT<x10::lang::Iterable<T> >(),
                                                       x10aux::getRTT<x10::lang::Fun_0_1<x10_long, T> >()
             };
             const x10aux::RuntimeType* params[1] = { x10aux::getRTT<T>()};
             x10aux::RuntimeType::Variance variances[1] = { x10aux::RuntimeType::invariant};
             const char *baseName = "x10.lang.Rail";
-            rtt.initStageTwo(baseName, x10aux::RuntimeType::class_kind, 3, parents, 1, params, variances);
+            rtt.initStageTwo(baseName, x10aux::RuntimeType::class_kind, 2, parents, 1, params, variances);
         }
 
 
@@ -212,13 +182,6 @@ namespace x10 {
                                                x10_long srcIndex, x10::lang::Rail<T>* dst,
                                                x10_long dstIndex, x10_long numElems);
     
-            template<class T> static void copy(x10::lang::Rail<T>* src,
-                                               x10_int srcIndex, x10::lang::Rail<T>* dst,
-                                               x10_int dstIndex,
-                                               x10_int numElems) {
-                copy(src, (x10_long)srcIndex, dst, (x10_long)dstIndex, (x10_long)numElems);
-            }
-
             template<class T> static void asyncCopy(x10::lang::Rail<T>* src, x10_long srcIndex,
                                                     x10::lang::GlobalRef<x10::lang::Rail<T>*> dst, x10_long dstIndex,
                                                     x10_long numElems);
@@ -349,23 +312,6 @@ template<class T> x10::lang::Rail<T>* x10::lang::Rail<T>::_make(x10_long size, x
     return this_;
 }
 
-template<class T> x10::lang::Rail<T>* x10::lang::Rail<T>::_make(x10_int size, x10::lang::Fun_0_1<x10_int, T>* init) {
-    bool containsPtrs = x10aux::getRTT<T>()->containsPtrs;
-    x10_long numElems = (x10_long)size;
-    size_t numBytes = sizeof(x10::lang::Rail<T>) -sizeof(T) + (numElems * sizeof(T)); // -sizeof(T) accounts for raw[1]
-    x10::lang::Rail<T>* this_ = new (x10aux::alloc_internal(numBytes, containsPtrs)) x10::lang::Rail<T>(numElems);
-
-    if (size > 0) {
-        x10aux::nullCheck(init);
-        x10::lang::Reference* recv = reinterpret_cast<x10::lang::Reference*>(init);
-        T (x10::lang::Reference::*fun)(x10_int) = x10aux::findITable<Fun_0_1<x10_int, T> >(recv->_getITables())->__apply;
-        for (x10_int i = 0; i < size; i++) {
-            this_->raw[i] = (recv->*(fun))(i);
-        }
-    }
-    return this_;
-}
-
 
 /*
  * Instance functions 
@@ -402,10 +348,6 @@ template<class T> void x10::lang::Rail<T>::clear() {
 
 
 template<class T> void x10::lang::Rail<T>::clear(x10_long start, x10_long numElems) {
-    memset(&raw[start], 0, sizeof(T)*numElems);
-}
-
-template<class T> void x10::lang::Rail<T>::clear(x10_int start, x10_int numElems) {
     memset(&raw[start], 0, sizeof(T)*numElems);
 }
 
@@ -526,14 +468,11 @@ template<class T> void x10::lang::Rail<T>::_deserialize_body(x10aux::deserializa
 
 template<class T> typename x10::lang::Iterable<T>::template itable<x10::lang::Rail<T> >  x10::lang::Rail<T>::_itable_0(&x10::lang::Rail<T>::equals, &x10::lang::Rail<T>::hashCode, &x10::lang::Rail<T>::iterator, &x10::lang::Rail<T>::toString, &x10::lang::Rail<T>::typeName);
 
-template<class T> typename x10::lang::Fun_0_1<x10_int, T>::template itable<x10::lang::Rail<T> >  x10::lang::Rail<T>::_itable_1(&x10::lang::Rail<T>::equals, &x10::lang::Rail<T>::hashCode, &x10::lang::Rail<T>::__apply, &x10::lang::Rail<T>::toString, &x10::lang::Rail<T>::typeName);
+template<class T> typename x10::lang::Fun_0_1<x10_long, T>::template itable<x10::lang::Rail<T> >  x10::lang::Rail<T>::_itable_1(&x10::lang::Rail<T>::equals, &x10::lang::Rail<T>::hashCode, &x10::lang::Rail<T>::__apply, &x10::lang::Rail<T>::toString, &x10::lang::Rail<T>::typeName);
 
-template<class T> typename x10::lang::Fun_0_1<x10_long, T>::template itable<x10::lang::Rail<T> >  x10::lang::Rail<T>::_itable_2(&x10::lang::Rail<T>::equals, &x10::lang::Rail<T>::hashCode, &x10::lang::Rail<T>::__apply, &x10::lang::Rail<T>::toString, &x10::lang::Rail<T>::typeName);
-
-template<class T> x10aux::itable_entry x10::lang::Rail<T>::_itables[4] = {
+template<class T> x10aux::itable_entry x10::lang::Rail<T>::_itables[3] = {
     x10aux::itable_entry(&x10aux::getRTT<x10::lang::Iterable<T> >, &_itable_0),
-    x10aux::itable_entry(&x10aux::getRTT<x10::lang::Fun_0_1<x10_int, T> >, &_itable_1),
-    x10aux::itable_entry(&x10aux::getRTT<x10::lang::Fun_0_1<x10_long, T> >, &_itable_2),
+    x10aux::itable_entry(&x10aux::getRTT<x10::lang::Fun_0_1<x10_long, T> >, &_itable_1),
     x10aux::itable_entry(NULL, (void*)x10aux::getRTT<x10::lang::Rail<T> >())
 };
 
