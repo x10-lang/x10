@@ -775,7 +775,7 @@ static void get_incoming_data_completion(x10rt_req_queue * q,
     cb(&p, get_req->len);
     get_lock(&global_state.lock);
 
-    free(get_req->msg);
+    free(req->getBuf());
     global_state.free_list.enqueue(req);
 }
 
