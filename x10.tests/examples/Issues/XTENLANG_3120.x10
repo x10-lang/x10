@@ -2,6 +2,8 @@ import x10.io.Console;
 
 import harness.x10Test;
 
+// MANAGED_X10_ONLY
+
 public class XTENLANG_3120 extends x10Test {
     public static class Foo extends java.util.Date { }
     public static class Bar extends java.util.ArrayList { }

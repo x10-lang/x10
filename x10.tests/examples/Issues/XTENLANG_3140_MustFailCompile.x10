@@ -1,5 +1,7 @@
 import harness.x10Test;
 
+// MANAGED_X10_ONLY
+
 public class XTENLANG_3140_MustFailCompile extends x10Test {
 
     public static def g() throws java.io.IOException { }
