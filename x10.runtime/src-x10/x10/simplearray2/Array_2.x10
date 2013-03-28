@@ -86,7 +86,7 @@ public final class Array_2[T] (
                                             j < 0 || j >= numElems_2)) {
             raiseBoundsError(i, j);
         }
-        return raw(offset(i, j));
+        return Unsafe.uncheckedRailApply(raw, offset(i, j));
     }
 
     
@@ -105,7 +105,7 @@ public final class Array_2[T] (
                                             j < 0 || j >= numElems_2)) {
             raiseBoundsError(i, j);
         }
-        raw(offset(i, j)) = v;
+        Unsafe.uncheckedRailSet(raw, offset(i, j), v);
         return v;
     }
     

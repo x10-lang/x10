@@ -12,6 +12,7 @@
 package x10.lang;
 
 import x10.compiler.Native;
+import x10.compiler.Inline;
 
 public final class Unsafe {
 
@@ -42,6 +43,15 @@ public final class Unsafe {
     @Native("c++", "(#x)->clear(#start, #numElems)")
     @Native("java", "(#x).clear(#start, #numElems)")
     public native static def clearRail[T](x:Rail[T], start:int, numElems:int):void;
+
+    @Native("c++", "(#r)->x10::lang::Rail<#T >::unchecked_apply(#i)")
+    public static @Inline def uncheckedRailApply[T](r:Rail[T], i:long):T = r(i);
+
+    @Native("c++", "(#r)->x10::lang::Rail<#T >::unchecked_set(#i, #v)")
+    public static @Inline def uncheckedRailSet[T](r:Rail[T], i:long, v:T):T {
+        r(i) = v;
+        return v;
+    }
 
     @Native("c++", "x10aux::dealloc(#o)")
     public static def dealloc[T](o:T){ T isref } :void {}

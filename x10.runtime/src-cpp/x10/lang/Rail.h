@@ -122,12 +122,40 @@ namespace x10 {
 
             virtual x10::lang::String* toString();
 
-            virtual T __apply(x10_long index);
-            virtual T __apply(x10_int index);
+            virtual T __apply(x10_long index) {
+                checkBounds(index, FMGL(size));
+                return raw[index];
+            }
+            virtual T __apply(x10_int index) {
+                checkBounds(index, FMGL(size));
+                return raw[index];
+            }
+            virtual T unchecked_apply(x10_long index) {
+                return raw[index];
+            }                
+            virtual T unchecked_apply(x10_int index) {
+                return raw[index];
+            }                
 
-            virtual T __set(x10_long index, T v);
-            virtual T __set(x10_int index, T v);
-
+            virtual T __set(x10_long index, T v) {
+                checkBounds(index, FMGL(size));
+                raw[index] = v;
+                return v;
+            }
+            virtual T __set(x10_int index, T v) {
+                checkBounds(index, FMGL(size));
+                raw[index] = v;
+                return v;
+            }
+            virtual T unchecked_set(x10_long index, T v) {
+                raw[index] = v;
+                return v;
+            }
+            virtual T unchecked_set(x10_int index, T v) {
+                raw[index] = v;
+                return v;
+            }                
+            
             T &operator[] (x10_long index) {
                 checkBounds(index, FMGL(size));
                 return raw[index];
@@ -368,17 +396,6 @@ template<class T> x10::lang::String* x10::lang::Rail<T>::toString() {
     return x10::lang::String::Steal(tmp);
 }
 
-template<class T> T x10::lang::Rail<T>::__apply(x10_long index) {
-    checkBounds(index, FMGL(size));
-    return raw[index];
-}
-
-template<class T> T x10::lang::Rail<T>::__set(x10_long index, T v) {
-    checkBounds(index, FMGL(size));
-    raw[index] = v;
-    return v;
-}
-
 template<class T> void x10::lang::Rail<T>::clear() {
     memset(&raw, 0, sizeof(T)*FMGL(size));
 }
@@ -390,17 +407,6 @@ template<class T> void x10::lang::Rail<T>::clear(x10_long start, x10_long numEle
 
 template<class T> void x10::lang::Rail<T>::clear(x10_int start, x10_int numElems) {
     memset(&raw[start], 0, sizeof(T)*numElems);
-}
-
-template<class T> T x10::lang::Rail<T>::__apply(x10_int index) {
-    checkBounds(index, FMGL(size));
-    return raw[index];
-}
-
-template<class T> T x10::lang::Rail<T>::__set(x10_int index, T v) {
-    checkBounds(index, FMGL(size));
-    raw[index] = v;
-    return v;
 }
 
 /*

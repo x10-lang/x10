@@ -243,11 +243,11 @@ public final class Array[T] (
      * @see #set(T, Int, Int)
      */
     public @Inline operator this(i:long, j:long){rank==2}:T {
-        if (CompilerFlags.checkBounds() && (i < 0 || i >= numElems_1 || 
+        if (CompilerFlags.checkBounds() && (i < 0 || i >= numElems_1 ||
                                             j < 0 || j >= numElems_2)) {
             raiseBoundsError(i, j);
         }
-        return raw(offset(i, j));
+        return Unsafe.uncheckedRailApply(raw, offset(i, j));
     }
     
     /**
@@ -266,7 +266,7 @@ public final class Array[T] (
                                             k <0 || k >= numElems_3)) {
             raiseBoundsError(i, j, k);
         }
-        return raw(offset(i, j, k));
+        return Unsafe.uncheckedRailApply(raw, offset(i, j, k));
     }
     
     
@@ -302,7 +302,7 @@ public final class Array[T] (
                                             j < 0 || j >= numElems_2)) {
             raiseBoundsError(i, j);
         }
-        raw(offset(i, j)) = v;
+        Unsafe.uncheckedRailSet(raw, offset(i, j), v);
         return v;
     }
     
@@ -324,7 +324,7 @@ public final class Array[T] (
                                             k <0 || k >= numElems_3)) {
             raiseBoundsError(i, j, k);
         }
-        raw(offset(i, j, k)) = v;
+        Unsafe.uncheckedRailSet(raw, offset(i, j, k), v);
         return v;
     }
     
