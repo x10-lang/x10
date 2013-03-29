@@ -16,7 +16,7 @@ import x10.simplearray2.*;
  */
 public class SeqMatMultAdd1a_alt extends Benchmark {
 
-    val N:long = 55*5;
+    var N:long = 55*5;
     def expected() = -6866925.0;
     def operations() = N*N*N as double;
 

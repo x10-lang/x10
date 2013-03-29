@@ -16,7 +16,7 @@ import x10.util.IndexedMemoryChunk;
  */
 public class SeqMatMultAdd1a_IMC extends Benchmark {
 
-    val N = 55*5;
+    var N:int = 55*5;
     def expected() = -6866925.0;
     def operations() = N*N*N as double;
 

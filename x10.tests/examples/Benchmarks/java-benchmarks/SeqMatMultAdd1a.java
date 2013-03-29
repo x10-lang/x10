@@ -19,7 +19,7 @@ final public class SeqMatMultAdd1a extends Benchmark {
     // parameters
     //
 
-    final int N = 55*5;
+    int N = 55*5;
     double operations() {return 1.0*N*N*N;}
     double expected() {return -6866925.0;}
         

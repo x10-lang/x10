@@ -14,7 +14,7 @@
  */
 public class SeqMatMultAdd1a_Rail extends Benchmark {
 
-    val N = 55L*5L;
+    var N:Long = 55L*5L;
     def expected() = -6866925.0;
     def operations() = N*N*N as double;
 
