@@ -22,7 +22,7 @@ public class ForLoopOnArray extends x10Test {
     public static N: int = 3;
 
     public def run(): boolean = {
-        val a = new Array[double](0..10, ([i]: Point): double => i as double);
+        val a = new Array[double](11, (i:int) => i as double);
 
         for (val [i]: Point in a.region) {
             if (a(i) != i as Double) return false;

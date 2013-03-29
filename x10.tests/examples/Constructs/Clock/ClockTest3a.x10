@@ -23,7 +23,7 @@ public class ClockTest3a extends x10Test {
 	public def run(): boolean = {
 		clocked finish {
 
-			for  ([i] in 0..(N-1)) clocked async {
+			for  (i in 0..(N-1)) clocked async {
 				clocked async  finish async { atomic value++; }
 				Clock.advanceAll();
 				if (value != N) {

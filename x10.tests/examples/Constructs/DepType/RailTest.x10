@@ -20,7 +20,7 @@ import x10.array.*;
 public class RailTest extends x10Test {
 
     public def run(): boolean = {
-        val r: Region{rail} = 0..10;
+        val r: Region{rail} = Region.make(0,10);
         var a: Array[double]{rail} = new Array[double](r, (x:Point)=>0.0);
         return true;
     }

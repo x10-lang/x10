@@ -100,7 +100,7 @@ public class ClockTest13 extends x10Test {
 	}
 
 	def taskA(val a: Clock): void = {
-		for ([k] in 1..N) {
+		for (k in 1..N) {
 			x10.io.Console.OUT.println(""+k+" A new phase");
 			atomic phaseA++;
 			x10.io.Console.OUT.println(""+k+" A resuming a");
@@ -118,7 +118,7 @@ public class ClockTest13 extends x10Test {
 		}
 	}
 	def taskB(val a: Clock, val b: Clock): void = {
-		for ([k] in 1..N) {
+		for (k in 1..N) {
 			x10.io.Console.OUT.println(""+k+" B new phase");
 			atomic phaseB++;
 			x10.io.Console.OUT.println(""+k+" B resuming a");
@@ -130,7 +130,7 @@ public class ClockTest13 extends x10Test {
 		}
 	}
 	def taskC(val b: Clock, val c: Clock): void = {
-		for ([k] in 1..N) {
+		for (k in 1..N) {
 			x10.io.Console.OUT.println(""+k+" C new phase");
 			atomic phaseC++;
 			x10.io.Console.OUT.println(""+k+" C resuming b");
@@ -142,7 +142,7 @@ public class ClockTest13 extends x10Test {
 		}
 	}
 	def taskD(val c: Clock): void = {
-		for ([k] in 1..N) {
+		for (k in 1..N) {
 			x10.io.Console.OUT.println(""+k+" D new phase");
 			atomic phaseD++;
 			x10.io.Console.OUT.println(""+k+" D resuming c");

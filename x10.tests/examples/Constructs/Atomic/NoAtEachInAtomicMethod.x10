@@ -27,7 +27,7 @@ public class NoAtEachInAtomicMethod extends x10Test {
 		return false;
 	}
 	def m() {
-		ateach(p in 1..10->here) 
+		ateach(p in Region.make(1,10)->here) 
 			Console.OUT.println("This should not print.");
 	}
 

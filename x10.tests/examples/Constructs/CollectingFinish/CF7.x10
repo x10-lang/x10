@@ -40,7 +40,7 @@ public class CF7 extends x10Test{
             val numThreads = 8;
             val iteration = 100;
             val result = finish(b) {
-                for ([p] in 0..(numThreads-1)) async {
+                for (p in 0..(numThreads-1)) async {
                       var case_ :Totals2 =new  Totals2(1,2);
                       for (var i:Int = 0; i < iteration; i++)
                       offer case_;

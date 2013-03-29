@@ -34,7 +34,7 @@ public class Array4 extends x10Test {
      * Run method for the array. Returns true iff the test succeeds.
      */
     public def run(): boolean = {
-        return (new Array4(new Array[int]((1..10)*(1..10), 0))).runtest();
+        return (new Array4(new Array[int](Region.make([1..10, 1..10]), 0))).runtest();
     }
 
     public static def main(var args: Rail[String]): void = {

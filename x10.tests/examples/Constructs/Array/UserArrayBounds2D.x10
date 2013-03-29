@@ -50,7 +50,7 @@ public class UserArrayBounds2D extends x10Test {
      * no array bounds exception occurred
      */
     private static def arrayAccess(lb1: int, ub1: int, lb2: int, ub2: int, i: int, j: int): boolean = {
-        var a: Array[Int](2) = new Array[Int]((lb1..ub1)*(lb2..ub2), ([i,j]: Point):Int=> 0);
+        var a: Array[Int](2) = new Array[Int](Region.make([lb1..ub1, lb2..ub2]), ([i,j]: Point):Int=> 0);
 
         var withinBounds: boolean = true;
         try {

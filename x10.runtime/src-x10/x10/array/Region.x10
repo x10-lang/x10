@@ -152,6 +152,26 @@ public abstract class Region(
     }
 
     /**
+     * Construct a rectangular region from a Rail of IntRange that represent the min/max of each dimension.
+     */
+    public static def makeRectangular[T](ranges:Rail[T]){T<:IntRange}:Region(ranges.size as Int){self.rect} {
+        if (ranges.size == 1L) {
+            // To remove the cast, the constraint solver should be able to handle arithmetic.
+            return new RectRegion1D(ranges(0).min,ranges(0).max) as Region(ranges.size as Int){rect}; 
+        } else {
+            val minArray = new Array[int](ranges.size as Int, (i:int)=>ranges(i).min);
+            val maxArray = new Array[int](ranges.size as Int, (i:int)=>ranges(i).max);
+            return new RectRegion(minArray, maxArray);
+        }
+    }
+
+    /**
+     * Construct a rectangular region from a Rail of IntRange that represent the min/max of each dimension.
+     */
+    public static def make[T](ranges:Rail[T]){T<:IntRange} = makeRectangular(ranges);
+
+
+    /**
      * Construct a rank-1 rectangular region with the specified bounds.
      */
     // XTENLANG-109 prevents zeroBased==(min==0)

@@ -20,7 +20,7 @@ import x10.array.*;
 public class ArrayIndexWithPoint extends x10Test {
 
     public def run() {
-        val e = 1..10;
+        val e = Region.make(1, 10);
         val ia = new Array[int](e, (Point)=>0);
         for (p in ia.region) 
             chk(ia(p)==0);

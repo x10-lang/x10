@@ -20,15 +20,15 @@ public class ImplicitFinal2 extends x10Test {
 
 	public def run(): boolean = {
 		var p: Point = [1, 2, 3];
-		var r: Region = 10..10;
+		var r: Region = Region.make(10,10);
 		var p1: Point = [1+1, 2+2, 3+3];
 		var d: Dist = r->here;
 		p = [1, 2, 4];
-		r = 10..11;
+		r = Region.make(10,11);
 		p1 = [1+1, 2+2, 4+4];
-		d = 0..1->here;
+		d = Region.make(0,1)->here;
 		var P: Point = [1, 2, 3];
-		var R: Region = 10..10;
+		var R: Region = Region.make(10,10);
 		var D: Dist = R->here;
 		P = p;
 		R = r;

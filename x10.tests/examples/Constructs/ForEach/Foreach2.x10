@@ -23,7 +23,7 @@ public class Foreach2 extends x10Test {
 
     public def run(): boolean = {
         val P0 = here; // save current place
-        val r = 0..(N-1);
+        val r = Region.make(0, N-1);
         val d = r->P0;
 
         finish

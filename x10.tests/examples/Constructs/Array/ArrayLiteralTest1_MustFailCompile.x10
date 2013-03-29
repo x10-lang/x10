@@ -10,16 +10,13 @@
  */
 
 import harness.x10Test;
-import x10.array.*;
 
 /**
- * Array Literal test. Same as ArrayLiteralTest except that the declared type of the array is more precise.
+ * Rail Literal test. Same as ArrayLiteralTest except that the declared type of the rail is more precise.
  */
 public class ArrayLiteralTest1_MustFailCompile extends x10Test {
 
     public def run(): boolean = {
-
-        val e = 0..9;
         val r = [1, 2, 3];
         val a = [0 as Int{self!=0}, // ERR: Cannot cast expression to type
                  1 as Int{self!=0},2 as Int{self!=0},3 as Int{self!=0}];
@@ -34,15 +31,15 @@ public class ArrayLiteralTest1_MustFailCompile extends x10Test {
 	def test() {
 		// size&dimension is inferred correctly for: [YYY]
 		val a10 = [1,2,3];
-		val a11:Array[Int] = [1,2,3];
-		val a12:Array[Int](1) = [1,2,3];
-		val a13:Array[Int](1){size==3} = [1,2,3];
-		val a2:Array[A](1){size==3} = [1,2,3]; // ERR: Cannot assign expression to target.
-		val a3:Array[Int](2){size==3} = [1,2,3]; // ERR: Cannot assign expression to target.
-		val a4:Array[Int](1){size==4} = [1,2,3]; // ERR: Cannot assign expression to target.
+		val a11:Rail[Int] = [1,2,3];
+		val a12:Rail[Int](1) = [1,2,3];
+		val a13:Rail[Int](1){size==3} = [1,2,3];
+		val a2:Rail[A](1){size==3} = [1,2,3]; // ERR: Cannot assign expression to target.
+		val a3:Rail[Int](2){size==3} = [1,2,3]; // ERR: Cannot assign expression to target.
+		val a4:Rail[Int](1){size==4} = [1,2,3]; // ERR: Cannot assign expression to target.
 
-		val b:Array[A{self!=null}] = [new A()];
-		val b1:Array[A{self!=null}](1){size==1} = [new A()];		
+		val b:Rail[A{self!=null}] = [new A()];
+		val b1:Rail[A{self!=null}](1){size==1} = [new A()];		
 	}
 
 	static class A {}

@@ -22,8 +22,8 @@ public class ArrayOfArraysShorthand extends x10Test {
 
     public def run(): boolean = {
 
-        val r1 = 0..7;
-        val r2 = 0..9;
+        val r1 = Region.make(0,7);
+        val r2 = Region.make(0,9);
         val r  = r1*r2;
         val ia = new Array[Array[Int](1)](r1, (Point)=> new Array[Int](r2, ([j]:Point)=>j));
 

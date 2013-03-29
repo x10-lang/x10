@@ -22,7 +22,7 @@ public class ClockTest3 extends x10Test {
 
 	public def run(): boolean = {
 	 clocked finish
-		for ([i] in 0..(N-1)) clocked async {
+		for (i in 0..(N-1)) clocked async {
 			clocked async   
 			   finish async { 
 			       async { 

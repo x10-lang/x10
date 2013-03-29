@@ -34,7 +34,7 @@ public class FlattenCondAnd extends x10Test {
     val a: Array[Boolean](2);
 
     public def this(): FlattenCondAnd = {
-        a = new Array[Boolean]((1..10)*(1..10), ([i,j]: Point) => true);
+        a = new Array[Boolean](Region.make([1..10, 1..10]), ([i,j]: Point) => true);
     }
 
     def m(x: boolean)= !x;

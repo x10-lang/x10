@@ -132,8 +132,8 @@ public class ArrayCopy3 extends x10Test {
      */
     public def run(): boolean = {
 
-        val R: Region{rank==4} = 0..(N-1)*0..(N-1)*0..(N-1)*0..(N-1);
-        val TestDists: Region(2) = 0..(dist2.N_DIST_TYPES-1)*0..(dist2.N_DIST_TYPES-1);
+        val R: Region{rank==4} = Region.make([0..(N-1), 0..(N-1), 0..(N-1), 0..(N-1)]);
+        val TestDists: Region(2) = Region.make([0..(dist2.N_DIST_TYPES-1), 0..(dist2.N_DIST_TYPES-1)]);
 
         for (distP[dX,dY]: Point(2) in TestDists) {
             val D: Dist{rank==4} = dist2.getDist(dX, R);

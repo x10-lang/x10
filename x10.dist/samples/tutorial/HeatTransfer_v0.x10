@@ -28,9 +28,9 @@ public class HeatTransfer_v0 {
     static val n = 3;
     static val epsilon = 1.0e-5;
 
-    static val BigD = (0..(n+1))*(0..(n+1));
-    static val D = (1..n)*(1..n);
-    static val LastRow = (0..0)*(1..n);
+    static val BigD = Region.make([0..(n+1), 0..(n+1)]);
+    static val D = Region.make([1..n, 1..n]);
+    static val LastRow = Region.make([0..0, 1..n]);
     static val A = new Array[Double](BigD,(p:Point)=>{ LastRow.contains(p) ? 1.0 : 0.0 });
     static val Temp = new Array[Double](BigD,(p:Point(BigD.rank))=>{ A(p) });
 

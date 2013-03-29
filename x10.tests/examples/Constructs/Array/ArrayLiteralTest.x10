@@ -20,7 +20,6 @@ public class ArrayLiteralTest extends x10Test {
 
     public def run(): boolean = {
 
-        val e = 0..9;
         val r = [1, 2, 3];
         val a = [1 as Int,2 as Int,3 as Int];
         var sumr:int=0;

@@ -29,9 +29,9 @@ public class HeatTransfer_v5 {
     static val epsilon = 1.0e-5;
     static val P = 1;
 
-    static val BigD = Dist.makeBlock((0..(n+1))*(0..(n+1)), 0);
-    static val D = BigD | (1..n)*(1..n);
-    static val LastRow = (0..0)*(1..n);
+    static val BigD = Dist.makeBlock(Region.make([0..(n+1), 0..(n+1)]), 0);
+    static val D = BigD | Region.make([1..n, 1..n]);
+    static val LastRow = Region.make([0..0, 1..n]);
 
     val A = DistArray.make[Double](BigD,(p:Point)=>{ LastRow.contains(p) ? 1.0 : 0.0 });
 
@@ -73,7 +73,7 @@ public class HeatTransfer_v5 {
             val Temp = DistArray.make[Double](BigD);
             for (z in D_Base) clocked async at (D_Base(z)) {
                 val blocks = blockIt(D | here, P);
-                for ([q] in 0..(P-1)) clocked async {
+                for (q in 0..(P-1)) clocked async {
                     var myDiff:Double;
                     do {
                         if (q == 0) diff(z) = 0;

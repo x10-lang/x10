@@ -19,7 +19,7 @@ import harness.x10Test;
  */
 public class ThisInConstructorReturn_MustFailCompile extends x10Test {
     class Test(R1:Region) {
-        val a:Region = 1..10;
+        val a:Region = Region.make(1,10);
         public def this():Test{self.R1==this.a} {
             property(this.a); // ERR
         }

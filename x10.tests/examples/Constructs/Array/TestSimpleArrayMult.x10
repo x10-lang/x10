@@ -22,7 +22,7 @@ public class TestSimpleArrayMult extends x10Test {
 
         val N: int = 99900;
         var start1: long = System.currentTimeMillis();
-        val e  = 1..N;
+        val e  = Region.make(1, N);
         var regionStop: long = System.currentTimeMillis();
         val ia  = new Array[int](e, (Point)=>0);
         val ib = new Array[int](e, ([i]: Point)=>i);

@@ -50,7 +50,7 @@ public class ClockTest7 extends x10Test {
 		try {
 		val c: Clock = Clock.make();
 
-		finish for ([i] in 0..(N-1)) async {
+		finish for (i in 0..(N-1)) async {
 			atomic value++;
 			x10.io.Console.OUT.println("Activity "+i+" phase 0");
 			Clock.advanceAll();

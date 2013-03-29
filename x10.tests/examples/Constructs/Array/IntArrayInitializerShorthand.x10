@@ -19,7 +19,7 @@ import x10.array.*;
 public class IntArrayInitializerShorthand extends x10Test {
 
     public def run(): boolean {
-        val r = (1..10)*(1..10);
+        val r = Region.make([1..10, 1..10]);
         val ia = new Array[int](r, ([i,j]:Point) => i+j);
 
         for (val p[i,j]: Point(2) in r)

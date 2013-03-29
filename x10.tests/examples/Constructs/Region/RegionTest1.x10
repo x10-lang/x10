@@ -20,7 +20,7 @@ public class RegionTest1 extends x10Test {
 
     public def run(): boolean = {
 
-        var r: Region(1){rect} = 0..100;
+        var r: Region(1){rect} = Region.make(0, 100);
         var reg: Region(2){rect} = r*r;
 
         var sum: int = 0;

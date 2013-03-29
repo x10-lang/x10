@@ -13,7 +13,7 @@ import harness.x10Test;
 import x10.array.*;
 
 /**
- * Testing point adition..
+ * Testing point adition.
  *
  * @author vj 08/29/08
  */

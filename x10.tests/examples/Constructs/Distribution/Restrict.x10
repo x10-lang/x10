@@ -19,7 +19,7 @@ import x10.array.*;
 public class Restrict extends x10Test {
 
     public def run(): boolean = {
-        val r = 0..100;
+        val r = Region.make(0,100);
         val R = r*r;
         val d = R->here;
         val R2  = (d | here).region;

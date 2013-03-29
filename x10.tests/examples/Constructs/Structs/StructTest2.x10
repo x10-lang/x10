@@ -21,7 +21,7 @@ import harness.x10Test;
 public class StructTest2 extends x10Test {
 
     public def run(): boolean = {
-        val r = 0..9;
+        val r = Region.make(0, 9);
         val d = r->here;
         val f = new foo();
         var x:myval = myval(1, Complex(2,3), f);

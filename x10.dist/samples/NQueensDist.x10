@@ -32,7 +32,7 @@ public class NQueensDist {
         this.N=N;
         this.P=P;
         this.results = DistArray.make[Int](Dist.makeUnique(), 0);
-        this.R = 0..(N-1);
+        this.R = Region.makeRectangular(0, N-1);
     }
     def start() {
         new Board().distSearch();

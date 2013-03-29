@@ -25,7 +25,7 @@ public class ArrayAccessWithMismatchingPointRank_MustFailCompile extends x10Test
 
     public def run(): boolean = {
 
-        val e = 1..10;
+        val e = Region.make(1,10);
         val ia = new Array[int](e, (Point)=>0); // will infer ia:Array[int](1)
         val p = [1,1] as Point; // will infer p:Point(2)
 

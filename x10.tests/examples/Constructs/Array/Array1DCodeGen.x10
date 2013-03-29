@@ -32,7 +32,7 @@ public class Array1DCodeGen extends x10Test {
         }
 
         finish ateach ([i,j,k]: Point(3) in b.dist) b(i, j, k) = 0.0;
-        finish ateach ([i,j,k]: Point(3) in a.dist | 0..(n-1)*0..(n-1)*0..(n-1)) plusWrite(b, 0, j, k, a(i, j, k));
+        finish ateach ([i,j,k]: Point(3) in a.dist | Region.make([0..(n-1), 0..(n-1), 0..(n-1)])) plusWrite(b, 0, j, k, a(i, j, k));
 
         return norma;
     }
@@ -50,14 +50,14 @@ public class Array1DCodeGen extends x10Test {
     
     public def run(): boolean = {
 
-        val R = 0..5*0..5*0..5;
+        val R = Region.make([0..5, 0..5, 0..5]);
         val a = DistArray.make[double](Dist.makeConstant(R, here));
         val b = DistArray.make[double](Dist.makeConstant(R, here));
 
         x10.io.Console.OUT.println("runtime type of 3dZeroBasedRect array is " + a.typeName());
 
         val result = matgen(a,b);
-        val S = 0..5*0..5*0..5;
+        val S = Region.make([0..5, 0..5, 0..5]);
         val aa =  DistArray.make[double](Dist.makeConstant(S, here));
         val bb =  DistArray.make[double](Dist.makeConstant(S, here));
         var result1: double = matgen(aa,bb);

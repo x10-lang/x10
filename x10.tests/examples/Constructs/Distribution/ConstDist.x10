@@ -17,7 +17,7 @@ public class ConstDist extends x10Test {
 
     public def run(): boolean = {
     
-        val R = (0..9)*(0..9);
+        val R = Region.make([0..9, 0..9]);
         val D = Dist.makeConstant(R, here);
         val a = DistArray.make[double](Dist.makeConstant(R, here));
         val b = DistArray.make[double](Dist.makeConstant(R, here));

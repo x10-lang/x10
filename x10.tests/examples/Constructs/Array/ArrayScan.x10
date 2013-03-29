@@ -22,7 +22,7 @@ public class ArrayScan extends TestArray {
 
     public def run(): boolean {
 
-        val a = new Array[double](0..N, (p:Point)=>p(0) as double);
+        val a = new Array[double](Region.make(0,N), (p:Point)=>p(0) as double);
         pr("original", a);
 
         val sum = (a:double,b:double) => a+b;

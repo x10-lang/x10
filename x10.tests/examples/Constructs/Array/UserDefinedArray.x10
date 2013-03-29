@@ -21,7 +21,7 @@ import x10.array.*;
 import x10.util.concurrent.Future;
 public class UserDefinedArray extends x10Test {
 
-    static R = 0..1;
+    static R = Region.make(0,1);
     static D = Dist.makeBlock(R, 0);
 
     public def run(): boolean = {

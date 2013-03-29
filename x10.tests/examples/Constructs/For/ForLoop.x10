@@ -23,7 +23,7 @@ public class ForLoop extends x10Test {
 	var nActivities: int = 0;
 
 	public def run(): boolean = {
-		val r = (0..(N-1)) as Region;
+		val r = Region.make(0, N-1);
 		val P0 = here;
 		val d = r->P0;
 

@@ -23,7 +23,7 @@ import x10.array.*;
 public class Transitive extends x10Test {
 	
 	public def run(): boolean = {
-	    val a: Region{rank==2} = (0..10)*(0..10);
+	    val a: Region{rank==2} = Region.make([0..10, 0..10]);
 	    val b: Region{rank==a.rank} = a;
 	    var c: Region{rank==2} = b;
 	    return true;

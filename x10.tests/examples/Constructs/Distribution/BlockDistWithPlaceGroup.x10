@@ -37,12 +37,12 @@ public class BlockDistWithPlaceGroup extends x10Test {
 
     public def run(): boolean = {
         var passed:Boolean = true;
-        for ([tries] in 1..COUNT) {
+        for (tries in 1..COUNT) {
             val lb1: int = ranInt(-L, L);
             val lb2: int = ranInt(-L, L);
             val ub1: int = ranInt(lb1, L);
             val ub2: int = ranInt(lb2, L);
-            val R = (lb1..ub1) * (lb2..ub2);
+            val R = Region.make([lb1..ub1, lb2..ub2]);
             val totalPoints = (ub1-lb1+1)*(ub2-lb2+1);
             val axisPoints = ub1-lb1+1;
             val placeGroup = createRandPlaceGroup();
@@ -54,8 +54,8 @@ public class BlockDistWithPlaceGroup extends x10Test {
             var offsWithinPlace: int = 0;
             var pn: int = 0;
 
-            for ([i] in lb1..ub1) {
-                for ([j] in lb2..ub2) {
+            for (i in lb1..ub1) {
+                for (j in lb2..ub2) {
 	            if (!DBlock(i, j).equals(placeGroup(pn))) {
                         Console.OUT.println("FAIL: ");
                         Console.OUT.println("\tap = " + axisPoints + " lb1 = "+lb1+" ub1 = "+ub1+" lb2 = "+lb2+" ub2 = "+ub2+" totalPoints = "+totalPoints+" p = "+p+" q = "+q);

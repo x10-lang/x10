@@ -17,8 +17,8 @@ public class ArrayPlusEqual extends x10Test {
     val v = new Rail[int](2, 0);
 
     public def run() {
-        for ([i] in 0..1) v(i) += 5;
-        for ([i] in 0..1) chk(v(i) == 5);
+        for (i in 0..1) v(i) += 5;
+        for (i in 0..1) chk(v(i) == 5);
         return true;
     }
 

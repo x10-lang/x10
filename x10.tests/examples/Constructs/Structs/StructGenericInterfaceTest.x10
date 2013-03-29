@@ -24,7 +24,7 @@ struct S58[T] implements (Int,Int)=>T {
 
 public class StructGenericInterfaceTest extends x10Test {
   public def run(): boolean {
-    val r = (1..5)*(1..5);
+    val r = Region.make([1..5, 1..5]);
     val a = new Array[Int](r, (p:Point(2)) => p(0)+p(1));
     val s = S58[Int](a);
 

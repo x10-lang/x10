@@ -20,7 +20,7 @@ public class ArrayConstructor extends x10Test {
 
     public def run(): boolean = {
         val x  = 1.0;
-        val a  = new Array[double](0..5, (Point)=>2.0);
+        val a  = new Array[double](6, 2.0);
         return true;
     }
 

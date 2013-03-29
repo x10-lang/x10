@@ -28,7 +28,7 @@ public class Congruent extends x10Test {
         // do some remote ops
         finish for (p in Place.places()) async at (p) {
             val imc = imcplh()();
-            for ([i] in 0..(elements-1)) {
+            for (i in 0..(elements-1)) {
                 val oracle = Math.sqrt(i as Double) as Long;
                 imc.getCongruentSibling(p.next()).remoteAdd(i, oracle);
             }
@@ -40,7 +40,7 @@ public class Congruent extends x10Test {
         finish for (p in Place.places()) async at (p) {
             var errors:Int = 0;
             val imc = imcplh()();
-            for ([i] in 0..(elements-1)) {
+            for (i in 0..(elements-1)) {
                 val oracle = Math.sqrt(i as Double) as Long;
                 if (imc(i) != oracle) {
                     Console.ERR.println(here+": imc("+i+")=="+imc(i)+" (should be "+oracle+")");

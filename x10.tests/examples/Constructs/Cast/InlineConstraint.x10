@@ -16,7 +16,7 @@ import x10.array.Region;
  */
 public class InlineConstraint extends x10Test {
     public def run()  {
-	val v:Any = (0..5) as Region;
+	val v:Any = Region.make(0,5);
 	var result:boolean=true;
 	val c = v instanceof Region{self.rank==1};
 	if (!c) {

@@ -20,7 +20,7 @@ public class RegionTest2 extends x10Test {
 
     public def run(): boolean = {
 
-        var reg: Region = 0..-1;
+        var reg: Region = Region.make(0, -1);
 
         var sum: int = 0;
         for (val p: Point in reg) sum++;

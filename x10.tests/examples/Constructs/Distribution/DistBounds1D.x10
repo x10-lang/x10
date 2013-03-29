@@ -49,7 +49,7 @@ public class DistBounds1D extends x10Test {
 
         //pr(lb1+" "+ub1+" "+i+" "+distType);
 
-        val a = DistArray.make[int](dist2.getDist(distType, lb1..ub1));
+        val a = DistArray.make[int](dist2.getDist(distType, Region.make(lb1,ub1)));
 
         var withinBounds: boolean = true;
         try {

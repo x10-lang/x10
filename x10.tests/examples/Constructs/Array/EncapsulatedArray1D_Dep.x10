@@ -37,7 +37,7 @@ public class EncapsulatedArray1D_Dep extends x10Test {
     public def run() {
 
         val size: int = 5;
-        val R  = 0..(size-1)*0..(size-1);
+        val R  = Region.make([0..(size-1), 0..(size-1)]);
         val D  = Dist.makeUnique(); 
         val numOfPlaces = Place.MAX_PLACES;
         

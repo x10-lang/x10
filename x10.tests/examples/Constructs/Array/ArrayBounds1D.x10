@@ -49,7 +49,7 @@ public class ArrayBounds1D extends x10Test {
     private static def arrayAccess(var lb1: int, var ub1: int, var i: int): boolean = {
 
         //pr(lb1+" "+ub1+" "+i);
-        var a: Array[int](1) = new Array[int](lb1..ub1, (Point)=>0);
+        var a: Array[int](1) = new Array[int](Region.make(lb1,ub1), (Point)=>0);
         var withinBounds: boolean = true;
 
         try {

@@ -29,7 +29,7 @@ public class DimCheckN4_MustFailCompile extends x10Test {
     }
 
     public def run(): boolean = {
-        m((0..2)*(0..3) -> here);
+        m(Region.make([0..2, 0..3]) -> here);
         return true;
     }
 

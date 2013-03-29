@@ -25,7 +25,7 @@ public class ArrayReduce extends TestArray {
     public def run(): boolean {
 	chk(Place.numPlaces() == 4, "This test must be run with 4 places");
 
-        val dist = Dist.makeBlock(0..N);
+        val dist = Dist.makeBlock(Region.make(0,N));
         prDist("dist", dist);
 
         pr("--- original");

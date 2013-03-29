@@ -14,8 +14,8 @@ import harness.x10Test;
 /**
  * Test that creating an array of clocks will not work -- you need to
  * do the following instead:
-	    val clocks = Array.make[Clock](0..5, (point)=>null);
-	    for ((i) in 0..5) clocks(i) = Clock.make();
+	    val clocks = Array.make[Clock](6, null);
+	    for (i in 0..5) clocks(i) = Clock.make();
 
  * @author Tong Wen 7/2006
  * 9/23/2010

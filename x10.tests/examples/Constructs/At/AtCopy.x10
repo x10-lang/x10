@@ -26,7 +26,7 @@ public class AtCopy extends x10Test {
         var passed:Boolean = true;
 
         var h:Link = null;
-        for ([i] in 1..10) {
+        for (i in 1..10) {
              h = new Link(11-i, h);
         }
 	val head = h;

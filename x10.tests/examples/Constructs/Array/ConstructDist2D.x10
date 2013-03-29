@@ -18,7 +18,7 @@ import x10.array.*;
 public class ConstructDist2D extends x10Test {
 
     public def run(): boolean = {
-        val e = 1..10;
+        val e = Region.make(1,10);
         val r = e*e;
         val d= Dist.makeConstant(r, here);
         return d.equals(Dist.makeConstant(e*e, here));

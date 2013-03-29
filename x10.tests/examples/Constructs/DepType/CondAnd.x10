@@ -20,8 +20,8 @@ public class CondAnd extends x10Test {
    
    
 	public def run(): boolean = {
-	   val r1 = 0..100;
-	   val r2 = 2..99;
+	   val r1 = Region.make(0, 100);
+	   val r2 = Region.make(2, 99);
 	   val r3 = r1 && r2;
 	   return true;
 	}

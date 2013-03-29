@@ -20,7 +20,7 @@ public class RegionTestIterator extends x10Test {
 
     public def run(): boolean = {
 
-        val r = 0..100;
+        val r = Region.make(0, 100);
         val reg = r*r;
 
         var sum:int = 0;

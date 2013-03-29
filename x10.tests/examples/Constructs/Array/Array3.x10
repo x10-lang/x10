@@ -21,7 +21,7 @@ public class Array3 extends x10Test {
 
     public def run(): boolean = {
     
-        val r = (1..10)*(1..10);
+        val r = Region.make([1..10, 1..10]);
         val ia = new Array[int](r, (x:Point)=>0);
 
         ia(1, 1) = 42;

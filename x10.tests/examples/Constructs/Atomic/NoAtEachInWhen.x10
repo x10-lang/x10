@@ -23,7 +23,7 @@ public class NoAtEachInWhen extends x10Test {
 			b=true;
 			try { 
 		      when (b==true) 
-		        ateach (p in 1..10 -> here) 
+		        ateach (p in Region.make(1,10) -> here) 
 		           Console.OUT.println("Cannot reach this point.");
 			} catch (IllegalOperationException) {
 				return true;

@@ -21,15 +21,14 @@ public class Array1c extends x10Test {
 
     public def run(): boolean = {
 
-        val e  = 1..10;
+        val e  = Region.make(1,10);
         val r = e*e;
 
-        chk(r.equals((1..10)*(1..10)));
+        chk(r.equals(Region.make([1..10, 1..10])));
 
         val d = Dist.makeConstant(r, here);
-        //final dist d = [1:10,1:10]->here;
 
-        chk(d.equals(Dist.makeConstant((1..10)*(1..10), here)));
+        chk(d.equals(Dist.makeConstant(Region.make([1..10,1..10]), here)));
         chk(d.equals(Dist.makeConstant(e*e, here)));
         chk(d.equals(Dist.makeConstant(r, here)));
 

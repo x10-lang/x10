@@ -19,8 +19,8 @@ public class ArrayStaticPlusEqual extends x10Test {
     public def run() {
 	    at (v) {
 	    	val myV = (v as GlobalRef[Rail[int]]{self.home==here})();
-            for ([i]:Point(1) in 0..1) myV(i) += 5;
-            for ([i]:Point(1) in 0..1) chk(myV(i) == 5);
+            for (i in 0..1) myV(i) += 5;
+            for (i in 0..1) chk(myV(i) == 5);
         }
         return true;
     }

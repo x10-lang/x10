@@ -25,7 +25,7 @@ public class ClockTest4 extends x10Test {
 	public def run(): boolean = {
 		val c: Clock = Clock.make();
 
-		for  ([i] in 1..(N-1)) async clocked(c) {
+		for  (i in 1..(N-1)) async clocked(c) {
 			foreachBody(i, c);
 		}
 		foreachBody(0, c);

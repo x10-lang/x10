@@ -18,7 +18,7 @@ import x10.array.*;
 public class Array3Byte extends x10Test {
 
     public def run(): boolean = {
-        val r  = (1..10)*(1..10);
+        val r  = Region.make([1..10, 1..10]);
         val ia  = new Array[Byte](r, (x:Point)=>(0 as Byte));
     
         ia(1, 1) = 42 as Byte;

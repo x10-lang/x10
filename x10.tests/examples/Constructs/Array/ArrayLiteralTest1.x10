@@ -15,12 +15,10 @@ import x10.array.*;
 /**
  * Array Literal test. Same as ArrayLiteralTest except that the declared type of the array is more precise.
  */
-
 public class ArrayLiteralTest1 extends x10Test {
 
     public def run(): boolean = {
 
-        val e = 0..9;
         val r = [1, 2, 3];
         val a = [1 as Int{self!=0},2 as Int{self!=0},3 as Int{self!=0}];
         var sumr:int=0;

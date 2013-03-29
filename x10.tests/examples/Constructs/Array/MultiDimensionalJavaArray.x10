@@ -23,8 +23,8 @@ public class MultiDimensionalJavaArray extends x10Test {
     static PI = Math.PI;
 
     public def run(): boolean = {
-        val MIN = 0..99;
-        val MAJ = 0..9;
+        val MIN = Region.make(0,99);
+        val MAJ = Region.make(0,9);
         val a = new Array[Array[Double](1)](MIN, (Point) => new Array[Double](MAJ));
 
         for (val [i,j]: Point(2) in MIN*MAJ)

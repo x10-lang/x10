@@ -18,7 +18,7 @@ import x10.array.Region;
  */
 public class Block extends x10Test {
     public def run(): boolean = {
-        var r: Region(1) = 0..9;
+        var r: Region(1) = Region.makeRectangular(0,9);
         var d: Dist(1) = Dist.makeBlock(r, 0);
         return true;
     }
