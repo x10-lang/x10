@@ -14,7 +14,7 @@ package x10.lang;
 import x10.compiler.Native;
 import x10.compiler.NativeRep;
 import x10.util.Ordered;
-import x10.util.ArrayList;
+import x10.util.GrowableRail;
 
 /**
  * The String class represents character strings.
@@ -570,7 +570,7 @@ class StringHelper {
         if (delim.equals("")) {
             return new Rail[String](str.length(), (i:long)=>str.substring(i as int, (i+1) as int));
         }
-        val ans = new ArrayList[String]();
+        val ans = new GrowableRail[String]();
         var pos:int = 0;
         var nextMatch:int = str.indexOf(delim, pos);
         while (nextMatch != -1) {

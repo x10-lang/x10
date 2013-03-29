@@ -15,7 +15,6 @@ import x10.compiler.Native;
 import x10.compiler.NativeCPPInclude;
 
 import x10.io.Console;
-import x10.util.HashMap;
 import x10.util.Map;
 import x10.util.Timer;
 import x10.util.Pair;
