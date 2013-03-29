@@ -14,7 +14,6 @@ package x10.lang;
 import x10.compiler.*;
 
 import x10.util.HashMap;
-import x10.util.IndexedMemoryChunk;
 import x10.util.Pair;
 import x10.util.Stack;
 
@@ -339,8 +338,8 @@ abstract class FinishState {
         @Embed protected transient var latch:SimpleLatch;
         protected var count:Int = 1;
         protected var exceptions:Stack[Exception]; // lazily initialized
-        protected var counts:IndexedMemoryChunk[Int];
-//        protected var seen:IndexedMemoryChunk[Boolean];
+        protected var counts:Rail[Int];
+//        protected var seen:Rail[Boolean];
         def this() {
             latch = @Embed new SimpleLatch();
         }
@@ -355,9 +354,9 @@ abstract class FinishState {
                 latch.unlock();
                 return;
             }
-            if (counts.length() == 0) {
-                counts = IndexedMemoryChunk.allocateZeroed[Int](Place.MAX_PLACES);
-//                seen = IndexedMemoryChunk.allocateZeroed[Boolean](Place.MAX_PLACES);
+            if (counts == null || counts.size == 0L) {
+                counts = new Rail[Int](Place.MAX_PLACES);
+//                seen = new Rail[Boolean](Place.MAX_PLACES);
             }
             counts(p.id)++;
             latch.unlock();
@@ -368,7 +367,7 @@ abstract class FinishState {
                 latch.unlock();
                 return;
             }
-            if (counts.length() != 0) {
+            if (counts != null && counts.size != 0L) {
                 for(var i:Int=0; i<Place.MAX_PLACES; i++) {
                     if (counts(i) != 0) {
                         latch.unlock();
@@ -390,12 +389,12 @@ abstract class FinishState {
         }
         public def waitForFinish():void {
             notifyActivityTermination();
-            if ((!Runtime.STRICT_FINISH) && (Runtime.STATIC_THREADS || (counts.length() == 0))) {
+            if ((!Runtime.STRICT_FINISH) && (Runtime.STATIC_THREADS || (counts == null || counts.size == 0L))) {
                 Runtime.worker().join(latch);
             }
             latch.await();
             /*
-            if (counts.length() != 0) {
+            if (counts != null && counts.size != 0L) {
                 val root = ref();
                 val closure = ()=>@RemoteInvocation { Runtime.finishStates.remove(root); };
                 seen(Runtime.hereInt()) = false;
@@ -409,11 +408,11 @@ abstract class FinishState {
             if (null != t) throw t;
         }
 
-        protected def process(rail:IndexedMemoryChunk[Int]) {
+        protected def process(rail:Rail[Int]) {
             counts(ref().home.id) = -rail(ref().home.id);
             count += rail(ref().home.id);
             var b:Boolean = count == 0;
-            for(var i:Int=0; i<Place.MAX_PLACES; i++) {
+            for(var i:Long=0; i<Place.MAX_PLACES; i++) {
                 counts(i) += rail(i);
 //                seen(i) |= counts(i) != 0;
                 if (counts(i) != 0) b = false;
@@ -421,15 +420,15 @@ abstract class FinishState {
             if (b) latch.release();
         }
 
-        def notify(rail:IndexedMemoryChunk[Int]):void {
+        def notify(rail:Rail[Int]):void {
             latch.lock();
             process(rail);
             latch.unlock();
         }
 
-        protected def process(rail:IndexedMemoryChunk[Pair[Int,Int]]):void {
-            for(var i:Int=0; i<rail.length(); i++) {
-                counts(rail(i).first) += rail(i).second;
+        protected def process(rail:Rail[Pair[Int,Int]]):void {
+            for(var i:long=0; i<rail.size; i++) {
+                counts(rail(i).first as long) += rail(i).second;
 //                seen(rail(i).first) = true;
             }
             count += counts(ref().home.id);
@@ -441,20 +440,20 @@ abstract class FinishState {
             latch.release();
         }
 
-        def notify(rail:IndexedMemoryChunk[Pair[Int,Int]]):void {
+        def notify(rail:Rail[Pair[Int,Int]]):void {
             latch.lock();
             process(rail);
             latch.unlock();
         }
 
-        def notify(rail:IndexedMemoryChunk[Int], t:Exception):void {
+        def notify(rail:Rail[Int], t:Exception):void {
             latch.lock();
             process(t);
             process(rail);
             latch.unlock();
         }
 
-        def notify(rail:IndexedMemoryChunk[Pair[Int,Int]], t:Exception):void {
+        def notify(rail:Rail[Pair[Int,Int]], t:Exception):void {
             latch.lock();
             process(t);
             process(rail);
@@ -468,8 +467,8 @@ abstract class FinishState {
         protected var exceptions:Stack[Exception];
         @Embed protected transient var lock:Lock = @Embed new Lock();
         protected var count:Int = 0;
-        protected var counts:IndexedMemoryChunk[Int];
-        protected var places:IndexedMemoryChunk[Int];
+        protected var counts:Rail[Int];
+        protected var places:Rail[Int];
         protected var length:Int = 1;
         @Embed protected val local = @Embed new AtomicInteger(0);
         def this(ref:GlobalRef[FinishState]) {
@@ -486,9 +485,9 @@ abstract class FinishState {
                 lock.unlock();
                 return;
             }
-            if (counts.length() == 0) {
-                counts = IndexedMemoryChunk.allocateZeroed[Int](Place.MAX_PLACES);
-                places = IndexedMemoryChunk.allocateZeroed[Int](Place.MAX_PLACES);
+            if (counts == null || counts.size == 0L) {
+                counts = new Rail[Int](Place.MAX_PLACES);
+                places = new Rail[Int](Place.MAX_PLACES);
                 places(0) = id;
             }
             val old = counts(place.id);
@@ -514,18 +513,18 @@ abstract class FinishState {
             val t = MultipleExceptions.make(exceptions);
             val ref = this.ref();
             val closure:()=>void;
-            if (counts.length() != 0) {
+            if (counts != null && counts.size != 0L) {
                 counts(Runtime.hereInt()) = count;
                 if (2*length > Place.MAX_PLACES) {
-                    val message = IndexedMemoryChunk.allocateUninitialized[Int](counts.length());
-                    IndexedMemoryChunk.copy(counts, 0, message, 0, counts.length());
+                    val message = Unsafe.allocRailUninitialized[Int](counts.size);
+                    Rail.copy(counts, 0L, message, 0L, counts.size);
                     if (null != t) {
                         closure = ()=>@RemoteInvocation("notifyActivityTermination_1") { deref[RootFinish](ref).notify(message, t); };
                     } else {
                         closure = ()=>@RemoteInvocation("notifyActivityTermination_2") { deref[RootFinish](ref).notify(message); };
                     }
                 } else {
-                    val message = IndexedMemoryChunk.allocateUninitialized[Pair[Int,Int]](length);
+                    val message = Unsafe.allocRailUninitialized[Pair[Int,Int]](length);
                     for (i in 0..(length-1)) {
                         message(i) = Pair[Int,Int](places(i), counts(places(i)));
                     }
@@ -535,10 +534,10 @@ abstract class FinishState {
                         closure = ()=>@RemoteInvocation("notifyActivityTermination_4") { deref[RootFinish](ref).notify(message); };
                     }
                 }
-                counts.clear(0, counts.length());
+                counts.clear(0, counts.size);
                 length = 1;
             } else {
-                val message = IndexedMemoryChunk.allocateUninitialized[Pair[Int,Int]](1);
+                val message = Unsafe.allocRailUninitialized[Pair[Int,Int]](1);
                 message(0) = Pair[Int,Int](Runtime.hereInt(), count);
                 if (null != t) {
                     closure = ()=>@RemoteInvocation("notifyActivityTermination_5") { deref[RootFinish](ref).notify(message, t); };
@@ -583,8 +582,8 @@ abstract class FinishState {
         protected var exceptions:Stack[Exception];
         @Embed protected transient var lock:Lock = @Embed new Lock();
         protected var count:Int = 0;
-        protected var counts:IndexedMemoryChunk[Int];
-        protected var places:IndexedMemoryChunk[Int];
+        protected var counts:Rail[Int];
+        protected var places:Rail[Int];
         protected var length:Int = 1;
         @Embed protected val local = @Embed new AtomicInteger(0);
         def this(ref:GlobalRef[FinishState]) {
@@ -601,9 +600,9 @@ abstract class FinishState {
                 lock.unlock();
                 return;
             }
-            if (counts.length() == 0) {
-                counts = IndexedMemoryChunk.allocateZeroed[Int](Place.MAX_PLACES);
-                places = IndexedMemoryChunk.allocateZeroed[Int](Place.MAX_PLACES);
+            if (counts == null || counts.size == 0L) {
+                counts = new Rail[Int](Place.MAX_PLACES);
+                places = new Rail[Int](Place.MAX_PLACES);
                 places(0) = id;
             }
             val old = counts(place.id);
@@ -629,18 +628,18 @@ abstract class FinishState {
             val t = MultipleExceptions.make(exceptions);
             val ref = this.ref();
             val closure:()=>void;
-            if (counts.length() != 0) {
+            if (counts != null && counts.size != 0L) {
                 counts(Runtime.hereInt()) = count;
                 if (2*length > Place.MAX_PLACES) {
-                    val message = IndexedMemoryChunk.allocateUninitialized[Int](counts.length());
-                    IndexedMemoryChunk.copy(counts, 0, message, 0, counts.length());
+                    val message = Unsafe.allocRailUninitialized[Int](counts.size);
+                    Rail.copy(counts, 0L, message, 0L, counts.size);
                     if (null != t) {
                         closure = ()=>@RemoteInvocation("notifyActivityTermination_1") { deref[RootFinish](ref).notify(message, t); };
                     } else {
                         closure = ()=>@RemoteInvocation("notifyActivityTermination_2") { deref[RootFinish](ref).notify(message); };
                     }
                 } else {
-                    val message = IndexedMemoryChunk.allocateUninitialized[Pair[Int,Int]](length);
+                    val message = Unsafe.allocRailUninitialized[Pair[Int,Int]](length);
                     for (i in 0..(length-1)) {
                         message(i) = Pair[Int,Int](places(i), counts(places(i)));
                     }
@@ -650,10 +649,10 @@ abstract class FinishState {
                         closure = ()=>@RemoteInvocation("notifyActivityTermination_4") { deref[RootFinish](ref).notify(message); };
                     }
                 }
-                counts.clear(0, counts.length());
+                counts.clear(0, counts.size);
                 length = 1;
             } else {
-                val message = IndexedMemoryChunk.allocateUninitialized[Pair[Int,Int]](1);
+                val message = Unsafe.allocRailUninitialized[Pair[Int,Int]](1);
                 message(0) = Pair[Int,Int](Runtime.hereInt(), count);
                 if (null != t) {
                     closure = ()=>@RemoteInvocation("notifyActivityTermination_5") { deref[RootFinish](ref).notify(message, t); };
@@ -680,14 +679,14 @@ abstract class FinishState {
     static class StatefulReducer[T] {
         val reducer:Reducible[T];
         var result:T;
-        var resultRail:IndexedMemoryChunk[T];
-        var workerFlag:IndexedMemoryChunk[Boolean] = IndexedMemoryChunk.allocateZeroed[Boolean](Runtime.MAX_THREADS);
+        var resultRail:Rail[T];
+        var workerFlag:Rail[Boolean] = new Rail[Boolean](Runtime.MAX_THREADS);
         def this(r:Reducible[T]) {
             reducer = r;
             val zero = reducer.zero();
             result = zero;
-            resultRail = IndexedMemoryChunk.allocateUninitialized[T](Runtime.MAX_THREADS);
-            for (i in 0..(resultRail.length()-1)) {
+            resultRail = Unsafe.allocRailUninitialized[T](Runtime.MAX_THREADS);
+            for (i in 0L..(resultRail.size-1L)) {
                 resultRail(i) = zero;
             }
         }
@@ -749,13 +748,13 @@ abstract class FinishState {
         public def accept(t:T, id:Int) {
            sr.accept(t, id);
         }
-        def notifyValue(rail:IndexedMemoryChunk[Int], v:T):void {
+        def notifyValue(rail:Rail[Int], v:T):void {
             latch.lock();
             sr.accept(v);
             process(rail);
             latch.unlock();
         }
-        def notifyValue(rail:IndexedMemoryChunk[Pair[Int,Int]], v:T):void {
+        def notifyValue(rail:Rail[Pair[Int,Int]], v:T):void {
             latch.lock();
             sr.accept(v);
             process(rail);
@@ -792,18 +791,18 @@ abstract class FinishState {
             sr.placeMerge();
             val result = sr.result();
             sr.reset();
-            if (counts.length() != 0) {
+            if (counts != null && counts.size != 0L) {
                 counts(Runtime.hereInt()) = count;
                 if (2*length > Place.MAX_PLACES) {
-                    val message = IndexedMemoryChunk.allocateUninitialized[Int](counts.length());
-                    IndexedMemoryChunk.copy(counts, 0, message, 0, counts.length());
+                    val message = Unsafe.allocRailUninitialized[Int](counts.size);
+                    Rail.copy(counts, 0L, message, 0L, counts.size);
                     if (null != t) {
                         closure = ()=>@RemoteInvocation("notifyActivityTermination_1") { deref[RootCollectingFinish[T]](ref).notify(message, t); };
                     } else {
                         closure = ()=>@RemoteInvocation("notifyActivityTermination_2") { deref[RootCollectingFinish[T]](ref).notifyValue(message, result); };
                     }
                 } else {
-                    val message = IndexedMemoryChunk.allocateUninitialized[Pair[Int,Int]](length);
+                    val message = Unsafe.allocRailUninitialized[Pair[Int,Int]](length);
                     for (i in 0..(length-1)) {
                         message(i) = Pair[Int,Int](places(i), counts(places(i)));
                     }
@@ -813,10 +812,10 @@ abstract class FinishState {
                         closure = ()=>@RemoteInvocation("notifyActivityTermination_4") { deref[RootCollectingFinish[T]](ref).notifyValue(message, result); };
                     }
                 }
-                counts.clear(0, counts.length());
+                counts.clear(0, counts.size);
                 length = 1;
             } else {
-                val message = IndexedMemoryChunk.allocateUninitialized[Pair[Int,Int]](1);
+                val message = Unsafe.allocRailUninitialized[Pair[Int,Int]](1);
                 message(0) = Pair[Int,Int](Runtime.hereInt(), count);
                 if (null != t) {
                     closure = ()=>@RemoteInvocation("notifyActivityTermination_5") { deref[RootCollectingFinish[T]](ref).notify(message, t); };
