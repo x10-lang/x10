@@ -12,7 +12,7 @@
 package x10.util;
 
 import x10.util.HashMap;
-import x10.util.GrowableIndexedMemoryChunk;
+import x10.util.GrowableRail;
 import x10.util.StringBuilder;
 
 /**
@@ -31,12 +31,12 @@ public final class OptionsParser {
     private val set : HashMap[String,Boolean];
     private val flags : Rail[Option];
     private val specs : Rail[Option];
-    private val filteredArgs : GrowableIndexedMemoryChunk[String];
+    private val filteredArgs : GrowableRail[String];
 
     public def this (args:Rail[String], flags:Rail[Option], specs:Rail[Option]) { //throws Err {
         val map = new HashMap[String,String]();
         val set = new HashMap[String,Boolean]();
-        val filteredArgs = new GrowableIndexedMemoryChunk[String]();
+        val filteredArgs = new GrowableRail[String]();
         var offset:Int = 0;
         var ended:Boolean = false;
         for (var i:Int=0 ; i<args.size; ++i) {

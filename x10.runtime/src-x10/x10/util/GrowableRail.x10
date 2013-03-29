@@ -30,6 +30,8 @@ import x10.io.SerialData;
 public final class GrowableRail[T] implements CustomSerialization {
     private var data:Rail[T];
 
+    def rail() = data; // for use by ArrayList and other classes in util package
+
    /**
     * Elements 0..size-1 have valid entries of type T.
     * Elements size..data.size-1 may not be valid values of type T.  
