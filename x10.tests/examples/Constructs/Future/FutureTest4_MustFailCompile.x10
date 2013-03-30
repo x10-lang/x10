@@ -28,7 +28,7 @@ public class FutureTest4_MustFailCompile extends x10Test {
 	 * testing free variables in future expression
 	 */
 	public def run(): boolean = {
-		val A = DistArray.make[int](Dist.makeBlock(Region.make([0..(N-1), 0..(N-1)]),
+		val A = DistArray.make[int](Dist.makeBlock(Region.make(0..(N-1), 0..(N-1)),
 		  ([i,j]: Point): int =>  N*i+j);
 		var x: int=0;
 		var s: int=0;

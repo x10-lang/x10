@@ -19,8 +19,8 @@ import x10.array.*;
  */
 public class PropertyPropagationTest extends x10Test {
     public def run(): boolean = {
-        val R = Region.make([1..10, 1..10]);
-        val R2 = Region.make([1..101, 1..101]);
+        val R = Region.make(1..10, 1..10);
+        val R2 = Region.make(1..101, 1..101);
         val D = Dist.makeBlock(R);
         val E = Dist.makeBlock(R2);
         // val F = D || E; removed because || removed on Dist.

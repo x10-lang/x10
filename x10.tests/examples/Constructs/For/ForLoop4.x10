@@ -26,7 +26,7 @@ public class ForLoop4 extends x10Test {
 		//Ensure iterator works in lexicographic order
 		var n: int = 0;
 		var prev: Box[Point] = null;
-		for (p in Region.make([0..(N-1), 0..(N-1), 0..(N-1)])->here) {
+		for (p in Region.make(0..(N-1), 0..(N-1), 0..(N-1))->here) {
 			if (!successor(prev, p)) return false;
 			prev = new Box[Point](p);
 			n++;

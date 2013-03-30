@@ -34,7 +34,7 @@ public class ReferenceConsistencyCheck(R: Region{rank==2, zeroBased, rect},
     public static def main(Rail[String]) = {
 //        set up a test problem
         val size=10;
-        val R:Region{rank==2&&zeroBased&&rect} = Region.make([0..(size-1), 0..(size-1)]);
+        val R:Region{rank==2&&zeroBased&&rect} = Region.make(0..(size-1), 0..(size-1));
         val D:Dist{region==R} = Dist.makeBlock(R);
         val A:DistArray[double]{dist==D} = 
                DistArray.make[double](D, ([i,j]:Point) => 

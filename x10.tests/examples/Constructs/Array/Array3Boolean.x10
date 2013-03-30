@@ -18,7 +18,7 @@ import x10.array.*;
 public class Array3Boolean extends x10Test {
 
     public def run(): boolean = {
-        val r= Region.make([1..10, 1..10]);
+        val r= Region.make(1..10, 1..10);
         val ia = new Array[Boolean](r, (x:Point)=>false);
         ia(1, 1) = true;
         return ia(1, 1);

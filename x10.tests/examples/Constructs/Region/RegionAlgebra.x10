@@ -19,9 +19,9 @@ import x10.array.*;
  */
 public class RegionAlgebra extends x10Test {
     public def run(): boolean = {
-        val R1: Region(2) = Region.make([0..1, 0..7]);
-        val R2: Region(2) = Region.make([4..5, 0..7]);
-        val R3: Region(2) = Region.make([0..7, 4..5]);
+        val R1: Region(2) = Region.make(0..1, 0..7);
+        val R2: Region(2) = Region.make(4..5, 0..7);
+        val R3: Region(2) = Region.make(0..7, 4..5);
 
         chk(R1.disjoint(R2));
 
@@ -46,12 +46,12 @@ public class RegionAlgebra extends x10Test {
         val R1_1 = R1.eliminate(0);
         chk(R1_1.equals(Region.make(0, 7)));
 
-        val R4 = Region.make([0..1, 0..2, 0..3, 0..4]);
+        val R4 = Region.make(0..1, 0..2, 0..3, 0..4);
         val R4_e2 = R4.eliminate(2);
-        chk(R4_e2.equals(Region.make([0..1, 0..2, 0..4])));
+        chk(R4_e2.equals(Region.make(0..1, 0..2, 0..4)));
 
         val R5 = R1.translate(Point.make(1,1));
-        chk(R5.equals(Region.make([1..2, 1..8])));
+        chk(R5.equals(Region.make(1..2, 1..8)));
 
         return true;
     }

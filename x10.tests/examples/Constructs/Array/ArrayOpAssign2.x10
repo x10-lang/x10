@@ -24,7 +24,7 @@ public class ArrayOpAssign2 extends x10Test {
 
     public def run(): boolean = {
 
-        val R = Region.make([1..10, 1..10]);
+        val R = Region.make(1..10, 1..10);
         var ia: Array[int](2) = new Array[int](R, (Point)=>0);
 
         ia(i, j) = 1;

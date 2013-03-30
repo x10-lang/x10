@@ -57,7 +57,7 @@ public class ArrayBounds3D extends x10Test {
     private static def arrayAccess(var lb1: int, var ub1: int, var lb2: int, var ub2: int, var lb3: int, var ub3: int, var i: int, var j: int, var k: int): boolean = {
 
         //pr(lb1+" "+ub1+" "+lb2+" "+ub2+" "+lb3+" "+ub3+" "+i+" "+j+" "+k);
-        var a: Array[int](3) = new Array[int](Region.make([lb1..ub1, lb2..ub2, lb3..ub3]), (Point)=>0);
+        var a: Array[int](3) = new Array[int](Region.make(lb1..ub1, lb2..ub2, lb3..ub3), (Point)=>0);
         var withinBounds: boolean = true;
 
         try {

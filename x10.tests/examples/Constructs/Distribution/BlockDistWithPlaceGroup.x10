@@ -42,7 +42,7 @@ public class BlockDistWithPlaceGroup extends x10Test {
             val lb2: int = ranInt(-L, L);
             val ub1: int = ranInt(lb1, L);
             val ub2: int = ranInt(lb2, L);
-            val R = Region.make([lb1..ub1, lb2..ub2]);
+            val R = Region.make(lb1..ub1, lb2..ub2);
             val totalPoints = (ub1-lb1+1)*(ub2-lb2+1);
             val axisPoints = ub1-lb1+1;
             val placeGroup = createRandPlaceGroup();

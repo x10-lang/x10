@@ -23,7 +23,7 @@ public class Array2v extends x10Test {
         val e = Region.make(0,9);
         val r = e*e*e;
 
-        chk(r.equals(Region.make([0..9, 0..9, 0..9])));
+        chk(r.equals(Region.make(0..9, 0..9, 0..9)));
 
         val ia = new Array[int](r, (Point)=>0);
 

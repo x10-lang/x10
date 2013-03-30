@@ -21,8 +21,8 @@ public class StencilFor2D extends x10Test {
     
     public def run(): boolean = {
 
-        val R = Region.make([-1..256, -1..256]);
-        val r = Region.make([0..255, 0..255]);
+        val R = Region.make(-1..256, -1..256);
+        val r = Region.make(0..255, 0..255);
         val north : Point(2) = [0, 1];
         val south : Point(2) = [0, -1];
         val west : Point(2) = [-1, 0];

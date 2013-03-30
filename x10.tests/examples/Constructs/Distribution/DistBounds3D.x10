@@ -57,7 +57,7 @@ public class DistBounds3D extends x10Test {
         //pr(lb1+" "+ub1+" "+lb2+" "+ub2+" "+lb3+" "+ub3+" "+i+" "+j+" "+k+" "+ distType);
 
         // XTENLANG-192
-        val a = DistArray.make[int](dist2.getDist(distType, Region.make([lb1..ub1, lb2..ub2, lb3..ub3])));
+        val a = DistArray.make[int](dist2.getDist(distType, Region.make(lb1..ub1, lb2..ub2, lb3..ub3)));
 
         var withinBounds: boolean = true;
         try {

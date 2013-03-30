@@ -27,9 +27,9 @@ public class DimCheck_MustFailCompile extends x10Test {
         // If  the type does not specify a constraint on the arity of the underlying region
         // then the initializer cannot specify the arity of the point. Otherwise the arity of the
         // point must be the same as the arity of the distribution.
-        var a1: DistArray[int] = DistArray.make[int](Dist.makeConstant(Region.make([0..2, 0..3]), here), ([i]:Point(3))=> i); // ERR ERR ([Semantic Error: The rank of the exploded Point is 3 but it should be 1, Semantic Error: Method make[T](dist: x10.array.Dist, init: (a1:x10.array.Point{self.x10.array.Point#rank==dist.x10.array.Dist#region.x10.array.Region#rank})=> T): x10.array.DistArray[T]{self.x10.array.DistArray#dist==dist, self!=null} in x10.array.DistArray cannot be called with arguments [x10.lang.Int](x10.array.Dist{self.x10.array.Dist#region.x10.array.Region#rank==2, self.x10.array.Dist#region.x10.array.Region#rect==true, self.x10.array.Dist#region.x10.array.Region#zeroBased==true}, <anonymous class>);    Invalid Parameter.)
-        var a2: DistArray[int] = DistArray.make[int](Dist.makeConstant(Region.make([0..2, 0..3]), here), ([i]:Point)=> i); // ERR
-        var a3: DistArray[int] = DistArray.make[int](Dist.makeConstant(Region.make([0..2, 0..3]), here), ([i]:Point(2))=> i); // ERR: Semantic Error: The rank of the exploded Point is 2 but it should be 1
+        var a1: DistArray[int] = DistArray.make[int](Dist.makeConstant(Region.make(0..2, 0..3), here), ([i]:Point(3))=> i); // ERR ERR ([Semantic Error: The rank of the exploded Point is 3 but it should be 1, Semantic Error: Method make[T](dist: x10.array.Dist, init: (a1:x10.array.Point{self.x10.array.Point#rank==dist.x10.array.Dist#region.x10.array.Region#rank})=> T): x10.array.DistArray[T]{self.x10.array.DistArray#dist==dist, self!=null} in x10.array.DistArray cannot be called with arguments [x10.lang.Int](x10.array.Dist{self.x10.array.Dist#region.x10.array.Region#rank==2, self.x10.array.Dist#region.x10.array.Region#rect==true, self.x10.array.Dist#region.x10.array.Region#zeroBased==true}, <anonymous class>);    Invalid Parameter.)
+        var a2: DistArray[int] = DistArray.make[int](Dist.makeConstant(Region.make(0..2, 0..3), here), ([i]:Point)=> i); // ERR
+        var a3: DistArray[int] = DistArray.make[int](Dist.makeConstant(Region.make(0..2, 0..3), here), ([i]:Point(2))=> i); // ERR: Semantic Error: The rank of the exploded Point is 2 but it should be 1
         x10.io.Console.OUT.println(a1);
         return true;
     }

@@ -25,7 +25,7 @@ public class DimCheckN2 extends x10Test {
     }
 
     public def run(): boolean = {
-        val r  = Region.make([0..2, 0..3]);
+        val r  = Region.make(0..2, 0..3);
         m(r);
         return true;
     }
