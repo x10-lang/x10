@@ -270,7 +270,7 @@ chk_blas	:
 			mkdir -p $(build_path)/x10/matrix/blas 
 
 wrap_blas.o	: wrap_blas.c
-			g++ -c -v -fPIC $< -o $@
+			g++ -c -v -fPIC -DENABLE_BLAS $< -o $@
 
 jni_blas.o 	: jni_blas.c
 			g++ -I $(JNI_inc) -c -v -fPIC $< -o $@
