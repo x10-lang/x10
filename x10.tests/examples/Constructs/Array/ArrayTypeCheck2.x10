@@ -22,7 +22,7 @@ public class ArrayTypeCheck2 extends x10Test {
 
         val two = 2;
         
-        var a1: Array[int](two) = new Array[int](Region.make([0..2, 0..3]), ([i,j]: Point)=> i);
+        var a1: Array[int](two) = new Array[int](Region.make(0..2, 0..3), ([i,j]: Point)=> i);
         
         return true;
     }

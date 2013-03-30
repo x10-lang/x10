@@ -20,9 +20,9 @@ public class IntValueArrayInitializerShorthand extends x10Test {
 
     public def run(): boolean = {
 
-        val ia = new Array[int](Region.make([1..10, 1..10]), ([i,j]:Point) => i+j);
+        val ia = new Array[int](Region.make(1..10, 1..10), ([i,j]:Point) => i+j);
 
-        for (p[i,j]:Point(2) in Region.make([1..10, 1..10])) chk(ia(p) == i+j);
+        for (p[i,j]:Point(2) in Region.make(1..10, 1..10)) chk(ia(p) == i+j);
 
         return true;
     }

@@ -22,7 +22,7 @@ import x10.array.*;
 public class DimCheckN extends x10Test {
 
     public def run(): boolean = {
-        val a1  = new Array[int](Region.make([0..2, 0..3]), ([i,j]: Point) => i);
+        val a1  = new Array[int](Region.make(0..2, 0..3), ([i,j]: Point) => i);
         return true;
     }
     

@@ -25,7 +25,7 @@ public class FlattenInVoid extends x10Test {
     var a: Array[int](2);
 
     public def this(): FlattenInVoid = {
-        a = new Array[int](Region.make([1..10, 1..10]), (var p[i,j]: Point): int => { return i+j;});
+        a = new Array[int](Region.make(1..10, 1..10), (var p[i,j]: Point): int => { return i+j;});
     }
 
     def m(x: int): boolean =  true;

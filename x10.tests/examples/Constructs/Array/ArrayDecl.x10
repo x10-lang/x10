@@ -46,8 +46,8 @@ public class ArrayDecl extends x10Test {
         for (val [i]: Point in data1.region) chk(data1(i) == (i as Double));
 
         val myStr: String = "abcdefghijklmnop";
-        val data2 = DistArray.make[char](Dist.makeConstant(Region.make([1..2,1..3]), here), ([i,j]: Point)=> myStr.charAt(i*j));
-        chk(data2.dist.equals(Dist.makeConstant(Region.make([1..2,1..3]), here)));
+        val data2 = DistArray.make[char](Dist.makeConstant(Region.make(1..2,1..3), here), ([i,j]: Point)=> myStr.charAt(i*j));
+        chk(data2.dist.equals(Dist.makeConstant(Region.make(1..2,1..3), here)));
         for (val [i,j]: Point in data2.region) chk(data2(i, j) == myStr.charAt(i*j));
 
         // is a region R converted to R->here in a dist context?
@@ -61,7 +61,7 @@ public class ArrayDecl extends x10Test {
         chk(d.dist.equals(D));
         finish ateach (val [i]: Point in D) chk(d(i) == ((10.0*i) as Float));
 
-        val E = Dist.makeBlock(Region.make([1..7, 0..1]), 1);
+        val E = Dist.makeBlock(Region.make(1..7, 0..1), 1);
         val result1  = DistArray.make[Short](E, ([i,j]: Point) => ((i+j) as Short));
         chk(result1.dist.equals(E));
         finish ateach (val [i,j]: Point in E) chk(result1(i, j) == ((i+j) as Short));

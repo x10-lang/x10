@@ -81,8 +81,8 @@ public class ArrayCopy1 extends x10Test {
 
         try {
 
-            val R  = Region.make([0..(N-1), 0..(N-1), 0..(N-1), 0..(N-1)]);
-            val TestDists = Region.make([0..(dist2.N_DIST_TYPES-1), 0..(dist2.N_DIST_TYPES-1)]);
+            val R  = Region.make(0..(N-1), 0..(N-1), 0..(N-1), 0..(N-1));
+            val TestDists = Region.make(0..(dist2.N_DIST_TYPES-1), 0..(dist2.N_DIST_TYPES-1));
 
             for (distP[dX,dY]: Point in TestDists) {
                 val D = dist2.getDist(dX, R);
