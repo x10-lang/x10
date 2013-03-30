@@ -80,7 +80,11 @@ namespace x10 {
         template<class T> class Rail : public x10::lang::X10Class   {
           public:
             RTT_H_DECLS_CLASS
+            #ifdef __i386__
+            const x10_int FMGL(size);
+            #else
             const x10_long FMGL(size);
+            #endif
             T raw[1]; // It's not really 1, but this is how one declares the variable array at end of a struct in ISO C++
 
             Rail(x10_long numElems) : FMGL(size)(numElems) { }

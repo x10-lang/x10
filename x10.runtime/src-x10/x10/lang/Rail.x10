@@ -11,12 +11,16 @@
 
 package x10.lang;
 
+import x10.compiler.Native;
 import x10.compiler.NativeRep;
 import x10.util.IndexedMemoryChunk;
 
 @NativeRep("java", "x10.core.Rail<#T$box>", null, "x10.rtt.ParameterizedType.make(x10.core.Rail.$RTT, #T$rtt)")
 @NativeRep("c++", "x10::lang::Rail<#T >*", "x10::lang::Rail<#T >", null)
-public final class Rail[T](size:Long) implements Iterable[T],(Long)=>T {
+public final class Rail[T](
+    @Native("c++", "(x10_long)(#this->FMGL(size))")
+    size:Long
+) implements Iterable[T],(Long)=>T {
 
     public native property def range():LongRange;
 
