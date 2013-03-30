@@ -19,7 +19,7 @@ class XTENLANG_2638 extends x10Test
 {
     public def run () : Boolean
     {
-        val mShape = ((1..100) * (1..200)) as Region(2);
+        val mShape = Region.make(1..100, 1..200);
         val mDist:Dist(2) = Dist.makeBlock(mShape);
         val mat = DistArray.make[int] (mDist, 1);
         val rhs = DistArray.make[int] (mDist, 2);

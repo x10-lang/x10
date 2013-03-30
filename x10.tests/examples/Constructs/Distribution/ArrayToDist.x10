@@ -24,7 +24,7 @@ public class ArrayToDist extends x10Test {
 
     public def run(): boolean = {
 
-        val R = Region.make([0..(N-1), 0..(N-1)]);
+        val R = Region.make(0..(N-1), 0..(N-1));
         val D  = Dist.makeBlock(R, 0);
         val A1 = DistArray.make[int](D, ([i,j]: Point ) => f(i, j));
         val A2 = DistArray.make[foo](D, ([i,j]: Point) => new foo(f(i, j)));

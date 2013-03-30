@@ -32,10 +32,10 @@ public class IntArrayIndexing extends x10Test {
                 var range4D: Region(4);
 
 		// Note: cannot do anything fancy with starting index--assume 0 based
-		range1D = 0..kArraySize;
-		range2D = (0..kArraySize)*(0..kArraySize);
-		range4D = (0..2)*(0..4)*(2..10)*(1..10);
-		range3D = (0..11)*(0..6)*(0..7); 
+		range1D = Region.make(0, kArraySize);
+		range2D = Region.make(0..kArraySize, 0..kArraySize);
+		range4D = Region.make(0..2, 0..4, 2..10, 1..10);
+		range3D = Region.make(0..11, 0..6, 0..7); 
 
 		var start: long = System.currentTimeMillis();
                 _intArray1D = new Array[int](range1D);

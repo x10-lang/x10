@@ -24,7 +24,7 @@ public class XTENLANG_2275 extends x10Test {
     
     class ConstraintPropagationBug {
       def m() {
-        val i: Iterator[Point{self.rank==2}] = ((1..1)*(1..1)).iterator(); // should compile
+        val i: Iterator[Point{self.rank==2}] = Region.make(1..1, 1..1).iterator(); // should compile
       }
     }
 	}
