@@ -81,7 +81,7 @@ final class BlockDist extends Dist {
         } else {
             // General case handled via region algebra
             val r1 = Region.makeFull(axis);
-            val r2 = low..hi;
+            val r2 = Region.make(low, hi);
             val r3 = Region.makeFull(region.rank-axis-1);
             return (r1.product(r2).product(r3) as Region(region.rank)).intersection(region);
         }

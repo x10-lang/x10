@@ -483,36 +483,6 @@ public abstract class Region(
 
 
     //
-    // conversion
-    //
-    /**
-     * An Array of k Region(1)'s can be converted into a Region(k), by 
-     * multiplying them.
-     */
-    public static operator[T] (a:Array[T](1)){T<:Region(1){self.rect}}:Region(a.size){self.rect} = make[T](a);
-
-    // NOTE: This really should be 
-    //   public static operator[T] (a:Array[T](1)){T<:IntRange}:Region(a.size){self.rect} { ... }
-    // but we can't have two overloaded generic methods in X10 2.2.
-    // Therefore we make this one slightly less general than it should be as the least bad
-    // alternative (since Regions has quite a few properties that may be inferred, it is best to
-    // use our one truly generic Array conversion operator on Array[Region]
-  //  public static operator[T] (a:Array[T](1)){T<:IntRange}:Region(a.size){self.rect}{
-    public static operator (a:Array[IntRange](1)):Region(a.size){self.rect} {
-        if (a.size == 1) {
-            return new RectRegion1D(a(0).min, a(0).max) as Region(a.size){rect}; // sigh. constraint solver not flow-sensitive.
-        } else {
-            val mins = new Array[int](a.size, (i:int)=>a(i).min);
-            val maxs = new Array[int](a.size, (i:int)=>a(i).max);
-            return new RectRegion(mins, maxs);
-        }
-    }
-        
-    public static operator (r:IntRange):Region(1){rect&&self!=null&&zeroBased==r.zeroBased} {
-        return new RectRegion1D(r.min, r.max) as Region(1){rect&&self!=null&&zeroBased==r.zeroBased};
-    }
-
-    //
     // ops
     //
 

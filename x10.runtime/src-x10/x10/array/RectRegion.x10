@@ -248,7 +248,7 @@ final class RectRegion extends Region{rect} {
 	// NOTE: intentional fall through of cases!
         switch(p.rank-1) {
            default:
-               for ([r] in (p.rank-1)..4) {
+               for (r in (p.rank-1)..4) {
                    if (p(r)<mins(r) || p(r)>maxs(r)) return false;
                }
            case 3: { val tmp = p(3); if (tmp<min3 || tmp>max3) return false; }
@@ -327,7 +327,7 @@ final class RectRegion extends Region{rect} {
             val thatMax = (that as RectRegion).max();
 	    val newMin = new Array[int](rank, (i:int)=>Math.max(min(i), thatMin(i)));
 	    val newMax = new Array[int](rank, (i:int)=>Math.min(max(i), thatMax(i)));
-	    for ([i] in 0..(newMin.size-1)) {
+	    for (i in 0..(newMin.size-1)) {
                 if (newMax(i)<newMin(i)) return Region.makeEmpty(rank);
             }
             return new RectRegion(newMin, newMax) as Region(rank);

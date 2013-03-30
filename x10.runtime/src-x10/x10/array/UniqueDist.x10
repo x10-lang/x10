@@ -40,7 +40,7 @@ final class UniqueDist extends Dist/*(1)*/ {
      * @param g the place group
      */
     def this(g:PlaceGroup) {
-        super(0..(g.numPlaces()-1));
+        super(Region.make(0, (g.numPlaces()-1)));
         pg = g;
     }
 
@@ -56,19 +56,19 @@ final class UniqueDist extends Dist/*(1)*/ {
     public def numPlaces():int = pg.numPlaces();
 
     public def regions():Sequence[Region(rank)] {
-	return new Array[Region(rank)](pg.numPlaces(), (i:int):Region(rank)=>((i..i))).sequence();
+	return new Array[Region(rank)](pg.numPlaces(), (i:int):Region(rank)=>(Region.make(i,i) as Region(rank))).sequence();
     }
 
     public def get(p:Place):Region(rank) {
         if (p == here) {
             if (regionForHere == null) {
                 val idx = pg.indexOf(here);
-                regionForHere = (idx..idx);// as Region(rank);
+                regionForHere = Region.make(idx, idx) as Region(rank);
             }
 	    return regionForHere;
         } else {
             val idx = pg.indexOf(p);
-            return (idx..idx);// as Region(rank);
+            return Region.make(idx, idx) as Region(rank);
         }
     }
 

@@ -55,7 +55,7 @@ public final class OptionsParser {
                     // of the form -stuff
 
                     recognised = true; // set it to false if any of the letters aren't valid options
-                    for ([index] in 1..(s.length()-1)) {
+                    for (index in 1..(s.length()-1)) {
                         val char = s(index);
                         var char_recognised:Boolean = false;
                         if (flags!=null) for (flag in flags) {
@@ -75,7 +75,7 @@ public final class OptionsParser {
                     }
 
                     if (recognised) {
-                        for ([index] in 1..(s.length()-1)) {
+                        for (index in 1..(s.length()-1)) {
                             val char = s(index);
                             if (flags!=null) for (flag in flags) {
                                 if (flag.short_!=null && char.equals(flag.short_(0))) {
@@ -131,7 +131,7 @@ public final class OptionsParser {
 
     static def padding (p:Int) {
         var r:StringBuilder = new StringBuilder();
-        for ([i] in 1..p) r.add(" ");
+        for (i in 1..p) r.add(" ");
         return r.toString();
     }
         

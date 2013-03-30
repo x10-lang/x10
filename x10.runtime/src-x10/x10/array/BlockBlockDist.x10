@@ -120,8 +120,8 @@ final class BlockBlockDist extends Dist {
                 hiFirst = hi1;
                 hiSecond = hi0;
             }
-            val rFirst = lowFirst..hiFirst;
-            val rSecond = lowSecond..hiSecond;
+            val rFirst = Region.make(lowFirst, hiFirst);
+            val rSecond = Region.make(lowSecond, hiSecond);
             
             return (beforeAxes.product(rFirst).product(betweenAxes).product(rSecond).product(afterAxes) as Region(region.rank)).intersection(region);
         }

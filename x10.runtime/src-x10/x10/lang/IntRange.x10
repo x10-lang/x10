@@ -23,12 +23,7 @@ public struct IntRange(
                /**
                 * The maximum value included in the range
                 */
-               max:Int,
-               
-               /**
-                * Is the range zero-based?
-                */
-               zeroBased: boolean
+               max:Int
 ) implements Iterable[Int] {
 
     /**
@@ -37,8 +32,7 @@ public struct IntRange(
      * @param max the maximum value of the range
      */
     public def this(min:Int, max:Int) {
-    	val zero:Boolean = min == 0;
-        property(min, max, zero);
+        property(min, max);
     }
     
     public def toString():String = min+".."+max;
