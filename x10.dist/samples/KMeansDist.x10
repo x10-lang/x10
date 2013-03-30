@@ -26,7 +26,7 @@ public class KMeansDist {
     static val POINTS=2000;
     static val ITERATIONS=50;
 
-    static val points_region = Region.make([0..(POINTS-1), 0..(DIM-1)]);
+    static val points_region = Region.make(0..(POINTS-1), 0..(DIM-1));
 
     public static def main (Rail[String]) {
         val rnd = PlaceLocalHandle.make[Random](PlaceGroup.WORLD, () => new Random(0));

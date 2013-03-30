@@ -170,6 +170,57 @@ public abstract class Region(
      */
     public static def make[T](ranges:Rail[T]){T<:IntRange} = makeRectangular(ranges);
 
+    /**
+     * Construct a rectangular rank 1 region from an IntRange
+     */
+    public static def make(r:IntRange):Region(1){self.rect} = new RectRegion1D(r.min, r.max);
+    /**
+     * Construct a rectangular rank 1 region from an IntRange
+     */
+    public static def makeRectangular(r:IntRange):Region(1){self.rect} = new RectRegion1D(r.min, r.max);
+
+    /**
+     * Construct a rectangular rank 2 region from a pair of IntRanges
+     */
+    public static def makeRectangular(r1:IntRange, r2:IntRange):Region(2){self.rect} {
+        val mins = new Array[int](2, [r1.min, r2.min]);
+        val maxs = new Array[int](2, [r1.max, r2.max]);
+        return new RectRegion(mins, maxs);
+    }
+    /**
+     * Construct a rectangular rank 2 region from a pair of IntRanges
+     */
+    public static def make(r1:IntRange, r2:IntRange):Region(2){self.rect} = makeRectangular(r1, r2);
+
+    /**
+     * Construct a rectangular rank 3 region from a triple of IntRanges
+     */
+    public static def makeRectangular(r1:IntRange, r2:IntRange, r3:IntRange):Region(3){self.rect} {
+        val mins = new Array[int](3, [r1.min, r2.min, r3.min]);
+        val maxs = new Array[int](3, [r1.max, r2.max, r3.max]);
+        return new RectRegion(mins, maxs);
+    }
+    /**
+     * Construct a rectangular rank 3 region from a triple of IntRanges
+     */
+    public static def make(r1:IntRange, r2:IntRange, r3:IntRange):Region(3){self.rect} {
+        return makeRectangular(r1, r2, r3);
+    }
+
+    /**
+     * Construct a rectangular rank 4 region from four IntRanges
+     */
+    public static def makeRectangular(r1:IntRange, r2:IntRange, r3:IntRange, r4:IntRange):Region(4){self.rect}{
+        val mins = new Array[int](4, [r1.min, r2.min, r3.min, r4.min]);
+        val maxs = new Array[int](4, [r1.max, r2.max, r3.max, r4.max]);
+        return new RectRegion(mins, maxs);
+    }
+    /**
+     * Construct a rectangular rank 4 region from four IntRanges
+     */
+    public static def make(r1:IntRange, r2:IntRange, r3:IntRange, r4:IntRange):Region(4){self.rect} {
+        return makeRectangular(r1, r2, r3, r4);
+    }
 
     /**
      * Construct a rank-1 rectangular region with the specified bounds.
