@@ -10,6 +10,7 @@
  */
 
 import harness.x10Test;
+import x10.array.*;
 
 /**
  * An await statement cannot occur in an atomic.
