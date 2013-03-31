@@ -26,7 +26,7 @@ public class Overloading extends x10Test {
         public def g(r: Region) = "region";
 
 	public def run(): boolean = {
-                r: Region = 0..1;
+                r: Region = Region.make(0,1);
                 d: Dist = r->here;
 
                 val r1 = f(r);
