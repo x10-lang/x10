@@ -22,7 +22,7 @@ public class VariableScope extends x10Test {
     public def run(): boolean = {
 
         val N: int = 10;
-        var e: Region(1){rect} = 1..N;
+        var e: Region(1){rect} = Region.make(1, N);
         var r: Region(2){rect} = e*e;
         var d: Dist = r->here;
         var n: int = 0;
