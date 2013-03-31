@@ -29,7 +29,7 @@ public class BenchmarkCreateDistArray(elementsPerPlace : Int) extends x10Test {
         val arraySize = elementsPerPlace * Place.MAX_PLACES;
 
         val start = System.nanoTime();
-        val a = DistArray.make[Int](Dist.makeBlock(0..(arraySize-1)));
+        val a = DistArray.make[Int](Dist.makeBlock(Region.make(0, arraySize-1)));
         val stop = System.nanoTime();
 
         // do something with elements afterwards

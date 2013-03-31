@@ -25,10 +25,10 @@ public class BenchmarkIterateDistArray(elementsPerPlace : Int) extends x10Test {
 	public def run(): Boolean = {
         val arraySize = elementsPerPlace * Place.MAX_PLACES;
 
-        val a = DistArray.make[Int](Dist.makeBlock(0..(arraySize-1)));
+        val a = DistArray.make[Int](Dist.makeBlock(Region.make(0, arraySize-1)));
 
         var start:Long = System.nanoTime();
-        for ([t] in 1..100) {
+        for (t in 1..100) {
             // iterate and update each element of the distributed array
             finish for (place in a.dist.places()) async at (place) {
                 for ([i] in a | here) {
@@ -41,7 +41,7 @@ public class BenchmarkIterateDistArray(elementsPerPlace : Int) extends x10Test {
         Console.OUT.printf("iterate DistArray avg: %g ms\n", ((stop-start) as Double) / 1e08);
 
         start = System.nanoTime();
-        for ([t] in 1..100) {
+        for (t in 1..100) {
             // iterate and update each element of the distributed array
             finish for (place in a.dist.places()) async at (place) {
                 val aLocal = a.getLocalPortion();
@@ -55,7 +55,7 @@ public class BenchmarkIterateDistArray(elementsPerPlace : Int) extends x10Test {
         Console.OUT.printf("iterate DistArray with getLocalPortion avg: %g ms\n", ((stop-start) as Double) / 1e08);
 
         start = System.nanoTime();
-        for ([t] in 1..100) {
+        for (t in 1..100) {
             // iterate and update each element of the distributed array
             finish for (place in a.dist.places()) async at (place) {
                 val aLocal = a.getLocalPortion() as Array[Int]{rank==1,rect};
@@ -70,7 +70,7 @@ public class BenchmarkIterateDistArray(elementsPerPlace : Int) extends x10Test {
 
 	if (Place.MAX_PLACES == 1) {
             start = System.nanoTime();
-            for ([t] in 1..100) {
+            for (t in 1..100) {
                 // iterate and update each element of the distributed array
                 finish for (place in a.dist.places()) async at (place) {
                     val aLocal = a.getLocalPortion();
