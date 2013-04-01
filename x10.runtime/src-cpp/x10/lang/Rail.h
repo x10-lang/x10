@@ -441,7 +441,7 @@ template<class T> const x10aux::serialization_id_t x10::lang::Rail<T>::_serializ
     x10aux::DeserializationDispatcher::addDeserializer(x10::lang::Rail<T>::_deserializer, x10aux::CLOSURE_KIND_NOT_ASYNC);
 
 template<class T> void x10::lang::Rail<T>::_serialize_body(x10aux::serialization_buffer& buf) {
-    buf.write(this->FMGL(size));
+    buf.write<x10_long>(this->FMGL(size));
     for (x10_long i=0; i<FMGL(size); i++) {
         buf.write(raw[i]);
     }
