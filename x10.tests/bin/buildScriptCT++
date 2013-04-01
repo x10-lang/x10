@@ -162,7 +162,7 @@ fi
 
 if [[ -z "$X10_INTERNAL_TESTS" ]]; then
 	export X10_INTERNAL_TESTS_REPO="/gsa/yktgsa/projects/x/x10/svn-torontoTests"
-	export X10_INTERNAL_TESTS_SVNROOT="file://$X10_INTERNAL_TESTS_REPO/trunk"
+	export X10_INTERNAL_TESTS_SVNROOT="file://$X10_INTERNAL_TESTS_REPO/branches/X10_2_3_1"
 fi
 
 main
