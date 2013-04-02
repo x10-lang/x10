@@ -11,7 +11,7 @@ public class XTENLANG_3120 extends x10Test {
         return true;
     }
     public static def main (args : Rail[String]) {
-        (new XTENLANG_3120()).run();
+        (new XTENLANG_3120()).execute();
     }
 }
 
