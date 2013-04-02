@@ -60,14 +60,14 @@ public final class GrowableRail[T] implements CustomSerialization {
     private def this(sd:SerialData) {
         val src = sd.data as Rail[T];
         data = Unsafe.allocRailUninitialized[T](src.size);
-        Rail.copy(data, 0L, src, 0L, src.size);
+        Rail.copy(src, 0L, data, 0L, src.size);
         size = src.size;
     }
 
     public def serialize():SerialData {
         val tmp = Unsafe.allocRailUninitialized[T](size);
         Rail.copy(data, 0L, tmp, 0L, size);
-        return new SerialData(data, null);
+        return new SerialData(tmp, null);
     }
 
     /**
@@ -143,7 +143,7 @@ public final class GrowableRail[T] implements CustomSerialization {
     }
 
     /**
-     * Transfer elements between i and j (inclusive) into a new IMC,
+     * Transfer elements between i and j (inclusive) into a new Rail,
      * in the order in which they appear in this rail.  The elements
      * following element j are shifted over to position i.
      * (j-i+1) must be no greater than s, the size of the rail.
