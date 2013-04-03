@@ -283,7 +283,7 @@ public class Closure_c extends Expr_c implements Closure {
 				
 				offerType == null ? null : offerType.typeRef());
 		mi.setStaticContext(code.staticContext());
-		mi.setPlaceTerm(PlaceChecker.closurePlaceTerm(mi));
+		//mi.setPlaceTerm(PlaceChecker.closurePlaceTerm(mi));
 		
 		if (returnType() instanceof UnknownTypeNode) {
 			mi.inferReturnType(true);
@@ -376,14 +376,10 @@ public class Closure_c extends Expr_c implements Closure {
 		// entering the appropriate children
 		if (child == body || child == returnType || child == hasType || child == offerType || child == guard
 		        || (formals != null && formals.contains(child))) {
-		    ClosureDef cd = closureDef();
-		    XConstrainedTerm placeTerm = cd == null ? null : cd.placeTerm();
-		    if (placeTerm == null) {
-		        placeTerm = PlaceChecker.closurePlaceTerm(cd);
-		    }
+			// [DC] use the global 'here'
 		    if (c == oldC)
 		        c = c.pushBlock();
-		    c.setPlace(placeTerm);
+		    c.setPlace(PlaceChecker.globalPlaceTerm(closureDef().typeSystem()));
 		}
 
 		if (child == guard) {

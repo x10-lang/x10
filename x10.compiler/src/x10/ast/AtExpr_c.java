@@ -144,15 +144,13 @@ public class AtExpr_c extends Closure_c implements AtExpr {
     	Context c = tc.context();
     	ClosureDef def = (ClosureDef) this.codeDef();
     	if (def.placeTerm() == null) {
-    	    XConstrainedTerm placeTerm;
-    	    CConstraint d = ConstraintManager.getConstraintSystem().makeCConstraint(ts.Place(),ts);
-    	    XTerm<Type> term = PlaceChecker.makeHereUQV(ts);
-	        placeTerm = XConstrainedTerm.instantiate(d, term);
-    	    try {
-    	        XConstrainedTerm realPlaceTerm = PlaceChecker.computePlaceTerm(place, tc.context(), ts);
-    	        d.addEquality(placeTerm, realPlaceTerm);
-    	    } catch (SemanticException se) { }
-    	    def.setPlaceTerm(placeTerm);
+
+        	XConstrainedTerm placeTerm = PlaceChecker.computePlaceTerm(place, c, ts);
+            def.setPlaceTerm(placeTerm);
+
+            // [DC] this is only supported by at expressions
+    		//XConstrainedTerm finishPlaceTerm = c.currentFinishPlaceTerm();
+            //def.setFinishPlaceTerm(finishPlaceTerm);    	    
     	}
 
     	// now that placeTerm is computed for this node, install it in the context
@@ -161,11 +159,9 @@ public class AtExpr_c extends Closure_c implements AtExpr {
     	Context oldC = c;
     	c = super.enterChildScope(this.body, childtc.context());
     	XConstrainedTerm pt = def.placeTerm();
-    	if (pt != null) {
-    		if (c == oldC)
-        		c = c.pushBlock();
-    		c.setPlace(pt);
-    	}
+		if (c == oldC)
+    		c = c.pushBlock();
+		c.setPlace(pt);
 
     	AtExpr_c n = this.place(place);
     	n = (AtExpr_c) n.superVisitChildren(childtc.context(c));
@@ -204,7 +200,12 @@ public class AtExpr_c extends Closure_c implements AtExpr {
     @Override
     public Context enterChildScope(Node child, Context c) {
         if (child == this.place) return c.pop();
-        return super.enterChildScope(child, c);
+        Context oldC = c;
+        c = super.enterChildScope(child, c);
+        if (c == oldC)
+            c = c.pushBlock();
+        c.setPlace(((ClosureDef)codeDef()).placeTerm());
+        return c;
     }
 
     /**

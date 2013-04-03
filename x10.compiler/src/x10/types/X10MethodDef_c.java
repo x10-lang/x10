@@ -126,8 +126,7 @@ public class X10MethodDef_c extends MethodDef_c implements X10MethodDef {
     protected XConstrainedTerm placeTerm;
     public XConstrainedTerm placeTerm() { return placeTerm; }
     public void setPlaceTerm(XConstrainedTerm pt) {
-        if (placeTerm != null)
-            assert (placeTerm == null);
+        assert placeTerm == null;
         placeTerm = pt;
     }
     

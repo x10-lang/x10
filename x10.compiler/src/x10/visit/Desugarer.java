@@ -454,10 +454,10 @@ public class Desugarer extends ContextVisitor {
     private static void addCheck(ArrayList<Expr> booleanGuard, CConstraint constraint, 
                                  final Name selfName, final Type baseType, 
                                  final NodeFactory nf, 
-                                 final TypeSystem ts, final Position pos) {
+                                 final TypeSystem ts, final Position pos, Context ctx) {
         if (constraint==null) return;
         final List<Expr> guardExpr 
-        = new Synthesizer(nf, ts).makeExpr(constraint, baseType, pos);  // note: this doesn't typecheck the expression, so we're missing type info.
+        = new Synthesizer(nf, ts).makeExpr(ctx, constraint, baseType, pos);  // note: this doesn't typecheck the expression, so we're missing type info.
         for (Expr e : guardExpr) {
             e = (Expr) e.visit( new NodeVisitor() {
                 @Override
@@ -632,7 +632,7 @@ public class Desugarer extends ContextVisitor {
         if (guardRefConstraint!=null) {
             final CConstraint guard = reinstantiate(typeParamSubst, guardRefConstraint.get());
             // self cannot occur in the constraint, hence null can be passed as the type.
-            addCheck(booleanGuard,guard, null, null, nf, ts, pos);
+            addCheck(booleanGuard,guard, null, null, nf, ts, pos, context);
         }
         // add the constraints of the formals
         for (LocalDef localDef : procDef.formalNames()) {
@@ -643,13 +643,13 @@ public class Desugarer extends ContextVisitor {
             r = ((X10Local_c) r).type(li.type());
             XVar<Type> selfVar=null;
             try {
-                selfVar = (XVar) localDef.typeSystem().xtypeTranslator().translate(constraint, r, context);
+                selfVar = (XVar<Type>) localDef.typeSystem().xtypeTranslator().translate(constraint, r, context);
             } catch (IllegalConstraint z) {
                 /// what do we do?
             }
             if (selfVar != null && constraint != null)
                 constraint = constraint.instantiateSelf(selfVar);
-            addCheck(booleanGuard,constraint, localDef.name(), type, nf, ts, pos);
+            addCheck(booleanGuard,constraint, localDef.name(), type, nf, ts, pos, context);
         }
         
         final Expr newReceiver = oldReceiver==null ? null : newArgs.get(0);
@@ -881,15 +881,8 @@ public class Desugarer extends ContextVisitor {
             CConstraint c = Types.xclause(t);
             if (c == null || c.valid())
                 return null;
-            XConstrainedTerm here = context().currentPlaceTerm();
-            if (here != null && here.term() instanceof XVar) {
-                try {
-                    c = c.substitute(PlaceChecker.here(t.typeSystem()), (XVar) here.term());
-                } catch (XFailure e) { }
-            }
-            DepParameterExpr res 
-            = nf.DepParameterExpr(tn.position(), 
-                          new Synthesizer(nf, ts).makeExpr(c, t, tn.position()));
+            DepParameterExpr res = nf.DepParameterExpr(tn.position(), 
+                          new Synthesizer(nf, ts).makeExpr(context(), c, t, tn.position()));
             res = (DepParameterExpr) res.visit(new X10TypeBuilder(job, ts, nf)).visit(new X10TypeChecker(job, ts, nf, job.nodeMemo()).context(context().pushDepType(tn.typeRef())));
             return res;
         }

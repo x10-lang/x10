@@ -16,6 +16,7 @@ import polyglot.visit.NodeVisitor;
 import x10.ast.X10CanonicalTypeNode;
 import x10.ast.X10Field_c;
 import x10.ast.X10Special;
+import polyglot.types.Context;
 import polyglot.types.Type;
 import polyglot.types.TypeSystem;
 import polyglot.types.Types;
@@ -32,9 +33,11 @@ public class ThisChecker extends NodeVisitor {
     protected boolean error;
     protected TypeSystem ts;
     protected NodeFactory nf;
-    public ThisChecker(Job job) {
-        ts = (TypeSystem) job.extensionInfo().typeSystem();
-        nf = (NodeFactory) job.extensionInfo().nodeFactory();
+    protected Context ctx;
+    public ThisChecker(Job job, Context ctx) {
+        this.ts = (TypeSystem) job.extensionInfo().typeSystem();
+        this.nf = (NodeFactory) job.extensionInfo().nodeFactory();
+        this.ctx = ctx;
     }
     protected boolean catchErrors(Node n) { return false; }
     @Override
@@ -57,7 +60,9 @@ public class ThisChecker extends NodeVisitor {
         if (n instanceof X10CanonicalTypeNode) {
             Type type = ((X10CanonicalTypeNode) n).type();
             CConstraint rc = Types.xclause(type);
-            List<Expr> clauses = new Synthesizer(nf, ts).makeExpr(rc, Types.baseType(type), n.position());
+            // [DC] todo: it should be possible to look directly at rc, thereby not needing to thread
+            // ctx through to this point.
+            List<Expr> clauses = new Synthesizer(nf, ts).makeExpr(ctx, rc, Types.baseType(type), n.position());
             for (Expr c : clauses) {
                 c.visit(this);
             }

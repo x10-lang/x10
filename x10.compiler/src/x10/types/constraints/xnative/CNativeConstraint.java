@@ -97,12 +97,14 @@ public class CNativeConstraint extends XNativeConstraint<Type>  implements CCons
 	public XTerm<Type> selfVarBinding() {return self()==null ? null : bindingForVar(self());}
     @Override
     public XVar<Type> thisVar() {return thisVar;}
+    /*
     @Override
     public boolean hasPlaceTerm() {
         if (roots==null) return false;
         for (XTerm<Type> t : roots.keySet()) if (PlaceChecker.isGlobalPlace(t)) return true;
         return false;
     }
+    */
 
     /**
      * Copy this constraint logically; that is, create a new constraint

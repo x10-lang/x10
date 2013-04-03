@@ -84,21 +84,20 @@ public class Here_c extends Expr_c implements Here {
         TypeSystem ts = (TypeSystem) tc.typeSystem();
         Context xc = (Context) tc.context();
 
-        Type tt = ts.Place();
+        CConstraint cc = ConstraintManager.getConstraintSystem().makeCConstraint(ts.Place(),ts);
+
         XConstrainedTerm h = xc.currentPlaceTerm();
         if (h == null) {
-            //Errors.issue(tc.job(), new Errors.CannotUseHereInThisContext(position()));
-            CConstraint d = ConstraintManager.getConstraintSystem().makeCConstraint(ts.Place(),ts);
-			h = XConstrainedTerm.instantiate(d, PlaceChecker.here(ts));
+        	// [DC] in a class guard, field type, method guard, or in a method but not inside an 'at'
+        	// 'here' refers to the home of the object.
+        	cc.addSelfEquality(PlaceChecker.globalHere(ts));
+        } else {
+        	// inside an 'at', using a different 'here' variable (an EQV).
+        	cc.addSelfEquality(h.term());
+        	cc.addIn(h.constraint());
         }
 
-        if (h != null) {
-            CConstraint cc = ConstraintManager.getConstraintSystem().makeCConstraint(ts.Place(),ts);
-            cc.addSelfEquality(h);
-            tt = Types.xclause(Types.baseType(tt), cc);
-        }
-
-        return this.type(tt);
+        return this.type(Types.xclause(ts.Place(), cc));
     }
 
     /** Write the statement to an output file. */

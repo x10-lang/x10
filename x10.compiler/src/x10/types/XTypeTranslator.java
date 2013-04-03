@@ -84,18 +84,12 @@ import x10.types.constraints.XConstrainedTerm;
  * @author vj
  */
 public class XTypeTranslator {
-    public static final boolean THIS_VAR = true;
 
-    private final TypeSystem ts;
+	private final TypeSystem ts;
 
     public XTypeTranslator(TypeSystem xts) {
-        super();
         ts = xts;
     }
-
-    //public static XTerm<Type> translate(CConstraint c, Receiver r, TypeSystem xts, Context xc)  {
-    //    return xts.xtypeTranslator().translate(c, r, xc);
-    //}
     
     /**
      * Translate the given AST term to an XTerm<Type> using information in the constraint
@@ -111,71 +105,57 @@ public class XTypeTranslator {
      * 
      * If toplevel is true, then boolean connectives, && are permitted.
      */
-    public XTerm<Type> translate(CConstraint c, Receiver term, Context xc)  throws IllegalConstraint {
+    public XTerm<Type> translate(CConstraint c, Receiver term, Context xc) throws IllegalConstraint {
     	return translate(c, term, xc, false);
     }
     public XTerm<Type> translate(CConstraint c, Receiver term, Context xc, boolean tl) throws IllegalConstraint {
         if (term == null)
             return null;
-        if (term instanceof Lit)
-            return translate((Lit) term);
-        if (term instanceof Here_c)
-            return trans(c, (Here_c) term, xc, tl);
-        if (term instanceof Variable)
-            return trans(c, (Variable) term, xc, tl);
-        if (term instanceof X10Special)
-            return trans(c, (X10Special) term, xc, tl);
-        if (term instanceof Expr && ts.isUnknown(term.type())) {
+        
+        if (term instanceof Lit) {
+        	Object val = ConstantValue.toJavaObject(((Lit)term).constantValue());
+            return ConstraintManager.getConstraintSystem().makeLit(term.type(), val);
+        } else if (term instanceof Here_c) {
+        	return xc.currentPlace(term.type().typeSystem());
+        } else if (term instanceof Field) {
+		    Field t = (Field) term;
+			XTerm<Type> receiver = translate(c, t.target(), xc, tl);
+			if (receiver == null)
+			    return null;
+			return translate(receiver, t.fieldInstance(), tl);
+        } else if (term instanceof X10Special) {
+			return translateSpecialAsQualified(c,(X10Special)term,xc);
+        } else if (term instanceof Local) {
+		    return translate(((Local) term).localInstance());
+		} else if (term instanceof Expr && ts.isUnknown(term.type())) {
             return null;
-        }
-        if (term instanceof Expr) {
-            Expr e = (Expr) term;
-            if (e.isConstant()) {
-                ConstantValue cv = e.constantValue();
-                if (!(cv instanceof ClosureValue)) {
-                    return ConstraintManager.getConstraintSystem().makeLit(e.type(), ConstantValue.toJavaObject(e.constantValue()));
-                }
-            }
-        }
-        if (term instanceof X10Cast) {
+        } else if (term instanceof Expr && ((Expr)term).isConstant() && !(((Expr)term).constantValue() instanceof ClosureValue)) {
+            Object val = ConstantValue.toJavaObject(((Expr)term).constantValue());
+            return ConstraintManager.getConstraintSystem().makeLit(term.type(), val);
+        } else if (term instanceof X10Cast) {
             X10Cast cast = ((X10Cast) term);
             return translate(c, cast.expr().type(cast.type()), xc, tl);
-        }
-        if (term instanceof Call) {
+        } else if (term instanceof Call) {
             return trans(c, (Call) term, xc, tl);
-        }
-        if (term instanceof Tuple) {
+        } else if (term instanceof Tuple) {
             return trans(c, (Tuple) term, xc, tl);
-        }
-        if (term instanceof Unary) {
+        } else if (term instanceof Unary) {
             Unary u = (Unary) term;
             Expr t2 = u.expr();
             Unary.Operator op = u.operator();
-            if (op == Unary.POS)
-                return translate(c, t2, xc, tl);
-            return null; // no other unary operator supported
-        }
-        if (term instanceof Binary)
+            if (op != Unary.POS) return null; // no other unary operator supported
+            return translate(c, t2, xc, tl);
+        } else if (term instanceof Binary) {
             return trans(c, (Binary) term, xc, tl);
-        if (term instanceof TypeNode)
-            return trans(c, (TypeNode) term);
-        if (term instanceof ParExpr)
+        } else if (term instanceof TypeNode) {
+			return translate(((TypeNode) term).type());
+        } else if (term instanceof ParExpr) {
             return translate(c, ((ParExpr) term).expr(), xc, tl);
-        return null;
+        } else {
+        	return null;
+        }
     }
 
-
-    /**
-     * Return the term var.field, where information about the field is obtained from fi.
-     * The returned term carries a reference to fi.def(), and field is fi.name().toString().
-     * @param var
-     * @param fi
-     * @return
-     */
-    public XExpr<Type> translate(XVar<Type> var, FieldInstance fi, boolean ignore) {
-        // Warning -- used to have a string that did not contain container()#.
-        return ConstraintManager.getConstraintSystem().makeField(var, fi.def());
-    }
 
     /**
      * Return the term target.field, where information about the field is obtained from fi.
@@ -279,8 +259,6 @@ public class XTypeTranslator {
         return body;
     }
 
-    public static final Object FAKE_KEY = new Object();
-    
     /**
      * A fake field is one which exists purely for compilation purposes
      * and has no run-time existence. The main example is "home". It used to exist
@@ -303,14 +281,6 @@ public class XTypeTranslator {
      public CLocal translate(LocalInstance li) {
         return ConstraintManager.getConstraintSystem().makeLocal((X10LocalDef) li.def());
        
-    }
-     /**
-      * Return an XLit representing the literal t.
-      * @param t
-      * @return
-      */
-    public XLit<Type, Object> translate(Lit t) {
-        return ConstraintManager.getConstraintSystem().makeLit(t.type(), ConstantValue.toJavaObject(t.constantValue()));
     }
     
     /**
@@ -364,35 +334,6 @@ public class XTypeTranslator {
         return ConstraintManager.getConstraintSystem().xnull(ts);
     }
 
-
-  /*  public CConstraint normalize(CConstraint c, Context xc) {
-        CConstraint result = ConstraintManager.getConstraintSystem().makeCConstraint();
-        for (XTerm<Type> term : c.extConstraints()) {
-            try {
-                if (term instanceof XEquals) {
-                    XEquals xt = (XEquals) term;
-                    XTerm<Type> right = xt.right();
-                    if (right instanceof XEquals) {
-                        XEquals xright = (XEquals) right;
-                        XTerm<Type> t1 = xright.left();
-                        XTerm<Type> t2 = xright.right();
-                        if (c.entails(t1, t2)) {
-                            result.addBinding(xt.left(), ConstraintManager.getConstraintSystem().TRUE);
-                        } else 
-                            if (c.disEntails(t1, t2)) {
-                                result.addBinding(xt.left(), ConstraintManager.getConstraintSystem().FALSE);
-                            } else
-                                result.addBinding(xt.left(), xt.right());
-                    }
-                } else 
-                    result.addTerm(term);
-            } catch (XFailure t) {
-
-            }
-        }
-        return result;
-    }
-*/
     /**
      * Translate an expression into a CConstraint, throwing SemanticExceptions 
      * if this is not possible.
@@ -409,23 +350,23 @@ public class XTypeTranslator {
         if (term == null)
             return c;
 
-        if (! term.type().isBoolean())
-            throw new SemanticException("Cannot build constraint from expression (1)|" 
-            		+ term + "| of type " + term.type() + "; not a boolean.", term.position());
+        if (!term.type().isBoolean())
+            throw new SemanticException("Cannot build constraint from expression since" 
+            		+ term + " (of type " + term.type() + ") is not a boolean.", term.position());
 
         // TODO: handle the formals.
         XTerm<Type> t= translate(c, term, xc, true);
         
 
         if (t == null)
-            throw new SemanticException("Cannot build constraint from expression (2)|" + term + "|.", term.position());
+            throw new SemanticException("Cannot build constraint from expression " + term + " (translate() returned null).", term.position());
 
         try {
             c.addTerm(t);
-        }
-        catch (XFailure e) {
+        } catch (XFailure e) {
             c.setInconsistent();
         }
+        
         return c;
     }
 
@@ -434,39 +375,15 @@ public class XTypeTranslator {
         if (term == null)
             return c;
 
-        if (! term.type().isBoolean())
-            throw new SemanticException("Cannot build constraint from expression (3)|"
-            		+ term + "| of type " + term.type() + "; not a boolean.",
-            		term.position());
+        if (!term.type().isBoolean())
+            throw new SemanticException("Cannot build constraint from expression since" 
+            		+ term + " (of type " + term.type() + ") is not a boolean.", term.position());
 
         // TODO: handle the formals.
-
         transType(c, term, xc);
 
         return c;
     }
-
-    
-
-    public static boolean isPureTerm(Term t) {
-        boolean result = false;
-        if (t instanceof Variable) {
-            Variable v = (Variable) t;
-            result = v.flags().isFinal();
-        }
-        return result;
-    }
-
-    public XVar<Type> translateThisWithoutTypeConstraint(Type t) {
-        XVar<Type> v = ConstraintManager.getConstraintSystem().makeThis(t); // ConstraintManager.getConstraintSystem().makeLocal(ConstraintManager.getConstraintSystem().makeName("this"));
-        return v;
-    }
-
-    /*public XLocal translateThis(Type t) throws SemanticException {
-        XLocal v = translateThisWithoutTypeConstraint();
-        return v;
-    }*/
-
 
     public CConstraint binaryOp(Binary.Operator op, CConstraint cl, CConstraint cr) {
         return null; // none supported
@@ -476,23 +393,10 @@ public class XTypeTranslator {
         return null; // none supported
     }
     
+    
+    
     // *********************************************************************************************
     // *********************************** private help routines for translation********************
-    private XTerm<Type> trans(CConstraint c, Here_c h, Context xc, boolean tl) {
-    	return PlaceChecker.here(xc.typeSystem());
-        //return ConstraintManager.getConstraintSystem().makeUQV(xc.typeSystem().Place(), "here");
-        //XConstrainedTerm placeTerm = xc.currentPlaceTerm();
-        //if (placeTerm == null) return ConstraintManager.getConstraintSystem().makeEQV(xc.typeSystem().Place());
-        //return placeTerm.term();
-        //return PlaceChecker.here();
-    }
-    private CLocal trans(Local t) {
-        return translate(t.localInstance());
-    }
-
-    private XTerm<Type> trans(CConstraint c, TypeNode t) {
-        return translate(t.type());
-    }
 
     private void transType(TypeConstraint c, Binary t, Context xc) throws SemanticException {
         Expr left = t.left();
@@ -718,72 +622,6 @@ public class XTypeTranslator {
         return Types.selfVarBinding(type); // maybe null.
     }
 
-    private XTerm<Type> trans(CConstraint c, Variable term, Context xc, boolean tl) throws IllegalConstraint {
-        if (term instanceof Field)
-            return trans(c, (Field) term, xc, tl);
-        if (term instanceof X10Special)
-            return trans(c, (X10Special) term, xc, tl);
-        if (term instanceof Local)
-            return trans((Local) term);
-        return null;
-    }
-
-    private XTerm<Type> trans(CConstraint c, X10Special term, Context xc, boolean tl) {
-        return trans(c, term, xc);
-    }
-    public XTerm<Type> trans(CConstraint c, X10Special t, Context xc0) {
-		return translateSpecialAsQualified(c,t,xc0);
-		// TODO: remove unreachable code
-        /*
-       	Context xc = xc0;
-        if (t.kind() == X10Special.SELF) {
-            if (c == null) {
-                //throw new SemanticException("Cannot refer to self outside a dependent clause.");
-                return null;
-            }
-            // lshadare why do we need to clone this?
-            XVar v = c.self();
-         // Need to deal with qualified guy as well.
-            TypeNode tn = t.qualifier();
-            if (tn != null) {
-                Type q = Types.baseType(tn.type());
-                v = ConstraintManager.getConstraintSystem().makeQualifiedVar(q, v);
-            }
-            return v;
-        }
-        else {
-            TypeNode tn = t.qualifier();
-            if (tn != null) {
-                Type q = Types.baseType(tn.type());
-                if (q instanceof X10ClassType) {
-                    X10ClassType ct = (X10ClassType) q;
-                    while (xc != null) {
-                        if (xc.inSuperTypeDeclaration()) {
-                            if (xc.supertypeDeclarationType() == ct.def())
-                                break;
-                        }
-                        else if (xc.currentClassDef() == ct.def()) {
-                            break;
-                        }
-                        xc = (Context) xc.pop();
-                    }
-                }
-            }
-            XVar thisVar = null;
-            for (Context outer = xc; outer != null && thisVar == null; outer = outer.pop()) {
-                thisVar = outer.thisVar();
-            }
-            if (thisVar == null) {
-                SemanticException e = new SemanticException("Cannot refer to |this| from the context " + xc);
-                return null;
-            }
-            if (c != null)
-                c.setThisVar(thisVar);
-            return thisVar;
-        }
-        */
-      }
-
 	@SuppressWarnings("unchecked")
 	public XTerm<Type> translateSpecialAsQualified(CConstraint c, X10Special t, Context xc0) {
         Context xc = xc0;
@@ -849,10 +687,5 @@ public class XTypeTranslator {
                 c.setThisVar(baseThisVar);
         }
     }
-    private XTerm<Type> trans(CConstraint c, Field t, Context xc, boolean tl)  throws IllegalConstraint {
-        XTerm<Type> receiver = translate(c, t.target(), xc, tl);
-        if (receiver == null)
-            return null;
-        return translate(receiver, t.fieldInstance(), tl);
-    }
+
 }

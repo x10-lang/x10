@@ -190,8 +190,7 @@ public class TypeDef_c extends MemberDef_c implements TypeDef {
 	protected XConstrainedTerm placeTerm;
 	public XConstrainedTerm placeTerm() { return placeTerm; }
 	public void setPlaceTerm(XConstrainedTerm pt) {
-	    if (placeTerm != null)
-	        assert (placeTerm == null);
+        assert placeTerm == null;
 	    placeTerm = pt;
 	}
 

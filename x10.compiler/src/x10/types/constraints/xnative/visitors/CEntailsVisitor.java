@@ -49,7 +49,8 @@ public class CEntailsVisitor extends XGraphVisitor<Type> {
         if (! myResult && c2m!=null) {
             try {
                 c1 = c1.copy();
-                c1.addIn(c2m.make());
+                CConstraint made = c2m.make();
+                c1.addIn(made);
                 c2m=null;
                 if (! c1.consistent())
                     return false;

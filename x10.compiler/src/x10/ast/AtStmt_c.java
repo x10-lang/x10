@@ -242,17 +242,10 @@ public class AtStmt_c extends Stmt_c implements AtStmt {
     	Context c = tc.context();
     	AtDef def = this.atDef();
     	if (def.placeTerm() == null) {
-            XConstrainedTerm placeTerm;
-            XConstrainedTerm finishPlaceTerm = c.currentFinishPlaceTerm();
-
-            CConstraint d = ConstraintManager.getConstraintSystem().makeCConstraint(ts.Place(),ts);
-            XTerm<Type> term = PlaceChecker.makeHereUQV(ts);
-            placeTerm = XConstrainedTerm.instantiate(d, term);
-            try {
-                XConstrainedTerm realPlaceTerm = PlaceChecker.computePlaceTerm(place, c, ts);
-                d.addEquality(placeTerm, realPlaceTerm);
-            } catch (SemanticException e) { }
+            XConstrainedTerm placeTerm = PlaceChecker.computePlaceTerm(place, c, ts);
             def.setPlaceTerm(placeTerm);
+
+    		XConstrainedTerm finishPlaceTerm = c.currentFinishPlaceTerm();
             def.setFinishPlaceTerm(finishPlaceTerm);
     	}
 
@@ -262,11 +255,9 @@ public class AtStmt_c extends Stmt_c implements AtStmt {
     	Context oldC = c;
         c = super.enterChildScope(body, childtc.context());
         XConstrainedTerm pt = def.placeTerm();
-        if (pt != null) {
-        	if (c == oldC)
-        		c = c.pushBlock();
-            c.setPlace(pt);
-        }
+    	if (c == oldC)
+    		c = c.pushBlock();
+        c.setPlace(pt);
         Stmt body = (Stmt) visitChild(this.body, childtc.context(c));
         AtStmt_c n = this.reconstruct(place, body);
 

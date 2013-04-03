@@ -407,7 +407,6 @@ public class Checker {
 	    }
 	    mi = xts.createFakeMethod(targetType.toClass(), Flags.PUBLIC, name, typeArgs, actualTypes, error);
 	    if (rt == null) rt = mi.returnType();
-	    rt = PlaceChecker.AddIsHereClause(rt, context);
 	    mi = mi.returnType(rt);
 	    return mi;
 	}
@@ -515,16 +514,10 @@ public class Checker {
 	        // Override to change the type from C to C{self==this}.
 	        Type t = currentClass;
 	        XVar<Type> thisVar = null;
-	        if (XTypeTranslator.THIS_VAR) {
-	            CodeDef cd = xc.currentCode();
-	            if (cd instanceof X10MemberDef) {
-	                thisVar = ((X10MemberDef) cd).thisVar();
-	            }
-	        }
-	        else {
-	            //thisVar = xts.xtypeTranslator().transThis(currentClass);
-	            thisVar = xts.xtypeTranslator().translateThisWithoutTypeConstraint(Types.baseType(t));
-	        }
+            CodeDef cd = xc.currentCode();
+            if (cd instanceof X10MemberDef) {
+                thisVar = ((X10MemberDef) cd).thisVar();
+            }
 	
 	        if (thisVar != null)
 	            t = Types.setSelfVar(t, thisVar);

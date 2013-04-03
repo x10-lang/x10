@@ -202,7 +202,7 @@ public class X10ConstructorDecl_c extends ConstructorDecl_c implements X10Constr
                 offerType == null ? null : offerType.typeRef());
         
         ci.setThisDef(((X10ClassDef) ct).thisDef());
-        ci.setPlaceTerm(PlaceChecker.constructorPlaceTerm(ci));
+        //ci.setPlaceTerm(PlaceChecker.constructorPlaceTerm(ci));
         return ci;
     }
 
@@ -679,7 +679,7 @@ public class X10ConstructorDecl_c extends ConstructorDecl_c implements X10Constr
     public Node typeCheck(ContextVisitor tc) {
         X10ConstructorDecl_c n = this;
         
-        ThisChecker thisC = new ThisChecker(tc.job());
+        ThisChecker thisC = new ThisChecker(tc.job(), tc.context());
         if (formals != null) {
             visitList(formals, thisC);
             if (thisC.error()) {

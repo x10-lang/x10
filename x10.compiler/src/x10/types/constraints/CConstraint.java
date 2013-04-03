@@ -99,7 +99,7 @@ public interface CConstraint extends XConstraint<Type> {
      * Return true if the constraint recursively contains a Place term. 
      * @return
      */
-    public boolean hasPlaceTerm();
+    //public boolean hasPlaceTerm();
 
     /**
      * Copy this constraint logically; that is, create a new constraint

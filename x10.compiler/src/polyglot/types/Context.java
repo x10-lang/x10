@@ -446,6 +446,7 @@ public class Context implements Resolver, Cloneable
     public X10ClassDef currentClassDef() { return skipDepType().scope; }
     public XConstrainedTerm currentFinishPlaceTerm() { return currentFinishPlaceTerm;}
     public XConstrainedTerm currentPlaceTerm() { return currentPlaceTerm; }
+    public XTerm<Type> currentPlace(TypeSystem ts) { return currentPlaceTerm == null ? PlaceChecker.globalHere(ts) : currentPlaceTerm.term(); }
     public CConstraint currentConstraint() {
         CConstraint result = currentConstraint;
         if (result == null) {
@@ -583,8 +584,8 @@ public class Context implements Resolver, Cloneable
         // fold in the current constraint
         r.addSigma(currentConstraint(), m);
         r.addSigma(currentPlaceTerm, typeSystem().Place(), m);
-        PlaceChecker.AddHereEqualsPlaceTerm(r, this);
-        r.addSigma(thisPlace, typeSystem().Place(), m);
+        //PlaceChecker.AddHereEqualsPlaceTerm(r, this);
+        //r.addSigma(thisPlace, typeSystem().Place(), m);
         // fold in the real clause of the base type
         Type selfType = this.currentDepType();
         if (selfType != null) {

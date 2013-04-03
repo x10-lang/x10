@@ -38,6 +38,7 @@ import x10.constraint.XVar;
 import x10.constraint.XTerm;
 import x10.types.constraints.ConstraintManager;
 import x10.errors.Errors;
+import x10.errors.Errors.IllegalConstraint;
 import x10.errors.Errors.PlaceTypeErrorMethodShouldBeLocalOrGlobal;
 import x10.types.FunctionType_c;
 import polyglot.types.Context;
@@ -64,32 +65,21 @@ import x10.util.Synthesizer;
 public class PlaceChecker {
 	
 	/**
-	 * Making sure we have only one "synthetic here" variable per TypeSystem. 
+	 * Making sure we have only one "here" variable per TypeSystem. 
 	 */
 	static final Map<TypeSystem, XVar<Type>> synthHereMap = new HashMap<TypeSystem, XVar<Type>>();
 	// lshadare: is there a more reasonable way to do this? 
-	public static XVar<Type> here(TypeSystem ts) {
+	// [DC] this here variable is used in class guards, field types, method guards, params,
+	// and anywhere in a method body that is not inside an 'at'.
+	public static XVar<Type> globalHere(TypeSystem ts) {
 		if (!synthHereMap.containsKey(ts)) {
-			XVar<Type> here = ConstraintManager.getConstraintSystem().makeUQV(ts.Place(), "synthetic here");
+			XVar<Type> here = ConstraintManager.getConstraintSystem().makeUQV(ts.Place(), "here");
 			synthHereMap.put(ts,  here);
 		} 
 		return synthHereMap.get(ts);
 	}
 
-	private static final String PLACE_NAME = "here"; // temporary XTENLANG-2674 hack
 
-	/**
-	 * 
-	 * @return a newly constructed UQV representing a fixed but unknown place.
-	 */
-	public static XUQV<Type> makeHereUQV(TypeSystem ts) {
-		return ConstraintManager.getConstraintSystem().makeUQV(ts.Place(), PLACE_NAME);
-	}
-
-	
-	public static boolean isGlobalPlace(XTerm<Type> term) {
-		return (term instanceof XEQV && term.toString().startsWith(PLACE_NAME));
-	}
 
 	
 	/*
@@ -122,32 +112,6 @@ public class PlaceChecker {
 	}
 	*/
 
-	/**
-	 * Caller must ensure that self.home==here constraint can be consistently added to type.
-	 * @param type
-	 * @param cxt
-	 * @return
-	 */
-	public static Type AddIsHereClause(Type type, Context cxt) {
-		if (true || Types.isX10Struct(type))
-			return type;
-		ConstrainedType type1 = Types.toConstrainedType(type);
-		XTerm<Type> selfVar = Types.selfVar(type1);
-		assert selfVar != null;
-		/*if (selfVar == null) {
-		    selfVar = ConstraintManager.getConstraintSystem().makeEQV("self");
-		    try {
-		        type = X10TypeMixin.setSelfVar(type, selfVar);
-		    } catch (SemanticException e) {
-		        throw new InternalCompilerError("Cannot set self var for type "+type, e);
-		    }
-		}*/
-		XTerm<Type> locVar = homeVar(selfVar, cxt.typeSystem());
-		XConstrainedTerm pt = (((Context) cxt).currentPlaceTerm());
-		if (locVar != null && pt != null)
-			type = Types.addBinding(type1, locVar, pt.term()); // here());// here, not pt); // pt, not PlaceChecker.here()
-		return type;
-	}
 
 	/**
 	 * Replace occurrences of here in type by the context's place term.
@@ -156,25 +120,15 @@ public class PlaceChecker {
 	 * @return
 	 */
 	public static Type ReplaceHereByPlaceTerm(Type type, Context xct) {
-		if (xct.currentPlaceTerm() == null)
-			assert true;
-		try {
-			if (xct.currentPlaceTerm() !=null) 
-				type = Subst.subst(type, xct.currentPlaceTerm().term(), here(type.typeSystem())); 
-		} catch (SemanticException z) {
-			throw new InternalCompilerError("Unexpectedly inconsistent constraint.");
-		}
-		return type;
+		if (xct.currentPlaceTerm() == null) return type; 
+		return ReplaceHereByPlaceTerm(type, xct.currentPlaceTerm());
 	}
 	
 	public static Type ReplaceHereByPlaceTerm(Type type, XConstrainedTerm pt) {
-		try {
-				type = Subst.subst(type, pt.term(), here(type.typeSystem())); 
-		} catch (SemanticException z) {
-			throw new InternalCompilerError("Unexpectedly inconsistent constraint.");
-		}
-		return type;
+		assert pt != null;
+		return ReplaceHereByPlaceTerm(type, pt.term());
 	}
+
 	/**
 	 * Replace occurrences of here in type with term.
 	 * @param type
@@ -182,18 +136,19 @@ public class PlaceChecker {
 	 * @return
 	 */
 	public static Type ReplaceHereByPlaceTerm(Type type, XTerm<Type> term) {
+		// [DC] no idea what the following is talking about, commenting out the code to see if anything breaks...
 		// Do not replace for closure types. The ! in such types is 
 		// evaluated dynamically, i.e. at the point of evaluation of the closure.
-		if (type instanceof FunctionType_c)
-			return type;
-		//assert term != null;
+		//if (type instanceof FunctionType_c)
+		//	return type;
+		
+		if (term == null) return type;
+
 		try {
-			if (term != null)
-				type = Subst.subst(type,  term, here(type.typeSystem())); 
+			return Subst.subst(type,  term, globalHere(type.typeSystem())); 
 		} catch (SemanticException z) {
 			throw new InternalCompilerError("Unexpectedly inconsistent constraint.");
 		}
-		return type;
 	}
 
 	public static Type ReplacePlaceTermByHere(Type type, Context context) {
@@ -203,14 +158,14 @@ public class PlaceChecker {
 		XTerm<Type> term = h.term();
 		try {
 			if (term instanceof XVar)
-				type = Subst.subst(type,  here(type.typeSystem()), (XVar<Type>)term); 
+				type = Subst.subst(type,  globalHere(type.typeSystem()), (XVar<Type>)term); 
 		} catch (SemanticException z) {
 			throw new InternalCompilerError("Unexpectedly inconsistent constraint.");
 		}
 		return type;
 	}
 
-
+/*
 	public static void AddHereEqualsPlaceTerm(CConstraint c, Context xc) {
 		if (! c.consistent())
 			return;
@@ -218,12 +173,16 @@ public class PlaceChecker {
 		if (placeTerm != null)  
 			c.addEquality(here(xc.typeSystem()), placeTerm.term());
 	}
-
+*/
+	
+	/*
 	public static void setHereTerm(MethodDef md, Context c) {
 	    c = c.pushBlock();
         c.setPlace(XConstrainedTerm.make(makeHereUQV(md.typeSystem()), md.typeSystem().Place()));
 	}
+	*/
 
+	/*
 	public static void setHereTerm(FieldDef fd, Context c) {
 		Flags flags = fd.flags();
 		if (flags.isStatic()) {
@@ -247,7 +206,9 @@ public class PlaceChecker {
 					c.setPlace(XConstrainedTerm.make(h, xts.Place()));
 			}
 	}
+	*/
 
+	/*
 	public static XConstrainedTerm methodPlaceTerm(MethodDef md) {
 	    // XTENLANG-2725: in X10 2.2, all methods are "global"
 	    boolean isGlobal = true; // || md.flags().isStatic() || Types.isX10Struct(ct.asType());
@@ -268,6 +229,12 @@ public class PlaceChecker {
 	    XTerm<Type> term = makeHereUQV(cd.typeSystem());
         return XConstrainedTerm.instantiate(d, term);
 	}
+	*/
+
+	public static XConstrainedTerm globalPlaceTerm(TypeSystem ts) {
+	    CConstraint d = ConstraintManager.getConstraintSystem().makeCConstraint(ts.Place(), ts);
+        return XConstrainedTerm.instantiate(d, globalHere(ts));
+	}
 
 	/**
 	 * 
@@ -284,22 +251,50 @@ public class PlaceChecker {
 	*/
 
 
+	static int counter = 0;
+
 	/** Return a place term where the current place is derived statically from expr if possible. */
-	public static XConstrainedTerm computePlaceTerm(Expr expr, Context xc, TypeSystem ts) throws SemanticException {
+	public static XConstrainedTerm computePlaceTerm(Expr expr, Context xc, TypeSystem ts) {
+		if (expr == null) {
+			
+		}
 		Type exprType = expr.type();
 		if (!ts.isImplicitCastValid(exprType, ts.Place(), xc)) {
 			throw new InternalCompilerError("The place argument of an \"at\" must be of type Place", expr.position());
 		}
 
 		CConstraint d = Types.xclause(exprType);
-		d = (d==null) ? ConstraintManager.getConstraintSystem().makeCConstraint(Types.baseType(exprType),ts) : d.copy();
-
-		CConstraint pc = null;
-		XTerm<Type> term = ts.xtypeTranslator().translate(pc, expr, xc);
-		if (term == null) {
-			term = makeHereUQV(ts);
+		if (d == null) {
+			d = ConstraintManager.getConstraintSystem().makeCConstraint(Types.baseType(exprType),ts);
 		}
 
+		XTerm<Type> term;
+		try {
+			CConstraint pc = null;
+			term = ts.xtypeTranslator().translate(pc, expr, xc);
+		} catch (IllegalConstraint e) {
+			term = null;
+		}
+
+		if (term == null) {
+			// [DC] this means that p in at (p) { ... } is not something the type system can understand
+			// e.g. a mutable var or an m() that is not a property method.  Use an eqv.
+			// OR we got the exception above, which I think means the same thing but not sure.
+			term = ConstraintManager.getConstraintSystem().makeUQV(ts.Place(), "unknown_place"+(counter++));
+		}
+
+		// [DC] note, adds to d: d.self() == term
+		return XConstrainedTerm.instantiate(d, term);
+	}
+
+	/** Return a place term that has no information about the target place. */
+	public static XConstrainedTerm computeUnknownPlaceTerm(Context xc, TypeSystem ts) {
+
+		CConstraint d = ConstraintManager.getConstraintSystem().makeCConstraint(ts.Place(), ts);
+
+		XTerm<Type> term = ConstraintManager.getConstraintSystem().makeUQV(ts.Place(), "unknown_ateach_place"+(counter++));
+
+		// [DC] note, adds to d: d.self() == term
 		return XConstrainedTerm.instantiate(d, term);
 	}
 }

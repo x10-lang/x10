@@ -695,7 +695,7 @@ public abstract class AbstractWSClassGen implements ILocalToFieldContainerMap {
                                           Name.make(name),
                                           genericTN, // This is for generic type, if any 
                                           Collections.singletonList(expr),
-                                          PlaceChecker.AddIsHereClause(type2, xct),
+                                          type2,
                                           Collections.singletonList(type1),
                                           xct);
         

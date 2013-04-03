@@ -56,8 +56,7 @@ public class X10InitializerDef_c extends InitializerDef_c implements X10Initiali
     protected XConstrainedTerm placeTerm;
     public XConstrainedTerm placeTerm() { return placeTerm; }
     public void setPlaceTerm(XConstrainedTerm pt) {
-        if (placeTerm != null)
-            assert (placeTerm == null);
+        assert placeTerm == null;
         placeTerm = pt;
     }
     

@@ -181,7 +181,7 @@ public class WSSynthesizer {
     protected void genRemapMethod(ClassSynth classSynth, boolean isEmptyMethod) throws SemanticException {
         Context ct = classSynth.getContext();
         ClassType cType = classSynth.getDef().asType();
-        Type scType = PlaceChecker.AddIsHereClause(cType, ct);
+        Type scType = cType;
         MethodSynth methodSynth = classSynth.createMethod(classSynth.pos(), REMAP.toString());
                 
         //upcast new instance
@@ -231,9 +231,9 @@ public class WSSynthesizer {
         Context ct = classSynth.getContext();
         ClassDef cDef = classSynth.getClassDef();
         Type cType = classSynth.getClassDef().asType();
-        Type ccType = PlaceChecker.AddIsHereClause(cType, ct);
+        Type ccType = cType;
         Type sType = cDef.superType().get();
-        Type scType = PlaceChecker.AddIsHereClause(sType, ct);
+        Type scType = sType;
 
         ConstructorSynth conSynth = classSynth.createConstructor(compilerPos);
         conSynth.setFlags(Flags.PROTECTED);
@@ -365,7 +365,7 @@ public class WSSynthesizer {
                                          Name.make("cast"),
                                          genericTN, // This is for generic type, if any 
                                          Collections.singletonList(expr),
-                                         PlaceChecker.AddIsHereClause(type2, ct),
+                                         type2,
                                          Collections.singletonList(type1),
                                          ct);
        

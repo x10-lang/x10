@@ -148,6 +148,7 @@ public class Converter {
 			// OK that succeeded. Now ensure that there is a depexpr created for the check.
 
 			CConstraint cn = Types.xclause(toType);
+			/* [DC] no idea what this means
 			if (cn.hasPlaceTerm()) {
 				// Failed to translate the constraint
 				// For now the only possibility is the constraint refers
@@ -155,6 +156,7 @@ public class Converter {
 				//throw new Errors.CannotGenerateCast(e, e.position());
 				return null;
 			}
+			*/
 
 			tn = new Synthesizer(nf, ts).makeCanonicalTypeNodeWithDepExpr(e.position(), toType, tc);
 			if (tn.type() != toType) {

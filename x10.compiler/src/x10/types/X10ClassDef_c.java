@@ -787,17 +787,15 @@ public class X10ClassDef_c extends ClassDef_c implements X10ClassDef {
 		return false;
 	}
 
-	// [DC] assuming this is the correct thing to do, have to implement the following methods so do it as a setter/getter...
-	XConstrainedTerm placeTerm;
-
+	// [DC] CodeDef requires placeTerm().
 	@Override
 	public XConstrainedTerm placeTerm() {
-		return placeTerm;
+		assert false;
+		return null;
 	}
 
 	@Override
 	public void setPlaceTerm(XConstrainedTerm xt) {
-		placeTerm = xt;
-		
+		assert false;
 	}
 }

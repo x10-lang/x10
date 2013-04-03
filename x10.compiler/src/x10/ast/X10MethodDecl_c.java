@@ -196,7 +196,7 @@ public class X10MethodDecl_c extends MethodDecl_c implements X10MethodDecl {
 				offerType == null ? null : offerType.typeRef());
 
 		mi.setThisDef(ct.thisDef());
-		mi.setPlaceTerm(PlaceChecker.methodPlaceTerm(mi)); 
+		//mi.setPlaceTerm(PlaceChecker.methodPlaceTerm(mi)); 
 		return mi;
 	}
 
@@ -425,15 +425,11 @@ public class X10MethodDecl_c extends MethodDecl_c implements X10MethodDecl {
 		// entering the appropriate children
 		if (child == body || child == returnType || child == hasType || child == offerType || child == guard
 				|| (formals != null && formals.contains(child))|| (throwsTypes != null && throwsTypes.contains(child))) {
-		    X10MethodDef md = methodDef();
-		    XConstrainedTerm placeTerm = md == null ? null : md.placeTerm();
-		    if (placeTerm == null) {
-		        placeTerm = PlaceChecker.methodPlaceTerm(md);
-		    }
-			if (c == oldC)
-				c = c.pushBlock();
-			c.setPlace(placeTerm);
-		}
+			// [DC] use the global 'here'
+		    if (c == oldC)
+		        c = c.pushBlock();
+		    c.setPlace(PlaceChecker.globalPlaceTerm(methodDef().typeSystem()));
+	}
 
 		if (child == body && offerType != null && offerType.typeRef().known()) {
 			if (oldC == c)

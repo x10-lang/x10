@@ -736,7 +736,7 @@ public class X10New_c extends New_c implements X10New {
         // This field does not exist at runtime in the object -- but that does not
         // prevent the compiler from imagining that it exists.
         ConstrainedType type1 = Types.toConstrainedType(type);
-        type1 = (ConstrainedType) PlaceChecker.AddIsHereClause(type1, tc.context());
+        type1 = (ConstrainedType) type1;
         // Add self != null
         type1 = (ConstrainedType) Types.addDisBinding(type1, Types.selfVar(type1), ConstraintManager.getConstraintSystem().xnull(ts));
         if (! Types.consistent(type1))

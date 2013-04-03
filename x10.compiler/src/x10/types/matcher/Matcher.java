@@ -228,18 +228,15 @@ public class Matcher {
 				xthis = ConstraintManager.getConstraintSystem().makeThis(thisType); 
 		}
 
-		final XVar<Type> codePlace = Types.getPlaceTerm(me);
-		XConstrainedTerm currentPlaceTerm = context.currentPlaceTerm();
-		final XTerm<Type> currentPlace = currentPlaceTerm != null ? 
-										 	currentPlaceTerm.term() : 
-											ConstraintManager.getConstraintSystem().makeEQV(context.typeSystem().Place());
+		final XVar<Type> declarationHere = PlaceChecker.globalHere(xts);
+		final XTerm<Type> currentPlace = context.currentPlaceTerm() != null ? context.currentPlaceTerm().term() : PlaceChecker.globalHere(xts);
 
 		final ParameterType[] X = new ParameterType[typeFormals.size()];
 		final Type[] Y = new Type[typeFormals.size()];
 		for (int i = 0; i < typeFormals.size(); i++) {
 	            Type xtype = xts.expandMacros(typeFormals.get(i));
 	            Y[i] = xts.expandMacros(typeActuals.get(i));
-	            Y[i] = Subst.subst(Y[i], currentPlace, codePlace);
+	            Y[i] = Subst.subst(Y[i], currentPlace, declarationHere);
 	           
 	            // TODO: should enforce this statically
 	            assert xtype instanceof ParameterType : xtype + " is not a ParameterType, is a " 
@@ -269,7 +266,7 @@ public class Matcher {
 	        		public void run() {
 	        			try {
 	        				Type rt = me.returnType(); // may be a macrotype
-	        				rt = Subst.subst(rt, currentPlace, codePlace);
+	        				rt = Subst.subst(rt, currentPlace, declarationHere);
 	        				Type newReturnType = Subst.subst(rt, y2eqv, x2, Y, X);
 	        				// Replace all outer#this variables in the constraint
 	        				// (if any) by QualifiedVar's.
@@ -336,7 +333,7 @@ public class Matcher {
 			if (checkActuals) {
 				for (Type t : formals) {
 					t = Subst.subst(t, y2eqv, x2, Y, X); 
-					t = Subst.subst(t, currentPlace, codePlace);
+					t = Subst.subst(t, currentPlace, declarationHere);
 					newFormalTypes.add(t);
 				}
 			} else 	{
@@ -349,7 +346,7 @@ public class Matcher {
 				}
 				for (Type t : formals) {
 					t = Subst.subst(t, y2eqv, x2, Y, X); 
-					t = Subst.subst(t, currentPlace, codePlace);
+					t = Subst.subst(t, currentPlace, declarationHere);
 					if (! (env == null || env.valid())) {
 						if (! isStatic)
 							t = Subst.addIn(t, env); 
@@ -380,19 +377,19 @@ public class Matcher {
             for (Type t :  Types.expandTypes(me.throwTypes(), xts)) {
                 t = Subst.subst(t, y2eqv, x2, Y, X); 
                 // [DC] no idea what this place stuff is for
-                t = Subst.subst(t, currentPlace, codePlace);
+                t = Subst.subst(t, currentPlace, declarationHere);
                 newThrowTypes.add(t);
             } 
             newMe = (X10ProcedureInstance<?>) newMe.throwTypes(newThrowTypes);
 		}
 		{ // set up the guard.
 	        	CConstraint newWhere = Subst.subst(me.guard(), y2eqv, x2, Y, X); 
-	        	newWhere = Subst.subst(newWhere, currentPlace, codePlace);
+	        	newWhere = Subst.subst(newWhere, currentPlace, declarationHere);
 	        	newMe = newMe.guard(newWhere);
 		}
 		{   // set up the type guard.
 	        	TypeConstraint newTWhere = Subst.subst(me.typeGuard(), y2eqv, x2, Y, X);
-	        	newTWhere = Subst.subst(newTWhere, currentPlace, codePlace);
+	        	newTWhere = Subst.subst(newTWhere, currentPlace, declarationHere);
 	        	newMe = newMe.typeGuard(newTWhere);
 		}
 		if (! checkActuals) {
@@ -418,11 +415,13 @@ public class Matcher {
 		if ( query != null) {
 			if (! query.consistent())
 				throw new SemanticException("Call invalid; guard inconsistent for actual parameters of call.");
-			if (! returnEnv.entails(query,
-					new ConstraintMaker() {
+		
+			ConstraintMaker cmaker = new ConstraintMaker() {
 				public CConstraint make() throws XFailure {
 					return context2.constraintProjection(returnEnv, query);
-				}})) {
+				}
+			};
+			if (! returnEnv.entails(query, cmaker)) {
 				if (dynamicChecks)
 					newMe = newMe.checkConstraintsAtRuntime(true);
 				else

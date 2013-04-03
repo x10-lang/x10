@@ -1379,6 +1379,7 @@ public class Synthesizer {
     public X10CanonicalTypeNode makeCanonicalTypeNodeWithDepExpr(Position pos, Type type, ContextVisitor tc) {
     	NodeFactory nf = ((NodeFactory) tc.nodeFactory());
     	TypeSystem ts = ((TypeSystem) tc.typeSystem());
+    	Context ctx = tc.context();
     	
     	type = PlaceChecker.ReplacePlaceTermByHere(type, tc.context());
 		CConstraint c = Types.xclause(type);
@@ -1405,7 +1406,7 @@ public class Synthesizer {
 				typeArgs.add(nf.X10CanonicalTypeNode(pos, t));
 		}
 
-		DepParameterExpr dep = nf.DepParameterExpr(pos, makeExpr(c, Types.baseType(type), pos));
+		DepParameterExpr dep = nf.DepParameterExpr(pos, makeExpr(ctx, c, Types.baseType(type), pos));
 		
 		QName qName = QName.make(typeName);
 		QName qual = qName.qualifier();
@@ -1466,7 +1467,7 @@ public class Synthesizer {
      * @seeAlso X10TypeTranslator.constraint(...): it generates a constraint from an AST.
      */
     @SuppressWarnings("unchecked")
-	Expr makeExpr(CConstraint c, XTerm<Type> t, Type baseType, Position pos) {
+	private Expr makeExpr(Context ctx, XTerm<Type> t, Type baseType, Position pos) {
     	if (t instanceof CQualifiedVar) 
             return makeExpr((CQualifiedVar) t, pos);
         if (t instanceof XLit)
@@ -1486,11 +1487,11 @@ public class Synthesizer {
         	assert false;
             //return makeExpr((XEQV<Type>) t, baseType, pos); // this must occur before XLocal_c
         if (t instanceof XUQV)
-            return makeExpr((XUQV<Type>) t, pos); // this must occur before XLocal_c
+            return makeExpr(ctx, (XUQV<Type>) t, pos); // this must occur before XLocal_c
         if (t instanceof CLocal)
             return makeExpr((CLocal) t, pos);
         if (t instanceof XExpr)
-            return makeExpr(c, (XExpr<Type>) t, baseType, pos);
+            return makeExpr(ctx, (XExpr<Type>) t, baseType, pos);
         
         // FIXME: warn about being unable to translate the term
         System.out.println("Cannot translate term " + t);
@@ -1530,7 +1531,7 @@ public class Synthesizer {
     }*/
     
     // lshadare w
-    Expr makeExpr(CQualifiedVar v, Position pos) {
+    private Expr makeExpr(CQualifiedVar v, Position pos) {
         ClassType ct = v.type().toClass();
         
         XTerm<Type> var = v.receiver();
@@ -1561,29 +1562,31 @@ public class Synthesizer {
                 : xnf.Special(pos, X10Special.THIS, tn);
     }
     */
-    Expr makeExpr(XUQV<Type> t, Position pos) {
+    private Expr makeExpr(Context context, XUQV<Type> t, Position pos) {
     	if (t.name().equals("self"))
     		return xnf.Special(pos, X10Special.SELF);
     	if (t.name().equals("this"))
             return xnf.Special(pos, X10Special.THIS);
         
         String str = t.toString();
-        // [DC] the following check doesn't always work -- we get 'here' that does match the 'global'
-        if (t == PlaceChecker.here(t.type().typeSystem()))
+        // Either it's the global 'here'
+        if (t == PlaceChecker.globalHere(t.type().typeSystem()))
             return xnf.Here(pos);
-        // [DC] this seems like a reasonable hack at this point:
-        if (str.equals("here"))
+        // Or we're inside an 'at'
+        if (t.equals(context.currentPlaceTerm().term())) {
             return xnf.Here(pos);
+        }
+        // Otherwise it's not a 'here', it's something else...
         return xnf.AmbExpr(pos, xnf.Id(pos,Name.make(t.toString())));
     }
 
     // FIXME: merge with makeExpr(XEQV, Position)
-    Expr makeExpr(CLocal t, Position pos) {
+    private Expr makeExpr(CLocal t, Position pos) {
         String str = t.def().toString();
         return xnf.AmbExpr(pos, xnf.Id(pos,t.def().name()));
     }
 
-    Expr makeExpr(XLit<Type, ?> t, Position pos) {
+    private Expr makeExpr(XLit<Type, ?> t, Position pos) {
     	Type lit_type = t.type();
         Object val = t.val();
         if (val == null)
@@ -1608,10 +1611,10 @@ public class Synthesizer {
         return null;
     }
 
-    Expr makeExpr(CConstraint c, XExpr<Type> t, Type baseType, Position pos) {
+    private Expr makeExpr(Context ctx, XExpr<Type> t, Type baseType, Position pos) {
         List<Expr> args = new ArrayList<Expr>();
         for (XTerm<Type> a : t.children()) {
-            Expr e = makeExpr(c, a, baseType, pos);
+            Expr e = makeExpr(ctx, a, baseType, pos);
             if (e == null)
                 return null;
             args.add(e);
@@ -1622,7 +1625,7 @@ public class Synthesizer {
         	if (t.isHidden())
         		return null;
         	
-        	Receiver r = makeExpr(c, t.get(0), baseType, pos);
+        	Receiver r = makeExpr(ctx, t.get(0), baseType, pos);
         	if (r == null) {
         		r = makeTypeNode(t.get(0), baseType, pos);
         	}
@@ -1660,14 +1663,14 @@ public class Synthesizer {
 
     }
 
-    public List<Expr> makeExpr(CConstraint c, Type baseType, Position pos) {
+    public List<Expr> makeExpr(Context ctx, CConstraint c, Type baseType, Position pos) {
         List<Expr> es = new ArrayList<Expr>();
 
         if (c == null)
             return es;
 
         for (XTerm<Type> term : c.extTerms()) {
-            Expr e = makeExpr(c, term, baseType, pos);
+            Expr e = makeExpr(ctx, term, baseType, pos);
             if (e != null)
                 es.add(e);
         }

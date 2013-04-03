@@ -84,6 +84,7 @@ public class CSmtConstraint extends XSmtConstraint<Type> implements CConstraint 
 		return bindingForVar(self());
 	}
 
+	/*
 	@Override
 	public boolean hasPlaceTerm() {
 		// a global place term has to be a variable so it suffices
@@ -94,6 +95,7 @@ public class CSmtConstraint extends XSmtConstraint<Type> implements CConstraint 
 		}
 		return false;
 	}
+	*/
 
 	@Override
 	public void addIn(CConstraint c) {

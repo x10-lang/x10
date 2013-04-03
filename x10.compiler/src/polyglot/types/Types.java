@@ -85,6 +85,7 @@ import x10.types.X10ProcedureDef;
 import x10.types.X10ProcedureInstance;
 import x10.types.X10ThisVar;
 import x10.types.XTypeTranslator;
+import x10.types.checker.PlaceChecker;
 import x10.types.constraints.CConstraint;
 import x10.types.constraints.ConstraintManager;
 import x10.types.constraints.SubtypeConstraint;
@@ -1621,7 +1622,9 @@ public class Types {
 	}
 
 	public static XVar<Type> getPlaceTerm(ProcedureInstance<?> mi) {
-    	return ConstraintManager.getConstraintSystem().makeUQV(mi.typeSystem().Place());
+		return PlaceChecker.globalHere(mi.typeSystem());
+		
+    	//return ConstraintManager.getConstraintSystem().makeUQV(mi.typeSystem().Place());
     	/* [DC] old implementation -- don't want to have a placeTerm on methods...
 	    XConstrainedTerm pt = ((ProcedureDef) mi.def()).placeTerm();
 	    if (pt == null) {

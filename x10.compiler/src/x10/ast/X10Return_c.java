@@ -77,11 +77,14 @@ public class X10Return_c extends Return_c {
 		// Now this value is being returned from this method.
 		// Replace PlaceTerm from the context with here so that exprType will 
 		// correctly be of ! type in the calling environment (which does not know about PlaceTerm.
+		// [DC] removing this to test, as i don't think it is needed anymore...
+		/*
 		if (exprType != null) {
 			exprType = PlaceChecker.ReplacePlaceTermByHere(exprType, tc.context());
 
 			n = (X10Return_c) n.expr(n.expr().type(exprType));
 		}
+		*/
 
 		// If the return type is not yet known, set it to the type of the value being returned.
 		if (ci instanceof FunctionDef) {

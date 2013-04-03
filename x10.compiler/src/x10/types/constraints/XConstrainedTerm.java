@@ -32,19 +32,6 @@ public class XConstrainedTerm  {
     CConstraint constraint;
 
     /**
-     * Return a (non-null) XConstrainedTerm built from t and c. 
-     * c must have a bound self variable, and t cannot contain that variable.
-     * c is modified in place.
-     * @param t
-     * @param c
-     * @return
-     * @throws XFailure
-     */
-    public static XConstrainedTerm make(XTerm<Type> t, CConstraint c)  {
-        return new XConstrainedTerm(t, c);
-    }
-
-    /**
      * Return a (non-null) XConstrainedTerm built from t and c. The constraint
      * recorded with the returned value is c{self==t}.
      * c is modified in place.
