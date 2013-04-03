@@ -951,7 +951,8 @@ public class Desugarer extends ContextVisitor {
         c.visit(new ClosureCaptureVisitor(this.context(), c.closureDef()));
         //if (!c.closureDef().capturedEnvironment().isEmpty())
         //    System.out.println(c+" at "+c.position()+" captures "+c.closureDef().capturedEnvironment());
-        Expr cast = nf.X10Cast(pos, tn, e, Converter.ConversionType.CHECKED).type(t);
+        boolean checked = !ts.isSubtype(Types.baseType(e.type()), t, context);
+        Expr cast = nf.X10Cast(pos, tn, e, checked ? Converter.ConversionType.CHECKED : Converter.ConversionType.UNCHECKED).type(t);
         MethodInstance ci = c.closureDef().asType().applyMethod();
         return nf.ClosureCall(pos, c, Collections.singletonList(cast)).closureInstance(ci).type(ot);
     }
