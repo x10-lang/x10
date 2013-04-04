@@ -26,7 +26,7 @@ public class Statements9x3m extends x10Test {
     }
 
 
-// file Statements line 950
+// file Statements line 949
 
  static class Example {
  static   class ThisExn extends Exception {}

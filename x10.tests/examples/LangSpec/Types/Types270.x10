@@ -18,6 +18,7 @@
 import harness.x10Test;
 
 import x10.util.*;
+import x10.array.*;
 
 public class Types270 extends x10Test {
    public def run() : boolean = (new Hook()).run();

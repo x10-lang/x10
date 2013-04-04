@@ -26,7 +26,7 @@ public class Types6s1l_Bad42_MustFailCompile extends x10Test {
     }
 
 
-// file Types line 1414
+// file Types line 1415
 //OPTIONS: -STATIC_CHECKS
  static class Keyed {
   private val k : Int;

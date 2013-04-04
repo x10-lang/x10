@@ -26,7 +26,7 @@ public class Types500 extends x10Test {
     }
 
 
-// file Types line 2491
+// file Types line 2492
  static class Shape {
   def isTriangle() = false;
 }

@@ -26,7 +26,7 @@ public class Types9l9q extends x10Test {
     }
 
 
-// file Types line 1488
+// file Types line 1489
  static  class Example {
  static class Thing(p:Int){}
 static def example(){

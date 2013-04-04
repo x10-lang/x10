@@ -26,7 +26,7 @@ public class Statements3o9s extends x10Test {
     }
 
 
-// file Statements line 723
+// file Statements line 722
  static  class Example { static def example() {
 var sum : Int = 0;
 for(i in 1..10) sum += i;

@@ -26,14 +26,14 @@ public class Classes280 extends x10Test {
     }
 
 
-// file Classes line 2403
+// file Classes line 2401
  static class MyRegion(rank:Int) {
   static type MyRegion(n:Int)=MyRegion{rank==n};
   def this(r:Int):MyRegion(r) {
     property(r);
   }
-  def this(diag:Rail[Int]):MyRegion(diag.size){
-    property(diag.size);
+  def this(diag:Rail[Int]):MyRegion(diag.size as Int){
+    property(diag.size as Int);
   }
   def mockUnion(r:MyRegion(rank)):MyRegion(rank) = this;
   def example() {

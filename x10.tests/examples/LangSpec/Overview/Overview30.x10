@@ -29,7 +29,7 @@ public class Overview30 extends x10Test {
 // file Overview line 136
  static  class Whatevermore {
   def plzchk(){
-    val square = (i:Int) => i*i;
+    val square = (i:Long) => ((i*i) as Int);
   val r : Rail[Int] = new Rail[Int](10, square);
 }}
 

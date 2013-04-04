@@ -26,7 +26,7 @@ public class Classes250 extends x10Test {
     }
 
 
-// file Classes line 2185
+// file Classes line 2183
  static class Oddvec {
   var v : Rail[Int] = new Rail[Int](3);
   public operator this () =

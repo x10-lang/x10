@@ -26,7 +26,7 @@ public class Types470 extends x10Test {
     }
 
 
-// file Types.tex,  line 2469
+// file Types.tex,  line 2470
 
  static class Types48TestStmt{
   def check()  {

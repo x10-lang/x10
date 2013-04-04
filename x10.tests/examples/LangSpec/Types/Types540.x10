@@ -26,7 +26,7 @@ public class Types540 extends x10Test {
     }
 
 
-// file Types line 2649
+// file Types line 2650
  static  class Exampllll{
   static def choose[T](a: T, b: T): T = a;
   static val j : Any = choose("string", 1);

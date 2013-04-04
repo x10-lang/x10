@@ -41,11 +41,11 @@ public class Structs30 extends x10Test {
   static def divmod(var a:UInt, b:UInt): Pair[UInt, UInt] {
      assert b > 0u;
      var q : UInt = 0u;
-     while (a > b) {q++; a -= b;}
+     while (a > b) {q += 1u; a -= b;}
      return Pair(q, a);
   }
   static def example() {
-     val qr = divmod(22, 7);
+     val qr = divmod(22u, 7u);
      assert qr.first == 3u && qr.second == 1u;
   }
 }

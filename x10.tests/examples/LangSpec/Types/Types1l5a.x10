@@ -26,13 +26,13 @@ public class Types1l5a extends x10Test {
     }
 
 
-// file Types line 3082
+// file Types line 3083
  static class Extra {
-  static def useArray(Rail[Extra]) {}
+  static def useRail(Rail[Extra]) {}
   public static def main(argv:Rail[String]) {
      val x : Extra = new Extra();
-     //ERROR: useArray([x]);
-     useArray([x as Extra]);
+     //ERROR: useRail([x]);
+     useRail([x as Extra]);
   }
 }
 

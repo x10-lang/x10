@@ -26,7 +26,7 @@ public class TypesHaszero20 extends x10Test {
     }
 
 
-// file Types line 2108
+// file Types line 2109
  static class Cell1[T] {
   public var contents: T;
   def this(t:T) { contents = t; }

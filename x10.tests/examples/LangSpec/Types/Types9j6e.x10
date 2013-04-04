@@ -26,7 +26,7 @@ public class Types9j6e extends x10Test {
     }
 
 
-// file Types line 1832
+// file Types line 1833
  static class Generic {
   public static def inst[T](x:Any):Boolean = x instanceof T;
   // With -VERBOSE, the following line gets a warning

@@ -29,7 +29,7 @@ public class Expressions4f4y extends x10Test {
 // file Expressions line 1675
  static  class Example { def example() {
 
-val a = new Array[String]((2..3) * (4..5), "hi!");
+val a = new Array[String](Region.make(2..3, 4..5), "hi!");
 a([2,4]) = "converted!";
 } }
 

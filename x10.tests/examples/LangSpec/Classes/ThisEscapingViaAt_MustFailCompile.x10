@@ -26,7 +26,7 @@ public class ThisEscapingViaAt_MustFailCompile extends x10Test {
     }
 
 
-// file Classes line 2652
+// file Classes line 2650
  
 // This code violates this chapter's constraints
 // and thus will not compile in X10.

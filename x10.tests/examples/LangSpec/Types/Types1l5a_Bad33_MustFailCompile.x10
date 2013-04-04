@@ -26,13 +26,13 @@ public class Types1l5a_Bad33_MustFailCompile extends x10Test {
     }
 
 
-// file Types line 3082
+// file Types line 3083
  static class Extra {
-  static def useArray(Rail[Extra]) {}
+  static def useRail(Rail[Extra]) {}
   public static def main(argv:Rail[String]) {
      val x : Extra = new Extra();
- useArray([x]); // ERR
-     useArray([x as Extra]);
+ useRail([x]); // ERR
+     useRail([x as Extra]);
   }
 }
 
