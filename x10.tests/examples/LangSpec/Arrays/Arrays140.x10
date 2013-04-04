@@ -16,9 +16,8 @@
  */
 
 import harness.x10Test;
+
 import x10.array.*;
-
-
 
 public class Arrays140 extends x10Test {
    public def run() : boolean = (new Hook()).run();
@@ -27,7 +26,7 @@ public class Arrays140 extends x10Test {
     }
 
 
-// file Arrays line 279
+// file Arrays line 268
  static  class Example{
 static def addInto(src: Array[Int], dest:Array[Int])
   {src.region == dest.region}

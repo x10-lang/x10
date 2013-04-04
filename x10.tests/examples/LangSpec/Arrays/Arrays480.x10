@@ -16,9 +16,8 @@
  */
 
 import harness.x10Test;
+
 import x10.array.*;
-
-
 
 public class Arrays480 extends x10Test {
    public def run() : boolean = (new Hook()).run();
@@ -27,10 +26,10 @@ public class Arrays480 extends x10Test {
     }
 
 
-// file Arrays line 755
+// file Arrays line 753
  static class Example{
 static def example() {
-val A = new Array[Int](1..10, (p:Point(1))=>p(0) );
+val A = new Array[Int](11, (i:int)=>i);
 assert A(3) == 3 && A(4) == 4 && A(10) == 10;
 val cube = (i:Int) => i*i*i;
 A.map(A, cube);

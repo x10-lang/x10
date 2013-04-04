@@ -1,4 +1,4 @@
-/* Current test harness gets confused by packages, but it would be in package expsome_Arrays23;
+/* Current test harness gets confused by packages, but it would be in package expsome_Arrays20;
 */
 // Warning: This file is auto-generated from the TeX source of the language spec.
 // If you need it changed, work with the specification writers.
@@ -16,9 +16,8 @@
  */
 
 import harness.x10Test;
+
 import x10.array.*;
-
-
 
 public class Arrays100 extends x10Test {
    public def run() : boolean = (new Hook()).run();
@@ -27,10 +26,9 @@ public class Arrays100 extends x10Test {
     }
 
 
-// file Arrays line 234
-
- static class Arrays23TestExp{
-  def check()  = 1..10 && 2..20;  }
+// file Arrays line 223
+ static class Arrays20TestExp{
+  def check()  = Region.make(1..10) && Region.make(2..20);  }
 
  static class Hook {
    def run():Boolean = true;

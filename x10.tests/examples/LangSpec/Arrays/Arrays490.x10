@@ -16,9 +16,8 @@
  */
 
 import harness.x10Test;
-import x10.array.*;
 
-
+ import x10.array.*;
 
 public class Arrays490 extends x10Test {
    public def run() : boolean = (new Hook()).run();
@@ -27,7 +26,7 @@ public class Arrays490 extends x10Test {
     }
 
 
-// file Arrays line 780
+// file Arrays line 779
  static  class Example{
 static def add(da:DistArray[Int], db: DistArray[Int])
     {da.dist==db.dist}

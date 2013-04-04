@@ -16,9 +16,8 @@
  */
 
 import harness.x10Test;
+
 import x10.array.*;
-
-
 
 public class Arrays250 extends x10Test {
    public def run() : boolean = (new Hook()).run();
@@ -27,7 +26,7 @@ public class Arrays250 extends x10Test {
     }
 
 
-// file Arrays line 407
+// file Arrays line 399
  static class Example{
 static def example(a:Array[Double]) {
 for (p in a) a(p) = Math.log(a(p));

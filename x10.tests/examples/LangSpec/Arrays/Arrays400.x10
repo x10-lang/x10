@@ -1,4 +1,4 @@
-/* Current test harness gets confused by packages, but it would be in package stmtsome_Arrays56;
+/* Current test harness gets confused by packages, but it would be in package stmtsome_Arrays53;
 */
 // Warning: This file is auto-generated from the TeX source of the language spec.
 // If you need it changed, work with the specification writers.
@@ -16,9 +16,8 @@
  */
 
 import harness.x10Test;
+
 import x10.array.*;
-
-
 
 public class Arrays400 extends x10Test {
    public def run() : boolean = (new Hook()).run();
@@ -27,9 +26,8 @@ public class Arrays400 extends x10Test {
     }
 
 
-// file Arrays.tex,  line 655
-
- static class Arrays56TestStmt{
+// file Arrays.tex,  line 651
+ static class Arrays53TestStmt{
   def check(a:Array[Int](3), p:Point(3), t:Int)  {
     a(p)=t;
   }}

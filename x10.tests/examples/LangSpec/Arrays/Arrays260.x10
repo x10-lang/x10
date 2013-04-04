@@ -16,9 +16,8 @@
  */
 
 import harness.x10Test;
+
 import x10.array.*;
-
-
 
 public class Arrays260 extends x10Test {
    public def run() : boolean = (new Hook()).run();
@@ -27,10 +26,10 @@ public class Arrays260 extends x10Test {
     }
 
 
-// file Arrays line 436
+// file Arrays line 429
  static  class Example{
  def example() {
-val R  <: Region = 1..100;
+val R  <: Region = Region.make(1..100);
 val D1 <: Dist = Dist.makeBlock(R);
 val D2 <: Dist = Dist.makeConstant(R, here);
  } }

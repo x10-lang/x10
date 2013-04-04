@@ -16,9 +16,8 @@
  */
 
 import harness.x10Test;
+
 import x10.array.*;
-
-
 
 public class Arrays160 extends x10Test {
    public def run() : boolean = (new Hook()).run();
@@ -27,7 +26,7 @@ public class Arrays160 extends x10Test {
     }
 
 
-// file Arrays line 316
+// file Arrays line 306
  static class Example{
 def example[T](A:Array[T], p: Point{rank == A.region.rank}, t:T){
 A(p) = t;

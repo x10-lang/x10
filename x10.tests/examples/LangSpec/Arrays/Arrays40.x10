@@ -16,9 +16,8 @@
  */
 
 import harness.x10Test;
-import x10.array.*;
 
-
+ import x10.array.*;
 
 public class Arrays40 extends x10Test {
    public def run() : boolean = (new Hook()).run();
@@ -27,14 +26,14 @@ public class Arrays40 extends x10Test {
     }
 
 
-// file Arrays line 97
+// file Arrays line 93
  static  class Example {
  static def example() {
 val MAX_HEIGHT=20;
 val Null = Region.makeUnit(); //Empty 0-dimensional region
-val R1 = 1..100; // IntRange
-val R2 = R1 as Region(1);
-val R3 = (0..99) * (-1..MAX_HEIGHT);
+val R1 = Region.make(1, 100); // Region 1..100
+val R2 = Region.make(1..100);  // Region 1..100
+val R3 = Region.make(0..99, -1..MAX_HEIGHT);
 val R4 = Region.makeUpperTriangular(10);
 val R5 = R4 && R3; // intersection of two regions
  } }

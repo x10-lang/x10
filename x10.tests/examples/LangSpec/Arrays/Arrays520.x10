@@ -16,9 +16,8 @@
  */
 
 import harness.x10Test;
+
 import x10.array.*;
-
-
 
 public class Arrays520 extends x10Test {
    public def run() : boolean = (new Hook()).run();
@@ -27,7 +26,7 @@ public class Arrays520 extends x10Test {
     }
 
 
-// file Arrays line 828
+// file Arrays line 829
  static  class Example {
  static def example() {
 val a = new Array[Int](4, (i:int)=>i+1);

@@ -1,4 +1,4 @@
-/* Current test harness gets confused by packages, but it would be in package expsome_Arrays42;
+/* Current test harness gets confused by packages, but it would be in package expsome_Arrays39;
 */
 // Warning: This file is auto-generated from the TeX source of the language spec.
 // If you need it changed, work with the specification writers.
@@ -16,7 +16,6 @@
  */
 
 import harness.x10Test;
-import x10.array.*;
 
 
 
@@ -27,9 +26,9 @@ public class Arrays1j6q extends x10Test {
     }
 
 
-// file Arrays line 480
+// file Arrays line 474
 
- static class Arrays42TestExp{
+ static class Arrays39TestExp{
   def check(somePlace:Place)  = new SparsePlaceGroup(somePlace);  }
 
  static class Hook {

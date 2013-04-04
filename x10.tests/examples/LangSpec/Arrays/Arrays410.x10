@@ -1,4 +1,4 @@
-/* Current test harness gets confused by packages, but it would be in package stmtsome_Arrays57;
+/* Current test harness gets confused by packages, but it would be in package stmtsome_Arrays54;
 */
 // Warning: This file is auto-generated from the TeX source of the language spec.
 // If you need it changed, work with the specification writers.
@@ -16,9 +16,8 @@
  */
 
 import harness.x10Test;
+
 import x10.array.*;
-
-
 
 public class Arrays410 extends x10Test {
    public def run() : boolean = (new Hook()).run();
@@ -27,9 +26,8 @@ public class Arrays410 extends x10Test {
     }
 
 
-// file Arrays.tex,  line 658
-
- static class Arrays57TestStmt{
+// file Arrays.tex,  line 654
+ static class Arrays54TestStmt{
   def check(da:DistArray[Int](3), p:Point(3), t:Int)  {
     da(p)=t;
   }}

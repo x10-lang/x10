@@ -1,4 +1,4 @@
-/* Current test harness gets confused by packages, but it would be in package expsome_Arrays17;
+/* Current test harness gets confused by packages, but it would be in package expsome_Arrays14;
 */
 // Warning: This file is auto-generated from the TeX source of the language spec.
 // If you need it changed, work with the specification writers.
@@ -16,9 +16,8 @@
  */
 
 import harness.x10Test;
+
 import x10.array.*;
-
-
 
 public class Arrays50 extends x10Test {
    public def run() : boolean = (new Hook()).run();
@@ -27,9 +26,8 @@ public class Arrays50 extends x10Test {
     }
 
 
-// file Arrays line 180
-
- static class Arrays17TestExp{
+// file Arrays line 169
+ static class Arrays14TestExp{
   def check(R:Region, p:Point(R.rank))  = R+p;  }
 
  static class Hook {

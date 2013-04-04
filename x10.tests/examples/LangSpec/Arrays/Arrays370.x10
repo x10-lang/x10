@@ -16,9 +16,8 @@
  */
 
 import harness.x10Test;
-import x10.array.*;
 
-
+ import x10.array.*;
 
 public class Arrays370 extends x10Test {
    public def run() : boolean = (new Hook()).run();
@@ -27,13 +26,13 @@ public class Arrays370 extends x10Test {
     }
 
 
-// file Arrays line 601
+// file Arrays line 596
  static  class Example {
  def example() {
 val ident = ([i]:Point(1)) => i;
 val data : DistArray[Int]
-    = DistArray.make[Int](Dist.makeConstant(1..9), ident);
-val blk = Dist.makeBlock((1..9)*(1..9));
+    = DistArray.make[Int](Dist.makeConstant(Region.make(1, 9)), ident);
+val blk = Dist.makeBlock(Region.make(1..9, 1..9));
 val data2 : DistArray[Int]
     = DistArray.make[Int](blk, ([i,j]:Point(2)) => i*j);
  }  }

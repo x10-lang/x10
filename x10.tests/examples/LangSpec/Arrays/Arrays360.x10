@@ -16,9 +16,8 @@
  */
 
 import harness.x10Test;
-import x10.array.*;
 
-
+ import x10.array.*;
 
 public class Arrays360 extends x10Test {
    public def run() : boolean = (new Hook()).run();
@@ -27,10 +26,10 @@ public class Arrays360 extends x10Test {
     }
 
 
-// file Arrays line 560
+// file Arrays line 554
  static  class Example {
  def example() {
-val R <: Region = 1..1000;
+val R <: Region = Region.make(1..1000);
 val D <: Dist = Dist.makeBlock(R);
 val da <: DistArray[Float]
        = DistArray.make[Float](D, (Point(1))=>0.0f);
