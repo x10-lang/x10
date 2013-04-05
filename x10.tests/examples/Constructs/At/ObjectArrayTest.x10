@@ -31,7 +31,7 @@ public class ObjectArrayTest  extends x10Test {
 
   public def run() {
     val ub = new Blat();
-    val a1 = new Rail[Blat](n, (i:int)=>(i%2 == 0) ? ub : new Blat());
+    val a1 = new Rail[Blat](n, (i:long)=>(i%2 == 0L) ? ub : new Blat());
     val a2 = new Rail[Blat](n, ub);
 
     var start:long = System.nanoTime();
@@ -56,7 +56,7 @@ public class ObjectArrayTest  extends x10Test {
 
 
     val uo = new Empty();
-    val a3 = new Rail[Empty](n, (i:int)=>(i%2 == 0) ? uo : new Empty());
+    val a3 = new Rail[Empty](n, (i:long)=>(i%2 == 0L) ? uo : new Empty());
     val a4 = new Rail[Empty](n, uo);
 
     start = System.nanoTime();
@@ -81,7 +81,7 @@ public class ObjectArrayTest  extends x10Test {
 
 
     val us = "hello";
-    val a5 = new Rail[String](n, (i:int)=>(i%2 == 0) ? us : i.toString());
+    val a5 = new Rail[String](n, (i:long)=>(i%2 == 0L) ? us : i.toString());
     val a6 = new Rail[String](n, us);
 
     start = System.nanoTime();
