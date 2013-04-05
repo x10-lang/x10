@@ -17,9 +17,9 @@ import harness.x10Test;
  **/
 public class PrimitiveAssignment extends x10Test {
 	public def run(): boolean = {
-		var b: byte = 2;
+		var b: byte = 2y;
 		var c: char = 'c';
-		var s: short = 10;
+		var s: short = 10s;
 		var j: int = 124;
 		var l: long = 1;
 		var f: float = 0;
