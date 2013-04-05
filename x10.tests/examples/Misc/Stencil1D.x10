@@ -10,12 +10,10 @@
  */
 
 import harness.x10Test;
-import x10.array.*;
 
 /**
  * A simple 1-D stencil example in X10. Uses multiple asyncs in a single place.
  * @author vj 08/15/08
- * //done
  */
 public class Stencil1D extends x10Test {
     static epsilon  = 1E-4D;
@@ -26,9 +24,9 @@ public class Stencil1D extends x10Test {
 
     def this(n: int, p: int) { this.N=n; this.P=p;}
 
-    def step(A:Rail[Double], R: Region(1)) {
+    def step(A:Rail[Double], R:IntRange) {
        var diff: Double = 0;
-       for ([q] in R) {
+       for (q in R) {
            val newVal = (A(q-1)+ A(q+1))/2.0 ; 
            diff = Math.max(diff, Math.abs(newVal - A(q)));
            A(q) = newVal;
@@ -37,12 +35,12 @@ public class Stencil1D extends x10Test {
     }
 
     public def run() : boolean {
-       val A = new Rail[Double](N+2, (int)=>0.0D); 
+       val A = new Rail[Double](N+2, (long)=>0.0D); 
        A(N+1) = N+1.0D;
        val blocks = block(1..N, P);
        for (; delta > epsilon; iters++) {
           delta = 0;
-          finish for ([p]:Point(1) in 0..(P-1)) async {
+          finish for (p in 0..(P-1)) async {
              val myDelta  = step(A, blocks(p));
              atomic  delta= Math.max(delta, myDelta);
           }
@@ -50,14 +48,15 @@ public class Stencil1D extends x10Test {
        return true;
     }
 
-    public static def block(R: Region(1), P:Int):Rail[Region(1)] = {
+    public static def block(R:IntRange, P:Int):Rail[IntRange] = {
         assert P >=0;
-        val low = R.min()(0);
-        val high = R.max()(0);
+        val low = R.min;
+        val high = R.max;
         val count = high-low+1;
         val baseSize = count/P;
         val extra = count - baseSize*P;
-        new Rail[Region(1)](P, (i:int):Region(1) => {
+        new Rail[IntRange](P, (j:long):IntRange => {
+          val i:int = j as Int;
           val start = low+i*baseSize+ (i < extra? i:extra);
           start..(start+baseSize+(i < extra?0:-1))
         })
