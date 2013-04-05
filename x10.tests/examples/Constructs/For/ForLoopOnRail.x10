@@ -21,7 +21,7 @@ public class ForLoopOnRail extends x10Test {
     public static N: int = 3;
 
     public def run(): boolean = {
-        val a = new Rail[double](11, (i:int) => i as double);
+        val a = new Rail[double](11, (i:long) => i as double);
 
         for (i in a.range) {
             if (a(i) != i as Double) return false;
