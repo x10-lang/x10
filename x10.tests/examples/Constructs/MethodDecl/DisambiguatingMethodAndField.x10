@@ -26,7 +26,7 @@ class DisambiguatingMethodAndField extends x10Test {
     val a : (Int)=>Int = (Int)=>1;
     def a (Int) = 2;
     
-    val b : Array[Int](1) = [11 as Int];
+    val b : Rail[Int] = [11 as Int];
     def b (Int) = 22;
     
     
