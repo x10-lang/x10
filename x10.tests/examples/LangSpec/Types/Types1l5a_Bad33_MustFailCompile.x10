@@ -26,7 +26,7 @@ public class Types1l5a_Bad33_MustFailCompile extends x10Test {
     }
 
 
-// file Types line 3083
+// file Types line 3084
  static class Extra {
   static def useRail(Rail[Extra]) {}
   public static def main(argv:Rail[String]) {

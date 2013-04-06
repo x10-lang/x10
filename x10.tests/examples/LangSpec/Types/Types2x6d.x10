@@ -26,7 +26,7 @@ public class Types2x6d extends x10Test {
     }
 
 
-// file Types line 2954
+// file Types line 2955
  static interface ComparableTo[T] {
   def eq(T):Boolean;
 }

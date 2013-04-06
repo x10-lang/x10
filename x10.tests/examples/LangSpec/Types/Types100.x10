@@ -26,7 +26,7 @@ public class Types100 extends x10Test {
     }
 
 
-// file Types line 519
+// file Types line 520
  static interface Poser {
   def pos():Int;
   }
