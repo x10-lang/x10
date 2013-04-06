@@ -72,8 +72,7 @@ static x10::array::Array<x10::lang::String*>* convert_args(int ac, char **av) {
 static void* real_x10_main_inner(void* args);
 
 int x10aux::real_x10_main(int ac, char **av, ApplicationMainFunction mainFunc) {
-
-#if defined(__bgp__)    
+#if defined(__bg__)    
     x10_main_args args;
     args.ac = ac;
     args.av = av;
@@ -117,6 +116,8 @@ static void* real_x10_main_inner(void* _main_args) {
 #ifdef X10_USE_BDWGC
     GC_INIT();
 #endif
+
+    x10aux::RuntimeType::initializeForMultiThreading();
 
 #ifndef NO_EXCEPTIONS
     try {
