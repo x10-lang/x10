@@ -9,8 +9,9 @@
  *  (C) Copyright IBM Corporation 2006-2010.
  */
 
-import x10.compiler.tests.*; // err markers
 import harness.x10Test;
+import x10.compiler.tests.*; // err markers
+import x10.array.*;
 
 /**
  * @author yoav (yzibin) 1/2011
@@ -44,7 +45,7 @@ class XTENLANG_2638_desugarer
 {
 	public static def test()
 	{
-	val mShape = ((1..100) * (1..200)) as Region(2);
+	val mShape = Region.make(1..100, 1..200);
 	val mDist:Dist(2) = Dist.makeBlock(mShape);
 	val mat = DistArray.make[int] (mDist, 1);
 	val rhs = DistArray.make[int] (mDist, 2);
