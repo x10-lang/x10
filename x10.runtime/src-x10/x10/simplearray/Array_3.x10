@@ -9,7 +9,7 @@
  *  (C) Copyright IBM Corporation 2006-2013.
  */
 
-package x10.simplearray2;
+package x10.simplearray;
 
 import x10.compiler.CompilerFlags;
 import x10.compiler.Inline;

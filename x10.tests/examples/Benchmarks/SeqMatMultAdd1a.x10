@@ -9,14 +9,14 @@
  *  (C) Copyright IBM Corporation 2006-2010.
  */
 
-import x10.simplearray.Array;
+import x10.simplearray.*;
 
 /**
  * @author bdlucas
  */
 public class SeqMatMultAdd1a extends Benchmark {
 
-    var N:Long = 55L*5L;
+    var N:long = 55*5;
     def expected() = -6866925.0;
     def operations() = N*N*N as double;
 
@@ -24,9 +24,9 @@ public class SeqMatMultAdd1a extends Benchmark {
     //
     //
 
-    val a = new Array[double](N, N, (i:long,j:long)=>(i*j) as double);
-    val b = new Array[double](N, N, (i:long,j:long)=>(i-j) as double);
-    val c = new Array[double](N, N, (i:long,j:long)=>(i+j) as double);
+    val a = new Array_2[double](N, N, (i:long,j:long)=>(i*j) as double);
+    val b = new Array_2[double](N, N, (i:long,j:long)=>(i-j) as double);
+    val c = new Array_2[double](N, N, (i:long,j:long)=>(i+j) as double);
 
     def once() {
         for (i in 0L..(N-1))

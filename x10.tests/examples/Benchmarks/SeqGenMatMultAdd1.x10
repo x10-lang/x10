@@ -9,7 +9,7 @@
  *  (C) Copyright IBM Corporation 2006-2010.
  */
 
-import x10.simplearray.Array;
+import x10.simplearray.*;
 
 /**
  * Variant of SeqMatMultAdd1a that uses a generic matrix bounded by Arithmetic[T].
@@ -21,16 +21,16 @@ public class SeqGenMatMultAdd1[T]{T<:Arithmetic[T]} extends Benchmark {
     def expected() = -6866925.0;
     def operations() = N*N*N as double;
 
-    val a:Array[T](2);
-    val b:Array[T](2);
-    val c:Array[T](2);
+    val a:Array_2[T];
+    val b:Array_2[T];
+    val c:Array_2[T];
 
     def this(a_init:(long,long)=>T,
              b_init:(long,long)=>T,
              c_init:(long,long)=>T) {
-        a = new Array[T](N, N, a_init);
-        b = new Array[T](N, N, b_init);
-        c = new Array[T](N, N, c_init);
+        a = new Array_2[T](N, N, a_init);
+        b = new Array_2[T](N, N, b_init);
+        c = new Array_2[T](N, N, c_init);
     }
 
     def once() {

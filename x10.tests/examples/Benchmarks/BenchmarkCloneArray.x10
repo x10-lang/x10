@@ -10,7 +10,7 @@
  */
 
 import harness.x10Test;
-import x10.simplearray.Array;
+import x10.simplearray.Array_1;
 
 /**
  * Tests base performance of "at" closures with arrays 
@@ -24,7 +24,7 @@ public class BenchmarkCloneArray extends x10Test {
         this.N = N;
     }
     public def run(): Boolean = {
-        val a = new Array[Char](N+1);
+        val a = new Array_1[Char](N+1);
         for (i in 0..N) {
             a(i) = 'a';
         }
@@ -39,7 +39,7 @@ public class BenchmarkCloneArray extends x10Test {
         var stop : Long = System.nanoTime();
         Console.OUT.printf("clone Array[Char]: %g ms\n", ((stop-start) as Double) / REPS / 1e6);
 
-        val b = new Array[Int](N+1);
+        val b = new Array_1[Int](N+1);
         for (i in 0..N) {
             b(i) = i;
         }
@@ -53,7 +53,7 @@ public class BenchmarkCloneArray extends x10Test {
         stop = System.nanoTime();
         Console.OUT.printf("clone Array[Int]: %g ms\n", ((stop-start) as Double) / REPS / 1e6);
 
-        val c = new Array[Double](N+1);
+        val c = new Array_1[Double](N+1);
         for (i in 0..N) {
             c(i) = i as Double;
         }
@@ -67,7 +67,7 @@ public class BenchmarkCloneArray extends x10Test {
         stop = System.nanoTime();
         Console.OUT.printf("clone Array[Double]: %g ms\n", ((stop-start) as Double) / REPS / 1e6);
 
-        val d = new Array[Complex](N+1);
+        val d = new Array_1[Complex](N+1);
         for (i in 0..N) {
             d(i) = Complex.ONE;
         }

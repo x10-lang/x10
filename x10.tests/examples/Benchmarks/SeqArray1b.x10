@@ -9,7 +9,7 @@
  *  (C) Copyright IBM Corporation 2006-2010.
  */
 
-import x10.simplearray.Array;
+import x10.simplearray.Array_1;
 
 /**
  * @author bdlucas
@@ -30,7 +30,7 @@ public class SeqArray1b extends Benchmark {
     // the benchmark
     //
 
-    val a = new Array[int](N+M, ()=>1);
+    val a = new Array_1[int](N+M, 1);
 
     def once() {
         var sum: int = 0;
