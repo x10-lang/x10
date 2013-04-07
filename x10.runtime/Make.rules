@@ -185,6 +185,9 @@ ifdef ENABLE_CROSS_COMPILE_BGQ
       override CXXFLAGS += -O2 -finline-functions
     endif
     override CXXFLAGS += -g
+    # uniformly force -mminimal-toc since it appears the linker doesn't detect toc overflow
+    override CXXFLAGS += -mminimal-toc
+    override XRX_PROPS_CXXFLAGS += -mminimal-toc
   endif
   ifdef USE_XLC
       echo "FAILURE: haven't defined XLC rules for BGQ yet!"
