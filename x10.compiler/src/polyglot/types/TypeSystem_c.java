@@ -2511,7 +2511,7 @@ public class TypeSystem_c implements TypeSystem
     protected X10ClassType pointType_;
     public X10ClassType Point() {
         if (pointType_ == null)
-            pointType_ = load("x10.array.Point");
+            pointType_ = load("x10.lang.Point");
         return pointType_;
     }
 

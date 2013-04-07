@@ -229,13 +229,13 @@ final class PolyScanner(rank:Int)/*(C:PolyMat)*/ {
      */
 
 
-    final private class RailIt implements Iterator[Array[int]{self.rank==1,self.zeroBased,self.rect,self.rail}] {
+    final private class RailIt implements Iterator[Rail[int]] {
         private val rank: int = PolyScanner.this.rank;
         private val s =  PolyScanner.this;
 
-        private val x = new Array[int](rank);
-        private val myMin = new Array[int](rank);
-        private val myMax = new Array[int](rank);
+        private val x = new Rail[int](rank);
+        private val myMin = new Rail[int](rank);
+        private val myMax = new Rail[int](rank);
 
         private var k: int;
         private var doesHaveNext:boolean;
@@ -293,7 +293,7 @@ final class PolyScanner(rank:Int)/*(C:PolyMat)*/ {
     public def iterator():Iterator[Point(rank)] = new Iterator[Point(rank)]() {
     	val it = new RailIt();
         public final def hasNext() = it.hasNext();
-        public final def next(): Point(rank) = it.next(); 
+        public final def next(): Point(rank) = Point.make(it.next()) as Point(rank);
     };
 
 

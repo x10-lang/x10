@@ -365,7 +365,7 @@ public class LineNumberMap extends StringTable {
 		if (type.startsWith("x10.lang.String"))
 			return 206;
 		// 207 = valrail
-		if (type.startsWith("x10.array.Point"))
+		if (type.startsWith("x10.lang.Point"))
 			return 208;
 		if (type.startsWith("x10.lang.Any"))
 			return 209;

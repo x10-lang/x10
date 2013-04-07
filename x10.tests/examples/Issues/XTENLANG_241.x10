@@ -10,7 +10,6 @@
  */
 
 import harness.x10Test;
-import x10.array.Point;
 
 /**
  * @author bdlucas 12/2008

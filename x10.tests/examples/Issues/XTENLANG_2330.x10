@@ -231,11 +231,11 @@ class TestGeneric7[T] {
     def this(t:T) {}
 }
 
-struct AAA7(R:Int)
+struct AAA7(R:Long)
 {
     private val a:Point(R);
 
-    public def this (r:Int, v1:Array[Int](r)) {
+    public def this (r:Long, v1:Rail[Int]{self.size==r)) {
         property(r);
         a = Point.make(v1); // ERR
     }

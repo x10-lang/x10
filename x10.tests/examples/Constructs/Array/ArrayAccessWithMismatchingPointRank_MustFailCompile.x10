@@ -31,7 +31,7 @@ public class ArrayAccessWithMismatchingPointRank_MustFailCompile extends x10Test
 
 	    val p1 = [1] as Point;
 	    a(ia(p1)); // ok
-        a(ia(p)); // ERR [Method or static constructor not found for given call. Call: ia(x10.array.Point{self==p, p.x10.array.Point#rank==2})]
+        a(ia(p)); // ERR [Method or static constructor not found for given call. Call: ia(Point{self==p, p.Point#rank==2})]
 
         return true;
     }
