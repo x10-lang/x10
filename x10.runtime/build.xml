@@ -85,8 +85,6 @@
     <condition property="bdwgc.enabled">
         <and>
             <isfalse value="${DISABLE_GC}" />
-	    <!-- TODO BGQ: For purposes of initial porting, disable GC when building for BG/Q -->
-	    <isfalse value="${CROSS_COMPILE_BGQ}" />
             <or>
                 <os family="unix" name="linux"/>
                 <os family="mac"/>
