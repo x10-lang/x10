@@ -14,9 +14,9 @@
 #include <cstdlib>
 #include <cstdio>
 
-#ifdef __bgp__
+#ifdef __bg__
 #ifndef DISABLE_CLOCK_GETTIME
-#define DISABLE_CLOCK_GETTIME // seems to be broken on bgp
+#define DISABLE_CLOCK_GETTIME // clock_gettime not supported by BlueGene CNK
 #endif
 #endif
 
