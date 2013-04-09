@@ -12,8 +12,6 @@
 package x10.util;
 
 import x10.compiler.Native;
-import x10.compiler.NativeRep;
-import x10.compiler.StackAllocate;
 
 /** Interface to low level collective operations.  A team is a collection of
  * activities that work together by simultaneously doing 'collective
@@ -41,22 +39,16 @@ public struct Team {
     /** Create a team by defining the place where each member lives.  This would usually be called before creating an async for each member of the team.
      * @param places The place of each member
      */
-/*
- FIXME: IMC===>Rail hack.  Comment out API while Olivier is fixing Team
-    public def this (places:Array[Place]) {
-        this(places.raw(), places.size);
-    }
-*/
-
-    private def this (places:IndexedMemoryChunk[Place], count:Int) {
-        val result = IndexedMemoryChunk.allocateUninitialized[Int](1);
+    public def this (places:Rail[Place]) {
+        val result = new Rail[Int](1);
+        val count = places.size as Int; // LONG_RAIL
         finish nativeMake(places, count, result);
         id = result(0);
     }
 
-    private static def nativeMake (places:IndexedMemoryChunk[Place], count:Int, result:IndexedMemoryChunk[Int]) : void {
+    private static def nativeMake (places:Rail[Place], count:Int, result:Rail[Int]) : void {
         @Native("java", "x10.x10rt.TeamSupport.nativeMake(places, count, result);")
-    	@Native("c++", "x10rt_team_new(count, (x10rt_place*)places->raw(), x10aux::coll_handler2, x10aux::coll_enter2(result->raw()));") {}
+    	@Native("c++", "x10rt_team_new(count, (x10rt_place*)places->raw, x10aux::coll_handler2, x10aux::coll_enter2(result->raw));") {}
     }
 
     /** Returns the number of elements in the team.
@@ -101,15 +93,13 @@ public struct Team {
      *
      * @param count The number of elements being transferred
      */
-/* FIXME: IMC===>Rail hack.  Comment out API while Olivier is fixing Team
-    public def scatter[T] (role:Int, root:Int, src:Array[T], src_off:Int, dst:Array[T], dst_off:Int, count:Int) : void {
-        finish nativeScatter(id, role, root, src.raw(), src_off, dst.raw(), dst_off, count);
+    public def scatter[T] (role:Int, root:Int, src:Rail[T], src_off:Int, dst:Rail[T], dst_off:Int, count:Int) : void {
+        finish nativeScatter(id, role, root, src, src_off, dst, dst_off, count);
     }
-*/
 
-    private static def nativeScatter[T] (id:Int, role:Int, root:Int, src:IndexedMemoryChunk[T], src_off:Int, dst:IndexedMemoryChunk[T], dst_off:Int, count:Int) : void {
+    private static def nativeScatter[T] (id:Int, role:Int, root:Int, src:Rail[T], src_off:Int, dst:Rail[T], dst_off:Int, count:Int) : void {
         @Native("java", "x10.x10rt.TeamSupport.nativeScatter(id, role, root, src, src_off, dst, dst_off, count);")
-        @Native("c++", "x10rt_scatter(id, role, root, &src->raw()[src_off], &dst->raw()[dst_off], sizeof(TPMGL(T)), count, x10aux::coll_handler, x10aux::coll_enter());") {}
+        @Native("c++", "x10rt_scatter(id, role, root, &src->raw[src_off], &dst->raw[dst_off], sizeof(TPMGL(T)), count, x10aux::coll_handler, x10aux::coll_enter());") {}
     }
 
     /** Blocks until all members have received root's array.
@@ -128,16 +118,13 @@ public struct Team {
      *
      * @param count The number of elements being transferred
      */
-/*
- FIXME: IMC===>Rail hack.  Comment out API while Olivier is fixing Team
-    public def bcast[T] (role:Int, root:Int, src:Array[T], src_off:Int, dst:Array[T], dst_off:Int, count:Int) : void {
-        finish nativeBcast(id, role, root, src.raw(), src_off, dst.raw(), dst_off, count);
+     public def bcast[T] (role:Int, root:Int, src:Rail[T], src_off:Int, dst:Rail[T], dst_off:Int, count:Int) : void {
+        finish nativeBcast(id, role, root, src, src_off, dst, dst_off, count);
     }
-*/
 
-    private static def nativeBcast[T] (id:Int, role:Int, root:Int, src:IndexedMemoryChunk[T], src_off:Int, dst:IndexedMemoryChunk[T], dst_off:Int, count:Int) : void {
+    private static def nativeBcast[T] (id:Int, role:Int, root:Int, src:Rail[T], src_off:Int, dst:Rail[T], dst_off:Int, count:Int) : void {
         @Native("java", "x10.x10rt.TeamSupport.nativeBcast(id, role, root, src, src_off, dst, dst_off, count);")
-        @Native("c++", "x10rt_bcast(id, role, root, &src->raw()[src_off], &dst->raw()[dst_off], sizeof(TPMGL(T)), count, x10aux::coll_handler, x10aux::coll_enter());") {}
+        @Native("c++", "x10rt_bcast(id, role, root, &src->raw[src_off], &dst->raw[dst_off], sizeof(TPMGL(T)), count, x10aux::coll_handler, x10aux::coll_enter());") {}
     }
 
     /** Blocks until all members have received their part of each other member's array.
@@ -159,15 +146,13 @@ public struct Team {
      *
      * @param count The number of elements being transferred
      */
-/*
- FIXME: IMC===>Rail hack.  Comment out API while Olivier is fixing Team
-    public def alltoall[T] (role:Int, src:Array[T], src_off:Int, dst:Array[T], dst_off:Int, count:Int) : void {
-        finish nativeAlltoall(id, role, src.raw(), src_off, dst.raw(), dst_off, count);
+    public def alltoall[T] (role:Int, src:Rail[T], src_off:Int, dst:Rail[T], dst_off:Int, count:Int) : void {
+        finish nativeAlltoall(id, role, src, src_off, dst, dst_off, count);
     }
-*/
-    private static def nativeAlltoall[T](id:Int, role:Int, src:IndexedMemoryChunk[T], src_off:Int, dst:IndexedMemoryChunk[T], dst_off:Int, count:Int) : void {
+    
+    private static def nativeAlltoall[T](id:Int, role:Int, src:Rail[T], src_off:Int, dst:Rail[T], dst_off:Int, count:Int) : void {
         @Native("java", "x10.x10rt.TeamSupport.nativeAllToAll(id, role, src, src_off, dst, dst_off, count);")
-        @Native("c++", "x10rt_alltoall(id, role, &src->raw()[src_off], &dst->raw()[dst_off], sizeof(TPMGL(T)), count, x10aux::coll_handler, x10aux::coll_enter());") {}
+        @Native("c++", "x10rt_alltoall(id, role, &src->raw[src_off], &dst->raw[dst_off], sizeof(TPMGL(T)), count, x10aux::coll_handler, x10aux::coll_enter());") {}
     }
 
     /** Indicates the operation to perform when reducing. */
@@ -208,16 +193,13 @@ public struct Team {
      *
      * @param op The operation to perform
      */
-/*
- FIXME: IMC===>Rail hack.  Comment out API while Olivier is fixing Team
-    public def reduce[T] (role:Int, root:Int, src:Array[T], src_off:Int, dst:Array[T], dst_off:Int, count:Int, op:Int) : void {
-        finish nativeReduce(id, role, root, src.raw(), src_off, dst.raw(), dst_off, count, op);
-    }
-*/
-
-    private static def nativeReduce[T](id:Int, role:Int, root:Int, src:IndexedMemoryChunk[T], src_off:Int, dst:IndexedMemoryChunk[T], dst_off:Int, count:Int, op:Int) : void {
+    public def reduce[T] (role:Int, root:Int, src:Rail[T], src_off:Int, dst:Rail[T], dst_off:Int, count:Int, op:Int) : void {
+        finish nativeReduce(id, role, root, src, src_off, dst, dst_off, count, op);
+	}
+	
+    private static def nativeReduce[T](id:Int, role:Int, root:Int, src:Rail[T], src_off:Int, dst:Rail[T], dst_off:Int, count:Int, op:Int) : void {
         @Native("java", "x10.x10rt.TeamSupport.nativeReduce(id, role, root, src, src_off, dst, dst_off, count, op);")
-    	@Native("c++", "x10rt_reduce(id, role, root, &src->raw()[src_off], &dst->raw()[dst_off], (x10rt_red_op_type)op, x10rt_get_red_type<TPMGL(T)>(), count, x10aux::coll_handler, x10aux::coll_enter());") {}
+    	@Native("c++", "x10rt_reduce(id, role, root, &src->raw[src_off], &dst->raw[dst_off], (x10rt_red_op_type)op, x10rt_get_red_type<TPMGL(T)>(), count, x10aux::coll_handler, x10aux::coll_enter());") {}
     }
 
     /** Performs a reduction on a single value, returning the result at the root */
@@ -242,16 +224,15 @@ public struct Team {
     public def reduce (role:Int, root:Int, src:Double, op:Int) = genericReduce(role, root, src, op);
 
     private def genericReduce[T] (role:Int, root:Int, src:T, op:Int) : T {
-        val chk = IndexedMemoryChunk.allocateUninitialized[T](1);
-        val dst = IndexedMemoryChunk.allocateUninitialized[T](1);
-        chk(0) = src;
+        val chk = new Rail[T](1, src);
+        val dst = new Rail[T](1, src);
         finish nativeReduce[T](id, role, root, chk, dst, op);
         return dst(0);
     }
 
-    private static def nativeReduce[T](id:Int, role:Int, root:Int, src:IndexedMemoryChunk[T], dst:IndexedMemoryChunk[T], op:Int) : void {
+    private static def nativeReduce[T](id:Int, role:Int, root:Int, src:Rail[T], dst:Rail[T], op:Int) : void {
         @Native("java", "x10.x10rt.TeamSupport.nativeReduce(id, role, root, src, 0, dst, 0, 1, op);")
-        @Native("c++", "x10rt_reduce(id, role, root, src->raw(), dst->raw(), (x10rt_red_op_type)op, x10rt_get_red_type<TPMGL(T)>(), 1, x10aux::coll_handler, x10aux::coll_enter());") {}
+        @Native("c++", "x10rt_reduce(id, role, root, src->raw, dst->raw, (x10rt_red_op_type)op, x10rt_get_red_type<TPMGL(T)>(), 1, x10aux::coll_handler, x10aux::coll_enter());") {}
     }
 
     /** Blocks until all members have received the computed result.  Note that not all values of T are valid.
@@ -272,16 +253,13 @@ public struct Team {
      *
      * @param op The operation to perform
      */
-/*
- FIXME: IMC===>Rail hack.  Comment out API while Olivier is fixing Team
-    public def allreduce[T] (role:Int, src:Array[T], src_off:Int, dst:Array[T], dst_off:Int, count:Int, op:Int) : void {
-        finish nativeAllreduce(id, role, src.raw(), src_off, dst.raw(), dst_off, count, op);
+    public def allreduce[T] (role:Int, src:Rail[T], src_off:Int, dst:Rail[T], dst_off:Int, count:Int, op:Int) : void {
+        finish nativeAllreduce(id, role, src, src_off, dst, dst_off, count, op);
     }
-*/
 
-    private static def nativeAllreduce[T](id:Int, role:Int, src:IndexedMemoryChunk[T], src_off:Int, dst:IndexedMemoryChunk[T], dst_off:Int, count:Int, op:Int) : void {
+    private static def nativeAllreduce[T](id:Int, role:Int, src:Rail[T], src_off:Int, dst:Rail[T], dst_off:Int, count:Int, op:Int) : void {
         @Native("java", "x10.x10rt.TeamSupport.nativeAllReduce(id, role, src, src_off, dst, dst_off, count, op);")
-    	@Native("c++", "x10rt_allreduce(id, role, &src->raw()[src_off], &dst->raw()[dst_off], (x10rt_red_op_type)op, x10rt_get_red_type<TPMGL(T)>(), count, x10aux::coll_handler, x10aux::coll_enter());") {}
+    	@Native("c++", "x10rt_allreduce(id, role, &src->raw[src_off], &dst->raw[dst_off], (x10rt_red_op_type)op, x10rt_get_red_type<TPMGL(T)>(), count, x10aux::coll_handler, x10aux::coll_enter());") {}
     }
 
     /** Performs a reduction on a single value, returning the result */
@@ -306,44 +284,41 @@ public struct Team {
     public def allreduce (role:Int, src:Double, op:Int) = genericAllreduce(role, src, op);
 
     private def genericAllreduce[T] (role:Int, src:T, op:Int) : T {
-        val chk = IndexedMemoryChunk.allocateUninitialized[T](1);
-        val dst = IndexedMemoryChunk.allocateUninitialized[T](1);
-        chk(0) = src;
+        val chk = new Rail[T](1, src);
+        val dst = new Rail[T](1, src);
         finish nativeAllreduce[T](id, role, chk, dst, op);
         return dst(0);
     }
 
-    private static def nativeAllreduce[T](id:Int, role:Int, src:IndexedMemoryChunk[T], dst:IndexedMemoryChunk[T], op:Int) : void {
+    private static def nativeAllreduce[T](id:Int, role:Int, src:Rail[T], dst:Rail[T], op:Int) : void {
         @Native("java", "x10.x10rt.TeamSupport.nativeAllReduce(id, role, src, 0, dst, 0, 1, op);")
-        @Native("c++", "x10rt_allreduce(id, role, src->raw(), dst->raw(), (x10rt_red_op_type)op, x10rt_get_red_type<TPMGL(T)>(), 1, x10aux::coll_handler, x10aux::coll_enter());") {}
+        @Native("c++", "x10rt_allreduce(id, role, src->raw, dst->raw, (x10rt_red_op_type)op, x10rt_get_red_type<TPMGL(T)>(), 1, x10aux::coll_handler, x10aux::coll_enter());") {}
     }
 
     /** Returns the index of the biggest double value across the team */
     public def indexOfMax (role:Int, v:Double, idx:Int) : Int {
-        val src = IndexedMemoryChunk.allocateUninitialized[DoubleIdx](1);
-        val dst = IndexedMemoryChunk.allocateUninitialized[DoubleIdx](1);
-        src(0) = DoubleIdx(v, idx);
+        val src = new Rail[DoubleIdx](1, DoubleIdx(v, idx));
+        val dst = new Rail[DoubleIdx](1);
         finish nativeIndexOfMax(id, role, src, dst);
         return dst(0).idx;
     }
 
-    private static def nativeIndexOfMax(id:Int, role:Int, src:IndexedMemoryChunk[DoubleIdx], dst:IndexedMemoryChunk[DoubleIdx]) : void {
+    private static def nativeIndexOfMax(id:Int, role:Int, src:Rail[DoubleIdx], dst:Rail[DoubleIdx]) : void {
         @Native("java", "x10.x10rt.TeamSupport.nativeIndexOfMax(id, role, src, dst);")
-        @Native("c++", "x10rt_allreduce(id, role, src->raw(), dst->raw(), X10RT_RED_OP_MAX, X10RT_RED_TYPE_DBL_S32, 1, x10aux::coll_handler, x10aux::coll_enter());") {}
+        @Native("c++", "x10rt_allreduce(id, role, src->raw, dst->raw, X10RT_RED_OP_MAX, X10RT_RED_TYPE_DBL_S32, 1, x10aux::coll_handler, x10aux::coll_enter());") {}
     }
 
     /** Returns the index of the smallest double value across the team */
     public def indexOfMin (role:Int, v:Double, idx:Int) : Int {
-        val src = IndexedMemoryChunk.allocateUninitialized[DoubleIdx](1);
-        val dst = IndexedMemoryChunk.allocateUninitialized[DoubleIdx](1);
-        src(0) = DoubleIdx(v, idx);
+        val src = new Rail[DoubleIdx](1, DoubleIdx(v, idx));
+        val dst = new Rail[DoubleIdx](1);
         finish nativeIndexOfMin(id, role, src, dst);
         return dst(0).idx;
     }
 
-    private static def nativeIndexOfMin(id:Int, role:Int, src:IndexedMemoryChunk[DoubleIdx], dst:IndexedMemoryChunk[DoubleIdx]) : void {
+    private static def nativeIndexOfMin(id:Int, role:Int, src:Rail[DoubleIdx], dst:Rail[DoubleIdx]) : void {
         @Native("java", "x10.x10rt.TeamSupport.nativeIndexOfMin(id, role, src, dst);")
-        @Native("c++", "x10rt_allreduce(id, role, src->raw(), dst->raw(), X10RT_RED_OP_MIN, X10RT_RED_TYPE_DBL_S32, 1, x10aux::coll_handler, x10aux::coll_enter());") {}
+        @Native("c++", "x10rt_allreduce(id, role, src->raw, dst->raw, X10RT_RED_OP_MIN, X10RT_RED_TYPE_DBL_S32, 1, x10aux::coll_handler, x10aux::coll_enter());") {}
     }
 
     /** Create new teams by subdividing an existing team.  This is called by each member
@@ -361,14 +336,14 @@ public struct Team {
      * @param new_role The caller's role within the new team
      */
     public def split (role:Int, color:Int, new_role:Int) : Team {
-        val result = IndexedMemoryChunk.allocateUninitialized[Int](1);
+        val result = new Rail[Int](1);
         finish nativeSplit(id, role, color, new_role, result);
         return Team(result(0));
     }
 
-    private static def nativeSplit(id:Int, role:Int, color:Int, new_role:Int, result:IndexedMemoryChunk[Int]) : void {
+    private static def nativeSplit(id:Int, role:Int, color:Int, new_role:Int, result:Rail[Int]) : void {
         @Native("java", "x10.x10rt.TeamSupport.nativeSplit(id, role, color, new_role, result);")
-        @Native("c++", "x10rt_team_split(id, role, color, new_role, x10aux::coll_handler2, x10aux::coll_enter2(result->raw()));") {}
+        @Native("c++", "x10rt_team_split(id, role, color, new_role, x10aux::coll_handler2, x10aux::coll_enter2(result->raw));") {}
     }
 
     /** Destroy a team that is no-longer needed.  Called simultaneously by each member of
