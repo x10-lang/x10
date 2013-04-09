@@ -11,7 +11,6 @@
 
 package x10.x10rt;
 
-import x10.x10rt.net.Sockets;
 
 public class X10RT {
     private enum State { UNINITIALIZED, INITIALIZED, RUNNING, TEARING_DOWN, TORN_DOWN };
@@ -20,7 +19,7 @@ public class X10RT {
     private static int here;
     private static int numPlaces;
     static boolean forceSinglePlace = false;
-    public static Sockets javaSockets = null;
+    public static SocketTransport javaSockets = null;
     
     public static boolean X10_EXITING_NORMALLY = false;
     static final boolean REPORT_UNCAUGHT_USER_EXCEPTIONS = true;
@@ -47,7 +46,7 @@ public class X10RT {
             forceSinglePlace = true;
         } 
         else if (libName.equalsIgnoreCase("JavaSockets")) {
-      	  	X10RT.javaSockets = new Sockets();
+      	  	X10RT.javaSockets = new SocketTransport();
       	  	return X10RT.javaSockets.getLocalConnectionInfo();
         }
         else {
@@ -126,7 +125,7 @@ public class X10RT {
           forceSinglePlace = true;
       } 
       else if (libName.equalsIgnoreCase("JavaSockets")) {
-    	  X10RT.javaSockets = new Sockets();
+    	  X10RT.javaSockets = new SocketTransport();
     	  X10RT.javaSockets.establishLinks();
     	  //TeamSupport.initialize();
           here = X10RT.javaSockets.x10rt_here();

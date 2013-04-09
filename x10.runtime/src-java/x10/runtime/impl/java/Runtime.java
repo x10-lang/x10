@@ -24,8 +24,8 @@ import x10.rtt.Types;
 import x10.serialization.X10JavaDeserializer;
 import x10.serialization.X10JavaSerializable;
 import x10.serialization.X10JavaSerializer;
+import x10.x10rt.SocketTransport;
 import x10.x10rt.X10RT;
-import x10.x10rt.net.Sockets;
 
 public abstract class Runtime implements x10.core.fun.VoidFun_0_0 {
 
@@ -265,12 +265,12 @@ public abstract class Runtime implements x10.core.fun.VoidFun_0_0 {
             start = prof!=null ? System.nanoTime() : 0;
             if (serializer.mustSendDictionary()) {
             	if (X10RT.javaSockets != null)
-					X10RT.javaSockets.sendMessage(place, Sockets.CALLBACKID.simpleAsyncMessageID.ordinal(), new ByteBuffer[]{ByteBuffer.wrap(serializer.getDictionaryBytes()), ByteBuffer.wrap(serializer.getDataBytes())});
+					X10RT.javaSockets.sendMessage(place, SocketTransport.CALLBACKID.simpleAsyncMessageID.ordinal(), new ByteBuffer[]{ByteBuffer.wrap(serializer.getDictionaryBytes()), ByteBuffer.wrap(serializer.getDataBytes())});
 				else
 					x10.x10rt.MessageHandlers.runSimpleAsyncAtSend(place, serializer.getDictionaryBytes(), serializer.getDataBytes());
             } else {
             	if (X10RT.javaSockets != null)
-					X10RT.javaSockets.sendMessage(place, Sockets.CALLBACKID.simpleAsyncMessageNoDictionaryID.ordinal(), new ByteBuffer[]{ByteBuffer.wrap(serializer.getDataBytes())});
+					X10RT.javaSockets.sendMessage(place, SocketTransport.CALLBACKID.simpleAsyncMessageNoDictionaryID.ordinal(), new ByteBuffer[]{ByteBuffer.wrap(serializer.getDataBytes())});
 				else
 					x10.x10rt.MessageHandlers.runSimpleAsyncAtSend(place, serializer.getDataBytes());
             }
@@ -381,12 +381,12 @@ public abstract class Runtime implements x10.core.fun.VoidFun_0_0 {
 			start = prof!=null ? System.nanoTime() : 0;
 			if (serializer.mustSendDictionary()) {
 				if (X10RT.javaSockets != null)
-					X10RT.javaSockets.sendMessage(place, Sockets.CALLBACKID.closureMessageID.ordinal(), new ByteBuffer[]{ByteBuffer.wrap(serializer.getDictionaryBytes()), ByteBuffer.wrap(serializer.getDataBytes())});
+					X10RT.javaSockets.sendMessage(place, SocketTransport.CALLBACKID.closureMessageID.ordinal(), new ByteBuffer[]{ByteBuffer.wrap(serializer.getDictionaryBytes()), ByteBuffer.wrap(serializer.getDataBytes())});
 				else
 					x10.x10rt.MessageHandlers.runClosureAtSend(place, serializer.getDictionaryBytes(), serializer.getDataBytes());
 			} else {
 				if (X10RT.javaSockets != null)
-					X10RT.javaSockets.sendMessage(place, Sockets.CALLBACKID.closureMessageNoDictionaryID.ordinal(), new ByteBuffer[]{ByteBuffer.wrap(serializer.getDataBytes())});
+					X10RT.javaSockets.sendMessage(place, SocketTransport.CALLBACKID.closureMessageNoDictionaryID.ordinal(), new ByteBuffer[]{ByteBuffer.wrap(serializer.getDataBytes())});
 				else
 					x10.x10rt.MessageHandlers.runClosureAtSend(place, serializer.getDataBytes());			    
 			}

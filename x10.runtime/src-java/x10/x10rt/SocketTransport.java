@@ -1,4 +1,4 @@
-package x10.x10rt.net;
+package x10.x10rt;
 
 import java.io.ByteArrayInputStream;
 import java.io.DataInputStream;
@@ -16,7 +16,7 @@ import java.util.Iterator;
 import x10.lang.FinishState;
 import x10.serialization.X10JavaDeserializer;
 
-public class Sockets {
+public class SocketTransport {
 	private static final boolean DEBUG = false;
 	public static final String X10_FORCEPORTS = "X10_FORCEPORTS";
 	public static final String X10_LAUNCHER_PLACE = "X10_LAUNCHER_PLACE";
@@ -42,7 +42,7 @@ public class Sockets {
 	private Iterator<SelectionKey> events = null;
 	
 	
-	public Sockets() {
+	public SocketTransport() {
 		String nplacesFlag = System.getenv(X10_NPLACES);
 		if (nplacesFlag != null) {
 			nplaces = Integer.parseInt(nplacesFlag);
@@ -187,7 +187,7 @@ public class Sockets {
 				int remote = -1;
 				
 				ByteBuffer controlMsg = ByteBuffer.allocateDirect(16);
-				Sockets.readNBytes(sc, controlMsg, controlMsg.capacity());
+				SocketTransport.readNBytes(sc, controlMsg, controlMsg.capacity());
 				controlMsg.flip();
 				int msgtype = controlMsg.getInt();
 				if (CTRL_MSG_TYPE.HELLO.ordinal() == msgtype) {
@@ -200,7 +200,7 @@ public class Sockets {
 						controlMsg.putInt(myPlaceId);
 						controlMsg.putInt(0);
 						controlMsg.flip();
-						Sockets.writeNBytes(sc, controlMsg, controlMsg.capacity());
+						SocketTransport.writeNBytes(sc, controlMsg, controlMsg.capacity());
 						channels[remote] = sc;
 						sc.configureBlocking(false);
 						sc.register(selector, SelectionKey.OP_READ);
@@ -223,7 +223,7 @@ public class Sockets {
 				ByteBuffer bb = null;
 				int msgType, callbackId, datalen;
 				synchronized (sc) {
-					Sockets.readNBytes(sc, controlData, controlData.capacity());
+					SocketTransport.readNBytes(sc, controlData, controlData.capacity());
 					controlData.flip(); // switch from write to read mode
 					// Format: type, p.type, p.len, p.msg
 					msgType = controlData.getInt();
@@ -235,18 +235,18 @@ public class Sockets {
 					}
 					//TODO - eliminate this buffer by modifying the deserializer to take the channel as input
 					bb = ByteBuffer.allocate(datalen);
-					Sockets.readNBytes(sc, bb, datalen);
+					SocketTransport.readNBytes(sc, bb, datalen);
 					bb.flip();
 				}
 				if (msgType == MSGTYPE.STANDARD.ordinal()) {
 					if (callbackId == CALLBACKID.closureMessageID.ordinal())
-						Sockets.runClosureAtReceive(bb, true);
+						SocketTransport.runClosureAtReceive(bb, true);
 					else if (callbackId == CALLBACKID.closureMessageNoDictionaryID.ordinal())
-						Sockets.runClosureAtReceive(bb, false);
+						SocketTransport.runClosureAtReceive(bb, false);
 					else if (callbackId == CALLBACKID.simpleAsyncMessageID.ordinal())
-						Sockets.runSimpleAsyncAtReceive(bb, true);
+						SocketTransport.runSimpleAsyncAtReceive(bb, true);
 					else if (callbackId == CALLBACKID.simpleAsyncMessageNoDictionaryID.ordinal())
-						Sockets.runSimpleAsyncAtReceive(bb, false);
+						SocketTransport.runSimpleAsyncAtReceive(bb, false);
 					else
 						System.err.println("Unknown message callback type: "+callbackId);
 					
@@ -298,11 +298,11 @@ public class Sockets {
     		System.out.flush();
     	}
     	synchronized (channels[place]) {
-	    	Sockets.writeNBytes(channels[place], controlData, controlData.capacity());
+	    	SocketTransport.writeNBytes(channels[place], controlData, controlData.capacity());
 			//channels[place].write(controlData);
 	    	if (bytes != null)
 	    		for (int i=0; i<bytes.length; i++)
-	    			Sockets.writeNBytes(channels[place], bytes[i], bytes[i].remaining());
+	    			SocketTransport.writeNBytes(channels[place], bytes[i], bytes[i].remaining());
 			if (DEBUG) System.out.println("Sent");
     	}
 		
@@ -331,9 +331,9 @@ public class Sockets {
     			placeRequest.putInt(myPlaceId);
     			placeRequest.putInt(0);
     			placeRequest.flip();
-    			Sockets.writeNBytes(channels[myPlaceId], placeRequest, placeRequest.capacity());
+    			SocketTransport.writeNBytes(channels[myPlaceId], placeRequest, placeRequest.capacity());
     			placeRequest.clear();
-    			Sockets.readNBytes(channels[myPlaceId], placeRequest, placeRequest.capacity());
+    			SocketTransport.readNBytes(channels[myPlaceId], placeRequest, placeRequest.capacity());
     			placeRequest.flip();
     			int type = placeRequest.getInt();
     			if (type != CTRL_MSG_TYPE.PORT_RESPONSE.ordinal()) 
@@ -345,7 +345,7 @@ public class Sockets {
     				throw new IOException("Invalid response length to launcher lookup for place "+remotePlace);
     			byte[] chars = new byte[strlen];
     			ByteBuffer bb = ByteBuffer.wrap(chars);
-    			Sockets.readNBytes(channels[myPlaceId], bb, strlen);
+    			SocketTransport.readNBytes(channels[myPlaceId], bb, strlen);
     			connectionInfo = new String(chars);
     			if (DEBUG) System.out.println("Place "+myPlaceId+" lookup of place "+remotePlace+" returned \""+connectionInfo+"\" (len="+strlen+")");
     		}
@@ -387,7 +387,7 @@ public class Sockets {
 			controlMsg.put((byte)myPort);
 			controlMsg.putShort((short)0);
 			controlMsg.flip();
-			Sockets.writeNBytes(sc, controlMsg, 20);
+			SocketTransport.writeNBytes(sc, controlMsg, 20);
 			channels[myPlaceId] = sc;
 			sc.configureBlocking(false);
 			sc.register(selector, SelectionKey.OP_READ);
@@ -396,9 +396,9 @@ public class Sockets {
 		else {
 			controlMsg.putInt(0);
 			controlMsg.flip();
-			Sockets.writeNBytes(sc, controlMsg, 16);
+			SocketTransport.writeNBytes(sc, controlMsg, 16);
 			controlMsg.clear();
-			Sockets.readNBytes(sc, controlMsg, 16);
+			SocketTransport.readNBytes(sc, controlMsg, 16);
 			controlMsg.flip();
 			if (controlMsg.getInt() == CTRL_MSG_TYPE.HELLO.ordinal()) {
 				channels[remotePlace] = sc;
