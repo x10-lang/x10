@@ -22,7 +22,7 @@ public class ArrayTypeCheck extends x10Test {
 
     public def run(): boolean = {
 
-        var a1: DistArray[int] = DistArray.make[int](Dist.makeConstant(Region.make(0..2, 0..3), here), (var p[i,j]: Point): int => { return i; });
+        var a1: DistArray[int] = DistArray.make[int](Dist.makeConstant(Region.make(0..2, 0..3), here), (var p[i,j]: Point): int => { return i as int; });
 
         x10.io.Console.OUT.println("1");
 

@@ -26,15 +26,15 @@ import x10.io.Printer;
  */
 class PolyRow(rank:Int) extends ValRow {
 
-    def this(as_:Array[int](1))= this(as_, as_.size-1);
+    def this(as_:Rail[int])= this(as_, (as_.size-1) as int);
 
-    private def this(as_:Array[int](1), n:int): PolyRow(n) {
+    private def this(as_:Rail[int], n:int): PolyRow(n) {
         super(as_);
         property(n);
     }
 
     def this(p:Point, k:int) {
-        super(p.rank+1, (i:Int) => i<p.rank? p(i) : k);
+        super(p.rank+1, (i:Int) => i<p.rank? p(i) as int : k);
         property(p.rank);
     }
 
@@ -118,8 +118,8 @@ class PolyRow(rank:Int) extends ValRow {
      */
 
     def complement(): PolyRow {
-        val init = (i:Int) => i<rank? -this(i) : -this(rank)+1;
-        val as_ = new Array[int](rank+1, init);
+        val init = (i:long) => (i as int)<rank? -this(i as int) : -this(rank)+1;
+        val as_ = new Rail[int](rank+1, init);
         return new PolyRow(as_);
     }
 

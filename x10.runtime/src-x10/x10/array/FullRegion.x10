@@ -23,22 +23,22 @@ final class FullRegion extends Region{rect} {
 
     public def isConvex() = true;
     public def isEmpty() = false;
-    public def size():int {
+    public def size():long {
         throw new UnboundedRegionException("size not supported");
     }
-    public def indexOf(Point):int {
+    public def indexOf(Point):long {
         throw new UnboundedRegionException("indexOf not supported");
     }
-    public def min():(int)=>int {
+    public def min():(int)=>long {
         return (i:int) => {
             if (i<0 || i>=rank) throw new ArrayIndexOutOfBoundsException("min: "+i+" is not a valid rank for "+this);
-            Int.MIN_VALUE
+            Long.MIN_VALUE
         };
     }
-    public def max():(int)=>int {
+    public def max():(int)=>long {
         return (i:int) => {
             if (i<0 || i>=rank) throw new ArrayIndexOutOfBoundsException("max: "+i+" is not a valid rank for "+this);
-            Int.MAX_VALUE
+            Long.MAX_VALUE
         };
     }
     public def intersection(that: Region(rank)): Region(rank) = that;
@@ -51,8 +51,8 @@ final class FullRegion extends Region{rect} {
             val thatMin = (that as RectRegion).min();
             val thatMax = (that as RectRegion).max();
             val newRank = rank+that.rank;
-            val newMin = new Array[int](newRank, (i:int)=>i<rank?Int.MIN_VALUE:thatMin(i-rank));
-            val newMax = new Array[int](newRank, (i:int)=>i<rank?Int.MAX_VALUE:thatMax(i-rank));
+            val newMin = new Rail[long](newRank, (i:long)=>i<rank?Long.MIN_VALUE:thatMin((i as int)-rank));
+            val newMax = new Rail[long](newRank, (i:long)=>i<rank?Long.MAX_VALUE:thatMax((i as int)-rank));
             return new RectRegion(newMin,newMax);
         } else if (that instanceof RectRegion1D) {
             return this.product((that as RectRegion1D).toRectRegion());

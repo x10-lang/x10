@@ -137,7 +137,7 @@ public class ForLoopOptimizer extends ContextVisitor {
      * <pre>
      * for (p:Point(k+1) in r) S ->
      *     {                                      // k=r.rank-1
-     *        point = Rail.make[Int](k+1);        // if p is named
+     *        point = Rail.make[Long](k+1);        // if p is named
      *        mink=r.min(k); maxk=r.max(k);
      *        ...
      *        min0=r.min(0); max0=r.max(0); 
@@ -296,8 +296,8 @@ public class ForLoopOptimizer extends ContextVisitor {
             if (named) {
                 // create an array to contain the value of the formal at each iteration
                 Name       indexName  = Name.makeFresh(prefix);
-                           indexType  = Types.makeRailOf(xts.Int(), rank, pos);           
-                Expr       indexInit  = syn.createTuple(pos, rank, syn.createIntLit(0));
+                           indexType  = Types.makeRailOf(xts.Long(), rank, pos);           
+                Expr       indexInit  = syn.createTuple(pos, rank, syn.createLongLit(0));
                            indexLDecl = syn.createLocalDecl(pos, Flags.FINAL, indexName, indexType, indexInit);
                 // add the declaration of the index rail to the list of statements to be executed before the loop nest
                 stmts.add(indexLDecl);
@@ -320,7 +320,7 @@ public class ForLoopOptimizer extends ContextVisitor {
                 // create an AST node for the declaration of the temporary locations for the r-th var, min, and max
                 LocalDecl minLDecl = syn.createLocalDecl(pos, Flags.FINAL, minName, minVal);
                 LocalDecl maxLDecl = syn.createLocalDecl(pos, Flags.FINAL, maxName, maxVal);
-                LocalDecl varLDecl = syn.createLocalDecl(pos, Flags.NONE, varName, xts.Int(), syn.createLocal(pos, minLDecl));
+                LocalDecl varLDecl = syn.createLocalDecl(pos, Flags.NONE, varName, xts.Long(), syn.createLocal(pos, minLDecl));
                 
                 varLDecls[r] = varLDecl;
                 
@@ -337,7 +337,7 @@ public class ForLoopOptimizer extends ContextVisitor {
                 Expr update = syn.createAssign( domain.position(),
                                                 syn.createLocal(pos, varLDecl),
                                                 Assign.ADD_ASSIGN,
-                                                syn.createIntLit(1),
+                                                syn.createLongLit(1),
                                                 this );
                 
                 List<Stmt> bodyStmts = new ArrayList<Stmt>(); 

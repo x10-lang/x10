@@ -22,7 +22,7 @@ public class PointBinding extends x10Test {
 
     public def run(): boolean = {
         val p[i,j]: Point = Point.make(1, 2);
-        return (i == 1 && j == 2);
+        return (i == 1L && j == 2L);
     }
 
     public static def main(Rail[String]) {

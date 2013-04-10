@@ -31,10 +31,10 @@ class PolyRegion extends Region {
         return true;
     }
 
-    var size:Int = -1; // uninitialized
-    public def size():int {
+    var size:Long = -1; // uninitialized
+    public def size():long {
     	if (size < 0) {
-    	  var s:Int=0;
+    	  var s:Long=0;
           val it= iterator();
           for (p:Point in this)
         	 s++;
@@ -43,7 +43,7 @@ class PolyRegion extends Region {
         return size;     
     }
 
-    @Incomplete public def indexOf(Point):int {
+    @Incomplete public def indexOf(Point):long {
         throw new UnsupportedOperationException();
     }
 
@@ -138,7 +138,7 @@ class PolyRegion extends Region {
     private static def copy(tt: PolyMatBuilder, ff: PolyMat, offset: int): void {
         for (r:PolyRow in ff) {
             val f = r;
-            val t = new Array[int](tt.rank+1);
+            val t = new Rail[int](tt.rank+1);
             for (var i: int = 0; i<ff.rank; i++)
                 t(offset+i) = f(i);
             t(tt.rank) = f(ff.rank);
@@ -157,7 +157,7 @@ class PolyRegion extends Region {
     private static def translate(tt: PolyMatBuilder, ff: PolyMat, v: Point(ff.rank)): void {
         for (r:PolyRow in ff) {
             val f = r;
-            val t = new Array[int](ff.rank+1);
+            val t = new Rail[int](ff.rank+1);
             var s:Int = 0;
             for (var i: int = 0; i<ff.rank; i++) {
                 t(i) = f(i);
@@ -199,8 +199,8 @@ class PolyRegion extends Region {
     }
 
     protected def computeBoundingBox(): Region(rank){self.rect} {
-        val min = new Array[int](rank);
-        val max = new Array[int](rank);
+        val min = new Rail[long](rank);
+        val max = new Rail[long](rank);
         var pm: PolyMat{self.rank==this.rank} = mat;
         for (var axis: int = 0; axis<rank; axis++) {
             var x: PolyMat = pm;
@@ -210,7 +210,7 @@ class PolyRegion extends Region {
             max(axis) = x.rectMax(axis);
             pm = pm.eliminate(axis, true);
         }
-        return Region.makeRectangular(min, max);
+        return Region.makeRectangular(min, max) as Region(rank){self.rect};
     }
 
 
@@ -307,12 +307,12 @@ class PolyRegion extends Region {
 	//        cache = new Cache(this, hack198);
     }
 
-    public def min(): (int)=>int {
+    public def min(): (int)=>long {
         val t = boundingBox().min();
         return (i:int)=>t(i);
     }
 
-    public def max(): (int)=>int {
+    public def max(): (int)=>long {
         val t = boundingBox().max();
         return (i:int)=>t(i);
     }

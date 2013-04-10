@@ -30,9 +30,9 @@ final class WrappedDistRegionRestricted extends Dist {
 
     public def numPlaces() = base.numPlaces();
 
-    public def regions():Sequence[Region(rank)] {
-        return new Array[Region(rank)](Place.MAX_PLACES, 
-                                          (i:int)=>base.get(Place(i)).intersection(filter)).sequence();
+    public def regions():Iterable[Region(rank)] {
+        return new Rail[Region(rank)](Place.MAX_PLACES, 
+                                      (i:long)=>base.get(Place(i as int)).intersection(filter));
     }
 
     public def get(p:Place):Region(rank) {
@@ -51,18 +51,18 @@ final class WrappedDistRegionRestricted extends Dist {
     }
 
     // replicated from superclass to workaround xlC bug with using & itables
-    public operator this(i0:int){rank==1}:Place = this(Point.make(i0));
+    public operator this(i0:long){rank==1}:Place = this(Point.make(i0));
 
     // replicated from superclass to workaround xlC bug with using & itables
-    public operator this(i0:int, i1:int){rank==2}:Place = this(Point.make(i0, i1));
+    public operator this(i0:long, i1:long){rank==2}:Place = this(Point.make(i0, i1));
 
     // replicated from superclass to workaround xlC bug with using & itables
-    public operator this(i0:int, i1:int, i2:int){rank==3}:Place = this(Point.make(i0, i1, i2));
+    public operator this(i0:long, i1:long, i2:long){rank==3}:Place = this(Point.make(i0, i1, i2));
 
     // replicated from superclass to workaround xlC bug with using & itables
-    public operator this(i0:int, i1:int, i2:int, i3:int){rank==4}:Place = this(Point.make(i0,i1,i2,i3));
+    public operator this(i0:long, i1:long, i2:long, i3:long){rank==4}:Place = this(Point.make(i0,i1,i2,i3));
 
-    public def offset(pt:Point(rank)):int {
+    public def offset(pt:Point(rank)):long {
         if (filter.contains(pt)) {
             return base.offset(pt);
         } else {
@@ -70,7 +70,7 @@ final class WrappedDistRegionRestricted extends Dist {
         }
     }
 
-    public def maxOffset():int = base.maxOffset();
+    public def maxOffset():long = base.maxOffset();
 
     public def restriction(r:Region(rank)):Dist(rank) {
         return new WrappedDistRegionRestricted(base, filter.intersection(r)); 

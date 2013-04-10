@@ -20,7 +20,7 @@ class PolyContains2 extends TestRegion {
 
     public def run() {
 
-        val u: Region = Region.makeRectangular([0,0], [3,3]);
+        val u: Region = Region.makeRectangular(0..3, 0..3);
     
         var r1: Region = Region.makeUpperTriangular(4);
         prArray("makeUpperTriangular(4)", r1);

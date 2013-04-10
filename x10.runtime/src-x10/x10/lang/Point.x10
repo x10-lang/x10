@@ -18,53 +18,53 @@ import x10.util.Ordered;
  * rank-dimensional space. The coordinates of a point <code>p</code>
  * may be accessed individually (with zero-based indexing) using
  * <code>p(i)</code> because <code>Point</code> implements
- * <code>(Int)=>int</code>. The coordinates may also be accessed as a
+ * <code>(int)=>int</code>. The coordinates may also be accessed as a
  * Rail[int]. Point arithmetic is supported.
  */
-public final class Point(rank:Int) implements (Int) => Int, 
+public final class Point(rank:int) implements (int) => long, 
                                               Ordered[Point(rank)], 
                                               Comparable[Point(rank)] {
-    private val c0:int;
-    private val c1:int;
-    private val c2:int;
-    private val c3:int;
-    private val cs:Rail[int];  // Will be null if rank<5
+    private val c0:long;
+    private val c1:long;
+    private val c2:long;
+    private val c3:long;
+    private val cs:Rail[long];  // Will be null if rank<5
 
-    def this(coords:Rail[int]):Point(coords.size as Int) {
-        property(coords.size as Int);
+    def this(coords:Rail[long]):Point(coords.size as int) {
+        property(coords.size as int);
 
 	c0 = coords(0);
-	c1 = rank>1 ? coords(1) : 0;
-        c2 = rank>2 ? coords(2) : 0;
-        c3 = rank>3 ? coords(3) : 0;
+	c1 = rank>1 ? coords(1) : 0L;
+        c2 = rank>2 ? coords(2) : 0L;
+        c3 = rank>3 ? coords(3) : 0L;
         cs = rank>4 ? coords : null;
     }
 
-    def this(i0:int):Point(1) {
+    def this(i0:long):Point(1) {
         property(1);
         c0 = i0;
-        c1 = c2 = c3 = 0;
+        c1 = c2 = c3 = 0L;
         cs = null;
     }
 
-    def this(i0:int, i1:int):Point(2) {
+    def this(i0:long, i1:long):Point(2) {
         property(2);
         c0 = i0;
         c1 = i1;
-        c2 = c3 = 0;
+        c2 = c3 = 0L;
         cs = null;
     }
 
-    def this(i0:int, i1:int, i2:int):Point(3) {
+    def this(i0:long, i1:long, i2:long):Point(3) {
         property(3);
         c0 = i0;
         c1 = i1;
         c2 = i2;
-        c3 = 0;
+        c3 = 0L;
         cs = null;
     }
 
-    def this(i0:int, i1:int, i2:int, i3:int):Point(4) {
+    def this(i0:long, i1:long, i2:long, i3:long):Point(4) {
         property(4);
         c0 = i0;
         c1 = i1;
@@ -77,7 +77,7 @@ public final class Point(rank:Int) implements (Int) => Int,
     /**
      * Returns the value of the ith coordinate.
      */
-    public operator this(i:Int):Int {
+    public operator this(i:int):long {
         if (i<0 || i>= rank) throw new ArrayIndexOutOfBoundsException("index "+i+" not contained in "+this);
         switch (i) {
             case 0: return c0;
@@ -91,32 +91,46 @@ public final class Point(rank:Int) implements (Int) => Int,
     /**
      * Returns the coordinates as a <code>(int)=>int</code>.
      */
-    public def coords():(int)=>int = (i:int)=> this(i);
+    public def coords():(int)=>long = (i:int)=> this(i);
 
     /**
      * Constructs a Point from a Rail[int]
      * LONG_RAIL: unsafe int cast
      */
-    public static def make[T](r:Rail[T]){T<: Int}:Point(r.size as Int) {
-        switch(r.size as Int) {
-            case 1: return new Point(r(0)) as Point(r.size as Int);//{self.rank==r.size};
-            case 2: return new Point(r(0), r(1)) as Point(r.size as Int);
-            case 3: return new Point(r(0), r(1), r(2)) as Point(r.size as Int);
-            case 4: return new Point(r(0), r(1), r(2), r(3)) as Point(r.size as Int);
-            default: return new Point(new Rail[int](r.size, r));
+    public static def make(r:Rail[Int]):Point(r.size as int) {
+        switch(r.size as int) {
+            case 1: return new Point(r(0)) as Point(r.size as int);//{self.rank==r.size};
+            case 2: return new Point(r(0), r(1)) as Point(r.size as int);
+            case 3: return new Point(r(0), r(1), r(2)) as Point(r.size as int);
+            case 4: return new Point(r(0), r(1), r(2), r(3)) as Point(r.size as int);
+            default: return new Point(new Rail[long](r.size, (i:long)=>(r(i) as long)));
+        }
+    }
+
+    /**
+     * Constructs a Point from a Rail[long]
+     * LONG_RAIL: unsafe int cast
+     */
+    public static def make(r:Rail[Long]):Point(r.size as int) {
+        switch(r.size as int) {
+            case 1: return new Point(r(0)) as Point(r.size as int);//{self.rank==r.size};
+            case 2: return new Point(r(0), r(1)) as Point(r.size as int);
+            case 3: return new Point(r(0), r(1), r(2)) as Point(r.size as int);
+            case 4: return new Point(r(0), r(1), r(2), r(3)) as Point(r.size as int);
+            default: return new Point(new Rail[long](r.size, r));
         }
     }
 
     /**
      * Returns a <code>Point p</code> of rank <code>rank</code> with <code>p(i)=init(i)</code>.
      */
-    public static def make(rank:Int, init:(i:Int)=>int):Point(rank) {
+    public static def make(rank:int, init:(i:int)=>long):Point(rank) {
         switch(rank) {
             case 1: return new Point(init(0)) as Point(rank);
             case 2: return new Point(init(0), init(1)) as Point(rank);
             case 3: return new Point(init(0), init(1), init(2)) as Point(rank);
             case 4: return new Point(init(0), init(1), init(2), init(3)) as Point(rank);
-            default: return new Point(new Rail[int](rank, (l:long)=>init(l as Int))) as Point(rank);
+            default: return new Point(new Rail[long](rank, (l:long)=>init(l as int))) as Point(rank);
         }
     }
 
@@ -126,12 +140,25 @@ public final class Point(rank:Int) implements (Int) => Int,
     public static def make(i0:int, i1:int, i2:int) = new Point(i0, i1, i2);
     public static def make(i0:int, i1:int, i2:int, i3:int) = new Point(i0, i1, i2, i3);
 
+    public static def make(i0:long) = new Point(i0);
+    public static def make(i0:long, i1:long) = new Point(i0, i1);
+    public static def make(i0:long, i1:long, i2:long) = new Point(i0, i1, i2);
+    public static def make(i0:long, i1:long, i2:long, i3:long) = new Point(i0, i1, i2, i3);
+
+
     /** 
      * A <code>Rail</code> <code>r</code> of length <code>k</code> can be converted to a point <code>p</code>
      * of rank <code>k</code> with <code>p(i)=r(i)</code>.
      * LONG_RAIL: unsafe int cast
      */
-    public static operator[T] (r:Rail[T]){T <: Int}:Point(r.size as Int) = make(r);
+    public static operator(r:Rail[Long]):Point(r.size as int) = make(r);
+
+    /** 
+     * A <code>Rail</code> <code>r</code> of length <code>k</code> can be converted to a point <code>p</code>
+     * of rank <code>k</code> with <code>p(i)=r(i)</code>.
+     * LONG_RAIL: unsafe int cast
+     */
+    public static operator(r:Rail[Int]):Point(r.size as int) = make(r);
 
     /**
      * The point <code>+p</code> is the same as <code>p</code>.
@@ -142,80 +169,80 @@ public final class Point(rank:Int) implements (Int) => Int,
      * The point <code>-p</code> is the same as <code>p</code> with each index negated.
      */
     public operator - this: Point(rank) 
-       = Point.make(rank, (i:Int)=>-this(i));
+       = Point.make(rank, (i:int)=>-this(i));
 
     /**
      * The ith coordinate of point <code>p+q</code> is <code>p(i)+q(i)</code>.
      */
     public operator this + (that: Point(rank)): Point(rank) 
-       = Point.make(rank, (i:Int)=> this(i) + that(i));
+       = Point.make(rank, (i:int)=> this(i) + that(i));
 
 
     /**
      * The ith coordinate of point <code>p-q</code> is <code>p(i)-q(i)</code>.
      */
     public operator this - (that: Point(rank)): Point(rank) 
-       = Point.make(rank, (i:Int)=> this(i) - that(i));
+       = Point.make(rank, (i:int)=> this(i) - that(i));
 
     /** 
      * The ith coordinate of point <code>p*q</code> is <code>p(i)*q(i)</code>.
      */
     public operator this * (that: Point(rank)): Point(rank) 
-       = Point.make(rank, (i:Int)=> this(i) * that(i));
+       = Point.make(rank, (i:int)=> this(i) * that(i));
 
     /**  
      * The ith coordinate of point <code>p/q</code> is <code>p(i)/q(i)</code>.
      */
     public operator this / (that: Point(rank)): Point(rank) 
-       = Point.make(rank, (i:Int)=> this(i) / that(i));
+       = Point.make(rank, (i:int)=> this(i) / that(i));
 
     /**
      * The ith coordinate of point <code>p+c</code> is <code>p(i)+c</code>.
      */
     public operator this + (c: int): Point(rank) 
-       = Point.make(rank, (i:Int) => this(i) + c);
+       = Point.make(rank, (i:int) => this(i) + c);
 
     /** 
      * The ith coordinate of point <code>p-c</code> is <code>p(i)-c</code>.
      */
     public operator this - (c: int): Point(rank) 
-       = Point.make(rank, (i:Int) => this(i) - c);
+       = Point.make(rank, (i:int) => this(i) - c);
 
     /**
      * The ith coordinate of point <code>p*c</code> is <code>p(i)*c</code>.
      */
     public operator this * (c: int): Point(rank) 
-       = Point.make(rank, (i:Int) => this(i) * c);
+       = Point.make(rank, (i:int) => this(i) * c);
 
     /**
      * The ith coordinate of point <code>p/c</code> is <code>p(i)/c</code>.
      */
     public operator this / (c: int): Point(rank) 
-       = Point.make(rank, (i:Int) => this(i) / c);
+       = Point.make(rank, (i:int) => this(i) / c);
 
     /**
      * The ith coordinate of point <code>c+p</code> is <code>c+p(i)</code>.
      */
     public operator (c: int) + this: Point(rank) 
-       = Point.make(rank, (i:Int) => c + this(i));
+       = Point.make(rank, (i:int) => c + this(i));
 
     /**
      * The ith coordinate of point <code>c-p</code> is <code>c-p(i)</code>.
      */
     public operator (c: int) - this: Point(rank) 
-       = Point.make(rank, (i:Int) => c - this(i));
+       = Point.make(rank, (i:int) => c - this(i));
 
     /**
      * The ith coordinate of point <code>c*p</code> is <code>c*p(i)</code>.
      */
     public operator (c: int) * this: Point(rank) 
-       = Point.make(rank, (i:Int) => c * this(i));
+       = Point.make(rank, (i:int) => c * this(i));
 
     /**
      * The ith coordinate of point <code>c/p</code> is <code>c/p(i)</code>.
      */
     public operator (c: int) / this: Point(rank) 
-       = Point.make(rank, (i:Int) => c / this(i));
+       = Point.make(rank, (i:int) => c / this(i));
 
     /**
      * {@link Comparable#compareTo}
@@ -232,23 +259,25 @@ public final class Point(rank:Int) implements (Int) => Int,
      * positive numbers.
      */
     public def hashCode():int {
-        var hc:int = this(0);
-        for (var i:int = 1; i<rank; i++) {
-            hc = (hc * 17) ^ this(i);
+        var hc:long = this(0);
+        for (i in 1..(rank-1)) {
+            hc = (hc * 17L) ^ this(i);
         }
-	return hc;
+	return hc as int;
     }
 
-    /** Two points of the same rank are equal if and only if their
+    /** 
+     * Two points of the same rank are equal if and only if their
      * corresponding indices are equal.
      */
     public def equals(other:Any):boolean {
         if (!(other instanceof Point)) return false;
 	val otherPoint = other as Point;
         if (rank != otherPoint.rank) return false;
-        for (var i: int = 0; i<rank; i++)
+        for (i in 0..(rank-1)) {
             if (!(this(i)==otherPoint(i)))
                 return false;
+        }
         return true;
     }
 
@@ -256,7 +285,7 @@ public final class Point(rank:Int) implements (Int) => Int,
      * For points a, b, <code> a &lt; b</code> if <code>a</code> is lexicographically smaller than <code>b</code>.
      */
     public operator this < (that: Point(rank)): boolean {
-        for (var i: int = 0; i<rank-1; i++) {
+        for (i in 0..(rank-2)) {
 	    val a = this(i);
 	    val b = that(i);
             if (a > b) return false;
@@ -270,7 +299,7 @@ public final class Point(rank:Int) implements (Int) => Int,
      * is lexicographically bigger than <code> b</code>.
      */
     public operator this > (that: Point(rank)): boolean {
-        for (var i: int = 0; i<rank-1; i++) {
+        for (i in 0..(rank-2)) {
 	    val a = this(i);
 	    val b = that(i);
             if (a < b) return false;
@@ -284,7 +313,7 @@ public final class Point(rank:Int) implements (Int) => Int,
      * lexicographically less than <code> b</code> or the same as <code>b</code>.
      */
     public operator this <= (that: Point(rank)): boolean {
-        for (var i: int = 0; i<rank-1; i++) {
+        for (i in 0..(rank-2)) {
 	    val a = this(i);
 	    val b = that(i);
             if (a > b) return false;
@@ -298,7 +327,7 @@ public final class Point(rank:Int) implements (Int) => Int,
      * lexicographically greater than <code> b</code> or the same as <code>b</code>.
      */
     public operator this >= (that: Point(rank)): boolean {
-        for (var i: int = 0; i<rank-1; i++) {
+        for (i in 0..(rank-2)) {
 	    val a = this(i);
 	    val b = that(i);
             if (a < b) return false;
@@ -313,11 +342,12 @@ public final class Point(rank:Int) implements (Int) => Int,
     public def toString() {
         var s:String = "[";
         if (rank>0) s += this(0); 
-        for (var i:int=1; i<rank; i++)
-            s += "," + this(i); 
+        for (i in 1..(rank-1)) {
+            s += "," + this(i);
+        }
         s += "]";
         return s;
     }
 }
 
-public type Point(r: Int) = Point{self.rank==r};
+public type Point(r:int) = Point{self.rank==r};

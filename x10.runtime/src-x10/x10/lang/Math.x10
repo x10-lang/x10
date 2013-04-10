@@ -386,8 +386,14 @@ public final class Math {
         while (p > 1) { p = p/2; i++; }
         return i;
     }
+
     // returns 2^(max(0,i))
-    public static def pow2(i:Int) {
+    public static def pow2(i:Int):int {
         return 1 << i;
+    }
+
+    // returns 2^(max(0,i))
+    public static def pow2(i:long):long {
+        return 1L << (i as int);
     }
 }

@@ -24,7 +24,7 @@ public class TestArrayUtils extends x10Test {
 	public def run(): Boolean = {
         val N = 30;
         val r = new Random();
-        val a = new Array[Double](N);
+        val a = new Rail[Double](N);
         for (i in 0..(N-1)) {
             a(i) = r.nextDouble();
         }

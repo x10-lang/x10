@@ -201,7 +201,7 @@ public class X10Formal_c extends Formal_c implements X10Formal {
                         indexType = TypeSystem_c.getArrayComponentType(containerType);
                     } else {
                         // must be a Point or we had complained when typeChecking the parent.
-                        indexType = ts.Int();
+                        indexType = ts.Long();
                     }
                     r.update(indexType); // It used to be: ts.unknownType(tn.position()), however now I complain in checkExplodedVars if the type of the parent is not Point nor Array, so no need to complain we cannot infer the type of the components. 
 	            }
@@ -295,7 +295,8 @@ public class X10Formal_c extends Formal_c implements X10Formal {
                     if (rank instanceof XLit && size instanceof XLit) {
                         okOrError = true;
                         int r = (Integer) ((XLit) rank).val();
-                        int s = (Integer) ((XLit) size).val();
+                        Object val = ((XLit) size).val();
+                        long s = (val instanceof Long) ? (Long) val : (Integer) val;
                         if (r!=1 || s!=num) {
                             if (r!=1)
                                 Errors.issue(tc.job(), new SemanticException("The rank of the exploded Array is "+r+" but it should be 1", pos));

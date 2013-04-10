@@ -36,7 +36,7 @@ public final class RemoteArray[T](
         /**
          * The size of the remote array.
          */
-        size:Int, 
+        size:Long, 
         /**
          * The GlobalRef to the remote array.
          */

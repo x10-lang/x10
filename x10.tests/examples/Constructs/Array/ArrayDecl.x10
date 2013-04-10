@@ -31,9 +31,9 @@ public class ArrayDecl extends x10Test {
 
         finish ateach (val [i]: Point in ia0.dist) chk(ia0(i) == 0);
 
-        val v_ia2: DistArray[int](1) = DistArray.make[int](Dist.makeConstant(Region.make(0, N-1), here), ([i]: Point)=>i);
+        val v_ia2: DistArray[int](1) = DistArray.make[int](Dist.makeConstant(Region.make(0, N-1), here), ([i]: Point)=>(i as int));
         chk(v_ia2.dist.equals(Dist.makeConstant(Region.make(0, N-1), here)));
-        for (val [i]: Point in v_ia2.region) chk(v_ia2(i) == i);
+        for (val [i]: Point in v_ia2.region) chk(v_ia2(i) == (i as int));
 
         val ia2: DistArray[byte](1) = DistArray.make[byte](Dist.makeConstant(Region.make(0, N-1), (here).prev().prev()), (Point)=> (0 as byte));
         chk(ia2.dist.equals(Dist.makeConstant(Region.make(0, N-1), (here).prev().prev())));
@@ -46,15 +46,15 @@ public class ArrayDecl extends x10Test {
         for (val [i]: Point in data1.region) chk(data1(i) == (i as Double));
 
         val myStr: String = "abcdefghijklmnop";
-        val data2 = DistArray.make[char](Dist.makeConstant(Region.make(1..2,1..3), here), ([i,j]: Point)=> myStr.charAt(i*j));
+        val data2 = DistArray.make[char](Dist.makeConstant(Region.make(1..2,1..3), here), ([i,j]: Point)=> myStr.charAt((i*j) as int));
         chk(data2.dist.equals(Dist.makeConstant(Region.make(1..2,1..3), here)));
-        for (val [i,j]: Point in data2.region) chk(data2(i, j) == myStr.charAt(i*j));
+        for (val [i,j]: Point in data2.region) chk(data2(i, j) == myStr.charAt((i*j) as int));
 
         // is a region R converted to R->here in a dist context?
         //final long[.] data3 = new long[1:11]
-        val data3: DistArray[long](1) = DistArray.make[long](Dist.makeConstant(Region.make(1,11), here), ([i] : Point)=> i*i as Long);
+        val data3: DistArray[long](1) = DistArray.make[long](Dist.makeConstant(Region.make(1,11), here), ([i] : Point)=> i*i);
         chk(data3.dist.equals(Dist.makeConstant(Region.make(1, 11), here)));
-        for (val [i]: Point in data3.region) chk(data3(i) == (i*i as Long));
+        for (val [i]: Point in data3.region) chk(data3(i) == (i*i));
 
         val D: Dist{rank==1} = Dist.makeBlock(Region.make(0,9), 0);
         val d = DistArray.make[float](D, ([i]:Point) => ((10.0*i) as Float));

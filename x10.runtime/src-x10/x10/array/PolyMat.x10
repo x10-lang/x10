@@ -37,7 +37,7 @@ class PolyMat(rank: int) extends Mat[PolyRow] {
      */
 
     public def this(rows: Int, cols: Int, init: (i:Int,j:Int)=>int, isSimplified:boolean) {
-        super(rows, cols, new Array[PolyRow](rows, (i:Int)=>new PolyRow(cols, (j:Int)=>init(i,j))));
+        super(rows, cols, new Rail[PolyRow](rows, (i:long)=>new PolyRow(cols, (j:Int)=>init(i as int,j))));
         val cols1 = cols-1;
         property(cols1);
         this.isSimplified = isSimplified;
@@ -85,7 +85,7 @@ class PolyMat(rank: int) extends Mat[PolyRow] {
             return this;
 
         val pmb = new PolyMatBuilder(rank);
-        val removed = new Array[boolean](rows, (Int)=>false);
+        val removed = new Rail[boolean](rows, false);
 
         for (var i: int = 0; i<rows; i++) {
             val r = this(i);
@@ -128,7 +128,7 @@ class PolyMat(rank: int) extends Mat[PolyRow] {
             } else {
                 for (jr:PolyRow in this) {
                     val ja = jr(k);
-                    val as_ = new Array[int](rank+1);
+                    val as_ = new Rail[int](rank+1);
                     if (ia>0 && ja<0) {
                         for (var l: int = 0; l<=rank; l++)
                             as_(l) = ia*jr(l) - ja*ir(l);
@@ -142,7 +142,7 @@ class PolyMat(rank: int) extends Mat[PolyRow] {
                         if (as_(l)!=0)
                             degenerate = false;
                     if (!degenerate) {
-                        var r: PolyRow = new PolyRow(new Array[int](as_.size, (i:int)=>as_(i)));
+                        var r: PolyRow = new PolyRow(new Rail[int](as_.size, (i:long)=>as_(i)));
                         pmb.add(r);
                     }
                 }
@@ -195,9 +195,9 @@ class PolyMat(rank: int) extends Mat[PolyRow] {
         throw new UnboundedRegionException(msg);
     }
 
-    def rectMin() = new Array[int](rank, (i:Int)=>rectMin(i));
+    def rectMin() = new Rail[int](rank, (i:long)=>rectMin(i as int));
 
-    def rectMax() = new Array[int](rank, (i:Int)=>rectMax(i));
+    def rectMax() = new Rail[int](rank, (i:long)=>rectMax(i as int));
 
     def isZeroBased(): boolean {
         if (!isRect())

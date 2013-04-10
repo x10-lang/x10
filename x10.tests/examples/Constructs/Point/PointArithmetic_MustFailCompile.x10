@@ -28,8 +28,8 @@ public class PointArithmetic_MustFailCompile extends x10Test {
     public def run(): boolean = {
 
         var sum: int = 0;
-        val p = [2, 2, 2, 2, 2] as Point(DIM);
-        val q = [1, 1, 1, 1, 1] as Point(DIM);
+        val p = [2 as int, 2, 2, 2, 2] as Point(DIM);
+        val q = [1 as int, 1, 1, 1, 1] as Point(DIM);
         var c: int = 2;
 
         // Now test that the dimensionality is properly checked

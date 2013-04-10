@@ -70,31 +70,31 @@ final class BlockBlockDist extends Dist {
         val max1 = b.max(axis1);
         val size0 = (max0 - min0 + 1);
         val size1 = (max1 - min1 + 1);
-        val size0Even = size0 % 2 == 0 ? size0 : size0-1;
-        val P = Math.min(pg.numPlaces(), size0Even * size1);
-        val divisions0 = Math.min(size0Even, Math.pow2(Math.ceil((Math.log(P as Double) / Math.log(2.0)) / 2.0) as Int));
-        val divisions1 = Math.min(size1, Math.ceil((P as Double) / divisions0) as Int);
+        val size0Even = size0 % 2 == 0L ? size0 : size0-1;
+        val P = Math.min(pg.numPlaces() as Long, size0Even * size1);
+        val divisions0 = Math.min(size0Even, Math.pow2(Math.ceil((Math.log(P as Double) / Math.log(2.0)) / 2.0) as long));
+        val divisions1 = Math.min(size1, Math.ceil((P as Double) / divisions0) as long);
         val leftOver = divisions0*divisions1 - P;
 
         val i = pg.indexOf(place);
         if (i >= P) return Region.makeEmpty(rank);
 
-        val leftOverOddOffset = (divisions0 % 2 == 0) ? 0 : i*2/(divisions0+1);
+        val leftOverOddOffset = (divisions0 % 2 == 0L) ? 0L : i*2/(divisions0+1);
 
         val blockIndex0 = i < leftOver ? (i*2-leftOverOddOffset) % divisions0 : (i+leftOver) % divisions0;
         val blockIndex1 = i < leftOver ? (i*2) / divisions0 : (i+leftOver) / divisions0;
 
-        val low0 = min0 + Math.ceil(blockIndex0 * size0 / divisions0 as Double) as Int;
-        val blockHi0 = blockIndex0 + (i < leftOver ? 2 : 1);
-        val hi0 = min0 + Math.ceil(blockHi0 * size0 / divisions0 as Double) as Int - 1;
+        val low0 = min0 + Math.ceil(blockIndex0 * size0 / divisions0 as Double) as long;
+        val blockHi0 = blockIndex0 + (i < leftOver ? 2L : 1L);
+        val hi0 = min0 + Math.ceil(blockHi0 * size0 / divisions0 as Double) as long - 1;
 
-        val low1 = min1 + Math.ceil(blockIndex1 * size1 / divisions1 as Double) as Int;
-        val hi1 = min1 + Math.ceil((blockIndex1+1) * size1 / divisions1 as Double) as Int - 1;
+        val low1 = min1 + Math.ceil(blockIndex1 * size1 / divisions1 as Double) as long;
+        val hi1 = min1 + Math.ceil((blockIndex1+1) * size1 / divisions1 as Double) as long - 1;
 
         if (region instanceof RectRegion) {
             // Optimize common case.
-            val newMin = new Array[Int](rank, (i : Int) => region.min(i));
-            val newMax = new Array[Int](rank, (i : Int) => region.max(i));
+            val newMin = new Rail[long](rank, (i:long) => region.min(i as int));
+            val newMax = new Rail[long](rank, (i:long) => region.max(i as int));
             newMin(axis0) = low0;
             newMin(axis1) = low1;
             newMax(axis0) = hi0;
@@ -105,10 +105,10 @@ final class BlockBlockDist extends Dist {
             val beforeAxes = (axis1 > axis0) ? Region.makeFull(axis0) : Region.makeFull(axis1);
             val betweenAxes = (axis1 > axis0) ? Region.makeFull(axis1-axis0-1) : Region.makeFull(axis0-axis1-1);
             val afterAxes = (axis1 > axis0) ? Region.makeFull(region.rank-axis1-1) : Region.makeFull(region.rank-axis0-1);
-            var lowFirst:Int;
-            val hiFirst:Int;
-            val lowSecond:Int;
-            val hiSecond:Int;
+            var lowFirst:long;
+            val hiFirst:long;
+            val lowSecond:long;
+            val hiSecond:long;
             if (axis1 > axis0) {
                 lowFirst = low0;
                 lowSecond = low1;
@@ -133,7 +133,7 @@ final class BlockBlockDist extends Dist {
      * Assumption: Caller has done error checking to ensure that index is 
      *   actually within the bounds of the axis dimension.
      */
-    private def mapIndexToPlace(index0:int, index1:int) {
+    private def mapIndexToPlace(index0:long, index1:long) {
         val b = region.boundingBox();
         val min0 = b.min(axis0);
         val max0 = b.max(axis0);
@@ -141,21 +141,21 @@ final class BlockBlockDist extends Dist {
         val max1 = b.max(axis1);
         val size0 = (max0 - min0 + 1);
         val size1 = (max1 - min1 + 1);
-        val size0Even = size0 % 2 == 0 ? size0 : size0-1;
-        val P = Math.min(pg.numPlaces(), size0Even * size1);
-        val divisions0 = Math.min(size0Even, Math.pow2(Math.ceil((Math.log(P as Double) / Math.log(2.0)) / 2.0) as Int));
-        val divisions1 = Math.min(size1, Math.ceil((P as Double) / divisions0) as Int);
+        val size0Even = size0 % 2 == 0L ? size0 : size0-1;
+        val P = Math.min(pg.numPlaces() as Long, size0Even * size1);
+        val divisions0 = Math.min(size0Even, Math.pow2(Math.ceil((Math.log(P as Double) / Math.log(2.0)) / 2.0) as long));
+        val divisions1 = Math.min(size1, Math.ceil((P as Double) / divisions0) as long);
         val numBlocks = divisions0 * divisions1;
         val leftOver = numBlocks - P;
 
-        val blockIndex0 = divisions0 == 1 ? 0 : ((index0 - min0) * divisions0) / size0;
-        val blockIndex1 = divisions1 == 1 ? 0 : ((index1 - min1) * divisions1) / size1;
+        val blockIndex0 = divisions0 == 1L ? 0L : ((index0 - min0) * divisions0) / size0;
+        val blockIndex1 = divisions1 == 1L ? 0L : ((index1 - min1) * divisions1) / size1;
         val blockIndex = (blockIndex1 * divisions0) + blockIndex0;
 
         if (blockIndex <= leftOver * 2) {
             return pg((blockIndex / 2) as Int);
         } else {
-            return pg(blockIndex - leftOver);
+            return pg((blockIndex - leftOver) as Int);
         }
     }
 
@@ -163,8 +163,8 @@ final class BlockBlockDist extends Dist {
 
     public def numPlaces():int = pg.numPlaces();
 
-    public def regions():Sequence[Region(rank)] {
-        return new Array[Region(rank)](pg.numPlaces(), (i:int)=>blockBlockRegionForPlace(pg(i))).sequence();
+    public def regions():Iterable[Region(rank)] {
+        return new Rail[Region(rank)](pg.numPlaces(), (i:long)=>blockBlockRegionForPlace(pg(i as Int)));
     }
 
     public def get(p:Place):Region(rank) {
@@ -188,12 +188,12 @@ final class BlockBlockDist extends Dist {
             return mapIndexToPlace(pt(axis0), pt(axis1));
     }
 
-    public operator this(i0:int){rank==1}:Place {
+    public operator this(i0:long){rank==1}:Place {
         // block,block dist only supported for rank>=2
-        throw new UnsupportedOperationException("operator(i0:int)");
+        throw new UnsupportedOperationException("operator(i0:long)");
     }
 
-    public operator this(i0:int, i1:int){rank==2}:Place {
+    public operator this(i0:long, i1:long){rank==2}:Place {
         if (CompilerFlags.checkBounds() && !region.contains(i0, i1)) raiseBoundsError(i0,i1);
         switch(axis0) {
             case 0: return mapIndexToPlace(i0,i1);
@@ -202,7 +202,7 @@ final class BlockBlockDist extends Dist {
         }
     }
 
-    public operator this(i0:int, i1:int, i2:int){rank==3}:Place {
+    public operator this(i0:long, i1:long, i2:long){rank==3}:Place {
         if (CompilerFlags.checkBounds() && !region.contains(i0, i1, i2)) raiseBoundsError(i0,i1,i2);
         switch(axis0) {
             case 0: switch(axis1) {
@@ -230,56 +230,56 @@ final class BlockBlockDist extends Dist {
         }
     }
 
-    public operator this(i0:int, i1:int, i2:int, i3:int){rank==4}:Place {
+    public operator this(i0:long, i1:long, i2:long, i3:long){rank==4}:Place {
         val pt = Point.make(i0, i1, i2, i3);
         if (CompilerFlags.checkBounds() && !region.contains(pt)) raiseBoundsError(pt);
         return mapIndexToPlace(pt(axis0), pt(axis1));
     }
 
-    public def offset(pt:Point(rank)):int {
+    public def offset(pt:Point(rank)):long {
         val r = get(here);
         val offset = r.indexOf(pt);
-        if (offset == -1) {
+        if (offset == -1L) {
             if (CompilerFlags.checkBounds() && !region.contains(pt)) raiseBoundsError(pt);
             if (CompilerFlags.checkPlace()) raisePlaceError(pt);
         }
         return offset;
     }
 
-    public def offset(i0:int){rank==1}:int {
+    public def offset(i0:long){rank==1}:long {
         val r = get(here);
         val offset = r.indexOf(i0);
-        if (offset == -1) {
+        if (offset == -1L) {
             if (CompilerFlags.checkBounds() && !region.contains(i0)) raiseBoundsError(i0);
             if (CompilerFlags.checkPlace()) raisePlaceError(i0);
         }
         return offset;
     }
 
-    public def offset(i0:int, i1:int){rank==2}:int {
+    public def offset(i0:long, i1:long){rank==2}:long {
         val r = get(here);
 	    val offset = r.indexOf(i0,i1);
-	    if (offset == -1) {
+	    if (offset == -1L) {
 	        if (CompilerFlags.checkBounds() && !region.contains(i0,i1)) raiseBoundsError(i0,i1);
             if (CompilerFlags.checkPlace()) raisePlaceError(i0,i1);
         }
         return offset;
     }
 
-    public def offset(i0:int, i1:int, i2:int){rank==3}:int {
+    public def offset(i0:long, i1:long, i2:long){rank==3}:long {
         val r = get(here);
 	    val offset = r.indexOf(i0,i1,i2);
-	    if (offset == -1) {
+	    if (offset == -1L) {
 	        if (CompilerFlags.checkBounds() && !region.contains(i0,i1,i2)) raiseBoundsError(i0,i1,i2);
             if (CompilerFlags.checkPlace()) raisePlaceError(i0,i1,i2);
         }
         return offset;
     }
 
-    public def offset(i0:int, i1:int, i2:int, i3:int){rank==4}:int {
+    public def offset(i0:long, i1:long, i2:long, i3:long){rank==4}:long {
         val r = get(here);
 	    val offset = r.indexOf(i0,i1,i2,i3);
-	    if (offset == -1) {
+	    if (offset == -1L) {
 	        if (CompilerFlags.checkBounds() && !region.contains(i0,i1,i2,i3)) raiseBoundsError(i0,i1,i2,i3);
             if (CompilerFlags.checkPlace()) raisePlaceError(i0,i1,i2,i3);
         }

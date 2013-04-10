@@ -31,7 +31,7 @@ public class Array5 extends x10Test {
     }
 
     public def run(): boolean = {
-        val temp = new Array[int](1, (int)=>0);
+        val temp = new Array[int](1, (long)=>0);
         temp(0) = 43;
         return (new Array5(temp)).runtest();
     }

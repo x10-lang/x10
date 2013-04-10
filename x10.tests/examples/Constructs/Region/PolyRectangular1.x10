@@ -18,9 +18,7 @@ import x10.array.*;
 class PolyRectangular1 extends TestRegion {
 
     public def run() {
-        val min  = [1, 2, 3];
-        val max  = [2, 4, 6];
-        var r: Region = Region.makeRectangular(min, max);
+        var r: Region = Region.makeRectangular(1..2, 2..4, 3..6);
         prArray("3-d rect array", r);
         return status();
     }

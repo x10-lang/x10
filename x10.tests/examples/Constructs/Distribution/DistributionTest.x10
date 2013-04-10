@@ -24,7 +24,7 @@ public class DistributionTest extends x10Test {
         val d  = R->here;
         return ((d.rank == 2) &&
                 (R.rank == 2) &&
-                (R.max(1) - R.min(1) + 1 == 101));
+                (R.max(1) - R.min(1) + 1 == 101L));
     }
 
     public static def main(var args: Rail[String]): void = {

@@ -23,10 +23,10 @@ public class Array1Exploded extends x10Test {
     public def run(): boolean = {
 
         val r = Region.make(1..10, 1..10);
-        val ia = new Array[int](r);
+        val ia = new Array[long](r);
 
         for (val p[i,j]: Point(2) in Region.make(1..10, 1..10)) {
-            chk(ia(p) == 0);
+            chk(ia(p) == 0L);
             ia(p) = i+j;
         }
 
@@ -39,7 +39,7 @@ public class Array1Exploded extends x10Test {
             chk(ia(q1) == ia(p));
         }
 
-        chk(4 == select([1, 2], [3, 4]));
+        chk(4L == select([1, 2], [3, 4]));
 
         return true;
     }

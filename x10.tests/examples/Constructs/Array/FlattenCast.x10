@@ -24,7 +24,7 @@ public class FlattenCast extends x10Test {
     var a: Array[int](2);
 
     public def this(): FlattenCast = {
-        a = new Array[int](Region.make(1..10, 1..10), (p[i,j]: Point) => i+j);
+        a = new Array[int](Region.make(1..10, 1..10), (p[i,j]: Point) => (i+j) as Int);
     }
 
     def m(x: int)=x;

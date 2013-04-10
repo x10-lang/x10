@@ -22,8 +22,8 @@ public class ArrayLiteralTest1_MustFailCompile extends x10Test {
                  1 as Int{self!=0},2 as Int{self!=0},3 as Int{self!=0}];
         var sumr:int=0;
         var suma:int=0;
-        for (i in a.values()) suma += i;
-        for (i in r.values()) sumr +=i;
+        for (i in a) suma += i;
+        for (i in r) sumr +=i;
         return suma==6 && sumr==6;
     }
 
@@ -32,14 +32,13 @@ public class ArrayLiteralTest1_MustFailCompile extends x10Test {
 		// size&dimension is inferred correctly for: [YYY]
 		val a10 = [1,2,3];
 		val a11:Rail[Int] = [1,2,3];
-		val a12:Rail[Int](1) = [1,2,3];
-		val a13:Rail[Int](1){size==3} = [1,2,3];
-		val a2:Rail[A](1){size==3} = [1,2,3]; // ERR: Cannot assign expression to target.
-		val a3:Rail[Int](2){size==3} = [1,2,3]; // ERR: Cannot assign expression to target.
-		val a4:Rail[Int](1){size==4} = [1,2,3]; // ERR: Cannot assign expression to target.
+		val a12:Rail[Int] = [1,2,3];
+		val a13:Rail[Int]{size==3L} = [1,2,3];
+		val a2:Rail[A]{size==3L} = [1,2,3]; // ERR: Cannot assign expression to target.
+		val a4:Rail[Int]{size==4L} = [1,2,3]; // ERR: Cannot assign expression to target.
 
 		val b:Rail[A{self!=null}] = [new A()];
-		val b1:Rail[A{self!=null}](1){size==1} = [new A()];		
+		val b1:Rail[A{self!=null}]{size==1L} = [new A()];		
 	}
 
 	static class A {}

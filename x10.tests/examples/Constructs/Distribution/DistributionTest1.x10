@@ -25,7 +25,7 @@ public class DistributionTest1 extends x10Test {
         return ((D(0, 0) == here) &&
             (D.rank == 2) &&
             (R.rank == 2) &&
-            (R.max(1) - R.min(1) + 1 == 101));
+            (R.max(1) - R.min(1) + 1 == 101L));
     }
 
     public static def main(var args: Rail[String]): void = {

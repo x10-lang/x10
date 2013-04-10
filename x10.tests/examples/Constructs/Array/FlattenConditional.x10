@@ -23,7 +23,7 @@ public class FlattenConditional extends x10Test {
     var a: Array[int](2);
 
     public def this(): FlattenConditional = {
-        a = new Array[int](Region.make(1..10, 1..10), ([i,j]: Point) => { return i+j;});
+        a = new Array[int](Region.make(1..10, 1..10), ([i,j]: Point) => { return (i+j) as int;});
     }
     
     def m(a: int): int = {

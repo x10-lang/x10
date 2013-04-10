@@ -63,7 +63,7 @@ public abstract class Region(
      * Construct an unbounded region of a given rank that contains all
      * points of that rank.
      */
-    public static def makeFull(rank: int): Region(rank){self !=null,rect} = new FullRegion(rank);
+    public static def makeFull(rank:int): Region(rank){self !=null,rect} = new FullRegion(rank);
     
     /**
      * Construct a region of rank 0 that contains the single point of
@@ -76,10 +76,10 @@ public abstract class Region(
      * Construct an unbounded halfspace region of rank normal.rank
      * that consists of all points p satisfying dot(p,normal) + k <= 0.
      */
-    public static def makeHalfspace(normal:Point, k:int):Region(normal.rank) {
+    public static def makeHalfspace(normal:Point, k:long):Region(normal.rank) {
         val rank = normal.rank;
         val pmb = new PolyMatBuilder(rank);
-        val r = new PolyRow(normal, k);
+        val r = new PolyRow(normal, k as int);
         pmb.add(r);
         val pm = pmb.toSortedPolyMat(false);
         return PolyRegion.make(pm);
@@ -96,23 +96,23 @@ public abstract class Region(
      * RectRegion. Methods on RectRegion automatically construct a PolyRegion (by calling makeRectangularPoly) 
      * if they need to implement operations (such as intersection, product etc) that are difficult to define
      * on a RectRegion's representation.
-     * @param minArg:Array[int] -- specifies the smallest point in the region
-     * @param maxArg:Array[int] -- specifies the largest point in the region (must have the same rank as minArg
+     * @param minArg:Rail[long] -- specifies the smallest point in the region
+     * @param maxArg:Rail[long] -- specifies the largest point in the region (must have the same rank as minArg
      * @return A Region of rank minarg.length 
      */
-    public static def makeRectangularPoly(minArg:Array[int](1), maxArg:Array[int](1)):Region(minArg.size){
+    public static def makeRectangularPoly(minArg:Rail[long], maxArg:Rail[long]):Region(minArg.size as Int){
        if (minArg.size != maxArg.size) throw new IllegalArgumentException("min and max not equal size ("+minArg.size+" != "+maxArg.size+")");
-           val rank = minArg.size;
+           val rank = minArg.size as int;
            val pmb = new PolyMatBuilder(rank); 
            for (i in 0..(rank-1)) {
-               if (minArg(i) > Int.MIN_VALUE) {
+               if (minArg(i) > Long.MIN_VALUE) {
                    // add -1*x(i) + minArg(i) <= 0, i.e. x(i) >= minArg(i)
-                   val r = new PolyRow(Point.make(rank, (j:Int) => i==j ? -1 : 0), minArg(i));
+                   val r = new PolyRow(Point.make(rank, (j:Int) => i==j ? -1L : 0L), minArg(i) as int);
                    pmb.add(r);
                 }
-                if (maxArg(i) < Int.MAX_VALUE) {
+                if (maxArg(i) < Long.MAX_VALUE) {
                    // add 1*x(i) - maxArg(i) <= 0, i.e. x(i) <= maxArg(i)
-                   val s = new PolyRow(Point.make(rank, (j:Int) => i==j ? 1 : 0), -maxArg(i));
+                   val s = new PolyRow(Point.make(rank, (j:Int) => i==j ? 1L : 0L), -maxArg(i) as int);
                    pmb.add(s);
                }
            }
@@ -122,53 +122,53 @@ public abstract class Region(
      
     /**
      * Construct a rectangular region whose bounds are specified as
-     * arrays of ints.
-     */
-    public static def makeRectangular[S,T](minArg:Array[S](1), maxArg:Array[T](1)){S<:Int,T<:Int}:Region(minArg.size){self.rect} {
-        if (minArg.size == 1) {
-        	// To remove the cast, the constraint solver should be able to handle arithmetic.
-            return new RectRegion1D(minArg(0), maxArg(0)) as Region(minArg.size){rect}; 
-        } else {
-            val minArray = new Array[int](minArg.size, (i:int)=>minArg(i));
-            val maxArray = new Array[int](maxArg.size, (i:int)=>maxArg(i));
-            return new RectRegion(minArray, maxArray);
-        }
-    }
-
-    /**
-     * Construct a rectangular region whose bounds are specified as
-     * rails of ints.
+     * rails of longs.
      * LONG_RAIL: unsafe int cast
      */
-    public static def makeRectangular[S,T](minArg:Rail[S], maxArg:Rail[T]){S<:Int,T<:Int}:Region(minArg.size as Int){self.rect} {
+    public static def makeRectangular(minArg:Rail[Long], maxArg:Rail[Long]):Region(minArg.size as Int){self.rect} {
         if (minArg.size == 1L) {
             // To remove the cast, the constraint solver should be able to handle arithmetic.
             return new RectRegion1D(minArg(0), maxArg(0)) as Region(minArg.size as Int){rect}; 
         } else {
-            val minArray = new Array[int](minArg.size as Int, (i:int)=>minArg(i));
-            val maxArray = new Array[int](maxArg.size as Int, (i:int)=>maxArg(i));
-            return new RectRegion(minArray, maxArray);
+            return new RectRegion(new Rail[long](minArg.size, minArg), new Rail[long](maxArg.size, maxArg));
         }
     }
 
     /**
      * Construct a rectangular region from a Rail of IntRange that represent the min/max of each dimension.
      */
-    public static def makeRectangular[T](ranges:Rail[T]){T<:IntRange}:Region(ranges.size as Int){self.rect} {
+    public static def makeRectangular(ranges:Rail[IntRange]):Region(ranges.size as Int){self.rect} {
         if (ranges.size == 1L) {
             // To remove the cast, the constraint solver should be able to handle arithmetic.
             return new RectRegion1D(ranges(0).min,ranges(0).max) as Region(ranges.size as Int){rect}; 
         } else {
-            val minArray = new Array[int](ranges.size as Int, (i:int)=>ranges(i).min);
-            val maxArray = new Array[int](ranges.size as Int, (i:int)=>ranges(i).max);
-            return new RectRegion(minArray, maxArray);
+            val mins = new Rail[long](ranges.size, (i:long)=>(ranges(i).min as long));
+            val maxs = new Rail[long](ranges.size, (i:long)=>(ranges(i).max as long));
+            return new RectRegion(mins, maxs);
         }
     }
-
     /**
      * Construct a rectangular region from a Rail of IntRange that represent the min/max of each dimension.
      */
-    public static def make[T](ranges:Rail[T]){T<:IntRange} = makeRectangular(ranges);
+    public static def make(ranges:Rail[IntRange]) = makeRectangular(ranges);
+
+    /**
+     * Construct a rectangular region from a Rail of LongRange that represent the min/max of each dimension.
+     */
+    public static def makeRectangular(ranges:Rail[LongRange]):Region(ranges.size as Int){self.rect} {
+        if (ranges.size == 1L) {
+            // To remove the cast, the constraint solver should be able to handle arithmetic.
+            return new RectRegion1D(ranges(0).min,ranges(0).max) as Region(ranges.size as Int){rect}; 
+        } else {
+            val mins = new Rail[long](ranges.size, (i:long)=>ranges(i).min);
+            val maxs = new Rail[long](ranges.size, (i:long)=>ranges(i).max);
+            return new RectRegion(mins, maxs);
+        }
+    }
+    /**
+     * Construct a rectangular region from a Rail of LongRange that represent the min/max of each dimension.
+     */
+    public static def make(ranges:Rail[LongRange]) = makeRectangular(ranges);
 
     /**
      * Construct a rectangular rank 1 region from an IntRange
@@ -180,12 +180,20 @@ public abstract class Region(
     public static def makeRectangular(r:IntRange):Region(1){self.rect} = new RectRegion1D(r.min, r.max);
 
     /**
+     * Construct a rectangular rank 1 region from a LongRange
+     */
+    public static def make(r:LongRange):Region(1){self.rect} = new RectRegion1D(r.min, r.max);
+    /**
+     * Construct a rectangular rank 1 region from a LongRange
+     */
+    public static def makeRectangular(r:LongRange):Region(1){self.rect} = new RectRegion1D(r.min, r.max);
+
+    /**
      * Construct a rectangular rank 2 region from a pair of IntRanges
      */
     public static def makeRectangular(r1:IntRange, r2:IntRange):Region(2){self.rect} {
-        val mins = new Array[int](2, [r1.min, r2.min]);
-        val maxs = new Array[int](2, [r1.max, r2.max]);
-        return new RectRegion(mins, maxs);
+        return new RectRegion([r1.min as long, r2.min as long], 
+                              [r1.max as long, r2.max as long]) as Region(2){self.rect};
     }
     /**
      * Construct a rectangular rank 2 region from a pair of IntRanges
@@ -193,12 +201,22 @@ public abstract class Region(
     public static def make(r1:IntRange, r2:IntRange):Region(2){self.rect} = makeRectangular(r1, r2);
 
     /**
+     * Construct a rectangular rank 2 region from a pair of LongRanges
+     */
+    public static def makeRectangular(r1:LongRange, r2:LongRange):Region(2){self.rect} {
+        return new RectRegion([r1.min, r2.min], [r1.max, r2.max]) as Region(2){self.rect};
+    }
+    /**
+     * Construct a rectangular rank 2 region from a pair of LongRanges
+     */
+    public static def make(r1:LongRange, r2:LongRange):Region(2){self.rect} = makeRectangular(r1, r2);
+
+    /**
      * Construct a rectangular rank 3 region from a triple of IntRanges
      */
     public static def makeRectangular(r1:IntRange, r2:IntRange, r3:IntRange):Region(3){self.rect} {
-        val mins = new Array[int](3, [r1.min, r2.min, r3.min]);
-        val maxs = new Array[int](3, [r1.max, r2.max, r3.max]);
-        return new RectRegion(mins, maxs);
+        return new RectRegion([r1.min as long, r2.min as long, r3.min as long], 
+                              [r1.max as long, r2.max as long, r3.max as long]) as Region(3){self.rect};
     }
     /**
      * Construct a rectangular rank 3 region from a triple of IntRanges
@@ -208,12 +226,24 @@ public abstract class Region(
     }
 
     /**
+     * Construct a rectangular rank 3 region from a triple of LongRanges
+     */
+    public static def makeRectangular(r1:LongRange, r2:LongRange, r3:LongRange):Region(3){self.rect} {
+        return new RectRegion([r1.min, r2.min, r3.min], [r1.max, r2.max, r3.max]) as Region(3){self.rect};
+    }
+    /**
+     * Construct a rectangular rank 3 region from a triple of LongRanges
+     */
+    public static def make(r1:LongRange, r2:LongRange, r3:LongRange):Region(3){self.rect} {
+        return makeRectangular(r1, r2, r3);
+    }
+
+    /**
      * Construct a rectangular rank 4 region from four IntRanges
      */
     public static def makeRectangular(r1:IntRange, r2:IntRange, r3:IntRange, r4:IntRange):Region(4){self.rect}{
-        val mins = new Array[int](4, [r1.min, r2.min, r3.min, r4.min]);
-        val maxs = new Array[int](4, [r1.max, r2.max, r3.max, r4.max]);
-        return new RectRegion(mins, maxs);
+        return new RectRegion([r1.min as long, r2.min as long, r3.min as long, r4.min as long], 
+                              [r1.max as long, r2.max as long, r3.max as long, r4.max as long]) as Region(4){self.rect};
     }
     /**
      * Construct a rectangular rank 4 region from four IntRanges
@@ -223,31 +253,31 @@ public abstract class Region(
     }
 
     /**
+     * Construct a rectangular rank 4 region from four LongRanges
+     */
+    public static def makeRectangular(r1:LongRange, r2:LongRange, r3:LongRange, r4:LongRange):Region(4){self.rect}{
+        return new RectRegion([r1.min, r2.min, r3.min, r4.min], [r1.max, r2.max, r3.max, r4.max]) as Region(4){self.rect};
+    }
+    /**
+     * Construct a rectangular rank 4 region from four LongRanges
+     */
+    public static def make(r1:LongRange, r2:LongRange, r3:LongRange, r4:LongRange):Region(4){self.rect} {
+        return makeRectangular(r1, r2, r3, r4);
+    }
+
+
+    /**
      * Construct a rank-1 rectangular region with the specified bounds.
      */
     // XTENLANG-109 prevents zeroBased==(min==0)
     // Changed RegionMaker_c to add clause explicitly.
-    public static def makeRectangular(min:int, max:int):Region(1){self.rect}
+    public static def makeRectangular(min:long, max:long):Region(1){self.rect}
         = new RectRegion1D(min, max);
 
     /**
      * Construct a rank-1 rectangular region with the specified bounds.
      */
-    public static def make(min: int, max: int): Region(1){self.rect} = new RectRegion1D(min, max);
-
-    /**
-     * Construct a rank-n rectangular region that is the Cartesian
-     * product of the specified rank-1 rectangular regions.
-     */
-    public static def make[T](regions:Array[T](1)){T<:Region(1){self.rect}}:Region(regions.size){self.rect} {
-        var r:Region  = regions(0);
-        for (var i:int = 1; i<regions.size; i++)
-            r = r.product(regions(i));
-        // To remove this cast, constraint solver needs to know that performing
-        // +1 N times is the same as adding +N.
-        return r as Region(regions.size){self.rect};
-    }
-
+    public static def make(min:long, max:long): Region(1){self.rect} = new RectRegion1D(min, max);
 
     //
     // non-rectangular factories
@@ -261,39 +291,39 @@ public abstract class Region(
      * @param upper -- the number of diagonals in the band, above the main diagonal
      * @param lower -- the number of diagonals in the band, below the main diagonal
      */
-    public static def makeBanded(size: int, upper: int, lower: int):Region(2)
+    public static def makeBanded(size:long, upper:long, lower:long):Region(2)
         = PolyRegion.makeBanded(size, upper, lower);
 
     /**
      * Construct a banded region of the given size that includes only
      * the main diagonal.
      */
-    public static def makeBanded(size: int):Region(2) = PolyRegion.makeBanded(size, 1, 1);
+    public static def makeBanded(size:long):Region(2) = PolyRegion.makeBanded(size, 1, 1);
     
     /**
      * Construct an upper triangular region of the given size.
      */
 
-    public static def makeUpperTriangular(size: int):Region(2) = makeUpperTriangular(0, 0, size);
+    public static def makeUpperTriangular(size:long):Region(2) = makeUpperTriangular(0, 0, size);
 
     /**
      * Construct an upper triangular region of the given size with the
      * given lower bounds.
      */
-    public static def makeUpperTriangular(rowMin: int, colMin: int, size: int): Region(2)
-        = PolyRegion.makeUpperTriangular2(rowMin, colMin, size);
+    public static def makeUpperTriangular(rowMin:long, colMin:long, size:long): Region(2)
+        = PolyRegion.makeUpperTriangular2(rowMin as Int, colMin as Int, size as Int);
     
     /**
      * Construct a lower triangular region of the given size.
      */
-    public static def makeLowerTriangular(size: int): Region(2) = makeLowerTriangular(0, 0, size);
+    public static def makeLowerTriangular(size:long): Region(2) = makeLowerTriangular(0, 0, size);
 
     /**
      * Construct an lower triangular region of the given size with the
      * given lower bounds.
      */
-    public static def makeLowerTriangular(rowMin: int, colMin: int, size: int):Region(2)
-        = PolyRegion.makeLowerTriangular2(rowMin, colMin, size);
+    public static def makeLowerTriangular(rowMin:long, colMin:long, size:long):Region(2)
+        = PolyRegion.makeLowerTriangular2(rowMin as int, colMin as int, size as Int);
 
 
     //
@@ -303,17 +333,17 @@ public abstract class Region(
     /**
      * Returns the number of points in this region.
      */
-    public abstract def size(): int;
+    public abstract def size():long;
 
     /**
      * Returns true iff this region is convex.
      */
-    public abstract def isConvex(): boolean;
+    public abstract def isConvex():boolean;
 
     /**
      * Returns true iff this region is empty.
      */
-    public abstract def isEmpty(): boolean;
+    public abstract def isEmpty():boolean;
 
 
     /**
@@ -328,12 +358,12 @@ public abstract class Region(
      * to native code.  Often indexOf will be used in conjuntion with the 
      * raw() method of Array or DistArray.
      */
-    public abstract def indexOf(Point):Int;
+    public abstract def indexOf(Point):long;
     
-    public def indexOf(i0:int) = indexOf(Point.make(i0));
-    public def indexOf(i0:int, i1:int) = indexOf(Point.make(i0, i1));
-    public def indexOf(i0:int, i1:int, i2:int) = indexOf(Point.make(i0,i1,i2));
-    public def indexOf(i0:int, i1:int, i2:int, i3:int) = indexOf(Point.make(i0,i1,i2,i3));
+    public def indexOf(i0:long) = indexOf(Point.make(i0));
+    public def indexOf(i0:long, i1:long) = indexOf(Point.make(i0, i1));
+    public def indexOf(i0:long, i1:long, i2:long) = indexOf(Point.make(i0,i1,i2));
+    public def indexOf(i0:long, i1:long, i2:long, i3:long) = indexOf(Point.make(i0,i1,i2,i3));
 
 
     //
@@ -353,25 +383,25 @@ public abstract class Region(
      * Returns a function that can be used to access the lower bounds 
      * of the bounding box of the region. 
      */
-    abstract public def min():(int)=>int;
+    abstract public def min():(int)=>long;
 
     /**
      * Returns a function that can be used to access the upper bounds 
      * of the bounding box of the region. 
      */
-    abstract public def max():(int)=>int;
+    abstract public def max():(int)=>long;
     
     /**
      * Returns the lower bound of the bounding box of the region along
      * the ith axis.
      */
-    public def min(i:Int) = min()(i);
+    public def min(i:Int):long = min()(i);
 
     /**
      * Returns the upper bound of the bounding box of the region along
      * the ith axis.
      */
-    public def max(i:Int) = max()(i);    
+    public def max(i:Int):long = max()(i);    
 
     /**
      * Returns the smallest point in the bounding box of the region
@@ -516,13 +546,13 @@ public abstract class Region(
 
     abstract public def contains(p:Point):boolean;
     
-    public def contains(i:int){rank==1} = contains(Point.make(i));
+    public def contains(i:long){rank==1} = contains(Point.make(i));
 
-    public def contains(i0:int, i1:int){rank==2} = contains(Point.make(i0,i1));
+    public def contains(i0:long, i1:long){rank==2} = contains(Point.make(i0,i1));
 
-    public def contains(i0:int, i1:int, i2:int){rank==3} = contains(Point.make(i0,i1,i2));
+    public def contains(i0:long, i1:long, i2:long){rank==3} = contains(Point.make(i0,i1,i2));
 
-    public def contains(i0:int, i1:int, i2:int, i3:int){rank==4} = contains(Point.make(i0,i1,i2,i3));
+    public def contains(i0:long, i1:long, i2:long, i3:long){rank==4} = contains(Point.make(i0,i1,i2,i3));
 
     protected @Inline def this(r:int, t:boolean, z:boolean):Region{self.rank==r,self.rect==t,self.zeroBased==z} {
         val isRail = (r == 1) && t && z;
@@ -547,4 +577,3 @@ public abstract class Region(
 }
 public type Region(r:Int) = Region{self.rank==r};
 public type Region(r:Region) = Region{self==r};
-

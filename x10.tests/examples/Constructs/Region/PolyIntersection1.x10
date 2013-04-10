@@ -22,9 +22,7 @@ class PolyIntersection1 extends TestRegion {
         val r1 = Region.makeUpperTriangular(2, 1, 7);
         prArray("tri", r1);
 
-        val min = [3, 3];
-        val max = [6, 7];
-        val r2 = Region.makeRectangular(min, max);
+        val r2 = Region.makeRectangular(3..6, 3..7);
         prArray("rect", r2);
 
         val r3 = r2.intersection(r1);

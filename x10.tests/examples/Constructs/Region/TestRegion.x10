@@ -62,17 +62,17 @@ abstract public class TestRegion extends x10Test {
 
         var os: Rail[Any] = new Rail[Any](10);
 
-        def set(i0: int, vue: double): void = {
+        def set(i0: long, vue: double): void = {
             os(i0) = new Box[double](vue);
         }
 
-        def set(i0: int, i1: int, vue: double): void = {
+        def set(i0: long, i1: long, vue: double): void = {
             if (os(i0)==null) os(i0) = new Grid();
             val grid = os(i0) as Grid;
             grid.set(i1, vue);
         }
 
-        def set(i0: int, i1: int, i2: int, vue: double): void = {
+        def set(i0: long, i1: long, i2: long, vue: double): void = {
             if (os(i0)==null) os(i0) = new Grid();
             val grid = os(i0) as Grid;
             grid.set(i1, i2, vue);
@@ -229,7 +229,7 @@ abstract public class TestRegion extends x10Test {
 
     public def reg(rank: int, var coeff: int, op: int, k: int): Region(rank) {
         coeff += ZERO;
-        val as_ = new Rail[int](rank);
+        val as_ = new Rail[long](rank);
         for (var i: int = 0; i<rank; i++) {
             var a: int = (coeff&3) - 2;
             as_(i) = op==LE? a : - a;
@@ -237,7 +237,5 @@ abstract public class TestRegion extends x10Test {
         }
         return Region.makeHalfspace(as_, op==LE? -k : k);
     }
-
-
 
 }

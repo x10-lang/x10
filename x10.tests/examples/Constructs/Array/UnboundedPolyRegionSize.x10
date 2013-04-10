@@ -20,7 +20,7 @@ class UnboundedPolyRegionSize extends x10Test {
 
     public def run() {
     	try {
-		val r = Region.makeHalfspace([1] as Point, 0);
+		val r = Region.makeHalfspace(Point.make(1), 0);
 		val s = r.size();
 		return false;
     	} catch (e: UnboundedRegionException) {

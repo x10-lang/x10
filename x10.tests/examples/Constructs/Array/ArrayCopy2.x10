@@ -53,7 +53,7 @@ public class ArrayCopy2 extends x10Test {
      * regions are equal.
      * Throws an error iff some assertion failed.
      */
-    public def arrayCopy(val A: DistArray[int], val B: DistArray[int](A.rank)) {
+    public def arrayCopy(val A: DistArray[long], val B: DistArray[long](A.rank)) {
 
         val D = A.dist;
         val E = B.dist;
@@ -130,8 +130,8 @@ public class ArrayCopy2 extends x10Test {
 				       + D.region.equals(R));
 	    */
             chk(D.region.equals(E.region) && D.region.equals(R));
-            val A = DistArray.make[int](D);
-            val B = DistArray.make[int](E, (p[i,j,k,l]: Point) => { val x = ((i*N+j)*N+k)*N+l; x*x+1 });
+            val A = DistArray.make[long](D);
+            val B = DistArray.make[long](E, (p[i,j,k,l]: Point) => { val x = ((i*N+j)*N+k)*N+l; x*x+1 });
             arrayCopy(A, B);
             arrayEqual(A, B);  
         }
@@ -155,8 +155,8 @@ public class ArrayCopy2 extends x10Test {
         /**
          * Return a dist with region r, of type disttype
          */
-        public static def getDist(distType: Int, R: Region): Dist(R) = {
-            switch(distType) {
+        public static def getDist(distType: Long, R: Region): Dist(R) = {
+            switch(distType as Int) {
                 case BLOCK: return Dist.makeBlock(R,0) as Dist(R);
                 case CONSTANT: return (R->here) as Dist(R);
                 // case BLOCKCYCLIC: return Dist.makeBlockCyclic(R, 0,3) as Dist(R);

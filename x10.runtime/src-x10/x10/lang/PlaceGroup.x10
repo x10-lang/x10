@@ -53,6 +53,7 @@ public abstract class PlaceGroup implements Sequence[Place] {
    *  the given id, false otherwise
    */
   public abstract def contains(id:int):Boolean;
+  public def contains(id:long):Boolean = contains(id as int);
 
   /**
    * <p>If the argument place is contained in the PlaceGroup
@@ -82,6 +83,7 @@ public abstract class PlaceGroup implements Sequence[Place] {
    * @return the index of the Place encoded by id
    */
   public abstract def indexOf(id:int):int;
+  public def indexOf(id:long):int = indexOf(id as int);
 
   /**
    * Return the Place with ordinal number <code>i</code> in the place group
@@ -90,6 +92,7 @@ public abstract class PlaceGroup implements Sequence[Place] {
    * @return the ith place in the place group
    */
   public abstract operator this(i:int):Place;
+  public operator this(i:long):Place = this(i as int);
 
 
   /**

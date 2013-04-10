@@ -33,8 +33,8 @@ final class ConstantDist(onePlace:Place) extends Dist {
     
     public def numPlaces():int = 1;
     
-    public def regions():Sequence[Region(rank)] {
-        return new Array[Region(rank)](1, region).sequence();
+    public def regions():Iterable[Region(rank)] {
+        return new Rail[Region(rank)](1, region);
     }
     
     public def get(p:Place):Region(rank) {
@@ -53,66 +53,66 @@ final class ConstantDist(onePlace:Place) extends Dist {
         return onePlace;
     }
     
-    public operator this(i0:int){rank==1}:Place {
+    public operator this(i0:long){rank==1}:Place {
         if (CompilerFlags.checkBounds() && !region.contains(i0)) raiseBoundsError(i0);
         return onePlace;
     }
     
-    public operator this(i0:int, i1:int){rank==2}:Place {
+    public operator this(i0:long, i1:long){rank==2}:Place {
         if (CompilerFlags.checkBounds() && !region.contains(i0, i1)) raiseBoundsError(i0,i1);
         return onePlace;
     }
     
-    public operator this(i0:int, i1:int, i2:int){rank==3}:Place {
+    public operator this(i0:long, i1:long, i2:long){rank==3}:Place {
         if (CompilerFlags.checkBounds() && !region.contains(i0, i1, i2)) raiseBoundsError(i0,i1,i2);
         return onePlace;
     }
     
-    public operator this(i0:int, i1:int, i2:int, i3:int){rank==4}:Place {
+    public operator this(i0:long, i1:long, i2:long, i3:long){rank==4}:Place {
         if (CompilerFlags.checkBounds() && !region.contains(i0, i1, i2, i3)) raiseBoundsError(i0,i1,i2,i3);
         return onePlace;
     }
     
-    public def offset(pt:Point(rank)):int {
+    public def offset(pt:Point(rank)):long {
         if (CompilerFlags.checkPlace() && here!=onePlace) raisePlaceError(pt);
         val offset = region.indexOf(pt);
-        if (CompilerFlags.checkBounds() && offset == -1) {
+        if (CompilerFlags.checkBounds() && offset == -1L) {
             raiseBoundsError(pt);
         }
         return offset;
     }
     
-    public def offset(i0:int){rank==1}:int {
+    public def offset(i0:long){rank==1}:long {
         if (CompilerFlags.checkPlace() && here!=onePlace) raisePlaceError(i0);
         val offset = region.indexOf(i0);
-        if (CompilerFlags.checkBounds() && offset == -1) {
+        if (CompilerFlags.checkBounds() && offset == -1L) {
             raiseBoundsError(i0);
         }
         return offset;
     }
     
-    public def offset(i0:int, i1:int){rank==2}:int {
+    public def offset(i0:long, i1:long){rank==2}:long {
         if (CompilerFlags.checkPlace() && here!=onePlace) raisePlaceError(i0, i1);
         val offset = region.indexOf(i0, i1);
-        if (CompilerFlags.checkBounds() && offset == -1) {
+        if (CompilerFlags.checkBounds() && offset == -1L) {
             raiseBoundsError(i0, i1);
         }
         return offset;
     }
     
-    public def offset(i0:int, i1:int, i2:int){rank==3}:int {
+    public def offset(i0:long, i1:long, i2:long){rank==3}:long {
         if (CompilerFlags.checkPlace() && here!=onePlace) raisePlaceError(i0, i1, i2);
         val offset = region.indexOf(i0, i1, i2);
-        if (CompilerFlags.checkBounds() && offset == -1) {
+        if (CompilerFlags.checkBounds() && offset == -1L) {
             raiseBoundsError(i0, i1, i2);
         }
         return offset;
     }
     
-    public def offset(i0:int, i1:int, i2:int, i3:int){rank==4}:int {
+    public def offset(i0:long, i1:long, i2:long, i3:long){rank==4}:long {
         if (CompilerFlags.checkPlace() && here!=onePlace) raisePlaceError(i0, i1, i2, i3);
         val offset = region.indexOf(i0, i1, i2, i3);
-        if (CompilerFlags.checkBounds() && offset == -1) {
+        if (CompilerFlags.checkBounds() && offset == -1L) {
             raiseBoundsError(i0, i1, i2, i3);
         }
         return offset;

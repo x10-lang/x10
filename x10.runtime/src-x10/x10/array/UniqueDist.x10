@@ -55,8 +55,8 @@ final class UniqueDist extends Dist/*(1)*/ {
 
     public def numPlaces():int = pg.numPlaces();
 
-    public def regions():Sequence[Region(rank)] {
-	return new Array[Region(rank)](pg.numPlaces(), (i:int):Region(rank)=>(Region.make(i,i) as Region(rank))).sequence();
+    public def regions():Iterable[Region(rank)] {
+	return new Rail[Region(rank)](pg.numPlaces(), (i:long):Region(rank)=>(Region.make(i,i) as Region(rank)));
     }
 
     public def get(p:Place):Region(rank) {
@@ -77,43 +77,43 @@ final class UniqueDist extends Dist/*(1)*/ {
 
     public operator this(pt:Point(rank)):Place = pg(pt(0));
 
-    public operator this(i0:int){rank==1}:Place = pg(i0);
+    public operator this(i0:long){rank==1}:Place = pg(i0);
 
-    public def offset(pt:Point(rank)):int {
+    public def offset(pt:Point(rank)):long {
         if (CompilerFlags.checkBounds() && !(pt(0) >= 0 && pt(0) < pg.numPlaces())) {
             raiseBoundsError(pt);
         }
-        if (CompilerFlags.checkPlace() && pt(0) != pg.indexOf(here)) raisePlaceError(pt);
-        return 0;
+        if (CompilerFlags.checkPlace() && pt(0) != (pg.indexOf(here) as long)) raisePlaceError(pt);
+        return 0L;
     }
 
-    public def offset(i0:int){rank==1}:int {
+    public def offset(i0:long){rank==1}:long {
         if (CompilerFlags.checkBounds() && !(i0 >= 0 && i0 < numPlaces())) {
             raiseBoundsError(i0);
         }
-        if (CompilerFlags.checkPlace() && i0 != pg.indexOf(here)) raisePlaceError(i0);
-        return 0;
+        if (CompilerFlags.checkPlace() && i0 != (pg.indexOf(here) as long)) raisePlaceError(i0);
+        return 0L;
     }
 
     // replicated from superclass to workaround xlC bug with using & itables
     // This code is completely unreachable
-    public operator this(i0:int, i1:int){rank==2}:Place {
-        throw new UnsupportedOperationException("operator(i0:int,i1:int)");
+    public operator this(i0:long, i1:long){rank==2}:Place {
+        throw new UnsupportedOperationException("operator(i0:long,i1:long)");
     }
 
     // replicated from superclass to workaround xlC bug with using & itables
     // This code is completely unreachable
-    public operator this(i0:int, i1:int, i2:int){rank==3}:Place {
-        throw new UnsupportedOperationException("operator(i0:int,i1:int,i2:int)");
+    public operator this(i0:long, i1:long, i2:long){rank==3}:Place {
+        throw new UnsupportedOperationException("operator(i0:long,i1:long,i2:long)");
     }
 
     // replicated from superclass to workaround xlC bug with using & itables
     // This code is completely unreachable
-    public operator this(i0:int, i1:int, i2:int, i3:int){rank==4}:Place {
-       throw new UnsupportedOperationException("operator(i0:int,i1:int,i2:int,i3:int)");
+    public operator this(i0:long, i1:long, i2:long, i3:long){rank==4}:Place {
+       throw new UnsupportedOperationException("operator(i0:long,i1:long,i2:long,i3:long)");
     }
 
-    public def maxOffset():int = 0;
+    public def maxOffset():long = 0L;
 
     public def restriction(r:Region(rank)):Dist(rank) {
 	return new WrappedDistRegionRestricted(this, r);

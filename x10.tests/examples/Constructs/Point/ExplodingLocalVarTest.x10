@@ -20,8 +20,8 @@ import x10.array.*;
 public class ExplodingLocalVarTest extends x10Test {
 
 	public def run(): boolean = {
-		val p[x,y] :Point  = [2, 2];
-		return x+y==4;
+		val p[x,y] :Point  = [2 as int, 2];
+		return x+y==4L;
 		}
 
 	public static def main(Rail[String]){

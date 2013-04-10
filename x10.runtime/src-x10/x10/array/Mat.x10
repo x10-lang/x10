@@ -16,16 +16,16 @@ import x10.io.Printer;
 abstract class Mat[T](rows:Int, cols:Int){T <: Row} 
     implements (Int)=>T, Iterable[T] {
 
-    private val mat:Array[T](1);
+    private val mat:Rail[T];
 
-    public def this(rows:Int, cols:Int, mat:Array[T](1)) {
+    public def this(rows:Int, cols:Int, mat:Rail[T]) {
         property(rows, cols);
         this.mat = mat;
     }
 
     public operator this(i:Int) = mat(i);
 
-    public def iterator() = mat.values().iterator();
+    public def iterator() = mat.iterator();
 
     public def printInfo(ps:Printer, label:String): void {
         ps.printf("%s\n", label);

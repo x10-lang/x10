@@ -25,11 +25,11 @@ public class Array1 extends x10Test {
 
         val e = Region.make(1,10);
         val r= e*e;
-        val ia = new Array[int](r, (Point)=>0);
+        val ia = new Array[long](r, (Point)=>0L);
 
         for (p[i] in e) {
             for (q[j] in e) {
-                chk(ia(i,j) == 0);
+                chk(ia(i,j) == 0L);
                 ia(i,j) = i+j;
             }
         }

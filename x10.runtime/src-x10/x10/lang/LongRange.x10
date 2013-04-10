@@ -35,6 +35,13 @@ public struct LongRange(
         property(min, max);
     }
     
+    /**
+     * Coerce a given IntRange to a LongRange.
+     * @param x the given IntRange
+     * @return the given IntRange converted to a LongRange.
+     */
+    public static operator (x:IntRange):LongRange = LongRange(x.min, x.max);
+
     public def toString():String = min+".."+max;
     
     public def equals(that:Any):Boolean {

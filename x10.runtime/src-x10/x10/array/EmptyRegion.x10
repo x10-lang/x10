@@ -23,8 +23,8 @@ final class EmptyRegion extends Region{rect} {
 
     public def isConvex() = true;
     public def isEmpty() = true;
-    public def size() = 0;
-    public def indexOf(Point) = -1;
+    public def size() = 0L;
+    public def indexOf(Point) = -1L;
     public def intersection(that: Region(rank)): Region(rank) = this;
     public def product(that: Region)/*: Region(this.rank+that.rank)*/ 
         = new EmptyRegion(this.rank + that.rank);
@@ -34,10 +34,10 @@ final class EmptyRegion extends Region{rect} {
     protected def computeBoundingBox(): Region(rank) {
         throw new IllegalOperationException("bounding box not not defined for empty region");
     }
-    public def min():(int)=>int {
+    public def min():(int)=>long {
         throw new IllegalOperationException("min not not defined for empty region");
     }
-    public def max():(int)=>int {
+    public def max():(int)=>long {
         throw new IllegalOperationException("max not not defined for empty region");
     }
     public def contains(that: Region(rank)) = that.isEmpty();

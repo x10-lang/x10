@@ -13,12 +13,12 @@ package x10.array;
 
 final class VarMat extends Mat[VarRow] {
     
-    public def this(cols:Int, mat:Array[VarRow](1)) {
-        super(mat.size, cols, mat);
+    public def this(cols:Int, mat:Rail[VarRow]) {
+        super(mat.size as int, cols, mat);
     }
 
     public def this(rows:Int, cols:Int, init:(Int)=>VarRow) {
-        super(rows, cols, new Array[VarRow](rows, init));
+        super(rows, cols, new Rail[VarRow](rows, (i:long)=>init(i as int)));
     }
 
     public def this(rows:Int, cols: Int, init:(i:Int,j:Int)=>int) {

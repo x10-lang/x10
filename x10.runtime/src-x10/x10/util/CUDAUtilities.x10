@@ -68,7 +68,7 @@ public class CUDAUtilities {
 //            return makeCUDAArray(place, numElements, init.raw());
               throw new UnsupportedOperationException("TODO: port CUDA to Rails");
         } else {
-            return (at (place) new RemoteArray(new Array[T](numElements, (p:Int)=>init(p)))) as RemoteArray[T]{self.rank==1, self.array.home==place};
+            return (at (place) new RemoteArray(new Array[T](numElements, (p:Long)=>init(p as int)))) as RemoteArray[T]{self.rank==1, self.array.home==place};
         }
     }
 
@@ -98,7 +98,7 @@ public class CUDAUtilities {
             for (i in 0..(numElements-1)) chunk(i) = init(i);
             return makeCUDAArray(place, numElements, chunk);
         } else {
-            return (at (place) new RemoteArray(new Array[T](numElements, (p:Int)=>init(p)))) as RemoteArray[T]{self.rank==1, self.home==place};
+            return (at (place) new RemoteArray(new Array[T](numElements, (p:long)=>init(p as int)))) as RemoteArray[T]{self.rank==1, self.home==place};
         }
     }
 

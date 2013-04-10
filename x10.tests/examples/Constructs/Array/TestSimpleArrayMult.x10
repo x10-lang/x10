@@ -9,10 +9,6 @@
  *  (C) Copyright IBM Corporation 2006-2010.
  */
 
-/* STATUS: 1/21/2010 -- this file doesn't compile, because 
-   it uses some unimplemented Array operations.
-*/
-
 import harness.x10Test;
 import x10.array.*;
 
@@ -25,7 +21,7 @@ public class TestSimpleArrayMult extends x10Test {
         val e  = Region.make(1, N);
         var regionStop: long = System.currentTimeMillis();
         val ia  = new Array[int](e, (Point)=>0);
-        val ib = new Array[int](e, ([i]: Point)=>i);
+        val ib = new Array[int](e, ([i]: Point)=>(i as int));
         val ic  = new Array[int](e, (Point) => 2);
         var initStop: long = System.currentTimeMillis();
 

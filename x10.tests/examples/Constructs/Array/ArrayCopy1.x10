@@ -91,8 +91,8 @@ public class ArrayCopy1 extends x10Test {
                 val A = DistArray.make[int](D, (Point)=>0);
                 val B = DistArray.make[int](E,
                     (p[i,j,k,l]: Point): int => { 
-                        var x: int = ((i*N+j)*N+k)*N+l; 
-                        return x*x+1; 
+                        val x = ((i*N+j)*N+k)*N+l; 
+                        return (x*x+1) as Int; 
                     }
                 );
                 arrayCopy(A, B);
@@ -129,8 +129,8 @@ public class ArrayCopy1 extends x10Test {
         /**
          * Return a dist with region r, of type disttype
          */
-        public static def getDist(distType: Int, r: Region): Dist(r) {
-            switch(distType) {
+        public static def getDist(distType: Long, r: Region): Dist(r) {
+            switch(distType as Int) {
                 case BLOCK: return Dist.makeBlock(r, 0);
                 //case CYCLIC: return Dist.makeCyclic(r, 0);
                 //case BLOCKCYCLIC: return Dist.makeBlockCyclic(r, 0, 3);

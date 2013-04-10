@@ -47,7 +47,7 @@ public class ArrayToDist extends x10Test {
         return true;
     }
 
-    static def f(i: int, j: int) = N * i + j;
+    static def f(i: long, j: long) = (N * i + j) as Int;
     
 
     public static def main(Rail[String]) {

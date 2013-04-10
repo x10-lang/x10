@@ -8,7 +8,7 @@ import x10.array.*;
 public class TestBlockBlockDist extends x10Test {
 	public def run(): Boolean = {
         // array region is 40 * 50 * 60
-        val gridRegion = Region.makeRectangular([0..39, 0..49, 0..59]);
+        val gridRegion = Region.makeRectangular(0..39, 0..49, 0..59);
         val gridDist1 = Dist.makeBlockBlock(gridRegion, 0, 1);
         checkDist(gridDist1);
 
@@ -40,7 +40,7 @@ public class TestBlockBlockDist extends x10Test {
      * this dist. 
      */ 
     private def checkDist(dist:Dist) {
-        val placeCounts = new Rail[Int](Place.MAX_PLACES);
+        val placeCounts = new Rail[Long](Place.MAX_PLACES);
         for (p in dist.region) {
             val place = dist(p);
             placeCounts(place.id)++;

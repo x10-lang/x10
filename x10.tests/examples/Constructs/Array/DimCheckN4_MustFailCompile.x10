@@ -15,17 +15,14 @@ import harness.x10Test;
 import x10.array.*;
 
 /**
- * This must compile and run fine. Checks that the initializer may not specify
- * the arity of the region.
  *
  * @author vj 12 2006
  */
-
 public class DimCheckN4_MustFailCompile extends x10Test {
 
     def m(d: Dist(2)): void = {
-        val a1 = DistArray.make[int](d, (p[i,j,k]: Point(3)): int => { return i; }); // ERR (dimension mismatch)
-        val a2 = DistArray.make[int](d, (p[i,j,k]: Point(2)): int => { return i; }); // ERR
+        val a1 = DistArray.make[int](d, (p[i,j,k]: Point(3)): int => { return i as int; }); // ERR (dimension mismatch)
+        val a2 = DistArray.make[int](d, (p[i,j,k]: Point(2)): int => { return i as int; }); // ERR
     }
 
     public def run(): boolean = {

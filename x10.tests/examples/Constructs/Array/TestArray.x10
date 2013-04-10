@@ -69,17 +69,17 @@ abstract public class TestArray extends x10Test {
     	private val root = GlobalRef[Grid](this);
         transient var os: Rail[Any] = new Rail[Any](10);
 
-        @Pinned def set(i0: int, vue: double): void = {
+        @Pinned def set(i0: long, vue: double): void = {
             os(i0) = new Box[Double](vue);
         }
 
-        @Pinned def set(i0: int, i1: int, vue: double): void = {
+        @Pinned def set(i0: long, i1: long, vue: double): void = {
             if (os(i0)==null) os(i0) = new Grid();
             val grid = os(i0) as Grid;
             grid.set(i1, vue);
         }
 
-        @Pinned def set(i0: int, i1: int, i2: int, vue: double): void = {
+        @Pinned def set(i0: long, i1: long, i2: long, vue: double): void = {
             if (os(i0)==null) os(i0) = new Grid();
             val grid = os(i0) as Grid;
             grid.set(i1, i2, vue);
@@ -133,7 +133,7 @@ abstract public class TestArray extends x10Test {
     @Global def prArray(test: String, r: Region, bump: boolean): DistArray[double]{rank==r.rank} = {
 
         val init1 = (pt: Point) => {
-            var v: int = 1;
+            var v: long = 1;
             for (var i: int = 0; i<pt.rank; i++)
                 v *= pt(i);
             return v%10 as double;
@@ -226,7 +226,7 @@ abstract public class TestArray extends x10Test {
     }
 
     @Global def prPoint(test: String, p: Point): void = {
-        var sum: int = 0;
+        var sum: long = 0;
         for (var i: int = 0; i<p.rank; i++)
             sum += p(i);
         pr(test + " " + p + " sum=" + sum);
@@ -261,8 +261,8 @@ abstract public class TestArray extends x10Test {
     }
 
     // substitute for [a:b,c:d]
-    def r(a: int, b: int, c: int, d: int): Region(2) {
-        return Region.makeRectangular([a,c], [b,d]) as Region(2);
+    def r(a: long, b: long, c: long, d: long): Region(2) {
+        return Region.makeRectangular(a..b, c..d);
     }
 
 }

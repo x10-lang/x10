@@ -18,8 +18,8 @@ import x10.array.*;
 class PolyIntersection2 extends TestRegion {
 
     public def run() {
-        val r1 = Region.makeRectangular([1,2], [5,7]) as Region(2);
-        val r2 = Region.makeRectangular([3,3], [8,9]) as Region(2);
+        val r1 = Region.makeRectangular(1..5, 2..7);
+        val r2 = Region.makeRectangular(3..8, 3..9);
         val r3 = r1.intersection(r2);
         prArray("rectangular intersection", r3);
         return status();

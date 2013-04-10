@@ -38,7 +38,7 @@ public class ArrayCopy3 extends x10Test {
     /**
      * Does not throw an error iff A[i] == B[i] for all points i.
      */
-    public def arrayEqual(A: DistArray[int], B: DistArray[int](A.rank)) {
+    public def arrayEqual(A: DistArray[long], B: DistArray[long](A.rank)) {
         val D = A.dist;
         val E:Dist(A.rank) = B.dist;
         // Spawn an activity for each index to
@@ -57,7 +57,7 @@ public class ArrayCopy3 extends x10Test {
      * regions are equal.
      * Throws an error iff some assertion failed.
      */
-    public def arrayCopy(val A: DistArray[int], val B: DistArray[int](A.rank)) {
+    public def arrayCopy(val A: DistArray[long], val B: DistArray[long](A.rank)) {
 
         val D = A.dist;
         val E = B.dist;
@@ -139,9 +139,9 @@ public class ArrayCopy3 extends x10Test {
             val D: Dist{rank==4} = dist2.getDist(dX, R);
             val E: Dist{rank==4} = dist2.getDist(dY, R);
             chk(D.region.equals(E.region) && D.region.equals(R));
-            val A: DistArray[int]{rank==4} = DistArray.make[int](D, (Point)=>0);
-            val B: DistArray[int]{rank==A.rank} = DistArray.make[int](E, 
-            (p[i,j,k,l]: Point) => { val x=((i*N+j)*N+k)*N+l; x*x+1});
+            val A: DistArray[long]{rank==4} = DistArray.make[long](D, (Point)=>0L);
+            val B: DistArray[long]{rank==A.rank} = DistArray.make[long](E, 
+                (p[i,j,k,l]: Point) => { val x=((i*N+j)*N+k)*N+l; x*x+1});
             arrayCopy(A, B);
             arrayEqual(A, B);
         }
@@ -167,8 +167,8 @@ public class ArrayCopy3 extends x10Test {
         /**
          * Return a dist with region r, of type disttype
          */
-        public static def getDist(distType: Int, r: Region): Dist(r) = {
-            switch(distType) {
+        public static def getDist(distType: Long, r: Region): Dist(r) = {
+            switch(distType as Int) {
                 case BLOCK: return Dist.makeBlock(r);
                 // case CYCLIC: return Dist.makeCyclic(r);
                 // case BLOCKCYCLIC: return Dist.makeBlockCyclic(r, 0, 3);

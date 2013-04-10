@@ -29,11 +29,11 @@ public class Array2v extends x10Test {
 
         for (val [i,j,k]: Point in r) {
             chk(ia(i, j, k) == 0);
-            ia(i, j, k) = 100*i + 10*j + k;
+            ia(i, j, k) = (100*i + 10*j + k) as int;
         }
 
         for (val [i,j,k]: Point in r) {
-            chk(ia(i, j, k) == 100*i + 10*j + k);
+            chk(ia(i, j, k) == (100*i + 10*j + k) as int);
         }
 
         return true;

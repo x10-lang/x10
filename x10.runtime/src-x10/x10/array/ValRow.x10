@@ -13,16 +13,16 @@ package x10.array;
 
 class ValRow extends Row {
 
-    private val row:Array[int](1);
+    private val row:Rail[int];
 
-    public def this(row:Array[int](1)) {
-        super(row.size);
+    public def this(row:Rail[int]) {
+        super(row.size as int);
         this.row = row;
     }
 
     public def this(cols:Int, init:(Int)=>int) {
         super(cols);
-        row = new Array[int](cols, init);
+        row = new Rail[int](cols, (i:long)=>init(i as int));
     }
     
     public operator this(i:Int) = row(i);

@@ -13,19 +13,19 @@ package x10.array;
 
 final class VarRow extends Row {
 
-    private val row:Array[int]{self.rank==1,self.zeroBased,self.rect,self.rail};
+    private val row:Rail[int];
 
     public def this(cols: Int, init: (Int)=>int) {
         super(cols);
-        row = new Array[int](cols, init);
+        row = new Rail[int](cols, (i:long)=>init(i as int));
     }
     
     public def this(cols: Int) {
         super(cols);
-        row = new Array[int](cols);
+        row = new Rail[int](cols);
     }
     
-    def row() = row as Array[int]{self.rank==1,self.zeroBased,self.rect,self.rail};
+    def row():Rail[int] = row;
     public operator this(i:Int) = row()(i);
 
     public operator this(i:Int)=(v:int) = (row()(i) = v);
