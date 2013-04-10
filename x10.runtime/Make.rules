@@ -273,6 +273,7 @@ ifndef CROSS_COMPILE_BLUEGENE
         override CXXFLAGS += -pthread
         ifndef X10_STATIC_LIB
           override CXXFLAGS_SHARED += -shared -fPIC
+          override LDFLAGS_SHARED += -lrt
         endif
         export X10RT_TEST_LDFLAGS = -Wl,--rpath -Wl,"$(X10_HOME)"/x10.runtime/x10rt/lib
       endif
