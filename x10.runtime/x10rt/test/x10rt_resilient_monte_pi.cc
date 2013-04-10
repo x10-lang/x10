@@ -179,7 +179,7 @@ int main (int argc, char **argv)
                   << std::setprecision(10)<<4*num_in_circle/num_tried<<std::endl;
 
         for (unsigned long i=1 ; i<x10rt_nhosts() ; ++i) {
-            if (x10rt_is_place_dead(i)) continue;
+            //if (x10rt_is_place_dead(i)) continue;
             x10rt_msg_params p = {i, QUIT_ID, NULL, 0, 0};
             x10rt_send_msg(&p);
         }
