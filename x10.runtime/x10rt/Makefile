@@ -19,7 +19,7 @@ GZIP            ?= gzip
 override CXXFLAGS += -Iinclude -Icommon ${JNI_INCLUDES}
 override CXXFLAGS += ${CXX_WARNING_FLAGS} -Werror=return-type
 
-BASE_TESTS      = test/x10rt_basic test/x10rt_gups test/x10rt_topology test/x10rt_coll test/x10rt_crash test/x10rt_remote_op
+BASE_TESTS      = test/x10rt_basic test/x10rt_gups test/x10rt_topology test/x10rt_coll test/x10rt_crash test/x10rt_remote_op test/x10rt_resilient_monte_pi
 
 EXECUTABLES     =
 
