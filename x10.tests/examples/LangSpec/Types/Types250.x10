@@ -29,7 +29,7 @@ public class Types250 extends x10Test {
 // file Types line 1006
 
  static class Types21TypeTest{
-  def check(n:Int)  { 
+  def check(n:Long)  { 
      var checkycheck : x10.array.Array[Int]{self.rank==1 && self.size == n};  }}
 
  static class Hook {

@@ -30,11 +30,11 @@ public class Vars80_Bad37_MustFailCompile extends x10Test {
  static  class Example {
  static def example () {
 val [i] : Point = Point.make(11);
-assert i == 11;
+assert i == 11L;
 val p[j,k] = Point.make(22,33);
-assert j == 22 && k == 33;
+assert j == 22L && k == 33L;
 val q[l,m] = [44,55] as Point;
-assert l == 44 && m == 55;
+assert l == 44L && m == 55L;
  val [n] = p; // ERR
 }}
  static  class Hook{ def run() {Example.example(); return true;}}

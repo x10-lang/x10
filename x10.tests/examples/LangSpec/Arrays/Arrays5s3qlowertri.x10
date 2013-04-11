@@ -1,4 +1,4 @@
-/* Current test harness gets confused by packages, but it would be in package expsome_Arrays13;
+/* Current test harness gets confused by packages, but it would be in package expsome_Arrays12;
 */
 // Warning: This file is auto-generated from the TeX source of the language spec.
 // If you need it changed, work with the specification writers.
@@ -26,8 +26,8 @@ public class Arrays5s3qlowertri extends x10Test {
     }
 
 
-// file Arrays line 164
- static class Arrays13TestExp{
+// file Arrays line 161
+ static class Arrays12TestExp{
   def check(N:Int)  = Region.makeLowerTriangular(N);  }
 
  static class Hook {

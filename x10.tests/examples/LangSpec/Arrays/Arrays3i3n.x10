@@ -28,7 +28,7 @@ public class Arrays3i3n extends x10Test {
 
 // file Arrays line 145
  static class Arrays8TestExp{
-  def check(min:Array[Int](1), max:Array[Int](1))  = Region.makeRectangular(min, max);  }
+  def check(min:Rail[Long], max:Rail[Long])  = Region.makeRectangular(min, max);  }
 
  static class Hook {
    def run():Boolean = true;

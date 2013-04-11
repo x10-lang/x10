@@ -27,18 +27,18 @@ public class Classes280 extends x10Test {
 
 
 // file Classes line 2401
- static class MyRegion(rank:Int) {
-  static type MyRegion(n:Int)=MyRegion{rank==n};
-  def this(r:Int):MyRegion(r) {
+ static class MyRegion(rank:Long) {
+  static type MyRegion(n:Long)=MyRegion{rank==n};
+  def this(r:Long):MyRegion(r) {
     property(r);
   }
-  def this(diag:Array[Int](1)):MyRegion(diag.size){
-    property(diag.size as Int);
+  def this(diag:Rail[Int]):MyRegion(diag.size){
+    property(diag.size);
   }
   def mockUnion(r:MyRegion(rank)):MyRegion(rank) = this;
   def example() {
-    val R1 : MyRegion(3) = new MyRegion(new Array[Int](3, [4,4,4 as Int]));
-    val R2 : MyRegion(3) = new MyRegion(new Array[Int](3, [5,4,1]));
+    val R1 : MyRegion(3L) = new MyRegion([4,4,4 as Int]);
+    val R2 : MyRegion(3L) = new MyRegion([5,4,1]);
     val R3 = R1.mockUnion(R2); // inferred type MyRegion(3)
   }
 }

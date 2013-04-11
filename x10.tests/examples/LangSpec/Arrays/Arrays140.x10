@@ -26,7 +26,7 @@ public class Arrays140 extends x10Test {
     }
 
 
-// file Arrays line 268
+// file Arrays line 265
  static  class Example{
 static def addInto(src: Array[Int], dest:Array[Int])
   {src.region == dest.region}

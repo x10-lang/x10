@@ -29,7 +29,7 @@ public class Vars2e6j extends x10Test {
 // file Vars line 392
  static class Example {
 static def example1(x[a,b,c]:Point){}
-static def example2(x[a,b,c]:Array[String]{rank==1,size==3}){}
+static def example2(x[a,b,c]:Array[String]{rank==1,size==3L}){}
 }
 
  static class Hook {

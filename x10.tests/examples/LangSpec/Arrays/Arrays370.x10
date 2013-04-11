@@ -26,15 +26,15 @@ public class Arrays370 extends x10Test {
     }
 
 
-// file Arrays line 596
+// file Arrays line 593
  static  class Example {
  def example() {
 val ident = ([i]:Point(1)) => i;
-val data : DistArray[Int]
-    = DistArray.make[Int](Dist.makeConstant(Region.make(1, 9)), ident);
+val data : DistArray[Long]
+    = DistArray.make[Long](Dist.makeConstant(Region.make(1, 9)), ident);
 val blk = Dist.makeBlock(Region.make(1..9, 1..9));
-val data2 : DistArray[Int]
-    = DistArray.make[Int](blk, ([i,j]:Point(2)) => i*j);
+val data2 : DistArray[Long]
+    = DistArray.make[Long](blk, ([i,j]:Point(2)) => i*j);
  }  }
 
  static class Hook {

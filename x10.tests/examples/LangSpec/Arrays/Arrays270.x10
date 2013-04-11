@@ -1,4 +1,4 @@
-/* Current test harness gets confused by packages, but it would be in package expsome_Arrays37;
+/* Current test harness gets confused by packages, but it would be in package expsome_Arrays36;
 */
 // Warning: This file is auto-generated from the TeX source of the language spec.
 // If you need it changed, work with the specification writers.
@@ -26,8 +26,8 @@ public class Arrays270 extends x10Test {
     }
 
 
-// file Arrays line 451
- static class Arrays37TestExp{
+// file Arrays line 448
+ static class Arrays36TestExp{
   def check(D:Dist)  = D.region;  }
 
  static class Hook {
