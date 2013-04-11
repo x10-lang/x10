@@ -25,7 +25,7 @@ public class BenchmarkIterateDistArray(elementsPerPlace : Int) extends x10Test {
 	public def run(): Boolean = {
         val arraySize = elementsPerPlace * Place.MAX_PLACES;
 
-        val a = DistArray.make[Int](Dist.makeBlock(Region.make(0, arraySize-1)));
+        val a = DistArray.make[Long](Dist.makeBlock(Region.make(0, arraySize-1)));
 
         var start:Long = System.nanoTime();
         for (t in 1..100) {
@@ -58,7 +58,7 @@ public class BenchmarkIterateDistArray(elementsPerPlace : Int) extends x10Test {
         for (t in 1..100) {
             // iterate and update each element of the distributed array
             finish for (place in a.dist.places()) async at (place) {
-                val aLocal = a.getLocalPortion() as Array[Int]{rank==1,rect};
+                val aLocal = a.getLocalPortion() as Array[Long]{rank==1,rect};
                 for ([i] in aLocal) {
                     aLocal(i) = i;
                 }
