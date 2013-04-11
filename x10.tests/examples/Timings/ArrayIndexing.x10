@@ -110,10 +110,10 @@ public class ArrayIndexing extends x10Test {
 	}
 
 	def verify1D(var array: Array[Generic](1)): boolean = {
-		var h1: int = array.region.max(0);
-		var l1: int = array.region.min(0);
+		var h1: long = array.region.max(0);
+		var l1: long = array.region.min(0);
 		var count: int = 0;
-		for (var i: int = l1; i <= h1; ++i) {
+		for (var i: long = l1; i <= h1; ++i) {
 			array(i) = array(i);
 			if (verbose) x10.io.Console.OUT.println("a["+i+"] = "+count);
 			if (array(i).value != count) {
@@ -125,13 +125,13 @@ public class ArrayIndexing extends x10Test {
 		return true;
 	}
 	def verify2D(var array: Array[Generic](2)): boolean = {
-		var h1: int = array.region.max(0);
-		var h2: int = array.region.max(1);
-		var l1: int = array.region.min(0);
-		var l2: int = array.region.min(1);
+		var h1: long = array.region.max(0);
+		var h2: long = array.region.max(1);
+		var l1: long = array.region.min(0);
+		var l2: long = array.region.min(1);
 		var count: int = 0;
-		for (var i: int = l1; i <= h1; ++i)
-			for (var j: int = l2; j <= h2; ++j) {
+		for (var i: long = l1; i <= h1; ++i)
+			for (var j: long = l2; j <= h2; ++j) {
 				array(i, j) = array(i, j);
 				if (verbose) x10.io.Console.OUT.println("a["+i+","+j+"] = "+count);
 				if (array(i, j).value != count) {
@@ -143,16 +143,16 @@ public class ArrayIndexing extends x10Test {
 		return true;
 	}
 	def verify3D(var array: Array[Generic](3)): boolean = {
-		var h1: int = array.region.max(0);
-		var h2: int = array.region.max(1);
-		var h3: int = array.region.max(2);
-		var l1: int = array.region.min(0);
-		var l2: int = array.region.min(1);
-		var l3: int = array.region.min(2);
+		var h1: long = array.region.max(0);
+		var h2: long = array.region.max(1);
+		var h3: long = array.region.max(2);
+		var l1: long = array.region.min(0);
+		var l2: long = array.region.min(1);
+		var l3: long = array.region.min(2);
 		var count: int = 0;
-		for (var i: int = l1; i <= h1; ++i)
-			for (var j: int = l2; j <= h2; ++j)
-				for (var k: int = l3; k <= h3; ++k) {
+		for (var i: long = l1; i <= h1; ++i)
+			for (var j: long = l2; j <= h2; ++j)
+				for (var k: long = l3; k <= h3; ++k) {
 					array(i, j, k) = array(i, j, k);
 					if (verbose) x10.io.Console.OUT.println("a["+i+","+j+","+k+"] = "+count);
 					if (array(i, j, k).value != count) {
@@ -164,19 +164,19 @@ public class ArrayIndexing extends x10Test {
 		return true;
 	}
 	def verify4D(var array: Array[Generic](4)): boolean = {
-		var h1: int = array.region.max(0);
-		var h2: int = array.region.max(1);
-		var h3: int = array.region.max(2);
-		var h4: int = array.region.max(3);
-		var l1: int = array.region.min(0);
-		var l2: int = array.region.min(1);
-		var l3: int = array.region.min(2);
-		var l4: int = array.region.min(3);
+                var h1: long = array.region.max(0);
+		var h2: long = array.region.max(1);
+		var h3: long = array.region.max(2);
+		var h4: long = array.region.max(3);
+		var l1: long = array.region.min(0);
+		var l2: long = array.region.min(1);
+		var l3: long = array.region.min(2);
+		var l4: long = array.region.min(3);
 		var count: int = 0;
-		for (var i: int = l1; i <= h1; ++i)
-			for (var j: int = l2; j <= h2; ++j)
-				for (var k: int = l3; k <= h3; ++k)
-					for (var l: int = l4; l <= h4; ++l) {
+		for (var i: long = l1; i <= h1; ++i)
+			for (var j: long = l2; j <= h2; ++j)
+				for (var k: long = l3; k <= h3; ++k)
+					for (var l: long = l4; l <= h4; ++l) {
 						array(i, j, k, l) = array(i, j, k, l); // ensure set works as well
 						if (verbose) x10.io.Console.OUT.println("a["+i+","+j+","+k+","+l+"] = "+count);
 						if (array(i, j, k, l).value != count) {
@@ -189,16 +189,16 @@ public class ArrayIndexing extends x10Test {
 	}
 
 	def verify3D(var array: Array[double](3)): boolean = {
-		var h1: int = array.region.max(0);
-		var h2: int = array.region.max(1);
-		var h3: int = array.region.max(2);
-		var l1: int = array.region.min(0);
-		var l2: int = array.region.min(1);
-		var l3: int = array.region.min(2);
+		var h1: long = array.region.max(0);
+		var h2: long = array.region.max(1);
+		var h3: long = array.region.max(2);
+		var l1: long = array.region.min(0);
+		var l2: long = array.region.min(1);
+		var l3: long = array.region.min(2);
 		var count: int = 0;
-		for (var i: int = l1; i <= h1; ++i)
-			for (var j: int = l2; j <= h2; ++j)
-				for (var k: int = l3; k <= h3; ++k) {
+		for (var i: long = l1; i <= h1; ++i)
+			for (var j: long = l2; j <= h2; ++j)
+				for (var k: long = l3; k <= h3; ++k) {
 					array(i, j, k) = array(i, j, k);
 					if (verbose) x10.io.Console.OUT.println("a["+i+","+j+","+k+"] = "+count);
 					if (array(i, j, k) != count as Double) {
@@ -210,19 +210,19 @@ public class ArrayIndexing extends x10Test {
 		return true;
 	}
 	def verify4D(var array: Array[double](4)): boolean = {
-		var h1: int = array.region.max(0);
-		var h2: int = array.region.max(1);
-		var h3: int = array.region.max(2);
-		var h4: int = array.region.max(3);
-		var l1: int = array.region.min(0);
-		var l2: int = array.region.min(1);
-		var l3: int = array.region.min(2);
-		var l4: int = array.region.min(3);
+		var h1: long = array.region.max(0);
+		var h2: long = array.region.max(1);
+		var h3: long = array.region.max(2);
+		var h4: long = array.region.max(3);
+		var l1: long = array.region.min(0);
+		var l2: long = array.region.min(1);
+		var l3: long = array.region.min(2);
+		var l4: long = array.region.min(3);
 		var count: int = 0;
-		for (var i: int = l1; i <= h1; ++i)
-			for (var j: int = l2; j <= h2; ++j)
-				for (var k: int = l3; k <= h3; ++k)
-					for (var l: int = l4; l <= h4; ++l) {
+		for (var i: long = l1; i <= h1; ++i)
+			for (var j: long = l2; j <= h2; ++j)
+				for (var k: long = l3; k <= h3; ++k)
+					for (var l: long = l4; l <= h4; ++l) {
 						array(i, j, k, l) = array(i, j, k, l); // ensure set works as well
 						if (verbose) x10.io.Console.OUT.println("a["+i+","+j+","+k+","+l+"] = "+count);
 						if (array(i, j, k, l) != count as Double) {
@@ -235,16 +235,16 @@ public class ArrayIndexing extends x10Test {
 	}
 
 	def verify3D(var array: Array[long](3)): boolean = {
-		var h1: int = array.region.max(0);
-		var h2: int = array.region.max(1);
-		var h3: int = array.region.max(2);
-		var l1: int = array.region.min(0);
-		var l2: int = array.region.min(1);
-		var l3: int = array.region.min(2);
+		var h1: long = array.region.max(0);
+		var h2: long = array.region.max(1);
+		var h3: long = array.region.max(2);
+		var l1: long = array.region.min(0);
+		var l2: long = array.region.min(1);
+		var l3: long = array.region.min(2);
 		var count: int = 0;
-		for (var i: int = l1; i <= h1; ++i)
-			for (var j: int = l2; j <= h2; ++j)
-				for (var k: int = l3; k <= h3; ++k) {
+		for (var i: long = l1; i <= h1; ++i)
+			for (var j: long = l2; j <= h2; ++j)
+				for (var k: long = l3; k <= h3; ++k) {
 					array(i, j, k) = array(i, j, k);
 					if (verbose) x10.io.Console.OUT.println("a["+i+","+j+","+k+"] = "+count);
 					if (array(i, j, k) != count as Long) {
@@ -256,19 +256,19 @@ public class ArrayIndexing extends x10Test {
 		return true;
 	}
 	def verify4D(var array: Array[long](4)): boolean = {
-		var h1: int = array.region.max(0);
-		var h2: int = array.region.max(1);
-		var h3: int = array.region.max(2);
-		var h4: int = array.region.max(3);
-		var l1: int = array.region.min(0);
-		var l2: int = array.region.min(1);
-		var l3: int = array.region.min(2);
-		var l4: int = array.region.min(3);
+		var h1: long = array.region.max(0);
+		var h2: long = array.region.max(1);
+		var h3: long = array.region.max(2);
+		var h4: long = array.region.max(3);
+		var l1: long = array.region.min(0);
+		var l2: long = array.region.min(1);
+		var l3: long = array.region.min(2);
+		var l4: long = array.region.min(3);
 		var count: int = 0;
-		for (var i: int = l1; i <= h1; ++i)
-			for (var j: int = l2; j <= h2; ++j)
-				for (var k: int = l3; k <= h3; ++k)
-					for (var l: int = l4; l <= h4; ++l) {
+		for (var i: long = l1; i <= h1; ++i)
+			for (var j: long = l2; j <= h2; ++j)
+				for (var k: long = l3; k <= h3; ++k)
+					for (var l: long = l4; l <= h4; ++l) {
 						array(i, j, k, l) = array(i, j, k, l); // ensure set works as well
 						if (verbose) x10.io.Console.OUT.println("a["+i+","+j+","+k+","+l+"] = "+count);
 						if (array(i, j, k, l) != count as Long) {
@@ -281,16 +281,16 @@ public class ArrayIndexing extends x10Test {
 	}
 
 	def verify3D(var array: Array[float](3)): boolean = {
-		var h1: int = array.region.max(0);
-		var h2: int = array.region.max(1);
-		var h3: int = array.region.max(2) ;
-		var l1: int = array.region.min(0);
-		var l2: int = array.region.min(1);
-		var l3: int = array.region.min(2);
+		var h1: long = array.region.max(0);
+		var h2: long = array.region.max(1);
+		var h3: long = array.region.max(2) ;
+		var l1: long = array.region.min(0);
+		var l2: long = array.region.min(1);
+		var l3: long = array.region.min(2);
 		var count: int = 0;
-		for (var i: int = l1; i <= h1; ++i)
-			for (var j: int = l2; j <= h2; ++j)
-				for (var k: int = l3; k <= h3; ++k) {
+		for (var i: long = l1; i <= h1; ++i)
+			for (var j: long = l2; j <= h2; ++j)
+				for (var k: long = l3; k <= h3; ++k) {
 					array(i, j, k) = array(i, j, k);
 					if (verbose) x10.io.Console.OUT.println("a["+i+","+j+","+k+"] = "+count);
 					if (array(i, j, k) != count as Float) {
@@ -302,19 +302,19 @@ public class ArrayIndexing extends x10Test {
 		return true;
 	}
 	def verify4D(var array: Array[float](4)): boolean = {
-		var h1: int = array.region.max(0);
-		var h2: int = array.region.max(1);
-		var h3: int = array.region.max(2);
-		var h4: int = array.region.max(3);
-		var l1: int = array.region.min(0);
-		var l2: int = array.region.min(1);
-		var l3: int = array.region.min(2);
-		var l4: int = array.region.min(3);
+		var h1: long = array.region.max(0);
+		var h2: long = array.region.max(1);
+		var h3: long = array.region.max(2);
+		var h4: long = array.region.max(3);
+		var l1: long = array.region.min(0);
+		var l2: long = array.region.min(1);
+		var l3: long = array.region.min(2);
+		var l4: long = array.region.min(3);
 		var count: int = 0;
-		for (var i: int = l1; i <= h1; ++i)
-			for (var j: int = l2; j <= h2; ++j)
-				for (var k: int = l3; k <= h3; ++k)
-					for (var l: int = l4; l <= h4; ++l) {
+		for (var i: long = l1; i <= h1; ++i)
+			for (var j: long = l2; j <= h2; ++j)
+				for (var k: long = l3; k <= h3; ++k)
+					for (var l: long = l4; l <= h4; ++l) {
 						array(i, j, k, l) = array(i, j, k, l); // ensure set works as well
 						if (verbose) x10.io.Console.OUT.println("a["+i+","+j+","+k+","+l+"] = "+count);
 						if (array(i, j, k, l) != count as Float) {
@@ -327,16 +327,16 @@ public class ArrayIndexing extends x10Test {
 	}
 
 	def verify3D(var array: Array[char](3)): boolean = {
-		var h1: int = array.region.max(0);
-		var h2: int = array.region.max(1);
-		var h3: int = array.region.max(2) ;
-		var l1: int = array.region.min(0);
-		var l2: int = array.region.min(1);
-		var l3: int = array.region.min(2);
+		var h1: long = array.region.max(0);
+		var h2: long = array.region.max(1);
+		var h3: long = array.region.max(2) ;
+		var l1: long = array.region.min(0);
+		var l2: long = array.region.min(1);
+		var l3: long = array.region.min(2);
 		var count: int = 0;
-		for (var i: int = l1; i <= h1; ++i)
-			for (var j: int = l2; j <= h2; ++j)
-				for (var k: int = l3; k <= h3; ++k) {
+		for (var i: long = l1; i <= h1; ++i)
+			for (var j: long = l2; j <= h2; ++j)
+				for (var k: long = l3; k <= h3; ++k) {
 					array(i, j, k) = array(i, j, k);
 					if (verbose) x10.io.Console.OUT.println("a["+i+","+j+","+k+"] = "+ (count as char));
 					if (array(i, j, k) != (count as char)) {
@@ -348,19 +348,19 @@ public class ArrayIndexing extends x10Test {
 		return true;
 	}
 	def verify4D(var array: Array[char](4)): boolean = {
-		var h1: int = array.region.max(0);
-		var h2: int = array.region.max(1);
-		var h3: int = array.region.max(2);
-		var h4: int = array.region.max(3);
-		var l1: int = array.region.min(0);
-		var l2: int = array.region.min(1);
-		var l3: int = array.region.min(2);
-		var l4: int = array.region.min(3);
+		var h1: long = array.region.max(0);
+		var h2: long = array.region.max(1);
+		var h3: long = array.region.max(2);
+		var h4: long = array.region.max(3);
+		var l1: long = array.region.min(0);
+		var l2: long = array.region.min(1);
+		var l3: long = array.region.min(2);
+		var l4: long = array.region.min(3);
 		var count: int = 0;
-		for (var i: int = l1; i <= h1; ++i)
-			for (var j: int = l2; j <= h2; ++j)
-				for (var k: int = l3; k <= h3; ++k)
-					for (var l: int = l4; l <= h4; ++l) {
+		for (var i: long = l1; i <= h1; ++i)
+			for (var j: long = l2; j <= h2; ++j)
+				for (var k: long = l3; k <= h3; ++k)
+					for (var l: long = l4; l <= h4; ++l) {
 						array(i, j, k, l) = array(i, j, k, l); // ensure set works as well
 						if (verbose) x10.io.Console.OUT.println("a["+i+","+j+","+k+","+l+"] = "+(count as char));
 						if (array(i, j, k, l) != (count as char)) {
@@ -373,16 +373,16 @@ public class ArrayIndexing extends x10Test {
 	}
 
 	def verify3D(var array: Array[byte](3)): boolean = {
-		var h1: int = array.region.max(0);
-		var h2: int = array.region.max(1);
-		var h3: int = array.region.max(2) ;
-		var l1: int = array.region.min(0);
-		var l2: int = array.region.min(1);
-		var l3: int = array.region.min(2);
+		var h1: long = array.region.max(0);
+		var h2: long = array.region.max(1);
+		var h3: long = array.region.max(2) ;
+		var l1: long = array.region.min(0);
+		var l2: long = array.region.min(1);
+		var l3: long = array.region.min(2);
 		var count: int = 0;
-		for (var i: int = l1; i <= h1; ++i)
-			for (var j: int = l2; j <= h2; ++j)
-				for (var k: int = l3; k <= h3; ++k) {
+		for (var i: long = l1; i <= h1; ++i)
+			for (var j: long = l2; j <= h2; ++j)
+				for (var k: long = l3; k <= h3; ++k) {
 					array(i, j, k) = array(i, j, k);
 					if (verbose) x10.io.Console.OUT.println("a["+i+","+j+","+k+"] = "+(count as byte));
 					if (array(i, j, k) != (count as byte)) {
@@ -394,19 +394,19 @@ public class ArrayIndexing extends x10Test {
 		return true;
 	}
 	def verify4D(var array: Array[byte](4)): boolean = {
-		var h1: int = array.region.max(0);
-		var h2: int = array.region.max(1);
-		var h3: int = array.region.max(2);
-		var h4: int = array.region.max(3);
-		var l1: int = array.region.min(0);
-		var l2: int = array.region.min(1);
-		var l3: int = array.region.min(2);
-		var l4: int = array.region.min(3);
+		var h1: long = array.region.max(0);
+		var h2: long = array.region.max(1);
+		var h3: long = array.region.max(2);
+		var h4: long = array.region.max(3);
+		var l1: long = array.region.min(0);
+		var l2: long = array.region.min(1);
+		var l3: long = array.region.min(2);
+		var l4: long = array.region.min(3);
 		var count: int = 0;
-		for (var i: int = l1; i <= h1; ++i)
-			for (var j: int = l2; j <= h2; ++j)
-				for (var k: int = l3; k <= h3; ++k)
-					for (var l: int = l4; l <= h4; ++l) {
+		for (var i: long = l1; i <= h1; ++i)
+			for (var j: long = l2; j <= h2; ++j)
+				for (var k: long = l3; k <= h3; ++k)
+					for (var l: long = l4; l <= h4; ++l) {
 						array(i, j, k, l) = array(i, j, k, l); // ensure set works as well
 						if (verbose) x10.io.Console.OUT.println("a["+i+","+j+","+k+","+l+"] = "+(count as byte));
 						if (array(i, j, k, l) != (count as byte)) {
@@ -419,16 +419,16 @@ public class ArrayIndexing extends x10Test {
 	}
 
 	def verify3D(var array: Array[int](3)): boolean = {
-		var h1: int = array.region.max(0);
-		var h2: int = array.region.max(1);
-		var h3: int = array.region.max(2);
-		var l1: int = array.region.min(0);
-		var l2: int = array.region.min(1);
-		var l3: int = array.region.min(2);
+		var h1: long = array.region.max(0);
+		var h2: long = array.region.max(1);
+		var h3: long = array.region.max(2);
+		var l1: long = array.region.min(0);
+		var l2: long = array.region.min(1);
+		var l3: long = array.region.min(2);
 		var count: int = 0;
-		for (var i: int = l1; i <= h1; ++i)
-			for (var j: int = l2; j <= h2; ++j)
-				for (var k: int = l3; k <= h3; ++k) {
+		for (var i: long = l1; i <= h1; ++i)
+			for (var j: long = l2; j <= h2; ++j)
+				for (var k: long = l3; k <= h3; ++k) {
 					//x10.io.Console.OUT.println("value is:"+array[i, j, k]);
 					array(i, j, k) = array(i, j, k);
 					if (verbose) x10.io.Console.OUT.println("a["+i+","+j+","+k+"] = "+count);
@@ -441,19 +441,19 @@ public class ArrayIndexing extends x10Test {
 		return true;
 	}
 	def verify4D(var array: Array[int](4)): boolean = {
-		var h1: int = array.region.max(0);
-		var h2: int = array.region.max(1);
-		var h3: int = array.region.max(2);
-		var h4: int = array.region.max(3);
-		var l1: int = array.region.min(0);
-		var l2: int = array.region.min(1);
-		var l3: int = array.region.min(2);
-		var l4: int = array.region.min(3);
+		var h1: long = array.region.max(0);
+		var h2: long = array.region.max(1);
+		var h3: long = array.region.max(2);
+		var h4: long = array.region.max(3);
+		var l1: long = array.region.min(0);
+		var l2: long = array.region.min(1);
+		var l3: long = array.region.min(2);
+		var l4: long = array.region.min(3);
 		var count: int = 0;
-		for (var i: int = l1; i <= h1; ++i)
-			for (var j: int = l2; j <= h2; ++j)
-				for (var k: int = l3; k <= h3; ++k)
-					for (var l: int = l4; l <= h4; ++l) {
+		for (var i: long = l1; i <= h1; ++i)
+			for (var j: long = l2; j <= h2; ++j)
+				for (var k: long = l3; k <= h3; ++k)
+					for (var l: long = l4; l <= h4; ++l) {
 						array(i, j, k, l) = array(i, j, k, l); // ensure set works as well
 						if (verbose) x10.io.Console.OUT.println("a["+i+","+j+","+k+","+l+"] = "+count);
 						if (array(i, j, k, l) != count) {

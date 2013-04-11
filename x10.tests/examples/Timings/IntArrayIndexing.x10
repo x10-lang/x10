@@ -48,18 +48,18 @@ public class IntArrayIndexing extends x10Test {
 
 	def verify3D(var array: Array[int](3)): boolean {
 
-		var h1: int = array.region.max(0);
-		var h2: int = array.region.max(1);
-		var h3: int = array.region.max(2);
+		var h1: long = array.region.max(0);
+		var h2: long = array.region.max(1);
+		var h3: long = array.region.max(2);
 
-		var l1: int = array.region.min(0);
-		var l2: int = array.region.min(1);
-		var l3: int = array.region.min(2);
+		var l1: long = array.region.min(0);
+		var l2: long = array.region.min(1);
+		var l3: long = array.region.min(2);
 
 		var count: int = 0;
-		for (var i: int = l1; i <= h1; ++i)
-			for (var j: int = l2; j <= h2; ++j)
-				for (var k: int = l3; k <= h3; ++k) {
+		for (var i: long = l1; i <= h1; ++i)
+			for (var j: long = l2; j <= h2; ++j)
+				for (var k: long = l3; k <= h3; ++k) {
 					//x10.io.Console.OUT.println("value is:"+array[i,j,k]);
 					array(i, j, k) = array(i, j, k);
 					if (verbose) x10.io.Console.OUT.println("a["+i+","+j+","+k+"] = "+count);
@@ -72,19 +72,19 @@ public class IntArrayIndexing extends x10Test {
 		return true;
 	}
 	def verify4D(var array: Array[int](4)): boolean {
-		var h1: int = array.region.max(0);
-		var h2: int = array.region.max(1);
-		var h3: int = array.region.max(2);
-		var h4: int = array.region.max(3);
-		var l1: int = array.region.min(0);
-		var l2: int = array.region.min(1);
-		var l3: int = array.region.min(2);
-		var l4: int = array.region.min(3);
+		var h1: long = array.region.max(0);
+		var h2: long = array.region.max(1);
+		var h3: long = array.region.max(2);
+		var h4: long = array.region.max(3);
+		var l1: long = array.region.min(0);
+		var l2: long = array.region.min(1);
+		var l3: long = array.region.min(2);
+		var l4: long = array.region.min(3);
 		var count: int = 0;
-		for (var i: int = l1; i <= h1; ++i)
-			for (var j: int = l2; j <= h2; ++j)
-				for (var k: int = l3; k <= h3; ++k)
-					for (var l: int = l4; l <= h4; ++l) {
+		for (var i: long = l1; i <= h1; ++i)
+			for (var j: long = l2; j <= h2; ++j)
+				for (var k: long = l3; k <= h3; ++k)
+					for (var l: long = l4; l <= h4; ++l) {
 						array(i, j, k, l) = array(i, j, k, l); // ensure set works as well
 						if (verbose) x10.io.Console.OUT.println("a["+i+","+j+","+k+","+l+"] = "+count);
 						if ( array(i, j, k, l) != count) {
