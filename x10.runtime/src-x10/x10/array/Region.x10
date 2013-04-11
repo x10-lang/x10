@@ -292,13 +292,13 @@ public abstract class Region(
      * @param lower -- the number of diagonals in the band, below the main diagonal
      */
     public static def makeBanded(size:long, upper:long, lower:long):Region(2)
-        = PolyRegion.makeBanded(size, upper, lower);
+        = PolyRegion.makeBanded(size as int, upper as int, lower as int);
 
     /**
      * Construct a banded region of the given size that includes only
      * the main diagonal.
      */
-    public static def makeBanded(size:long):Region(2) = PolyRegion.makeBanded(size, 1, 1);
+    public static def makeBanded(size:long):Region(2) = PolyRegion.makeBanded(size as int, 1, 1);
     
     /**
      * Construct an upper triangular region of the given size.
