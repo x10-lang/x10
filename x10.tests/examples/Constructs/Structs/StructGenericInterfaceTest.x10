@@ -25,11 +25,11 @@ struct S58[T] implements (Int,Int)=>T {
 public class StructGenericInterfaceTest extends x10Test {
   public def run(): boolean {
     val r = Region.make(1..5, 1..5);
-    val a = new Array[Int](r, (p:Point(2)) => p(0)+p(1));
-    val s = S58[Int](a);
+    val a = new Array[Long](r, (p:Point(2)) => p(0)+p(1));
+    val s = S58[Long](a);
 
-    chk(s(1,1) == 2);
-    chk(s(4,4) == 8);
+    chk(s(1,1) == 2L);
+    chk(s(4,4) == 8L);
 
     return true;
   }
