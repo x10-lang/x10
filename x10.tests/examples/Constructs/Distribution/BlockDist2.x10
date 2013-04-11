@@ -15,8 +15,8 @@ public class BlockDist2 extends x10Test.BardTest {
     return s;
   }
 
-  static def actualSize(R: Region):Int {
-    var n : Int = 0;
+  static def actualSize(R: Region):Long {
+    var n : Long = 0;
     for(p in R) n++;
     return n;
   }
@@ -27,8 +27,8 @@ public class BlockDist2 extends x10Test.BardTest {
         val R = Region.make(1,n);
         val D = Dist.makeBlock(R);
         val M = Place.MAX_PLACES;
-        val l : Int = n / M; // Minimum number in a place.
-        var prev : Int = -1; 
+        val l : long = (n / M) as long; // Minimum number in a place.
+        var prev : Long = -1; 
         for (p in Place.places()) {
           val atP =  D.get(p);
           val np = actualSize(atP);
@@ -41,7 +41,7 @@ public class BlockDist2 extends x10Test.BardTest {
             + "\n D= " + str(D)
             + "\n atP = " + atP
             );
-          if (prev != -1) {
+          if (prev != -1L) {
             if (prev == l) yes(np == l, "big blocks before small blocks for p=" + p + ", n=" + n);
           }
           prev = np;
