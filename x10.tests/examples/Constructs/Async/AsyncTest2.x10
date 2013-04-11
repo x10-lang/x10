@@ -21,7 +21,7 @@ public class AsyncTest2 extends x10Test {
 
     public def run(): boolean = {
         val NP: int = Place.MAX_PLACES;
-        val A: DistArray[int]{rank==1} = DistArray.make[int](Dist.makeUnique());
+        val A: DistArray[long]{rank==1} = DistArray.make[long](Dist.makeUnique());
         finish
             for (k in 0..(NP-1))
                async at(A.dist(k))

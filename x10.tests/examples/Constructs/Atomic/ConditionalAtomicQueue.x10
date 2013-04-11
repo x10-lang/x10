@@ -92,7 +92,7 @@ public class ConditionalAtomicQueue extends x10Test {
             async 
                 ateach (val [i]: Point in MyDist.unique()) {
                     for (val j in 0..(N-1)) {
-                        val t = new T(i, j); // produce a T
+                        val t = new T(i as int, j); // produce a T
                         async at(root) {
                             val me = root();
                             when (! me.full()) { me.insert(t); }

@@ -30,13 +30,13 @@ public class AsyncTest5 extends x10Test {
 
         // verify async S is async(here)S
         finish ateach (val [i]: Point in A) {
-            async { atomic A(i) += i;
+            async { atomic A(i) += (i as int);
                 chk(A.dist(i) == here);
                 async at(Place.FIRST_PLACE) async chk(A.dist(0) == here);
             }
         }
         finish ateach (val [i]: Point in A) {
-            chk(A(i) == i);
+            chk(A(i) == i as int);
         }
         return true;
     }
