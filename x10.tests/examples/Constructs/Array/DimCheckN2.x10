@@ -21,7 +21,7 @@ import x10.array.*;
 public class DimCheckN2 extends x10Test {
 
     def m(var r:Region(2){self!=null}): void = {
-        val a1 = new Array[int](r, (p[i,j]: Point): int => { return i; });
+        val a1 = new Array[int](r, (p[i,j]: Point): int => { return i as int; });
     }
 
     public def run(): boolean = {
