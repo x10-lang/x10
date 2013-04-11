@@ -17,7 +17,6 @@ import x10.array.*;
  *
  * @author igor, 1/2006
  */
-
 public class PointRebinding extends x10Test {
 
     public def run(): boolean = {
@@ -25,7 +24,7 @@ public class PointRebinding extends x10Test {
         val p: Point = [1, 2] as Point;
         val [i, j]: Point = p;
 
-        return (i == 1 && j == 2);
+        return (i == 1L && j == 2L);
     }
 
     public static def main(var args: Rail[String]): void = {

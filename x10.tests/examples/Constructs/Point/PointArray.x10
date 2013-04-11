@@ -25,7 +25,7 @@ public class PointArray extends x10Test {
         var p: Rail[Point] = new Rail[Point](1, (long)=>Point.make(0));
         p(0) = Point.make(1, 2);
 
-        return (p(0)(0) == 1 && p(0)(1) == 2);
+        return (p(0)(0) == 1L && p(0)(1) == 2L);
     }
 
     public static def main(var args: Rail[String]): void = {
