@@ -55,13 +55,13 @@ public class HeatTransfer_v5 {
     //       Needs to be done properly and integrated into the Dist/Region/DistArray
     //       class library in x10.array.
     static def blockIt(d:Dist(2), numProcs:int):Array[Iterable[Point(2)]](1){rect} {
-        val blocks = new Array[x10.util.ArrayList[Point(2)]](numProcs, (int)=>new x10.util.ArrayList[Point(2)]());
+        val blocks = new Array[x10.util.ArrayList[Point(2)]](numProcs, (long)=>new x10.util.ArrayList[Point(2)]());
         var modulo:int = 0;
         for (p in d) {
             blocks(modulo).add(p);
             modulo = (modulo + 1) % numProcs;
         }
-        val ans = new Array[Iterable[Point(2)]](numProcs, (i:Int) => blocks(i));
+        val ans = new Array[Iterable[Point(2)]](numProcs, (i:long) => blocks(i));
         return ans;
     }
 
