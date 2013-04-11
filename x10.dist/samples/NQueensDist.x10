@@ -66,7 +66,7 @@ public class NQueensDist {
 
         /** Search all positions for the current board. */
         def search() {
-            for ([k] in R) searchOne(k);
+            for ([k] in R) searchOne(k as int);
         }
 
         /**
@@ -94,7 +94,7 @@ public class NQueensDist {
         def distSearch()  {
             ateach([k] in Dist.makeBlock(R)) {
                 // implicit copy of 'this' made across the at divide
-                searchOne(k);
+                searchOne(k as int);
             }
         }
     }
