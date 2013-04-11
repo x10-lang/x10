@@ -21,7 +21,7 @@ import x10.array.*;
  */
 public class ForLoop2 extends x10Test {
 
-	public static N: int = 3;
+	public static N: long = 3;
 
 	public def run(): boolean = {
 		val r  = Region.make(0, N-1);
@@ -32,7 +32,7 @@ public class ForLoop2 extends x10Test {
 		if (!d3.region.equals(r3)) return false;
 
 		//Ensure iterator works in lexicographic order
-		var n: int = 0;
+		var n: long = 0L;
 		var prev: Box[Point] = null;
 		for (p in d3) {
 			if (!successor(prev, p)) return false;
@@ -53,17 +53,17 @@ public class ForLoop2 extends x10Test {
 	static def successor(var prev: Box[Point], var p: Point): boolean = {
 		if (prev == null) return true;
 		val pt = prev();
-		var i: int = pt(0);
-		var j: int = pt(1);
-		var k: int = pt(2);
+		var i: long = pt(0);
+		var j: long = pt(1);
+		var k: long = pt(2);
 		//x10.io.Console.OUT.println("Prev:"+i+" "+j+" "+k);
 		//x10.io.Console.OUT.println("Actual:"+ p[0]+" "+p[1]+" "+p[2]);
 		k++;
 		if (k == N) {
-			k = 0;
+			k = 0L;
 			j++;
 			if (j == N) {
-				j = 0;
+				j = 0L;
 				i++;
 			}
 		}
