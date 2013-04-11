@@ -21,8 +21,8 @@ import x10.array.Region;
 public class CallMethodTest extends x10Test { 
   
   public def run(): boolean = { 
-       val r:Region(2) = Region.makeRectangular([1,1], [10,10]) as Region(2);
-        return true;
+       val r:Region(2) = Region.makeRectangular(1..10, 1..10);
+       return true;
     }
    public static def main(var args: Rail[String]): void = {
         new CallMethodTest().execute();

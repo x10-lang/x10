@@ -38,8 +38,8 @@ public class ReferenceConsistencyCheck(R: Region{rank==2, zeroBased, rect},
         val D:Dist{region==R} = Dist.makeBlock(R);
         val A:DistArray[double]{dist==D} = 
                DistArray.make[double](D, ([i,j]:Point) => 
-                  { var res: int=i%2;
-                    if (i-1==j) res=i*(res==0?-1:1);
+                  { var res:long = i%2;
+                    if (i-1==j) res=i*(res==0L?-1L:1L);
                     res as double
                   });
             

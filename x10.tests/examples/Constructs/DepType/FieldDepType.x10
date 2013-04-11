@@ -18,7 +18,7 @@ import x10.array.*;
  *
  */
 public class FieldDepType extends x10Test {
-    var f: Array[Double](1) = new Array[double](11, (i:int)=> (10-i) as Double);
+    var f: Array[Double](1) = new Array[double](11, (i:long)=> (10-i) as Double);
 
     def m(a: Array[Double]{rank==1&&rect&&zeroBased}): void = {
     }
