@@ -9,7 +9,6 @@
  *  (C) Copyright IBM Corporation 2006-2010.
  */
 
-import x10.array.Array;
 import x10.io.Console;
 import x10.io.File;
 import x10.io.Marshal;
@@ -28,9 +27,9 @@ import x10.util.Team;
  */
 public class KMeansSPMD {
 
-    public static def printClusters (clusters:Array[Float](1), dims:Int) {
+    public static def printClusters (clusters:Rail[Float], dims:Int) {
         for (var d:Int=0 ; d<dims ; ++d) { 
-            for (var k:Int=0 ; k<clusters.size/dims ; ++k) { 
+            for (var k:Long=0 ; k<clusters.size/dims ; ++k) { 
                 if (k>0)
                     Console.OUT.print(" ");
                 Console.OUT.print(clusters(k*dims+d).toString());
@@ -53,7 +52,7 @@ public class KMeansSPMD {
             Option("s","slices","factor by which to oversubscribe computational resources"),
             Option("n","num","quantity of points")
         ]);
-        if (opts.filteredArgs().size!=0) {
+        if (opts.filteredArgs().size!=0L) {
             Console.ERR.println("Unexpected arguments: "+opts.filteredArgs());
             Console.ERR.println("Use -h or --help.");
             System.setExitCode(1);
@@ -79,12 +78,12 @@ public class KMeansSPMD {
         // file is dimension-major
         val file = new File(fname);
         val fr = file.openRead();
-        val init_points = (int) => Float.fromIntBits(Marshal.INT.read(fr).reverseBytes());
+        val init_points = (long) => Float.fromIntBits(Marshal.INT.read(fr).reverseBytes());
         val num_file_points = (file.size() / dim / 4) as Int;
-        val file_points = new Array[Float](num_file_points*dim, init_points);
+        val file_points = new Rail[Float](num_file_points*dim, init_points);
 
         //val team = Team.WORLD;
-        val team = Team(new Array[Place](num_slices * Place.MAX_PLACES, (i:int) => Place.place(i/num_slices)));
+        val team = Team(new Rail[Place](num_slices * Place.MAX_PLACES, (i:long) => Place.place((i/num_slices)as int)));
 
         val num_slice_points = num_global_points / num_slices / Place.MAX_PLACES;
 
@@ -101,18 +100,18 @@ public class KMeansSPMD {
                     if (!quiet)
                         Console.OUT.println(h.toString()+" gets "+offset+" len "+num_slice_points);
                     val num_slice_points_stride = num_slice_points;
-                    val init = (i:int) => {
+                    val init = (i:long) => {
                         val d=i/num_slice_points_stride;
                         val p=i%num_slice_points_stride;
                         return p<num_slice_points ? file_points(((p+offset)%num_file_points)*dim + d) : 0f;
                     };
 
                     // these are pretty big so allocate up front
-                    val host_points = new Array[Float](num_slice_points_stride*dim, init);
-                    val host_nearest = new Array[Float](num_slice_points);
+                    val host_points = new Rail[Float](num_slice_points_stride*dim, init);
+                    val host_nearest = new Rail[Float](num_slice_points);
 
-                    val host_clusters  = new Array[Float](num_clusters*dim, (i:int)=>file_points(i));
-                    val host_cluster_counts = new Array[Int](num_clusters);
+                    val host_clusters  = new Rail[Float](num_clusters*dim, (i:long)=>file_points(i));
+                    val host_cluster_counts = new Rail[Int](num_clusters);
 
                     val start_time = System.currentTimeMillis();
 
@@ -126,11 +125,11 @@ public class KMeansSPMD {
 
                         //if (offset==0) Console.OUT.println("Iteration: "+iter);
 
-                        val old_clusters = new Array[Float](host_clusters.size);
-                    Array.copy(host_clusters, 0, old_clusters, 0, host_clusters.size);
+                        val old_clusters = new Rail[Float](host_clusters.size);
+                        Rail.copy(host_clusters, 0L, old_clusters, 0L, host_clusters.size);
 
-                        host_clusters.fill(0);
-                        host_cluster_counts.fill(0);
+                        host_clusters.clear();
+                        host_cluster_counts.clear();
 
                         val compute_start = System.nanoTime();
                         for (var p:Int=0 ; p<num_slice_points ; ++p) {
@@ -155,8 +154,8 @@ public class KMeansSPMD {
                         compute_time += System.nanoTime() - compute_start;
 
                         val comm_start = System.nanoTime();
-                        team.allreduce(role, host_clusters, 0, host_clusters, 0, host_clusters.size, Team.ADD);
-                        team.allreduce(role, host_cluster_counts, 0, host_cluster_counts, 0, host_cluster_counts.size, Team.ADD);
+                        team.allreduce(role, host_clusters, 0, host_clusters, 0, host_clusters.size as int, Team.ADD);
+                        team.allreduce(role, host_cluster_counts, 0, host_cluster_counts, 0, host_cluster_counts.size as int, Team.ADD);
                         comm_time += System.nanoTime() - comm_start;
 
                         for (var k:Int=0 ; k<num_clusters ; ++k) {
