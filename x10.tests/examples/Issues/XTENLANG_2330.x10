@@ -153,8 +153,8 @@ class XTENLANG_2370
     }
 	static def fail():void { throw new Exception("test failed!"); }
 	static def test() {
-		m([1,2,3], [2] as Point);
-		try { m([1,2,3], [2,3] as Point); fail(); } catch (e:FailedDynamicCheckException) {}
+		m(new Array[int](3, [1,2,3]), Point.make(2));
+		try { m(new Array[int](3, [1,2,3]), Point.make(2,3)); fail(); } catch (e:FailedDynamicCheckException) {}
 	}
 }
 
@@ -215,8 +215,8 @@ class DynamicCallsTest {
 		test(1,2);
 		try { test(2,2); fail(); } catch (e:FailedDynamicCheckException) {}
 		m([1,2]);
-		try { m([1]); fail(); } catch (e:ClassCastException) {}
-		try { m([1,2,3]); fail(); } catch (e:ClassCastException) {}
+		try { m(Point.make(1)); fail(); } catch (e:ClassCastException) {}
+		try { m(Point.make(1,2,3)); fail(); } catch (e:ClassCastException) {}
 		Console.OUT.println("Test succeeded!");
 	}
 	def m(a:Int, b:Int{self==a}) {}
@@ -233,9 +233,9 @@ class TestGeneric7[T] {
 
 struct AAA7(R:Long)
 {
-    private val a:Point(R);
+    private val a:Point;
 
-    public def this (r:Long, v1:Rail[Int]{self.size==r)) {
+    public def this (r:Long, v1:Rail[Int]{self.size==r}) {
         property(r);
         a = Point.make(v1); // ERR
     }
