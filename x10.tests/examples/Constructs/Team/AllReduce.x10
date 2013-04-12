@@ -19,8 +19,8 @@ public class AllReduce extends x10Test {
 
     def allReduceTest(team:Team, role:int, res:GlobalRef[Cell[Boolean]]) {
         val count = 113;        
-        val src = new Array[Double](count, (i:int)=>((role+1) as Double) * i * i);
-        val dst = new Array[Double](count, (i:int)=>-(i as Double));
+        val src = new Rail[Double](count, (i:long)=>((role+1) as Double) * i * i);
+        val dst = new Rail[Double](count, (i:long)=>-(i as Double));
         var success: boolean = true;
                 
         {
