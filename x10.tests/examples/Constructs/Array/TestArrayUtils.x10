@@ -8,9 +8,8 @@
  *
  *  (C) Copyright Australian National University 2012.
  */
-import harness.x10Test;
-import x10.array.*;
 
+import harness.x10Test;
 import x10.util.ArrayList;
 import x10.util.ArrayUtils;
 import x10.util.Random;
@@ -95,8 +94,8 @@ public class TestArrayUtils extends x10Test {
         val indexOfMax = aList.binarySearch(Double.MAX_VALUE);
         chk(-(indexOfMax+1) == aList.size());
 
-        val emptyArray = new Array[Double](0);
-        chk(ArrayUtils.binarySearch[Double](emptyArray, 1.0) == -1);
+        val emptyArray = new Rail[Double](0);
+        chk(ArrayUtils.binarySearch[Double](emptyArray, 1.0) == -1L);
 
         return true;
 	}
