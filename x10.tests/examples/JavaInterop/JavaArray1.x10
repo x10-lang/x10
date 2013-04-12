@@ -78,11 +78,11 @@ public class JavaArray1 extends x10Test {
     }
 
     def testArrayOfArray(): Boolean {
-        val xajas = new Array[Java.array[String]](10,(i:Int)=>Java.newArray[String](20));
+        val xajas = new Array[Java.array[String]](10,(long)=>Java.newArray[String](20));
         val ixajas = xajas instanceof Array[Java.array[String]];
         Console.OUT.println(ixajas);
 
-        val xajai = new Array[Java.array[Int]](10,(i:Int)=>Java.newArray[Int](20));
+        val xajai = new Array[Java.array[Int]](10,(long)=>Java.newArray[Int](20));
         val ixajai = xajai instanceof Array[Java.array[Int]];
         Console.OUT.println(ixajai);
 

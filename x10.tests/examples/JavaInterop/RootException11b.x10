@@ -11,6 +11,7 @@
 
 import x10.io.Console;
 import harness.x10Test;
+import x10.array.*;
 
 // MANAGED_X10_ONLY
 
@@ -33,7 +34,7 @@ class RootException11b extends x10Test {
     }
 
     static class MyException9 extends Exception {
-        val exceptions = new Array[Exception]((1..2) * (3..4) * (5..6), new Exception());
+        val exceptions = new Array[Exception](Region.make(1..2, 3..4, 5..6), new Exception());
     }
 
     public def test0() {
