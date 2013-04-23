@@ -355,9 +355,9 @@ public final class Math {
     public static def max(a:UInt, b:UInt):UInt = a<b?b:a;
     public static def min(a:UInt, b:UInt):UInt = a<b?a:b;
     @Native("java", "java.lang.Math.max(#a,#b)") // @Native for performance
-    public static def max(a:Long, b:Long):Long= a<b?b:a;
+    public static def max(a:Long, b:Long):Long = a<b?b:a;
     @Native("java", "java.lang.Math.min(#a,#b)") // @Native for performance
-    public static def min(a:Long, b:Long):Long= a<b?a:b;
+    public static def min(a:Long, b:Long):Long = a<b?a:b;
     public static def max(a:ULong, b:ULong):ULong = a<b?b:a;
     public static def min(a:ULong, b:ULong):ULong = a<b?a:b;
     @Native("java", "java.lang.Math.max(#a,#b)") // @Native for performance
@@ -369,12 +369,12 @@ public final class Math {
     @Native("java", "java.lang.Math.min(#a,#b)") // @Native for performance
     public static def min(a:Double, b:Double):Double = a<b?a:b;
 
-    public static def signum(a:Int) = (a == 0) ? 0 : ((a>0) ? 1 : -1);
-    public static def signum(a:Long) = (a == 0L) ? 0 : ((a>0L) ? 1 : -1);
+    public static def signum(a:Int):Int = (a == 0) ? 0 : ((a>0) ? 1 : -1);
+    public static def signum(a:Long):Long = (a == 0L) ? 0L : ((a>0L) ? 1L : -1L);
     @Native("java", "java.lang.Math.signum(#a)") // @Native for performance
-    public static def signum(a:Float):Float = (a == 0.0f) ? 0 : ((a>0.0f) ? 1 : -1);
+    public static def signum(a:Float):Float = (a == 0.0f) ? 0.0f : ((a>0.0f) ? 1.0f : -1.0f);
     @Native("java", "java.lang.Math.signum(#a)") // @Native for performance
-    public static def signum(a:Double):Double = (a == 0.0d) ? 0 : ((a>0.0d) ? 1 : -1);
+    public static def signum(a:Double):Double = (a == 0.0d) ? 0.0d : ((a>0.0d) ? 1.0d : -1.0d);
 
     /**
      * @return the value of a with the sign of b
@@ -383,16 +383,16 @@ public final class Math {
     @Native("c++", "x10::lang::MathNatives::copysign(#a,#b)")
     public static native def copySign(a:Double, b:Double):Double;
 
-   public static def nextPowerOf2(val p: int): int {
+    public static def nextPowerOf2(p:Int):Int {
         if (p==0) return 0;
-        var pow2: int = 1;
+        var pow2:Int = 1;
         while (pow2 < p)
             pow2 <<= 1;
         return pow2;
     }
 
-    public static def powerOf2(p:int) {
-       return (p & -p) == p;
+    public static def powerOf2(p:int):Boolean {
+        return (p & -p) == p;
     }
     public static def log2(var p:Int):Int {
         assert powerOf2(p);
@@ -402,12 +402,12 @@ public final class Math {
     }
 
     // returns 2^(max(0,i))
-    public static def pow2(i:Int):int {
+    public static def pow2(i:Int):Int {
         return 1 << i;
     }
 
     // returns 2^(max(0,i))
-    public static def pow2(i:long):long {
-        return 1L << (i as int);
+    public static def pow2(i:Long):Long {
+        return 1L << (i as Int);
     }
 }
