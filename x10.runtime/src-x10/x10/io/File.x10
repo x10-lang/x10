@@ -62,24 +62,31 @@ public class File {
         @Native("java", "#this.canRead()")
         @Native("c++", "(#this)->canRead()")
         native def canRead(): Boolean;
+
         @Native("java", "#this.canWrite()")
         @Native("c++", "(#this)->canWrite()")
         native def canWrite(): Boolean;
+
         @Native("java", "#this.exists()")
         @Native("c++", "(#this)->exists()")
         native def exists(): Boolean;
+
         @Native("java", "#this.isDirectory()")
         @Native("c++", "(#this)->isDirectory()")
         native def isDirectory(): Boolean;
+
         @Native("java", "#this.isFile()")
         @Native("c++", "(#this)->isFile()")
         native def isFile(): Boolean;
+
         @Native("java", "#this.isHidden()")
         @Native("c++", "(#this)->isHidden()")
         native def isHidden(): Boolean;
+
         @Native("java", "#this.lastModified()")
         @Native("c++", "(#this)->lastModified()")
         native def lastModified(): Long;
+
         @Native("java", "#this.length()")
         @Native("c++", "(#this)->length()")
         native def length(): Long;
@@ -88,21 +95,24 @@ public class File {
         @Native("c++", "(#this)->setLastModified(#v)")
         native def setLastModified(v:Long): Boolean;
 
-        // TODO currently Java backend only
         @Native("java", "#this.delete()")
-        @Native("c++", "false")
+        @Native("c++", "(#this)->del()")
         native def delete(): Boolean;
+
         @Native("java", "#this.listInternal()")
-        @Native("c++", "reinterpret_cast<x10::lang::Rail<x10::lang::String*>*>(X10_NULL)")
+        @Native("c++", "(#this)->list()")
         native def list(): Rail[String];
+
         @Native("java", "#this.mkdir()")
-        @Native("c++", "false")
+        @Native("c++", "(#this)->mkdir()")
         native def mkdir(): Boolean;
+
         @Native("java", "#this.mkdirs()")
-        @Native("c++", "false")
+        @Native("c++", "(#this)->mkdirs()")
         native def mkdirs(): Boolean;
+
         @Native("java", "#this.renameTo(#dest)")
-        @Native("c++", "false")
+        @Native("c++", "(#this)->renameTo(#dest)")
         native def renameTo(dest:NativeFile): Boolean;
     }
 

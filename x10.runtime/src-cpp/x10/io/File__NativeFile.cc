@@ -11,12 +11,21 @@
 
 #include <x10aux/config.h>
 
+#include <x10/lang/String.h>
+
+#include <x10/lang/Rail.h>
+
+#include <x10/io/File.h>
+
 #include <x10/io/File__NativeFile.h>
 
 #include <x10aux/basic_functions.h>
 
 #include <unistd.h>
+#include <dirent.h>
 #include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
 #include <sys/stat.h>
 #include <sys/time.h>
 
@@ -146,6 +155,83 @@ File__NativeFile::length() {
     struct stat info;
     int status = ::stat(path->c_str(), &info);
     return (x10_long)(status == 0 ? info.st_size : 0);
+}
+
+x10_boolean
+File__NativeFile::del() {
+	struct stat info;
+	int status = ::stat(path->c_str(), &info);
+	if (status != 0)
+		return (x10_boolean) false;
+	if(S_ISREG(info.st_mode))
+		return (x10_boolean) (::remove(path->c_str()) == 0);
+	else
+		return (x10_boolean) (::rmdir(path->c_str()) == 0);
+}
+
+Rail<String*>*
+File__NativeFile::list() {
+	char sep = (char) (File::FMGL(SEPARATOR__get)().v);
+	DIR* dir;
+	struct dirent* de;
+	if((dir = ::opendir(path->c_str())) == NULL)
+		return NULL;
+	long i;
+	for(i = 0L; (de = ::readdir(dir)) != NULL; i++) ;
+	::rewinddir(dir);
+	::readdir(dir);  // skip "."
+	::readdir(dir);  // skip ".."
+	Rail<String*>* rail = Rail<String*>::_make((x10_long)(i - 2L));
+	String* absPath = getAbsolutePath();
+	for(i = 0L; (de = ::readdir(dir)) != NULL; i++) {
+		char* tmp = (char*)::malloc(sizeof(char) * ((int)absPath->length() + 1 + ::strlen(de->d_name) + 1));
+		::sprintf(tmp, "%s%c%s", absPath->c_str(), sep, de->d_name);
+		rail->__set((x10_long)i, String::Steal(tmp));
+	}
+	::closedir(dir);
+	return rail;
+}
+
+x10_boolean
+File__NativeFile::mkdir() {
+	mode_t mode = 0777;
+	return (x10_boolean) (::mkdir(path->c_str(), mode) == 0);
+}
+
+x10_boolean
+File__NativeFile::mkdirs(const char *s) {
+	char sep = (char) (File::FMGL(SEPARATOR__get)().v);
+	mode_t mode = 0777;
+	if(::strlen(s) <= 0)
+		return (x10_boolean) false;
+	if(::strchr(s, sep) == NULL)
+		return (x10_boolean) (::mkdir(s, mode) == 0);
+	if(::mkdir(s, mode) == 0) {
+		return (x10_boolean) true;
+	} else {
+		char *buf;
+		buf = (char *)::malloc(sizeof(char) * (::strlen(s) + 1));
+		::strcpy(buf, s);
+		char *c = ::strrchr(buf, sep);
+		*c = '\0';
+		if(mkdirs(buf)) {
+			::free(buf);
+			return (x10_boolean) (::mkdir(s, mode) == 0);
+		} else {
+			::free(buf);
+			return (x10_boolean) false;
+		}
+	}
+}
+
+x10_boolean
+File__NativeFile::mkdirs() {
+	return mkdirs(path->c_str());
+}
+
+x10_boolean
+File__NativeFile::renameTo(File__NativeFile* dest) {
+	return (x10_boolean) (rename(path->c_str(), dest->path->c_str()) == 0);
 }
 
 // vim:tabstop=4:shiftwidth=4:expandtab
