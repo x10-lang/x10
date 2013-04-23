@@ -20,16 +20,20 @@ public final class Math {
    public static E = 2.718281828459045D;
    public static PI = 3.141592653589793D;
 
+   @Native("java", "java.lang.Math.abs(#a)") // @Native for performance
    @Native("c++", "((x10_int)::labs(#a))") // @Native for performance
    public static def abs(a:Int):Int = a<0 ? -a : a;
 
+   @Native("java", "java.lang.Math.abs(#a)") // @Native for performance
    @Native("c++", "((x10_long)::llabs(#a))") // @Native for performance
    public static def abs(a:Long):Long = a<0l ? -a : a;
 
+   @Native("java", "java.lang.Math.abs(#a)") // @Native for performance
    @Native("cuda", "fabsf(#a)")
    @Native("c++", "::fabsf(#a)") // @Native for performance
    public static def abs(a:Float):Float = a<0.0f ? -a : a;
 
+   @Native("java", "java.lang.Math.abs(#a)") // @Native for performance
    @Native("c++", "::fabs(#a)") // @Native for performance
    public static def abs(a:Double):Double = a<0.0 ? -a : a;
 
@@ -344,28 +348,38 @@ public final class Math {
    @Native("c++", "x10::lang::MathNatives::log1p(#a)")
    public static native def log1p(a:Double):Double;
 
+    @Native("java", "java.lang.Math.max(#a,#b)") // @Native for performance
     public static def max(a:Int, b:Int)= a<b?b:a;
+    @Native("java", "java.lang.Math.min(#a,#b)") // @Native for performance
     public static def min(a:Int, b:Int)= a<b?a:b;
     public static def max(a:UInt, b:UInt)= a<b?b:a;
- 	public static def min(a:UInt, b:UInt)= a<b?a:b;
+    public static def min(a:UInt, b:UInt)= a<b?a:b;
+    @Native("java", "java.lang.Math.max(#a,#b)") // @Native for performance
     public static def max(a:Long, b:Long)= a<b?b:a;
+    @Native("java", "java.lang.Math.min(#a,#b)") // @Native for performance
     public static def min(a:Long, b:Long)= a<b?a:b;
     public static def max(a:ULong, b:ULong)= a<b?b:a;
-  	public static def min(a:ULong, b:ULong)= a<b?a:b;
+    public static def min(a:ULong, b:ULong)= a<b?a:b;
+    @Native("java", "java.lang.Math.max(#a,#b)") // @Native for performance
     public static def max(a:Float, b:Float)= a<b?b:a;
+    @Native("java", "java.lang.Math.min(#a,#b)") // @Native for performance
     public static def min(a:Float, b:Float)= a<b?a:b;
+    @Native("java", "java.lang.Math.max(#a,#b)") // @Native for performance
     public static def max(a:Double, b:Double)= a<b?b:a;
+    @Native("java", "java.lang.Math.min(#a,#b)") // @Native for performance
     public static def min(a:Double, b:Double)= a<b?a:b;
 
     public static def signum(a:Int) = (a == 0) ? 0 : ((a>0) ? 1 : -1);
     public static def signum(a:Long) = (a == 0L) ? 0 : ((a>0L) ? 1 : -1);
+    @Native("java", "java.lang.Math.signum(#a)") // @Native for performance
     public static def signum(a:Float) = (a == 0.0f) ? 0 : ((a>0.0f) ? 1 : -1);
+    @Native("java", "java.lang.Math.signum(#a)") // @Native for performance
     public static def signum(a:Double) = (a == 0.0d) ? 0 : ((a>0.0d) ? 1 : -1);
 
     /**
      * @return the value of a with the sign of b
      */
-    @Native("java", "java.lang.Math.signum(#a) == java.lang.Math.signum(#b) ? #a : -1 * #a")
+    @Native("java", "java.lang.Math.copySign(#a,#b)")
     @Native("c++", "x10::lang::MathNatives::copysign(#a,#b)")
     public static native def copySign(a:Double, b:Double):Double;
 
