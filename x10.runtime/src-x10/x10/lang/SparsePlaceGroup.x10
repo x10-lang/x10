@@ -58,6 +58,8 @@ public final class SparsePlaceGroup extends PlaceGroup {
   }
 
   public operator this(i:int):Place = places(i);
+  // replicated from superclass to workaround xlC bug with using & itables
+  public operator this(i:long):Place = this(i as int);
 
   public def iterator() = places.iterator();
 

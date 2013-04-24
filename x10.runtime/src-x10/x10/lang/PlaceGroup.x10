@@ -119,6 +119,8 @@ public abstract class PlaceGroup implements Sequence[Place] {
     private val numPlaces:Int;
     def this(numPlaces:Int) { this.numPlaces = numPlaces; }
     public operator this(i:int):Place = Place(i);
+    // replicated from superclass to workaround xlC bug with using & itables
+    public operator this(i:long):Place = this(i as int);
     public def numPlaces() = numPlaces;
     public def contains(id:int) = id >= 0 && id < numPlaces;
     public def indexOf(id:int) = contains(id) ? id : -1;
