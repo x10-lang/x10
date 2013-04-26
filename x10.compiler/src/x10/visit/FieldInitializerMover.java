@@ -154,7 +154,7 @@ public class FieldInitializerMover extends ContextVisitor {
         if (true) {
             // create a final method that includes all the field initializers
             TypeNode returnType = nf.CanonicalTypeNode(p,ts.Void());
-            final Name name = Name.makeFresh("__fieldInitializers");
+            final Name name = Name.make("__fieldInitializers_" + cdecl.classDef().asType().fullName().toString().replace(".", "_"));
             final Id nameId = nf.Id(p, name);
             final Flags flags = Flags.PUBLIC.Final();
             MethodDecl method = nf.MethodDecl(p,nf.FlagsNode(p, flags),returnType, nameId,
