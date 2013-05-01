@@ -1835,9 +1835,8 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
             if (n.target() instanceof TypeNode)
                 er.printType(n.target().type(), 0);
             else {
-            	// FIXME XTENLANG-3206 temporary workaround for regressions e.g. SelfArrayReference_7, NestedArray_2, etc.
-//            	if (ts.isParameterType(n.target().type()) || hasParams(n.fieldInstance().container())) {
-            	if (ts.isParameterType(n.target().type()) /*|| hasParams(n.fieldInstance().container())*/) {
+                // XTENLANG-3206, XTENLANG-3208
+                if (ts.isParameterType(n.target().type()) || hasParams(n.fieldInstance().container())) {
                     // TODO:CAST
                     w.write("(");
                     w.write("(");
