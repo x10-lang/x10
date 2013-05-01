@@ -3246,9 +3246,10 @@ public class Emitter {
 		return true;
 	}
 
-	private static Type actualType(Type type) {
+	private Type actualType(Type type) {
 	    if (type instanceof ConstrainedType) {
 	        ConstrainedType ct = (ConstrainedType) type;
+	        Type baseType = ct.baseType().get();
 	        XVar selfVarBinding = ct.constraint().get().selfVarBinding();
                 if (selfVarBinding != null && selfVarBinding instanceof Typed) {
                     // x10.lang.Object{self=="abc"} -> x10.lang.String
@@ -3258,10 +3259,14 @@ public class Emitter {
                     if (actualType instanceof ConstrainedType) {
                         actualType = ((ConstrainedType) actualType).baseType().get();
                     }
-                    return actualType;
+                    // XTENLANG-3208 fix regressions with inlined typedef. see SelfArrayReference_7, NestedArray_2, etc.
+                    if (actualType.isSubtype(baseType, tr.context()))
+                    	return actualType;
+                    else
+                    	return baseType;
                 }
                 else {
-                    return ct.baseType().get();
+                    return baseType;
                 }
 	    }
 	    return type;
