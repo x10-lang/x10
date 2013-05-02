@@ -44,7 +44,12 @@ public abstract class Array[T] (
          */
         size:Long
 ) implements Iterable[T] {
-    
+
+    /**
+     * @return the rank (dimensionality) of the Array
+     */
+    public abstract property rank():int;
+
     /**
      * The backing storage for the array's elements
      */
@@ -55,11 +60,17 @@ public abstract class Array[T] (
         raw = zero ? Unsafe.allocRailZeroed[T](s) : Unsafe.allocRailUninitialized[T](s);
     }
 
+    protected def this(r:Rail[T]{self!=null}) {
+        property(r.size);
+        raw = r;
+    }
+
 
     /**
      * <p>Return the Rail[T] that is providing the backing storage for the array.
      * This method is primarily intended to be used to interface with native libraries 
-     * (eg BLAS, ESSL). </p>
+     * (eg BLAS, ESSL) and to support bulk copy operations using the asyncCopy 
+     * methods of Rail.</p>
      * 
      * This method should be used sparingly, since it may make client code dependent on the layout
      * algorithm used to map rank-dimensional array indicies to 1-dimensional indicies in the backing Rail.
@@ -103,23 +114,36 @@ public abstract class Array[T] (
      * TODO: Consider adding methods for map, scan, reduce operations
      */    
 
-    /*
-     * TODO: Figure out some acceptable mechansim for efficient 
-     *       'destructuring' and use it to define for loop comprehensions 
-     *       over the index space of the array
+    /**
+     * Get an IterationSpace that represents all Points contained in
+     * iteration space (valid indices) of the Array.
+     * @return an IterationSpace for the Array
      */
+    // TODO: rank constraint commented out until XTENLANG-3210 is fixed
+    public abstract def indices():IterationSpace/*{self.rank==this.rank()}*/;
 
-
-    /*
-     * TODO: Consider adding array-views factory methods (makeView(...)) 
-     * to enable the same backing Rail to be viewed with multiple index spaces.
+    /**
+     * Return the element of this array corresponding to the given point.
+     * The rank of the given point has to be the same as the rank of this array.
+     * 
+     * @param p the given point
+     * @return the element of this array corresponding to the given point.
+     * @see #set(T, Point)
      */
+    public abstract operator this(p:Point(this.rank())):T;
 
-
-    /*
-     * TODO: Any additional used abstract methods to allow rank-generic client
-     *       code to be written that will still be reasonably efficient?
+    /**
+     * Set the element of this array corresponding to the given point to the given value.
+     * Return the new value of the element.
+     * The rank of the given point has to be the same as the rank of this array.
+     * 
+     * @param v the given value
+     * @param p the given point
+     * @return the new value of the element of this array corresponding to the given point.
+     * @see #operator(Point)
      */
+    // TODO: commented out until XTENLANG-3209 is fixed
+    // public abstract operator this(p:Point(this.rank()))=(v:T):T{self==v};
 
 
     /**

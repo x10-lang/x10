@@ -28,7 +28,9 @@ public final class Array_2[T] (
          */
         numElems_2:Long
 ) extends Array[T] {
-    
+
+    public property rank() = 2;
+
     /**
      * Construct a 2-dimensional array with indices [0..m-1][0..n-1] whose elements are zero-initialized.
      */
@@ -62,6 +64,21 @@ public final class Array_2[T] (
         }
     }
 
+    // Intentionally private: only for use of makeView factory method.
+    private def this(r:Rail[T]{self!=null}, m:Long, n:Long) {
+        super(r);
+        property(m,n);
+    }
+
+    /**
+     * Construct an Array_2 view over an existing Rail
+     */
+    public static def makeView[T](r:Rail[T]{self!=null}, m:Long, n:Long):Array_2[T] {
+        val size = m * n;
+        if (size != r.size) throw new IllegalOperationException("size mismatch: "+m+" * "+n+" != "+r.size);
+        return new Array_2[T](r, m, n);
+    }
+
 
     /**
      * Return the string representation of this array.
@@ -72,7 +89,10 @@ public final class Array_2[T] (
         return "Array: TODO implement pretty print for rank = 2";
     }
 
-    
+    public def indices():IterationSpace{self.rank==this.rank()} {
+        return new DenseIterationSpace_2(0L, 0L, numElems_1-1, numElems_2-1);
+    }
+
     /**
      * Return the element of this array corresponding to the given pair of indices.
      * 
@@ -89,6 +109,7 @@ public final class Array_2[T] (
         return Unsafe.uncheckedRailApply(raw, offset(i, j));
     }
 
+    public @Inline operator this(p:Point(this.rank())):T  = this(p(0), p(1));
     
     /**
      * Set the element of this array corresponding to the given pair of indices to the given value.
@@ -108,6 +129,8 @@ public final class Array_2[T] (
         Unsafe.uncheckedRailSet(raw, offset(i, j), v);
         return v;
     }
+
+    public @Inline operator this(p:Point(this.rank()))=(v:T):T{self==v} = this(p(0), p(1)) = v;
     
     private @Inline def offset(i:long, j:long) {
          return j + (i * numElems_2);

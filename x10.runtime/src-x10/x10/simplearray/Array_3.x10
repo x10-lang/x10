@@ -34,6 +34,8 @@ public final class Array_3[T] (
         numElems_3:Long
 ) extends Array[T] {
     
+    public property rank() = 3;
+
     /**
      * Construct a 3-dimensional array with indices [0..m-1][0..n-1][0..p-1] 
      * whose elements are zero-initialized.
@@ -71,6 +73,21 @@ public final class Array_3[T] (
         }
     }
 
+    // Intentionally private: only for use of makeView factory method.
+    private def this(r:Rail[T]{self!=null}, m:Long, n:Long, p:Long) {
+        super(r);
+        property(m,n,p);
+    }
+
+    /**
+     * Construct an Array_3 view over an existing Rail
+     */
+    public static def makeView[T](r:Rail[T]{self!=null}, m:Long, n:Long, p:Long):Array_3[T] {
+        val size = n * m *p;
+        if (size != r.size) throw new IllegalOperationException("size mismatch: "+m+" * "+n+" * "+p+" != "+r.size);
+        return new Array_3[T](r, m, n, p);
+    }
+
 
     /**
      * Return the string representation of this array.
@@ -81,6 +98,9 @@ public final class Array_3[T] (
         return "Array: TODO implement pretty print for rank = 3";
     }
 
+    public def indices():IterationSpace{self.rank==this.rank()} {
+        return new DenseIterationSpace_3(0L, 0L, 0L, numElems_1-1, numElems_2-1, numElems_3-1);
+    }
     
     /**
      * Return the element of this array corresponding to the given triple of indices.
@@ -100,6 +120,7 @@ public final class Array_3[T] (
         return Unsafe.uncheckedRailApply(raw, offset(i, j, k));
     }
 
+    public @Inline operator this(p:Point(this.rank())):T  = this(p(0), p(1), p(2));
     
     /**
      * Set the element of this array corresponding to the given triple of indices to the given value.
@@ -121,6 +142,9 @@ public final class Array_3[T] (
         Unsafe.uncheckedRailSet(raw, offset(i, j, k), v);
         return v;
     }
+
+    public @Inline operator this(p:Point(this.rank()))=(v:T):T{self==v} = this(p(0), p(1), p(2)) = v;
+
     
     private @Inline def offset(i:long, j:long, k:long) {
         return k + numElems_3 * (j + (i * numElems_2));

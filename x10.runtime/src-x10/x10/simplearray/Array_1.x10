@@ -18,6 +18,8 @@ import x10.compiler.Inline;
  */
 public final class Array_1[T] extends Array[T] {
     
+    public property rank() = 1;
+
     /**
      * Construct a 1-dimensional array with indices 0..n-1 whose elements are zero-initialized.
      */
@@ -46,6 +48,18 @@ public final class Array_1[T] extends Array[T] {
         }
     }
 
+    // Intentionally private: only for use of makeView factory method.
+    private def this(r:Rail[T]{self!=null}) {
+        super(r);
+    }
+
+    /**
+     * Construct an Array_1 view over an existing Rail
+     */
+    public static def makeView[T](r:Rail[T]{self!=null}):Array_1[T] {
+        return new Array_1[T](r);
+    }
+
 
     /**
      * Return the string representation of this array.
@@ -54,7 +68,15 @@ public final class Array_1[T] extends Array[T] {
      */
     public def toString():String = raw.toString();
 
-    
+
+    /**
+     * @return an IterationSpace containing all valid Points for indexing this Array.
+     */  
+    public def indices():IterationSpace(this.rank()) {
+        return new DenseIterationSpace_1(0L, size-1L);
+    }
+
+
     /**
      * Return the element of this array corresponding to the given index.
      * 
@@ -66,6 +88,15 @@ public final class Array_1[T] extends Array[T] {
         // Bounds checking by backing Rail is sufficient
         return raw(i);
     }
+
+    /**
+     * Return the element of this array corresponding to the given Point.
+     * 
+     * @param p the given Point
+     * @return the element of this array corresponding to the given Point.
+     * @see #set(T, Point)
+     */
+    public @Inline operator this(p:Point(this.rank())):T  = this(p(0));
 
     
     /**
@@ -82,6 +113,17 @@ public final class Array_1[T] extends Array[T] {
         raw(i) = v;
         return v;
     }
+
+    /**
+     * Set the element of this array corresponding to the given Point to the given value.
+     * Return the new value of the element.
+     * 
+     * @param v the given value
+     * @param p the given Point
+     * @return the new value of the element of this array corresponding to the given Point.
+     * @see #operator(Int)
+     */
+    public @Inline operator this(p:Point(this.rank()))=(v:T):T{self==v} = this(p(0)) = v;
 }
 
 // vim:tabstop=4:shiftwidth=4:expandtab
