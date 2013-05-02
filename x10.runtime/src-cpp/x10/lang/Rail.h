@@ -95,18 +95,24 @@ namespace x10 {
             static typename x10::lang::Fun_0_1<x10_long, T>::template itable<x10::lang::Rail<T> > _itable_1;
     
             static x10::lang::Rail<T>* _make(x10::util::IndexedMemoryChunk<T > backingStore);
+            void _constructor(x10::util::IndexedMemoryChunk<T > backingStore);
     
             static x10::lang::Rail<T>* _make();
+            void _constructor();
     
             static x10::lang::Rail<T>* _makeUnsafe(x10_long size, x10_boolean allocatedZeroed);
     
             static x10::lang::Rail<T>* _make(x10::lang::Rail<T>* src);
+            void _constructor(x10::lang::Rail<T>* src);
     
             static x10::lang::Rail<T>* _make(x10_long size);
+            void _constructor(x10_long size);
     
             static x10::lang::Rail<T>* _make(x10_long size, T init);
+            void _constructor(x10_long size, T init);
 
             static x10::lang::Rail<T>* _make(x10_long size, x10::lang::Fun_0_1<x10_long, T>* init);
+            void _constructor(x10_long size, x10::lang::Fun_0_1<x10_long, T>* init);
 
             x10::lang::LongRange range();
 
@@ -244,11 +250,16 @@ template<class T> x10::lang::Rail<T>* x10::lang::Rail<T>::_make(x10::util::Index
     rail_copyRaw(backingStore->raw(), &this_->raw, sizeof(T)*backingStore->length(), false);
     return this_;
 }
+template<class T> void x10::lang::Rail<T>::_constructor(x10::util::IndexedMemoryChunk<T > backingStore) {
+    rail_copyRaw(backingStore->raw(), &this->raw, sizeof(T)*backingStore->length(), false);
+}
 
 
 template<class T> x10::lang::Rail<T>* x10::lang::Rail<T>::_make() {
     x10::lang::Rail<T>* this_ = new (x10aux::alloc_internal(sizeof(x10::lang::Rail<T>), false)) x10::lang::Rail<T>(0);
     return this_;
+}
+template<class T> void x10::lang::Rail<T>::_constructor() {
 }
 
 
@@ -274,6 +285,10 @@ template<class T> x10::lang::Rail<T>* x10::lang::Rail<T>::_make(x10::lang::Rail<
     rail_copyRaw(&src->raw, &this_->raw, numElems*sizeof(T), false);
     return this_;
 }
+template<class T> void x10::lang::Rail<T>::_constructor(x10::lang::Rail<T>* src) {
+    x10_long numElems = x10aux::nullCheck(src)->FMGL(size);
+    rail_copyRaw(&src->raw, &this->raw, numElems*sizeof(T), false);
+}
 
 
 template<class T> x10::lang::Rail<T>* x10::lang::Rail<T>::_make(x10_long size) {
@@ -284,6 +299,9 @@ template<class T> x10::lang::Rail<T>* x10::lang::Rail<T>::_make(x10_long size) {
 
     memset(&(this_->raw), 0, size*sizeof(T));
     return this_;
+}
+template<class T> void x10::lang::Rail<T>::_constructor(x10_long size) {
+    memset(&(this->raw), 0, size*sizeof(T));
 }
 
 
@@ -297,6 +315,11 @@ template<class T> x10::lang::Rail<T>* x10::lang::Rail<T>::_make(x10_long size, T
         this_->raw[i] = init;
     }
     return this_;
+}
+template<class T> void x10::lang::Rail<T>::_constructor(x10_long size, T init) {
+    for (x10_long i = 0ll; i < size; i++) {
+        raw[i] = init;
+    }
 }
 
 template<class T> x10::lang::Rail<T>* x10::lang::Rail<T>::_make(x10_long size, x10::lang::Fun_0_1<x10_long, T>* init) {
@@ -314,6 +337,16 @@ template<class T> x10::lang::Rail<T>* x10::lang::Rail<T>::_make(x10_long size, x
         }
     }
     return this_;
+}
+template<class T> void x10::lang::Rail<T>::_constructor(x10_long size, x10::lang::Fun_0_1<x10_long, T>* init) {
+    if (size > 0) {
+        x10aux::nullCheck(init);
+        x10::lang::Reference* recv = reinterpret_cast<x10::lang::Reference*>(init);
+        T (x10::lang::Reference::*fun)(x10_long) = x10aux::findITable<Fun_0_1<x10_long, T> >(recv->_getITables())->__apply;
+        for (x10_long i = 0ll; i < size; i++) {
+            raw[i] = (recv->*(fun))(i);
+        }
+    }
 }
 
 

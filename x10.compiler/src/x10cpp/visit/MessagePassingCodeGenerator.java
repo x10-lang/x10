@@ -202,6 +202,7 @@ import x10.ast.X10MethodDecl;
 import x10.ast.X10MethodDecl_c;
 import x10.ast.X10Special_c;
 import x10.ast.X10Unary_c;
+import x10.errors.Errors;
 import x10.errors.Warnings;
 import x10.extension.X10Ext;
 import x10.extension.X10Ext_c;
@@ -209,6 +210,7 @@ import x10.types.ClosureDef;
 import x10.types.ClosureInstance;
 import x10.types.ParameterType;
 
+import x10.types.ConstrainedType;
 import x10.types.FunctionType;
 import x10.types.ThisDef;
 import x10.types.X10ClassDef;
@@ -2111,18 +2113,53 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 	    TypeSystem xts = (TypeSystem)context.typeSystem();
 
 	    boolean stackAllocate = false;
+	    String tmpName = null;
+	    long sizeProperty = -1;
 	    Type annotation = xts.StackAllocate();
 	    if (!((X10Ext) dec.ext()).annotationMatching(annotation).isEmpty()) {
-	        stackAllocate = true;
-	        //                System.err.println("@StackAllocate " + dec);
+	        if (dec.type().type().isRail()) {
+	            Type rt = dec.type().type();
+	            if (rt instanceof ConstrainedType) {
+	                HashMap<String,String> knownProperties = Emitter.exploreConstraints(context, (ConstrainedType)rt);
+	                String sizeString = knownProperties.get("size");
+	                if (sizeString != null) {
+	                    if (sizeString.endsWith("L") || sizeString.endsWith("l")) {
+	                        sizeString = sizeString.substring(0, sizeString.length()-1);
+	                    }
+	                    try {
+	                        sizeProperty = Long.parseLong(sizeString);
+	                    } catch (NumberFormatException e) {
+	                        // Ignore... will print warning message that we couldn't do it.
+	                    }
+	                    if (sizeProperty >= 0) {
+	                        stackAllocate = true;
+	                    }
+	                }
+	            }
+	            if (!stackAllocate) {
+	                tr.job().compiler().errorQueue().enqueue(ErrorInfo.WARNING,
+	                                                         "Rail size not known at compile time; unable to StackAllocate.", dec.position());
+
+	            }
+	        } else {
+	            stackAllocate = true;
+	        }
 	    }
 
-	    String tmpName = null;
 	    if (stackAllocate) {
-	        tmpName = "_StackAllocate_"+mangled_non_method_name(dec.name().id().toString());
-	        sw.writeln(Emitter.translateType(dec.type().type(), false)+" "+tmpName+";");
-	        assert context.getStackAllocName() == null;
-	        context.setStackAllocName(tmpName);
+	        if (dec.type().type().isRail()) {
+	            tmpName = mangled_non_method_name(dec.name().id().toString());
+	            Type elemType = dec.type().type().toClass().typeArguments().get(0);
+	            String elemSize = "sizeof("+Emitter.translateType(elemType)+")";
+	            sw.writeln("union {x10_byte bytes[sizeof("+Emitter.translateType(dec.type().type(), false)+") - "+elemSize +" + ("+sizeProperty+ " * "+elemSize+")]; double alignhack[1]; } "+tmpName+"_mem;");            
+	            emitter.printHeader(dec, sw, tr, true);
+	            sw.write(" = new (&"+tmpName+"_mem) "+Emitter.translateType(dec.type().type(), false)+"("+sizeProperty+");");
+	        } else {
+	            tmpName = "_StackAllocate_"+mangled_non_method_name(dec.name().id().toString());
+	            sw.writeln(Emitter.translateType(dec.type().type(), false)+" "+tmpName+";");
+	        }
+            assert context.getStackAllocName() == null;
+            context.setStackAllocName(tmpName);
 	    } else {
             emitter.printHeader(dec, sw, tr, true);
         }
@@ -2137,9 +2174,11 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 	    
 	    if (stackAllocate) {
 	        context.setStackAllocName(null);
-	        sw.writeln(";");
-	        emitter.printHeader(dec, sw, tr, true);
-	        sw.write("(&"+tmpName+")");
+	        if (sizeProperty == -1) {
+	            sw.writeln(";");
+	            emitter.printHeader(dec, sw, tr, true);
+	            sw.write("(&"+tmpName+")");
+	        }
 	    }
 
 	    if (tr.appendSemicolon()) {
@@ -2818,12 +2857,10 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
         Type annotation = xts.StackAllocate();
         if (!((X10Ext) n.ext()).annotationMatching(annotation).isEmpty()) {
             stackAllocate = true;
-            //		        System.err.println("@StackAllocate " + n);
         }
         Type annotation2 = xts.Embed();
         if (!((X10Ext) n.ext()).annotationMatching(annotation2).isEmpty()) {
             embed = true;
-            //              System.err.println("@StackAllocate " + n);
         }
 		
 		if (n.qualifier() != null)
@@ -2832,7 +2869,11 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 			throw new InternalCompilerError("Anonymous innner classes should have been removed.");
 
 		if (stackAllocate) {
-		    sw.write(context.getStackAllocName()+"."+CONSTRUCTOR+"(");
+		    if (n.objectType().type().isRail()) {
+                sw.write(context.getStackAllocName()+"->"+CONSTRUCTOR+"(");
+		    } else {
+		        sw.write(context.getStackAllocName()+"."+CONSTRUCTOR+"(");
+		    }
 		} else if (embed) {
 		    sw.write("&"+context.getEmbeddedFieldName()+";");
 		    sw.newline();

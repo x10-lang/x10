@@ -265,7 +265,7 @@ public class Emitter {
 	    return full;
 	}
 
-	private static HashMap<String,String> exploreConstraints(Context context, ConstrainedType type) {
+	static HashMap<String,String> exploreConstraints(Context context, ConstrainedType type) {
 		HashMap<String,String> r = new HashMap<String,String>();
 		CConstraint cc = type.getRealXClause();
 		 // FIXME: [DC] context.constraintProjection ought not to eliminate information but it seems to?
