@@ -409,7 +409,7 @@ public abstract class Region(
     public def minPoint():Point(this.rank) = Point.make(rank, min());
 
     /**
-     * Returns the smallest point in the bounding box of the region
+     * Returns the largest point in the bounding box of the region
      */
     public def maxPoint():Point(this.rank) = Point.make(rank, max());
 
