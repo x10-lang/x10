@@ -110,9 +110,28 @@ public abstract class Array[T] (
     }
 
 
-    /*
-     * TODO: Consider adding methods for map, scan, reduce operations
-     */    
+    /**
+     * Reduce this array using the given function and the given initial value.
+     * Each element of the array will be given as an argument to the reduction
+     * function exactly once, but in an arbitrary order.  The reduction function
+     * may be applied concurrently to implement a parallel reduction. 
+     * 
+     * @param op the reduction function
+     * @param unit the given initial value
+     * @return the final result of the reduction.
+     */
+    public final @Inline def reduce[U](op:(U,T)=>U, unit:U):U {
+        // TODO: Once collecting finish is generalized to take
+        //       a (U,T)=>U instead of (T,T)=>T function then
+        //       rewrite this as a blocked parallel loop with 
+        //       collecting finish to accumulate the final results
+        var accum:U = unit;
+        for (i in 0..(raw.size-1)) {
+            accum = op(accum, raw(i));
+        }          
+        return accum;
+    }
+    
 
     /**
      * Get an IterationSpace that represents all Points contained in
@@ -121,6 +140,7 @@ public abstract class Array[T] (
      */
     // TODO: rank constraint commented out until XTENLANG-3210 is fixed
     public abstract def indices():IterationSpace/*{self.rank==this.rank()}*/;
+
 
     /**
      * Return the element of this array corresponding to the given point.
@@ -131,6 +151,7 @@ public abstract class Array[T] (
      * @see #set(T, Point)
      */
     public abstract operator this(p:Point(this.rank())):T;
+
 
     /**
      * Set the element of this array corresponding to the given point to the given value.
