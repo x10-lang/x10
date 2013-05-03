@@ -59,7 +59,7 @@ public class KMeansSPMD {
             return;
         }
         if (opts("-h")) {
-            Console.OUT.println(opts.usage());
+            Console.OUT.println(opts.usage(""));
             return;
         }
 
