@@ -16,10 +16,10 @@ package x10.simplearray;
  * ie. a lexograpically ordered finite collection of 
  * equal rank Points.
  */
-public abstract class IterationSpace(rank:int) implements Iterable[Point(this.rank)] {
+public abstract class IterationSpace(rank:int,rect:boolean) implements Iterable[Point(this.rank)] {
 
-    protected def this(r:int) {
-        property(r);
+    protected def this(rank:int, rect:boolean) {
+        property(rank, rect);
     }
 
     public abstract def iterator():Iterator[Point(this.rank)]; 

@@ -1052,6 +1052,11 @@ public interface TypeSystem {
     X10ClassType Rail();
 
     /**
+     * Return the ClassType object for the x10.simplearray.Array class.
+     */
+    X10ClassType SimpleArray();
+
+    /**
      * Return the ClassType object for the x10.array.DistArray class.
      */
     X10ClassType DistArray();
@@ -1064,6 +1069,8 @@ public interface TypeSystem {
     boolean isArray(Type t);
 
     boolean isRail(Type t);
+    
+    boolean isSimpleArray(Type t);
 
     public boolean isArrayOf(Type t, Type p);
 
@@ -1211,6 +1218,8 @@ public interface TypeSystem {
     boolean isParameterType(Type toType);
 
     X10ClassType Region();
+    
+    X10ClassType IterationSpace();
 
     X10ClassType IntRange();
 
@@ -1238,6 +1247,8 @@ public interface TypeSystem {
     ClassType load(String name);
 
     boolean isRegion(Type me);
+    
+    boolean isIterationSpace(Type me);
 
     boolean isDistribution(Type me);
 

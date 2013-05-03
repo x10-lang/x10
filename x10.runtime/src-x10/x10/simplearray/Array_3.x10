@@ -98,8 +98,8 @@ public final class Array_3[T] (
         return "Array: TODO implement pretty print for rank = 3";
     }
 
-    public def indices():IterationSpace{self.rank==this.rank()} {
-        return new DenseIterationSpace_3(0L, 0L, 0L, numElems_1-1, numElems_2-1, numElems_3-1);
+    public def indices():IterationSpace{self.rank==3,self.rect,self!=null} {
+        return new DenseIterationSpace_3(0L, 0L, 0L, numElems_1-1, numElems_2-1, numElems_3-1) as IterationSpace{self.rank==3,self.rect,self!=null}; // FIXME: Constraint system workaround
     }
     
     /**

@@ -25,7 +25,7 @@ public final class DenseIterationSpace_3 extends IterationSpace(3) {
     public val max2:long;
 
     public def this(min0:long, min1:long, min2:long, max0:long, max1:long, max2:long) {
-        super(3);
+        super(3,true);
         this.min0 = min0;
         this.min1 = min1;
         this.min2 = min2;

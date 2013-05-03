@@ -80,6 +80,7 @@ public class ForLoopOptimizer extends ContextVisitor {
     private static final Name MAKE     = Name.make("make");
     private static final Name RANK     = Name.make("rank");
     private static final Name RANGE    = Name.make("range");
+    private static final Name INDICES  = Name.make("indices");
     private static final Name MIN      = Name.make("min");
     private static final Name MAX      = Name.make("max");
     private static final Name SIZE     = Name.make("size");
@@ -274,10 +275,10 @@ public class ForLoopOptimizer extends ContextVisitor {
             }
         }
         
-        // transform loops over rectangular regions of known rank 
-        if (xts.isRegion(domainType) && isRect && rank > 0) {
+        // transform loops over rectangular regions or iteration spaces of known rank 
+        if ((xts.isRegion(domainType) || xts.isIterationSpace(domainType)) && isRect && rank > 0) {
             assert xts.isPoint(formal.declType());
-            if (VERBOSE) System.out.println("  rectangular region, rank=" +rank+ " point=" +formal);
+            if (VERBOSE) System.out.println("  rectangular region/iteration space, rank=" +rank+ " point=" +formal);
             
             if (1 < rank) {
                 body = labelFreeBreaks(body, label);

@@ -2507,6 +2507,13 @@ public class TypeSystem_c implements TypeSystem
             regionType_ = load("x10.array.Region"); // java file
         return regionType_;
     }
+    
+    protected X10ClassType iterationSpaceType_;
+    public X10ClassType IterationSpace() {
+        if (iterationSpaceType_ == null)
+            iterationSpaceType_ = load("x10.simplearray.IterationSpace"); // java file
+        return iterationSpaceType_;
+    }
 
     protected X10ClassType pointType_;
     public X10ClassType Point() {
@@ -2584,6 +2591,14 @@ public class TypeSystem_c implements TypeSystem
             railType_ = load("x10.lang.Rail");
         return railType_;
     }
+    
+    protected X10ClassType simpleArrayType_ = null;
+    public X10ClassType SimpleArray() {
+        if (simpleArrayType_ == null)
+            simpleArrayType_ = load("x10.simplearray.Array");
+        return simpleArrayType_;
+    }
+
 
     protected X10ClassType remoteArrayType_ = null;
     public X10ClassType RemoteArray() {
@@ -4025,6 +4040,11 @@ public class TypeSystem_c implements TypeSystem
     public boolean isRail(Type t) {
         return finalSubtype(t, Rail());
     }
+    
+    public boolean isSimpleArray(Type t) {
+        return emptyContextSubtype(t, SimpleArray());
+    }
+
 
     public static Type getArrayComponentType(Type t) {
         List<Type> ta = ((X10ClassType)Types.baseType(t)).typeArguments();
@@ -4173,6 +4193,10 @@ public class TypeSystem_c implements TypeSystem
 
     public boolean isRegion(Type me) {
         return emptyContextSubtype(me,Region());
+    }
+    
+    public boolean isIterationSpace(Type me) {
+        return emptyContextSubtype(me,IterationSpace());
     }
 
     public boolean isDistribution(Type me) {

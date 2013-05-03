@@ -72,10 +72,9 @@ public final class Array_1[T] extends Array[T] {
     /**
      * @return an IterationSpace containing all valid Points for indexing this Array.
      */  
-    public def indices():IterationSpace(this.rank()) {
-        return new DenseIterationSpace_1(0L, size-1L);
+    public def indices():IterationSpace{self.rank==1,self.rect,self!=null} {
+        return new DenseIterationSpace_1(0L, size-1L) as IterationSpace{self.rank==1,self.rect,self!=null}; // FIXME: Constraint system weakness. This cast should not be needed.
     }
-
 
     /**
      * Return the element of this array corresponding to the given index.

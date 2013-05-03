@@ -23,7 +23,7 @@ public final class DenseIterationSpace_2 extends IterationSpace(2) {
     public val max1:long;
 
     public def this(min0:long, min1:long, max0:long, max1:long) {
-        super(2);
+        super(2, true);
         this.min0 = min0;
         this.min1 = min1;
         this.max0 = max0;
