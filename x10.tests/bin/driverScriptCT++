@@ -154,7 +154,7 @@ fi
 
 export CVS_RSH=ssh
 if [[ -z "X10_SVNROOT" ]]; then
-    export X10_SVNROOT="http://x10.svn.sf.net/svnroot/x10/trunk"
+    export X10_SVNROOT="http://svn.code.sf.net/p/x10/code/trunk"
 fi
 
 ##### cat feed - init

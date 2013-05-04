@@ -114,7 +114,7 @@ fi
 
 export CVS_RSH=ssh
 if [[ -z "X10_SVNROOT" ]]; then
-    export X10_SVNROOT="https://x10.svn.sf.net/svnroot/x10/trunk"
+    export X10_SVNROOT="http://svn.code.sf.net/p/x10/code/trunk"
 fi
 
 X10_COMMON=$X10_HOME/x10.common
