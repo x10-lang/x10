@@ -1,7 +1,7 @@
 #!/bin/bash
 
 export X10_HOME=/tmp/x10reg_cpp.opt
-export X10_SVNROOT="http://x10.svn.sf.net/svnroot/x10/trunk"
+export X10_SVNROOT="http://svn.code.sf.net/p/x10/code/trunk"
 export CAT_BACKEND_NAME=x10cpp-opt
 export X10CPP_EXTRA_OPTS="-O"
 export X10_OPTIMIZED=true

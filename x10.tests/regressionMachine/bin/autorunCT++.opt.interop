@@ -1,7 +1,7 @@
 #!/bin/bash
 
 export X10_HOME=/tmp/x10reg_cpp.opt.interop
-export X10_SVNROOT="http://x10.svn.sf.net/svnroot/x10/branches/java-interop-exceptions"
+export X10_SVNROOT="http://svn.code.sf.net/p/x10/code/branches/java-interop-exceptions"
 export CAT_BACKEND_NAME=x10cpp-opt-interop
 
 export X10C_EXTRA_OPTS="-O"
