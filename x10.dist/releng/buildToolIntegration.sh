@@ -83,7 +83,7 @@ if [ ! -z "$CLEAN" ]; then
             for proj in $projectsToDo
             do
 		# N.B.: SVN 1.4 export doesn't report errors for non-existent projects/tags
-		svn export --force http://x10.svn.sourceforge.net/svnroot/x10/branches/x10-tools-integration/$proj
+		svn export --force http://svn.code.sourceforge.net/p/x10/code/branches/x10-tools-integration/$proj
 		if [ $? != 0 ]; then
                     failedProjects="$failedProjects $proj"
 		fi
