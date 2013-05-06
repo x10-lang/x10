@@ -953,7 +953,7 @@ void x10rt_lgl_finalize (void)
         }
     }
     if (g.error_code == X10RT_ERR_OK) {
-        blocking_barrier();
+        //blocking_barrier();
     }
     x10rt_emu_coll_finalize();
     // a failure during init can mean these arrays are NULL
