@@ -4041,10 +4041,16 @@ public class TypeSystem_c implements TypeSystem
         return finalSubtype(t, Rail());
     }
     
-    public boolean isSimpleArray(Type t) {
-        return emptyContextSubtype(t, SimpleArray());
+    public boolean isSimpleArray(Type me) {
+        if (finalSubtype(me, SimpleArray())) {
+            return true;
+        } else if (me.isClass()) {
+            Type parent = me.toClass().superClass();
+            return parent != null && isSimpleArray(parent);
+        } else {
+            return false;
+        }
     }
-
 
     public static Type getArrayComponentType(Type t) {
         List<Type> ta = ((X10ClassType)Types.baseType(t)).typeArguments();

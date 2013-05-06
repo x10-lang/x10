@@ -73,7 +73,7 @@ public final class Array_2[T] (
     /**
      * Construct an Array_2 view over an existing Rail
      */
-    public static def makeView[T](r:Rail[T]{self!=null}, m:Long, n:Long):Array_2[T] {
+    public static def makeView[T](r:Rail[T]{self!=null}, m:Long, n:Long) {
         val size = m * n;
         if (size != r.size) throw new IllegalOperationException("size mismatch: "+m+" * "+n+" != "+r.size);
         return new Array_2[T](r, m, n);

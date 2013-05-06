@@ -56,7 +56,7 @@ public final class Array_1[T] extends Array[T] {
     /**
      * Construct an Array_1 view over an existing Rail
      */
-    public static def makeView[T](r:Rail[T]{self!=null}):Array_1[T] {
+    public static def makeView[T](r:Rail[T]{self!=null}) {
         return new Array_1[T](r);
     }
 

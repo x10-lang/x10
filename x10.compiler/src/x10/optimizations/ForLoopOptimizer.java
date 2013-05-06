@@ -286,11 +286,8 @@ public class ForLoopOptimizer extends ContextVisitor {
             
             List<Stmt> stmts      = new ArrayList<Stmt>();
             Name       prefix     = named ? formal.name().id() : Name.make("p");
-            
-            // cache the value of domain in a local temporary variable
-            LocalDecl  domLDecl   = syn.createLocalDecl(domain.position(), Flags.FINAL, Name.makeFresh(prefix), domain);
-            stmts.add(domLDecl);
-            
+            Operator compareOp = Binary.LE;
+                        
             // Prepare to redeclare the formal iterate as local Point variable (if the formal is not anonymous)
             Type       indexType  = null; // type of the formal var initializer (if any)
             LocalDecl  indexLDecl = null; // redeclaration of the formal var (if it has a name)
@@ -304,6 +301,19 @@ public class ForLoopOptimizer extends ContextVisitor {
                 stmts.add(indexLDecl);
             }
             
+            boolean simpleArrayOpt = false;
+            LocalDecl  domLDecl = null;
+            if (domain instanceof Call && ((Call)domain).name().id().equals(INDICES) && xts.isSimpleArray(((Call)domain).target().type())) {
+                // SPECIAL CASE: if The IterationSpace is being created in the for loop header by calling Array.indices(), avoid creating it entirely.
+                domLDecl = syn.createLocalDecl(domain.position(), Flags.FINAL, Name.makeFresh(prefix), (Expr)((Call)domain).target());
+                simpleArrayOpt = true;
+                compareOp = Binary.LT;
+            } else {
+                // cache the value of domain in a local temporary variable
+                domLDecl   = syn.createLocalDecl(domain.position(), Flags.FINAL, Name.makeFresh(prefix), domain);
+            }
+            stmts.add(domLDecl);
+            
             LocalDecl varLDecls[] = new LocalDecl[rank];
             // syn.create the loop nest (from the inside out)
             for (int r=rank-1; 0<=r; r--) {
@@ -315,8 +325,19 @@ public class ForLoopOptimizer extends ContextVisitor {
                 Name maxName  = Name.makeFresh(varName+ "max");
                 
                 // create an AST node for the calls to domain.min() and domain.max()
-                Expr minVal   = syn.createInstanceCall(pos, syn.createLocal(domain.position(), domLDecl), MIN, context, syn.createIntLit(r));
-                Expr maxVal   = syn.createInstanceCall(pos, syn.createLocal(domain.position(), domLDecl), MAX, context, syn.createIntLit(r));
+                Expr minVal;
+                Expr maxVal;
+                if (simpleArrayOpt) {
+                    minVal = syn.createLongLit(0);
+                    if (rank == 1) {
+                        maxVal = syn.createFieldRef(domain.position(), syn.createLocal(domain.position(), domLDecl), SIZE);
+                    } else {
+                        maxVal = syn.createFieldRef(domain.position(), syn.createLocal(domain.position(), domLDecl), Name.make("numElems_"+(r+1)));                       
+                    }
+                } else {
+                    minVal = syn.createInstanceCall(pos, syn.createLocal(domain.position(), domLDecl), MIN, context, syn.createIntLit(r));
+                    maxVal = syn.createInstanceCall(pos, syn.createLocal(domain.position(), domLDecl), MAX, context, syn.createIntLit(r));
+                }
                 
                 // create an AST node for the declaration of the temporary locations for the r-th var, min, and max
                 LocalDecl minLDecl = syn.createLocalDecl(pos, Flags.FINAL, minName, minVal);
@@ -330,16 +351,10 @@ public class ForLoopOptimizer extends ContextVisitor {
                 stmts.add(maxLDecl);
                 
                 // create expressions for the second and third positions in the r-th for clause
-                Expr cond = syn.createBinary( domain.position(),
-                                              syn.createLocal(pos, varLDecl),
-                                              Binary.LE,
-                                              syn.createLocal(pos, maxLDecl),
-                                              this );
-                Expr update = syn.createAssign( domain.position(),
-                                                syn.createLocal(pos, varLDecl),
-                                                Assign.ADD_ASSIGN,
-                                                syn.createLongLit(1),
-                                                this );
+                Expr cond = syn.createBinary(domain.position(), syn.createLocal(pos, varLDecl),
+                                             compareOp, syn.createLocal(pos, maxLDecl), this);
+                Expr update = syn.createAssign(domain.position(), syn.createLocal(pos, varLDecl),
+                                               Assign.ADD_ASSIGN, syn.createLongLit(1), this);
                 
                 List<Stmt> bodyStmts = new ArrayList<Stmt>(); 
                 

@@ -139,7 +139,7 @@ public abstract class Array[T] (
      * @return an IterationSpace for the Array
      */
     // TODO: rank constraint commented out until XTENLANG-3210 is fixed
-    public abstract def indices():IterationSpace/*{self.rank==this.rank()}*/;
+    public abstract def indices():IterationSpace/*{self.rank==this.rank(),self.rect,self!=null}*/;
 
 
     /**
