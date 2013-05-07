@@ -40,7 +40,7 @@ class PolyMatBuilder(rank: int) extends MatBuilder {
 
     public def toSortedPolyMat(isSimplified:boolean): PolyMat(rank) {
         mat.sort((x:Row,y:Row)=>PolyRow.compare(x,y));
-        val result = new PolyMat(mat.size(), rank+1, (i:Int,j:Int)=>mat(i)(j), isSimplified);
+        val result = new PolyMat(mat.size() as Int, rank+1, (i:Int,j:Int)=>mat(i)(j), isSimplified);
         return result as PolyMat(rank); // XXXX
     }
 

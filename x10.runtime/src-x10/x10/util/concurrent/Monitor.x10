@@ -58,7 +58,7 @@ import x10.util.Stack;
      * Must be called while holding the lock
      */
     public def release():void {
-        val size = workers.size();
+        val size = workers.size() as Int;
         if (size > 0) {
             Runtime.decreaseParallelism(size);
             for (var i:Int = 0; i<size; i++) workers.pop().unpark();

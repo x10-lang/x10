@@ -136,7 +136,7 @@ abstract public class x10Test {
         public def run() : Boolean {
        x10.io.Console.OUT.println("(Bard)I am about to test a " + this.typeName());
            this.test();
-           val noErr = errors.size() == 0;
+           val noErr = errors.size() == 0L;
            if (!noErr) {
               x10.io.Console.OUT.println("(Bard)FAIL - " + this.typeName() + "\n" + this.errorString());
            }

@@ -42,7 +42,7 @@ public interface Marshal[T] {
                     sb.add(ch);
                 };
             } catch (e:IOException) {
-                if (sb.length() == 0) {
+                if (sb.length() == 0L) {
                     throw e;
                 }
             }

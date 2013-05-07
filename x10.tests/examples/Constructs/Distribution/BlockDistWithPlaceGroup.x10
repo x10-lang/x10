@@ -87,7 +87,7 @@ public class BlockDistWithPlaceGroup extends x10Test {
                     places.add(p);
                 }
             }
-        } while (places.size() == 0);
+        } while (places.size() == 0L);
         return new SparsePlaceGroup(places.toRail());
     }
 

@@ -259,7 +259,7 @@ import x10.io.SerialData;
         }
     }
     
-    public def size() = size;
+    public def size():Long = size as Long;
     
     protected static class KeySet[Key,Value] extends AbstractCollection[Key] implements Set[Key] {
         val map: HashMap[Key,Value];
@@ -277,7 +277,7 @@ import x10.io.SerialData;
         public def add(k: Key): Boolean { throw new UnsupportedOperationException(); }
         public def remove(k: Key): Boolean { throw new UnsupportedOperationException(); }
         public def clone(): KeySet[Key,Value] { throw new UnsupportedOperationException(); }
-        public def size(): Int = map.size();
+        public def size(): Long = map.size();
     }
 
     protected static class EntrySet[Key,Value] 
@@ -296,7 +296,7 @@ import x10.io.SerialData;
         public def add(k: Map.Entry[Key,Value]): Boolean { throw new UnsupportedOperationException(); }
         public def remove(k: Map.Entry[Key,Value]): Boolean { throw new UnsupportedOperationException(); }
         public def clone(): EntrySet[Key,Value] { throw new UnsupportedOperationException(); }
-        public def size(): Int = map.size();
+        public def size(): Long = map.size();
     }
 
 

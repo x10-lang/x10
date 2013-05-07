@@ -496,14 +496,14 @@ public class OptionsParser {
         }
         keyIndex.add(tailStart); // a sentinel: may be a bit low, we'll reset later
         val howManyMissing = reqNotSeen.size();
-        if (helpOnly || howManyMissing == 0) {
+        if (helpOnly || howManyMissing == 0L) {
             this.args = expanded;
             return keyIndex.result();
         }
         else {
             val sb = new StringBuilder();
             sb.add("The following ");
-            if (howManyMissing == 1) sb.add("option is missing:\n\t");
+            if (howManyMissing == 1L) sb.add("option is missing:\n\t");
             else sb.add(howManyMissing+" options are missing\n\t");
             for(o in reqNotSeen) {
                 sb.add(o.usage());

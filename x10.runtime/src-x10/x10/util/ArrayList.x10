@@ -22,7 +22,7 @@ public class ArrayList[T] extends AbstractCollection[T] implements List[T] {
     }
     
     public def contains(v: T): Boolean {
-        for (var i: Int = 0; i < a.size(); i++) {
+        for (i in 0L..(a.size()-1)) {
             if (v == null ? a(i) == null : v.equals(a(i))) {
                 return true;
             }
@@ -46,7 +46,7 @@ public class ArrayList[T] extends AbstractCollection[T] implements List[T] {
     }
     
     public def remove(v: T): Boolean {
-        for (var i: Int = 0; i < a.size(); i++) {
+        for (i in 0L..(a.size()-1)) {
             if (v == null ? a(i) == null : v.equals(a(i))) {
                 removeAt(i);
                 return true;
@@ -55,37 +55,37 @@ public class ArrayList[T] extends AbstractCollection[T] implements List[T] {
         return false;
     }
     
-    public def addBefore(i: int, v: T): void {
+    public def addBefore(i: long, v: T): void {
         a.add(v);
-        for (var j:int = (a.size() as int)-1; j > i; j--) {
+        for (var j:long = a.size()-1; j > i; j--) {
             a(j) = a(j-1);
         }
         a(i) = v;
     }
 
-    public operator this(i: int)=(v: T) : T = set(v,i);
+    public operator this(i: long)=(v: T) : T = set(v,i);
     
-    public def set(v: T, i: int): T {
+    public def set(v: T, i: long): T {
         a(i) = v;
         return v;
     }
 
-    public def removeAt(i: int): T {
+    public def removeAt(i: long): T {
         val v = a(i);
-        for (var j: int = i+1; j < a.size(); j++) {
+        for (var j: long = i+1; j < a.size(); j++) {
             a(j-1) = a(j);
         }
         a.removeLast();
         return v;
     }
             
-    public operator this(i: int) = a(i);
+    public operator this(i: long) = a(i);
 
-    public def get(i: int): T = a(i);
+    public def get(i: long): T = a(i);
 
-    public def size(): int = (a.size() as int);
+    public def size(): long = a.size();
     
-    public def isEmpty(): Boolean = size() == 0;
+    public def isEmpty(): Boolean = size() == 0L;
 
     public def toRail() = a.toRail();
 
@@ -93,56 +93,56 @@ public class ArrayList[T] extends AbstractCollection[T] implements List[T] {
         a = new GrowableRail[T]();
     }
     
-    public def this(size: Int) {
+    public def this(size:long) {
         a = new GrowableRail[T](size);
     }
     
     public def removeFirst(): T = removeAt(0);
-    public def removeLast(): T = removeAt(a.size() as int -1);
+    public def removeLast(): T = removeAt(a.size() -1);
     public def getFirst(): T = get(0);
-    public def getLast(): T = get(a.size() as int -1);
+    public def getLast(): T = get(a.size() -1);
 
-    public def indices(): List[Int] {
-        val l = new ArrayList[Int]();
-        for (var i: Int = 0; i < a.size(); i++) {
+    public def indices(): List[long] {
+        val l = new ArrayList[long]();
+        for (i in 0..(a.size()-1)) {
             l.add(i);
         }
         return l;
     }
     
-    public def subList(begin: Int, end: Int): List[T] {
+    public def subList(begin: long, end: long): List[T] {
         val l = new ArrayList[T]();
-        for (var i: Int = begin; i < a.size() && i < end; i++) {
+        for (var i: long = begin; i < a.size() && i < end; i++) {
            l.add(a(i));
         }
         return l;
     }
     
-    public def indexOf(v: T): Int {
+    public def indexOf(v: T): long {
         return indexOf(0, v);
     }
     
-    public def indexOf(index: Int, v: T): Int {
-        for (var i: Int = index; i < a.size(); i++) {
+    public def indexOf(index: long, v: T): long {
+        for (var i: long = index; i < a.size(); i++) {
             if (v==null ? a(i)==null : v.equals(a(i)))
             	return i;
         }
         return -1;
     }
     
-    public def lastIndexOf(v: T): Int {
-        return lastIndexOf(a.size() as int -1, v);
+    public def lastIndexOf(v: T): long {
+        return lastIndexOf(a.size()-1, v);
     }
     
-    public def lastIndexOf(index: Int, v: T): Int {
-        for (var i: Int = index; i >= 0; i--) {
+    public def lastIndexOf(index: long, v: T): long {
+        for (var i: long = index; i >= 0; i--) {
             if (v==null ? a(i)==null : v.equals(a(i)))
             	return i;
         }
         return -1;
     }
 
-    public def moveSectionToRail(i:Int, j:Int) = a.moveSectionToRail(i,j);
+    public def moveSectionToRail(i:long, j:long) = a.moveSectionToRail(i,j);
 
     //
     // iterator
@@ -151,14 +151,14 @@ public class ArrayList[T] extends AbstractCollection[T] implements List[T] {
 // BIZARRE BUG: renaming S to T causes compiler to fail at isImplicitCastValid at end of X10MethodInstance_c.instantiate
     private static class It[S] implements ListIterator[S] {
         
-        private var i: int;
+        private var i: long;
         private val al: ArrayList[S];
         
         def this(al: ArrayList[S]) {
-            this(al, -1);
+            this(al, -1L);
         }
 
-        def this(al: ArrayList[S], i: int) {
+        def this(al: ArrayList[S], i: long) {
             this.al = al;
             this.i = i;
         }
@@ -167,7 +167,7 @@ public class ArrayList[T] extends AbstractCollection[T] implements List[T] {
             return i+1 < al.size();
         }
 
-        public def nextIndex(): Int {
+        public def nextIndex(): long {
             return ++i;
         }
         
@@ -179,7 +179,7 @@ public class ArrayList[T] extends AbstractCollection[T] implements List[T] {
             return i-1 >= 0;
         }
 
-        public def previousIndex(): Int {
+        public def previousIndex(): long {
             return --i;
         }
         
@@ -204,13 +204,13 @@ public class ArrayList[T] extends AbstractCollection[T] implements List[T] {
         return new It[T](this);
     }
     
-    public def iteratorFrom(i: Int): ListIterator[T] {
+    public def iteratorFrom(i: long): ListIterator[T] {
         return new It[T](this, i);
     }
     
     public def reverse(): void {
-        val length = a.size() as int;
-        for (var i: Int = 0; i < length/2; i++) {
+        val length = a.size();
+        for (var i: long = 0L; i < length/2; i++) {
             exch(a, i, length-1-i);
         }
     }
@@ -221,7 +221,7 @@ public class ArrayList[T] extends AbstractCollection[T] implements List[T] {
 
     // public def sort(lessThan: (T,T)=>Boolean) = qsort(a, 0, a.size()-1, (x:T,y:T) => lessThan(x,y) ? -1 : (lessThan(y,x) ? 1 : 0));
 
-    private def exch(a:GrowableRail[T], i: int, j: int): void {
+    private def exch(a:GrowableRail[T], i: long, j: long): void {
         val temp = a(i);
         a(i) = a(j);
         a(j) = temp;
@@ -236,9 +236,9 @@ public class ArrayList[T] extends AbstractCollection[T] implements List[T] {
      * @param key the value to find
      * @param cmp the comparison function to use
      */
-    public def binarySearch(key:T, cmp:(T,T)=>Int):Int = ArrayUtils.binarySearch[T](a.rail(), key, 0, a.size(), cmp) as Int;
-    public def binarySearch(key:T){T <: Comparable[T]}:Int { 
-        return ArrayUtils.binarySearch[T](a.rail(), key, 0, a.size(), (x:T, y:T) => (x as Comparable[T]).compareTo(y)) as Int;
+    public def binarySearch(key:T, cmp:(T,T)=>Int):long = ArrayUtils.binarySearch[T](a.rail(), key, 0, a.size(), cmp);
+    public def binarySearch(key:T){T <: Comparable[T]}:long { 
+        return ArrayUtils.binarySearch[T](a.rail(), key, 0, a.size(), (x:T, y:T) => (x as Comparable[T]).compareTo(y));
     }
 
     /**
@@ -249,8 +249,8 @@ public class ArrayList[T] extends AbstractCollection[T] implements List[T] {
     public def toString(): String {
         val sb = new x10.util.StringBuilder();
         sb.add("[");
-        val sz = Math.min(size(), 10);
-        for (var i:Int = 0; i < sz; ++i) {
+        val sz = Math.min(size(), 10L);
+        for (var i:long = 0; i < sz; ++i) {
             if (i > 0) sb.add(",");
             sb.add("" + this(i));
         }

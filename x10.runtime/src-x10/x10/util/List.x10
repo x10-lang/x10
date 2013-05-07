@@ -11,18 +11,18 @@
 
 package x10.util;
 
-public interface List[T] extends Collection[T], Indexed[T], Settable[Int,T] {
-  public def indices(): List[Int];
+public interface List[T] extends Collection[T], Indexed[T], Settable[Long,T] {
+  public def indices(): List[Long];
   
-  public def addBefore(i: Int, T): void;
-  public def removeAt(i: Int): T;
-  public def indexOf(T): Int;
-  public def lastIndexOf(T): Int;
-  public def indexOf(Int, T): Int;
-  public def lastIndexOf(Int, T): Int;
+  public def addBefore(i: Long, T): void;
+  public def removeAt(i: Long): T;
+  public def indexOf(T): Long;
+  public def lastIndexOf(T): Long;
+  public def indexOf(Long, T): Long;
+  public def lastIndexOf(Long, T): Long;
   public def iterator(): ListIterator[T];
-  public def iteratorFrom(i: Int): ListIterator[T];
-  public def subList(fromIndex: Int, toIndex: Int): List[T];
+  public def iteratorFrom(i: Long): ListIterator[T];
+  public def subList(fromIndex: Long, toIndex: Long): List[T];
   
   public def removeFirst(): T;
   public def removeLast(): T;
