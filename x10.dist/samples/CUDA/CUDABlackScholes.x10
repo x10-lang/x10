@@ -27,24 +27,24 @@ import x10.util.Random;
 public class CUDABlackScholes {
 
     static def doBlackScholes(p:Place, 
-            optionYears:RemoteArray[Float]{home==p,rank==1},
-            stockPrice:RemoteArray[Float]{home==p,rank==1},
-            optionStrike:RemoteArray[Float]{home==p,rank==1},
-            callResult:RemoteArray[Float]{home==p,rank==1},
-            putResult:RemoteArray[Float]{home==p,rank==1},
-            opt_N:Int,
+            optionYears:GlobalRef[Rail[Float]]{home==p},
+            stockPrice:GlobalRef[Rail[Float]]{home==p},
+            optionStrike:GlobalRef[Rail[Float]]{home==p},
+            callResult:GlobalRef[Rail[Float]]{home==p},
+            putResult:GlobalRef[Rail[Float]]{home==p},
+            opt_N:Long,
             R:Float,
             V:Float) {
         val blocks = p.isCUDA() ? 480 : 1;
         val threads = 128;
-        finish async at (p) @CUDA @CUDADirectParams {
+        finish async at (p) /*@CUDA @CUDADirectParams*/ {
             //val blocks = CUDAUtilities.autoBlocks(),
             //    threads = CUDAUtilities.autoThreads();
             finish for (block in 0..(blocks-1)) async {
                 clocked finish for (thread in 0..(threads-1)) clocked async {
                     val tid = block * threads + thread;
                     val tids = blocks * threads;
-                    for (var opt:Int=tid; opt < opt_N; opt+=tids) {
+                    for (var opt:Long=tid; opt < opt_N; opt+=tids) {
                         // Constants for Polynomial approximation of cumulative normal distribution
                         val A1 = 0.31938153f;
                         val A2 = -0.356563782f;
@@ -53,9 +53,9 @@ public class CUDABlackScholes {
                         val A5 = 1.330274429f;
                         val RSQRT2PI = 0.39894228040143267793994605993438f;
 
-                        val T = optionYears(opt);
-                        val S = stockPrice(opt);
-                        val X = optionStrike(opt);
+                        val T = optionYears()(opt);
+                        val S = stockPrice()(opt);
+                        val X = optionStrike()(opt);
                         val sqrtT = Math.sqrtf(T);
                         val d1 = (Math.logf(S/X) + (R + 0.5f * V * V) * T) / (V * sqrtT); 
                         val d2 = d1 - V * sqrtT;
@@ -72,8 +72,8 @@ public class CUDABlackScholes {
 
                         //Calculate Call and Put simultaneously
                         val expRT = Math.expf(- R * T); 
-                        callResult(opt) = S * CNDD1 - X * expRT * CNDD2;
-                        putResult(opt)  = X * expRT * (1.0f - CNDD2) - S * (1.0f - CNDD1); 
+                        callResult()(opt) = S * CNDD1 - X * expRT * CNDD2;
+                        putResult()(opt)  = X * expRT * (1.0f - CNDD2) - S * (1.0f - CNDD1); 
                     }
                 }
             }
@@ -83,11 +83,11 @@ public class CUDABlackScholes {
     public static def main (Rail[String]) {
 
         // Problem parameters
-        val OPT_N = 4000000;
-        val RISKFREE = 0.02f;
-        val VOLATILITY = 0.30f;
+        val OPT_N = 4000000l as Long;
+        val RISKFREE = 0.02f as Float;
+        val VOLATILITY = 0.30f as Float;
 
-        if (here.children().size==0) {
+        if (here.children().size==0l) {
             Console.OUT.println("Set X10RT_ACCELS=ALL to enable your GPUs if you have them.");
             Console.OUT.println("Will run the test on the CPU.");
         } else {
@@ -95,26 +95,26 @@ public class CUDABlackScholes {
             Console.OUT.println("This program only supports a single GPU.");
         }
 
-        val gpu = here.children().size==0 ? here : here.child(0);
+        val gpu = here.children().size==0l ? here : here.child(0);
         val NUM_ITERATIONS = gpu==here ? 32 : 512;
         val cpu = here;
         val rand = new Random();
 
         // Host arrays
-        val h_CallResultCPU = new Array[Float](OPT_N, (Int)=>0.0  as Float);
-        val h_PutResultCPU  = new Array[Float](OPT_N, (Int)=>-1.0 as Float);
-        val h_CallResultGPU = new Array[Float](OPT_N, (Int)=>0.0  as Float);
-        val h_PutResultGPU  = new Array[Float](OPT_N, (Int)=>0.0  as Float);
-        val h_StockPrice    = new Array[Float](OPT_N, (Int)=>rand.nextFloat() as Float);
-        val h_OptionStrike  = new Array[Float](OPT_N, (Int)=>rand.nextFloat() as Float);
-        val h_OptionYears   = new Array[Float](OPT_N, (Int)=>rand.nextFloat() as Float);
+        val h_CallResultCPU = new Rail[Float](OPT_N, (Long)=>0.0  as Float);
+        val h_PutResultCPU  = new Rail[Float](OPT_N, (Long)=>-1.0 as Float);
+        val h_CallResultGPU = new Rail[Float](OPT_N, (Long)=>0.0  as Float);
+        val h_PutResultGPU  = new Rail[Float](OPT_N, (Long)=>0.0  as Float);
+        val h_StockPrice    = new Rail[Float](OPT_N, (Long)=>rand.nextFloat() as Float);
+        val h_OptionStrike  = new Rail[Float](OPT_N, (Long)=>rand.nextFloat() as Float);
+        val h_OptionYears   = new Rail[Float](OPT_N, (Long)=>rand.nextFloat() as Float);
 
         // Device arrays
-        val d_CallResult    = CUDAUtilities.makeRemoteArray[Float](gpu, OPT_N, (Int)=>0.0 as Float);
-        val d_PutResult     = CUDAUtilities.makeRemoteArray[Float](gpu, OPT_N, (Int)=>0.0 as Float);
-        val d_StockPrice    = CUDAUtilities.makeRemoteArray[Float](gpu, OPT_N, h_StockPrice);
-        val d_OptionStrike  = CUDAUtilities.makeRemoteArray[Float](gpu, OPT_N, h_OptionStrike);
-        val d_OptionYears   = CUDAUtilities.makeRemoteArray[Float](gpu, OPT_N, h_OptionYears);
+        val d_CallResult    = CUDAUtilities.makeRemoteRail[Float](gpu, OPT_N, 0.0 as Float);
+        val d_PutResult     = CUDAUtilities.makeRemoteRail[Float](gpu, OPT_N, 0.0 as Float);
+        val d_StockPrice    = CUDAUtilities.makeRemoteRail[Float](gpu, OPT_N, h_StockPrice);
+        val d_OptionStrike  = CUDAUtilities.makeRemoteRail[Float](gpu, OPT_N, h_OptionStrike);
+        val d_OptionYears   = CUDAUtilities.makeRemoteRail[Float](gpu, OPT_N, h_OptionYears);
 
         Console.OUT.println("Running " + NUM_ITERATIONS + " times on place " + gpu);
         val gpuTimeStart = System.nanoTime();
@@ -138,23 +138,23 @@ public class CUDABlackScholes {
 
         // Read back GPU results
         finish {
-            Array.asyncCopy(d_CallResult, 0, h_CallResultGPU, 0, OPT_N);
-            Array.asyncCopy(d_PutResult, 0, h_PutResultGPU, 0, OPT_N);
+            Rail.asyncCopy(d_CallResult, 0l, h_CallResultGPU, 0l, OPT_N);
+            Rail.asyncCopy(d_PutResult, 0l, h_PutResultGPU, 0l, OPT_N);
         }
 
-        CUDAUtilities.deleteRemoteArray(d_CallResult);
-        CUDAUtilities.deleteRemoteArray(d_PutResult);
-        CUDAUtilities.deleteRemoteArray(d_StockPrice);
-        CUDAUtilities.deleteRemoteArray(d_OptionStrike);
-        CUDAUtilities.deleteRemoteArray(d_OptionYears);
+        CUDAUtilities.deleteRemoteRail(d_CallResult);
+        CUDAUtilities.deleteRemoteRail(d_PutResult);
+        CUDAUtilities.deleteRemoteRail(d_StockPrice);
+        CUDAUtilities.deleteRemoteRail(d_OptionStrike);
+        CUDAUtilities.deleteRemoteRail(d_OptionYears);
 
         Console.OUT.println("Generating a second set of results at place " + cpu);
         doBlackScholes(cpu, 
-                new RemoteArray[Float](h_OptionYears)   as RemoteArray[Float]{home==cpu && rank==1},
-                new RemoteArray[Float](h_StockPrice)    as RemoteArray[Float]{home==cpu && rank==1},
-                new RemoteArray[Float](h_OptionStrike)  as RemoteArray[Float]{home==cpu && rank==1},
-                new RemoteArray[Float](h_CallResultCPU) as RemoteArray[Float]{home==cpu && rank==1},
-                new RemoteArray[Float](h_PutResultCPU)  as RemoteArray[Float]{home==cpu && rank==1},
+                new GlobalRef[Rail[Float]](h_OptionYears)   as GlobalRef[Rail[Float]]{home==cpu},
+                new GlobalRef[Rail[Float]](h_StockPrice)    as GlobalRef[Rail[Float]]{home==cpu},
+                new GlobalRef[Rail[Float]](h_OptionStrike)  as GlobalRef[Rail[Float]]{home==cpu},
+                new GlobalRef[Rail[Float]](h_CallResultCPU) as GlobalRef[Rail[Float]]{home==cpu},
+                new GlobalRef[Rail[Float]](h_PutResultCPU)  as GlobalRef[Rail[Float]]{home==cpu},
                 OPT_N,
                 RISKFREE,
                 VOLATILITY);

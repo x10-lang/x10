@@ -25,7 +25,7 @@ public class CUDATopology {
                     if (p2.isHost()) Console.OUT.println("  Is a Host place");
                     if (p2.isSPE()) Console.OUT.println("  Is a SPE place");
                     val children = p2.children();
-                    for (c in children.values()) {
+                    for (c in children) {
                         Console.OUT.println("  Child "+c.childIndex()+": "+c);
                         Console.OUT.println("    Parent: "+c.parent());
                         Console.OUT.println("    NumChildren: "+c.numChildren());
