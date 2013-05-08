@@ -12,7 +12,7 @@
 include ../Make.rules
 
 CP              ?= cp -f
-WGET            ?= /bin/true
+WGET            ?= wget
 TAR             ?= tar
 GZIP            ?= gzip
 
