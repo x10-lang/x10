@@ -25,7 +25,7 @@ import x10.compiler.Pragma;
  * @see Place
  * @see x10.util.Team
  */
-public abstract class PlaceGroup implements Sequence[Place] {
+public abstract class PlaceGroup implements Iterable[Place] {
 
   /**
    * A PlaceGroup that represents exactly Place.places().
