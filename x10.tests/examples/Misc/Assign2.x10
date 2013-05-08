@@ -21,7 +21,7 @@ public class Assign2 extends x10Test {
 	public def run(): boolean = {
                 val a = new ArrayList[String]();
                 a(0) = "hi";
-                var i:Settable[int,String] = a;
+                var i:Settable[Long,String] = a;
                 i(1) = "bye";
 
                 return true;

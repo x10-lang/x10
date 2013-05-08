@@ -89,7 +89,7 @@ public class TestArrayUtils extends x10Test {
 
         // search for index before first, after last and in empty list
         val indexOfMin = aList.binarySearch(Double.MIN_VALUE);
-        chk(-(indexOfMin+1) == 0);
+        chk(-(indexOfMin+1) == 0L);
 
         val indexOfMax = aList.binarySearch(Double.MAX_VALUE);
         chk(-(indexOfMax+1) == aList.size());
