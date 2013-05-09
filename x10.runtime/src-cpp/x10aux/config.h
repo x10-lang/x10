@@ -82,7 +82,7 @@
 #define PLACE_CHECK_BOOL true
 #endif
 
-#ifdef __bg__
+#ifdef __bgp__
 #define DEFAULT_STATIC_THREADS true
 #else
 #define DEFAULT_STATIC_THREADS false
