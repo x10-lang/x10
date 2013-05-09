@@ -527,6 +527,8 @@
 			  <arg value="${bdwgc.dir}/src/configure" />
 			  <arg value="--host=powerpc64-bgq-linux" />
 			  <arg value="-enable-threads=posix" />
+                          <arg value="-enable-thread-local-alloc" />
+                          <arg value="-enable-parallel-mark" />
 			  <arg value="--disable-shared" />
 			  <arg value="--prefix=${bdwgc.platform.dir}/install" />
 			</exec>
