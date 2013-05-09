@@ -88,12 +88,10 @@ public final struct Place(id: Int)  {
         new Rail[Rail[Place]](ALL_PLACES,
             (p: Long) => new Rail[Place](numChildren(p as Int), (i:Long) => Place(child(p as Int,i as Int))));
 
-    private static places:Rail[Place] = new Rail[Place](MAX_PLACES, ((id:Long) => Place(id as Int)));
-
     /**
      * A convenience for iterating over all host places.
      */
-    public static def places() = places;
+    public static def places():PlaceGroup = PlaceGroup.WORLD;
 
     /**
      * The place that runs 'main'.
