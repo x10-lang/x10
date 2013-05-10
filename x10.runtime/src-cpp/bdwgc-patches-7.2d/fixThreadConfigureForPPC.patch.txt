@@ -1,0 +1,40 @@
+diff -c -r orig/configure src/configure
+*** orig/configure	2012-08-09 16:25:12.000000000 -0400
+--- src/configure	2013-05-10 12:53:34.378865597 -0400
+***************
+*** 4903,4909 ****
+  
+      case "$host" in
+       x86-*-linux* | ia64-*-linux* | i586-*-linux* | i686-*-linux* \
+!      | x86_64-*-linux* | alpha-*-linux* | sparc*-*-linux*)
+          $as_echo "#define GC_LINUX_THREADS 1" >>confdefs.h
+  
+          $as_echo "#define _REENTRANT 1" >>confdefs.h
+--- 4903,4909 ----
+  
+      case "$host" in
+       x86-*-linux* | ia64-*-linux* | i586-*-linux* | i686-*-linux* \
+!      | x86_64-*-linux* | alpha-*-linux* | powerpc*-*-linux* | sparc*-*-linux*)
+          $as_echo "#define GC_LINUX_THREADS 1" >>confdefs.h
+  
+          $as_echo "#define _REENTRANT 1" >>confdefs.h
+diff -c -r orig/configure.ac src/configure.ac
+*** orig/configure.ac	2012-08-09 16:25:13.000000000 -0400
+--- src/configure.ac	2013-05-10 12:53:02.826181255 -0400
+***************
+*** 123,129 ****
+      AC_CHECK_LIB(pthread, pthread_self, THREADDLLIBS="-lpthread",,)
+      case "$host" in
+       x86-*-linux* | ia64-*-linux* | i586-*-linux* | i686-*-linux* \
+!      | x86_64-*-linux* | alpha-*-linux* | sparc*-*-linux*)
+          AC_DEFINE(GC_LINUX_THREADS)
+          AC_DEFINE(_REENTRANT)
+          if test "${enable_parallel_mark}" = yes; then
+--- 123,129 ----
+      AC_CHECK_LIB(pthread, pthread_self, THREADDLLIBS="-lpthread",,)
+      case "$host" in
+       x86-*-linux* | ia64-*-linux* | i586-*-linux* | i686-*-linux* \
+!      | x86_64-*-linux* | alpha-*-linux* | powerpc*-*-linux* | sparc*-*-linux*)
+          AC_DEFINE(GC_LINUX_THREADS)
+          AC_DEFINE(_REENTRANT)
+          if test "${enable_parallel_mark}" = yes; then

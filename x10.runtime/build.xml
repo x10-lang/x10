@@ -702,6 +702,8 @@
                        dir="${bdwgc.dir}/src" strip="0" />
 		<patch patchfile="${basedir}/src-cpp/bdwgc-patches-${bdwgc.version}/bluegeneStackHeuristic.patch.txt"
                        dir="${bdwgc.dir}/src" strip="0" />
+		<patch patchfile="${basedir}/src-cpp/bdwgc-patches-${bdwgc.version}/fixThreadConfigureForPPC.patch.txt"
+                       dir="${bdwgc.dir}/src" strip="1" />
 	      </then>
 	    </if>
         </sequential>
