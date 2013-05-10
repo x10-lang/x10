@@ -47,7 +47,7 @@ public final class RemoteArray[T](
      * Caches a remote reference to the backing storage for the remote array
      * to enable DMA operations to be initiated remotely.  
      */
-    val rawData:GlobalRef[Rail[T]];
+    val rawData:GlobalRail[T];
 
     /**
      * The rank of the RemoteArray is equal to region.rank
@@ -65,33 +65,9 @@ public final class RemoteArray[T](
      */
     public def this(a:Array[T]{self!=null}) {
         property(a.region, a.size, GlobalRef[Array[T]](a));
-        rawData = new GlobalRef[Rail[T]](a.raw());
+        rawData = new GlobalRail[T](a.raw());
     }
     
-    /**
-     * Create a RemoteArray that uses the argument Region to specify how to
-     * view elements of the argument Rail.
-     * This constructor is semantically equivalent to the code sequence
-     * <pre>
-     * at (raw.home) new RemoteArray[T](reg, raw())
-     * </pre>
-     * if <code>raw.home</code> is a normal (non-CUDA) place. 
-     * If <code>raw.home.isCUDA()</code> is true, then this constructor
-     * simulates that semantics and provides an Array view on the chunk of
-     * GPU memory represented by raw.
-     */
-    public def this(reg:Region{self!=null}, raw:GlobalRef[Rail[T]]) {
-        val arr:GlobalRef[Array[T]];
-        if (raw.home.isCUDA()) @Native("c++", "{}") {
-            // This block will never be executed; only here to placate the X10-level typechecker
-            arr = GlobalRef[Array[T]](null);
-        } else {
-            arr = at (raw.home) GlobalRef[Array[T]](new Array[T](reg, raw()) as Array[T]);
-        }
-        property(reg, reg.size(), arr);
-        rawData = raw;
-    }
-
     /**
      * Return the element of this array corresponding to the given index.
      * Only applies to one-dimensional arrays.
@@ -103,7 +79,6 @@ public final class RemoteArray[T](
      * @see #operator(Point)
      * @see #set(T, Int)
      */
-    @Native("cuda", "(#this).raw[#1]")
     public operator this(i:Int) {here==array.home, rank==1}:T = this()(i);
 
     /**
@@ -131,7 +106,6 @@ public final class RemoteArray[T](
      * @see #operator(Int)
      * @see #set(T, Point)
      */
-    @Native("cuda", "(#this).raw[#i] = (#v)")
     public operator this(i:Int)=(v:T) {here==array.home, rank==1}:T{self==v} = this()(i)=v;
 
     /**

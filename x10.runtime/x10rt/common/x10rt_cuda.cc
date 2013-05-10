@@ -24,7 +24,7 @@
 
 #include <cuda.h> // Proprietary nvidia header
 
-//#define TRACE 1
+//#define TRACE 2
 
 namespace {
 
@@ -808,6 +808,7 @@ void x10rt_cuda_probe (x10rt_cuda_ctx *ctx)
             if (started > 0) ctx->swapBuffers();
             // invoke async copy into back buffer
             if (dma_sz > 0) {
+                DEBUG(3,"cuMemcpyDtoHAsync(%p,0x%llX,%llu, ...)\n", ctx->back, src+started, dma_sz);
                 CU_SAFE(cuMemcpyDtoHAsync(ctx->back,
                                           (CUdeviceptr)(size_t)(src+started),
                                           dma_sz,
@@ -824,6 +825,7 @@ void x10rt_cuda_probe (x10rt_cuda_ctx *ctx)
             // back buffer has now been copied to device... available for re-use
             if (started > 0) {
                 ctx->swapBuffers();
+                DEBUG(3,"cuMemcpyHtoDAsync(0x%llX,%p,%llu, ...)\n", dst+finished, ctx->back, started-finished);
                 CU_SAFE(cuMemcpyHtoDAsync((CUdeviceptr)(size_t)(dst+finished),
                                           ctx->back,
                                           started-finished,

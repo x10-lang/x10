@@ -120,7 +120,7 @@ public class CUDAPatternMatcher extends ContextVisitor {
 			assert ctyp.typeArguments() != null && ctyp.typeArguments().size() == 1; // Array[T]
 			return ctyp.typeArguments().get(0);
 		}
-		if (xts().isRemoteArray(typ)) {
+		if (xts().isGlobalRail(typ)) {
 			typ = typ.toClass();
 			X10ClassType ctyp = (X10ClassType) typ;
 			assert ctyp.typeArguments() != null && ctyp.typeArguments().size() == 1; // RemoteRef[Array[T]]
@@ -384,7 +384,7 @@ public class CUDAPatternMatcher extends ContextVisitor {
 							Expr src_array = init_new.arguments().get(0);
 							complainIfNot(
 									xts().isArray(src_array.type())
-											|| xts().isRemoteArray(src_array.type()),
+											|| xts().isGlobalRail(src_array.type()),
 									"SHM to be initialised from array or remote array type",
 									src_array);
 							shm.addArrayInitArray((LocalDecl) setReachable(ld), (Expr) setReachable(src_array), rail_type_arg_);

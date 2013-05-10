@@ -188,10 +188,16 @@ implements X10ParsedClassType
                 if (!c.isMember() || c.flags().isStatic())
                     break;
             }
-            if (typeArguments.size() != typeParameters.size() && this.error() == null) {
-                throw new InternalCompilerError("Undetected mismatch in number of type arguments ("+typeArguments+") and type parameters ("+typeParameters+")");
+            if (this.error() != null) {
+            	// [DC] avoid tripping assertions with mismatched substitutions, just
+            	// define an identity substitution...
+                cacheSubst = new TypeParamSubst((TypeSystem) ts, null, null);
+            } else {
+	            if (typeArguments.size() != typeParameters.size()) {
+	                throw new InternalCompilerError("Undetected mismatch in number of type arguments ("+typeArguments+") and type parameters ("+typeParameters+")");
+	            }
+                cacheSubst = new TypeParamSubst((TypeSystem) ts, typeArguments, typeParameters);
             }
-            cacheSubst = new TypeParamSubst((TypeSystem) ts, typeArguments, typeParameters);
         }
         return cacheSubst;
     }

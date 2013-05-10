@@ -17,6 +17,7 @@ import java.util.Arrays;
 import x10.core.fun.VoidFun_0_0;
 import x10.lang.LongRange;
 import x10.lang.RailIterator;
+import x10.lang.GlobalRail;
 import x10.rtt.NamedType;
 import x10.rtt.ParameterizedType;
 import x10.rtt.RuntimeType;
@@ -332,13 +333,13 @@ public final class Rail<T> extends x10.core.Ref implements x10.lang.Iterable,
     }
 
 
-    public static <T> void asyncCopy__0$1x10$lang$Rail$$T$2__2$1x10$lang$Rail$1x10$lang$Rail$$T$2$2(Type T, Rail<T> src, final long srcIndexL, final GlobalRef<Rail<T>> dst, final long dstIndexL, final long numElemsL) {
+    public static <T> void asyncCopy__0$1x10$lang$Rail$$T$2__2$1x10$lang$Rail$$T$2(Type T, Rail<T> src, final long srcIndexL, final GlobalRail<T> dst, final long dstIndexL, final long numElemsL) {
         int srcIndex = (int)srcIndexL;
         int dstIndex = (int)dstIndexL;
         int numElems = (int)numElemsL;
         // synchronous version for the same place
-        if (dst.home.id == x10.lang.Runtime.home().id) {
-            System.arraycopy(src.value, srcIndex, dst.$apply$G().value, dstIndex, numElems);
+        if (dst.rail.home.id == x10.lang.Runtime.home().id) {
+            System.arraycopy(src.value, srcIndex, dst.$apply().value, dstIndex, numElems);
             return;
         }
 
@@ -355,28 +356,28 @@ public final class Rail<T> extends x10.core.Ref implements x10.lang.Iterable,
 
         VoidFun_0_0 copyBody = new $Closure$0(dataToCopy, dst, dstIndex, numElems);
 
-        x10.lang.Runtime.runAsync(dst.home, copyBody, null);
+        x10.lang.Runtime.runAsync(dst.rail.home, copyBody, null);
     }
 
     // static nested class version of copyBody
     public static class $Closure$0<T> extends x10.core.Ref implements VoidFun_0_0 {
         private static final long serialVersionUID = 1L;
         public Object srcData;
-        public GlobalRef<Rail<T>> dst;
+        public GlobalRail<T> dst;
         public int dstIndex;
         public int numElems;
 
         // Just for allocation
         $Closure$0() {
         }
-        $Closure$0(Object srcData, GlobalRef<Rail<T>> dst, int dstIndex, int numElems) {
+        $Closure$0(Object srcData, GlobalRail<T> dst, int dstIndex, int numElems) {
             this.srcData = srcData;
             this.dst = dst;
             this.dstIndex = dstIndex;
             this.numElems = numElems;
         }
         public void $apply() {
-            Object dstData = dst.$apply$G().getBackingArray();
+            Object dstData = dst.$apply().getBackingArray();
             System.arraycopy(srcData, 0, dstData, dstIndex, numElems);
         }
         public static final RuntimeType<$Closure$0> $RTT = x10.rtt.StaticVoidFunType.<$Closure$0> make($Closure$0.class, new Type[] { VoidFun_0_0.$RTT });
@@ -432,13 +433,13 @@ public final class Rail<T> extends x10.core.Ref implements x10.lang.Iterable,
         }
     }
 
-    public static <T> void uncountedCopy__0$1x10$lang$Rail$$T$2__2$1x10$lang$Rail$1x10$lang$Rail$$T$2$2(Type T, Rail<T> src, long srcIndexL, GlobalRef<Rail<T>> dst, long dstIndexL, long numElemsL, VoidFun_0_0 notifier) {
+    public static <T> void uncountedCopy__0$1x10$lang$Rail$$T$2__2$1x10$lang$Rail$$T$2$2$2(Type T, Rail<T> src, long srcIndexL, GlobalRail<T> dst, long dstIndexL, long numElemsL, VoidFun_0_0 notifier) {
         int srcIndex = (int)srcIndexL;
         int dstIndex = (int)dstIndexL;
         int numElems = (int)numElemsL;
         // synchronous version for the same place
-        if (dst.home.id == x10.lang.Runtime.home().id) {
-            System.arraycopy(src.value, srcIndex, dst.$apply$G().value, dstIndex, numElems);
+        if (dst.rail.home.id == x10.lang.Runtime.home().id) {
+            System.arraycopy(src.value, srcIndex, dst.$apply().value, dstIndex, numElems);
             notifier.$apply();
             return;
         }
@@ -447,37 +448,37 @@ public final class Rail<T> extends x10.core.Ref implements x10.lang.Iterable,
         // notifier.$apply();
     }
 
-    public static <T> void asyncCopy__0$1x10$lang$Rail$1x10$lang$Rail$$T$2$2__2$1x10$lang$Rail$$T$2(Type T, final GlobalRef<Rail<T>> src, final long srcIndexL, Rail<T> dst, final long dstIndexL, final long numElemsL) {
+    public static <T> void asyncCopy__0$1x10$lang$Rail$$T$2__2$1x10$lang$Rail$$T$2(Type T, final GlobalRail<T> src, final long srcIndexL, Rail<T> dst, final long dstIndexL, final long numElemsL) {
         int srcIndex = (int)srcIndexL;
         int dstIndex = (int)dstIndexL;
         int numElems = (int)numElemsL;
         // synchronous version for the same place
-        if (src.home.id == x10.lang.Runtime.home().id) {
-            System.arraycopy(src.$apply$G().value, srcIndex, dst.value, dstIndex, numElems);
+        if (src.rail.home.id == x10.lang.Runtime.home().id) {
+            System.arraycopy(src.$apply().value, srcIndex, dst.value, dstIndex, numElems);
             return;
         }
 
         // A really bad implementation!  Leaks dst!!  Non-optimized copies! Extra distributed async/finish traffic!
-        final GlobalRef<Rail<T>> dstWrapper = new GlobalRef<Rail<T>>(x10.rtt.ParameterizedType.make(Rail.$RTT, dst.T), dst, null);
+        final GlobalRail<T> dstWrapper = new GlobalRail<T>(x10.rtt.ParameterizedType.make(Rail.$RTT, dst.T), dst, null);
 
         VoidFun_0_0 copyBody1 = new $Closure$1<T>(src, srcIndex, dstWrapper, dstIndex, numElems);
 
-        x10.lang.Runtime.runAsync(src.home, copyBody1, null);
+        x10.lang.Runtime.runAsync(src.rail.home, copyBody1, null);
     }
 
     // static nested class version of copyBody1
     public static class $Closure$1<T> extends x10.core.Ref implements VoidFun_0_0 {
         private static final long serialVersionUID = 1L;
-        public GlobalRef<Rail<T>> src;
+        public GlobalRail<T> src;
         public int srcIndex;
-        public GlobalRef<Rail<T>> dstWrapper;
+        public GlobalRail<T> dstWrapper;
         public int dstIndex;
         public int numElems;
 
         //Just for allocation
         $Closure$1() {
         }
-        $Closure$1(GlobalRef<Rail<T>> src, int srcIndex, GlobalRef<Rail<T>> dstWrapper, int dstIndex, int numElems) {
+        $Closure$1(GlobalRail<T> src, int srcIndex, GlobalRail<T> dstWrapper, int dstIndex, int numElems) {
             this.src = src;
             this.srcIndex = srcIndex;
             this.dstWrapper = dstWrapper;
@@ -487,7 +488,7 @@ public final class Rail<T> extends x10.core.Ref implements x10.lang.Iterable,
         public void $apply() {
             // This body runs at src's home.  It accesses the data for src and then does
             // another async back to dstWrapper's home to transfer the data.
-            Rail<T> srcData = src.$apply$G();
+            Rail<T> srcData = src.$apply();
 
             // extra copy here simplifies logic and allows us to do this entirely at the Java level.
             // We'll eventually need to optimize this by writing custom native/JNI code instead of treating
@@ -496,14 +497,14 @@ public final class Rail<T> extends x10.core.Ref implements x10.lang.Iterable,
             if (numElems == srcData.size) {
                 dataToCopy = srcData.getBackingArray();
             } else {
-                dataToCopy = src.$apply$G().T.makeArray(numElems);
+                dataToCopy = src.$apply().T.makeArray(numElems);
                 System.arraycopy(srcData.getBackingArray(), srcIndex, dataToCopy, 0, numElems);
             }
 
             // N.B. copyBody2 is same as copyBody 
             VoidFun_0_0 copyBody2 = new $Closure$0(dataToCopy, dstWrapper, dstIndex, numElems);
 
-            x10.lang.Runtime.runAsync(dstWrapper.home, copyBody2, null);
+            x10.lang.Runtime.runAsync(dstWrapper.rail.home, copyBody2, null);
         }
         public static final RuntimeType<$Closure$1<?>> $RTT = x10.rtt.StaticVoidFunType.<$Closure$1<?>> make($Closure$1.class, new Type[] { VoidFun_0_0.$RTT });
         public RuntimeType<$Closure$1<?>> $getRTT() {
@@ -538,13 +539,13 @@ public final class Rail<T> extends x10.core.Ref implements x10.lang.Iterable,
         }
     }
 
-    public static <T> void uncountedCopy__0$1x10$lang$Rail$1x10$lang$Rail$$T$2$2__2$1x10$lang$Rail$$T$2(Type T, GlobalRef<Rail<T>> src, long srcIndexL, Rail<T> dst, long dstIndexL, long numElemsL, VoidFun_0_0 notifier) {
+    public static <T> void uncountedCopy__0$1x10$lang$Rail$$T$2__2$1x10$lang$Rail$$T$2$2$2(Type T, GlobalRail<T> src, long srcIndexL, Rail<T> dst, long dstIndexL, long numElemsL, VoidFun_0_0 notifier) {
         int srcIndex = (int)srcIndexL;
         int dstIndex = (int)dstIndexL;
         int numElems = (int)numElemsL;
         // synchronous version for the same place
-        if (src.home.id == x10.lang.Runtime.home().id) {
-            System.arraycopy(src.$apply$G().value, srcIndex, dst.value, dstIndex, numElems);
+        if (src.rail.home.id == x10.lang.Runtime.home().id) {
+            System.arraycopy(src.$apply().value, srcIndex, dst.value, dstIndex, numElems);
             notifier.$apply();
             return;
         }

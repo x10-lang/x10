@@ -1305,4 +1305,6 @@ public interface TypeSystem {
 	Type Profile();
 
 	boolean typeIsJLIterable(Type classType);
+
+	public boolean isGlobalRail(Type typ);
 }

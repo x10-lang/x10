@@ -34,6 +34,7 @@ namespace x10 {
         template<class T> class Iterator;
         template<class T> class RailIterator;
         template<class T> class GlobalRef;
+        template<class T> class GlobalRail;
         class String;
     }
 }
@@ -193,19 +194,19 @@ namespace x10 {
                                                x10_long dstIndex, x10_long numElems);
     
             template<class T> static void asyncCopy(x10::lang::Rail<T>* src, x10_long srcIndex,
-                                                    x10::lang::GlobalRef<x10::lang::Rail<T>*> dst, x10_long dstIndex,
+                                                    x10::lang::GlobalRail<T> dst, x10_long dstIndex,
                                                     x10_long numElems);
 
-            template<class T> static void asyncCopy(x10::lang::GlobalRef<x10::lang::Rail<T>*> src, x10_long srcIndex,
+            template<class T> static void asyncCopy(x10::lang::GlobalRail<T> src, x10_long srcIndex,
                                                     x10::lang::Rail<T>* dst, x10_long dstIndex,
                                                     x10_long numElems);
 
             template<class T> static void uncountedCopy(x10::lang::Rail<T>* src, x10_long srcIndex,
-                                                        x10::lang::GlobalRef<x10::lang::Rail<T>*> dst, x10_long dstIndex,
+                                                        x10::lang::GlobalRail<T> dst, x10_long dstIndex,
                                                         x10_long numElems,
                                                         x10::lang::VoidFun_0_0* notif);
 
-            template<class T> static void uncountedCopy(x10::lang::GlobalRef<x10::lang::Rail<T>*> src, x10_long srcIndex,
+            template<class T> static void uncountedCopy(x10::lang::GlobalRail<T> src, x10_long srcIndex,
                                                         x10::lang::Rail<T>* dst, x10_long dstIndex,
                                                         x10_long numElems,
                                                         x10::lang::VoidFun_0_0* notif);
@@ -423,47 +424,55 @@ template<class T> void x10::lang::Rail<void>::copy(x10::lang::Rail<T>* src,
 }
 
 template<class T> void x10::lang::Rail<void>::asyncCopy(x10::lang::Rail<T>* src, x10_long srcIndex,
-                                                        x10::lang::GlobalRef<x10::lang::Rail<T>*> dst, x10_long dstIndex,
+                                                        x10::lang::GlobalRail<T> dst, x10_long dstIndex,
                                                         x10_long numElems) {
     x10::lang::Rail<void>::uncountedCopy(src, srcIndex, dst, dstIndex, numElems, NULL);
 }
 
-template<class T> void x10::lang::Rail<void>::asyncCopy(x10::lang::GlobalRef<x10::lang::Rail<T>*> src, x10_long srcIndex,
+template<class T> void x10::lang::Rail<void>::asyncCopy(x10::lang::GlobalRail<T> src, x10_long srcIndex,
                                                         x10::lang::Rail<T>* dst, x10_long dstIndex,
                                                         x10_long numElems) {
     x10::lang::Rail<void>::uncountedCopy(src, srcIndex, dst, dstIndex, numElems, NULL);
 }
 
 template<class T> void x10::lang::Rail<void>::uncountedCopy(x10::lang::Rail<T>* src, x10_long srcIndex,
-                                                            x10::lang::GlobalRef<x10::lang::Rail<T>*> dst, x10_long dstIndex,
+                                                            x10::lang::GlobalRail<T> dst, x10_long dstIndex,
                                                             x10_long numElems,
                                                             x10::lang::VoidFun_0_0* notif) {
     if (numElems <= 0) return;
     void* srcAddr = (void*)(&src->raw[srcIndex]);
-    void* dstAddr = (void*)(&dst->__apply()->raw[dstIndex]);
+    void* dstAddr;
+    if (x10::lang::Place::place(dst->FMGL(rail)->location)->isCUDA()) {
+        dstAddr = (void*)(dst->FMGL(rail)->__apply());
+    } else {
+        dstAddr = (void*)(&dst->FMGL(rail)->__apply()->raw[dstIndex]);
+    }
     size_t numBytes = numElems * sizeof(T);
     checkBounds(srcIndex, src->FMGL(size));
     checkBounds(srcIndex+numElems, src->FMGL(size)+1);
-// FIXME: copyToBody doesn't do checking, so this method has now become non-memory safe with the switch to GlobalRef instead of RemoteRail
-//    checkBounds(dstIndex, dst.len);
-//    checkBounds(dstIndex+numElems, dst.len+1);
-    x10::lang::Rail_copyToBody(srcAddr, dstAddr, numBytes, x10::lang::Place::place(dst.location), src->raw == dst->__apply()->raw, notif);
+    checkBounds(dstIndex, dst->FMGL(size));
+    checkBounds(dstIndex+numElems, dst->FMGL(size)+1);
+    x10::lang::Rail_copyToBody(srcAddr, dstAddr, numBytes, x10::lang::Place::place(dst->FMGL(rail)->location), src->raw == dst->FMGL(rail)->__apply()->raw, notif);
 }
 
-template<class T> void x10::lang::Rail<void>::uncountedCopy(x10::lang::GlobalRef<x10::lang::Rail<T>*> src, x10_long srcIndex,
+template<class T> void x10::lang::Rail<void>::uncountedCopy(x10::lang::GlobalRail<T> src, x10_long srcIndex,
                                                             x10::lang::Rail<T>* dst, x10_long dstIndex,
                                                             x10_long numElems,
                                                             x10::lang::VoidFun_0_0* notif) {
     if (numElems <= 0) return;
-    void* srcAddr = (void*)(&src->__apply()->raw[srcIndex]);
+    void* srcAddr;
+    if (x10::lang::Place::place(src->FMGL(rail)->location)->isCUDA()) {
+        srcAddr = (void*)(src->FMGL(rail)->__apply());
+    } else {
+        srcAddr = (void*)(&src->FMGL(rail)->__apply()->raw[srcIndex]);
+    }
     void* dstAddr = (void*)(&dst->raw[dstIndex]);
     size_t numBytes = numElems * sizeof(T);
-// FIXME: copyToBody doesn't do checking, so this method has now become non-memory safe with the switch to GlobalRef instead of RemoteRail
-//    checkBounds(srcIndex, src.len);
-//    checkBounds(srcIndex+numElems, src.len+1);
+    checkBounds(srcIndex, src->FMGL(size));
+    checkBounds(srcIndex+numElems, src->FMGL(size)+1);
     checkBounds(dstIndex, dst->FMGL(size));
     checkBounds(dstIndex+numElems, dst->FMGL(size)+1);
-    x10::lang::Rail_copyFromBody(srcAddr, dstAddr, numBytes, x10::lang::Place::place(src.location), src->__apply()->raw == dst->raw, notif);
+    x10::lang::Rail_copyFromBody(srcAddr, dstAddr, numBytes, x10::lang::Place::place(src->FMGL(rail)->location), src->FMGL(rail)->__apply()->raw == dst->raw, notif);
 }
 
 /*

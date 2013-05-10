@@ -40,75 +40,72 @@ public class CUDAUtilities {
     public static def autoThreads() : Int = 1;
 
     private static def initCUDARail[T](local:Rail[T],
-                                       remote:GlobalRef[Rail[T]],
+                                       remote:GlobalRail[T],
                                        numElements:Long) : void {
           finish Rail.asyncCopy(local, 0l, remote, 0l, numElements);
     }
 
     private static def makeCUDARail[T](gpu:Place, numElements:Long, init:Rail[T])
-      : GlobalRef[Rail[T]]{self.home==gpu} {
-/*
+      : GlobalRail[T]{self.home==gpu} {
         @Native("c++",
             "x10_ulong addr = x10aux::remote_alloc(gpu.FMGL(id), ((size_t)numElements)*sizeof(TPMGL(T)));\n"+
-            //"RemoteIndexedMemoryChunk<TPMGL(T)> rimc(addr, numElements, gpu);\n"+
-            "initCUDARail<TPMGL(T)>(init,rimc,numElements);\n"+
-            "return x10::lang::GlobalRef<TPMGL(T)>::_make(gpu, addr);\n"
+            "x10::lang::GlobalRef<x10::lang::Rail<TPMGL(T)> *> gr(gpu->FMGL(id), addr);\n"+
+            "x10::lang::GlobalRail<TPMGL(T)> remote_rail = x10::lang::GlobalRail<TPMGL(T)>::_make(numElements, gr);\n"+
+            "initCUDARail<TPMGL(T)>(init,remote_rail,numElements);\n"+
+            "return remote_rail;\n"
         ) { }
-*/
         throw new UnsupportedOperationException();
     }
 
 
     // Init from Rail[T]
-    public static def makeRemoteRail[T](place:Place, numElements:Long, init: Rail[T])
+    public static def makeGlobalRail[T](place:Place, numElements:Long, init: Rail[T])
     {
         if (place.isCUDA()) {
             return makeCUDARail(place, numElements, init);
         } else {
-            return (at (place) GlobalRef[Rail[T]](new Rail[T](numElements, (p:Long)=>init(p as int)))) as GlobalRef[Rail[T]]{self.home==place};
+            return (at (place) GlobalRail(new Rail[T](numElements, (p:Long)=>init(p as int)))) as GlobalRail[T]{self.home==place};
         }
     }
 
     // Init as zero
-    public static def makeRemoteRail[T](place:Place, numElements:Long) { T haszero }
-      : GlobalRef[Rail[T]]{self.home==place} 
+    public static def makeGlobalRail[T](place:Place, numElements:Long) { T haszero }
     {
-        return makeRemoteRail[T](place, numElements, Zero.get[T]());
+        return makeGlobalRail[T](place, numElements, Zero.get[T]());
     }
 
     // Init from single T value
-    public static def makeRemoteRail[T](place:Place, numElements:Long, init: T)
+    public static def makeGlobalRail[T](place:Place, numElements:Long, init: T)
     {
         if (place.isCUDA()) {
             val chunk = new Rail[T](numElements, init);
             return makeCUDARail(place, numElements, chunk);
         } else {
-            return (at (place) GlobalRef[Rail[T]](new Rail[T](numElements, init))) as GlobalRef[Rail[T]]{self.home==place};
+            return (at (place) GlobalRail(new Rail[T](numElements, init))) as GlobalRail[T]{self.home==place};
         }
     }
 
     // Init with closure
-    public static def makeRemoteRail[T](place:Place, numElements:Long, init: (Long)=>T)
+    public static def makeGlobalRail[T](place:Place, numElements:Long, init: (Long)=>T)
     {
         if (place.isCUDA()) {
             val chunk = new Rail[T](numElements, init);
             return makeCUDARail(place, numElements, chunk);
         } else {
-            return (at (place) GlobalRef[Rail[T]](new Rail[T](numElements, (p:long)=>init(p as int)))) as GlobalRef[Rail[T]]{self.home==place};
+            return (at (place) GlobalRail(new Rail[T](numElements, (p:long)=>init(p as int)))) as GlobalRail[T]{self.home==place};
         }
     }
 
 
-    public static def deleteRemoteRail[T](arr: GlobalRef[Rail[T]]) : void
+    public static def deleteGlobalRail[T](arr: GlobalRail[T]) : void
     {
         val place = arr.home;
         if (place.isCUDA()) {
-/*
             @Native("c++",
-                "RemoteIndexedMemoryChunk<TPMGL(T)> rimc = arr->FMGL(rawData);\n"+
-                "x10aux::remote_free(place.FMGL(id), (x10_ulong)(size_t)rimc->data);\n"
+                "x10aux::remote_free(place.FMGL(id), arr->FMGL(rail)->value);\n"
             ) { }
-*/
+        } else {
+            // let it be garbage collected
         }
     }
 

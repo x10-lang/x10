@@ -27,17 +27,17 @@ import x10.util.Random;
 public class CUDABlackScholes {
 
     static def doBlackScholes(p:Place, 
-            optionYears:GlobalRef[Rail[Float]]{home==p},
-            stockPrice:GlobalRef[Rail[Float]]{home==p},
-            optionStrike:GlobalRef[Rail[Float]]{home==p},
-            callResult:GlobalRef[Rail[Float]]{home==p},
-            putResult:GlobalRef[Rail[Float]]{home==p},
+            optionYears:GlobalRail[Float]{home==p},
+            stockPrice:GlobalRail[Float]{home==p},
+            optionStrike:GlobalRail[Float]{home==p},
+            callResult:GlobalRail[Float]{home==p},
+            putResult:GlobalRail[Float]{home==p},
             opt_N:Long,
             R:Float,
             V:Float) {
         val blocks = p.isCUDA() ? 480 : 1;
         val threads = 128;
-        finish async at (p) /*@CUDA @CUDADirectParams*/ {
+        finish async at (p) @CUDA @CUDADirectParams {
             //val blocks = CUDAUtilities.autoBlocks(),
             //    threads = CUDAUtilities.autoThreads();
             finish for (block in 0..(blocks-1)) async {
@@ -53,9 +53,9 @@ public class CUDABlackScholes {
                         val A5 = 1.330274429f;
                         val RSQRT2PI = 0.39894228040143267793994605993438f;
 
-                        val T = optionYears()(opt);
-                        val S = stockPrice()(opt);
-                        val X = optionStrike()(opt);
+                        val T = optionYears(opt);
+                        val S = stockPrice(opt);
+                        val X = optionStrike(opt);
                         val sqrtT = Math.sqrtf(T);
                         val d1 = (Math.logf(S/X) + (R + 0.5f * V * V) * T) / (V * sqrtT); 
                         val d2 = d1 - V * sqrtT;
@@ -72,8 +72,8 @@ public class CUDABlackScholes {
 
                         //Calculate Call and Put simultaneously
                         val expRT = Math.expf(- R * T); 
-                        callResult()(opt) = S * CNDD1 - X * expRT * CNDD2;
-                        putResult()(opt)  = X * expRT * (1.0f - CNDD2) - S * (1.0f - CNDD1); 
+                        callResult(opt) = S * CNDD1 - X * expRT * CNDD2;
+                        putResult(opt)  = X * expRT * (1.0f - CNDD2) - S * (1.0f - CNDD1); 
                     }
                 }
             }
@@ -110,11 +110,11 @@ public class CUDABlackScholes {
         val h_OptionYears   = new Rail[Float](OPT_N, (Long)=>rand.nextFloat() as Float);
 
         // Device arrays
-        val d_CallResult    = CUDAUtilities.makeRemoteRail[Float](gpu, OPT_N, 0.0 as Float);
-        val d_PutResult     = CUDAUtilities.makeRemoteRail[Float](gpu, OPT_N, 0.0 as Float);
-        val d_StockPrice    = CUDAUtilities.makeRemoteRail[Float](gpu, OPT_N, h_StockPrice);
-        val d_OptionStrike  = CUDAUtilities.makeRemoteRail[Float](gpu, OPT_N, h_OptionStrike);
-        val d_OptionYears   = CUDAUtilities.makeRemoteRail[Float](gpu, OPT_N, h_OptionYears);
+        val d_CallResult    = CUDAUtilities.makeGlobalRail[Float](gpu, OPT_N, 0.0 as Float);
+        val d_PutResult     = CUDAUtilities.makeGlobalRail[Float](gpu, OPT_N, 0.0 as Float);
+        val d_StockPrice    = CUDAUtilities.makeGlobalRail[Float](gpu, OPT_N, h_StockPrice);
+        val d_OptionStrike  = CUDAUtilities.makeGlobalRail[Float](gpu, OPT_N, h_OptionStrike);
+        val d_OptionYears   = CUDAUtilities.makeGlobalRail[Float](gpu, OPT_N, h_OptionYears);
 
         Console.OUT.println("Running " + NUM_ITERATIONS + " times on place " + gpu);
         val gpuTimeStart = System.nanoTime();
@@ -142,19 +142,19 @@ public class CUDABlackScholes {
             Rail.asyncCopy(d_PutResult, 0l, h_PutResultGPU, 0l, OPT_N);
         }
 
-        CUDAUtilities.deleteRemoteRail(d_CallResult);
-        CUDAUtilities.deleteRemoteRail(d_PutResult);
-        CUDAUtilities.deleteRemoteRail(d_StockPrice);
-        CUDAUtilities.deleteRemoteRail(d_OptionStrike);
-        CUDAUtilities.deleteRemoteRail(d_OptionYears);
+        CUDAUtilities.deleteGlobalRail(d_CallResult);
+        CUDAUtilities.deleteGlobalRail(d_PutResult);
+        CUDAUtilities.deleteGlobalRail(d_StockPrice);
+        CUDAUtilities.deleteGlobalRail(d_OptionStrike);
+        CUDAUtilities.deleteGlobalRail(d_OptionYears);
 
         Console.OUT.println("Generating a second set of results at place " + cpu);
         doBlackScholes(cpu, 
-                new GlobalRef[Rail[Float]](h_OptionYears)   as GlobalRef[Rail[Float]]{home==cpu},
-                new GlobalRef[Rail[Float]](h_StockPrice)    as GlobalRef[Rail[Float]]{home==cpu},
-                new GlobalRef[Rail[Float]](h_OptionStrike)  as GlobalRef[Rail[Float]]{home==cpu},
-                new GlobalRef[Rail[Float]](h_CallResultCPU) as GlobalRef[Rail[Float]]{home==cpu},
-                new GlobalRef[Rail[Float]](h_PutResultCPU)  as GlobalRef[Rail[Float]]{home==cpu},
+                new GlobalRail[Float](h_OptionYears),
+                new GlobalRail[Float](h_StockPrice),
+                new GlobalRail[Float](h_OptionStrike),
+                new GlobalRail[Float](h_CallResultCPU),
+                new GlobalRail[Float](h_PutResultCPU),
                 OPT_N,
                 RISKFREE,
                 VOLATILITY);

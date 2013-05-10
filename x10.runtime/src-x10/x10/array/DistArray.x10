@@ -68,8 +68,8 @@ public final class DistArray[T] (
      */
     public property rank(): int = dist.rank;
 
-    protected static class LocalState[T](dist:Dist, data:Rail[T]) {
-      public def this(d:Dist, c:Rail[T]) { 
+    protected static class LocalState[T](dist:Dist, data:Rail[T]{self!=null}) {
+      public def this(d:Dist, c:Rail[T]{self!=null}) { 
           property(d, c);
 
           // Calling operator this here serves to force initialization of any 
@@ -91,13 +91,13 @@ public final class DistArray[T] (
      * Method to acquire a pointer to the backing storage for the 
      * array's data in the current place.
      */
-    protected final def raw():Rail[T] {
+    protected final def raw():Rail[T]{self!=null} {
         if (!cachedRawValid) {
             cachedRaw = localHandle().data;
             x10.util.concurrent.Fences.storeStoreBarrier();
 	    cachedRawValid = true;
         }
-        return cachedRaw;
+        return cachedRaw as Rail[T]{self!=null};
     }
 
     /**
@@ -165,7 +165,7 @@ public final class DistArray[T] (
         property(dist);
 
         val plsInit:()=>LocalState[T] = () => {
-            val localRaw:Rail[T];
+            val localRaw:Rail[T]{self!=null};
             if (dist.places().contains(here)) {
                 localRaw = Unsafe.allocRailUninitialized[T](dist.maxOffset()+1);
                 val reg = dist.get(here);
@@ -197,7 +197,7 @@ public final class DistArray[T] (
         property(dist);
 
         val plsInit:()=>LocalState[T] = () => {
-            val localRaw:Rail[T];
+            val localRaw:Rail[T]{self!=null};
             if (dist.places().contains(here)) {
                 localRaw = Unsafe.allocRailUninitialized[T](dist.maxOffset()+1);
                 val reg = dist.get(here);
@@ -534,7 +534,7 @@ public final class DistArray[T] (
      */
     public final def map[U](op:(T)=>U):DistArray[U](this.dist) {
         val plh = PlaceLocalHandle.make[LocalState[U]](PlaceGroup.WORLD, ()=> {
-            val newRail:Rail[U];
+            val newRail:Rail[U]{self!=null};
             if (dist.places().contains(here)) {
                 val srcRail = raw();
                 newRail = Unsafe.allocRailUninitialized[U](dist.maxOffset()+1);
@@ -620,7 +620,7 @@ public final class DistArray[T] (
      */
     public final def map[S,U](src:DistArray[U](this.dist), op:(T,U)=>S):DistArray[S](dist) {
         val plh = PlaceLocalHandle.make[LocalState[S]](PlaceGroup.WORLD, ()=> {
-            val newRail:Rail[S];
+            val newRail:Rail[S]{self!=null};
             if (dist.places().contains(here)) {
                 val src1Rail = raw();
                 val src2Rail = src.raw();

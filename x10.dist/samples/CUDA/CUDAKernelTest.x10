@@ -19,15 +19,15 @@ public class CUDAKernelTest {
 
     static def doTest1 (init:Rail[Float], recv:Rail[Float], p:Place, len:Long) {
 
-        val remote : GlobalRef[Rail[Float]]{self.home==p} = CUDAUtilities.makeRemoteRail[Float](p,len,(Long)=>0.0 as Float); // allocate 
+        val remote : GlobalRail[Float]{self.home() == p} = CUDAUtilities.makeGlobalRail[Float](p, len); // allocate 
 
-        finish async at (p) /*@CUDA*/ {
+        finish async at (p) @CUDA {
             finish for (block in 0..7) async {
                 clocked finish for (thread in 0..63) clocked async {
                     val tid = block*64 + thread;
                     val tids = 8*64;
                     for (var i:Long=tid ; i<len ; i+=tids) {
-                        remote()(i) = Math.sqrtf(init(i));
+                        remote(i) = Math.sqrtf(init(i));
                     }
                 }
             }
@@ -46,14 +46,14 @@ public class CUDAKernelTest {
         }
         Console.OUT.println((success?"SUCCESS":"FAIL")+" at "+p);
 
-        CUDAUtilities.deleteRemoteRail(remote);
+        CUDAUtilities.deleteGlobalRail(remote);
     }
 
     static def doTest2 (p:Place) {
 
         val recv = new Rail[Float](64,(i:Long)=>0.0f);
 
-        val remote = CUDAUtilities.makeRemoteRail[Float](p,64,(Long)=>0.0f); // allocate 
+        val remote = CUDAUtilities.makeGlobalRail[Float](p,64,(Long)=>0.0f); // allocate 
 
         val arr1 = new Rail[Float](64);
         val arr2 = new Rail[Int](64);
@@ -71,7 +71,7 @@ public class CUDAKernelTest {
                     Clock.advanceAll();
                     shm3(thread) = shm2(63-thread);
                     Clock.advanceAll();
-                    remote()(thread) = shm3(63-thread);
+                    remote(thread) = shm3(63-thread);
                 }
             }
         }
@@ -89,7 +89,7 @@ public class CUDAKernelTest {
         }
         Console.OUT.println((success?"SUCCESS":"FAIL")+" at "+p);
 
-        CUDAUtilities.deleteRemoteRail(remote);
+        CUDAUtilities.deleteGlobalRail(remote);
     }
 
 //    static def doTest3 (p:Place) {
@@ -100,7 +100,7 @@ public class CUDAKernelTest {
 //
 //        val recv = new Rail[Float](tids,(i:Long)=>0.0f);
 //
-//        val remote = CUDAUtilities.makeRemoteRail[Float](p,tids,(Long)=>0.0 as Float); // allocate 
+//        val remote = CUDAUtilities.makeGlobalRail[Float](p,tids,(Long)=>0.0 as Float); // allocate 
 //
 //        val rnd = new Random();
 //        val arr1 = new Rail[Float](threads,(i:Long)=>rnd.nextFloat());
@@ -127,7 +127,7 @@ public class CUDAKernelTest {
 //        }
 //        Console.OUT.println((success?"SUCCESS":"FAIL")+" at "+p);
 //
-//        CUDAUtilities.deleteRemoteRail(remote);
+//        CUDAUtilities.deleteGlobalRail(remote);
 //    }
 
      @CUDA static def function (x:Int) : Int = x * x - 22;
@@ -140,13 +140,13 @@ public class CUDAKernelTest {
 
         val recv = new Rail[Float](tids,(i:Long)=>0.0f);
 
-        val remote = CUDAUtilities.makeRemoteRail[Float](p,tids,(Long)=>0.0 as Float); // allocate 
+        val remote = CUDAUtilities.makeGlobalRail[Float](p,tids,(Long)=>0.0 as Float); // allocate 
 
         finish async at (p) /*@CUDA @CUDADirectParams*/ {
             finish for (block in 0..(blocks-1)) async {
                 clocked finish for (thread in 0..(threads-1)) clocked async {
                     val r = function(5);
-                    remote()(threads*block + thread) = r;
+                    remote(threads*block + thread) = r;
                 }
             }
         }
@@ -164,7 +164,7 @@ public class CUDAKernelTest {
         }
         Console.OUT.println((success?"SUCCESS":"FAIL")+" at "+p);
 
-        CUDAUtilities.deleteRemoteRail(remote);
+        CUDAUtilities.deleteGlobalRail(remote);
     }
 
 

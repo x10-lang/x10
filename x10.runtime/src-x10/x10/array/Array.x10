@@ -93,7 +93,7 @@ public final class Array[T] (
     /**
      * The backing storage for the array's elements
      */
-    private val raw:Rail[T]/*{self!=null}*/;
+    private val raw:Rail[T]{self!=null};
     
     /**
      * Return the Rail[T] that is providing the backing storage for the array.
@@ -240,7 +240,7 @@ public final class Array[T] (
         if (n > backingStore.size) {
             throw new IllegalArgumentException("backingStore too small");
         }
-        raw = backingStore;
+        raw = backingStore as Rail[T]{self!=null};
     }
     
     /**
@@ -257,7 +257,7 @@ public final class Array[T] (
 
 	layout_min0 = layout_stride1 = layout_min1 = 0;
         layout = null;
-        raw = backingStore;
+        raw = backingStore as Rail[T]{self!=null};
     }
 
     

@@ -2607,6 +2607,13 @@ public class TypeSystem_c implements TypeSystem
         return remoteArrayType_;
     }
 
+    protected X10ClassType globalRailType_ = null;
+    public X10ClassType GlobalRail() {
+        if (globalRailType_ == null)
+        	globalRailType_ = load("x10.lang.GlobalRail");
+        return globalRailType_;
+    }
+
     protected X10ClassType distArrayType_ = null;
     public X10ClassType DistArray() {
         if (distArrayType_ == null)
@@ -4076,6 +4083,10 @@ public class TypeSystem_c implements TypeSystem
         return finalSubtype(t, RemoteArray());
     }
 
+    public boolean isGlobalRail(Type t) {
+        return finalSubtype(t, GlobalRail());
+    }
+
     public boolean isRemoteArrayOf(Type t, Type p) {
         if (!isRemoteArray(t)) return false;
         List<Type> ta = ((X10ClassType)Types.baseType(t)).typeArguments();
@@ -4697,4 +4708,6 @@ public class TypeSystem_c implements TypeSystem
 		Type c = Types.baseType(classType); // chase typedefs
 		return c.fullName().toString().equals("java.lang.Iterable");
 	}
+
+
 }

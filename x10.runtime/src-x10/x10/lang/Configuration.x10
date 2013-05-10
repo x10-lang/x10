@@ -30,12 +30,9 @@ final class Configuration {
     static native def loadEnv():x10.util.HashMap[String,String];
 
     static def envOrElse(s:String, b:Boolean):Boolean {
-        try {
-            val v = Runtime.env.getOrThrow(s);
-            return !(v.equalsIgnoreCase("false") || v.equalsIgnoreCase("f") || v.equals("0"));
-        } catch (NoSuchElementException) {
-        }
-        return b;
+        val v = Runtime.env.getOrElse(s, null);
+        if (v == null) return b;
+        return !(v.equalsIgnoreCase("false") || v.equalsIgnoreCase("f") || v.equals("0"));
     }
 
     static def strict_finish():Boolean = envOrElse("X10_STRICT_FINISH", false);
@@ -49,8 +46,7 @@ final class Configuration {
     static def nthreads():Int {
         var v:Int = 0;
         try {
-            v = Int.parse(Runtime.env.getOrThrow("X10_NTHREADS"));
-        } catch (NoSuchElementException) {
+            v = Int.parse(Runtime.env.getOrElse("X10_NTHREADS", "0"));
         } catch (NumberFormatException) {
         }
         if (v <= 0) v = 1;
@@ -61,8 +57,7 @@ final class Configuration {
     static def max_threads():Int {
         var v:Int = 0;
         try {
-           v = Int.parse(Runtime.env.getOrThrow("X10_MAX_THREADS"));
-       } catch (NoSuchElementException) {
+           v = Int.parse(Runtime.env.getOrElse("X10_MAX_THREADS", "0"));
        } catch (NumberFormatException) {
        }
        if (v <= 0) v = nthreads();

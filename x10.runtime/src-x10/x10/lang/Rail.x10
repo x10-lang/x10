@@ -101,6 +101,7 @@ public final class Rail[T](
      * @return the element of this array corresponding to the given index.
      * @see #set(T, Int)
      */
+    @Native("cuda", "(#this).raw[#index]")
     public native operator this(index:Long):T;
 
     /**
@@ -112,6 +113,7 @@ public final class Rail[T](
      * @return the new value of the element of this array corresponding to the given index.
      * @see #operator(Int)
      */
+    @Native("cuda", "(#this).raw[#index] = (#v)")
     public native operator this(index:Long)=(v:T):T{self==v};
 
     /**
@@ -140,7 +142,7 @@ public final class Rail[T](
 
     /**
      * Asynchronously copy the specified values from the source Rail to the 
-     * specified portion of the Rail referenced by the destination GlobalRef.
+     * specified portion of the Rail referenced by the destination GlobalRail.
      * The activity created to do the copying will be registered with the
      * dynamically enclosing finish.<p>
      * 
@@ -152,13 +154,13 @@ public final class Rail[T](
      * 
      * @param src the source rail.
      * @param srcIndex the index of the first element in src to be copied.  
-     * @param dst a GlobalRef to the destination rail.  May actually be local or remote
+     * @param dst a GlobalRail to the destination rail.  May actually be local or remote
      * @param dstIndex the index of the first element in the destination
      *        rail where copied data elements will be stored.
      * @param numElems the number of elements to be copied.
      */
     public static native def asyncCopy[T](src:Rail[T], srcIndex:Long, 
-            dst:GlobalRef[Rail[T]], dstIndex:Long, numElems:Long):void;
+            dst:GlobalRail[T], dstIndex:Long, numElems:Long):void;
 
     /**
      * Asynchronously copy the specified values from the referenced source Rail to the 
@@ -172,19 +174,19 @@ public final class Rail[T](
      *   not be properly transferred. Ideally, future versions of the X10 type
      *   system would enable this restriction to be checked statically.</p>
      * 
-     * @param src a GlobalRef to the source rail. May actually be local or remote.
+     * @param src a GlobalRail to the source rail. May actually be local or remote.
      * @param srcIndex the index of the first element in src to be copied.  
      * @param dst the destination rail.  
      * @param dstIndex the index of the first element in the destination
      *        rail where copied data elements will be stored.
      * @param numElems the number of elements to be copied.
      */
-    public static native def asyncCopy[T](src:GlobalRef[Rail[T]], srcIndex:Long, 
+    public static native def asyncCopy[T](src:GlobalRail[T], srcIndex:Long, 
             dst:Rail[T], dstIndex:Long, numElems:Long):void;
 
     /**
      * Asynchronously copy the specified values from the source Rail to the 
-     * specified portion of the Rail referenced by the destination GlobalRef.
+     * specified portion of the Rail referenced by the destination GlobalRail.
      * The activity created to do the copying will be uncounted, ie not be registered 
      * with any finish.<p>
      * 
@@ -196,14 +198,14 @@ public final class Rail[T](
      * 
      * @param src the source rail.
      * @param srcIndex the index of the first element in src to be copied.  
-     * @param dst a GlobalRef to the destination rail.  May actually be local or remote
+     * @param dst a GlobalRail to the destination rail.  May actually be local or remote
      * @param dstIndex the index of the first element in the destination
      *        rail where copied data elements will be stored.
      * @param numElems the number of elements to be copied.
      * @param notifier the function to call when the copy is complete
      */
     public static native def uncountedCopy[T](src:Rail[T], srcIndex:Long, 
-            dst:GlobalRef[Rail[T]], dstIndex:Long, numElems:Long, 
+            dst:GlobalRail[T], dstIndex:Long, numElems:Long, 
             notifier:()=>void):void;
 
     /**
@@ -218,7 +220,7 @@ public final class Rail[T](
      *   not be properly transferred. Ideally, future versions of the X10 type
      *   system would enable this restriction to be checked statically.</p>
      * 
-     * @param src a GlobalRef to the source rail. May actually be local or remote.
+     * @param src a GlobalRail to the source rail. May actually be local or remote.
      * @param srcIndex the index of the first element in src to be copied.  
      * @param dst the destination rail.  
      * @param dstIndex the index of the first element in the destination
@@ -226,7 +228,7 @@ public final class Rail[T](
      * @param numElems the number of elements to be copied.
      * @param notifier the function to call when the copy is complete
      */
-    public static native def uncountedCopy[T](src:GlobalRef[Rail[T]], srcIndex:Long, 
+    public static native def uncountedCopy[T](src:GlobalRail[T], srcIndex:Long, 
             dst:Rail[T], dstIndex:Long, numElems:Long, 
             notifier:()=>void):void;
 
