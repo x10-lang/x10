@@ -531,8 +531,8 @@
 			  <arg value="${bdwgc.dir}/src/configure" />
 			  <arg value="--host=powerpc64-bgq-linux" />
 			  <arg value="-enable-threads=posix" />
-                          <arg value="-enable-thread-local-alloc" />
-                          <arg value="-enable-parallel-mark" />
+                          <arg value="--enable-thread-local-alloc" />
+                          <arg value="--enable-parallel-mark" />
 			  <arg value="--disable-shared" />
 			  <arg value="--prefix=${bdwgc.platform.dir}/install" />
 			</exec>
@@ -709,6 +709,8 @@
 		<patch patchfile="${basedir}/src-cpp/bdwgc-patches-${bdwgc.version}/bluegeneStackHeuristic.patch.txt"
                        dir="${bdwgc.dir}/src" strip="0" />
 		<patch patchfile="${basedir}/src-cpp/bdwgc-patches-${bdwgc.version}/unsigned_char.patch.txt"
+                       dir="${bdwgc.dir}/src" strip="0" />
+		<patch patchfile="${basedir}/src-cpp/bdwgc-patches-${bdwgc.version}/fixThreadConfigureForPPC.patch.txt"
                        dir="${bdwgc.dir}/src" strip="0" />
 	      </then>
 	    </if>

@@ -1,0 +1,19 @@
+*** configure	2013-05-10 14:03:16.769738491 -0400
+--- configure~	2013-05-09 17:33:02.247406283 -0400
+***************
+*** 4689,4695 ****
+      THREADS=posix
+      THREADDLLIBS=-lpthread
+      case "$host" in
+!      x86-*-linux* | ia64-*-linux* | i586-*-linux* | i686-*-linux* | x86_64-*-linux* | alpha-*-linux*)
+  	cat >>confdefs.h <<\_ACEOF
+  #define GC_LINUX_THREADS 1
+  _ACEOF
+--- 4689,4695 ----
+      THREADS=posix
+      THREADDLLIBS=-lpthread
+      case "$host" in
+!      x86-*-linux* | ia64-*-linux* | i586-*-linux* | i686-*-linux* | x86_64-*-linux* | powerpc*-*-linux* | alpha-*-linux*)
+  	cat >>confdefs.h <<\_ACEOF
+  #define GC_LINUX_THREADS 1
+  _ACEOF
