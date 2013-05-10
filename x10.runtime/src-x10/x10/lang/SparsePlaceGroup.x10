@@ -50,6 +50,13 @@ public final class SparsePlaceGroup extends PlaceGroup {
   }
 
   /**
+   * Construct a SparsePlaceGroup from another PlaceGroup.
+   */
+  public def this(pg:PlaceGroup) {
+    places = new Rail[Place](pg.size(), (i:long)=>pg(i));
+  }
+
+  /**
    * Construct a SparsePlaceGroup that contains a single place, p.
    * @param p the place 
    */
