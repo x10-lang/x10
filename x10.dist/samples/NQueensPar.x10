@@ -105,15 +105,15 @@ public class NQueensPar {
         //warmup
         //finish new NQueensPar(12, 1).start();
         val ps = [1,2,4];
-        for (var i:Int = 0; i < ps.size; i++) {
-            Console.OUT.println("starting " + ps(i) + " threads");
-            val nq = new NQueensPar(n,ps(i));
+        for (numTasks in ps) {
+            Console.OUT.println("starting " + numTasks + " tasks");
+            val nq = new NQueensPar(n,numTasks);
             var start:Long = -System.nanoTime();
             finish nq.start();
             val result = nq.nSolutions==EXPECTED_SOLUTIONS(nq.N);
             start += System.nanoTime();
             start /= 1000000;
-            Console.OUT.println("NQueensPar " + nq.N + "(P=" + ps(i) +
+            Console.OUT.println("NQueensPar " + nq.N + "(P=" + numTasks +
                     ") has " + nq.nSolutions + " solutions" +
                     (result? " (ok)." : " (wrong).") + "time=" + start + "ms");
         }
