@@ -97,6 +97,11 @@ public final struct Place(id: Int)  {
      * The place that runs 'main'.
      */
     public static FIRST_PLACE:Place(0) = Place(0);
+    
+    /**
+     * Special place type for non-existent places
+     */
+    public static INVALID_PLACE:Place(-1) = Place(-1);
 
     /**
      * Creates a Place struct from an integer place id.
