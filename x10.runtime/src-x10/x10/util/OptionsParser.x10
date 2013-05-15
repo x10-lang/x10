@@ -477,9 +477,9 @@ public class OptionsParser {
         val lastArg: Int = expanded.size as Int - 1;
         val reqNotSeen = required.clone();
         for(i in 0 .. lastArg) {
-            val s = expanded(i);	        
-            if(s(0) == '-') {
-                if(s.length() > 1 && s(1).isDigit()) continue;
+            val s = expanded(i);
+            if (s.length() > 0 && s(0) == '-') {
+                if (s.length() > 1 && s(1).isDigit()) continue;
                 else if (keyMap.containsKey(s)) {
                     keyIndex.add(i);
                     val optForS = keyMap.getOrElse(s, Option.BAD);
@@ -524,7 +524,7 @@ public class OptionsParser {
         var inTail: Boolean = false; // we have seen a key that is not recognized
         for(n in args.range()) {
             val argN = args(n);
-            if (argN(0) != '-' || inTail) builder.add(argN);
+            if (argN.length() == 0 || argN(0) != '-' || inTail) builder.add(argN);
             else if (argN.equals("--")) { inTail = true; builder.add(argN); }
             else if (argN.length() < 2) builder.add(argN);
             else if(argN(1).isDigit()) builder.add(argN);
