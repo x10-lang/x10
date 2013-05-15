@@ -29,10 +29,6 @@
     <property name="DISABLE_GC" value="false" />
     <property name="NO_CHECKS" value="false" />
     <property name="HOMOGENEOUS" value="true" />
-    <property name="X10RT_MPI" value="false" />
-    <property name="X10RT_PAMI" value="false" />
-    <property name="X10RT_PGAS" value="true" />
-    <property name="X10RT_CUDA" value="false" />
     <property name="GCC_SYMBOLS" value="false" />
     <path id="project.classpath">
         <path refid="mainproject.classpath"/>

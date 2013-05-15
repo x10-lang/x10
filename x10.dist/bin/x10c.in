@@ -12,6 +12,8 @@ if [ "$CROSS_COMPILE_BGP" = "true" ]; then
     x10rt_impl="pgas_bgp"
 elif [ "$CROSS_COMPILE_BGQ" = "true" ]; then
     x10rt_impl="pami"
+elif [ "$ENABLE_X10RT_PAMI" = "true" ]; then
+    x10rt_impl="pami"
 else
     x10rt_impl="sockets"
 fi

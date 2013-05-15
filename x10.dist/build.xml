@@ -42,6 +42,10 @@
     <property name="bash.exe" value="bash"/>
     <property name="CROSS_COMPILE_BGP" value="false" />
     <property name="CROSS_COMPILE_BGQ" value="false" />
+    <property name="X10RT_MPI" value="false" />
+    <property name="X10RT_PAMI" value="false" />
+    <property name="X10RT_PGAS" value="true" />
+    <property name="X10RT_CUDA" value="false" />
     <path id="project.classpath"/>
     <!-- get the environment variables -->
     <property environment="env"/>
@@ -546,6 +550,7 @@ WALA4_JAR='${wala4.jar}'
 MATH_JAR='${math.jar}'
 CROSS_COMPILE_BGP='${CROSS_COMPILE_BGP}'
 CROSS_COMPILE_BGQ='${CROSS_COMPILE_BGQ}'
+ENABLE_X10RT_PAMI='${X10RT_PAMI}'
 
 </echo>
     </target>
