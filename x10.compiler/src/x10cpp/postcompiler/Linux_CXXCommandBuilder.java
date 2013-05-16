@@ -21,6 +21,12 @@ public class Linux_CXXCommandBuilder extends CXXCommandBuilder {
 
     public void addPreArgs(ArrayList<String> cxxCmd) {
         super.addPreArgs(cxxCmd);
+        
+        // [DC] http://sourceware.org/bugzilla/show_bug.cgi?id=15478
+        // avoid runtime symbol resolution error from libx10.so to x10rt
+        // on ubuntu gcc4.6
+        cxxCmd.add("-Wl,--no-as-needed");
+        
         if (!usingXLC()) {
             cxxCmd.add("-pthread");
             if (getPlatform().endsWith("_x86")) {
