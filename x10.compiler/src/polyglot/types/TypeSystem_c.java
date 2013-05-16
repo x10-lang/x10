@@ -2742,6 +2742,13 @@ public class TypeSystem_c implements TypeSystem
         return stackAllocateType_;
     }
 
+    protected X10ClassType stackAllocateUninitializedType_;
+    public X10ClassType StackAllocateUninitialized() {
+        if (stackAllocateUninitializedType_ == null)
+            stackAllocateUninitializedType_ = load("x10.compiler.StackAllocateUninitialized");
+        return stackAllocateUninitializedType_;
+    }
+
     protected X10ClassType inlineOnlyType_;
     public X10ClassType InlineOnly() {
         if (inlineOnlyType_ == null)

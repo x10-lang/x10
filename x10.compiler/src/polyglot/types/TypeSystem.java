@@ -931,6 +931,7 @@ public interface TypeSystem {
     
     // annotation types used in codegen
     X10ClassType StackAllocate();
+    X10ClassType StackAllocateUninitialized();
     X10ClassType Inline();
     X10ClassType InlineOnly();
     X10ClassType NoInline();

@@ -2847,6 +2847,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 		TypeSystem xts = (TypeSystem)context.typeSystem();
 		ConstructorInstance constructor = n.constructorInstance();
 		boolean stackAllocate = false;
+		boolean stackAllocateUninit = false;
         boolean embed = false;
 
         // Danger Will Robinson! Give programmer plenty of rope to hang themselves!!
@@ -2854,12 +2855,14 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
         // the programmer asked us to and stack allocate the storage for the object.
         // If the programmer was incorrect about the lifetime of the object, then
         // the program will almost certainly crash in some unexpected way.
-        Type annotation = xts.StackAllocate();
-        if (!((X10Ext) n.ext()).annotationMatching(annotation).isEmpty()) {
+        if (!((X10Ext) n.ext()).annotationMatching(xts.StackAllocate()).isEmpty()) {
             stackAllocate = true;
         }
-        Type annotation2 = xts.Embed();
-        if (!((X10Ext) n.ext()).annotationMatching(annotation2).isEmpty()) {
+        if (!((X10Ext) n.ext()).annotationMatching(xts.StackAllocateUninitialized()).isEmpty()) {
+            stackAllocate = true;
+            stackAllocateUninit = true;
+        }
+        if (!((X10Ext) n.ext()).annotationMatching(xts.Embed()).isEmpty()) {
             embed = true;
         }
 		
@@ -2868,31 +2871,33 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 		if (n.body() != null)
 			throw new InternalCompilerError("Anonymous innner classes should have been removed.");
 
-		if (stackAllocate) {
-		    if (n.objectType().type().isRail()) {
-                sw.write(context.getStackAllocName()+"->"+CONSTRUCTOR+"(");
+		if (!stackAllocateUninit) {
+		    if (stackAllocate) {
+		        if (n.objectType().type().isRail()) {
+		            sw.write(context.getStackAllocName()+"->"+CONSTRUCTOR+"(");
+		        } else {
+		            sw.write(context.getStackAllocName()+"."+CONSTRUCTOR+"(");
+		        }
+		    } else if (embed) {
+		        sw.write("&"+context.getEmbeddedFieldName()+";");
+		        sw.newline();
+		        sw.write(context.getEmbeddedFieldName()+"."+CONSTRUCTOR+"(");
 		    } else {
-		        sw.write(context.getStackAllocName()+"."+CONSTRUCTOR+"(");
+		        sw.write(Emitter.translateType(n.objectType().type())+"::"+MAKE+"(");
 		    }
-		} else if (embed) {
-		    sw.write("&"+context.getEmbeddedFieldName()+";");
-		    sw.newline();
-		    sw.write(context.getEmbeddedFieldName()+"."+CONSTRUCTOR+"(");
-		} else {
-		    sw.write(Emitter.translateType(n.objectType().type())+"::"+MAKE+"(");
+
+		    sw.begin(0);
+		    for (Iterator<Expr> i = n.arguments().iterator(); i.hasNext(); ) {
+		        Expr e = i.next();
+		        n.print(e, sw, tr);
+		        if (i.hasNext()) {
+		            sw.write(",");
+		            sw.allowBreak(0, " ");
+		        }
+		    }
+		    sw.write(")");
+		    sw.end();
 		}
-		    
-		sw.begin(0);
-		for (Iterator<Expr> i = n.arguments().iterator(); i.hasNext(); ) {
-			Expr e = i.next();
-			n.print(e, sw, tr);
-			if (i.hasNext()) {
-				sw.write(",");
-				sw.allowBreak(0, " ");
-			}
-		}
-		sw.write(")");
-		sw.end();
 	}
 
 
