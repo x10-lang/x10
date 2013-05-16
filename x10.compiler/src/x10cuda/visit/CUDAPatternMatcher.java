@@ -113,21 +113,13 @@ public class CUDAPatternMatcher extends ContextVisitor {
 		complainIfNot2(cond, exp, n, true);
 	}
 
+	// If type is (Global)?Rail[T] then return T else return null
 	private Type arrayCargo(Type typ) {
-		if (xts().isArray(typ)) {
+		if (xts().isRail(typ) || xts().isGlobalRail(typ)) {
 			typ = typ.toClass();
 			X10ClassType ctyp = (X10ClassType) typ;
-			assert ctyp.typeArguments() != null && ctyp.typeArguments().size() == 1; // Array[T]
+			assert ctyp.typeArguments() != null && ctyp.typeArguments().size() == 1; // Rail[T]
 			return ctyp.typeArguments().get(0);
-		}
-		if (xts().isGlobalRail(typ)) {
-			typ = typ.toClass();
-			X10ClassType ctyp = (X10ClassType) typ;
-			assert ctyp.typeArguments() != null && ctyp.typeArguments().size() == 1; // RemoteRef[Array[T]]
-			Type type2 = ctyp.typeArguments().get(0);
-			X10ClassType ctyp2 = (X10ClassType) typ;
-			assert ctyp2.typeArguments() != null && ctyp2.typeArguments().size() == 1; // Array[T]
-			return ctyp2.typeArguments().get(0);
 		}
 		return null;
 
@@ -363,7 +355,7 @@ public class CUDAPatternMatcher extends ContextVisitor {
 								"val <var> = new Array[T](...)", init_expr);
 						X10New init_new = (X10New) init_expr;
 						Type instantiatedType = init_new.objectType().type();
-						complainIfNot(xts().isArray(instantiatedType),
+						complainIfNot(xts().isRail(instantiatedType),
 								"Initialisation expression to have Array[T] type.",
 								init_new);
 						TypeNode rail_type_arg_node = init_new.typeArguments().get(
@@ -383,7 +375,7 @@ public class CUDAPatternMatcher extends ContextVisitor {
 									init_new);
 							Expr src_array = init_new.arguments().get(0);
 							complainIfNot(
-									xts().isArray(src_array.type())
+									xts().isRail(src_array.type())
 											|| xts().isGlobalRail(src_array.type()),
 									"SHM to be initialised from array or remote array type",
 									src_array);

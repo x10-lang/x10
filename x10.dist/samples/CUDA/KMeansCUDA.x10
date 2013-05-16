@@ -118,9 +118,9 @@ public class KMeansCUDA {
                     // these are pretty big so allocate up front
                     val host_points = new Rail[Float]((num_local_points_stride*dim), init);
 
-                    val gpu_points = CUDAUtilities.makeRemoteRail(gpu, num_local_points_stride*dim, host_points);
+                    val gpu_points = CUDAUtilities.makeGlobalRail(gpu, num_local_points_stride*dim, host_points);
                     val host_nearest = new Rail[Long](num_local_points, 0l);
-                    val gpu_nearest = CUDAUtilities.makeRemoteRail[Long](gpu, num_local_points, 0l);
+                    val gpu_nearest = CUDAUtilities.makeGlobalRail[Long](gpu, num_local_points, 0l);
 
                     val host_clusters  = new Rail[Float](num_clusters*dim, (i:Long)=>file_points(i));
                     val host_cluster_counts = new Rail[Int](num_clusters, 0);
@@ -140,12 +140,12 @@ public class KMeansCUDA {
 
                         var start_time : Long = System.currentTimeMillis();
                         // classify kernel
-                        finish async at (gpu) /*@CUDA @CUDADirectParams*/ {
+                        finish async at (gpu) @CUDA @CUDADirectParams {
                             val blocks = CUDAUtilities.autoBlocks();
                             val threads = CUDAUtilities.autoThreads();
-                            finish for (block in 0l..(blocks-1l)) async {
+                            finish for (block in 0..(blocks-1)) async {
                                 val clustercache = new Rail[Float](clusters_copy);
-                                clocked finish for (thread in 0l..(threads-1l)) clocked async {
+                                clocked finish for (thread in 0..(threads-1)) clocked async {
                                     val tid = block * threads + thread;
                                     val tids = blocks * threads;
                                     for (var p:Long=tid ; p<num_local_points ; p+=tids) {
@@ -229,8 +229,8 @@ public class KMeansCUDA {
                         Console.OUT.println("reduce: "+r_time/1E3);
                     }
 
-                    CUDAUtilities.deleteRemoteRail(gpu_points);
-                    CUDAUtilities.deleteRemoteRail(gpu_nearest);
+                    CUDAUtilities.deleteGlobalRail(gpu_points);
+                    CUDAUtilities.deleteGlobalRail(gpu_nearest);
 
                 } // gpus
 

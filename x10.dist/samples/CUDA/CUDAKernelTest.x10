@@ -58,7 +58,7 @@ public class CUDAKernelTest {
         val arr1 = new Rail[Float](64);
         val arr2 = new Rail[Int](64);
 
-        finish async at (p) /*@CUDA @CUDADirectParams*/ {
+        finish async at (p) @CUDA @CUDADirectParams {
             finish for (block in 0..1) async {
                 val shm1 = new Rail[Float](arr1);
                 val shm2 = new Rail[Int](64l, (x:Long)=>{val tmp = (x as Int)+10; return tmp;});
@@ -142,7 +142,7 @@ public class CUDAKernelTest {
 
         val remote = CUDAUtilities.makeGlobalRail[Float](p,tids,(Long)=>0.0 as Float); // allocate 
 
-        finish async at (p) /*@CUDA @CUDADirectParams*/ {
+        finish async at (p) @CUDA @CUDADirectParams {
             finish for (block in 0..(blocks-1)) async {
                 clocked finish for (thread in 0..(threads-1)) clocked async {
                     val r = function(5);

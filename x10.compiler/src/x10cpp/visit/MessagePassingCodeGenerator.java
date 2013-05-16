@@ -2835,7 +2835,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 		LocalInstance var = n.localInstance();
 		// Make sure there is no mismatch between n.name() and var.name()
 		if (var.name() != n.name().id()) {
-		    assert var.name() == n.name().id();
+		    assert var.name() == n.name().id() : "Name mismatch: "+var.name()+" != "+n.name().id();
 		}
 		if (c.isInsideClosure())
 			c.saveEnvVariableInfo(var.name().toString(), var.lval());
