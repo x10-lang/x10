@@ -134,7 +134,7 @@ template<class T> void x10::lang::GlobalRef<T>::_serialize(x10::lang::GlobalRef<
     buf.write(this_->value);
     #if defined(X10_USE_BDWGC) || defined(X10_DEBUG_REFERENCE_LOGGER)
     if (this_->location == x10aux::here) {
-        if (NULL != this_->__apply()) logGlobalReference(this_->__apply());
+        if (NULL != this_->__apply()) logGlobalReference(reinterpret_cast<x10::lang::Reference*>(this_->__apply()));
     }
     #endif
 }
