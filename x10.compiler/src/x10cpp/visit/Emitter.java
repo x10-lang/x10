@@ -265,8 +265,13 @@ public class Emitter {
 	    return full;
 	}
 
-	static HashMap<String,String> exploreConstraints(Context context, ConstrainedType type) {
+	/** Examines the type's constraints to determine any variable -> value mappings that exist. */
+	public static HashMap<String,String> exploreConstraints(Context context, Type type_) {
 		HashMap<String,String> r = new HashMap<String,String>();
+		if (!(type_ instanceof ConstrainedType)) {
+			return r;
+		}
+		ConstrainedType type = (ConstrainedType)type_;
 		CConstraint cc = type.getRealXClause();
 		 // FIXME: [DC] context.constraintProjection ought not to eliminate information but it seems to?
 		CConstraint projected = cc; //context.constraintProjection(cc);

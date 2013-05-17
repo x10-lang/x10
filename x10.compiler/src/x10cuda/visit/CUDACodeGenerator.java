@@ -28,6 +28,7 @@ import static x10cpp.visit.SharedVarsMethods.make_ref;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 
@@ -874,7 +875,63 @@ public class CUDACodeGenerator extends MessagePassingCodeGenerator {
 				"Runtime types not available in @CUDA code.", n, false);
 		super.visit(n);
 	}
-		   
+
+	public void visit(LocalDecl_c dec) {
+
+		if (!generatingCUDACode()) {
+			super.visit(dec);
+			return;
+		}
+
+        Type type = dec.type().type();
+
+	    if (!xts().isRail(type)) {
+	    	super.visit(dec);
+	    	return;
+	    }
+
+	    if (((X10Ext) dec.ext()).annotationMatching(xts().StackAllocate()).isEmpty()) {
+	    	super.visit(dec);
+	    	return;
+	    }
+
+	    // Then we have a stack allocated rail in a CUDA kernel...
+
+	    long size = -1;
+        HashMap<String,String> knownProperties = Emitter.exploreConstraints(context(), type);
+        String sizeString = knownProperties.get("size");
+        if (sizeString != null) {
+            if (sizeString.endsWith("L") || sizeString.endsWith("l")) {
+                sizeString = sizeString.substring(0, sizeString.length()-1);
+            }
+            try {
+                size = Long.parseLong(sizeString);
+            } catch (NumberFormatException e) {
+                // Ignore... will print warning message that we couldn't do it.
+            }
+        }
+        if (size < 0) {
+            tr.job().compiler().errorQueue().enqueue(ErrorInfo.WARNING,
+                    "Rail size not known at compile time; unable to StackAllocate.", dec.position());
+        }
+        
+        /* GIVEN c of Rail[Float]{size==16}
+        x10aux::cuda_array<x10_float> c;
+        c.FMGL(size) = 16;
+        x10_float c__backing[16];
+        c.raw = c__backing;
+         */
+
+        String name = dec.name().toString();
+        String typeStr = "x10_float";
+        
+        sw.write("x10aux::cuda_array<"+typeStr+"> "+name+";"); sw.newline(0);
+        sw.write(name+".FMGL(size) = "+size+";"); sw.newline(0);
+        sw.write(typeStr+" "+name+"__backing["+(size==0 ? 1 : size)+"];"); sw.newline(0);
+        sw.write(name+".raw = "+name+"__backing;"); sw.newline(0);
+	}
+
+	
 	public static boolean postCompile(X10CPPCompilerOptions options, Compiler compiler, ErrorQueue eq) {
         if (options.post_compiler != null && !options.output_stdout) {
     		CXXCommandBuilder ccb = CXXCommandBuilder.getCXXCommandBuilder(
