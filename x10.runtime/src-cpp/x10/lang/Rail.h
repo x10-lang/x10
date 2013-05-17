@@ -117,24 +117,24 @@ namespace x10 {
 
             x10::lang::LongRange range();
 
-            virtual x10::lang::Iterator<T>* iterator();
+            x10::lang::Iterator<T>* iterator();
 
             virtual x10::lang::String* toString();
 
-            virtual T __apply(x10_long index) {
+            T __apply(x10_long index) {
                 checkBounds(index, FMGL(size));
                 return raw[index];
             }
-            virtual T unchecked_apply(x10_long index) {
+            T unchecked_apply(x10_long index) {
                 return raw[index];
             }                
 
-            virtual T __set(x10_long index, T v) {
+            T __set(x10_long index, T v) {
                 checkBounds(index, FMGL(size));
                 raw[index] = v;
                 return v;
             }
-            virtual T unchecked_set(x10_long index, T v) {
+            T unchecked_set(x10_long index, T v) {
                 raw[index] = v;
                 return v;
             }
@@ -149,8 +149,8 @@ namespace x10 {
             }
 
             
-            virtual void clear();
-            virtual void clear(x10_long start, x10_long numElems);
+            void clear();
+            void clear(x10_long start, x10_long numElems);
     
             // Serialization
             static const x10aux::serialization_id_t _serialization_id;
@@ -158,7 +158,7 @@ namespace x10 {
                 return _serialization_id;
             }
     
-            virtual void _serialize_body(x10aux::serialization_buffer& buf);
+            void _serialize_body(x10aux::serialization_buffer& buf);
 
             static x10::lang::Reference* _deserializer(x10aux::deserialization_buffer& buf);
             void _deserialize_body(x10aux::deserialization_buffer& buf);
@@ -211,6 +211,13 @@ namespace x10 {
                                                         x10_long numElems,
                                                         x10::lang::VoidFun_0_0* notif);
         };
+
+        template <class T, x10_long SZ> class StackAllocatedRail : public x10::lang::Rail<T> {
+        public:
+            T raw2[SZ > 1 ? SZ-1 : 0]; // get the rest of the storage we need for a Rail of size SZ
+            StackAllocatedRail(x10_long numElems) : x10::lang::Rail<T>(numElems) { }
+        };
+
     }
 } 
 #endif // X10_LANG_RAIL_H

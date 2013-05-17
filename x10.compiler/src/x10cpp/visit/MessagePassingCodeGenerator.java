@@ -2150,10 +2150,9 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 	        if (dec.type().type().isRail()) {
 	            tmpName = mangled_non_method_name(dec.name().id().toString());
 	            Type elemType = dec.type().type().toClass().typeArguments().get(0);
-	            String elemSize = "sizeof("+Emitter.translateType(elemType)+")";
-	            sw.writeln("union {x10_byte bytes[sizeof("+Emitter.translateType(dec.type().type(), false)+") - "+elemSize +" + ("+sizeProperty+ " * "+elemSize+")]; double alignhack[1]; } "+tmpName+"_mem;");            
+	            sw.writeln("x10::lang::StackAllocatedRail<"+Emitter.translateType(elemType)+", "+sizeProperty+"> "+tmpName+"_mem("+sizeProperty+");");
 	            emitter.printHeader(dec, sw, tr, true);
-	            sw.write(" = new (&"+tmpName+"_mem) "+Emitter.translateType(dec.type().type(), false)+"("+sizeProperty+");");
+	            sw.write(" = &"+tmpName+"_mem;");
 	        } else {
 	            tmpName = "_StackAllocate_"+mangled_non_method_name(dec.name().id().toString());
 	            sw.writeln(Emitter.translateType(dec.type().type(), false)+" "+tmpName+";");
