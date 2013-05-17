@@ -233,6 +233,16 @@ public class X10RT {
       assert isBooted();
       return numPlaces;
     }
+    
+    public static boolean supportsCollectives() {
+        assert isBooted();
+        if (forceSinglePlace || javaSockets != null)
+        	return false;
+        else
+        	// at this point, the emulated collectives are still available in native code.
+        	// TODO: benchmark emulated collectives in X10 vs native, and drop native if it's slower.
+        	return true;
+      }
 
     static boolean isBooted() {
       return state.compareTo(State.RUNNING) >= 0;
