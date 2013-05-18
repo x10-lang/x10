@@ -409,7 +409,8 @@ public class CUDAPatternMatcher extends ContextVisitor {
 					ck.directParams = direct;
 					return ck;
 				} catch (Complaint e) {
-					e.printStackTrace();
+					System.err.println(e.toString());
+					//e.printStackTrace();
 				}
 			}
 		}

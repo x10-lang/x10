@@ -30,6 +30,7 @@ import static x10cpp.visit.SharedVarsMethods.make_ref;
 import static x10cpp.visit.SharedVarsMethods.make_captured_lval;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -266,11 +267,11 @@ public class Emitter {
 	}
 
 	/** Examines the type's constraints to determine any variable -> value mappings that exist. */
-	public static HashMap<String,String> exploreConstraints(Context context, Type type_) {
-		HashMap<String,String> r = new HashMap<String,String>();
+	public static Map<String,Object> exploreConstraints(Context context, Type type_) {
 		if (!(type_ instanceof ConstrainedType)) {
-			return r;
+			return Collections.<String,Object>emptyMap();
 		}
+		HashMap<String,Object> r = new HashMap<String,Object>();
 		ConstrainedType type = (ConstrainedType)type_;
 		CConstraint cc = type.getRealXClause();
 		 // FIXME: [DC] context.constraintProjection ought not to eliminate information but it seems to?
@@ -290,7 +291,7 @@ public class Emitter {
 			// resolve to another variable, keep going
 			XVar closed_xvar = projected.bindingForVar(xvar);
 			if (closed_xvar!=null && closed_xvar instanceof XLit) {
-				r.put(property_name, closed_xvar.toString());
+				r.put(property_name, ((XLit)closed_xvar).val());
 			}
 		}
 		return r;
@@ -327,8 +328,8 @@ public class Emitter {
 		if (type.isVoid()) {
 			return "void";
 		}
-		HashMap<String,String> propertyKnowledge = null;
-		if (ctx!=null && type instanceof ConstrainedType) propertyKnowledge = exploreConstraints(ctx, (ConstrainedType)type);
+		Map<String,Object> propertyKnowledge = null;
+		if (ctx!=null && type instanceof ConstrainedType) propertyKnowledge = exploreConstraints(ctx, type);
 		// TODO: handle closures
 //		if (((X10TypeSystem) type.typeSystem()).isClosure(type))
 //			return translateType(((X10Type) type).toClosure().base(), asRef);

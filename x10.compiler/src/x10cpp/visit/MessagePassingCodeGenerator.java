@@ -2119,23 +2119,14 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 	    if (!((X10Ext) dec.ext()).annotationMatching(annotation).isEmpty()) {
 	        if (dec.type().type().isRail()) {
 	            Type rt = dec.type().type();
-	            if (rt instanceof ConstrainedType) {
-	                HashMap<String,String> knownProperties = Emitter.exploreConstraints(context, (ConstrainedType)rt);
-	                String sizeString = knownProperties.get("size");
-	                if (sizeString != null) {
-	                    if (sizeString.endsWith("L") || sizeString.endsWith("l")) {
-	                        sizeString = sizeString.substring(0, sizeString.length()-1);
-	                    }
-	                    try {
-	                        sizeProperty = Long.parseLong(sizeString);
-	                    } catch (NumberFormatException e) {
-	                        // Ignore... will print warning message that we couldn't do it.
-	                    }
-	                    if (sizeProperty >= 0) {
-	                        stackAllocate = true;
-	                    }
-	                }
-	            }
+                Map<String,Object> knownProperties = Emitter.exploreConstraints(context, rt);
+                Object sizeVal = knownProperties.get("size");
+                if (sizeVal != null) {
+                    sizeProperty = ((Number)sizeVal).longValue();
+                    if (sizeProperty >= 0) {
+                        stackAllocate = true;
+                    }
+                }
 	            if (!stackAllocate) {
 	                tr.job().compiler().errorQueue().enqueue(ErrorInfo.WARNING,
 	                                                         "Rail size not known at compile time; unable to StackAllocate.", dec.position());

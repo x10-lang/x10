@@ -31,6 +31,7 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 
 import polyglot.ast.ArrayInit_c;
 import polyglot.ast.Assert_c;
@@ -111,6 +112,7 @@ import x10.ast.X10CanonicalTypeNode_c;
 import x10.ast.X10Cast_c;
 import x10.ast.X10ClassDecl;
 import x10.ast.X10ClassDecl_c;
+import x10.ast.X10ConstructorCall_c;
 import x10.ast.X10Formal;
 import x10.ast.X10Instanceof_c;
 import x10.ast.X10Loop;
@@ -896,23 +898,33 @@ public class CUDACodeGenerator extends MessagePassingCodeGenerator {
 	    }
 
 	    // Then we have a stack allocated rail in a CUDA kernel...
+	    
+	    // Check that the child AST is of the form @StackAllocate new Rail[T](literal);
+	    {
+	    Expr init = dec.init();
+		    if (!(init instanceof X10ConstructorCall_c)) {
+	            tr.job().compiler().errorQueue().enqueue(ErrorInfo.WARNING,
+	                    "@StackAllocate initializer was not a constructor call.", dec.position());
+		    }
+		    X10ConstructorCall_c constr = (X10ConstructorCall_c) init;
+		    Type target = constr.procedureInstance().returnType();
+		    if (!target.isRail()) {
+	            tr.job().compiler().errorQueue().enqueue(ErrorInfo.WARNING,
+	                    "@StackAllocate target was not a Rail.", dec.position());
+		    }
+		    
+	    }
 
 	    long size = -1;
-        HashMap<String,String> knownProperties = Emitter.exploreConstraints(context(), type);
-        String sizeString = knownProperties.get("size");
-        if (sizeString != null) {
-            if (sizeString.endsWith("L") || sizeString.endsWith("l")) {
-                sizeString = sizeString.substring(0, sizeString.length()-1);
-            }
-            try {
-                size = Long.parseLong(sizeString);
-            } catch (NumberFormatException e) {
-                // Ignore... will print warning message that we couldn't do it.
-            }
+        Map<String,Object> knownProperties = Emitter.exploreConstraints(context(), type);
+        Object sizeVal = knownProperties.get("size");
+        if (sizeVal != null) {
+        	// [DC] assume it's a Number, since otherwise would not pass type checking
+        	size = ((Number)sizeVal).longValue();
         }
         if (size < 0) {
             tr.job().compiler().errorQueue().enqueue(ErrorInfo.WARNING,
-                    "Rail size not known at compile time; unable to StackAllocate.", dec.position());
+                    "@StackAllocate Rail size not known at compile time.", dec.position());
         }
         
         /* GIVEN c of Rail[Float]{size==16}
