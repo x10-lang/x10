@@ -27,7 +27,7 @@ public final class Vec<T> extends x10.core.Struct {
     private static final long serialVersionUID = 1L;
 
     public int size;
-    public x10.array.Array<T> backing;
+    public Rail<T> backing;
 
     @Override
     public Vec<T> clone() {
@@ -57,56 +57,54 @@ public final class Vec<T> extends x10.core.Struct {
 //        super($dummy);
     }
 
-    public final Vec<T> x10$util$Vec$$init$S(final Type<T> T, final int s) {
+    public final Vec<T> x10$util$Vec$$init$S(Type<T> T, int s) {
         this.T = T;
         this.size = s;
-        this.backing = new x10.array.Array<T>((java.lang.System[]) null, T).x10$array$Array$$init$S(size);
+        this.backing = new Rail<T>(T, size);
         return this;
     }
 
-    public Vec(final Type<T> T, final int s) {
+    public Vec(Type<T> T, int s) {
         this.T = T;
         this.size = s;
-        this.backing = new x10.array.Array<T>((java.lang.System[]) null, T).x10$array$Array$$init$S(size);
+        this.backing = new Rail<T>(T, size);
     }
 
-    public final Vec<T> x10$util$Vec$$init$S(final Type<T> T, Vec<T> other) {
+    public final Vec<T> x10$util$Vec$$init$S(Type<T> T, Vec<T> other) {
         this.T = T;
         this.size = other.size;
-        this.backing = new x10.array.Array<T>((java.lang.System[]) null, T).x10$array$Array$$init$S(other.backing, (x10.array.Array.__0$1x10$array$Array$$T$2) null);
+        this.backing = new Rail<T>(T, other.backing, (Rail.__0$1x10$lang$Rail$$T$2) null);
         return this;
     }
 
-    public Vec(final Type<T> T, Vec<T> other) {
+    public Vec(Type<T> T, Vec<T> other) {
         this.T = T;
         this.size = other.size;
-        this.backing = new x10.array.Array<T>((java.lang.System[]) null, T).x10$array$Array$$init$S(other.backing, (x10.array.Array.__0$1x10$array$Array$$T$2) null);
+        this.backing = new Rail<T>(T, other.backing, (Rail.__0$1x10$lang$Rail$$T$2) null);
     }
 
     // zero value constructor
-    public Vec(final Type<T> T, final java.lang.System $dummy) {
+    public Vec(Type<T> T, java.lang.System $dummy) {
         this.T = T;
         this.backing = null;
         this.size = 0;
     }
 
-    final public static <U> Vec<U> make(final Type U, final int s) {
+    final public static <U> Vec<U> make(Type U, int s) {
         return new Vec<U>(U, s);
     }
 
-    final public T get(final int i) {
+    final public T get(int i) {
         return backing.$apply$G(i);
     }
 
-    final public T set(final int i, final T v) {
-        return backing.$set__1x10$array$Array$$T$G(i, v);
+    final public T set(int i, T v) {
+        return backing.$set__1x10$lang$Rail$$T$G(i, v);
     }
 
     final public int size() {
         return this.size;
     }
-
-    final native public java.lang.String typeName();
 
     @Override
     final public java.lang.String toString() {
@@ -145,8 +143,8 @@ public final class Vec<T> extends x10.core.Struct {
 //          if (!this.backing.$apply$G(i).equals(other.backing.$apply$G(i))) return false;
 //      }
 //      return true;
-        Object thisValue = this.backing.raw.value;
-        Object otherValue = other.backing.raw.value;
+        Object thisValue = this.backing.value;
+        Object otherValue = other.backing.value;
         if (T == Types.BYTE || T == Types.UBYTE) {
             return java.util.Arrays.equals((byte[]) thisValue, (byte[]) otherValue);
         }
