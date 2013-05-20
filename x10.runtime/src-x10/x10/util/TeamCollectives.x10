@@ -543,8 +543,8 @@ public struct TeamCollectives {
 		}
 
 	    public def barrier() {
-	        // block if some other collective is in progress.
-	    	//Runtime.println(here+":team"+teamid+" entered barrier (by the way, phase = "+phase.get()+")");
+	        //Runtime.println(here+":team"+teamid+" entered barrier (by the way, phase = "+phase.get()+")");
+	    	// block if some other collective is in progress.
 	    	while (!this.phase.compareAndSet(PHASE_IDLE, PHASE_GATHER1)) 
 	    		System.sleep(10);
 	    	//Runtime.println(here+":team"+teamid+" entered barrier PHASE_GATHER1");
@@ -554,88 +554,54 @@ public struct TeamCollectives {
 	    	val teamidcopy = teamid; // needed to prevent serializing "this" in my at statements	    	
 	    	//Runtime.println(here+":team"+teamidcopy+" has parent "+parent);
 	    	//Runtime.println(here+":team"+teamidcopy+" has children "+children);
-	    	
-		    if (parent == Place.INVALID_PLACE) { // we're the root node
-		    	if (children.first == Place.INVALID_PLACE) { // there is only one place in this team
-		    		this.phase.set(PHASE_IDLE);
-		    		return; 
-		    	}
-		    	if (children.second == Place.INVALID_PLACE) {
-		    		this.phase.compareAndSet(PHASE_GATHER1, PHASE_GATHER2); // only one child, so skip a phase waiting for the right child.
-		    		//Runtime.println("root "+here+":team"+teamidcopy+" skipped PHASE_GATHER1, entered PHASE_GATHER2");
-		    	}
-		        while (this.phase.get() != PHASE_SCATTER) // wait for the left child to set us to this state
-		        	System.sleep(10);
-		        //Runtime.println("root "+here+":team"+teamidcopy+" entered PHASE_SCATTER");
-		        // once we reach this point, all places are in the barrier.  Free the first child
-		        at (children.first) {
-		        	if (!TeamCollectives.state(teamidcopy).phase.compareAndSet(PHASE_SCATTER, PHASE_IDLE))
-		            	Runtime.println("ERROR root setting the first child "+here+":team"+teamidcopy+" to PHASE_IDLE");
-		        	//else Runtime.println("root set the first child "+here+":team"+teamidcopy+" to PHASE_IDLE");
-		        }
-		        // Free the second child, if it exists
-		        if (children.second != Place.INVALID_PLACE) {
-		        	at (children.second) {
-		        		if (!TeamCollectives.state(teamidcopy).phase.compareAndSet(PHASE_SCATTER, PHASE_IDLE))
-		        			Runtime.println("ERROR root setting the second child "+here+":team"+teamidcopy+" to PHASE_IDLE");
-		        		//else Runtime.println("root set the second child "+here+":team"+teamidcopy+" to PHASE_IDLE");
-		        	}
-		        }
-		        this.phase.set(PHASE_IDLE);
-		        //Runtime.println("root "+here+":team"+teamidcopy+" entered PHASE_IDLE");
-		        // done!
-		    }
-		    else if (children.first == Place.INVALID_PLACE) { // if we are a leaf node, initiate the barrier
-		    	// no children to wait for
-		    	this.phase.compareAndSet(PHASE_GATHER1, PHASE_SCATTER);
-		    	//Runtime.println("leaf "+here+":team"+teamidcopy+" entered PHASE_SCATTER, updating parent");
-		    	at (parent) { // increment the phase of the parent
+
+	    
+	    	// Start out waiting for all children to update our state 
+	    	if (children.first == Place.INVALID_PLACE) // no children to wait for
+	    		this.phase.compareAndSet(PHASE_GATHER1, PHASE_SCATTER);
+	    	else if (children.second == Place.INVALID_PLACE) { // only one child, so skip a phase waiting for the second child.
+	    		if (!this.phase.compareAndSet(PHASE_GATHER1, PHASE_GATHER2)) 
+	    			this.phase.compareAndSet(PHASE_GATHER2, PHASE_SCATTER); 
+	    	}
+	    	//Runtime.println(here+":team"+teamidcopy+" waiting for children");
+	    	while (this.phase.get() != PHASE_SCATTER) // wait for updates from children, not already skipped
+	    		System.sleep(10);
+	    	    
+	    
+	        // all children have checked in.  Update our parent, and then wait for the parent to update us 
+	    	if (parent == Place.INVALID_PLACE) 
+	    		this.phase.set(PHASE_IDLE); // the root node has no parent, and can skip ahead
+	    	else {
+	    		at (parent) { // increment the phase of the parent
 	    			while(!TeamCollectives.state(teamidcopy).phase.compareAndSet(PHASE_GATHER1, PHASE_GATHER2) && 
 	    					!TeamCollectives.state(teamidcopy).phase.compareAndSet(PHASE_GATHER2, PHASE_SCATTER))
 	    				System.sleep(10);
 	    			//Runtime.println(here+" has been set to phase "+TeamCollectives.state(teamidcopy).phase.get());
-		    	}
-		    	//Runtime.println("leaf waiting for parent "+parent+":team"+teamidcopy+" to release us from phase "+phase.get());
-		    	while (this.phase.get() != PHASE_IDLE) // wait for parent to set us free
-		    		System.sleep(10);
-		    	//Runtime.println("leaf "+here+":team"+teamidcopy+" entered PHASE_IDLE");
-		    	// done!
-		    }
-	        else { // not a leaf, not the root.  Participate in all phases
-	        	//Runtime.println("branch "+here+":team"+teamidcopy+" waiting on children");
-	        	if (children.second == Place.INVALID_PLACE) // only one child, so skip the phase waiting for the second child.
-	        		if (!this.phase.compareAndSet(PHASE_GATHER1, PHASE_GATHER2)) 
-	        			this.phase.compareAndSet(PHASE_GATHER2, PHASE_SCATTER);
-	        	while (this.phase.get() != PHASE_SCATTER) // wait for the child to set us to this state
-	        		System.sleep(10);
-	        	//Runtime.println("branch "+here+":team"+teamidcopy+" entered PHASE_SCATTER, updating parent");
-		        at (parent) { // increment the phase of the parent
-		        	while (!TeamCollectives.state(teamidcopy).phase.compareAndSet(PHASE_GATHER1, PHASE_GATHER2) && 
-		        			!TeamCollectives.state(teamidcopy).phase.compareAndSet(PHASE_GATHER2, PHASE_SCATTER))
-		        		System.sleep(10);
-		        	//Runtime.println(here+" has been set to phase "+TeamCollectives.state(teamidcopy).phase.get());
-		        }
-		        while (this.phase.get() != PHASE_IDLE) // wait for parent to set us free
-		        	System.sleep(10);
-		        //Runtime.println("branch "+here+":team"+teamidcopy+" entered PHASE_IDLE... Updating children");
-		        
-		        //  Free the first child
-		        at (children.first) {
-			        if (!TeamCollectives.state(teamidcopy).phase.compareAndSet(PHASE_SCATTER, PHASE_IDLE))
-			        	Runtime.println("ERROR root setting the first child "+here+":team"+teamidcopy+" to PHASE_IDLE");
-			        //else Runtime.println("root set the first child "+here+":team"+teamidcopy+" to PHASE_IDLE");
-		        }
-		        // Free the second child, if it exists
-		        if (children.second != Place.INVALID_PLACE) {
-			        at (children.second) {
-			        	if (!TeamCollectives.state(teamidcopy).phase.compareAndSet(PHASE_SCATTER, PHASE_IDLE))
-			        		Runtime.println("ERROR root setting the second child "+here+":team"+teamidcopy+" to PHASE_IDLE");
-			        	//else Runtime.println("root set the second child "+here+":team"+teamidcopy+" to PHASE_IDLE");
-			        }
-		        }
-		        // done!
-	        }
-		    //Runtime.println(here+":team"+teamidcopy+" leaving barrier");
+	    		}
+			    //Runtime.println(here+ " waiting for parent "+parent+":team"+teamidcopy+" to release us from phase "+phase.get());
+			    while (this.phase.get() != PHASE_IDLE) // wait for parent to set us free
+			    	System.sleep(10);
+	    	}
+	    
+	    
+	    	// our parent has updated us - update any children, and leave the barrier
+	    	if (children.first != Place.INVALID_PLACE) { // free the first child, if it exists
+	    		at (children.first) {
+	    			if (!TeamCollectives.state(teamidcopy).phase.compareAndSet(PHASE_SCATTER, PHASE_IDLE))
+	    				Runtime.println("ERROR root setting the first child "+here+":team"+teamidcopy+" to PHASE_IDLE");
+	    			//else Runtime.println("set the first child "+here+":team"+teamidcopy+" to PHASE_IDLE");
+	    		}
+	    		if (children.second != Place.INVALID_PLACE) {
+	    			at (children.second) {
+	    				if (!TeamCollectives.state(teamidcopy).phase.compareAndSet(PHASE_SCATTER, PHASE_IDLE))
+	    					Runtime.println("ERROR root setting the second child "+here+":team"+teamidcopy+" to PHASE_IDLE");
+	    				//else Runtime.println("set the second child "+here+":team"+teamidcopy+" to PHASE_IDLE");
+	    			}
+	    		}
+	    	}	    
+	    
+	        // done!
+	    	//Runtime.println(here+":team"+teamidcopy+" leaving barrier");	    
 	    }
 	}
 }
