@@ -1933,47 +1933,45 @@ public class Emitter {
         return false;
     }
 
-    /*
-     * The word 'instantiated' means the instantiation of type parameter (e.g. T) with concrete type (e.g. Int). 
-     */
-    private void generateBridgeMethodsForGenerics(X10ClassDef cd) {
-	    if (cd.flags().isInterface()) {
-	        return;
-	    }
-
-	    X10ClassType ct = cd.asType();
-	    for (MethodDef md : cd.methods()) {
-	        List<MethodInstance> methods = getInstantiatedMethods(ct, md.asInstance());
-	        for (MethodInstance mi : methods) {
-	            printBridgeMethod(ct, md.asInstance(), mi.def(), false);
-	        }
-	    }
-	    
-	    List<MethodInstance> inheriteds = new ArrayList<MethodInstance>();
-        List<MethodInstance> overrides = new ArrayList<MethodInstance>();
-	    getInheritedMethods(ct, inheriteds, overrides);
-	    for (MethodInstance mi : inheriteds) {
-	        if (isInstantiated(mi.def().returnType().get(), mi.returnType())) {
-	            printBridgeMethodForInheritedMethod(ct, mi);
-	            continue;
-	        }
-	        for (int i = 0; i < mi.formalTypes().size(); ++ i) {
-	            if (
-	                    isPrimitive(mi.formalTypes().get(i)) &&
-	                    isInstantiated(mi.def().formalTypes().get(i).get(), mi.formalTypes().get(i))
-	            ) {
-	                printBridgeMethodForInheritedMethod(ct, mi);
-	                break;
-	            }
-	        }
-	        List<MethodInstance> implMethods = new ArrayList<MethodInstance>();
-	        List<Type> interfaces = ct.interfaces();
-	        getImplMethods(mi, implMethods, interfaces);
-	        for (MethodInstance mi2 : implMethods) {
-	            printBridgeMethod(ct, mi, mi2.def(), false);
-	        }
-	    }
-	}
+	// not used
+//    private void generateBridgeMethodsForGenerics(X10ClassDef cd) {
+//	    if (cd.flags().isInterface()) {
+//	        return;
+//	    }
+//
+//	    X10ClassType ct = cd.asType();
+//	    for (MethodDef md : cd.methods()) {
+//	        List<MethodInstance> methods = getInstantiatedMethods(ct, md.asInstance());
+//	        for (MethodInstance mi : methods) {
+//	            printBridgeMethod(ct, md.asInstance(), mi.def(), false);
+//	        }
+//	    }
+//	    
+//	    List<MethodInstance> inheriteds = new ArrayList<MethodInstance>();
+//        List<MethodInstance> overrides = new ArrayList<MethodInstance>();
+//	    getInheritedMethods(ct, inheriteds, overrides);
+//	    for (MethodInstance mi : inheriteds) {
+//	        if (isInstantiated(mi.def().returnType().get(), mi.returnType())) {
+//	            printBridgeMethodForInheritedMethod(ct, mi);
+//	            continue;
+//	        }
+//	        for (int i = 0; i < mi.formalTypes().size(); ++ i) {
+//	            if (
+//	                    isPrimitive(mi.formalTypes().get(i)) &&
+//	                    isInstantiated(mi.def().formalTypes().get(i).get(), mi.formalTypes().get(i))
+//	            ) {
+//	                printBridgeMethodForInheritedMethod(ct, mi);
+//	                break;
+//	            }
+//	        }
+//	        List<MethodInstance> implMethods = new ArrayList<MethodInstance>();
+//	        List<Type> interfaces = ct.interfaces();
+//	        getImplMethods(mi, implMethods, interfaces);
+//	        for (MethodInstance mi2 : implMethods) {
+//	            printBridgeMethod(ct, mi, mi2.def(), false);
+//	        }
+//	    }
+//	}
 
     /*
      * 'inheriteds' will include all visible methods that are inherited from super classes to ct.
@@ -2134,6 +2132,9 @@ public class Emitter {
         return methods;
     }
 
+    /*
+     * The word 'instantiated' means the instantiation of type parameter (e.g. T) with concrete type (e.g. Int). 
+     */
     private static boolean isInstantiated(Type sup, Type t) {
         return sup.isParameterType() && !t.isParameterType();
     }
@@ -2517,35 +2518,36 @@ public class Emitter {
     	    w.newline();
     }
 
-    private void generateBridgeMethodsForCovariantOverride(X10ClassDef cd) {
-        if (cd.flags().isInterface()) {
-            return;
-        }
-    
-        X10ClassType ct = cd.asType();
-        for (MethodDef md : cd.methods()) {
-            List<MethodInstance> methods = getCovarientOverriddenMethods(ct, md.asInstance());
-            for (MethodInstance mi : methods) {
-                printBridgeMethod(ct, md.asInstance(), mi.def(), true);
-            }
-        }
-        
-        List<MethodInstance> inheriteds = new ArrayList<MethodInstance>();
-        List<MethodInstance> overrides = new ArrayList<MethodInstance>();
-        getInheritedMethods(ct, inheriteds, overrides);
-        for (MethodInstance mi : inheriteds) {
-//            if (isCovariantOverride(mi.def().returnType().get(), mi.returnType())) {
-//                printBridgeMethodForInheritedMethod(ct, mi);
-//                continue;
+    // not used
+//    private void generateBridgeMethodsForCovariantOverride(X10ClassDef cd) {
+//        if (cd.flags().isInterface()) {
+//            return;
+//        }
+//    
+//        X10ClassType ct = cd.asType();
+//        for (MethodDef md : cd.methods()) {
+//            List<MethodInstance> methods = getCovarientOverriddenMethods(ct, md.asInstance());
+//            for (MethodInstance mi : methods) {
+//                printBridgeMethod(ct, md.asInstance(), mi.def(), true);
 //            }
-            List<MethodInstance> implMethods = new ArrayList<MethodInstance>();
-            List<Type> interfaces = ct.interfaces();
-            getImplMethodsForCovariantOverride(mi, implMethods, interfaces);
-            for (MethodInstance mi2 : implMethods) {
-                printBridgeMethod(ct, mi, mi2.def(), true);
-            }
-        }
-    }
+//        }
+//        
+//        List<MethodInstance> inheriteds = new ArrayList<MethodInstance>();
+//        List<MethodInstance> overrides = new ArrayList<MethodInstance>();
+//        getInheritedMethods(ct, inheriteds, overrides);
+//        for (MethodInstance mi : inheriteds) {
+////            if (isCovariantOverride(mi.def().returnType().get(), mi.returnType())) {
+////                printBridgeMethodForInheritedMethod(ct, mi);
+////                continue;
+////            }
+//            List<MethodInstance> implMethods = new ArrayList<MethodInstance>();
+//            List<Type> interfaces = ct.interfaces();
+//            getImplMethodsForCovariantOverride(mi, implMethods, interfaces);
+//            for (MethodInstance mi2 : implMethods) {
+//                printBridgeMethod(ct, mi, mi2.def(), true);
+//            }
+//        }
+//    }
     
     // Fix for XTENLANG-3035
     // old and buggy code
