@@ -2614,6 +2614,13 @@ public class TypeSystem_c implements TypeSystem
         return globalRailType_;
     }
 
+    protected X10ClassType cudaConstantRail_ = null;
+    public X10ClassType CUDAConstantRail() {
+        if (cudaConstantRail_ == null)
+        	cudaConstantRail_ = load("x10.lang.CUDAConstantRail");
+        return cudaConstantRail_;
+    }
+
     protected X10ClassType distArrayType_ = null;
     public X10ClassType DistArray() {
         if (distArrayType_ == null)
@@ -4092,6 +4099,10 @@ public class TypeSystem_c implements TypeSystem
 
     public boolean isGlobalRail(Type t) {
         return finalSubtype(t, GlobalRail());
+    }
+
+    public boolean isCUDAConstantRail(Type t) {
+        return finalSubtype(t, CUDAConstantRail());
     }
 
     public boolean isRemoteArrayOf(Type t, Type p) {

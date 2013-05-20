@@ -270,7 +270,7 @@ public class CUDACodeGenerator extends MessagePassingCodeGenerator {
 		complainIfNot2(cond, exp, n, true);
 	}
 
-	private Type arrayCargo(Type typ) {
+	private Type railCargo(Type typ) {
 		if (xts().isRail(typ)) {
 			typ = typ.toClass();
 			X10ClassType ctyp = (X10ClassType) typ;
@@ -290,22 +290,22 @@ public class CUDACodeGenerator extends MessagePassingCodeGenerator {
 
 	}
 
-	private boolean isFloatArray(Type typ) {
-		Type cargo = arrayCargo(typ);
+	private boolean isFloatRail(Type typ) {
+		Type cargo = railCargo(typ);
 		return cargo != null && cargo.isFloat();
 	}
 
-	private boolean isIntArray(Type typ) {
-		Type cargo = arrayCargo(typ);
+	private boolean isIntRail(Type typ) {
+		Type cargo = railCargo(typ);
 		return cargo != null && cargo.isInt();
 	}
 
 	String prependCUDAType(Type t, String rest) {
 		String type = Emitter.translateType(t, true);
 
-		if (isIntArray(t)) {
+		if (isIntRail(t)) {
 			type = "x10aux::cuda_array<x10_int> ";
-		} else if (isFloatArray(t)) {
+		} else if (isFloatRail(t)) {
 			type = "x10aux::cuda_array<x10_float> ";
 		} else {
 			type = type + " ";
@@ -563,7 +563,7 @@ public class CUDACodeGenerator extends MessagePassingCodeGenerator {
 				for (VarInstance<?> var : env) {
 					Type t = var.type();
 					String name = var.name().toString();
-					if (isIntArray(t) || isFloatArray(t)) {
+					if (isIntRail(t) || isFloatRail(t)) {
 						if (!xts().isGlobalRail(t)) {
 							inc.write("x10aux::remote_free(__gpu, (x10_ulong)(size_t)__env." + name + ".raw);");
 						}
@@ -652,13 +652,13 @@ public class CUDACodeGenerator extends MessagePassingCodeGenerator {
 				String name = var.name().toString();
 
 				String ts = null;
-				if (isIntArray(t)) {
+				if (isIntRail(t)) {
 					ts = "x10_int";
-				} else if (isFloatArray(t)) {
+				} else if (isFloatRail(t)) {
 					ts = "x10_float";
 				}
 
-				if (isIntArray(t) || isFloatArray(t)) {
+				if (isIntRail(t) || isFloatRail(t)) {
 					if (xts().isGlobalRail(t)) {
 						// Just initialise the __env struct with the remote pointer and size
 						inc.write("__env." + name + ".raw = (" + ts + "*)(size_t)" + name + "->__apply();");
@@ -935,7 +935,7 @@ public class CUDACodeGenerator extends MessagePassingCodeGenerator {
          */
 
         String name = dec.name().toString();
-        String typeStr = "x10_float";
+        String typeStr = Emitter.translateType(railCargo(type), true);
         
         sw.write("x10aux::cuda_array<"+typeStr+"> "+name+";"); sw.newline(0);
         sw.write(name+".FMGL(size) = "+size+";"); sw.newline(0);

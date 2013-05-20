@@ -59,7 +59,7 @@ namespace x10aux {
 template<class T, class S> void x10aux::CMemPopulator::populateArr (S init) {
     x10aux::nullCheck(init);
     size_t sz = sizeof(T) * init->FMGL(size);
-    memcpy(&ptr[offset], &init->FMGL(raw).raw()[0], sz);
+    memcpy(&ptr[offset], &init->raw[0], sz);
     offset += sz;
 }
 /*

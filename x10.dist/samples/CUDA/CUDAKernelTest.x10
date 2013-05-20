@@ -92,43 +92,43 @@ public class CUDAKernelTest {
         CUDAUtilities.deleteGlobalRail(remote);
     }
 
-//    static def doTest3 (p:Place) {
-//
-//        val blocks = 30;
-//        val threads = 64;
-//        val tids = blocks * threads;
-//
-//        val recv = new Rail[Float](tids,(i:Long)=>0.0f);
-//
-//        val remote = CUDAUtilities.makeGlobalRail[Float](p,tids,(Long)=>0.0 as Float); // allocate 
-//
-//        val rnd = new Random();
-//        val arr1 = new Rail[Float](threads,(i:Long)=>rnd.nextFloat());
-//
-//        finish async at (p) /*@CUDA @CUDADirectParams*/ {
-//            val ccache = arr1.sequence();
-//            finish for (block in 0..(blocks-1)) async {
-//                clocked finish for (thread in 0..(threads-1)) clocked async {
-//                    remote(threads*block + thread) = ccache(thread);
-//                }
-//            }
-//        }
-//
-//        finish Rail.asyncCopy(remote, 0l, recv, 0l, recv.size); // dma back
-//
-//        // validate
-//        var success:Boolean = true;
-//        for (i in recv.range) {
-//            val oracle = arr1(i % threads);
-//            if (Math.abs(oracle - recv(i)) > 1E-6f) {
-//                Console.ERR.println("recv("+i+"): "+recv(i)+" not "+oracle);
-//                success = false;
-//            }
-//        }
-//        Console.OUT.println((success?"SUCCESS":"FAIL")+" at "+p);
-//
-//        CUDAUtilities.deleteGlobalRail(remote);
-//    }
+    static def doTest3 (p:Place) {
+
+        val blocks = 30;
+        val threads = 64;
+        val tids = blocks * threads;
+
+        val recv = new Rail[Float](tids,(i:Long)=>0.0f);
+
+        val remote = CUDAUtilities.makeGlobalRail[Float](p,tids,(Long)=>0.0 as Float); // allocate 
+
+        val rnd = new Random();
+        val arr1 = new Rail[Float](threads,(i:Long)=>rnd.nextFloat());
+
+        finish async at (p) @CUDA @CUDADirectParams {
+            val ccache = CUDAConstantRail(arr1);
+            finish for (block in 0..(blocks-1)) async {
+                clocked finish for (thread in 0..(threads-1)) clocked async {
+                    remote(threads*block + thread) = ccache(thread);
+                }
+            }
+        }
+
+        finish Rail.asyncCopy(remote, 0l, recv, 0l, recv.size); // dma back
+
+        // validate
+        var success:Boolean = true;
+        for (i in recv.range) {
+            val oracle = arr1(i % threads);
+            if (Math.abs(oracle - recv(i)) > 1E-6f) {
+                Console.ERR.println("recv("+i+"): "+recv(i)+" not "+oracle);
+                success = false;
+            }
+        }
+        Console.OUT.println((success?"SUCCESS":"FAIL")+" at "+p);
+
+        CUDAUtilities.deleteGlobalRail(remote);
+    }
 
      @CUDA static def function (x:Int) : Int = x * x - 22;
 
@@ -182,7 +182,7 @@ public class CUDAKernelTest {
                 Console.OUT.println("Running test on GPU called "+gpu);
                 doTest1(init, recv, gpu, len);
                 doTest2(gpu);
-                //doTest3(gpu); commented out until we have constant memory again
+                doTest3(gpu);
                 doTest4(gpu);
                 done_work = true;
             }
@@ -192,7 +192,7 @@ public class CUDAKernelTest {
                 Console.OUT.println("Set X10RT_ACCELS=ALL to use GPUs if you have them.");
                 doTest1(init, recv, here, len);
                 doTest2(here);
-                //doTest3(gpu); commented out until we have constant memory again
+                doTest3(here);
                 doTest4(here);
             }
         }

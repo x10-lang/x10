@@ -195,7 +195,7 @@ public class CUDA3DFD {
             val BLOCKS_Y = dimy/BLOCK_DIMY;
             val S_DATA_STRIDE = BLOCK_DIMX+2*RADIUS;
             finish async at (gpu) @CUDA @CUDADirectParams {
-                val c_coeff = h_coeff_symmetric;
+                val c_coeff = CUDAConstantRail(h_coeff_symmetric);
                 finish for (block in 0..(BLOCKS_X*BLOCKS_Y-1)) async {
                     val s_data = new Rail[Float]((BLOCK_DIMY+2*RADIUS)*S_DATA_STRIDE, 0);
                     clocked finish for (thread in 0..(THREADS-1)) clocked async {

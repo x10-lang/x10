@@ -27,6 +27,8 @@ import polyglot.types.QName;
 import polyglot.types.SemanticException;
 import polyglot.types.Type;
 import polyglot.types.TypeSystem;
+import polyglot.types.TypeSystem_c;
+import polyglot.types.Types;
 import polyglot.util.ErrorInfo;
 import polyglot.visit.ContextVisitor;
 import polyglot.visit.NodeVisitor;
@@ -35,9 +37,12 @@ import x10.ast.AtStmt;
 import x10.ast.Closure;
 import x10.ast.Finish;
 import x10.ast.X10Call;
+import x10.ast.X10Call_c;
+import x10.ast.X10ConstructorCall_c;
 import x10.ast.X10Formal;
 import x10.ast.X10Loop;
 import x10.ast.X10New;
+import x10.ast.X10New_c;
 import x10.extension.X10Ext;
 import x10.types.MethodInstance;
 import x10.types.TypeParamSubst;
@@ -58,8 +63,8 @@ public class CUDAPatternMatcher extends ContextVisitor {
 		super(job, ts, nf);
 	}
 
-	private TypeSystem xts() {
-		return ts;
+	private TypeSystem_c xts() {
+		return (TypeSystem_c)ts;
 	}
 
 	// Type from name
@@ -113,16 +118,15 @@ public class CUDAPatternMatcher extends ContextVisitor {
 		complainIfNot2(cond, exp, n, true);
 	}
 
-	// If type is (Global)?Rail[T] then return T else return null
+	// If type is (Global|CUDAConstant)?Rail[T] then return T else return null
 	private Type arrayCargo(Type typ) {
-		if (xts().isRail(typ) || xts().isGlobalRail(typ)) {
+		if (!xts().isUnknown(typ) && (xts().isRail(typ) || xts().isGlobalRail(typ) || xts().isCUDAConstantRail(typ))) {
 			typ = typ.toClass();
 			X10ClassType ctyp = (X10ClassType) typ;
-			assert ctyp.typeArguments() != null && ctyp.typeArguments().size() == 1; // Rail[T]
+			assert ctyp.typeArguments() != null && ctyp.typeArguments().size() == 1 : typ; // Rail[T]
 			return ctyp.typeArguments().get(0);
 		}
 		return null;
-
 	}
 
 	private boolean isFloatArray(Type typ) {
@@ -250,11 +254,34 @@ public class CUDAPatternMatcher extends ContextVisitor {
 						Stmt ld_ = kernel_block.statements().get(i);
 						complainIfNot( ld_ instanceof LocalDecl, "val <something> = <autoBlocks/Threads or constant cache definition", ld_);
 						LocalDecl ld = (LocalDecl) ld_;
-	
+						
+						Type decl_type = ld.type().type();
+
+						// [DC] probably because of a type error in the input
+						if (xts().isUnknown(decl_type)) continue;
+						
 						Expr init_expr = ld.init();
-						if (init_expr instanceof X10Call) {
-							X10Call init_call = (X10Call) init_expr;
+
+						if (xts().isCUDAConstantRail(decl_type)) {
+							System.err.println("init_expr : "+init_expr.getClass());
+							complainIfNot(init_expr instanceof X10New_c, "val <something> = CUDAConstantRail(arr)", ld);
+							X10New_c init_call = (X10New_c)init_expr;
+							Type constr_type = Types.baseType(init_call.type());
+							complainIfNot(xts().isCUDAConstantRail(constr_type), "val <something> = CUDAConstantRail(arr)", ld);
+							complainIfNot(init_call.arguments().size() == 1, "val <something> = CUDAConstantRail(arr)", ld);
+							Expr constr_arg = init_call.arguments().get(0);
+							complainIfNot(constr_arg instanceof Local, "val <something> = CUDAConstantRail(arr)", ld);
+							Local arr = (Local) constr_arg;
+							Type cargo = arrayCargo(decl_type);
 							
+							cmem.addArrayInitArray((LocalDecl) setReachable(ld), arr,  Emitter.translateType(cargo, true));
+							
+						} else if (decl_type.typeEquals(xts().Int(), context())) {
+							complainIfNot(init_expr instanceof X10Call, "val <something> = CUDAUtilities.autoBlocks/Threads()", ld);
+
+							//blocks/threads
+							
+							X10Call init_call = (X10Call) init_expr;							
 							Receiver init_call_target = init_call.target();
 							if (init_call_target instanceof CanonicalTypeNode) {
 								CanonicalTypeNode init_call_target_node = (CanonicalTypeNode) init_call_target;
@@ -273,54 +300,13 @@ public class CUDAPatternMatcher extends ContextVisitor {
 								} else {
 									complainIfNot(false, "A call to CUDAUtilities.autoBlocks/autoThreads", init_call);
 								}
-							} else if (init_call_target instanceof Expr) {
-								Expr arr_ = (Expr) init_call_target;
-								complainIfNot(arr_ instanceof Local, "val <something> = some_array.sequence()", arr_);
-								Local arr = (Local) arr_;
-								complainIfNot(init_call.name().id().toString().equals("sequence"), "constant cache definition to call 'sequence'", init_expr);
-								Type cargo = arrayCargo(arr.type());
-								cmem.addArrayInitArray((LocalDecl) setReachable(ld), arr,  Emitter.translateType(cargo, true));
-							} else {
-								complainIfNot(
-										false,
-										"val <something> = CUDAUtilities.autoBlocks/Threads() or constant cache definition",
-										init_call_target);
 							}
-						/* Not doing this anymore because we're using sequences instead of array (constant cache is immutable)
+							
 						} else {
 							complainIfNot(
-									init_expr instanceof X10New_c,
-									"val <something> = new Array(...)",
-									init_expr);
-							X10New_c init_new = (X10New_c) init_expr;
-							Type instantiatedType = init_new.objectType().type();
-							complainIfNot(xts().isArray(instantiatedType),
-									"Initialisation expression to have Array[T] type.",
-									init_new);
-							TypeNode rail_type_arg_node = init_new.typeArguments().get(
-									0);
-	
-							Type rail_type_arg = rail_type_arg_node.type();
-							String rail_type_arg_ = Emitter.translateType(rail_type_arg, true);
-							// TODO: support other types
-							if (init_new.arguments().size() == 2) {
-								Expr num_elements = init_new.arguments().get(0);
-								Expr rail_init_closure = init_new.arguments().get(1);
-								cmem.addArrayInitClosure(ld, num_elements,
-										rail_init_closure, rail_type_arg_);
-							} else {
-								complainIfNot(init_new.arguments().size() == 1,
-										"val <var> = new Array[T](other_array)",
-										init_new);
-								Expr src_array = init_new.arguments().get(0);
-								complainIfNot(
-										xts().isArray(src_array.type())
-												|| xts().isRemoteArray(src_array.type()),
-										"Constant memory to be initialised from array or remote array type",
-										src_array);
-								cmem.addArrayInitArray(ld, src_array, rail_type_arg_);
-							}
-						*/
+									false,
+									"val <something> = CUDAUtilities.autoBlocks/Threads() or CUDAConstantRail definition",
+									ld);
 						}
 					}
 	
@@ -409,8 +395,8 @@ public class CUDAPatternMatcher extends ContextVisitor {
 					ck.directParams = direct;
 					return ck;
 				} catch (Complaint e) {
-					System.err.println(e.toString());
-					//e.printStackTrace();
+					//System.err.println(e.toString());
+					e.printStackTrace();
 				}
 			}
 		}
