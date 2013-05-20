@@ -7,7 +7,7 @@ import x10.compiler.CUDADirectParams;
 import x10.compiler.NoInline;
 
 public class CUDA3DFD {
-    public static def init_data(data:Array[Float](1){rail}, dimx:Int, dimy:Int, dimz:Int)
+    public static def init_data(data:Rail[Float], dimx:Int, dimy:Int, dimz:Int)
     {
         var off:Int = 0;
         for(var iz:Int=0; iz<dimz; iz++)
@@ -18,7 +18,7 @@ public class CUDA3DFD {
                 }
     }
 
-    public static def random_data(data:Array[Float](1){rail}, dimx:Int, dimy:Int, dimz:Int, lower_bound:Int, upper_bound:Int)
+    public static def random_data(data:Rail[Float], dimx:Int, dimy:Int, dimz:Int, lower_bound:Int, upper_bound:Int)
     {
         val rnd = new Random(0);
 
@@ -33,10 +33,10 @@ public class CUDA3DFD {
     }
 
     // note that this CPU implemenation is extremely naive and slow, NOT to be used for performance comparisons
-    public static def reference_3D(output:Array[Float](1){rail}, input:Array[Float](1){rail}, coeff:Array[Float](1){rail}, dimx:Int, dimy:Int, dimz:Int)
+    public static def reference_3D(output:Rail[Float], input:Rail[Float], coeff:Rail[Float], dimx:Int, dimy:Int, dimz:Int)
     { reference_3D(output, input, coeff, dimx, dimy, dimz, 4); }
     
-    public static def reference_3D(output:Array[Float](1){rail}, input:Array[Float](1){rail}, coeff:Array[Float](1){rail}, dimx:Int, dimy:Int, dimz:Int, radius:Int)
+    public static def reference_3D(output:Rail[Float], input:Rail[Float], coeff:Rail[Float], dimx:Int, dimy:Int, dimz:Int, radius:Int)
     {
         val dimxy = dimx*dimy;
 
@@ -69,13 +69,13 @@ public class CUDA3DFD {
         }
     }
 
-    public static def within_epsilon(output:Array[Float](1){rail}, reference:Array[Float](1){rail}, dimx:Int, dimy:Int, dimz:Int)
+    public static def within_epsilon(output:Rail[Float], reference:Rail[Float], dimx:Int, dimy:Int, dimz:Int)
     { return within_epsilon(output, reference, dimx, dimy, dimz, 4); }
-    public static def within_epsilon(output:Array[Float](1){rail}, reference:Array[Float](1){rail}, dimx:Int, dimy:Int, dimz:Int, radius:Int)
+    public static def within_epsilon(output:Rail[Float], reference:Rail[Float], dimx:Int, dimy:Int, dimz:Int, radius:Int)
     { return within_epsilon(output, reference, dimx, dimy, dimz, radius, -1); }
-    public static def within_epsilon(output:Array[Float](1){rail}, reference:Array[Float](1){rail}, dimx:Int, dimy:Int, dimz:Int, radius:Int, zadjust:Int)
+    public static def within_epsilon(output:Rail[Float], reference:Rail[Float], dimx:Int, dimy:Int, dimz:Int, radius:Int, zadjust:Int)
     { return within_epsilon(output, reference, dimx, dimy, dimz, radius, zadjust, 0.0001f); }
-    public static def within_epsilon(output:Array[Float](1){rail}, reference:Array[Float](1){rail}, dimx:Int, dimy:Int, dimz:Int, radius:Int, zadjust:Int, delta:Float )
+    public static def within_epsilon(output:Rail[Float], reference:Rail[Float], dimx:Int, dimy:Int, dimz:Int, radius:Int, zadjust:Int, delta:Float )
     {
         var retval:Boolean = true;
 
@@ -111,7 +111,7 @@ public class CUDA3DFD {
     }
 
 
-    public static def main (args : Array[String](1){rail}) {
+    public static def main (args : Rail[String]) {
 
         //cudaDeviceProp properties;
 
@@ -164,22 +164,22 @@ public class CUDA3DFD {
         //
         
         // initialize data
-        val h_data = new Array[Float](nelements);
-        val h_reference = new Array[Float](nelements);
+        val h_data = new Rail[Float](nelements);
+        val h_reference = new Rail[Float](nelements);
         random_data(h_data, dimx,dimy,dimz, 1, 5 );
 
         // allocate CPU and GPU memory
-        val gpu = here.children().size==0 ? here : here.child(0);
+        val gpu = here.children().size==0L ? here : here.child(0);
         
-        val d_input = CUDAUtilities.makeRemoteArray[Float](gpu,nelements,h_data); // allocate 
-        val d_output = CUDAUtilities.makeRemoteArray[Float](gpu,nelements,(Int)=>0.0 as Float); // allocate 
+        val d_input = CUDAUtilities.makeGlobalRail[Float](gpu,nelements,h_data); // allocate 
+        val d_output = CUDAUtilities.makeGlobalRail[Float](gpu,nelements); // allocate 
 
         Console.OUT.println(String.format("allocated %.6f MB on device", [((2.f*nelements*4)/(1024.f*1024.f)) as Any]));
 
         val RADIUS = 4;
 
         // setup coefficients
-        val h_coeff_symmetric = new Array[Float](RADIUS+1, 1);
+        val h_coeff_symmetric = new Rail[Float](RADIUS+1, 1);
 
         // kernel launch configuration
 
@@ -195,9 +195,9 @@ public class CUDA3DFD {
             val BLOCKS_Y = dimy/BLOCK_DIMY;
             val S_DATA_STRIDE = BLOCK_DIMX+2*RADIUS;
             finish async at (gpu) @CUDA @CUDADirectParams {
-                val c_coeff = h_coeff_symmetric.sequence();
+                val c_coeff = h_coeff_symmetric;
                 finish for (block in 0..(BLOCKS_X*BLOCKS_Y-1)) async {
-                    val s_data = new Array[Float]((BLOCK_DIMY+2*RADIUS)*S_DATA_STRIDE, 0);
+                    val s_data = new Rail[Float]((BLOCK_DIMY+2*RADIUS)*S_DATA_STRIDE, 0);
                     clocked finish for (thread in 0..(THREADS-1)) clocked async {
                         val blockidx = block%BLOCKS_X;
                         val blockidy = block/BLOCKS_X;
@@ -313,7 +313,7 @@ public class CUDA3DFD {
             Console.OUT.println("-------------------------------\n");
             Console.OUT.println("comparing to CPU result...\n");
             reference_3D( h_reference, h_data, h_coeff_symmetric, dimx,dimy,dimz, RADIUS );
-            finish Array.asyncCopy(d_output, 0, h_data, 0, nelements);
+            finish Rail.asyncCopy(d_output, 0L, h_data, 0L, nelements as Long);
             if( within_epsilon( h_data, h_reference, dimx,dimy,dimz, RADIUS*nreps, 0 ) ) 
             {
                 Console.OUT.println("  Result within epsilon\n");
@@ -326,8 +326,8 @@ public class CUDA3DFD {
             }
         }
 
-        CUDAUtilities.deleteRemoteArray(d_input);
-        CUDAUtilities.deleteRemoteArray(d_output);
+        CUDAUtilities.deleteGlobalRail(d_input);
+        CUDAUtilities.deleteGlobalRail(d_output);
     }
 
 }
