@@ -455,11 +455,9 @@ public struct TeamCollectives {
 	     * followed by a scatter phase from the root to all members.  Data and reduction operations
 	     * may be carried along as a part of these communication phases, depending on the collective.
 	     * 
-	     * All operations are initiated by leaf nodes, who push data to the parent's buffers.  The left
-	     * leaf also initiates a push from parent to its parent, and so on, up to the root.  At the root, 
-	     * the phase changes, and the root pushes data to children, who push it to other children, etc.  All 
-	     * asyncs are uncounted, relying on the phase changes of the collective to release the places rather
-	     * than using finish.
+	     * All operations are initiated by leaf nodes, who push data to the parent's buffers.  The parent
+	     * then initiates a push from to its parent, and so on, up to the root.  At the root, 
+	     * the direction changes, and the root pushes data to children, who push it to their children, etc.
 	     */
 	    private static PHASE_IDLE:Int = 0;    // normal state, nothing in progress
 	    private static PHASE_GATHER1:Int = 1; // waiting for signal/data from right child
@@ -496,7 +494,7 @@ public struct TeamCollectives {
 	     * and so on.  For collective operations that specify a root, the tree will use that root's position in 
 	     * 'places' as the tree root, shifting all of the parent/child relationships
 	     * 
-	     * A return value of null means that the parent/child does not exist.
+	     * A return value of Place.INVALID_PLACE means that the parent/child does not exist.
 	     */
 	    private def getParentId(root:Int):Place {
 	        if (Runtime.hereInt() == root) return Place.INVALID_PLACE;
@@ -553,10 +551,10 @@ public struct TeamCollectives {
 	    	// a barrier carries no data, and uses places(0) as the root
 	    	parent:Place = getParentId(places(0).id());
 	        children:Pair[Place,Place] = getChildIds(places(0).id());
+	    	val teamidcopy = teamid; // needed to prevent serializing "this" in my at statements	    	
 	    	//Runtime.println(here+":team"+teamidcopy+" has parent "+parent);
 	    	//Runtime.println(here+":team"+teamidcopy+" has children "+children);
-	    	val teamidcopy = teamid; // needed to prevent serializing "this" in my at statements
-	        
+	    	
 		    if (parent == Place.INVALID_PLACE) { // we're the root node
 		    	if (children.first == Place.INVALID_PLACE) { // there is only one place in this team
 		    		this.phase.set(PHASE_IDLE);
@@ -595,6 +593,7 @@ public struct TeamCollectives {
 	    			while(!TeamCollectives.state(teamidcopy).phase.compareAndSet(PHASE_GATHER1, PHASE_GATHER2) && 
 	    					!TeamCollectives.state(teamidcopy).phase.compareAndSet(PHASE_GATHER2, PHASE_SCATTER))
 	    				System.sleep(10);
+	    			//Runtime.println(here+" has been set to phase "+TeamCollectives.state(teamidcopy).phase.get());
 		    	}
 		    	//Runtime.println("leaf waiting for parent "+parent+":team"+teamidcopy+" to release us from phase "+phase.get());
 		    	while (this.phase.get() != PHASE_IDLE) // wait for parent to set us free
@@ -604,24 +603,36 @@ public struct TeamCollectives {
 		    }
 	        else { // not a leaf, not the root.  Participate in all phases
 	        	//Runtime.println("branch "+here+":team"+teamidcopy+" waiting on children");
-	        	if (children.second == Place.INVALID_PLACE)
-	        		this.phase.compareAndSet(PHASE_GATHER1, PHASE_GATHER2); // only one child, so skip the phase waiting for the right child.
-	        	else {
-	        		while (this.phase.get() != PHASE_GATHER2) // wait for the left child to set us to this state
-	        			System.sleep(10);
-	        	}
-	        	//Runtime.println("branch "+here+":team"+teamidcopy+" entered PHASE_GATHER2");
-	        	while (this.phase.get() != PHASE_SCATTER) // wait for the first child to set us to this state
+	        	if (children.second == Place.INVALID_PLACE) // only one child, so skip the phase waiting for the second child.
+	        		if (!this.phase.compareAndSet(PHASE_GATHER1, PHASE_GATHER2)) 
+	        			this.phase.compareAndSet(PHASE_GATHER2, PHASE_SCATTER);
+	        	while (this.phase.get() != PHASE_SCATTER) // wait for the child to set us to this state
 	        		System.sleep(10);
 	        	//Runtime.println("branch "+here+":team"+teamidcopy+" entered PHASE_SCATTER, updating parent");
 		        at (parent) { // increment the phase of the parent
 		        	while (!TeamCollectives.state(teamidcopy).phase.compareAndSet(PHASE_GATHER1, PHASE_GATHER2) && 
 		        			!TeamCollectives.state(teamidcopy).phase.compareAndSet(PHASE_GATHER2, PHASE_SCATTER))
 		        		System.sleep(10);
+		        	//Runtime.println(here+" has been set to phase "+TeamCollectives.state(teamidcopy).phase.get());
 		        }
 		        while (this.phase.get() != PHASE_IDLE) // wait for parent to set us free
 		        	System.sleep(10);
-		        //Runtime.println("branch "+here+":team"+teamidcopy+" entered PHASE_IDLE");
+		        //Runtime.println("branch "+here+":team"+teamidcopy+" entered PHASE_IDLE... Updating children");
+		        
+		        //  Free the first child
+		        at (children.first) {
+			        if (!TeamCollectives.state(teamidcopy).phase.compareAndSet(PHASE_SCATTER, PHASE_IDLE))
+			        	Runtime.println("ERROR root setting the first child "+here+":team"+teamidcopy+" to PHASE_IDLE");
+			        //else Runtime.println("root set the first child "+here+":team"+teamidcopy+" to PHASE_IDLE");
+		        }
+		        // Free the second child, if it exists
+		        if (children.second != Place.INVALID_PLACE) {
+			        at (children.second) {
+			        	if (!TeamCollectives.state(teamidcopy).phase.compareAndSet(PHASE_SCATTER, PHASE_IDLE))
+			        		Runtime.println("ERROR root setting the second child "+here+":team"+teamidcopy+" to PHASE_IDLE");
+			        	//else Runtime.println("root set the second child "+here+":team"+teamidcopy+" to PHASE_IDLE");
+			        }
+		        }
 		        // done!
 	        }
 		    //Runtime.println(here+":team"+teamidcopy+" leaving barrier");
