@@ -108,13 +108,13 @@ public class Java {
     
     // Java conversions (array)
     @Native("java", "(#T[])#a.raw.getBackingArray()")
-    public static native def convert[T](a:x10.array.Array[T](1)):Java.array[T];
+    public static native def convert[T](a:x10.array.Array[T](1)):array[T];
     @Native("java", "new x10.array.Array((java.lang.System[]) null, #T$rtt).x10$array$Array$$init$S(new x10.core.Rail(#T$rtt, #a.length, #a), (x10.array.Array.__0$1x10$array$Array$$T$2) null)")
-    public static native def convertArray[T](a:Java.array[T]):x10.array.Array[T](1);
+    public static native def convertArray[T](a:array[T]):x10.array.Array[T](1);
     
     // Java conversions (rail)
     @Native("java", "(#T[])#a.getBackingArray()")
-    public static native def convert[T](a:x10.lang.Rail[T]):Java.array[T];
+    public static native def convert[T](a:x10.lang.Rail[T]):array[T];
     @Native("java", "new x10.core.Rail<#T>(#T$rtt, #a.length, #a)")
-    public static native def convert[T](a:Java.array[T]):x10.lang.Rail[T];
+    public static native def convert[T](a:array[T]):x10.lang.Rail[T];
 }
