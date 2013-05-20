@@ -34,6 +34,7 @@ public final class Math {
    public static def abs(a:Float):Float = a<0.0f ? -a : a;
 
    @Native("java", "java.lang.Math.abs(#a)") // @Native for performance
+   @Native("cuda", "fabs(#a)")
    @Native("c++", "::fabs(#a)") // @Native for performance
    public static def abs(a:Double):Double = a<0.0 ? -a : a;
 
@@ -76,6 +77,7 @@ public final class Math {
 
    @Native("java", "java.lang.Math.exp(#a)")
    @Native("c++", "x10::lang::MathNatives::exp(#a)")
+   @Native("cuda", "exp(#a)")
    public static native def exp(a:Double):Double;
 
    // GPUs don't like doubles
@@ -272,6 +274,7 @@ public final class Math {
 
    @Native("java", "java.lang.Math.sqrt(#a)")
    @Native("c++", "x10::lang::MathNatives::sqrt(#a)")
+   @Native("cuda", "sqrt(#a)")
    public static native def sqrt(a:Double):Double;
 
     /**
@@ -319,6 +322,7 @@ public final class Math {
 
    @Native("java", "java.lang.Math.log(#a)")
    @Native("c++", "x10::lang::MathNatives::log(#a)")
+   @Native("cuda", "log(#a)")
    public static native def log(a:Double):Double;
 
    // GPUs don't like doubles

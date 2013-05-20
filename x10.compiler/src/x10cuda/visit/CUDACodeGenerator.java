@@ -290,23 +290,12 @@ public class CUDACodeGenerator extends MessagePassingCodeGenerator {
 
 	}
 
-	private boolean isFloatRail(Type typ) {
-		Type cargo = railCargo(typ);
-		return cargo != null && cargo.isFloat();
-	}
-
-	private boolean isIntRail(Type typ) {
-		Type cargo = railCargo(typ);
-		return cargo != null && cargo.isInt();
-	}
-
 	String prependCUDAType(Type t, String rest) {
 		String type = Emitter.translateType(t, true);
 
-		if (isIntRail(t)) {
-			type = "x10aux::cuda_array<x10_int> ";
-		} else if (isFloatRail(t)) {
-			type = "x10aux::cuda_array<x10_float> ";
+		Type cargo = railCargo(t);
+		if (cargo != null) {
+			type = "x10aux::cuda_array<"+Emitter.translateType(cargo,true)+"> ";
 		} else {
 			type = type + " ";
 		}
@@ -563,10 +552,8 @@ public class CUDACodeGenerator extends MessagePassingCodeGenerator {
 				for (VarInstance<?> var : env) {
 					Type t = var.type();
 					String name = var.name().toString();
-					if (isIntRail(t) || isFloatRail(t)) {
-						if (!xts().isGlobalRail(t)) {
-							inc.write("x10aux::remote_free(__gpu, (x10_ulong)(size_t)__env." + name + ".raw);");
-						}
+					if (xts().isRail(t)) {
+						inc.write("x10aux::remote_free(__gpu, (x10_ulong)(size_t)__env." + name + ".raw);");
 					}
 					inc.newline();
 				}
@@ -652,30 +639,27 @@ public class CUDACodeGenerator extends MessagePassingCodeGenerator {
 				String name = var.name().toString();
 
 				String ts = null;
-				if (isIntRail(t)) {
-					ts = "x10_int";
-				} else if (isFloatRail(t)) {
-					ts = "x10_float";
+				Type cargo = railCargo(t);
+				if (cargo != null) {
+					ts = Emitter.translateType(cargo, true);
 				}
 
-				if (isIntRail(t) || isFloatRail(t)) {
-					if (xts().isGlobalRail(t)) {
-						// Just initialise the __env struct with the remote pointer and size
-						inc.write("__env." + name + ".raw = (" + ts + "*)(size_t)" + name + "->__apply();");
-						inc.newline();
-						inc.write("__env." + name + ".FMGL(size) = " + name + "->FMGL(size);");
-						inc.newline();
-					} else {
-						String len = name + "->FMGL(size)";
-						String sz = "sizeof(" + ts + ")*" + len;
-						// Allocate remote storage to receive the captured Rail, initialise __env struct with tihs remote ptr and the size
-						inc.write("__env." + name + ".raw = (" + ts + "*)(size_t)x10aux::remote_alloc(__gpu, " + sz + ");");
-						inc.newline();
-						inc.write("__env." + name + ".FMGL(size) = " + len + ";");
-						inc.newline();
-						// Do the copy into this new storage
-						inc.write("x10aux::cuda_put(__gpu, (x10_ulong) __env." + name + ".raw, &" + name + "->raw[0]" + ", " + sz + ");");
-					}
+				if (xts().isGlobalRail(t)) {
+					// Just initialise the __env struct with the remote pointer and size
+					inc.write("__env." + name + ".raw = (" + ts + "*)(size_t)" + name + "->__apply();");
+					inc.newline();
+					inc.write("__env." + name + ".FMGL(size) = " + name + "->FMGL(size);");
+					inc.newline();
+				} else if (xts().isRail(t)) {
+					String len = name + "->FMGL(size)";
+					String sz = "sizeof(" + ts + ")*" + len;
+					// Allocate remote storage to receive the captured Rail, initialise __env struct with tihs remote ptr and the size
+					inc.write("__env." + name + ".raw = (" + ts + "*)(size_t)x10aux::remote_alloc(__gpu, " + sz + ");");
+					inc.newline();
+					inc.write("__env." + name + ".FMGL(size) = " + len + ";");
+					inc.newline();
+					// Do the copy into this new storage
+					inc.write("x10aux::cuda_put(__gpu, (x10_ulong) __env." + name + ".raw, &" + name + "->raw[0]" + ", " + sz + ");");
 				} else {
 					inc.write("__env." + name + " = " + name + ";");
 				}

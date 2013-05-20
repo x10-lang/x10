@@ -49,6 +49,38 @@ public class CUDAKernelTest {
         CUDAUtilities.deleteGlobalRail(remote);
     }
 
+    static def doTest1d (init:Rail[Double], recv:Rail[Double], p:Place, len:Long) {
+
+        val remote : GlobalRail[Double]{self.home() == p} = CUDAUtilities.makeGlobalRail[Double](p, len); // allocate 
+
+        finish async at (p) @CUDA {
+            finish for (block in 0..7) async {
+                clocked finish for (thread in 0..63) clocked async {
+                    val tid = block*64 + thread;
+                    val tids = 8*64;
+                    for (var i:Long=tid ; i<len ; i+=tids) {
+                        remote(i) = Math.sqrt(init(i));
+                    }
+                }
+            }
+        }
+
+        finish Rail.asyncCopy(remote, 0l, recv, 0l, len); // dma back
+
+        // validate
+        var success:Boolean = true;
+        for (i in recv.range) {
+            val oracle = i as Double;
+            if (Math.abs(1 - (recv(i)*recv(i))/oracle) > 1E-6f) {
+                Console.ERR.println("recv("+i+"): "+recv(i)+" * "+recv(i)+" = "+(recv(i)*recv(i)));
+                success = false;
+            }
+        }
+        Console.OUT.println((success?"SUCCESS":"FAIL")+" at "+p);
+
+        CUDAUtilities.deleteGlobalRail(remote);
+    }
+
     static def doTest2 (p:Place) {
 
         val recv = new Rail[Float](64,(i:Long)=>0.0f);
@@ -175,12 +207,15 @@ public class CUDAKernelTest {
 
             val init = new Rail[Float](len,(i:Long)=>i as Float);
             val recv = new Rail[Float](len,(i:Long)=>0.0 as Float);
+            val init_d = new Rail[Double](len,(i:Long)=>i as Double);
+            val recv_d = new Rail[Double](len,(i:Long)=>0.0 as Double);
 
             var done_work:Boolean = false;
 
             for (gpu in here.children()) if (gpu.isCUDA()) {
                 Console.OUT.println("Running test on GPU called "+gpu);
                 doTest1(init, recv, gpu, len);
+                doTest1d(init_d, recv_d, gpu, len);
                 doTest2(gpu);
                 doTest3(gpu);
                 doTest4(gpu);
@@ -191,6 +226,7 @@ public class CUDAKernelTest {
                 Console.OUT.println("Running test on CPU called "+here);
                 Console.OUT.println("Set X10RT_ACCELS=ALL to use GPUs if you have them.");
                 doTest1(init, recv, here, len);
+                doTest1d(init_d, recv_d, here, len);
                 doTest2(here);
                 doTest3(here);
                 doTest4(here);

@@ -27,7 +27,6 @@ import x10.compiler.Unroll;
 import x10.compiler.CUDADirectParams;
 import x10.compiler.CUDA;
 import x10.compiler.Native;
-import x10.compiler.NoInline;
 
 
 public class KMeansCUDA {
@@ -54,7 +53,7 @@ public class KMeansCUDA {
             Option("c","clusters","number of clusters to find"),
             Option("n","num","quantity of points")]);
         val fname = opts("-p", "points.dat");
-        val num_clusters=opts("-c",8l);
+        val num_clusters=opts("-c",8);
         val num_global_points=opts("-n", 100000l);
         val iterations=opts("-i",500l);
         val verbose = opts("-v");
@@ -119,11 +118,11 @@ public class KMeansCUDA {
                     val host_points = new Rail[Float]((num_local_points_stride*dim), init);
 
                     val gpu_points = CUDAUtilities.makeGlobalRail(gpu, num_local_points_stride*dim, host_points);
-                    val host_nearest = new Rail[Long](num_local_points, 0l);
-                    val gpu_nearest = CUDAUtilities.makeGlobalRail[Long](gpu, num_local_points, 0l);
+                    val host_nearest = new Rail[Int](num_local_points, 0);
+                    val gpu_nearest = CUDAUtilities.makeGlobalRail[Int](gpu, num_local_points, 0);
 
                     val host_clusters  = new Rail[Float](num_clusters*dim, (i:Long)=>file_points(i));
-                    val host_cluster_counts = new Rail[Int](num_clusters, 0);
+                    val host_cluster_counts = new Rail[Int](num_clusters as Long, 0);
 
                     val toplevel_start_time = System.currentTimeMillis();
 
@@ -140,23 +139,25 @@ public class KMeansCUDA {
 
                         var start_time : Long = System.currentTimeMillis();
                         // classify kernel
+                        val blocks = 30;
+                        val threads = 64;
                         finish async at (gpu) @CUDA @CUDADirectParams {
-                            val blocks = CUDAUtilities.autoBlocks();
-                            val threads = CUDAUtilities.autoThreads();
+                            //val blocks = CUDAUtilities.autoBlocks();
+                            //val threads = CUDAUtilities.autoThreads();
                             finish for (block in 0..(blocks-1)) async {
                                 val clustercache = new Rail[Float](clusters_copy);
                                 clocked finish for (thread in 0..(threads-1)) clocked async {
                                     val tid = block * threads + thread;
                                     val tids = blocks * threads;
                                     for (var p:Long=tid ; p<num_local_points ; p+=tids) {
-                                        var closest:Long = -1;
+                                        var closest:Int = -1;
                                         var closest_dist:Float = Float.MAX_VALUE;
-                                        /*@Unroll(20)*/ for (k in 0l..(num_clusters-1l)) { 
+                                        @Unroll(20) for (k in 0..(num_clusters-1)) { 
                                             // Pythagoras (in dim dimensions)
                                             var dist : Float = 0;
                                             for (d in 0l..(dim-1l)) { 
-                                                val tmp = gpu_points()(p+d*num_local_points_stride) 
-                                                          - @NoInline clustercache(k*dim+d);
+                                                val tmp = gpu_points(p+d*num_local_points_stride) 
+                                                          - clustercache(k*dim+d);
                                                 dist += tmp * tmp;
                                             }
                                             // record closest cluster seen so far
@@ -165,7 +166,7 @@ public class KMeansCUDA {
                                                 closest = k;
                                             }
                                         }
-                                        gpu_nearest()(p) = closest;
+                                        gpu_nearest(p) = closest;
                                     }
                                 }
                             }

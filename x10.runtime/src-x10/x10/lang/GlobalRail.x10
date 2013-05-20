@@ -85,6 +85,7 @@ public final struct GlobalRail[T] (
      * Access the Rail that is encapsulated by this GlobalRail. 
      * Can only  be called where <code>here == rail.home</code>. 
      */
-    public operator this() {here==rail.home} = rail();
+    @Native("cuda", "(#this)")
+    public operator this() {here==rail.home} : Rail[T]{self!=null} = rail();
 
 }

@@ -263,7 +263,6 @@ public class CUDAPatternMatcher extends ContextVisitor {
 						Expr init_expr = ld.init();
 
 						if (xts().isCUDAConstantRail(decl_type)) {
-							System.err.println("init_expr : "+init_expr.getClass());
 							complainIfNot(init_expr instanceof X10New_c, "val <something> = CUDAConstantRail(arr)", ld);
 							X10New_c init_call = (X10New_c)init_expr;
 							Type constr_type = Types.baseType(init_call.type());
@@ -395,8 +394,8 @@ public class CUDAPatternMatcher extends ContextVisitor {
 					ck.directParams = direct;
 					return ck;
 				} catch (Complaint e) {
-					//System.err.println(e.toString());
-					e.printStackTrace();
+					System.err.println(e.toString());
+					//e.printStackTrace();
 				}
 			}
 		}
