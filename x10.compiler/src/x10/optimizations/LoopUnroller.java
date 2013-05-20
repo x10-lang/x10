@@ -108,9 +108,9 @@ public class LoopUnroller extends ContextVisitor {
         final Expr fLoopDomain;
         Set<Expr> fLoopDomainValues= CollectionFactory.newHashSet();
         boolean fExtentUnknown;
-        int fMin;
+        long fMin;
         Expr fMinSymbolic;
-        int fMax;
+        long fMax;
         Expr fMaxSymbolic;
         int fStride;
 
@@ -132,7 +132,7 @@ public class LoopUnroller extends ContextVisitor {
             fLoopDomainValues.add(e);
         }
 
-        protected int getMin() {
+        protected long getMin() {
             return fMin;
         }
 
@@ -140,13 +140,13 @@ public class LoopUnroller extends ContextVisitor {
             return fMinSymbolic;
         }
 
-        protected void setMin(int min, Expr minSymbolic) {
+        protected void setMin(long min, Expr minSymbolic) {
             fMin= min;
             fMinSymbolic= minSymbolic;
             fExtentUnknown= false;
         }
 
-        protected int getMax() {
+        protected long getMax() {
             return fMax;
         }
 
@@ -154,7 +154,7 @@ public class LoopUnroller extends ContextVisitor {
             return fMaxSymbolic;
         }
 
-        protected void setMax(int max, Expr maxSymbolic) {
+        protected void setMax(long max, Expr maxSymbolic) {
             fMax= max;
             fMaxSymbolic= maxSymbolic;
             fExtentUnknown= false;
@@ -385,6 +385,15 @@ public class LoopUnroller extends ContextVisitor {
                 fLoopParams.fMax= getConstantValueOf(hi);
                 fLoopParams.fMaxSymbolic= hi;
                 fLoopParams.fStride= 1;
+            } else if (mi.container().isLong() && mi.name().equals(X10Binary_c.binaryMethodName(X10Binary_c.DOT_DOT))) {
+                Expr low, hi;
+                low= args.get(0);
+                hi= args.get(1);
+                fLoopParams.fMin= getConstantValueOf(low);
+                fLoopParams.fMinSymbolic= low;
+                fLoopParams.fMax= getConstantValueOf(hi);
+                fLoopParams.fMaxSymbolic= hi;
+                fLoopParams.fStride= 1;
             } else {
         		return fatalStatus("Don't understand iteration domain: " + call);
             }
@@ -399,10 +408,10 @@ public class LoopUnroller extends ContextVisitor {
                 mi.name().toString().equals("$convert");
     }
 
-    private int getConstantValueOf(Expr e) {
+    private long getConstantValueOf(Expr e) {
         // TODO Need to produce the literal value here, but elsewhere need the symbolic value (e.g. when rewriting the region bounds)
         if (e.constantValue() != null && e.constantValue() instanceof IntegralValue) {
-            return ((IntegralValue) e.constantValue()).intValue();
+            return ((IntegralValue) e.constantValue()).longValue();
         }
         return -1; // TOTALLY BOGUS - probably need to return a RefactoringStatus to abort the refactoring
     }
@@ -449,7 +458,7 @@ public class LoopUnroller extends ContextVisitor {
         ConstrainedType type= (ConstrainedType) domain.type();
         if (type.isRank(typeSystem().ONE(), context))
     		return true;
-        else if (ts.isIntRange(type))
+        else if (ts.isIntRange(type) || ts.isLongRange(type))
         	return true;
         return false;
      
@@ -491,8 +500,8 @@ public class LoopUnroller extends ContextVisitor {
         return xnf.Id(PCG, name);
     }
 
-    private CanonicalTypeNode intTypeNode() {
-        return xnf.CanonicalTypeNode(PCG, xts.Int());
+    private CanonicalTypeNode makeTypeNode(Type t) {
+        return xnf.CanonicalTypeNode(PCG, t);
     }
 
     private FlagsNode finalFlag() {
@@ -661,17 +670,17 @@ public class LoopUnroller extends ContextVisitor {
         Expr domain= fLoopParams.fLoopDomain;
         Expr domainMin= (fLoopParams.fMinSymbolic != null) ? fLoopParams.fMinSymbolic : xnf.Call(PCG, domain, id("min"), intLit(0));
         Expr domainMax= (fLoopParams.fMaxSymbolic != null) ? fLoopParams.fMaxSymbolic : xnf.Call(PCG, domain, id("max"), intLit(0));
-        LocalDecl minDecl= finalLocalDecl(makeFreshInContext("min"), intTypeNode(), domainMin);
-        LocalDecl maxDecl= finalLocalDecl(makeFreshInContext("max"), intTypeNode(), domainMax);
+        LocalDecl minDecl= finalLocalDecl(makeFreshInContext("min"), makeTypeNode(fLoopParams.fMinSymbolic.type()), domainMin);
+        LocalDecl maxDecl= finalLocalDecl(makeFreshInContext("max"), makeTypeNode(fLoopParams.fMaxSymbolic.type()), domainMax);
         ContextVisitor desugarer= new Desugarer(job, xts, xnf).context(this.context());
         Expr loopMax= plus(mul(div(plus(sub(local(maxDecl.localDef()), local(minDecl.localDef())), intLit(1)), intLit(fUnrollFactor)), intLit(fUnrollFactor)), local(minDecl.localDef()));
         loopMax= (Expr) loopMax.visit(desugarer);
-        LocalDecl loopMaxDecl= finalLocalDecl(makeFreshInContext("loopMax"), intTypeNode(), loopMax);
+        LocalDecl loopMaxDecl= finalLocalDecl(makeFreshInContext("loopMax"), makeTypeNode(fLoopParams.fMaxSymbolic.type()), loopMax);
 
         //Formal firstDimVar= ((X10Formal) fLoopParams.fLoopVar).vars().get(0);
         Formal firstDimVar= (X10Formal) fLoopParams.fLoopVar;
         Name loopVarName= makeFreshInContext(firstDimVar.name().toString());
-        LocalDecl newLoopVarInit= localDecl(loopVarName, intTypeNode(), local(minDecl.localDef()));
+        LocalDecl newLoopVarInit= localDecl(loopVarName, makeTypeNode(fLoopParams.fMinSymbolic.type()), local(minDecl.localDef()));
         Expr loopCond= lt(local(newLoopVarInit.localDef()), local(loopMaxDecl.localDef()));
         loopCond= (Expr) loopCond.visit(desugarer);
         ForUpdate loopUpdate= (ForUpdate) eval(addAssign(local(newLoopVarInit.localDef()), intLit(fUnrollFactor)));
@@ -739,7 +748,7 @@ public class LoopUnroller extends ContextVisitor {
             //      loopBody
             //   }
             Expr remainderLoopMinIdx= local(loopMaxDecl.localDef());
-            LocalDecl remainderLoopInit= localDecl(loopVarName, intTypeNode(), remainderLoopMinIdx);
+            LocalDecl remainderLoopInit= localDecl(loopVarName, makeTypeNode(fLoopParams.fMinSymbolic.type()), remainderLoopMinIdx);
             Expr remainderCond= le(local(remainderLoopInit.localDef()), local(maxDecl.localDef()));
             remainderCond= (Expr) remainderCond.visit(desugarer);
             ForUpdate remainderUpdate= (ForUpdate) eval(postInc(local(remainderLoopInit.localDef())));
