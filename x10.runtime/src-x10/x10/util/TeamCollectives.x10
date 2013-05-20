@@ -97,7 +97,7 @@ public struct TeamCollectives {
     	if (nativeSupportsCollectives())
         	finish nativeBarrier(id, Runtime.hereInt());
     	else
-    		state(id).barrier();
+    		state(id).collective_impl[Int](LocalTeamState.COLL_BARRIER, 0, null, 0, null, 0, 0, 0);
     }
 
     private static def nativeBarrier (id:int, role:Int) : void {
@@ -129,9 +129,8 @@ public struct TeamCollectives {
     public def scatter[T] (root:Int, src:Rail[T], src_off:Int, dst:Rail[T], dst_off:Int, count:Int) : void {
     	if (nativeSupportsCollectives())
         	finish nativeScatter(id, Runtime.hereInt(), root, src, src_off, dst, dst_off, count);
-    	else {
-    		// TODO
-    	}
+    	else
+    		state(id).collective_impl[T](LocalTeamState.COLL_SCATTER, root, src, src_off, dst, dst_off, count, 0);
     }
 
     private static def nativeScatter[T] (id:Int, role:Int, root:Int, src:Rail[T], src_off:Int, dst:Rail[T], dst_off:Int, count:Int) : void {
@@ -158,9 +157,8 @@ public struct TeamCollectives {
      public def bcast[T] (root:Int, src:Rail[T], src_off:Int, dst:Rail[T], dst_off:Int, count:Int) : void {
      	if (nativeSupportsCollectives())
         	finish nativeBcast(id, Runtime.hereInt(), root, src, src_off, dst, dst_off, count);
-     	else {
-     		// TODO
-     	}
+     	else
+     		state(id).collective_impl[T](LocalTeamState.COLL_BROADCAST, root, src, src_off, dst, dst_off, count, 0);
     }
 
     private static def nativeBcast[T] (id:Int, role:Int, root:Int, src:Rail[T], src_off:Int, dst:Rail[T], dst_off:Int, count:Int) : void {
@@ -190,9 +188,8 @@ public struct TeamCollectives {
     public def alltoall[T] (src:Rail[T], src_off:Int, dst:Rail[T], dst_off:Int, count:Int) : void {
     	if (nativeSupportsCollectives())
         	finish nativeAlltoall(id, Runtime.hereInt(), src, src_off, dst, dst_off, count);
-    	else {
-    		// TODO
-    	}
+    	else
+    		state(id).collective_impl[T](LocalTeamState.COLL_ALLTOALL, 0, src, src_off, dst, dst_off, count, 0);
     }
     
     private static def nativeAlltoall[T](id:Int, role:Int, src:Rail[T], src_off:Int, dst:Rail[T], dst_off:Int, count:Int) : void {
@@ -241,9 +238,8 @@ public struct TeamCollectives {
     public def reduce[T] (root:Int, src:Rail[T], src_off:Int, dst:Rail[T], dst_off:Int, count:Int, op:Int) : void {
     	if (nativeSupportsCollectives())
         	finish nativeReduce(id, Runtime.hereInt(), root, src, src_off, dst, dst_off, count, op);
-    	else {
-    		// TODO
-    	}
+    	else
+    		state(id).collective_impl[T](LocalTeamState.COLL_REDUCE, root, src, src_off, dst, dst_off, count, op);
 	}
 	
     private static def nativeReduce[T](id:Int, role:Int, root:Int, src:Rail[T], src_off:Int, dst:Rail[T], dst_off:Int, count:Int, op:Int) : void {
@@ -277,9 +273,8 @@ public struct TeamCollectives {
         val dst = new Rail[T](1, src);
         if (nativeSupportsCollectives())
         	finish nativeReduce[T](id, Runtime.hereInt(), root, chk, dst, op);
-        else {
-        	// TODO
-        }
+        else
+        	state(id).collective_impl[T](LocalTeamState.COLL_REDUCE, root, chk, 0, dst, 0, 1, op);
         return dst(0);
     }
 
@@ -309,9 +304,8 @@ public struct TeamCollectives {
     public def allreduce[T] (src:Rail[T], src_off:Int, dst:Rail[T], dst_off:Int, count:Int, op:Int) : void {
     	if (nativeSupportsCollectives())
         	finish nativeAllreduce(id, Runtime.hereInt(), src, src_off, dst, dst_off, count, op);
-    	else {
-    		// TODO
-    	}
+    	else
+    		state(id).collective_impl[T](LocalTeamState.COLL_ALLREDUCE, 0, src, src_off, dst, dst_off, count, op);
     }
 
     private static def nativeAllreduce[T](id:Int, role:Int, src:Rail[T], src_off:Int, dst:Rail[T], dst_off:Int, count:Int, op:Int) : void {
@@ -345,9 +339,8 @@ public struct TeamCollectives {
         val dst = new Rail[T](1, src);
         if (nativeSupportsCollectives())
         	finish nativeAllreduce[T](id, Runtime.hereInt(), chk, dst, op);
-        else {
-        	// TODO
-        }
+        else
+        	state(id).collective_impl[T](LocalTeamState.COLL_ALLREDUCE, 0, chk, 0, dst, 0, 1, op);
         return dst(0);
     }
 
@@ -362,9 +355,8 @@ public struct TeamCollectives {
         val dst = new Rail[DoubleIdx](1);
         if (nativeSupportsCollectives())
         	finish nativeIndexOfMax(id, Runtime.hereInt(), src, dst);
-        else {
-        	// TODO
-        }
+        else
+        	state(id).collective_impl[DoubleIdx](LocalTeamState.COLL_INDEXOFMAX, 0, src, 0, dst, 0, 1, 0);
         return dst(0).idx;
     }
 
@@ -379,9 +371,8 @@ public struct TeamCollectives {
         val dst = new Rail[DoubleIdx](1);
         if (nativeSupportsCollectives())
         	finish nativeIndexOfMin(id, Runtime.hereInt(), src, dst);
-        else {
-            // TODO
-        }
+        else
+        	state(id).collective_impl[DoubleIdx](LocalTeamState.COLL_INDEXOFMIN, 0, src, 0, dst, 0, 1, 0);
         return dst(0).idx;
     }
 
@@ -460,32 +451,19 @@ public struct TeamCollectives {
 	     * the direction changes, and the root pushes data to children, who push it to their children, etc.
 	     */
 	    private static PHASE_IDLE:Int = 0;    // normal state, nothing in progress
-	    private static PHASE_GATHER1:Int = 1; // waiting for signal/data from right child
-	    private static PHASE_GATHER2:Int = 2; // waiting for signal/data from left child
+	    private static PHASE_GATHER1:Int = 1; // waiting for signal/data from first child
+	    private static PHASE_GATHER2:Int = 2; // waiting for signal/data from second child
 	    private static PHASE_SCATTER:Int = 3; // waiting for signal/data from parent
 	    private var phase:AtomicInteger = new AtomicInteger(PHASE_IDLE); // which of the above phases we're in
 	    
-	    private static COLL_BARRIER:Int = 0;
-	    private static COLL_SCATTER:Int = 1;
-    	private static COLL_BROADCAST:Int = 2;
-	    private static COLL_ALLTOALL:Int = 3;
-	    private static COLL_REDUCE:Int = 4;
-	    private static COLL_ALLREDUCE:Int = 5;
-	    private static COLL_INDEXOFMIN:Int = 6;
-	    private static COLL_INDEXOFMAX:Int = 7;
-	    private static COLL_SPLIT:Int = 8;
-	    // which collective is in operation - only valid when phase != PHASE_IDLE
-	    private var collectiveType:AtomicInteger = new AtomicInteger(COLL_BARRIER); 
-	    
-	    private static BUFFER_SIZE:Int = 256;
-	    // holds data from left child in gather phase, or parent in scatter phase
-	    private val leftData:GlobalRail[Byte] = new GlobalRail[Byte](new Rail[Byte](BUFFER_SIZE));
-	    // holds data from right child in gather phase
-	    private val rightData:GlobalRail[Byte] = new GlobalRail[Byte](new Rail[Byte](BUFFER_SIZE));
-	    	    
-	    // data sizes over BUFFER_SIZE are sent in chunks.
-	    private var num_chunks:Int;
-	    private var current_chunk:Int;
+	    private static COLL_BARRIER:Int = 0; // no data moved
+	    private static COLL_SCATTER:Int = 1; // data out only
+    	private static COLL_BROADCAST:Int = 2; // data out only
+	    private static COLL_REDUCE:Int = 3; // data in only
+	    private static COLL_ALLTOALL:Int = 4; // data in and out
+	    private static COLL_ALLREDUCE:Int = 5; // data in and out
+	    private static COLL_INDEXOFMIN:Int = 6; // data in and out
+	    private static COLL_INDEXOFMAX:Int = 7; // data in and out
 	    
 	    
 	    /* Utility methods to traverse binary tree structure.  The tree is not built using the place id's 
@@ -538,11 +516,15 @@ public struct TeamCollectives {
 	    	val teamidcopy = teamid; // needed to prevent serializing "this"
 		    if (parent != Place.INVALID_PLACE)
 			    at (parent) while (TeamCollectives.state.size() <= teamidcopy) System.sleep(10);
-		    barrier();
+		    collective_impl[Int](COLL_BARRIER, 0, null, 0, null, 0, 0, 0); // barrier
 		    //Runtime.println(here + " leaving init phase");
 		}
 
-	    public def barrier() {
+	    /*
+	     * This method contains the implementation for all collectives.  Some arguments are only valid
+	     * for specific collectives.
+	     */
+	    private def collective_impl[T](collType:Int, root:Int, src:Rail[T], src_off:Int, dst:Rail[T], dst_off:Int, count:Int, operation:Int):void {
 	        //Runtime.println(here+":team"+teamid+" entered barrier (by the way, phase = "+phase.get()+")");
 	    	// block if some other collective is in progress.
 	    	while (!this.phase.compareAndSet(PHASE_IDLE, PHASE_GATHER1)) 
@@ -598,7 +580,7 @@ public struct TeamCollectives {
 	    				//else Runtime.println("set the second child "+here+":team"+teamidcopy+" to PHASE_IDLE");
 	    			}
 	    		}
-	    	}	    
+	    	}
 	    
 	        // done!
 	    	//Runtime.println(here+":team"+teamidcopy+" leaving barrier");	    
