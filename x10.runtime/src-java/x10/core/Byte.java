@@ -195,8 +195,4 @@ final public class Byte extends java.lang.Number implements StructI, java.lang.C
         $deserializer.record_reference($_obj);
         return $_obj;
     }
-    
-    // imitate java.lang.Byte
-    public static final byte MIN_VALUE = java.lang.Byte.MIN_VALUE;
-    public static final byte MAX_VALUE = java.lang.Byte.MAX_VALUE;
 }

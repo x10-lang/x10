@@ -377,7 +377,7 @@ public struct UByte implements Comparable[UByte], Arithmetic[UByte], Bitwise[UBy
     /**
      * A constant holding the minimum value a UByte can have, 0.
      */
-    @Native("java", "0")
+    @Native("java", "((byte)0)")
     @Native("c++", "((x10_ubyte)0U)")
     public static MIN_VALUE: UByte{self==0UY} = 0UY;
 
