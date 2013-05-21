@@ -126,11 +126,11 @@ public struct TeamCollectives {
      *
      * @param count The number of elements being transferred
      */
-    public def scatter[T] (root:Int, src:Rail[T], src_off:Int, dst:Rail[T], dst_off:Int, count:Int) : void {
+    public def scatter[T] (root:Place, src:Rail[T], src_off:Int, dst:Rail[T], dst_off:Int, count:Int) : void {
     	if (nativeSupportsCollectives())
-        	finish nativeScatter(id, Runtime.hereInt(), root, src, src_off, dst, dst_off, count);
+        	finish nativeScatter(id, Runtime.hereInt(), root.id(), src, src_off, dst, dst_off, count);
     	else
-    		state(id).collective_impl[T](LocalTeamState.COLL_SCATTER, root, src, src_off, dst, dst_off, count, 0);
+    		state(id).collective_impl[T](LocalTeamState.COLL_SCATTER, root.id(), src, src_off, dst, dst_off, count, 0);
     }
 
     private static def nativeScatter[T] (id:Int, role:Int, root:Int, src:Rail[T], src_off:Int, dst:Rail[T], dst_off:Int, count:Int) : void {
@@ -154,11 +154,11 @@ public struct TeamCollectives {
      *
      * @param count The number of elements being transferred
      */
-     public def bcast[T] (root:Int, src:Rail[T], src_off:Int, dst:Rail[T], dst_off:Int, count:Int) : void {
+     public def bcast[T] (root:Place, src:Rail[T], src_off:Int, dst:Rail[T], dst_off:Int, count:Int) : void {
      	if (nativeSupportsCollectives())
-        	finish nativeBcast(id, Runtime.hereInt(), root, src, src_off, dst, dst_off, count);
+        	finish nativeBcast(id, Runtime.hereInt(), root.id(), src, src_off, dst, dst_off, count);
      	else
-     		state(id).collective_impl[T](LocalTeamState.COLL_BROADCAST, root, src, src_off, dst, dst_off, count, 0);
+     		state(id).collective_impl[T](LocalTeamState.COLL_BROADCAST, root.id(), src, src_off, dst, dst_off, count, 0);
     }
 
     private static def nativeBcast[T] (id:Int, role:Int, root:Int, src:Rail[T], src_off:Int, dst:Rail[T], dst_off:Int, count:Int) : void {
@@ -235,11 +235,11 @@ public struct TeamCollectives {
      *
      * @param op The operation to perform
      */
-    public def reduce[T] (root:Int, src:Rail[T], src_off:Int, dst:Rail[T], dst_off:Int, count:Int, op:Int) : void {
+    public def reduce[T] (root:Place, src:Rail[T], src_off:Int, dst:Rail[T], dst_off:Int, count:Int, op:Int) : void {
     	if (nativeSupportsCollectives())
-        	finish nativeReduce(id, Runtime.hereInt(), root, src, src_off, dst, dst_off, count, op);
+        	finish nativeReduce(id, Runtime.hereInt(), root.id(), src, src_off, dst, dst_off, count, op);
     	else
-    		state(id).collective_impl[T](LocalTeamState.COLL_REDUCE, root, src, src_off, dst, dst_off, count, op);
+    		state(id).collective_impl[T](LocalTeamState.COLL_REDUCE, root.id(), src, src_off, dst, dst_off, count, op);
 	}
 	
     private static def nativeReduce[T](id:Int, role:Int, root:Int, src:Rail[T], src_off:Int, dst:Rail[T], dst_off:Int, count:Int, op:Int) : void {
@@ -248,33 +248,33 @@ public struct TeamCollectives {
     }
 
     /** Performs a reduction on a single value, returning the result at the root */
-    public def reduce (root:Int, src:Byte, op:Int) = genericReduce(root, src, op);
+    public def reduce (root:Place, src:Byte, op:Int) = genericReduce(root, src, op);
     /** Performs a reduction on a single value, returning the result at the root */
-    public def reduce (root:Int, src:UByte, op:Int) = genericReduce(root, src, op);
+    public def reduce (root:Place, src:UByte, op:Int) = genericReduce(root, src, op);
     /** Performs a reduction on a single value, returning the result at the root */
-    public def reduce (root:Int, src:Short, op:Int) = genericReduce(root, src, op);
+    public def reduce (root:Place, src:Short, op:Int) = genericReduce(root, src, op);
     /** Performs a reduction on a single value, returning the result at the root */
-    public def reduce (root:Int, src:UShort, op:Int) = genericReduce(root, src, op);
+    public def reduce (root:Place, src:UShort, op:Int) = genericReduce(root, src, op);
     /** Performs a reduction on a single value, returning the result at the root */
-    public def reduce (root:Int, src:UInt, op:Int) = genericReduce(root, src, op);
+    public def reduce (root:Place, src:UInt, op:Int) = genericReduce(root, src, op);
     /** Performs a reduction on a single value, returning the result at the root */
-    public def reduce (root:Int, src:Int, op:Int) = genericReduce(root, src, op);
+    public def reduce (root:Place, src:Int, op:Int) = genericReduce(root, src, op);
     /** Performs a reduction on a single value, returning the result at the root */
-    public def reduce (root:Int, src:Long, op:Int) = genericReduce(root, src, op);
+    public def reduce (root:Place, src:Long, op:Int) = genericReduce(root, src, op);
     /** Performs a reduction on a single value, returning the result at the root */
-    public def reduce (root:Int, src:ULong, op:Int) = genericReduce(root, src, op);
+    public def reduce (root:Place, src:ULong, op:Int) = genericReduce(root, src, op);
     /** Performs a reduction on a single value, returning the result at the root */
-    public def reduce (root:Int, src:Float, op:Int) = genericReduce(root, src, op);
+    public def reduce (root:Place, src:Float, op:Int) = genericReduce(root, src, op);
     /** Performs a reduction on a single value, returning the result at the root */
-    public def reduce (root:Int, src:Double, op:Int) = genericReduce(root, src, op);
+    public def reduce (root:Place, src:Double, op:Int) = genericReduce(root, src, op);
 
-    private def genericReduce[T] (root:Int, src:T, op:Int) : T {
+    private def genericReduce[T] (root:Place, src:T, op:Int) : T {
         val chk = new Rail[T](1, src);
         val dst = new Rail[T](1, src);
         if (nativeSupportsCollectives())
-        	finish nativeReduce[T](id, Runtime.hereInt(), root, chk, dst, op);
+        	finish nativeReduce[T](id, Runtime.hereInt(), root.id(), chk, dst, op);
         else
-        	state(id).collective_impl[T](LocalTeamState.COLL_REDUCE, root, chk, 0, dst, 0, 1, op);
+        	state(id).collective_impl[T](LocalTeamState.COLL_REDUCE, root.id(), chk, 0, dst, 0, 1, op);
         return dst(0);
     }
 
@@ -465,7 +465,6 @@ public struct TeamCollectives {
 	    private static COLL_INDEXOFMIN:Int = 6; // data in and out
 	    private static COLL_INDEXOFMAX:Int = 7; // data in and out
 	    
-	    
 	    /* Utility methods to traverse binary tree structure.  The tree is not built using the place id's 
 	     * to determine the position in the tree, but rather the position in the places:PlaceGroup field to 
 	     * determine the position.  The first place in 'places' is the root of the tree, the next two its children, 
@@ -527,13 +526,12 @@ public struct TeamCollectives {
 	    private def collective_impl[T](collType:Int, root:Int, src:Rail[T], src_off:Int, dst:Rail[T], dst_off:Int, count:Int, operation:Int):void {
 	        //Runtime.println(here+":team"+teamid+" entered barrier (by the way, phase = "+phase.get()+")");
 	    	// block if some other collective is in progress.
-	    	while (!this.phase.compareAndSet(PHASE_IDLE, PHASE_GATHER1)) 
+	    	while (!this.phase.compareAndSet(PHASE_IDLE, PHASE_GATHER1))
 	    		System.sleep(10);
 	    	//Runtime.println(here+":team"+teamid+" entered barrier PHASE_GATHER1");
-	    	// a barrier carries no data, and uses places(0) as the root
-	    	parent:Place = getParentId(places(0).id());
-	        children:Pair[Place,Place] = getChildIds(places(0).id());
-	    	val teamidcopy = teamid; // needed to prevent serializing "this" in my at statements	    	
+	    	parent:Place = getParentId(root);
+	        children:Pair[Place,Place] = getChildIds(root);
+	    	val teamidcopy = teamid; // needed to prevent serializing "this" in at() statements	    	
 	    	//Runtime.println(here+":team"+teamidcopy+" has parent "+parent);
 	    	//Runtime.println(here+":team"+teamidcopy+" has children "+children);
 
