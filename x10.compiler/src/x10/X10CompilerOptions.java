@@ -76,7 +76,35 @@ public class X10CompilerOptions extends polyglot.main.Options {
         source_path.add(jf);
     }
 
-	
+    protected static File createTempDir(String prefix, String suffix) throws IOException {
+        File tempdir = File.createTempFile(prefix, suffix);
+        // TODO following two statements should be done atomically
+        tempdir.delete();
+        tempdir.mkdir();
+        return tempdir;
+    }
+    
+    @Override
+    public void parseCommandLine(String[] args, Set<String> source) throws UsageError {
+        super.parseCommandLine(args, source);
+        
+        // XTENLANG-2126
+        if (!keep_output_files) { // -nooutput was specified
+            // ignore -d output_directory if specified and
+            // set a new temporary directory to output_directory.
+            // after post-compile, the output_directory will be removed.
+            try {
+                String prefix = "x10c-" + System.getProperty("user.name") + ".";
+                String suffix = "";
+                output_directory = createTempDir(prefix, suffix);
+            } catch (IOException e) {
+                // TODO Auto-generated catch block
+                e.printStackTrace();
+            }
+        }
+    }
+
+    
 	@Override
 	protected int parseCommand(String args[], int index, Set<String> source) 
 		throws UsageError, Main.TerminationException
@@ -116,7 +144,7 @@ public class X10CompilerOptions extends polyglot.main.Options {
 			buildX10Lib = args[i];
 	        return ++i;
 		}
-
+		
 		try {
 			x10_config.parseArgument(args[index]);
 			return ++index;
