@@ -108,7 +108,7 @@ testme: $(X10_COPY_SRC) $(NATIVE_COPY_SRC)
 # Compilation                 #
 ###############################
 
-X10CPPFLAGS += -STATIC_CHECKS -J-Xmx512M -rtdev -commandlineonly
+X10CPPFLAGS += -APGAS_LIB_MODE -STATIC_CHECKS -J-Xmx512M -rtdev -commandlineonly
 
 $(GEN_DIR)/all-cpp-generated: $(X10_COPY_SRC)
 	@echo "Compiling X10 source files to C++"
@@ -186,7 +186,7 @@ cleanobj:
 
 #remove all generated and copied files
 cleangen:
-	-$(RM) -r gen gen-dbg $(XRX_ARCHIVE) $(XRX_PROPERTIES) $(SHLIB_PROPERTIES)
+	-$(RM) -r gen gen-dbg $(APGAS_ARCHIVE) 
 	rm -rf $(GEN_DIR)
 	rm -rf src-xrx
 	rm -rf src-crx

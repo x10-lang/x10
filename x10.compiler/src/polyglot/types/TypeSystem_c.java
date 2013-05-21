@@ -1960,20 +1960,25 @@ public class TypeSystem_c implements TypeSystem
     public Type JavaFloat()   { return JAVA_FLOAT_; }
     public Type JavaDouble()  { return JAVA_DOUBLE_; }
 
-    
     public X10ClassType load(String name) {
+        return load(name, false);
+    }
+    
+    public X10ClassType load(String name, boolean isOptional) {
         QName qualName = QName.make(name);
         try {
             return (X10ClassType) forName(qualName);
         }
         catch (SemanticException e) {
-            extensionInfo().compiler().errorQueue().enqueue(
-                                                    ErrorInfo.INTERNAL_ERROR,
-                                                    "Cannot load X10 runtime class \"" + name
-                                                            + "\".  Is the X10 runtime library in your classpath or sourcepath?");
-            Goal goal = extensionInfo().scheduler().currentGoal();
-            if (goal != null)
-                goal.fail();
+            if (!isOptional) { 
+                extensionInfo().compiler().errorQueue().enqueue(
+                                                                ErrorInfo.INTERNAL_ERROR,
+                                                                "Cannot load X10 runtime class \"" + name
+                                                                + "\".  Is the X10 runtime library in your classpath or sourcepath?");
+                Goal goal = extensionInfo().scheduler().currentGoal();
+                if (goal != null)
+                    goal.fail();
+            }
             return createFakeClass(qualName, e);
         }
     }
@@ -2504,14 +2509,14 @@ public class TypeSystem_c implements TypeSystem
     protected X10ClassType regionType_;
     public X10ClassType Region() {
         if (regionType_ == null)
-            regionType_ = load("x10.array.Region"); // java file
+            regionType_ = load("x10.array.Region", ((X10CompilerOptions)extensionInfo().getOptions()).x10_config.APGAS_LIB_MODE); // java file
         return regionType_;
     }
     
     protected X10ClassType iterationSpaceType_;
     public X10ClassType IterationSpace() {
         if (iterationSpaceType_ == null)
-            iterationSpaceType_ = load("x10.simplearray.IterationSpace"); // java file
+            iterationSpaceType_ = load("x10.simplearray.IterationSpace", ((X10CompilerOptions)extensionInfo().getOptions()).x10_config.APGAS_LIB_MODE); // java file
         return iterationSpaceType_;
     }
 
@@ -2525,7 +2530,7 @@ public class TypeSystem_c implements TypeSystem
     protected X10ClassType distributionType_;
     public X10ClassType Dist() {
         if (distributionType_ == null)
-            distributionType_ = load("x10.array.Dist"); // java file
+            distributionType_ = load("x10.array.Dist", ((X10CompilerOptions)extensionInfo().getOptions()).x10_config.APGAS_LIB_MODE); // java file
         return distributionType_;
     }
 
@@ -2581,7 +2586,7 @@ public class TypeSystem_c implements TypeSystem
     protected X10ClassType arrayType_ = null;
     public X10ClassType Array() {
         if (arrayType_ == null)
-            arrayType_ = load("x10.array.Array");
+            arrayType_ = load("x10.array.Array", ((X10CompilerOptions)extensionInfo().getOptions()).x10_config.APGAS_LIB_MODE);
         return arrayType_;
     }
 
@@ -2595,7 +2600,7 @@ public class TypeSystem_c implements TypeSystem
     protected X10ClassType simpleArrayType_ = null;
     public X10ClassType SimpleArray() {
         if (simpleArrayType_ == null)
-            simpleArrayType_ = load("x10.simplearray.Array");
+            simpleArrayType_ = load("x10.simplearray.Array", ((X10CompilerOptions)extensionInfo().getOptions()).x10_config.APGAS_LIB_MODE);
         return simpleArrayType_;
     }
 
@@ -2603,7 +2608,7 @@ public class TypeSystem_c implements TypeSystem
     protected X10ClassType remoteArrayType_ = null;
     public X10ClassType RemoteArray() {
         if (remoteArrayType_ == null)
-            remoteArrayType_ = load("x10.array.RemoteArray");
+            remoteArrayType_ = load("x10.array.RemoteArray", ((X10CompilerOptions)extensionInfo().getOptions()).x10_config.APGAS_LIB_MODE);
         return remoteArrayType_;
     }
 
@@ -2624,7 +2629,7 @@ public class TypeSystem_c implements TypeSystem
     protected X10ClassType distArrayType_ = null;
     public X10ClassType DistArray() {
         if (distArrayType_ == null)
-            distArrayType_ = load("x10.array.DistArray");
+            distArrayType_ = load("x10.array.DistArray", ((X10CompilerOptions)extensionInfo().getOptions()).x10_config.APGAS_LIB_MODE);
         return distArrayType_;
     }
     
@@ -2955,7 +2960,7 @@ public class TypeSystem_c implements TypeSystem
     protected X10ClassType javaInteropType_ = null;
     public X10ClassType JavaInterop() {
         if (javaInteropType_ == null)
-            javaInteropType_ = load("x10.interop.Java");
+            javaInteropType_ = load("x10.interop.Java", ((X10CompilerOptions)extensionInfo().getOptions()).x10_config.APGAS_LIB_MODE);
         return javaInteropType_;
     }
 
