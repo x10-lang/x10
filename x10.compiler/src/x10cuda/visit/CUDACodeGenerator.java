@@ -886,11 +886,11 @@ public class CUDACodeGenerator extends MessagePassingCodeGenerator {
 	    // Check that the child AST is of the form @StackAllocate new Rail[T](literal);
 	    {
 	    Expr init = dec.init();
-		    if (!(init instanceof X10ConstructorCall_c)) {
+		    if (!(init instanceof X10New_c)) {
 	            tr.job().compiler().errorQueue().enqueue(ErrorInfo.WARNING,
-	                    "@StackAllocate initializer was not a constructor call.", dec.position());
+	                    "@StackAllocate initializer was not a new Rail[T].", dec.position());
 		    }
-		    X10ConstructorCall_c constr = (X10ConstructorCall_c) init;
+		    X10New_c constr = (X10New_c) init;
 		    Type target = constr.procedureInstance().returnType();
 		    if (!target.isRail()) {
 	            tr.job().compiler().errorQueue().enqueue(ErrorInfo.WARNING,
