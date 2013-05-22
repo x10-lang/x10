@@ -17,57 +17,57 @@ import x10.util.Team;
  */
 public class AllReduce extends x10Test {
 
-    def allReduceTest(team:Team, role:int, res:GlobalRef[Cell[Boolean]]) {
-        val count = 113;        
-        val src = new Rail[Double](count, (i:long)=>((role+1) as Double) * i * i);
+    def allReduceTest(team:Team, res:GlobalRef[Cell[Boolean]]) {
+        val count = 113L;
+        val src = new Rail[Double](count, (i:long)=>((here.id+1) as Double) * i * i);
         val dst = new Rail[Double](count, (i:long)=>-(i as Double));
         var success: boolean = true;
                 
         {
-            team.allreduce(role, src, 0, dst, 0, count, Team.ADD);
+            team.allreduce(src, 0L, dst, 0L, count, Team.ADD);
 
             val oracle_base = ((team.size()*team.size() + team.size())/2) as Double;
             for (i in 0..(count-1)) {
                 val oracle:double = oracle_base * i * i;
                 if (dst(i) != oracle) {
-                    Console.OUT.printf("Team %d role %d received invalid sum %f at %d instead of %f\n",
-                                       team.id(), role, dst(i), i, oracle);
+                    Console.OUT.printf("Team %d place %d received invalid sum %f at %d instead of %f\n",
+                                       team.id(), here.id, dst(i), i, oracle);
                     success = false;
                 }
             }
         }
 
         {
-            team.allreduce(role, src, 0, dst, 0, count, Team.MAX);
+            team.allreduce(src, 0L, dst, 0L, count, Team.MAX);
 
             val oracle_base = (team.size()) as Double;
             for (i in 0..(count-1)) {
                 val oracle:double = oracle_base * i * i;
                 if (dst(i) != oracle) {
-                    Console.OUT.printf("Team %d role %d received invalid max %f at %d instead of %f\n",
-                                       team.id(), role, dst(i), i, oracle);
+                    Console.OUT.printf("Team %d place %d received invalid max %f at %d instead of %f\n",
+                                       team.id(), here.id, dst(i), i, oracle);
                     success = false;
                 }
             }
         }
 
         {
-            team.allreduce(role, src, 0, dst, 0, count, Team.MIN);
+            team.allreduce(src, 0L, dst, 0L, count, Team.MIN);
 
             val oracle_base = 1.0f;
             for (i in 0..(count-1)) {
                 val oracle:double = oracle_base * i * i;
                 if (dst(i) != oracle) {
-                    Console.OUT.printf("Team %d role %d received invalid max %f at %d instead of %f\n",
-                                       team.id(), role, dst(i), i, oracle);
+                    Console.OUT.printf("Team %d place %d received invalid max %f at %d instead of %f\n",
+                                       team.id(), here.id, dst(i), i, oracle);
                     success = false;
                 }
             }
         }
 
-        val reducedSuccess = team.allreduce(role, success ? 1 : 0, Team.AND);
+        val reducedSuccess = team.allreduce(success ? 1 : 0, Team.AND);
 
-        team.barrier(role);
+        team.barrier();
 
         if (reducedSuccess != 1) {
             Console.OUT.println("Reduced Success value was "+reducedSuccess+" but expected 1");
@@ -84,7 +84,7 @@ public class AllReduce extends x10Test {
         val res:Cell[Boolean] = new Cell[Boolean](true);
         val gr:GlobalRef[Cell[Boolean]] = GlobalRef[Cell[Boolean]](res);
         finish for (p in Place.places()) {
-            async at(p) allReduceTest(Team.WORLD, here.id, gr);
+            async at(p) allReduceTest(Team.WORLD, gr);
         }
 
         return res();
