@@ -42,13 +42,13 @@ abstract class DeserializationDictionary implements SerializationConstants {
 
     void addEntry(Short id, Class<?> clazz) {
         idsToClass.put(id, clazz);
-        if (x10.serialization.X10JavaSerializable.class.isAssignableFrom(clazz) && !clazz.isInterface()) {
+        if (!clazz.isInterface() && SerializationUtils.useX10SerializationProtocol(clazz)) {
             Method m;
             try {
-                m = clazz.getMethod("$_deserializer", X10JavaDeserializer.class);
+                m = clazz.getDeclaredMethod("$_deserializer", X10JavaDeserializer.class);
             } catch (NoSuchMethodException e) {
                 throw new RuntimeException("DeserializationDictionary: class "+clazz+
-                                           " implements X10JavaSerializable but does not have a $_deserializer method", e);
+                                           " directly implements X10JavaSerializable but does not have a $_deserializer method", e);
             }
             m.setAccessible(true);
             idsToMethod.put(id, m);

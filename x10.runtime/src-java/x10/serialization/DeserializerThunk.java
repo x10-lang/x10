@@ -162,20 +162,13 @@ abstract class DeserializerThunk {
 
         Class<?>[] interfaces = clazz.getInterfaces();
         boolean isCustomSerializable = false;
-        boolean isHadoopSerializable = false;
+        boolean isHadoopSerializable = Runtime.implementsHadoopWritable(clazz);
+        boolean isX10JavaSerializable = SerializationUtils.useX10SerializationProtocol(clazz);
         for (Class<?> aInterface : interfaces) {
             if ("x10.io.CustomSerialization".equals(aInterface.getName())) {
                 isCustomSerializable = true;
                 break;
             }
-        }
-
-        if (Runtime.implementsHadoopWritable(clazz)) {
-            isHadoopSerializable = true;
-        }
-
-        if (isCustomSerializable && isHadoopSerializable) {
-            throw new RuntimeException("deserializer: " + clazz + " implements both x10.io.CustomSerialization and org.apache.hadoop.io.Writable.");
         }
 
         if (isCustomSerializable) {
@@ -184,6 +177,10 @@ abstract class DeserializerThunk {
 
         if (isHadoopSerializable) {
             return new HadoopDeserializerThunk(clazz);
+        }
+        
+        if (isX10JavaSerializable) {
+            return new X10JavaSerializableDeserializerThunk(clazz);
         }
 
         Class<?> superclass = clazz.getSuperclass();
@@ -195,6 +192,36 @@ abstract class DeserializerThunk {
         return new FieldBasedDeserializerThunk(clazz, superThunk);
     }
 
+    /**
+     * A thunk for a vanilla X10 class (supports compiler-generated serialization code).
+     */
+    private static class X10JavaSerializableDeserializerThunk extends DeserializerThunk {
+        protected final Method deserializeBodyMethod;
+
+        X10JavaSerializableDeserializerThunk(Class<? extends Object> clazz) {
+            super(null);  // The compiler-generated serialization code will invoke the superclass deserializer directly
+            
+            try {
+                deserializeBodyMethod = clazz.getDeclaredMethod("$_deserialize_body", clazz, X10JavaDeserializer.class);
+            } catch (SecurityException e) {
+                System.err.println("DeserializerThunk: class "+clazz+" does not have a $_deserialize_body method");
+                throw new RuntimeException(e);
+            } catch (NoSuchMethodException e) {
+                System.err.println("DeserializerThunk: class "+clazz+" does not have a $_deserialize_body method");
+                throw new RuntimeException(e);
+            }
+            deserializeBodyMethod.setAccessible(true);
+        }
+
+        @Override
+        protected <T> T deserializeBody(Class<?> clazz, T obj, int i, X10JavaDeserializer jds) throws IOException,
+                IllegalArgumentException, IllegalAccessException, InvocationTargetException, InstantiationException {
+
+            deserializeBodyMethod.invoke(null, obj, jds);
+            return obj;
+        }
+    }
+    
     private static class FieldBasedDeserializerThunk extends DeserializerThunk {
         protected final Field[] fields;
 

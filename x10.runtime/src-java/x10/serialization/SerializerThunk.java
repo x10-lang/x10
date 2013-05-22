@@ -112,7 +112,7 @@ abstract class SerializerThunk {
         Class<?>[] interfaces = clazz.getInterfaces();
         boolean isCustomSerializable = false;
         boolean isHadoopSerializable = Runtime.implementsHadoopWritable(clazz);
-        boolean isX10JavaSerializable = x10.serialization.X10JavaSerializable.class.isAssignableFrom(clazz);
+        boolean isX10JavaSerializable = SerializationUtils.useX10SerializationProtocol(clazz);
         for (Class<?> aInterface : interfaces) {
             if ("x10.io.CustomSerialization".equals(aInterface.getName())) {
                 isCustomSerializable = true;
