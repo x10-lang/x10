@@ -45,6 +45,8 @@ class SharedDictionaries implements SerializationConstants {
                 /* "x10.lang.GlobalRef",  */           // TODO: @NativeRep to x10.core.GlobalRef
                 "x10.lang.PlaceLocalHandle",
                 "x10.lang.Place",
+                "x10.lang.Point",
+                /* "x10.lang.Rail", */                 // TODO: @NativeRep to x10.core.Rail
 
                 /* XRX: core implementation classes */
                 "x10.lang.FinishState",
@@ -55,7 +57,6 @@ class SharedDictionaries implements SerializationConstants {
                 "x10.array.Array",
                 "x10.array.DistArray",
                 "x10.array.DistArray$LocalState",
-                "x10.array.Point",
                 "x10.array.RectRegion1D",
                 "x10.array.RemoteArray",
                
@@ -80,6 +81,7 @@ class SharedDictionaries implements SerializationConstants {
                 "x10.core.Int",
                 "x10.core.Long",
                 "x10.core.PlaceLocalHandle",
+                "x10.core.Rail",
                 "x10.core.RemoteIndexedMemoryChunk",
                 "x10.core.Short",
                 "x10.core.UByte",
