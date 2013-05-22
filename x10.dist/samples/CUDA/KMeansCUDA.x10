@@ -139,11 +139,9 @@ public class KMeansCUDA {
 
                         var start_time : Long = System.currentTimeMillis();
                         // classify kernel
-                        val blocks = 30;
-                        val threads = 64;
                         finish async at (gpu) @CUDA @CUDADirectParams {
-                            //val blocks = CUDAUtilities.autoBlocks();
-                            //val threads = CUDAUtilities.autoThreads();
+                            val blocks = CUDAUtilities.autoBlocks();
+                            val threads = CUDAUtilities.autoThreads();
                             finish for (block in 0..(blocks-1)) async {
                                 val clustercache = new Rail[Float](clusters_copy);
                                 clocked finish for (thread in 0..(threads-1)) clocked async {
