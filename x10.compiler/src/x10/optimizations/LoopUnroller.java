@@ -717,7 +717,7 @@ public class LoopUnroller extends ContextVisitor {
         }
         for(int i= 0; i < fUnrollFactor; i++) {
             Stmt subbedBody= fLoop.body();
-            if (loopVar.type().type().isInt() || loopVar.vars().size() > 0) {
+            if (loopVar.type().type().isInt() || loopVar.type().type().isLong() || loopVar.vars().size() > 0) {
                 Expr varValue= intLit(i);
                 Expr newInit= plus(local(newLoopVarInit.localDef()), varValue);
                 newInit= (Expr) newInit.visit(desugarer);
@@ -754,7 +754,7 @@ public class LoopUnroller extends ContextVisitor {
             ForUpdate remainderUpdate= (ForUpdate) eval(postInc(local(remainderLoopInit.localDef())));
             remainderUpdate= (ForUpdate) remainderUpdate.visit(desugarer);
             Stmt subbedBody= fLoop.body();
-            if (loopVar.type().type().isInt() || loopVar.vars().size() > 0) {
+            if (loopVar.type().type().isInt() || loopVar.type().type().isLong() || loopVar.vars().size() > 0) {
                 Expr newInit= local(remainderLoopInit.localDef());
                 subs.put(firstDimVar.localDef(), newInit);
                 Desugarer.Substitution<Expr> subPerformer= new ReplaceLoopVar();
