@@ -18,6 +18,7 @@ import java.util.*;
 
 import polyglot.ast.*;
 import polyglot.types.LocalDef;
+import polyglot.types.LocalInstance;
 import polyglot.types.Name;
 import polyglot.util.InternalCompilerError;
 import polyglot.util.UniqueID;
@@ -162,8 +163,11 @@ public class AlphaRenamer extends NodeVisitor {
 
             // Update the local instance as necessary.
             Name newName = renamingMap.get(name);
-            // LocalType li = l.localInstance();
-            // if (li != null) li.setName(newName);
+            // [DC] I'm guessing the following is commented so that li.name remains null, so that li.name() defers to the Def's name (which we update elsewhere)
+            /*
+            LocalInstance li = l.localInstance();
+            if (li != null) l.localInstance(li.name(newName));
+            */
 
             return l.name(l.name().id(newName));
         }
