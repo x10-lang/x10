@@ -77,11 +77,11 @@ public struct Team {
 
     /** Returns the number of places in the team.
      */
-    public def size () : Int {
+    public def size () : Long {
     	if (nativeSupportsCollectives ())
     		return nativeSize(id);
     	else
-    		return state(id).places.size() as Int;
+    		return state(id).places.size();
     }
 
     private static def nativeSize (id:Int) : Int {
@@ -415,7 +415,7 @@ public struct Team {
     /** Destroy a team that is no-longer needed.  Called simultaneously by each member of
      * the team.  There should be no operations on the team after this.
      */
-    public def del () : void {
+    public def delete () : void {
         if (this == WORLD) throw new IllegalArgumentException("Cannot delete Team.WORLD");
         if (nativeSupportsCollectives())
         	finish nativeDel(id, Runtime.hereInt());
