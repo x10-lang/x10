@@ -112,8 +112,8 @@ echo "The distribution is now exported to the directory $workdir"
 if [[ -z "$SKIP_X10_BUILD" ]]; then
     echo "Building distribution"
     cd $distdir/x10.dist
-    ant -Doptimize=true -Dtar.version=$X10_VERSION testtar
-    ant -Doptimize=true -Dtar.version=$X10_VERSION srctar
+    ant -Doptimize=true -Dx10.version=$X10_VERSION testtar
+    ant -Doptimize=true -Dx10.version=$X10_VERSION srctar
     ant $EXTRA_X10RT_BUILD_ARG -Doptimize=true dist
     if [[ -z "$SKIP_DEBUG_BUILD" ]]; then
         ant -Ddebug=true dist-cpp

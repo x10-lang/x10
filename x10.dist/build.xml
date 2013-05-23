@@ -50,7 +50,21 @@
     <!-- get the environment variables -->
     <property environment="env"/>
 
-    <target name="init">
+    <target name="x10-version" unless="x10.version">
+      <loadproperties srcFile="META-INF/MANIFEST.MF">
+	<filterchain>
+	  <linecontains>
+	    <contains value="Bundle-Version" />
+	  </linecontains>
+	  <tokenfilter>
+	    <replacestring from=".qualifier" />
+	  </tokenfilter>
+	</filterchain>
+      </loadproperties>
+      <property name="x10.version" value="${Bundle-Version}" />
+    </target>
+
+    <target name="init" depends ="x10-version">
         <tstamp/>
         <mkdir dir="${etc}" />
         <mkdir dir="${incdir}" />
@@ -164,11 +178,15 @@
     <target name="dist-x10rt" depends="runtime-x10rt"/>
     <target name="dist" depends="dist-java,dist-cpp,dist-bridge,dist-x10doc"/>
     <target name="dist-par" depends="init,build,common-jar,constraints-jar,compiler-jar">
-        <ant antfile="${x10.runtime.location}/build.xml" target="dist-par" inheritAll="false" dir="${x10.runtime.location}"/>
+        <ant antfile="${x10.runtime.location}/build.xml" target="dist-par" inheritAll="false" dir="${x10.runtime.location}">
+	  <property name="x10.version" value="${x10.version}" />
+	</ant>
     </target>
     <target name="dist-bridge" depends="dist-java,bridge-jar"/>
     <target name="dist-x10doc" depends="init,compiler-jar">
-        <ant antfile="${x10.doc.location}/build.xml" target="dist" inheritAll="false" dir="${x10.doc.location}"/>
+        <ant antfile="${x10.doc.location}/build.xml" target="dist" inheritAll="false" dir="${x10.doc.location}">
+	  <property name="x10.version" value="${x10.version}" />
+	</ant>
     </target>
     <target name="check-jar-cache" depends="init">
         <available property="lpg.jar.present" file="${lib}/${lpg.jar}"/>
@@ -344,15 +362,21 @@
     </target>
 
     <target name="runtime-java" depends="init,common-jar,constraints-jar">
-        <ant antfile="${x10.runtime.location}/build.xml" target="dist-java-x10rt" inheritAll="false" dir="${x10.runtime.location}"/>
+        <ant antfile="${x10.runtime.location}/build.xml" target="dist-java-x10rt" inheritAll="false" dir="${x10.runtime.location}">
+	  <property name="x10.version" value="${x10.version}" />
+	</ant>
     </target>
 
     <target name="runtime-cpp" depends="init">
-        <ant antfile="${x10.runtime.location}/build.xml" target="dist-cpp" inheritAll="false" dir="${x10.runtime.location}"/>
+        <ant antfile="${x10.runtime.location}/build.xml" target="dist-cpp" inheritAll="false" dir="${x10.runtime.location}">
+	  <property name="x10.version" value="${x10.version}" />
+	</ant>
     </target>
 
     <target name="runtime-x10rt" depends="init">
-        <ant antfile="${x10.runtime.location}/build.xml" target="dist-x10rt" inheritAll="false" dir="${x10.runtime.location}"/>
+        <ant antfile="${x10.runtime.location}/build.xml" target="dist-x10rt" inheritAll="false" dir="${x10.runtime.location}">
+	  <property name="x10.version" value="${x10.version}" />
+	</ant>
     </target>
 
     <target name="bridge-jar" depends="init,compiler-jar">
@@ -364,29 +388,24 @@
     </target>
 
     <target name="constraints-jar" depends="init">
-        <ant antfile="${x10.constraints.location}/build.xml" target="build" inheritAll="false" dir="${x10.constraints.location}"/>
-        <!--
-        <ant antfile="${x10.constraints.location}/build.xml" target="jar" inheritAll="false" dir="${x10.constraints.location}"/>
-        <mkdir dir="${lib}"/>
-        <copy todir="${lib}">
-            <fileset dir="${x10.constraints.location}/${builddir}" includes="${constraints.jar}"/>
-        </copy>
-        -->
+        <ant antfile="${x10.constraints.location}/build.xml" target="build" inheritAll="false" dir="${x10.constraints.location}">
+	  <property name="x10.version" value="${x10.version}" />
+	</ant>
     </target>
 
     <target name="common-jar" depends="init">
-        <ant antfile="${x10.common.location}/build.xml" target="build" inheritAll="false" dir="${x10.common.location}"/>
-        <!--
-        <ant antfile="${x10.common.location}/build.xml" target="jar" inheritAll="false" dir="${x10.common.location}"/>
-        <mkdir dir="${lib}"/>
-        <copy todir="${lib}">
-            <fileset dir="${x10.common.location}/${builddir}" includes="${common.jar}"/>
-        </copy>
-        -->
+        <ant antfile="${x10.common.location}/build.xml" target="build" inheritAll="false" dir="${x10.common.location}">
+	  <property name="x10.version" value="${x10.version}" />
+	</ant>
+        <ant antfile="${x10.constraints.location}/build.xml" target="build" inheritAll="false" dir="${x10.constraints.location}">
+	  <property name="x10.version" value="${x10.version}" />
+	</ant>
     </target>
 
     <target name="compiler-jar" depends="init,common-jar,constraints-jar">
-        <ant antfile="${x10.compiler.location}/build.xml" target="jar" inheritAll="false" dir="${x10.compiler.location}"/>
+        <ant antfile="${x10.compiler.location}/build.xml" target="jar" inheritAll="false" dir="${x10.compiler.location}">
+	  <property name="x10.version" value="${x10.version}" />
+	</ant>
         <mkdir dir="${lib}"/>
         <copy todir="${lib}">
             <fileset dir="${x10.compiler.location}/${builddir}" includes="${compiler.jar}"/>
@@ -651,33 +670,6 @@ ENABLE_X10RT_PAMI='${X10RT_PAMI}'
         <delete file="${bin}/defs"/>
     </target>
 
-    <!-- the following lines have only ever been tested on AIX -->
-    <!-- they build the LAPI support library -->
-    <target name="buildLAPISupportTask">
-        <javac srcdir="${src}/lapi_support" destdir="${src}/lapi_support"/>
-    </target>
-
-    <target name="declareLAPISupportTask" depends="buildLAPISupportTask">
-        <taskdef name="buildLAPISupport"
-                 classname="LAPISupportantTask"
-                 classpath="${src}/lapi_support"/>
-    </target>
-
-    <target name="lapi-support" depends="declareLAPISupportTask">
-        <buildLAPISupport srcdir="${src}/lapi_support" classes="${builddir}" bindir="${bin}">
-        </buildLAPISupport>
-    </target>
-    <!-- the preceding lines have only ever been tested on AIX -->
-
-    <target name="tar-version" depends="init" unless="tar.version">
-        <property name="tar.version" value="${DSTAMP}-${TSTAMP}"/>
-    </target>
-    <target name="src-tar-version" depends="init,tar-version" unless="src.tar.version">
-        <property name="src.tar.version" value="${tar.version}-src"/>
-    </target>
-    <target name="test-tar-version" depends="init,tar-version" unless="test.tar.version">
-        <property name="test.tar.version" value="${tar.version}-testsuite"/>
-    </target>
     <target name="tar-location" depends="init" unless="tar.location">
         <property name="tar.location" value="${x10.home}"/>
     </target>
@@ -687,10 +679,9 @@ ENABLE_X10RT_PAMI='${X10RT_PAMI}'
     <target name="test-tar-location" depends="init,tar-location" unless="test.tar.location">
         <property name="test.tar.location" value="${tar.location}"/>
     </target>
-    <target name="set-version" depends="init,tar-version,src-tar-version,test-tar-version"/>
     <target name="set-tar-location" depends="init,tar-location,src-tar-location,test-tar-location"/>
-    <target name="tar" depends="set-version,set-tar-location,dist">
-        <tar destfile="${tar.location}/x10-${tar.version}.tar.bz2" compression="bzip2" longfile="gnu">
+    <target name="tar" depends="init,set-tar-location,dist">
+        <tar destfile="${tar.location}/x10-${x10.version}.tar.bz2" compression="bzip2" longfile="gnu">
             <tarfileset prefix="" dir="${basedir}" includes="epl-v10.html,RELEASE.NOTES,INSTALL"/>
             <tarfileset prefix="bin" dir="${basedir}/bin" includes="x10,x10c,x10cj,runjava"/>
             <tarfileset prefix="doc" dir="${basedir}/doc" excludes="releng/**,**/.*.swp"/>
@@ -700,8 +691,8 @@ ENABLE_X10RT_PAMI='${X10RT_PAMI}'
         </tar>
     </target>
     <target name="src-tar" depends="srctar"/>
-    <target name="srctar" depends="set-version,set-tar-location,build">
-        <tar destfile="${src.tar.location}/x10-${src.tar.version}.tar.bz2" compression="bzip2" longfile="gnu">
+    <target name="srctar" depends="init,set-tar-location,build">
+        <tar destfile="${src.tar.location}/x10-${x10.version}-src.tar.bz2" compression="bzip2" longfile="gnu">
             <tarfileset prefix="" dir="${basedir}" includes="epl-v10.html,RELEASE.NOTES.txt,README.txt,INSTALL.txt"/>
             <tarfileset prefix="" dir="${x10.tests.location}" includes="TESTING"/>
             <tarfileset prefix="x10.dist" dir="${basedir}" excludes="releng/**,**/.*.swp,lib/**,stdlib/**,etc/**" includes=".launchConfigs/*,.classpath,.project,README,INSTALL,build*,exportPlugin.xml,bin/*.in,lib/${lpg.jar},lib/${ecj.jar},samples/**,tools/**"/>
@@ -717,8 +708,8 @@ ENABLE_X10RT_PAMI='${X10RT_PAMI}'
         </tar>
     </target>
     <target name="test-tar" depends="testtar"/>
-    <target name="testtar" depends="set-version,set-tar-location,build">
-        <tar destfile="${test.tar.location}/x10-${test.tar.version}.tar.bz2" compression="bzip2" longfile="gnu">
+    <target name="testtar" depends="init,set-tar-location,build">
+        <tar destfile="${test.tar.location}/x10-${x10.version}-testsuite.tar.bz2" compression="bzip2" longfile="gnu">
             <tarfileset fullpath="TESTS-README" dir="${x10.tests.location}" includes="README"/>
             <tarfileset prefix="" dir="${basedir}" includes="epl-v10.html"/>
             <tarfileset prefix="" dir="${x10.tests.location}" includes="projectList.txt"/>
@@ -728,7 +719,7 @@ ENABLE_X10RT_PAMI='${X10RT_PAMI}'
     </target>
     <!--
       To build a tar with a specific version (VER), invoke the target below as
-         ant -Dtar.version=VER tars
+         ant -Dx10.version=VER tars
     -->
     <target name="tars" depends="tar,srctar,testtar"/>
 
