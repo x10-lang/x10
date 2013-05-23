@@ -98,7 +98,7 @@ public class LocalVar<T> extends x10.core.Ref {
         return LocalVar.this;
     }
         
-    public static X10JavaSerializable $_deserialize_body(Ref $_obj, X10JavaDeserializer $deserializer) throws java.io.IOException {
+    public static X10JavaSerializable $_deserialize_body(LocalVar<?> $_obj, X10JavaDeserializer $deserializer) throws java.io.IOException {
         return $_obj;
     }
     
