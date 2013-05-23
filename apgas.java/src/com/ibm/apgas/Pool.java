@@ -83,7 +83,7 @@ public class Pool extends x10.runtime.impl.java.Runtime {
      * How many places are there in the current execution?
      */
     public static int numPlaces() { 
-        return x10.lang.Place.numPlaces$O();
+        return (int)x10.lang.Place.numPlaces$O();
     }
     
     /**

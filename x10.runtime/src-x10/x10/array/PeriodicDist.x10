@@ -134,7 +134,7 @@ public final class PeriodicDist extends Dist {
     }
 
     public @Inline def places():PlaceGroup = baseDist.places();
-    public @Inline def numPlaces():int = baseDist.numPlaces();
+    public @Inline def numPlaces():long = baseDist.numPlaces();
     public @Inline def regions():Iterable[Region(rank)] = baseDist.regions();
     public def get(p:Place):Region(rank) = baseDist.get(p);
 

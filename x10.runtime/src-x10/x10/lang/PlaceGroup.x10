@@ -36,12 +36,12 @@ public abstract class PlaceGroup implements Iterable[Place] {
   /**
    * The size of the PlaceGroup is equal to the value returned by numPlaces()
    */
-  public final property def size():int = numPlaces();
+  public final property def size():Long = numPlaces();
 
   /**
    * @return the number of Places in the PlaceGroup
    */
-  public abstract def numPlaces():Int;
+  public abstract def numPlaces():Long;
 
   /**
    * @return true if the PlaceGroup contains place, false otherwise
@@ -52,12 +52,11 @@ public abstract class PlaceGroup implements Iterable[Place] {
    * @return true if the PlaceGroup contains the place with
    *  the given id, false otherwise
    */
-  public abstract def contains(id:int):Boolean;
-  public def contains(id:long):Boolean = contains(id as int);
+  public abstract def contains(id:Long):Boolean;
 
   /**
    * <p>If the argument place is contained in the PlaceGroup
-   * return an int between 0 and numPlaces()-1 that is the
+   * return a long between 0 and numPlaces()-1 that is the
    * ordinal number of the Place in the PlaceGroup. 
    * If the argument place is not contained in the PlaceGroup,
    * then return -1.</p>
@@ -67,11 +66,11 @@ public abstract class PlaceGroup implements Iterable[Place] {
    * 
    * @return the index of place
    */
-  public def indexOf(place:Place):int = indexOf(place.id);
+  public def indexOf(place:Place):long = indexOf(place.id);
 
   /**
    * <p>If the Place with id equal to id is contained in the PlaceGroup
-   * return an int between 0 and numPlaces()-1 that is the
+   * return a long between 0 and numPlaces()-1 that is the
    * ordinal number of said Place in the PlaceGroup. 
    * If the argument place is not contained in the PlaceGroup,
    * then return -1.</p>
@@ -82,8 +81,7 @@ public abstract class PlaceGroup implements Iterable[Place] {
    * 
    * @return the index of the Place encoded by id
    */
-  public abstract def indexOf(id:int):int;
-  public def indexOf(id:long):int = indexOf(id as int);
+  public abstract def indexOf(id:Long):Long;
 
   /**
    * Return the Place with ordinal number <code>i</code> in the place group
@@ -91,8 +89,7 @@ public abstract class PlaceGroup implements Iterable[Place] {
    * @param i the ordinal number of the desired place
    * @return the ith place in the place group
    */
-  public abstract operator this(i:int):Place;
-  public operator this(i:long):Place = this(i as int);
+  public abstract operator this(i:long):Place;
 
 
   /**
@@ -103,7 +100,7 @@ public abstract class PlaceGroup implements Iterable[Place] {
     if (!(thatObj instanceof PlaceGroup)) return false;
     val that = thatObj as PlaceGroup;
     if (numPlaces() != that.numPlaces()) return false;
-    for (var i:int=0; i<numPlaces(); i++) {
+    for (var i:long=0; i<numPlaces(); i++) {
       if (!this(i).equals(that(i))) return false;
     }
     return true;
@@ -116,16 +113,15 @@ public abstract class PlaceGroup implements Iterable[Place] {
   }
 
   public static class SimplePlaceGroup extends PlaceGroup {
-    private val numPlaces:Int;
-    def this(numPlaces:Int) { this.numPlaces = numPlaces; }
-    public operator this(i:int):Place = Place(i);
+    private val numPlaces:Long;
+    def this(numPlaces:Long) { this.numPlaces = numPlaces; }
+    public operator this(i:long):Place = Place(i);
     // replicated from superclass to workaround xlC bug with using & itables
-    public operator this(i:long):Place = this(i as int);
     public def numPlaces() = numPlaces;
-    public def contains(id:int) = id >= 0 && id < numPlaces;
-    public def indexOf(id:int) = contains(id) ? id : -1;
+    public def contains(id:long) = id >= 0L && id < numPlaces;
+    public def indexOf(id:long) = contains(id) ? id : -1L;
     public def iterator():Iterator[Place]{self!=null} = new Iterator[Place](){
-      private var i:Int = 0;
+      private var i:Long = 0L;
       public def hasNext() = i < numPlaces;
       public def next() = Place(i++);
     };
@@ -138,12 +134,12 @@ public abstract class PlaceGroup implements Iterable[Place] {
     }
     public def hashCode() = numPlaces.hashCode();
     public def broadcastFlat(cl:()=>void) {
-        if (numPlaces() >= 1024) {
-            @Pragma(Pragma.FINISH_SPMD) finish for(var i:Int=numPlaces()-1; i>=0; i-=32) {
+        if (numPlaces() >= 1024L) {
+            @Pragma(Pragma.FINISH_SPMD) finish for(var i:Long=numPlaces()-1; i>=0L; i-=32L) {
                 at (Place(i)) async {
-                    val max = Runtime.hereInt();
-                    val min = Math.max(max-31, 0);
-                    @Pragma(Pragma.FINISH_SPMD) finish for (var j:Int=min; j<=max; ++j) {
+                    val max = Runtime.hereLong();
+                    val min = Math.max(max-31L, 0L);
+                    @Pragma(Pragma.FINISH_SPMD) finish for (var j:Long=min; j<=max; ++j) {
                         at (Place(j)) async cl();
                     }
                 }
@@ -154,5 +150,5 @@ public abstract class PlaceGroup implements Iterable[Place] {
     }
   }
 
-  public static make(numPlaces:Int) = new SimplePlaceGroup(numPlaces);
+  public static make(numPlaces:Long) = new SimplePlaceGroup(numPlaces);
 }

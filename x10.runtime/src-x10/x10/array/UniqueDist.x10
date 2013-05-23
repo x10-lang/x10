@@ -53,7 +53,7 @@ final class UniqueDist extends Dist/*(1)*/ {
 
     public def places():PlaceGroup = pg;
 
-    public def numPlaces():int = pg.numPlaces();
+    public def numPlaces():long = pg.numPlaces();
 
     public def regions():Iterable[Region(rank)] {
 	return new Rail[Region(rank)](pg.numPlaces(), (i:long):Region(rank)=>(Region.make(i,i) as Region(rank)));

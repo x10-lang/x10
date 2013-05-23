@@ -116,7 +116,7 @@ final class BlockDist extends Dist {
     
     public def places():PlaceGroup = pg;
     
-    public def numPlaces():int = pg.numPlaces();
+    public def numPlaces():long = pg.numPlaces();
 
     public def regions():Iterable[Region(rank)] {
         return new Rail[Region(rank)](pg.numPlaces(), (i:long)=>blockRegionForPlace(pg(i)));

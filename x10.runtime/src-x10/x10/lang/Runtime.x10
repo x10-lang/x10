@@ -60,9 +60,9 @@ public final class Runtime {
     /**
      * Send active message to another place.
      */
-    @Native("java", "x10.runtime.impl.java.Runtime.runClosureAt(#id, #body, #prof)")
-    @Native("c++", "x10aux::run_closure_at(#id, #body, #prof)")
-    public static native def x10rtSendMessage(id:Int, body:()=>void, prof:Profile):void;
+    @Native("java", "x10.runtime.impl.java.Runtime.runClosureAt((int)(#id), #body, #prof)")
+    @Native("c++", "x10aux::run_closure_at((x10_int)#id, #body, #prof)")
+    public static native def x10rtSendMessage(id:Long, body:()=>void, prof:Profile):void;
 
     /**
      * Send async to another place.
@@ -70,9 +70,9 @@ public final class Runtime {
      * creating an activity at the destination place with the specified body and finish state
      * and pushing this activity onto the deque of the active worker.
      */
-    @Native("java", "x10.runtime.impl.java.Runtime.runAsyncAt(#id, #body, #finishState, #prof)")
-    @Native("c++", "x10aux::run_async_at(#id, #body, #finishState, #prof)")
-    public static native def x10rtSendAsync(id:Int, body:()=>void, finishState:FinishState, prof:Profile):void;
+    @Native("java", "x10.runtime.impl.java.Runtime.runAsyncAt((int)(#id), #body, #finishState, #prof)")
+    @Native("c++", "x10aux::run_async_at((x10_long)(#id), #body, #finishState, #prof)")
+    public static native def x10rtSendAsync(id:Long, body:()=>void, finishState:FinishState, prof:Profile):void;
 
     /**
      * Complete X10RT initialization.
@@ -609,9 +609,14 @@ public final class Runtime {
 
     /**
      * Return the id of the current place
+     * @Deprecated("Use hereLong()")
      */
     @Native("c++", "x10aux::here")
-    public static def hereInt():int = here.id;
+    public static def hereInt():int = here.id as Int;
+
+    @Native("c++", "((x10_long)x10aux::here)")
+    public static def hereLong():Long = here.id;
+
 
     /**
      * The amount of unscheduled activities currently available to this worker thread.
@@ -653,12 +658,12 @@ public final class Runtime {
                         }
                         pool.latch.release();
                     };
-                    for(var i:Int=Place.MAX_PLACES-1; i>0; i-=32) {
+                    for(var i:Long=Place.MAX_PLACES-1L; i>0L; i-=32L) {
                         x10rtSendMessage(i, cl1, null);
                     }
                 } else {
                     val cl = ()=> @x10.compiler.RemoteInvocation("start_3") {pool.latch.release();};
-                    for (var i:Int=Place.MAX_PLACES-1; i>0; --i) {
+                    for (var i:Long=Place.MAX_PLACES-1L; i>0L; --i) {
                         x10rtSendMessage(i, cl, null);
                     }
                 }
@@ -687,7 +692,7 @@ public final class Runtime {
         val state = a.finishState();
         val clockPhases = a.clockPhases().make(clocks);
         state.notifySubActivitySpawn(place);
-        if (place.id == hereInt()) {
+        if (place.id == hereLong()) {
             executeLocal(new Activity(deepCopy(body, prof), state, clockPhases));
         } else {
             val closure = ()=> @x10.compiler.RemoteInvocation("runAsync") { execute(new Activity(body, state, clockPhases)); };
@@ -704,7 +709,7 @@ public final class Runtime {
         
         val state = a.finishState();
         state.notifySubActivitySpawn(place);
-        if (place.id == hereInt()) {
+        if (place.id == hereLong()) {
             executeLocal(new Activity(deepCopy(body, prof), state));
         } else {
             x10rtSendAsync(place.id, body, state, prof); // optimized case
@@ -748,7 +753,7 @@ public final class Runtime {
         val a = activity();
         a.ensureNotInAtomic();
         
-        if (place.id == hereInt()) {
+        if (place.id == hereLong()) {
             executeLocal(new Activity(deepCopy(body, prof), FinishState.UNCOUNTED_FINISH));
         } else {
             val closure = ()=> @x10.compiler.RemoteInvocation("runUncountedAsync") { execute(new Activity(body, FinishState.UNCOUNTED_FINISH)); };
@@ -820,7 +825,7 @@ public final class Runtime {
      */
     public static def runAt(place:Place, body:()=>void, prof:Profile):void {
         Runtime.ensureNotInAtomic();
-        if (place.id == hereInt()) {
+        if (place.id == hereLong()) {
             try {
                 try {
                     deepCopy(body, prof)();
@@ -877,7 +882,7 @@ public final class Runtime {
      */
     public static def runAtSimple(place:Place, body:()=>void, toWait:Boolean):void {
         //Console.ERR.println("Runtime.runAtSimple: place=" + place + " toWait=" + toWait);
-        if (place.id == hereInt()) {
+        if (place.id == hereLong()) {
                 deepCopy(body, null)(); // deepCopy and apply
                 return;
         }
@@ -938,7 +943,7 @@ public final class Runtime {
      */
     public static def evalAt[T](place:Place, eval:()=>T, prof:Profile):T {
         Runtime.ensureNotInAtomic();
-        if (place.id == hereInt()) {
+        if (place.id == hereLong()) {
             try {
                 try {
                     // TODO the second deep copy is needed only if eval makes its result escaped (it is very rare).

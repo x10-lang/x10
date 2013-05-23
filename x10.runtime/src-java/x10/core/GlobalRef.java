@@ -56,7 +56,7 @@ public final class GlobalRef<T> extends x10.core.Struct implements Externalizabl
     private static void GlobalGCDebug(java.lang.String msg) {
         //if (level > GLOBALGC_DEBUG) return; // XTENLANG-3168: debug level should be checked in caller
         long time = System.nanoTime();
-        int placeId = x10.lang.Runtime.home().id;
+        int placeId = (int)x10.lang.Runtime.home().id;
         java.lang.String output = "[GlobalGC(time=" + time + ",place=" + placeId + ")] " + msg;
         synchronized (debugSync) {
             System.err.println(output); System.err.flush();

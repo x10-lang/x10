@@ -40,7 +40,7 @@ abstract class FinishState {
         @Embed private val latch = @Embed new SimpleLatch();
         private var exceptions:Stack[Exception]; // lazily initialized
         public def notifySubActivitySpawn(place:Place) {
-            assert place.id == Runtime.hereInt();
+            assert place.id == Runtime.hereLong();
             count.getAndIncrement();
         }
         public def notifyActivityCreation() {}
@@ -73,7 +73,7 @@ abstract class FinishState {
         }
         private def this(data:SerialData) {
             super(data.data as GlobalRef[FinishState]);
-            if (ref.home.id == Runtime.hereInt()) {
+            if (ref.home.id == Runtime.hereLong()) {
                 me = (ref as GlobalRef[FinishState]{home==here})();
             } else {
                 me = new RemoteFinishSPMD(ref);
@@ -115,7 +115,7 @@ abstract class FinishState {
             super(ref);
         }
         public def notifySubActivitySpawn(place:Place) {
-            assert place.id == Runtime.hereInt();
+            assert place.id == Runtime.hereLong();
             count.getAndIncrement();
         }
         public def notifyActivityCreation() {}
@@ -156,7 +156,7 @@ abstract class FinishState {
         }
         private def this(data:SerialData) {
             super(data.data as GlobalRef[FinishState]);
-            if (ref.home.id == Runtime.hereInt()) {
+            if (ref.home.id == Runtime.hereLong()) {
                 me = (ref as GlobalRef[FinishState]{home==here})();
             } else {
                 me = new RemoteFinishAsync(ref);
@@ -221,7 +221,7 @@ abstract class FinishState {
         }
         private def this(data:SerialData) { 
             super(data.data as GlobalRef[FinishState]);
-            if (ref.home.id == Runtime.hereInt()) {
+            if (ref.home.id == Runtime.hereLong()) {
                 me = (ref as GlobalRef[FinishState]{home==here})();
             } else {
                 me = UNCOUNTED_FINISH;
@@ -325,7 +325,7 @@ abstract class FinishState {
         }
         private def this(data:SerialData) { 
             super(data.data as GlobalRef[FinishState]);
-            if (ref.home.id == Runtime.hereInt()) {
+            if (ref.home.id == Runtime.hereLong()) {
                 me = (ref as GlobalRef[FinishState]{home==here})();
             } else {
                 val _ref = ref;
@@ -478,7 +478,7 @@ abstract class FinishState {
             local.getAndIncrement();
         }
         public def notifySubActivitySpawn(place:Place):void {
-            val id = Runtime.hereInt();
+            val id = Runtime.hereLong();
             lock.lock();
             if (place.id == id) {
                 count++;
@@ -488,12 +488,12 @@ abstract class FinishState {
             if (counts == null || counts.size == 0L) {
                 counts = new Rail[Int](Place.MAX_PLACES);
                 places = new Rail[Int](Place.MAX_PLACES);
-                places(0) = id;
+                places(0) = id as int; // WARNING: assuming 32 bit places at X10 level.
             }
             val old = counts(place.id);
             counts(place.id)++;
             if (old == 0 && id != place.id) {
-                places(length++) = place.id;
+                places(length++) = place.id as int; // WARNING: assuming 32 bit places at X10 level.
             }
             lock.unlock();
         }
@@ -514,7 +514,7 @@ abstract class FinishState {
             val ref = this.ref();
             val closure:()=>void;
             if (counts != null && counts.size != 0L) {
-                counts(Runtime.hereInt()) = count;
+                counts(Runtime.hereLong()) = count;
                 if (2*length > Place.MAX_PLACES) {
                     val message = Unsafe.allocRailUninitialized[Int](counts.size);
                     Rail.copy(counts, 0L, message, 0L, counts.size);
@@ -569,7 +569,7 @@ abstract class FinishState {
         }
         private def this(data:SerialData) { 
             super(data.data as GlobalRef[FinishState]);
-            if (ref.home.id == Runtime.hereInt()) {
+            if (ref.home.id == Runtime.hereLong()) {
                 me = (ref as GlobalRef[FinishState]{home==here})();
             } else {
                 val _ref = ref;
@@ -593,7 +593,7 @@ abstract class FinishState {
             local.getAndIncrement();
         }
         public def notifySubActivitySpawn(place:Place):void {
-            val id = Runtime.hereInt();
+            val id = Runtime.hereLong();
             lock.lock();
             if (place.id == id) {
                 count++;
@@ -603,12 +603,12 @@ abstract class FinishState {
             if (counts == null || counts.size == 0L) {
                 counts = new Rail[Int](Place.MAX_PLACES);
                 places = new Rail[Int](Place.MAX_PLACES);
-                places(0) = id;
+                places(0) = id as int; // WARNING: assuming 32 bit places at X10 level.
             }
             val old = counts(place.id);
             counts(place.id)++;
             if (old == 0 && id != place.id) {
-                places(length++) = place.id;
+                places(length++) = place.id as int; // WARNING: assuming 32 bit places at X10 level.
             }
             lock.unlock();
         }
@@ -629,7 +629,7 @@ abstract class FinishState {
             val ref = this.ref();
             val closure:()=>void;
             if (counts != null && counts.size != 0L) {
-                counts(Runtime.hereInt()) = count;
+                counts(Runtime.hereLong()) = count;
                 if (2*length > Place.MAX_PLACES) {
                     val message = Unsafe.allocRailUninitialized[Int](counts.size);
                     Rail.copy(counts, 0L, message, 0L, counts.size);
@@ -664,7 +664,7 @@ abstract class FinishState {
             exceptions = null;
             lock.unlock();
             val h = Runtime.hereInt();
-            if ((Place.MAX_PLACES < 1024) || (h%32 == 0) || (h-h%32 == ref.home.id)) {
+            if ((Place.MAX_PLACES < 1024) || (h%32 == 0) || (h-h%32 == (ref.home.id as int))) {
                 Runtime.x10rtSendMessage(ref.home.id, closure, null);
             } else {
                 val clx = ()=>@RemoteInvocation("notifyActivityTermination_7") { Runtime.x10rtSendMessage(ref.home.id, closure, null); };
@@ -727,7 +727,7 @@ abstract class FinishState {
             super(data.superclassData.data as GlobalRef[FinishState]);
             val tmpReducer = data.data as Reducible[T];
             reducer = tmpReducer;
-            if (ref.home.id == Runtime.hereInt()) {
+            if (ref.home.id == Runtime.hereLong()) {
                 me = (ref as GlobalRef[FinishState]{home==here})();
             } else {
                 val _ref = ref;
@@ -792,7 +792,7 @@ abstract class FinishState {
             val result = sr.result();
             sr.reset();
             if (counts != null && counts.size != 0L) {
-                counts(Runtime.hereInt()) = count;
+                counts(Runtime.hereLong()) = count;
                 if (2*length > Place.MAX_PLACES) {
                     val message = Unsafe.allocRailUninitialized[Int](counts.size);
                     Rail.copy(counts, 0L, message, 0L, counts.size);

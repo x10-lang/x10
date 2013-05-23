@@ -96,8 +96,8 @@ public final class Worker {
         }
     }
 
-    public static def wsRunAsync(id:Int, body:()=>void):void {
-        if (id == Runtime.hereInt()) {
+    public static def wsRunAsync(id:long, body:()=>void):void {
+        if (id == Runtime.hereLong()) {
             val copy = Runtime.deepCopy(body);
             copy();
             Runtime.dealloc(copy);

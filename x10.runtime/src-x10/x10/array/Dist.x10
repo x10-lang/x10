@@ -233,7 +233,7 @@ public abstract class Dist(
     /**
      * How many places are included in the distribution?
      */
-    abstract public def numPlaces():int;
+    abstract public def numPlaces():long;
 
     /**
      * @return an object that implements Iterable[Region] that can be used to

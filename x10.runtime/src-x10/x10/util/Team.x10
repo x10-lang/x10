@@ -50,9 +50,9 @@ public struct Team {
         	val result = new Rail[Int](1);
         	val count = places.size();
         	val placeRail = new Rail[Place](places.size());
-        	for (var i:Int=0; i<count; i++)
+        	for (var i:Long=0L; i<count; i++)
         		placeRail(i) = places(i);
-        	finish nativeMake(placeRail, count, result);
+        	finish nativeMake(placeRail, count as int, result);
         	this.id = result(0);
         }
         else {
@@ -80,7 +80,7 @@ public struct Team {
     	if (nativeSupportsCollectives ())
     		return nativeSize(id);
     	else
-    		return state(id).places.size();
+    		return state(id).places.size() as Int;
     }
 
     private static def nativeSize (id:Int) : Int {
@@ -123,9 +123,9 @@ public struct Team {
      */
     public def scatter[T] (root:Place, src:Rail[T], src_off:Long, dst:Rail[T], dst_off:Long, count:Long) : void {
     	if (nativeSupportsCollectives())
-        	finish nativeScatter(id, Runtime.hereInt(), root.id(), src, src_off as Int, dst, dst_off as Int, count as Int);
+        	finish nativeScatter(id, Runtime.hereInt(), root.id() as Int, src, src_off as Int, dst, dst_off as Int, count as Int);
     	else
-    		state(id).collective_impl[T](LocalTeamState.COLL_SCATTER, root.id(), src, src_off, dst, dst_off, count, 0);
+    		state(id).collective_impl[T](LocalTeamState.COLL_SCATTER, root.id() as Int, src, src_off, dst, dst_off, count, 0);
     }
 
     private static def nativeScatter[T] (id:Int, role:Int, root:Int, src:Rail[T], src_off:Int, dst:Rail[T], dst_off:Int, count:Int) : void {
@@ -149,9 +149,9 @@ public struct Team {
      */
      public def bcast[T] (root:Place, src:Rail[T], src_off:Long, dst:Rail[T], dst_off:Long, count:Long) : void {
      	if (nativeSupportsCollectives())
-        	finish nativeBcast(id, Runtime.hereInt(), root.id(), src, src_off as Int, dst, dst_off as Int, count as Int);
+        	finish nativeBcast(id, Runtime.hereInt(), root.id() as Int, src, src_off as Int, dst, dst_off as Int, count as Int);
      	else
-     		state(id).collective_impl[T](LocalTeamState.COLL_BROADCAST, root.id(), src, src_off, dst, dst_off, count, 0);
+     		state(id).collective_impl[T](LocalTeamState.COLL_BROADCAST, root.id() as Int, src, src_off, dst, dst_off, count, 0);
     }
 
     private static def nativeBcast[T] (id:Int, role:Int, root:Int, src:Rail[T], src_off:Int, dst:Rail[T], dst_off:Int, count:Int) : void {
@@ -226,9 +226,9 @@ public struct Team {
      */
     public def reduce[T] (root:Place, src:Rail[T], src_off:Long, dst:Rail[T], dst_off:Long, count:Long, op:Int) : void {
     	if (nativeSupportsCollectives())
-        	finish nativeReduce(id, Runtime.hereInt(), root.id(), src, src_off as Int, dst, dst_off as Int, count as Int, op);
+        	finish nativeReduce(id, Runtime.hereInt(), root.id() as Int, src, src_off as Int, dst, dst_off as Int, count as Int, op);
     	else
-    		state(id).collective_impl[T](LocalTeamState.COLL_REDUCE, root.id(), src, src_off, dst, dst_off, count, op);
+    		state(id).collective_impl[T](LocalTeamState.COLL_REDUCE, root.id() as Int, src, src_off, dst, dst_off, count, op);
 	}
 	
     private static def nativeReduce[T](id:Int, role:Int, root:Int, src:Rail[T], src_off:Int, dst:Rail[T], dst_off:Int, count:Int, op:Int) : void {
@@ -261,9 +261,9 @@ public struct Team {
         val chk = new Rail[T](1, src);
         val dst = new Rail[T](1, src);
         if (nativeSupportsCollectives())
-        	finish nativeReduce[T](id, Runtime.hereInt(), root.id(), chk, dst, op);
+        	finish nativeReduce[T](id, Runtime.hereInt(), root.id() as Int, chk, dst, op);
         else
-        	state(id).collective_impl[T](LocalTeamState.COLL_REDUCE, root.id(), chk, 0, dst, 0, 1, op);
+        	state(id).collective_impl[T](LocalTeamState.COLL_REDUCE, root.id() as Int, chk, 0, dst, 0, 1, op);
         return dst(0);
     }
 
@@ -455,22 +455,22 @@ public struct Team {
 	     * 
 	     * A return value of Place.INVALID_PLACE means that the parent/child does not exist.
 	     */
-	    private def getParentId(root:Int):Place {
-	        if (Runtime.hereInt() == root) return Place.INVALID_PLACE;
-	        rootPosition:Int = places.indexOf(root);
-	        if (rootPosition == -1) return Place.INVALID_PLACE;
-	        myPosition:Int = places.indexOf(Runtime.hereInt());
-	        parentPosition:Int = (((myPosition-1)/2)+rootPosition) % places.numPlaces();
+	    private def getParentId(root:Long):Place {
+	        if (Runtime.hereLong() == root) return Place.INVALID_PLACE;
+	        rootPosition:Long = places.indexOf(root);
+	        if (rootPosition == -1L) return Place.INVALID_PLACE;
+	        myPosition:Long = places.indexOf(Runtime.hereLong());
+	        parentPosition:Long = (((myPosition-1L)/2L)+rootPosition) % places.numPlaces();
 	        return places(parentPosition);
 	    }
-	    private def getChildIds(root:Int):Pair[Place,Place] {
-	    	rootPosition:Int = places.indexOf(root);
-	        if (rootPosition == -1) return Pair[Place,Place](Place.INVALID_PLACE, Place.INVALID_PLACE); // invalid root specified
-	        myPosition:Int = places.indexOf(Runtime.hereInt());
-	        childPosition:Int = (myPosition*2) + 1;
+	    private def getChildIds(root:Long):Pair[Place,Place] {
+	    	rootPosition:Long = places.indexOf(root);
+	        if (rootPosition == -1L) return Pair[Place,Place](Place.INVALID_PLACE, Place.INVALID_PLACE); // invalid root specified
+	        myPosition:Long = places.indexOf(Runtime.hereLong());
+	        childPosition:Long = (myPosition*2L) + 1L;
 	        if (childPosition >= places.numPlaces()) 
 	        	return Pair[Place,Place](Place.INVALID_PLACE, Place.INVALID_PLACE); // no children
-	        else if (childPosition+1 >= places.numPlaces())
+	        else if (childPosition+1L >= places.numPlaces())
 	        	return Pair[Place,Place](places((childPosition+rootPosition) % places.numPlaces()), Place.INVALID_PLACE); // one child only
 	        else
 	        	return Pair[Place,Place](places((childPosition+rootPosition) % places.numPlaces()), places((childPosition+1+rootPosition) % places.numPlaces())); // two children

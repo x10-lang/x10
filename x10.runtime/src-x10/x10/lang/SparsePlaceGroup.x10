@@ -64,24 +64,22 @@ public final class SparsePlaceGroup extends PlaceGroup {
     places = new Rail[Place](1, p);
   }
 
-  public operator this(i:int):Place = places(i);
-  // replicated from superclass to workaround xlC bug with using & itables
-  public operator this(i:long):Place = this(i as int);
+  public operator this(i:long):Place = places(i);
 
   public def iterator() = places.iterator();
 
-  public def numPlaces() = places.size as Int;
+  public def numPlaces() = places.size;
 
-  public def contains(id:int):Boolean {
+  public def contains(id:long):Boolean {
     for (p in places) {
         if (p.id == id) return true;
     }
     return false;
   }
 
-  public def indexOf(id:int):int {
+  public def indexOf(id:long):long {
     for (i in places.range()) {
-        if (places(i).id == id) return i as Int;
+        if (places(i).id == id) return i;
     }
     return -1;
   }

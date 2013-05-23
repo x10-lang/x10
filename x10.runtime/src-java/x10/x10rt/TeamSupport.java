@@ -57,7 +57,7 @@ public class TeamSupport {
         Place[] np = (Place[])places.getBackingArray();
         int[] int_places = new int[np.length];
         for (int i=0; i<places.size; i++) {
-            int_places[i] = np[i].id;
+            int_places[i] = (int)np[i].id;
         }
         int[] nr = result.getIntArray();
 

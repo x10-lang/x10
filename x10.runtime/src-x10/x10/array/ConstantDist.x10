@@ -31,7 +31,7 @@ final class ConstantDist(onePlace:Place) extends Dist {
     
     public def places():PlaceGroup = new SparsePlaceGroup(onePlace);
     
-    public def numPlaces():int = 1;
+    public def numPlaces():long = 1;
     
     public def regions():Iterable[Region(rank)] {
         return new Rail[Region(rank)](1, region);

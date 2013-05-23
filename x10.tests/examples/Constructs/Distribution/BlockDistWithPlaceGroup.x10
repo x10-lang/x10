@@ -49,10 +49,10 @@ public class BlockDistWithPlaceGroup extends x10Test {
             val np = placeGroup.numPlaces();
 
             val DBlock = Dist.makeBlock(R, 0, placeGroup);
-            val p:int = axisPoints/np;
-            val q:int = axisPoints%np;
-            var offsWithinPlace: int = 0;
-            var pn: int = 0;
+            val p = axisPoints/np;
+            val q = axisPoints%np;
+            var offsWithinPlace:long = 0L;
+            var pn: long = 0L;
 
             for (i in lb1..ub1) {
                 for (j in lb2..ub2) {
