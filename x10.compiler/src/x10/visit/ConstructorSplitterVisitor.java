@@ -176,6 +176,8 @@ public class ConstructorSplitterVisitor extends ContextVisitor {
         assert null != ts;
         if (hasNativeAnnotation(type))
             return true;
+        if (type.toClass() != null && type.toClass().isJavaType()) return true;
+        // if (ts.isJavaArray(type)) return false; // MT this is questionable
         if (type instanceof ObjectType) {
             return inheritsUnsplittability(((ObjectType) type).superClass(), ts);
         }
