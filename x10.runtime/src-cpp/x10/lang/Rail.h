@@ -450,7 +450,7 @@ template<class T> void x10::lang::Rail<void>::uncountedCopy(x10::lang::Rail<T>* 
     void* srcAddr = (void*)(&src->raw[srcIndex]);
     void* dstAddr;
     if (x10::lang::Place::place(dst->FMGL(rail)->location)->isCUDA()) {
-        dstAddr = (void*)(dst->FMGL(rail)->__apply());
+        dstAddr = &((T*)(dst->FMGL(rail)->__apply()))[dstIndex];
     } else {
         dstAddr = (void*)(&dst->FMGL(rail)->__apply()->raw[dstIndex]);
     }
@@ -469,7 +469,7 @@ template<class T> void x10::lang::Rail<void>::uncountedCopy(x10::lang::GlobalRai
     if (numElems <= 0) return;
     void* srcAddr;
     if (x10::lang::Place::place(src->FMGL(rail)->location)->isCUDA()) {
-        srcAddr = (void*)(src->FMGL(rail)->__apply());
+        srcAddr = &((T*)(src->FMGL(rail)->__apply()))[srcIndex];
     } else {
         srcAddr = (void*)(&src->FMGL(rail)->__apply()->raw[srcIndex]);
     }
