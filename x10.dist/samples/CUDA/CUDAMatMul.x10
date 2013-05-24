@@ -1,7 +1,6 @@
 import x10.io.Console;
 import x10.util.Random;
 import x10.util.CUDAUtilities;
-import x10.util.Vec;
 import x10.compiler.*;
 
 public class CUDAMatMul {
@@ -56,7 +55,6 @@ public class CUDAMatMul {
 
                         val Blast_idx = B_idx + k;
 
-                        //var c : Vec[Float]{size==16} = Vec.make[Float](16);
                         @StackAllocate val c = @StackAllocate new Rail[Float](16l);
 
                         do
