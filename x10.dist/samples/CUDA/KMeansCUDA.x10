@@ -28,6 +28,119 @@ import x10.compiler.CUDADirectParams;
 import x10.compiler.CUDA;
 import x10.compiler.Native;
 
+class KernelWorker {
+    private val gpu:Place;
+    private val gpuIndex:Long;
+    private val gpuNum:Long;
+    private val kernelOffset:Long;
+    private val kernelNumPoints:Long;
+    private val kernelNumPointsStride:Long;
+    private val hostClusters:Rail[Float];
+    private val numClusters:Int;
+
+    private var kernelTime:Long;
+    private var dmaTime:Long;
+
+    private val gpuPoints : GlobalRail[Float]{home==gpu};
+    private val gpuClusters : GlobalRail[Float]{home==gpu};
+    private val gpuNearest : GlobalRail[Int]{home==gpu};
+    private val hostNearest:Rail[Int];
+    
+    private static def round_up (x:Long, n:Long) = (x-1) - ((x-1)%n) + n;
+
+    def this(quiet:Boolean, gpu:Place, gpu_index:Long, gpu_num:Long, global_points:Rail[Float], global_num_points:Long, host_offset:Long, host_num_points:Long, host_clusters:Rail[Float], num_clusters:Int, host_nearest:Rail[Int]) {
+        this.gpu = gpu;
+        this.gpuIndex = gpu_index;
+        this.gpuNum = gpu_num;
+        this.hostClusters = host_clusters;
+        this.numClusters = num_clusters;
+        this.hostNearest = host_nearest;
+
+        kernelNumPoints = host_num_points / gpuNum;
+        kernelOffset = gpuIndex * kernelNumPoints + host_offset;
+
+        if (!quiet) {
+            Console.OUT.println("GPU known as "+gpu+" gets offset "+kernelOffset+" len "+kernelNumPoints);
+        }
+        
+        val MEM_ALIGN = 32; // FOR CUDA
+        kernelNumPointsStride = round_up(kernelNumPoints, MEM_ALIGN);
+
+        val dim = 4l;
+
+        // these are pretty big so allocate up front
+
+        gpuPoints = CUDAUtilities.makeGlobalRail(this.gpu, kernelNumPointsStride*dim, 0 as Float);
+        // DMA them from global_points
+        finish for (d in 0..(dim-1)) {
+            Rail.asyncCopy(global_points, d*global_num_points + kernelOffset, gpuPoints, d*kernelNumPointsStride, kernelNumPoints);
+        }
+        this.gpuClusters = CUDAUtilities.makeGlobalRail(this.gpu, num_clusters*dim, 0 as Float);
+        this.gpuNearest = CUDAUtilities.makeGlobalRail(this.gpu, kernelNumPoints, 0 as Int);
+
+    }
+
+    def doWork() {
+
+        val kernel_num_points = this.kernelNumPoints;
+        val kernel_num_points_stride = this.kernelNumPointsStride;
+        val gpu_points = this.gpuPoints;
+        val gpu_nearest = this.gpuNearest;
+        val the_host_clusters = this.hostClusters;
+        val the_num_clusters = this.numClusters;
+        val the_dim = 4l;
+        val g = gpu;
+
+        val kernel_start_time : Long = System.currentTimeMillis();
+        // classify kernel
+        finish async at (g) @CUDA @CUDADirectParams {
+            val blocks = CUDAUtilities.autoBlocks();
+            val threads = CUDAUtilities.autoThreads();
+            finish for (block in 0..(blocks-1)) async {
+                val clustercache = new Rail[Float](the_host_clusters);
+                clocked finish for (thread in 0..(threads-1)) clocked async {
+                    val tid = block * threads + thread;
+                    val tids = blocks * threads;
+                    for (var p:Long=tid ; p<kernel_num_points ; p+=tids) {
+                        var closest:Int = -1;
+                        var closest_dist:Float = Float.MAX_VALUE;
+                        for (k in 0..(the_num_clusters-1)) { 
+                            // Pythagoras (in dim dimensions)
+                            var dist : Float = 0;
+                            for (d in 0l..(the_dim-1l)) { 
+                                val tmp = gpu_points(p+d*kernel_num_points_stride) 
+                                          - clustercache(k*the_dim+d);
+                                dist += tmp * tmp;
+                            }
+                            // record closest cluster seen so far
+                            if (dist < closest_dist) {
+                                closest_dist = dist;
+                                closest = k;
+                            }
+                        }
+                        gpu_nearest(p) = closest;
+                    }
+                }
+            }
+        }
+        kernelTime = System.currentTimeMillis() - kernel_start_time;
+        //if (verbose) Console.OUT.println("kernel: "+this.kernelTime);
+
+        // bring gpu results onto host
+        val dma_start_time = System.currentTimeMillis();
+        finish Rail.asyncCopy(gpuNearest, 0l, hostNearest, gpuIndex * kernelNumPoints, kernelNumPoints);
+        dmaTime = System.currentTimeMillis() - dma_start_time;
+        //if (verbose) Console.OUT.println("dma: "+(System.currentTimeMillis() - start_time));
+    }
+
+    def delete() {
+        CUDAUtilities.deleteGlobalRail(gpuPoints);
+        CUDAUtilities.deleteGlobalRail(gpuNearest);
+    }
+
+    def getKernelTime() = kernelTime;
+    def getDMATime() = dmaTime;
+}
 
 public class KMeansCUDA {
 
@@ -41,7 +154,6 @@ public class KMeansCUDA {
         }
     }
 
-    private static def round_up (x:Long, n:Long) = (x-1) - ((x-1)%n) + n;
 
     public static def main (args : Rail[String]) {
         val opts = new OptionsParser(args, [
@@ -51,29 +163,33 @@ public class KMeansCUDA {
             Option("p","points","location of data file"),
             Option("i","iterations","quit after this many iterations"),
             Option("c","clusters","number of clusters to find"),
-            Option("n","num","quantity of points")]);
+            Option("n","num","quantity of points"),
+            Option("w","work","number of points to process per activity (cpu part)")
+        ]);
         val fname = opts("-p", "points.dat");
         val num_clusters=opts("-c",8);
-        val num_global_points=opts("-n", 100000l);
+        val global_num_points=opts("-n", 100000l);
         val iterations=opts("-i",500l);
         val verbose = opts("-v");
         val quiet = opts("-q");
+        val work = opts("-w", 100000);
         val dim = 4l; // must be compiletime constant
 
-        val MEM_ALIGN = 32; // FOR CUDA
 
         if (!quiet)
-            Console.OUT.println("points: "+num_global_points+" clusters: "+num_clusters+" dim: "+dim);
+            Console.OUT.println("points: "+global_num_points+" clusters: "+num_clusters+" dim: "+dim);
 
         // file is dimension-major
         val file = new File(fname);
         val fr = file.openRead();
         val init_points = (Long) => Float.fromIntBits(Marshal.INT.read(fr).reverseBytes());
-        val num_file_points = (file.size() / 4l / dim);
-        val file_points = new Rail[Float](num_file_points*dim, init_points);
+        val file_num_points = (file.size() / 4l / dim);
+        val file_points = new Rail[Float](file_num_points*dim, init_points);
+        val init_global_points = (i:Long) => { val p = (i%global_num_points)%file_num_points, d=i/global_num_points; return file_points(p*dim + d); };
+        val global_points = new Rail[Float](global_num_points*dim, init_global_points);
 
         if (!quiet) {
-            if (Place.NUM_ACCELS==0) {
+            if (Place.NUM_ACCELS==0l) {
                 Console.OUT.println("Running without using GPUs.  Running the kernel on the CPU.");
                 Console.OUT.println("If that's not what you want, set X10RT_ACCELS=ALL to use all GPUs at each place.");
                 Console.OUT.println("For more information, see the X10/CUDA documentation.");
@@ -82,158 +198,104 @@ public class KMeansCUDA {
             }
         }
 
-        val team = Place.NUM_ACCELS==0 ? Team.WORLD : Team(new Rail[Place](Place.NUM_ACCELS as Long, (i:Long) => Place(Place.MAX_PLACES+i as Int).parent()));
+        finish for (h in Place.places()) at (h) async {
 
-        finish {
-
-            for (h in Place.places()) {
-
-                val workers = Place.NUM_ACCELS==0 ? [h as Place] : h.children();
-
-                for (gpu in workers) async at (h) {
-
-                    val role = gpu==h ? h.id as Long : gpu.id as Long - Place.MAX_PLACES;
-
-                    team.barrier(role as Int);
+            // carve out local portion of points (point-major)
+            val host_num_points = global_num_points / Place.MAX_PLACES;
+            val host_offset = h.id * host_num_points;
 
 
-                    // carve out local portion of points (point-major)
-                    val num_local_points = num_global_points / team.size();
-                    val offset = role * num_local_points;
 
-                    for (p in 0l..(team.size()-1l)) {
-                        if (p==role && !quiet) {
-                            Console.OUT.println("GPU known as "+gpu+" gets role "+role+" offset "+offset+" len "+num_local_points);
-                        }
-                        team.barrier(role as Int);
-                    }
-                    val num_local_points_stride = round_up(num_local_points,MEM_ALIGN);
-                    val init = (i:Long) => {
-                        val d=i/num_local_points_stride;
-                        val p=i%num_local_points_stride;
-                        return p<num_local_points ? file_points(((p+offset)%num_file_points)*dim + d) : 0f;
-                    };
+            val host_nearest = new Rail[Int](host_num_points, 0);
+            val host_clusters  = new Rail[Float](num_clusters*dim, (i:Long)=>{ val p = i/dim, d=i%dim ; return global_points(p+host_offset + d*global_num_points); } );
+            val host_cluster_counts = new Rail[Int](num_clusters as Long, 0);
 
-                    // these are pretty big so allocate up front
-                    val host_points = new Rail[Float]((num_local_points_stride*dim), init);
 
-                    val gpu_points = CUDAUtilities.makeGlobalRail(gpu, num_local_points_stride*dim, host_points);
-                    val host_nearest = new Rail[Int](num_local_points, 0);
-                    val gpu_nearest = CUDAUtilities.makeGlobalRail[Int](gpu, num_local_points, 0);
 
-                    val host_clusters  = new Rail[Float](num_clusters*dim, (i:Long)=>file_points(i));
-                    val host_cluster_counts = new Rail[Int](num_clusters as Long, 0);
+            val kernel_workers = here.numChildren()==0l
+                               ? [new KernelWorker(quiet, here,0,1, global_points, global_num_points, host_offset, host_num_points, host_clusters, num_clusters, host_nearest) as KernelWorker]
+                               : new Rail[KernelWorker](here.numChildren(), (i:Long)=>new KernelWorker(quiet, here.child(i as Int), i, here.numChildren(), global_points, global_num_points, host_offset, host_num_points, host_clusters, num_clusters, host_nearest));
 
-                    val toplevel_start_time = System.currentTimeMillis();
 
-                    val clusters_copy = new Rail[Float](num_clusters*dim);
+            var k_time:Long = 0;
+            var c_time:Long = 0;
+            var d_time:Long = 0;
+            var r_time:Long = 0;
 
-                    var k_time:Long = 0;
-                    var c_time:Long = 0;
-                    var d_time:Long = 0;
-                    var r_time:Long = 0;
+            val toplevel_start_time = System.currentTimeMillis();
 
-                    main_loop: for (var iter:Int=0 ; iter<iterations ; iter++) {
+            main_loop: for (var iter:Int=0 ; iter<iterations ; iter++) {
 
-                        Rail.copy(host_clusters, 0l, clusters_copy, 0l, num_clusters*dim);
+                finish for (kernel_worker in kernel_workers) async {
+                    kernel_worker.doWork();
+                    k_time += kernel_worker.getKernelTime();
+                    d_time += kernel_worker.getDMATime();
+                }
 
-                        var start_time : Long = System.currentTimeMillis();
-                        // classify kernel
-                        finish async at (gpu) @CUDA @CUDADirectParams {
-                            val blocks = CUDAUtilities.autoBlocks();
-                            val threads = CUDAUtilities.autoThreads();
-                            finish for (block in 0..(blocks-1)) async {
-                                val clustercache = new Rail[Float](clusters_copy);
-                                clocked finish for (thread in 0..(threads-1)) clocked async {
-                                    val tid = block * threads + thread;
-                                    val tids = blocks * threads;
-                                    for (var p:Long=tid ; p<num_local_points ; p+=tids) {
-                                        var closest:Int = -1;
-                                        var closest_dist:Float = Float.MAX_VALUE;
-                                        @Unroll(20) for (k in 0..(num_clusters-1)) { 
-                                            // Pythagoras (in dim dimensions)
-                                            var dist : Float = 0;
-                                            for (d in 0l..(dim-1l)) { 
-                                                val tmp = gpu_points(p+d*num_local_points_stride) 
-                                                          - clustercache(k*dim+d);
-                                                dist += tmp * tmp;
-                                            }
-                                            // record closest cluster seen so far
-                                            if (dist < closest_dist) {
-                                                closest_dist = dist;
-                                                closest = k;
-                                            }
-                                        }
-                                        gpu_nearest(p) = closest;
-                                    }
-                                }
-                            }
-                        }
-                        k_time += System.currentTimeMillis() - start_time;
-                        //if (verbose) Console.OUT.println("kernel: "+(System.currentTimeMillis() - start_time));
-
-                        // bring gpu results onto host
-                        start_time = System.currentTimeMillis();
-                        finish Rail.asyncCopy(gpu_nearest, 0l, host_nearest, 0l, num_local_points);
-                        d_time += System.currentTimeMillis() - start_time;
-                        //if (verbose) Console.OUT.println("dma: "+(System.currentTimeMillis() - start_time));
-                        
-                        // compute new clusters
-                        start_time = System.currentTimeMillis();
-                        host_clusters.clear();
-                        host_cluster_counts.clear();
-                        for (var p:Long=0 ; p<num_local_points ; p++) {
+                // compute new clusters
+                val cpu_start_time = System.currentTimeMillis();
+                host_clusters.clear();
+                host_cluster_counts.clear();
+                finish for (var p_start:Long=0 ; p_start<host_num_points ; p_start+=work) {
+                    val p_start_ = p_start;
+                    async {
+                        for (i in 0l..(work-1)) {
+                            val p = p_start_ + i;
+                            if (p >= host_num_points) break;
                             val closest = host_nearest(p);
+                            //Console.ERR.println("closest = "+closest);
                             for (var d:Long=0 ; d<dim ; ++d)
-                                host_clusters(closest*dim+d) += host_points(p+d*num_local_points_stride);
+                                host_clusters(closest*dim+d) += global_points(global_num_points*d + p + host_offset);
                             host_cluster_counts(closest)++;
                         }
-                        c_time += System.currentTimeMillis() - start_time;
-                        //if (verbose) Console.OUT.println("reaverage: "+(System.currentTimeMillis() - start_time));
-
-                        start_time = System.currentTimeMillis();
-                        team.allreduce(role as Int, host_clusters, 0, host_clusters, 0, host_clusters.size as Int, Team.ADD);
-                        team.allreduce(role as Int, host_cluster_counts, 0, host_cluster_counts, 0, host_cluster_counts.size as Int, Team.ADD);
-                        r_time += System.currentTimeMillis() - start_time;
-
-                        for (var k:Long=0 ; k<num_clusters ; ++k) { 
-                            if (host_cluster_counts(k) <= 0) Console.ERR.println("host_cluster_counts("+k+") = "+host_cluster_counts(k));
-                            for (var d:Long=0 ; d<dim ; ++d) host_clusters(k*dim+d) /= host_cluster_counts(k);
-                        }
-
-                        if (offset==0l && verbose) {
-                            Console.OUT.println("Iteration: "+iter);
-                            printClusters(host_clusters,dim);
-                        }
-
-
-                        /*
-                        // TEST FOR CONVERGENCE
-                        for (var j:Int=0 ; j<num_clusters*dim ; ++j) {
-                            if (true||Math.abs(clusters_copy(j)-host_clusters(j))>0.0001) continue main_loop;
-                        }
-
-                        break;
-                        */
-
-                    } // main_loop
-
-                    if (offset==0l) {
-                        val toplevel_stop_time = System.currentTimeMillis();
-                        if (!quiet) Console.OUT.print(""+num_global_points+" "+num_clusters+" "+dim+" ");
-                        Console.OUT.println((toplevel_stop_time-toplevel_start_time)/1E3);
-                        Console.OUT.println("kernel: "+k_time/1E3);
-                        Console.OUT.println("dma: "+d_time/1E3);
-                        Console.OUT.println("cpu: "+c_time/1E3);
-                        Console.OUT.println("reduce: "+r_time/1E3);
                     }
+                }
+                c_time += System.currentTimeMillis() - cpu_start_time;
+                //if (verbose) Console.OUT.println("reaverage: "+(System.currentTimeMillis() - start_time));
 
-                    CUDAUtilities.deleteGlobalRail(gpu_points);
-                    CUDAUtilities.deleteGlobalRail(gpu_nearest);
+                val reduce_start_time = System.currentTimeMillis();
+                Team.WORLD.allreduce(host_clusters, 0l, host_clusters, 0l, host_clusters.size, Team.ADD);
+                Team.WORLD.allreduce(host_cluster_counts, 0l, host_cluster_counts, 0l, host_cluster_counts.size, Team.ADD);
+                r_time += System.currentTimeMillis() - reduce_start_time;
 
-                } // gpus
+                for (var k:Long=0 ; k<num_clusters ; ++k) { 
+                    if (here.id==0l) {
+                        if (host_cluster_counts(k) <= 0) Console.ERR.println("host_cluster_counts("+k+") = "+host_cluster_counts(k));
+                    }
+                    for (var d:Long=0 ; d<dim ; ++d) host_clusters(k*dim+d) /= host_cluster_counts(k);
+                }
 
-            } // hosts
+                if (here.id==0l) {
+                    Console.OUT.println("Iteration: "+iter);
+                    if (verbose) printClusters(host_clusters,dim);
+                }
+
+
+                /*
+                // TEST FOR CONVERGENCE
+                for (var j:Int=0 ; j<num_clusters*dim ; ++j) {
+                    if (Math.abs(clusters_copy(j)-host_clusters(j))>0.0001) continue main_loop;
+                }
+
+                break;
+                */
+
+            } // main_loop
+
+            val toplevel_stop_time = System.currentTimeMillis();
+
+            // times
+            if (!quiet) Console.OUT.print(""+global_num_points+" "+num_clusters+" "+dim+" ");
+            Console.OUT.println((toplevel_stop_time-toplevel_start_time)/1E3);
+            Console.OUT.println("kernel: "+k_time/1E3);
+            Console.OUT.println("dma: "+d_time/1E3);
+            Console.OUT.println("cpu: "+c_time/1E3);
+            Console.OUT.println("reduce: "+r_time/1E3);
+
+            // results
+            if (!quiet && here.id==0l) printClusters(host_clusters,dim);
+
+            finish for (kernel_worker in kernel_workers) async kernel_worker.delete();
 
         } // finish
 
