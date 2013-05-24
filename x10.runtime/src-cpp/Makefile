@@ -186,7 +186,6 @@ ALL_XRCPP_OBJECTS = \
 	x10/util/IndexedMemoryChunk.o \
 	x10/util/Ordered.o \
 	x10/util/RemoteIndexedMemoryChunk.o \
-	x10/util/Vec.o \
 	x10/util/concurrent/AtomicBooleanNatives.o \
 	x10/util/concurrent/AtomicIntegerNatives.o \
 	x10/util/concurrent/AtomicLongNatives.o \
