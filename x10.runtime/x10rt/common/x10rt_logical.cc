@@ -173,14 +173,11 @@ unsigned int x10rt_lgl_local_accels (x10rt_lgl_cat cat)
 {
     switch (cat) {
 
-        case X10RT_LGL_SPE:
-        return 0;
-
         case X10RT_LGL_CUDA:
         return x10rt_cuda_ndevs();
 
         default:
-        tame_assert_r(cat==X10RT_LGL_SPE || cat==X10RT_LGL_CUDA, 0);
+        tame_assert_r(cat==X10RT_LGL_CUDA, 0);
         return 0;
     }
 }
@@ -279,12 +276,10 @@ namespace {
         has_collectives = getenv("X10RT_EMULATE_COLLECTIVES")==NULL && 0!=x10rt_net_supports(X10RT_OPT_COLLECTIVES);
         g.nhosts = x10rt_net_nhosts();
 
-        x10rt_place num_local_spes = 0;
         x10rt_place num_local_cudas = 0;
 
         // discover accelerator situation
         unsigned int cuda_max_dev = x10rt_cuda_ndevs();
-        unsigned int cell_max_dev = 2;
 
         // ensure user mapping can be realised
         for (x10rt_place i=0 ; i<cfgc ; ++i) {
@@ -297,14 +292,6 @@ namespace {
                 if (cfg->index >= cuda_max_dev) {
                     return fatal("CUDA reports %u devices, you cannot use device %u.\n",
                                    cuda_max_dev, cfg->index);
-                }
-                break;
-
-                case X10RT_LGL_SPE:
-                num_local_spes++;
-                if (cfg->index >= cell_max_dev) {
-                    return fatal("Cell reports %u devices, you cannot use device %u.\n",
-                                   cell_max_dev, cfg->index);
                 }
                 break;
 
@@ -321,10 +308,6 @@ namespace {
 
                 case X10RT_LGL_CUDA:
                 g.accel_ctxs[i] = x10rt_cuda_init(cfg->index);
-                break;
-
-                case X10RT_LGL_SPE:
-                //g.cuda_ctxs[i] = x10rt_spe_setup(cfg->index);
                 break;
 
                 default:
@@ -461,27 +444,19 @@ x10rt_error x10rt_lgl_init (int *argc, char ***argv, x10rt_msg_type *counter)
         return x10rt_lgl_internal_init(NULL, 0, counter);
     } else {
         int num_cudas = x10rt_lgl_local_accels(X10RT_LGL_CUDA);
-        int num_cells = x10rt_lgl_local_accels(X10RT_LGL_SPE);
 
         if (!strcmp(str,"ALL") || !strcmp(str,"all")) {
-            if (num_cudas + num_cells == 0) {
+            if (num_cudas == 0) {
                 return x10rt_lgl_internal_init(NULL, 0, counter);
             } else {
-                x10rt_lgl_cfg_accel *cfg = safe_malloc<x10rt_lgl_cfg_accel>(num_cudas+8*num_cells);
+                x10rt_lgl_cfg_accel *cfg = safe_malloc<x10rt_lgl_cfg_accel>(num_cudas);
                 int accel = 0;
-                for (int i=0 ; i<num_cells ; ++i) {
-                    for (int j=0 ; j<8 ; ++j) {
-                        cfg[accel].cat = X10RT_LGL_SPE;
-                        cfg[accel].index = i;
-                        accel++;
-                    }
-                }
                 for (int i=0 ; i<num_cudas ; ++i) {
                     cfg[accel].cat = X10RT_LGL_CUDA;
                     cfg[accel].index = i;
                     accel++;
                 }
-                x10rt_error code = x10rt_lgl_internal_init(cfg, num_cudas+8*num_cells, counter);
+                x10rt_error code = x10rt_lgl_internal_init(cfg, num_cudas, counter);
                 free(cfg);
                 return code;
             }
@@ -496,18 +471,7 @@ x10rt_error x10rt_lgl_init (int *argc, char ***argv, x10rt_msg_type *counter)
                     return fatal("%s contains invalid element at "
                                    "index %d: \"%.*s\"\n", env, i, chars, str);
                 }
-                if (!strncmp(str,"CELL",4) || !strncmp(str,"cell",4)) {
-                    str += 4; chars -= 4;
-                    char *endptr;
-                    long index = strtol(str,&endptr,10);
-                    while (isspace(*endptr)) endptr++; // chase up white space
-                    if (endptr-str != chars) {
-                        return fatal("%s contains invalid number at "
-                                       "index %d: \"%.*s\"\n", env, i, chars, str);
-                    }
-                    cfg[i].cat = X10RT_LGL_SPE;
-                    cfg[i].index = index;
-                } else if (!strncmp(str,"CUDA",4) || !strncmp(str,"cuda",4)) {
+                if (!strncmp(str,"CUDA",4) || !strncmp(str,"cuda",4)) {
                     str += 4; chars -= 4;
                     char *endptr;
                     long index = strtol(str,&endptr,10);
@@ -564,7 +528,6 @@ void x10rt_lgl_register_msg_receiver_cuda (x10rt_msg_type msg_type,
                 x10rt_cuda_ctx *cctx = static_cast<x10rt_cuda_ctx*>(g.accel_ctxs[i]);
                 x10rt_cuda_register_msg_receiver(cctx, msg_type, pre, post, cubin, kernel_name);
             } break;
-            case X10RT_LGL_SPE: break;
             default:
             fatal("Invalid node category.\n");
         }
@@ -581,7 +544,6 @@ void x10rt_lgl_register_get_receiver_cuda (x10rt_msg_type msg_type,
                 x10rt_cuda_ctx *cctx = static_cast<x10rt_cuda_ctx*>(g.accel_ctxs[i]);
                 x10rt_cuda_register_get_receiver(cctx, msg_type, cb1, cb2);
             } break;
-            case X10RT_LGL_SPE: break;
             default:
             fatal("Invalid node category.\n");
         }
@@ -598,7 +560,6 @@ void x10rt_lgl_register_put_receiver_cuda (x10rt_msg_type msg_type,
                 x10rt_cuda_ctx *cctx = static_cast<x10rt_cuda_ctx*>(g.accel_ctxs[i]);
                 x10rt_cuda_register_put_receiver(cctx, msg_type, cb1, cb2);
             } break;
-            case X10RT_LGL_SPE: break;
             default:
             fatal("Invalid node category.\n");
         }
@@ -619,7 +580,6 @@ void x10rt_lgl_registration_complete (void)
                 x10rt_cuda_ctx *cctx = static_cast<x10rt_cuda_ctx*>(g.accel_ctxs[i]);
                 x10rt_cuda_registration_complete(cctx);
             } break;
-            case X10RT_LGL_SPE: break;
             default:
             fatal("Invalid node category.\n");
         }
@@ -641,9 +601,6 @@ void x10rt_lgl_send_msg (x10rt_msg_params *p)
             case X10RT_LGL_CUDA: {
                 x10rt_cuda_ctx *cctx = static_cast<x10rt_cuda_ctx*>(g.accel_ctxs[g.index[d]]);
                 x10rt_cuda_send_msg(cctx, p);
-            } break;
-            case X10RT_LGL_SPE: {
-                fatal("SPE send_msg still unsupported.\n");
             } break;
             default: {
                 fatal("Place %lu has invalid type %d in send_msg.\n",
@@ -671,9 +628,6 @@ void x10rt_lgl_send_get (x10rt_msg_params *p, void *buf, x10rt_copy_sz len)
                 x10rt_cuda_ctx *cctx = static_cast<x10rt_cuda_ctx*>(g.accel_ctxs[g.index[d]]);
                 x10rt_cuda_send_get(cctx, p, buf, len);
             } break;
-            case X10RT_LGL_SPE: {
-                fatal("SPE send_get still unsupported.\n");
-            } break;
             default: {
                 fatal("Place %lu has invalid type %d in send_get.\n",
                         (unsigned long)d, (int)x10rt_lgl_type(d));
@@ -699,9 +653,6 @@ void x10rt_lgl_send_put (x10rt_msg_params *p, void *buf, x10rt_copy_sz len)
             case X10RT_LGL_CUDA: {
                 x10rt_cuda_ctx *cctx = static_cast<x10rt_cuda_ctx*>(g.accel_ctxs[g.index[d]]);
                 x10rt_cuda_send_put(cctx, p, buf, len);
-            } break;
-            case X10RT_LGL_SPE: {
-                fatal("SPE send_put still unsupported.\n");
             } break;
             default: {
                 fatal("Place %lu has invalid type %d in send_put.\n",
@@ -729,9 +680,6 @@ void x10rt_lgl_remote_alloc (x10rt_place d, x10rt_remote_ptr sz,
                 ch((x10rt_remote_ptr)(size_t) x10rt_cuda_device_alloc(cctx, sz),arg);
                 break;
             }
-            case X10RT_LGL_SPE: {
-                fatal("SPE remote_alloc still unsupported.\n");
-            }
             default: {
                 fatal("Place %lu has invalid type %d in remote_alloc.\n",
                                (unsigned long)d, (int)x10rt_lgl_type(d));
@@ -754,9 +702,6 @@ void x10rt_lgl_remote_free (x10rt_place d, x10rt_remote_ptr ptr)
             case X10RT_LGL_CUDA: {
                 x10rt_cuda_ctx *cctx = static_cast<x10rt_cuda_ctx*>(g.accel_ctxs[g.index[d]]);
                 x10rt_cuda_device_free(cctx, (void*)ptr);
-            } break;
-            case X10RT_LGL_SPE: {
-                fatal("SPE remote_free still unsupported.\n");
             } break;
             default: {
                 fatal("Place %lu has invalid type %d in remote_free.\n",
@@ -787,9 +732,6 @@ void x10rt_lgl_remote_op (x10rt_place d, x10rt_remote_ptr remote_addr,
             case X10RT_LGL_CUDA: {
                 fatal("CUDA remote ops still unsupported.\n");
             } break;
-            case X10RT_LGL_SPE: {
-                fatal("SPE remote ops still unsupported.\n");
-            } break;
             default: {
                 fatal("Place %lu has invalid type %d in remote_op_xor.\n",
                                (unsigned long)d, (int)x10rt_lgl_type(d));
@@ -817,9 +759,6 @@ void x10rt_lgl_remote_ops (x10rt_remote_op_params *opv, size_t opc)
                     switch (x10rt_lgl_type(d)) {
                         case X10RT_LGL_CUDA: {
                             error("CUDA remote ops still unsupported.\n");
-                        } break;
-                        case X10RT_LGL_SPE: {
-                            error("SPE remote ops still unsupported.\n");
                         } break;
                         default: {
                             error("Place %lu has invalid type %d in remote_op_xor.\n",
@@ -864,9 +803,6 @@ void x10rt_lgl_blocks_threads (x10rt_place d, x10rt_msg_type type, int dyn_shm,
                 x10rt_cuda_ctx *cctx = static_cast<x10rt_cuda_ctx*>(g.accel_ctxs[g.index[d]]);
                 x10rt_cuda_blocks_threads(cctx, type, dyn_shm, blocks, threads, cfg);
             } break;
-            case X10RT_LGL_SPE: {
-                *blocks = 8; *threads = 1;
-            } break;
             default: {
                 fatal("Place %lu has invalid type %d in remote_op_xor.\n",
                                (unsigned long)d, (int)x10rt_lgl_type(d));
@@ -888,10 +824,6 @@ x10rt_error x10rt_lgl_probe (void)
         switch (g.type[g.child[x10rt_lgl_here()][i]]) {
             case X10RT_LGL_CUDA:
             x10rt_cuda_probe(static_cast<x10rt_cuda_ctx*>(g.accel_ctxs[i]));
-            break;
-            case X10RT_LGL_SPE:
-            return fatal("SPE still unsupported\n");
-            return g.error_code;
             break;
             default:
             return fatal("Invalid node category.\n");
@@ -966,7 +898,6 @@ void x10rt_lgl_finalize (void)
                         x10rt_cuda_finalize(static_cast<x10rt_cuda_ctx*>(g.accel_ctxs[i]));
                     }
                     break;
-                    case X10RT_LGL_SPE:
                     default:
                     // we're shutting down, no point complaining now
                     break;

@@ -9,7 +9,6 @@ public class Topology {
     public static boolean is_cuda(int i) { return false; }
     public static String typestr(int p) {
         if (is_host(p)) return "[1mHOST[0m";
-        if (is_spe(p)) return "[31mSPE[0m";
         if (is_cuda(p)) return "[32mCUDA[0m";
         return "UNK!";
     }

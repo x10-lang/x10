@@ -8,7 +8,6 @@
 
 const char *typestr(x10rt_place p) {
     if (x10rt_is_host(p)) return "[1mHOST[0m";
-    if (x10rt_is_spe(p)) return "[31mSPE[0m";
     if (x10rt_is_cuda(p)) return "[32mCUDA[0m";
     return "UNK!";
 }

@@ -203,10 +203,10 @@ X10RT_C const char *x10rt_error_msg (void);
  * Also, the X10RT_ACCELS environment variable is used to decide how to configure accelerators at
  * the particular host.  The value of this variable is a string containing a comma separated list of
  * accelerators to use.  Each accelerator is specified as a string containing the kind of
- * accelerator, currently 1 of CUDA and SPE (unsupported), and the index of the particular piece of
- * hardware.  For example "CUDA0,CUDA0,CUDA1,SPE0" will configure the host to use the first CUDA
+ * accelerator, currently only CUDA, and the index of the particular piece of
+ * hardware.  For example "CUDA0,CUDA0,CUDA1" will configure the host to use the first CUDA
  * device twice (two separate places on the same piece of hardware, as well as a 3rd place on the
- * second CUDA device, and a single SPE as well.  It is also possible to specify "ALL" to use each
+ * second CUDA device.  It is also possible to specify "ALL" to use each
  * piece of available hardware exactly once, or "NONE" (the default) to use no accelerators.
  * Lowercase can also be used.
  *
@@ -387,13 +387,6 @@ X10RT_C bool x10rt_is_host (x10rt_place place);
  * \returns Whether or not the given place is a CUDA-capable GPU.
  */
 X10RT_C bool x10rt_is_cuda (x10rt_place place);
-
-/** Find out about a particular place.
- * \param place The place about which we are interested.
- * \returns Whether or not the given place is an synergistic processing element of a Cell.
- */
-X10RT_C bool x10rt_is_spe (x10rt_place place);
-
 
 /** Find the host of the given accelerator.  If the place is not an accelerator, then itself is
  * returned.

@@ -94,9 +94,6 @@ bool x10rt_is_host (x10rt_place place)
 bool x10rt_is_cuda (x10rt_place place)
 { return x10rt_lgl_type(place) == X10RT_LGL_CUDA; }
 
-bool x10rt_is_spe (x10rt_place place)
-{ return x10rt_lgl_type(place) == X10RT_LGL_SPE; }
-
 x10rt_place x10rt_parent (x10rt_place place)
 { return x10rt_lgl_parent(place); }
 

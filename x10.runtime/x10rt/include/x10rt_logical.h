@@ -39,8 +39,6 @@
 enum x10rt_lgl_cat {
 /** A host on the network. */
   X10RT_LGL_HOST,
-/** An SPE within a CELL. */
-  X10RT_LGL_SPE,
 /** A CUDA-capable GPU. */
   X10RT_LGL_CUDA
 };
@@ -50,7 +48,7 @@ enum x10rt_lgl_cat {
 struct x10rt_lgl_cfg_accel {
     /** The kind of accelerator. */
     x10rt_lgl_cat cat;
-    /** The identity of the hardware within the system (e.g. device id, SPE id, etc.). */
+    /** The identity of the hardware within the system (e.g. device id, etc.). */
     unsigned index;
 };
 

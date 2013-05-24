@@ -51,7 +51,6 @@ namespace x10aux {
     inline place parent (place p)             { return x10rt_parent(p); }
     inline place child (place p, place index) { return x10rt_child(p, index); }
     inline place child_index (place p)        { return x10rt_child_index(p); }
-    inline x10_boolean is_spe (place p)       { return x10rt_is_spe(p); }
     inline x10_boolean is_cuda (place p)      { return x10rt_is_cuda(p); }
 
     inline void event_probe (void)
