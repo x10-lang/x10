@@ -23,7 +23,6 @@ public class CUDATopology {
                     Console.OUT.println("  NumChildren: "+p2.numChildren());
                     if (p2.isCUDA()) Console.OUT.println("  Is a CUDA place");
                     if (p2.isHost()) Console.OUT.println("  Is a Host place");
-                    if (p2.isSPE()) Console.OUT.println("  Is a SPE place");
                     val children = p2.children();
                     for (c in children) {
                         Console.OUT.println("  Child "+c.childIndex()+": "+c);
@@ -31,7 +30,6 @@ public class CUDATopology {
                         Console.OUT.println("    NumChildren: "+c.numChildren());
                         if (c.isCUDA()) Console.OUT.println("    Is a CUDA place");
                         if (c.isHost()) Console.OUT.println("    Is a Host place");
-                        if (c.isSPE()) Console.OUT.println("    Is a SPE place");
                     }
                 }
                 Console.OUT.println();
