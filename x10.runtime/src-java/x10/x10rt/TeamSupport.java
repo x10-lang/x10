@@ -52,13 +52,9 @@ public class TeamSupport {
         throw new java.lang.UnsupportedOperationException("About to die in " + methodName);
     }
 
-    public static void nativeMake(Rail<Place> places, int count, Rail<x10.core.Int> result) {
+    public static void nativeMake(Rail<x10.core.Int> places, int count, Rail<x10.core.Int> result) {
         if (!X10RT.forceSinglePlace) {
-        Place[] np = (Place[])places.getBackingArray();
-        int[] int_places = new int[np.length];
-        for (int i=0; i<places.size; i++) {
-            int_places[i] = (int)np[i].id;
-        }
+        int[] int_places = places.getIntArray();
         int[] nr = result.getIntArray();
 
         FinishState fs = ActivityManagement.activityCreationBookkeeping();

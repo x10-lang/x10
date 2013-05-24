@@ -24,48 +24,74 @@ import x10.compiler.Uncounted;
 public struct Team {
 
     private static struct DoubleIdx(value:Double, idx:Int) {}
-        
+
     /** A team that has one member at each place. */
-    public static val WORLD = Team(0, PlaceGroup.WORLD);
+    public static val WORLD = Team(0, PlaceGroup.WORLD, here.id());
     
-    /** The underlying representation of a team's identity. */
-    private val id:Int;
+    private val id:Int; // team ID
+    // TODO: the role argument is not really needed, and can be buried in lower layers, 
+    // but BG/P is difficult to modify so we need to track it for now
+    private static val roles:GrowableRail[Int] = new GrowableRail[Int](); // only used with native collectives, nothing stored for WORLD
+    private static val state:GrowableRail[LocalTeamState] = new GrowableRail[LocalTeamState](); // only used with X10 emulated collectives
+
     public def id() = id;
-    private static val state:GrowableRail[LocalTeamState] = new GrowableRail[LocalTeamState]();
     
-    private def this (id:Int, places:PlaceGroup) {
+    // this constructor is intended to be called at all places of a split, at the same time.
+    private def this (id:Int, places:PlaceGroup, role:Long) {
     	this.id = id;
-    	if (!nativeSupportsCollectives()) {
-    		if (state.capacity() <= id) // TODO move this check into the GrowableRail.grow() method
-    			state.grow(id+1);
-    		state(id) = new LocalTeamState(places, id);
-    		state(id).init();
+    	if (nativeSupportsCollectives()) {
+    		if (id > 0) {
+	    		if (Team.roles.capacity() < id) // TODO move this check into the GrowableRail.grow() method
+	    			Team.roles.grow(id);
+	    		Team.roles(id-1L) = role as Int;
+    		}
+    	}
+    	else {
+    		if (Team.state.capacity() <= id) // TODO move this check into the GrowableRail.grow() method
+    			Team.state.grow(id+1);
+    		Team.state(id) = new LocalTeamState(places, id);
+    		Team.state(id).init();
     	}
     }
 
-    /** Create a team by defining the place where each member lives.  This would usually be called before creating an async for each member of the team.
+    /** Create a team by defining the place where each member lives.
+     * Unlike most methods on Team, this is called by only ONE place, not all places
      * @param places The place of each member in the team
      */
     public def this (places:PlaceGroup) {
-        if (nativeSupportsCollectives()) {
-        	val result = new Rail[Int](1);
-        	val count = places.size();
-        	val placeRail = new Rail[Place](count);
-        	for (var i:Long=0L; i<count; i++)
-        		placeRail(i) = places(i);
-        	finish nativeMake(placeRail, count as int, result);
-        	this.id = result(0);
-        }
-        else {
-        	atomic {
-        		this.id = state.size() as Int;
-        		state.add(new LocalTeamState(places, this.id));
-        	}
-            state(this.id).init();
-        }
+	    if (nativeSupportsCollectives()) {
+	       	val result = new Rail[Int](1);
+	       	val count = places.size();
+	        // CRITICAL!! placeRail is a Rail of Int because in x10rt "x10rt_place" is 32bits
+	       	val placeRail = new Rail[Int](count);
+	       	for (var i:Long=0L; i<count; i++)
+	       		placeRail(i) = places(i).id() as Int;
+	       	finish nativeMake(placeRail, count as Int, result);
+	       	this.id = result(0);
+	        
+	       // team created - fill in the role at all places
+	        val teamidcopy:Long = this.id as Long;
+	       	PlaceGroup.WORLD.broadcastFlat(()=>{
+	            if (Team.roles.capacity() < teamidcopy) // TODO move this check into the GrowableRail.grow() method
+	       			Team.roles.grow(teamidcopy);
+	       		Team.roles(teamidcopy-1) = places.indexOf(here) as Int;
+	       	});
+	    }
+	    else {
+		    atomic {
+		    	this.id = Team.state.size() as Int;
+	        	val teamidcopy = id;
+	        	PlaceGroup.WORLD.broadcastFlat(()=>{
+	        		if (Team.state.capacity() <= teamidcopy)
+	        			Team.state.grow(teamidcopy+1);
+		        	Team.state(teamidcopy) = new LocalTeamState(places, teamidcopy);
+		        	Team.state(teamidcopy).init();
+		        });
+	        }
+	    }
     }
 
-    private static def nativeMake (places:Rail[Place], count:Int, result:Rail[Int]) : void {
+    private static def nativeMake (places:Rail[Int], count:Int, result:Rail[Int]) : void {
         @Native("java", "x10.x10rt.TeamSupport.nativeMake(places, count, result);")
     	@Native("c++", "x10rt_team_new(count, (x10rt_place*)places->raw, x10aux::coll_handler2, x10aux::coll_enter2(result->raw));") {}
     }
@@ -93,7 +119,7 @@ public struct Team {
      */
     public def barrier () : void {
     	if (nativeSupportsCollectives())
-        	finish nativeBarrier(id, Runtime.hereInt());
+        	finish nativeBarrier(id, (id==0?here.id() as Int:Team.roles(id-1)));
     	else
     		state(id).collective_impl[Int](LocalTeamState.COLL_BARRIER, Place.FIRST_PLACE, null, 0, null, 0, 0, 0);
     }
@@ -124,7 +150,7 @@ public struct Team {
      */
     public def scatter[T] (root:Place, src:Rail[T], src_off:Long, dst:Rail[T], dst_off:Long, count:Long) : void {
     	if (nativeSupportsCollectives())
-        	finish nativeScatter(id, Runtime.hereInt(), root.id() as Int, src, src_off as Int, dst, dst_off as Int, count as Int);
+        	finish nativeScatter(id, id==0?here.id() as Int:roles(id-1), root.id() as Int, src, src_off as Int, dst, dst_off as Int, count as Int);
     	else
     		state(id).collective_impl[T](LocalTeamState.COLL_SCATTER, root, src, src_off, dst, dst_off, count, 0);
     }
@@ -150,7 +176,7 @@ public struct Team {
      */
      public def bcast[T] (root:Place, src:Rail[T], src_off:Long, dst:Rail[T], dst_off:Long, count:Long) : void {
      	if (nativeSupportsCollectives())
-        	finish nativeBcast(id, Runtime.hereInt(), root.id() as Int, src, src_off as Int, dst, dst_off as Int, count as Int);
+        	finish nativeBcast(id, id==0?here.id() as Int:roles(id-1), root.id() as Int, src, src_off as Int, dst, dst_off as Int, count as Int);
      	else
      		state(id).collective_impl[T](LocalTeamState.COLL_BROADCAST, root, src, src_off, dst, dst_off, count, 0);
     }
@@ -179,7 +205,7 @@ public struct Team {
      */
     public def alltoall[T] (src:Rail[T], src_off:Long, dst:Rail[T], dst_off:Long, count:Long) : void {
     	if (nativeSupportsCollectives())
-        	finish nativeAlltoall(id, Runtime.hereInt(), src, src_off as Int, dst, dst_off as Int, count as Int);
+        	finish nativeAlltoall(id, id==0?here.id() as Int:roles(id-1), src, src_off as Int, dst, dst_off as Int, count as Int);
     	else
     		state(id).collective_impl[T](LocalTeamState.COLL_ALLTOALL, Place.FIRST_PLACE, src, src_off, dst, dst_off, count, 0);
     }
@@ -227,7 +253,7 @@ public struct Team {
      */
     public def reduce[T] (root:Place, src:Rail[T], src_off:Long, dst:Rail[T], dst_off:Long, count:Long, op:Int) : void {
     	if (nativeSupportsCollectives())
-        	finish nativeReduce(id, Runtime.hereInt(), root.id() as Int, src, src_off as Int, dst, dst_off as Int, count as Int, op);
+        	finish nativeReduce(id, id==0?here.id() as Int:roles(id-1), root.id() as Int, src, src_off as Int, dst, dst_off as Int, count as Int, op);
     	else
     		state(id).collective_impl[T](LocalTeamState.COLL_REDUCE, root, src, src_off, dst, dst_off, count, op);
 	}
@@ -262,7 +288,7 @@ public struct Team {
         val chk = new Rail[T](1, src);
         val dst = new Rail[T](1, src);
         if (nativeSupportsCollectives())
-        	finish nativeReduce[T](id, Runtime.hereInt(), root.id() as Int, chk, dst, op);
+        	finish nativeReduce[T](id, id==0?here.id() as Int:roles(id-1), root.id() as Int, chk, dst, op);
         else
         	state(id).collective_impl[T](LocalTeamState.COLL_REDUCE, root, chk, 0, dst, 0, 1, op);
         return dst(0);
@@ -291,7 +317,7 @@ public struct Team {
      */
     public def allreduce[T] (src:Rail[T], src_off:Long, dst:Rail[T], dst_off:Long, count:Long, op:Int) : void {
     	if (nativeSupportsCollectives())
-        	finish nativeAllreduce(id, Runtime.hereInt(), src, src_off as Int, dst, dst_off as Int, count as Int, op);
+        	finish nativeAllreduce(id, id==0?here.id() as Int:roles(id-1), src, src_off as Int, dst, dst_off as Int, count as Int, op);
     	else
     		state(id).collective_impl[T](LocalTeamState.COLL_ALLREDUCE, Place.FIRST_PLACE, src, src_off, dst, dst_off, count, op);
     }
@@ -326,7 +352,7 @@ public struct Team {
         val chk = new Rail[T](1, src);
         val dst = new Rail[T](1, src);
         if (nativeSupportsCollectives())
-        	finish nativeAllreduce[T](id, Runtime.hereInt(), chk, dst, op);
+        	finish nativeAllreduce[T](id, id==0?here.id() as Int:roles(id-1), chk, dst, op);
         else
         	state(id).collective_impl[T](LocalTeamState.COLL_ALLREDUCE, Place.FIRST_PLACE, chk, 0, dst, 0, 1, op);
         return dst(0);
@@ -349,7 +375,7 @@ public struct Team {
         val src = new Rail[DoubleIdx](1, DoubleIdx(v, idx));
         val dst = new Rail[DoubleIdx](1);
         if (nativeSupportsCollectives())
-        	finish nativeIndexOfMax(id, Runtime.hereInt(), src, dst);
+        	finish nativeIndexOfMax(id, id==0?here.id() as Int:roles(id-1), src, dst);
         else
         	state(id).collective_impl[DoubleIdx](LocalTeamState.COLL_INDEXOFMAX, Place.FIRST_PLACE, src, 0, dst, 0, 1, 0);
         return dst(0).idx;
@@ -372,7 +398,7 @@ public struct Team {
         val src = new Rail[DoubleIdx](1, DoubleIdx(v, idx));
         val dst = new Rail[DoubleIdx](1);
         if (nativeSupportsCollectives())
-        	finish nativeIndexOfMin(id, Runtime.hereInt(), src, dst);
+        	finish nativeIndexOfMin(id, id==0?here.id() as Int:roles(id-1), src, dst);
         else
         	state(id).collective_impl[DoubleIdx](LocalTeamState.COLL_INDEXOFMIN, Place.FIRST_PLACE, src, 0, dst, 0, 1, 0);
         return dst(0).idx;
@@ -395,11 +421,11 @@ public struct Team {
      *
      * @param new_role The caller's position within the new team
      */
-    public def split (color:Int, new_role:Int) : Team {
+    public def split (color:Int, new_role:Long) : Team {
         val result = new Rail[Int](1);
         if (nativeSupportsCollectives()) {
-        	finish nativeSplit(id, Runtime.hereInt(), color, new_role, result);
-        	return Team(result(0), null);
+        	finish nativeSplit(id, id==0?here.id() as Int:roles(id-1), color, new_role as Int, result);
+        	return Team(result(0), null, new_role);
         }
         else {
         	// TODO
@@ -418,7 +444,7 @@ public struct Team {
     public def delete () : void {
         if (this == WORLD) throw new IllegalArgumentException("Cannot delete Team.WORLD");
         if (nativeSupportsCollectives())
-        	finish nativeDel(id, Runtime.hereInt());
+        	finish nativeDel(id, id==0?here.id() as Int:roles(id-1));
         // TODO - see if there is something useful to delete with the local team implementation
     }
 
