@@ -68,7 +68,7 @@ public class BenchmarkIterateDistArray(elementsPerPlace : Int) extends x10Test {
 
         Console.OUT.printf("iterate DistArray with getLocalPortion Rect avg: %g ms\n", ((stop-start) as Double) / 1e08);
 
-	if (Place.MAX_PLACES == 1) {
+	if (Place.MAX_PLACES == 1L) {
             start = System.nanoTime();
             for (t in 1..100) {
                 // iterate and update each element of the distributed array

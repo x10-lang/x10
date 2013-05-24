@@ -17,7 +17,7 @@ import x10.array.*;
 // a distribution and p a place.
 
 public class PlaceCast2 extends x10Test {
-    var nplaces: int = 0;
+    var nplaces: long = 0L;
     private val root = GlobalRef[PlaceCast2](this);
     public def run(): boolean = {
             val d = Dist.makeUnique();

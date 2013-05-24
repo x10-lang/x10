@@ -25,9 +25,9 @@ public class CF8 extends x10Test{
         public def this() {super();};
     }
     public static class Totals2 {
-        public  val left :Int;
-        public  val right : Int;
-        public def this (l:Int, r:Int)  {left = l; right = r;}
+        public  val left :long;
+        public  val right : long;
+        public def this (l:long, r:long)  {left = l; right = r;}
         public def this (){left =0; right =0;}
     }
 

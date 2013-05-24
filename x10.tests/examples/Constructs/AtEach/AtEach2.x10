@@ -19,8 +19,8 @@ import x10.array.*;
  * @author vj
  */
 public class AtEach2 extends x10Test {
-	private val root = GlobalRef[AtEach2](this);
-    transient var nplaces: int = 0;
+    private val root = GlobalRef[AtEach2](this);
+    transient var nplaces: long = 0L;
 
     public def run(): boolean = {
         val d: Dist = Dist.makeUnique();

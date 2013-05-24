@@ -18,7 +18,7 @@ import x10.array.*;
 public class BenchmarkAteach extends x10Test {
 
 	public def run(): Boolean = {
-        val a = DistArray.make[Int](Dist.makeUnique());
+        val a = DistArray.make[Long](Dist.makeUnique());
 
         val start = System.nanoTime();
         finish {

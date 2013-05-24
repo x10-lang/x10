@@ -18,7 +18,7 @@ import harness.x10Test;
 public class StaticInitException2 extends x10Test {
 
     // Should raise an exception at Place 0, but be fine at all other places
-    static val x:int = 100 / here.id;
+    static val x = 100 / here.id;
 
     public def run():Boolean {
         val ok = new Cell[Boolean](true);
@@ -29,7 +29,7 @@ public class StaticInitException2 extends x10Test {
             finish for (p in Place.places()) {
               async at (p) { 
                 Console.OUT.println(here+" ===> "+x);
-                if (here.id == 0) {
+                if (here.id == 0L) {
 	            Console.OUT.println("Did not get expected exception at Place(0)");
                     at (result) result()() = false;
                 }

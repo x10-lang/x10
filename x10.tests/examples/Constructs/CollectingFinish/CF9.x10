@@ -25,9 +25,9 @@ public class CF9 extends x10Test{
         public def this() {super();};
     }
     public static class Totals2 {
-        public  val left :Int;
-        public  val right : Int;
-        public def this (l:Int, r:Int)  {left = l; right = r;}
+        public  val left :long;
+        public  val right : long;
+        public def this (l:long, r:long)  {left = l; right = r;}
         public def this (){left =0; right =0;}
     }
 
@@ -48,7 +48,7 @@ public class CF9 extends x10Test{
             offer newCase;
             };
             var ret : Boolean = false ;
-            if ((finalResult.left == 2) && (finalResult.right == 2 )
+            if ((finalResult.left == 2L) && (finalResult.right == 2L)
                && (result.left == iteration * Place.MAX_PLACES) &&(result.right == iteration * 2 *Place.MAX_PLACES ))
                 ret = true;
             return ret;

@@ -44,7 +44,7 @@ public class FutureFieldAccessStruct extends x10Test {
     }
 
     public def run(): boolean {
-    	if (Place.MAX_PLACES == 1) {
+    	if (Place.MAX_PLACES == 1L) {
     		x10.io.Console.OUT.println("not enough places to run this test");
     		return false;
     	}

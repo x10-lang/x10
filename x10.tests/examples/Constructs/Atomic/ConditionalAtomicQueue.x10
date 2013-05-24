@@ -153,7 +153,7 @@ public class ConditionalAtomicQueue extends x10Test {
         /**
          * create a simple 1D blocked dist
          */
-        static def block(var arraySize: int) = {
+        static def block(arraySize: long) = {
             return Dist.makeBlock(Region.make(0, arraySize-1), 0);
         }
         /**
@@ -166,7 +166,7 @@ public class ConditionalAtomicQueue extends x10Test {
         /**
          * create a constant-Here dist
          */
-        static def val_(var arraySize: int) = {
+        static def val_(arraySize: long) = {
             return Region.make(0, arraySize-1)->here;
         }
     }

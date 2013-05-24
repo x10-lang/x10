@@ -24,11 +24,11 @@ public class NQueensDist {
         [0, 1, 0, 0, 2, 10, 4, 40, 92, 352, 724, 2680, 14200, 73712, 365596, 2279184, 14772512];
 
     val N:Int;
-    val P:Int;
+    val P:Long;
     val results:DistArray[Int](1);
     val R:Region(1){rect};
 
-    def this(N:Int, P:Int) { 
+    def this(N:Int, P:Long) { 
         this.N=N;
         this.P=P;
         this.results = DistArray.make[Int](Dist.makeUnique(), 0);

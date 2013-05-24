@@ -55,13 +55,13 @@ public class FSSimpleDist {
                     }
                     
                     for (j in 0..(NUM_TIMES-1)) {
-                        if (p==0) {
+                        if (p==0L) {
                         	val t = times as GlobalRef[Rail[double]]{self.home==here};
                         	t()(j) = -now(); 
                         }
                         for (var i:int=0; i<localSize; i++)
                             a(i) = b(i) + alpha*c(i);
-                        if (p==0) {
+                        if (p==0L) {
                         	val t = times as GlobalRef[Rail[double]]{self.home==here};
                         	t()(j) += now();
                         }
@@ -84,7 +84,7 @@ public class FSSimpleDist {
 
     static def now():double = Timer.nanoTime() * 1e-9;
 
-    static def printStats(N:int, time:double, verified:boolean) {
+    static def printStats(N:long, time:double, verified:boolean) {
         val size = (3*8*N/MEG);
         val rate = (3*8*N) / (1.0E9*time);
         Console.OUT.println("Number of places=" + NUM_PLACES);
