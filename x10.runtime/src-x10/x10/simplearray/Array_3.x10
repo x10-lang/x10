@@ -32,7 +32,7 @@ public final class Array_3[T] (
          * The number of elements in rank 3 (indexed 0..(numElems_3-1)).
          */
         numElems_3:Long
-) extends Array[T] {
+) extends Array[T] implements (Long,Long,Long)=>T {
     
     public property rank() = 3;
 
@@ -41,8 +41,8 @@ public final class Array_3[T] (
      * whose elements are zero-initialized.
      */
     public def this(m:Long, n:Long, p:Long) {
-	super(m*n*p, true);
-	property(m, n, p);
+        super(m*n*p, true);
+        property(m, n, p);
     }
 
     /**
@@ -50,9 +50,9 @@ public final class Array_3[T] (
      * whose elements are initialized to init.
      */
     public def this(m:Long, n:Long, p:Long, init:T) {
-	super(m*n*p, false);
+        super(m*n*p, false);
         property(m, n, p);
-	for (i in raw.range()) {
+        for (i in raw.range()) {
             raw(i) = init;
         }
     }
@@ -62,7 +62,7 @@ public final class Array_3[T] (
      * whose elements are initialized to the value returned by the init closure for each index.
      */
     public @Inline def this(m:Long, n:Long, p:Long, init:(long,long,long)=>T) {
-	super(m*n*p, false);
+        super(m*n*p, false);
         property(m, n, p);
         for (i in 0..(m-1)) {
             for (j in 0..(n-1)) {
@@ -71,6 +71,15 @@ public final class Array_3[T] (
                 }
             }
         }
+    }
+
+    /**
+     * Construct a new 3-dimensional array by copying all elements of src
+     * @param src The source array to copy
+     */
+    public def this(src:Array_3[T]) {
+        super(new Rail[T](src.raw));
+        property(src.numElems_1, src.numElems_2, src.numElems_3);
     }
 
     // Intentionally private: only for use of makeView factory method.

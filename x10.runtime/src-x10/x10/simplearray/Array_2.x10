@@ -27,7 +27,7 @@ public final class Array_2[T] (
          * The number of elements in rank 2 (indexed 0..(numElems_2-1)).
          */
         numElems_2:Long
-) extends Array[T] {
+) extends Array[T] implements (Long,Long)=>T {
 
     public property rank() = 2;
 
@@ -35,17 +35,17 @@ public final class Array_2[T] (
      * Construct a 2-dimensional array with indices [0..m-1][0..n-1] whose elements are zero-initialized.
      */
     public def this(m:Long, n:Long) {
-	super(m*n, true);
-	property(m, n);
+        super(m*n, true);
+        property(m, n);
     }
 
     /**
      * Construct a 2-dimensional array with indices [0..m-1][0..n-1] whose elements are initialized to init.
      */
     public def this(m:Long, n:Long, init:T) {
-	super(m*n, false);
+        super(m*n, false);
         property(m, n);
-	for (i in raw.range()) {
+        for (i in raw.range()) {
             raw(i) = init;
         }
     }
@@ -55,13 +55,22 @@ public final class Array_2[T] (
      * to the value returned by the init closure for each index.
      */
     public @Inline def this(m:Long, n:Long, init:(long,long)=>T) {
-	super(m*n, false);
+        super(m*n, false);
         property(m, n);
         for (i in 0..(m-1)) {
             for (j in 0..(n-1)) {
                 raw(offset(i,j)) = init(i,j);
             }
         }
+    }
+
+    /**
+     * Construct a new 2-dimensional array by copying all elements of src
+     * @param src The source array to copy
+     */
+    public def this(src:Array_2[T]) {
+        super(new Rail[T](src.raw));
+        property(src.numElems_1, src.numElems_2);
     }
 
     // Intentionally private: only for use of makeView factory method.

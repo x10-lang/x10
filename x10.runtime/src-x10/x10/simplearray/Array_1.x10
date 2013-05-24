@@ -16,7 +16,7 @@ import x10.compiler.Inline;
 /**
  * Implementation of 1-dimensional Array.
  */
-public final class Array_1[T] extends Array[T] {
+public final class Array_1[T] extends Array[T] implements (Long)=>T {
     
     public property rank() = 1;
 
@@ -32,7 +32,7 @@ public final class Array_1[T] extends Array[T] {
      */
     public def this(n:Long, init:T) {
         super(n, false);
-	for (i in raw.range()) {
+        for (i in raw.range()) {
             raw(i) = init;
         }
     }
@@ -43,9 +43,17 @@ public final class Array_1[T] extends Array[T] {
      */
     public @Inline def this(n:Long, init:(long)=>T) {
         super(n, false);
-	for (i in raw.range()) {
+        for (i in raw.range()) {
             raw(i) = init(i);
         }
+    }
+
+    /**
+     * Construct a new 1-dimensional array by copying all elements of src
+     * @param src The source array to copy
+     */
+    public def this(src:Array_1[T]) {
+        super(new Rail[T](src.raw));
     }
 
     // Intentionally private: only for use of makeView factory method.
