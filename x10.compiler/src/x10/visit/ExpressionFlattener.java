@@ -114,7 +114,6 @@ public final class ExpressionFlattener extends ContextVisitor {
 
     private static final boolean DEBUG = false;
 
-    private static final boolean XTENLANG_2055 = true; // bug work around: don't flatten Marshall.x10
     private static final boolean XTENLANG_2336 = true; // bug work around: don't flatten Runtime.x10
 
     private final TypeSystem xts;
@@ -191,9 +190,6 @@ public final class ExpressionFlattener extends ContextVisitor {
             Source s = ((SourceFile) n).source();
             if (XTENLANG_2336 && s.name().equals("Runtime.x10")) { // BUG: cannot flatten Runtime
                 return true;
-            }
-            if (XTENLANG_2055 && s.name().equals("Marshal.x10")) { // BUG: can't flatten Marshal
-                return true; 
             }
         }
         if (n instanceof ConstructorDecl) { // can't flatten constructors unless local assignments can precede super() and this() in Java
