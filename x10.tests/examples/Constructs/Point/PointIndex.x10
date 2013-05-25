@@ -10,7 +10,7 @@
  */
 
 import harness.x10Test;
-import x10.array.*;
+import x10.regionarray.*;
 
 /**
  * Accessing p[3] in a 2D point should cause an array

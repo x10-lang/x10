@@ -210,12 +210,12 @@ elements in the matrix.</div>
 </tr>
 <tr class="rowColor">
 <td class="colFirst"><code>static <a href="../../../x10/matrix/sparse/SparseCSR.html" title="type parameter in SparseCSR">SparseCSR</a></code></td>
-<td class="colLast"><code><strong><a href="../../../x10/matrix/sparse/SparseCSR.html#make(x10.lang.Int,x10.lang.Int,x10.array.Array[x10.lang.Int],x10.array.Array[x10.lang.Int],x10.array.Array[x10.lang.Double])">make</a></strong>(x10.lang.Int&nbsp;m,
+<td class="colLast"><code><strong><a href="../../../x10/matrix/sparse/SparseCSR.html#make(x10.lang.Int,x10.lang.Int,x10.regionarray.Array[x10.lang.Int],x10.regionarray.Array[x10.lang.Int],x10.regionarray.Array[x10.lang.Double])">make</a></strong>(x10.lang.Int&nbsp;m,
     x10.lang.Int&nbsp;n,
-    x10.array.Array&lt;x10.lang.Int&gt;&nbsp;ia,
-    x10.array.Array&lt;x10.lang.Int&gt;&nbsp;ja,
-    x10.array.Array&lt;x10.lang.Double&gt;&nbsp;av)</code>
-<div class="block"><B>Declaration:</B> <TT>make(m:x10.lang.Int,n:x10.lang.Int,ia:x10.array.Array[x10.lang.Int]{self.rank==1},ja:x10.array.Array[x10.lang.Int]{self.rank==1},av:x10.array.Array[x10.lang.Double]{self.size==ja.size, self.rank==1}): x10.matrix.sparse.SparseCSR{self.M==m, self.N==n}.</TT>
+    x10.regionarray.Array&lt;x10.lang.Int&gt;&nbsp;ia,
+    x10.regionarray.Array&lt;x10.lang.Int&gt;&nbsp;ja,
+    x10.regionarray.Array&lt;x10.lang.Double&gt;&nbsp;av)</code>
+<div class="block"><B>Declaration:</B> <TT>make(m:x10.lang.Int,n:x10.lang.Int,ia:x10.regionarray.Array[x10.lang.Int]{self.rank==1},ja:x10.regionarray.Array[x10.lang.Int]{self.rank==1},av:x10.regionarray.Array[x10.lang.Double]{self.size==ja.size, self.rank==1}): x10.matrix.sparse.SparseCSR{self.M==m, self.N==n}.</TT>
 Create a m x n SparseCSR matrix based on CSR data format input
 ia, ja, and av.</div>
 </td>
@@ -313,16 +313,16 @@ Make a copy of myself.</div>
 </td>
 </tr>
 <tr class="altColor">
-<td class="colFirst"><code>x10.array.Array&lt;x10.lang.Double&gt;</code></td>
+<td class="colFirst"><code>x10.regionarray.Array&lt;x10.lang.Double&gt;</code></td>
 <td class="colLast"><code><strong><a href="../../../x10/matrix/sparse/SparseCSR.html#getValue()">getValue</a></strong>()</code>
-<div class="block"><B>Declaration:</B> <TT>getValue(): x10.array.Array[x10.lang.Double]{self.rail==true, self.rank==1, self.region.rank==1, self.region.rail==true, self.region!=null, self.rect==self.region.rect, self.zeroBased==self.region.zeroBased}.</TT>
+<div class="block"><B>Declaration:</B> <TT>getValue(): x10.regionarray.Array[x10.lang.Double]{self.rail==true, self.rank==1, self.region.rank==1, self.region.rail==true, self.region!=null, self.rect==self.region.rect, self.zeroBased==self.region.zeroBased}.</TT>
 Return the compressed value array</div>
 </td>
 </tr>
 <tr class="rowColor">
-<td class="colFirst"><code>x10.array.Array&lt;x10.lang.Int&gt;</code></td>
+<td class="colFirst"><code>x10.regionarray.Array&lt;x10.lang.Int&gt;</code></td>
 <td class="colLast"><code><strong><a href="../../../x10/matrix/sparse/SparseCSR.html#getIndex()">getIndex</a></strong>()</code>
-<div class="block"><B>Declaration:</B> <TT>getIndex(): x10.array.Array[x10.lang.Int]{self.rail==true, self.rank==1, self.region.rank==1, self.region.rail==true, self.region!=null, self.rect==self.region.rect, self.zeroBased==self.region.zeroBased}.</TT>
+<div class="block"><B>Declaration:</B> <TT>getIndex(): x10.regionarray.Array[x10.lang.Int]{self.rail==true, self.rank==1, self.region.rank==1, self.region.rail==true, self.region!=null, self.rect==self.region.rect, self.zeroBased==self.region.zeroBased}.</TT>
 Return the compressed surface index array</div>
 </td>
 </tr>
@@ -359,10 +359,10 @@ Return the compressed data array</div>
 </tr>
 <tr class="rowColor">
 <td class="colFirst"><code>x10.lang.Int</code></td>
-<td class="colLast"><code><strong><a href="../../../x10/matrix/sparse/SparseCSR.html#compressAt(x10.lang.Int,x10.lang.Int,x10.array.Array[x10.lang.Double])">compressAt</a></strong>(x10.lang.Int&nbsp;r,
+<td class="colLast"><code><strong><a href="../../../x10/matrix/sparse/SparseCSR.html#compressAt(x10.lang.Int,x10.lang.Int,x10.regionarray.Array[x10.lang.Double])">compressAt</a></strong>(x10.lang.Int&nbsp;r,
           x10.lang.Int&nbsp;off,
-          x10.array.Array&lt;x10.lang.Double&gt;&nbsp;d)</code>
-<div class="block"><B>Declaration:</B> <TT>compressAt(r:x10.lang.Int,off:x10.lang.Int,d:x10.array.Array[x10.lang.Double]{self.rank==1}): x10.lang.Int.</TT>
+          x10.regionarray.Array&lt;x10.lang.Double&gt;&nbsp;d)</code>
+<div class="block"><B>Declaration:</B> <TT>compressAt(r:x10.lang.Int,off:x10.lang.Int,d:x10.regionarray.Array[x10.lang.Double]{self.rank==1}): x10.lang.Int.</TT>
 </div>
 </td>
 </tr>
@@ -420,16 +420,16 @@ in storage is copied from remote place.</div>
 </td>
 </tr>
 <tr class="altColor">
-<td class="colFirst"><code>x10.array.Array&lt;x10.lang.Double&gt;</code></td>
+<td class="colFirst"><code>x10.regionarray.Array&lt;x10.lang.Double&gt;</code></td>
 <td class="colLast"><code><strong><a href="../../../x10/matrix/sparse/SparseCSR.html#getTempCol()">getTempCol</a></strong>()</code>
-<div class="block"><B>Declaration:</B> <TT>getTempCol(): x10.array.Array[x10.lang.Double]{self.rank==1}.</TT>
+<div class="block"><B>Declaration:</B> <TT>getTempCol(): x10.regionarray.Array[x10.lang.Double]{self.rank==1}.</TT>
 </div>
 </td>
 </tr>
 <tr class="rowColor">
-<td class="colFirst"><code>x10.array.Array&lt;x10.lang.Double&gt;</code></td>
+<td class="colFirst"><code>x10.regionarray.Array&lt;x10.lang.Double&gt;</code></td>
 <td class="colLast"><code><strong><a href="../../../x10/matrix/sparse/SparseCSR.html#getTempRow()">getTempRow</a></strong>()</code>
-<div class="block"><B>Declaration:</B> <TT>getTempRow(): x10.array.Array[x10.lang.Double]{self.rank==1}.</TT>
+<div class="block"><B>Declaration:</B> <TT>getTempRow(): x10.regionarray.Array[x10.lang.Double]{self.rank==1}.</TT>
 </div>
 </td>
 </tr>
@@ -463,31 +463,31 @@ Copy rows from source to target sparse matrix in CSR.</div>
 </tr>
 <tr class="rowColor">
 <td class="colFirst"><code>void</code></td>
-<td class="colLast"><code><strong><a href="../../../x10/matrix/sparse/SparseCSR.html#extractRow(x10.lang.Int,x10.array.Array[x10.lang.Double])">extractRow</a></strong>(x10.lang.Int&nbsp;r,
-          x10.array.Array&lt;x10.lang.Double&gt;&nbsp;ln)</code>
-<div class="block"><B>Declaration:</B> <TT>extractRow(r:x10.lang.Int,ln:x10.array.Array[x10.lang.Double]{self.rank==1}): void.</TT>
+<td class="colLast"><code><strong><a href="../../../x10/matrix/sparse/SparseCSR.html#extractRow(x10.lang.Int,x10.regionarray.Array[x10.lang.Double])">extractRow</a></strong>(x10.lang.Int&nbsp;r,
+          x10.regionarray.Array&lt;x10.lang.Double&gt;&nbsp;ln)</code>
+<div class="block"><B>Declaration:</B> <TT>extractRow(r:x10.lang.Int,ln:x10.regionarray.Array[x10.lang.Double]{self.rank==1}): void.</TT>
 </div>
 </td>
 </tr>
 <tr class="altColor">
 <td class="colFirst"><code>void</code></td>
-<td class="colLast"><code><strong><a href="../../../x10/matrix/sparse/SparseCSR.html#extractCol(x10.lang.Int,x10.array.Array[x10.lang.Double])">extractCol</a></strong>(x10.lang.Int&nbsp;c,
-          x10.array.Array&lt;x10.lang.Double&gt;&nbsp;cl)</code>
-<div class="block"><B>Declaration:</B> <TT>extractCol(c:x10.lang.Int,cl:x10.array.Array[x10.lang.Double]{self.rank==1}): void.</TT>
+<td class="colLast"><code><strong><a href="../../../x10/matrix/sparse/SparseCSR.html#extractCol(x10.lang.Int,x10.regionarray.Array[x10.lang.Double])">extractCol</a></strong>(x10.lang.Int&nbsp;c,
+          x10.regionarray.Array&lt;x10.lang.Double&gt;&nbsp;cl)</code>
+<div class="block"><B>Declaration:</B> <TT>extractCol(c:x10.lang.Int,cl:x10.regionarray.Array[x10.lang.Double]{self.rank==1}): void.</TT>
 </div>
 </td>
 </tr>
 <tr class="rowColor">
-<td class="colFirst"><code>x10.array.Array&lt;x10.lang.Double&gt;</code></td>
+<td class="colFirst"><code>x10.regionarray.Array&lt;x10.lang.Double&gt;</code></td>
 <td class="colLast"><code><strong><a href="../../../x10/matrix/sparse/SparseCSR.html#extractRow(x10.lang.Int)">extractRow</a></strong>(x10.lang.Int&nbsp;r)</code>
-<div class="block"><B>Declaration:</B> <TT>extractRow(r:x10.lang.Int): x10.array.Array[x10.lang.Double]{self.rank==1}.</TT>
+<div class="block"><B>Declaration:</B> <TT>extractRow(r:x10.lang.Int): x10.regionarray.Array[x10.lang.Double]{self.rank==1}.</TT>
 Extracting row to temp array.</div>
 </td>
 </tr>
 <tr class="altColor">
-<td class="colFirst"><code>x10.array.Array&lt;x10.lang.Double&gt;</code></td>
+<td class="colFirst"><code>x10.regionarray.Array&lt;x10.lang.Double&gt;</code></td>
 <td class="colLast"><code><strong><a href="../../../x10/matrix/sparse/SparseCSR.html#extractCol(x10.lang.Int)">extractCol</a></strong>(x10.lang.Int&nbsp;c)</code>
-<div class="block"><B>Declaration:</B> <TT>extractCol(c:x10.lang.Int): x10.array.Array[x10.lang.Double]{self.rank==1}.</TT>
+<div class="block"><B>Declaration:</B> <TT>extractCol(c:x10.lang.Int): x10.regionarray.Array[x10.lang.Double]{self.rank==1}.</TT>
 </div>
 </td>
 </tr>
@@ -1005,7 +1005,7 @@ for specified sparsity.</div>
 elements in the matrix.</div>
 </li>
 </ul>
-<a name="make(x10.lang.Int,x10.lang.Int,x10.array.Array[x10.lang.Int],x10.array.Array[x10.lang.Int],x10.array.Array[x10.lang.Double])">
+<a name="make(x10.lang.Int,x10.lang.Int,x10.regionarray.Array[x10.lang.Int],x10.regionarray.Array[x10.lang.Int],x10.regionarray.Array[x10.lang.Double])">
 <!--   -->
 </a>
 <ul class="blockList">
@@ -1013,10 +1013,10 @@ elements in the matrix.</div>
 <h4>make</h4>
 <pre>public static&nbsp;<a href="../../../x10/matrix/sparse/SparseCSR.html" title="type parameter in SparseCSR">SparseCSR</a>&nbsp;make(x10.lang.Int&nbsp;m,
              x10.lang.Int&nbsp;n,
-             x10.array.Array&lt;x10.lang.Int&gt;&nbsp;ia,
-             x10.array.Array&lt;x10.lang.Int&gt;&nbsp;ja,
-             x10.array.Array&lt;x10.lang.Double&gt;&nbsp;av)</pre>
-<div class="block"><B>Declaration:</B> <TT>make(m:x10.lang.Int,n:x10.lang.Int,ia:x10.array.Array[x10.lang.Int]{self.rank==1},ja:x10.array.Array[x10.lang.Int]{self.rank==1},av:x10.array.Array[x10.lang.Double]{self.size==ja.size, self.rank==1}): x10.matrix.sparse.SparseCSR{self.M==m, self.N==n}.</TT><PRE>
+             x10.regionarray.Array&lt;x10.lang.Int&gt;&nbsp;ia,
+             x10.regionarray.Array&lt;x10.lang.Int&gt;&nbsp;ja,
+             x10.regionarray.Array&lt;x10.lang.Double&gt;&nbsp;av)</pre>
+<div class="block"><B>Declaration:</B> <TT>make(m:x10.lang.Int,n:x10.lang.Int,ia:x10.regionarray.Array[x10.lang.Int]{self.rank==1},ja:x10.regionarray.Array[x10.lang.Int]{self.rank==1},av:x10.regionarray.Array[x10.lang.Double]{self.size==ja.size, self.rank==1}): x10.matrix.sparse.SparseCSR{self.M==m, self.N==n}.</TT><PRE>
 </PRE>Create a m x n SparseCSR matrix based on CSR data format input
 ia, ja, and av.</div>
 <dl><dt><span class="strong">Parameters:</span></dt><dd><code>ia</code> - integer array, the sizes of nonzero of each row</dd><dd><code>ja</code> - integer array, the surface index array of nonzero in rows</dd><dd><code>av</code> - double array, the actual matrix element data corresponding
@@ -1172,8 +1172,8 @@ ia, ja, and av.</div>
 <ul class="blockList">
 <li class="blockList">
 <h4>getValue</h4>
-<pre>public&nbsp;x10.array.Array&lt;x10.lang.Double&gt;&nbsp;getValue()</pre>
-<div class="block"><B>Declaration:</B> <TT>getValue(): x10.array.Array[x10.lang.Double]{self.rail==true, self.rank==1, self.region.rank==1, self.region.rail==true, self.region!=null, self.rect==self.region.rect, self.zeroBased==self.region.zeroBased}.</TT><PRE>
+<pre>public&nbsp;x10.regionarray.Array&lt;x10.lang.Double&gt;&nbsp;getValue()</pre>
+<div class="block"><B>Declaration:</B> <TT>getValue(): x10.regionarray.Array[x10.lang.Double]{self.rail==true, self.rank==1, self.region.rank==1, self.region.rail==true, self.region!=null, self.rect==self.region.rect, self.zeroBased==self.region.zeroBased}.</TT><PRE>
 </PRE>Return the compressed value array</div>
 </li>
 </ul>
@@ -1183,8 +1183,8 @@ ia, ja, and av.</div>
 <ul class="blockList">
 <li class="blockList">
 <h4>getIndex</h4>
-<pre>public&nbsp;x10.array.Array&lt;x10.lang.Int&gt;&nbsp;getIndex()</pre>
-<div class="block"><B>Declaration:</B> <TT>getIndex(): x10.array.Array[x10.lang.Int]{self.rail==true, self.rank==1, self.region.rank==1, self.region.rail==true, self.region!=null, self.rect==self.region.rect, self.zeroBased==self.region.zeroBased}.</TT><PRE>
+<pre>public&nbsp;x10.regionarray.Array&lt;x10.lang.Int&gt;&nbsp;getIndex()</pre>
+<div class="block"><B>Declaration:</B> <TT>getIndex(): x10.regionarray.Array[x10.lang.Int]{self.rail==true, self.rank==1, self.region.rank==1, self.region.rail==true, self.region!=null, self.rect==self.region.rect, self.zeroBased==self.region.zeroBased}.</TT><PRE>
 </PRE>Return the compressed surface index array</div>
 </li>
 </ul>
@@ -1245,7 +1245,7 @@ Modifying sparse matrix after creation is not advised</div>
           <a href="../../../x10/matrix/sparse/Compress1D.html" title="class in x10.matrix.sparse">Compress1D</a>&nbsp;cl)</pre>
 </li>
 </ul>
-<a name="compressAt(x10.lang.Int,x10.lang.Int,x10.array.Array[x10.lang.Double])">
+<a name="compressAt(x10.lang.Int,x10.lang.Int,x10.regionarray.Array[x10.lang.Double])">
 <!--   -->
 </a>
 <ul class="blockList">
@@ -1253,8 +1253,8 @@ Modifying sparse matrix after creation is not advised</div>
 <h4>compressAt</h4>
 <pre>public&nbsp;x10.lang.Int&nbsp;compressAt(x10.lang.Int&nbsp;r,
                       x10.lang.Int&nbsp;off,
-                      x10.array.Array&lt;x10.lang.Double&gt;&nbsp;d)</pre>
-<div class="block"><B>Declaration:</B> <TT>compressAt(r:x10.lang.Int,off:x10.lang.Int,d:x10.array.Array[x10.lang.Double]{self.rank==1}): x10.lang.Int.</TT><PRE>
+                      x10.regionarray.Array&lt;x10.lang.Double&gt;&nbsp;d)</pre>
+<div class="block"><B>Declaration:</B> <TT>compressAt(r:x10.lang.Int,off:x10.lang.Int,d:x10.regionarray.Array[x10.lang.Double]{self.rank==1}): x10.lang.Int.</TT><PRE>
 </PRE></div>
 </li>
 </ul>
@@ -1356,8 +1356,8 @@ in storage is copied from remote place.</div>
 <ul class="blockList">
 <li class="blockList">
 <h4>getTempCol</h4>
-<pre>public&nbsp;x10.array.Array&lt;x10.lang.Double&gt;&nbsp;getTempCol()</pre>
-<div class="block"><B>Declaration:</B> <TT>getTempCol(): x10.array.Array[x10.lang.Double]{self.rank==1}.</TT><PRE>
+<pre>public&nbsp;x10.regionarray.Array&lt;x10.lang.Double&gt;&nbsp;getTempCol()</pre>
+<div class="block"><B>Declaration:</B> <TT>getTempCol(): x10.regionarray.Array[x10.lang.Double]{self.rank==1}.</TT><PRE>
 </PRE></div>
 </li>
 </ul>
@@ -1367,8 +1367,8 @@ in storage is copied from remote place.</div>
 <ul class="blockList">
 <li class="blockList">
 <h4>getTempRow</h4>
-<pre>public&nbsp;x10.array.Array&lt;x10.lang.Double&gt;&nbsp;getTempRow()</pre>
-<div class="block"><B>Declaration:</B> <TT>getTempRow(): x10.array.Array[x10.lang.Double]{self.rank==1}.</TT><PRE>
+<pre>public&nbsp;x10.regionarray.Array&lt;x10.lang.Double&gt;&nbsp;getTempRow()</pre>
+<div class="block"><B>Declaration:</B> <TT>getTempRow(): x10.regionarray.Array[x10.lang.Double]{self.rank==1}.</TT><PRE>
 </PRE></div>
 </li>
 </ul>
@@ -1418,27 +1418,27 @@ is always 0 in sparse matrix.</div>
 <dt><span class="strong">Returns:</span></dt><dd>Number of nonzero elements copied.</dd></dl>
 </li>
 </ul>
-<a name="extractRow(x10.lang.Int,x10.array.Array[x10.lang.Double])">
+<a name="extractRow(x10.lang.Int,x10.regionarray.Array[x10.lang.Double])">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
 <h4>extractRow</h4>
 <pre>public&nbsp;void&nbsp;extractRow(x10.lang.Int&nbsp;r,
-              x10.array.Array&lt;x10.lang.Double&gt;&nbsp;ln)</pre>
-<div class="block"><B>Declaration:</B> <TT>extractRow(r:x10.lang.Int,ln:x10.array.Array[x10.lang.Double]{self.rank==1}): void.</TT><PRE>
+              x10.regionarray.Array&lt;x10.lang.Double&gt;&nbsp;ln)</pre>
+<div class="block"><B>Declaration:</B> <TT>extractRow(r:x10.lang.Int,ln:x10.regionarray.Array[x10.lang.Double]{self.rank==1}): void.</TT><PRE>
 </PRE></div>
 </li>
 </ul>
-<a name="extractCol(x10.lang.Int,x10.array.Array[x10.lang.Double])">
+<a name="extractCol(x10.lang.Int,x10.regionarray.Array[x10.lang.Double])">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
 <h4>extractCol</h4>
 <pre>public&nbsp;void&nbsp;extractCol(x10.lang.Int&nbsp;c,
-              x10.array.Array&lt;x10.lang.Double&gt;&nbsp;cl)</pre>
-<div class="block"><B>Declaration:</B> <TT>extractCol(c:x10.lang.Int,cl:x10.array.Array[x10.lang.Double]{self.rank==1}): void.</TT><PRE>
+              x10.regionarray.Array&lt;x10.lang.Double&gt;&nbsp;cl)</pre>
+<div class="block"><B>Declaration:</B> <TT>extractCol(c:x10.lang.Int,cl:x10.regionarray.Array[x10.lang.Double]{self.rank==1}): void.</TT><PRE>
 </PRE></div>
 </li>
 </ul>
@@ -1448,8 +1448,8 @@ is always 0 in sparse matrix.</div>
 <ul class="blockList">
 <li class="blockList">
 <h4>extractRow</h4>
-<pre>public&nbsp;x10.array.Array&lt;x10.lang.Double&gt;&nbsp;extractRow(x10.lang.Int&nbsp;r)</pre>
-<div class="block"><B>Declaration:</B> <TT>extractRow(r:x10.lang.Int): x10.array.Array[x10.lang.Double]{self.rank==1}.</TT><PRE>
+<pre>public&nbsp;x10.regionarray.Array&lt;x10.lang.Double&gt;&nbsp;extractRow(x10.lang.Int&nbsp;r)</pre>
+<div class="block"><B>Declaration:</B> <TT>extractRow(r:x10.lang.Int): x10.regionarray.Array[x10.lang.Double]{self.rank==1}.</TT><PRE>
 </PRE>Extracting row to temp array.</div>
 </li>
 </ul>
@@ -1459,8 +1459,8 @@ is always 0 in sparse matrix.</div>
 <ul class="blockList">
 <li class="blockList">
 <h4>extractCol</h4>
-<pre>public&nbsp;x10.array.Array&lt;x10.lang.Double&gt;&nbsp;extractCol(x10.lang.Int&nbsp;c)</pre>
-<div class="block"><B>Declaration:</B> <TT>extractCol(c:x10.lang.Int): x10.array.Array[x10.lang.Double]{self.rank==1}.</TT><PRE>
+<pre>public&nbsp;x10.regionarray.Array&lt;x10.lang.Double&gt;&nbsp;extractCol(x10.lang.Int&nbsp;c)</pre>
+<div class="block"><B>Declaration:</B> <TT>extractCol(c:x10.lang.Int): x10.regionarray.Array[x10.lang.Double]{self.rank==1}.</TT><PRE>
 </PRE></div>
 </li>
 </ul>

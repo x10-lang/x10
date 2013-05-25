@@ -147,46 +147,46 @@ run command "make help" at the root directory of GML library.</div>
 </tr>
 <tr class="altColor">
 <td class="colFirst"><code>static void</code></td>
-<td class="colLast"><code><strong><a href="../../../x10/matrix/comm/ArrayScatter.html#scatter(x10.array.Array[x10.array.Array[x10.lang.Double]],x10.lang.PlaceLocalHandle[x10.array.Array[x10.lang.Double]])">scatter</a></strong>(x10.array.Array&lt;x10.array.Array&lt;x10.lang.Double&gt;&gt;&nbsp;src,
-       x10.lang.PlaceLocalHandle&lt;x10.array.Array&lt;x10.lang.Double&gt;&gt;&nbsp;dst)</code>
-<div class="block"><B>Declaration:</B> <TT>scatter(src:x10.array.Array[x10.array.Array[x10.lang.Double]{self.rank==1}]{self.rank==1},dst:x10.lang.PlaceLocalHandle[x10.array.Array[x10.lang.Double]{self.rank==1, self.zeroBased==true, self.rect==true, self.rail==true}]): void.</TT>
+<td class="colLast"><code><strong><a href="../../../x10/matrix/comm/ArrayScatter.html#scatter(x10.regionarray.Array[x10.regionarray.Array[x10.lang.Double]],x10.lang.PlaceLocalHandle[x10.regionarray.Array[x10.lang.Double]])">scatter</a></strong>(x10.regionarray.Array&lt;x10.regionarray.Array&lt;x10.lang.Double&gt;&gt;&nbsp;src,
+       x10.lang.PlaceLocalHandle&lt;x10.regionarray.Array&lt;x10.lang.Double&gt;&gt;&nbsp;dst)</code>
+<div class="block"><B>Declaration:</B> <TT>scatter(src:x10.regionarray.Array[x10.regionarray.Array[x10.lang.Double]{self.rank==1}]{self.rank==1},dst:x10.lang.PlaceLocalHandle[x10.regionarray.Array[x10.lang.Double]{self.rank==1, self.zeroBased==true, self.rect==true, self.rail==true}]): void.</TT>
 Scatter data from arrays at here to arrays in all places.</div>
 </td>
 </tr>
 <tr class="rowColor">
 <td class="colFirst"><code>static void</code></td>
-<td class="colLast"><code><strong><a href="../../../x10/matrix/comm/ArrayScatter.html#scatter(x10.array.Array[x10.lang.Double],x10.lang.PlaceLocalHandle[x10.array.Array[x10.lang.Double]],x10.array.Array[x10.lang.Int])">scatter</a></strong>(x10.array.Array&lt;x10.lang.Double&gt;&nbsp;src,
-       x10.lang.PlaceLocalHandle&lt;x10.array.Array&lt;x10.lang.Double&gt;&gt;&nbsp;dst,
-       x10.array.Array&lt;x10.lang.Int&gt;&nbsp;gp)</code>
-<div class="block"><B>Declaration:</B> <TT>scatter(src:x10.array.Array[x10.lang.Double]{self.rank==1},dst:x10.lang.PlaceLocalHandle[x10.array.Array[x10.lang.Double]{self.rank==1, self.zeroBased==true, self.rect==true, self.rail==true}],gp:x10.array.Array[x10.lang.Int]{self.rank==1}): void.</TT>
+<td class="colLast"><code><strong><a href="../../../x10/matrix/comm/ArrayScatter.html#scatter(x10.regionarray.Array[x10.lang.Double],x10.lang.PlaceLocalHandle[x10.regionarray.Array[x10.lang.Double]],x10.regionarray.Array[x10.lang.Int])">scatter</a></strong>(x10.regionarray.Array&lt;x10.lang.Double&gt;&nbsp;src,
+       x10.lang.PlaceLocalHandle&lt;x10.regionarray.Array&lt;x10.lang.Double&gt;&gt;&nbsp;dst,
+       x10.regionarray.Array&lt;x10.lang.Int&gt;&nbsp;gp)</code>
+<div class="block"><B>Declaration:</B> <TT>scatter(src:x10.regionarray.Array[x10.lang.Double]{self.rank==1},dst:x10.lang.PlaceLocalHandle[x10.regionarray.Array[x10.lang.Double]{self.rank==1, self.zeroBased==true, self.rect==true, self.rail==true}],gp:x10.regionarray.Array[x10.lang.Int]{self.rank==1}): void.</TT>
 Scatter single-row partitioning blocks from here to all places</div>
 </td>
 </tr>
 <tr class="altColor">
 <td class="colFirst"><code>static void</code></td>
-<td class="colLast"><code><strong><a href="../../../x10/matrix/comm/ArrayScatter.html#mpiScatter(x10.array.Array[x10.lang.Double],x10.lang.PlaceLocalHandle[x10.array.Array[x10.lang.Double]],x10.array.Array[x10.lang.Int])">mpiScatter</a></strong>(x10.array.Array&lt;x10.lang.Double&gt;&nbsp;src,
-          x10.lang.PlaceLocalHandle&lt;x10.array.Array&lt;x10.lang.Double&gt;&gt;&nbsp;dst,
-          x10.array.Array&lt;x10.lang.Int&gt;&nbsp;szlist)</code>
-<div class="block"><B>Declaration:</B> <TT>mpiScatter(src:x10.array.Array[x10.lang.Double]{self.rank==1},dst:x10.lang.PlaceLocalHandle[x10.array.Array[x10.lang.Double]{self.rank==1, self.zeroBased==true, self.rect==true, self.rail==true}],szlist:x10.array.Array[x10.lang.Int]{self.rank==1}): void.</TT>
+<td class="colLast"><code><strong><a href="../../../x10/matrix/comm/ArrayScatter.html#mpiScatter(x10.regionarray.Array[x10.lang.Double],x10.lang.PlaceLocalHandle[x10.regionarray.Array[x10.lang.Double]],x10.regionarray.Array[x10.lang.Int])">mpiScatter</a></strong>(x10.regionarray.Array&lt;x10.lang.Double&gt;&nbsp;src,
+          x10.lang.PlaceLocalHandle&lt;x10.regionarray.Array&lt;x10.lang.Double&gt;&gt;&nbsp;dst,
+          x10.regionarray.Array&lt;x10.lang.Int&gt;&nbsp;szlist)</code>
+<div class="block"><B>Declaration:</B> <TT>mpiScatter(src:x10.regionarray.Array[x10.lang.Double]{self.rank==1},dst:x10.lang.PlaceLocalHandle[x10.regionarray.Array[x10.lang.Double]{self.rank==1, self.zeroBased==true, self.rect==true, self.rail==true}],szlist:x10.regionarray.Array[x10.lang.Int]{self.rank==1}): void.</TT>
 Scatter data from array at here to all places
 by calling mpi scatter routine.</div>
 </td>
 </tr>
 <tr class="rowColor">
 <td class="colFirst"><code>static void</code></td>
-<td class="colLast"><code><strong><a href="../../../x10/matrix/comm/ArrayScatter.html#x10Scatter(x10.array.Array[x10.lang.Double],x10.lang.PlaceLocalHandle[x10.array.Array[x10.lang.Double]],x10.array.Array[x10.lang.Int])">x10Scatter</a></strong>(x10.array.Array&lt;x10.lang.Double&gt;&nbsp;src,
-          x10.lang.PlaceLocalHandle&lt;x10.array.Array&lt;x10.lang.Double&gt;&gt;&nbsp;dst,
-          x10.array.Array&lt;x10.lang.Int&gt;&nbsp;szlist)</code>
-<div class="block"><B>Declaration:</B> <TT>x10Scatter(src:x10.array.Array[x10.lang.Double]{self.rank==1},dst:x10.lang.PlaceLocalHandle[x10.array.Array[x10.lang.Double]{self.rank==1, self.zeroBased==true, self.rect==true, self.rail==true}],szlist:x10.array.Array[x10.lang.Int]{self.rank==1}): void.</TT>
+<td class="colLast"><code><strong><a href="../../../x10/matrix/comm/ArrayScatter.html#x10Scatter(x10.regionarray.Array[x10.lang.Double],x10.lang.PlaceLocalHandle[x10.regionarray.Array[x10.lang.Double]],x10.regionarray.Array[x10.lang.Int])">x10Scatter</a></strong>(x10.regionarray.Array&lt;x10.lang.Double&gt;&nbsp;src,
+          x10.lang.PlaceLocalHandle&lt;x10.regionarray.Array&lt;x10.lang.Double&gt;&gt;&nbsp;dst,
+          x10.regionarray.Array&lt;x10.lang.Int&gt;&nbsp;szlist)</code>
+<div class="block"><B>Declaration:</B> <TT>x10Scatter(src:x10.regionarray.Array[x10.lang.Double]{self.rank==1},dst:x10.lang.PlaceLocalHandle[x10.regionarray.Array[x10.lang.Double]{self.rank==1, self.zeroBased==true, self.rect==true, self.rail==true}],szlist:x10.regionarray.Array[x10.lang.Int]{self.rank==1}): void.</TT>
 Copy array data from here to distributed array in all places</div>
 </td>
 </tr>
 <tr class="altColor">
 <td class="colFirst"><code>static x10.lang.Boolean</code></td>
-<td class="colLast"><code><strong><a href="../../../x10/matrix/comm/ArrayScatter.html#verify(x10.array.Array[x10.lang.Double],x10.lang.PlaceLocalHandle[x10.array.Array[x10.lang.Double]],x10.array.Array[x10.lang.Int])">verify</a></strong>(x10.array.Array&lt;x10.lang.Double&gt;&nbsp;src,
-      x10.lang.PlaceLocalHandle&lt;x10.array.Array&lt;x10.lang.Double&gt;&gt;&nbsp;dstplh,
-      x10.array.Array&lt;x10.lang.Int&gt;&nbsp;szlist)</code>
-<div class="block"><B>Declaration:</B> <TT>verify(src:x10.array.Array[x10.lang.Double]{self.rank==1},dstplh:x10.lang.PlaceLocalHandle[x10.array.Array[x10.lang.Double]{self.rank==1, self.zeroBased==true, self.rect==true, self.rail==true}],szlist:x10.array.Array[x10.lang.Int]{self.rank==1}): x10.lang.Boolean.</TT>
+<td class="colLast"><code><strong><a href="../../../x10/matrix/comm/ArrayScatter.html#verify(x10.regionarray.Array[x10.lang.Double],x10.lang.PlaceLocalHandle[x10.regionarray.Array[x10.lang.Double]],x10.regionarray.Array[x10.lang.Int])">verify</a></strong>(x10.regionarray.Array&lt;x10.lang.Double&gt;&nbsp;src,
+      x10.lang.PlaceLocalHandle&lt;x10.regionarray.Array&lt;x10.lang.Double&gt;&gt;&nbsp;dstplh,
+      x10.regionarray.Array&lt;x10.lang.Int&gt;&nbsp;szlist)</code>
+<div class="block"><B>Declaration:</B> <TT>verify(src:x10.regionarray.Array[x10.lang.Double]{self.rank==1},dstplh:x10.lang.PlaceLocalHandle[x10.regionarray.Array[x10.lang.Double]{self.rank==1, self.zeroBased==true, self.rect==true, self.rail==true}],szlist:x10.regionarray.Array[x10.lang.Int]{self.rank==1}): x10.lang.Boolean.</TT>
 </div>
 </td>
 </tr>
@@ -204,7 +204,7 @@ in PlaceLocalHandle and DistArray at all places.</div>
 <!--   -->
 </a>
 <h3>Methods inherited from class&nbsp;x10.matrix.comm.<a href="../../../x10/matrix/comm/ArrayRemoteCopy.html" title="class in x10.matrix.comm">ArrayRemoteCopy</a></h3>
-<code><a href="../../../x10/matrix/comm/ArrayRemoteCopy.html#copy(x10.array.Array[x10.lang.Double],x10.lang.Int,x10.lang.PlaceLocalHandle[x10.array.Array[x10.lang.Double]],x10.lang.Int,x10.lang.Int,x10.lang.Int)">copy</a>, <a href="../../../x10/matrix/comm/ArrayRemoteCopy.html#mpiCopy(x10.array.Array[x10.lang.Double],x10.lang.Int,x10.lang.PlaceLocalHandle[x10.array.Array[x10.lang.Double]],x10.lang.Int,x10.lang.Int,x10.lang.Int)">mpiCopy</a>, <a href="../../../x10/matrix/comm/ArrayRemoteCopy.html#x10Copy(x10.array.Array[x10.lang.Double],x10.lang.Int,x10.lang.PlaceLocalHandle[x10.array.Array[x10.lang.Double]],x10.lang.Int,x10.lang.Int,x10.lang.Int)">x10Copy</a>, <a href="../../../x10/matrix/comm/ArrayRemoteCopy.html#x10Copy(x10.array.Array[x10.lang.Double],x10.lang.Int,x10.array.DistArray[x10.array.Array[x10.lang.Double]],x10.lang.Int,x10.lang.Int,x10.lang.Int)">x10Copy</a>, <a href="../../../x10/matrix/comm/ArrayRemoteCopy.html#copy(x10.lang.PlaceLocalHandle[x10.array.Array[x10.lang.Double]],x10.lang.Int,x10.lang.Int,x10.array.Array[x10.lang.Double],x10.lang.Int,x10.lang.Int)">copy</a>, <a href="../../../x10/matrix/comm/ArrayRemoteCopy.html#mpiCopy(x10.lang.PlaceLocalHandle[x10.array.Array[x10.lang.Double]],x10.lang.Int,x10.lang.Int,x10.array.Array[x10.lang.Double],x10.lang.Int,x10.lang.Int)">mpiCopy</a>, <a href="../../../x10/matrix/comm/ArrayRemoteCopy.html#x10Copy(x10.lang.PlaceLocalHandle[x10.array.Array[x10.lang.Double]],x10.lang.Int,x10.lang.Int,x10.array.Array[x10.lang.Double],x10.lang.Int,x10.lang.Int)">x10Copy</a>, <a href="../../../x10/matrix/comm/ArrayRemoteCopy.html#copy(x10.matrix.sparse.CompressArray,x10.lang.Int,x10.lang.PlaceLocalHandle[x10.matrix.sparse.CompressArray],x10.lang.Int,x10.lang.Int,x10.lang.Int)">copy</a>, <a href="../../../x10/matrix/comm/ArrayRemoteCopy.html#mpiCopy(x10.matrix.sparse.CompressArray,x10.lang.Int,x10.lang.PlaceLocalHandle[x10.matrix.sparse.CompressArray],x10.lang.Int,x10.lang.Int,x10.lang.Int)">mpiCopy</a>, <a href="../../../x10/matrix/comm/ArrayRemoteCopy.html#x10Copy(x10.matrix.sparse.CompressArray,x10.lang.Int,x10.lang.PlaceLocalHandle[x10.matrix.sparse.CompressArray],x10.lang.Int,x10.lang.Int,x10.lang.Int)">x10Copy</a>, <a href="../../../x10/matrix/comm/ArrayRemoteCopy.html#copy(x10.lang.PlaceLocalHandle[x10.matrix.sparse.CompressArray],x10.lang.Int,x10.lang.Int,x10.matrix.sparse.CompressArray,x10.lang.Int,x10.lang.Int)">copy</a>, <a href="../../../x10/matrix/comm/ArrayRemoteCopy.html#mpiCopy(x10.lang.PlaceLocalHandle[x10.matrix.sparse.CompressArray],x10.lang.Int,x10.lang.Int,x10.matrix.sparse.CompressArray,x10.lang.Int,x10.lang.Int)">mpiCopy</a>, <a href="../../../x10/matrix/comm/ArrayRemoteCopy.html#x10Copy(x10.lang.PlaceLocalHandle[x10.matrix.sparse.CompressArray],x10.lang.Int,x10.lang.Int,x10.matrix.sparse.CompressArray,x10.lang.Int,x10.lang.Int)">x10Copy</a>, <a href="../../../x10/matrix/comm/ArrayRemoteCopy.html#x10$matrix$comm$ArrayRemoteCopy$$this$x10$matrix$comm$ArrayRemoteCopy()">x10$matrix$comm$ArrayRemoteCopy$$this$x10$matrix$comm$ArrayRemoteCopy</a></code></li>
+<code><a href="../../../x10/matrix/comm/ArrayRemoteCopy.html#copy(x10.regionarray.Array[x10.lang.Double],x10.lang.Int,x10.lang.PlaceLocalHandle[x10.regionarray.Array[x10.lang.Double]],x10.lang.Int,x10.lang.Int,x10.lang.Int)">copy</a>, <a href="../../../x10/matrix/comm/ArrayRemoteCopy.html#mpiCopy(x10.regionarray.Array[x10.lang.Double],x10.lang.Int,x10.lang.PlaceLocalHandle[x10.regionarray.Array[x10.lang.Double]],x10.lang.Int,x10.lang.Int,x10.lang.Int)">mpiCopy</a>, <a href="../../../x10/matrix/comm/ArrayRemoteCopy.html#x10Copy(x10.regionarray.Array[x10.lang.Double],x10.lang.Int,x10.lang.PlaceLocalHandle[x10.regionarray.Array[x10.lang.Double]],x10.lang.Int,x10.lang.Int,x10.lang.Int)">x10Copy</a>, <a href="../../../x10/matrix/comm/ArrayRemoteCopy.html#x10Copy(x10.regionarray.Array[x10.lang.Double],x10.lang.Int,x10.regionarray.DistArray[x10.regionarray.Array[x10.lang.Double]],x10.lang.Int,x10.lang.Int,x10.lang.Int)">x10Copy</a>, <a href="../../../x10/matrix/comm/ArrayRemoteCopy.html#copy(x10.lang.PlaceLocalHandle[x10.regionarray.Array[x10.lang.Double]],x10.lang.Int,x10.lang.Int,x10.regionarray.Array[x10.lang.Double],x10.lang.Int,x10.lang.Int)">copy</a>, <a href="../../../x10/matrix/comm/ArrayRemoteCopy.html#mpiCopy(x10.lang.PlaceLocalHandle[x10.regionarray.Array[x10.lang.Double]],x10.lang.Int,x10.lang.Int,x10.regionarray.Array[x10.lang.Double],x10.lang.Int,x10.lang.Int)">mpiCopy</a>, <a href="../../../x10/matrix/comm/ArrayRemoteCopy.html#x10Copy(x10.lang.PlaceLocalHandle[x10.regionarray.Array[x10.lang.Double]],x10.lang.Int,x10.lang.Int,x10.regionarray.Array[x10.lang.Double],x10.lang.Int,x10.lang.Int)">x10Copy</a>, <a href="../../../x10/matrix/comm/ArrayRemoteCopy.html#copy(x10.matrix.sparse.CompressArray,x10.lang.Int,x10.lang.PlaceLocalHandle[x10.matrix.sparse.CompressArray],x10.lang.Int,x10.lang.Int,x10.lang.Int)">copy</a>, <a href="../../../x10/matrix/comm/ArrayRemoteCopy.html#mpiCopy(x10.matrix.sparse.CompressArray,x10.lang.Int,x10.lang.PlaceLocalHandle[x10.matrix.sparse.CompressArray],x10.lang.Int,x10.lang.Int,x10.lang.Int)">mpiCopy</a>, <a href="../../../x10/matrix/comm/ArrayRemoteCopy.html#x10Copy(x10.matrix.sparse.CompressArray,x10.lang.Int,x10.lang.PlaceLocalHandle[x10.matrix.sparse.CompressArray],x10.lang.Int,x10.lang.Int,x10.lang.Int)">x10Copy</a>, <a href="../../../x10/matrix/comm/ArrayRemoteCopy.html#copy(x10.lang.PlaceLocalHandle[x10.matrix.sparse.CompressArray],x10.lang.Int,x10.lang.Int,x10.matrix.sparse.CompressArray,x10.lang.Int,x10.lang.Int)">copy</a>, <a href="../../../x10/matrix/comm/ArrayRemoteCopy.html#mpiCopy(x10.lang.PlaceLocalHandle[x10.matrix.sparse.CompressArray],x10.lang.Int,x10.lang.Int,x10.matrix.sparse.CompressArray,x10.lang.Int,x10.lang.Int)">mpiCopy</a>, <a href="../../../x10/matrix/comm/ArrayRemoteCopy.html#x10Copy(x10.lang.PlaceLocalHandle[x10.matrix.sparse.CompressArray],x10.lang.Int,x10.lang.Int,x10.matrix.sparse.CompressArray,x10.lang.Int,x10.lang.Int)">x10Copy</a>, <a href="../../../x10/matrix/comm/ArrayRemoteCopy.html#x10$matrix$comm$ArrayRemoteCopy$$this$x10$matrix$comm$ArrayRemoteCopy()">x10$matrix$comm$ArrayRemoteCopy$$this$x10$matrix$comm$ArrayRemoteCopy</a></code></li>
 </ul>
 </li>
 </ul>
@@ -237,71 +237,71 @@ in PlaceLocalHandle and DistArray at all places.</div>
 <!--   -->
 </a>
 <h3>Method Detail</h3>
-<a name="scatter(x10.array.Array[x10.array.Array[x10.lang.Double]],x10.lang.PlaceLocalHandle[x10.array.Array[x10.lang.Double]])">
+<a name="scatter(x10.regionarray.Array[x10.regionarray.Array[x10.lang.Double]],x10.lang.PlaceLocalHandle[x10.regionarray.Array[x10.lang.Double]])">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
 <h4>scatter</h4>
-<pre>public static&nbsp;void&nbsp;scatter(x10.array.Array&lt;x10.array.Array&lt;x10.lang.Double&gt;&gt;&nbsp;src,
-           x10.lang.PlaceLocalHandle&lt;x10.array.Array&lt;x10.lang.Double&gt;&gt;&nbsp;dst)</pre>
-<div class="block"><B>Declaration:</B> <TT>scatter(src:x10.array.Array[x10.array.Array[x10.lang.Double]{self.rank==1}]{self.rank==1},dst:x10.lang.PlaceLocalHandle[x10.array.Array[x10.lang.Double]{self.rank==1, self.zeroBased==true, self.rect==true, self.rail==true}]): void.</TT><PRE>
+<pre>public static&nbsp;void&nbsp;scatter(x10.regionarray.Array&lt;x10.regionarray.Array&lt;x10.lang.Double&gt;&gt;&nbsp;src,
+           x10.lang.PlaceLocalHandle&lt;x10.regionarray.Array&lt;x10.lang.Double&gt;&gt;&nbsp;dst)</pre>
+<div class="block"><B>Declaration:</B> <TT>scatter(src:x10.regionarray.Array[x10.regionarray.Array[x10.lang.Double]{self.rank==1}]{self.rank==1},dst:x10.lang.PlaceLocalHandle[x10.regionarray.Array[x10.lang.Double]{self.rank==1, self.zeroBased==true, self.rect==true, self.rail==true}]): void.</TT><PRE>
 </PRE>Scatter data from arrays at here to arrays in all places.</div>
 <dl><dt><span class="strong">Parameters:</span></dt><dd><code>src</code> - source arrays.</dd><dd><code>dst</code> - target distributed arrays</dd></dl>
 </li>
 </ul>
-<a name="scatter(x10.array.Array[x10.lang.Double],x10.lang.PlaceLocalHandle[x10.array.Array[x10.lang.Double]],x10.array.Array[x10.lang.Int])">
+<a name="scatter(x10.regionarray.Array[x10.lang.Double],x10.lang.PlaceLocalHandle[x10.regionarray.Array[x10.lang.Double]],x10.regionarray.Array[x10.lang.Int])">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
 <h4>scatter</h4>
-<pre>public static&nbsp;void&nbsp;scatter(x10.array.Array&lt;x10.lang.Double&gt;&nbsp;src,
-           x10.lang.PlaceLocalHandle&lt;x10.array.Array&lt;x10.lang.Double&gt;&gt;&nbsp;dst,
-           x10.array.Array&lt;x10.lang.Int&gt;&nbsp;gp)</pre>
-<div class="block"><B>Declaration:</B> <TT>scatter(src:x10.array.Array[x10.lang.Double]{self.rank==1},dst:x10.lang.PlaceLocalHandle[x10.array.Array[x10.lang.Double]{self.rank==1, self.zeroBased==true, self.rect==true, self.rail==true}],gp:x10.array.Array[x10.lang.Int]{self.rank==1}): void.</TT><PRE>
+<pre>public static&nbsp;void&nbsp;scatter(x10.regionarray.Array&lt;x10.lang.Double&gt;&nbsp;src,
+           x10.lang.PlaceLocalHandle&lt;x10.regionarray.Array&lt;x10.lang.Double&gt;&gt;&nbsp;dst,
+           x10.regionarray.Array&lt;x10.lang.Int&gt;&nbsp;gp)</pre>
+<div class="block"><B>Declaration:</B> <TT>scatter(src:x10.regionarray.Array[x10.lang.Double]{self.rank==1},dst:x10.lang.PlaceLocalHandle[x10.regionarray.Array[x10.lang.Double]{self.rank==1, self.zeroBased==true, self.rect==true, self.rail==true}],gp:x10.regionarray.Array[x10.lang.Int]{self.rank==1}): void.</TT><PRE>
 </PRE>Scatter single-row partitioning blocks from here to all places</div>
 </li>
 </ul>
-<a name="mpiScatter(x10.array.Array[x10.lang.Double],x10.lang.PlaceLocalHandle[x10.array.Array[x10.lang.Double]],x10.array.Array[x10.lang.Int])">
+<a name="mpiScatter(x10.regionarray.Array[x10.lang.Double],x10.lang.PlaceLocalHandle[x10.regionarray.Array[x10.lang.Double]],x10.regionarray.Array[x10.lang.Int])">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
 <h4>mpiScatter</h4>
-<pre>public static&nbsp;void&nbsp;mpiScatter(x10.array.Array&lt;x10.lang.Double&gt;&nbsp;src,
-              x10.lang.PlaceLocalHandle&lt;x10.array.Array&lt;x10.lang.Double&gt;&gt;&nbsp;dst,
-              x10.array.Array&lt;x10.lang.Int&gt;&nbsp;szlist)</pre>
-<div class="block"><B>Declaration:</B> <TT>mpiScatter(src:x10.array.Array[x10.lang.Double]{self.rank==1},dst:x10.lang.PlaceLocalHandle[x10.array.Array[x10.lang.Double]{self.rank==1, self.zeroBased==true, self.rect==true, self.rail==true}],szlist:x10.array.Array[x10.lang.Int]{self.rank==1}): void.</TT><PRE>
+<pre>public static&nbsp;void&nbsp;mpiScatter(x10.regionarray.Array&lt;x10.lang.Double&gt;&nbsp;src,
+              x10.lang.PlaceLocalHandle&lt;x10.regionarray.Array&lt;x10.lang.Double&gt;&gt;&nbsp;dst,
+              x10.regionarray.Array&lt;x10.lang.Int&gt;&nbsp;szlist)</pre>
+<div class="block"><B>Declaration:</B> <TT>mpiScatter(src:x10.regionarray.Array[x10.lang.Double]{self.rank==1},dst:x10.lang.PlaceLocalHandle[x10.regionarray.Array[x10.lang.Double]{self.rank==1, self.zeroBased==true, self.rect==true, self.rail==true}],szlist:x10.regionarray.Array[x10.lang.Int]{self.rank==1}): void.</TT><PRE>
 </PRE>Scatter data from array at here to all places
 by calling mpi scatter routine.</div>
 <dl><dt><span class="strong">Parameters:</span></dt><dd><code>src</code> - source data array</dd><dd><code>dst</code> - target distributed array</dd><dd><code>gp</code> - size list, or partitioning of array for scattering</dd></dl>
 </li>
 </ul>
-<a name="x10Scatter(x10.array.Array[x10.lang.Double],x10.lang.PlaceLocalHandle[x10.array.Array[x10.lang.Double]],x10.array.Array[x10.lang.Int])">
+<a name="x10Scatter(x10.regionarray.Array[x10.lang.Double],x10.lang.PlaceLocalHandle[x10.regionarray.Array[x10.lang.Double]],x10.regionarray.Array[x10.lang.Int])">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
 <h4>x10Scatter</h4>
-<pre>public static&nbsp;void&nbsp;x10Scatter(x10.array.Array&lt;x10.lang.Double&gt;&nbsp;src,
-              x10.lang.PlaceLocalHandle&lt;x10.array.Array&lt;x10.lang.Double&gt;&gt;&nbsp;dst,
-              x10.array.Array&lt;x10.lang.Int&gt;&nbsp;szlist)</pre>
-<div class="block"><B>Declaration:</B> <TT>x10Scatter(src:x10.array.Array[x10.lang.Double]{self.rank==1},dst:x10.lang.PlaceLocalHandle[x10.array.Array[x10.lang.Double]{self.rank==1, self.zeroBased==true, self.rect==true, self.rail==true}],szlist:x10.array.Array[x10.lang.Int]{self.rank==1}): void.</TT><PRE>
+<pre>public static&nbsp;void&nbsp;x10Scatter(x10.regionarray.Array&lt;x10.lang.Double&gt;&nbsp;src,
+              x10.lang.PlaceLocalHandle&lt;x10.regionarray.Array&lt;x10.lang.Double&gt;&gt;&nbsp;dst,
+              x10.regionarray.Array&lt;x10.lang.Int&gt;&nbsp;szlist)</pre>
+<div class="block"><B>Declaration:</B> <TT>x10Scatter(src:x10.regionarray.Array[x10.lang.Double]{self.rank==1},dst:x10.lang.PlaceLocalHandle[x10.regionarray.Array[x10.lang.Double]{self.rank==1, self.zeroBased==true, self.rect==true, self.rail==true}],szlist:x10.regionarray.Array[x10.lang.Int]{self.rank==1}): void.</TT><PRE>
 </PRE>Copy array data from here to distributed array in all places</div>
 <dl><dt><span class="strong">Parameters:</span></dt><dd><code>src</code> - source array</dd><dd><code>dst</code> - target distributed array</dd><dd><code>szlist</code> - size list</dd></dl>
 </li>
 </ul>
-<a name="verify(x10.array.Array[x10.lang.Double],x10.lang.PlaceLocalHandle[x10.array.Array[x10.lang.Double]],x10.array.Array[x10.lang.Int])">
+<a name="verify(x10.regionarray.Array[x10.lang.Double],x10.lang.PlaceLocalHandle[x10.regionarray.Array[x10.lang.Double]],x10.regionarray.Array[x10.lang.Int])">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
 <h4>verify</h4>
-<pre>public static&nbsp;x10.lang.Boolean&nbsp;verify(x10.array.Array&lt;x10.lang.Double&gt;&nbsp;src,
-                      x10.lang.PlaceLocalHandle&lt;x10.array.Array&lt;x10.lang.Double&gt;&gt;&nbsp;dstplh,
-                      x10.array.Array&lt;x10.lang.Int&gt;&nbsp;szlist)</pre>
-<div class="block"><B>Declaration:</B> <TT>verify(src:x10.array.Array[x10.lang.Double]{self.rank==1},dstplh:x10.lang.PlaceLocalHandle[x10.array.Array[x10.lang.Double]{self.rank==1, self.zeroBased==true, self.rect==true, self.rail==true}],szlist:x10.array.Array[x10.lang.Int]{self.rank==1}): x10.lang.Boolean.</TT><PRE>
+<pre>public static&nbsp;x10.lang.Boolean&nbsp;verify(x10.regionarray.Array&lt;x10.lang.Double&gt;&nbsp;src,
+                      x10.lang.PlaceLocalHandle&lt;x10.regionarray.Array&lt;x10.lang.Double&gt;&gt;&nbsp;dstplh,
+                      x10.regionarray.Array&lt;x10.lang.Int&gt;&nbsp;szlist)</pre>
+<div class="block"><B>Declaration:</B> <TT>verify(src:x10.regionarray.Array[x10.lang.Double]{self.rank==1},dstplh:x10.lang.PlaceLocalHandle[x10.regionarray.Array[x10.lang.Double]{self.rank==1, self.zeroBased==true, self.rect==true, self.rail==true}],szlist:x10.regionarray.Array[x10.lang.Int]{self.rank==1}): x10.lang.Boolean.</TT><PRE>
 </PRE></div>
 </li>
 </ul>

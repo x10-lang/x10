@@ -10,7 +10,7 @@
  */
 
 import harness.x10Test;
-import x10.array.*;
+import x10.regionarray.*;
 
 /**
  * Tests upper and lower triangular regions.
@@ -23,10 +23,10 @@ public class RegionTriangular extends x10Test {
 		val Universe: Region = Region.make(0..7, 0..7);
 		var upperT: Region = Region.makeUpperTriangular(8);
 		pr("upperT", upperT);
-		for (val [i,j]: Point in Universe) chk(iff(i <= j, upperT.contains([i, j]))); // ERR: Warning: Expression 'Universe' was cast to type x10.array.Region{self==Universe, Universe.x10.array.Region#rank==2}.
+		for (val [i,j]: Point in Universe) chk(iff(i <= j, upperT.contains([i, j]))); // ERR: Warning: Expression 'Universe' was cast to type x10.regionarray.Region{self==Universe, Universe.x10.regionarray.Region#rank==2}.
 		var lowerT: Region = Region.makeLowerTriangular(8);
 		pr("lowerT", lowerT);
-		for (val [i,j]: Point in Universe) chk(iff(i >= j, lowerT.contains([i, j]))); // ERR: Warning: Expression 'Universe' was cast to type x10.array.Region{self==Universe, Universe.x10.array.Region#rank==2}.
+		for (val [i,j]: Point in Universe) chk(iff(i >= j, lowerT.contains([i, j]))); // ERR: Warning: Expression 'Universe' was cast to type x10.regionarray.Region{self==Universe, Universe.x10.regionarray.Region#rank==2}.
 		return true;
 	}
 

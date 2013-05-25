@@ -144,481 +144,481 @@ run command "make help" at the root directory of GML library.</div>
 </tr>
 <tr class="altColor">
 <td class="colFirst"><code>static x10.lang.Int</code></td>
-<td class="colLast"><code><strong><a href="../../../x10/matrix/comm/MatrixRemoteCopy.html#copyTo(x10.array.DistArray[x10.matrix.DenseMatrix],x10.lang.Int)">copyTo</a></strong>(x10.array.DistArray&lt;<a href="../../../x10/matrix/DenseMatrix.html" title="class in x10.matrix">DenseMatrix</a>&gt;&nbsp;dmlist,
+<td class="colLast"><code><strong><a href="../../../x10/matrix/comm/MatrixRemoteCopy.html#copyTo(x10.regionarray.DistArray[x10.matrix.DenseMatrix],x10.lang.Int)">copyTo</a></strong>(x10.regionarray.DistArray&lt;<a href="../../../x10/matrix/DenseMatrix.html" title="class in x10.matrix">DenseMatrix</a>&gt;&nbsp;dmlist,
       x10.lang.Int&nbsp;dstpid)</code>
-<div class="block"><B>Declaration:</B> <TT>copyTo(dmlist:x10.array.DistArray[x10.matrix.DenseMatrix]{self.dist.region.rank==1},dstpid:x10.lang.Int): x10.lang.Int.</TT>
+<div class="block"><B>Declaration:</B> <TT>copyTo(dmlist:x10.regionarray.DistArray[x10.matrix.DenseMatrix]{self.dist.region.rank==1},dstpid:x10.lang.Int): x10.lang.Int.</TT>
 Copy whole dense matrix from here to the remote place via DistArray of dense matrices.</div>
 </td>
 </tr>
 <tr class="rowColor">
 <td class="colFirst"><code>static x10.lang.Int</code></td>
-<td class="colLast"><code><strong><a href="../../../x10/matrix/comm/MatrixRemoteCopy.html#copyFrom(x10.array.DistArray[x10.matrix.DenseMatrix],x10.lang.Int)">copyFrom</a></strong>(x10.array.DistArray&lt;<a href="../../../x10/matrix/DenseMatrix.html" title="class in x10.matrix">DenseMatrix</a>&gt;&nbsp;dmlist,
+<td class="colLast"><code><strong><a href="../../../x10/matrix/comm/MatrixRemoteCopy.html#copyFrom(x10.regionarray.DistArray[x10.matrix.DenseMatrix],x10.lang.Int)">copyFrom</a></strong>(x10.regionarray.DistArray&lt;<a href="../../../x10/matrix/DenseMatrix.html" title="class in x10.matrix">DenseMatrix</a>&gt;&nbsp;dmlist,
         x10.lang.Int&nbsp;srcpid)</code>
-<div class="block"><B>Declaration:</B> <TT>copyFrom(dmlist:x10.array.DistArray[x10.matrix.DenseMatrix]{self.dist.region.rank==1},srcpid:x10.lang.Int): x10.lang.Int.</TT>
+<div class="block"><B>Declaration:</B> <TT>copyFrom(dmlist:x10.regionarray.DistArray[x10.matrix.DenseMatrix]{self.dist.region.rank==1},srcpid:x10.lang.Int): x10.lang.Int.</TT>
 Copy whole dense matrix from remote place to here</div>
 </td>
 </tr>
 <tr class="altColor">
 <td class="colFirst"><code>static x10.lang.Int</code></td>
-<td class="colLast"><code><strong><a href="../../../x10/matrix/comm/MatrixRemoteCopy.html#copy(x10.matrix.DenseMatrix,x10.lang.Int,x10.array.DistArray[x10.matrix.DenseMatrix],x10.lang.Int,x10.lang.Int,x10.lang.Int)">copy</a></strong>(<a href="../../../x10/matrix/DenseMatrix.html" title="class in x10.matrix">DenseMatrix</a>&nbsp;srcden,
+<td class="colLast"><code><strong><a href="../../../x10/matrix/comm/MatrixRemoteCopy.html#copy(x10.matrix.DenseMatrix,x10.lang.Int,x10.regionarray.DistArray[x10.matrix.DenseMatrix],x10.lang.Int,x10.lang.Int,x10.lang.Int)">copy</a></strong>(<a href="../../../x10/matrix/DenseMatrix.html" title="class in x10.matrix">DenseMatrix</a>&nbsp;srcden,
     x10.lang.Int&nbsp;srcColOff,
-    x10.array.DistArray&lt;<a href="../../../x10/matrix/DenseMatrix.html" title="class in x10.matrix">DenseMatrix</a>&gt;&nbsp;dmlist,
+    x10.regionarray.DistArray&lt;<a href="../../../x10/matrix/DenseMatrix.html" title="class in x10.matrix">DenseMatrix</a>&gt;&nbsp;dmlist,
     x10.lang.Int&nbsp;dstpid,
     x10.lang.Int&nbsp;dstColOff,
     x10.lang.Int&nbsp;colCnt)</code>
-<div class="block"><B>Declaration:</B> <TT>copy(srcden:x10.matrix.DenseMatrix,srcColOff:x10.lang.Int,dmlist:x10.array.DistArray[x10.matrix.DenseMatrix]{self.dist.region.rank==1},dstpid:x10.lang.Int,dstColOff:x10.lang.Int,colCnt:x10.lang.Int): x10.lang.Int.</TT>
+<div class="block"><B>Declaration:</B> <TT>copy(srcden:x10.matrix.DenseMatrix,srcColOff:x10.lang.Int,dmlist:x10.regionarray.DistArray[x10.matrix.DenseMatrix]{self.dist.region.rank==1},dstpid:x10.lang.Int,dstColOff:x10.lang.Int,colCnt:x10.lang.Int): x10.lang.Int.</TT>
 Copy specified columns from source matrix at here to the remote
 place via DistArray of dense matrix.</div>
 </td>
 </tr>
 <tr class="rowColor">
 <td class="colFirst"><code>protected static x10.lang.Int</code></td>
-<td class="colLast"><code><strong><a href="../../../x10/matrix/comm/MatrixRemoteCopy.html#mpiCopy(x10.matrix.DenseMatrix,x10.lang.Int,x10.array.DistArray[x10.matrix.DenseMatrix],x10.lang.Int,x10.lang.Int,x10.lang.Int)">mpiCopy</a></strong>(<a href="../../../x10/matrix/DenseMatrix.html" title="class in x10.matrix">DenseMatrix</a>&nbsp;srcden,
+<td class="colLast"><code><strong><a href="../../../x10/matrix/comm/MatrixRemoteCopy.html#mpiCopy(x10.matrix.DenseMatrix,x10.lang.Int,x10.regionarray.DistArray[x10.matrix.DenseMatrix],x10.lang.Int,x10.lang.Int,x10.lang.Int)">mpiCopy</a></strong>(<a href="../../../x10/matrix/DenseMatrix.html" title="class in x10.matrix">DenseMatrix</a>&nbsp;srcden,
        x10.lang.Int&nbsp;srcColOff,
-       x10.array.DistArray&lt;<a href="../../../x10/matrix/DenseMatrix.html" title="class in x10.matrix">DenseMatrix</a>&gt;&nbsp;dmlist,
+       x10.regionarray.DistArray&lt;<a href="../../../x10/matrix/DenseMatrix.html" title="class in x10.matrix">DenseMatrix</a>&gt;&nbsp;dmlist,
        x10.lang.Int&nbsp;dstpid,
        x10.lang.Int&nbsp;dstColOff,
        x10.lang.Int&nbsp;colCnt)</code>
-<div class="block"><B>Declaration:</B> <TT>mpiCopy(srcden:x10.matrix.DenseMatrix,srcColOff:x10.lang.Int,dmlist:x10.array.DistArray[x10.matrix.DenseMatrix]{self.dist.region.rank==1},dstpid:x10.lang.Int,dstColOff:x10.lang.Int,colCnt:x10.lang.Int): x10.lang.Int.</TT>
+<div class="block"><B>Declaration:</B> <TT>mpiCopy(srcden:x10.matrix.DenseMatrix,srcColOff:x10.lang.Int,dmlist:x10.regionarray.DistArray[x10.matrix.DenseMatrix]{self.dist.region.rank==1},dstpid:x10.lang.Int,dstColOff:x10.lang.Int,colCnt:x10.lang.Int): x10.lang.Int.</TT>
 Using MPI routine to copy multiple columns from source dense matrix at here
 to the remote dense matrix of duplicated dense matrix at the specified place.</div>
 </td>
 </tr>
 <tr class="altColor">
 <td class="colFirst"><code>protected static x10.lang.Int</code></td>
-<td class="colLast"><code><strong><a href="../../../x10/matrix/comm/MatrixRemoteCopy.html#x10Copy(x10.matrix.DenseMatrix,x10.lang.Int,x10.array.DistArray[x10.matrix.DenseMatrix],x10.lang.Int,x10.lang.Int,x10.lang.Int)">x10Copy</a></strong>(<a href="../../../x10/matrix/DenseMatrix.html" title="class in x10.matrix">DenseMatrix</a>&nbsp;srcden,
+<td class="colLast"><code><strong><a href="../../../x10/matrix/comm/MatrixRemoteCopy.html#x10Copy(x10.matrix.DenseMatrix,x10.lang.Int,x10.regionarray.DistArray[x10.matrix.DenseMatrix],x10.lang.Int,x10.lang.Int,x10.lang.Int)">x10Copy</a></strong>(<a href="../../../x10/matrix/DenseMatrix.html" title="class in x10.matrix">DenseMatrix</a>&nbsp;srcden,
        x10.lang.Int&nbsp;srcColOff,
-       x10.array.DistArray&lt;<a href="../../../x10/matrix/DenseMatrix.html" title="class in x10.matrix">DenseMatrix</a>&gt;&nbsp;dmlist,
+       x10.regionarray.DistArray&lt;<a href="../../../x10/matrix/DenseMatrix.html" title="class in x10.matrix">DenseMatrix</a>&gt;&nbsp;dmlist,
        x10.lang.Int&nbsp;dstpid,
        x10.lang.Int&nbsp;dstColOff,
        x10.lang.Int&nbsp;colCnt)</code>
-<div class="block"><B>Declaration:</B> <TT>x10Copy(srcden:x10.matrix.DenseMatrix,srcColOff:x10.lang.Int,dmlist:x10.array.DistArray[x10.matrix.DenseMatrix]{self.dist.region.rank==1},dstpid:x10.lang.Int,dstColOff:x10.lang.Int,colCnt:x10.lang.Int): x10.lang.Int.</TT>
+<div class="block"><B>Declaration:</B> <TT>x10Copy(srcden:x10.matrix.DenseMatrix,srcColOff:x10.lang.Int,dmlist:x10.regionarray.DistArray[x10.matrix.DenseMatrix]{self.dist.region.rank==1},dstpid:x10.lang.Int,dstColOff:x10.lang.Int,colCnt:x10.lang.Int): x10.lang.Int.</TT>
 Copy source dense matrix from here to the remote dense matrix of
 duplicated dense matrix at a remote place using Array remote copy.</div>
 </td>
 </tr>
 <tr class="rowColor">
 <td class="colFirst"><code>static x10.lang.Int</code></td>
-<td class="colLast"><code><strong><a href="../../../x10/matrix/comm/MatrixRemoteCopy.html#copy(x10.array.DistArray[x10.matrix.DenseMatrix],x10.lang.Int,x10.lang.Int,x10.matrix.DenseMatrix,x10.lang.Int,x10.lang.Int)">copy</a></strong>(x10.array.DistArray&lt;<a href="../../../x10/matrix/DenseMatrix.html" title="class in x10.matrix">DenseMatrix</a>&gt;&nbsp;dmlist,
+<td class="colLast"><code><strong><a href="../../../x10/matrix/comm/MatrixRemoteCopy.html#copy(x10.regionarray.DistArray[x10.matrix.DenseMatrix],x10.lang.Int,x10.lang.Int,x10.matrix.DenseMatrix,x10.lang.Int,x10.lang.Int)">copy</a></strong>(x10.regionarray.DistArray&lt;<a href="../../../x10/matrix/DenseMatrix.html" title="class in x10.matrix">DenseMatrix</a>&gt;&nbsp;dmlist,
     x10.lang.Int&nbsp;srcpid,
     x10.lang.Int&nbsp;srcColOff,
     <a href="../../../x10/matrix/DenseMatrix.html" title="class in x10.matrix">DenseMatrix</a>&nbsp;dstden,
     x10.lang.Int&nbsp;dstColOff,
     x10.lang.Int&nbsp;colCnt)</code>
-<div class="block"><B>Declaration:</B> <TT>copy(dmlist:x10.array.DistArray[x10.matrix.DenseMatrix]{self.dist.region.rank==1},srcpid:x10.lang.Int,srcColOff:x10.lang.Int,dstden:x10.matrix.DenseMatrix,dstColOff:x10.lang.Int,colCnt:x10.lang.Int): x10.lang.Int.</TT>
+<div class="block"><B>Declaration:</B> <TT>copy(dmlist:x10.regionarray.DistArray[x10.matrix.DenseMatrix]{self.dist.region.rank==1},srcpid:x10.lang.Int,srcColOff:x10.lang.Int,dstden:x10.matrix.DenseMatrix,dstColOff:x10.lang.Int,colCnt:x10.lang.Int): x10.lang.Int.</TT>
 Copy multiple columns of the dense matrix in the specified place to
 here</div>
 </td>
 </tr>
 <tr class="altColor">
 <td class="colFirst"><code>static x10.lang.Int</code></td>
-<td class="colLast"><code><strong><a href="../../../x10/matrix/comm/MatrixRemoteCopy.html#x10Copy(x10.array.DistArray[x10.matrix.DenseMatrix],x10.lang.Int,x10.lang.Int,x10.matrix.DenseMatrix,x10.lang.Int,x10.lang.Int)">x10Copy</a></strong>(x10.array.DistArray&lt;<a href="../../../x10/matrix/DenseMatrix.html" title="class in x10.matrix">DenseMatrix</a>&gt;&nbsp;dmlist,
+<td class="colLast"><code><strong><a href="../../../x10/matrix/comm/MatrixRemoteCopy.html#x10Copy(x10.regionarray.DistArray[x10.matrix.DenseMatrix],x10.lang.Int,x10.lang.Int,x10.matrix.DenseMatrix,x10.lang.Int,x10.lang.Int)">x10Copy</a></strong>(x10.regionarray.DistArray&lt;<a href="../../../x10/matrix/DenseMatrix.html" title="class in x10.matrix">DenseMatrix</a>&gt;&nbsp;dmlist,
        x10.lang.Int&nbsp;srcpid,
        x10.lang.Int&nbsp;srcColOff,
        <a href="../../../x10/matrix/DenseMatrix.html" title="class in x10.matrix">DenseMatrix</a>&nbsp;dstden,
        x10.lang.Int&nbsp;dstColOff,
        x10.lang.Int&nbsp;colCnt)</code>
-<div class="block"><B>Declaration:</B> <TT>x10Copy(dmlist:x10.array.DistArray[x10.matrix.DenseMatrix]{self.dist.region.rank==1},srcpid:x10.lang.Int,srcColOff:x10.lang.Int,dstden:x10.matrix.DenseMatrix,dstColOff:x10.lang.Int,colCnt:x10.lang.Int): x10.lang.Int.</TT>
+<div class="block"><B>Declaration:</B> <TT>x10Copy(dmlist:x10.regionarray.DistArray[x10.matrix.DenseMatrix]{self.dist.region.rank==1},srcpid:x10.lang.Int,srcColOff:x10.lang.Int,dstden:x10.matrix.DenseMatrix,dstColOff:x10.lang.Int,colCnt:x10.lang.Int): x10.lang.Int.</TT>
 Copy remote dense matrix from specified place to here, using array remote copy.</div>
 </td>
 </tr>
 <tr class="rowColor">
 <td class="colFirst"><code>protected static x10.lang.Int</code></td>
-<td class="colLast"><code><strong><a href="../../../x10/matrix/comm/MatrixRemoteCopy.html#mpiCopy(x10.array.DistArray[x10.matrix.DenseMatrix],x10.lang.Int,x10.lang.Int,x10.matrix.DenseMatrix,x10.lang.Int,x10.lang.Int)">mpiCopy</a></strong>(x10.array.DistArray&lt;<a href="../../../x10/matrix/DenseMatrix.html" title="class in x10.matrix">DenseMatrix</a>&gt;&nbsp;dmlist,
+<td class="colLast"><code><strong><a href="../../../x10/matrix/comm/MatrixRemoteCopy.html#mpiCopy(x10.regionarray.DistArray[x10.matrix.DenseMatrix],x10.lang.Int,x10.lang.Int,x10.matrix.DenseMatrix,x10.lang.Int,x10.lang.Int)">mpiCopy</a></strong>(x10.regionarray.DistArray&lt;<a href="../../../x10/matrix/DenseMatrix.html" title="class in x10.matrix">DenseMatrix</a>&gt;&nbsp;dmlist,
        x10.lang.Int&nbsp;srcpid,
        x10.lang.Int&nbsp;srcColOff,
        <a href="../../../x10/matrix/DenseMatrix.html" title="class in x10.matrix">DenseMatrix</a>&nbsp;dstden,
        x10.lang.Int&nbsp;dstColOff,
        x10.lang.Int&nbsp;colCnt)</code>
-<div class="block"><B>Declaration:</B> <TT>mpiCopy(dmlist:x10.array.DistArray[x10.matrix.DenseMatrix]{self.dist.region.rank==1},srcpid:x10.lang.Int,srcColOff:x10.lang.Int,dstden:x10.matrix.DenseMatrix,dstColOff:x10.lang.Int,colCnt:x10.lang.Int): x10.lang.Int.</TT>
+<div class="block"><B>Declaration:</B> <TT>mpiCopy(dmlist:x10.regionarray.DistArray[x10.matrix.DenseMatrix]{self.dist.region.rank==1},srcpid:x10.lang.Int,srcColOff:x10.lang.Int,dstden:x10.matrix.DenseMatrix,dstColOff:x10.lang.Int,colCnt:x10.lang.Int): x10.lang.Int.</TT>
 Using MPI routine to copy multiple columns of dense matrix
 from the specified place to here</div>
 </td>
 </tr>
 <tr class="altColor">
 <td class="colFirst"><code>static x10.lang.Int</code></td>
-<td class="colLast"><code><strong><a href="../../../x10/matrix/comm/MatrixRemoteCopy.html#copy(x10.matrix.DenseMatrix,x10.lang.Int,x10.array.DistArray[x10.matrix.block.DenseBlock],x10.lang.Int,x10.lang.Int,x10.lang.Int)">copy</a></strong>(<a href="../../../x10/matrix/DenseMatrix.html" title="class in x10.matrix">DenseMatrix</a>&nbsp;srcden,
+<td class="colLast"><code><strong><a href="../../../x10/matrix/comm/MatrixRemoteCopy.html#copy(x10.matrix.DenseMatrix,x10.lang.Int,x10.regionarray.DistArray[x10.matrix.block.DenseBlock],x10.lang.Int,x10.lang.Int,x10.lang.Int)">copy</a></strong>(<a href="../../../x10/matrix/DenseMatrix.html" title="class in x10.matrix">DenseMatrix</a>&nbsp;srcden,
     x10.lang.Int&nbsp;srcColOff,
-    x10.array.DistArray&lt;<a href="../../../x10/matrix/block/DenseBlock.html" title="class in x10.matrix.block">DenseBlock</a>&gt;&nbsp;dmlist,
+    x10.regionarray.DistArray&lt;<a href="../../../x10/matrix/block/DenseBlock.html" title="class in x10.matrix.block">DenseBlock</a>&gt;&nbsp;dmlist,
     x10.lang.Int&nbsp;dstpid,
     x10.lang.Int&nbsp;dstColOff,
     x10.lang.Int&nbsp;colCnt)</code>
-<div class="block"><B>Declaration:</B> <TT>copy(srcden:x10.matrix.DenseMatrix,srcColOff:x10.lang.Int,dmlist:x10.array.DistArray[x10.matrix.block.DenseBlock]{self.dist.region.rank==1},dstpid:x10.lang.Int,dstColOff:x10.lang.Int,colCnt:x10.lang.Int): x10.lang.Int.</TT>
+<div class="block"><B>Declaration:</B> <TT>copy(srcden:x10.matrix.DenseMatrix,srcColOff:x10.lang.Int,dmlist:x10.regionarray.DistArray[x10.matrix.block.DenseBlock]{self.dist.region.rank==1},dstpid:x10.lang.Int,dstColOff:x10.lang.Int,colCnt:x10.lang.Int): x10.lang.Int.</TT>
 Copy multiple columns from source dense matrix at here to the specified remote
 place in DistArray of dense matrix.</div>
 </td>
 </tr>
 <tr class="rowColor">
 <td class="colFirst"><code>protected static x10.lang.Int</code></td>
-<td class="colLast"><code><strong><a href="../../../x10/matrix/comm/MatrixRemoteCopy.html#mpiCopy(x10.matrix.DenseMatrix,x10.lang.Int,x10.array.DistArray[x10.matrix.block.DenseBlock],x10.lang.Int,x10.lang.Int,x10.lang.Int)">mpiCopy</a></strong>(<a href="../../../x10/matrix/DenseMatrix.html" title="class in x10.matrix">DenseMatrix</a>&nbsp;srcden,
+<td class="colLast"><code><strong><a href="../../../x10/matrix/comm/MatrixRemoteCopy.html#mpiCopy(x10.matrix.DenseMatrix,x10.lang.Int,x10.regionarray.DistArray[x10.matrix.block.DenseBlock],x10.lang.Int,x10.lang.Int,x10.lang.Int)">mpiCopy</a></strong>(<a href="../../../x10/matrix/DenseMatrix.html" title="class in x10.matrix">DenseMatrix</a>&nbsp;srcden,
        x10.lang.Int&nbsp;srcColOff,
-       x10.array.DistArray&lt;<a href="../../../x10/matrix/block/DenseBlock.html" title="class in x10.matrix.block">DenseBlock</a>&gt;&nbsp;dmlist,
+       x10.regionarray.DistArray&lt;<a href="../../../x10/matrix/block/DenseBlock.html" title="class in x10.matrix.block">DenseBlock</a>&gt;&nbsp;dmlist,
        x10.lang.Int&nbsp;dstbid,
        x10.lang.Int&nbsp;dstColOff,
        x10.lang.Int&nbsp;colCnt)</code>
-<div class="block"><B>Declaration:</B> <TT>mpiCopy(srcden:x10.matrix.DenseMatrix,srcColOff:x10.lang.Int,dmlist:x10.array.DistArray[x10.matrix.block.DenseBlock]{self.dist.region.rank==1},dstbid:x10.lang.Int,dstColOff:x10.lang.Int,colCnt:x10.lang.Int): x10.lang.Int.</TT>
+<div class="block"><B>Declaration:</B> <TT>mpiCopy(srcden:x10.matrix.DenseMatrix,srcColOff:x10.lang.Int,dmlist:x10.regionarray.DistArray[x10.matrix.block.DenseBlock]{self.dist.region.rank==1},dstbid:x10.lang.Int,dstColOff:x10.lang.Int,colCnt:x10.lang.Int): x10.lang.Int.</TT>
 </div>
 </td>
 </tr>
 <tr class="altColor">
 <td class="colFirst"><code>protected static x10.lang.Int</code></td>
-<td class="colLast"><code><strong><a href="../../../x10/matrix/comm/MatrixRemoteCopy.html#x10Copy(x10.matrix.DenseMatrix,x10.lang.Int,x10.array.DistArray[x10.matrix.block.DenseBlock],x10.lang.Int,x10.lang.Int,x10.lang.Int)">x10Copy</a></strong>(<a href="../../../x10/matrix/DenseMatrix.html" title="class in x10.matrix">DenseMatrix</a>&nbsp;srcden,
+<td class="colLast"><code><strong><a href="../../../x10/matrix/comm/MatrixRemoteCopy.html#x10Copy(x10.matrix.DenseMatrix,x10.lang.Int,x10.regionarray.DistArray[x10.matrix.block.DenseBlock],x10.lang.Int,x10.lang.Int,x10.lang.Int)">x10Copy</a></strong>(<a href="../../../x10/matrix/DenseMatrix.html" title="class in x10.matrix">DenseMatrix</a>&nbsp;srcden,
        x10.lang.Int&nbsp;srcColOff,
-       x10.array.DistArray&lt;<a href="../../../x10/matrix/block/DenseBlock.html" title="class in x10.matrix.block">DenseBlock</a>&gt;&nbsp;dst,
+       x10.regionarray.DistArray&lt;<a href="../../../x10/matrix/block/DenseBlock.html" title="class in x10.matrix.block">DenseBlock</a>&gt;&nbsp;dst,
        x10.lang.Int&nbsp;dstbid,
        x10.lang.Int&nbsp;dstColOff,
        x10.lang.Int&nbsp;colCnt)</code>
-<div class="block"><B>Declaration:</B> <TT>x10Copy(srcden:x10.matrix.DenseMatrix,srcColOff:x10.lang.Int,dst:x10.array.DistArray[x10.matrix.block.DenseBlock]{self.dist.region.rank==1},dstbid:x10.lang.Int,dstColOff:x10.lang.Int,colCnt:x10.lang.Int): x10.lang.Int.</TT>
+<div class="block"><B>Declaration:</B> <TT>x10Copy(srcden:x10.matrix.DenseMatrix,srcColOff:x10.lang.Int,dst:x10.regionarray.DistArray[x10.matrix.block.DenseBlock]{self.dist.region.rank==1},dstbid:x10.lang.Int,dstColOff:x10.lang.Int,colCnt:x10.lang.Int): x10.lang.Int.</TT>
 </div>
 </td>
 </tr>
 <tr class="rowColor">
 <td class="colFirst"><code>static x10.lang.Int</code></td>
-<td class="colLast"><code><strong><a href="../../../x10/matrix/comm/MatrixRemoteCopy.html#copy(x10.array.DistArray[x10.matrix.block.DenseBlock],x10.lang.Int,x10.lang.Int,x10.matrix.DenseMatrix,x10.lang.Int,x10.lang.Int)">copy</a></strong>(x10.array.DistArray&lt;<a href="../../../x10/matrix/block/DenseBlock.html" title="class in x10.matrix.block">DenseBlock</a>&gt;&nbsp;dmlist,
+<td class="colLast"><code><strong><a href="../../../x10/matrix/comm/MatrixRemoteCopy.html#copy(x10.regionarray.DistArray[x10.matrix.block.DenseBlock],x10.lang.Int,x10.lang.Int,x10.matrix.DenseMatrix,x10.lang.Int,x10.lang.Int)">copy</a></strong>(x10.regionarray.DistArray&lt;<a href="../../../x10/matrix/block/DenseBlock.html" title="class in x10.matrix.block">DenseBlock</a>&gt;&nbsp;dmlist,
     x10.lang.Int&nbsp;srcpid,
     x10.lang.Int&nbsp;srcColOff,
     <a href="../../../x10/matrix/DenseMatrix.html" title="class in x10.matrix">DenseMatrix</a>&nbsp;dstden,
     x10.lang.Int&nbsp;dstColOff,
     x10.lang.Int&nbsp;colCnt)</code>
-<div class="block"><B>Declaration:</B> <TT>copy(dmlist:x10.array.DistArray[x10.matrix.block.DenseBlock]{self.dist.region.rank==1},srcpid:x10.lang.Int,srcColOff:x10.lang.Int,dstden:x10.matrix.DenseMatrix,dstColOff:x10.lang.Int,colCnt:x10.lang.Int): x10.lang.Int.</TT>
+<div class="block"><B>Declaration:</B> <TT>copy(dmlist:x10.regionarray.DistArray[x10.matrix.block.DenseBlock]{self.dist.region.rank==1},srcpid:x10.lang.Int,srcColOff:x10.lang.Int,dstden:x10.matrix.DenseMatrix,dstColOff:x10.lang.Int,colCnt:x10.lang.Int): x10.lang.Int.</TT>
 Copy multiple columns from source dense matrix at here to the specified remote
 place in DistArray of dense matrix.</div>
 </td>
 </tr>
 <tr class="altColor">
 <td class="colFirst"><code>protected static x10.lang.Int</code></td>
-<td class="colLast"><code><strong><a href="../../../x10/matrix/comm/MatrixRemoteCopy.html#mpiCopy(x10.array.DistArray[x10.matrix.block.DenseBlock],x10.lang.Int,x10.lang.Int,x10.matrix.DenseMatrix,x10.lang.Int,x10.lang.Int)">mpiCopy</a></strong>(x10.array.DistArray&lt;<a href="../../../x10/matrix/block/DenseBlock.html" title="class in x10.matrix.block">DenseBlock</a>&gt;&nbsp;src,
+<td class="colLast"><code><strong><a href="../../../x10/matrix/comm/MatrixRemoteCopy.html#mpiCopy(x10.regionarray.DistArray[x10.matrix.block.DenseBlock],x10.lang.Int,x10.lang.Int,x10.matrix.DenseMatrix,x10.lang.Int,x10.lang.Int)">mpiCopy</a></strong>(x10.regionarray.DistArray&lt;<a href="../../../x10/matrix/block/DenseBlock.html" title="class in x10.matrix.block">DenseBlock</a>&gt;&nbsp;src,
        x10.lang.Int&nbsp;srcbid,
        x10.lang.Int&nbsp;srcColOff,
        <a href="../../../x10/matrix/DenseMatrix.html" title="class in x10.matrix">DenseMatrix</a>&nbsp;dstden,
        x10.lang.Int&nbsp;dstColOff,
        x10.lang.Int&nbsp;colCnt)</code>
-<div class="block"><B>Declaration:</B> <TT>mpiCopy(src:x10.array.DistArray[x10.matrix.block.DenseBlock]{self.dist.region.rank==1},srcbid:x10.lang.Int,srcColOff:x10.lang.Int,dstden:x10.matrix.DenseMatrix,dstColOff:x10.lang.Int,colCnt:x10.lang.Int): x10.lang.Int.</TT>
+<div class="block"><B>Declaration:</B> <TT>mpiCopy(src:x10.regionarray.DistArray[x10.matrix.block.DenseBlock]{self.dist.region.rank==1},srcbid:x10.lang.Int,srcColOff:x10.lang.Int,dstden:x10.matrix.DenseMatrix,dstColOff:x10.lang.Int,colCnt:x10.lang.Int): x10.lang.Int.</TT>
 </div>
 </td>
 </tr>
 <tr class="rowColor">
 <td class="colFirst"><code>protected static x10.lang.Int</code></td>
-<td class="colLast"><code><strong><a href="../../../x10/matrix/comm/MatrixRemoteCopy.html#x10Copy(x10.array.DistArray[x10.matrix.block.DenseBlock],x10.lang.Int,x10.lang.Int,x10.matrix.DenseMatrix,x10.lang.Int,x10.lang.Int)">x10Copy</a></strong>(x10.array.DistArray&lt;<a href="../../../x10/matrix/block/DenseBlock.html" title="class in x10.matrix.block">DenseBlock</a>&gt;&nbsp;src,
+<td class="colLast"><code><strong><a href="../../../x10/matrix/comm/MatrixRemoteCopy.html#x10Copy(x10.regionarray.DistArray[x10.matrix.block.DenseBlock],x10.lang.Int,x10.lang.Int,x10.matrix.DenseMatrix,x10.lang.Int,x10.lang.Int)">x10Copy</a></strong>(x10.regionarray.DistArray&lt;<a href="../../../x10/matrix/block/DenseBlock.html" title="class in x10.matrix.block">DenseBlock</a>&gt;&nbsp;src,
        x10.lang.Int&nbsp;srcbid,
        x10.lang.Int&nbsp;srcColOff,
        <a href="../../../x10/matrix/DenseMatrix.html" title="class in x10.matrix">DenseMatrix</a>&nbsp;dstden,
        x10.lang.Int&nbsp;dstColOff,
        x10.lang.Int&nbsp;colCnt)</code>
-<div class="block"><B>Declaration:</B> <TT>x10Copy(src:x10.array.DistArray[x10.matrix.block.DenseBlock]{self.dist.region.rank==1},srcbid:x10.lang.Int,srcColOff:x10.lang.Int,dstden:x10.matrix.DenseMatrix,dstColOff:x10.lang.Int,colCnt:x10.lang.Int): x10.lang.Int.</TT>
+<div class="block"><B>Declaration:</B> <TT>x10Copy(src:x10.regionarray.DistArray[x10.matrix.block.DenseBlock]{self.dist.region.rank==1},srcbid:x10.lang.Int,srcColOff:x10.lang.Int,dstden:x10.matrix.DenseMatrix,dstColOff:x10.lang.Int,colCnt:x10.lang.Int): x10.lang.Int.</TT>
 </div>
 </td>
 </tr>
 <tr class="altColor">
 <td class="colFirst"><code>static x10.lang.Int</code></td>
-<td class="colLast"><code><strong><a href="../../../x10/matrix/comm/MatrixRemoteCopy.html#copyTo(x10.array.DistArray[x10.matrix.sparse.SparseCSC],x10.lang.Int)">copyTo</a></strong>(x10.array.DistArray&lt;<a href="../../../x10/matrix/sparse/SparseCSC.html" title="class in x10.matrix.sparse">SparseCSC</a>&gt;&nbsp;smlist,
+<td class="colLast"><code><strong><a href="../../../x10/matrix/comm/MatrixRemoteCopy.html#copyTo(x10.regionarray.DistArray[x10.matrix.sparse.SparseCSC],x10.lang.Int)">copyTo</a></strong>(x10.regionarray.DistArray&lt;<a href="../../../x10/matrix/sparse/SparseCSC.html" title="class in x10.matrix.sparse">SparseCSC</a>&gt;&nbsp;smlist,
       x10.lang.Int&nbsp;dstpid)</code>
-<div class="block"><B>Declaration:</B> <TT>copyTo(smlist:x10.array.DistArray[x10.matrix.sparse.SparseCSC]{self.dist.region.rank==1},dstpid:x10.lang.Int): x10.lang.Int.</TT>
+<div class="block"><B>Declaration:</B> <TT>copyTo(smlist:x10.regionarray.DistArray[x10.matrix.sparse.SparseCSC]{self.dist.region.rank==1},dstpid:x10.lang.Int): x10.lang.Int.</TT>
 Copy whole sparse matrix from here to remote place stored in DistArray</div>
 </td>
 </tr>
 <tr class="rowColor">
 <td class="colFirst"><code>static x10.lang.Int</code></td>
-<td class="colLast"><code><strong><a href="../../../x10/matrix/comm/MatrixRemoteCopy.html#copyFrom(x10.array.DistArray[x10.matrix.sparse.SparseCSC],x10.lang.Int)">copyFrom</a></strong>(x10.array.DistArray&lt;<a href="../../../x10/matrix/sparse/SparseCSC.html" title="class in x10.matrix.sparse">SparseCSC</a>&gt;&nbsp;smlist,
+<td class="colLast"><code><strong><a href="../../../x10/matrix/comm/MatrixRemoteCopy.html#copyFrom(x10.regionarray.DistArray[x10.matrix.sparse.SparseCSC],x10.lang.Int)">copyFrom</a></strong>(x10.regionarray.DistArray&lt;<a href="../../../x10/matrix/sparse/SparseCSC.html" title="class in x10.matrix.sparse">SparseCSC</a>&gt;&nbsp;smlist,
         x10.lang.Int&nbsp;srcpid)</code>
-<div class="block"><B>Declaration:</B> <TT>copyFrom(smlist:x10.array.DistArray[x10.matrix.sparse.SparseCSC]{self.dist.region.rank==1},srcpid:x10.lang.Int): x10.lang.Int.</TT>
+<div class="block"><B>Declaration:</B> <TT>copyFrom(smlist:x10.regionarray.DistArray[x10.matrix.sparse.SparseCSC]{self.dist.region.rank==1},srcpid:x10.lang.Int): x10.lang.Int.</TT>
 Copy whole sparseCSC matrix from remote place to here</div>
 </td>
 </tr>
 <tr class="altColor">
 <td class="colFirst"><code>static x10.lang.Int</code></td>
-<td class="colLast"><code><strong><a href="../../../x10/matrix/comm/MatrixRemoteCopy.html#copy(x10.matrix.sparse.SparseCSC,x10.lang.Int,x10.array.DistArray[x10.matrix.sparse.SparseCSC],x10.lang.Int,x10.lang.Int,x10.lang.Int)">copy</a></strong>(<a href="../../../x10/matrix/sparse/SparseCSC.html" title="class in x10.matrix.sparse">SparseCSC</a>&nbsp;srcspa,
+<td class="colLast"><code><strong><a href="../../../x10/matrix/comm/MatrixRemoteCopy.html#copy(x10.matrix.sparse.SparseCSC,x10.lang.Int,x10.regionarray.DistArray[x10.matrix.sparse.SparseCSC],x10.lang.Int,x10.lang.Int,x10.lang.Int)">copy</a></strong>(<a href="../../../x10/matrix/sparse/SparseCSC.html" title="class in x10.matrix.sparse">SparseCSC</a>&nbsp;srcspa,
     x10.lang.Int&nbsp;srcColOff,
-    x10.array.DistArray&lt;<a href="../../../x10/matrix/sparse/SparseCSC.html" title="class in x10.matrix.sparse">SparseCSC</a>&gt;&nbsp;smlist,
+    x10.regionarray.DistArray&lt;<a href="../../../x10/matrix/sparse/SparseCSC.html" title="class in x10.matrix.sparse">SparseCSC</a>&gt;&nbsp;smlist,
     x10.lang.Int&nbsp;dstpid,
     x10.lang.Int&nbsp;dstColOff,
     x10.lang.Int&nbsp;colCnt)</code>
-<div class="block"><B>Declaration:</B> <TT>copy(srcspa:x10.matrix.sparse.SparseCSC,srcColOff:x10.lang.Int,smlist:x10.array.DistArray[x10.matrix.sparse.SparseCSC]{self.dist.region.rank==1},dstpid:x10.lang.Int,dstColOff:x10.lang.Int,colCnt:x10.lang.Int): x10.lang.Int.</TT>
+<div class="block"><B>Declaration:</B> <TT>copy(srcspa:x10.matrix.sparse.SparseCSC,srcColOff:x10.lang.Int,smlist:x10.regionarray.DistArray[x10.matrix.sparse.SparseCSC]{self.dist.region.rank==1},dstpid:x10.lang.Int,dstColOff:x10.lang.Int,colCnt:x10.lang.Int): x10.lang.Int.</TT>
 Copy multiple columns from source sparse matrix at here to the specified remote
 place in DistArray.</div>
 </td>
 </tr>
 <tr class="rowColor">
 <td class="colFirst"><code>protected static x10.lang.Int</code></td>
-<td class="colLast"><code><strong><a href="../../../x10/matrix/comm/MatrixRemoteCopy.html#mpiCopy(x10.matrix.sparse.SparseCSC,x10.lang.Int,x10.array.DistArray[x10.matrix.sparse.SparseCSC],x10.lang.Int,x10.lang.Int,x10.lang.Int)">mpiCopy</a></strong>(<a href="../../../x10/matrix/sparse/SparseCSC.html" title="class in x10.matrix.sparse">SparseCSC</a>&nbsp;srcspa,
+<td class="colLast"><code><strong><a href="../../../x10/matrix/comm/MatrixRemoteCopy.html#mpiCopy(x10.matrix.sparse.SparseCSC,x10.lang.Int,x10.regionarray.DistArray[x10.matrix.sparse.SparseCSC],x10.lang.Int,x10.lang.Int,x10.lang.Int)">mpiCopy</a></strong>(<a href="../../../x10/matrix/sparse/SparseCSC.html" title="class in x10.matrix.sparse">SparseCSC</a>&nbsp;srcspa,
        x10.lang.Int&nbsp;srcColOff,
-       x10.array.DistArray&lt;<a href="../../../x10/matrix/sparse/SparseCSC.html" title="class in x10.matrix.sparse">SparseCSC</a>&gt;&nbsp;smlist,
+       x10.regionarray.DistArray&lt;<a href="../../../x10/matrix/sparse/SparseCSC.html" title="class in x10.matrix.sparse">SparseCSC</a>&gt;&nbsp;smlist,
        x10.lang.Int&nbsp;dstpid,
        x10.lang.Int&nbsp;dstColOff,
        x10.lang.Int&nbsp;colCnt)</code>
-<div class="block"><B>Declaration:</B> <TT>mpiCopy(srcspa:x10.matrix.sparse.SparseCSC,srcColOff:x10.lang.Int,smlist:x10.array.DistArray[x10.matrix.sparse.SparseCSC]{self.dist.region.rank==1},dstpid:x10.lang.Int,dstColOff:x10.lang.Int,colCnt:x10.lang.Int): x10.lang.Int.</TT>
+<div class="block"><B>Declaration:</B> <TT>mpiCopy(srcspa:x10.matrix.sparse.SparseCSC,srcColOff:x10.lang.Int,smlist:x10.regionarray.DistArray[x10.matrix.sparse.SparseCSC]{self.dist.region.rank==1},dstpid:x10.lang.Int,dstColOff:x10.lang.Int,colCnt:x10.lang.Int): x10.lang.Int.</TT>
 Based on mpi send/recv, copy data from here to remote place</div>
 </td>
 </tr>
 <tr class="altColor">
 <td class="colFirst"><code>protected static x10.lang.Int</code></td>
-<td class="colLast"><code><strong><a href="../../../x10/matrix/comm/MatrixRemoteCopy.html#x10Copy(x10.matrix.sparse.SparseCSC,x10.lang.Int,x10.array.DistArray[x10.matrix.sparse.SparseCSC],x10.lang.Int,x10.lang.Int,x10.lang.Int)">x10Copy</a></strong>(<a href="../../../x10/matrix/sparse/SparseCSC.html" title="class in x10.matrix.sparse">SparseCSC</a>&nbsp;srcspa,
+<td class="colLast"><code><strong><a href="../../../x10/matrix/comm/MatrixRemoteCopy.html#x10Copy(x10.matrix.sparse.SparseCSC,x10.lang.Int,x10.regionarray.DistArray[x10.matrix.sparse.SparseCSC],x10.lang.Int,x10.lang.Int,x10.lang.Int)">x10Copy</a></strong>(<a href="../../../x10/matrix/sparse/SparseCSC.html" title="class in x10.matrix.sparse">SparseCSC</a>&nbsp;srcspa,
        x10.lang.Int&nbsp;srcColOff,
-       x10.array.DistArray&lt;<a href="../../../x10/matrix/sparse/SparseCSC.html" title="class in x10.matrix.sparse">SparseCSC</a>&gt;&nbsp;dst,
+       x10.regionarray.DistArray&lt;<a href="../../../x10/matrix/sparse/SparseCSC.html" title="class in x10.matrix.sparse">SparseCSC</a>&gt;&nbsp;dst,
        x10.lang.Int&nbsp;dstbid,
        x10.lang.Int&nbsp;dstColOff,
        x10.lang.Int&nbsp;colCnt)</code>
-<div class="block"><B>Declaration:</B> <TT>x10Copy(srcspa:x10.matrix.sparse.SparseCSC,srcColOff:x10.lang.Int,dst:x10.array.DistArray[x10.matrix.sparse.SparseCSC]{self.dist.region.rank==1},dstbid:x10.lang.Int,dstColOff:x10.lang.Int,colCnt:x10.lang.Int): x10.lang.Int.</TT>
+<div class="block"><B>Declaration:</B> <TT>x10Copy(srcspa:x10.matrix.sparse.SparseCSC,srcColOff:x10.lang.Int,dst:x10.regionarray.DistArray[x10.matrix.sparse.SparseCSC]{self.dist.region.rank==1},dstbid:x10.lang.Int,dstColOff:x10.lang.Int,colCnt:x10.lang.Int): x10.lang.Int.</TT>
 Copy source sparse matrix from here to the remote sparse matrix at reomote
 place using Array remote copy.</div>
 </td>
 </tr>
 <tr class="rowColor">
 <td class="colFirst"><code>static x10.lang.Int</code></td>
-<td class="colLast"><code><strong><a href="../../../x10/matrix/comm/MatrixRemoteCopy.html#copy(x10.array.DistArray[x10.matrix.sparse.SparseCSC],x10.lang.Int,x10.lang.Int,x10.matrix.sparse.SparseCSC,x10.lang.Int,x10.lang.Int)">copy</a></strong>(x10.array.DistArray&lt;<a href="../../../x10/matrix/sparse/SparseCSC.html" title="class in x10.matrix.sparse">SparseCSC</a>&gt;&nbsp;smlist,
+<td class="colLast"><code><strong><a href="../../../x10/matrix/comm/MatrixRemoteCopy.html#copy(x10.regionarray.DistArray[x10.matrix.sparse.SparseCSC],x10.lang.Int,x10.lang.Int,x10.matrix.sparse.SparseCSC,x10.lang.Int,x10.lang.Int)">copy</a></strong>(x10.regionarray.DistArray&lt;<a href="../../../x10/matrix/sparse/SparseCSC.html" title="class in x10.matrix.sparse">SparseCSC</a>&gt;&nbsp;smlist,
     x10.lang.Int&nbsp;srcpid,
     x10.lang.Int&nbsp;srcColOff,
     <a href="../../../x10/matrix/sparse/SparseCSC.html" title="class in x10.matrix.sparse">SparseCSC</a>&nbsp;dstspa,
     x10.lang.Int&nbsp;dstColOff,
     x10.lang.Int&nbsp;colCnt)</code>
-<div class="block"><B>Declaration:</B> <TT>copy(smlist:x10.array.DistArray[x10.matrix.sparse.SparseCSC]{self.dist.region.rank==1},srcpid:x10.lang.Int,srcColOff:x10.lang.Int,dstspa:x10.matrix.sparse.SparseCSC,dstColOff:x10.lang.Int,colCnt:x10.lang.Int): x10.lang.Int.</TT>
+<div class="block"><B>Declaration:</B> <TT>copy(smlist:x10.regionarray.DistArray[x10.matrix.sparse.SparseCSC]{self.dist.region.rank==1},srcpid:x10.lang.Int,srcColOff:x10.lang.Int,dstspa:x10.matrix.sparse.SparseCSC,dstColOff:x10.lang.Int,colCnt:x10.lang.Int): x10.lang.Int.</TT>
 Copy multiple columns of the sparseCSC matrix in the specified place to
 here</div>
 </td>
 </tr>
 <tr class="altColor">
 <td class="colFirst"><code>protected static x10.lang.Int</code></td>
-<td class="colLast"><code><strong><a href="../../../x10/matrix/comm/MatrixRemoteCopy.html#mpiCopy(x10.array.DistArray[x10.matrix.sparse.SparseCSC],x10.lang.Int,x10.lang.Int,x10.matrix.sparse.SparseCSC,x10.lang.Int,x10.lang.Int)">mpiCopy</a></strong>(x10.array.DistArray&lt;<a href="../../../x10/matrix/sparse/SparseCSC.html" title="class in x10.matrix.sparse">SparseCSC</a>&gt;&nbsp;smlist,
+<td class="colLast"><code><strong><a href="../../../x10/matrix/comm/MatrixRemoteCopy.html#mpiCopy(x10.regionarray.DistArray[x10.matrix.sparse.SparseCSC],x10.lang.Int,x10.lang.Int,x10.matrix.sparse.SparseCSC,x10.lang.Int,x10.lang.Int)">mpiCopy</a></strong>(x10.regionarray.DistArray&lt;<a href="../../../x10/matrix/sparse/SparseCSC.html" title="class in x10.matrix.sparse">SparseCSC</a>&gt;&nbsp;smlist,
        x10.lang.Int&nbsp;srcpid,
        x10.lang.Int&nbsp;srcColOff,
        <a href="../../../x10/matrix/sparse/SparseCSC.html" title="class in x10.matrix.sparse">SparseCSC</a>&nbsp;dstspa,
        x10.lang.Int&nbsp;dstColOff,
        x10.lang.Int&nbsp;colCnt)</code>
-<div class="block"><B>Declaration:</B> <TT>mpiCopy(smlist:x10.array.DistArray[x10.matrix.sparse.SparseCSC]{self.dist.region.rank==1},srcpid:x10.lang.Int,srcColOff:x10.lang.Int,dstspa:x10.matrix.sparse.SparseCSC,dstColOff:x10.lang.Int,colCnt:x10.lang.Int): x10.lang.Int.</TT>
+<div class="block"><B>Declaration:</B> <TT>mpiCopy(smlist:x10.regionarray.DistArray[x10.matrix.sparse.SparseCSC]{self.dist.region.rank==1},srcpid:x10.lang.Int,srcColOff:x10.lang.Int,dstspa:x10.matrix.sparse.SparseCSC,dstColOff:x10.lang.Int,colCnt:x10.lang.Int): x10.lang.Int.</TT>
 Based on mpi send/recv, copy data from remote place to here.</div>
 </td>
 </tr>
 <tr class="rowColor">
 <td class="colFirst"><code>static x10.lang.Int</code></td>
-<td class="colLast"><code><strong><a href="../../../x10/matrix/comm/MatrixRemoteCopy.html#x10Copy(x10.array.DistArray[x10.matrix.sparse.SparseCSC],x10.lang.Int,x10.lang.Int,x10.matrix.sparse.SparseCSC,x10.lang.Int,x10.lang.Int)">x10Copy</a></strong>(x10.array.DistArray&lt;<a href="../../../x10/matrix/sparse/SparseCSC.html" title="class in x10.matrix.sparse">SparseCSC</a>&gt;&nbsp;smlist,
+<td class="colLast"><code><strong><a href="../../../x10/matrix/comm/MatrixRemoteCopy.html#x10Copy(x10.regionarray.DistArray[x10.matrix.sparse.SparseCSC],x10.lang.Int,x10.lang.Int,x10.matrix.sparse.SparseCSC,x10.lang.Int,x10.lang.Int)">x10Copy</a></strong>(x10.regionarray.DistArray&lt;<a href="../../../x10/matrix/sparse/SparseCSC.html" title="class in x10.matrix.sparse">SparseCSC</a>&gt;&nbsp;smlist,
        x10.lang.Int&nbsp;srcpid,
        x10.lang.Int&nbsp;srcColOff,
        <a href="../../../x10/matrix/sparse/SparseCSC.html" title="class in x10.matrix.sparse">SparseCSC</a>&nbsp;dstspa,
        x10.lang.Int&nbsp;dstColOff,
        x10.lang.Int&nbsp;colCnt)</code>
-<div class="block"><B>Declaration:</B> <TT>x10Copy(smlist:x10.array.DistArray[x10.matrix.sparse.SparseCSC]{self.dist.region.rank==1},srcpid:x10.lang.Int,srcColOff:x10.lang.Int,dstspa:x10.matrix.sparse.SparseCSC,dstColOff:x10.lang.Int,colCnt:x10.lang.Int): x10.lang.Int.</TT>
+<div class="block"><B>Declaration:</B> <TT>x10Copy(smlist:x10.regionarray.DistArray[x10.matrix.sparse.SparseCSC]{self.dist.region.rank==1},srcpid:x10.lang.Int,srcColOff:x10.lang.Int,dstspa:x10.matrix.sparse.SparseCSC,dstColOff:x10.lang.Int,colCnt:x10.lang.Int): x10.lang.Int.</TT>
 Copy remote sparse matrix from specified place to here, using array remote copy.</div>
 </td>
 </tr>
 <tr class="altColor">
 <td class="colFirst"><code>static x10.lang.Int</code></td>
-<td class="colLast"><code><strong><a href="../../../x10/matrix/comm/MatrixRemoteCopy.html#copy(x10.matrix.sparse.SparseCSC,x10.lang.Int,x10.array.DistArray[x10.matrix.block.SparseBlock],x10.lang.Int,x10.lang.Int,x10.lang.Int)">copy</a></strong>(<a href="../../../x10/matrix/sparse/SparseCSC.html" title="class in x10.matrix.sparse">SparseCSC</a>&nbsp;srcspa,
+<td class="colLast"><code><strong><a href="../../../x10/matrix/comm/MatrixRemoteCopy.html#copy(x10.matrix.sparse.SparseCSC,x10.lang.Int,x10.regionarray.DistArray[x10.matrix.block.SparseBlock],x10.lang.Int,x10.lang.Int,x10.lang.Int)">copy</a></strong>(<a href="../../../x10/matrix/sparse/SparseCSC.html" title="class in x10.matrix.sparse">SparseCSC</a>&nbsp;srcspa,
     x10.lang.Int&nbsp;srcColOff,
-    x10.array.DistArray&lt;<a href="../../../x10/matrix/block/SparseBlock.html" title="class in x10.matrix.block">SparseBlock</a>&gt;&nbsp;smlist,
+    x10.regionarray.DistArray&lt;<a href="../../../x10/matrix/block/SparseBlock.html" title="class in x10.matrix.block">SparseBlock</a>&gt;&nbsp;smlist,
     x10.lang.Int&nbsp;dstpid,
     x10.lang.Int&nbsp;dstColOff,
     x10.lang.Int&nbsp;colCnt)</code>
-<div class="block"><B>Declaration:</B> <TT>copy(srcspa:x10.matrix.sparse.SparseCSC,srcColOff:x10.lang.Int,smlist:x10.array.DistArray[x10.matrix.block.SparseBlock]{self.dist.region.rank==1},dstpid:x10.lang.Int,dstColOff:x10.lang.Int,colCnt:x10.lang.Int): x10.lang.Int.</TT>
+<div class="block"><B>Declaration:</B> <TT>copy(srcspa:x10.matrix.sparse.SparseCSC,srcColOff:x10.lang.Int,smlist:x10.regionarray.DistArray[x10.matrix.block.SparseBlock]{self.dist.region.rank==1},dstpid:x10.lang.Int,dstColOff:x10.lang.Int,colCnt:x10.lang.Int): x10.lang.Int.</TT>
 Copy multiple columns from source sparse matrix block at here to the specified remote
 place in DistArray.</div>
 </td>
 </tr>
 <tr class="rowColor">
 <td class="colFirst"><code>protected static x10.lang.Int</code></td>
-<td class="colLast"><code><strong><a href="../../../x10/matrix/comm/MatrixRemoteCopy.html#mpiCopy(x10.matrix.sparse.SparseCSC,x10.lang.Int,x10.array.DistArray[x10.matrix.block.SparseBlock],x10.lang.Int,x10.lang.Int,x10.lang.Int)">mpiCopy</a></strong>(<a href="../../../x10/matrix/sparse/SparseCSC.html" title="class in x10.matrix.sparse">SparseCSC</a>&nbsp;srcspa,
+<td class="colLast"><code><strong><a href="../../../x10/matrix/comm/MatrixRemoteCopy.html#mpiCopy(x10.matrix.sparse.SparseCSC,x10.lang.Int,x10.regionarray.DistArray[x10.matrix.block.SparseBlock],x10.lang.Int,x10.lang.Int,x10.lang.Int)">mpiCopy</a></strong>(<a href="../../../x10/matrix/sparse/SparseCSC.html" title="class in x10.matrix.sparse">SparseCSC</a>&nbsp;srcspa,
        x10.lang.Int&nbsp;srcColOff,
-       x10.array.DistArray&lt;<a href="../../../x10/matrix/block/SparseBlock.html" title="class in x10.matrix.block">SparseBlock</a>&gt;&nbsp;smlist,
+       x10.regionarray.DistArray&lt;<a href="../../../x10/matrix/block/SparseBlock.html" title="class in x10.matrix.block">SparseBlock</a>&gt;&nbsp;smlist,
        x10.lang.Int&nbsp;dstpid,
        x10.lang.Int&nbsp;dstColOff,
        x10.lang.Int&nbsp;colCnt)</code>
-<div class="block"><B>Declaration:</B> <TT>mpiCopy(srcspa:x10.matrix.sparse.SparseCSC,srcColOff:x10.lang.Int,smlist:x10.array.DistArray[x10.matrix.block.SparseBlock]{self.dist.region.rank==1},dstpid:x10.lang.Int,dstColOff:x10.lang.Int,colCnt:x10.lang.Int): x10.lang.Int.</TT>
+<div class="block"><B>Declaration:</B> <TT>mpiCopy(srcspa:x10.matrix.sparse.SparseCSC,srcColOff:x10.lang.Int,smlist:x10.regionarray.DistArray[x10.matrix.block.SparseBlock]{self.dist.region.rank==1},dstpid:x10.lang.Int,dstColOff:x10.lang.Int,colCnt:x10.lang.Int): x10.lang.Int.</TT>
 Based on mpi send/recv, copy data from here to remote place</div>
 </td>
 </tr>
 <tr class="altColor">
 <td class="colFirst"><code>protected static x10.lang.Int</code></td>
-<td class="colLast"><code><strong><a href="../../../x10/matrix/comm/MatrixRemoteCopy.html#x10Copy(x10.matrix.sparse.SparseCSC,x10.lang.Int,x10.array.DistArray[x10.matrix.block.SparseBlock],x10.lang.Int,x10.lang.Int,x10.lang.Int)">x10Copy</a></strong>(<a href="../../../x10/matrix/sparse/SparseCSC.html" title="class in x10.matrix.sparse">SparseCSC</a>&nbsp;srcspa,
+<td class="colLast"><code><strong><a href="../../../x10/matrix/comm/MatrixRemoteCopy.html#x10Copy(x10.matrix.sparse.SparseCSC,x10.lang.Int,x10.regionarray.DistArray[x10.matrix.block.SparseBlock],x10.lang.Int,x10.lang.Int,x10.lang.Int)">x10Copy</a></strong>(<a href="../../../x10/matrix/sparse/SparseCSC.html" title="class in x10.matrix.sparse">SparseCSC</a>&nbsp;srcspa,
        x10.lang.Int&nbsp;srcColOff,
-       x10.array.DistArray&lt;<a href="../../../x10/matrix/block/SparseBlock.html" title="class in x10.matrix.block">SparseBlock</a>&gt;&nbsp;dst,
+       x10.regionarray.DistArray&lt;<a href="../../../x10/matrix/block/SparseBlock.html" title="class in x10.matrix.block">SparseBlock</a>&gt;&nbsp;dst,
        x10.lang.Int&nbsp;dstbid,
        x10.lang.Int&nbsp;dstColOff,
        x10.lang.Int&nbsp;colCnt)</code>
-<div class="block"><B>Declaration:</B> <TT>x10Copy(srcspa:x10.matrix.sparse.SparseCSC,srcColOff:x10.lang.Int,dst:x10.array.DistArray[x10.matrix.block.SparseBlock]{self.dist.region.rank==1},dstbid:x10.lang.Int,dstColOff:x10.lang.Int,colCnt:x10.lang.Int): x10.lang.Int.</TT>
+<div class="block"><B>Declaration:</B> <TT>x10Copy(srcspa:x10.matrix.sparse.SparseCSC,srcColOff:x10.lang.Int,dst:x10.regionarray.DistArray[x10.matrix.block.SparseBlock]{self.dist.region.rank==1},dstbid:x10.lang.Int,dstColOff:x10.lang.Int,colCnt:x10.lang.Int): x10.lang.Int.</TT>
 </div>
 </td>
 </tr>
 <tr class="rowColor">
 <td class="colFirst"><code>static x10.lang.Int</code></td>
-<td class="colLast"><code><strong><a href="../../../x10/matrix/comm/MatrixRemoteCopy.html#copy(x10.array.DistArray[x10.matrix.block.SparseBlock],x10.lang.Int,x10.lang.Int,x10.matrix.sparse.SparseCSC,x10.lang.Int,x10.lang.Int)">copy</a></strong>(x10.array.DistArray&lt;<a href="../../../x10/matrix/block/SparseBlock.html" title="class in x10.matrix.block">SparseBlock</a>&gt;&nbsp;smlist,
+<td class="colLast"><code><strong><a href="../../../x10/matrix/comm/MatrixRemoteCopy.html#copy(x10.regionarray.DistArray[x10.matrix.block.SparseBlock],x10.lang.Int,x10.lang.Int,x10.matrix.sparse.SparseCSC,x10.lang.Int,x10.lang.Int)">copy</a></strong>(x10.regionarray.DistArray&lt;<a href="../../../x10/matrix/block/SparseBlock.html" title="class in x10.matrix.block">SparseBlock</a>&gt;&nbsp;smlist,
     x10.lang.Int&nbsp;srcpid,
     x10.lang.Int&nbsp;srcColOff,
     <a href="../../../x10/matrix/sparse/SparseCSC.html" title="class in x10.matrix.sparse">SparseCSC</a>&nbsp;dstspa,
     x10.lang.Int&nbsp;dstColOff,
     x10.lang.Int&nbsp;colCnt)</code>
-<div class="block"><B>Declaration:</B> <TT>copy(smlist:x10.array.DistArray[x10.matrix.block.SparseBlock]{self.dist.region.rank==1},srcpid:x10.lang.Int,srcColOff:x10.lang.Int,dstspa:x10.matrix.sparse.SparseCSC,dstColOff:x10.lang.Int,colCnt:x10.lang.Int): x10.lang.Int.</TT>
+<div class="block"><B>Declaration:</B> <TT>copy(smlist:x10.regionarray.DistArray[x10.matrix.block.SparseBlock]{self.dist.region.rank==1},srcpid:x10.lang.Int,srcColOff:x10.lang.Int,dstspa:x10.matrix.sparse.SparseCSC,dstColOff:x10.lang.Int,colCnt:x10.lang.Int): x10.lang.Int.</TT>
 Copy multiple columns of the sparseCSC matrix in the specified place to
 here</div>
 </td>
 </tr>
 <tr class="altColor">
 <td class="colFirst"><code>protected static x10.lang.Int</code></td>
-<td class="colLast"><code><strong><a href="../../../x10/matrix/comm/MatrixRemoteCopy.html#mpiCopy(x10.array.DistArray[x10.matrix.block.SparseBlock],x10.lang.Int,x10.lang.Int,x10.matrix.sparse.SparseCSC,x10.lang.Int,x10.lang.Int)">mpiCopy</a></strong>(x10.array.DistArray&lt;<a href="../../../x10/matrix/block/SparseBlock.html" title="class in x10.matrix.block">SparseBlock</a>&gt;&nbsp;src,
+<td class="colLast"><code><strong><a href="../../../x10/matrix/comm/MatrixRemoteCopy.html#mpiCopy(x10.regionarray.DistArray[x10.matrix.block.SparseBlock],x10.lang.Int,x10.lang.Int,x10.matrix.sparse.SparseCSC,x10.lang.Int,x10.lang.Int)">mpiCopy</a></strong>(x10.regionarray.DistArray&lt;<a href="../../../x10/matrix/block/SparseBlock.html" title="class in x10.matrix.block">SparseBlock</a>&gt;&nbsp;src,
        x10.lang.Int&nbsp;srcbid,
        x10.lang.Int&nbsp;srcColOff,
        <a href="../../../x10/matrix/sparse/SparseCSC.html" title="class in x10.matrix.sparse">SparseCSC</a>&nbsp;dstspa,
        x10.lang.Int&nbsp;dstColOff,
        x10.lang.Int&nbsp;colCnt)</code>
-<div class="block"><B>Declaration:</B> <TT>mpiCopy(src:x10.array.DistArray[x10.matrix.block.SparseBlock]{self.dist.region.rank==1},srcbid:x10.lang.Int,srcColOff:x10.lang.Int,dstspa:x10.matrix.sparse.SparseCSC,dstColOff:x10.lang.Int,colCnt:x10.lang.Int): x10.lang.Int.</TT>
+<div class="block"><B>Declaration:</B> <TT>mpiCopy(src:x10.regionarray.DistArray[x10.matrix.block.SparseBlock]{self.dist.region.rank==1},srcbid:x10.lang.Int,srcColOff:x10.lang.Int,dstspa:x10.matrix.sparse.SparseCSC,dstColOff:x10.lang.Int,colCnt:x10.lang.Int): x10.lang.Int.</TT>
 </div>
 </td>
 </tr>
 <tr class="rowColor">
 <td class="colFirst"><code>protected static x10.lang.Int</code></td>
-<td class="colLast"><code><strong><a href="../../../x10/matrix/comm/MatrixRemoteCopy.html#x10Copy(x10.array.DistArray[x10.matrix.block.SparseBlock],x10.lang.Int,x10.lang.Int,x10.matrix.sparse.SparseCSC,x10.lang.Int,x10.lang.Int)">x10Copy</a></strong>(x10.array.DistArray&lt;<a href="../../../x10/matrix/block/SparseBlock.html" title="class in x10.matrix.block">SparseBlock</a>&gt;&nbsp;src,
+<td class="colLast"><code><strong><a href="../../../x10/matrix/comm/MatrixRemoteCopy.html#x10Copy(x10.regionarray.DistArray[x10.matrix.block.SparseBlock],x10.lang.Int,x10.lang.Int,x10.matrix.sparse.SparseCSC,x10.lang.Int,x10.lang.Int)">x10Copy</a></strong>(x10.regionarray.DistArray&lt;<a href="../../../x10/matrix/block/SparseBlock.html" title="class in x10.matrix.block">SparseBlock</a>&gt;&nbsp;src,
        x10.lang.Int&nbsp;srcbid,
        x10.lang.Int&nbsp;srcColOff,
        <a href="../../../x10/matrix/sparse/SparseCSC.html" title="class in x10.matrix.sparse">SparseCSC</a>&nbsp;dstspa,
        x10.lang.Int&nbsp;dstColOff,
        x10.lang.Int&nbsp;colCnt)</code>
-<div class="block"><B>Declaration:</B> <TT>x10Copy(src:x10.array.DistArray[x10.matrix.block.SparseBlock]{self.dist.region.rank==1},srcbid:x10.lang.Int,srcColOff:x10.lang.Int,dstspa:x10.matrix.sparse.SparseCSC,dstColOff:x10.lang.Int,colCnt:x10.lang.Int): x10.lang.Int.</TT>
+<div class="block"><B>Declaration:</B> <TT>x10Copy(src:x10.regionarray.DistArray[x10.matrix.block.SparseBlock]{self.dist.region.rank==1},srcbid:x10.lang.Int,srcColOff:x10.lang.Int,dstspa:x10.matrix.sparse.SparseCSC,dstColOff:x10.lang.Int,colCnt:x10.lang.Int): x10.lang.Int.</TT>
 </div>
 </td>
 </tr>
 <tr class="altColor">
 <td class="colFirst"><code>static void</code></td>
-<td class="colLast"><code><strong><a href="../../../x10/matrix/comm/MatrixRemoteCopy.html#copy(x10.array.Array[x10.lang.Double],x10.lang.Int,x10.array.DistArray[x10.matrix.DenseMatrix],x10.lang.Int,x10.lang.Int,x10.lang.Int)">copy</a></strong>(x10.array.Array&lt;x10.lang.Double&gt;&nbsp;src,
+<td class="colLast"><code><strong><a href="../../../x10/matrix/comm/MatrixRemoteCopy.html#copy(x10.regionarray.Array[x10.lang.Double],x10.lang.Int,x10.regionarray.DistArray[x10.matrix.DenseMatrix],x10.lang.Int,x10.lang.Int,x10.lang.Int)">copy</a></strong>(x10.regionarray.Array&lt;x10.lang.Double&gt;&nbsp;src,
     x10.lang.Int&nbsp;srcOff,
-    x10.array.DistArray&lt;<a href="../../../x10/matrix/DenseMatrix.html" title="class in x10.matrix">DenseMatrix</a>&gt;&nbsp;dmlist,
+    x10.regionarray.DistArray&lt;<a href="../../../x10/matrix/DenseMatrix.html" title="class in x10.matrix">DenseMatrix</a>&gt;&nbsp;dmlist,
     x10.lang.Int&nbsp;dstpid,
     x10.lang.Int&nbsp;dstColOff,
     x10.lang.Int&nbsp;dataCnt)</code>
-<div class="block"><B>Declaration:</B> <TT>copy(src:x10.array.Array[x10.lang.Double]{self.rank==1},srcOff:x10.lang.Int,dmlist:x10.array.DistArray[x10.matrix.DenseMatrix]{self.dist.region.rank==1},dstpid:x10.lang.Int,dstColOff:x10.lang.Int,dataCnt:x10.lang.Int): void.</TT>
+<div class="block"><B>Declaration:</B> <TT>copy(src:x10.regionarray.Array[x10.lang.Double]{self.rank==1},srcOff:x10.lang.Int,dmlist:x10.regionarray.DistArray[x10.matrix.DenseMatrix]{self.dist.region.rank==1},dstpid:x10.lang.Int,dstColOff:x10.lang.Int,dataCnt:x10.lang.Int): void.</TT>
 Copy multiple columns from source dense matrix at here to the specified remote
 place in DistArray of dense matrix.</div>
 </td>
 </tr>
 <tr class="rowColor">
 <td class="colFirst"><code>protected static void</code></td>
-<td class="colLast"><code><strong><a href="../../../x10/matrix/comm/MatrixRemoteCopy.html#mpiCopy(x10.array.Array[x10.lang.Double],x10.lang.Int,x10.array.DistArray[x10.matrix.DenseMatrix],x10.lang.Int,x10.lang.Int,x10.lang.Int)">mpiCopy</a></strong>(x10.array.Array&lt;x10.lang.Double&gt;&nbsp;src,
+<td class="colLast"><code><strong><a href="../../../x10/matrix/comm/MatrixRemoteCopy.html#mpiCopy(x10.regionarray.Array[x10.lang.Double],x10.lang.Int,x10.regionarray.DistArray[x10.matrix.DenseMatrix],x10.lang.Int,x10.lang.Int,x10.lang.Int)">mpiCopy</a></strong>(x10.regionarray.Array&lt;x10.lang.Double&gt;&nbsp;src,
        x10.lang.Int&nbsp;srcOff,
-       x10.array.DistArray&lt;<a href="../../../x10/matrix/DenseMatrix.html" title="class in x10.matrix">DenseMatrix</a>&gt;&nbsp;dmlist,
+       x10.regionarray.DistArray&lt;<a href="../../../x10/matrix/DenseMatrix.html" title="class in x10.matrix">DenseMatrix</a>&gt;&nbsp;dmlist,
        x10.lang.Int&nbsp;dstpid,
        x10.lang.Int&nbsp;dstColOff,
        x10.lang.Int&nbsp;dataCnt)</code>
-<div class="block"><B>Declaration:</B> <TT>mpiCopy(src:x10.array.Array[x10.lang.Double]{self.rank==1},srcOff:x10.lang.Int,dmlist:x10.array.DistArray[x10.matrix.DenseMatrix]{self.dist.region.rank==1},dstpid:x10.lang.Int,dstColOff:x10.lang.Int,dataCnt:x10.lang.Int): void.</TT>
+<div class="block"><B>Declaration:</B> <TT>mpiCopy(src:x10.regionarray.Array[x10.lang.Double]{self.rank==1},srcOff:x10.lang.Int,dmlist:x10.regionarray.DistArray[x10.matrix.DenseMatrix]{self.dist.region.rank==1},dstpid:x10.lang.Int,dstColOff:x10.lang.Int,dataCnt:x10.lang.Int): void.</TT>
 </div>
 </td>
 </tr>
 <tr class="altColor">
 <td class="colFirst"><code>protected static void</code></td>
-<td class="colLast"><code><strong><a href="../../../x10/matrix/comm/MatrixRemoteCopy.html#x10Copy(x10.array.Array[x10.lang.Double],x10.lang.Int,x10.array.DistArray[x10.matrix.DenseMatrix],x10.lang.Int,x10.lang.Int,x10.lang.Int)">x10Copy</a></strong>(x10.array.Array&lt;x10.lang.Double&gt;&nbsp;src,
+<td class="colLast"><code><strong><a href="../../../x10/matrix/comm/MatrixRemoteCopy.html#x10Copy(x10.regionarray.Array[x10.lang.Double],x10.lang.Int,x10.regionarray.DistArray[x10.matrix.DenseMatrix],x10.lang.Int,x10.lang.Int,x10.lang.Int)">x10Copy</a></strong>(x10.regionarray.Array&lt;x10.lang.Double&gt;&nbsp;src,
        x10.lang.Int&nbsp;srcOff,
-       x10.array.DistArray&lt;<a href="../../../x10/matrix/DenseMatrix.html" title="class in x10.matrix">DenseMatrix</a>&gt;&nbsp;dmlist,
+       x10.regionarray.DistArray&lt;<a href="../../../x10/matrix/DenseMatrix.html" title="class in x10.matrix">DenseMatrix</a>&gt;&nbsp;dmlist,
        x10.lang.Int&nbsp;dstpid,
        x10.lang.Int&nbsp;dstColOff,
        x10.lang.Int&nbsp;dataCnt)</code>
-<div class="block"><B>Declaration:</B> <TT>x10Copy(src:x10.array.Array[x10.lang.Double]{self.rank==1},srcOff:x10.lang.Int,dmlist:x10.array.DistArray[x10.matrix.DenseMatrix]{self.dist.region.rank==1},dstpid:x10.lang.Int,dstColOff:x10.lang.Int,dataCnt:x10.lang.Int): void.</TT>
+<div class="block"><B>Declaration:</B> <TT>x10Copy(src:x10.regionarray.Array[x10.lang.Double]{self.rank==1},srcOff:x10.lang.Int,dmlist:x10.regionarray.DistArray[x10.matrix.DenseMatrix]{self.dist.region.rank==1},dstpid:x10.lang.Int,dstColOff:x10.lang.Int,dataCnt:x10.lang.Int): void.</TT>
 Copy vector from here to remote dense matrix</div>
 </td>
 </tr>
 <tr class="rowColor">
 <td class="colFirst"><code>static void</code></td>
-<td class="colLast"><code><strong><a href="../../../x10/matrix/comm/MatrixRemoteCopy.html#copy(x10.array.DistArray[x10.matrix.DenseMatrix],x10.lang.Int,x10.lang.Int,x10.array.Array[x10.lang.Double],x10.lang.Int,x10.lang.Int)">copy</a></strong>(x10.array.DistArray&lt;<a href="../../../x10/matrix/DenseMatrix.html" title="class in x10.matrix">DenseMatrix</a>&gt;&nbsp;dmlist,
+<td class="colLast"><code><strong><a href="../../../x10/matrix/comm/MatrixRemoteCopy.html#copy(x10.regionarray.DistArray[x10.matrix.DenseMatrix],x10.lang.Int,x10.lang.Int,x10.regionarray.Array[x10.lang.Double],x10.lang.Int,x10.lang.Int)">copy</a></strong>(x10.regionarray.DistArray&lt;<a href="../../../x10/matrix/DenseMatrix.html" title="class in x10.matrix">DenseMatrix</a>&gt;&nbsp;dmlist,
     x10.lang.Int&nbsp;srcpid,
     x10.lang.Int&nbsp;srcColOff,
-    x10.array.Array&lt;x10.lang.Double&gt;&nbsp;dst,
+    x10.regionarray.Array&lt;x10.lang.Double&gt;&nbsp;dst,
     x10.lang.Int&nbsp;dstOff,
     x10.lang.Int&nbsp;dataCnt)</code>
-<div class="block"><B>Declaration:</B> <TT>copy(dmlist:x10.array.DistArray[x10.matrix.DenseMatrix]{self.dist.region.rank==1},srcpid:x10.lang.Int,srcColOff:x10.lang.Int,dst:x10.array.Array[x10.lang.Double]{self.rank==1},dstOff:x10.lang.Int,dataCnt:x10.lang.Int): void.</TT>
+<div class="block"><B>Declaration:</B> <TT>copy(dmlist:x10.regionarray.DistArray[x10.matrix.DenseMatrix]{self.dist.region.rank==1},srcpid:x10.lang.Int,srcColOff:x10.lang.Int,dst:x10.regionarray.Array[x10.lang.Double]{self.rank==1},dstOff:x10.lang.Int,dataCnt:x10.lang.Int): void.</TT>
 Copy multiple columns of the dense matrix in the specified place to
 here</div>
 </td>
 </tr>
 <tr class="altColor">
 <td class="colFirst"><code>protected static void</code></td>
-<td class="colLast"><code><strong><a href="../../../x10/matrix/comm/MatrixRemoteCopy.html#mpiCopy(x10.array.DistArray[x10.matrix.DenseMatrix],x10.lang.Int,x10.lang.Int,x10.array.Array[x10.lang.Double],x10.lang.Int,x10.lang.Int)">mpiCopy</a></strong>(x10.array.DistArray&lt;<a href="../../../x10/matrix/DenseMatrix.html" title="class in x10.matrix">DenseMatrix</a>&gt;&nbsp;dmlist,
+<td class="colLast"><code><strong><a href="../../../x10/matrix/comm/MatrixRemoteCopy.html#mpiCopy(x10.regionarray.DistArray[x10.matrix.DenseMatrix],x10.lang.Int,x10.lang.Int,x10.regionarray.Array[x10.lang.Double],x10.lang.Int,x10.lang.Int)">mpiCopy</a></strong>(x10.regionarray.DistArray&lt;<a href="../../../x10/matrix/DenseMatrix.html" title="class in x10.matrix">DenseMatrix</a>&gt;&nbsp;dmlist,
        x10.lang.Int&nbsp;srcpid,
        x10.lang.Int&nbsp;srcColOff,
-       x10.array.Array&lt;x10.lang.Double&gt;&nbsp;dst,
+       x10.regionarray.Array&lt;x10.lang.Double&gt;&nbsp;dst,
        x10.lang.Int&nbsp;dstOff,
        x10.lang.Int&nbsp;dataCnt)</code>
-<div class="block"><B>Declaration:</B> <TT>mpiCopy(dmlist:x10.array.DistArray[x10.matrix.DenseMatrix]{self.dist.region.rank==1},srcpid:x10.lang.Int,srcColOff:x10.lang.Int,dst:x10.array.Array[x10.lang.Double]{self.rank==1},dstOff:x10.lang.Int,dataCnt:x10.lang.Int): void.</TT>
+<div class="block"><B>Declaration:</B> <TT>mpiCopy(dmlist:x10.regionarray.DistArray[x10.matrix.DenseMatrix]{self.dist.region.rank==1},srcpid:x10.lang.Int,srcColOff:x10.lang.Int,dst:x10.regionarray.Array[x10.lang.Double]{self.rank==1},dstOff:x10.lang.Int,dataCnt:x10.lang.Int): void.</TT>
 Copy data from remote matrix to here in a vector</div>
 </td>
 </tr>
 <tr class="rowColor">
 <td class="colFirst"><code>protected static void</code></td>
-<td class="colLast"><code><strong><a href="../../../x10/matrix/comm/MatrixRemoteCopy.html#x10Copy(x10.array.DistArray[x10.matrix.DenseMatrix],x10.lang.Int,x10.lang.Int,x10.array.Array[x10.lang.Double],x10.lang.Int,x10.lang.Int)">x10Copy</a></strong>(x10.array.DistArray&lt;<a href="../../../x10/matrix/DenseMatrix.html" title="class in x10.matrix">DenseMatrix</a>&gt;&nbsp;dmlist,
+<td class="colLast"><code><strong><a href="../../../x10/matrix/comm/MatrixRemoteCopy.html#x10Copy(x10.regionarray.DistArray[x10.matrix.DenseMatrix],x10.lang.Int,x10.lang.Int,x10.regionarray.Array[x10.lang.Double],x10.lang.Int,x10.lang.Int)">x10Copy</a></strong>(x10.regionarray.DistArray&lt;<a href="../../../x10/matrix/DenseMatrix.html" title="class in x10.matrix">DenseMatrix</a>&gt;&nbsp;dmlist,
        x10.lang.Int&nbsp;srcpid,
        x10.lang.Int&nbsp;srcColOff,
-       x10.array.Array&lt;x10.lang.Double&gt;&nbsp;dst,
+       x10.regionarray.Array&lt;x10.lang.Double&gt;&nbsp;dst,
        x10.lang.Int&nbsp;dstOff,
        x10.lang.Int&nbsp;dataCnt)</code>
-<div class="block"><B>Declaration:</B> <TT>x10Copy(dmlist:x10.array.DistArray[x10.matrix.DenseMatrix]{self.dist.region.rank==1},srcpid:x10.lang.Int,srcColOff:x10.lang.Int,dst:x10.array.Array[x10.lang.Double]{self.rank==1},dstOff:x10.lang.Int,dataCnt:x10.lang.Int): void.</TT>
+<div class="block"><B>Declaration:</B> <TT>x10Copy(dmlist:x10.regionarray.DistArray[x10.matrix.DenseMatrix]{self.dist.region.rank==1},srcpid:x10.lang.Int,srcColOff:x10.lang.Int,dst:x10.regionarray.Array[x10.lang.Double]{self.rank==1},dstOff:x10.lang.Int,dataCnt:x10.lang.Int): void.</TT>
 Copy data from remote dense matrix to here in a vector</div>
 </td>
 </tr>
 <tr class="altColor">
 <td class="colFirst"><code>static void</code></td>
-<td class="colLast"><code><strong><a href="../../../x10/matrix/comm/MatrixRemoteCopy.html#copy(x10.array.Array[x10.lang.Double],x10.lang.Int,x10.array.DistArray[x10.matrix.block.DenseBlock],x10.lang.Int,x10.lang.Int,x10.lang.Int)">copy</a></strong>(x10.array.Array&lt;x10.lang.Double&gt;&nbsp;src,
+<td class="colLast"><code><strong><a href="../../../x10/matrix/comm/MatrixRemoteCopy.html#copy(x10.regionarray.Array[x10.lang.Double],x10.lang.Int,x10.regionarray.DistArray[x10.matrix.block.DenseBlock],x10.lang.Int,x10.lang.Int,x10.lang.Int)">copy</a></strong>(x10.regionarray.Array&lt;x10.lang.Double&gt;&nbsp;src,
     x10.lang.Int&nbsp;srcOff,
-    x10.array.DistArray&lt;<a href="../../../x10/matrix/block/DenseBlock.html" title="class in x10.matrix.block">DenseBlock</a>&gt;&nbsp;dmlist,
+    x10.regionarray.DistArray&lt;<a href="../../../x10/matrix/block/DenseBlock.html" title="class in x10.matrix.block">DenseBlock</a>&gt;&nbsp;dmlist,
     x10.lang.Int&nbsp;dstpid,
     x10.lang.Int&nbsp;dstColOff,
     x10.lang.Int&nbsp;dataCnt)</code>
-<div class="block"><B>Declaration:</B> <TT>copy(src:x10.array.Array[x10.lang.Double]{self.rank==1},srcOff:x10.lang.Int,dmlist:x10.array.DistArray[x10.matrix.block.DenseBlock]{self.dist.region.rank==1},dstpid:x10.lang.Int,dstColOff:x10.lang.Int,dataCnt:x10.lang.Int): void.</TT>
+<div class="block"><B>Declaration:</B> <TT>copy(src:x10.regionarray.Array[x10.lang.Double]{self.rank==1},srcOff:x10.lang.Int,dmlist:x10.regionarray.DistArray[x10.matrix.block.DenseBlock]{self.dist.region.rank==1},dstpid:x10.lang.Int,dstColOff:x10.lang.Int,dataCnt:x10.lang.Int): void.</TT>
 Copy multiple columns from source dense matrix at here to the specified remote
 place in DistArray of dense matrix.</div>
 </td>
 </tr>
 <tr class="rowColor">
 <td class="colFirst"><code>protected static void</code></td>
-<td class="colLast"><code><strong><a href="../../../x10/matrix/comm/MatrixRemoteCopy.html#mpiCopy(x10.array.Array[x10.lang.Double],x10.lang.Int,x10.array.DistArray[x10.matrix.block.DenseBlock],x10.lang.Int,x10.lang.Int,x10.lang.Int)">mpiCopy</a></strong>(x10.array.Array&lt;x10.lang.Double&gt;&nbsp;src,
+<td class="colLast"><code><strong><a href="../../../x10/matrix/comm/MatrixRemoteCopy.html#mpiCopy(x10.regionarray.Array[x10.lang.Double],x10.lang.Int,x10.regionarray.DistArray[x10.matrix.block.DenseBlock],x10.lang.Int,x10.lang.Int,x10.lang.Int)">mpiCopy</a></strong>(x10.regionarray.Array&lt;x10.lang.Double&gt;&nbsp;src,
        x10.lang.Int&nbsp;srcOff,
-       x10.array.DistArray&lt;<a href="../../../x10/matrix/block/DenseBlock.html" title="class in x10.matrix.block">DenseBlock</a>&gt;&nbsp;dst,
+       x10.regionarray.DistArray&lt;<a href="../../../x10/matrix/block/DenseBlock.html" title="class in x10.matrix.block">DenseBlock</a>&gt;&nbsp;dst,
        x10.lang.Int&nbsp;dstbid,
        x10.lang.Int&nbsp;dstColOff,
        x10.lang.Int&nbsp;dataCnt)</code>
-<div class="block"><B>Declaration:</B> <TT>mpiCopy(src:x10.array.Array[x10.lang.Double]{self.rank==1},srcOff:x10.lang.Int,dst:x10.array.DistArray[x10.matrix.block.DenseBlock]{self.dist.region.rank==1},dstbid:x10.lang.Int,dstColOff:x10.lang.Int,dataCnt:x10.lang.Int): void.</TT>
+<div class="block"><B>Declaration:</B> <TT>mpiCopy(src:x10.regionarray.Array[x10.lang.Double]{self.rank==1},srcOff:x10.lang.Int,dst:x10.regionarray.DistArray[x10.matrix.block.DenseBlock]{self.dist.region.rank==1},dstbid:x10.lang.Int,dstColOff:x10.lang.Int,dataCnt:x10.lang.Int): void.</TT>
 Copy vector from here to remote dense matrix</div>
 </td>
 </tr>
 <tr class="altColor">
 <td class="colFirst"><code>protected static void</code></td>
-<td class="colLast"><code><strong><a href="../../../x10/matrix/comm/MatrixRemoteCopy.html#x10Copy(x10.array.Array[x10.lang.Double],x10.lang.Int,x10.array.DistArray[x10.matrix.block.DenseBlock],x10.lang.Int,x10.lang.Int,x10.lang.Int)">x10Copy</a></strong>(x10.array.Array&lt;x10.lang.Double&gt;&nbsp;src,
+<td class="colLast"><code><strong><a href="../../../x10/matrix/comm/MatrixRemoteCopy.html#x10Copy(x10.regionarray.Array[x10.lang.Double],x10.lang.Int,x10.regionarray.DistArray[x10.matrix.block.DenseBlock],x10.lang.Int,x10.lang.Int,x10.lang.Int)">x10Copy</a></strong>(x10.regionarray.Array&lt;x10.lang.Double&gt;&nbsp;src,
        x10.lang.Int&nbsp;srcOff,
-       x10.array.DistArray&lt;<a href="../../../x10/matrix/block/DenseBlock.html" title="class in x10.matrix.block">DenseBlock</a>&gt;&nbsp;dst,
+       x10.regionarray.DistArray&lt;<a href="../../../x10/matrix/block/DenseBlock.html" title="class in x10.matrix.block">DenseBlock</a>&gt;&nbsp;dst,
        x10.lang.Int&nbsp;dstbid,
        x10.lang.Int&nbsp;dstColOff,
        x10.lang.Int&nbsp;dataCnt)</code>
-<div class="block"><B>Declaration:</B> <TT>x10Copy(src:x10.array.Array[x10.lang.Double]{self.rank==1},srcOff:x10.lang.Int,dst:x10.array.DistArray[x10.matrix.block.DenseBlock]{self.dist.region.rank==1},dstbid:x10.lang.Int,dstColOff:x10.lang.Int,dataCnt:x10.lang.Int): void.</TT>
+<div class="block"><B>Declaration:</B> <TT>x10Copy(src:x10.regionarray.Array[x10.lang.Double]{self.rank==1},srcOff:x10.lang.Int,dst:x10.regionarray.DistArray[x10.matrix.block.DenseBlock]{self.dist.region.rank==1},dstbid:x10.lang.Int,dstColOff:x10.lang.Int,dataCnt:x10.lang.Int): void.</TT>
 Copy vector from here to remote block</div>
 </td>
 </tr>
 <tr class="rowColor">
 <td class="colFirst"><code>static void</code></td>
-<td class="colLast"><code><strong><a href="../../../x10/matrix/comm/MatrixRemoteCopy.html#copy(x10.array.DistArray[x10.matrix.block.DenseBlock],x10.lang.Int,x10.lang.Int,x10.array.Array[x10.lang.Double],x10.lang.Int,x10.lang.Int)">copy</a></strong>(x10.array.DistArray&lt;<a href="../../../x10/matrix/block/DenseBlock.html" title="class in x10.matrix.block">DenseBlock</a>&gt;&nbsp;dmlist,
+<td class="colLast"><code><strong><a href="../../../x10/matrix/comm/MatrixRemoteCopy.html#copy(x10.regionarray.DistArray[x10.matrix.block.DenseBlock],x10.lang.Int,x10.lang.Int,x10.regionarray.Array[x10.lang.Double],x10.lang.Int,x10.lang.Int)">copy</a></strong>(x10.regionarray.DistArray&lt;<a href="../../../x10/matrix/block/DenseBlock.html" title="class in x10.matrix.block">DenseBlock</a>&gt;&nbsp;dmlist,
     x10.lang.Int&nbsp;srcpid,
     x10.lang.Int&nbsp;srcColOff,
-    x10.array.Array&lt;x10.lang.Double&gt;&nbsp;dst,
+    x10.regionarray.Array&lt;x10.lang.Double&gt;&nbsp;dst,
     x10.lang.Int&nbsp;dstOff,
     x10.lang.Int&nbsp;dataCnt)</code>
-<div class="block"><B>Declaration:</B> <TT>copy(dmlist:x10.array.DistArray[x10.matrix.block.DenseBlock]{self.dist.region.rank==1},srcpid:x10.lang.Int,srcColOff:x10.lang.Int,dst:x10.array.Array[x10.lang.Double]{self.rank==1},dstOff:x10.lang.Int,dataCnt:x10.lang.Int): void.</TT>
+<div class="block"><B>Declaration:</B> <TT>copy(dmlist:x10.regionarray.DistArray[x10.matrix.block.DenseBlock]{self.dist.region.rank==1},srcpid:x10.lang.Int,srcColOff:x10.lang.Int,dst:x10.regionarray.Array[x10.lang.Double]{self.rank==1},dstOff:x10.lang.Int,dataCnt:x10.lang.Int): void.</TT>
 Copy multiple columns from source dense matrix at here to the specified remote
 place in DistArray of dense matrix.</div>
 </td>
 </tr>
 <tr class="altColor">
 <td class="colFirst"><code>protected static void</code></td>
-<td class="colLast"><code><strong><a href="../../../x10/matrix/comm/MatrixRemoteCopy.html#mpiCopy(x10.array.DistArray[x10.matrix.block.DenseBlock],x10.lang.Int,x10.lang.Int,x10.array.Array[x10.lang.Double],x10.lang.Int,x10.lang.Int)">mpiCopy</a></strong>(x10.array.DistArray&lt;<a href="../../../x10/matrix/block/DenseBlock.html" title="class in x10.matrix.block">DenseBlock</a>&gt;&nbsp;src,
+<td class="colLast"><code><strong><a href="../../../x10/matrix/comm/MatrixRemoteCopy.html#mpiCopy(x10.regionarray.DistArray[x10.matrix.block.DenseBlock],x10.lang.Int,x10.lang.Int,x10.regionarray.Array[x10.lang.Double],x10.lang.Int,x10.lang.Int)">mpiCopy</a></strong>(x10.regionarray.DistArray&lt;<a href="../../../x10/matrix/block/DenseBlock.html" title="class in x10.matrix.block">DenseBlock</a>&gt;&nbsp;src,
        x10.lang.Int&nbsp;srcbid,
        x10.lang.Int&nbsp;srcColOff,
-       x10.array.Array&lt;x10.lang.Double&gt;&nbsp;dst,
+       x10.regionarray.Array&lt;x10.lang.Double&gt;&nbsp;dst,
        x10.lang.Int&nbsp;dstOff,
        x10.lang.Int&nbsp;dataCnt)</code>
-<div class="block"><B>Declaration:</B> <TT>mpiCopy(src:x10.array.DistArray[x10.matrix.block.DenseBlock]{self.dist.region.rank==1},srcbid:x10.lang.Int,srcColOff:x10.lang.Int,dst:x10.array.Array[x10.lang.Double]{self.rank==1},dstOff:x10.lang.Int,dataCnt:x10.lang.Int): void.</TT>
+<div class="block"><B>Declaration:</B> <TT>mpiCopy(src:x10.regionarray.DistArray[x10.matrix.block.DenseBlock]{self.dist.region.rank==1},srcbid:x10.lang.Int,srcColOff:x10.lang.Int,dst:x10.regionarray.Array[x10.lang.Double]{self.rank==1},dstOff:x10.lang.Int,dataCnt:x10.lang.Int): void.</TT>
 Copy data from remote block to here in vector</div>
 </td>
 </tr>
 <tr class="rowColor">
 <td class="colFirst"><code>protected static void</code></td>
-<td class="colLast"><code><strong><a href="../../../x10/matrix/comm/MatrixRemoteCopy.html#x10Copy(x10.array.DistArray[x10.matrix.block.DenseBlock],x10.lang.Int,x10.lang.Int,x10.array.Array[x10.lang.Double],x10.lang.Int,x10.lang.Int)">x10Copy</a></strong>(x10.array.DistArray&lt;<a href="../../../x10/matrix/block/DenseBlock.html" title="class in x10.matrix.block">DenseBlock</a>&gt;&nbsp;src,
+<td class="colLast"><code><strong><a href="../../../x10/matrix/comm/MatrixRemoteCopy.html#x10Copy(x10.regionarray.DistArray[x10.matrix.block.DenseBlock],x10.lang.Int,x10.lang.Int,x10.regionarray.Array[x10.lang.Double],x10.lang.Int,x10.lang.Int)">x10Copy</a></strong>(x10.regionarray.DistArray&lt;<a href="../../../x10/matrix/block/DenseBlock.html" title="class in x10.matrix.block">DenseBlock</a>&gt;&nbsp;src,
        x10.lang.Int&nbsp;srcbid,
        x10.lang.Int&nbsp;srcColOff,
-       x10.array.Array&lt;x10.lang.Double&gt;&nbsp;dst,
+       x10.regionarray.Array&lt;x10.lang.Double&gt;&nbsp;dst,
        x10.lang.Int&nbsp;dstOff,
        x10.lang.Int&nbsp;dataCnt)</code>
-<div class="block"><B>Declaration:</B> <TT>x10Copy(src:x10.array.DistArray[x10.matrix.block.DenseBlock]{self.dist.region.rank==1},srcbid:x10.lang.Int,srcColOff:x10.lang.Int,dst:x10.array.Array[x10.lang.Double]{self.rank==1},dstOff:x10.lang.Int,dataCnt:x10.lang.Int): void.</TT>
+<div class="block"><B>Declaration:</B> <TT>x10Copy(src:x10.regionarray.DistArray[x10.matrix.block.DenseBlock]{self.dist.region.rank==1},srcbid:x10.lang.Int,srcColOff:x10.lang.Int,dst:x10.regionarray.Array[x10.lang.Double]{self.rank==1},dstOff:x10.lang.Int,dataCnt:x10.lang.Int): void.</TT>
 Copy data from remote block to here in vector</div>
 </td>
 </tr>
@@ -661,35 +661,35 @@ This class transfers matrix data across different places.</div>
 <!--   -->
 </a>
 <h3>Method Detail</h3>
-<a name="copyTo(x10.array.DistArray[x10.matrix.DenseMatrix],x10.lang.Int)">
+<a name="copyTo(x10.regionarray.DistArray[x10.matrix.DenseMatrix],x10.lang.Int)">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
 <h4>copyTo</h4>
-<pre>public static&nbsp;x10.lang.Int&nbsp;copyTo(x10.array.DistArray&lt;<a href="../../../x10/matrix/DenseMatrix.html" title="class in x10.matrix">DenseMatrix</a>&gt;&nbsp;dmlist,
+<pre>public static&nbsp;x10.lang.Int&nbsp;copyTo(x10.regionarray.DistArray&lt;<a href="../../../x10/matrix/DenseMatrix.html" title="class in x10.matrix">DenseMatrix</a>&gt;&nbsp;dmlist,
                   x10.lang.Int&nbsp;dstpid)</pre>
-<div class="block"><B>Declaration:</B> <TT>copyTo(dmlist:x10.array.DistArray[x10.matrix.DenseMatrix]{self.dist.region.rank==1},dstpid:x10.lang.Int): x10.lang.Int.</TT><PRE>
+<div class="block"><B>Declaration:</B> <TT>copyTo(dmlist:x10.regionarray.DistArray[x10.matrix.DenseMatrix]{self.dist.region.rank==1},dstpid:x10.lang.Int): x10.lang.Int.</TT><PRE>
 </PRE>Copy whole dense matrix from here to the remote place via DistArray of dense matrices.</div>
 <dl><dt><span class="strong">Parameters:</span></dt><dd><code>dmlist</code> - DistArray of dense matrices</dd><dd><code>dstpid</code> - The destination place</dd>
 <dt><span class="strong">Returns:</span></dt><dd>-- number of elements copied</dd></dl>
 </li>
 </ul>
-<a name="copyFrom(x10.array.DistArray[x10.matrix.DenseMatrix],x10.lang.Int)">
+<a name="copyFrom(x10.regionarray.DistArray[x10.matrix.DenseMatrix],x10.lang.Int)">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
 <h4>copyFrom</h4>
-<pre>public static&nbsp;x10.lang.Int&nbsp;copyFrom(x10.array.DistArray&lt;<a href="../../../x10/matrix/DenseMatrix.html" title="class in x10.matrix">DenseMatrix</a>&gt;&nbsp;dmlist,
+<pre>public static&nbsp;x10.lang.Int&nbsp;copyFrom(x10.regionarray.DistArray&lt;<a href="../../../x10/matrix/DenseMatrix.html" title="class in x10.matrix">DenseMatrix</a>&gt;&nbsp;dmlist,
                     x10.lang.Int&nbsp;srcpid)</pre>
-<div class="block"><B>Declaration:</B> <TT>copyFrom(dmlist:x10.array.DistArray[x10.matrix.DenseMatrix]{self.dist.region.rank==1},srcpid:x10.lang.Int): x10.lang.Int.</TT><PRE>
+<div class="block"><B>Declaration:</B> <TT>copyFrom(dmlist:x10.regionarray.DistArray[x10.matrix.DenseMatrix]{self.dist.region.rank==1},srcpid:x10.lang.Int): x10.lang.Int.</TT><PRE>
 </PRE>Copy whole dense matrix from remote place to here</div>
 <dl><dt><span class="strong">Parameters:</span></dt><dd><code>dmlist</code> - DistArray of dense matrices</dd><dd><code>srcpid</code> - The source place</dd>
 <dt><span class="strong">Returns:</span></dt><dd>-- number of elements copied</dd></dl>
 </li>
 </ul>
-<a name="copy(x10.matrix.DenseMatrix,x10.lang.Int,x10.array.DistArray[x10.matrix.DenseMatrix],x10.lang.Int,x10.lang.Int,x10.lang.Int)">
+<a name="copy(x10.matrix.DenseMatrix,x10.lang.Int,x10.regionarray.DistArray[x10.matrix.DenseMatrix],x10.lang.Int,x10.lang.Int,x10.lang.Int)">
 <!--   -->
 </a>
 <ul class="blockList">
@@ -697,18 +697,18 @@ This class transfers matrix data across different places.</div>
 <h4>copy</h4>
 <pre>public static&nbsp;x10.lang.Int&nbsp;copy(<a href="../../../x10/matrix/DenseMatrix.html" title="class in x10.matrix">DenseMatrix</a>&nbsp;srcden,
                 x10.lang.Int&nbsp;srcColOff,
-                x10.array.DistArray&lt;<a href="../../../x10/matrix/DenseMatrix.html" title="class in x10.matrix">DenseMatrix</a>&gt;&nbsp;dmlist,
+                x10.regionarray.DistArray&lt;<a href="../../../x10/matrix/DenseMatrix.html" title="class in x10.matrix">DenseMatrix</a>&gt;&nbsp;dmlist,
                 x10.lang.Int&nbsp;dstpid,
                 x10.lang.Int&nbsp;dstColOff,
                 x10.lang.Int&nbsp;colCnt)</pre>
-<div class="block"><B>Declaration:</B> <TT>copy(srcden:x10.matrix.DenseMatrix,srcColOff:x10.lang.Int,dmlist:x10.array.DistArray[x10.matrix.DenseMatrix]{self.dist.region.rank==1},dstpid:x10.lang.Int,dstColOff:x10.lang.Int,colCnt:x10.lang.Int): x10.lang.Int.</TT><PRE>
+<div class="block"><B>Declaration:</B> <TT>copy(srcden:x10.matrix.DenseMatrix,srcColOff:x10.lang.Int,dmlist:x10.regionarray.DistArray[x10.matrix.DenseMatrix]{self.dist.region.rank==1},dstpid:x10.lang.Int,dstColOff:x10.lang.Int,colCnt:x10.lang.Int): x10.lang.Int.</TT><PRE>
 </PRE>Copy specified columns from source matrix at here to the remote
 place via DistArray of dense matrix.</div>
 <dl><dt><span class="strong">Parameters:</span></dt><dd><code>srcden</code> - the source dense matrix at here</dd><dd><code>srcColOff</code> - starting column in in source matrix</dd><dd><code>dmlist</code> - target dense matrix in DistArray</dd><dd><code>dstpid</code> - the place id of target dense matrix in DistArray.</dd><dd><code>dstColOff</code> - starting column offset in target matrix at destination place</dd><dd><code>colCnt</code> - count of columns to be copied from source dense matrix</dd>
 <dt><span class="strong">Returns:</span></dt><dd>-- number of elements copied.</dd></dl>
 </li>
 </ul>
-<a name="mpiCopy(x10.matrix.DenseMatrix,x10.lang.Int,x10.array.DistArray[x10.matrix.DenseMatrix],x10.lang.Int,x10.lang.Int,x10.lang.Int)">
+<a name="mpiCopy(x10.matrix.DenseMatrix,x10.lang.Int,x10.regionarray.DistArray[x10.matrix.DenseMatrix],x10.lang.Int,x10.lang.Int,x10.lang.Int)">
 <!--   -->
 </a>
 <ul class="blockList">
@@ -716,11 +716,11 @@ place via DistArray of dense matrix.</div>
 <h4>mpiCopy</h4>
 <pre>protected static&nbsp;x10.lang.Int&nbsp;mpiCopy(<a href="../../../x10/matrix/DenseMatrix.html" title="class in x10.matrix">DenseMatrix</a>&nbsp;srcden,
                    x10.lang.Int&nbsp;srcColOff,
-                   x10.array.DistArray&lt;<a href="../../../x10/matrix/DenseMatrix.html" title="class in x10.matrix">DenseMatrix</a>&gt;&nbsp;dmlist,
+                   x10.regionarray.DistArray&lt;<a href="../../../x10/matrix/DenseMatrix.html" title="class in x10.matrix">DenseMatrix</a>&gt;&nbsp;dmlist,
                    x10.lang.Int&nbsp;dstpid,
                    x10.lang.Int&nbsp;dstColOff,
                    x10.lang.Int&nbsp;colCnt)</pre>
-<div class="block"><B>Declaration:</B> <TT>mpiCopy(srcden:x10.matrix.DenseMatrix,srcColOff:x10.lang.Int,dmlist:x10.array.DistArray[x10.matrix.DenseMatrix]{self.dist.region.rank==1},dstpid:x10.lang.Int,dstColOff:x10.lang.Int,colCnt:x10.lang.Int): x10.lang.Int.</TT><PRE>
+<div class="block"><B>Declaration:</B> <TT>mpiCopy(srcden:x10.matrix.DenseMatrix,srcColOff:x10.lang.Int,dmlist:x10.regionarray.DistArray[x10.matrix.DenseMatrix]{self.dist.region.rank==1},dstpid:x10.lang.Int,dstColOff:x10.lang.Int,colCnt:x10.lang.Int): x10.lang.Int.</TT><PRE>
 </PRE>Using MPI routine to copy multiple columns from source dense matrix at here
 to the remote dense matrix of duplicated dense matrix at the specified place.
 MPI send and recv are performed at here and the remote place respectively.</div>
@@ -728,7 +728,7 @@ MPI send and recv are performed at here and the remote place respectively.</div>
 <dt><span class="strong">Returns:</span></dt><dd>-- Number of elements copied.</dd></dl>
 </li>
 </ul>
-<a name="x10Copy(x10.matrix.DenseMatrix,x10.lang.Int,x10.array.DistArray[x10.matrix.DenseMatrix],x10.lang.Int,x10.lang.Int,x10.lang.Int)">
+<a name="x10Copy(x10.matrix.DenseMatrix,x10.lang.Int,x10.regionarray.DistArray[x10.matrix.DenseMatrix],x10.lang.Int,x10.lang.Int,x10.lang.Int)">
 <!--   -->
 </a>
 <ul class="blockList">
@@ -736,11 +736,11 @@ MPI send and recv are performed at here and the remote place respectively.</div>
 <h4>x10Copy</h4>
 <pre>protected static&nbsp;x10.lang.Int&nbsp;x10Copy(<a href="../../../x10/matrix/DenseMatrix.html" title="class in x10.matrix">DenseMatrix</a>&nbsp;srcden,
                    x10.lang.Int&nbsp;srcColOff,
-                   x10.array.DistArray&lt;<a href="../../../x10/matrix/DenseMatrix.html" title="class in x10.matrix">DenseMatrix</a>&gt;&nbsp;dmlist,
+                   x10.regionarray.DistArray&lt;<a href="../../../x10/matrix/DenseMatrix.html" title="class in x10.matrix">DenseMatrix</a>&gt;&nbsp;dmlist,
                    x10.lang.Int&nbsp;dstpid,
                    x10.lang.Int&nbsp;dstColOff,
                    x10.lang.Int&nbsp;colCnt)</pre>
-<div class="block"><B>Declaration:</B> <TT>x10Copy(srcden:x10.matrix.DenseMatrix,srcColOff:x10.lang.Int,dmlist:x10.array.DistArray[x10.matrix.DenseMatrix]{self.dist.region.rank==1},dstpid:x10.lang.Int,dstColOff:x10.lang.Int,colCnt:x10.lang.Int): x10.lang.Int.</TT><PRE>
+<div class="block"><B>Declaration:</B> <TT>x10Copy(srcden:x10.matrix.DenseMatrix,srcColOff:x10.lang.Int,dmlist:x10.regionarray.DistArray[x10.matrix.DenseMatrix]{self.dist.region.rank==1},dstpid:x10.lang.Int,dstColOff:x10.lang.Int,colCnt:x10.lang.Int): x10.lang.Int.</TT><PRE>
 </PRE>Copy source dense matrix from here to the remote dense matrix of
 duplicated dense matrix at a remote place using Array remote copy.
 The source and destination dense matrices must have the same leading dension - M.</div>
@@ -748,64 +748,64 @@ The source and destination dense matrices must have the same leading dension - M
 <dt><span class="strong">Returns:</span></dt><dd>-- Number of elements copied.</dd></dl>
 </li>
 </ul>
-<a name="copy(x10.array.DistArray[x10.matrix.DenseMatrix],x10.lang.Int,x10.lang.Int,x10.matrix.DenseMatrix,x10.lang.Int,x10.lang.Int)">
+<a name="copy(x10.regionarray.DistArray[x10.matrix.DenseMatrix],x10.lang.Int,x10.lang.Int,x10.matrix.DenseMatrix,x10.lang.Int,x10.lang.Int)">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
 <h4>copy</h4>
-<pre>public static&nbsp;x10.lang.Int&nbsp;copy(x10.array.DistArray&lt;<a href="../../../x10/matrix/DenseMatrix.html" title="class in x10.matrix">DenseMatrix</a>&gt;&nbsp;dmlist,
+<pre>public static&nbsp;x10.lang.Int&nbsp;copy(x10.regionarray.DistArray&lt;<a href="../../../x10/matrix/DenseMatrix.html" title="class in x10.matrix">DenseMatrix</a>&gt;&nbsp;dmlist,
                 x10.lang.Int&nbsp;srcpid,
                 x10.lang.Int&nbsp;srcColOff,
                 <a href="../../../x10/matrix/DenseMatrix.html" title="class in x10.matrix">DenseMatrix</a>&nbsp;dstden,
                 x10.lang.Int&nbsp;dstColOff,
                 x10.lang.Int&nbsp;colCnt)</pre>
-<div class="block"><B>Declaration:</B> <TT>copy(dmlist:x10.array.DistArray[x10.matrix.DenseMatrix]{self.dist.region.rank==1},srcpid:x10.lang.Int,srcColOff:x10.lang.Int,dstden:x10.matrix.DenseMatrix,dstColOff:x10.lang.Int,colCnt:x10.lang.Int): x10.lang.Int.</TT><PRE>
+<div class="block"><B>Declaration:</B> <TT>copy(dmlist:x10.regionarray.DistArray[x10.matrix.DenseMatrix]{self.dist.region.rank==1},srcpid:x10.lang.Int,srcColOff:x10.lang.Int,dstden:x10.matrix.DenseMatrix,dstColOff:x10.lang.Int,colCnt:x10.lang.Int): x10.lang.Int.</TT><PRE>
 </PRE>Copy multiple columns of the dense matrix in the specified place to
 here</div>
 <dl><dt><span class="strong">Parameters:</span></dt><dd><code>dmlist</code> - source matrix in the duplicated dense matrix</dd><dd><code>srcpid</code> - source matrix's place id.</dd><dd><code>srcColOff</code> - starting column in in source matrix</dd><dd><code>dstden</code> - destination dense matrix of the copy</dd><dd><code>dstColOff</code> - starting column in target matrix</dd><dd><code>colCnt</code> - count of columns to be copied in source matrix</dd>
 <dt><span class="strong">Returns:</span></dt><dd>-- Number of elements copied</dd></dl>
 </li>
 </ul>
-<a name="x10Copy(x10.array.DistArray[x10.matrix.DenseMatrix],x10.lang.Int,x10.lang.Int,x10.matrix.DenseMatrix,x10.lang.Int,x10.lang.Int)">
+<a name="x10Copy(x10.regionarray.DistArray[x10.matrix.DenseMatrix],x10.lang.Int,x10.lang.Int,x10.matrix.DenseMatrix,x10.lang.Int,x10.lang.Int)">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
 <h4>x10Copy</h4>
-<pre>public static&nbsp;x10.lang.Int&nbsp;x10Copy(x10.array.DistArray&lt;<a href="../../../x10/matrix/DenseMatrix.html" title="class in x10.matrix">DenseMatrix</a>&gt;&nbsp;dmlist,
+<pre>public static&nbsp;x10.lang.Int&nbsp;x10Copy(x10.regionarray.DistArray&lt;<a href="../../../x10/matrix/DenseMatrix.html" title="class in x10.matrix">DenseMatrix</a>&gt;&nbsp;dmlist,
                    x10.lang.Int&nbsp;srcpid,
                    x10.lang.Int&nbsp;srcColOff,
                    <a href="../../../x10/matrix/DenseMatrix.html" title="class in x10.matrix">DenseMatrix</a>&nbsp;dstden,
                    x10.lang.Int&nbsp;dstColOff,
                    x10.lang.Int&nbsp;colCnt)</pre>
-<div class="block"><B>Declaration:</B> <TT>x10Copy(dmlist:x10.array.DistArray[x10.matrix.DenseMatrix]{self.dist.region.rank==1},srcpid:x10.lang.Int,srcColOff:x10.lang.Int,dstden:x10.matrix.DenseMatrix,dstColOff:x10.lang.Int,colCnt:x10.lang.Int): x10.lang.Int.</TT><PRE>
+<div class="block"><B>Declaration:</B> <TT>x10Copy(dmlist:x10.regionarray.DistArray[x10.matrix.DenseMatrix]{self.dist.region.rank==1},srcpid:x10.lang.Int,srcColOff:x10.lang.Int,dstden:x10.matrix.DenseMatrix,dstColOff:x10.lang.Int,colCnt:x10.lang.Int): x10.lang.Int.</TT><PRE>
 </PRE>Copy remote dense matrix from specified place to here, using array remote copy.
 The source and destination dense matrix must have the same leading dimension.</div>
 <dl><dt><span class="strong">Parameters:</span></dt><dd><code>dmlist</code> - source dense matrix in DistArray</dd><dd><code>srcpid</code> - source matrix's place id.</dd><dd><code>srcColOff</code> - column offset in source matrix</dd><dd><code>dstden</code> - destination dense matrix of the copy</dd><dd><code>dstColOff</code> - column offset in target matrix</dd><dd><code>colCnt</code> - count of columns to be copied in source matrix</dd>
 <dt><span class="strong">Returns:</span></dt><dd>number of elements copied</dd></dl>
 </li>
 </ul>
-<a name="mpiCopy(x10.array.DistArray[x10.matrix.DenseMatrix],x10.lang.Int,x10.lang.Int,x10.matrix.DenseMatrix,x10.lang.Int,x10.lang.Int)">
+<a name="mpiCopy(x10.regionarray.DistArray[x10.matrix.DenseMatrix],x10.lang.Int,x10.lang.Int,x10.matrix.DenseMatrix,x10.lang.Int,x10.lang.Int)">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
 <h4>mpiCopy</h4>
-<pre>protected static&nbsp;x10.lang.Int&nbsp;mpiCopy(x10.array.DistArray&lt;<a href="../../../x10/matrix/DenseMatrix.html" title="class in x10.matrix">DenseMatrix</a>&gt;&nbsp;dmlist,
+<pre>protected static&nbsp;x10.lang.Int&nbsp;mpiCopy(x10.regionarray.DistArray&lt;<a href="../../../x10/matrix/DenseMatrix.html" title="class in x10.matrix">DenseMatrix</a>&gt;&nbsp;dmlist,
                    x10.lang.Int&nbsp;srcpid,
                    x10.lang.Int&nbsp;srcColOff,
                    <a href="../../../x10/matrix/DenseMatrix.html" title="class in x10.matrix">DenseMatrix</a>&nbsp;dstden,
                    x10.lang.Int&nbsp;dstColOff,
                    x10.lang.Int&nbsp;colCnt)</pre>
-<div class="block"><B>Declaration:</B> <TT>mpiCopy(dmlist:x10.array.DistArray[x10.matrix.DenseMatrix]{self.dist.region.rank==1},srcpid:x10.lang.Int,srcColOff:x10.lang.Int,dstden:x10.matrix.DenseMatrix,dstColOff:x10.lang.Int,colCnt:x10.lang.Int): x10.lang.Int.</TT><PRE>
+<div class="block"><B>Declaration:</B> <TT>mpiCopy(dmlist:x10.regionarray.DistArray[x10.matrix.DenseMatrix]{self.dist.region.rank==1},srcpid:x10.lang.Int,srcColOff:x10.lang.Int,dstden:x10.matrix.DenseMatrix,dstColOff:x10.lang.Int,colCnt:x10.lang.Int): x10.lang.Int.</TT><PRE>
 </PRE>Using MPI routine to copy multiple columns of dense matrix
 from the specified place to here</div>
 <dl><dt><span class="strong">Parameters:</span></dt><dd><code>dmlist</code> - source dense matrix in the DistArray</dd><dd><code>srcpid</code> - source matrix's place id.</dd><dd><code>srcColOff</code> - column offset in source matrix</dd><dd><code>dstden</code> - destination dense matrix of the copy</dd><dd><code>dstColOff</code> - column offset in source matrix</dd><dd><code>colCnt</code> - count of columns to be copied in source matrix</dd>
 <dt><span class="strong">Returns:</span></dt><dd>number of elements copied</dd></dl>
 </li>
 </ul>
-<a name="copy(x10.matrix.DenseMatrix,x10.lang.Int,x10.array.DistArray[x10.matrix.block.DenseBlock],x10.lang.Int,x10.lang.Int,x10.lang.Int)">
+<a name="copy(x10.matrix.DenseMatrix,x10.lang.Int,x10.regionarray.DistArray[x10.matrix.block.DenseBlock],x10.lang.Int,x10.lang.Int,x10.lang.Int)">
 <!--   -->
 </a>
 <ul class="blockList">
@@ -813,18 +813,18 @@ from the specified place to here</div>
 <h4>copy</h4>
 <pre>public static&nbsp;x10.lang.Int&nbsp;copy(<a href="../../../x10/matrix/DenseMatrix.html" title="class in x10.matrix">DenseMatrix</a>&nbsp;srcden,
                 x10.lang.Int&nbsp;srcColOff,
-                x10.array.DistArray&lt;<a href="../../../x10/matrix/block/DenseBlock.html" title="class in x10.matrix.block">DenseBlock</a>&gt;&nbsp;dmlist,
+                x10.regionarray.DistArray&lt;<a href="../../../x10/matrix/block/DenseBlock.html" title="class in x10.matrix.block">DenseBlock</a>&gt;&nbsp;dmlist,
                 x10.lang.Int&nbsp;dstpid,
                 x10.lang.Int&nbsp;dstColOff,
                 x10.lang.Int&nbsp;colCnt)</pre>
-<div class="block"><B>Declaration:</B> <TT>copy(srcden:x10.matrix.DenseMatrix,srcColOff:x10.lang.Int,dmlist:x10.array.DistArray[x10.matrix.block.DenseBlock]{self.dist.region.rank==1},dstpid:x10.lang.Int,dstColOff:x10.lang.Int,colCnt:x10.lang.Int): x10.lang.Int.</TT><PRE>
+<div class="block"><B>Declaration:</B> <TT>copy(srcden:x10.matrix.DenseMatrix,srcColOff:x10.lang.Int,dmlist:x10.regionarray.DistArray[x10.matrix.block.DenseBlock]{self.dist.region.rank==1},dstpid:x10.lang.Int,dstColOff:x10.lang.Int,colCnt:x10.lang.Int): x10.lang.Int.</TT><PRE>
 </PRE>Copy multiple columns from source dense matrix at here to the specified remote
 place in DistArray of dense matrix.</div>
 <dl><dt><span class="strong">Parameters:</span></dt><dd><code>srcden</code> - the source dense matrix at here</dd><dd><code>srcColOff</code> - starting column in in source matrix</dd><dd><code>dmlist</code> - target dense blocks in DistArray</dd><dd><code>dstpid</code> - the place id of target dense matrix in DistArray.</dd><dd><code>dstColOff</code> - starting column offset in target matrix at destination place</dd><dd><code>colCnt</code> - count of columns to be copied from source dense matrix</dd>
 <dt><span class="strong">Returns:</span></dt><dd>number of elements copied.</dd></dl>
 </li>
 </ul>
-<a name="mpiCopy(x10.matrix.DenseMatrix,x10.lang.Int,x10.array.DistArray[x10.matrix.block.DenseBlock],x10.lang.Int,x10.lang.Int,x10.lang.Int)">
+<a name="mpiCopy(x10.matrix.DenseMatrix,x10.lang.Int,x10.regionarray.DistArray[x10.matrix.block.DenseBlock],x10.lang.Int,x10.lang.Int,x10.lang.Int)">
 <!--   -->
 </a>
 <ul class="blockList">
@@ -832,15 +832,15 @@ place in DistArray of dense matrix.</div>
 <h4>mpiCopy</h4>
 <pre>protected static&nbsp;x10.lang.Int&nbsp;mpiCopy(<a href="../../../x10/matrix/DenseMatrix.html" title="class in x10.matrix">DenseMatrix</a>&nbsp;srcden,
                    x10.lang.Int&nbsp;srcColOff,
-                   x10.array.DistArray&lt;<a href="../../../x10/matrix/block/DenseBlock.html" title="class in x10.matrix.block">DenseBlock</a>&gt;&nbsp;dmlist,
+                   x10.regionarray.DistArray&lt;<a href="../../../x10/matrix/block/DenseBlock.html" title="class in x10.matrix.block">DenseBlock</a>&gt;&nbsp;dmlist,
                    x10.lang.Int&nbsp;dstbid,
                    x10.lang.Int&nbsp;dstColOff,
                    x10.lang.Int&nbsp;colCnt)</pre>
-<div class="block"><B>Declaration:</B> <TT>mpiCopy(srcden:x10.matrix.DenseMatrix,srcColOff:x10.lang.Int,dmlist:x10.array.DistArray[x10.matrix.block.DenseBlock]{self.dist.region.rank==1},dstbid:x10.lang.Int,dstColOff:x10.lang.Int,colCnt:x10.lang.Int): x10.lang.Int.</TT><PRE>
+<div class="block"><B>Declaration:</B> <TT>mpiCopy(srcden:x10.matrix.DenseMatrix,srcColOff:x10.lang.Int,dmlist:x10.regionarray.DistArray[x10.matrix.block.DenseBlock]{self.dist.region.rank==1},dstbid:x10.lang.Int,dstColOff:x10.lang.Int,colCnt:x10.lang.Int): x10.lang.Int.</TT><PRE>
 </PRE></div>
 </li>
 </ul>
-<a name="x10Copy(x10.matrix.DenseMatrix,x10.lang.Int,x10.array.DistArray[x10.matrix.block.DenseBlock],x10.lang.Int,x10.lang.Int,x10.lang.Int)">
+<a name="x10Copy(x10.matrix.DenseMatrix,x10.lang.Int,x10.regionarray.DistArray[x10.matrix.block.DenseBlock],x10.lang.Int,x10.lang.Int,x10.lang.Int)">
 <!--   -->
 </a>
 <ul class="blockList">
@@ -848,94 +848,94 @@ place in DistArray of dense matrix.</div>
 <h4>x10Copy</h4>
 <pre>protected static&nbsp;x10.lang.Int&nbsp;x10Copy(<a href="../../../x10/matrix/DenseMatrix.html" title="class in x10.matrix">DenseMatrix</a>&nbsp;srcden,
                    x10.lang.Int&nbsp;srcColOff,
-                   x10.array.DistArray&lt;<a href="../../../x10/matrix/block/DenseBlock.html" title="class in x10.matrix.block">DenseBlock</a>&gt;&nbsp;dst,
+                   x10.regionarray.DistArray&lt;<a href="../../../x10/matrix/block/DenseBlock.html" title="class in x10.matrix.block">DenseBlock</a>&gt;&nbsp;dst,
                    x10.lang.Int&nbsp;dstbid,
                    x10.lang.Int&nbsp;dstColOff,
                    x10.lang.Int&nbsp;colCnt)</pre>
-<div class="block"><B>Declaration:</B> <TT>x10Copy(srcden:x10.matrix.DenseMatrix,srcColOff:x10.lang.Int,dst:x10.array.DistArray[x10.matrix.block.DenseBlock]{self.dist.region.rank==1},dstbid:x10.lang.Int,dstColOff:x10.lang.Int,colCnt:x10.lang.Int): x10.lang.Int.</TT><PRE>
+<div class="block"><B>Declaration:</B> <TT>x10Copy(srcden:x10.matrix.DenseMatrix,srcColOff:x10.lang.Int,dst:x10.regionarray.DistArray[x10.matrix.block.DenseBlock]{self.dist.region.rank==1},dstbid:x10.lang.Int,dstColOff:x10.lang.Int,colCnt:x10.lang.Int): x10.lang.Int.</TT><PRE>
 </PRE></div>
 </li>
 </ul>
-<a name="copy(x10.array.DistArray[x10.matrix.block.DenseBlock],x10.lang.Int,x10.lang.Int,x10.matrix.DenseMatrix,x10.lang.Int,x10.lang.Int)">
+<a name="copy(x10.regionarray.DistArray[x10.matrix.block.DenseBlock],x10.lang.Int,x10.lang.Int,x10.matrix.DenseMatrix,x10.lang.Int,x10.lang.Int)">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
 <h4>copy</h4>
-<pre>public static&nbsp;x10.lang.Int&nbsp;copy(x10.array.DistArray&lt;<a href="../../../x10/matrix/block/DenseBlock.html" title="class in x10.matrix.block">DenseBlock</a>&gt;&nbsp;dmlist,
+<pre>public static&nbsp;x10.lang.Int&nbsp;copy(x10.regionarray.DistArray&lt;<a href="../../../x10/matrix/block/DenseBlock.html" title="class in x10.matrix.block">DenseBlock</a>&gt;&nbsp;dmlist,
                 x10.lang.Int&nbsp;srcpid,
                 x10.lang.Int&nbsp;srcColOff,
                 <a href="../../../x10/matrix/DenseMatrix.html" title="class in x10.matrix">DenseMatrix</a>&nbsp;dstden,
                 x10.lang.Int&nbsp;dstColOff,
                 x10.lang.Int&nbsp;colCnt)</pre>
-<div class="block"><B>Declaration:</B> <TT>copy(dmlist:x10.array.DistArray[x10.matrix.block.DenseBlock]{self.dist.region.rank==1},srcpid:x10.lang.Int,srcColOff:x10.lang.Int,dstden:x10.matrix.DenseMatrix,dstColOff:x10.lang.Int,colCnt:x10.lang.Int): x10.lang.Int.</TT><PRE>
+<div class="block"><B>Declaration:</B> <TT>copy(dmlist:x10.regionarray.DistArray[x10.matrix.block.DenseBlock]{self.dist.region.rank==1},srcpid:x10.lang.Int,srcColOff:x10.lang.Int,dstden:x10.matrix.DenseMatrix,dstColOff:x10.lang.Int,colCnt:x10.lang.Int): x10.lang.Int.</TT><PRE>
 </PRE>Copy multiple columns from source dense matrix at here to the specified remote
 place in DistArray of dense matrix.</div>
 <dl><dt><span class="strong">Parameters:</span></dt><dd><code>dmlist</code> - target dense blocks in DistArray</dd><dd><code>srcpid</code> - the place id of target dense matrix in DistArray.</dd><dd><code>srcColOff</code> - starting column in in source matrix</dd><dd><code>dstden</code> - the source dense matrix at here</dd><dd><code>dstColOff</code> - starting column offset in target matrix at destination place</dd><dd><code>colCnt</code> - count of columns to be copied from source dense matrix</dd>
 <dt><span class="strong">Returns:</span></dt><dd>-- number of elements copied.</dd></dl>
 </li>
 </ul>
-<a name="mpiCopy(x10.array.DistArray[x10.matrix.block.DenseBlock],x10.lang.Int,x10.lang.Int,x10.matrix.DenseMatrix,x10.lang.Int,x10.lang.Int)">
+<a name="mpiCopy(x10.regionarray.DistArray[x10.matrix.block.DenseBlock],x10.lang.Int,x10.lang.Int,x10.matrix.DenseMatrix,x10.lang.Int,x10.lang.Int)">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
 <h4>mpiCopy</h4>
-<pre>protected static&nbsp;x10.lang.Int&nbsp;mpiCopy(x10.array.DistArray&lt;<a href="../../../x10/matrix/block/DenseBlock.html" title="class in x10.matrix.block">DenseBlock</a>&gt;&nbsp;src,
+<pre>protected static&nbsp;x10.lang.Int&nbsp;mpiCopy(x10.regionarray.DistArray&lt;<a href="../../../x10/matrix/block/DenseBlock.html" title="class in x10.matrix.block">DenseBlock</a>&gt;&nbsp;src,
                    x10.lang.Int&nbsp;srcbid,
                    x10.lang.Int&nbsp;srcColOff,
                    <a href="../../../x10/matrix/DenseMatrix.html" title="class in x10.matrix">DenseMatrix</a>&nbsp;dstden,
                    x10.lang.Int&nbsp;dstColOff,
                    x10.lang.Int&nbsp;colCnt)</pre>
-<div class="block"><B>Declaration:</B> <TT>mpiCopy(src:x10.array.DistArray[x10.matrix.block.DenseBlock]{self.dist.region.rank==1},srcbid:x10.lang.Int,srcColOff:x10.lang.Int,dstden:x10.matrix.DenseMatrix,dstColOff:x10.lang.Int,colCnt:x10.lang.Int): x10.lang.Int.</TT><PRE>
+<div class="block"><B>Declaration:</B> <TT>mpiCopy(src:x10.regionarray.DistArray[x10.matrix.block.DenseBlock]{self.dist.region.rank==1},srcbid:x10.lang.Int,srcColOff:x10.lang.Int,dstden:x10.matrix.DenseMatrix,dstColOff:x10.lang.Int,colCnt:x10.lang.Int): x10.lang.Int.</TT><PRE>
 </PRE></div>
 </li>
 </ul>
-<a name="x10Copy(x10.array.DistArray[x10.matrix.block.DenseBlock],x10.lang.Int,x10.lang.Int,x10.matrix.DenseMatrix,x10.lang.Int,x10.lang.Int)">
+<a name="x10Copy(x10.regionarray.DistArray[x10.matrix.block.DenseBlock],x10.lang.Int,x10.lang.Int,x10.matrix.DenseMatrix,x10.lang.Int,x10.lang.Int)">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
 <h4>x10Copy</h4>
-<pre>protected static&nbsp;x10.lang.Int&nbsp;x10Copy(x10.array.DistArray&lt;<a href="../../../x10/matrix/block/DenseBlock.html" title="class in x10.matrix.block">DenseBlock</a>&gt;&nbsp;src,
+<pre>protected static&nbsp;x10.lang.Int&nbsp;x10Copy(x10.regionarray.DistArray&lt;<a href="../../../x10/matrix/block/DenseBlock.html" title="class in x10.matrix.block">DenseBlock</a>&gt;&nbsp;src,
                    x10.lang.Int&nbsp;srcbid,
                    x10.lang.Int&nbsp;srcColOff,
                    <a href="../../../x10/matrix/DenseMatrix.html" title="class in x10.matrix">DenseMatrix</a>&nbsp;dstden,
                    x10.lang.Int&nbsp;dstColOff,
                    x10.lang.Int&nbsp;colCnt)</pre>
-<div class="block"><B>Declaration:</B> <TT>x10Copy(src:x10.array.DistArray[x10.matrix.block.DenseBlock]{self.dist.region.rank==1},srcbid:x10.lang.Int,srcColOff:x10.lang.Int,dstden:x10.matrix.DenseMatrix,dstColOff:x10.lang.Int,colCnt:x10.lang.Int): x10.lang.Int.</TT><PRE>
+<div class="block"><B>Declaration:</B> <TT>x10Copy(src:x10.regionarray.DistArray[x10.matrix.block.DenseBlock]{self.dist.region.rank==1},srcbid:x10.lang.Int,srcColOff:x10.lang.Int,dstden:x10.matrix.DenseMatrix,dstColOff:x10.lang.Int,colCnt:x10.lang.Int): x10.lang.Int.</TT><PRE>
 </PRE></div>
 </li>
 </ul>
-<a name="copyTo(x10.array.DistArray[x10.matrix.sparse.SparseCSC],x10.lang.Int)">
+<a name="copyTo(x10.regionarray.DistArray[x10.matrix.sparse.SparseCSC],x10.lang.Int)">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
 <h4>copyTo</h4>
-<pre>public static&nbsp;x10.lang.Int&nbsp;copyTo(x10.array.DistArray&lt;<a href="../../../x10/matrix/sparse/SparseCSC.html" title="class in x10.matrix.sparse">SparseCSC</a>&gt;&nbsp;smlist,
+<pre>public static&nbsp;x10.lang.Int&nbsp;copyTo(x10.regionarray.DistArray&lt;<a href="../../../x10/matrix/sparse/SparseCSC.html" title="class in x10.matrix.sparse">SparseCSC</a>&gt;&nbsp;smlist,
                   x10.lang.Int&nbsp;dstpid)</pre>
-<div class="block"><B>Declaration:</B> <TT>copyTo(smlist:x10.array.DistArray[x10.matrix.sparse.SparseCSC]{self.dist.region.rank==1},dstpid:x10.lang.Int): x10.lang.Int.</TT><PRE>
+<div class="block"><B>Declaration:</B> <TT>copyTo(smlist:x10.regionarray.DistArray[x10.matrix.sparse.SparseCSC]{self.dist.region.rank==1},dstpid:x10.lang.Int): x10.lang.Int.</TT><PRE>
 </PRE>Copy whole sparse matrix from here to remote place stored in DistArray</div>
 <dl><dt><span class="strong">Parameters:</span></dt><dd><code>smlist</code> - DistArray of sparse matrices</dd><dd><code>dstpid</code> - destination place id</dd>
 <dt><span class="strong">Returns:</span></dt><dd>number of elements copied</dd></dl>
 </li>
 </ul>
-<a name="copyFrom(x10.array.DistArray[x10.matrix.sparse.SparseCSC],x10.lang.Int)">
+<a name="copyFrom(x10.regionarray.DistArray[x10.matrix.sparse.SparseCSC],x10.lang.Int)">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
 <h4>copyFrom</h4>
-<pre>public static&nbsp;x10.lang.Int&nbsp;copyFrom(x10.array.DistArray&lt;<a href="../../../x10/matrix/sparse/SparseCSC.html" title="class in x10.matrix.sparse">SparseCSC</a>&gt;&nbsp;smlist,
+<pre>public static&nbsp;x10.lang.Int&nbsp;copyFrom(x10.regionarray.DistArray&lt;<a href="../../../x10/matrix/sparse/SparseCSC.html" title="class in x10.matrix.sparse">SparseCSC</a>&gt;&nbsp;smlist,
                     x10.lang.Int&nbsp;srcpid)</pre>
-<div class="block"><B>Declaration:</B> <TT>copyFrom(smlist:x10.array.DistArray[x10.matrix.sparse.SparseCSC]{self.dist.region.rank==1},srcpid:x10.lang.Int): x10.lang.Int.</TT><PRE>
+<div class="block"><B>Declaration:</B> <TT>copyFrom(smlist:x10.regionarray.DistArray[x10.matrix.sparse.SparseCSC]{self.dist.region.rank==1},srcpid:x10.lang.Int): x10.lang.Int.</TT><PRE>
 </PRE>Copy whole sparseCSC matrix from remote place to here</div>
 <dl><dt><span class="strong">Parameters:</span></dt><dd><code>smlist</code> - DistArray of sparse matrices</dd><dd><code>srcpid</code> - The source place</dd>
 <dt><span class="strong">Returns:</span></dt><dd>-- number of elements copied</dd></dl>
 </li>
 </ul>
-<a name="copy(x10.matrix.sparse.SparseCSC,x10.lang.Int,x10.array.DistArray[x10.matrix.sparse.SparseCSC],x10.lang.Int,x10.lang.Int,x10.lang.Int)">
+<a name="copy(x10.matrix.sparse.SparseCSC,x10.lang.Int,x10.regionarray.DistArray[x10.matrix.sparse.SparseCSC],x10.lang.Int,x10.lang.Int,x10.lang.Int)">
 <!--   -->
 </a>
 <ul class="blockList">
@@ -943,18 +943,18 @@ place in DistArray of dense matrix.</div>
 <h4>copy</h4>
 <pre>public static&nbsp;x10.lang.Int&nbsp;copy(<a href="../../../x10/matrix/sparse/SparseCSC.html" title="class in x10.matrix.sparse">SparseCSC</a>&nbsp;srcspa,
                 x10.lang.Int&nbsp;srcColOff,
-                x10.array.DistArray&lt;<a href="../../../x10/matrix/sparse/SparseCSC.html" title="class in x10.matrix.sparse">SparseCSC</a>&gt;&nbsp;smlist,
+                x10.regionarray.DistArray&lt;<a href="../../../x10/matrix/sparse/SparseCSC.html" title="class in x10.matrix.sparse">SparseCSC</a>&gt;&nbsp;smlist,
                 x10.lang.Int&nbsp;dstpid,
                 x10.lang.Int&nbsp;dstColOff,
                 x10.lang.Int&nbsp;colCnt)</pre>
-<div class="block"><B>Declaration:</B> <TT>copy(srcspa:x10.matrix.sparse.SparseCSC,srcColOff:x10.lang.Int,smlist:x10.array.DistArray[x10.matrix.sparse.SparseCSC]{self.dist.region.rank==1},dstpid:x10.lang.Int,dstColOff:x10.lang.Int,colCnt:x10.lang.Int): x10.lang.Int.</TT><PRE>
+<div class="block"><B>Declaration:</B> <TT>copy(srcspa:x10.matrix.sparse.SparseCSC,srcColOff:x10.lang.Int,smlist:x10.regionarray.DistArray[x10.matrix.sparse.SparseCSC]{self.dist.region.rank==1},dstpid:x10.lang.Int,dstColOff:x10.lang.Int,colCnt:x10.lang.Int): x10.lang.Int.</TT><PRE>
 </PRE>Copy multiple columns from source sparse matrix at here to the specified remote
 place in DistArray.</div>
 <dl><dt><span class="strong">Parameters:</span></dt><dd><code>srcspa</code> - source sparseCSC matrix at here</dd><dd><code>srcColOff</code> - column offset in source matrix</dd><dd><code>smlist</code> - target sparse matrix in DistArray</dd><dd><code>dstpid</code> - place id of target sparse matrix in DistArray.</dd><dd><code>dstColOff</code> - column offset in target matrix</dd><dd><code>colCnt</code> - count of columns to be copied from source sparse matrix</dd>
 <dt><span class="strong">Returns:</span></dt><dd>number of elements copied.</dd></dl>
 </li>
 </ul>
-<a name="mpiCopy(x10.matrix.sparse.SparseCSC,x10.lang.Int,x10.array.DistArray[x10.matrix.sparse.SparseCSC],x10.lang.Int,x10.lang.Int,x10.lang.Int)">
+<a name="mpiCopy(x10.matrix.sparse.SparseCSC,x10.lang.Int,x10.regionarray.DistArray[x10.matrix.sparse.SparseCSC],x10.lang.Int,x10.lang.Int,x10.lang.Int)">
 <!--   -->
 </a>
 <ul class="blockList">
@@ -962,15 +962,15 @@ place in DistArray.</div>
 <h4>mpiCopy</h4>
 <pre>protected static&nbsp;x10.lang.Int&nbsp;mpiCopy(<a href="../../../x10/matrix/sparse/SparseCSC.html" title="class in x10.matrix.sparse">SparseCSC</a>&nbsp;srcspa,
                    x10.lang.Int&nbsp;srcColOff,
-                   x10.array.DistArray&lt;<a href="../../../x10/matrix/sparse/SparseCSC.html" title="class in x10.matrix.sparse">SparseCSC</a>&gt;&nbsp;smlist,
+                   x10.regionarray.DistArray&lt;<a href="../../../x10/matrix/sparse/SparseCSC.html" title="class in x10.matrix.sparse">SparseCSC</a>&gt;&nbsp;smlist,
                    x10.lang.Int&nbsp;dstpid,
                    x10.lang.Int&nbsp;dstColOff,
                    x10.lang.Int&nbsp;colCnt)</pre>
-<div class="block"><B>Declaration:</B> <TT>mpiCopy(srcspa:x10.matrix.sparse.SparseCSC,srcColOff:x10.lang.Int,smlist:x10.array.DistArray[x10.matrix.sparse.SparseCSC]{self.dist.region.rank==1},dstpid:x10.lang.Int,dstColOff:x10.lang.Int,colCnt:x10.lang.Int): x10.lang.Int.</TT><PRE>
+<div class="block"><B>Declaration:</B> <TT>mpiCopy(srcspa:x10.matrix.sparse.SparseCSC,srcColOff:x10.lang.Int,smlist:x10.regionarray.DistArray[x10.matrix.sparse.SparseCSC]{self.dist.region.rank==1},dstpid:x10.lang.Int,dstColOff:x10.lang.Int,colCnt:x10.lang.Int): x10.lang.Int.</TT><PRE>
 </PRE>Based on mpi send/recv, copy data from here to remote place</div>
 </li>
 </ul>
-<a name="x10Copy(x10.matrix.sparse.SparseCSC,x10.lang.Int,x10.array.DistArray[x10.matrix.sparse.SparseCSC],x10.lang.Int,x10.lang.Int,x10.lang.Int)">
+<a name="x10Copy(x10.matrix.sparse.SparseCSC,x10.lang.Int,x10.regionarray.DistArray[x10.matrix.sparse.SparseCSC],x10.lang.Int,x10.lang.Int,x10.lang.Int)">
 <!--   -->
 </a>
 <ul class="blockList">
@@ -978,11 +978,11 @@ place in DistArray.</div>
 <h4>x10Copy</h4>
 <pre>protected static&nbsp;x10.lang.Int&nbsp;x10Copy(<a href="../../../x10/matrix/sparse/SparseCSC.html" title="class in x10.matrix.sparse">SparseCSC</a>&nbsp;srcspa,
                    x10.lang.Int&nbsp;srcColOff,
-                   x10.array.DistArray&lt;<a href="../../../x10/matrix/sparse/SparseCSC.html" title="class in x10.matrix.sparse">SparseCSC</a>&gt;&nbsp;dst,
+                   x10.regionarray.DistArray&lt;<a href="../../../x10/matrix/sparse/SparseCSC.html" title="class in x10.matrix.sparse">SparseCSC</a>&gt;&nbsp;dst,
                    x10.lang.Int&nbsp;dstbid,
                    x10.lang.Int&nbsp;dstColOff,
                    x10.lang.Int&nbsp;colCnt)</pre>
-<div class="block"><B>Declaration:</B> <TT>x10Copy(srcspa:x10.matrix.sparse.SparseCSC,srcColOff:x10.lang.Int,dst:x10.array.DistArray[x10.matrix.sparse.SparseCSC]{self.dist.region.rank==1},dstbid:x10.lang.Int,dstColOff:x10.lang.Int,colCnt:x10.lang.Int): x10.lang.Int.</TT><PRE>
+<div class="block"><B>Declaration:</B> <TT>x10Copy(srcspa:x10.matrix.sparse.SparseCSC,srcColOff:x10.lang.Int,dst:x10.regionarray.DistArray[x10.matrix.sparse.SparseCSC]{self.dist.region.rank==1},dstbid:x10.lang.Int,dstColOff:x10.lang.Int,colCnt:x10.lang.Int): x10.lang.Int.</TT><PRE>
 </PRE>Copy source sparse matrix from here to the remote sparse matrix at reomote
 place using Array remote copy.
 The source and destination dense matrices must have the same leading dension - M.</div>
@@ -990,62 +990,62 @@ The source and destination dense matrices must have the same leading dension - M
 <dt><span class="strong">Returns:</span></dt><dd>-- Number of elements copied.</dd></dl>
 </li>
 </ul>
-<a name="copy(x10.array.DistArray[x10.matrix.sparse.SparseCSC],x10.lang.Int,x10.lang.Int,x10.matrix.sparse.SparseCSC,x10.lang.Int,x10.lang.Int)">
+<a name="copy(x10.regionarray.DistArray[x10.matrix.sparse.SparseCSC],x10.lang.Int,x10.lang.Int,x10.matrix.sparse.SparseCSC,x10.lang.Int,x10.lang.Int)">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
 <h4>copy</h4>
-<pre>public static&nbsp;x10.lang.Int&nbsp;copy(x10.array.DistArray&lt;<a href="../../../x10/matrix/sparse/SparseCSC.html" title="class in x10.matrix.sparse">SparseCSC</a>&gt;&nbsp;smlist,
+<pre>public static&nbsp;x10.lang.Int&nbsp;copy(x10.regionarray.DistArray&lt;<a href="../../../x10/matrix/sparse/SparseCSC.html" title="class in x10.matrix.sparse">SparseCSC</a>&gt;&nbsp;smlist,
                 x10.lang.Int&nbsp;srcpid,
                 x10.lang.Int&nbsp;srcColOff,
                 <a href="../../../x10/matrix/sparse/SparseCSC.html" title="class in x10.matrix.sparse">SparseCSC</a>&nbsp;dstspa,
                 x10.lang.Int&nbsp;dstColOff,
                 x10.lang.Int&nbsp;colCnt)</pre>
-<div class="block"><B>Declaration:</B> <TT>copy(smlist:x10.array.DistArray[x10.matrix.sparse.SparseCSC]{self.dist.region.rank==1},srcpid:x10.lang.Int,srcColOff:x10.lang.Int,dstspa:x10.matrix.sparse.SparseCSC,dstColOff:x10.lang.Int,colCnt:x10.lang.Int): x10.lang.Int.</TT><PRE>
+<div class="block"><B>Declaration:</B> <TT>copy(smlist:x10.regionarray.DistArray[x10.matrix.sparse.SparseCSC]{self.dist.region.rank==1},srcpid:x10.lang.Int,srcColOff:x10.lang.Int,dstspa:x10.matrix.sparse.SparseCSC,dstColOff:x10.lang.Int,colCnt:x10.lang.Int): x10.lang.Int.</TT><PRE>
 </PRE>Copy multiple columns of the sparseCSC matrix in the specified place to
 here</div>
 <dl><dt><span class="strong">Parameters:</span></dt><dd><code>smlist</code> - source sparse matrix in DistArray</dd><dd><code>srcpid</code> - source matrix's place id.</dd><dd><code>srcColOff</code> - column offset in source matrix</dd><dd><code>dstspa</code> - destination sparse matrix of the copy</dd><dd><code>dstColOff</code> - column offset in target matrix</dd><dd><code>colCnt</code> - count of columns to be copied in source matrix</dd>
 <dt><span class="strong">Returns:</span></dt><dd>-- Number of elements copied</dd></dl>
 </li>
 </ul>
-<a name="mpiCopy(x10.array.DistArray[x10.matrix.sparse.SparseCSC],x10.lang.Int,x10.lang.Int,x10.matrix.sparse.SparseCSC,x10.lang.Int,x10.lang.Int)">
+<a name="mpiCopy(x10.regionarray.DistArray[x10.matrix.sparse.SparseCSC],x10.lang.Int,x10.lang.Int,x10.matrix.sparse.SparseCSC,x10.lang.Int,x10.lang.Int)">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
 <h4>mpiCopy</h4>
-<pre>protected static&nbsp;x10.lang.Int&nbsp;mpiCopy(x10.array.DistArray&lt;<a href="../../../x10/matrix/sparse/SparseCSC.html" title="class in x10.matrix.sparse">SparseCSC</a>&gt;&nbsp;smlist,
+<pre>protected static&nbsp;x10.lang.Int&nbsp;mpiCopy(x10.regionarray.DistArray&lt;<a href="../../../x10/matrix/sparse/SparseCSC.html" title="class in x10.matrix.sparse">SparseCSC</a>&gt;&nbsp;smlist,
                    x10.lang.Int&nbsp;srcpid,
                    x10.lang.Int&nbsp;srcColOff,
                    <a href="../../../x10/matrix/sparse/SparseCSC.html" title="class in x10.matrix.sparse">SparseCSC</a>&nbsp;dstspa,
                    x10.lang.Int&nbsp;dstColOff,
                    x10.lang.Int&nbsp;colCnt)</pre>
-<div class="block"><B>Declaration:</B> <TT>mpiCopy(smlist:x10.array.DistArray[x10.matrix.sparse.SparseCSC]{self.dist.region.rank==1},srcpid:x10.lang.Int,srcColOff:x10.lang.Int,dstspa:x10.matrix.sparse.SparseCSC,dstColOff:x10.lang.Int,colCnt:x10.lang.Int): x10.lang.Int.</TT><PRE>
+<div class="block"><B>Declaration:</B> <TT>mpiCopy(smlist:x10.regionarray.DistArray[x10.matrix.sparse.SparseCSC]{self.dist.region.rank==1},srcpid:x10.lang.Int,srcColOff:x10.lang.Int,dstspa:x10.matrix.sparse.SparseCSC,dstColOff:x10.lang.Int,colCnt:x10.lang.Int): x10.lang.Int.</TT><PRE>
 </PRE>Based on mpi send/recv, copy data from remote place to here. The data size is
 transfered to here implicitly before matrix data copy.</div>
 </li>
 </ul>
-<a name="x10Copy(x10.array.DistArray[x10.matrix.sparse.SparseCSC],x10.lang.Int,x10.lang.Int,x10.matrix.sparse.SparseCSC,x10.lang.Int,x10.lang.Int)">
+<a name="x10Copy(x10.regionarray.DistArray[x10.matrix.sparse.SparseCSC],x10.lang.Int,x10.lang.Int,x10.matrix.sparse.SparseCSC,x10.lang.Int,x10.lang.Int)">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
 <h4>x10Copy</h4>
-<pre>public static&nbsp;x10.lang.Int&nbsp;x10Copy(x10.array.DistArray&lt;<a href="../../../x10/matrix/sparse/SparseCSC.html" title="class in x10.matrix.sparse">SparseCSC</a>&gt;&nbsp;smlist,
+<pre>public static&nbsp;x10.lang.Int&nbsp;x10Copy(x10.regionarray.DistArray&lt;<a href="../../../x10/matrix/sparse/SparseCSC.html" title="class in x10.matrix.sparse">SparseCSC</a>&gt;&nbsp;smlist,
                    x10.lang.Int&nbsp;srcpid,
                    x10.lang.Int&nbsp;srcColOff,
                    <a href="../../../x10/matrix/sparse/SparseCSC.html" title="class in x10.matrix.sparse">SparseCSC</a>&nbsp;dstspa,
                    x10.lang.Int&nbsp;dstColOff,
                    x10.lang.Int&nbsp;colCnt)</pre>
-<div class="block"><B>Declaration:</B> <TT>x10Copy(smlist:x10.array.DistArray[x10.matrix.sparse.SparseCSC]{self.dist.region.rank==1},srcpid:x10.lang.Int,srcColOff:x10.lang.Int,dstspa:x10.matrix.sparse.SparseCSC,dstColOff:x10.lang.Int,colCnt:x10.lang.Int): x10.lang.Int.</TT><PRE>
+<div class="block"><B>Declaration:</B> <TT>x10Copy(smlist:x10.regionarray.DistArray[x10.matrix.sparse.SparseCSC]{self.dist.region.rank==1},srcpid:x10.lang.Int,srcColOff:x10.lang.Int,dstspa:x10.matrix.sparse.SparseCSC,dstColOff:x10.lang.Int,colCnt:x10.lang.Int): x10.lang.Int.</TT><PRE>
 </PRE>Copy remote sparse matrix from specified place to here, using array remote copy.
 The source and destination matrix must have the same leading dimension.</div>
 <dl><dt><span class="strong">Parameters:</span></dt><dd><code>smlist</code> - source sparseCSC matrix in DistArray</dd><dd><code>srcpid</code> - source matrix's place id.</dd><dd><code>srcColOff</code> - column offset in source matrix</dd><dd><code>dstspa</code> - destination sparse matrix at here</dd><dd><code>dstColOff</code> - column offset in target matrix</dd><dd><code>colCnt</code> - count of columns to be copied in source matrix</dd>
 <dt><span class="strong">Returns:</span></dt><dd>number of elements copied</dd></dl>
 </li>
 </ul>
-<a name="copy(x10.matrix.sparse.SparseCSC,x10.lang.Int,x10.array.DistArray[x10.matrix.block.SparseBlock],x10.lang.Int,x10.lang.Int,x10.lang.Int)">
+<a name="copy(x10.matrix.sparse.SparseCSC,x10.lang.Int,x10.regionarray.DistArray[x10.matrix.block.SparseBlock],x10.lang.Int,x10.lang.Int,x10.lang.Int)">
 <!--   -->
 </a>
 <ul class="blockList">
@@ -1053,18 +1053,18 @@ The source and destination matrix must have the same leading dimension.</div>
 <h4>copy</h4>
 <pre>public static&nbsp;x10.lang.Int&nbsp;copy(<a href="../../../x10/matrix/sparse/SparseCSC.html" title="class in x10.matrix.sparse">SparseCSC</a>&nbsp;srcspa,
                 x10.lang.Int&nbsp;srcColOff,
-                x10.array.DistArray&lt;<a href="../../../x10/matrix/block/SparseBlock.html" title="class in x10.matrix.block">SparseBlock</a>&gt;&nbsp;smlist,
+                x10.regionarray.DistArray&lt;<a href="../../../x10/matrix/block/SparseBlock.html" title="class in x10.matrix.block">SparseBlock</a>&gt;&nbsp;smlist,
                 x10.lang.Int&nbsp;dstpid,
                 x10.lang.Int&nbsp;dstColOff,
                 x10.lang.Int&nbsp;colCnt)</pre>
-<div class="block"><B>Declaration:</B> <TT>copy(srcspa:x10.matrix.sparse.SparseCSC,srcColOff:x10.lang.Int,smlist:x10.array.DistArray[x10.matrix.block.SparseBlock]{self.dist.region.rank==1},dstpid:x10.lang.Int,dstColOff:x10.lang.Int,colCnt:x10.lang.Int): x10.lang.Int.</TT><PRE>
+<div class="block"><B>Declaration:</B> <TT>copy(srcspa:x10.matrix.sparse.SparseCSC,srcColOff:x10.lang.Int,smlist:x10.regionarray.DistArray[x10.matrix.block.SparseBlock]{self.dist.region.rank==1},dstpid:x10.lang.Int,dstColOff:x10.lang.Int,colCnt:x10.lang.Int): x10.lang.Int.</TT><PRE>
 </PRE>Copy multiple columns from source sparse matrix block at here to the specified remote
 place in DistArray.</div>
 <dl><dt><span class="strong">Parameters:</span></dt><dd><code>srcspa</code> - source sparseCSC matrix at here</dd><dd><code>srcColOff</code> - column offset in source matrix</dd><dd><code>smlist</code> - target sparse matrix block in DistArray</dd><dd><code>dstpid</code> - place id of target sparse matrix in DistArray.</dd><dd><code>dstColOff</code> - column offset in target matrix</dd><dd><code>colCnt</code> - count of columns to be copied from source sparse matrix</dd>
 <dt><span class="strong">Returns:</span></dt><dd>number of elements copied.</dd></dl>
 </li>
 </ul>
-<a name="mpiCopy(x10.matrix.sparse.SparseCSC,x10.lang.Int,x10.array.DistArray[x10.matrix.block.SparseBlock],x10.lang.Int,x10.lang.Int,x10.lang.Int)">
+<a name="mpiCopy(x10.matrix.sparse.SparseCSC,x10.lang.Int,x10.regionarray.DistArray[x10.matrix.block.SparseBlock],x10.lang.Int,x10.lang.Int,x10.lang.Int)">
 <!--   -->
 </a>
 <ul class="blockList">
@@ -1072,15 +1072,15 @@ place in DistArray.</div>
 <h4>mpiCopy</h4>
 <pre>protected static&nbsp;x10.lang.Int&nbsp;mpiCopy(<a href="../../../x10/matrix/sparse/SparseCSC.html" title="class in x10.matrix.sparse">SparseCSC</a>&nbsp;srcspa,
                    x10.lang.Int&nbsp;srcColOff,
-                   x10.array.DistArray&lt;<a href="../../../x10/matrix/block/SparseBlock.html" title="class in x10.matrix.block">SparseBlock</a>&gt;&nbsp;smlist,
+                   x10.regionarray.DistArray&lt;<a href="../../../x10/matrix/block/SparseBlock.html" title="class in x10.matrix.block">SparseBlock</a>&gt;&nbsp;smlist,
                    x10.lang.Int&nbsp;dstpid,
                    x10.lang.Int&nbsp;dstColOff,
                    x10.lang.Int&nbsp;colCnt)</pre>
-<div class="block"><B>Declaration:</B> <TT>mpiCopy(srcspa:x10.matrix.sparse.SparseCSC,srcColOff:x10.lang.Int,smlist:x10.array.DistArray[x10.matrix.block.SparseBlock]{self.dist.region.rank==1},dstpid:x10.lang.Int,dstColOff:x10.lang.Int,colCnt:x10.lang.Int): x10.lang.Int.</TT><PRE>
+<div class="block"><B>Declaration:</B> <TT>mpiCopy(srcspa:x10.matrix.sparse.SparseCSC,srcColOff:x10.lang.Int,smlist:x10.regionarray.DistArray[x10.matrix.block.SparseBlock]{self.dist.region.rank==1},dstpid:x10.lang.Int,dstColOff:x10.lang.Int,colCnt:x10.lang.Int): x10.lang.Int.</TT><PRE>
 </PRE>Based on mpi send/recv, copy data from here to remote place</div>
 </li>
 </ul>
-<a name="x10Copy(x10.matrix.sparse.SparseCSC,x10.lang.Int,x10.array.DistArray[x10.matrix.block.SparseBlock],x10.lang.Int,x10.lang.Int,x10.lang.Int)">
+<a name="x10Copy(x10.matrix.sparse.SparseCSC,x10.lang.Int,x10.regionarray.DistArray[x10.matrix.block.SparseBlock],x10.lang.Int,x10.lang.Int,x10.lang.Int)">
 <!--   -->
 </a>
 <ul class="blockList">
@@ -1088,262 +1088,262 @@ place in DistArray.</div>
 <h4>x10Copy</h4>
 <pre>protected static&nbsp;x10.lang.Int&nbsp;x10Copy(<a href="../../../x10/matrix/sparse/SparseCSC.html" title="class in x10.matrix.sparse">SparseCSC</a>&nbsp;srcspa,
                    x10.lang.Int&nbsp;srcColOff,
-                   x10.array.DistArray&lt;<a href="../../../x10/matrix/block/SparseBlock.html" title="class in x10.matrix.block">SparseBlock</a>&gt;&nbsp;dst,
+                   x10.regionarray.DistArray&lt;<a href="../../../x10/matrix/block/SparseBlock.html" title="class in x10.matrix.block">SparseBlock</a>&gt;&nbsp;dst,
                    x10.lang.Int&nbsp;dstbid,
                    x10.lang.Int&nbsp;dstColOff,
                    x10.lang.Int&nbsp;colCnt)</pre>
-<div class="block"><B>Declaration:</B> <TT>x10Copy(srcspa:x10.matrix.sparse.SparseCSC,srcColOff:x10.lang.Int,dst:x10.array.DistArray[x10.matrix.block.SparseBlock]{self.dist.region.rank==1},dstbid:x10.lang.Int,dstColOff:x10.lang.Int,colCnt:x10.lang.Int): x10.lang.Int.</TT><PRE>
+<div class="block"><B>Declaration:</B> <TT>x10Copy(srcspa:x10.matrix.sparse.SparseCSC,srcColOff:x10.lang.Int,dst:x10.regionarray.DistArray[x10.matrix.block.SparseBlock]{self.dist.region.rank==1},dstbid:x10.lang.Int,dstColOff:x10.lang.Int,colCnt:x10.lang.Int): x10.lang.Int.</TT><PRE>
 </PRE></div>
 </li>
 </ul>
-<a name="copy(x10.array.DistArray[x10.matrix.block.SparseBlock],x10.lang.Int,x10.lang.Int,x10.matrix.sparse.SparseCSC,x10.lang.Int,x10.lang.Int)">
+<a name="copy(x10.regionarray.DistArray[x10.matrix.block.SparseBlock],x10.lang.Int,x10.lang.Int,x10.matrix.sparse.SparseCSC,x10.lang.Int,x10.lang.Int)">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
 <h4>copy</h4>
-<pre>public static&nbsp;x10.lang.Int&nbsp;copy(x10.array.DistArray&lt;<a href="../../../x10/matrix/block/SparseBlock.html" title="class in x10.matrix.block">SparseBlock</a>&gt;&nbsp;smlist,
+<pre>public static&nbsp;x10.lang.Int&nbsp;copy(x10.regionarray.DistArray&lt;<a href="../../../x10/matrix/block/SparseBlock.html" title="class in x10.matrix.block">SparseBlock</a>&gt;&nbsp;smlist,
                 x10.lang.Int&nbsp;srcpid,
                 x10.lang.Int&nbsp;srcColOff,
                 <a href="../../../x10/matrix/sparse/SparseCSC.html" title="class in x10.matrix.sparse">SparseCSC</a>&nbsp;dstspa,
                 x10.lang.Int&nbsp;dstColOff,
                 x10.lang.Int&nbsp;colCnt)</pre>
-<div class="block"><B>Declaration:</B> <TT>copy(smlist:x10.array.DistArray[x10.matrix.block.SparseBlock]{self.dist.region.rank==1},srcpid:x10.lang.Int,srcColOff:x10.lang.Int,dstspa:x10.matrix.sparse.SparseCSC,dstColOff:x10.lang.Int,colCnt:x10.lang.Int): x10.lang.Int.</TT><PRE>
+<div class="block"><B>Declaration:</B> <TT>copy(smlist:x10.regionarray.DistArray[x10.matrix.block.SparseBlock]{self.dist.region.rank==1},srcpid:x10.lang.Int,srcColOff:x10.lang.Int,dstspa:x10.matrix.sparse.SparseCSC,dstColOff:x10.lang.Int,colCnt:x10.lang.Int): x10.lang.Int.</TT><PRE>
 </PRE>Copy multiple columns of the sparseCSC matrix in the specified place to
 here</div>
 <dl><dt><span class="strong">Parameters:</span></dt><dd><code>smlist</code> - source sparse matrix block in DistArray</dd><dd><code>srcpid</code> - source matrix's place id.</dd><dd><code>srcColOff</code> - column offset in source matrix</dd><dd><code>dstspa</code> - destination sparse matrix of the copy</dd><dd><code>dstColOff</code> - column offset in target matrix</dd><dd><code>colCnt</code> - count of columns to be copied in source matrix</dd>
 <dt><span class="strong">Returns:</span></dt><dd>number of elements copied</dd></dl>
 </li>
 </ul>
-<a name="mpiCopy(x10.array.DistArray[x10.matrix.block.SparseBlock],x10.lang.Int,x10.lang.Int,x10.matrix.sparse.SparseCSC,x10.lang.Int,x10.lang.Int)">
+<a name="mpiCopy(x10.regionarray.DistArray[x10.matrix.block.SparseBlock],x10.lang.Int,x10.lang.Int,x10.matrix.sparse.SparseCSC,x10.lang.Int,x10.lang.Int)">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
 <h4>mpiCopy</h4>
-<pre>protected static&nbsp;x10.lang.Int&nbsp;mpiCopy(x10.array.DistArray&lt;<a href="../../../x10/matrix/block/SparseBlock.html" title="class in x10.matrix.block">SparseBlock</a>&gt;&nbsp;src,
+<pre>protected static&nbsp;x10.lang.Int&nbsp;mpiCopy(x10.regionarray.DistArray&lt;<a href="../../../x10/matrix/block/SparseBlock.html" title="class in x10.matrix.block">SparseBlock</a>&gt;&nbsp;src,
                    x10.lang.Int&nbsp;srcbid,
                    x10.lang.Int&nbsp;srcColOff,
                    <a href="../../../x10/matrix/sparse/SparseCSC.html" title="class in x10.matrix.sparse">SparseCSC</a>&nbsp;dstspa,
                    x10.lang.Int&nbsp;dstColOff,
                    x10.lang.Int&nbsp;colCnt)</pre>
-<div class="block"><B>Declaration:</B> <TT>mpiCopy(src:x10.array.DistArray[x10.matrix.block.SparseBlock]{self.dist.region.rank==1},srcbid:x10.lang.Int,srcColOff:x10.lang.Int,dstspa:x10.matrix.sparse.SparseCSC,dstColOff:x10.lang.Int,colCnt:x10.lang.Int): x10.lang.Int.</TT><PRE>
+<div class="block"><B>Declaration:</B> <TT>mpiCopy(src:x10.regionarray.DistArray[x10.matrix.block.SparseBlock]{self.dist.region.rank==1},srcbid:x10.lang.Int,srcColOff:x10.lang.Int,dstspa:x10.matrix.sparse.SparseCSC,dstColOff:x10.lang.Int,colCnt:x10.lang.Int): x10.lang.Int.</TT><PRE>
 </PRE></div>
 </li>
 </ul>
-<a name="x10Copy(x10.array.DistArray[x10.matrix.block.SparseBlock],x10.lang.Int,x10.lang.Int,x10.matrix.sparse.SparseCSC,x10.lang.Int,x10.lang.Int)">
+<a name="x10Copy(x10.regionarray.DistArray[x10.matrix.block.SparseBlock],x10.lang.Int,x10.lang.Int,x10.matrix.sparse.SparseCSC,x10.lang.Int,x10.lang.Int)">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
 <h4>x10Copy</h4>
-<pre>protected static&nbsp;x10.lang.Int&nbsp;x10Copy(x10.array.DistArray&lt;<a href="../../../x10/matrix/block/SparseBlock.html" title="class in x10.matrix.block">SparseBlock</a>&gt;&nbsp;src,
+<pre>protected static&nbsp;x10.lang.Int&nbsp;x10Copy(x10.regionarray.DistArray&lt;<a href="../../../x10/matrix/block/SparseBlock.html" title="class in x10.matrix.block">SparseBlock</a>&gt;&nbsp;src,
                    x10.lang.Int&nbsp;srcbid,
                    x10.lang.Int&nbsp;srcColOff,
                    <a href="../../../x10/matrix/sparse/SparseCSC.html" title="class in x10.matrix.sparse">SparseCSC</a>&nbsp;dstspa,
                    x10.lang.Int&nbsp;dstColOff,
                    x10.lang.Int&nbsp;colCnt)</pre>
-<div class="block"><B>Declaration:</B> <TT>x10Copy(src:x10.array.DistArray[x10.matrix.block.SparseBlock]{self.dist.region.rank==1},srcbid:x10.lang.Int,srcColOff:x10.lang.Int,dstspa:x10.matrix.sparse.SparseCSC,dstColOff:x10.lang.Int,colCnt:x10.lang.Int): x10.lang.Int.</TT><PRE>
+<div class="block"><B>Declaration:</B> <TT>x10Copy(src:x10.regionarray.DistArray[x10.matrix.block.SparseBlock]{self.dist.region.rank==1},srcbid:x10.lang.Int,srcColOff:x10.lang.Int,dstspa:x10.matrix.sparse.SparseCSC,dstColOff:x10.lang.Int,colCnt:x10.lang.Int): x10.lang.Int.</TT><PRE>
 </PRE></div>
 </li>
 </ul>
-<a name="copy(x10.array.Array[x10.lang.Double],x10.lang.Int,x10.array.DistArray[x10.matrix.DenseMatrix],x10.lang.Int,x10.lang.Int,x10.lang.Int)">
+<a name="copy(x10.regionarray.Array[x10.lang.Double],x10.lang.Int,x10.regionarray.DistArray[x10.matrix.DenseMatrix],x10.lang.Int,x10.lang.Int,x10.lang.Int)">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
 <h4>copy</h4>
-<pre>public static&nbsp;void&nbsp;copy(x10.array.Array&lt;x10.lang.Double&gt;&nbsp;src,
+<pre>public static&nbsp;void&nbsp;copy(x10.regionarray.Array&lt;x10.lang.Double&gt;&nbsp;src,
         x10.lang.Int&nbsp;srcOff,
-        x10.array.DistArray&lt;<a href="../../../x10/matrix/DenseMatrix.html" title="class in x10.matrix">DenseMatrix</a>&gt;&nbsp;dmlist,
+        x10.regionarray.DistArray&lt;<a href="../../../x10/matrix/DenseMatrix.html" title="class in x10.matrix">DenseMatrix</a>&gt;&nbsp;dmlist,
         x10.lang.Int&nbsp;dstpid,
         x10.lang.Int&nbsp;dstColOff,
         x10.lang.Int&nbsp;dataCnt)</pre>
-<div class="block"><B>Declaration:</B> <TT>copy(src:x10.array.Array[x10.lang.Double]{self.rank==1},srcOff:x10.lang.Int,dmlist:x10.array.DistArray[x10.matrix.DenseMatrix]{self.dist.region.rank==1},dstpid:x10.lang.Int,dstColOff:x10.lang.Int,dataCnt:x10.lang.Int): void.</TT><PRE>
+<div class="block"><B>Declaration:</B> <TT>copy(src:x10.regionarray.Array[x10.lang.Double]{self.rank==1},srcOff:x10.lang.Int,dmlist:x10.regionarray.DistArray[x10.matrix.DenseMatrix]{self.dist.region.rank==1},dstpid:x10.lang.Int,dstColOff:x10.lang.Int,dataCnt:x10.lang.Int): void.</TT><PRE>
 </PRE>Copy multiple columns from source dense matrix at here to the specified remote
 place in DistArray of dense matrix.</div>
 <dl><dt><span class="strong">Parameters:</span></dt><dd><code>src</code> - the source dense vector array</dd><dd><code>srcOff</code> - starting offset in source matrix</dd><dd><code>dmlist</code> - target dense matrix in DistArray</dd><dd><code>dstpid</code> - the place id of target dense matrix in DistArray.</dd><dd><code>dstColOff</code> - starting column offset in target matrix at destination place</dd><dd><code>dataCnt</code> - count of data to be copied from source vector</dd></dl>
 </li>
 </ul>
-<a name="mpiCopy(x10.array.Array[x10.lang.Double],x10.lang.Int,x10.array.DistArray[x10.matrix.DenseMatrix],x10.lang.Int,x10.lang.Int,x10.lang.Int)">
+<a name="mpiCopy(x10.regionarray.Array[x10.lang.Double],x10.lang.Int,x10.regionarray.DistArray[x10.matrix.DenseMatrix],x10.lang.Int,x10.lang.Int,x10.lang.Int)">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
 <h4>mpiCopy</h4>
-<pre>protected static&nbsp;void&nbsp;mpiCopy(x10.array.Array&lt;x10.lang.Double&gt;&nbsp;src,
+<pre>protected static&nbsp;void&nbsp;mpiCopy(x10.regionarray.Array&lt;x10.lang.Double&gt;&nbsp;src,
            x10.lang.Int&nbsp;srcOff,
-           x10.array.DistArray&lt;<a href="../../../x10/matrix/DenseMatrix.html" title="class in x10.matrix">DenseMatrix</a>&gt;&nbsp;dmlist,
+           x10.regionarray.DistArray&lt;<a href="../../../x10/matrix/DenseMatrix.html" title="class in x10.matrix">DenseMatrix</a>&gt;&nbsp;dmlist,
            x10.lang.Int&nbsp;dstpid,
            x10.lang.Int&nbsp;dstColOff,
            x10.lang.Int&nbsp;dataCnt)</pre>
-<div class="block"><B>Declaration:</B> <TT>mpiCopy(src:x10.array.Array[x10.lang.Double]{self.rank==1},srcOff:x10.lang.Int,dmlist:x10.array.DistArray[x10.matrix.DenseMatrix]{self.dist.region.rank==1},dstpid:x10.lang.Int,dstColOff:x10.lang.Int,dataCnt:x10.lang.Int): void.</TT><PRE>
+<div class="block"><B>Declaration:</B> <TT>mpiCopy(src:x10.regionarray.Array[x10.lang.Double]{self.rank==1},srcOff:x10.lang.Int,dmlist:x10.regionarray.DistArray[x10.matrix.DenseMatrix]{self.dist.region.rank==1},dstpid:x10.lang.Int,dstColOff:x10.lang.Int,dataCnt:x10.lang.Int): void.</TT><PRE>
 </PRE></div>
 </li>
 </ul>
-<a name="x10Copy(x10.array.Array[x10.lang.Double],x10.lang.Int,x10.array.DistArray[x10.matrix.DenseMatrix],x10.lang.Int,x10.lang.Int,x10.lang.Int)">
+<a name="x10Copy(x10.regionarray.Array[x10.lang.Double],x10.lang.Int,x10.regionarray.DistArray[x10.matrix.DenseMatrix],x10.lang.Int,x10.lang.Int,x10.lang.Int)">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
 <h4>x10Copy</h4>
-<pre>protected static&nbsp;void&nbsp;x10Copy(x10.array.Array&lt;x10.lang.Double&gt;&nbsp;src,
+<pre>protected static&nbsp;void&nbsp;x10Copy(x10.regionarray.Array&lt;x10.lang.Double&gt;&nbsp;src,
            x10.lang.Int&nbsp;srcOff,
-           x10.array.DistArray&lt;<a href="../../../x10/matrix/DenseMatrix.html" title="class in x10.matrix">DenseMatrix</a>&gt;&nbsp;dmlist,
+           x10.regionarray.DistArray&lt;<a href="../../../x10/matrix/DenseMatrix.html" title="class in x10.matrix">DenseMatrix</a>&gt;&nbsp;dmlist,
            x10.lang.Int&nbsp;dstpid,
            x10.lang.Int&nbsp;dstColOff,
            x10.lang.Int&nbsp;dataCnt)</pre>
-<div class="block"><B>Declaration:</B> <TT>x10Copy(src:x10.array.Array[x10.lang.Double]{self.rank==1},srcOff:x10.lang.Int,dmlist:x10.array.DistArray[x10.matrix.DenseMatrix]{self.dist.region.rank==1},dstpid:x10.lang.Int,dstColOff:x10.lang.Int,dataCnt:x10.lang.Int): void.</TT><PRE>
+<div class="block"><B>Declaration:</B> <TT>x10Copy(src:x10.regionarray.Array[x10.lang.Double]{self.rank==1},srcOff:x10.lang.Int,dmlist:x10.regionarray.DistArray[x10.matrix.DenseMatrix]{self.dist.region.rank==1},dstpid:x10.lang.Int,dstColOff:x10.lang.Int,dataCnt:x10.lang.Int): void.</TT><PRE>
 </PRE>Copy vector from here to remote dense matrix</div>
 </li>
 </ul>
-<a name="copy(x10.array.DistArray[x10.matrix.DenseMatrix],x10.lang.Int,x10.lang.Int,x10.array.Array[x10.lang.Double],x10.lang.Int,x10.lang.Int)">
+<a name="copy(x10.regionarray.DistArray[x10.matrix.DenseMatrix],x10.lang.Int,x10.lang.Int,x10.regionarray.Array[x10.lang.Double],x10.lang.Int,x10.lang.Int)">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
 <h4>copy</h4>
-<pre>public static&nbsp;void&nbsp;copy(x10.array.DistArray&lt;<a href="../../../x10/matrix/DenseMatrix.html" title="class in x10.matrix">DenseMatrix</a>&gt;&nbsp;dmlist,
+<pre>public static&nbsp;void&nbsp;copy(x10.regionarray.DistArray&lt;<a href="../../../x10/matrix/DenseMatrix.html" title="class in x10.matrix">DenseMatrix</a>&gt;&nbsp;dmlist,
         x10.lang.Int&nbsp;srcpid,
         x10.lang.Int&nbsp;srcColOff,
-        x10.array.Array&lt;x10.lang.Double&gt;&nbsp;dst,
+        x10.regionarray.Array&lt;x10.lang.Double&gt;&nbsp;dst,
         x10.lang.Int&nbsp;dstOff,
         x10.lang.Int&nbsp;dataCnt)</pre>
-<div class="block"><B>Declaration:</B> <TT>copy(dmlist:x10.array.DistArray[x10.matrix.DenseMatrix]{self.dist.region.rank==1},srcpid:x10.lang.Int,srcColOff:x10.lang.Int,dst:x10.array.Array[x10.lang.Double]{self.rank==1},dstOff:x10.lang.Int,dataCnt:x10.lang.Int): void.</TT><PRE>
+<div class="block"><B>Declaration:</B> <TT>copy(dmlist:x10.regionarray.DistArray[x10.matrix.DenseMatrix]{self.dist.region.rank==1},srcpid:x10.lang.Int,srcColOff:x10.lang.Int,dst:x10.regionarray.Array[x10.lang.Double]{self.rank==1},dstOff:x10.lang.Int,dataCnt:x10.lang.Int): void.</TT><PRE>
 </PRE>Copy multiple columns of the dense matrix in the specified place to
 here</div>
 <dl><dt><span class="strong">Parameters:</span></dt><dd><code>dmlist</code> - source matrix in the dist dense matrix</dd><dd><code>srcpid</code> - source matrix's place id.</dd><dd><code>srcColOff</code> - starting column in in source matrix</dd><dd><code>dst</code> - destination vector array</dd><dd><code>dstOff</code> - starting offset in vector</dd><dd><code>dataCnt</code> - count of data to copy</dd></dl>
 </li>
 </ul>
-<a name="mpiCopy(x10.array.DistArray[x10.matrix.DenseMatrix],x10.lang.Int,x10.lang.Int,x10.array.Array[x10.lang.Double],x10.lang.Int,x10.lang.Int)">
+<a name="mpiCopy(x10.regionarray.DistArray[x10.matrix.DenseMatrix],x10.lang.Int,x10.lang.Int,x10.regionarray.Array[x10.lang.Double],x10.lang.Int,x10.lang.Int)">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
 <h4>mpiCopy</h4>
-<pre>protected static&nbsp;void&nbsp;mpiCopy(x10.array.DistArray&lt;<a href="../../../x10/matrix/DenseMatrix.html" title="class in x10.matrix">DenseMatrix</a>&gt;&nbsp;dmlist,
+<pre>protected static&nbsp;void&nbsp;mpiCopy(x10.regionarray.DistArray&lt;<a href="../../../x10/matrix/DenseMatrix.html" title="class in x10.matrix">DenseMatrix</a>&gt;&nbsp;dmlist,
            x10.lang.Int&nbsp;srcpid,
            x10.lang.Int&nbsp;srcColOff,
-           x10.array.Array&lt;x10.lang.Double&gt;&nbsp;dst,
+           x10.regionarray.Array&lt;x10.lang.Double&gt;&nbsp;dst,
            x10.lang.Int&nbsp;dstOff,
            x10.lang.Int&nbsp;dataCnt)</pre>
-<div class="block"><B>Declaration:</B> <TT>mpiCopy(dmlist:x10.array.DistArray[x10.matrix.DenseMatrix]{self.dist.region.rank==1},srcpid:x10.lang.Int,srcColOff:x10.lang.Int,dst:x10.array.Array[x10.lang.Double]{self.rank==1},dstOff:x10.lang.Int,dataCnt:x10.lang.Int): void.</TT><PRE>
+<div class="block"><B>Declaration:</B> <TT>mpiCopy(dmlist:x10.regionarray.DistArray[x10.matrix.DenseMatrix]{self.dist.region.rank==1},srcpid:x10.lang.Int,srcColOff:x10.lang.Int,dst:x10.regionarray.Array[x10.lang.Double]{self.rank==1},dstOff:x10.lang.Int,dataCnt:x10.lang.Int): void.</TT><PRE>
 </PRE>Copy data from remote matrix to here in a vector</div>
 </li>
 </ul>
-<a name="x10Copy(x10.array.DistArray[x10.matrix.DenseMatrix],x10.lang.Int,x10.lang.Int,x10.array.Array[x10.lang.Double],x10.lang.Int,x10.lang.Int)">
+<a name="x10Copy(x10.regionarray.DistArray[x10.matrix.DenseMatrix],x10.lang.Int,x10.lang.Int,x10.regionarray.Array[x10.lang.Double],x10.lang.Int,x10.lang.Int)">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
 <h4>x10Copy</h4>
-<pre>protected static&nbsp;void&nbsp;x10Copy(x10.array.DistArray&lt;<a href="../../../x10/matrix/DenseMatrix.html" title="class in x10.matrix">DenseMatrix</a>&gt;&nbsp;dmlist,
+<pre>protected static&nbsp;void&nbsp;x10Copy(x10.regionarray.DistArray&lt;<a href="../../../x10/matrix/DenseMatrix.html" title="class in x10.matrix">DenseMatrix</a>&gt;&nbsp;dmlist,
            x10.lang.Int&nbsp;srcpid,
            x10.lang.Int&nbsp;srcColOff,
-           x10.array.Array&lt;x10.lang.Double&gt;&nbsp;dst,
+           x10.regionarray.Array&lt;x10.lang.Double&gt;&nbsp;dst,
            x10.lang.Int&nbsp;dstOff,
            x10.lang.Int&nbsp;dataCnt)</pre>
-<div class="block"><B>Declaration:</B> <TT>x10Copy(dmlist:x10.array.DistArray[x10.matrix.DenseMatrix]{self.dist.region.rank==1},srcpid:x10.lang.Int,srcColOff:x10.lang.Int,dst:x10.array.Array[x10.lang.Double]{self.rank==1},dstOff:x10.lang.Int,dataCnt:x10.lang.Int): void.</TT><PRE>
+<div class="block"><B>Declaration:</B> <TT>x10Copy(dmlist:x10.regionarray.DistArray[x10.matrix.DenseMatrix]{self.dist.region.rank==1},srcpid:x10.lang.Int,srcColOff:x10.lang.Int,dst:x10.regionarray.Array[x10.lang.Double]{self.rank==1},dstOff:x10.lang.Int,dataCnt:x10.lang.Int): void.</TT><PRE>
 </PRE>Copy data from remote dense matrix to here in a vector</div>
 </li>
 </ul>
-<a name="copy(x10.array.Array[x10.lang.Double],x10.lang.Int,x10.array.DistArray[x10.matrix.block.DenseBlock],x10.lang.Int,x10.lang.Int,x10.lang.Int)">
+<a name="copy(x10.regionarray.Array[x10.lang.Double],x10.lang.Int,x10.regionarray.DistArray[x10.matrix.block.DenseBlock],x10.lang.Int,x10.lang.Int,x10.lang.Int)">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
 <h4>copy</h4>
-<pre>public static&nbsp;void&nbsp;copy(x10.array.Array&lt;x10.lang.Double&gt;&nbsp;src,
+<pre>public static&nbsp;void&nbsp;copy(x10.regionarray.Array&lt;x10.lang.Double&gt;&nbsp;src,
         x10.lang.Int&nbsp;srcOff,
-        x10.array.DistArray&lt;<a href="../../../x10/matrix/block/DenseBlock.html" title="class in x10.matrix.block">DenseBlock</a>&gt;&nbsp;dmlist,
+        x10.regionarray.DistArray&lt;<a href="../../../x10/matrix/block/DenseBlock.html" title="class in x10.matrix.block">DenseBlock</a>&gt;&nbsp;dmlist,
         x10.lang.Int&nbsp;dstpid,
         x10.lang.Int&nbsp;dstColOff,
         x10.lang.Int&nbsp;dataCnt)</pre>
-<div class="block"><B>Declaration:</B> <TT>copy(src:x10.array.Array[x10.lang.Double]{self.rank==1},srcOff:x10.lang.Int,dmlist:x10.array.DistArray[x10.matrix.block.DenseBlock]{self.dist.region.rank==1},dstpid:x10.lang.Int,dstColOff:x10.lang.Int,dataCnt:x10.lang.Int): void.</TT><PRE>
+<div class="block"><B>Declaration:</B> <TT>copy(src:x10.regionarray.Array[x10.lang.Double]{self.rank==1},srcOff:x10.lang.Int,dmlist:x10.regionarray.DistArray[x10.matrix.block.DenseBlock]{self.dist.region.rank==1},dstpid:x10.lang.Int,dstColOff:x10.lang.Int,dataCnt:x10.lang.Int): void.</TT><PRE>
 </PRE>Copy multiple columns from source dense matrix at here to the specified remote
 place in DistArray of dense matrix.</div>
 <dl><dt><span class="strong">Parameters:</span></dt><dd><code>src</code> - the source vector array at here</dd><dd><code>srcOff</code> - starting offset in in source vector array</dd><dd><code>dmlist</code> - target dense blocks in DistArray</dd><dd><code>dstpid</code> - the place id of target dense matrix in DistArray.</dd><dd><code>dstColOff</code> - starting column offset in target matrix at destination place</dd><dd><code>dataCnt</code> - count of data to copy from source dense matrix</dd></dl>
 </li>
 </ul>
-<a name="mpiCopy(x10.array.Array[x10.lang.Double],x10.lang.Int,x10.array.DistArray[x10.matrix.block.DenseBlock],x10.lang.Int,x10.lang.Int,x10.lang.Int)">
+<a name="mpiCopy(x10.regionarray.Array[x10.lang.Double],x10.lang.Int,x10.regionarray.DistArray[x10.matrix.block.DenseBlock],x10.lang.Int,x10.lang.Int,x10.lang.Int)">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
 <h4>mpiCopy</h4>
-<pre>protected static&nbsp;void&nbsp;mpiCopy(x10.array.Array&lt;x10.lang.Double&gt;&nbsp;src,
+<pre>protected static&nbsp;void&nbsp;mpiCopy(x10.regionarray.Array&lt;x10.lang.Double&gt;&nbsp;src,
            x10.lang.Int&nbsp;srcOff,
-           x10.array.DistArray&lt;<a href="../../../x10/matrix/block/DenseBlock.html" title="class in x10.matrix.block">DenseBlock</a>&gt;&nbsp;dst,
+           x10.regionarray.DistArray&lt;<a href="../../../x10/matrix/block/DenseBlock.html" title="class in x10.matrix.block">DenseBlock</a>&gt;&nbsp;dst,
            x10.lang.Int&nbsp;dstbid,
            x10.lang.Int&nbsp;dstColOff,
            x10.lang.Int&nbsp;dataCnt)</pre>
-<div class="block"><B>Declaration:</B> <TT>mpiCopy(src:x10.array.Array[x10.lang.Double]{self.rank==1},srcOff:x10.lang.Int,dst:x10.array.DistArray[x10.matrix.block.DenseBlock]{self.dist.region.rank==1},dstbid:x10.lang.Int,dstColOff:x10.lang.Int,dataCnt:x10.lang.Int): void.</TT><PRE>
+<div class="block"><B>Declaration:</B> <TT>mpiCopy(src:x10.regionarray.Array[x10.lang.Double]{self.rank==1},srcOff:x10.lang.Int,dst:x10.regionarray.DistArray[x10.matrix.block.DenseBlock]{self.dist.region.rank==1},dstbid:x10.lang.Int,dstColOff:x10.lang.Int,dataCnt:x10.lang.Int): void.</TT><PRE>
 </PRE>Copy vector from here to remote dense matrix</div>
 </li>
 </ul>
-<a name="x10Copy(x10.array.Array[x10.lang.Double],x10.lang.Int,x10.array.DistArray[x10.matrix.block.DenseBlock],x10.lang.Int,x10.lang.Int,x10.lang.Int)">
+<a name="x10Copy(x10.regionarray.Array[x10.lang.Double],x10.lang.Int,x10.regionarray.DistArray[x10.matrix.block.DenseBlock],x10.lang.Int,x10.lang.Int,x10.lang.Int)">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
 <h4>x10Copy</h4>
-<pre>protected static&nbsp;void&nbsp;x10Copy(x10.array.Array&lt;x10.lang.Double&gt;&nbsp;src,
+<pre>protected static&nbsp;void&nbsp;x10Copy(x10.regionarray.Array&lt;x10.lang.Double&gt;&nbsp;src,
            x10.lang.Int&nbsp;srcOff,
-           x10.array.DistArray&lt;<a href="../../../x10/matrix/block/DenseBlock.html" title="class in x10.matrix.block">DenseBlock</a>&gt;&nbsp;dst,
+           x10.regionarray.DistArray&lt;<a href="../../../x10/matrix/block/DenseBlock.html" title="class in x10.matrix.block">DenseBlock</a>&gt;&nbsp;dst,
            x10.lang.Int&nbsp;dstbid,
            x10.lang.Int&nbsp;dstColOff,
            x10.lang.Int&nbsp;dataCnt)</pre>
-<div class="block"><B>Declaration:</B> <TT>x10Copy(src:x10.array.Array[x10.lang.Double]{self.rank==1},srcOff:x10.lang.Int,dst:x10.array.DistArray[x10.matrix.block.DenseBlock]{self.dist.region.rank==1},dstbid:x10.lang.Int,dstColOff:x10.lang.Int,dataCnt:x10.lang.Int): void.</TT><PRE>
+<div class="block"><B>Declaration:</B> <TT>x10Copy(src:x10.regionarray.Array[x10.lang.Double]{self.rank==1},srcOff:x10.lang.Int,dst:x10.regionarray.DistArray[x10.matrix.block.DenseBlock]{self.dist.region.rank==1},dstbid:x10.lang.Int,dstColOff:x10.lang.Int,dataCnt:x10.lang.Int): void.</TT><PRE>
 </PRE>Copy vector from here to remote block</div>
 </li>
 </ul>
-<a name="copy(x10.array.DistArray[x10.matrix.block.DenseBlock],x10.lang.Int,x10.lang.Int,x10.array.Array[x10.lang.Double],x10.lang.Int,x10.lang.Int)">
+<a name="copy(x10.regionarray.DistArray[x10.matrix.block.DenseBlock],x10.lang.Int,x10.lang.Int,x10.regionarray.Array[x10.lang.Double],x10.lang.Int,x10.lang.Int)">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
 <h4>copy</h4>
-<pre>public static&nbsp;void&nbsp;copy(x10.array.DistArray&lt;<a href="../../../x10/matrix/block/DenseBlock.html" title="class in x10.matrix.block">DenseBlock</a>&gt;&nbsp;dmlist,
+<pre>public static&nbsp;void&nbsp;copy(x10.regionarray.DistArray&lt;<a href="../../../x10/matrix/block/DenseBlock.html" title="class in x10.matrix.block">DenseBlock</a>&gt;&nbsp;dmlist,
         x10.lang.Int&nbsp;srcpid,
         x10.lang.Int&nbsp;srcColOff,
-        x10.array.Array&lt;x10.lang.Double&gt;&nbsp;dst,
+        x10.regionarray.Array&lt;x10.lang.Double&gt;&nbsp;dst,
         x10.lang.Int&nbsp;dstOff,
         x10.lang.Int&nbsp;dataCnt)</pre>
-<div class="block"><B>Declaration:</B> <TT>copy(dmlist:x10.array.DistArray[x10.matrix.block.DenseBlock]{self.dist.region.rank==1},srcpid:x10.lang.Int,srcColOff:x10.lang.Int,dst:x10.array.Array[x10.lang.Double]{self.rank==1},dstOff:x10.lang.Int,dataCnt:x10.lang.Int): void.</TT><PRE>
+<div class="block"><B>Declaration:</B> <TT>copy(dmlist:x10.regionarray.DistArray[x10.matrix.block.DenseBlock]{self.dist.region.rank==1},srcpid:x10.lang.Int,srcColOff:x10.lang.Int,dst:x10.regionarray.Array[x10.lang.Double]{self.rank==1},dstOff:x10.lang.Int,dataCnt:x10.lang.Int): void.</TT><PRE>
 </PRE>Copy multiple columns from source dense matrix at here to the specified remote
 place in DistArray of dense matrix.</div>
 <dl><dt><span class="strong">Parameters:</span></dt><dd><code>dmlist</code> - target dense blocks in DistArray</dd><dd><code>srcpid</code> - the place id of target dense matrix in DistArray.</dd><dd><code>srcColOff</code> - starting column in in source matrix</dd><dd><code>dst</code> - the target vector array at here</dd><dd><code>dstOff</code> - starting offset in target vector array</dd><dd><code>dataCnt</code> - count of data to be copied from source dense matrix</dd></dl>
 </li>
 </ul>
-<a name="mpiCopy(x10.array.DistArray[x10.matrix.block.DenseBlock],x10.lang.Int,x10.lang.Int,x10.array.Array[x10.lang.Double],x10.lang.Int,x10.lang.Int)">
+<a name="mpiCopy(x10.regionarray.DistArray[x10.matrix.block.DenseBlock],x10.lang.Int,x10.lang.Int,x10.regionarray.Array[x10.lang.Double],x10.lang.Int,x10.lang.Int)">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
 <h4>mpiCopy</h4>
-<pre>protected static&nbsp;void&nbsp;mpiCopy(x10.array.DistArray&lt;<a href="../../../x10/matrix/block/DenseBlock.html" title="class in x10.matrix.block">DenseBlock</a>&gt;&nbsp;src,
+<pre>protected static&nbsp;void&nbsp;mpiCopy(x10.regionarray.DistArray&lt;<a href="../../../x10/matrix/block/DenseBlock.html" title="class in x10.matrix.block">DenseBlock</a>&gt;&nbsp;src,
            x10.lang.Int&nbsp;srcbid,
            x10.lang.Int&nbsp;srcColOff,
-           x10.array.Array&lt;x10.lang.Double&gt;&nbsp;dst,
+           x10.regionarray.Array&lt;x10.lang.Double&gt;&nbsp;dst,
            x10.lang.Int&nbsp;dstOff,
            x10.lang.Int&nbsp;dataCnt)</pre>
-<div class="block"><B>Declaration:</B> <TT>mpiCopy(src:x10.array.DistArray[x10.matrix.block.DenseBlock]{self.dist.region.rank==1},srcbid:x10.lang.Int,srcColOff:x10.lang.Int,dst:x10.array.Array[x10.lang.Double]{self.rank==1},dstOff:x10.lang.Int,dataCnt:x10.lang.Int): void.</TT><PRE>
+<div class="block"><B>Declaration:</B> <TT>mpiCopy(src:x10.regionarray.DistArray[x10.matrix.block.DenseBlock]{self.dist.region.rank==1},srcbid:x10.lang.Int,srcColOff:x10.lang.Int,dst:x10.regionarray.Array[x10.lang.Double]{self.rank==1},dstOff:x10.lang.Int,dataCnt:x10.lang.Int): void.</TT><PRE>
 </PRE>Copy data from remote block to here in vector</div>
 </li>
 </ul>
-<a name="x10Copy(x10.array.DistArray[x10.matrix.block.DenseBlock],x10.lang.Int,x10.lang.Int,x10.array.Array[x10.lang.Double],x10.lang.Int,x10.lang.Int)">
+<a name="x10Copy(x10.regionarray.DistArray[x10.matrix.block.DenseBlock],x10.lang.Int,x10.lang.Int,x10.regionarray.Array[x10.lang.Double],x10.lang.Int,x10.lang.Int)">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
 <h4>x10Copy</h4>
-<pre>protected static&nbsp;void&nbsp;x10Copy(x10.array.DistArray&lt;<a href="../../../x10/matrix/block/DenseBlock.html" title="class in x10.matrix.block">DenseBlock</a>&gt;&nbsp;src,
+<pre>protected static&nbsp;void&nbsp;x10Copy(x10.regionarray.DistArray&lt;<a href="../../../x10/matrix/block/DenseBlock.html" title="class in x10.matrix.block">DenseBlock</a>&gt;&nbsp;src,
            x10.lang.Int&nbsp;srcbid,
            x10.lang.Int&nbsp;srcColOff,
-           x10.array.Array&lt;x10.lang.Double&gt;&nbsp;dst,
+           x10.regionarray.Array&lt;x10.lang.Double&gt;&nbsp;dst,
            x10.lang.Int&nbsp;dstOff,
            x10.lang.Int&nbsp;dataCnt)</pre>
-<div class="block"><B>Declaration:</B> <TT>x10Copy(src:x10.array.DistArray[x10.matrix.block.DenseBlock]{self.dist.region.rank==1},srcbid:x10.lang.Int,srcColOff:x10.lang.Int,dst:x10.array.Array[x10.lang.Double]{self.rank==1},dstOff:x10.lang.Int,dataCnt:x10.lang.Int): void.</TT><PRE>
+<div class="block"><B>Declaration:</B> <TT>x10Copy(src:x10.regionarray.DistArray[x10.matrix.block.DenseBlock]{self.dist.region.rank==1},srcbid:x10.lang.Int,srcColOff:x10.lang.Int,dst:x10.regionarray.Array[x10.lang.Double]{self.rank==1},dstOff:x10.lang.Int,dataCnt:x10.lang.Int): void.</TT><PRE>
 </PRE>Copy data from remote block to here in vector</div>
 </li>
 </ul>

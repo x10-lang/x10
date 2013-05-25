@@ -17,7 +17,7 @@
 
 import harness.x10Test;
 
- import x10.array.*;
+ import x10.regionarray.*;
 
 public class Vars80_Bad37_MustFailCompile extends x10Test {
    public def run() : boolean = (new Hook()).run();

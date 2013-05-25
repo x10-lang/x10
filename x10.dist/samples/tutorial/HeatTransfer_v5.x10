@@ -9,7 +9,7 @@
  *  (C) Copyright IBM Corporation 2006-2010.
  */
 
-import x10.array.*;
+import x10.regionarray.*;
 
 /**
  * This is one of a series of programs showing how to express
@@ -53,7 +53,7 @@ public class HeatTransfer_v5 {
 
     // TODO: This is a really inefficient implementation of this abstraction.
     //       Needs to be done properly and integrated into the Dist/Region/DistArray
-    //       class library in x10.array.
+    //       class library in x10.regionarray.
     static def blockIt(d:Dist(2), numProcs:int):Array[Iterable[Point(2)]](1){rect} {
         val blocks = new Array[x10.util.ArrayList[Point(2)]](numProcs, (long)=>new x10.util.ArrayList[Point(2)]());
         var modulo:int = 0;

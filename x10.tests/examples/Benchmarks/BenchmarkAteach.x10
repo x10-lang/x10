@@ -9,7 +9,7 @@
  *  (C) Copyright Australian National University 2010.
  */
 import harness.x10Test;
-import x10.array.*;
+import x10.regionarray.*;
 
 /**
  * Tests base performance of finish/ateach

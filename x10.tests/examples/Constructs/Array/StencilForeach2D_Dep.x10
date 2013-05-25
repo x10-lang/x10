@@ -10,7 +10,7 @@
  */
 
 import harness.x10Test;
-import x10.array.*;
+import x10.regionarray.*;
 
 /**
  * Implementing a 5-point stencil operation using a for..async loop

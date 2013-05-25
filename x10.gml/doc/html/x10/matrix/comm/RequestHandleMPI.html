@@ -120,9 +120,9 @@ extends x10.lang.Object</pre>
 <td class="colLast"><code><strong><a href="../../../x10/matrix/comm/RequestHandleMPI.html#valid">valid</a></strong></code></td>
 </tr>
 <tr class="rowColor">
-<td class="colFirst"><code>x10.array.Array&lt;x10.lang.Int&gt;</code></td>
+<td class="colFirst"><code>x10.regionarray.Array&lt;x10.lang.Int&gt;</code></td>
 <td class="colLast"><code><strong><a href="../../../x10/matrix/comm/RequestHandleMPI.html#handle">handle</a></strong></code>
-<div class="block"><B>Field Type</B>: <TT>x10.array.Array[x10.lang.Int]{self.rank==1, self.zeroBased==true, self.rect==true, self.rail==true}</TT>
+<div class="block"><B>Field Type</B>: <TT>x10.regionarray.Array[x10.lang.Int]{self.rank==1, self.zeroBased==true, self.rect==true, self.rail==true}</TT>
 </div>
 </td>
 </tr>
@@ -163,23 +163,23 @@ extends x10.lang.Object</pre>
 </tr>
 <tr class="altColor">
 <td class="colFirst"><code>static void</code></td>
-<td class="colLast"><code><strong><a href="../../../x10/matrix/comm/RequestHandleMPI.html#get_request_memsize(x10.array.Array[x10.lang.Int])">get_request_memsize</a></strong>(x10.array.Array&lt;x10.lang.Int&gt;&nbsp;sl)</code>
-<div class="block"><B>Declaration:</B> <TT>get_request_memsize(sl:x10.array.Array[x10.lang.Int]{self.rank==1, self.zeroBased==true, self.rect==true, self.rail==true}): void.</TT>
+<td class="colLast"><code><strong><a href="../../../x10/matrix/comm/RequestHandleMPI.html#get_request_memsize(x10.regionarray.Array[x10.lang.Int])">get_request_memsize</a></strong>(x10.regionarray.Array&lt;x10.lang.Int&gt;&nbsp;sl)</code>
+<div class="block"><B>Declaration:</B> <TT>get_request_memsize(sl:x10.regionarray.Array[x10.lang.Int]{self.rank==1, self.zeroBased==true, self.rect==true, self.rail==true}): void.</TT>
 </div>
 </td>
 </tr>
 <tr class="rowColor">
 <td class="colFirst"><code>static void</code></td>
-<td class="colLast"><code><strong><a href="../../../x10/matrix/comm/RequestHandleMPI.html#wait_request(x10.array.Array[x10.lang.Int])">wait_request</a></strong>(x10.array.Array&lt;x10.lang.Int&gt;&nbsp;hreq)</code>
-<div class="block"><B>Declaration:</B> <TT>wait_request(hreq:x10.array.Array[x10.lang.Int]{self.rank==1, self.zeroBased==true, self.rect==true, self.rail==true}): void.</TT>
+<td class="colLast"><code><strong><a href="../../../x10/matrix/comm/RequestHandleMPI.html#wait_request(x10.regionarray.Array[x10.lang.Int])">wait_request</a></strong>(x10.regionarray.Array&lt;x10.lang.Int&gt;&nbsp;hreq)</code>
+<div class="block"><B>Declaration:</B> <TT>wait_request(hreq:x10.regionarray.Array[x10.lang.Int]{self.rank==1, self.zeroBased==true, self.rect==true, self.rail==true}): void.</TT>
 </div>
 </td>
 </tr>
 <tr class="altColor">
 <td class="colFirst"><code>static void</code></td>
-<td class="colLast"><code><strong><a href="../../../x10/matrix/comm/RequestHandleMPI.html#test_request(x10.array.Array[x10.lang.Int],x10.array.Array[x10.lang.Int])">test_request</a></strong>(x10.array.Array&lt;x10.lang.Int&gt;&nbsp;hreq,
-            x10.array.Array&lt;x10.lang.Int&gt;&nbsp;flag)</code>
-<div class="block"><B>Declaration:</B> <TT>test_request(hreq:x10.array.Array[x10.lang.Int]{self.rank==1, self.zeroBased==true, self.rect==true, self.rail==true},flag:x10.array.Array[x10.lang.Int]{self.rank==1, self.zeroBased==true, self.rect==true, self.rail==true}): void.</TT>
+<td class="colLast"><code><strong><a href="../../../x10/matrix/comm/RequestHandleMPI.html#test_request(x10.regionarray.Array[x10.lang.Int],x10.regionarray.Array[x10.lang.Int])">test_request</a></strong>(x10.regionarray.Array&lt;x10.lang.Int&gt;&nbsp;hreq,
+            x10.regionarray.Array&lt;x10.lang.Int&gt;&nbsp;flag)</code>
+<div class="block"><B>Declaration:</B> <TT>test_request(hreq:x10.regionarray.Array[x10.lang.Int]{self.rank==1, self.zeroBased==true, self.rect==true, self.rail==true},flag:x10.regionarray.Array[x10.lang.Int]{self.rank==1, self.zeroBased==true, self.rect==true, self.rail==true}): void.</TT>
 </div>
 </td>
 </tr>
@@ -235,8 +235,8 @@ extends x10.lang.Object</pre>
 <ul class="blockListLast">
 <li class="blockList">
 <h4>handle</h4>
-<pre>public final&nbsp;x10.array.Array&lt;x10.lang.Int&gt; handle</pre>
-<div class="block"><B>Field Type</B>: <TT>x10.array.Array[x10.lang.Int]{self.rank==1, self.zeroBased==true, self.rect==true, self.rail==true}</TT><PRE>
+<pre>public final&nbsp;x10.regionarray.Array&lt;x10.lang.Int&gt; handle</pre>
+<div class="block"><B>Field Type</B>: <TT>x10.regionarray.Array[x10.lang.Int]{self.rank==1, self.zeroBased==true, self.rect==true, self.rail==true}</TT><PRE>
 </PRE></div>
 </li>
 </ul>
@@ -274,37 +274,37 @@ extends x10.lang.Object</pre>
 <!--   -->
 </a>
 <h3>Method Detail</h3>
-<a name="get_request_memsize(x10.array.Array[x10.lang.Int])">
+<a name="get_request_memsize(x10.regionarray.Array[x10.lang.Int])">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
 <h4>get_request_memsize</h4>
-<pre>public static&nbsp;void&nbsp;get_request_memsize(x10.array.Array&lt;x10.lang.Int&gt;&nbsp;sl)</pre>
-<div class="block"><B>Declaration:</B> <TT>get_request_memsize(sl:x10.array.Array[x10.lang.Int]{self.rank==1, self.zeroBased==true, self.rect==true, self.rail==true}): void.</TT><PRE>
+<pre>public static&nbsp;void&nbsp;get_request_memsize(x10.regionarray.Array&lt;x10.lang.Int&gt;&nbsp;sl)</pre>
+<div class="block"><B>Declaration:</B> <TT>get_request_memsize(sl:x10.regionarray.Array[x10.lang.Int]{self.rank==1, self.zeroBased==true, self.rect==true, self.rail==true}): void.</TT><PRE>
 </PRE></div>
 </li>
 </ul>
-<a name="wait_request(x10.array.Array[x10.lang.Int])">
+<a name="wait_request(x10.regionarray.Array[x10.lang.Int])">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
 <h4>wait_request</h4>
-<pre>public static&nbsp;void&nbsp;wait_request(x10.array.Array&lt;x10.lang.Int&gt;&nbsp;hreq)</pre>
-<div class="block"><B>Declaration:</B> <TT>wait_request(hreq:x10.array.Array[x10.lang.Int]{self.rank==1, self.zeroBased==true, self.rect==true, self.rail==true}): void.</TT><PRE>
+<pre>public static&nbsp;void&nbsp;wait_request(x10.regionarray.Array&lt;x10.lang.Int&gt;&nbsp;hreq)</pre>
+<div class="block"><B>Declaration:</B> <TT>wait_request(hreq:x10.regionarray.Array[x10.lang.Int]{self.rank==1, self.zeroBased==true, self.rect==true, self.rail==true}): void.</TT><PRE>
 </PRE></div>
 </li>
 </ul>
-<a name="test_request(x10.array.Array[x10.lang.Int],x10.array.Array[x10.lang.Int])">
+<a name="test_request(x10.regionarray.Array[x10.lang.Int],x10.regionarray.Array[x10.lang.Int])">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
 <h4>test_request</h4>
-<pre>public static&nbsp;void&nbsp;test_request(x10.array.Array&lt;x10.lang.Int&gt;&nbsp;hreq,
-                x10.array.Array&lt;x10.lang.Int&gt;&nbsp;flag)</pre>
-<div class="block"><B>Declaration:</B> <TT>test_request(hreq:x10.array.Array[x10.lang.Int]{self.rank==1, self.zeroBased==true, self.rect==true, self.rail==true},flag:x10.array.Array[x10.lang.Int]{self.rank==1, self.zeroBased==true, self.rect==true, self.rail==true}): void.</TT><PRE>
+<pre>public static&nbsp;void&nbsp;test_request(x10.regionarray.Array&lt;x10.lang.Int&gt;&nbsp;hreq,
+                x10.regionarray.Array&lt;x10.lang.Int&gt;&nbsp;flag)</pre>
+<div class="block"><B>Declaration:</B> <TT>test_request(hreq:x10.regionarray.Array[x10.lang.Int]{self.rank==1, self.zeroBased==true, self.rect==true, self.rail==true},flag:x10.regionarray.Array[x10.lang.Int]{self.rank==1, self.zeroBased==true, self.rect==true, self.rail==true}): void.</TT><PRE>
 </PRE></div>
 </li>
 </ul>

@@ -10,7 +10,7 @@
  */
 
 import harness.x10Test;
-import x10.array.*;
+import x10.regionarray.*;
 
 /**
  * Test for for loop with x10 for (point p: D) syntax

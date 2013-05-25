@@ -11,7 +11,7 @@
 
 import harness.x10Test;
 import x10.compiler.tests.*; // err markers
-import x10.array.*;
+import x10.regionarray.*;
 
 /**
  * @author yoav (yzibin) 1/2011

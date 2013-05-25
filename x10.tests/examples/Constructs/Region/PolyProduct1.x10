@@ -9,7 +9,7 @@
  *  (C) Copyright IBM Corporation 2006-2010.
  */
 
-import x10.array.*;
+import x10.regionarray.*;
 
 /**
  * Take a cross product of a 1-d rectange with a 2-d triangular

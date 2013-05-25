@@ -17,7 +17,7 @@
 
 import harness.x10Test;
 
- import x10.array.*;
+ import x10.regionarray.*;
 
 public class Vars2e6j extends x10Test {
    public def run() : boolean = (new Hook()).run();

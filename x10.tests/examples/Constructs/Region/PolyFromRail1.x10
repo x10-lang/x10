@@ -10,7 +10,7 @@
  *  (C) Copyright IBM Corporation 2006-2010.
  */
 
-import x10.array.*;
+import x10.regionarray.*;
 
 /**
  * Construct an array from a native rail and examine it.

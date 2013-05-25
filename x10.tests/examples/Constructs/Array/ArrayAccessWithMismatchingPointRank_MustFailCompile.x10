@@ -13,7 +13,7 @@
 //OPTIONS: -STATIC_CHECKS
 
 import harness.x10Test;
-import x10.array.*;
+import x10.regionarray.*;
 
 /**
  * Simple array test.

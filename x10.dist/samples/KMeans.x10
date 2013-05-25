@@ -11,7 +11,7 @@
 
 import x10.io.Console;
 import x10.util.Random;
-import x10.array.*;
+import x10.regionarray.*;
 
 /**
  * A KMeans object o can compute K means of a given set of 

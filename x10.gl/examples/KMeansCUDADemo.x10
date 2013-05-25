@@ -23,8 +23,8 @@ import x10.util.OptionsParser;
 import x10.util.Option;
 import x10.util.CUDAUtilities;
 
-import x10.array.RemoteArray;
-import x10.array.Array;
+import x10.regionarray.RemoteArray;
+import x10.regionarray.Array;
 
 import x10.compiler.Unroll;
 import x10.compiler.CUDADirectParams;

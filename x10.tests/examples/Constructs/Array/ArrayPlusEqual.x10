@@ -10,7 +10,7 @@
  */
 
 import harness.x10Test;
-import x10.array.*;
+import x10.regionarray.*;
 
 public class ArrayPlusEqual extends x10Test {
 

@@ -6,8 +6,8 @@
  *
  */
 import harness.x10Test;;
-import x10.array.Dist;
-import x10.array.Array;
+import x10.regionarray.Dist;
+import x10.regionarray.Array;
 
 /**
  * Purpose: Dynamic widening cast from Object to X10 array.

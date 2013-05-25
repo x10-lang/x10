@@ -11,7 +11,7 @@
 
 import x10.util.Box;
 import harness.x10Test;
-import x10.array.*;
+import x10.regionarray.*;
 
 /**
  * Testing a variable scope problem.

@@ -145,87 +145,87 @@ multiply.</div>
 </tr>
 <tr class="altColor">
 <td class="colFirst"><code>static void</code></td>
-<td class="colLast"><code><strong><a href="../../../x10/matrix/comm/MatrixRingCast.html#rcast(x10.array.DistArray[x10.matrix.DenseMatrix])">rcast</a></strong>(x10.array.DistArray&lt;<a href="../../../x10/matrix/DenseMatrix.html" title="class in x10.matrix">DenseMatrix</a>&gt;&nbsp;dmlist)</code>
-<div class="block"><B>Declaration:</B> <TT>rcast(dmlist:x10.array.DistArray[x10.matrix.DenseMatrix]{self.dist.region.rank==1}): void.</TT>
+<td class="colLast"><code><strong><a href="../../../x10/matrix/comm/MatrixRingCast.html#rcast(x10.regionarray.DistArray[x10.matrix.DenseMatrix])">rcast</a></strong>(x10.regionarray.DistArray&lt;<a href="../../../x10/matrix/DenseMatrix.html" title="class in x10.matrix">DenseMatrix</a>&gt;&nbsp;dmlist)</code>
+<div class="block"><B>Declaration:</B> <TT>rcast(dmlist:x10.regionarray.DistArray[x10.matrix.DenseMatrix]{self.dist.region.rank==1}): void.</TT>
 Broadcast the whole dense matrix at here to all places one by one</div>
 </td>
 </tr>
 <tr class="rowColor">
 <td class="colFirst"><code>static void</code></td>
-<td class="colLast"><code><strong><a href="../../../x10/matrix/comm/MatrixRingCast.html#rcast(x10.array.DistArray[x10.matrix.DenseMatrix],x10.lang.Int)">rcast</a></strong>(x10.array.DistArray&lt;<a href="../../../x10/matrix/DenseMatrix.html" title="class in x10.matrix">DenseMatrix</a>&gt;&nbsp;dmlist,
+<td class="colLast"><code><strong><a href="../../../x10/matrix/comm/MatrixRingCast.html#rcast(x10.regionarray.DistArray[x10.matrix.DenseMatrix],x10.lang.Int)">rcast</a></strong>(x10.regionarray.DistArray&lt;<a href="../../../x10/matrix/DenseMatrix.html" title="class in x10.matrix">DenseMatrix</a>&gt;&nbsp;dmlist,
      x10.lang.Int&nbsp;datCnt)</code>
-<div class="block"><B>Declaration:</B> <TT>rcast(dmlist:x10.array.DistArray[x10.matrix.DenseMatrix]{self.dist.region.rank==1},datCnt:x10.lang.Int): void.</TT>
+<div class="block"><B>Declaration:</B> <TT>rcast(dmlist:x10.regionarray.DistArray[x10.matrix.DenseMatrix]{self.dist.region.rank==1},datCnt:x10.lang.Int): void.</TT>
 Broadcast data of dense matrix to all places.</div>
 </td>
 </tr>
 <tr class="altColor">
 <td class="colFirst"><code>static void</code></td>
-<td class="colLast"><code><strong><a href="../../../x10/matrix/comm/MatrixRingCast.html#rcast(x10.array.DistArray[x10.matrix.DenseMatrix],x10.lang.Int,x10.array.Array[x10.lang.Int])">rcast</a></strong>(x10.array.DistArray&lt;<a href="../../../x10/matrix/DenseMatrix.html" title="class in x10.matrix">DenseMatrix</a>&gt;&nbsp;dmlist,
+<td class="colLast"><code><strong><a href="../../../x10/matrix/comm/MatrixRingCast.html#rcast(x10.regionarray.DistArray[x10.matrix.DenseMatrix],x10.lang.Int,x10.regionarray.Array[x10.lang.Int])">rcast</a></strong>(x10.regionarray.DistArray&lt;<a href="../../../x10/matrix/DenseMatrix.html" title="class in x10.matrix">DenseMatrix</a>&gt;&nbsp;dmlist,
      x10.lang.Int&nbsp;datCnt,
-     x10.array.Array&lt;x10.lang.Int&gt;&nbsp;plist)</code>
-<div class="block"><B>Declaration:</B> <TT>rcast(dmlist:x10.array.DistArray[x10.matrix.DenseMatrix]{self.dist.region.rank==1},datCnt:x10.lang.Int,plist:x10.array.Array[x10.lang.Int]{self.rank==1}): void.</TT>
+     x10.regionarray.Array&lt;x10.lang.Int&gt;&nbsp;plist)</code>
+<div class="block"><B>Declaration:</B> <TT>rcast(dmlist:x10.regionarray.DistArray[x10.matrix.DenseMatrix]{self.dist.region.rank==1},datCnt:x10.lang.Int,plist:x10.regionarray.Array[x10.lang.Int]{self.rank==1}): void.</TT>
 Send data of dense matrix from here to a list of places.</div>
 </td>
 </tr>
 <tr class="rowColor">
 <td class="colFirst"><code>protected static void</code></td>
-<td class="colLast"><code><strong><a href="../../../x10/matrix/comm/MatrixRingCast.html#mpiRingCast(x10.array.DistArray[x10.matrix.DenseMatrix],x10.lang.Int,x10.array.Array[x10.lang.Int])">mpiRingCast</a></strong>(x10.array.DistArray&lt;<a href="../../../x10/matrix/DenseMatrix.html" title="class in x10.matrix">DenseMatrix</a>&gt;&nbsp;dmlist,
+<td class="colLast"><code><strong><a href="../../../x10/matrix/comm/MatrixRingCast.html#mpiRingCast(x10.regionarray.DistArray[x10.matrix.DenseMatrix],x10.lang.Int,x10.regionarray.Array[x10.lang.Int])">mpiRingCast</a></strong>(x10.regionarray.DistArray&lt;<a href="../../../x10/matrix/DenseMatrix.html" title="class in x10.matrix">DenseMatrix</a>&gt;&nbsp;dmlist,
            x10.lang.Int&nbsp;datCnt,
-           x10.array.Array&lt;x10.lang.Int&gt;&nbsp;plist)</code>
-<div class="block"><B>Declaration:</B> <TT>mpiRingCast(dmlist:x10.array.DistArray[x10.matrix.DenseMatrix]{self.dist.region.rank==1},datCnt:x10.lang.Int,plist:x10.array.Array[x10.lang.Int]{self.rank==1}): void.</TT>
+           x10.regionarray.Array&lt;x10.lang.Int&gt;&nbsp;plist)</code>
+<div class="block"><B>Declaration:</B> <TT>mpiRingCast(dmlist:x10.regionarray.DistArray[x10.matrix.DenseMatrix]{self.dist.region.rank==1},datCnt:x10.lang.Int,plist:x10.regionarray.Array[x10.lang.Int]{self.rank==1}): void.</TT>
 Send data of dense matrix from here to a list of places using
 MPI send/recv routines.</div>
 </td>
 </tr>
 <tr class="altColor">
 <td class="colFirst"><code>static void</code></td>
-<td class="colLast"><code><strong><a href="../../../x10/matrix/comm/MatrixRingCast.html#rcast(x10.array.DistArray[x10.matrix.sparse.SparseCSC],x10.lang.Int)">rcast</a></strong>(x10.array.DistArray&lt;<a href="../../../x10/matrix/sparse/SparseCSC.html" title="class in x10.matrix.sparse">SparseCSC</a>&gt;&nbsp;smlist,
+<td class="colLast"><code><strong><a href="../../../x10/matrix/comm/MatrixRingCast.html#rcast(x10.regionarray.DistArray[x10.matrix.sparse.SparseCSC],x10.lang.Int)">rcast</a></strong>(x10.regionarray.DistArray&lt;<a href="../../../x10/matrix/sparse/SparseCSC.html" title="class in x10.matrix.sparse">SparseCSC</a>&gt;&nbsp;smlist,
      x10.lang.Int&nbsp;datCnt)</code>
-<div class="block"><B>Declaration:</B> <TT>rcast(smlist:x10.array.DistArray[x10.matrix.sparse.SparseCSC]{self.dist.region.rank==1},datCnt:x10.lang.Int): void.</TT>
+<div class="block"><B>Declaration:</B> <TT>rcast(smlist:x10.regionarray.DistArray[x10.matrix.sparse.SparseCSC]{self.dist.region.rank==1},datCnt:x10.lang.Int): void.</TT>
 Broadcast columns of sparse matrix to all places.</div>
 </td>
 </tr>
 <tr class="rowColor">
 <td class="colFirst"><code>static void</code></td>
-<td class="colLast"><code><strong><a href="../../../x10/matrix/comm/MatrixRingCast.html#rcast(x10.array.DistArray[x10.matrix.sparse.SparseCSC])">rcast</a></strong>(x10.array.DistArray&lt;<a href="../../../x10/matrix/sparse/SparseCSC.html" title="class in x10.matrix.sparse">SparseCSC</a>&gt;&nbsp;smlist)</code>
-<div class="block"><B>Declaration:</B> <TT>rcast(smlist:x10.array.DistArray[x10.matrix.sparse.SparseCSC]{self.dist.region.rank==1}): void.</TT>
+<td class="colLast"><code><strong><a href="../../../x10/matrix/comm/MatrixRingCast.html#rcast(x10.regionarray.DistArray[x10.matrix.sparse.SparseCSC])">rcast</a></strong>(x10.regionarray.DistArray&lt;<a href="../../../x10/matrix/sparse/SparseCSC.html" title="class in x10.matrix.sparse">SparseCSC</a>&gt;&nbsp;smlist)</code>
+<div class="block"><B>Declaration:</B> <TT>rcast(smlist:x10.regionarray.DistArray[x10.matrix.sparse.SparseCSC]{self.dist.region.rank==1}): void.</TT>
 Broadcast the whole sparse matrix at here to all places</div>
 </td>
 </tr>
 <tr class="altColor">
 <td class="colFirst"><code>static void</code></td>
-<td class="colLast"><code><strong><a href="../../../x10/matrix/comm/MatrixRingCast.html#rcast(x10.array.DistArray[x10.matrix.sparse.SparseCSC],x10.lang.Int,x10.array.Array[x10.lang.Int])">rcast</a></strong>(x10.array.DistArray&lt;<a href="../../../x10/matrix/sparse/SparseCSC.html" title="class in x10.matrix.sparse">SparseCSC</a>&gt;&nbsp;smlist,
+<td class="colLast"><code><strong><a href="../../../x10/matrix/comm/MatrixRingCast.html#rcast(x10.regionarray.DistArray[x10.matrix.sparse.SparseCSC],x10.lang.Int,x10.regionarray.Array[x10.lang.Int])">rcast</a></strong>(x10.regionarray.DistArray&lt;<a href="../../../x10/matrix/sparse/SparseCSC.html" title="class in x10.matrix.sparse">SparseCSC</a>&gt;&nbsp;smlist,
      x10.lang.Int&nbsp;datCnt,
-     x10.array.Array&lt;x10.lang.Int&gt;&nbsp;plist)</code>
-<div class="block"><B>Declaration:</B> <TT>rcast(smlist:x10.array.DistArray[x10.matrix.sparse.SparseCSC]{self.dist.region.rank==1},datCnt:x10.lang.Int,plist:x10.array.Array[x10.lang.Int]{self.rank==1}): void.</TT>
+     x10.regionarray.Array&lt;x10.lang.Int&gt;&nbsp;plist)</code>
+<div class="block"><B>Declaration:</B> <TT>rcast(smlist:x10.regionarray.DistArray[x10.matrix.sparse.SparseCSC]{self.dist.region.rank==1},datCnt:x10.lang.Int,plist:x10.regionarray.Array[x10.lang.Int]{self.rank==1}): void.</TT>
 Send columns in sparse matrix from here to a list of places.</div>
 </td>
 </tr>
 <tr class="rowColor">
 <td class="colFirst"><code>protected static void</code></td>
-<td class="colLast"><code><strong><a href="../../../x10/matrix/comm/MatrixRingCast.html#mpiRingCast(x10.array.DistArray[x10.matrix.sparse.SparseCSC],x10.lang.Int,x10.array.Array[x10.lang.Int])">mpiRingCast</a></strong>(x10.array.DistArray&lt;<a href="../../../x10/matrix/sparse/SparseCSC.html" title="class in x10.matrix.sparse">SparseCSC</a>&gt;&nbsp;smlist,
+<td class="colLast"><code><strong><a href="../../../x10/matrix/comm/MatrixRingCast.html#mpiRingCast(x10.regionarray.DistArray[x10.matrix.sparse.SparseCSC],x10.lang.Int,x10.regionarray.Array[x10.lang.Int])">mpiRingCast</a></strong>(x10.regionarray.DistArray&lt;<a href="../../../x10/matrix/sparse/SparseCSC.html" title="class in x10.matrix.sparse">SparseCSC</a>&gt;&nbsp;smlist,
            x10.lang.Int&nbsp;datCnt,
-           x10.array.Array&lt;x10.lang.Int&gt;&nbsp;plist)</code>
-<div class="block"><B>Declaration:</B> <TT>mpiRingCast(smlist:x10.array.DistArray[x10.matrix.sparse.SparseCSC]{self.dist.region.rank==1},datCnt:x10.lang.Int,plist:x10.array.Array[x10.lang.Int]{self.rank==1}): void.</TT>
+           x10.regionarray.Array&lt;x10.lang.Int&gt;&nbsp;plist)</code>
+<div class="block"><B>Declaration:</B> <TT>mpiRingCast(smlist:x10.regionarray.DistArray[x10.matrix.sparse.SparseCSC]{self.dist.region.rank==1},datCnt:x10.lang.Int,plist:x10.regionarray.Array[x10.lang.Int]{self.rank==1}): void.</TT>
 Send columns in sparse matrix from here to a list of places using
 X10 remote array copy.</div>
 </td>
 </tr>
 <tr class="altColor">
 <td class="colFirst"><code>protected static void</code></td>
-<td class="colLast"><code><strong><a href="../../../x10/matrix/comm/MatrixRingCast.html#x10RingCast(x10.array.DistArray[x10.matrix.DenseMatrix],x10.lang.Int,x10.array.Array[x10.lang.Int])">x10RingCast</a></strong>(x10.array.DistArray&lt;<a href="../../../x10/matrix/DenseMatrix.html" title="class in x10.matrix">DenseMatrix</a>&gt;&nbsp;dmlist,
+<td class="colLast"><code><strong><a href="../../../x10/matrix/comm/MatrixRingCast.html#x10RingCast(x10.regionarray.DistArray[x10.matrix.DenseMatrix],x10.lang.Int,x10.regionarray.Array[x10.lang.Int])">x10RingCast</a></strong>(x10.regionarray.DistArray&lt;<a href="../../../x10/matrix/DenseMatrix.html" title="class in x10.matrix">DenseMatrix</a>&gt;&nbsp;dmlist,
            x10.lang.Int&nbsp;datCnt,
-           x10.array.Array&lt;x10.lang.Int&gt;&nbsp;plist)</code>
-<div class="block"><B>Declaration:</B> <TT>x10RingCast(dmlist:x10.array.DistArray[x10.matrix.DenseMatrix]{self.dist.region.rank==1},datCnt:x10.lang.Int,plist:x10.array.Array[x10.lang.Int]{self.rank==1}): void.</TT>
+           x10.regionarray.Array&lt;x10.lang.Int&gt;&nbsp;plist)</code>
+<div class="block"><B>Declaration:</B> <TT>x10RingCast(dmlist:x10.regionarray.DistArray[x10.matrix.DenseMatrix]{self.dist.region.rank==1},datCnt:x10.lang.Int,plist:x10.regionarray.Array[x10.lang.Int]{self.rank==1}): void.</TT>
 Sending data of dense matrix from here to a list of places using X10 remote array copy.</div>
 </td>
 </tr>
 <tr class="rowColor">
 <td class="colFirst"><code>protected static void</code></td>
-<td class="colLast"><code><strong><a href="../../../x10/matrix/comm/MatrixRingCast.html#x10RingCast(x10.array.DistArray[x10.matrix.sparse.SparseCSC],x10.lang.Int,x10.array.Array[x10.lang.Int])">x10RingCast</a></strong>(x10.array.DistArray&lt;<a href="../../../x10/matrix/sparse/SparseCSC.html" title="class in x10.matrix.sparse">SparseCSC</a>&gt;&nbsp;smlist,
+<td class="colLast"><code><strong><a href="../../../x10/matrix/comm/MatrixRingCast.html#x10RingCast(x10.regionarray.DistArray[x10.matrix.sparse.SparseCSC],x10.lang.Int,x10.regionarray.Array[x10.lang.Int])">x10RingCast</a></strong>(x10.regionarray.DistArray&lt;<a href="../../../x10/matrix/sparse/SparseCSC.html" title="class in x10.matrix.sparse">SparseCSC</a>&gt;&nbsp;smlist,
            x10.lang.Int&nbsp;datCnt,
-           x10.array.Array&lt;x10.lang.Int&gt;&nbsp;plist)</code>
-<div class="block"><B>Declaration:</B> <TT>x10RingCast(smlist:x10.array.DistArray[x10.matrix.sparse.SparseCSC]{self.dist.region.rank==1},datCnt:x10.lang.Int,plist:x10.array.Array[x10.lang.Int]{self.rank==1}): void.</TT>
+           x10.regionarray.Array&lt;x10.lang.Int&gt;&nbsp;plist)</code>
+<div class="block"><B>Declaration:</B> <TT>x10RingCast(smlist:x10.regionarray.DistArray[x10.matrix.sparse.SparseCSC]{self.dist.region.rank==1},datCnt:x10.lang.Int,plist:x10.regionarray.Array[x10.lang.Int]{self.rank==1}): void.</TT>
 Sending the data from here to places in the list by using X10 remote copy.</div>
 </td>
 </tr>
@@ -243,7 +243,7 @@ Ring cast sends data from here to a number of places
 <!--   -->
 </a>
 <h3>Methods inherited from class&nbsp;x10.matrix.comm.<a href="../../../x10/matrix/comm/MatrixRemoteCopy.html" title="class in x10.matrix.comm">MatrixRemoteCopy</a></h3>
-<code><a href="../../../x10/matrix/comm/MatrixRemoteCopy.html#copyTo(x10.array.DistArray[x10.matrix.DenseMatrix],x10.lang.Int)">copyTo</a>, <a href="../../../x10/matrix/comm/MatrixRemoteCopy.html#copyFrom(x10.array.DistArray[x10.matrix.DenseMatrix],x10.lang.Int)">copyFrom</a>, <a href="../../../x10/matrix/comm/MatrixRemoteCopy.html#copy(x10.matrix.DenseMatrix,x10.lang.Int,x10.array.DistArray[x10.matrix.DenseMatrix],x10.lang.Int,x10.lang.Int,x10.lang.Int)">copy</a>, <a href="../../../x10/matrix/comm/MatrixRemoteCopy.html#mpiCopy(x10.matrix.DenseMatrix,x10.lang.Int,x10.array.DistArray[x10.matrix.DenseMatrix],x10.lang.Int,x10.lang.Int,x10.lang.Int)">mpiCopy</a>, <a href="../../../x10/matrix/comm/MatrixRemoteCopy.html#x10Copy(x10.matrix.DenseMatrix,x10.lang.Int,x10.array.DistArray[x10.matrix.DenseMatrix],x10.lang.Int,x10.lang.Int,x10.lang.Int)">x10Copy</a>, <a href="../../../x10/matrix/comm/MatrixRemoteCopy.html#copy(x10.array.DistArray[x10.matrix.DenseMatrix],x10.lang.Int,x10.lang.Int,x10.matrix.DenseMatrix,x10.lang.Int,x10.lang.Int)">copy</a>, <a href="../../../x10/matrix/comm/MatrixRemoteCopy.html#x10Copy(x10.array.DistArray[x10.matrix.DenseMatrix],x10.lang.Int,x10.lang.Int,x10.matrix.DenseMatrix,x10.lang.Int,x10.lang.Int)">x10Copy</a>, <a href="../../../x10/matrix/comm/MatrixRemoteCopy.html#mpiCopy(x10.array.DistArray[x10.matrix.DenseMatrix],x10.lang.Int,x10.lang.Int,x10.matrix.DenseMatrix,x10.lang.Int,x10.lang.Int)">mpiCopy</a>, <a href="../../../x10/matrix/comm/MatrixRemoteCopy.html#copy(x10.matrix.DenseMatrix,x10.lang.Int,x10.array.DistArray[x10.matrix.block.DenseBlock],x10.lang.Int,x10.lang.Int,x10.lang.Int)">copy</a>, <a href="../../../x10/matrix/comm/MatrixRemoteCopy.html#mpiCopy(x10.matrix.DenseMatrix,x10.lang.Int,x10.array.DistArray[x10.matrix.block.DenseBlock],x10.lang.Int,x10.lang.Int,x10.lang.Int)">mpiCopy</a>, <a href="../../../x10/matrix/comm/MatrixRemoteCopy.html#x10Copy(x10.matrix.DenseMatrix,x10.lang.Int,x10.array.DistArray[x10.matrix.block.DenseBlock],x10.lang.Int,x10.lang.Int,x10.lang.Int)">x10Copy</a>, <a href="../../../x10/matrix/comm/MatrixRemoteCopy.html#copy(x10.array.DistArray[x10.matrix.block.DenseBlock],x10.lang.Int,x10.lang.Int,x10.matrix.DenseMatrix,x10.lang.Int,x10.lang.Int)">copy</a>, <a href="../../../x10/matrix/comm/MatrixRemoteCopy.html#mpiCopy(x10.array.DistArray[x10.matrix.block.DenseBlock],x10.lang.Int,x10.lang.Int,x10.matrix.DenseMatrix,x10.lang.Int,x10.lang.Int)">mpiCopy</a>, <a href="../../../x10/matrix/comm/MatrixRemoteCopy.html#x10Copy(x10.array.DistArray[x10.matrix.block.DenseBlock],x10.lang.Int,x10.lang.Int,x10.matrix.DenseMatrix,x10.lang.Int,x10.lang.Int)">x10Copy</a>, <a href="../../../x10/matrix/comm/MatrixRemoteCopy.html#copyTo(x10.array.DistArray[x10.matrix.sparse.SparseCSC],x10.lang.Int)">copyTo</a>, <a href="../../../x10/matrix/comm/MatrixRemoteCopy.html#copyFrom(x10.array.DistArray[x10.matrix.sparse.SparseCSC],x10.lang.Int)">copyFrom</a>, <a href="../../../x10/matrix/comm/MatrixRemoteCopy.html#copy(x10.matrix.sparse.SparseCSC,x10.lang.Int,x10.array.DistArray[x10.matrix.sparse.SparseCSC],x10.lang.Int,x10.lang.Int,x10.lang.Int)">copy</a>, <a href="../../../x10/matrix/comm/MatrixRemoteCopy.html#mpiCopy(x10.matrix.sparse.SparseCSC,x10.lang.Int,x10.array.DistArray[x10.matrix.sparse.SparseCSC],x10.lang.Int,x10.lang.Int,x10.lang.Int)">mpiCopy</a>, <a href="../../../x10/matrix/comm/MatrixRemoteCopy.html#x10Copy(x10.matrix.sparse.SparseCSC,x10.lang.Int,x10.array.DistArray[x10.matrix.sparse.SparseCSC],x10.lang.Int,x10.lang.Int,x10.lang.Int)">x10Copy</a>, <a href="../../../x10/matrix/comm/MatrixRemoteCopy.html#copy(x10.array.DistArray[x10.matrix.sparse.SparseCSC],x10.lang.Int,x10.lang.Int,x10.matrix.sparse.SparseCSC,x10.lang.Int,x10.lang.Int)">copy</a>, <a href="../../../x10/matrix/comm/MatrixRemoteCopy.html#mpiCopy(x10.array.DistArray[x10.matrix.sparse.SparseCSC],x10.lang.Int,x10.lang.Int,x10.matrix.sparse.SparseCSC,x10.lang.Int,x10.lang.Int)">mpiCopy</a>, <a href="../../../x10/matrix/comm/MatrixRemoteCopy.html#x10Copy(x10.array.DistArray[x10.matrix.sparse.SparseCSC],x10.lang.Int,x10.lang.Int,x10.matrix.sparse.SparseCSC,x10.lang.Int,x10.lang.Int)">x10Copy</a>, <a href="../../../x10/matrix/comm/MatrixRemoteCopy.html#copy(x10.matrix.sparse.SparseCSC,x10.lang.Int,x10.array.DistArray[x10.matrix.block.SparseBlock],x10.lang.Int,x10.lang.Int,x10.lang.Int)">copy</a>, <a href="../../../x10/matrix/comm/MatrixRemoteCopy.html#mpiCopy(x10.matrix.sparse.SparseCSC,x10.lang.Int,x10.array.DistArray[x10.matrix.block.SparseBlock],x10.lang.Int,x10.lang.Int,x10.lang.Int)">mpiCopy</a>, <a href="../../../x10/matrix/comm/MatrixRemoteCopy.html#x10Copy(x10.matrix.sparse.SparseCSC,x10.lang.Int,x10.array.DistArray[x10.matrix.block.SparseBlock],x10.lang.Int,x10.lang.Int,x10.lang.Int)">x10Copy</a>, <a href="../../../x10/matrix/comm/MatrixRemoteCopy.html#copy(x10.array.DistArray[x10.matrix.block.SparseBlock],x10.lang.Int,x10.lang.Int,x10.matrix.sparse.SparseCSC,x10.lang.Int,x10.lang.Int)">copy</a>, <a href="../../../x10/matrix/comm/MatrixRemoteCopy.html#mpiCopy(x10.array.DistArray[x10.matrix.block.SparseBlock],x10.lang.Int,x10.lang.Int,x10.matrix.sparse.SparseCSC,x10.lang.Int,x10.lang.Int)">mpiCopy</a>, <a href="../../../x10/matrix/comm/MatrixRemoteCopy.html#x10Copy(x10.array.DistArray[x10.matrix.block.SparseBlock],x10.lang.Int,x10.lang.Int,x10.matrix.sparse.SparseCSC,x10.lang.Int,x10.lang.Int)">x10Copy</a>, <a href="../../../x10/matrix/comm/MatrixRemoteCopy.html#copy(x10.array.Array[x10.lang.Double],x10.lang.Int,x10.array.DistArray[x10.matrix.DenseMatrix],x10.lang.Int,x10.lang.Int,x10.lang.Int)">copy</a>, <a href="../../../x10/matrix/comm/MatrixRemoteCopy.html#mpiCopy(x10.array.Array[x10.lang.Double],x10.lang.Int,x10.array.DistArray[x10.matrix.DenseMatrix],x10.lang.Int,x10.lang.Int,x10.lang.Int)">mpiCopy</a>, <a href="../../../x10/matrix/comm/MatrixRemoteCopy.html#x10Copy(x10.array.Array[x10.lang.Double],x10.lang.Int,x10.array.DistArray[x10.matrix.DenseMatrix],x10.lang.Int,x10.lang.Int,x10.lang.Int)">x10Copy</a>, <a href="../../../x10/matrix/comm/MatrixRemoteCopy.html#copy(x10.array.DistArray[x10.matrix.DenseMatrix],x10.lang.Int,x10.lang.Int,x10.array.Array[x10.lang.Double],x10.lang.Int,x10.lang.Int)">copy</a>, <a href="../../../x10/matrix/comm/MatrixRemoteCopy.html#mpiCopy(x10.array.DistArray[x10.matrix.DenseMatrix],x10.lang.Int,x10.lang.Int,x10.array.Array[x10.lang.Double],x10.lang.Int,x10.lang.Int)">mpiCopy</a>, <a href="../../../x10/matrix/comm/MatrixRemoteCopy.html#x10Copy(x10.array.DistArray[x10.matrix.DenseMatrix],x10.lang.Int,x10.lang.Int,x10.array.Array[x10.lang.Double],x10.lang.Int,x10.lang.Int)">x10Copy</a>, <a href="../../../x10/matrix/comm/MatrixRemoteCopy.html#copy(x10.array.Array[x10.lang.Double],x10.lang.Int,x10.array.DistArray[x10.matrix.block.DenseBlock],x10.lang.Int,x10.lang.Int,x10.lang.Int)">copy</a>, <a href="../../../x10/matrix/comm/MatrixRemoteCopy.html#mpiCopy(x10.array.Array[x10.lang.Double],x10.lang.Int,x10.array.DistArray[x10.matrix.block.DenseBlock],x10.lang.Int,x10.lang.Int,x10.lang.Int)">mpiCopy</a>, <a href="../../../x10/matrix/comm/MatrixRemoteCopy.html#x10Copy(x10.array.Array[x10.lang.Double],x10.lang.Int,x10.array.DistArray[x10.matrix.block.DenseBlock],x10.lang.Int,x10.lang.Int,x10.lang.Int)">x10Copy</a>, <a href="../../../x10/matrix/comm/MatrixRemoteCopy.html#copy(x10.array.DistArray[x10.matrix.block.DenseBlock],x10.lang.Int,x10.lang.Int,x10.array.Array[x10.lang.Double],x10.lang.Int,x10.lang.Int)">copy</a>, <a href="../../../x10/matrix/comm/MatrixRemoteCopy.html#mpiCopy(x10.array.DistArray[x10.matrix.block.DenseBlock],x10.lang.Int,x10.lang.Int,x10.array.Array[x10.lang.Double],x10.lang.Int,x10.lang.Int)">mpiCopy</a>, <a href="../../../x10/matrix/comm/MatrixRemoteCopy.html#x10Copy(x10.array.DistArray[x10.matrix.block.DenseBlock],x10.lang.Int,x10.lang.Int,x10.array.Array[x10.lang.Double],x10.lang.Int,x10.lang.Int)">x10Copy</a>, <a href="../../../x10/matrix/comm/MatrixRemoteCopy.html#x10$matrix$comm$MatrixRemoteCopy$$this$x10$matrix$comm$MatrixRemoteCopy()">x10$matrix$comm$MatrixRemoteCopy$$this$x10$matrix$comm$MatrixRemoteCopy</a></code></li>
+<code><a href="../../../x10/matrix/comm/MatrixRemoteCopy.html#copyTo(x10.regionarray.DistArray[x10.matrix.DenseMatrix],x10.lang.Int)">copyTo</a>, <a href="../../../x10/matrix/comm/MatrixRemoteCopy.html#copyFrom(x10.regionarray.DistArray[x10.matrix.DenseMatrix],x10.lang.Int)">copyFrom</a>, <a href="../../../x10/matrix/comm/MatrixRemoteCopy.html#copy(x10.matrix.DenseMatrix,x10.lang.Int,x10.regionarray.DistArray[x10.matrix.DenseMatrix],x10.lang.Int,x10.lang.Int,x10.lang.Int)">copy</a>, <a href="../../../x10/matrix/comm/MatrixRemoteCopy.html#mpiCopy(x10.matrix.DenseMatrix,x10.lang.Int,x10.regionarray.DistArray[x10.matrix.DenseMatrix],x10.lang.Int,x10.lang.Int,x10.lang.Int)">mpiCopy</a>, <a href="../../../x10/matrix/comm/MatrixRemoteCopy.html#x10Copy(x10.matrix.DenseMatrix,x10.lang.Int,x10.regionarray.DistArray[x10.matrix.DenseMatrix],x10.lang.Int,x10.lang.Int,x10.lang.Int)">x10Copy</a>, <a href="../../../x10/matrix/comm/MatrixRemoteCopy.html#copy(x10.regionarray.DistArray[x10.matrix.DenseMatrix],x10.lang.Int,x10.lang.Int,x10.matrix.DenseMatrix,x10.lang.Int,x10.lang.Int)">copy</a>, <a href="../../../x10/matrix/comm/MatrixRemoteCopy.html#x10Copy(x10.regionarray.DistArray[x10.matrix.DenseMatrix],x10.lang.Int,x10.lang.Int,x10.matrix.DenseMatrix,x10.lang.Int,x10.lang.Int)">x10Copy</a>, <a href="../../../x10/matrix/comm/MatrixRemoteCopy.html#mpiCopy(x10.regionarray.DistArray[x10.matrix.DenseMatrix],x10.lang.Int,x10.lang.Int,x10.matrix.DenseMatrix,x10.lang.Int,x10.lang.Int)">mpiCopy</a>, <a href="../../../x10/matrix/comm/MatrixRemoteCopy.html#copy(x10.matrix.DenseMatrix,x10.lang.Int,x10.regionarray.DistArray[x10.matrix.block.DenseBlock],x10.lang.Int,x10.lang.Int,x10.lang.Int)">copy</a>, <a href="../../../x10/matrix/comm/MatrixRemoteCopy.html#mpiCopy(x10.matrix.DenseMatrix,x10.lang.Int,x10.regionarray.DistArray[x10.matrix.block.DenseBlock],x10.lang.Int,x10.lang.Int,x10.lang.Int)">mpiCopy</a>, <a href="../../../x10/matrix/comm/MatrixRemoteCopy.html#x10Copy(x10.matrix.DenseMatrix,x10.lang.Int,x10.regionarray.DistArray[x10.matrix.block.DenseBlock],x10.lang.Int,x10.lang.Int,x10.lang.Int)">x10Copy</a>, <a href="../../../x10/matrix/comm/MatrixRemoteCopy.html#copy(x10.regionarray.DistArray[x10.matrix.block.DenseBlock],x10.lang.Int,x10.lang.Int,x10.matrix.DenseMatrix,x10.lang.Int,x10.lang.Int)">copy</a>, <a href="../../../x10/matrix/comm/MatrixRemoteCopy.html#mpiCopy(x10.regionarray.DistArray[x10.matrix.block.DenseBlock],x10.lang.Int,x10.lang.Int,x10.matrix.DenseMatrix,x10.lang.Int,x10.lang.Int)">mpiCopy</a>, <a href="../../../x10/matrix/comm/MatrixRemoteCopy.html#x10Copy(x10.regionarray.DistArray[x10.matrix.block.DenseBlock],x10.lang.Int,x10.lang.Int,x10.matrix.DenseMatrix,x10.lang.Int,x10.lang.Int)">x10Copy</a>, <a href="../../../x10/matrix/comm/MatrixRemoteCopy.html#copyTo(x10.regionarray.DistArray[x10.matrix.sparse.SparseCSC],x10.lang.Int)">copyTo</a>, <a href="../../../x10/matrix/comm/MatrixRemoteCopy.html#copyFrom(x10.regionarray.DistArray[x10.matrix.sparse.SparseCSC],x10.lang.Int)">copyFrom</a>, <a href="../../../x10/matrix/comm/MatrixRemoteCopy.html#copy(x10.matrix.sparse.SparseCSC,x10.lang.Int,x10.regionarray.DistArray[x10.matrix.sparse.SparseCSC],x10.lang.Int,x10.lang.Int,x10.lang.Int)">copy</a>, <a href="../../../x10/matrix/comm/MatrixRemoteCopy.html#mpiCopy(x10.matrix.sparse.SparseCSC,x10.lang.Int,x10.regionarray.DistArray[x10.matrix.sparse.SparseCSC],x10.lang.Int,x10.lang.Int,x10.lang.Int)">mpiCopy</a>, <a href="../../../x10/matrix/comm/MatrixRemoteCopy.html#x10Copy(x10.matrix.sparse.SparseCSC,x10.lang.Int,x10.regionarray.DistArray[x10.matrix.sparse.SparseCSC],x10.lang.Int,x10.lang.Int,x10.lang.Int)">x10Copy</a>, <a href="../../../x10/matrix/comm/MatrixRemoteCopy.html#copy(x10.regionarray.DistArray[x10.matrix.sparse.SparseCSC],x10.lang.Int,x10.lang.Int,x10.matrix.sparse.SparseCSC,x10.lang.Int,x10.lang.Int)">copy</a>, <a href="../../../x10/matrix/comm/MatrixRemoteCopy.html#mpiCopy(x10.regionarray.DistArray[x10.matrix.sparse.SparseCSC],x10.lang.Int,x10.lang.Int,x10.matrix.sparse.SparseCSC,x10.lang.Int,x10.lang.Int)">mpiCopy</a>, <a href="../../../x10/matrix/comm/MatrixRemoteCopy.html#x10Copy(x10.regionarray.DistArray[x10.matrix.sparse.SparseCSC],x10.lang.Int,x10.lang.Int,x10.matrix.sparse.SparseCSC,x10.lang.Int,x10.lang.Int)">x10Copy</a>, <a href="../../../x10/matrix/comm/MatrixRemoteCopy.html#copy(x10.matrix.sparse.SparseCSC,x10.lang.Int,x10.regionarray.DistArray[x10.matrix.block.SparseBlock],x10.lang.Int,x10.lang.Int,x10.lang.Int)">copy</a>, <a href="../../../x10/matrix/comm/MatrixRemoteCopy.html#mpiCopy(x10.matrix.sparse.SparseCSC,x10.lang.Int,x10.regionarray.DistArray[x10.matrix.block.SparseBlock],x10.lang.Int,x10.lang.Int,x10.lang.Int)">mpiCopy</a>, <a href="../../../x10/matrix/comm/MatrixRemoteCopy.html#x10Copy(x10.matrix.sparse.SparseCSC,x10.lang.Int,x10.regionarray.DistArray[x10.matrix.block.SparseBlock],x10.lang.Int,x10.lang.Int,x10.lang.Int)">x10Copy</a>, <a href="../../../x10/matrix/comm/MatrixRemoteCopy.html#copy(x10.regionarray.DistArray[x10.matrix.block.SparseBlock],x10.lang.Int,x10.lang.Int,x10.matrix.sparse.SparseCSC,x10.lang.Int,x10.lang.Int)">copy</a>, <a href="../../../x10/matrix/comm/MatrixRemoteCopy.html#mpiCopy(x10.regionarray.DistArray[x10.matrix.block.SparseBlock],x10.lang.Int,x10.lang.Int,x10.matrix.sparse.SparseCSC,x10.lang.Int,x10.lang.Int)">mpiCopy</a>, <a href="../../../x10/matrix/comm/MatrixRemoteCopy.html#x10Copy(x10.regionarray.DistArray[x10.matrix.block.SparseBlock],x10.lang.Int,x10.lang.Int,x10.matrix.sparse.SparseCSC,x10.lang.Int,x10.lang.Int)">x10Copy</a>, <a href="../../../x10/matrix/comm/MatrixRemoteCopy.html#copy(x10.regionarray.Array[x10.lang.Double],x10.lang.Int,x10.regionarray.DistArray[x10.matrix.DenseMatrix],x10.lang.Int,x10.lang.Int,x10.lang.Int)">copy</a>, <a href="../../../x10/matrix/comm/MatrixRemoteCopy.html#mpiCopy(x10.regionarray.Array[x10.lang.Double],x10.lang.Int,x10.regionarray.DistArray[x10.matrix.DenseMatrix],x10.lang.Int,x10.lang.Int,x10.lang.Int)">mpiCopy</a>, <a href="../../../x10/matrix/comm/MatrixRemoteCopy.html#x10Copy(x10.regionarray.Array[x10.lang.Double],x10.lang.Int,x10.regionarray.DistArray[x10.matrix.DenseMatrix],x10.lang.Int,x10.lang.Int,x10.lang.Int)">x10Copy</a>, <a href="../../../x10/matrix/comm/MatrixRemoteCopy.html#copy(x10.regionarray.DistArray[x10.matrix.DenseMatrix],x10.lang.Int,x10.lang.Int,x10.regionarray.Array[x10.lang.Double],x10.lang.Int,x10.lang.Int)">copy</a>, <a href="../../../x10/matrix/comm/MatrixRemoteCopy.html#mpiCopy(x10.regionarray.DistArray[x10.matrix.DenseMatrix],x10.lang.Int,x10.lang.Int,x10.regionarray.Array[x10.lang.Double],x10.lang.Int,x10.lang.Int)">mpiCopy</a>, <a href="../../../x10/matrix/comm/MatrixRemoteCopy.html#x10Copy(x10.regionarray.DistArray[x10.matrix.DenseMatrix],x10.lang.Int,x10.lang.Int,x10.regionarray.Array[x10.lang.Double],x10.lang.Int,x10.lang.Int)">x10Copy</a>, <a href="../../../x10/matrix/comm/MatrixRemoteCopy.html#copy(x10.regionarray.Array[x10.lang.Double],x10.lang.Int,x10.regionarray.DistArray[x10.matrix.block.DenseBlock],x10.lang.Int,x10.lang.Int,x10.lang.Int)">copy</a>, <a href="../../../x10/matrix/comm/MatrixRemoteCopy.html#mpiCopy(x10.regionarray.Array[x10.lang.Double],x10.lang.Int,x10.regionarray.DistArray[x10.matrix.block.DenseBlock],x10.lang.Int,x10.lang.Int,x10.lang.Int)">mpiCopy</a>, <a href="../../../x10/matrix/comm/MatrixRemoteCopy.html#x10Copy(x10.regionarray.Array[x10.lang.Double],x10.lang.Int,x10.regionarray.DistArray[x10.matrix.block.DenseBlock],x10.lang.Int,x10.lang.Int,x10.lang.Int)">x10Copy</a>, <a href="../../../x10/matrix/comm/MatrixRemoteCopy.html#copy(x10.regionarray.DistArray[x10.matrix.block.DenseBlock],x10.lang.Int,x10.lang.Int,x10.regionarray.Array[x10.lang.Double],x10.lang.Int,x10.lang.Int)">copy</a>, <a href="../../../x10/matrix/comm/MatrixRemoteCopy.html#mpiCopy(x10.regionarray.DistArray[x10.matrix.block.DenseBlock],x10.lang.Int,x10.lang.Int,x10.regionarray.Array[x10.lang.Double],x10.lang.Int,x10.lang.Int)">mpiCopy</a>, <a href="../../../x10/matrix/comm/MatrixRemoteCopy.html#x10Copy(x10.regionarray.DistArray[x10.matrix.block.DenseBlock],x10.lang.Int,x10.lang.Int,x10.regionarray.Array[x10.lang.Double],x10.lang.Int,x10.lang.Int)">x10Copy</a>, <a href="../../../x10/matrix/comm/MatrixRemoteCopy.html#x10$matrix$comm$MatrixRemoteCopy$$this$x10$matrix$comm$MatrixRemoteCopy()">x10$matrix$comm$MatrixRemoteCopy$$this$x10$matrix$comm$MatrixRemoteCopy</a></code></li>
 </ul>
 </li>
 </ul>
@@ -276,55 +276,55 @@ Ring cast sends data from here to a number of places
 <!--   -->
 </a>
 <h3>Method Detail</h3>
-<a name="rcast(x10.array.DistArray[x10.matrix.DenseMatrix])">
+<a name="rcast(x10.regionarray.DistArray[x10.matrix.DenseMatrix])">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
 <h4>rcast</h4>
-<pre>public static&nbsp;void&nbsp;rcast(x10.array.DistArray&lt;<a href="../../../x10/matrix/DenseMatrix.html" title="class in x10.matrix">DenseMatrix</a>&gt;&nbsp;dmlist)</pre>
-<div class="block"><B>Declaration:</B> <TT>rcast(dmlist:x10.array.DistArray[x10.matrix.DenseMatrix]{self.dist.region.rank==1}): void.</TT><PRE>
+<pre>public static&nbsp;void&nbsp;rcast(x10.regionarray.DistArray&lt;<a href="../../../x10/matrix/DenseMatrix.html" title="class in x10.matrix">DenseMatrix</a>&gt;&nbsp;dmlist)</pre>
+<div class="block"><B>Declaration:</B> <TT>rcast(dmlist:x10.regionarray.DistArray[x10.matrix.DenseMatrix]{self.dist.region.rank==1}): void.</TT><PRE>
 </PRE>Broadcast the whole dense matrix at here to all places one by one</div>
 <dl><dt><span class="strong">Parameters:</span></dt><dd><code>dmlist</code> - distributed storage for copies of dense matrix</dd></dl>
 </li>
 </ul>
-<a name="rcast(x10.array.DistArray[x10.matrix.DenseMatrix],x10.lang.Int)">
+<a name="rcast(x10.regionarray.DistArray[x10.matrix.DenseMatrix],x10.lang.Int)">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
 <h4>rcast</h4>
-<pre>public static&nbsp;void&nbsp;rcast(x10.array.DistArray&lt;<a href="../../../x10/matrix/DenseMatrix.html" title="class in x10.matrix">DenseMatrix</a>&gt;&nbsp;dmlist,
+<pre>public static&nbsp;void&nbsp;rcast(x10.regionarray.DistArray&lt;<a href="../../../x10/matrix/DenseMatrix.html" title="class in x10.matrix">DenseMatrix</a>&gt;&nbsp;dmlist,
          x10.lang.Int&nbsp;datCnt)</pre>
-<div class="block"><B>Declaration:</B> <TT>rcast(dmlist:x10.array.DistArray[x10.matrix.DenseMatrix]{self.dist.region.rank==1},datCnt:x10.lang.Int): void.</TT><PRE>
+<div class="block"><B>Declaration:</B> <TT>rcast(dmlist:x10.regionarray.DistArray[x10.matrix.DenseMatrix]{self.dist.region.rank==1},datCnt:x10.lang.Int): void.</TT><PRE>
 </PRE>Broadcast data of dense matrix to all places.</div>
 <dl><dt><span class="strong">Parameters:</span></dt><dd><code>dmlist</code> - distributed storage for copies of dense matrix</dd><dd><code>datCnt</code> - number of data to broadcast</dd></dl>
 </li>
 </ul>
-<a name="rcast(x10.array.DistArray[x10.matrix.DenseMatrix],x10.lang.Int,x10.array.Array[x10.lang.Int])">
+<a name="rcast(x10.regionarray.DistArray[x10.matrix.DenseMatrix],x10.lang.Int,x10.regionarray.Array[x10.lang.Int])">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
 <h4>rcast</h4>
-<pre>public static&nbsp;void&nbsp;rcast(x10.array.DistArray&lt;<a href="../../../x10/matrix/DenseMatrix.html" title="class in x10.matrix">DenseMatrix</a>&gt;&nbsp;dmlist,
+<pre>public static&nbsp;void&nbsp;rcast(x10.regionarray.DistArray&lt;<a href="../../../x10/matrix/DenseMatrix.html" title="class in x10.matrix">DenseMatrix</a>&gt;&nbsp;dmlist,
          x10.lang.Int&nbsp;datCnt,
-         x10.array.Array&lt;x10.lang.Int&gt;&nbsp;plist)</pre>
-<div class="block"><B>Declaration:</B> <TT>rcast(dmlist:x10.array.DistArray[x10.matrix.DenseMatrix]{self.dist.region.rank==1},datCnt:x10.lang.Int,plist:x10.array.Array[x10.lang.Int]{self.rank==1}): void.</TT><PRE>
+         x10.regionarray.Array&lt;x10.lang.Int&gt;&nbsp;plist)</pre>
+<div class="block"><B>Declaration:</B> <TT>rcast(dmlist:x10.regionarray.DistArray[x10.matrix.DenseMatrix]{self.dist.region.rank==1},datCnt:x10.lang.Int,plist:x10.regionarray.Array[x10.lang.Int]{self.rank==1}): void.</TT><PRE>
 </PRE>Send data of dense matrix from here to a list of places.</div>
 <dl><dt><span class="strong">Parameters:</span></dt><dd><code>dmlist</code> - distributed storage for copies of dense matrix</dd><dd><code>datCnt</code> - number of data to broadcast</dd><dd><code>plist</code> - the list of places in the ring cast</dd></dl>
 </li>
 </ul>
-<a name="mpiRingCast(x10.array.DistArray[x10.matrix.DenseMatrix],x10.lang.Int,x10.array.Array[x10.lang.Int])">
+<a name="mpiRingCast(x10.regionarray.DistArray[x10.matrix.DenseMatrix],x10.lang.Int,x10.regionarray.Array[x10.lang.Int])">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
 <h4>mpiRingCast</h4>
-<pre>protected static&nbsp;void&nbsp;mpiRingCast(x10.array.DistArray&lt;<a href="../../../x10/matrix/DenseMatrix.html" title="class in x10.matrix">DenseMatrix</a>&gt;&nbsp;dmlist,
+<pre>protected static&nbsp;void&nbsp;mpiRingCast(x10.regionarray.DistArray&lt;<a href="../../../x10/matrix/DenseMatrix.html" title="class in x10.matrix">DenseMatrix</a>&gt;&nbsp;dmlist,
                x10.lang.Int&nbsp;datCnt,
-               x10.array.Array&lt;x10.lang.Int&gt;&nbsp;plist)</pre>
-<div class="block"><B>Declaration:</B> <TT>mpiRingCast(dmlist:x10.array.DistArray[x10.matrix.DenseMatrix]{self.dist.region.rank==1},datCnt:x10.lang.Int,plist:x10.array.Array[x10.lang.Int]{self.rank==1}): void.</TT><PRE>
+               x10.regionarray.Array&lt;x10.lang.Int&gt;&nbsp;plist)</pre>
+<div class="block"><B>Declaration:</B> <TT>mpiRingCast(dmlist:x10.regionarray.DistArray[x10.matrix.DenseMatrix]{self.dist.region.rank==1},datCnt:x10.lang.Int,plist:x10.regionarray.Array[x10.lang.Int]{self.rank==1}): void.</TT><PRE>
 </PRE>Send data of dense matrix from here to a list of places using
 MPI send/recv routines. Note, the root place (place here) must be
 in the list. The root place ID may appear multiple times in the
@@ -333,84 +333,84 @@ network contentions.</div>
 <dl><dt><span class="strong">Parameters:</span></dt><dd><code>dmlist</code> - duplicated storage for copies of dense matrix in all places</dd><dd><code>datCnt</code> - count of data to send</dd><dd><code>plist</code> - the list of place IDs. Root place must be in the list</dd></dl>
 </li>
 </ul>
-<a name="rcast(x10.array.DistArray[x10.matrix.sparse.SparseCSC],x10.lang.Int)">
+<a name="rcast(x10.regionarray.DistArray[x10.matrix.sparse.SparseCSC],x10.lang.Int)">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
 <h4>rcast</h4>
-<pre>public static&nbsp;void&nbsp;rcast(x10.array.DistArray&lt;<a href="../../../x10/matrix/sparse/SparseCSC.html" title="class in x10.matrix.sparse">SparseCSC</a>&gt;&nbsp;smlist,
+<pre>public static&nbsp;void&nbsp;rcast(x10.regionarray.DistArray&lt;<a href="../../../x10/matrix/sparse/SparseCSC.html" title="class in x10.matrix.sparse">SparseCSC</a>&gt;&nbsp;smlist,
          x10.lang.Int&nbsp;datCnt)</pre>
-<div class="block"><B>Declaration:</B> <TT>rcast(smlist:x10.array.DistArray[x10.matrix.sparse.SparseCSC]{self.dist.region.rank==1},datCnt:x10.lang.Int): void.</TT><PRE>
+<div class="block"><B>Declaration:</B> <TT>rcast(smlist:x10.regionarray.DistArray[x10.matrix.sparse.SparseCSC]{self.dist.region.rank==1},datCnt:x10.lang.Int): void.</TT><PRE>
 </PRE>Broadcast columns of sparse matrix to all places.</div>
 <dl><dt><span class="strong">Parameters:</span></dt><dd><code>smlist</code> - distributed storage for copies of SparseCSC sparse matrix</dd><dd><code>datCnt</code> - count of nonzero data in the sparse matrix to broadcast</dd></dl>
 </li>
 </ul>
-<a name="rcast(x10.array.DistArray[x10.matrix.sparse.SparseCSC])">
+<a name="rcast(x10.regionarray.DistArray[x10.matrix.sparse.SparseCSC])">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
 <h4>rcast</h4>
-<pre>public static&nbsp;void&nbsp;rcast(x10.array.DistArray&lt;<a href="../../../x10/matrix/sparse/SparseCSC.html" title="class in x10.matrix.sparse">SparseCSC</a>&gt;&nbsp;smlist)</pre>
-<div class="block"><B>Declaration:</B> <TT>rcast(smlist:x10.array.DistArray[x10.matrix.sparse.SparseCSC]{self.dist.region.rank==1}): void.</TT><PRE>
+<pre>public static&nbsp;void&nbsp;rcast(x10.regionarray.DistArray&lt;<a href="../../../x10/matrix/sparse/SparseCSC.html" title="class in x10.matrix.sparse">SparseCSC</a>&gt;&nbsp;smlist)</pre>
+<div class="block"><B>Declaration:</B> <TT>rcast(smlist:x10.regionarray.DistArray[x10.matrix.sparse.SparseCSC]{self.dist.region.rank==1}): void.</TT><PRE>
 </PRE>Broadcast the whole sparse matrix at here to all places</div>
 <dl><dt><span class="strong">Parameters:</span></dt><dd><code>smlist</code> - distributed storage for copies of sparse matrix</dd></dl>
 </li>
 </ul>
-<a name="rcast(x10.array.DistArray[x10.matrix.sparse.SparseCSC],x10.lang.Int,x10.array.Array[x10.lang.Int])">
+<a name="rcast(x10.regionarray.DistArray[x10.matrix.sparse.SparseCSC],x10.lang.Int,x10.regionarray.Array[x10.lang.Int])">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
 <h4>rcast</h4>
-<pre>public static&nbsp;void&nbsp;rcast(x10.array.DistArray&lt;<a href="../../../x10/matrix/sparse/SparseCSC.html" title="class in x10.matrix.sparse">SparseCSC</a>&gt;&nbsp;smlist,
+<pre>public static&nbsp;void&nbsp;rcast(x10.regionarray.DistArray&lt;<a href="../../../x10/matrix/sparse/SparseCSC.html" title="class in x10.matrix.sparse">SparseCSC</a>&gt;&nbsp;smlist,
          x10.lang.Int&nbsp;datCnt,
-         x10.array.Array&lt;x10.lang.Int&gt;&nbsp;plist)</pre>
-<div class="block"><B>Declaration:</B> <TT>rcast(smlist:x10.array.DistArray[x10.matrix.sparse.SparseCSC]{self.dist.region.rank==1},datCnt:x10.lang.Int,plist:x10.array.Array[x10.lang.Int]{self.rank==1}): void.</TT><PRE>
+         x10.regionarray.Array&lt;x10.lang.Int&gt;&nbsp;plist)</pre>
+<div class="block"><B>Declaration:</B> <TT>rcast(smlist:x10.regionarray.DistArray[x10.matrix.sparse.SparseCSC]{self.dist.region.rank==1},datCnt:x10.lang.Int,plist:x10.regionarray.Array[x10.lang.Int]{self.rank==1}): void.</TT><PRE>
 </PRE>Send columns in sparse matrix from here to a list of places.</div>
 <dl><dt><span class="strong">Parameters:</span></dt><dd><code>smlist</code> - distributed storage for copies of sparse matrix</dd><dd><code>datCnt</code> - count of nonzero data in the sparse matrix to broadcast</dd><dd><code>plist</code> - the list of places in the ring cast</dd></dl>
 </li>
 </ul>
-<a name="mpiRingCast(x10.array.DistArray[x10.matrix.sparse.SparseCSC],x10.lang.Int,x10.array.Array[x10.lang.Int])">
+<a name="mpiRingCast(x10.regionarray.DistArray[x10.matrix.sparse.SparseCSC],x10.lang.Int,x10.regionarray.Array[x10.lang.Int])">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
 <h4>mpiRingCast</h4>
-<pre>protected static&nbsp;void&nbsp;mpiRingCast(x10.array.DistArray&lt;<a href="../../../x10/matrix/sparse/SparseCSC.html" title="class in x10.matrix.sparse">SparseCSC</a>&gt;&nbsp;smlist,
+<pre>protected static&nbsp;void&nbsp;mpiRingCast(x10.regionarray.DistArray&lt;<a href="../../../x10/matrix/sparse/SparseCSC.html" title="class in x10.matrix.sparse">SparseCSC</a>&gt;&nbsp;smlist,
                x10.lang.Int&nbsp;datCnt,
-               x10.array.Array&lt;x10.lang.Int&gt;&nbsp;plist)</pre>
-<div class="block"><B>Declaration:</B> <TT>mpiRingCast(smlist:x10.array.DistArray[x10.matrix.sparse.SparseCSC]{self.dist.region.rank==1},datCnt:x10.lang.Int,plist:x10.array.Array[x10.lang.Int]{self.rank==1}): void.</TT><PRE>
+               x10.regionarray.Array&lt;x10.lang.Int&gt;&nbsp;plist)</pre>
+<div class="block"><B>Declaration:</B> <TT>mpiRingCast(smlist:x10.regionarray.DistArray[x10.matrix.sparse.SparseCSC]{self.dist.region.rank==1},datCnt:x10.lang.Int,plist:x10.regionarray.Array[x10.lang.Int]{self.rank==1}): void.</TT><PRE>
 </PRE>Send columns in sparse matrix from here to a list of places using
 X10 remote array copy.</div>
 <dl><dt><span class="strong">Parameters:</span></dt><dd><code>smlist</code> - distributed storage for copies of sparse matrix</dd><dd><code>colCnt</code> - counts of nonzero data to send</dd><dd><code>plist</code> - the list of place IDs</dd></dl>
 </li>
 </ul>
-<a name="x10RingCast(x10.array.DistArray[x10.matrix.DenseMatrix],x10.lang.Int,x10.array.Array[x10.lang.Int])">
+<a name="x10RingCast(x10.regionarray.DistArray[x10.matrix.DenseMatrix],x10.lang.Int,x10.regionarray.Array[x10.lang.Int])">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
 <h4>x10RingCast</h4>
-<pre>protected static&nbsp;void&nbsp;x10RingCast(x10.array.DistArray&lt;<a href="../../../x10/matrix/DenseMatrix.html" title="class in x10.matrix">DenseMatrix</a>&gt;&nbsp;dmlist,
+<pre>protected static&nbsp;void&nbsp;x10RingCast(x10.regionarray.DistArray&lt;<a href="../../../x10/matrix/DenseMatrix.html" title="class in x10.matrix">DenseMatrix</a>&gt;&nbsp;dmlist,
                x10.lang.Int&nbsp;datCnt,
-               x10.array.Array&lt;x10.lang.Int&gt;&nbsp;plist)</pre>
-<div class="block"><B>Declaration:</B> <TT>x10RingCast(dmlist:x10.array.DistArray[x10.matrix.DenseMatrix]{self.dist.region.rank==1},datCnt:x10.lang.Int,plist:x10.array.Array[x10.lang.Int]{self.rank==1}): void.</TT><PRE>
+               x10.regionarray.Array&lt;x10.lang.Int&gt;&nbsp;plist)</pre>
+<div class="block"><B>Declaration:</B> <TT>x10RingCast(dmlist:x10.regionarray.DistArray[x10.matrix.DenseMatrix]{self.dist.region.rank==1},datCnt:x10.lang.Int,plist:x10.regionarray.Array[x10.lang.Int]{self.rank==1}): void.</TT><PRE>
 </PRE>Sending data of dense matrix from here to a list of places using X10 remote array copy.</div>
 <dl><dt><span class="strong">Parameters:</span></dt><dd><code>dmlist</code> - distributed storage for copies of dense matrix</dd><dd><code>datCnt</code> - counts of data to be sent</dd><dd><code>plist</code> - the list of place IDs, which must contain place id of here.</dd></dl>
 </li>
 </ul>
-<a name="x10RingCast(x10.array.DistArray[x10.matrix.sparse.SparseCSC],x10.lang.Int,x10.array.Array[x10.lang.Int])">
+<a name="x10RingCast(x10.regionarray.DistArray[x10.matrix.sparse.SparseCSC],x10.lang.Int,x10.regionarray.Array[x10.lang.Int])">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
 <h4>x10RingCast</h4>
-<pre>protected static&nbsp;void&nbsp;x10RingCast(x10.array.DistArray&lt;<a href="../../../x10/matrix/sparse/SparseCSC.html" title="class in x10.matrix.sparse">SparseCSC</a>&gt;&nbsp;smlist,
+<pre>protected static&nbsp;void&nbsp;x10RingCast(x10.regionarray.DistArray&lt;<a href="../../../x10/matrix/sparse/SparseCSC.html" title="class in x10.matrix.sparse">SparseCSC</a>&gt;&nbsp;smlist,
                x10.lang.Int&nbsp;datCnt,
-               x10.array.Array&lt;x10.lang.Int&gt;&nbsp;plist)</pre>
-<div class="block"><B>Declaration:</B> <TT>x10RingCast(smlist:x10.array.DistArray[x10.matrix.sparse.SparseCSC]{self.dist.region.rank==1},datCnt:x10.lang.Int,plist:x10.array.Array[x10.lang.Int]{self.rank==1}): void.</TT><PRE>
+               x10.regionarray.Array&lt;x10.lang.Int&gt;&nbsp;plist)</pre>
+<div class="block"><B>Declaration:</B> <TT>x10RingCast(smlist:x10.regionarray.DistArray[x10.matrix.sparse.SparseCSC]{self.dist.region.rank==1},datCnt:x10.lang.Int,plist:x10.regionarray.Array[x10.lang.Int]{self.rank==1}): void.</TT><PRE>
 </PRE>Sending the data from here to places in the list by using X10 remote copy.</div>
 <dl><dt><span class="strong">Parameters:</span></dt><dd><code>smlist</code> - distributed storage for copies of sparse matrix</dd><dd><code>datCnt</code> - count of nonzero data to send</dd><dd><code>plist</code> - the list of place IDs, which must contain place id of here.</dd></dl>
 </li>

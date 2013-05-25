@@ -1043,7 +1043,7 @@ public interface TypeSystem {
     X10LocalDef localDef(Position pos, Flags flags, Ref<? extends Type> type, Name name);
 
     /**
-     * Return the ClassType object for the x10.array.Array class.
+     * Return the ClassType object for the x10.regionarray.Array class.
      */
     X10ClassType Array();
 
@@ -1058,7 +1058,7 @@ public interface TypeSystem {
     X10ClassType SimpleArray();
 
     /**
-     * Return the ClassType object for the x10.array.DistArray class.
+     * Return the ClassType object for the x10.regionarray.DistArray class.
      */
     X10ClassType DistArray();
 

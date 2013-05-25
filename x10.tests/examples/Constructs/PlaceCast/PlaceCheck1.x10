@@ -13,7 +13,7 @@
 //This test case will not meet expectations. It is a limitation of the current release.
 
 import harness.x10Test;
-import x10.array.*;
+import x10.regionarray.*;
 
 public class PlaceCheck1 extends x10Test {
 

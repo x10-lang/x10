@@ -33,9 +33,9 @@ import x10.compiler.NoReturn;
  * marginally lower performance in some situations.</p>
  * 
  * <p>A more general, but lower performance, array abstraction is provided 
- * by {@link x10.array.Array} and {@link x10.array.DistArray} which support 
- * more general indexing operations via user-extensible {@link x10.array.Region}s 
- * and {@link x10.array.Dist}s. See the package documentation of {@link x10.array}
+ * by {@link x10.regionarray.Array} and {@link x10.regionarray.DistArray} which support 
+ * more general indexing operations via user-extensible {@link x10.regionarray.Region}s 
+ * and {@link x10.regionarray.Dist}s. See the package documentation of {@link x10.regionarray}
  * for more details.</p>
  */
 public abstract class Array[T] (

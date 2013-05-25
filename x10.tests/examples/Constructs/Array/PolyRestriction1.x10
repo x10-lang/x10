@@ -9,7 +9,7 @@
  *  (C) Copyright IBM Corporation 2006-2010.
  */
 
-import x10.array.*;
+import x10.regionarray.*;
 
 /**
  * Construct a rectangular array, make an array view on it, modify it,

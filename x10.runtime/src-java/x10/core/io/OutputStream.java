@@ -96,7 +96,7 @@ public class OutputStream extends Ref {
         }
     }
 //    // for Emitter.manglePrimitivesAsShortName
-//    public void write__0$1$B$2(x10.array.Array buf) {
+//    public void write__0$1$B$2(x10.regionarray.Array buf) {
 //        try {
 //            stream.write(buf.raw().getByteArray());
 //        } catch (java.io.IOException e) {
@@ -123,7 +123,7 @@ public class OutputStream extends Ref {
         }
     }
 //    // for Emitter.manglePrimitivesAsShortName
-//    public void write__0$1$B$2(x10.array.Array buf, int off, int len) {
+//    public void write__0$1$B$2(x10.regionarray.Array buf, int off, int len) {
 //        try {
 //            stream.write(buf.raw().getByteArray(), off, len);
 //        } catch (java.io.IOException e) {

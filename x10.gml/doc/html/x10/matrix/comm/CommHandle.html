@@ -186,131 +186,131 @@ run command "make help" at the root directory of GML library.</div>
 </tr>
 <tr class="altColor">
 <td class="colFirst"><code>void</code></td>
-<td class="colLast"><code><strong><a href="../../../x10/matrix/comm/CommHandle.html#copy(x10.matrix.DenseMatrix,x10.array.DistArray[x10.matrix.DenseMatrix],x10.lang.Int)">copy</a></strong>(<a href="../../../x10/matrix/DenseMatrix.html" title="class in x10.matrix">DenseMatrix</a>&nbsp;srcden,
-    x10.array.DistArray&lt;<a href="../../../x10/matrix/DenseMatrix.html" title="class in x10.matrix">DenseMatrix</a>&gt;&nbsp;dmlist,
+<td class="colLast"><code><strong><a href="../../../x10/matrix/comm/CommHandle.html#copy(x10.matrix.DenseMatrix,x10.regionarray.DistArray[x10.matrix.DenseMatrix],x10.lang.Int)">copy</a></strong>(<a href="../../../x10/matrix/DenseMatrix.html" title="class in x10.matrix">DenseMatrix</a>&nbsp;srcden,
+    x10.regionarray.DistArray&lt;<a href="../../../x10/matrix/DenseMatrix.html" title="class in x10.matrix">DenseMatrix</a>&gt;&nbsp;dmlist,
     x10.lang.Int&nbsp;dstpid)</code>
-<div class="block"><B>Declaration:</B> <TT>copy(srcden:x10.matrix.DenseMatrix,dmlist:x10.array.DistArray[x10.matrix.DenseMatrix]{self.dist.region.rank==1},dstpid:x10.lang.Int): void.</TT>
+<div class="block"><B>Declaration:</B> <TT>copy(srcden:x10.matrix.DenseMatrix,dmlist:x10.regionarray.DistArray[x10.matrix.DenseMatrix]{self.dist.region.rank==1},dstpid:x10.lang.Int): void.</TT>
 </div>
 </td>
 </tr>
 <tr class="rowColor">
 <td class="colFirst"><code>void</code></td>
-<td class="colLast"><code><strong><a href="../../../x10/matrix/comm/CommHandle.html#copy(x10.array.DistArray[x10.matrix.DenseMatrix],x10.lang.Int,x10.matrix.DenseMatrix)">copy</a></strong>(x10.array.DistArray&lt;<a href="../../../x10/matrix/DenseMatrix.html" title="class in x10.matrix">DenseMatrix</a>&gt;&nbsp;dmlist,
+<td class="colLast"><code><strong><a href="../../../x10/matrix/comm/CommHandle.html#copy(x10.regionarray.DistArray[x10.matrix.DenseMatrix],x10.lang.Int,x10.matrix.DenseMatrix)">copy</a></strong>(x10.regionarray.DistArray&lt;<a href="../../../x10/matrix/DenseMatrix.html" title="class in x10.matrix">DenseMatrix</a>&gt;&nbsp;dmlist,
     x10.lang.Int&nbsp;srcpid,
     <a href="../../../x10/matrix/DenseMatrix.html" title="class in x10.matrix">DenseMatrix</a>&nbsp;dstden)</code>
-<div class="block"><B>Declaration:</B> <TT>copy(dmlist:x10.array.DistArray[x10.matrix.DenseMatrix]{self.dist.region.rank==1},srcpid:x10.lang.Int,dstden:x10.matrix.DenseMatrix): void.</TT>
+<div class="block"><B>Declaration:</B> <TT>copy(dmlist:x10.regionarray.DistArray[x10.matrix.DenseMatrix]{self.dist.region.rank==1},srcpid:x10.lang.Int,dstden:x10.matrix.DenseMatrix): void.</TT>
 </div>
 </td>
 </tr>
 <tr class="altColor">
 <td class="colFirst"><code>void</code></td>
-<td class="colLast"><code><strong><a href="../../../x10/matrix/comm/CommHandle.html#bcast(x10.array.DistArray[x10.matrix.DenseMatrix])">bcast</a></strong>(x10.array.DistArray&lt;<a href="../../../x10/matrix/DenseMatrix.html" title="class in x10.matrix">DenseMatrix</a>&gt;&nbsp;dupmat)</code>
-<div class="block"><B>Declaration:</B> <TT>bcast(dupmat:x10.array.DistArray[x10.matrix.DenseMatrix]{self.dist.region.rank==1}): void.</TT>
+<td class="colLast"><code><strong><a href="../../../x10/matrix/comm/CommHandle.html#bcast(x10.regionarray.DistArray[x10.matrix.DenseMatrix])">bcast</a></strong>(x10.regionarray.DistArray&lt;<a href="../../../x10/matrix/DenseMatrix.html" title="class in x10.matrix">DenseMatrix</a>&gt;&nbsp;dupmat)</code>
+<div class="block"><B>Declaration:</B> <TT>bcast(dupmat:x10.regionarray.DistArray[x10.matrix.DenseMatrix]{self.dist.region.rank==1}): void.</TT>
 </div>
 </td>
 </tr>
 <tr class="rowColor">
 <td class="colFirst"><code>void</code></td>
-<td class="colLast"><code><strong><a href="../../../x10/matrix/comm/CommHandle.html#bcast(x10.array.DistArray[x10.matrix.sparse.SparseCSC])">bcast</a></strong>(x10.array.DistArray&lt;<a href="../../../x10/matrix/sparse/SparseCSC.html" title="class in x10.matrix.sparse">SparseCSC</a>&gt;&nbsp;dupspa)</code>
-<div class="block"><B>Declaration:</B> <TT>bcast(dupspa:x10.array.DistArray[x10.matrix.sparse.SparseCSC]{self.dist.region.rank==1}): void.</TT>
+<td class="colLast"><code><strong><a href="../../../x10/matrix/comm/CommHandle.html#bcast(x10.regionarray.DistArray[x10.matrix.sparse.SparseCSC])">bcast</a></strong>(x10.regionarray.DistArray&lt;<a href="../../../x10/matrix/sparse/SparseCSC.html" title="class in x10.matrix.sparse">SparseCSC</a>&gt;&nbsp;dupspa)</code>
+<div class="block"><B>Declaration:</B> <TT>bcast(dupspa:x10.regionarray.DistArray[x10.matrix.sparse.SparseCSC]{self.dist.region.rank==1}): void.</TT>
 </div>
 </td>
 </tr>
 <tr class="altColor">
 <td class="colFirst"><code>void</code></td>
-<td class="colLast"><code><strong><a href="../../../x10/matrix/comm/CommHandle.html#rcast(x10.array.DistArray[x10.matrix.DenseMatrix])">rcast</a></strong>(x10.array.DistArray&lt;<a href="../../../x10/matrix/DenseMatrix.html" title="class in x10.matrix">DenseMatrix</a>&gt;&nbsp;smlist)</code>
-<div class="block"><B>Declaration:</B> <TT>rcast(smlist:x10.array.DistArray[x10.matrix.DenseMatrix]{self.dist.region.rank==1}): void.</TT>
+<td class="colLast"><code><strong><a href="../../../x10/matrix/comm/CommHandle.html#rcast(x10.regionarray.DistArray[x10.matrix.DenseMatrix])">rcast</a></strong>(x10.regionarray.DistArray&lt;<a href="../../../x10/matrix/DenseMatrix.html" title="class in x10.matrix">DenseMatrix</a>&gt;&nbsp;smlist)</code>
+<div class="block"><B>Declaration:</B> <TT>rcast(smlist:x10.regionarray.DistArray[x10.matrix.DenseMatrix]{self.dist.region.rank==1}): void.</TT>
 </div>
 </td>
 </tr>
 <tr class="rowColor">
 <td class="colFirst"><code>void</code></td>
-<td class="colLast"><code><strong><a href="../../../x10/matrix/comm/CommHandle.html#rcast(x10.array.DistArray[x10.matrix.sparse.SparseCSC])">rcast</a></strong>(x10.array.DistArray&lt;<a href="../../../x10/matrix/sparse/SparseCSC.html" title="class in x10.matrix.sparse">SparseCSC</a>&gt;&nbsp;smlist)</code>
-<div class="block"><B>Declaration:</B> <TT>rcast(smlist:x10.array.DistArray[x10.matrix.sparse.SparseCSC]{self.dist.region.rank==1}): void.</TT>
+<td class="colLast"><code><strong><a href="../../../x10/matrix/comm/CommHandle.html#rcast(x10.regionarray.DistArray[x10.matrix.sparse.SparseCSC])">rcast</a></strong>(x10.regionarray.DistArray&lt;<a href="../../../x10/matrix/sparse/SparseCSC.html" title="class in x10.matrix.sparse">SparseCSC</a>&gt;&nbsp;smlist)</code>
+<div class="block"><B>Declaration:</B> <TT>rcast(smlist:x10.regionarray.DistArray[x10.matrix.sparse.SparseCSC]{self.dist.region.rank==1}): void.</TT>
 </div>
 </td>
 </tr>
 <tr class="altColor">
 <td class="colFirst"><code>void</code></td>
-<td class="colLast"><code><strong><a href="../../../x10/matrix/comm/CommHandle.html#gather(x10.array.DistArray[x10.matrix.block.DenseBlock],x10.array.Array[x10.matrix.block.DenseBlock])">gather</a></strong>(x10.array.DistArray&lt;<a href="../../../x10/matrix/block/DenseBlock.html" title="class in x10.matrix.block">DenseBlock</a>&gt;&nbsp;src,
-      x10.array.Array&lt;<a href="../../../x10/matrix/block/DenseBlock.html" title="class in x10.matrix.block">DenseBlock</a>&gt;&nbsp;dst)</code>
-<div class="block"><B>Declaration:</B> <TT>gather(src:x10.array.DistArray[x10.matrix.block.DenseBlock]{self.dist.region.rank==1},dst:x10.array.Array[x10.matrix.block.DenseBlock]{self.rank==1}): void.</TT>
+<td class="colLast"><code><strong><a href="../../../x10/matrix/comm/CommHandle.html#gather(x10.regionarray.DistArray[x10.matrix.block.DenseBlock],x10.regionarray.Array[x10.matrix.block.DenseBlock])">gather</a></strong>(x10.regionarray.DistArray&lt;<a href="../../../x10/matrix/block/DenseBlock.html" title="class in x10.matrix.block">DenseBlock</a>&gt;&nbsp;src,
+      x10.regionarray.Array&lt;<a href="../../../x10/matrix/block/DenseBlock.html" title="class in x10.matrix.block">DenseBlock</a>&gt;&nbsp;dst)</code>
+<div class="block"><B>Declaration:</B> <TT>gather(src:x10.regionarray.DistArray[x10.matrix.block.DenseBlock]{self.dist.region.rank==1},dst:x10.regionarray.Array[x10.matrix.block.DenseBlock]{self.rank==1}): void.</TT>
 </div>
 </td>
 </tr>
 <tr class="rowColor">
 <td class="colFirst"><code>void</code></td>
-<td class="colLast"><code><strong><a href="../../../x10/matrix/comm/CommHandle.html#gatherRowBs(x10.matrix.block.Grid,x10.array.DistArray[x10.matrix.block.DenseBlock],x10.matrix.DenseMatrix)">gatherRowBs</a></strong>(<a href="../../../x10/matrix/block/Grid.html" title="class in x10.matrix.block">Grid</a>&nbsp;gp,
-           x10.array.DistArray&lt;<a href="../../../x10/matrix/block/DenseBlock.html" title="class in x10.matrix.block">DenseBlock</a>&gt;&nbsp;src,
+<td class="colLast"><code><strong><a href="../../../x10/matrix/comm/CommHandle.html#gatherRowBs(x10.matrix.block.Grid,x10.regionarray.DistArray[x10.matrix.block.DenseBlock],x10.matrix.DenseMatrix)">gatherRowBs</a></strong>(<a href="../../../x10/matrix/block/Grid.html" title="class in x10.matrix.block">Grid</a>&nbsp;gp,
+           x10.regionarray.DistArray&lt;<a href="../../../x10/matrix/block/DenseBlock.html" title="class in x10.matrix.block">DenseBlock</a>&gt;&nbsp;src,
            <a href="../../../x10/matrix/DenseMatrix.html" title="class in x10.matrix">DenseMatrix</a>&nbsp;dst)</code>
-<div class="block"><B>Declaration:</B> <TT>gatherRowBs(gp:x10.matrix.block.Grid,src:x10.array.DistArray[x10.matrix.block.DenseBlock]{self.dist.region.rank==1},dst:x10.matrix.DenseMatrix): void.</TT>
+<div class="block"><B>Declaration:</B> <TT>gatherRowBs(gp:x10.matrix.block.Grid,src:x10.regionarray.DistArray[x10.matrix.block.DenseBlock]{self.dist.region.rank==1},dst:x10.matrix.DenseMatrix): void.</TT>
 </div>
 </td>
 </tr>
 <tr class="altColor">
 <td class="colFirst"><code>void</code></td>
-<td class="colLast"><code><strong><a href="../../../x10/matrix/comm/CommHandle.html#gather(x10.array.DistArray[x10.matrix.block.SparseBlock],x10.array.Array[x10.matrix.block.SparseBlock])">gather</a></strong>(x10.array.DistArray&lt;<a href="../../../x10/matrix/block/SparseBlock.html" title="class in x10.matrix.block">SparseBlock</a>&gt;&nbsp;src,
-      x10.array.Array&lt;<a href="../../../x10/matrix/block/SparseBlock.html" title="class in x10.matrix.block">SparseBlock</a>&gt;&nbsp;dst)</code>
-<div class="block"><B>Declaration:</B> <TT>gather(src:x10.array.DistArray[x10.matrix.block.SparseBlock]{self.dist.region.rank==1},dst:x10.array.Array[x10.matrix.block.SparseBlock]{self.rank==1}): void.</TT>
+<td class="colLast"><code><strong><a href="../../../x10/matrix/comm/CommHandle.html#gather(x10.regionarray.DistArray[x10.matrix.block.SparseBlock],x10.regionarray.Array[x10.matrix.block.SparseBlock])">gather</a></strong>(x10.regionarray.DistArray&lt;<a href="../../../x10/matrix/block/SparseBlock.html" title="class in x10.matrix.block">SparseBlock</a>&gt;&nbsp;src,
+      x10.regionarray.Array&lt;<a href="../../../x10/matrix/block/SparseBlock.html" title="class in x10.matrix.block">SparseBlock</a>&gt;&nbsp;dst)</code>
+<div class="block"><B>Declaration:</B> <TT>gather(src:x10.regionarray.DistArray[x10.matrix.block.SparseBlock]{self.dist.region.rank==1},dst:x10.regionarray.Array[x10.matrix.block.SparseBlock]{self.rank==1}): void.</TT>
 </div>
 </td>
 </tr>
 <tr class="rowColor">
 <td class="colFirst"><code>void</code></td>
-<td class="colLast"><code><strong><a href="../../../x10/matrix/comm/CommHandle.html#gatherRowBs(x10.matrix.block.Grid,x10.array.DistArray[x10.matrix.block.SparseBlock],x10.matrix.sparse.SparseCSC)">gatherRowBs</a></strong>(<a href="../../../x10/matrix/block/Grid.html" title="class in x10.matrix.block">Grid</a>&nbsp;gp,
-           x10.array.DistArray&lt;<a href="../../../x10/matrix/block/SparseBlock.html" title="class in x10.matrix.block">SparseBlock</a>&gt;&nbsp;src,
+<td class="colLast"><code><strong><a href="../../../x10/matrix/comm/CommHandle.html#gatherRowBs(x10.matrix.block.Grid,x10.regionarray.DistArray[x10.matrix.block.SparseBlock],x10.matrix.sparse.SparseCSC)">gatherRowBs</a></strong>(<a href="../../../x10/matrix/block/Grid.html" title="class in x10.matrix.block">Grid</a>&nbsp;gp,
+           x10.regionarray.DistArray&lt;<a href="../../../x10/matrix/block/SparseBlock.html" title="class in x10.matrix.block">SparseBlock</a>&gt;&nbsp;src,
            <a href="../../../x10/matrix/sparse/SparseCSC.html" title="class in x10.matrix.sparse">SparseCSC</a>&nbsp;dst)</code>
-<div class="block"><B>Declaration:</B> <TT>gatherRowBs(gp:x10.matrix.block.Grid,src:x10.array.DistArray[x10.matrix.block.SparseBlock]{self.dist.region.rank==1},dst:x10.matrix.sparse.SparseCSC): void.</TT>
+<div class="block"><B>Declaration:</B> <TT>gatherRowBs(gp:x10.matrix.block.Grid,src:x10.regionarray.DistArray[x10.matrix.block.SparseBlock]{self.dist.region.rank==1},dst:x10.matrix.sparse.SparseCSC): void.</TT>
 </div>
 </td>
 </tr>
 <tr class="altColor">
 <td class="colFirst"><code>void</code></td>
-<td class="colLast"><code><strong><a href="../../../x10/matrix/comm/CommHandle.html#scatter(x10.array.Array[x10.matrix.block.DenseBlock],x10.array.DistArray[x10.matrix.block.DenseBlock])">scatter</a></strong>(x10.array.Array&lt;<a href="../../../x10/matrix/block/DenseBlock.html" title="class in x10.matrix.block">DenseBlock</a>&gt;&nbsp;src,
-       x10.array.DistArray&lt;<a href="../../../x10/matrix/block/DenseBlock.html" title="class in x10.matrix.block">DenseBlock</a>&gt;&nbsp;dst)</code>
-<div class="block"><B>Declaration:</B> <TT>scatter(src:x10.array.Array[x10.matrix.block.DenseBlock]{self.rank==1},dst:x10.array.DistArray[x10.matrix.block.DenseBlock]{self.dist.region.rank==1}): void.</TT>
+<td class="colLast"><code><strong><a href="../../../x10/matrix/comm/CommHandle.html#scatter(x10.regionarray.Array[x10.matrix.block.DenseBlock],x10.regionarray.DistArray[x10.matrix.block.DenseBlock])">scatter</a></strong>(x10.regionarray.Array&lt;<a href="../../../x10/matrix/block/DenseBlock.html" title="class in x10.matrix.block">DenseBlock</a>&gt;&nbsp;src,
+       x10.regionarray.DistArray&lt;<a href="../../../x10/matrix/block/DenseBlock.html" title="class in x10.matrix.block">DenseBlock</a>&gt;&nbsp;dst)</code>
+<div class="block"><B>Declaration:</B> <TT>scatter(src:x10.regionarray.Array[x10.matrix.block.DenseBlock]{self.rank==1},dst:x10.regionarray.DistArray[x10.matrix.block.DenseBlock]{self.dist.region.rank==1}): void.</TT>
 </div>
 </td>
 </tr>
 <tr class="rowColor">
 <td class="colFirst"><code>void</code></td>
-<td class="colLast"><code><strong><a href="../../../x10/matrix/comm/CommHandle.html#scatterRowBs(x10.matrix.block.Grid,x10.matrix.DenseMatrix,x10.array.DistArray[x10.matrix.block.DenseBlock])">scatterRowBs</a></strong>(<a href="../../../x10/matrix/block/Grid.html" title="class in x10.matrix.block">Grid</a>&nbsp;gp,
+<td class="colLast"><code><strong><a href="../../../x10/matrix/comm/CommHandle.html#scatterRowBs(x10.matrix.block.Grid,x10.matrix.DenseMatrix,x10.regionarray.DistArray[x10.matrix.block.DenseBlock])">scatterRowBs</a></strong>(<a href="../../../x10/matrix/block/Grid.html" title="class in x10.matrix.block">Grid</a>&nbsp;gp,
             <a href="../../../x10/matrix/DenseMatrix.html" title="class in x10.matrix">DenseMatrix</a>&nbsp;src,
-            x10.array.DistArray&lt;<a href="../../../x10/matrix/block/DenseBlock.html" title="class in x10.matrix.block">DenseBlock</a>&gt;&nbsp;dst)</code>
-<div class="block"><B>Declaration:</B> <TT>scatterRowBs(gp:x10.matrix.block.Grid,src:x10.matrix.DenseMatrix,dst:x10.array.DistArray[x10.matrix.block.DenseBlock]{self.dist.region.rank==1}): void.</TT>
+            x10.regionarray.DistArray&lt;<a href="../../../x10/matrix/block/DenseBlock.html" title="class in x10.matrix.block">DenseBlock</a>&gt;&nbsp;dst)</code>
+<div class="block"><B>Declaration:</B> <TT>scatterRowBs(gp:x10.matrix.block.Grid,src:x10.matrix.DenseMatrix,dst:x10.regionarray.DistArray[x10.matrix.block.DenseBlock]{self.dist.region.rank==1}): void.</TT>
 </div>
 </td>
 </tr>
 <tr class="altColor">
 <td class="colFirst"><code>void</code></td>
-<td class="colLast"><code><strong><a href="../../../x10/matrix/comm/CommHandle.html#scatter(x10.array.Array[x10.matrix.block.SparseBlock],x10.array.DistArray[x10.matrix.block.SparseBlock])">scatter</a></strong>(x10.array.Array&lt;<a href="../../../x10/matrix/block/SparseBlock.html" title="class in x10.matrix.block">SparseBlock</a>&gt;&nbsp;src,
-       x10.array.DistArray&lt;<a href="../../../x10/matrix/block/SparseBlock.html" title="class in x10.matrix.block">SparseBlock</a>&gt;&nbsp;dst)</code>
-<div class="block"><B>Declaration:</B> <TT>scatter(src:x10.array.Array[x10.matrix.block.SparseBlock]{self.rank==1},dst:x10.array.DistArray[x10.matrix.block.SparseBlock]{self.dist.region.rank==1}): void.</TT>
+<td class="colLast"><code><strong><a href="../../../x10/matrix/comm/CommHandle.html#scatter(x10.regionarray.Array[x10.matrix.block.SparseBlock],x10.regionarray.DistArray[x10.matrix.block.SparseBlock])">scatter</a></strong>(x10.regionarray.Array&lt;<a href="../../../x10/matrix/block/SparseBlock.html" title="class in x10.matrix.block">SparseBlock</a>&gt;&nbsp;src,
+       x10.regionarray.DistArray&lt;<a href="../../../x10/matrix/block/SparseBlock.html" title="class in x10.matrix.block">SparseBlock</a>&gt;&nbsp;dst)</code>
+<div class="block"><B>Declaration:</B> <TT>scatter(src:x10.regionarray.Array[x10.matrix.block.SparseBlock]{self.rank==1},dst:x10.regionarray.DistArray[x10.matrix.block.SparseBlock]{self.dist.region.rank==1}): void.</TT>
 </div>
 </td>
 </tr>
 <tr class="rowColor">
 <td class="colFirst"><code>void</code></td>
-<td class="colLast"><code><strong><a href="../../../x10/matrix/comm/CommHandle.html#scatterRowBs(x10.matrix.block.Grid,x10.matrix.sparse.SparseCSC,x10.array.DistArray[x10.matrix.block.SparseBlock])">scatterRowBs</a></strong>(<a href="../../../x10/matrix/block/Grid.html" title="class in x10.matrix.block">Grid</a>&nbsp;gp,
+<td class="colLast"><code><strong><a href="../../../x10/matrix/comm/CommHandle.html#scatterRowBs(x10.matrix.block.Grid,x10.matrix.sparse.SparseCSC,x10.regionarray.DistArray[x10.matrix.block.SparseBlock])">scatterRowBs</a></strong>(<a href="../../../x10/matrix/block/Grid.html" title="class in x10.matrix.block">Grid</a>&nbsp;gp,
             <a href="../../../x10/matrix/sparse/SparseCSC.html" title="class in x10.matrix.sparse">SparseCSC</a>&nbsp;src,
-            x10.array.DistArray&lt;<a href="../../../x10/matrix/block/SparseBlock.html" title="class in x10.matrix.block">SparseBlock</a>&gt;&nbsp;dst)</code>
-<div class="block"><B>Declaration:</B> <TT>scatterRowBs(gp:x10.matrix.block.Grid,src:x10.matrix.sparse.SparseCSC,dst:x10.array.DistArray[x10.matrix.block.SparseBlock]{self.dist.region.rank==1}): void.</TT>
+            x10.regionarray.DistArray&lt;<a href="../../../x10/matrix/block/SparseBlock.html" title="class in x10.matrix.block">SparseBlock</a>&gt;&nbsp;dst)</code>
+<div class="block"><B>Declaration:</B> <TT>scatterRowBs(gp:x10.matrix.block.Grid,src:x10.matrix.sparse.SparseCSC,dst:x10.regionarray.DistArray[x10.matrix.block.SparseBlock]{self.dist.region.rank==1}): void.</TT>
 </div>
 </td>
 </tr>
 <tr class="altColor">
 <td class="colFirst"><code>void</code></td>
-<td class="colLast"><code><strong><a href="../../../x10/matrix/comm/CommHandle.html#reduceSum(x10.array.DistArray[x10.matrix.DenseMatrix],x10.array.DistArray[x10.matrix.DenseMatrix])">reduceSum</a></strong>(x10.array.DistArray&lt;<a href="../../../x10/matrix/DenseMatrix.html" title="class in x10.matrix">DenseMatrix</a>&gt;&nbsp;ddmat,
-         x10.array.DistArray&lt;<a href="../../../x10/matrix/DenseMatrix.html" title="class in x10.matrix">DenseMatrix</a>&gt;&nbsp;ddtmp)</code>
-<div class="block"><B>Declaration:</B> <TT>reduceSum(ddmat:x10.array.DistArray[x10.matrix.DenseMatrix]{self.dist.region.rank==1},ddtmp:x10.array.DistArray[x10.matrix.DenseMatrix]{self.dist.region.rank==1}): void.</TT>
+<td class="colLast"><code><strong><a href="../../../x10/matrix/comm/CommHandle.html#reduceSum(x10.regionarray.DistArray[x10.matrix.DenseMatrix],x10.regionarray.DistArray[x10.matrix.DenseMatrix])">reduceSum</a></strong>(x10.regionarray.DistArray&lt;<a href="../../../x10/matrix/DenseMatrix.html" title="class in x10.matrix">DenseMatrix</a>&gt;&nbsp;ddmat,
+         x10.regionarray.DistArray&lt;<a href="../../../x10/matrix/DenseMatrix.html" title="class in x10.matrix">DenseMatrix</a>&gt;&nbsp;ddtmp)</code>
+<div class="block"><B>Declaration:</B> <TT>reduceSum(ddmat:x10.regionarray.DistArray[x10.matrix.DenseMatrix]{self.dist.region.rank==1},ddtmp:x10.regionarray.DistArray[x10.matrix.DenseMatrix]{self.dist.region.rank==1}): void.</TT>
 </div>
 </td>
 </tr>
 <tr class="rowColor">
 <td class="colFirst"><code>void</code></td>
-<td class="colLast"><code><strong><a href="../../../x10/matrix/comm/CommHandle.html#allReduceSum(x10.array.DistArray[x10.matrix.DenseMatrix],x10.array.DistArray[x10.matrix.DenseMatrix])">allReduceSum</a></strong>(x10.array.DistArray&lt;<a href="../../../x10/matrix/DenseMatrix.html" title="class in x10.matrix">DenseMatrix</a>&gt;&nbsp;ddmat,
-            x10.array.DistArray&lt;<a href="../../../x10/matrix/DenseMatrix.html" title="class in x10.matrix">DenseMatrix</a>&gt;&nbsp;ddtmp)</code>
-<div class="block"><B>Declaration:</B> <TT>allReduceSum(ddmat:x10.array.DistArray[x10.matrix.DenseMatrix]{self.dist.region.rank==1},ddtmp:x10.array.DistArray[x10.matrix.DenseMatrix]{self.dist.region.rank==1}): void.</TT>
+<td class="colLast"><code><strong><a href="../../../x10/matrix/comm/CommHandle.html#allReduceSum(x10.regionarray.DistArray[x10.matrix.DenseMatrix],x10.regionarray.DistArray[x10.matrix.DenseMatrix])">allReduceSum</a></strong>(x10.regionarray.DistArray&lt;<a href="../../../x10/matrix/DenseMatrix.html" title="class in x10.matrix">DenseMatrix</a>&gt;&nbsp;ddmat,
+            x10.regionarray.DistArray&lt;<a href="../../../x10/matrix/DenseMatrix.html" title="class in x10.matrix">DenseMatrix</a>&gt;&nbsp;ddtmp)</code>
+<div class="block"><B>Declaration:</B> <TT>allReduceSum(ddmat:x10.regionarray.DistArray[x10.matrix.DenseMatrix]{self.dist.region.rank==1},ddtmp:x10.regionarray.DistArray[x10.matrix.DenseMatrix]{self.dist.region.rank==1}): void.</TT>
 </div>
 </td>
 </tr>
@@ -416,139 +416,139 @@ operations for distributed matrices.</div>
 <!--   -->
 </a>
 <h3>Method Detail</h3>
-<a name="copy(x10.matrix.DenseMatrix,x10.array.DistArray[x10.matrix.DenseMatrix],x10.lang.Int)">
+<a name="copy(x10.matrix.DenseMatrix,x10.regionarray.DistArray[x10.matrix.DenseMatrix],x10.lang.Int)">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
 <h4>copy</h4>
 <pre>public&nbsp;void&nbsp;copy(<a href="../../../x10/matrix/DenseMatrix.html" title="class in x10.matrix">DenseMatrix</a>&nbsp;srcden,
-        x10.array.DistArray&lt;<a href="../../../x10/matrix/DenseMatrix.html" title="class in x10.matrix">DenseMatrix</a>&gt;&nbsp;dmlist,
+        x10.regionarray.DistArray&lt;<a href="../../../x10/matrix/DenseMatrix.html" title="class in x10.matrix">DenseMatrix</a>&gt;&nbsp;dmlist,
         x10.lang.Int&nbsp;dstpid)</pre>
-<div class="block"><B>Declaration:</B> <TT>copy(srcden:x10.matrix.DenseMatrix,dmlist:x10.array.DistArray[x10.matrix.DenseMatrix]{self.dist.region.rank==1},dstpid:x10.lang.Int): void.</TT><PRE>
+<div class="block"><B>Declaration:</B> <TT>copy(srcden:x10.matrix.DenseMatrix,dmlist:x10.regionarray.DistArray[x10.matrix.DenseMatrix]{self.dist.region.rank==1},dstpid:x10.lang.Int): void.</TT><PRE>
 </PRE></div>
 </li>
 </ul>
-<a name="copy(x10.array.DistArray[x10.matrix.DenseMatrix],x10.lang.Int,x10.matrix.DenseMatrix)">
+<a name="copy(x10.regionarray.DistArray[x10.matrix.DenseMatrix],x10.lang.Int,x10.matrix.DenseMatrix)">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
 <h4>copy</h4>
-<pre>public&nbsp;void&nbsp;copy(x10.array.DistArray&lt;<a href="../../../x10/matrix/DenseMatrix.html" title="class in x10.matrix">DenseMatrix</a>&gt;&nbsp;dmlist,
+<pre>public&nbsp;void&nbsp;copy(x10.regionarray.DistArray&lt;<a href="../../../x10/matrix/DenseMatrix.html" title="class in x10.matrix">DenseMatrix</a>&gt;&nbsp;dmlist,
         x10.lang.Int&nbsp;srcpid,
         <a href="../../../x10/matrix/DenseMatrix.html" title="class in x10.matrix">DenseMatrix</a>&nbsp;dstden)</pre>
-<div class="block"><B>Declaration:</B> <TT>copy(dmlist:x10.array.DistArray[x10.matrix.DenseMatrix]{self.dist.region.rank==1},srcpid:x10.lang.Int,dstden:x10.matrix.DenseMatrix): void.</TT><PRE>
+<div class="block"><B>Declaration:</B> <TT>copy(dmlist:x10.regionarray.DistArray[x10.matrix.DenseMatrix]{self.dist.region.rank==1},srcpid:x10.lang.Int,dstden:x10.matrix.DenseMatrix): void.</TT><PRE>
 </PRE></div>
 </li>
 </ul>
-<a name="bcast(x10.array.DistArray[x10.matrix.DenseMatrix])">
+<a name="bcast(x10.regionarray.DistArray[x10.matrix.DenseMatrix])">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
 <h4>bcast</h4>
-<pre>public&nbsp;void&nbsp;bcast(x10.array.DistArray&lt;<a href="../../../x10/matrix/DenseMatrix.html" title="class in x10.matrix">DenseMatrix</a>&gt;&nbsp;dupmat)</pre>
-<div class="block"><B>Declaration:</B> <TT>bcast(dupmat:x10.array.DistArray[x10.matrix.DenseMatrix]{self.dist.region.rank==1}): void.</TT><PRE>
+<pre>public&nbsp;void&nbsp;bcast(x10.regionarray.DistArray&lt;<a href="../../../x10/matrix/DenseMatrix.html" title="class in x10.matrix">DenseMatrix</a>&gt;&nbsp;dupmat)</pre>
+<div class="block"><B>Declaration:</B> <TT>bcast(dupmat:x10.regionarray.DistArray[x10.matrix.DenseMatrix]{self.dist.region.rank==1}): void.</TT><PRE>
 </PRE></div>
 </li>
 </ul>
-<a name="bcast(x10.array.DistArray[x10.matrix.sparse.SparseCSC])">
+<a name="bcast(x10.regionarray.DistArray[x10.matrix.sparse.SparseCSC])">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
 <h4>bcast</h4>
-<pre>public&nbsp;void&nbsp;bcast(x10.array.DistArray&lt;<a href="../../../x10/matrix/sparse/SparseCSC.html" title="class in x10.matrix.sparse">SparseCSC</a>&gt;&nbsp;dupspa)</pre>
-<div class="block"><B>Declaration:</B> <TT>bcast(dupspa:x10.array.DistArray[x10.matrix.sparse.SparseCSC]{self.dist.region.rank==1}): void.</TT><PRE>
+<pre>public&nbsp;void&nbsp;bcast(x10.regionarray.DistArray&lt;<a href="../../../x10/matrix/sparse/SparseCSC.html" title="class in x10.matrix.sparse">SparseCSC</a>&gt;&nbsp;dupspa)</pre>
+<div class="block"><B>Declaration:</B> <TT>bcast(dupspa:x10.regionarray.DistArray[x10.matrix.sparse.SparseCSC]{self.dist.region.rank==1}): void.</TT><PRE>
 </PRE></div>
 </li>
 </ul>
-<a name="rcast(x10.array.DistArray[x10.matrix.DenseMatrix])">
+<a name="rcast(x10.regionarray.DistArray[x10.matrix.DenseMatrix])">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
 <h4>rcast</h4>
-<pre>public&nbsp;void&nbsp;rcast(x10.array.DistArray&lt;<a href="../../../x10/matrix/DenseMatrix.html" title="class in x10.matrix">DenseMatrix</a>&gt;&nbsp;smlist)</pre>
-<div class="block"><B>Declaration:</B> <TT>rcast(smlist:x10.array.DistArray[x10.matrix.DenseMatrix]{self.dist.region.rank==1}): void.</TT><PRE>
+<pre>public&nbsp;void&nbsp;rcast(x10.regionarray.DistArray&lt;<a href="../../../x10/matrix/DenseMatrix.html" title="class in x10.matrix">DenseMatrix</a>&gt;&nbsp;smlist)</pre>
+<div class="block"><B>Declaration:</B> <TT>rcast(smlist:x10.regionarray.DistArray[x10.matrix.DenseMatrix]{self.dist.region.rank==1}): void.</TT><PRE>
 </PRE></div>
 </li>
 </ul>
-<a name="rcast(x10.array.DistArray[x10.matrix.sparse.SparseCSC])">
+<a name="rcast(x10.regionarray.DistArray[x10.matrix.sparse.SparseCSC])">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
 <h4>rcast</h4>
-<pre>public&nbsp;void&nbsp;rcast(x10.array.DistArray&lt;<a href="../../../x10/matrix/sparse/SparseCSC.html" title="class in x10.matrix.sparse">SparseCSC</a>&gt;&nbsp;smlist)</pre>
-<div class="block"><B>Declaration:</B> <TT>rcast(smlist:x10.array.DistArray[x10.matrix.sparse.SparseCSC]{self.dist.region.rank==1}): void.</TT><PRE>
+<pre>public&nbsp;void&nbsp;rcast(x10.regionarray.DistArray&lt;<a href="../../../x10/matrix/sparse/SparseCSC.html" title="class in x10.matrix.sparse">SparseCSC</a>&gt;&nbsp;smlist)</pre>
+<div class="block"><B>Declaration:</B> <TT>rcast(smlist:x10.regionarray.DistArray[x10.matrix.sparse.SparseCSC]{self.dist.region.rank==1}): void.</TT><PRE>
 </PRE></div>
 </li>
 </ul>
-<a name="gather(x10.array.DistArray[x10.matrix.block.DenseBlock],x10.array.Array[x10.matrix.block.DenseBlock])">
+<a name="gather(x10.regionarray.DistArray[x10.matrix.block.DenseBlock],x10.regionarray.Array[x10.matrix.block.DenseBlock])">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
 <h4>gather</h4>
-<pre>public&nbsp;void&nbsp;gather(x10.array.DistArray&lt;<a href="../../../x10/matrix/block/DenseBlock.html" title="class in x10.matrix.block">DenseBlock</a>&gt;&nbsp;src,
-          x10.array.Array&lt;<a href="../../../x10/matrix/block/DenseBlock.html" title="class in x10.matrix.block">DenseBlock</a>&gt;&nbsp;dst)</pre>
-<div class="block"><B>Declaration:</B> <TT>gather(src:x10.array.DistArray[x10.matrix.block.DenseBlock]{self.dist.region.rank==1},dst:x10.array.Array[x10.matrix.block.DenseBlock]{self.rank==1}): void.</TT><PRE>
+<pre>public&nbsp;void&nbsp;gather(x10.regionarray.DistArray&lt;<a href="../../../x10/matrix/block/DenseBlock.html" title="class in x10.matrix.block">DenseBlock</a>&gt;&nbsp;src,
+          x10.regionarray.Array&lt;<a href="../../../x10/matrix/block/DenseBlock.html" title="class in x10.matrix.block">DenseBlock</a>&gt;&nbsp;dst)</pre>
+<div class="block"><B>Declaration:</B> <TT>gather(src:x10.regionarray.DistArray[x10.matrix.block.DenseBlock]{self.dist.region.rank==1},dst:x10.regionarray.Array[x10.matrix.block.DenseBlock]{self.rank==1}): void.</TT><PRE>
 </PRE></div>
 </li>
 </ul>
-<a name="gatherRowBs(x10.matrix.block.Grid,x10.array.DistArray[x10.matrix.block.DenseBlock],x10.matrix.DenseMatrix)">
+<a name="gatherRowBs(x10.matrix.block.Grid,x10.regionarray.DistArray[x10.matrix.block.DenseBlock],x10.matrix.DenseMatrix)">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
 <h4>gatherRowBs</h4>
 <pre>public&nbsp;void&nbsp;gatherRowBs(<a href="../../../x10/matrix/block/Grid.html" title="class in x10.matrix.block">Grid</a>&nbsp;gp,
-               x10.array.DistArray&lt;<a href="../../../x10/matrix/block/DenseBlock.html" title="class in x10.matrix.block">DenseBlock</a>&gt;&nbsp;src,
+               x10.regionarray.DistArray&lt;<a href="../../../x10/matrix/block/DenseBlock.html" title="class in x10.matrix.block">DenseBlock</a>&gt;&nbsp;src,
                <a href="../../../x10/matrix/DenseMatrix.html" title="class in x10.matrix">DenseMatrix</a>&nbsp;dst)</pre>
-<div class="block"><B>Declaration:</B> <TT>gatherRowBs(gp:x10.matrix.block.Grid,src:x10.array.DistArray[x10.matrix.block.DenseBlock]{self.dist.region.rank==1},dst:x10.matrix.DenseMatrix): void.</TT><PRE>
+<div class="block"><B>Declaration:</B> <TT>gatherRowBs(gp:x10.matrix.block.Grid,src:x10.regionarray.DistArray[x10.matrix.block.DenseBlock]{self.dist.region.rank==1},dst:x10.matrix.DenseMatrix): void.</TT><PRE>
 </PRE></div>
 </li>
 </ul>
-<a name="gather(x10.array.DistArray[x10.matrix.block.SparseBlock],x10.array.Array[x10.matrix.block.SparseBlock])">
+<a name="gather(x10.regionarray.DistArray[x10.matrix.block.SparseBlock],x10.regionarray.Array[x10.matrix.block.SparseBlock])">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
 <h4>gather</h4>
-<pre>public&nbsp;void&nbsp;gather(x10.array.DistArray&lt;<a href="../../../x10/matrix/block/SparseBlock.html" title="class in x10.matrix.block">SparseBlock</a>&gt;&nbsp;src,
-          x10.array.Array&lt;<a href="../../../x10/matrix/block/SparseBlock.html" title="class in x10.matrix.block">SparseBlock</a>&gt;&nbsp;dst)</pre>
-<div class="block"><B>Declaration:</B> <TT>gather(src:x10.array.DistArray[x10.matrix.block.SparseBlock]{self.dist.region.rank==1},dst:x10.array.Array[x10.matrix.block.SparseBlock]{self.rank==1}): void.</TT><PRE>
+<pre>public&nbsp;void&nbsp;gather(x10.regionarray.DistArray&lt;<a href="../../../x10/matrix/block/SparseBlock.html" title="class in x10.matrix.block">SparseBlock</a>&gt;&nbsp;src,
+          x10.regionarray.Array&lt;<a href="../../../x10/matrix/block/SparseBlock.html" title="class in x10.matrix.block">SparseBlock</a>&gt;&nbsp;dst)</pre>
+<div class="block"><B>Declaration:</B> <TT>gather(src:x10.regionarray.DistArray[x10.matrix.block.SparseBlock]{self.dist.region.rank==1},dst:x10.regionarray.Array[x10.matrix.block.SparseBlock]{self.rank==1}): void.</TT><PRE>
 </PRE></div>
 </li>
 </ul>
-<a name="gatherRowBs(x10.matrix.block.Grid,x10.array.DistArray[x10.matrix.block.SparseBlock],x10.matrix.sparse.SparseCSC)">
+<a name="gatherRowBs(x10.matrix.block.Grid,x10.regionarray.DistArray[x10.matrix.block.SparseBlock],x10.matrix.sparse.SparseCSC)">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
 <h4>gatherRowBs</h4>
 <pre>public&nbsp;void&nbsp;gatherRowBs(<a href="../../../x10/matrix/block/Grid.html" title="class in x10.matrix.block">Grid</a>&nbsp;gp,
-               x10.array.DistArray&lt;<a href="../../../x10/matrix/block/SparseBlock.html" title="class in x10.matrix.block">SparseBlock</a>&gt;&nbsp;src,
+               x10.regionarray.DistArray&lt;<a href="../../../x10/matrix/block/SparseBlock.html" title="class in x10.matrix.block">SparseBlock</a>&gt;&nbsp;src,
                <a href="../../../x10/matrix/sparse/SparseCSC.html" title="class in x10.matrix.sparse">SparseCSC</a>&nbsp;dst)</pre>
-<div class="block"><B>Declaration:</B> <TT>gatherRowBs(gp:x10.matrix.block.Grid,src:x10.array.DistArray[x10.matrix.block.SparseBlock]{self.dist.region.rank==1},dst:x10.matrix.sparse.SparseCSC): void.</TT><PRE>
+<div class="block"><B>Declaration:</B> <TT>gatherRowBs(gp:x10.matrix.block.Grid,src:x10.regionarray.DistArray[x10.matrix.block.SparseBlock]{self.dist.region.rank==1},dst:x10.matrix.sparse.SparseCSC): void.</TT><PRE>
 </PRE></div>
 </li>
 </ul>
-<a name="scatter(x10.array.Array[x10.matrix.block.DenseBlock],x10.array.DistArray[x10.matrix.block.DenseBlock])">
+<a name="scatter(x10.regionarray.Array[x10.matrix.block.DenseBlock],x10.regionarray.DistArray[x10.matrix.block.DenseBlock])">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
 <h4>scatter</h4>
-<pre>public&nbsp;void&nbsp;scatter(x10.array.Array&lt;<a href="../../../x10/matrix/block/DenseBlock.html" title="class in x10.matrix.block">DenseBlock</a>&gt;&nbsp;src,
-           x10.array.DistArray&lt;<a href="../../../x10/matrix/block/DenseBlock.html" title="class in x10.matrix.block">DenseBlock</a>&gt;&nbsp;dst)</pre>
-<div class="block"><B>Declaration:</B> <TT>scatter(src:x10.array.Array[x10.matrix.block.DenseBlock]{self.rank==1},dst:x10.array.DistArray[x10.matrix.block.DenseBlock]{self.dist.region.rank==1}): void.</TT><PRE>
+<pre>public&nbsp;void&nbsp;scatter(x10.regionarray.Array&lt;<a href="../../../x10/matrix/block/DenseBlock.html" title="class in x10.matrix.block">DenseBlock</a>&gt;&nbsp;src,
+           x10.regionarray.DistArray&lt;<a href="../../../x10/matrix/block/DenseBlock.html" title="class in x10.matrix.block">DenseBlock</a>&gt;&nbsp;dst)</pre>
+<div class="block"><B>Declaration:</B> <TT>scatter(src:x10.regionarray.Array[x10.matrix.block.DenseBlock]{self.rank==1},dst:x10.regionarray.DistArray[x10.matrix.block.DenseBlock]{self.dist.region.rank==1}): void.</TT><PRE>
 </PRE></div>
 </li>
 </ul>
-<a name="scatterRowBs(x10.matrix.block.Grid,x10.matrix.DenseMatrix,x10.array.DistArray[x10.matrix.block.DenseBlock])">
+<a name="scatterRowBs(x10.matrix.block.Grid,x10.matrix.DenseMatrix,x10.regionarray.DistArray[x10.matrix.block.DenseBlock])">
 <!--   -->
 </a>
 <ul class="blockList">
@@ -556,24 +556,24 @@ operations for distributed matrices.</div>
 <h4>scatterRowBs</h4>
 <pre>public&nbsp;void&nbsp;scatterRowBs(<a href="../../../x10/matrix/block/Grid.html" title="class in x10.matrix.block">Grid</a>&nbsp;gp,
                 <a href="../../../x10/matrix/DenseMatrix.html" title="class in x10.matrix">DenseMatrix</a>&nbsp;src,
-                x10.array.DistArray&lt;<a href="../../../x10/matrix/block/DenseBlock.html" title="class in x10.matrix.block">DenseBlock</a>&gt;&nbsp;dst)</pre>
-<div class="block"><B>Declaration:</B> <TT>scatterRowBs(gp:x10.matrix.block.Grid,src:x10.matrix.DenseMatrix,dst:x10.array.DistArray[x10.matrix.block.DenseBlock]{self.dist.region.rank==1}): void.</TT><PRE>
+                x10.regionarray.DistArray&lt;<a href="../../../x10/matrix/block/DenseBlock.html" title="class in x10.matrix.block">DenseBlock</a>&gt;&nbsp;dst)</pre>
+<div class="block"><B>Declaration:</B> <TT>scatterRowBs(gp:x10.matrix.block.Grid,src:x10.matrix.DenseMatrix,dst:x10.regionarray.DistArray[x10.matrix.block.DenseBlock]{self.dist.region.rank==1}): void.</TT><PRE>
 </PRE></div>
 </li>
 </ul>
-<a name="scatter(x10.array.Array[x10.matrix.block.SparseBlock],x10.array.DistArray[x10.matrix.block.SparseBlock])">
+<a name="scatter(x10.regionarray.Array[x10.matrix.block.SparseBlock],x10.regionarray.DistArray[x10.matrix.block.SparseBlock])">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
 <h4>scatter</h4>
-<pre>public&nbsp;void&nbsp;scatter(x10.array.Array&lt;<a href="../../../x10/matrix/block/SparseBlock.html" title="class in x10.matrix.block">SparseBlock</a>&gt;&nbsp;src,
-           x10.array.DistArray&lt;<a href="../../../x10/matrix/block/SparseBlock.html" title="class in x10.matrix.block">SparseBlock</a>&gt;&nbsp;dst)</pre>
-<div class="block"><B>Declaration:</B> <TT>scatter(src:x10.array.Array[x10.matrix.block.SparseBlock]{self.rank==1},dst:x10.array.DistArray[x10.matrix.block.SparseBlock]{self.dist.region.rank==1}): void.</TT><PRE>
+<pre>public&nbsp;void&nbsp;scatter(x10.regionarray.Array&lt;<a href="../../../x10/matrix/block/SparseBlock.html" title="class in x10.matrix.block">SparseBlock</a>&gt;&nbsp;src,
+           x10.regionarray.DistArray&lt;<a href="../../../x10/matrix/block/SparseBlock.html" title="class in x10.matrix.block">SparseBlock</a>&gt;&nbsp;dst)</pre>
+<div class="block"><B>Declaration:</B> <TT>scatter(src:x10.regionarray.Array[x10.matrix.block.SparseBlock]{self.rank==1},dst:x10.regionarray.DistArray[x10.matrix.block.SparseBlock]{self.dist.region.rank==1}): void.</TT><PRE>
 </PRE></div>
 </li>
 </ul>
-<a name="scatterRowBs(x10.matrix.block.Grid,x10.matrix.sparse.SparseCSC,x10.array.DistArray[x10.matrix.block.SparseBlock])">
+<a name="scatterRowBs(x10.matrix.block.Grid,x10.matrix.sparse.SparseCSC,x10.regionarray.DistArray[x10.matrix.block.SparseBlock])">
 <!--   -->
 </a>
 <ul class="blockList">
@@ -581,32 +581,32 @@ operations for distributed matrices.</div>
 <h4>scatterRowBs</h4>
 <pre>public&nbsp;void&nbsp;scatterRowBs(<a href="../../../x10/matrix/block/Grid.html" title="class in x10.matrix.block">Grid</a>&nbsp;gp,
                 <a href="../../../x10/matrix/sparse/SparseCSC.html" title="class in x10.matrix.sparse">SparseCSC</a>&nbsp;src,
-                x10.array.DistArray&lt;<a href="../../../x10/matrix/block/SparseBlock.html" title="class in x10.matrix.block">SparseBlock</a>&gt;&nbsp;dst)</pre>
-<div class="block"><B>Declaration:</B> <TT>scatterRowBs(gp:x10.matrix.block.Grid,src:x10.matrix.sparse.SparseCSC,dst:x10.array.DistArray[x10.matrix.block.SparseBlock]{self.dist.region.rank==1}): void.</TT><PRE>
+                x10.regionarray.DistArray&lt;<a href="../../../x10/matrix/block/SparseBlock.html" title="class in x10.matrix.block">SparseBlock</a>&gt;&nbsp;dst)</pre>
+<div class="block"><B>Declaration:</B> <TT>scatterRowBs(gp:x10.matrix.block.Grid,src:x10.matrix.sparse.SparseCSC,dst:x10.regionarray.DistArray[x10.matrix.block.SparseBlock]{self.dist.region.rank==1}): void.</TT><PRE>
 </PRE></div>
 </li>
 </ul>
-<a name="reduceSum(x10.array.DistArray[x10.matrix.DenseMatrix],x10.array.DistArray[x10.matrix.DenseMatrix])">
+<a name="reduceSum(x10.regionarray.DistArray[x10.matrix.DenseMatrix],x10.regionarray.DistArray[x10.matrix.DenseMatrix])">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
 <h4>reduceSum</h4>
-<pre>public&nbsp;void&nbsp;reduceSum(x10.array.DistArray&lt;<a href="../../../x10/matrix/DenseMatrix.html" title="class in x10.matrix">DenseMatrix</a>&gt;&nbsp;ddmat,
-             x10.array.DistArray&lt;<a href="../../../x10/matrix/DenseMatrix.html" title="class in x10.matrix">DenseMatrix</a>&gt;&nbsp;ddtmp)</pre>
-<div class="block"><B>Declaration:</B> <TT>reduceSum(ddmat:x10.array.DistArray[x10.matrix.DenseMatrix]{self.dist.region.rank==1},ddtmp:x10.array.DistArray[x10.matrix.DenseMatrix]{self.dist.region.rank==1}): void.</TT><PRE>
+<pre>public&nbsp;void&nbsp;reduceSum(x10.regionarray.DistArray&lt;<a href="../../../x10/matrix/DenseMatrix.html" title="class in x10.matrix">DenseMatrix</a>&gt;&nbsp;ddmat,
+             x10.regionarray.DistArray&lt;<a href="../../../x10/matrix/DenseMatrix.html" title="class in x10.matrix">DenseMatrix</a>&gt;&nbsp;ddtmp)</pre>
+<div class="block"><B>Declaration:</B> <TT>reduceSum(ddmat:x10.regionarray.DistArray[x10.matrix.DenseMatrix]{self.dist.region.rank==1},ddtmp:x10.regionarray.DistArray[x10.matrix.DenseMatrix]{self.dist.region.rank==1}): void.</TT><PRE>
 </PRE></div>
 </li>
 </ul>
-<a name="allReduceSum(x10.array.DistArray[x10.matrix.DenseMatrix],x10.array.DistArray[x10.matrix.DenseMatrix])">
+<a name="allReduceSum(x10.regionarray.DistArray[x10.matrix.DenseMatrix],x10.regionarray.DistArray[x10.matrix.DenseMatrix])">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
 <h4>allReduceSum</h4>
-<pre>public&nbsp;void&nbsp;allReduceSum(x10.array.DistArray&lt;<a href="../../../x10/matrix/DenseMatrix.html" title="class in x10.matrix">DenseMatrix</a>&gt;&nbsp;ddmat,
-                x10.array.DistArray&lt;<a href="../../../x10/matrix/DenseMatrix.html" title="class in x10.matrix">DenseMatrix</a>&gt;&nbsp;ddtmp)</pre>
-<div class="block"><B>Declaration:</B> <TT>allReduceSum(ddmat:x10.array.DistArray[x10.matrix.DenseMatrix]{self.dist.region.rank==1},ddtmp:x10.array.DistArray[x10.matrix.DenseMatrix]{self.dist.region.rank==1}): void.</TT><PRE>
+<pre>public&nbsp;void&nbsp;allReduceSum(x10.regionarray.DistArray&lt;<a href="../../../x10/matrix/DenseMatrix.html" title="class in x10.matrix">DenseMatrix</a>&gt;&nbsp;ddmat,
+                x10.regionarray.DistArray&lt;<a href="../../../x10/matrix/DenseMatrix.html" title="class in x10.matrix">DenseMatrix</a>&gt;&nbsp;ddtmp)</pre>
+<div class="block"><B>Declaration:</B> <TT>allReduceSum(ddmat:x10.regionarray.DistArray[x10.matrix.DenseMatrix]{self.dist.region.rank==1},ddtmp:x10.regionarray.DistArray[x10.matrix.DenseMatrix]{self.dist.region.rank==1}): void.</TT><PRE>
 </PRE></div>
 </li>
 </ul>

@@ -120,11 +120,11 @@ to start copy data from here to the remote place.</div>
 <th class="colLast" scope="col">Field and Description</th>
 </tr>
 <tr class="altColor">
-<td class="colFirst"><code>x10.array.RemoteArray&lt;x10.lang.Int&gt;</code></td>
+<td class="colFirst"><code>x10.regionarray.RemoteArray&lt;x10.lang.Int&gt;</code></td>
 <td class="colLast"><code><strong><a href="../../../x10/matrix/comm/SparseRemoteDestInfo.html#idxbuf">idxbuf</a></strong></code></td>
 </tr>
 <tr class="rowColor">
-<td class="colFirst"><code>x10.array.RemoteArray&lt;x10.lang.Double&gt;</code></td>
+<td class="colFirst"><code>x10.regionarray.RemoteArray&lt;x10.lang.Double&gt;</code></td>
 <td class="colLast"><code><strong><a href="../../../x10/matrix/comm/SparseRemoteDestInfo.html#valbuf">valbuf</a></strong></code></td>
 </tr>
 <tr class="altColor">
@@ -146,13 +146,13 @@ to start copy data from here to the remote place.</div>
 <th class="colOne" scope="col">Constructor and Description</th>
 </tr>
 <tr class="altColor">
-<td class="colOne"><code><strong><a href="../../../x10/matrix/comm/SparseRemoteDestInfo.html#SparseRemoteDestInfo(x10.array.RemoteArray[x10.lang.Int], x10.array.RemoteArray[x10.lang.Double], x10.lang.Int)">SparseRemoteDestInfo</a></strong>(x10.array.RemoteArray&lt;x10.lang.Int&gt;&nbsp;idx,
-                    x10.array.RemoteArray&lt;x10.lang.Double&gt;&nbsp;vlu,
+<td class="colOne"><code><strong><a href="../../../x10/matrix/comm/SparseRemoteDestInfo.html#SparseRemoteDestInfo(x10.regionarray.RemoteArray[x10.lang.Int], x10.regionarray.RemoteArray[x10.lang.Double], x10.lang.Int)">SparseRemoteDestInfo</a></strong>(x10.regionarray.RemoteArray&lt;x10.lang.Int&gt;&nbsp;idx,
+                    x10.regionarray.RemoteArray&lt;x10.lang.Double&gt;&nbsp;vlu,
                     x10.lang.Int&nbsp;off)</code></td>
 </tr>
 <tr class="rowColor">
-<td class="colOne"><code><strong><a href="../../../x10/matrix/comm/SparseRemoteDestInfo.html#SparseRemoteDestInfo(x10.array.Array[x10.lang.Int], x10.array.Array[x10.lang.Double], x10.lang.Int)">SparseRemoteDestInfo</a></strong>(x10.array.Array&lt;x10.lang.Int&gt;&nbsp;idx,
-                    x10.array.Array&lt;x10.lang.Double&gt;&nbsp;vlu,
+<td class="colOne"><code><strong><a href="../../../x10/matrix/comm/SparseRemoteDestInfo.html#SparseRemoteDestInfo(x10.regionarray.Array[x10.lang.Int], x10.regionarray.Array[x10.lang.Double], x10.lang.Int)">SparseRemoteDestInfo</a></strong>(x10.regionarray.Array&lt;x10.lang.Int&gt;&nbsp;idx,
+                    x10.regionarray.Array&lt;x10.lang.Double&gt;&nbsp;vlu,
                     x10.lang.Int&nbsp;off)</code></td>
 </tr>
 </table>
@@ -233,7 +233,7 @@ This struct is used to pack information of sparse matrix from the destination pl
 <ul class="blockList">
 <li class="blockList">
 <h4>idxbuf</h4>
-<pre>public final&nbsp;x10.array.RemoteArray&lt;x10.lang.Int&gt; idxbuf</pre>
+<pre>public final&nbsp;x10.regionarray.RemoteArray&lt;x10.lang.Int&gt; idxbuf</pre>
 </li>
 </ul>
 <a name="valbuf">
@@ -242,7 +242,7 @@ This struct is used to pack information of sparse matrix from the destination pl
 <ul class="blockList">
 <li class="blockList">
 <h4>valbuf</h4>
-<pre>public final&nbsp;x10.array.RemoteArray&lt;x10.lang.Double&gt; valbuf</pre>
+<pre>public final&nbsp;x10.regionarray.RemoteArray&lt;x10.lang.Double&gt; valbuf</pre>
 </li>
 </ul>
 <a name="offset">
@@ -262,25 +262,25 @@ This struct is used to pack information of sparse matrix from the destination pl
 <!--   -->
 </a>
 <h3>Constructor Detail</h3>
-<a name="SparseRemoteDestInfo(x10.array.RemoteArray[x10.lang.Int], x10.array.RemoteArray[x10.lang.Double], x10.lang.Int)">
+<a name="SparseRemoteDestInfo(x10.regionarray.RemoteArray[x10.lang.Int], x10.regionarray.RemoteArray[x10.lang.Double], x10.lang.Int)">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
 <h4>SparseRemoteDestInfo</h4>
-<pre>public&nbsp;SparseRemoteDestInfo(x10.array.RemoteArray&lt;x10.lang.Int&gt;&nbsp;idx,
-                    x10.array.RemoteArray&lt;x10.lang.Double&gt;&nbsp;vlu,
+<pre>public&nbsp;SparseRemoteDestInfo(x10.regionarray.RemoteArray&lt;x10.lang.Int&gt;&nbsp;idx,
+                    x10.regionarray.RemoteArray&lt;x10.lang.Double&gt;&nbsp;vlu,
                     x10.lang.Int&nbsp;off)</pre>
 </li>
 </ul>
-<a name="SparseRemoteDestInfo(x10.array.Array[x10.lang.Int], x10.array.Array[x10.lang.Double], x10.lang.Int)">
+<a name="SparseRemoteDestInfo(x10.regionarray.Array[x10.lang.Int], x10.regionarray.Array[x10.lang.Double], x10.lang.Int)">
 <!--   -->
 </a>
 <ul class="blockListLast">
 <li class="blockList">
 <h4>SparseRemoteDestInfo</h4>
-<pre>public&nbsp;SparseRemoteDestInfo(x10.array.Array&lt;x10.lang.Int&gt;&nbsp;idx,
-                    x10.array.Array&lt;x10.lang.Double&gt;&nbsp;vlu,
+<pre>public&nbsp;SparseRemoteDestInfo(x10.regionarray.Array&lt;x10.lang.Int&gt;&nbsp;idx,
+                    x10.regionarray.Array&lt;x10.lang.Double&gt;&nbsp;vlu,
                     x10.lang.Int&nbsp;off)</pre>
 </li>
 </ul>

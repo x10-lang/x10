@@ -145,97 +145,97 @@ run command "make help" at the root directory of GML library.</div>
 </tr>
 <tr class="altColor">
 <td class="colFirst"><code>static x10.lang.Int</code></td>
-<td class="colLast"><code><strong><a href="../../../x10/matrix/comm/ArrayReduce.html#arraySum(x10.array.Array[x10.lang.Double],x10.array.Array[x10.lang.Double],x10.lang.Int)">arraySum</a></strong>(x10.array.Array&lt;x10.lang.Double&gt;&nbsp;src,
-        x10.array.Array&lt;x10.lang.Double&gt;&nbsp;dst,
+<td class="colLast"><code><strong><a href="../../../x10/matrix/comm/ArrayReduce.html#arraySum(x10.regionarray.Array[x10.lang.Double],x10.regionarray.Array[x10.lang.Double],x10.lang.Int)">arraySum</a></strong>(x10.regionarray.Array&lt;x10.lang.Double&gt;&nbsp;src,
+        x10.regionarray.Array&lt;x10.lang.Double&gt;&nbsp;dst,
         x10.lang.Int&nbsp;cnt)</code>
-<div class="block"><B>Declaration:</B> <TT>arraySum(src:x10.array.Array[x10.lang.Double]{self.rail==true, self.rank==1},dst:x10.array.Array[x10.lang.Double]{self.rail==true, self.rank==1},cnt:x10.lang.Int): x10.lang.Int.</TT>
+<div class="block"><B>Declaration:</B> <TT>arraySum(src:x10.regionarray.Array[x10.lang.Double]{self.rail==true, self.rank==1},dst:x10.regionarray.Array[x10.lang.Double]{self.rail==true, self.rank==1},cnt:x10.lang.Int): x10.lang.Int.</TT>
 </div>
 </td>
 </tr>
 <tr class="rowColor">
 <td class="colFirst"><code>static void</code></td>
-<td class="colLast"><code><strong><a href="../../../x10/matrix/comm/ArrayReduce.html#reduce(x10.lang.PlaceLocalHandle[x10.array.Array[x10.lang.Double]],x10.lang.PlaceLocalHandle[x10.array.Array[x10.lang.Double]],x10.lang.Int,(x10.array.Array[x10.lang.Double],x10.array.Array[x10.lang.Double],x10.lang.Int)=">reduce</a></strong>(x10.lang.PlaceLocalHandle&lt;x10.array.Array&lt;x10.lang.Double&gt;&gt;&nbsp;dat,
-      x10.lang.PlaceLocalHandle&lt;x10.array.Array&lt;x10.lang.Double&gt;&gt;&nbsp;tmp,
+<td class="colLast"><code><strong><a href="../../../x10/matrix/comm/ArrayReduce.html#reduce(x10.lang.PlaceLocalHandle[x10.regionarray.Array[x10.lang.Double]],x10.lang.PlaceLocalHandle[x10.regionarray.Array[x10.lang.Double]],x10.lang.Int,(x10.regionarray.Array[x10.lang.Double],x10.regionarray.Array[x10.lang.Double],x10.lang.Int)=">reduce</a></strong>(x10.lang.PlaceLocalHandle&lt;x10.regionarray.Array&lt;x10.lang.Double&gt;&gt;&nbsp;dat,
+      x10.lang.PlaceLocalHandle&lt;x10.regionarray.Array&lt;x10.lang.Double&gt;&gt;&nbsp;tmp,
       x10.lang.Int&nbsp;datCnt,
-      x10.lang. Fun_0_3&lt;x10.array.Array&lt;x10.lang.Double&gt;,x10.array.Array&lt;x10.lang.Double&gt;,x10.lang.Int,x10.lang.Int&gt;&nbsp;opFunc)</code>
-<div class="block"><B>Declaration:</B> <TT>reduce(dat:x10.lang.PlaceLocalHandle[x10.array.Array[x10.lang.Double]{self.rank==1, self.zeroBased==true, self.rect==true, self.rail==true}],tmp:x10.lang.PlaceLocalHandle[x10.array.Array[x10.lang.Double]{self.rank==1, self.zeroBased==true, self.rect==true, self.rail==true}],datCnt:x10.lang.Int,opFunc:(x10.array.Array[x10.lang.Double]{self.rail==true, self.rank==1},x10.array.Array[x10.lang.Double]{self.rail==true, self.rank==1},x10.lang.Int)=>x10.lang.Int): void.</TT>
+      x10.lang. Fun_0_3&lt;x10.regionarray.Array&lt;x10.lang.Double&gt;,x10.regionarray.Array&lt;x10.lang.Double&gt;,x10.lang.Int,x10.lang.Int&gt;&nbsp;opFunc)</code>
+<div class="block"><B>Declaration:</B> <TT>reduce(dat:x10.lang.PlaceLocalHandle[x10.regionarray.Array[x10.lang.Double]{self.rank==1, self.zeroBased==true, self.rect==true, self.rail==true}],tmp:x10.lang.PlaceLocalHandle[x10.regionarray.Array[x10.lang.Double]{self.rank==1, self.zeroBased==true, self.rect==true, self.rail==true}],datCnt:x10.lang.Int,opFunc:(x10.regionarray.Array[x10.lang.Double]{self.rail==true, self.rank==1},x10.regionarray.Array[x10.lang.Double]{self.rail==true, self.rank==1},x10.lang.Int)=>x10.lang.Int): void.</TT>
 Reduce data array by adding them together.</div>
 </td>
 </tr>
 <tr class="altColor">
 <td class="colFirst"><code>static void</code></td>
-<td class="colLast"><code><strong><a href="../../../x10/matrix/comm/ArrayReduce.html#reduceSum(x10.lang.PlaceLocalHandle[x10.array.Array[x10.lang.Double]],x10.lang.PlaceLocalHandle[x10.array.Array[x10.lang.Double]],x10.lang.Int)">reduceSum</a></strong>(x10.lang.PlaceLocalHandle&lt;x10.array.Array&lt;x10.lang.Double&gt;&gt;&nbsp;dat,
-         x10.lang.PlaceLocalHandle&lt;x10.array.Array&lt;x10.lang.Double&gt;&gt;&nbsp;tmp,
+<td class="colLast"><code><strong><a href="../../../x10/matrix/comm/ArrayReduce.html#reduceSum(x10.lang.PlaceLocalHandle[x10.regionarray.Array[x10.lang.Double]],x10.lang.PlaceLocalHandle[x10.regionarray.Array[x10.lang.Double]],x10.lang.Int)">reduceSum</a></strong>(x10.lang.PlaceLocalHandle&lt;x10.regionarray.Array&lt;x10.lang.Double&gt;&gt;&nbsp;dat,
+         x10.lang.PlaceLocalHandle&lt;x10.regionarray.Array&lt;x10.lang.Double&gt;&gt;&nbsp;tmp,
          x10.lang.Int&nbsp;datCnt)</code>
-<div class="block"><B>Declaration:</B> <TT>reduceSum(dat:x10.lang.PlaceLocalHandle[x10.array.Array[x10.lang.Double]{self.rank==1, self.zeroBased==true, self.rect==true, self.rail==true}],tmp:x10.lang.PlaceLocalHandle[x10.array.Array[x10.lang.Double]{self.rank==1, self.zeroBased==true, self.rect==true, self.rail==true}],datCnt:x10.lang.Int): void.</TT>
+<div class="block"><B>Declaration:</B> <TT>reduceSum(dat:x10.lang.PlaceLocalHandle[x10.regionarray.Array[x10.lang.Double]{self.rank==1, self.zeroBased==true, self.rect==true, self.rail==true}],tmp:x10.lang.PlaceLocalHandle[x10.regionarray.Array[x10.lang.Double]{self.rank==1, self.zeroBased==true, self.rect==true, self.rail==true}],datCnt:x10.lang.Int): void.</TT>
 Reduce data array by adding them together.</div>
 </td>
 </tr>
 <tr class="rowColor">
 <td class="colFirst"><code>static void</code></td>
-<td class="colLast"><code><strong><a href="../../../x10/matrix/comm/ArrayReduce.html#mpiReduceSum(x10.lang.PlaceLocalHandle[x10.array.Array[x10.lang.Double]],x10.lang.PlaceLocalHandle[x10.array.Array[x10.lang.Double]],x10.lang.Int)">mpiReduceSum</a></strong>(x10.lang.PlaceLocalHandle&lt;x10.array.Array&lt;x10.lang.Double&gt;&gt;&nbsp;dat,
-            x10.lang.PlaceLocalHandle&lt;x10.array.Array&lt;x10.lang.Double&gt;&gt;&nbsp;tmp,
+<td class="colLast"><code><strong><a href="../../../x10/matrix/comm/ArrayReduce.html#mpiReduceSum(x10.lang.PlaceLocalHandle[x10.regionarray.Array[x10.lang.Double]],x10.lang.PlaceLocalHandle[x10.regionarray.Array[x10.lang.Double]],x10.lang.Int)">mpiReduceSum</a></strong>(x10.lang.PlaceLocalHandle&lt;x10.regionarray.Array&lt;x10.lang.Double&gt;&gt;&nbsp;dat,
+            x10.lang.PlaceLocalHandle&lt;x10.regionarray.Array&lt;x10.lang.Double&gt;&gt;&nbsp;tmp,
             x10.lang.Int&nbsp;datCnt)</code>
-<div class="block"><B>Declaration:</B> <TT>mpiReduceSum(dat:x10.lang.PlaceLocalHandle[x10.array.Array[x10.lang.Double]{self.rank==1, self.zeroBased==true, self.rect==true, self.rail==true}],tmp:x10.lang.PlaceLocalHandle[x10.array.Array[x10.lang.Double]{self.rank==1, self.zeroBased==true, self.rect==true, self.rail==true}],datCnt:x10.lang.Int): void.</TT>
+<div class="block"><B>Declaration:</B> <TT>mpiReduceSum(dat:x10.lang.PlaceLocalHandle[x10.regionarray.Array[x10.lang.Double]{self.rank==1, self.zeroBased==true, self.rect==true, self.rail==true}],tmp:x10.lang.PlaceLocalHandle[x10.regionarray.Array[x10.lang.Double]{self.rank==1, self.zeroBased==true, self.rect==true, self.rail==true}],datCnt:x10.lang.Int): void.</TT>
 Reduce arrays from all places to here by adding them together.</div>
 </td>
 </tr>
 <tr class="altColor">
 <td class="colFirst"><code>protected static void</code></td>
-<td class="colLast"><code><strong><a href="../../../x10/matrix/comm/ArrayReduce.html#x10ReduceToHere(x10.lang.PlaceLocalHandle[x10.array.Array[x10.lang.Double]],x10.lang.PlaceLocalHandle[x10.array.Array[x10.lang.Double]],x10.lang.Int,x10.lang.Int,(x10.array.Array[x10.lang.Double],x10.array.Array[x10.lang.Double],x10.lang.Int)=">x10ReduceToHere</a></strong>(x10.lang.PlaceLocalHandle&lt;x10.array.Array&lt;x10.lang.Double&gt;&gt;&nbsp;dat,
-               x10.lang.PlaceLocalHandle&lt;x10.array.Array&lt;x10.lang.Double&gt;&gt;&nbsp;tmp,
+<td class="colLast"><code><strong><a href="../../../x10/matrix/comm/ArrayReduce.html#x10ReduceToHere(x10.lang.PlaceLocalHandle[x10.regionarray.Array[x10.lang.Double]],x10.lang.PlaceLocalHandle[x10.regionarray.Array[x10.lang.Double]],x10.lang.Int,x10.lang.Int,(x10.regionarray.Array[x10.lang.Double],x10.regionarray.Array[x10.lang.Double],x10.lang.Int)=">x10ReduceToHere</a></strong>(x10.lang.PlaceLocalHandle&lt;x10.regionarray.Array&lt;x10.lang.Double&gt;&gt;&nbsp;dat,
+               x10.lang.PlaceLocalHandle&lt;x10.regionarray.Array&lt;x10.lang.Double&gt;&gt;&nbsp;tmp,
                x10.lang.Int&nbsp;datCnt,
                x10.lang.Int&nbsp;pcnt,
-               x10.lang. Fun_0_3&lt;x10.array.Array&lt;x10.lang.Double&gt;,x10.array.Array&lt;x10.lang.Double&gt;,x10.lang.Int,x10.lang.Int&gt;&nbsp;opFunc)</code>
-<div class="block"><B>Declaration:</B> <TT>x10ReduceToHere(dat:x10.lang.PlaceLocalHandle[x10.array.Array[x10.lang.Double]{self.rank==1, self.zeroBased==true, self.rect==true, self.rail==true}],tmp:x10.lang.PlaceLocalHandle[x10.array.Array[x10.lang.Double]{self.rank==1, self.zeroBased==true, self.rect==true, self.rail==true}],datCnt:x10.lang.Int,pcnt:x10.lang.Int,opFunc:(x10.array.Array[x10.lang.Double]{self.rail==true, self.rank==1},x10.array.Array[x10.lang.Double]{self.rail==true, self.rank==1},x10.lang.Int)=>x10.lang.Int): void.</TT>
+               x10.lang. Fun_0_3&lt;x10.regionarray.Array&lt;x10.lang.Double&gt;,x10.regionarray.Array&lt;x10.lang.Double&gt;,x10.lang.Int,x10.lang.Int&gt;&nbsp;opFunc)</code>
+<div class="block"><B>Declaration:</B> <TT>x10ReduceToHere(dat:x10.lang.PlaceLocalHandle[x10.regionarray.Array[x10.lang.Double]{self.rank==1, self.zeroBased==true, self.rect==true, self.rail==true}],tmp:x10.lang.PlaceLocalHandle[x10.regionarray.Array[x10.lang.Double]{self.rank==1, self.zeroBased==true, self.rect==true, self.rail==true}],datCnt:x10.lang.Int,pcnt:x10.lang.Int,opFunc:(x10.regionarray.Array[x10.lang.Double]{self.rail==true, self.rank==1},x10.regionarray.Array[x10.lang.Double]{self.rail==true, self.rank==1},x10.lang.Int)=>x10.lang.Int): void.</TT>
 Binary recursive reduce sum.</div>
 </td>
 </tr>
 <tr class="rowColor">
 <td class="colFirst"><code>static void</code></td>
-<td class="colLast"><code><strong><a href="../../../x10/matrix/comm/ArrayReduce.html#allReduce(x10.lang.PlaceLocalHandle[x10.array.Array[x10.lang.Double]],x10.lang.PlaceLocalHandle[x10.array.Array[x10.lang.Double]],x10.lang.Int,(x10.array.Array[x10.lang.Double],x10.array.Array[x10.lang.Double],x10.lang.Int)=">allReduce</a></strong>(x10.lang.PlaceLocalHandle&lt;x10.array.Array&lt;x10.lang.Double&gt;&gt;&nbsp;dat,
-         x10.lang.PlaceLocalHandle&lt;x10.array.Array&lt;x10.lang.Double&gt;&gt;&nbsp;tmp,
+<td class="colLast"><code><strong><a href="../../../x10/matrix/comm/ArrayReduce.html#allReduce(x10.lang.PlaceLocalHandle[x10.regionarray.Array[x10.lang.Double]],x10.lang.PlaceLocalHandle[x10.regionarray.Array[x10.lang.Double]],x10.lang.Int,(x10.regionarray.Array[x10.lang.Double],x10.regionarray.Array[x10.lang.Double],x10.lang.Int)=">allReduce</a></strong>(x10.lang.PlaceLocalHandle&lt;x10.regionarray.Array&lt;x10.lang.Double&gt;&gt;&nbsp;dat,
+         x10.lang.PlaceLocalHandle&lt;x10.regionarray.Array&lt;x10.lang.Double&gt;&gt;&nbsp;tmp,
          x10.lang.Int&nbsp;datCnt,
-         x10.lang. Fun_0_3&lt;x10.array.Array&lt;x10.lang.Double&gt;,x10.array.Array&lt;x10.lang.Double&gt;,x10.lang.Int,x10.lang.Int&gt;&nbsp;opFunc)</code>
-<div class="block"><B>Declaration:</B> <TT>allReduce(dat:x10.lang.PlaceLocalHandle[x10.array.Array[x10.lang.Double]{self.rank==1, self.zeroBased==true, self.rect==true, self.rail==true}],tmp:x10.lang.PlaceLocalHandle[x10.array.Array[x10.lang.Double]{self.rank==1, self.zeroBased==true, self.rect==true, self.rail==true}],datCnt:x10.lang.Int,opFunc:(x10.array.Array[x10.lang.Double]{self.rail==true, self.rank==1},x10.array.Array[x10.lang.Double]{self.rail==true, self.rank==1},x10.lang.Int)=>x10.lang.Int): void.</TT>
+         x10.lang. Fun_0_3&lt;x10.regionarray.Array&lt;x10.lang.Double&gt;,x10.regionarray.Array&lt;x10.lang.Double&gt;,x10.lang.Int,x10.lang.Int&gt;&nbsp;opFunc)</code>
+<div class="block"><B>Declaration:</B> <TT>allReduce(dat:x10.lang.PlaceLocalHandle[x10.regionarray.Array[x10.lang.Double]{self.rank==1, self.zeroBased==true, self.rect==true, self.rail==true}],tmp:x10.lang.PlaceLocalHandle[x10.regionarray.Array[x10.lang.Double]{self.rank==1, self.zeroBased==true, self.rect==true, self.rail==true}],datCnt:x10.lang.Int,opFunc:(x10.regionarray.Array[x10.lang.Double]{self.rail==true, self.rank==1},x10.regionarray.Array[x10.lang.Double]{self.rail==true, self.rank==1},x10.lang.Int)=>x10.lang.Int): void.</TT>
 Perform all reduce sum operation.</div>
 </td>
 </tr>
 <tr class="altColor">
 <td class="colFirst"><code>static void</code></td>
-<td class="colLast"><code><strong><a href="../../../x10/matrix/comm/ArrayReduce.html#allReduceSum(x10.lang.PlaceLocalHandle[x10.array.Array[x10.lang.Double]],x10.lang.PlaceLocalHandle[x10.array.Array[x10.lang.Double]],x10.lang.Int)">allReduceSum</a></strong>(x10.lang.PlaceLocalHandle&lt;x10.array.Array&lt;x10.lang.Double&gt;&gt;&nbsp;dat,
-            x10.lang.PlaceLocalHandle&lt;x10.array.Array&lt;x10.lang.Double&gt;&gt;&nbsp;tmp,
+<td class="colLast"><code><strong><a href="../../../x10/matrix/comm/ArrayReduce.html#allReduceSum(x10.lang.PlaceLocalHandle[x10.regionarray.Array[x10.lang.Double]],x10.lang.PlaceLocalHandle[x10.regionarray.Array[x10.lang.Double]],x10.lang.Int)">allReduceSum</a></strong>(x10.lang.PlaceLocalHandle&lt;x10.regionarray.Array&lt;x10.lang.Double&gt;&gt;&nbsp;dat,
+            x10.lang.PlaceLocalHandle&lt;x10.regionarray.Array&lt;x10.lang.Double&gt;&gt;&nbsp;tmp,
             x10.lang.Int&nbsp;datCnt)</code>
-<div class="block"><B>Declaration:</B> <TT>allReduceSum(dat:x10.lang.PlaceLocalHandle[x10.array.Array[x10.lang.Double]{self.rank==1, self.zeroBased==true, self.rect==true, self.rail==true}],tmp:x10.lang.PlaceLocalHandle[x10.array.Array[x10.lang.Double]{self.rank==1, self.zeroBased==true, self.rect==true, self.rail==true}],datCnt:x10.lang.Int): void.</TT>
+<div class="block"><B>Declaration:</B> <TT>allReduceSum(dat:x10.lang.PlaceLocalHandle[x10.regionarray.Array[x10.lang.Double]{self.rank==1, self.zeroBased==true, self.rect==true, self.rail==true}],tmp:x10.lang.PlaceLocalHandle[x10.regionarray.Array[x10.lang.Double]{self.rank==1, self.zeroBased==true, self.rect==true, self.rail==true}],datCnt:x10.lang.Int): void.</TT>
 Perform all reduce sum operation.</div>
 </td>
 </tr>
 <tr class="rowColor">
 <td class="colFirst"><code>protected static void</code></td>
-<td class="colLast"><code><strong><a href="../../../x10/matrix/comm/ArrayReduce.html#mpiAllReduceSum(x10.lang.PlaceLocalHandle[x10.array.Array[x10.lang.Double]],x10.lang.PlaceLocalHandle[x10.array.Array[x10.lang.Double]],x10.lang.Int)">mpiAllReduceSum</a></strong>(x10.lang.PlaceLocalHandle&lt;x10.array.Array&lt;x10.lang.Double&gt;&gt;&nbsp;dat,
-               x10.lang.PlaceLocalHandle&lt;x10.array.Array&lt;x10.lang.Double&gt;&gt;&nbsp;tmp,
+<td class="colLast"><code><strong><a href="../../../x10/matrix/comm/ArrayReduce.html#mpiAllReduceSum(x10.lang.PlaceLocalHandle[x10.regionarray.Array[x10.lang.Double]],x10.lang.PlaceLocalHandle[x10.regionarray.Array[x10.lang.Double]],x10.lang.Int)">mpiAllReduceSum</a></strong>(x10.lang.PlaceLocalHandle&lt;x10.regionarray.Array&lt;x10.lang.Double&gt;&gt;&nbsp;dat,
+               x10.lang.PlaceLocalHandle&lt;x10.regionarray.Array&lt;x10.lang.Double&gt;&gt;&nbsp;tmp,
                x10.lang.Int&nbsp;datCnt)</code>
-<div class="block"><B>Declaration:</B> <TT>mpiAllReduceSum(dat:x10.lang.PlaceLocalHandle[x10.array.Array[x10.lang.Double]{self.rank==1, self.zeroBased==true, self.rect==true, self.rail==true}],tmp:x10.lang.PlaceLocalHandle[x10.array.Array[x10.lang.Double]{self.rank==1, self.zeroBased==true, self.rect==true, self.rail==true}],datCnt:x10.lang.Int): void.</TT>
+<div class="block"><B>Declaration:</B> <TT>mpiAllReduceSum(dat:x10.lang.PlaceLocalHandle[x10.regionarray.Array[x10.lang.Double]{self.rank==1, self.zeroBased==true, self.rect==true, self.rail==true}],tmp:x10.lang.PlaceLocalHandle[x10.regionarray.Array[x10.lang.Double]{self.rank==1, self.zeroBased==true, self.rect==true, self.rail==true}],datCnt:x10.lang.Int): void.</TT>
 Perform all reduce sum operation.</div>
 </td>
 </tr>
 <tr class="altColor">
 <td class="colFirst"><code>protected static void</code></td>
-<td class="colLast"><code><strong><a href="../../../x10/matrix/comm/ArrayReduce.html#x10AllReduce(x10.lang.PlaceLocalHandle[x10.array.Array[x10.lang.Double]],x10.lang.PlaceLocalHandle[x10.array.Array[x10.lang.Double]],x10.lang.Int,(x10.array.Array[x10.lang.Double],x10.array.Array[x10.lang.Double],x10.lang.Int)=">x10AllReduce</a></strong>(x10.lang.PlaceLocalHandle&lt;x10.array.Array&lt;x10.lang.Double&gt;&gt;&nbsp;dat,
-            x10.lang.PlaceLocalHandle&lt;x10.array.Array&lt;x10.lang.Double&gt;&gt;&nbsp;tmp,
+<td class="colLast"><code><strong><a href="../../../x10/matrix/comm/ArrayReduce.html#x10AllReduce(x10.lang.PlaceLocalHandle[x10.regionarray.Array[x10.lang.Double]],x10.lang.PlaceLocalHandle[x10.regionarray.Array[x10.lang.Double]],x10.lang.Int,(x10.regionarray.Array[x10.lang.Double],x10.regionarray.Array[x10.lang.Double],x10.lang.Int)=">x10AllReduce</a></strong>(x10.lang.PlaceLocalHandle&lt;x10.regionarray.Array&lt;x10.lang.Double&gt;&gt;&nbsp;dat,
+            x10.lang.PlaceLocalHandle&lt;x10.regionarray.Array&lt;x10.lang.Double&gt;&gt;&nbsp;tmp,
             x10.lang.Int&nbsp;datCnt,
-            x10.lang. Fun_0_3&lt;x10.array.Array&lt;x10.lang.Double&gt;,x10.array.Array&lt;x10.lang.Double&gt;,x10.lang.Int,x10.lang.Int&gt;&nbsp;opFunc)</code>
-<div class="block"><B>Declaration:</B> <TT>x10AllReduce(dat:x10.lang.PlaceLocalHandle[x10.array.Array[x10.lang.Double]{self.rank==1, self.zeroBased==true, self.rect==true, self.rail==true}],tmp:x10.lang.PlaceLocalHandle[x10.array.Array[x10.lang.Double]{self.rank==1, self.zeroBased==true, self.rect==true, self.rail==true}],datCnt:x10.lang.Int,opFunc:(x10.array.Array[x10.lang.Double]{self.rail==true, self.rank==1},x10.array.Array[x10.lang.Double]{self.rail==true, self.rank==1},x10.lang.Int)=>x10.lang.Int): void.</TT>
+            x10.lang. Fun_0_3&lt;x10.regionarray.Array&lt;x10.lang.Double&gt;,x10.regionarray.Array&lt;x10.lang.Double&gt;,x10.lang.Int,x10.lang.Int&gt;&nbsp;opFunc)</code>
+<div class="block"><B>Declaration:</B> <TT>x10AllReduce(dat:x10.lang.PlaceLocalHandle[x10.regionarray.Array[x10.lang.Double]{self.rank==1, self.zeroBased==true, self.rect==true, self.rail==true}],tmp:x10.lang.PlaceLocalHandle[x10.regionarray.Array[x10.lang.Double]{self.rank==1, self.zeroBased==true, self.rect==true, self.rail==true}],datCnt:x10.lang.Int,opFunc:(x10.regionarray.Array[x10.lang.Double]{self.rail==true, self.rank==1},x10.regionarray.Array[x10.lang.Double]{self.rail==true, self.rank==1},x10.lang.Int)=>x10.lang.Int): void.</TT>
 </div>
 </td>
 </tr>
 <tr class="rowColor">
 <td class="colFirst"><code>static void</code></td>
-<td class="colLast"><code><strong><a href="../../../x10/matrix/comm/ArrayReduce.html#reduceSum(x10.lang.PlaceLocalHandle[x10.array.Array[x10.lang.Double]],x10.array.Array[x10.lang.Double],x10.lang.Int,x10.array.Array[x10.lang.Int])">reduceSum</a></strong>(x10.lang.PlaceLocalHandle&lt;x10.array.Array&lt;x10.lang.Double&gt;&gt;&nbsp;dat,
-         x10.array.Array&lt;x10.lang.Double&gt;&nbsp;tmp,
+<td class="colLast"><code><strong><a href="../../../x10/matrix/comm/ArrayReduce.html#reduceSum(x10.lang.PlaceLocalHandle[x10.regionarray.Array[x10.lang.Double]],x10.regionarray.Array[x10.lang.Double],x10.lang.Int,x10.regionarray.Array[x10.lang.Int])">reduceSum</a></strong>(x10.lang.PlaceLocalHandle&lt;x10.regionarray.Array&lt;x10.lang.Double&gt;&gt;&nbsp;dat,
+         x10.regionarray.Array&lt;x10.lang.Double&gt;&nbsp;tmp,
          x10.lang.Int&nbsp;datCnt,
-         x10.array.Array&lt;x10.lang.Int&gt;&nbsp;plist)</code>
-<div class="block"><B>Declaration:</B> <TT>reduceSum(dat:x10.lang.PlaceLocalHandle[x10.array.Array[x10.lang.Double]{self.rank==1, self.zeroBased==true, self.rect==true, self.rail==true}],tmp:x10.array.Array[x10.lang.Double]{self.rank==1},datCnt:x10.lang.Int,plist:x10.array.Array[x10.lang.Int]{self.rank==1}): void.</TT>
+         x10.regionarray.Array&lt;x10.lang.Int&gt;&nbsp;plist)</code>
+<div class="block"><B>Declaration:</B> <TT>reduceSum(dat:x10.lang.PlaceLocalHandle[x10.regionarray.Array[x10.lang.Double]{self.rank==1, self.zeroBased==true, self.rect==true, self.rail==true}],tmp:x10.regionarray.Array[x10.lang.Double]{self.rank==1},datCnt:x10.lang.Int,plist:x10.regionarray.Array[x10.lang.Int]{self.rank==1}): void.</TT>
 Perform reduce sum of all array data accessed via PlaceLocalHandle
 from specified list of places.</div>
 </td>
@@ -254,7 +254,7 @@ can be accessed via PlaceLocalHandle structure in all places.</div>
 <!--   -->
 </a>
 <h3>Methods inherited from class&nbsp;x10.matrix.comm.<a href="../../../x10/matrix/comm/ArrayRemoteCopy.html" title="class in x10.matrix.comm">ArrayRemoteCopy</a></h3>
-<code><a href="../../../x10/matrix/comm/ArrayRemoteCopy.html#copy(x10.array.Array[x10.lang.Double],x10.lang.Int,x10.lang.PlaceLocalHandle[x10.array.Array[x10.lang.Double]],x10.lang.Int,x10.lang.Int,x10.lang.Int)">copy</a>, <a href="../../../x10/matrix/comm/ArrayRemoteCopy.html#mpiCopy(x10.array.Array[x10.lang.Double],x10.lang.Int,x10.lang.PlaceLocalHandle[x10.array.Array[x10.lang.Double]],x10.lang.Int,x10.lang.Int,x10.lang.Int)">mpiCopy</a>, <a href="../../../x10/matrix/comm/ArrayRemoteCopy.html#x10Copy(x10.array.Array[x10.lang.Double],x10.lang.Int,x10.lang.PlaceLocalHandle[x10.array.Array[x10.lang.Double]],x10.lang.Int,x10.lang.Int,x10.lang.Int)">x10Copy</a>, <a href="../../../x10/matrix/comm/ArrayRemoteCopy.html#x10Copy(x10.array.Array[x10.lang.Double],x10.lang.Int,x10.array.DistArray[x10.array.Array[x10.lang.Double]],x10.lang.Int,x10.lang.Int,x10.lang.Int)">x10Copy</a>, <a href="../../../x10/matrix/comm/ArrayRemoteCopy.html#copy(x10.lang.PlaceLocalHandle[x10.array.Array[x10.lang.Double]],x10.lang.Int,x10.lang.Int,x10.array.Array[x10.lang.Double],x10.lang.Int,x10.lang.Int)">copy</a>, <a href="../../../x10/matrix/comm/ArrayRemoteCopy.html#mpiCopy(x10.lang.PlaceLocalHandle[x10.array.Array[x10.lang.Double]],x10.lang.Int,x10.lang.Int,x10.array.Array[x10.lang.Double],x10.lang.Int,x10.lang.Int)">mpiCopy</a>, <a href="../../../x10/matrix/comm/ArrayRemoteCopy.html#x10Copy(x10.lang.PlaceLocalHandle[x10.array.Array[x10.lang.Double]],x10.lang.Int,x10.lang.Int,x10.array.Array[x10.lang.Double],x10.lang.Int,x10.lang.Int)">x10Copy</a>, <a href="../../../x10/matrix/comm/ArrayRemoteCopy.html#copy(x10.matrix.sparse.CompressArray,x10.lang.Int,x10.lang.PlaceLocalHandle[x10.matrix.sparse.CompressArray],x10.lang.Int,x10.lang.Int,x10.lang.Int)">copy</a>, <a href="../../../x10/matrix/comm/ArrayRemoteCopy.html#mpiCopy(x10.matrix.sparse.CompressArray,x10.lang.Int,x10.lang.PlaceLocalHandle[x10.matrix.sparse.CompressArray],x10.lang.Int,x10.lang.Int,x10.lang.Int)">mpiCopy</a>, <a href="../../../x10/matrix/comm/ArrayRemoteCopy.html#x10Copy(x10.matrix.sparse.CompressArray,x10.lang.Int,x10.lang.PlaceLocalHandle[x10.matrix.sparse.CompressArray],x10.lang.Int,x10.lang.Int,x10.lang.Int)">x10Copy</a>, <a href="../../../x10/matrix/comm/ArrayRemoteCopy.html#copy(x10.lang.PlaceLocalHandle[x10.matrix.sparse.CompressArray],x10.lang.Int,x10.lang.Int,x10.matrix.sparse.CompressArray,x10.lang.Int,x10.lang.Int)">copy</a>, <a href="../../../x10/matrix/comm/ArrayRemoteCopy.html#mpiCopy(x10.lang.PlaceLocalHandle[x10.matrix.sparse.CompressArray],x10.lang.Int,x10.lang.Int,x10.matrix.sparse.CompressArray,x10.lang.Int,x10.lang.Int)">mpiCopy</a>, <a href="../../../x10/matrix/comm/ArrayRemoteCopy.html#x10Copy(x10.lang.PlaceLocalHandle[x10.matrix.sparse.CompressArray],x10.lang.Int,x10.lang.Int,x10.matrix.sparse.CompressArray,x10.lang.Int,x10.lang.Int)">x10Copy</a>, <a href="../../../x10/matrix/comm/ArrayRemoteCopy.html#x10$matrix$comm$ArrayRemoteCopy$$this$x10$matrix$comm$ArrayRemoteCopy()">x10$matrix$comm$ArrayRemoteCopy$$this$x10$matrix$comm$ArrayRemoteCopy</a></code></li>
+<code><a href="../../../x10/matrix/comm/ArrayRemoteCopy.html#copy(x10.regionarray.Array[x10.lang.Double],x10.lang.Int,x10.lang.PlaceLocalHandle[x10.regionarray.Array[x10.lang.Double]],x10.lang.Int,x10.lang.Int,x10.lang.Int)">copy</a>, <a href="../../../x10/matrix/comm/ArrayRemoteCopy.html#mpiCopy(x10.regionarray.Array[x10.lang.Double],x10.lang.Int,x10.lang.PlaceLocalHandle[x10.regionarray.Array[x10.lang.Double]],x10.lang.Int,x10.lang.Int,x10.lang.Int)">mpiCopy</a>, <a href="../../../x10/matrix/comm/ArrayRemoteCopy.html#x10Copy(x10.regionarray.Array[x10.lang.Double],x10.lang.Int,x10.lang.PlaceLocalHandle[x10.regionarray.Array[x10.lang.Double]],x10.lang.Int,x10.lang.Int,x10.lang.Int)">x10Copy</a>, <a href="../../../x10/matrix/comm/ArrayRemoteCopy.html#x10Copy(x10.regionarray.Array[x10.lang.Double],x10.lang.Int,x10.regionarray.DistArray[x10.regionarray.Array[x10.lang.Double]],x10.lang.Int,x10.lang.Int,x10.lang.Int)">x10Copy</a>, <a href="../../../x10/matrix/comm/ArrayRemoteCopy.html#copy(x10.lang.PlaceLocalHandle[x10.regionarray.Array[x10.lang.Double]],x10.lang.Int,x10.lang.Int,x10.regionarray.Array[x10.lang.Double],x10.lang.Int,x10.lang.Int)">copy</a>, <a href="../../../x10/matrix/comm/ArrayRemoteCopy.html#mpiCopy(x10.lang.PlaceLocalHandle[x10.regionarray.Array[x10.lang.Double]],x10.lang.Int,x10.lang.Int,x10.regionarray.Array[x10.lang.Double],x10.lang.Int,x10.lang.Int)">mpiCopy</a>, <a href="../../../x10/matrix/comm/ArrayRemoteCopy.html#x10Copy(x10.lang.PlaceLocalHandle[x10.regionarray.Array[x10.lang.Double]],x10.lang.Int,x10.lang.Int,x10.regionarray.Array[x10.lang.Double],x10.lang.Int,x10.lang.Int)">x10Copy</a>, <a href="../../../x10/matrix/comm/ArrayRemoteCopy.html#copy(x10.matrix.sparse.CompressArray,x10.lang.Int,x10.lang.PlaceLocalHandle[x10.matrix.sparse.CompressArray],x10.lang.Int,x10.lang.Int,x10.lang.Int)">copy</a>, <a href="../../../x10/matrix/comm/ArrayRemoteCopy.html#mpiCopy(x10.matrix.sparse.CompressArray,x10.lang.Int,x10.lang.PlaceLocalHandle[x10.matrix.sparse.CompressArray],x10.lang.Int,x10.lang.Int,x10.lang.Int)">mpiCopy</a>, <a href="../../../x10/matrix/comm/ArrayRemoteCopy.html#x10Copy(x10.matrix.sparse.CompressArray,x10.lang.Int,x10.lang.PlaceLocalHandle[x10.matrix.sparse.CompressArray],x10.lang.Int,x10.lang.Int,x10.lang.Int)">x10Copy</a>, <a href="../../../x10/matrix/comm/ArrayRemoteCopy.html#copy(x10.lang.PlaceLocalHandle[x10.matrix.sparse.CompressArray],x10.lang.Int,x10.lang.Int,x10.matrix.sparse.CompressArray,x10.lang.Int,x10.lang.Int)">copy</a>, <a href="../../../x10/matrix/comm/ArrayRemoteCopy.html#mpiCopy(x10.lang.PlaceLocalHandle[x10.matrix.sparse.CompressArray],x10.lang.Int,x10.lang.Int,x10.matrix.sparse.CompressArray,x10.lang.Int,x10.lang.Int)">mpiCopy</a>, <a href="../../../x10/matrix/comm/ArrayRemoteCopy.html#x10Copy(x10.lang.PlaceLocalHandle[x10.matrix.sparse.CompressArray],x10.lang.Int,x10.lang.Int,x10.matrix.sparse.CompressArray,x10.lang.Int,x10.lang.Int)">x10Copy</a>, <a href="../../../x10/matrix/comm/ArrayRemoteCopy.html#x10$matrix$comm$ArrayRemoteCopy$$this$x10$matrix$comm$ArrayRemoteCopy()">x10$matrix$comm$ArrayRemoteCopy$$this$x10$matrix$comm$ArrayRemoteCopy</a></code></li>
 </ul>
 </li>
 </ul>
@@ -287,151 +287,151 @@ can be accessed via PlaceLocalHandle structure in all places.</div>
 <!--   -->
 </a>
 <h3>Method Detail</h3>
-<a name="arraySum(x10.array.Array[x10.lang.Double],x10.array.Array[x10.lang.Double],x10.lang.Int)">
+<a name="arraySum(x10.regionarray.Array[x10.lang.Double],x10.regionarray.Array[x10.lang.Double],x10.lang.Int)">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
 <h4>arraySum</h4>
-<pre>public static&nbsp;x10.lang.Int&nbsp;arraySum(x10.array.Array&lt;x10.lang.Double&gt;&nbsp;src,
-                    x10.array.Array&lt;x10.lang.Double&gt;&nbsp;dst,
+<pre>public static&nbsp;x10.lang.Int&nbsp;arraySum(x10.regionarray.Array&lt;x10.lang.Double&gt;&nbsp;src,
+                    x10.regionarray.Array&lt;x10.lang.Double&gt;&nbsp;dst,
                     x10.lang.Int&nbsp;cnt)</pre>
-<div class="block"><B>Declaration:</B> <TT>arraySum(src:x10.array.Array[x10.lang.Double]{self.rail==true, self.rank==1},dst:x10.array.Array[x10.lang.Double]{self.rail==true, self.rank==1},cnt:x10.lang.Int): x10.lang.Int.</TT><PRE>
+<div class="block"><B>Declaration:</B> <TT>arraySum(src:x10.regionarray.Array[x10.lang.Double]{self.rail==true, self.rank==1},dst:x10.regionarray.Array[x10.lang.Double]{self.rail==true, self.rank==1},cnt:x10.lang.Int): x10.lang.Int.</TT><PRE>
 </PRE></div>
 </li>
 </ul>
-<a name="reduce(x10.lang.PlaceLocalHandle[x10.array.Array[x10.lang.Double]],x10.lang.PlaceLocalHandle[x10.array.Array[x10.lang.Double]],x10.lang.Int,(x10.array.Array[x10.lang.Double],x10.array.Array[x10.lang.Double],x10.lang.Int)=">
+<a name="reduce(x10.lang.PlaceLocalHandle[x10.regionarray.Array[x10.lang.Double]],x10.lang.PlaceLocalHandle[x10.regionarray.Array[x10.lang.Double]],x10.lang.Int,(x10.regionarray.Array[x10.lang.Double],x10.regionarray.Array[x10.lang.Double],x10.lang.Int)=">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
 <h4>reduce</h4>
-<pre>public static&nbsp;void&nbsp;reduce(x10.lang.PlaceLocalHandle&lt;x10.array.Array&lt;x10.lang.Double&gt;&gt;&nbsp;dat,
-          x10.lang.PlaceLocalHandle&lt;x10.array.Array&lt;x10.lang.Double&gt;&gt;&nbsp;tmp,
+<pre>public static&nbsp;void&nbsp;reduce(x10.lang.PlaceLocalHandle&lt;x10.regionarray.Array&lt;x10.lang.Double&gt;&gt;&nbsp;dat,
+          x10.lang.PlaceLocalHandle&lt;x10.regionarray.Array&lt;x10.lang.Double&gt;&gt;&nbsp;tmp,
           x10.lang.Int&nbsp;datCnt,
-          x10.lang. Fun_0_3&lt;x10.array.Array&lt;x10.lang.Double&gt;,x10.array.Array&lt;x10.lang.Double&gt;,x10.lang.Int,x10.lang.Int&gt;&nbsp;opFunc)</pre>
-<div class="block"><B>Declaration:</B> <TT>reduce(dat:x10.lang.PlaceLocalHandle[x10.array.Array[x10.lang.Double]{self.rank==1, self.zeroBased==true, self.rect==true, self.rail==true}],tmp:x10.lang.PlaceLocalHandle[x10.array.Array[x10.lang.Double]{self.rank==1, self.zeroBased==true, self.rect==true, self.rail==true}],datCnt:x10.lang.Int,opFunc:(x10.array.Array[x10.lang.Double]{self.rail==true, self.rank==1},x10.array.Array[x10.lang.Double]{self.rail==true, self.rank==1},x10.lang.Int)=>x10.lang.Int): void.</TT><PRE>
+          x10.lang. Fun_0_3&lt;x10.regionarray.Array&lt;x10.lang.Double&gt;,x10.regionarray.Array&lt;x10.lang.Double&gt;,x10.lang.Int,x10.lang.Int&gt;&nbsp;opFunc)</pre>
+<div class="block"><B>Declaration:</B> <TT>reduce(dat:x10.lang.PlaceLocalHandle[x10.regionarray.Array[x10.lang.Double]{self.rank==1, self.zeroBased==true, self.rect==true, self.rail==true}],tmp:x10.lang.PlaceLocalHandle[x10.regionarray.Array[x10.lang.Double]{self.rank==1, self.zeroBased==true, self.rect==true, self.rail==true}],datCnt:x10.lang.Int,opFunc:(x10.regionarray.Array[x10.lang.Double]{self.rail==true, self.rank==1},x10.regionarray.Array[x10.lang.Double]{self.rail==true, self.rank==1},x10.lang.Int)=>x10.lang.Int): void.</TT><PRE>
 </PRE>Reduce data array by adding them together.</div>
 <dl><dt><span class="strong">Parameters:</span></dt><dd><code>ddmat</code> - Distributed storage for input and output data arrays</dd><dd><code>ddtmp</code> - Temp distributed storage.</dd><dd><code>datcnt</code> - count of double-precision data elements</dd></dl>
 </li>
 </ul>
-<a name="reduceSum(x10.lang.PlaceLocalHandle[x10.array.Array[x10.lang.Double]],x10.lang.PlaceLocalHandle[x10.array.Array[x10.lang.Double]],x10.lang.Int)">
+<a name="reduceSum(x10.lang.PlaceLocalHandle[x10.regionarray.Array[x10.lang.Double]],x10.lang.PlaceLocalHandle[x10.regionarray.Array[x10.lang.Double]],x10.lang.Int)">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
 <h4>reduceSum</h4>
-<pre>public static&nbsp;void&nbsp;reduceSum(x10.lang.PlaceLocalHandle&lt;x10.array.Array&lt;x10.lang.Double&gt;&gt;&nbsp;dat,
-             x10.lang.PlaceLocalHandle&lt;x10.array.Array&lt;x10.lang.Double&gt;&gt;&nbsp;tmp,
+<pre>public static&nbsp;void&nbsp;reduceSum(x10.lang.PlaceLocalHandle&lt;x10.regionarray.Array&lt;x10.lang.Double&gt;&gt;&nbsp;dat,
+             x10.lang.PlaceLocalHandle&lt;x10.regionarray.Array&lt;x10.lang.Double&gt;&gt;&nbsp;tmp,
              x10.lang.Int&nbsp;datCnt)</pre>
-<div class="block"><B>Declaration:</B> <TT>reduceSum(dat:x10.lang.PlaceLocalHandle[x10.array.Array[x10.lang.Double]{self.rank==1, self.zeroBased==true, self.rect==true, self.rail==true}],tmp:x10.lang.PlaceLocalHandle[x10.array.Array[x10.lang.Double]{self.rank==1, self.zeroBased==true, self.rect==true, self.rail==true}],datCnt:x10.lang.Int): void.</TT><PRE>
+<div class="block"><B>Declaration:</B> <TT>reduceSum(dat:x10.lang.PlaceLocalHandle[x10.regionarray.Array[x10.lang.Double]{self.rank==1, self.zeroBased==true, self.rect==true, self.rail==true}],tmp:x10.lang.PlaceLocalHandle[x10.regionarray.Array[x10.lang.Double]{self.rank==1, self.zeroBased==true, self.rect==true, self.rail==true}],datCnt:x10.lang.Int): void.</TT><PRE>
 </PRE>Reduce data array by adding them together.</div>
 <dl><dt><span class="strong">Parameters:</span></dt><dd><code>ddmat</code> - Distributed storage for input and output data arrays</dd><dd><code>ddtmp</code> - Temp distributed storage.</dd><dd><code>datcnt</code> - count of double-precision data elements</dd></dl>
 </li>
 </ul>
-<a name="mpiReduceSum(x10.lang.PlaceLocalHandle[x10.array.Array[x10.lang.Double]],x10.lang.PlaceLocalHandle[x10.array.Array[x10.lang.Double]],x10.lang.Int)">
+<a name="mpiReduceSum(x10.lang.PlaceLocalHandle[x10.regionarray.Array[x10.lang.Double]],x10.lang.PlaceLocalHandle[x10.regionarray.Array[x10.lang.Double]],x10.lang.Int)">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
 <h4>mpiReduceSum</h4>
-<pre>public static&nbsp;void&nbsp;mpiReduceSum(x10.lang.PlaceLocalHandle&lt;x10.array.Array&lt;x10.lang.Double&gt;&gt;&nbsp;dat,
-                x10.lang.PlaceLocalHandle&lt;x10.array.Array&lt;x10.lang.Double&gt;&gt;&nbsp;tmp,
+<pre>public static&nbsp;void&nbsp;mpiReduceSum(x10.lang.PlaceLocalHandle&lt;x10.regionarray.Array&lt;x10.lang.Double&gt;&gt;&nbsp;dat,
+                x10.lang.PlaceLocalHandle&lt;x10.regionarray.Array&lt;x10.lang.Double&gt;&gt;&nbsp;tmp,
                 x10.lang.Int&nbsp;datCnt)</pre>
-<div class="block"><B>Declaration:</B> <TT>mpiReduceSum(dat:x10.lang.PlaceLocalHandle[x10.array.Array[x10.lang.Double]{self.rank==1, self.zeroBased==true, self.rect==true, self.rail==true}],tmp:x10.lang.PlaceLocalHandle[x10.array.Array[x10.lang.Double]{self.rank==1, self.zeroBased==true, self.rect==true, self.rail==true}],datCnt:x10.lang.Int): void.</TT><PRE>
+<div class="block"><B>Declaration:</B> <TT>mpiReduceSum(dat:x10.lang.PlaceLocalHandle[x10.regionarray.Array[x10.lang.Double]{self.rank==1, self.zeroBased==true, self.rect==true, self.rail==true}],tmp:x10.lang.PlaceLocalHandle[x10.regionarray.Array[x10.lang.Double]{self.rank==1, self.zeroBased==true, self.rect==true, self.rail==true}],datCnt:x10.lang.Int): void.</TT><PRE>
 </PRE>Reduce arrays from all places to here by adding them together.</div>
 <dl><dt><span class="strong">Parameters:</span></dt><dd><code>ddmat</code> - Distributed storage for input and output data arrays.</dd><dd><code>ddtmp</code> - Temp distributed storage</dd><dd><code>datCnt</code> - count of data in array</dd></dl>
 </li>
 </ul>
-<a name="x10ReduceToHere(x10.lang.PlaceLocalHandle[x10.array.Array[x10.lang.Double]],x10.lang.PlaceLocalHandle[x10.array.Array[x10.lang.Double]],x10.lang.Int,x10.lang.Int,(x10.array.Array[x10.lang.Double],x10.array.Array[x10.lang.Double],x10.lang.Int)=">
+<a name="x10ReduceToHere(x10.lang.PlaceLocalHandle[x10.regionarray.Array[x10.lang.Double]],x10.lang.PlaceLocalHandle[x10.regionarray.Array[x10.lang.Double]],x10.lang.Int,x10.lang.Int,(x10.regionarray.Array[x10.lang.Double],x10.regionarray.Array[x10.lang.Double],x10.lang.Int)=">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
 <h4>x10ReduceToHere</h4>
-<pre>protected static&nbsp;void&nbsp;x10ReduceToHere(x10.lang.PlaceLocalHandle&lt;x10.array.Array&lt;x10.lang.Double&gt;&gt;&nbsp;dat,
-                   x10.lang.PlaceLocalHandle&lt;x10.array.Array&lt;x10.lang.Double&gt;&gt;&nbsp;tmp,
+<pre>protected static&nbsp;void&nbsp;x10ReduceToHere(x10.lang.PlaceLocalHandle&lt;x10.regionarray.Array&lt;x10.lang.Double&gt;&gt;&nbsp;dat,
+                   x10.lang.PlaceLocalHandle&lt;x10.regionarray.Array&lt;x10.lang.Double&gt;&gt;&nbsp;tmp,
                    x10.lang.Int&nbsp;datCnt,
                    x10.lang.Int&nbsp;pcnt,
-                   x10.lang. Fun_0_3&lt;x10.array.Array&lt;x10.lang.Double&gt;,x10.array.Array&lt;x10.lang.Double&gt;,x10.lang.Int,x10.lang.Int&gt;&nbsp;opFunc)</pre>
-<div class="block"><B>Declaration:</B> <TT>x10ReduceToHere(dat:x10.lang.PlaceLocalHandle[x10.array.Array[x10.lang.Double]{self.rank==1, self.zeroBased==true, self.rect==true, self.rail==true}],tmp:x10.lang.PlaceLocalHandle[x10.array.Array[x10.lang.Double]{self.rank==1, self.zeroBased==true, self.rect==true, self.rail==true}],datCnt:x10.lang.Int,pcnt:x10.lang.Int,opFunc:(x10.array.Array[x10.lang.Double]{self.rail==true, self.rank==1},x10.array.Array[x10.lang.Double]{self.rail==true, self.rank==1},x10.lang.Int)=>x10.lang.Int): void.</TT><PRE>
+                   x10.lang. Fun_0_3&lt;x10.regionarray.Array&lt;x10.lang.Double&gt;,x10.regionarray.Array&lt;x10.lang.Double&gt;,x10.lang.Int,x10.lang.Int&gt;&nbsp;opFunc)</pre>
+<div class="block"><B>Declaration:</B> <TT>x10ReduceToHere(dat:x10.lang.PlaceLocalHandle[x10.regionarray.Array[x10.lang.Double]{self.rank==1, self.zeroBased==true, self.rect==true, self.rail==true}],tmp:x10.lang.PlaceLocalHandle[x10.regionarray.Array[x10.lang.Double]{self.rank==1, self.zeroBased==true, self.rect==true, self.rail==true}],datCnt:x10.lang.Int,pcnt:x10.lang.Int,opFunc:(x10.regionarray.Array[x10.lang.Double]{self.rail==true, self.rank==1},x10.regionarray.Array[x10.lang.Double]{self.rail==true, self.rank==1},x10.lang.Int)=>x10.lang.Int): void.</TT><PRE>
 </PRE>Binary recursive reduce sum.
 Notice dat is input and output data array.</div>
 </li>
 </ul>
-<a name="allReduce(x10.lang.PlaceLocalHandle[x10.array.Array[x10.lang.Double]],x10.lang.PlaceLocalHandle[x10.array.Array[x10.lang.Double]],x10.lang.Int,(x10.array.Array[x10.lang.Double],x10.array.Array[x10.lang.Double],x10.lang.Int)=">
+<a name="allReduce(x10.lang.PlaceLocalHandle[x10.regionarray.Array[x10.lang.Double]],x10.lang.PlaceLocalHandle[x10.regionarray.Array[x10.lang.Double]],x10.lang.Int,(x10.regionarray.Array[x10.lang.Double],x10.regionarray.Array[x10.lang.Double],x10.lang.Int)=">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
 <h4>allReduce</h4>
-<pre>public static&nbsp;void&nbsp;allReduce(x10.lang.PlaceLocalHandle&lt;x10.array.Array&lt;x10.lang.Double&gt;&gt;&nbsp;dat,
-             x10.lang.PlaceLocalHandle&lt;x10.array.Array&lt;x10.lang.Double&gt;&gt;&nbsp;tmp,
+<pre>public static&nbsp;void&nbsp;allReduce(x10.lang.PlaceLocalHandle&lt;x10.regionarray.Array&lt;x10.lang.Double&gt;&gt;&nbsp;dat,
+             x10.lang.PlaceLocalHandle&lt;x10.regionarray.Array&lt;x10.lang.Double&gt;&gt;&nbsp;tmp,
              x10.lang.Int&nbsp;datCnt,
-             x10.lang. Fun_0_3&lt;x10.array.Array&lt;x10.lang.Double&gt;,x10.array.Array&lt;x10.lang.Double&gt;,x10.lang.Int,x10.lang.Int&gt;&nbsp;opFunc)</pre>
-<div class="block"><B>Declaration:</B> <TT>allReduce(dat:x10.lang.PlaceLocalHandle[x10.array.Array[x10.lang.Double]{self.rank==1, self.zeroBased==true, self.rect==true, self.rail==true}],tmp:x10.lang.PlaceLocalHandle[x10.array.Array[x10.lang.Double]{self.rank==1, self.zeroBased==true, self.rect==true, self.rail==true}],datCnt:x10.lang.Int,opFunc:(x10.array.Array[x10.lang.Double]{self.rail==true, self.rank==1},x10.array.Array[x10.lang.Double]{self.rail==true, self.rank==1},x10.lang.Int)=>x10.lang.Int): void.</TT><PRE>
+             x10.lang. Fun_0_3&lt;x10.regionarray.Array&lt;x10.lang.Double&gt;,x10.regionarray.Array&lt;x10.lang.Double&gt;,x10.lang.Int,x10.lang.Int&gt;&nbsp;opFunc)</pre>
+<div class="block"><B>Declaration:</B> <TT>allReduce(dat:x10.lang.PlaceLocalHandle[x10.regionarray.Array[x10.lang.Double]{self.rank==1, self.zeroBased==true, self.rect==true, self.rail==true}],tmp:x10.lang.PlaceLocalHandle[x10.regionarray.Array[x10.lang.Double]{self.rank==1, self.zeroBased==true, self.rect==true, self.rail==true}],datCnt:x10.lang.Int,opFunc:(x10.regionarray.Array[x10.lang.Double]{self.rail==true, self.rank==1},x10.regionarray.Array[x10.lang.Double]{self.rail==true, self.rank==1},x10.lang.Int)=>x10.lang.Int): void.</TT><PRE>
 </PRE>Perform all reduce sum operation.</div>
 <dl><dt><span class="strong">Parameters:</span></dt><dd><code>ddmat</code> - distributed storage for input and output data arrays in all places.</dd><dd><code>ddtmp</code> - temp distributed storage used in inter-place communication data.
          #</dd><dd><code>datCnt</code> - count of data in array</dd><dt><span class="strong">See Also:</span></dt><dd><a href="../../../x10/matrix/comm/ArrayReduce.html" title="class in x10.matrix.comm"><code>reduceSum()
 Result is synchronized for all copies</code></a></dd></dl>
 </li>
 </ul>
-<a name="allReduceSum(x10.lang.PlaceLocalHandle[x10.array.Array[x10.lang.Double]],x10.lang.PlaceLocalHandle[x10.array.Array[x10.lang.Double]],x10.lang.Int)">
+<a name="allReduceSum(x10.lang.PlaceLocalHandle[x10.regionarray.Array[x10.lang.Double]],x10.lang.PlaceLocalHandle[x10.regionarray.Array[x10.lang.Double]],x10.lang.Int)">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
 <h4>allReduceSum</h4>
-<pre>public static&nbsp;void&nbsp;allReduceSum(x10.lang.PlaceLocalHandle&lt;x10.array.Array&lt;x10.lang.Double&gt;&gt;&nbsp;dat,
-                x10.lang.PlaceLocalHandle&lt;x10.array.Array&lt;x10.lang.Double&gt;&gt;&nbsp;tmp,
+<pre>public static&nbsp;void&nbsp;allReduceSum(x10.lang.PlaceLocalHandle&lt;x10.regionarray.Array&lt;x10.lang.Double&gt;&gt;&nbsp;dat,
+                x10.lang.PlaceLocalHandle&lt;x10.regionarray.Array&lt;x10.lang.Double&gt;&gt;&nbsp;tmp,
                 x10.lang.Int&nbsp;datCnt)</pre>
-<div class="block"><B>Declaration:</B> <TT>allReduceSum(dat:x10.lang.PlaceLocalHandle[x10.array.Array[x10.lang.Double]{self.rank==1, self.zeroBased==true, self.rect==true, self.rail==true}],tmp:x10.lang.PlaceLocalHandle[x10.array.Array[x10.lang.Double]{self.rank==1, self.zeroBased==true, self.rect==true, self.rail==true}],datCnt:x10.lang.Int): void.</TT><PRE>
+<div class="block"><B>Declaration:</B> <TT>allReduceSum(dat:x10.lang.PlaceLocalHandle[x10.regionarray.Array[x10.lang.Double]{self.rank==1, self.zeroBased==true, self.rect==true, self.rail==true}],tmp:x10.lang.PlaceLocalHandle[x10.regionarray.Array[x10.lang.Double]{self.rank==1, self.zeroBased==true, self.rect==true, self.rail==true}],datCnt:x10.lang.Int): void.</TT><PRE>
 </PRE>Perform all reduce sum operation.</div>
 <dl><dt><span class="strong">Parameters:</span></dt><dd><code>ddmat</code> - distributed storage for input and output data arrays in all places.</dd><dd><code>ddtmp</code> - temp distributed storage used in inter-place communication data.
 #</dd><dd><code>datCnt</code> - count of data in array</dd><dt><span class="strong">See Also:</span></dt><dd><a href="../../../x10/matrix/comm/ArrayReduce.html" title="class in x10.matrix.comm"><code>reduceSum()
 Result is synchronized for all copies</code></a></dd></dl>
 </li>
 </ul>
-<a name="mpiAllReduceSum(x10.lang.PlaceLocalHandle[x10.array.Array[x10.lang.Double]],x10.lang.PlaceLocalHandle[x10.array.Array[x10.lang.Double]],x10.lang.Int)">
+<a name="mpiAllReduceSum(x10.lang.PlaceLocalHandle[x10.regionarray.Array[x10.lang.Double]],x10.lang.PlaceLocalHandle[x10.regionarray.Array[x10.lang.Double]],x10.lang.Int)">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
 <h4>mpiAllReduceSum</h4>
-<pre>protected static&nbsp;void&nbsp;mpiAllReduceSum(x10.lang.PlaceLocalHandle&lt;x10.array.Array&lt;x10.lang.Double&gt;&gt;&nbsp;dat,
-                   x10.lang.PlaceLocalHandle&lt;x10.array.Array&lt;x10.lang.Double&gt;&gt;&nbsp;tmp,
+<pre>protected static&nbsp;void&nbsp;mpiAllReduceSum(x10.lang.PlaceLocalHandle&lt;x10.regionarray.Array&lt;x10.lang.Double&gt;&gt;&nbsp;dat,
+                   x10.lang.PlaceLocalHandle&lt;x10.regionarray.Array&lt;x10.lang.Double&gt;&gt;&nbsp;tmp,
                    x10.lang.Int&nbsp;datCnt)</pre>
-<div class="block"><B>Declaration:</B> <TT>mpiAllReduceSum(dat:x10.lang.PlaceLocalHandle[x10.array.Array[x10.lang.Double]{self.rank==1, self.zeroBased==true, self.rect==true, self.rail==true}],tmp:x10.lang.PlaceLocalHandle[x10.array.Array[x10.lang.Double]{self.rank==1, self.zeroBased==true, self.rect==true, self.rail==true}],datCnt:x10.lang.Int): void.</TT><PRE>
+<div class="block"><B>Declaration:</B> <TT>mpiAllReduceSum(dat:x10.lang.PlaceLocalHandle[x10.regionarray.Array[x10.lang.Double]{self.rank==1, self.zeroBased==true, self.rect==true, self.rail==true}],tmp:x10.lang.PlaceLocalHandle[x10.regionarray.Array[x10.lang.Double]{self.rank==1, self.zeroBased==true, self.rect==true, self.rail==true}],datCnt:x10.lang.Int): void.</TT><PRE>
 </PRE>Perform all reduce sum operation.</div>
 <dl><dt><span class="strong">Parameters:</span></dt><dd><code>ddmat</code> - distributed storage for input and output data arrays.</dd><dd><code>ddtmp</code> - temp distributed storage used in inter-place communication.</dd><dd><code>datCnt</code> - count of data in array</dd><dt><span class="strong">See Also:</span></dt><dd><a href="../../../x10/matrix/comm/ArrayReduce.html" title="class in x10.matrix.comm"><code>reduceSum()
 Result is synchronized for all copies</code></a></dd></dl>
 </li>
 </ul>
-<a name="x10AllReduce(x10.lang.PlaceLocalHandle[x10.array.Array[x10.lang.Double]],x10.lang.PlaceLocalHandle[x10.array.Array[x10.lang.Double]],x10.lang.Int,(x10.array.Array[x10.lang.Double],x10.array.Array[x10.lang.Double],x10.lang.Int)=">
+<a name="x10AllReduce(x10.lang.PlaceLocalHandle[x10.regionarray.Array[x10.lang.Double]],x10.lang.PlaceLocalHandle[x10.regionarray.Array[x10.lang.Double]],x10.lang.Int,(x10.regionarray.Array[x10.lang.Double],x10.regionarray.Array[x10.lang.Double],x10.lang.Int)=">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
 <h4>x10AllReduce</h4>
-<pre>protected static&nbsp;void&nbsp;x10AllReduce(x10.lang.PlaceLocalHandle&lt;x10.array.Array&lt;x10.lang.Double&gt;&gt;&nbsp;dat,
-                x10.lang.PlaceLocalHandle&lt;x10.array.Array&lt;x10.lang.Double&gt;&gt;&nbsp;tmp,
+<pre>protected static&nbsp;void&nbsp;x10AllReduce(x10.lang.PlaceLocalHandle&lt;x10.regionarray.Array&lt;x10.lang.Double&gt;&gt;&nbsp;dat,
+                x10.lang.PlaceLocalHandle&lt;x10.regionarray.Array&lt;x10.lang.Double&gt;&gt;&nbsp;tmp,
                 x10.lang.Int&nbsp;datCnt,
-                x10.lang. Fun_0_3&lt;x10.array.Array&lt;x10.lang.Double&gt;,x10.array.Array&lt;x10.lang.Double&gt;,x10.lang.Int,x10.lang.Int&gt;&nbsp;opFunc)</pre>
-<div class="block"><B>Declaration:</B> <TT>x10AllReduce(dat:x10.lang.PlaceLocalHandle[x10.array.Array[x10.lang.Double]{self.rank==1, self.zeroBased==true, self.rect==true, self.rail==true}],tmp:x10.lang.PlaceLocalHandle[x10.array.Array[x10.lang.Double]{self.rank==1, self.zeroBased==true, self.rect==true, self.rail==true}],datCnt:x10.lang.Int,opFunc:(x10.array.Array[x10.lang.Double]{self.rail==true, self.rank==1},x10.array.Array[x10.lang.Double]{self.rail==true, self.rank==1},x10.lang.Int)=>x10.lang.Int): void.</TT><PRE>
+                x10.lang. Fun_0_3&lt;x10.regionarray.Array&lt;x10.lang.Double&gt;,x10.regionarray.Array&lt;x10.lang.Double&gt;,x10.lang.Int,x10.lang.Int&gt;&nbsp;opFunc)</pre>
+<div class="block"><B>Declaration:</B> <TT>x10AllReduce(dat:x10.lang.PlaceLocalHandle[x10.regionarray.Array[x10.lang.Double]{self.rank==1, self.zeroBased==true, self.rect==true, self.rail==true}],tmp:x10.lang.PlaceLocalHandle[x10.regionarray.Array[x10.lang.Double]{self.rank==1, self.zeroBased==true, self.rect==true, self.rail==true}],datCnt:x10.lang.Int,opFunc:(x10.regionarray.Array[x10.lang.Double]{self.rail==true, self.rank==1},x10.regionarray.Array[x10.lang.Double]{self.rail==true, self.rank==1},x10.lang.Int)=>x10.lang.Int): void.</TT><PRE>
 </PRE></div>
 </li>
 </ul>
-<a name="reduceSum(x10.lang.PlaceLocalHandle[x10.array.Array[x10.lang.Double]],x10.array.Array[x10.lang.Double],x10.lang.Int,x10.array.Array[x10.lang.Int])">
+<a name="reduceSum(x10.lang.PlaceLocalHandle[x10.regionarray.Array[x10.lang.Double]],x10.regionarray.Array[x10.lang.Double],x10.lang.Int,x10.regionarray.Array[x10.lang.Int])">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
 <h4>reduceSum</h4>
-<pre>public static&nbsp;void&nbsp;reduceSum(x10.lang.PlaceLocalHandle&lt;x10.array.Array&lt;x10.lang.Double&gt;&gt;&nbsp;dat,
-             x10.array.Array&lt;x10.lang.Double&gt;&nbsp;tmp,
+<pre>public static&nbsp;void&nbsp;reduceSum(x10.lang.PlaceLocalHandle&lt;x10.regionarray.Array&lt;x10.lang.Double&gt;&gt;&nbsp;dat,
+             x10.regionarray.Array&lt;x10.lang.Double&gt;&nbsp;tmp,
              x10.lang.Int&nbsp;datCnt,
-             x10.array.Array&lt;x10.lang.Int&gt;&nbsp;plist)</pre>
-<div class="block"><B>Declaration:</B> <TT>reduceSum(dat:x10.lang.PlaceLocalHandle[x10.array.Array[x10.lang.Double]{self.rank==1, self.zeroBased==true, self.rect==true, self.rail==true}],tmp:x10.array.Array[x10.lang.Double]{self.rank==1},datCnt:x10.lang.Int,plist:x10.array.Array[x10.lang.Int]{self.rank==1}): void.</TT><PRE>
+             x10.regionarray.Array&lt;x10.lang.Int&gt;&nbsp;plist)</pre>
+<div class="block"><B>Declaration:</B> <TT>reduceSum(dat:x10.lang.PlaceLocalHandle[x10.regionarray.Array[x10.lang.Double]{self.rank==1, self.zeroBased==true, self.rect==true, self.rail==true}],tmp:x10.regionarray.Array[x10.lang.Double]{self.rank==1},datCnt:x10.lang.Int,plist:x10.regionarray.Array[x10.lang.Int]{self.rank==1}): void.</TT><PRE>
 </PRE>Perform reduce sum of all array data accessed via PlaceLocalHandle
 from specified list of places. This method is not optimized.
         Result is stored in the data array at root place.</div>

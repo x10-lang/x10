@@ -118,16 +118,16 @@
 </td>
 </tr>
 <tr class="rowColor">
-<td class="colFirst"><code>x10.array.Array&lt;x10.lang.Int&gt;</code></td>
+<td class="colFirst"><code>x10.regionarray.Array&lt;x10.lang.Int&gt;</code></td>
 <td class="colLast"><code><strong><a href="../../../x10/matrix/block/Grid.html#rowBs">rowBs</a></strong></code>
-<div class="block"><B>Field Type</B>: <TT>x10.array.Array[x10.lang.Int]{self.rail==true, self.rank==1}</TT>
+<div class="block"><B>Field Type</B>: <TT>x10.regionarray.Array[x10.lang.Int]{self.rail==true, self.rank==1}</TT>
 List of numbers of rows in blocks.</div>
 </td>
 </tr>
 <tr class="altColor">
-<td class="colFirst"><code>x10.array.Array&lt;x10.lang.Int&gt;</code></td>
+<td class="colFirst"><code>x10.regionarray.Array&lt;x10.lang.Int&gt;</code></td>
 <td class="colLast"><code><strong><a href="../../../x10/matrix/block/Grid.html#colBs">colBs</a></strong></code>
-<div class="block"><B>Field Type</B>: <TT>x10.array.Array[x10.lang.Int]{self.rail==true, self.rank==1}</TT>
+<div class="block"><B>Field Type</B>: <TT>x10.regionarray.Array[x10.lang.Int]{self.rail==true, self.rank==1}</TT>
 List of numbers of columns in blocks.</div>
 </td>
 </tr>
@@ -181,19 +181,19 @@ specified number of column blocks (cb).</div>
 </td>
 </tr>
 <tr class="rowColor">
-<td class="colOne"><code><strong><a href="../../../x10/matrix/block/Grid.html#Grid(x10.lang.Int, x10.lang.Int, x10.array.Array[x10.lang.Int]{self.rail==true, self.rank==1}, x10.array.Array[x10.lang.Int]{self.rail==true, self.rank==1})">Grid</a></strong>(x10.lang.Int&nbsp;m,
+<td class="colOne"><code><strong><a href="../../../x10/matrix/block/Grid.html#Grid(x10.lang.Int, x10.lang.Int, x10.regionarray.Array[x10.lang.Int]{self.rail==true, self.rank==1}, x10.regionarray.Array[x10.lang.Int]{self.rail==true, self.rank==1})">Grid</a></strong>(x10.lang.Int&nbsp;m,
     x10.lang.Int&nbsp;n,
-    x10.array.Array&lt;x10.lang.Int&gt;&nbsp;rBs,
-    x10.array.Array&lt;x10.lang.Int&gt;&nbsp;cBs)</code>
-<div class="block"><B>Declaration</B>: <TT>this(x10.lang.Int, x10.lang.Int, x10.array.Array[x10.lang.Int]{self.rail==true, self.rank==1}, x10.array.Array[x10.lang.Int]{self.rail==true, self.rank==1}): x10.matrix.block.Grid{self.M==m, self.N==n, self.numRowBlocks==rBs.size, self.numColBlocks==cBs.size}.</TT>
+    x10.regionarray.Array&lt;x10.lang.Int&gt;&nbsp;rBs,
+    x10.regionarray.Array&lt;x10.lang.Int&gt;&nbsp;cBs)</code>
+<div class="block"><B>Declaration</B>: <TT>this(x10.lang.Int, x10.lang.Int, x10.regionarray.Array[x10.lang.Int]{self.rail==true, self.rank==1}, x10.regionarray.Array[x10.lang.Int]{self.rail==true, self.rank==1}): x10.matrix.block.Grid{self.M==m, self.N==n, self.numRowBlocks==rBs.size, self.numColBlocks==cBs.size}.</TT>
 Create a partition for an m x n matrix in specified sizes for rows and columns
 of blocks</div>
 </td>
 </tr>
 <tr class="altColor">
-<td class="colOne"><code><strong><a href="../../../x10/matrix/block/Grid.html#Grid(x10.array.Array[x10.lang.Int]{self.rail==true, self.rank==1}, x10.array.Array[x10.lang.Int]{self.rail==true, self.rank==1})">Grid</a></strong>(x10.array.Array&lt;x10.lang.Int&gt;&nbsp;rbs,
-    x10.array.Array&lt;x10.lang.Int&gt;&nbsp;cbs)</code>
-<div class="block"><B>Declaration</B>: <TT>this(x10.array.Array[x10.lang.Int]{self.rail==true, self.rank==1}, x10.array.Array[x10.lang.Int]{self.rail==true, self.rank==1}): x10.matrix.block.Grid{self.numRowBlocks==rbs.size, self.numColBlocks==cbs.size}.</TT>
+<td class="colOne"><code><strong><a href="../../../x10/matrix/block/Grid.html#Grid(x10.regionarray.Array[x10.lang.Int]{self.rail==true, self.rank==1}, x10.regionarray.Array[x10.lang.Int]{self.rail==true, self.rank==1})">Grid</a></strong>(x10.regionarray.Array&lt;x10.lang.Int&gt;&nbsp;rbs,
+    x10.regionarray.Array&lt;x10.lang.Int&gt;&nbsp;cbs)</code>
+<div class="block"><B>Declaration</B>: <TT>this(x10.regionarray.Array[x10.lang.Int]{self.rail==true, self.rank==1}, x10.regionarray.Array[x10.lang.Int]{self.rail==true, self.rank==1}): x10.matrix.block.Grid{self.numRowBlocks==rbs.size, self.numColBlocks==cbs.size}.</TT>
 Construct a grid partitioning with specified numbers of row and
 specified numbers of column for partitioning blocks.</div>
 </td>
@@ -265,10 +265,10 @@ the total number of places in current parallel execution.</div>
 </td>
 </tr>
 <tr class="rowColor">
-<td class="colFirst"><code>static x10.array.Array&lt;x10.lang.Int&gt;</code></td>
+<td class="colFirst"><code>static x10.regionarray.Array&lt;x10.lang.Int&gt;</code></td>
 <td class="colLast"><code><strong><a href="../../../x10/matrix/block/Grid.html#partition(x10.lang.Int,x10.lang.Int)">partition</a></strong>(x10.lang.Int&nbsp;n,
          x10.lang.Int&nbsp;b)</code>
-<div class="block"><B>Declaration:</B> <TT>partition(n:x10.lang.Int,b:x10.lang.Int): x10.array.Array[x10.lang.Int]{self.rail==true, self.rank==1}.</TT>
+<div class="block"><B>Declaration:</B> <TT>partition(n:x10.lang.Int,b:x10.lang.Int): x10.regionarray.Array[x10.lang.Int]{self.rail==true, self.rank==1}.</TT>
 Compute the size of segment in partitioning.</div>
 </td>
 </tr>
@@ -381,10 +381,10 @@ the same cyclic column</div>
          x10.lang.Int&nbsp;cid)</code></td>
 </tr>
 <tr class="altColor">
-<td class="colFirst"><code>x10.array.Array&lt;x10.lang.Int&gt;</code></td>
+<td class="colFirst"><code>x10.regionarray.Array&lt;x10.lang.Int&gt;</code></td>
 <td class="colLast"><code><strong><a href="../../../x10/matrix/block/Grid.html#find(x10.lang.Int,x10.lang.Int)">find</a></strong>(x10.lang.Int&nbsp;x,
     x10.lang.Int&nbsp;y)</code>
-<div class="block"><B>Declaration:</B> <TT>find(x:x10.lang.Int,y:x10.lang.Int): x10.array.Array[x10.lang.Int]{self.rail==true, self.rank==1}.</TT>
+<div class="block"><B>Declaration:</B> <TT>find(x:x10.lang.Int,y:x10.lang.Int): x10.regionarray.Array[x10.lang.Int]{self.rail==true, self.rank==1}.</TT>
 Given row and column position of element find its partition blocks and
 row and column index within the block</div>
 </td>
@@ -433,24 +433,24 @@ indexing.</div>
 </tr>
 <tr class="altColor">
 <td class="colFirst"><code>static x10.lang.Boolean</code></td>
-<td class="colLast"><code><strong><a href="../../../x10/matrix/block/Grid.html#match(x10.array.Array[x10.lang.Int],x10.array.Array[x10.lang.Int])">match</a></strong>(x10.array.Array&lt;x10.lang.Int&gt;&nbsp;alist,
-     x10.array.Array&lt;x10.lang.Int&gt;&nbsp;blist)</code>
-<div class="block"><B>Declaration:</B> <TT>match(alist:x10.array.Array[x10.lang.Int]{self.rank==1},blist:x10.array.Array[x10.lang.Int]{self.rank==1}): x10.lang.Boolean.</TT>
+<td class="colLast"><code><strong><a href="../../../x10/matrix/block/Grid.html#match(x10.regionarray.Array[x10.lang.Int],x10.regionarray.Array[x10.lang.Int])">match</a></strong>(x10.regionarray.Array&lt;x10.lang.Int&gt;&nbsp;alist,
+     x10.regionarray.Array&lt;x10.lang.Int&gt;&nbsp;blist)</code>
+<div class="block"><B>Declaration:</B> <TT>match(alist:x10.regionarray.Array[x10.lang.Int]{self.rank==1},blist:x10.regionarray.Array[x10.lang.Int]{self.rank==1}): x10.lang.Boolean.</TT>
 </div>
 </td>
 </tr>
 <tr class="rowColor">
-<td class="colFirst"><code>x10.array.DistArray&lt;x10.array.Array&lt;x10.lang.Int&gt;&gt;</code></td>
+<td class="colFirst"><code>x10.regionarray.DistArray&lt;x10.regionarray.Array&lt;x10.lang.Int&gt;&gt;</code></td>
 <td class="colLast"><code><strong><a href="../../../x10/matrix/block/Grid.html#getRowBsPsMap()">getRowBsPsMap</a></strong>()</code>
-<div class="block"><B>Declaration:</B> <TT>getRowBsPsMap(): x10.array.DistArray[x10.array.Array[x10.lang.Int]{self.rank==1}]{self.dist.region.rank==1}.</TT>
+<div class="block"><B>Declaration:</B> <TT>getRowBsPsMap(): x10.regionarray.DistArray[x10.regionarray.Array[x10.lang.Int]{self.rank==1}]{self.dist.region.rank==1}.</TT>
 Return a distributed array, each entry contains an array of place ids
 which locate in the same row as the entry's index</div>
 </td>
 </tr>
 <tr class="altColor">
-<td class="colFirst"><code>x10.array.DistArray&lt;x10.array.Array&lt;x10.lang.Int&gt;&gt;</code></td>
+<td class="colFirst"><code>x10.regionarray.DistArray&lt;x10.regionarray.Array&lt;x10.lang.Int&gt;&gt;</code></td>
 <td class="colLast"><code><strong><a href="../../../x10/matrix/block/Grid.html#getColBsPsMap()">getColBsPsMap</a></strong>()</code>
-<div class="block"><B>Declaration:</B> <TT>getColBsPsMap(): x10.array.DistArray[x10.array.Array[x10.lang.Int]{self.rank==1}]{self.dist.region.rank==1}.</TT>
+<div class="block"><B>Declaration:</B> <TT>getColBsPsMap(): x10.regionarray.DistArray[x10.regionarray.Array[x10.lang.Int]{self.rank==1}]{self.dist.region.rank==1}.</TT>
 </div>
 </td>
 </tr>
@@ -504,8 +504,8 @@ which locate in the same row as the entry's index</div>
 <ul class="blockList">
 <li class="blockList">
 <h4>rowBs</h4>
-<pre>public final&nbsp;x10.array.Array&lt;x10.lang.Int&gt; rowBs</pre>
-<div class="block"><B>Field Type</B>: <TT>x10.array.Array[x10.lang.Int]{self.rail==true, self.rank==1}</TT><PRE>
+<pre>public final&nbsp;x10.regionarray.Array&lt;x10.lang.Int&gt; rowBs</pre>
+<div class="block"><B>Field Type</B>: <TT>x10.regionarray.Array[x10.lang.Int]{self.rail==true, self.rank==1}</TT><PRE>
 </PRE>List of numbers of rows in blocks. Blocks in the same partitioning row blocks
 have the same number of rows.</div>
 </li>
@@ -516,8 +516,8 @@ have the same number of rows.</div>
 <ul class="blockList">
 <li class="blockList">
 <h4>colBs</h4>
-<pre>public final&nbsp;x10.array.Array&lt;x10.lang.Int&gt; colBs</pre>
-<div class="block"><B>Field Type</B>: <TT>x10.array.Array[x10.lang.Int]{self.rail==true, self.rank==1}</TT><PRE>
+<pre>public final&nbsp;x10.regionarray.Array&lt;x10.lang.Int&gt; colBs</pre>
+<div class="block"><B>Field Type</B>: <TT>x10.regionarray.Array[x10.lang.Int]{self.rail==true, self.rank==1}</TT><PRE>
 </PRE>List of numbers of columns in blocks. Blocks in the same partitioning column
 blocks have the same number of columns.</div>
 </li>
@@ -596,7 +596,7 @@ row, and n%cb partition column blocks are assigned with one extra
 column.</div>
 </li>
 </ul>
-<a name="Grid(x10.lang.Int, x10.lang.Int, x10.array.Array[x10.lang.Int]{self.rail==true, self.rank==1}, x10.array.Array[x10.lang.Int]{self.rail==true, self.rank==1})">
+<a name="Grid(x10.lang.Int, x10.lang.Int, x10.regionarray.Array[x10.lang.Int]{self.rail==true, self.rank==1}, x10.regionarray.Array[x10.lang.Int]{self.rail==true, self.rank==1})">
 <!--   -->
 </a>
 <ul class="blockList">
@@ -604,22 +604,22 @@ column.</div>
 <h4>Grid</h4>
 <pre>public&nbsp;Grid(x10.lang.Int&nbsp;m,
     x10.lang.Int&nbsp;n,
-    x10.array.Array&lt;x10.lang.Int&gt;&nbsp;rBs,
-    x10.array.Array&lt;x10.lang.Int&gt;&nbsp;cBs)</pre>
-<div class="block"><B>Declaration</B>: <TT>this(x10.lang.Int, x10.lang.Int, x10.array.Array[x10.lang.Int]{self.rail==true, self.rank==1}, x10.array.Array[x10.lang.Int]{self.rail==true, self.rank==1}): x10.matrix.block.Grid{self.M==m, self.N==n, self.numRowBlocks==rBs.size, self.numColBlocks==cBs.size}.</TT><PRE>
+    x10.regionarray.Array&lt;x10.lang.Int&gt;&nbsp;rBs,
+    x10.regionarray.Array&lt;x10.lang.Int&gt;&nbsp;cBs)</pre>
+<div class="block"><B>Declaration</B>: <TT>this(x10.lang.Int, x10.lang.Int, x10.regionarray.Array[x10.lang.Int]{self.rail==true, self.rank==1}, x10.regionarray.Array[x10.lang.Int]{self.rail==true, self.rank==1}): x10.matrix.block.Grid{self.M==m, self.N==n, self.numRowBlocks==rBs.size, self.numColBlocks==cBs.size}.</TT><PRE>
 </PRE>Create a partition for an m x n matrix in specified sizes for rows and columns
 of blocks</div>
 </li>
 </ul>
-<a name="Grid(x10.array.Array[x10.lang.Int]{self.rail==true, self.rank==1}, x10.array.Array[x10.lang.Int]{self.rail==true, self.rank==1})">
+<a name="Grid(x10.regionarray.Array[x10.lang.Int]{self.rail==true, self.rank==1}, x10.regionarray.Array[x10.lang.Int]{self.rail==true, self.rank==1})">
 <!--   -->
 </a>
 <ul class="blockListLast">
 <li class="blockList">
 <h4>Grid</h4>
-<pre>public&nbsp;Grid(x10.array.Array&lt;x10.lang.Int&gt;&nbsp;rbs,
-    x10.array.Array&lt;x10.lang.Int&gt;&nbsp;cbs)</pre>
-<div class="block"><B>Declaration</B>: <TT>this(x10.array.Array[x10.lang.Int]{self.rail==true, self.rank==1}, x10.array.Array[x10.lang.Int]{self.rail==true, self.rank==1}): x10.matrix.block.Grid{self.numRowBlocks==rbs.size, self.numColBlocks==cbs.size}.</TT><PRE>
+<pre>public&nbsp;Grid(x10.regionarray.Array&lt;x10.lang.Int&gt;&nbsp;rbs,
+    x10.regionarray.Array&lt;x10.lang.Int&gt;&nbsp;cbs)</pre>
+<div class="block"><B>Declaration</B>: <TT>this(x10.regionarray.Array[x10.lang.Int]{self.rail==true, self.rank==1}, x10.regionarray.Array[x10.lang.Int]{self.rail==true, self.rank==1}): x10.matrix.block.Grid{self.numRowBlocks==rbs.size, self.numColBlocks==cbs.size}.</TT><PRE>
 </PRE>Construct a grid partitioning with specified numbers of row and
 specified numbers of column for partitioning blocks.
 Blocks in the same partition row share the same number of rows, and
@@ -715,9 +715,9 @@ This method creates a squared or close to squared partitioning.</div>
 <ul class="blockList">
 <li class="blockList">
 <h4>partition</h4>
-<pre>public static&nbsp;x10.array.Array&lt;x10.lang.Int&gt;&nbsp;partition(x10.lang.Int&nbsp;n,
+<pre>public static&nbsp;x10.regionarray.Array&lt;x10.lang.Int&gt;&nbsp;partition(x10.lang.Int&nbsp;n,
                                       x10.lang.Int&nbsp;b)</pre>
-<div class="block"><B>Declaration:</B> <TT>partition(n:x10.lang.Int,b:x10.lang.Int): x10.array.Array[x10.lang.Int]{self.rail==true, self.rank==1}.</TT><PRE>
+<div class="block"><B>Declaration:</B> <TT>partition(n:x10.lang.Int,b:x10.lang.Int): x10.regionarray.Array[x10.lang.Int]{self.rail==true, self.rank==1}.</TT><PRE>
 </PRE>Compute the size of segment in partitioning.</div>
 <dl><dt><span class="strong">Parameters:</span></dt><dd><code>n</code> - the number of rows or columns to be partitioned</dd><dd><code>b</code> - the number of blocks in partitioning</dd></dl>
 </li>
@@ -914,9 +914,9 @@ the same cyclic column</div>
 <ul class="blockList">
 <li class="blockList">
 <h4>find</h4>
-<pre>public&nbsp;x10.array.Array&lt;x10.lang.Int&gt;&nbsp;find(x10.lang.Int&nbsp;x,
+<pre>public&nbsp;x10.regionarray.Array&lt;x10.lang.Int&gt;&nbsp;find(x10.lang.Int&nbsp;x,
                                  x10.lang.Int&nbsp;y)</pre>
-<div class="block"><B>Declaration:</B> <TT>find(x:x10.lang.Int,y:x10.lang.Int): x10.array.Array[x10.lang.Int]{self.rail==true, self.rank==1}.</TT><PRE>
+<div class="block"><B>Declaration:</B> <TT>find(x:x10.lang.Int,y:x10.lang.Int): x10.regionarray.Array[x10.lang.Int]{self.rail==true, self.rank==1}.</TT><PRE>
 </PRE>Given row and column position of element find its partition blocks and
 row and column index within the block</div>
 <dl><dt><span class="strong">Parameters:</span></dt><dd><code>x</code> - -- row position in matrix</dd><dd><code>y</code> - -- column position in matrix</dd><dd><code>[row</code> - block index, column block index, row index, column index]</dd></dl>
@@ -997,15 +997,15 @@ check all row block sizes and column block sizes.</div>
 <dl><dt><span class="strong">Parameters:</span></dt><dd><code>that</code> - the target partitioning</dd></dl>
 </li>
 </ul>
-<a name="match(x10.array.Array[x10.lang.Int],x10.array.Array[x10.lang.Int])">
+<a name="match(x10.regionarray.Array[x10.lang.Int],x10.regionarray.Array[x10.lang.Int])">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
 <h4>match</h4>
-<pre>public static&nbsp;x10.lang.Boolean&nbsp;match(x10.array.Array&lt;x10.lang.Int&gt;&nbsp;alist,
-                     x10.array.Array&lt;x10.lang.Int&gt;&nbsp;blist)</pre>
-<div class="block"><B>Declaration:</B> <TT>match(alist:x10.array.Array[x10.lang.Int]{self.rank==1},blist:x10.array.Array[x10.lang.Int]{self.rank==1}): x10.lang.Boolean.</TT><PRE>
+<pre>public static&nbsp;x10.lang.Boolean&nbsp;match(x10.regionarray.Array&lt;x10.lang.Int&gt;&nbsp;alist,
+                     x10.regionarray.Array&lt;x10.lang.Int&gt;&nbsp;blist)</pre>
+<div class="block"><B>Declaration:</B> <TT>match(alist:x10.regionarray.Array[x10.lang.Int]{self.rank==1},blist:x10.regionarray.Array[x10.lang.Int]{self.rank==1}): x10.lang.Boolean.</TT><PRE>
 </PRE></div>
 </li>
 </ul>
@@ -1015,8 +1015,8 @@ check all row block sizes and column block sizes.</div>
 <ul class="blockList">
 <li class="blockList">
 <h4>getRowBsPsMap</h4>
-<pre>public&nbsp;x10.array.DistArray&lt;x10.array.Array&lt;x10.lang.Int&gt;&gt;&nbsp;getRowBsPsMap()</pre>
-<div class="block"><B>Declaration:</B> <TT>getRowBsPsMap(): x10.array.DistArray[x10.array.Array[x10.lang.Int]{self.rank==1}]{self.dist.region.rank==1}.</TT><PRE>
+<pre>public&nbsp;x10.regionarray.DistArray&lt;x10.regionarray.Array&lt;x10.lang.Int&gt;&gt;&nbsp;getRowBsPsMap()</pre>
+<div class="block"><B>Declaration:</B> <TT>getRowBsPsMap(): x10.regionarray.DistArray[x10.regionarray.Array[x10.lang.Int]{self.rank==1}]{self.dist.region.rank==1}.</TT><PRE>
 </PRE>Return a distributed array, each entry contains an array of place ids
 which locate in the same row as the entry's index</div>
 </li>
@@ -1027,8 +1027,8 @@ which locate in the same row as the entry's index</div>
 <ul class="blockList">
 <li class="blockList">
 <h4>getColBsPsMap</h4>
-<pre>public&nbsp;x10.array.DistArray&lt;x10.array.Array&lt;x10.lang.Int&gt;&gt;&nbsp;getColBsPsMap()</pre>
-<div class="block"><B>Declaration:</B> <TT>getColBsPsMap(): x10.array.DistArray[x10.array.Array[x10.lang.Int]{self.rank==1}]{self.dist.region.rank==1}.</TT><PRE>
+<pre>public&nbsp;x10.regionarray.DistArray&lt;x10.regionarray.Array&lt;x10.lang.Int&gt;&gt;&nbsp;getColBsPsMap()</pre>
+<div class="block"><B>Declaration:</B> <TT>getColBsPsMap(): x10.regionarray.DistArray[x10.regionarray.Array[x10.lang.Int]{self.rank==1}]{self.dist.region.rank==1}.</TT><PRE>
 </PRE></div>
 </li>
 </ul>

@@ -155,88 +155,88 @@ run command "make help" at the root directory of GML library.</div>
 </tr>
 <tr class="altColor">
 <td class="colFirst"><code>static void</code></td>
-<td class="colLast"><code><strong><a href="../../../x10/matrix/comm/ArrayRcast.html#bcast(x10.array.DistArray[x10.array.Array[x10.lang.Double]])">bcast</a></strong>(x10.array.DistArray&lt;x10.array.Array&lt;x10.lang.Double&gt;&gt;&nbsp;dmlist)</code>
-<div class="block"><B>Declaration:</B> <TT>bcast(dmlist:x10.array.DistArray[x10.array.Array[x10.lang.Double]{self.rank==1, self.zeroBased==true, self.rect==true, self.rail==true}]{self.dist.region.rank==1}): void.</TT>
+<td class="colLast"><code><strong><a href="../../../x10/matrix/comm/ArrayRcast.html#bcast(x10.regionarray.DistArray[x10.regionarray.Array[x10.lang.Double]])">bcast</a></strong>(x10.regionarray.DistArray&lt;x10.regionarray.Array&lt;x10.lang.Double&gt;&gt;&nbsp;dmlist)</code>
+<div class="block"><B>Declaration:</B> <TT>bcast(dmlist:x10.regionarray.DistArray[x10.regionarray.Array[x10.lang.Double]{self.rank==1, self.zeroBased==true, self.rect==true, self.rail==true}]{self.dist.region.rank==1}): void.</TT>
 Broadcast the whole distributed array at here to all places one by one</div>
 </td>
 </tr>
 <tr class="rowColor">
 <td class="colFirst"><code>static void</code></td>
-<td class="colLast"><code><strong><a href="../../../x10/matrix/comm/ArrayRcast.html#rcast(x10.array.DistArray[x10.array.Array[x10.lang.Double]],x10.lang.Int)">rcast</a></strong>(x10.array.DistArray&lt;x10.array.Array&lt;x10.lang.Double&gt;&gt;&nbsp;dmlist,
+<td class="colLast"><code><strong><a href="../../../x10/matrix/comm/ArrayRcast.html#rcast(x10.regionarray.DistArray[x10.regionarray.Array[x10.lang.Double]],x10.lang.Int)">rcast</a></strong>(x10.regionarray.DistArray&lt;x10.regionarray.Array&lt;x10.lang.Double&gt;&gt;&nbsp;dmlist,
      x10.lang.Int&nbsp;datCnt)</code>
-<div class="block"><B>Declaration:</B> <TT>rcast(dmlist:x10.array.DistArray[x10.array.Array[x10.lang.Double]{self.rank==1, self.zeroBased==true, self.rect==true, self.rail==true}]{self.dist.region.rank==1},datCnt:x10.lang.Int): void.</TT>
+<div class="block"><B>Declaration:</B> <TT>rcast(dmlist:x10.regionarray.DistArray[x10.regionarray.Array[x10.lang.Double]{self.rank==1, self.zeroBased==true, self.rect==true, self.rail==true}]{self.dist.region.rank==1},datCnt:x10.lang.Int): void.</TT>
 Broadcast double-precision data array from here to all places.</div>
 </td>
 </tr>
 <tr class="altColor">
 <td class="colFirst"><code>static void</code></td>
-<td class="colLast"><code><strong><a href="../../../x10/matrix/comm/ArrayRcast.html#rcast(x10.array.DistArray[x10.array.Array[x10.lang.Double]],x10.lang.Int,x10.array.Array[x10.lang.Int])">rcast</a></strong>(x10.array.DistArray&lt;x10.array.Array&lt;x10.lang.Double&gt;&gt;&nbsp;dmlist,
+<td class="colLast"><code><strong><a href="../../../x10/matrix/comm/ArrayRcast.html#rcast(x10.regionarray.DistArray[x10.regionarray.Array[x10.lang.Double]],x10.lang.Int,x10.regionarray.Array[x10.lang.Int])">rcast</a></strong>(x10.regionarray.DistArray&lt;x10.regionarray.Array&lt;x10.lang.Double&gt;&gt;&nbsp;dmlist,
      x10.lang.Int&nbsp;datCnt,
-     x10.array.Array&lt;x10.lang.Int&gt;&nbsp;plist)</code>
-<div class="block"><B>Declaration:</B> <TT>rcast(dmlist:x10.array.DistArray[x10.array.Array[x10.lang.Double]{self.rank==1, self.zeroBased==true, self.rect==true, self.rail==true}]{self.dist.region.rank==1},datCnt:x10.lang.Int,plist:x10.array.Array[x10.lang.Int]{self.rank==1}): void.</TT>
+     x10.regionarray.Array&lt;x10.lang.Int&gt;&nbsp;plist)</code>
+<div class="block"><B>Declaration:</B> <TT>rcast(dmlist:x10.regionarray.DistArray[x10.regionarray.Array[x10.lang.Double]{self.rank==1, self.zeroBased==true, self.rect==true, self.rail==true}]{self.dist.region.rank==1},datCnt:x10.lang.Int,plist:x10.regionarray.Array[x10.lang.Int]{self.rank==1}): void.</TT>
 Send double-precision data array from here to the specified places.</div>
 </td>
 </tr>
 <tr class="rowColor">
 <td class="colFirst"><code>protected static void</code></td>
-<td class="colLast"><code><strong><a href="../../../x10/matrix/comm/ArrayRcast.html#mpiRcast(x10.array.DistArray[x10.array.Array[x10.lang.Double]],x10.lang.Int,x10.array.Array[x10.lang.Int])">mpiRcast</a></strong>(x10.array.DistArray&lt;x10.array.Array&lt;x10.lang.Double&gt;&gt;&nbsp;dmlist,
+<td class="colLast"><code><strong><a href="../../../x10/matrix/comm/ArrayRcast.html#mpiRcast(x10.regionarray.DistArray[x10.regionarray.Array[x10.lang.Double]],x10.lang.Int,x10.regionarray.Array[x10.lang.Int])">mpiRcast</a></strong>(x10.regionarray.DistArray&lt;x10.regionarray.Array&lt;x10.lang.Double&gt;&gt;&nbsp;dmlist,
         x10.lang.Int&nbsp;datCnt,
-        x10.array.Array&lt;x10.lang.Int&gt;&nbsp;plist)</code>
-<div class="block"><B>Declaration:</B> <TT>mpiRcast(dmlist:x10.array.DistArray[x10.array.Array[x10.lang.Double]{self.rank==1, self.zeroBased==true, self.rect==true, self.rail==true}]{self.dist.region.rank==1},datCnt:x10.lang.Int,plist:x10.array.Array[x10.lang.Int]{self.rank==1}): void.</TT>
+        x10.regionarray.Array&lt;x10.lang.Int&gt;&nbsp;plist)</code>
+<div class="block"><B>Declaration:</B> <TT>mpiRcast(dmlist:x10.regionarray.DistArray[x10.regionarray.Array[x10.lang.Double]{self.rank==1, self.zeroBased==true, self.rect==true, self.rail==true}]{self.dist.region.rank==1},datCnt:x10.lang.Int,plist:x10.regionarray.Array[x10.lang.Int]{self.rank==1}): void.</TT>
 Send data from here to places in the list using
 MPI send/recv routines.</div>
 </td>
 </tr>
 <tr class="altColor">
 <td class="colFirst"><code>static void</code></td>
-<td class="colLast"><code><strong><a href="../../../x10/matrix/comm/ArrayRcast.html#rcast(x10.array.DistArray[x10.matrix.sparse.CompressArray],x10.lang.Int)">rcast</a></strong>(x10.array.DistArray&lt;<a href="../../../x10/matrix/sparse/CompressArray.html" title="class in x10.matrix.sparse">CompressArray</a>&gt;&nbsp;smlist,
+<td class="colLast"><code><strong><a href="../../../x10/matrix/comm/ArrayRcast.html#rcast(x10.regionarray.DistArray[x10.matrix.sparse.CompressArray],x10.lang.Int)">rcast</a></strong>(x10.regionarray.DistArray&lt;<a href="../../../x10/matrix/sparse/CompressArray.html" title="class in x10.matrix.sparse">CompressArray</a>&gt;&nbsp;smlist,
      x10.lang.Int&nbsp;datCnt)</code>
-<div class="block"><B>Declaration:</B> <TT>rcast(smlist:x10.array.DistArray[x10.matrix.sparse.CompressArray]{self.dist.region.rank==1},datCnt:x10.lang.Int): void.</TT>
+<div class="block"><B>Declaration:</B> <TT>rcast(smlist:x10.regionarray.DistArray[x10.matrix.sparse.CompressArray]{self.dist.region.rank==1},datCnt:x10.lang.Int): void.</TT>
 Broadcast data in compress array to all places.</div>
 </td>
 </tr>
 <tr class="rowColor">
 <td class="colFirst"><code>static void</code></td>
-<td class="colLast"><code><strong><a href="../../../x10/matrix/comm/ArrayRcast.html#rcast(x10.array.DistArray[x10.matrix.sparse.CompressArray])">rcast</a></strong>(x10.array.DistArray&lt;<a href="../../../x10/matrix/sparse/CompressArray.html" title="class in x10.matrix.sparse">CompressArray</a>&gt;&nbsp;smlist)</code>
-<div class="block"><B>Declaration:</B> <TT>rcast(smlist:x10.array.DistArray[x10.matrix.sparse.CompressArray]{self.dist.region.rank==1}): void.</TT>
+<td class="colLast"><code><strong><a href="../../../x10/matrix/comm/ArrayRcast.html#rcast(x10.regionarray.DistArray[x10.matrix.sparse.CompressArray])">rcast</a></strong>(x10.regionarray.DistArray&lt;<a href="../../../x10/matrix/sparse/CompressArray.html" title="class in x10.matrix.sparse">CompressArray</a>&gt;&nbsp;smlist)</code>
+<div class="block"><B>Declaration:</B> <TT>rcast(smlist:x10.regionarray.DistArray[x10.matrix.sparse.CompressArray]{self.dist.region.rank==1}): void.</TT>
 Broadcast the whole compress array at here to all places</div>
 </td>
 </tr>
 <tr class="altColor">
 <td class="colFirst"><code>static void</code></td>
-<td class="colLast"><code><strong><a href="../../../x10/matrix/comm/ArrayRcast.html#rcast(x10.array.DistArray[x10.matrix.sparse.CompressArray],x10.lang.Int,x10.array.Array[x10.lang.Int])">rcast</a></strong>(x10.array.DistArray&lt;<a href="../../../x10/matrix/sparse/CompressArray.html" title="class in x10.matrix.sparse">CompressArray</a>&gt;&nbsp;smlist,
+<td class="colLast"><code><strong><a href="../../../x10/matrix/comm/ArrayRcast.html#rcast(x10.regionarray.DistArray[x10.matrix.sparse.CompressArray],x10.lang.Int,x10.regionarray.Array[x10.lang.Int])">rcast</a></strong>(x10.regionarray.DistArray&lt;<a href="../../../x10/matrix/sparse/CompressArray.html" title="class in x10.matrix.sparse">CompressArray</a>&gt;&nbsp;smlist,
      x10.lang.Int&nbsp;datCnt,
-     x10.array.Array&lt;x10.lang.Int&gt;&nbsp;plist)</code>
-<div class="block"><B>Declaration:</B> <TT>rcast(smlist:x10.array.DistArray[x10.matrix.sparse.CompressArray]{self.dist.region.rank==1},datCnt:x10.lang.Int,plist:x10.array.Array[x10.lang.Int]{self.rank==1}): void.</TT>
+     x10.regionarray.Array&lt;x10.lang.Int&gt;&nbsp;plist)</code>
+<div class="block"><B>Declaration:</B> <TT>rcast(smlist:x10.regionarray.DistArray[x10.matrix.sparse.CompressArray]{self.dist.region.rank==1},datCnt:x10.lang.Int,plist:x10.regionarray.Array[x10.lang.Int]{self.rank==1}): void.</TT>
 Send compress array from here to a list of places.</div>
 </td>
 </tr>
 <tr class="rowColor">
 <td class="colFirst"><code>protected static void</code></td>
-<td class="colLast"><code><strong><a href="../../../x10/matrix/comm/ArrayRcast.html#mpiRcast(x10.array.DistArray[x10.matrix.sparse.CompressArray],x10.lang.Int,x10.array.Array[x10.lang.Int])">mpiRcast</a></strong>(x10.array.DistArray&lt;<a href="../../../x10/matrix/sparse/CompressArray.html" title="class in x10.matrix.sparse">CompressArray</a>&gt;&nbsp;smlist,
+<td class="colLast"><code><strong><a href="../../../x10/matrix/comm/ArrayRcast.html#mpiRcast(x10.regionarray.DistArray[x10.matrix.sparse.CompressArray],x10.lang.Int,x10.regionarray.Array[x10.lang.Int])">mpiRcast</a></strong>(x10.regionarray.DistArray&lt;<a href="../../../x10/matrix/sparse/CompressArray.html" title="class in x10.matrix.sparse">CompressArray</a>&gt;&nbsp;smlist,
         x10.lang.Int&nbsp;datCnt,
-        x10.array.Array&lt;x10.lang.Int&gt;&nbsp;plist)</code>
-<div class="block"><B>Declaration:</B> <TT>mpiRcast(smlist:x10.array.DistArray[x10.matrix.sparse.CompressArray]{self.dist.region.rank==1},datCnt:x10.lang.Int,plist:x10.array.Array[x10.lang.Int]{self.rank==1}): void.</TT>
+        x10.regionarray.Array&lt;x10.lang.Int&gt;&nbsp;plist)</code>
+<div class="block"><B>Declaration:</B> <TT>mpiRcast(smlist:x10.regionarray.DistArray[x10.matrix.sparse.CompressArray]{self.dist.region.rank==1},datCnt:x10.lang.Int,plist:x10.regionarray.Array[x10.lang.Int]{self.rank==1}): void.</TT>
 Send compress array from here to a list of places by using
 X10 remote array copy.</div>
 </td>
 </tr>
 <tr class="altColor">
 <td class="colFirst"><code>protected static void</code></td>
-<td class="colLast"><code><strong><a href="../../../x10/matrix/comm/ArrayRcast.html#x10Rcast(x10.array.DistArray[x10.array.Array[x10.lang.Double]],x10.lang.Int,x10.array.Array[x10.lang.Int])">x10Rcast</a></strong>(x10.array.DistArray&lt;x10.array.Array&lt;x10.lang.Double&gt;&gt;&nbsp;dmlist,
+<td class="colLast"><code><strong><a href="../../../x10/matrix/comm/ArrayRcast.html#x10Rcast(x10.regionarray.DistArray[x10.regionarray.Array[x10.lang.Double]],x10.lang.Int,x10.regionarray.Array[x10.lang.Int])">x10Rcast</a></strong>(x10.regionarray.DistArray&lt;x10.regionarray.Array&lt;x10.lang.Double&gt;&gt;&nbsp;dmlist,
         x10.lang.Int&nbsp;datCnt,
-        x10.array.Array&lt;x10.lang.Int&gt;&nbsp;plist)</code>
-<div class="block"><B>Declaration:</B> <TT>x10Rcast(dmlist:x10.array.DistArray[x10.array.Array[x10.lang.Double]{self.rank==1, self.zeroBased==true, self.rect==true, self.rail==true}]{self.dist.region.rank==1},datCnt:x10.lang.Int,plist:x10.array.Array[x10.lang.Int]{self.rank==1}): void.</TT>
+        x10.regionarray.Array&lt;x10.lang.Int&gt;&nbsp;plist)</code>
+<div class="block"><B>Declaration:</B> <TT>x10Rcast(dmlist:x10.regionarray.DistArray[x10.regionarray.Array[x10.lang.Double]{self.rank==1, self.zeroBased==true, self.rect==true, self.rail==true}]{self.dist.region.rank==1},datCnt:x10.lang.Int,plist:x10.regionarray.Array[x10.lang.Int]{self.rank==1}): void.</TT>
 Send the double-precision data array from here to a list of places by using
 x10 remote array copy.</div>
 </td>
 </tr>
 <tr class="rowColor">
 <td class="colFirst"><code>protected static void</code></td>
-<td class="colLast"><code><strong><a href="../../../x10/matrix/comm/ArrayRcast.html#x10Rcast(x10.array.DistArray[x10.matrix.sparse.CompressArray],x10.lang.Int,x10.array.Array[x10.lang.Int])">x10Rcast</a></strong>(x10.array.DistArray&lt;<a href="../../../x10/matrix/sparse/CompressArray.html" title="class in x10.matrix.sparse">CompressArray</a>&gt;&nbsp;smlist,
+<td class="colLast"><code><strong><a href="../../../x10/matrix/comm/ArrayRcast.html#x10Rcast(x10.regionarray.DistArray[x10.matrix.sparse.CompressArray],x10.lang.Int,x10.regionarray.Array[x10.lang.Int])">x10Rcast</a></strong>(x10.regionarray.DistArray&lt;<a href="../../../x10/matrix/sparse/CompressArray.html" title="class in x10.matrix.sparse">CompressArray</a>&gt;&nbsp;smlist,
         x10.lang.Int&nbsp;datCnt,
-        x10.array.Array&lt;x10.lang.Int&gt;&nbsp;plist)</code>
-<div class="block"><B>Declaration:</B> <TT>x10Rcast(smlist:x10.array.DistArray[x10.matrix.sparse.CompressArray]{self.dist.region.rank==1},datCnt:x10.lang.Int,plist:x10.array.Array[x10.lang.Int]{self.rank==1}): void.</TT>
+        x10.regionarray.Array&lt;x10.lang.Int&gt;&nbsp;plist)</code>
+<div class="block"><B>Declaration:</B> <TT>x10Rcast(smlist:x10.regionarray.DistArray[x10.matrix.sparse.CompressArray]{self.dist.region.rank==1},datCnt:x10.lang.Int,plist:x10.regionarray.Array[x10.lang.Int]{self.rank==1}): void.</TT>
 Sending the data from here to a list places by using x10 remote copy</div>
 </td>
 </tr>
@@ -254,7 +254,7 @@ communication without optimization on its broadcast route.</div>
 <!--   -->
 </a>
 <h3>Methods inherited from class&nbsp;x10.matrix.comm.<a href="../../../x10/matrix/comm/ArrayRemoteCopy.html" title="class in x10.matrix.comm">ArrayRemoteCopy</a></h3>
-<code><a href="../../../x10/matrix/comm/ArrayRemoteCopy.html#copy(x10.array.Array[x10.lang.Double],x10.lang.Int,x10.lang.PlaceLocalHandle[x10.array.Array[x10.lang.Double]],x10.lang.Int,x10.lang.Int,x10.lang.Int)">copy</a>, <a href="../../../x10/matrix/comm/ArrayRemoteCopy.html#mpiCopy(x10.array.Array[x10.lang.Double],x10.lang.Int,x10.lang.PlaceLocalHandle[x10.array.Array[x10.lang.Double]],x10.lang.Int,x10.lang.Int,x10.lang.Int)">mpiCopy</a>, <a href="../../../x10/matrix/comm/ArrayRemoteCopy.html#x10Copy(x10.array.Array[x10.lang.Double],x10.lang.Int,x10.lang.PlaceLocalHandle[x10.array.Array[x10.lang.Double]],x10.lang.Int,x10.lang.Int,x10.lang.Int)">x10Copy</a>, <a href="../../../x10/matrix/comm/ArrayRemoteCopy.html#x10Copy(x10.array.Array[x10.lang.Double],x10.lang.Int,x10.array.DistArray[x10.array.Array[x10.lang.Double]],x10.lang.Int,x10.lang.Int,x10.lang.Int)">x10Copy</a>, <a href="../../../x10/matrix/comm/ArrayRemoteCopy.html#copy(x10.lang.PlaceLocalHandle[x10.array.Array[x10.lang.Double]],x10.lang.Int,x10.lang.Int,x10.array.Array[x10.lang.Double],x10.lang.Int,x10.lang.Int)">copy</a>, <a href="../../../x10/matrix/comm/ArrayRemoteCopy.html#mpiCopy(x10.lang.PlaceLocalHandle[x10.array.Array[x10.lang.Double]],x10.lang.Int,x10.lang.Int,x10.array.Array[x10.lang.Double],x10.lang.Int,x10.lang.Int)">mpiCopy</a>, <a href="../../../x10/matrix/comm/ArrayRemoteCopy.html#x10Copy(x10.lang.PlaceLocalHandle[x10.array.Array[x10.lang.Double]],x10.lang.Int,x10.lang.Int,x10.array.Array[x10.lang.Double],x10.lang.Int,x10.lang.Int)">x10Copy</a>, <a href="../../../x10/matrix/comm/ArrayRemoteCopy.html#copy(x10.matrix.sparse.CompressArray,x10.lang.Int,x10.lang.PlaceLocalHandle[x10.matrix.sparse.CompressArray],x10.lang.Int,x10.lang.Int,x10.lang.Int)">copy</a>, <a href="../../../x10/matrix/comm/ArrayRemoteCopy.html#mpiCopy(x10.matrix.sparse.CompressArray,x10.lang.Int,x10.lang.PlaceLocalHandle[x10.matrix.sparse.CompressArray],x10.lang.Int,x10.lang.Int,x10.lang.Int)">mpiCopy</a>, <a href="../../../x10/matrix/comm/ArrayRemoteCopy.html#x10Copy(x10.matrix.sparse.CompressArray,x10.lang.Int,x10.lang.PlaceLocalHandle[x10.matrix.sparse.CompressArray],x10.lang.Int,x10.lang.Int,x10.lang.Int)">x10Copy</a>, <a href="../../../x10/matrix/comm/ArrayRemoteCopy.html#copy(x10.lang.PlaceLocalHandle[x10.matrix.sparse.CompressArray],x10.lang.Int,x10.lang.Int,x10.matrix.sparse.CompressArray,x10.lang.Int,x10.lang.Int)">copy</a>, <a href="../../../x10/matrix/comm/ArrayRemoteCopy.html#mpiCopy(x10.lang.PlaceLocalHandle[x10.matrix.sparse.CompressArray],x10.lang.Int,x10.lang.Int,x10.matrix.sparse.CompressArray,x10.lang.Int,x10.lang.Int)">mpiCopy</a>, <a href="../../../x10/matrix/comm/ArrayRemoteCopy.html#x10Copy(x10.lang.PlaceLocalHandle[x10.matrix.sparse.CompressArray],x10.lang.Int,x10.lang.Int,x10.matrix.sparse.CompressArray,x10.lang.Int,x10.lang.Int)">x10Copy</a>, <a href="../../../x10/matrix/comm/ArrayRemoteCopy.html#x10$matrix$comm$ArrayRemoteCopy$$this$x10$matrix$comm$ArrayRemoteCopy()">x10$matrix$comm$ArrayRemoteCopy$$this$x10$matrix$comm$ArrayRemoteCopy</a></code></li>
+<code><a href="../../../x10/matrix/comm/ArrayRemoteCopy.html#copy(x10.regionarray.Array[x10.lang.Double],x10.lang.Int,x10.lang.PlaceLocalHandle[x10.regionarray.Array[x10.lang.Double]],x10.lang.Int,x10.lang.Int,x10.lang.Int)">copy</a>, <a href="../../../x10/matrix/comm/ArrayRemoteCopy.html#mpiCopy(x10.regionarray.Array[x10.lang.Double],x10.lang.Int,x10.lang.PlaceLocalHandle[x10.regionarray.Array[x10.lang.Double]],x10.lang.Int,x10.lang.Int,x10.lang.Int)">mpiCopy</a>, <a href="../../../x10/matrix/comm/ArrayRemoteCopy.html#x10Copy(x10.regionarray.Array[x10.lang.Double],x10.lang.Int,x10.lang.PlaceLocalHandle[x10.regionarray.Array[x10.lang.Double]],x10.lang.Int,x10.lang.Int,x10.lang.Int)">x10Copy</a>, <a href="../../../x10/matrix/comm/ArrayRemoteCopy.html#x10Copy(x10.regionarray.Array[x10.lang.Double],x10.lang.Int,x10.regionarray.DistArray[x10.regionarray.Array[x10.lang.Double]],x10.lang.Int,x10.lang.Int,x10.lang.Int)">x10Copy</a>, <a href="../../../x10/matrix/comm/ArrayRemoteCopy.html#copy(x10.lang.PlaceLocalHandle[x10.regionarray.Array[x10.lang.Double]],x10.lang.Int,x10.lang.Int,x10.regionarray.Array[x10.lang.Double],x10.lang.Int,x10.lang.Int)">copy</a>, <a href="../../../x10/matrix/comm/ArrayRemoteCopy.html#mpiCopy(x10.lang.PlaceLocalHandle[x10.regionarray.Array[x10.lang.Double]],x10.lang.Int,x10.lang.Int,x10.regionarray.Array[x10.lang.Double],x10.lang.Int,x10.lang.Int)">mpiCopy</a>, <a href="../../../x10/matrix/comm/ArrayRemoteCopy.html#x10Copy(x10.lang.PlaceLocalHandle[x10.regionarray.Array[x10.lang.Double]],x10.lang.Int,x10.lang.Int,x10.regionarray.Array[x10.lang.Double],x10.lang.Int,x10.lang.Int)">x10Copy</a>, <a href="../../../x10/matrix/comm/ArrayRemoteCopy.html#copy(x10.matrix.sparse.CompressArray,x10.lang.Int,x10.lang.PlaceLocalHandle[x10.matrix.sparse.CompressArray],x10.lang.Int,x10.lang.Int,x10.lang.Int)">copy</a>, <a href="../../../x10/matrix/comm/ArrayRemoteCopy.html#mpiCopy(x10.matrix.sparse.CompressArray,x10.lang.Int,x10.lang.PlaceLocalHandle[x10.matrix.sparse.CompressArray],x10.lang.Int,x10.lang.Int,x10.lang.Int)">mpiCopy</a>, <a href="../../../x10/matrix/comm/ArrayRemoteCopy.html#x10Copy(x10.matrix.sparse.CompressArray,x10.lang.Int,x10.lang.PlaceLocalHandle[x10.matrix.sparse.CompressArray],x10.lang.Int,x10.lang.Int,x10.lang.Int)">x10Copy</a>, <a href="../../../x10/matrix/comm/ArrayRemoteCopy.html#copy(x10.lang.PlaceLocalHandle[x10.matrix.sparse.CompressArray],x10.lang.Int,x10.lang.Int,x10.matrix.sparse.CompressArray,x10.lang.Int,x10.lang.Int)">copy</a>, <a href="../../../x10/matrix/comm/ArrayRemoteCopy.html#mpiCopy(x10.lang.PlaceLocalHandle[x10.matrix.sparse.CompressArray],x10.lang.Int,x10.lang.Int,x10.matrix.sparse.CompressArray,x10.lang.Int,x10.lang.Int)">mpiCopy</a>, <a href="../../../x10/matrix/comm/ArrayRemoteCopy.html#x10Copy(x10.lang.PlaceLocalHandle[x10.matrix.sparse.CompressArray],x10.lang.Int,x10.lang.Int,x10.matrix.sparse.CompressArray,x10.lang.Int,x10.lang.Int)">x10Copy</a>, <a href="../../../x10/matrix/comm/ArrayRemoteCopy.html#x10$matrix$comm$ArrayRemoteCopy$$this$x10$matrix$comm$ArrayRemoteCopy()">x10$matrix$comm$ArrayRemoteCopy$$this$x10$matrix$comm$ArrayRemoteCopy</a></code></li>
 </ul>
 </li>
 </ul>
@@ -287,139 +287,139 @@ communication without optimization on its broadcast route.</div>
 <!--   -->
 </a>
 <h3>Method Detail</h3>
-<a name="bcast(x10.array.DistArray[x10.array.Array[x10.lang.Double]])">
+<a name="bcast(x10.regionarray.DistArray[x10.regionarray.Array[x10.lang.Double]])">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
 <h4>bcast</h4>
-<pre>public static&nbsp;void&nbsp;bcast(x10.array.DistArray&lt;x10.array.Array&lt;x10.lang.Double&gt;&gt;&nbsp;dmlist)</pre>
-<div class="block"><B>Declaration:</B> <TT>bcast(dmlist:x10.array.DistArray[x10.array.Array[x10.lang.Double]{self.rank==1, self.zeroBased==true, self.rect==true, self.rail==true}]{self.dist.region.rank==1}): void.</TT><PRE>
+<pre>public static&nbsp;void&nbsp;bcast(x10.regionarray.DistArray&lt;x10.regionarray.Array&lt;x10.lang.Double&gt;&gt;&nbsp;dmlist)</pre>
+<div class="block"><B>Declaration:</B> <TT>bcast(dmlist:x10.regionarray.DistArray[x10.regionarray.Array[x10.lang.Double]{self.rank==1, self.zeroBased==true, self.rect==true, self.rail==true}]{self.dist.region.rank==1}): void.</TT><PRE>
 </PRE>Broadcast the whole distributed array at here to all places one by one</div>
 <dl><dt><span class="strong">Parameters:</span></dt><dd><code>dmlist</code> - distributed storage for data arrays</dd></dl>
 </li>
 </ul>
-<a name="rcast(x10.array.DistArray[x10.array.Array[x10.lang.Double]],x10.lang.Int)">
+<a name="rcast(x10.regionarray.DistArray[x10.regionarray.Array[x10.lang.Double]],x10.lang.Int)">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
 <h4>rcast</h4>
-<pre>public static&nbsp;void&nbsp;rcast(x10.array.DistArray&lt;x10.array.Array&lt;x10.lang.Double&gt;&gt;&nbsp;dmlist,
+<pre>public static&nbsp;void&nbsp;rcast(x10.regionarray.DistArray&lt;x10.regionarray.Array&lt;x10.lang.Double&gt;&gt;&nbsp;dmlist,
          x10.lang.Int&nbsp;datCnt)</pre>
-<div class="block"><B>Declaration:</B> <TT>rcast(dmlist:x10.array.DistArray[x10.array.Array[x10.lang.Double]{self.rank==1, self.zeroBased==true, self.rect==true, self.rail==true}]{self.dist.region.rank==1},datCnt:x10.lang.Int): void.</TT><PRE>
+<div class="block"><B>Declaration:</B> <TT>rcast(dmlist:x10.regionarray.DistArray[x10.regionarray.Array[x10.lang.Double]{self.rank==1, self.zeroBased==true, self.rect==true, self.rail==true}]{self.dist.region.rank==1},datCnt:x10.lang.Int): void.</TT><PRE>
 </PRE>Broadcast double-precision data array from here to all places.</div>
 <dl><dt><span class="strong">Parameters:</span></dt><dd><code>dmlist</code> - distributed storage for data arrays</dd><dd><code>datCnt</code> - number of data elements in array to broadcast</dd></dl>
 </li>
 </ul>
-<a name="rcast(x10.array.DistArray[x10.array.Array[x10.lang.Double]],x10.lang.Int,x10.array.Array[x10.lang.Int])">
+<a name="rcast(x10.regionarray.DistArray[x10.regionarray.Array[x10.lang.Double]],x10.lang.Int,x10.regionarray.Array[x10.lang.Int])">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
 <h4>rcast</h4>
-<pre>public static&nbsp;void&nbsp;rcast(x10.array.DistArray&lt;x10.array.Array&lt;x10.lang.Double&gt;&gt;&nbsp;dmlist,
+<pre>public static&nbsp;void&nbsp;rcast(x10.regionarray.DistArray&lt;x10.regionarray.Array&lt;x10.lang.Double&gt;&gt;&nbsp;dmlist,
          x10.lang.Int&nbsp;datCnt,
-         x10.array.Array&lt;x10.lang.Int&gt;&nbsp;plist)</pre>
-<div class="block"><B>Declaration:</B> <TT>rcast(dmlist:x10.array.DistArray[x10.array.Array[x10.lang.Double]{self.rank==1, self.zeroBased==true, self.rect==true, self.rail==true}]{self.dist.region.rank==1},datCnt:x10.lang.Int,plist:x10.array.Array[x10.lang.Int]{self.rank==1}): void.</TT><PRE>
+         x10.regionarray.Array&lt;x10.lang.Int&gt;&nbsp;plist)</pre>
+<div class="block"><B>Declaration:</B> <TT>rcast(dmlist:x10.regionarray.DistArray[x10.regionarray.Array[x10.lang.Double]{self.rank==1, self.zeroBased==true, self.rect==true, self.rail==true}]{self.dist.region.rank==1},datCnt:x10.lang.Int,plist:x10.regionarray.Array[x10.lang.Int]{self.rank==1}): void.</TT><PRE>
 </PRE>Send double-precision data array from here to the specified places.</div>
 <dl><dt><span class="strong">Parameters:</span></dt><dd><code>dmlist</code> - distributed storage for data arrays</dd><dd><code>datCnt</code> - number of data to broadcast from here.</dd><dd><code>plist</code> - the list of places in the ring cast</dd></dl>
 </li>
 </ul>
-<a name="mpiRcast(x10.array.DistArray[x10.array.Array[x10.lang.Double]],x10.lang.Int,x10.array.Array[x10.lang.Int])">
+<a name="mpiRcast(x10.regionarray.DistArray[x10.regionarray.Array[x10.lang.Double]],x10.lang.Int,x10.regionarray.Array[x10.lang.Int])">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
 <h4>mpiRcast</h4>
-<pre>protected static&nbsp;void&nbsp;mpiRcast(x10.array.DistArray&lt;x10.array.Array&lt;x10.lang.Double&gt;&gt;&nbsp;dmlist,
+<pre>protected static&nbsp;void&nbsp;mpiRcast(x10.regionarray.DistArray&lt;x10.regionarray.Array&lt;x10.lang.Double&gt;&gt;&nbsp;dmlist,
             x10.lang.Int&nbsp;datCnt,
-            x10.array.Array&lt;x10.lang.Int&gt;&nbsp;plist)</pre>
-<div class="block"><B>Declaration:</B> <TT>mpiRcast(dmlist:x10.array.DistArray[x10.array.Array[x10.lang.Double]{self.rank==1, self.zeroBased==true, self.rect==true, self.rail==true}]{self.dist.region.rank==1},datCnt:x10.lang.Int,plist:x10.array.Array[x10.lang.Int]{self.rank==1}): void.</TT><PRE>
+            x10.regionarray.Array&lt;x10.lang.Int&gt;&nbsp;plist)</pre>
+<div class="block"><B>Declaration:</B> <TT>mpiRcast(dmlist:x10.regionarray.DistArray[x10.regionarray.Array[x10.lang.Double]{self.rank==1, self.zeroBased==true, self.rect==true, self.rail==true}]{self.dist.region.rank==1},datCnt:x10.lang.Int,plist:x10.regionarray.Array[x10.lang.Int]{self.rank==1}): void.</TT><PRE>
 </PRE>Send data from here to places in the list using
 MPI send/recv routines.</div>
 <dl><dt><span class="strong">Parameters:</span></dt><dd><code>dmlist</code> - distributed storage for data arrays</dd><dd><code>datCnt</code> - count of data elements to be sent</dd><dd><code>plist</code> - the list of place ids. Root must be in the list</dd></dl>
 </li>
 </ul>
-<a name="rcast(x10.array.DistArray[x10.matrix.sparse.CompressArray],x10.lang.Int)">
+<a name="rcast(x10.regionarray.DistArray[x10.matrix.sparse.CompressArray],x10.lang.Int)">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
 <h4>rcast</h4>
-<pre>public static&nbsp;void&nbsp;rcast(x10.array.DistArray&lt;<a href="../../../x10/matrix/sparse/CompressArray.html" title="class in x10.matrix.sparse">CompressArray</a>&gt;&nbsp;smlist,
+<pre>public static&nbsp;void&nbsp;rcast(x10.regionarray.DistArray&lt;<a href="../../../x10/matrix/sparse/CompressArray.html" title="class in x10.matrix.sparse">CompressArray</a>&gt;&nbsp;smlist,
          x10.lang.Int&nbsp;datCnt)</pre>
-<div class="block"><B>Declaration:</B> <TT>rcast(smlist:x10.array.DistArray[x10.matrix.sparse.CompressArray]{self.dist.region.rank==1},datCnt:x10.lang.Int): void.</TT><PRE>
+<div class="block"><B>Declaration:</B> <TT>rcast(smlist:x10.regionarray.DistArray[x10.matrix.sparse.CompressArray]{self.dist.region.rank==1},datCnt:x10.lang.Int): void.</TT><PRE>
 </PRE>Broadcast data in compress array to all places.</div>
 <dl><dt><span class="strong">Parameters:</span></dt><dd><code>smlist</code> - dist compress array</dd><dd><code>catCnt</code> - number of nonzero data elements to broadcast</dd></dl>
 </li>
 </ul>
-<a name="rcast(x10.array.DistArray[x10.matrix.sparse.CompressArray])">
+<a name="rcast(x10.regionarray.DistArray[x10.matrix.sparse.CompressArray])">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
 <h4>rcast</h4>
-<pre>public static&nbsp;void&nbsp;rcast(x10.array.DistArray&lt;<a href="../../../x10/matrix/sparse/CompressArray.html" title="class in x10.matrix.sparse">CompressArray</a>&gt;&nbsp;smlist)</pre>
-<div class="block"><B>Declaration:</B> <TT>rcast(smlist:x10.array.DistArray[x10.matrix.sparse.CompressArray]{self.dist.region.rank==1}): void.</TT><PRE>
+<pre>public static&nbsp;void&nbsp;rcast(x10.regionarray.DistArray&lt;<a href="../../../x10/matrix/sparse/CompressArray.html" title="class in x10.matrix.sparse">CompressArray</a>&gt;&nbsp;smlist)</pre>
+<div class="block"><B>Declaration:</B> <TT>rcast(smlist:x10.regionarray.DistArray[x10.matrix.sparse.CompressArray]{self.dist.region.rank==1}): void.</TT><PRE>
 </PRE>Broadcast the whole compress array at here to all places</div>
 <dl><dt><span class="strong">Parameters:</span></dt><dd><code>smlist</code> - distributed storage for copies of compress array in all places</dd></dl>
 </li>
 </ul>
-<a name="rcast(x10.array.DistArray[x10.matrix.sparse.CompressArray],x10.lang.Int,x10.array.Array[x10.lang.Int])">
+<a name="rcast(x10.regionarray.DistArray[x10.matrix.sparse.CompressArray],x10.lang.Int,x10.regionarray.Array[x10.lang.Int])">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
 <h4>rcast</h4>
-<pre>public static&nbsp;void&nbsp;rcast(x10.array.DistArray&lt;<a href="../../../x10/matrix/sparse/CompressArray.html" title="class in x10.matrix.sparse">CompressArray</a>&gt;&nbsp;smlist,
+<pre>public static&nbsp;void&nbsp;rcast(x10.regionarray.DistArray&lt;<a href="../../../x10/matrix/sparse/CompressArray.html" title="class in x10.matrix.sparse">CompressArray</a>&gt;&nbsp;smlist,
          x10.lang.Int&nbsp;datCnt,
-         x10.array.Array&lt;x10.lang.Int&gt;&nbsp;plist)</pre>
-<div class="block"><B>Declaration:</B> <TT>rcast(smlist:x10.array.DistArray[x10.matrix.sparse.CompressArray]{self.dist.region.rank==1},datCnt:x10.lang.Int,plist:x10.array.Array[x10.lang.Int]{self.rank==1}): void.</TT><PRE>
+         x10.regionarray.Array&lt;x10.lang.Int&gt;&nbsp;plist)</pre>
+<div class="block"><B>Declaration:</B> <TT>rcast(smlist:x10.regionarray.DistArray[x10.matrix.sparse.CompressArray]{self.dist.region.rank==1},datCnt:x10.lang.Int,plist:x10.regionarray.Array[x10.lang.Int]{self.rank==1}): void.</TT><PRE>
 </PRE>Send compress array from here to a list of places.</div>
 <dl><dt><span class="strong">Parameters:</span></dt><dd><code>smlist</code> - distributed storage for copies of compress array</dd><dd><code>datCnt</code> - number of nonzero data elements to broadcast</dd></dl>
 </li>
 </ul>
-<a name="mpiRcast(x10.array.DistArray[x10.matrix.sparse.CompressArray],x10.lang.Int,x10.array.Array[x10.lang.Int])">
+<a name="mpiRcast(x10.regionarray.DistArray[x10.matrix.sparse.CompressArray],x10.lang.Int,x10.regionarray.Array[x10.lang.Int])">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
 <h4>mpiRcast</h4>
-<pre>protected static&nbsp;void&nbsp;mpiRcast(x10.array.DistArray&lt;<a href="../../../x10/matrix/sparse/CompressArray.html" title="class in x10.matrix.sparse">CompressArray</a>&gt;&nbsp;smlist,
+<pre>protected static&nbsp;void&nbsp;mpiRcast(x10.regionarray.DistArray&lt;<a href="../../../x10/matrix/sparse/CompressArray.html" title="class in x10.matrix.sparse">CompressArray</a>&gt;&nbsp;smlist,
             x10.lang.Int&nbsp;datCnt,
-            x10.array.Array&lt;x10.lang.Int&gt;&nbsp;plist)</pre>
-<div class="block"><B>Declaration:</B> <TT>mpiRcast(smlist:x10.array.DistArray[x10.matrix.sparse.CompressArray]{self.dist.region.rank==1},datCnt:x10.lang.Int,plist:x10.array.Array[x10.lang.Int]{self.rank==1}): void.</TT><PRE>
+            x10.regionarray.Array&lt;x10.lang.Int&gt;&nbsp;plist)</pre>
+<div class="block"><B>Declaration:</B> <TT>mpiRcast(smlist:x10.regionarray.DistArray[x10.matrix.sparse.CompressArray]{self.dist.region.rank==1},datCnt:x10.lang.Int,plist:x10.regionarray.Array[x10.lang.Int]{self.rank==1}): void.</TT><PRE>
 </PRE>Send compress array from here to a list of places by using
 X10 remote array copy.</div>
 <dl><dt><span class="strong">Parameters:</span></dt><dd><code>smlist</code> - distributed storage for copies of compress array</dd><dd><code>datCnt</code> - counts of nonzero data elements to send</dd><dd><code>plist</code> - the list of place IDs</dd></dl>
 </li>
 </ul>
-<a name="x10Rcast(x10.array.DistArray[x10.array.Array[x10.lang.Double]],x10.lang.Int,x10.array.Array[x10.lang.Int])">
+<a name="x10Rcast(x10.regionarray.DistArray[x10.regionarray.Array[x10.lang.Double]],x10.lang.Int,x10.regionarray.Array[x10.lang.Int])">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
 <h4>x10Rcast</h4>
-<pre>protected static&nbsp;void&nbsp;x10Rcast(x10.array.DistArray&lt;x10.array.Array&lt;x10.lang.Double&gt;&gt;&nbsp;dmlist,
+<pre>protected static&nbsp;void&nbsp;x10Rcast(x10.regionarray.DistArray&lt;x10.regionarray.Array&lt;x10.lang.Double&gt;&gt;&nbsp;dmlist,
             x10.lang.Int&nbsp;datCnt,
-            x10.array.Array&lt;x10.lang.Int&gt;&nbsp;plist)</pre>
-<div class="block"><B>Declaration:</B> <TT>x10Rcast(dmlist:x10.array.DistArray[x10.array.Array[x10.lang.Double]{self.rank==1, self.zeroBased==true, self.rect==true, self.rail==true}]{self.dist.region.rank==1},datCnt:x10.lang.Int,plist:x10.array.Array[x10.lang.Int]{self.rank==1}): void.</TT><PRE>
+            x10.regionarray.Array&lt;x10.lang.Int&gt;&nbsp;plist)</pre>
+<div class="block"><B>Declaration:</B> <TT>x10Rcast(dmlist:x10.regionarray.DistArray[x10.regionarray.Array[x10.lang.Double]{self.rank==1, self.zeroBased==true, self.rect==true, self.rail==true}]{self.dist.region.rank==1},datCnt:x10.lang.Int,plist:x10.regionarray.Array[x10.lang.Int]{self.rank==1}): void.</TT><PRE>
 </PRE>Send the double-precision data array from here to a list of places by using
 x10 remote array copy.</div>
 <dl><dt><span class="strong">Parameters:</span></dt><dd><code>dmlist</code> - distributed storage for copies of array</dd><dd><code>datCnt</code> - counts of data to send</dd><dd><code>plist</code> - the list of place IDs.</dd></dl>
 </li>
 </ul>
-<a name="x10Rcast(x10.array.DistArray[x10.matrix.sparse.CompressArray],x10.lang.Int,x10.array.Array[x10.lang.Int])">
+<a name="x10Rcast(x10.regionarray.DistArray[x10.matrix.sparse.CompressArray],x10.lang.Int,x10.regionarray.Array[x10.lang.Int])">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
 <h4>x10Rcast</h4>
-<pre>protected static&nbsp;void&nbsp;x10Rcast(x10.array.DistArray&lt;<a href="../../../x10/matrix/sparse/CompressArray.html" title="class in x10.matrix.sparse">CompressArray</a>&gt;&nbsp;smlist,
+<pre>protected static&nbsp;void&nbsp;x10Rcast(x10.regionarray.DistArray&lt;<a href="../../../x10/matrix/sparse/CompressArray.html" title="class in x10.matrix.sparse">CompressArray</a>&gt;&nbsp;smlist,
             x10.lang.Int&nbsp;datCnt,
-            x10.array.Array&lt;x10.lang.Int&gt;&nbsp;plist)</pre>
-<div class="block"><B>Declaration:</B> <TT>x10Rcast(smlist:x10.array.DistArray[x10.matrix.sparse.CompressArray]{self.dist.region.rank==1},datCnt:x10.lang.Int,plist:x10.array.Array[x10.lang.Int]{self.rank==1}): void.</TT><PRE>
+            x10.regionarray.Array&lt;x10.lang.Int&gt;&nbsp;plist)</pre>
+<div class="block"><B>Declaration:</B> <TT>x10Rcast(smlist:x10.regionarray.DistArray[x10.matrix.sparse.CompressArray]{self.dist.region.rank==1},datCnt:x10.lang.Int,plist:x10.regionarray.Array[x10.lang.Int]{self.rank==1}): void.</TT><PRE>
 </PRE>Sending the data from here to a list places by using x10 remote copy</div>
 <dl><dt><span class="strong">Parameters:</span></dt><dd><code>smlist</code> - distributed storage for copies of data array</dd><dd><code>datCnt</code> - counts of data elements to send</dd><dd><code>plist</code> - the list of place IDs.</dd></dl>
 </li>

@@ -9,7 +9,7 @@
  *  (C) Copyright IBM Corporation 2006-2010.
  */
 
-package x10.array;
+package x10.regionarray;
 
 import x10.compiler.CompilerFlags;
 import x10.compiler.SuppressTransientError;
@@ -41,7 +41,7 @@ import x10.compiler.NoReturn;
  * there will be significant space overheads incurred for defining an Array
  * over the Region.  In future versions of X10, we may support a more 
  * space efficient implementation of Arrays over sparse regions, but 
- * such an implementation is not yet available as part of the x10.array package.</p>
+ * such an implementation is not yet available as part of the x10.regionarray package.</p>
  * 
  * <p>The closely related class {@link DistArray} is used to define 
  * distributed arrays where the data values for the Points in the 

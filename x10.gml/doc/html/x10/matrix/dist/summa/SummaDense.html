@@ -189,55 +189,55 @@ C</div>
 </tr>
 <tr class="altColor">
 <td class="colFirst"><code>void</code></td>
-<td class="colLast"><code><strong><a href="../../../../x10/matrix/dist/summa/SummaDense.html#parallelMult(x10.array.DistArray[x10.matrix.DenseMatrix],x10.array.DistArray[x10.matrix.DenseMatrix])">parallelMult</a></strong>(x10.array.DistArray&lt;<a href="../../../../x10/matrix/DenseMatrix.html" title="class in x10.matrix">DenseMatrix</a>&gt;&nbsp;work1,
-            x10.array.DistArray&lt;<a href="../../../../x10/matrix/DenseMatrix.html" title="class in x10.matrix">DenseMatrix</a>&gt;&nbsp;work2)</code>
-<div class="block"><B>Declaration:</B> <TT>parallelMult(work1:x10.array.DistArray[x10.matrix.DenseMatrix]{self.dist.region.rank==1},work2:x10.array.DistArray[x10.matrix.DenseMatrix]{self.dist.region.rank==1}): void.</TT>
+<td class="colLast"><code><strong><a href="../../../../x10/matrix/dist/summa/SummaDense.html#parallelMult(x10.regionarray.DistArray[x10.matrix.DenseMatrix],x10.regionarray.DistArray[x10.matrix.DenseMatrix])">parallelMult</a></strong>(x10.regionarray.DistArray&lt;<a href="../../../../x10/matrix/DenseMatrix.html" title="class in x10.matrix">DenseMatrix</a>&gt;&nbsp;work1,
+            x10.regionarray.DistArray&lt;<a href="../../../../x10/matrix/DenseMatrix.html" title="class in x10.matrix">DenseMatrix</a>&gt;&nbsp;work2)</code>
+<div class="block"><B>Declaration:</B> <TT>parallelMult(work1:x10.regionarray.DistArray[x10.matrix.DenseMatrix]{self.dist.region.rank==1},work2:x10.regionarray.DistArray[x10.matrix.DenseMatrix]{self.dist.region.rank==1}): void.</TT>
 Distributed matrix multiplication using SUMMA alogrithm</div>
 </td>
 </tr>
 <tr class="rowColor">
 <td class="colFirst"><code>protected static void</code></td>
-<td class="colLast"><code><strong><a href="../../../../x10/matrix/dist/summa/SummaDense.html#ringCastRowBs(x10.lang.Int,x10.lang.Int,x10.lang.Int,x10.matrix.dist.DistDenseMatrix,x10.array.DistArray[x10.array.Array[x10.lang.Int]],x10.array.DistArray[x10.matrix.DenseMatrix])">ringCastRowBs</a></strong>(x10.lang.Int&nbsp;jj,
+<td class="colLast"><code><strong><a href="../../../../x10/matrix/dist/summa/SummaDense.html#ringCastRowBs(x10.lang.Int,x10.lang.Int,x10.lang.Int,x10.matrix.dist.DistDenseMatrix,x10.regionarray.DistArray[x10.regionarray.Array[x10.lang.Int]],x10.regionarray.DistArray[x10.matrix.DenseMatrix])">ringCastRowBs</a></strong>(x10.lang.Int&nbsp;jj,
              x10.lang.Int&nbsp;klen,
              x10.lang.Int&nbsp;itCol,
              <a href="../../../../x10/matrix/dist/DistDenseMatrix.html" title="class in x10.matrix.dist">DistDenseMatrix</a>&nbsp;dA,
-             x10.array.DistArray&lt;x10.array.Array&lt;x10.lang.Int&gt;&gt;&nbsp;mapBsPs,
-             x10.array.DistArray&lt;<a href="../../../../x10/matrix/DenseMatrix.html" title="class in x10.matrix">DenseMatrix</a>&gt;&nbsp;work1)</code>
-<div class="block"><B>Declaration:</B> <TT>ringCastRowBs(jj:x10.lang.Int,klen:x10.lang.Int,itCol:x10.lang.Int,dA:x10.matrix.dist.DistDenseMatrix,mapBsPs:x10.array.DistArray[x10.array.Array[x10.lang.Int]{self.rank==1}]{self.dist.region.rank==1},work1:x10.array.DistArray[x10.matrix.DenseMatrix]{self.dist.region.rank==1}): void.</TT>
+             x10.regionarray.DistArray&lt;x10.regionarray.Array&lt;x10.lang.Int&gt;&gt;&nbsp;mapBsPs,
+             x10.regionarray.DistArray&lt;<a href="../../../../x10/matrix/DenseMatrix.html" title="class in x10.matrix">DenseMatrix</a>&gt;&nbsp;work1)</code>
+<div class="block"><B>Declaration:</B> <TT>ringCastRowBs(jj:x10.lang.Int,klen:x10.lang.Int,itCol:x10.lang.Int,dA:x10.matrix.dist.DistDenseMatrix,mapBsPs:x10.regionarray.DistArray[x10.regionarray.Array[x10.lang.Int]{self.rank==1}]{self.dist.region.rank==1},work1:x10.regionarray.DistArray[x10.matrix.DenseMatrix]{self.dist.region.rank==1}): void.</TT>
 Broadcast data within the row blocks, for all block rows in partitioning.</div>
 </td>
 </tr>
 <tr class="altColor">
 <td class="colFirst"><code>protected static void</code></td>
-<td class="colLast"><code><strong><a href="../../../../x10/matrix/dist/summa/SummaDense.html#ringCastColBs(x10.lang.Int,x10.lang.Int,x10.lang.Int,x10.matrix.dist.DistDenseMatrix,x10.array.DistArray[x10.array.Array[x10.lang.Int]],x10.array.DistArray[x10.matrix.DenseMatrix])">ringCastColBs</a></strong>(x10.lang.Int&nbsp;ii,
+<td class="colLast"><code><strong><a href="../../../../x10/matrix/dist/summa/SummaDense.html#ringCastColBs(x10.lang.Int,x10.lang.Int,x10.lang.Int,x10.matrix.dist.DistDenseMatrix,x10.regionarray.DistArray[x10.regionarray.Array[x10.lang.Int]],x10.regionarray.DistArray[x10.matrix.DenseMatrix])">ringCastColBs</a></strong>(x10.lang.Int&nbsp;ii,
              x10.lang.Int&nbsp;klen,
              x10.lang.Int&nbsp;itRow,
              <a href="../../../../x10/matrix/dist/DistDenseMatrix.html" title="class in x10.matrix.dist">DistDenseMatrix</a>&nbsp;dB,
-             x10.array.DistArray&lt;x10.array.Array&lt;x10.lang.Int&gt;&gt;&nbsp;mapBsPs,
-             x10.array.DistArray&lt;<a href="../../../../x10/matrix/DenseMatrix.html" title="class in x10.matrix">DenseMatrix</a>&gt;&nbsp;work2)</code>
-<div class="block"><B>Declaration:</B> <TT>ringCastColBs(ii:x10.lang.Int,klen:x10.lang.Int,itRow:x10.lang.Int,dB:x10.matrix.dist.DistDenseMatrix,mapBsPs:x10.array.DistArray[x10.array.Array[x10.lang.Int]{self.rank==1}]{self.dist.region.rank==1},work2:x10.array.DistArray[x10.matrix.DenseMatrix]{self.dist.region.rank==1}): void.</TT>
+             x10.regionarray.DistArray&lt;x10.regionarray.Array&lt;x10.lang.Int&gt;&gt;&nbsp;mapBsPs,
+             x10.regionarray.DistArray&lt;<a href="../../../../x10/matrix/DenseMatrix.html" title="class in x10.matrix">DenseMatrix</a>&gt;&nbsp;work2)</code>
+<div class="block"><B>Declaration:</B> <TT>ringCastColBs(ii:x10.lang.Int,klen:x10.lang.Int,itRow:x10.lang.Int,dB:x10.matrix.dist.DistDenseMatrix,mapBsPs:x10.regionarray.DistArray[x10.regionarray.Array[x10.lang.Int]{self.rank==1}]{self.dist.region.rank==1},work2:x10.regionarray.DistArray[x10.matrix.DenseMatrix]{self.dist.region.rank==1}): void.</TT>
 Broadcast data within the column blocks, for all block columns in partitoning.</div>
 </td>
 </tr>
 <tr class="rowColor">
 <td class="colFirst"><code>void</code></td>
-<td class="colLast"><code><strong><a href="../../../../x10/matrix/dist/summa/SummaDense.html#parallelMultTrans(x10.array.DistArray[x10.matrix.DenseMatrix],x10.array.DistArray[x10.matrix.DenseMatrix],x10.array.DistArray[x10.matrix.DenseMatrix])">parallelMultTrans</a></strong>(x10.array.DistArray&lt;<a href="../../../../x10/matrix/DenseMatrix.html" title="class in x10.matrix">DenseMatrix</a>&gt;&nbsp;work1,
-                 x10.array.DistArray&lt;<a href="../../../../x10/matrix/DenseMatrix.html" title="class in x10.matrix">DenseMatrix</a>&gt;&nbsp;work2,
-                 x10.array.DistArray&lt;<a href="../../../../x10/matrix/DenseMatrix.html" title="class in x10.matrix">DenseMatrix</a>&gt;&nbsp;tmpwk)</code>
-<div class="block"><B>Declaration:</B> <TT>parallelMultTrans(work1:x10.array.DistArray[x10.matrix.DenseMatrix]{self.dist.region.rank==1},work2:x10.array.DistArray[x10.matrix.DenseMatrix]{self.dist.region.rank==1},tmpwk:x10.array.DistArray[x10.matrix.DenseMatrix]{self.dist.region.rank==1}): void.</TT>
+<td class="colLast"><code><strong><a href="../../../../x10/matrix/dist/summa/SummaDense.html#parallelMultTrans(x10.regionarray.DistArray[x10.matrix.DenseMatrix],x10.regionarray.DistArray[x10.matrix.DenseMatrix],x10.regionarray.DistArray[x10.matrix.DenseMatrix])">parallelMultTrans</a></strong>(x10.regionarray.DistArray&lt;<a href="../../../../x10/matrix/DenseMatrix.html" title="class in x10.matrix">DenseMatrix</a>&gt;&nbsp;work1,
+                 x10.regionarray.DistArray&lt;<a href="../../../../x10/matrix/DenseMatrix.html" title="class in x10.matrix">DenseMatrix</a>&gt;&nbsp;work2,
+                 x10.regionarray.DistArray&lt;<a href="../../../../x10/matrix/DenseMatrix.html" title="class in x10.matrix">DenseMatrix</a>&gt;&nbsp;tmpwk)</code>
+<div class="block"><B>Declaration:</B> <TT>parallelMultTrans(work1:x10.regionarray.DistArray[x10.matrix.DenseMatrix]{self.dist.region.rank==1},work2:x10.regionarray.DistArray[x10.matrix.DenseMatrix]{self.dist.region.rank==1},tmpwk:x10.regionarray.DistArray[x10.matrix.DenseMatrix]{self.dist.region.rank==1}): void.</TT>
 Distributed matrix multiplication with second matrix transposed</div>
 </td>
 </tr>
 <tr class="altColor">
 <td class="colFirst"><code>protected static void</code></td>
-<td class="colLast"><code><strong><a href="../../../../x10/matrix/dist/summa/SummaDense.html#reduceSumRowBs(x10.lang.Int,x10.lang.Int,x10.lang.Int,x10.matrix.dist.DistDenseMatrix,x10.array.DistArray[x10.array.Array[x10.lang.Int]],x10.array.DistArray[x10.matrix.DenseMatrix],x10.array.DistArray[x10.matrix.DenseMatrix])">reduceSumRowBs</a></strong>(x10.lang.Int&nbsp;jj,
+<td class="colLast"><code><strong><a href="../../../../x10/matrix/dist/summa/SummaDense.html#reduceSumRowBs(x10.lang.Int,x10.lang.Int,x10.lang.Int,x10.matrix.dist.DistDenseMatrix,x10.regionarray.DistArray[x10.regionarray.Array[x10.lang.Int]],x10.regionarray.DistArray[x10.matrix.DenseMatrix],x10.regionarray.DistArray[x10.matrix.DenseMatrix])">reduceSumRowBs</a></strong>(x10.lang.Int&nbsp;jj,
               x10.lang.Int&nbsp;klen,
               x10.lang.Int&nbsp;itCol,
               <a href="../../../../x10/matrix/dist/DistDenseMatrix.html" title="class in x10.matrix.dist">DistDenseMatrix</a>&nbsp;dC,
-              x10.array.DistArray&lt;x10.array.Array&lt;x10.lang.Int&gt;&gt;&nbsp;mapBsPs,
-              x10.array.DistArray&lt;<a href="../../../../x10/matrix/DenseMatrix.html" title="class in x10.matrix">DenseMatrix</a>&gt;&nbsp;work1,
-              x10.array.DistArray&lt;<a href="../../../../x10/matrix/DenseMatrix.html" title="class in x10.matrix">DenseMatrix</a>&gt;&nbsp;tmpwk)</code>
-<div class="block"><B>Declaration:</B> <TT>reduceSumRowBs(jj:x10.lang.Int,klen:x10.lang.Int,itCol:x10.lang.Int,dC:x10.matrix.dist.DistDenseMatrix,mapBsPs:x10.array.DistArray[x10.array.Array[x10.lang.Int]{self.rank==1}]{self.dist.region.rank==1},work1:x10.array.DistArray[x10.matrix.DenseMatrix]{self.dist.region.rank==1},tmpwk:x10.array.DistArray[x10.matrix.DenseMatrix]{self.dist.region.rank==1}): void.</TT>
+              x10.regionarray.DistArray&lt;x10.regionarray.Array&lt;x10.lang.Int&gt;&gt;&nbsp;mapBsPs,
+              x10.regionarray.DistArray&lt;<a href="../../../../x10/matrix/DenseMatrix.html" title="class in x10.matrix">DenseMatrix</a>&gt;&nbsp;work1,
+              x10.regionarray.DistArray&lt;<a href="../../../../x10/matrix/DenseMatrix.html" title="class in x10.matrix">DenseMatrix</a>&gt;&nbsp;tmpwk)</code>
+<div class="block"><B>Declaration:</B> <TT>reduceSumRowBs(jj:x10.lang.Int,klen:x10.lang.Int,itCol:x10.lang.Int,dC:x10.matrix.dist.DistDenseMatrix,mapBsPs:x10.regionarray.DistArray[x10.regionarray.Array[x10.lang.Int]{self.rank==1}]{self.dist.region.rank==1},work1:x10.regionarray.DistArray[x10.matrix.DenseMatrix]{self.dist.region.rank==1},tmpwk:x10.regionarray.DistArray[x10.matrix.DenseMatrix]{self.dist.region.rank==1}): void.</TT>
 Reduce on work1 in all row blocks and add the result to output matrix dC at
 specified offset.</div>
 </td>
@@ -361,20 +361,20 @@ C</div>
 <dl><dt><span class="strong">Parameters:</span></dt><dd><code>ps</code> - panel size</dd><dd><code>beta</code> - scaling factor for output matrix</dd><dd><code>A</code> - first input distributed dense matrix in multiplication</dd><dd><code>B</code> - second input distributed dense matrix which is used in tranposed form</dd><dd><code>C</code> - the input/result distributed dense matrix</dd></dl>
 </li>
 </ul>
-<a name="parallelMult(x10.array.DistArray[x10.matrix.DenseMatrix],x10.array.DistArray[x10.matrix.DenseMatrix])">
+<a name="parallelMult(x10.regionarray.DistArray[x10.matrix.DenseMatrix],x10.regionarray.DistArray[x10.matrix.DenseMatrix])">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
 <h4>parallelMult</h4>
-<pre>public&nbsp;void&nbsp;parallelMult(x10.array.DistArray&lt;<a href="../../../../x10/matrix/DenseMatrix.html" title="class in x10.matrix">DenseMatrix</a>&gt;&nbsp;work1,
-                x10.array.DistArray&lt;<a href="../../../../x10/matrix/DenseMatrix.html" title="class in x10.matrix">DenseMatrix</a>&gt;&nbsp;work2)</pre>
-<div class="block"><B>Declaration:</B> <TT>parallelMult(work1:x10.array.DistArray[x10.matrix.DenseMatrix]{self.dist.region.rank==1},work2:x10.array.DistArray[x10.matrix.DenseMatrix]{self.dist.region.rank==1}): void.</TT><PRE>
+<pre>public&nbsp;void&nbsp;parallelMult(x10.regionarray.DistArray&lt;<a href="../../../../x10/matrix/DenseMatrix.html" title="class in x10.matrix">DenseMatrix</a>&gt;&nbsp;work1,
+                x10.regionarray.DistArray&lt;<a href="../../../../x10/matrix/DenseMatrix.html" title="class in x10.matrix">DenseMatrix</a>&gt;&nbsp;work2)</pre>
+<div class="block"><B>Declaration:</B> <TT>parallelMult(work1:x10.regionarray.DistArray[x10.matrix.DenseMatrix]{self.dist.region.rank==1},work2:x10.regionarray.DistArray[x10.matrix.DenseMatrix]{self.dist.region.rank==1}): void.</TT><PRE>
 </PRE>Distributed matrix multiplication using SUMMA alogrithm</div>
 <dl><dt><span class="strong">Parameters:</span></dt><dd><code>work1</code> - temporary space used for ring cast each row blocks</dd><dd><code>work2</code> - temporary space used for ring cast each column blocks</dd></dl>
 </li>
 </ul>
-<a name="ringCastRowBs(x10.lang.Int,x10.lang.Int,x10.lang.Int,x10.matrix.dist.DistDenseMatrix,x10.array.DistArray[x10.array.Array[x10.lang.Int]],x10.array.DistArray[x10.matrix.DenseMatrix])">
+<a name="ringCastRowBs(x10.lang.Int,x10.lang.Int,x10.lang.Int,x10.matrix.dist.DistDenseMatrix,x10.regionarray.DistArray[x10.regionarray.Array[x10.lang.Int]],x10.regionarray.DistArray[x10.matrix.DenseMatrix])">
 <!--   -->
 </a>
 <ul class="blockList">
@@ -384,14 +384,14 @@ C</div>
                  x10.lang.Int&nbsp;klen,
                  x10.lang.Int&nbsp;itCol,
                  <a href="../../../../x10/matrix/dist/DistDenseMatrix.html" title="class in x10.matrix.dist">DistDenseMatrix</a>&nbsp;dA,
-                 x10.array.DistArray&lt;x10.array.Array&lt;x10.lang.Int&gt;&gt;&nbsp;mapBsPs,
-                 x10.array.DistArray&lt;<a href="../../../../x10/matrix/DenseMatrix.html" title="class in x10.matrix">DenseMatrix</a>&gt;&nbsp;work1)</pre>
-<div class="block"><B>Declaration:</B> <TT>ringCastRowBs(jj:x10.lang.Int,klen:x10.lang.Int,itCol:x10.lang.Int,dA:x10.matrix.dist.DistDenseMatrix,mapBsPs:x10.array.DistArray[x10.array.Array[x10.lang.Int]{self.rank==1}]{self.dist.region.rank==1},work1:x10.array.DistArray[x10.matrix.DenseMatrix]{self.dist.region.rank==1}): void.</TT><PRE>
+                 x10.regionarray.DistArray&lt;x10.regionarray.Array&lt;x10.lang.Int&gt;&gt;&nbsp;mapBsPs,
+                 x10.regionarray.DistArray&lt;<a href="../../../../x10/matrix/DenseMatrix.html" title="class in x10.matrix">DenseMatrix</a>&gt;&nbsp;work1)</pre>
+<div class="block"><B>Declaration:</B> <TT>ringCastRowBs(jj:x10.lang.Int,klen:x10.lang.Int,itCol:x10.lang.Int,dA:x10.matrix.dist.DistDenseMatrix,mapBsPs:x10.regionarray.DistArray[x10.regionarray.Array[x10.lang.Int]{self.rank==1}]{self.dist.region.rank==1},work1:x10.regionarray.DistArray[x10.matrix.DenseMatrix]{self.dist.region.rank==1}): void.</TT><PRE>
 </PRE>Broadcast data within the row blocks, for all block rows in partitioning.</div>
 <dl><dt><span class="strong">Parameters:</span></dt><dd><code>jj</code> - the starting index of columns in block</dd><dd><code>klen</code> - number of column count</dd><dd><code>itCol</code> - the root's column block id</dd><dd><code>dA</code> - the data source from distributed dense matrix</dd><dd><code>mapBsPs</code> - mapping of block ids to place ids in the same row blocks</dd><dd><code>work1</code> - the output data in distributed array</dd></dl>
 </li>
 </ul>
-<a name="ringCastColBs(x10.lang.Int,x10.lang.Int,x10.lang.Int,x10.matrix.dist.DistDenseMatrix,x10.array.DistArray[x10.array.Array[x10.lang.Int]],x10.array.DistArray[x10.matrix.DenseMatrix])">
+<a name="ringCastColBs(x10.lang.Int,x10.lang.Int,x10.lang.Int,x10.matrix.dist.DistDenseMatrix,x10.regionarray.DistArray[x10.regionarray.Array[x10.lang.Int]],x10.regionarray.DistArray[x10.matrix.DenseMatrix])">
 <!--   -->
 </a>
 <ul class="blockList">
@@ -401,28 +401,28 @@ C</div>
                  x10.lang.Int&nbsp;klen,
                  x10.lang.Int&nbsp;itRow,
                  <a href="../../../../x10/matrix/dist/DistDenseMatrix.html" title="class in x10.matrix.dist">DistDenseMatrix</a>&nbsp;dB,
-                 x10.array.DistArray&lt;x10.array.Array&lt;x10.lang.Int&gt;&gt;&nbsp;mapBsPs,
-                 x10.array.DistArray&lt;<a href="../../../../x10/matrix/DenseMatrix.html" title="class in x10.matrix">DenseMatrix</a>&gt;&nbsp;work2)</pre>
-<div class="block"><B>Declaration:</B> <TT>ringCastColBs(ii:x10.lang.Int,klen:x10.lang.Int,itRow:x10.lang.Int,dB:x10.matrix.dist.DistDenseMatrix,mapBsPs:x10.array.DistArray[x10.array.Array[x10.lang.Int]{self.rank==1}]{self.dist.region.rank==1},work2:x10.array.DistArray[x10.matrix.DenseMatrix]{self.dist.region.rank==1}): void.</TT><PRE>
+                 x10.regionarray.DistArray&lt;x10.regionarray.Array&lt;x10.lang.Int&gt;&gt;&nbsp;mapBsPs,
+                 x10.regionarray.DistArray&lt;<a href="../../../../x10/matrix/DenseMatrix.html" title="class in x10.matrix">DenseMatrix</a>&gt;&nbsp;work2)</pre>
+<div class="block"><B>Declaration:</B> <TT>ringCastColBs(ii:x10.lang.Int,klen:x10.lang.Int,itRow:x10.lang.Int,dB:x10.matrix.dist.DistDenseMatrix,mapBsPs:x10.regionarray.DistArray[x10.regionarray.Array[x10.lang.Int]{self.rank==1}]{self.dist.region.rank==1},work2:x10.regionarray.DistArray[x10.matrix.DenseMatrix]{self.dist.region.rank==1}): void.</TT><PRE>
 </PRE>Broadcast data within the column blocks, for all block columns in partitoning.</div>
 <dl><dt><span class="strong">Parameters:</span></dt><dd><code>ii</code> - the starting index of row in block</dd><dd><code>klen</code> - number of row count</dd><dd><code>itRow</code> - the root's row block id</dd><dd><code>dA</code> - the data source from distributed dense matrix</dd><dd><code>mapBsPs</code> - mapping of block ids to place ids in the same column blocks</dd><dd><code>work2</code> - the output data in distributed array</dd></dl>
 </li>
 </ul>
-<a name="parallelMultTrans(x10.array.DistArray[x10.matrix.DenseMatrix],x10.array.DistArray[x10.matrix.DenseMatrix],x10.array.DistArray[x10.matrix.DenseMatrix])">
+<a name="parallelMultTrans(x10.regionarray.DistArray[x10.matrix.DenseMatrix],x10.regionarray.DistArray[x10.matrix.DenseMatrix],x10.regionarray.DistArray[x10.matrix.DenseMatrix])">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
 <h4>parallelMultTrans</h4>
-<pre>public&nbsp;void&nbsp;parallelMultTrans(x10.array.DistArray&lt;<a href="../../../../x10/matrix/DenseMatrix.html" title="class in x10.matrix">DenseMatrix</a>&gt;&nbsp;work1,
-                     x10.array.DistArray&lt;<a href="../../../../x10/matrix/DenseMatrix.html" title="class in x10.matrix">DenseMatrix</a>&gt;&nbsp;work2,
-                     x10.array.DistArray&lt;<a href="../../../../x10/matrix/DenseMatrix.html" title="class in x10.matrix">DenseMatrix</a>&gt;&nbsp;tmpwk)</pre>
-<div class="block"><B>Declaration:</B> <TT>parallelMultTrans(work1:x10.array.DistArray[x10.matrix.DenseMatrix]{self.dist.region.rank==1},work2:x10.array.DistArray[x10.matrix.DenseMatrix]{self.dist.region.rank==1},tmpwk:x10.array.DistArray[x10.matrix.DenseMatrix]{self.dist.region.rank==1}): void.</TT><PRE>
+<pre>public&nbsp;void&nbsp;parallelMultTrans(x10.regionarray.DistArray&lt;<a href="../../../../x10/matrix/DenseMatrix.html" title="class in x10.matrix">DenseMatrix</a>&gt;&nbsp;work1,
+                     x10.regionarray.DistArray&lt;<a href="../../../../x10/matrix/DenseMatrix.html" title="class in x10.matrix">DenseMatrix</a>&gt;&nbsp;work2,
+                     x10.regionarray.DistArray&lt;<a href="../../../../x10/matrix/DenseMatrix.html" title="class in x10.matrix">DenseMatrix</a>&gt;&nbsp;tmpwk)</pre>
+<div class="block"><B>Declaration:</B> <TT>parallelMultTrans(work1:x10.regionarray.DistArray[x10.matrix.DenseMatrix]{self.dist.region.rank==1},work2:x10.regionarray.DistArray[x10.matrix.DenseMatrix]{self.dist.region.rank==1},tmpwk:x10.regionarray.DistArray[x10.matrix.DenseMatrix]{self.dist.region.rank==1}): void.</TT><PRE>
 </PRE>Distributed matrix multiplication with second matrix transposed</div>
 <dl><dt><span class="strong">Parameters:</span></dt><dd><code>work1</code> - temporary space used in ring cast each row blocks</dd><dd><code>work2</code> - temporary space used in ring cast each column blocks</dd><dd><code>tmpwk</code> - temporary space used in reduce operation</dd></dl>
 </li>
 </ul>
-<a name="reduceSumRowBs(x10.lang.Int,x10.lang.Int,x10.lang.Int,x10.matrix.dist.DistDenseMatrix,x10.array.DistArray[x10.array.Array[x10.lang.Int]],x10.array.DistArray[x10.matrix.DenseMatrix],x10.array.DistArray[x10.matrix.DenseMatrix])">
+<a name="reduceSumRowBs(x10.lang.Int,x10.lang.Int,x10.lang.Int,x10.matrix.dist.DistDenseMatrix,x10.regionarray.DistArray[x10.regionarray.Array[x10.lang.Int]],x10.regionarray.DistArray[x10.matrix.DenseMatrix],x10.regionarray.DistArray[x10.matrix.DenseMatrix])">
 <!--   -->
 </a>
 <ul class="blockList">
@@ -432,10 +432,10 @@ C</div>
                   x10.lang.Int&nbsp;klen,
                   x10.lang.Int&nbsp;itCol,
                   <a href="../../../../x10/matrix/dist/DistDenseMatrix.html" title="class in x10.matrix.dist">DistDenseMatrix</a>&nbsp;dC,
-                  x10.array.DistArray&lt;x10.array.Array&lt;x10.lang.Int&gt;&gt;&nbsp;mapBsPs,
-                  x10.array.DistArray&lt;<a href="../../../../x10/matrix/DenseMatrix.html" title="class in x10.matrix">DenseMatrix</a>&gt;&nbsp;work1,
-                  x10.array.DistArray&lt;<a href="../../../../x10/matrix/DenseMatrix.html" title="class in x10.matrix">DenseMatrix</a>&gt;&nbsp;tmpwk)</pre>
-<div class="block"><B>Declaration:</B> <TT>reduceSumRowBs(jj:x10.lang.Int,klen:x10.lang.Int,itCol:x10.lang.Int,dC:x10.matrix.dist.DistDenseMatrix,mapBsPs:x10.array.DistArray[x10.array.Array[x10.lang.Int]{self.rank==1}]{self.dist.region.rank==1},work1:x10.array.DistArray[x10.matrix.DenseMatrix]{self.dist.region.rank==1},tmpwk:x10.array.DistArray[x10.matrix.DenseMatrix]{self.dist.region.rank==1}): void.</TT><PRE>
+                  x10.regionarray.DistArray&lt;x10.regionarray.Array&lt;x10.lang.Int&gt;&gt;&nbsp;mapBsPs,
+                  x10.regionarray.DistArray&lt;<a href="../../../../x10/matrix/DenseMatrix.html" title="class in x10.matrix">DenseMatrix</a>&gt;&nbsp;work1,
+                  x10.regionarray.DistArray&lt;<a href="../../../../x10/matrix/DenseMatrix.html" title="class in x10.matrix">DenseMatrix</a>&gt;&nbsp;tmpwk)</pre>
+<div class="block"><B>Declaration:</B> <TT>reduceSumRowBs(jj:x10.lang.Int,klen:x10.lang.Int,itCol:x10.lang.Int,dC:x10.matrix.dist.DistDenseMatrix,mapBsPs:x10.regionarray.DistArray[x10.regionarray.Array[x10.lang.Int]{self.rank==1}]{self.dist.region.rank==1},work1:x10.regionarray.DistArray[x10.matrix.DenseMatrix]{self.dist.region.rank==1},tmpwk:x10.regionarray.DistArray[x10.matrix.DenseMatrix]{self.dist.region.rank==1}): void.</TT><PRE>
 </PRE>Reduce on work1 in all row blocks and add the result to output matrix dC at
 specified offset.</div>
 </li>

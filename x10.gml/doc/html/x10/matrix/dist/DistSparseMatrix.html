@@ -120,16 +120,16 @@ extends <a href="../../../x10/matrix/Matrix.html" title="class in x10.matrix">Ma
 <th class="colLast" scope="col">Field and Description</th>
 </tr>
 <tr class="altColor">
-<td class="colFirst"><code>x10.array.Dist</code></td>
+<td class="colFirst"><code>x10.regionarray.Dist</code></td>
 <td class="colLast"><code><strong><a href="../../../x10/matrix/dist/DistSparseMatrix.html#dist">dist</a></strong></code>
-<div class="block"><B>Field Type</B>: <TT>x10.array.Dist{self.region.rank==1}</TT>
+<div class="block"><B>Field Type</B>: <TT>x10.regionarray.Dist{self.region.rank==1}</TT>
 </div>
 </td>
 </tr>
 <tr class="rowColor">
-<td class="colFirst"><code>x10.array.DistArray&lt;<a href="../../../x10/matrix/block/SparseBlock.html" title="class in x10.matrix.block">SparseBlock</a>&gt;</code></td>
+<td class="colFirst"><code>x10.regionarray.DistArray&lt;<a href="../../../x10/matrix/block/SparseBlock.html" title="class in x10.matrix.block">SparseBlock</a>&gt;</code></td>
 <td class="colLast"><code><strong><a href="../../../x10/matrix/dist/DistSparseMatrix.html#distBs">distBs</a></strong></code>
-<div class="block"><B>Field Type</B>: <TT>x10.array.DistArray[x10.matrix.block.SparseBlock]{self.dist.region.rank==1}</TT>
+<div class="block"><B>Field Type</B>: <TT>x10.regionarray.DistArray[x10.matrix.block.SparseBlock]{self.dist.region.rank==1}</TT>
 </div>
 </td>
 </tr>
@@ -165,16 +165,16 @@ extends <a href="../../../x10/matrix/Matrix.html" title="class in x10.matrix">Ma
 <th class="colOne" scope="col">Constructor and Description</th>
 </tr>
 <tr class="altColor">
-<td class="colOne"><code><strong><a href="../../../x10/matrix/dist/DistSparseMatrix.html#DistSparseMatrix(x10.matrix.block.Grid, x10.array.DistArray[x10.matrix.block.SparseBlock]{self.dist.region.rank==1})">DistSparseMatrix</a></strong>(<a href="../../../x10/matrix/block/Grid.html" title="class in x10.matrix.block">Grid</a>&nbsp;g,
-                x10.array.DistArray&lt;<a href="../../../x10/matrix/block/SparseBlock.html" title="class in x10.matrix.block">SparseBlock</a>&gt;&nbsp;dbs)</code>
-<div class="block"><B>Declaration</B>: <TT>this(x10.matrix.block.Grid, x10.array.DistArray[x10.matrix.block.SparseBlock]{self.dist.region.rank==1}): x10.matrix.dist.DistSparseMatrix{self.M==g.M, self.N==g.N}.</TT>
+<td class="colOne"><code><strong><a href="../../../x10/matrix/dist/DistSparseMatrix.html#DistSparseMatrix(x10.matrix.block.Grid, x10.regionarray.DistArray[x10.matrix.block.SparseBlock]{self.dist.region.rank==1})">DistSparseMatrix</a></strong>(<a href="../../../x10/matrix/block/Grid.html" title="class in x10.matrix.block">Grid</a>&nbsp;g,
+                x10.regionarray.DistArray&lt;<a href="../../../x10/matrix/block/SparseBlock.html" title="class in x10.matrix.block">SparseBlock</a>&gt;&nbsp;dbs)</code>
+<div class="block"><B>Declaration</B>: <TT>this(x10.matrix.block.Grid, x10.regionarray.DistArray[x10.matrix.block.SparseBlock]{self.dist.region.rank==1}): x10.matrix.dist.DistSparseMatrix{self.M==g.M, self.N==g.N}.</TT>
 Construct Distributed sparse block matrix.</div>
 </td>
 </tr>
 <tr class="rowColor">
-<td class="colOne"><code><strong><a href="../../../x10/matrix/dist/DistSparseMatrix.html#DistSparseMatrix(x10.matrix.block.Grid, x10.array.Dist{self.region.rank==1})">DistSparseMatrix</a></strong>(<a href="../../../x10/matrix/block/Grid.html" title="class in x10.matrix.block">Grid</a>&nbsp;g,
-                x10.array.Dist&nbsp;d)</code>
-<div class="block"><B>Declaration</B>: <TT>this(x10.matrix.block.Grid, x10.array.Dist{self.region.rank==1}): x10.matrix.dist.DistSparseMatrix{self.M==g.M, self.N==g.N}.</TT>
+<td class="colOne"><code><strong><a href="../../../x10/matrix/dist/DistSparseMatrix.html#DistSparseMatrix(x10.matrix.block.Grid, x10.regionarray.Dist{self.region.rank==1})">DistSparseMatrix</a></strong>(<a href="../../../x10/matrix/block/Grid.html" title="class in x10.matrix.block">Grid</a>&nbsp;g,
+                x10.regionarray.Dist&nbsp;d)</code>
+<div class="block"><B>Declaration</B>: <TT>this(x10.matrix.block.Grid, x10.regionarray.Dist{self.region.rank==1}): x10.matrix.dist.DistSparseMatrix{self.M==g.M, self.N==g.N}.</TT>
 Constructor of distributed sparse-block matrix without data memory allocation.</div>
 </td>
 </tr>
@@ -201,10 +201,10 @@ Construct Distributed sparse block matrix.</div>
 </tr>
 <tr class="altColor">
 <td class="colFirst"><code>static <a href="../../../x10/matrix/dist/DistSparseMatrix.html" title="type parameter in DistSparseMatrix">DistSparseMatrix</a></code></td>
-<td class="colLast"><code><strong><a href="../../../x10/matrix/dist/DistSparseMatrix.html#make(x10.matrix.block.Grid,x10.array.Dist,x10.lang.Double)">make</a></strong>(<a href="../../../x10/matrix/block/Grid.html" title="class in x10.matrix.block">Grid</a>&nbsp;g,
-    x10.array.Dist&nbsp;d,
+<td class="colLast"><code><strong><a href="../../../x10/matrix/dist/DistSparseMatrix.html#make(x10.matrix.block.Grid,x10.regionarray.Dist,x10.lang.Double)">make</a></strong>(<a href="../../../x10/matrix/block/Grid.html" title="class in x10.matrix.block">Grid</a>&nbsp;g,
+    x10.regionarray.Dist&nbsp;d,
     x10.lang.Double&nbsp;nzd)</code>
-<div class="block"><B>Declaration:</B> <TT>make(g:x10.matrix.block.Grid,d:x10.array.Dist{self.region.rank==1},nzd:x10.lang.Double): x10.matrix.dist.DistSparseMatrix{self.M==g.M, self.N==g.N}.</TT>
+<div class="block"><B>Declaration:</B> <TT>make(g:x10.matrix.block.Grid,d:x10.regionarray.Dist{self.region.rank==1},nzd:x10.lang.Double): x10.matrix.dist.DistSparseMatrix{self.M==g.M, self.N==g.N}.</TT>
 Create distributed sparse matrix based on specified partition grid
 and nonzero sparsity.</div>
 </td>
@@ -230,9 +230,9 @@ and nonzero sparsity.</div>
 </tr>
 <tr class="rowColor">
 <td class="colFirst"><code>static <a href="../../../x10/matrix/dist/DistSparseMatrix.html" title="type parameter in DistSparseMatrix">DistSparseMatrix</a></code></td>
-<td class="colLast"><code><strong><a href="../../../x10/matrix/dist/DistSparseMatrix.html#make(x10.matrix.block.Grid,x10.array.DistArray[x10.matrix.sparse.CompressArray])">make</a></strong>(<a href="../../../x10/matrix/block/Grid.html" title="class in x10.matrix.block">Grid</a>&nbsp;gp,
-    x10.array.DistArray&lt;<a href="../../../x10/matrix/sparse/CompressArray.html" title="class in x10.matrix.sparse">CompressArray</a>&gt;&nbsp;da)</code>
-<div class="block"><B>Declaration:</B> <TT>make(gp:x10.matrix.block.Grid,da:x10.array.DistArray[x10.matrix.sparse.CompressArray]{self.dist.region.rank==1}): x10.matrix.dist.DistSparseMatrix{self.M==gp.M, self.N==gp.N}.</TT>
+<td class="colLast"><code><strong><a href="../../../x10/matrix/dist/DistSparseMatrix.html#make(x10.matrix.block.Grid,x10.regionarray.DistArray[x10.matrix.sparse.CompressArray])">make</a></strong>(<a href="../../../x10/matrix/block/Grid.html" title="class in x10.matrix.block">Grid</a>&nbsp;gp,
+    x10.regionarray.DistArray&lt;<a href="../../../x10/matrix/sparse/CompressArray.html" title="class in x10.matrix.sparse">CompressArray</a>&gt;&nbsp;da)</code>
+<div class="block"><B>Declaration:</B> <TT>make(gp:x10.matrix.block.Grid,da:x10.regionarray.DistArray[x10.matrix.sparse.CompressArray]{self.dist.region.rank==1}): x10.matrix.dist.DistSparseMatrix{self.M==gp.M, self.N==gp.N}.</TT>
 Create dist sparse matrix using specified DistArray and partitioning</div>
 </td>
 </tr>
@@ -263,10 +263,10 @@ For testing purpose.</div>
 </tr>
 <tr class="rowColor">
 <td class="colFirst"><code>static <a href="../../../x10/matrix/dist/DistSparseMatrix.html" title="type parameter in DistSparseMatrix">DistSparseMatrix</a></code></td>
-<td class="colLast"><code><strong><a href="../../../x10/matrix/dist/DistSparseMatrix.html#make(x10.array.Array[x10.lang.Int],x10.array.Array[x10.lang.Int],x10.lang.Double)">make</a></strong>(x10.array.Array&lt;x10.lang.Int&gt;&nbsp;rowbs,
-    x10.array.Array&lt;x10.lang.Int&gt;&nbsp;colbs,
+<td class="colLast"><code><strong><a href="../../../x10/matrix/dist/DistSparseMatrix.html#make(x10.regionarray.Array[x10.lang.Int],x10.regionarray.Array[x10.lang.Int],x10.lang.Double)">make</a></strong>(x10.regionarray.Array&lt;x10.lang.Int&gt;&nbsp;rowbs,
+    x10.regionarray.Array&lt;x10.lang.Int&gt;&nbsp;colbs,
     x10.lang.Double&nbsp;nzd)</code>
-<div class="block"><B>Declaration:</B> <TT>make(rowbs:x10.array.Array[x10.lang.Int]{self.rail==true, self.rank==1},colbs:x10.array.Array[x10.lang.Int]{self.rail==true, self.rank==1},nzd:x10.lang.Double): x10.matrix.dist.DistSparseMatrix{rowbs.rail==true, rowbs.rank==1, rowbs.region.rank==1, rowbs.region.rail==true, rowbs.region!=null, rowbs.rect==rowbs.region.rect, rowbs.zeroBased==rowbs.region.zeroBased, colbs.rail==true, colbs.rank==1, colbs.region.rank==1, colbs.region.rail==true, colbs.region!=null, colbs.rect==colbs.region.rect, colbs.zeroBased==colbs.region.zeroBased}.</TT>
+<div class="block"><B>Declaration:</B> <TT>make(rowbs:x10.regionarray.Array[x10.lang.Int]{self.rail==true, self.rank==1},colbs:x10.regionarray.Array[x10.lang.Int]{self.rail==true, self.rank==1},nzd:x10.lang.Double): x10.matrix.dist.DistSparseMatrix{rowbs.rail==true, rowbs.rank==1, rowbs.region.rank==1, rowbs.region.rail==true, rowbs.region!=null, rowbs.rect==rowbs.region.rect, rowbs.zeroBased==rowbs.region.zeroBased, colbs.rail==true, colbs.rank==1, colbs.region.rank==1, colbs.region.rail==true, colbs.region!=null, colbs.rect==colbs.region.rect, colbs.zeroBased==colbs.region.zeroBased}.</TT>
 </div>
 </td>
 </tr>
@@ -729,8 +729,8 @@ Not supported</div>
 <ul class="blockList">
 <li class="blockList">
 <h4>dist</h4>
-<pre>public final&nbsp;x10.array.Dist dist</pre>
-<div class="block"><B>Field Type</B>: <TT>x10.array.Dist{self.region.rank==1}</TT><PRE>
+<pre>public final&nbsp;x10.regionarray.Dist dist</pre>
+<div class="block"><B>Field Type</B>: <TT>x10.regionarray.Dist{self.region.rank==1}</TT><PRE>
 </PRE></div>
 </li>
 </ul>
@@ -740,8 +740,8 @@ Not supported</div>
 <ul class="blockList">
 <li class="blockList">
 <h4>distBs</h4>
-<pre>public final&nbsp;x10.array.DistArray&lt;<a href="../../../x10/matrix/block/SparseBlock.html" title="class in x10.matrix.block">SparseBlock</a>&gt; distBs</pre>
-<div class="block"><B>Field Type</B>: <TT>x10.array.DistArray[x10.matrix.block.SparseBlock]{self.dist.region.rank==1}</TT><PRE>
+<pre>public final&nbsp;x10.regionarray.DistArray&lt;<a href="../../../x10/matrix/block/SparseBlock.html" title="class in x10.matrix.block">SparseBlock</a>&gt; distBs</pre>
+<div class="block"><B>Field Type</B>: <TT>x10.regionarray.DistArray[x10.matrix.block.SparseBlock]{self.dist.region.rank==1}</TT><PRE>
 </PRE></div>
 </li>
 </ul>
@@ -772,27 +772,27 @@ Not supported</div>
 <!--   -->
 </a>
 <h3>Constructor Detail</h3>
-<a name="DistSparseMatrix(x10.matrix.block.Grid, x10.array.DistArray[x10.matrix.block.SparseBlock]{self.dist.region.rank==1})">
+<a name="DistSparseMatrix(x10.matrix.block.Grid, x10.regionarray.DistArray[x10.matrix.block.SparseBlock]{self.dist.region.rank==1})">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
 <h4>DistSparseMatrix</h4>
 <pre>public&nbsp;DistSparseMatrix(<a href="../../../x10/matrix/block/Grid.html" title="class in x10.matrix.block">Grid</a>&nbsp;g,
-                x10.array.DistArray&lt;<a href="../../../x10/matrix/block/SparseBlock.html" title="class in x10.matrix.block">SparseBlock</a>&gt;&nbsp;dbs)</pre>
-<div class="block"><B>Declaration</B>: <TT>this(x10.matrix.block.Grid, x10.array.DistArray[x10.matrix.block.SparseBlock]{self.dist.region.rank==1}): x10.matrix.dist.DistSparseMatrix{self.M==g.M, self.N==g.N}.</TT><PRE>
+                x10.regionarray.DistArray&lt;<a href="../../../x10/matrix/block/SparseBlock.html" title="class in x10.matrix.block">SparseBlock</a>&gt;&nbsp;dbs)</pre>
+<div class="block"><B>Declaration</B>: <TT>this(x10.matrix.block.Grid, x10.regionarray.DistArray[x10.matrix.block.SparseBlock]{self.dist.region.rank==1}): x10.matrix.dist.DistSparseMatrix{self.M==g.M, self.N==g.N}.</TT><PRE>
 </PRE>Construct Distributed sparse block matrix.</div>
 </li>
 </ul>
-<a name="DistSparseMatrix(x10.matrix.block.Grid, x10.array.Dist{self.region.rank==1})">
+<a name="DistSparseMatrix(x10.matrix.block.Grid, x10.regionarray.Dist{self.region.rank==1})">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
 <h4>DistSparseMatrix</h4>
 <pre>public&nbsp;DistSparseMatrix(<a href="../../../x10/matrix/block/Grid.html" title="class in x10.matrix.block">Grid</a>&nbsp;g,
-                x10.array.Dist&nbsp;d)</pre>
-<div class="block"><B>Declaration</B>: <TT>this(x10.matrix.block.Grid, x10.array.Dist{self.region.rank==1}): x10.matrix.dist.DistSparseMatrix{self.M==g.M, self.N==g.N}.</TT><PRE>
+                x10.regionarray.Dist&nbsp;d)</pre>
+<div class="block"><B>Declaration</B>: <TT>this(x10.matrix.block.Grid, x10.regionarray.Dist{self.region.rank==1}): x10.matrix.dist.DistSparseMatrix{self.M==g.M, self.N==g.N}.</TT><PRE>
 </PRE>Constructor of distributed sparse-block matrix without data memory allocation.</div>
 </li>
 </ul>
@@ -815,16 +815,16 @@ Not supported</div>
 <!--   -->
 </a>
 <h3>Method Detail</h3>
-<a name="make(x10.matrix.block.Grid,x10.array.Dist,x10.lang.Double)">
+<a name="make(x10.matrix.block.Grid,x10.regionarray.Dist,x10.lang.Double)">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
 <h4>make</h4>
 <pre>public static&nbsp;<a href="../../../x10/matrix/dist/DistSparseMatrix.html" title="type parameter in DistSparseMatrix">DistSparseMatrix</a>&nbsp;make(<a href="../../../x10/matrix/block/Grid.html" title="class in x10.matrix.block">Grid</a>&nbsp;g,
-                    x10.array.Dist&nbsp;d,
+                    x10.regionarray.Dist&nbsp;d,
                     x10.lang.Double&nbsp;nzd)</pre>
-<div class="block"><B>Declaration:</B> <TT>make(g:x10.matrix.block.Grid,d:x10.array.Dist{self.region.rank==1},nzd:x10.lang.Double): x10.matrix.dist.DistSparseMatrix{self.M==g.M, self.N==g.N}.</TT><PRE>
+<div class="block"><B>Declaration:</B> <TT>make(g:x10.matrix.block.Grid,d:x10.regionarray.Dist{self.region.rank==1},nzd:x10.lang.Double): x10.matrix.dist.DistSparseMatrix{self.M==g.M, self.N==g.N}.</TT><PRE>
 </PRE>Create distributed sparse matrix based on specified partition grid
 and nonzero sparsity. Every sparse block has the same nonzero density.</div>
 <dl><dt><span class="strong">Parameters:</span></dt><dd><code>d</code> - blocks partition distribution</dd><dd><code>g</code> - matrix partitioning grid</dd><dd><code>nzd</code> - nonzero elements sparsity</dd></dl>
@@ -859,15 +859,15 @@ and nonzero sparsity. Every sparse block has the same nonzero density.</div>
 <dl><dt><span class="strong">Parameters:</span></dt><dd><code>m</code> - matrix rows</dd><dd><code>n</code> - matrix columns</dd><dd><code>nzd</code> - nonzero elements sparsity</dd></dl>
 </li>
 </ul>
-<a name="make(x10.matrix.block.Grid,x10.array.DistArray[x10.matrix.sparse.CompressArray])">
+<a name="make(x10.matrix.block.Grid,x10.regionarray.DistArray[x10.matrix.sparse.CompressArray])">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
 <h4>make</h4>
 <pre>public static&nbsp;<a href="../../../x10/matrix/dist/DistSparseMatrix.html" title="type parameter in DistSparseMatrix">DistSparseMatrix</a>&nbsp;make(<a href="../../../x10/matrix/block/Grid.html" title="class in x10.matrix.block">Grid</a>&nbsp;gp,
-                    x10.array.DistArray&lt;<a href="../../../x10/matrix/sparse/CompressArray.html" title="class in x10.matrix.sparse">CompressArray</a>&gt;&nbsp;da)</pre>
-<div class="block"><B>Declaration:</B> <TT>make(gp:x10.matrix.block.Grid,da:x10.array.DistArray[x10.matrix.sparse.CompressArray]{self.dist.region.rank==1}): x10.matrix.dist.DistSparseMatrix{self.M==gp.M, self.N==gp.N}.</TT><PRE>
+                    x10.regionarray.DistArray&lt;<a href="../../../x10/matrix/sparse/CompressArray.html" title="class in x10.matrix.sparse">CompressArray</a>&gt;&nbsp;da)</pre>
+<div class="block"><B>Declaration:</B> <TT>make(gp:x10.matrix.block.Grid,da:x10.regionarray.DistArray[x10.matrix.sparse.CompressArray]{self.dist.region.rank==1}): x10.matrix.dist.DistSparseMatrix{self.M==gp.M, self.N==gp.N}.</TT><PRE>
 </PRE>Create dist sparse matrix using specified DistArray and partitioning</div>
 <dl><dt><span class="strong">Parameters:</span></dt><dd><code>gp</code> - matrix paritinging</dd><dd><code>da</code> - Distributed arrays in all placese</dd></dl>
 </li>
@@ -919,16 +919,16 @@ elements at random positions.</div>
 <dl><dt><span class="strong">Parameters:</span></dt><dd><code>g</code> - block partitioning</dd><dd><code>nzd</code> - nonzero sparsity for all distributed blocks</dd></dl>
 </li>
 </ul>
-<a name="make(x10.array.Array[x10.lang.Int],x10.array.Array[x10.lang.Int],x10.lang.Double)">
+<a name="make(x10.regionarray.Array[x10.lang.Int],x10.regionarray.Array[x10.lang.Int],x10.lang.Double)">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
 <h4>make</h4>
-<pre>public static&nbsp;<a href="../../../x10/matrix/dist/DistSparseMatrix.html" title="type parameter in DistSparseMatrix">DistSparseMatrix</a>&nbsp;make(x10.array.Array&lt;x10.lang.Int&gt;&nbsp;rowbs,
-                    x10.array.Array&lt;x10.lang.Int&gt;&nbsp;colbs,
+<pre>public static&nbsp;<a href="../../../x10/matrix/dist/DistSparseMatrix.html" title="type parameter in DistSparseMatrix">DistSparseMatrix</a>&nbsp;make(x10.regionarray.Array&lt;x10.lang.Int&gt;&nbsp;rowbs,
+                    x10.regionarray.Array&lt;x10.lang.Int&gt;&nbsp;colbs,
                     x10.lang.Double&nbsp;nzd)</pre>
-<div class="block"><B>Declaration:</B> <TT>make(rowbs:x10.array.Array[x10.lang.Int]{self.rail==true, self.rank==1},colbs:x10.array.Array[x10.lang.Int]{self.rail==true, self.rank==1},nzd:x10.lang.Double): x10.matrix.dist.DistSparseMatrix{rowbs.rail==true, rowbs.rank==1, rowbs.region.rank==1, rowbs.region.rail==true, rowbs.region!=null, rowbs.rect==rowbs.region.rect, rowbs.zeroBased==rowbs.region.zeroBased, colbs.rail==true, colbs.rank==1, colbs.region.rank==1, colbs.region.rail==true, colbs.region!=null, colbs.rect==colbs.region.rect, colbs.zeroBased==colbs.region.zeroBased}.</TT><PRE>
+<div class="block"><B>Declaration:</B> <TT>make(rowbs:x10.regionarray.Array[x10.lang.Int]{self.rail==true, self.rank==1},colbs:x10.regionarray.Array[x10.lang.Int]{self.rail==true, self.rank==1},nzd:x10.lang.Double): x10.matrix.dist.DistSparseMatrix{rowbs.rail==true, rowbs.rank==1, rowbs.region.rank==1, rowbs.region.rail==true, rowbs.region!=null, rowbs.rect==rowbs.region.rect, rowbs.zeroBased==rowbs.region.zeroBased, colbs.rail==true, colbs.rank==1, colbs.region.rank==1, colbs.region.rail==true, colbs.region!=null, colbs.rect==colbs.region.rect, colbs.zeroBased==colbs.region.zeroBased}.</TT><PRE>
 </PRE></div>
 </li>
 </ul>

@@ -10,9 +10,9 @@
  *  (C) Copyright Australian National University 2011.
  */
 
-import x10.array.Dist;
-import x10.array.DistArray;
-import x10.array.Region;
+import x10.regionarray.Dist;
+import x10.regionarray.DistArray;
+import x10.regionarray.Region;
 
 /**
  * A distributed version of NQueens. Runs over NUM_PLACES.

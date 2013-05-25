@@ -10,7 +10,7 @@
  */
 
 import x10.util.Box;
-import x10.array.*;
+import x10.regionarray.*;
 
 import harness.x10Test;
 

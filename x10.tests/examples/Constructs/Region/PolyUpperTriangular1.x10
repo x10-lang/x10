@@ -9,7 +9,7 @@
  *  (C) Copyright IBM Corporation 2006-2010.
  */
 
-import x10.array.*;
+import x10.regionarray.*;
 
 /**
  * Construct an upper triangular region, make an array from it, and

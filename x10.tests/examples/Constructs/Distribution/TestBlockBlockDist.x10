@@ -1,5 +1,5 @@
 import harness.x10Test;
-import x10.array.*;
+import x10.regionarray.*;
 
 /**
  * Tests a Block,Block distribution of a three dimensional array over two axes.

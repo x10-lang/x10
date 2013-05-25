@@ -81,7 +81,7 @@ class PolyAlgebra1 extends TestRegion {
         "isConvex() false\n"+
         "size() Incomplete method.\n"+
         "region: ((x0<=1) || (x0>=2 && x1<=1) || (x0>=2 && x1>=5) || (x0>=4 && x1>=2 && x1<=4))\n"+
-        "x10.array.UnboundedRegionException: axis 1 has no minimum\n"+
+        "x10.regionarray.UnboundedRegionException: axis 1 has no minimum\n"+
         "--- PolyAlgebra1: r4=r3.intersection(r2)\n"+
         "rank 2\n"+
         "rect false\n"+

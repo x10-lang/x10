@@ -191,11 +191,11 @@ dense matrix object.</div>
 </tr>
 <tr class="rowColor">
 <td class="colFirst"><code>static <a href="../../../x10/matrix/block/DenseBlock.html" title="class in x10.matrix.block">DenseBlock</a></code></td>
-<td class="colLast"><code><strong><a href="../../../x10/matrix/block/DenseBlock.html#make(x10.matrix.block.Grid,x10.lang.Int,x10.lang.Int,x10.array.Array[x10.lang.Double])">make</a></strong>(<a href="../../../x10/matrix/block/Grid.html" title="class in x10.matrix.block">Grid</a>&nbsp;gp,
+<td class="colLast"><code><strong><a href="../../../x10/matrix/block/DenseBlock.html#make(x10.matrix.block.Grid,x10.lang.Int,x10.lang.Int,x10.regionarray.Array[x10.lang.Double])">make</a></strong>(<a href="../../../x10/matrix/block/Grid.html" title="class in x10.matrix.block">Grid</a>&nbsp;gp,
     x10.lang.Int&nbsp;rid,
     x10.lang.Int&nbsp;cid,
-    x10.array.Array&lt;x10.lang.Double&gt;&nbsp;da)</code>
-<div class="block"><B>Declaration:</B> <TT>make(gp:x10.matrix.block.Grid,rid:x10.lang.Int,cid:x10.lang.Int,da:x10.array.Array[x10.lang.Double]{self.rail==true, self.rank==1}): x10.matrix.block.DenseBlock.</TT>
+    x10.regionarray.Array&lt;x10.lang.Double&gt;&nbsp;da)</code>
+<div class="block"><B>Declaration:</B> <TT>make(gp:x10.matrix.block.Grid,rid:x10.lang.Int,cid:x10.lang.Int,da:x10.regionarray.Array[x10.lang.Double]{self.rail==true, self.rank==1}): x10.matrix.block.DenseBlock.</TT>
 Create a dense matrix block in a grid partition with user provided
 memory space</div>
 </td>
@@ -265,16 +265,16 @@ range.</div>
 </td>
 </tr>
 <tr class="altColor">
-<td class="colFirst"><code>x10.array.Array&lt;x10.lang.Double&gt;</code></td>
+<td class="colFirst"><code>x10.regionarray.Array&lt;x10.lang.Double&gt;</code></td>
 <td class="colLast"><code><strong><a href="../../../x10/matrix/block/DenseBlock.html#getData()">getData</a></strong>()</code>
-<div class="block"><B>Declaration:</B> <TT>getData(): x10.array.Array[x10.lang.Double]{self.rail==true, self.rank==1}.</TT>
+<div class="block"><B>Declaration:</B> <TT>getData(): x10.regionarray.Array[x10.lang.Double]{self.rail==true, self.rank==1}.</TT>
 Return the data array storing the matrix block data.</div>
 </td>
 </tr>
 <tr class="rowColor">
-<td class="colFirst"><code>x10.array.Array&lt;x10.lang.Int&gt;</code></td>
+<td class="colFirst"><code>x10.regionarray.Array&lt;x10.lang.Int&gt;</code></td>
 <td class="colLast"><code><strong><a href="../../../x10/matrix/block/DenseBlock.html#getIndex()">getIndex</a></strong>()</code>
-<div class="block"><B>Declaration:</B> <TT>getIndex(): x10.array.Array[x10.lang.Int]{self.rank==1}.</TT>
+<div class="block"><B>Declaration:</B> <TT>getIndex(): x10.regionarray.Array[x10.lang.Int]{self.rank==1}.</TT>
 Return the surface index array.</div>
 </td>
 </tr>
@@ -508,7 +508,7 @@ dense matrix object.</div>
 <dl><dt><span class="strong">Parameters:</span></dt><dd><code>rid</code> - The block's row id</dd><dd><code>cid</code> - The block's column id</dd><dd><code>m</code> - block rows</dd><dd><code>n</code> - block columns</dd></dl>
 </li>
 </ul>
-<a name="make(x10.matrix.block.Grid,x10.lang.Int,x10.lang.Int,x10.array.Array[x10.lang.Double])">
+<a name="make(x10.matrix.block.Grid,x10.lang.Int,x10.lang.Int,x10.regionarray.Array[x10.lang.Double])">
 <!--   -->
 </a>
 <ul class="blockList">
@@ -517,8 +517,8 @@ dense matrix object.</div>
 <pre>public static&nbsp;<a href="../../../x10/matrix/block/DenseBlock.html" title="class in x10.matrix.block">DenseBlock</a>&nbsp;make(<a href="../../../x10/matrix/block/Grid.html" title="class in x10.matrix.block">Grid</a>&nbsp;gp,
               x10.lang.Int&nbsp;rid,
               x10.lang.Int&nbsp;cid,
-              x10.array.Array&lt;x10.lang.Double&gt;&nbsp;da)</pre>
-<div class="block"><B>Declaration:</B> <TT>make(gp:x10.matrix.block.Grid,rid:x10.lang.Int,cid:x10.lang.Int,da:x10.array.Array[x10.lang.Double]{self.rail==true, self.rank==1}): x10.matrix.block.DenseBlock.</TT><PRE>
+              x10.regionarray.Array&lt;x10.lang.Double&gt;&nbsp;da)</pre>
+<div class="block"><B>Declaration:</B> <TT>make(gp:x10.matrix.block.Grid,rid:x10.lang.Int,cid:x10.lang.Int,da:x10.regionarray.Array[x10.lang.Double]{self.rail==true, self.rank==1}): x10.matrix.block.DenseBlock.</TT><PRE>
 </PRE>Create a dense matrix block in a grid partition with user provided
 memory space</div>
 <dl><dt><span class="strong">Parameters:</span></dt><dd><code>gp</code> - The grid partitioning of matrix</dd><dd><code>rid</code> - The block's row id</dd><dd><code>cid</code> - The block's column id</dd><dd><code>da</code> - The data array of the block</dd></dl>
@@ -639,8 +639,8 @@ range.</div>
 <ul class="blockList">
 <li class="blockList">
 <h4>getData</h4>
-<pre>public&nbsp;x10.array.Array&lt;x10.lang.Double&gt;&nbsp;getData()</pre>
-<div class="block"><B>Declaration:</B> <TT>getData(): x10.array.Array[x10.lang.Double]{self.rail==true, self.rank==1}.</TT><PRE>
+<pre>public&nbsp;x10.regionarray.Array&lt;x10.lang.Double&gt;&nbsp;getData()</pre>
+<div class="block"><B>Declaration:</B> <TT>getData(): x10.regionarray.Array[x10.lang.Double]{self.rail==true, self.rank==1}.</TT><PRE>
 </PRE>Return the data array storing the matrix block data.</div>
 </li>
 </ul>
@@ -650,8 +650,8 @@ range.</div>
 <ul class="blockList">
 <li class="blockList">
 <h4>getIndex</h4>
-<pre>public&nbsp;x10.array.Array&lt;x10.lang.Int&gt;&nbsp;getIndex()</pre>
-<div class="block"><B>Declaration:</B> <TT>getIndex(): x10.array.Array[x10.lang.Int]{self.rank==1}.</TT><PRE>
+<pre>public&nbsp;x10.regionarray.Array&lt;x10.lang.Int&gt;&nbsp;getIndex()</pre>
+<div class="block"><B>Declaration:</B> <TT>getIndex(): x10.regionarray.Array[x10.lang.Int]{self.rank==1}.</TT><PRE>
 </PRE>Return the surface index array. Valid for sparse matrix only.</div>
 </li>
 </ul>

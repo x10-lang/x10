@@ -6,7 +6,7 @@
 
 import x10.io.Console;
 import x10.util.Timer;
-import x10.array.DistArray;
+import x10.regionarray.DistArray;
 
 
 import x10.matrix.Matrix;

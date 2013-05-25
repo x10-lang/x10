@@ -9,7 +9,7 @@
  *  (C) Copyright IBM Corporation 2006-2010.
  */
 
-package x10.array;
+package x10.regionarray;
 
 /**
  * A full region is the unbounded region that contains all points of its rank

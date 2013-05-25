@@ -119,16 +119,16 @@ Indices into the underlying array are called <em>underlying indices</em>.</div>
 <th class="colLast" scope="col">Field and Description</th>
 </tr>
 <tr class="altColor">
-<td class="colFirst"><code>x10.array.Array&lt;x10.lang.Int&gt;</code></td>
+<td class="colFirst"><code>x10.regionarray.Array&lt;x10.lang.Int&gt;</code></td>
 <td class="colLast"><code><strong><a href="../../../x10/matrix/sparse/CompressArray.html#index">index</a></strong></code>
-<div class="block"><B>Field Type</B>: <TT>x10.array.Array[x10.lang.Int]{self.rail==true, self.rank==1}</TT>
+<div class="block"><B>Field Type</B>: <TT>x10.regionarray.Array[x10.lang.Int]{self.rail==true, self.rank==1}</TT>
 </div>
 </td>
 </tr>
 <tr class="rowColor">
-<td class="colFirst"><code>x10.array.Array&lt;x10.lang.Double&gt;</code></td>
+<td class="colFirst"><code>x10.regionarray.Array&lt;x10.lang.Double&gt;</code></td>
 <td class="colLast"><code><strong><a href="../../../x10/matrix/sparse/CompressArray.html#value">value</a></strong></code>
-<div class="block"><B>Field Type</B>: <TT>x10.array.Array[x10.lang.Double]{self.rail==true, self.rank==1}</TT>
+<div class="block"><B>Field Type</B>: <TT>x10.regionarray.Array[x10.lang.Double]{self.rail==true, self.rank==1}</TT>
 </div>
 </td>
 </tr>
@@ -151,10 +151,10 @@ Indices into the underlying array are called <em>underlying indices</em>.</div>
 <th class="colOne" scope="col">Constructor and Description</th>
 </tr>
 <tr class="altColor">
-<td class="colOne"><code><strong><a href="../../../x10/matrix/sparse/CompressArray.html#CompressArray(x10.array.Array[x10.lang.Int]{self.rail==true, self.rank==1}, x10.array.Array[x10.lang.Double]{self.size==idxlst.size, self.rail==true, self.rank==1}, x10.lang.Int)">CompressArray</a></strong>(x10.array.Array&lt;x10.lang.Int&gt;&nbsp;idxlst,
-             x10.array.Array&lt;x10.lang.Double&gt;&nbsp;vallst,
+<td class="colOne"><code><strong><a href="../../../x10/matrix/sparse/CompressArray.html#CompressArray(x10.regionarray.Array[x10.lang.Int]{self.rail==true, self.rank==1}, x10.regionarray.Array[x10.lang.Double]{self.size==idxlst.size, self.rail==true, self.rank==1}, x10.lang.Int)">CompressArray</a></strong>(x10.regionarray.Array&lt;x10.lang.Int&gt;&nbsp;idxlst,
+             x10.regionarray.Array&lt;x10.lang.Double&gt;&nbsp;vallst,
              x10.lang.Int&nbsp;cnt)</code>
-<div class="block"><B>Declaration</B>: <TT>this(x10.array.Array[x10.lang.Int]{self.rail==true, self.rank==1}, x10.array.Array[x10.lang.Double]{self.size==idxlst.size, self.rail==true, self.rank==1}, x10.lang.Int): x10.matrix.sparse.CompressArray.</TT>
+<div class="block"><B>Declaration</B>: <TT>this(x10.regionarray.Array[x10.lang.Int]{self.rail==true, self.rank==1}, x10.regionarray.Array[x10.lang.Double]{self.size==idxlst.size, self.rail==true, self.rank==1}, x10.lang.Int): x10.matrix.sparse.CompressArray.</TT>
 </div>
 </td>
 </tr>
@@ -428,49 +428,49 @@ into dest starting at destOffset.</div>
 </tr>
 <tr class="altColor">
 <td class="colFirst"><code>static x10.lang.Int</code></td>
-<td class="colLast"><code><strong><a href="../../../x10/matrix/sparse/CompressArray.html#countNonZero(x10.array.Array[x10.lang.Double])">countNonZero</a></strong>(x10.array.Array&lt;x10.lang.Double&gt;&nbsp;d)</code>
-<div class="block"><B>Declaration:</B> <TT>countNonZero(d:x10.array.Array[x10.lang.Double]{self.rank==1}): x10.lang.Int.</TT>
+<td class="colLast"><code><strong><a href="../../../x10/matrix/sparse/CompressArray.html#countNonZero(x10.regionarray.Array[x10.lang.Double])">countNonZero</a></strong>(x10.regionarray.Array&lt;x10.lang.Double&gt;&nbsp;d)</code>
+<div class="block"><B>Declaration:</B> <TT>countNonZero(d:x10.regionarray.Array[x10.lang.Double]{self.rank==1}): x10.lang.Int.</TT>
 Return the number of nonzero (nz) entries in the given array.</div>
 </td>
 </tr>
 <tr class="rowColor">
 <td class="colFirst"><code>static <a href="../../../x10/matrix/sparse/CompressArray.html" title="class in x10.matrix.sparse">CompressArray</a></code></td>
-<td class="colLast"><code><strong><a href="../../../x10/matrix/sparse/CompressArray.html#compress(x10.array.Array[x10.lang.Double])">compress</a></strong>(x10.array.Array&lt;x10.lang.Double&gt;&nbsp;d)</code>
-<div class="block"><B>Declaration:</B> <TT>compress(d:x10.array.Array[x10.lang.Double]{self.rank==1}): x10.matrix.sparse.CompressArray.</TT>
+<td class="colLast"><code><strong><a href="../../../x10/matrix/sparse/CompressArray.html#compress(x10.regionarray.Array[x10.lang.Double])">compress</a></strong>(x10.regionarray.Array&lt;x10.lang.Double&gt;&nbsp;d)</code>
+<div class="block"><B>Declaration:</B> <TT>compress(d:x10.regionarray.Array[x10.lang.Double]{self.rank==1}): x10.matrix.sparse.CompressArray.</TT>
 Return a new compressed array containing all the
 nonzero entries in d.</div>
 </td>
 </tr>
 <tr class="altColor">
 <td class="colFirst"><code>x10.lang.Int</code></td>
-<td class="colLast"><code><strong><a href="../../../x10/matrix/sparse/CompressArray.html#compressAt(x10.lang.Int,x10.array.Array[x10.lang.Double])">compressAt</a></strong>(x10.lang.Int&nbsp;destOffset,
-          x10.array.Array&lt;x10.lang.Double&gt;&nbsp;s)</code>
-<div class="block"><B>Declaration:</B> <TT>compressAt(destOffset:x10.lang.Int,s:x10.array.Array[x10.lang.Double]{self.rank==1}): x10.lang.Int.</TT>
+<td class="colLast"><code><strong><a href="../../../x10/matrix/sparse/CompressArray.html#compressAt(x10.lang.Int,x10.regionarray.Array[x10.lang.Double])">compressAt</a></strong>(x10.lang.Int&nbsp;destOffset,
+          x10.regionarray.Array&lt;x10.lang.Double&gt;&nbsp;s)</code>
+<div class="block"><B>Declaration:</B> <TT>compressAt(destOffset:x10.lang.Int,s:x10.regionarray.Array[x10.lang.Double]{self.rank==1}): x10.lang.Int.</TT>
 Transfer as many nz entries from d into this
 the as can fit into this.</div>
 </td>
 </tr>
 <tr class="rowColor">
 <td class="colFirst"><code>void</code></td>
-<td class="colLast"><code><strong><a href="../../../x10/matrix/sparse/CompressArray.html#extract(x10.lang.Int,x10.lang.Int,x10.lang.Int,x10.array.Array[x10.lang.Double])">extract</a></strong>(x10.lang.Int&nbsp;srcOffset,
+<td class="colLast"><code><strong><a href="../../../x10/matrix/sparse/CompressArray.html#extract(x10.lang.Int,x10.lang.Int,x10.lang.Int,x10.regionarray.Array[x10.lang.Double])">extract</a></strong>(x10.lang.Int&nbsp;srcOffset,
        x10.lang.Int&nbsp;count,
        x10.lang.Int&nbsp;dstOffset,
-       x10.array.Array&lt;x10.lang.Double&gt;&nbsp;dest)</code>
-<div class="block"><B>Declaration:</B> <TT>extract(srcOffset:x10.lang.Int,count:x10.lang.Int,dstOffset:x10.lang.Int,dest:x10.array.Array[x10.lang.Double]{self.rank==1}): void.</TT>
+       x10.regionarray.Array&lt;x10.lang.Double&gt;&nbsp;dest)</code>
+<div class="block"><B>Declaration:</B> <TT>extract(srcOffset:x10.lang.Int,count:x10.lang.Int,dstOffset:x10.lang.Int,dest:x10.regionarray.Array[x10.lang.Double]{self.rank==1}): void.</TT>
 Extract data from this compressed array and transfer into dest.</div>
 </td>
 </tr>
 <tr class="altColor">
 <td class="colFirst"><code>void</code></td>
-<td class="colLast"><code><strong><a href="../../../x10/matrix/sparse/CompressArray.html#extract(x10.array.Array[x10.lang.Double])">extract</a></strong>(x10.array.Array&lt;x10.lang.Double&gt;&nbsp;dest)</code>
-<div class="block"><B>Declaration:</B> <TT>extract(dest:x10.array.Array[x10.lang.Double]{self.rank==1}): void.</TT>
+<td class="colLast"><code><strong><a href="../../../x10/matrix/sparse/CompressArray.html#extract(x10.regionarray.Array[x10.lang.Double])">extract</a></strong>(x10.regionarray.Array&lt;x10.lang.Double&gt;&nbsp;dest)</code>
+<div class="block"><B>Declaration:</B> <TT>extract(dest:x10.regionarray.Array[x10.lang.Double]{self.rank==1}): void.</TT>
 Extract all data in this into dest.</div>
 </td>
 </tr>
 <tr class="rowColor">
-<td class="colFirst"><code>x10.array.Array&lt;x10.lang.Double&gt;</code></td>
+<td class="colFirst"><code>x10.regionarray.Array&lt;x10.lang.Double&gt;</code></td>
 <td class="colLast"><code><strong><a href="../../../x10/matrix/sparse/CompressArray.html#extract(x10.lang.Int)">extract</a></strong>(x10.lang.Int&nbsp;ls)</code>
-<div class="block"><B>Declaration:</B> <TT>extract(ls:x10.lang.Int): x10.array.Array[x10.lang.Double]{self.rank==1}.</TT>
+<div class="block"><B>Declaration:</B> <TT>extract(ls:x10.lang.Int): x10.regionarray.Array[x10.lang.Double]{self.rank==1}.</TT>
 Allocate ls entries from current array and return a new Rail
 containing these netries.</div>
 </td>
@@ -501,8 +501,8 @@ containing these netries.</div>
 </tr>
 <tr class="altColor">
 <td class="colFirst"><code>x10.lang.Boolean</code></td>
-<td class="colLast"><code><strong><a href="../../../x10/matrix/sparse/CompressArray.html#equals(x10.array.Array[x10.lang.Double])">equals</a></strong>(x10.array.Array&lt;x10.lang.Double&gt;&nbsp;al)</code>
-<div class="block"><B>Declaration:</B> <TT>equals(al:x10.array.Array[x10.lang.Double]{self.rank==1}): x10.lang.Boolean.</TT>
+<td class="colLast"><code><strong><a href="../../../x10/matrix/sparse/CompressArray.html#equals(x10.regionarray.Array[x10.lang.Double])">equals</a></strong>(x10.regionarray.Array&lt;x10.lang.Double&gt;&nbsp;al)</code>
+<div class="block"><B>Declaration:</B> <TT>equals(al:x10.regionarray.Array[x10.lang.Double]{self.rank==1}): x10.lang.Boolean.</TT>
 </div>
 </td>
 </tr>
@@ -536,8 +536,8 @@ must be distinct and in increasing order.</div>
 <ul class="blockList">
 <li class="blockList">
 <h4>index</h4>
-<pre>public&nbsp;x10.array.Array&lt;x10.lang.Int&gt; index</pre>
-<div class="block"><B>Field Type</B>: <TT>x10.array.Array[x10.lang.Int]{self.rail==true, self.rank==1}</TT><PRE>
+<pre>public&nbsp;x10.regionarray.Array&lt;x10.lang.Int&gt; index</pre>
+<div class="block"><B>Field Type</B>: <TT>x10.regionarray.Array[x10.lang.Int]{self.rail==true, self.rank==1}</TT><PRE>
 </PRE></div>
 </li>
 </ul>
@@ -547,8 +547,8 @@ must be distinct and in increasing order.</div>
 <ul class="blockList">
 <li class="blockList">
 <h4>value</h4>
-<pre>public&nbsp;x10.array.Array&lt;x10.lang.Double&gt; value</pre>
-<div class="block"><B>Field Type</B>: <TT>x10.array.Array[x10.lang.Double]{self.rail==true, self.rank==1}</TT><PRE>
+<pre>public&nbsp;x10.regionarray.Array&lt;x10.lang.Double&gt; value</pre>
+<div class="block"><B>Field Type</B>: <TT>x10.regionarray.Array[x10.lang.Double]{self.rail==true, self.rank==1}</TT><PRE>
 </PRE></div>
 </li>
 </ul>
@@ -569,16 +569,16 @@ must be distinct and in increasing order.</div>
 <!--   -->
 </a>
 <h3>Constructor Detail</h3>
-<a name="CompressArray(x10.array.Array[x10.lang.Int]{self.rail==true, self.rank==1}, x10.array.Array[x10.lang.Double]{self.size==idxlst.size, self.rail==true, self.rank==1}, x10.lang.Int)">
+<a name="CompressArray(x10.regionarray.Array[x10.lang.Int]{self.rail==true, self.rank==1}, x10.regionarray.Array[x10.lang.Double]{self.size==idxlst.size, self.rail==true, self.rank==1}, x10.lang.Int)">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
 <h4>CompressArray</h4>
-<pre>public&nbsp;CompressArray(x10.array.Array&lt;x10.lang.Int&gt;&nbsp;idxlst,
-             x10.array.Array&lt;x10.lang.Double&gt;&nbsp;vallst,
+<pre>public&nbsp;CompressArray(x10.regionarray.Array&lt;x10.lang.Int&gt;&nbsp;idxlst,
+             x10.regionarray.Array&lt;x10.lang.Double&gt;&nbsp;vallst,
              x10.lang.Int&nbsp;cnt)</pre>
-<div class="block"><B>Declaration</B>: <TT>this(x10.array.Array[x10.lang.Int]{self.rail==true, self.rank==1}, x10.array.Array[x10.lang.Double]{self.size==idxlst.size, self.rail==true, self.rank==1}, x10.lang.Int): x10.matrix.sparse.CompressArray.</TT><PRE>
+<div class="block"><B>Declaration</B>: <TT>this(x10.regionarray.Array[x10.lang.Int]{self.rail==true, self.rank==1}, x10.regionarray.Array[x10.lang.Double]{self.size==idxlst.size, self.rail==true, self.rank==1}, x10.lang.Int): x10.matrix.sparse.CompressArray.</TT><PRE>
 </PRE></div>
 </li>
 </ul>
@@ -1018,39 +1018,39 @@ allocated and previous data will be copied to the new storage.</div>
 <dl><dt><span class="strong">Parameters:</span></dt><dd><code>src</code> - The source compress array</dd><dd><code>srcoff</code> - The starting position of source compress array</dd><dd><code>dst</code> - The target compress array</dd><dd><code>dstoff</code> - The starting position of target compress array</dd><dd><code>len</code> - The number of elements (index-value pair) to be copied</dd></dl>
 </li>
 </ul>
-<a name="countNonZero(x10.array.Array[x10.lang.Double])">
+<a name="countNonZero(x10.regionarray.Array[x10.lang.Double])">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
 <h4>countNonZero</h4>
-<pre>public static&nbsp;x10.lang.Int&nbsp;countNonZero(x10.array.Array&lt;x10.lang.Double&gt;&nbsp;d)</pre>
-<div class="block"><B>Declaration:</B> <TT>countNonZero(d:x10.array.Array[x10.lang.Double]{self.rank==1}): x10.lang.Int.</TT><PRE>
+<pre>public static&nbsp;x10.lang.Int&nbsp;countNonZero(x10.regionarray.Array&lt;x10.lang.Double&gt;&nbsp;d)</pre>
+<div class="block"><B>Declaration:</B> <TT>countNonZero(d:x10.regionarray.Array[x10.lang.Double]{self.rank==1}): x10.lang.Int.</TT><PRE>
 </PRE>Return the number of nonzero (nz) entries in the given array.
 An entry v is nz if Math.testZero(v) succeeds.</div>
 </li>
 </ul>
-<a name="compress(x10.array.Array[x10.lang.Double])">
+<a name="compress(x10.regionarray.Array[x10.lang.Double])">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
 <h4>compress</h4>
-<pre>public static&nbsp;<a href="../../../x10/matrix/sparse/CompressArray.html" title="class in x10.matrix.sparse">CompressArray</a>&nbsp;compress(x10.array.Array&lt;x10.lang.Double&gt;&nbsp;d)</pre>
-<div class="block"><B>Declaration:</B> <TT>compress(d:x10.array.Array[x10.lang.Double]{self.rank==1}): x10.matrix.sparse.CompressArray.</TT><PRE>
+<pre>public static&nbsp;<a href="../../../x10/matrix/sparse/CompressArray.html" title="class in x10.matrix.sparse">CompressArray</a>&nbsp;compress(x10.regionarray.Array&lt;x10.lang.Double&gt;&nbsp;d)</pre>
+<div class="block"><B>Declaration:</B> <TT>compress(d:x10.regionarray.Array[x10.lang.Double]{self.rank==1}): x10.matrix.sparse.CompressArray.</TT><PRE>
 </PRE>Return a new compressed array containing all the
 nonzero entries in d.</div>
 </li>
 </ul>
-<a name="compressAt(x10.lang.Int,x10.array.Array[x10.lang.Double])">
+<a name="compressAt(x10.lang.Int,x10.regionarray.Array[x10.lang.Double])">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
 <h4>compressAt</h4>
 <pre>public&nbsp;x10.lang.Int&nbsp;compressAt(x10.lang.Int&nbsp;destOffset,
-                      x10.array.Array&lt;x10.lang.Double&gt;&nbsp;s)</pre>
-<div class="block"><B>Declaration:</B> <TT>compressAt(destOffset:x10.lang.Int,s:x10.array.Array[x10.lang.Double]{self.rank==1}): x10.lang.Int.</TT><PRE>
+                      x10.regionarray.Array&lt;x10.lang.Double&gt;&nbsp;s)</pre>
+<div class="block"><B>Declaration:</B> <TT>compressAt(destOffset:x10.lang.Int,s:x10.regionarray.Array[x10.lang.Double]{self.rank==1}): x10.lang.Int.</TT><PRE>
 </PRE>Transfer as many nz entries from d into this
 the as can fit into this. The entries are transferred
 into the destination starting from offset.
@@ -1061,7 +1061,7 @@ the index of the first element transferred is going to be zero.,</div>
 <dt><span class="strong">Returns:</span></dt><dd>number of nz entries transferred</dd></dl>
 </li>
 </ul>
-<a name="extract(x10.lang.Int,x10.lang.Int,x10.lang.Int,x10.array.Array[x10.lang.Double])">
+<a name="extract(x10.lang.Int,x10.lang.Int,x10.lang.Int,x10.regionarray.Array[x10.lang.Double])">
 <!--   -->
 </a>
 <ul class="blockList">
@@ -1070,8 +1070,8 @@ the index of the first element transferred is going to be zero.,</div>
 <pre>public&nbsp;void&nbsp;extract(x10.lang.Int&nbsp;srcOffset,
            x10.lang.Int&nbsp;count,
            x10.lang.Int&nbsp;dstOffset,
-           x10.array.Array&lt;x10.lang.Double&gt;&nbsp;dest)</pre>
-<div class="block"><B>Declaration:</B> <TT>extract(srcOffset:x10.lang.Int,count:x10.lang.Int,dstOffset:x10.lang.Int,dest:x10.array.Array[x10.lang.Double]{self.rank==1}): void.</TT><PRE>
+           x10.regionarray.Array&lt;x10.lang.Double&gt;&nbsp;dest)</pre>
+<div class="block"><B>Declaration:</B> <TT>extract(srcOffset:x10.lang.Int,count:x10.lang.Int,dstOffset:x10.lang.Int,dest:x10.regionarray.Array[x10.lang.Double]{self.rank==1}): void.</TT><PRE>
 </PRE>Extract data from this compressed array and transfer into dest.
 Start from the srcOffset index in the underlying array, and
 transfer at most count entries. In the destination, copy these
@@ -1079,14 +1079,14 @@ entries after destOffset. All data in destination array will be overwritten.</di
 <dl><dt><span class="strong">Parameters:</span></dt><dd><code>srcOffset</code> - starting offset of source compress array</dd><dd><code>count</code> - number of nonzero to extract from compress array</dd><dd><code>dstOffset</code> - starting offset for target array to store the extracted data</dd><dd><code>dest</code> - target array</dd></dl>
 </li>
 </ul>
-<a name="extract(x10.array.Array[x10.lang.Double])">
+<a name="extract(x10.regionarray.Array[x10.lang.Double])">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
 <h4>extract</h4>
-<pre>public&nbsp;void&nbsp;extract(x10.array.Array&lt;x10.lang.Double&gt;&nbsp;dest)</pre>
-<div class="block"><B>Declaration:</B> <TT>extract(dest:x10.array.Array[x10.lang.Double]{self.rank==1}): void.</TT><PRE>
+<pre>public&nbsp;void&nbsp;extract(x10.regionarray.Array&lt;x10.lang.Double&gt;&nbsp;dest)</pre>
+<div class="block"><B>Declaration:</B> <TT>extract(dest:x10.regionarray.Array[x10.lang.Double]{self.rank==1}): void.</TT><PRE>
 </PRE>Extract all data in this into dest.</div>
 </li>
 </ul>
@@ -1096,8 +1096,8 @@ entries after destOffset. All data in destination array will be overwritten.</di
 <ul class="blockList">
 <li class="blockList">
 <h4>extract</h4>
-<pre>public&nbsp;x10.array.Array&lt;x10.lang.Double&gt;&nbsp;extract(x10.lang.Int&nbsp;ls)</pre>
-<div class="block"><B>Declaration:</B> <TT>extract(ls:x10.lang.Int): x10.array.Array[x10.lang.Double]{self.rank==1}.</TT><PRE>
+<pre>public&nbsp;x10.regionarray.Array&lt;x10.lang.Double&gt;&nbsp;extract(x10.lang.Int&nbsp;ls)</pre>
+<div class="block"><B>Declaration:</B> <TT>extract(ls:x10.lang.Int): x10.regionarray.Array[x10.lang.Double]{self.rank==1}.</TT><PRE>
 </PRE>Allocate ls entries from current array and return a new Rail
 containing these netries.</div>
 </li>
@@ -1156,14 +1156,14 @@ containing these netries.</div>
 <pre>public&nbsp;x10.lang.Boolean&nbsp;equals(<a href="../../../x10/matrix/sparse/CompressArray.html" title="class in x10.matrix.sparse">CompressArray</a>&nbsp;cl)</pre>
 </li>
 </ul>
-<a name="equals(x10.array.Array[x10.lang.Double])">
+<a name="equals(x10.regionarray.Array[x10.lang.Double])">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
 <h4>equals</h4>
-<pre>public&nbsp;x10.lang.Boolean&nbsp;equals(x10.array.Array&lt;x10.lang.Double&gt;&nbsp;al)</pre>
-<div class="block"><B>Declaration:</B> <TT>equals(al:x10.array.Array[x10.lang.Double]{self.rank==1}): x10.lang.Boolean.</TT><PRE>
+<pre>public&nbsp;x10.lang.Boolean&nbsp;equals(x10.regionarray.Array&lt;x10.lang.Double&gt;&nbsp;al)</pre>
+<div class="block"><B>Declaration:</B> <TT>equals(al:x10.regionarray.Array[x10.lang.Double]{self.rank==1}): x10.lang.Boolean.</TT><PRE>
 </PRE></div>
 </li>
 </ul>

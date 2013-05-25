@@ -135,9 +135,9 @@ implements x10.lang. Fun_0_1&lt;x10.lang.Int,x10.lang.Double&gt;</pre>
 <th class="colLast" scope="col">Field and Description</th>
 </tr>
 <tr class="altColor">
-<td class="colFirst"><code>x10.array.Array&lt;x10.lang.Double&gt;</code></td>
+<td class="colFirst"><code>x10.regionarray.Array&lt;x10.lang.Double&gt;</code></td>
 <td class="colLast"><code><strong><a href="../../x10/matrix/Vector.html#d">d</a></strong></code>
-<div class="block"><B>Field Type</B>: <TT>x10.array.Array[x10.lang.Double]{self.rank==1, self.zeroBased==true, self.rect==true, self.rail==true}</TT>
+<div class="block"><B>Field Type</B>: <TT>x10.regionarray.Array[x10.lang.Double]{self.rank==1, self.zeroBased==true, self.rect==true, self.rail==true}</TT>
 </div>
 </td>
 </tr>
@@ -162,15 +162,15 @@ implements x10.lang. Fun_0_1&lt;x10.lang.Int,x10.lang.Double&gt;</pre>
 <th class="colOne" scope="col">Constructor and Description</th>
 </tr>
 <tr class="altColor">
-<td class="colOne"><code><strong><a href="../../x10/matrix/Vector.html#Vector(x10.lang.Int, x10.array.Array[x10.lang.Double]{self.rank==1, self.zeroBased==true, self.rect==true, self.rail==true})">Vector</a></strong>(x10.lang.Int&nbsp;n,
-      x10.array.Array&lt;x10.lang.Double&gt;&nbsp;x)</code>
-<div class="block"><B>Declaration</B>: <TT>this(x10.lang.Int, x10.array.Array[x10.lang.Double]{self.rank==1, self.zeroBased==true, self.rect==true, self.rail==true}): x10.matrix.Vector{self.M==n}.</TT>
+<td class="colOne"><code><strong><a href="../../x10/matrix/Vector.html#Vector(x10.lang.Int, x10.regionarray.Array[x10.lang.Double]{self.rank==1, self.zeroBased==true, self.rect==true, self.rail==true})">Vector</a></strong>(x10.lang.Int&nbsp;n,
+      x10.regionarray.Array&lt;x10.lang.Double&gt;&nbsp;x)</code>
+<div class="block"><B>Declaration</B>: <TT>this(x10.lang.Int, x10.regionarray.Array[x10.lang.Double]{self.rank==1, self.zeroBased==true, self.rect==true, self.rail==true}): x10.matrix.Vector{self.M==n}.</TT>
 Constructor based ib a Rail in Double</div>
 </td>
 </tr>
 <tr class="rowColor">
-<td class="colOne"><code><strong><a href="../../x10/matrix/Vector.html#Vector(x10.array.Array[x10.lang.Double]{self.rank==1, self.zeroBased==true, self.rect==true, self.rail==true})">Vector</a></strong>(x10.array.Array&lt;x10.lang.Double&gt;&nbsp;x)</code>
-<div class="block"><B>Declaration</B>: <TT>this(x10.array.Array[x10.lang.Double]{self.rank==1, self.zeroBased==true, self.rect==true, self.rail==true}): x10.matrix.Vector{self.M==x.size}.</TT>
+<td class="colOne"><code><strong><a href="../../x10/matrix/Vector.html#Vector(x10.regionarray.Array[x10.lang.Double]{self.rank==1, self.zeroBased==true, self.rect==true, self.rail==true})">Vector</a></strong>(x10.regionarray.Array&lt;x10.lang.Double&gt;&nbsp;x)</code>
+<div class="block"><B>Declaration</B>: <TT>this(x10.regionarray.Array[x10.lang.Double]{self.rank==1, self.zeroBased==true, self.rect==true, self.rail==true}): x10.matrix.Vector{self.M==x.size}.</TT>
 </div>
 </td>
 </tr>
@@ -235,9 +235,9 @@ Init with function</div>
 </td>
 </tr>
 <tr class="altColor">
-<td class="colFirst"><code>x10.array.Array&lt;x10.lang.Double&gt;</code></td>
+<td class="colFirst"><code>x10.regionarray.Array&lt;x10.lang.Double&gt;</code></td>
 <td class="colLast"><code><strong><a href="../../x10/matrix/Vector.html#rail()">rail</a></strong>()</code>
-<div class="block"><B>Declaration:</B> <TT>rail(): x10.array.Array[x10.lang.Double]{self.rank==1}.</TT>
+<div class="block"><B>Declaration:</B> <TT>rail(): x10.regionarray.Array[x10.lang.Double]{self.rank==1}.</TT>
 </div>
 </td>
 </tr>
@@ -897,8 +897,8 @@ Class Vector uses an M &#42 1 array as data staorage)
 <ul class="blockList">
 <li class="blockList">
 <h4>d</h4>
-<pre>public final&nbsp;x10.array.Array&lt;x10.lang.Double&gt; d</pre>
-<div class="block"><B>Field Type</B>: <TT>x10.array.Array[x10.lang.Double]{self.rank==1, self.zeroBased==true, self.rect==true, self.rail==true}</TT><PRE>
+<pre>public final&nbsp;x10.regionarray.Array&lt;x10.lang.Double&gt; d</pre>
+<div class="block"><B>Field Type</B>: <TT>x10.regionarray.Array[x10.lang.Double]{self.rank==1, self.zeroBased==true, self.rect==true, self.rail==true}</TT><PRE>
 </PRE></div>
 </li>
 </ul>
@@ -920,26 +920,26 @@ Class Vector uses an M &#42 1 array as data staorage)
 <!--   -->
 </a>
 <h3>Constructor Detail</h3>
-<a name="Vector(x10.lang.Int, x10.array.Array[x10.lang.Double]{self.rank==1, self.zeroBased==true, self.rect==true, self.rail==true})">
+<a name="Vector(x10.lang.Int, x10.regionarray.Array[x10.lang.Double]{self.rank==1, self.zeroBased==true, self.rect==true, self.rail==true})">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
 <h4>Vector</h4>
 <pre>public&nbsp;Vector(x10.lang.Int&nbsp;n,
-      x10.array.Array&lt;x10.lang.Double&gt;&nbsp;x)</pre>
-<div class="block"><B>Declaration</B>: <TT>this(x10.lang.Int, x10.array.Array[x10.lang.Double]{self.rank==1, self.zeroBased==true, self.rect==true, self.rail==true}): x10.matrix.Vector{self.M==n}.</TT><PRE>
+      x10.regionarray.Array&lt;x10.lang.Double&gt;&nbsp;x)</pre>
+<div class="block"><B>Declaration</B>: <TT>this(x10.lang.Int, x10.regionarray.Array[x10.lang.Double]{self.rank==1, self.zeroBased==true, self.rect==true, self.rail==true}): x10.matrix.Vector{self.M==n}.</TT><PRE>
 </PRE>Constructor based ib a Rail in Double</div>
 </li>
 </ul>
-<a name="Vector(x10.array.Array[x10.lang.Double]{self.rank==1, self.zeroBased==true, self.rect==true, self.rail==true})">
+<a name="Vector(x10.regionarray.Array[x10.lang.Double]{self.rank==1, self.zeroBased==true, self.rect==true, self.rail==true})">
 <!--   -->
 </a>
 <ul class="blockListLast">
 <li class="blockList">
 <h4>Vector</h4>
-<pre>public&nbsp;Vector(x10.array.Array&lt;x10.lang.Double&gt;&nbsp;x)</pre>
-<div class="block"><B>Declaration</B>: <TT>this(x10.array.Array[x10.lang.Double]{self.rank==1, self.zeroBased==true, self.rect==true, self.rail==true}): x10.matrix.Vector{self.M==x.size}.</TT><PRE>
+<pre>public&nbsp;Vector(x10.regionarray.Array&lt;x10.lang.Double&gt;&nbsp;x)</pre>
+<div class="block"><B>Declaration</B>: <TT>this(x10.regionarray.Array[x10.lang.Double]{self.rank==1, self.zeroBased==true, self.rect==true, self.rail==true}): x10.matrix.Vector{self.M==x.size}.</TT><PRE>
 </PRE></div>
 </li>
 </ul>
@@ -1028,8 +1028,8 @@ values between the specified range.</div>
 <ul class="blockList">
 <li class="blockList">
 <h4>rail</h4>
-<pre>public&nbsp;x10.array.Array&lt;x10.lang.Double&gt;&nbsp;rail()</pre>
-<div class="block"><B>Declaration:</B> <TT>rail(): x10.array.Array[x10.lang.Double]{self.rank==1}.</TT><PRE>
+<pre>public&nbsp;x10.regionarray.Array&lt;x10.lang.Double&gt;&nbsp;rail()</pre>
+<div class="block"><B>Declaration:</B> <TT>rail(): x10.regionarray.Array[x10.lang.Double]{self.rank==1}.</TT><PRE>
 </PRE></div>
 </li>
 </ul>

@@ -264,16 +264,16 @@ uniform distributed distance between two nonzero indexes.</div>
 </tr>
 <tr class="rowColor">
 <td class="colFirst"><code>static <a href="../../../x10/matrix/sparse/Compress1D.html" title="class in x10.matrix.sparse">Compress1D</a></code></td>
-<td class="colLast"><code><strong><a href="../../../x10/matrix/sparse/Compress1D.html#compress(x10.array.Array[x10.lang.Double])">compress</a></strong>(x10.array.Array&lt;x10.lang.Double&gt;&nbsp;src)</code>
-<div class="block"><B>Declaration:</B> <TT>compress(src:x10.array.Array[x10.lang.Double]{self.rank==1}): x10.matrix.sparse.Compress1D.</TT>
+<td class="colLast"><code><strong><a href="../../../x10/matrix/sparse/Compress1D.html#compress(x10.regionarray.Array[x10.lang.Double])">compress</a></strong>(x10.regionarray.Array&lt;x10.lang.Double&gt;&nbsp;src)</code>
+<div class="block"><B>Declaration:</B> <TT>compress(src:x10.regionarray.Array[x10.lang.Double]{self.rank==1}): x10.matrix.sparse.Compress1D.</TT>
 </div>
 </td>
 </tr>
 <tr class="altColor">
 <td class="colFirst"><code>x10.lang.Int</code></td>
-<td class="colLast"><code><strong><a href="../../../x10/matrix/sparse/Compress1D.html#compressAt(x10.lang.Int,x10.array.Array[x10.lang.Double])">compressAt</a></strong>(x10.lang.Int&nbsp;off,
-          x10.array.Array&lt;x10.lang.Double&gt;&nbsp;d)</code>
-<div class="block"><B>Declaration:</B> <TT>compressAt(off:x10.lang.Int,d:x10.array.Array[x10.lang.Double]{self.rank==1}): x10.lang.Int.</TT>
+<td class="colLast"><code><strong><a href="../../../x10/matrix/sparse/Compress1D.html#compressAt(x10.lang.Int,x10.regionarray.Array[x10.lang.Double])">compressAt</a></strong>(x10.lang.Int&nbsp;off,
+          x10.regionarray.Array&lt;x10.lang.Double&gt;&nbsp;d)</code>
+<div class="block"><B>Declaration:</B> <TT>compressAt(off:x10.lang.Int,d:x10.regionarray.Array[x10.lang.Double]{self.rank==1}): x10.lang.Int.</TT>
 Compress src array into this compressed 1D line.</div>
 </td>
 </tr>
@@ -284,16 +284,16 @@ Compress src array into this compressed 1D line.</div>
 </td>
 </tr>
 <tr class="altColor">
-<td class="colFirst"><code>x10.array.Array&lt;x10.lang.Double&gt;</code></td>
+<td class="colFirst"><code>x10.regionarray.Array&lt;x10.lang.Double&gt;</code></td>
 <td class="colLast"><code><strong><a href="../../../x10/matrix/sparse/Compress1D.html#getData()">getData</a></strong>()</code>
-<div class="block"><B>Declaration:</B> <TT>getData(): x10.array.Array[x10.lang.Double]{self.rail==true, self.rank==1, self.region.rank==1, self.region.rail==true, self.region!=null, self.rect==self.region.rect, self.zeroBased==self.region.zeroBased}.</TT>
+<div class="block"><B>Declaration:</B> <TT>getData(): x10.regionarray.Array[x10.lang.Double]{self.rail==true, self.rank==1, self.region.rank==1, self.region.rail==true, self.region!=null, self.rect==self.region.rect, self.zeroBased==self.region.zeroBased}.</TT>
 Return the data value array storing the compressed data</div>
 </td>
 </tr>
 <tr class="rowColor">
-<td class="colFirst"><code>x10.array.Array&lt;x10.lang.Int&gt;</code></td>
+<td class="colFirst"><code>x10.regionarray.Array&lt;x10.lang.Int&gt;</code></td>
 <td class="colLast"><code><strong><a href="../../../x10/matrix/sparse/Compress1D.html#getIndex()">getIndex</a></strong>()</code>
-<div class="block"><B>Declaration:</B> <TT>getIndex(): x10.array.Array[x10.lang.Int]{self.rail==true, self.rank==1, self.region.rank==1, self.region.rail==true, self.region!=null, self.rect==self.region.rect, self.zeroBased==self.region.zeroBased}.</TT>
+<div class="block"><B>Declaration:</B> <TT>getIndex(): x10.regionarray.Array[x10.lang.Int]{self.rail==true, self.rank==1, self.region.rank==1, self.region.rail==true, self.region!=null, self.rect==self.region.rect, self.zeroBased==self.region.zeroBased}.</TT>
 Return the index value array storing the positions of corresponding values
 in the uncompressed data arry</div>
 </td>
@@ -393,34 +393,34 @@ Copy length entries from startIndex.</div>
 </tr>
 <tr class="rowColor">
 <td class="colFirst"><code>void</code></td>
-<td class="colLast"><code><strong><a href="../../../x10/matrix/sparse/Compress1D.html#extract(x10.lang.Int,x10.lang.Int,x10.lang.Int,x10.array.Array[x10.lang.Double])">extract</a></strong>(x10.lang.Int&nbsp;startIndex,
+<td class="colLast"><code><strong><a href="../../../x10/matrix/sparse/Compress1D.html#extract(x10.lang.Int,x10.lang.Int,x10.lang.Int,x10.regionarray.Array[x10.lang.Double])">extract</a></strong>(x10.lang.Int&nbsp;startIndex,
        x10.lang.Int&nbsp;length,
        x10.lang.Int&nbsp;destOffset,
-       x10.array.Array&lt;x10.lang.Double&gt;&nbsp;dest)</code>
-<div class="block"><B>Declaration:</B> <TT>extract(startIndex:x10.lang.Int,length:x10.lang.Int,destOffset:x10.lang.Int,dest:x10.array.Array[x10.lang.Double]{self.rank==1}): void.</TT>
+       x10.regionarray.Array&lt;x10.lang.Double&gt;&nbsp;dest)</code>
+<div class="block"><B>Declaration:</B> <TT>extract(startIndex:x10.lang.Int,length:x10.lang.Int,destOffset:x10.lang.Int,dest:x10.regionarray.Array[x10.lang.Double]{self.rank==1}): void.</TT>
 Extract a specified range of data from compress line.</div>
 </td>
 </tr>
 <tr class="altColor">
 <td class="colFirst"><code>void</code></td>
-<td class="colLast"><code><strong><a href="../../../x10/matrix/sparse/Compress1D.html#extract(x10.array.Array[x10.lang.Double])">extract</a></strong>(x10.array.Array&lt;x10.lang.Double&gt;&nbsp;dst)</code>
-<div class="block"><B>Declaration:</B> <TT>extract(dst:x10.array.Array[x10.lang.Double]{self.rank==1}): void.</TT>
+<td class="colLast"><code><strong><a href="../../../x10/matrix/sparse/Compress1D.html#extract(x10.regionarray.Array[x10.lang.Double])">extract</a></strong>(x10.regionarray.Array&lt;x10.lang.Double&gt;&nbsp;dst)</code>
+<div class="block"><B>Declaration:</B> <TT>extract(dst:x10.regionarray.Array[x10.lang.Double]{self.rank==1}): void.</TT>
 </div>
 </td>
 </tr>
 <tr class="rowColor">
 <td class="colFirst"><code>void</code></td>
-<td class="colLast"><code><strong><a href="../../../x10/matrix/sparse/Compress1D.html#extract(x10.lang.Int,x10.array.Array[x10.lang.Double])">extract</a></strong>(x10.lang.Int&nbsp;dstoff,
-       x10.array.Array&lt;x10.lang.Double&gt;&nbsp;dst)</code>
-<div class="block"><B>Declaration:</B> <TT>extract(dstoff:x10.lang.Int,dst:x10.array.Array[x10.lang.Double]{self.rank==1}): void.</TT>
+<td class="colLast"><code><strong><a href="../../../x10/matrix/sparse/Compress1D.html#extract(x10.lang.Int,x10.regionarray.Array[x10.lang.Double])">extract</a></strong>(x10.lang.Int&nbsp;dstoff,
+       x10.regionarray.Array&lt;x10.lang.Double&gt;&nbsp;dst)</code>
+<div class="block"><B>Declaration:</B> <TT>extract(dstoff:x10.lang.Int,dst:x10.regionarray.Array[x10.lang.Double]{self.rank==1}): void.</TT>
 Extract all data in compress line</div>
 </td>
 </tr>
 <tr class="altColor">
 <td class="colFirst"><code>void</code></td>
-<td class="colLast"><code><strong><a href="../../../x10/matrix/sparse/Compress1D.html#addToArray(x10.lang.Int,x10.array.Array[x10.lang.Double])">addToArray</a></strong>(x10.lang.Int&nbsp;dstoff,
-          x10.array.Array&lt;x10.lang.Double&gt;&nbsp;dst)</code>
-<div class="block"><B>Declaration:</B> <TT>addToArray(dstoff:x10.lang.Int,dst:x10.array.Array[x10.lang.Double]{self.rank==1}): void.</TT>
+<td class="colLast"><code><strong><a href="../../../x10/matrix/sparse/Compress1D.html#addToArray(x10.lang.Int,x10.regionarray.Array[x10.lang.Double])">addToArray</a></strong>(x10.lang.Int&nbsp;dstoff,
+          x10.regionarray.Array&lt;x10.lang.Double&gt;&nbsp;dst)</code>
+<div class="block"><B>Declaration:</B> <TT>addToArray(dstoff:x10.lang.Int,dst:x10.regionarray.Array[x10.lang.Double]{self.rank==1}): void.</TT>
 Add a compressed line to the uncompressed array.</div>
 </td>
 </tr>
@@ -454,8 +454,8 @@ Add a compressed line to the uncompressed array.</div>
 </tr>
 <tr class="altColor">
 <td class="colFirst"><code>x10.lang.Boolean</code></td>
-<td class="colLast"><code><strong><a href="../../../x10/matrix/sparse/Compress1D.html#testIn(x10.array.Array[x10.lang.Double])">testIn</a></strong>(x10.array.Array&lt;x10.lang.Double&gt;&nbsp;al)</code>
-<div class="block"><B>Declaration:</B> <TT>testIn(al:x10.array.Array[x10.lang.Double]{self.rank==1}): x10.lang.Boolean.</TT>
+<td class="colLast"><code><strong><a href="../../../x10/matrix/sparse/Compress1D.html#testIn(x10.regionarray.Array[x10.lang.Double])">testIn</a></strong>(x10.regionarray.Array&lt;x10.lang.Double&gt;&nbsp;al)</code>
+<div class="block"><B>Declaration:</B> <TT>testIn(al:x10.regionarray.Array[x10.lang.Double]{self.rank==1}): x10.lang.Boolean.</TT>
 </div>
 </td>
 </tr>
@@ -711,26 +711,26 @@ using shared storage among all compressed row/columns, do not
 use this method.</div>
 </li>
 </ul>
-<a name="compress(x10.array.Array[x10.lang.Double])">
+<a name="compress(x10.regionarray.Array[x10.lang.Double])">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
 <h4>compress</h4>
-<pre>public static&nbsp;<a href="../../../x10/matrix/sparse/Compress1D.html" title="class in x10.matrix.sparse">Compress1D</a>&nbsp;compress(x10.array.Array&lt;x10.lang.Double&gt;&nbsp;src)</pre>
-<div class="block"><B>Declaration:</B> <TT>compress(src:x10.array.Array[x10.lang.Double]{self.rank==1}): x10.matrix.sparse.Compress1D.</TT><PRE>
+<pre>public static&nbsp;<a href="../../../x10/matrix/sparse/Compress1D.html" title="class in x10.matrix.sparse">Compress1D</a>&nbsp;compress(x10.regionarray.Array&lt;x10.lang.Double&gt;&nbsp;src)</pre>
+<div class="block"><B>Declaration:</B> <TT>compress(src:x10.regionarray.Array[x10.lang.Double]{self.rank==1}): x10.matrix.sparse.Compress1D.</TT><PRE>
 </PRE></div>
 </li>
 </ul>
-<a name="compressAt(x10.lang.Int,x10.array.Array[x10.lang.Double])">
+<a name="compressAt(x10.lang.Int,x10.regionarray.Array[x10.lang.Double])">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
 <h4>compressAt</h4>
 <pre>public&nbsp;x10.lang.Int&nbsp;compressAt(x10.lang.Int&nbsp;off,
-                      x10.array.Array&lt;x10.lang.Double&gt;&nbsp;d)</pre>
-<div class="block"><B>Declaration:</B> <TT>compressAt(off:x10.lang.Int,d:x10.array.Array[x10.lang.Double]{self.rank==1}): x10.lang.Int.</TT><PRE>
+                      x10.regionarray.Array&lt;x10.lang.Double&gt;&nbsp;d)</pre>
+<div class="block"><B>Declaration:</B> <TT>compressAt(off:x10.lang.Int,d:x10.regionarray.Array[x10.lang.Double]{self.rank==1}): x10.lang.Int.</TT><PRE>
 </PRE>Compress src array into this compressed 1D line.</div>
 </li>
 </ul>
@@ -750,8 +750,8 @@ use this method.</div>
 <ul class="blockList">
 <li class="blockList">
 <h4>getData</h4>
-<pre>public&nbsp;x10.array.Array&lt;x10.lang.Double&gt;&nbsp;getData()</pre>
-<div class="block"><B>Declaration:</B> <TT>getData(): x10.array.Array[x10.lang.Double]{self.rail==true, self.rank==1, self.region.rank==1, self.region.rail==true, self.region!=null, self.rect==self.region.rect, self.zeroBased==self.region.zeroBased}.</TT><PRE>
+<pre>public&nbsp;x10.regionarray.Array&lt;x10.lang.Double&gt;&nbsp;getData()</pre>
+<div class="block"><B>Declaration:</B> <TT>getData(): x10.regionarray.Array[x10.lang.Double]{self.rail==true, self.rank==1, self.region.rank==1, self.region.rail==true, self.region!=null, self.rect==self.region.rect, self.zeroBased==self.region.zeroBased}.</TT><PRE>
 </PRE>Return the data value array storing the compressed data</div>
 </li>
 </ul>
@@ -761,8 +761,8 @@ use this method.</div>
 <ul class="blockList">
 <li class="blockList">
 <h4>getIndex</h4>
-<pre>public&nbsp;x10.array.Array&lt;x10.lang.Int&gt;&nbsp;getIndex()</pre>
-<div class="block"><B>Declaration:</B> <TT>getIndex(): x10.array.Array[x10.lang.Int]{self.rail==true, self.rank==1, self.region.rank==1, self.region.rail==true, self.region!=null, self.rect==self.region.rect, self.zeroBased==self.region.zeroBased}.</TT><PRE>
+<pre>public&nbsp;x10.regionarray.Array&lt;x10.lang.Int&gt;&nbsp;getIndex()</pre>
+<div class="block"><B>Declaration:</B> <TT>getIndex(): x10.regionarray.Array[x10.lang.Int]{self.rail==true, self.rank==1, self.region.rank==1, self.region.rail==true, self.region!=null, self.rect==self.region.rect, self.zeroBased==self.region.zeroBased}.</TT><PRE>
 </PRE>Return the index value array storing the positions of corresponding values
 in the uncompressed data arry</div>
 </li>
@@ -945,7 +945,7 @@ are updated accordingly.</div>
 <dl><dt><span class="strong">Parameters:</span></dt><dd><code>src</code> - source compress line</dd><dd><code>dst</code> - target compress line</dd><dd><code>sttidx</code> - starting index at target</dd></dl>
 </li>
 </ul>
-<a name="extract(x10.lang.Int,x10.lang.Int,x10.lang.Int,x10.array.Array[x10.lang.Double])">
+<a name="extract(x10.lang.Int,x10.lang.Int,x10.lang.Int,x10.regionarray.Array[x10.lang.Double])">
 <!--   -->
 </a>
 <ul class="blockList">
@@ -954,46 +954,46 @@ are updated accordingly.</div>
 <pre>public&nbsp;void&nbsp;extract(x10.lang.Int&nbsp;startIndex,
            x10.lang.Int&nbsp;length,
            x10.lang.Int&nbsp;destOffset,
-           x10.array.Array&lt;x10.lang.Double&gt;&nbsp;dest)</pre>
-<div class="block"><B>Declaration:</B> <TT>extract(startIndex:x10.lang.Int,length:x10.lang.Int,destOffset:x10.lang.Int,dest:x10.array.Array[x10.lang.Double]{self.rank==1}): void.</TT><PRE>
+           x10.regionarray.Array&lt;x10.lang.Double&gt;&nbsp;dest)</pre>
+<div class="block"><B>Declaration:</B> <TT>extract(startIndex:x10.lang.Int,length:x10.lang.Int,destOffset:x10.lang.Int,dest:x10.regionarray.Array[x10.lang.Double]{self.rank==1}): void.</TT><PRE>
 </PRE>Extract a specified range of data from compress line. The range
 of starting offset and length is specified in uncompress condition.</div>
 <dl><dt><span class="strong">Parameters:</span></dt><dd><code>startIndex</code> - starting index of the uncompress array</dd><dd><code>length</code> - length of the index range of the uncompress array</dd><dd><code>destOffset</code> - offset in the destination</dd><dd><code>dest</code> - target array</dd></dl>
 </li>
 </ul>
-<a name="extract(x10.array.Array[x10.lang.Double])">
+<a name="extract(x10.regionarray.Array[x10.lang.Double])">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
 <h4>extract</h4>
-<pre>public&nbsp;void&nbsp;extract(x10.array.Array&lt;x10.lang.Double&gt;&nbsp;dst)</pre>
-<div class="block"><B>Declaration:</B> <TT>extract(dst:x10.array.Array[x10.lang.Double]{self.rank==1}): void.</TT><PRE>
+<pre>public&nbsp;void&nbsp;extract(x10.regionarray.Array&lt;x10.lang.Double&gt;&nbsp;dst)</pre>
+<div class="block"><B>Declaration:</B> <TT>extract(dst:x10.regionarray.Array[x10.lang.Double]{self.rank==1}): void.</TT><PRE>
 </PRE></div>
 </li>
 </ul>
-<a name="extract(x10.lang.Int,x10.array.Array[x10.lang.Double])">
+<a name="extract(x10.lang.Int,x10.regionarray.Array[x10.lang.Double])">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
 <h4>extract</h4>
 <pre>public&nbsp;void&nbsp;extract(x10.lang.Int&nbsp;dstoff,
-           x10.array.Array&lt;x10.lang.Double&gt;&nbsp;dst)</pre>
-<div class="block"><B>Declaration:</B> <TT>extract(dstoff:x10.lang.Int,dst:x10.array.Array[x10.lang.Double]{self.rank==1}): void.</TT><PRE>
+           x10.regionarray.Array&lt;x10.lang.Double&gt;&nbsp;dst)</pre>
+<div class="block"><B>Declaration:</B> <TT>extract(dstoff:x10.lang.Int,dst:x10.regionarray.Array[x10.lang.Double]{self.rank==1}): void.</TT><PRE>
 </PRE>Extract all data in compress line</div>
 <dl><dt><span class="strong">Parameters:</span></dt><dd><code>dstoff</code> - Destination array offset</dd><dd><code>dst</code> - Destination arra</dd></dl>
 </li>
 </ul>
-<a name="addToArray(x10.lang.Int,x10.array.Array[x10.lang.Double])">
+<a name="addToArray(x10.lang.Int,x10.regionarray.Array[x10.lang.Double])">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
 <h4>addToArray</h4>
 <pre>public&nbsp;void&nbsp;addToArray(x10.lang.Int&nbsp;dstoff,
-              x10.array.Array&lt;x10.lang.Double&gt;&nbsp;dst)</pre>
-<div class="block"><B>Declaration:</B> <TT>addToArray(dstoff:x10.lang.Int,dst:x10.array.Array[x10.lang.Double]{self.rank==1}): void.</TT><PRE>
+              x10.regionarray.Array&lt;x10.lang.Double&gt;&nbsp;dst)</pre>
+<div class="block"><B>Declaration:</B> <TT>addToArray(dstoff:x10.lang.Int,dst:x10.regionarray.Array[x10.lang.Double]{self.rank==1}): void.</TT><PRE>
 </PRE>Add a compressed line to the uncompressed array.
 This method is used for SUMMA transposed multiplication</div>
 </li>
@@ -1061,14 +1061,14 @@ This method is used for SUMMA transposed multiplication</div>
 <pre>public&nbsp;x10.lang.Boolean&nbsp;equals(<a href="../../../x10/matrix/sparse/Compress1D.html" title="class in x10.matrix.sparse">Compress1D</a>&nbsp;cl)</pre>
 </li>
 </ul>
-<a name="testIn(x10.array.Array[x10.lang.Double])">
+<a name="testIn(x10.regionarray.Array[x10.lang.Double])">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
 <h4>testIn</h4>
-<pre>public&nbsp;x10.lang.Boolean&nbsp;testIn(x10.array.Array&lt;x10.lang.Double&gt;&nbsp;al)</pre>
-<div class="block"><B>Declaration:</B> <TT>testIn(al:x10.array.Array[x10.lang.Double]{self.rank==1}): x10.lang.Boolean.</TT><PRE>
+<pre>public&nbsp;x10.lang.Boolean&nbsp;testIn(x10.regionarray.Array&lt;x10.lang.Double&gt;&nbsp;al)</pre>
+<div class="block"><B>Declaration:</B> <TT>testIn(al:x10.regionarray.Array[x10.lang.Double]{self.rank==1}): x10.lang.Boolean.</TT><PRE>
 </PRE></div>
 </li>
 </ul>

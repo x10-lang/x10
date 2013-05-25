@@ -125,9 +125,9 @@ double type.</div>
 <th class="colLast" scope="col">Field and Description</th>
 </tr>
 <tr class="altColor">
-<td class="colFirst"><code>x10.array.Array&lt;x10.lang.Double&gt;</code></td>
+<td class="colFirst"><code>x10.regionarray.Array&lt;x10.lang.Double&gt;</code></td>
 <td class="colLast"><code><strong><a href="../../x10/matrix/DenseMatrix.html#d">d</a></strong></code>
-<div class="block"><B>Field Type</B>: <TT>x10.array.Array[x10.lang.Double]{self.rail==true, self.rank==1}</TT>
+<div class="block"><B>Field Type</B>: <TT>x10.regionarray.Array[x10.lang.Double]{self.rail==true, self.rank==1}</TT>
 The storage for dense matrix is 1-dimension array.</div>
 </td>
 </tr>
@@ -153,10 +153,10 @@ The storage for dense matrix is 1-dimension array.</div>
 <th class="colOne" scope="col">Constructor and Description</th>
 </tr>
 <tr class="altColor">
-<td class="colOne"><code><strong><a href="../../x10/matrix/DenseMatrix.html#DenseMatrix(x10.lang.Int, x10.lang.Int, x10.array.Array[x10.lang.Double]{self.rail==true, self.rank==1})">DenseMatrix</a></strong>(x10.lang.Int&nbsp;m,
+<td class="colOne"><code><strong><a href="../../x10/matrix/DenseMatrix.html#DenseMatrix(x10.lang.Int, x10.lang.Int, x10.regionarray.Array[x10.lang.Double]{self.rail==true, self.rank==1})">DenseMatrix</a></strong>(x10.lang.Int&nbsp;m,
            x10.lang.Int&nbsp;n,
-           x10.array.Array&lt;x10.lang.Double&gt;&nbsp;x)</code>
-<div class="block"><B>Declaration</B>: <TT>this(x10.lang.Int, x10.lang.Int, x10.array.Array[x10.lang.Double]{self.rail==true, self.rank==1}): x10.matrix.DenseMatrix{self.M==m, self.N==n}.</TT>
+           x10.regionarray.Array&lt;x10.lang.Double&gt;&nbsp;x)</code>
+<div class="block"><B>Declaration</B>: <TT>this(x10.lang.Int, x10.lang.Int, x10.regionarray.Array[x10.lang.Double]{self.rail==true, self.rank==1}): x10.matrix.DenseMatrix{self.M==m, self.N==n}.</TT>
 Construct a dense matrix in specified rows and columns and using provided
 data storage</div>
 </td>
@@ -1026,8 +1026,8 @@ continuous memory space.</div>
 <ul class="blockListLast">
 <li class="blockList">
 <h4>d</h4>
-<pre>public final&nbsp;x10.array.Array&lt;x10.lang.Double&gt; d</pre>
-<div class="block"><B>Field Type</B>: <TT>x10.array.Array[x10.lang.Double]{self.rail==true, self.rank==1}</TT><PRE>
+<pre>public final&nbsp;x10.regionarray.Array&lt;x10.lang.Double&gt; d</pre>
+<div class="block"><B>Field Type</B>: <TT>x10.regionarray.Array[x10.lang.Double]{self.rail==true, self.rank==1}</TT><PRE>
 </PRE>The storage for dense matrix is 1-dimension array.
 Rational:
 1) Compatible to column-major matrix storage specification, so that
@@ -1043,7 +1043,7 @@ the memory trunk can be passed to/from other program directly without conversion
 <!--   -->
 </a>
 <h3>Constructor Detail</h3>
-<a name="DenseMatrix(x10.lang.Int, x10.lang.Int, x10.array.Array[x10.lang.Double]{self.rail==true, self.rank==1})">
+<a name="DenseMatrix(x10.lang.Int, x10.lang.Int, x10.regionarray.Array[x10.lang.Double]{self.rail==true, self.rank==1})">
 <!--   -->
 </a>
 <ul class="blockList">
@@ -1051,8 +1051,8 @@ the memory trunk can be passed to/from other program directly without conversion
 <h4>DenseMatrix</h4>
 <pre>public&nbsp;DenseMatrix(x10.lang.Int&nbsp;m,
            x10.lang.Int&nbsp;n,
-           x10.array.Array&lt;x10.lang.Double&gt;&nbsp;x)</pre>
-<div class="block"><B>Declaration</B>: <TT>this(x10.lang.Int, x10.lang.Int, x10.array.Array[x10.lang.Double]{self.rail==true, self.rank==1}): x10.matrix.DenseMatrix{self.M==m, self.N==n}.</TT><PRE>
+           x10.regionarray.Array&lt;x10.lang.Double&gt;&nbsp;x)</pre>
+<div class="block"><B>Declaration</B>: <TT>this(x10.lang.Int, x10.lang.Int, x10.regionarray.Array[x10.lang.Double]{self.rail==true, self.rank==1}): x10.matrix.DenseMatrix{self.M==m, self.N==n}.</TT><PRE>
 </PRE>Construct a dense matrix in specified rows and columns and using provided
 data storage</div>
 </li>

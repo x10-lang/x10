@@ -12,7 +12,7 @@
 import harness.x10Test;
 import x10.interop.Java;
 import x10.util.Pair;
-import x10.array.*;
+import x10.regionarray.*;
 
 // MANAGED_X10_ONLY
 

@@ -13,7 +13,7 @@ import harness.x10Test;
 
 import x10.compiler.tests.*; // err markers
 import x10.util.*;
-import x10.array.*;
+import x10.regionarray.*;
 
 class XTENLANG_2638 extends x10Test
 {

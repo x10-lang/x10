@@ -29,7 +29,7 @@ public class Types260 extends x10Test {
 // file Types line 1008
  static  class Xmpl {
  def example() {
-type Vec(n:Long) = x10.array.Array[Int]{self.rank==1, self.size == n};
+type Vec(n:Long) = x10.regionarray.Array[Int]{self.rank==1, self.size == n};
 var example : Vec(78L);
 }}
 

@@ -53,12 +53,12 @@ class SharedDictionaries implements SerializationConstants {
                 "x10.lang.FinishState$Finish",
                 "x10.lang.Runtime$RemoteControl",
                 
-                /* Core class library: x10.array */
-                "x10.array.Array",
-                "x10.array.DistArray",
-                "x10.array.DistArray$LocalState",
-                "x10.array.RectRegion1D",
-                "x10.array.RemoteArray",
+                /* Core class library: x10.regionarray */
+                "x10.regionarray.Array",
+                "x10.regionarray.DistArray",
+                "x10.regionarray.DistArray$LocalState",
+                "x10.regionarray.RectRegion1D",
+                "x10.regionarray.RemoteArray",
                
                 /* Core class library: x10.io */
                 "x10.io.SerialData",

@@ -10,7 +10,7 @@
  */
 
 import harness.x10Test;
-import x10.array.*;
+import x10.regionarray.*;
 
 /**
  * Check that if D is of type Dist(R), and E of type Dist(R2), and R and R2

@@ -9,7 +9,7 @@
  *  (C) Copyright Australian National University 2011.
  */
 import harness.x10Test;
-import x10.array.*;
+import x10.regionarray.*;
 
 /**
  * Functional test of "at" closures with arrays 

@@ -10,7 +10,7 @@
  */
 
 import harness.x10Test;
-import x10.array.*;
+import x10.regionarray.*;
 
 /**
  * Test that a deptype for a method arg that depends on a previous arg is handled correctly.

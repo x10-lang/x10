@@ -1697,12 +1697,12 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
     }
     private static String asTypeName(Type containerType, String methodSuffix) {
         X10ClassDef def = containerType.toClass().def();
-        String name = def.fullName().toString(); // x10.array.DistArray.LocalState
+        String name = def.fullName().toString(); // x10.regionarray.DistArray.LocalState
         Ref<? extends Package> pkg = def.package_();
         if (pkg != null) {
-            String packageName = pkg.toString(); // x10.array
+            String packageName = pkg.toString(); // x10.regionarray
             int packageNameLength = packageName.length();
-            if (packageNameLength > 0) packageNameLength += 1; // x10.array.
+            if (packageNameLength > 0) packageNameLength += 1; // x10.regionarray.
             name = name.substring(packageNameLength); // DistArray.LocalState
         }        
         if (name.length() + 1/*$*/ + methodSuffix.length() + 6/*.class*/> longestTypeName) {

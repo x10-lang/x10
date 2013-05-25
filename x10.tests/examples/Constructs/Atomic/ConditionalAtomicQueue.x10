@@ -13,7 +13,7 @@ import harness.x10Test;
 
 import x10.util.Box;
 import x10.compiler.Pinned;
-import x10.array.*;
+import x10.regionarray.*;
 
 /**
  * When test using producer-consumer paradigm.

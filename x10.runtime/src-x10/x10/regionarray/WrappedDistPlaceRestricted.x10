@@ -9,42 +9,45 @@
  *  (C) Copyright IBM Corporation 2006-2010.
  */
 
-package x10.array;
+package x10.regionarray;
+
 /**
  * This class wraps another distribution to restrict the region
  * to a subset of the original dist's region.
  */
-final class WrappedDistRegionRestricted extends Dist {
+final class WrappedDistPlaceRestricted extends Dist {
     val base:Dist(rank);
-    val filter:Region(rank);
+    val filter:Place;
 
-    def this(d:Dist, r:Region(d.rank)):WrappedDistRegionRestricted(d.rank) {
-        super(d.region.intersection(r));
-        base = d;  
-        filter = r;  
+    def this(d:Dist, p:Place):WrappedDistPlaceRestricted(d.rank) {
+        super(d(p));
+        base = d; 
+        filter = p;
     }
 
-    public def places():PlaceGroup {
-        return base.places();
-    }
+    public def places():PlaceGroup = new SparsePlaceGroup(filter);
 
-    public def numPlaces() = base.numPlaces();
+    public def numPlaces():Long = 1L;
 
     public def regions():Iterable[Region(rank)] {
-        return new Rail[Region(rank)](Place.MAX_PLACES, 
-                                      (i:long)=>base.get(Place(i as int)).intersection(filter));
+        return new Rail[Region(rank)](1, region);
     }
 
     public def get(p:Place):Region(rank) {
-        return base.get(p).intersection(filter);
+	if (p.equals(filter)) {
+            return region;
+        } else {
+            return Region.makeEmpty(rank);
+        }
     }
 
     // replicated from superclass to workaround xlC bug with using & itables
     public operator this(p:Place):Region(rank) = get(p);
 
     public operator this(pt:Point(rank)):Place {
-        if (filter.contains(pt)) {
-            return base(pt);
+	val bp = base(pt);
+	if (bp.equals(filter)) {
+	    return bp;
         } else {
             throw new ArrayIndexOutOfBoundsException("point " + pt + " not contained in distribution");
         }
@@ -63,9 +66,9 @@ final class WrappedDistRegionRestricted extends Dist {
     public operator this(i0:long, i1:long, i2:long, i3:long){rank==4}:Place = this(Point.make(i0,i1,i2,i3));
 
     public def offset(pt:Point(rank)):long {
-        if (filter.contains(pt)) {
+        if (here == filter) {
             return base.offset(pt);
-        } else {
+       } else {
             throw new ArrayIndexOutOfBoundsException("point " + pt + " not contained in distribution");
         }
     }
@@ -73,17 +76,21 @@ final class WrappedDistRegionRestricted extends Dist {
     public def maxOffset():long = base.maxOffset();
 
     public def restriction(r:Region(rank)):Dist(rank) {
-        return new WrappedDistRegionRestricted(base, filter.intersection(r)); 
+        return new WrappedDistRegionRestricted(this, r); 
     }
 
     public def restriction(p:Place):Dist(rank) {
-        return new WrappedDistPlaceRestricted(this, p);
+	if (p.equals(here)) {
+            return this;
+        } else {
+            return Dist.make(Region.makeEmpty(rank));
+        }
     }
 
     public def equals(thatObj:Any):boolean {
-	if (!(thatObj instanceof WrappedDistRegionRestricted)) return false;
-        val that = thatObj as WrappedDistRegionRestricted;
+	if (!(thatObj instanceof WrappedDistPlaceRestricted)) return false;
+        val that = thatObj as WrappedDistPlaceRestricted;
 	return this.base.equals(that.base) && this.filter.equals(that.filter);
     }
 }
-public type WrappedDistRegionRestricted(r:Int) = WrappedDistRegionRestricted{self.rank==r};
+public type WrappedDistPlaceRestricted(r:Int)=WrappedDistPlaceRestricted{self.rank==r};

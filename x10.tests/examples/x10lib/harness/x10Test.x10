@@ -12,7 +12,7 @@
 package harness;
 
 import x10.compiler.WS;
-import x10.array.*;
+import x10.regionarray.*;
 import x10.util.*;
 import x10.io.Console;
 

@@ -12,7 +12,7 @@
 //LIMITATION:
 //This check is not being done by the compiler currently.
 import harness.x10Test;
-import x10.array.*;
+import x10.regionarray.*;
 
 /**
  *

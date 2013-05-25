@@ -147,9 +147,9 @@ Static method in class x10.mongo.yak.<A HREF="./x10/mongo/yak/YakUtil.html" titl
 <DT><A HREF="./x10/mongo/yak/YakUtil.html#collection(com.mongodb.ServerAddress,x10.lang.String,x10.lang.String)"><B>collection(com.mongodb.ServerAddress,x10.lang.String,x10.lang.String)</B></A> - 
 Static method in class x10.mongo.yak.<A HREF="./x10/mongo/yak/YakUtil.html" title="class in x10.mongo.yak">YakUtil</A>
 <DD>Acquire a YakCollection given all its coordinates.
-<DT><A HREF="./x10/mongo/yak/YakUtil.html#convert(x10.array.Array[x10.mongo.yak.YakMap])"><B>convert(x10.array.Array[x10.mongo.yak.YakMap])</B></A> - 
+<DT><A HREF="./x10/mongo/yak/YakUtil.html#convert(x10.regionarray.Array[x10.mongo.yak.YakMap])"><B>convert(x10.regionarray.Array[x10.mongo.yak.YakMap])</B></A> - 
 Static method in class x10.mongo.yak.<A HREF="./x10/mongo/yak/YakUtil.html" title="class in x10.mongo.yak">YakUtil</A>
-<DD><B>Declaration:</B> <TT>convert(r:x10.array.Array[x10.mongo.yak.YakMap]{self.rank==1, self.zeroBased==true, self.rect==true, self.rail==true}): x10.interop.Java.array[com.mongodb.DBObject].</TT>
+<DD><B>Declaration:</B> <TT>convert(r:x10.regionarray.Array[x10.mongo.yak.YakMap]{self.rank==1, self.zeroBased==true, self.rect==true, self.rail==true}): x10.interop.Java.array[com.mongodb.DBObject].</TT>
 Convert an X10 rail of <kbd>YakMap</kbd>s into a Java-style array of <kbd>DBBoject</kbd>s.
 <DT><A HREF="./x10/mongo/yak/YakUtil.html#convert(x10.util.List[T])"><B>convert(x10.util.List[T])</B></A> - 
 Static method in class x10.mongo.yak.<A HREF="./x10/mongo/yak/YakUtil.html" title="class in x10.mongo.yak">YakUtil</A>
@@ -521,24 +521,24 @@ Method in class x10.mongo.yak.<A HREF="./x10/mongo/yak/YakMap.html" title="class
 Static method in class x10.mongo.yak.<A HREF="./x10/mongo/yak/YakUtil.html" title="class in x10.mongo.yak">YakUtil</A>
 <DD><B>Declaration:</B> <TT>inc(fieldName:x10.lang.String,by:x10.lang.Any): x10.mongo.yak.YakMap{self!=null}.</TT>
 Construct a modifier which increments <kbd>fieldName</kbd> by <kbd>by</kbd>.
-<DT><A HREF="./x10/mongo/yak/YakCollection.html#insert(x10.array.Array[x10.mongo.yak.YakMap],com.mongodb.WriteConcern)"><B>insert(x10.array.Array[x10.mongo.yak.YakMap],com.mongodb.WriteConcern)</B></A> - 
+<DT><A HREF="./x10/mongo/yak/YakCollection.html#insert(x10.regionarray.Array[x10.mongo.yak.YakMap],com.mongodb.WriteConcern)"><B>insert(x10.regionarray.Array[x10.mongo.yak.YakMap],com.mongodb.WriteConcern)</B></A> - 
 Method in class x10.mongo.yak.<A HREF="./x10/mongo/yak/YakCollection.html" title="class in x10.mongo.yak">YakCollection</A>
-<DD><B>Declaration:</B> <TT>insert(newElements:x10.array.Array[x10.mongo.yak.YakMap]{self.rank==1, self.zeroBased==true, self.rect==true, self.rail==true},concern:com.mongodb.WriteConcern): com.mongodb.WriteResult.</TT>
+<DD><B>Declaration:</B> <TT>insert(newElements:x10.regionarray.Array[x10.mongo.yak.YakMap]{self.rank==1, self.zeroBased==true, self.rect==true, self.rail==true},concern:com.mongodb.WriteConcern): com.mongodb.WriteResult.</TT>
 Insert <kbd>newElements</kbd> into the collection, with write concern <kbd>concern</kbd>.
-<DT><A HREF="./x10/mongo/yak/YakCollection.html#insert(x10.array.Array[x10.mongo.yak.YakMap],com.mongodb.WriteConcern,com.mongodb.DBEncoder)"><B>insert(x10.array.Array[x10.mongo.yak.YakMap],com.mongodb.WriteConcern,com.mongodb.DBEncoder)</B></A> - 
+<DT><A HREF="./x10/mongo/yak/YakCollection.html#insert(x10.regionarray.Array[x10.mongo.yak.YakMap],com.mongodb.WriteConcern,com.mongodb.DBEncoder)"><B>insert(x10.regionarray.Array[x10.mongo.yak.YakMap],com.mongodb.WriteConcern,com.mongodb.DBEncoder)</B></A> - 
 Method in class x10.mongo.yak.<A HREF="./x10/mongo/yak/YakCollection.html" title="class in x10.mongo.yak">YakCollection</A>
-<DD><B>Declaration:</B> <TT>insert(newElements:x10.array.Array[x10.mongo.yak.YakMap]{self.rank==1, self.zeroBased==true, self.rect==true, self.rail==true},concern:com.mongodb.WriteConcern,encoder:com.mongodb.DBEncoder): com.mongodb.WriteResult.</TT>
+<DD><B>Declaration:</B> <TT>insert(newElements:x10.regionarray.Array[x10.mongo.yak.YakMap]{self.rank==1, self.zeroBased==true, self.rect==true, self.rail==true},concern:com.mongodb.WriteConcern,encoder:com.mongodb.DBEncoder): com.mongodb.WriteResult.</TT>
 Insert several elements into the collection, specifying write concern and encoder
 <DT><A HREF="./x10/mongo/yak/YakCollection.html#insert(com.mongodb.DBObject,com.mongodb.WriteConcern)"><B>insert(com.mongodb.DBObject,com.mongodb.WriteConcern)</B></A> - 
 Method in class x10.mongo.yak.<A HREF="./x10/mongo/yak/YakCollection.html" title="class in x10.mongo.yak">YakCollection</A>
 <DD>Insert one new element, specifying write concern
-<DT><A HREF="./x10/mongo/yak/YakCollection.html#insert(x10.array.Array[x10.mongo.yak.YakMap])"><B>insert(x10.array.Array[x10.mongo.yak.YakMap])</B></A> - 
+<DT><A HREF="./x10/mongo/yak/YakCollection.html#insert(x10.regionarray.Array[x10.mongo.yak.YakMap])"><B>insert(x10.regionarray.Array[x10.mongo.yak.YakMap])</B></A> - 
 Method in class x10.mongo.yak.<A HREF="./x10/mongo/yak/YakCollection.html" title="class in x10.mongo.yak">YakCollection</A>
-<DD><B>Declaration:</B> <TT>insert(newElements:x10.array.Array[x10.mongo.yak.YakMap]{self.rank==1, self.zeroBased==true, self.rect==true, self.rail==true}): com.mongodb.WriteResult.</TT>
+<DD><B>Declaration:</B> <TT>insert(newElements:x10.regionarray.Array[x10.mongo.yak.YakMap]{self.rank==1, self.zeroBased==true, self.rect==true, self.rail==true}): com.mongodb.WriteResult.</TT>
 Insert some new elements into the collection.
-<DT><A HREF="./x10/mongo/yak/YakCollection.html#insert(com.mongodb.WriteConcern,x10.array.Array[x10.mongo.yak.YakMap])"><B>insert(com.mongodb.WriteConcern,x10.array.Array[x10.mongo.yak.YakMap])</B></A> - 
+<DT><A HREF="./x10/mongo/yak/YakCollection.html#insert(com.mongodb.WriteConcern,x10.regionarray.Array[x10.mongo.yak.YakMap])"><B>insert(com.mongodb.WriteConcern,x10.regionarray.Array[x10.mongo.yak.YakMap])</B></A> - 
 Method in class x10.mongo.yak.<A HREF="./x10/mongo/yak/YakCollection.html" title="class in x10.mongo.yak">YakCollection</A>
-<DD><B>Declaration:</B> <TT>insert(concern:com.mongodb.WriteConcern,newElements:x10.array.Array[x10.mongo.yak.YakMap]{self.rank==1, self.zeroBased==true, self.rect==true, self.rail==true}): com.mongodb.WriteResult.</TT>
+<DD><B>Declaration:</B> <TT>insert(concern:com.mongodb.WriteConcern,newElements:x10.regionarray.Array[x10.mongo.yak.YakMap]{self.rank==1, self.zeroBased==true, self.rect==true, self.rail==true}): com.mongodb.WriteResult.</TT>
 This method is an abstraction point for the Java class.
 <DT><A HREF="./x10/mongo/yak/YakMap.html#int(x10.lang.String)"><B>int(x10.lang.String)</B></A> - 
 Method in class x10.mongo.yak.<A HREF="./x10/mongo/yak/YakMap.html" title="class in x10.mongo.yak">YakMap</A>

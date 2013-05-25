@@ -17,7 +17,7 @@
 
 import harness.x10Test;
 
- import x10.array.*;
+ import x10.regionarray.*;
 
 public class Expressions4f4y extends x10Test {
    public def run() : boolean = (new Hook()).run();

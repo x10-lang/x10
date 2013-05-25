@@ -11,7 +11,7 @@
 
 import x10.io.Console;
 import harness.x10Test;
-import x10.array.*;
+import x10.regionarray.*;
 
 // MANAGED_X10_ONLY
 

@@ -10,7 +10,7 @@
  */
 
 import harness.x10Test;
-import x10.array.Region;
+import x10.regionarray.Region;
 
 /**
  * Check that properly typed arguments are accepted by &&

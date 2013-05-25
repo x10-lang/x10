@@ -145,9 +145,9 @@ implements <a href="../../../x10/matrix/builder/MatrixBuilder.html" title="inter
 <td class="colLast"><code><strong><a href="../../../x10/matrix/builder/SparseCSCBuilder.html#nzcount">nzcount</a></strong></code></td>
 </tr>
 <tr class="rowColor">
-<td class="colFirst"><code>x10.array.Array&lt;x10.util.ArrayList&lt;<a href="../../../x10/matrix/builder/SparseCSCBuilder.NonZeroEntry.html" title="class in x10.matrix.builder">SparseCSCBuilder.NonZeroEntry</a>&gt;&gt;</code></td>
+<td class="colFirst"><code>x10.regionarray.Array&lt;x10.util.ArrayList&lt;<a href="../../../x10/matrix/builder/SparseCSCBuilder.NonZeroEntry.html" title="class in x10.matrix.builder">SparseCSCBuilder.NonZeroEntry</a>&gt;&gt;</code></td>
 <td class="colLast"><code><strong><a href="../../../x10/matrix/builder/SparseCSCBuilder.html#nzcol">nzcol</a></strong></code>
-<div class="block"><B>Field Type</B>: <TT>x10.array.Array[x10.util.ArrayList[x10.matrix.builder.SparseCSCBuilder.NonZeroEntry]]{self.rail==true, self.rank==1}</TT>
+<div class="block"><B>Field Type</B>: <TT>x10.regionarray.Array[x10.util.ArrayList[x10.matrix.builder.SparseCSCBuilder.NonZeroEntry]]{self.rail==true, self.rank==1}</TT>
 </div>
 </td>
 </tr>
@@ -185,10 +185,10 @@ implements <a href="../../../x10/matrix/builder/MatrixBuilder.html" title="inter
 <th class="colOne" scope="col">Constructor and Description</th>
 </tr>
 <tr class="altColor">
-<td class="colOne"><code><strong><a href="../../../x10/matrix/builder/SparseCSCBuilder.html#SparseCSCBuilder(x10.lang.Int, x10.array.Array[x10.util.ArrayList[x10.matrix.builder.SparseCSCBuilder.NonZeroEntry]]{self.rail==true, self.rank==1}, x10.matrix.sparse.SparseCSC{self.M==leadDim, self.N==cols.size})">SparseCSCBuilder</a></strong>(x10.lang.Int&nbsp;leadDim,
-                x10.array.Array&lt;x10.util.ArrayList&lt;<a href="../../../x10/matrix/builder/SparseCSCBuilder.NonZeroEntry.html" title="class in x10.matrix.builder">SparseCSCBuilder.NonZeroEntry</a>&gt;&gt;&nbsp;cols,
+<td class="colOne"><code><strong><a href="../../../x10/matrix/builder/SparseCSCBuilder.html#SparseCSCBuilder(x10.lang.Int, x10.regionarray.Array[x10.util.ArrayList[x10.matrix.builder.SparseCSCBuilder.NonZeroEntry]]{self.rail==true, self.rank==1}, x10.matrix.sparse.SparseCSC{self.M==leadDim, self.N==cols.size})">SparseCSCBuilder</a></strong>(x10.lang.Int&nbsp;leadDim,
+                x10.regionarray.Array&lt;x10.util.ArrayList&lt;<a href="../../../x10/matrix/builder/SparseCSCBuilder.NonZeroEntry.html" title="class in x10.matrix.builder">SparseCSCBuilder.NonZeroEntry</a>&gt;&gt;&nbsp;cols,
                 <a href="../../../x10/matrix/sparse/SparseCSC.html" title="type parameter in SparseCSC">SparseCSC</a>&nbsp;spa)</code>
-<div class="block"><B>Declaration</B>: <TT>this(x10.lang.Int, x10.array.Array[x10.util.ArrayList[x10.matrix.builder.SparseCSCBuilder.NonZeroEntry]]{self.rail==true, self.rank==1}, x10.matrix.sparse.SparseCSC{self.M==leadDim, self.N==cols.size}): x10.matrix.builder.SparseCSCBuilder{self.M==leadDim, self.N==cols.size}.</TT>
+<div class="block"><B>Declaration</B>: <TT>this(x10.lang.Int, x10.regionarray.Array[x10.util.ArrayList[x10.matrix.builder.SparseCSCBuilder.NonZeroEntry]]{self.rail==true, self.rank==1}, x10.matrix.sparse.SparseCSC{self.M==leadDim, self.N==cols.size}): x10.matrix.builder.SparseCSCBuilder{self.M==leadDim, self.N==cols.size}.</TT>
 </div>
 </td>
 </tr>
@@ -403,8 +403,8 @@ Sparse matrix builder uses different memory space from SparseCSC instance.</div>
 <ul class="blockList">
 <li class="blockList">
 <h4>nzcol</h4>
-<pre>public final&nbsp;x10.array.Array&lt;x10.util.ArrayList&lt;<a href="../../../x10/matrix/builder/SparseCSCBuilder.NonZeroEntry.html" title="class in x10.matrix.builder">SparseCSCBuilder.NonZeroEntry</a>&gt;&gt; nzcol</pre>
-<div class="block"><B>Field Type</B>: <TT>x10.array.Array[x10.util.ArrayList[x10.matrix.builder.SparseCSCBuilder.NonZeroEntry]]{self.rail==true, self.rank==1}</TT><PRE>
+<pre>public final&nbsp;x10.regionarray.Array&lt;x10.util.ArrayList&lt;<a href="../../../x10/matrix/builder/SparseCSCBuilder.NonZeroEntry.html" title="class in x10.matrix.builder">SparseCSCBuilder.NonZeroEntry</a>&gt;&gt; nzcol</pre>
+<div class="block"><B>Field Type</B>: <TT>x10.regionarray.Array[x10.util.ArrayList[x10.matrix.builder.SparseCSCBuilder.NonZeroEntry]]{self.rail==true, self.rank==1}</TT><PRE>
 </PRE></div>
 </li>
 </ul>
@@ -447,16 +447,16 @@ Sparse matrix builder uses different memory space from SparseCSC instance.</div>
 <!--   -->
 </a>
 <h3>Constructor Detail</h3>
-<a name="SparseCSCBuilder(x10.lang.Int, x10.array.Array[x10.util.ArrayList[x10.matrix.builder.SparseCSCBuilder.NonZeroEntry]]{self.rail==true, self.rank==1}, x10.matrix.sparse.SparseCSC{self.M==leadDim, self.N==cols.size})">
+<a name="SparseCSCBuilder(x10.lang.Int, x10.regionarray.Array[x10.util.ArrayList[x10.matrix.builder.SparseCSCBuilder.NonZeroEntry]]{self.rail==true, self.rank==1}, x10.matrix.sparse.SparseCSC{self.M==leadDim, self.N==cols.size})">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
 <h4>SparseCSCBuilder</h4>
 <pre>public&nbsp;SparseCSCBuilder(x10.lang.Int&nbsp;leadDim,
-                x10.array.Array&lt;x10.util.ArrayList&lt;<a href="../../../x10/matrix/builder/SparseCSCBuilder.NonZeroEntry.html" title="class in x10.matrix.builder">SparseCSCBuilder.NonZeroEntry</a>&gt;&gt;&nbsp;cols,
+                x10.regionarray.Array&lt;x10.util.ArrayList&lt;<a href="../../../x10/matrix/builder/SparseCSCBuilder.NonZeroEntry.html" title="class in x10.matrix.builder">SparseCSCBuilder.NonZeroEntry</a>&gt;&gt;&nbsp;cols,
                 <a href="../../../x10/matrix/sparse/SparseCSC.html" title="type parameter in SparseCSC">SparseCSC</a>&nbsp;spa)</pre>
-<div class="block"><B>Declaration</B>: <TT>this(x10.lang.Int, x10.array.Array[x10.util.ArrayList[x10.matrix.builder.SparseCSCBuilder.NonZeroEntry]]{self.rail==true, self.rank==1}, x10.matrix.sparse.SparseCSC{self.M==leadDim, self.N==cols.size}): x10.matrix.builder.SparseCSCBuilder{self.M==leadDim, self.N==cols.size}.</TT><PRE>
+<div class="block"><B>Declaration</B>: <TT>this(x10.lang.Int, x10.regionarray.Array[x10.util.ArrayList[x10.matrix.builder.SparseCSCBuilder.NonZeroEntry]]{self.rail==true, self.rank==1}, x10.matrix.sparse.SparseCSC{self.M==leadDim, self.N==cols.size}): x10.matrix.builder.SparseCSCBuilder{self.M==leadDim, self.N==cols.size}.</TT><PRE>
 </PRE></div>
 </li>
 </ul>

@@ -121,16 +121,16 @@ duplication maps to one place.</div>
 <th class="colLast" scope="col">Field and Description</th>
 </tr>
 <tr class="altColor">
-<td class="colFirst"><code>x10.array.Dist</code></td>
+<td class="colFirst"><code>x10.regionarray.Dist</code></td>
 <td class="colLast"><code><strong><a href="../../../x10/matrix/dist/DupDenseMatrix.html#dist">dist</a></strong></code>
-<div class="block"><B>Field Type</B>: <TT>x10.array.Dist{self.region.rank==1}</TT>
+<div class="block"><B>Field Type</B>: <TT>x10.regionarray.Dist{self.region.rank==1}</TT>
 Data duplication</div>
 </td>
 </tr>
 <tr class="rowColor">
-<td class="colFirst"><code>x10.array.DistArray&lt;<a href="../../../x10/matrix/DenseMatrix.html" title="class in x10.matrix">DenseMatrix</a>&gt;</code></td>
+<td class="colFirst"><code>x10.regionarray.DistArray&lt;<a href="../../../x10/matrix/DenseMatrix.html" title="class in x10.matrix">DenseMatrix</a>&gt;</code></td>
 <td class="colLast"><code><strong><a href="../../../x10/matrix/dist/DupDenseMatrix.html#dupMs">dupMs</a></strong></code>
-<div class="block"><B>Field Type</B>: <TT>x10.array.DistArray[x10.matrix.DenseMatrix]{self.dist.region.rank==1}</TT>
+<div class="block"><B>Field Type</B>: <TT>x10.regionarray.DistArray[x10.matrix.DenseMatrix]{self.dist.region.rank==1}</TT>
 Distributed array of matrix data</div>
 </td>
 </tr>
@@ -141,9 +141,9 @@ Distributed array of matrix data</div>
 </td>
 </tr>
 <tr class="rowColor">
-<td class="colFirst"><code>x10.array.DistArray&lt;<a href="../../../x10/matrix/DenseMatrix.html" title="class in x10.matrix">DenseMatrix</a>&gt;</code></td>
+<td class="colFirst"><code>x10.regionarray.DistArray&lt;<a href="../../../x10/matrix/DenseMatrix.html" title="class in x10.matrix">DenseMatrix</a>&gt;</code></td>
 <td class="colLast"><code><strong><a href="../../../x10/matrix/dist/DupDenseMatrix.html#tmpMs">tmpMs</a></strong></code>
-<div class="block"><B>Field Type</B>: <TT>x10.array.DistArray[x10.matrix.DenseMatrix]{self.dist.region.rank==1}</TT>
+<div class="block"><B>Field Type</B>: <TT>x10.regionarray.DistArray[x10.matrix.DenseMatrix]{self.dist.region.rank==1}</TT>
 </div>
 </td>
 </tr>
@@ -177,8 +177,8 @@ Distributed array of matrix data</div>
 <th class="colOne" scope="col">Constructor and Description</th>
 </tr>
 <tr class="altColor">
-<td class="colOne"><code><strong><a href="../../../x10/matrix/dist/DupDenseMatrix.html#DupDenseMatrix(x10.array.DistArray[x10.matrix.DenseMatrix]{self.dist.region.rank==1})">DupDenseMatrix</a></strong>(x10.array.DistArray&lt;<a href="../../../x10/matrix/DenseMatrix.html" title="class in x10.matrix">DenseMatrix</a>&gt;&nbsp;dms)</code>
-<div class="block"><B>Declaration</B>: <TT>this(x10.array.DistArray[x10.matrix.DenseMatrix]{self.dist.region.rank==1}): x10.matrix.dist.DupDenseMatrix.</TT>
+<td class="colOne"><code><strong><a href="../../../x10/matrix/dist/DupDenseMatrix.html#DupDenseMatrix(x10.regionarray.DistArray[x10.matrix.DenseMatrix]{self.dist.region.rank==1})">DupDenseMatrix</a></strong>(x10.regionarray.DistArray&lt;<a href="../../../x10/matrix/DenseMatrix.html" title="class in x10.matrix">DenseMatrix</a>&gt;&nbsp;dms)</code>
+<div class="block"><B>Declaration</B>: <TT>this(x10.regionarray.DistArray[x10.matrix.DenseMatrix]{self.dist.region.rank==1}): x10.matrix.dist.DupDenseMatrix.</TT>
 Constructor, using DistArray of DenseMatrix.</div>
 </td>
 </tr>
@@ -214,19 +214,19 @@ Create duplicated dense matrix with specified dimension</div>
 </tr>
 <tr class="altColor">
 <td class="colFirst"><code>static <a href="../../../x10/matrix/dist/DupDenseMatrix.html" title="type parameter in DupDenseMatrix">DupDenseMatrix</a></code></td>
-<td class="colLast"><code><strong><a href="../../../x10/matrix/dist/DupDenseMatrix.html#make(x10.lang.Int,x10.lang.Int,x10.array.DistArray[x10.array.Array[x10.lang.Double]])">make</a></strong>(x10.lang.Int&nbsp;m,
+<td class="colLast"><code><strong><a href="../../../x10/matrix/dist/DupDenseMatrix.html#make(x10.lang.Int,x10.lang.Int,x10.regionarray.DistArray[x10.regionarray.Array[x10.lang.Double]])">make</a></strong>(x10.lang.Int&nbsp;m,
     x10.lang.Int&nbsp;n,
-    x10.array.DistArray&lt;x10.array.Array&lt;x10.lang.Double&gt;&gt;&nbsp;da)</code>
-<div class="block"><B>Declaration:</B> <TT>make(m:x10.lang.Int,n:x10.lang.Int,da:x10.array.DistArray[x10.array.Array[x10.lang.Double]{self.rail==true, self.rank==1}]{self.dist.region.rank==1}): x10.matrix.dist.DupDenseMatrix{self.M==m, self.N==n}.</TT>
+    x10.regionarray.DistArray&lt;x10.regionarray.Array&lt;x10.lang.Double&gt;&gt;&nbsp;da)</code>
+<div class="block"><B>Declaration:</B> <TT>make(m:x10.lang.Int,n:x10.lang.Int,da:x10.regionarray.DistArray[x10.regionarray.Array[x10.lang.Double]{self.rail==true, self.rank==1}]{self.dist.region.rank==1}): x10.matrix.dist.DupDenseMatrix{self.M==m, self.N==n}.</TT>
 Create duplicated dense matrix by using specified DistArray storage in all places</div>
 </td>
 </tr>
 <tr class="rowColor">
 <td class="colFirst"><code>static <a href="../../../x10/matrix/dist/DupDenseMatrix.html" title="type parameter in DupDenseMatrix">DupDenseMatrix</a></code></td>
-<td class="colLast"><code><strong><a href="../../../x10/matrix/dist/DupDenseMatrix.html#make(x10.lang.Int,x10.lang.Int,x10.lang.PlaceLocalHandle[x10.array.Array[x10.lang.Double]])">make</a></strong>(x10.lang.Int&nbsp;m,
+<td class="colLast"><code><strong><a href="../../../x10/matrix/dist/DupDenseMatrix.html#make(x10.lang.Int,x10.lang.Int,x10.lang.PlaceLocalHandle[x10.regionarray.Array[x10.lang.Double]])">make</a></strong>(x10.lang.Int&nbsp;m,
     x10.lang.Int&nbsp;n,
-    x10.lang.PlaceLocalHandle&lt;x10.array.Array&lt;x10.lang.Double&gt;&gt;&nbsp;da)</code>
-<div class="block"><B>Declaration:</B> <TT>make(m:x10.lang.Int,n:x10.lang.Int,da:x10.lang.PlaceLocalHandle[x10.array.Array[x10.lang.Double]{self.rail==true, self.rank==1}]): x10.matrix.dist.DupDenseMatrix{self.M==m, self.N==n}.</TT>
+    x10.lang.PlaceLocalHandle&lt;x10.regionarray.Array&lt;x10.lang.Double&gt;&gt;&nbsp;da)</code>
+<div class="block"><B>Declaration:</B> <TT>make(m:x10.lang.Int,n:x10.lang.Int,da:x10.lang.PlaceLocalHandle[x10.regionarray.Array[x10.lang.Double]{self.rail==true, self.rank==1}]): x10.matrix.dist.DupDenseMatrix{self.M==m, self.N==n}.</TT>
 Create duplicated dense matrix by using PlaceLocalHandle</div>
 </td>
 </tr>
@@ -806,8 +806,8 @@ Implementation of duplicated dense matrix.</div>
 <ul class="blockList">
 <li class="blockList">
 <h4>dist</h4>
-<pre>public final&nbsp;x10.array.Dist dist</pre>
-<div class="block"><B>Field Type</B>: <TT>x10.array.Dist{self.region.rank==1}</TT><PRE>
+<pre>public final&nbsp;x10.regionarray.Dist dist</pre>
+<div class="block"><B>Field Type</B>: <TT>x10.regionarray.Dist{self.region.rank==1}</TT><PRE>
 </PRE>Data duplication</div>
 </li>
 </ul>
@@ -817,8 +817,8 @@ Implementation of duplicated dense matrix.</div>
 <ul class="blockList">
 <li class="blockList">
 <h4>dupMs</h4>
-<pre>public final&nbsp;x10.array.DistArray&lt;<a href="../../../x10/matrix/DenseMatrix.html" title="class in x10.matrix">DenseMatrix</a>&gt; dupMs</pre>
-<div class="block"><B>Field Type</B>: <TT>x10.array.DistArray[x10.matrix.DenseMatrix]{self.dist.region.rank==1}</TT><PRE>
+<pre>public final&nbsp;x10.regionarray.DistArray&lt;<a href="../../../x10/matrix/DenseMatrix.html" title="class in x10.matrix">DenseMatrix</a>&gt; dupMs</pre>
+<div class="block"><B>Field Type</B>: <TT>x10.regionarray.DistArray[x10.matrix.DenseMatrix]{self.dist.region.rank==1}</TT><PRE>
 </PRE>Distributed array of matrix data</div>
 </li>
 </ul>
@@ -838,8 +838,8 @@ Implementation of duplicated dense matrix.</div>
 <ul class="blockList">
 <li class="blockList">
 <h4>tmpMs</h4>
-<pre>public final&nbsp;x10.array.DistArray&lt;<a href="../../../x10/matrix/DenseMatrix.html" title="class in x10.matrix">DenseMatrix</a>&gt; tmpMs</pre>
-<div class="block"><B>Field Type</B>: <TT>x10.array.DistArray[x10.matrix.DenseMatrix]{self.dist.region.rank==1}</TT><PRE>
+<pre>public final&nbsp;x10.regionarray.DistArray&lt;<a href="../../../x10/matrix/DenseMatrix.html" title="class in x10.matrix">DenseMatrix</a>&gt; tmpMs</pre>
+<div class="block"><B>Field Type</B>: <TT>x10.regionarray.DistArray[x10.matrix.DenseMatrix]{self.dist.region.rank==1}</TT><PRE>
 </PRE></div>
 </li>
 </ul>
@@ -869,14 +869,14 @@ Implementation of duplicated dense matrix.</div>
 <!--   -->
 </a>
 <h3>Constructor Detail</h3>
-<a name="DupDenseMatrix(x10.array.DistArray[x10.matrix.DenseMatrix]{self.dist.region.rank==1})">
+<a name="DupDenseMatrix(x10.regionarray.DistArray[x10.matrix.DenseMatrix]{self.dist.region.rank==1})">
 <!--   -->
 </a>
 <ul class="blockListLast">
 <li class="blockList">
 <h4>DupDenseMatrix</h4>
-<pre>public&nbsp;DupDenseMatrix(x10.array.DistArray&lt;<a href="../../../x10/matrix/DenseMatrix.html" title="class in x10.matrix">DenseMatrix</a>&gt;&nbsp;dms)</pre>
-<div class="block"><B>Declaration</B>: <TT>this(x10.array.DistArray[x10.matrix.DenseMatrix]{self.dist.region.rank==1}): x10.matrix.dist.DupDenseMatrix.</TT><PRE>
+<pre>public&nbsp;DupDenseMatrix(x10.regionarray.DistArray&lt;<a href="../../../x10/matrix/DenseMatrix.html" title="class in x10.matrix">DenseMatrix</a>&gt;&nbsp;dms)</pre>
+<div class="block"><B>Declaration</B>: <TT>this(x10.regionarray.DistArray[x10.matrix.DenseMatrix]{self.dist.region.rank==1}): x10.matrix.dist.DupDenseMatrix.</TT><PRE>
 </PRE>Constructor, using DistArray of DenseMatrix.</div>
 </li>
 </ul>
@@ -913,7 +913,7 @@ Implementation of duplicated dense matrix.</div>
 <dl><dt><span class="strong">Parameters:</span></dt><dd><code>m</code> - number of rows in dense matrix</dd><dd><code>n</code> - number of columns in dense matrix</dd></dl>
 </li>
 </ul>
-<a name="make(x10.lang.Int,x10.lang.Int,x10.array.DistArray[x10.array.Array[x10.lang.Double]])">
+<a name="make(x10.lang.Int,x10.lang.Int,x10.regionarray.DistArray[x10.regionarray.Array[x10.lang.Double]])">
 <!--   -->
 </a>
 <ul class="blockList">
@@ -921,13 +921,13 @@ Implementation of duplicated dense matrix.</div>
 <h4>make</h4>
 <pre>public static&nbsp;<a href="../../../x10/matrix/dist/DupDenseMatrix.html" title="type parameter in DupDenseMatrix">DupDenseMatrix</a>&nbsp;make(x10.lang.Int&nbsp;m,
                   x10.lang.Int&nbsp;n,
-                  x10.array.DistArray&lt;x10.array.Array&lt;x10.lang.Double&gt;&gt;&nbsp;da)</pre>
-<div class="block"><B>Declaration:</B> <TT>make(m:x10.lang.Int,n:x10.lang.Int,da:x10.array.DistArray[x10.array.Array[x10.lang.Double]{self.rail==true, self.rank==1}]{self.dist.region.rank==1}): x10.matrix.dist.DupDenseMatrix{self.M==m, self.N==n}.</TT><PRE>
+                  x10.regionarray.DistArray&lt;x10.regionarray.Array&lt;x10.lang.Double&gt;&gt;&nbsp;da)</pre>
+<div class="block"><B>Declaration:</B> <TT>make(m:x10.lang.Int,n:x10.lang.Int,da:x10.regionarray.DistArray[x10.regionarray.Array[x10.lang.Double]{self.rail==true, self.rank==1}]{self.dist.region.rank==1}): x10.matrix.dist.DupDenseMatrix{self.M==m, self.N==n}.</TT><PRE>
 </PRE>Create duplicated dense matrix by using specified DistArray storage in all places</div>
 <dl><dt><span class="strong">Parameters:</span></dt><dd><code>m</code> - number of rows in dense matrix</dd><dd><code>n</code> - number of columns in dense matrix</dd><dd><code>da</code> - distributed arrays of array in double</dd></dl>
 </li>
 </ul>
-<a name="make(x10.lang.Int,x10.lang.Int,x10.lang.PlaceLocalHandle[x10.array.Array[x10.lang.Double]])">
+<a name="make(x10.lang.Int,x10.lang.Int,x10.lang.PlaceLocalHandle[x10.regionarray.Array[x10.lang.Double]])">
 <!--   -->
 </a>
 <ul class="blockList">
@@ -935,8 +935,8 @@ Implementation of duplicated dense matrix.</div>
 <h4>make</h4>
 <pre>public static&nbsp;<a href="../../../x10/matrix/dist/DupDenseMatrix.html" title="type parameter in DupDenseMatrix">DupDenseMatrix</a>&nbsp;make(x10.lang.Int&nbsp;m,
                   x10.lang.Int&nbsp;n,
-                  x10.lang.PlaceLocalHandle&lt;x10.array.Array&lt;x10.lang.Double&gt;&gt;&nbsp;da)</pre>
-<div class="block"><B>Declaration:</B> <TT>make(m:x10.lang.Int,n:x10.lang.Int,da:x10.lang.PlaceLocalHandle[x10.array.Array[x10.lang.Double]{self.rail==true, self.rank==1}]): x10.matrix.dist.DupDenseMatrix{self.M==m, self.N==n}.</TT><PRE>
+                  x10.lang.PlaceLocalHandle&lt;x10.regionarray.Array&lt;x10.lang.Double&gt;&gt;&nbsp;da)</pre>
+<div class="block"><B>Declaration:</B> <TT>make(m:x10.lang.Int,n:x10.lang.Int,da:x10.lang.PlaceLocalHandle[x10.regionarray.Array[x10.lang.Double]{self.rail==true, self.rank==1}]): x10.matrix.dist.DupDenseMatrix{self.M==m, self.N==n}.</TT><PRE>
 </PRE>Create duplicated dense matrix by using PlaceLocalHandle</div>
 <dl><dt><span class="strong">Parameters:</span></dt><dd><code>m</code> - number of rows in dense matrix</dd><dd><code>n</code> - number of columns in dense matrix</dd><dd><code>da</code> - arrays accessed by PlaceLocalHandle</dd></dl>
 </li>

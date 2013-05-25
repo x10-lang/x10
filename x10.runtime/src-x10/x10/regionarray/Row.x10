@@ -9,7 +9,7 @@
  *  (C) Copyright IBM Corporation 2006-2010.
  */
 
-package x10.array;
+package x10.regionarray;
 
 import x10.io.Printer;
 import x10.io.StringWriter;

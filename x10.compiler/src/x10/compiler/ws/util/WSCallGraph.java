@@ -233,7 +233,7 @@ public class WSCallGraph {
     }
     
     /**
-     * Input format: n:x10.lang.Int args:x10.array.Array[x10.lang.String]{self.rank==1}
+     * Input format: n:x10.lang.Int args:x10.regionarray.Array[x10.lang.String]{self.rank==1}
      * or no name, just type
      * @param type
      * @return Lx10/lang/Int;

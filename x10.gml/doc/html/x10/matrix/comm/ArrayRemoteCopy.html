@@ -143,87 +143,87 @@ run command "make help" at the root directory of GML library.</div>
 </tr>
 <tr class="altColor">
 <td class="colFirst"><code>static void</code></td>
-<td class="colLast"><code><strong><a href="../../../x10/matrix/comm/ArrayRemoteCopy.html#copy(x10.array.Array[x10.lang.Double],x10.lang.Int,x10.lang.PlaceLocalHandle[x10.array.Array[x10.lang.Double]],x10.lang.Int,x10.lang.Int,x10.lang.Int)">copy</a></strong>(x10.array.Array&lt;x10.lang.Double&gt;&nbsp;src,
+<td class="colLast"><code><strong><a href="../../../x10/matrix/comm/ArrayRemoteCopy.html#copy(x10.regionarray.Array[x10.lang.Double],x10.lang.Int,x10.lang.PlaceLocalHandle[x10.regionarray.Array[x10.lang.Double]],x10.lang.Int,x10.lang.Int,x10.lang.Int)">copy</a></strong>(x10.regionarray.Array&lt;x10.lang.Double&gt;&nbsp;src,
     x10.lang.Int&nbsp;srcOff,
-    x10.lang.PlaceLocalHandle&lt;x10.array.Array&lt;x10.lang.Double&gt;&gt;&nbsp;dstplh,
+    x10.lang.PlaceLocalHandle&lt;x10.regionarray.Array&lt;x10.lang.Double&gt;&gt;&nbsp;dstplh,
     x10.lang.Int&nbsp;dstpid,
     x10.lang.Int&nbsp;dstOff,
     x10.lang.Int&nbsp;dataCnt)</code>
-<div class="block"><B>Declaration:</B> <TT>copy(src:x10.array.Array[x10.lang.Double]{self.rank==1},srcOff:x10.lang.Int,dstplh:x10.lang.PlaceLocalHandle[x10.array.Array[x10.lang.Double]{self.rank==1, self.zeroBased==true, self.rect==true, self.rail==true}],dstpid:x10.lang.Int,dstOff:x10.lang.Int,dataCnt:x10.lang.Int): void.</TT>
+<div class="block"><B>Declaration:</B> <TT>copy(src:x10.regionarray.Array[x10.lang.Double]{self.rank==1},srcOff:x10.lang.Int,dstplh:x10.lang.PlaceLocalHandle[x10.regionarray.Array[x10.lang.Double]{self.rank==1, self.zeroBased==true, self.rect==true, self.rail==true}],dstpid:x10.lang.Int,dstOff:x10.lang.Int,dataCnt:x10.lang.Int): void.</TT>
 Copy multiple columns from source array data at here to the specified remote
 place in DistArray of dense matrix.</div>
 </td>
 </tr>
 <tr class="rowColor">
 <td class="colFirst"><code>protected static void</code></td>
-<td class="colLast"><code><strong><a href="../../../x10/matrix/comm/ArrayRemoteCopy.html#mpiCopy(x10.array.Array[x10.lang.Double],x10.lang.Int,x10.lang.PlaceLocalHandle[x10.array.Array[x10.lang.Double]],x10.lang.Int,x10.lang.Int,x10.lang.Int)">mpiCopy</a></strong>(x10.array.Array&lt;x10.lang.Double&gt;&nbsp;src,
+<td class="colLast"><code><strong><a href="../../../x10/matrix/comm/ArrayRemoteCopy.html#mpiCopy(x10.regionarray.Array[x10.lang.Double],x10.lang.Int,x10.lang.PlaceLocalHandle[x10.regionarray.Array[x10.lang.Double]],x10.lang.Int,x10.lang.Int,x10.lang.Int)">mpiCopy</a></strong>(x10.regionarray.Array&lt;x10.lang.Double&gt;&nbsp;src,
        x10.lang.Int&nbsp;srcOff,
-       x10.lang.PlaceLocalHandle&lt;x10.array.Array&lt;x10.lang.Double&gt;&gt;&nbsp;dstplh,
+       x10.lang.PlaceLocalHandle&lt;x10.regionarray.Array&lt;x10.lang.Double&gt;&gt;&nbsp;dstplh,
        x10.lang.Int&nbsp;dstpid,
        x10.lang.Int&nbsp;dstOff,
        x10.lang.Int&nbsp;dataCnt)</code>
-<div class="block"><B>Declaration:</B> <TT>mpiCopy(src:x10.array.Array[x10.lang.Double]{self.rank==1},srcOff:x10.lang.Int,dstplh:x10.lang.PlaceLocalHandle[x10.array.Array[x10.lang.Double]{self.rank==1, self.zeroBased==true, self.rect==true, self.rail==true}],dstpid:x10.lang.Int,dstOff:x10.lang.Int,dataCnt:x10.lang.Int): void.</TT>
+<div class="block"><B>Declaration:</B> <TT>mpiCopy(src:x10.regionarray.Array[x10.lang.Double]{self.rank==1},srcOff:x10.lang.Int,dstplh:x10.lang.PlaceLocalHandle[x10.regionarray.Array[x10.lang.Double]{self.rank==1, self.zeroBased==true, self.rect==true, self.rail==true}],dstpid:x10.lang.Int,dstOff:x10.lang.Int,dataCnt:x10.lang.Int): void.</TT>
 </div>
 </td>
 </tr>
 <tr class="altColor">
 <td class="colFirst"><code>protected static void</code></td>
-<td class="colLast"><code><strong><a href="../../../x10/matrix/comm/ArrayRemoteCopy.html#x10Copy(x10.array.Array[x10.lang.Double],x10.lang.Int,x10.lang.PlaceLocalHandle[x10.array.Array[x10.lang.Double]],x10.lang.Int,x10.lang.Int,x10.lang.Int)">x10Copy</a></strong>(x10.array.Array&lt;x10.lang.Double&gt;&nbsp;src,
+<td class="colLast"><code><strong><a href="../../../x10/matrix/comm/ArrayRemoteCopy.html#x10Copy(x10.regionarray.Array[x10.lang.Double],x10.lang.Int,x10.lang.PlaceLocalHandle[x10.regionarray.Array[x10.lang.Double]],x10.lang.Int,x10.lang.Int,x10.lang.Int)">x10Copy</a></strong>(x10.regionarray.Array&lt;x10.lang.Double&gt;&nbsp;src,
        x10.lang.Int&nbsp;srcOff,
-       x10.lang.PlaceLocalHandle&lt;x10.array.Array&lt;x10.lang.Double&gt;&gt;&nbsp;dstplh,
+       x10.lang.PlaceLocalHandle&lt;x10.regionarray.Array&lt;x10.lang.Double&gt;&gt;&nbsp;dstplh,
        x10.lang.Int&nbsp;dstpid,
        x10.lang.Int&nbsp;dstOff,
        x10.lang.Int&nbsp;dataCnt)</code>
-<div class="block"><B>Declaration:</B> <TT>x10Copy(src:x10.array.Array[x10.lang.Double]{self.rank==1},srcOff:x10.lang.Int,dstplh:x10.lang.PlaceLocalHandle[x10.array.Array[x10.lang.Double]{self.rank==1, self.zeroBased==true, self.rect==true, self.rail==true}],dstpid:x10.lang.Int,dstOff:x10.lang.Int,dataCnt:x10.lang.Int): void.</TT>
+<div class="block"><B>Declaration:</B> <TT>x10Copy(src:x10.regionarray.Array[x10.lang.Double]{self.rank==1},srcOff:x10.lang.Int,dstplh:x10.lang.PlaceLocalHandle[x10.regionarray.Array[x10.lang.Double]{self.rank==1, self.zeroBased==true, self.rect==true, self.rail==true}],dstpid:x10.lang.Int,dstOff:x10.lang.Int,dataCnt:x10.lang.Int): void.</TT>
 </div>
 </td>
 </tr>
 <tr class="rowColor">
 <td class="colFirst"><code>protected static void</code></td>
-<td class="colLast"><code><strong><a href="../../../x10/matrix/comm/ArrayRemoteCopy.html#x10Copy(x10.array.Array[x10.lang.Double],x10.lang.Int,x10.array.DistArray[x10.array.Array[x10.lang.Double]],x10.lang.Int,x10.lang.Int,x10.lang.Int)">x10Copy</a></strong>(x10.array.Array&lt;x10.lang.Double&gt;&nbsp;src,
+<td class="colLast"><code><strong><a href="../../../x10/matrix/comm/ArrayRemoteCopy.html#x10Copy(x10.regionarray.Array[x10.lang.Double],x10.lang.Int,x10.regionarray.DistArray[x10.regionarray.Array[x10.lang.Double]],x10.lang.Int,x10.lang.Int,x10.lang.Int)">x10Copy</a></strong>(x10.regionarray.Array&lt;x10.lang.Double&gt;&nbsp;src,
        x10.lang.Int&nbsp;srcOff,
-       x10.array.DistArray&lt;x10.array.Array&lt;x10.lang.Double&gt;&gt;&nbsp;dst,
+       x10.regionarray.DistArray&lt;x10.regionarray.Array&lt;x10.lang.Double&gt;&gt;&nbsp;dst,
        x10.lang.Int&nbsp;dstpid,
        x10.lang.Int&nbsp;dstOff,
        x10.lang.Int&nbsp;dataCnt)</code>
-<div class="block"><B>Declaration:</B> <TT>x10Copy(src:x10.array.Array[x10.lang.Double]{self.rank==1},srcOff:x10.lang.Int,dst:x10.array.DistArray[x10.array.Array[x10.lang.Double]{self.rank==1, self.zeroBased==true, self.rect==true, self.rail==true}]{self.dist.region.rank==1},dstpid:x10.lang.Int,dstOff:x10.lang.Int,dataCnt:x10.lang.Int): void.</TT>
+<div class="block"><B>Declaration:</B> <TT>x10Copy(src:x10.regionarray.Array[x10.lang.Double]{self.rank==1},srcOff:x10.lang.Int,dst:x10.regionarray.DistArray[x10.regionarray.Array[x10.lang.Double]{self.rank==1, self.zeroBased==true, self.rect==true, self.rail==true}]{self.dist.region.rank==1},dstpid:x10.lang.Int,dstOff:x10.lang.Int,dataCnt:x10.lang.Int): void.</TT>
 </div>
 </td>
 </tr>
 <tr class="altColor">
 <td class="colFirst"><code>static void</code></td>
-<td class="colLast"><code><strong><a href="../../../x10/matrix/comm/ArrayRemoteCopy.html#copy(x10.lang.PlaceLocalHandle[x10.array.Array[x10.lang.Double]],x10.lang.Int,x10.lang.Int,x10.array.Array[x10.lang.Double],x10.lang.Int,x10.lang.Int)">copy</a></strong>(x10.lang.PlaceLocalHandle&lt;x10.array.Array&lt;x10.lang.Double&gt;&gt;&nbsp;srcplh,
+<td class="colLast"><code><strong><a href="../../../x10/matrix/comm/ArrayRemoteCopy.html#copy(x10.lang.PlaceLocalHandle[x10.regionarray.Array[x10.lang.Double]],x10.lang.Int,x10.lang.Int,x10.regionarray.Array[x10.lang.Double],x10.lang.Int,x10.lang.Int)">copy</a></strong>(x10.lang.PlaceLocalHandle&lt;x10.regionarray.Array&lt;x10.lang.Double&gt;&gt;&nbsp;srcplh,
     x10.lang.Int&nbsp;srcpid,
     x10.lang.Int&nbsp;srcOff,
-    x10.array.Array&lt;x10.lang.Double&gt;&nbsp;dst,
+    x10.regionarray.Array&lt;x10.lang.Double&gt;&nbsp;dst,
     x10.lang.Int&nbsp;dstOff,
     x10.lang.Int&nbsp;dataCnt)</code>
-<div class="block"><B>Declaration:</B> <TT>copy(srcplh:x10.lang.PlaceLocalHandle[x10.array.Array[x10.lang.Double]{self.rank==1, self.zeroBased==true, self.rect==true, self.rail==true}],srcpid:x10.lang.Int,srcOff:x10.lang.Int,dst:x10.array.Array[x10.lang.Double]{self.rank==1},dstOff:x10.lang.Int,dataCnt:x10.lang.Int): void.</TT>
+<div class="block"><B>Declaration:</B> <TT>copy(srcplh:x10.lang.PlaceLocalHandle[x10.regionarray.Array[x10.lang.Double]{self.rank==1, self.zeroBased==true, self.rect==true, self.rail==true}],srcpid:x10.lang.Int,srcOff:x10.lang.Int,dst:x10.regionarray.Array[x10.lang.Double]{self.rank==1},dstOff:x10.lang.Int,dataCnt:x10.lang.Int): void.</TT>
 Copy data array from in the specified place at
 here to target</div>
 </td>
 </tr>
 <tr class="rowColor">
 <td class="colFirst"><code>protected static void</code></td>
-<td class="colLast"><code><strong><a href="../../../x10/matrix/comm/ArrayRemoteCopy.html#mpiCopy(x10.lang.PlaceLocalHandle[x10.array.Array[x10.lang.Double]],x10.lang.Int,x10.lang.Int,x10.array.Array[x10.lang.Double],x10.lang.Int,x10.lang.Int)">mpiCopy</a></strong>(x10.lang.PlaceLocalHandle&lt;x10.array.Array&lt;x10.lang.Double&gt;&gt;&nbsp;srcplh,
+<td class="colLast"><code><strong><a href="../../../x10/matrix/comm/ArrayRemoteCopy.html#mpiCopy(x10.lang.PlaceLocalHandle[x10.regionarray.Array[x10.lang.Double]],x10.lang.Int,x10.lang.Int,x10.regionarray.Array[x10.lang.Double],x10.lang.Int,x10.lang.Int)">mpiCopy</a></strong>(x10.lang.PlaceLocalHandle&lt;x10.regionarray.Array&lt;x10.lang.Double&gt;&gt;&nbsp;srcplh,
        x10.lang.Int&nbsp;srcpid,
        x10.lang.Int&nbsp;srcOff,
-       x10.array.Array&lt;x10.lang.Double&gt;&nbsp;dst,
+       x10.regionarray.Array&lt;x10.lang.Double&gt;&nbsp;dst,
        x10.lang.Int&nbsp;dstOff,
        x10.lang.Int&nbsp;dataCnt)</code>
-<div class="block"><B>Declaration:</B> <TT>mpiCopy(srcplh:x10.lang.PlaceLocalHandle[x10.array.Array[x10.lang.Double]{self.rank==1, self.zeroBased==true, self.rect==true, self.rail==true}],srcpid:x10.lang.Int,srcOff:x10.lang.Int,dst:x10.array.Array[x10.lang.Double]{self.rank==1},dstOff:x10.lang.Int,dataCnt:x10.lang.Int): void.</TT>
+<div class="block"><B>Declaration:</B> <TT>mpiCopy(srcplh:x10.lang.PlaceLocalHandle[x10.regionarray.Array[x10.lang.Double]{self.rank==1, self.zeroBased==true, self.rect==true, self.rail==true}],srcpid:x10.lang.Int,srcOff:x10.lang.Int,dst:x10.regionarray.Array[x10.lang.Double]{self.rank==1},dstOff:x10.lang.Int,dataCnt:x10.lang.Int): void.</TT>
 </div>
 </td>
 </tr>
 <tr class="altColor">
 <td class="colFirst"><code>protected static void</code></td>
-<td class="colLast"><code><strong><a href="../../../x10/matrix/comm/ArrayRemoteCopy.html#x10Copy(x10.lang.PlaceLocalHandle[x10.array.Array[x10.lang.Double]],x10.lang.Int,x10.lang.Int,x10.array.Array[x10.lang.Double],x10.lang.Int,x10.lang.Int)">x10Copy</a></strong>(x10.lang.PlaceLocalHandle&lt;x10.array.Array&lt;x10.lang.Double&gt;&gt;&nbsp;srcplh,
+<td class="colLast"><code><strong><a href="../../../x10/matrix/comm/ArrayRemoteCopy.html#x10Copy(x10.lang.PlaceLocalHandle[x10.regionarray.Array[x10.lang.Double]],x10.lang.Int,x10.lang.Int,x10.regionarray.Array[x10.lang.Double],x10.lang.Int,x10.lang.Int)">x10Copy</a></strong>(x10.lang.PlaceLocalHandle&lt;x10.regionarray.Array&lt;x10.lang.Double&gt;&gt;&nbsp;srcplh,
        x10.lang.Int&nbsp;srcpid,
        x10.lang.Int&nbsp;srcOff,
-       x10.array.Array&lt;x10.lang.Double&gt;&nbsp;dst,
+       x10.regionarray.Array&lt;x10.lang.Double&gt;&nbsp;dst,
        x10.lang.Int&nbsp;dstOff,
        x10.lang.Int&nbsp;dataCnt)</code>
-<div class="block"><B>Declaration:</B> <TT>x10Copy(srcplh:x10.lang.PlaceLocalHandle[x10.array.Array[x10.lang.Double]{self.rank==1, self.zeroBased==true, self.rect==true, self.rail==true}],srcpid:x10.lang.Int,srcOff:x10.lang.Int,dst:x10.array.Array[x10.lang.Double]{self.rank==1},dstOff:x10.lang.Int,dataCnt:x10.lang.Int): void.</TT>
+<div class="block"><B>Declaration:</B> <TT>x10Copy(srcplh:x10.lang.PlaceLocalHandle[x10.regionarray.Array[x10.lang.Double]{self.rank==1, self.zeroBased==true, self.rect==true, self.rail==true}],srcpid:x10.lang.Int,srcOff:x10.lang.Int,dst:x10.regionarray.Array[x10.lang.Double]{self.rank==1},dstOff:x10.lang.Int,dataCnt:x10.lang.Int): void.</TT>
 </div>
 </td>
 </tr>
@@ -328,119 +328,119 @@ in PlaceLocalHandle.</div>
 <!--   -->
 </a>
 <h3>Method Detail</h3>
-<a name="copy(x10.array.Array[x10.lang.Double],x10.lang.Int,x10.lang.PlaceLocalHandle[x10.array.Array[x10.lang.Double]],x10.lang.Int,x10.lang.Int,x10.lang.Int)">
+<a name="copy(x10.regionarray.Array[x10.lang.Double],x10.lang.Int,x10.lang.PlaceLocalHandle[x10.regionarray.Array[x10.lang.Double]],x10.lang.Int,x10.lang.Int,x10.lang.Int)">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
 <h4>copy</h4>
-<pre>public static&nbsp;void&nbsp;copy(x10.array.Array&lt;x10.lang.Double&gt;&nbsp;src,
+<pre>public static&nbsp;void&nbsp;copy(x10.regionarray.Array&lt;x10.lang.Double&gt;&nbsp;src,
         x10.lang.Int&nbsp;srcOff,
-        x10.lang.PlaceLocalHandle&lt;x10.array.Array&lt;x10.lang.Double&gt;&gt;&nbsp;dstplh,
+        x10.lang.PlaceLocalHandle&lt;x10.regionarray.Array&lt;x10.lang.Double&gt;&gt;&nbsp;dstplh,
         x10.lang.Int&nbsp;dstpid,
         x10.lang.Int&nbsp;dstOff,
         x10.lang.Int&nbsp;dataCnt)</pre>
-<div class="block"><B>Declaration:</B> <TT>copy(src:x10.array.Array[x10.lang.Double]{self.rank==1},srcOff:x10.lang.Int,dstplh:x10.lang.PlaceLocalHandle[x10.array.Array[x10.lang.Double]{self.rank==1, self.zeroBased==true, self.rect==true, self.rail==true}],dstpid:x10.lang.Int,dstOff:x10.lang.Int,dataCnt:x10.lang.Int): void.</TT><PRE>
+<div class="block"><B>Declaration:</B> <TT>copy(src:x10.regionarray.Array[x10.lang.Double]{self.rank==1},srcOff:x10.lang.Int,dstplh:x10.lang.PlaceLocalHandle[x10.regionarray.Array[x10.lang.Double]{self.rank==1, self.zeroBased==true, self.rect==true, self.rail==true}],dstpid:x10.lang.Int,dstOff:x10.lang.Int,dataCnt:x10.lang.Int): void.</TT><PRE>
 </PRE>Copy multiple columns from source array data at here to the specified remote
 place in DistArray of dense matrix.</div>
 <dl><dt><span class="strong">Parameters:</span></dt><dd><code>src</code> - -- the source array</dd><dd><code>srcOff</code> - -- starting column in in source matrix</dd><dd><code>dstplh</code> - -- target in PlaceLocalHandle</dd><dd><code>dstpid</code> - -- the place id of target in DistArray.</dd><dd><code>dstOff</code> - -- starting column offset in target matrix at destination place</dd><dd><code>dataCnt</code> - -- count of columns to be copied from source dense matrix</dd></dl>
 </li>
 </ul>
-<a name="mpiCopy(x10.array.Array[x10.lang.Double],x10.lang.Int,x10.lang.PlaceLocalHandle[x10.array.Array[x10.lang.Double]],x10.lang.Int,x10.lang.Int,x10.lang.Int)">
+<a name="mpiCopy(x10.regionarray.Array[x10.lang.Double],x10.lang.Int,x10.lang.PlaceLocalHandle[x10.regionarray.Array[x10.lang.Double]],x10.lang.Int,x10.lang.Int,x10.lang.Int)">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
 <h4>mpiCopy</h4>
-<pre>protected static&nbsp;void&nbsp;mpiCopy(x10.array.Array&lt;x10.lang.Double&gt;&nbsp;src,
+<pre>protected static&nbsp;void&nbsp;mpiCopy(x10.regionarray.Array&lt;x10.lang.Double&gt;&nbsp;src,
            x10.lang.Int&nbsp;srcOff,
-           x10.lang.PlaceLocalHandle&lt;x10.array.Array&lt;x10.lang.Double&gt;&gt;&nbsp;dstplh,
+           x10.lang.PlaceLocalHandle&lt;x10.regionarray.Array&lt;x10.lang.Double&gt;&gt;&nbsp;dstplh,
            x10.lang.Int&nbsp;dstpid,
            x10.lang.Int&nbsp;dstOff,
            x10.lang.Int&nbsp;dataCnt)</pre>
-<div class="block"><B>Declaration:</B> <TT>mpiCopy(src:x10.array.Array[x10.lang.Double]{self.rank==1},srcOff:x10.lang.Int,dstplh:x10.lang.PlaceLocalHandle[x10.array.Array[x10.lang.Double]{self.rank==1, self.zeroBased==true, self.rect==true, self.rail==true}],dstpid:x10.lang.Int,dstOff:x10.lang.Int,dataCnt:x10.lang.Int): void.</TT><PRE>
+<div class="block"><B>Declaration:</B> <TT>mpiCopy(src:x10.regionarray.Array[x10.lang.Double]{self.rank==1},srcOff:x10.lang.Int,dstplh:x10.lang.PlaceLocalHandle[x10.regionarray.Array[x10.lang.Double]{self.rank==1, self.zeroBased==true, self.rect==true, self.rail==true}],dstpid:x10.lang.Int,dstOff:x10.lang.Int,dataCnt:x10.lang.Int): void.</TT><PRE>
 </PRE></div>
 </li>
 </ul>
-<a name="x10Copy(x10.array.Array[x10.lang.Double],x10.lang.Int,x10.lang.PlaceLocalHandle[x10.array.Array[x10.lang.Double]],x10.lang.Int,x10.lang.Int,x10.lang.Int)">
+<a name="x10Copy(x10.regionarray.Array[x10.lang.Double],x10.lang.Int,x10.lang.PlaceLocalHandle[x10.regionarray.Array[x10.lang.Double]],x10.lang.Int,x10.lang.Int,x10.lang.Int)">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
 <h4>x10Copy</h4>
-<pre>protected static&nbsp;void&nbsp;x10Copy(x10.array.Array&lt;x10.lang.Double&gt;&nbsp;src,
+<pre>protected static&nbsp;void&nbsp;x10Copy(x10.regionarray.Array&lt;x10.lang.Double&gt;&nbsp;src,
            x10.lang.Int&nbsp;srcOff,
-           x10.lang.PlaceLocalHandle&lt;x10.array.Array&lt;x10.lang.Double&gt;&gt;&nbsp;dstplh,
+           x10.lang.PlaceLocalHandle&lt;x10.regionarray.Array&lt;x10.lang.Double&gt;&gt;&nbsp;dstplh,
            x10.lang.Int&nbsp;dstpid,
            x10.lang.Int&nbsp;dstOff,
            x10.lang.Int&nbsp;dataCnt)</pre>
-<div class="block"><B>Declaration:</B> <TT>x10Copy(src:x10.array.Array[x10.lang.Double]{self.rank==1},srcOff:x10.lang.Int,dstplh:x10.lang.PlaceLocalHandle[x10.array.Array[x10.lang.Double]{self.rank==1, self.zeroBased==true, self.rect==true, self.rail==true}],dstpid:x10.lang.Int,dstOff:x10.lang.Int,dataCnt:x10.lang.Int): void.</TT><PRE>
+<div class="block"><B>Declaration:</B> <TT>x10Copy(src:x10.regionarray.Array[x10.lang.Double]{self.rank==1},srcOff:x10.lang.Int,dstplh:x10.lang.PlaceLocalHandle[x10.regionarray.Array[x10.lang.Double]{self.rank==1, self.zeroBased==true, self.rect==true, self.rail==true}],dstpid:x10.lang.Int,dstOff:x10.lang.Int,dataCnt:x10.lang.Int): void.</TT><PRE>
 </PRE></div>
 </li>
 </ul>
-<a name="x10Copy(x10.array.Array[x10.lang.Double],x10.lang.Int,x10.array.DistArray[x10.array.Array[x10.lang.Double]],x10.lang.Int,x10.lang.Int,x10.lang.Int)">
+<a name="x10Copy(x10.regionarray.Array[x10.lang.Double],x10.lang.Int,x10.regionarray.DistArray[x10.regionarray.Array[x10.lang.Double]],x10.lang.Int,x10.lang.Int,x10.lang.Int)">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
 <h4>x10Copy</h4>
-<pre>protected static&nbsp;void&nbsp;x10Copy(x10.array.Array&lt;x10.lang.Double&gt;&nbsp;src,
+<pre>protected static&nbsp;void&nbsp;x10Copy(x10.regionarray.Array&lt;x10.lang.Double&gt;&nbsp;src,
            x10.lang.Int&nbsp;srcOff,
-           x10.array.DistArray&lt;x10.array.Array&lt;x10.lang.Double&gt;&gt;&nbsp;dst,
+           x10.regionarray.DistArray&lt;x10.regionarray.Array&lt;x10.lang.Double&gt;&gt;&nbsp;dst,
            x10.lang.Int&nbsp;dstpid,
            x10.lang.Int&nbsp;dstOff,
            x10.lang.Int&nbsp;dataCnt)</pre>
-<div class="block"><B>Declaration:</B> <TT>x10Copy(src:x10.array.Array[x10.lang.Double]{self.rank==1},srcOff:x10.lang.Int,dst:x10.array.DistArray[x10.array.Array[x10.lang.Double]{self.rank==1, self.zeroBased==true, self.rect==true, self.rail==true}]{self.dist.region.rank==1},dstpid:x10.lang.Int,dstOff:x10.lang.Int,dataCnt:x10.lang.Int): void.</TT><PRE>
+<div class="block"><B>Declaration:</B> <TT>x10Copy(src:x10.regionarray.Array[x10.lang.Double]{self.rank==1},srcOff:x10.lang.Int,dst:x10.regionarray.DistArray[x10.regionarray.Array[x10.lang.Double]{self.rank==1, self.zeroBased==true, self.rect==true, self.rail==true}]{self.dist.region.rank==1},dstpid:x10.lang.Int,dstOff:x10.lang.Int,dataCnt:x10.lang.Int): void.</TT><PRE>
 </PRE></div>
 </li>
 </ul>
-<a name="copy(x10.lang.PlaceLocalHandle[x10.array.Array[x10.lang.Double]],x10.lang.Int,x10.lang.Int,x10.array.Array[x10.lang.Double],x10.lang.Int,x10.lang.Int)">
+<a name="copy(x10.lang.PlaceLocalHandle[x10.regionarray.Array[x10.lang.Double]],x10.lang.Int,x10.lang.Int,x10.regionarray.Array[x10.lang.Double],x10.lang.Int,x10.lang.Int)">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
 <h4>copy</h4>
-<pre>public static&nbsp;void&nbsp;copy(x10.lang.PlaceLocalHandle&lt;x10.array.Array&lt;x10.lang.Double&gt;&gt;&nbsp;srcplh,
+<pre>public static&nbsp;void&nbsp;copy(x10.lang.PlaceLocalHandle&lt;x10.regionarray.Array&lt;x10.lang.Double&gt;&gt;&nbsp;srcplh,
         x10.lang.Int&nbsp;srcpid,
         x10.lang.Int&nbsp;srcOff,
-        x10.array.Array&lt;x10.lang.Double&gt;&nbsp;dst,
+        x10.regionarray.Array&lt;x10.lang.Double&gt;&nbsp;dst,
         x10.lang.Int&nbsp;dstOff,
         x10.lang.Int&nbsp;dataCnt)</pre>
-<div class="block"><B>Declaration:</B> <TT>copy(srcplh:x10.lang.PlaceLocalHandle[x10.array.Array[x10.lang.Double]{self.rank==1, self.zeroBased==true, self.rect==true, self.rail==true}],srcpid:x10.lang.Int,srcOff:x10.lang.Int,dst:x10.array.Array[x10.lang.Double]{self.rank==1},dstOff:x10.lang.Int,dataCnt:x10.lang.Int): void.</TT><PRE>
+<div class="block"><B>Declaration:</B> <TT>copy(srcplh:x10.lang.PlaceLocalHandle[x10.regionarray.Array[x10.lang.Double]{self.rank==1, self.zeroBased==true, self.rect==true, self.rail==true}],srcpid:x10.lang.Int,srcOff:x10.lang.Int,dst:x10.regionarray.Array[x10.lang.Double]{self.rank==1},dstOff:x10.lang.Int,dataCnt:x10.lang.Int): void.</TT><PRE>
 </PRE>Copy data array from in the specified place at
 here to target</div>
 <dl><dt><span class="strong">Parameters:</span></dt><dd><code>srcplh</code> - -- source data array in PlaceLocalHandle</dd><dd><code>srcpid</code> - -- source array's place id.</dd><dd><code>srcOff</code> - -- starting offset in source matrix</dd><dd><code>dst</code> - -- destination vector array</dd><dd><code>dstOff</code> - -- starting offset in receiving array at here</dd><dd><code>dataCnt</code> - -- count of data to copy</dd></dl>
 </li>
 </ul>
-<a name="mpiCopy(x10.lang.PlaceLocalHandle[x10.array.Array[x10.lang.Double]],x10.lang.Int,x10.lang.Int,x10.array.Array[x10.lang.Double],x10.lang.Int,x10.lang.Int)">
+<a name="mpiCopy(x10.lang.PlaceLocalHandle[x10.regionarray.Array[x10.lang.Double]],x10.lang.Int,x10.lang.Int,x10.regionarray.Array[x10.lang.Double],x10.lang.Int,x10.lang.Int)">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
 <h4>mpiCopy</h4>
-<pre>protected static&nbsp;void&nbsp;mpiCopy(x10.lang.PlaceLocalHandle&lt;x10.array.Array&lt;x10.lang.Double&gt;&gt;&nbsp;srcplh,
+<pre>protected static&nbsp;void&nbsp;mpiCopy(x10.lang.PlaceLocalHandle&lt;x10.regionarray.Array&lt;x10.lang.Double&gt;&gt;&nbsp;srcplh,
            x10.lang.Int&nbsp;srcpid,
            x10.lang.Int&nbsp;srcOff,
-           x10.array.Array&lt;x10.lang.Double&gt;&nbsp;dst,
+           x10.regionarray.Array&lt;x10.lang.Double&gt;&nbsp;dst,
            x10.lang.Int&nbsp;dstOff,
            x10.lang.Int&nbsp;dataCnt)</pre>
-<div class="block"><B>Declaration:</B> <TT>mpiCopy(srcplh:x10.lang.PlaceLocalHandle[x10.array.Array[x10.lang.Double]{self.rank==1, self.zeroBased==true, self.rect==true, self.rail==true}],srcpid:x10.lang.Int,srcOff:x10.lang.Int,dst:x10.array.Array[x10.lang.Double]{self.rank==1},dstOff:x10.lang.Int,dataCnt:x10.lang.Int): void.</TT><PRE>
+<div class="block"><B>Declaration:</B> <TT>mpiCopy(srcplh:x10.lang.PlaceLocalHandle[x10.regionarray.Array[x10.lang.Double]{self.rank==1, self.zeroBased==true, self.rect==true, self.rail==true}],srcpid:x10.lang.Int,srcOff:x10.lang.Int,dst:x10.regionarray.Array[x10.lang.Double]{self.rank==1},dstOff:x10.lang.Int,dataCnt:x10.lang.Int): void.</TT><PRE>
 </PRE></div>
 </li>
 </ul>
-<a name="x10Copy(x10.lang.PlaceLocalHandle[x10.array.Array[x10.lang.Double]],x10.lang.Int,x10.lang.Int,x10.array.Array[x10.lang.Double],x10.lang.Int,x10.lang.Int)">
+<a name="x10Copy(x10.lang.PlaceLocalHandle[x10.regionarray.Array[x10.lang.Double]],x10.lang.Int,x10.lang.Int,x10.regionarray.Array[x10.lang.Double],x10.lang.Int,x10.lang.Int)">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
 <h4>x10Copy</h4>
-<pre>protected static&nbsp;void&nbsp;x10Copy(x10.lang.PlaceLocalHandle&lt;x10.array.Array&lt;x10.lang.Double&gt;&gt;&nbsp;srcplh,
+<pre>protected static&nbsp;void&nbsp;x10Copy(x10.lang.PlaceLocalHandle&lt;x10.regionarray.Array&lt;x10.lang.Double&gt;&gt;&nbsp;srcplh,
            x10.lang.Int&nbsp;srcpid,
            x10.lang.Int&nbsp;srcOff,
-           x10.array.Array&lt;x10.lang.Double&gt;&nbsp;dst,
+           x10.regionarray.Array&lt;x10.lang.Double&gt;&nbsp;dst,
            x10.lang.Int&nbsp;dstOff,
            x10.lang.Int&nbsp;dataCnt)</pre>
-<div class="block"><B>Declaration:</B> <TT>x10Copy(srcplh:x10.lang.PlaceLocalHandle[x10.array.Array[x10.lang.Double]{self.rank==1, self.zeroBased==true, self.rect==true, self.rail==true}],srcpid:x10.lang.Int,srcOff:x10.lang.Int,dst:x10.array.Array[x10.lang.Double]{self.rank==1},dstOff:x10.lang.Int,dataCnt:x10.lang.Int): void.</TT><PRE>
+<div class="block"><B>Declaration:</B> <TT>x10Copy(srcplh:x10.lang.PlaceLocalHandle[x10.regionarray.Array[x10.lang.Double]{self.rank==1, self.zeroBased==true, self.rect==true, self.rail==true}],srcpid:x10.lang.Int,srcOff:x10.lang.Int,dst:x10.regionarray.Array[x10.lang.Double]{self.rank==1},dstOff:x10.lang.Int,dataCnt:x10.lang.Int): void.</TT><PRE>
 </PRE></div>
 </li>
 </ul>

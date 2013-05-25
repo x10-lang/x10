@@ -9,7 +9,7 @@
  *  (C) Copyright IBM Corporation 2006-2010.
  */
 
-import x10.array.*;
+import x10.regionarray.*;
 import x10.util.ArrayList;
 
 /**
@@ -55,7 +55,7 @@ public class HeatTransfer_v3 {
 
     // TODO: This is a really inefficient implementation of this abstraction.
     //       Needs to be done properly and integrated into the Dist/Region/DistArray
-    //       class library in x10.array.
+    //       class library in x10.regionarray.
     static def blockIt(d:Dist(2), numProcs:int):Array[ArrayList[Point(2)]](1) {
         val ans = new Array[ArrayList[Point(2)]](numProcs, (long) => new ArrayList[Point(2)]());
 	var modulo:int = 0;

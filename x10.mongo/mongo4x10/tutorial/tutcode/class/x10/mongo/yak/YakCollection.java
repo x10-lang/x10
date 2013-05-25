@@ -297,7 +297,7 @@ public static x10.mongo.yak.YakUtil y;
 //#line 113 "/Users/bard/x10/juss/Actors/mongo/mongo4x10/drivers/x10/mongo/yak/YakCollection.x10"
 public com.mongodb.WriteResult
                                                                                                              insert__0$1x10$mongo$yak$YakMap$2(
-                                                                                                             final x10.array.Array newElements,
+                                                                                                             final x10.regionarray.Array newElements,
                                                                                                              final com.mongodb.WriteConcern concern){
             
 //#line 114 "/Users/bard/x10/juss/Actors/mongo/mongo4x10/drivers/x10/mongo/yak/YakCollection.x10"
@@ -306,7 +306,7 @@ final com.mongodb.DBCollection t2883 =
             
 //#line 114 "/Users/bard/x10/juss/Actors/mongo/mongo4x10/drivers/x10/mongo/yak/YakCollection.x10"
 final com.mongodb.DBObject[] t2884 =
-              x10.mongo.yak.YakUtil.convert__0$1x10$mongo$yak$YakMap$2(((x10.array.Array)(newElements)));
+              x10.mongo.yak.YakUtil.convert__0$1x10$mongo$yak$YakMap$2(((x10.regionarray.Array)(newElements)));
             
 //#line 114 "/Users/bard/x10/juss/Actors/mongo/mongo4x10/drivers/x10/mongo/yak/YakCollection.x10"
 final com.mongodb.WriteResult t2885 =
@@ -321,7 +321,7 @@ return t2885;
 //#line 122 "/Users/bard/x10/juss/Actors/mongo/mongo4x10/drivers/x10/mongo/yak/YakCollection.x10"
 public com.mongodb.WriteResult
                                                                                                              insert__0$1x10$mongo$yak$YakMap$2(
-                                                                                                             final x10.array.Array newElements,
+                                                                                                             final x10.regionarray.Array newElements,
                                                                                                              final com.mongodb.WriteConcern concern,
                                                                                                              final com.mongodb.DBEncoder encoder){
             
@@ -331,7 +331,7 @@ final com.mongodb.DBCollection t2886 =
             
 //#line 122 "/Users/bard/x10/juss/Actors/mongo/mongo4x10/drivers/x10/mongo/yak/YakCollection.x10"
 final com.mongodb.DBObject[] t2887 =
-              x10.mongo.yak.YakUtil.convert__0$1x10$mongo$yak$YakMap$2(((x10.array.Array)(newElements)));
+              x10.mongo.yak.YakUtil.convert__0$1x10$mongo$yak$YakMap$2(((x10.regionarray.Array)(newElements)));
             
 //#line 122 "/Users/bard/x10/juss/Actors/mongo/mongo4x10/drivers/x10/mongo/yak/YakCollection.x10"
 final com.mongodb.WriteResult t2888 =
@@ -367,7 +367,7 @@ return t2890;
 //#line 137 "/Users/bard/x10/juss/Actors/mongo/mongo4x10/drivers/x10/mongo/yak/YakCollection.x10"
 public com.mongodb.WriteResult
                                                                                                              insert__0$1x10$mongo$yak$YakMap$2(
-                                                                                                             final x10.array.Array newElements){
+                                                                                                             final x10.regionarray.Array newElements){
             
 //#line 137 "/Users/bard/x10/juss/Actors/mongo/mongo4x10/drivers/x10/mongo/yak/YakCollection.x10"
 final com.mongodb.DBCollection t2891 =
@@ -375,7 +375,7 @@ final com.mongodb.DBCollection t2891 =
             
 //#line 137 "/Users/bard/x10/juss/Actors/mongo/mongo4x10/drivers/x10/mongo/yak/YakCollection.x10"
 final com.mongodb.DBObject[] t2892 =
-              x10.mongo.yak.YakUtil.convert__0$1x10$mongo$yak$YakMap$2(((x10.array.Array)(newElements)));
+              x10.mongo.yak.YakUtil.convert__0$1x10$mongo$yak$YakMap$2(((x10.regionarray.Array)(newElements)));
             
 //#line 137 "/Users/bard/x10/juss/Actors/mongo/mongo4x10/drivers/x10/mongo/yak/YakCollection.x10"
 final com.mongodb.WriteResult t2893 =
@@ -390,7 +390,7 @@ return t2893;
 public com.mongodb.WriteResult
                                                                                                              insert__1$1x10$mongo$yak$YakMap$2(
                                                                                                              final com.mongodb.WriteConcern concern,
-                                                                                                             final x10.array.Array newElements){
+                                                                                                             final x10.regionarray.Array newElements){
             
 //#line 145 "/Users/bard/x10/juss/Actors/mongo/mongo4x10/drivers/x10/mongo/yak/YakCollection.x10"
 final com.mongodb.DBCollection t2894 =
@@ -398,7 +398,7 @@ final com.mongodb.DBCollection t2894 =
             
 //#line 145 "/Users/bard/x10/juss/Actors/mongo/mongo4x10/drivers/x10/mongo/yak/YakCollection.x10"
 final com.mongodb.DBObject[] t2895 =
-              x10.mongo.yak.YakUtil.convert__0$1x10$mongo$yak$YakMap$2(((x10.array.Array)(newElements)));
+              x10.mongo.yak.YakUtil.convert__0$1x10$mongo$yak$YakMap$2(((x10.regionarray.Array)(newElements)));
             
 //#line 145 "/Users/bard/x10/juss/Actors/mongo/mongo4x10/drivers/x10/mongo/yak/YakCollection.x10"
 final com.mongodb.WriteResult t2896 =

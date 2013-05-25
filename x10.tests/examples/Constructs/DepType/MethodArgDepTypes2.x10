@@ -11,7 +11,7 @@
 
 import harness.x10Test;
 import x10.util.concurrent.Future;
-import x10.array.*;
+import x10.regionarray.*;
 
 /**
  * Check that a method arg can have a deptype and it is propagated into the body.

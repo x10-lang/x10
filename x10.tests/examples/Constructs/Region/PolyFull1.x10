@@ -9,7 +9,7 @@
  *  (C) Copyright IBM Corporation 2006-2010.
  */
 
-import x10.array.*;
+import x10.regionarray.*;
 
 /**
  * Make a full region, examine it, observing an
@@ -32,7 +32,7 @@ class PolyFull1 extends TestRegion {
         "isConvex() true\n"+
         "size() size not supported\n"+
         "region: full(3)\n"+
-        "x10.array.UnboundedRegionException: iterator not supported\n";
+        "x10.regionarray.UnboundedRegionException: iterator not supported\n";
     
     public static def main(Rail[String]) {
         new PolyFull1().execute();

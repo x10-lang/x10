@@ -121,16 +121,16 @@ duplicated copy is mapped to one place.</div>
 <th class="colLast" scope="col">Field and Description</th>
 </tr>
 <tr class="altColor">
-<td class="colFirst"><code>x10.array.Dist</code></td>
+<td class="colFirst"><code>x10.regionarray.Dist</code></td>
 <td class="colLast"><code><strong><a href="../../../x10/matrix/dist/DupSparseMatrix.html#dist">dist</a></strong></code>
-<div class="block"><B>Field Type</B>: <TT>x10.array.Dist{self.region.rank==1}</TT>
+<div class="block"><B>Field Type</B>: <TT>x10.regionarray.Dist{self.region.rank==1}</TT>
 Data duplication</div>
 </td>
 </tr>
 <tr class="rowColor">
-<td class="colFirst"><code>x10.array.DistArray&lt;<a href="../../../x10/matrix/sparse/SparseCSC.html" title="class in x10.matrix.sparse">SparseCSC</a>&gt;</code></td>
+<td class="colFirst"><code>x10.regionarray.DistArray&lt;<a href="../../../x10/matrix/sparse/SparseCSC.html" title="class in x10.matrix.sparse">SparseCSC</a>&gt;</code></td>
 <td class="colLast"><code><strong><a href="../../../x10/matrix/dist/DupSparseMatrix.html#dupMs">dupMs</a></strong></code>
-<div class="block"><B>Field Type</B>: <TT>x10.array.DistArray[x10.matrix.sparse.SparseCSC]{self.dist.region.rank==1}</TT>
+<div class="block"><B>Field Type</B>: <TT>x10.regionarray.DistArray[x10.matrix.sparse.SparseCSC]{self.dist.region.rank==1}</TT>
 </div>
 </td>
 </tr>
@@ -168,8 +168,8 @@ Data duplication</div>
 <th class="colOne" scope="col">Constructor and Description</th>
 </tr>
 <tr class="altColor">
-<td class="colOne"><code><strong><a href="../../../x10/matrix/dist/DupSparseMatrix.html#DupSparseMatrix(x10.array.DistArray[x10.matrix.sparse.SparseCSC]{self.dist.region.rank==1})">DupSparseMatrix</a></strong>(x10.array.DistArray&lt;<a href="../../../x10/matrix/sparse/SparseCSC.html" title="class in x10.matrix.sparse">SparseCSC</a>&gt;&nbsp;dms)</code>
-<div class="block"><B>Declaration</B>: <TT>this(x10.array.DistArray[x10.matrix.sparse.SparseCSC]{self.dist.region.rank==1}): x10.matrix.dist.DupSparseMatrix.</TT>
+<td class="colOne"><code><strong><a href="../../../x10/matrix/dist/DupSparseMatrix.html#DupSparseMatrix(x10.regionarray.DistArray[x10.matrix.sparse.SparseCSC]{self.dist.region.rank==1})">DupSparseMatrix</a></strong>(x10.regionarray.DistArray&lt;<a href="../../../x10/matrix/sparse/SparseCSC.html" title="class in x10.matrix.sparse">SparseCSC</a>&gt;&nbsp;dms)</code>
+<div class="block"><B>Declaration</B>: <TT>this(x10.regionarray.DistArray[x10.matrix.sparse.SparseCSC]{self.dist.region.rank==1}): x10.matrix.dist.DupSparseMatrix.</TT>
 Construct duplicated sparse matrix.</div>
 </td>
 </tr>
@@ -604,8 +604,8 @@ Implementation of duplicated sparse matrix.</div>
 <ul class="blockList">
 <li class="blockList">
 <h4>dist</h4>
-<pre>public final&nbsp;x10.array.Dist dist</pre>
-<div class="block"><B>Field Type</B>: <TT>x10.array.Dist{self.region.rank==1}</TT><PRE>
+<pre>public final&nbsp;x10.regionarray.Dist dist</pre>
+<div class="block"><B>Field Type</B>: <TT>x10.regionarray.Dist{self.region.rank==1}</TT><PRE>
 </PRE>Data duplication</div>
 </li>
 </ul>
@@ -615,8 +615,8 @@ Implementation of duplicated sparse matrix.</div>
 <ul class="blockList">
 <li class="blockList">
 <h4>dupMs</h4>
-<pre>public final&nbsp;x10.array.DistArray&lt;<a href="../../../x10/matrix/sparse/SparseCSC.html" title="class in x10.matrix.sparse">SparseCSC</a>&gt; dupMs</pre>
-<div class="block"><B>Field Type</B>: <TT>x10.array.DistArray[x10.matrix.sparse.SparseCSC]{self.dist.region.rank==1}</TT><PRE>
+<pre>public final&nbsp;x10.regionarray.DistArray&lt;<a href="../../../x10/matrix/sparse/SparseCSC.html" title="class in x10.matrix.sparse">SparseCSC</a>&gt; dupMs</pre>
+<div class="block"><B>Field Type</B>: <TT>x10.regionarray.DistArray[x10.matrix.sparse.SparseCSC]{self.dist.region.rank==1}</TT><PRE>
 </PRE></div>
 </li>
 </ul>
@@ -655,14 +655,14 @@ Implementation of duplicated sparse matrix.</div>
 <!--   -->
 </a>
 <h3>Constructor Detail</h3>
-<a name="DupSparseMatrix(x10.array.DistArray[x10.matrix.sparse.SparseCSC]{self.dist.region.rank==1})">
+<a name="DupSparseMatrix(x10.regionarray.DistArray[x10.matrix.sparse.SparseCSC]{self.dist.region.rank==1})">
 <!--   -->
 </a>
 <ul class="blockListLast">
 <li class="blockList">
 <h4>DupSparseMatrix</h4>
-<pre>public&nbsp;DupSparseMatrix(x10.array.DistArray&lt;<a href="../../../x10/matrix/sparse/SparseCSC.html" title="class in x10.matrix.sparse">SparseCSC</a>&gt;&nbsp;dms)</pre>
-<div class="block"><B>Declaration</B>: <TT>this(x10.array.DistArray[x10.matrix.sparse.SparseCSC]{self.dist.region.rank==1}): x10.matrix.dist.DupSparseMatrix.</TT><PRE>
+<pre>public&nbsp;DupSparseMatrix(x10.regionarray.DistArray&lt;<a href="../../../x10/matrix/sparse/SparseCSC.html" title="class in x10.matrix.sparse">SparseCSC</a>&gt;&nbsp;dms)</pre>
+<div class="block"><B>Declaration</B>: <TT>this(x10.regionarray.DistArray[x10.matrix.sparse.SparseCSC]{self.dist.region.rank==1}): x10.matrix.dist.DupSparseMatrix.</TT><PRE>
 </PRE>Construct duplicated sparse matrix.</div>
 </li>
 </ul>

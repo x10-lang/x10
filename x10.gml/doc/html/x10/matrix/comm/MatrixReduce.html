@@ -150,71 +150,71 @@ run command "make help" at the root directory of GML library.</div>
 </tr>
 <tr class="altColor">
 <td class="colFirst"><code>static x10.lang.Int</code></td>
-<td class="colLast"><code><strong><a href="../../../x10/matrix/comm/MatrixReduce.html#reduceSum(x10.array.DistArray[x10.matrix.DenseMatrix],x10.array.DistArray[x10.matrix.DenseMatrix])">reduceSum</a></strong>(x10.array.DistArray&lt;<a href="../../../x10/matrix/DenseMatrix.html" title="class in x10.matrix">DenseMatrix</a>&gt;&nbsp;ddmat,
-         x10.array.DistArray&lt;<a href="../../../x10/matrix/DenseMatrix.html" title="class in x10.matrix">DenseMatrix</a>&gt;&nbsp;ddtmp)</code>
-<div class="block"><B>Declaration:</B> <TT>reduceSum(ddmat:x10.array.DistArray[x10.matrix.DenseMatrix]{self.dist.region.rank==1},ddtmp:x10.array.DistArray[x10.matrix.DenseMatrix]{self.dist.region.rank==1}): x10.lang.Int.</TT>
+<td class="colLast"><code><strong><a href="../../../x10/matrix/comm/MatrixReduce.html#reduceSum(x10.regionarray.DistArray[x10.matrix.DenseMatrix],x10.regionarray.DistArray[x10.matrix.DenseMatrix])">reduceSum</a></strong>(x10.regionarray.DistArray&lt;<a href="../../../x10/matrix/DenseMatrix.html" title="class in x10.matrix">DenseMatrix</a>&gt;&nbsp;ddmat,
+         x10.regionarray.DistArray&lt;<a href="../../../x10/matrix/DenseMatrix.html" title="class in x10.matrix">DenseMatrix</a>&gt;&nbsp;ddtmp)</code>
+<div class="block"><B>Declaration:</B> <TT>reduceSum(ddmat:x10.regionarray.DistArray[x10.matrix.DenseMatrix]{self.dist.region.rank==1},ddtmp:x10.regionarray.DistArray[x10.matrix.DenseMatrix]{self.dist.region.rank==1}): x10.lang.Int.</TT>
 Reduce all dense matrices stored in DistArray from all places
 to here</div>
 </td>
 </tr>
 <tr class="rowColor">
 <td class="colFirst"><code>static x10.lang.Int</code></td>
-<td class="colLast"><code><strong><a href="../../../x10/matrix/comm/MatrixReduce.html#mpiReduceSum(x10.array.DistArray[x10.matrix.DenseMatrix],x10.array.DistArray[x10.matrix.DenseMatrix])">mpiReduceSum</a></strong>(x10.array.DistArray&lt;<a href="../../../x10/matrix/DenseMatrix.html" title="class in x10.matrix">DenseMatrix</a>&gt;&nbsp;ddmat,
-            x10.array.DistArray&lt;<a href="../../../x10/matrix/DenseMatrix.html" title="class in x10.matrix">DenseMatrix</a>&gt;&nbsp;ddtmp)</code>
-<div class="block"><B>Declaration:</B> <TT>mpiReduceSum(ddmat:x10.array.DistArray[x10.matrix.DenseMatrix]{self.dist.region.rank==1},ddtmp:x10.array.DistArray[x10.matrix.DenseMatrix]{self.dist.region.rank==1}): x10.lang.Int.</TT>
+<td class="colLast"><code><strong><a href="../../../x10/matrix/comm/MatrixReduce.html#mpiReduceSum(x10.regionarray.DistArray[x10.matrix.DenseMatrix],x10.regionarray.DistArray[x10.matrix.DenseMatrix])">mpiReduceSum</a></strong>(x10.regionarray.DistArray&lt;<a href="../../../x10/matrix/DenseMatrix.html" title="class in x10.matrix">DenseMatrix</a>&gt;&nbsp;ddmat,
+            x10.regionarray.DistArray&lt;<a href="../../../x10/matrix/DenseMatrix.html" title="class in x10.matrix">DenseMatrix</a>&gt;&nbsp;ddtmp)</code>
+<div class="block"><B>Declaration:</B> <TT>mpiReduceSum(ddmat:x10.regionarray.DistArray[x10.matrix.DenseMatrix]{self.dist.region.rank==1},ddtmp:x10.regionarray.DistArray[x10.matrix.DenseMatrix]{self.dist.region.rank==1}): x10.lang.Int.</TT>
 Perform reduce sum of all matrces stored in the duplicated matrix
 Result is stored in the matrix at root place.</div>
 </td>
 </tr>
 <tr class="altColor">
 <td class="colFirst"><code>static x10.lang.Int</code></td>
-<td class="colLast"><code><strong><a href="../../../x10/matrix/comm/MatrixReduce.html#x10ReduceSum(x10.array.DistArray[x10.matrix.DenseMatrix],x10.array.DistArray[x10.matrix.DenseMatrix])">x10ReduceSum</a></strong>(x10.array.DistArray&lt;<a href="../../../x10/matrix/DenseMatrix.html" title="class in x10.matrix">DenseMatrix</a>&gt;&nbsp;ddmat,
-            x10.array.DistArray&lt;<a href="../../../x10/matrix/DenseMatrix.html" title="class in x10.matrix">DenseMatrix</a>&gt;&nbsp;ddtmp)</code>
-<div class="block"><B>Declaration:</B> <TT>x10ReduceSum(ddmat:x10.array.DistArray[x10.matrix.DenseMatrix]{self.dist.region.rank==1},ddtmp:x10.array.DistArray[x10.matrix.DenseMatrix]{self.dist.region.rank==1}): x10.lang.Int.</TT>
+<td class="colLast"><code><strong><a href="../../../x10/matrix/comm/MatrixReduce.html#x10ReduceSum(x10.regionarray.DistArray[x10.matrix.DenseMatrix],x10.regionarray.DistArray[x10.matrix.DenseMatrix])">x10ReduceSum</a></strong>(x10.regionarray.DistArray&lt;<a href="../../../x10/matrix/DenseMatrix.html" title="class in x10.matrix">DenseMatrix</a>&gt;&nbsp;ddmat,
+            x10.regionarray.DistArray&lt;<a href="../../../x10/matrix/DenseMatrix.html" title="class in x10.matrix">DenseMatrix</a>&gt;&nbsp;ddtmp)</code>
+<div class="block"><B>Declaration:</B> <TT>x10ReduceSum(ddmat:x10.regionarray.DistArray[x10.matrix.DenseMatrix]{self.dist.region.rank==1},ddtmp:x10.regionarray.DistArray[x10.matrix.DenseMatrix]{self.dist.region.rank==1}): x10.lang.Int.</TT>
 Sum of all matrices in the duplicated matrix and the result overwrite the
 matrix at here.</div>
 </td>
 </tr>
 <tr class="rowColor">
 <td class="colFirst"><code>protected static void</code></td>
-<td class="colLast"><code><strong><a href="../../../x10/matrix/comm/MatrixReduce.html#reduceSumToHere(x10.array.DistArray[x10.matrix.DenseMatrix],x10.array.DistArray[x10.matrix.DenseMatrix],x10.lang.Int)">reduceSumToHere</a></strong>(x10.array.DistArray&lt;<a href="../../../x10/matrix/DenseMatrix.html" title="class in x10.matrix">DenseMatrix</a>&gt;&nbsp;ddmat,
-               x10.array.DistArray&lt;<a href="../../../x10/matrix/DenseMatrix.html" title="class in x10.matrix">DenseMatrix</a>&gt;&nbsp;ddtmp,
+<td class="colLast"><code><strong><a href="../../../x10/matrix/comm/MatrixReduce.html#reduceSumToHere(x10.regionarray.DistArray[x10.matrix.DenseMatrix],x10.regionarray.DistArray[x10.matrix.DenseMatrix],x10.lang.Int)">reduceSumToHere</a></strong>(x10.regionarray.DistArray&lt;<a href="../../../x10/matrix/DenseMatrix.html" title="class in x10.matrix">DenseMatrix</a>&gt;&nbsp;ddmat,
+               x10.regionarray.DistArray&lt;<a href="../../../x10/matrix/DenseMatrix.html" title="class in x10.matrix">DenseMatrix</a>&gt;&nbsp;ddtmp,
                x10.lang.Int&nbsp;pcnt)</code>
-<div class="block"><B>Declaration:</B> <TT>reduceSumToHere(ddmat:x10.array.DistArray[x10.matrix.DenseMatrix]{self.dist.region.rank==1},ddtmp:x10.array.DistArray[x10.matrix.DenseMatrix]{self.dist.region.rank==1},pcnt:x10.lang.Int): void.</TT>
+<div class="block"><B>Declaration:</B> <TT>reduceSumToHere(ddmat:x10.regionarray.DistArray[x10.matrix.DenseMatrix]{self.dist.region.rank==1},ddtmp:x10.regionarray.DistArray[x10.matrix.DenseMatrix]{self.dist.region.rank==1},pcnt:x10.lang.Int): void.</TT>
 Binary recursive reduce sum.</div>
 </td>
 </tr>
 <tr class="altColor">
 <td class="colFirst"><code>static x10.lang.Int</code></td>
-<td class="colLast"><code><strong><a href="../../../x10/matrix/comm/MatrixReduce.html#allReduceSum(x10.array.DistArray[x10.matrix.DenseMatrix],x10.array.DistArray[x10.matrix.DenseMatrix])">allReduceSum</a></strong>(x10.array.DistArray&lt;<a href="../../../x10/matrix/DenseMatrix.html" title="class in x10.matrix">DenseMatrix</a>&gt;&nbsp;ddmat,
-            x10.array.DistArray&lt;<a href="../../../x10/matrix/DenseMatrix.html" title="class in x10.matrix">DenseMatrix</a>&gt;&nbsp;ddtmp)</code>
-<div class="block"><B>Declaration:</B> <TT>allReduceSum(ddmat:x10.array.DistArray[x10.matrix.DenseMatrix]{self.dist.region.rank==1},ddtmp:x10.array.DistArray[x10.matrix.DenseMatrix]{self.dist.region.rank==1}): x10.lang.Int.</TT>
+<td class="colLast"><code><strong><a href="../../../x10/matrix/comm/MatrixReduce.html#allReduceSum(x10.regionarray.DistArray[x10.matrix.DenseMatrix],x10.regionarray.DistArray[x10.matrix.DenseMatrix])">allReduceSum</a></strong>(x10.regionarray.DistArray&lt;<a href="../../../x10/matrix/DenseMatrix.html" title="class in x10.matrix">DenseMatrix</a>&gt;&nbsp;ddmat,
+            x10.regionarray.DistArray&lt;<a href="../../../x10/matrix/DenseMatrix.html" title="class in x10.matrix">DenseMatrix</a>&gt;&nbsp;ddtmp)</code>
+<div class="block"><B>Declaration:</B> <TT>allReduceSum(ddmat:x10.regionarray.DistArray[x10.matrix.DenseMatrix]{self.dist.region.rank==1},ddtmp:x10.regionarray.DistArray[x10.matrix.DenseMatrix]{self.dist.region.rank==1}): x10.lang.Int.</TT>
 Perform all reduce sum operation.</div>
 </td>
 </tr>
 <tr class="rowColor">
 <td class="colFirst"><code>protected static x10.lang.Int</code></td>
-<td class="colLast"><code><strong><a href="../../../x10/matrix/comm/MatrixReduce.html#mpiAllReduceSum(x10.array.DistArray[x10.matrix.DenseMatrix],x10.array.DistArray[x10.matrix.DenseMatrix])">mpiAllReduceSum</a></strong>(x10.array.DistArray&lt;<a href="../../../x10/matrix/DenseMatrix.html" title="class in x10.matrix">DenseMatrix</a>&gt;&nbsp;ddmat,
-               x10.array.DistArray&lt;<a href="../../../x10/matrix/DenseMatrix.html" title="class in x10.matrix">DenseMatrix</a>&gt;&nbsp;ddtmp)</code>
-<div class="block"><B>Declaration:</B> <TT>mpiAllReduceSum(ddmat:x10.array.DistArray[x10.matrix.DenseMatrix]{self.dist.region.rank==1},ddtmp:x10.array.DistArray[x10.matrix.DenseMatrix]{self.dist.region.rank==1}): x10.lang.Int.</TT>
+<td class="colLast"><code><strong><a href="../../../x10/matrix/comm/MatrixReduce.html#mpiAllReduceSum(x10.regionarray.DistArray[x10.matrix.DenseMatrix],x10.regionarray.DistArray[x10.matrix.DenseMatrix])">mpiAllReduceSum</a></strong>(x10.regionarray.DistArray&lt;<a href="../../../x10/matrix/DenseMatrix.html" title="class in x10.matrix">DenseMatrix</a>&gt;&nbsp;ddmat,
+               x10.regionarray.DistArray&lt;<a href="../../../x10/matrix/DenseMatrix.html" title="class in x10.matrix">DenseMatrix</a>&gt;&nbsp;ddtmp)</code>
+<div class="block"><B>Declaration:</B> <TT>mpiAllReduceSum(ddmat:x10.regionarray.DistArray[x10.matrix.DenseMatrix]{self.dist.region.rank==1},ddtmp:x10.regionarray.DistArray[x10.matrix.DenseMatrix]{self.dist.region.rank==1}): x10.lang.Int.</TT>
 Perform all reduce sum operation.</div>
 </td>
 </tr>
 <tr class="altColor">
 <td class="colFirst"><code>protected static x10.lang.Int</code></td>
-<td class="colLast"><code><strong><a href="../../../x10/matrix/comm/MatrixReduce.html#x10AllReduceSum(x10.array.DistArray[x10.matrix.DenseMatrix],x10.array.DistArray[x10.matrix.DenseMatrix])">x10AllReduceSum</a></strong>(x10.array.DistArray&lt;<a href="../../../x10/matrix/DenseMatrix.html" title="class in x10.matrix">DenseMatrix</a>&gt;&nbsp;ddmat,
-               x10.array.DistArray&lt;<a href="../../../x10/matrix/DenseMatrix.html" title="class in x10.matrix">DenseMatrix</a>&gt;&nbsp;ddtmp)</code>
-<div class="block"><B>Declaration:</B> <TT>x10AllReduceSum(ddmat:x10.array.DistArray[x10.matrix.DenseMatrix]{self.dist.region.rank==1},ddtmp:x10.array.DistArray[x10.matrix.DenseMatrix]{self.dist.region.rank==1}): x10.lang.Int.</TT>
+<td class="colLast"><code><strong><a href="../../../x10/matrix/comm/MatrixReduce.html#x10AllReduceSum(x10.regionarray.DistArray[x10.matrix.DenseMatrix],x10.regionarray.DistArray[x10.matrix.DenseMatrix])">x10AllReduceSum</a></strong>(x10.regionarray.DistArray&lt;<a href="../../../x10/matrix/DenseMatrix.html" title="class in x10.matrix">DenseMatrix</a>&gt;&nbsp;ddmat,
+               x10.regionarray.DistArray&lt;<a href="../../../x10/matrix/DenseMatrix.html" title="class in x10.matrix">DenseMatrix</a>&gt;&nbsp;ddtmp)</code>
+<div class="block"><B>Declaration:</B> <TT>x10AllReduceSum(ddmat:x10.regionarray.DistArray[x10.matrix.DenseMatrix]{self.dist.region.rank==1},ddtmp:x10.regionarray.DistArray[x10.matrix.DenseMatrix]{self.dist.region.rank==1}): x10.lang.Int.</TT>
 </div>
 </td>
 </tr>
 <tr class="rowColor">
 <td class="colFirst"><code>static x10.lang.Int</code></td>
-<td class="colLast"><code><strong><a href="../../../x10/matrix/comm/MatrixReduce.html#reduceSum(x10.array.DistArray[x10.matrix.DenseMatrix],x10.matrix.DenseMatrix,x10.lang.Int,x10.array.Array[x10.lang.Int])">reduceSum</a></strong>(x10.array.DistArray&lt;<a href="../../../x10/matrix/DenseMatrix.html" title="class in x10.matrix">DenseMatrix</a>&gt;&nbsp;ddmat,
+<td class="colLast"><code><strong><a href="../../../x10/matrix/comm/MatrixReduce.html#reduceSum(x10.regionarray.DistArray[x10.matrix.DenseMatrix],x10.matrix.DenseMatrix,x10.lang.Int,x10.regionarray.Array[x10.lang.Int])">reduceSum</a></strong>(x10.regionarray.DistArray&lt;<a href="../../../x10/matrix/DenseMatrix.html" title="class in x10.matrix">DenseMatrix</a>&gt;&nbsp;ddmat,
          <a href="../../../x10/matrix/DenseMatrix.html" title="class in x10.matrix">DenseMatrix</a>&nbsp;tmp,
          x10.lang.Int&nbsp;colcnt,
-         x10.array.Array&lt;x10.lang.Int&gt;&nbsp;plist)</code>
-<div class="block"><B>Declaration:</B> <TT>reduceSum(ddmat:x10.array.DistArray[x10.matrix.DenseMatrix]{self.dist.region.rank==1},tmp:x10.matrix.DenseMatrix,colcnt:x10.lang.Int,plist:x10.array.Array[x10.lang.Int]{self.rank==1}): x10.lang.Int.</TT>
+         x10.regionarray.Array&lt;x10.lang.Int&gt;&nbsp;plist)</code>
+<div class="block"><B>Declaration:</B> <TT>reduceSum(ddmat:x10.regionarray.DistArray[x10.matrix.DenseMatrix]{self.dist.region.rank==1},tmp:x10.matrix.DenseMatrix,colcnt:x10.lang.Int,plist:x10.regionarray.Array[x10.lang.Int]{self.rank==1}): x10.lang.Int.</TT>
 Perform reduce sum of all matrces stored in the duplicated matrix
 from specified list of places.</div>
 </td>
@@ -236,7 +236,7 @@ space to receive data.</div>
 <!--   -->
 </a>
 <h3>Methods inherited from class&nbsp;x10.matrix.comm.<a href="../../../x10/matrix/comm/MatrixRemoteCopy.html" title="class in x10.matrix.comm">MatrixRemoteCopy</a></h3>
-<code><a href="../../../x10/matrix/comm/MatrixRemoteCopy.html#copyTo(x10.array.DistArray[x10.matrix.DenseMatrix],x10.lang.Int)">copyTo</a>, <a href="../../../x10/matrix/comm/MatrixRemoteCopy.html#copyFrom(x10.array.DistArray[x10.matrix.DenseMatrix],x10.lang.Int)">copyFrom</a>, <a href="../../../x10/matrix/comm/MatrixRemoteCopy.html#copy(x10.matrix.DenseMatrix,x10.lang.Int,x10.array.DistArray[x10.matrix.DenseMatrix],x10.lang.Int,x10.lang.Int,x10.lang.Int)">copy</a>, <a href="../../../x10/matrix/comm/MatrixRemoteCopy.html#mpiCopy(x10.matrix.DenseMatrix,x10.lang.Int,x10.array.DistArray[x10.matrix.DenseMatrix],x10.lang.Int,x10.lang.Int,x10.lang.Int)">mpiCopy</a>, <a href="../../../x10/matrix/comm/MatrixRemoteCopy.html#x10Copy(x10.matrix.DenseMatrix,x10.lang.Int,x10.array.DistArray[x10.matrix.DenseMatrix],x10.lang.Int,x10.lang.Int,x10.lang.Int)">x10Copy</a>, <a href="../../../x10/matrix/comm/MatrixRemoteCopy.html#copy(x10.array.DistArray[x10.matrix.DenseMatrix],x10.lang.Int,x10.lang.Int,x10.matrix.DenseMatrix,x10.lang.Int,x10.lang.Int)">copy</a>, <a href="../../../x10/matrix/comm/MatrixRemoteCopy.html#x10Copy(x10.array.DistArray[x10.matrix.DenseMatrix],x10.lang.Int,x10.lang.Int,x10.matrix.DenseMatrix,x10.lang.Int,x10.lang.Int)">x10Copy</a>, <a href="../../../x10/matrix/comm/MatrixRemoteCopy.html#mpiCopy(x10.array.DistArray[x10.matrix.DenseMatrix],x10.lang.Int,x10.lang.Int,x10.matrix.DenseMatrix,x10.lang.Int,x10.lang.Int)">mpiCopy</a>, <a href="../../../x10/matrix/comm/MatrixRemoteCopy.html#copy(x10.matrix.DenseMatrix,x10.lang.Int,x10.array.DistArray[x10.matrix.block.DenseBlock],x10.lang.Int,x10.lang.Int,x10.lang.Int)">copy</a>, <a href="../../../x10/matrix/comm/MatrixRemoteCopy.html#mpiCopy(x10.matrix.DenseMatrix,x10.lang.Int,x10.array.DistArray[x10.matrix.block.DenseBlock],x10.lang.Int,x10.lang.Int,x10.lang.Int)">mpiCopy</a>, <a href="../../../x10/matrix/comm/MatrixRemoteCopy.html#x10Copy(x10.matrix.DenseMatrix,x10.lang.Int,x10.array.DistArray[x10.matrix.block.DenseBlock],x10.lang.Int,x10.lang.Int,x10.lang.Int)">x10Copy</a>, <a href="../../../x10/matrix/comm/MatrixRemoteCopy.html#copy(x10.array.DistArray[x10.matrix.block.DenseBlock],x10.lang.Int,x10.lang.Int,x10.matrix.DenseMatrix,x10.lang.Int,x10.lang.Int)">copy</a>, <a href="../../../x10/matrix/comm/MatrixRemoteCopy.html#mpiCopy(x10.array.DistArray[x10.matrix.block.DenseBlock],x10.lang.Int,x10.lang.Int,x10.matrix.DenseMatrix,x10.lang.Int,x10.lang.Int)">mpiCopy</a>, <a href="../../../x10/matrix/comm/MatrixRemoteCopy.html#x10Copy(x10.array.DistArray[x10.matrix.block.DenseBlock],x10.lang.Int,x10.lang.Int,x10.matrix.DenseMatrix,x10.lang.Int,x10.lang.Int)">x10Copy</a>, <a href="../../../x10/matrix/comm/MatrixRemoteCopy.html#copyTo(x10.array.DistArray[x10.matrix.sparse.SparseCSC],x10.lang.Int)">copyTo</a>, <a href="../../../x10/matrix/comm/MatrixRemoteCopy.html#copyFrom(x10.array.DistArray[x10.matrix.sparse.SparseCSC],x10.lang.Int)">copyFrom</a>, <a href="../../../x10/matrix/comm/MatrixRemoteCopy.html#copy(x10.matrix.sparse.SparseCSC,x10.lang.Int,x10.array.DistArray[x10.matrix.sparse.SparseCSC],x10.lang.Int,x10.lang.Int,x10.lang.Int)">copy</a>, <a href="../../../x10/matrix/comm/MatrixRemoteCopy.html#mpiCopy(x10.matrix.sparse.SparseCSC,x10.lang.Int,x10.array.DistArray[x10.matrix.sparse.SparseCSC],x10.lang.Int,x10.lang.Int,x10.lang.Int)">mpiCopy</a>, <a href="../../../x10/matrix/comm/MatrixRemoteCopy.html#x10Copy(x10.matrix.sparse.SparseCSC,x10.lang.Int,x10.array.DistArray[x10.matrix.sparse.SparseCSC],x10.lang.Int,x10.lang.Int,x10.lang.Int)">x10Copy</a>, <a href="../../../x10/matrix/comm/MatrixRemoteCopy.html#copy(x10.array.DistArray[x10.matrix.sparse.SparseCSC],x10.lang.Int,x10.lang.Int,x10.matrix.sparse.SparseCSC,x10.lang.Int,x10.lang.Int)">copy</a>, <a href="../../../x10/matrix/comm/MatrixRemoteCopy.html#mpiCopy(x10.array.DistArray[x10.matrix.sparse.SparseCSC],x10.lang.Int,x10.lang.Int,x10.matrix.sparse.SparseCSC,x10.lang.Int,x10.lang.Int)">mpiCopy</a>, <a href="../../../x10/matrix/comm/MatrixRemoteCopy.html#x10Copy(x10.array.DistArray[x10.matrix.sparse.SparseCSC],x10.lang.Int,x10.lang.Int,x10.matrix.sparse.SparseCSC,x10.lang.Int,x10.lang.Int)">x10Copy</a>, <a href="../../../x10/matrix/comm/MatrixRemoteCopy.html#copy(x10.matrix.sparse.SparseCSC,x10.lang.Int,x10.array.DistArray[x10.matrix.block.SparseBlock],x10.lang.Int,x10.lang.Int,x10.lang.Int)">copy</a>, <a href="../../../x10/matrix/comm/MatrixRemoteCopy.html#mpiCopy(x10.matrix.sparse.SparseCSC,x10.lang.Int,x10.array.DistArray[x10.matrix.block.SparseBlock],x10.lang.Int,x10.lang.Int,x10.lang.Int)">mpiCopy</a>, <a href="../../../x10/matrix/comm/MatrixRemoteCopy.html#x10Copy(x10.matrix.sparse.SparseCSC,x10.lang.Int,x10.array.DistArray[x10.matrix.block.SparseBlock],x10.lang.Int,x10.lang.Int,x10.lang.Int)">x10Copy</a>, <a href="../../../x10/matrix/comm/MatrixRemoteCopy.html#copy(x10.array.DistArray[x10.matrix.block.SparseBlock],x10.lang.Int,x10.lang.Int,x10.matrix.sparse.SparseCSC,x10.lang.Int,x10.lang.Int)">copy</a>, <a href="../../../x10/matrix/comm/MatrixRemoteCopy.html#mpiCopy(x10.array.DistArray[x10.matrix.block.SparseBlock],x10.lang.Int,x10.lang.Int,x10.matrix.sparse.SparseCSC,x10.lang.Int,x10.lang.Int)">mpiCopy</a>, <a href="../../../x10/matrix/comm/MatrixRemoteCopy.html#x10Copy(x10.array.DistArray[x10.matrix.block.SparseBlock],x10.lang.Int,x10.lang.Int,x10.matrix.sparse.SparseCSC,x10.lang.Int,x10.lang.Int)">x10Copy</a>, <a href="../../../x10/matrix/comm/MatrixRemoteCopy.html#copy(x10.array.Array[x10.lang.Double],x10.lang.Int,x10.array.DistArray[x10.matrix.DenseMatrix],x10.lang.Int,x10.lang.Int,x10.lang.Int)">copy</a>, <a href="../../../x10/matrix/comm/MatrixRemoteCopy.html#mpiCopy(x10.array.Array[x10.lang.Double],x10.lang.Int,x10.array.DistArray[x10.matrix.DenseMatrix],x10.lang.Int,x10.lang.Int,x10.lang.Int)">mpiCopy</a>, <a href="../../../x10/matrix/comm/MatrixRemoteCopy.html#x10Copy(x10.array.Array[x10.lang.Double],x10.lang.Int,x10.array.DistArray[x10.matrix.DenseMatrix],x10.lang.Int,x10.lang.Int,x10.lang.Int)">x10Copy</a>, <a href="../../../x10/matrix/comm/MatrixRemoteCopy.html#copy(x10.array.DistArray[x10.matrix.DenseMatrix],x10.lang.Int,x10.lang.Int,x10.array.Array[x10.lang.Double],x10.lang.Int,x10.lang.Int)">copy</a>, <a href="../../../x10/matrix/comm/MatrixRemoteCopy.html#mpiCopy(x10.array.DistArray[x10.matrix.DenseMatrix],x10.lang.Int,x10.lang.Int,x10.array.Array[x10.lang.Double],x10.lang.Int,x10.lang.Int)">mpiCopy</a>, <a href="../../../x10/matrix/comm/MatrixRemoteCopy.html#x10Copy(x10.array.DistArray[x10.matrix.DenseMatrix],x10.lang.Int,x10.lang.Int,x10.array.Array[x10.lang.Double],x10.lang.Int,x10.lang.Int)">x10Copy</a>, <a href="../../../x10/matrix/comm/MatrixRemoteCopy.html#copy(x10.array.Array[x10.lang.Double],x10.lang.Int,x10.array.DistArray[x10.matrix.block.DenseBlock],x10.lang.Int,x10.lang.Int,x10.lang.Int)">copy</a>, <a href="../../../x10/matrix/comm/MatrixRemoteCopy.html#mpiCopy(x10.array.Array[x10.lang.Double],x10.lang.Int,x10.array.DistArray[x10.matrix.block.DenseBlock],x10.lang.Int,x10.lang.Int,x10.lang.Int)">mpiCopy</a>, <a href="../../../x10/matrix/comm/MatrixRemoteCopy.html#x10Copy(x10.array.Array[x10.lang.Double],x10.lang.Int,x10.array.DistArray[x10.matrix.block.DenseBlock],x10.lang.Int,x10.lang.Int,x10.lang.Int)">x10Copy</a>, <a href="../../../x10/matrix/comm/MatrixRemoteCopy.html#copy(x10.array.DistArray[x10.matrix.block.DenseBlock],x10.lang.Int,x10.lang.Int,x10.array.Array[x10.lang.Double],x10.lang.Int,x10.lang.Int)">copy</a>, <a href="../../../x10/matrix/comm/MatrixRemoteCopy.html#mpiCopy(x10.array.DistArray[x10.matrix.block.DenseBlock],x10.lang.Int,x10.lang.Int,x10.array.Array[x10.lang.Double],x10.lang.Int,x10.lang.Int)">mpiCopy</a>, <a href="../../../x10/matrix/comm/MatrixRemoteCopy.html#x10Copy(x10.array.DistArray[x10.matrix.block.DenseBlock],x10.lang.Int,x10.lang.Int,x10.array.Array[x10.lang.Double],x10.lang.Int,x10.lang.Int)">x10Copy</a>, <a href="../../../x10/matrix/comm/MatrixRemoteCopy.html#x10$matrix$comm$MatrixRemoteCopy$$this$x10$matrix$comm$MatrixRemoteCopy()">x10$matrix$comm$MatrixRemoteCopy$$this$x10$matrix$comm$MatrixRemoteCopy</a></code></li>
+<code><a href="../../../x10/matrix/comm/MatrixRemoteCopy.html#copyTo(x10.regionarray.DistArray[x10.matrix.DenseMatrix],x10.lang.Int)">copyTo</a>, <a href="../../../x10/matrix/comm/MatrixRemoteCopy.html#copyFrom(x10.regionarray.DistArray[x10.matrix.DenseMatrix],x10.lang.Int)">copyFrom</a>, <a href="../../../x10/matrix/comm/MatrixRemoteCopy.html#copy(x10.matrix.DenseMatrix,x10.lang.Int,x10.regionarray.DistArray[x10.matrix.DenseMatrix],x10.lang.Int,x10.lang.Int,x10.lang.Int)">copy</a>, <a href="../../../x10/matrix/comm/MatrixRemoteCopy.html#mpiCopy(x10.matrix.DenseMatrix,x10.lang.Int,x10.regionarray.DistArray[x10.matrix.DenseMatrix],x10.lang.Int,x10.lang.Int,x10.lang.Int)">mpiCopy</a>, <a href="../../../x10/matrix/comm/MatrixRemoteCopy.html#x10Copy(x10.matrix.DenseMatrix,x10.lang.Int,x10.regionarray.DistArray[x10.matrix.DenseMatrix],x10.lang.Int,x10.lang.Int,x10.lang.Int)">x10Copy</a>, <a href="../../../x10/matrix/comm/MatrixRemoteCopy.html#copy(x10.regionarray.DistArray[x10.matrix.DenseMatrix],x10.lang.Int,x10.lang.Int,x10.matrix.DenseMatrix,x10.lang.Int,x10.lang.Int)">copy</a>, <a href="../../../x10/matrix/comm/MatrixRemoteCopy.html#x10Copy(x10.regionarray.DistArray[x10.matrix.DenseMatrix],x10.lang.Int,x10.lang.Int,x10.matrix.DenseMatrix,x10.lang.Int,x10.lang.Int)">x10Copy</a>, <a href="../../../x10/matrix/comm/MatrixRemoteCopy.html#mpiCopy(x10.regionarray.DistArray[x10.matrix.DenseMatrix],x10.lang.Int,x10.lang.Int,x10.matrix.DenseMatrix,x10.lang.Int,x10.lang.Int)">mpiCopy</a>, <a href="../../../x10/matrix/comm/MatrixRemoteCopy.html#copy(x10.matrix.DenseMatrix,x10.lang.Int,x10.regionarray.DistArray[x10.matrix.block.DenseBlock],x10.lang.Int,x10.lang.Int,x10.lang.Int)">copy</a>, <a href="../../../x10/matrix/comm/MatrixRemoteCopy.html#mpiCopy(x10.matrix.DenseMatrix,x10.lang.Int,x10.regionarray.DistArray[x10.matrix.block.DenseBlock],x10.lang.Int,x10.lang.Int,x10.lang.Int)">mpiCopy</a>, <a href="../../../x10/matrix/comm/MatrixRemoteCopy.html#x10Copy(x10.matrix.DenseMatrix,x10.lang.Int,x10.regionarray.DistArray[x10.matrix.block.DenseBlock],x10.lang.Int,x10.lang.Int,x10.lang.Int)">x10Copy</a>, <a href="../../../x10/matrix/comm/MatrixRemoteCopy.html#copy(x10.regionarray.DistArray[x10.matrix.block.DenseBlock],x10.lang.Int,x10.lang.Int,x10.matrix.DenseMatrix,x10.lang.Int,x10.lang.Int)">copy</a>, <a href="../../../x10/matrix/comm/MatrixRemoteCopy.html#mpiCopy(x10.regionarray.DistArray[x10.matrix.block.DenseBlock],x10.lang.Int,x10.lang.Int,x10.matrix.DenseMatrix,x10.lang.Int,x10.lang.Int)">mpiCopy</a>, <a href="../../../x10/matrix/comm/MatrixRemoteCopy.html#x10Copy(x10.regionarray.DistArray[x10.matrix.block.DenseBlock],x10.lang.Int,x10.lang.Int,x10.matrix.DenseMatrix,x10.lang.Int,x10.lang.Int)">x10Copy</a>, <a href="../../../x10/matrix/comm/MatrixRemoteCopy.html#copyTo(x10.regionarray.DistArray[x10.matrix.sparse.SparseCSC],x10.lang.Int)">copyTo</a>, <a href="../../../x10/matrix/comm/MatrixRemoteCopy.html#copyFrom(x10.regionarray.DistArray[x10.matrix.sparse.SparseCSC],x10.lang.Int)">copyFrom</a>, <a href="../../../x10/matrix/comm/MatrixRemoteCopy.html#copy(x10.matrix.sparse.SparseCSC,x10.lang.Int,x10.regionarray.DistArray[x10.matrix.sparse.SparseCSC],x10.lang.Int,x10.lang.Int,x10.lang.Int)">copy</a>, <a href="../../../x10/matrix/comm/MatrixRemoteCopy.html#mpiCopy(x10.matrix.sparse.SparseCSC,x10.lang.Int,x10.regionarray.DistArray[x10.matrix.sparse.SparseCSC],x10.lang.Int,x10.lang.Int,x10.lang.Int)">mpiCopy</a>, <a href="../../../x10/matrix/comm/MatrixRemoteCopy.html#x10Copy(x10.matrix.sparse.SparseCSC,x10.lang.Int,x10.regionarray.DistArray[x10.matrix.sparse.SparseCSC],x10.lang.Int,x10.lang.Int,x10.lang.Int)">x10Copy</a>, <a href="../../../x10/matrix/comm/MatrixRemoteCopy.html#copy(x10.regionarray.DistArray[x10.matrix.sparse.SparseCSC],x10.lang.Int,x10.lang.Int,x10.matrix.sparse.SparseCSC,x10.lang.Int,x10.lang.Int)">copy</a>, <a href="../../../x10/matrix/comm/MatrixRemoteCopy.html#mpiCopy(x10.regionarray.DistArray[x10.matrix.sparse.SparseCSC],x10.lang.Int,x10.lang.Int,x10.matrix.sparse.SparseCSC,x10.lang.Int,x10.lang.Int)">mpiCopy</a>, <a href="../../../x10/matrix/comm/MatrixRemoteCopy.html#x10Copy(x10.regionarray.DistArray[x10.matrix.sparse.SparseCSC],x10.lang.Int,x10.lang.Int,x10.matrix.sparse.SparseCSC,x10.lang.Int,x10.lang.Int)">x10Copy</a>, <a href="../../../x10/matrix/comm/MatrixRemoteCopy.html#copy(x10.matrix.sparse.SparseCSC,x10.lang.Int,x10.regionarray.DistArray[x10.matrix.block.SparseBlock],x10.lang.Int,x10.lang.Int,x10.lang.Int)">copy</a>, <a href="../../../x10/matrix/comm/MatrixRemoteCopy.html#mpiCopy(x10.matrix.sparse.SparseCSC,x10.lang.Int,x10.regionarray.DistArray[x10.matrix.block.SparseBlock],x10.lang.Int,x10.lang.Int,x10.lang.Int)">mpiCopy</a>, <a href="../../../x10/matrix/comm/MatrixRemoteCopy.html#x10Copy(x10.matrix.sparse.SparseCSC,x10.lang.Int,x10.regionarray.DistArray[x10.matrix.block.SparseBlock],x10.lang.Int,x10.lang.Int,x10.lang.Int)">x10Copy</a>, <a href="../../../x10/matrix/comm/MatrixRemoteCopy.html#copy(x10.regionarray.DistArray[x10.matrix.block.SparseBlock],x10.lang.Int,x10.lang.Int,x10.matrix.sparse.SparseCSC,x10.lang.Int,x10.lang.Int)">copy</a>, <a href="../../../x10/matrix/comm/MatrixRemoteCopy.html#mpiCopy(x10.regionarray.DistArray[x10.matrix.block.SparseBlock],x10.lang.Int,x10.lang.Int,x10.matrix.sparse.SparseCSC,x10.lang.Int,x10.lang.Int)">mpiCopy</a>, <a href="../../../x10/matrix/comm/MatrixRemoteCopy.html#x10Copy(x10.regionarray.DistArray[x10.matrix.block.SparseBlock],x10.lang.Int,x10.lang.Int,x10.matrix.sparse.SparseCSC,x10.lang.Int,x10.lang.Int)">x10Copy</a>, <a href="../../../x10/matrix/comm/MatrixRemoteCopy.html#copy(x10.regionarray.Array[x10.lang.Double],x10.lang.Int,x10.regionarray.DistArray[x10.matrix.DenseMatrix],x10.lang.Int,x10.lang.Int,x10.lang.Int)">copy</a>, <a href="../../../x10/matrix/comm/MatrixRemoteCopy.html#mpiCopy(x10.regionarray.Array[x10.lang.Double],x10.lang.Int,x10.regionarray.DistArray[x10.matrix.DenseMatrix],x10.lang.Int,x10.lang.Int,x10.lang.Int)">mpiCopy</a>, <a href="../../../x10/matrix/comm/MatrixRemoteCopy.html#x10Copy(x10.regionarray.Array[x10.lang.Double],x10.lang.Int,x10.regionarray.DistArray[x10.matrix.DenseMatrix],x10.lang.Int,x10.lang.Int,x10.lang.Int)">x10Copy</a>, <a href="../../../x10/matrix/comm/MatrixRemoteCopy.html#copy(x10.regionarray.DistArray[x10.matrix.DenseMatrix],x10.lang.Int,x10.lang.Int,x10.regionarray.Array[x10.lang.Double],x10.lang.Int,x10.lang.Int)">copy</a>, <a href="../../../x10/matrix/comm/MatrixRemoteCopy.html#mpiCopy(x10.regionarray.DistArray[x10.matrix.DenseMatrix],x10.lang.Int,x10.lang.Int,x10.regionarray.Array[x10.lang.Double],x10.lang.Int,x10.lang.Int)">mpiCopy</a>, <a href="../../../x10/matrix/comm/MatrixRemoteCopy.html#x10Copy(x10.regionarray.DistArray[x10.matrix.DenseMatrix],x10.lang.Int,x10.lang.Int,x10.regionarray.Array[x10.lang.Double],x10.lang.Int,x10.lang.Int)">x10Copy</a>, <a href="../../../x10/matrix/comm/MatrixRemoteCopy.html#copy(x10.regionarray.Array[x10.lang.Double],x10.lang.Int,x10.regionarray.DistArray[x10.matrix.block.DenseBlock],x10.lang.Int,x10.lang.Int,x10.lang.Int)">copy</a>, <a href="../../../x10/matrix/comm/MatrixRemoteCopy.html#mpiCopy(x10.regionarray.Array[x10.lang.Double],x10.lang.Int,x10.regionarray.DistArray[x10.matrix.block.DenseBlock],x10.lang.Int,x10.lang.Int,x10.lang.Int)">mpiCopy</a>, <a href="../../../x10/matrix/comm/MatrixRemoteCopy.html#x10Copy(x10.regionarray.Array[x10.lang.Double],x10.lang.Int,x10.regionarray.DistArray[x10.matrix.block.DenseBlock],x10.lang.Int,x10.lang.Int,x10.lang.Int)">x10Copy</a>, <a href="../../../x10/matrix/comm/MatrixRemoteCopy.html#copy(x10.regionarray.DistArray[x10.matrix.block.DenseBlock],x10.lang.Int,x10.lang.Int,x10.regionarray.Array[x10.lang.Double],x10.lang.Int,x10.lang.Int)">copy</a>, <a href="../../../x10/matrix/comm/MatrixRemoteCopy.html#mpiCopy(x10.regionarray.DistArray[x10.matrix.block.DenseBlock],x10.lang.Int,x10.lang.Int,x10.regionarray.Array[x10.lang.Double],x10.lang.Int,x10.lang.Int)">mpiCopy</a>, <a href="../../../x10/matrix/comm/MatrixRemoteCopy.html#x10Copy(x10.regionarray.DistArray[x10.matrix.block.DenseBlock],x10.lang.Int,x10.lang.Int,x10.regionarray.Array[x10.lang.Double],x10.lang.Int,x10.lang.Int)">x10Copy</a>, <a href="../../../x10/matrix/comm/MatrixRemoteCopy.html#x10$matrix$comm$MatrixRemoteCopy$$this$x10$matrix$comm$MatrixRemoteCopy()">x10$matrix$comm$MatrixRemoteCopy$$this$x10$matrix$comm$MatrixRemoteCopy</a></code></li>
 </ul>
 </li>
 </ul>
@@ -269,114 +269,114 @@ space to receive data.</div>
 <!--   -->
 </a>
 <h3>Method Detail</h3>
-<a name="reduceSum(x10.array.DistArray[x10.matrix.DenseMatrix],x10.array.DistArray[x10.matrix.DenseMatrix])">
+<a name="reduceSum(x10.regionarray.DistArray[x10.matrix.DenseMatrix],x10.regionarray.DistArray[x10.matrix.DenseMatrix])">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
 <h4>reduceSum</h4>
-<pre>public static&nbsp;x10.lang.Int&nbsp;reduceSum(x10.array.DistArray&lt;<a href="../../../x10/matrix/DenseMatrix.html" title="class in x10.matrix">DenseMatrix</a>&gt;&nbsp;ddmat,
-                     x10.array.DistArray&lt;<a href="../../../x10/matrix/DenseMatrix.html" title="class in x10.matrix">DenseMatrix</a>&gt;&nbsp;ddtmp)</pre>
-<div class="block"><B>Declaration:</B> <TT>reduceSum(ddmat:x10.array.DistArray[x10.matrix.DenseMatrix]{self.dist.region.rank==1},ddtmp:x10.array.DistArray[x10.matrix.DenseMatrix]{self.dist.region.rank==1}): x10.lang.Int.</TT><PRE>
+<pre>public static&nbsp;x10.lang.Int&nbsp;reduceSum(x10.regionarray.DistArray&lt;<a href="../../../x10/matrix/DenseMatrix.html" title="class in x10.matrix">DenseMatrix</a>&gt;&nbsp;ddmat,
+                     x10.regionarray.DistArray&lt;<a href="../../../x10/matrix/DenseMatrix.html" title="class in x10.matrix">DenseMatrix</a>&gt;&nbsp;ddtmp)</pre>
+<div class="block"><B>Declaration:</B> <TT>reduceSum(ddmat:x10.regionarray.DistArray[x10.matrix.DenseMatrix]{self.dist.region.rank==1},ddtmp:x10.regionarray.DistArray[x10.matrix.DenseMatrix]{self.dist.region.rank==1}): x10.lang.Int.</TT><PRE>
 </PRE>Reduce all dense matrices stored in DistArray from all places
 to here</div>
 <dl><dt><span class="strong">Parameters:</span></dt><dd><code>ddmat</code> - Input/Output. Duplicated dense matrix of source and target matrix</dd><dd><code>ddtmp</code> - Temp matrix space to store the receiving data.</dd>
 <dt><span class="strong">Returns:</span></dt><dd>Number of elements to received</dd></dl>
 </li>
 </ul>
-<a name="mpiReduceSum(x10.array.DistArray[x10.matrix.DenseMatrix],x10.array.DistArray[x10.matrix.DenseMatrix])">
+<a name="mpiReduceSum(x10.regionarray.DistArray[x10.matrix.DenseMatrix],x10.regionarray.DistArray[x10.matrix.DenseMatrix])">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
 <h4>mpiReduceSum</h4>
-<pre>public static&nbsp;x10.lang.Int&nbsp;mpiReduceSum(x10.array.DistArray&lt;<a href="../../../x10/matrix/DenseMatrix.html" title="class in x10.matrix">DenseMatrix</a>&gt;&nbsp;ddmat,
-                        x10.array.DistArray&lt;<a href="../../../x10/matrix/DenseMatrix.html" title="class in x10.matrix">DenseMatrix</a>&gt;&nbsp;ddtmp)</pre>
-<div class="block"><B>Declaration:</B> <TT>mpiReduceSum(ddmat:x10.array.DistArray[x10.matrix.DenseMatrix]{self.dist.region.rank==1},ddtmp:x10.array.DistArray[x10.matrix.DenseMatrix]{self.dist.region.rank==1}): x10.lang.Int.</TT><PRE>
+<pre>public static&nbsp;x10.lang.Int&nbsp;mpiReduceSum(x10.regionarray.DistArray&lt;<a href="../../../x10/matrix/DenseMatrix.html" title="class in x10.matrix">DenseMatrix</a>&gt;&nbsp;ddmat,
+                        x10.regionarray.DistArray&lt;<a href="../../../x10/matrix/DenseMatrix.html" title="class in x10.matrix">DenseMatrix</a>&gt;&nbsp;ddtmp)</pre>
+<div class="block"><B>Declaration:</B> <TT>mpiReduceSum(ddmat:x10.regionarray.DistArray[x10.matrix.DenseMatrix]{self.dist.region.rank==1},ddtmp:x10.regionarray.DistArray[x10.matrix.DenseMatrix]{self.dist.region.rank==1}): x10.lang.Int.</TT><PRE>
 </PRE>Perform reduce sum of all matrces stored in the duplicated matrix
 Result is stored in the matrix at root place.</div>
 <dl><dt><span class="strong">Parameters:</span></dt><dd><code>ddmat</code> - input and output matrix.</dd><dd><code>ddtmp</code> - temp matrix storing the inter-place communication data.</dd></dl>
 </li>
 </ul>
-<a name="x10ReduceSum(x10.array.DistArray[x10.matrix.DenseMatrix],x10.array.DistArray[x10.matrix.DenseMatrix])">
+<a name="x10ReduceSum(x10.regionarray.DistArray[x10.matrix.DenseMatrix],x10.regionarray.DistArray[x10.matrix.DenseMatrix])">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
 <h4>x10ReduceSum</h4>
-<pre>public static&nbsp;x10.lang.Int&nbsp;x10ReduceSum(x10.array.DistArray&lt;<a href="../../../x10/matrix/DenseMatrix.html" title="class in x10.matrix">DenseMatrix</a>&gt;&nbsp;ddmat,
-                        x10.array.DistArray&lt;<a href="../../../x10/matrix/DenseMatrix.html" title="class in x10.matrix">DenseMatrix</a>&gt;&nbsp;ddtmp)</pre>
-<div class="block"><B>Declaration:</B> <TT>x10ReduceSum(ddmat:x10.array.DistArray[x10.matrix.DenseMatrix]{self.dist.region.rank==1},ddtmp:x10.array.DistArray[x10.matrix.DenseMatrix]{self.dist.region.rank==1}): x10.lang.Int.</TT><PRE>
+<pre>public static&nbsp;x10.lang.Int&nbsp;x10ReduceSum(x10.regionarray.DistArray&lt;<a href="../../../x10/matrix/DenseMatrix.html" title="class in x10.matrix">DenseMatrix</a>&gt;&nbsp;ddmat,
+                        x10.regionarray.DistArray&lt;<a href="../../../x10/matrix/DenseMatrix.html" title="class in x10.matrix">DenseMatrix</a>&gt;&nbsp;ddtmp)</pre>
+<div class="block"><B>Declaration:</B> <TT>x10ReduceSum(ddmat:x10.regionarray.DistArray[x10.matrix.DenseMatrix]{self.dist.region.rank==1},ddtmp:x10.regionarray.DistArray[x10.matrix.DenseMatrix]{self.dist.region.rank==1}): x10.lang.Int.</TT><PRE>
 </PRE>Sum of all matrices in the duplicated matrix and the result overwrite the
 matrix at here.</div>
 <dl><dt><span class="strong">Parameters:</span></dt><dd><code>ddmat</code> - input and output matrix.</dd><dd><code>ddtmp</code> - temp matrix storing the inter-place communication data.</dd></dl>
 </li>
 </ul>
-<a name="reduceSumToHere(x10.array.DistArray[x10.matrix.DenseMatrix],x10.array.DistArray[x10.matrix.DenseMatrix],x10.lang.Int)">
+<a name="reduceSumToHere(x10.regionarray.DistArray[x10.matrix.DenseMatrix],x10.regionarray.DistArray[x10.matrix.DenseMatrix],x10.lang.Int)">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
 <h4>reduceSumToHere</h4>
-<pre>protected static&nbsp;void&nbsp;reduceSumToHere(x10.array.DistArray&lt;<a href="../../../x10/matrix/DenseMatrix.html" title="class in x10.matrix">DenseMatrix</a>&gt;&nbsp;ddmat,
-                   x10.array.DistArray&lt;<a href="../../../x10/matrix/DenseMatrix.html" title="class in x10.matrix">DenseMatrix</a>&gt;&nbsp;ddtmp,
+<pre>protected static&nbsp;void&nbsp;reduceSumToHere(x10.regionarray.DistArray&lt;<a href="../../../x10/matrix/DenseMatrix.html" title="class in x10.matrix">DenseMatrix</a>&gt;&nbsp;ddmat,
+                   x10.regionarray.DistArray&lt;<a href="../../../x10/matrix/DenseMatrix.html" title="class in x10.matrix">DenseMatrix</a>&gt;&nbsp;ddtmp,
                    x10.lang.Int&nbsp;pcnt)</pre>
-<div class="block"><B>Declaration:</B> <TT>reduceSumToHere(ddmat:x10.array.DistArray[x10.matrix.DenseMatrix]{self.dist.region.rank==1},ddtmp:x10.array.DistArray[x10.matrix.DenseMatrix]{self.dist.region.rank==1},pcnt:x10.lang.Int): void.</TT><PRE>
+<div class="block"><B>Declaration:</B> <TT>reduceSumToHere(ddmat:x10.regionarray.DistArray[x10.matrix.DenseMatrix]{self.dist.region.rank==1},ddtmp:x10.regionarray.DistArray[x10.matrix.DenseMatrix]{self.dist.region.rank==1},pcnt:x10.lang.Int): void.</TT><PRE>
 </PRE>Binary recursive reduce sum.
 Notice dmat is input and output matrix.</div>
 </li>
 </ul>
-<a name="allReduceSum(x10.array.DistArray[x10.matrix.DenseMatrix],x10.array.DistArray[x10.matrix.DenseMatrix])">
+<a name="allReduceSum(x10.regionarray.DistArray[x10.matrix.DenseMatrix],x10.regionarray.DistArray[x10.matrix.DenseMatrix])">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
 <h4>allReduceSum</h4>
-<pre>public static&nbsp;x10.lang.Int&nbsp;allReduceSum(x10.array.DistArray&lt;<a href="../../../x10/matrix/DenseMatrix.html" title="class in x10.matrix">DenseMatrix</a>&gt;&nbsp;ddmat,
-                        x10.array.DistArray&lt;<a href="../../../x10/matrix/DenseMatrix.html" title="class in x10.matrix">DenseMatrix</a>&gt;&nbsp;ddtmp)</pre>
-<div class="block"><B>Declaration:</B> <TT>allReduceSum(ddmat:x10.array.DistArray[x10.matrix.DenseMatrix]{self.dist.region.rank==1},ddtmp:x10.array.DistArray[x10.matrix.DenseMatrix]{self.dist.region.rank==1}): x10.lang.Int.</TT><PRE>
+<pre>public static&nbsp;x10.lang.Int&nbsp;allReduceSum(x10.regionarray.DistArray&lt;<a href="../../../x10/matrix/DenseMatrix.html" title="class in x10.matrix">DenseMatrix</a>&gt;&nbsp;ddmat,
+                        x10.regionarray.DistArray&lt;<a href="../../../x10/matrix/DenseMatrix.html" title="class in x10.matrix">DenseMatrix</a>&gt;&nbsp;ddtmp)</pre>
+<div class="block"><B>Declaration:</B> <TT>allReduceSum(ddmat:x10.regionarray.DistArray[x10.matrix.DenseMatrix]{self.dist.region.rank==1},ddtmp:x10.regionarray.DistArray[x10.matrix.DenseMatrix]{self.dist.region.rank==1}): x10.lang.Int.</TT><PRE>
 </PRE>Perform all reduce sum operation.</div>
 <dl><dt><span class="strong">Parameters:</span></dt><dd><code>ddmat</code> - input and output matrix.</dd><dd><code>ddtmp</code> - temp matrix storing the inter-place communication data.</dd><dt><span class="strong">See Also:</span></dt><dd><a href="../../../x10/matrix/comm/MatrixReduce.html" title="class in x10.matrix.comm"><code>reduceSum()
 Result is synchronized for all copies of duplicated matrix</code></a></dd></dl>
 </li>
 </ul>
-<a name="mpiAllReduceSum(x10.array.DistArray[x10.matrix.DenseMatrix],x10.array.DistArray[x10.matrix.DenseMatrix])">
+<a name="mpiAllReduceSum(x10.regionarray.DistArray[x10.matrix.DenseMatrix],x10.regionarray.DistArray[x10.matrix.DenseMatrix])">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
 <h4>mpiAllReduceSum</h4>
-<pre>protected static&nbsp;x10.lang.Int&nbsp;mpiAllReduceSum(x10.array.DistArray&lt;<a href="../../../x10/matrix/DenseMatrix.html" title="class in x10.matrix">DenseMatrix</a>&gt;&nbsp;ddmat,
-                           x10.array.DistArray&lt;<a href="../../../x10/matrix/DenseMatrix.html" title="class in x10.matrix">DenseMatrix</a>&gt;&nbsp;ddtmp)</pre>
-<div class="block"><B>Declaration:</B> <TT>mpiAllReduceSum(ddmat:x10.array.DistArray[x10.matrix.DenseMatrix]{self.dist.region.rank==1},ddtmp:x10.array.DistArray[x10.matrix.DenseMatrix]{self.dist.region.rank==1}): x10.lang.Int.</TT><PRE>
+<pre>protected static&nbsp;x10.lang.Int&nbsp;mpiAllReduceSum(x10.regionarray.DistArray&lt;<a href="../../../x10/matrix/DenseMatrix.html" title="class in x10.matrix">DenseMatrix</a>&gt;&nbsp;ddmat,
+                           x10.regionarray.DistArray&lt;<a href="../../../x10/matrix/DenseMatrix.html" title="class in x10.matrix">DenseMatrix</a>&gt;&nbsp;ddtmp)</pre>
+<div class="block"><B>Declaration:</B> <TT>mpiAllReduceSum(ddmat:x10.regionarray.DistArray[x10.matrix.DenseMatrix]{self.dist.region.rank==1},ddtmp:x10.regionarray.DistArray[x10.matrix.DenseMatrix]{self.dist.region.rank==1}): x10.lang.Int.</TT><PRE>
 </PRE>Perform all reduce sum operation.</div>
 <dl><dt><span class="strong">Parameters:</span></dt><dd><code>ddmat</code> - input and output matrix.</dd><dd><code>ddtmp</code> - temp matrix storing the inter-place communication data.</dd><dt><span class="strong">See Also:</span></dt><dd><a href="../../../x10/matrix/comm/MatrixReduce.html" title="class in x10.matrix.comm"><code>reduceSum()
 Result is synchronized for all copies of duplicated matrix</code></a></dd></dl>
 </li>
 </ul>
-<a name="x10AllReduceSum(x10.array.DistArray[x10.matrix.DenseMatrix],x10.array.DistArray[x10.matrix.DenseMatrix])">
+<a name="x10AllReduceSum(x10.regionarray.DistArray[x10.matrix.DenseMatrix],x10.regionarray.DistArray[x10.matrix.DenseMatrix])">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
 <h4>x10AllReduceSum</h4>
-<pre>protected static&nbsp;x10.lang.Int&nbsp;x10AllReduceSum(x10.array.DistArray&lt;<a href="../../../x10/matrix/DenseMatrix.html" title="class in x10.matrix">DenseMatrix</a>&gt;&nbsp;ddmat,
-                           x10.array.DistArray&lt;<a href="../../../x10/matrix/DenseMatrix.html" title="class in x10.matrix">DenseMatrix</a>&gt;&nbsp;ddtmp)</pre>
-<div class="block"><B>Declaration:</B> <TT>x10AllReduceSum(ddmat:x10.array.DistArray[x10.matrix.DenseMatrix]{self.dist.region.rank==1},ddtmp:x10.array.DistArray[x10.matrix.DenseMatrix]{self.dist.region.rank==1}): x10.lang.Int.</TT><PRE>
+<pre>protected static&nbsp;x10.lang.Int&nbsp;x10AllReduceSum(x10.regionarray.DistArray&lt;<a href="../../../x10/matrix/DenseMatrix.html" title="class in x10.matrix">DenseMatrix</a>&gt;&nbsp;ddmat,
+                           x10.regionarray.DistArray&lt;<a href="../../../x10/matrix/DenseMatrix.html" title="class in x10.matrix">DenseMatrix</a>&gt;&nbsp;ddtmp)</pre>
+<div class="block"><B>Declaration:</B> <TT>x10AllReduceSum(ddmat:x10.regionarray.DistArray[x10.matrix.DenseMatrix]{self.dist.region.rank==1},ddtmp:x10.regionarray.DistArray[x10.matrix.DenseMatrix]{self.dist.region.rank==1}): x10.lang.Int.</TT><PRE>
 </PRE></div>
 </li>
 </ul>
-<a name="reduceSum(x10.array.DistArray[x10.matrix.DenseMatrix],x10.matrix.DenseMatrix,x10.lang.Int,x10.array.Array[x10.lang.Int])">
+<a name="reduceSum(x10.regionarray.DistArray[x10.matrix.DenseMatrix],x10.matrix.DenseMatrix,x10.lang.Int,x10.regionarray.Array[x10.lang.Int])">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
 <h4>reduceSum</h4>
-<pre>public static&nbsp;x10.lang.Int&nbsp;reduceSum(x10.array.DistArray&lt;<a href="../../../x10/matrix/DenseMatrix.html" title="class in x10.matrix">DenseMatrix</a>&gt;&nbsp;ddmat,
+<pre>public static&nbsp;x10.lang.Int&nbsp;reduceSum(x10.regionarray.DistArray&lt;<a href="../../../x10/matrix/DenseMatrix.html" title="class in x10.matrix">DenseMatrix</a>&gt;&nbsp;ddmat,
                      <a href="../../../x10/matrix/DenseMatrix.html" title="class in x10.matrix">DenseMatrix</a>&nbsp;tmp,
                      x10.lang.Int&nbsp;colcnt,
-                     x10.array.Array&lt;x10.lang.Int&gt;&nbsp;plist)</pre>
-<div class="block"><B>Declaration:</B> <TT>reduceSum(ddmat:x10.array.DistArray[x10.matrix.DenseMatrix]{self.dist.region.rank==1},tmp:x10.matrix.DenseMatrix,colcnt:x10.lang.Int,plist:x10.array.Array[x10.lang.Int]{self.rank==1}): x10.lang.Int.</TT><PRE>
+                     x10.regionarray.Array&lt;x10.lang.Int&gt;&nbsp;plist)</pre>
+<div class="block"><B>Declaration:</B> <TT>reduceSum(ddmat:x10.regionarray.DistArray[x10.matrix.DenseMatrix]{self.dist.region.rank==1},tmp:x10.matrix.DenseMatrix,colcnt:x10.lang.Int,plist:x10.regionarray.Array[x10.lang.Int]{self.rank==1}): x10.lang.Int.</TT><PRE>
 </PRE>Perform reduce sum of all matrces stored in the duplicated matrix
 from specified list of places. This method is not optimized.
 Result is stored in the matrix at root place.</div>

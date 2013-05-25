@@ -10,7 +10,7 @@
  */
 
 import x10.io.Printer;
-import x10.array.*;
+import x10.regionarray.*;
 import x10.io.StringWriter;
 
 import harness.x10Test;

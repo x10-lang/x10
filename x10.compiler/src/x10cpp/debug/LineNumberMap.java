@@ -328,7 +328,7 @@ public class LineNumberMap extends StringTable {
 			return 0;
 		if (type.equals("x10.lang.Int") || type.startsWith("x10.lang.Int{"))
 			return 6;
-		if (type.startsWith("x10.array.Array"))
+		if (type.startsWith("x10.regionarray.Array"))
 			return 200;
 		if (type.startsWith("x10.lang.PlaceLocalHandle"))
 			return 203;
@@ -354,9 +354,9 @@ public class LineNumberMap extends StringTable {
 			return 11;
 		if (type.equals("x10.lang.UShort") || type.startsWith("x10.lang.UShort{"))
 			return 12;
-		if (type.startsWith("x10.array.DistArray"))
+		if (type.startsWith("x10.regionarray.DistArray"))
 			return 202;
-		if (type.startsWith("x10.array.Dist"))
+		if (type.startsWith("x10.regionarray.Dist"))
 			return 201;
 		if (type.startsWith("x10.lang.Place"))
 			return 204;
@@ -375,7 +375,7 @@ public class LineNumberMap extends StringTable {
 			return 212;
 		if (type.startsWith("x10.lang.LongRange"))
 			return 213;
-		if (type.startsWith("x10.array.Region"))
+		if (type.startsWith("x10.regionarray.Region"))
 			return 300;
 		if (type.contains("_closure_"))
 			return 100;
@@ -509,7 +509,7 @@ public class LineNumberMap extends StringTable {
 			}
 			else if (refType == 202) // create additional maps for internal components of DistArray.
 			{				
-				v._x10typeIndex = addReferenceMap(name+"_localHandle", "x10.lang.PlaceLocalHandle[x10.array.DistArray__LocalState["+innerType+"]]", startline, endline, 211);
+				v._x10typeIndex = addReferenceMap(name+"_localHandle", "x10.lang.PlaceLocalHandle[x10.regionarray.DistArray__LocalState["+innerType+"]]", startline, endline, 211);
 				// I hate that this is here.  It's just a hardcoded representation of the internals of DistArray.  
 				// It does not belong here, but the debugger people can't seem to work without it.
 				// we add something called "dist" here, and the main "v" entry is "localHandle"

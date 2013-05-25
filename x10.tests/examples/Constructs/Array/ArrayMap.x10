@@ -10,7 +10,7 @@
  */
 
 import x10.util.concurrent.Future;
-import x10.array.*;
+import x10.regionarray.*;
 
 /**
  * @author bdlucas

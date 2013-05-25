@@ -9,7 +9,7 @@
  *  (C) Copyright IBM Corporation 2006-2010.
  */
 
-package x10.array;
+package x10.regionarray;
 
 import x10.io.*;
 
@@ -173,8 +173,8 @@ final class PolyScanner(rank:Int)/*(C:PolyMat)*/ {
         */
     }
 
-    // todo: Message: Semantic Error: set(axis: x10.lang.Int, v: x10.lang.Int): void in x10.array.PolyScanner cannot override set(axis: x10.lang.Int, v: x10.lang.Int): void in x10.array.PolyScanner; overridden method is final
-    // Duplicate method "method final public x10.array.PolyScanner.set(axis:x10.lang.Int,v:x10.lang.Int): void"; previous declaration at C:\cygwin\home\Yoav\intellij\sourceforge\x10.runtime\src-x10\x10\array\PolyScanner.x10:176,5-178,5.
+    // todo: Message: Semantic Error: set(axis: x10.lang.Int, v: x10.lang.Int): void in x10.regionarray.PolyScanner cannot override set(axis: x10.lang.Int, v: x10.lang.Int): void in x10.regionarray.PolyScanner; overridden method is final
+    // Duplicate method "method final public x10.regionarray.PolyScanner.set(axis:x10.lang.Int,v:x10.lang.Int): void"; previous declaration at C:\cygwin\home\Yoav\intellij\sourceforge\x10.runtime\src-x10\x10.regionarray\PolyScanner.x10:176,5-178,5.
     final public operator this(v: int)=(axis: int): void { set(axis,v); }
 
     final public def set(axis: int, v: int): void {

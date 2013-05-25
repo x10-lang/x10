@@ -147,48 +147,48 @@ run command "make help" at the root directory of GML library.</div>
 </tr>
 <tr class="altColor">
 <td class="colFirst"><code>static void</code></td>
-<td class="colLast"><code><strong><a href="../../../x10/matrix/comm/ArrayGather.html#gather(x10.lang.PlaceLocalHandle[x10.array.Array[x10.lang.Double]],x10.array.Array[x10.array.Array[x10.lang.Double]])">gather</a></strong>(x10.lang.PlaceLocalHandle&lt;x10.array.Array&lt;x10.lang.Double&gt;&gt;&nbsp;src,
-      x10.array.Array&lt;x10.array.Array&lt;x10.lang.Double&gt;&gt;&nbsp;dst)</code>
-<div class="block"><B>Declaration:</B> <TT>gather(src:x10.lang.PlaceLocalHandle[x10.array.Array[x10.lang.Double]{self.rank==1, self.zeroBased==true, self.rect==true, self.rail==true}],dst:x10.array.Array[x10.array.Array[x10.lang.Double]{self.rank==1}]{self.rank==1}): void.</TT>
+<td class="colLast"><code><strong><a href="../../../x10/matrix/comm/ArrayGather.html#gather(x10.lang.PlaceLocalHandle[x10.regionarray.Array[x10.lang.Double]],x10.regionarray.Array[x10.regionarray.Array[x10.lang.Double]])">gather</a></strong>(x10.lang.PlaceLocalHandle&lt;x10.regionarray.Array&lt;x10.lang.Double&gt;&gt;&nbsp;src,
+      x10.regionarray.Array&lt;x10.regionarray.Array&lt;x10.lang.Double&gt;&gt;&nbsp;dst)</code>
+<div class="block"><B>Declaration:</B> <TT>gather(src:x10.lang.PlaceLocalHandle[x10.regionarray.Array[x10.lang.Double]{self.rank==1, self.zeroBased==true, self.rect==true, self.rail==true}],dst:x10.regionarray.Array[x10.regionarray.Array[x10.lang.Double]{self.rank==1}]{self.rank==1}): void.</TT>
 Gather distributed arrays from all places to here
 at here.</div>
 </td>
 </tr>
 <tr class="rowColor">
 <td class="colFirst"><code>static void</code></td>
-<td class="colLast"><code><strong><a href="../../../x10/matrix/comm/ArrayGather.html#gather(x10.lang.PlaceLocalHandle[x10.array.Array[x10.lang.Double]],x10.array.Array[x10.lang.Double],x10.array.Array[x10.lang.Int])">gather</a></strong>(x10.lang.PlaceLocalHandle&lt;x10.array.Array&lt;x10.lang.Double&gt;&gt;&nbsp;src,
-      x10.array.Array&lt;x10.lang.Double&gt;&nbsp;dst,
-      x10.array.Array&lt;x10.lang.Int&gt;&nbsp;gp)</code>
-<div class="block"><B>Declaration:</B> <TT>gather(src:x10.lang.PlaceLocalHandle[x10.array.Array[x10.lang.Double]{self.rank==1, self.zeroBased==true, self.rect==true, self.rail==true}],dst:x10.array.Array[x10.lang.Double]{self.rank==1},gp:x10.array.Array[x10.lang.Int]{self.rank==1}): void.</TT>
+<td class="colLast"><code><strong><a href="../../../x10/matrix/comm/ArrayGather.html#gather(x10.lang.PlaceLocalHandle[x10.regionarray.Array[x10.lang.Double]],x10.regionarray.Array[x10.lang.Double],x10.regionarray.Array[x10.lang.Int])">gather</a></strong>(x10.lang.PlaceLocalHandle&lt;x10.regionarray.Array&lt;x10.lang.Double&gt;&gt;&nbsp;src,
+      x10.regionarray.Array&lt;x10.lang.Double&gt;&nbsp;dst,
+      x10.regionarray.Array&lt;x10.lang.Int&gt;&nbsp;gp)</code>
+<div class="block"><B>Declaration:</B> <TT>gather(src:x10.lang.PlaceLocalHandle[x10.regionarray.Array[x10.lang.Double]{self.rank==1, self.zeroBased==true, self.rect==true, self.rail==true}],dst:x10.regionarray.Array[x10.lang.Double]{self.rank==1},gp:x10.regionarray.Array[x10.lang.Int]{self.rank==1}): void.</TT>
 Gather distributed arrays from all places to here and store
 in a continous memory space</div>
 </td>
 </tr>
 <tr class="altColor">
 <td class="colFirst"><code>static void</code></td>
-<td class="colLast"><code><strong><a href="../../../x10/matrix/comm/ArrayGather.html#mpiGather(x10.lang.PlaceLocalHandle[x10.array.Array[x10.lang.Double]],x10.array.Array[x10.lang.Double],x10.array.Array[x10.lang.Int])">mpiGather</a></strong>(x10.lang.PlaceLocalHandle&lt;x10.array.Array&lt;x10.lang.Double&gt;&gt;&nbsp;src,
-         x10.array.Array&lt;x10.lang.Double&gt;&nbsp;dst,
-         x10.array.Array&lt;x10.lang.Int&gt;&nbsp;szlist)</code>
-<div class="block"><B>Declaration:</B> <TT>mpiGather(src:x10.lang.PlaceLocalHandle[x10.array.Array[x10.lang.Double]{self.rank==1, self.zeroBased==true, self.rect==true, self.rail==true}],dst:x10.array.Array[x10.lang.Double]{self.rank==1},szlist:x10.array.Array[x10.lang.Int]{self.rank==1}): void.</TT>
+<td class="colLast"><code><strong><a href="../../../x10/matrix/comm/ArrayGather.html#mpiGather(x10.lang.PlaceLocalHandle[x10.regionarray.Array[x10.lang.Double]],x10.regionarray.Array[x10.lang.Double],x10.regionarray.Array[x10.lang.Int])">mpiGather</a></strong>(x10.lang.PlaceLocalHandle&lt;x10.regionarray.Array&lt;x10.lang.Double&gt;&gt;&nbsp;src,
+         x10.regionarray.Array&lt;x10.lang.Double&gt;&nbsp;dst,
+         x10.regionarray.Array&lt;x10.lang.Int&gt;&nbsp;szlist)</code>
+<div class="block"><B>Declaration:</B> <TT>mpiGather(src:x10.lang.PlaceLocalHandle[x10.regionarray.Array[x10.lang.Double]{self.rank==1, self.zeroBased==true, self.rect==true, self.rail==true}],dst:x10.regionarray.Array[x10.lang.Double]{self.rank==1},szlist:x10.regionarray.Array[x10.lang.Int]{self.rank==1}): void.</TT>
 Gather distributed arrays from all places to here
 by using mpi gather routine.</div>
 </td>
 </tr>
 <tr class="rowColor">
 <td class="colFirst"><code>static void</code></td>
-<td class="colLast"><code><strong><a href="../../../x10/matrix/comm/ArrayGather.html#x10Gather(x10.lang.PlaceLocalHandle[x10.array.Array[x10.lang.Double]],x10.array.Array[x10.lang.Double],x10.array.Array[x10.lang.Int])">x10Gather</a></strong>(x10.lang.PlaceLocalHandle&lt;x10.array.Array&lt;x10.lang.Double&gt;&gt;&nbsp;src,
-         x10.array.Array&lt;x10.lang.Double&gt;&nbsp;dstbuf,
-         x10.array.Array&lt;x10.lang.Int&gt;&nbsp;gp)</code>
-<div class="block"><B>Declaration:</B> <TT>x10Gather(src:x10.lang.PlaceLocalHandle[x10.array.Array[x10.lang.Double]{self.rank==1, self.zeroBased==true, self.rect==true, self.rail==true}],dstbuf:x10.array.Array[x10.lang.Double]{self.rank==1},gp:x10.array.Array[x10.lang.Int]{self.rank==1}): void.</TT>
+<td class="colLast"><code><strong><a href="../../../x10/matrix/comm/ArrayGather.html#x10Gather(x10.lang.PlaceLocalHandle[x10.regionarray.Array[x10.lang.Double]],x10.regionarray.Array[x10.lang.Double],x10.regionarray.Array[x10.lang.Int])">x10Gather</a></strong>(x10.lang.PlaceLocalHandle&lt;x10.regionarray.Array&lt;x10.lang.Double&gt;&gt;&nbsp;src,
+         x10.regionarray.Array&lt;x10.lang.Double&gt;&nbsp;dstbuf,
+         x10.regionarray.Array&lt;x10.lang.Int&gt;&nbsp;gp)</code>
+<div class="block"><B>Declaration:</B> <TT>x10Gather(src:x10.lang.PlaceLocalHandle[x10.regionarray.Array[x10.lang.Double]{self.rank==1, self.zeroBased==true, self.rect==true, self.rail==true}],dstbuf:x10.regionarray.Array[x10.lang.Double]{self.rank==1},gp:x10.regionarray.Array[x10.lang.Int]{self.rank==1}): void.</TT>
 Gather distributed arrays from all places to here by using x10 remote array copy.</div>
 </td>
 </tr>
 <tr class="altColor">
 <td class="colFirst"><code>static x10.lang.Boolean</code></td>
-<td class="colLast"><code><strong><a href="../../../x10/matrix/comm/ArrayGather.html#verify(x10.lang.PlaceLocalHandle[x10.array.Array[x10.lang.Double]],x10.array.Array[x10.lang.Double],x10.array.Array[x10.lang.Int])">verify</a></strong>(x10.lang.PlaceLocalHandle&lt;x10.array.Array&lt;x10.lang.Double&gt;&gt;&nbsp;src,
-      x10.array.Array&lt;x10.lang.Double&gt;&nbsp;buf,
-      x10.array.Array&lt;x10.lang.Int&gt;&nbsp;szlist)</code>
-<div class="block"><B>Declaration:</B> <TT>verify(src:x10.lang.PlaceLocalHandle[x10.array.Array[x10.lang.Double]{self.rank==1, self.zeroBased==true, self.rect==true, self.rail==true}],buf:x10.array.Array[x10.lang.Double]{self.rank==1},szlist:x10.array.Array[x10.lang.Int]{self.rank==1}): x10.lang.Boolean.</TT>
+<td class="colLast"><code><strong><a href="../../../x10/matrix/comm/ArrayGather.html#verify(x10.lang.PlaceLocalHandle[x10.regionarray.Array[x10.lang.Double]],x10.regionarray.Array[x10.lang.Double],x10.regionarray.Array[x10.lang.Int])">verify</a></strong>(x10.lang.PlaceLocalHandle&lt;x10.regionarray.Array&lt;x10.lang.Double&gt;&gt;&nbsp;src,
+      x10.regionarray.Array&lt;x10.lang.Double&gt;&nbsp;buf,
+      x10.regionarray.Array&lt;x10.lang.Int&gt;&nbsp;szlist)</code>
+<div class="block"><B>Declaration:</B> <TT>verify(src:x10.lang.PlaceLocalHandle[x10.regionarray.Array[x10.lang.Double]{self.rank==1, self.zeroBased==true, self.rect==true, self.rail==true}],buf:x10.regionarray.Array[x10.lang.Double]{self.rank==1},szlist:x10.regionarray.Array[x10.lang.Int]{self.rank==1}): x10.lang.Boolean.</TT>
 </div>
 </td>
 </tr>
@@ -206,7 +206,7 @@ root.</div>
 <!--   -->
 </a>
 <h3>Methods inherited from class&nbsp;x10.matrix.comm.<a href="../../../x10/matrix/comm/ArrayRemoteCopy.html" title="class in x10.matrix.comm">ArrayRemoteCopy</a></h3>
-<code><a href="../../../x10/matrix/comm/ArrayRemoteCopy.html#copy(x10.array.Array[x10.lang.Double],x10.lang.Int,x10.lang.PlaceLocalHandle[x10.array.Array[x10.lang.Double]],x10.lang.Int,x10.lang.Int,x10.lang.Int)">copy</a>, <a href="../../../x10/matrix/comm/ArrayRemoteCopy.html#mpiCopy(x10.array.Array[x10.lang.Double],x10.lang.Int,x10.lang.PlaceLocalHandle[x10.array.Array[x10.lang.Double]],x10.lang.Int,x10.lang.Int,x10.lang.Int)">mpiCopy</a>, <a href="../../../x10/matrix/comm/ArrayRemoteCopy.html#x10Copy(x10.array.Array[x10.lang.Double],x10.lang.Int,x10.lang.PlaceLocalHandle[x10.array.Array[x10.lang.Double]],x10.lang.Int,x10.lang.Int,x10.lang.Int)">x10Copy</a>, <a href="../../../x10/matrix/comm/ArrayRemoteCopy.html#x10Copy(x10.array.Array[x10.lang.Double],x10.lang.Int,x10.array.DistArray[x10.array.Array[x10.lang.Double]],x10.lang.Int,x10.lang.Int,x10.lang.Int)">x10Copy</a>, <a href="../../../x10/matrix/comm/ArrayRemoteCopy.html#copy(x10.lang.PlaceLocalHandle[x10.array.Array[x10.lang.Double]],x10.lang.Int,x10.lang.Int,x10.array.Array[x10.lang.Double],x10.lang.Int,x10.lang.Int)">copy</a>, <a href="../../../x10/matrix/comm/ArrayRemoteCopy.html#mpiCopy(x10.lang.PlaceLocalHandle[x10.array.Array[x10.lang.Double]],x10.lang.Int,x10.lang.Int,x10.array.Array[x10.lang.Double],x10.lang.Int,x10.lang.Int)">mpiCopy</a>, <a href="../../../x10/matrix/comm/ArrayRemoteCopy.html#x10Copy(x10.lang.PlaceLocalHandle[x10.array.Array[x10.lang.Double]],x10.lang.Int,x10.lang.Int,x10.array.Array[x10.lang.Double],x10.lang.Int,x10.lang.Int)">x10Copy</a>, <a href="../../../x10/matrix/comm/ArrayRemoteCopy.html#copy(x10.matrix.sparse.CompressArray,x10.lang.Int,x10.lang.PlaceLocalHandle[x10.matrix.sparse.CompressArray],x10.lang.Int,x10.lang.Int,x10.lang.Int)">copy</a>, <a href="../../../x10/matrix/comm/ArrayRemoteCopy.html#mpiCopy(x10.matrix.sparse.CompressArray,x10.lang.Int,x10.lang.PlaceLocalHandle[x10.matrix.sparse.CompressArray],x10.lang.Int,x10.lang.Int,x10.lang.Int)">mpiCopy</a>, <a href="../../../x10/matrix/comm/ArrayRemoteCopy.html#x10Copy(x10.matrix.sparse.CompressArray,x10.lang.Int,x10.lang.PlaceLocalHandle[x10.matrix.sparse.CompressArray],x10.lang.Int,x10.lang.Int,x10.lang.Int)">x10Copy</a>, <a href="../../../x10/matrix/comm/ArrayRemoteCopy.html#copy(x10.lang.PlaceLocalHandle[x10.matrix.sparse.CompressArray],x10.lang.Int,x10.lang.Int,x10.matrix.sparse.CompressArray,x10.lang.Int,x10.lang.Int)">copy</a>, <a href="../../../x10/matrix/comm/ArrayRemoteCopy.html#mpiCopy(x10.lang.PlaceLocalHandle[x10.matrix.sparse.CompressArray],x10.lang.Int,x10.lang.Int,x10.matrix.sparse.CompressArray,x10.lang.Int,x10.lang.Int)">mpiCopy</a>, <a href="../../../x10/matrix/comm/ArrayRemoteCopy.html#x10Copy(x10.lang.PlaceLocalHandle[x10.matrix.sparse.CompressArray],x10.lang.Int,x10.lang.Int,x10.matrix.sparse.CompressArray,x10.lang.Int,x10.lang.Int)">x10Copy</a>, <a href="../../../x10/matrix/comm/ArrayRemoteCopy.html#x10$matrix$comm$ArrayRemoteCopy$$this$x10$matrix$comm$ArrayRemoteCopy()">x10$matrix$comm$ArrayRemoteCopy$$this$x10$matrix$comm$ArrayRemoteCopy</a></code></li>
+<code><a href="../../../x10/matrix/comm/ArrayRemoteCopy.html#copy(x10.regionarray.Array[x10.lang.Double],x10.lang.Int,x10.lang.PlaceLocalHandle[x10.regionarray.Array[x10.lang.Double]],x10.lang.Int,x10.lang.Int,x10.lang.Int)">copy</a>, <a href="../../../x10/matrix/comm/ArrayRemoteCopy.html#mpiCopy(x10.regionarray.Array[x10.lang.Double],x10.lang.Int,x10.lang.PlaceLocalHandle[x10.regionarray.Array[x10.lang.Double]],x10.lang.Int,x10.lang.Int,x10.lang.Int)">mpiCopy</a>, <a href="../../../x10/matrix/comm/ArrayRemoteCopy.html#x10Copy(x10.regionarray.Array[x10.lang.Double],x10.lang.Int,x10.lang.PlaceLocalHandle[x10.regionarray.Array[x10.lang.Double]],x10.lang.Int,x10.lang.Int,x10.lang.Int)">x10Copy</a>, <a href="../../../x10/matrix/comm/ArrayRemoteCopy.html#x10Copy(x10.regionarray.Array[x10.lang.Double],x10.lang.Int,x10.regionarray.DistArray[x10.regionarray.Array[x10.lang.Double]],x10.lang.Int,x10.lang.Int,x10.lang.Int)">x10Copy</a>, <a href="../../../x10/matrix/comm/ArrayRemoteCopy.html#copy(x10.lang.PlaceLocalHandle[x10.regionarray.Array[x10.lang.Double]],x10.lang.Int,x10.lang.Int,x10.regionarray.Array[x10.lang.Double],x10.lang.Int,x10.lang.Int)">copy</a>, <a href="../../../x10/matrix/comm/ArrayRemoteCopy.html#mpiCopy(x10.lang.PlaceLocalHandle[x10.regionarray.Array[x10.lang.Double]],x10.lang.Int,x10.lang.Int,x10.regionarray.Array[x10.lang.Double],x10.lang.Int,x10.lang.Int)">mpiCopy</a>, <a href="../../../x10/matrix/comm/ArrayRemoteCopy.html#x10Copy(x10.lang.PlaceLocalHandle[x10.regionarray.Array[x10.lang.Double]],x10.lang.Int,x10.lang.Int,x10.regionarray.Array[x10.lang.Double],x10.lang.Int,x10.lang.Int)">x10Copy</a>, <a href="../../../x10/matrix/comm/ArrayRemoteCopy.html#copy(x10.matrix.sparse.CompressArray,x10.lang.Int,x10.lang.PlaceLocalHandle[x10.matrix.sparse.CompressArray],x10.lang.Int,x10.lang.Int,x10.lang.Int)">copy</a>, <a href="../../../x10/matrix/comm/ArrayRemoteCopy.html#mpiCopy(x10.matrix.sparse.CompressArray,x10.lang.Int,x10.lang.PlaceLocalHandle[x10.matrix.sparse.CompressArray],x10.lang.Int,x10.lang.Int,x10.lang.Int)">mpiCopy</a>, <a href="../../../x10/matrix/comm/ArrayRemoteCopy.html#x10Copy(x10.matrix.sparse.CompressArray,x10.lang.Int,x10.lang.PlaceLocalHandle[x10.matrix.sparse.CompressArray],x10.lang.Int,x10.lang.Int,x10.lang.Int)">x10Copy</a>, <a href="../../../x10/matrix/comm/ArrayRemoteCopy.html#copy(x10.lang.PlaceLocalHandle[x10.matrix.sparse.CompressArray],x10.lang.Int,x10.lang.Int,x10.matrix.sparse.CompressArray,x10.lang.Int,x10.lang.Int)">copy</a>, <a href="../../../x10/matrix/comm/ArrayRemoteCopy.html#mpiCopy(x10.lang.PlaceLocalHandle[x10.matrix.sparse.CompressArray],x10.lang.Int,x10.lang.Int,x10.matrix.sparse.CompressArray,x10.lang.Int,x10.lang.Int)">mpiCopy</a>, <a href="../../../x10/matrix/comm/ArrayRemoteCopy.html#x10Copy(x10.lang.PlaceLocalHandle[x10.matrix.sparse.CompressArray],x10.lang.Int,x10.lang.Int,x10.matrix.sparse.CompressArray,x10.lang.Int,x10.lang.Int)">x10Copy</a>, <a href="../../../x10/matrix/comm/ArrayRemoteCopy.html#x10$matrix$comm$ArrayRemoteCopy$$this$x10$matrix$comm$ArrayRemoteCopy()">x10$matrix$comm$ArrayRemoteCopy$$this$x10$matrix$comm$ArrayRemoteCopy</a></code></li>
 </ul>
 </li>
 </ul>
@@ -239,74 +239,74 @@ root.</div>
 <!--   -->
 </a>
 <h3>Method Detail</h3>
-<a name="gather(x10.lang.PlaceLocalHandle[x10.array.Array[x10.lang.Double]],x10.array.Array[x10.array.Array[x10.lang.Double]])">
+<a name="gather(x10.lang.PlaceLocalHandle[x10.regionarray.Array[x10.lang.Double]],x10.regionarray.Array[x10.regionarray.Array[x10.lang.Double]])">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
 <h4>gather</h4>
-<pre>public static&nbsp;void&nbsp;gather(x10.lang.PlaceLocalHandle&lt;x10.array.Array&lt;x10.lang.Double&gt;&gt;&nbsp;src,
-          x10.array.Array&lt;x10.array.Array&lt;x10.lang.Double&gt;&gt;&nbsp;dst)</pre>
-<div class="block"><B>Declaration:</B> <TT>gather(src:x10.lang.PlaceLocalHandle[x10.array.Array[x10.lang.Double]{self.rank==1, self.zeroBased==true, self.rect==true, self.rail==true}],dst:x10.array.Array[x10.array.Array[x10.lang.Double]{self.rank==1}]{self.rank==1}): void.</TT><PRE>
+<pre>public static&nbsp;void&nbsp;gather(x10.lang.PlaceLocalHandle&lt;x10.regionarray.Array&lt;x10.lang.Double&gt;&gt;&nbsp;src,
+          x10.regionarray.Array&lt;x10.regionarray.Array&lt;x10.lang.Double&gt;&gt;&nbsp;dst)</pre>
+<div class="block"><B>Declaration:</B> <TT>gather(src:x10.lang.PlaceLocalHandle[x10.regionarray.Array[x10.lang.Double]{self.rank==1, self.zeroBased==true, self.rect==true, self.rail==true}],dst:x10.regionarray.Array[x10.regionarray.Array[x10.lang.Double]{self.rank==1}]{self.rank==1}): void.</TT><PRE>
 </PRE>Gather distributed arrays from all places to here
 at here.</div>
 <dl><dt><span class="strong">Parameters:</span></dt><dd><code>src</code> - distributed storage of source arrays on PlaceLocalHandle</dd><dd><code>dst</code> - storage of list arrays for gather result</dd></dl>
 </li>
 </ul>
-<a name="gather(x10.lang.PlaceLocalHandle[x10.array.Array[x10.lang.Double]],x10.array.Array[x10.lang.Double],x10.array.Array[x10.lang.Int])">
+<a name="gather(x10.lang.PlaceLocalHandle[x10.regionarray.Array[x10.lang.Double]],x10.regionarray.Array[x10.lang.Double],x10.regionarray.Array[x10.lang.Int])">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
 <h4>gather</h4>
-<pre>public static&nbsp;void&nbsp;gather(x10.lang.PlaceLocalHandle&lt;x10.array.Array&lt;x10.lang.Double&gt;&gt;&nbsp;src,
-          x10.array.Array&lt;x10.lang.Double&gt;&nbsp;dst,
-          x10.array.Array&lt;x10.lang.Int&gt;&nbsp;gp)</pre>
-<div class="block"><B>Declaration:</B> <TT>gather(src:x10.lang.PlaceLocalHandle[x10.array.Array[x10.lang.Double]{self.rank==1, self.zeroBased==true, self.rect==true, self.rail==true}],dst:x10.array.Array[x10.lang.Double]{self.rank==1},gp:x10.array.Array[x10.lang.Int]{self.rank==1}): void.</TT><PRE>
+<pre>public static&nbsp;void&nbsp;gather(x10.lang.PlaceLocalHandle&lt;x10.regionarray.Array&lt;x10.lang.Double&gt;&gt;&nbsp;src,
+          x10.regionarray.Array&lt;x10.lang.Double&gt;&nbsp;dst,
+          x10.regionarray.Array&lt;x10.lang.Int&gt;&nbsp;gp)</pre>
+<div class="block"><B>Declaration:</B> <TT>gather(src:x10.lang.PlaceLocalHandle[x10.regionarray.Array[x10.lang.Double]{self.rank==1, self.zeroBased==true, self.rect==true, self.rail==true}],dst:x10.regionarray.Array[x10.lang.Double]{self.rank==1},gp:x10.regionarray.Array[x10.lang.Int]{self.rank==1}): void.</TT><PRE>
 </PRE>Gather distributed arrays from all places to here and store
 in a continous memory space</div>
 <dl><dt><span class="strong">Parameters:</span></dt><dd><code>src</code> - distributed storage of source arrays on PlaceLocalHandle</dd><dd><code>dst</code> - storage array for gather result</dd><dd><code>gp</code> - list of array sizes</dd></dl>
 </li>
 </ul>
-<a name="mpiGather(x10.lang.PlaceLocalHandle[x10.array.Array[x10.lang.Double]],x10.array.Array[x10.lang.Double],x10.array.Array[x10.lang.Int])">
+<a name="mpiGather(x10.lang.PlaceLocalHandle[x10.regionarray.Array[x10.lang.Double]],x10.regionarray.Array[x10.lang.Double],x10.regionarray.Array[x10.lang.Int])">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
 <h4>mpiGather</h4>
-<pre>public static&nbsp;void&nbsp;mpiGather(x10.lang.PlaceLocalHandle&lt;x10.array.Array&lt;x10.lang.Double&gt;&gt;&nbsp;src,
-             x10.array.Array&lt;x10.lang.Double&gt;&nbsp;dst,
-             x10.array.Array&lt;x10.lang.Int&gt;&nbsp;szlist)</pre>
-<div class="block"><B>Declaration:</B> <TT>mpiGather(src:x10.lang.PlaceLocalHandle[x10.array.Array[x10.lang.Double]{self.rank==1, self.zeroBased==true, self.rect==true, self.rail==true}],dst:x10.array.Array[x10.lang.Double]{self.rank==1},szlist:x10.array.Array[x10.lang.Int]{self.rank==1}): void.</TT><PRE>
+<pre>public static&nbsp;void&nbsp;mpiGather(x10.lang.PlaceLocalHandle&lt;x10.regionarray.Array&lt;x10.lang.Double&gt;&gt;&nbsp;src,
+             x10.regionarray.Array&lt;x10.lang.Double&gt;&nbsp;dst,
+             x10.regionarray.Array&lt;x10.lang.Int&gt;&nbsp;szlist)</pre>
+<div class="block"><B>Declaration:</B> <TT>mpiGather(src:x10.lang.PlaceLocalHandle[x10.regionarray.Array[x10.lang.Double]{self.rank==1, self.zeroBased==true, self.rect==true, self.rail==true}],dst:x10.regionarray.Array[x10.lang.Double]{self.rank==1},szlist:x10.regionarray.Array[x10.lang.Int]{self.rank==1}): void.</TT><PRE>
 </PRE>Gather distributed arrays from all places to here
 by using mpi gather routine.</div>
 <dl><dt><span class="strong">Parameters:</span></dt><dd><code>src</code> - distributed storage of data arrays</dd><dd><code>dst</code> - storage array for gather result at here</dd><dd><code>szlist</code> - list of array sizes.</dd></dl>
 </li>
 </ul>
-<a name="x10Gather(x10.lang.PlaceLocalHandle[x10.array.Array[x10.lang.Double]],x10.array.Array[x10.lang.Double],x10.array.Array[x10.lang.Int])">
+<a name="x10Gather(x10.lang.PlaceLocalHandle[x10.regionarray.Array[x10.lang.Double]],x10.regionarray.Array[x10.lang.Double],x10.regionarray.Array[x10.lang.Int])">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
 <h4>x10Gather</h4>
-<pre>public static&nbsp;void&nbsp;x10Gather(x10.lang.PlaceLocalHandle&lt;x10.array.Array&lt;x10.lang.Double&gt;&gt;&nbsp;src,
-             x10.array.Array&lt;x10.lang.Double&gt;&nbsp;dstbuf,
-             x10.array.Array&lt;x10.lang.Int&gt;&nbsp;gp)</pre>
-<div class="block"><B>Declaration:</B> <TT>x10Gather(src:x10.lang.PlaceLocalHandle[x10.array.Array[x10.lang.Double]{self.rank==1, self.zeroBased==true, self.rect==true, self.rail==true}],dstbuf:x10.array.Array[x10.lang.Double]{self.rank==1},gp:x10.array.Array[x10.lang.Int]{self.rank==1}): void.</TT><PRE>
+<pre>public static&nbsp;void&nbsp;x10Gather(x10.lang.PlaceLocalHandle&lt;x10.regionarray.Array&lt;x10.lang.Double&gt;&gt;&nbsp;src,
+             x10.regionarray.Array&lt;x10.lang.Double&gt;&nbsp;dstbuf,
+             x10.regionarray.Array&lt;x10.lang.Int&gt;&nbsp;gp)</pre>
+<div class="block"><B>Declaration:</B> <TT>x10Gather(src:x10.lang.PlaceLocalHandle[x10.regionarray.Array[x10.lang.Double]{self.rank==1, self.zeroBased==true, self.rect==true, self.rail==true}],dstbuf:x10.regionarray.Array[x10.lang.Double]{self.rank==1},gp:x10.regionarray.Array[x10.lang.Int]{self.rank==1}): void.</TT><PRE>
 </PRE>Gather distributed arrays from all places to here by using x10 remote array copy.</div>
 <dl><dt><span class="strong">Parameters:</span></dt><dd><code>src</code> - distributed storage of data arrays in all places.</dd><dd><code>dstbuf</code> - storage array for gather result</dd><dd><code>gp</code> - list of array sizes</dd></dl>
 </li>
 </ul>
-<a name="verify(x10.lang.PlaceLocalHandle[x10.array.Array[x10.lang.Double]],x10.array.Array[x10.lang.Double],x10.array.Array[x10.lang.Int])">
+<a name="verify(x10.lang.PlaceLocalHandle[x10.regionarray.Array[x10.lang.Double]],x10.regionarray.Array[x10.lang.Double],x10.regionarray.Array[x10.lang.Int])">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
 <h4>verify</h4>
-<pre>public static&nbsp;x10.lang.Boolean&nbsp;verify(x10.lang.PlaceLocalHandle&lt;x10.array.Array&lt;x10.lang.Double&gt;&gt;&nbsp;src,
-                      x10.array.Array&lt;x10.lang.Double&gt;&nbsp;buf,
-                      x10.array.Array&lt;x10.lang.Int&gt;&nbsp;szlist)</pre>
-<div class="block"><B>Declaration:</B> <TT>verify(src:x10.lang.PlaceLocalHandle[x10.array.Array[x10.lang.Double]{self.rank==1, self.zeroBased==true, self.rect==true, self.rail==true}],buf:x10.array.Array[x10.lang.Double]{self.rank==1},szlist:x10.array.Array[x10.lang.Int]{self.rank==1}): x10.lang.Boolean.</TT><PRE>
+<pre>public static&nbsp;x10.lang.Boolean&nbsp;verify(x10.lang.PlaceLocalHandle&lt;x10.regionarray.Array&lt;x10.lang.Double&gt;&gt;&nbsp;src,
+                      x10.regionarray.Array&lt;x10.lang.Double&gt;&nbsp;buf,
+                      x10.regionarray.Array&lt;x10.lang.Int&gt;&nbsp;szlist)</pre>
+<div class="block"><B>Declaration:</B> <TT>verify(src:x10.lang.PlaceLocalHandle[x10.regionarray.Array[x10.lang.Double]{self.rank==1, self.zeroBased==true, self.rect==true, self.rail==true}],buf:x10.regionarray.Array[x10.lang.Double]{self.rank==1},szlist:x10.regionarray.Array[x10.lang.Int]{self.rank==1}): x10.lang.Boolean.</TT><PRE>
 </PRE></div>
 </li>
 </ul>

@@ -122,9 +122,9 @@ grid partition specifies how each block is mapped to the overall dense matrix.</
 <th class="colLast" scope="col">Field and Description</th>
 </tr>
 <tr class="altColor">
-<td class="colFirst"><code>x10.array.Array&lt;<a href="../../../x10/matrix/block/DenseBlock.html" title="class in x10.matrix.block">DenseBlock</a>&gt;</code></td>
+<td class="colFirst"><code>x10.regionarray.Array&lt;<a href="../../../x10/matrix/block/DenseBlock.html" title="class in x10.matrix.block">DenseBlock</a>&gt;</code></td>
 <td class="colLast"><code><strong><a href="../../../x10/matrix/block/DenseBlockMatrix.html#listBs">listBs</a></strong></code>
-<div class="block"><B>Field Type</B>: <TT>x10.array.Array[x10.matrix.block.DenseBlock]{self.rank==1}</TT>
+<div class="block"><B>Field Type</B>: <TT>x10.regionarray.Array[x10.matrix.block.DenseBlock]{self.rank==1}</TT>
 </div>
 </td>
 </tr>
@@ -156,9 +156,9 @@ grid partition specifies how each block is mapped to the overall dense matrix.</
 <th class="colOne" scope="col">Constructor and Description</th>
 </tr>
 <tr class="altColor">
-<td class="colOne"><code><strong><a href="../../../x10/matrix/block/DenseBlockMatrix.html#DenseBlockMatrix(x10.matrix.block.Grid, x10.array.Array[x10.matrix.block.DenseBlock]{self.rank==1})">DenseBlockMatrix</a></strong>(<a href="../../../x10/matrix/block/Grid.html" title="class in x10.matrix.block">Grid</a>&nbsp;gp,
-                x10.array.Array&lt;<a href="../../../x10/matrix/block/DenseBlock.html" title="class in x10.matrix.block">DenseBlock</a>&gt;&nbsp;blkMs)</code>
-<div class="block"><B>Declaration</B>: <TT>this(x10.matrix.block.Grid, x10.array.Array[x10.matrix.block.DenseBlock]{self.rank==1}): x10.matrix.block.DenseBlockMatrix{self.M==gp.M, self.N==gp.N, self.grid==gp}.</TT>
+<td class="colOne"><code><strong><a href="../../../x10/matrix/block/DenseBlockMatrix.html#DenseBlockMatrix(x10.matrix.block.Grid, x10.regionarray.Array[x10.matrix.block.DenseBlock]{self.rank==1})">DenseBlockMatrix</a></strong>(<a href="../../../x10/matrix/block/Grid.html" title="class in x10.matrix.block">Grid</a>&nbsp;gp,
+                x10.regionarray.Array&lt;<a href="../../../x10/matrix/block/DenseBlock.html" title="class in x10.matrix.block">DenseBlock</a>&gt;&nbsp;blkMs)</code>
+<div class="block"><B>Declaration</B>: <TT>this(x10.matrix.block.Grid, x10.regionarray.Array[x10.matrix.block.DenseBlock]{self.rank==1}): x10.matrix.block.DenseBlockMatrix{self.M==gp.M, self.N==gp.N, self.grid==gp}.</TT>
 Construt dense-block matrix instance.</div>
 </td>
 </tr>
@@ -633,8 +633,8 @@ OBSOLETE.</div>
 <ul class="blockList">
 <li class="blockList">
 <h4>listBs</h4>
-<pre>public final&nbsp;x10.array.Array&lt;<a href="../../../x10/matrix/block/DenseBlock.html" title="class in x10.matrix.block">DenseBlock</a>&gt; listBs</pre>
-<div class="block"><B>Field Type</B>: <TT>x10.array.Array[x10.matrix.block.DenseBlock]{self.rank==1}</TT><PRE>
+<pre>public final&nbsp;x10.regionarray.Array&lt;<a href="../../../x10/matrix/block/DenseBlock.html" title="class in x10.matrix.block">DenseBlock</a>&gt; listBs</pre>
+<div class="block"><B>Field Type</B>: <TT>x10.regionarray.Array[x10.matrix.block.DenseBlock]{self.rank==1}</TT><PRE>
 </PRE></div>
 </li>
 </ul>
@@ -656,15 +656,15 @@ OBSOLETE.</div>
 <!--   -->
 </a>
 <h3>Constructor Detail</h3>
-<a name="DenseBlockMatrix(x10.matrix.block.Grid, x10.array.Array[x10.matrix.block.DenseBlock]{self.rank==1})">
+<a name="DenseBlockMatrix(x10.matrix.block.Grid, x10.regionarray.Array[x10.matrix.block.DenseBlock]{self.rank==1})">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
 <h4>DenseBlockMatrix</h4>
 <pre>public&nbsp;DenseBlockMatrix(<a href="../../../x10/matrix/block/Grid.html" title="class in x10.matrix.block">Grid</a>&nbsp;gp,
-                x10.array.Array&lt;<a href="../../../x10/matrix/block/DenseBlock.html" title="class in x10.matrix.block">DenseBlock</a>&gt;&nbsp;blkMs)</pre>
-<div class="block"><B>Declaration</B>: <TT>this(x10.matrix.block.Grid, x10.array.Array[x10.matrix.block.DenseBlock]{self.rank==1}): x10.matrix.block.DenseBlockMatrix{self.M==gp.M, self.N==gp.N, self.grid==gp}.</TT><PRE>
+                x10.regionarray.Array&lt;<a href="../../../x10/matrix/block/DenseBlock.html" title="class in x10.matrix.block">DenseBlock</a>&gt;&nbsp;blkMs)</pre>
+<div class="block"><B>Declaration</B>: <TT>this(x10.matrix.block.Grid, x10.regionarray.Array[x10.matrix.block.DenseBlock]{self.rank==1}): x10.matrix.block.DenseBlockMatrix{self.M==gp.M, self.N==gp.N, self.grid==gp}.</TT><PRE>
 </PRE>Construt dense-block matrix instance.</div>
 </li>
 </ul>

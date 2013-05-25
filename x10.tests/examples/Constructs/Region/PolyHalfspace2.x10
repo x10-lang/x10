@@ -40,7 +40,7 @@ class PolyHalfspace2 extends TestRegion {
         "isConvex() true\n"+
         "size() axis 0 has no maximum\n"+
         "region: (x0+x1>=3 && x0-x1>=-1 && x0+x1<=7)\n"+
-        "x10.array.UnboundedRegionException: axis 0 has no maximum\n";
+        "x10.regionarray.UnboundedRegionException: axis 0 has no maximum\n";
     
     public static def main(Rail[String]) {
         new PolyHalfspace2().execute();

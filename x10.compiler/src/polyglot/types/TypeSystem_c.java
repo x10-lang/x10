@@ -2509,7 +2509,7 @@ public class TypeSystem_c implements TypeSystem
     protected X10ClassType regionType_;
     public X10ClassType Region() {
         if (regionType_ == null)
-            regionType_ = load("x10.array.Region", ((X10CompilerOptions)extensionInfo().getOptions()).x10_config.APGAS_LIB_MODE); // java file
+            regionType_ = load("x10.regionarray.Region", ((X10CompilerOptions)extensionInfo().getOptions()).x10_config.APGAS_LIB_MODE); // java file
         return regionType_;
     }
     
@@ -2530,7 +2530,7 @@ public class TypeSystem_c implements TypeSystem
     protected X10ClassType distributionType_;
     public X10ClassType Dist() {
         if (distributionType_ == null)
-            distributionType_ = load("x10.array.Dist", ((X10CompilerOptions)extensionInfo().getOptions()).x10_config.APGAS_LIB_MODE); // java file
+            distributionType_ = load("x10.regionarray.Dist", ((X10CompilerOptions)extensionInfo().getOptions()).x10_config.APGAS_LIB_MODE); // java file
         return distributionType_;
     }
 
@@ -2586,7 +2586,7 @@ public class TypeSystem_c implements TypeSystem
     protected X10ClassType arrayType_ = null;
     public X10ClassType Array() {
         if (arrayType_ == null)
-            arrayType_ = load("x10.array.Array", ((X10CompilerOptions)extensionInfo().getOptions()).x10_config.APGAS_LIB_MODE);
+            arrayType_ = load("x10.regionarray.Array", ((X10CompilerOptions)extensionInfo().getOptions()).x10_config.APGAS_LIB_MODE);
         return arrayType_;
     }
 
@@ -2608,7 +2608,7 @@ public class TypeSystem_c implements TypeSystem
     protected X10ClassType remoteArrayType_ = null;
     public X10ClassType RemoteArray() {
         if (remoteArrayType_ == null)
-            remoteArrayType_ = load("x10.array.RemoteArray", ((X10CompilerOptions)extensionInfo().getOptions()).x10_config.APGAS_LIB_MODE);
+            remoteArrayType_ = load("x10.regionarray.RemoteArray", ((X10CompilerOptions)extensionInfo().getOptions()).x10_config.APGAS_LIB_MODE);
         return remoteArrayType_;
     }
 
@@ -2629,7 +2629,7 @@ public class TypeSystem_c implements TypeSystem
     protected X10ClassType distArrayType_ = null;
     public X10ClassType DistArray() {
         if (distArrayType_ == null)
-            distArrayType_ = load("x10.array.DistArray", ((X10CompilerOptions)extensionInfo().getOptions()).x10_config.APGAS_LIB_MODE);
+            distArrayType_ = load("x10.regionarray.DistArray", ((X10CompilerOptions)extensionInfo().getOptions()).x10_config.APGAS_LIB_MODE);
         return distArrayType_;
     }
     

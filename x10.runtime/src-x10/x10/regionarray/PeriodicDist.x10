@@ -9,7 +9,7 @@
  *  (C) Copyright Australian National University 2010-2011.
  */
 
-package x10.array;
+package x10.regionarray;
 
 import x10.compiler.Inline;
 

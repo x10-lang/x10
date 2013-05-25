@@ -20,7 +20,7 @@ import harness.x10Test;
 
 import x10.compiler.*; // @Uncounted @NonEscaping @NoThisAccess
 import x10.compiler.tests.*; // err markers
-import x10.array.*;
+import x10.regionarray.*;
 import x10.util.*;
 import x10.lang.annotations.*; // FieldAnnotation MethodAnnotation
 
@@ -3706,7 +3706,7 @@ class XTENLANG_1149_2 {
 
 		val arr1 = [b1 as B{self!=null},b2 as B{self!=null}];
 		  // the type inferred for [b1,b2] is 
-        // x10.array.Array[XTENLANG_1149_2.B{XTENLANG_1149_2.self==XTENLANG_1149_2#this, self!=null}]
+        // x10.regionarray.Array[XTENLANG_1149_2.B{XTENLANG_1149_2.self==XTENLANG_1149_2#this, self!=null}]
         @ERR val arr2:Array[B{self!=null}] = [b1,b2]; 
 		@ERR val arr3:Array[B] = [b1,b2]; 
 	}
@@ -6572,7 +6572,7 @@ class TestClassConformance { // XTENLANG-2509
 class TestFakeLocalError[T] { // I'm testing there is only one error (cause there used to be also an error from the dataflow InitChecker)
   var a:Array[T];
   static def bar3[U](){U haszero} {
-      a = new Array[U](10); // ERR: Cannot access a non-static field field TestFakeLocalError.a: x10.array.Array[T]{self.x10.array.Array#region!=null, self.x10.array.Array#rank==self.x10.array.Array#region.x10.array.Region#rank, self.x10.array.Array#rect==self.x10.array.Array#region.x10.array.Region#rect, self.x10.array.Array#zeroBased==self.x10.array.Array#region.x10.array.Region#zeroBased, self.x10.array.Array#rail==self.x10.array.Array#region.x10.array.Region#rail} from a static context.
+      a = new Array[U](10); // ERR: Cannot access a non-static field field TestFakeLocalError.a: x10.regionarray.Array[T]{self.x10.regionarray.Array#region!=null, self.x10.regionarray.Array#rank==self.x10.regionarray.Array#region.x10.regionarray.Region#rank, self.x10.regionarray.Array#rect==self.x10.regionarray.Array#region.x10.regionarray.Region#rect, self.x10.regionarray.Array#zeroBased==self.x10.regionarray.Array#region.x10.regionarray.Region#zeroBased, self.x10.regionarray.Array#rail==self.x10.regionarray.Array#region.x10.regionarray.Region#rail} from a static context.
   }
 }
 

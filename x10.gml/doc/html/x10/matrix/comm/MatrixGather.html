@@ -156,111 +156,111 @@ run command "make help" at the root directory of GML library.</div>
 </tr>
 <tr class="altColor">
 <td class="colFirst"><code>static void</code></td>
-<td class="colLast"><code><strong><a href="../../../x10/matrix/comm/MatrixGather.html#gather(x10.array.DistArray[x10.matrix.block.DenseBlock],x10.array.Array[x10.matrix.block.DenseBlock])">gather</a></strong>(x10.array.DistArray&lt;<a href="../../../x10/matrix/block/DenseBlock.html" title="class in x10.matrix.block">DenseBlock</a>&gt;&nbsp;src,
-      x10.array.Array&lt;<a href="../../../x10/matrix/block/DenseBlock.html" title="class in x10.matrix.block">DenseBlock</a>&gt;&nbsp;dst)</code>
-<div class="block"><B>Declaration:</B> <TT>gather(src:x10.array.DistArray[x10.matrix.block.DenseBlock]{self.dist.region.rank==1},dst:x10.array.Array[x10.matrix.block.DenseBlock]{self.rank==1}): void.</TT>
+<td class="colLast"><code><strong><a href="../../../x10/matrix/comm/MatrixGather.html#gather(x10.regionarray.DistArray[x10.matrix.block.DenseBlock],x10.regionarray.Array[x10.matrix.block.DenseBlock])">gather</a></strong>(x10.regionarray.DistArray&lt;<a href="../../../x10/matrix/block/DenseBlock.html" title="class in x10.matrix.block">DenseBlock</a>&gt;&nbsp;src,
+      x10.regionarray.Array&lt;<a href="../../../x10/matrix/block/DenseBlock.html" title="class in x10.matrix.block">DenseBlock</a>&gt;&nbsp;dst)</code>
+<div class="block"><B>Declaration:</B> <TT>gather(src:x10.regionarray.DistArray[x10.matrix.block.DenseBlock]{self.dist.region.rank==1},dst:x10.regionarray.Array[x10.matrix.block.DenseBlock]{self.rank==1}): void.</TT>
 Gather data from distributed matrix blocks in all places to the dense blcok matrix
 at here.</div>
 </td>
 </tr>
 <tr class="rowColor">
 <td class="colFirst"><code>static void</code></td>
-<td class="colLast"><code><strong><a href="../../../x10/matrix/comm/MatrixGather.html#gatherRowBs(x10.matrix.block.Grid,x10.array.DistArray[x10.matrix.block.DenseBlock],x10.matrix.DenseMatrix)">gatherRowBs</a></strong>(<a href="../../../x10/matrix/block/Grid.html" title="class in x10.matrix.block">Grid</a>&nbsp;gp,
-           x10.array.DistArray&lt;<a href="../../../x10/matrix/block/DenseBlock.html" title="class in x10.matrix.block">DenseBlock</a>&gt;&nbsp;src,
+<td class="colLast"><code><strong><a href="../../../x10/matrix/comm/MatrixGather.html#gatherRowBs(x10.matrix.block.Grid,x10.regionarray.DistArray[x10.matrix.block.DenseBlock],x10.matrix.DenseMatrix)">gatherRowBs</a></strong>(<a href="../../../x10/matrix/block/Grid.html" title="class in x10.matrix.block">Grid</a>&nbsp;gp,
+           x10.regionarray.DistArray&lt;<a href="../../../x10/matrix/block/DenseBlock.html" title="class in x10.matrix.block">DenseBlock</a>&gt;&nbsp;src,
            <a href="../../../x10/matrix/DenseMatrix.html" title="class in x10.matrix">DenseMatrix</a>&nbsp;dst)</code>
-<div class="block"><B>Declaration:</B> <TT>gatherRowBs(gp:x10.matrix.block.Grid,src:x10.array.DistArray[x10.matrix.block.DenseBlock]{self.dist.region.rank==1},dst:x10.matrix.DenseMatrix): void.</TT>
+<div class="block"><B>Declaration:</B> <TT>gatherRowBs(gp:x10.matrix.block.Grid,src:x10.regionarray.DistArray[x10.matrix.block.DenseBlock]{self.dist.region.rank==1},dst:x10.matrix.DenseMatrix): void.</TT>
 Gather single-row partitioning blocks in all places to a
 dense matrix at here</div>
 </td>
 </tr>
 <tr class="altColor">
 <td class="colFirst"><code>static void</code></td>
-<td class="colLast"><code><strong><a href="../../../x10/matrix/comm/MatrixGather.html#mpiGatherRowBs(x10.matrix.block.Grid,x10.array.DistArray[x10.matrix.block.DenseBlock],x10.matrix.DenseMatrix)">mpiGatherRowBs</a></strong>(<a href="../../../x10/matrix/block/Grid.html" title="class in x10.matrix.block">Grid</a>&nbsp;gp,
-              x10.array.DistArray&lt;<a href="../../../x10/matrix/block/DenseBlock.html" title="class in x10.matrix.block">DenseBlock</a>&gt;&nbsp;src,
+<td class="colLast"><code><strong><a href="../../../x10/matrix/comm/MatrixGather.html#mpiGatherRowBs(x10.matrix.block.Grid,x10.regionarray.DistArray[x10.matrix.block.DenseBlock],x10.matrix.DenseMatrix)">mpiGatherRowBs</a></strong>(<a href="../../../x10/matrix/block/Grid.html" title="class in x10.matrix.block">Grid</a>&nbsp;gp,
+              x10.regionarray.DistArray&lt;<a href="../../../x10/matrix/block/DenseBlock.html" title="class in x10.matrix.block">DenseBlock</a>&gt;&nbsp;src,
               <a href="../../../x10/matrix/DenseMatrix.html" title="class in x10.matrix">DenseMatrix</a>&nbsp;dstden)</code>
-<div class="block"><B>Declaration:</B> <TT>mpiGatherRowBs(gp:x10.matrix.block.Grid,src:x10.array.DistArray[x10.matrix.block.DenseBlock]{self.dist.region.rank==1},dstden:x10.matrix.DenseMatrix): void.</TT>
+<div class="block"><B>Declaration:</B> <TT>mpiGatherRowBs(gp:x10.matrix.block.Grid,src:x10.regionarray.DistArray[x10.matrix.block.DenseBlock]{self.dist.region.rank==1},dstden:x10.matrix.DenseMatrix): void.</TT>
 Gather matrix block from all places to dense matrix at haere
 by calling mpi gather routine.</div>
 </td>
 </tr>
 <tr class="rowColor">
 <td class="colFirst"><code>static void</code></td>
-<td class="colLast"><code><strong><a href="../../../x10/matrix/comm/MatrixGather.html#mpiGatherVector(x10.matrix.block.Grid,x10.array.DistArray[x10.matrix.block.DenseBlock],x10.array.Array[x10.lang.Double])">mpiGatherVector</a></strong>(<a href="../../../x10/matrix/block/Grid.html" title="type parameter in Grid">Grid</a>&nbsp;gp,
-               x10.array.DistArray&lt;<a href="../../../x10/matrix/block/DenseBlock.html" title="class in x10.matrix.block">DenseBlock</a>&gt;&nbsp;src,
-               x10.array.Array&lt;x10.lang.Double&gt;&nbsp;dst)</code>
-<div class="block"><B>Declaration:</B> <TT>mpiGatherVector(gp:x10.matrix.block.Grid{self.N==1},src:x10.array.DistArray[x10.matrix.block.DenseBlock]{self.dist.region.rank==1},dst:x10.array.Array[x10.lang.Double]{self.rank==1}): void.</TT>
+<td class="colLast"><code><strong><a href="../../../x10/matrix/comm/MatrixGather.html#mpiGatherVector(x10.matrix.block.Grid,x10.regionarray.DistArray[x10.matrix.block.DenseBlock],x10.regionarray.Array[x10.lang.Double])">mpiGatherVector</a></strong>(<a href="../../../x10/matrix/block/Grid.html" title="type parameter in Grid">Grid</a>&nbsp;gp,
+               x10.regionarray.DistArray&lt;<a href="../../../x10/matrix/block/DenseBlock.html" title="class in x10.matrix.block">DenseBlock</a>&gt;&nbsp;src,
+               x10.regionarray.Array&lt;x10.lang.Double&gt;&nbsp;dst)</code>
+<div class="block"><B>Declaration:</B> <TT>mpiGatherVector(gp:x10.matrix.block.Grid{self.N==1},src:x10.regionarray.DistArray[x10.matrix.block.DenseBlock]{self.dist.region.rank==1},dst:x10.regionarray.Array[x10.lang.Double]{self.rank==1}): void.</TT>
 Gather vector from distributed dense matrix (column=1)</div>
 </td>
 </tr>
 <tr class="altColor">
 <td class="colFirst"><code>protected static void</code></td>
-<td class="colLast"><code><strong><a href="../../../x10/matrix/comm/MatrixGather.html#x10GatherRowBs_copyto(x10.matrix.block.Grid,x10.array.DistArray[x10.matrix.block.DenseBlock],x10.matrix.DenseMatrix)">x10GatherRowBs_copyto</a></strong>(<a href="../../../x10/matrix/block/Grid.html" title="class in x10.matrix.block">Grid</a>&nbsp;gp,
-                     x10.array.DistArray&lt;<a href="../../../x10/matrix/block/DenseBlock.html" title="class in x10.matrix.block">DenseBlock</a>&gt;&nbsp;src,
+<td class="colLast"><code><strong><a href="../../../x10/matrix/comm/MatrixGather.html#x10GatherRowBs_copyto(x10.matrix.block.Grid,x10.regionarray.DistArray[x10.matrix.block.DenseBlock],x10.matrix.DenseMatrix)">x10GatherRowBs_copyto</a></strong>(<a href="../../../x10/matrix/block/Grid.html" title="class in x10.matrix.block">Grid</a>&nbsp;gp,
+                     x10.regionarray.DistArray&lt;<a href="../../../x10/matrix/block/DenseBlock.html" title="class in x10.matrix.block">DenseBlock</a>&gt;&nbsp;src,
                      <a href="../../../x10/matrix/DenseMatrix.html" title="class in x10.matrix">DenseMatrix</a>&nbsp;dstden)</code>
-<div class="block"><B>Declaration:</B> <TT>x10GatherRowBs_copyto(gp:x10.matrix.block.Grid,src:x10.array.DistArray[x10.matrix.block.DenseBlock]{self.dist.region.rank==1},dstden:x10.matrix.DenseMatrix): void.</TT>
+<div class="block"><B>Declaration:</B> <TT>x10GatherRowBs_copyto(gp:x10.matrix.block.Grid,src:x10.regionarray.DistArray[x10.matrix.block.DenseBlock]{self.dist.region.rank==1},dstden:x10.matrix.DenseMatrix): void.</TT>
 Gather blocks in row-wise.</div>
 </td>
 </tr>
 <tr class="rowColor">
 <td class="colFirst"><code>static void</code></td>
-<td class="colLast"><code><strong><a href="../../../x10/matrix/comm/MatrixGather.html#x10GatherRowBs(x10.matrix.block.Grid,x10.array.DistArray[x10.matrix.block.DenseBlock],x10.matrix.DenseMatrix)">x10GatherRowBs</a></strong>(<a href="../../../x10/matrix/block/Grid.html" title="class in x10.matrix.block">Grid</a>&nbsp;gp,
-              x10.array.DistArray&lt;<a href="../../../x10/matrix/block/DenseBlock.html" title="class in x10.matrix.block">DenseBlock</a>&gt;&nbsp;src,
+<td class="colLast"><code><strong><a href="../../../x10/matrix/comm/MatrixGather.html#x10GatherRowBs(x10.matrix.block.Grid,x10.regionarray.DistArray[x10.matrix.block.DenseBlock],x10.matrix.DenseMatrix)">x10GatherRowBs</a></strong>(<a href="../../../x10/matrix/block/Grid.html" title="class in x10.matrix.block">Grid</a>&nbsp;gp,
+              x10.regionarray.DistArray&lt;<a href="../../../x10/matrix/block/DenseBlock.html" title="class in x10.matrix.block">DenseBlock</a>&gt;&nbsp;src,
               <a href="../../../x10/matrix/DenseMatrix.html" title="class in x10.matrix">DenseMatrix</a>&nbsp;dstden)</code>
-<div class="block"><B>Declaration:</B> <TT>x10GatherRowBs(gp:x10.matrix.block.Grid,src:x10.array.DistArray[x10.matrix.block.DenseBlock]{self.dist.region.rank==1},dstden:x10.matrix.DenseMatrix): void.</TT>
+<div class="block"><B>Declaration:</B> <TT>x10GatherRowBs(gp:x10.matrix.block.Grid,src:x10.regionarray.DistArray[x10.matrix.block.DenseBlock]{self.dist.region.rank==1},dstden:x10.matrix.DenseMatrix): void.</TT>
 Copy distributed dense matrix blocks from all places to the dense matrix
 at here.</div>
 </td>
 </tr>
 <tr class="altColor">
 <td class="colFirst"><code>static void</code></td>
-<td class="colLast"><code><strong><a href="../../../x10/matrix/comm/MatrixGather.html#x10GatherVector(x10.matrix.block.Grid,x10.array.DistArray[x10.matrix.block.DenseBlock],x10.array.Array[x10.lang.Double])">x10GatherVector</a></strong>(<a href="../../../x10/matrix/block/Grid.html" title="type parameter in Grid">Grid</a>&nbsp;gp,
-               x10.array.DistArray&lt;<a href="../../../x10/matrix/block/DenseBlock.html" title="class in x10.matrix.block">DenseBlock</a>&gt;&nbsp;src,
-               x10.array.Array&lt;x10.lang.Double&gt;&nbsp;dst)</code>
-<div class="block"><B>Declaration:</B> <TT>x10GatherVector(gp:x10.matrix.block.Grid{self.N==1},src:x10.array.DistArray[x10.matrix.block.DenseBlock]{self.dist.region.rank==1},dst:x10.array.Array[x10.lang.Double]{self.rank==1}): void.</TT>
+<td class="colLast"><code><strong><a href="../../../x10/matrix/comm/MatrixGather.html#x10GatherVector(x10.matrix.block.Grid,x10.regionarray.DistArray[x10.matrix.block.DenseBlock],x10.regionarray.Array[x10.lang.Double])">x10GatherVector</a></strong>(<a href="../../../x10/matrix/block/Grid.html" title="type parameter in Grid">Grid</a>&nbsp;gp,
+               x10.regionarray.DistArray&lt;<a href="../../../x10/matrix/block/DenseBlock.html" title="class in x10.matrix.block">DenseBlock</a>&gt;&nbsp;src,
+               x10.regionarray.Array&lt;x10.lang.Double&gt;&nbsp;dst)</code>
+<div class="block"><B>Declaration:</B> <TT>x10GatherVector(gp:x10.matrix.block.Grid{self.N==1},src:x10.regionarray.DistArray[x10.matrix.block.DenseBlock]{self.dist.region.rank==1},dst:x10.regionarray.Array[x10.lang.Double]{self.rank==1}): void.</TT>
 </div>
 </td>
 </tr>
 <tr class="rowColor">
 <td class="colFirst"><code>static void</code></td>
-<td class="colLast"><code><strong><a href="../../../x10/matrix/comm/MatrixGather.html#gather(x10.array.DistArray[x10.matrix.block.SparseBlock],x10.array.Array[x10.matrix.block.SparseBlock])">gather</a></strong>(x10.array.DistArray&lt;<a href="../../../x10/matrix/block/SparseBlock.html" title="class in x10.matrix.block">SparseBlock</a>&gt;&nbsp;src,
-      x10.array.Array&lt;<a href="../../../x10/matrix/block/SparseBlock.html" title="class in x10.matrix.block">SparseBlock</a>&gt;&nbsp;dst)</code>
-<div class="block"><B>Declaration:</B> <TT>gather(src:x10.array.DistArray[x10.matrix.block.SparseBlock]{self.dist.region.rank==1},dst:x10.array.Array[x10.matrix.block.SparseBlock]{self.rank==1}): void.</TT>
+<td class="colLast"><code><strong><a href="../../../x10/matrix/comm/MatrixGather.html#gather(x10.regionarray.DistArray[x10.matrix.block.SparseBlock],x10.regionarray.Array[x10.matrix.block.SparseBlock])">gather</a></strong>(x10.regionarray.DistArray&lt;<a href="../../../x10/matrix/block/SparseBlock.html" title="class in x10.matrix.block">SparseBlock</a>&gt;&nbsp;src,
+      x10.regionarray.Array&lt;<a href="../../../x10/matrix/block/SparseBlock.html" title="class in x10.matrix.block">SparseBlock</a>&gt;&nbsp;dst)</code>
+<div class="block"><B>Declaration:</B> <TT>gather(src:x10.regionarray.DistArray[x10.matrix.block.SparseBlock]{self.dist.region.rank==1},dst:x10.regionarray.Array[x10.matrix.block.SparseBlock]{self.rank==1}): void.</TT>
 Gather data from distributed sparse matrix blocks to the sparse blcok matrix
 at here.</div>
 </td>
 </tr>
 <tr class="altColor">
-<td class="colFirst"><code>protected static x10.array.Array&lt;x10.lang.Int&gt;</code></td>
-<td class="colLast"><code><strong><a href="../../../x10/matrix/comm/MatrixGather.html#mpiGatherSize(x10.array.DistArray[x10.matrix.block.SparseBlock])">mpiGatherSize</a></strong>(x10.array.DistArray&lt;<a href="../../../x10/matrix/block/SparseBlock.html" title="class in x10.matrix.block">SparseBlock</a>&gt;&nbsp;src)</code>
-<div class="block"><B>Declaration:</B> <TT>mpiGatherSize(src:x10.array.DistArray[x10.matrix.block.SparseBlock]{self.dist.region.rank==1}): x10.array.Array[x10.lang.Int]{self.rank==1}.</TT>
+<td class="colFirst"><code>protected static x10.regionarray.Array&lt;x10.lang.Int&gt;</code></td>
+<td class="colLast"><code><strong><a href="../../../x10/matrix/comm/MatrixGather.html#mpiGatherSize(x10.regionarray.DistArray[x10.matrix.block.SparseBlock])">mpiGatherSize</a></strong>(x10.regionarray.DistArray&lt;<a href="../../../x10/matrix/block/SparseBlock.html" title="class in x10.matrix.block">SparseBlock</a>&gt;&nbsp;src)</code>
+<div class="block"><B>Declaration:</B> <TT>mpiGatherSize(src:x10.regionarray.DistArray[x10.matrix.block.SparseBlock]{self.dist.region.rank==1}): x10.regionarray.Array[x10.lang.Int]{self.rank==1}.</TT>
 </div>
 </td>
 </tr>
 <tr class="rowColor">
 <td class="colFirst"><code>static void</code></td>
-<td class="colLast"><code><strong><a href="../../../x10/matrix/comm/MatrixGather.html#gatherRowBs(x10.matrix.block.Grid,x10.array.DistArray[x10.matrix.block.SparseBlock],x10.matrix.sparse.SparseCSC)">gatherRowBs</a></strong>(<a href="../../../x10/matrix/block/Grid.html" title="class in x10.matrix.block">Grid</a>&nbsp;gp,
-           x10.array.DistArray&lt;<a href="../../../x10/matrix/block/SparseBlock.html" title="class in x10.matrix.block">SparseBlock</a>&gt;&nbsp;src,
+<td class="colLast"><code><strong><a href="../../../x10/matrix/comm/MatrixGather.html#gatherRowBs(x10.matrix.block.Grid,x10.regionarray.DistArray[x10.matrix.block.SparseBlock],x10.matrix.sparse.SparseCSC)">gatherRowBs</a></strong>(<a href="../../../x10/matrix/block/Grid.html" title="class in x10.matrix.block">Grid</a>&nbsp;gp,
+           x10.regionarray.DistArray&lt;<a href="../../../x10/matrix/block/SparseBlock.html" title="class in x10.matrix.block">SparseBlock</a>&gt;&nbsp;src,
            <a href="../../../x10/matrix/sparse/SparseCSC.html" title="class in x10.matrix.sparse">SparseCSC</a>&nbsp;dst)</code>
-<div class="block"><B>Declaration:</B> <TT>gatherRowBs(gp:x10.matrix.block.Grid,src:x10.array.DistArray[x10.matrix.block.SparseBlock]{self.dist.region.rank==1},dst:x10.matrix.sparse.SparseCSC): void.</TT>
+<div class="block"><B>Declaration:</B> <TT>gatherRowBs(gp:x10.matrix.block.Grid,src:x10.regionarray.DistArray[x10.matrix.block.SparseBlock]{self.dist.region.rank==1},dst:x10.matrix.sparse.SparseCSC): void.</TT>
 Gather single-row partitioning blocks in all places to a
 dense matrix at here</div>
 </td>
 </tr>
 <tr class="altColor">
 <td class="colFirst"><code>protected static void</code></td>
-<td class="colLast"><code><strong><a href="../../../x10/matrix/comm/MatrixGather.html#mpiGatherRowBs(x10.matrix.block.Grid,x10.array.DistArray[x10.matrix.block.SparseBlock],x10.matrix.sparse.SparseCSC)">mpiGatherRowBs</a></strong>(<a href="../../../x10/matrix/block/Grid.html" title="class in x10.matrix.block">Grid</a>&nbsp;gp,
-              x10.array.DistArray&lt;<a href="../../../x10/matrix/block/SparseBlock.html" title="class in x10.matrix.block">SparseBlock</a>&gt;&nbsp;src,
+<td class="colLast"><code><strong><a href="../../../x10/matrix/comm/MatrixGather.html#mpiGatherRowBs(x10.matrix.block.Grid,x10.regionarray.DistArray[x10.matrix.block.SparseBlock],x10.matrix.sparse.SparseCSC)">mpiGatherRowBs</a></strong>(<a href="../../../x10/matrix/block/Grid.html" title="class in x10.matrix.block">Grid</a>&nbsp;gp,
+              x10.regionarray.DistArray&lt;<a href="../../../x10/matrix/block/SparseBlock.html" title="class in x10.matrix.block">SparseBlock</a>&gt;&nbsp;src,
               <a href="../../../x10/matrix/sparse/SparseCSC.html" title="class in x10.matrix.sparse">SparseCSC</a>&nbsp;dst)</code>
-<div class="block"><B>Declaration:</B> <TT>mpiGatherRowBs(gp:x10.matrix.block.Grid,src:x10.array.DistArray[x10.matrix.block.SparseBlock]{self.dist.region.rank==1},dst:x10.matrix.sparse.SparseCSC): void.</TT>
+<div class="block"><B>Declaration:</B> <TT>mpiGatherRowBs(gp:x10.matrix.block.Grid,src:x10.regionarray.DistArray[x10.matrix.block.SparseBlock]{self.dist.region.rank==1},dst:x10.matrix.sparse.SparseCSC): void.</TT>
 </div>
 </td>
 </tr>
 <tr class="rowColor">
 <td class="colFirst"><code>protected static void</code></td>
-<td class="colLast"><code><strong><a href="../../../x10/matrix/comm/MatrixGather.html#x10GatherRowBs(x10.matrix.block.Grid,x10.array.DistArray[x10.matrix.block.SparseBlock],x10.matrix.sparse.SparseCSC)">x10GatherRowBs</a></strong>(<a href="../../../x10/matrix/block/Grid.html" title="class in x10.matrix.block">Grid</a>&nbsp;gp,
-              x10.array.DistArray&lt;<a href="../../../x10/matrix/block/SparseBlock.html" title="class in x10.matrix.block">SparseBlock</a>&gt;&nbsp;src,
+<td class="colLast"><code><strong><a href="../../../x10/matrix/comm/MatrixGather.html#x10GatherRowBs(x10.matrix.block.Grid,x10.regionarray.DistArray[x10.matrix.block.SparseBlock],x10.matrix.sparse.SparseCSC)">x10GatherRowBs</a></strong>(<a href="../../../x10/matrix/block/Grid.html" title="class in x10.matrix.block">Grid</a>&nbsp;gp,
+              x10.regionarray.DistArray&lt;<a href="../../../x10/matrix/block/SparseBlock.html" title="class in x10.matrix.block">SparseBlock</a>&gt;&nbsp;src,
               <a href="../../../x10/matrix/sparse/SparseCSC.html" title="class in x10.matrix.sparse">SparseCSC</a>&nbsp;dstspa)</code>
-<div class="block"><B>Declaration:</B> <TT>x10GatherRowBs(gp:x10.matrix.block.Grid,src:x10.array.DistArray[x10.matrix.block.SparseBlock]{self.dist.region.rank==1},dstspa:x10.matrix.sparse.SparseCSC): void.</TT>
+<div class="block"><B>Declaration:</B> <TT>x10GatherRowBs(gp:x10.matrix.block.Grid,src:x10.regionarray.DistArray[x10.matrix.block.SparseBlock]{self.dist.region.rank==1},dstspa:x10.matrix.sparse.SparseCSC): void.</TT>
 Gather blocks in row-wise.</div>
 </td>
 </tr>
@@ -277,7 +277,7 @@ This class provide gather communication for distributed matrix.</div>
 <!--   -->
 </a>
 <h3>Methods inherited from class&nbsp;x10.matrix.comm.<a href="../../../x10/matrix/comm/MatrixRemoteCopy.html" title="class in x10.matrix.comm">MatrixRemoteCopy</a></h3>
-<code><a href="../../../x10/matrix/comm/MatrixRemoteCopy.html#copyTo(x10.array.DistArray[x10.matrix.DenseMatrix],x10.lang.Int)">copyTo</a>, <a href="../../../x10/matrix/comm/MatrixRemoteCopy.html#copyFrom(x10.array.DistArray[x10.matrix.DenseMatrix],x10.lang.Int)">copyFrom</a>, <a href="../../../x10/matrix/comm/MatrixRemoteCopy.html#copy(x10.matrix.DenseMatrix,x10.lang.Int,x10.array.DistArray[x10.matrix.DenseMatrix],x10.lang.Int,x10.lang.Int,x10.lang.Int)">copy</a>, <a href="../../../x10/matrix/comm/MatrixRemoteCopy.html#mpiCopy(x10.matrix.DenseMatrix,x10.lang.Int,x10.array.DistArray[x10.matrix.DenseMatrix],x10.lang.Int,x10.lang.Int,x10.lang.Int)">mpiCopy</a>, <a href="../../../x10/matrix/comm/MatrixRemoteCopy.html#x10Copy(x10.matrix.DenseMatrix,x10.lang.Int,x10.array.DistArray[x10.matrix.DenseMatrix],x10.lang.Int,x10.lang.Int,x10.lang.Int)">x10Copy</a>, <a href="../../../x10/matrix/comm/MatrixRemoteCopy.html#copy(x10.array.DistArray[x10.matrix.DenseMatrix],x10.lang.Int,x10.lang.Int,x10.matrix.DenseMatrix,x10.lang.Int,x10.lang.Int)">copy</a>, <a href="../../../x10/matrix/comm/MatrixRemoteCopy.html#x10Copy(x10.array.DistArray[x10.matrix.DenseMatrix],x10.lang.Int,x10.lang.Int,x10.matrix.DenseMatrix,x10.lang.Int,x10.lang.Int)">x10Copy</a>, <a href="../../../x10/matrix/comm/MatrixRemoteCopy.html#mpiCopy(x10.array.DistArray[x10.matrix.DenseMatrix],x10.lang.Int,x10.lang.Int,x10.matrix.DenseMatrix,x10.lang.Int,x10.lang.Int)">mpiCopy</a>, <a href="../../../x10/matrix/comm/MatrixRemoteCopy.html#copy(x10.matrix.DenseMatrix,x10.lang.Int,x10.array.DistArray[x10.matrix.block.DenseBlock],x10.lang.Int,x10.lang.Int,x10.lang.Int)">copy</a>, <a href="../../../x10/matrix/comm/MatrixRemoteCopy.html#mpiCopy(x10.matrix.DenseMatrix,x10.lang.Int,x10.array.DistArray[x10.matrix.block.DenseBlock],x10.lang.Int,x10.lang.Int,x10.lang.Int)">mpiCopy</a>, <a href="../../../x10/matrix/comm/MatrixRemoteCopy.html#x10Copy(x10.matrix.DenseMatrix,x10.lang.Int,x10.array.DistArray[x10.matrix.block.DenseBlock],x10.lang.Int,x10.lang.Int,x10.lang.Int)">x10Copy</a>, <a href="../../../x10/matrix/comm/MatrixRemoteCopy.html#copy(x10.array.DistArray[x10.matrix.block.DenseBlock],x10.lang.Int,x10.lang.Int,x10.matrix.DenseMatrix,x10.lang.Int,x10.lang.Int)">copy</a>, <a href="../../../x10/matrix/comm/MatrixRemoteCopy.html#mpiCopy(x10.array.DistArray[x10.matrix.block.DenseBlock],x10.lang.Int,x10.lang.Int,x10.matrix.DenseMatrix,x10.lang.Int,x10.lang.Int)">mpiCopy</a>, <a href="../../../x10/matrix/comm/MatrixRemoteCopy.html#x10Copy(x10.array.DistArray[x10.matrix.block.DenseBlock],x10.lang.Int,x10.lang.Int,x10.matrix.DenseMatrix,x10.lang.Int,x10.lang.Int)">x10Copy</a>, <a href="../../../x10/matrix/comm/MatrixRemoteCopy.html#copyTo(x10.array.DistArray[x10.matrix.sparse.SparseCSC],x10.lang.Int)">copyTo</a>, <a href="../../../x10/matrix/comm/MatrixRemoteCopy.html#copyFrom(x10.array.DistArray[x10.matrix.sparse.SparseCSC],x10.lang.Int)">copyFrom</a>, <a href="../../../x10/matrix/comm/MatrixRemoteCopy.html#copy(x10.matrix.sparse.SparseCSC,x10.lang.Int,x10.array.DistArray[x10.matrix.sparse.SparseCSC],x10.lang.Int,x10.lang.Int,x10.lang.Int)">copy</a>, <a href="../../../x10/matrix/comm/MatrixRemoteCopy.html#mpiCopy(x10.matrix.sparse.SparseCSC,x10.lang.Int,x10.array.DistArray[x10.matrix.sparse.SparseCSC],x10.lang.Int,x10.lang.Int,x10.lang.Int)">mpiCopy</a>, <a href="../../../x10/matrix/comm/MatrixRemoteCopy.html#x10Copy(x10.matrix.sparse.SparseCSC,x10.lang.Int,x10.array.DistArray[x10.matrix.sparse.SparseCSC],x10.lang.Int,x10.lang.Int,x10.lang.Int)">x10Copy</a>, <a href="../../../x10/matrix/comm/MatrixRemoteCopy.html#copy(x10.array.DistArray[x10.matrix.sparse.SparseCSC],x10.lang.Int,x10.lang.Int,x10.matrix.sparse.SparseCSC,x10.lang.Int,x10.lang.Int)">copy</a>, <a href="../../../x10/matrix/comm/MatrixRemoteCopy.html#mpiCopy(x10.array.DistArray[x10.matrix.sparse.SparseCSC],x10.lang.Int,x10.lang.Int,x10.matrix.sparse.SparseCSC,x10.lang.Int,x10.lang.Int)">mpiCopy</a>, <a href="../../../x10/matrix/comm/MatrixRemoteCopy.html#x10Copy(x10.array.DistArray[x10.matrix.sparse.SparseCSC],x10.lang.Int,x10.lang.Int,x10.matrix.sparse.SparseCSC,x10.lang.Int,x10.lang.Int)">x10Copy</a>, <a href="../../../x10/matrix/comm/MatrixRemoteCopy.html#copy(x10.matrix.sparse.SparseCSC,x10.lang.Int,x10.array.DistArray[x10.matrix.block.SparseBlock],x10.lang.Int,x10.lang.Int,x10.lang.Int)">copy</a>, <a href="../../../x10/matrix/comm/MatrixRemoteCopy.html#mpiCopy(x10.matrix.sparse.SparseCSC,x10.lang.Int,x10.array.DistArray[x10.matrix.block.SparseBlock],x10.lang.Int,x10.lang.Int,x10.lang.Int)">mpiCopy</a>, <a href="../../../x10/matrix/comm/MatrixRemoteCopy.html#x10Copy(x10.matrix.sparse.SparseCSC,x10.lang.Int,x10.array.DistArray[x10.matrix.block.SparseBlock],x10.lang.Int,x10.lang.Int,x10.lang.Int)">x10Copy</a>, <a href="../../../x10/matrix/comm/MatrixRemoteCopy.html#copy(x10.array.DistArray[x10.matrix.block.SparseBlock],x10.lang.Int,x10.lang.Int,x10.matrix.sparse.SparseCSC,x10.lang.Int,x10.lang.Int)">copy</a>, <a href="../../../x10/matrix/comm/MatrixRemoteCopy.html#mpiCopy(x10.array.DistArray[x10.matrix.block.SparseBlock],x10.lang.Int,x10.lang.Int,x10.matrix.sparse.SparseCSC,x10.lang.Int,x10.lang.Int)">mpiCopy</a>, <a href="../../../x10/matrix/comm/MatrixRemoteCopy.html#x10Copy(x10.array.DistArray[x10.matrix.block.SparseBlock],x10.lang.Int,x10.lang.Int,x10.matrix.sparse.SparseCSC,x10.lang.Int,x10.lang.Int)">x10Copy</a>, <a href="../../../x10/matrix/comm/MatrixRemoteCopy.html#copy(x10.array.Array[x10.lang.Double],x10.lang.Int,x10.array.DistArray[x10.matrix.DenseMatrix],x10.lang.Int,x10.lang.Int,x10.lang.Int)">copy</a>, <a href="../../../x10/matrix/comm/MatrixRemoteCopy.html#mpiCopy(x10.array.Array[x10.lang.Double],x10.lang.Int,x10.array.DistArray[x10.matrix.DenseMatrix],x10.lang.Int,x10.lang.Int,x10.lang.Int)">mpiCopy</a>, <a href="../../../x10/matrix/comm/MatrixRemoteCopy.html#x10Copy(x10.array.Array[x10.lang.Double],x10.lang.Int,x10.array.DistArray[x10.matrix.DenseMatrix],x10.lang.Int,x10.lang.Int,x10.lang.Int)">x10Copy</a>, <a href="../../../x10/matrix/comm/MatrixRemoteCopy.html#copy(x10.array.DistArray[x10.matrix.DenseMatrix],x10.lang.Int,x10.lang.Int,x10.array.Array[x10.lang.Double],x10.lang.Int,x10.lang.Int)">copy</a>, <a href="../../../x10/matrix/comm/MatrixRemoteCopy.html#mpiCopy(x10.array.DistArray[x10.matrix.DenseMatrix],x10.lang.Int,x10.lang.Int,x10.array.Array[x10.lang.Double],x10.lang.Int,x10.lang.Int)">mpiCopy</a>, <a href="../../../x10/matrix/comm/MatrixRemoteCopy.html#x10Copy(x10.array.DistArray[x10.matrix.DenseMatrix],x10.lang.Int,x10.lang.Int,x10.array.Array[x10.lang.Double],x10.lang.Int,x10.lang.Int)">x10Copy</a>, <a href="../../../x10/matrix/comm/MatrixRemoteCopy.html#copy(x10.array.Array[x10.lang.Double],x10.lang.Int,x10.array.DistArray[x10.matrix.block.DenseBlock],x10.lang.Int,x10.lang.Int,x10.lang.Int)">copy</a>, <a href="../../../x10/matrix/comm/MatrixRemoteCopy.html#mpiCopy(x10.array.Array[x10.lang.Double],x10.lang.Int,x10.array.DistArray[x10.matrix.block.DenseBlock],x10.lang.Int,x10.lang.Int,x10.lang.Int)">mpiCopy</a>, <a href="../../../x10/matrix/comm/MatrixRemoteCopy.html#x10Copy(x10.array.Array[x10.lang.Double],x10.lang.Int,x10.array.DistArray[x10.matrix.block.DenseBlock],x10.lang.Int,x10.lang.Int,x10.lang.Int)">x10Copy</a>, <a href="../../../x10/matrix/comm/MatrixRemoteCopy.html#copy(x10.array.DistArray[x10.matrix.block.DenseBlock],x10.lang.Int,x10.lang.Int,x10.array.Array[x10.lang.Double],x10.lang.Int,x10.lang.Int)">copy</a>, <a href="../../../x10/matrix/comm/MatrixRemoteCopy.html#mpiCopy(x10.array.DistArray[x10.matrix.block.DenseBlock],x10.lang.Int,x10.lang.Int,x10.array.Array[x10.lang.Double],x10.lang.Int,x10.lang.Int)">mpiCopy</a>, <a href="../../../x10/matrix/comm/MatrixRemoteCopy.html#x10Copy(x10.array.DistArray[x10.matrix.block.DenseBlock],x10.lang.Int,x10.lang.Int,x10.array.Array[x10.lang.Double],x10.lang.Int,x10.lang.Int)">x10Copy</a>, <a href="../../../x10/matrix/comm/MatrixRemoteCopy.html#x10$matrix$comm$MatrixRemoteCopy$$this$x10$matrix$comm$MatrixRemoteCopy()">x10$matrix$comm$MatrixRemoteCopy$$this$x10$matrix$comm$MatrixRemoteCopy</a></code></li>
+<code><a href="../../../x10/matrix/comm/MatrixRemoteCopy.html#copyTo(x10.regionarray.DistArray[x10.matrix.DenseMatrix],x10.lang.Int)">copyTo</a>, <a href="../../../x10/matrix/comm/MatrixRemoteCopy.html#copyFrom(x10.regionarray.DistArray[x10.matrix.DenseMatrix],x10.lang.Int)">copyFrom</a>, <a href="../../../x10/matrix/comm/MatrixRemoteCopy.html#copy(x10.matrix.DenseMatrix,x10.lang.Int,x10.regionarray.DistArray[x10.matrix.DenseMatrix],x10.lang.Int,x10.lang.Int,x10.lang.Int)">copy</a>, <a href="../../../x10/matrix/comm/MatrixRemoteCopy.html#mpiCopy(x10.matrix.DenseMatrix,x10.lang.Int,x10.regionarray.DistArray[x10.matrix.DenseMatrix],x10.lang.Int,x10.lang.Int,x10.lang.Int)">mpiCopy</a>, <a href="../../../x10/matrix/comm/MatrixRemoteCopy.html#x10Copy(x10.matrix.DenseMatrix,x10.lang.Int,x10.regionarray.DistArray[x10.matrix.DenseMatrix],x10.lang.Int,x10.lang.Int,x10.lang.Int)">x10Copy</a>, <a href="../../../x10/matrix/comm/MatrixRemoteCopy.html#copy(x10.regionarray.DistArray[x10.matrix.DenseMatrix],x10.lang.Int,x10.lang.Int,x10.matrix.DenseMatrix,x10.lang.Int,x10.lang.Int)">copy</a>, <a href="../../../x10/matrix/comm/MatrixRemoteCopy.html#x10Copy(x10.regionarray.DistArray[x10.matrix.DenseMatrix],x10.lang.Int,x10.lang.Int,x10.matrix.DenseMatrix,x10.lang.Int,x10.lang.Int)">x10Copy</a>, <a href="../../../x10/matrix/comm/MatrixRemoteCopy.html#mpiCopy(x10.regionarray.DistArray[x10.matrix.DenseMatrix],x10.lang.Int,x10.lang.Int,x10.matrix.DenseMatrix,x10.lang.Int,x10.lang.Int)">mpiCopy</a>, <a href="../../../x10/matrix/comm/MatrixRemoteCopy.html#copy(x10.matrix.DenseMatrix,x10.lang.Int,x10.regionarray.DistArray[x10.matrix.block.DenseBlock],x10.lang.Int,x10.lang.Int,x10.lang.Int)">copy</a>, <a href="../../../x10/matrix/comm/MatrixRemoteCopy.html#mpiCopy(x10.matrix.DenseMatrix,x10.lang.Int,x10.regionarray.DistArray[x10.matrix.block.DenseBlock],x10.lang.Int,x10.lang.Int,x10.lang.Int)">mpiCopy</a>, <a href="../../../x10/matrix/comm/MatrixRemoteCopy.html#x10Copy(x10.matrix.DenseMatrix,x10.lang.Int,x10.regionarray.DistArray[x10.matrix.block.DenseBlock],x10.lang.Int,x10.lang.Int,x10.lang.Int)">x10Copy</a>, <a href="../../../x10/matrix/comm/MatrixRemoteCopy.html#copy(x10.regionarray.DistArray[x10.matrix.block.DenseBlock],x10.lang.Int,x10.lang.Int,x10.matrix.DenseMatrix,x10.lang.Int,x10.lang.Int)">copy</a>, <a href="../../../x10/matrix/comm/MatrixRemoteCopy.html#mpiCopy(x10.regionarray.DistArray[x10.matrix.block.DenseBlock],x10.lang.Int,x10.lang.Int,x10.matrix.DenseMatrix,x10.lang.Int,x10.lang.Int)">mpiCopy</a>, <a href="../../../x10/matrix/comm/MatrixRemoteCopy.html#x10Copy(x10.regionarray.DistArray[x10.matrix.block.DenseBlock],x10.lang.Int,x10.lang.Int,x10.matrix.DenseMatrix,x10.lang.Int,x10.lang.Int)">x10Copy</a>, <a href="../../../x10/matrix/comm/MatrixRemoteCopy.html#copyTo(x10.regionarray.DistArray[x10.matrix.sparse.SparseCSC],x10.lang.Int)">copyTo</a>, <a href="../../../x10/matrix/comm/MatrixRemoteCopy.html#copyFrom(x10.regionarray.DistArray[x10.matrix.sparse.SparseCSC],x10.lang.Int)">copyFrom</a>, <a href="../../../x10/matrix/comm/MatrixRemoteCopy.html#copy(x10.matrix.sparse.SparseCSC,x10.lang.Int,x10.regionarray.DistArray[x10.matrix.sparse.SparseCSC],x10.lang.Int,x10.lang.Int,x10.lang.Int)">copy</a>, <a href="../../../x10/matrix/comm/MatrixRemoteCopy.html#mpiCopy(x10.matrix.sparse.SparseCSC,x10.lang.Int,x10.regionarray.DistArray[x10.matrix.sparse.SparseCSC],x10.lang.Int,x10.lang.Int,x10.lang.Int)">mpiCopy</a>, <a href="../../../x10/matrix/comm/MatrixRemoteCopy.html#x10Copy(x10.matrix.sparse.SparseCSC,x10.lang.Int,x10.regionarray.DistArray[x10.matrix.sparse.SparseCSC],x10.lang.Int,x10.lang.Int,x10.lang.Int)">x10Copy</a>, <a href="../../../x10/matrix/comm/MatrixRemoteCopy.html#copy(x10.regionarray.DistArray[x10.matrix.sparse.SparseCSC],x10.lang.Int,x10.lang.Int,x10.matrix.sparse.SparseCSC,x10.lang.Int,x10.lang.Int)">copy</a>, <a href="../../../x10/matrix/comm/MatrixRemoteCopy.html#mpiCopy(x10.regionarray.DistArray[x10.matrix.sparse.SparseCSC],x10.lang.Int,x10.lang.Int,x10.matrix.sparse.SparseCSC,x10.lang.Int,x10.lang.Int)">mpiCopy</a>, <a href="../../../x10/matrix/comm/MatrixRemoteCopy.html#x10Copy(x10.regionarray.DistArray[x10.matrix.sparse.SparseCSC],x10.lang.Int,x10.lang.Int,x10.matrix.sparse.SparseCSC,x10.lang.Int,x10.lang.Int)">x10Copy</a>, <a href="../../../x10/matrix/comm/MatrixRemoteCopy.html#copy(x10.matrix.sparse.SparseCSC,x10.lang.Int,x10.regionarray.DistArray[x10.matrix.block.SparseBlock],x10.lang.Int,x10.lang.Int,x10.lang.Int)">copy</a>, <a href="../../../x10/matrix/comm/MatrixRemoteCopy.html#mpiCopy(x10.matrix.sparse.SparseCSC,x10.lang.Int,x10.regionarray.DistArray[x10.matrix.block.SparseBlock],x10.lang.Int,x10.lang.Int,x10.lang.Int)">mpiCopy</a>, <a href="../../../x10/matrix/comm/MatrixRemoteCopy.html#x10Copy(x10.matrix.sparse.SparseCSC,x10.lang.Int,x10.regionarray.DistArray[x10.matrix.block.SparseBlock],x10.lang.Int,x10.lang.Int,x10.lang.Int)">x10Copy</a>, <a href="../../../x10/matrix/comm/MatrixRemoteCopy.html#copy(x10.regionarray.DistArray[x10.matrix.block.SparseBlock],x10.lang.Int,x10.lang.Int,x10.matrix.sparse.SparseCSC,x10.lang.Int,x10.lang.Int)">copy</a>, <a href="../../../x10/matrix/comm/MatrixRemoteCopy.html#mpiCopy(x10.regionarray.DistArray[x10.matrix.block.SparseBlock],x10.lang.Int,x10.lang.Int,x10.matrix.sparse.SparseCSC,x10.lang.Int,x10.lang.Int)">mpiCopy</a>, <a href="../../../x10/matrix/comm/MatrixRemoteCopy.html#x10Copy(x10.regionarray.DistArray[x10.matrix.block.SparseBlock],x10.lang.Int,x10.lang.Int,x10.matrix.sparse.SparseCSC,x10.lang.Int,x10.lang.Int)">x10Copy</a>, <a href="../../../x10/matrix/comm/MatrixRemoteCopy.html#copy(x10.regionarray.Array[x10.lang.Double],x10.lang.Int,x10.regionarray.DistArray[x10.matrix.DenseMatrix],x10.lang.Int,x10.lang.Int,x10.lang.Int)">copy</a>, <a href="../../../x10/matrix/comm/MatrixRemoteCopy.html#mpiCopy(x10.regionarray.Array[x10.lang.Double],x10.lang.Int,x10.regionarray.DistArray[x10.matrix.DenseMatrix],x10.lang.Int,x10.lang.Int,x10.lang.Int)">mpiCopy</a>, <a href="../../../x10/matrix/comm/MatrixRemoteCopy.html#x10Copy(x10.regionarray.Array[x10.lang.Double],x10.lang.Int,x10.regionarray.DistArray[x10.matrix.DenseMatrix],x10.lang.Int,x10.lang.Int,x10.lang.Int)">x10Copy</a>, <a href="../../../x10/matrix/comm/MatrixRemoteCopy.html#copy(x10.regionarray.DistArray[x10.matrix.DenseMatrix],x10.lang.Int,x10.lang.Int,x10.regionarray.Array[x10.lang.Double],x10.lang.Int,x10.lang.Int)">copy</a>, <a href="../../../x10/matrix/comm/MatrixRemoteCopy.html#mpiCopy(x10.regionarray.DistArray[x10.matrix.DenseMatrix],x10.lang.Int,x10.lang.Int,x10.regionarray.Array[x10.lang.Double],x10.lang.Int,x10.lang.Int)">mpiCopy</a>, <a href="../../../x10/matrix/comm/MatrixRemoteCopy.html#x10Copy(x10.regionarray.DistArray[x10.matrix.DenseMatrix],x10.lang.Int,x10.lang.Int,x10.regionarray.Array[x10.lang.Double],x10.lang.Int,x10.lang.Int)">x10Copy</a>, <a href="../../../x10/matrix/comm/MatrixRemoteCopy.html#copy(x10.regionarray.Array[x10.lang.Double],x10.lang.Int,x10.regionarray.DistArray[x10.matrix.block.DenseBlock],x10.lang.Int,x10.lang.Int,x10.lang.Int)">copy</a>, <a href="../../../x10/matrix/comm/MatrixRemoteCopy.html#mpiCopy(x10.regionarray.Array[x10.lang.Double],x10.lang.Int,x10.regionarray.DistArray[x10.matrix.block.DenseBlock],x10.lang.Int,x10.lang.Int,x10.lang.Int)">mpiCopy</a>, <a href="../../../x10/matrix/comm/MatrixRemoteCopy.html#x10Copy(x10.regionarray.Array[x10.lang.Double],x10.lang.Int,x10.regionarray.DistArray[x10.matrix.block.DenseBlock],x10.lang.Int,x10.lang.Int,x10.lang.Int)">x10Copy</a>, <a href="../../../x10/matrix/comm/MatrixRemoteCopy.html#copy(x10.regionarray.DistArray[x10.matrix.block.DenseBlock],x10.lang.Int,x10.lang.Int,x10.regionarray.Array[x10.lang.Double],x10.lang.Int,x10.lang.Int)">copy</a>, <a href="../../../x10/matrix/comm/MatrixRemoteCopy.html#mpiCopy(x10.regionarray.DistArray[x10.matrix.block.DenseBlock],x10.lang.Int,x10.lang.Int,x10.regionarray.Array[x10.lang.Double],x10.lang.Int,x10.lang.Int)">mpiCopy</a>, <a href="../../../x10/matrix/comm/MatrixRemoteCopy.html#x10Copy(x10.regionarray.DistArray[x10.matrix.block.DenseBlock],x10.lang.Int,x10.lang.Int,x10.regionarray.Array[x10.lang.Double],x10.lang.Int,x10.lang.Int)">x10Copy</a>, <a href="../../../x10/matrix/comm/MatrixRemoteCopy.html#x10$matrix$comm$MatrixRemoteCopy$$this$x10$matrix$comm$MatrixRemoteCopy()">x10$matrix$comm$MatrixRemoteCopy$$this$x10$matrix$comm$MatrixRemoteCopy</a></code></li>
 </ul>
 </li>
 </ul>
@@ -310,165 +310,165 @@ This class provide gather communication for distributed matrix.</div>
 <!--   -->
 </a>
 <h3>Method Detail</h3>
-<a name="gather(x10.array.DistArray[x10.matrix.block.DenseBlock],x10.array.Array[x10.matrix.block.DenseBlock])">
+<a name="gather(x10.regionarray.DistArray[x10.matrix.block.DenseBlock],x10.regionarray.Array[x10.matrix.block.DenseBlock])">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
 <h4>gather</h4>
-<pre>public static&nbsp;void&nbsp;gather(x10.array.DistArray&lt;<a href="../../../x10/matrix/block/DenseBlock.html" title="class in x10.matrix.block">DenseBlock</a>&gt;&nbsp;src,
-          x10.array.Array&lt;<a href="../../../x10/matrix/block/DenseBlock.html" title="class in x10.matrix.block">DenseBlock</a>&gt;&nbsp;dst)</pre>
-<div class="block"><B>Declaration:</B> <TT>gather(src:x10.array.DistArray[x10.matrix.block.DenseBlock]{self.dist.region.rank==1},dst:x10.array.Array[x10.matrix.block.DenseBlock]{self.rank==1}): void.</TT><PRE>
+<pre>public static&nbsp;void&nbsp;gather(x10.regionarray.DistArray&lt;<a href="../../../x10/matrix/block/DenseBlock.html" title="class in x10.matrix.block">DenseBlock</a>&gt;&nbsp;src,
+          x10.regionarray.Array&lt;<a href="../../../x10/matrix/block/DenseBlock.html" title="class in x10.matrix.block">DenseBlock</a>&gt;&nbsp;dst)</pre>
+<div class="block"><B>Declaration:</B> <TT>gather(src:x10.regionarray.DistArray[x10.matrix.block.DenseBlock]{self.dist.region.rank==1},dst:x10.regionarray.Array[x10.matrix.block.DenseBlock]{self.rank==1}): void.</TT><PRE>
 </PRE>Gather data from distributed matrix blocks in all places to the dense blcok matrix
 at here.</div>
 <dl><dt><span class="strong">Parameters:</span></dt><dd><code>src</code> - source distributed matrix blocks</dd><dd><code>dst</code> - target matrix block array</dd></dl>
 </li>
 </ul>
-<a name="gatherRowBs(x10.matrix.block.Grid,x10.array.DistArray[x10.matrix.block.DenseBlock],x10.matrix.DenseMatrix)">
+<a name="gatherRowBs(x10.matrix.block.Grid,x10.regionarray.DistArray[x10.matrix.block.DenseBlock],x10.matrix.DenseMatrix)">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
 <h4>gatherRowBs</h4>
 <pre>public static&nbsp;void&nbsp;gatherRowBs(<a href="../../../x10/matrix/block/Grid.html" title="class in x10.matrix.block">Grid</a>&nbsp;gp,
-               x10.array.DistArray&lt;<a href="../../../x10/matrix/block/DenseBlock.html" title="class in x10.matrix.block">DenseBlock</a>&gt;&nbsp;src,
+               x10.regionarray.DistArray&lt;<a href="../../../x10/matrix/block/DenseBlock.html" title="class in x10.matrix.block">DenseBlock</a>&gt;&nbsp;src,
                <a href="../../../x10/matrix/DenseMatrix.html" title="class in x10.matrix">DenseMatrix</a>&nbsp;dst)</pre>
-<div class="block"><B>Declaration:</B> <TT>gatherRowBs(gp:x10.matrix.block.Grid,src:x10.array.DistArray[x10.matrix.block.DenseBlock]{self.dist.region.rank==1},dst:x10.matrix.DenseMatrix): void.</TT><PRE>
+<div class="block"><B>Declaration:</B> <TT>gatherRowBs(gp:x10.matrix.block.Grid,src:x10.regionarray.DistArray[x10.matrix.block.DenseBlock]{self.dist.region.rank==1},dst:x10.matrix.DenseMatrix): void.</TT><PRE>
 </PRE>Gather single-row partitioning blocks in all places to a
 dense matrix at here</div>
 </li>
 </ul>
-<a name="mpiGatherRowBs(x10.matrix.block.Grid,x10.array.DistArray[x10.matrix.block.DenseBlock],x10.matrix.DenseMatrix)">
+<a name="mpiGatherRowBs(x10.matrix.block.Grid,x10.regionarray.DistArray[x10.matrix.block.DenseBlock],x10.matrix.DenseMatrix)">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
 <h4>mpiGatherRowBs</h4>
 <pre>public static&nbsp;void&nbsp;mpiGatherRowBs(<a href="../../../x10/matrix/block/Grid.html" title="class in x10.matrix.block">Grid</a>&nbsp;gp,
-                  x10.array.DistArray&lt;<a href="../../../x10/matrix/block/DenseBlock.html" title="class in x10.matrix.block">DenseBlock</a>&gt;&nbsp;src,
+                  x10.regionarray.DistArray&lt;<a href="../../../x10/matrix/block/DenseBlock.html" title="class in x10.matrix.block">DenseBlock</a>&gt;&nbsp;src,
                   <a href="../../../x10/matrix/DenseMatrix.html" title="class in x10.matrix">DenseMatrix</a>&nbsp;dstden)</pre>
-<div class="block"><B>Declaration:</B> <TT>mpiGatherRowBs(gp:x10.matrix.block.Grid,src:x10.array.DistArray[x10.matrix.block.DenseBlock]{self.dist.region.rank==1},dstden:x10.matrix.DenseMatrix): void.</TT><PRE>
+<div class="block"><B>Declaration:</B> <TT>mpiGatherRowBs(gp:x10.matrix.block.Grid,src:x10.regionarray.DistArray[x10.matrix.block.DenseBlock]{self.dist.region.rank==1},dstden:x10.matrix.DenseMatrix): void.</TT><PRE>
 </PRE>Gather matrix block from all places to dense matrix at haere
 by calling mpi gather routine.</div>
 <dl><dt><span class="strong">Parameters:</span></dt><dd><code>gp</code> - single row block partitioning</dd><dd><code>src</code> - source distributed blocks dense matrix</dd><dd><code>dstden</code> - target dense matrix at here</dd></dl>
 </li>
 </ul>
-<a name="mpiGatherVector(x10.matrix.block.Grid,x10.array.DistArray[x10.matrix.block.DenseBlock],x10.array.Array[x10.lang.Double])">
+<a name="mpiGatherVector(x10.matrix.block.Grid,x10.regionarray.DistArray[x10.matrix.block.DenseBlock],x10.regionarray.Array[x10.lang.Double])">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
 <h4>mpiGatherVector</h4>
 <pre>public static&nbsp;void&nbsp;mpiGatherVector(<a href="../../../x10/matrix/block/Grid.html" title="type parameter in Grid">Grid</a>&nbsp;gp,
-                   x10.array.DistArray&lt;<a href="../../../x10/matrix/block/DenseBlock.html" title="class in x10.matrix.block">DenseBlock</a>&gt;&nbsp;src,
-                   x10.array.Array&lt;x10.lang.Double&gt;&nbsp;dst)</pre>
-<div class="block"><B>Declaration:</B> <TT>mpiGatherVector(gp:x10.matrix.block.Grid{self.N==1},src:x10.array.DistArray[x10.matrix.block.DenseBlock]{self.dist.region.rank==1},dst:x10.array.Array[x10.lang.Double]{self.rank==1}): void.</TT><PRE>
+                   x10.regionarray.DistArray&lt;<a href="../../../x10/matrix/block/DenseBlock.html" title="class in x10.matrix.block">DenseBlock</a>&gt;&nbsp;src,
+                   x10.regionarray.Array&lt;x10.lang.Double&gt;&nbsp;dst)</pre>
+<div class="block"><B>Declaration:</B> <TT>mpiGatherVector(gp:x10.matrix.block.Grid{self.N==1},src:x10.regionarray.DistArray[x10.matrix.block.DenseBlock]{self.dist.region.rank==1},dst:x10.regionarray.Array[x10.lang.Double]{self.rank==1}): void.</TT><PRE>
 </PRE>Gather vector from distributed dense matrix (column=1)</div>
 </li>
 </ul>
-<a name="x10GatherRowBs_copyto(x10.matrix.block.Grid,x10.array.DistArray[x10.matrix.block.DenseBlock],x10.matrix.DenseMatrix)">
+<a name="x10GatherRowBs_copyto(x10.matrix.block.Grid,x10.regionarray.DistArray[x10.matrix.block.DenseBlock],x10.matrix.DenseMatrix)">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
 <h4>x10GatherRowBs_copyto</h4>
 <pre>protected static&nbsp;void&nbsp;x10GatherRowBs_copyto(<a href="../../../x10/matrix/block/Grid.html" title="class in x10.matrix.block">Grid</a>&nbsp;gp,
-                         x10.array.DistArray&lt;<a href="../../../x10/matrix/block/DenseBlock.html" title="class in x10.matrix.block">DenseBlock</a>&gt;&nbsp;src,
+                         x10.regionarray.DistArray&lt;<a href="../../../x10/matrix/block/DenseBlock.html" title="class in x10.matrix.block">DenseBlock</a>&gt;&nbsp;src,
                          <a href="../../../x10/matrix/DenseMatrix.html" title="class in x10.matrix">DenseMatrix</a>&nbsp;dstden)</pre>
-<div class="block"><B>Declaration:</B> <TT>x10GatherRowBs_copyto(gp:x10.matrix.block.Grid,src:x10.array.DistArray[x10.matrix.block.DenseBlock]{self.dist.region.rank==1},dstden:x10.matrix.DenseMatrix): void.</TT><PRE>
+<div class="block"><B>Declaration:</B> <TT>x10GatherRowBs_copyto(gp:x10.matrix.block.Grid,src:x10.regionarray.DistArray[x10.matrix.block.DenseBlock]{self.dist.region.rank==1},dstden:x10.matrix.DenseMatrix): void.</TT><PRE>
 </PRE>Gather blocks in row-wise.</div>
 </li>
 </ul>
-<a name="x10GatherRowBs(x10.matrix.block.Grid,x10.array.DistArray[x10.matrix.block.DenseBlock],x10.matrix.DenseMatrix)">
+<a name="x10GatherRowBs(x10.matrix.block.Grid,x10.regionarray.DistArray[x10.matrix.block.DenseBlock],x10.matrix.DenseMatrix)">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
 <h4>x10GatherRowBs</h4>
 <pre>public static&nbsp;void&nbsp;x10GatherRowBs(<a href="../../../x10/matrix/block/Grid.html" title="class in x10.matrix.block">Grid</a>&nbsp;gp,
-                  x10.array.DistArray&lt;<a href="../../../x10/matrix/block/DenseBlock.html" title="class in x10.matrix.block">DenseBlock</a>&gt;&nbsp;src,
+                  x10.regionarray.DistArray&lt;<a href="../../../x10/matrix/block/DenseBlock.html" title="class in x10.matrix.block">DenseBlock</a>&gt;&nbsp;src,
                   <a href="../../../x10/matrix/DenseMatrix.html" title="class in x10.matrix">DenseMatrix</a>&nbsp;dstden)</pre>
-<div class="block"><B>Declaration:</B> <TT>x10GatherRowBs(gp:x10.matrix.block.Grid,src:x10.array.DistArray[x10.matrix.block.DenseBlock]{self.dist.region.rank==1},dstden:x10.matrix.DenseMatrix): void.</TT><PRE>
+<div class="block"><B>Declaration:</B> <TT>x10GatherRowBs(gp:x10.matrix.block.Grid,src:x10.regionarray.DistArray[x10.matrix.block.DenseBlock]{self.dist.region.rank==1},dstden:x10.matrix.DenseMatrix): void.</TT><PRE>
 </PRE>Copy distributed dense matrix blocks from all places to the dense matrix
 at here.</div>
 <dl><dt><span class="strong">Parameters:</span></dt><dd><code>gp</code> - single row block partitioning</dd><dd><code>src</code> - source matrix, distributed in all places.</dd><dd><code>dstden</code> - target dense matrix at here</dd></dl>
 </li>
 </ul>
-<a name="x10GatherVector(x10.matrix.block.Grid,x10.array.DistArray[x10.matrix.block.DenseBlock],x10.array.Array[x10.lang.Double])">
+<a name="x10GatherVector(x10.matrix.block.Grid,x10.regionarray.DistArray[x10.matrix.block.DenseBlock],x10.regionarray.Array[x10.lang.Double])">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
 <h4>x10GatherVector</h4>
 <pre>public static&nbsp;void&nbsp;x10GatherVector(<a href="../../../x10/matrix/block/Grid.html" title="type parameter in Grid">Grid</a>&nbsp;gp,
-                   x10.array.DistArray&lt;<a href="../../../x10/matrix/block/DenseBlock.html" title="class in x10.matrix.block">DenseBlock</a>&gt;&nbsp;src,
-                   x10.array.Array&lt;x10.lang.Double&gt;&nbsp;dst)</pre>
-<div class="block"><B>Declaration:</B> <TT>x10GatherVector(gp:x10.matrix.block.Grid{self.N==1},src:x10.array.DistArray[x10.matrix.block.DenseBlock]{self.dist.region.rank==1},dst:x10.array.Array[x10.lang.Double]{self.rank==1}): void.</TT><PRE>
+                   x10.regionarray.DistArray&lt;<a href="../../../x10/matrix/block/DenseBlock.html" title="class in x10.matrix.block">DenseBlock</a>&gt;&nbsp;src,
+                   x10.regionarray.Array&lt;x10.lang.Double&gt;&nbsp;dst)</pre>
+<div class="block"><B>Declaration:</B> <TT>x10GatherVector(gp:x10.matrix.block.Grid{self.N==1},src:x10.regionarray.DistArray[x10.matrix.block.DenseBlock]{self.dist.region.rank==1},dst:x10.regionarray.Array[x10.lang.Double]{self.rank==1}): void.</TT><PRE>
 </PRE></div>
 </li>
 </ul>
-<a name="gather(x10.array.DistArray[x10.matrix.block.SparseBlock],x10.array.Array[x10.matrix.block.SparseBlock])">
+<a name="gather(x10.regionarray.DistArray[x10.matrix.block.SparseBlock],x10.regionarray.Array[x10.matrix.block.SparseBlock])">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
 <h4>gather</h4>
-<pre>public static&nbsp;void&nbsp;gather(x10.array.DistArray&lt;<a href="../../../x10/matrix/block/SparseBlock.html" title="class in x10.matrix.block">SparseBlock</a>&gt;&nbsp;src,
-          x10.array.Array&lt;<a href="../../../x10/matrix/block/SparseBlock.html" title="class in x10.matrix.block">SparseBlock</a>&gt;&nbsp;dst)</pre>
-<div class="block"><B>Declaration:</B> <TT>gather(src:x10.array.DistArray[x10.matrix.block.SparseBlock]{self.dist.region.rank==1},dst:x10.array.Array[x10.matrix.block.SparseBlock]{self.rank==1}): void.</TT><PRE>
+<pre>public static&nbsp;void&nbsp;gather(x10.regionarray.DistArray&lt;<a href="../../../x10/matrix/block/SparseBlock.html" title="class in x10.matrix.block">SparseBlock</a>&gt;&nbsp;src,
+          x10.regionarray.Array&lt;<a href="../../../x10/matrix/block/SparseBlock.html" title="class in x10.matrix.block">SparseBlock</a>&gt;&nbsp;dst)</pre>
+<div class="block"><B>Declaration:</B> <TT>gather(src:x10.regionarray.DistArray[x10.matrix.block.SparseBlock]{self.dist.region.rank==1},dst:x10.regionarray.Array[x10.matrix.block.SparseBlock]{self.rank==1}): void.</TT><PRE>
 </PRE>Gather data from distributed sparse matrix blocks to the sparse blcok matrix
 at here.</div>
 <dl><dt><span class="strong">Parameters:</span></dt><dd><code>src</code> - source distributed sparsematrix blocks</dd><dd><code>dst</code> - target sparse matrix block array</dd></dl>
 </li>
 </ul>
-<a name="mpiGatherSize(x10.array.DistArray[x10.matrix.block.SparseBlock])">
+<a name="mpiGatherSize(x10.regionarray.DistArray[x10.matrix.block.SparseBlock])">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
 <h4>mpiGatherSize</h4>
-<pre>protected static&nbsp;x10.array.Array&lt;x10.lang.Int&gt;&nbsp;mpiGatherSize(x10.array.DistArray&lt;<a href="../../../x10/matrix/block/SparseBlock.html" title="class in x10.matrix.block">SparseBlock</a>&gt;&nbsp;src)</pre>
-<div class="block"><B>Declaration:</B> <TT>mpiGatherSize(src:x10.array.DistArray[x10.matrix.block.SparseBlock]{self.dist.region.rank==1}): x10.array.Array[x10.lang.Int]{self.rank==1}.</TT><PRE>
+<pre>protected static&nbsp;x10.regionarray.Array&lt;x10.lang.Int&gt;&nbsp;mpiGatherSize(x10.regionarray.DistArray&lt;<a href="../../../x10/matrix/block/SparseBlock.html" title="class in x10.matrix.block">SparseBlock</a>&gt;&nbsp;src)</pre>
+<div class="block"><B>Declaration:</B> <TT>mpiGatherSize(src:x10.regionarray.DistArray[x10.matrix.block.SparseBlock]{self.dist.region.rank==1}): x10.regionarray.Array[x10.lang.Int]{self.rank==1}.</TT><PRE>
 </PRE></div>
 </li>
 </ul>
-<a name="gatherRowBs(x10.matrix.block.Grid,x10.array.DistArray[x10.matrix.block.SparseBlock],x10.matrix.sparse.SparseCSC)">
+<a name="gatherRowBs(x10.matrix.block.Grid,x10.regionarray.DistArray[x10.matrix.block.SparseBlock],x10.matrix.sparse.SparseCSC)">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
 <h4>gatherRowBs</h4>
 <pre>public static&nbsp;void&nbsp;gatherRowBs(<a href="../../../x10/matrix/block/Grid.html" title="class in x10.matrix.block">Grid</a>&nbsp;gp,
-               x10.array.DistArray&lt;<a href="../../../x10/matrix/block/SparseBlock.html" title="class in x10.matrix.block">SparseBlock</a>&gt;&nbsp;src,
+               x10.regionarray.DistArray&lt;<a href="../../../x10/matrix/block/SparseBlock.html" title="class in x10.matrix.block">SparseBlock</a>&gt;&nbsp;src,
                <a href="../../../x10/matrix/sparse/SparseCSC.html" title="class in x10.matrix.sparse">SparseCSC</a>&nbsp;dst)</pre>
-<div class="block"><B>Declaration:</B> <TT>gatherRowBs(gp:x10.matrix.block.Grid,src:x10.array.DistArray[x10.matrix.block.SparseBlock]{self.dist.region.rank==1},dst:x10.matrix.sparse.SparseCSC): void.</TT><PRE>
+<div class="block"><B>Declaration:</B> <TT>gatherRowBs(gp:x10.matrix.block.Grid,src:x10.regionarray.DistArray[x10.matrix.block.SparseBlock]{self.dist.region.rank==1},dst:x10.matrix.sparse.SparseCSC): void.</TT><PRE>
 </PRE>Gather single-row partitioning blocks in all places to a
 dense matrix at here</div>
 </li>
 </ul>
-<a name="mpiGatherRowBs(x10.matrix.block.Grid,x10.array.DistArray[x10.matrix.block.SparseBlock],x10.matrix.sparse.SparseCSC)">
+<a name="mpiGatherRowBs(x10.matrix.block.Grid,x10.regionarray.DistArray[x10.matrix.block.SparseBlock],x10.matrix.sparse.SparseCSC)">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
 <h4>mpiGatherRowBs</h4>
 <pre>protected static&nbsp;void&nbsp;mpiGatherRowBs(<a href="../../../x10/matrix/block/Grid.html" title="class in x10.matrix.block">Grid</a>&nbsp;gp,
-                  x10.array.DistArray&lt;<a href="../../../x10/matrix/block/SparseBlock.html" title="class in x10.matrix.block">SparseBlock</a>&gt;&nbsp;src,
+                  x10.regionarray.DistArray&lt;<a href="../../../x10/matrix/block/SparseBlock.html" title="class in x10.matrix.block">SparseBlock</a>&gt;&nbsp;src,
                   <a href="../../../x10/matrix/sparse/SparseCSC.html" title="class in x10.matrix.sparse">SparseCSC</a>&nbsp;dst)</pre>
-<div class="block"><B>Declaration:</B> <TT>mpiGatherRowBs(gp:x10.matrix.block.Grid,src:x10.array.DistArray[x10.matrix.block.SparseBlock]{self.dist.region.rank==1},dst:x10.matrix.sparse.SparseCSC): void.</TT><PRE>
+<div class="block"><B>Declaration:</B> <TT>mpiGatherRowBs(gp:x10.matrix.block.Grid,src:x10.regionarray.DistArray[x10.matrix.block.SparseBlock]{self.dist.region.rank==1},dst:x10.matrix.sparse.SparseCSC): void.</TT><PRE>
 </PRE></div>
 </li>
 </ul>
-<a name="x10GatherRowBs(x10.matrix.block.Grid,x10.array.DistArray[x10.matrix.block.SparseBlock],x10.matrix.sparse.SparseCSC)">
+<a name="x10GatherRowBs(x10.matrix.block.Grid,x10.regionarray.DistArray[x10.matrix.block.SparseBlock],x10.matrix.sparse.SparseCSC)">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
 <h4>x10GatherRowBs</h4>
 <pre>protected static&nbsp;void&nbsp;x10GatherRowBs(<a href="../../../x10/matrix/block/Grid.html" title="class in x10.matrix.block">Grid</a>&nbsp;gp,
-                  x10.array.DistArray&lt;<a href="../../../x10/matrix/block/SparseBlock.html" title="class in x10.matrix.block">SparseBlock</a>&gt;&nbsp;src,
+                  x10.regionarray.DistArray&lt;<a href="../../../x10/matrix/block/SparseBlock.html" title="class in x10.matrix.block">SparseBlock</a>&gt;&nbsp;src,
                   <a href="../../../x10/matrix/sparse/SparseCSC.html" title="class in x10.matrix.sparse">SparseCSC</a>&nbsp;dstspa)</pre>
-<div class="block"><B>Declaration:</B> <TT>x10GatherRowBs(gp:x10.matrix.block.Grid,src:x10.array.DistArray[x10.matrix.block.SparseBlock]{self.dist.region.rank==1},dstspa:x10.matrix.sparse.SparseCSC): void.</TT><PRE>
+<div class="block"><B>Declaration:</B> <TT>x10GatherRowBs(gp:x10.matrix.block.Grid,src:x10.regionarray.DistArray[x10.matrix.block.SparseBlock]{self.dist.region.rank==1},dstspa:x10.matrix.sparse.SparseCSC): void.</TT><PRE>
 </PRE>Gather blocks in row-wise.</div>
 </li>
 </ul>

@@ -358,7 +358,7 @@ public class LoopUnroller extends ContextVisitor {
                     fLoopParams.fMaxSymbolic= hi;
                     fLoopParams.fStride= 1;
                 }
-            } else if (mi.container() instanceof ClassType && ((ClassType) mi.container()).fullName().toString().equals("x10.array.Region") &&
+            } else if (mi.container() instanceof ClassType && ((ClassType) mi.container()).fullName().toString().equals("x10.regionarray.Region") &&
                        mi.name().toString().equals("makeRectangular")) {
                 Expr low, hi;
                 low= args.get(0);
@@ -404,7 +404,7 @@ public class LoopUnroller extends ContextVisitor {
     }
 
     private boolean isRegionConvertCall(MethodInstance mi) {
-        return mi.container() instanceof ClassType && ((ClassType) mi.container()).fullName().toString().equals("x10.array.Region") &&
+        return mi.container() instanceof ClassType && ((ClassType) mi.container()).fullName().toString().equals("x10.regionarray.Region") &&
                 mi.name().toString().equals("$convert");
     }
 

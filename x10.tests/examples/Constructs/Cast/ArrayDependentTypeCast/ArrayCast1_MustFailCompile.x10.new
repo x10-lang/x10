@@ -6,7 +6,7 @@
  *
  */
 import harness.x10Test;;
-import x10.array.Array;
+import x10.regionarray.Array;
 
 /**
  * Purpose: Checks cast's code statically detects constraints are not meet.
