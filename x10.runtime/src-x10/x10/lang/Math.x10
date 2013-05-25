@@ -395,14 +395,29 @@ public final class Math {
         return pow2;
     }
 
-    public static def powerOf2(p:int):Boolean {
-        return (p & -p) == p;
+    public static def nextPowerOf2(p:Long):Long {
+    	if (p==0L) return 0L;
+    	var pow2:Long = 1L;
+    	while (pow2 < p)
+    		pow2 <<= 1;
+    	return pow2;
     }
+
+    public static def powerOf2(p:Int):Boolean = (p & -p) == p;
+    public static def powerOf2(p:Long):Boolean = (p & -p) == p;
+
     public static def log2(var p:Int):Int {
         assert powerOf2(p);
         var i:Int = 0;
         while (p > 1) { p = p/2; i++; }
         return i;
+    }
+
+    public static def log2(var p:Long):Long {
+    	assert powerOf2(p);
+    	var i:Long = 0L;
+    	while (p > 1L) { p = p/2L; i++; }
+    	return i;
     }
 
     // returns 2^(max(0,i))
