@@ -63,6 +63,6 @@ public class Congruent extends x10Test {
         if (args.size>0) {
             kBytes = Int.parseInt(args(0));
         } 
-        new Congruent(kBytes*1024/Place.MAX_PLACES).execute();
+        new Congruent(kBytes*1024/(Place.MAX_PLACES as int)).execute();
     }
 }
