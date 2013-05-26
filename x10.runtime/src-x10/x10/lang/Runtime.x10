@@ -23,7 +23,6 @@ import x10.io.Reader;
 import x10.io.Writer;
 
 import x10.util.Random;
-import x10.util.Stack;
 import x10.util.Box;
 
 import x10.util.concurrent.Lock;

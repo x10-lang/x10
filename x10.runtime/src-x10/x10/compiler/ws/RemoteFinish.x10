@@ -4,7 +4,7 @@ import x10.compiler.Abort;
 import x10.compiler.Ifdef;
 import x10.compiler.Inline;
 
-import x10.util.Stack;
+import x10.util.GrowableRail;
 
 public final class RemoteFinish extends FinishFrame {
     val ffRef:GlobalRef[FinishFrame];
@@ -21,15 +21,15 @@ public final class RemoteFinish extends FinishFrame {
 
     public def wrapResume(worker:Worker) {
         super.wrapResume(worker);
-        update(ffRef, stack);
+        update(ffRef, exceptions);
         worker.throwable = null; //The exceptions were sent to source place
         throw Abort.ABORT;
     }
 
-    @Inline public static def update(ffRef:GlobalRef[FinishFrame], stack:Stack[Exception]) {
+    @Inline public static def update(ffRef:GlobalRef[FinishFrame], exceptions:GrowableRail[Exception]) {
         val body = ()=> @x10.compiler.RemoteInvocation {
             val ff = (ffRef as GlobalRef[FinishFrame]{home==here})();
-            ff.append(stack);
+            ff.append(exceptions);
             Runtime.wsFIFO().push(ff);
         };
         Worker.wsRunAsync(ffRef.home.id, body);

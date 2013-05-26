@@ -114,6 +114,32 @@ public final class GrowableRail[T] implements CustomSerialization {
         }
     }
 
+    /**
+     * Does the GrowableRail contain an element that is equal to v?
+     *
+     * @param v the element to search for
+     * @return <code>true</code> if the GrowableRail contains an
+     * element that is equal to v, <code>false</code> otherwise.
+     */
+    public def contains(v:T):Boolean {
+        if (v == null) {
+            for (i in 0L..(size()-1)) {
+                if (data(i) == null) return true;
+            }
+        } else {
+            for (i in 0L..(size()-1)) {
+                if (v.equals(data(i))) return true;
+            }
+        }
+        return false;
+    }
+
+    /**
+     * Is the GrowableRail empty? 
+     * @return the value of the expession size() == 0L
+     */
+    public def isEmpty():Boolean = size == 0L;
+
     /** 
      * Get the current size; indices from 0..size-1 are currently valid 
      * values of type T and may be accessed.
@@ -126,12 +152,14 @@ public final class GrowableRail[T] implements CustomSerialization {
     public def capacity():long = data.size;
 
     /** 
-     * Remove the last element. May shrink backing storage.
+     * Remove the last element and return it. May shrink backing storage.
      */
-    public def removeLast():void {
+    public def removeLast():T {
+        val res = this(size-1);
         Unsafe.clearRail(data, size-1, 1L);
         size = size-1;
         shrink(size+1);
+        return res;
     }
 
     /** 

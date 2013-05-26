@@ -13,8 +13,6 @@ package x10.lang;
 
 import x10.compiler.Native;
 
-import x10.util.NoSuchElementException;
-
 /**
  */
 final class Configuration {

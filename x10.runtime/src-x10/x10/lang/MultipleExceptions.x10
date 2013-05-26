@@ -11,17 +11,21 @@
 
 package x10.lang;
 
-import x10.util.Stack;
+import x10.util.GrowableRail;
 import x10.io.Printer;
 
 
 /**
+ * MultipleExceptions is used to to summarize all uncaught exceptions
+ * raised during the execution of a <code>finish</code> and rethrow
+ * them as a single exception when all activities controlled by the 
+ * <code>finish</code> have terminated.
  */
 public class MultipleExceptions(exceptions:Rail[Exception]) extends Exception {
     public property exceptions():Rail[Exception] = exceptions;
 
-    public def this(stack:Stack[Exception]) {
-        property(stack.toRail());
+    public def this(es:GrowableRail[Exception]) {
+        property(es.toRail());
     }
 
     public def this() {
@@ -60,9 +64,9 @@ public class MultipleExceptions(exceptions:Rail[Exception]) extends Exception {
     }
     */
 
-    public static def make(stack:Stack[Exception]):MultipleExceptions {
-        if (null == stack || stack.isEmpty()) return null;
-        return new MultipleExceptions(stack);
+    public static def make(es:GrowableRail[Exception]):MultipleExceptions {
+        if (null == es || es.isEmpty()) return null;
+        return new MultipleExceptions(es);
     }
 
     public static def make(t:Exception):MultipleExceptions {

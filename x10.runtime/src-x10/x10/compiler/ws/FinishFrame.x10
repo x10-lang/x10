@@ -9,18 +9,18 @@ import x10.compiler.NoInline;
 import x10.compiler.NoReturn;
 import x10.compiler.Uninitialized;
 
-import x10.util.Stack;
+import x10.util.GrowableRail;
 
 abstract public class FinishFrame extends Frame {
     @Uninitialized public var asyncs:Int;
-    @Uninitialized transient protected var stack:Stack[Exception];
+    @Uninitialized transient protected var exceptions:GrowableRail[Exception];
 
     @Ifdef("__CPP__")
     @Uninitialized public var redirect:FinishFrame;
 
     @Header public def this(up:Frame) {
         super(up);
-        this.stack = null;
+        this.exceptions = null;
         @Ifdef("__CPP__") {
             this.redirect = null;
         }
@@ -33,7 +33,7 @@ abstract public class FinishFrame extends Frame {
     public def this(Int, o:FinishFrame) {
         super(o.up.realloc());
         this.asyncs = 1;
-        this.stack = null;
+        this.exceptions = null;
     }
 
     @Ifdef("__CPP__")
@@ -44,11 +44,11 @@ abstract public class FinishFrame extends Frame {
         if (null != redirect) return redirect;
         val tmp = remap();
         tmp.redirect = tmp;
-        if (null != stack) {
-            tmp.stack = new Stack[Exception]();
+        if (null != exceptions) {
+            tmp.exceptions = new GrowableRail[Exception](exceptions.size());
             Runtime.atomicMonitor.lock();
-            while (!stack.isEmpty()) tmp.stack.push(stack.pop());
-            stack = null;
+	    while (!exceptions.isEmpty()) tmp.exceptions.add(exceptions.removeLast());
+            exceptions = null;
             Runtime.atomicMonitor.unlock();
         }
         redirect = tmp;
@@ -68,43 +68,43 @@ abstract public class FinishFrame extends Frame {
         var n:Int;
         Runtime.atomicMonitor.lock(); n = --asyncs; Runtime.atomicMonitor.unlock();
         if (0 != n) throw Abort.ABORT;
-        worker.throwable = MultipleExceptions.make(stack);
+        worker.throwable = MultipleExceptions.make(exceptions);
     }
 
-    @Inline public final def append(s:Stack[Exception]) {
+    @Inline public final def append(s:GrowableRail[Exception]) {
         if (null != s) { //nobody will change s again. No need lock to protect s.
             Runtime.atomicMonitor.lock();
-            if (null == stack) stack = new Stack[Exception]();
-            while (!s.isEmpty()) stack.push(s.pop());
+            if (null == exceptions) exceptions = new GrowableRail[Exception]();
+	    while (!s.isEmpty()) exceptions.add(s.removeLast());
             Runtime.atomicMonitor.unlock();
         }
     }
 
     @Inline public final def append(ff:FinishFrame) {
-        append(ff.stack);
+        append(ff.exceptions);
     }
 
     @NoInline public final def caught(t:Exception) {
 //        Runtime.println("CAUGHT: " + t);
         if (t == Abort.ABORT) throw Abort.ABORT;
         Runtime.atomicMonitor.lock();
-        if (null == stack) stack = new Stack[Exception]();
-        stack.push(t);
+        if (null == exceptions) exceptions = new GrowableRail[Exception]();
+        exceptions.add(t);
         Runtime.atomicMonitor.unlock();
     }
 
     @Inline public final def rethrow() {
-        if (null != stack) rethrowSlow();
+        if (null != exceptions) rethrowSlow();
     }
 
     @NoInline @NoReturn public final def rethrowSlow() {
-        throw new MultipleExceptions(stack);
+        throw new MultipleExceptions(exceptions);
     }
 
     @Inline public final def check() {
-        if (null != stack) {
-            while (!stack.isEmpty()) {
-                Runtime.pushException(stack.pop());
+        if (null != exceptions) {
+            while (!exceptions.isEmpty()) {
+                Runtime.pushException(exceptions.removeLast());
             }
         }
     }

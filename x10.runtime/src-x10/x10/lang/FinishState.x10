@@ -13,9 +13,9 @@ package x10.lang;
 
 import x10.compiler.*;
 
+import x10.util.GrowableRail;
 import x10.util.HashMap;
 import x10.util.Pair;
-import x10.util.Stack;
 
 import x10.util.concurrent.AtomicInteger;
 import x10.util.concurrent.Lock;
@@ -38,7 +38,7 @@ abstract class FinishState {
     static class LocalFinish extends FinishState {
         @Embed private val count = @Embed new AtomicInteger(1);
         @Embed private val latch = @Embed new SimpleLatch();
-        private var exceptions:Stack[Exception]; // lazily initialized
+        private var exceptions:GrowableRail[Exception]; // lazily initialized
         public def notifySubActivitySpawn(place:Place) {
             assert place.id == Runtime.hereLong();
             count.getAndIncrement();
@@ -49,8 +49,8 @@ abstract class FinishState {
         }
         public def pushException(t:Exception) {
             latch.lock();
-            if (null == exceptions) exceptions = new Stack[Exception]();
-            exceptions.push(t);
+            if (null == exceptions) exceptions = new GrowableRail[Exception]();
+            exceptions.add(t);
             latch.unlock();
         }
         public def waitForFinish() {
@@ -84,7 +84,7 @@ abstract class FinishState {
     static class RootFinishSPMD extends RootFinishSkeleton {
         @Embed protected val latch = @Embed new SimpleLatch();
         @Embed private val count = @Embed new AtomicInteger(1);
-        private var exceptions:Stack[Exception]; // lazily initialized
+        private var exceptions:GrowableRail[Exception]; // lazily initialized
         public def notifySubActivitySpawn(place:Place) {
             count.incrementAndGet();
         }
@@ -93,8 +93,8 @@ abstract class FinishState {
         }
         public def pushException(t:Exception) {
             latch.lock();
-            if (null == exceptions) exceptions = new Stack[Exception]();
-            exceptions.push(t);
+            if (null == exceptions) exceptions = new GrowableRail[Exception]();
+            exceptions.add(t);
             latch.unlock();
         }
         public def waitForFinish() {
@@ -109,7 +109,7 @@ abstract class FinishState {
 
     static class RemoteFinishSPMD extends RemoteFinishSkeleton {
         @Embed private val count = @Embed new AtomicInteger(1);
-        private var exceptions:Stack[Exception]; // lazily initialized
+        private var exceptions:GrowableRail[Exception]; // lazily initialized
         @Embed private val lock = @Embed new Lock();
         def this(ref:GlobalRef[FinishState]) {
             super(ref);
@@ -140,8 +140,8 @@ abstract class FinishState {
         }
         public def pushException(t:Exception) {
             lock.lock();
-            if (null == exceptions) exceptions = new Stack[Exception]();
-            exceptions.push(t);
+            if (null == exceptions) exceptions = new GrowableRail[Exception]();
+            exceptions.add(t);
             lock.unlock();
         }
     }
@@ -337,7 +337,7 @@ abstract class FinishState {
     static class RootFinish extends RootFinishSkeleton {
         @Embed protected transient var latch:SimpleLatch;
         protected var count:Int = 1;
-        protected var exceptions:Stack[Exception]; // lazily initialized
+        protected var exceptions:GrowableRail[Exception]; // lazily initialized
         protected var counts:Rail[Int];
 //        protected var seen:Rail[Boolean];
         def this() {
@@ -379,8 +379,8 @@ abstract class FinishState {
             latch.release();
         }
         public def process(t:Exception):void {
-            if (null == exceptions) exceptions = new Stack[Exception]();
-            exceptions.push(t);
+            if (null == exceptions) exceptions = new GrowableRail[Exception]();
+            exceptions.add(t);
         }
         public def pushException(t:Exception):void {
             latch.lock();
@@ -464,7 +464,7 @@ abstract class FinishState {
     }
 
     static class RemoteFinish extends RemoteFinishSkeleton {
-        protected var exceptions:Stack[Exception];
+        protected var exceptions:GrowableRail[Exception];
         @Embed protected transient var lock:Lock = @Embed new Lock();
         protected var count:Int = 0;
         protected var counts:Rail[Int];
@@ -499,8 +499,8 @@ abstract class FinishState {
         }
         public def pushException(t:Exception):void {
             lock.lock();
-            if (null == exceptions) exceptions = new Stack[Exception]();
-            exceptions.push(t);
+            if (null == exceptions) exceptions = new GrowableRail[Exception]();
+            exceptions.add(t);
             lock.unlock();
         }
         public def notifyActivityTermination():void {
@@ -579,7 +579,7 @@ abstract class FinishState {
     }
 
     static class DenseRemoteFinish extends RemoteFinishSkeleton {
-        protected var exceptions:Stack[Exception];
+        protected var exceptions:GrowableRail[Exception];
         @Embed protected transient var lock:Lock = @Embed new Lock();
         protected var count:Int = 0;
         protected var counts:Rail[Int];
@@ -614,8 +614,8 @@ abstract class FinishState {
         }
         public def pushException(t:Exception):void {
             lock.lock();
-            if (null == exceptions) exceptions = new Stack[Exception]();
-            exceptions.push(t);
+            if (null == exceptions) exceptions = new GrowableRail[Exception]();
+            exceptions.add(t);
             lock.unlock();
         }
         public def notifyActivityTermination():void {

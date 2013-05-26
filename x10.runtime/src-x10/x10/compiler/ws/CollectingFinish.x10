@@ -8,7 +8,7 @@ import x10.compiler.Uninitialized;
 import x10.util.IndexedMemoryChunk;
 import x10.compiler.Header;
 
-import x10.util.Stack;
+import x10.util.GrowableRail;
 
 //For collecting Finish frame usage
 
@@ -47,11 +47,11 @@ abstract public class CollectingFinish[T] extends FinishFrame {
         if (null != redirect) return redirect;
         val tmp = remap();
         tmp.redirect = tmp;
-        if (null != stack) {
-            tmp.stack = new Stack[Exception]();
+        if (null != exceptions) {
+            tmp.exceptions = new GrowableRail[Exception]();
             Runtime.atomicMonitor.lock();
-            while (!stack.isEmpty()) tmp.stack.push(stack.pop());
-            stack = null;
+            while (!exceptions.isEmpty()) tmp.exceptions.add(exceptions.removeLast());
+            exceptions = null;
             Runtime.atomicMonitor.unlock();
         }
         atomic redirect = tmp; //use atomic to refresh
