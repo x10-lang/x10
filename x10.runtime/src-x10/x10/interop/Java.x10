@@ -115,6 +115,6 @@ public class Java {
     // Java conversions (rail)
     @Native("java", "(#T[])#a.getBackingArray()")
     public static native def convert[T](a:x10.lang.Rail[T]):array[T];
-    @Native("java", "new x10.core.Rail<#T>(#T$rtt, #a.length, #a)")
+    @Native("java", "new x10.core.Rail(#T$rtt, #a.length, #a)")
     public static native def convert[T](a:array[T]):x10.lang.Rail[T];
 }
