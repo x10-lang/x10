@@ -18,6 +18,6 @@ public class Version extends polyglot.main.Version {
     public String name() { return "x10"; }
 
     public int major() { return 2; }
-    public int minor() { return 3; }
-    public int patch_level() { return 1; }
+    public int minor() { return 4; }
+    public int patch_level() { return 0; }
 }
