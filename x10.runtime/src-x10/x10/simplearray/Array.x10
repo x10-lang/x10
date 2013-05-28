@@ -134,6 +134,59 @@ public abstract class Array[T] (
     
 
     /**
+     * Map the given function onto the elements of this array
+     * storing the results in the dst array. For maximum flexibility
+     * of use, map does not require that the src and destination array
+     * have the same dimesionality or rank, only that they have the same
+     * number of elements.  When applied to arrays that use the same IterationSpace,
+     * the result will be that for all <code>pt</code> in the IterationSpace
+     * </code> dst(pt) == op(src(pt)) </code>.  When applied to arrays that use
+     * a different iteration space, the mapping from src to dst is defined in
+     * terms of the index of the backing rails, that is <code>dst.raw()(i) = op(src.raw()(i))</code>
+     * for i in <code>0L..(src.size()-1)</code>.
+     * 
+     * @param dst the destination array for the results of the map operation
+     * @param op the function to apply to each element of the array
+     * @return dst after updating its contents to contain the result of the map operation.
+     */
+    public @Inline final def map[U](dst:Array[U], op:(T)=>U){this.size == dst.size} : Array[U]{self==dst} {
+        // TODO: parallelize this loop.
+        for (i in raw.range()) {
+            dst.raw(i) = op(raw(i));
+        }
+        return dst;
+    }
+
+
+    /**
+     * Map the given function onto the elements of this array
+     * and the argument src arrary storing the results in the dst array. 
+     * For maximum flexibility of use, map does not require that the three arrays
+     * have the same dimesionality or rank, only that they have the same
+     * number of elements.  When applied to arrays that use the same IterationSpace,
+     * the result will be that for all <code>pt</code> in the IterationSpace
+     * </code> dst(pt) == op(this(pt), src(pt)) </code>.  When applied to arrays that use
+     * a different iteration space, the mapping from src to dst is defined in
+     * terms of the index of the backing rails, that is 
+     * <code>dst.raw()(i) = op(this.raw()(i), src.raw()(i))</code>
+     * for i in <code>0L..(src.size()-1)</code>.
+     * 
+     * @param dst the destination array for the results of the map operation
+     * @param src2 the second source array to use as input to the map function
+     * @param op the function to apply to each element of the arrays
+     * @return dst after updating its contents to contain the result of the map operation.
+     */
+    public @Inline final def map[S,U](dst:Array[U], src2:Array[S], op:(T,S)=>U) 
+                                   {this.size == dst.size, src2.size==this.size} : Array[U]{self==dst} {
+        // TODO: parallelize this loop.
+        for (i in raw.range()) {
+            dst.raw(i) = op(raw(i), src2.raw(i));
+        }
+        return dst;
+    }
+
+
+    /**
      * Get an IterationSpace that represents all Points contained in
      * iteration space (valid indices) of the Array.
      * @return an IterationSpace for the Array
