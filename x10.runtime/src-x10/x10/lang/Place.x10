@@ -43,6 +43,10 @@ public final struct Place(
     @Native("c++", "((x10_long)x10aux::num_hosts)")
     public static MAX_PLACES: Long = 4;
 
+    /** The number of dead places not including accelerators. */
+    @Native("c++", "((x10_long)x10rt_ndead())")
+    public static numDead(): Long = 0;
+
     /** The number of accelerators. */
     public static NUM_ACCELS = ALL_PLACES - MAX_PLACES;
 
