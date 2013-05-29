@@ -177,7 +177,7 @@ public class ForLoopOptimizer extends ContextVisitor {
         }
 
         // if domain <: DistArray, transform to Distribution
-        if (xts.isX10DistArray(domain.type())) {
+        if (xts.isX10RegionDistArray(domain.type())) {
             if (VERBOSE) System.out.println("  domain is DistArray, tranforming to Dist");
             domain = syn.createFieldRef(pos, domain, DIST);
             assert (null != domain);
@@ -191,7 +191,7 @@ public class ForLoopOptimizer extends ContextVisitor {
         }
         
         // if domain <: Array, transform to Region
-        if (xts.isX10Array(domain.type())) {
+        if (xts.isX10RegionArray(domain.type())) {
             if (VERBOSE) System.out.println("  domain is Array, tranforming to Region");
             domain = syn.createFieldRef(pos, domain, REGION);
             assert (null != domain);
@@ -292,7 +292,7 @@ public class ForLoopOptimizer extends ContextVisitor {
             Type       indexType  = null; // type of the formal var initializer (if any)
             LocalDecl  indexLDecl = null; // redeclaration of the formal var (if it has a name)
             if (named) {
-                // create an array to contain the value of the formal at each iteration
+                // create a rail to contain the value of the formal at each iteration
                 Name       indexName  = Name.makeFresh(prefix);
                            indexType  = Types.makeRailOf(xts.Long(), rank, pos);           
                 Expr       indexInit  = syn.createTuple(pos, rank, syn.createLongLit(0));
@@ -303,7 +303,7 @@ public class ForLoopOptimizer extends ContextVisitor {
             
             boolean simpleArrayOpt = false;
             LocalDecl  domLDecl = null;
-            if (domain instanceof Call && ((Call)domain).name().id().equals(INDICES) && xts.isSimpleArray(((Call)domain).target().type())) {
+            if (domain instanceof Call && ((Call)domain).name().id().equals(INDICES) && xts.isArray(((Call)domain).target().type())) {
                 // SPECIAL CASE: if The IterationSpace is being created in the for loop header by calling Array.indices(), avoid creating it entirely.
                 domLDecl = syn.createLocalDecl(domain.position(), Flags.FINAL, Name.makeFresh(prefix), (Expr)((Call)domain).target());
                 simpleArrayOpt = true;

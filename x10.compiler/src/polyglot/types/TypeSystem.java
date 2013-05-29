@@ -1045,7 +1045,7 @@ public interface TypeSystem {
     /**
      * Return the ClassType object for the x10.regionarray.Array class.
      */
-    X10ClassType Array();
+    X10ClassType RegionArray();
 
     /**
      * Return the ClassType object for the x10.lang.Rail class.
@@ -1055,31 +1055,33 @@ public interface TypeSystem {
     /**
      * Return the ClassType object for the x10.array.Array class.
      */
-    X10ClassType SimpleArray();
+    X10ClassType Array();
 
     /**
      * Return the ClassType object for the x10.regionarray.DistArray class.
      */
-    X10ClassType DistArray();
+    X10ClassType RegionDistArray();
 
     /**
      * Return the ClassType object for the x10.lang.Runtime.Mortal interface.
      */
     X10ClassType Mortal();
 
-    boolean isArray(Type t);
+    boolean isRegionArray(Type t);
 
     boolean isRail(Type t);
     
-    boolean isSimpleArray(Type t);
+    boolean isArray(Type t);
 
-    public boolean isArrayOf(Type t, Type p);
+    public boolean isRegionArrayOf(Type t, Type p);
 
     public boolean isRailOf(Type t, Type p);
 
-    X10ClassType Array(Type arg);
+    X10ClassType RegionArray(Type arg);
 
     X10ClassType Rail(Type arg);
+
+    X10ClassType Array(Type arg);
 
     X10ClassType Settable();
 
@@ -1230,9 +1232,9 @@ public interface TypeSystem {
 
     public Long size(Type t);
 
-    boolean isX10Array(Type me);
+    boolean isX10RegionArray(Type me);
 
-    boolean isX10DistArray(Type me);
+    boolean isX10RegionDistArray(Type me);
     
     boolean isIntRange(Type me);
 
@@ -1252,8 +1254,6 @@ public interface TypeSystem {
     boolean isIterationSpace(Type me);
 
     boolean isDistribution(Type me);
-
-    boolean isDistributedArray(Type me);
 
     boolean isComparable(Type me);
 

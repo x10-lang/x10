@@ -2583,11 +2583,11 @@ public class TypeSystem_c implements TypeSystem
         return remoteInvocationType_;
     }
 
-    protected X10ClassType arrayType_ = null;
-    public X10ClassType Array() {
-        if (arrayType_ == null)
-            arrayType_ = load("x10.regionarray.Array", ((X10CompilerOptions)extensionInfo().getOptions()).x10_config.APGAS_LIB_MODE);
-        return arrayType_;
+    protected X10ClassType regionArrayType_ = null;
+    public X10ClassType RegionArray() {
+        if (regionArrayType_ == null)
+            regionArrayType_ = load("x10.regionarray.Array", ((X10CompilerOptions)extensionInfo().getOptions()).x10_config.APGAS_LIB_MODE);
+        return regionArrayType_;
     }
 
     protected X10ClassType railType_ = null;
@@ -2598,7 +2598,7 @@ public class TypeSystem_c implements TypeSystem
     }
     
     protected X10ClassType simpleArrayType_ = null;
-    public X10ClassType SimpleArray() {
+    public X10ClassType Array() {
         if (simpleArrayType_ == null)
             simpleArrayType_ = load("x10.array.Array", ((X10CompilerOptions)extensionInfo().getOptions()).x10_config.APGAS_LIB_MODE);
         return simpleArrayType_;
@@ -2626,11 +2626,11 @@ public class TypeSystem_c implements TypeSystem
         return cudaConstantRail_;
     }
 
-    protected X10ClassType distArrayType_ = null;
-    public X10ClassType DistArray() {
-        if (distArrayType_ == null)
-            distArrayType_ = load("x10.regionarray.DistArray", ((X10CompilerOptions)extensionInfo().getOptions()).x10_config.APGAS_LIB_MODE);
-        return distArrayType_;
+    protected X10ClassType regionDistArrayType_ = null;
+    public X10ClassType RegionDistArray() {
+        if (regionDistArrayType_ == null)
+            regionDistArrayType_ = load("x10.regionarray.DistArray", ((X10CompilerOptions)extensionInfo().getOptions()).x10_config.APGAS_LIB_MODE);
+        return regionDistArrayType_;
     }
     
     protected X10ClassType intRangeType_ = null;
@@ -4063,20 +4063,20 @@ public class TypeSystem_c implements TypeSystem
         return new Context(this);
     }
 
-    public boolean isArray(Type t) {
-        return finalSubtype(t, Array());
+    public boolean isRegionArray(Type t) {
+        return finalSubtype(t, RegionArray());
     }
 
     public boolean isRail(Type t) {
         return finalSubtype(t, Rail());
     }
     
-    public boolean isSimpleArray(Type me) {
-        if (finalSubtype(me, SimpleArray())) {
+    public boolean isArray(Type me) {
+        if (finalSubtype(me, Array())) {
             return true;
         } else if (me.isClass()) {
             Type parent = me.toClass().superClass();
-            return parent != null && isSimpleArray(parent);
+            return parent != null && isArray(parent);
         } else {
             return false;
         }
@@ -4087,8 +4087,8 @@ public class TypeSystem_c implements TypeSystem
         assert (ta.size() == 1);
         return ta.get(0);
     }
-    public boolean isArrayOf(Type t, Type p) {
-        if (!isArray(t)) return false;
+    public boolean isRegionArrayOf(Type t, Type p) {
+        if (!isRegionArray(t)) return false;
         return getArrayComponentType(t).typeEquals(p, createContext());
     }
 
@@ -4135,35 +4135,39 @@ public class TypeSystem_c implements TypeSystem
         return false;
     }
 
-    public X10ClassType Array(Type arg) {
-        return Types.instantiate(Array(), arg);
+    public X10ClassType RegionArray(Type arg) {
+        return Types.instantiate(RegionArray(), arg);
     }
 
     public X10ClassType Rail(Type arg) {
         return Types.instantiate(Rail(), arg);
     }
 
+    public X10ClassType Array(Type arg) {
+        return Types.instantiate(Array(), arg);
+    }
+
     public X10ClassType Settable(Type domain, Type range) {
         return Types.instantiate(Settable(), domain, range);
     }
 
-    public boolean isX10Array(Type me) {
-        if (finalSubtype(me, Array())) {
+    public boolean isX10RegionArray(Type me) {
+        if (finalSubtype(me, RegionArray())) {
             return true;
         } else if (me.isClass()) {
             Type parent = me.toClass().superClass();
-            return parent != null && isX10Array(parent);
+            return parent != null && isX10RegionArray(parent);
         } else {
             return false;
         }
     }
 
-    public boolean isX10DistArray(Type me) {
-        if (finalSubtype(me, DistArray())) {
+    public boolean isX10RegionDistArray(Type me) {
+        if (finalSubtype(me, RegionDistArray())) {
             return true;
         } else if (me.isClass()) {
             Type parent = me.toClass().superClass();
-            return parent != null && isX10DistArray(parent);
+            return parent != null && isX10RegionDistArray(parent);
         } else {
             return false;
         }
@@ -4245,10 +4249,6 @@ public class TypeSystem_c implements TypeSystem
 
     public boolean isDistribution(Type me) {
         return emptyContextSubtype(me,Dist());
-    }
-
-    public boolean isDistributedArray(Type me) {
-        return isX10DistArray(me);
     }
 
     public boolean isComparable(Type me) {

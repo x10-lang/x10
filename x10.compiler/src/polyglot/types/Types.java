@@ -328,8 +328,8 @@ public class Types {
 		if (t instanceof X10ClassType) {
 			X10ClassType ct = (X10ClassType) t;
 			TypeSystem ts = (TypeSystem) t.typeSystem();
-			ClassType a = (ClassType) ts.Array();
-			ClassType da = (ClassType) ts.Array();
+			ClassType a = (ClassType) ts.RegionArray();
+			ClassType da = (ClassType) ts.RegionArray();
 			if (ct.def() == a.def() || ct.def() == da.def())
 				return ct.typeArguments().get(0);
 			else
@@ -398,7 +398,7 @@ public class Types {
 	public static Type arrayElementType(Type t) {
 		t = baseType(t);
 		TypeSystem xt = (TypeSystem) t.typeSystem();
-		if (xt.isX10Array(t) || xt.isX10DistArray(t)) {
+		if (xt.isX10RegionArray(t) || xt.isX10RegionDistArray(t)) {
 			if (t instanceof X10ParsedClassType) {
 				Type result = ((X10ParsedClassType) t).typeArguments().get(0);
 				return result;
@@ -932,7 +932,7 @@ public class Types {
 	 */
 	public static Type makeArrayRailOf(Type type, Position pos) {
 	    TypeSystem ts = type.typeSystem();
-	    X10ClassType t = ts.Array(type);
+	    X10ClassType t = ts.RegionArray(type);
 	    CConstraint c = ConstraintManager.getConstraintSystem().makeCConstraint();
 	    FieldInstance regionField = t.fieldNamed(Name.make("region"));
 	    if (regionField == null)
@@ -1190,7 +1190,7 @@ public class Types {
 	public static boolean isX10Array(Type t) {
 	    TypeSystem ts = (TypeSystem) t.typeSystem();
 	    Type tt = baseType(t);
-	    Type at = baseType(ts.Array());
+	    Type at = baseType(ts.RegionArray());
 	    if (tt instanceof ClassType && at instanceof ClassType) {
 	        ClassDef tdef = ((ClassType) tt).def();
 	        ClassDef adef = ((ClassType) at).def();
@@ -1213,7 +1213,7 @@ public class Types {
 	public static boolean isX10DistArray(Type t) {
 	    TypeSystem ts = (TypeSystem) t.typeSystem();
 	    Type tt = baseType(t);
-	    Type at = baseType(ts.DistArray());
+	    Type at = baseType(ts.RegionDistArray());
 	    if (tt instanceof ClassType && at instanceof ClassType) {
 	        ClassDef tdef = ((ClassType) tt).def();
 	        ClassDef adef = ((ClassType) at).def();

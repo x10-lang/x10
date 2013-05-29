@@ -251,7 +251,7 @@ public class SettableAssign_c extends Assign_c implements SettableAssign {
             left = (X10Call_c) left.methodInstance(ami).type(ami.returnType());
 		    if (ami.error() != null) { // it's an error only if op is not =, e.g., a(1)+=1;
 		        Type bt = Types.baseType(array.type());
-		        boolean arrayP = xts.isX10Array(bt) || xts.isX10DistArray(bt);
+		        boolean arrayP = xts.isX10RegionArray(bt) || xts.isX10RegionDistArray(bt);
 		        Errors.issue(tc.job(), new Errors.CannotAssignToElement(leftToString(), arrayP, right, Types.arrayElementType(array.type()), position(), ami.error()));
 		    }
 		    X10Binary_c n = (X10Binary_c) nf.Binary(position(), left, op.binaryOperator(), right);
@@ -260,7 +260,7 @@ public class SettableAssign_c extends Assign_c implements SettableAssign {
 		    if (cmi.error() != null) {
 		        Type bt = Types.baseType(array.type());
 		        // arrayP is used to tweak the error message used
-		        boolean arrayP = xts.isX10Array(bt) || xts.isX10DistArray(bt);
+		        boolean arrayP = xts.isX10RegionArray(bt) || xts.isX10RegionDistArray(bt);
 		        Errors.issue(tc.job(),
 		                new Errors.CannotPerformAssignmentOperation(leftToString(), arrayP, op.toString(), right, Types.arrayElementType(array.type()), position(), cmi.error()));
 		    }
@@ -292,7 +292,7 @@ public class SettableAssign_c extends Assign_c implements SettableAssign {
 		            throw new InternalCompilerError("Unexpected cast error", mi.error());
 		        }
 		        Type bt = Types.baseType(array.type());
-		        boolean arrayP = xts.isX10Array(bt) || xts.isX10DistArray(bt);
+		        boolean arrayP = xts.isX10RegionArray(bt) || xts.isX10RegionDistArray(bt);
 		        Errors.issue(tc.job(), new Errors.CannotAssignToElement(leftToString(), arrayP, right, Types.arrayElementType(array.type()), position(), mi.error()));
 		    }
 		}

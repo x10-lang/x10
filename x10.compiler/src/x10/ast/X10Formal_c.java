@@ -197,7 +197,7 @@ public class X10Formal_c extends Formal_c implements X10Formal {
 	                Type containerType = ff.type().type();
 	                final Type indexType;
 
-                    if (ts.isArray(containerType)) {
+                    if (ts.isRegionArray(containerType)) {
                         indexType = TypeSystem_c.getArrayComponentType(containerType);
                     } else {
                         // must be a Point or we had complained when typeChecking the parent.
@@ -282,7 +282,7 @@ public class X10Formal_c extends Formal_c implements X10Formal {
 
         if (num>0) {
             // check the type is a subtype of Point/Array, and that it's rank is vars.size()
-            final boolean isArray = ts.isArray(myType);
+            final boolean isArray = ts.isRegionArray(myType);
             if (!ts.isSubtype(myType, ts.Point(), c) && !isArray)
                 Errors.issue(tc.job(), new Errors.OnlyTypePointOrArrayCanBeExploded(myType, pos));
             else {

@@ -172,7 +172,7 @@ public class ASTQuery {
 		if (knownArrayCopyMethods.size() == 0) {
 			try {
 				Type x_l_Runtime = (Type) ts.Runtime();
-				Type array = ts.Array();
+				Type array = ts.RegionArray();
 				Type Int = ts.Int();
 				Type[] A_I_A_I_I = { array, Int, array, Int, Int };
 				knownArrayCopyMethods.add(ts.findMethod(x_l_Runtime, ts.MethodMatcher(x_l_Runtime, Name.make("arrayCopy"), Arrays.asList(A_I_A_I_I), context)));
