@@ -9,7 +9,7 @@
  *  (C) Copyright IBM Corporation 2006-2010.
  */
 
-import x10.simplearray.*;
+import x10.array.*;
 
 /**
  * Variant of SeqMatMultAdd1a that uses a generic matrix bounded by Arithmetic[T].

@@ -9,7 +9,7 @@
  *  (C) Copyright IBM Corporation 2006-2013.
  */
 
-package x10.simplearray;
+package x10.array;
 
 /**
  * A DenseIterationSpace_1 represents the rank 1 

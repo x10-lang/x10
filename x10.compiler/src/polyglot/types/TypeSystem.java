@@ -1053,7 +1053,7 @@ public interface TypeSystem {
     X10ClassType Rail();
 
     /**
-     * Return the ClassType object for the x10.simplearray.Array class.
+     * Return the ClassType object for the x10.array.Array class.
      */
     X10ClassType SimpleArray();
 

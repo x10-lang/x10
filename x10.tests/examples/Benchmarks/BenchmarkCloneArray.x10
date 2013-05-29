@@ -10,7 +10,7 @@
  */
 
 import harness.x10Test;
-import x10.simplearray.Array_1;
+import x10.array.Array_1;
 
 /**
  * Tests base performance of "at" closures with arrays 

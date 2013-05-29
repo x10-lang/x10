@@ -2516,7 +2516,7 @@ public class TypeSystem_c implements TypeSystem
     protected X10ClassType iterationSpaceType_;
     public X10ClassType IterationSpace() {
         if (iterationSpaceType_ == null)
-            iterationSpaceType_ = load("x10.simplearray.IterationSpace", ((X10CompilerOptions)extensionInfo().getOptions()).x10_config.APGAS_LIB_MODE); // java file
+            iterationSpaceType_ = load("x10.array.IterationSpace", ((X10CompilerOptions)extensionInfo().getOptions()).x10_config.APGAS_LIB_MODE); // java file
         return iterationSpaceType_;
     }
 
@@ -2600,7 +2600,7 @@ public class TypeSystem_c implements TypeSystem
     protected X10ClassType simpleArrayType_ = null;
     public X10ClassType SimpleArray() {
         if (simpleArrayType_ == null)
-            simpleArrayType_ = load("x10.simplearray.Array", ((X10CompilerOptions)extensionInfo().getOptions()).x10_config.APGAS_LIB_MODE);
+            simpleArrayType_ = load("x10.array.Array", ((X10CompilerOptions)extensionInfo().getOptions()).x10_config.APGAS_LIB_MODE);
         return simpleArrayType_;
     }
 

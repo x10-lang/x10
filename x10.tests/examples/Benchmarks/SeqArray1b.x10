@@ -9,7 +9,7 @@
  *  (C) Copyright IBM Corporation 2006-2010.
  */
 
-import x10.simplearray.Array_1;
+import x10.array.Array_1;
 
 /**
  * @author bdlucas
