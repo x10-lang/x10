@@ -64,5 +64,4 @@ public class _ {
     // MT temporary definition for making porting to X10 trunk easier
     public static type PlaceId = Long;
     public static type Idx = Long;
-    public static type IdxRange = LongRange;
 }
