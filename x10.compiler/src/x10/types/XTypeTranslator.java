@@ -293,7 +293,8 @@ public class XTypeTranslator {
         } else {
             // for subtyping tests we replace "self.p(...)"
             if (!(receiver instanceof CSelf)) return term;
-            classType = (ClassType)((CThis)receiver).type();
+            // TODO: the type of self is not available on trunk, this is fixed in the constraint branch.
+            classType = null;
         }
         X10MethodDef def = (X10MethodDef) aDef;
         if (classType!=null) {
