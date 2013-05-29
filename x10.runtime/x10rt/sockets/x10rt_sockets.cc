@@ -849,20 +849,20 @@ void x10rt_net_register_get_receiver (x10rt_msg_type msg_type, x10rt_finder *fin
 x10rt_place x10rt_net_ndead (void) {
 	x10rt_place count = 0;
 	for (x10rt_place i=0; i<context.numPlaces; i++)
-		if (context.socketLinks[i].fd == -2) count++;
+		if (context.socketLinks!=NULL && context.socketLinks[i].fd == -2) count++;
 	return count;
 }
 
 bool x10rt_net_is_place_dead (x10rt_place p) {
 	if (p >= context.numPlaces) return true;
 
-	return (context.socketLinks[p].fd == -2);
+	return (context.socketLinks!=NULL && context.socketLinks[p].fd == -2);
 }
 
 x10rt_error x10rt_net_get_dead (x10rt_place *dead_places, x10rt_place len) {
 	x10rt_place position = 0;
 	for (x10rt_place i=0; i<context.numPlaces; i++)
-		if (context.socketLinks[i].fd == -2) {
+		if (context.socketLinks!=NULL && context.socketLinks[i].fd == -2) {
 			dead_places[position] = i;
 			if (position == len)
 				return X10RT_ERR_OK;
