@@ -95,9 +95,7 @@ public abstract class Array[T] (
      * @param v the value with which to fill the array
      */
     public def fill(v:T) {
-        for (i in raw.range) {
-            raw(i) = v;
-        }
+        raw.fill(v);
     }
 
 

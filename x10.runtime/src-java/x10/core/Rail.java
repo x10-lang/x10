@@ -128,9 +128,7 @@ public final class Rail<T> extends x10.core.Ref implements x10.lang.Iterable,
         this.T = T;
         this.size = size;
         this.value = T.makeArray(allocCheckSize(size));
-        for (int i=0; i<size; i++) {
-            T.setArray(this.value, i, init);
-        }
+        fillHelper(init);
     }
 
     public Rail(Type T, long size, x10.core.fun.Fun_0_1<x10.core.Long, T> init, __1$1x10$lang$Long$3x10$lang$Rail$$T$2 $dummy) {
@@ -252,7 +250,33 @@ public final class Rail<T> extends x10.core.Ref implements x10.lang.Iterable,
         T.setArray(value, (int)index, v);
         return v;
     }
+    public void fill__0x10$lang$Rail$$T(T v) {
+        fillHelper(v);
+    }
 
+    private void fillHelper(T v) {
+        if (value instanceof boolean[]) {
+            Arrays.fill(getBooleanArray(), x10.core.Boolean.$unbox(v));
+        } else if (value instanceof byte[]) {
+            Arrays.fill(getByteArray(), x10.core.Byte.$unbox(v));
+        } else if (value instanceof char[]) {
+            Arrays.fill(getCharArray(), x10.core.Char.$unbox(v));
+        } else if (value instanceof short[]) {
+            Arrays.fill(getShortArray(), x10.core.Short.$unbox(v));
+        } else if (value instanceof int[]) {
+            Arrays.fill(getIntArray(), x10.core.Int.$unbox(v));
+        } else if (value instanceof float[]) {
+            Arrays.fill(getFloatArray(), x10.core.Float.$unbox(v));
+        } else if (value instanceof long[]) {
+            Arrays.fill(getLongArray(), x10.core.Long.$unbox(v));
+        } else if (value instanceof double[]) {
+            Arrays.fill(getDoubleArray(), x10.core.Double.$unbox(v));
+        } else {
+            Arrays.fill(getObjectArray(), v);
+        }
+    }        
+    
+    
     public void clear() {
         clear(0, size);
     }

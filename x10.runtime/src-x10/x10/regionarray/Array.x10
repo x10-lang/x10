@@ -650,9 +650,7 @@ public final class Array[T] (
         if (rect) {
             // In a rect array, every element in the backing raw Rail
             // is included in the array, therefore we can simply fill the Rail.
-            for (i in 0..(raw.size-1)) {
-                raw(i) = v;
-            }   
+	    raw.fill(v);
         } else {
             for (p in region) {
                 raw(offset(p)) = v;

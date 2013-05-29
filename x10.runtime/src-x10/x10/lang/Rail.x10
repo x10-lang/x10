@@ -232,10 +232,20 @@ public final class Rail[T](
             dst:Rail[T], dstIndex:Long, numElems:Long, 
             notifier:()=>void):void;
 
+
+    /**
+     * Fill all elements of the array to contain the argument value.
+     * 
+     * @param v the value with which to fill the array
+     */
+    public native def fill(v:T):void;
+
+
     /**
      * Clears the entire Rail by zeroing the storage.
      */
     public native def clear(){T haszero}:void;
+
 
     /**
      * Clears numElems of the backing storage begining at start by zeroing the storage.

@@ -148,6 +148,7 @@ namespace x10 {
                 return raw[index];
             }
 
+            void fill(T value);
             
             void clear();
             void clear(x10_long start, x10_long numElems);
@@ -385,6 +386,12 @@ template<class T> x10::lang::String* x10::lang::Rail<T>::toString() {
     }
     tmp = x10aux::realloc_printf(tmp, "]");
     return x10::lang::String::Steal(tmp);
+}
+
+template<class T> void x10::lang::Rail<T>::fill(T value) {
+    for (x10_long i = 0; i < FMGL(size); i++) {
+        raw[i] = value;
+    }
 }
 
 template<class T> void x10::lang::Rail<T>::clear() {
