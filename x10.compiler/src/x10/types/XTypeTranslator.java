@@ -260,13 +260,13 @@ public class XTypeTranslator {
         return v;
     }
     static public XTerm expandSelfPropertyMethod(XTerm term) {
-        return expandPropertyMethod(term,false,null,null,null);
+        return expandPropertyMethod(term,false,null,null);
     }
     // todo: merge this code with Checker.expandCall and try to get rid of ts.expandMacros
     static public XTerm expandPropertyMethod(XTerm term, boolean isThisOrSelf,
                         // these three formals help us search for a concrete implementation of the property method
                         // they can be null (then we don't search for an implementation)
-                        TypeSystem ts, ClassType classType, Context context) {
+                        TypeSystem ts, Context context) {
         Def aDef = null;
         XTerm[] args = null; // the first arg is the this-receiver
         if (term instanceof CAtom) {
@@ -285,12 +285,15 @@ public class XTypeTranslator {
         }
         if (aDef==null || !(aDef instanceof X10MethodDef)) return term;
         XTerm receiver = args[0];
+        ClassType classType;
         if (isThisOrSelf) {
             // for methods (checking overriding) we replace "this.p(...)"
             if (!(receiver instanceof CThis)) return term;
+            classType = (ClassType)((CThis)receiver).type();
         } else {
             // for subtyping tests we replace "self.p(...)"
             if (!(receiver instanceof CSelf)) return term;
+            classType = (ClassType)((CThis)receiver).type();
         }
         X10MethodDef def = (X10MethodDef) aDef;
         if (classType!=null) {

@@ -3673,6 +3673,7 @@ public class TypeSystem_c implements TypeSystem
             final XVar[] x = xs.toArray(new XVar[ys.size()]);
 
             mi = new X10TypeEnv_c(context).fixThis((MethodInstance) mi, y, x);
+            mi = env(context).expandPropertyInMethod(mi);
 
             if (mi.typeParameters().size() != typeParams.size()) {
                 continue;
@@ -3707,7 +3708,8 @@ public class TypeSystem_c implements TypeSystem
                 throw new InternalCompilerError("Unexpected exception while translating a method instance", e);
             }
             TypeParamSubst tps = new TypeParamSubst(this, typeParams, mi.x10Def().typeParameters());
-            if (CollectionUtil.allElementwise(formalTypes, tps.reinstantiate(mi.formalTypes()), new TypeEquals(context))) {
+            List<Type> subst_formal_types = tps.reinstantiate(mi.formalTypes());
+            if (CollectionUtil.allElementwise(formalTypes, subst_formal_types, new TypeEquals(context))) {
                 l.add(mi);
             }
         }
@@ -3726,6 +3728,8 @@ public class TypeSystem_c implements TypeSystem
         final XVar[] x = xs.toArray(new XVar[ys.size()]);
 
         mi = new X10TypeEnv_c(context).fixThis( mi, y, x);
+        mi = env(context).expandPropertyInMethod(mi);
+        
         XVar placeTerm = Types.getPlaceTerm(mi);
 
         context = context.pushBlock();
@@ -3775,7 +3779,7 @@ public class TypeSystem_c implements TypeSystem
    // public void checkOverride(ClassType ct, MethodInstance mi0, MethodInstance mj0, Context context) throws SemanticException {
    //     env(context).checkOverride(ct, mi0, mj0);
    // }
-    public X10TypeEnv env(Context context) {
+    public X10TypeEnv_c env(Context context) {
         return new X10TypeEnv_c(context == null ? emptyContext() : context);
     }
     

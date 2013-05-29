@@ -1347,7 +1347,7 @@ public class X10ClassDecl_c extends ClassDecl_c implements X10ClassDecl {
     }
 
     public static MethodInstance expandMacros(ContextVisitor tc, TypeSystem ts, MethodInstance mi, MethodInstance mj) {
-        return ((X10TypeEnv_c)ts.env(tc.context())).expandPropertyInMethod(Types.getClassType(mi.container(),ts,tc.context()),mj);
+        return ((X10TypeEnv_c)ts.env(tc.context())).expandPropertyInMethod(mj);
     }
 
     protected boolean isValidType(Type type) {
