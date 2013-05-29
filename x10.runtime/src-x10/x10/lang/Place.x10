@@ -65,6 +65,12 @@ public final struct Place(
     public static def isHost(id:Long):Boolean = true;
 
     /**
+     * Returns whether a place is dead.
+     */
+    @Native("c++", "x10rt_is_place_dead((x10_int)#id)")
+    public static def isDead(id:Long):Boolean = false;
+
+    /**
      * Returns whether a place is a CUDA GPU.
      */
     @Native("c++", "x10aux::is_cuda((x10_int)#id)")
@@ -171,6 +177,9 @@ public final struct Place(
 
     /** Is this place a CUDA GPU? */
     public def isCUDA():Boolean = isCUDA(id);
+
+    /** Is this place dead? */
+    public def isDead():Boolean = isDead(id);
 
     /** 
      *How many accelerators does this place have?
