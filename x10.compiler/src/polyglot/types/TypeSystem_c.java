@@ -2597,13 +2597,19 @@ public class TypeSystem_c implements TypeSystem
         return railType_;
     }
     
-    protected X10ClassType simpleArrayType_ = null;
+    protected X10ClassType arrayType_ = null;
     public X10ClassType Array() {
-        if (simpleArrayType_ == null)
-            simpleArrayType_ = load("x10.array.Array", ((X10CompilerOptions)extensionInfo().getOptions()).x10_config.APGAS_LIB_MODE);
-        return simpleArrayType_;
+        if (arrayType_ == null)
+            arrayType_ = load("x10.array.Array", ((X10CompilerOptions)extensionInfo().getOptions()).x10_config.APGAS_LIB_MODE);
+        return arrayType_;
     }
 
+    protected X10ClassType distArrayType_ = null;
+    public X10ClassType DistArray() {
+        if (distArrayType_ == null)
+            distArrayType_ = load("x10.array.DistArray", ((X10CompilerOptions)extensionInfo().getOptions()).x10_config.APGAS_LIB_MODE);
+        return distArrayType_;
+    }
 
     protected X10ClassType remoteArrayType_ = null;
     public X10ClassType RemoteArray() {
@@ -4077,6 +4083,17 @@ public class TypeSystem_c implements TypeSystem
         } else if (me.isClass()) {
             Type parent = me.toClass().superClass();
             return parent != null && isArray(parent);
+        } else {
+            return false;
+        }
+    }
+    
+    public boolean isDistArray(Type me) {
+        if (finalSubtype(me, DistArray())) {
+            return true;
+        } else if (me.isClass()) {
+            Type parent = me.toClass().superClass();
+            return parent != null && isDistArray(parent);
         } else {
             return false;
         }

@@ -179,6 +179,8 @@ public class Lowerer extends ContextVisitor {
     private static final Name CONVERT = Converter.operator_as;
     private static final Name CONVERT_IMPLICITLY = Converter.implicit_operator_as;
     private static final Name DIST = Name.make("dist");
+    private static final Name LOCAL_INDICES = Name.make("localIndices");
+    private static final Name PLACE_GROUP = Name.make("placeGroup");
     
     private static final Name XOR = Name.make("xor");
     private static final Name FENCE = Name.make("fence");
@@ -1285,8 +1287,10 @@ public class Lowerer extends ContextVisitor {
       	return n;
     }
 
-    // ateach (p in D) S; ->
+    // ateach (pt in D) S; ->
     //    { Runtime.ensureNotInAtomic(); val d = D.dist; for (p in d.places()) async (p) for (pt in d|here) async S; }
+    // or 
+    //    { Runtime.ensureNotInAtomic(); val d = D.pg; for (p in d.places()) async (p) for (pt in D.localIndices()) async S; }
     private Stmt visitAtEach(AtEach a) throws SemanticException {
         Position pos = a.position();
         Position bpos = a.body().position();
@@ -1298,35 +1302,52 @@ public class Lowerer extends ContextVisitor {
             domain = altsynth.createFieldRef(pos, domain, DIST);
             dType = domain.type();
         }
+  
         LocalDef lDef = ts.localDef(pos, ts.Final(), Types.ref(dType), tmp);
         LocalDecl local = nf.LocalDecl(pos, nf.FlagsNode(pos, ts.Final()),
-                nf.CanonicalTypeNode(pos, dType), nf.Id(pos, tmp), domain).localDef(lDef);
+                                       nf.CanonicalTypeNode(pos, dType), nf.Id(pos, tmp), domain).localDef(lDef);
         X10Formal formal = (X10Formal) a.formal();
         Type fType = formal.type().type();
         assert (ts.isPoint(fType));
-        assert (ts.isDistribution(dType));
-        // Have to desugar some newly-created nodes
-        Type pType = ts.Place();
-        MethodInstance rmi = ts.findMethod(dType,
-                ts.MethodMatcher(dType, RESTRICTION, Collections.singletonList(pType), context()));
-        Expr here = visitHere(nf.Here(bpos));
-        Expr dAtPlace = nf.Call(bpos,
-                nf.Local(pos, nf.Id(pos, tmp)).localInstance(lDef.asInstance()).type(dType),
-                nf.Id(bpos, RESTRICTION),
-                here).methodInstance(rmi).type(rmi.returnType());
-        Expr here1 = visitHere(nf.Here(bpos));
+        
+        // Construct inner forloop
+        Stmt inner;
         List<VarInstance<? extends VarDef>> env = a.atDef().capturedEnvironment();
-        Stmt body = async(a.body().position(), a.body(), a.clocks(), here1, null, env, nf.NullLit(bpos).type(ts.Null()));
-        Stmt inner = nf.ForLoop(pos, formal, dAtPlace, body).locals(formal.explode(this));
-        MethodInstance pmi = ts.findMethod(dType,
-                ts.MethodMatcher(dType, PLACES, Collections.<Type>emptyList(), context()));
-        Expr places = nf.Call(bpos,
-                nf.Local(pos, nf.Id(pos, tmp)).localInstance(lDef.asInstance()).type(dType),
-                nf.Id(bpos, PLACES)).methodInstance(pmi).type(pmi.returnType());
+        if (ts.isDistArray(dType)) {
+            MethodInstance rmi = ts.findMethod(dType, ts.MethodMatcher(dType, LOCAL_INDICES, Collections.EMPTY_LIST, context));
+            Expr indices = altsynth.createInstanceCall(pos, altsynth.createLocal(pos, local), rmi);
+            
+            Stmt body = async(a.body().position(), a.body(), a.clocks(), null, env);
+            inner = nf.ForLoop(pos, formal, indices, body).locals(formal.explode(this));
+        } else {
+            MethodInstance rmi = ts.findMethod(dType,
+                                               ts.MethodMatcher(dType, RESTRICTION, Collections.singletonList((Type)ts.Place()), context()));
+            Expr here = visitHere(nf.Here(bpos));
+            Expr dAtPlace = nf.Call(bpos,
+                                    nf.Local(pos, nf.Id(pos, tmp)).localInstance(lDef.asInstance()).type(dType),
+                                    nf.Id(bpos, RESTRICTION),
+                                    here).methodInstance(rmi).type(rmi.returnType());
+            Expr here1 = visitHere(nf.Here(bpos));
+            Stmt body = async(a.body().position(), a.body(), a.clocks(), here1, null, env, nf.NullLit(bpos).type(ts.Null()));
+            inner = nf.ForLoop(pos, formal, dAtPlace, body).locals(formal.explode(this));
+        }
+        
+        // Construct outer forloop and adjust captured environments
+        Expr places;
+        if (ts.isDistArray(dType)) {
+            places = altsynth.createInstanceCall(pos, altsynth.createLocal(pos, local), PLACE_GROUP, context);
+            
+        } else {
+            MethodInstance pmi = ts.findMethod(dType,
+                                               ts.MethodMatcher(dType, PLACES, Collections.<Type>emptyList(), context()));
+            places = nf.Call(bpos,
+                             nf.Local(pos, nf.Id(pos, tmp)).localInstance(lDef.asInstance()).type(dType),
+                             nf.Id(bpos, PLACES)).methodInstance(pmi).type(pmi.returnType());
+        }
         Name pTmp = getTmp();
-        LocalDef pDef = ts.localDef(pos, ts.Final(), Types.ref(pType), pTmp);
+        LocalDef pDef = ts.localDef(pos, ts.Final(), Types.ref(ts.Place()), pTmp);
         Formal pFormal = nf.Formal(pos, nf.FlagsNode(pos, ts.Final()),
-                nf.CanonicalTypeNode(pos, pType), nf.Id(pos, pTmp)).localDef(pDef);
+                                   nf.CanonicalTypeNode(pos, ts.Place()), nf.Id(pos, pTmp)).localDef(pDef);
         List<VarInstance<? extends VarDef>> env1 = new ArrayList<VarInstance<? extends VarDef>>(env);
         removeLocalInstance(env1, formal.localDef().asInstance());
         for (int i = 0; i < formal.localInstances().length; i++) {
@@ -1334,19 +1355,16 @@ public class Lowerer extends ContextVisitor {
         }
         env1.add(lDef.asInstance());
         Stmt body1 = async(bpos, inner, a.clocks(),
-                nf.Local(bpos, nf.Id(bpos, pTmp)).localInstance(pDef.asInstance()).type(pType),
-                null, env1, nf.NullLit(bpos).type(ts.Null()));
+                           nf.Local(bpos, nf.Id(bpos, pTmp)).localInstance(pDef.asInstance()).type(ts.Place()),
+                           null, env1, nf.NullLit(bpos).type(ts.Null()));
         Stmt outer = nf.ForLoop(pos, pFormal, places, body1);
 
-        // TODO: Instead of creating ForLoop's and then removing them, 
-        //       change the code above to create simple For's in the first place.
         ForLoopOptimizer flo = new ForLoopOptimizer(job, ts, nf);
         For newLoop = (For)outer.visit(((ContextVisitor)flo.begin()).context(context()));
-        
         return nf.Block(pos, 
-        		nf.Eval(pos, call(pos, ENSURE_NOT_IN_ATOMIC, ts.Void())),
-        		local, 
-        		newLoop);
+                        nf.Eval(pos, call(pos, ENSURE_NOT_IN_ATOMIC, ts.Void())),
+                        local, 
+                        newLoop);
     }
 
     private boolean removeLocalInstance(List<VarInstance<? extends VarDef>> env, VarInstance<? extends VarDef> li) {

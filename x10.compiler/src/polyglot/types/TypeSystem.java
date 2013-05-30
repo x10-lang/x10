@@ -1058,6 +1058,11 @@ public interface TypeSystem {
     X10ClassType Array();
 
     /**
+     * Return the ClassType object for the x10.array.DistArray class.
+     */
+    X10ClassType DistArray();
+
+    /**
      * Return the ClassType object for the x10.regionarray.DistArray class.
      */
     X10ClassType RegionDistArray();
@@ -1072,6 +1077,8 @@ public interface TypeSystem {
     boolean isRail(Type t);
     
     boolean isArray(Type t);
+    
+    boolean isDistArray(Type t);
 
     public boolean isRegionArrayOf(Type t, Type p);
 

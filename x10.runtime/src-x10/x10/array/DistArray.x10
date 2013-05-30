@@ -30,9 +30,10 @@ import x10.io.SerialData;
  * <p> Related classes in this package {@link Array} provide a similar
  * simple array abstraction whose data is contained in a sinple Place.</p>
  * 
- * <p>A more general, but lower performance, distributed array abstraction is provided 
- * by {@link x10.regionarray.DistArray} which support more general indexing operations 
- * via user-extensible {@link x10.regionarray.Region}s and {@link x10.regionarray.Dist}s. 
+ * <p>A more general, but lower performance, distributed array abstraction is
+ *  provided by {@link x10.regionarray.DistArray} which supports more 
+ * general indexing operations via user-extensible 
+ * {@link x10.regionarray.Region}s and {@link x10.regionarray.Dist}s. 
  * See the package documentation of {@link x10.regionarray} for more details.</p>
  */
 public abstract class DistArray[T] (
@@ -40,7 +41,7 @@ public abstract class DistArray[T] (
          * The number of data values in the array.
          */
         size:Long
-) implements CustomSerialization {
+) implements CustomSerialization, Iterable[Point(this.rank())] {
 
     /**
      * @return the rank (dimensionality) of the DistArray
@@ -109,12 +110,22 @@ public abstract class DistArray[T] (
     public @Inline final def raw():Rail[T]{self!=null} = raw;
 
     /**
+     * The PlaceGroup over which the DistArray is defined
+     */
+    public final def placeGroup():PlaceGroup = placeGroup;
+
+    /**
      * Get an IterationSpace that represents all Points contained in
      * the global iteration space (valid indices) of the DistArray.
      * @return an IterationSpace for the DistArray
      */
     public abstract def globalIndices():IterationSpace{self.rank==this.rank(),self.rect,self!=null};
 
+    /**
+     * Define default iteration to be over globalIndices to support
+     * idiomatic usage in <code>ateach</code>
+     */
+    public def iterator():Iterator[Point(this.rank())] = globalIndices().iterator();
 
     /**
      * Get an IterationSpace that represents all Points contained in
