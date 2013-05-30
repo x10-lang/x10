@@ -3963,7 +3963,6 @@ public class Emitter {
                     /*&& !ConstructorSplitterVisitor.isUnsplittable(Types.baseType(def.asType()))*/
                     && !def.flags().isInterface()) {
                 w.write("(" + X10PrettyPrinterVisitor.CONSTRUCTOR_FOR_ALLOCATION_DUMMY_PARAM_TYPE + ") null");
-                // N.B. in custom deserializer, initialize type params with null
                 for (ParameterType typeParam : def.typeParameters()) {
                     w.write(", (" + X10PrettyPrinterVisitor.X10_RTT_TYPE + ") "+mangleParameterType(typeParam));
                 }
