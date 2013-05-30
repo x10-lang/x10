@@ -4,7 +4,9 @@ import java.io.ByteArrayInputStream;
 import java.io.DataInputStream;
 import java.io.IOException;
 import java.net.ConnectException;
+import java.net.InetAddress;
 import java.net.InetSocketAddress;
+import java.net.UnknownHostException;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.nio.channels.SelectionKey;
@@ -81,7 +83,16 @@ public class SocketTransport {
 	
 	public String getLocalConnectionInfo() {
 		int port = localListenSocket.socket().getLocalPort();
-		String hostname = localListenSocket.socket().getInetAddress().getHostName();
+		String hostname;
+		try {
+			hostname = InetAddress.getLocalHost().getCanonicalHostName();
+		} catch (UnknownHostException e) {
+			try {
+				hostname = InetAddress.getLocalHost().getHostName();
+			} catch (UnknownHostException e1) {
+				hostname = localListenSocket.socket().getInetAddress().getHostName();
+			}
+		}
 		return hostname+":"+port;
 	}
 	
