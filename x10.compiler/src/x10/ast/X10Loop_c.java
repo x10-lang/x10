@@ -247,18 +247,18 @@ public abstract class X10Loop_c extends Loop_c implements X10Loop {
 		TypeSystem ts =  tc.typeSystem();
 		Type domainType = domainTypeRef.get();
 		if (domainType == null ) {
-			// aha, in this case the type inferencer did not run, since an explicit type was givem.
+			// aha, in this case the type inferencer did not run, since an explicit type was given.
 			domainType = domain.type();
 		}
 		ConstrainedType formalType = Types.toConstrainedType(formal.declType());
-		assert domainType != null
-		: "formal=" + formal + " domain = " + domain + " position = " + position();
+		assert domainType != null : "formal=" + formal + " domain = " + domain + " position = " + position();
         final Context context = tc.context();
 
         HashSet<Type> iterableIndex = Types.getIterableIndex(domainType, context);
         boolean newRes = false;
-        for (Type tt : iterableIndex)
+        for (Type tt : iterableIndex) {
             newRes |= ts.isSubtype(tt, formalType, context);
+        }
         //assert newRes==ts.isSubtype(domainType, ts.Iterable(formalType), tc.context()); // when Iterable was covariant (i.e., Iterable[+T])
 		if (newRes) {
 		//	if (X10TypeMixin.areConsistent(formalType, domainType)
