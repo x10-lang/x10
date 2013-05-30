@@ -3782,22 +3782,26 @@ public class Emitter {
         }
         w.write("return this; }");
         w.newline();
-        w.write("private Object readResolve() { return ");
-	if (X10PrettyPrinterVisitor.generateFactoryMethod) {
-	    printType(def.asType(), BOX_PRIMITIVES | NO_QUALIFIER);
-	    w.write(".");
-	    w.write(X10PrettyPrinterVisitor.CREATION_METHOD_NAME);
-	} else {
-	    assert X10PrettyPrinterVisitor.generateOnePhaseConstructor;
-	    w.write("new ");
-	    printType(def.asType(), BOX_PRIMITIVES | NO_QUALIFIER);
-	}
-        w.write("(");
-        for (ParameterType type : def.typeParameters()) {
-        	w.write(mangleParameterType(type) + ", ");
+        if (def.flags().isAbstract()) {
+            w.writeln("private Object readResolve() { throw new UnsupportedOperationException(\"Can't instantiate an abstract class\"); } ");            
+        } else {
+            w.write("private Object readResolve() { return ");
+            if (X10PrettyPrinterVisitor.generateFactoryMethod) {
+                printType(def.asType(), BOX_PRIMITIVES | NO_QUALIFIER);
+                w.write(".");
+                w.write(X10PrettyPrinterVisitor.CREATION_METHOD_NAME);
+            } else {
+                assert X10PrettyPrinterVisitor.generateOnePhaseConstructor;
+                w.write("new ");
+                printType(def.asType(), BOX_PRIMITIVES | NO_QUALIFIER);
+            }
+            w.write("(");
+            for (ParameterType type : def.typeParameters()) {
+                w.write(mangleParameterType(type) + ", ");
+            }
+            w.write(fieldName + "); }");
+            w.newline();
         }
-        w.write(fieldName + "); }");
-        w.newline();
         w.write("private void writeObject(java.io.ObjectOutputStream oos) throws java.io.IOException {");
         w.newline();
         for (ParameterType type : def.typeParameters()) {
@@ -3911,14 +3915,7 @@ public class Emitter {
             w.writeln("} ");
         }
 
-        ArrayList<String> params = new ArrayList<String>();
         w.writeln("x10.io.SerialData " +  fieldName +  " = (x10.io.SerialData) $deserializer.readRef();");
-        for (ParameterType at : def.typeParameters()) {
-            w.write(X10PrettyPrinterVisitor.X10_RTT_TYPE + " ");
-            printType(at, PRINT_TYPE_PARAMS | BOX_PRIMITIVES);
-            w.writeln(" = (" + X10PrettyPrinterVisitor.X10_RTT_TYPE + ") $deserializer.readRef();");
-            params.add(mangleParameterType(at));
-        }
 
         // XTENLANG-2974
         // N.B. we cannot reinstantiating $_obj since it may have already been serialized (and thus registered).
@@ -3940,9 +3937,6 @@ public class Emitter {
 //        }
 //        w.writeln("(" + paramNames + fieldName + ");");
         // set type objects to the fields of $_obj and initialize $_obj by calling $init(SerialData). 
-        for (String param : params) {
-            w.writeln("$_obj." + param + " = " + param + ";");
-        }
         w.writeln("$_obj." + X10PrettyPrinterVisitor.CONSTRUCTOR_METHOD_NAME(def) + "(" + fieldName + ");");
         
         w.writeln("return $_obj;");
@@ -3955,26 +3949,35 @@ public class Emitter {
         w.writeln("public static " + X10_JAVA_SERIALIZABLE_CLASS + " " + DESERIALIZER_METHOD + "(" + X10_JAVA_DESERIALIZER_CLASS + " $deserializer) throws java.io.IOException {");
         w.newline(4);
         w.begin(0);
-        w.write(mangleToJava(def.name()) + " $_obj = new " + mangleToJava(def.name()) + "(");
-        if (X10PrettyPrinterVisitor.supportConstructorSplitting
-            // XTENLANG-2830
-            /*&& !ConstructorSplitterVisitor.isUnsplittable(Types.baseType(def.asType()))*/
-            && !def.flags().isInterface()) {
-            w.write("(" + X10PrettyPrinterVisitor.CONSTRUCTOR_FOR_ALLOCATION_DUMMY_PARAM_TYPE + ") null");
-            // N.B. in custom deserializer, initialize type params with null
-            for (ParameterType typeParam : def.typeParameters()) {
-                w.write(", (" + X10PrettyPrinterVisitor.X10_RTT_TYPE + ") null");
-            }
-            w.write(");");
-            w.newline();
+        if (def.flags().isAbstract()) {
+            w.write("throw new UnsupportedOperationException(\"Can't instantiate an abstract class\");");
         } else {
-            for (int i = 0; i < def.typeParameters().size(); i++) {
-                w.write("null, ");
+            for (ParameterType typeParam : def.typeParameters()) {
+                w.write(X10PrettyPrinterVisitor.X10_RTT_TYPE + " ");
+                printType(typeParam, PRINT_TYPE_PARAMS | BOX_PRIMITIVES);
+                w.writeln(" = (" + X10PrettyPrinterVisitor.X10_RTT_TYPE + ") $deserializer.readRef();");
             }
-            w.writeln("(x10.io.SerialData) null);");
+            w.write(mangleToJava(def.name()) + " $_obj = new " + mangleToJava(def.name()) + "(");
+            if (X10PrettyPrinterVisitor.supportConstructorSplitting
+                    // XTENLANG-2830
+                    /*&& !ConstructorSplitterVisitor.isUnsplittable(Types.baseType(def.asType()))*/
+                    && !def.flags().isInterface()) {
+                w.write("(" + X10PrettyPrinterVisitor.CONSTRUCTOR_FOR_ALLOCATION_DUMMY_PARAM_TYPE + ") null");
+                // N.B. in custom deserializer, initialize type params with null
+                for (ParameterType typeParam : def.typeParameters()) {
+                    w.write(", (" + X10PrettyPrinterVisitor.X10_RTT_TYPE + ") "+mangleParameterType(typeParam));
+                }
+                w.write(");");
+                w.newline();
+            } else {
+                for (ParameterType typeParam : def.typeParameters()) {
+                    w.write(mangleParameterType(typeParam)+", ");
+                }
+                w.writeln("(x10.io.SerialData) null);");
+            }
+            w.writeln("$deserializer.record_reference($_obj);");
+            w.writeln("return " + DESERIALIZE_BODY_METHOD + "($_obj, $deserializer);");
         }
-        w.writeln("$deserializer.record_reference($_obj);");
-        w.writeln("return " + DESERIALIZE_BODY_METHOD + "($_obj, $deserializer);");
         w.end();
         w.newline();
         w.writeln("}");
@@ -3989,12 +3992,11 @@ public class Emitter {
             w.write("java.lang.System.out.println(\" CustomSerialization : " + SERIALIZE_METHOD + " of \" + this + \" calling\"); ");
             w.writeln("} ");
         }
-
-        w.writeln(fieldName + " = serialize(); ");
-        w.writeln("$serializer.write(" + fieldName + ");");
         for (ParameterType at : def.typeParameters()) {
             w.writeln("$serializer.write(" + mangleParameterType(at) + ");");
         }
+        w.writeln(fieldName + " = serialize(); ");
+        w.writeln("$serializer.write(" + fieldName + ");");
         w.end();
         w.newline();
         w.writeln("}");

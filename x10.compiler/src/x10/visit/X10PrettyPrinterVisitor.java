@@ -713,7 +713,7 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
                     w.newline();
                 }
 
-                // Prints out custom serialization/deserialization code, the imeplementation resembles closely what the C++ backend does
+                // Prints out custom serialization/deserialization code, the implementation resembles closely what the C++ backend does
 
                 X10ClassType ct = def.asType();
                 ASTQuery query = new ASTQuery(tr);
