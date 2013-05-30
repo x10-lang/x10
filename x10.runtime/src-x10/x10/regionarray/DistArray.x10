@@ -80,25 +80,24 @@ public final class DistArray[T] (
       }
     }
 
-    /** The place-local backing storage for the DistArray */
+    /** The place-local state for the DistArray */
     protected val localHandle:PlaceLocalHandle[LocalState[T]];
-    /** Can the backing storage be obtained from cachedRaw? */
-    protected transient var cachedRawValid:boolean;
-    /** Cached pointer to the backing storage */
-    protected transient var cachedRaw:Rail[T];
+
+    /** 
+     * The place-local backing storage for elements of the DistArray.
+     * Implementation note: this field is intentionally not serialized when 
+     *    the DistArray object is serialized.  Instead it is acquired from 
+     *    the LocalState via the PlaceLocalHandle during deserialization.
+     *    This enables optimized access (single unconditional load)
+     *    to the backing Rail.
+     */
+    protected val raw:Rail[T]{self!=null};
     
     /**
      * Method to acquire a pointer to the backing storage for the 
      * array's data in the current place.
      */
-    protected final def raw():Rail[T]{self!=null} {
-        if (!cachedRawValid) {
-            cachedRaw = localHandle().data;
-            x10.util.concurrent.Fences.storeStoreBarrier();
-	    cachedRawValid = true;
-        }
-        return cachedRaw as Rail[T]{self!=null};
-    }
+    protected final def raw():Rail[T]{self!=null} = raw;
 
     /**
      * @return the portion of the DistArray that is stored 
@@ -107,7 +106,7 @@ public final class DistArray[T] (
     public def getLocalPortion():Array[T](dist.rank) {
         val regionForHere = dist.get(here);
         if (!regionForHere.rect) throw new UnsupportedOperationException(this.typeName() +".getLocalPortion(): local portion is not rectangular!");
-        return new Array[T](regionForHere, raw());
+        return new Array[T](regionForHere, raw);
     }
 
     /**
@@ -128,6 +127,7 @@ public final class DistArray[T] (
         };
 
         localHandle = PlaceLocalHandle.makeFlat[LocalState[T]](PlaceGroup.WORLD, plsInit);
+        raw = localHandle().data;
     }
 
     def this(sd:SerialData) {
@@ -136,6 +136,7 @@ public final class DistArray[T] (
 
       property(d);
       localHandle = plh;
+      raw = plh().data;
     }
 
     public def serialize():SerialData {
@@ -179,6 +180,7 @@ public final class DistArray[T] (
         };
 
         localHandle = PlaceLocalHandle.make[LocalState[T]](PlaceGroup.WORLD, plsInit);
+        raw = localHandle().data;
     }
 
 
@@ -211,6 +213,7 @@ public final class DistArray[T] (
         };
 
         localHandle = PlaceLocalHandle.makeFlat[LocalState[T]](PlaceGroup.WORLD, plsInit);
+        raw = localHandle().data;
     }
 
     /**
@@ -227,6 +230,7 @@ public final class DistArray[T] (
 
         val plsInit:()=>LocalState[T] = ()=> new LocalState(d, a.localHandle().data);
         localHandle = PlaceLocalHandle.makeFlat[LocalState[T]](PlaceGroup.WORLD, plsInit);
+        raw = localHandle().data;
     }
 
     /**
@@ -237,6 +241,7 @@ public final class DistArray[T] (
     protected def this(d:Dist, pls:PlaceLocalHandle[LocalState[T]]) {
         property(d);
         localHandle = pls;
+        raw = localHandle().data;
     }
     
     
@@ -253,7 +258,7 @@ public final class DistArray[T] (
      */
     public final operator this(pt:Point(rank)): T {
         val offset = dist.offset(pt);
-        return raw()(offset);
+        return raw(offset);
     }
 
     /**
@@ -270,7 +275,7 @@ public final class DistArray[T] (
      */
     public final operator this(i0:long){rank==1}: T {
         val offset = dist.offset(i0);
-        return raw()(offset);
+        return raw(offset);
     }
 
     /**
@@ -288,7 +293,7 @@ public final class DistArray[T] (
      */
     public final operator this(i0:long, i1:long){rank==2}: T {
         val offset = dist.offset(i0, i1);
-        return raw()(offset);
+        return raw(offset);
     }
 
     /**
@@ -307,7 +312,7 @@ public final class DistArray[T] (
      */
     public final operator this(i0:long, i1:long, i2:long){rank==3}: T {
         val offset = dist.offset(i0, i1, i2);
-        return raw()(offset);
+        return raw(offset);
     }
 
     /**
@@ -327,7 +332,7 @@ public final class DistArray[T] (
      */
     public final operator this(i0:long, i1:long, i2:long, i3:long){rank==4}: T {
         val offset = dist.offset(i0, i1, i2, i3);
-        return raw()(offset);
+        return raw(offset);
     }
 
 
@@ -346,7 +351,7 @@ public final class DistArray[T] (
      */    
     public final operator this(pt: Point(rank))=(v: T): T {
         val offset = dist.offset(pt);
-        raw()(offset) = v;
+        raw(offset) = v;
         return v;
     }
 
@@ -366,7 +371,7 @@ public final class DistArray[T] (
      */    
     public final operator this(i0:long)=(v: T){rank==1}: T {
         val offset = dist.offset(i0);
-        raw()(offset) = v;
+        raw(offset) = v;
         return v;
     }
 
@@ -387,7 +392,7 @@ public final class DistArray[T] (
      */
     public final operator this(i0:long, i1:long)=(v: T){rank==2}: T {
         val offset = dist.offset(i0, i1);
-        raw()(offset) = v;
+        raw(offset) = v;
         return v;
     }
 
@@ -409,7 +414,7 @@ public final class DistArray[T] (
      */
     public final operator this(i0:long, i1:long, i2:long)=(v: T){rank==3}: T {
         val offset = dist.offset(i0,i1,i2);
-        raw()(offset) = v;
+        raw(offset) = v;
         return v;
     }
 
@@ -432,7 +437,7 @@ public final class DistArray[T] (
      */
     public final operator this(i0:long, i1:long, i2:long, i3:long)=(v: T){rank==4}: T {
         val offset = dist.offset(i0,i1,i2,i3);
-        raw()(offset) = v;
+        raw(offset) = v;
         return v;
     }
 
@@ -514,8 +519,8 @@ public final class DistArray[T] (
     public def fill(v:T) {
         finish for (where in dist.places()) {
             at (where) async {
-                val rail = raw();
                 val reg = dist.get(here);
+                val rail = raw;
                 for (pt in reg) {
                     rail(dist.offset(pt)) = v;
                 }
