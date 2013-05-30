@@ -43,7 +43,7 @@ public abstract class Array[T] (
          * The number of data values in the array.
          */
         size:Long
-) implements Iterable[T] {
+) implements Iterable[T], (Point(this.rank()))=>T {
 
     /**
      * @return the rank (dimensionality) of the Array
@@ -189,8 +189,7 @@ public abstract class Array[T] (
      * iteration space (valid indices) of the Array.
      * @return an IterationSpace for the Array
      */
-    // TODO: rank constraint commented out until XTENLANG-3210 is fixed
-    public abstract def indices():IterationSpace/*{self.rank==this.rank(),self.rect,self!=null}*/;
+    public abstract def indices():IterationSpace{self.rank==this.rank(),self.rect,self!=null};
 
 
     /**
@@ -214,8 +213,7 @@ public abstract class Array[T] (
      * @return the new value of the element of this array corresponding to the given point.
      * @see #operator(Point)
      */
-    // TODO: commented out until XTENLANG-3209 is fixed
-    // public abstract operator this(p:Point(this.rank()))=(v:T):T{self==v};
+    public abstract operator this(p:Point(this.rank()))=(v:T):T{self==v};
 
 
     /**
