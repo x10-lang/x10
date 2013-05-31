@@ -63,7 +63,7 @@ public class QuickSortSeq {
       val r = new x10.util.Random(0);
       var avgDur:Double = 0;
       for (var i:Int = 0; i < 10; ++i) {
-          val data:Rail[int] = new Rail[int](N, (int)=>r.nextInt(9999));
+          val data:Rail[int] = new Rail[int](N, (long)=>r.nextInt(9999));
           val startTime = System.nanoTime();
           qsort(data, 0, N-1);
           val duration = ((System.nanoTime() - startTime) as Double)/1e9;
@@ -72,7 +72,7 @@ public class QuickSortSeq {
           var a:int = 0;
           var b:int;
           var ok:boolean = true;
-          for ([j] in 0..(N-1)) {
+          for (j in 0..(N-1)) {
               b = data(j);
               ok &= (a <= b);
               a = b;
