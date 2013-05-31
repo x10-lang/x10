@@ -29,8 +29,9 @@ class FibSeq {
         val n = args.size > 0 ? Int.parse(args(0)) : 10;
         var avgDur:Double = 0;
         for (var i:Int = 0; i < 10; ++i) {
+            val v = (i%2 == 0 ? n : n+1)-i%2;
             val startTime = System.nanoTime();
-            val r = fib(n);
+            val r = fib(v);
             val duration = ((System.nanoTime() - startTime) as Double)/1e9;
             avgDur += duration;
             Console.OUT.println("Fib("+ n +")=" + r.toString());
