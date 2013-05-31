@@ -162,12 +162,6 @@ public abstract class DistArray[T] (
      */
     public abstract operator this(p:Point(this.rank()))=(v:T):T{self==v};
 
-    protected static class LocalState[S](pg:PlaceGroup{self!=null},rail:Rail[S]{self!=null},size:long) {
-        def this(pg:PlaceGroup{self!=null},rail:Rail[S]{self!=null}, size:long) {
-            property(pg, rail, size);
-        }
-    }
-
     protected static @NoInline @NoReturn def raiseBoundsError(i:long) {
         throw new ArrayIndexOutOfBoundsException("(" + i + ") not contained in array");
     }    
@@ -187,6 +181,14 @@ public abstract class DistArray[T] (
     protected static @NoInline @NoReturn def raisePlaceError(i:long, j:long, k:long) {
         throw new BadPlaceException("point (" + i + ", "+ j +", "+ k +") not defined at " + here);
     }    
+}
+
+// TODO:  Would prefer this to be a protected static nested class, but 
+//        when written that way we non-deterministically fail compilation.
+class LocalState[S](pg:PlaceGroup{self!=null},rail:Rail[S]{self!=null},size:long) {
+    def this(pg:PlaceGroup{self!=null},rail:Rail[S]{self!=null}, size:long) {
+        property(pg, rail, size);
+    }
 }
 
 // vim:tabstop=4:shiftwidth=4:expandtab
