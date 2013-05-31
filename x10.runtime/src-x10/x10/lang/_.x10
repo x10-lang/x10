@@ -60,8 +60,4 @@ public class _ {
 
 
     public static type Console = x10.io.Console;
-
-    // MT temporary definition for making porting to X10 trunk easier
-    public static type PlaceId = Long;
-    public static type Idx = Long;
 }
