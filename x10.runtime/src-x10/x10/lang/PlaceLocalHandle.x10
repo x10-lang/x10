@@ -32,7 +32,7 @@ import x10.compiler.NativeClass;
  */
 @NativeClass("c++", "x10.lang", "PlaceLocalHandle_Impl")
 @NativeClass("java", "x10.core", "PlaceLocalHandle")
-public final struct PlaceLocalHandle[T]{T isref} {
+public final struct PlaceLocalHandle[T]{T isref, T haszero} {
 
     // Only to be used by make method and Runtime class
     native def this();
@@ -44,6 +44,12 @@ public final struct PlaceLocalHandle[T]{T isref} {
 
     // Only to be used by make method and Runtime class
     native def set(newVal:T):void;
+
+    // hack for XTENLANG-3216. 
+    // We really should be able to call set(null) instead of clear
+    // in destroy, but X10 typechecker doesn't grok that isref and haszero
+    // together imply that null is a valid value of type T.
+    native def clear():void;
 
     public native def hashCode():Int;
 
@@ -137,5 +143,14 @@ public final struct PlaceLocalHandle[T]{T isref} {
             at (p) async handle.set(init_there(v));
         }
         return handle;
+    }
+
+    /**
+     * Release the local state of the argument PlaceLocalHandle at
+     * every place in the argument PlaceGroup (by storing null
+     * as the value for the PlaceLocalHandle at that Place).
+     */
+    public static def destroy[T](pg:PlaceGroup, plh:PlaceLocalHandle[T]){T isref}:void {
+        pg.broadcastFlat(()=>{ plh.clear(); });
     }
 }

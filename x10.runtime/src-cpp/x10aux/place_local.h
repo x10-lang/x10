@@ -39,9 +39,9 @@ namespace x10aux {
         static void** _fastData;
         static void initialize();
         static x10_int nextId();
-        static void* lookupData(x10_int id);
-        static void registerData(x10_int id, void *data);
-        static void unregisterData(x10_int id);
+        static void* get(x10_int id);
+        static void put(x10_int id, void *data);
+        static void remove(x10_int id);
         template<class T> friend const char *x10aux::typeName();
     };
 
@@ -52,5 +52,3 @@ namespace x10aux {
 }
 
 #endif
-
-

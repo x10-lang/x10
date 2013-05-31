@@ -45,7 +45,7 @@ x10_int place_local::nextId() {
     return id;
 }
 
-void* place_local::lookupData(x10_int id) {
+void* place_local::get(x10_int id) {
     if (id < MAX_FAST_ID) {
         return _fastData[id];
     } else {
@@ -54,34 +54,50 @@ void* place_local::lookupData(x10_int id) {
         Bucket *cur = _buckets[bucket];
         while (cur != NULL) {
             if (cur->_id == id) {
+                void* ans = cur->_data;
                 _lock->unlock();
-                return cur->_data;
+                return ans;
             }
             cur = cur->_next;
         }
         _lock->unlock();
+        // didn't find it, which means we return NULL (match Java Map semantics)
         return NULL;
     }
 }
 
-void place_local::registerData(x10_int id, void *data) {
-    assert(NULL == lookupData(id));
+void place_local::put(x10_int id, void *data) {
     if (id < MAX_FAST_ID) {
         _fastData[id] = data;
     } else {
-        _lock->lock();
-        int bucket = hash_code(id) % NUM_BUCKETS;
-        Bucket *newBucket = alloc<Bucket>();
-        newBucket->_id = id;
-        newBucket->_data = data;
-        newBucket->_next = _buckets[bucket];
-        _buckets[bucket] = newBucket;
-        _lock->unlock();
+        if (NULL == data) {
+            // optimize storing NULL as absence of the key (match Java Map semantics)
+            remove(id);
+        } else {
+            int bucket = hash_code(id) % NUM_BUCKETS;
+            // First, search to see if we are replacing an exisiting key
+            Bucket *cur = _buckets[bucket];
+            while (cur != NULL) {
+                if (cur->_id == id) {
+                    // Replace
+                    cur->_data = data;
+                    _lock->unlock();
+                    return;
+                }
+                cur = cur->_next;
+            }
+            // Didn't find it.  Insert at head of bucket chain
+            Bucket *newBucket = alloc<Bucket>();
+            newBucket->_id = id;
+            newBucket->_data = data;
+            newBucket->_next = _buckets[bucket];
+            _buckets[bucket] = newBucket;
+            _lock->unlock();
+        }
     }
 }
 
-void place_local::unregisterData(x10_int id) {
-    assert(NULL == lookupData(id));
+void place_local::remove(x10_int id) {
     if (id < MAX_FAST_ID) {
         _fastData[id] = NULL;
     } else {
@@ -94,15 +110,14 @@ void place_local::unregisterData(x10_int id) {
                 // cut cur out of bucket chain by setting trailer to cur->next;
                 *trailer = cur->_next;
                 _lock->unlock();
+                x10aux::dealloc(cur);
                 return;
             }
             trailer = &(cur->_next);
             cur = cur->_next;
         }
-        // hmm, wasn't registered in the first place
-        // probably an error...but not entirely fatal, so we don't
-        // have to about if running with assertions disabled.
+        // wasn't here in the first place,  since we optimize storing NULL
+        // by not storing anything, this isn't an error.
         _lock->unlock();
-        assert(false);
     }
 }
