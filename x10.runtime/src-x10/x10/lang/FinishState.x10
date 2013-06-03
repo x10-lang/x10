@@ -339,7 +339,7 @@ abstract class FinishState {
         protected var count:Int = 1;
         protected var exceptions:GrowableRail[Exception]; // lazily initialized
         protected var counts:Rail[Int];
-//        protected var seen:Rail[Boolean];
+        protected var seen:Rail[Boolean];
         def this() {
             latch = @Embed new SimpleLatch();
         }
@@ -356,7 +356,7 @@ abstract class FinishState {
             }
             if (counts == null || counts.size == 0L) {
                 counts = new Rail[Int](Place.MAX_PLACES);
-//                seen = new Rail[Boolean](Place.MAX_PLACES);
+                seen = new Rail[Boolean](Place.MAX_PLACES);
             }
             counts(p.id)++;
             latch.unlock();
@@ -393,17 +393,19 @@ abstract class FinishState {
                 Runtime.worker().join(latch);
             }
             latch.await();
-            /*
             if (counts != null && counts.size != 0L) {
-                val root = ref();
-                val closure = ()=>@RemoteInvocation { Runtime.finishStates.remove(root); };
-                seen(Runtime.hereInt()) = false;
-                for(var i:Int=0; i<Place.MAX_PLACES; i++) {
-                    if (seen(i)) Runtime.x10rtSendMessage(i, closure, null);
+                if (Place.MAX_PLACES < 1024) {
+                    val root = ref();
+                    val closure = ()=>@RemoteInvocation("remoteFinishCleanup") { Runtime.finishStates.remove(root); };
+                    seen(Runtime.hereInt()) = false;
+                    for(var i:Int=0; i<Place.MAX_PLACES; i++) {
+                        if (seen(i)) Runtime.x10rtSendMessage(i, closure, null);
+                    }
+                    Runtime.dealloc(closure);
+                } else {
+                    // TODO: cleanup with indirect routing
                 }
-                Runtime.dealloc(closure);
             }
-            */
             val t = MultipleExceptions.make(exceptions);
             if (null != t) throw t;
         }
@@ -414,7 +416,7 @@ abstract class FinishState {
             var b:Boolean = count == 0;
             for(var i:Long=0; i<Place.MAX_PLACES; i++) {
                 counts(i) += rail(i);
-//                seen(i) |= counts(i) != 0;
+                seen(i) |= counts(i) != 0;
                 if (counts(i) != 0) b = false;
             }
             if (b) latch.release();
@@ -429,7 +431,7 @@ abstract class FinishState {
         protected def process(rail:Rail[Pair[Int,Int]]):void {
             for(var i:long=0; i<rail.size; i++) {
                 counts(rail(i).first as long) += rail(i).second;
-//                seen(rail(i).first) = true;
+                seen(rail(i).first) = true;
             }
             count += counts(ref().home.id);
             counts(ref().home.id) = 0;
