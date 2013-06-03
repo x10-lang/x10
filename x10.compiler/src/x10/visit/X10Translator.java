@@ -470,7 +470,7 @@ public class X10Translator extends Translator {
                 }
             }
             catch(Exception e) {
-                eq.enqueue(ErrorInfo.POST_COMPILER_ERROR, e.getMessage());
+                eq.enqueue(ErrorInfo.POST_COMPILER_ERROR, e.toString());
                 return false;
             }
         }
