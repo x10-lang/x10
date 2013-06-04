@@ -11,6 +11,7 @@
 
 package x10.visit;
 
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
@@ -338,6 +339,8 @@ public class X10Translator extends Translator {
                     File directoryHoldingJarFile = jarFile.getParentFile();
                     if (directoryHoldingJarFile != null) {
                     	directoryHoldingJarFile.mkdirs();
+                    } else {
+                    	directoryHoldingJarFile = new File(".");
                     }
                     
                     // execute "jar cmf ${manifest_file} ${executable_path} -C ${output_directory} ."
@@ -416,7 +419,7 @@ public class X10Translator extends Translator {
 //                    		System.out.println("listPropDir = " + listPropDir);
                     		
                     		List<File> listJarDir = new ArrayList<File>();
-                    		File jarDir = (directoryHoldingJarFile != null) ? directoryHoldingJarFile : new File(".");
+                    		File jarDir = directoryHoldingJarFile;
                     		f = jarDir.getCanonicalFile(); // "/usr/bin"
                     		do {
                     			listJarDir.add(f);
@@ -470,7 +473,9 @@ public class X10Translator extends Translator {
                 }
             }
             catch(Exception e) {
-                eq.enqueue(ErrorInfo.POST_COMPILER_ERROR, e.getMessage());
+            	ByteArrayOutputStream baos = new ByteArrayOutputStream();
+            	e.printStackTrace(new PrintWriter(baos, true));
+                eq.enqueue(ErrorInfo.POST_COMPILER_ERROR, baos.toString());
                 return false;
             }
         }
