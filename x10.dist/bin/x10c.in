@@ -51,7 +51,7 @@ where [options] includes:
     -sourcepath <path>       source path
     -classpath <path>        search path for class files
     -x10lib <lib.properties> use the precompiled x10 library described by <lib.properties>
-    -buildx10lib <dummy>     build an x10 library
+    -buildx10lib <dir>       generate property file in <dir>
     -config <conf>           read configuration <conf> from etc${FILE_SEP}<conf>.cfg
     -version                 print version info
     -x10rt <impl>            select x10rt impl (sockets, standalone, pami, mpi, bgas_bgp)

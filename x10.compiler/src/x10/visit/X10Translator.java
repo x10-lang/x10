@@ -16,9 +16,12 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.Iterator;
+import java.util.List;
 
 import polyglot.ast.Block;
 import polyglot.ast.ClassDecl;
@@ -369,14 +372,90 @@ public class X10Translator extends Translator {
                         return false;
                     }
 
-                    if (options.buildX10Lib != null) {  // ignore lib from -buildx10lib <lib>
+                    // pre XTENLANG-3199
+//                    if (options.buildX10Lib != null) {  // ignore lib from -buildx10lib <lib>
+//                    	// generate property file for use as "x10c -x10lib foo.properties ..."
+//                    	String jarFileName = jarFile.getName(); // foo.jar
+//                    	String propFileName = jarFileName.substring(0, jarFileName.length() - ".jar".length()) + ".properties"; // foo.properties
+//                    	File propFile = new File(directoryHoldingJarFile, propFileName);
+//                    	PrintWriter propFileWriter = new PrintWriter(new FileWriter(propFile));
+//                    	propFileWriter.println("X10LIB_TIMESTAMP=" + String.format("%tc", Calendar.getInstance()));
+//                    	propFileWriter.println("X10LIB_SRC_JAR=" + jarFileName);
+//                    	propFileWriter.close();
+//                    }
+                    // post XTENLANG-3199
+                    if (options.buildX10Lib != null) {	// "-buildx10lib <dir> -o foo.jar" generates <dir>/foo.properties
+                    	File propDir = new File(options.buildX10Lib);
+//                    	System.out.println("buildx10lib = " + options.buildX10Lib);
+                    	
+                        // ensure propDir exists and is a directory
+                    	if (propDir.exists()) {
+                    		if (!propDir.isDirectory()) {
+                                eq.enqueue(ErrorInfo.SEMANTIC_ERROR, "-buildx10lib <dir> only accepts directory name. property file was not generated.");
+                                return false;
+                    		}
+                    	} else {
+                    		propDir.mkdirs();
+                    	}
+                    	
+                    	String jarDirPath; // either absolute or relative
+                    	if (directoryHoldingJarFile.isAbsolute()) {
+                    		// When jar file is specified with absolute path, refer it with absolute path.
+                    		jarDirPath = directoryHoldingJarFile.getCanonicalPath();
+                    	} else {
+                    		// Otherwise, refer the jar file with relative path from prop file.
+                    		File f;
+                    		
+                    		List<File> listPropDir = new ArrayList<File>();
+                    		f = propDir.getCanonicalFile(); // "/usr/local/bin"
+                    		do {
+                    			listPropDir.add(f);
+                    			f = f.getParentFile();
+                    		} while (f != null);
+                    		Collections.reverse(listPropDir); // [ "/", "/usr", "/usr/local", "/usr/local/bin" ]
+//                    		System.out.println("listPropDir = " + listPropDir);
+                    		
+                    		List<File> listJarDir = new ArrayList<File>();
+                    		File jarDir = (directoryHoldingJarFile != null) ? directoryHoldingJarFile : new File(".");
+                    		f = jarDir.getCanonicalFile(); // "/usr/bin"
+                    		do {
+                    			listJarDir.add(f);
+                    			f = f.getParentFile();                        	
+                    		} while (f != null);
+                    		Collections.reverse(listJarDir); // [ "/", "/usr", "/usr/bin" ]
+//                    		System.out.println("listJarDir = " + listJarDir);
+                    		
+                    		// compute relative path from propDir /usr/local/bin to jarDir /usr/bin
+                    		
+                    		// first compute the same header length
+                    		int i = 0;
+                    		while (i < listPropDir.size() && i < listJarDir.size() && listPropDir.get(i).equals(listJarDir.get(i))) {
+                    			++i;
+                    		}
+                    		// i == 2
+                    		
+                    		// compute relative path from propDir to list{Prop,Jar}Dir(i)
+                    		StringBuilder sb = new StringBuilder();
+                    		for (int j = i; j < listPropDir.size(); ++j) {
+                    			sb.append(".." + "/");
+                    		}
+                    		
+                    		// compute relative path from list{Prop,Jar}Dir(i) to jarDir
+                    		for (int j = i; j < listJarDir.size(); ++j) {
+                    			sb.append(listJarDir.get(j).getName() + "/");
+                    		}
+                    		
+                    		jarDirPath = sb.toString();
+                    	}
+//                    	System.out.println("jarDirPath = " + jarDirPath);
+                    	
                     	// generate property file for use as "x10c -x10lib foo.properties ..."
                     	String jarFileName = jarFile.getName(); // foo.jar
                     	String propFileName = jarFileName.substring(0, jarFileName.length() - ".jar".length()) + ".properties"; // foo.properties
-                    	File propFile = new File(directoryHoldingJarFile, propFileName);
+                    	File propFile = new File(propDir, propFileName);
                     	PrintWriter propFileWriter = new PrintWriter(new FileWriter(propFile));
                     	propFileWriter.println("X10LIB_TIMESTAMP=" + String.format("%tc", Calendar.getInstance()));
-                    	propFileWriter.println("X10LIB_SRC_JAR=" + jarFileName);
+                    	propFileWriter.println("X10LIB_SRC_JAR=" + jarDirPath + jarFileName);
                     	propFileWriter.close();
                     }
                 }
