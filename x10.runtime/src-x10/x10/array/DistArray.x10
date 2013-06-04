@@ -84,10 +84,21 @@ public abstract class DistArray[T] (
       val plh:PlaceLocalHandle[LocalState[T]] = sd.data as PlaceLocalHandle[LocalState[T]];
       val ls = plh();
 
-      property(ls.size);
+      property(ls != null ? ls.size : 0L);
       localHandle = plh;
-      raw = ls.rail;
-      placeGroup = ls.pg;
+
+      if (ls != null) {
+          raw = ls.rail;
+          placeGroup = ls.pg;
+      } else {
+          // plh was destroyed, but DistArray still alive.
+          // Bug in application logic, but we can't cleanly die in 
+          // deserialization, so set fields to bogus values and 
+          // if the DistArray object is actually used we'll die then.
+          raw = new Rail[T]();
+          placeGroup = null;
+      }
+
     }
 
     public def serialize():SerialData {

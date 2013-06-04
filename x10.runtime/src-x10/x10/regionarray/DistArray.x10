@@ -132,11 +132,12 @@ public final class DistArray[T] (
 
     def this(sd:SerialData) {
       val plh:PlaceLocalHandle[LocalState[T]] = sd.data as PlaceLocalHandle[LocalState[T]];
-      val d:Dist = plh().dist;
+      val ls = plh();
+      val d:Dist = ls != null ? ls.dist : null;
 
       property(d);
       localHandle = plh;
-      raw = plh().data;
+      raw = ls != null ? ls.data : new Rail[T]();
     }
 
     public def serialize():SerialData {
