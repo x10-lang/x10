@@ -278,6 +278,10 @@ public final class GlobalRef<T> extends x10.core.Struct implements Externalizabl
             //if (GLOBALGC_DISABLE) return gr;
             // it is better to merge remote GlobalRefs even if GlobalGC is disabled, since same FinishState may be passed many times
             
+            if (gr.id < 0) {
+                return gr; // Do not register/track mortal references to avoid having to release the resources later
+            }
+            
             RemoteReferenceTracker rrt = new RemoteReferenceTracker(gr, weight);
             while (true) {
                 cleanup();
@@ -299,6 +303,7 @@ public final class GlobalRef<T> extends x10.core.Struct implements Externalizabl
         }
         
         private static RemoteReferenceTracker get(GlobalRef<?> gr) { // get corresponding RemoteReferenceTracker for the remote GlobalRef
+            if (gr.id < 0) return null; // do not track global refs of mortal objects
             assert(gr.home.id != x10.lang.Runtime.home().id);
             RemoteReferenceTracker rrt = new RemoteReferenceTracker(gr, 0);
             RemoteReferenceTracker existingRrt = rrtTable.get(rrt);
