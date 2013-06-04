@@ -42,11 +42,11 @@ public class X10RT {
         }
 
         String libName = System.getProperty("X10RT_IMPL", "sockets");
-        if (libName.equals("disabled")) {
+        if (libName.equals("disabled"))
             forceSinglePlace = true;
-        } 
         else if (libName.equalsIgnoreCase("JavaSockets")) {
       	  	X10RT.javaSockets = new SocketTransport();
+      	    state = State.INITIALIZED;
       	  	return X10RT.javaSockets.getLocalConnectionInfo();
         }
         else {
@@ -94,19 +94,24 @@ public class X10RT {
     public static synchronized boolean connect_library(int myPlace, String[] connectionInfo) {
     	if (state != State.INITIALIZED) return true; // already initialized
 
+        X10RT.here = myPlace;
+        if (connectionInfo == null)
+        	numPlaces = 1;
+        else
+        	numPlaces = connectionInfo.length;
+    
     	int errcode;
     	if (X10RT.javaSockets != null)
     		errcode = X10RT.javaSockets.establishLinks(myPlace, connectionInfo);
-    	else
+    	else {
     		errcode = x10rt_init(myPlace, connectionInfo);
+    		TeamSupport.initialize();
+    	}
         if (errcode != 0) {
             System.err.println("Failed to initialize X10RT.");
             x10rt_finalize();
             return false;
         }
-        TeamSupport.initialize();
-        here = myPlace;
-        numPlaces = connectionInfo.length;
         x10.runtime.impl.java.Runtime.MAX_PLACES = numPlaces;
         state = State.RUNNING;
         return true;

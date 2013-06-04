@@ -115,11 +115,14 @@ public class SocketTransport {
 	}
 	
     public int establishLinks(int myPlaceId, String[] connectionStrings) {
-    	if (myPlaceId != 0 || nplaces != 1) 
+    	if (this.myPlaceId != 0 || this.nplaces != 1) // make we are in the right state to establish links
     		return RETURNCODE.X10RT_ERR_INVALID.ordinal();
     		
     	this.myPlaceId = myPlaceId;
-    	this.nplaces = connectionStrings.length;
+    	if (connectionStrings != null)
+    		this.nplaces = connectionStrings.length;
+    	else
+    		this.nplaces = 1;
     	if (channels.length == 1 && channels[0] != null) {
     		// save the launcher link
     		SocketChannel ll = channels[0];
