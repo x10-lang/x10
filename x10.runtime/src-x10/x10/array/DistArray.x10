@@ -81,7 +81,10 @@ public abstract class DistArray[T] (
     }
 
     protected def this(sd:SerialData) {
-      val plh:PlaceLocalHandle[LocalState[T]] = sd.data as PlaceLocalHandle[LocalState[T]];
+        this(sd.data as PlaceLocalHandle[LocalState[T]]);
+    }
+
+    protected def this(plh:PlaceLocalHandle[LocalState[T]]) {
       val ls = plh();
 
       property(ls != null ? ls.size : 0L);

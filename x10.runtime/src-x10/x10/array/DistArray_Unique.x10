@@ -32,9 +32,19 @@ public final class DistArray_Unique[T] extends DistArray[T] implements (Long)=>T
         super(PlaceGroup.WORLD, () => new LocalState(PlaceGroup.WORLD, new Rail[T](1), PlaceGroup.WORLD.size()));
     }
 
+    /**
+     * Construct a DistArray_Unique object on the WORLD PlaceGroup
+     * using the arugment initialization closure
+     */
+    public def this(init:(Long)=>T){T haszero} {
+        super(PlaceGroup.WORLD, () => new LocalState(PlaceGroup.WORLD, new Rail[T](1L, (long)=>init(here.id)), PlaceGroup.WORLD.size()));
+    }
+
     // Custom Serialization: for now just delegate to superclass as we have no state ourselves.
     public def serialize():SerialData = super.serialize();
-    def this(sd:SerialData) { super(sd); }
+    def this(sd:SerialData) { 
+      super(sd.data as PlaceLocalHandle[LocalState[T]]);
+    }
 
     public def globalIndices():IterationSpace{self.rank==this.rank(),self.rect,self!=null} {
         return new DenseIterationSpace_1(0L, placeGroup.size()-1L) as IterationSpace{self.rank==1,self.rect,self!=null}; // FIXME: Constraint system weakness. This cast should not be needed.
