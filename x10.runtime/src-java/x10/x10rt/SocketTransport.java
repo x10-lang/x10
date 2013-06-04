@@ -14,6 +14,7 @@ import java.nio.channels.Selector;
 import java.nio.channels.ServerSocketChannel;
 import java.nio.channels.SocketChannel;
 import java.util.Iterator;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import x10.lang.FinishState;
 import x10.serialization.X10JavaDeserializer;
@@ -27,7 +28,7 @@ public class SocketTransport {
 	private static enum CTRL_MSG_TYPE {HELLO, GOODBYE, PORT_REQUEST, PORT_RESPONSE};
 	private static enum MSGTYPE {STANDARD, PUT, GET, GET_COMPLETED};
 	public static enum CALLBACKID {closureMessageID, closureMessageNoDictionaryID, simpleAsyncMessageID, simpleAsyncMessageNoDictionaryID};
-	public static enum RETURNCODE {
+	public static enum RETURNCODE { // see matching list of error codes "x10rt_error" in x10rt_types.h 
 	    X10RT_ERR_OK,   /* No error */
 	    X10RT_ERR_MEM,   /* Out of memory error */
 	    X10RT_ERR_INVALID,   /* Invalid method call, at this time (e.g. probe() before init()) */
@@ -42,7 +43,7 @@ public class SocketTransport {
 	private SocketChannel channels[] = null; // communication links to remote places, and launcher at [myPlaceId]
 	private Selector selector = null;
 	private Iterator<SelectionKey> events = null;
-	
+	private AtomicInteger numDead = new AtomicInteger(0); 	
 	
 	public SocketTransport() {
 		String nplacesFlag = System.getenv(X10_NPLACES);
@@ -147,6 +148,17 @@ public class SocketTransport {
     	return RETURNCODE.X10RT_ERR_OK.ordinal();
     }
     
+    public int numDead() {
+    	return numDead.get();
+    }
+    
+    public boolean isPlaceDead(int place) {
+    	if (place < 0 || place >= channels.length)
+    		return true;
+    	
+    	return (channels[place] == null);
+    }
+    
     public int shutdown() {
     	if (DEBUG) System.out.println("shutting down");
    		try {
@@ -175,6 +187,7 @@ public class SocketTransport {
     	return myPlaceId;
     }
     
+    // returns true if something is processed
     private boolean x10rt_probe(boolean onlyProcessAccept, long timeout) {
     	int eventCount = 0;
     	try {
@@ -235,40 +248,55 @@ public class SocketTransport {
 				SocketChannel sc = (SocketChannel) key.channel();
 				ByteBuffer controlData = ByteBuffer.allocateDirect(12);
 				ByteBuffer bb = null;
-				int msgType, callbackId, datalen;
-				synchronized (sc) {
-					SocketTransport.readNBytes(sc, controlData, controlData.capacity());
-					controlData.flip(); // switch from write to read mode
-					// Format: type, p.type, p.len, p.msg
-					msgType = controlData.getInt();
-					callbackId = controlData.getInt();
-					datalen = controlData.getInt();
-					if (DEBUG) {
-						System.out.print("Place "+myPlaceId+" processing an incoming message of type "+callbackId+" and size "+datalen+"...");
-						System.out.flush();
+				int msgType=0, callbackId=0, datalen;				
+				try {
+					synchronized (sc) {
+						SocketTransport.readNBytes(sc, controlData, controlData.capacity());
+						controlData.flip(); // switch from write to read mode
+						// Format: type, p.type, p.len, p.msg
+						msgType = controlData.getInt();
+						callbackId = controlData.getInt();
+						datalen = controlData.getInt();
+						if (DEBUG) {
+							System.out.print("Place "+myPlaceId+" processing an incoming message of type "+callbackId+" and size "+datalen+"...");
+							System.out.flush();
+						}
+						//TODO - eliminate this buffer by modifying the deserializer to take the channel as input
+						bb = ByteBuffer.allocate(datalen);
+						SocketTransport.readNBytes(sc, bb, datalen);
+						bb.flip();
 					}
-					//TODO - eliminate this buffer by modifying the deserializer to take the channel as input
-					bb = ByteBuffer.allocate(datalen);
-					SocketTransport.readNBytes(sc, bb, datalen);
-					bb.flip();
+					if (msgType == MSGTYPE.STANDARD.ordinal()) {
+						if (callbackId == CALLBACKID.closureMessageID.ordinal())
+							SocketTransport.runClosureAtReceive(bb, true);
+						else if (callbackId == CALLBACKID.closureMessageNoDictionaryID.ordinal())
+							SocketTransport.runClosureAtReceive(bb, false);
+						else if (callbackId == CALLBACKID.simpleAsyncMessageID.ordinal())
+							SocketTransport.runSimpleAsyncAtReceive(bb, true);
+						else if (callbackId == CALLBACKID.simpleAsyncMessageNoDictionaryID.ordinal())
+							SocketTransport.runSimpleAsyncAtReceive(bb, false);
+						else
+							System.err.println("Unknown message callback type: "+callbackId);
+						
+						//if (DEBUG) System.out.println("Place "+myPlaceId+" finished processing message type "+callbackId+" and size "+datalen);
+						if (DEBUG) System.out.println("done");
+					}
+					else 
+						System.err.println("Unknown message type: "+msgType);
 				}
-				if (msgType == MSGTYPE.STANDARD.ordinal()) {
-					if (callbackId == CALLBACKID.closureMessageID.ordinal())
-						SocketTransport.runClosureAtReceive(bb, true);
-					else if (callbackId == CALLBACKID.closureMessageNoDictionaryID.ordinal())
-						SocketTransport.runClosureAtReceive(bb, false);
-					else if (callbackId == CALLBACKID.simpleAsyncMessageID.ordinal())
-						SocketTransport.runSimpleAsyncAtReceive(bb, true);
-					else if (callbackId == CALLBACKID.simpleAsyncMessageNoDictionaryID.ordinal())
-						SocketTransport.runSimpleAsyncAtReceive(bb, false);
-					else
-						System.err.println("Unknown message callback type: "+callbackId);
-					
-					//if (DEBUG) System.out.println("Place "+myPlaceId+" finished processing message type "+callbackId+" and size "+datalen);
-					if (DEBUG) System.out.println("done");
+				catch (IOException e) {
+					// figure out which place this is
+					for (int i=0; i<channels.length; i++) {
+						if (sc.equals(channels[i])) {
+							if (DEBUG) System.out.println("Place "+myPlaceId+" discovered link to place "+i+" is broken in send");
+							channels[i] = null;
+						}
+					}
+					try {sc.close();}
+		    		catch (Exception e2){}
+		    		numDead.incrementAndGet();
+		    		return false;
 				}
-				else 
-					System.err.println("Unknown message type: "+msgType);
 				// TODO GET & PUT message types
 				return true;
 			}
@@ -293,8 +321,14 @@ public class SocketTransport {
     	return RETURNCODE.X10RT_ERR_OK.ordinal();
     }
     
-    public int sendMessage(int place, int msg_id, ByteBuffer[] bytes) throws IOException {
-    	initLink(place, null);
+    public int sendMessage(int place, int msg_id, ByteBuffer[] bytes) {
+    	if (numDead.get() == 0) {// don't try to re-establish links after we find dead ones, or we'll get into a loop
+    		try {
+    			initLink(place, null);
+    		} catch (IOException e) {
+    			return RETURNCODE.X10RT_ERR_OTHER.ordinal();
+    		}    		
+    	}
     	
     	// write out the x10SocketMessage data
     	// Format: type, p.type, p.len, p.msg
@@ -311,13 +345,22 @@ public class SocketTransport {
     		System.out.print("Place "+myPlaceId+" sending a message to place "+place+" of type "+msg_id+" and size "+len+"...");
     		System.out.flush();
     	}
-    	synchronized (channels[place]) {
-	    	SocketTransport.writeNBytes(channels[place], controlData, controlData.capacity());
-			//channels[place].write(controlData);
-	    	if (bytes != null)
-	    		for (int i=0; i<bytes.length; i++)
-	    			SocketTransport.writeNBytes(channels[place], bytes[i], bytes[i].remaining());
-			if (DEBUG) System.out.println("Sent");
+    	try {
+	    	synchronized (channels[place]) {
+		    	SocketTransport.writeNBytes(channels[place], controlData, controlData.capacity());
+		    	if (bytes != null)
+		    		for (int i=0; i<bytes.length; i++)
+		    			SocketTransport.writeNBytes(channels[place], bytes[i], bytes[i].remaining());
+				if (DEBUG) System.out.println("Sent");
+	    	}
+    	}
+    	catch (IOException e) {
+    		if (DEBUG) System.out.println("Place "+myPlaceId+" discovered link to place "+place+" is broken in send");
+    		try {channels[place].close();}
+    		catch (Exception e2){}
+    		channels[place] = null;
+    		numDead.incrementAndGet();
+    		return RETURNCODE.X10RT_ERR_OTHER.ordinal();
     	}
 		
     	return RETURNCODE.X10RT_ERR_OK.ordinal();
@@ -426,10 +469,18 @@ public class SocketTransport {
 	}
     
     // simple utility method which forces the read of a specific number of bytes before returning
-    static void readNBytes(SocketChannel sc, ByteBuffer data, int bytes) throws IOException {
+    static void readNBytes(SocketChannel sc, ByteBuffer data, int bytes) throws IOException {    	
+    	int totalBytesRead = 0;
     	int bytesRead = 0;
-		do { bytesRead+=sc.read(data);
-		} while (bytesRead < bytes);
+		do {
+			bytesRead+=sc.read(data);
+			if (bytesRead >= 0) {
+				totalBytesRead+=bytesRead;
+				bytesRead = 0;
+			}
+			else if (bytesRead < -100)
+				throw new IOException("End of stream");
+		} while (totalBytesRead < bytes);
     }
     
     // simple utility method which forces out a specific number of bytes before returning

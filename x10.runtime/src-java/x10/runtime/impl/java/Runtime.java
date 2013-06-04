@@ -263,6 +263,7 @@ public abstract class Runtime implements x10.core.fun.VoidFun_0_0 {
             	System.out.println("Done with serialization for runAsyncAt " + body.getClass());
             }
             start = prof!=null ? System.nanoTime() : 0;
+            // TODO: these methods return an error code if the communication fails.  Use it.
             if (serializer.mustSendDictionary()) {
             	if (X10RT.javaSockets != null)
 					X10RT.javaSockets.sendMessage(place, SocketTransport.CALLBACKID.simpleAsyncMessageID.ordinal(), new ByteBuffer[]{ByteBuffer.wrap(serializer.getDictionaryBytes()), ByteBuffer.wrap(serializer.getDataBytes())});

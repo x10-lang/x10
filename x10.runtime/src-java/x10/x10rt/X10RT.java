@@ -11,6 +11,7 @@
 
 package x10.x10rt;
 
+import x10.x10rt.SocketTransport.RETURNCODE;
 
 public class X10RT {
     private enum State { UNINITIALIZED, INITIALIZED, RUNNING, TEARING_DOWN, TORN_DOWN };
@@ -131,18 +132,31 @@ public class X10RT {
       } 
       else if (libName.equalsIgnoreCase("JavaSockets")) {
     	  X10RT.javaSockets = new SocketTransport();
-    	  X10RT.javaSockets.establishLinks();
-    	  //TeamSupport.initialize();
-          here = X10RT.javaSockets.x10rt_here();
-          numPlaces = X10RT.javaSockets.x10rt_nplaces();
-          x10.runtime.impl.java.Runtime.MAX_PLACES = numPlaces;
-          state = State.RUNNING;
-    	  return true;
+    	  int ret = X10RT.javaSockets.establishLinks();
+    	  if (ret != RETURNCODE.X10RT_ERR_OK.ordinal()) {
+    		  forceSinglePlace = true;
+    		  System.err.println("Unable to establish links!  errorcode: "+ret+". Forcing single place execution");
+    	  }
+    	  else {
+    		  here = X10RT.javaSockets.x10rt_here();
+    		  numPlaces = X10RT.javaSockets.x10rt_nplaces();
+    	  }
       }
       else {
           libName = "x10rt_" + libName;
           try {
               System.loadLibrary(libName);
+              int err = x10rt_init(0, null);
+              if (err != 0) {
+//                  System.err.println("Failed to initialize X10RT.");
+                  x10rt_finalize();
+                  return false;
+              }
+
+              TeamSupport.initialize();
+
+              here = x10rt_here();
+              numPlaces = x10rt_nplaces();
           } catch (UnsatisfiedLinkError e) {
               System.err.println("Unable to load "+libName+". Forcing single place execution");
               forceSinglePlace = true;
@@ -152,25 +166,8 @@ public class X10RT {
       if (forceSinglePlace) {
           here = 0;
           numPlaces = 1;
-      } else {
-          // TODO: For now we are not trying to plumb the command line arguments from
-          //       the program's main method into X10RT.  We really can't easily do this
-          //       until we change this code to be run via an explicit static method in
-          //       X10RT instead of doing it in the class initializer.  
-    	  // bherta: fix in progress, via the init_library() and connect_library() methods above
-
-          int err = x10rt_init(0, null);
-          if (err != 0) {
-//              System.err.println("Failed to initialize X10RT.");
-              x10rt_finalize();
-              return false;
-          }
-
-          TeamSupport.initialize();
-
-          here = x10rt_here();
-          numPlaces = x10rt_nplaces();
-
+      }
+      else {
           // Add a shutdown hook to automatically teardown X10RT as part of JVM teardown
           Runtime.getRuntime().addShutdownHook(new Thread(new Runnable(){
               public void run() {
@@ -178,7 +175,10 @@ public class X10RT {
                       state = State.TEARING_DOWN;
                       if (X10_EXITING_NORMALLY) {
                           if (VERBOSE) System.err.println("Normal exit; x10rt_finalize called");
-                          x10rt_finalize();
+                          if (javaSockets != null)
+                        	  javaSockets.shutdown();
+                          else
+                        	  x10rt_finalize();
                           if (VERBOSE) System.err.println("Normal exit; x10rt_finalize returned");
                       } else {
                           if (VERBOSE) System.err.println("Abnormal exit; skipping call to x10rt_finalize");
@@ -245,10 +245,8 @@ public class X10RT {
      */
     public static int numDead() {
     	assert isBooted();
-    	if (javaSockets != null) {
-    		assert false;
-    		return 0;
-    	}
+    	if (javaSockets != null) 
+    		return javaSockets.numDead();
     	else if (!forceSinglePlace) 
     		return x10rt_ndead();
     	else
@@ -261,10 +259,8 @@ public class X10RT {
      */
     public static boolean isPlaceDead(int place) {
     	assert isBooted();
-    	if (javaSockets != null) {
-    		assert false;
-    		return false;
-    	}
+    	if (javaSockets != null) 
+    		return javaSockets.isPlaceDead(place);
     	else if (!forceSinglePlace) 
     		return x10rt_is_place_dead(place);
     	else
@@ -296,6 +292,18 @@ public class X10RT {
     public static void registerHandlers() {
     	if (!forceSinglePlace && javaSockets == null)
     		x10.x10rt.MessageHandlers.registerHandlers();
+    }
+    
+    // library-mode alternative to the shutdown hook in init()
+    public static synchronized int disconnect() {
+    	state = State.TEARING_DOWN;
+    	int ret = 0;
+    	if (javaSockets != null)
+    		ret = javaSockets.shutdown();
+    	else
+    		ret = x10rt_finalize();
+    	state = State.TORN_DOWN;
+    	return ret;
     }
 
     /*
