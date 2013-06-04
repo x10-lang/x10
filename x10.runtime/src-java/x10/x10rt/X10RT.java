@@ -233,7 +233,39 @@ public class X10RT {
       assert isBooted();
       return numPlaces;
     }
-    
+
+    /**
+     * Return the number of dead places.
+     * @return the number of dead places.
+     */
+    public static int numDead() {
+    	assert isBooted();
+    	if (javaSockets != null) {
+    		assert false;
+    		return 0;
+    	}
+    	else if (!forceSinglePlace) 
+    		return x10rt_ndead();
+    	else
+    		return 0;
+    }
+
+    /**
+     * Returns true if the place is dead.
+     * @return true if the place is dead.
+     */
+    public static boolean isPlaceDead(int place) {
+    	assert isBooted();
+    	if (javaSockets != null) {
+    		assert false;
+    		return false;
+    	}
+    	else if (!forceSinglePlace) 
+    		return x10rt_is_place_dead(place);
+    	else
+    		return false;
+    }
+
     public static boolean supportsCollectives() {
         assert isBooted();
         if (forceSinglePlace || javaSockets != null)
@@ -279,6 +311,10 @@ public class X10RT {
      */
     private static native int x10rt_nplaces();
         
+    private static native int x10rt_ndead();
+    
+    private static native boolean x10rt_is_place_dead(int place);
+    
     private static native int x10rt_here();
     
     /*

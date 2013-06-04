@@ -134,6 +134,26 @@ JNIEXPORT jint JNICALL Java_x10_x10rt_X10RT_x10rt_1nplaces(JNIEnv *, jclass) {
 
 /*
  * Class:     x10_x10rt_X10RT
+ * Method:    x10rt_ndead
+ * Signature: ()I
+ */
+JNIEXPORT jint JNICALL Java_x10_x10rt_X10RT_x10rt_1ndead(JNIEnv *, jclass) {
+    return (jint)x10rt_ndead();
+}
+
+
+/*
+ * Class:     x10_x10rt_X10RT
+ * Method:    x10rt_is_place_dead
+ * Signature: (I)Z
+ */
+JNIEXPORT jboolean JNICALL Java_x10_x10rt_X10RT_x10rt_1is_1place_1dead(JNIEnv *, jclass, jint place) {
+    return (jboolean)x10rt_is_place_dead(place);
+}
+
+
+/*
+ * Class:     x10_x10rt_X10RT
  * Method:    x10rt_here
  * Signature: ()I
  */

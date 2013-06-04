@@ -44,6 +44,7 @@ public final struct Place(
     public static MAX_PLACES: Long = 4;
 
     /** The number of dead places not including accelerators. */
+    @Native("java", "((long)x10.x10rt.X10RT.numDead())")
     @Native("c++", "((x10_long)x10rt_ndead())")
     public static numDead(): Long = 0;
 
@@ -67,6 +68,7 @@ public final struct Place(
     /**
      * Returns whether a place is dead.
      */
+    @Native("java", "x10.x10rt.X10RT.isPlaceDead((int)#id)")
     @Native("c++", "x10rt_is_place_dead((x10_int)#id)")
     public static def isDead(id:Long):Boolean = false;
 
