@@ -188,7 +188,15 @@ public class Desugarer extends ContextVisitor {
     private Expr getLiteral(Position pos, Type type, long val) {
         type = Types.baseType(type);
         Expr lit = null;
-        if (ts.isIntOrLess(type)) {
+        if (ts.isByte(type)) {
+            lit = nf.IntLit(pos, IntLit.BYTE, val);
+        } else if (ts.isUByte(type)) {
+            lit = nf.IntLit(pos, IntLit.UBYTE, val);
+        } else if (ts.isShort(type)) {
+            lit = nf.IntLit(pos, IntLit.SHORT, val);
+        } else if (ts.isUShort(type)) {
+            lit = nf.IntLit(pos, IntLit.USHORT, val);
+        } else if (ts.isInt(type)) {
             lit = nf.IntLit(pos, IntLit.INT, val);
         } else if (ts.isLong(type)) {
             lit = nf.IntLit(pos, IntLit.LONG, val);
