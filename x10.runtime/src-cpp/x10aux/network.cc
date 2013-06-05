@@ -28,13 +28,6 @@
 #include <x10/lang/Runtime.h>
 #include <x10/lang/FinishState.h>
 
-
-#include <strings.h>
-
-#ifdef __MACH__
-#include <crt_externs.h>
-#endif
-
 using namespace x10::lang;
 using namespace x10aux;
 
@@ -522,27 +515,6 @@ void x10aux::coll_handler2(x10rt_team id, void *arg) {
     *t = id;
     x10aux::system_dealloc(p);
     fs->notifyActivityTermination();
-}
-
-#ifndef __MACH__
-    extern char **environ;
-#endif
-
-x10::util::HashMap<x10::lang::String*,x10::lang::String*>* x10aux::loadenv() {
-#ifdef __MACH__
-    char** environ = *_NSGetEnviron();
-#endif
-    x10::util::HashMap<x10::lang::String*,x10::lang::String*>* map =
-        x10::util::HashMap<x10::lang::String*, x10::lang::String*>::_make();
-    for (unsigned i=0 ; environ[i]!=NULL ; ++i) {
-        char *var = x10aux::alloc_utils::strdup(environ[i]);
-        *strchr(var,'=') = '\0';
-        char* val = getenv(var);
-        assert(val!=NULL);
-//        fprintf(stderr, "Loading environment variable %s=%s\n", var, val);
-        map->put(x10::lang::String::Lit(var), x10::lang::String::Lit(val));
-    }
-    return map;
 }
 
 // vim:tabstop=4:shiftwidth=4:expandtab

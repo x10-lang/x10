@@ -36,7 +36,15 @@
 #  include <sys/time.h>  // for gettimeofday (POSIX)
 #endif
 
+#include <strings.h>
+
+#ifdef __MACH__
+#include <crt_externs.h>
+#endif
+
 #include <x10/lang/RuntimeNatives.h>
+
+#include <x10/util/HashMap.h>
 
 #include <x10/io/IOException.h>
 #include <x10/io/Reader.h>
@@ -117,6 +125,27 @@ Writer* RuntimeNatives::execForWrite(const char *command) {
     OutputStreamWriter__OutputStream* out_ = new (x10aux::alloc<FileWriter__FileOutputStream>()) FileWriter__FileOutputStream(outFd);
     Writer* outWriter_ = OutputStreamWriter::_make(out_);
     return outWriter_;
+}
+
+#ifndef __MACH__
+    extern char **environ;
+#endif
+
+x10::util::HashMap<x10::lang::String*,x10::lang::String*>* RuntimeNatives::loadenv() {
+#ifdef __MACH__
+    char** environ = *_NSGetEnviron();
+#endif
+    x10::util::HashMap<x10::lang::String*,x10::lang::String*>* map =
+        x10::util::HashMap<x10::lang::String*, x10::lang::String*>::_make();
+    for (unsigned i=0 ; environ[i]!=NULL ; ++i) {
+        char *var = x10aux::alloc_utils::strdup(environ[i]);
+        *strchr(var,'=') = '\0';
+        char* val = getenv(var);
+        assert(val!=NULL);
+//        fprintf(stderr, "Loading environment variable %s=%s\n", var, val);
+        map->put(x10::lang::String::Lit(var), x10::lang::String::Lit(val));
+    }
+    return map;
 }
 
 // vim:tabstop=4:shiftwidth=4:expandtab

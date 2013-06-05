@@ -24,7 +24,7 @@ final class Configuration {
     private static DEFAULT_STATIC_THREADS: Boolean = false;
 
     @Native("java", "x10.runtime.impl.java.Runtime.loadenv()")
-    @Native("c++", "x10aux::loadenv()")
+    @Native("c++", "x10::lang::RuntimeNatives::loadenv()")
     static native def loadEnv():x10.util.HashMap[String,String];
 
     static def envOrElse(s:String, b:Boolean):Boolean {
