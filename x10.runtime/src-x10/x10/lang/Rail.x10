@@ -44,7 +44,7 @@ public final class Rail[T](
     size:Long
 ) implements Iterable[T],(Long)=>T {
 
-    /** @return the LongRange 0L..size */
+    /** @return the LongRange 0L..(size-1L) */
     public native property def range():LongRange;
 
     /** @return an iterator over the elements of the Rail */
