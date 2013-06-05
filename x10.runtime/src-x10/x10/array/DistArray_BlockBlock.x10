@@ -175,23 +175,26 @@ public class DistArray_BlockBlock[T] extends DistArray[T] implements (Long,Long)
      */
     public final @Inline operator this(p:Point(this.rank()))=(v:T):T{self==v} = this(p(0),p(1)) = v;
 
+    /*
+     * Order of tests is designed to minimize the dynamic number of comparisons
+     * on valid access, while still preferring to raise a bounds error rather than
+     * a place error when an index is not even contained in the globalIndices of the array.
+     */
     protected final def validateIndex(i:long, j:long) {
-        if (CompilerFlags.checkBounds() && (i < 0 || i >= numElems_1 ||
-                                            j < 0 || j >= numElems_2)) {
-            raiseBoundsError(i);
-        }
-        if (CompilerFlags.checkPlace() && (i < minIndex_1 || i >= (minIndex_1 + numElemsLocal_1) ||
-                                           j < minIndex_2 || j >= (minIndex_2 + numElemsLocal_2))) {
-            raisePlaceError(i,j);
+        if (CompilerFlags.checkPlace() || CompilerFlags.checkBounds()) {
+            if (i < minIndex_1 || i >= (minIndex_1 + numElemsLocal_1) || 
+                j < minIndex_2 || j >= (minIndex_2 + numElemsLocal_2)) {
+                if (CompilerFlags.checkBounds() && (i < 0 || i >= numElems_1 || j < 0 || j >= numElems_2)) {
+                    raiseBoundsError(i);
+                }
+                if (CompilerFlags.checkPlace()) raisePlaceError(i,j);
+            }
         }
     }
 
     protected final @Inline def offset(i:long, j:long) {
          return (j - minIndex_2) + ((i - minIndex_1) * numElemsLocal_2);
     }
-
-
-
 }
 
 class BBLocalState[S] extends LocalState[S] {
@@ -212,34 +215,18 @@ class BBLocalState[S] extends LocalState[S] {
         numElemsLocal_2 = localSize2;
     }
 
-    // @see x10.regionarray.BlockBlockDist#blockBlockRegionForPlace
     static def make[S](pg:PlaceGroup{self!=null}, m:long, n:long, init:(long,long)=>S):BBLocalState[S] {
-        val max1 = m-1;
-        val max2 = n-1;
-        val size1 = m;
-        val size2 = n;
-        val size1Even = size1 % 2 == 0L ? size1 : size1-1;
-        val P = Math.min(pg.numPlaces(), size1Even * size2);
-        val divisions1 = Math.min(size1Even, Math.pow2(Math.ceil((Math.log(P as Double) / Math.log(2.0)) / 2.0) as long));
-        val divisions2 = Math.min(size2, Math.ceil((P as Double) / divisions1) as long);
-        val leftOver = divisions1*divisions2 - P;
+        val globalSpace = new DenseIterationSpace_2(0L, 0L, m-1, n-1);
+        val localSpace = BlockingUtils.partitionBlockBlock(globalSpace, pg.numPlaces(), pg.indexOf(here));
 
-        val pi = pg.indexOf(here);
-        if (pi >= P) {
+	if (localSpace.min(0) > localSpace.max(0)) {
+            // TODO: add isEmpty() to IterationSpace API?
             return new BBLocalState[S](pg, new Rail[S](), m, n, 0L, 0L, 0L, 0L);
-        } else {
-            val leftOverOddOffset = (divisions1 % 2 == 0L) ? 0L : pi*2/(divisions1+1);
-
-            val blockIndex1 = pi < leftOver ? (pi*2-leftOverOddOffset) % divisions1 : (pi+leftOver) % divisions1;
-            val blockIndex2 = pi < leftOver ? (pi*2) / divisions1 : (pi+leftOver) / divisions1;
-
-            val low1 = Math.ceil(blockIndex1 * size1 / divisions1 as Double) as long;
-            val blockHi1 = blockIndex1 + (pi < leftOver ? 2L : 1L);
-            val hi1 = Math.ceil(blockHi1 * size1 / divisions1 as Double) as long - 1;
-
-            val low2 = Math.ceil(blockIndex2 * size2 / divisions2 as Double) as long;
-            val hi2 = Math.ceil((blockIndex2+1) * size2 / divisions2 as Double) as long - 1;
-
+        } else {            
+            val low1 = localSpace.min(0);
+            val hi1 = localSpace.max(0);
+            val low2 = localSpace.min(1);
+            val hi2 = localSpace.max(1);
             val localSize1 = hi1 - low1 + 1;
             val localSize2 = hi2 - low2 + 1;
             val dataSize = localSize1 * localSize2;
@@ -250,7 +237,7 @@ class BBLocalState[S] extends LocalState[S] {
                     data(offset) = init(i,j);
                 }
             }
-            return new BBLocalState[S](pg, data, m, n, low1, low2, hi1-low1 + 1, hi2 - low2 + 1);
+            return new BBLocalState[S](pg, data, m, n, low1, low2, localSize1, localSize2);
         }
     }
 }

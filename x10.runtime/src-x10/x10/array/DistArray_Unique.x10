@@ -33,11 +33,19 @@ public final class DistArray_Unique[T] extends DistArray[T] implements (Long)=>T
     }
 
     /**
-     * Construct a DistArray_Unique object on the WORLD PlaceGroup
-     * using the arugment initialization closure
+     * Construct a DistArray_Unique object on the WORLD PlaceGroup using the
+     * given initialization function.
      */
-    public def this(init:(Long)=>T){T haszero} {
-        super(PlaceGroup.WORLD, () => new LocalState(PlaceGroup.WORLD, new Rail[T](1L, (long)=>init(here.id)), PlaceGroup.WORLD.size()));
+    public def this(init:()=>T) {
+        super(PlaceGroup.WORLD, () => new LocalState(PlaceGroup.WORLD, new Rail[T](1, init()), PlaceGroup.WORLD.size()));
+    }
+
+    /**
+     * Construct a DistArray_Unique object using the given PlaceGroup and
+     * initialization function.
+     */
+    public def this(pg:PlaceGroup, init:()=>T) {
+        super(pg, () => new LocalState(PlaceGroup.WORLD, new Rail[T](1, init()), pg.size()));
     }
 
     // Custom Serialization: for now just delegate to superclass as we have no state ourselves.
@@ -69,8 +77,7 @@ public final class DistArray_Unique[T] extends DistArray[T] implements (Long)=>T
      */
     public @Inline operator this(i:long):T {
         if (CompilerFlags.checkPlace() || CompilerFlags.checkBounds()) validateIndex(i);
-        val rail = raw();
-        return rail(0);
+        return raw(0);
     }
 
     /**
@@ -94,8 +101,7 @@ public final class DistArray_Unique[T] extends DistArray[T] implements (Long)=>T
      */
     public @Inline operator this(i:long)=(v:T):T{self==v} {
         if (CompilerFlags.checkPlace() || CompilerFlags.checkBounds()) validateIndex(i);
-        val rail = raw();
-	rail(0) = v;
+	raw(0) = v;
         return v;
     }
 
@@ -110,11 +116,19 @@ public final class DistArray_Unique[T] extends DistArray[T] implements (Long)=>T
      */
     public @Inline operator this(p:Point(this.rank()))=(v:T):T{self==v} = this(p(0)) = v;
 
+    /*
+     * Order of tests is designed to minimize the dynamic number of comparisons
+     * on valid access, while still preferring to raise a bounds error rather than
+     * a place error when an index is not even contained in the globalIndices of the array.
+     */
     private @Inline def validateIndex(i:long) {
-        if (CompilerFlags.checkBounds() && (i < 0 || i >= placeGroup.size())) raiseBoundsError(i);
-        if (CompilerFlags.checkPlace() && placeGroup.indexOf(here) != i) raisePlaceError(i);
+        if (CompilerFlags.checkBounds() || CompilerFlags.checkPlace()) {
+            if (placeGroup.indexOf(here) != i) { 
+                if (CompilerFlags.checkBounds() && (i < 0 || i >= placeGroup.size())) raiseBoundsError(i);
+                if (CompilerFlags.checkPlace()) raisePlaceError(i);
+            }
+        }
     }
-
 }
 
 // vim:tabstop=4:shiftwidth=4:expandtab
