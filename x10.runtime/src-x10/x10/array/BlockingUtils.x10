@@ -38,7 +38,7 @@ public class BlockingUtils {
      * @param i is the index of the partition requested
      * @return the IterationSpace representing the ith partition
      */
-    public static def partitionBlockBlock(is:IterationSpace(2), n:long, i:long):DenseIterationSpace_2 {
+    public static def partitionBlockBlock(is:IterationSpace(2), n:long, i:long):DenseIterationSpace_2{self!=null} {
         val min0 = is.min(0);
         val max0 = is.max(0);
         val min1 = is.min(1);

@@ -21,7 +21,7 @@ import x10.io.SerialData;
  * place in its PlaceGroup such that element i is stored at the
  * ith place as computed by the {@link x10.lang.PlaceGroup#indexOf(Place)}.
  */
-public final class DistArray_Unique[T] extends DistArray[T] implements (Long)=>T {
+public final class DistArray_Unique[T] extends DistArray[T]{this.rank()==1} implements (Long)=>T {
     
     public property rank() = 1;
 
@@ -54,8 +54,13 @@ public final class DistArray_Unique[T] extends DistArray[T] implements (Long)=>T
       super(sd.data as PlaceLocalHandle[LocalState[T]]);
     }
 
-    public def globalIndices():IterationSpace{self.rank==this.rank(),self.rect,self!=null} {
-        return new DenseIterationSpace_1(0L, placeGroup.size()-1L) as IterationSpace{self.rank==1,self.rect,self!=null}; // FIXME: Constraint system weakness. This cast should not be needed.
+    /**
+     * Get an IterationSpace that represents all Points contained in
+     * the global iteration space (valid indices) of the DistArray.
+     * @return an IterationSpace for the DistArray
+     */
+    public def globalIndices():DenseIterationSpace_1{self!=null} {
+        return new DenseIterationSpace_1(0L, placeGroup.size()-1L);
     }
 
     /**
@@ -63,9 +68,9 @@ public final class DistArray_Unique[T] extends DistArray[T] implements (Long)=>T
      * the local iteration space (valid indices) of the DistArray at the current Place.
      * @return an IterationSpace for the Array
      */
-    public def localIndices():IterationSpace{self.rank==this.rank(),self.rect,self!=null} {
+    public def localIndices():DenseIterationSpace_1{self!=null} {
         val idx = placeGroup.indexOf(here);
-        return new DenseIterationSpace_1(idx, idx) as IterationSpace{self.rank==1,self.rect,self!=null}; // FIXME: Constraint system weakness. This cast should not be needed.
+        return new DenseIterationSpace_1(idx, idx);
     }
 
     /**

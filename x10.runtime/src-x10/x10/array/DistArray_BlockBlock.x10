@@ -20,7 +20,7 @@ import x10.io.SerialData;
  * Implementation of a 2-D DistArray that distributes its data elements
  * over the places in its PlaceGroup in a 2-D blocked fashion.
  */
-public class DistArray_BlockBlock[T] extends DistArray[T] implements (Long,Long)=>T {
+public class DistArray_BlockBlock[T] extends DistArray[T]{this.rank()==2} implements (Long,Long)=>T {
     
     public property rank() = 2;
 
@@ -35,6 +35,10 @@ public class DistArray_BlockBlock[T] extends DistArray[T] implements (Long,Long)
     protected val numElemsLocal_1:Long;
 
     protected val numElemsLocal_2:Long;
+
+    protected val globalIndices:DenseIterationSpace_2{self!=null};
+
+    protected val localIndices:DenseIterationSpace_2{self!=null};
     
     /**
      * Construct a m by n block-block distributed DistArray
@@ -49,12 +53,14 @@ public class DistArray_BlockBlock[T] extends DistArray[T] implements (Long,Long)
     public def this(m:long, n:long, pg:PlaceGroup{self!=null}, init:(long,long)=>T) {
         super(pg, () => BBLocalState.make[T](pg, m, n, init));
         val bbls = localHandle() as BBLocalState[T];
-        numElems_1 = bbls.numElems_1;
-        numElems_2 = bbls.numElems_2;
-        minIndex_1 = bbls.minIndex_1;
-        minIndex_2 = bbls.minIndex_2;
-        numElemsLocal_1 = bbls.numElemsLocal_1;
-        numElemsLocal_2 = bbls.numElemsLocal_2;
+        globalIndices = bbls.globalIndices;
+        localIndices = bbls.localIndices;
+        numElems_1 = globalIndices.max(0) - globalIndices.min(0) + 1;
+        numElems_2 = globalIndices.max(1) - globalIndices.min(1) + 1;
+        minIndex_1 = localIndices.min(0);
+        minIndex_2 = localIndices.min(1);
+        numElemsLocal_1 = localIndices.max(0) - minIndex_1 + 1;
+        numElemsLocal_2 = localIndices.max(1) - minIndex_2 + 1;
     }
 
     /**
@@ -99,31 +105,31 @@ public class DistArray_BlockBlock[T] extends DistArray[T] implements (Long,Long)
     public def serialize():SerialData = super.serialize();
 
     def this(sd:SerialData) { 
-      super(sd.data as PlaceLocalHandle[LocalState[T]]);
-      val bbls = localHandle() as BBLocalState[T];
-      numElems_1 = bbls.numElems_1;
-      numElems_2 = bbls.numElems_2;
-      minIndex_1 = bbls.minIndex_1;
-      minIndex_2 = bbls.minIndex_2;
-      numElemsLocal_1 = bbls.numElemsLocal_1;
-      numElemsLocal_2 = bbls.numElemsLocal_2;
-    }
-
-
-    public def globalIndices():IterationSpace{self.rank==this.rank(),self.rect,self!=null} {
-        val is = new DenseIterationSpace_2(0L, 0L, numElems_1-1L, numElems_2-1L);
-        return is as IterationSpace{self.rank==2,self.rect,self!=null}; // FIXME: Constraint system weakness. This cast should not be needed.
+        super(sd.data as PlaceLocalHandle[LocalState[T]]);
+        val bbls = localHandle() as BBLocalState[T];
+        globalIndices = bbls.globalIndices;
+        localIndices = bbls.localIndices;
+        numElems_1 = globalIndices.max(0) - globalIndices.min(0) + 1;
+        numElems_2 = globalIndices.max(1) - globalIndices.min(1) + 1;
+        minIndex_1 = localIndices.min(0);
+        minIndex_2 = localIndices.min(1);
+        numElemsLocal_1 = localIndices.max(0) - minIndex_1 + 1;
+        numElemsLocal_2 = localIndices.max(1) - minIndex_2 + 1;
     }
 
     /**
      * Get an IterationSpace that represents all Points contained in
-     * the local iteration space (valid indices) of the DistArray at the current Place.
-     * @return an IterationSpace for the Array
+     * the global iteration space (valid indices) of the DistArray.
+     * @return an IterationSpace for the DistArray
      */
-    public def localIndices():IterationSpace{self.rank==this.rank(),self.rect,self!=null} {
-        val is = new DenseIterationSpace_2(minIndex_1, minIndex_2, minIndex_1 + numElemsLocal_1 - 1, minIndex_2 + numElemsLocal_2 - 1);
-        return is as IterationSpace{self.rank==2,self.rect,self!=null}; // FIXME: Constraint system weakness. This cast should not be needed.
-    }
+    public @Inline final def globalIndices():DenseIterationSpace_2{self!=null} = globalIndices;
+
+    /**
+     * Get an IterationSpace that represents all Points contained in
+     * the local iteration space (valid indices) of the DistArray at the current Place.
+     * @return an IterationSpace for the local portion of the DistArray
+     */
+    public @Inline final def localIndices():DenseIterationSpace_2{self!=null} = localIndices;
 
     /**
      * Return the element of this array corresponding to the given index.
@@ -146,7 +152,6 @@ public class DistArray_BlockBlock[T] extends DistArray[T] implements (Long,Long)
      * @see #set(T, Point)
      */
     public final @Inline operator this(p:Point(this.rank())):T  = this(p(0), p(1));
-
     
     /**
      * Set the element of this array corresponding to the given index to the given value.
@@ -175,6 +180,7 @@ public class DistArray_BlockBlock[T] extends DistArray[T] implements (Long,Long)
      */
     public final @Inline operator this(p:Point(this.rank()))=(v:T):T{self==v} = this(p(0),p(1)) = v;
 
+
     /*
      * Order of tests is designed to minimize the dynamic number of comparisons
      * on valid access, while still preferring to raise a bounds error rather than
@@ -197,31 +203,26 @@ public class DistArray_BlockBlock[T] extends DistArray[T] implements (Long,Long)
     }
 }
 
+// TODO:  Would prefer this to be a protected static nested class, but 
+//        when written that way we non-deterministically fail compilation.
 class BBLocalState[S] extends LocalState[S] {
-    val numElems_1:Long;
-    val numElems_2:Long;
-    val minIndex_1:Long;
-    val minIndex_2:Long;
-    val numElemsLocal_1:Long;
-    val numElemsLocal_2:Long;
+    val globalIndices:DenseIterationSpace_2{self!=null};
+    val localIndices:DenseIterationSpace_2{self!=null};
 
-    def this(pg:PlaceGroup{self!=null}, data:Rail[S]{self!=null}, m:long, n:long, min1:long, min2:long, localSize1:long, localSize2:long) {
-        super(pg, data, m * n);
-        numElems_1 = m;
-        numElems_2 = n;
-        minIndex_1 = min1;
-        minIndex_2 = min2;
-        numElemsLocal_1 = localSize1;
-        numElemsLocal_2 = localSize2;
+    def this(pg:PlaceGroup{self!=null}, data:Rail[S]{self!=null}, size:long, 
+             gs:DenseIterationSpace_2{self!=null}, ls:DenseIterationSpace_2{self!=null}) {
+        super(pg, data, size);
+        globalIndices = gs;
+        localIndices = ls;
     }
 
     static def make[S](pg:PlaceGroup{self!=null}, m:long, n:long, init:(long,long)=>S):BBLocalState[S] {
         val globalSpace = new DenseIterationSpace_2(0L, 0L, m-1, n-1);
         val localSpace = BlockingUtils.partitionBlockBlock(globalSpace, pg.numPlaces(), pg.indexOf(here));
 
-	if (localSpace.min(0) > localSpace.max(0)) {
-            // TODO: add isEmpty() to IterationSpace API?
-            return new BBLocalState[S](pg, new Rail[S](), m, n, 0L, 0L, 0L, 0L);
+	val data:Rail[S]{self!=null};
+	if (localSpace.min(0) > localSpace.max(0)) { // TODO: add isEmpty() to IterationSpace API?
+            data = new Rail[S]();
         } else {            
             val low1 = localSpace.min(0);
             val hi1 = localSpace.max(0);
@@ -230,15 +231,15 @@ class BBLocalState[S] extends LocalState[S] {
             val localSize1 = hi1 - low1 + 1;
             val localSize2 = hi2 - low2 + 1;
             val dataSize = localSize1 * localSize2;
-            val data = Unsafe.allocRailUninitialized[S](dataSize);
+            data = Unsafe.allocRailUninitialized[S](dataSize);
             for (i in low1..hi1) {
                 for (j in low2..hi2) {
                     val offset = j - low2 + ((i - low1) * localSize2);
                     data(offset) = init(i,j);
                 }
             }
-            return new BBLocalState[S](pg, data, m, n, low1, low2, localSize1, localSize2);
         }
+        return new BBLocalState[S](pg, data, m*n, globalSpace, localSpace);
     }
 }
 

@@ -32,7 +32,7 @@ public final class Array_3[T] (
          * The number of elements in rank 3 (indexed 0..(numElems_3-1)).
          */
         numElems_3:Long
-) extends Array[T] implements (Long,Long,Long)=>T {
+) extends Array[T]{this.rank()==3} implements (Long,Long,Long)=>T {
     
     public property rank() = 3;
 
@@ -107,8 +107,8 @@ public final class Array_3[T] (
         return "Array: TODO implement pretty print for rank = 3";
     }
 
-    public def indices():IterationSpace{self.rank==3,self.rect,self!=null} {
-        return new DenseIterationSpace_3(0L, 0L, 0L, numElems_1-1, numElems_2-1, numElems_3-1) as IterationSpace{self.rank==3,self.rect,self!=null}; // FIXME: Constraint system workaround
+    public def indices():DenseIterationSpace_3{self!=null} {
+        return new DenseIterationSpace_3(0L, 0L, 0L, numElems_1-1, numElems_2-1, numElems_3-1);
     }
     
     /**

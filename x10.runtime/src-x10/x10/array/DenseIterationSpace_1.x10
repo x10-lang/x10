@@ -15,7 +15,7 @@ package x10.array;
  * A DenseIterationSpace_1 represents the rank 1 
  * iteration space of points [min]..[max] inclusive.
  */
-public final class DenseIterationSpace_1 extends IterationSpace(1) {
+public final class DenseIterationSpace_1 extends IterationSpace(1){rect} {
 
     public val min:long;
     public val max:long;
@@ -26,12 +26,12 @@ public final class DenseIterationSpace_1 extends IterationSpace(1) {
         this.max = max;
     }
 
-    public def min(i:int) {
+    public def min(i:int):long {
        if (i != 0) throw new IllegalOperationException(i +" is not a valid rank");
        return min;
     }
 
-    public def max(i:int) {
+    public def max(i:int):long {
        if (i != 0) throw new IllegalOperationException(i +" is not a valid rank");
        return max;
     }

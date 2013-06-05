@@ -15,7 +15,7 @@ package x10.array;
  * A DenseIterationSpace_3 represents the rank 3 
  * iteration space of points [min1,min2,min3]..[max1,max2.max3] inclusive.
  */
-public final class DenseIterationSpace_3 extends IterationSpace(3) {
+public final class DenseIterationSpace_3 extends IterationSpace(3){rect} {
 
     public val min0:long;
     public val min1:long;
@@ -34,7 +34,7 @@ public final class DenseIterationSpace_3 extends IterationSpace(3) {
         this.max2 = max2;
     }
 
-    public def min(i:int) {
+    public def min(i:int):long {
        switch (i) {
            case 0: return min0;
            case 1: return min1;
@@ -43,7 +43,7 @@ public final class DenseIterationSpace_3 extends IterationSpace(3) {
        }
     }
 
-    public def max(i:int) {
+    public def max(i:int):long {
        switch (i) {
            case 0: return max0;
            case 1: return max1;

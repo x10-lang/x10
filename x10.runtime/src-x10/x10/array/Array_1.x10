@@ -16,7 +16,7 @@ import x10.compiler.Inline;
 /**
  * Implementation of 1-dimensional Array.
  */
-public final class Array_1[T] extends Array[T] implements (Long)=>T {
+public final class Array_1[T] extends Array[T]{this.rank()==1} implements (Long)=>T {
     
     public property rank() = 1;
 
@@ -80,8 +80,8 @@ public final class Array_1[T] extends Array[T] implements (Long)=>T {
     /**
      * @return an IterationSpace containing all valid Points for indexing this Array.
      */  
-    public def indices():IterationSpace{self.rank==1,self.rect,self!=null} {
-        return new DenseIterationSpace_1(0L, size-1L) as IterationSpace{self.rank==1,self.rect,self!=null}; // FIXME: Constraint system weakness. This cast should not be needed.
+    public def indices():DenseIterationSpace_1{self!=null} {
+        return new DenseIterationSpace_1(0L, size-1L);
     }
 
     /**
