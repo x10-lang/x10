@@ -63,6 +63,7 @@ public class DistArray_BlockBlock[T] extends DistArray[T]{this.rank()==2} implem
         numElemsLocal_2 = localIndices.max(1) - minIndex_2 + 1;
     }
 
+
     /**
      * Construct a m by n block-block distributed DistArray
      * whose data is distrbuted over PlaceGroup.WORLD and 
@@ -76,6 +77,7 @@ public class DistArray_BlockBlock[T] extends DistArray[T]{this.rank()==2} implem
         this(m, n, PlaceGroup.WORLD, init);
     }
 
+
     /**
      * Construct a m by n block-block distributed DistArray
      * whose data is distrbuted over pg and zero-initialized.
@@ -87,6 +89,7 @@ public class DistArray_BlockBlock[T] extends DistArray[T]{this.rank()==2} implem
     public def this(m:long, n:long, pg:PlaceGroup{self!=null}){T haszero} {
         this(m, n, pg, (long,long)=>Zero.get[T]());
     }
+
 
     /**
      * Construct a m by n block-block distributed DistArray
@@ -117,6 +120,7 @@ public class DistArray_BlockBlock[T] extends DistArray[T]{this.rank()==2} implem
         numElemsLocal_2 = localIndices.max(1) - minIndex_2 + 1;
     }
 
+
     /**
      * Get an IterationSpace that represents all Points contained in
      * the global iteration space (valid indices) of the DistArray.
@@ -124,12 +128,42 @@ public class DistArray_BlockBlock[T] extends DistArray[T]{this.rank()==2} implem
      */
     public @Inline final def globalIndices():DenseIterationSpace_2{self!=null} = globalIndices;
 
+
     /**
      * Get an IterationSpace that represents all Points contained in
      * the local iteration space (valid indices) of the DistArray at the current Place.
      * @return an IterationSpace for the local portion of the DistArray
      */
     public @Inline final def localIndices():DenseIterationSpace_2{self!=null} = localIndices;
+
+
+    /**
+     * Return the Place which contains the data for the argument
+     * index or Place.INVALID_PLACE if the Point is not in the globalIndices
+     * of this DistArray
+     *
+     * @param i the index in the first dimension
+     * @param j the index in the first dimension
+     * @return the Place where (i,j) is a valid index in the DistArray; 
+     *          will return Place.INVALID_PLACE if (i,j) is not contained in globalIndices
+     */
+    public def place(i:long, j:long):Place {
+        val tmp = BlockingUtils.mapIndexToBlockBlockPartition(globalIndices, placeGroup.size(), i, j);
+	return tmp == -1L ? Place.INVALID_PLACE : placeGroup(tmp);
+    }
+
+
+    /**
+     * Return the Place which contains the data for the argument
+     * Point or Place.INVALID_PLACE if the Point is not in the globalIndices
+     * of this DistArray
+     *
+     * @param p the Point to lookup
+     * @return the Place where p is a valid index in the DistArray; 
+     *          will return Place.INVALID_PLACE if p is not contained in globalIndices
+     */
+    public def place(p:Point(this.rank())):Place = place(p(0), p(1));
+
 
     /**
      * Return the element of this array corresponding to the given index.
@@ -144,6 +178,7 @@ public class DistArray_BlockBlock[T] extends DistArray[T]{this.rank()==2} implem
         return Unsafe.uncheckedRailApply(raw, offset(i, j));
     }
 
+
     /**
      * Return the element of this array corresponding to the given Point.
      * 
@@ -152,6 +187,7 @@ public class DistArray_BlockBlock[T] extends DistArray[T]{this.rank()==2} implem
      * @see #set(T, Point)
      */
     public final @Inline operator this(p:Point(this.rank())):T  = this(p(0), p(1));
+
     
     /**
      * Set the element of this array corresponding to the given index to the given value.
@@ -168,6 +204,7 @@ public class DistArray_BlockBlock[T] extends DistArray[T]{this.rank()==2} implem
         Unsafe.uncheckedRailSet(raw, offset(i, j), v);
         return v;
     }
+
 
     /**
      * Set the element of this array corresponding to the given Point to the given value.

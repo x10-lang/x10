@@ -74,6 +74,30 @@ public final class DistArray_Unique[T] extends DistArray[T]{this.rank()==1} impl
     }
 
     /**
+     * Return the Place which contains the data for the argument
+     * index or Place.INVALID_PLACE if the Point is not in the globalIndices
+     * of this DistArray
+     *
+     * @param i the index to lookup
+     * @return the Place where i is a valid index in the DistArray; 
+     *          will return Place.INVALID_PLACE if i is not contained in globalIndices
+     */
+    public def place(i:long):Place = (i>=0 && i<placeGroup.size()) ? placeGroup(i) : Place.INVALID_PLACE;
+
+
+    /**
+     * Return the Place which contains the data for the argument
+     * Point or Place.INVALID_PLACE if the Point is not in the globalIndices
+     * of this DistArray
+     *
+     * @param p the Point to lookup
+     * @return the Place where p is a valid index in the DistArray; 
+     *          will return Place.INVALID_PLACE if p is not contained in globalIndices
+     */
+    public def place(p:Point(this.rank())):Place = place(p(0));
+
+
+    /**
      * Return the element of this array corresponding to the given index.
      * 
      * @param i the given index in the first dimension

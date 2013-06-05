@@ -148,6 +148,16 @@ public abstract class DistArray[T] (
      */
     public abstract def localIndices():IterationSpace{self.rank==this.rank(),self!=null};
 
+    /**
+     * Return the Place which contains the data for the argument
+     * Point or Place.INVALID_PLACE if the Point is not in the globalIndices
+     * of this DistArray
+     *
+     * @param p the Point to lookup
+     * @return the Place where p is a valid index in the DistArray; 
+     *          will return Place.INVALID_PLACE if p is not contained in globalIndices
+     */
+    public abstract def place(p:Point(this.rank())):Place;
 
     /**
      * Return the element of this array corresponding to the given point.
@@ -160,7 +170,6 @@ public abstract class DistArray[T] (
      * @see #set(T, Point)
      */
     public abstract operator this(p:Point(this.rank())):T;
-
 
     /**
      * Set the element of this array corresponding to the given point to the given value.

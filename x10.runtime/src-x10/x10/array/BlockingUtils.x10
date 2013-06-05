@@ -88,12 +88,12 @@ public class BlockingUtils {
      * @return the partition number into which (i,j) is mapped by the distribution
      *         (or -1 if not contained in the bounding box of the argument iteration space)
      */
-    private def mapIndexToBlockBlockPartition(is:IterationSpace(2), n:long, i:long, j:long):long {
+    public static def mapIndexToBlockBlockPartition(is:IterationSpace(2), n:long, i:long, j:long):long {
         val min0 = is.min(0);
         val max0 = is.max(0);
         val min1 = is.min(1);
         val max1 = is.max(1);
-        if (i<min0 || i>max0 || j<min1 || j >max1) return -1L;
+        if (i<min0 || i>max0 || j<min1 || j>max1) return -1L;
 
         val size0 = (max0 - min0 + 1);
         val size1 = (max1 - min1 + 1);
