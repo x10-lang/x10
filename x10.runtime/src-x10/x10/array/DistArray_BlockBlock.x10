@@ -162,7 +162,7 @@ public class DistArray_BlockBlock[T] extends DistArray[T]{this.rank()==2} implem
      * @return the Place where p is a valid index in the DistArray; 
      *          will return Place.INVALID_PLACE if p is not contained in globalIndices
      */
-    public def place(p:Point(this.rank())):Place = place(p(0), p(1));
+    public def place(p:Point(2)):Place = place(p(0), p(1));
 
 
     /**
@@ -186,7 +186,7 @@ public class DistArray_BlockBlock[T] extends DistArray[T]{this.rank()==2} implem
      * @return the element of this array corresponding to the given Point.
      * @see #set(T, Point)
      */
-    public final @Inline operator this(p:Point(this.rank())):T  = this(p(0), p(1));
+    public final @Inline operator this(p:Point(2)):T  = this(p(0), p(1));
 
     
     /**
@@ -215,7 +215,7 @@ public class DistArray_BlockBlock[T] extends DistArray[T]{this.rank()==2} implem
      * @return the new value of the element of this array corresponding to the given Point.
      * @see #operator(Int)
      */
-    public final @Inline operator this(p:Point(this.rank()))=(v:T):T{self==v} = this(p(0),p(1)) = v;
+    public final @Inline operator this(p:Point(2))=(v:T):T{self==v} = this(p(0),p(1)) = v;
 
 
     /*
