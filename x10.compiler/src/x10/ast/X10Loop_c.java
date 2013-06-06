@@ -149,6 +149,7 @@ public abstract class X10Loop_c extends Loop_c implements X10Loop {
 	}
 
     private Type getIndexType(Type domainType, ContextVisitor tc) {
+    	/*
         final TypeSystem ts = tc.typeSystem();
         Type base = Types.baseType(domainType);
 
@@ -167,12 +168,14 @@ public abstract class X10Loop_c extends Loop_c implements X10Loop {
             }
             else {
                 Type sup = ts.superClass(domainType);
+                // sup needs to be translated, can contain 'this'
                 if (sup != null) {
                     Type t = getIndexType(sup, tc);
                     if (t != null) return t;
                 }
                 for (Type ti : ts.interfaces(domainType)) {
                     Type t = getIndexType(ti, tc);
+                    // t needs to be translated, can contain 'this'
                     if (t != null) {
                         return t;
                     }
@@ -180,6 +183,10 @@ public abstract class X10Loop_c extends Loop_c implements X10Loop {
             }
         }
         return null;
+        */
+    	Set<Type> types = Types.getIterableIndex(domainType, tc.context());
+    	for (Type t : types) return t;
+    	return null;
     }
 
     private void resolveIndexType(ContextVisitor tc) {
