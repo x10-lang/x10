@@ -4078,7 +4078,7 @@ public class TypeSystem_c implements TypeSystem
     }
     
     public boolean isArray(Type me) {
-        if (finalSubtype(me, Array())) {
+        if (hasSameClassDef(me, Array())) {
             return true;
         } else if (me.isClass()) {
             Type parent = me.toClass().superClass();
@@ -4089,7 +4089,7 @@ public class TypeSystem_c implements TypeSystem
     }
     
     public boolean isDistArray(Type me) {
-        if (isSubtype(me, DistArray())) {
+        if (hasSameClassDef(me, DistArray())) {
             return true;
         } else if (me.isClass()) {
             Type parent = me.toClass().superClass();
