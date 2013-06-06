@@ -13,6 +13,7 @@ package x10.array;
 
 import x10.compiler.CompilerFlags;
 import x10.compiler.Inline;
+import x10.util.StringBuilder;
 
 /**
  * Implementation of 2-dimensional Array.
@@ -95,7 +96,23 @@ public final class Array_2[T] (
      * @return the string representation of this array.
      */
     public def toString():String {
-        return "Array: TODO implement pretty print for rank = 2";
+        val sb = new StringBuilder();
+        sb.add("[");
+        val limit = 10L;
+        var printed:long = 0L;
+        outer: for (i in 0L..(numElems_1 - 1)) {
+            for (j in 0L..(numElems_2 - 1)) {
+                if (j != 0L) sb.add(", ");
+                sb.add(this(i,j));
+                if (++printed > limit) break outer;
+            }
+            sb.add("; ");
+        }
+        if (limit < size) {
+            sb.add("...(omitted " + (size - limit) + " elements)");
+        }
+        sb.add("]");
+        return sb.toString();
     }
 
     public def indices():DenseIterationSpace_2{self!=null} {
@@ -118,7 +135,7 @@ public final class Array_2[T] (
         return Unsafe.uncheckedRailApply(raw, offset(i, j));
     }
 
-    public @Inline operator this(p:Point(this.rank())):T  = this(p(0), p(1));
+    public @Inline operator this(p:Point(2)):T  = this(p(0), p(1));
     
     /**
      * Set the element of this array corresponding to the given pair of indices to the given value.
@@ -139,7 +156,7 @@ public final class Array_2[T] (
         return v;
     }
 
-    public @Inline operator this(p:Point(this.rank()))=(v:T):T{self==v} = this(p(0), p(1)) = v;
+    public @Inline operator this(p:Point(2))=(v:T):T{self==v} = this(p(0), p(1)) = v;
     
     private @Inline def offset(i:long, j:long) {
          return j + (i * numElems_2);

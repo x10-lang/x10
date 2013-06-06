@@ -13,6 +13,7 @@ package x10.array;
 
 import x10.compiler.CompilerFlags;
 import x10.compiler.Inline;
+import x10.util.StringBuilder;
 
 /**
  * Implementation of 3-dimensional Array.
@@ -67,7 +68,7 @@ public final class Array_3[T] (
         for (i in 0..(m-1)) {
             for (j in 0..(n-1)) {
                 for (k in 0..(p-1)) {
-                    raw(offset(i,j,k)) = init(i,j,j);
+                    raw(offset(i,j,k)) = init(i,j,k);
                 }
             }
         }
@@ -104,7 +105,25 @@ public final class Array_3[T] (
      * @return the string representation of this array.
      */
     public def toString():String {
-        return "Array: TODO implement pretty print for rank = 3";
+        val sb = new StringBuilder();
+        sb.add("[");
+        val limit = 10L;
+        var printed:long = 0L;
+        outer: for (i in 0L..(numElems_1 - 1)) {
+            for (j in 0L..(numElems_2 - 1)) {
+                for (k in 0L..(numElems_3 - 1)) {
+                    if (k != 0L) sb.add(", ");
+                    sb.add(this(i,j,k));
+                    if (++printed > limit) break outer;
+                 }
+                 sb.add(j==numElems_2-1 ? ";; " : "; ");
+            }
+        }
+        if (limit < size) {
+            sb.add("...(omitted " + (size - limit) + " elements)");
+        }
+        sb.add("]");
+        return sb.toString();
     }
 
     public def indices():DenseIterationSpace_3{self!=null} {
@@ -129,7 +148,7 @@ public final class Array_3[T] (
         return Unsafe.uncheckedRailApply(raw, offset(i, j, k));
     }
 
-    public @Inline operator this(p:Point(this.rank())):T  = this(p(0), p(1), p(2));
+    public @Inline operator this(p:Point(3)):T  = this(p(0), p(1), p(2));
     
     /**
      * Set the element of this array corresponding to the given triple of indices to the given value.
@@ -152,7 +171,7 @@ public final class Array_3[T] (
         return v;
     }
 
-    public @Inline operator this(p:Point(this.rank()))=(v:T):T{self==v} = this(p(0), p(1), p(2)) = v;
+    public @Inline operator this(p:Point(3))=(v:T):T{self==v} = this(p(0), p(1), p(2)) = v;
 
     
     private @Inline def offset(i:long, j:long, k:long) {
