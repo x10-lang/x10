@@ -501,7 +501,7 @@ public class RailInLoopOptimizer extends ContextVisitor {
         Expr init2 = ld.init();
         if (init2 != null && ld.flags().flags().isFinal()) { 
             Type lt = ld.localDef().type().get();
-            if (Types.isX10Array(init2.type()) && Types.isX10Array(lt)) {
+            if (Types.isX10RegionArray(init2.type()) && Types.isX10RegionArray(lt)) {
                 if (init2 instanceof Local) {
                     Local local = (Local) init2;
                     if (nameToArray.containsKey(local.name().id())) {
@@ -530,7 +530,7 @@ public class RailInLoopOptimizer extends ContextVisitor {
                     Field f = (Field) init2;
                     // special care for the raw field of array.
                     // var/val imc:IndexedMemoryChunck[T] = array.raw;
-                    if (f.target() instanceof Local && Types.isX10Array(f.target().type()) && f.name().toString().equals(IMC_FIELD_NAME)) {
+                    if (f.target() instanceof Local && Types.isX10RegionArray(f.target().type()) && f.name().toString().equals(IMC_FIELD_NAME)) {
                         Local target = (Local) f.target();
                         if (nameToArray.containsKey(target.name().id())) {
                             Field f2 = (Field) xnf.Field(ld.position(), nameToArray.get(target.name().id()), f.name()).fieldInstance(f.fieldInstance()).type(f.type());

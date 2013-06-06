@@ -1187,7 +1187,7 @@ public class Types {
 	    return Collections.<FieldInstance>emptyList();
 	}
 
-	public static boolean isX10Array(Type t) {
+	public static boolean isX10RegionArray(Type t) {
 	    TypeSystem ts = (TypeSystem) t.typeSystem();
 	    Type tt = baseType(t);
 	    Type at = baseType(ts.RegionArray());
@@ -1210,17 +1210,6 @@ public class Types {
         }
         return false;
     }
-	public static boolean isX10DistArray(Type t) {
-	    TypeSystem ts = (TypeSystem) t.typeSystem();
-	    Type tt = baseType(t);
-	    Type at = baseType(ts.RegionDistArray());
-	    if (tt instanceof ClassType && at instanceof ClassType) {
-	        ClassDef tdef = ((ClassType) tt).def();
-	        ClassDef adef = ((ClassType) at).def();
-	        return ts.descendsFrom(tdef, adef);
-	    }
-	    return false;
-	}
 
 	public static XVar self(Type t) {
 	    CConstraint c = realX(t);
