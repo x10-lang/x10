@@ -4089,7 +4089,7 @@ public class TypeSystem_c implements TypeSystem
     }
     
     public boolean isDistArray(Type me) {
-        if (finalSubtype(me, DistArray())) {
+        if (isSubtype(me, DistArray())) {
             return true;
         } else if (me.isClass()) {
             Type parent = me.toClass().superClass();
