@@ -409,6 +409,7 @@ public class X10Translator extends Translator {
                     	if (directoryHoldingJarFile.isAbsolute()) {
                     		// When jar file is specified with absolute path, refer it with absolute path.
                     		jarDirPath = directoryHoldingJarFile.getCanonicalPath();
+                    		if (!jarDirPath.endsWith("/")) jarDirPath += "/";
                     	} else {
                     		// Otherwise, refer the jar file with relative path from prop file.
                     		File f;
