@@ -853,7 +853,8 @@ public class X10TypeEnv_c extends TypeEnv_c implements X10TypeEnv {
 
     	t1 = ts.expandMacros(t1);
     	t2 = ts.expandMacros(t2);
-        t2 = expandPropertyInSubtype(t1,t2);
+        t1 = expandProperty(false, t1);
+        t2 = expandProperty(false, t2);
         if (t2==null) return false;
         assert !t1.isVoid() && !t2.isVoid();
         

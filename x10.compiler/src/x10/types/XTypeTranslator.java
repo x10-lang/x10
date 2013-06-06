@@ -89,6 +89,7 @@ import x10.types.constraints.CSelf;
 import x10.types.matcher.Subst;
 import x10.util.Synthesizer;
 import x10.types.constraints.XTypeLit;
+import x10.types.constraints.xnative.CNativeLocal;
 import x10.types.constraints.xnative.QualifiedVar;
 
 /**
@@ -285,19 +286,19 @@ public class XTypeTranslator {
         }
         if (aDef==null || !(aDef instanceof X10MethodDef)) return term;
         XTerm receiver = args[0];
-        ClassType classType;
-        if (isThisOrSelf) {
-            // for methods (checking overriding) we replace "this.p(...)"
-            if (!(receiver instanceof CThis)) return term;
-            classType = (ClassType)((CThis)receiver).type();
-        } else {
-            // for subtyping tests we replace "self.p(...)"
-            if (!(receiver instanceof CSelf)) return term;
-            // TODO: the type of self is not available on trunk, this is fixed in the constraint branch.
-            classType = null;
+        ClassType classType = null;
+        if (receiver instanceof Typed) { // this covers CThis and CNativeLocal and perhaps others
+        	Type t = ((Typed)receiver).type();
+        	t = Types.baseType(t);
+        	if (t instanceof ClassType) {
+        		classType = (ClassType) t;
+        	} else {
+        		assert false;
+        	}
         }
+        // TODO: the type of self is not available on trunk, this is fixed in the constraint branch.
         X10MethodDef def = (X10MethodDef) aDef;
-        if (classType!=null) {
+        if (classType!=null && ts != null) {
             // find the correct def, and return a clone of the XTerm
             final MethodInstance method = ts.findImplementingMethod(classType, def.asInstance(), false, context);
             if (method==null) // the property is abstract in t1
