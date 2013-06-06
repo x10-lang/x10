@@ -3437,13 +3437,6 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
                   " return x10aux::getRTT"+chevrons(superType)+"(); }");
         sw.newline(); sw.forceNewline();
 
-        sw.write(Emitter.translateType(xts.String(), true)+" toString() {");
-        sw.newline(4); sw.begin(0);
-        sw.write("return x10aux::makeStringLit(this->toNativeString());");
-        sw.end(); sw.newline();
-        sw.write("}");
-        sw.newline(); sw.forceNewline();
-
         sw.write("const char* toNativeString() {");
         sw.newline(4); sw.begin(0);
         sw.write("return \""+StringUtil.escape(n.position().nameAndLineString())+"\";");
