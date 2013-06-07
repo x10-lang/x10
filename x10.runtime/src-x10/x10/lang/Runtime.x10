@@ -109,12 +109,77 @@ public final class Runtime {
 
     // Memory management
 
-    // [DC] didn't understand why this needs to call a destructor
-    //@Native("c++", "x10::lang::Object::dealloc_object((x10::lang::Object*)#o.operator->())")
-    //public static def deallocObject(o:Object):void {}
-
     @Native("c++", "x10aux::dealloc(#o)")
     public static def dealloc[T](o:T){ T isref } :void {}
+
+    /**
+     * Encapsulates the properties of the different memory
+     * allocators available to the program.  In addition to
+     * a default allocator, the program may be able to use
+     * specialized allocators that allocate into a pool of 
+     * large pages or that support congruent allocation.
+     */
+    public static class MemoryAllocator {
+        public static val DEFAULT_ALLOCATOR = new MemoryAllocator(false, false);
+        private static val ALLOC_HC = hugePagesAvailable() && congruentAvailable() ? new MemoryAllocator(true, true) : null;
+        private static val ALLOC_H = hugePagesAvailable() ? new MemoryAllocator(true, false) : null;
+        private static val ALLOC_C = congruentAvailable() ? new MemoryAllocator(false, true) : null;
+
+        private val hugePages:boolean;
+        private val congruent:boolean;
+        
+        private def this(h:boolean, c:boolean) {
+            hugePages = h; 
+            congruent = c;
+        }
+
+        @Native("java", "false")
+        @Native("c++", "x10aux::congruent_huge")
+        public static native def hugePagesAvailable():Boolean;
+
+        @Native("java", "false")
+        @Native("c++", "true")
+        public static native def congruentAvailable():Boolean;
+
+        /**
+         * Request a memory allocator with the desried properties,
+         * the closest available allocator (which may be the default 
+         * allocator) will be returned.
+         * 
+         * @param hugePages allocate from pool of large pages?
+         * @param congurent allocate from congruent memory?
+         */
+        public static def requestAllocator(hugePages:boolean, congruent:boolean):MemoryAllocator {
+            if (congruent && hugePages && ALLOC_HC != null) return ALLOC_HC;
+	    if (congruent && ALLOC_C != null) return ALLOC_C;
+            if (hugePages && ALLOC_H != null) return ALLOC_H;
+            return DEFAULT_ALLOCATOR;
+        }
+
+        /**
+         * Acquire a memory allocator with the required properties.
+         * If one is not available, an OutOfMemoryError will be thrown.
+         * 
+         * @param hugePages allocate from pool of large pages?
+         * @param congurent allocate from congruent memory?
+         */
+        public static def requireAllocator(hugePages:boolean, congruent:boolean):MemoryAllocator {
+            if (congruent && hugePages) {
+                if (ALLOC_HC == null) throw new OutOfMemoryError("Required Memory Allocator unavailable");
+                return ALLOC_HC;
+            }
+	    if (congruent) {
+                if (ALLOC_C == null) throw new OutOfMemoryError("Required Memory Allocator unavailable");
+                return ALLOC_C;
+            }
+
+            if (hugePages) {
+                if (ALLOC_H == null) throw new OutOfMemoryError("Required Memory Allocator unavailable");
+                return ALLOC_H;
+            }
+            return DEFAULT_ALLOCATOR;
+        }
+    }
 
     // Environment variables
 

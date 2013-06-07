@@ -142,6 +142,10 @@ public final class Rail<T> extends x10.core.Ref implements x10.lang.Iterable,
         }
     }
 
+    public Rail(Type T, long size, x10.lang.Runtime.MemoryAllocator alloc) {
+        this(T, size);
+    }
+
     public Rail(Type T, x10.core.IndexedMemoryChunk<T> backingStore, __0$1x10$lang$Rail$$T$2 dummy) {
         this.T = T;
         this.size = backingStore.length;

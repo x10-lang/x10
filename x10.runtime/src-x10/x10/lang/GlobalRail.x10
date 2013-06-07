@@ -53,9 +53,9 @@ public final struct GlobalRail[T] (
      * since it may be used to violate the (unenforced) constraint that
      * self.size == self.rail().size.  However it is required internally
      * by the CUDA runtime, where it is accesed directly from C++ to
-     * bypass the 'private'.
+     * bypass the 'private' and is also used by Unsafe.
      */
-    private def this(size:Long, raw:GlobalRef[Rail[T]{self!=null}]) {
+    def this(size:Long, raw:GlobalRef[Rail[T]{self!=null}]) {
         property(size, raw);
     }
 
@@ -87,5 +87,4 @@ public final struct GlobalRail[T] (
      */
     @Native("cuda", "(#this)")
     public operator this() {here==rail.home} : Rail[T]{self!=null} = rail();
-
 }

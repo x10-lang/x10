@@ -78,6 +78,10 @@ namespace x10aux {
     // actually congruent (i.e. for all places to have the same addresses)
     void *alloc_internal_congruent(size_t size);
 
+    // given an address and the id of the src and destination places, compute the
+    // congruent address in the target place
+    void *compute_congruent_addr(void* addr, int src, int dst);
+    
     void *alloc_internal_huge(size_t size);
 
 #ifdef X10_USE_BDWGC

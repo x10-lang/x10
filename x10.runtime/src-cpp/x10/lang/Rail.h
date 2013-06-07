@@ -36,6 +36,7 @@ namespace x10 {
         template<class T> class GlobalRef;
         template<class T> class GlobalRail;
         class String;
+        class Runtime__MemoryAllocator;
     }
 }
 
@@ -63,6 +64,8 @@ namespace x10 {
                                      x10::lang::Place srcPlace, bool overlap, x10::lang::VoidFun_0_0* notif);
         extern void Rail_copyBody(void *srcAddr, void *dstAddr, x10_int numBytes, bool overlap);
         
+        extern void failAllocNoPointers(const char* msg);
+
         void throwArrayIndexOutOfBoundsException(x10_long index, x10_long size) X10_PRAGMA_NORETURN;
     
         inline void checkBounds(x10_long index, x10_long size) {
@@ -115,6 +118,9 @@ namespace x10 {
             static x10::lang::Rail<T>* _make(x10_long size, x10::lang::Fun_0_1<x10_long, T>* init);
             void _constructor(x10_long size, x10::lang::Fun_0_1<x10_long, T>* init);
 
+            static x10::lang::Rail<T>* _make(x10_long size, x10::lang::Runtime__MemoryAllocator* alloc);
+            void _constructor(x10_long size,  x10::lang::Runtime__MemoryAllocator* alloc);
+            
             x10::lang::LongRange range();
 
             x10::lang::Iterator<T>* iterator();
@@ -239,6 +245,7 @@ namespace x10 {
 #include <x10/lang/RailIterator.h>
 #include <x10/lang/String.h>
 #include <x10/lang/IllegalArgumentException.h>
+#include <x10/lang/Runtime__MemoryAllocator.h>
 #ifndef X10_LANG_RAIL_H_GENERICS
 #define X10_LANG_RAIL_H_GENERICS
 #endif // X10_LANG_RAIL_H_GENERICS
@@ -358,6 +365,32 @@ template<class T> void x10::lang::Rail<T>::_constructor(x10_long size, x10::lang
     }
 }
 
+
+template<class T> x10::lang::Rail<T>* x10::lang::Rail<T>::_make(x10_long size, x10::lang::Runtime__MemoryAllocator* alloc) {
+    bool containsPtrs = x10aux::getRTT<T>()->containsPtrs;
+    x10_long numElems = size;
+    size_t numBytes = sizeof(x10::lang::Rail<T>) -sizeof(T) + (numElems * sizeof(T)); // -sizeof(T) accounts for raw[1]
+
+    x10::lang::Rail<T>* this_;
+    if (alloc->FMGL(congruent)) {
+        if (containsPtrs) failAllocNoPointers("Congruent memory cannot contain pointers");
+        this_ = new (x10aux::alloc_internal_congruent(numBytes)) x10::lang::Rail<T>(numElems);
+    } else if (alloc->FMGL(congruent)) {
+        if (containsPtrs) failAllocNoPointers("Huge pages cannot contain pointers");
+        this_ = new (x10aux::alloc_internal_huge(numBytes)) x10::lang::Rail<T>(numElems);
+    } else {
+        this_ = new (x10aux::alloc_internal(numBytes, containsPtrs)) x10::lang::Rail<T>(numElems);
+    }
+
+    // NOT ZEROING HUGE PAGE ALLOCATION; OS WILL ZERO ON ALLOCATE
+    if (!alloc->FMGL(hugePages)) memset(&(this_->raw), 0, size*sizeof(T));
+    
+    return this_;
+}
+template<class T> void x10::lang::Rail<T>::_constructor(x10_long size, x10::lang::Runtime__MemoryAllocator* alloc) {
+    // NOT ZEROING HUGE PAGE ALLOCATION; OS WILL ZERO ON ALLOCATE
+    if (!alloc->FMGL(hugePages)) memset(&(this->raw), 0, size*sizeof(T));
+}
 
 /*
  * Instance functions 

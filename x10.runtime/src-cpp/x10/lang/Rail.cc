@@ -149,5 +149,8 @@ namespace x10 {
             #endif
         }
 
+        void failAllocNoPointers(const char* msg) {
+            x10aux::throwException(x10::lang::IllegalArgumentException::_make(x10aux::makeStringLit(msg)));
+        }
     }
 }

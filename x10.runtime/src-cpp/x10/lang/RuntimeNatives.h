@@ -19,8 +19,10 @@ namespace x10 {
         class Reader;
         class Writer;
     }
+    namespace util {
+        template <class K, class V> class HashMap;
+    }
 }
-namespace x10 { namespace util { template <class K, class V> class HashMap; } }
 
 namespace x10aux {
     extern volatile x10_int exitCode;

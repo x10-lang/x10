@@ -23,7 +23,7 @@ namespace x10 {
             x10_ulong value; 
             x10aux::place location;	
 
-        GlobalRef(T obj = NULL) : value((size_t)(obj)), location(x10aux::here) { }
+            GlobalRef(T obj = NULL) : value((size_t)(obj)), location(x10aux::here) { }
             GlobalRef(x10aux::place p, x10_ulong obj = 0) : value(obj), location(p) { }
 	
             static inline GlobalRef<T> _make(T obj) { return GlobalRef<T>(obj); }

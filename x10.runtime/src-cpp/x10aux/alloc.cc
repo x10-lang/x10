@@ -556,3 +556,16 @@ void *x10aux::alloc_internal_congruent(size_t size) {
 
     return r;
 }
+
+void *x10aux::compute_congruent_addr(void* addr, int src, int dst) {
+
+    if (x10aux::congruent_huge) {
+        int modSrc = src % (1 << x10aux::congruent_period);
+        int modDst = dst % (1 << x10aux::congruent_period);
+        addr = (void*)((x10_ulong)addr - (x10_ulong)(x10aux::congruent_offset * modSrc) + (x10_ulong)(x10aux::congruent_offset *  modDst));
+    }
+    return addr;
+}
+
+
+

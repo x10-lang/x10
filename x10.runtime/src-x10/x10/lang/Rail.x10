@@ -73,7 +73,7 @@ public final class Rail[T](
     /**
      * Construct a zero-initialized Rail of size elements.
      * @param size the size of the Rail
-     * @throws IllegalArgumentException if size exceeds Int.MAX_VALUE
+     * @throws IllegalArgumentException if size exceeds Int.MAX_VALUE on ManagedX10
      */
     public native def this(size:Long){T haszero}:Rail[T]{self.size==size};
 
@@ -90,9 +90,20 @@ public final class Rail[T](
      * init for each index of the Rail
      * @param size the size of the Rail
      * @param init the function to use to compute the initial value of each element
-     * @throws IllegalArgumentException if size exceeds Int.MAX_VALUE
+     * @throws IllegalArgumentException if size exceeds Int.MAX_VALUE on ManagedX10
      */
     public native def this(size:Long, init:(Long)=>T):Rail[T]{self.size==size};
+
+
+    /**
+     * Construct a zero-initialized Rail of size elements using the
+     * provided memory allocator to allocate the backing storage for the Rail.
+     * @param size the size of the Rail
+     * @param allocator the MemoryAllocator to use
+     * @throws IllegalArgumentException if size exceeds Int.MAX_VALUE on ManagedX10
+     */
+    public native def this(size:Long, allocator:Runtime.MemoryAllocator){T haszero}:Rail[T]{self.size==size};
+
 
     /**
      * Return the element of this array corresponding to the given index.

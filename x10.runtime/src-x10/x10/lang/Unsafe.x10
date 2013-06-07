@@ -12,8 +12,10 @@
 package x10.lang;
 
 import x10.compiler.Native;
+import x10.compiler.NativeCPPInclude;
 import x10.compiler.Inline;
 
+@NativeCPPInclude("x10/lang/UnsafeNatives.h")
 public final class Unsafe {
 
     @Native("c++", "x10::lang::Rail<#T >::_makeUnsafe(#size, false)")
@@ -43,4 +45,22 @@ public final class Unsafe {
 
     @Native("c++", "x10aux::dealloc(#o)")
     public static def dealloc[T](o:T){ T isref } :void {}
+
+    @Native("c++", "x10::lang::UnsafeNatives::getCongruentSibling(#r, #dst)")
+    private static def getCongruentSibling[T](r:Rail[T]{self!=null}, dst:long):Rail[T]{self.size==r.size,self!=null} {
+        throw new UnsupportedOperationException("Congruent memory not available on Managed X10");
+    }
+
+/*
+    @Native("java", "null")
+    @Native("c++", "x10::lang::GlobalRef((x10aux::place)((#p).FMGL(id)), (x10_ulong)(#t)")
+    private static native def fabricateGlobalRef[T](t:T, p:Place):GlobalRef[T]{self.home==p};
+
+    public static def getCongruentSibling[T](r:Rail[T]{self!=null}, dst:Place):GlobalRail[T]{self.size==r.size,self.home()==dst} {
+        val remoteRail = getCongruentSibling(r, dst.id);
+        val globalRef = fabricateGlobalRef[Rail[T]{self!=null}](remoteRail, dst);
+        val globalRail = GlobalRail[T](r.size, globalRef);
+        return globalRail;
+    }
+*/
 }
