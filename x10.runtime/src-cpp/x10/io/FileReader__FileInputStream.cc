@@ -11,7 +11,7 @@
 
 #include <x10/io/FileReader__FileInputStream.h>
 
-#include <x10/util/IndexedMemoryChunk.h>
+#include <x10/lang/Rail.h>
 #include <x10/io/FileNotFoundException.h>
 #include <x10/io/NotSerializableException.h>
 
@@ -55,13 +55,10 @@ x10_int FileReader__FileInputStream::read() {
     return (x10_int)c;
 }
 
-x10_int FileReader__FileInputStream::read(x10::util::IndexedMemoryChunk<x10_byte> b,
+x10_int FileReader__FileInputStream::read(x10::lang::Rail<x10_byte>* b,
                                           x10_int off,
                                           x10_int len) {
-    int res = ::fread(((x10_byte*)b->raw())+off*sizeof(x10_byte),
-                      sizeof(x10_byte),
-                      len*sizeof(x10_byte),
-                      FMGL(file));
+    int res = ::fread(&b->raw[off], sizeof(x10_byte), len*sizeof(x10_byte), FMGL(file));
     return (x10_int)res;
 }
 

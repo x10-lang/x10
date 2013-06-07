@@ -13,9 +13,10 @@
 #define X10_IO_FILEINPUTSTREAM_H
 
 #include <x10/io/InputStreamReader__InputStream.h>
-#include <x10/util/IndexedMemoryChunk.h>
 
 #include <stdio.h>
+
+namespace x10 { namespace lang { template<class T> class Rail; } }
 
 namespace x10 {
 
@@ -42,7 +43,7 @@ namespace x10 {
 
             virtual x10_int read();
 
-            virtual x10_int read(x10::util::IndexedMemoryChunk<x10_byte> b,
+            virtual x10_int read(x10::lang::Rail<x10_byte>* b,
                                  x10_int off,
                                  x10_int len);
 
