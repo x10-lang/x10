@@ -1278,7 +1278,14 @@ public class Types {
 		}
 		TypeSystem ts = t.typeSystem();
 		if (ts.isParameterType(t)) {			
-			return false; // a parameter type might be instantiated with a struct that doesn't permit null.
+			TypeConstraint tc = cxt.currentTypeConstraint();
+			boolean haszero = false;
+			boolean isref = false;
+			for (SubtypeConstraint term : tc.terms()) {
+				if (term.isHaszero()) haszero = true;
+				if (term.isIsRef()) isref = true;
+			}
+			return isref && haszero;
 		}
 		return true;
 	}
