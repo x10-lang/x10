@@ -2258,9 +2258,9 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
         return !(isPrimitive(t) || t.isVoid());
     }
 
-    private boolean isInterfaceOrAnonymousFunctionType(ClassType ct) {
-        TypeSystem ts = tr.typeSystem();
-        return ct.flags().isInterface() || (ts.isFunctionType(ct) && ct.isAnonymous());
+    // if it returns true for containerType of a method, the method is called through interface thus requires RTT for self dispatch.  
+    private static boolean isInterfaceOrAnonymousFunctionType(TypeSystem xts, ClassType containerType) {
+        return xts.isInterfaceType(containerType) || (xts.isFunctionType(containerType) && containerType.isAnonymous());
     }
     @Override
     public void visit(X10Call_c c) {
@@ -2375,7 +2375,7 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
             ContainerType st = mi.def().container().get();
             Type bst = Types.baseType(st);
             if (bst.isClass()) {
-                if (xts.isInterfaceType(bst) || (xts.isFunctionType(bst) && bst.toClass().isAnonymous())) {
+                if (isInterfaceOrAnonymousFunctionType(xts, bst.toClass())) {
                     invokeInterface = true;
                 }
             }
@@ -2537,33 +2537,11 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
                 }
             }
 
-            // XTENLANG-3222
-            // old and buggy code
-//            // if I is an interface and val i:I , t = type of the type of the
-//            // formal of method instance
-//            // i.m(a) => i.m(a,t)
-//            X10ClassType ct = null;
-//            if (useSelfDispatch && Types.baseType(targetType).isClass()) {
-//                ct = Types.baseType(targetType).toClass();
-//            } else if (useSelfDispatch && xts.isParameterType(targetType)) {
-//                ct = Types.baseType(containerType).toClass();
-//            }
-//            boolean passRTT = 
-////            	// XTENLANG-2723 stop passing rtt to java raw class's methods (reverted in r21635)
-////            	ct != null && ((ct.flags().isInterface() || (xts.isFunctionType(ct) && ct.isAnonymous())) && Emitter.containsTypeParam(defType)) && !Emitter.isNativeRepedToJava(ct);
-//            	ct != null && ((ct.flags().isInterface() || (xts.isFunctionType(ct) && ct.isAnonymous())) && Emitter.containsTypeParam(defType));
-//            if (passRTT) {
-//                w.write(",");
-//                new RuntimeTypeExpander(er, c.methodInstance().formalTypes().get(i)).expand();
-//            }
-            // simplified and hopefully correct code
-        	X10ClassType ct = Types.baseType(containerType).toClass();
-        	assert ct != null;
         	// XTENLANG-2723 stop passing rtt to java raw class's methods (reverted in r21635)
-            if (useSelfDispatch && isInterfaceOrAnonymousFunctionType(ct) /*&& !Emitter.isNativeRepedToJava(ct)*/ && Emitter.containsTypeParam(defType)) {
+            if (useSelfDispatch && isInterfaceOrAnonymousFunctionType(xts, containerClass) /*&& !Emitter.isNativeRepedToJava(ct)*/ && Emitter.containsTypeParam(defType)) {
             	// if I is an interface and val i:I, t = type of the formal of method instance
             	// i.m(a) => i.m(a,t)
-            	if (xts.isParameterType(ct) || hasParams(ct)) {
+            	if (xts.isParameterType(containerClass) || hasParams(containerClass)) {
             		w.write(",");
             		new RuntimeTypeExpander(er, c.methodInstance().formalTypes().get(i)).expand();
             	}
