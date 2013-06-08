@@ -37,12 +37,6 @@ namespace x10 {
                 x10aux::place_local::put(FMGL(id), (void*)newVal);
             }
 
-            void clear() {
-                FMGL(localStorage) = NULL;
-                FMGL(cached) = true;
-                x10aux::place_local::remove(FMGL(id));
-            }
-            
 	        static PlaceLocalHandle_Impl<T> _alloc () {PlaceLocalHandle_Impl<T> t; return t;}
 
             static PlaceLocalHandle_Impl<T> _make() {

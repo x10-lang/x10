@@ -98,11 +98,6 @@ public final class PlaceLocalHandle<T> implements java.io.Serializable, X10JavaS
         }
     }
     
-    public void clear() {
-        myData = null;
-        set__0x10$lang$PlaceLocalHandle$$T(null);
-    }
-
     @Override
     public String toString() {
         return "PlaceLocalHandle(" + this.id + ")";
