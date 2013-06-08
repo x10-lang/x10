@@ -135,7 +135,7 @@ abstract class FinishState {
                     };
                 }
                 Runtime.x10rtSendMessage(ref.home.id, closure, null);
-                Runtime.dealloc(closure);
+                Unsafe.dealloc(closure);
             }
         }
         public def pushException(t:Exception) {
@@ -207,7 +207,7 @@ abstract class FinishState {
                 };
             }
             Runtime.x10rtSendMessage(ref.home.id, closure, null);
-            Runtime.dealloc(closure);
+            Unsafe.dealloc(closure);
         }
     }
 
@@ -401,7 +401,7 @@ abstract class FinishState {
                     for(var i:Int=0; i<Place.MAX_PLACES; i++) {
                         if (seen(i)) Runtime.x10rtSendMessage(i, closure, null);
                     }
-                    Runtime.dealloc(closure);
+                    Unsafe.dealloc(closure);
                 } else {
                     // TODO: cleanup with indirect routing
                 }
@@ -551,7 +551,7 @@ abstract class FinishState {
             exceptions = null;
             lock.unlock();
             Runtime.x10rtSendMessage(ref.home.id, closure, null);
-            Runtime.dealloc(closure);
+            Unsafe.dealloc(closure);
             Runtime.finishStates.remove(ref);
         }
     }
@@ -671,9 +671,9 @@ abstract class FinishState {
             } else {
                 val clx = ()=>@RemoteInvocation("notifyActivityTermination_7") { Runtime.x10rtSendMessage(ref.home.id, closure, null); };
                 Runtime.x10rtSendMessage(h-h%32, clx, null);
-                Runtime.dealloc(clx);
+                Unsafe.dealloc(clx);
             }
-            Runtime.dealloc(closure);
+            Unsafe.dealloc(closure);
 //            Runtime.finishStates.remove(ref);
         }
     }
@@ -829,7 +829,7 @@ abstract class FinishState {
             exceptions = null;
             lock.unlock();
             Runtime.x10rtSendMessage(ref.home.id, closure, null);
-            Runtime.dealloc(closure);
+            Unsafe.dealloc(closure);
             Runtime.finishStates.remove(ref);
         }
     }

@@ -109,9 +109,6 @@ public final class Runtime {
 
     // Memory management
 
-    @Native("c++", "x10aux::dealloc(#o)")
-    public static def dealloc[T](o:T){ T isref } :void {}
-
     /**
      * Encapsulates the properties of the different memory
      * allocators available to the program.  In addition to
@@ -481,7 +478,7 @@ public final class Runtime {
                     if (activity == null) return false;
                 }
                 activity.run();
-                dealloc(activity);
+                Unsafe.dealloc(activity);
             }
             return true;
         }
@@ -497,7 +494,7 @@ public final class Runtime {
                     return;
                 }
                 activity.run();
-                dealloc(activity);
+                Unsafe.dealloc(activity);
             }
         }
 
@@ -519,7 +516,7 @@ public final class Runtime {
 //                    return false;
 //                }
                 activity.run();
-                dealloc(activity);
+                Unsafe.dealloc(activity);
             }
             return true;
         }
@@ -761,9 +758,9 @@ public final class Runtime {
         } else {
             val closure = ()=> @x10.compiler.RemoteInvocation("runAsync") { execute(new Activity(body, state, clockPhases)); };
             x10rtSendMessage(place.id, closure, prof);
-            dealloc(closure);
+            Unsafe.dealloc(closure);
         }
-        dealloc(body);
+        Unsafe.dealloc(body);
     }
     
     public static def runAsync(place:Place, body:()=>void, prof:Profile):void {
@@ -778,7 +775,7 @@ public final class Runtime {
         } else {
             x10rtSendAsync(place.id, body, state, prof); // optimized case
         }
-        dealloc(body);
+        Unsafe.dealloc(body);
     }
     
     /**
@@ -822,9 +819,9 @@ public final class Runtime {
         } else {
             val closure = ()=> @x10.compiler.RemoteInvocation("runUncountedAsync") { execute(new Activity(body, FinishState.UNCOUNTED_FINISH)); };
             x10rtSendMessage(place.id, closure, prof);
-            dealloc(closure);
+            Unsafe.dealloc(closure);
         }
-        dealloc(body);
+        Unsafe.dealloc(body);
     }
 
     /**
@@ -915,7 +912,7 @@ public final class Runtime {
                         me2.release();
                     };
                     x10rtSendMessage(box.home.id, closure, null);
-                    dealloc(closure);
+                    Unsafe.dealloc(closure);
                 } catch (e:AtCheckedWrapper) {
                     throw e.getCheckedCause();
                 }
@@ -927,12 +924,12 @@ public final class Runtime {
                     me2.release();
                 };
                 x10rtSendMessage(box.home.id, closure, null);
-                dealloc(closure);
+                Unsafe.dealloc(closure);
             }
             activity().clockPhases = null;
         }
         me.await();
-        dealloc(body);
+        Unsafe.dealloc(body);
         activity().clockPhases = me.clockPhases;
         if (null != me.e) {
             throwCheckedWithoutThrows(me.e);
@@ -960,18 +957,18 @@ public final class Runtime {
                     me2.release();
                 };
                 x10rtSendMessage(box.home.id, closure, null);
-                dealloc(closure);
+                Unsafe.dealloc(closure);
             };
         x10rtSendMessage(place.id, latchedBody, null);
-        dealloc(latchedBody);
+        Unsafe.dealloc(latchedBody);
         me.await(); // wait until body is executed at remote place
       } else { // asynchronous exec
         val simpleBody = () => @x10.compiler.RemoteInvocation("runAtSimple_3") { body(); };
         x10rtSendMessage(place.id, simpleBody, null);
-        dealloc(simpleBody);
+        Unsafe.dealloc(simpleBody);
         // *not* wait until body is executed at remote place
       }
-        dealloc(body);
+        Unsafe.dealloc(body);
     }
 
     /**
@@ -1036,7 +1033,7 @@ public final class Runtime {
                         me2.release();
                     };
                     x10rtSendMessage(box.home.id, closure, null);
-                    dealloc(closure);
+                    Unsafe.dealloc(closure);
                 } catch (t:AtCheckedWrapper) {
                     throw t.getCheckedCause();
                 }
@@ -1048,12 +1045,12 @@ public final class Runtime {
                     me2.release();
                 };
                 x10rtSendMessage(box.home.id, closure, null);
-                dealloc(closure);
+                Unsafe.dealloc(closure);
             }
             activity().clockPhases = null;
         }
         me.await();
-        dealloc(eval);
+        Unsafe.dealloc(eval);
         activity().clockPhases = me.clockPhases;
         if (null != me.e) {
             throwCheckedWithoutThrows(me.e);
@@ -1165,7 +1162,7 @@ public final class Runtime {
         val a = activity();
         val finishState = a.swapFinish(f);
         finishState.waitForFinish();
-        dealloc(finishState);
+        Unsafe.dealloc(finishState);
     }
 
     /**

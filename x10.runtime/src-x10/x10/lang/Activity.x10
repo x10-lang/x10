@@ -151,7 +151,7 @@ class Activity {
         }
         if (null != clockPhases) clockPhases.drop();
         finishState.notifyActivityTermination();
-        Runtime.dealloc(body);
+        Unsafe.dealloc(body);
     }
 }
 

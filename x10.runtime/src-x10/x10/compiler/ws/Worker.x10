@@ -91,7 +91,7 @@ public final class Worker {
             frame.wrapResume(this);
             up = frame.up;
             up.wrapBack(this, frame);
-            Runtime.dealloc(frame);
+            Unsafe.dealloc(frame);
             frame = up;
         }
     }
@@ -100,11 +100,11 @@ public final class Worker {
         if (id == Runtime.hereLong()) {
             val copy = Runtime.deepCopy(body);
             copy();
-            Runtime.dealloc(copy);
+            Unsafe.dealloc(copy);
         } else {
             Runtime.x10rtSendMessage(id, body, null);
         }
-        Runtime.dealloc(body);
+        Unsafe.dealloc(body);
     }
 
     public static def runAsyncAt(place:Place, frame:RegularFrame){
@@ -123,7 +123,7 @@ public final class Worker {
         for (var i:Int = 1; i<Place.MAX_PLACES; i++) {
             Runtime.x10rtSendMessage(i, body, null);
         }
-        Runtime.dealloc(body);
+        Unsafe.dealloc(body);
         Runtime.wsEnd();
     }
 
