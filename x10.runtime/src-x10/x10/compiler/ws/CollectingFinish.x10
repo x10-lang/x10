@@ -5,7 +5,6 @@ import x10.compiler.Ifdef;
 import x10.compiler.Ifndef;
 import x10.compiler.Inline;
 import x10.compiler.Uninitialized;
-import x10.util.IndexedMemoryChunk;
 import x10.compiler.Header;
 
 import x10.util.GrowableRail;
@@ -14,7 +13,7 @@ import x10.util.GrowableRail;
 
 abstract public class CollectingFinish[T] extends FinishFrame {
     @Uninitialized public val reducer:Reducible[T];
-    @Uninitialized public val resultRail:IndexedMemoryChunk[T];
+    @Uninitialized public val resultRail:Rail[T];
     @Ifdef("__CPP__") @Uninitialized public var result:T; //Only for CPP
 
     public def this(up:Frame, rd:Reducible[T]) {
@@ -23,7 +22,7 @@ abstract public class CollectingFinish[T] extends FinishFrame {
         @Ifdef("__CPP__") {this.result = rd.zero();}
         @Ifndef("__CPP__"){ //java path 
             val size = Runtime.NTHREADS;
-            this.resultRail = IndexedMemoryChunk.allocateUninitialized[T](size);
+            this.resultRail = Unsafe.allocRailUninitialized[T](size);
             for(var i:int = 0; i < size; i++){
                 resultRail(i) = reducer.zero();
             }
@@ -36,7 +35,7 @@ abstract public class CollectingFinish[T] extends FinishFrame {
         //delay copy the result after fully remapped
         this.reducer = o.reducer;
         val size = Runtime.NTHREADS;
-        this.resultRail = IndexedMemoryChunk.allocateUninitialized[T](size);
+        this.resultRail = Unsafe.allocRailUninitialized[T](size);
         for(var i:int = 0; i < size; i++){
             resultRail(i) = reducer.zero();
         }
@@ -84,7 +83,7 @@ abstract public class CollectingFinish[T] extends FinishFrame {
         }
         @Ifndef("__CPP__"){
             val result = resultRail(worker.id);
-            resultRail.deallocate();
+            Unsafe.dealloc(resultRail);
             return result;
         }
     
@@ -97,7 +96,7 @@ abstract public class CollectingFinish[T] extends FinishFrame {
             for(var i:int = 0; i < size; i++){
                 result = reducer(result, resultRail(i));
             }
-            resultRail.deallocate();
+            Unsafe.dealloc(resultRail);
             return result;
         }
         @Ifndef("__CPP__"){
@@ -106,7 +105,7 @@ abstract public class CollectingFinish[T] extends FinishFrame {
             for(var i:int = 1; i < size; i++){
                 result = reducer(result, resultRail(i));
             }
-            resultRail.deallocate();
+            Unsafe.dealloc(resultRail);
             return result;
         }
     }

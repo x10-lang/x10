@@ -10,12 +10,13 @@ public class Congruent extends x10Test {
     }
 
     public def run () {
+        val allocator = Runtime.MemoryAllocator.requestAllocator(false, true);
         val elements = probsize * 1024/8;
-        val imcplh = PlaceLocalHandle.make(PlaceGroup.WORLD, ()=>new Box(IndexedMemoryChunk.allocateZeroed[Long](elements, 8, true)));
+        val plh = PlaceLocalHandle.make[Rail[Long]](PlaceGroup.WORLD, ()=>new Rail[Long](elements, allocator));
         Console.OUT.println("Construction complete.");
-        val str0 = imcplh()().toString();
+        val str0 = plh().toString();
         for (p in Place.places()) {
-            val str = at (p) imcplh().toString();
+            val str = at (p) plh().toString();
             if (!str.equals(str0)) {
                 Console.ERR.println("IMCs were not congruent at "+here+":");
                 Console.ERR.println(str);
@@ -27,10 +28,10 @@ public class Congruent extends x10Test {
 
         // do some remote ops
         finish for (p in Place.places()) async at (p) {
-            val imc = imcplh()();
+            val rail = plh();
             for (i in 0..(elements-1)) {
                 val oracle = Math.sqrt(i as Double) as Long;
-                imc.getCongruentSibling(p.next()).remoteAdd(i, oracle);
+                Unsafe.getCongruentSibling(rail, p.next()).remoteAdd(i, oracle);
             }
         }
         Console.OUT.println("Remote ops complete.");
@@ -39,11 +40,11 @@ public class Congruent extends x10Test {
         val errs = new Cell[Int](0);
         finish for (p in Place.places()) async at (p) {
             var errors:Int = 0;
-            val imc = imcplh()();
+            val rail = plh();
             for (i in 0..(elements-1)) {
                 val oracle = Math.sqrt(i as Double) as Long;
-                if (imc(i) != oracle) {
-                    Console.ERR.println(here+": imc("+i+")=="+imc(i)+" (should be "+oracle+")");
+                if (rail(i) != oracle) {
+                    Console.ERR.println(here+": rail("+i+")=="+rail(i)+" (should be "+oracle+")");
                     errors++;
                 }
             }

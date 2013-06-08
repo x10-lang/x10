@@ -15,8 +15,6 @@ Issues/XTENLANG_2388.x10:
 	Limitation - constraint erasure.
 Issues/XTENLANG_2301.x10:
 	C++ limitation - generic virtual methods.
-Constructs/IndexedMemoryChunk/Congruent.x10:
-	Java limitation - x10rt remote ops not implemented for Managed X10.
 
 Constructs/Call/ConConstructor2Arg_2_DYNAMIC_CHECKS.x10:
 Constructs/Call/ConConstructor2Arg_DYNAMIC_CHECKS.x10:

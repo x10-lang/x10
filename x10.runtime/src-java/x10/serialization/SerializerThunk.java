@@ -93,12 +93,6 @@ abstract class SerializerThunk {
             return new SerializerThunk.SpecialCaseSerializerThunk(clazz, superThunk);
         } else if ("x10.rtt.RuntimeType".equals(clazz.getName())) {
             return new SerializerThunk.SpecialCaseSerializerThunk(clazz);
-        } else if ("x10.core.IndexedMemoryChunk".equals(clazz.getName())) {
-            return new SerializerThunk.SpecialCaseSerializerThunk(clazz);
-        } else if ("x10.core.IndexedMemoryChunk$$Closure$0".equals(clazz.getName())) {
-            return new SerializerThunk.SpecialCaseSerializerThunk(clazz);
-        } else if ("x10.core.IndexedMemoryChunk$$Closure$1".equals(clazz.getName())) {
-            return new SerializerThunk.SpecialCaseSerializerThunk(clazz);
         } else if (x10.core.GlobalRef.class.getName().equals(clazz.getName())) {
             return new SerializerThunk.SpecialCaseSerializerThunk(clazz);
         } else if ("java.lang.Throwable".equals(clazz.getName())) {
@@ -306,12 +300,6 @@ abstract class SerializerThunk {
                 Class<?> javaClass = (Class<?>) javaClassField.get(obj);
                 short sid = xjs.getSerializationId(javaClass, null);
                 xjs.write(sid);
-            } else if ("x10.core.IndexedMemoryChunk".equals(clazz.getName())) {
-                ((x10.core.IndexedMemoryChunk) obj).$_serialize(xjs);
-            } else if ("x10.core.IndexedMemoryChunk$$Closure$0".equals(clazz.getName())) {
-                ((x10.core.IndexedMemoryChunk.$Closure$0) obj).$_serialize(xjs);
-            } else if ("x10.core.IndexedMemoryChunk$$Closure$1".equals(clazz.getName())) {
-                ((x10.core.IndexedMemoryChunk.$Closure$1) obj).$_serialize(xjs);
             } else if (x10.core.GlobalRef.class.getName().equals(clazz.getName())) {
                 ((x10.core.GlobalRef) obj).$_serialize(xjs);
             } else if ("java.lang.Throwable".equals(clazz.getName())) {

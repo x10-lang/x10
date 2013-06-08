@@ -835,8 +835,7 @@ public class Types {
             if (rtt == CHAR) return CHAR_ZERO;
             if (rtt == BOOLEAN) return BOOLEAN_ZERO;
             // N.B. to enable following special paths, make corresponding $RTTs singleton
-            // N.B. since GlobalRef and IndexedMemoryChunk have their own zero value constructor, special paths are no longer needed
-//            if (rtt == x10.core.IndexedMemoryChunk.$RTT) return new x10.core.IndexedMemoryChunk(actualTypeArguments[0], (java.lang.System) null);
+            // N.B. since GlobalRef has their own zero value constructor, special paths are no longer needed
 //            if (rtt == x10.core.GlobalRef.$RTT) return new x10.core.GlobalRef(actualTypeArguments[0], (java.lang.System) null);
             // for user-defined structs, call zero value constructor
             try {

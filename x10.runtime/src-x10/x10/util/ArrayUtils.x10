@@ -13,8 +13,7 @@
 package x10.util;
 
 /**
- * This class contains utility methods for manipulating Rail and
- * IndexedMemoryChunk instances.
+ * This class contains utility methods for manipulating Rail instances.
  */
 public class ArrayUtils {
     /**
@@ -29,30 +28,6 @@ public class ArrayUtils {
 
     public static def sort[T](a:Rail[T]){T<:Comparable[T]} {
         sort[T](a, (x:T,y:T) => x.compareTo(y));
-    }
-
-    //
-    // quick&dirty sort
-    //
-    static def qsort[T](a:IndexedMemoryChunk[T], lo:Long, hi:Long, cmp:(T,T)=>Int) {
-        if (hi <= lo) return;
-        var l:Long = lo - 1;
-        var h:Long = hi;
-        while (true) {
-            while (cmp(a(++l), a(hi))<0);
-            while (cmp(a(hi), a(--h))<0 && h>lo);
-            if (l >= h) break;
-            exch(a, l, h);
-        }
-        exch[T](a, l, hi);
-        qsort[T](a, lo, l-1, cmp);
-        qsort[T](a, l+1, hi, cmp);
-    }
-
-    private static def exch[T](a:IndexedMemoryChunk[T], i:Long, j:Long):void {
-        val temp = a(i);
-        a(i) = a(j);
-        a(j) = temp;
     }
 
     static def qsort[T](a:Rail[T], lo:Long, hi:Long, cmp:(T,T)=>Int) {
@@ -126,23 +101,5 @@ public class ArrayUtils {
 
     public static def binarySearch[T](a:Rail[T], key:T, min:Long, max:Long){T<:Comparable[T]} {
         return binarySearch[T](a, key, 0, a.size, (x:T,y:T) => x.compareTo(y));
-    }
-
-    static def binarySearch[T](a:IndexedMemoryChunk[T], key:T, min:Long, max:Long, cmp:(T,T)=>Int) {
-        var low:Long = min;
-        var high:Long = max-1;
-        while (low <= high) {
-            var mid:Long = (low + high) / 2;
-            val compare = cmp(a(mid), key);
-            if(compare < 0) {
-                low = mid + 1;
-            } else if (compare > 0) {
-                high = mid - 1;
-            } else {
-                return mid;
-            }
-        }
-
-        return -(low + 1);
     }
 }

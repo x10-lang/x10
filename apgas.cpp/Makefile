@@ -59,8 +59,7 @@ SELECTED_COMPILER = Native.x10 NativeRep.x10 NoThisAccess.x10 NonEscaping.x10 Em
 SELECTED_UTIL = HashMap.x10 Map.x10 Box.x10 Ordered.x10 Pair.x10 Set.x10 Random.x10 \
 		AbstractCollection.x10 AbstractContainer.x10  Collection.x10 GrowableRail.x10 \
 		Container.x10 NoSuchElementException.x10 Timer.x10 Indexed.x10 \
-		CollectionIterator.x10 MapIterator.x10 StringBuilder.x10 Builder.x10 \
-		IndexedMemoryChunk.x10 RemoteIndexedMemoryChunk.x10
+		CollectionIterator.x10 MapIterator.x10 StringBuilder.x10 Builder.x10
 
 SELECTED_IO = CustomSerialization.x10 SerialData.x10 Printer.x10 Reader.x10 Writer.x10 Marshal.x10 \
 		IOException.x10 ReaderIterator.x10 EOFException.x10 Console.x10 OutputStreamWriter.x10 \

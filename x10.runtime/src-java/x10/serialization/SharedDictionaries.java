@@ -64,9 +64,7 @@ class SharedDictionaries implements SerializationConstants {
                 "x10.io.SerialData",
                 
                 /* Core class library: x10.util */
-                /* "x10.util.IndexedMemoryChunk", */       // TODO: @NativeRep to x10.core.IndexedMemoryChunk
                 "x10.util.Pair",
-                /* "x10.util.RemoteIndexedMemoryChunk", */ // TODO: @NativeRep to x10.core.RemoteIndexedMemoryChunk
                 
                 /* Managed X10 implementation classes */
                 // TODO: For mixed mode, we need to map these to the
@@ -77,12 +75,10 @@ class SharedDictionaries implements SerializationConstants {
                 "x10.core.Double",
                 "x10.core.Float",
                 "x10.core.GlobalRef",
-                "x10.core.IndexedMemoryChunk",
                 "x10.core.Int",
                 "x10.core.Long",
                 "x10.core.PlaceLocalHandle",
                 "x10.core.Rail",
-                "x10.core.RemoteIndexedMemoryChunk",
                 "x10.core.Short",
                 "x10.core.UByte",
                 "x10.core.UInt",

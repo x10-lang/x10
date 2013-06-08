@@ -2266,13 +2266,6 @@ public class TypeSystem_c implements TypeSystem
         return AtomicInteger_;
     }
 
-    protected X10ClassType IndexedMemoryChunk_;
-    public X10ClassType IndexedMemoryChunk() {
-        if (IndexedMemoryChunk_ == null)
-            IndexedMemoryChunk_ = load("x10.util.IndexedMemoryChunk");
-        return IndexedMemoryChunk_;
-    }
-
     protected X10ClassType GLOBAL_REF_;
     public X10ClassType GlobalRef() {
         if (GLOBAL_REF_ == null)
@@ -4234,10 +4227,6 @@ public class TypeSystem_c implements TypeSystem
 
     public boolean isString(Type me) {
         return finalSubtype(me,String());
-    }
-
-    public boolean isIndexedMemoryChunk(Type me) {
-        return finalSubtype(me,IndexedMemoryChunk());
     }
 
     public boolean isRuntime(Type me) {

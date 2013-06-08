@@ -1966,7 +1966,7 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
             Binary.Operator op = n.operator().binaryOperator();
             Name methodName = X10Binary_c.binaryMethodName(op);
             TypeSystem xts = ts;
-            if (isPrimitive(t) && (isIndexedMemoryChunk(array.type()) || isRail(array.type()))) {
+            if (isPrimitive(t) && isRail(array.type())) {
                 w.write("(");
                 w.write("(");
                 er.printType(t, 0);
@@ -2013,7 +2013,7 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
             Binary.Operator op = n.operator().binaryOperator();
             Name methodName = X10Binary_c.binaryMethodName(op);
             TypeSystem xts = ts;
-            if (isPrimitive(t) && (isIndexedMemoryChunk(array.type()) || isRail(array.type()))) {
+            if (isPrimitive(t) && isRail(array.type())) {
                 w.write("(");
                 w.write("(");
                 er.printType(t, 0);
@@ -4391,10 +4391,6 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 
     public static boolean isString(Type type) {
         return Types.baseType(type).isString();
-    }
-    
-    public static boolean isIndexedMemoryChunk(Type type) {
-        return Types.baseType(type).isIndexedMemoryChunk();
     }
     
     public static boolean isRail(Type type) {

@@ -13,7 +13,6 @@ package x10.lang;
 
 import x10.compiler.Native;
 import x10.compiler.NativeRep;
-import x10.util.IndexedMemoryChunk;
 
 /**
  * <p> The Rail class provides a basic abstraction of fixed-sized 
@@ -52,12 +51,6 @@ public final class Rail[T](
 
     /** @return a String suitable for printing representing the contents of the Rail */
     public native def toString():String;
-
-    /**
-     * Construct a Rail by copying the elements from the argument IndexedMemoryChunk.
-     * @deprecated x10.util.IndexedMemoryChunk will be removed in X10 2.4.1
-     */
-    public native def this(backingStore:IndexedMemoryChunk[T]):Rail[T];
 
     /**
      * Construct an empty (size 0) Rail

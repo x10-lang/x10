@@ -144,12 +144,6 @@ abstract class DeserializerThunk {
             return new SpecialCaseDeserializerThunk(null);  
         } else if ("x10.rtt.RuntimeType".equals(clazz.getName())) {
             return new SpecialCaseDeserializerThunk(null);      
-        } else if ("x10.core.IndexedMemoryChunk".equals(clazz.getName())) {
-            return new SpecialCaseDeserializerThunk(null);
-        } else if ("x10.core.IndexedMemoryChunk$$Closure$0".equals(clazz.getName())) {
-            return new SpecialCaseDeserializerThunk(null);
-        } else if ("x10.core.IndexedMemoryChunk$$Closure$1".equals(clazz.getName())) {
-            return new SpecialCaseDeserializerThunk(null);
         } else if (x10.core.GlobalRef.class.getName().equals(clazz.getName())) {
             return new SpecialCaseDeserializerThunk(null);
         } else if ("java.lang.Throwable".equals(clazz.getName())) {
@@ -397,14 +391,6 @@ abstract class DeserializerThunk {
                     obj = (T) x10JavaSerializable;
                 }
                 return obj;
-            } else if ("x10.core.IndexedMemoryChunk".equals(clazz.getName())) {
-                x10.core.IndexedMemoryChunk imc = (x10.core.IndexedMemoryChunk) obj;
-                x10.core.IndexedMemoryChunk.$_deserialize_body(imc, jds);
-                return (T) imc;
-            } else if ("x10.core.IndexedMemoryChunk$$Closure$0".equals(clazz.getName())) {
-                return (T) x10.core.IndexedMemoryChunk.$Closure$0.$_deserialize_body((x10.core.IndexedMemoryChunk.$Closure$0) obj, jds);
-            } else if ("x10.core.IndexedMemoryChunk$$Closure$1".equals(clazz.getName())) {
-                return (T) x10.core.IndexedMemoryChunk.$Closure$1.$_deserialize_body((x10.core.IndexedMemoryChunk.$Closure$1) obj, jds);
             } else if (x10.core.GlobalRef.class.getName().equals(clazz.getName())) {
                 return (T) x10.core.GlobalRef.$_deserialize_body((x10.core.GlobalRef) obj, jds);
             } else if ("java.lang.Throwable".equals(clazz.getName())) {

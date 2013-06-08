@@ -24,10 +24,6 @@
 #include <x10/lang/Fun_0_1.h>
 #undef X10_LANG_FUN_0_1_H_NODEPS
 
-#define X10_UTIL_INDEXEDMEMORYCHUNK_H_NODEPS
-#include <x10/util/IndexedMemoryChunk.h>
-#undef X10_UTIL_INDEXEDMEMORYCHUNK_H_NODEPS
-
 namespace x10 {
     namespace lang { 
         class LongRange;
@@ -45,7 +41,8 @@ namespace x10 {
 
         template<class T> class Rail;
         template <> class Rail<void>;
-
+        class Place;
+        
         extern const x10aux::serialization_id_t Rail_copy_to_serialization_id;
         extern const x10aux::serialization_id_t Rail_copy_from_serialization_id;
 
@@ -74,7 +71,7 @@ namespace x10 {
             // the bounds check can be optimized to a single unsigned comparison.
             // The C++ compiler won't do this for us, since it doesn't know that size is non-negative.
             if (((x10_ulong)index) >= ((x10_ulong)size)) {
-                x10::util::throwArrayIndexOutOfBoundsException(index, size);
+                x10::lang::throwArrayIndexOutOfBoundsException(index, size);
             }
             #endif
         }
@@ -97,9 +94,6 @@ namespace x10 {
             virtual x10aux::itable_entry* _getITables() { return _itables; }
             static typename x10::lang::Iterable<T>::template itable<x10::lang::Rail<T> > _itable_0;
             static typename x10::lang::Fun_0_1<x10_long, T>::template itable<x10::lang::Rail<T> > _itable_1;
-    
-            static x10::lang::Rail<T>* _make(x10::util::IndexedMemoryChunk<T > backingStore);
-            void _constructor(x10::util::IndexedMemoryChunk<T > backingStore);
     
             static x10::lang::Rail<T>* _make();
             void _constructor();
@@ -239,10 +233,10 @@ namespace x10 {
 #define X10_LANG_RAIL_H_NODEPS
 #include <x10/lang/Iterable.h>
 #include <x10/lang/Fun_0_1.h>
-#include <x10/util/IndexedMemoryChunk.h>
 #include <x10/lang/LongRange.h>
 #include <x10/lang/Iterator.h>
 #include <x10/lang/RailIterator.h>
+#include <x10/lang/Place.h>
 #include <x10/lang/String.h>
 #include <x10/lang/IllegalArgumentException.h>
 #include <x10/lang/Runtime__MemoryAllocator.h>
@@ -256,20 +250,6 @@ namespace x10 {
 /*
  * Construction (_make methods)
  */
-
-template<class T> x10::lang::Rail<T>* x10::lang::Rail<T>::_make(x10::util::IndexedMemoryChunk<T > backingStore) {
-    bool containsPtrs = x10aux::getRTT<T>()->containsPtrs;
-    x10_long numElems = backingStore->length();
-    size_t numBytes = sizeof(x10::lang::Rail<T>) - sizeof(T) + (numElems * sizeof(T)); // -sizeof(T) accounts for raw[1]
-    x10::lang::Rail<T>* this_ = new (x10aux::alloc_internal(numBytes, containsPtrs)) x10::lang::Rail<T>(numElems);
-
-    rail_copyRaw(backingStore->raw(), &this_->raw, sizeof(T)*backingStore->length(), false);
-    return this_;
-}
-template<class T> void x10::lang::Rail<T>::_constructor(x10::util::IndexedMemoryChunk<T > backingStore) {
-    rail_copyRaw(backingStore->raw(), &this->raw, sizeof(T)*backingStore->length(), false);
-}
-
 
 template<class T> x10::lang::Rail<T>* x10::lang::Rail<T>::_make() {
     x10::lang::Rail<T>* this_ = new (x10aux::alloc_internal(sizeof(x10::lang::Rail<T>), false)) x10::lang::Rail<T>(0);

@@ -913,8 +913,6 @@ public interface TypeSystem {
      */
     X10ClassType FailedDynamicCheckException();
 
-    X10ClassType IndexedMemoryChunk();
-
     // types used in WS codegen
     X10ClassType Frame();
     X10ClassType FinishFrame();
@@ -1105,8 +1103,6 @@ public interface TypeSystem {
     boolean isStruct(Type me);
 
     boolean isString(Type me);
-
-    boolean isIndexedMemoryChunk(Type me);
 
     boolean isRuntime(Type me);
 
