@@ -123,7 +123,10 @@ public class X10Translator extends Translator {
         return tr;
     }
 
+    // XTENLANG-3170: X10DT requires Java file to make sure there is no compiler bug.
+    private static final boolean alwaysGenerateJavaFile = true;
     private static boolean generateJavaFile(TopLevelDecl decl) {
+    	if (alwaysGenerateJavaFile) return true;
         if (decl instanceof TypeDecl) return false;  // public type Int(b:Int) = Int{self==b};
 //        assert decl instanceof ClassDecl;
         if (!(decl instanceof ClassDecl)) return true; // for safety
@@ -131,6 +134,7 @@ public class X10Translator extends Translator {
         return false;
     }
     private static boolean generateJavaFile(SourceFile sfn) {
+    	if (alwaysGenerateJavaFile) return true;
         for (TopLevelDecl decl : sfn.decls()) {
             if (generateJavaFile(decl)) return true;
         }
