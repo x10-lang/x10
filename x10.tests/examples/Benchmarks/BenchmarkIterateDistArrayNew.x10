@@ -25,7 +25,7 @@ public class BenchmarkIterateDistArrayNew(elementsPerPlace : Int) extends x10Tes
     public def run(): Boolean = {
         val arraySize = elementsPerPlace * Place.MAX_PLACES;
 
-        val a = new DistArray_Block[Long](arraySize);
+        val a = new DistArray_Block_1[Long](arraySize);
 
         var start:Long = System.nanoTime();
         for (t in 1..100) {

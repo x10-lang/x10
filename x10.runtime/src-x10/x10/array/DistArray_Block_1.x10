@@ -20,7 +20,7 @@ import x10.io.SerialData;
  * Implementation of a 1-D DistArray that distributes its data elements
  * over the places in its PlaceGroup in a 1-D blocked fashion.
  */
-public class DistArray_Block[T] extends DistArray[T]{this.rank()==1} implements (Long)=>T {
+public class DistArray_Block_1[T] extends DistArray[T]{this.rank()==1} implements (Long)=>T {
     
     public property rank() = 1;
 
@@ -42,8 +42,8 @@ public class DistArray_Block[T] extends DistArray[T]{this.rank()==1} implements 
      * @param init the element initialization function
      */
     public def this(n:long, pg:PlaceGroup{self!=null}, init:(long)=>T) {
-        super(pg, () => BLocalState.make[T](pg, n, init));
-        val bls = localHandle() as BLocalState[T];
+        super(pg, () => LocalState_B1.make[T](pg, n, init));
+        val bls = localHandle() as LocalState_B1[T];
         globalIndices = bls.globalIndices;
         localIndices = bls.localIndices;
         minLocalIndex = localIndices.min(0);
@@ -93,7 +93,7 @@ public class DistArray_Block[T] extends DistArray[T]{this.rank()==1} implements 
 
     def this(sd:SerialData) { 
         super(sd.data as PlaceLocalHandle[LocalState[T]]);
-        val bls = localHandle() as BLocalState[T];
+        val bls = localHandle() as LocalState_B1[T];
         globalIndices = bls.globalIndices;
         localIndices = bls.localIndices;
         minLocalIndex = localIndices.min(0);
@@ -208,7 +208,7 @@ public class DistArray_Block[T] extends DistArray[T]{this.rank()==1} implements 
 
 // TODO:  Would prefer this to be a protected static nested class, but 
 //        when written that way we non-deterministically fail compilation.
-class BLocalState[S] extends LocalState[S] {
+class LocalState_B1[S] extends LocalState[S] {
     val globalIndices:DenseIterationSpace_1{self!=null};
     val localIndices:DenseIterationSpace_1{self!=null};
 
@@ -219,7 +219,7 @@ class BLocalState[S] extends LocalState[S] {
         localIndices = ls;
     }
 
-    static def make[S](pg:PlaceGroup{self!=null}, n:long, init:(long)=>S):BLocalState[S] {
+    static def make[S](pg:PlaceGroup{self!=null}, n:long, init:(long)=>S):LocalState_B1[S] {
         val globalSpace = new DenseIterationSpace_1(0L, n-1);
         val localSpace = BlockingUtils.partitionBlock(globalSpace, pg.numPlaces(), pg.indexOf(here));
 
@@ -236,7 +236,7 @@ class BLocalState[S] extends LocalState[S] {
                 data(offset) = init(i);
             }
         }
-        return new BLocalState[S](pg, data, n, globalSpace, localSpace);
+        return new LocalState_B1[S](pg, data, n, globalSpace, localSpace);
     }
 }
 
