@@ -255,17 +255,21 @@ public final class Rail<T> extends x10.core.Ref implements x10.lang.Iterable,
         if (value instanceof boolean[]) {
             Arrays.fill(getBooleanArray(), x10.core.Boolean.$unbox(v));
         } else if (value instanceof byte[]) {
-            Arrays.fill(getByteArray(), x10.core.Byte.$unbox(v));
+            // T is either Byte or UByte
+            Arrays.fill(getByteArray(), ((java.lang.Number)v).byteValue());
         } else if (value instanceof char[]) {
             Arrays.fill(getCharArray(), x10.core.Char.$unbox(v));
         } else if (value instanceof short[]) {
-            Arrays.fill(getShortArray(), x10.core.Short.$unbox(v));
+            // T is either Short or UShort
+            Arrays.fill(getShortArray(), ((java.lang.Number)v).shortValue());
         } else if (value instanceof int[]) {
-            Arrays.fill(getIntArray(), x10.core.Int.$unbox(v));
+            // T is either Int or UInt
+            Arrays.fill(getIntArray(), ((java.lang.Number)v).intValue());
         } else if (value instanceof float[]) {
             Arrays.fill(getFloatArray(), x10.core.Float.$unbox(v));
         } else if (value instanceof long[]) {
-            Arrays.fill(getLongArray(), x10.core.Long.$unbox(v));
+            // T is either Long or ULong
+            Arrays.fill(getLongArray(), ((java.lang.Number)v).longValue());
         } else if (value instanceof double[]) {
             Arrays.fill(getDoubleArray(), x10.core.Double.$unbox(v));
         } else {
