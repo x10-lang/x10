@@ -51,10 +51,9 @@ public final class Unsafe {
         throw new UnsupportedOperationException("Congruent memory not available on Managed X10");
     }
 
-/*
     @Native("java", "null")
-    @Native("c++", "x10::lang::GlobalRef((x10aux::place)((#p).FMGL(id)), (x10_ulong)(#t)")
-    private static native def fabricateGlobalRef[T](t:T, p:Place):GlobalRef[T]{self.home==p};
+    @Native("c++", "x10::lang::GlobalRef<#T >((x10aux::place)((#p).FMGL(id)), (x10_ulong)(#t))")
+    private static native def fabricateGlobalRef[T](t:T, p:Place){T isref}:GlobalRef[T]{self.home==p};
 
     public static def getCongruentSibling[T](r:Rail[T]{self!=null}, dst:Place):GlobalRail[T]{self.size==r.size,self.home()==dst} {
         val remoteRail = getCongruentSibling(r, dst.id);
@@ -62,5 +61,4 @@ public final class Unsafe {
         val globalRail = GlobalRail[T](r.size, globalRef);
         return globalRail;
     }
-*/
 }
