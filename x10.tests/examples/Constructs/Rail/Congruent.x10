@@ -11,14 +11,14 @@ public class Congruent extends x10Test {
 
     public def run () {
         val allocator = Runtime.MemoryAllocator.requestAllocator(false, true);
-        val elements = probsize * 1024/8;
+        val elements = (probsize * 1024/8) as long;
         val plh = PlaceLocalHandle.make[Rail[Long]](PlaceGroup.WORLD, ()=>new Rail[Long](elements, allocator));
         Console.OUT.println("Construction complete.");
         val str0 = plh().toString();
         for (p in Place.places()) {
             val str = at (p) plh().toString();
             if (!str.equals(str0)) {
-                Console.ERR.println("IMCs were not congruent at "+here+":");
+                Console.ERR.println("Rails were not congruent at "+here+":");
                 Console.ERR.println(str);
                 Console.ERR.println(str0);
                 return false;
@@ -28,10 +28,11 @@ public class Congruent extends x10Test {
 
         // do some remote ops
         finish for (p in Place.places()) async at (p) {
-            val rail = plh();
-            for (i in 0..(elements-1)) {
+            val rail = plh() as Rail[Long]{self!=null};
+	    val gr = Unsafe.getCongruentSibling(rail, p.next());
+            for (i in 0L..(elements-1)) {
                 val oracle = Math.sqrt(i as Double) as Long;
-                Unsafe.getCongruentSibling(rail, p.next()).remoteAdd(i, oracle);
+                GlobalRail.remoteAdd(gr, i, oracle);
             }
         }
         Console.OUT.println("Remote ops complete.");
@@ -41,7 +42,7 @@ public class Congruent extends x10Test {
         finish for (p in Place.places()) async at (p) {
             var errors:Int = 0;
             val rail = plh();
-            for (i in 0..(elements-1)) {
+            for (i in 0L..(elements-1)) {
                 val oracle = Math.sqrt(i as Double) as Long;
                 if (rail(i) != oracle) {
                     Console.ERR.println(here+": rail("+i+")=="+rail(i)+" (should be "+oracle+")");

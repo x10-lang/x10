@@ -13,6 +13,7 @@ package x10.lang;
 
 import x10.compiler.Global;
 import x10.compiler.Native;
+import x10.compiler.NativeCPPInclude;
 
 /**
  * A struct that adds size information to a GlobalRef[Rail[T]]
@@ -24,6 +25,7 @@ import x10.compiler.Native;
  * this.size == T.size, where this.rail : GlobalRef[T]
  * </pre>
  */
+@NativeCPPInclude("x10/lang/RemoteOps.h")
 public final struct GlobalRail[T] (
         /**
          * The size of the remote rail.
@@ -87,4 +89,40 @@ public final struct GlobalRail[T] (
      */
     @Native("cuda", "(#this)")
     public operator this() {here==rail.home} : Rail[T]{self!=null} = rail();
+
+    /*
+     * Support for remote update operations (Power775 HFI access).
+     */
+
+    @Native("java", "x10.x10rt.X10RT.remoteAdd__1$u(#target, #idx, #v)")
+    @Native("c++", "x10::lang::RemoteOps::remoteAdd((#target)->FMGL(rail), #idx ,#v)")
+    public static native def remoteAdd(target:GlobalRail[ULong], idx:Long, v:ULong):void;
+
+    @Native("java", "x10.x10rt.X10RT.remoteAdd(#target, #idx, #v)")
+    @Native("c++", "x10::lang::RemoteOps::remoteAdd((#target)->FMGL(rail), #idx ,#v)")
+    public static native def remoteAdd(target:GlobalRail[Long], idx:Long, v:Long):void;
+
+    @Native("java", "x10.x10rt.X10RT.remoteAnd__1$u(#target, #idx, #v)")
+    @Native("c++", "x10::lang::RemoteOps::remoteAnd((#target)->FMGL(rail), #idx ,#v)")
+    public static native def remoteAnd(target:GlobalRail[ULong], idx:Long, v:ULong):void;
+
+    @Native("java", "x10.x10rt.X10RT.remoteAnd(#target, #idx, #v)")
+    @Native("c++", "x10::lang::RemoteOps::remoteAnd((#target)->FMGL(rail), #idx ,#v)")
+    public static native def remoteAnd(target:GlobalRail[Long], idx:Long, v:Long):void;
+
+    @Native("java", "x10.x10rt.X10RT.remoteOr__1$u(#target, #idx, #v)")
+    @Native("c++", "x10::lang::RemoteOps::remoteOr((#target)->FMGL(rail), #idx ,#v)")
+    public static native def remoteOr(target:GlobalRail[ULong], idx:Long, v:ULong):void;
+
+    @Native("java", "x10.x10rt.X10RT.remoteOr(#target, #idx, #v)")
+    @Native("c++", "x10::lang::RemoteOps::remoteOr((#target)->FMGL(rail), #idx ,#v)")
+    public static native def remoteOr(target:GlobalRail[Long], idx:Long, v:Long):void;
+
+    @Native("java", "x10.x10rt.X10RT.remoteXor__1$u(#target, #idx, #v)")
+    @Native("c++", "x10::lang::RemoteOps::remoteXor((#target)->FMGL(rail), #idx ,#v)")
+    public static native def remoteXor(target:GlobalRail[ULong], idx:Long, v:ULong):void;
+
+    @Native("java", "x10.x10rt.X10RT.remoteXor(#target, #idx, #v)")
+    @Native("c++", "x10::lang::RemoteOps::remoteXor((#target)->FMGL(rail), #idx ,#v)")
+    public static native def remoteXor(target:GlobalRail[Long], idx:Long, v:Long):void;
 }

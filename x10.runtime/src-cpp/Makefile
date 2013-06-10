@@ -171,6 +171,7 @@ ALL_XRCPP_OBJECTS = \
 	x10/lang/Long.o \
 	x10/lang/Rail.o \
 	x10/lang/Reference.o \
+	x10/lang/RemoteOps.o \
 	x10/lang/RuntimeNatives.o \
 	x10/lang/Short.o \
 	x10/lang/String.o \

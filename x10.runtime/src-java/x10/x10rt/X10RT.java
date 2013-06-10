@@ -11,6 +11,7 @@
 
 package x10.x10rt;
 
+import x10.lang.GlobalRail;
 import x10.x10rt.SocketTransport.RETURNCODE;
 
 public class X10RT {
@@ -304,6 +305,37 @@ public class X10RT {
     		ret = x10rt_finalize();
     	state = State.TORN_DOWN;
     	return ret;
+    }
+    
+    /*
+     * Support for remote operations
+     */
+    public static void remoteAdd(GlobalRail target, long idx, long val) {
+        throw new UnsupportedOperationException("remoteAdd not implemented for Managed X10");
+    }
+    public static void remoteAdd__1$u(GlobalRail target, long idx, long val) {
+        throw new UnsupportedOperationException("remoteAdd not implemented for Managed X10");
+    }
+
+    public static void remoteAnd(GlobalRail target, long idx, long val) {
+        throw new UnsupportedOperationException("remoteAnd not implemented for Managed X10");
+    }
+    public static void remoteAnd__1$u(GlobalRail target, long idx, long val) {
+        throw new UnsupportedOperationException("remoteAnd not implemented for Managed X10");
+    }
+
+    public static void remoteOr(GlobalRail target, long idx, long val) {
+        throw new UnsupportedOperationException("remoteOr not implemented for Managed X10");
+    }
+    public static void remoteOr__1$u(GlobalRail target, long idx, long val) {
+        throw new UnsupportedOperationException("remoteOr not implemented for Managed X10");
+    }
+
+    public static void remoteXor(GlobalRail target, long idx, long val) {
+        throw new UnsupportedOperationException("remoteXor not implemented for Managed X10");
+    }
+    public static void remoteXor__1$u(GlobalRail target, long idx, long val) {
+        throw new UnsupportedOperationException("remoteXor not implemented for Managed X10");
     }
 
     /*
