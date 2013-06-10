@@ -328,7 +328,7 @@ public class X10CPPTranslator extends Translator {
 		context = c;
 	}
 
-    private static void maybeCopyTo (String file, String src_path_, String dest_path_, Compiler compiler) {
+    private static void maybeCopyTo (String file, String src_path_, String dest_path_, Compiler compiler, boolean noPostCompiler) {
 		File src_path = new File(src_path_);
     	File dest_path = new File(dest_path_);
     	// don't copy if the two dirs are the same...
@@ -350,7 +350,9 @@ public class X10CPPTranslator extends Translator {
 	    		dest.write(b);
 	    	}
     	} catch (IOException e) {
-    	    compiler.errorQueue().enqueue(ErrorInfo.WARNING, "Failed to copy "+file + " from "+src_path_+" to "+dest_path_);
+    	    if (!noPostCompiler) {
+    	        compiler.errorQueue().enqueue(ErrorInfo.WARNING, "Failed to copy "+file + " from "+src_path_+" to "+dest_path_);
+    	    }
     	}
     }
 
@@ -405,14 +407,14 @@ public class X10CPPTranslator extends Translator {
 		                ASTQuery.assertNumberOfInitializers(at, 1);
 		                String include = getStringPropertyInit(at, 0);
 		                job.compiler().addOutputFile(sfn, pkg_+include);
-		                maybeCopyTo(include, path, out_path+pkg_, job.compiler());
+		                maybeCopyTo(include, path, out_path+pkg_, job.compiler(), opts.post_compiler == null);
 		            }
 		            as = ext.annotationMatching(xts.systemResolver().findOne(QName.make("x10.compiler.NativeCPPOutputFile")));
 		            for (Type at : as) {
 		                ASTQuery.assertNumberOfInitializers(at, 1);
 		                String file = getStringPropertyInit(at, 0);
 		                job.compiler().addOutputFile(sfn, pkg_+file);
-		                maybeCopyTo(file, path, out_path+pkg_, job.compiler());
+		                maybeCopyTo(file, path, out_path+pkg_, job.compiler(), opts.post_compiler == null);
 		            }
 		            as = ext.annotationMatching(xts.systemResolver().findOne(QName.make("x10.compiler.NativeCPPCompilationUnit")));
 		            for (Type at : as) {
@@ -420,7 +422,7 @@ public class X10CPPTranslator extends Translator {
 		                String compilation_unit = getStringPropertyInit(at, 0);
 		                job.compiler().addOutputFile(sfn, pkg_+compilation_unit);
 		                opts.compilationUnits().add(pkg_+compilation_unit);
-		                maybeCopyTo(compilation_unit, path, out_path+pkg_, job.compiler());
+		                maybeCopyTo(compilation_unit, path, out_path+pkg_, job.compiler(), opts.post_compiler == null);
 		            }
 		        } catch (SemanticException e) {
 		            assert false : e;
