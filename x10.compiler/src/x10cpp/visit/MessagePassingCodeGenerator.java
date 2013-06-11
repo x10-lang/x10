@@ -1100,7 +1100,12 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 
         List<ClassMember> members = n.members();
 
-        generateITablesForClass(currentClass, context, xts, "virtual ", h);
+        boolean emittedUsingDecl = false;
+        if (!members.isEmpty()) {
+            emittedUsingDecl = generateUsingDeclsForInheritedMethods(context, currentClass, superClass, xts, h, members);
+        }
+        
+        generateITablesForClass(currentClass, context, xts, "virtual ", h, emittedUsingDecl);
         
         if (currentClass.isSubtype(xts.Mortal(), context)) {
             h.write("virtual x10_boolean _isMortal() { return true; }");
@@ -1108,10 +1113,6 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
         }
 
         if (!members.isEmpty()) {
-            String className = Emitter.translateType(currentClass);
-
-            generateUsingDeclsForInheritedMethods(context, currentClass, superClass, xts, h, members);
-            
             ClassMember prev = null;
             for (ClassMember member : members) {
                 if ((member instanceof polyglot.ast.CodeDecl)
@@ -1177,7 +1178,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
     }
 
 	private void generateITablesForClass(X10ClassType currentClass, X10CPPContext_c context,
-	                                     TypeSystem xts, String maybeVirtual, ClassifiedStream h) {
+	                                     TypeSystem xts, String maybeVirtual, ClassifiedStream h, boolean emittedUsingDecl) {
 		X10ClassDef cd = currentClass.x10Def();
 		List<X10ClassType> allInterfaces = xts.allImplementedInterfaces(currentClass);
 		int numInterfaces = allInterfaces.size();
@@ -1197,7 +1198,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 			itableNum = 0;
 			for (Type interfaceType : allInterfaces) {
 				ITable itable = context.getITable((X10ClassType) Types.baseType(interfaceType));
-				itable.emitITableInitialization(currentClass, itableNum, this, h, sw);
+				itable.emitITableInitialization(currentClass, itableNum, this, h, sw, emittedUsingDecl, context);
 				itableNum += 1;
 			}
 
@@ -1249,7 +1250,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
             itableNum = 0;
 	        for (Type interfaceType : allInterfaces) {
 	            ITable itable = context.getITable((X10ClassType) Types.baseType(interfaceType));
-	            itable.emitITableInitialization(currentClass, itableNum, this, h, sw);
+	            itable.emitITableInitialization(currentClass, itableNum, this, h, sw, false, context);
 	            itableNum += 1;
 	        }
 
@@ -1289,7 +1290,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 	// The alternative to using "using" is to generate proxy methods that forward to the superclass
 	// method.  This results in slightly less efficient generated code, but more importantly is 
 	// significantly more complex to implement correctly.
-    private void generateUsingDeclsForInheritedMethods(X10CPPContext_c context, X10ClassType childClass,
+    private boolean generateUsingDeclsForInheritedMethods(X10CPPContext_c context, X10ClassType childClass,
                                                        X10ClassType superClass, TypeSystem xts, ClassifiedStream h,
                                                        List<ClassMember> members) {
         boolean didSomething = false;
@@ -1308,6 +1309,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
             didSomething = generateUsingDeclsHelper(context, childClass, xts.Any(), h, didSomething, possibleNames);
         }
         if (didSomething) h.forceNewline();
+        return didSomething;
     }
 
 	private boolean generateUsingDeclsHelper(X10CPPContext_c context,
