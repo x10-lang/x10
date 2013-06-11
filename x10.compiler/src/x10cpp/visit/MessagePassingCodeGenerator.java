@@ -1322,21 +1322,20 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 		    List<MethodInstance> parentImpls = superClass.methodsNamed(methName);
 		    if (!parentImpls.isEmpty()) {
 		        boolean emitUsing = false;
-		        if (childImpls.size() != parentImpls.size()) {
-		            // Number of implementation differs, so we can't have an exact signature match.
+		        if (childImpls.size() < parentImpls.size()) {
+		            // Parent has more implementations than the child, we there must be at least one we need to inherit with a using.
 		            emitUsing = true;
 		        } else {
-		            // Same number of impls, now check for identical signatures.
-		            implLoop: for (MethodInstance childImpl : childImpls) {
-		                for (MethodInstance parentImpl : parentImpls) {
-		                    if (childImpl.isSameMethod(parentImpl, context)) continue implLoop;
+		            implLoop: for (MethodInstance parentImpl : parentImpls) {
+		                for (MethodInstance childImpl : childImpls) { 
+		                    if (childImpl.canOverride(parentImpl, context)) continue implLoop;
 		                }
-		                // If we get to here, then there is a childImpl that has a different signature than all parentImpls
+		                // If we get to here, then there is a parentImpl that is not overriden by a childImpl
+		                // and therefore must be brought into scope in the child with a using declaration
 		                emitUsing = true;
 		                break implLoop;                 
 		            }
-		        }
-		        
+		        } 
 		        if (emitUsing) {
 		            names.remove();
 		            if (superClass.isAny()) {
