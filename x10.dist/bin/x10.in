@@ -171,6 +171,9 @@ else
     elif [ "${x10rt_impl}" = "sockets" ]; then
         launcher="${TOP}${FILE_SEP}bin${FILE_SEP}X10Launcher"
         java_args=("-DX10RT_IMPL=${x10rt_impl}" "${java_args[@]}")
+    elif [ "${x10rt_impl}" = "JavaSockets" ]; then
+        launcher="${TOP}${FILE_SEP}bin${FILE_SEP}X10Launcher"
+        java_args=("-DX10RT_IMPL=${x10rt_impl}" "${java_args[@]}")
 #    elif [ "${x10rt_impl}" = "standalone" ]; then
 #        launcher="${TOP}${FILE_SEP}bin${FILE_SEP}X10Launcher"
 #        java_args=("-DX10RT_IMPL=${x10rt_impl}" "${java_args[@]}")
