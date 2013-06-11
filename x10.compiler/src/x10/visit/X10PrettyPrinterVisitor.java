@@ -2276,10 +2276,9 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
         final Type targetType = target.type();
         final ContainerType containerType = mi.container();
     	assert containerType.isClass();
-    	final X10ClassType containerClass = containerType.toClass();
     	// N.B. structs are implicitly final. all methods of final classes are final. invoke final methods as non-virtual call.
     	boolean invokeNativeAsNonVirtual = !Emitter.supportNativeMethodDecl || mi.flags().isStatic() || mi.flags().isFinal()
-    	|| canBeNonVirtual(containerClass.x10Def())
+    	|| canBeNonVirtual(containerType.toClass().x10Def())
     	|| (targetType.isClass() && canBeNonVirtual(targetType.toClass().x10Def()))
     	;
         if (invokeNativeAsNonVirtual && er.printNativeMethodCall(c)) {
@@ -2367,21 +2366,15 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
         } else {
             boolean invokeInterface = false;
             ContainerType st = mi.def().container().get();
-            Type bst = Types.baseType(st);
-            if (bst.isClass()) {
-                if (Emitter.isInterfaceOrFunctionType(xts, bst.toClass())) {
-                    invokeInterface = true;
-                }
+            if (Emitter.isInterfaceOrFunctionType(xts, st)) {
+            	invokeInterface = true;
             }
 
             boolean isDispatchMethod = false;
             if (useSelfDispatch) {
-                Type tt = Types.baseType(containerType);
-                if (tt.isClass() && tt.toClass().flags().isInterface()) {
-                	// XTENLANG-2723 (revert r21635)
-//                	// N.B. stop passing rtt to java raw class's methods
-//                	if (containsTypeParam(mi.def().formalTypes()) && !Emitter.isNativeRepedToJava(tt)) {
-                    if (containsTypeParam(mi.def().formalTypes())) {
+                if (xts.isInterfaceType(containerType)) {
+                	// XTENLANG-2723 stop passing rtt to java raw class's methods (reverted in r21635)
+                	if (containsTypeParam(mi.def().formalTypes()) /*&& !Emitter.isNativeRepedToJava(containerType)*/) {
                         isDispatchMethod = true;
                     }
                 } else if (target instanceof ParExpr && ((ParExpr) target).expr() instanceof Closure_c) {
@@ -2532,10 +2525,10 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
             }
 
         	// XTENLANG-2723 stop passing rtt to java raw class's methods (reverted in r21635)
-            if (useSelfDispatch && Emitter.isInterfaceOrFunctionType(xts, containerClass) /*&& !Emitter.isNativeRepedToJava(ct)*/ && Emitter.containsTypeParam(defType)) {
+            if (useSelfDispatch && Emitter.isInterfaceOrFunctionType(xts, containerType) /*&& !Emitter.isNativeRepedToJava(containerType)*/ && Emitter.containsTypeParam(defType)) {
             	// if I is an interface and val i:I, t = type of the formal of method instance
             	// i.m(a) => i.m(a,t)
-            	if (xts.isParameterType(containerClass) || hasParams(containerClass)) {
+            	if (xts.isParameterType(containerType) || hasParams(containerType)) {
             		w.write(",");
             		new RuntimeTypeExpander(er, c.methodInstance().formalTypes().get(i)).expand();
             	}

@@ -2237,10 +2237,9 @@ public class Emitter {
         return false;
     }
 
-    // if it returns true for containerType of a method, the method is called through interface thus requires RTT for self dispatch.  
-    public static boolean isInterfaceOrFunctionType(TypeSystem xts, ClassType containerType) {
-//        return xts.isInterfaceType(containerType) || (xts.isFunctionType(containerType) && containerType.isAnonymous()); //OK
-        return xts.isInterfaceType(containerType) || xts.isExactlyFunctionType(containerType); //OK
+    // if this returns true for containerType of a method, the method is called through interface thus requires RTT for self dispatch.  
+    public static boolean isInterfaceOrFunctionType(TypeSystem xts, Type containerType) {
+        return xts.isInterfaceType(containerType) || xts.isExactlyFunctionType(containerType);
     }
 
     private void printBridgeMethod(ClassType ct, MethodInstance impl, MethodDef def, boolean isCovariantOverride) {
@@ -2381,11 +2380,8 @@ public class Emitter {
 	    TypeSystem xts = tr.typeSystem();
 	    boolean isInterface2 = false;
 	    ContainerType st2 = impl.container();
-	    Type bst = Types.baseType(st2);
-        if (st2.isClass()) {
-	        if (isInterfaceOrFunctionType(xts, bst.toClass())) {
-	            isInterface2 = true;
-	        }
+	    if (isInterfaceOrFunctionType(xts, st2)) {
+	    	isInterface2 = true;
 	    }
 
         // call
