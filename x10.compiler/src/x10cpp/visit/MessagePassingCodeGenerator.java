@@ -1326,14 +1326,22 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 		            // Parent has more implementations than the child, we there must be at least one we need to inherit with a using.
 		            emitUsing = true;
 		        } else {
-		            implLoop: for (MethodInstance parentImpl : parentImpls) {
-		                for (MethodInstance childImpl : childImpls) { 
-		                    if (childImpl.canOverride(parentImpl, context)) continue implLoop;
+		            parentLoop: for (MethodInstance parentImpl : parentImpls) {
+		                childLoop: for (MethodInstance childImpl : childImpls) {
+		                    // Look for a childImpl with the same (baseType) signature as the parent.
+		                    if (childImpl.formalTypes().size() != parentImpl.formalTypes().size()) continue childLoop; // match failed, try next child
+		                    for (int i = 0; i<childImpl.formalTypes().size(); i++) {
+		                        Type ct = Types.baseType(childImpl.formalTypes().get(i));
+		                        Type pt = Types.baseType(parentImpl.formalTypes().get(i));
+		                        if (!ct.typeEquals(pt, context)) continue childLoop; // match failed; try next child
+		                    }
+		                    // Found a child that overrides the parent (baseType matches for all formal params).
+		                    continue parentLoop;
 		                }
 		                // If we get to here, then there is a parentImpl that is not overriden by a childImpl
 		                // and therefore must be brought into scope in the child with a using declaration
 		                emitUsing = true;
-		                break implLoop;                 
+		                break parentLoop;                 
 		            }
 		        } 
 		        if (emitUsing) {
