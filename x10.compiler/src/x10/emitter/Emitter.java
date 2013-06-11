@@ -2237,6 +2237,12 @@ public class Emitter {
         return false;
     }
 
+    // if it returns true for containerType of a method, the method is called through interface thus requires RTT for self dispatch.  
+    public static boolean isInterfaceOrFunctionType(TypeSystem xts, ClassType containerType) {
+//        return xts.isInterfaceType(containerType) || (xts.isFunctionType(containerType) && containerType.isAnonymous()); //OK
+        return xts.isInterfaceType(containerType) || xts.isExactlyFunctionType(containerType); //OK
+    }
+
     private void printBridgeMethod(ClassType ct, MethodInstance impl, MethodDef def, boolean isCovariantOverride) {
         // bridge method should not be needed for unmangled method
     	if (!canMangleMethodName(def)) return;
@@ -2377,7 +2383,7 @@ public class Emitter {
 	    ContainerType st2 = impl.container();
 	    Type bst = Types.baseType(st2);
         if (st2.isClass()) {
-	        if (xts.isInterfaceType(bst) || (xts.isFunctionType(bst) && bst.toClass().isAnonymous())) {
+	        if (isInterfaceOrFunctionType(xts, bst.toClass())) {
 	            isInterface2 = true;
 	        }
 	    }
