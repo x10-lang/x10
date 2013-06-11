@@ -166,7 +166,7 @@ public final class GrowableRail[T] implements CustomSerialization {
      * Remove all elements.
      */
     public def clear():void {
-        Unsafe.clearRail(data, 0L, size-1);
+        Unsafe.clearRail(data);
         size = 0;
     }
 
