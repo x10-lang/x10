@@ -619,7 +619,6 @@ public class Types {
 	        // So, type bounds (e.g., T<:Int) do not help, because  Int{self!=0}<:Int
 	        // Similarly, Int<:T doesn't help, because  Int<:Any{self!=null}
 	        // However, T==Int does help, and so does an explicit T hasZero
-	    	// isref implies haszero which is good too
 	    	// [DC] shouldn't we be using some kind of entailment check here?
 	        TypeConstraint typeConst = xc.currentTypeConstraint();
 	        List<SubtypeConstraint> env =  typeConst.terms();
@@ -1282,8 +1281,10 @@ public class Types {
 			boolean haszero = false;
 			boolean isref = false;
 			for (SubtypeConstraint term : tc.terms()) {
-				if (term.isHaszero()) haszero = true;
-				if (term.isIsRef()) isref = true;
+				if (term.subtype().typeEquals(t, cxt)) {
+					if (term.isHaszero()) haszero = true;
+					if (term.isIsRef()) isref = true;
+				}
 			}
 			return isref && haszero;
 		}
