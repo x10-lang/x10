@@ -114,7 +114,13 @@ public class System {
     @Native("c++", "printf(\"not setting %s\\n\", (#p)->c_str())") // FIXME: Trivial definition to allow XRX compilation to go through.
     public static native def setProperty(p:String,v:String):void;
 
-
+    /** Get the type name of T as a string
+     * @param T a type
+     * @return The name of type T 
+     */
+    @Native("java", "#T$rtt.typeName()")
+    @Native("c++", "x10aux::makeStringLit(x10aux::getRTT<#T>()->name())")
+    static native def typeName[T]():String;
 
     @Native("java", "x10.rtt.Types.typeName(#o)")
     @Native("c++", "x10aux::type_name(#o)")
