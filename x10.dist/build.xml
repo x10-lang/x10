@@ -25,6 +25,8 @@
     <property name="equinox.jar.url" value="http://x10.sourceforge.net/dependencies/org.eclipse.equinox.common_3.6.0.v20100503.jar"/>
     <property name="math.jar" value="commons-math3-3.2.jar"/>
     <property name="math.jar.url" value="http://x10.sourceforge.net/dependencies/commons-math3-3.2.jar"/>
+    <property name="log.jar" value="commons-logging-1.1.1.jar"/>
+    <property name="log.jar.url" value="http://x10.sourceforge.net/dependencies/commons-logging-1.1.1.jar"/>
     <property name="x10.bridge.location" location="${x10.home}/x10.wala"/>
     <property name="bridge.jar" value="x10wala.jar" />
     <property name="x10.constraints.location" location="${x10.home}/x10.constraints"/>
@@ -93,6 +95,9 @@
         </condition>
         <condition property="local.math.jar" value="${env.LOCAL_MATH_JAR}">
             <isset property="env.LOCAL_MATH_JAR"/>
+        </condition>
+        <condition property="local.log.jar" value="${env.LOCAL_LOG_JAR}">
+            <isset property="env.LOCAL_LOG_JAR"/>
         </condition>
     </target>
 
@@ -197,6 +202,7 @@
         <available property="wala4.jar.present" file="${lib}/${wala4.jar}"/>
         <available property="equinox.jar.present" file="${lib}/${equinox.jar}"/>
         <available property="math.jar.present" file="${lib}/${math.jar}"/>
+        <available property="log.jar.present" file="${lib}/${log.jar}"/>
         <condition property="cache.up-to-date">
             <and>
                 <isset property="lpg.jar.present"/>
@@ -207,6 +213,7 @@
                 <isset property="wala4.jar.present"/>
                 <isset property="equinox.jar.present"/>
                 <isset property="math.jar.present"/>
+                <isset property="log.jar.present"/>
             </and>
         </condition>
     </target>
@@ -346,7 +353,22 @@
         <fail message="Unable to find ${math.jar} at ${local.math.jar}" unless="math.jar.present"/>
     </target>
 
-    <target name="update-jar-cache" depends="init,lpg-jar,ecj-jar,wala-jar,wala2-jar,wala3-jar,wala4-jar,equinox-jar,math-jar"/>
+    <target name="log-jar" depends="init,log-local-jar" unless="local.log.jar">
+        <mkdir dir="${lib}"/>
+	<retry>
+          <get usetimestamp="true" src="${log.jar.url}" dest="${lib}/${log.jar}"/>
+	</retry>
+        <available property="log.jar.present" file="${lib}/${log.jar}"/>
+        <fail message="Unable to get ${log.jar} from ${log.jar.url}" unless="log.jar.present"/>
+    </target>
+    <target name="log-local-jar" depends="init" if="local.log.jar">
+        <mkdir dir="${lib}"/>
+        <copy file="${local.log.jar}" tofile="${lib}/${log.jar}"/>
+        <available property="log.jar.present" file="${lib}/${log.jar}"/>
+        <fail message="Unable to find ${log.jar} at ${local.log.jar}" unless="log.jar.present"/>
+    </target>
+
+    <target name="update-jar-cache" depends="init,lpg-jar,ecj-jar,wala-jar,wala2-jar,wala3-jar,wala4-jar,equinox-jar,math-jar,log-jar"/>
 
 	<target name="download-dependencies" depends="init,check-jar-cache" unless="cache.up-to-date">
         <antcall target="update-jar-cache"/>
@@ -567,6 +589,7 @@ WALA2_JAR='${wala2.jar}'
 WALA3_JAR='${wala3.jar}'
 WALA4_JAR='${wala4.jar}'
 MATH_JAR='${math.jar}'
+LOG_JAR='${log.jar}'
 CROSS_COMPILE_BGP='${CROSS_COMPILE_BGP}'
 CROSS_COMPILE_BGQ='${CROSS_COMPILE_BGQ}'
 ENABLE_X10RT_PAMI='${X10RT_PAMI}'

@@ -331,9 +331,10 @@ public class X10Translator extends Translator {
                         // N.B. Following jar files should be same as the ones used in X10CCompilerOptions.setDefaultValues()
                         String x10_jar = "x10.jar";
                         String math_jar = System.getProperty("x10c.math.jar", "commons-math3-3.2.jar");
+                        String log_jar = System.getProperty("x10c.log.jar",  "commons-logging-1.1.1.jar");
                         // XTENLANG-2722
                         // need a new preloading mechanism which does not use classloader to determine system classes
-                        out.println("Class-Path: " + x10_jar + " " + math_jar);
+                        out.println("Class-Path: " + x10_jar + " " + math_jar + " " + log_jar);
                     }
                     out.println("Created-By: " + compiler.sourceExtension().compilerName() + " version " + compiler.sourceExtension().version());
                     out.close();
