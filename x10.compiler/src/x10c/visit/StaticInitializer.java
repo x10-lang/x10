@@ -756,7 +756,7 @@ public class StaticInitializer extends ContextVisitor {
         Formal excFormal = xnf.Formal(pos, xnf.FlagsNode(pos, excDef.flags()), xnf.CanonicalTypeNode(pos, excDef.type()), xnf.Id(pos, excDef.name())).localDef(excDef);
 
         List<Ref<? extends Type>> newExceptArgTypes = new ArrayList<Ref<? extends Type>>();
-        newExceptArgTypes.add(Types.ref(xts.Exception()));
+        newExceptArgTypes.add(Types.ref(xts.CheckedThrowable()));
         ConstructorDef cd = xts.constructorDef(pos, pos, Types.ref(fdExcept.asInstance().type().toClass()), Flags.NONE, newExceptArgTypes, Collections.<Ref<? extends Type>>emptyList());
         ConstructorInstance ci = xts.createConstructorInstance(pos, pos, Types.ref(cd));
         List<Expr> newExceptArgs = new ArrayList<Expr>();
