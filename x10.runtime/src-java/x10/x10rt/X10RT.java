@@ -33,7 +33,8 @@ public class X10RT {
      * related class can be successfully invoked.
      */
     public static synchronized String init_library() {
-    	if (state != State.UNINITIALIZED) return null; // already initialized
+    	if (state != State.UNINITIALIZED && 
+    			state != State.TORN_DOWN) return null; // already initialized
 
         // load libraries
         String property = System.getProperty("x10.LOAD");
