@@ -133,7 +133,7 @@ public class NamedStructType<T> extends RuntimeType<T> implements X10JavaSeriali
 
     public static X10JavaSerializable $_deserialize_body(NamedStructType nt, X10JavaDeserializer deserializer) throws IOException {
         RuntimeType.$_deserialize_body(nt, deserializer);
-        nt.typeName = deserializer.readString();
+        nt.typeName = deserializer.readString().intern();
         return nt;
     }
 }

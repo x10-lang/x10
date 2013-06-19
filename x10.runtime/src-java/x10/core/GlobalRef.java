@@ -185,7 +185,7 @@ public final class GlobalRef<T> extends x10.core.Struct implements Externalizabl
             GlobalizedObjectTracker got = null;
             while ((got = (GlobalizedObjectTracker)referenceQueue.poll()) != null) {
                 assert(got.strongRef==null && got.id!=0L && got.get()==null);
-                if (got.T == x10.core.PlaceLocalHandle.Sentinel.$RTT) { // [PLH_GC] GlobalGC support for PlaceLocalHandle (kawatiya 2013/06)
+                if (got.T.equals(x10.core.PlaceLocalHandle.Sentinel.$RTT)) { // [PLH_GC] GlobalGC support for PlaceLocalHandle (kawatiya 2013/06)
                     x10.core.PlaceLocalHandle.Sentinel.cleanup(got.id);
                     if(GLOBALGC_DEBUG>=2)GlobalGCDebug("GlobalizedObjectTracker.cleanup: id=" + got.id + " PLH deleted");
                 }

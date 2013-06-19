@@ -47,7 +47,8 @@ public final class PlaceLocalHandle<T> implements java.io.Serializable, X10JavaS
     // If GlobalRef's type is this class, Sentinel.cleanup(grefId) will be called back
     public static final class Sentinel {
         public static final x10.rtt.RuntimeType<Sentinel> $RTT =
-                x10.rtt.NamedType.<Sentinel> make("x10.core.PlacelocalHandle.Sentinel", Sentinel.class);
+                x10.rtt.NamedType.<Sentinel> make("$"/* to reduce serialization size*/, Sentinel.class);
+//                x10.rtt.NamedType.<Sentinel> make("x10.core.PlacelocalHandle.Sentinel", Sentinel.class);
         public x10.rtt.RuntimeType<?> $getRTT() { return $RTT; }
         public x10.rtt.Type<?> $getParam(int i) { return null; }
         public static void cleanup(long grefId) {
