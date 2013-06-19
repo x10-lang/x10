@@ -833,6 +833,58 @@ abstract class FinishState {
             Runtime.finishStates.remove(ref);
         }
     }
+
+    static final class FinishResilientPlaceZero(id:Long) extends FinishState {
+        def this() {
+            // TODO: thread through parent id
+            property(ResilientStorePlaceZero.make(here.id, -1l));
+        }
+        def notifySubActivitySpawn(place:Place) {
+            val srcId = here.id;
+            val dstId = place.id;
+            ResilientStorePlaceZero.notifySubActivitySpawn(id, srcId, dstId);
+        }
+        def notifyActivityCreation() {
+            // TODO: thread through srcId
+            val srcId = 0;
+            val dstId = here.id;
+            ResilientStorePlaceZero.notifyActivityCreation(id, srcId, dstId);
+        }
+        def notifyActivityTermination() {
+            val dstId = here.id;
+            ResilientStorePlaceZero.notifyActivityTermination(id, dstId);
+        }
+        def pushException(t:Exception) {
+            ResilientStorePlaceZero.pushException(id, t);
+        }
+        def waitForFinish() {
+            ResilientStorePlaceZero.waitForFinish(id);
+        }
+        def simpleLatch():SimpleLatch = null;
+    }
+
+    static final class FinishResilientZooKeeper(id:Int) extends FinishState {
+        def this() {
+            property(0);
+            throw new Exception("under implementation");
+        }
+        def notifySubActivitySpawn(place:Place) {
+            throw new Exception("under implementation");
+        }
+        def notifyActivityCreation() {
+            throw new Exception("under implementation");
+        }
+        def notifyActivityTermination() {
+            throw new Exception("under implementation");
+        }
+        def pushException(t:Exception) {
+            throw new Exception("under implementation");
+        }
+        def waitForFinish() {
+            throw new Exception("under implementation");
+        }
+        def simpleLatch():SimpleLatch = null;
+    }
 }
 
 // vim:shiftwidth=4:tabstop=4:expandtab

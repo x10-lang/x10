@@ -1138,6 +1138,10 @@ public final class Runtime {
             f = new FinishState.LocalFinish(); break;
         case Pragma.FINISH_DENSE:
             f = new FinishState.DenseFinish(); break;
+        case Pragma.FINISH_RESILIENT_PLACE_ZERO:
+            f = new FinishState.FinishResilientPlaceZero(); break;
+        case Pragma.FINISH_RESILIENT_ZOO_KEEPER:
+            f = new FinishState.FinishResilientZooKeeper(); break;
         default: 
             f = new FinishState.Finish();
         }
