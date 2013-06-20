@@ -14,6 +14,7 @@ package x10.array;
 import x10.compiler.Inline;
 import x10.compiler.NoInline;
 import x10.compiler.NoReturn;
+import x10.util.ArrayUtils;
 
 /**
  * <p> This class provides a high-performance implementation of
@@ -119,15 +120,7 @@ public abstract class Array[T] (
      * @return the final result of the reduction.
      */
     public final @Inline def reduce[U](op:(U,T)=>U, unit:U):U {
-        // TODO: Once collecting finish is generalized to take
-        //       a (U,T)=>U instead of (T,T)=>T function then
-        //       rewrite this as a blocked parallel loop with 
-        //       collecting finish to accumulate the final results
-        var accum:U = unit;
-        for (i in 0..(raw.size-1)) {
-            accum = op(accum, raw(i));
-        }          
-        return accum;
+        return ArrayUtils.reduce(this.raw, op, unit);
     }
     
 
@@ -148,10 +141,7 @@ public abstract class Array[T] (
      * @return dst after updating its contents to contain the result of the map operation.
      */
     public @Inline final def map[U](dst:Array[U], op:(T)=>U){this.size == dst.size} : Array[U]{self==dst} {
-        // TODO: parallelize this loop.
-        for (i in raw.range()) {
-            dst.raw(i) = op(raw(i));
-        }
+        ArrayUtils.map(this.raw, dst.raw, op);
         return dst;
     }
 
@@ -169,17 +159,14 @@ public abstract class Array[T] (
      * <code>dst.raw()(i) = op(this.raw()(i), src.raw()(i))</code>
      * for i in <code>0L..(src.size()-1)</code>.
      * 
-     * @param dst the destination array for the results of the map operation
      * @param src2 the second source array to use as input to the map function
+     * @param dst the destination array for the results of the map operation
      * @param op the function to apply to each element of the arrays
      * @return dst after updating its contents to contain the result of the map operation.
      */
-    public @Inline final def map[S,U](dst:Array[U], src2:Array[S], op:(T,S)=>U) 
-                                   {this.size == dst.size, src2.size==this.size} : Array[U]{self==dst} {
-        // TODO: parallelize this loop.
-        for (i in raw.range()) {
-            dst.raw(i) = op(raw(i), src2.raw(i));
-        }
+    public @Inline final def map[S,U](src2:Array[S], dst:Array[U], op:(T,S)=>U) 
+                                   {this.size == src2.size /*, src2.size<=dst.size */} : Array[U]{self==dst} {
+        ArrayUtils.map(this.raw, src2.raw, dst.raw, op);
         return dst;
     }
 

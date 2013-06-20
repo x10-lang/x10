@@ -12,8 +12,11 @@
 
 package x10.util;
 
+import x10.compiler.Inline;
+
 /**
- * This class contains utility methods for manipulating Rail instances.
+ * This class contains utility methods for performing common bulk
+ * operations on Rails such as sorting, searching, mapping, and reducing.
  */
 public class ArrayUtils {
     /**
@@ -102,4 +105,73 @@ public class ArrayUtils {
     public static def binarySearch[T](a:Rail[T], key:T, min:Long, max:Long){T<:Comparable[T]} {
         return binarySearch[T](a, key, 0, a.size, (x:T,y:T) => x.compareTo(y));
     }
+
+
+    /**
+     * Reduce the src Rail using the given function and the given initial value.
+     * Each element of the Rail will be given as an argument to the reduction
+     * function exactly once, but in an arbitrary order.  The reduction function
+     * may be applied concurrently to implement a parallel reduction. 
+     * 
+     * @param rail the reduction function
+     * @param op the reduction function
+     * @param unit the given initial value
+     * @return the final result of the reduction.
+     */
+    public static @Inline def reduce[T,U](src:Rail[T], op:(U,T)=>U, unit:U):U {
+        // TODO: Structure as a recursive divide and conquer down to some minimal
+        //       grain size.
+        // TODO: Benchmark async initialization vs. collecting finish for accumulation
+        var accum:U = unit;
+        for (i in src.range()) {
+            accum = op(accum, src(i));
+        }          
+        return accum;
+    }
+    
+
+    /**
+     * Map the given function onto the elements of the src Rail
+     * storing the results in the dst Rail such that 
+     * <code>for all i in src.range</code>, <code>dst(i) = op(src(i))</code>
+     * 
+     * @param src the source rail for the results of the map operation
+     * @param dst the destination rail for the results of the map operation
+     * @param op the function to apply to each element of the array
+     * @return dst after updating its contents to contain the result of the map operation.
+     */
+    public static @Inline def map[T,U](src:Rail[T], dst:Rail[U], 
+                                       op:(T)=>U)/* {src.size <= dst.size} */ : Rail[U]{self==dst} {
+        // TODO: Structure as a recursive divide and conquer down to some minimal
+        //       grain size.
+        // TODO: Benchmark async initialization vs. collecting finish for accumulation
+        for (i in src.range()) {
+            dst(i) = op(src(i));
+        }
+        return dst;
+    }
+
+
+    /**
+     * Map the given function onto the elements of src1 and src2 
+     * storing the results in dst Rail such that 
+     * <code>for all i in src.range()</code>, <code>dst(i) = op(src1(i), src2(i))</code>
+     * 
+     * @param src1 the first source array to use as input to the map function
+     * @param src2 the second source array to use as input to the map function
+     * @param dst the destination array for the results of the map operation
+     * @param op the function to apply to each element of the arrays
+     * @return dst after updating its contents to contain the result of the map operation.
+     */
+    public static @Inline def map[S,T,U](src1:Rail[S], src2:Rail[T], dst:Rail[U], op:(S,T)=>U) 
+                                           {src1.size == src2.size /*, src1.size<==dst.size*/} : Rail[U]{self==dst} {
+        // TODO: Structure as a recursive divide and conquer down to some minimal
+        //       grain size.
+        // TODO: Benchmark async initialization vs. collecting finish for accumulation
+        for (i in src1.range()) {
+            dst(i) = op(src1(i), src2(i));
+        }
+        return dst;
+    }
+
 }
