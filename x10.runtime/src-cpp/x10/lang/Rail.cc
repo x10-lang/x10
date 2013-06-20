@@ -45,8 +45,9 @@ namespace x10 {
         
         void Rail_notifyEnclosingFinish(deserialization_buffer& buf) {
             x10::lang::FinishState* fs = buf.read<x10::lang::FinishState*>();
-            // olivier says the incr should be just after the notifySubActivitySpawn
-            fs->notifyActivityCreation();
+            place src = buf.read<place>();
+            // olivier says the incr should be just after the notifySubActivitySpawn (but on the remote side)
+            fs->notifyActivityCreation(Place::_make(src));
             fs->notifyActivityTermination();
         }
 
@@ -56,6 +57,7 @@ namespace x10 {
             x10::lang::FinishState* fs = Runtime::activity()->finishState();
             fs->notifySubActivitySpawn(Place::_make(dst));
             buf.write(fs);
+            buf.write(x10aux::here);
         }
 
         void Rail_copyToBody(void *srcAddr, void *dstAddr, x10_int numBytes, Place dstPlace, bool overlap, VoidFun_0_0* notif) {

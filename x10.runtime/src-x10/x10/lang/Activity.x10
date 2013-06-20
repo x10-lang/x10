@@ -86,17 +86,17 @@ class Activity {
     /**
      * Create activity.
      */
-    def this(body:()=>void, finishState:FinishState) {
+    def this(body:()=>void, srcPlace:Place, finishState:FinishState) {
         this.finishState = finishState;
-        finishState.notifyActivityCreation();
+        finishState.notifyActivityCreation(srcPlace);
         this.body = body;
     }
 
     /**
      * Create clocked activity.
      */
-    def this(body:()=>void, finishState:FinishState, clockPhases:ClockPhases) {
-        this(body, finishState);
+    def this(body:()=>void, srcPlace:Place, finishState:FinishState, clockPhases:ClockPhases) {
+        this(body, srcPlace, finishState);
         this.clockPhases = clockPhases;
     }
 

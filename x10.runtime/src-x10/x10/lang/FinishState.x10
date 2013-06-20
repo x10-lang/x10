@@ -26,7 +26,7 @@ import x10.io.SerialData;
 
 abstract class FinishState {
     abstract def notifySubActivitySpawn(place:Place):void;
-    abstract def notifyActivityCreation():void;
+    abstract def notifyActivityCreation(srcPlace:Place):void;
     abstract def notifyActivityTermination():void;
     abstract def pushException(t:Exception):void;
     abstract def waitForFinish():void;
@@ -43,7 +43,7 @@ abstract class FinishState {
             assert place.id == Runtime.hereLong();
             count.getAndIncrement();
         }
-        public def notifyActivityCreation() {}
+        public def notifyActivityCreation(srcPlace:Place) {}
         public def notifyActivityTermination() {
             if (count.decrementAndGet() == 0) latch.release();
         }
@@ -118,7 +118,7 @@ abstract class FinishState {
             assert place.id == Runtime.hereLong();
             count.getAndIncrement();
         }
-        public def notifyActivityCreation() {}
+        public def notifyActivityCreation(srcPlace:Place) {}
         public def notifyActivityTermination() {
             if (count.decrementAndGet() == 0) {
                 val t = MultipleExceptions.make(exceptions);
@@ -187,7 +187,7 @@ abstract class FinishState {
         def this(ref:GlobalRef[FinishState]) {
             super(ref);
         }
-        public def notifyActivityCreation():void {}
+        public def notifyActivityCreation(srcPlace:Place):void {}
         public def notifySubActivitySpawn(place:Place):void {}
         public def pushException(t:Exception):void {
             exception = t;
@@ -232,7 +232,7 @@ abstract class FinishState {
     // a pseudo finish used to implement @Uncounted async
     static class UncountedFinish extends FinishState {
         public def notifySubActivitySpawn(place:Place) {}
-        public def notifyActivityCreation() {}
+        public def notifyActivityCreation(srcPlace:Place) {}
         public def notifyActivityTermination() {}
         public def pushException(t:Exception) {
             Runtime.println("Uncaught exception in uncounted activity");
@@ -275,7 +275,7 @@ abstract class FinishState {
     abstract static class RootFinishSkeleton extends FinishState implements Runtime.Mortal {
         private val xxxx = GlobalRef[FinishState](this);
         def ref() = xxxx;
-        public def notifyActivityCreation():void {}
+        public def notifyActivityCreation(srcPlace:Place):void {}
     }
 
     // the top of the remote finish hierarchy
@@ -302,7 +302,7 @@ abstract class FinishState {
         }
         public def serialize():SerialData = new SerialData(ref, null);
         public def notifySubActivitySpawn(place:Place) { me.notifySubActivitySpawn(place); }
-        public def notifyActivityCreation() { me.notifyActivityCreation(); }
+        public def notifyActivityCreation(srcPlace:Place) { me.notifyActivityCreation(srcPlace); }
         public def notifyActivityTermination() { me.notifyActivityTermination(); }
         public def pushException(t:Exception) { me.pushException(t); }
         public def waitForFinish() { me.waitForFinish(); }
@@ -476,7 +476,7 @@ abstract class FinishState {
         def this(ref:GlobalRef[FinishState]) {
             super(ref);
         }
-        public def notifyActivityCreation():void {
+        public def notifyActivityCreation(srcPlace:Place):void {
             local.getAndIncrement();
         }
         public def notifySubActivitySpawn(place:Place):void {
@@ -591,7 +591,7 @@ abstract class FinishState {
         def this(ref:GlobalRef[FinishState]) {
             super(ref);
         }
-        public def notifyActivityCreation():void {
+        public def notifyActivityCreation(srcPlace:Place):void {
             local.getAndIncrement();
         }
         public def notifySubActivitySpawn(place:Place):void {
@@ -844,9 +844,8 @@ abstract class FinishState {
             val dstId = place.id;
             ResilientStorePlaceZero.notifySubActivitySpawn(id, srcId, dstId);
         }
-        def notifyActivityCreation() {
-            // TODO: thread through srcId
-            val srcId = 0;
+        def notifyActivityCreation(srcPlace:Place) {
+            val srcId = srcPlace.id;
             val dstId = here.id;
             ResilientStorePlaceZero.notifyActivityCreation(id, srcId, dstId);
         }
@@ -871,7 +870,7 @@ abstract class FinishState {
         def notifySubActivitySpawn(place:Place) {
             throw new Exception("under implementation");
         }
-        def notifyActivityCreation() {
+        def notifyActivityCreation(srcPlace:Place) {
             throw new Exception("under implementation");
         }
         def notifyActivityTermination() {

@@ -439,7 +439,7 @@ public final class Runtime {
             super();
             this.workerId = workerId;
             random = new Random(workerId + (workerId << 8) + (workerId << 16) + (workerId << 24));
-            activity = new Activity(()=>{}, FinishState.UNCOUNTED_FINISH);
+            activity = new Activity(()=>{}, here, FinishState.UNCOUNTED_FINISH);
         }
 
         // return size of the deque
@@ -699,7 +699,7 @@ public final class Runtime {
         if (hereInt() == 0) {
             val rootFinish = new FinishState.Finish(pool.latch);
             // in place 0 schedule the execution of the main activity
-            executeLocal(new Activity(body, rootFinish));
+            executeLocal(new Activity(body, here, rootFinish));
 
             // wait for thread pool to die
             // (happens when main activity terminates)
@@ -754,9 +754,10 @@ public final class Runtime {
         val clockPhases = a.clockPhases().make(clocks);
         state.notifySubActivitySpawn(place);
         if (place.id == hereLong()) {
-            executeLocal(new Activity(deepCopy(body, prof), state, clockPhases));
+            executeLocal(new Activity(deepCopy(body, prof), here, state, clockPhases));
         } else {
-            val closure = ()=> @x10.compiler.RemoteInvocation("runAsync") { execute(new Activity(body, state, clockPhases)); };
+            val src = here;
+            val closure = ()=> @x10.compiler.RemoteInvocation("runAsync") { execute(new Activity(body, src, state, clockPhases)); };
             x10rtSendMessage(place.id, closure, prof);
             Unsafe.dealloc(closure);
         }
@@ -771,7 +772,7 @@ public final class Runtime {
         val state = a.finishState();
         state.notifySubActivitySpawn(place);
         if (place.id == hereLong()) {
-            executeLocal(new Activity(deepCopy(body, prof), state));
+            executeLocal(new Activity(deepCopy(body, prof), here, state));
         } else {
             x10rtSendAsync(place.id, body, state, prof); // optimized case
         }
@@ -789,7 +790,7 @@ public final class Runtime {
         val state = a.finishState();
         val clockPhases = a.clockPhases().make(clocks);
         state.notifySubActivitySpawn(here);
-        executeLocal(new Activity(body, state, clockPhases));
+        executeLocal(new Activity(body, here, state, clockPhases));
     }
 
     public static def runAsync(body:()=>void):void {
@@ -799,7 +800,7 @@ public final class Runtime {
         
         val state = a.finishState();
         state.notifySubActivitySpawn(here);
-        executeLocal(new Activity(body, state));
+        executeLocal(new Activity(body, here, state));
     }
 
 	public static def runFinish(body:()=>void):void {
@@ -815,9 +816,11 @@ public final class Runtime {
         a.ensureNotInAtomic();
         
         if (place.id == hereLong()) {
-            executeLocal(new Activity(deepCopy(body, prof), FinishState.UNCOUNTED_FINISH));
+            executeLocal(new Activity(deepCopy(body, prof), here, FinishState.UNCOUNTED_FINISH));
         } else {
-            val closure = ()=> @x10.compiler.RemoteInvocation("runUncountedAsync") { execute(new Activity(body, FinishState.UNCOUNTED_FINISH)); };
+            // [DC] passing FIRST_PLACE instead of the correct src, since UNCOUNTED_FINISH does not use this value
+            // and it saves sending some bytes over the network
+            val closure = ()=> @x10.compiler.RemoteInvocation("runUncountedAsync") { execute(new Activity(body, Place.FIRST_PLACE, FinishState.UNCOUNTED_FINISH)); };
             x10rtSendMessage(place.id, closure, prof);
             Unsafe.dealloc(closure);
         }
@@ -832,7 +835,7 @@ public final class Runtime {
         val a = activity();
         a.ensureNotInAtomic();
         
-        executeLocal(new Activity(body, new FinishState.UncountedFinish()));
+        executeLocal(new Activity(body, here, new FinishState.UncountedFinish()));
     }
 
     /**
@@ -1203,7 +1206,9 @@ public final class Runtime {
 
     // submit 
     public static def execute(body:()=>void, finishState:FinishState):void {
-        execute(new Activity(body, finishState));
+        // TODO: [DC] need to find out what ramifications there are of src being incorrect here...
+        val src = here;
+        execute(new Activity(body, src, finishState));
     }
 
     public static def probe() {

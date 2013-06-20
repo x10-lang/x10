@@ -332,7 +332,9 @@ static void cuda_pre (const x10rt_msg_params *p, size_t *blocks, size_t *threads
 {
     _X_(ANSI_X10RT<<"Receiving a kernel pre callback, deserialising..."<<ANSI_RESET);
     x10aux::deserialization_buffer buf(static_cast<char*>(p->msg), p->len);
-    buf.read<x10::lang::FinishState*>();
+    x10::lang::FinishState* fs = buf.read<x10::lang::FinishState*>();
+    // FIXME: if we make it so that not just the host place can spawn a gpu job, we'll need to know who it is
+    fs->notifyActivityCreation(x10::lang::Place::_make(x10aux::here));
     // note: high bytes thrown away in implicit conversion
     serialization_id_t sid = x10aux::DeserializationDispatcher::getSerializationId(p->type);
     x10aux::CUDAPre pre = x10aux::DeserializationDispatcher::getCUDAPre(sid);
@@ -353,7 +355,6 @@ static void cuda_post (const x10rt_msg_params *p, size_t blocks, size_t threads,
     {
         x10aux::deserialization_buffer buf(static_cast<char*>(p->msg), p->len);
         x10::lang::FinishState* fs = buf.read<x10::lang::FinishState*>();
-        fs->notifyActivityCreation();
         fs->notifyActivityTermination();
     }
 }
@@ -484,7 +485,7 @@ void x10aux::cuda_put (place gpu, x10_ulong addr, void *var, size_t sz)
 void *x10aux::coll_enter() {
     x10::lang::FinishState* fs = Runtime::activity()->finishState();
     fs->notifySubActivitySpawn(x10::lang::Place::_make(x10aux::here));
-    fs->notifyActivityCreation();
+    fs->notifyActivityCreation(x10::lang::Place::_make(x10aux::here));
     return fs;
 }
 
