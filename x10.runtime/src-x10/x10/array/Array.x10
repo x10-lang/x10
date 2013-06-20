@@ -14,7 +14,7 @@ package x10.array;
 import x10.compiler.Inline;
 import x10.compiler.NoInline;
 import x10.compiler.NoReturn;
-import x10.util.ArrayUtils;
+import x10.util.RailUtils;
 
 /**
  * <p> This class provides a high-performance implementation of
@@ -120,7 +120,7 @@ public abstract class Array[T] (
      * @return the final result of the reduction.
      */
     public final @Inline def reduce[U](op:(U,T)=>U, unit:U):U {
-        return ArrayUtils.reduce(this.raw, op, unit);
+        return RailUtils.reduce(this.raw, op, unit);
     }
     
 
@@ -141,7 +141,7 @@ public abstract class Array[T] (
      * @return dst after updating its contents to contain the result of the map operation.
      */
     public @Inline final def map[U](dst:Array[U], op:(T)=>U){this.size == dst.size} : Array[U]{self==dst} {
-        ArrayUtils.map(this.raw, dst.raw, op);
+        RailUtils.map(this.raw, dst.raw, op);
         return dst;
     }
 
@@ -166,7 +166,7 @@ public abstract class Array[T] (
      */
     public @Inline final def map[S,U](src2:Array[S], dst:Array[U], op:(T,S)=>U) 
                                    {this.size == src2.size /*, src2.size<=dst.size */} : Array[U]{self==dst} {
-        ArrayUtils.map(this.raw, src2.raw, dst.raw, op);
+        RailUtils.map(this.raw, src2.raw, dst.raw, op);
         return dst;
     }
 

@@ -217,7 +217,7 @@ public class ArrayList[T] extends AbstractCollection[T] implements List[T] {
 
     // [NN]: should not need to cast x to Comparable[T]
     public def sort() {T <: Comparable[T]} { sort((x:T, y:T) => (x as Comparable[T]).compareTo(y)); }
-    public def sort(cmp: (T,T)=>Int) { ArrayUtils.qsort[T](a.rail(), 0, a.size()-1, cmp); }
+    public def sort(cmp: (T,T)=>Int) { RailUtils.qsort[T](a.rail(), 0, a.size()-1, cmp); }
 
     // public def sort(lessThan: (T,T)=>Boolean) = qsort(a, 0, a.size()-1, (x:T,y:T) => lessThan(x,y) ? -1 : (lessThan(y,x) ? 1 : 0));
 
@@ -236,9 +236,9 @@ public class ArrayList[T] extends AbstractCollection[T] implements List[T] {
      * @param key the value to find
      * @param cmp the comparison function to use
      */
-    public def binarySearch(key:T, cmp:(T,T)=>Int):long = ArrayUtils.binarySearch[T](a.rail(), key, 0, a.size(), cmp);
+    public def binarySearch(key:T, cmp:(T,T)=>Int):long = RailUtils.binarySearch[T](a.rail(), key, 0, a.size(), cmp);
     public def binarySearch(key:T){T <: Comparable[T]}:long { 
-        return ArrayUtils.binarySearch[T](a.rail(), key, 0, a.size(), (x:T, y:T) => (x as Comparable[T]).compareTo(y));
+        return RailUtils.binarySearch[T](a.rail(), key, 0, a.size(), (x:T, y:T) => (x as Comparable[T]).compareTo(y));
     }
 
     /**

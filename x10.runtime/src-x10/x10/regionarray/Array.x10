@@ -17,7 +17,7 @@ import x10.compiler.Inline;
 import x10.compiler.Native;
 import x10.compiler.NoInline;
 import x10.compiler.NoReturn;
-import x10.util.ArrayUtils;
+import x10.util.RailUtils;
 
 /**
  * <p>An array defines a mapping from {@link Point}s to data values of some type T.
@@ -705,7 +705,7 @@ public final class Array[T] (
             // In a rect region, every element in the backing raw Rail[T]
             // is included in the array, therefore we can optimize
             // the traversal and simply map on the Rail itself.
-            ArrayUtils.map(raw, dst.raw, op);
+            RailUtils.map(raw, dst.raw, op);
             return dst; 
         } else {
             for (p in region) {
@@ -775,7 +775,7 @@ public final class Array[T] (
             // In a rect array, every element in the backing raw Rail
             // is included in the array, therefore we can optimize
             // the traversal and simply map on the Rail itself.
-            ArrayUtils.map(this.raw, src.raw as Rail[U]{self.size==this.raw.size}, dst.raw, op);
+            RailUtils.map(this.raw, src.raw as Rail[U]{self.size==this.raw.size}, dst.raw, op);
             return dst;
         } else {
             for (p in region) {
@@ -827,7 +827,7 @@ public final class Array[T] (
             // In a rect array, every element in the backing raw Rail[T]
             // is included in the array, therefore we can optimize
             // the traversal and simply reduce on the Rail itself.
-            return ArrayUtils.reduce(raw, op, unit);
+            return RailUtils.reduce(raw, op, unit);
         } else {
             var accum:U = unit;
             for (p in region) {

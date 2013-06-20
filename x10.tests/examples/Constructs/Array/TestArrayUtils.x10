@@ -11,14 +11,14 @@
 
 import harness.x10Test;
 import x10.util.ArrayList;
-import x10.util.ArrayUtils;
+import x10.util.RailUtils;
 import x10.util.Random;
 
 /**
- * Functional test of x10.util.ArrayUtils
+ * Functional test of x10.util.RailUtils
  * @author milthorpe 05/2012
  */
-public class TestArrayUtils extends x10Test {
+public class TestRailUtils extends x10Test {
 
 	public def run(): Boolean = {
         val N = 30;
@@ -32,7 +32,7 @@ public class TestArrayUtils extends x10Test {
         val magicValue = 0.8;
         a(2) = magicValue; 
 
-        ArrayUtils.sort(a);
+        RailUtils.sort(a);
 
         // check that sort actually sorted the array
         var current:Double = -Double.MAX_VALUE;
@@ -42,7 +42,7 @@ public class TestArrayUtils extends x10Test {
         }
 
         val key = 0.4;
-        val index = ArrayUtils.binarySearch(a, key);
+        val index = RailUtils.binarySearch(a, key);
 
         if (index >= 0) {
             // key found (unlikely)
@@ -55,7 +55,7 @@ public class TestArrayUtils extends x10Test {
         }
 
         // search for the value that was previously seeded
-        val indexMagic = ArrayUtils.binarySearch(a, magicValue);
+        val indexMagic = RailUtils.binarySearch(a, magicValue);
         chk(a(indexMagic) == magicValue);
 
 
@@ -95,13 +95,13 @@ public class TestArrayUtils extends x10Test {
         chk(-(indexOfMax+1) == aList.size());
 
         val emptyArray = new Rail[Double](0);
-        chk(ArrayUtils.binarySearch[Double](emptyArray, 1.0) == -1L);
+        chk(RailUtils.binarySearch[Double](emptyArray, 1.0) == -1L);
 
         return true;
 	}
 
 	public static def main(args: Rail[String]): void = {
-		new TestArrayUtils().execute();
+		new TestRailUtils().execute();
 	}
 }
 

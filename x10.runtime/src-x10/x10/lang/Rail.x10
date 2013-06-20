@@ -35,10 +35,10 @@ import x10.compiler.NativeRep;
  * using Java's arrays as a backing storage.  Therefore rails larger than 2^31
  * may not be created on Managed X10.</p>
  *
- * <p> The class x10.util.ArrayUtils provides static methods with additional
+ * <p> The class x10.util.RailUtils provides static methods with additional
  * useful Rail functions such as sorting, binary search, map, and reduce.</p>
  *
- * @see x10.util.ArrayUtils
+ * @see x10.util.RailUtils
  */
 @NativeRep("java", "x10.core.Rail<#T$box>", null, "x10.rtt.ParameterizedType.make(x10.core.Rail.$RTT, #T$rtt)")
 @NativeRep("c++", "x10::lang::Rail<#T >*", "x10::lang::Rail<#T >", null)

@@ -18,7 +18,7 @@ import x10.compiler.Inline;
  * This class contains utility methods for performing common bulk
  * operations on Rails such as sorting, searching, mapping, and reducing.
  */
-public class ArrayUtils {
+public class RailUtils {
     /**
      * Sorts the given rail into ascending order.
      * @param a the rail to be sorted
