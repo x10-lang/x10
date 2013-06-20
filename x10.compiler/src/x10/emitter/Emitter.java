@@ -3445,7 +3445,7 @@ public class Emitter {
             // Option for non-closures
             w.write("\"" + def.asType() + "\", ");
         }
-        w.write("/* base class */");
+//        w.write("/* base class */");
         printType(def.asType(), BOX_PRIMITIVES | NO_QUALIFIER);
         w.write(".class");
         
@@ -3460,14 +3460,18 @@ public class Emitter {
             if (allInvariants) {
                 // use cached one to avoid creating array of Variance repeatedly
                 w.write(", ");
-                w.newline();
-                w.write("/* variances */ x10.rtt.RuntimeType.INVARIANTS(" + def.variances().size() + ")");
+//                w.newline();
+//                w.write("/* variances */ ");
+                w.write("x10.rtt.RuntimeType.INVARIANTS(" + def.variances().size() + ")");
             }
             else {
                 for (int i = 0; i < def.variances().size(); ++i) {
                     w.write(", ");
-                    w.newline();
-                    if (i == 0) w.write("/* variances */ new x10.rtt.RuntimeType.Variance[] {");
+//                    w.newline();
+                    if (i == 0) {
+//                    	w.write("/* variances */ ");
+                    	w.write("new x10.rtt.RuntimeType.Variance[] {");
+                    }
                     ParameterType.Variance v = def.variances().get(i);
                     switch (v) {
                     case INVARIANT:
@@ -3484,14 +3488,25 @@ public class Emitter {
                 }
             }
         }
-        w.newline();
         
         TypeSystem xts = tr.typeSystem();
-        if (def.interfaces().size() > 0 || def.superType() != null) {
+        boolean needParents = def.superType() != null || isStruct;
+        if (!needParents) {
+            for (int i = 0 ; i < def.interfaces().size(); ++i) {
+                Type type = def.interfaces().get(i).get();
+                // we don't need to add Types.ANY as parents because everything is subtype of Any
+                if (xts.isAny(type)) continue;
+                needParents = true;
+                break;
+            }
+        }
+        if (needParents) {
             w.write(", ");
-            w.write("/* parents */ new x10.rtt.Type[] {");
+//            w.newline();
+//            w.write("/* parents */ ");
+            w.write("new x10.rtt.Type[] {");
             boolean needComma = false;
-            for (int i = 0 ; i < def.interfaces().size(); i ++) {
+            for (int i = 0 ; i < def.interfaces().size(); ++i) {
                 Type type = def.interfaces().get(i).get();
                 // we don't need to add Types.ANY as parents because everything is subtype of Any
                 if (xts.isAny(type)) continue;
