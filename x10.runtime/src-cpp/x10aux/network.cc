@@ -190,6 +190,9 @@ void x10aux::run_async_at(x10aux::place p, x10::lang::VoidFun_0_0* body_fun,
     // WRITE FINISH STATE
     buf.write(fs);
 
+    // WRITE SOURCE PLACE
+    buf.write(x10::lang::Place::_make(x10aux::here));
+
     // WRITE BODY
     unsigned long long before_nanos, before_bytes;
     if (prof!=NULL) {
@@ -316,12 +319,13 @@ static void receive_async (const x10rt_msg_params *p) {
         } break;
         case x10aux::CLOSURE_KIND_SIMPLE_ASYNC: {
             x10::lang::FinishState* fs = buf.read<x10::lang::FinishState*>();
+            x10::lang::Place src = buf.read<x10::lang::Place>();
             Reference* body(x10aux::DeserializationDispatcher::create(buf, sid));
             assert(buf.consumed() <= p->len);
             _X_("The deserialised simple async was: "<<x10aux::safe_to_string(body));
             deserialized_bytes += buf.consumed()  ; asyncs_received++;
             if (NULL == body) return;
-            x10::lang::Runtime::execute(reinterpret_cast<VoidFun_0_0*>(body), fs);
+            x10::lang::Runtime::execute(reinterpret_cast<VoidFun_0_0*>(body), src, fs);
         } break;
         default: abort();
     }

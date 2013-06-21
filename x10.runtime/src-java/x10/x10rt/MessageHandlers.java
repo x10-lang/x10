@@ -14,6 +14,7 @@ import java.io.ByteArrayInputStream;
 import java.io.DataInputStream;
 import java.io.InputStream;
 
+import x10.lang.Place;
 import x10.lang.FinishState;
 import x10.runtime.impl.java.Runtime;
 import x10.serialization.X10JavaDeserializer;
@@ -138,6 +139,7 @@ public class MessageHandlers {
     			System.out.println("Starting deserialization ");
     		}
     		FinishState finishState = (FinishState) deserializer.readRef();
+            Place src = (Place) deserializer.readRef();
     		actObj = (x10.core.fun.VoidFun_0_0) deserializer.readRef();
     		if (Runtime.PROF_SER) {
     			long stop = System.nanoTime();
@@ -151,7 +153,7 @@ public class MessageHandlers {
     		}
 
     		if (X10RT.VERBOSE) System.out.println("runSimpleAsyncAtReceive: after cast and deserialization");
-    		x10.lang.Runtime.execute(actObj, finishState);
+    		x10.lang.Runtime.execute(actObj, src, finishState);
     		if (X10RT.VERBOSE) System.out.println("runSimpleAsyncAtReceive: after apply");
     		objStream.close();
     		if (X10RT.VERBOSE) System.out.println("runSimpleAsyncAtReceive is done !");

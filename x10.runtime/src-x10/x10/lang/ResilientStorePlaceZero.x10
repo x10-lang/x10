@@ -93,7 +93,7 @@ public class ResilientStorePlaceZero {
     // TODO: freelist to reuse ids (maybe also states)
     private val states = new ArrayList[State]();
 
-    private val numDead = new Cell[Long](0);
+    private var numDead : Long = 0;
 
 
     static def make(homeId:Long, parentId:Long) : Long {
@@ -108,47 +108,56 @@ public class ResilientStorePlaceZero {
     }
 
     static def notifySubActivitySpawn(id:Long, srcId:Long, dstId:Long) {
-        //Console.OUT.println("notifySubActivitySpawn("+place+")");
+        //Runtime.println("notifySubActivitySpawn("+id+", "+srcId+", "+dstId+")");
         lowLevelAt(() => { atomic {
             val fs = me.states(id);
             fs.transit(srcId + dstId*Place.MAX_PLACES)++;
-
+            //Runtime.println("transit("+srcId+","+dstId+") == "+fs.transit(srcId + dstId*Place.MAX_PLACES));
         } });
     }
 
     static def notifyActivityCreation(id:Long, srcId:Long, dstId:Long) {
-        //Console.OUT.println("notifySubActivityCreation()");
+        //Runtime.println("notifyActivityCreation("+id+", "+srcId+", "+dstId+")");
         lowLevelAt(() => { atomic {
             val fs = me.states(id);
             fs.live(dstId)++;
             fs.transit(srcId + dstId*Place.MAX_PLACES)--;
+            //Runtime.println("live("+dstId+") == "+fs.live(dstId));
+            //Runtime.println("transit("+srcId+","+dstId+") == "+fs.transit(srcId + dstId*Place.MAX_PLACES));
         } });
     }
 
     static def notifyActivityTermination(id:Long, dstId:Long) {
-        //Console.OUT.println("notifySubActivityTermination()");
+        //Runtime.println("notifyActivityTermination("+id+", "+dstId+")");
         lowLevelAt(() => { atomic {
             val fs = me.states(id);
             fs.live(dstId)--;
+            //Runtime.println("live("+dstId+") == "+fs.live(dstId));
         } });
     }
 
     static def pushException(id:Long, t:Exception) {
-        Console.OUT.println("pushException("+t+")");
+        Runtime.println("pushException("+id+", "+t+")");
     }
 
 
     def quiescent(fs:State) : Boolean {
         val nd = Place.numDead();
-        if (nd != me.numDead()) {
-            numDead(nd);
+        if (nd != me.numDead) {
+            numDead = nd;
             pushUp();
         }
 
         for (i in 0..(Place.MAX_PLACES-1)) {
-            if (!Place.isDead(i) && fs.live(i)!=0) return false;
+            if (!Place.isDead(i) && fs.live(i)!=0) {
+                //Runtime.println("Live at "+i);
+                return false;
+            }
             for (j in 0..(Place.MAX_PLACES-1)) {
-                if (!Place.isDead(j) && fs.transit(i + j*Place.MAX_PLACES)!=0) return false;
+                if (!Place.isDead(j) && fs.transit(i + j*Place.MAX_PLACES)!=0) {
+                    //Runtime.println("In transit from "+i+" -> "+j);
+                    return false;
+                }
             }
         }
 
@@ -170,7 +179,7 @@ public class ResilientStorePlaceZero {
     }
 
     static def waitForFinish(id:Long) {
-        //Console.OUT.println("waitForFinish()");
+        //Runtime.println("waitForFinish()");
         lowLevelAt(() => {
             val s : State;
             atomic {
@@ -178,6 +187,7 @@ public class ResilientStorePlaceZero {
             }
             when (me.quiescent(s)) { }
         });
+        //Runtime.println("waitForFinish() done waiting");
     }
 }
 

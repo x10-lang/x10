@@ -17,6 +17,7 @@ import java.util.Map;
 
 import x10.io.Reader;
 import x10.io.Writer;
+import x10.lang.Place;
 import x10.lang.FinishState;
 import x10.rtt.RuntimeType;
 import x10.rtt.Type;
@@ -248,6 +249,7 @@ public abstract class Runtime implements x10.core.fun.VoidFun_0_0 {
             X10JavaSerializer serializer = new X10JavaSerializer();
          
             serializer.write(finishState);
+            serializer.write(Place.place(X10RT.here()));
             long before_bytes = serializer.numDataBytesWritten();
             serializer.write(body);
             long ser_bytes = serializer.numDataBytesWritten() - before_bytes;

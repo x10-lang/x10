@@ -564,6 +564,8 @@ public final class Runtime {
 
         var wsBlockedContinuations:Deque = null;
 
+        var numDead : Long = 0;
+
         operator this(n:Int):void {
             workers.count = n;
             workers(0) = worker();
@@ -622,6 +624,16 @@ public final class Runtime {
                 if (null != activity || latch()) return activity;
                 // try network
                 x10rtProbe();
+                if (Place.numDead() != numDead) {
+                    // atomic wakes up ResilientFinish...
+                    atomic {
+                        numDead = Place.numDead();
+                        //Runtime.println("Number of dead places now "+numDead);
+                        //for (p in Place.places()) {
+                        //    if (p.isDead()) Runtime.println("Dead: "+p);
+                        //}
+                    }
+                }
                 activity = worker.poll();
                 if (null != activity || latch()) return activity;
                 // try random worker
@@ -1205,9 +1217,7 @@ public final class Runtime {
     }
 
     // submit 
-    public static def execute(body:()=>void, finishState:FinishState):void {
-        // TODO: [DC] need to find out what ramifications there are of src being incorrect here...
-        val src = here;
+    public static def execute(body:()=>void, src:Place, finishState:FinishState):void {
         execute(new Activity(body, src, finishState));
     }
 

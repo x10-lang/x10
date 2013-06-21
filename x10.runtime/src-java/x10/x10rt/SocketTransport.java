@@ -17,6 +17,7 @@ import java.util.Iterator;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import x10.lang.FinishState;
+import x10.lang.Place;
 import x10.serialization.X10JavaDeserializer;
 
 public class SocketTransport {
@@ -500,8 +501,9 @@ public class SocketTransport {
     private static void runSimpleAsyncAtReceive(ByteBuffer input, boolean messageHasDictionary) throws IOException {
     	//X10JavaDeserializer deserializer = new X10JavaDeserializer(new DataInputStream(Channels.newInputStream(input)), messageHasDictionary);
     	X10JavaDeserializer deserializer = new X10JavaDeserializer(new DataInputStream(new ByteArrayInputStream(input.array())), messageHasDictionary);
+    	Place src = (Place) deserializer.readRef();
     	FinishState finishState = (FinishState) deserializer.readRef();
     	x10.core.fun.VoidFun_0_0 actObj = (x10.core.fun.VoidFun_0_0) deserializer.readRef();
-    	x10.lang.Runtime.execute(actObj, finishState);
+    	x10.lang.Runtime.execute(actObj, src, finishState);
     }
 }
