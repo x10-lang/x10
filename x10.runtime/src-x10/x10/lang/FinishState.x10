@@ -835,9 +835,14 @@ abstract class FinishState {
     }
 
     static final class FinishResilientPlaceZero(id:Long) extends FinishState {
+        private static def parentFinish() : Long {
+            val a = Runtime.activity();
+            val par = a.finishState();
+            if (par instanceof FinishResilientPlaceZero) return (par as FinishResilientPlaceZero).id;
+            return -1l;
+        }
         def this() {
-            // TODO: thread through parent id
-            property(ResilientStorePlaceZero.make(here.id, -1l));
+            property(ResilientStorePlaceZero.make(here.id, parentFinish()));
         }
         def notifySubActivitySpawn(place:Place) {
             val srcId = here.id;

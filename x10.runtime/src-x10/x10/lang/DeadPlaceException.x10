@@ -41,7 +41,7 @@ public class DeadPlaceException(place:Place) extends Exception {
      * @param p The place that has died.
      */
     public def this(p:Place) {
-        super("DeadPlaceException at "+here);
+        super("DeadPlaceException at "+p);
         property(p);
     }
 

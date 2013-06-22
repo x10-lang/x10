@@ -13,7 +13,7 @@ package x10.lang;
 
 import x10.compiler.*;
 
-import x10.util.ArrayList;
+import x10.util.GrowableRail;
 import x10.util.concurrent.AtomicLong;
 import x10.util.concurrent.AtomicBoolean;
 
@@ -63,6 +63,12 @@ public class ResilientStorePlaceZero {
         val live : Rail[Int];
         val homeId : Long;
         var adopted : Boolean;
+        var multipleExceptions : GrowableRail[Exception] = null;
+
+        private def ensureMultipleExceptions() {
+            if (multipleExceptions == null) multipleExceptions = new GrowableRail[Exception]();
+            return multipleExceptions;
+        }
 
         public def this(pfs:State, homeId:Long, id:Long) {
             this.id = id;
@@ -88,10 +94,19 @@ public class ResilientStorePlaceZero {
             child.adopted = true;
         }
 
+        def addDeadPlaceException(p:Place) {
+            // populate the stack trace
+            try {
+                throw new DeadPlaceException(p);
+            } catch (e:DeadPlaceException) {
+                ensureMultipleExceptions().add(e);
+            }
+        }
+
     }
 
     // TODO: freelist to reuse ids (maybe also states)
-    private val states = new ArrayList[State]();
+    private val states = new GrowableRail[State]();
 
     private var numDead : Long = 0;
 
@@ -137,9 +152,12 @@ public class ResilientStorePlaceZero {
     }
 
     static def pushException(id:Long, t:Exception) {
-        Runtime.println("pushException("+id+", "+t+")");
+        lowLevelAt(() => { atomic {
+            val fs = me.states(id);
+            Runtime.println("pushException("+id+", "+t+")");
+            fs.ensureMultipleExceptions().add(t);
+        } });
     }
-
 
     def quiescent(fs:State) : Boolean {
         val nd = Place.numDead();
@@ -148,13 +166,36 @@ public class ResilientStorePlaceZero {
             pushUp();
         }
 
+        // overwrite counters with 0 if places have died, accumuluate exceptions
         for (i in 0..(Place.MAX_PLACES-1)) {
-            if (!Place.isDead(i) && fs.live(i)!=0) {
+            if (Place.isDead(i)) {
+                for (unused in 1..fs.live(i)) {
+                    fs.addDeadPlaceException(Place(i));
+                }
+                fs.live(i) = 0;
+
+                // kill horizontal and vertical lines in transit matrix
+                for (j in 0..(Place.MAX_PLACES-1)) {
+                    for (unused in 1..fs.transit(i + j*Place.MAX_PLACES)) {
+                        fs.addDeadPlaceException(Place(i));
+                    }
+                    fs.transit(i + j*Place.MAX_PLACES) = 0;
+
+                    for (unused in 1..fs.transit(j + i*Place.MAX_PLACES)) {
+                        fs.addDeadPlaceException(Place(i));
+                    }
+                    fs.transit(j + i*Place.MAX_PLACES) = 0;
+                }
+            }
+        }
+
+        for (i in 0..(Place.MAX_PLACES-1)) {
+            if (fs.live(i)!=0) {
                 //Runtime.println("Live at "+i);
                 return false;
             }
             for (j in 0..(Place.MAX_PLACES-1)) {
-                if (!Place.isDead(j) && fs.transit(i + j*Place.MAX_PLACES)!=0) {
+                if (fs.transit(i + j*Place.MAX_PLACES)!=0) {
                     //Runtime.println("In transit from "+i+" -> "+j);
                     return false;
                 }
@@ -186,6 +227,9 @@ public class ResilientStorePlaceZero {
                 s = me.states(id);
             }
             when (me.quiescent(s)) { }
+            if (s.multipleExceptions != null) {
+                throw new MultipleExceptions(s.multipleExceptions);
+            }
         });
         //Runtime.println("waitForFinish() done waiting");
     }
