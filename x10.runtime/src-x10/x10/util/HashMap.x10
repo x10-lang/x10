@@ -48,8 +48,6 @@ import x10.io.SerialData;
 
 	var modCount:Int = 0; // to discover concurrent modifications
     
-    var shouldRehash: Boolean;
-
     static MAX_PROBES = 3;
     static MIN_SIZE = 4;
     
@@ -73,7 +71,6 @@ import x10.io.SerialData;
         mask = sz - 1;
         size = 0;
         occupation = 0;
-        shouldRehash = false;
     }
 
     public def clear(): void {
@@ -110,11 +107,7 @@ import x10.io.SerialData;
     protected def getEntry(k: K): HashEntry[K,V] {
         if (size == 0)
             return null;
- 
-// incompatible with iterators            
-//        if (shouldRehash)
-//            rehash();
-            
+
         val h = hash(k);
 
         var i: int = h;
@@ -125,29 +118,21 @@ import x10.io.SerialData;
             
             val e = table(j);
             if (e == null) {
-                if (i - h > MAX_PROBES)
-                    shouldRehash = true;
                 return null;
             }
             if (e != null) {
                 if (e.hash == h && k.equals(e.key)) {
-                    if (i - h > MAX_PROBES)
-                        shouldRehash = true;
                     return e;
                 }
                 if (i - h > table.size) {
-                    if (i - h > MAX_PROBES)
-                        shouldRehash = true;
                     return null;
                 }
             }
         }
     }
     
-    public def put(k: K, v: V): Box[V] = putInternal(k,v);
-    @NonEscaping protected final def putInternal(k: K, v: V): Box[V] {
-        if (occupation == (table.size as int)|| (shouldRehash && occupation >= table.size / 2))
-            rehashInternal();
+    public def put(k: K, v: V): Box[V] = putInternal(k,v,true);
+    @NonEscaping protected final def putInternal(k: K, v: V, mayRehash:Boolean): Box[V] {
 
         val h = hashInternal(k);
         var i: int = h;
@@ -158,16 +143,15 @@ import x10.io.SerialData;
             
             val e = table(j);
             if (e == null) {
-                if (i - h > MAX_PROBES)
-                    shouldRehash = true;
                 modCount++;
                 table(j) = new HashEntry[K,V](k, v, h);
                 size++;
                 occupation++;
+                if (mayRehash && (((i - h > MAX_PROBES) && (occupation >= table.size / 2)) || (occupation == table.size as Int))) {
+                    rehashInternal();
+                }
                 return null;
             } else if (e.hash == h && k.equals(e.key)) {
-//                if (i - h > MAX_PROBES)
-//                    shouldRehash = true;
                 val old = e.value;
                 e.value = v;
                 if (e.removed) {
@@ -189,16 +173,13 @@ import x10.io.SerialData;
         mask = (table.size as int)- 1;
         size = 0;
         occupation = 0;
-        shouldRehash = false;
 
         for (var i: int = 0; i < t.size; i++) {
             if (t(i) != null && ! t(i).removed) {
-                putInternal(t(i).key, t(i).value);
-                shouldRehash = false;
+                putInternal(t(i).key, t(i).value, false);
             }
         }
         assert size == oldSize;
-        size = oldSize;
     }
     
     public def containsKey(k: K): boolean {
@@ -322,7 +303,7 @@ import x10.io.SerialData;
         this();
         val state = x.data as State[K,V]; // Warning: This is an unsound cast because the object or the target type might have constraints and X10 currently does not perform constraint solving at runtime on generic parameters.
 	    for (pair in state.content) {
-            putInternal(pair.first, pair.second);
+            putInternal(pair.first, pair.second, true);
         }
     }
 
