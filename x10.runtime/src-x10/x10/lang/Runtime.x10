@@ -439,7 +439,12 @@ public final class Runtime {
             super();
             this.workerId = workerId;
             random = new Random(workerId + (workerId << 8) + (workerId << 16) + (workerId << 24));
-            activity = new Activity(()=>{}, here, FinishState.UNCOUNTED_FINISH);
+            // [DC] Using 'here' as the srcPlace for the new activity causes a cycle:  The managed X10
+            // implementation of 'here' uses thread-local storage, and this can create a cycle in the case
+            // where access of thread-local storage occurs from a native java thread and triggers the creation
+            // of a new Worker.
+            // Using Place(0) is OK because the Uncounted finish passed into the activity does not use srcPlace.
+            activity = new Activity(()=>{}, Place(0), FinishState.UNCOUNTED_FINISH);
         }
 
         // return size of the deque
