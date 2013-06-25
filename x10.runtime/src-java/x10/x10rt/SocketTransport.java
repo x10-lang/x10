@@ -291,6 +291,7 @@ public class SocketTransport {
 						if (sc.equals(channels[i])) {
 							if (DEBUG) System.out.println("Place "+myPlaceId+" discovered link to place "+i+" is broken in probe");
 							channels[i] = null;
+							break;
 						}
 					}
 					try {sc.close();}
