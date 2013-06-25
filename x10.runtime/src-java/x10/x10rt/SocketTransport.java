@@ -289,7 +289,7 @@ public class SocketTransport {
 					// figure out which place this is
 					for (int i=0; i<channels.length; i++) {
 						if (sc.equals(channels[i])) {
-							if (DEBUG) System.out.println("Place "+myPlaceId+" discovered link to place "+i+" is broken in send");
+							if (DEBUG) System.out.println("Place "+myPlaceId+" discovered link to place "+i+" is broken in probe");
 							channels[i] = null;
 						}
 					}
@@ -301,6 +301,8 @@ public class SocketTransport {
 				// TODO GET & PUT message types
 				return true;
 			}
+			else if (DEBUG)
+				System.out.println("Unhandled key type in probe: "+ key);
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -328,8 +330,10 @@ public class SocketTransport {
     			initLink(place, null);
     		} catch (IOException e) {
     			return RETURNCODE.X10RT_ERR_OTHER.ordinal();
-    		}    		
+    		}
     	}
+    	else if (channels[place] == null) // don't send messages to dead places
+    		return RETURNCODE.X10RT_ERR_OTHER.ordinal();
     	
     	// write out the x10SocketMessage data
     	// Format: type, p.type, p.len, p.msg
