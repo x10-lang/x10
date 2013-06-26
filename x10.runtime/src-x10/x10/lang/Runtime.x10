@@ -188,6 +188,8 @@ public final class Runtime {
     public static STATIC_THREADS = Configuration.static_threads();
     public static WARN_ON_THREAD_CREATION = Configuration.warn_on_thread_creation();
     public static BUSY_WAITING = Configuration.busy_waiting();
+    public static RESILIENT_PLACE_ZERO = Configuration.envOrElse("X10_RESILIENT_PLACE_ZERO", false);
+    public static RESILIENT_ZOO_KEEPER = Configuration.envOrElse("X10_RESILIENT_ZOO_KEEPER", false);
 
     // External process execution
 
@@ -1142,7 +1144,15 @@ public final class Runtime {
      * (i.e. within a finish statement).
      */
     public static def startFinish():FinishState {
-        return activity().swapFinish(new FinishState.Finish());
+        val f:FinishState;
+        if (RESILIENT_PLACE_ZERO) {
+            f = new FinishState.FinishResilientPlaceZero();
+        } else if (RESILIENT_ZOO_KEEPER) {
+            f = new FinishState.FinishResilientZooKeeper();
+        } else {
+            f = new FinishState.Finish();
+        }
+        return activity().swapFinish(f);
     }
 
     public static def startFinish(pragma:Int):FinishState {
@@ -1163,7 +1173,7 @@ public final class Runtime {
         case Pragma.FINISH_RESILIENT_ZOO_KEEPER:
             f = new FinishState.FinishResilientZooKeeper(); break;
         default: 
-            f = new FinishState.Finish();
+            return startFinish();
         }
         return activity().swapFinish(f);
     }
