@@ -11,6 +11,7 @@
 
 package x10.matrix.distblock;
 
+import x10.regionarray.Dist;
 import x10.util.Timer;
 
 import x10.matrix.Matrix;
@@ -53,14 +54,13 @@ public class DistDistMult {
 		
 		/* Timing */ st = Timer.milliTime();
 		val rootpid = here.id();
-		finish ateach (Dist.makeUnique()) {
-			//
+		finish ateach(Dist.makeUnique()) {
 			val bsA = A.handleBS();
 			val bsB = B.handleBS();
 			val bsC = C.local();
-			bsA.buildBlockMap(); //bsA.printBlockMap();
+			bsA.buildBlockMap();
 			bsB.buildBlockMap();
-			bsC.buildBlockMap(); //bsC.printBlockMap();
+			bsC.buildBlockMap();
 			if (here.id() != rootpid || plus==false) bsC.reset();
 			BlockBlockMult.mult(bsA.blockMap, bsB.blockMap, bsC.blockMap, true);
 			//BlockBlockMult.mult(bsA.blocklist, bsB.blocklist, bsC, plus);
@@ -92,7 +92,7 @@ public class DistDistMult {
 		
 		/* Timing */ st = Timer.milliTime();
 		val rootpid = here.id();
-		finish ateach (Dist.makeUnique()) {
+		finish ateach(Dist.makeUnique()) {
 			//
 			val bsA = A.handleBS();
 			val bsB = B.handleBS();
@@ -132,7 +132,7 @@ public class DistDistMult {
 		
 		/* Timing */ st= Timer.milliTime();
 		val rootpid = here.id();
-		finish ateach (Dist.makeUnique()) {
+		finish ateach(Dist.makeUnique()) {
 			//
 			val bsA = A.handleBS();
 			val bsB = B.handleBS();
@@ -149,6 +149,6 @@ public class DistDistMult {
 		return C;	
 
 	}
-	//==================================================
+
 	
 }

@@ -11,15 +11,12 @@
 
 package x10.matrix;
 
-import x10.io.Console;
-import x10.util.Random;
-import x10.util.Timer;
 import x10.util.StringBuilder;
 
 import x10.matrix.blas.DenseMatrixBLAS;
 
-public type SymMatrix(m:Int, n:Int)=SymMatrix{m==n, self.M==m, self.N==n};
-public type SymMatrix(m:Int)=SymMatrix{self.M==m,self.N==m};
+public type SymMatrix(m:Long, n:Long)=SymMatrix{m==n, self.M==m, self.N==n};
+public type SymMatrix(m:Long)=SymMatrix{self.M==m,self.N==m};
 public type SymMatrix(C:SymMatrix)=SymMatrix{self==C};
 public type SymMatrix(C:Matrix)=SymMatrix{self==C};
 
@@ -37,38 +34,37 @@ public type SymMatrix(C:Matrix)=SymMatrix{self==C};
  */
 public class SymMatrix extends DenseMatrix{self.M==self.N} {
 	
-	//================================================================
+
 	// Base data structure
-	//================================================================
+
 	
-	//================================================================
+
 	// Constructor, maker, and clone method
-	//================================================================	
-	public def this(n:Int, x:Array[Double](1){rail}) : SymMatrix(n){
+
+	public def this(n:Long, x:Rail[Double]) : SymMatrix(n){
 		super(n, n, x);
 	}
 	
-	//----------------------------------------------------------------
-	public static def make(n:Int):SymMatrix(n) {
+
+	public static def make(n:Long):SymMatrix(n) {
 		val x = new Array[Double](n*n);
 		return new SymMatrix(n, x);
 	}
 
 	public static def make(src:SymMatrix):SymMatrix(src.M) {
 		val n = src.M;
-		val newd = new Array[Double](n*n);
-		Array.copy(src.d, newd);
+		val newd = new Rail[Double](src.d);
 		return new SymMatrix(n, newd);
 	}
 
 	
 	public def clone():SymMatrix(M){
-		val nd = new Array[Double](this.d) as Array[Double](1){rail};
+		val nd = new Array[Double](this.d) as Rail[Double];
 		val nm = new SymMatrix(M, nd);
 		return nm as SymMatrix(M);
 	}
 	
-	public  def alloc(m:Int, n:Int):SymMatrix(m,n) {
+	public  def alloc(m:Long, n:Long):SymMatrix(m,n) {
 		Debug.assure(m==n);
 		val x = new Array[Double](m*m);
 		val nm = new SymMatrix(m, x);
@@ -77,16 +73,16 @@ public class SymMatrix extends DenseMatrix{self.M==self.N} {
 	
 	public def alloc() = alloc(this.M, this.M);
 	
-	//======================================================================
+
 	// Data copy and reset 
-	//======================================================================
+
 	/**
 	 * Copy the lower part to target and mirror the lower part to upper part.
 	 */
 	public def copyTo(dm:DenseMatrix(M,N)):void {
-		var colstt:Int=0;
-		for (var len:Int=N; len > 0; len--, colstt+=M+1) {
-			Array.copy(this.d, colstt, dm.d, colstt, len);		
+		var colstt:Long=0;
+		for (var len:Long=N; len > 0; len--, colstt+=M+1) {
+			Rail.copy(this.d, colstt, dm.d, colstt, len);		
 		}
 		mirrorLowerToUpper(dm);
 	}
@@ -104,16 +100,16 @@ public class SymMatrix extends DenseMatrix{self.M==self.N} {
 			Debug.exit("CopyTo: Target matrix type is not compatible");
 		}
 	}
-	//-------------------
+
 	/**
 	 *  Copy lower triangular part to upper part.
 	 */
 	public static def mirrorLowerToUpper(dm:DenseMatrix) :void {
-		var colstt:Int=0;
-		var len:Int = (dm.M>dm.N)?dm.N:dm.M;
+		var colstt:Long=0;
+		var len:Long = (dm.M>dm.N)?dm.N:dm.M;
 		for (; len > 0; len--, colstt+=dm.M+1) {
-			var j:Int = colstt+dm.M;
-			for (var i:Int=colstt+1; i<colstt+len; i++, j+=dm.M)
+			var j:Long = colstt+dm.M;
+			for (var i:Long=colstt+1; i<colstt+len; i++, j+=dm.M)
 				dm.d(j) = dm.d(i);		
 		}
 	}
@@ -122,20 +118,20 @@ public class SymMatrix extends DenseMatrix{self.M==self.N} {
 	 * Copy upper part to lower
 	 */
 	public static def mirrorUpperToLower(dm:DenseMatrix) :void {
-		var colstt:Int=0;
-		var len:Int = (dm.M>dm.N)?dm.N:dm.M;
+		var colstt:Long=0;
+		var len:Long = (dm.M>dm.N)?dm.N:dm.M;
 		for (; len > 0; len--, colstt+=dm.M+1) {
-			var j:Int = colstt+dm.M;
-			for (var i:Int=colstt+1; i<colstt+len; i++, j+=dm.M)
+			var j:Long = colstt+dm.M;
+			for (var i:Long=colstt+1; i<colstt+len; i++, j+=dm.M)
 				dm.d(i) = dm.d(j);		
 		}
 	}
 
 
 
-	//-------------------------------------------------------------------
+
 	// Data initialization
-	//-------------------------------------------------------------------
+
 	/**
 	 * Initialize all elements of the symmetric matrix with a constant value.
 	 * Only the lower part is initialized.
@@ -143,7 +139,7 @@ public class SymMatrix extends DenseMatrix{self.M==self.N} {
 	 * @param  iv 	the constant value
 	 */	
 	public def init(iv:Double): SymMatrix(this) {
-		for (var i:Int=0; i<this.d.size; i++)
+		for (var i:Long=0; i<this.d.size; i++)
 			this.d(i) = iv;
 		return this;
 	}
@@ -156,10 +152,10 @@ public class SymMatrix extends DenseMatrix{self.M==self.N} {
 	 * @param f    The function to use to initialize the matrix
 	 * @return this object
 	 */
-	public def init(f:(Int,Int)=>Double): SymMatrix(this) {
-		var i:Int=0;
-		for (var c:Int=0; c<N; c++, i+=c)
-			for (var r:Int=c; r<M; r++, i++)
+	public def init(f:(Long,Long)=>Double): SymMatrix(this) {
+		var i:Long=0;
+		for (var c:Long=0; c<N; c++, i+=c)
+			for (var r:Long=c; r<M; r++, i++)
 				this.d(i) = f(r, c);
 		mirrorLowerToUpper(this as DenseMatrix);
 		return this;
@@ -170,9 +166,9 @@ public class SymMatrix extends DenseMatrix{self.M==self.N} {
 	 */	
 	public def initRandom(): SymMatrix(this) {
 		val rgen = RandTool.getRandGen();
-		var colstt:Int=0;
-		for (var len:Int=N; len>0; len--, colstt+=M+1)
-			for (var i:Int=colstt; i<colstt+len; i++)
+		var colstt:Long=0;
+		for (var len:Long=N; len>0; len--, colstt+=M+1)
+			for (var i:Long=colstt; i<colstt+len; i++)
 				this.d(i) = rgen.nextDouble();
 		mirrorLowerToUpper(this);
 		return this;
@@ -185,68 +181,68 @@ public class SymMatrix extends DenseMatrix{self.M==self.N} {
 	 * @param lb	lower bound of random values
 	 * @param up	upper bound of random values
 	 */	
-	public def initRandom(lb:Int, ub:Int): SymMatrix(this) {
+	public def initRandom(lb:Long, ub:Long): SymMatrix(this) {
 		val rgen = RandTool.getRandGen();
 		val l = Math.abs(ub-lb)+1;
-		var colstt:Int=0;
-		for (var len:Int=N; len>0; len--, colstt+=M+1)
-			for (var i:Int=colstt; i<colstt+len; i++)
-				this.d(i) = rgen.nextInt(l)+lb;
+		var colstt:Long=0;
+		for (var len:Long=N; len>0; len--, colstt+=M+1)
+			for (var i:Long=colstt; i<colstt+len; i++)
+				this.d(i) = rgen.nextLong(l)+lb;
 		mirrorLowerToUpper(this);
 		return this;
 	}
 	
-	//======================================================================
+
 	// Data access and set
-	//======================================================================
+
 	
-	public  operator this(x:Int, y:Int):Double {
+	public  operator this(x:Long, y:Long):Double {
 		if (y < x)
 			return this.d(y*M+x);
 		else
 			return this.d(x*M+y);
 	}
 	
-	public  operator this(x:Int,y:Int) = (v:Double):Double {
+	public  operator this(x:Long,y:Long) = (v:Double):Double {
 		if (y < x) 
 			this.d(y*M +x) = v;
 		else
 			this.d(x*M +y) = v;
 		return v;
 	}	
-	//=====================================================================
+
 	// Transpose
-	//=====================================================================
+
 	public def T(sym:SymMatrix(M)) {
 		copyTo(sym);
 	}
 	
 	public def T():SymMatrix(N) = clone();
 	
-	//=====================================================================
+
 	// Cellwise operations. Only lower triangular part is modified.
-	//=====================================================================
+
 	public  def scale(a:Double):SymMatrix(this)  {
-		for (var i:Int =0; i<M*N; i++)
+		for (var i:Long =0; i<M*N; i++)
 			this.d(i) *= a;
 		return this;
 	}
 	
 	public def sum():Double {
 		var tt:Double = 0.0;
-		var colstt:Int=1;
-		for (var len:Int=M-1; len>0; len--, colstt+=M+1) 
-			for (var i:Int=colstt; i<colstt+len; i++)
+		var colstt:Long=1;
+		for (var len:Long=M-1; len>0; len--, colstt+=M+1) 
+			for (var i:Long=colstt; i<colstt+len; i++)
 				tt += this.d(i);
 		tt *= 2;
-		for (var i:Int=0; i<N*M; i+=M+1)
+		for (var i:Long=0; i<N*M; i+=M+1)
 			tt += this.d(i);
 		return tt;
 	}
 	
-	//------------------------
+
 	// Lower half cell-add operation
-	//------------------------
+
 	public def cellAdd(v:Double) : SymMatrix(this) = 
 		super.cellAdd(v) as SymMatrix(this);
 		
@@ -254,11 +250,11 @@ public class SymMatrix extends DenseMatrix{self.M==self.N} {
 		super.cellAdd(x as DenseMatrix(M,N)) as SymMatrix(this);
 	
 	public def cellAddTo(x:DenseMatrix(M,N)):DenseMatrix(x) {
-		var colstt:Int=0;
-		for (var len:Int=M; len>0; len--, colstt+=M+1) {
+		var colstt:Long=0;
+		for (var len:Long=M; len>0; len--, colstt+=M+1) {
 			x.d(colstt) += this.d(colstt);
-			var j:Int = colstt+M;
-			for (var i:Int=colstt+1; i<colstt+len; i++, j+=M) {		
+			var j:Long = colstt+M;
+			for (var i:Long=colstt+1; i<colstt+len; i++, j+=M) {		
 				x.d(i) += this.d(i);
 				x.d(j) += this.d(i);
 			}
@@ -266,14 +262,14 @@ public class SymMatrix extends DenseMatrix{self.M==self.N} {
 		return x;
 	}
 	
-	//----------------------------------
+
 	// Cell-wise matrix multiplication
-	//----------------------------------
+
 	
 	// public def lowerCellSub(v:Double):SymMatrix(this) {
-	// 	var colstt:Int=0;
-	// 	for (var len:Int=M; len>0; len--, colstt+=M+1)
-	// 		for (var i:Int=colstt; i<colstt+len; i++)		
+	// 	var colstt:Long=0;
+	// 	for (var len:Long=M; len>0; len--, colstt+=M+1)
+	// 		for (var i:Long=colstt; i<colstt+len; i++)		
 	// 			this.d(i) -= v;
 	// 	return this;
 	// }
@@ -290,11 +286,11 @@ public class SymMatrix extends DenseMatrix{self.M==self.N} {
 	 * x = x - this;
 	 */
 	public def cellSubFrom(x:DenseMatrix(M,N)):DenseMatrix(x) {
-		var colstt:Int=0;
-		for (var len:Int=M; len>0; len--, colstt+=M+1) {
+		var colstt:Long=0;
+		for (var len:Long=M; len>0; len--, colstt+=M+1) {
 			x.d(colstt) -= this.d(colstt);
-			var j:Int = colstt+M;
-			for (var i:Int=colstt+1; i<colstt+len; i++, j+=M) {		
+			var j:Long = colstt+M;
+			for (var i:Long=colstt+1; i<colstt+len; i++, j+=M) {		
 				x.d(i) -= this.d(i);
 				x.d(j) -= this.d(i);
 			}
@@ -302,13 +298,13 @@ public class SymMatrix extends DenseMatrix{self.M==self.N} {
 		return x;
 	}
 	
-	//----------------------------------
+
 	// Lower part cell-wise matrix multiplication
-	//----------------------------------
+
 	// public def lowerCellMult(v:Double):SymMatrix(this) {
-	// 	var colstt:Int=0;
-	// 	for (var len:Int=M; len>0; len--, colstt+=M+1)
-	// 		for (var i:Int=colstt; i<colstt+len; i++)		
+	// 	var colstt:Long=0;
+	// 	for (var len:Long=M; len>0; len--, colstt+=M+1)
+	// 		for (var i:Long=colstt; i<colstt+len; i++)		
 	// 			this.d(i) *= v;
 	// 	return this;
 	// }
@@ -319,20 +315,20 @@ public class SymMatrix extends DenseMatrix{self.M==self.N} {
 		super.cellMult(x as DenseMatrix(M,N)) as SymMatrix(this);
 	
 	public def cellMultTo(x:DenseMatrix(M,N)):DenseMatrix(x) {
-		var colstt:Int=0;
-		for (var len:Int=N; len>0; len--, colstt+=M+1) {
+		var colstt:Long=0;
+		for (var len:Long=N; len>0; len--, colstt+=M+1) {
 			x.d(colstt) *= this.d(colstt);
-			var j:Int = colstt+M;
-			for (var i:Int=colstt+1; i<colstt+len; i++, j+=M) {	
+			var j:Long = colstt+M;
+			for (var i:Long=colstt+1; i<colstt+len; i++, j+=M) {	
 				x.d(i) *= this.d(i);
 				x.d(j) *= this.d(i);
 			}
 		}
 		return x;
 	}
-	//-------------------------
+
 	// Cellwise division
-	//-------------------------
+
 	public def cellDiv(v:Double):SymMatrix(this) =
 		super.cellDiv(v) as SymMatrix(this);
 	
@@ -343,11 +339,11 @@ public class SymMatrix extends DenseMatrix{self.M==self.N} {
 		super.cellDiv(x as DenseMatrix(M,N)) as SymMatrix(this);
 	
 	public def cellDivBy(x:DenseMatrix(M,N)):DenseMatrix(x) {
-		var colstt:Int=0;
-		for (var len:Int=M; len>0; len--, colstt+=M+1) {
+		var colstt:Long=0;
+		for (var len:Long=M; len>0; len--, colstt+=M+1) {
 			x.d(colstt) /= this.d(colstt);
-			var j:Int = colstt+M;
-			for (var i:Int=colstt+1; i<colstt+len; i++, j+=M) {	
+			var j:Long = colstt+M;
+			for (var i:Long=colstt+1; i<colstt+len; i++, j+=M) {	
 				x.d(i) /= this.d(i);
 				x.d(j) /= this.d(i);
 			}
@@ -355,15 +351,15 @@ public class SymMatrix extends DenseMatrix{self.M==self.N} {
 		return x;
 	}
 	
-	//================================================================
+
 	// Matrix multiply operations: self this<- op(A)*op(B) + (plus?1:0) * C
 	// Default is using BLAS driver
 	// Use DenseMatrixBLAS method calls
-	//================================================================
+
 	// public def mult(A:Matrix(this.M), B:Matrix(A.N,this.N),	plus:Boolean):SymMatrix(this) {
 	// 	throw new UnsupportedOperationException("Matrix multiply does not support using SymMatrix as output matrix");
 	// }
-	// 
+
 	// public def transMult(A:Matrix{self.N==this.M}, B:Matrix(A.M,this.N), plus:Boolean):SymMatrix(this) {
 	// 	throw new UnsupportedOperationException("Matrix transposed multiply does not support using SymMatrix as output matrix");
 	// }
@@ -373,9 +369,9 @@ public class SymMatrix extends DenseMatrix{self.M==self.N} {
 	// }
 
 
-	//==================================================================
+
 	// Operator
-	//==================================================================
+
 	public operator - this            = this.clone().scale(-1.0)      as SymMatrix(M,N);
 	public operator this + (v:Double) = this.clone().cellAdd(v)       as SymMatrix(M,N);
 	public operator (v:Double) + this = (this + v) as SymMatrix(M,N);
@@ -385,9 +381,7 @@ public class SymMatrix extends DenseMatrix{self.M==self.N} {
 	public operator this / (v:Double) = this.clone().cellDiv(v)       as SymMatrix(M,N);
 	public operator (v:Double) / this = this.clone().cellDivBy(v)     as SymMatrix(M,N);
 	public operator this * (alpha:Double) = this.clone().scale(alpha) as SymMatrix(M,N);
-	public operator this * (alpha:Int)    = this * (alpha as Double);
 	public operator (alpha:Double) * this = this * alpha;
-	public operator (alpha:Int) * this    = this * alpha;
 	
 	
 	public operator this + (that:SymMatrix(M)) = this.clone().cellAdd(that)  as SymMatrix(M,N);
@@ -425,9 +419,9 @@ public class SymMatrix extends DenseMatrix{self.M==self.N} {
 		return ret;
 	}
 		
-	//=======================================================
+
 	// Utils
-	//=======================================================
+
 	public def likeMe(m:Matrix):Boolean {
 		if ((m instanceof SymMatrix) && m.M==M && m.N==N) return true;
 		return false;
@@ -436,32 +430,23 @@ public class SymMatrix extends DenseMatrix{self.M==self.N} {
 	public static def test(dm:DenseMatrix):Boolean {
 		if (dm.M != dm.N) return false;
 		
-		for (var c:Int=0; c<dm.M; c++)
-			for (var r:Int=c+1; r<dm.M; r++)
+		for (var c:Long=0; c<dm.M; c++)
+			for (var r:Long=c+1; r<dm.M; r++)
 				if (dm(r,c) != dm(c,r)) return false;
 		return true;
 	}
 	
 	public def toString():String {
-		var idx:Int=0;
+		var idx:Long=0;
 		val outstr = new StringBuilder();
 		outstr.add("--------- Symmetric Matrix "+M+" x "+N+" lower part data ---------\n");
-		for (var r:Int=0; r<M; r++) {
+		for (var r:Long=0; r<M; r++) {
 			outstr.add(r+"\t[");
-			for (var c:Int=0; c<=r; c++)
+			for (var c:Long=0; c<=r; c++)
 				outstr.add(this(r,c).toString()+" ");
 			outstr.add("]\n");
 		}
 		outstr.add("---------------------------------------\n");
 		return outstr.toString();	
 	}
-	
-	public def print(msg:String): void {
-		Console.OUT.println(msg+"\n"+toString());
-	}
-	
-	public def print():void {
-		Console.OUT.println(toString());
-	}
-	
 }

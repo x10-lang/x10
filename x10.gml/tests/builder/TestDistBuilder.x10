@@ -4,23 +4,11 @@
  *  (C) Copyright IBM Corporation 2011.
  */
 
-import x10.io.Console;
-
-import x10.matrix.Matrix;
-import x10.matrix.DenseMatrix;
-import x10.matrix.TriDense;
-import x10.matrix.sparse.SparseCSC;
-import x10.matrix.builder.SparseCSCBuilder;
-import x10.matrix.builder.DenseBuilder;
-
 import x10.matrix.distblock.DistBlockMatrix;
 import x10.matrix.builder.distblock.DistMatrixBuilder;
 
 /**
-   This class contails test cases for dense matrix addition, scaling, and negative operations.
-   <p>
-
-   <p>
+ * This class contains test cases for dense matrix addition, scaling, and negation operations.
  */
 public class TestDistBuilder {
 
@@ -33,14 +21,12 @@ public class TestDistBuilder {
 	}
 }
 
-
 class BuilderTest {
-
-	public val M:Int;
-	public val N:Int;
+	public val M:Long;
+	public val N:Long;
 	public val nzd:Double;
 
-	public def this(m:Int, n:Int, z:Double) {
+	public def this(m:Long, n:Long, z:Double) {
 		M = m;
 		N = n;
 		nzd = z;
@@ -50,11 +36,7 @@ class BuilderTest {
 		Console.OUT.println("Starting distributed block matrix builder tests on "+
 							M+"x"+ N + " matrices");
 		var ret:Boolean = true;
- 		// Set the matrix function
 		ret &= (testInit());
-		//ret &= (testMakeDense());
-		//ret &= (testMakeSparse());
-		//ret &= (testInit());
 
 		if (ret)
 			Console.OUT.println("Test passed!");
@@ -62,15 +44,13 @@ class BuilderTest {
 			Console.OUT.println("----------------Test failed!----------------");
 	}
 
-    
 	public def testInit():Boolean{
 		var ret:Boolean = true;
 		Console.OUT.println("Starting dist matrix builder");
 		val nblk = Place.MAX_PLACES;
 		val dmat = DistBlockMatrix.make(M,M, nblk, nblk); 
 		val dbld = new DistMatrixBuilder(dmat);
-		dbld.allocAllDenseBlocks().initRandom(nzd, (r:Int,c:Int)=>1.0+r+2*c);
-		dbld.dmat.printMatrix();
+		dbld.allocAllDenseBlocks().initRandom(nzd, (r:Long,c:Long)=>1.0+r+2*c);
 		 
 		if (ret)
 			Console.OUT.println("Dist dense matrix builder test passed!");
@@ -79,5 +59,4 @@ class BuilderTest {
 	
 		return ret;
 	}
-		
 }

@@ -4,20 +4,14 @@
  *  (C) Copyright IBM Corporation 2011.
  */
 
-import x10.io.Console;
-
 import x10.matrix.Matrix;
 import x10.matrix.DenseMatrix;
 import x10.matrix.SymDense;
 
 /**
-   This class contails test cases for dense matrix addition, scaling, and negative operations.
-   <p>
-
-   <p>
+ * This class contains test cases for dense matrix addition, scaling, and negation operations.
  */
 public class TestSymDense{
-
     public static def main(args:Rail[String]) {
 		val m = (args.size > 0) ? Int.parse(args(0)):4;
 		val testcase = new CellWiseSymMatTest(m);
@@ -25,12 +19,10 @@ public class TestSymDense{
 	}
 }
 
-
 class CellWiseSymMatTest {
+	public val M:Long;
 
-	public val M:Int;
-
-	public def this(m:Int) {
+	public def this(m:Long) {
 		M = m;
 	}
 
@@ -38,7 +30,6 @@ class CellWiseSymMatTest {
 		Console.OUT.println("Starting symmetric matrix clone/add/sub/scaling tests on "+
 							M+"x"+ M + " matrices");
 		var ret:Boolean = true;
- 		// Set the matrix function
 		ret &= (testClone());
 		ret &= (testInit());
 		ret &= (testScale());
@@ -56,14 +47,10 @@ class CellWiseSymMatTest {
 			Console.OUT.println("----------------Test failed!----------------");
 	}
 
-    
 	public def testClone():Boolean{
-
 		Console.OUT.println("Starting Symmetric Matrix clone test");
 		val dm = SymDense.make(M).initRandom();
-		//dm.print();
-		//dm.printMatrix();
-		//Console.OUT.println(dm.d.toString());
+		//Console.OUT.println(dm.d);
 		val dm1 = dm.clone();
 		var ret:Boolean = dm.equals(dm1);
 
@@ -71,9 +58,7 @@ class CellWiseSymMatTest {
 			Console.OUT.println("Symmetric dense Clone test passed!");
 		else
 			Console.OUT.println("--------Symmetric dense Clone test failed!--------");
-		//dm.print();
 		val dmm = dm.toDense();
-		//dmm.print();
 		ret &= dmm.equals(dm as Matrix(dmm.M, dmm.N));
 		if (ret)
 			Console.OUT.println("Symmetric dense toDense test passed!");
@@ -96,10 +81,10 @@ class CellWiseSymMatTest {
 	public def testInit():Boolean {
 		Console.OUT.println("Starting Symmetric Matrix initialization test");
 		var ret:Boolean = true;
-		val sym = SymDense.make(M).init((r:Int, c:Int)=>(1.0+r+c));
+		val sym = SymDense.make(M).init((r:Long, c:Long)=>(1.0+r+c));
 		
-		for (var c:Int=0; c<M; c++)
-			for (var r:Int=0; r<M; r++)
+		for (var c:Long=0; c<M; c++)
+			for (var r:Long=0; r<M; r++)
 				ret &= (sym(r,c) == 1.0+r+c);
 		
 		if (ret)
@@ -117,28 +102,22 @@ class CellWiseSymMatTest {
 		dm1.scale(1.0/2.5);
 		val ret = dm.equals(dm1);
 		if (ret)
-			Console.OUT.println("Symmetrix Matrix scaling test passed!");
+			Console.OUT.println("Symmetric Matrix scaling test passed!");
 		else
-			Console.OUT.println("--------Symmetrix matrix Scaling test failed!--------");	
+			Console.OUT.println("--------Symmetric matrix Scaling test failed!--------");	
 		return ret;
 	}
 
 	public def testAdd():Boolean {
 		Console.OUT.println("Starting symmetric matrix addition test");
 		val dm:SymDense(M)  = SymDense.make(M).initRandom();
-		//dm.print();
 		val dm1:SymDense(M) = -dm;
-		//dm.print();
-		//dm1.print();
 		val dm0 = dm + dm1;
-		//dm0.print();
 		var ret:Boolean = dm0.equals(0.0);
 		
 		val dd:DenseMatrix(M,M) = dm.toDense();
-		//dd.print();
 		dm1.cellAddTo(dd);
 		ret &= dd.equals(0.0);
-		//dd.print();
 
 		if (ret)
 			Console.OUT.println("Symmetric Add: dm + dm*-1 test passed");
@@ -152,14 +131,10 @@ class CellWiseSymMatTest {
 		Console.OUT.println("Starting symmetric matrix add-sub test");
 		val dm = SymDense.make(M).initRandom();
 		val dm1= SymDense.make(M).initRandom();
-		//sp.print("Input:");
 		val dm2 = dm + dm1;
 		
-		//sp2.print("Add result:");
-		//
 		val dm_c:SymDense(M)  = dm2 - dm1;
 		val ret   = dm.equals(dm_c as Matrix(dm.M, dm.N));
-		//sp_c.print("Another add result:");
 		if (ret)
 			Console.OUT.println("Symmetric matrix Add-sub test passed!");
 		else
@@ -254,7 +229,5 @@ class CellWiseSymMatTest {
 		else
 			Console.OUT.println("--------Symmetric-matrix multiply test failed!--------");
 		return ret;		
-		
 	}
-		
 }

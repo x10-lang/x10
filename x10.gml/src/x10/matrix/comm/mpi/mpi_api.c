@@ -101,15 +101,15 @@ void mpi_recv_double(double* buf, int off, int cnt, int src, int tag)
 }
 
 
-void mpi_send_int(int* buf, int off, int cnt, int dst, int tag)
+void mpi_send_long(long* buf, int off, int cnt, int dst, int tag)
 {
 #ifdef MPI_COMMU
-  int* pbuf = (off>0)?(buf+off):buf;
+  long* pbuf = (off>0)?(buf+off):buf;
   MPI_Send(pbuf, cnt, MPI_INT, dst, 
 		   tag, GML_COMM_WORLD);
 #endif
 }
-void mpi_recv_int(int* buf, int off, int cnt, int src, int tag)
+void mpi_recv_long(long* buf, int off, int cnt, int src, int tag)
 {
 #ifdef MPI_COMMU
   MPI_Status st;
@@ -148,20 +148,20 @@ void mpi_Irecv_double(double* buf, int off, int cnt, int src, int tag, void* req
 }
 
 //----
-void mpi_Isend_int(int* buf, int off, int cnt, int dst, int tag, void* req)
+void mpi_Isend_long(long* buf, int off, int cnt, int dst, int tag, void* req)
 {
 #ifdef MPI_COMMU
-  int* pbuf = (off>0)?(buf+off):buf;
+  long* pbuf = (off>0)?(buf+off):buf;
 
   MPI_Isend(pbuf, cnt, MPI_INT, dst, 
 			tag, GML_COMM_WORLD, (MPI_Request*) req);
 #endif
 }
 
-void mpi_Irecv_int(int* buf, int off, int cnt, int src, int tag, void* req) 
+void mpi_Irecv_long(long* buf, int off, int cnt, int src, int tag, void* req) 
 {
 #ifdef MPI_COMMU
-  int* pbuf = (off>0)?(buf+off):buf;
+  long* pbuf = (off>0)?(buf+off):buf;
   
   MPI_Irecv(pbuf, cnt, MPI_INT, src, 
 			tag,  GML_COMM_WORLD, (MPI_Request*) req);
@@ -169,10 +169,10 @@ void mpi_Irecv_int(int* buf, int off, int cnt, int src, int tag, void* req)
 #endif
 }
 //-------------------------
-void mpi_bcast_int(int* buf, int off, int cnt, int root) 
+void mpi_bcast_long(long* buf, int off, int cnt, int root) 
 {
 #ifdef MPI_COMMU
-  int* pbuf = (off>0)?(buf+off):buf;
+  long* pbuf = (off>0)?(buf+off):buf;
   // void *buffer, int count, MPI_Datatype datatype, int root, MPI_Comm comm);
   MPI_Bcast(pbuf, cnt, MPI_INT, root, GML_COMM_WORLD);
 #endif
@@ -217,12 +217,12 @@ void mpi_gatherv_double(double* sendbuf, int sendoff, int sendcnt,
 #endif
 }
 
-void mpi_gatherv_int(int* sendbuf, int sendoff, int sendcnt, 
-					 int* recvbuf, int recvoff, int* recvcnts, int* displs, int root)
+void mpi_gatherv_long(long* sendbuf, int sendoff, int sendcnt, 
+					 long* recvbuf, int recvoff, int* recvcnts, int* displs, int root)
 {
 #ifdef MPI_COMMU
-  int* sbuf = (sendoff>0)?(sendbuf+sendoff):sendbuf;
-  int* rbuf = (recvoff>0)?(recvbuf+recvoff):recvbuf;
+  long* sbuf = (sendoff>0)?(sendbuf+sendoff):sendbuf;
+  long* rbuf = (recvoff>0)?(recvbuf+recvoff):recvbuf;
 
   MPI_Gatherv(sbuf, sendcnt, MPI_INT,
 			  rbuf, recvcnts, displs, MPI_INT, 
@@ -242,8 +242,8 @@ void mpi_scatterv_double(double* sendbuf, int* sendcnts, int* displs,
 #endif
 }
 
-void mpi_scatterv_int(int* sendbuf, int* sendcnts,  int* displs,
-					  int* recvbuf, int recvcnt, int root)
+void mpi_scatterv_long(long* sendbuf, int* sendcnts,  int* displs,
+					  long* recvbuf, int recvcnt, int root)
 {
 #ifdef MPI_COMMU
 
@@ -285,13 +285,13 @@ void mpi_allgatherv_double(double* sendbuf, int sendoff, int sendcnt,
 }
 
 //--------------------------
-void mpi_reduce_sum_int(int* sendbuf, int soff, int* recvbuf, int roff,  int cnt, int root)
+void mpi_reduce_sum_long(long* sendbuf, int soff, long* recvbuf, int roff,  int cnt, int root)
 {
 #ifdef MPI_COMMU
   //int MPI_Reduce(void* sendbuf, void* recvbuf, int count, 
   //			   MPI_Datatype datatype, MPI_Op op, int root, MPI_Comm comm) 
-  int* sbuf = (soff>0)?(sendbuf+soff):sendbuf;
-  int* rbuf = (roff>0)?(recvbuf+roff):recvbuf;
+  long* sbuf = (soff>0)?(sendbuf+soff):sendbuf;
+  long* rbuf = (roff>0)?(recvbuf+roff):recvbuf;
 
   MPI_Reduce(sbuf, rbuf, cnt, MPI_INT, MPI_SUM, root, GML_COMM_WORLD);
 #endif
@@ -309,13 +309,13 @@ void mpi_reduce_sum_double(double* sendbuf, int soff, double* recvbuf, int roff,
 #endif
 }
 //------------------------
-void mpi_allreduce_sum_int(int*sendbuf, int soff, int* recvbuf, int roff, int cnt)
+void mpi_allreduce_sum_long(long*sendbuf, int soff, long* recvbuf, int roff, int cnt)
 {
 #ifdef MPI_COMMU
   //int MPI_Allreduce(void* sendbuf, void* recvbuf, int count, 
   //				  MPI_Datatype datatype, MPI_Op op, MPI_Comm comm) 
-  int* sbuf = (soff>0)?(sendbuf+soff):sendbuf;
-  int* rbuf = (roff>0)?(recvbuf+roff):recvbuf;
+  long* sbuf = (soff>0)?(sendbuf+soff):sendbuf;
+  long* rbuf = (roff>0)?(recvbuf+roff):recvbuf;
   MPI_Allreduce(sbuf, rbuf, cnt, MPI_INT, MPI_SUM, GML_COMM_WORLD);
 #endif
 }

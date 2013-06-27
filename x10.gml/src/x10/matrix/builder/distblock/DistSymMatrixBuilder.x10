@@ -11,38 +11,25 @@
 
 package x10.matrix.builder.distblock;
 
+import x10.regionarray.Dist;
 import x10.compiler.Inline;
-import x10.io.Console;
-import x10.util.Timer;
-import x10.util.StringBuilder;
 
 import x10.matrix.Matrix;
-import x10.matrix.RandTool;
 import x10.matrix.DenseMatrix;
-import x10.matrix.SymDense;
-
 import x10.matrix.Debug;
 import x10.matrix.block.Grid;
 import x10.matrix.block.SymGrid;
-import x10.matrix.block.MatrixBlock;
 import x10.matrix.sparse.SparseCSC;
 import x10.matrix.comm.BlockSetRemoteCopy;
 import x10.matrix.distblock.DistBlockMatrix;
 import x10.matrix.distblock.DistMap;
 import x10.matrix.distblock.DistGrid;
-import x10.matrix.distblock.BlockSet;
-
 import x10.matrix.builder.MatrixBuilder;
 
 public type DistSymMatrixBuilder(b:DistSymMatrixBuilder)=DistSymMatrixBuilder{self==b};
-public type DistSymMatrixBuilder(m:Int)=DistSymMatrixBuilder{self.M==m,self.N==m};
+public type DistSymMatrixBuilder(m:Long)=DistSymMatrixBuilder{self.M==m,self.N==m};
 
-/*
- * 
- */
 public class DistSymMatrixBuilder extends DistMatrixBuilder{self.M==self.N} implements MatrixBuilder {
- 
-	//-------------------------------------
 	public def this(dm:DistBlockMatrix{self.M==self.N}) {
 		super(dm);
 	}
@@ -51,11 +38,10 @@ public class DistSymMatrixBuilder extends DistMatrixBuilder{self.M==self.N} impl
 		super(bld.dmat as DistBlockMatrix{self.M==self.N});
 	}
 	
-	//=====================================
-	/**
-	 * Creat distributed block matrix builder with given partitioning and block distribution map. 
-	 * The actual memory spaces are not allocated.
-	 */
+    /**
+     * Create distributed block matrix builder with given partitioning and block distribution map. 
+     * The actual memory spaces are not allocated.
+    */
 	public static def make(pg:SymGrid, dp:DistMap):DistSymMatrixBuilder(pg.M) {
 		//Remote capture: partitioning and distribution
 		val bld = DistMatrixBuilder.make(pg as Grid, dp);
@@ -63,23 +49,22 @@ public class DistSymMatrixBuilder extends DistMatrixBuilder{self.M==self.N} impl
 		return sbd as DistSymMatrixBuilder(pg.M);
 	}
 	
-	/**
-	 * Creat symmetric distributed block matrix with given leading dimension and its partitioning blocks.
-	 */
-	public static def make(m:Int, bM:Int):DistSymMatrixBuilder(m) {
-		val sgrid = new SymGrid(m, bM);
-		val dgrid = DistGrid.make(sgrid as Grid);
-		val bdr = make(sgrid, dgrid.dmap);
-		return bdr as DistSymMatrixBuilder(m);
-	}
-	
-	//===============================
+    /**
+     * Create symmetric distributed block matrix with given leading dimension and its partitioning blocks.
+     */
+    public static def make(m:Long, bM:Long):DistSymMatrixBuilder(m) {
+        val sgrid = new SymGrid(m, bM);
+        val dgrid = DistGrid.make(sgrid as Grid);
+        val bdr = make(sgrid, dgrid.dmap);
+        return bdr as DistSymMatrixBuilder(m);
+    }
+
 	/**
 	 * Initialize distributed symmetric matrix using symmetric initial function.
 	 * @param initFun   Matrix entry value generator function, mapping row-column to double. 
 	 */
-	public def init(initFun:(Int,Int)=>Double) : DistSymMatrixBuilder(this) {
-		finish ateach (d:Point in Dist.makeUnique()) {
+	public def init(initFun:(Long,Long)=>Double) : DistSymMatrixBuilder(this) {
+		finish ateach(d in Dist.makeUnique()) {
 			val itr = dmat.handleBS().iterator();
 			val pgrid = dmat.handleBS().getGrid();
 			while (itr.hasNext()) {
@@ -95,8 +80,6 @@ public class DistSymMatrixBuilder extends DistMatrixBuilder{self.M==self.N} impl
 		}
 		return this;
 	}
-	
-	//==============================
 
 	/**
 	 * Used for testing purpose. Initialize distributed symmetric matrix in random locations with value generator function and
@@ -104,9 +87,8 @@ public class DistSymMatrixBuilder extends DistMatrixBuilder{self.M==self.N} impl
 	 * @param halfDensity       nonzero sparsity
 	 * @param f                 nonzero value generator function.
 	 */
-	public def initRandom(nzDensity:Double, f:(Int,Int)=>Double) : DistSymMatrixBuilder(this) {
-		
-		finish ateach (d:Point in Dist.makeUnique()) {
+	public def initRandom(nzDensity:Double, f:(Long,Long)=>Double) : DistSymMatrixBuilder(this) {
+		finish ateach(d in Dist.makeUnique()) {
 			val itr = dmat.handleBS().iterator();
 			while (itr.hasNext()) {
 				val blk = itr.next();
@@ -124,10 +106,8 @@ public class DistSymMatrixBuilder extends DistMatrixBuilder{self.M==self.N} impl
 		return this;
 	}
 
-
-	//=========================
 	public def mirror(toUpper:Boolean) {
-		finish ateach (d:Point in Dist.makeUnique()) {
+		finish ateach(d in Dist.makeUnique()) {
 			val blkitr = dmat.handleBS().iterator();
 			while (blkitr.hasNext()) {
 				val blk = blkitr.next();
@@ -173,35 +153,34 @@ public class DistSymMatrixBuilder extends DistMatrixBuilder{self.M==self.N} impl
 	public def mirrorToLower() {
 		mirror(false);
 	}
-	//=====================================
-	public def set(r:Int, c:Int, value:Double): void{
+
+	public def set(r:Long, c:Long, value:Double): void{
 		super.set(r, c, value);
 		if (r != c)
 			super.set(c, r, value);
 	}
 	
-	public def reset(r:Int, c:Int):Boolean {
+	public def reset(r:Long, c:Long):Boolean {
 		var ret:Boolean= super.reset(r, c);
 		if (r != c)
 			ret &= super.reset(c, r);
 		return ret;
 	}
 	
-	//=====================================
+
 	public static def checkSymmetric(mat:Matrix):Boolean {
 		var ret:Boolean = true;
-		for (var c:Int=0; c<mat.N&&ret; c++)
-			for (var r:Int=c+1; r<mat.M&&ret; r++)
+		for (var c:Long=0; c<mat.N&&ret; c++)
+			for (var r:Long=c+1; r<mat.M&&ret; r++)
 				ret &= (mat(r,c)==mat(c,r));
 		return ret;
 	}
 	
 	public def checkSymmetric():Boolean = checkSymmetric(this.dmat);
-	//=====================================
 
 	//public def toDistBlockMatrix():DistBlockMatrix(M,N) = dmat;
 	public def toDistBlockMatrix():DistBlockMatrix(M,N) {
-		finish ateach (d:Point in Dist.makeUnique()) {
+		finish ateach(d in Dist.makeUnique()) {
 			val itr = dmat.handleBS().iterator();
 			while (itr.hasNext()) {
 				val blk = itr.next();
@@ -211,8 +190,6 @@ public class DistSymMatrixBuilder extends DistMatrixBuilder{self.M==self.N} impl
 		}
 		return dmat;
 	}
-
 	
 	public def toMatrix():Matrix(M,N) = toDistBlockMatrix() as Matrix(M,N);
-
 }

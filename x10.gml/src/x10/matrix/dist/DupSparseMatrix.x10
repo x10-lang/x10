@@ -11,47 +11,35 @@
 
 package x10.matrix.dist;
 
-import x10.io.Console;
+import x10.regionarray.Dist;
+import x10.regionarray.DistArray;
 import x10.util.Timer;
-//
-import x10.matrix.Debug;
-import x10.matrix.MathTool;
-import x10.matrix.VerifyTools;
 
+import x10.matrix.Debug;
 import x10.matrix.Matrix;
 import x10.matrix.DenseMatrix;
+import x10.matrix.comm.MatrixBcast;
 import x10.matrix.sparse.SparseCSC;
-//
-import x10.matrix.comm.CommHandle;
 
-
-public  type DupSparseMatrix(M:Int)=DupSparseMatrix{self.M==M};
-public  type DupSparseMatrix(M:Int, N:Int)=DupSparseMatrix{self.M==M, self.N==N};
+public  type DupSparseMatrix(M:Long)=DupSparseMatrix{self.M==M};
+public  type DupSparseMatrix(M:Long, N:Long)=DupSparseMatrix{self.M==M, self.N==N};
 public  type DupSparseMatrix(C:Matrix)=DupSparseMatrix{self==C};
 
 /**
  * Implementation of duplicated sparse matrix. All duplicated 
  * sparse matrices are stored in DistArray.  Distribution of dense matrices is unique, one
  * duplicated copy is mapped to one place.
- * 
  */
 public class DupSparseMatrix extends Matrix {
-
-    //===================================================
-	
 	/**
 	 * Data duplication
 	 */
 	public val dist:Dist(1);
     public val dupMs:DistArray[SparseCSC](1);
-	public var comm:CommHandle;
 
-	//----------- Profiling -----------
     public var calcTime:Long=0;
     public var commTime:Long=0;
 
-	//==================================================================
-	//==================================================================
 	/**
 	 * Construct duplicated sparse matrix. 
 	 *
@@ -63,10 +51,9 @@ public class DupSparseMatrix extends Matrix {
 		dist = dms.dist;
 		//count = dms.region.size();
 		dupMs = dms;
-		comm = new CommHandle();
 	}
 
-	//-----------------------------------------------------------------
+
 	// No bcast is performed
 	/**
 	 * Create duplicated sparse matrix instance using a sparse matrix
@@ -81,7 +68,7 @@ public class DupSparseMatrix extends Matrix {
 		val root = here.id();
 		val nzc  = mat.getStorageSize();
 
-		finish ateach (val [p]:Point in dms.dist) {
+		finish ateach(val [p]:Point in dms.dist) {
 			val mypid = here.id();
 			if (mypid != root) 
 				dms(mypid) = SparseCSC.make(m, n, nzc);
@@ -101,14 +88,13 @@ public class DupSparseMatrix extends Matrix {
 	 * @param n     number of columns
 	 * @param nzcnt     number of nonzero elements.
 	 */
-	public static def make(m:Int, n:Int, nzcnt:Int): DupSparseMatrix(m,n) {
-		val dist = Dist.makeUnique();
-		val dms  = DistArray.make[SparseCSC](dist);
-		finish ateach (val [p]:Point in dms.dist) {
+	public static def make(m:Long, n:Long, nzcnt:Long): DupSparseMatrix(m,n) {
+        val dms = DistArray.make[SparseCSC](Dist.makeUnique());
+		finish ateach([p] in dms.dist) {
 			val mypid = here.id();
 			dms(mypid) = SparseCSC.make(m, n, nzcnt);
 		}
-		val dm  = new DupSparseMatrix(dms) as DupSparseMatrix(m,n);
+        val dm = new DupSparseMatrix(dms) as DupSparseMatrix(m,n);
 		return dm;
 	}
 
@@ -119,8 +105,8 @@ public class DupSparseMatrix extends Matrix {
 	 * @param n     number of columns
 	 * @param nzd     nonzero density or sparsity.
 	 */
-	public static def make(m:Int, n:Int, nzd:Double): DupSparseMatrix(m,n) {
-		return make(m, n, (nzd * m * n) as Int);
+	public static def make(m:Long, n:Long, nzd:Double): DupSparseMatrix(m,n) {
+		return make(m, n, (nzd * m * n) as Long);
 	}
 
 	/**
@@ -133,7 +119,7 @@ public class DupSparseMatrix extends Matrix {
 	 * @param n     number of columns
 	 * @param nzcnt     number of nonzero elements
 	 */
-	public static def makeRand(m:Int, n:Int, nzcnt:Int): DupSparseMatrix(m,n) = make(m, n, nzcnt).initRandom();
+	public static def makeRand(m:Long, n:Long, nzcnt:Long): DupSparseMatrix(m,n) = make(m, n, nzcnt).initRandom();
 	
 	/**
 	 * For testing purpose.
@@ -145,7 +131,7 @@ public class DupSparseMatrix extends Matrix {
 	 * @param n     number of columns
 	 * @param nzd     sparsity
 	 */
-	public static def makeRand(m:Int, n:Int, nzd:Double) = make(m, n, nzd).initRandom();
+	public static def makeRand(m:Long, n:Long, nzd:Double) = make(m, n, nzd).initRandom();
 
 	/**
 	 * For testing purpose.
@@ -167,8 +153,8 @@ public class DupSparseMatrix extends Matrix {
 	 * @param f    The function to use to initialize the matrix, mapping (row, column) => double
 	 * @return this object
 	 */
-	public def init(f:(Int,Int)=>Double): DupSparseMatrix(this) {
-		finish ateach (val [p]:Point in dupMs.dist) {
+	public def init(f:(Long,Long)=>Double): DupSparseMatrix(this) {
+		finish ateach(val [p]:Point in dupMs.dist) {
 			val pid=here.id();
 			dupMs(pid).init(f);
 		}
@@ -199,19 +185,19 @@ public class DupSparseMatrix extends Matrix {
 		return this;
 	}
 	
-	public def initRandom(lo:Int,up:Int) : DupSparseMatrix(this) {
+	public def initRandom(lo:Long, up:Long) : DupSparseMatrix(this) {
 		local().initRandom(lo,up);
 		sync();
 		return this;
 	}
-	//================================================================
+
 	// Data copy and reset
-	//================================================================	
+
 
 	/**
 	 * Allocate memory space with same storage for duplicated sparse matrix(m,n)
 	 */
-	public def alloc(m:Int, n:Int)  = make(m, n, local().getStorageSize());
+	public def alloc(m:Long, n:Long)  = make(m, n, local().getStorageSize());
 
 	/**
 	 * Make a copy of all duplicated sparse matrix in all places.
@@ -220,7 +206,7 @@ public class DupSparseMatrix extends Matrix {
 	 */	
 	public def clone() : DupSparseMatrix(this.M, this.N) {
 		val ds  = DistArray.make[SparseCSC](dupMs.dist);
-		finish ateach (val [p]:Point in ds) {
+		finish ateach(val [p]:Point in ds) {
 			val mypid = here.id();
 			ds(mypid) = this.dupMs(mypid).clone();
 		}
@@ -228,9 +214,9 @@ public class DupSparseMatrix extends Matrix {
 		return dsm;
 	}
 
-	//-------------------------------------------------
+
 	// Copy 
-	//-------------------------------------------------
+
 	public  def copyTo(that:DupSparseMatrix(M,N)):void {
 		finish ateach(val [p] :Point in this.dist) {
 			val mypid=here.id();
@@ -255,7 +241,7 @@ public class DupSparseMatrix extends Matrix {
 	 * @param dst      the target dense matrix.		
 	 */
 	public def copyTo(dm:DupDenseMatrix(M,N)) {
-		finish ateach (val [p]:Point in dupMs) {
+		finish ateach(val [p]:Point in dupMs) {
 			local().copyTo(dm.local());
 		}
 	}
@@ -271,20 +257,20 @@ public class DupSparseMatrix extends Matrix {
 			Debug.exit("CopyTo: target matrix type is not supportede");
 	}
 	
-	//================================================================
+
 	// Data access
-	//================================================================
-	//public def apply(x:Int, y:Int) = this.dupMs(here.id()).apply(x, y);
+
+	//public def apply(x:Long, y:Long) = this.dupMs(here.id()).apply(x, y);
 	/**
-	 * Access data at (x, y)
+	 * Access data at(x, y)
 	 */
-    public operator this(x:Int, y:Int):Double=local()(x, y);
+    public operator this(x:Long, y:Long):Double=local()(x, y);
 
 	/**
 	 * Assign v to (x, y) in the copy at here. Other copies are not
 	 * modified.
 	 */
-	public operator this(x:Int,y:Int) = (v:Double):Double {
+	public operator this(x:Long,y:Long) = (v:Double):Double {
 		//this.dupMs(here.id()).d(y*this.M+x) = v;
 		local()(x, y) = v;
 		return v;
@@ -311,7 +297,7 @@ public class DupSparseMatrix extends Matrix {
 	 * Reset matrix and all copies.
 	 */
 	public def reset():void {
-		finish ateach (val [p]:Point in this.dupMs.dist) {
+		finish ateach(val [p]:Point in this.dupMs.dist) {
 			local().reset();
 		}
 		calcTime=0;
@@ -324,15 +310,12 @@ public class DupSparseMatrix extends Matrix {
 	    (A instanceof DupSparseMatrix &&
 		 (A as DupSparseMatrix).dupMs.dist.equals(this.dupMs.dist));
 	
-	//================================================================
-	//================================================================
-
 	/**
 	 * Broadcast the copy of sparse matrix at here to all other copies.
 	 */
 	public def sync() : void {
 		/* Timing */ val st:Long = Timer.milliTime();
-		comm.bcast(dupMs);
+		MatrixBcast.bcast(dupMs);
 		/* Timing */ commTime += Timer.milliTime() - st;
 	}
 
@@ -343,9 +326,7 @@ public class DupSparseMatrix extends Matrix {
 	    throw new UnsupportedOperationException();
 	}
 
-	//====================================================================
 	// Cellwise operation
-	//====================================================================
 
 	/**
 	 * Scaling method. All copies are updated concurrently
@@ -359,9 +340,9 @@ public class DupSparseMatrix extends Matrix {
 		return this;
     }
 
-	//-------------------------------
+
 	// Cellwise addition
-	//-------------------------------
+
 
 	/**
 	 * Not support. Cellwise subtraction.
@@ -389,9 +370,9 @@ public class DupSparseMatrix extends Matrix {
 		return dst;
 	}
 
-	//-----------------------------
+
 	// Cellwise subtraction
-	//-----------------------------
+
 
 	/**
 	 * Not support. Cellwise subtraction.
@@ -424,9 +405,9 @@ public class DupSparseMatrix extends Matrix {
 		return dst;		
 	}
 
-	//-------------------------------
+
 	// Cellwise multiplication
-	//-------------------------------
+
 	/**
 	 * Not support. Concurrently perform cellwise addition on all copies.
 	 */
@@ -450,9 +431,9 @@ public class DupSparseMatrix extends Matrix {
 		return dst;	
 	} 
 
-	//---------------------------------
+
 	// Cellwise division
-	//---------------------------------
+
 	/**
 	 * Not support. Concurrently perform cellwise subtraction on all copies
 	 */	
@@ -476,9 +457,9 @@ public class DupSparseMatrix extends Matrix {
 		return dst;		
 	}
 
-	//====================================================================
+
 	// Operator overload
-	//====================================================================
+
 	/**
 	 * Perform cell-wise addition, return this + that in a new dup dense matrix. 
 	 */
@@ -518,9 +499,9 @@ public class DupSparseMatrix extends Matrix {
 	    return ddm;
 	}
 
-	//====================================================================
+
 	// Multiplication operations 
-	//====================================================================
+
 
 	/**
 	 * Multiplication method by using X10 driver. All copies are updated.
@@ -535,7 +516,7 @@ public class DupSparseMatrix extends Matrix {
 	}
 
 
-	//---------------------------------------------------
+
 	public def transMult(
 			A:Matrix{self.N==this.M}, 
 			B:Matrix(A.M,this.N), 
@@ -545,7 +526,7 @@ public class DupSparseMatrix extends Matrix {
 	}
 
 
-	//-----------------------------------------------------------------
+
 
 	/**
 	 * this = A * B^T
@@ -558,22 +539,18 @@ public class DupSparseMatrix extends Matrix {
 		throw new UnsupportedOperationException("Not support using sparse matrix to store result");
 	}
 
-	//====================================================================
-	// Util
-	//====================================================================
 
- 	//------------
+	// Util
 	public def getCommTime():Long = this.commTime;
 	public def getCalcTime():Long = this.calcTime;
-	//------------
 
 	// Check integrity 
 	public def syncCheck():Boolean {
 		val m = local();
-		for (var p:Int=0; p<Place.MAX_PLACES; p++) {
+		for (var p:Long=0; p<Place.MAX_PLACES; p++) {
 
 			val pid = p;
-			val dm = at (dupMs.dist(pid)) local();
+			val dm = at(dupMs.dist(pid)) local();
 			if (!m.equals(dm)) {
 				Console.OUT.println("Integrity check found differences between the copy at here and copy at "+pid);
 				Console.OUT.flush();
@@ -583,41 +560,18 @@ public class DupSparseMatrix extends Matrix {
 		return true;
 	}
 
-	//==================================================================
 	public def toString() :String {
 		var output:String = "---Duplicated Dense Matrix size:["+M+"x"+N+"]---\n";
 		output += dupMs(here.id()).toString();
 		output += "--------------------------------------------------\n";
 		return output;
 	}
-	//
-	public def print() {
-		print("");
-	}
 
-	public def print(msg:String) :void {
-		Console.OUT.print(msg);
-		Console.OUT.print(this.toString());
-		Console.OUT.flush();
-	}
-	//
-	public def debugPrint() {
-		debugPrint("");
-	}
-
-	public def debugPrint(msg:String) : void {
-		if (Debug.disable) return;
-		val dbstr:String = msg+ this.toString();
-		Debug.println(dbstr);
-		Debug.flush();
-	}
-	
-	//
 	public def allToString() : String {
 		var output:String = "Duplicated Dense Matrix size:["+M+"x"+N+"]\n";
-		for (var p:Int=0; p<Place.MAX_PLACES; p++) { 
+		for (var p:Long=0; p<Place.MAX_PLACES; p++) { 
 			val pid = p;
-			val mstr = at (dupMs.dist(pid)) dupMs(pid).toString();
+			val mstr = at(dupMs.dist(pid)) dupMs(pid).toString();
 			output += "Duplication at place " + pid + "\n"+mstr;
 		}
 		return output;
@@ -630,5 +584,4 @@ public class DupSparseMatrix extends Matrix {
 	public def printAll() {
 		printAll("");
 	}
-		
 }

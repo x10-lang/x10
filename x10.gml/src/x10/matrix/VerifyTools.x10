@@ -11,12 +11,10 @@
 
 package x10.matrix;
 
-
 /**
  * This class is used to verify matrix multiplication result. 
  */
 public class VerifyTools {
-
     /**
      * Verify matrix multiplication for a number of random positions in the result.
 	 *
@@ -26,19 +24,18 @@ public class VerifyTools {
 	 * @param n		number of random samplings
 	 * @return 		the verification result.
      */
-	public static def verifyMatMult(A:Matrix, B:Matrix, C:Matrix, n:Int):Boolean {
+	public static def verifyMatMult(A:Matrix, B:Matrix, C:Matrix, n:Long):Boolean {
 		val rv = RandTool.getRandGen();
  
-		for (var i:Int=0; i<n; i++) {
-			val x = rv.nextInt(C.M);
-			val y = rv.nextInt(C.N);
+		for (var i:Long=0; i<n; i++) {
+			val x = rv.nextLong(C.M);
+			val y = rv.nextLong(C.N);
 			if (!verifyMatMult(x, y, A, B, C)) return false;   
 			Console.OUT.flush();
 		}
 		Console.OUT.println();
 		return true;
 	}
-
 
 	/**
 	 * Verify complete result of two matrices multiplication.
@@ -51,11 +48,11 @@ public class VerifyTools {
 	public static def verifyMatMult(A:Matrix, B:Matrix, C:Matrix):Boolean {
 		val rv = RandTool.getRandGen();
  
-		for (var x:Int=0; x<C.M; x++) {
-			for (var y:Int=0; y<C.N; y++){
+		for (var x:Long=0; x<C.M; x++) {
+			for (var y:Long=0; y<C.N; y++){
 				val cv   = C(x,y);
 				var v:Double = 0.0D;
-				for (var k:Int=0; k<A.N; k++) v += A(x, k) * B(k, y);
+				for (var k:Long=0; k<A.N; k++) v += A(x, k) * B(k, y);
 				if (! MathTool.equals(v, cv)) {
 					Console.OUT.printf("Check fail (%5d, %5d) Computed:%.8f Verified:%.8f\n", 
 									   x, y, cv, v);
@@ -68,9 +65,6 @@ public class VerifyTools {
 		return true;
 	}
 
-	//-------------------------------------------------------------------
-	//-------------------------------------------------------------------
-
 	/**
 	 * Verify matrix multiplication at a specified location in the result.
 	 *
@@ -82,11 +76,11 @@ public class VerifyTools {
 	 * @return verification result
 	 *
 	 */
-	public static def verifyMatMult(x:Int, y:Int, A:Matrix, B:Matrix, C:Matrix):Boolean {
+	public static def verifyMatMult(x:Long, y:Long, A:Matrix, B:Matrix, C:Matrix):Boolean {
 
 		val cv       = C(x,y);
 		var v:Double = 0.0D;
-		for (var k:Int=0; k<A.N; k++) v += A(x, k) * B(k, y);
+		for (var k:Long=0; k<A.N; k++) v += A(x, k) * B(k, y);
 		Console.OUT.printf("Check (%5d, %5d) Computed:%.8f Verified:%.8f\n", 
 						   x, y, cv, v);
 
@@ -102,11 +96,11 @@ public class VerifyTools {
 	 * when multiplication requires transpose of the first matrix.
 	 * 
 	 */
-	 public static def verifyTransMultMatrix(x:Int, y:Int, A:Matrix, B:Matrix, C:Matrix):Boolean {
+	 public static def verifyTransMultMatrix(x:Long, y:Long, A:Matrix, B:Matrix, C:Matrix):Boolean {
 		val cv   = C(x,y);
 		var v:Double = 0.0D;
 		
-		for (var k:Int=0; k<A.M; k++) v += A(k, x) * B(k, y);
+		for (var k:Long=0; k<A.M; k++) v += A(k, x) * B(k, y);
 		Console.OUT.printf("Check (%5d, %5d) Computed:%.8f Verified:%.8f\n", 
 						   x, y, cv, v);
 		val pass = MathTool.equals(v, cv);
@@ -121,11 +115,11 @@ public class VerifyTools {
 	 * when multiplication requires transpose of the second matrix.
 	 * 
 	 */
-	public static def verifyMatrixMultTrans(x:Int, y:Int, A:Matrix, B:Matrix, C:Matrix):Boolean {
+	public static def verifyMatrixMultTrans(x:Long, y:Long, A:Matrix, B:Matrix, C:Matrix):Boolean {
 		val cv   = C(x,y);
 		var v:Double = 0.0D;
 
-		for (var k:Int=0; k<A.N; k++) v += A(x, k) * B(y, k);
+		for (var k:Long=0; k<A.N; k++) v += A(x, k) * B(y, k);
 		Console.OUT.printf("Check (%5d, %5d) Computed:%.8f Verified:%.8f\n", 
 						   x, y, cv, v);
 
@@ -136,10 +130,8 @@ public class VerifyTools {
 		return pass;
 	}
 
-	//-------------------------------------------------------------------
-	// Test same tools
-	//-------------------------------------------------------------------
 
+	// Test same tools
 
 	/**
 	 * Test two matrices equal or not.
@@ -150,8 +142,8 @@ public class VerifyTools {
 	 */
 	public static def testSame(m1:Matrix, m2:Matrix(m1.M, m1.N)):Boolean {
 		
-		for (var c:Int=0; c< m1.N; c++)
-			for (var r:Int=0; r< m1.M; r++) {
+		for (var c:Long=0; c< m1.N; c++)
+			for (var r:Long=0; r< m1.M; r++) {
 				val v1=	m1(r,c);
 				val v2= m2(r,c);
 				if (MathTool.equals(v1, v2) == false) {
@@ -165,7 +157,6 @@ public class VerifyTools {
 		return true;
 	}
 
-
 	/**
 	 * Compare two matrices at a number of random positions
 	 *
@@ -174,15 +165,15 @@ public class VerifyTools {
 	 * @param n  -- number of random samplings
 	 * @return if all sampling elements in two matrices are same
 	 */	
-	public static def testSame(A:Matrix, B:Matrix, n:Int):Boolean {
+	public static def testSame(A:Matrix, B:Matrix, n:Long):Boolean {
 		if (A.M != B.M || A.N != B.N) {
 			Console.OUT.printf("Matrix demsion check fail!\n");
 			return false;
 		}
 		val rv = RandTool.getRandGen();
-		for (var i:Int=0; i<n; i++) {
-			val x = rv.nextInt(A.M);
-			val y = rv.nextInt(A.N);
+		for (var i:Long=0; i<n; i++) {
+			val x = rv.nextLong(A.M);
+			val y = rv.nextLong(A.N);
 			val av= A(x, y);
 			val bv= B(x, y); 
 			Console.OUT.printf("Check (%5d, %5d) src:%.8f target:%.8f\n", 
@@ -198,8 +189,6 @@ public class VerifyTools {
 		return true;
 	}
 
-
-
     /**
 	 * Check if all elements equal to a value
 	 *
@@ -208,8 +197,8 @@ public class VerifyTools {
 	 * @return true if all elements in matrix equal to v.
 	 */
 	public static def testSame(m:Matrix, v:Double):Boolean {
-		for (var c:Int=0; c< m.N; c++)
-			for (var r:Int=0; r< m.M; r++) {
+		for (var c:Long=0; c< m.N; c++)
+			for (var r:Long=0; r< m.M; r++) {
 				val v1=	m(r,c);
 				if (MathTool.equal(v1, v) == false) {
 					Console.OUT.println("Difference found at " + 
@@ -221,5 +210,4 @@ public class VerifyTools {
 			}
 		return true;
 	}
-
 }

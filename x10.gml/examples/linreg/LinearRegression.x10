@@ -5,11 +5,9 @@
  */
 package linreg;
 
-import x10.io.Console;
 import x10.util.Timer;
-//
+
 import x10.matrix.Debug;
-//
 import x10.matrix.Matrix;
 import x10.matrix.Vector;
 import x10.matrix.blas.DenseMatrixBLAS;
@@ -34,12 +32,11 @@ public class LinearRegression{
 	public val V:DistBlockMatrix;
 	public val b:Vector(V.N);
 	//Parammeters
-	public val iteration:Int;
+	public val iteration:Long;
 	static val lambda:Double = 0.000001;
 	
 	public val w:Vector(V.N);
 
-	//====================
 	val d_p:DupVector(V.N);
 	val p:Vector(V.N);
 	val Vp:DistVector(V.M);
@@ -57,7 +54,7 @@ public class LinearRegression{
 		iteration = it;
 		V =v;
 		b =b_ as Vector(V.N);
-		//----------------
+
 		Vp = DistVector.make(V.M, V.getAggRowBs());
 				
 		r  = Vector.make(V.N);
@@ -101,18 +98,18 @@ public class LinearRegression{
 		for (1..iteration) {
 			
 			d_p.sync();
-			//-------------------
+
 			// Parallel computing
-			//-------------------
+
 			ct = Timer.milliTime();
 			// 10: q=((t(V) %*% (V %*% p)) )
 			d_q.mult(Vp.mult(V, d_p), V);
 
 			parCompT += Timer.milliTime() - ct;
 			
-			//---------------------
+
 			// Sequential computing
-			//---------------------
+
 			ct = Timer.milliTime();
 			//q = q + lambda*p
 			q.scaleAdd(lambda, p);

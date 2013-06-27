@@ -2,11 +2,11 @@
  *  This file is part of the X10 Applications project.
  * 
  *  (C) Copyright IBM Corporation 2011.
+ *  (C) Copyright Australian National University 2013.
  */
 
-import x10.io.Console;
-
 import x10.matrix.Matrix;
+import x10.matrix.Vector;
 import x10.matrix.DenseMatrix;
 import x10.matrix.blas.DenseMatrixBLAS;
 import x10.matrix.MatrixMultXTen;
@@ -15,28 +15,22 @@ import x10.matrix.VerifyTools;
 
 /**
  * This class contains test cases for dense matrix multiplication.
- * <p>
- * 
- * <p>
  */
-
 public class TestMultDense{
 	public static def main(args:Rail[String]) {
 		val testcase = new MultiplyTest(args);
 		testcase.run();
 	}
-	static 
-	class MultiplyTest {
-		
-		public val M:Int;
-		public val N:Int;
-		public val K:Int;
+
+	static class MultiplyTest {
+		public val M:Long;
+		public val N:Long;
+		public val K:Long;
 		
 		public def this(args:Rail[String]) {
 			M = args.size > 0 ?Int.parse(args(0)):50;
-			N = args.size > 1 ?Int.parse(args(1)):M+1;
-			K = args.size > 2 ?Int.parse(args(2)):M+2;
-			
+			N = args.size > 1 ?Int.parse(args(1)):(M as Int)+1;
+			K = args.size > 2 ?Int.parse(args(2)):(M as Int)+2;
 		}
 		
 		public def run(): void {
@@ -49,6 +43,7 @@ public class TestMultDense{
 			ret &= (testDenseMult());
 			ret &= (testBlasMult());
 			ret &= (testMultDrivers());
+			ret &= (testMatMultVector());
 			//ret &= (mm.testSmallMult());
 			
 			if (ret)
@@ -56,8 +51,8 @@ public class TestMultDense{
 			else
 				Console.OUT.println("--------Dense matrix multiply Test failed!--------");
 		}
-		//------------------------------------------------
-		//------------------------------------------------
+
+
 		public def testMultAssociative():Boolean {
 			Console.OUT.printf("\nTest Dense matrix multiply associative: %dx%d * %dx%d * %dx%d\n",
 					M, K, K, N, N, M);
@@ -73,7 +68,6 @@ public class TestMultDense{
 			
 			val ret = d1.equals(d);
 			Console.OUT.printf("Result matrix: %dx%d\n", d.M, d.N);
-			//dc.print("Dense a*b=\n");
 			if (ret)
 				Console.OUT.println("Dense matrix multiply associative test passed!");
 			else
@@ -90,7 +84,6 @@ public class TestMultDense{
 			val d = (a + b) % c;
 			val d1= a % c + b % c;
 			val ret = d1.equals(d);
-			//dc.print("Dense a*b=\n");
 			if (ret)
 				Console.OUT.println("Dense matrix (a+b)*c = a*c+b*c test passed!");
 			else
@@ -196,6 +189,37 @@ public class TestMultDense{
 			
 			if (ret)
 				Console.OUT.println("BLAS == X10 Matrix == X10 Dense driver\n");
+			
+			return ret;
+		}
+
+        public def testMatMultVector():Boolean {
+			Console.OUT.printf("\nTest X10 Dense, Matrix-Vector, BLAS multiply driver: (%dx%d) * (%dx%d)\n",
+					M, K, K, N);
+			val a = DenseMatrix.make(M, K).initRandom();
+			val v = Vector.make(K).initRandom();
+			val c1 = Vector.make(M);
+			val c2 = Vector.make(M);
+
+			DenseMatrixBLAS.comp(a, v, c1, false);
+			DenseMultXTen.comp(a, v, c2, false);
+			
+			var ret:Boolean = true;
+			if (!c1.equals(c2)) {
+				Console.OUT.println("----- c = Av : BLAS != X10 Dense driver -----\n");
+				ret = false;
+			}
+
+			DenseMatrixBLAS.comp(a, v, c1, true);
+			DenseMultXTen.comp(a, v, c2, true);
+
+			if (!c1.equals(c2)) {
+				Console.OUT.println("----- c += Av : BLAS != X10 Dense driver -----\n");
+				ret = false;
+			}
+			
+			if (ret)
+				Console.OUT.println("BLAS == X10 Dense driver\n");
 			
 			return ret;
 		}

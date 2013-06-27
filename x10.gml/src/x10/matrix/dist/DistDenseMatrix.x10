@@ -11,33 +11,27 @@
 
 package x10.matrix.dist;
 
-import x10.compiler.Ifdef;
-import x10.compiler.Ifndef;
-import x10.compiler.Uninitialized;
-
-import x10.io.Console;
-import x10.util.Random;
+import x10.regionarray.Dist;
+import x10.regionarray.DistArray;
 import x10.util.Timer;
 
 import x10.matrix.Debug;
 import x10.matrix.Matrix;
 import x10.matrix.DenseMatrix;
 import x10.matrix.VerifyTools;
-
 import x10.matrix.block.Grid;
 import x10.matrix.block.DenseBlock;
 import x10.matrix.block.DenseBlockMatrix;
-
+import x10.matrix.comm.MatrixBcast;
+import x10.matrix.comm.MatrixGather;
+import x10.matrix.comm.MatrixScatter;
 import x10.matrix.dist.summa.SummaDense;
 import x10.matrix.dist.summa.SummaDenseMultSparse;
 import x10.matrix.dist.summa.SummaSparseMultDense;
 import x10.matrix.dist.summa.SummaSparse;
 
-import x10.matrix.comm.CommHandle;
-
-
-public type DistDenseMatrix(M:Int,N:Int)=DistDenseMatrix{self.M==M, self.N==N};
-public type DistDenseMatrix(M:Int)=DistDenseMatrix{self.M==M};
+public type DistDenseMatrix(M:Long,N:Long)=DistDenseMatrix{self.M==M, self.N==N};
+public type DistDenseMatrix(M:Long)=DistDenseMatrix{self.M==M};
 public type DistDenseMatrix(C:Matrix)=DistDenseMatrix{self==C};
 
 /**
@@ -48,19 +42,9 @@ public type DistDenseMatrix(C:Matrix)=DistDenseMatrix{self==C};
  * and column block id in the 2D partition.
  */
 public class DistDenseMatrix(grid:Grid){grid.M==M,grid.N==N} extends Matrix {
-
-	//==================================================================
-
 	public val dist:Dist(1);
 	public val distBs:DistArray[DenseBlock](1);
-  
-    //protected var isTransposed:Boolean=false;
-	//public def isTransposed() = isTransposed;
 
-	public var comm:CommHandle;
-	
-	//
-	//==================================================================
 	/**
 	 * Construct distributed dense matrix using specified matrix partitioning. 
 	 * The block distribution is unique.
@@ -73,16 +57,13 @@ public class DistDenseMatrix(grid:Grid){grid.M==M,grid.N==N} extends Matrix {
 		property(g);
 		dist = dbs.dist;	
 		distBs = dbs;
-		comm = new CommHandle();
 		//Debug.assure(dbs.dist.region.size() == g.size, 
 		//			 "Partition block number and distribution region's size not match");		
 		//Removing partition size = distribution size constrain 
 		//Allowing multiple blocks map to the same place.
 		//TODO: change all iteration methods.
 	}
-	//=============================================================
-	// Instance makers
-	//=============================================================
+
 	/**
 	 * Create distributed dense matrix using specified matrix partitioning and
 	 * block distribution
@@ -91,16 +72,15 @@ public class DistDenseMatrix(grid:Grid){grid.M==M,grid.N==N} extends Matrix {
 	 * @param  d  dense block array distribution
 	 */
 	public static def make(g:Grid, d:Dist(1)):DistDenseMatrix(g.M, g.N) {
-
 		val ddb = DistArray.make[DenseBlock](d);
-		finish for(val [p] :Point in ddb.dist) {
+		finish for([p] in ddb.dist) {
 			val rid = g.getRowBlockId(p);
 			val cid = g.getColBlockId(p);
 			val m   = g.rowBs(rid);
 			val n   = g.colBs(cid);
 			val roff= g.startRow(rid);
 			val coff= g.startCol(cid);
-			at (ddb.dist(p)) async {
+			at(ddb.dist(p)) async {
 				ddb(p) = DenseBlock.make(rid, cid, roff, coff, m, n);
 			}
 		}
@@ -113,8 +93,20 @@ public class DistDenseMatrix(grid:Grid){grid.M==M,grid.N==N} extends Matrix {
 	 * @param  g  matrix partitioning
 	 */
 	public static def make(g:Grid) : DistDenseMatrix(g.M,g.N) {
-		val d   = Dist.makeUnique();
+        val d = Dist.makeUnique();
 		return make(g, d);
+	}
+
+	/**
+	 * For testing purpose. 
+	 *
+	 * <p> Create distributed dense matrix in specified partitioning and
+	 * elements are assigned with random values.
+	 */
+	public static def makeRand(g:Grid) : DistDenseMatrix(g.M,g.N) {
+        val dstmat = make(g);
+		dstmat.initRandom();
+		return dstmat;
 	}
 
 	/**
@@ -128,21 +120,8 @@ public class DistDenseMatrix(grid:Grid){grid.M==M,grid.N==N} extends Matrix {
 	 * @param m  number of rows
 	 * @param n  number of columns
 	 */		
-	public static def makeRand(m:Int, n:Int) : DistDenseMatrix(m,n) {
+	public static def makeRand(m:Long, n:Long) : DistDenseMatrix(m,n) {
 		val dstmat = make(m, n); 
-		dstmat.initRandom();
-		return dstmat;
-	}
-	
-	/**
-	 * For testing purpose. 
-	 *
-	 * <p> Create distributed dense matrix in specified partitioning and
-	 * elements are assigned with random values.
-	 */
-	public static def makeRand(g:Grid) : DistDenseMatrix(g.M,g.N) {
-		val d   = Dist.makeUnique();
-		val dstmat = make(g, d);
 		dstmat.initRandom();
 		return dstmat;
 	}
@@ -155,7 +134,7 @@ public class DistDenseMatrix(grid:Grid){grid.M==M,grid.N==N} extends Matrix {
 	 * @param  m  number of rows in the matrix
 	 * @param  n  number of columns in the matrix
 	 */
-	public static def make(m:Int, n:Int) : DistDenseMatrix(m,n) {
+	public static def make(m:Long, n:Long) : DistDenseMatrix(m,n) {
 		val g =  Grid.make(m, n, Place.MAX_PLACES);
 		return make(g);
 	}
@@ -163,53 +142,26 @@ public class DistDenseMatrix(grid:Grid){grid.M==M,grid.N==N} extends Matrix {
 	/**
 	 * Create dist dense matrix using specified DistArray and partitioning
 	 * 
-	 * @param  gp     matrix paritinging
+	 * @param  gp     matrix partitioning
 	 * @param  da     Distributed arrays in all placese
 	 */
 	public static def make(gp:Grid, 
-						da:DistArray[Array[Double](1){rail}](1)): DistDenseMatrix(gp.M,gp.N) {
+						da:DistArray[Rail[Double]](1)): DistDenseMatrix(gp.M,gp.N) {
 		val ddb = DistArray.make[DenseBlock](da.dist);
-		finish for(val [p] :Point in da.dist) {
+		finish for([p] in da.dist) {
 			val rid = gp.getRowBlockId(p);
 			val cid = gp.getColBlockId(p);
 			val m   = gp.rowBs(rid);
 			val n   = gp.colBs(cid);
 			val roff= gp.startRow(rid);
 			val coff= gp.startCol(cid);
-			at (ddb.dist(p)) async {
-				val den = new DenseMatrix(m, n, da(p) as Array[Double](1){rail});
+			at(ddb.dist(p)) async {
+				val den = new DenseMatrix(m, n, da(p) as Rail[Double]);
 				ddb(p) = new DenseBlock(rid, cid, roff, coff, den);
 			}
 		}
-		return new DistDenseMatrix(gp, ddb) ;		
+        return new DistDenseMatrix(gp, ddb);		
 	}
- 
-	/**
-	 * Create dist dense matrix using specified DistArray and partitioning
-	 * 
-	 * @param  gp     matrix paritinging
-	 * @param  da     Distributed arrays in PlaceLocalHandle
-	 */
-	public static def make(gp:Grid, 
-			da:PlaceLocalHandle[Array[Double](1){rail}]): DistDenseMatrix(gp.M,gp.N) {
-		val ddb = DistArray.make[DenseBlock](Dist.makeUnique());
-		finish for(val [p] :Point in ddb.dist) {
-			val rid = gp.getRowBlockId(p);
-			val cid = gp.getColBlockId(p);
-			val m   = gp.rowBs(rid);
-			val n   = gp.colBs(cid);
-			val roff= gp.startRow(rid);
-			val coff= gp.startCol(cid);
-			at (ddb.dist(p)) async {
-				val den = new DenseMatrix(m, n, da() as Array[Double](1){rail});
-				ddb(p) = new DenseBlock(rid, cid, roff, coff, den);
-			}
-		}
-		return new DistDenseMatrix(gp, ddb) ;		
-	}
-	
-	
-	//-----------------------------------------------------------------
 
 	/**
 	 * Initialize distributed dense-block matrix with a constant value
@@ -217,8 +169,7 @@ public class DistDenseMatrix(grid:Grid){grid.M==M,grid.N==N} extends Matrix {
 	 * @param ival     initial value for all elements in matrix
 	 */
 	public def init(ival:Double):DistDenseMatrix(this) {
-		
-		finish ateach (val [p] :Point in distBs) {
+		finish ateach(p in distBs) {
 			distBs(p).dense.init(ival);
 		}
 		return this;
@@ -230,42 +181,38 @@ public class DistDenseMatrix(grid:Grid){grid.M==M,grid.N==N} extends Matrix {
 	 * @param f    The function to use to initialize the matrix, given global row and column index
 	 * @return this object
 	 */
-	public def init(f:(Int,Int)=>Double): DistDenseMatrix(this) {
-	
-		finish for (var cb:Int=0; cb<grid.numColBlocks; cb++) {
-			for (var rb:Int=0; rb<grid.numRowBlocks; rb++) {
+	public def init(f:(Long,Long)=>Double): DistDenseMatrix(this) {
+		finish for (var cb:Long=0; cb<grid.numColBlocks; cb++) {
+			for (var rb:Long=0; rb<grid.numRowBlocks; rb++) {
 				val pid = grid.getBlockId(rb, cb);
-				async at(distBs.dist(pid)) {
+				at(distBs.dist(pid)) async {
 					distBs(pid).init(f);
 				}
 			}
 		}
 		return this;
 	}
-	
-	//------------------------------------------------------------------
+
 	/**
 	 * Initialize distributed dense-block matrix with random values
 	 * 
 	 * @param lb  --- lower bound of random value
 	 * @param up  --- upper bound of random value
 	 */
-	public def initRandom(lb:Int, ub:Int):DistDenseMatrix(this) {
-		finish ateach (val [p] :Point in distBs) {
+	public def initRandom(lb:Long, ub:Long):DistDenseMatrix(this) {
+		finish ateach(p in distBs) {
 			distBs(p).dense.initRandom(lb, ub);
 		}
 		return this;
 	}
 	
 	public def initRandom():DistDenseMatrix(this) {
-		finish ateach (val [p] :Point in distBs) {
+		finish ateach(p in distBs) {
 			distBs(p).dense.initRandom();
 		}
 		return this;
 	}
-	//==================================================================
-	// Matrix data allocation
-	//==================================================================
+
 	/**
 	 * Make a copy of myself. 
 	 */
@@ -273,7 +220,7 @@ public class DistDenseMatrix(grid:Grid){grid.M==M,grid.N==N} extends Matrix {
 		val dbs  = DistArray.make[DenseBlock](this.dist);
 		val dden = new DistDenseMatrix(this.grid, dbs);
 
-		finish ateach(val [p] :Point in this.dist) {
+		finish ateach([p] in this.dist) {
 			dbs(p) = this.distBs(p).clone();
 		}
 		return dden;
@@ -285,36 +232,33 @@ public class DistDenseMatrix(grid:Grid){grid.M==M,grid.N==N} extends Matrix {
 	 * @param m number of rows in matrix.
 	 * @param n number of columns in matrix
 	 */
-	public  def alloc(m:Int, n:Int):DistDenseMatrix(m,n) {
+	public  def alloc(m:Long, n:Long):DistDenseMatrix(m,n) {
 		//Debug.exit("Allocation fail, matrix partition is unknown");
 		val g =  Grid.make(m, n, Place.MAX_PLACES);
 		val nm = DistDenseMatrix.make(g);
 		return nm;
     }
+
 	/**
 	 * Create a new distributed dense-block instance using the same
 	 * matrix dimension and partitioning
 	 */
 	public  def alloc():DistDenseMatrix(M,N) {
-
 		val ddb = DistArray.make[DenseBlock](dist);
-		finish ateach(val [p] :Point in ddb.dist) {
+		finish ateach([p] in ddb.dist) {
 			ddb(p) = this.distBs(p).alloc();
 		}
 		return new DistDenseMatrix(grid, ddb);
     }
-	//-------------------------------------------------------
-	// Copy
-	//-------------------------------------------------------
-	public  def copyTo(that:DistDenseMatrix):void {
+
+	public def copyTo(that:DistDenseMatrix):void {
 		Debug.assure(this.grid.equals(that.grid));		
-		finish ateach(val [p] :Point in this.dist) {
+		finish ateach([p] in this.dist) {
 			val mypid = here.id();
 			val smat  = this.getMatrix(mypid);
 			smat.copyTo(that.getMatrix(mypid) as DenseMatrix(smat.M, smat.N));
 		}
 	}
-	
 	
 	/**
 	 * Copy data from distributed dense matrix in all places
@@ -326,7 +270,7 @@ public class DistDenseMatrix(grid:Grid){grid.M==M,grid.N==N} extends Matrix {
 		Debug.assure(this.grid.equals(blkden.grid), "partitioning is not same");
 			
 		/* Timing */ val stt = Timer.milliTime();
-		comm.gather(this.distBs, blkden.listBs);
+		MatrixGather.gather(this.distBs, blkden.listBs);
 		/* Timing */ blkden.listBs(here.id()).commTime += Timer.milliTime() - stt;
 	}
 
@@ -350,27 +294,26 @@ public class DistDenseMatrix(grid:Grid){grid.M==M,grid.N==N} extends Matrix {
 	 * @param  denmat   the target dense matrix.
 	 */
 	public def copyTo(denmat:DenseMatrix(M,N)):void {
-		Debug.assure(grid.numRowBlocks==1||N==1, 
+		Debug.assure(grid.numRowBlocks==1L||N==1L, 
 				"Source matrix is not single row block partitioning or matrix is not a vector");
 
-		comm.gatherRowBs(grid, distBs, denmat);
+		MatrixGather.gatherRowBs(grid, distBs, denmat);
 	}
 
-	
 	/**
 	 * Copy data from distributed dense-block matrix in all places to duplicated dense matrix
 	 *
 	 * @param ddm      duplicated dense matrix
 	 */
 	public def copyTo(dupden:DupDenseMatrix(M,N)):void {
-		Debug.assure(grid.numRowBlocks==1||N==1,
+		Debug.assure(grid.numRowBlocks==1L||N==1L,
 					"Number of row blocks is not 1 or matrix is not a vector");
 
 		/* Timing */ val stt = Timer.milliTime();
 		//Debug.flushln("Starting gathering row Bs");
-		comm.gatherRowBs(grid, distBs, dupden.local());
+		MatrixGather.gatherRowBs(grid, distBs, dupden.local());
 		//Debug.flushln("Starting bcast gathered result");
-		comm.bcast(dupden.dupMs);
+		MatrixBcast.bcast(dupden.dupMs);
 		//Debug.flushln("Done bcast");
 		/* Timing */ dupden.commTime += Timer.milliTime() - stt;
 	}
@@ -384,7 +327,7 @@ public class DistDenseMatrix(grid:Grid){grid.M==M,grid.N==N} extends Matrix {
 		Debug.assure(grid.equals(bdm.grid),	"block partitioning mismatch");
 
 		/* Timing */ val stt = Timer.milliTime();
-		comm.scatter(bdm.listBs, distBs);
+		MatrixScatter.scatter(bdm.listBs, distBs);
 		/* Timing */ distBs(here.id()).commTime += Timer.milliTime() - stt;
 	}
 	
@@ -395,16 +338,14 @@ public class DistDenseMatrix(grid:Grid){grid.M==M,grid.N==N} extends Matrix {
 	 * @param den      source dense matrix
 	 */
 	public def copyFrom(den:DenseMatrix(M,N)):void {
-		
-			Debug.assure(grid.numRowBlocks==1||N==1,	
+        Debug.assure(grid.numRowBlocks==1L||N==1L,	
 					"block partitioning is not single row block partitioning or matrix is not a vector");
 		/* Timing */ val stt = Timer.milliTime();
-		comm.scatterRowBs(grid, den, distBs);
+		MatrixScatter.scatterRowBs(grid, den, distBs);
 		/* Timing */ distBs(here.id()).commTime += Timer.milliTime() - stt;
 	}
 	
 	public def copyTo(mat:Matrix(M,N)): void {
-		
 		if (mat instanceof DistDenseMatrix)
 			copyTo(mat as DistDenseMatrix);
 		else if (mat instanceof DenseBlockMatrix)
@@ -415,43 +356,43 @@ public class DistDenseMatrix(grid:Grid){grid.M==M,grid.N==N} extends Matrix {
 			Debug.exit("CopyTo: target matrix is not supported");
 	}
 	
-	//================================================================
+
 	// Data access 
-	//================================================================	
+
 	/**
 	 * Return matrix at the specified index in the DistArray list
 	 */
-	public def getBlock(i:Int):DenseBlock {
+	public def getBlock(i:Long):DenseBlock {
 		val sb = at(this.distBs.dist(i)) this.distBs(i);
 		return sb;
 	}
-	//--------
+
 	/**
 	 * Return dense block at the specified row and column block.
 	 */
-	public def getBlock(rp:Int, cp:Int): DenseBlock {
+	public def getBlock(rp:Long, cp:Long): DenseBlock {
 		val bid = this.grid.getBlockId(rp, cp);
 		return getBlock(bid);
 	}
-	//--------
-	public def setBlock(i:Int, dm:DenseMatrix) : void {
+
+	public def setBlock(i:Long, dm:DenseMatrix) : void {
 		val r = grid.getRowBlockId(i);
 		val c = grid.getColBlockId(i);
 		val roff = grid.startRow(r);
 		val coff = grid.startCol(c);
-		at (this.distBs.dist(i)) {
+		at(this.distBs.dist(i)) {
 			distBs(i) = new DenseBlock(r, c, roff, coff, dm);
 		}
 	}
 	
 	/**
-	 *Return dense matrix at the specified partition coordinate.  
+	 * Return dense matrix at the specified partition coordinate.  
 	 *
-	 * @param  x      the x block in row blocks in grid partition
-	 * @param  y      the y block in column blocks in grid partition
+	 * @param  r      the r block in row blocks in grid partition
+	 * @param  c      the c block in column blocks in grid partition
 	 */
-	public def getMatrix(x:Int, y:Int) <: DenseMatrix = 
-		this.distBs(grid.getBlockId(x, y)).getMatrix();
+	public def getMatrix(r:Long, c:Long) <: DenseMatrix = 
+		this.distBs(grid.getBlockId(r, c)).getMatrix();
 
 	/**
 	 * Return the local portion of distributed matrix at here
@@ -464,27 +405,27 @@ public class DistDenseMatrix(grid:Grid){grid.M==M,grid.N==N} extends Matrix {
 	 *
 	 * @param  p     the index p at the distributed array
 	 */
-	public def getMatrix(p:Int) <: DenseMatrix = this.distBs(p).getMatrix();
+	public def getMatrix(p:Long) <: DenseMatrix = this.distBs(p).getMatrix();
 
 	public def getMatrix() <: DenseMatrix = this.distBs(here.id()).getMatrix();
 	
 	/**
-	 * Return element value at (x, y)
+	 * Return element value at(x, y)
 	 */
-    public  operator this(x:Int, y:Int):Double {
+    public  operator this(x:Long, y:Long):Double {
 		val loc = grid.find(x, y);
 		val bid = grid.getBlockId(loc(0), loc(1));
-		val dv = at (this.distBs.dist(bid)) this.distBs(bid)(loc(2), loc(3));
+		val dv = at(this.distBs.dist(bid)) this.distBs(bid)(loc(2), loc(3));
 		return dv;
 	}
 
 	/**
-	 * Set value v at (x, y) 
+	 * Set value v at(x, y) 
 	 */
-	public  operator this(x:Int,y:Int)=(v:Double):Double {
+	public  operator this(x:Long,y:Long)=(v:Double):Double {
 		val loc = grid.find(x, y);
 		val bid = grid.getBlockId(loc(0), loc(1));
-		at (this.distBs.dist(bid)) this.getMatrix(bid)(loc(2), loc(3))=v;
+		at(this.distBs.dist(bid)) this.getMatrix(bid)(loc(2), loc(3))=v;
 		return v;
 	}
 
@@ -492,7 +433,7 @@ public class DistDenseMatrix(grid:Grid){grid.M==M,grid.N==N} extends Matrix {
 	 * Reset the whole matrix
 	 */
 	public  def reset():void {
-		finish ateach (val [p]:Point in this.distBs) {
+		finish ateach([p] in this.distBs) {
 			local().reset();
 		}
 	}
@@ -501,30 +442,22 @@ public class DistDenseMatrix(grid:Grid){grid.M==M,grid.N==N} extends Matrix {
 	 * For profiling purpose. Reset commu and computing time stamps.
 	 */
 	public def resetTime():void {
-		finish ateach (val [p]:Point in this.distBs) {
+		finish ateach([p] in this.distBs) {
 			distBs(here.id()).reset();
 		}
 	}
-	
- 	//====================================================================
-	// Cellwise operation
-	//====================================================================
 
 	/**
 	 * For each i,j, replace this(i,j) with this(i,j)*a.
 	 */
  	public def scale(a:Double) {
-		finish ateach(val [p] :Point in this.distBs) {
+		finish ateach([p] in this.distBs) {
 			/* Timing */ val st:Long = Timer.milliTime();
 			local().scale(a);
 			/* Timing */ distBs(p).calcTime += Timer.milliTime() - st;
 		}	
 		return this;
     }
-
-	//--------------------------------------
-	// Cellwise addition
-	//--------------------------------------
 
 	/**
 	 * Cellwise addition. A must be a DistDenseMatrix instance
@@ -569,9 +502,6 @@ public class DistDenseMatrix(grid:Grid){grid.M==M,grid.N==N} extends Matrix {
 		throw new UnsupportedOperationException("Not implemented");
 	}
 
-	//-------------------------------
-	// Cellwise subtraction
-	//-------------------------------
 
 	/**
 	 * Cellwise subtraction. A must be a DistDenseMatrix instance
@@ -615,10 +545,6 @@ public class DistDenseMatrix(grid:Grid){grid.M==M,grid.N==N} extends Matrix {
 		}
 		return this;
 	}	
-	
-	//-------------------------------
-	// Cellwise multiplication
-	//-------------------------------
 
 	/**
 	 * Cellwise multiplication. Input A must be a DistDenseMatrix instance
@@ -655,10 +581,6 @@ public class DistDenseMatrix(grid:Grid){grid.M==M,grid.N==N} extends Matrix {
 		throw new UnsupportedOperationException("Not implemented");
 	}	
 
-	//-------------------------------
-	// Cellwise division
-	//-------------------------------
-	
 	/**
 	 * Perform cell-wise division. Input A must be defined over the same grid as this.
 	 * 
@@ -690,9 +612,6 @@ public class DistDenseMatrix(grid:Grid){grid.M==M,grid.N==N} extends Matrix {
 		throw new UnsupportedOperationException("Not implemented");
 	}
 
-	//====================================================================
-	// Multiplication: matrix * matrix
-	//====================================================================
 	/**
 	 * Perform this = A &#42 B or this += A &#42 B using SUMMA. Only distributed matrices are supported. 
 	 */
@@ -745,9 +664,9 @@ public class DistDenseMatrix(grid:Grid){grid.M==M,grid.N==N} extends Matrix {
 		
 		throw new UnsupportedOperationException("Not supported");
     }     
-	//==================================================================
+
 	// DistDense * DistDense in SUMMA
-	//=================================================================	
+
 	/**
 	 * Multiply two distributed dense matrices using SUMMA.
 	 * The panel size is dertermined by the size of input matrices
@@ -772,9 +691,9 @@ public class DistDenseMatrix(grid:Grid){grid.M==M,grid.N==N} extends Matrix {
 		return this;
 	}	
 	
-	//==================================================================
+
 	// DistDense * DistSparse in SUMMA
-	//=================================================================	
+
 	/**
 	 * Perform matrix multiplication between distributed dense and distributed sparse.
 	 * Using SUMMA algorithm, the panel size is dertermined by the size of input matrices
@@ -802,9 +721,9 @@ public class DistDenseMatrix(grid:Grid){grid.M==M,grid.N==N} extends Matrix {
 		SummaDenseMultSparse.multTrans(ps, plus?1.0:0.0, A, B, this);
 		return this;
 	}	
-	//==================================================================
+
 	// DistSparse * DistSparse in SUMMA
-	//=================================================================	
+
 	/**
 	 * Perform matrix multiplication between two distributed sparse matrix
 	 * Using SUMMA algorithm, the panel size is dertermined by the size of input matrices
@@ -833,9 +752,9 @@ public class DistDenseMatrix(grid:Grid){grid.M==M,grid.N==N} extends Matrix {
 		return this;
 	}	
 	
-	//==================================================================
+
 	// DistSparse * DistDense in SUMMA
-	//=================================================================	
+
 	/**
 	 * Perform matrix multiplication between distributed sparse and distributed dense matrix.
 	 * Using SUMMA algorithm, the panel size is dertermined by the size of input matrices
@@ -864,9 +783,9 @@ public class DistDenseMatrix(grid:Grid){grid.M==M,grid.N==N} extends Matrix {
 		return this;
 	}	
 	
-	//=================================================================
+
 	// DistDense * DupDense					 
-	//=================================================================	
+
 	/**
 	 * Perform distributed dense times duplicated dense matrix.
 	 * The 
@@ -896,7 +815,6 @@ public class DistDenseMatrix(grid:Grid){grid.M==M,grid.N==N} extends Matrix {
 			A:DistSparseMatrix(this.M), 
 			B:DupDenseMatrix(A.N, this.N)) = mult(A, B, false);
 	
-	//				
 	public def multTrans(
 			A:DistSparseMatrix(this.M), 
 			B:DupDenseMatrix(this.N,A.N),
@@ -911,9 +829,9 @@ public class DistDenseMatrix(grid:Grid){grid.M==M,grid.N==N} extends Matrix {
 			B:DupDenseMatrix(this.N,A.N)):DistDenseMatrix(this) 			
 		= multTrans(A, B, false);
 
-	//=================================================================
-	// Operator overlead			 
-	//=================================================================	
+
+	// Operator overload			 
+
 	public operator - this = this.clone().scale(-1.0) as DistDenseMatrix(M,N);
 	public operator (v:Double) + this = this.clone().cellAdd(v) as DistDenseMatrix(M,N);
 	public operator this + (v:Double) = this.clone().cellAdd(v) as DistDenseMatrix(M,N);
@@ -925,26 +843,19 @@ public class DistDenseMatrix(grid:Grid){grid.M==M,grid.N==N} extends Matrix {
 	//public operator (v:Double) / this = this.clone().cellDivBy(v) as DistDenseMatrix(M,N);
 	
 	public operator this * (alpha:Double) = this.clone().scale(alpha) as DistDenseMatrix(M,N);
-	public operator this * (alpha:Int)    = this.clone().scale(alpha as Double) as DistDenseMatrix(M,N);
 	public operator (alpha:Double) * this : DistDenseMatrix(M,N) = this * alpha;
-	public operator (alpha:Int) * this    : DistDenseMatrix(M,N) = this * (alpha as Double);
 	
 	public operator this + (that:DistDenseMatrix(M,N)) = this.clone().cellAdd(that) as DistDenseMatrix(M,N);
 	public operator this - (that:DistDenseMatrix(M,N)) = this.clone().cellSub(that) as DistDenseMatrix(M,N);
 	public operator this * (that:DistDenseMatrix(M,N)) = this.clone().cellMult(that) as DistDenseMatrix(M,N);
 	public operator this / (that:DistDenseMatrix(M,N)) = this.clone().cellDiv(that) as DistDenseMatrix(M,N);
 
-	
-	//==================================================================
 	// Profiling
-	//==================================================================
 	public def getCalcTime():Long = this.distBs(here.id()).calcTime;
 	public def getCommTime():Long = this.distBs(here.id()).commTime;
 
-
-	//==================================================================
 	// Utils
-	//==================================================================
+
 	/**
 	 * Check matrix is DistDenseMatrix object or not
 	 */
@@ -970,36 +881,11 @@ public class DistDenseMatrix(grid:Grid){grid.M==M,grid.N==N} extends Matrix {
 
 	public def toStringBlock() :String {
 		var output:String = "-------- Dist Dense Matrix size:["+M+"x"+N+"] ---------\n";
-		for (val [p]:Point in this.dist) {
+		for ([p] in this.dist) {
 			output += "At place " + p +": ";
-			output += at (distBs.dist(p)) { this.distBs(p).getMatrix().toString()};
+			output += at(distBs.dist(p)) { this.distBs(p).getMatrix().toString()};
 		}
 		output += "--------------------------------------------------\n";
 		return output;
 	}
-
-	public def print() {
-		print("");
-	}
-	
-	public def print(msg:String) {
-		Console.OUT.print(msg+toStringBlock());
-		Console.OUT.flush();
-	}
-	
-	public def printBlock() { printBlock("");}
-	public def printBlock(msg:String) {
-		Console.OUT.print(msg);
-		Console.OUT.print(this.toStringBlock());
-		Console.OUT.flush();
-	}
-
-	public def debugPrintBlock() { debugPrintBlock("");}
-	public def debugPrintBlock(msg:String) {
-		if (Debug.disable) return;
-		val dbstr:String = msg+ this.toStringBlock();
-		Debug.println(dbstr);
-		Debug.flush();
-	}
-
 }

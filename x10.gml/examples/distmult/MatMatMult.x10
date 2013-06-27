@@ -4,8 +4,6 @@
  *  (C) Copyright IBM Corporation 2012.
  */
 
-import x10.io.Console;
-
 import x10.matrix.Debug;
 import x10.matrix.MathTool;
 import x10.matrix.DenseMatrix;
@@ -23,9 +21,7 @@ import x10.matrix.distblock.DistDistMult;
 import x10.matrix.distblock.summa.SummaMult;
 
 /**
-   <p>
  * Examples of distributed block matrix
-   <p>
  */
 public class MatMatMult {
 	
@@ -34,39 +30,34 @@ public class MatMatMult {
 		testcase.run();
 	}
 	public val nzp:Double;
-	public val M:Int;
-	public val N:Int;
-	public val K:Int;
-	public val bM:Int;
-	public val bK:Int;
-	public val bN:Int;
+	public val M:Long;
+	public val N:Long;
+	public val K:Long;
+	public val bM:Long;
+	public val bK:Long;
+	public val bN:Long;
 	public val vrf:Boolean;
 
     public def this(args:Rail[String]) {
 		M = args.size > 0 ?Int.parse(args(0)):30;
-		N = args.size > 1 ?Int.parse(args(1)):M+1;
-		K = args.size > 2 ?Int.parse(args(2)):M+2;
-		bM= args.size > 3 ?Int.parse(args(3)):Place.MAX_PLACES+1;
-		bK= args.size > 4 ?Int.parse(args(4)):bM+1;
-		bN= args.size > 5 ?Int.parse(args(5)):Place.MAX_PLACES+15;
+		N = args.size > 1 ?Int.parse(args(1)):(M as Int)+1;
+		K = args.size > 2 ?Int.parse(args(2)):(M as Int)+2;
+		bM= args.size > 3 ?Int.parse(args(3)):(Place.MAX_PLACES as Int)+1;
+		bK= args.size > 4 ?Int.parse(args(4)):(bM as Int)+1;
+		bN= args.size > 5 ?Int.parse(args(5)):(Place.MAX_PLACES as Int)+15;
 		nzp = args.size > 6 ?Double.parse(args(6)):0.9;
 		vrf = args.size > 7 ?false:true;
 		
 		Console.OUT.printf("Matrix dimensions M:%d K:%d N:%d, blocking:(%d, %d) \n", M, N, K, bM, bN);
-		
 	}
 
     public def run ():void {
-    	
 		var ret:Boolean = true;
- 		// Set the matrix function
 		ret &= (demoDistDupMult());
 		ret &= (demoDistDistMultToDup());
 		ret &= (demoDistDistMultToDup2());
 		ret &= (demoDistDistSUMMA());
-
 	}
-
 
     public def demoDistDupMult():Boolean{
     	Console.OUT.println("Starting Dist-Dup block matrix multiply. Dist matrix must have vertical distribution");

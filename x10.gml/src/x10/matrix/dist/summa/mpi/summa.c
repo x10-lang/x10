@@ -100,7 +100,6 @@ void pdgemm( int  m, int n, int k,      /* global matrix dimensions */
 				           row and column, resp., for rank-1 update*/
   int ii, jj;           /* local index (on icurrow and icurcol, resp.) 
 							of row and column for rank-1 update  */
-  double *temp;         /* temporary pointer used in pdgemm_abt */
   double *p;            /* get myrow, mycol  */
   //-----------------------------------
   double ut = 0.0;
@@ -129,8 +128,6 @@ void pdgemm( int  m, int n, int k,      /* global matrix dimensions */
   ii = 0;
   jj = 0;
   icurcol = 0;  
-  /* malloc temp space for summation */
-  //temp = (double *) malloc( m_c[ myrow]*nb*sizeof(double) );
   //printf("Start SUMMA iteration\n"); fflush(stdout);
 
   for ( kk=0; kk<k; kk+=iwrk)

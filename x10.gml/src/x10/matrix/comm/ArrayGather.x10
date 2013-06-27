@@ -11,17 +11,11 @@
 
 package x10.matrix.comm;
 
-import x10.io.Console;
-import x10.util.Timer;
-import x10.util.Pair;
-
 import x10.compiler.Ifdef;
 import x10.compiler.Ifndef;
-import x10.compiler.Uninitialized;
 
 import x10.matrix.Debug;
 import x10.matrix.comm.mpi.WrapMPI;
-import x10.matrix.sparse.CompressArray;
 
 /**
  * Gather operations collects data arrays distributed in all places to
@@ -37,16 +31,6 @@ import x10.matrix.sparse.CompressArray;
  * run command "make help" at the root directory of GML library.
  */
 public class ArrayGather extends ArrayRemoteCopy {
-	//==============================================
-	// Constructor
-	//==============================================
-	public def this() {
-		super();
-	}
-
-	//==============================================
-	// Remote data access via PlaceLocalHandle
-	//==============================================
 	/**
 	 * Gather distributed arrays from all places to here
 	 * at here.
@@ -56,18 +40,18 @@ public class ArrayGather extends ArrayRemoteCopy {
 	 */
 	public static def gather(
 			src:DataArrayPLH, 
-			dst:Array[Array[Double](1)](1)) : void {
+			dst:Rail[Rail[Double]]) : void {
 		
 		val nb = Place.MAX_PLACES;
 		Debug.assure(nb==dst.size, 
 		"Number blocks in dist and local array not match");
 		
-		finish for (var bid:Int=0; bid<nb; bid++) {
+		finish for (var bid:Long=0; bid<nb; bid++) {
 			val dstbuf = dst(bid);
 			
 			if (bid == here.id()) {
 				val srcbuf = src();
-				Array.copy(srcbuf, 0, dstbuf, 0, dstbuf.size);
+				Rail.copy(srcbuf, 0L, dstbuf, 0L, dstbuf.size);
 
 			} else {
 
@@ -82,14 +66,9 @@ public class ArrayGather extends ArrayRemoteCopy {
 		}
 	}
 
-
-	//------------------------------------------------------------
-	// Gather from single row blocks partitioning
-	//------------------------------------------------------------
-
 	/**
 	 * Gather distributed arrays from all places to here and store 
-	 * in a continous memory space
+	 * in a continuous memory space
 	 *
 	 * @param src    distributed storage of source arrays on PlaceLocalHandle
 	 * @param dst    storage array for gather result
@@ -97,8 +76,8 @@ public class ArrayGather extends ArrayRemoteCopy {
 	 */
 	public static def gather( 
 			src:DataArrayPLH, 
-			dst:Array[Double](1),
-			gp:Array[Int](1)) : void {
+			dst:Rail[Double],
+			gp:Rail[Long]) : void {
 
 		@Ifdef("MPI_COMMU") {
 			mpiGather(src, dst, gp);
@@ -108,7 +87,6 @@ public class ArrayGather extends ArrayRemoteCopy {
 		}
 	}
 
-	//
 	/**
 	 * Gather distributed arrays from all places to here
 	 * by using mpi gather routine.
@@ -119,25 +97,24 @@ public class ArrayGather extends ArrayRemoteCopy {
 	 */
 	public static def mpiGather(
 			src:DataArrayPLH, 
-			dst:Array[Double](1),
-			szlist:Array[Int](1)):void {
+			dst:Rail[Double],
+			szlist:Rail[Long]):void {
 		
 		@Ifdef("MPI_COMMU") {
-
 			val root = here.id();
-			finish 	{ 
-				for(val [p] in WrapMPI.world.dist) {
+			finish { 
+				for([p] in WrapMPI.world.dist) {
 					val datcnt = szlist(p);
 					if (p != root) {
-						at (WrapMPI.world.dist(p)) async {
+						at(WrapMPI.world.dist(p)) async {
 							val srcbuf = src();
 							/*******************************************/
 							// Not working
-							//val tmpbuf:Array[Double](1)= null; //fake
-							//val tmplst:Array[Int](1)=null;//   //fake
+							//val tmpbuf= null; //fake
+							//val tmplst=null;//   //fake
 							/*******************************************/
-							val tmpbuf = new Array[Double](0); //fake
-							val tmplst = new Array[Int](0);   //fake
+							val tmpbuf = new Rail[Double](0); //fake
+							val tmplst = new Rail[Long](0);   //fake
 							//Debug.flushln("P"+p+" starting non root gather :"+datcnt);
 							WrapMPI.world.gatherv(srcbuf, 0, datcnt, tmpbuf, 0, tmplst, root);
 						}
@@ -168,14 +145,14 @@ public class ArrayGather extends ArrayRemoteCopy {
 	 */
 	public static def x10Gather(
 			src:DataArrayPLH, 
-			dstbuf:Array[Double](1),
-			gp:Array[Int](1)): void {
+			dstbuf:Rail[Double],
+			gp:Rail[Long]): void {
 
 		Debug.assure(gp.size <= Place.MAX_PLACES, 
 				"Number of segments "+gp.size+" exceeds number of places "+Place.MAX_PLACES);
 		val root = here.id();
-		var off:Int=0;
-		for (var cb:Int=0; cb<gp.size; cb++) {
+		var off:Long=0;
+		for (var cb:Long=0; cb<gp.size; cb++) {
 			val datcnt = gp(cb);
 			
 			if (cb != root) {
@@ -183,17 +160,15 @@ public class ArrayGather extends ArrayRemoteCopy {
 			} else {
 				//Make local copying
 				val srcbuf = src();
-				Array.copy(srcbuf, 0, dstbuf, off, datcnt);
+				Rail.copy(srcbuf, 0L, dstbuf, off, datcnt);
 			}
 			off += datcnt;
 		}
 	}
 	
-	//=======================================
 	//util
-	//=======================================
 	public static def verify(
-			src:DataArrayPLH, buf:Array[Double](1), 
-			szlist:Array[Int](1)):Boolean =
+			src:DataArrayPLH, buf:Rail[Double], 
+			szlist:Rail[Long]):Boolean =
 			ArrayScatter.verify(buf, src, szlist);	
 }

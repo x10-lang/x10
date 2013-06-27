@@ -12,20 +12,12 @@
 
 package x10.matrix.distblock;
 
-import x10.util.ArrayList;
-import x10.compiler.Inline;
-
 import x10.matrix.Matrix;
 import x10.matrix.DenseMatrix;
-import x10.matrix.sparse.SparseCSC;
 import x10.matrix.Vector;
 import x10.matrix.VectorMult;
-
 import x10.matrix.Debug;
 import x10.matrix.block.Grid;
-import x10.matrix.block.DenseBlock;
-import x10.matrix.block.SparseBlock;
-import x10.matrix.block.MatrixBlock;
 
 /**
  * This class defines list of matrix blocks which live in the same place
@@ -36,8 +28,8 @@ public class BlockVectorMult  {
 		comp(aSet, bV, 0, cV, 0, plus);
 	
 	public static def comp(aSet:BlockSet, 
-			bV:Vector, offsetB:Int, 
-			cV:Vector, offsetC:Int, plus:Boolean):Vector(cV) {
+			bV:Vector, offsetB:Long, 
+			cV:Vector, offsetC:Long, plus:Boolean):Vector(cV) {
 		val itr = aSet.iterator();
 		val grid = aSet.getGrid();
 		if (!plus) cV.reset();
@@ -65,8 +57,8 @@ public class BlockVectorMult  {
 	public static def comp(bV:Vector, aSet:BlockSet, cV:Vector, plus:Boolean):Vector(cV) =
 		comp(bV, 0, aSet, cV, 0, plus);
 	
-	public static def comp(bV:Vector, offsetB:Int, 
-			aSet:BlockSet, cV:Vector, offsetC:Int, plus:Boolean):Vector(cV) {
+	public static def comp(bV:Vector, offsetB:Long, 
+			aSet:BlockSet, cV:Vector, offsetC:Long, plus:Boolean):Vector(cV) {
 		val itr = aSet.iterator();
 		val grid = aSet.getGrid();
 		if (!plus) cV.reset();

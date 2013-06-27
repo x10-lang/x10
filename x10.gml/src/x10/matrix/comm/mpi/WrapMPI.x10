@@ -11,7 +11,7 @@
 
 package x10.matrix.comm.mpi;
 
-import x10.io.Console;
+import x10.regionarray.Dist;
 import x10.compiler.Ifdef;
 import x10.compiler.Ifndef;
 import x10.compiler.Native;
@@ -21,7 +21,6 @@ import x10.compiler.NativeCPPCompilationUnit;
 import x10.matrix.Debug;
 
 @NativeCPPInclude("mpi_api.h")
-
 @NativeCPPCompilationUnit("mpi_api.c")
 
 /**
@@ -40,52 +39,44 @@ import x10.matrix.Debug;
  * 
  * <p> Third, collective communication methods including bcast, scatter, gather
  * and reduce sum are available.  X10.team collective communication can be used. 
- * 
- *
  */
 public class WrapMPI {
     
 	@Native("c++","mpi_new_comm()")
 		public static native def gml_new_commu():void;
 
-	@Native("c++","mpi_get_proc_info((#1)->raw()->raw(), (#2)->raw()->raw(), (#3)->raw()->raw(), (#4)->raw()->raw())")
+	@Native("c++","mpi_get_proc_info((#1)->raw, (#2)->raw, (#3)->raw, (#4)->raw)")
 		public static native def get_proc_info(rk:Rail[Int], np:Rail[Int], hlen:Rail[Int], hstr:Rail[Int]):void;
 
-    @Native("c++","mpi_get_name_maxlen((#1)->raw()->raw())")
+    @Native("c++","mpi_get_name_maxlen((#1)->raw)")
 		public static native def get_name_maxlen(l:Rail[Int]):void;
-	//
-    @Native("c++","mpi_get_comm_nproc((#1)->raw()->raw())")
+
+    @Native("c++","mpi_get_comm_nproc((#1)->raw)")
 		public static native def get_comm_nproc(np:Rail[Int]):void;
-	//
-    @Native("c++","mpi_get_comm_pid((#1)->raw()->raw())")
+
+    @Native("c++","mpi_get_comm_pid((#1)->raw)")
 		private static native def get_comm_pid(rk:Rail[Int]):void;
 
-	//
-	//================================================================
-	//public val id:Int;
-	//
     public static val world:WrapMPI = new WrapMPI();
     
 	public val dist:Dist(1);
-	//================================================================
-	
+
 	public def this(d:Dist(1)) {
-		
 		// Distribution is unique;
 		dist = d;
 		@Ifdef("MPI_COMMU") {
 			finish ateach(d) {
 				gml_new_commu();
 			}			
-			//---------------------------
+
 			// This is for testing purpose
 			if (d.numPlaces() > 1) {
-				finish for ([p]:Point in d) {
+				finish for ([p] in d) {
 					//val pp = Point.make([p]) as Point(dist.region.rank);
 					val pl = dist(p);
 					async {
-						val mpi_pid = at (pl) world.getCommProcID();
-						if (p != mpi_pid) {
+						val mpi_pid = at(pl) world.getCommProcID();
+						if ((p as Int) != mpi_pid) {
 							Console.OUT.println("Place "+p+" is not proc id "+mpi_pid);
 							Console.OUT.println("Some collective operations will not work correctly");
 							Console.OUT.flush();
@@ -101,32 +92,28 @@ public class WrapMPI {
 	 */
 	public def this() {
 		dist = Dist.makeUnique();
-		//pidmap = new Array[Int](Place.MAX_PLACES, (i:Int)=>i);
-		//displs = new Array[Int](Place.MAX_PLACES, 0);
+		//pidmap = new Rail[Int](Place.MAX_PLACES, (i:Int)=>i);
+		//displs = new Rail[Int](Place.MAX_PLACES, 0);
 		@Ifdef("MPI_COMMU") {
-			finish ateach (Dist.makeUnique()) {
+			finish ateach(Dist.makeUnique()) {
 				gml_new_commu();
 			}
 		}
 	}
-	//================================================================
 
 	/**
 	 * Return MPI process's host name.
 	 */
 	public static def getProcInfo():String {
-
 		val mlen = 128;//mpi_name_maxlen();
 		val rk   = new Rail[Int](1, 0);
 		val np   = new Rail[Int](1, 0);
 		val hlen = new Rail[Int](1, 0);
 		val hstr = new Rail[Int](mlen, 0);
 		world.get_proc_info(rk, np, hlen, hstr);
-		val sc = new Rail[Char](hlen(0), (i:Int)=>(hstr(i) as Char));
+		val sc = new Rail[Char](hlen(0), (i:Long)=>(hstr(i) as Char));
 		return new String(sc, 0, hlen(0));
 	}
-
-	public def getNumProc():Int = Place.MAX_PLACES;//pidmap.size;
 
 	/**
 	 * Return MPI process rank ID at here.
@@ -137,30 +124,21 @@ public class WrapMPI {
 		return rk(0);
 	}
 
-	//================================================================
-	// Double based
-	//================================================================
-
-	//-------------------------------------------
-	// Blocking P2P communication
-	//
 	/**
 	 * Send double-precision array.
-	 *
 	 */
-    @Native("c++","mpi_send_double((#1)->raw()->raw(), #2, #3, #4, #5)")
+    @Native("c++","mpi_send_double((#1)->raw, #2, #3, #4, #5)")
 		static native def send_double(
-			buf:Array[Double](1), 
+			buf:Rail[Double], 
 			off:Int, 
 			cnt:Int, 
 			dst:Int, 
 			tag:Int):void;
 
-
 	/**
 	 * Send double-precision data array.
 	 */
-	public def send(buf:Array[Double](1), cnt:Int, dst:Int, tag:Int): void {
+	public def send(buf:Rail[Double], cnt:Long, dst:Long, tag:Long): void {
 		send(buf, 0, cnt, dst, tag);
 	}
 
@@ -173,16 +151,16 @@ public class WrapMPI {
 	 * @param dst			destination process rank or place ID.
 	 * @param tag 			message tag
 	 */	
-	public def send(buf:Array[Double](1), off:Int, cnt:Int, dst:Int, tag:Int) : void {
-		send_double(buf, off, cnt, dst, tag);
+	public def send(buf:Rail[Double], off:Long, cnt:Long, dst:Long, tag:Long) : void {
+		send_double(buf, off as Int, cnt as Int, dst as Int, tag as Int);
 	}
-	//-------------
+
 	/**
 	 * Receive double-precision data array.
 	 */
-    @Native("c++","mpi_recv_double((#1)->raw()->raw(), #2, #3, #4, #5)")
+    @Native("c++","mpi_recv_double((#1)->raw, #2, #3, #4, #5)")
 		static native def recv_double(
-			buf:Array[Double](1), 
+			buf:Rail[Double], 
 			off:Int, 
 			cnt:Int, 
 			rsc:Int, 
@@ -191,7 +169,7 @@ public class WrapMPI {
 	/**
 	 * Receive double-precision data array.
 	 */
-	public def recv(buf:Array[Double](1), cnt:Int, src:Int, tag:Int): void {
+	public def recv(buf:Rail[Double], cnt:Long, src:Long, tag:Long): void {
 		recv(buf, 0, cnt, src, tag);
 	}
 
@@ -204,31 +182,26 @@ public class WrapMPI {
 	 * @param src			source process rank or place ID.
 	 * @param tag 			message tag
 	 */
-	public def recv(buf:Array[Double](1), off:Int, cnt:Int, src:Int, tag:Int) : void {
-		recv_double(buf, off, cnt, src, tag);
+	public def recv(buf:Rail[Double], off:Long, cnt:Long, src:Long, tag:Long) : void {
+		recv_double(buf, off as Int, cnt as Int, src as Int, tag as Int);
 	}
-
-	//--------------------------------------------
-	// Non-blocking double P2P
-	//
 
 	/**
 	 * Non-blocking send double-precision data array.
-	 *
 	 */
-    @Native("c++","mpi_Isend_double((#1)->raw()->raw(),#2,#3,#4, #5, (#6)->raw()->raw())")
+    @Native("c++","mpi_Isend_double((#1)->raw,#2,#3,#4, #5, (#6)->raw)")
 		static native def Isend_double(
-			buf:Array[Double](1), 
+			buf:Rail[Double], 
 			off:Int, 
 			cnt:Int, 
 			dst:Int, 
 			tag:Int, 
 			rh:Rail[Int]):void;
-	//
+
 	/**
 	 * Non-blocking send double-precision data array.
 	 */
-	public def immSend(buf:Array[Double](1), cnt:Int, dst:Int, tag:Int ):RequestHandleMPI = 
+	public def immSend(buf:Rail[Double], cnt:Long, dst:Long, tag:Long):RequestHandleMPI = 
 		immSend(buf, 0, cnt, dst, tag);
 
 	/**
@@ -242,40 +215,36 @@ public class WrapMPI {
 	 * @param rh			sending message handle
 	 */
 	public def immSend(
-			buf:Array[Double](1), 
-			off:Int, 
-			cnt:Int, 
-			dst:Int, 
-			tag:Int
+			buf:Rail[Double], 
+			off:Long, 
+			cnt:Long, 
+			dst:Long, 
+			tag:Long
 			):RequestHandleMPI {
 
 		val req = new RequestHandleMPI();
 		//val p_dst = pidmap(dst);
-		Isend_double(buf, off, cnt, dst, tag, req.handle);
+		Isend_double(buf, off as Int, cnt as Int, dst as Int, tag as Int, req.handle);
 		return req;
 	}
-
-	//===================================================
 
 	/**
 	 * Non-blocking receive double-precision data array.
 	 */
-    @Native("c++","mpi_Irecv_double((#1)->raw()->raw(),#2,#3,#4,#5, (#6)->raw()->raw())")
+    @Native("c++","mpi_Irecv_double((#1)->raw,#2,#3,#4,#5, (#6)->raw)")
 		static native def Irecv_double(
-			buf:Array[Double](1), 
+			buf:Rail[Double], 
 			off:Int, 
 			cnt:Int, 
 			rsc:Int, 
 			tag:Int, 
 			rh:Rail[Int]):void;
-	//
 
 	/**
 	 * Non-blocking receive double-precision data array.
 	 */
-	public def immRecv(buf:Array[Double](1), cnt:Int, src:Int, tag:Int) :RequestHandleMPI = 
+	public def immRecv(buf:Rail[Double], cnt:Long, src:Long, tag:Long) :RequestHandleMPI = 
 		immRecv(buf, 0, cnt, src, tag);
-
 
 	/**
 	 * Non-blocking receive double-precision data array.
@@ -288,35 +257,25 @@ public class WrapMPI {
 	 * @param rh			receive message handle
 	 */
 	public def immRecv(
-			buf:Array[Double](1), 
-			off:Int, 
-			cnt:Int, 
-			src:Int, 
-			tag:Int):RequestHandleMPI {
+			buf:Rail[Double], 
+			off:Long, 
+			cnt:Long, 
+			src:Long, 
+			tag:Long):RequestHandleMPI {
 
 		val req = new RequestHandleMPI();
 		//val p_src = pidmap(src);
-		Irecv_double(buf, off, cnt, src, tag, req.handle);
+		Irecv_double(buf, off as Int, cnt as Int, src as Int, tag as Int, req.handle);
 		return req;
 	}
-	//
 
-
-	//====================================================================
-	// Integer based
-	//====================================================================
-
-	//--------------------------------------------
-	// Blocking P2P communication
-	//
 	/**
 	 * Send integer array.
 	 */
-    @Native("c++","mpi_send_int((#1)->raw()->raw(), #2, #3, #4, #5)")
-		static native def send_int(buf:Array[Int](1), off:Int, cnt:Int, dst:Int, tag:Int):void;
-	
+    @Native("c++","mpi_send_long((#1)->raw, #2, #3, #4, #5)")
+		static native def send_long(buf:Rail[Long], off:Int, cnt:Int, dst:Int, tag:Int):void;
 
-	public def send(buf:Array[Int](1),	cnt:Int, dst:Int, tag:Int): void {
+	public def send(buf:Rail[Long],	cnt:Long, dst:Long, tag:Long): void {
 		send(buf, 0, cnt, dst, tag);
 	}
 
@@ -330,48 +289,47 @@ public class WrapMPI {
 	 * @param tag 			message tag
 	 */
 	public def send(
-			buf:Array[Int](1), 
-			off:Int, 
-			cnt:Int,
-			dst:Int,
-			tag:Int) : void {
+			buf:Rail[Long], 
+			off:Long, 
+			cnt:Long,
+			dst:Long,
+			tag:Long) : void {
 
-		send_int(buf, off, cnt, dst, tag);
+		send_long(buf, off as Int, cnt as Int, dst as Int, tag as Int);
 	}
 	
-    @Native("c++","mpi_recv_int((#1)->raw()->raw(), #2, #3, #4, #5)")
-		static native def recv_int(
-			buf:Array[Int](1), 
+    @Native("c++","mpi_recv_long((#1)->raw, #2, #3, #4, #5)")
+		static native def recv_long(
+			buf:Rail[Long], 
 			off:Int, cnt:Int, rsc:Int, 
 			tag:Int):void;
 	
 	/**
 	 * Receive integer array
 	 *
-	 * @param buf			receive data buffer of integer array 
+	 * @param buf			receive data buffer of Long array 
 	 * @param off		    the starting index for the receiving data
 	 * @param cnt			count of data to receive
 	 * @param dst			destination process rank or place ID.
 	 * @param tag 			message tag
 	 */
-	public def recv(buf:Array[Int](1), cnt:Int, src:Int, tag:Int) : void {
-		recv(buf, 0, cnt, src, tag);
+	public def recv(buf:Rail[Long], cnt:Long, src:Long, tag:Long):void {
+		recv(buf, 0L, cnt, src, tag);
 	}
 
 	public def recv(
-			buf:Array[Int](1), 
-			off:Int, cnt:Int, src:Int, 
-			tag:Int) : void {
-		recv_int(buf, off, cnt, src, tag);
+			buf:Rail[Long], 
+			off:Long, cnt:Long, src:Long, 
+			tag:Long):void {
+		recv_long(buf, off as Int, cnt as Int, src as Int, tag as Int);
 	}
 	
-	//--------------------------------
-	// bcast
+
 	/**
 	 * Broadcast routine.
 	 */
-	@Native("c++", "mpi_bcast_double((#1)->raw()->raw(),#2,#3,#4)")
-		static native def mpi_bcast(buf:Array[Double](1), off:Int, cnt:Int, root:Int):void;
+	@Native("c++", "mpi_bcast_double((#1)->raw,#2,#3,#4)")
+		static native def mpi_bcast(buf:Rail[Double], off:Int, cnt:Int, root:Int):void;
 	//void mpi_bcast_double(double* buf, int off, int cnt, int root);
 
 
@@ -383,19 +341,19 @@ public class WrapMPI {
 	 * @param cnt			count of data to receive
 	 * @param root			root place which has the source of the broadcast data.
 	 */
-	public def bcast(buf:Array[Double](1), off:int, cnt:Int, root:Int):void {
-		mpi_bcast(buf, off, cnt, root);
+	public def bcast(buf:Rail[Double], off:Long, cnt:Long, root:Long):void {
+		mpi_bcast(buf, off as Int, cnt as Int, root as Int);
 	}
 
-	public def bcast(buf:Array[Double](1), cnt:Int, root:Int) :void {
-		mpi_bcast(buf, 0, cnt, root);
+	public def bcast(buf:Rail[Double], cnt:Long, root:Long) :void {
+		mpi_bcast(buf, 0, cnt as Int, root as Int);
 	}
 
 	/**
 	 * Broadcast integer data array
 	 */
-	@Native("c++", "mpi_bcast_int((#1)->raw()->raw(),#2,#3,#4)")
-		static native def mpi_bcast(buf:Array[Int](1), off:Int, cnt:Int, root:Int):void;
+	@Native("c++", "mpi_bcast_long((#1)->raw,#2,#3,#4)")
+		static native def mpi_bcast(buf:Rail[Long], off:Int, cnt:Int, root:Int):void;
 
 	/**
 	 * Broadcast integer data array.
@@ -405,27 +363,24 @@ public class WrapMPI {
 	 * @param cnt			count of data to receive
 	 * @param root			root place
 	 */	
-	public def bcast(buf:Array[Int](1), off:int, cnt:Int, root:Int):void {
-		mpi_bcast(buf, off, cnt, root);
+	public def bcast(buf:Rail[Long], off:Long, cnt:Long, root:Long):void {
+		mpi_bcast(buf, off as Int, cnt as Int, root as Int);
 	}
 
-	public def bcast(buf:Array[Int](1), cnt:Int, root:Int) :void {
-		mpi_bcast(buf, 0, cnt, root);
+	public def bcast(buf:Rail[Long], cnt:Long, root:Long) :void {
+		mpi_bcast(buf, 0, cnt as Int, root as Int);
 	}
 
-
-	//--------------------------------
-	// Gatherv
 	/**
 	 * MPI gatherv native routine.
 	 */
-	@Native("c++", "mpi_gatherv_double((#1)->raw()->raw(),#2,#3,(#4)->raw()->raw(),#5,(#6)->raw()->raw(),(#7)->raw()->raw(),#8)")
+	@Native("c++", "mpi_gatherv_double((#1)->raw,#2,#3,(#4)->raw,#5,(#6)->raw,(#7)->raw,#8)")
 		static native def gatherv_double(
-			sendbuf:Array[Double](1), 
+			sendbuf:Rail[Double], 
 			sendoff:Int, sendcnt:Int,
-			recvbuf:Array[Double](1),
-			recvoff:Int, recvcnts:Array[Int](1),
-			recvdispls:Array[Int](1),
+			recvbuf:Rail[Double],
+			recvoff:Int, recvcnts:Rail[Int],
+			recvdispls:Rail[Int],
 			root:Int):void;
 
 	/**
@@ -436,97 +391,101 @@ public class WrapMPI {
 	 * @param recvbuf			receiving buffer. Significant at the root place. 0-length array for non-root place.
 	 * @param recvcnts 			the data counts received from all places. Significant only at the root place
 	 * @param root			    root place ID.
-	 *
 	 */
 	public def gatherv(
-			sendbuf:Array[Double](1), 
-			sendcnt:Int,
-			recvbuf:Array[Double](1),
-			recvcnts:Array[Int](1),
-			root:Int):void {
+			sendbuf:Rail[Double], 
+			sendcnt:Long,
+			recvbuf:Rail[Double],
+			recvcnts:Rail[Long],
+			root:Long):void {
 		gatherv(sendbuf, 0, sendcnt, recvbuf, 0, recvcnts, root);
 	}
 
-	//----
 	public def gatherv(
-			sendbuf:Array[Double](1), sendoff:Int, sendcnt:Int,
-			recvbuf:Array[Double](1), recvoff:Int,
-			recvcnts:Array[Int](1),
-			root:Int):void {
+			sendbuf:Rail[Double], sendoff:Long, sendcnt:Long,
+			recvbuf:Rail[Double], recvoff:Long,
+			recvcnts:Rail[Long],
+			root:Long):void {
 
 		//Compute displs, since the recv data is adjacent to each other.
-		var displs:Array[Int](1);
+		var displs:Rail[Int];
+        var intRecvcnts:Rail[Int];
 		//Debug.assure(pidmap(0) == 0, "Inconsistance found in pid map");
-		if (root == here.id() ) {
-			displs = new Array[Int](Place.MAX_PLACES, 0);
-			for (var i:Int=1; i<displs.size; i++) {
+		if (root == here.id()) {
+			displs = new Rail[Int](Place.MAX_PLACES);
+            intRecvcnts = new Rail[Int](Place.MAX_PLACES);
+            intRecvcnts(0) = recvcnts(0) as Int;
+			for (var i:Long=1; i<displs.size; i++) {
 				//Debug.assure(pidmap(i) == i, "Inconsistance found in pid map");
-				displs(i) = displs(i-1) + recvcnts(i-1);
+                intRecvcnts(i) = recvcnts(i) as Int;
+				displs(i) = displs(i-1) + intRecvcnts(i-1);
 			}
 		} else {
-			//Fake displs space, non-significant at non-root
-			displs = new Array[Int](0);
+			//dummay arrays, non-significant at non-root
+			displs = new Rail[Int](0);
+            intRecvcnts = new Rail[Int](0);
 		}
 
-		gatherv_double(sendbuf, sendoff, sendcnt, 
-			recvbuf, recvoff, recvcnts, displs, 
-			root);
+		gatherv_double(sendbuf, sendoff as Int, sendcnt as Int, 
+			recvbuf, recvoff as Int, intRecvcnts, displs, 
+			root as Int);
 	}
-	
-	//--------------------
 
 	/**
 	 * Gather integer data arrays from all places
 	 */
-	@Native("c++", "mpi_gatherv_int((#1)->raw()->raw(),#2,#3,(#4)->raw()->raw(),#5,(#6)->raw()->raw(),(#7)->raw()->raw(),#8)")
-		static native def gatherv_int(
-			sendbuf:Array[Int](1), 
+	@Native("c++", "mpi_gatherv_long((#1)->raw,#2,#3,(#4)->raw,#5,(#6)->raw,(#7)->raw,#8)")
+		static native def gatherv_long(
+			sendbuf:Rail[Long], 
 			sendoff:Int, sendcnt:Int,
-			recvbuf:Array[Int](1), recvoff:Int, recvcnts:Array[Int](1), recvdispls:Array[Int](1), 
+			recvbuf:Rail[Long], recvoff:Int, recvcnts:Rail[Int], recvdispls:Rail[Int], 
 			root:Int):void;
 
 	public def gatherv(
-			sendbuf:Array[Int](1), sendcnt:Int,
-			recvbuf:Array[Int](1), recvcnts:Array[Int](1),
-			root:Int):void {
+			sendbuf:Rail[Long], sendcnt:Long,
+			recvbuf:Rail[Long], recvcnts:Rail[Long],
+			root:Long):void {
 		gatherv(sendbuf, 0, sendcnt, recvbuf, 0, recvcnts, root);
 	}
 
 	public def gatherv(
-			sendbuf:Array[Int](1), sendoff:Int, sendcnt:Int,
-			recvbuf:Array[Int](1), recvoff:Int,
-			recvcnts:Array[Int](1),
-			root:Int):void {
+			sendbuf:Rail[Long], sendoff:Long, sendcnt:Long,
+			recvbuf:Rail[Long], recvoff:Long,
+			recvcnts:Rail[Long],
+			root:Long):void {
 		//Compute displs, since the recv data is adjacent to each other.
 		//displs(0) = 0;
 		//Debug.assure(pidmap(0) == 0, "Inconsistance found in pid map");
-		var displs:Array[Int](1);
-		if (root == here.id() ) {
-			displs = new Array[Int](Place.MAX_PLACES, 0);
-			for (var i:Int=1; i<displs.size; i++) {
+        var intRecvcnts:Rail[Int];
+		var displs:Rail[Int];
+		if (root == here.id()) {
+			displs = new Rail[Int](Place.MAX_PLACES, 0);
+            intRecvcnts = new Rail[Int](Place.MAX_PLACES);
+            intRecvcnts(0) = recvcnts(0) as Int;
+			for (var i:Long=1; i<displs.size; i++) {
 				//Debug.assure(pidmap(i) == i, "Inconsistance found in pid map");
-				displs(i) = displs(i-1) + recvcnts(i-1);
+                intRecvcnts(i) = recvcnts(i) as Int;
+				displs(i) = displs(i-1) + intRecvcnts(i-1);
 			}
 		} else {
-			displs = new Array[Int](1); //Fake
+			displs = new Rail[Int](0); //Dummy
+            intRecvcnts = new Rail[Int](0); //Dummy
 		}
 
-		gatherv_int(sendbuf, sendoff, sendcnt, 
-					recvbuf, recvoff, recvcnts, displs, 
-					root);
+		gatherv_long(sendbuf, sendoff as Int, sendcnt as Int, 
+					recvbuf, recvoff as Int, intRecvcnts, displs, 
+					root as Int);
 
 	}
-	//--------------------------------
-	// Scatter
+
 	/**
 	 * Scatter double-precision data array from here to all places
 	 */
-	@Native("c++", "mpi_scatterv_double((#1)->raw()->raw(),(#2)->raw()->raw(),(#3)->raw()->raw(),(#4)->raw()->raw(),#5,#6)")
+	@Native("c++", "mpi_scatterv_double((#1)->raw,(#2)->raw,(#3)->raw,(#4)->raw,#5,#6)")
 		static native def scatterv_double(
-			sendbuf:Array[Double](1), sendcnts:Array[Int](1), displs:Array[Int](1),
-			recvbuf:Array[Double](1), recvcnt:Int,
+			sendbuf:Rail[Double], sendcnts:Rail[Int], displs:Rail[Int],
+			recvbuf:Rail[Double], recvcnt:Int,
 			root:Int):void;
-	//----
 
 	/**
 	 * Scatter double-precision data array. 
@@ -538,73 +497,77 @@ public class WrapMPI {
 	 * @param root			    root place ID.
 	 */
 	public def scatterv(
-			sendbuf:Array[Double](1), sendcnts:Array[Int](1),
-			recvbuf:Array[Double](1), recvcnt:Int,
-			root:Int):void {
+			sendbuf:Rail[Double], sendcnts:Rail[Long],
+			recvbuf:Rail[Double], recvcnt:Long,
+			root:Long):void {
 		//Compute displs. The recv data is adjacent to each other.
 		//displs(0) = 0;
 		//Debug.assure(pidmap(0) == 0, "Inconsistance found in pid map");
-		var displs:Array[Int](1);
-		if (root == here.id() ) {
-			displs = new Array[Int](Place.MAX_PLACES, 0);
-			for (var i:Int=1; i<displs.size; i++) {
+        var intSendcnts:Rail[Int];
+		var displs:Rail[Int];
+		if (root == here.id()) {
+            intSendcnts = new Rail[Int](Place.MAX_PLACES);
+			displs = new Rail[Int](Place.MAX_PLACES);
+            intSendcnts(0) = sendcnts(0) as Int;
+			for (var i:Long=1; i<displs.size; i++) {
 				//Debug.assure(pidmap(i) == i, "Inconsistance found in pid map");
-				displs(i) = displs(i-1) + sendcnts(i-1);
+                intSendcnts(i) = sendcnts(i) as Int;
+				displs(i) = displs(i-1) + intSendcnts(i-1);
 			}
 		} else {
-			displs = new Array[Int](1);
+			displs = new Rail[Int](0);
+            intSendcnts = new Rail[Int](0);
 		}
 
-		scatterv_double(sendbuf, sendcnts, displs,
-						recvbuf, recvcnt, 
-						root);
-
+		scatterv_double(sendbuf, intSendcnts, displs,
+						recvbuf, recvcnt as Int, 
+						root as Int);
 	}
-	
-	//--------------------
+
 	/**
 	 * Scattering integer data arrays
 	 */
-	@Native("c++", "mpi_scatterv_int((#1)->raw()->raw(),(#2)->raw()->raw(),(#3)->raw()->raw(),(#4)->raw()->raw(),#5,#6)")
-		static native def scatterv_int(
-			sendbuf:Array[Int](1), sendcnts:Array[Int](1), displs:Array[Int](1),
-			recvbuf:Array[Int](1), recvcnt:Int,
+	@Native("c++", "mpi_scatterv_long((#1)->raw,(#2)->raw,(#3)->raw,(#4)->raw,#5,#6)")
+		static native def scatterv_long(
+			sendbuf:Rail[Long], sendcnts:Rail[Int], displs:Rail[Int],
+			recvbuf:Rail[Long], recvcnt:Int,
 			root:Int):void;
-	//----
+
 	public def scatterv(
-			sendbuf:Array[Int](1), sendcnts:Array[Int](1),
-			recvbuf:Array[Int](1), recvcnt:Int,
-			root:Int):void {
+			sendbuf:Rail[Long], sendcnts:Rail[Long],
+			recvbuf:Rail[Long], recvcnt:Long,
+			root:Long):void {
 		//Compute displs, since the recv data is adjacent to each other.
 		//displs(0) = 0;
 		//Debug.assure(pidmap(0) == 0, "Inconsistance found in pid map");
-		var displs:Array[Int](1);
-		if (root == here.id() ) {
-			displs = new Array[Int](Place.MAX_PLACES, 0);			
-			for (var i:Int=1; i<displs.size; i++) {
+		var intSendcnts:Rail[Int];
+		var displs:Rail[Int];
+		if (root == here.id()) {
+            intSendcnts = new Rail[Int](Place.MAX_PLACES);
+			displs = new Rail[Int](Place.MAX_PLACES);
+            intSendcnts(0) = sendcnts(0) as Int;
+			for (var i:Long=1; i<displs.size; i++) {
 				//Debug.assure(pidmap(i) == i, "Inconsistance found in pid map");
-				displs(i) = displs(i-1) + sendcnts(i-1);
+                intSendcnts(i) = sendcnts(i) as Int;
+				displs(i) = displs(i-1) + intSendcnts(i-1);
 			}
 		} else {
-			displs = new Array[Int](1); //Fake
+			displs = new Rail[Int](0);
+            intSendcnts = new Rail[Int](0);
 		}
 
-		scatterv_int(sendbuf, sendcnts, displs,
-					 recvbuf, recvcnt,
-					 root);
+		scatterv_long(sendbuf, intSendcnts, displs,
+					 recvbuf, recvcnt as Int,
+					 root as Int);
 	}
 	
-
-	//--------------------------------
-	// allgatherv
 	/**
 	 * All gather, same as Gather+bcast.
 	 */
-	@Native("c++", "mpi_allgatherv_double((#1)->raw()->raw(),#2,#3,(#4)->raw()->raw(),#5,(#6)->raw()->raw(),(#7)->raw()->raw())")
+	@Native("c++", "mpi_allgatherv_double((#1)->raw,#2,#3,(#4)->raw,#5,(#6)->raw,(#7)->raw)")
 		static native def all_gatherv(
-			sendbuf:Array[Double](1), sendoff:Int, sendcnt:Int,
-			recvbuf:Array[Double](1), recvoff:Int, recvcnts:Array[Int](1), recvdispls:Array[Int](1)):void;
-	//----
+			sendbuf:Rail[Double], sendoff:Int, sendcnt:Int,
+			recvbuf:Rail[Double], recvoff:Int, recvcnts:Rail[Int], recvdispls:Rail[Int]):void;
 
 	/**
 	 * All gather double-precision arrays from all places
@@ -617,31 +580,30 @@ public class WrapMPI {
 	 * @param recvcnts			data counts received from all places
 	 */
 	public def allGatherv(
-			sendbuf:Array[Double](1), sendoff:Int, sendcnt:Int,
-			recvbuf:Array[Double](1), recvoff:Int, recvcnts:Array[Int](1) ):void {
+			sendbuf:Rail[Double], sendoff:Long, sendcnt:Long,
+			recvbuf:Rail[Double], recvoff:Long, recvcnts:Rail[Long]):void {
 
 		//Compute displs, since the recv data is adjacent to each other.
-		//displs(0) = 0;
 		//Debug.assure(pidmap(0) == 0, "Inconsistance found in pid map");
-		var displs:Array[Int](1)=new Array[Int](Place.MAX_PLACES);
+		val intRecvcnts = new Rail[Int](Place.MAX_PLACES);
+		val displs = new Rail[Int](Place.MAX_PLACES);
 		
-		for (var i:Int=1; i<Place.MAX_PLACES; i++) {
+        intRecvcnts(0) = recvcnts(0) as Int;
+		for (var i:Long=1; i<Place.MAX_PLACES; i++) {
 			//Debug.assure(pidmap(i) == i, "Inconsistance found in pid map");
-			displs(i) = displs(i-1) + recvcnts(i-1);
+			displs(i) = displs(i-1) + intRecvcnts(i-1);
 		}
-		all_gatherv(sendbuf, sendoff, sendcnt, 
-					recvbuf, recvoff, recvcnts, displs);
+		all_gatherv(sendbuf, sendoff as Int, sendcnt as Int, 
+					recvbuf, recvoff as Int, intRecvcnts, displs);
 	}
 
-	//------
-	// reduce sum
 	/**
 	 * Reduce all values from all places to a single values by adding them all.
 	 */
-	@Native("c++", "mpi_reduce_sum_double((#1)->raw()->raw(),#2,(#3)->raw()->raw(),#4,#5,#6)")
+	@Native("c++", "mpi_reduce_sum_double((#1)->raw,#2,(#3)->raw,#4,#5,#6)")
 		static native def reduce_sum(
-			sendbuf:Array[Double](1), sendoff:Int,
-			recvbuf:Array[Double](1), recvoff:Int, cnt:Int,
+			sendbuf:Rail[Double], sendoff:Int,
+			recvbuf:Rail[Double], recvoff:Int, cnt:Int,
 			root:Int):void;
 	//void mpi_reduce_sum_double(double* sendbuf, int soff, double* recvbuf, int roff,  
 	//int cnt, int root);
@@ -656,29 +618,27 @@ public class WrapMPI {
 	 * @param root   			root place ID
 	 */
 	public def reduceSum(
-			sendbuf:Array[Double](1), sendoff:Int, 
-			recvbuf:Array[Double](1), recvoff:Int,
-			cnt:Int, root:Int):void {
-		reduce_sum(sendbuf, sendoff, recvbuf, recvoff, cnt, root);
+			sendbuf:Rail[Double], sendoff:Long, 
+			recvbuf:Rail[Double], recvoff:Long,
+			cnt:Long, root:Long):void {
+		reduce_sum(sendbuf, sendoff as Int, recvbuf, recvoff as Int, cnt as Int, root as Int);
 	}
 
 	/**
 	 * Reduce all values from all places to one by adding them up.
 	 */
-	public def reduceSum(sendbuf:Array[Double](1), recvbuf:Array[Double](1),
-			cnt:Int, root:Int):void {
-		reduce_sum(sendbuf, 0, recvbuf, 0, cnt, root);
+	public def reduceSum(sendbuf:Rail[Double], recvbuf:Rail[Double],
+			cnt:Long, root:Long):void {
+		reduce_sum(sendbuf, 0, recvbuf, 0, cnt as Int, root as Int);
 	}
-	//---------
-	// all reduce sum
 
 	/**
 	 * Reduce-sum and broadcast result to all places
 	 */
-	@Native("c++", "mpi_allreduce_sum_double((#1)->raw()->raw(),#2,(#3)->raw()->raw(),#4,#5)")
+	@Native("c++", "mpi_allreduce_sum_double((#1)->raw,#2,(#3)->raw,#4,#5)")
 		public static native def allReduceSum(
-			sendbuf:Array[Double](1), sendoff:Int,
-			recvbuf:Array[Double](1), recvoff:Int,
+			sendbuf:Rail[Double], sendoff:Int,
+			recvbuf:Rail[Double], recvoff:Int,
 			cnt:Int):void;
 
 	//void mpi_allreduce_sum_double(double*sendbuf, int soff, double* recvbuf, int soff, int cnt);
@@ -691,54 +651,52 @@ public class WrapMPI {
 	 * @param cnt      			data count 
 	 */
 	public def allReduceSum(
-			sendbuf:Array[Double](1), 
-			recvbuf:Array[Double](1),	
-			cnt:Int): void {
-		allReduceSum(sendbuf, 0, recvbuf, 0, cnt);
+			sendbuf:Rail[Double], 
+			recvbuf:Rail[Double],	
+			cnt:Long): void {
+		allReduceSum(sendbuf, 0, recvbuf, 0, cnt as Int);
 	}
-	//--------------------------------------------
+
 	// Non-blocking int P2P
-	//
-    @Native("c++","mpi_Isend_int((#1)->raw()->raw(),#2,#3,#4,#5,(#6)->raw()->raw())")
-		static native def Isend_int(
-			buf:Array[Int](1), off:Int, cnt:Int, 
+
+    @Native("c++","mpi_Isend_long((#1)->raw,#2,#3,#4,#5,(#6)->raw)")
+		static native def Isend_long(
+			buf:Rail[Long], off:Int, cnt:Int, 
 			dst:Int, tag:Int, rh:Rail[Int]):void;
-	//
+
 	public def immSend(
-			buf:Array[Int](1), cnt:Int, dst:Int, 
-			tag:Int) : RequestHandleMPI = 
+			buf:Rail[Long], cnt:Long, dst:Long, 
+			tag:Long):RequestHandleMPI = 
 		immSend(buf, 0, cnt, dst, tag);
 
 	public def immSend(
-			buf:Array[Int](1), off:Int, cnt:Int, 
-			dst:Int, tag:Int ):RequestHandleMPI {
+			buf:Rail[Long], off:Long, cnt:Long, 
+			dst:Long, tag:Long):RequestHandleMPI {
 		val req = new RequestHandleMPI();
 		//val p_dst = pidmap(dst);
-		Isend_int(buf, off, cnt, dst, tag, req.handle);
+		Isend_long(buf, off as Int, cnt as Int, dst as Int, tag as Int, req.handle);
 		return req;
 	}
-	//
-    @Native("c++","mpi_Irecv_int((#1)->raw()->raw(),#2,#3,#4,#5,(#6)->raw()->raw())")
-		static native def Irecv_int(
-			buf:Array[Int](1), off:Int, cnt:Int, 
+
+    @Native("c++","mpi_Irecv_long((#1)->raw,#2,#3,#4,#5,(#6)->raw)")
+		static native def Irecv_long(
+			buf:Rail[Long], off:Int, cnt:Int, 
 			rsc:Int, tag:Int, rh:Rail[Int]):void;
-	//
-	public def immRecv(	buf:Array[Int](1), cnt:Int, src:Int, tag:Int):RequestHandleMPI = 
-		immRecv(buf, 0, cnt, src, tag);
+
+	public def immRecv(	buf:Rail[Long], cnt:Long, src:Long, tag:Long):RequestHandleMPI = 
+		immRecv(buf, 0, cnt as Int, src, tag);
 
 	public def immRecv(
-			buf:Array[Int](1), off:Int, cnt:Int, 
-			src:Int, tag:Int ):RequestHandleMPI {
+			buf:Rail[Long], off:Long, cnt:Long, 
+			src:Long, tag:Long):RequestHandleMPI {
 		val req = new RequestHandleMPI();
 		//val p_src = pidmap(src);
-		Isend_int(buf, off, cnt, src, tag, req.handle);
+		Isend_long(buf, off as Int, cnt as Int, src as Int, tag as Int, req.handle);
 		return req;
 	}
 
-	//---------------------------------------------
 	// Request waiting
 	public static def mywait(rh:RequestHandleMPI) { rh.mywait();}
-	//
+
 	public static def test(rh:RequestHandleMPI) = rh.test(); 
-	
 }

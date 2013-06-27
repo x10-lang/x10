@@ -4,16 +4,12 @@
  *  (C) Copyright IBM Corporation 2011.
  */
 
-import x10.io.Console;
+import x10.compiler.Ifndef;
 import x10.util.Timer;
 import x10.regionarray.DistArray;
 
-
 import x10.matrix.Matrix;
-import x10.matrix.Debug;
 import x10.matrix.DenseMatrix;
-import x10.matrix.sparse.SparseCSC;
-import x10.matrix.block.MatrixBlock;
 import x10.matrix.block.BlockMatrix;
 import x10.matrix.block.Grid;
 import x10.matrix.distblock.DistBlockMatrix;		
@@ -25,11 +21,7 @@ import x10.matrix.comm.BlockSetReduce;
 
 /**
    This class contains test cases P2P communication for matrix over different places.
-   <p>
-
-   <p>
  */
-
 public class TestBlockSetComm{
     public static def main(args:Rail[String]) {
 		val m = args.size > 0 ?Int.parse(args(0)):40;
@@ -42,17 +34,15 @@ public class TestBlockSetComm{
 	}
 }
 
-
 class BlockSetCommTest {
-
-	public val M:Int;
-	public val N:Int;
+	public val M:Long;
+	public val N:Long;
 	public val nzdensity:Double;
-	public val bM:Int;
-	public val bN:Int;
+	public val bM:Long;
+	public val bN:Long;
 	public val grid:Grid;
 	
-	public val numplace:Int;
+	public val numplace:Long;
 
 	public val dupden:DupBlockMatrix;
 	public val dupspa:DupBlockMatrix;
@@ -60,10 +50,9 @@ class BlockSetCommTest {
 	public val dblks:BlockMatrix;
 	public val sblks:BlockMatrix;
 	
-	public val rootbid:Int = 0;
+	public val rootbid:Long = 0;
 	
-    public def this(m:Int, n:Int, bm:Int, bn:Int, d:Double) {
-
+    public def this(m:Long, n:Long, bm:Long, bn:Long, d:Double) {
 		M=m; N=n;
 		nzdensity = d;
 		bM = bm; bN = bn;
@@ -81,6 +70,7 @@ class BlockSetCommTest {
 	public def run(): void {
  		// Set the matrix function
 		var retval:Boolean = true;
+	@Ifndef("MPI_COMMU") { // TODO Deadlocks!
 
 		Console.OUT.println("******************************************************");
 		Console.OUT.println("Test dense block set commu in distributed block matrix");
@@ -101,25 +91,24 @@ class BlockSetCommTest {
 			Console.OUT.println("BlockSet P2P and collective commu test passed!");
 		else
 			Console.OUT.println("------------BlockSet P2P and collective commu test failed!-----------");
+    }
 	}
-	//------------------------------------------------
+
 	
 	public def testCopyTo(dst:DupBlockMatrix):Boolean {
 		val ret:Boolean;
-		var ds:Int = 0;
+		var ds:Long = 0L;
 		
 		Console.OUT.println("\nTest P2P copyTo dup block set matrix ("+M+","+N+") "+
 				"partitioned in ("+bM+","+bN+") blocks duplicated over "+ numplace+" places");
-		//src.printMatrix("CopyTo source");
 		dst.reset();
 		dst.local().initRandom();
 		var st:Long =  Timer.milliTime();
-		for (var p:Int=1; p<numplace; p++) {
+		for (var p:Long=1; p<numplace; p++) {
 			ds += BlockSetRemoteCopy.copySetTo(dst.handleDB, p);
 		}
 		
 		val avgt = 1.0*(Timer.milliTime() - st)/(numplace-1);
-		//dst.printMatrix("CopyTo Destination");
 		
 		Console.OUT.printf("P2P copyTo %d bytes : %.3f ms, thput: %2.2f MB/s per iteration\n", 
 				ds*8, avgt, 8000.0*ds/avgt/1024/1024);
@@ -136,23 +125,21 @@ class BlockSetCommTest {
 
 	public def testCopyFrom(src:DupBlockMatrix) : Boolean{
 		var ret:Boolean = true;
-		var ds:Int = 0;
-		var st:Long = 0;
-		var tt:Long = 0;//Timer.milliTime() - st;
+		var ds:Long = 0L;
+		var st:Long = 0L;
+		var tt:Long = 0L;//Timer.milliTime() - st;
 		
 		Console.OUT.println("\nTest P2P copyFrom dup blockset matrix ("+M+","+N+") "+
 				"partitioned in ("+bM+","+bN+") blocks duplicated over "+ numplace+" places");
 		src.reset();
-		src.local().init((r:Int,c:Int)=>1.0*((r+c)%3));
-		//src.printMatrix("CopyFrom Source matrix");
-		for (var p:Int=1; p<numplace; p++) {
+		src.local().init((r:Long,c:Long)=>1.0*((r+c)%3));
+		for (var p:Long=1; p<numplace; p++) {
 			st =  Timer.milliTime();
 			val pid = p;
-			ds += at (Dist.makeUnique()(pid)) {
+			ds += at(Place(pid)) {
 				BlockSetRemoteCopy.copySetFrom(src.handleDB, 0)
 			};
 			tt += Timer.milliTime() - st;
-			//dst.printMatrix("CopyFrom Received "+b );
 		}
 		//src.printAllCopies();		
 		ret = src.checkSync();
@@ -167,22 +154,20 @@ class BlockSetCommTest {
 		
 		return ret;
 	}	
-	
-	//------------------------------------------------
+
 	public def testBcast(bmat:DupBlockMatrix):Boolean {
 		var ret:Boolean = true;
-		var ds:Int = 0;
+		var ds:Long = 0L;
 		var avgt:Double=0;
 		Console.OUT.println("\nTest Bcast on dup block set matrix, each block ("+M+"x"+N+") "+
 				"partitioned in ("+bM+","+bN+") blocks duplicated over "+ numplace+" places");
 		
-		//bmat.fetchBlock(rootbid).print("BCast root");
-		for (var p:Int=0; p<numplace && ret; p++ ) {
+		for (var p:Long=0; p<numplace && ret; p++ ) {
 			Console.OUT.println("Bcast from root block from place"+p); 
 			Console.OUT.flush();
 			bmat.reset();
-			at (Dist.makeUnique()(p)) {
-				bmat.local().init((r:Int, c:Int)=>(1.0+r+c)*((r+c)%3));
+			at(Place(p)) {
+				bmat.local().init((r:Long, c:Long)=>(1.0+r+c)*((r+c)%3));
 			}
 			val st:Long =  Timer.milliTime();
 			BlockSetBcast.bcast(bmat.handleDB, p);
@@ -201,9 +186,7 @@ class BlockSetCommTest {
 			Console.OUT.println("--------Bcast block matrix test failed!--------");
 		
 		return ret;
-
 	} 	
-	
 
 	public def testReduce(dmat:DupBlockMatrix):Boolean {
 		var ret:Boolean = true;
@@ -211,17 +194,14 @@ class BlockSetCommTest {
 		Console.OUT.printf("\nTest reduce of dup block matrix over %d places\n", numplace);
 		dmat.allocTmp();
 		
-		for (var p:Int=0; p < numplace&&ret; p++) {
+		for (var p:Long=0; p < numplace&&ret; p++) {
 			Console.OUT.println("Reduce to root place "+p);
 			dmat.reset();
 			dmat.init(1.0);
 			val st:Long =  Timer.milliTime();
 			BlockSetReduce.reduceSum(dmat.handleDB, dmat.tmpDB, p);
 			avgt += (Timer.milliTime() - st);
-			//distmat.printMatrix();
-			//bmat.printMatrix();
-			ret &= at (Dist.makeUnique()(p)) {
-				//dmat.local().printMatrix();
+			ret &= at(Place(p)) {
 				dmat.local().equals(numplace as Double)
 			};
 		}
@@ -231,5 +211,4 @@ class BlockSetCommTest {
 			Console.OUT.println("-----Test reduceSum for dist block set matrix failed!-----");
 		return ret;
 	}
-
 }

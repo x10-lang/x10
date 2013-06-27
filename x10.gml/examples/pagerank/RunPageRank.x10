@@ -4,18 +4,9 @@
  *  (C) Copyright IBM Corporation 2011.
  */
 
-import x10.io.Console;
-import x10.util.Timer;
-//
-import x10.matrix.Debug;
-//
 import x10.matrix.Matrix;
 import x10.matrix.DenseMatrix;
 import x10.matrix.Vector;
-//
-//import x10.matrix.dist.DupDenseMatrix;
-import x10.matrix.dist.DistDenseMatrix;
-import x10.matrix.dist.DistSparseMatrix;
 
 import pagerank.PageRank;
 import pagerank.SeqPageRank;
@@ -31,14 +22,11 @@ import pagerank.SeqPageRank;
  * <p> (5) Verification flag. Default 0 or false.
  * <p> (6) Nonzero density of G: Default 0.001
  * <p> (7) Print output flag: Default false. 
- * 
  */
 public class RunPageRank {
-
 	public static def main(args:Rail[String]): void {
-		
 		val mG = args.size > 0 ? Int.parse(args(0)):100; // Rows and columns of G
-		val rG = args.size > 1 ? Int.parse(args(1)):Place.MAX_PLACES;
+		val rG = args.size > 1 ? Int.parse(args(1)):(Place.MAX_PLACES as Int);
 		val cG = args.size > 2 ? Int.parse(args(2)):1;
 		val nZ = args.size > 3 ? Double.parse(args(3)):0.9001; //G's nonzero density
 		val iT = args.size > 4 ? Int.parse(args(4)):2;//Iterations
@@ -51,7 +39,7 @@ public class RunPageRank {
 		else {
 			val paraPR = PageRank.make(mG, nZ, iT, rG, cG);
 			paraPR.init();
-			//paraPR.G.printMatrix("Input G sparse matrix");
+			//Console.OUT.println("Input G sparse matrix\n" + paraPR.G);
 
 			paraPR.printInfo();
 
@@ -60,8 +48,8 @@ public class RunPageRank {
 			val paraP = paraPR.run();
 			
 			if (pP > 0) {
-				paraPR.G.printMatrix("Input G sparse matrix");
-				paraPR.P.print("Output vector P");
+				Console.OUT.println("Input G sparse matrix\n" + paraPR.G);
+				Console.OUT.println("Output vector P\n" + paraP.P);
 			}
 			
 			if (vf > 0){

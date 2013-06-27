@@ -9,33 +9,21 @@
  *  (C) Copyright IBM Corporation 2006-2011.
  */
 
-import x10.io.Console;
-
-import x10.matrix.Debug;
 import x10.matrix.block.Grid;
 import x10.matrix.dist.DistMatrix;
-import x10.matrix.dist.DistDenseMatrix;
-import x10.matrix.dist.DistSparseMatrix;
 
-import x10.matrix.dist.DistMatrix;
-
-/**
-   <p>
-
-   <p>
- */
 public class TestDist {
-	
     public static def main(args:Rail[String]) {
 		val testcase = new TestGridDist(args);
 		testcase.run();
 	}
 }
+
 class TestGridDist {
 	public val nzp:Double;
-	public val M:Int;
-	public val N:Int;
-	public val K:Int;	
+	public val M:Long;
+	public val N:Long;
+	public val K:Long;	
 
     public def this(args:Rail[String]) {
 		M = args.size > 0 ?Int.parse(args(0)):4;
@@ -49,11 +37,8 @@ class TestGridDist {
 		val grid = Grid.make(M, N, Place.MAX_PLACES);
 		val m1  = DistMatrix.makeDense(grid);
 		m1.initRandom();
-		//m1.printMatrix();
-		//m1.printBlock();
 		val m2 = m1.clone(); 
  		val m3 = m1 - m2;
-// 
  		status= m3.equals(0.0);
 // 		
 // 		val m4 = DistMatrix.makeDense(grid);

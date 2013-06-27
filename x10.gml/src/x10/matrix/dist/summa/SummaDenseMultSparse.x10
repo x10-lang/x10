@@ -11,7 +11,7 @@
 
 package x10.matrix.dist.summa;
 
-import x10.io.Console;
+import x10.regionarray.DistArray;
 import x10.util.Timer;
 
 import x10.matrix.Debug;
@@ -20,22 +20,9 @@ import x10.matrix.MathTool;
 import x10.matrix.DenseMatrix;
 import x10.matrix.sparse.SparseCSC;
 import x10.matrix.sparse.DenseMultSparseToDense;
-// Grid partitioning
 import x10.matrix.block.Grid;
-import x10.matrix.block.MatrixBlock;
-import x10.matrix.block.DenseBlock;
-import x10.matrix.block.SparseBlock;
-// Matrix dist
-import x10.matrix.dist.DistMatrix;
 import x10.matrix.dist.DistDenseMatrix;
-import x10.matrix.dist.DupDenseMatrix;
 import x10.matrix.dist.DistSparseMatrix;
-import x10.matrix.dist.DupSparseMatrix;
-
-// Inter-place communication
-import x10.matrix.comm.CommHandle;
-import x10.matrix.comm.MatrixRemoteCopy;
-import x10.matrix.comm.MatrixReduce;
 
 /** 
  * This class implements matrix multiplication between distributed dense and
@@ -46,21 +33,16 @@ import x10.matrix.comm.MatrixReduce;
 public class SummaDenseMultSparse {
 	
 	val beta:Double;
-	val panelSize :Int;
-	//
+	val panelSize:Long;
+
 	val A:DistDenseMatrix;
 	val B:DistSparseMatrix;
 	val C:DistDenseMatrix;
-	//
-	val comhd:CommHandle;
-	val rowBsPsMap:DistArray[Array[Int](1)](1);
-	val colBsPsMap:DistArray[Array[Int](1)](1);
-	//------------------------------------------------
 
-	//=====================================================================
-	// Constructor
-	//=====================================================================
-	public def this(ps:Int, be:Double,
+	val rowBsPsMap:DistArray[Rail[Long]](1);
+	val colBsPsMap:DistArray[Rail[Long]](1);
+
+	public def this(ps:Long, be:Double,
 					a:DistDenseMatrix, 
 					b:DistSparseMatrix, 
 					c:DistDenseMatrix) {
@@ -72,14 +54,12 @@ public class SummaDenseMultSparse {
         if (MathTool.isZero(be)) beta = 0.0;
         else beta  = be;
 		//			
-		comhd = new CommHandle();
 		rowBsPsMap = a.grid.getRowBsPsMap();
 		colBsPsMap = b.grid.getColBsPsMap();
 	}
 		
 
-	//------------------------------
-	public def checkDim(myRowId:Int, myColId:Int):Boolean {
+	public def checkDim(myRowId:Long, myColId:Long):Boolean {
 		var st:Boolean = true;
 		val myId = C.grid.getBlockId(myRowId, myColId);
 		// 
@@ -91,21 +71,21 @@ public class SummaDenseMultSparse {
 			Console.OUT.println("Dimension and location check fails!");
 		return st;
 	}
-	//=====================================================================
-	public static def estPanelSize(dA:DistDenseMatrix, dB:DistSparseMatrix):Int {
+
+	public static def estPanelSize(dA:DistDenseMatrix, dB:DistSparseMatrix):Long {
 		val estCommuDataSize = 1024 * 1024 / 8 * 4;
 		val ldm_a = dA.grid.rowBs(0);
 		val ldm_b = dB.grid.colBs(0);
 		val l_nzd =dB.distBs(here.id()).sparse.compSparsity();
-		val ldm = Math.max(ldm_a, ((1.0/l_nzd)* ldm_b) as Int);
+		val ldm = Math.max(ldm_a, ((1.0/l_nzd)* ldm_b) as Long);
 		val max_ps = Math.min(dA.grid.colBs(0), dB.grid.rowBs(0));
-		val estps:Int = estCommuDataSize/ldm;
+		val estps:Long = estCommuDataSize/ldm;
 		
 		if (estps < 1)      return 1;
 		if (estps > max_ps)	return max_ps;
 		return estps;
 	}	
-	//=====================================================================
+
 	/**
 	 * Perform SUMMA distributed dense matrix multiply: C = A &#42 B + beta &#42 C.
 	 * 
@@ -117,7 +97,7 @@ public class SummaDenseMultSparse {
 	 * @see parallelMult(wk1, wk2)
 	 * @see SummaDense.parallelMult(wk1, wk2)
 	 */
-	public static def mult(var ps:Int,  /* Panel size*/
+	public static def mult(var ps:Long,
 						   beta:Double, 
 						   A:DistDenseMatrix, 
 						   B:DistSparseMatrix, 
@@ -128,10 +108,11 @@ public class SummaDenseMultSparse {
 
 		val wk1:DistArray[DenseMatrix](1) = DistArray.make[DenseMatrix](C.dist);
 		val wk2:DistArray[SparseCSC](1) = DistArray.make[SparseCSC](C.dist);
-		finish for (val [p]:Point in C.dist) {
+		finish for ([placeId] in C.dist) {
+            val p = placeId as Long;
 			val rn = A.grid.getRowSize(p);
 			val cn = B.grid.getColSize(p);
-			async at (C.dist(p)){
+			at(C.dist(p)) async {
 				wk1(here.id()) = DenseMatrix.make(rn, s.panelSize);
 				wk2(here.id()) = SparseCSC.make(s.panelSize, cn, 1.0);
 			}
@@ -149,7 +130,7 @@ public class SummaDenseMultSparse {
 	 * @param B        second input distributed sparse matrix which is used in tranposed form 
 	 * @param C        the input/result distributed dense matrix
 	 */	
-	public static def multTrans(var ps:Int,  /* Panel size*/
+	public static def multTrans(var ps:Long,
 								beta:Double, 
 								A:DistDenseMatrix, 
 								B:DistSparseMatrix, 
@@ -161,10 +142,11 @@ public class SummaDenseMultSparse {
 		val wk2:DistArray[SparseCSC](1) = DistArray.make[SparseCSC](C.dist);
 		val tmp:DistArray[DenseMatrix](1) = DistArray.make[DenseMatrix](C.dist);
 
-		finish for (val [p]:Point in C.dist) {
+		finish for ([placeId] in C.dist) {
+            val p = placeId as Long;
 			val rn = A.grid.getRowSize(p);
 			val cn = B.grid.getColSize(p);
-			async at (C.dist(p)){
+            at(C.dist(p)) async {
 				wk1(here.id()) = DenseMatrix.make(rn, s.panelSize);
 				wk2(here.id()) = SparseCSC.make(s.panelSize, cn, 1.0);
 				tmp(here.id()) = DenseMatrix.make(rn, s.panelSize);
@@ -172,32 +154,26 @@ public class SummaDenseMultSparse {
 		}
 		s.parallelMultTrans(wk1, wk2, tmp);
 	}
-	//=====================================================================
-	//=====================================================================
-	//
+
 	public def parallelMult(work1:DistArray[DenseMatrix](1),
 							work2:DistArray[SparseCSC](1)) {
 		val K = A.N;
-		//------------------------
-		var itRow:Int = 0;
-		var itCol:Int = 0; //Current processing iteration
-		//
-		var iwrk:Int = 0;
-		var ii:Int = 0;
-		var jj:Int = 0;
+		var itRow:Long = 0;
+		var itCol:Long = 0; //Current processing iteration
+		var iwrk:Long = 0;
+		var ii:Long = 0;
+		var jj:Long = 0;
 		var st:Long= 0;
-		//
-		//---------------------------------------------------
 
 		C.scale(beta); 
 
-		for (var kk:Int=0; kk<K; kk+=iwrk) {
+		for (var kk:Long=0; kk<K; kk+=iwrk) {
 			iwrk = Math.min(panelSize, B.grid.rowBs(itRow)-ii);
 			iwrk = Math.min(iwrk,      A.grid.colBs(itCol)-jj); 
 			val klen = iwrk;
 
 			//Debug.flushln("Root place starts iteration "+kk+" panel size:"+klen); 
-			//-------------------------------------------------------------------
+
 			//Packing columns and rows and broadcast to same row and column block
 			/* TIMING */ st = Timer.milliTime();
 			SummaDense.ringCastRowBs(jj, iwrk, itCol, A, rowBsPsMap, work1);
@@ -205,13 +181,13 @@ public class SummaDenseMultSparse {
 			/* TIMING */ C.distBs(here.id()).commTime += Timer.milliTime() - st;
 			//Debug.flushln("Row and column blocks bcast ends");
 			
-			//-----------------------------------------------------------------
+
 			//
 		    /* TIMING */ st = Timer.milliTime();
-			finish 	for (var p:Int=0; p<Place.MAX_PLACES; p++) {
-				//finish ateach (val [p]:Point in C.dist) { 
-				val pid  = p;
-				async at (C.distBs.dist(pid)) {
+            finish for (var p:Long=0; p<Place.MAX_PLACES; p++) {
+                //finish ateach(val [p]:Point in C.dist) { 
+                val pid  = p;
+                at(C.distBs.dist(pid)) async {
 					/* update local block */
 					val mypid = here.id();
 					val wk1 = work1(mypid);
@@ -235,26 +211,20 @@ public class SummaDenseMultSparse {
 		//Debug.flushall();
 	}
 	
-	//
-	//================================================================================
-	//================================================================================
-	//================================================================================
+
 	// SUMMA transpose-B method
-	//
+
 	public def parallelMultTrans(work1:DistArray[DenseMatrix](1),
 								 work2:DistArray[SparseCSC](1),
 								 tmpwk:DistArray[DenseMatrix](1)) {
 		val K = B.M;
-		//------------------------
-		var itRow:Int = 0;
-		var itCol:Int = 0; //Current processing iteration
-		//
-		var iwrk:Int = 0;
-		var ii:Int = 0;
-		var jj:Int = 0;
-		//
+		var itRow:Long = 0;
+		var itCol:Long = 0; //Current processing iteration
+		var iwrk:Long = 0;
+		var ii:Long = 0;
+		var jj:Long = 0;
 		var st:Long=0;
-		//---------------------------------------------------
+
 		Debug.assure(A.N==B.N&&C.M==A.M&&C.N==B.M);
 		
 		/* TIMING */ st = Timer.milliTime();
@@ -262,7 +232,7 @@ public class SummaDenseMultSparse {
 		/* TIMING */ C.distBs(here.id()).calcTime += Timer.milliTime() - st;
 
 		//
-		for (var kk:Int=0; kk<K; kk+=iwrk) {
+		for (var kk:Long=0; kk<K; kk+=iwrk) {
 			//Debug.flushln("Iteration start at "+kk+" itRow:"+itRow+
 			//			  " itCol:"+itCol+" ii:"+ii+" jj:"+jj);
 			iwrk = Math.min(panelSize, C.grid.colBs(itCol)-jj);
@@ -270,17 +240,17 @@ public class SummaDenseMultSparse {
 			val klen = iwrk;
 			//Debug.flushln("Iteration start at "+kk+" panel size:"+
 			//				klen+" jj:"+jj+" A block col:"+C.grid.colBs(itCol));
-			//-----------------------------------------------------------------
+
 			//Packing columns and rows for broadcast
 			/* TIMING */ st = Timer.milliTime();
 			SummaSparse.ringCastColBs(ii, klen, itRow, B, colBsPsMap, work2);
 			/* TIMING */ C.distBs(here.id()).commTime += Timer.milliTime() - st; 
 			//Debug.flushln("Column blocks bcast done");
-			//-----------------------------------------------------------------
+
 			
 			// Perform block matrix multiply in all places
 			/* TIMING */ st = Timer.milliTime();
-			finish ateach (val [pid]:Point in C.dist) { 
+			finish ateach(val [pid]:Point in C.dist) { 
 				//
 				val mypid = here.id();
 				val ma = new DenseMatrix(work1(mypid).M, klen, work1(mypid).d);
@@ -293,13 +263,13 @@ public class SummaDenseMultSparse {
 			/* TIMING */ C.distBs(here.id()).calcTime += Timer.milliTime() - st; 
 			//Debug.flushln("Panel matrix mult done");
 			   
-			//---------------------------------------------------------------------------
+
 			// Perform a ring broadcast reduce sum operation
 			// C += reduceSum on work1  
 			/* TIMING */ st = Timer.milliTime();
 			SummaDense.reduceSumRowBs(jj, klen, itCol, C, rowBsPsMap, work1, tmpwk);
 			/* TIMING */ C.distBs(here.id()).commTime += Timer.milliTime() - st; 
-			//---------------------------------------------------------------------------
+
 			//Debug.flushln("Row block reduce and result updated");
 
 			/* update icurcol, icurrow, ii, jj */

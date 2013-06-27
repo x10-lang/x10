@@ -11,7 +11,6 @@
 
 //package commu.distmatrix;
 
-import x10.io.Console;
 import x10.util.Timer;
 
 import x10.matrix.Debug;
@@ -50,10 +49,10 @@ class TestDistMatrixCommu {
 
 	public val vrfy:Boolean;
 	public val iter:Int;
-	public val M:Int;
+	public val M:Long;
 
 	public val nplace:Int = Place.MAX_PLACES;
-	public val segt:Array[Int](1);
+	public val segt;
 
 	
 	public var syncTime:Long = 0;
@@ -62,7 +61,7 @@ class TestDistMatrixCommu {
 	public var allgatherTime:Long = 0;
 	public var reduceTime:Long = 0;
 	
-	//---------
+-
 	public val dist:Dist= Dist.makeUnique();
 	
 	public val dA:DistDenseMatrix;
@@ -76,7 +75,7 @@ class TestDistMatrixCommu {
 		
 	public val gpart:Grid;
 	
-	public val szlist:Array[Int](1);
+	public val szlist;
 	
 	public val checkTime:Array[Long](1) = new Array[Long](Place.MAX_PLACES);
 	
@@ -119,7 +118,7 @@ class TestDistMatrixCommu {
 				Console.OUT.println("--------Test of dist array communication failed!--------");
 		}	
 	}
-	//------------------------------------------------
+
 	public def testCopy():Boolean {
 		val op:MatrixRemoteCopy = new MatrixRemoteCopy();
 		var ret:Boolean = true;
@@ -127,8 +126,8 @@ class TestDistMatrixCommu {
 		ddA.local().initRandom();
 		
 		val stt:Long = Timer.milliTime();
-		for (var i:Int=0; i<iter; i++) {
-			for (var p:Int=0; p<nplace; p++) {
+		for (var i:Long=0; i<iter; i++) {
+			for (var p:Long=0; p<nplace; p++) {
 				if (p != here.id()) {
 					//var st:Long =  Timer.milliTime();
 					val srcden=ddA.local();
@@ -153,7 +152,7 @@ class TestDistMatrixCommu {
 	}	
 	
 	
-	//------------------------------------------------
+
 	public def testBcast():Boolean {
 		val op:MatrixBcast = new MatrixBcast();
 		var ret:Boolean = true;
@@ -162,7 +161,7 @@ class TestDistMatrixCommu {
 		
 		//denA.initRandom();
 		val stt=Timer.milliTime();
-		for (var i:Int=0; i<iter; i++) {
+		for (var i:Long=0; i<iter; i++) {
 			ddA.sync();
 		}
 		val tt = 1.0 * (Timer.milliTime() - stt)/iter;
@@ -184,7 +183,7 @@ class TestDistMatrixCommu {
 		Console.OUT.printf("\nTest DistMatrix gather over %d places\n", nplace);
 
 		val st = Timer.milliTime();
-		for (var i:Int=0; i<iter; i++) {
+		for (var i:Long=0; i<iter; i++) {
 			dA.copyTo(bA as DenseBlockMatrix(dA.M, dA.N));
 		}
 		val tt = (1.0*Timer.milliTime()-st)/iter;
@@ -205,7 +204,7 @@ class TestDistMatrixCommu {
 		bA.initRandom();
 		Console.OUT.printf("\nTest DistMatrix scatter over %d places\n", nplace);
 		val stt = Timer.milliTime();
-		for (var i:Int=0; i<iter; i++) {
+		for (var i:Long=0; i<iter; i++) {
 			//dA.comm.p2pOp.copy(dA.local(), 0, dA.distBs, 1, 0, dA.local().N); 
 			dA.copyFrom(bA as DenseBlockMatrix(dA.M, dA.N));
 		}
@@ -232,7 +231,7 @@ class TestDistMatrixCommu {
 		Console.OUT.printf("\nTest reduce of DupMatrix over %d places\n", nplace);
 
 		val stt=Timer.milliTime();
-		for (var i:Int=0; i<iter; i++) {
+		for (var i:Long=0; i<iter; i++) {
 			ddA.reduceSum();
 		}
 		val tt = 1.0*(Timer.milliTime() - stt)/iter;

@@ -15,50 +15,49 @@ void mpi_get_request_memsize(int* sl);
 void mpi_send_double(double* buf, int off, int cnt, int dst, int tag);
 void mpi_recv_double(double* buf, int off, int cnt, int src, int tag);
 
-void mpi_send_int(int* buf, int off, int cnt, int dst, int tag);
-void mpi_recv_int(int* buf, int off, int cnt, int src, int tag);
+void mpi_send_long(long* buf, int off, int cnt, int dst, int tag);
+void mpi_recv_long(long* buf, int off, int cnt, int src, int tag);
 
 //---------------------
 // Non-blocking double P2P
 void mpi_Isend_double(double* buf, int off, int cnt, int dst, int tag, void* req);
 void mpi_Irecv_double(double* buf, int off, int cnt, int src, int tag, void* req);
 
-void mpi_Isend_int(int* buf, int off, int cnt, int dst, int tag, void* req);
-void mpi_Irecv_int(int* buf, int off, int cnt, int src, int tag, void* req);
+void mpi_Isend_long(long* buf, int off, int cnt, int dst, int tag, void* req);
+void mpi_Irecv_long(long* buf, int off, int cnt, int src, int tag, void* req);
 //---------------------
 // Bcast
-void mpi_bcast_int(int* buf, int off, int cnt, int root);
+void mpi_bcast_long(long* buf, int off, int cnt, int root);
 void mpi_bcast_double(double* buf, int off, int cnt, int root);
 //---------------------
 //Gatherv
 void mpi_gatherv_double(double* sendbuf, int sendoff, int sendcnt, 
 						double* recvbuf, int recvoff, int* recvcnts, int* displs, int root);
-void mpi_gatherv_int(int* sendbuf, int sendoff, int sendcnt, 
-					 int* recvbuf, int recvoff, int* recvcnts, int* displs, int root);
+void mpi_gatherv_long(long* sendbuf, int sendoff, int sendcnt, 
+					  long* recvbuf, int recvoff, int* recvcnts, int* displs, int root);
 //---------------------
 //Scatterrv
 void mpi_scatterv_double(double* sendbuf, int* sendcnts, int* displs,
 						 double* recvbuf, int recvcnt,  int root);
-void mpi_scatterv_int(int* sendbuf, int* sendcnts, int* displs,
-					  int* recvbuf, int recvcnt,  int root);
+void mpi_scatterv_long(long* sendbuf, int* sendcnts, int* displs,
+					   long* recvbuf, int recvcnt,  int root);
 
 // Allgatherv
 void mpi_allgatherv_double(double* sendbuf, int sendoff, int sendcnt, 
 						   double* recvbuf, int recvoff, int* recvcnts, int* displs);
 //---------------------
 // reduce sum
-void mpi_reduce_sum_int(int* sendbuf, int soff, int* recvbuf, int roff,  int cnt, int root);
+void mpi_reduce_sum_long(long* sendbuf, int soff, int* recvbuf, int roff,  int cnt, int root);
 void mpi_reduce_sum_double(double* sendbuf, int soff, double* recvbuf, int roff,  int cnt, int root);
 //---------------------
 // all reduce sum
-void mpi_allreduce_sum_int(int*sendbuf, int soff, int* recvbuf, int roff, int cnt);
+void mpi_allreduce_sum_long(long*sendbuf, int soff, int* recvbuf, int roff, int cnt);
 void mpi_allreduce_sum_double(double*sendbuf, int soff, double* recvbuf, int roff, int cnt);
 //---------------------
 // Request waiting
 void mpi_wait_request(void* req);
 void mpi_test_request(void* req, int* flag);
 //---------------------
-
 
 #endif
 

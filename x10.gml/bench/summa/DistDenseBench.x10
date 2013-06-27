@@ -9,7 +9,6 @@
  *  (C) Copyright IBM Corporation 2006-2011.
  */
 
-import x10.io.Console;
 import x10.util.Timer;
 import x10.compiler.Ifdef;
 import x10.compiler.Ifndef;
@@ -46,7 +45,7 @@ class RunDistDenseBench{
 
 	public val iter:Int;
 	public val testps:Int, lastps:Int;
-	public val M:Int, N:Int, K:Int;
+	public val M:Long, N:Long, K:Long;
 	public val nplace:Int = Place.MAX_PLACES;
 
 	public val aPart:Grid, bPart:Grid, btPart:Grid, cPart:Grid;
@@ -57,7 +56,7 @@ class RunDistDenseBench{
 	val C:DistDenseMatrix(cPart.M, cPart.N);
 	
 	
-	public def this(m:Int, k:Int, n:Int, it:Int, p:Int) {
+	public def this(m:Long, k:Int, n:Long, it:Int, p:Int) {
 		M = m; N = n; K=k; iter=it; 
 		aPart  = Grid.make(M, K);
 		bPart  = Grid.make(K, N);

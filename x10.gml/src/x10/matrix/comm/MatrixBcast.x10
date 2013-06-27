@@ -11,20 +11,15 @@
 
 package x10.matrix.comm;
 
-import x10.io.Console;
-import x10.util.Timer;
-
+import x10.regionarray.DistArray;
 import x10.compiler.Ifdef;
 import x10.compiler.Ifndef;
-import x10.compiler.Uninitialized;
 
 import x10.matrix.Debug;
 
-import x10.matrix.Matrix;
 import x10.matrix.DenseMatrix;
 import x10.matrix.comm.mpi.WrapMPI;
 import x10.matrix.sparse.SparseCSC;
-
 
 /**
  * This class provides broadcast functions for dense and sparse matrices.
@@ -39,21 +34,7 @@ import x10.matrix.sparse.SparseCSC;
  * <p>For more information on how to build different backends and runtime, 
  * run command "make help" at the root directory of GML library.
  */
-public class MatrixBcast extends MatrixRemoteCopy {
-
-	//public var mpi:UtilMPI;
-
-	//====================================
-	// Constructor
-	//====================================
-	public def this() {
-		super();
-	}
-
-	//=================================================
-	// Broadcast dense matrix to all
-	//=================================================
-
+public class MatrixBcast {
 	/**
 	 * Broadcast dense matrix from here to all other places.
 	 * This routine is used in sync of DupDenseMatrix
@@ -72,8 +53,8 @@ public class MatrixBcast extends MatrixRemoteCopy {
 	 * @param colcnt      Input. Count of columns to broadcast
 	 * @return            Number of elements to broadcast
 	 */
-	public static def bcast(dupmat:DistArray[DenseMatrix](1), coloff:Int, colcnt:Int) : Int {
-		var datasz:Int = 0;
+	public static def bcast(dupmat:DistArray[DenseMatrix](1), coloff:Long, colcnt:Long):Long {
+		var datasz:Long = 0;
 		
 		@Ifdef("MPI_COMMU") {
 			datasz = mpiBcast(dupmat, coloff, colcnt);
@@ -85,7 +66,6 @@ public class MatrixBcast extends MatrixRemoteCopy {
 		return datasz;
 	} 
 
-	//=================================================================
 	/**
 	 * Broadcast dense matrix stored by using MPI bcast routine.
 	 *
@@ -94,15 +74,14 @@ public class MatrixBcast extends MatrixRemoteCopy {
 	 * @param colCnt      Number of columns to broadcast
 	 * @return            Number of elements broadcast
 	 */
-	protected static def mpiBcast(dmlist:DistArray[DenseMatrix](1), colOff:Int, colCnt:Int):Int {
-			
+	protected static def mpiBcast(dmlist:DistArray[DenseMatrix](1), colOff:Long, colCnt:Long):Long {
 		if (dmlist.dist.region.size() <= 1) return 0;
 
 		val root   = here.id();
 		val datasz = dmlist(root).M * colCnt;  //Using global matrix M to compute data size
 		
 		@Ifdef("MPI_COMMU") {
-			finish ateach (val [p]:Point in dmlist.dist) {
+			finish ateach([p] in dmlist.dist) {
 				//Need: dmlist, datasz, root and colOff
 				val denmat = dmlist(here.id());	
 				val offset = denmat.M * colOff;
@@ -112,50 +91,44 @@ public class MatrixBcast extends MatrixRemoteCopy {
 		return datasz;
 	}
 
-	//--------------------------------------------------------------------------
-	
 	/**
 	 *  Broadcast dense matrix among the pcnt number of places followed from here
 	 */
-	protected static def x10Bcast(dmlist:DistArray[DenseMatrix](1), colOff:Int, colCnt:Int): Int {
-
+	protected static def x10Bcast(dmlist:DistArray[DenseMatrix](1), colOff:Long, colCnt:Long):Long {
 		val pcnt   = dmlist.dist.region.size();
 		val datasz = dmlist(here.id()).M * colCnt;
 
-		if (pcnt <= 1 || colCnt == 0) return 0;
+		if (pcnt <= 1 || colCnt == 0L) return 0;
 		
 		binaryTreeCast(dmlist, colOff, colCnt, pcnt);
 		return datasz;
 	}
-
-	//----------------------------------------------------------------
 		
 	/**
 	 * X10 implementation of broadcast data in binary tree routes.
-	 *
 	 */
 	protected static def binaryTreeCast(
 			dmlist:DistArray[DenseMatrix](1), 
-			colOff:Int, colCnt:Int, 
-			pcnt:Int): void {
+			colOff:Long, colCnt:Long, 
+			pcnt:Long): void {
 		
 		val root   = here.id();
 		val srcden = dmlist(root);
-		val lfcnt:Int = (pcnt+1) / 2; // make sure left part is larger, if cnt is odd 
+		val lfcnt:Long = (pcnt+1) / 2; // make sure left part is larger, if cnt is odd 
 		val rtcnt  = pcnt - lfcnt;
 		val rtroot = root + lfcnt;
 
 		// Specify the remote buffer
-		val srcbuf = new RemoteArray[Double](srcden.d as Array[Double](1){self!=null});
+		val srcbuf = new GlobalRail[Double](srcden.d as Rail[Double]{self!=null});
 		val srcoff = srcden.M * colOff; //Source offset is determined by local M
 			
 		finish {
-			at (dmlist.dist(rtroot)) {
+			at(dmlist.dist(rtroot)) {
 				val dstden = dmlist(here.id());
 				val dstoff = colOff * dstden.M; //Destination offset is determined by local M
 				val datasz = dstden.M * colCnt;
 				// Using copyFrom style
-				finish Array.asyncCopy[Double](srcbuf, srcoff, dstden.d, dstoff, datasz);
+				finish Rail.asyncCopy[Double](srcbuf, srcoff, dstden.d, dstoff, datasz);
 							
 				// Perform binary bcast on the right brank
 				if (rtcnt > 1 ) async {
@@ -169,11 +142,6 @@ public class MatrixBcast extends MatrixRemoteCopy {
 			}
 		}
 	}
-
-
-	//=================================================
-	// Broadcast SparseCSC matrix to all
-	//=================================================
 
 	/**
 	 * Broadcast sparseCSC matrix from here to all other places.
@@ -195,9 +163,9 @@ public class MatrixBcast extends MatrixRemoteCopy {
 	 */
 	public static def bcast(
 			smlist:DistArray[SparseCSC](1), 
-			colOff:Int, colCnt:Int) : Int {
+			colOff:Long, colCnt:Long):Long {
 		
-		var datasz:Int =0;
+		var datasz:Long = 0;
 		@Ifdef("MPI_COMMU") {
 			datasz = mpiBcast(smlist, colOff, colCnt);
 		}
@@ -208,14 +176,13 @@ public class MatrixBcast extends MatrixRemoteCopy {
 		return datasz;
 	}
 
-	//===================================
+
 	/**
 	 * Using MPI routine to implement sparse matrix broadcast
-	 *
 	 */
 	protected static def mpiBcast(
 			smlist:DistArray[SparseCSC](1),
-			colOff:Int, colCnt:Int):Int {
+			colOff:Long, colCnt:Long):Long {
 	
 		if (smlist.dist.region.size() <= 1) return 0;
 
@@ -223,7 +190,7 @@ public class MatrixBcast extends MatrixRemoteCopy {
 		val datasz = smlist(root).countNonZero(colOff,colCnt);  
 		@Ifdef("MPI_COMMU") {
 
-			finish ateach (val [p]:Point in smlist.dist) {
+			finish ateach([p] in smlist.dist) {
 				//Need: root, smlist, datasz, colOff, colCnt,
 				val spamat = smlist(here.id());	
 				val offset = spamat.getNonZeroOffset(colOff);
@@ -246,20 +213,18 @@ public class MatrixBcast extends MatrixRemoteCopy {
 			}
 		}
 		return datasz;		
-		
 	}
 
-	//-------------------------------------------------------
 	/**
 	 *  Broadcast sparse matrix among the pcnt number of places followed
 	 */
 	protected static def x10Bcast(
 			smlist:DistArray[SparseCSC](1), 
-			colOff:Int, 
-			colCnt:Int): Int {
+			colOff:Long, 
+			colCnt:Long):Long {
 
 		val pcnt = smlist.dist.region.size();
-		if (pcnt <= 1 || colCnt == 0) return 0;
+		if (pcnt <= 1 || colCnt == 0L) return 0;
 		
 		val srcmat = smlist(here.id());
 		val srcoff = srcmat.getNonZeroOffset(colOff);
@@ -273,31 +238,30 @@ public class MatrixBcast extends MatrixRemoteCopy {
 
 		return datasz;
 	}
-		
 
 	/**
 	 * Broadcast sparse matrix using remote array copy in X10
 	 */
 	protected static def binaryTreeCast(
 			smlist:DistArray[SparseCSC](1), 
-			colOffset:Int, srcOffset:Int, 
-			colCnt:Int,  dataCnt:Int, 
-			pcnt:Int): void {
+			colOffset:Long, srcOffset:Long, 
+			colCnt:Long, dataCnt:Long, 
+			pcnt:Long): void {
 		
 		val myid = here.id();
-		val lfcnt:Int = (pcnt+1) / 2; // make sure left part is larger, if cnt is odd 
+		val lfcnt:Long = (pcnt+1) / 2; // make sure left part is larger, if cnt is odd 
 		val rtcnt  = pcnt - lfcnt;
 		val rtroot = myid + lfcnt;
 
 		// Specify the remote buffer
 		val srcspa = smlist(myid);
-		val idxbuf:Array[Int](1)    = srcspa.getIndex();
-		val valbuf:Array[Double](1) = srcspa.getValue();
-		val srcidx = new RemoteArray[Int   ](idxbuf as Array[Int   ]{self!=null});
-		val srcval = new RemoteArray[Double](valbuf as Array[Double]{self!=null});
+        val idxbuf = srcspa.getIndex();
+        val valbuf = srcspa.getValue();
+        val srcidx = new GlobalRail[Long  ](idxbuf as Rail[Long  ]{self!=null});
+        val srcval = new GlobalRail[Double](valbuf as Rail[Double]{self!=null});
 	
 		finish {		
-			at (smlist.dist(rtroot)) {
+			at(smlist.dist(rtroot)) {
 				//Need: smlist, srcidx, srcval, srcOff, colOff, colCnt and datasz
 				val dstspa = smlist(here.id());
 				val dstoff = dstspa.getNonZeroOffset(colOffset); 
@@ -306,13 +270,13 @@ public class MatrixBcast extends MatrixRemoteCopy {
 				//Do NOT call getIndex()/getValue() before init at destination place
 				//+++++++++++++++++++++++++++++++++++++++++++++
 				dstspa.initRemoteCopyAtDest(colOffset, colCnt, dataCnt);
-				finish Array.asyncCopy[Int   ](srcidx, srcOffset, 
+				finish Rail.asyncCopy[Long  ](srcidx, srcOffset, 
 											   dstspa.getIndex(), dstoff, dataCnt);
-				finish Array.asyncCopy[Double](srcval, srcOffset, 
+				finish Rail.asyncCopy[Double](srcval, srcOffset, 
 											   dstspa.getValue(), dstoff, dataCnt);
 
 				// Perform binary bcast on the right brank
-				if (rtcnt > 1 ) async {
+				if (rtcnt > 1) async {
 					binaryTreeCast(smlist, colOffset, dstoff, colCnt, dataCnt, rtcnt);
 					dstspa.finalizeRemoteCopyAtDest();
 				} else {

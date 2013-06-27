@@ -11,25 +11,17 @@
 
 package x10.matrix.distblock.summa;
 
+import x10.regionarray.Dist;
 import x10.util.Timer;
-import x10.util.ArrayList;
 
 import x10.matrix.Matrix;
 import x10.matrix.DenseMatrix;
 import x10.matrix.Debug;
 import x10.matrix.MathTool;
-
-import x10.matrix.sparse.CompressArray;
 import x10.matrix.sparse.SparseCSC;
-
 import x10.matrix.block.Grid;
-import x10.matrix.block.MatrixBlock;
-import x10.matrix.block.BlockBlockMult;
-
-import x10.matrix.distblock.DistMap;
 import x10.matrix.distblock.BlockSet;
 import x10.matrix.distblock.DistBlockMatrix;
-import x10.matrix.distblock.DupBlockMatrix;
 
 /**
  * SUMMA implementation on distributed block matrix
@@ -37,25 +29,19 @@ import x10.matrix.distblock.DupBlockMatrix;
 public class SummaMultTrans {
 	//val alpha:Double;
 	val beta:Double;
-	val panelSize :Int;
-	//
+	val panelSize:Long;
 	val A:DistBlockMatrix;
 	val B:DistBlockMatrix;
 	val C:DistBlockMatrix;
-	//
 	val work1:PlaceLocalHandle[BlockSet];
 	val work2:PlaceLocalHandle[BlockSet];
 	val temp:PlaceLocalHandle[BlockSet];
-	//------------------------------------------------
 
 	public var commTime:Long=0;
 	public var calcTime:Long=0;
 	
-	//=====================================================================
-	// Constructor
-	//=====================================================================
 	public def this(
-			ps:Int, be:Double,
+			ps:Long, be:Double,
 			a:DistBlockMatrix, 
 			b:DistBlockMatrix{self.N==a.N}, 
 			c:DistBlockMatrix(a.M,b.M),
@@ -76,10 +62,9 @@ public class SummaMultTrans {
 	/**
 	 * Estimate the panel size.
 	 */
-	public static def estPanelSize(ps:Int, ga:Grid, gb:Grid):Int {
-		
+	public static def estPanelSize(ps:Long, ga:Grid, gb:Grid):Long {
 		val maxps = Math.min(ga.colBs(0), gb.rowBs(0));
-		var estps:Int = 128;//estCommuDataSize/ldm;
+		var estps:Long = 128;//estCommuDataSize/ldm;
 		estps = Math.min(ps, estps);
 		
 		if (estps < 1)      estps = 1;
@@ -90,7 +75,7 @@ public class SummaMultTrans {
 		
 		return estps;
 	}	
-	//--------------------------------------------------------------------
+
 	public static def multTrans(	
 			A:DistBlockMatrix, 
 			B:DistBlockMatrix{self.N==A.N}, 
@@ -98,7 +83,6 @@ public class SummaMultTrans {
 		multTrans(10, plus?1.0:0.0, A, B, C);
 	}
 	
-	//-----------------------------------------------------
 	/**
 	 * SUMMA distributed dense matrix multiplication: C = A &#42 B<sup>T</sup> + beta * C
 	 * 
@@ -109,12 +93,11 @@ public class SummaMultTrans {
 	 * @param C        the input/result distributed dense matrix
 	 */
 	public static def multTrans(
-			var ps:Int,  /* Panel size*/
+            var ps:Long,
 			beta:Double, 
 			A:DistBlockMatrix, 
 			B:DistBlockMatrix{self.N==A.N}, 
 			C:DistBlockMatrix(A.M,B.M)) {
-		
 		
 		val pansz = estPanelSize(ps, A.getGrid(), B.getGrid());
 		val w1 = A.makeTempFrontColDenseBlocks(pansz); //Must be dense block
@@ -126,10 +109,8 @@ public class SummaMultTrans {
 		val s = new SummaMultTrans(pansz, beta, A, B, C, w1, w2, w3);
 
 		s.parallelMultTrans();
-		
 	}	
-	//=====================================================================
-	//
+
 	/**
 	 * Distributed matrix multiplication using SUMMA alogrithm
 	 * 
@@ -137,34 +118,27 @@ public class SummaMultTrans {
 	 * @param work2 	temporary space used for ring cast each column blocks
 	 */
 	public def parallelMultTrans() {
-		//
 		val K = B.M;
-		//------------------------
 		var itRow:Int = 0;
 		var itCol:Int = 0; //Current processing iteration
-		//
-		var iwrk:Int = 0;
-		var ii:Int = 0;
-		var jj:Int = 0;
+		var iwrk:Long = 0;
+		var ii:Long = 0;
+		var jj:Long = 0;
 		var st:Long= 0;
-		//
 		val gA = A.getGrid();
 		val gB = B.getGrid();
 		val gC = C.getGrid();
-		//---------------------------------------------------
 
 		//Scaling the matrixesx
 		if (MathTool.isZero(beta)) C.reset();
 		
-		for (var kk:Int=0; kk<K; kk+=iwrk) {
+		for (var kk:Long=0; kk<K; kk+=iwrk) {
 			//Debug.flushln("K="+kk+" itCol:"+itCol+" block N:"+gC.colBs.toString()+" idxjj:"+jj);
 			iwrk = Math.min(panelSize, gC.colBs(itCol)-jj);
 			iwrk = Math.min(iwrk,      gB.rowBs(itRow)-ii); 
 			val klen = iwrk;
 
 			//Debug.flushln("Root place starts iteration "+kk+" panel size:"+klen); 
-			//
-			//-------------------------------------------------------------------
 			//Packing columns and rows and broadcast to same row and column block
 			/* TIMING */ 
 			st = Timer.milliTime();
@@ -174,8 +148,7 @@ public class SummaMultTrans {
 			st = Timer.milliTime();
 			//Debug.flushln("Row and column blocks bcast ends");
 			
-			//-----------------------------------------------------------------
-			finish 	ateach (Dist.makeUnique()) {
+			finish ateach(Dist.makeUnique()) {
 				/* update local block */
 				val mypid = here.id();
 				val wk1 = work1();
@@ -190,7 +163,6 @@ public class SummaMultTrans {
 					val wblk = wk1.findFrontColBlock(cblk.myRowId); 
 					val bblk = wk2.findFrontRowBlock(cblk.myColId);
 					
-					//--------------------------------------------
 					val amat = ablk.getMatrix() as Matrix;
 					Debug.assure(bblk.getMatrix().N==amat.N, "Dimension mismatch in matrix multiply");
 					val bmat:Matrix;
@@ -199,8 +171,8 @@ public class SummaMultTrans {
 					} else {
 						bmat = new SparseCSC(klen, amat.N, bblk.getCompressArray()) as Matrix;
 					}
-					//Debug.flushln("A block:"+amat.dataToString());
-					//Debug.flushln("W2 block:"+bmat.dataToString());
+					//Debug.flushln("A block:"+amat);
+					//Debug.flushln("W2 block:"+bmat);
 					val wmat = new DenseMatrix(amat.M, klen, wblk.getData()) as Matrix(amat.M,klen);
 					/* TIMING */ 
 					val stt:Long = Timer.milliTime();
@@ -222,5 +194,4 @@ public class SummaMultTrans {
 			if ( ii>=gB.rowBs(itRow)) { itRow++; ii = 0; };
 		}
 	}
-	//--------------------------------------------
 }

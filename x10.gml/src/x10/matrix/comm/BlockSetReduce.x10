@@ -11,38 +11,20 @@
 
 package x10.matrix.comm;
 
-import x10.io.Console;
-
+import x10.regionarray.Dist;
 import x10.compiler.Ifdef;
 import x10.compiler.Ifndef;
-import x10.compiler.Uninitialized;
 
 import x10.matrix.Debug;
 import x10.matrix.Matrix;
 import x10.matrix.DenseMatrix;
 import x10.matrix.comm.mpi.WrapMPI;
-import x10.matrix.block.MatrixBlock;
-import x10.matrix.block.DenseBlock;
 import x10.matrix.distblock.BlockSet;
 
 /**
  * The class provides reduce-sum communication for distributed matrix,
- * 
  */
 public class BlockSetReduce extends BlockSetRemoteCopy {
-
-	//public var mpi:UtilMPI;
-
-	//====================================
-	// Constructor
-	//====================================
-	public def this() {
-		super();
-
-	}
-	//=================================================
-	// Broadcast dense matrix to all
-	//=================================================
 	/**
 	 * Reduce all distributed blocks and store the result of sum of all blocks at specified root block.
 	 * All input blocks will be modified, and result will be stored at root block.
@@ -52,7 +34,7 @@ public class BlockSetReduce extends BlockSetRemoteCopy {
 	 * @param rootbid    root block ID.
 	 * 
 	 */
-	public static def reduceSum(distBS:BlocksPLH, tmpBS:BlocksPLH, rootpid:Int): void {
+	public static def reduceSum(distBS:BlocksPLH, tmpBS:BlocksPLH, rootpid:Long): void {
 		@Ifdef("MPI_COMMU") {
 			mpiReduceSum(distBS, tmpBS, rootpid);
 		}
@@ -71,7 +53,7 @@ public class BlockSetReduce extends BlockSetRemoteCopy {
 	 * @param opFunc        Reduce operation function, which take two dense matrix as parameters, the 
 	 */
 	public static def reduce(distBS:BlocksPLH, tmpBS:BlocksPLH, 
-			rootpid:Int,
+			rootpid:Long,
 			opFunc:(DenseMatrix, DenseMatrix)=>DenseMatrix) {
 		@Ifdef("MPI_COMMU") {
 			mpiReduceSum(distBS, tmpBS, rootpid);
@@ -81,7 +63,6 @@ public class BlockSetReduce extends BlockSetRemoteCopy {
 		}
 	}
 	
-	
 	/**
 	 * Reduce all dense matrices stored in DistArray from all places
 	 * to here
@@ -90,20 +71,20 @@ public class BlockSetReduce extends BlockSetRemoteCopy {
 	 * @param ddtmp      Temp matrix space to store the receiving data.
 	 * @return           Number of elements to received
 	 */
-	public static def x10Reduce(distBS:BlocksPLH, tmpBS:BlocksPLH, rootpid:Int,
+	public static def x10Reduce(distBS:BlocksPLH, tmpBS:BlocksPLH, rootpid:Long,
 			opFunc:(DenseMatrix, DenseMatrix)=>DenseMatrix) {
 		
 		val dmap = distBS().getDistMap();
-		var leftpcnt:Int = Place.MAX_PLACES;
+		var leftpcnt:Long = Place.MAX_PLACES;
 		
 		//Debug.assure(here.id() == 0);
 		if (here.id() != rootpid) {
-			at (Dist.makeUnique()(rootpid)) {
+			at(Place(rootpid)) {
 				x10Reduce(distBS, tmpBS, rootpid, opFunc);
 			}
 		} else {
 			finish {
-				if (rootpid == 0) 
+				if (rootpid == 0L) 
 					reduceToHere(distBS, tmpBS, 0, Place.MAX_PLACES, opFunc);
 				else {
 					val lfpcnt = rootpid;
@@ -113,24 +94,23 @@ public class BlockSetReduce extends BlockSetRemoteCopy {
 			}
 		}
 	}
-	
-	//===========================================================
+
 	private static def binaryTreeReduce(
 			distBS:BlocksPLH, tmpBS:BlocksPLH, 
-			nearbypid:Int, rootPCnt:Int,
-			remotepid:Int, remotePCnt:Int,
+			nearbypid:Long, rootPCnt:Long,
+			remotepid:Long, remotePCnt:Long,
 			opFunc:(DenseMatrix, DenseMatrix)=>DenseMatrix) {
-		var rmtbuflst:Array[RemoteArray[Double]](1);
+		var rmtbuflst:Rail[GlobalRail[Double]];
 		finish {
 			//Left branch reduction
-			rmtbuflst =  at (Dist.makeUnique()(remotepid)) {
+			rmtbuflst =  at(Place(remotepid)) {
 				//Remote capture:distBS, tmpBS, lfpcnt;
 				async {
 					reduceToHere(distBS, tmpBS, here.id(), remotePCnt, opFunc);
 				}
 				val bl = distBS().blocklist;
-				new Array[RemoteArray[Double]](bl.size(), 
-						(i:Int)=>new RemoteArray[Double](bl(i).getData() as Array[Double]{self!=null}))
+				new Rail[GlobalRail[Double]](bl.size(), 
+						(i:Long)=>new GlobalRail[Double](bl(i).getData() as Rail[Double]{self!=null}))
 			};
 			//Right branch reduction
 			async {
@@ -139,25 +119,24 @@ public class BlockSetReduce extends BlockSetRemoteCopy {
 		}
 		//val dstIt = distBS().iterator();
 		//val tmpIt = tmpBS().iterator();
-		for (var i:Int=0; i<rmtbuflst.size; i++)  {
+		for (var i:Long=0; i<rmtbuflst.size; i++)  {
 			val dstblk = distBS().blocklist.get(i);
 			val dstden = dstblk.getMatrix() as DenseMatrix;
 			val rcvden = tmpBS().blocklist.get(i).getMatrix() as DenseMatrix;
 			val datcnt = dstden.M*dstden.N;
-			finish Array.asyncCopy[Double](rmtbuflst(i), 0, rcvden.d, 0, datcnt);
+			finish Rail.asyncCopy[Double](rmtbuflst(i), 0L, rcvden.d, 0L, datcnt);
 			opFunc(rcvden, dstden);
 			
 		}
 	}
 
-	//=========================================================
+
 	protected static def reduceToHere(distBS:BlocksPLH, tmpBS:BlocksPLH, 
-			rootpid:Int, pcnt:Int, 
-			opFunc:(DenseMatrix, DenseMatrix)=>DenseMatrix): void {
+			rootpid:Long, pcnt:Long, 
+			opFunc:(DenseMatrix,DenseMatrix)=>DenseMatrix): void {
 		
 		val leftRoot = here.id();
 		if (pcnt > 1) {
-
 			val leftPCnt  = (pcnt+1) / 2; // make sure left part is larger, if cnt is odd 
 			val rightPCnt  = pcnt - leftPCnt;
 			val rightRoot  = leftRoot + leftPCnt;
@@ -166,7 +145,7 @@ public class BlockSetReduce extends BlockSetRemoteCopy {
 		}
 	}
 	
-	//=============================================================
+
 	/**
 	 * Perform reduce sum of all matrces stored in the duplicated matrix
 	 * Result is stored in the matrix at root place.
@@ -174,12 +153,11 @@ public class BlockSetReduce extends BlockSetRemoteCopy {
 	 * @param ddmat     input and output matrix. 
 	 * @param ddtmp     temp matrix storing the inter-place communication data.
 	 */
-	public static def mpiReduceSum(distBS:BlocksPLH, tmpBS:BlocksPLH, rootpid:Int):void {
-	
+	public static def mpiReduceSum(distBS:BlocksPLH, tmpBS:BlocksPLH, rootpid:Long):void {
 		@Ifdef("MPI_COMMU") {
-			finish ateach (val [p]:Point in Dist.makeUnique()) {
+			finish ateach([p] in Dist.makeUnique()) {
 				//Remote capture: rootpid, 
-				for (var i:Int =0; i< distBS().blocklist.size(); i++) {
+				for (var i:Long =0; i< distBS().blocklist.size(); i++) {
 					val blk = distBS().blocklist.get(i);
 					val dst = blk.getMatrix() as DenseMatrix;
 					val src = tmpBS().blocklist.get(i).getMatrix() as DenseMatrix(dst.M,dst.N);
@@ -194,8 +172,6 @@ public class BlockSetReduce extends BlockSetRemoteCopy {
 		}
 	}
 	
-	//=============================================================
-	//=============================================================
 	/**
 	 * Reduce all distributed blocks and store the result of sum of all blocks at specified root block.
 	 * All input blocks will be modified, and result will be stored at root block.
@@ -231,7 +207,7 @@ public class BlockSetReduce extends BlockSetRemoteCopy {
 			x10AllReduce(distBS, tmpBS, opFunc);
 		}
 	}
-	//--------------------
+
 	public static def x10AllReduce(distBS:BlocksPLH, tmpBS:BlocksPLH,
 			opFunc:(DenseMatrix,DenseMatrix)=>DenseMatrix) {
 				
@@ -250,9 +226,9 @@ public class BlockSetReduce extends BlockSetRemoteCopy {
 	 */
 	protected static def mpiAllReduceSum(distBS:BlocksPLH, tmpBS:BlocksPLH): void {
 		@Ifdef("MPI_COMMU") {
-			finish ateach (val [p]:Point in Dist.makeUnique()) {
+			finish ateach([p] in Dist.makeUnique()) {
 				//Remote capture: rootpid, 
-				for (var i:Int =0; i< distBS().blocklist.size(); i++) {
+				for (var i:Long =0; i< distBS().blocklist.size(); i++) {
 					val blk = distBS().blocklist.get(i);
 					val dst = blk.getMatrix() as DenseMatrix;
 					val src = tmpBS().blocklist.get(i).getMatrix() as DenseMatrix(dst.M,dst.N);
@@ -266,12 +242,12 @@ public class BlockSetReduce extends BlockSetRemoteCopy {
 			}
 		}
 	}
-	//==================================
+
 	/**
-	 * Creat temporary space used in reduce for storing received data
+	 * Create temporary space used in reduce for storing received data
 	 */
-	public static def makeTempDistBlockMatrix(m:Int, n:Int):BlocksPLH =
-		PlaceLocalHandle.make[BlockSet](Dist.makeUnique(), 
+	public static def makeTempDistBlockMatrix(m:Long, n:Long):BlocksPLH =
+		PlaceLocalHandle.make[BlockSet](PlaceGroup.WORLD, 
 				()=>BlockSet.makeDense(m*Place.MAX_PLACES, n, Place.MAX_PLACES, 1, Place.MAX_PLACES,1));
 }
 

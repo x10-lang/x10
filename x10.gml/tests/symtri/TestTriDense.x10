@@ -4,14 +4,13 @@
  *  (C) Copyright IBM Corporation 2011.
  */
 
-import x10.io.Console;
 
 import x10.matrix.Matrix;
 import x10.matrix.DenseMatrix;
 import x10.matrix.TriDense;
 
 /**
-   This class contails test cases for triangular dense matrix addition, scaling, and negative operations.
+   This class contains test cases for triangular dense matrix addition, scaling, and negation operations.
    <p>
 
    <p>
@@ -28,9 +27,9 @@ public class TestTriDense{
 
 class TriMatTest {
 
-	public val M:Int;
+	public val M:Long;
 
-	public def this(m:Int) {
+	public def this(m:Long) {
 		M = m;
 	}
 
@@ -70,9 +69,7 @@ class TriMatTest {
 			Console.OUT.println("Triangular Matrix Clone test passed!");
 		else
 			Console.OUT.println("--------Triangular Matrix Clone test failed!--------");
-		//dm.print();
 		val dmm = dm.toDense();
-		//dmm.print();
 		ret &= dmm.equals(dm as Matrix(dmm.M, dmm.N));
 		if (ret)
 			Console.OUT.println("Triangular Matrix toDense test passed!");
@@ -96,10 +93,10 @@ class TriMatTest {
 	public def testInit():Boolean {
 		Console.OUT.println("Starting Triangular Matrix initialization test");
 		var ret:Boolean = true;
-		val sym = TriDense.make(false, M).init((r:Int, c:Int)=>(1.0+10*r+c));
+		val sym = TriDense.make(false, M).init((r:Long, c:Long)=>(1.0+10*r+c));
 		
-		for (var c:Int=0; c<M; c++)
-			for (var r:Int=c; r<M; r++)
+		for (var c:Long=0; c<M; c++)
+			for (var r:Long=c; r<M; r++)
 				ret &= (sym(r,c) == 1.0+10*r+c);
 		
 		if (ret)
@@ -117,21 +114,17 @@ class TriMatTest {
 		dm1.scale(1.0/2.5);
 		val ret = dm.equals(dm1);
 		if (ret)
-			Console.OUT.println("Symmetrix Matrix scaling test passed!");
+			Console.OUT.println("Symmetric Matrix scaling test passed!");
 		else
-			Console.OUT.println("--------Symmetrix matrix Scaling test failed!--------");	
+			Console.OUT.println("--------Symmetric matrix Scaling test failed!--------");	
 		return ret;
 	}
 
 	public def testAdd():Boolean {
 		Console.OUT.println("Starting Triangular matrix addition test");
 		val dm:TriDense(M)  = TriDense.make(false, M).initRandom();
-		//dm.print();
-		val dm1:TriDense(M) = -1 * dm;
-		//dm.print();
-		//dm1.print();
+		val dm1:TriDense(M) = -1.0 * dm;
 		val dm0:DenseMatrix = dm + dm1;
-		//dm0.print();
 		var ret:Boolean = dm0.equals(0.0);
 	
 		if (ret)
@@ -146,13 +139,10 @@ class TriMatTest {
 		Console.OUT.println("Starting Triangular matrix add-sub test");
 		val dm = TriDense.make(false, M).initRandom();
 		val dm1= TriDense.make(false, M).initRandom();
-		//sp.print("Input:");
 		val dm2 = dm + dm1;
-		//sp2.print("Add result:");
 		//
 		val dm_c  = dm2 - dm1;
 		val ret   = dm.equals(dm_c as Matrix(dm.M, dm.N));
-		//sp_c.print("Another add result:");
 		if (ret)
 			Console.OUT.println("Triangular matrix Add-sub test passed!");
 		else
@@ -198,12 +188,10 @@ class TriMatTest {
 		val a = TriDense.make(M).init(1.0);
 		val b = TriDense.make(M).init(2.0);
 		val c = (a + b) * a;
-		c.print();
-		val aa= a*a; aa.print();
-		val ba= b*a; ba.print();
+		val aa= a*a;
+		val ba= b*a;
 		
 		val d = a * a + b * a;
-		d.print();
 		var ret:Boolean = c.equals(d);
 		
 // 		val da = a.toDense();
@@ -242,20 +230,12 @@ class TriMatTest {
 		//val ad:DenseMatrix(M,M) = DenseMatrix.make(M,M);
 		val ad:DenseMatrix(M,M) = a.toDense();
 		//a.copyTo(ad);
-		//a.print();
 		val c = a % b;
-		a.print("Tri matrix");
-		c.print();
-		//c.print());
 		val d = ad % b;
-		ad.print("Dense mat");
-		d.print();
 		ret= d.equals(c as Matrix(M,M));
 		
 		val e = b % a;
-		//e.print();
 		val ed= b % ad;
-		//ed.print();
 		ret &= e.equals(ed);
 		
 		if (ret)
@@ -272,11 +252,7 @@ class TriMatTest {
 		val A:TriDense(M)    = TriDense.make(M).initRandom();
 		val B:DenseMatrix(M,M) = A % X;
 		
-		//A.print("TriDense A");
-		//X.print("Matrix X");
-		//B.print("Mult result B");
 		A.solveSelfMultMat(B);// A % X = B  
-		//B.print();
 		ret &= X.equals(B);
 		
 		val C:DenseMatrix(M,M) = X % A;
@@ -288,8 +264,5 @@ class TriMatTest {
 		else
 			Console.OUT.println("--------Matrix-Triangular solver test failed!--------");
 		return ret;		
-		
 	}
-
-	
 }

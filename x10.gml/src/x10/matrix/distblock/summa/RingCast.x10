@@ -11,36 +11,22 @@
 
 package x10.matrix.distblock.summa;
 
-import x10.io.Console;
-import x10.util.Timer;
-import x10.util.ArrayList;
-
 import x10.compiler.Ifdef;
 import x10.compiler.Ifndef;
-import x10.compiler.Uninitialized;
-import x10.compiler.Inline;
 
 import x10.matrix.Debug;
 import x10.matrix.Matrix;
 import x10.matrix.DenseMatrix;
 import x10.matrix.sparse.SparseCSC;
-import x10.matrix.block.MatrixBlock;
-
 import x10.matrix.comm.mpi.WrapMPI;
-
 import x10.matrix.distblock.BlockSet;
-import x10.matrix.distblock.CastPlaceMap;
 
 /**
  * Grid row/column-wise broadcast
- *.
  */
 protected class RingCast  {
-
-
-	//=======================================================================================================
-	protected static def castToPlaces(distBS:PlaceLocalHandle[BlockSet], rootbid:Int, datCnt:Int, select:(Int,Int)=>Int,
-			plist:Array[Int](1)):void {
+	protected static def castToPlaces(distBS:PlaceLocalHandle[BlockSet], rootbid:Long, datCnt:Long, select:(Long,Long)=>Long,
+			plist:Rail[Long]):void {
 		if (plist.size < 1) return;
 		val srcblk = distBS().findFrontBlock(rootbid, select);
 		if (srcblk.isDense()) {
@@ -62,22 +48,19 @@ protected class RingCast  {
 		}		
 	}
 	
-
-	//===================================================================	
-	//===================================================================
-	private static def mpiRingCastDense(distBS:PlaceLocalHandle[BlockSet], rootbid:Int, datCnt:Int, select:(Int,Int)=>Int,
-			plist:Array[Int](1)):void {
+	private static def mpiRingCastDense(distBS:PlaceLocalHandle[BlockSet], rootbid:Long, datCnt:Long, select:(Long,Long)=>Long,
+			plist:Rail[Long]):void {
 		
 		@Ifdef("MPI_COMMU") 
 		{
 			val plsz = plist.size;
 			val root   = here.id();                     //Implicitly copied to all places
 			finish {
-				for (var p:Int=0; p < plsz; p++) {
+				for (var p:Long=0; p < plsz; p++) {
 					val nxtpid = (p==plsz-1)?root:plist(p+1); //Implicitly carry to next place
-					val prepid = (p==0)?root:plist(p-1); //Implicitly carry to next place
+					val prepid = (p==0L)?root:plist(p-1); //Implicitly carry to next place
 					val curpid = plist(p);
-					async at (Dist.makeUnique()(curpid)) {
+                    at(Place(curpid)) async {
 						//Need: nxtpid, prepid, distBS, rootbid, datCnt
 						val srcblk = distBS().findFrontBlock(rootbid, select);
 						val matbuf = srcblk.getData();
@@ -107,32 +90,31 @@ protected class RingCast  {
 		}
 	}
 	
-	private static def mpiRingCastSparse(distBS:PlaceLocalHandle[BlockSet], rootbid:Int, datCnt:Int, select:(Int,Int)=>Int,
-			plist:Array[Int](1)):void {
+	private static def mpiRingCastSparse(distBS:PlaceLocalHandle[BlockSet], rootbid:Long, datCnt:Long, select:(Long,Long)=>Long,
+			plist:Rail[Long]):void {
 		
 		@Ifdef("MPI_COMMU") 
 		{
 			val plsz = plist.size;
 			val root   = here.id();                     //Implicitly copied to all places
 			finish {
-				
-				for (var p:Int=0; p < plsz; p++) {
+				for (var p:Long=0; p < plsz; p++) {
 					val nxtpid = (p==plsz-1)?root:plist(p+1); //Implicitly carry to next place
-					val prepid = (p==0)?root:plist(p-1); //Implicitly carry to next place
+					val prepid = (p==0L)?root:plist(p-1); //Implicitly carry to next place
 					val curpid = plist(p);
 
-					async at (Dist.makeUnique()(curpid)) {
+                    at(Place(curpid)) async {
 						//Need: nxtpid, prepid, distBS, rootbid, datCnt
 						val srcblk = distBS().findFrontBlock(rootbid, select);
 						val spa = srcblk.getMatrix() as SparseCSC;
 						val dtag = rootbid;
 						//Receive data
 						spa.initRemoteCopyAtDest(datCnt);
-						WrapMPI.world.recv(spa.getIndex(), 0, datCnt, prepid, dtag);
-						WrapMPI.world.recv(spa.getValue(), 0, datCnt, prepid, dtag+1000000);						
+						WrapMPI.world.recv(spa.getIndex(), 0L, datCnt, prepid, dtag);
+						WrapMPI.world.recv(spa.getValue(), 0L, datCnt, prepid, dtag+1000000);						
 						if (nxtpid != root) {
-							WrapMPI.world.send(spa.getIndex(), 0, datCnt, nxtpid, dtag);
-							WrapMPI.world.send(spa.getValue(), 0, datCnt, nxtpid, dtag+1000000);
+							WrapMPI.world.send(spa.getIndex(), 0L, datCnt, nxtpid, dtag);
+							WrapMPI.world.send(spa.getValue(), 0L, datCnt, nxtpid, dtag+1000000);
 						}
 						spa.finalizeRemoteCopyAtDest();
 					}
@@ -143,76 +125,75 @@ protected class RingCast  {
 					val spa    = srcblk.getMatrix() as SparseCSC;
 					val dtag   = rootbid;
 					val nxtpid = plist(0);
-					WrapMPI.world.send(spa.getIndex(), 0, datCnt, nxtpid, dtag);
-					WrapMPI.world.send(spa.getValue(), 0, datCnt, nxtpid, dtag+1000000);
+					WrapMPI.world.send(spa.getIndex(), 0L, datCnt, nxtpid, dtag);
+					WrapMPI.world.send(spa.getValue(), 0L, datCnt, nxtpid, dtag+1000000);
 				}
 			}
 		}
 	}
 	
-	//===================================================================
-	// X10 DistArray copy implementation of ring-cast
-	//===================================================================
+
+	// X10 DistRail.copy implementation of ring-cast
+
 	private static def x10RingCastDense(distBS:PlaceLocalHandle[BlockSet], 
-			rootbid:Int, datCnt:Int, select:(Int,Int)=>Int,
-			plist:Array[Int](1)):void {
+			rootbid:Long, datCnt:Long, select:(Long,Long)=>Long,
+			plist:Rail[Long]):void {
 
 		//Check place list 
 		val srcblk = distBS().findFrontBlock(rootbid, select);
 		val srcden = srcblk.getMatrix() as DenseMatrix;	
-		val srcbuf = new RemoteArray[Double](srcden.d as Array[Double]{self!=null});
+		val srcbuf = new GlobalRail[Double](srcden.d as Rail[Double]{self!=null});
 
 		val nxtpid = plist(0);
-		val nplist = new Array[Int](plist.size-1, (i:Int)=>plist(i+1));
-		at (Dist.makeUnique()(nxtpid)) {
+		val nplist = new Rail[Long](plist.size-1, (i:Long)=>plist(i+1));
+        at(Place(nxtpid)) {
 			//Implicit capture: rmtbuf, dmlist, datasz, nplist, root
 			copyDenseToHere(srcbuf, distBS, rootbid, datCnt, select, nplist);
 		}
 		
 	}
 	
-	private static def copyDenseToHere(rmtbuf:RemoteArray[Double],	distBS:PlaceLocalHandle[BlockSet], 
-			rootbid:Int, datCnt:Int, select:(Int,Int)=>Int,	plist:Array[Int](1)) {
+    private static def copyDenseToHere(rmtbuf:GlobalRail[Double], distBS:PlaceLocalHandle[BlockSet], 
+			rootbid:Long, datCnt:Long, select:(Long,Long)=>Long, plist:Rail[Long]) {
 		
 		val rcvblk = distBS().findFrontBlock(rootbid, select);
 		val rcvden = rcvblk.getMatrix() as DenseMatrix;
 		//Debug.flushln("Copy data to here at Place "+mypid);
-		finish Array.asyncCopy[Double](rmtbuf, 0, rcvden.d, 0, datCnt);
+		finish Rail.asyncCopy[Double](rmtbuf, 0, rcvden.d, 0, datCnt);
 
 		if (plist.size > 0) {
 			val nxtpid = plist(0); // Get next place id in the list
-			val nplist = new Array[Int](plist.size-1, (i:Int)=>plist(i+1));
-			val srcbuf = new RemoteArray[Double](rcvden.d as Array[Double]{self!=null});
+			val nplist = new Rail[Long](plist.size-1, (i:Long)=>plist(i+1));
+			val srcbuf = new GlobalRail[Double](rcvden.d as Rail[Double]{self!=null});
 
-			at (Dist.makeUnique()(nxtpid)) {
+            at(Place(nxtpid)) {
 				//Need: srcbuf, distBS, ootbid, datCnt, nplist
 				copyDenseToHere(srcbuf, distBS, rootbid, datCnt, select, nplist);
 			}
 		}
 	}
-	//----------------
 
-	private static def x10RingCastSparse(distBS:PlaceLocalHandle[BlockSet],	rootbid:Int, datCnt:Int, select:(Int,Int)=>Int,
-			plist:Array[Int](1)) {
+	private static def x10RingCastSparse(distBS:PlaceLocalHandle[BlockSet],	rootbid:Long, datCnt:Long, select:(Long,Long)=>Long,
+			plist:Rail[Long]) {
 		
 		//Check place list 
 		val srcblk = distBS().findFrontBlock(rootbid, select);
 		val srcmat = srcblk.getMatrix() as SparseCSC;
-		val srcidx = new RemoteArray[Int](srcblk.getIndex() as Array[Int]{self!=null});
-		val srcdat = new RemoteArray[Double](srcblk.getData() as Array[Double]{self!=null});
+		val srcidx = new GlobalRail[Long](srcblk.getIndex() as Rail[Long]{self!=null});
+		val srcdat = new GlobalRail[Double](srcblk.getData() as Rail[Double]{self!=null});
 		//Remove root from place list
 		
 		val nxtpid = plist(0);
-		val nplist = new Array[Int](plist.size-1, (i:Int)=>plist(i+1));
-		at (Dist.makeUnique()(nxtpid)) {
+		val nplist = new Rail[Long](plist.size-1, (i:Long)=>plist(i+1));
+        at(Place(nxtpid)) {
 			//Implicit capture: srcidx, srcdat, distBS, rootbid, datCnt, nplist
 			copySparseToHere(srcidx, srcdat, distBS, rootbid, datCnt, select, nplist);
 		}
 	}
 	
-	private static def copySparseToHere(rmtidx:RemoteArray[Int], rmtdat:RemoteArray[Double],
-			distBS:PlaceLocalHandle[BlockSet], rootbid:Int, datCnt:Int, select:(Int,Int)=>Int,
-			plist:Array[Int](1)) {
+	private static def copySparseToHere(rmtidx:GlobalRail[Long], rmtdat:GlobalRail[Double],
+			distBS:PlaceLocalHandle[BlockSet], rootbid:Long, datCnt:Long, select:(Long,Long)=>Long,
+			plist:Rail[Long]) {
 		
 		val rcvblk = distBS().findFrontBlock(rootbid, select);
 		//Debug.flushln("Copy data to here at Place "+mypid);
@@ -220,18 +201,17 @@ protected class RingCast  {
 		
 		spa.initRemoteCopyAtDest(datCnt);
 		if (datCnt > 0) {
-			finish Array.asyncCopy[Int](rmtidx, 0,    spa.getIndex(), 0, datCnt);
-			finish Array.asyncCopy[Double](rmtdat, 0, spa.getValue(), 0, datCnt);
+			finish Rail.asyncCopy[Long](rmtidx, 0L,   spa.getIndex(), 0L, datCnt);
+			finish Rail.asyncCopy[Double](rmtdat, 0L, spa.getValue(), 0L, datCnt);
 		}
 		
-		//rcvden.print("Matrix data at "+mypid+" plist:"+plist.toString());		
 		if (plist.size > 0) {
 			val nxtpid = plist(0); // Get next place id in the list
-			val nplist = new Array[Int](plist.size-1, (i:Int)=>plist(i+1));
-			val srcidx = new RemoteArray[Int](rcvblk.getIndex() as Array[Int]{self!=null});
-			val srcdat = new RemoteArray[Double](rcvblk.getData() as Array[Double]{self!=null});
+			val nplist = new Rail[Long](plist.size-1, (i:Long)=>plist(i+1));
+			val srcidx = new GlobalRail[Long](rcvblk.getIndex() as Rail[Long]{self!=null});
+			val srcdat = new GlobalRail[Double](rcvblk.getData() as Rail[Double]{self!=null});
 
-			at (Dist.makeUnique()(nxtpid)) {
+            at(Place(nxtpid)) {
 				//Need: srcidx, srcdat, distBS, rootbid, datCnt, nplist
 				copySparseToHere(srcidx, srcdat, distBS, rootbid, datCnt, select, nplist);
 			}

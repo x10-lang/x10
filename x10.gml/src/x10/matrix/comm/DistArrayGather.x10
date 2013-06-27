@@ -11,17 +11,11 @@
 
 package x10.matrix.comm;
 
-import x10.io.Console;
-import x10.util.Timer;
-import x10.util.Pair;
-
 import x10.compiler.Ifdef;
 import x10.compiler.Ifndef;
-import x10.compiler.Uninitialized;
 
 import x10.matrix.Debug;
 import x10.matrix.comm.mpi.WrapMPI;
-import x10.matrix.sparse.CompressArray;
 
 /**
  * Gather operations collects data arrays distributed in all places to
@@ -38,16 +32,6 @@ import x10.matrix.sparse.CompressArray;
  * run command "make help" at the root directory of GML library.
  */
 public class DistArrayGather extends DistArrayRemoteCopy {
-	//==============================================
-	// Constructor
-	//==============================================
-	public def this() {
-		super();
-	}
-
-	//==============================================
-	// 
-	//==============================================
 	/**
 	 * Gather data arrays from all places to here in a list of arrays
 	 * (separate memory spaces).
@@ -57,18 +41,18 @@ public class DistArrayGather extends DistArrayRemoteCopy {
 	 */
 	public static def gather(
 			src:DistDataArray, 
-			dst:Array[Array[Double](1)](1)) : void {
+			dst:Array[Rail[Double]](1)) : void {
 		
 		val nb = src.region.size();
 		Debug.assure(nb==dst.size, 
 					 "Number blocks in dist and local array not match");
 		
-		finish for (var bid:Int=0; bid<nb; bid++) {
+		finish for (var bid:Long=0; bid<nb; bid++) {
 			val dstbuf = dst(bid);
 				
 			if (bid == here.id()) {
 				val srcbuf = src(bid);
-				Array.copy(srcbuf, 0, dstbuf, 0, dstbuf.size);
+				Rail.copy(srcbuf, 0, dstbuf, 0, dstbuf.size);
 
 			} else {
 
@@ -83,11 +67,7 @@ public class DistArrayGather extends DistArrayRemoteCopy {
 		}
 	}
 
-
-	//------------------------------------------------------------
 	// Gather from single row blocks partitioning
-	//------------------------------------------------------------
-
 	/**
 	 * Gather distributed arrays from all places to here in a continuous memory space.
 	 * Gathered arrays will be placed next to each other.
@@ -98,8 +78,8 @@ public class DistArrayGather extends DistArrayRemoteCopy {
 	 */
 	public static def gather(
 			src:DistDataArray, 
-			dst:Array[Double](1),
-			szlist:Array[Int](1)):void {
+			dst:Rail[Double],
+			szlist:Rail[Int]):void {
 
 		@Ifdef("MPI_COMMU") {
 			mpiGather(src, dst, szlist);
@@ -109,7 +89,6 @@ public class DistArrayGather extends DistArrayRemoteCopy {
 		}
 	}
 
-	//
 	/**
 	 * Gather distributed arrays from all places
 	 * by using mpi gather routine.
@@ -120,21 +99,21 @@ public class DistArrayGather extends DistArrayRemoteCopy {
 	 */
 	public static def mpiGather(
 			src:DistDataArray, 
-			dst:Array[Double](1), 
-			szlist:Array[Int](1)):void {
+			dst:Rail[Double], 
+			szlist:Rail[Int]):void {
 		
 		@Ifdef("MPI_COMMU") {
 			val root = here.id();
 			finish 	{ 
-				for(val [p] :Point in src.dist) {
+				for([p] in src.dist) {
 					val datcnt = szlist(p);
 					if (p != root) {
-						at (src.dist(p)) async {
+						at(src.dist(p)) async {
 							val srcbuf = src(here.id());
 							/*******************************************/
 							// Not working
-							//val tmpbuf:Array[Double](1)= null; //fake
-							//val tmplst:Array[Int](1)=null;//   //fake
+							//val tmpbuf= null; //fake
+							//val tmplst=null;//   //fake
 							/*******************************************/
 							val tmpbuf = new Array[Double](0); //fake
 							val tmplst = new Array[Int](0);   //fake
@@ -168,12 +147,12 @@ public class DistArrayGather extends DistArrayRemoteCopy {
 	 */
 	public static def x10Gather(
 			src:DistDataArray, 
-			dstbuf:Array[Double](1),
-			gp:Array[Int](1)): void {
+			dstbuf:Rail[Double],
+			gp:Rail[Int]): void {
 
 		val root = here.id();
-		var off:Int=0;
-		for (var cb:Int=0; cb<gp.size; cb++) {
+		var off:Long=0;
+		for (var cb:Long=0; cb<gp.size; cb++) {
 			val datcnt = gp(cb);
 			
 			if (cb != root) {
@@ -182,10 +161,9 @@ public class DistArrayGather extends DistArrayRemoteCopy {
 			} else {
 				//Make local copying
 				val srcbuf = src(cb);
-				Array.copy(srcbuf, 0, dstbuf, off, datcnt);
+				Rail.copy(srcbuf, 0, dstbuf, off, datcnt);
 			}
 			off += datcnt;
 		}
 	}
-	
 }

@@ -11,16 +11,10 @@
 
 package x10.matrix.comm;
 
-import x10.io.Console;
-import x10.util.Timer;
-import x10.util.ArrayList;
-
 import x10.compiler.Ifdef;
 import x10.compiler.Ifndef;
-import x10.compiler.Uninitialized;
 
 import x10.matrix.Debug;
-import x10.matrix.RandTool;
 import x10.matrix.Matrix;
 import x10.matrix.DenseMatrix;
 import x10.matrix.comm.mpi.WrapMPI;
@@ -29,48 +23,33 @@ import x10.matrix.block.MatrixBlock;
 import x10.matrix.distblock.CastPlaceMap;
 
 /**
- * Ring cast sends data from here to a set of blocks, or partial broadcast
- *.
+ * Ring cast sends data from here to a set of blocks, or partial broadcast.
  */
 public class BlockRingReduce extends BlockRemoteCopy {
-
-	//===========================
-	// Constructor
-	//===========================
-	public def this() {
-		super();
-	}
-	//==================================================
 	// RingCast: receive form previous one and send to one next in a ring 
-	//==================================================
 	public static def rowWise(rid:Int, cid:Int):Int = rid;
 	public static def colWise(rid:Int, cid:Int):Int = cid;
 	
-	
-	/**
-	 * 
-	 */
-	public static def rowReduceSum(distBS:BlocksPLH, tmpBS:BlocksPLH, rootbid:Int, colCnt:Int):void {
+	public static def rowReduceSum(distBS:BlocksPLH, tmpBS:BlocksPLH, rootbid:Int, colCnt:Long):void {
 		ringReduce(distBS, tmpBS, rootbid, colCnt, 
 				(rid:Int,cid:Int)=>rid, 
 				(src:DenseMatrix,dst:DenseMatrix, cc:Int)=>sum(src, dst, cc));
 	}
 	
-	public static def colReduceSum(distBS:BlocksPLH, tmpBS:BlocksPLH, rootbid:Int, colCnt:Int):void {
+	public static def colReduceSum(distBS:BlocksPLH, tmpBS:BlocksPLH, rootbid:Int, colCnt:Long):void {
 		ringReduce(distBS, tmpBS, rootbid, colCnt, 
 				(rid:Int,cid:Int)=>cid, 
 				(src:DenseMatrix,dst:DenseMatrix, cc:Int)=>sum(src, dst, cc));
 	}
 	
-	public static def sum(src:DenseMatrix, root:DenseMatrix, colCnt:Int):DenseMatrix {
-		for (var i:Int=0; i<root.M*colCnt; i++) {
+	public static def sum(src:DenseMatrix, root:DenseMatrix, colCnt:Long):DenseMatrix {
+		for (var i:Long=0; i<root.M*colCnt; i++) {
 			root.d(i) += src.d(i);
 		}
 		return root;
 	}
-	//===================================================================
 
-	public static def ringReduce(distBS:BlocksPLH, tmpBS:BlocksPLH, rootbid:Int, colCnt:Int, 
+	public static def ringReduce(distBS:BlocksPLH, tmpBS:BlocksPLH, rootbid:Int, colCnt:Long, 
 			select:(Int,Int)=>Int, 
 			opFunc:(DenseMatrix, DenseMatrix, Int)=>DenseMatrix) {
 		
@@ -78,7 +57,7 @@ public class BlockRingReduce extends BlockRemoteCopy {
 		
 		if (rootpid != here.id()) {
 			//Goto rootpid to start ringcast
-			at (Dist.makeUnique()(rootpid)) {
+			at(Place(rootpid)) {
 				ringReduce(distBS, tmpBS, rootbid, colCnt, select, opFunc);
 			}
 		} else {
@@ -95,50 +74,47 @@ public class BlockRingReduce extends BlockRemoteCopy {
 			}
 		}		
 	}
-	
-	//=========================================================
-	protected static def reduceToHere(distBS:BlocksPLH, tmpBS:BlocksPLH, 
-			rootblk:MatrixBlock, colCnt:Int, 
-			select:(Int, Int)=>Int,
-			opFunc:(DenseMatrix, DenseMatrix, Int)=>DenseMatrix,
-			plst:Array[Int](1)): void {
-				
-				//val leftRoot = here.id();
-				val pcnt = plst.size;
-				if (pcnt > 1) {
-					Debug.assure(here.id()==plst(0));
-					val leftPCnt  = (pcnt+1) / 2; // make sure left part is larger, if cnt is odd 
-					val rightPCnt  = pcnt - leftPCnt;
-					val rightplst = new Array[Int](rightPCnt, (i:Int)=>plst(leftPCnt+i));
-					val leftplst  = new Array[Int](leftPCnt, (i:Int)=>plst(i));
 
-					@Ifdef("MPI_COMMU") {
-						mpiBinaryTreeReduce(distBS, tmpBS, rootblk, colCnt, select, opFunc, 
-								leftplst, rightplst);
-					}
-					@Ifndef("MPI_COMMU") {
-						x10BinaryTreeReduce(distBS, tmpBS, rootblk, colCnt, select, opFunc, 
-								leftplst, rightplst);
-					}
-				} else if (pcnt == 1) {
-					distBS().selectReduce(rootblk, colCnt, select, opFunc);
-				}
-			}
-				
+	protected static def reduceToHere(distBS:BlocksPLH, tmpBS:BlocksPLH, 
+        rootblk:MatrixBlock, colCnt:Long, 
+        select:(Int, Int)=>Int,
+        opFunc:(DenseMatrix, DenseMatrix, Int)=>DenseMatrix,
+        plst:Rail[Int]): void {
 	
-	//-----------------------------
+        //val leftRoot = here.id();
+        val pcnt = plst.size;
+        if (pcnt > 1) {
+            Debug.assure(here.id()==plst(0));
+            val leftPCnt  = (pcnt+1) / 2; // make sure left part is larger, if cnt is odd 
+            val rightPCnt  = pcnt - leftPCnt;
+            val rightplst = new Array[Int](rightPCnt, (i:Int)=>plst(leftPCnt+i));
+            val leftplst  = new Array[Int](leftPCnt, (i:Int)=>plst(i));
+
+            @Ifdef("MPI_COMMU") {
+                mpiBinaryTreeReduce(distBS, tmpBS, rootblk, colCnt, select, opFunc, 
+                    leftplst, rightplst);
+            }
+            @Ifndef("MPI_COMMU") {
+               x10BinaryTreeReduce(distBS, tmpBS, rootblk, colCnt, select, opFunc, 
+                    leftplst, rightplst);
+            }
+        } else if (pcnt == 1) {
+            distBS().selectReduce(rootblk, colCnt, select, opFunc);
+        }
+    }
+
 	private static def x10BinaryTreeReduce(distBS:BlocksPLH, tmpBS:BlocksPLH, 
-			rootblk:MatrixBlock, colCnt:Int,
+			rootblk:MatrixBlock, colCnt:Long,
 			select:(Int,Int)=>Int,	
 			opFunc:(DenseMatrix, DenseMatrix, Int)=>DenseMatrix, 
-			nearbyPlcList:Array[Int](1), 
-			remotePlcList:Array[Int](1)) {
+			nearbyPlcList:Rail[Int], 
+			remotePlcList:Rail[Int]) {
 		
-		var rmtbuf:RemoteArray[Double];
+		var rmtbuf:GlobalRail[Double];
 		finish {
 			//Left branch reduction
 			val remotepid = remotePlcList(0);
-			rmtbuf =  at (Dist.makeUnique()(remotepid)) {
+			rmtbuf =  at(Place(remotepid)) {
 				//Remote capture:distBS, tmpBS, colCnt, remotePlcList
 				val rootbid = distBS().getGrid().getBlockId(rootblk.myRowId, rootblk.myColId);
 				val rmtblk = distBS().findFrontBlock(rootbid, select);
@@ -146,7 +122,7 @@ public class BlockRingReduce extends BlockRemoteCopy {
 					reduceToHere(distBS, tmpBS, rmtblk, colCnt, select, opFunc, remotePlcList);
 				}
 				
-				new RemoteArray[Double](rmtblk.getData() as Array[Double]{self!=null})
+				new GlobalRail[Double](rmtblk.getData() as Array[Double]{self!=null})
 			};
 			//Right branch reduction
 			async {
@@ -166,11 +142,11 @@ public class BlockRingReduce extends BlockRemoteCopy {
 	}
 
 	private static def mpiBinaryTreeReduce(distBS:BlocksPLH, tmpBS:BlocksPLH, 
-			rootblk:MatrixBlock, colCnt:Int,
+			rootblk:MatrixBlock, colCnt:Long,
 			select:(Int,Int)=>Int,
 			opFunc:(DenseMatrix, DenseMatrix, Int)=>DenseMatrix, 
-			nearbyPlcList:Array[Int](1), 
-			remotePlcList:Array[Int](1))  {
+			nearbyPlcList:Rail[Int], 
+			remotePlcList:Rail[Int])  {
 				
 		@Ifdef("MPI_COMMU") {
 			val dstpid = here.id();
@@ -181,7 +157,7 @@ public class BlockRingReduce extends BlockRemoteCopy {
 			finish {
 				//Left branch reduction
 				val remotepid = remotePlcList(0);
-				at (Dist.makeUnique()(remotepid)) async {
+				at(Place(remotepid)) async {
 					//Remote capture:distBS, tmpBS, colCnt, remotePlcList
 					val rootbid = distBS().getGrid().getBlockId(rootblk.myRowId, rootblk.myColId);
 					val rmtblk = distBS().findFrontBlock(rootbid, select);

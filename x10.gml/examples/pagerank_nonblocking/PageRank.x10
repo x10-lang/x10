@@ -3,36 +3,27 @@
  *
  *  (C) Copyright IBM Corporation 2011.
  */
-package pagerank;
 
-import x10.io.Console;
 import x10.util.Timer;
-//
+
 import x10.matrix.Debug;
-//
 import x10.matrix.Matrix;
 import x10.matrix.DenseMatrix;
-import x10.matrix.blas.DenseMatrixBLAS;
-//
 import x10.matrix.block.Grid;
 import x10.matrix.block.DenseBlockMatrix;
 import x10.matrix.dist.DupDenseMatrix;
 import x10.matrix.dist.DistDenseMatrix;
 import x10.matrix.dist.DistSparseMatrix;
 
-import x10.matrix.dist.DistMultDupToDist;
-//
-
 /**
  * Parallel Page Rank algorithm based on GML distributed
  * dense/sparse matrix
  */
 public class PageRank {
+	val rowG:Long;
+	val colP:Long;
 
-	val rowG:Int;
-	val colP:Int;
-
-	public val iteration:Int;
+	public val iteration:Long;
 	public val nzDensity:Double;
 	public val alpha:Double= 0.85;
 
@@ -54,7 +45,6 @@ public class PageRank {
 	var tt:Long = 0;
 
 	public def this(mg:Int, np:Int, nzd:Double, it:Int) {
-
 		rowG = mg;
 		colP = np;
 
@@ -77,7 +67,6 @@ public class PageRank {
 	}
 	
 	public def init():void {
-		//-----------------------------------------------
 		Debug.flushln("Start initialize input matrices");		
 		G.initRandom(nzDensity);
 		Debug.flushln("Dist sparse matrix initialization completes");		
@@ -96,7 +85,7 @@ public class PageRank {
 		Debug.flushln("Start parallel PageRank");	
 		val st = Timer.milliTime();
 				
-		for (var i:Int=0; i<iteration; i++) {
+		for (var i:Long=0; i<iteration; i++) {
 			startt = Timer.milliTime();
 			distGP.mult(G, P)
 				.scale(alpha)
@@ -124,7 +113,6 @@ public class PageRank {
 	}
 
 	public def printInfo() {
-		//
 		Console.OUT.printf("Place: %d, G:(%dx%d) P:(%dx%d))", 
 						   Place.MAX_PLACES, G.M, G.N, P.M, P.N);
 		Console.OUT.printf("distG(%dx%d)  nzDensity:%.3f\n",
@@ -142,5 +130,4 @@ public class PageRank {
 		//V.printBlockColumnSizeAvgStd();
 		Console.OUT.flush();
 	}
-
 }

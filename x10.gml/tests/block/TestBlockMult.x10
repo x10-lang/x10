@@ -9,25 +9,14 @@
  *  (C) Copyright IBM Corporation 2006-2011.
  */
 
-import x10.io.Console;
-
-import x10.matrix.Debug;
 import x10.matrix.Matrix;
 import x10.matrix.DenseMatrix;
 
-import x10.matrix.sparse.SparseCSC;
 import x10.matrix.block.Grid;
-
 import x10.matrix.block.BlockMatrix;
 import x10.matrix.block.BlockBlockMult;
 
-/**
-   <p>
-
-   <p>
- */
 public class TestBlockMult {
-	
     public static def main(args:Rail[String]) {
 		val testcase = new RunBlockMult(args);
 		testcase.run();
@@ -35,22 +24,21 @@ public class TestBlockMult {
 }
 
 class RunBlockMult {
-	public val M:Int;
-	public val K:Int;
-	public val N:Int;
-	public val bM:Int;
+	public val M:Long;
+	public val K:Long;
+	public val N:Long;
+	public val bM:Long;
 	public val bK:Int;
-	public val bN:Int;
+	public val bN:Long;
 	public val nzd:Double;
-	
-	//-------------
+
 	val gA:Grid, gB:Grid, gC:Grid, gTransA:Grid, gTransB:Grid;
 	//val A:BlockMatrix(M,K), B:BlockMatrix(K,N), C:BlockMatrix(M,N);
 	
     public def this(args:Rail[String]) {
 		M = args.size > 0 ?Int.parse(args(0)):10;
-		K = args.size > 1 ?Int.parse(args(1)):M+2;
-		N = args.size > 2 ?Int.parse(args(2)):M+4;
+		K = args.size > 1 ?Int.parse(args(1)):(M as Int)+2;
+		N = args.size > 2 ?Int.parse(args(2)):(M as Int)+4;
 		bM = args.size > 3 ?Int.parse(args(3)):2;
 		bK = args.size > 4 ?Int.parse(args(4)):3;
 		bN = args.size > 5 ?Int.parse(args(5)):4;
@@ -61,7 +49,6 @@ class RunBlockMult {
 		gC = new Grid(M, N, bM, bN);
 		gTransA = new Grid(K, M, bK, bM);
 		gTransB = new Grid(N, K, bN, bK);
-		
 	}
 
     public def run (): void {
@@ -90,19 +77,15 @@ class RunBlockMult {
 		val B = BlockMatrix.makeDense(gB) as BlockMatrix(K,N);
 		val C = BlockMatrix.makeDense(gC) as BlockMatrix(M,N);
 		
-		A.init((r:Int,c:Int)=>1.0*((r+c)));
-		B.init((r:Int,c:Int)=>1.0*((r+c)));
+		A.init((r:Long,c:Long)=>1.0*((r+c)));
+		B.init((r:Long,c:Long)=>1.0*((r+c)));
 		
 		BlockBlockMult.mult(A, B, C, false);
-		//A.printMatrix();
-		//B.printMatrix();
-		//C.printMatrix();
 		
 		val dA = A.toDense() as DenseMatrix(M,K);
 		val dB = B.toDense() as DenseMatrix(K,N);
 		val dC = DenseMatrix.make(M,N);
 		dC.mult(dA, dB, false);
-		//dC.printMatrix();
 		
 		ret &= dC.equals(C as Matrix(dC.M,dC.N));
 
@@ -121,19 +104,14 @@ class RunBlockMult {
 		val B = BlockMatrix.makeDense(gB) as BlockMatrix(K,N);
 		val C = BlockMatrix.makeDense(gC) as BlockMatrix(M,N);
 		
-		A.init((r:Int,c:Int)=>1.0*((r+c)));
-		B.init((r:Int,c:Int)=>1.0*((r+c)));
+		A.init((r:Long,c:Long)=>1.0*((r+c)));
+		B.init((r:Long,c:Long)=>1.0*((r+c)));
 		BlockBlockMult.transMult(A, B, C, false);
-		
-		//A.printMatrix();
-		//B.printMatrix();
-		//C.printMatrix();
 		
 		val dA = A.toDense() as DenseMatrix(K,M);
 		val dB = B.toDense() as DenseMatrix(K,N);
 		val dC = DenseMatrix.make(M,N);
 		dC.transMult(dA, dB, false);
-		//dC.printMatrix();
 		
 		ret &= dC.equals(C as Matrix(dC.M,dC.N));
 
@@ -151,19 +129,15 @@ class RunBlockMult {
 		val B = BlockMatrix.makeDense(gTransB) as BlockMatrix(N,K);
 		val C = BlockMatrix.makeDense(gC) as BlockMatrix(M,N);
 		
-		A.init((r:Int,c:Int)=>1.0*((r+c)));
-		B.init((r:Int,c:Int)=>1.0*((r+c)));
+		A.init((r:Long,c:Long)=>1.0*((r+c)));
+		B.init((r:Long,c:Long)=>1.0*((r+c)));
 		
 		BlockBlockMult.multTrans(A, B, C, false);
-		//A.printMatrix();
-		//B.printMatrix();
-		//C.printMatrix();
 		
 		val dA = A.toDense() as DenseMatrix(M,K);
 		val dB = B.toDense() as DenseMatrix(N,K);
 		val dC = DenseMatrix.make(M,N);
 		dC.multTrans(dA, dB, false);
-		//dC.printMatrix();
 		
 		ret &= dC.equals(C as Matrix(dC.M,dC.N));
 
@@ -173,5 +147,4 @@ class RunBlockMult {
 			Console.OUT.println("--------Block matrix multiply-transpose test failed!--------");
 		return ret;
 	}
-
 } 

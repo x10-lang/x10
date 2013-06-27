@@ -11,7 +11,6 @@
 
 package x10.matrix.sparse;
 
-//
 import x10.matrix.MathTool;
 import x10.matrix.Debug;
 import x10.matrix.Matrix;
@@ -24,11 +23,6 @@ import x10.matrix.DenseMatrix;
  * the sparse matrix first.
  */
 public class SparseMultDenseToDense {
- 
-    //------------------------------------------------------------------------
-	// CSC format multiply with Dense
-    //------------------------------------------------------------------------
-
 	/**
 	 * Return matrix multiplication m1 &#42 m2 in dense format
 	 */
@@ -43,22 +37,22 @@ public class SparseMultDenseToDense {
 		m3:DenseMatrix{self.M==m1.M,self.N==m2.N}, plus:Boolean):DenseMatrix(m3) {
 		Debug.assure(m3.M>=m1.M&&m1.N == m2.M&&m2.N<=m3.N);
 		//
-		var startcol:Int = 0;
-		var v1idx:Int = 0;
-		var v2idx:Int = 0;
-		for (var c:Int=0; c<m2.N; c++, startcol +=m3.M) {			
+		var startcol:Long = 0;
+		var v1idx:Long = 0;
+		var v2idx:Long = 0;
+		for (var c:Long=0; c<m2.N; c++, startcol +=m3.M) {			
 			if (! plus) {
-				for (var i:Int=startcol; i<startcol+m3.M; i++) m3.d(i) = 0.0;
+				for (var i:Long=startcol; i<startcol+m3.M; i++) m3.d(i) = 0.0;
 			}
 			v1idx = 0;
-			for (var k:Int=0; k<m1.N; k++) {
+			for (var k:Long=0; k<m1.N; k++) {
 				val v2 = m2.d(v2idx++); //m2(k, c);
 				//
 				if (MathTool.isZero(v2)) {
 					v1idx += m1.M;
 				} else {
 					val m1col = m1.getCol(k);
-					for (var ridx:Int=0; ridx<m1col.size(); ridx++) {
+					for (var ridx:Long=0; ridx<m1col.size(); ridx++) {
 						val r = m1col.getIndex(ridx);
 						val v1 = m1col.getValue(ridx); // m1(r, k)
 						m3.d(startcol+r) += v1 * v2;
@@ -68,14 +62,13 @@ public class SparseMultDenseToDense {
 		}
 		return m3;
 	}
-	//------------------
+
 	/**
 	 * Return matrix multiplication m1 &#42 m2<sup>T</sup> in dense format
 	 */
 	public static def compMultTrans(m1:SparseCSC, m2:DenseMatrix{self.N==m1.N}):DenseMatrix(m1.M, m2.M) =
 		compMultTrans(m1, m2, new DenseMatrix(m1.M, m2.M), false);
 
-	//------------------
 	/**
 	 * Perform matrix multiplication m3 += m1 &#42 m2<sup>T</sup> if plus is true, 
 	 * else m3 = m1 &#42 m2<sup>T</sup>
@@ -85,25 +78,24 @@ public class SparseMultDenseToDense {
 		//Debug.flushln("Using X10 driver: CSC * Dense.T -> Dense");
 		Debug.assure(m3.M>=m1.M&&m1.N == m2.N&&m2.M<=m3.N);
 		//
-		var startcol:Int = 0;
-		var v1idx:Int = 0;
-		var v2idx:Int = 0;
-		for (var c:Int=0; c<m2.M; c++, startcol +=m3.M) {			
+		var startcol:Long = 0;
+		var v1idx:Long = 0;
+		var v2idx:Long = 0;
+		for (var c:Long=0; c<m2.M; c++, startcol +=m3.M) {			
 			if (! plus) {
-				for (var i:Int=startcol; i<startcol+m3.M; i++) m3.d(i) = 0.0;
+				for (var i:Long=startcol; i<startcol+m3.M; i++) m3.d(i) = 0.0;
 			}
 			v2idx = c;
-			for (var k:Int=0; k<m1.N; k++, v2idx+=m2.M) {
+			for (var k:Long=0; k<m1.N; k++, v2idx+=m2.M) {
 				//val v2 = m2.apply(c, k);
 				val v2 = m2.d(v2idx); //m2(c, k);
 				//val v2 = m2.d(c+k*m2.M); //m2(k, c);
 				//
 				if (MathTool.isZero(v2)) continue;
 				val m1col = m1.getCol(k);
-				for (var ridx:Int=0; ridx<m1col.size(); ridx++) {
+				for (var ridx:Long=0; ridx<m1col.size(); ridx++) {
 					val r  = m1col.getIndex(ridx);
 					val v1 = m1col.getValue(ridx); // m1(r, k)
-					//if ( MathTool.isZero(v1)) continue;
 					m3.d(startcol+r) += v1 * v2;
 				}
 			}
@@ -124,15 +116,15 @@ public class SparseMultDenseToDense {
 		m3:DenseMatrix{self.M==m1.N,self.N==m2.N}, plus:Boolean): DenseMatrix(m3) =
 		comp(m1.TtoCSR(), m2, m3, plus);
 	
-    //------------------------------------------------------------------------
+
 	// CSR format multiply with Dense
-    //------------------------------------------------------------------------
+
 	/**
 	 * Return matrix multiplication m1 &#42 m2 in dense format
 	 */
 	public static def comp(m1:SparseCSR, m2:DenseMatrix{self.M==m1.N}):DenseMatrix(m1.M, m2.N) =
 		comp(m1, m2, new DenseMatrix(m1.M, m2.N), false);
-	//
+
 	/**
 	 * Perform matrix multiplication m3 += m1 &#42 m2 if plus is true, 
 	 * else m3 = m1 &#42 m2
@@ -157,16 +149,15 @@ public class SparseMultDenseToDense {
 		Debug.assure(m3.M>=m1.M&&m1.N == m2.M&&m2.N<=m3.N);
 		//
 		var m2stcol:Int = 0;
-		for (var r:Int=0; r<m1.M; r++) {
+		for (var r:Long=0; r<m1.M; r++) {
 			val m1row = m1.getRow(r);
 			m2stcol = 0;
-			for (var c:Int=0; c<m2.N; c++, m2stcol+=m2.M) {			
+			for (var c:Long=0; c<m2.N; c++, m2stcol+=m2.M) {			
 				var v3:Double = 0.0;
-				for (var kidx:Int=0; kidx<m1row.size(); kidx++) {
+				for (var kidx:Long=0; kidx<m1row.size(); kidx++) {
 					val k = m1row.getIndex(kidx);
 					val v1= m1row.getValue(kidx); //m1(r, k);
 					val v2= m2.d(m2stcol+k);      //m2(k, c);
-					//if (MathTool.isZero(v1)) continue;
 					v3 += v1 * v2;
 				} 
 				if (plus )
@@ -177,7 +168,7 @@ public class SparseMultDenseToDense {
 		}
 		return m3;
 	}
-	//-------
+
 	public static def compMultTrans(m1:SparseCSR, m2:DenseMatrix{m2.N==m1.N}):DenseMatrix(m1.M,m2.M) =
 		compMultTrans(m1, m2, new DenseMatrix(m1.M, m2.M), false);
 
@@ -190,22 +181,21 @@ public class SparseMultDenseToDense {
 
 		Debug.assure(m3.M>=m1.M&&m1.N == m2.N&&m2.M<=m3.N);
 
-		var v2idx:Int = 0;
-		var dstidx:Int=0;
-		for (var r:Int=0; r<m1.M; r++) {			
+		var v2idx:Long = 0;
+		var dstidx:Long=0;
+		for (var r:Long=0; r<m1.M; r++) {			
 			if (! plus) {
-				for (var i:Int=r; i<m3.M*m3.N; i+=m3.M) m3.d(i) = 0.0;
+				for (var i:Long=r; i<m3.M*m3.N; i+=m3.M) m3.d(i) = 0.0;
 			}
 			val m1row = m1.getRow(r);
-			for (var kidx:Int=0; kidx<m1row.size(); kidx++) {
+			for (var kidx:Long=0; kidx<m1row.size(); kidx++) {
 				val k  = m1row.getIndex(kidx);
 				val v1 = m1row.getValue(kidx);//m1(r, k);
 				v2idx  = k*m2.M;
 				dstidx = r;
-				for (var c:Int=0; c<m2.M; c++, v2idx++, dstidx+=m3.M) {
+				for (var c:Long=0; c<m2.M; c++, v2idx++, dstidx+=m3.M) {
 					//val v1 = m1.apply(r, k); 
 					val v2 = m2.d(v2idx); // m2(c, k)
-					//if ( MathTool.isZero(v2)) continue;
 					// The strike for accessing m3.d is not 1,
 					// This could lead to more cache misses.
 					// Additional memory allocation could be used 

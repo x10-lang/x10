@@ -4,25 +4,13 @@
  *  (C) Copyright IBM Corporation 2011.
  */
 
-import x10.io.Console;
-
-import x10.matrix.Matrix;
-import x10.matrix.DenseMatrix;
 import x10.matrix.TriDense;
 import x10.matrix.MathTool;
-import x10.matrix.sparse.SymSparseCSC;
-
 import x10.matrix.builder.SparseCSCBuilder;
 import x10.matrix.builder.TriDenseBuilder;
 import x10.matrix.builder.TriSparseBuilder;
 
-/**
-   <p>
-
-   <p>
- */
 public class TestTriBuilder{
-
     public static def main(args:Rail[String]) {
 		val m = (args.size > 0) ? Int.parse(args(0)):4;
 		val d = (args.size > 1) ? Double.parse(args(1)):0.5;
@@ -31,13 +19,11 @@ public class TestTriBuilder{
 	}
 }
 
-
 class TestBuilder {
-
-	public val M:Int;
+	public val M:Long;
 	public val nzd:Double;
 
-	public def this(m:Int, d:Double) {
+	public def this(m:Long, d:Double) {
 		M = m; nzd = d;
 	}
 
@@ -62,7 +48,6 @@ class TestBuilder {
     	val tri = tribld.toTriDense();
 	
     	tribld.initRandom(nzd);
-    	tribld.dense.printMatrix();
     	ret &= tribld.isLowerZero();
     	
     	val lobld = TriDenseBuilder.make(false, M);
@@ -84,19 +69,18 @@ class TestBuilder {
     	val tribld = TriSparseBuilder.make(true, M).initRandom(nzd);
     	val tri = tribld.toSparseCSC();
     	
-    	tri.printMatrix();
-    	for (var c:Int=0; c<M&&ret; c++)
-    		for (var r:Int=c+1; r<M&&ret; r++)
+    	for (var c:Long=0; c<M&&ret; c++)
+    		for (var r:Long=c+1; r<M&&ret; r++)
     			ret &= (MathTool.isZero(tri(r,c)));
     	
     	val spa = SparseCSCBuilder.make(M, M).initRandom(nzd).toSparseCSC();
     	val ntr = TriSparseBuilder.make(false, M).init(spa).toSparseCSC();
     	if (ret) {
-    		spa.printMatrix();
-    		ntr.printMatrix();
+    		Console.OUT.print("spa\n" + spa);
+    		Console.OUT.print("ntr\n" + ntr);
     	}
-    	for (var c:Int=0; c<M&&ret; c++)
-    		for (var r:Int=c; r<M&&ret; r++)
+    	for (var c:Long=0; c<M&&ret; c++)
+    		for (var r:Long=c; r<M&&ret; r++)
     			ret &= (spa(r,c)==ntr(r,c));
 
     	if (ret)

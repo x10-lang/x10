@@ -10,7 +10,7 @@
 ###################################################
 # Source and target file
 ###################################################
-target_list 	= TestDistBlock TestDupBlock TestDistMult TestDistDupMult TestGridCast TestGridReduce TestSumma TestDistVector TestDupVector TestDistDupVectorMult
+target_list 	= TestDistBlock TestDupBlock TestDistMult TestDistDupMult TestDupDistMult TestSumma TestDistVector TestDupVector TestDistDupVectorMult
 
 target		= TestSumma
 #target		= TestDistDupMult

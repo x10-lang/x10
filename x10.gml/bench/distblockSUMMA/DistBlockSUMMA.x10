@@ -4,7 +4,6 @@
  *  (C) Copyright IBM Corporation 2012.
  */
 
-import x10.io.Console;
 import x10.util.Timer;
 
 import x10.matrix.Debug;
@@ -38,26 +37,26 @@ public class DistBlockSUMMA {
 }
 
 class BenchRunSumma {
-	public val M:Int;
-	public val K:Int;
-	public val N:Int;
-	public val bM:Int;
-	public val bN:Int;
+	public val M:Long;
+	public val K:Long;
+	public val N:Long;
+	public val bM:Long;
+	public val bN:Long;
 	
-	//-------------
-	val itnum:Int;
+
+	val itnum:Long;
 	val panel:Int;
-	//---------------------
+
 	val A:DistBlockMatrix(M,K);
 	val B:DistBlockMatrix(K,N);
 	val C:DistBlockMatrix(M,N);
 	val tB:DistBlockMatrix(N,K);
-	//-----------
+
 	val summa:SummaMult;
 	val summaT:SummaMultTrans;
 	
 	
-	public def this(m:Int, k:Int, n:Int, nzd:Double, it:Int, pnl:Int, blkmn:Int) {
+	public def this(m:Long, k:Int, n:Long, nzd:Double, it:Int, pnl:Int, blkmn:Long) {
 		
 		val pM = MathTool.sqrt(Place.MAX_PLACES);
 		val pN = Place.MAX_PLACES/pM;
@@ -75,7 +74,7 @@ class BenchRunSumma {
 		
 		tB= (nzd<0.9)? DistBlockMatrix.makeSparse(N, K, bM, bN, pM, pN, nzd):
 			DistBlockMatrix.makeDense(N, K, bM, bN, pM, pN);
-		//-------------------
+
 		//panel = SummaMult.estPanelSize(psz, A.getGrid(), B.getGrid());
 		val w1 = A.makeTempFrontColBlocks(panel);
 		val w2 = B.makeTempFrontRowBlocks(panel);
@@ -87,7 +86,7 @@ class BenchRunSumma {
 		
 		summa  = new SummaMult(panel, beta, A, B, C, w1, w2);
 		summaT = new SummaMultTrans(panel, beta, A, tB, C, w1t, w2t, tmp);
-		//-----------------------------------------
+
 		Console.OUT.printf("Input matrix  A:(%d,%d) partitioned in (%dx%d) blocks, distr (%dx%d) places\n",
 				M, K, bM, bN, pM, pN);
 		Console.OUT.flush();

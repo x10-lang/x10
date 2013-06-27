@@ -11,12 +11,9 @@
 
 package x10.matrix.comm;
 
-import x10.io.Console;
-import x10.util.ArrayList;
-
+import x10.regionarray.Dist;
 import x10.compiler.Ifdef;
 import x10.compiler.Ifndef;
-import x10.compiler.Uninitialized;
 
 import x10.matrix.Debug;
 
@@ -24,35 +21,13 @@ import x10.matrix.Matrix;
 import x10.matrix.DenseMatrix;
 import x10.matrix.comm.mpi.WrapMPI;
 import x10.matrix.sparse.SparseCSC;
-
 import x10.matrix.block.MatrixBlock;
-import x10.matrix.block.DenseBlock;
-import x10.matrix.block.SparseBlock;
-
-import x10.matrix.distblock.DistMap;
-import x10.matrix.distblock.BlockSet;
-import x10.matrix.distblock.DistGrid;
 
 /**
  * Broadcast data from the first block at local to all blocks.
  * In MPI implementation, it is required to have at least one block in BlockSet list.
- * 
  */
 public class BlockSetBcast extends BlockSetRemoteCopy {
-
-	//public var mpi:UtilMPI;
-
-	//====================================
-	// Constructor
-	//====================================
-	public def this() {
-		super();
-	}
-
-	//=================================================
-	// Broadcast dense matrix to all
-	//=================================================
-
 	/**
 	 * Broadcast dense matrix from here to all other places.
 	 * This routine is used in sync of DupDenseMatrix
@@ -71,8 +46,8 @@ public class BlockSetBcast extends BlockSetRemoteCopy {
 	 * @param colcnt      Input. Count of columns to broadcast
 	 * @return            Number of elements to broadcast
 	 */
-	public static def bcast(distBS:BlocksPLH, rootpid:Int) : Int {
-		var dsz:Int = 0;
+	public static def bcast(distBS:BlocksPLH, rootpid:Long):Long {
+		var dsz:Long = 0;
 			
 		@Ifdef("MPI_COMMU") {
 			val mat0 = distBS().getFirst();
@@ -92,8 +67,6 @@ public class BlockSetBcast extends BlockSetRemoteCopy {
 		return dsz;
 	} 
 
-	//=================================================================
-	
 	/**
 	 * Broadcast dense matrix stored by using MPI bcast routine.
 	 *
@@ -102,11 +75,10 @@ public class BlockSetBcast extends BlockSetRemoteCopy {
 	 * @param colCnt      Number of columns to broadcast
 	 * @return            Number of elements broadcast
 	 */
-	protected static def mpiBcastDense(distBS:BlocksPLH, rootpid:Int):Int {
-		var datcnt:Int = 0;	
+	protected static def mpiBcastDense(distBS:BlocksPLH, rootpid:Long):Long {
+		var datcnt:Long = 0;	
 		@Ifdef("MPI_COMMU") {
-			
-			finish ateach (Dist.makeUnique()) {
+			finish ateach(Dist.makeUnique()) {
 				val blkitr = distBS().iterator();
 				while (blkitr.hasNext()) {
 				//Get the data count from root block
@@ -124,20 +96,19 @@ public class BlockSetBcast extends BlockSetRemoteCopy {
 
 	/**
 	 * Using MPI routine to implement sparse matrix broadcast
-	 * 
 	 */
-	protected static def mpiBcastSparse(distBS:BlocksPLH, rootpid:Int):Int {
-		var datcnt:Int = 0;
+	protected static def mpiBcastSparse(distBS:BlocksPLH, rootpid:Long):Long {
+		var datcnt:Long = 0;
 
 		@Ifdef("MPI_COMMU")	{
 			if (rootpid != here.id()) {
-				at (Dist.makeUnique()(rootpid)) {
+				at(Place(rootpid)) {
 					mpiBcastSparse(distBS, rootpid);
 				}
 			}else {
-				var i:Int=0;
+				var i:Long=0;
 				val blkitr = distBS().iterator();
-				val szlist = new Array[Int](distBS().blocklist.size());
+				val szlist = new Rail[Long](distBS().blocklist.size());
 				while (blkitr.hasNext()) {
 					val blk = blkitr.next();
 					szlist(i) = blk.getDataCount();
@@ -145,10 +116,10 @@ public class BlockSetBcast extends BlockSetRemoteCopy {
 					i++;
 				}
 
-				finish ateach (Dist.makeUnique()) {
+				finish ateach(Dist.makeUnique()) {
 					//Remote capture: distBS, szlist
 					val itr = distBS().iterator();
-					var j:Int = 0;
+					var j:Long = 0;
 					//Debug.flushln(szlist.toString());;
 
 					while (itr.hasNext()) {
@@ -175,18 +146,16 @@ public class BlockSetBcast extends BlockSetRemoteCopy {
 		return datcnt;
 	}
 	
-	//=============================================================================
 	// x10 remote copy implemetation of bcast
-	//=============================================================================
+
 	/**
 	 *  Broadcast dense matrix among the pcnt number of places followed from here
 	 */
-	protected static def x10Bcast(distBS:BlocksPLH, rootpid:Int): Int {
-
-		var datcnt:Int=0;
+	protected static def x10Bcast(distBS:BlocksPLH, rootpid:Long):Long {
+		var datcnt:Long=0;
 		
 		if (here.id() != rootpid) {
-			datcnt = at (Dist.makeUnique()(rootpid)) {
+			datcnt = at(Place(rootpid)) {
 				x10Bcast(distBS, rootpid)
 			};
 		} else {
@@ -209,12 +178,11 @@ public class BlockSetBcast extends BlockSetRemoteCopy {
 		}
 		return datcnt;
 	}
-	
-	//--------------------------------------------------
+
 	private static def startBinaryTreeCast(distBS:BlocksPLH, 
-			srcblk:MatrixBlock, datcnt:Int) {
+			srcblk:MatrixBlock, datcnt:Long) {
 		finish {
-			if (here.id() != 0) async {
+			if (here.id() != 0L) async {
 				val plcnt = here.id();
 				val sttpl = 0;
 				copyCastToBranch(distBS, srcblk, datcnt, sttpl, plcnt);
@@ -226,10 +194,9 @@ public class BlockSetBcast extends BlockSetRemoteCopy {
 		}
 	}
 
-	//-------------------------------------------------------
-	private static def castToBranch(distBS:BlocksPLH, 
-			srcblk:MatrixBlock,	datCnt:Int,	plcnt:Int) {
 
+	private static def castToBranch(distBS:BlocksPLH, 
+			srcblk:MatrixBlock,	datCnt:Long, plcnt:Long) {
 		val lfroot = here.id();
 		val lfcnt  = (plcnt+1) / 2; // make sure left part is larger, if cnt is odd 
 		val rtcnt  = plcnt - lfcnt;
@@ -246,38 +213,38 @@ public class BlockSetBcast extends BlockSetRemoteCopy {
 	}
 
 	private static def copyCastToBranch(distBS:BlocksPLH, 
-			srcblk:MatrixBlock, datCnt:Int,
-			sttpl:Int, plcnt:Int): void {
+			srcblk:MatrixBlock, datCnt:Long,
+			sttpl:Long, plcnt:Long): void {
 		
 		val blkid  = distBS().getGrid().getBlockId(srcblk.myRowId, srcblk.myColId);
 		if (srcblk.isDense()) {
 			val srcden = srcblk.getMatrix() as DenseMatrix;
-			val srcbuf = new RemoteArray[Double](srcden.d as Array[Double]{self!=null});
-			at (Dist.makeUnique()(sttpl)) {
+			val srcbuf = new GlobalRail[Double](srcden.d as Rail[Double]{self!=null});
+			at(Place(sttpl)) {
 				//Remote capture: distBS, srcbuf, blkid, datCnt, plcnt
 				val dstblk = distBS().findBlock(blkid);
 				val dstden = dstblk.getMatrix() as DenseMatrix;
 
 				if (datCnt > 0)	finish {
-					Array.asyncCopy[Double](srcbuf, 0, dstden.d, 0, datCnt);
+					Rail.asyncCopy[Double](srcbuf, 0, dstden.d, 0, datCnt);
 				}
 				if (plcnt > 1)
 					castToBranch(distBS, dstblk, datCnt, plcnt);
 			}
 		} else if (srcblk.isSparse()) {
 			val srcspa = srcblk.getMatrix() as SparseCSC;
-			val idxbuf:Array[Int](1)    = srcspa.getIndex();
-			val valbuf:Array[Double](1) = srcspa.getValue();
-			val srcidx = new RemoteArray[Int   ](idxbuf as Array[Int   ]{self!=null});
-			val srcval = new RemoteArray[Double](valbuf as Array[Double]{self!=null});		
-			at (Dist.makeUnique()(sttpl)) {
+			val idxbuf   = srcspa.getIndex();
+			val valbuf = srcspa.getValue();
+			val srcidx = new GlobalRail[Long  ](idxbuf as Rail[Long  ]{self!=null});
+			val srcval = new GlobalRail[Double](valbuf as Rail[Double]{self!=null});		
+			at(Place(sttpl)) {
 				//Remote capture: distBS, srcidx, srcval, srcoff, colOff, colCnt, datCnt
 				val dstblk = distBS().findBlock(blkid);
 				val dstspa = dstblk.getMatrix() as SparseCSC;
 				dstspa.initRemoteCopyAtDest(datCnt);
 				if (datCnt > 0) {
-					finish Array.asyncCopy[Int   ](srcidx, 0, dstspa.getIndex(), 0, datCnt);
-					finish Array.asyncCopy[Double](srcval, 0, dstspa.getValue(), 0, datCnt);
+					finish Rail.asyncCopy[Long  ](srcidx, 0L, dstspa.getIndex(), 0L, datCnt);
+					finish Rail.asyncCopy[Double](srcval, 0L, dstspa.getValue(), 0L, datCnt);
 				}
 				
 				if (plcnt > 1 ) 

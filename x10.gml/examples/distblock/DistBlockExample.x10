@@ -4,8 +4,6 @@
  *  (C) Copyright IBM Corporation 2012.
  */
 
-import x10.io.Console;
-
 import x10.matrix.Debug;
 import x10.matrix.DenseMatrix;
 
@@ -18,12 +16,9 @@ import x10.matrix.distblock.DistGrid;
 import x10.matrix.distblock.DistBlockMatrix;
 
 /**
-   <p>
  * Examples of distributed block matrix
-   <p>
  */
 public class DistBlockExample {
-	
     public static def main(args:Rail[String]) {
 		val testcase = new RunExample(args);
 		testcase.run();
@@ -32,38 +27,32 @@ public class DistBlockExample {
 
 class RunExample {
 	public val nzp:Double;
-	public val M:Int;
-	public val N:Int;
-	public val K:Int;
-	public val bM:Int;
-	public val bN:Int;
-
+	public val M:Long;
+	public val N:Long;
+	public val K:Long;
+	public val bM:Long;
+	public val bN:Long;
 
     public def this(args:Rail[String]) {
 		M = args.size > 0 ?Int.parse(args(0)):30;
 		nzp = args.size > 1 ?Double.parse(args(1)):0.9;
-		N = args.size > 2 ?Int.parse(args(2)):M+1;
-		K = args.size > 3 ?Int.parse(args(3)):M+2;
-		bM= args.size > 4 ?Int.parse(args(4)):Place.MAX_PLACES+1;
-		bN= args.size > 5 ?Int.parse(args(5)):Place.MAX_PLACES+15;
+		N = args.size > 2 ?Int.parse(args(2)):(M as Int)+1;
+		K = args.size > 3 ?Int.parse(args(3)):(M as Int)+2;
+		bM= args.size > 4 ?Int.parse(args(4)):(Place.MAX_PLACES as Int)+1;
+		bN= args.size > 5 ?Int.parse(args(5)):(Place.MAX_PLACES as Int)+15;
 		
 		Console.OUT.printf("Matrix M:%d K:%d N:%d, blocks(%d, %d) \n", M, N, K, bM, bN);
-		
 	}
 
     public def run ():void {
-    	
 		Console.OUT.println("Starting dist block matrix clone/add/sub/scaling example run");
 
 		var ret:Boolean = true;
- 		// Set the matrix function
 		exampleAddSub();
 		exampleAddAssociative();
 		exampleCellMult();
 		exampleCellDiv();
-
 	}
-
 
 	public def exampleAddSub():Boolean {
 		Console.OUT.println("Starting DistBlockMatrix add-sub example");
@@ -81,7 +70,6 @@ class RunExample {
 			Console.OUT.println("--------DistBlockMatrix Add-sub example failed!--------");
 		return ret;
 	}
-
 
 	public def exampleAddAssociative():Boolean {
 		Console.OUT.println("Starting dist block matrix associative example");
@@ -142,7 +130,4 @@ class RunExample {
 			Console.OUT.println("--------Dist block matrix cellwise mult-div example failed!--------");
 		return ret;
 	}
-
-
-
 } 

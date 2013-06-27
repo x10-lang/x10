@@ -4,7 +4,6 @@
  *  (C) Copyright IBM Corporation 2011.
  */
 
-import x10.io.Console;
 
 import x10.matrix.Debug;
 import x10.matrix.block.Grid;
@@ -28,11 +27,11 @@ public class DistSparseExample {
 		testcase.run();
 	}
 	
-	static class RunDistSparse(M:Int, N:Int, K:Int, nzp:Double) {
+	static class RunDistSparse(M:Long, N:Long, K:Long, nzp:Double) {
 		public val g:Grid;
 		public val grow:Grid;
 		
-		public def this(m:Int, n:Int, k:Int, p:Double) {
+		public def this(m:Long, n:Long, k:Int, p:Double) {
 			property(m, n, k, p);
 
 			//Partition matrix in MxN into blocks same as the number of places

@@ -4,21 +4,9 @@
  *  (C) Copyright IBM Corporation 2011.
  */
 
-import x10.io.Console;
-
-import x10.matrix.Debug;
-import x10.matrix.DenseMatrix;
-import x10.matrix.VerifyTools;
-
 import x10.matrix.sparse.CompressArray;
 import x10.matrix.sparse.Compress2D;
 import x10.matrix.sparse.SparseCSC;
-
-/**
-   <p>
-
-   <p>
- */
 
 public class TestCSC{
     public static def main(args:Rail[String]) {
@@ -29,8 +17,8 @@ public class TestCSC{
 
 class AddSubCSC {
 	public val nzp:Double;
-	public val M:Int;
-	public val N:Int;
+	public val M:Long;
+	public val N:Long;
 
     public def this(args:Rail[String]) {
 		M = args.size > 0 ?Int.parse(args(0)):8;
@@ -61,11 +49,8 @@ class AddSubCSC {
 		Console.OUT.println("CSC Test clone()");
 		val sp = SparseCSC.make(M, N, nzp);
 		sp.initRandom(nzp);
-		sp.printRandomInfo();
-		//return true;
-		//sp.print();
+		sp.printStatistics();
 		val sp1 = sp.clone();
-		//sp1.print();
 		var ret:Boolean = sp.equals(sp1);
 		if (ret)
 		 	Console.OUT.println("CSC Clone test passed!");
@@ -86,12 +71,9 @@ class AddSubCSC {
 
 	public def testAdd():Boolean {
 		Console.OUT.println("CSC Add test");
-		//val sp = SparseCSC.makeRand(M, N, nzp);
 		val sp = SparseCSC.make(M, N, nzp);
 		sp.initRandom();
-		//sp.print();
 		val nsp= sp * (-1.0);
-		//nsp.printMatrix();
 		val sp0 = sp + nsp;
 
 		val ret = sp0.equals(0.0);
@@ -105,10 +87,10 @@ class AddSubCSC {
 	public def testInit():Boolean {
 		Console.OUT.println("Start Sparse CSC initialization func test");
 		var ret:Boolean=true;
-		val sp = SparseCSC.make(M, N, 0.6).init((r:Int, c:Int)=>((r+c)%2 as Double));
+		val sp = SparseCSC.make(M, N, 0.6).init((r:Long, c:Long)=>((r+c)%2 as Double));
 
-		for (var c:Int=0; c<N; c++)
-			for (var r:Int=0; r<M; r++)
+		for (var c:Long=0; c<N; c++)
+			for (var r:Long=0; r<M; r++)
 				ret &= (sp(r,c) == ((r+c)%2 as Double));
 		
 		if (ret)
@@ -124,13 +106,9 @@ class AddSubCSC {
 		val sp1= SparseCSC.make(M, N, nzp);
 		sp.initRandom(nzp); sp1.initRandom(nzp);
 
-		//sp.print("Input:");
-		val sp2= sp  + sp1;
-		//sp2.print("Add result:");
-		//
-		val sp_c  = sp2 - sp1;
-		val ret   = sp.equals(sp_c);
-		//sp_c.print("Another add result:");
+		val sp2 = sp + sp1;
+		val sp_c = sp2 - sp1;
+		val ret = sp.equals(sp_c);
 		if (ret)
 			Console.OUT.println("CSC Add-sub test passed!");
 		else
@@ -158,13 +136,9 @@ class AddSubCSC {
 		Console.OUT.println("CSC Scaling-Add test");
 		val a = SparseCSC.make(M, N, 0.3);
 		a.initRandom(0.3);
-		//a.print("src matrix");
 		val a1= a * 0.2 ;
-		//a1.print("Raise 0.2");
 		val a2= a * 0.8;
-		//a2.print("Raise 0.8");
 		val aa=a1+a2;
-		//aa.print();
 		val ret = a.equals(aa);
 		if (ret)
 			Console.OUT.println("CSC Scaling-Add test passed!");
@@ -194,16 +168,16 @@ class AddSubCSC {
 		val s3 = SparseCSC.make(M-2, N, nzp);
 		//sm.copyRowsToSparse(1, M-2, s3);
 		SparseCSC.copyRows(sm, 1, s3, 0, M-2);
-		for (var c:Int=0; c<s3.N; c++)
-			for (var r:Int=0; r<s3.M; r++)
+		for (var c:Long=0; c<s3.N; c++)
+			for (var r:Long=0; r<s3.M; r++)
 				ret &= sm(r+1, c)==s3(r, c); 
 		if (ret) Console.OUT.println("Partial rows copy passed");
 
 		val s4 = SparseCSC.make(M, N-2, nzp);
  		//sm.copyColsToSparse(1, N-2, s4);
 		SparseCSC.copyCols(sm, 1, s4, 0, N-2);
-		for (var c:Int=0; c<s4.N; c++)
-			for (var r:Int=0; r<s4.M; r++)
+		for (var c:Long=0; c<s4.N; c++)
+			for (var r:Long=0; r<s4.M; r++)
 				ret &= sm(r, c+1)==s4(r, c); 
 		if (ret) Console.OUT.println("Partial column copy passed");
 
@@ -216,7 +190,6 @@ class AddSubCSC {
 	}
 	
 	public def testCopy():Boolean {
-
 		Console.OUT.println("CSC start testing copying for CSC to another CSC");
 		Console.OUT.flush();
 		var retval:Boolean = true;
@@ -224,16 +197,13 @@ class AddSubCSC {
 		val dm = SparseCSC.make(M, N, nzp);
 		
 		SparseCSC.copyCols(sm, N-1, dm, 0, 1);
-		for (var r:Int=0; r<M; r++)
+		for (var r:Long=0; r<M; r++)
 			retval &= (sm(r, N-1)== dm(r, 0));
-		sm.printMatrix();
-		dm.printMatrix();
 		
 		if (retval)
 			Console.OUT.println("CSC copy test passed!");
 		else
 			Console.OUT.println("--------CSC copy test failed!--------");
 		return retval;
-		
 	}
 }

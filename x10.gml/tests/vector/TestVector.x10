@@ -5,20 +5,13 @@
  *  (C) Copyright Australian National University 2011.
  */
 
-import x10.io.Console;
-
-import x10.matrix.Matrix;
 import x10.matrix.Vector;
 import x10.matrix.MathTool;
 
 /**
-   This class contails test cases for dense matrix addition, scaling, and negative operations.
-   <p>
-
-   <p>
+ * This class contains test cases for vector operations.
  */
-public class TestVector{
-
+public class TestVector {
     public static def main(args:Rail[String]) {
 		val n = (args.size > 0) ? Int.parse(args(0)):4;
 		val testcase = new VectorTest(n);
@@ -26,20 +19,17 @@ public class TestVector{
 	}
 }
 
-
 class VectorTest {
+	public val M:Long;
 
-	public val M:Int;
-
-	public def this(m:Int) {
+	public def this(m:Long) {
 		M = m;
 	}
 
-    public def run (): void {
+    public def run(): void {
 		Console.OUT.println("Starting vector clone/add/sub/scaling tests on "+
 							M + "-vectors");
 		var ret:Boolean = true;
- 		// Set the matrix function
 		ret &= (testClone());
 		ret &= (testScale());
 		ret &= (testAdd());
@@ -49,6 +39,8 @@ class VectorTest {
 		ret &= (testCellMult());
 		ret &= (testCellDiv());
 		ret &= (testNorm());
+		ret &= (testDotProduct());
+		ret &= (testExp());
 
 		if (ret)
 			Console.OUT.println("Vector test passed!");
@@ -56,9 +48,7 @@ class VectorTest {
 			Console.OUT.println("----------------Vector test failed!----------------");
 	}
 
-    
 	public def testClone():Boolean{
-
 		Console.OUT.println("Starting vector clone test");
 		val dm = Vector.make(M);
 		dm.initRandom(); // same as  val dm = Vector.make(N).initRandom(); 
@@ -114,13 +104,10 @@ class VectorTest {
 		Console.OUT.println("Starting Vectoradd-sub test");
 		val dm = Vector.make(M).initRandom();
 		val dm1= Vector.make(M).initRandom();
-		//sp.print("Input:");
 		val dm2= dm  + dm1;
-		//sp2.print("Add result:");
-		//
+
 		val dm_c  = dm2 - dm1;
 		val ret   = dm.equals(dm_c);
-		//sp_c.print("Another add result:");
 		if (ret)
 			Console.OUT.println("Vector Add-sub test passed!");
 		else
@@ -180,11 +167,8 @@ class VectorTest {
 
 		val a = Vector.make(M).init(1);
 		val b = Vector.make(M).init(1);
-		//a.print();
 		val c = (a + b) * a;
-		//c.print();
 		val d =  c / (a + b);
-		//d.print();
 		val ret = d.equals(a);
 		if (ret)
 			Console.OUT.println("Vector cellwise mult-div passed!");
@@ -194,7 +178,7 @@ class VectorTest {
 	}
 
     public def testNorm():Boolean {
-        Console.OUT.println("Starting dense Matrix norm test");
+        Console.OUT.println("Starting vector norm test");
 
         val a = Vector.make(M).initRandom();
         val alpha = 2.5;
@@ -206,6 +190,37 @@ class VectorTest {
             Console.OUT.println("Vector norm test passed!");
         else
             Console.OUT.println("--------Vector norm test failed!--------");
+        return ret;
+    }
+
+    public def testDotProduct():Boolean {
+        Console.OUT.println("Starting vector dot product test");
+
+        val a = Vector.make(M).initRandom();
+        val b = Vector.make(M).initRandom();
+        val dot = a.dotProd(b);
+        val blasDot = a.blasTransProduct(b);
+        val ret = MathTool.equals(dot, blasDot);
+        if (ret)
+            Console.OUT.println("Vector dot product test passed!");
+        else
+            Console.OUT.println("--------Vector dot product test failed!--------");
+        return ret;
+    }
+
+    public def testExp():Boolean {
+        Console.OUT.println("Starting vector exp test");
+
+        val a = Vector.make(M).initRandom();
+        val aExp = new Vector(a).exp();
+        var ret:Boolean = true;
+        for (i in 0..(a.M-1)) {
+            ret &= (Math.exp(a(i)) == aExp(i));
+        }
+        if (ret)
+            Console.OUT.println("Vector exp test passed!");
+        else
+            Console.OUT.println("--------Vector exp test failed!--------");
         return ret;
     }
  }

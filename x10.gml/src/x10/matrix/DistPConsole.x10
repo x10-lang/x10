@@ -11,42 +11,35 @@
 
 package x10.matrix;
 
-import x10.io.Console;
-import x10.io.File;
-import x10.io.Printer;
-import x10.util.Timer;
+import x10.regionarray.Dist;
+import x10.regionarray.DistArray;
 
 public class DistPConsole {
-
 	public val pconsole:DistArray[PConsole](1);
 
-	//----------------------------------
 	public def this() {
 		val dist = Dist.makeUnique();
 		pconsole = DistArray.make[PConsole](dist, ([i]:Point)=>(new PConsole()));
 	}
-	//----------------------------------
-	public def print(st:String)            { pconsole(here.id()).print(st); }
-	public def print(d:Array[Int](1))      { pconsole(here.id()).print(d); }
-	public def print(d:Array[Double](1))   { pconsole(here.id()).print(d); }
-	public def println(st:String)          { pconsole(here.id()).println(st); }
-	public def println(d:Array[Int](1))    { pconsole(here.id()).println(d);}
-	public def println(d:Array[Double](1)) { pconsole(here.id()).println(d);}
+
+    public def print(st:String)        { pconsole(here.id()).print(st); }
+    public def print(d:Rail[Int])      { pconsole(here.id()).print(d); }
+    public def print(d:Rail[Double])   { pconsole(here.id()).print(d); }
+    public def println(st:String)      { pconsole(here.id()).println(st); }
+    public def println(d:Rail[Int])    { pconsole(here.id()).println(d);}
+    public def println(d:Rail[Double]) { pconsole(here.id()).println(d);}
 	//public def println(A:Matrix)           = pconsole(here.id()).println(A);
-	//-----------------------------------
 
     public def flush()             { pconsole(here.id()).flush();}
 	public def flush(st:String)    { pconsole(here.id()).flush(st); }
 	public def flushln(st:String)  { pconsole(here.id()).flushln(st); }
-	//
-	//-----------------------------------
-	//
+
 	public def getAllStream():String {
 		var ostream:String = "";
-		for (var p:Int=0; p<Place.MAX_PLACES; p++) {
+		for (var p:Long=0; p<Place.MAX_PLACES; p++) {
 			val pid = p;
 			val pp:Point(pconsole.dist.region.rank) = Point.make(p);
-			ostream += at (pconsole.dist(pp)) pconsole(pid).getOutStream(true);
+			ostream += at(pconsole.dist(pp)) pconsole(pid).getOutStream(true);
 		}
 		return ostream;
 	}
@@ -56,15 +49,14 @@ public class DistPConsole {
 		Console.OUT.print(ost);
 		Console.OUT.flush();
 	}
-	//
+
 	public def fflush() {
-		for (var p:Int=0; p<Place.MAX_PLACES; p++) {
+		for (var p:Long=0; p<Place.MAX_PLACES; p++) {
 			val pid = p;
 			val pp:Point(pconsole.dist.region.rank) = Point.make(p);
-			at (pconsole.dist(pp)) {
+			at(pconsole.dist(pp)) {
 				pconsole(pid).fflush();
 			}
 		}
 	} 
-
 }

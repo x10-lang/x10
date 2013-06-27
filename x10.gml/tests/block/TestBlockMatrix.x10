@@ -9,25 +9,16 @@
  *  (C) Copyright IBM Corporation 2006-2011.
  */
 
-import x10.io.Console;
-
 import x10.matrix.Debug;
 import x10.matrix.Matrix;
 import x10.matrix.DenseMatrix;
 
-import x10.matrix.sparse.SparseCSC;
 import x10.matrix.block.Grid;
 
 import x10.matrix.block.BlockMatrix;
 import x10.matrix.block.MatrixBlock;
 
-/**
-   <p>
-
-   <p>
- */
 public class TestBlockMatrix {
-	
     public static def main(args:Rail[String]) {
 		val testcase = new RunBlockMatrix(args);
 		testcase.run();
@@ -35,16 +26,16 @@ public class TestBlockMatrix {
 }
 
 class RunBlockMatrix {
-	public val M:Int;
-	public val N:Int;
-	public val R:Int;
-	public val C:Int;
+	public val M:Long;
+	public val N:Long;
+	public val R:Long;
+	public val C:Long;
 	public val grid:Grid;
 	public val nzd:Double;
 
     public def this(args:Rail[String]) {
 		M = args.size > 0 ?Int.parse(args(0)):50;
-		N = args.size > 1 ?Int.parse(args(1)):M+2;
+		N = args.size > 1 ?Int.parse(args(1)):(M as Int)+2;
 		R = args.size > 2 ?Int.parse(args(2)):2;
 		C = args.size > 3 ?Int.parse(args(3)):3;
 		nzd =  args.size > 4 ?Double.parse(args(4)):0.99;
@@ -75,14 +66,12 @@ class RunBlockMatrix {
 		val sbm = BlockMatrix.makeDense(grid);
 		sbm.initRandom();
 
-		//dm.printBlock("Dist dense");
 		val sbm1 = sbm.clone();
 		ret = sbm.equals(sbm1 as Matrix(M,N));
 		if (!ret) Console.OUT.println("--------------Block matrix clone test failed------------");
 		
 		val dm = DenseMatrix.make(grid.M, grid.N);
 		sbm.copyTo(dm);
-		//dm2.print("Dense");
 		ret &= sbm.equals(dm as Matrix(M,N));
 		if (!ret) Console.OUT.println("--------------Block matrix dense conversion test failed------------");
 
@@ -145,16 +134,12 @@ class RunBlockMatrix {
 	public def buildBlockMap():Boolean {
 		Console.OUT.println("Start building block 2D map");
 		val dbm = BlockMatrix.makeDense(grid);
-		dbm.init((r:Int,c:Int)=>1.0*(r+c));
+		dbm.init((r:Long,c:Long)=>1.0*(r+c));
 		dbm.buildBlockMap();
 		
 		var retval:Boolean= true;
-		for (var r:Int=0; r<grid.numRowBlocks &&retval; r++)
-			for (var c:Int=0; c<grid.numColBlocks && retval; c++) {
-				//Console.OUT.println("Block map at ("+r+","+c+")");
-				//dbm.blockMap(r,c).getMatrix().printMatrix();
-				//dbm.findBlock(r,c).getMatrix().printMatrix();
-				
+		for (var r:Long=0; r<grid.numRowBlocks &&retval; r++)
+			for (var c:Long=0; c<grid.numColBlocks && retval; c++) {
 				retval &= (dbm.findBlock(r,c) == dbm.blockMap(r,c)); 
 			}
 		return retval;

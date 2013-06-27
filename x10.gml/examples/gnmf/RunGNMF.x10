@@ -4,15 +4,12 @@
  *  (C) Copyright IBM Corporation 2011.
  */
 
-import x10.io.Console;
 import x10.util.Timer;
-//
+
 import x10.matrix.Debug;
-//
 import x10.matrix.Matrix;
 import x10.matrix.DenseMatrix;
 import x10.matrix.VerifyTools;
-//
 import x10.matrix.distblock.DistBlockMatrix;
 
 import gnmf.GNNMF;
@@ -39,13 +36,11 @@ import gnmf.SeqGNNMF;
  * <p> (7) Column of V. Default: 100000
  */
 public class RunGNMF {
-
 	public static def main(args:Rail[String]): void {
-		
 		val mD = args.size > 0 ? Int.parse(args(0)):1000;
 		val nZ = args.size > 1 ? Double.parse(args(1)):0.001;
 		val iT = args.size > 2 ? Int.parse(args(2)):10;
-		val rbV= args.size > 3 ? Int.parse(args(3)):Place.MAX_PLACES;
+		val rbV= args.size > 3 ? Int.parse(args(3)):(Place.MAX_PLACES as Int);
 		val cbV= args.size > 4 ? Int.parse(args(4)):1;
 		val tV = args.size > 5 ? Int.parse(args(5)):0;
 		val nV = args.size > 6 ? Int.parse(args(6)):100000;

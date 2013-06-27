@@ -1,35 +1,25 @@
+/*
+ *  This file is part of the X10 project (http://x10-lang.org).
+ *
+ *  This file is licensed to You under the Eclipse Public License (EPL);
+ *  You may not use this file except in compliance with the License.
+ *  You may obtain a copy of the License at
+ *      http://www.opensource.org/licenses/eclipse-1.0.php
+ *
+ *  (C) Copyright IBM Corporation 2006-2012.
+ */
+
 package x10.matrix.comm;
 
-import x10.io.Console;
-import x10.util.Timer;
-import x10.util.Pair;
-
-import x10.compiler.Ifdef;
-import x10.compiler.Ifndef;
-import x10.compiler.Uninitialized;
-
-import x10.matrix.Debug;
-import x10.matrix.Matrix;
-
-import x10.matrix.block.Grid;
-import x10.matrix.block.MatrixBlock;
-import x10.matrix.distblock.BlockSet;
-import x10.matrix.distblock.DistGrid;
-
-
-/**
- */
 public class BlockSetRemoteCopy extends BlockRemoteCopy {
-
-	//-----------------------------------------
 	/**
 	 * Copy source block to target block in distributed block matrix structure.
 	 */
-	public static def copySet(distBS:BlocksPLH, srcpid:Int, dstpid:Int):Int {
-		if (srcpid ==dstpid) return 0;
+    public static def copySet(distBS:BlocksPLH, srcpid:Long, dstpid:Long):Long {
+        if (srcpid == dstpid) return 0;
 		
-		val dsz = at (Dist.makeUnique()(srcpid)) {
-			var datcnt:Int = 0;
+		val dsz = at(Place(srcpid)) {
+			var datcnt:Long = 0;
 			val grid   = distBS().getGrid();
 			val blkitr = distBS().iterator();
 			while (blkitr.hasNext()) {
@@ -44,10 +34,10 @@ public class BlockSetRemoteCopy extends BlockRemoteCopy {
 		return dsz;
 	}
 	
-	public static def copySetTo(distBS:BlocksPLH, dstpid:Int):Int {
+    public static def copySetTo(distBS:BlocksPLH, dstpid:Long):Long {
 		if (here.id() ==dstpid) return 0;
 		
-		var datcnt:Int = 0;
+		var datcnt:Long = 0;
 		val grid   = distBS().getGrid();
 		val blkitr = distBS().iterator();
 		while (blkitr.hasNext()) {
@@ -60,10 +50,10 @@ public class BlockSetRemoteCopy extends BlockRemoteCopy {
 		return datcnt;		
 	}
 	
-	public static def copySetFrom(distBS:BlocksPLH, srcpid:Int):Int {
+    public static def copySetFrom(distBS:BlocksPLH, srcpid:Long):Long {
 		if (here.id() ==srcpid) return 0;
 		
-		var datcnt:Int = 0;
+		var datcnt:Long = 0;
 		val grid   = distBS().getGrid();
 		val blkitr = distBS().iterator();
 		while (blkitr.hasNext()) {

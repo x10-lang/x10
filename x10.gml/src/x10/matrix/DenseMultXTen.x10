@@ -11,34 +11,27 @@
 
 package x10.matrix;
 
-import x10.io.Console;
-import x10.util.Random;
-
-
 /**
  * This class provides dense matrix multiplication driver in x10.
  * All input matrices are DenseMatrix objects.
  */
 public class DenseMultXTen {
-	
-	//===================================================================
 	// X10 dense * vector driver
 	// NOTE: do not merge with MatrixMultXTen, unless the compiler bug is fixed
-	//===================================================================
+
 	/**
 	 * X10 matrix * vector driver: C = A &#42 B or  C += A &#42 B 
 	 * if plus is true.
-	 *
 	 */
 	public static def comp(
 			A:DenseMatrix, 
             B:Vector(A.N), 
             C:Vector(A.M), plus:Boolean) :void {
-		var aidx:Int=0;
-		if (!plus) for (var i:Int=0; i<A.M; i++) C.d(i) = 0.0;
+		var aidx:Long=0;
+		if (!plus) for (var i:Long=0; i<A.M; i++) C.d(i) = 0.0;
 
-		for (var c:Int=0; c<A.N; c++) {
-			for (var r:Int=0; r<A.M; r++, aidx++) {
+		for (var c:Long=0; c<A.N; c++) {
+			for (var r:Long=0; r<A.M; r++, aidx++) {
 				C.d(r) += A.d(aidx) * B.d(c);
 			}
 		}
@@ -52,20 +45,18 @@ public class DenseMultXTen {
 			A:DenseMatrix, 
             B:Vector(A.M), 
             C:Vector(A.N), plus:Boolean) :void {
-		var aidx:Int=0;
-		if (!plus) for (var i:Int=0; i<A.N; i++) C.d(i) = 0.0;
+		var aidx:Long=0;
+		if (!plus) for (var i:Long=0; i<A.N; i++) C.d(i) = 0.0;
 
-		for (var c:Int=0; c<A.N; c++) {
-			for (var r:Int=0; r<A.M; r++, aidx++) {
+		for (var c:Long=0; c<A.N; c++) {
+			for (var r:Long=0; r<A.M; r++, aidx++) {
 				C.d(c) += A.d(aidx) * B.d(r);
 			}
 		}
 	}
 
-	//===================================================================
 	// X10 dense * dense driver
 	// NOTE: do not merge with MatrixMultXTen, unless the compiler bug is fixed
-	//===================================================================
 
 	/**
 	 * X10 driver for dense matrix multiplication. Compute C += A &#42 B if plus is true
@@ -82,35 +73,33 @@ public class DenseMultXTen {
 			C:DenseMatrix{C.M==A.M, C.N==B.N}, 
 			plus:Boolean):void {
 				
-		var startcol:Int = 0;
-		var v1idx:Int;
-		var v2idx:Int;
+		var startcol:Long = 0;
+		var v1idx:Long;
+		var v2idx:Long;
 		
 		v2idx = 0;
-		for (var c:Int=0; c<B.N; c++) {
+		for (var c:Long=0; c<B.N; c++) {
 			
 			if (!plus) {
-				for (var i:Int=startcol; i<startcol+C.M; i++) C.d(i) = 0.0;
+				for (var i:Long=startcol; i<startcol+C.M; i++) C.d(i) = 0.0;
 			}
 			v1idx = 0;
-			for (var k:Int=0; k<A.N; k++) {
+			for (var k:Long=0; k<A.N; k++) {
 				//val v2    = B(k, c);
 				val v2 = B.d(v2idx++);
 				//
 				if (MathTool.isZero(v2)) {
 					v1idx += A.M;
 				} else {
-					for (var r:Int=0; r<A.M; r++) {
+					for (var r:Long=0; r<A.M; r++) {
 						//val v1= A(r, k);
 						val v1 = A.d(v1idx++);
-						if ( MathTool.isZero(v1)) continue;
 						C.d(startcol+r) += v1 * v2;
 						//C.calcCount +=2;
 					}
 				}
 			}
 			startcol += C.M;
-			//C.print();
 		}
 	}
 			
@@ -130,27 +119,26 @@ public class DenseMultXTen {
 			C:DenseMatrix{C.M==A.N, C.N==B.N}, 
 			plus:Boolean):void {
 				
-		var startcol:Int = 0;
-		var v1idx:Int;
-		var v2idx:Int;
+		var startcol:Long = 0;
+		var v1idx:Long;
+		var v2idx:Long;
 						
 		v2idx = 0;
-		for (var c:Int=0; c<B.N; c++) {
+		for (var c:Long=0; c<B.N; c++) {
 			if (!plus) {
-				for (var i:Int=startcol; i<startcol+C.M; i++) C.d(i) = 0.0D;
+				for (var i:Long=startcol; i<startcol+C.M; i++) C.d(i) = 0.0D;
 			}
 			
-			for (var k:Int=0; k<A.M; k++) {
+			for (var k:Long=0; k<A.M; k++) {
 				//val v2    = B(k, c);
 				val v2 = B.d(v2idx++);
 				//
 				if (MathTool.isZero(v2)) continue;
 				v1idx = k;
-				for (var r:Int=0; r<A.N; r++) {
+				for (var r:Long=0; r<A.N; r++) {
 					//val v1= A(k, r);
 					val v1 = A.d(v1idx); 
 					v1idx += A.M;
-					if (MathTool.isZero(v1)) continue;
 					C.d(startcol+r) += v1 * v2;
 				}
 			}
@@ -175,29 +163,28 @@ public class DenseMultXTen {
 			plus:Boolean
 		):void {
 		
-		var startcol:Int = 0;
-		var v1idx:Int;
-		var v2idx:Int;
+		var startcol:Long = 0;
+		var v1idx:Long;
+		var v2idx:Long;
 						
-		for (var c:Int=0; c<B.M; c++) {
+		for (var c:Long=0; c<B.M; c++) {
 			v1idx = 0; 
 			v2idx = c;
 			
 			if (!plus) {
-				for (var i:Int=startcol; i<startcol+C.M; i++) C.d(i) = 0.0;
+				for (var i:Long=startcol; i<startcol+C.M; i++) C.d(i) = 0.0;
 			}
 			
-			for (var k:Int=0; k<A.N; k++) {
+			for (var k:Long=0; k<A.N; k++) {
 				//val v2 = B(c, k);
 				val v2 = B.d(v2idx); v2idx += B.M;
 				//
 				if (MathTool.isZero(v2)) {
 					v1idx += A.M;
 				} else {
-					for (var r:Int=0; r<A.M; r++) {
+					for (var r:Long=0; r<A.M; r++) {
 						//val v1= A(r, k);
 						val v1 = A.d(v1idx++);
-						if (MathTool.isZero(v1)) continue;
 						C.d(startcol+r) += v1 * v2;
 					}
 				}
@@ -224,19 +211,19 @@ public class DenseMultXTen {
 			plus:Boolean
 		):void {
 
-		var startrow:Int = 0;
-		var v1idx:Int;
-		var v2idx:Int;
+		var startrow:Long = 0L;
+		var v1idx:Long;
+		var v2idx:Long;
 		//Debug.assure(C.M>=A.N&&A.M==B.N&&B.M<=C.N, 
 		//		   "Dimension mismatch in Dense.T()*Dense.T()");
 		
 		if (!plus) {
-			for (var i:Int=0; i<C.M*C.N; i++) C.d(i) = 0.0D;
+			for (var i:Long=0; i<C.M*C.N; i++) C.d(i) = 0.0D;
 		}
 		v1idx = 0;
-		for (var r:Int=0; r<A.N; r++) {
+		for (var r:Long=0; r<A.N; r++) {
 			v2idx = 0;
-			for (var k:Int=0; k<A.M; k++) {
+			for (var k:Long=0; k<A.M; k++) {
 				//val v1    = A(k, r);
 				val v1 = A.d(v1idx++);
 				//
@@ -244,10 +231,9 @@ public class DenseMultXTen {
 					v2idx += B.M;
 				} else {
 					startrow = r;
-					for (var c:Int=0; c<B.M; c++, startrow+=C.M) {
+					for (var c:Long=0; c<B.M; c++, startrow+=C.M) {
 						//val v2= B(c, k);
 						val v2 = B.d(v2idx++);
-						if (MathTool.isZero(v2)) continue;
 						C.d(startrow) += v1 * v2;
 					}
 				}
@@ -255,10 +241,7 @@ public class DenseMultXTen {
 		}
 	}
 			
-							
-	//-------------------------------------------------------------------
 	// Simplified mult interface
-	//-------------------------------------------------------------------
 							
 	/**
 	 * X10 driver of dense matrix multiplication. Compute C = A &#42 B,
@@ -287,5 +270,4 @@ public class DenseMultXTen {
 		DenseMultXTen.comp(A, B, C, false);
 		return C;
 	}
-	
 }

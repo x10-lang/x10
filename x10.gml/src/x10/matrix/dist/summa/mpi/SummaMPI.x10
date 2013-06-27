@@ -11,19 +11,14 @@
 
 package x10.matrix.dist.summa.mpi;
 
-import x10.io.Console;
-//
+import x10.compiler.Inline;
 import x10.compiler.Native;
 import x10.compiler.NativeCPPInclude;
 import x10.compiler.NativeCPPCompilationUnit;
-//
-// Matrix base and dense matrix
 import x10.matrix.Matrix;
 import x10.matrix.Debug;
 import x10.matrix.DenseMatrix;
-// Grid distribution
 import x10.matrix.block.Grid;
-import x10.matrix.dist.DistMatrix;
 import x10.matrix.dist.DistDenseMatrix;
 
 // SUMMA C implementation and API
@@ -37,18 +32,15 @@ import x10.matrix.dist.DistDenseMatrix;
  * The C-MPI implementation can be found at 
  * "Summa: Scalable universal matrix multiplication algorithm" 
  * by Robert A. Van De Geijn ,  Jerrell Watts
- * 
  */
 public class SummaMPI {
-
-	//------------------------------------------------
     @Native("c++","print_proc_info()")
 		public static native def print_proc():void;
 
     @Native("c++","reset_usetime()")
 		public static native def reset_usetime():void;
-    @Native("c++","get_usetime((#1)->raw()->raw())")
- 		public static native def get_usetime(t:Array[Double](1)):void;
+    @Native("c++","get_usetime((#1)->raw)")
+ 		public static native def get_usetime(t:Rail[Double]):void;
 
     @Native("c++","setup_grid_partition(#1, #2, #3, #4, #5)")
 		public static native def setup_grid_partition(
@@ -58,37 +50,38 @@ public class SummaMPI {
 				rowId:Int,  
 				colId:Int):void;
 
-	@Native("c++","summa_mult((#1)->raw()->raw(),(#2)->raw()->raw(),(#3)->raw()->raw(),(#4)->raw()->raw(),(#5)->raw()->raw(),(#6)->raw()->raw(),(#7)->raw()->raw(),(#8)->raw()->raw(),(#9)->raw()->raw())")
+	@Native("c++","summa_mult((#1)->raw,(#2)->raw,(#3)->raw,(#4)->raw,(#5)->raw,(#6)->raw,(#7)->raw,(#8)->raw,(#9)->raw)")
 		public static native def summa_mult(
-				mat:Array[Int](1), 
-				scal:Array[Double](1),
-				Arows:Array[Int](1), 
-				Acols:Array[Int](1), 
-				Adata:Array[Double](1),
-				Brows:Array[Int](1), 
-				Bcols:Array[Int](1), 
-				Bdata:Array[Double](1),
-				Cdata:Array[Double](1)):void;
+				mat:Rail[Int], 
+				scal:Rail[Double],
+				Arows:Rail[Int], 
+				Acols:Rail[Int], 
+				Adata:Rail[Double],
+				Brows:Rail[Int], 
+				Bcols:Rail[Int], 
+				Bdata:Rail[Double],
+				Cdata:Rail[Double]):void;
 
-	@Native("c++","summa_mult_T((#1)->raw()->raw(),(#2)->raw()->raw(),(#3)->raw()->raw(),(#4)->raw()->raw(),(#5)->raw()->raw(),(#6)->raw()->raw(),(#7)->raw()->raw(),(#8)->raw()->raw(),(#9)->raw()->raw())")
+	@Native("c++","summa_mult_T((#1)->raw,(#2)->raw,(#3)->raw,(#4)->raw,(#5)->raw,(#6)->raw,(#7)->raw,(#8)->raw,(#9)->raw)")
 		public static native def summa_mult_T(
-				mat:Array[Int](1), 
-				scal:Array[Double](1),
-				Arows:Array[Int](1), 
-				Acols:Array[Int](1), 
-				Adata:Array[Double](1),
-				Brows:Array[Int](1), 
-				//Bcols:Array[Int](1), == Acols 
-				Bdata:Array[Double](1),
+				mat:Rail[Int], 
+				scal:Rail[Double],
+				Arows:Rail[Int], 
+				Acols:Rail[Int], 
+				Adata:Rail[Double],
+				Brows:Rail[Int], 
+				//Bcols:Rail[Int], == Acols 
+				Bdata:Rail[Double],
 				//Crows==Arows
-				Ccols:Array[Int](1), 
-				Cdata:Array[Double](1)):void;
-	//------------------------------------------------------------------
+				Ccols:Rail[Int], 
+				Cdata:Rail[Double]):void;
 
 
-	//=====================================================================
-	// Static function
-	//=====================================================================
+    /** 
+     * Convert a Rail[Long] to Rail[Int] by explicit coercion of each element.
+     * This is necessary because MPI doesn't allow Long indexing.
+     */
+    private static @Inline def convertToIntRail(src:Rail[Long]) = new Rail[Int](src.size, (i:Long)=>src(i) as Int);
 
 	/**
 	 * SUMMA algorithm C implementation API
@@ -101,16 +94,16 @@ public class SummaMPI {
 	 * @return  -- output matrix C
 	 */
 	public static def mult(
-			ps:Int, beta:Double, 
+			ps:Long, beta:Double, 
 			A:DistDenseMatrix, 
 			B:DistDenseMatrix, 
 			C:DistDenseMatrix): DistDenseMatrix(C) {
 
 		val panelSize = Math.min(Math.min(ps, A.grid.getMinColSize()),
-								 Math.min(ps, B.grid.getMinRowSize()));
-		val M:Int = A.M;
-		val N:Int = B.N;
-		val K:Int = B.M;
+								 Math.min(ps, B.grid.getMinRowSize())) as Int;
+		val M = A.M as Int;
+		val N = B.N as Int;
+		val K = B.M as Int;
 		
 		Debug.assure(C.M==A.M&&A.N==B.M&&B.N==C.N, "Matrix mutiply dimension mismatch");
 		Debug.assure(A.grid.numRowBlocks==B.grid.numRowBlocks&&
@@ -119,23 +112,24 @@ public class SummaMPI {
 				B.grid.numColBlocks==C.grid.numColBlocks, 
 		"Matrix partitioning missmatch!");
 
-		//
-		finish ateach (val [p]:Point in C.dist) {
-			//
-			val r = C.grid.getRowBlockId(p);
-			val c = C.grid.getColBlockId(p);
-			//
+		finish ateach([p] in C.dist) {
+            val r = C.grid.getRowBlockId(p) as Int;
+            val c = C.grid.getColBlockId(p) as Int;
+
 			val Ad = A.distBs(p).getData();
 			val Bd = B.distBs(p).getData();
 			val Cd = C.distBs(p).getData();
-			//
-			setup_grid_partition(p, C.grid.numRowBlocks, C.grid.numColBlocks, r, c);
+
+			setup_grid_partition(p as Int, C.grid.numRowBlocks as Int, C.grid.numColBlocks as Int, r, c);
 			summa_mult([M, N, K, panelSize], [1.0, beta], 
-					A.grid.rowBs, A.grid.colBs, Ad, 
-					B.grid.rowBs, B.grid.colBs, Bd,
-					Cd);
+					SummaMPI.convertToIntRail(A.grid.rowBs), 
+                    SummaMPI.convertToIntRail(A.grid.colBs), 
+                    Ad, 
+					SummaMPI.convertToIntRail(B.grid.rowBs), 
+                    SummaMPI.convertToIntRail(B.grid.colBs), 
+                    Bd, Cd);
 			//Debug.flushln("Place "+p+" Summa Done");
-			val tlist= new Array[Double](2);
+			val tlist= new Rail[Double](2);
 			get_usetime(tlist);
 			C.distBs(here.id()).calcTime+=tlist(0) as long;
 			C.distBs(here.id()).commTime+=tlist(1) as long;
@@ -155,15 +149,15 @@ public class SummaMPI {
 	 * @return  -- output matrix C
 	 */
 	public static def multTrans(
-			ps:Int, beta:Double, 
+			ps:Long, beta:Double, 
 			A:DistDenseMatrix, 
 			B:DistDenseMatrix, 
 			C:DistDenseMatrix):DistDenseMatrix(C) {
 		//C.summaMult(alpha, beta, A, B);
-		val panelSize = Math.min(ps, A.grid.getMinColSize());
-		val M:Int = A.M;
-		val N:Int = B.N;
-		val K:Int = C.N;//K used in iteration is not common part of A and B,
+		val panelSize = Math.min(ps, A.grid.getMinColSize()) as Int;
+		val M = A.M as Int;
+		val N = B.N as Int;
+		val K = C.N as Int;//K used in iteration is not common part of A and B,
 		//K is column of C, which is used in iteration.
 
 		Debug.assure(C.M==A.M&&A.N==B.N&&B.M==C.N, "Matrix mutiply dimension mismatch");
@@ -174,38 +168,38 @@ public class SummaMPI {
 					 B.grid.numColBlocks==C.grid.numColBlocks, 
 					"Matrix partitioning missmatch!");
 		
-		finish ateach (val [p]:Point in C.dist) {
-			//
+		finish ateach([p] in C.dist) {
+            val r = C.grid.getRowBlockId(p) as Int;
+            val c = C.grid.getColBlockId(p) as Int;
+
 			val Ad = A.distBs(p).getData();
 			val Bd = B.distBs(p).getData();
 			val Cd = C.distBs(p).getData();
-			//
-			val r = C.grid.getRowBlockId(p);
-			val c = C.grid.getColBlockId(p);
-			//
-			setup_grid_partition(p, C.grid.numRowBlocks, C.grid.numColBlocks, r, c);
+
+			setup_grid_partition(p as Int, C.grid.numRowBlocks as Int, C.grid.numColBlocks as Int, r, c);
 			summa_mult_T([M, N, K, panelSize], [1.0, beta], 
-						 A.grid.rowBs, A.grid.colBs, Ad, 
-						 B.grid.rowBs,
+						 SummaMPI.convertToIntRail(A.grid.rowBs), 
+                         SummaMPI.convertToIntRail(A.grid.colBs), 
+                         Ad, 
+						 SummaMPI.convertToIntRail(B.grid.rowBs),
 						 //B.grid.colBs, B's column partition is same as A's column*/
 						 Bd, 
 						 //C.grid.rowBs same as A.grid.rowBs
-						 C.grid.colBs,  //C's column partition is NOT same as B's column 
+						 SummaMPI.convertToIntRail(C.grid.colBs),  
+                         //C's column partition is NOT same as B's column 
 						 Cd);
 			
-			//-----------------------------------
-			val tlist= new Array[Double](2);
+
+			val tlist = new Rail[Double](2);
 			get_usetime(tlist);
 			C.distBs(here.id()).calcTime+=tlist(0) as long;
 			C.distBs(here.id()).commTime+=tlist(1) as long;
 		}
 		return C;
 	}
-	//-------------
-
 
 	public static def mult(
-			ps:Int, beta:Double, 
+			ps:Long, beta:Double, 
 			A:DistDenseMatrix, 
 			B:DistDenseMatrix):DistDenseMatrix {
 		
@@ -218,7 +212,7 @@ public class SummaMPI {
 	}
 
 	public static def multTrans(
-			ps:Int, beta:Double,
+			ps:Long, beta:Double,
 			A:DistDenseMatrix, 
 			B:DistDenseMatrix):DistDenseMatrix {
 		

@@ -11,12 +11,8 @@
 
 package x10.matrix.comm;
 
-import x10.io.Console;
-import x10.util.Timer;
-
 import x10.compiler.Ifdef;
 import x10.compiler.Ifndef;
-import x10.compiler.Uninitialized;
 
 import x10.matrix.Debug;
 import x10.matrix.comm.mpi.WrapMPI;
@@ -33,21 +29,8 @@ import x10.matrix.comm.mpi.WrapMPI;
  * run command "make help" at the root directory of GML library.
  */
 public class DistArrayReduce extends DistArrayRemoteCopy {
-
-	//====================================
-	// Constructor
-	//====================================
-	public def this() {
-		super();
-	}
-
-	//=================================================
-	// Reduce data from all places to here in DistArray
-	//=================================================
-
 	/**
-	 * Reduce all data in DistArray from all places
-	 * to here
+	 * Reduce all data in DistArray from all places to here
 	 *
 	 * @param ddmat   Input/Output. Distributed storage of data array in all places
 	 * @param ddtmp   Temp distributed storage of data array used for receiving data.
@@ -56,7 +39,7 @@ public class DistArrayReduce extends DistArrayRemoteCopy {
 	public static def reduceSum(
 			ddmat:DistDataArray,
 			ddtmp:DistDataArray, 
-			datCnt:Int):void {
+			datCnt:Long):void {
 		
 		@Ifdef("MPI_COMMU") {
 			mpiReduceSum(ddmat, ddtmp, datCnt);
@@ -67,7 +50,6 @@ public class DistArrayReduce extends DistArrayRemoteCopy {
 		}
 	} 
 
-	// reduce sum
 	/**
 	 * Perform sum of arrays from all places.  The addition result will replace input array.
 	 * <p>Note: Currently broken with runtime abort with message:
@@ -80,17 +62,17 @@ public class DistArrayReduce extends DistArrayRemoteCopy {
 	public static def mpiReduceSum(
 			ddmat:DistDataArray,
 			ddtmp:DistDataArray, 
-			datCnt:Int):void{
+			datCnt:Long):void{
 		
 		@Ifdef("MPI_COMMU") {
 			val root = here.id();
-			//finish ateach (val [p]:Point in ddmat) {
-			finish ateach (val [p]:Point in Dist.makeUnique()) {
+			//finish ateach(val [p]:Point in ddmat) {
+			finish ateach(val [p]:Point in Dist.makeUnique()) {
 				//Remote capture: root ddmat, ddtmp, datCnt;
 				val pid = here.id();
 				val src = ddtmp(pid);
 				val dst = ddmat(pid);
-				Array.copy(dst, 0, src, 0, datCnt);
+				Rail.copy(dst, 0, src, 0, datCnt);
 				//Debug.flushln("Start reducing");
 				// Counting the all reduce-sum time in communication
 				WrapMPI.world.reduceSum(src, 0, dst, 0, datCnt, root);
@@ -98,8 +80,7 @@ public class DistArrayReduce extends DistArrayRemoteCopy {
 			}
 		}
 	}
-	//=========================================================
-	// reduce sum
+
 	/**
 	 * Sum of all data of arrays from all places. The input data will be replaced by
 	 * the result.
@@ -110,7 +91,7 @@ public class DistArrayReduce extends DistArrayRemoteCopy {
 	public static def x10ReduceSum(
 			ddmat:DistDataArray, 
 			ddtmp:DistDataArray, 
-			datCnt:Int): void{
+			datCnt:Long): void{
 		
 		val root = here.id();
 		val mat  = ddmat(root);
@@ -126,8 +107,8 @@ public class DistArrayReduce extends DistArrayRemoteCopy {
 	protected static def reduceSumToHere(
 			ddmat:DistDataArray, 
 			ddtmp:DistDataArray,
-			datCnt:Int,
-			var pcnt:Int): void {
+			datCnt:Long,
+			var pcnt:Long): void {
 		
 		val root = here.id();
 		val ttpcnt = ddmat.region.size();
@@ -146,7 +127,7 @@ public class DistArrayReduce extends DistArrayRemoteCopy {
 					reduceSumToHere(ddmat, ddtmp, datCnt, lfcnt); 
 				}
 				if (rtcnt > 1 ) {
-					at (ddmat.dist(rtroot)) async {
+					at(ddmat.dist(rtroot)) async {
 						reduceSumToHere(ddmat, ddtmp, datCnt, rtcnt);
 					}
 				}
@@ -155,10 +136,8 @@ public class DistArrayReduce extends DistArrayRemoteCopy {
 		
 		val rcvbuf = ddtmp(root);
 		x10Copy(ddmat, rtroot, 0, rcvbuf, 0, datCnt);
-		for (var i:Int=0; i<datCnt; i++) dstbuf(i) += rcvbuf(i);
+		for (var i:Long=0; i<datCnt; i++) dstbuf(i) += rcvbuf(i);
 	}
-
-	//=============================================================
 
 	/**
 	 * Perform all reduce sum operation. 
@@ -171,7 +150,7 @@ public class DistArrayReduce extends DistArrayRemoteCopy {
 	public static def allReduceSum(
 			ddmat:DistDataArray,
 			ddtmp:DistDataArray, 
-			datCnt:Int):void {
+			datCnt:Long):void {
 		
 		@Ifdef("MPI_COMMU") {
 			mpiAllReduceSum(ddmat, ddtmp, datCnt);
@@ -193,16 +172,16 @@ public class DistArrayReduce extends DistArrayRemoteCopy {
 	protected static def mpiAllReduceSum(
 			ddmat:DistDataArray,
 			ddtmp:DistDataArray, 
-			datCnt:Int): void {
+			datCnt:Long): void {
 		
 	@Ifdef("MPI_COMMU") {
 
 		val root = here.id();
-		finish ateach (val [p]:Point in ddmat) {
+		finish ateach(val [p]:Point in ddmat) {
 			val pid = here.id();
 			val src = ddtmp(pid);
 			val dst = ddmat(pid);
-			Array.copy(dst, 0, src, 0, datCnt);
+			Rail.copy(dst, 0, src, 0, datCnt);
 			// Counting the all reduce-sum time in communication
 			WrapMPI.world.allReduceSum(src, dst, datCnt);
 		}
@@ -212,17 +191,14 @@ public class DistArrayReduce extends DistArrayRemoteCopy {
 	protected static def x10AllReduceSum(
 			ddmat:DistDataArray,
 			ddtmp:DistDataArray, 
-			datCnt:Int): void {
+			datCnt:Long): void {
 		
 		val root = here.id();
 		x10ReduceSum(ddmat, ddtmp, datCnt);
 		DistArrayBcast.x10Bcast(ddmat, datCnt);
 	}
 
-	//=================================================================
 	// Reduce data from specified places
-	//=================================================================
-
 	
 	/**
 	 * Perform reduce sum of all array data accessed via PlaceLocalHandle
@@ -236,9 +212,9 @@ public class DistArrayReduce extends DistArrayRemoteCopy {
 	 */
 	public static def reduceSum(
 			ddmat:DistDataArray,
-			tmp:Array[Double](1), 
-			datCnt:Int,
-			plist:Array[Int](1)):void{
+			tmp:Rail[Double], 
+			datCnt:Long,
+			plist:Rail[Int]):void{
 		
 		Debug.assure(tmp.size >= datCnt, "Temp data buffer overflow");
 		val root = here.id();
@@ -247,11 +223,9 @@ public class DistArrayReduce extends DistArrayRemoteCopy {
 		for (val [p]:Point in plist) {
 			if (plist(p) != here.id()) {
 				copy(ddmat, plist(p), 0, srcbuf, 0, datCnt);
-				//srcden.print("Reduce sum copy matrix data from Place:"+plist(p));
-				for (var i:Int=0; i<datCnt; i++) dstbuf(i) += srcbuf(i);
+				for (var i:Long=0; i<datCnt; i++) dstbuf(i) += srcbuf(i);
 			}
 		}
 	}
-
 }
 

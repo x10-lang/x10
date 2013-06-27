@@ -4,27 +4,14 @@
  *  (C) Copyright IBM Corporation 2011.
  */
 
-import x10.io.Console;
-
-import x10.matrix.Matrix;
-import x10.matrix.DenseMatrix;
-import x10.matrix.TriDense;
-import x10.matrix.sparse.SparseCSC;
-import x10.matrix.builder.SparseCSCBuilder;
-import x10.matrix.builder.SymSparseBuilder;
-
 import x10.matrix.distblock.DistBlockMatrix;
 import x10.matrix.builder.distblock.DistMatrixBuilder;
 import x10.matrix.builder.distblock.DistSymMatrixBuilder;
 
 /**
-   This class contails test cases for dense matrix addition, scaling, and negative operations.
-   <p>
-
-   <p>
+ * This class contains test cases for dense matrix addition, scaling, and negation operations.
  */
 public class TestDistSymBuilder {
-
     public static def main(args:Rail[String]) {
 		val m = (args.size > 0) ? Int.parse(args(0)):8;
 		val z = (args.size > 1) ? Double.parse(args(1)):0.5;
@@ -33,13 +20,11 @@ public class TestDistSymBuilder {
 	}
 }
 
-
 class SymTest {
-
-	public val M:Int;
+	public val M:Long;
 	public val nzd:Double;
 
-	public def this(m:Int, z:Double) {
+	public def this(m:Long, z:Double) {
 		M = m;
 		nzd = z;
 	}
@@ -48,10 +33,8 @@ class SymTest {
 		Console.OUT.println("Starting distributed symmetric builder tests on "+
 							M+"x"+ M + " matrices");
 		var ret:Boolean = true;
- 		// Set the matrix function
 		ret &= (testDense());
 		ret &= (testSparse());
-		//ret &= (testInit());
 
 		if (ret)
 			Console.OUT.println("Test passed!");
@@ -59,14 +42,11 @@ class SymTest {
 			Console.OUT.println("----------------Test failed!----------------");
 	}
 
-    
 	public def testDense():Boolean{
-
 		Console.OUT.println("Starting distr symmetric dense init test");
 		val nblk = Place.MAX_PLACES;
 		val dbld = DistSymMatrixBuilder.make(M, nblk);
-		val dmat = dbld.allocAllDenseBlocks().initRandom(nzd, (r:Int,c:Int)=>1.0+r+2*c).toMatrix();
-		dmat.printMatrix();
+		val dmat = dbld.allocAllDenseBlocks().initRandom(nzd, (r:Long,c:Long)=>1.0+r+2*c).toMatrix();
 
 		var ret:Boolean = dbld.checkSymmetric();
 		
@@ -78,14 +58,11 @@ class SymTest {
 		return ret;
 	}
 
-
 	public def testSparse():Boolean{
-
 		Console.OUT.println("Starting dist symmetric sparse random initialization method test");
 		val nblk = Place.MAX_PLACES;
 		val sbld = DistSymMatrixBuilder.make(M, nblk);
-		val dspa = sbld.allocAllSparseBlocks(nzd).initRandom(nzd, (r:Int,c:Int)=>1.0+r+2*c).toMatrix();
-		dspa.printMatrix();
+		val dspa = sbld.allocAllSparseBlocks(nzd).initRandom(nzd, (r:Long,c:Long)=>1.0+r+2*c).toMatrix();
 
 		var ret:Boolean = sbld.checkSymmetric();
 		
@@ -96,5 +73,4 @@ class SymTest {
 		
 		return ret;
 	}
-		
 }

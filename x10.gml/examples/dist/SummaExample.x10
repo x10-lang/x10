@@ -9,7 +9,6 @@
  *  (C) Copyright IBM Corporation 2006-2011.
  */
 
-import x10.io.Console;
 import x10.compiler.Ifdef;
 import x10.compiler.Ifndef;
 
@@ -41,13 +40,13 @@ public class SummaExample{
 	}
 
 
-    static class RunSummaExample(M:Int, N:Int, K:Int, nzd:Double) {
+    static class RunSummaExample(M:Long, N:Long, K:Long, nzd:Double) {
     	
     	public val pA:Grid;
     	public val pB:Grid;
     	public val pC:Grid;
     	
-    	public def this(m:Int, n:Int, k:Int, p:Double) {
+    	public def this(m:Long, n:Long, k:Int, p:Double) {
     		property(m, n, k, p);
     		
     		val numP = Place.numPlaces();//Place.MAX_PLACES;
@@ -68,19 +67,19 @@ public class SummaExample{
     		testSparseMultTrans();
     		
     	}
-    	//------------------------------------------------
+
   	
-    	//------------------------------------------------
+
     	public def testDenseMult():DistDenseMatrix {
     		val numP = Place.numPlaces();//Place.MAX_PLACES;
     		Console.OUT.printf("\nTest SUMMA dist dense matrix over %d places\n", numP);
     		val da = DistDenseMatrix.make(pA);
     		da.initRandom();
-    		//da.printMatrix("Input A");
+            //Console.OUT.println("Input A\n" + da);
     		
     		val db = DistDenseMatrix.make(pB);
     		db.initRandom();
-    		//db.printMatrix("Input B");
+    		//Console.OUT.println("Input B\n" + db);
     		
     		val dc = DistDenseMatrix.make(pC);
     		
@@ -90,41 +89,41 @@ public class SummaExample{
     		
     		return dc;
     	}
-    	//--------------------------------------------------------------------------------
+
     	
     	public def testDenseMultTrans():DistDenseMatrix {
     		val numP = Place.numPlaces();//Place.MAX_PLACES;
     		Console.OUT.printf("\nTest SUMMA dist dense matrix multTrans over %d places\n", numP);
     		val da = DistDenseMatrix.make(M, K);
     		da.initRandom();
-    		//da.printMatrix("Input A");
+            //Console.OUT.println("Input A\n" + da);
     		
     		val db = DistDenseMatrix.make(N, K);
     		db.initRandom();
-    		//db.printMatrix("Input B");
+    		//Console.OUT.println("Input B\n" + db);
     		
     		val dc = DistDenseMatrix.make(M, N);
     		
     		Debug.flushln("Start calling SUMMA Dense multTrans X10 routine");
     		SummaDense.multTrans(1, 0.0, da, db, dc);
     		Debug.flushln("SUMMA done");
-    		//dc.printMatrix("Summa result");
+    		//Console.OUT.println("Summa result\n" + dc);
     		
     		return dc;
     	}
     	
-    	//------------------------------------------------
+
     	public def testSparse():DistDenseMatrix {
     		val numP = Place.numPlaces();//Place.MAX_PLACES;
     		Console.OUT.printf("\nTest SUMMA dist sparse matrix over %d places and sparsity %f\n", 
     				numP, nzd);
     		val da = DistSparseMatrix.make(pA, nzd);
     		da.initRandom();
-    		//da.printMatrix("Input A");
+    		//Console.OUT.println("Input A\n" + da);
     		
     		val db = DistSparseMatrix.make(pB, nzd);
     		db.initRandom();
-    		//db.printMatrix("Input B");
+    		//Console.OUT.println("Input B\n" + db);
     		
     		val dc = DistDenseMatrix.make(pC);
     		
@@ -134,7 +133,7 @@ public class SummaExample{
     		
     		return dc;
     	}
-    	//--------------------------------------------------------------------------------
+
     	
     	public def testSparseMultTrans():DistDenseMatrix {
     		val numP = Place.numPlaces();//Place.MAX_PLACES;
@@ -153,6 +152,6 @@ public class SummaExample{
     		
     		return dc;
     	}
-    	//-----------------------------------------------------------------
+
     }
 }

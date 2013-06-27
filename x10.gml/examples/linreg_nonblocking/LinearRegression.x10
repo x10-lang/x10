@@ -3,50 +3,40 @@
  *
  *  (C) Copyright IBM Corporation 2011.
  */
-package linreg;
 
-import x10.io.Console;
 import x10.util.Timer;
-//
+
 import x10.matrix.Debug;
-//
 import x10.matrix.Matrix;
 import x10.matrix.DenseMatrix;
-import x10.matrix.blas.DenseMatrixBLAS;
-
 import x10.matrix.block.Grid;
-import x10.matrix.sparse.SparseCSC;
-import x10.matrix.sparse.SparseMultDenseToDense;
-
 import x10.matrix.dist.DistSparseMatrix;
 import x10.matrix.dist.DistDenseMatrix;
 import x10.matrix.dist.DupDenseMatrix;
-
 
 /**
  * Parallel linear regression based on GML distributed 
  * dense/sparse matrix
  */
 public class LinearRegression{
-
 	public val grid:Grid;
 
 	public val V:DistSparseMatrix;
 	public val b:DenseMatrix;
-	public val w:DenseMatrix(V.N, 1);
+	public val w:DenseMatrix(V.N, 1L);
 
-	public val iteration:Int;
+	public val iteration:Long;
 	val lambda:Double;
 	
-	val p:DenseMatrix(V.N, 1);
-	val d_p:DupDenseMatrix(V.N, 1);
-	val p1:DenseMatrix(V.N, 1);
-	val Vp:DistDenseMatrix(V.M, 1);
+	val p:DenseMatrix(V.N, 1L);
+	val d_p:DupDenseMatrix(V.N, 1L);
+	val p1:DenseMatrix(V.N, 1L);
+	val Vp:DistDenseMatrix(V.M, 1L);
 
-	val r:DenseMatrix(V.N, 1);
-	val d_q:DupDenseMatrix(V.N, 1);
-	val d_q2:DupDenseMatrix(V.N, 1);
-	val q:DenseMatrix(V.N, 1);
+	val r:DenseMatrix(V.N, 1L);
+	val d_q:DupDenseMatrix(V.N, 1L);
+	val d_q2:DupDenseMatrix(V.N, 1L);
+	val q:DenseMatrix(V.N, 1L);
 	
 	//----Profiling-----
 	public var parCompT:Long=0;
@@ -56,7 +46,7 @@ public class LinearRegression{
 	public def this(mV:Int, nV:Int, nzd:Double, it:Int) {
 		grid = new Grid(mV, nV, Place.MAX_PLACES, 1);
 		V = DistSparseMatrix.make(grid, nzd);
-		b = DenseMatrix.make(nV, 1);
+		b = DenseMatrix.make(nV, 1L);
 		//V.printBlockMemAlloc(); 
 
 		Debug.flushln("Start init sparse matrix V " + 
@@ -68,28 +58,26 @@ public class LinearRegression{
 		
 		iteration = it;
 		lambda = 0.000001;
-		Vp = DistDenseMatrix.make(new Grid(V.M, 1, Place.MAX_PLACES, 1));
+		Vp = DistDenseMatrix.make(new Grid(V.M, 1L, Place.MAX_PLACES, 1L));
 		
-		r  = DenseMatrix.make(V.N, 1);
-		d_p= DupDenseMatrix.make(V.N, 1);
+		r  = DenseMatrix.make(V.N, 1L);
+		d_p= DupDenseMatrix.make(V.N, 1L);
 		p  = d_p.local();
 	   
-		p1 = DenseMatrix.make(V.N, 1);
-		d_q= DupDenseMatrix.make(V.N, 1);
+		p1 = DenseMatrix.make(V.N, 1L);
+		d_q= DupDenseMatrix.make(V.N, 1L);
 		q  = d_q.local();
 
-		d_q2 = DupDenseMatrix.make(V.N, 1);
-		w  = DenseMatrix.make(V.N, 1);
+		d_q2 = DupDenseMatrix.make(V.N, 1L);
+		w  = DenseMatrix.make(V.N, 1L);
 		w.init(0.0);
 		Debug.flushln("Init done");
-
 	}
 
 	public def run():DenseMatrix {
 		var ct:Long;
 		var alpha:Double=0.0;
 		var beta:Double =0.0;
-					  
 					  
 	    b.copyTo(r as DenseMatrix(b.M, b.N));
 		r.scale(-1.0);
@@ -100,22 +88,18 @@ public class LinearRegression{
 		val pq = DenseMatrix.make(1, 1);
 
 		for (1..iteration) {
-			
 			d_p.sync();
 
-			//-------------------
 			// Parallel computing
-			//-------------------
 			ct = Timer.milliTime();
 			// 10: q=((t(V) %*% (V %*% p)) + lambda*p)
-			d_q.transMult(V, Vp.mult(V, d_p), d_q2, false);
-			//Vp.mult(V, d_p);                    Vp.printBlock("V * p= \n");
+			d_q2.transMult(V, Vp.mult(V, d_p), false);
+			//Vp.mult(V, d_p);
 			//d_q.transMult(V, Vp, d_q2, false); 	q.print("Parallel V^t * V * p:\n");
 			parCompT += Timer.milliTime() - ct;
 			
-			//---------------------
+
 			// Sequential computing
-			//---------------------
 			ct = Timer.milliTime();
 			q.cellAdd(p1.scale(lambda));        //q.print("parallel q + p * lamdba:");
 			
@@ -142,7 +126,7 @@ public class LinearRegression{
 			seqCompT += Timer.milliTime() - ct;
 			// 17: i=i+1;
 		}
-		commT = d_q.commTime + d_p.commTime;
+		commT = d_q2.commTime + d_p.commTime;
 		return w;
 	}
 		

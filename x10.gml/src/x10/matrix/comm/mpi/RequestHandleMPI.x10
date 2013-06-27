@@ -11,36 +11,32 @@
 
 package x10.matrix.comm.mpi;
 
-import x10.io.Console;
 import x10.compiler.Native;
 import x10.compiler.NativeCPPInclude;
 import x10.compiler.NativeCPPCompilationUnit;
 
 @NativeCPPInclude("mpi_api.h")		
 @NativeCPPCompilationUnit("mpi_api.c")
-	
-//===================================================================
+
 /**
  * This class provides handle for nonblocking MPI communication.
  */
 public class RequestHandleMPI {
-	//
-    @Native("c++","mpi_get_request_memsize((#1)->raw()->raw())")
+
+    @Native("c++","mpi_get_request_memsize((#1)->raw)")
 		public static native def get_request_memsize(sl:Rail[Int]):void;
-	//
+
 	// Request waiting
-	@Native("c++","mpi_wait_request((#1)->raw()->raw())")
+	@Native("c++","mpi_wait_request((#1)->raw)")
 		public static native def wait_request(hreq:Rail[Int]):void;
-	//
-	@Native("c++","mpi_test_request((#1)->raw()->raw(), (#2)->raw()->raw())")
+
+	@Native("c++","mpi_test_request((#1)->raw, (#2)->raw)")
 		public static native def test_request(hreq:Rail[Int], 
 											  flag:Rail[Int]):void;
 
-	//==================================================================
 	public val valid:Boolean;
 	public val handle:Rail[Int];
-	//
-	//==================================================================
+
 	public def this() {
 		valid = true;
 		val size_int = new Rail[Int](1, 0);
@@ -49,7 +45,7 @@ public class RequestHandleMPI {
 		
 		handle = new Rail[Int](size_int(0), 0);
 	}
-	//
+
 	public def this(vld:Boolean) {
 		valid = vld;
 		val size_int = new Rail[Int](1, 0);
@@ -57,13 +53,13 @@ public class RequestHandleMPI {
 		
 		handle = new Rail[Int](size_int(0), 0);
 	}
-	//=====================================
+
 	// stop until the requested communication is complete
 	public def mywait():void {
 		if (valid)
 			wait_request(this.handle);
 	}
-	//
+
 	public def test():Boolean {
 		val flag = new Rail[Int](1, 0);
 		if (valid) {
@@ -75,5 +71,4 @@ public class RequestHandleMPI {
 		}
 		return true;
 	}
-	
 }

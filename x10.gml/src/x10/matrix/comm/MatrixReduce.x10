@@ -11,12 +11,9 @@
 
 package x10.matrix.comm;
 
-import x10.io.Console;
-import x10.util.Timer;
-
+import x10.regionarray.DistArray;
 import x10.compiler.Ifdef;
 import x10.compiler.Ifndef;
-import x10.compiler.Uninitialized;
 
 import x10.matrix.Debug;
 import x10.matrix.Matrix;
@@ -39,21 +36,7 @@ import x10.matrix.comm.mpi.WrapMPI;
  * <p>For more information on how to build different backends and runtime, 
  * run command "make help" at the root directory of GML library.
  */
-public class MatrixReduce extends MatrixRemoteCopy {
-
-	//public var mpi:UtilMPI;
-
-	//====================================
-	// Constructor
-	//====================================
-	public def this() {
-		super();
-
-	}
-	//=================================================
-	// Broadcast dense matrix to all
-	//=================================================
-
+public class MatrixReduce {
 	/**
 	 * Reduce all dense matrices stored in DistArray from all places
 	 * to here
@@ -64,9 +47,8 @@ public class MatrixReduce extends MatrixRemoteCopy {
 	 */
 	public static def reduceSum(
 			ddmat:DistArray[DenseMatrix](1),
-			ddtmp:DistArray[DenseMatrix](1)):Int {
-		
-		var datasz:Int = 0;
+			ddtmp:DistArray[DenseMatrix](1)):Long {
+		var datasz:Long = 0;
 		
 		@Ifdef("MPI_COMMU") {
 			datasz = mpiReduceSum(ddmat, ddtmp);
@@ -78,7 +60,6 @@ public class MatrixReduce extends MatrixRemoteCopy {
 		return datasz;
 	} 
 
-	// reduce sum
 	/**
 	 * Perform reduce sum of all matrces stored in the duplicated matrix
 	 * Result is stored in the matrix at root place.
@@ -88,11 +69,11 @@ public class MatrixReduce extends MatrixRemoteCopy {
 	 */
 	public static def mpiReduceSum(
 			ddmat:DistArray[DenseMatrix](1),
-			ddtmp:DistArray[DenseMatrix](1)):Int{
+			ddtmp:DistArray[DenseMatrix](1)):Long {
 		
 		val root = here.id();
 		@Ifdef("MPI_COMMU") {
-			finish ateach (val [p]:Point in ddmat) {
+			finish ateach([p] in ddmat) {
 				val pid = here.id();
 				val dst = ddmat(pid);
 				val sz  = dst.M * dst.N;
@@ -109,8 +90,6 @@ public class MatrixReduce extends MatrixRemoteCopy {
 		return ddmat(root).M * ddmat(root).N;
 	}
 
-	//=========================================================
-	// reduce sum
 	/**
 	 * Sum of all matrices in the duplicated matrix and the result overwrite the
 	 * matrix at here.
@@ -120,7 +99,7 @@ public class MatrixReduce extends MatrixRemoteCopy {
 	 */
 	public static def x10ReduceSum(
 			ddmat:DistArray[DenseMatrix](1), 
-			ddtmp:DistArray[DenseMatrix](1)):Int{
+			ddtmp:DistArray[DenseMatrix](1)):Long {
 		val root = here.id();
 		val mat  = ddmat(root);
 		val pcnt = ddmat.region.size();
@@ -137,7 +116,7 @@ public class MatrixReduce extends MatrixRemoteCopy {
 	protected static def reduceSumToHere(
 			ddmat:DistArray[DenseMatrix](1), 
 			ddtmp:DistArray[DenseMatrix](1),
-			var pcnt:Int): void {
+			var pcnt:Long): void {
 		
 		val root = here.id();
 		val ttpcnt = ddmat.region.size();
@@ -155,7 +134,7 @@ public class MatrixReduce extends MatrixRemoteCopy {
 					reduceSumToHere(ddmat, ddtmp, lfcnt); 
 				}
 				if (rtcnt > 1 ) {
-					at (ddmat.dist(rtroot)) async {
+					at(ddmat.dist(rtroot)) async {
 						reduceSumToHere(ddmat, ddtmp, rtcnt);
 					}
 				}
@@ -165,11 +144,9 @@ public class MatrixReduce extends MatrixRemoteCopy {
 		//if (ddtmp(root)==null)	ddtmp(root) = dstden.alloc(); 
 		//tmpden = ddtmp(root) as DenseMatrix(dstden.M, dstden.N);
 		
-		x10Copy(ddmat, rtroot, 0, tmpden, 0, tmpden.N);
+		MatrixRemoteCopy.x10Copy(ddmat, rtroot, 0L, tmpden, 0L, tmpden.N);
 		dstden.cellAdd(tmpden);		
 	}
-
-	//=============================================================
 
 	/**
 	 * Perform all reduce sum operation. 
@@ -181,8 +158,8 @@ public class MatrixReduce extends MatrixRemoteCopy {
 	 */
 	public static def allReduceSum(
 			ddmat:DistArray[DenseMatrix](1),
-			ddtmp:DistArray[DenseMatrix](1)):Int {
-		var datasz:Int = 0;
+			ddtmp:DistArray[DenseMatrix](1)):Long {
+		var datasz:Long = 0;
 		
 		@Ifdef("MPI_COMMU") {
 			datasz = mpiAllReduceSum(ddmat, ddtmp);
@@ -204,12 +181,12 @@ public class MatrixReduce extends MatrixRemoteCopy {
 	 */
 	protected static def mpiAllReduceSum(
 			ddmat:DistArray[DenseMatrix](1),
-			ddtmp:DistArray[DenseMatrix](1)): Int {
+			ddtmp:DistArray[DenseMatrix](1)):Long {
 		
 		val root = here.id();
 		//Debug.flushln("Start all reduce");
 		@Ifdef("MPI_COMMU") {
-			finish ateach (val [p]:Point in ddmat) {
+			finish ateach([p] in ddmat) {
 				val pid = here.id();
 				val dst = ddmat(pid);
 				val sz  = dst.M * dst.N;
@@ -220,11 +197,11 @@ public class MatrixReduce extends MatrixRemoteCopy {
 				//src = ddtmp(pid) as DenseMatrix(dst.M, dst.N);
 				dst.copyTo(src);
 				// Counting the all reduce-sum time in communication
-				//======================================
+
 				//Execution hang-up.
 				//X10 MPI runtime conflicts with MPI calls 
 				//WrapMPI.world.allReduceSum(src.d, dst.d, sz);
-				//======================================
+
 				//Work-around. Not optimized
 				WrapMPI.world.reduceSum(src.d, dst.d, sz, root);
 				WrapMPI.world.bcast(dst.d, 0, sz, root);
@@ -237,7 +214,7 @@ public class MatrixReduce extends MatrixRemoteCopy {
 	}
 
 	protected static def x10AllReduceSum(ddmat:DistArray[DenseMatrix](1),
-								  ddtmp:DistArray[DenseMatrix](1)): Int {
+								  ddtmp:DistArray[DenseMatrix](1)):Long {
 		val root = here.id();
 		val den = ddmat(root);
 		val sz = x10ReduceSum(ddmat, ddtmp);
@@ -246,11 +223,6 @@ public class MatrixReduce extends MatrixRemoteCopy {
 		return sz;
 	}
 
-	//=================================================================
-	// Reduce data from specified places
-	//=================================================================
-
-	
 	/**
 	 * Perform reduce sum of all matrces stored in the duplicated matrix
 	 * from specified list of places. This method is not optimized.
@@ -263,18 +235,17 @@ public class MatrixReduce extends MatrixRemoteCopy {
 	 */
 	public static def reduceSum(
 			ddmat:DistArray[DenseMatrix](1),
-			tmp:DenseMatrix, colcnt:Int,
-			plist:Array[Int](1)):Int{
+			tmp:DenseMatrix, colcnt:Long,
+			plist:Rail[Long]):Long {
 
 		val root = here.id();
 		val rtden = ddmat(here.id());
 		val dstbuf = rtden.d;
 		val dstden = new DenseMatrix(rtden.M, colcnt, dstbuf);
 		val srcden = new DenseMatrix(rtden.M, colcnt, tmp.d);
-		for (val [p]:Point in plist) {
-			if (plist(p) != here.id()) {
-				copy(ddmat, plist(p), 0, srcden, 0, colcnt);
-				//srcden.print("Reduce sum copy matrix data from Place:"+plist(p));
+		for (placeId in plist) {
+			if (placeId != here.id()) {
+				MatrixRemoteCopy.copy(ddmat, placeId, 0L, srcden, 0L, colcnt);
 				dstden.cellAdd(srcden);
 			}
 		}

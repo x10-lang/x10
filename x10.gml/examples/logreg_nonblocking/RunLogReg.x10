@@ -5,7 +5,6 @@
  */
 
 
-import x10.io.Console;
 import x10.util.Timer;
 //
 import x10.matrix.Debug;

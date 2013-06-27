@@ -18,7 +18,7 @@ import x10.matrix.Debug;
 import x10.matrix.RandTool;
 
 public type SymDenseBuilder(blder:SymDenseBuilder)=SymDenseBuilder{self==blder};
-public type SymDenseBuilder(m:Int)=SymDenseBuilder{self.M==m,self.N==m};
+public type SymDenseBuilder(m:Long)=SymDenseBuilder{self.M==m,self.N==m};
 
 /**
  * Builder/Initializer of symmetric dense matrix.
@@ -38,22 +38,22 @@ public class SymDenseBuilder extends DenseBuilder{self.M==self.N} implements Mat
 	 * @param m   rows, leading dimension
 	 * @param n   columns
 	 */
-	public static def make(m:Int): SymDenseBuilder(m) {
+	public static def make(m:Long): SymDenseBuilder(m) {
 		val bdr = new SymDenseBuilder(SymDense.make(m));
 		return bdr as SymDenseBuilder(m);
 	}
 	
-	//==============================================
+
 	/**
 	 * Initial dense matrix with initial function.
 	 */
-	public def init(initFunc:(Int,Int)=>Double):SymDenseBuilder(this) {
+	public def init(initFunc:(Long,Long)=>Double):SymDenseBuilder(this) {
 		var stt:Int=0;
-		for (var c:Int=0; c<this.N; c++, stt+=1+dense.M ) {
-			var i:Int = stt;
-			var j:Int = stt+dense.M;
+		for (var c:Long=0; c<this.N; c++, stt+=1+dense.M ) {
+			var i:Long = stt;
+			var j:Long = stt+dense.M;
 			dense.d(i++) = initFunc(c, c);
-			for (var r:Int=c+1; r<this.M; r++, i++, j += dense.M) 
+			for (var r:Long=c+1; r<this.M; r++, i++, j += dense.M) 
 				dense.d(i) = dense.d(j) = initFunc(r, c);
 		}
 		return this;
@@ -64,16 +64,16 @@ public class SymDenseBuilder extends DenseBuilder{self.M==self.N} implements Mat
 	 * @param nzDensity    nonzero sparsity.
 	 * @param initFunc     nonzero value generating function.
 	 */
-	public def initRandom(nzDensity:Double, initFunc:(Int,Int)=>Double):SymDenseBuilder(this) {
+	public def initRandom(nzDensity:Double, initFunc:(Long,Long)=>Double):SymDenseBuilder(this) {
 		val maxdst:Int = ((1.0/nzDensity) as Int) * 2 - 1;
-		var i:Int= RandTool.nextInt(maxdst/2);
+		var i:Long= RandTool.nextLong(maxdst/2);
 		var stt:Int=0;
-		for (var c:Int=0; c<this.N; c++, stt+=dense.M, i+=c  ) {
-			var r:Int = i - stt;
-			var j:Int = r*dense.M+c;
+		for (var c:Long=0; c<this.N; c++, stt+=dense.M, i+=c) {
+			var r:Long = i - stt;
+			var j:Long = r*dense.M+c;
 
 			//if (r==c) dense.d(i) = initFunc(c, c);
-			for (;r<this.M; i+= RandTool.nextInt(maxdst)+1, r=i-stt, j=r*dense.M+c) {
+			for (;r<this.M; i+= RandTool.nextLong(maxdst)+1, r=i-stt, j=r*dense.M+c) {
 				dense.d(i) = dense.d(j) = initFunc(r, c);
 			}
 		}
@@ -82,20 +82,20 @@ public class SymDenseBuilder extends DenseBuilder{self.M==self.N} implements Mat
 
 	
 	public def initRandom(nzDensity:Double): SymDenseBuilder(this) =
-		initRandom(nzDensity, (Int,Int)=>RandTool.getRandGen().nextDouble());
+		initRandom(nzDensity, (Long,Long)=>RandTool.getRandGen().nextDouble());
 	
-	//===============================================
-	public def set(r:Int, c:Int, dv:Double) : void {
+
+	public def set(r:Long, c:Long, dv:Double) : void {
 		dense(r, c) = dv;
 		dense(c, r) = dv;
 	}
 	
-	public def reset(r:Int, c:Int) : Boolean {
+	public def reset(r:Long, c:Long) : Boolean {
 		dense(r, c) =0.0;
 		dense(c, r) =0.0;
 		return true;
 	}
-	//===============================================
+
 	/**
 	 * copy from upper or lower triangular and its mirror part.
 	 */
@@ -113,10 +113,10 @@ public class SymDenseBuilder extends DenseBuilder{self.M==self.N} implements Mat
 	 * Copy lower triangular part to upper
 	 */
 	public def mirrorToUpper() {
-		var i:Int=1;
-		var j:Int=M;
-		for (var c:Int=0; c<M; c++, i+=c+1, j=i+M-1) {
-			for (var r:Int=c+1; r<M; r++, i++, j+=M) 
+		var i:Long=1;
+		var j:Long=M;
+		for (var c:Long=0; c<M; c++, i+=c+1, j=i+M-1) {
+			for (var r:Long=c+1; r<M; r++, i++, j+=M) 
 				dense.d(j)= dense.d(i);
 		}
 	}
@@ -125,15 +125,15 @@ public class SymDenseBuilder extends DenseBuilder{self.M==self.N} implements Mat
 	 * Copy upper triangular part to lower
 	 */
 	public def mirrorToLower() {
-		var i:Int=M;
-		var j:Int=1;
-		for (var c:Int=1; c<M; c++, i=c*M, j=c) {
-			for (var r:Int=0; r<c; r++, i++, j+=M) 
+		var i:Long=M;
+		var j:Long=1;
+		for (var c:Long=1; c<M; c++, i=c*M, j=c) {
+			for (var r:Long=0; r<c; r++, i++, j+=M) 
 				dense.d(j)= dense.d(i);
 		}
 	}
 	
-	//===============================================
+
 
 	public def checkSymmetric():Boolean =
 		SymDense.test(dense);

@@ -51,5 +51,5 @@ include $(gml_path)/scripts/test_run.mk
 
 ###-------------------------------
 help ::	
-	@echo "----------------- build and test benchmarks of SUMMA for desne matrix ----------------";
+	@echo "----------------- build and test benchmarks of SUMMA for dense matrix ----------------";
 	@echo " ";

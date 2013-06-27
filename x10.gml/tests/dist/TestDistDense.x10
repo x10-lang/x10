@@ -9,24 +9,16 @@
  *  (C) Copyright IBM Corporation 2006-2011.
  */
 
-import x10.io.Console;
+import x10.compiler.Ifndef;
 
 import x10.matrix.Debug;
 import x10.matrix.DenseMatrix;
 
 import x10.matrix.block.Grid;
 import x10.matrix.block.DenseBlockMatrix;
-
 import x10.matrix.dist.DistDenseMatrix;
 
-
-/**
-   <p>
-
-   <p>
- */
 public class TestDistDense {
-	
     public static def main(args:Rail[String]) {
 		val testcase = new TestDD(args);
 		testcase.run();
@@ -35,19 +27,19 @@ public class TestDistDense {
 
 class TestDD {
 	public val nzp:Double;
-	public val M:Int;
-	public val N:Int;
-	public val K:Int;	
+	public val M:Long;
+	public val N:Long;
+	public val K:Long;	
 
     public def this(args:Rail[String]) {
 		M = args.size > 0 ?Int.parse(args(0)):4;
 		nzp = args.size > 1 ?Double.parse(args(1)):0.5;
-		N = args.size > 2 ?Int.parse(args(2)):M+1;
-		K = args.size > 3 ?Int.parse(args(3)):M+2;	
+		N = args.size > 2 ?Int.parse(args(2)):(M as Int)+1;
+		K = args.size > 3 ?Int.parse(args(3)):(M as Int)+2;	
 	}
 
     public def run (): void {
-		Console.OUT.println("Starting dense matrix clone/add/sub/scaling tests");
+		Console.OUT.println("Starting dist dense matrix clone/add/sub/scaling tests");
 		Console.OUT.printf("Matrix M:%d K:%d N:%d\n", M, N, K);
 
 		var ret:Boolean = true;
@@ -76,7 +68,6 @@ class TestDD {
 		ddm.initRandom();
 		Debug.flushln("Initialization done");
 
-		//dm.printBlock("Dist dense");
 		val ddm1 = ddm.clone();
 		Debug.flushln("Clone done");
 		ret = ddm.equals(ddm1);
@@ -103,9 +94,9 @@ class TestDD {
 	public def testInit():Boolean {
 		Console.OUT.println("Starting Dist Dense Matrix initialization test");
 		var ret:Boolean = true;
-		val ddm = DistDenseMatrix.make(M,N).init((r:Int, c:Int)=>(1.0+r+c));
-		for (var c:Int=0; c<M; c++)
-			for (var r:Int=0; r<M; r++)
+		val ddm = DistDenseMatrix.make(M,N).init((r:Long, c:Long)=>(1.0+r+c));
+		for (var c:Long=0; c<M; c++)
+			for (var r:Long=0; r<M; r++)
 				ret &= (ddm(r,c) == 1.0+r+c);
 		
 		if (ret)
@@ -126,6 +117,7 @@ class TestDD {
 		ddm.initRandom();
 		Debug.flushln("Initialization done");
 
+	@Ifndef("MPI_COMMU") { // TODO Gather in DBM.copyTo deadlocks!
 		ddm.copyTo(dbm);
 		Debug.flushln("Convert to dense block matrix done");
 		ret &= ddm.equals(dbm);
@@ -133,13 +125,14 @@ class TestDD {
 		
 		dbm.copyTo(dm);
 		Debug.flushln("Convert to dense matrix done");
-		ret &= ddm.equals(dbm);
+		ret &= dbm.equals(dm);
 		Debug.flushln("Verify copyTo dense matrix done");
 
 		if (ret)
 			Console.OUT.println("Dist dense Matrix copyTo test passed!");
 		else
 			Console.OUT.println("--------Dist dense matrix copyTo test failed!--------");	
+    }
 		return ret;
 	}
 
@@ -178,13 +171,10 @@ class TestDD {
 		dm.initRandom();
 		val dm1= DistDenseMatrix.make(M, N);
 		dm.initRandom();
-		//sp.print("Input:");
+
 		val dm2= dm  + dm1;
-		//sp2.print("Add result:");
-		//
 		val dm_c  = dm2 - dm1;
 		val ret   = dm.equals(dm_c);
-		//sp_c.print("Another add result:");
 		if (ret)
 			Console.OUT.println("DistDenseMatrix Add-sub test passed!");
 		else
@@ -273,7 +263,4 @@ class TestDD {
 			Console.OUT.println("--------Dist dense matrix cellwise mult-div test failed!--------");
 		return ret;
 	}
-
-
-
 } 

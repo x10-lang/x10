@@ -4,25 +4,15 @@
  *  (C) Copyright IBM Corporation 2011.
  */
 
-import x10.io.Console;
-
 import x10.matrix.Matrix;
 import x10.matrix.DenseMatrix;
 import x10.matrix.SymDense;
-import x10.matrix.MathTool;
 import x10.matrix.sparse.SymSparseCSC;
-
 import x10.matrix.builder.SparseCSCBuilder;
 import x10.matrix.builder.SymDenseBuilder;
 import x10.matrix.builder.SymSparseBuilder;
 
-/**
-   <p>
-
-   <p>
- */
 public class TestSymBuilder{
-
     public static def main(args:Rail[String]) {
 		val m = (args.size > 0) ? Int.parse(args(0)):4;
 		val d = (args.size > 1) ? Double.parse(args(1)):0.5;
@@ -31,13 +21,11 @@ public class TestSymBuilder{
 	}
 }
 
-
 class TestBuilder {
-
-	public val M:Int;
+	public val M:Long;
 	public val nzd:Double;
 
-	public def this(m:Int, d:Double) {
+	public def this(m:Long, d:Double) {
 		M = m; nzd = d;
 	}
 
@@ -59,16 +47,14 @@ class TestBuilder {
     	Console.OUT.println("Starting initial test of symmetric dense builder");
     	val symbld = SymDenseBuilder.make(M).initRandom(nzd);
 
-    	symbld.dense.printMatrix();
     	ret = symbld.checkSymmetric();
 
     	val sbld = SymDenseBuilder.make(M);
     	
-    	val src = DenseMatrix.make(M,M).init((r:Int,c:Int)=>1.0+r+2*c);
-    	val tgt = DenseMatrix.make(M,M).init((r:Int,c:Int)=>(r>c)?1.0+r+2*c:1.0+c+2*r);
+    	val src = DenseMatrix.make(M,M).init((r:Long,c:Long)=>1.0+r+2*c);
+    	val tgt = DenseMatrix.make(M,M).init((r:Long,c:Long)=>(r>c)?1.0+r+2*c:1.0+c+2*r);
 
     	val sden = sbld.init(false, src).toSymDense();
-    	sden.printMatrix();
     	ret &= sbld.checkSymmetric();
     	
     	ret &=  tgt.equals(sden as Matrix(tgt.M,tgt.N));
@@ -84,13 +70,11 @@ class TestBuilder {
     	val symbld = SymSparseBuilder.make(M);
     	Console.OUT.println("Starting initial test of symmetric sparse builder");
     	
-    	symbld.initRandom(nzd).toSymSparseCSC().printMatrix();
+    	symbld.initRandom(nzd).toSymSparseCSC();
     	ret = symbld.checkSymmetric();
     	
-    	val src = SparseCSCBuilder.make(M,M).initRandom(1.0, (r:Int,c:Int)=>(r>c)?(1.0+r+2*c):(1.0+c+2*r)).toSparseCSC();
+    	val src = SparseCSCBuilder.make(M,M).initRandom(1.0, (r:Long,c:Long)=>(r>c)?(1.0+r+2*c):(1.0+c+2*r)).toSparseCSC();
     	val spa = SymSparseBuilder.make(M).init(false, src).toSymSparseCSC();
-    	src.printMatrix();
-    	spa.printMatrix();
     	
     	ret &=  src.equals(spa as Matrix(src.M,src.N));
     	if (ret)

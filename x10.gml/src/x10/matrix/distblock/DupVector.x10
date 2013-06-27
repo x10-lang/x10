@@ -11,89 +11,63 @@
 
 package x10.matrix.distblock;
 
-import x10.util.ArrayList;
+import x10.regionarray.Dist;
 import x10.util.Timer;
 import x10.util.StringBuilder;
 
 import x10.matrix.Matrix;
 import x10.matrix.Debug;
-
 import x10.matrix.DenseMatrix;
 import x10.matrix.Vector;
-
-import x10.matrix.block.Grid;
-import x10.matrix.block.MatrixBlock;
-import x10.matrix.block.BlockMatrix;
-import x10.matrix.block.DenseBlock;
-import x10.matrix.block.SparseBlock;
-
 import x10.matrix.comm.ArrayBcast;
-import x10.matrix.comm.ArrayGather;
 import x10.matrix.comm.ArrayReduce;
-import x10.matrix.comm.ArrayRemoteCopy;
 
-public type DupVector(m:Int)=DupVector{self.M==m};
+public type DupVector(m:Long)=DupVector{self.M==m};
 public type DupVector(v:DupVector)=DupVector{self==v};
 
-/**
- * 
- */
-public class DupVector(M:Int) {
-	
-	//===================================================================================
+public class DupVector(M:Long) {
 	public val dupV:PlaceLocalHandle[Vector];
 	private val dupData:PlaceLocalHandle[Rail[Double]];//Repackage vector.d
-	//===================================================================================
 	public  var tmpData:PlaceLocalHandle[Rail[Double]];
 	private transient var tmpReady:Boolean;
-	//===================================================================================
 	/*
 	 * Time profiling
 	 */
 	transient var commTime:Long = 0;
 	transient var calcTime:Long = 0;
 	
-	//===================================================================================
-	/**
-	 * 
-	 */
 	public def this(vs:PlaceLocalHandle[Vector]) {
 		val m = vs().M;
 		property(m);
 		dupV  = vs;
 		tmpReady = false;
-		dupData = PlaceLocalHandle.make[Rail[Double]](Dist.makeUnique(), ()=>vs().d);
+		dupData = PlaceLocalHandle.make[Rail[Double]](PlaceGroup.WORLD, ()=>vs().d);
 	}
-	//===================================================================================
-	//====================================================================================
 
 	public static def make(v:Vector):DupVector(v.M){
 		val m = v.M;
-		val hdl = PlaceLocalHandle.make[Vector](Dist.makeUnique(), ()=>Vector.make(m));
+		val hdl = PlaceLocalHandle.make[Vector](PlaceGroup.WORLD, ()=>Vector.make(m));
 		val newDV = new DupVector(hdl);
 		newDV.sync();
 		return newDV as DupVector(m);
 	}
-	//------------------------
 	
-	public static def make(m:Int) {
-		val hdl = PlaceLocalHandle.make[Vector](Dist.makeUnique(), ()=>Vector.make(m));
+	public static def make(m:Long) {
+		val hdl = PlaceLocalHandle.make[Vector](PlaceGroup.WORLD, ()=>Vector.make(m));
 		return new DupVector(hdl) as DupVector(m);
 	}
 	
-	//====================================================================================
-	
-	public def alloc(m:Int):DupVector(m) = make(m);
+	public def alloc(m:Long):DupVector(m) = make(m);
 	public def alloc() = alloc(M);
 	
 	public def clone():DupVector(M) {
-		val bs = PlaceLocalHandle.make[Vector](Dist.makeUnique(), 
+		val bs = PlaceLocalHandle.make[Vector](PlaceGroup.WORLD, 
 				()=>dupV().clone());	
 		return new DupVector(bs) as DupVector(M);
 	}
 	
 	public def reset() {
-		finish ateach (Dist.makeUnique()) {
+        finish ateach(Dist.makeUnique()) {
 			dupV().reset();
 		}
 	}
@@ -101,12 +75,12 @@ public class DupVector(M:Int) {
 	public def allocTmp() : void {
 		if (tmpReady) return;
 		tmpReady = true;
-		tmpData = PlaceLocalHandle.make[Rail[Double]](Dist.makeUnique(), ()=>new Array[Double](dupV().M));
+		tmpData = PlaceLocalHandle.make[Rail[Double]](PlaceGroup.WORLD, ()=>new Rail[Double](dupV().M));
 	}
-	//====================================================================================
+
 	public def init(dv:Double) : DupVector(this) {
 		
-		finish ateach (Dist.makeUnique()) {
+		finish ateach(Dist.makeUnique()) {
 			dupV().init(dv);
 		}
 		return this;
@@ -124,29 +98,26 @@ public class DupVector(M:Int) {
 		return this;
 	}
 	
-	public def init(f:(Int)=>Double) : DupVector(this) {
+	public def init(f:(Long)=>Double) : DupVector(this) {
 		dupV().init(f);
 		sync();
 		return this;
 	}
 	
-	//==================================================================================
 	public def copyTo(den:DenseMatrix):void {
 		dupV().copyTo(den);
 	}
 
 	public def copyTo(dst:DupVector(M)):void {
-		finish ateach (Dist.makeUnique()) {
+		finish ateach(Dist.makeUnique()) {
 			dupV().copyTo(dst.dupV());
 		}
 	}
 	
-	//==================================================================================
-	
-	public  operator this(x:Int):Double = dupV()(x);
+	public  operator this(x:Long):Double = dupV()(x);
 
-	public operator this(x:Int)=(dv:Double):Double {
-		finish ateach (Dist.makeUnique()) {
+	public operator this(x:Long)=(dv:Double):Double {
+		finish ateach(Dist.makeUnique()) {
 			//Remote capture: x, y, d
 			dupV()(x) = dv;	
 		}
@@ -154,8 +125,6 @@ public class DupVector(M:Int) {
 	}
 	
 	public def local() = dupV() as Vector(M);
-
-	//==================================================================================
 
 	/**
 	 * Scaling method. All copies are updated concurrently
@@ -166,7 +135,7 @@ public class DupVector(M:Int) {
 		}
 		return this;
 	}
-	//-------------------------------------------------------------
+
 	
 	/**
 	 * Cellwise multiplication. 
@@ -198,9 +167,9 @@ public class DupVector(M:Int) {
 		return this;
 	}
 
-	//--------------------------------
+
 	// Cellwise subtraction
-	//--------------------------------
+
 	public def cellSub(A:Vector(M)) {
 		val v = local() as Vector(M);
 		v.cellSub(A);
@@ -224,7 +193,7 @@ public class DupVector(M:Int) {
 	 * Perform cell-wise subtraction  this = this - dv.
 	 */
 	public def cellSub(dv:Double):DupVector(this) {
-		finish ateach (Dist.makeUnique()) {
+        finish ateach(Dist.makeUnique()) {
 			local().cellSub(dv);
 		}
 		return this;
@@ -234,15 +203,15 @@ public class DupVector(M:Int) {
 	 * this = dv - this
 	 */
 	protected def cellSubFrom(dv:Double):DupVector(this) {
-		finish ateach (Dist.makeUnique()) {
+        finish ateach(Dist.makeUnique()) {
 			local().cellSubFrom(dv);
 		}
 		return this;
 	}
 
-	//--------------------------------
+
 	// Cellwise multiplication
-	//--------------------------------
+
 	/**
 	 * Cellwise multiplication. 
 	 */
@@ -264,9 +233,9 @@ public class DupVector(M:Int) {
 		return this;
 	}
 
-	//--------------------------------
+
 	// Cellwise division
-	//--------------------------------
+
 	/**
 	 * this = this / A
 	 */
@@ -282,16 +251,16 @@ public class DupVector(M:Int) {
 	 * the corresponding vector copies.
 	 */	
 	public def cellDiv(A:DupVector(M)) {
-		finish ateach (Dist.makeUnique()) {
+        finish ateach(Dist.makeUnique()) {
 			local().cellDiv(A.local());
 		}
 		return this;
 	}
 	
-	//====================================================================
+
 	// Operator overloading cellwise operations
-	//====================================================================
-	// 
+
+
 	public operator - this            = clone().scale(-1.0) as DupVector(M);
 	public operator (v:Double) + this = clone().cellAdd(v)  as DupVector(M);
 	public operator this + (v:Double) = clone().cellAdd(v)  as DupVector(M);
@@ -300,18 +269,16 @@ public class DupVector(M:Int) {
 	public operator this / (v:Double) = clone().scale(1.0/v)   as DupVector(M);
 	
 	public operator this * (alpha:Double) = clone().scale(alpha) as DupVector(M);
-	public operator this * (alpha:Int)    = clone().scale(alpha  as Double) as DupVector(M);
 	public operator (alpha:Double) * this = this * alpha;
-	public operator (alpha:Int) * this    = this * alpha;
 	
 	public operator this + (that:DupVector(M)) = clone().cellAdd(that)  as DupVector(M);
 	public operator this - (that:DupVector(M)) = clone().cellSub(that)  as DupVector(M);
 	public operator this * (that:DupVector(M)) = clone().cellMult(that) as DupVector(M);
 	public operator this / (that:DupVector(M)) = clone().cellDiv(that)  as DupVector(M);
 		
-	//====================================================================
+
 	// Multiplication operations 
-	//====================================================================
+
 	public def mult(mA:DistBlockMatrix(this.M), vB:DistVector(mA.N), plus:Boolean):DupVector(this) =
 		DistDupVectorMult.comp(mA, vB, this, plus);
 	
@@ -329,23 +296,23 @@ public class DupVector(M:Int) {
 	public def mult(mA:DistBlockMatrix(this.M), vB:DupVector(mA.N))  = DistDupVectorMult.comp(mA, vB, this, false);
 	public def mult(vB:DupVector, mA:DistBlockMatrix(vB.M, this.M))  = DistDupVectorMult.comp(vB, mA, this, false);
 	
-	//-------------------------
+
 	public operator this % (that:DistBlockMatrix(M)) = 
 		DistDupVectorMult.comp(this, that, DistVector.make(that.N, that.getAggColBs()), true);
 
 	public operator (that:DistBlockMatrix{self.N==this.M}) % this = 
 		DistDupVectorMult.comp(that , this, DistVector.make(that.M, that.getAggRowBs()), true);
 
-	//==================================================================================
+
 	public def sync():void {
 		/* Timing */ val st = Timer.milliTime();
 		ArrayBcast.bcast(dupData);
 		/* Timing */ commTime += Timer.milliTime() - st;
 		//Debug.flushln("Calling sync "+commTime);
 	}
-	//==================================================================================
+
 	
-	public def reduce(opFunc:(Array[Double](1){rail},Array[Double](1){rail},Int)=>Int): void {
+	public def reduce(opFunc:(Rail[Double],Rail[Double],Long)=>Int): void {
 		allocTmp();
 		/* Timing */ val st = Timer.milliTime();
 		ArrayReduce.reduce(dupData, tmpData, this.M, opFunc);
@@ -365,19 +332,18 @@ public class DupVector(M:Int) {
 		ArrayReduce.allReduceSum(dupData, tmpData, this.M);
 		/* Timing */ commTime += Timer.milliTime() - st;
 	}	
-	//==================================================================================
+
 
 	public def likeMe(that:DupVector): Boolean = (this.M==that.M);
 		
-	//==================================================================================
+
 
 	public def checkSync():Boolean {
 		val rootvec  = dupV();
 		var retval:Boolean = true;
-		for (var p:Int=0; p < Place.MAX_PLACES && retval; p++) {
-			val pid = p;
+		for (var p:Long=0; p < Place.MAX_PLACES && retval; p++) {
 			if (p == here.id()) continue;
-			retval &= at (Dist.makeUnique()(pid)) {
+			retval &= at(Place(p)) {
 					val vec = dupV();
 					rootvec.equals(vec as Vector(rootvec.M))
 			};
@@ -387,27 +353,22 @@ public class DupVector(M:Int) {
 	
 	public def equals(dv:DupVector(this.M)):Boolean {
 		var ret:Boolean = true;
-		for (var p:Int=0; p<Place.MAX_PLACES &&ret; p++) {
-			val pid = p;
-			ret &= at (Dist.makeUnique()(pid)) this.local().equals(dv.local());
+		for (var p:Long=0; p<Place.MAX_PLACES &&ret; p++) {
+			ret &= at(Place(p)) this.local().equals(dv.local());
 		}
 		return ret;
 	}
 	
 	public def equals(dval:Double):Boolean {
 		var ret:Boolean = true;
-		for (var p:Int=0; p<Place.MAX_PLACES &&ret; p++) {
-			val pid = p;
-			ret &= at (Dist.makeUnique()(pid)) this.local().equals(dval);
+		for (var p:Long=0; p<Place.MAX_PLACES &&ret; p++) {
+			ret &= at(Place(p)) this.local().equals(dval);
 		}
 		return ret;
 	}
-	
-	//===============================================================================
+
 	public def getCalcTime() = calcTime;
 	public def getCommTime() = commTime;
-	
-	//==================================================================================
 	
 	public def toString() :String {
 		val output = new StringBuilder();
@@ -416,13 +377,7 @@ public class DupVector(M:Int) {
 		output.add("--------------------------------------------------\n");
 		return output.toString();
 	}
-	//
-	public def print()  { this.print("");}
-	public def print(msg:String) {
-		Console.OUT.print(msg);
-		Console.OUT.print(this.toString());
-		Console.OUT.flush();
-	}
+
 	public def printAllCopies() {
 		val output = new StringBuilder();
 		output.add("-------- Duplicate vector :["+M+"] ---------\n");

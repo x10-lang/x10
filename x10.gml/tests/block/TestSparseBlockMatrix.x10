@@ -9,24 +9,13 @@
  *  (C) Copyright IBM Corporation 2006-2011.
  */
 
-import x10.io.Console;
-
-import x10.matrix.Debug;
 import x10.matrix.Matrix;
 import x10.matrix.DenseMatrix;
-
 import x10.matrix.sparse.SparseCSC;
 import x10.matrix.block.Grid;
-
 import x10.matrix.block.SparseBlockMatrix;
 
-/**
-   <p>
-
-   <p>
- */
 public class TestSparseBlockMatrix {
-	
     public static def main(args:Rail[String]) {
 		val testcase = new TestSBMatrix(args);
 		testcase.run();
@@ -34,16 +23,16 @@ public class TestSparseBlockMatrix {
 }
 
 class TestSBMatrix {
-	public val M:Int;
-	public val N:Int;
-	public val R:Int;
-	public val C:Int;
+	public val M:Long;
+	public val N:Long;
+	public val R:Long;
+	public val C:Long;
 	public val grid:Grid;
 	public val nzd:Double;
 
     public def this(args:Rail[String]) {
 		M = args.size > 0 ?Int.parse(args(0)):40;
-		N = args.size > 1 ?Int.parse(args(1)):M+2;
+		N = args.size > 1 ?Int.parse(args(1)):(M as Int)+2;
 		R = args.size > 2 ?Int.parse(args(2)):2;
 		C = args.size > 3 ?Int.parse(args(3)):3;
 		nzd =  args.size > 4 ?Double.parse(args(4)):0.9;
@@ -74,13 +63,11 @@ class TestSBMatrix {
 		val sbm = SparseBlockMatrix.make(grid, nzd);
 		sbm.initRandom();
 
-		//dm.printBlock("Dist dense");
 		val sbm1 = sbm.clone();
 		ret = sbm.equals(sbm1 as Matrix(M,N));
 
 		val dm = DenseMatrix.make(grid.M, grid.N);
 		sbm.copyTo(dm);
-		//dm2.print("Dense");
 		ret &= sbm.equals(dm as Matrix(M,N));
 
 		if (ret)
@@ -106,13 +93,10 @@ class TestSBMatrix {
 		Console.OUT.println("Starting sparse block matrix copy To test");
 		val sbm = SparseBlockMatrix.make(grid, nzd);
 		sbm.initRandom();
-		//sbm.print();
 
 		val sm = SparseCSC.make(grid.M, grid.N, nzd);
 		sbm.copyTo(sm);
 		ret = sm.equals(sbm);
-		//sm.print();
-		//(sm as Matrix).printMatrix("Conversion to non-block sparse\n");
 
 		if (ret)
 			Console.OUT.println("Sparse block matrix copy to test passed!");
@@ -126,12 +110,10 @@ class TestSBMatrix {
 		Console.OUT.println("Starting sparse block matrix copy From test");
 		val sm = SparseCSC.make(grid.M, grid.N, nzd);
 		sm.initRandom();
-		//sm.printMatrix("Source matrix:\n");
 
 		val sbm = SparseBlockMatrix.make(grid, nzd);
 		sbm.copyFrom(sm);
 
-		//sbm.print("Result:\n");
 		ret &= sm.equals(sbm);
 
 		if (ret)
@@ -156,7 +138,4 @@ class TestSBMatrix {
 			Console.OUT.println("--------Sparse block matrix Scaling test failed!--------");	
 		return ret;
 	}
-
-
-
 } 

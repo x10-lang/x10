@@ -4,7 +4,6 @@
  *  (C) Copyright IBM Corporation 2012.
  */
 
-import x10.io.Console;
 
 import x10.matrix.Debug;
 import x10.matrix.Matrix;
@@ -37,20 +36,20 @@ public class SummaExample {
 
 class RunSummaExample {
 	//Matrix dimentsions
-	public val M:Int; 
-	public val K:Int;
-	public val N:Int;
+	public val M:Long; 
+	public val K:Long;
+	public val N:Long;
 	//Partition parameters
-	public val bM:Int;
-	public val bN:Int;
+	public val bM:Long;
+	public val bN:Long;
 	//Distribution parameters
-	public val pM:Int;
-	public val pN:Int;
+	public val pM:Long;
+	public val pN:Long;
 	//Sparse matrix nonzero density
 	public val nzd:Double;
 	//Verification flag
 	val vrf:Boolean;
-	//-------------
+
 	
 	public def this(args:Rail[String]) {
 		M = args.size   > 0 ?Int.parse(args(0)):4;
@@ -93,8 +92,8 @@ class RunSummaExample {
 		Console.OUT.printf("distributed in (%dx%d) places\n", dgA.numRowPlaces, dgA.numColPlaces);
 		
 		// Partition and distribution info is remote-captured in all places
-		val a = DistBlockMatrix.makeDense(gA, dA).init((r:Int,c:Int)=>1.0*(r+c+1));
-		val b = DistBlockMatrix.makeDense(gB, dB).init((r:Int,c:Int)=>2.0*(r*c+1));
+		val a = DistBlockMatrix.makeDense(gA, dA).init((r:Long,c:Long)=>1.0*(r+c+1));
+		val b = DistBlockMatrix.makeDense(gB, dB).init((r:Long,c:Long)=>2.0*(r*c+1));
 		val c = DistBlockMatrix.makeDense(gC, dC);
 		SummaMult.mult(a, b, c, false);
 		Debug.flushln("Done SUMMA mult");
@@ -121,8 +120,8 @@ class RunSummaExample {
 		Console.OUT.printf("distributed in (%dx%d) places\n", pM, pN);
 
 		//More efficient in creating distributed block matrix
-		val a = DistBlockMatrix.makeSparse(M, K, bM, bN, pM, pN, nzd).init((r:Int,c:Int)=>1.0*(r+c));
-		val b = DistBlockMatrix.makeSparse(K, N, bM, bN, pM, pN, nzd).init((r:Int,c:Int)=>1.0*(r+c));
+		val a = DistBlockMatrix.makeSparse(M, K, bM, bN, pM, pN, nzd).init((r:Long,c:Long)=>1.0*(r+c));
+		val b = DistBlockMatrix.makeSparse(K, N, bM, bN, pM, pN, nzd).init((r:Long,c:Long)=>1.0*(r+c));
 		val c = DistBlockMatrix.makeDense(M, N, bM, bN, pM, pN);
 
 		SummaMult.mult(a, b, c, false);
@@ -131,11 +130,11 @@ class RunSummaExample {
 		if (! vrf) return true;
 
 		var ret:Boolean = true;
-		//c.printMatrix("Summa result:");
+		//Console.OUT.println("Summa result:\n" + c);
 		val da= a.toDense() as DenseMatrix(a.M, a.N);
 		val db= b.toDense() as DenseMatrix(a.N, b.N);
 		val dc= da % db;
-		//dc.printMatrix("Verified result:");
+		//Console.OUT.println("Verified result:\n" + dc);
 		ret &= dc.equals(c as Matrix(dc.M,dc.N));
 
 		if (ret)
@@ -184,7 +183,7 @@ class RunSummaExample {
 		return ret;
 	}
 
-	//-------------------------------------------------------
+
 	public def exampleCylicDistMult():Boolean {
 		//Matrix partitioning
 		val gA = new Grid(M, K, bM, bN);
@@ -253,7 +252,7 @@ class RunSummaExample {
 			Console.OUT.println("--------Cylic distribution of dense block matrix SUMMA mult-trans example failed!--------");
 		return ret;
 	}
-	//-----------------------------------------------------------------
+
 	
 	public def exampleRandomDistMult():Boolean {
 		//Matrix partitioning

@@ -9,19 +9,10 @@
  *  (C) Copyright IBM Corporation 2006-2011.
  */
 
-import x10.io.Console;
-
 import x10.matrix.Debug;
-import x10.matrix.RandTool;
 import x10.matrix.sparse.CompressArray;
 import x10.matrix.sparse.Compress1D;
 import x10.matrix.sparse.Compress2D;
-
-/**
-   <p>
-
-   <p>
- */
 
 public class TestCompress{
     public static def main(args:Rail[String]) {
@@ -31,8 +22,7 @@ public class TestCompress{
 }
 
 class CompArrayTest {
-
-	public val M:Int;
+	public val M:Long;
 	public val nzp:Double;
 
     public def this(args:Rail[String]) {
@@ -49,22 +39,20 @@ class CompArrayTest {
  		ret &= (testCopySection());
  		ret &= (testDataExtraction());
  		ret &= (testSeqAdjustIndex());
-		//
+
 		if (ret)
 			Console.OUT.println("Compress Data Test passed!\n");
 		else
 			Console.OUT.println("----------Compress Data Test failed!----------\n");
 	}
-	//
+
 	public def testCompressArray():Boolean {
 		Console.OUT.println("Test compress array size of "+M);
-		//
+
 		val ca = CompressArray.make(M);
 		ca.initRandom(0, M, nzp);
-		//ca.print();
-		val uc = new Array[Double](M);
+		val uc = new Rail[Double](M);
 		ca.extract(uc);
-		//Console.OUT.println(uc.toString());
 
 		var ret:Boolean;
 		ret = ca.equals(uc);
@@ -72,26 +60,23 @@ class CompArrayTest {
 
 		val ca1 = CompressArray.compress(uc);
 		ret &= ca1.equals(ca);
-		//cl2.print("c2 =");
 		if (ret)
 			Console.OUT.println("Compress array test passed!");
 		else
 			Console.OUT.println("----------Compress array test failed!----------");
 		return ret;	
 	}
-	//
-	public def testCompress1D():Boolean{
 
+	public def testCompress1D():Boolean{
 		val ca = new CompressArray(M);
 		val c1d = Compress1D.makeRand(M, nzp, 0, ca);
-		val alist = new Array[Double](M);
+		val alist = new Rail[Double](M);
 		c1d.extract(alist);
 
 		var ret:Boolean=true;
 		Console.OUT.println("Test compress 1D size of "+M);
 		Console.OUT.println("non-zero : "+ c1d.size());
 		
-		//c1d.print();
 		ret &= c1d.testIn(alist);
 		if (ret)
 			Console.OUT.println("Compress 1D test passed!");
@@ -99,35 +84,31 @@ class CompArrayTest {
 			Console.OUT.println("----------Compress 1D test failed!----------");
 		return ret;
 	}
-	//
-	public def testCompress2D():Boolean{
 
+	public def testCompress2D():Boolean{
 		var ret:Boolean = true;
 		val ca = new CompressArray(M*M);
-		val c2d = Compress2D.make(M, ca);
-		c2d.initRandom(M, nzp);
-		//val c2d = Compress2D.makeRand(M, M, nzp, ca);
+		val c2d = Compress2D.makeRand(M, M, nzp, ca);
 
 		Console.OUT.println("Test compress 2D, lines: "+M+", nzcount:"
 							+ c2d.countNonZero());
 		
-		val nzc:Int = c2d.countNonZero() as Int;
-		val ia:Array[Int](1)    = new Array[Int](M+1);
-		val ja:Array[Int](1)    = new Array[Int](nzc);
-		val av:Array[Double](1) = new Array[Double](nzc);
+		val nzc = c2d.countNonZero();
+		val ia = new Rail[Long](M+1);
+		val ja = new Rail[Long](nzc);
+		val av = new Rail[Double](nzc);
 		c2d.toCompressSparse(ia, ja, av);
 		//Console.OUT.println("Convert to Compress Sparse");
 		//Global.debug.println(ia);
 		//Global.debug.println(ja);
 		//Global.debug.println(av);
 		//Global.debug.flush();
-		val ntd = Compress2D.make(ia , ja, av);
+		val ntd = Compress2D.make(ia, ja, av);
 		//ntd.print2D("Convert back\n");
 		ret=ntd.equals(c2d);
-		//
+
 		val c2d_ = c2d.clone();
 		ret&=c2d.equals(c2d_);
-		//
 
 		if (ret)
 			Console.OUT.println("Compress 2D test passed!");
@@ -135,7 +116,7 @@ class CompArrayTest {
 			Console.OUT.println("----------Compress 2D test failed!----------");
 		return ret;
 	}
-// 	//
+
 	public def testCopySection():Boolean{
 		var ret:Boolean = true;
 		Console.OUT.println("Compress 2D line section copy test");
@@ -147,7 +128,6 @@ class CompArrayTest {
 		val c2 = Compress2D.make(M, ca2);
 
 		Compress2D.copy(c1, c2);
-		//c2.print();
 
 		ret &= c1.equals(c2);
 		if (ret) 
@@ -161,14 +141,12 @@ class CompArrayTest {
 		c2.reset();
 		Console.OUT.printf("Copy [%d %d] indexes \n", ss, ss+cnt-1);
 		Compress2D.copySection(c1, ss, c2, cnt);
-		//c2.print();
 
- 		for (var l:Int=0; l<M; l++) {
- 			for (var idx:Int=ss; idx<cnt; idx++) {
+ 		for (var l:Long=0; l<M; l++) {
+ 			for (var idx:Long=ss; idx<cnt; idx++) {
  				ret &= (c1(l, idx)==c2(l, idx-ss));
  			}
  		}
-		//c2.print();
 		if (ret) Console.OUT.println("Test partial copy passed");
 
 		if (ret)
@@ -186,13 +164,13 @@ class CompArrayTest {
 
 		val ss  = idxsz/4;
 		val num = idxsz/2;
-		//
-		val s1 = new Array[Double](idxsz);
+
+		val s1 = new Rail[Double](idxsz);
 		c1.extract(ss, num, 0, s1); //Get data between [ss, sd]
 		//Global.debug.println(s1); Global.debug.flush();
 
 		var ret:Boolean = true;
-		var i:Int;
+		var i:Long;
 		for (i=ss; (i<ss+num)&&ret; i++) ret &= (c1(i)==s1(i));
 		if (! ret) Console.OUT.printf("Extracted data mismatch at index %d : %f <> %f\n", 
 									  i-1, c1(i-1), s1(i-1));
@@ -211,16 +189,11 @@ class CompArrayTest {
 		val ca = new CompressArray(M*ldm);
 		val cd = Compress2D.makeRand(M, ldm, nzp, ca);
 		val c2 = cd.clone();
-		//cd.print();			 
-		//ca.print();
 		val cnt = cd.serializeIndex(ldm, 0, M);
-		//ca.print();
 
 		val lft = cd.buildIndex(ldm, 0, M, cnt);
-		Debug.assure(lft==0, "Left elements unclaimed after rebuilding indexes");
-		//cd.print();
-		//ca.print();
-		//
+		Debug.assure(lft==0L, "Left elements unclaimed after rebuilding indexes");
+
 		var ret:Boolean = c2.equals(cd);
 
 		if (ret)
@@ -229,5 +202,4 @@ class CompArrayTest {
 			Console.OUT.println("----------Sequentialize index test failed!----------");
 		return ret;		
 	}
-
 }

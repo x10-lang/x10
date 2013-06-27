@@ -12,41 +12,33 @@
 package x10.matrix.builder;
 
 import x10.compiler.Inline;
-import x10.io.Console;
-import x10.util.Pair;
 import x10.util.StringBuilder;
 import x10.util.ArrayList;
 
 import x10.matrix.Debug;
 import x10.matrix.Matrix;
 import x10.matrix.MathTool;
-import x10.matrix.DenseMatrix;
-import x10.matrix.VerifyTools;
 import x10.matrix.RandTool;
-
-import x10.matrix.sparse.CompressArray;
-import x10.matrix.sparse.Compress2D;
 import x10.matrix.sparse.SparseCSC;
 
 public type SparseCSCBuilder(bld:SparseCSCBuilder)=SparseCSCBuilder{self==bld};
-public type SparseCSCBuilder(m:Int,n:Int)=SparseCSCBuilder{self.M==m,self.N==n};
-public type SparseCSCBuilder(m:Int)=SparseCSCBuilder{self.M==self.N,self.M==m};
+public type SparseCSCBuilder(m:Long,n:Long)=SparseCSCBuilder{self.M==m,self.N==n};
+public type SparseCSCBuilder(m:Long)=SparseCSCBuilder{self.M==self.N,self.M==m};
 
 /**
  * Sparse matrix builder uses different memory space from SparseCSC instance. 
  */
-public class SparseCSCBuilder(M:Int, N:Int) implements MatrixBuilder {
+public class SparseCSCBuilder(M:Long, N:Long) implements MatrixBuilder {
 	
-	public static struct NonZeroEntry(row:Int, value:Double) {
-
-		def this(r:Int, v:Double) { 
+	public static struct NonZeroEntry(row:Long, value:Double) {
+		def this(r:Long, v:Double) { 
 			property(r, v);
 		}
 		@Inline
 		public def equal(that:NonZeroEntry) : Boolean = (this.row==that.row);
 		
 		@Inline
-		public def sameRow(r:Int): Boolean = (r == this.row);
+		public def sameRow(r:Long): Boolean = (r == this.row);
 		
 		@Inline
 		public def toString():String = "<R:"+row+","+value+">";
@@ -55,19 +47,15 @@ public class SparseCSCBuilder(M:Int, N:Int) implements MatrixBuilder {
 	
 	static val zeroEntry = NonZeroEntry(0, 0.0);
 	
-	//=======================================================
-	public var nzcount:Int=0;
-	public val nzcol:Array[ArrayList[NonZeroEntry]](1){rail};
+	public var nzcount:Long=0;
+	public val nzcol:Rail[ArrayList[NonZeroEntry]];
 	public val output:SparseCSC(M,N);
 
-	//=======================================================
-	public def this(leadDim:Int, cols:Array[ArrayList[NonZeroEntry]](1){rail}, spa:SparseCSC(leadDim, cols.size)) {
+	public def this(leadDim:Long, cols:Rail[ArrayList[NonZeroEntry]], spa:SparseCSC(leadDim, cols.size)) {
 		property(leadDim, cols.size);
 		nzcol = cols;
 		output = spa;//SparseCSC.make(M, N, 0); 
 	}
-
-	
 	
 	/**
 	 * Creating sparse builder and using the input sparse to store the output.
@@ -75,7 +63,7 @@ public class SparseCSCBuilder(M:Int, N:Int) implements MatrixBuilder {
 	 */
 	public def this(spa:SparseCSC) {
 		property(spa.M, spa.N);
-		nzcol =  new Array[ArrayList[NonZeroEntry]](spa.N, (i:Int)=>new ArrayList[NonZeroEntry]());
+		nzcol =  new Rail[ArrayList[NonZeroEntry]](spa.N, (i:Long)=>new ArrayList[NonZeroEntry]());
 		output = spa;
 	}
 	
@@ -90,11 +78,10 @@ public class SparseCSCBuilder(M:Int, N:Int) implements MatrixBuilder {
 		output = bdr.output;
 	}
 	
-	public static def make(m:Int, n:Int):SparseCSCBuilder(m,n) {
-		val cols = new Array[ArrayList[NonZeroEntry]](n, (i:Int)=>new ArrayList[NonZeroEntry]());
-		return new SparseCSCBuilder(m, cols,  SparseCSC.make(m, n, 0));
+	public static def make(m:Long, n:Long):SparseCSCBuilder(m,n) {
+        val cols = new Rail[ArrayList[NonZeroEntry]](n, (i:Long)=>new ArrayList[NonZeroEntry]());
+        return new SparseCSCBuilder(m, cols, SparseCSC.make(m, n, 0L));
 	}
-	//=======================================================
 
 	/*
 	 * Creating sparse csc matrix builder using given existing sparse matrix.
@@ -102,43 +89,39 @@ public class SparseCSCBuilder(M:Int, N:Int) implements MatrixBuilder {
 	 */
 	public def init(spamat:SparseCSC(M,N)): SparseCSCBuilder(this) {
 		val ca = spamat.getStorage();
-		var offset:Int = 0;
-		for (var c:Int=0; c<N; c++) {
+		var offset:Long = 0;
+		for (var c:Long=0; c<N; c++) {
 			val cnt = spamat.ccdata.cLine(c).length;
-			for (var i:Int=0; i<cnt; i++, offset++) {
+			for (var i:Long=0; i<cnt; i++, offset++) {
 				append(ca.index(offset), c, ca.value(offset));
 			}
 		}
 		return this;
 	}
-	
 
 	/**
 	 * Create sparse matrix builder by using the transposed sparse matrix's data
 	 */
 	public def initTransposeFrom(spamat:SparseCSC(N,M)): SparseCSCBuilder(this) {
 		val ca = spamat.getStorage();
-		var offset:Int = 0;
-		for (var c:Int=0; c<spamat.N; c++) {
+		var offset:Long = 0;
+		for (var c:Long=0; c<spamat.N; c++) {
 			val cnt = spamat.ccdata.cLine(c).length;
-			for (var i:Int=0; i<cnt; i++, offset++) {
+			for (var i:Long=0; i<cnt; i++, offset++) {
 				val r = ca.index(offset);
 				append(c, r, ca.value(offset));
 			}
 		}
 		return this;
 	}
-	
-	//==============================================
-	// Init nonzero entries
-	//==============================================
+
 	/**
 	 * Initialize data of sparse matrix builder with matrix generating function.
 	 * @param initFunc       data value generating function.
 	 */
-	public def init(initFunc:(Int,Int)=>Double) : SparseCSCBuilder(this) {
-		for (var c:Int=0; c<N; c++)
-			for (var r:Int=0; r<M; r++) {
+	public def init(initFunc:(Long,Long)=>Double) : SparseCSCBuilder(this) {
+		for (var c:Long=0; c<N; c++)
+			for (var r:Long=0; r<M; r++) {
 				val v = initFunc(r,c);
 				if (MathTool.isZero(v)) continue;
 				append(r, c, v);
@@ -151,15 +134,15 @@ public class SparseCSCBuilder(M:Int, N:Int) implements MatrixBuilder {
 	 * @param nzd            nonzero sparsity
 	 * @param initFunc       data value generating function.
 	 */
-	public def initRandom(nzd:Double, initFunc:(Int,Int)=>Double) : SparseCSCBuilder(this) {
+	public def initRandom(nzd:Double, initFunc:(Long,Long)=>Double) : SparseCSCBuilder(this) {
 		val rgen = RandTool.getRandGen();
 		val maxdst:Int = ((1.0/nzd) as Int) * 2 - 1;
-		var r:Int = rgen.nextInt(maxdst/2);
-		var c:Int = 0;
+		var r:Long = rgen.nextLong(maxdst/2);
+		var c:Long = 0;
 		while (true) {
 			if (r < M){
 				append(r, c, initFunc(r, c));
-				r+= rgen.nextInt(maxdst) + 1;
+				r+= rgen.nextLong(maxdst) + 1;
 			} else {
 				r -= M;
 				c++;
@@ -173,7 +156,7 @@ public class SparseCSCBuilder(M:Int, N:Int) implements MatrixBuilder {
 	 * Initial with random value in specified sparsity.
 	 */
 	public def initRandom(nzd:Double) : SparseCSCBuilder(this) =
-		initRandom(nzd, (r:Int,c:Int)=>RandTool.getRandGen().nextDouble());
+		initRandom(nzd, (r:Long,c:Long)=>RandTool.getRandGen().nextDouble());
 
 	/**
 	 * Generate half triangular matrix.
@@ -181,15 +164,15 @@ public class SparseCSCBuilder(M:Int, N:Int) implements MatrixBuilder {
 	// public def initRandomTri(halfNZD:Double, up:Boolean) : SparseCSCBuilder(this) {
 	// 	val rgen = RandTool.getRandGen();
 	// 	val maxdst:Int = ((1.0/halfNZD) as Int) * 2 - 1;
-	// 	var r:Int = rgen.nextInt(maxdst/2);
-	// 	var c:Int = 0;
+	// 	var r:Long = rgen.nextLong(maxdst/2);
+	// 	var c:Long = 0;
 	// 	
 	// 	if (up) {
 	// 		while (true) {
 	// 			val dia = (c < M)?c:M;
 	// 			if (r <= dia ){
 	// 				append(r, c, rgen.nextDouble());
-	// 				r+= rgen.nextInt(maxdst) + 1;
+	// 				r+= rgen.nextLong(maxdst) + 1;
 	// 			} else {
 	// 				c++;
 	// 				r -= c;
@@ -200,7 +183,7 @@ public class SparseCSCBuilder(M:Int, N:Int) implements MatrixBuilder {
 	// 		while (true) {
 	// 			if (r < M ){
 	// 				append(r, c, rgen.nextDouble());
-	// 				r+= rgen.nextInt(maxdst) + 1;
+	// 				r+= rgen.nextLong(maxdst) + 1;
 	// 			} else {
 	// 				c++;
 	// 				r -= (M - ((c < M)?c:0));
@@ -215,15 +198,15 @@ public class SparseCSCBuilder(M:Int, N:Int) implements MatrixBuilder {
 	// 	Debug.assure(M==N, "Not symmetric matrix");
 	// 	val rgen = RandTool.getRandGen();
 	// 	val maxdst:Int = ((1.0/halfNZD) as Int) * 2 - 1;
-	// 	var r:Int = rgen.nextInt(maxdst/2);
-	// 	var c:Int = 0;
+	// 	var r:Long = rgen.nextLong(maxdst/2);
+	// 	var c:Long = 0;
 	// 	while (true) {
 	// 		if (r < M ){
 	// 			val v = rgen.nextDouble();
 	// 			append(r, c, v);
 	// 			if (r != c) 
 	// 				append(c, r, v);
-	// 			r+= rgen.nextInt(maxdst) + 1;
+	// 			r+= rgen.nextLong(maxdst) + 1;
 	// 		} else {
 	// 			c++;
 	// 			r -= (M - c) ;
@@ -232,15 +215,15 @@ public class SparseCSCBuilder(M:Int, N:Int) implements MatrixBuilder {
 	// 	}
 	// 	return this;
 	// }
-	// 
+
 	
-	//==============================================
+
 
 	/*
 	 * Add new nonzero entry at the ordered nonzero list of the specified column
 	 */
 	@Inline
-	public def insert(r:Int, c:Int, v:Double):Boolean {
+	public def insert(r:Long, c:Long, v:Double):Boolean {
 		val nz = NonZeroEntry(r, v);
 		
 		val idx = find(r, c);
@@ -260,7 +243,7 @@ public class SparseCSCBuilder(M:Int, N:Int) implements MatrixBuilder {
 	 * Append nonzero at the end of nonzero list of the specified column. 
 	 */
 	@Inline
-	public def append(r:Int, c:Int, v:Double) {
+	public def append(r:Long, c:Long, v:Double) {
 		if (MathTool.isZero(v)) return;
 		val nz = NonZeroEntry(r, v);
 		nzcol(c).add(nz);
@@ -271,7 +254,7 @@ public class SparseCSCBuilder(M:Int, N:Int) implements MatrixBuilder {
 	 * Return the value at given row and column; If not found in nonzero list, 0 is returned.
 	 */
 	@Inline
-	public def get(r:Int, c:Int) : Double {
+	public def get(r:Long, c:Long) : Double {
 		val foundnz = findEntry(r, c);
 		return foundnz.value;
 	}
@@ -281,28 +264,27 @@ public class SparseCSCBuilder(M:Int, N:Int) implements MatrixBuilder {
 	 * new nonzero entry at the end of nonzero list;
 	 */
 	@Inline
-	public def set(r:Int, c:Int, v:Double):void {
+	public def set(r:Long, c:Long, v:Double):void {
 		insert(r, c, v);
 	}
 	
 	@Inline
-	public def reset(r:Int, c:Int) : Boolean = remove(r,c);
+	public def reset(r:Long, c:Long) : Boolean = remove(r,c);
 
-	//======================================
+
 	/*
 	 * Find the index of the entry of given row and column in the nonzero list. 
 	 * Binary search is used. If found the nonzero entry's row in column's arraylist,
 	 * the index is returned. If not found, the array index for the new entry is returned.
-	 * 
 	 */
-	public def find(r:Int, c:Int):Int {
+    public def find(r:Long, c:Long):Long {
 		val al = nzcol(c);
-		if (al.size() ==0) return 0;
+        if (al.size() == 0L) return 0L;
 
-		var min:Int = 0; 
-		var max:Int = al.size()-1; 
+		var min:Long = 0; 
+		var max:Long = al.size()-1; 
 		
-		var mid:Int = min;
+		var mid:Long = min;
 		do {
 			mid = min + (max - min) / 2;
 			val ridx = al.get(mid).row;
@@ -311,7 +293,7 @@ public class SparseCSCBuilder(M:Int, N:Int) implements MatrixBuilder {
 				if (min > max) return min;
 			} else if (r < ridx) {
 				max = mid - 1; 
-				if (min > max) return max<0?0:max;
+				if (min > max) return max<0L?0L:max;
 			} else {
 				return mid;
 			}
@@ -319,15 +301,15 @@ public class SparseCSCBuilder(M:Int, N:Int) implements MatrixBuilder {
 		} while ( true );
 	}
 	
-	def findIndex(r:Int, c:Int) :Int {
+	def findIndex(r:Long, c:Long):Long {
 		val idx = find(r, c);
 		if (idx >= nzcol(c).size())     return -1; //Larger than any row number in list
 		if (nzcol(c).get(idx).row != r)	return -2; //Not in the row list
 		return idx;
 	}
 	
-	def findIndexFromBehind(r:Int, c:Int) : Int {
-		var i:Int = nzcol(c).size()-1;
+	def findIndexFromBehind(r:Long, c:Long):Long {
+		var i:Long = nzcol(c).size()-1;
 		for (; i>=0; i--) {
 			val nz = nzcol(c).get(i);
 			if (nz.row <= r ) break;
@@ -335,16 +317,16 @@ public class SparseCSCBuilder(M:Int, N:Int) implements MatrixBuilder {
 		return i;
 	}
 	
-	public def findEntry(r:Int, c:Int) : NonZeroEntry {
+    public def findEntry(r:Long, c:Long):NonZeroEntry {
 		val ridx = findIndex(r, c);
 		if (ridx >=0) 
 			return nzcol(c).get(ridx);
 		return zeroEntry;
 	}
 
-	//=========================================
+
 	@Inline
-	public def remove(r:Int, c:Int): Boolean {
+	public def remove(r:Long, c:Long):Boolean {
 		val idx = findIndex(r, c);
 		if (idx < 0) return false;		//Not found
 		nzcol(c).removeAt(idx);
@@ -379,9 +361,7 @@ public class SparseCSCBuilder(M:Int, N:Int) implements MatrixBuilder {
 			nzcount++;
 		}
 	}
-	
-	//====================================
-	
+
 	@Inline
 	public def cmpColMajor(nz1:NonZeroEntry,nz2:NonZeroEntry):Int {
 		if (nz1.row < nz2.row)  return -1;
@@ -389,18 +369,17 @@ public class SparseCSCBuilder(M:Int, N:Int) implements MatrixBuilder {
 		return 1;
 	}
 
-	
 	/*
 	 * This method is used to convert sparse matrix data to CSC memory layout
 	 */
 	public def sortColMajor() {
-		for (var i:Int=0; i<N; i++) {
+		for (var i:Long=0; i<N; i++) {
 			if (nzcol(i).size() > 0) {
 				nzcol(i).sort((nz1:NonZeroEntry,nz2:NonZeroEntry)=>cmpColMajor(nz1,nz2));
 			}
 		}
 	}
-	//=================================
+
 	/*
 	 * Convert nonzero list to SparseCSC data layout. The nonzero list will be
 	 * sorted in column-major first, which could be time-consuming if nonzero entries
@@ -417,13 +396,13 @@ public class SparseCSCBuilder(M:Int, N:Int) implements MatrixBuilder {
 			output.testIncStorage(nzcount);
 		}
 		
-		var cnt:Int = 0;  //dest count at CompressArray
-		for (var l:Int=0; l<N; l++) {
+		var cnt:Long = 0;  //dest count at CompressArray
+		for (var l:Long=0; l<N; l++) {
 			val cline = c2d.cLine(l);
 			cline.offset = cnt;
 			cline.length = 0;
 			val nzc = nzcol(l);
-			for (var r:Int=0; r<nzc.size(); r++) {
+			for (var r:Long=0; r<nzc.size(); r++) {
 				val nzv = nzc.get(r).value;
 				//Remove all zero entries
 				if (MathTool.isZero(nzv)) continue;
@@ -438,29 +417,18 @@ public class SparseCSCBuilder(M:Int, N:Int) implements MatrixBuilder {
 	}
 	
 	public def toMatrix():Matrix(M,N) = toSparseCSC() as Matrix(M,N);
-	//=================================
+
 	public def toString():String {
-		
 		val str = new StringBuilder();
 		str.add("Sparse matrix builder in CSC ["+M+","+N+"] nonzero entry list:\n");
-		for (var c:Int=0; c<N; c++) {
+		for (var c:Long=0; c<N; c++) {
 			str.add("Col:"+c+" ");
-			for (var i:Int=0; i<nzcol(c).size(); i++) {
+			for (var i:Long=0; i<nzcol(c).size(); i++) {
 				val ent = nzcol(c).get(i);	
 				str.add(ent.toString());
 			}
 			str.add("\n");
 		}
 		return str.toString();
-	}
-	
-	public def print(msg:String) {
-		Console.OUT.println(msg);
-		Console.OUT.print(toString());
-		Console.OUT.flush();
-	}
-	
-	public def print():void {
-		print("");
 	}
 }

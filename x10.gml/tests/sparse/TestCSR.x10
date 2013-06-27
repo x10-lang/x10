@@ -9,20 +9,10 @@
  *  (C) Copyright IBM Corporation 2006-2011.
  */
 
-import x10.io.Console;
-
-import x10.matrix.Debug;
-import x10.matrix.DenseMatrix;
 import x10.matrix.sparse.CompressArray;
 import x10.matrix.sparse.Compress2D;
 import x10.matrix.sparse.SparseCSR;
 import x10.matrix.sparse.SparseCSC;
-
-/**
-   <p>
-
-   <p>
- */
 
 public class TestCSR{
     public static def main(args:Rail[String]) {
@@ -33,15 +23,15 @@ public class TestCSR{
 
 class AddSubCSR {
 	public val nzp:Double;
-	public val M:Int;
-	public val N:Int;
-	public val K:Int;	
+	public val M:Long;
+	public val N:Long;
+	public val K:Long;	
 
     public def this(args:Rail[String]) {
 		M = args.size > 0 ?Int.parse(args(0)):4;
 		nzp = args.size > 1 ?Double.parse(args(1)):0.9;
-		N = args.size > 2 ?Int.parse(args(2)):M+1;
-		K = args.size > 3 ?Int.parse(args(3)):M+2;	
+		N = args.size > 2 ?Int.parse(args(2)):(M as Int)+1;
+		K = args.size > 3 ?Int.parse(args(3)):(M as Int)+2;	
 	}
 
 	public def run(): void {
@@ -66,9 +56,7 @@ class AddSubCSR {
 		val sp = SparseCSC.make(M, N, nzp);
 		sp.initRandom(nzp);
 		//val sp = SparseCSR.makeRand(M, N, nzp);
-		//sp.print();
 		val sp1 = sp.clone();
-		//sp1.print();
 		var ret:Boolean = sp.equals(sp1);
 		if (ret)
 			Console.OUT.println("CSR Clone test passed!");
@@ -94,8 +82,6 @@ class AddSubCSR {
 		//val sp = SparseCSR.makeRand(M, N, nzp);
 
 		val nsp= sp * (-1.0);
-		//nsp.print();
- 
 		val sp0 = sp + nsp;
 
 		val ret = sp0.equals(0.0);
@@ -110,13 +96,10 @@ class AddSubCSR {
 		Console.OUT.println("CSR Add-sub");
 		val sp = SparseCSR.makeRand(M, N, nzp);
 		val sp1= SparseCSR.makeRand(M, N, nzp);
-		//sp.print("Input:");
 		val sp2= sp  + sp1;
-		//sp2.print("Add result:");
-		//
+
 		val sp_c  = sp2 - sp1;
 		val ret   = sp.equals(sp_c);
-		//sp_c.print("Another add result:");
 		if (ret)
 			Console.OUT.println("CSR Add-sub test passed!");
 		else
@@ -141,13 +124,9 @@ class AddSubCSR {
 	public def testScaleAdd():Boolean {
 		Console.OUT.println("CSR Scaling-Add test");
 		val a = SparseCSR.makeRand(M, N, 0.3);
-		//a.print("src matrix");
 		val a1= a * 0.2 ;
-		//a1.print("Raise 0.2");
 		val a2= a * 0.8;
-		//a2.print("Raise 0.8");
 		val aa=a1+a2;
-		//aa.print();
 		val ret = a.equals(aa);
 		if (ret)
 			Console.OUT.println("CSR Scaling-Add test passed!");
@@ -176,8 +155,8 @@ class AddSubCSR {
 		val s3 = SparseCSR.make(M-2, N);
 		//sm.copyRowsToSparse(1, M-2, s3);
 		SparseCSR.copyRows(sm, 1, s3, 0, M-2);
-		for (var r:Int=0; r<s3.M; r++)
-			for (var c:Int=0; c<s3.N; c++)
+		for (var r:Long=0; r<s3.M; r++)
+			for (var c:Long=0; c<s3.N; c++)
 				ret &= (sm(r+1, c)==s3(r, c)); 
 
 		if (ret) Console.OUT.println("Partial rows copy passed");
@@ -185,8 +164,8 @@ class AddSubCSR {
 		val s4 = SparseCSR.make(M, N-2);
  		//sm.copyColsToSparse(1, N-2, s4);
 		SparseCSR.copyCols(sm, 1, s4, 0, N-2);
-		for (var r:Int=0; r<s4.M; r++)
-			for (var c:Int=0; c<s4.N; c++)
+		for (var r:Long=0; r<s4.M; r++)
+			for (var c:Long=0; c<s4.N; c++)
 				ret &= sm(r, c+1)==s4(r, c); 
 				
 		if (ret)

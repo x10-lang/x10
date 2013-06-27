@@ -9,49 +9,36 @@
  *  (C) Copyright IBM Corporation 2006-2012.
  */
 
-import x10.io.Console;
-
 import x10.matrix.Debug;
 import x10.matrix.Matrix;
 import x10.matrix.MathTool;
 import x10.matrix.DenseMatrix;
 import x10.matrix.Vector;
-
-import x10.matrix.sparse.SparseCSC;
 import x10.matrix.block.Grid;
-import x10.matrix.block.BlockMatrix;
-
 import x10.matrix.distblock.DistMap;
 import x10.matrix.distblock.DistGrid;
-
 import x10.matrix.distblock.DistBlockMatrix;
 import x10.matrix.distblock.DupBlockMatrix;
 import x10.matrix.distblock.DistVector;
 import x10.matrix.distblock.DupVector;
 import x10.matrix.distblock.DistDupVectorMult;
 
-/**
-   <p>
-
-   <p>
- */
 public class MatVecMult {
-	
     public static def main(args:Rail[String]) {
 		val testcase = new MatVecMult(args);
 		testcase.run();
 	}
-    //=====================================
-    public val M:Int;
-	public val N:Int;
-	public val bM:Int;
-	public val bN:Int;
+
+    public val M:Long;
+	public val N:Long;
+	public val bM:Long;
+	public val bN:Long;
 	public val nzd:Double;
 	public val verify:Boolean;
 	
 	public def this(args:Rail[String]) {
 		M = args.size > 0      ? Int.parse(args(0)):10;
-		N = args.size > 1      ? Int.parse(args(1)):M+1;
+		N = args.size > 1      ? Int.parse(args(1)):(M as Int)+1;
 		bM = args.size > 2     ? Int.parse(args(2)):4;
 		bN = args.size > 3     ? Int.parse(args(3)):5;
 		nzd =  args.size > 4   ? Double.parse(args(4)):0.99;
@@ -162,8 +149,8 @@ public class MatVecMult {
 	
 		Console.OUT.printf("----------------------------------------------------\n");
 		Console.OUT.printf("Deome DistBlockMatrix * DupVector -> DupVector for any matrix DistGrid distribution\n");
-		val pM:Int = MathTool.sqrt(Place.MAX_PLACES);
-		val pN:Int = Place.MAX_PLACES / pM;
+		val pM:Long = MathTool.sqrt(Place.MAX_PLACES);
+		val pN:Long = Place.MAX_PLACES / pM;
 		
 		Console.OUT.printf("Creating dense matrix (%d,%d) partitoned in (%dx%d) blocks ", M, N, bM, bN);
 		Console.OUT.printf("distributed over (%dx%d) places\n", pM, pN);

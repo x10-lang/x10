@@ -1,3 +1,5 @@
 package x10.matrix.comm;
 
-public type DistDataArray=DistArray[Rail[Double]](1);
+import x10.regionarray.DistArray;
+
+public type DistDataArray = DistArray[Rail[Double]](1);

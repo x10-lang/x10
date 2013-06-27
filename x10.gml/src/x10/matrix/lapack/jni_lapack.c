@@ -22,7 +22,7 @@ extern "C" {
 	jboolean isCopyA, isCopyB;
 	jdouble* Amat = env->GetDoubleArrayElements(A, &isCopyA);
 	jdouble* Bmat = env->GetDoubleArrayElements(B, &isCopyB);
-	jint*    ip   = env->GetIntArrayElements(IPIV, NULL);
+	jint*   ip   = env->GetIntArrayElements(IPIV, NULL);
 
 	jint dimlist[2];
     // This line is necessary, since Java arrays are not guaranteed

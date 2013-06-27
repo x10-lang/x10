@@ -9,27 +9,13 @@
  *  (C) Copyright IBM Corporation 2006-2011.
  */
 
-import x10.io.Console;
-
 import x10.matrix.Debug;
 import x10.matrix.DenseMatrix;
-import x10.matrix.block.MatrixBlock;
-import x10.matrix.block.BlockMatrix;
-import x10.matrix.block.DenseBlock;
-
-import x10.matrix.block.Grid;
-import x10.matrix.block.DenseBlockMatrix;
 
 import x10.matrix.dist.DistDenseMatrix;
 import x10.matrix.dist.DistMatrix;
 
-
-/**
-   <p>
-   <p>
- */
 public class TestDistMatrix {
-	
     public static def main(args:Rail[String]) {
 		val testcase = new TestDM(args);
 		testcase.run();
@@ -38,15 +24,15 @@ public class TestDistMatrix {
 
 class TestDM {
 	public val nzp:Double;
-	public val M:Int;
-	public val N:Int;
-	public val K:Int;	
+	public val M:Long;
+	public val N:Long;
+	public val K:Long;	
 
     public def this(args:Rail[String]) {
 		M = args.size > 0 ?Int.parse(args(0)):10;
 		nzp = args.size > 1 ?Double.parse(args(1)):0.5;
-		N = args.size > 2 ?Int.parse(args(2)):M+1;
-		K = args.size > 3 ?Int.parse(args(3)):M+2;	
+		N = args.size > 2 ?Int.parse(args(2)):(M as Int)+1;
+		K = args.size > 3 ?Int.parse(args(3)):(M as Int)+2;	
 	}
 
     public def run (): void {
@@ -79,9 +65,6 @@ class TestDM {
 		Debug.flushln("DistMatrix initialization done");
 
 		val ddm1 = ddm.clone();
-		//ddm.printBlock("Source dist matrix");
-		//ddm1.printBlock("Clone result");
-		//ddm.debugPrintBlock();
 		//Debug.flushln("Clone done");
 		ret = ddm.equals(ddm1);
 		//Debug.flushln("Equal test done");
@@ -164,13 +147,9 @@ class TestDM {
 		dm.initRandom();
 		val dm1= DistMatrix.makeDense(dm.grid);
 		dm.initRandom();
-		//sp.print("Input:");
 		val dm2= dm  + dm1;
-		//sp2.print("Add result:");
-		//
 		val dm_c  = dm2 - dm1;
 		val ret   = dm.equals(dm_c);
-		//sp_c.print("Another add result:");
 		if (ret)
 			Console.OUT.println("DistMatrix Add-sub test passed!");
 		else

@@ -4,7 +4,6 @@
  *  (C) Copyright IBM Corporation 2011.
  */
 
-import x10.io.Console;
 import x10.util.Timer;
 
 import x10.matrix.Matrix;
@@ -43,9 +42,9 @@ public class DistDistToDup{
 	val it:Int;
 	val vrf:Int;
 	
-	//--------------
-	val M:Int;
-	val bN:Int;
+
+	val M:Long;
+	val bN:Long;
 	
 	val dstrA:DistBlockMatrix(M,M);
 	val dstrV:DistVector(M);
@@ -53,7 +52,7 @@ public class DistDistToDup{
 	val dupP:DupVector(M);
 	
 
-    public def this(m:Int, b:Int, nnz:Double, i:Int, v:Int) {
+    public def this(m:Long, b:Int, nnz:Double, i:Int, v:Int) {
     	val pN = Place.MAX_PLACES;
     	M=m;
     	it = i; vrf=v;

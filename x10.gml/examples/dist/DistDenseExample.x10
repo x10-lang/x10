@@ -9,7 +9,6 @@
  *  (C) Copyright IBM Corporation 2006-2011.
  */
 
-import x10.io.Console;
 
 import x10.matrix.Debug;
 import x10.matrix.DenseMatrix;
@@ -34,9 +33,9 @@ public class DistDenseExample {
 		testcase.run();
 	}
 	
-	static class RunDistDense(M:Int, N:Int, K:Int, nzp:Double) {
+	static class RunDistDense(M:Long, N:Long, K:Long, nzp:Double) {
 		
-		public def this(m:Int, n:Int, k:Int, p:Double) {
+		public def this(m:Long, n:Long, k:Int, p:Double) {
 			property(m, n, k, p);
 		}
 		
@@ -69,7 +68,6 @@ public class DistDenseExample {
 			val ddm = DistDenseMatrix.make(M, N);
 			ddm.initRandom();
 			
-			//dm.printBlock("Dist dense");
 			val ddm1 = ddm.clone();
 			ret = ddm.equals(ddm1);
 			

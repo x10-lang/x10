@@ -74,7 +74,6 @@ comm_src=\
 	x10/matrix/comm/DenseRemoteSourceInfo.x10 \
 	x10/matrix/comm/MatrixReduce.x10 \
 	x10/matrix/comm/MatrixScatter.x10 \
-	x10/matrix/comm/CommHandle.x10  \
 	x10/matrix/comm/MatrixBcast.x10 \
 	x10/matrix/comm/MatrixRemoteCopy.x10 \
 	x10/matrix/comm/SparseRemoteDestInfo.x10 \
@@ -85,18 +84,21 @@ comm_src=\
 	x10/matrix/comm/BlockRemoteCopy.x10 \
 	x10/matrix/comm/BlockBcast.x10 \
 	x10/matrix/comm/BlockGather.x10 \
-	x10/matrix/comm/BlockScatter.x10 \
 	x10/matrix/comm/BlockReduce.x10 \
-	x10/matrix/comm/BlockSetRemoteCopy.x10 \
+	x10/matrix/comm/BlockScatter.x10 \
 	x10/matrix/comm/BlockSetBcast.x10 \
-	x10/matrix/comm/BlockSetReduce.x10
-
-
+	x10/matrix/comm/BlockSetReduce.x10 \
+	x10/matrix/comm/BlockSetRemoteCopy.x10 \
+    x10/matrix/comm/CompArrayPLH.x10 \
+    x10/matrix/comm/DataArrayPLH.x10 \
+    x10/matrix/comm/DistCompArray.x10 \
+    x10/matrix/comm/DistDataArray.x10
 
 bwrap_src=\
 	x10/matrix/blas/DenseMatrixBLAS.x10 \
 	x10/matrix/blas/BLAS.x10 \
 	x10/matrix/blas/DriverBLAS.x10
+
 lapack_src=\
 	x10/matrix/lapack/DenseMatrixLAPACK.x10 \
 	x10/matrix/lapack/LAPACK.x10 \
@@ -113,8 +115,8 @@ sparse_src=\
 	x10/matrix/sparse/SparseSubToDense.x10 \
 	x10/matrix/sparse/CompressArray.x10  \
 	x10/matrix/sparse/SparseCSC.x10  \
-	x10/matrix/sparse/SparseMultDenseToDense.x10 
-
+	x10/matrix/sparse/SparseMultDenseToDense.x10 \
+	x10/matrix/sparse/SymSparseCSC.x10
 
 block_src=\
 	x10/matrix/block/BlockMatrix.x10  \
@@ -204,7 +206,12 @@ include scripts/system_setting.mk
 
 
 #X10_FLAG	= -d $(build_path) -report postcompile=2 -v -errors 5 -VERBOSE_CHECKS #-O -NO_CHECKS
-X10_FLAG	= -VERBOSE_CHECKS #-O -NO_CHECKS  
+X10_FLAG	= -VERBOSE_CHECKS # -O -NO_CHECKS
+ifdef COVERAGE
+    X10_FLAG += -cxx-prearg --coverage
+    POST_LIBS += --coverage
+endif
+
 #-define ENABLE_RING_COMM
 
 MPI_CFLAG   = -define MPI_COMMU -cxx-prearg -DMPI_COMMU 
@@ -276,7 +283,7 @@ jni_blas.o 	: jni_blas.c
 			g++ -I $(JNI_inc) -c -v -fPIC $< -o $@
 
 libjblas.so	: wrap_blas.o jni_blas.o
-			g++ -shared -fPIC $^ -lgfortran -L$(blas_path) -l$(blas_name) -o $@
+			g++ -shared -fPIC $^ -L$(blas_path) -l$(blas_name) -lgfortran -o $@
 
 jblas		: libjblas.so
 			cp $< $(lib_path)/.
@@ -295,7 +302,7 @@ jni_lapack.o: jni_lapack.c
 			g++ -I $(JNI_inc) -c -v -fPIC $< -o $@
 
 libjlapack.so: wrap_lapack.o jni_lapack.o
-			g++ -shared -fPIC $^ -lgfortran -L$(lapack_path) -l$(lapack_name) -o $@
+			g++ -shared -fPIC $^ -L$(blas_path) -l$(lapack_name) -lgfortran -o $@
 
 jlapack		: libjlapack.so
 			cp $< $(lib_path)/.
@@ -356,6 +363,9 @@ help	::
 	@echo "1) Managed backend"
 	@echo "   Add classpath:\"-classpath \$$(build_path):\$$(gml_lib)/managed_gml.jar\""
 	@echo "   Add libpath: \"-libpath \$$(build_path):\$$(gml_lib)\""
+
+coverage:	
+	lcov --directory include --ignore-errors gcov --capture -o lcov.info; genhtml lcov.info --output-directory coverage
 
 ################################################
 .PHONY	: clean clear help clib jlib chk_dir

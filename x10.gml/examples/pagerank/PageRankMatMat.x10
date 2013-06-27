@@ -5,7 +5,6 @@
  */
 package pagerank;
 
-import x10.io.Console;
 import x10.util.Timer;
 //
 import x10.matrix.Debug;
@@ -50,13 +49,13 @@ import x10.matrix.distblock.DistDupMult;
  */
 public class PageRankMatMat {
 
-	//------------------
-	static val pN:Int = 1;
-	public val iteration:Int;
+
+	static val pN:Long = 1;
+	public val iteration:Long;
 	public val alpha:Double= 0.85;
-	//-----------------------------------
+
 	
-	//----------- Input matrix ----------
+
 	public val G:DistBlockMatrix;
 	public val P:DupBlockMatrix(G.N, pN);
 	public val E:BlockMatrix(G.N, P.N);
@@ -96,7 +95,7 @@ public class PageRankMatMat {
 		UP    = BlockMatrix.makeDense(gridUP) as BlockMatrix(P.N, P.N);
 	}
 
-	public static def make(gM:Int, nzd:Double, it:Int, gRowBs:Int, gColBs:Int) {
+	public static def make(gM:Long, nzd:Double, it:Int, gRowBs:Int, gColBs:Int) {
 
 		val gN = gM;
 		val pColBs = 1;
@@ -122,7 +121,7 @@ public class PageRankMatMat {
 	
 	
 	public def init():void {
-		//-----------------------------------------------
+
 		Debug.flushln("Start initialize input matrices");		
 		G.initRandom();
 		Debug.flushln("Dist sparse matrix initialization completes");		
@@ -141,7 +140,7 @@ public class PageRankMatMat {
 		tt = P.getCommTime();
 		Debug.flushln("Start parallel PageRank at "+tt);	
 		val st = Timer.milliTime();		
-		for (var i:Int=0; i<iteration; i++) {
+		for (var i:Long=0; i<iteration; i++) {
 			
 			GP.mult(G, P).scale(alpha);
 			

@@ -9,22 +9,11 @@
  *  (C) Copyright IBM Corporation 2006-2011.
  */
 
-import x10.io.Console;
-
-import x10.matrix.Debug;
 import x10.matrix.DenseMatrix;
 import x10.matrix.block.Grid;
 import x10.matrix.block.DenseBlockMatrix;
 
-//import x10.matrix.block.SparseBlockMatrix;
-
-/**
-   <p>
-
-   <p>
- */
 public class TestDenseBlockMatrix {
-	
     public static def main(args:Rail[String]) {
 		val testcase = new TestDBMatrix(args);
 		testcase.run();
@@ -32,17 +21,17 @@ public class TestDenseBlockMatrix {
 }
 
 class TestDBMatrix {
-	public val M:Int;
-	public val N:Int;
-	public val R:Int;
-	public val C:Int;
+	public val M:Long;
+	public val N:Long;
+	public val R:Long;
+	public val C:Long;
 	public val grid:Grid;
 
     public def this(args:Rail[String]) {
 		M = args.size > 0 ?Int.parse(args(0)):50;
-		N = args.size > 1 ?Int.parse(args(1)):M+1;
+		N = args.size > 1 ?Int.parse(args(1)):(M as Int)+1;
 		R = args.size > 2 ?Int.parse(args(2)):3;
-		C = args.size > 3 ?Int.parse(args(3)):R+1;
+		C = args.size > 3 ?Int.parse(args(3)):(R as Int)+1;
 		grid = new Grid(M, N, R, C);
 	}
 
@@ -74,7 +63,6 @@ class TestDBMatrix {
 		val dbm = DenseBlockMatrix.make(grid);
 		dbm.initRandom();
 
-		//dm.printBlock("Dist dense");
 		val dbm1 = dbm.clone();
 		ret = dbm.equals(dbm1);
 
@@ -155,13 +143,9 @@ class TestDBMatrix {
 		dm.initRandom();
 		val dm1= DenseBlockMatrix.make(grid);
 		dm.initRandom();
-		//sp.print("Input:");
 		val dm2= dm  + dm1;
-		//sp2.print("Add result:");
-		//
 		val dm_c  = dm2 - dm1;
 		val ret   = dm.equals(dm_c);
-		//sp_c.print("Another add result:");
 		if (ret)
 			Console.OUT.println("dense block matrix Add-sub test passed!");
 		else

@@ -9,7 +9,6 @@
  *  (C) Copyright IBM Corporation 2006-2011.
  */
 
-import x10.io.Console;
 
 import x10.matrix.Debug;
 import x10.matrix.DenseMatrix;
@@ -34,9 +33,9 @@ public class SparseExample{
 	}
 
 
-    public static class RunSparseExample(M:Int, N:Int, nzp:Double) {
+    public static class RunSparseExample(M:Long, N:Long, nzp:Double) {
     	
-    	public def this(m:Int, n:Int, d:Double) {
+    	public def this(m:Long, n:Long, d:Double) {
     		property(m, n, d);
     	}
     	
@@ -60,7 +59,7 @@ public class SparseExample{
     		Console.OUT.println("CSC Test clone()");
     		val sp = SparseCSC.make(M, N, nzp);
     		sp.initRandom(nzp);
-    		sp.printRandomInfo();
+    		sp.printStatistics();
     		
     		val sp1 = sp.clone();
     		val ret = sp.equals(sp1);
@@ -152,15 +151,15 @@ public class SparseExample{
     		
     		val s3 = SparseCSC.make(M-2, N, (M-2)*N);
     		SparseCSC.copyRows(sm, 1, s3, 0, M-2);
-    		for (var c:Int=0; c<s3.N; c++)
-    			for (var r:Int=0; r<s3.M; r++)
+    		for (var c:Long=0; c<s3.N; c++)
+    			for (var r:Long=0; r<s3.M; r++)
     				ret &= sm(r+1, c)==s3(r, c); 
     		if (ret) Console.OUT.println("Partial rows copy passed");
     		
     		val s4 = SparseCSC.make(M, N-2, M*(N-2));
     		SparseCSC.copyCols(sm, 1, s4, 0, N-2);
-    		for (var c:Int=0; c<s4.N; c++)
-    			for (var r:Int=0; r<s4.M; r++)
+    		for (var c:Long=0; c<s4.N; c++)
+    			for (var r:Long=0; r<s4.M; r++)
     				ret &= sm(r, c+1)==s4(r, c); 
     		if (ret) Console.OUT.println("Partial column copy passed");
     		

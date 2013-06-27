@@ -18,16 +18,16 @@ package x10.matrix.comm;
  *
  */
 protected struct DenseRemoteDestInfo {
-	public val valbuf:RemoteArray[Double];
-	public val offset:Int;
+	public val valbuf:GlobalRail[Double];
+	public val offset:Long;
 	
-	public def this(vlu:RemoteArray[Double], off:Int) {
+	public def this(vlu:GlobalRail[Double], off:Long) {
 		valbuf = vlu;	
 		offset = off; 
 	}
 
-	public def this(vlu:Array[Double], off:Int) {
-		valbuf = new RemoteArray[Double](vlu as Array[Double]{self!=null});	
+	public def this(vlu:Rail[Double], off:Long) {
+		valbuf = new GlobalRail[Double](vlu as Rail[Double]{self!=null});	
 		offset = off; 
 	}
 }

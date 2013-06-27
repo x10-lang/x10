@@ -9,7 +9,6 @@
  *  (C) Copyright IBM Corporation 2006-2011.
  */
 
-import x10.io.Console;
 
 import x10.matrix.Matrix;
 import x10.matrix.DenseMatrix;
@@ -26,11 +25,11 @@ public class DenseExample{
 		testcase.run();
 	}
 
-    //---------------
+
     
-    public static class RunDenseExample(M:Int, N:Int) {
+    public static class RunDenseExample(M:Long, N:Long) {
     	    	
-    	public def this(m:Int, n:Int) {
+    	public def this(m:Long, n:Long) {
     		property(m, n);
     	}
     	
@@ -104,7 +103,6 @@ public class DenseExample{
     		val dm2= dm  + dm1;
     		val dm_c  = dm2 - dm1;
     		val ret   = dm.equals(dm_c);
-    		//sp_c.print("Another add result:");
     		if (ret)
     			Console.OUT.println("Dense matrix Add-sub test passed!");
     		else
@@ -189,7 +187,6 @@ public class DenseExample{
     		
     		val ret = d1.equals(d);
     		Console.OUT.printf("Result matrix: %dx%d\n", d.M, d.N);
-    		//dc.print("Dense a*b=\n");
     		if (ret)
     			Console.OUT.println("Dense matrix multiply associative test passed!");
     		else

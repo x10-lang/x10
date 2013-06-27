@@ -2,23 +2,17 @@
  *  This file is part of the X10 Applications project.
  *
  *  (C) Copyright IBM Corporation 2011.
- *  (C) Copyright Australian National University 2011.
+ *  (C) Copyright Australian National University 2011-2013.
  */
-
-import x10.io.Console;
 
 import x10.matrix.Matrix;
 import x10.matrix.DenseMatrix;
 import x10.matrix.MathTool;
 
 /**
-   This class contails test cases for dense matrix addition, scaling, and negative operations.
-   <p>
-
-   <p>
+   This class contains test cases for dense matrix addition, scaling, and negation operations.
  */
-public class TestDense{
-
+public class TestDense {
     public static def main(args:Rail[String]) {
 		val m = (args.size > 0) ? Int.parse(args(0)):5;
 		val n = (args.size > 1) ? Int.parse(args(1)):6;
@@ -29,13 +23,11 @@ public class TestDense{
 	}
 }
 
-
 class AddScalTest {
+	public val M:Long;
+	public val N:Long;
 
-	public val M:Int;
-	public val N:Int;
-
-	public def this(m:Int, n:Int) {
+	public def this(m:Long, n:Long) {
 		M = m; N = n;
 	}
 
@@ -43,7 +35,6 @@ class AddScalTest {
 		Console.OUT.println("Starting dense matrix clone/add/sub/scaling tests on "+
 							M+"x"+N+ " matrices");
 		var ret:Boolean = true;
- 		// Set the matrix function
 		ret &= (testClone());
 		ret &= (testInit());
 		ret &= (testTrans());
@@ -63,7 +54,6 @@ class AddScalTest {
 
     
 	public def testClone():Boolean{
-
 		Console.OUT.println("Starting dense Matrix clone test");
 		val dm = DenseMatrix.make(M,N);
 		dm.initRandom(); // same as  val dm = DenseMatrix.makeRand(M, N); 
@@ -77,8 +67,6 @@ class AddScalTest {
 			Console.OUT.println("--------Dense Matrix Clone test failed!--------");
 		
 		dm(1, 1) = dm(M-1,N-1) = 10.0;
-		//dm.printMatrix();
-		//dm.print();
 		if ((dm(1,1)==dm(M-1,N-1)) && (dm(1,1)==10.0)) {
 			ret &= true;
 			Console.OUT.println("Dense Matrix chain assignment test passed!");
@@ -93,10 +81,10 @@ class AddScalTest {
 	public def testInit():Boolean {
 		Console.OUT.println("Starting dense Matrix initialization test");
 		var ret:Boolean = true;
-		val den = DenseMatrix.make(M,N).init((r:Int, c:Int)=>(1.0+r+c));
+		val den = DenseMatrix.make(M,N).init((r:Long, c:Long)=>(1.0+r+c));
 		
-		for (var c:Int=0; c<N; c++)
-			for (var r:Int=0; r<M; r++)
+		for (var c:Long=0; c<N; c++)
+			for (var r:Long=0; r<M; r++)
 				ret &= (den(r,c) == 1.0+r+c);
 		
 		if (ret)
@@ -109,12 +97,10 @@ class AddScalTest {
 	public def testTrans():Boolean {
 		Console.OUT.println("Starting dense Matrix transpose test");
 		var ret:Boolean = true;
-		val src = DenseMatrix.make(M,N).init((r:Int,c:Int)=>1.0+r+c*M);
-		src.print();
+		val src = DenseMatrix.make(M,N).init((r:Long,c:Long)=>1.0+r+c*M);
 		val srcT = src.T();
-		srcT.print();
-		for (var c:Int=0; c<N; c++)
-			for (var r:Int=0; r<M; r++)
+		for (var c:Long=0; c<N; c++)
+			for (var r:Long=0; r<M; r++)
 				ret &= (src(r,c) == srcT(c,r));
 		
 		if (ret)
@@ -154,13 +140,9 @@ class AddScalTest {
 		Console.OUT.println("Starting dense matrix add-sub test");
 		val dm = DenseMatrix.makeRand(M, N);
 		val dm1= DenseMatrix.makeRand(M, N);
-		//sp.print("Input:");
 		val dm2= dm  + dm1;
-		//sp2.print("Add result:");
-		//
 		val dm_c  = dm2 - dm1;
 		val ret   = dm.equals(dm_c);
-		//sp_c.print("Another add result:");
 		if (ret)
 			Console.OUT.println("Dense matrix Add-sub test passed!");
 		else
@@ -233,10 +215,10 @@ class AddScalTest {
 
 class PropertiesTest {
 
-    public val M:Int;
-    public val N:Int;
+    public val M:Long;
+    public val N:Long;
 
-    public def this(m:Int, n:Int) {
+    public def this(m:Long, n:Long) {
         M = m; N = n;
     }
 

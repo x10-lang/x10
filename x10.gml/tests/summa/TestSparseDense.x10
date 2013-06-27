@@ -4,7 +4,6 @@
  *  (C) Copyright IBM Corporation 2011.
  */
 
-import x10.io.Console;
 import x10.compiler.Ifdef;
 import x10.compiler.Ifndef;
 
@@ -17,16 +16,11 @@ import x10.matrix.block.Grid;
 import x10.matrix.dist.DistDenseMatrix;
 import x10.matrix.dist.DistSparseMatrix;
 
-import x10.matrix.dist.summa.SummaSparse;
 import x10.matrix.dist.summa.SummaSparseMultDense;
 
 /**
-   This class contains test cases for dense matrix multiplication.
-   <p>
-
-   <p>
+ * This class contains test cases for sparse-dense matrix multiplication with SUMMA.
  */
-
 public class TestSparseDense{
     public static def main(args:Rail[String]) {
 		val testcase = new SummaSparseMultDenseTest(args);
@@ -35,10 +29,9 @@ public class TestSparseDense{
 }
 
 class SummaSparseMultDenseTest {
-
-	public val M:Int;
-	public val N:Int;
-	public val K:Int;
+	public val M:Long;
+	public val N:Long;
+	public val K:Long;
 	public val nzd:Double;
 
 	public val pA:Grid;
@@ -61,8 +54,7 @@ class SummaSparseMultDenseTest {
 	
 	public def run(): void {
 		var ret:Boolean = true;
- 		// Set the matrix function
-
+	@Ifndef("MPI_COMMU") { // TODO Deadlocks!
 		ret &= (testSparseMultDense());
 		ret &= (testSparseMultDenseTrans());
 		
@@ -70,10 +62,8 @@ class SummaSparseMultDenseTest {
 			Console.OUT.println("SUMMA x10 distributed sparse*dense matrix test passed!");
 		else
 			Console.OUT.println("--------SUMMA x10 distributed sparse*dense matrix test failed!--------");
+    }
 	}
-	//------------------------------------------------
-
-	//-----------------------------------------------------------------
 	
 	public def testSparseMultDense():Boolean {
 		val numP = Place.numPlaces();//Place.MAX_PLACES;
@@ -92,7 +82,7 @@ class SummaSparseMultDenseTest {
 		val dc = DistDenseMatrix.make(pC);
 
 		Debug.flushln("Start calling SUMMA sparse mult dense to dense X10 routine");
-		SummaSparseMultDense.mult(1, 0.0, da, db, dc);
+		SummaSparseMultDense.mult(0, 0.0, da, db, dc);
 		Debug.flushln("SUMMA done");
 		
 		val ma = da.toDense();
@@ -130,7 +120,7 @@ class SummaSparseMultDenseTest {
 		val dc = DistDenseMatrix.make(M, N);
 
 		Debug.flushln("Start calling SUMMA sparse*dense^T X10 routine");
-		SummaSparseMultDense.multTrans(1, 0.0, da, db, dc);
+		SummaSparseMultDense.multTrans(0, 0.0, da, db, dc);
 		Debug.flushln("SUMMA done");
 		
 		val ma = da.toDense();

@@ -4,7 +4,6 @@
  *  (C) Copyright IBM Corporation 2011.
  */
 
-import x10.io.Console;
 import x10.util.Timer;
 
 import x10.matrix.Matrix;
@@ -45,8 +44,8 @@ class DVMultColwise {
 	val it:Int;
 	val vrf:Int;
 	
-	//--------------
-	val M:Int;
+
+	val M:Long;
 	val partA:Grid;
 	val partV:Grid;
 	
@@ -55,13 +54,13 @@ class DVMultColwise {
 	val V:DenseMatrix(M,1);
 	val dupP:DupDenseMatrix(M,1);
 	
-	//---------------------
+
 	public var st:Double;
 	public var ed:Double;
 	public var cmpt:Double = 0.0;
 	public var comt:Double = 0.0;
 
-	public def this(m:Int, nnz:Double, i:Int, v:Int) {
+	public def this(m:Long, nnz:Double, i:Int, v:Int) {
 		M=m;
 		it = i; vrf=v;
 		
@@ -94,8 +93,8 @@ class DVMultColwise {
 		if (vrf > 0)
 			runVerify();
 	}
-	//------------------------------------------------
-	//------------------------------------------------
+
+
 	public def runMultParallel():void {
 		var ct:Long=0;
 		st = Timer.milliTime();		

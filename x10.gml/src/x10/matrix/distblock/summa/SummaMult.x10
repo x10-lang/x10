@@ -11,25 +11,17 @@
 
 package x10.matrix.distblock.summa;
 
+import x10.regionarray.Dist;
 import x10.util.Timer;
-import x10.util.ArrayList;
 
 import x10.matrix.Matrix;
 import x10.matrix.DenseMatrix;
 import x10.matrix.Debug;
 import x10.matrix.MathTool;
-
-import x10.matrix.sparse.CompressArray;
 import x10.matrix.sparse.SparseCSC;
-
 import x10.matrix.block.Grid;
-import x10.matrix.block.MatrixBlock;
-import x10.matrix.block.BlockBlockMult;
-
-import x10.matrix.distblock.DistMap;
 import x10.matrix.distblock.BlockSet;
 import x10.matrix.distblock.DistBlockMatrix;
-import x10.matrix.distblock.DupBlockMatrix;
 
 /**
  * SUMMA implementation on distributed block matrix
@@ -37,25 +29,18 @@ import x10.matrix.distblock.DupBlockMatrix;
 public class SummaMult {
 	//val alpha:Double;
 	val beta:Double;
-	val panelSize :Int;
-	//
+    val panelSize:Long;
 	val A:DistBlockMatrix;
 	val B:DistBlockMatrix;
 	val C:DistBlockMatrix;
-	//
 	val work1:PlaceLocalHandle[BlockSet];
 	val work2:PlaceLocalHandle[BlockSet];
-	//
-	//------------------------------------------------
 
 	public var commTime:Long=0;
 	public var calcTime:Long=0;
 	
-	//=====================================================================
-	// Constructor
-	//=====================================================================
 	public def this(
-			ps:Int, be:Double,
+			ps:Long, be:Double,
 			a:DistBlockMatrix, 
 			b:DistBlockMatrix, 
 			c:DistBlockMatrix,
@@ -71,13 +56,13 @@ public class SummaMult {
 		//alpha = al;
 		beta  = be;
 	}
+
 	/**
 	 * Estimate the panel size.
 	 */
-	public static def estPanelSize(ps:Int, ga:Grid, gb:Grid):Int {
-		
+    public static def estPanelSize(ps:Long, ga:Grid, gb:Grid):Long {
 		val maxps = Math.min(ga.colBs(0), gb.rowBs(0));
-		var estps:Int = 128;//estCommuDataSize/ldm;
+		var estps:Long = 128;//estCommuDataSize/ldm;
 		estps = Math.min(ps, estps);
 		
 		if (estps < 1)      estps = 1;
@@ -88,7 +73,7 @@ public class SummaMult {
 		
 		return estps;
 	}	
-	//--------------------------------------------------------------------
+
 	public static def mult(			
 			A:DistBlockMatrix, 
 			B:DistBlockMatrix, 
@@ -96,9 +81,8 @@ public class SummaMult {
 		mult(10, plus?1.0:0.0, A, B, C);
 	}
 	
-	//-----------------------------------------------------
 	public static def mult(
-			var ps:Int,  /* Panel size*/
+			var ps:Long,  /* Panel size*/
 			beta:Double, 
 			A:DistBlockMatrix, 
 			B:DistBlockMatrix, 
@@ -110,11 +94,8 @@ public class SummaMult {
 		val s = new SummaMult(pansz, beta, A, B, C, w1, w2);
 
 		s.parallelMult();
-		
 	}
 
-	//=====================================================================
-	//
 	/**
 	 * Distributed matrix multiplication using SUMMA alogrithm
 	 * 
@@ -122,32 +103,25 @@ public class SummaMult {
 	 * @param work2 	temporary space used for ring cast each column blocks
 	 */
 	public def parallelMult() {
-		//
 		val K = A.N;
-		//------------------------
 		var itRow:Int = 0;
 		var itCol:Int = 0; //Current processing iteration
-		//
-		var iwrk:Int = 0;
-		var ii:Int = 0;
-		var jj:Int = 0;
+		var iwrk:Long = 0;
+		var ii:Long = 0;
+		var jj:Long = 0;
 		var st:Long= 0;
-		//
 		val gA = A.getGrid();
 		val gB = B.getGrid();
-		//---------------------------------------------------
 
 		//Scaling the matrixesx
 		if (MathTool.isZero(beta)) C.reset();
 		
-		for (var kk:Int=0; kk<K; kk+=iwrk) {
+		for (var kk:Long=0; kk<K; kk+=iwrk) {
 			iwrk = Math.min(panelSize, gB.rowBs(itRow)-ii);
 			iwrk = Math.min(iwrk,      gA.colBs(itCol)-jj); 
 			val klen = iwrk;
 
 			//Debug.flushln("Root place starts iteration "+kk+" panel size:"+klen); 
-			//
-			//-------------------------------------------------------------------
 			//Packing columns and rows and broadcast to same row and column block
 			/* TIMING */ 
 			st = Timer.milliTime();
@@ -161,8 +135,7 @@ public class SummaMult {
 			st = Timer.milliTime();
 			//Debug.flushln("Row and column blocks bcast ends");
 			
-			//-----------------------------------------------------------------
-			finish 	ateach (Dist.makeUnique()) {
+			finish ateach(Dist.makeUnique()) {
 				/* update local block */
 				val mypid = here.id();
 				val wk1 = work1();
@@ -175,7 +148,6 @@ public class SummaMult {
 					val ablk = wk1.findFrontColBlock(cblk.myRowId); 
 					val bblk = wk2.findFrontRowBlock(cblk.myColId);
 					
-					//--------------------------------------------
 					val amat:Matrix;
 					val bmat:Matrix;
 					if (ablk.isDense()) {
@@ -204,7 +176,4 @@ public class SummaMult {
 			if ( ii>=gB.rowBs(itRow)) { itRow++; ii = 0; };
 		}
 	}
-	//--------------------------------------------
-
-
 }

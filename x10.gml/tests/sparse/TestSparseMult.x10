@@ -9,24 +9,12 @@
  *  (C) Copyright IBM Corporation 2006-2011.
  */
 
-import x10.io.Console;
-
-import x10.matrix.Debug;
 import x10.matrix.DenseMatrix;
 
 import x10.matrix.sparse.SparseCSC;
 import x10.matrix.sparse.SparseCSR;
-import x10.matrix.sparse.SparseMultSparseToDense;
-import x10.matrix.sparse.SparseMultDenseToDense;
-import x10.matrix.sparse.DenseMultSparseToDense;
 
-/**
-   <p>
-
-   <p>
- */
 public class TestSparseMult{
-
     public static def main(args:Rail[String]) {
 		val testcase = new SparseMult(args);
 		testcase.run();
@@ -34,17 +22,16 @@ public class TestSparseMult{
 }
 
 class SparseMult {
-
 	public val density:Double;
-	public val M:Int;
-	public val N:Int;
-	public val K:Int;
+	public val M:Long;
+	public val N:Long;
+	public val K:Long;
 
     public def this(args:Rail[String]) {
 		M = args.size > 0 ?Int.parse(args(0)):50;
 		density = args.size > 1 ?Double.parse(args(1)):0.5;
-		N = args.size > 2 ?Int.parse(args(2)):M+1;
-		K = args.size > 3 ?Int.parse(args(3)):M+2;	
+		N = args.size > 2 ?Int.parse(args(2)):(M as Int)+1;
+		K = args.size > 3 ?Int.parse(args(3)):(M as Int)+2;	
 	}
 
 	public def run(): void {
@@ -72,19 +59,11 @@ class SparseMult {
 		val a = SparseCSC.make(M, K, density);
 		val b = SparseCSC.make(K, N, density);
 		a.initRandom(density); b.initRandom(density);
-		//a.print();
-		//b.print();
 		val c = a % b;
-		//c.print();
-		//c.printSparse("Sparse a*b=\n");
 		val da= a.toDense();
-		//da.print();
 		val db= b.toDense();
-		//db.print();
 		val dc= da % db;
-		//dc.print();
 		val ret = dc.equals(c);
-		//dc.print("Dense a*b=\n");
 		if (ret)
 			Console.OUT.println("CSC * CSC test passed!");
 		else
@@ -98,14 +77,10 @@ class SparseMult {
 		val b = SparseCSR.make(K, N, density);
 		a.initRandom(density); b.initRandom(density);
 		val c = a % b;
-		//c.printSparse("Sparse a*b=\n");
 		val da= a.toDense();
-		//da.print("Dense a=\n");
 		val db= b.toDense();
-		//db.print("Dense b=\n");
 		val dc= da % db;
 		val ret = dc.equals(c);
-		//dc.print("Dense a*b=\n");
 		if (ret)
 			Console.OUT.println("CSC * CSR test passed!");
 		else
@@ -120,21 +95,17 @@ class SparseMult {
 		a.initRandom(density); b.initRandom();
 
 		val c = a % b;
-		//c.printSparse("Sparse a*b=\n");
 		val da= a.toDense();
-		//da.print("Dense a=\n");
 		val db= b;
-		//db.print("Dense b=\n");
 		val dc= da % db;
 		val ret = dc.equals(c);
-		//dc.print("Dense a*b=\n");
 		if (ret)
 			Console.OUT.println("CSC * Dense test passed!");
 		else
 			Console.OUT.println("---------CSC * Dense test failed!---------");
 		return ret;
 	}
-	//---------------------------------------------------------
+
 	// SCR * 
 	public def testMultRC():Boolean {
 		Console.OUT.println("Test CSR * CSC -> Dense");
@@ -143,12 +114,10 @@ class SparseMult {
 		a.initRandom(density); b.initRandom(density);
 
 		val c = a % b;//SparseMultSparseToDense.comp(a, b);
-		//c.print("Sparse a*b=\n");
 		val da= a.toDense();
 		val db= b.toDense();
 		val dc= da % db;
 		val ret = dc.equals(c);
-		//dc.print("Dense a*b=\n");
 
 		if (ret)
 			Console.OUT.println("CSR * CSC test passed!");
@@ -164,12 +133,10 @@ class SparseMult {
 		a.initRandom(density); b.initRandom(density);
 
 		val c = a % b;//SparseMultSparseToDense.comp(a, b);
-		//c.printSparse("Sparse a*b=\n");
 		val da= a.toDense();
 		val db= b.toDense();
 		val dc= da % db;
 		val ret = dc.equals(c);
-		//dc.print("Dense a*b=\n");
 
 		if (ret)
 			Console.OUT.println("CSR * CSR test passed!");
@@ -186,11 +153,9 @@ class SparseMult {
 		a.initRandom(density); b.initRandom();
 
 		val c = a % b;//SparseMultDenseToDense.comp(a, b);
-		//c.printSparse("Sparse a*b=\n");
 		val da= a.toDense();
 		val dc= da % b;
 		ret = dc.equals(c);
-		//dc.print("Dense a*b=\n");
 
 		if (ret)
 			Console.OUT.println("CSR * Dense test passed!");
@@ -210,7 +175,6 @@ class SparseMult {
 
 		val dc= a % db;
 		val ret = dc.equals(c);
-		//dc.print("Dense a*b=\n");
 
 		if (ret)
 			Console.OUT.println("Dense * CSC test passed!");
@@ -230,7 +194,6 @@ class SparseMult {
 
 		val dc= a % db;
 		val ret = dc.equals(c);
-		//dc.print("Dense a*b=\n");
 
 		if (ret)
 			Console.OUT.println("Dense * CSR test passed!");

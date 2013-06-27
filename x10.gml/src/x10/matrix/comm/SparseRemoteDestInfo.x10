@@ -15,22 +15,21 @@ package x10.matrix.comm;
  * This struct is used to pack information of sparse matrix from the destination place.
  * The data fields are captured by the local place where the remote array copy uses 
  * to start copy data from here to the remote place. 
- *
  */
 protected struct SparseRemoteDestInfo {
-	public val idxbuf:RemoteArray[Int];
-	public val valbuf:RemoteArray[Double];
-	public val offset:Int;
+	public val idxbuf:GlobalRail[Long];
+	public val valbuf:GlobalRail[Double];
+	public val offset:Long;
 	
-	public def this(idx:RemoteArray[Int], vlu:RemoteArray[Double], off:Int) {
+	public def this(idx:GlobalRail[Long], vlu:GlobalRail[Double], off:Long) {
 		idxbuf = idx; 
 		valbuf = vlu;	
 		offset = off; 
 	}
 
-	public def this(idx:Array[Int], vlu:Array[Double], off:Int) {
-		idxbuf = new RemoteArray[Int](idx as Array[Int]{self!=null}); 
-		valbuf = new RemoteArray[Double](vlu as Array[Double]{self!=null});	
+	public def this(idx:Rail[Long], vlu:Rail[Double], off:Long) {
+		idxbuf = new GlobalRail[Long](idx as Rail[Long]{self!=null}); 
+		valbuf = new GlobalRail[Double](vlu as Rail[Double]{self!=null});	
 		offset = off; 
 	}
 }
