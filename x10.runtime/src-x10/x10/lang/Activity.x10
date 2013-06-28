@@ -25,7 +25,7 @@ class Activity {
         // and register spawnee on these on clocks
         static def make(clocks:Rail[Clock]) {
             val clockPhases = new ClockPhases();
-            for(var i:Int = 0; i < clocks.size; i++) 
+            for(var i:Long = 0; i < clocks.size; i++) 
                 clockPhases.put(clocks(i), clocks(i).register());
             return clockPhases;
         }
