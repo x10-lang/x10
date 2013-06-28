@@ -15,7 +15,7 @@ import x10.compiler.NonEscaping;
 import x10.io.CustomSerialization;
 import x10.io.SerialData;
 
-  public class HashMap[K,V] implements Map[K,V], CustomSerialization {
+public class HashMap[K,V] implements Map[K,V], CustomSerialization {
     static class HashEntry[Key,Value] implements Map.Entry[Key,Value] {
         public def getKey() = key;
         public def getValue() = value;
@@ -38,31 +38,31 @@ import x10.io.SerialData;
     var table: Rail[HashEntry[K,V]];
     
     /** Number of non-null, non-removed entries in the table. */
-    var size: Int;
+    var size: Long;
 
     /** Number of non-null entries in the table. */
-    var occupation: Int;
+    var occupation: Long;
     
     /** table.length - 1 */
-    var mask: Int;
+    var mask: Long;
 
-	var modCount:Int = 0; // to discover concurrent modifications
+	var modCount:Long = 0; // to discover concurrent modifications
     
-    static MAX_PROBES = 3;
-    static MIN_SIZE = 4;
+    static val MAX_PROBES = 3L;
+    static val MIN_SIZE = 4L;
     
     public def this() {
         init(MIN_SIZE);
     }
     
-    public def this(var sz: int) {
-        var pow2: int = MIN_SIZE;
+    public def this(var sz: Long) {
+        var pow2: Long = MIN_SIZE;
         while (pow2 < sz)
             pow2 <<= 1;
         init(pow2);
     }
     
-    @NonEscaping final def init(sz: int): void {
+    @NonEscaping final def init(sz: Long): void {
         // check that sz is a power of 2
         assert (sz & -sz) == sz;
         assert sz >= MIN_SIZE;
@@ -105,12 +105,11 @@ import x10.io.SerialData;
     }
     
     protected def getEntry(k: K): HashEntry[K,V] {
-        if (size == 0)
+        if (size == 0L)
             return null;
 
         val h = hash(k);
-
-        var i: int = h;
+        var i:Long = h;
 
         while (true) {        
             val j = i & mask;
@@ -135,7 +134,7 @@ import x10.io.SerialData;
     @NonEscaping protected final def putInternal(k: K, v: V, mayRehash:Boolean): Box[V] {
 
         val h = hashInternal(k);
-        var i: int = h;
+        var i:Long = h;
 
         while (true) {
             val j = i & mask;
@@ -147,7 +146,7 @@ import x10.io.SerialData;
                 table(j) = new HashEntry[K,V](k, v, h);
                 size++;
                 occupation++;
-                if (mayRehash && (((i - h > MAX_PROBES) && (occupation >= table.size / 2)) || (occupation == table.size as Int))) {
+                if (mayRehash && (((i - h > MAX_PROBES) && (occupation >= table.size / 2)) || (occupation == table.size))) {
                     rehashInternal();
                 }
                 return null;
@@ -170,11 +169,11 @@ import x10.io.SerialData;
         val t = table;
         val oldSize = size;
         table = new Rail[HashEntry[K,V]](t.size*2);
-        mask = (table.size as int)- 1;
+        mask = table.size - 1;
         size = 0;
         occupation = 0;
 
-        for (var i: int = 0; i < t.size; i++) {
+        for (var i: Long = 0; i < t.size; i++) {
             if (t(i) != null && ! t(i).removed) {
                 putInternal(t(i).key, t(i).value, false);
             }
@@ -209,8 +208,8 @@ import x10.io.SerialData;
 
     protected static class EntriesIterator[Key,Value] implements Iterator[HashEntry[Key,Value]] {
         val map: HashMap[Key,Value];
-        var i: Int;
-		var originalModCount:Int;
+        var i: Long;
+		var originalModCount:Long;
         
         def this(map: HashMap[Key,Value]) { this.map = map; this.i = 0; originalModCount = map.modCount; } // you call advance() after the ctor
 
@@ -240,7 +239,7 @@ import x10.io.SerialData;
         }
     }
     
-    public def size():Long = size as Long;
+    public def size():Long = size;
     
     protected static class KeySet[Key,Value] extends AbstractCollection[Key] implements Set[Key] {
         val map: HashMap[Key,Value];
