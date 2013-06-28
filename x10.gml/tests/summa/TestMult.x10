@@ -52,6 +52,7 @@ class SummaMultTest {
 		var ret:Boolean = true;
 	@Ifndef("MPI_COMMU") { // TODO Deadlocks!
 		ret &= (testDenseMult());
+                ret &= (testDenseTransMult());
 		ret &= (testDenseMultTrans());
 		
 		if (ret)
@@ -170,6 +171,41 @@ class SummaMultTest {
 		return ret;
 	}
 
+	public def testDenseTransMult():Boolean {
+		val numP = Place.numPlaces();//Place.MAX_PLACES;
+		Console.OUT.printf("\nTest SUMMA dist dense matrix transMult over %d places\n", numP);
+		Debug.flushln("Start allocating memory space for matrix A");
+		val da = DistDenseMatrix.make(K, M);
+		Debug.flushln("Start initializing matrix A "+
+						da.grid.numRowBlocks+" "+da.grid.numColBlocks);
+		da.initRandom();
+		Debug.flushln("Start allocating memory space for matrix B");
+		val db = DistDenseMatrix.make(K, N);
+		Debug.flushln("Start initializing matrix B "+
+						db.grid.numRowBlocks+" "+db.grid.numColBlocks );
+		db.initRandom();
+				
+		val dc = DistDenseMatrix.make(M, N);
+
+		Debug.flushln("Start calling SUMMA Dense transMult X10 routine");
+		SummaDense.transMult(0, 0.0, da, db, dc);
+		Debug.flushln("SUMMA done");
+	
+		val ma = da.toDense();
+		val mb = db.toDense();
+		val mc = DenseMatrix.make(ma.N, mb.N);
+		
+		Debug.flushln("Start sequential dense matrix transMult");
+		DenseMatrixBLAS.compTransMult(ma, mb, mc, false);
+		Debug.flushln("Done sequential dense matrix transMult");
+		
+		val ret = dc.equals(mc as Matrix(dc.M, dc.N));
+		if (ret)
+			Console.OUT.println("SUMMA x10 distributed dense matrix transMult test passed!");
+		else
+			Console.OUT.println("-----SUMMA x10 distributed dense matrix transMult test failed!-----");
+		return ret;
+	}
 
 	public def testDenseMultTrans():Boolean {
 		val numP = Place.numPlaces();//Place.MAX_PLACES;

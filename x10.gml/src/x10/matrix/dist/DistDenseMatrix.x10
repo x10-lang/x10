@@ -629,18 +629,28 @@ public class DistDenseMatrix(grid:Grid){grid.M==M,grid.N==N} extends Matrix {
 		} else if ((A instanceof DistSparseMatrix) && ( B instanceof DistDenseMatrix)) {
 			return mult(A as DistSparseMatrix(this.M), B as DistDenseMatrix(A.N,this.N), plus);
 		}
-		throw new UnsupportedOperationException("Not support");
+		throw new UnsupportedOperationException("Not supported");
 	}
 
-	/**
-	 * Not supported.  
-	 */
-	public def transMult(
-			A:Matrix{self.N==this.M}, 
-			B:Matrix(A.M,this.N),
-			plus:Boolean):DistDenseMatrix(this) {
-			
-		throw new UnsupportedOperationException("Not supported. Only the second matrix is allowed to transposed in SUMMA");
+    /**
+     * Compute this = A<sup>T</sup> &#42 B or this += A<sup>T</sup> &#42 B
+     * using SUMMA. Only distributed matrices are supported. 
+     */
+    public def transMult(
+            A:Matrix{self.N==this.M}, 
+            B:Matrix(A.M,this.N),
+            plus:Boolean):DistDenseMatrix(this) {
+
+        if ((A instanceof DistDenseMatrix) && ( B instanceof DistDenseMatrix)) {
+            return transMult(A as DistDenseMatrix(B.M,this.M), B as DistDenseMatrix(A.M,this.N), plus);
+        } else if ((A instanceof DistDenseMatrix) && ( B instanceof DistSparseMatrix)) {
+            return transMult(A as DistDenseMatrix(B.M,this.M), B as DistSparseMatrix(A.M,this.N), plus);
+        } else if ((A instanceof DistSparseMatrix) && ( B instanceof DistSparseMatrix)) {
+            return transMult(A as DistSparseMatrix(B.M,this.M), B as DistSparseMatrix(A.M,this.N), plus);
+        } else if ((A instanceof DistSparseMatrix) && ( B instanceof DistDenseMatrix)) {
+            return transMult(A as DistSparseMatrix(B.M,this.M), B as DistDenseMatrix(A.M,this.N), plus);
+        }
+        throw new UnsupportedOperationException("Not supported");
     }
 
 	/**

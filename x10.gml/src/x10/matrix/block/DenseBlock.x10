@@ -266,6 +266,37 @@ public class DenseBlock extends MatrixBlock {
 				dense.d(i) += srcden.d(j);
 		}
 	}
+
+	/**
+	 *  Add columns with columns from another matrix
+	 *
+	 * @param rowoff     row offset in the dense block
+	 * @param rowcnt     number of rows to add
+	 * @param srcmat     source matrix to add with
+	 */	
+    public def addRows(rowoff:Long, rowcnt:Long, srcmat:Matrix):void {
+        Debug.assure(srcmat instanceof DenseMatrix);
+        addRows(rowoff, rowcnt, srcmat as DenseMatrix);
+    }
+
+    /**
+     *  Add Rows in dense block with rows from other dense matrix
+     *
+     * @param rowoff     row offset in the dense block
+     * @param rowcnt     number of rows to add
+     * @param srcden     source dense matrix from which to add
+     */	
+    public def addRows(rowoff:Long, rowcnt:Long, srcden:DenseMatrix):void {
+        Debug.assure(srcden.N <= dense.N && rowcnt<=srcden.M && rowoff+rowcnt<=dense.M,	"off:"+rowoff+" cnt:"+rowcnt+" dst.M:"+dense.M);
+        var src:Long=0;
+        var j:Long;
+        for (var dst:Long=rowoff; dst<=rowoff+(srcden.N-1)*dense.M; dst+=dense.M, src+=srcden.M) {
+            j=src;
+            for (var i:Long=dst; i<dst+rowcnt; i++, j++) {
+                dense.d(i) += srcden.d(j);
+            }
+        }
+    }
 	
 	public def compColDataSize(colOff:Long, colCnt:Long):Long = dense.M*colCnt;
 
