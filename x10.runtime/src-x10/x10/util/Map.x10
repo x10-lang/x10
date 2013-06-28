@@ -30,6 +30,8 @@ public interface Map[K,V]   {
 	
 	public def entries(): Set[Entry[K,V]];
 	
+	public def size(): Int;
+
 	public static interface Entry[Key,Val] {
 	    public def getKey(): Key;
 	    public def getValue(): Val;
