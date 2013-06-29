@@ -132,7 +132,7 @@ public class Thread implements Any {
             java.lang.Thread.sleep(time, nanos);
         } catch (java.lang.InterruptedException e) {
             try {
-                throw java.lang.Class.forName("x10.lang.InterruptedException").asSubclass(java.lang.RuntimeException.class).newInstance();
+                throw new x10.lang.InterruptedException();
             } catch (java.lang.Exception e2) {
                 e2.printStackTrace();
             }
