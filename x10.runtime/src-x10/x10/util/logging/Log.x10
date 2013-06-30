@@ -15,63 +15,60 @@ import x10.compiler.Native;
 /**
  * This class is based on <a href="http://commons.apache.org/proper/commons-logging/javadocs/api-release/org/apache/commons/logging/Log.html">org.apache.commons.logging.Log</a>
  */
-
-
-@NativeRep("java","org.apache.commons.logging.Log", null, "x10.rtt.Types.getRTT(org.apache.commons.logging.Log.class)") 
+@NativeRep("java", "org.apache.commons.logging.Log", null, "x10.rtt.NamedType.make(\"x10.util.logging.Log\", org.apache.commons.logging.Log.class)") 
 public interface Log {
     /** Log a message with debug log level. */
-	@Native("java", "#this.debug(#message)")
+    @Native("java", "#this.debug(#message)")
     def debug(message: Any):void;
-	/** Log an error with debug log level. */
-	@Native("java", "#this.debug(#message, #t)")
-	def debug(message: Any, t: CheckedThrowable) : void;
-	/** Log a message with error log level. */
-	@Native("java", "#this.error(#message)")
+    /** Log an error with debug log level. */
+    @Native("java", "#this.debug(#message, #t)")
+    def debug(message: Any, t: CheckedThrowable) : void;
+    /** Log a message with error log level. */
+    @Native("java", "#this.error(#message)")
     def error(message: Any) : void;
-	/** Log an error with error log level. */
+    /** Log an error with error log level. */
     @Native("java", "#this.error(#message, #t)")	
     def error(message: Any, t: CheckedThrowable) : void;
-	/** Log a message with fatal log level. */
+    /** Log a message with fatal log level. */
     @Native("java", "#this.fatal(#message)")
     def fatal(message: Any) : void;
-	/** Log an error with fatal log level. */
+    /** Log an error with fatal log level. */
     @Native("java", "#this.fatal(#message, #t)")
     def fatal(message: Any, t: CheckedThrowable) : void;
-	/** Log a message with info log level. */
+    /** Log a message with info log level. */
     @Native("java", "#this.info(#message)")
     def info(message: Any) : void;
-	/** Log an error with info log level. */
+    /** Log an error with info log level. */
     @Native("java", "#this.info(#message, #t)")
     def info(message: Any, t: CheckedThrowable) : void;
-	/** Is debug logging currently enabled? */
+    /** Is debug logging currently enabled? */
     @Native("java", "#this.isDebugEnabled()")
     def isDebugEnabled() : boolean;
-	/** Is error logging currently enabled? */
+    /** Is error logging currently enabled? */
     @Native("java", "#this.isErrorEnabled()")
     def isErrorEnabled() : boolean;
-	/** Is fatal logging currently enabled? */
+    /** Is fatal logging currently enabled? */
     @Native("java", "#this.isFatalEnabled()")
     def isFatalEnabled() : boolean;
-	/** Is info logging currently enabled? */
+    /** Is info logging currently enabled? */
     @Native("java", "#this.isInfoEnabled()")
     def isInfoEnabled() : boolean;
-	/** Is trace logging currently enabled? */
+    /** Is trace logging currently enabled? */
     @Native("java", "#this.isTraceEnabled()")
     def isTraceEnabled() : boolean;
-	/** Is warn logging currently enabled? */
+    /** Is warn logging currently enabled? */
     @Native("java", "#this.isWarnEnabled()")
     def isWarnEnabled() : boolean;
-	/** Log a message with trace log level. */
+    /** Log a message with trace log level. */
     @Native("java", "#this.trace(#message)")
     def trace(message: Any) : void;
-	/** Log an error with trace log level. */
+    /** Log an error with trace log level. */
     @Native("java", "#this.trace(#message, #t)")
     def trace(message: Any, t: CheckedThrowable) : void;
-	/** Log a message with warn log level. */
+    /** Log a message with warn log level. */
     @Native("java", "#this.warn(#message)")
     def warn(message: Any) : void;
-	/** Log an error with warn log level. */
+    /** Log an error with warn log level. */
     @Native("java", "#this.warn(#message, #t)")
     def warn(message: Any, t:CheckedThrowable) : void;
 }
-	
