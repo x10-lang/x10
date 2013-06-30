@@ -12,10 +12,9 @@ package x10.x10rt;
 
 import java.io.ByteArrayInputStream;
 import java.io.DataInputStream;
-import java.io.InputStream;
 
-import x10.lang.Place;
 import x10.lang.FinishState;
+import x10.lang.Place;
 import x10.runtime.impl.java.Runtime;
 import x10.serialization.X10JavaDeserializer;
 

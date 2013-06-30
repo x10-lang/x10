@@ -20,6 +20,9 @@ import x10.lang.FinishState;
 import x10.lang.Place;
 import x10.serialization.X10JavaDeserializer;
 
+/**
+ * Implementation of JavaSockets transport
+ */
 public class SocketTransport {
 	private static final boolean DEBUG = false;
 	public static final String X10_FORCEPORTS = "X10_FORCEPORTS";
