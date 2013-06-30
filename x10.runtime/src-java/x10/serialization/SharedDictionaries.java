@@ -29,8 +29,8 @@ import x10.serialization.SerializationDictionary.MasterSerializationDictionary;
 class SharedDictionaries implements SerializationConstants {
     
     private static boolean initialized = false;
-    private static MasterSerializationDictionary serializationDict = new MasterSerializationDictionary();
-    private static MasterDeserializationDictionary deserializationDict = new MasterDeserializationDictionary();
+    private static final MasterSerializationDictionary serializationDict = new MasterSerializationDictionary();
+    private static final MasterDeserializationDictionary deserializationDict = new MasterDeserializationDictionary();
     
     private static short nextSharedId = FIRST_SHARED_ID;
    
@@ -160,6 +160,7 @@ class SharedDictionaries implements SerializationConstants {
 
     private static void assignIdToType(String type, short id) {
         try {
+            // Note: all shared types should be found in classpath and thus Class.forName should work. 
             Class <?> clazz = Class.forName(type);
             assert id < SerializationConstants.FIRST_DYNAMIC_ID : "Not enough shared serialization ids reserved!";
             serializationDict.addEntry(clazz, id);
