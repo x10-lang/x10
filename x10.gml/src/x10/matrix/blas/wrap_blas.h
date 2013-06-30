@@ -16,11 +16,11 @@
 //------------------------------------------------------------------------
 // Level One 
 //------------------------------------------------------------------------
-void scale(long n, double a, double* x);
-void copy(long n, double* x, double* y);
-double dot_prod(long n, double* x, double* y); 
-double norm2(long n, double* x);
-double abs_sum(long n, double* x);
+void scale(int64_t n, double a, double* x);
+void copy(int64_t n, double* x, double* y);
+double dot_prod(int64_t n, double* x, double* y); 
+double norm2(int64_t n, double* x);
+double abs_sum(int64_t n, double* x);
 
 
 //------------------------------------------------------------------------
@@ -28,49 +28,49 @@ double abs_sum(long n, double* x);
 //------------------------------------------------------------------------
 // C = A * B
 /* void matrix_matrix_mult(double* A, double* B, double* C, */
-/* 						long m, long n, long k); */
+/* 						int64_t m, int64_t n, int64_t k); */
 // C = alpah* op(A) * op(B) + beta*C
 void matrix_matrix_mult(double* A, double* B, double* C, 
-						long* dim, long* ld, double* scale, int* trans);
+						int64_t* dim, int64_t* ld, double* scale, int* trans);
 
 // C = alpah* op(A) * op(B) + beta*C
 void matrix_matrix_mult(double* A, double* B, double* C, 
-						long* dim, double* scale, int* trans);
+						int64_t* dim, double* scale, int* trans);
 
 // C = alpah* A * B + beta*C, where A is symmetrix matrix of lower trianular part
 void sym_matrix_mult(double* A, double* B, double* C, 
-					 long* dim, double* scale);
+					 int64_t* dim, double* scale);
 void matrix_sym_mult(double* B, double* A, double* C,
-					 long* dim, double* scale);
+					 int64_t* dim, double* scale);
 
 //------------------------------------------------------------------------
 
 //y = A*x
 /* void matrix_vector_mult(double* A, double* x, double* y,  */
-/* 						long m, long n); */
+/* 						int64_t m, int64_t n); */
 //y = alpah * op(A)*x + beta * y
 void matrix_vector_mult(double* A, double* x, double* y, 
-						long* dim, double* scale, int transA);
+						int64_t* dim, double* scale, int transA);
 //y = alpah* x *A + beta * y, A is symmetrix matrix of lower triangular part
 void sym_vector_mult(double* x, double* A, double* y,
-					 long* dim, double* scale);
+					 int64_t* dim, double* scale);
 //   A*x = b,   or   A'*x = b,
-void tri_vector_mult(double* A, long uplo, double* bx, long lda, int transA);
+void tri_vector_mult(double* A, int64_t uplo, double* bx, int64_t lda, int transA);
 
 // A = alpha*x*y**T + A
-void rank_one_update(double* A, double* x, double* y, long* dim, long* offset, long* inc, long lda, double alpha);
+void rank_one_update(double* A, double* x, double* y, int64_t* dim, int64_t* offset, int64_t* inc, int64_t lda, double alpha);
 
 //  B := alpha*op( A )*B, A is lower-non-unit triangular
-void tri_matrix_mult(double* A, double* B, long* dim, int tranB);
+void tri_matrix_mult(double* A, double* B, int64_t* dim, int tranB);
 // A := alpha*B*op( A ), B is lower-non-unit triangular
-void matrix_tri_mult(double* B, double* A, long* dim, int tranA);
+void matrix_tri_mult(double* B, double* A, int64_t* dim, int tranA);
 
 //-------------------------------------------------------------------
 //Solve Ax=b. result->x
-void tri_vector_solve(double* A, double* bx, long* dim, int tranA);
+void tri_vector_solve(double* A, double* bx, int64_t* dim, int tranA);
 //Solve op(A)X=B
-void tri_matrix_solve(double* A, double* BX, long* dim, int tranA);
-void matrix_tri_solve(double* BX, double* A, long* dim, int tranA);
+void tri_matrix_solve(double* A, double* BX, int64_t* dim, int tranA);
+void matrix_tri_solve(double* BX, double* A, int64_t* dim, int tranA);
 
 //------------------------------------------------------------------------
 // Other tools
@@ -78,6 +78,6 @@ void matrix_tri_solve(double* BX, double* A, long* dim, int tranA);
 void print_matrix(char*, double*, long, long);
 void print_matrix_data(double*, long, long);
 void c_mat_mat_mult(double* A, double* B, double* C, 
-					long M, long N, long K);
+					int64_t M, int64_t N, int64_t K);
 
 #endif

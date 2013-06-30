@@ -37,38 +37,38 @@ extern "C"  {
   // for	x = a*x
   // Reciprocal Scale: x <-x/alpha
 #if defined(__bgp__)
-  void dscal(long* N, double* alpha, double *X, long* incX);
+  void dscal(int64_t* N, double* alpha, double *X, int64_t* incX);
 #else
-  void dscal_(long* N, double* alpha, double *X, long* incX);
+  void dscal_(int64_t* N, double* alpha, double *X, int64_t* incX);
 #endif
 
   // Vector Copy: y <-x
 #if defined(__bgp__)
-  void dcopy(long* N, double *X, long* incx, double *Y, long* incy);
+  void dcopy(int64_t* N, double *X, int64_t* incx, double *Y, int64_t* incy);
 #else
-  void dcopy_(long* N, double *X, long* incx, double *Y, long* incy);
+  void dcopy_(int64_t* N, double *X, int64_t* incx, double *Y, int64_t* incy);
 #endif
 
   // for dot product
   // DOT Production: r <- beta * r + alpha * x^T * y
 #if defined(__bgp__)
-  double ddot(long* N, double *X, long* incx, double *Y, long* incy);
+  double ddot(int64_t* N, double *X, int64_t* incx, double *Y, int64_t* incy);
 #else
-  double ddot_(long* N, double *X, long* incx, double *Y, long* incy);
+  double ddot_(int64_t* N, double *X, int64_t* incx, double *Y, int64_t* incy);
 #endif
 	
   // for Euclidean norm
 #if defined(__bgp__)
-  double dnrm2(long* N, double *X, long* incx);
+  double dnrm2(int64_t* N, double *X, int64_t* incx);
 #else
-  double dnrm2_(long* N, double *X, long* incx);
+  double dnrm2_(int64_t* N, double *X, int64_t* incx);
 #endif
 
   // SUM: for sum of absolute values
 #if defined(__bgp__)
-  double dasum(long* N, double *X, long* incx);
+  double dasum(int64_t* N, double *X, int64_t* incx);
 #else
-  double dasum_(long* N, double *X, long* incx);
+  double dasum_(int64_t* N, double *X, int64_t* incx);
 #endif
 	
   // MAX, for index of max abs value
@@ -76,9 +76,9 @@ extern "C"  {
   
   // SUBROUTINE DAXPY(N,DA,DX,INCX,DY,INCY)
 #if defined(__bgp__)
-  void  daxpy(long*N, long*da, double*X, long*incx, double*Y,long* incy);
+  void  daxpy(int64_t*N, int64_t*da, double*X, int64_t*incx, double*Y,int64_t* incy);
 #else
-  void  daxpy_(long*N, long*da, double*X, long*incx, double*Y,long* incy); 
+  void  daxpy_(int64_t*N, int64_t*da, double*X, int64_t*incx, double*Y,int64_t* incy); 
 #endif
 
   //------------------------------------------------------------------------
@@ -164,15 +164,15 @@ extern "C"  {
    *           Unchanged on exit.
    */
 #if defined(__bgp__)
-  void dgemv(char* trans, long* M, long* N,
-			  double* alpha, double  *A, long* lda,
-			  double* x, long* incx,
-			  double* beta, double* y, long* incy);
+  void dgemv(char* trans, int64_t* M, int64_t* N,
+			  double* alpha, double  *A, int64_t* lda,
+			  double* x, int64_t* incx,
+			  double* beta, double* y, int64_t* incy);
 #else
-  void dgemv_(char* trans, long* M, long* N, 
-			  double* alpha, double  *A, long* lda,  
-			  double* x, long* incx, 
-			  double* beta, double* y, long* incy);
+  void dgemv_(char* trans, int64_t* M, int64_t* N, 
+			  double* alpha, double  *A, int64_t* lda,  
+			  double* x, int64_t* incx, 
+			  double* beta, double* y, int64_t* incy);
 #endif
 
   //------------------------------------------------------------------------
@@ -255,11 +255,11 @@ extern "C"  {
    *           Unchanged on exit.
    */
 #if defined(__bgp__)
-  void dsymv(char* uplo, long* N, double* alpha, double* A, long* lda,
-			  double* X, long* incx, double* beta, double* Y, long* incy);
+  void dsymv(char* uplo, int64_t* N, double* alpha, double* A, int64_t* lda,
+			  double* X, int64_t* incx, double* beta, double* Y, int64_t* incy);
 #else
-  void dsymv_(char* uplo, long* N, double* alpha, double* A, long* lda,
-			  double* X, long* incx, double* beta, double* Y, long* incy);
+  void dsymv_(char* uplo, int64_t* N, double* alpha, double* A, int64_t* lda,
+			  double* X, int64_t* incx, double* beta, double* Y, int64_t* incy);
 #endif
 
   //----------------------------------------------------------------------
@@ -358,9 +358,9 @@ extern "C"  {
 	*/
   //DTRMV(UPLO,TRANS,DIAG,N,A,LDA,X,INCX)
 #if defined(__bgp__)
-  void dtrmv(char* uplo, char* trans, char* diag, long* N, double* A, long* lda, double* X, long* incx);
+  void dtrmv(char* uplo, char* trans, char* diag, int64_t* N, double* A, int64_t* lda, double* X, int64_t* incx);
 #else
-  void dtrmv_(char* uplo, char* trans, char* diag, long* N, double* A, long* lda, double* X, long* incx);
+  void dtrmv_(char* uplo, char* trans, char* diag, int64_t* N, double* A, int64_t* lda, double* X, int64_t* incx);
 #endif
 
   //------------------------------------------------------------------------
@@ -426,15 +426,15 @@ extern "C"  {
     *           Unchanged on exit.
    */
 #if defined(__bgp__)
-  void dger(long* M, long* N,
-			  double* alpha, double* x, long* incX,
-			  double* Y, long* incY,
-			  double* A, long* lda);
+  void dger(int64_t* M, int64_t* N,
+			  double* alpha, double* x, int64_t* incX,
+			  double* Y, int64_t* incY,
+			  double* A, int64_t* lda);
 #else
-  void dger_(long* M, long* N,
-			  double* alpha, double* x, long* incX,
-			  double* Y, long* incY,
-			  double* A, long* lda);
+  void dger_(int64_t* M, int64_t* N,
+			  double* alpha, double* x, int64_t* incX,
+			  double* Y, int64_t* incY,
+			  double* A, int64_t* lda);
 #endif
 
   //------------------------------------------------------------------------
@@ -519,12 +519,12 @@ extern "C"  {
    */
 #if defined(__bgp__)
   void dtrsv(char* uplo, char* trans, char* diag,
-			  long* N, double* A, long* lda,
-			  double* X, long* incx);
+			  int64_t* N, double* A, int64_t* lda,
+			  double* X, int64_t* incx);
 #else
   void dtrsv_(char* uplo, char* trans, char* diag, 
-			  long* N, double* A, long* lda, 
-			  double* X, long* incx);
+			  int64_t* N, double* A, int64_t* lda, 
+			  double* X, int64_t* incx);
 #endif
 
   //void cblas_dtrsv(enum CBLAS_ORDER order, enum CBLAS_UPLO Uplo, enum CBLAS_TRANSPOSE TransA, 
@@ -654,15 +654,15 @@ extern "C"  {
    *           Unchanged on exit.
    */
 #if defined(__bgp__)
-  void dgemm(char* transA, char* transB, long* M, long* N, long* K,
-			  double* alpha, double* A, long* lda, 
-			  double* B, long* ldb, 
-			  double* beta, double* C, long* ldc);
+  void dgemm(char* transA, char* transB, int64_t* M, int64_t* N, int64_t* K,
+			  double* alpha, double* A, int64_t* lda, 
+			  double* B, int64_t* ldb, 
+			  double* beta, double* C, int64_t* ldc);
 #else
-   void dgemm_(char* transA, char* transB, long* M, long* N, long* K,
- 			  double* alpha, double* A, long* lda,
- 			  double* B, long* ldb,
- 			  double* beta, double* C, long* ldc);
+   void dgemm_(char* transA, char* transB, int64_t* M, int64_t* N, int64_t* K,
+ 			  double* alpha, double* A, int64_t* lda,
+ 			  double* B, int64_t* ldb,
+ 			  double* beta, double* C, int64_t* ldc);
 #endif
 
   //void cblas_dgemm(enum CBLAS_ORDER Order, enum CBLAS_TRANSPOSE TransA, 
@@ -779,15 +779,15 @@ extern "C"  {
    *           Unchanged on exit.
    */
 #if defined(__bgp__)
-   void dsymm(char* side, char* uplo, long* M, long* N,
- 			  double* alpha, double* A, long* lda,
- 			  double* B, long* ldb,
- 			  double* beta, double* C, long* ldc);
+   void dsymm(char* side, char* uplo, int64_t* M, int64_t* N,
+ 			  double* alpha, double* A, int64_t* lda,
+ 			  double* B, int64_t* ldb,
+ 			  double* beta, double* C, int64_t* ldc);
 #else
-   void dsymm_(char* side, char* uplo, long* M, long* N,
- 			  double* alpha, double* A, long* lda,
- 			  double* B, long* ldb,
- 			  double* beta, double* C, long* ldc);
+   void dsymm_(char* side, char* uplo, int64_t* M, int64_t* N,
+ 			  double* alpha, double* A, int64_t* lda,
+ 			  double* B, int64_t* ldb,
+ 			  double* beta, double* C, int64_t* ldc);
 #endif
 
   // void cblas_dsymm(enum CBLAS_ORDER Order, enum CBLAS_SIDE Side, enum CBLAS_UPLO Uplo, 
@@ -904,10 +904,10 @@ extern "C"  {
   //DTRMM(SIDE,UPLO,TRANSA,DIAG,M,N,ALPHA,A,LDA,B,LDB)
 #if defined(__bgp__)
    void dtrmm(char* side, char* uplo, char* transA, char* diag,
- 			  long* M, long* N, double* alpha, double* A, long* lda, double* B, long* ldb);
+ 			  int64_t* M, int64_t* N, double* alpha, double* A, int64_t* lda, double* B, int64_t* ldb);
 #else
    void dtrmm_(char* side, char* uplo, char* transA, char* diag,
- 			  long* M, long* N, double* alpha, double* A, long* lda, double* B, long* ldb);
+ 			  int64_t* M, int64_t* N, double* alpha, double* A, int64_t* lda, double* B, int64_t* ldb);
 #endif
 
 
@@ -1007,13 +1007,13 @@ extern "C"  {
    *           Unchanged on exit.
    */
 #if defined(__bgp__)
-   void dtrsm(char* side, char* uplo, char* transA, char* diag, long* M, long* N,
- 			  double* alpha, double* A, long* lda,
- 			  double* B, long* ldb);
+   void dtrsm(char* side, char* uplo, char* transA, char* diag, int64_t* M, int64_t* N,
+ 			  double* alpha, double* A, int64_t* lda,
+ 			  double* B, int64_t* ldb);
 #else
-   void dtrsm_(char* side, char* uplo, char* transA, char* diag, long* M, long* N,
- 			  double* alpha, double* A, long* lda,
- 			  double* B, long* ldb);
+   void dtrsm_(char* side, char* uplo, char* transA, char* diag, int64_t* M, int64_t* N,
+ 			  double* alpha, double* A, int64_t* lda,
+ 			  double* B, int64_t* ldb);
 #endif
 
   // for solving triangular matrix with multiple right hand sides
@@ -1032,10 +1032,10 @@ extern "C"  {
 // Level One 
 //------------------------------------------------------------------------
   
-void scale(long n, double alpha, double* x) 
+void scale(int64_t n, double alpha, double* x) 
 {
 #ifdef ENABLE_BLAS
-  long incx = 1;
+  int64_t incx = 1;
 #if defined(__bgp__)
   dscal(&n, &alpha, x, &incx);
 #else
@@ -1049,11 +1049,11 @@ void scale(long n, double alpha, double* x)
 #endif
 }
 // Copy: Y <- X
-void copy(long n, double* x, double* y)
+void copy(int64_t n, double* x, double* y)
 {
 #ifdef ENABLE_BLAS
-  long incx = 1;
-  long incy = 1;
+  int64_t incx = 1;
+  int64_t incy = 1;
 #if defined(__bgp__)
   dcopy(&n, x, &incx, y, &incy);
 #else
@@ -1067,11 +1067,11 @@ void copy(long n, double* x, double* y)
 #endif
 }
 // Dot product
-double dot_prod(long n, double* x, double* y)
+double dot_prod(int64_t n, double* x, double* y)
 {
 #ifdef ENABLE_BLAS
-  long incx = 1;
-  long incy = 1;
+  int64_t incx = 1;
+  int64_t incy = 1;
 #if defined(__bgp__)
   return ddot(&n, x, &incx, y, &incy);
 #else
@@ -1086,10 +1086,10 @@ double dot_prod(long n, double* x, double* y)
 }
 
 // Euclidean norm2
-double norm2(long n, double* x)
+double norm2(int64_t n, double* x)
 {
 #ifdef ENABLE_BLAS
-  long incx = 1;
+  int64_t incx = 1;
 #if defined(__bgp__)
   return dnrm2(&n, x, &incx);
 #else
@@ -1104,10 +1104,10 @@ double norm2(long n, double* x)
 }
 
 // Sum of absolute value
-double abs_sum(long n, double* x)
+double abs_sum(int64_t n, double* x)
 {
 #ifdef ENABLE_BLAS
-  long incx = 1;
+  int64_t incx = 1;
 #if defined(__bgp__)
   return dasum(&n, x, &incx);
 #else
@@ -1126,17 +1126,17 @@ double abs_sum(long n, double* x)
 // Level Two 
 //------------------------------------------------------------------------
 //y = alpha*op(A)*x + beta * y
-void matrix_vector_mult(double* A, double* x, double* y, long* dim, double* scale, int transA)
+void matrix_vector_mult(double* A, double* x, double* y, int64_t* dim, double* scale, int transA)
 {
 #ifdef ENABLE_BLAS
   char tA = transA?'T':'N';
 
   double alpha = scale[0];
   double beta  = scale[1];
-  long m   = dim[0];
-  long n   = dim[1];
-  long incx = 1;
-  long incy = 1;
+  int64_t m   = dim[0];
+  int64_t n   = dim[1];
+  int64_t incx = 1;
+  int64_t incy = 1;
 #if defined(__bgp__)
   dgemv(&tA, &m, &n,
 		 &alpha, A, &m,
@@ -1157,16 +1157,16 @@ void matrix_vector_mult(double* A, double* x, double* y, long* dim, double* scal
 }
 
 //y = alpha*A*x + beta * y, A is symmetrix matrix of lower triangular part
-void sym_vector_mult(double* A, double* x, double* y, long* dim, double* scale)
+void sym_vector_mult(double* A, double* x, double* y, int64_t* dim, double* scale)
 {
 #ifdef ENABLE_BLAS
   char uplo = 'L';
   double alpha = scale[0];
   double beta  = scale[1];
-  long m   = dim[0];
-  long n   = dim[1];
-  long incx = 1;
-  long incy = 1;
+  int64_t m   = dim[0];
+  int64_t n   = dim[1];
+  int64_t incx = 1;
+  int64_t incy = 1;
 
   //printf("dim: %i %i\n", m, n);
   //printf("%f %f %f  \n", A[2], A[5], A[7]);
@@ -1194,14 +1194,14 @@ void sym_vector_mult(double* A, double* x, double* y, long* dim, double* scale)
 
 //SUBROUTINE DTRMV(UPLO,TRANS,DIAG,N,A,LDA,X,INCX)
 //   A*x = b,   or   A'*x = b,
-void tri_vector_mult(double* A, long ul, double* bx, long lda, int transA)
+void tri_vector_mult(double* A, int64_t ul, double* bx, int64_t lda, int transA)
 {
 #ifdef ENABLE_BLAS
 	char uplo = ul?'U':'L';
 	char trnA = transA?'T':'N';
 	char diag = 'N';
-	long  N  = lda;
-	long  incx = 1;
+	int64_t  N  = lda;
+	int64_t  incx = 1;
 #if defined(__bgp__)
 	dtrmv(&uplo, &trnA, &diag, &N, A, &lda, bx, &incx);
 #else
@@ -1217,16 +1217,16 @@ void tri_vector_mult(double* A, long ul, double* bx, long lda, int transA)
 }
 
 // A = alpha*x*y**T + A
-void rank_one_update(double* A, double* x, double* y, long* dim, long* offset, long* inc, long lda, double alpha)
+void rank_one_update(double* A, double* x, double* y, int64_t* dim, int64_t* offset, int64_t* inc, int64_t lda, double alpha)
 {
-  long m    = dim[0];
-  long n    = dim[1];
-  long offx = offset[0];
-  long offy = offset[1];
+  int64_t m    = dim[0];
+  int64_t n    = dim[1];
+  int64_t offx = offset[0];
+  int64_t offy = offset[1];
   double* xStart = x + offx;
   double* yStart = y + offy;
-  long incx = inc[0];
-  long incy = inc[1];
+  int64_t incx = inc[0];
+  int64_t incy = inc[1];
 #if defined(__bgp__)
   dger(&m, &n,
 		 &alpha, xStart, &incx,
@@ -1249,17 +1249,17 @@ void rank_one_update(double* A, double* x, double* y, long* dim, long* offset, l
 //-----------------------------------------------------------------
 
 // C = alpha*op(A) * op(B) + beta*C
-void matrix_matrix_mult(double* A, double* B, double* C, long* dim, 
-						  long* ld, double* scale, int* trans)
+void matrix_matrix_mult(double* A, double* B, double* C, int64_t* dim, 
+						  int64_t* ld, double* scale, int* trans)
 {
   char transA = (trans[0])?'T':'N';
   char transB = (trans[1])?'T':'N';
-  long  m = dim[0];
-  long  n = dim[1];
-  long  k = dim[2];
-  long  lda = ld[0];
-  long  ldb = ld[1];
-  long  ldc = ld[2];
+  int64_t  m = dim[0];
+  int64_t  n = dim[1];
+  int64_t  k = dim[2];
+  int64_t  lda = ld[0];
+  int64_t  ldb = ld[1];
+  int64_t  ldc = ld[2];
   double alpha = scale[0];
   double beta  = scale[1];
   //printf("call dgemm: dim %d %d %d, ld %d %d %d, %c %c\n", m, n, k, lda, ldb, ldc, transA, transB); fflush(stdout);
@@ -1279,18 +1279,18 @@ void matrix_matrix_mult(double* A, double* B, double* C, long* dim,
 }
 
 // C = alpha*op(A) * op(B) + beta*C
-void matrix_matrix_mult(double* A, double* B, double* C, long* dim, 
+void matrix_matrix_mult(double* A, double* B, double* C, int64_t* dim, 
 						  double* scale, int* trans)
 {
 #ifdef ENABLE_BLAS
   char transA = (trans[0])?'T':'N';
   char transB = (trans[1])?'T':'N';
-  long  m = dim[0];
-  long  n = dim[1];
-  long  k = dim[2];
-  long  lda = (trans[0])?k:m;
-  long  ldb = (trans[1])?n:k;
-  long  ldc = m;
+  int64_t  m = dim[0];
+  int64_t  n = dim[1];
+  int64_t  k = dim[2];
+  int64_t  lda = (trans[0])?k:m;
+  int64_t  ldb = (trans[1])?n:k;
+  int64_t  ldc = m;
   double alpha = scale[0];
   double beta  = scale[1];
   //printf("call dgemm: %d %d %d, %c %c\n", m, n, k, transA, transB); fflush(stdout);
@@ -1319,14 +1319,14 @@ void matrix_matrix_mult(double* A, double* B, double* C, long* dim,
 
 // C = alpah*A * B + beta*C
 // side = "L", Lower symmetric-triangular data, Non-unit triangular
-void sym_matrix_mult(double* A, double* B, double* C, long* dim, double* scale)
+void sym_matrix_mult(double* A, double* B, double* C, int64_t* dim, double* scale)
 {
 #ifdef ENABLE_BLAS
   char side = 'L'; // alpha*A*B
   char uplo = 'L'; // Lower triangular
   
-  long   m     = dim[0];
-  long   n     = dim[1];
+  int64_t   m     = dim[0];
+  int64_t   n     = dim[1];
   double alpha = scale[0];
   double beta  = scale[1];
 #if defined(__bgp__)
@@ -1350,14 +1350,14 @@ void sym_matrix_mult(double* A, double* B, double* C, long* dim, double* scale)
 #endif
 }
 
-void matrix_sym_mult(double* B, double* A, double* C, long* dim, double* scale)
+void matrix_sym_mult(double* B, double* A, double* C, int64_t* dim, double* scale)
 {
 #ifdef ENABLE_BLAS
   char side = 'R'; // alpha*B*A
   char uplo = 'L'; // Lower triangular
   
-  long   m     = dim[0];
-  long   n     = dim[1];
+  int64_t   m     = dim[0];
+  int64_t   n     = dim[1];
   double alpha = scale[0];
   double beta  = scale[1];
 #if defined(__bgp__)
@@ -1383,7 +1383,7 @@ void matrix_sym_mult(double* B, double* A, double* C, long* dim, double* scale)
 
 //-------------------------------------------------------
 // B := alpha*op( A )*B, A is lower-non-unit triangular
-void tri_matrix_mult(double* A, double* B, long* dim, int tranA)
+void tri_matrix_mult(double* A, double* B, int64_t* dim, int tranA)
 {
 #ifdef ENABLE_BLAS
   char side = 'L'; //alpha * op(A) * B;
@@ -1391,10 +1391,10 @@ void tri_matrix_mult(double* A, double* B, long* dim, int tranA)
   char diag = 'N'; //Non-unit triagnular
   char tran = (tranA)?'T':'N';
   double alpha = 1.0;
-  long m = dim[0]; //Rows of B
-  long n = dim[1]; //Columns of B
-  long lda = m;
-  long ldb = n;
+  int64_t m = dim[0]; //Rows of B
+  int64_t n = dim[1]; //Columns of B
+  int64_t lda = m;
+  int64_t ldb = n;
 #if defined(__bgp__)
   dtrmm(&side, &uplo, &tran, &diag,
 		 &m, &n, &alpha, A, &lda, B, &ldb);
@@ -1410,7 +1410,7 @@ void tri_matrix_mult(double* A, double* B, long* dim, int tranA)
 #endif
 }
 // B := alpha*A*op( B ), B is lower-non-unit triangular
-void matrix_tri_mult(double* B, double* A, long* dim, int tranB)
+void matrix_tri_mult(double* B, double* A, int64_t* dim, int tranB)
 {
 #ifdef ENABLE_BLAS
   char side = 'R'; //alpha * A * op(B);
@@ -1418,10 +1418,10 @@ void matrix_tri_mult(double* B, double* A, long* dim, int tranB)
   char diag = 'N'; //Non-unit triagnular
   char tTri = (tranB)?'T':'N';
   double alpha = 1.0;
-  long m = dim[0]; //Rows of B
-  long n = dim[1]; //Columns of B
-  long lda = n;
-  long ldb = m;
+  int64_t m = dim[0]; //Rows of B
+  int64_t n = dim[1]; //Columns of B
+  int64_t lda = n;
+  int64_t ldb = m;
 #if defined(__bgp__)
   dtrmm(&side, &uplo, &tTri, &diag,
 		 &m, &n, &alpha, A, &lda, B, &ldb);
@@ -1440,15 +1440,15 @@ void matrix_tri_mult(double* B, double* A, long* dim, int tranB)
 //------------------------------------------------------------------------
 // Solve a lower-triangular, non unit-diagonal triangular matrix equation
 // A*x = b
-void tri_vector_solve(double* A, double* bx, long* dim, int tranA)
+void tri_vector_solve(double* A, double* bx, int64_t* dim, int tranA)
 {
 #ifdef ENABLE_BLAS
   char uplo = dim[2]?'U':'L';
   char trans= (tranA)?'T':'N';
   char diag = 'N';
-  long incx = 1;
-  long m = dim[0]; // Leading dimension of A, must be number of rows in A
-  long n = dim[1]; // Order of matrix A, must be number of columns in A
+  int64_t incx = 1;
+  int64_t m = dim[0]; // Leading dimension of A, must be number of rows in A
+  int64_t n = dim[1]; // Order of matrix A, must be number of columns in A
 #if defined(__bgp__)
   dtrsv(&uplo,  &trans, &diag,
 		 &n, A,  &m,
@@ -1466,17 +1466,17 @@ void tri_vector_solve(double* A, double* bx, long* dim, int tranA)
 #endif
 }
 
-void tri_matrix_solve(double* A, double* BX, long* dim, int tranA)
+void tri_matrix_solve(double* A, double* BX, int64_t* dim, int tranA)
 {
 #ifdef ENABLE_BLAS
 	char side = 'L'; //op(A) X = B
 	char uplo = dim[2]?'U':'L';
 	char trans= (tranA)?'T':'N';
 	char diag = 'N';
-	long m   = dim[0]; //number of rows in B
-	long n   = dim[1]; //number of column in B
-	long lda = m;      //first dimension of A
-	long ldb = m;      //first dimension of B
+	int64_t m   = dim[0]; //number of rows in B
+	int64_t n   = dim[1]; //number of column in B
+	int64_t lda = m;      //first dimension of A
+	int64_t ldb = m;      //first dimension of B
 	double alpha = 1.0;
 #if defined(__bgp__)
 	dtrsm(&side, &uplo, &trans, &diag,
@@ -1485,9 +1485,9 @@ void tri_matrix_solve(double* A, double* BX, long* dim, int tranA)
 	dtrsm_(&side, &uplo, &trans, &diag,
 		   &m, &n, &alpha, A, &lda, BX, &ldb);
 #endif
-//void dtrsm_(char* side, char* uplo, char* transA, char* diag, long* M, long* N,
-//			  double* alpha, double* A, long* lda,
-//			  double* B, long* ldb);
+//void dtrsm_(char* side, char* uplo, char* transA, char* diag, int64_t* M, int64_t* N,
+//			  double* alpha, double* A, int64_t* lda,
+//			  double* B, int64_t* ldb);
 #else
   printf("BLAS is not added in GML build.\n");
   printf("Uncomment the line: add_blas = yes in system_setting.mk, and make sure blas lib and path names are correct\n");
@@ -1497,17 +1497,17 @@ void tri_matrix_solve(double* A, double* BX, long* dim, int tranA)
 }
 
 
-void matrix_tri_solve(double* BX, double* A, long* dim, int tranA)
+void matrix_tri_solve(double* BX, double* A, int64_t* dim, int tranA)
 {
 #ifdef ENABLE_BLAS
 	char side = 'R'; //X op(A) = B
 	char uplo = dim[2]?'U':'L';
 	char trans= (tranA)?'T':'N';
 	char diag = 'N';
-	long m   = dim[0]; //number of rows in B
-	long n   = dim[1]; //number of column in B
-	long lda = m;      //first dimension of A
-	long ldb = n;      //first dimension of B
+	int64_t m   = dim[0]; //number of rows in B
+	int64_t n   = dim[1]; //number of column in B
+	int64_t lda = m;      //first dimension of A
+	int64_t ldb = n;      //first dimension of B
 	double alpha = 1.0;
 #if defined(__bgp__)
 	dtrsm(&side, &uplo, &trans, &diag,
@@ -1516,9 +1516,9 @@ void matrix_tri_solve(double* BX, double* A, long* dim, int tranA)
 	dtrsm_(&side, &uplo, &trans, &diag,
 		   &m, &n, &alpha, A, &lda, BX, &ldb);
 #endif
-//void dtrsm_(char* side, char* uplo, char* transA, char* diag, long* M, long* N,
-//			  double* alpha, double* A, long* lda,
-//			  double* B, long* ldb);
+//void dtrsm_(char* side, char* uplo, char* transA, char* diag, int64_t* M, int64_t* N,
+//			  double* alpha, double* A, int64_t* lda,
+//			  double* B, int64_t* ldb);
 #else
   printf("BLAS is not added in GML build.\n");
   printf("Uncomment the line: add_blas = yes in system_setting.mk, and make sure blas lib and path names are correct\n");
@@ -1535,8 +1535,8 @@ void matrix_tri_solve(double* BX, double* A, long* dim, int tranA)
 /*   char   transA = 'N'; */
 /*   double alpha = 1.0; */
 /*   double beta  = 0.0; */
-/*   long incx = 1; */
-/*   long incy = 1; */
+/*   int64_t incx = 1; */
+/*   int64_t incy = 1; */
 
 /*   dgemv_(&transA, &m, &n, */
 /* 		 &alpha, A, &m, */
@@ -1549,9 +1549,9 @@ void matrix_tri_solve(double* BX, double* A, long* dim, int tranA)
 // Other tools
 //------------------------------------------------------------------------
 
-void print_matrix_data(double* M, long m, long n) 
+void print_matrix_data(double* M, int64_t m, int64_t n) 
 {
-  long r, c;
+  int64_t r, c;
   printf("Matrix %ld x %ld:\n", m, n);
   for (r=0; r<m; r++)
 	{
@@ -1561,23 +1561,23 @@ void print_matrix_data(double* M, long m, long n)
 	}
 }
 //
-void print_matrix(char* st, double* M, long m, long n) 
+void print_matrix(char* st, double* M, int64_t m, int64_t n) 
 {
   printf("%s", st);
   print_matrix_data(M, m, n);
 }
 //------------------------------------------------------------------------
-void c_mat_mat_mult(double* A, double* B, double* C, long M, long N, long K)
+void c_mat_mat_mult(double* A, double* B, double* C, int64_t M, int64_t N, int64_t K)
 {
-  long r, c, k;
+  int64_t r, c, k;
  
   for (r=0; r<M; r++)
 	{
-	  long idx_2 =0;
+	  int64_t idx_2 =0;
 	  for (c=0; c<N; c++) 
 		{
 		  double v = 0.0;
-		  long idx_1 = r;
+		  int64_t idx_1 = r;
 
 		  for (k=0; k<K; k++) 
 			{
