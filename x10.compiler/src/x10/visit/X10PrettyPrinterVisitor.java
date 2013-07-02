@@ -488,24 +488,22 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 
     @Override
     public void visit(X10ClassDecl_c n) {
+        X10ClassDef def = n.classDef();
         X10CContext_c context = (X10CContext_c) tr.context();
 
         // class name and source file name is different. this is the case when StringHelper is defined in String.x10.
-        if (n.classDef().isTopLevel() && !n.classDef().sourceFile().name().equals(n.classDef().name().toString() + ".x10")
-                && !context.containsGeneratedClasses(n.classDef())) {
-            context.addGeneratedClasses(n.classDef());
+        if (def.isTopLevel() && !def.sourceFile().name().equals(def.name().toString() + ".x10")
+                && !context.containsGeneratedClasses(def)) {
+            context.addGeneratedClasses(def);
             // not include import
             SourceFile sf = tr.nodeFactory().SourceFile(n.position(), Collections.<TopLevelDecl> singletonList(n));
-            if (n.classDef().package_() != null) {
-                sf = sf.package_(tr.nodeFactory().PackageNode(n.position(), n.classDef().package_()));
+            if (def.package_() != null) {
+                sf = sf.package_(tr.nodeFactory().PackageNode(n.position(), def.package_()));
             }
-            sf = sf.source(new Source(n.classDef().name().toString() + ".x10", n.position().path(), null));
+            sf = sf.source(new Source(def.name().toString() + ".x10", n.position().path(), null));
             tr.translate(sf);
             return;
         }
-
-        TypeSystem xts = tr.typeSystem();
-        X10ClassDef def = n.classDef();
 
         // Do not generate code if the class is represented natively.
         if (Emitter.getJavaRep(def) != null) {
@@ -513,6 +511,10 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
             w.newline();
             return;
         }
+
+        TypeSystem xts = tr.typeSystem();
+    	String mangledDefName = Emitter.mangleToJava(def.name());
+    	String mangledDefQName = Emitter.mangleQName(def.asType().fullName()).toString();
 
         Flags flags = n.flags().flags();
 
@@ -665,7 +667,7 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
             
             if (!config.NO_TRACES && !config.OPTIMIZE) {
                 w.write("if (" + X10_RUNTIME_IMPL_JAVA_RUNTIME + ".TRACE_SER) { ");
-                w.write(X10_RUNTIME_IMPL_JAVA_RUNTIME + ".printTraceMessage(\"X10JavaSerializable for Hadoop Writable: " + Emitter.DESERIALIZE_BODY_METHOD + "() of \" + "  + Emitter.mangleToJava(def.name()) + ".class + \" calling\"); ");
+                w.write(X10_RUNTIME_IMPL_JAVA_RUNTIME + ".printTraceMessage(\"X10JavaSerializable for Hadoop Writable: " + Emitter.DESERIALIZE_BODY_METHOD + "() of \" + "  + mangledDefName + ".class + \" calling\"); ");
                 w.writeln("} ");
             }
             
@@ -682,8 +684,8 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
             w.writeln("public static " + Emitter.X10_JAVA_SERIALIZABLE_CLASS + " " + Emitter.DESERIALIZER_METHOD + "(" + Emitter.X10_JAVA_DESERIALIZER_CLASS + " $deserializer) throws java.io.IOException {");
             w.newline(4);
             w.begin(0);
-            w.write(Emitter.mangleToJava(def.name()) + " $_obj = (" + Emitter.mangleToJava(def.name()) + ") ");
-            w.writeln("new " + Emitter.mangleToJava(def.name()) + "();");
+            w.write(mangledDefQName + " $_obj = (" + mangledDefQName + ") ");
+            w.writeln("new " + mangledDefQName + "();");
             w.writeln("return " + Emitter.DESERIALIZE_BODY_METHOD + "($_obj, $deserializer);");
             w.end();
             w.newline();
@@ -732,7 +734,7 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 
                 if (!config.NO_TRACES && !config.OPTIMIZE) {
                     w.write("if (" + X10_RUNTIME_IMPL_JAVA_RUNTIME + ".TRACE_SER) { ");
-                    w.write(X10_RUNTIME_IMPL_JAVA_RUNTIME + ".printTraceMessage(\"X10JavaSerializable: " + Emitter.DESERIALIZE_BODY_METHOD + "() of \" + "  + Emitter.mangleToJava(def.name()) + ".class + \" calling\"); ");
+                    w.write(X10_RUNTIME_IMPL_JAVA_RUNTIME + ".printTraceMessage(\"X10JavaSerializable: " + Emitter.DESERIALIZE_BODY_METHOD + "() of \" + "  + mangledDefName + ".class + \" calling\"); ");
                     w.writeln("} ");
                 }
 
@@ -749,9 +751,8 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
                 }
 
                 // Deserialize the public variables of this class , we do not serialize transient or static variables
-                String str;
-                QName fullName;
                     for (int i = 0; i < ct.fields().size(); i++) {
+                        String str;
                         FieldInstance f = ct.fields().get(i);
                         if (f instanceof X10FieldInstance && !query.ifdef(((X10FieldInstance) f).x10Def())) continue;
                         if (f.flags().isStatic() || query.isSyntheticField(f.name().toString()))
@@ -823,8 +824,8 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
                 } else {
                     if (def.isStruct()) {
                         //TODO Keith get rid of this
-                        if (!Emitter.mangleToJava(def.name()).equals("PlaceLocalHandle")) {
-                            w.write(Emitter.mangleToJava(def.name()) + " $_obj = new " + Emitter.mangleToJava(def.name()) + "((" + CONSTRUCTOR_FOR_ALLOCATION_DUMMY_PARAM_TYPE + ") null");
+                        if (!mangledDefName.equals("PlaceLocalHandle")) {
+                            w.write(mangledDefQName + " $_obj = new " + mangledDefQName + "((" + CONSTRUCTOR_FOR_ALLOCATION_DUMMY_PARAM_TYPE + ") null");
                             // N.B. in custom deserializer, initialize type params with null
                             for (ParameterType typeParam : def.typeParameters()) {
                                 w.write(", (" + X10_RTT_TYPE + ") null");
@@ -832,20 +833,20 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
                             w.write(");");
                             w.newline();
                         } else {
-                            w.writeln(Emitter.mangleToJava(def.name()) + " $_obj = new " + Emitter.mangleToJava(def.name()) + "(null, (" + CONSTRUCTOR_FOR_ZERO_VALUE_DUMMY_PARAM_TYPE + ") null);");
+                            w.writeln(mangledDefQName + " $_obj = new " + mangledDefQName + "(null, (" + CONSTRUCTOR_FOR_ZERO_VALUE_DUMMY_PARAM_TYPE + ") null);");
                         }
                     } else {
                         if (def.flags().isAbstract()) {
-                            w.write(Emitter.mangleToJava(def.name()) + " $_obj = (" + Emitter.mangleToJava(def.name()) + ") ");
+                            w.write(mangledDefQName + " $_obj = (" + mangledDefQName + ") ");
                             if (generateFactoryMethod) {
-                                w.write(Emitter.mangleToJava(def.name()) + "." + CREATION_METHOD_NAME);
+                                w.write(mangledDefQName + "." + CREATION_METHOD_NAME);
                             } else {
                                 assert generateOnePhaseConstructor;
-                                w.write("new " + Emitter.mangleToJava(def.name()));
+                                w.write("new " + mangledDefQName);
                             }
                             w.writeln("();");
                         } else {
-                            w.write(Emitter.mangleToJava(def.name()) + " $_obj = new " + Emitter.mangleToJava(def.name()) + "(");
+                            w.write(mangledDefQName + " $_obj = new " + mangledDefQName + "(");
                             if (supportConstructorSplitting
                                 // XTENLANG-2830
                                 /*&& !ConstructorSplitterVisitor.isUnsplittable(Types.baseType(def.asType()))*/
@@ -945,7 +946,7 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
             && !def.flags().isInterface()) {
             w.write("// constructor just for allocation");
             w.newline();
-            w.write("public " + Emitter.mangleToJava(def.name()) + "(final " + CONSTRUCTOR_FOR_ALLOCATION_DUMMY_PARAM_TYPE + " $dummy");
+            w.write("public " + mangledDefName + "(final " + CONSTRUCTOR_FOR_ALLOCATION_DUMMY_PARAM_TYPE + " $dummy");
             List<String> params = new ArrayList<String>();
             for (ParameterType p : def.typeParameters()) {
                 String param = Emitter.mangleParameterType(p);
