@@ -8,3 +8,13 @@ For Native X10:
 x10c++ ResilientMontePiPlaceZero.x10
 X10_NPLACES=4 ./run.sh a.out
 
+----
+How to compile and run ResilientKMeans.x10
+
+For Managed X10:
+x10 ResilientKMeans.x10
+X10_RESILIENT_PLACE_ZERO=1 X10_NPLACES=4 run.sh x10 ResilientKMeans [num_points] [num_clusters]
+
+For Native X10:
+x10c++ ResilientKMeans.x10 -o ResilientKMeans
+X10_RESILIENT_PLACE_ZERO=1 X10_NPLACES=4 run.sh runx10 ResilientKMeans [num_points] [num_clusters]
