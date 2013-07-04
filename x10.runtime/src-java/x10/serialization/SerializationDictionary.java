@@ -14,12 +14,14 @@ package x10.serialization;
 import java.io.ByteArrayOutputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
+import java.lang.reflect.Method;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.concurrent.ConcurrentHashMap;
 
 import x10.rtt.RuntimeType;
+import x10.runtime.impl.java.Runtime;
 
 /**
  * Used during serialization to maintain a mapping from Class to id.
@@ -56,6 +58,39 @@ abstract class SerializationDictionary implements SerializationConstants {
             String name = es.getKey().getName();
             dos.writeInt(name.length());
             dos.write(name.getBytes());
+            if (Runtime.OSGI) {
+            	// Standard version
+//            	org.osgi.framework.Bundle bundle = org.osgi.framework.FrameworkUtil.getBundle(es.getKey());
+//            	assert bundle != null;
+//            	String bundleName = bundle.getSymbolicName();
+//            	dos.writeInt(bundleName.length());
+//            	dos.write(bundleName.getBytes());
+//            	String bundleVersion = bundle.getVersion().toString();
+//            	dos.writeInt(bundleVersion.length());
+//            	dos.write(bundleVersion.getBytes());
+            	// Reflection version
+        		try {
+					Class<?> FrameworkUtilClass = Class.forName("org.osgi.framework.FrameworkUtil");
+					Method getBundleMethod = FrameworkUtilClass.getDeclaredMethod("getBundle", Class.class);
+					Object/*Bundle*/ bundle = getBundleMethod.invoke(null, es.getKey());
+	            	assert bundle != null;
+					Class<?> BundleClass = Class.forName("org.osgi.framework.Bundle");
+					
+					Method getSymbolicNameMethod = BundleClass.getDeclaredMethod("getSymbolicName");
+					String bundleName = (String) getSymbolicNameMethod.invoke(bundle);
+					dos.writeInt(bundleName.length());
+					dos.write(bundleName.getBytes());
+					
+					Method getVersionMethod = BundleClass.getDeclaredMethod("getVersion");
+					String bundleVersion = getVersionMethod.invoke(bundle).toString();
+					dos.writeInt(bundleVersion.length());
+					dos.write(bundleVersion.getBytes());
+				} catch (Exception e) {
+					if (e instanceof IOException) throw (IOException) e;
+					e.printStackTrace();
+					throw new IOException(e);
+				}
+            }
         }
         dos.close();
 

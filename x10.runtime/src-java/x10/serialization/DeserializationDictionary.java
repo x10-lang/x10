@@ -28,10 +28,80 @@ abstract class DeserializationDictionary implements SerializationConstants {
         this.idsToClass = cMap;
     }
 
+    // non OSGI environment
+    Class<?> loadClass(String name) throws ClassNotFoundException {
+    	assert !Runtime.OSGI;
+        if (Runtime.TRACE_SER) Runtime.printTraceMessage("DeserializationDictionary.loadClass: loading "+name);
+        return Class.forName(name);
+    }
+
     void addEntry(short id, String name) {
         Class<?> clazz;
         try {
-            clazz = Class.forName(name);
+            clazz = loadClass(name);
+        } catch (ClassNotFoundException e) {
+            String msg = "DeserializationDictionary.addEntry: failed to load class "+name;
+            if (Runtime.TRACE_SER) Runtime.printTraceMessage(msg);
+            throw new RuntimeException(msg, e);
+        }
+        addEntry(Short.valueOf(id), clazz);
+    }
+
+    // OSGI environment
+    Class<?> loadClass(String name, String bundleName, String bundleVersion) throws ClassNotFoundException {
+    	assert Runtime.OSGI;
+    	
+    	// Standard version
+//    	org.osgi.framework.Bundle _bundle = org.osgi.framework.FrameworkUtil.getBundle(this.getClass());
+//    	assert _bundle != null;
+//    	org.osgi.framework.Bundle[] bundles = _bundle.getBundleContext().getBundles();
+//        
+//    	for (org.osgi.framework.Bundle bundle : bundles) {
+//    		if (bundleName.equals(bundle.getSymbolicName()) && bundleVersion.equals(bundle.getVersion().toString())) {
+//                if (Runtime.TRACE_SER) Runtime.printTraceMessage("DeserializationDictionary.loadClass: loading "+name+" with bundle "+bundle);
+//    			return bundle.loadClass(name);
+//    		}
+//    	}
+    	// Reflection version
+		try {
+			Class<?> FrameworkUtilClass = Class.forName("org.osgi.framework.FrameworkUtil");
+			Method getBundleMethod = FrameworkUtilClass.getDeclaredMethod("getBundle", Class.class);
+			Object/*Bundle*/ _bundle = getBundleMethod.invoke(null, this.getClass());
+        	assert _bundle != null;
+			Class<?> BundleClass = Class.forName("org.osgi.framework.Bundle");
+			Method getBundleContextMethod = BundleClass.getDeclaredMethod("getBundleContext");
+			Object/*BundleContext*/ bundleContext = getBundleContextMethod.invoke(_bundle);
+			Class<?> BundleContextClass = Class.forName("org.osgi.framework.BundleContext");
+			Method getBundlesMethod = BundleContextClass.getDeclaredMethod("getBundles");
+			Object/*Bundle*/[] bundles = (Object[]) getBundlesMethod.invoke(bundleContext);
+			
+			Method getSymbolicNameMethod = BundleClass.getDeclaredMethod("getSymbolicName");
+			Method getVersionMethod = BundleClass.getDeclaredMethod("getVersion");
+			for (Object/*Bundle*/ bundle : bundles) {
+				String bundleName_ = (String) getSymbolicNameMethod.invoke(bundle);
+				String bundleVersion_ = getVersionMethod.invoke(bundle).toString();
+	    		if (bundleName.equals(bundleName_) && bundleVersion.equals(bundleVersion_)) {
+	                if (Runtime.TRACE_SER) Runtime.printTraceMessage("DeserializationDictionary.loadClass: loading "+name+" with bundle "+bundle);
+	    			Method loadClassMethod = BundleClass.getDeclaredMethod("loadClass", String.class);
+	    			return (Class<?>) loadClassMethod.invoke(bundle, name);
+	    		}
+			}
+		} catch (Exception e) {
+			if (e instanceof ClassNotFoundException) throw (ClassNotFoundException) e;
+			e.printStackTrace();
+			throw new ClassNotFoundException(e.getMessage(), e);
+		}
+		
+    	
+    	String msg = "Cannot find bundle "+bundleName+" "+bundleVersion+" for loading class "+name;
+    	throw new ClassNotFoundException(msg);
+//        return Class.forName(name);
+    }
+
+    void addEntry(short id, String name, String bundleName, String bundleVersion) {
+        Class<?> clazz;
+        try {
+            clazz = loadClass(name, bundleName, bundleVersion);
         } catch (ClassNotFoundException e) {
             String msg = "DeserializationDictionary.addEntry: failed to load class "+name;
             if (Runtime.TRACE_SER) Runtime.printTraceMessage(msg);
@@ -76,17 +146,23 @@ abstract class DeserializationDictionary implements SerializationConstants {
             return clazz;
         }
 
-        @Override
-        Method getMethod(short sid) {
-            Method m = super.getMethod(sid);
-            // Note: it is valid for m to be null when sid doesn't implement X10JavaSerializable. So no assert here.
-            return m;
-        }
+//        @Override
+//        Method getMethod(short sid) {
+//            Method m = super.getMethod(sid);
+//            // Note: it is valid for m to be null when sid doesn't implement X10JavaSerializable. So no assert here.
+//            return m;
+//        }
 
         @Override
         void addEntry(short id, String name) {
             assert id >= FIRST_SHARED_ID && id < FIRST_DYNAMIC_ID : "invalid id in addEntry of master dictionary" + id;
             super.addEntry(id, name);
+        }
+
+        @Override
+        void addEntry(short id, String name, String bundleName, String bundleVersion) {
+            assert id >= FIRST_SHARED_ID && id < FIRST_DYNAMIC_ID : "invalid id in addEntry of master dictionary" + id;
+            super.addEntry(id, name, bundleName, bundleVersion);
         }
     }
 
@@ -109,10 +185,19 @@ abstract class DeserializationDictionary implements SerializationConstants {
                 for (short i=0; i<numEntries; i++) {
                     short id = jds.readShort();
                     String name = jds.readStringValue();
-                    if (Runtime.TRACE_SER) {
-                        Runtime.printTraceMessage("\tserialization id: "+id+" = "+name);                
+                    if (Runtime.OSGI) {
+                    	String bundleName = jds.readStringValue();
+                    	String bundleVersion = jds.readStringValue();
+                    	if (Runtime.TRACE_SER) {
+                    		Runtime.printTraceMessage("\tserialization id: "+id+" = "+name+", bundle = "+bundleName+" "+bundleVersion);                
+                    	}
+                    	addEntry(id, name, bundleName, bundleVersion);
+                    } else {
+                    	if (Runtime.TRACE_SER) {
+                    		Runtime.printTraceMessage("\tserialization id: "+id+" = "+name);                
+                    	}
+                    	addEntry(id, name);
                     }
-                    addEntry(id, name);
                 }
             } catch (IOException e) {
                 throw new RuntimeException("Failure while reading message dictionary", e);
@@ -137,7 +222,8 @@ abstract class DeserializationDictionary implements SerializationConstants {
         
         }
 
-        Class<?> getClassForID(short sid) {
+		@Override
+		Class<?> getClassForID(short sid) {
             if (sid < FIRST_DYNAMIC_ID) {
                 return shared.getClassForID(sid);
             }
@@ -146,6 +232,7 @@ abstract class DeserializationDictionary implements SerializationConstants {
             return clazz;
         }
 
+        @Override
         Method getMethod(short sid) {
             if (sid < FIRST_DYNAMIC_ID) {
                 return shared.getMethod(sid);

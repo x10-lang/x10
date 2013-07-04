@@ -517,4 +517,10 @@ public abstract class Runtime implements x10.core.fun.VoidFun_0_0 {
      */
     public static final long PROF_SER_FILTER = 1000 * 1000 * Long.getLong("x10.PROF_SER_FILTER", 10);
 
+
+    /**
+     * Enable OSGI framework support.
+     */
+    public static final boolean OSGI = Boolean.getBoolean("X10_OSGI");
+
 }
