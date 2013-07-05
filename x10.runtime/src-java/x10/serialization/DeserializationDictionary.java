@@ -92,16 +92,18 @@ abstract class DeserializationDictionary implements SerializationConstants {
 					return (Class<?>) loadClassMethod.invoke(bundle, name);
 				}
 			}
+		} catch (RuntimeException e) {
+			throw e;
+		} catch (ClassNotFoundException e) {
+			throw e;
 		} catch (Exception e) {
-			if (e instanceof ClassNotFoundException) throw (ClassNotFoundException) e;
-			e.printStackTrace();
+//			e.printStackTrace();
 			throw new ClassNotFoundException(e.getMessage(), e);
 		}
 		
-    	
     	String msg = "Cannot find bundle "+bundleName+" "+bundleVersion+" for loading class "+name;
     	throw new ClassNotFoundException(msg);
-//        return Class.forName(name);
+//    	return Class.forName(name);
     }
 
     void addEntry(short id, String name, String bundleName, String bundleVersion) {

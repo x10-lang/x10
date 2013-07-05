@@ -88,10 +88,13 @@ abstract class SerializationDictionary implements SerializationConstants {
 					String bundleVersion = getVersionMethod.invoke(bundle).toString();
 					dos.writeInt(bundleVersion.length());
 					dos.write(bundleVersion.getBytes());
+        		} catch (RuntimeException e) {
+        			throw e;
+        		} catch (IOException e) {
+        			throw e;
 				} catch (Exception e) {
-					if (e instanceof IOException) throw (IOException) e;
-					e.printStackTrace();
-					throw new IOException(e);
+//					e.printStackTrace();
+					throw new IOException(e.getMessage(), e);
 				}
             }
         }
