@@ -72,16 +72,19 @@ abstract class SerializationDictionary implements SerializationConstants {
         		try {
 					Class<?> FrameworkUtilClass = Class.forName("org.osgi.framework.FrameworkUtil");
 					Method getBundleMethod = FrameworkUtilClass.getDeclaredMethod("getBundle", Class.class);
+					getBundleMethod.setAccessible(true);
 					Object/*Bundle*/ bundle = getBundleMethod.invoke(null, es.getKey());
-	            	assert bundle != null;
+					assert bundle != null;
 					Class<?> BundleClass = Class.forName("org.osgi.framework.Bundle");
 					
 					Method getSymbolicNameMethod = BundleClass.getDeclaredMethod("getSymbolicName");
+					getSymbolicNameMethod.setAccessible(true);
 					String bundleName = (String) getSymbolicNameMethod.invoke(bundle);
 					dos.writeInt(bundleName.length());
 					dos.write(bundleName.getBytes());
 					
 					Method getVersionMethod = BundleClass.getDeclaredMethod("getVersion");
+					getVersionMethod.setAccessible(true);
 					String bundleVersion = getVersionMethod.invoke(bundle).toString();
 					dos.writeInt(bundleVersion.length());
 					dos.write(bundleVersion.getBytes());

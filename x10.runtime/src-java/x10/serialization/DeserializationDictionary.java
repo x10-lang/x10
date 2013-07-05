@@ -66,25 +66,31 @@ abstract class DeserializationDictionary implements SerializationConstants {
 		try {
 			Class<?> FrameworkUtilClass = Class.forName("org.osgi.framework.FrameworkUtil");
 			Method getBundleMethod = FrameworkUtilClass.getDeclaredMethod("getBundle", Class.class);
+			getBundleMethod.setAccessible(true);
 			Object/*Bundle*/ _bundle = getBundleMethod.invoke(null, this.getClass());
-        	assert _bundle != null;
+			assert _bundle != null;
 			Class<?> BundleClass = Class.forName("org.osgi.framework.Bundle");
 			Method getBundleContextMethod = BundleClass.getDeclaredMethod("getBundleContext");
+			getBundleContextMethod.setAccessible(true);
 			Object/*BundleContext*/ bundleContext = getBundleContextMethod.invoke(_bundle);
 			Class<?> BundleContextClass = Class.forName("org.osgi.framework.BundleContext");
 			Method getBundlesMethod = BundleContextClass.getDeclaredMethod("getBundles");
+			getBundlesMethod.setAccessible(true);
 			Object/*Bundle*/[] bundles = (Object[]) getBundlesMethod.invoke(bundleContext);
 			
 			Method getSymbolicNameMethod = BundleClass.getDeclaredMethod("getSymbolicName");
+			getSymbolicNameMethod.setAccessible(true);
 			Method getVersionMethod = BundleClass.getDeclaredMethod("getVersion");
+			getVersionMethod.setAccessible(true);
 			for (Object/*Bundle*/ bundle : bundles) {
 				String bundleName_ = (String) getSymbolicNameMethod.invoke(bundle);
 				String bundleVersion_ = getVersionMethod.invoke(bundle).toString();
-	    		if (bundleName.equals(bundleName_) && bundleVersion.equals(bundleVersion_)) {
-	                if (Runtime.TRACE_SER) Runtime.printTraceMessage("DeserializationDictionary.loadClass: loading "+name+" with bundle "+bundle);
-	    			Method loadClassMethod = BundleClass.getDeclaredMethod("loadClass", String.class);
-	    			return (Class<?>) loadClassMethod.invoke(bundle, name);
-	    		}
+				if (bundleName.equals(bundleName_) && bundleVersion.equals(bundleVersion_)) {
+					if (Runtime.TRACE_SER) Runtime.printTraceMessage("DeserializationDictionary.loadClass: loading "+name+" with bundle "+bundle);
+					Method loadClassMethod = BundleClass.getDeclaredMethod("loadClass", String.class);
+					loadClassMethod.setAccessible(true);
+					return (Class<?>) loadClassMethod.invoke(bundle, name);
+				}
 			}
 		} catch (Exception e) {
 			if (e instanceof ClassNotFoundException) throw (ClassNotFoundException) e;
