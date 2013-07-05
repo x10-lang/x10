@@ -46,9 +46,7 @@ public final class Array_2[T] (
     public def this(m:Long, n:Long, init:T) {
         super(m*n, false);
         property(m, n);
-        for (i in raw.range()) {
-            raw(i) = init;
-        }
+        raw.fill(init);
     }
 
     /**

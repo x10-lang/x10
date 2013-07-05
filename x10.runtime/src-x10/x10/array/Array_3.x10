@@ -53,9 +53,7 @@ public final class Array_3[T] (
     public def this(m:Long, n:Long, p:Long, init:T) {
         super(m*n*p, false);
         property(m, n, p);
-        for (i in raw.range()) {
-            raw(i) = init;
-        }
+        raw.fill(init);
     }
 
     /**

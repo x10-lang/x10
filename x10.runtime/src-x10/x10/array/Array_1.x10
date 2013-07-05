@@ -32,9 +32,7 @@ public final class Array_1[T] extends Array[T]{this.rank()==1} implements (Long)
      */
     public def this(n:Long, init:T) {
         super(n, false);
-        for (i in raw.range()) {
-            raw(i) = init;
-        }
+        raw.fill(init);
     }
 
     /**
