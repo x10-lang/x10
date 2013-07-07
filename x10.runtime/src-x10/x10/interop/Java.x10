@@ -43,7 +43,43 @@ public class Java {
     public static native def newArray[T](d0:Int, d1:Int, d2:Int):array[array[array[T]{self.length==d2}]{self.length==d1}]{self.length==d0};
     @Native("java", "(#T[][][][])#T$rtt.makeArray(#d0,#d1,#d2,#d3)")
     public static native def newArray[T](d0:Int, d1:Int, d2:Int, d3:Int):array[array[array[array[T]{self.length==d3}]{self.length==d2}]{self.length==d1}]{self.length==d0};
-    
+
+    // To byte array
+    @Native("java", "new byte[] { (byte)(#v?1:0) }")
+    public static native def toBytes(v:Boolean):array[Byte]{self.length==1};
+    @Native("java", "new byte[] { (byte)(#v>>>8), (byte)(#v) }")
+    public static native def toBytes(v:Char):array[Byte]{self.length==2};
+    @Native("java", "new byte[] { #v }")
+    public static native def toBytes(v:Byte):array[Byte]{self.length==1};
+    @Native("java", "new byte[] { (byte)(#v>>>8), (byte)(#v) }")
+    public static native def toBytes(v:Short):array[Byte]{self.length==2};
+    @Native("java", "new byte[] { (byte)(#v>>>24), (byte)(#v>>>16), (byte)(#v>>>8), (byte)(#v) }")
+    public static native def toBytes(v:Int):array[Byte]{self.length==4};
+    @Native("java", "new byte[] { (byte)(#v>>>56), (byte)(#v>>>48), (byte)(#v>>>40), (byte)(#v>>>32), (byte)(#v>>>24), (byte)(#v>>>16), (byte)(#v>>>8), (byte)(#v) }")
+    public static native def toBytes(v:Long):array[Byte]{self.length==8};
+    public static def toBytes(v:Float):array[Byte]{self.length==4} = toBytes(v.toIntBits());
+    public static def toBytes(v:Double):array[Byte]{self.length==8} = toBytes(v.toLongBits());
+    @Native("java", "#v.getBytes()")
+    public static native def toBytes(v:String):array[Byte]{self!=null};
+
+    // From byte array
+    @Native("java", "(#a[0]!=0)")
+    public static native def toBoolean(a:array[Byte]):Boolean;
+    @Native("java", "((char)( ((#a[0]&0xFF)<<8) | ((#a[1]&0xFF)<<0) ))")
+    public static native def toChar(a:array[Byte]):Char;
+    @Native("java", "(#a[0])")
+    public static native def toByte(a:array[Byte]):Byte;
+    @Native("java", "((short)( ((#a[0]&0xFF)<<8) | ((#a[1]&0xFF)<<0) ))")
+    public static native def toShort(a:array[Byte]):Short;
+    @Native("java", "(((#a[0]&0xFF)<<24)+((#a[1]&0xFF)<<16)+((#a[2]&0xFF)<<8)+((#a[3]&0xFF)<<0))")
+    public static native def toInt(a:array[Byte]):Int;
+    @Native("java", "(((#a[0]&0xFFL)<<56)+((#a[1]&0xFFL)<<48)+((#a[2]&0xFFL)<<40)+((#a[3]&0xFFL)<<32)+((#a[4]&0xFFL)<<24)+((#a[5]&0xFFL)<<16)+((#a[6]&0xFFL)<<8)+((#a[7]&0xFFL)<<0))")
+    public static native def toLong(a:array[Byte]):Long;
+    public static def toFloat(a:array[Byte]):Float = Float.fromIntBits(toInt(a));
+    public static def toDouble(a:array[Byte]):Double = Double.fromLongBits(toLong(a));
+    @Native("java", "new java.lang.String(#a)")
+    public static native def toString(a:array[Byte]):String{self!=null};
+
     // Java classes
     @Native("java", "#T$rtt.getJavaClass()")
     public static native def javaClass[T]():java.lang.Class;
