@@ -983,12 +983,12 @@ public final class Runtime {
      */
     @Native("c++", "x10aux::throwException(x10aux::nullCheck(#e))")
     @Native("java", "java.lang.Thread.currentThread().stop(#e)")
-    private static native def throwCheckedWithoutThrows (e:CheckedThrowable) : void;
+    static native def throwCheckedWithoutThrows (e:CheckedThrowable) : void;
 
     /**
      * Transparently wrap checked exceptions at the root of an at desugared closure, and unpack later.
      */
-    private static class AtCheckedWrapper extends Exception {
+    static class AtCheckedWrapper extends Exception {
         public def this(cause: CheckedThrowable) { super(cause); }
     }
 
@@ -1013,10 +1013,8 @@ public final class Runtime {
     //public static def pretendToThrow[T] () { T<: CheckedThrowable } : void throws T { }
     // work-around for XTENLANG-3086 is in CheckedThrowable.x10
 
-    /**
-     * Run at statement
-     */
-    public static def runAt(place:Place, body:()=>void, prof:Profile):void {
+    /** Run an at statement in non-resilient X10 by using a local latch. */
+    public static def runAtNonResilient(place:Place, body:()=>void, prof:Profile):void {
         Runtime.ensureNotInAtomic();
         if (place.id == hereLong()) {
             try {
@@ -1066,6 +1064,13 @@ public final class Runtime {
         if (null != me.e) {
             throwCheckedWithoutThrows(me.e);
         }
+    }
+
+    /**
+     * Run at statement
+     */
+    public static def runAt(place:Place, body:()=>void, prof:Profile):void {
+        activity().finishState().runAt(place, body, prof);
     }
 
     /*
@@ -1248,21 +1253,22 @@ public final class Runtime {
     }
 
     // finish
+    static def makeDefaultFinish():FinishState {
+        if (RESILIENT_PLACE_ZERO) {
+            return new FinishState.FinishResilientPlaceZero();
+        } else if (RESILIENT_ZOO_KEEPER) {
+            return new FinishState.FinishResilientZooKeeper();
+        } else {
+            return new FinishState.Finish();
+        }
+    }
 
     /**
      * Start executing current activity synchronously
      * (i.e. within a finish statement).
      */
     public static def startFinish():FinishState {
-        val f:FinishState;
-        if (RESILIENT_PLACE_ZERO) {
-            f = new FinishState.FinishResilientPlaceZero();
-        } else if (RESILIENT_ZOO_KEEPER) {
-            f = new FinishState.FinishResilientZooKeeper();
-        } else {
-            f = new FinishState.Finish();
-        }
-        return activity().swapFinish(f);
+        return activity().swapFinish(makeDefaultFinish());
     }
 
     public static def startFinish(pragma:Int):FinishState {
@@ -1283,7 +1289,7 @@ public final class Runtime {
         case Pragma.FINISH_RESILIENT_ZOO_KEEPER:
             f = new FinishState.FinishResilientZooKeeper(); break;
         default: 
-            return startFinish();
+            f = makeDefaultFinish();
         }
         return activity().swapFinish(f);
     }

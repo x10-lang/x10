@@ -18,7 +18,7 @@ public class ActivityManagement {
     public static FinishState activityCreationBookkeeping() {
         FinishState fs = x10.lang.Runtime.activity().finishState();
         fs.notifySubActivitySpawn(x10.lang.Runtime.home());
-        fs.notifyActivityCreation(x10.lang.Runtime.home());
+        fs.notifyActivityCreation$O(x10.lang.Runtime.home());
         return fs;
     }
 

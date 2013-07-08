@@ -22,19 +22,31 @@ public class ResilientStorePlaceZero {
     static me = new ResilientStorePlaceZero();
 
 
-    /** Simply utility function to send a message to place zero at the x10rt level. */
+    /** Simply utility function to send a message to place zero at the x10rt level.
+      * Propagates back the exception, if thrown.
+      */
     private static def lowLevelAt(cl:()=>void) {
         if (here.id == 0l) {
             cl();
         } else {
+            val exc = new GlobalRef(new Cell[Exception](null));
             val c = new GlobalRef(new AtomicBoolean());
             Runtime.x10rtSendMessage(0, () => @RemoteInvocation("low_level_at_out") {
-                cl();
+                try {
+                    cl();
+                } catch (t:Exception) {
+                    Runtime.x10rtSendMessage(c.home.id, () => @RemoteInvocation("low_level_at_back_exc") {
+                        // [DC] assume that the write barrier on c is enough to see update on exc
+                        exc.getLocalOrCopy()(t);
+                        c.getLocalOrCopy().getAndSet(true);
+                    }, null);
+                }
                 Runtime.x10rtSendMessage(c.home.id, () => @RemoteInvocation("low_level_at_back") {
                     c.getLocalOrCopy().getAndSet(true);
                 }, null);
             }, null);
             while (!c().get()) Runtime.probe();
+            if (exc()() != null) throw exc()();
         }
     }
 
@@ -95,12 +107,9 @@ public class ResilientStorePlaceZero {
         }
 
         def addDeadPlaceException(p:Place) {
-            // populate the stack trace
-            try {
-                throw new DeadPlaceException(p);
-            } catch (e:DeadPlaceException) {
-                ensureMultipleExceptions().add(e);
-            }
+            val e = new DeadPlaceException(p);
+            e.fillInStackTrace();
+            ensureMultipleExceptions().add(e);
         }
 
     }
@@ -140,6 +149,8 @@ public class ResilientStorePlaceZero {
             //Runtime.println("live("+dstId+") == "+fs.live(dstId));
             //Runtime.println("transit("+srcId+","+dstId+") == "+fs.transit(srcId + dstId*Place.MAX_PLACES));
         } });
+        // TODO: check dead status at place 0, if source dead, do not transition to live in that case and return false.
+        return true;
     }
 
     static def notifyActivityTermination(id:Long, dstId:Long) {
@@ -154,7 +165,7 @@ public class ResilientStorePlaceZero {
     static def pushException(id:Long, t:Exception) {
         lowLevelAt(() => { atomic {
             val fs = me.states(id);
-            Runtime.println("pushException("+id+", "+t+")");
+            //Runtime.println("pushException("+id+", "+t+")");
             fs.ensureMultipleExceptions().add(t);
         } });
     }
@@ -221,17 +232,20 @@ public class ResilientStorePlaceZero {
 
     static def waitForFinish(id:Long) {
         //Runtime.println("waitForFinish()");
-        lowLevelAt(() => {
-            val s : State;
-            atomic {
-                s = me.states(id);
-            }
-            when (me.quiescent(s)) { }
-            if (s.multipleExceptions != null) {
-                throw new MultipleExceptions(s.multipleExceptions);
-            }
-        });
-        //Runtime.println("waitForFinish() done waiting");
+        try {
+            lowLevelAt(() => {
+                val s : State;
+                atomic {
+                    s = me.states(id);
+                }
+                when (me.quiescent(s)) { }
+                if (s.multipleExceptions != null) {
+                    throw new MultipleExceptions(s.multipleExceptions);
+                }
+            });
+        } finally {
+            //Runtime.println("waitForFinish() done waiting");
+        }
     }
 }
 
