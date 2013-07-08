@@ -50,7 +50,7 @@ public class ResilientStorePlaceZero {
                     c.getLocalOrCopy().set(r);
                 }, null);
             }, null);
-            while (c().get()!=-1l) Runtime.probe();
+            while (c().get()==-1l) Runtime.probe();
             return c().get();
         }
     }
