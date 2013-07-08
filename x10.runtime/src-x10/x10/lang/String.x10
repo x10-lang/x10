@@ -150,7 +150,7 @@ public final class String implements Comparable[String] {
      *         whose contents are initialized to contain the Chars in this String.
      * @see #bytes()
      */
-    @Native("java", "new x10.core.Rail<x10.core.Char>(x10.rtt.Types.CHAR, (#this).toCharArray().length, (#this).toCharArray())")
+    @Native("java", "x10.runtime.impl.java.ArrayUtils.<x10.core.Char>makeRailFromJavaArray(x10.rtt.Types.CHAR, (#this).toCharArray())")
     @Native("c++", "(#this)->chars()")
     public native def chars():Rail[Char];
 
@@ -159,7 +159,7 @@ public final class String implements Comparable[String] {
      * @return the Rail of Bytes representing this String in the default charset.
      * @see #chars()
      */
-    @Native("java", "new x10.core.Rail<x10.core.Byte>(x10.rtt.Types.BYTE, (#this).getBytes().length, (#this).getBytes())")
+    @Native("java", "x10.runtime.impl.java.ArrayUtils.<x10.core.Byte>makeRailFromJavaArray(x10.rtt.Types.BYTE, (#this).getBytes())")
     @Native("c++", "(#this)->bytes()")
     public native def bytes():Rail[Byte];
 
