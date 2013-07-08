@@ -21,10 +21,20 @@ public abstract class ArrayUtils {
         return array;
     }
 
-    public static <T> x10.core.Rail<T> makeRailFromJavaArray(x10.rtt.Type type, java.lang.Object value) {
+    public static <T> x10.core.Rail<T> makeRailFromJavaArray(x10.rtt.Type type, java.lang.Object value, boolean copy) {
         int length = type.arrayLength(value);
-        x10.core.Rail<T> rail = new x10.core.Rail<T>(type, length);
-        java.lang.System.arraycopy(value, 0, rail.value, 0, length);
+        x10.core.Rail<T> rail;
+        if (copy) {
+            rail = new x10.core.Rail<T>(type, length);
+            java.lang.System.arraycopy(value, 0, rail.value, 0, length);
+        } else {
+            rail = new x10.core.Rail<T>(type, length, value);
+        }
         return rail;
     }
+
+    public static <T> x10.core.Rail<T> makeRailFromJavaArray(x10.rtt.Type type, java.lang.Object value) {
+        return makeRailFromJavaArray(type, value, true);
+    }
+
 }
