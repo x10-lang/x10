@@ -25,7 +25,7 @@ else
     INST_INCLUDE=include
 endif
 
-override CXXFLAGS += -I$(DISTDIR)/include -Isrc-crx -I$(GEN_DIR)
+override CXXFLAGS += -I$(DISTDIR)/include -Isrc-crx -Isrc -I$(GEN_DIR)
 
 ###########
 # Targets #
@@ -93,6 +93,10 @@ ALL_NATIVE_SRC = $(NATIVE_H_FILES) $(NATIVE_CC_FILES)
 
 NATIVE_COPY_SRC = $(patsubst %,src-crx/%,$(ALL_NATIVE_SRC))
 
+APGAS_SRC = src/apgas/Pool.cc src/apgas/Task.cc
+
+APGAS_OBJS = $(APGAS_SRC:.cc=.o)
+
 src-crx/%.cc: $(X10_RUNTIME_DIR)/src-cpp/%.cc
 	@mkdir -p src-crx/x10aux src-crx/x10/lang src-crx/x10/util/concurrent src-crx/x10/io
 	@cp -pu $< $@
@@ -121,9 +125,9 @@ $(GEN_DIR)/all-o-generated: $(GEN_DIR)/all-cpp-generated $(NATIVE_COPY_SRC)
 	$(MAKE) CXX_NO_WARNINGS=1 $(shell sed -e's@^\(.*\)\.cc$$@\1.o@' $(GEN_DIR)/all-cpp-generated)
 	touch $@
 
-$(APGAS_ARCHIVE): $(GEN_DIR)/all-o-generated $(NATIVE_OBJS)
+$(APGAS_ARCHIVE): $(GEN_DIR)/all-o-generated $(NATIVE_OBJS) $(APGAS_OBJS)
 	$(CXX) $(CXXFLAGS) $(CXXFLAGS_SHARED) $(LDFLAGS_SHARED) -o $@ \
-	    $(shell sed -e's@^\(.*\)\.cc$$@\1.o@' $(GEN_DIR)/all-cpp-generated) $(NATIVE_OBJS)
+	    $(shell sed -e's@^\(.*\)\.cc$$@\1.o@' $(GEN_DIR)/all-cpp-generated) $(NATIVE_OBJS) $(APGAS_OBJS)
 
 
 # The dummy files are needed to avoid rebuilds so must not be removed as
