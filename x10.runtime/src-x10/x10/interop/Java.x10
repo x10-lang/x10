@@ -69,7 +69,7 @@ public class Java {
     public static native def serializeChar(v:Char):array[Byte]{self!=null};
     @Native("java", "x10.runtime.impl.java.Runtime.serializeBoolean(#v)")
     public static native def serializeBoolean(v:Boolean):array[Byte]{self!=null};
-    @Native("java", "x10.runtime.impl.java.Runtime.serializeRef(#v)")
+    @Native("java", "x10.runtime.impl.java.Runtime.serialize(#v)")
     public static native def serialize(v:Any):array[Byte]{self!=null};
 
     // Deserialize from bytes
@@ -97,7 +97,7 @@ public class Java {
     public static native def deserializeChar(a:array[Byte]):Char;
     @Native("java", "x10.runtime.impl.java.Runtime.deserializeBoolean(#a)")
     public static native def deserializeBoolean(a:array[Byte]):Boolean;
-    @Native("java", "x10.runtime.impl.java.Runtime.deserializeRef(#a)")
+    @Native("java", "x10.runtime.impl.java.Runtime.deserialize(#a)")
     public static native def deserialize(a:array[Byte]):Any{self!=null};
 
     // Java classes

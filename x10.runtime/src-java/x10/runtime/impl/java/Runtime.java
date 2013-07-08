@@ -325,7 +325,7 @@ public abstract class Runtime implements x10.core.fun.VoidFun_0_0 {
     /**
      * Serialize reference type (work for any type)
      */
-    public static byte[] serializeRef(Object ref) {
+    public static byte[] serialize(Object ref) {
     	try {
             X10JavaSerializer serializer = new X10JavaSerializer();
             if (ref instanceof X10JavaSerializable) {
@@ -453,7 +453,7 @@ public abstract class Runtime implements x10.core.fun.VoidFun_0_0 {
     /**
      * Deserialize reference type (work for any type) 
      */
-    public static Object deserializeRef(byte[] messageBytes) {
+    public static Object deserialize(byte[] messageBytes) {
     	try {
             X10JavaDeserializer deserializer = deserializePre(messageBytes, true);
             return deserializer.readRef();
