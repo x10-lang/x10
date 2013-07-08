@@ -11,6 +11,8 @@
 
 package x10.runtime.impl.java;
 
+import java.io.ByteArrayInputStream;
+import java.io.DataInputStream;
 import java.lang.reflect.InvocationTargetException;
 import java.nio.ByteBuffer;
 import java.util.Map;
@@ -300,6 +302,259 @@ public abstract class Runtime implements x10.core.fun.VoidFun_0_0 {
     public static void runClosureCopyAt(int place, x10.core.fun.VoidFun_0_0 body, x10.lang.Runtime.Profile prof) {
         runAt(place, body, prof);
     }
+
+
+    /**
+     * Serialize to bytes
+     * (we assume serializer.mustSendDictionary()==true)
+     */
+    private static byte[] serializePost(X10JavaSerializer serializer, boolean sendDictionary) throws java.io.IOException {
+		serializer.prepareMessage(!sendDictionary);
+    	if (sendDictionary) {
+    		byte[] dictBytes = serializer.getDictionaryBytes();
+    		byte[] dataBytes = serializer.getDataBytes();
+    		byte[] messageBytes = new byte[serializer.getTotalMessageBytes()];
+    		System.arraycopy(dictBytes, 0, messageBytes, 0, dictBytes.length);
+    		System.arraycopy(dataBytes, 0, messageBytes, dictBytes.length, dataBytes.length);
+    		return messageBytes;
+    	} else {
+    		return serializer.getDataBytes();
+    	}
+    }
+
+    /**
+     * Serialize reference type (work for any type)
+     */
+    public static byte[] serializeRef(Object ref) {
+    	try {
+            X10JavaSerializer serializer = new X10JavaSerializer();
+            if (ref instanceof X10JavaSerializable) {
+            	serializer.write((X10JavaSerializable) ref);
+            } else {
+            	serializer.write(ref);
+            }
+            return serializePost(serializer, true);
+    	} catch (java.io.IOException e) {
+    		java.lang.RuntimeException xe = x10.runtime.impl.java.ThrowableUtils.ensureX10Exception(e);
+    		xe.printStackTrace();
+    		throw xe;
+    	}
+    }
+
+    /**
+     * Serialize primitive type (no boxing)
+     */
+    public static byte[] serializeByte(byte v) {
+    	try {
+            X10JavaSerializer serializer = new X10JavaSerializer();
+            serializer.write(v);
+            return serializePost(serializer, false);
+    	} catch (java.io.IOException e) {
+    		java.lang.RuntimeException xe = x10.runtime.impl.java.ThrowableUtils.ensureX10Exception(e);
+    		xe.printStackTrace();
+    		throw xe;
+    	}
+    }
+
+    public static byte[] serializeShort(short v) {
+    	try {
+            X10JavaSerializer serializer = new X10JavaSerializer();
+            serializer.write(v);
+            return serializePost(serializer, false);
+    	} catch (java.io.IOException e) {
+    		java.lang.RuntimeException xe = x10.runtime.impl.java.ThrowableUtils.ensureX10Exception(e);
+    		xe.printStackTrace();
+    		throw xe;
+    	}
+    }
+
+    public static byte[] serializeInt(int v) {
+    	try {
+            X10JavaSerializer serializer = new X10JavaSerializer();
+            serializer.write(v);
+            return serializePost(serializer, false);
+    	} catch (java.io.IOException e) {
+    		java.lang.RuntimeException xe = x10.runtime.impl.java.ThrowableUtils.ensureX10Exception(e);
+    		xe.printStackTrace();
+    		throw xe;
+    	}
+    }
+
+    public static byte[] serializeLong(long v) {
+    	try {
+            X10JavaSerializer serializer = new X10JavaSerializer();
+            serializer.write(v);
+            return serializePost(serializer, false);
+    	} catch (java.io.IOException e) {
+    		java.lang.RuntimeException xe = x10.runtime.impl.java.ThrowableUtils.ensureX10Exception(e);
+    		xe.printStackTrace();
+    		throw xe;
+    	}
+    }
+
+    public static byte[] serializeFloat(float v) {
+    	try {
+            X10JavaSerializer serializer = new X10JavaSerializer();
+            serializer.write(v);
+            return serializePost(serializer, false);
+    	} catch (java.io.IOException e) {
+    		java.lang.RuntimeException xe = x10.runtime.impl.java.ThrowableUtils.ensureX10Exception(e);
+    		xe.printStackTrace();
+    		throw xe;
+    	}
+    }
+
+    public static byte[] serializeDouble(double v) {
+    	try {
+            X10JavaSerializer serializer = new X10JavaSerializer();
+            serializer.write(v);
+            return serializePost(serializer, false);
+    	} catch (java.io.IOException e) {
+    		java.lang.RuntimeException xe = x10.runtime.impl.java.ThrowableUtils.ensureX10Exception(e);
+    		xe.printStackTrace();
+    		throw xe;
+    	}
+    }
+
+    public static byte[] serializeChar(char v) {
+    	try {
+            X10JavaSerializer serializer = new X10JavaSerializer();
+            serializer.write(v);
+            return serializePost(serializer, false);
+    	} catch (java.io.IOException e) {
+    		java.lang.RuntimeException xe = x10.runtime.impl.java.ThrowableUtils.ensureX10Exception(e);
+    		xe.printStackTrace();
+    		throw xe;
+    	}
+    }
+
+    public static byte[] serializeBoolean(boolean v) {
+    	try {
+            X10JavaSerializer serializer = new X10JavaSerializer();
+            serializer.write(v);
+            return serializePost(serializer, false);
+    	} catch (java.io.IOException e) {
+    		java.lang.RuntimeException xe = x10.runtime.impl.java.ThrowableUtils.ensureX10Exception(e);
+    		xe.printStackTrace();
+    		throw xe;
+    	}
+    }
+
+    /**
+     * Deserialize from bytes 
+     * (we assume serializer.mustSendDictionary()==true)
+     */
+    private static X10JavaDeserializer deserializePre(byte[] messageBytes, boolean sendDictionary) {
+    	ByteArrayInputStream bais = new ByteArrayInputStream(messageBytes);
+    	DataInputStream dis = new DataInputStream(bais);
+    	return new X10JavaDeserializer(dis, sendDictionary);
+    }
+
+    /**
+     * Deserialize reference type (work for any type) 
+     */
+    public static Object deserializeRef(byte[] messageBytes) {
+    	try {
+            X10JavaDeserializer deserializer = deserializePre(messageBytes, true);
+            return deserializer.readRef();
+    	} catch (java.io.IOException e) {
+    		java.lang.RuntimeException xe = x10.runtime.impl.java.ThrowableUtils.ensureX10Exception(e);
+    		xe.printStackTrace();
+    		throw xe;
+    	}
+    }
+
+    /**
+     * Deserialize primitive type (no boxing) 
+     */
+    public static byte deserializeByte(byte[] messageBytes) {
+    	try {
+            X10JavaDeserializer deserializer = deserializePre(messageBytes, false);
+            return deserializer.readByte();
+    	} catch (java.io.IOException e) {
+    		java.lang.RuntimeException xe = x10.runtime.impl.java.ThrowableUtils.ensureX10Exception(e);
+    		xe.printStackTrace();
+    		throw xe;
+    	}
+    }
+
+    public static short deserializeShort(byte[] messageBytes) {
+    	try {
+            X10JavaDeserializer deserializer = deserializePre(messageBytes, false);
+            return deserializer.readShort();
+    	} catch (java.io.IOException e) {
+    		java.lang.RuntimeException xe = x10.runtime.impl.java.ThrowableUtils.ensureX10Exception(e);
+    		xe.printStackTrace();
+    		throw xe;
+    	}
+    }
+
+    public static int deserializeInt(byte[] messageBytes) {
+    	try {
+            X10JavaDeserializer deserializer = deserializePre(messageBytes, false);
+            return deserializer.readInt();
+    	} catch (java.io.IOException e) {
+    		java.lang.RuntimeException xe = x10.runtime.impl.java.ThrowableUtils.ensureX10Exception(e);
+    		xe.printStackTrace();
+    		throw xe;
+    	}
+    }
+
+    public static long deserializeLong(byte[] messageBytes) {
+    	try {
+            X10JavaDeserializer deserializer = deserializePre(messageBytes, false);
+            return deserializer.readLong();
+    	} catch (java.io.IOException e) {
+    		java.lang.RuntimeException xe = x10.runtime.impl.java.ThrowableUtils.ensureX10Exception(e);
+    		xe.printStackTrace();
+    		throw xe;
+    	}
+    }
+
+    public static float deserializeFloat(byte[] messageBytes) {
+    	try {
+            X10JavaDeserializer deserializer = deserializePre(messageBytes, false);
+            return deserializer.readFloat();
+    	} catch (java.io.IOException e) {
+    		java.lang.RuntimeException xe = x10.runtime.impl.java.ThrowableUtils.ensureX10Exception(e);
+    		xe.printStackTrace();
+    		throw xe;
+    	}
+    }
+
+    public static double deserializeDouble(byte[] messageBytes) {
+    	try {
+            X10JavaDeserializer deserializer = deserializePre(messageBytes, false);
+            return deserializer.readDouble();
+    	} catch (java.io.IOException e) {
+    		java.lang.RuntimeException xe = x10.runtime.impl.java.ThrowableUtils.ensureX10Exception(e);
+    		xe.printStackTrace();
+    		throw xe;
+    	}
+    }
+
+    public static char deserializeChar(byte[] messageBytes) {
+    	try {
+            X10JavaDeserializer deserializer = deserializePre(messageBytes, false);
+            return deserializer.readChar();
+    	} catch (java.io.IOException e) {
+    		java.lang.RuntimeException xe = x10.runtime.impl.java.ThrowableUtils.ensureX10Exception(e);
+    		xe.printStackTrace();
+    		throw xe;
+    	}
+    }
+
+    public static boolean deserializeBoolean(byte[] messageBytes) {
+    	try {
+            X10JavaDeserializer deserializer = deserializePre(messageBytes, false);
+            return deserializer.readBoolean();
+    	} catch (java.io.IOException e) {
+    		java.lang.RuntimeException xe = x10.runtime.impl.java.ThrowableUtils.ensureX10Exception(e);
+    		xe.printStackTrace();
+    		throw xe;
+    	}
+    }
+
 
     /**
      * Copy body (same place)

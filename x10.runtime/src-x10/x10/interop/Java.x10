@@ -44,41 +44,61 @@ public class Java {
     @Native("java", "(#T[][][][])#T$rtt.makeArray(#d0,#d1,#d2,#d3)")
     public static native def newArray[T](d0:Int, d1:Int, d2:Int, d3:Int):array[array[array[array[T]{self.length==d3}]{self.length==d2}]{self.length==d1}]{self.length==d0};
 
-    // To byte array
-    @Native("java", "new byte[] { (byte)(#v?1:0) }")
-    public static native def toBytes(v:Boolean):array[Byte]{self.length==1};
-    @Native("java", "new byte[] { (byte)(#v>>>8), (byte)(#v) }")
-    public static native def toBytes(v:Char):array[Byte]{self.length==2};
-    @Native("java", "new byte[] { #v }")
-    public static native def toBytes(v:Byte):array[Byte]{self.length==1};
-    @Native("java", "new byte[] { (byte)(#v>>>8), (byte)(#v) }")
-    public static native def toBytes(v:Short):array[Byte]{self.length==2};
-    @Native("java", "new byte[] { (byte)(#v>>>24), (byte)(#v>>>16), (byte)(#v>>>8), (byte)(#v) }")
-    public static native def toBytes(v:Int):array[Byte]{self.length==4};
-    @Native("java", "new byte[] { (byte)(#v>>>56), (byte)(#v>>>48), (byte)(#v>>>40), (byte)(#v>>>32), (byte)(#v>>>24), (byte)(#v>>>16), (byte)(#v>>>8), (byte)(#v) }")
-    public static native def toBytes(v:Long):array[Byte]{self.length==8};
-    public static def toBytes(v:Float):array[Byte]{self.length==4} = toBytes(v.toIntBits());
-    public static def toBytes(v:Double):array[Byte]{self.length==8} = toBytes(v.toLongBits());
-    @Native("java", "#v.getBytes()")
-    public static native def toBytes(v:String):array[Byte]{self!=null};
+    // Serialize to bytes
+    @Native("java", "x10.runtime.impl.java.Runtime.serializeByte(#v)")
+    public static native def serializeByte(v:Byte):array[Byte]{self!=null};
+    @Native("java", "x10.runtime.impl.java.Runtime.serializeShort(#v)")
+    public static native def serializeShort(v:Short):array[Byte]{self!=null};
+    @Native("java", "x10.runtime.impl.java.Runtime.serializeInt(#v)")
+    public static native def serializeInt(v:Int):array[Byte]{self!=null};
+    @Native("java", "x10.runtime.impl.java.Runtime.serializeLong(#v)")
+    public static native def serializeLong(v:Long):array[Byte]{self!=null};
+    @Native("java", "x10.runtime.impl.java.Runtime.serializeByte(#v)")
+    public static native def serializeUByte(v:UByte):array[Byte]{self!=null};
+    @Native("java", "x10.runtime.impl.java.Runtime.serializeShort(#v)")
+    public static native def serializeUShort(v:UShort):array[Byte]{self!=null};
+    @Native("java", "x10.runtime.impl.java.Runtime.serializeInt(#v)")
+    public static native def serializeUInt(v:UInt):array[Byte]{self!=null};
+    @Native("java", "x10.runtime.impl.java.Runtime.serializeLong(#v)")
+    public static native def serializeULong(v:ULong):array[Byte]{self!=null};
+    @Native("java", "x10.runtime.impl.java.Runtime.serializeFloat(#v)")
+    public static native def serializeFloat(v:Float):array[Byte]{self!=null};
+    @Native("java", "x10.runtime.impl.java.Runtime.serializeDouble(#v)")
+    public static native def serializeDouble(v:Double):array[Byte]{self!=null};
+    @Native("java", "x10.runtime.impl.java.Runtime.serializeChar(#v)")
+    public static native def serializeChar(v:Char):array[Byte]{self!=null};
+    @Native("java", "x10.runtime.impl.java.Runtime.serializeBoolean(#v)")
+    public static native def serializeBoolean(v:Boolean):array[Byte]{self!=null};
+    @Native("java", "x10.runtime.impl.java.Runtime.serializeRef(#v)")
+    public static native def serialize(v:Any):array[Byte]{self!=null};
 
-    // From byte array
-    @Native("java", "(#a[0]!=0)")
-    public static native def toBoolean(a:array[Byte]):Boolean;
-    @Native("java", "((char)( ((#a[0]&0xFF)<<8) | ((#a[1]&0xFF)<<0) ))")
-    public static native def toChar(a:array[Byte]):Char;
-    @Native("java", "(#a[0])")
-    public static native def toByte(a:array[Byte]):Byte;
-    @Native("java", "((short)( ((#a[0]&0xFF)<<8) | ((#a[1]&0xFF)<<0) ))")
-    public static native def toShort(a:array[Byte]):Short;
-    @Native("java", "(((#a[0]&0xFF)<<24)+((#a[1]&0xFF)<<16)+((#a[2]&0xFF)<<8)+((#a[3]&0xFF)<<0))")
-    public static native def toInt(a:array[Byte]):Int;
-    @Native("java", "(((#a[0]&0xFFL)<<56)+((#a[1]&0xFFL)<<48)+((#a[2]&0xFFL)<<40)+((#a[3]&0xFFL)<<32)+((#a[4]&0xFFL)<<24)+((#a[5]&0xFFL)<<16)+((#a[6]&0xFFL)<<8)+((#a[7]&0xFFL)<<0))")
-    public static native def toLong(a:array[Byte]):Long;
-    public static def toFloat(a:array[Byte]):Float = Float.fromIntBits(toInt(a));
-    public static def toDouble(a:array[Byte]):Double = Double.fromLongBits(toLong(a));
-    @Native("java", "new java.lang.String(#a)")
-    public static native def toString(a:array[Byte]):String{self!=null};
+    // Deserialize from bytes
+    @Native("java", "x10.runtime.impl.java.Runtime.deserializeByte(#a)")
+    public static native def deserializeByte(a:array[Byte]):Byte;
+    @Native("java", "x10.runtime.impl.java.Runtime.deserializeShort(#a)")
+    public static native def deserializeShort(a:array[Byte]):Short;
+    @Native("java", "x10.runtime.impl.java.Runtime.deserializeInt(#a)")
+    public static native def deserializeInt(a:array[Byte]):Int;
+    @Native("java", "x10.runtime.impl.java.Runtime.deserializeLong(#a)")
+    public static native def deserializeLong(a:array[Byte]):Long;
+    @Native("java", "x10.runtime.impl.java.Runtime.deserializeByte(#a)")
+    public static native def deserializeUByte(a:array[Byte]):UByte;
+    @Native("java", "x10.runtime.impl.java.Runtime.deserializeShort(#a)")
+    public static native def deserializeUShort(a:array[Byte]):UShort;
+    @Native("java", "x10.runtime.impl.java.Runtime.deserializeInt(#a)")
+    public static native def deserializeUInt(a:array[Byte]):UInt;
+    @Native("java", "x10.runtime.impl.java.Runtime.deserializeLong(#a)")
+    public static native def deserializeULong(a:array[Byte]):ULong;
+    @Native("java", "x10.runtime.impl.java.Runtime.deserializeFloat(#a)")
+    public static native def deserializeFloat(a:array[Byte]):Float;
+    @Native("java", "x10.runtime.impl.java.Runtime.deserializeDouble(#a)")
+    public static native def deserializeDouble(a:array[Byte]):Double;
+    @Native("java", "x10.runtime.impl.java.Runtime.deserializeChar(#a)")
+    public static native def deserializeChar(a:array[Byte]):Char;
+    @Native("java", "x10.runtime.impl.java.Runtime.deserializeBoolean(#a)")
+    public static native def deserializeBoolean(a:array[Byte]):Boolean;
+    @Native("java", "x10.runtime.impl.java.Runtime.deserializeRef(#a)")
+    public static native def deserialize(a:array[Byte]):Any{self!=null};
 
     // Java classes
     @Native("java", "#T$rtt.getJavaClass()")
