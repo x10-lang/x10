@@ -39,28 +39,11 @@ public class System {
     public static def nanoTime():Long = Timer.nanoTime();
 
     /**
-     * Terminates the application with a given exit code, as quickly as possible.
-     * All finally blocks for the currently executing activities are executed.
-     * LIMITATION: will only work if invoked from the main thread in place 0 (see XTENLANG-874).
-     *
-     * @deprecated
-     * @see #exit()
-     * @see #setExitCode(Int)
+     * Kills the current place, as if due to a hardware or low level software failure.  Behaviour is only well-defined if executed at a place other than Place.FIRST_PLACE and the language is in resilient mode.
      */
-    @Native("java", "java.lang.System.exit(#code)")
-    @Native("c++", "x10::lang::RuntimeNatives::exit(#code)")
-    static native def exit(code: Int): void;
-
-    /**
-     * Terminates the application with exit code -1, as quickly as possible.
-     * Invoking this method is equivalent to invoking {@link #exit(Int)} with argument -1.
-     * LIMITATION: will only work if invoked from the main thread in place 0 (see XTENLANG-874).
-     *
-     * @deprecated
-     * @see #exit(Int)
-     * @see #setExitCode(Int)
-     */
-    static def exit():void { exit(-1); }
+    @Native("java", "java.lang.System.exit(1)")
+    @Native("c++", "x10::lang::RuntimeNatives::exit(1)")
+    public static native def killHere(): void;
 
     /**
      * Sets the system exit code.
