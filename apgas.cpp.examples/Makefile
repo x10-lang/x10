@@ -16,7 +16,7 @@ X10RT_LIB ?= x10rt_sockets
 # Variables #
 #############
 
-override CXXFLAGS += -I$(APGAS_DIR)/src
+override CXXFLAGS += -I$(APGAS_DIR)/src -I$(APGAS_DIR)/src-crx
 
 APGAS_LINK_ARGS = -L$(APGAS_DIR) -lapgas -Wl,--rpath -Wl,$(APGAS_DIR) \
 	-L$(DISTDIR)/lib -l$(X10RT_LIB) -Wl,--rpath -Wl,$(DISTDIR)/lib

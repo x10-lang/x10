@@ -13,10 +13,15 @@
 #define APGAS_TASK_H
 
 namespace apgas {
-
+    class Pool;
+    
     class Task {
+    protected:
+        Pool* myPool;
     public:
         virtual void execute() = 0;
+        void setPool(Pool* p) { myPool = p; }
+        Pool *getPool() { return myPool; }
     };
 
 

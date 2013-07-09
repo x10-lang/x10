@@ -12,20 +12,21 @@
 #ifndef APGAS_POOL_H
 #define APGAS_POOL_H
 
+#include <x10aux/alloc.h>
+
 namespace apgas {
     class Task;
 
     class Pool {
-    private:
-        Task* _mainTask;
-
     public:
+        Task* _mainTask; //   TEMPORARY HACK MAKE PUBLIC (should be private)
+
         /**
          * Create a pool and specify the main task that the pool should execute.
          * Note that this does not begin executing mainTask; execution does not
          * start until the start method is called on the Pool.
          */
-        Pool(Task* mainTask) : _mainTask(mainTask) {} 
+        Pool(Task* mainTask);
 
         /**
          * Initialize the APGAS runtime and start executing the mainTask.
@@ -45,6 +46,10 @@ namespace apgas {
          * statement. 
          */
         void runFinish(Task* task);
+
+        template<class T> static inline T* alloc() { return x10aux::alloc<T>(); }
+        template<class T> static inline void dealloc(const T* obj) { x10aux::dealloc<T>(obj); }
+        template<class T> static inline T* realloc(T* src, size_t dsz) { return x10aux::realloc<T>(src, dsz); }
     };
 }
 
