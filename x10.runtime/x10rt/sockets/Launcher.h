@@ -33,6 +33,8 @@
 #define X10_NPLACES "X10_NPLACES" // the number of places in this process
 #define X10_HOSTFILE "X10_HOSTFILE" // full path name of a file containing a list of hostnames
 #define X10_HOSTLIST "X10_HOSTLIST" // an alternative to HOSTFILE above.  This is a comma-separated list of hostnames
+#define X10_RESILIENT_PLACE_ZERO "X10_RESILIENT_PLACE_ZERO" // either of these will disable the aggressive propagation of place failure
+#define X10_RESILIENT_ZOO_KEEPER "X10_RESILIENT_ZOO_KEEPER" // 
 #define X10_LAUNCHER_PLACE "X10_LAUNCHER_PLACE" // a number for the "place" of this process.  Set by the launcher.
 #define X10_LAUNCHER_SSH "X10_LAUNCHER_SSH" // the ssh command.  This doesn't normally need to be set.
 #define X10_LAUNCHER_PARENT "X10_LAUNCHER_PARENT" // the hostname:port of the parent launcher.  This is set by the launcher.

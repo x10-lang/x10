@@ -1130,7 +1130,8 @@ void Launcher::cb_sighandler_cld(int signo)
 	// limit our lifetime to a few seconds, to allow any children to shut down on their own. Then kill em' all.
 	if (_singleton->_dieAt == 0)
 	{
-        if (_singleton->_myproc == 0 && signo!=SIGCHLD) {
+        bool resilient_x10 = checkBoolEnvVar(getenv(X10_RESILIENT_PLACE_ZERO)) || checkBoolEnvVar(getenv(X10_RESILIENT_ZOO_KEEPER));
+        if ((_singleton->_myproc == 0 && signo!=SIGCHLD) || !resilient_x10) {
             _singleton->_dieAt = 2+time(NULL);
             #ifdef DEBUG
                 fprintf(stderr, "Launcher %u: started the doomsday device\n", _singleton->_myproc);
