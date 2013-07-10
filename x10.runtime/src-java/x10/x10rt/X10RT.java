@@ -94,7 +94,7 @@ public class X10RT {
      * This method returns true if the runtime was successfully initialized.
      * If false is returned, the caller should call this method again until true is returned.
      */
-    public static synchronized boolean connect_library(int myPlace, String[] connectionInfo) {
+    public static synchronized boolean connect_library(int myPlace, String[] connectionInfo, boolean remoteStart) {
     	if (state != State.INITIALIZED) return true; // already initialized
 
         X10RT.here = myPlace;
@@ -105,7 +105,7 @@ public class X10RT {
     
     	int errcode;
     	if (X10RT.javaSockets != null)
-    		errcode = X10RT.javaSockets.establishLinks(myPlace, connectionInfo);
+    		errcode = X10RT.javaSockets.establishLinks(myPlace, connectionInfo, remoteStart);
     	else {
     		errcode = x10rt_init(myPlace, connectionInfo);
     		TeamSupport.initialize();

@@ -13,6 +13,7 @@ import java.nio.channels.SelectionKey;
 import java.nio.channels.Selector;
 import java.nio.channels.ServerSocketChannel;
 import java.nio.channels.SocketChannel;
+import java.nio.charset.Charset;
 import java.util.Iterator;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -29,7 +30,7 @@ public class SocketTransport {
 	public static final String X10_LAUNCHER_PLACE = "X10_LAUNCHER_PLACE";
 	public static final String X10_NPLACES = "X10_NPLACES";
 	public static final String X10_LAUNCHER_PARENT = "X10_LAUNCHER_PARENT";
-	private static enum CTRL_MSG_TYPE {HELLO, GOODBYE, PORT_REQUEST, PORT_RESPONSE};
+	private static enum CTRL_MSG_TYPE {HELLO, CONFIGURE, GOODBYE, PORT_REQUEST, PORT_RESPONSE};
 	private static enum MSGTYPE {STANDARD, PUT, GET, GET_COMPLETED};
 	public static enum CALLBACKID {closureMessageID, closureMessageNoDictionaryID, simpleAsyncMessageID, simpleAsyncMessageNoDictionaryID};
 	public static enum RETURNCODE { // see matching list of error codes "x10rt_error" in x10rt_types.h 
@@ -77,7 +78,7 @@ public class SocketTransport {
 				// we may be under the control of a launcher.  If so, link up
 				String launcherLocation = System.getenv(X10_LAUNCHER_PARENT);
 				if (launcherLocation != null)
-					initLink(myPlaceId, launcherLocation);
+					initLink(myPlaceId, launcherLocation, null);
 			}
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
@@ -105,7 +106,7 @@ public class SocketTransport {
 		if (nplaces > 1) {
 			for (int i=0; i<myPlaceId; i++) {
 				try {
-					initLink(i, null);
+					initLink(i, null, null);
 				} catch (IOException e) {
 					// TODO Auto-generated catch block
 					e.printStackTrace();
@@ -119,7 +120,7 @@ public class SocketTransport {
 		return RETURNCODE.X10RT_ERR_OK.ordinal();
 	}
 	
-    public int establishLinks(int myPlaceId, String[] connectionStrings) {
+    public int establishLinks(int myPlaceId, String[] connectionStrings, boolean remoteStart) {
     	if (this.myPlaceId != 0 || this.nplaces != 1) // make we are in the right state to establish links
     		return RETURNCODE.X10RT_ERR_INVALID.ordinal();
     		
@@ -137,18 +138,36 @@ public class SocketTransport {
     	else
     		channels = new SocketChannel[nplaces];
     	
-    	for (int i=0; i<myPlaceId; i++) {
-			try {
-				initLink(i, connectionStrings[i]);
-			} catch (IOException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			} // connect to all lower places
+    	if (remoteStart) {
+    		StringBuffer sb = new StringBuffer();
+    		for (int i=0; i<connectionStrings.length; i++) {
+    			sb.append(connectionStrings[i]);
+    			sb.append(',');
+    		}
+    		ByteBuffer allPlaces = ByteBuffer.wrap(sb.toString().getBytes(Charset.forName("UTF-8")));
+
+    		for (int i=0; i<nplaces; i++) {
+    			if (i == myPlaceId) continue; // skip myself
+				try {
+					initLink(i, connectionStrings[i], allPlaces);
+				} catch (IOException e) {
+					e.printStackTrace();
+				}
+	    	}
     	}
-		for (int i=myPlaceId+1; i<nplaces; i++)
-			while (channels[i] == null)
-				x10rt_probe(true, 0); // wait for connections from all upper places
-		
+    	else {
+	    	for (int i=0; i<myPlaceId; i++) {
+				try {
+					initLink(i, connectionStrings[i], null);
+				} catch (IOException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				} // connect to all lower places
+	    	}
+			for (int i=myPlaceId+1; i<nplaces; i++)
+				while (channels[i] == null)
+					x10rt_probe(true, 0); // wait for connections from all upper places
+	    }
     	return RETURNCODE.X10RT_ERR_OK.ordinal();
     }
     
@@ -217,6 +236,7 @@ public class SocketTransport {
 					return false; // nothing actually here
 				int remote = -1;
 				
+				// see the format of "ctrl_msg" in Launcher.h
 				ByteBuffer controlMsg = ByteBuffer.allocateDirect(16);
 				SocketTransport.readNBytes(sc, controlMsg, controlMsg.capacity());
 				controlMsg.flip();
@@ -236,7 +256,36 @@ public class SocketTransport {
 						sc.configureBlocking(false);
 						sc.register(selector, SelectionKey.OP_READ);
 						if (DEBUG) System.out.println("Place "+myPlaceId+" accepted a connection from place "+remote);
-				}	}
+					}
+				}
+				else if (CTRL_MSG_TYPE.CONFIGURE.ordinal() == msgtype) {
+					int mynewid = controlMsg.getInt();
+					if (-1 == myPlaceId) {
+						remote = controlMsg.getInt();
+						
+						// read in the list of host:port,host:port,host:port etc for all places
+						int datalen = controlMsg.getInt();
+						byte[] chars = new byte[datalen];
+						ByteBuffer placeList = ByteBuffer.wrap(chars);
+						SocketTransport.readNBytes(sc, placeList, datalen);
+		    			String allPlaces = new String(chars, Charset.forName("UTF-8"));
+		    			String[] places = allPlaces.split(",");
+		    			controlMsg.clear();
+						
+						controlMsg.putInt(CTRL_MSG_TYPE.HELLO.ordinal());
+						controlMsg.putInt(remote);
+						controlMsg.putInt(mynewid);
+						controlMsg.putInt(0);
+						controlMsg.flip();
+						SocketTransport.writeNBytes(sc, controlMsg, controlMsg.capacity());
+						channels[remote] = sc;
+						sc.configureBlocking(false);
+						sc.register(selector, SelectionKey.OP_READ);
+						if (DEBUG) System.out.println("X10RT reconfigured as place "+myPlaceId+" of "+nplaces+" places: "+allPlaces);
+						
+						X10RT.connect_library(mynewid, places, false);
+					}
+				}
 				if (remote == -1) {
 					controlMsg.clear();
 					controlMsg.putInt(CTRL_MSG_TYPE.GOODBYE.ordinal());
@@ -331,7 +380,7 @@ public class SocketTransport {
     public int sendMessage(int place, int msg_id, ByteBuffer[] bytes) {
     	if (numDead.get() == 0) {// don't try to re-establish links after we find dead ones, or we'll get into a loop
     		try {
-    			initLink(place, null);
+    			initLink(place, null, null);
     		} catch (IOException e) {
     			return RETURNCODE.X10RT_ERR_OTHER.ordinal();
     		}
@@ -375,7 +424,7 @@ public class SocketTransport {
     	return RETURNCODE.X10RT_ERR_OK.ordinal();
     }
     
-    private void initLink(int remotePlace, String connectionInfo) throws IOException{
+    private void initLink(int remotePlace, String connectionInfo, ByteBuffer allPlaces) throws IOException{
     	if (channels[remotePlace] != null) return;
     	
     	String hostname;
@@ -442,7 +491,10 @@ public class SocketTransport {
 		ByteBuffer controlMsg = ByteBuffer.allocateDirect(20);
 		if (remotePlace == myPlaceId)
 			controlMsg.order(ByteOrder.nativeOrder()); // the launcher is native code, and probably uses a different endian order
-		controlMsg.putInt(CTRL_MSG_TYPE.HELLO.ordinal());
+		if (null == allPlaces)
+			controlMsg.putInt(CTRL_MSG_TYPE.HELLO.ordinal());
+		else
+			controlMsg.putInt(CTRL_MSG_TYPE.CONFIGURE.ordinal());
 		controlMsg.putInt(remotePlace);
 		controlMsg.putInt(myPlaceId);
 		if (remotePlace == myPlaceId) { // send connection details to launcher
@@ -460,9 +512,16 @@ public class SocketTransport {
 			if (DEBUG) System.out.println("Place "+myPlaceId+" established a link to local launcher, sent local port="+myPort);
 		}
 		else {
-			controlMsg.putInt(0);
+			if (null == allPlaces)
+				controlMsg.putInt(0);
+			else
+				controlMsg.putInt(allPlaces.remaining());			
 			controlMsg.flip();
 			SocketTransport.writeNBytes(sc, controlMsg, 16);
+			if (null != allPlaces) {
+				SocketTransport.writeNBytes(sc, allPlaces, allPlaces.remaining());
+				allPlaces.rewind();
+			}
 			controlMsg.clear();
 			SocketTransport.readNBytes(sc, controlMsg, 16);
 			controlMsg.flip();
@@ -470,7 +529,7 @@ public class SocketTransport {
 				channels[remotePlace] = sc;
 				sc.configureBlocking(false);
 				sc.register(selector, SelectionKey.OP_READ);
-				if (DEBUG) System.out.println("Place "+myPlaceId+" established a link to place "+remotePlace);
+				if (DEBUG) System.out.println("Place "+myPlaceId+" established a link to place "+remotePlace+" and sent place info");
 			}
 			else
 				System.err.println("Bad response to HELLO");
