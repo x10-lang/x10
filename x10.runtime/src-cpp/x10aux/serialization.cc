@@ -7,6 +7,7 @@
  *      http://www.opensource.org/licenses/eclipse-1.0.php
  *
  *  (C) Copyright IBM Corporation 2006-2010.
+ *  (C) Copyright Australian National University 2013.
  */
 
 #include <x10aux/config.h>
@@ -21,6 +22,14 @@
 using namespace x10aux;
 using namespace x10::lang;
 
+int x10aux::hashCode(const void* id) {
+    // int hash = std::hash<const void*>()(id);
+    int64_t ptr = reinterpret_cast<int64_t>(id);
+    // the extra >> 4 is to ensure aligned pointer hashes are both odd and even
+    int hash = (int)((ptr ^ (ptr >> 32)) >> 4);
+    return hash;
+}
+
 void addr_map::_grow() {
     int newSize = _size << 1;
     _ptrs = x10aux::realloc(_ptrs, newSize*(sizeof(const void*)));
@@ -31,29 +40,27 @@ void addr_map::_add(const void* ptr) {
     if (_top == _size) {
         _grow();
     }
+    _ptrPos->put(ptr, _top);
     _ptrs[_top++] = ptr;
 }
 
 int addr_map::_find(const void* ptr) {
-    for (int i = -1; i >= -_top; i--) {
-        if (_ptrs[_top+i] == ptr) {
-            return i;
-        }
-    }
-    return 0;
+    int pos = _ptrPos->get(ptr); // 0 or NULL means ptr is not in the table
+    return pos;
 }
 
 const void* addr_map::_get(int pos) {
-    if (pos < -_top || pos >= 0)
+    if (pos > _top || pos == 0)
         return NULL;
-    return _ptrs[_top+pos];
+    return _ptrs[pos];
 }
 
 const void* addr_map::_set(int pos, const void* ptr) {
-    if (pos < -_top || pos >= 0)
+    if (pos > _top || pos == 0)
         return NULL;
-    const void* old = _ptrs[_top+pos];
-    _ptrs[_top+pos] = ptr;
+    const void* old = _ptrs[pos];
+    _ptrs[pos] = ptr;
+    _ptrPos->put(ptr, pos);
     return old;
 }
 

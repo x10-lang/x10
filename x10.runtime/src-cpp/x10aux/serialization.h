@@ -15,6 +15,7 @@
 
 #include <x10aux/config.h>
 
+#include <x10aux/simple_hashmap.h>
 #include <x10aux/captured_lval.h>
 #include <x10aux/alloc.h>
 #include <x10aux/deserialization_dispatcher.h>
@@ -101,14 +102,13 @@ namespace x10 {
     }
 }
 
-
 namespace x10aux {
-
     // addr_map can be used to detect and properly handle cycles when serializing object graphs
     // it can also be used to avoid serializing two copies of an object when serializing a DAG.
     class addr_map {
         int _size;
         const void** _ptrs;
+        simple_hashmap<const void*, int> *_ptrPos; // maps pointers to position in the ptr table
         int _top;
         void _grow();
         void _add(const void* ptr);
@@ -124,6 +124,7 @@ namespace x10aux {
                 //     If we don't keep those objects live here, the storage may be reused during the
                 //     serialization operation, resulting in incorrect detection of a repeated reference!
             _ptrs(new (x10aux::alloc<const void*>((init_size)*sizeof(const void*), true)) const void*[init_size]),
+            _ptrPos(new (x10aux::alloc< x10aux::simple_hashmap<const void*, int> >()) x10aux::simple_hashmap<const void*, int>()),
             _top(0)
         { }
         /* Returns 0 if the pointer has not been recorded yet */
@@ -147,7 +148,7 @@ namespace x10aux {
             return val;
         }
         void reset() { _top = 0; assert (false); }
-        ~addr_map() { x10aux::dealloc(_ptrs); }
+        ~addr_map() { x10aux::dealloc(_ptrs); x10aux::dealloc(_ptrPos); }
     };
 
 

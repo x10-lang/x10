@@ -14,6 +14,7 @@
 
 #include <x10aux/config.h>
 #include <x10aux/basic_functions.h>
+#include <x10aux/simple_hashmap.h>
 
 namespace x10aux {
     class reentrant_lock;
@@ -24,15 +25,8 @@ namespace x10aux {
 #else
     public:
 #endif
-        class Bucket {
-        public:
-            x10_int _id;
-            void *_data;
-            Bucket *_next;
-        };
-
         static x10_int _nextId;
-        static Bucket **_buckets;
+        static simple_hashmap<int, void*> *_map;
         static x10aux::reentrant_lock* _lock;
 
     public:
@@ -46,9 +40,6 @@ namespace x10aux {
     };
 
     template<> inline const char *typeName<place_local>() { return "place_local"; }
-    template<> inline const char *typeName<place_local::Bucket*>() { return "place_local::Bucket *"; }
-    template<> inline const char *typeName<place_local::Bucket>() { return "place_local::Bucket"; }
-
 }
 
 #endif
