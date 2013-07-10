@@ -2917,7 +2917,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 	}
 
 	public void visit(NullLit_c n) {
-		sw.write("X10_NULL");
+		sw.write("reinterpret_cast"+chevrons(Emitter.translateType(n.type(),true))+"(X10_NULL)");
 	}
 
 	public void visit(StringLit_c n) {

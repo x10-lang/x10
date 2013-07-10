@@ -60,6 +60,7 @@ import polyglot.ast.New;
 import polyglot.ast.Node;
 import polyglot.ast.NodeFactory;
 import polyglot.ast.Node_c;
+import polyglot.ast.NullLit_c;
 import polyglot.ast.PackageNode_c;
 import polyglot.ast.Receiver;
 import polyglot.ast.Return;
@@ -2337,7 +2338,8 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
                     w.write(")");
 
                     w.write(")");
-                } else if (useSelfDispatch && (mi.typeParameters().size() > 0 || hasParams(containerType))) {
+                } else if ((useSelfDispatch && (mi.typeParameters().size() > 0 || hasParams(containerType))) ||
+                           (target instanceof NullLit_c)) {
                     // TODO:CAST
                     w.write("(");
                     w.write("(");

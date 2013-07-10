@@ -192,5 +192,8 @@ public abstract class ConstantValue {
     public float floatValue() {
         throw new InternalCompilerError("This constant value does not have an float value "+this);
     }
-
+    
+    public boolean isNull() {
+        return false;
+    }
 }
