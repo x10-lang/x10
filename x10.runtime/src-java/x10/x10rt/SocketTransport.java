@@ -20,6 +20,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 import x10.lang.FinishState;
 import x10.lang.Place;
 import x10.serialization.X10JavaDeserializer;
+import x10.x10rt.X10RT.State;
 
 /**
  * Implementation of JavaSockets transport
@@ -211,7 +212,7 @@ public class SocketTransport {
     }
     
     // returns true if something is processed
-    private boolean x10rt_probe(boolean onlyProcessAccept, long timeout) {
+    boolean x10rt_probe(boolean onlyProcessAccept, long timeout) {
     	int eventCount = 0;
     	try {
     		SelectionKey key;
@@ -241,10 +242,12 @@ public class SocketTransport {
 				SocketTransport.readNBytes(sc, controlMsg, controlMsg.capacity());
 				controlMsg.flip();
 				int msgtype = controlMsg.getInt();
+				
 				if (CTRL_MSG_TYPE.HELLO.ordinal() == msgtype) {
-					int to = controlMsg.getInt();
+					int to = controlMsg.getInt();										
 					if (to == myPlaceId) {
 						remote = controlMsg.getInt();
+						if (DEBUG) System.out.println("Incoming HELLO message to "+to+" from "+remote);
 						controlMsg.clear();
 						controlMsg.putInt(CTRL_MSG_TYPE.HELLO.ordinal());
 						controlMsg.putInt(remote);
@@ -257,12 +260,14 @@ public class SocketTransport {
 						sc.register(selector, SelectionKey.OP_READ);
 						if (DEBUG) System.out.println("Place "+myPlaceId+" accepted a connection from place "+remote);
 					}
+					else if (DEBUG) 
+						System.out.println("Incoming HELLO message to place "+to+" ignored, because my place is ."+myPlaceId);
 				}
 				else if (CTRL_MSG_TYPE.CONFIGURE.ordinal() == msgtype) {
 					int mynewid = controlMsg.getInt();
-					if (-1 == myPlaceId) {
+					if (onlyProcessAccept) {
 						remote = controlMsg.getInt();
-						
+						if (DEBUG) System.out.println("Incoming CONFIGURE message to "+mynewid+" from "+remote);
 						// read in the list of host:port,host:port,host:port etc for all places
 						int datalen = controlMsg.getInt();
 						byte[] chars = new byte[datalen];
@@ -270,21 +275,53 @@ public class SocketTransport {
 						SocketTransport.readNBytes(sc, placeList, datalen);
 		    			String allPlaces = new String(chars, Charset.forName("UTF-8"));
 		    			String[] places = allPlaces.split(",");
-		    			controlMsg.clear();
-						
+		    			controlMsg.clear();						
+		    			if (DEBUG) System.out.println("Recieved place list: "+allPlaces);
+		    			
 						controlMsg.putInt(CTRL_MSG_TYPE.HELLO.ordinal());
 						controlMsg.putInt(remote);
 						controlMsg.putInt(mynewid);
 						controlMsg.putInt(0);
 						controlMsg.flip();
 						SocketTransport.writeNBytes(sc, controlMsg, controlMsg.capacity());
-						channels[remote] = sc;
+
+						// configure myself
+						this.myPlaceId = mynewid;
+				    	this.nplaces = places.length;
+				    	if (channels.length == 1 && channels[0] != null) {
+				    		// save the launcher link
+				    		SocketChannel ll = channels[0];
+				    		channels = new SocketChannel[nplaces];
+				    		channels[myPlaceId] = ll;
+				    	}
+				    	else
+				    		channels = new SocketChannel[nplaces];
+				    	
+				    	channels[remote] = sc;
 						sc.configureBlocking(false);
 						sc.register(selector, SelectionKey.OP_READ);
-						if (DEBUG) System.out.println("X10RT reconfigured as place "+myPlaceId+" of "+nplaces+" places: "+allPlaces);
 						
-						X10RT.connect_library(mynewid, places, false);
+						// establish remote links to lower-numbered places
+						for (int i=0; i<myPlaceId; i++) {
+							if (i == remote) continue;
+							try {
+								initLink(i, places[i], null);
+							} catch (IOException e) {
+								// TODO Auto-generated catch block
+								e.printStackTrace();
+							}
+				    	}
+			    	
+						// configure X10RT from the bottom up, instead of top-down
+						X10RT.here = this.myPlaceId;
+						X10RT.numPlaces = this.nplaces;
+						x10.runtime.impl.java.Runtime.MAX_PLACES = this.nplaces;
+				        X10RT.state = State.RUNNING;
+						
+						if (DEBUG) System.out.println("X10RT reconfigured as place "+myPlaceId+" of "+nplaces+" places");
 					}
+					else if (DEBUG) 
+						System.out.println("Recieved a CONFIGURE message, but we're already configured.  Ignored.");
 				}
 				if (remote == -1) {
 					controlMsg.clear();
