@@ -178,6 +178,15 @@ public class X10Binary_c extends Binary_c {
                 return true;
             }
         }
+        if (lconst && left.constantValue().isNull()) {
+            // If the receiver of the binary op is null, what is actually going to happen at runtime is a null pointer exception.
+            // TODO: Could augment AST's with a RAISE_NPE expression, allow this to be a constant and
+            // have constantValue return the RAISE_NPE_EXPR. Can't use a THROW because of non-local control flow implications.
+            if (!(op == EQ || op == NE)) {
+                return false;
+            }
+        }
+        
         boolean rconst = right.isConstant();
         Type rt = right.type();
         if (lconst && rconst && isPureOperation(lt, op, rt)) {
@@ -934,7 +943,7 @@ public class X10Binary_c extends Binary_c {
             mi = mi.returnType(type);
             result = (X10Call_c) result.methodInstance(mi).type(type);
         }
-        // Add support for patching up the return type of IntRegion's operator*().
+        // Add support for patching up the return type of IntRanges's operator*().
         // The rank of the result is 2.  Further the result is zeroBased if both args are zeroBased.
         if (op == Binary.MUL && xts.typeEquals(xts.IntRange(), lbase, context)
                 && xts.typeEquals(xts.IntRange(), rbase, context)) {
