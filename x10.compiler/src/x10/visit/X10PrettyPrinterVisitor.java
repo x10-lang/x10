@@ -2849,8 +2849,8 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
             }
             w.begin(0);
             if (!n.isTargetImplicit()) {
-                if (!(target instanceof Special || target instanceof New)
-                        && (xts.isParameterType(targetType) || hasParams(fi.container()))) {
+                if ((target instanceof NullLit_c) || 
+                    (!(target instanceof Special || target instanceof New) && (xts.isParameterType(targetType) || hasParams(fi.container())))) {
                     // TODO:CAST
                     w.write("(");
                     w.write("(");
