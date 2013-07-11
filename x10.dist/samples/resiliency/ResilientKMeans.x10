@@ -45,7 +45,7 @@ class ResilientKMeans {
         val rnd = new Random(0); // new Random(System.nanoTime());
         val points_region = Region.make(0..(POINTS-1), 0..(DIM-1));
         val points_master = new Array[Float](points_region, (p:Point)=>rnd.nextFloat());
-        val points_local = PlaceLocalHandle.make[Array[Float]](PlaceGroup.WORLD, ()=>points_master);
+        val points_local = PlaceLocalHandle.make[Array[Float]{region==points_region}](PlaceGroup.WORLD, ()=>points_master);
         
         /*
          * Cluster data to be calculated
