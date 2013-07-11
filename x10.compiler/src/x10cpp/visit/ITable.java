@@ -278,7 +278,7 @@ public final class ITable {
                     MethodInstance ami = xts.findMethod(cls, xts.MethodMatcher(cls, meth.name(), meth.formalTypes(), context));
                     if (ami.container().isAny()) {
                         containerType = CLASS_TYPE;
-                    } else if (!xts.hasSameClassDef(ami.container(), cls)) {
+                    } else if (!xts.hasSameClassDef(ami.container(), cls) && !ami.flags().isAbstract()) {
                         containerType = Emitter.translateType(ami.container(), false);
                     }
                 } catch (SemanticException e) {
