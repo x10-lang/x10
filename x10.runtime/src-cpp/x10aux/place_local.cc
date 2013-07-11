@@ -24,8 +24,9 @@ simple_hashmap<int, void*>* place_local::_map;
 void **place_local::_fastData;
 x10aux::reentrant_lock* place_local::_lock;
 
-int x10aux::hashCode(int id) {
-    return id;
+// used by simple_hashmap
+x10_uint x10aux::simple_hash_code(int id) {
+    return (x10_uint)id;
 }
 
 void place_local::initialize() {

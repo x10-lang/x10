@@ -22,11 +22,11 @@
 using namespace x10aux;
 using namespace x10::lang;
 
-int x10aux::hashCode(const void* id) {
-    // int hash = std::hash<const void*>()(id);
-    int64_t ptr = reinterpret_cast<int64_t>(id);
-    // the extra >> 4 is to ensure aligned pointer hashes are both odd and even
-    int hash = (int)((ptr ^ (ptr >> 32)) >> 4);
+// used by simple_hashmap
+x10_uint x10aux::simple_hash_code(const void* id) {
+    // the >> 4 is to ensure aligned pointer hashes are both odd and even
+    x10_ulong ptr = reinterpret_cast<uint64_t>(id) >> 4;
+    x10_uint hash = ptr ^ (ptr >> 32);
     return hash;
 }
 
