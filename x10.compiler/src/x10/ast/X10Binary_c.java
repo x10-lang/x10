@@ -262,17 +262,34 @@ public class X10Binary_c extends Binary_c {
             return null;
         }
 
-        if (op == ADD && (lv instanceof StringValue || rv instanceof StringValue)) {
-            // toString() on a ConstantValue gives the same String as toString on the value itself.
-        	return ConstantValue.makeString(lv.toString() + rv.toString());       
-        }
+        int numNulls = (lv instanceof NullValue ? 1 : 0) + (rv instanceof NullValue ? 1 : 0);
+        int numStrings = (lv instanceof StringValue ? 1 : 0) + (rv instanceof StringValue ? 1 : 0);
 
-        if (op == EQ && (lv instanceof StringValue && rv instanceof StringValue)) {
-            return ConstantValue.makeBoolean(((StringValue) lv).value().equals(((StringValue)rv).value()));
-        }
+        if (numNulls + numStrings > 0) {            
+            if (op == ADD && (numStrings > 0)) {
+                // toString() on a ConstantValue gives the same String as toString on the value itself.
+                return ConstantValue.makeString(lv.toString() + rv.toString());       
+            }
 
-        if (op == NE && (lv instanceof StringValue && rv instanceof StringValue)) {
-            return ConstantValue.makeBoolean(!((StringValue) lv).value().equals(((StringValue)rv).value()));
+            if (op == EQ) {
+                if (numStrings == 2) {
+                    return ConstantValue.makeBoolean(((StringValue) lv).value().equals(((StringValue)rv).value()));
+                } else if (numStrings == 1 && numNulls == 1) {
+                    return ConstantValue.makeBoolean(false);
+                } else if (numNulls == 2) {
+                    return ConstantValue.makeBoolean(true);
+                }
+            }
+
+            if (op == NE) {
+                if (numStrings == 2) {
+                    return ConstantValue.makeBoolean(!((StringValue) lv).value().equals(((StringValue)rv).value()));
+                } else if (numStrings == 1 && numNulls == 1) {
+                    return ConstantValue.makeBoolean(true);
+                } else if (numNulls == 2) {
+                    return ConstantValue.makeBoolean(false);
+                }
+            }
         }
         
         if (lv instanceof BooleanValue && rv instanceof BooleanValue) {
