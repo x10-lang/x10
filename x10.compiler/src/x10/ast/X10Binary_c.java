@@ -178,14 +178,6 @@ public class X10Binary_c extends Binary_c {
                 return true;
             }
         }
-        if (lconst && left.constantValue().isNull()) {
-            // If the receiver of the binary op is null, what is actually going to happen at runtime is a null pointer exception.
-            // TODO: Could augment AST's with a RAISE_NPE expression, allow this to be a constant and
-            // have constantValue return the RAISE_NPE_EXPR. Can't use a THROW because of non-local control flow implications.
-            if (!(op == EQ || op == NE)) {
-                return false;
-            }
-        }
         
         boolean rconst = right.isConstant();
         Type rt = right.type();
@@ -268,7 +260,8 @@ public class X10Binary_c extends Binary_c {
         if (numNulls + numStrings > 0) {            
             if (op == ADD && (numStrings > 0)) {
                 // toString() on a ConstantValue gives the same String as toString on the value itself.
-                return ConstantValue.makeString(lv.toString() + rv.toString());       
+                ConstantValue tmp = ConstantValue.makeString(lv.toString() + rv.toString());
+                return tmp;
             }
 
             if (op == EQ) {
@@ -292,6 +285,11 @@ public class X10Binary_c extends Binary_c {
             }
         }
         
+        if (numNulls > 0) {
+            // The only binops that we can constant fold when we have a NULL are EQ and NE.
+            return null;
+        }
+                
         if (lv instanceof BooleanValue && rv instanceof BooleanValue) {
             boolean l = ((BooleanValue) lv).value();
             boolean r = ((BooleanValue)rv).value();
