@@ -32,7 +32,7 @@ public class ResilientHeatTransfer {
     static val restore_needed = new Cell[Boolean](false);
     
     public static def main(args:Rail[String]) {
-        val n = (args.size>=1) ? Int.parseInt(args(0)) : 8;
+        val n = (args.size>=1) ? Int.parseInt(args(0)) : 5;
         Console.OUT.println("HeatTransfer for " + n + "x" + n + ", epsilon=" + epsilon);
         
         /*
@@ -143,7 +143,7 @@ public class ResilientHeatTransfer {
     private static def stencil_1(A:ResilientDistArray[Double](2), [x,y]:Point(2)): Double {
         val a:Double, b:Double, c:Double, d:Double;
         finish a = at(A.dist(x-1,y)) A(x-1,y);
-        finish b = at(A.dist(x-1,y)) A(x-1,y);
+        finish b = at(A.dist(x+1,y)) A(x+1,y);
         finish c = at(A.dist(x,y-1)) A(x,y-1);
         finish d = at(A.dist(x,y+1)) A(x,y+1);
         return (a+b+c+d)/4;
