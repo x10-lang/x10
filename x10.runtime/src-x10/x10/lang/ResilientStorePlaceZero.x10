@@ -142,15 +142,15 @@ public class ResilientStorePlaceZero {
 
     static def notifyActivityCreation(id:Long, srcId:Long, dstId:Long) {
         //Runtime.println("notifyActivityCreation("+id+", "+srcId+", "+dstId+")");
-        lowLevelAt(() => { atomic {
+        return 1l==lowLevelAtExprLong(() => { atomic {
+            if (Place(srcId).isDead()) return 0l;
             val fs = me.states(id);
             fs.live(dstId)++;
             fs.transit(srcId + dstId*Place.MAX_PLACES)--;
             //Runtime.println("live("+dstId+") == "+fs.live(dstId));
             //Runtime.println("transit("+srcId+","+dstId+") == "+fs.transit(srcId + dstId*Place.MAX_PLACES));
+            return 1l;
         } });
-        // TODO: check dead status at place 0, if source dead, do not transition to live in that case and return false.
-        return true;
     }
 
     static def notifyActivityTermination(id:Long, dstId:Long) {
