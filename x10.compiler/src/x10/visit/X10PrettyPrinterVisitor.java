@@ -2320,6 +2320,12 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
             // This is not needed for:
 
             if (!(target instanceof Special || target instanceof New)) {
+                if (isSpecialType(targetType) && isBoxedType(containerType)) {
+                	er.printBoxConversion(targetType);
+                    w.write("(");
+                    er.prettyPrint(target, tr);
+                    w.write(")");
+                } else
                 if (xts.isParameterType(targetType)) {
                     // TODO:CAST
                     w.write("(");
