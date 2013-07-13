@@ -126,7 +126,8 @@ public final class DistArray[T] (
             return new LocalState(dist, localRaw);
         };
 
-        localHandle = PlaceLocalHandle.makeFlat[LocalState[T]](PlaceGroup.WORLD, plsInit);
+        val mypg = dist.places();
+        localHandle = PlaceLocalHandle.makeFlat[LocalState[T]](PlaceGroup.WORLD, plsInit, (p:Place)=>!mypg.contains(p));
         raw = localHandle().data;
     }
 
@@ -180,7 +181,8 @@ public final class DistArray[T] (
             return new LocalState(dist, localRaw);
         };
 
-        localHandle = PlaceLocalHandle.make[LocalState[T]](PlaceGroup.WORLD, plsInit);
+        val mypg = dist.places();
+        localHandle = PlaceLocalHandle.make[LocalState[T]](PlaceGroup.WORLD, plsInit, (p:Place)=>!mypg.contains(p));
         raw = localHandle().data;
     }
 
@@ -213,7 +215,8 @@ public final class DistArray[T] (
             return new LocalState(dist, localRaw);
         };
 
-        localHandle = PlaceLocalHandle.makeFlat[LocalState[T]](PlaceGroup.WORLD, plsInit);
+        val mypg = dist.places();
+        localHandle = PlaceLocalHandle.makeFlat[LocalState[T]](PlaceGroup.WORLD, plsInit, (p:Place)=>!mypg.contains(p));
         raw = localHandle().data;
     }
 
@@ -230,7 +233,8 @@ public final class DistArray[T] (
         property(d);
 
         val plsInit:()=>LocalState[T] = ()=> new LocalState(d, a.localHandle().data);
-        localHandle = PlaceLocalHandle.makeFlat[LocalState[T]](PlaceGroup.WORLD, plsInit);
+        val mypg = dist.places();
+        localHandle = PlaceLocalHandle.makeFlat[LocalState[T]](PlaceGroup.WORLD, plsInit, (p:Place)=>!mypg.contains(p));
         raw = localHandle().data;
     }
 
@@ -553,7 +557,7 @@ public final class DistArray[T] (
                 newRail = new Rail[U]();
             }
             return new LocalState[U](dist, newRail);
-        });
+        }, (p:Place)=>!dist.places().contains(p));
         return new DistArray[U](dist, plh);                       
     }
 
@@ -640,7 +644,7 @@ public final class DistArray[T] (
                 newRail = new Rail[S]();
             }
             return new LocalState[S](dist, newRail);
-        });
+        }, (p:Place)=>!dist.places().contains(p));
         return new DistArray[S](dist, plh);                       
     }
     

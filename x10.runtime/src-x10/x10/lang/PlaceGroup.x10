@@ -112,11 +112,18 @@ public abstract class PlaceGroup implements Iterable[Place] {
     }
   }
 
+  public def broadcastFlat(cl:()=>void, ignoreIfDead:(Place)=>boolean) {
+    @Pragma(Pragma.FINISH_SPMD) finish for (p in this) {
+      if (!p.isDead() || !ignoreIfDead(p)) {
+          at (p) async cl();
+      }
+    }
+  }
+
   public static class SimplePlaceGroup extends PlaceGroup {
     private val numPlaces:Long;
     def this(numPlaces:Long) { this.numPlaces = numPlaces; }
     public operator this(i:long):Place = Place(i);
-    // replicated from superclass to workaround xlC bug with using & itables
     public def numPlaces() = numPlaces;
     public def contains(id:long) = id >= 0L && id < numPlaces;
     public def indexOf(id:long) = contains(id) ? id : -1L;

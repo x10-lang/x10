@@ -70,6 +70,30 @@ public final struct PlaceLocalHandle[T]{T isref, T haszero} {
 
     /**
      * Create a distributed object with local state of type T
+     * at each place in the argument PlaceGroup.  The local object will be initialized
+     * by evaluating init at each place.  When this method returns, the local objects
+     * will be initialized and available via the returned PlaceLocalHandle instance
+     * at every place in the PlaceGroup.
+     *
+     * @param pg a PlaceGroup specifiying the places where local objects should be created.
+     * @param init the initialization closure used to create the local object.
+     * @param ignoreIfDead a filter to indicate if a place can be silently ignored if it is 
+     *        already known to be dead at the time make first attempt to access it.
+     * @return a PlaceLocalHandle that can be used to access the local objects.
+     */
+    public static def make[T](pg:PlaceGroup, init:()=>T, 
+                              ignoreIfDead:(Place)=>Boolean){T isref, T haszero}:PlaceLocalHandle[T] {
+        val handle = at(Place.FIRST_PLACE) PlaceLocalHandle[T]();
+        finish for (p in pg) {
+            if (!p.isDead() || !ignoreIfDead(p)) {
+                at (p) async handle.set(init());
+            }
+        }
+        return handle;
+    }
+
+    /**
+     * Create a distributed object with local state of type T
      * at each place in the argument PlaceGroup.  For each place in the
      * argument PlaceGroup, the local_init closure will be evaluated in the 
      * current place to yield a value of type U.  This value will then be serialized 
@@ -87,6 +111,34 @@ public final struct PlaceLocalHandle[T]{T isref, T haszero} {
         finish for (p in pg) {
             val v:U = init_here(p);
             at (p) async handle.set(init_there(v));
+        }
+        return handle;
+    }
+
+    /**
+     * Create a distributed object with local state of type T
+     * at each place in the argument PlaceGroup.  For each place in the
+     * argument PlaceGroup, the local_init closure will be evaluated in the 
+     * current place to yield a value of type U.  This value will then be serialized 
+     * to the target place and passed as an argument to the init closure. 
+     * When this method returns, the local objects will be initialized and available 
+     * via the returned PlaceLocalHandle instance at every place in the distribution.
+     *
+     * @param dist a distribution specifiying the places where local objects should be created.
+     * @param init_here a closure to compute the local portion of the initialization (evaluated in the current place)
+     * @param init_there a closure to be evaluated in each place to create the local objects.
+     * @param ignoreIfDead a filter to indicate if a place can be silently ignored if it is 
+     *        already known to be dead at the time make first attempt to access it.
+     * @return a PlaceLocalHandle that can be used to access the local objects.
+     */
+    public static def make[T,U](pg:PlaceGroup, init_here:(Place)=>U, init_there:(U)=>T,
+                                ignoreIfDead:(Place)=>Boolean){T isref, T haszero}:PlaceLocalHandle[T] {
+        val handle = at(Place.FIRST_PLACE) PlaceLocalHandle[T]();
+        finish for (p in pg) {
+            val v:U = init_here(p);
+            if (!p.isDead() || !ignoreIfDead(p)) {
+                at (p) async handle.set(init_there(v));
+            }
         }
         return handle;
     }
@@ -110,7 +162,29 @@ public final struct PlaceLocalHandle[T]{T isref, T haszero} {
      */
     public static def makeFlat[T](pg:PlaceGroup, init:()=>T){T isref, T haszero}:PlaceLocalHandle[T] {
         val handle = at(Place.FIRST_PLACE) PlaceLocalHandle[T]();
-        pg.broadcastFlat( ()=>{ handle.set(init()); });
+        pg.broadcastFlat(()=>{ handle.set(init()); });
+        return handle;
+    }
+
+    /**
+     * Create a distributed object with local state of type T
+     * at each place in the argument PlaceGroup.  The local object will be initialized
+     * by evaluating init at each place.  When this method returns, the local objects
+     * will be initialized and available via the returned PlaceLocalHandle instance
+     * at every place in the PlaceGroup.
+     *
+     * Requires an initialization closure that does not change place asynchronously.
+     *
+     * @param pg a PlaceGroup specifiying the places where local objects should be created.
+     * @param init the initialization closure used to create the local object.
+     * @param ignoreIfDead a filter to indicate if a place can be silently ignored if it is 
+     *        already known to be dead at the time make first attempt to access it.
+     * @return a PlaceLocalHandle that can be used to access the local objects.
+     */
+    public static def makeFlat[T](pg:PlaceGroup, init:()=>T, 
+                                  ignoreIfDead:(Place)=>Boolean){T isref, T haszero}:PlaceLocalHandle[T] {
+        val handle = at(Place.FIRST_PLACE) PlaceLocalHandle[T]();
+        pg.broadcastFlat(()=>{ handle.set(init()); }, ignoreIfDead);
         return handle;
     }
 
@@ -140,11 +214,52 @@ public final struct PlaceLocalHandle[T]{T isref, T haszero} {
     }
 
     /**
+     * Create a distributed object with local state of type T
+     * at each place in the argument PlaceGroup.  For each place in the
+     * argument PlaceGroup, the local_init closure will be evaluated in the 
+     * current place to yield a value of type U.  This value will then be serialized 
+     * to the target place and passed as an argument to the init closure. 
+     * When this method returns, the local objects will be initialized and available 
+     * via the returned PlaceLocalHandle instance at every place in the distribution.
+     *
+     * Requires an initialization closure that does not change place asynchronously.
+     *
+     * @param dist a distribution specifiying the places where local objects should be created.
+     * @param init_here a closure to compute the local portion of the initialization (evaluated in the current place)
+     * @param init_there a closure to be evaluated in each place to create the local objects.
+     * @param ignoreIfDead a filter to indicate if a place can be silently ignored if it is 
+     *        already known to be dead at the time make first attempt to access it.
+     * @return a PlaceLocalHandle that can be used to access the local objects.
+     */
+    public static def makeFlat[T,U](pg:PlaceGroup, init_here:(Place)=>U, init_there:(U)=>T,
+                                    ignoreIfDead:(Place)=>Boolean){T isref, T haszero}:PlaceLocalHandle[T] {
+        val handle = at(Place.FIRST_PLACE) PlaceLocalHandle[T]();
+        @Pragma(Pragma.FINISH_SPMD) finish for (p in pg) {
+            val v:U = init_here(p);
+            if (!p.isDead() || !ignoreIfDead(p)) {
+                at (p) async handle.set(init_there(v));
+            }
+        }
+        return handle;
+    }
+
+
+    /**
      * Release the local state of the argument PlaceLocalHandle at
      * every place in the argument PlaceGroup (by storing null
      * as the value for the PlaceLocalHandle at that Place).
      */
     public static def destroy[T](pg:PlaceGroup, plh:PlaceLocalHandle[T]){T isref, T haszero}:void {
         pg.broadcastFlat(()=>{ plh.set(null); });
+    }
+
+    /**
+     * Release the local state of the argument PlaceLocalHandle at
+     * every place in the argument PlaceGroup (by storing null
+     * as the value for the PlaceLocalHandle at that Place).
+     */
+    public static def destroy[T](pg:PlaceGroup, plh:PlaceLocalHandle[T],
+                                 ignoreIfDead:(Place)=>Boolean){T isref, T haszero}:void {
+        pg.broadcastFlat(()=>{ plh.set(null); }, ignoreIfDead);
     }
 }
