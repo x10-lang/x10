@@ -126,7 +126,7 @@ public final class DistArray[T] (
             return new LocalState(dist, localRaw);
         };
 
-        localHandle = PlaceLocalHandle.makeFlat[LocalState[T]](dist.places(), plsInit);
+        localHandle = PlaceLocalHandle.makeFlat[LocalState[T]](PlaceGroup.WORLD, plsInit);
         raw = localHandle().data;
     }
 
@@ -180,7 +180,7 @@ public final class DistArray[T] (
             return new LocalState(dist, localRaw);
         };
 
-        localHandle = PlaceLocalHandle.make[LocalState[T]](dist.places(), plsInit);
+        localHandle = PlaceLocalHandle.make[LocalState[T]](PlaceGroup.WORLD, plsInit);
         raw = localHandle().data;
     }
 
@@ -213,7 +213,7 @@ public final class DistArray[T] (
             return new LocalState(dist, localRaw);
         };
 
-        localHandle = PlaceLocalHandle.makeFlat[LocalState[T]](dist.places(), plsInit);
+        localHandle = PlaceLocalHandle.makeFlat[LocalState[T]](PlaceGroup.WORLD, plsInit);
         raw = localHandle().data;
     }
 
@@ -230,7 +230,7 @@ public final class DistArray[T] (
         property(d);
 
         val plsInit:()=>LocalState[T] = ()=> new LocalState(d, a.localHandle().data);
-        localHandle = PlaceLocalHandle.makeFlat[LocalState[T]](dist.places(), plsInit);
+        localHandle = PlaceLocalHandle.makeFlat[LocalState[T]](PlaceGroup.WORLD, plsInit);
         raw = localHandle().data;
     }
 
@@ -539,7 +539,7 @@ public final class DistArray[T] (
      * @return a new array with the same distribution as this array where <code>result(p) == op(this(p))</code>
      */
     public final def map[U](op:(T)=>U):DistArray[U](this.dist) {
-        val plh = PlaceLocalHandle.make[LocalState[U]](dist.places(), ()=> {
+        val plh = PlaceLocalHandle.make[LocalState[U]](PlaceGroup.WORLD, ()=> {
             val newRail:Rail[U]{self!=null};
             if (dist.places().contains(here)) {
                 val srcRail = raw();
@@ -625,7 +625,7 @@ public final class DistArray[T] (
      * @return a new array with the same distribution as this array containing the result of the map
      */
     public final def map[S,U](src:DistArray[U](this.dist), op:(T,U)=>S):DistArray[S](dist) {
-        val plh = PlaceLocalHandle.make[LocalState[S]](dist.places(), ()=> {
+        val plh = PlaceLocalHandle.make[LocalState[S]](PlaceGroup.WORLD, ()=> {
             val newRail:Rail[S]{self!=null};
             if (dist.places().contains(here)) {
                 val src1Rail = raw();
