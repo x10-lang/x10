@@ -592,7 +592,7 @@ public final class Runtime {
                 activity = poll();
                 if (activity == null) {
                     activity = pool.scan(random, this);
-                    if (activity == null) return false;
+                    if (activity == null) return false; // [DC] only happens when pool's latch is released
                 }
                 activity.run();
                 Unsafe.dealloc(activity);
@@ -750,6 +750,8 @@ public final class Runtime {
                         //    if (p.isDead()) Runtime.println("Dead: "+p);
                         //}
                     }
+                    // release the pool
+                    if (here.id == 0l) Runtime.rootFinish.notifyPlaceDeath();
                 }
                 activity = worker.poll();
                 if (null != activity || latch()) return activity;
@@ -815,6 +817,9 @@ public final class Runtime {
      */
     public static def surplusActivityCount():int = worker().size();
 
+    /** The finish state that manages the 'main' activity and sub activities. */
+    private static rootFinish = makeDefaultFinish(pool.latch);
+
     /**
      * Run main activity in a finish.
      * @param init Static initializers
@@ -826,17 +831,23 @@ public final class Runtime {
         x10rtInit();
 
         if (hereInt() == 0) {
-            val rootFinish = new FinishState.Finish(pool.latch);
-            // in place 0 schedule the execution of the main activity
-            executeLocal(new Activity(body, here, rootFinish));
+            // [DC] at this point: rootFinish has an implicit notifySubActivitySpawn and notifyActivityBegin
+            // (due to constructor initialising counters appropriately)
+            // do not need to alter rootFinish in activity constructor
+            executeLocal(new Activity(body, here, rootFinish, false));
 
-            // wait for thread pool to die
-            // (happens when main activity terminates)
+            // [DC] during call to pool(NTHREADS), queued activity runs, and eventually calls rootFinish.notifyActivityTermination
+            // this ultimately triggers the return of pool(NTHREADS)
+
+            // [DC] therefore, this call blocks until body has finished executing
             pool(NTHREADS);
+
+            // [DC] at this point, rootFinish has quiescent (counters are zero)
 
             // we need to call waitForFinish here to see the exceptions thrown by main if any
             try {
                 rootFinish.waitForFinish();
+                // [DC] finish counters may now be negative due to implicit call to notifyActivityTermination inside waitForFinish
             } finally {
                 // root finish has terminated, kill remote processes if any
                 if (Place.MAX_PLACES >= 1024) {
@@ -1255,11 +1266,20 @@ public final class Runtime {
     // finish
     static def makeDefaultFinish():FinishState {
         if (RESILIENT_PLACE_ZERO) {
-            return new FinishState.FinishResilientPlaceZero();
+            return new FinishState.FinishResilientPlaceZero(null);
         } else if (RESILIENT_ZOO_KEEPER) {
-            return new FinishState.FinishResilientZooKeeper();
+            return new FinishState.FinishResilientZooKeeper(null);
         } else {
             return new FinishState.Finish();
+        }
+    }
+    static def makeDefaultFinish(latch:SimpleLatch):FinishState {
+        if (RESILIENT_PLACE_ZERO) {
+            return new FinishState.FinishResilientPlaceZero(latch);
+        } else if (RESILIENT_ZOO_KEEPER) {
+            return new FinishState.FinishResilientZooKeeper(latch);
+        } else {
+            return new FinishState.Finish(latch);
         }
     }
 
@@ -1285,9 +1305,9 @@ public final class Runtime {
         case Pragma.FINISH_DENSE:
             f = new FinishState.DenseFinish(); break;
         case Pragma.FINISH_RESILIENT_PLACE_ZERO:
-            f = new FinishState.FinishResilientPlaceZero(); break;
+            f = new FinishState.FinishResilientPlaceZero(null); break;
         case Pragma.FINISH_RESILIENT_ZOO_KEEPER:
-            f = new FinishState.FinishResilientZooKeeper(); break;
+            f = new FinishState.FinishResilientZooKeeper(null); break;
         default: 
             f = makeDefaultFinish();
         }

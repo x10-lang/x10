@@ -33,6 +33,11 @@ abstract class FinishState {
     abstract def simpleLatch():SimpleLatch;
     abstract def runAt(place:Place, body:()=>void, prof:Runtime.Profile):void;
 
+    // only Runtime.rootFinish gets this
+    def notifyPlaceDeath() : void {
+        throw new Exception("Only resilient X10 handles place death");
+    }
+
     static def deref[T](root:GlobalRef[FinishState]) = (root as GlobalRef[FinishState]{home==here})() as T;
 
     // a finish with local asyncs only
@@ -855,15 +860,18 @@ abstract class FinishState {
     static final class FinishResilientPlaceZero(id:Long) extends FinishState {
         private static def parentFinish() : Long {
             val a = Runtime.activity();
+            if (a == null) return -1; // creating the main activity (root finish)
             val par = a.finishState();
             if (par instanceof FinishResilientPlaceZero) return (par as FinishResilientPlaceZero).id;
             return -1l;
         }
-        def this(parent:Long) {
-            property(ResilientStorePlaceZero.make(here.id, parent));
+        def this(parent:Long, latch:SimpleLatch) {
+            property(ResilientStorePlaceZero.make(here.id, parent, latch));
+            assert latch==null || here.id == 0l;
         }
-        def this() {
-            property(ResilientStorePlaceZero.make(here.id, parentFinish()));
+        def this(latch:SimpleLatch) {
+            property(ResilientStorePlaceZero.make(here.id, parentFinish(), latch));
+            assert latch==null || here.id == 0l;
         }
         def notifySubActivitySpawn(place:Place) {
             val srcId = here.id;
@@ -886,6 +894,10 @@ abstract class FinishState {
             ResilientStorePlaceZero.waitForFinish(id);
         }
         def simpleLatch():SimpleLatch = null;
+        def notifyPlaceDeath() {
+            assert id == 0l : id;
+            ResilientStorePlaceZero.notifyPlaceDeath(id);
+        }
         public def runAt(place:Place, body:()=>void, prof:Runtime.Profile):void {
             Runtime.ensureNotInAtomic();
             if (place.id == Runtime.hereLong()) {
@@ -894,39 +906,45 @@ abstract class FinishState {
                 return;
             }
                 
-            val tmp_finish = new FinishResilientPlaceZero(id);
+            val real_finish = this;
+            //real_finish.notifySubActivitySpawn(place);
+
+            val tmp_finish = new FinishResilientPlaceZero(id, null);
             // TODO: clockPhases -- clocks not supported in resilient X10 at the moment
             // TODO: This implementation of runAt does not explicitly dealloc things
-            // TODO: This implementation sadly neglects 
             val home = here;
             tmp_finish.notifySubActivitySpawn(place);
 
             // [DC] do not use at (plcae) async since the finish state is handled internally
             // [DC] go to the lower level...
             val cl = () => @x10.compiler.RemoteInvocation("resilient_place_zero_run_at") {
-                var created : Boolean = false;
-                try {
-                    try {
-                        created = tmp_finish.notifyActivityCreation(home);
-                        if (created) body();
-                    } catch (e:Runtime.AtCheckedWrapper) {
-                        throw e.getCheckedCause();
-                    } 
-                } catch (t:CheckedThrowable) {
-                    val e = Exception.ensureException(t);
-                    tmp_finish.pushException(e);
-                }
-                if (created) tmp_finish.notifyActivityTermination();
+                val exc_body = () => {
+                    if (tmp_finish.notifyActivityCreation(home)) {
+                        try {
+                            try {
+                                body();
+                            } catch (e:Runtime.AtCheckedWrapper) {
+                                throw e.getCheckedCause();
+                            } 
+                        } catch (t:CheckedThrowable) {
+                            val e = Exception.ensureException(t);
+                            tmp_finish.pushException(e);
+                        }
+                        tmp_finish.notifyActivityTermination();
+                    }
+                };
+                Runtime.execute(new Activity(exc_body, home, real_finish, false, false)); 
             };
             Runtime.x10rtSendMessage(place.id, cl, prof);
 
             try {
-                //Runtime.println("Entering resilient at waitForFinish");
+                if (ResilientStorePlaceZero.VERBOSE) Runtime.println("Entering resilient at waitForFinish");
                 tmp_finish.waitForFinish();
-                //Runtime.println("Exiting resilient at waitForFinish");
+                if (ResilientStorePlaceZero.VERBOSE) Runtime.println("Exiting resilient at waitForFinish");
             } catch (e:MultipleExceptions) {
                 assert e.exceptions.size == 1l : e.exceptions();
                 val e2 = e.exceptions(0);
+                if (ResilientStorePlaceZero.VERBOSE) Runtime.println("Received from resilient at: "+e2);
                 if (e2 instanceof WrappedThrowable) {
                     Runtime.throwCheckedWithoutThrows(e2.getCause());
                 } else {
@@ -937,8 +955,12 @@ abstract class FinishState {
     }
 
     static final class FinishResilientZooKeeper(id:Int) extends FinishState {
-        def this() {
+        // can be null, otherwise should call .release() upon quiescence (i.e. when a call to waitForFinish() would terminate immediately)...
+        // note that it is not ok to call .release() within waitForFinish, it must be called when the counters are updated for the last time
+        val latch:SimpleLatch;
+        def this(latch:SimpleLatch) {
             property(0);
+            this.latch = latch;
             throw new Exception("under implementation");
         }
         def notifySubActivitySpawn(place:Place) {

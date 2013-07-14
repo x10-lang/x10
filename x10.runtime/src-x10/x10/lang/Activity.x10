@@ -78,6 +78,10 @@ class Activity {
      */
     var clockPhases:ClockPhases;
 
+    /** Set to true unless this activity represents the body of an 'at' statement.
+     */
+    val shouldNotifyTermination:Boolean;
+
     /**
      * Depth of enclosong atomic blocks
      */
@@ -87,8 +91,15 @@ class Activity {
      * Create activity.
      */
     def this(body:()=>void, srcPlace:Place, finishState:FinishState) {
+        this(body, srcPlace, finishState, true);
+    }
+    def this(body:()=>void, srcPlace:Place, finishState:FinishState, nac:Boolean) {
+        this(body, srcPlace, finishState, nac, true);
+    }
+    def this(body:()=>void, srcPlace:Place, finishState:FinishState, nac:Boolean, nt:Boolean) {
         this.finishState = finishState;
-        finishState.notifyActivityCreation(srcPlace);
+        if (nac) finishState.notifyActivityCreation(srcPlace);
+        this.shouldNotifyTermination = nt;
         this.body = body;
     }
 
@@ -150,7 +161,7 @@ class Activity {
             finishState.pushException(t);
         }
         if (null != clockPhases) clockPhases.drop();
-        finishState.notifyActivityTermination();
+        if (shouldNotifyTermination) finishState.notifyActivityTermination();
         Unsafe.dealloc(body);
     }
 }

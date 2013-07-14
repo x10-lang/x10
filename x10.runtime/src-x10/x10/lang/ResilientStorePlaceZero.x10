@@ -16,10 +16,14 @@ import x10.compiler.*;
 import x10.util.GrowableRail;
 import x10.util.concurrent.AtomicLong;
 import x10.util.concurrent.AtomicBoolean;
+import x10.util.concurrent.SimpleLatch;
 
 public class ResilientStorePlaceZero {
 
     static me = new ResilientStorePlaceZero();
+
+    // Turn this on to debug deadlocks within the finish implementation
+    static VERBOSE = false;
 
 
     /** Simply utility function to send a message to place zero at the x10rt level.
@@ -76,19 +80,23 @@ public class ResilientStorePlaceZero {
         val homeId : Long;
         var adopted : Boolean;
         var multipleExceptions : GrowableRail[Exception] = null;
+        val latch : SimpleLatch;
 
         private def ensureMultipleExceptions() {
             if (multipleExceptions == null) multipleExceptions = new GrowableRail[Exception]();
             return multipleExceptions;
         }
 
-        public def this(pfs:State, homeId:Long, id:Long) {
+        public def this(pfs:State, homeId:Long, id:Long, latch:SimpleLatch) {
             this.id = id;
             this.parent = pfs;
             this.transit = new Rail[Int](Place.MAX_PLACES * Place.MAX_PLACES, 0);
             this.live = new Rail[Int](Place.MAX_PLACES, 0);
+            this.live(homeId) = 1;
+            if (VERBOSE) Runtime.println("    initial live("+homeId+") == 1");
             this.homeId = homeId;
             this.adopted = false;
+            this.latch = latch;
         }
 
         def findFirstNonDeadParent() : State {
@@ -120,11 +128,13 @@ public class ResilientStorePlaceZero {
     private var numDead : Long = 0;
 
 
-    static def make(homeId:Long, parentId:Long) : Long {
+    static def make(homeId:Long, parentId:Long, latch:SimpleLatch) : Long {
         return lowLevelAtExprLong(() => {
             atomic {
                 val pfs = parentId==-1l ? null : me.states(parentId);
-                val fs = new State(pfs, homeId, me.states.size());
+                val id = me.states.size();
+                if (VERBOSE) Runtime.println("make("+parentId+","+id+") @ "+homeId);
+                val fs = new State(pfs, homeId, id, latch);
                 me.states.add(fs);
                 return fs.id;
             }
@@ -132,40 +142,56 @@ public class ResilientStorePlaceZero {
     }
 
     static def notifySubActivitySpawn(id:Long, srcId:Long, dstId:Long) {
-        //Runtime.println("notifySubActivitySpawn("+id+", "+srcId+", "+dstId+")");
         lowLevelAt(() => { atomic {
+            if (VERBOSE) Runtime.println("notifySubActivitySpawn("+id+", "+srcId+", "+dstId+")");
             val fs = me.states(id);
             fs.transit(srcId + dstId*Place.MAX_PLACES)++;
-            //Runtime.println("transit("+srcId+","+dstId+") == "+fs.transit(srcId + dstId*Place.MAX_PLACES));
+            if (VERBOSE) Runtime.println("    transit("+srcId+","+dstId+") == "+fs.transit(srcId + dstId*Place.MAX_PLACES));
         } });
     }
 
     static def notifyActivityCreation(id:Long, srcId:Long, dstId:Long) {
-        //Runtime.println("notifyActivityCreation("+id+", "+srcId+", "+dstId+")");
         return 1l==lowLevelAtExprLong(() => { atomic {
+            if (VERBOSE) Runtime.println("notifyActivityCreation("+id+", "+srcId+", "+dstId+")");
             if (Place(srcId).isDead()) return 0l;
             val fs = me.states(id);
             fs.live(dstId)++;
             fs.transit(srcId + dstId*Place.MAX_PLACES)--;
-            //Runtime.println("live("+dstId+") == "+fs.live(dstId));
-            //Runtime.println("transit("+srcId+","+dstId+") == "+fs.transit(srcId + dstId*Place.MAX_PLACES));
+            if (VERBOSE) Runtime.println("    live("+dstId+") == "+fs.live(dstId));
+            if (VERBOSE) Runtime.println("    transit("+srcId+","+dstId+") == "+fs.transit(srcId + dstId*Place.MAX_PLACES));
             return 1l;
         } });
     }
 
     static def notifyActivityTermination(id:Long, dstId:Long) {
-        //Runtime.println("notifyActivityTermination("+id+", "+dstId+")");
         lowLevelAt(() => { atomic {
+            if (VERBOSE) Runtime.println("notifyActivityTermination("+id+", "+dstId+")");
             val fs = me.states(id);
             fs.live(dstId)--;
-            //Runtime.println("live("+dstId+") == "+fs.live(dstId));
+            if (VERBOSE) Runtime.println("    live("+dstId+") == "+fs.live(dstId));
+            if (fs.latch != null && me.quiescent(fs)) {
+                if (VERBOSE) Runtime.println("    Releasing latch...");
+                fs.latch.release();
+            }
         } });
+    }
+
+    static def notifyPlaceDeath(id:Long) {
+        assert here == Place.FIRST_PLACE;
+        atomic {
+            if (VERBOSE) Runtime.println("Notify place death...");
+            val fs = me.states(id);
+            if (fs.latch != null && me.quiescent(fs)) {
+                if (VERBOSE) Runtime.println("    Releasing latch...");
+                fs.latch.release();
+            }
+        }
     }
 
     static def pushException(id:Long, t:Exception) {
         lowLevelAt(() => { atomic {
             val fs = me.states(id);
-            //Runtime.println("pushException("+id+", "+t+")");
+            if (VERBOSE) Runtime.println("pushException("+id+", "+t+")");
             fs.ensureMultipleExceptions().add(t);
         } });
     }
@@ -200,14 +226,20 @@ public class ResilientStorePlaceZero {
             }
         }
 
+        // [DC] a previous version of this used != instead of >
+        // however when I made the adjustment to allow resilient finish to be used
+        // as the root finish implementation (outside of main)
+        // this as no longer adequate since finishes used as root finish are used in a
+        // quirky fashion
+        if (VERBOSE) Runtime.println("quiescent("+fs.id+")");
         for (i in 0..(Place.MAX_PLACES-1)) {
-            if (fs.live(i)!=0) {
-                //Runtime.println("Live at "+i);
+            if (fs.live(i)>0) {
+                if (VERBOSE) Runtime.println("    "+fs.id+" Live at "+i);
                 return false;
             }
             for (j in 0..(Place.MAX_PLACES-1)) {
-                if (fs.transit(i + j*Place.MAX_PLACES)!=0) {
-                    //Runtime.println("In transit from "+i+" -> "+j);
+                if (fs.transit(i + j*Place.MAX_PLACES)>0) {
+                    if (VERBOSE) Runtime.println("    "+fs.id+" In transit from "+i+" -> "+j);
                     return false;
                 }
             }
@@ -231,21 +263,20 @@ public class ResilientStorePlaceZero {
     }
 
     static def waitForFinish(id:Long) {
-        //Runtime.println("waitForFinish()");
-        try {
-            lowLevelAt(() => {
-                val s : State;
-                atomic {
-                    s = me.states(id);
-                }
-                when (me.quiescent(s)) { }
-                if (s.multipleExceptions != null) {
-                    throw new MultipleExceptions(s.multipleExceptions);
-                }
-            });
-        } finally {
-            //Runtime.println("waitForFinish() done waiting");
-        }
+        lowLevelAt(() => {
+            if (VERBOSE) Runtime.println("waitForFinish("+id+")");
+            val s : State;
+            atomic {
+                s = me.states(id);
+            }
+            notifyActivityTermination(id, s.homeId);
+            when (me.quiescent(s)) { }
+            if (s.multipleExceptions != null) {
+                if (VERBOSE) Runtime.println("waitForFinish("+id+") done waiting (throwing exceptions)");
+                throw new MultipleExceptions(s.multipleExceptions);
+            }
+            if (VERBOSE) Runtime.println("waitForFinish("+id+") done waiting");
+        });
     }
 }
 
