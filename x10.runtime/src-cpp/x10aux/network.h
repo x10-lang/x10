@@ -151,6 +151,7 @@ namespace x10aux {
         _X_("X10RT shutdown complete");
     }
 
+    x10::lang::String *runtime_name (void);
 }
 
 namespace x10aux {

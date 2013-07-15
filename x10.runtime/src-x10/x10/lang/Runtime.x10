@@ -54,6 +54,15 @@ public final class Runtime {
     @Native("c++", "x10::lang::RuntimeNatives::printf(#fmt, #t)")
     public native static def printf[T](fmt:String, t:T):void;
 
+
+    /** Get a string that identifies the X10 execution environment of this place.
+     * The string is undefined but should be helpful for debugging, typically containing the pid and hostname.
+     * On java it is equivalent to java.lang.management.ManagementFactory.getRuntimeMXBean().getName().
+     */
+    @Native("java", "java.lang.management.ManagementFactory.getRuntimeMXBean().getName()")
+    @Native("c++", "x10aux::runtime_name()")
+    public native static def getName() : String;
+
     // Native runtime interface
 
     /**

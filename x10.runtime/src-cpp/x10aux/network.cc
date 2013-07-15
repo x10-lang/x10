@@ -12,6 +12,10 @@
 #include <x10aux/config.h>
 
 #include <x10aux/network.h>
+
+#include <sys/types.h>
+#include <unistd.h>
+
 #include <x10aux/RTT.h>
 #include <x10aux/basic_functions.h>
 
@@ -520,6 +524,17 @@ void x10aux::coll_handler2(x10rt_team id, void *arg) {
     *t = id;
     x10aux::system_dealloc(p);
     fs->notifyActivityTermination();
+}
+
+x10::lang::String *x10aux::runtime_name (void)
+{
+    pid_t pid = getpid();
+    char hname[1024] = "";
+    if (gethostname(hname, sizeof hname)) {
+        perror("x10aux::runtime_name");
+    }
+    x10::lang::String *str = x10::lang::String::Lit(alloc_printf("%lu@%s", (unsigned long) pid, hname));
+    return str;
 }
 
 // vim:tabstop=4:shiftwidth=4:expandtab

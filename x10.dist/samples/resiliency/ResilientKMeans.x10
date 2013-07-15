@@ -36,6 +36,10 @@ class ResilientKMeans {
         Console.OUT.println("KMeans: Divide " + DIM + " dim " + POINTS + " points into "
                             + CLUSTERS + " clusters, using " + Place.MAX_PLACES + " places");
         
+        finish for (p in Place.places()) at (p) {
+            Console.OUT.println(here+" running in "+Runtime.getName());
+        }
+
         val place0 = here;
         
         /*
