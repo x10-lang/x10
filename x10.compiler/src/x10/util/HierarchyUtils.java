@@ -31,13 +31,13 @@ public class HierarchyUtils {
 	public static Set<ClassType> getSuperTypes(ClassType startingClass) {
 		Set<ClassType> superTypes = new LinkedHashSet<ClassType>();
 		ClassType previousType = startingClass;
-		ClassType superType = (ClassType)startingClass.superClass();
+		ClassType superType = toClass(startingClass.superClass());
 
 		while (superType != null) {
 			superTypes.add(superType);
 			addInterfaces(previousType, superTypes);
 			previousType = superType;
-			superType = (ClassType)superType.superClass();
+			superType = toClass(superType.superClass());
 		}
 
 		addInterfaces(previousType, superTypes);
@@ -47,11 +47,11 @@ public class HierarchyUtils {
 
 	public static Set<ClassType> getSuperClasses(ClassType startingClass) {
 		Set<ClassType> superTypes = CollectionFactory.newHashSet();
-		ClassType superType = (ClassType)startingClass.superClass();
+		ClassType superType = toClass(startingClass.superClass());
 
 		while (superType != null) {
 			superTypes.add(superType);
-			superType = (ClassType)superType.superClass();
+			superType = toClass(superType.superClass());
 		}
 
 		return superTypes;
@@ -59,8 +59,8 @@ public class HierarchyUtils {
 	
 	private static void addInterfaces(ClassType startingClass, Set<ClassType> interfaces) {
 		for (Type type : startingClass.interfaces()) {
-			interfaces.add((ClassType)type);
-			addInterfaces((ClassType)type, interfaces);
+			interfaces.add(toClass(type));
+			addInterfaces(toClass(type), interfaces);
 		}
 	}
 	
@@ -121,5 +121,8 @@ public class HierarchyUtils {
 	        ts.isSubtype(mi.formalTypes().get(0), ts.Rail(ts.String()), context);
 	    return result;
 	}
-
+	
+	private static ClassType toClass(Type t) {
+	    return t == null ? null : t.toClass();
+	}
 }
