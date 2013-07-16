@@ -25,7 +25,7 @@ else
     INST_INCLUDE=include
 endif
 
-override CXXFLAGS += -I$(DISTDIR)/include -Isrc-crx -Isrc -I$(GEN_DIR)
+override CXXFLAGS += -I$(DISTDIR)/include -Isrc-crx -Isrc -I$(GEN_DIR) -g 
 
 ###########
 # Targets #

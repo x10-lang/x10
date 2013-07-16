@@ -27,20 +27,6 @@ class MyTask : public Task {
     }
 };
 
-class MyFinish : public Task {
-  private:
-    int argc;
-    char **argv;
-  public:
-    MyFinish(int ac, char** av) : argc(ac), argv(av) {}
-    virtual void execute() {
-        for (int i=1; i< argc; i++) {
-            MyTask* task = new (Pool::alloc<MyTask>()) MyTask (argv[i]);
-            myPool->runAsync(task);
-        }
-    }
-};
-
 class MyMain : public Task {
   private:
     int argc;
@@ -48,10 +34,22 @@ class MyMain : public Task {
   public:
     MyMain(int ac, char** av) : argc(ac), argv(av) {}
     virtual void execute() {
-        MyFinish finish(argc, argv);
-        printf("Hello World, I have %d things to say\n", argc-1);
-        myPool->runFinish(&finish);
-        printf("Goodbye World, I am done talking\n");
+        if (argc-1 > 0) {
+            printf("Hello World, I have %d things to say\n", argc-1);
+            int numTasks = argc-1;
+            Task** myTasks = Pool::alloc<Task*>(numTasks*sizeof(Task*));
+            for (int i=0; i<numTasks; i++) {
+                myTasks[i] = new (Pool::alloc<MyTask>()) MyTask (argv[i]);
+            }
+            myPool->runFinish(numTasks, myTasks);
+            printf("Goodbye World, I am done talking\n");
+            for (int i=0; i<numTasks; i++) {
+                Pool::dealloc(myTasks[i]);
+            }
+            Pool::dealloc(myTasks);
+        } else {
+            printf("Please give me something to say on the command line\n");
+        }
     }
 };
 

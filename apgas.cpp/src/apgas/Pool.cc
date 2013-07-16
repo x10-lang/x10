@@ -52,7 +52,6 @@ x10::lang::VoidFun_0_0::itable<TaskWrapper>TaskWrapper::_itable(&x10::lang::Refe
 x10aux::itable_entry TaskWrapper::_itables[2] = {x10aux::itable_entry(&x10aux::getRTT<x10::lang::VoidFun_0_0>, &TaskWrapper::_itable),x10aux::itable_entry(NULL, NULL)};
 
 
-
 namespace apgas {
 
     static Pool* hack;
@@ -85,4 +84,21 @@ namespace apgas {
         x10::lang::Runtime::runFinish(reinterpret_cast<x10::lang::VoidFun_0_0*>(tw));
         Pool::dealloc(tw);
     }
+
+    class FinishBlock : public Task {
+        int numTasks;
+        Task** tasks;
+    public:
+        FinishBlock(int nt, Task** ts) : numTasks(nt), tasks(ts) {}
+        virtual void execute() {
+            for (int i=0; i<numTasks; i++) {
+                myPool->runAsync(tasks[i]);
+            }
+        }
+    };
+    
+    void Pool::runFinish(int numTasks, Task* tasks[]) {
+        FinishBlock fb(numTasks, tasks);
+        runFinish(&fb);
+    }        
 }
