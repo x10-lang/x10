@@ -26,6 +26,7 @@
 
 #include <stdlib.h>
 #include <stdio.h>
+#include <signal.h> // SIGPIPE
 #include <string.h>
 #include <unistd.h> // for close() and sleep()
 #include <errno.h> // for the strerror function
@@ -633,6 +634,20 @@ x10rt_error x10rt_net_preinit(char* connInfoBuffer, int connInfoBufferSize) {
 
 x10rt_error x10rt_net_init (int * argc, char ***argv, x10rt_msg_type *counter)
 {
+    /** [DC] A note on SIGPIPE:
+     *
+     * The SIGPIPE signal is raised when writing to a socket that is closed.
+     * This sometimes occurs in resilient X10 when a place dies, particularly the
+     * death occurs during a (maybe large) write of data.
+     * We catch this and do nothing, to stop it killing the process.
+     *
+     * On OSX (and presumably BSD) one can use OPT_NOSIGPIPE when creating the socket.
+     * On Linux, one can use MSG_NOSIGNAL in the send() call.
+     * On AIX, neither of these options are available
+     *
+     * So we choose to catch SIGPIPE on all platforms.
+     */
+    signal(SIGPIPE, SIG_IGN);
 	context.pendingWrites = NULL;
 	context.useNonblockingLinks = !checkBoolEnvVar(getenv(X10_NOWRITEBUFFER));
 	if (context.useNonblockingLinks)
