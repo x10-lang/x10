@@ -1,4 +1,8 @@
 /*
+ * THIS CLASS IS NOT USD ANY MORE, USE x10.lang.SparsePlaceGroup
+ */
+
+/*
  *  This file is part of the X10 project (http://x10-lang.org).
  *
  *  This file is licensed to You under the Eclipse Public License (EPL);

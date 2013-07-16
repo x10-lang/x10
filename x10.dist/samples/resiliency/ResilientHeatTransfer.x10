@@ -14,7 +14,7 @@ import x10.util.*;
 /**
  * Resilient HeatTransfer which uses resilient DistArray
  * Partially based on HeatTransfer_v2.x10
- * Uses ResilientDistArray and ResilientPlaceGroup
+ * Uses ResilientDistArray
  * @author kawatiya
  * 
  * For Managed X10:
@@ -26,13 +26,13 @@ import x10.util.*;
  */
 public class ResilientHeatTransfer {
     static val epsilon = 1.0e-5;
-    static val ITERATIONS=100;
+    static val ITERATIONS=200;
     
     static val livePlaces = new ArrayList[Place]();
     static val restore_needed = new Cell[Boolean](false);
     
     public static def main(args:Rail[String]) {
-        val n = (args.size>=1) ? Int.parseInt(args(0)) : 5;
+        val n = (args.size>=1) ? Int.parseInt(args(0)) : 10;
         Console.OUT.println("HeatTransfer for " + n + "x" + n + ", epsilon=" + epsilon);
         
         /*
@@ -43,8 +43,8 @@ public class ResilientHeatTransfer {
         val LastRow = Region.make(0..0, 1..n);
         
         /* Variables to be recalculated when place dies */
-        for (pl in Place.places()) livePlaces.add(pl);
-        var BigD:Dist(2) = Dist.makeBlock(BigR, 0, new ResilientPlaceGroup(livePlaces)); printDist(BigD);
+        for (pl in Place.places()) livePlaces.add(pl); // livePlaces should be sorted
+        var BigD:Dist(2) = Dist.makeBlock(BigR, 0, new SparsePlaceGroup(livePlaces.toRail())); printDist(BigD);
         var SmallD:Dist(2) = BigD | SmallR;
         var D_Base:Dist = Dist.makeUnique(SmallD.places());
         
@@ -68,7 +68,7 @@ public class ResilientHeatTransfer {
                 if (restore_needed()) {
                     /* Create new Dist on available places */
                     Console.OUT.println("Create new Dist over available " + (Place.MAX_PLACES-Place.numDead()) + " places");
-                    BigD = Dist.makeBlock(BigR, 0, new ResilientPlaceGroup(livePlaces)); printDist(BigD);
+                    BigD = Dist.makeBlock(BigR, 0, new SparsePlaceGroup(livePlaces.toRail())); printDist(BigD);
                     SmallD = BigD | SmallR;
                     D_Base = Dist.makeUnique(SmallD.places());
                     /* Restore from a snapshot */
