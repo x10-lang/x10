@@ -10,8 +10,6 @@
  */
 
 
-import java.lang.management.ManagementFactory;
-
 import org.apache.zookeeper.AsyncCallback;
 import org.apache.zookeeper.CreateMode;
 import org.apache.zookeeper.WatchedEvent;
@@ -146,7 +144,7 @@ public class ServerLauncher {
         // monitor the change of children
         zk.getChildren("/", new ChildrenChangedWatcher(zk));
 
-        val name = ManagementFactory.getRuntimeMXBean().getName(); // pid@hostname
+        val name = Runtime.getName(); // pid@hostname
         val split = name.split("@");      
         val data = "host=" + split(1) + ", pid=" + split(0);
         // create an ephemeral node representing this Java VM
