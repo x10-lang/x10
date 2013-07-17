@@ -121,7 +121,7 @@ static x10rt_error fatal (const char *format, ...)
 
     va_end(va_args);
 
-    fprintf(stderr, "%s\n", context.errorMsg);
+    //fprintf(stderr, "%s\n", context.errorMsg);
     return context.errorCode;
 }
 
@@ -205,7 +205,6 @@ bool flushPendingData()
 				{
 					if (errno == EINTR) continue;
 					if (errno == EAGAIN) break;
-					fprintf(stderr, "flush errno=%i", errno);
 					context.socketLinks[context.pendingWrites->place].fd = -2;
 					pthread_mutex_unlock(&context.writeLocks[context.pendingWrites->place]);
 					pthread_mutex_destroy(&context.writeLocks[context.pendingWrites->place]);
@@ -277,7 +276,6 @@ int nonBlockingWrite(int dest, void * p, unsigned cnt, bool copyBuffer=true)
 				if (errno == EAGAIN) break;
 				if (errno == ECONNRESET && allowConnResetTries--)
 					continue; // this seems to happen, every once in a great while.  We allow a few only.
-				fprintf(stderr, "write errno=%i ", errno);
 				return -1;
 			}
 			if (rc == 0) break;
@@ -354,7 +352,6 @@ int nonBlockingRead(int fd, void * p, unsigned cnt)
 				flushPendingData();
 				continue;
 			}
-			fprintf(stderr, "ERRNO = %i\n", errno);
 			return -1;
 		}
 		if (rc == 0)
@@ -908,24 +905,46 @@ void x10rt_net_send_msg (x10rt_msg_params *parameters)
 	#endif
     x10rt_lgl_stats.msg.messages_sent++ ;
     x10rt_lgl_stats.msg.bytes_sent += parameters->len;
+    x10rt_place dp = parameters->dest_place;
 	flushPendingData();
-	if (initLink(parameters->dest_place, NULL) < 0)
+	if (initLink(dp, NULL) < 0)
 		return (void)fatal_error("establishing a connection");
-	pthread_mutex_lock(&context.writeLocks[parameters->dest_place]);
+	pthread_mutex_lock(&context.writeLocks[dp]);
 
 	// write out the x10SocketMessage data
 	// Format: type, p.type, p.len, p.msg
 	enum MSGTYPE m = STANDARD;
-	if (nonBlockingWrite(parameters->dest_place, &m, sizeof(m)) < (int)sizeof(m))
-		return (void)fatal_error("sending STANDARD type");
-	if (nonBlockingWrite(parameters->dest_place, &parameters->type, sizeof(parameters->type)) < (int)sizeof(parameters->type))
-		return (void)fatal_error("sending STANDARD x10rt_msg_params.type");
-	if (nonBlockingWrite(parameters->dest_place, &parameters->len, sizeof(parameters->len)) < (int)sizeof(parameters->len))
-		return (void)fatal_error("sending STANDARD x10rt_msg_params.len");
-	if (parameters->len > 0)
-		if (nonBlockingWrite(parameters->dest_place, parameters->msg, parameters->len) < (int)parameters->len)
-			return (void)fatal_error("sending STANDARD msg");
-	pthread_mutex_unlock(&context.writeLocks[parameters->dest_place]);
+	if (nonBlockingWrite(dp, &m, sizeof(m)) < (int)sizeof(m)) {
+		//return (void)fatal_error("sending STANDARD type");
+        close(context.socketLinks[dp].fd);
+        context.socketLinks[dp].fd = -2;
+        pthread_mutex_unlock(&context.writeLocks[dp]);
+        return;
+    }
+	if (nonBlockingWrite(dp, &parameters->type, sizeof(parameters->type)) < (int)sizeof(parameters->type)) {
+		//return (void)fatal_error("sending STANDARD x10rt_msg_params.type");
+        close(context.socketLinks[dp].fd);
+        context.socketLinks[dp].fd = -2;
+        pthread_mutex_unlock(&context.writeLocks[dp]);
+        return;
+    }
+	if (nonBlockingWrite(dp, &parameters->len, sizeof(parameters->len)) < (int)sizeof(parameters->len)) {
+		//return (void)fatal_error("sending STANDARD x10rt_msg_params.len");
+        close(context.socketLinks[dp].fd);
+        context.socketLinks[dp].fd = -2;
+        pthread_mutex_unlock(&context.writeLocks[dp]);
+        return;
+    }
+	if (parameters->len > 0) {
+		if (nonBlockingWrite(dp, parameters->msg, parameters->len) < (int)parameters->len) {
+			//return (void)fatal_error("sending STANDARD msg");
+            close(context.socketLinks[dp].fd);
+            context.socketLinks[dp].fd = -2;
+            pthread_mutex_unlock(&context.writeLocks[dp]);
+            return;
+        }
+    }
+	pthread_mutex_unlock(&context.writeLocks[dp]);
 }
 
 void x10rt_net_send_get (x10rt_msg_params *parameters, void *buffer, x10rt_copy_sz bufferLen)
