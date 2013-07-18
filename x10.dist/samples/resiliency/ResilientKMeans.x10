@@ -10,6 +10,7 @@
  */
 import x10.regionarray.*;
 import x10.util.*;
+import x10.compiler.*;
 
 /**
  * Resilient KMeans which supports DeadPlaceException
@@ -25,10 +26,10 @@ import x10.util.*;
  */
 class ResilientKMeans {
     
-    static val DIM=2;
+    static val DIM=4;
     //static val CLUSTERS=4;
     //static val POINTS=1000000L;
-    static val ITERATIONS=50;
+    static val ITERATIONS=10;
     
     public static def main(args:Rail[String]) {
         val POINTS = (args.size>=1) ? Long.parseLong(args(0)) : 1000000L;
@@ -46,10 +47,14 @@ class ResilientKMeans {
          * Create a points array and deliver it to other places
          * Note: Coordinates of the i-th point is [points(i,0), points(i,1)]
          */
+        Console.OUT.print("Creating points array...  ");
+        val creation_before = System.nanoTime();
         val rnd = new Random(0); // new Random(System.nanoTime());
         val points_region = Region.make(0..(POINTS-1), 0..(DIM-1));
         val points_master = new Array[Float](points_region, (p:Point)=>rnd.nextFloat());
         val points_local = PlaceLocalHandle.make[Array[Float]{region==points_region}](PlaceGroup.WORLD, ()=>points_master);
+        val creation_after = System.nanoTime();
+        Console.OUT.println("Took "+(creation_after-creation_before)/1E9+" seconds");
         
         /*
          * Cluster data to be calculated
@@ -72,6 +77,7 @@ class ResilientKMeans {
         /*
          * Calculate KMeans using multiple places
          */
+        val compute_before = System.nanoTime();
         for (i in 1..ITERATIONS) {
             
             Console.OUT.println("---- Iteration: "+i);
@@ -79,6 +85,8 @@ class ResilientKMeans {
             /* 
              * Deliver the central_clusters
              */
+            Console.OUT.print("Distributing clusters...  ");
+            val dist_clusters_before = System.nanoTime();
             try {
                 finish for (pl in Place.places()) {
                     if (pl.isDead()) continue; // skip the dead place
@@ -102,6 +110,9 @@ class ResilientKMeans {
                     }
                 }
             }
+            val dist_clusters_after = System.nanoTime();
+            Console.OUT.println("Took "+(dist_clusters_after-dist_clusters_before)/1E9+" seconds");
+
             /* Clear the central_clusters to collect results */
             for (var j:Int=0 ; j<CLUSTERS*DIM ; ++j) {
                 old_central_clusters(j) = central_clusters(j);
@@ -115,9 +126,12 @@ class ResilientKMeans {
             /* 
              * Compute new clusters and counters at each place
              */
+            Console.OUT.println("Computing new clusters...  ");
+            val compute_clusters_before = System.nanoTime();
             val numAvail = Place.MAX_PLACES - Place.numDead(); // number of available places
             val div = POINTS/numAvail; // share for each place
             val rem = POINTS%numAvail; // extra share for Place0
+            var places_used : Int = 0;
             var start:Long = 0L; // next point to be processed
             try {
                 finish for (pl in Place.places()) {
@@ -126,9 +140,13 @@ class ResilientKMeans {
                     var end:Long = start + div; if (pl==place0) end += rem;
                     
                     /* At place pl, process points [start,end) */
-                    Console.OUT.println(pl + ": process points [" + start + "," + end + ")");
+                    Console.OUT.println(pl + ": process "+(end-start)+" points [" + start + "," + end + ")");
+                    places_used++;
                     val s = start, e = end;
                     at (pl) async {
+
+                        val actual_work_before = System.nanoTime();
+
                         //TODO: finish
                         for (var j:Long = s; j < e; ++j) {
                             val p = j;
@@ -148,19 +166,25 @@ class ResilientKMeans {
                                         closest = k;
                                     }
                                 }
-                                atomic {
+                                //atomic {
                                     for (var d:Int=0 ; d<DIM ; ++d) { 
                                         local_new_clusters()(closest*DIM+d) += points(p,d);
                                     }
                                     local_cluster_counts()(closest)++;
-                                }
+                                //}
+                                //Runtime.probe(); // probably not necessary since load is statically balanced
                             }
                         } /* for (j) */
+                        val actual_work_after = System.nanoTime();
+                        Console.OUT.println("Actual work at place "+here+" took "+(actual_work_after-actual_work_before)/1E9+" seconds");
+
+                        val msg_back_before = System.nanoTime();
                         /* All assigned points processed, return the local results */
                         val tmp_new_clusters = local_new_clusters();
                         val tmp_cluster_counts = local_cluster_counts();
                         val tmp_processed_points = e - s;
-                        at (place0) atomic {
+                        val prof = new Runtime.Profile();
+                        @Profile(prof) at (place0) async atomic {
                             for (var j:Int=0 ; j<CLUSTERS*DIM; ++j) {
                                 central_clusters_gr()(j) += tmp_new_clusters(j);
                             }
@@ -169,6 +193,9 @@ class ResilientKMeans {
                             }
                             processed_points_gr()() += tmp_processed_points;
                         }
+                        val msg_back_after = System.nanoTime();
+                        Console.OUT.println("Profile: "+prof.bytes+" bytes, "+prof.serializationNanos/1E9+" ser, "+prof.communicationNanos/1E9+" comm");
+                        Console.OUT.println("Message back from place "+here+" took "+(msg_back_after-msg_back_before)/1E9+" seconds");
                     } /* at (pl) async */
                     start = end; // point to be processed at the next place
                 } /* finish for (pl) */
@@ -182,6 +209,9 @@ class ResilientKMeans {
                     }
                 }
             }
+            val compute_clusters_after = System.nanoTime();
+            Console.OUT.println("Took "+(compute_clusters_after-compute_clusters_before)/1E9+" seconds");
+            Console.OUT.println("Used "+places_used+" places to do the work");
             
             /*
              * Compute new cluster values and test for convergence
@@ -194,6 +224,8 @@ class ResilientKMeans {
             if (processed_points() != POINTS) { /* if all points are not processed, skip the convergence test */
                 Console.OUT.println("Incomplete calculation: " + (POINTS-processed_points()) + " points are not processed");
             } else { /* test for convergence */
+                // [DC] removed this so we can run a fixed number of iterations instead (better for benchmarking)
+                /*
                 var b:Boolean = true;
                 for (var j:Int=0 ; j<CLUSTERS*DIM; ++j) { 
                     if (Math.abs(old_central_clusters(j)-central_clusters(j))>0.0001) {
@@ -203,13 +235,17 @@ class ResilientKMeans {
                 if (b) {
                     Console.OUT.println("Result converged"); break;
                 }
+                */
             }
             
         } /* for (i) */
+        val compute_after = System.nanoTime();
+        Console.OUT.println("Entire computation took "+(compute_after-compute_before)/1E9+" seconds");
         
         /*
          * Print the result
          */
+        /*
         Console.OUT.println("---- Result of " + CLUSTERS + " clustering");
         for (var d:Int=0 ; d<DIM ; ++d) { 
             for (var k:Int=0 ; k<CLUSTERS ; ++k) { 
@@ -218,5 +254,6 @@ class ResilientKMeans {
             }
             Console.OUT.println();
         }
+        */
     } /* main */
 }
