@@ -13,6 +13,8 @@ ss=""
 defs=""
 dev=""
 nocompressedrefs=""
+nogcpolicy=""
+nojitopts=""
 noassert=""
 noclassloadtest=""
 java_args=()
@@ -62,6 +64,8 @@ while [ -n "$1" ]; do
         -x10rt) shift; x10rt_impl="$1";;
         -config) shift; config="$1.cfg";;
         -nocompressedrefs) nocompressedrefs="true";;
+        -nogcpolicy) nogcpolicy="true";;
+        -nojitopts) nojitopts="true";;
         -noassert) noassert="true";;
         -noclassloadtest) noclassloadtest="true";;
         -dev) dev="true";;
@@ -100,6 +104,8 @@ where [options] includes:
     -x10rt <impl>            select X10RT implementation
     -config <conf>           (IGNORED) read configuration from etc${FILE_SEP}<conf>.cfg
     -nocompressedrefs        disable compressed references (64-bit JVM only)
+    -nogcpolicy              disable gc policy
+    -nojitopts               disable jit options
     -noassert                disable assertion check
     -noclassloadtest         disable class load test
     -dev                     developer mode (use unpackaged X10 libraries)
@@ -253,18 +259,24 @@ if [ -n "${ibmj9vm}" ]; then
     ibmj9vmjitopts=
 
     if [ -n "${ibmj9vmr26}" ]; then
-        # experimental support for java7
-        if [ -n "${ibmj9vmjitopts}" ]; then
-            ibmj9vmjitopts="${ibmj9vmjitopts},"
+        if [ -z "${nojitopts}" ]; then
+            # experimental support for java7
+            if [ -n "${ibmj9vmjitopts}" ]; then
+                ibmj9vmjitopts="${ibmj9vmjitopts},"
+            fi
+            ibmj9vmjitopts="${ibmj9vmjitopts}count=1000,bcount=250,milcount=1"
         fi
-        ibmj9vmjitopts="${ibmj9vmjitopts}count=1000,bcount=250,milcount=1"
-        if [ -n "${ibmj9vm64bit}" ]; then
-            java_args=("-Xgcpolicy:balanced" "${java_args[@]}")
-        else
-            java_args=("-Xgcpolicy:gencon" "${java_args[@]}")
+        if [ -z "${nogcpolicy}" ]; then
+            if [ -n "${ibmj9vm64bit}" ]; then
+                java_args=("-Xgcpolicy:balanced" "${java_args[@]}")
+            else
+                java_args=("-Xgcpolicy:gencon" "${java_args[@]}")
+            fi
         fi
     else
-        java_args=("-Xgcpolicy:gencon" "${java_args[@]}")
+        if [ -z "${nogcpolicy}" ]; then
+            java_args=("-Xgcpolicy:gencon" "${java_args[@]}")
+        fi
     fi
 
     if [ -n "${ibmj9vm64bit}" ]; then
