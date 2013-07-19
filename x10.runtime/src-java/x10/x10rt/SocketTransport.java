@@ -47,6 +47,7 @@ public class SocketTransport {
 	private int myPlaceId = 0; // my place ID
 	private ServerSocketChannel localListenSocket = null;
 	private SocketChannel channels[] = null; // communication links to remote places, and launcher at [myPlaceId]
+	private Object writeLocks[] = null; // simple lock object, one per channel.  Readers synchronize on the channel itself
 	private Selector selector = null;
 	private Iterator<SelectionKey> events = null;
 	private AtomicInteger numDead = new AtomicInteger(0); 	
@@ -56,9 +57,14 @@ public class SocketTransport {
 		if (nplacesFlag != null) {
 			nplaces = Integer.parseInt(nplacesFlag);
 			channels = new SocketChannel[nplaces];
+			writeLocks = new Object[nplaces];
+	    	for (int i=0; i<nplaces; i++)
+	    		writeLocks[i] = new Object();
 		}
-		else 
+		else { 
 			channels = new SocketChannel[1];
+			writeLocks = new Object[]{new Object()};
+		}
 		
 		String placeFlag = System.getenv(X10_LAUNCHER_PLACE);
 		if (placeFlag != null) myPlaceId = Integer.parseInt(placeFlag);
@@ -138,6 +144,9 @@ public class SocketTransport {
     	}
     	else
     		channels = new SocketChannel[nplaces];
+    	writeLocks = new Object[nplaces];
+    	for (int i=0; i<nplaces; i++)
+    		writeLocks[i] = new Object();
     	
     	if (remoteStart) {
     		StringBuffer sb = new StringBuffer();
@@ -441,7 +450,7 @@ public class SocketTransport {
     		System.out.flush();
     	}
     	try {
-	    	synchronized (channels[place]) {
+	    	synchronized (writeLocks[place]) {
 		    	SocketTransport.writeNBytes(channels[place], controlData, controlData.capacity());
 		    	if (bytes != null)
 		    		for (int i=0; i<bytes.length; i++)
