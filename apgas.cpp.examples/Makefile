@@ -34,7 +34,7 @@ fib:	fib.cc
 	$(CXX) $(CXXFLAGS) -o fib fib.cc $(APGAS_LINK_ARGS)
 
 clean: 
-	$(RM) hello
+	$(RM) hello fib
 
 .PHONY: clean 
 
