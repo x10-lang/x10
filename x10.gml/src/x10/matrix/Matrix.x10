@@ -55,7 +55,6 @@ public type Matrix(C:Matrix)=Matrix{self==C};
  * native libraries are already available.
  * 
  * <p> Author vj and Jeff
- * 
  */
 public abstract class Matrix(M:Long, N:Long) {
     /**
@@ -69,8 +68,6 @@ public abstract class Matrix(M:Long, N:Long) {
         property(m,n);
     }
 
-    // Memory allocation
-    
     /**
      * Allocate memory space for a new matrix object.
      * This non-static abstract method. For static method use make()
@@ -94,9 +91,6 @@ public abstract class Matrix(M:Long, N:Long) {
     abstract public def initRandom():Matrix(this);
     abstract public def initRandom(lowBound:Long, upperBound:Long):Matrix(this);
     
-
-    // Data copy and reset 
-
     /**
      * Reset all element values in matrix to 0.
      */
@@ -131,7 +125,6 @@ public abstract class Matrix(M:Long, N:Long) {
      */
     abstract public def copyTo(that:Matrix(M,N)): void;
 
-    // Data access and set
     
     /**
      * Access an element at the specified location in matrix. 
@@ -140,7 +133,6 @@ public abstract class Matrix(M:Long, N:Long) {
      * @param x   row index 
      * @param y   column index
      * @return    element value
-     * 
      */
     abstract public operator this(x:Long, y:Long):Double;
     
@@ -152,7 +144,6 @@ public abstract class Matrix(M:Long, N:Long) {
      * @param v   the new value for the element
      */
     abstract public operator this(x:Long, y:Long)=(v:Double):Double;
-    
     
     /**
      * Access an element of the matrix using columnwise positioning method.
@@ -174,7 +165,6 @@ public abstract class Matrix(M:Long, N:Long) {
         return d;
     }
     
-    // Cellwise operations
     
     /**
      * Scale all elements in the matrix by a specified double floating point number. 
@@ -183,8 +173,6 @@ public abstract class Matrix(M:Long, N:Long) {
      * @return             this instance which holds the result
      */
     abstract public def scale(alpha:Double): Matrix(this);
-
-    // Addition operation
 
     /**
      * Cellwise addition this = this + x.
@@ -207,10 +195,6 @@ public abstract class Matrix(M:Long, N:Long) {
      */
     abstract protected def cellAddTo(x:DenseMatrix(M,N)):DenseMatrix(x);
     
-
-    // Subtract operation
-
-    
     /**
      * Cell-wise subtraction this = this - x.
      * 
@@ -232,9 +216,6 @@ public abstract class Matrix(M:Long, N:Long) {
      */
     abstract protected def cellSubFrom(dv:Double):Matrix(this);
     
-
-    // Cell-wise matrix multiplication
-
     /**
      * Compute cell-wise multiplication on "this" and given matrix x: this= this &#42 x
      * 
@@ -251,10 +232,6 @@ public abstract class Matrix(M:Long, N:Long) {
      */
     abstract protected def cellMultTo(x:DenseMatrix(M,N)):DenseMatrix(x);     
     
-    
-
-    // Cellwise division operation
-
     /**
      * Cell-wise division this = this / x;
      * 
@@ -270,10 +247,6 @@ public abstract class Matrix(M:Long, N:Long) {
      * @return        result matrix
      */
     abstract protected def cellDivBy(x:DenseMatrix(M,N)):DenseMatrix(x); 
-    
-
-    // Matrix multiplication
-
     
     /**
      * Matrix multiplication. Return this +=A &#42 B if plus is true, otherwise
@@ -307,11 +280,6 @@ public abstract class Matrix(M:Long, N:Long) {
      * @return        multiplication result
      */
     abstract public def multTrans(A:Matrix(this.M),    B:Matrix(this.N, A.N), plus:Boolean):Matrix(this);
-    
-
-    // Operator overloading
-
-    
 
     //Cellwise operators
 

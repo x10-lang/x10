@@ -12,6 +12,7 @@
 
 package x10.matrix;
 
+import x10.compiler.CompilerFlags;
 import x10.util.StringBuilder;
 
 //import x10.matrix.blas.DriverBLAS; 
@@ -43,8 +44,6 @@ public class DenseMatrix extends Matrix {
      */
     public val d:Rail[Double];
 
-    // Constructor, maker, and clone method
-
     /**
      * Construct a dense matrix in specified rows and columns and using provided
      * data storage
@@ -56,7 +55,9 @@ public class DenseMatrix extends Matrix {
     public def this(m:Long, n:Long, x:Rail[Double]):DenseMatrix(m,n){
         super(m, n);
         this.d=x;
-        Debug.assure(m*n <= x.size, "Dense matrix has insufficient storage space");
+        if (CompilerFlags.checkBounds()) {
+            Debug.assure(m*n <= x.size, "Dense matrix has insufficient storage space");
+        }
     }
 
     /**
@@ -70,9 +71,6 @@ public class DenseMatrix extends Matrix {
         this.d = new Rail[Double](m*n);
     }
 
-
-    // Memory allocation, make, clone, and data initial methods
-    
     /**
      * Construct a dense matrix with m rows and n columns
      *
@@ -96,7 +94,6 @@ public class DenseMatrix extends Matrix {
         val d = new Rail[Double](m*n, (i:Long)=> v);
         return new DenseMatrix(m, n, d);
     }
-
 
     /**
      * Construct a copy of the provided dense matrix .
@@ -220,9 +217,6 @@ public class DenseMatrix extends Matrix {
     public def alloc() = alloc(this.M, this.N);
 
 
-    // Data copy, clone and reset 
-
-     
     /**
      * Make a copy the matrix instance. 
      * <p>Note: this clone method use Rail copy constructor. 
@@ -269,7 +263,9 @@ public class DenseMatrix extends Matrix {
      * @param  c  the column needs to be reset
      */    
     public def resetCol(c:Long):void {
-        Debug.assure(c<this.N, "Illegal specified column");
+        if (CompilerFlags.checkBounds()) {
+            Debug.assure(c<this.N, "Illegal specified column");
+        }
         for (var i:Long = c*this.M; i<(c+1)*this.M; i++) d(i) = 0.0;
     }
 
@@ -287,10 +283,12 @@ public class DenseMatrix extends Matrix {
     public static def copyCols(src:DenseMatrix, srcColOffset:Long,  
                                dst:DenseMatrix, dstColOffset:Long, colCnt:Long): Long {
 
+        if (CompilerFlags.checkBounds()) {
         //Make sure the source and destination are bounded.
-        Debug.assure(src.M <= dst.M, "Destination leading dimension "+dst.M+" less than source "+src.M);
-        Debug.assure(srcColOffset+colCnt <= src.N, "Source overflow :"+srcColOffset+"+"+colCnt+" > "+src.N); 
-        Debug.assure(dstColOffset+colCnt <= dst.N, "Destination overflow :"+dstColOffset+"+"+colCnt+" > "+dst.N); 
+            Debug.assure(src.M <= dst.M, "Destination leading dimension "+dst.M+" less than source "+src.M);
+            Debug.assure(srcColOffset+colCnt <= src.N, "Source overflow :"+srcColOffset+"+"+colCnt+" > "+src.N); 
+            Debug.assure(dstColOffset+colCnt <= dst.N, "Destination overflow :"+dstColOffset+"+"+colCnt+" > "+dst.N); 
+        }
 
         var srcoff:Long = src.M * srcColOffset;
         var dstoff:Long = dst.M * dstColOffset;
@@ -316,10 +314,11 @@ public class DenseMatrix extends Matrix {
      * @param dst        target matrix
      */
     public static def copy(src:DenseMatrix, dst:DenseMatrix): void {
-
-        //Make sure the source and destination are bounded.
-        Debug.assure(src.N <= dst.N && src.M <= dst.M, 
-                     "source or target dense matrix sizes mismatch");
+        if (CompilerFlags.checkBounds()) {
+            //Make sure the source and destination are bounded.
+            Debug.assure(src.N <= dst.N && src.M <= dst.M, 
+                         "source or target dense matrix sizes mismatch");
+        }
         copyCols(src, 0, dst, 0, src.N);
     }
 
@@ -334,11 +333,12 @@ public class DenseMatrix extends Matrix {
      */
     public static def copyRows(src:DenseMatrix, var srcRowOffset:Long,
                                dst:DenseMatrix, var dstRowOffset:Long, rowCnt:Long) :Long {
-        
+        if (CompilerFlags.checkBounds()) {
         //Make sure the source and destination are bounded.
-        Debug.assure(src.N <= dst.N, "Number of columns in source "+src.N+" is larger than the destination "+dst.N);
-        Debug.assure(srcRowOffset+rowCnt <= src.M, "Source offset "+srcRowOffset+" + row count "+rowCnt+" exceeds source dimension "+src.M);
-        Debug.assure(dstRowOffset+rowCnt <= dst.M, "Destination offset "+dstRowOffset+" + row count "+rowCnt+" exceeds destionation "+dst.M);
+            Debug.assure(src.N <= dst.N, "Number of columns in source "+src.N+" is larger than the destination "+dst.N);
+            Debug.assure(srcRowOffset+rowCnt <= src.M, "Source offset "+srcRowOffset+" + row count "+rowCnt+" exceeds source dimension "+src.M);
+            Debug.assure(dstRowOffset+rowCnt <= dst.M, "Destination offset "+dstRowOffset+" + row count "+rowCnt+" exceeds destionation "+dst.M);
+        }
 
         val srcSize:Long = src.M*src.N;
         for (; srcRowOffset < srcSize; 
@@ -364,12 +364,14 @@ public class DenseMatrix extends Matrix {
              dst:DenseMatrix, var dstRowOffset:Long, var dstColOffset:Long,
              rowCnt:Long, colCnt:Long): Long {
         
-        Debug.assure(srcColOffset+colCnt <= src.N && 
-                     dstColOffset+colCnt <= dst.N, 
-                     "illegal collumn offset or counts in subset copy");
-        Debug.assure(srcRowOffset+rowCnt <= src.M && 
-                     dstRowOffset+rowCnt <= dst.M, 
-                     "illegal row offset or row count in subset copy");
+        if (CompilerFlags.checkBounds()) {
+            Debug.assure(srcColOffset+colCnt <= src.N && 
+                         dstColOffset+colCnt <= dst.N, 
+                         "illegal column offset or counts in subset copy");
+            Debug.assure(srcRowOffset+rowCnt <= src.M && 
+                         dstRowOffset+rowCnt <= dst.M, 
+                         "illegal row offset or row count in subset copy");
+        }
 
         val srcEnd:Long = src.M * (srcColOffset + colCnt);
         srcRowOffset += srcColOffset * src.M;
@@ -380,10 +382,39 @@ public class DenseMatrix extends Matrix {
         return rowCnt * colCnt;
     }
 
+    /**
+     * Copy specified subset of matrix in source rail to target.
+     * 
+     * @param src            the source rail
+     * @param srcOffset      the offset in the source rail from which to take the data
+     * @param dst            the target dense matrix
+     * @param dstRowOffset   the starting row in dense matrix to store the copy data
+     * @param dstColOffset   the starting column in dense matrix to store the copy data
+     * @param rowCnt         number of rows to copy
+     * @param colCnt         number of column to copy
+     */
+    public static def copySubset(src:Rail[Double], var srcOffset:Long,
+             dst:DenseMatrix,
+             var dstRowOffset:Long, var dstColOffset:Long,
+             rowCnt:Long, colCnt:Long): Long {
+        
+        if (CompilerFlags.checkBounds()) {
+            Debug.assure(dstColOffset+colCnt <= dst.N, 
+                         "illegal column offset or counts in subset copy");
+            Debug.assure(dstRowOffset+rowCnt <= dst.M, 
+                         "illegal row offset or row count in subset copy");
+            Debug.assure(rowCnt*colCnt <= src.size, 
+                         "subset is larger than source rail");
+        }
 
-
-    // Data access and set
-
+        dstRowOffset += dstColOffset * dst.M;
+        for (var col:Long = 0; col < colCnt; col++) {
+            Rail.copy(src, srcOffset, dst.d, dstRowOffset, rowCnt);
+            srcOffset += rowCnt;
+            dstRowOffset += dst.M;
+        }
+        return rowCnt * colCnt;
+    }
     
     /**
      * Access data at(x, y) position in the dense matrix
@@ -1059,9 +1090,6 @@ public class DenseMatrix extends Matrix {
         multTrans(A, B, false);
     
 
-    // Multiply with triangular matrix
-
-    
     /**
      * this =this &#42 A
      */
@@ -1126,8 +1154,6 @@ public class DenseMatrix extends Matrix {
     public def multTrans(A:SparseCSC(this.M), B:DenseMatrix(this.N,A.N),plus:Boolean):DenseMatrix(this) =
         SparseMultDenseToDense.compMultTrans(A, B, this, plus);
 
-
-    // Operator
 
     /**
      * Operator overloading for cell-wise matrix subtraction, and return this - that in a new dense format
