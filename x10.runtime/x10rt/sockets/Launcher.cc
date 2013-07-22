@@ -1302,7 +1302,7 @@ void Launcher::startSSHclient(uint32_t id, char* masterPort, char* remotehost)
 	char ** argv = (char **) alloca (sizeof(char *) * (_argc+environ_sz+32));
 	int z = 0;
 	argv[z] = _ssh_command;
-	static char ttyarg[] = "-tt";
+	static char ttyarg[] = "-t -t";
 	argv[++z] = ttyarg;
 	static char quietarg[] = "-q";
 	argv[++z] = quietarg;
