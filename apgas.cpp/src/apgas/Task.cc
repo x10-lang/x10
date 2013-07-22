@@ -10,3 +10,10 @@
  */
 
 #include <apgas/Task.h>
+
+namespace apgas {
+    x10::lang::VoidFun_0_0::itable<Task>Task::_itable(&x10::lang::Reference::equals, &x10::lang::Closure::hashCode, &Task::__apply, &Task::toString, &x10::lang::Closure::typeName);
+    x10aux::itable_entry Task::_itables[2] = {x10aux::itable_entry(&x10aux::getRTT<x10::lang::VoidFun_0_0>, &Task::_itable),x10aux::itable_entry(NULL, NULL)};
+
+}
+    

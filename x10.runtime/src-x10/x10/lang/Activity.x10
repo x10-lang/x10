@@ -20,6 +20,11 @@ import x10.util.HashMap;
  */
 class Activity {
 
+    // This flag is hacked to be false in the APGAS C++ library
+    // TODO: refactor XRX so body is more than a ()=>void so that run
+    //       can simply ask the body if it should be deallocated on completion.
+    private static DEALLOC_BODY:Boolean = true;
+
     static class ClockPhases extends HashMap[Clock,Int] {
         // compute spawnee clock phases from spawner clock phases in async clocked(clocks)
         // and register spawnee on these on clocks
@@ -162,7 +167,7 @@ class Activity {
         }
         if (null != clockPhases) clockPhases.drop();
         if (shouldNotifyTermination) finishState.notifyActivityTermination();
-        Unsafe.dealloc(body);
+        if (DEALLOC_BODY) Unsafe.dealloc(body);
     }
 }
 

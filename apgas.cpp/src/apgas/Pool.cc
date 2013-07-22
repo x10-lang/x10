@@ -15,42 +15,7 @@
 #include <apgas/Pool.h>
 
 #include <x10aux/bootstrap.h>
-#include <x10/lang/VoidFun_0_0.h>
 #include <x10/lang/Runtime.h>
-
-// Wrap a task so it looks like an X10 closure...
-class TaskWrapper : public x10::lang::Closure {
-private:
-    apgas::Task *myTask;
-
-public:    
-    static x10::lang::VoidFun_0_0::itable<TaskWrapper> _itable;
-    static x10aux::itable_entry _itables[2];
-    virtual x10aux::itable_entry* _getITables() { return _itables; }
-    
-    void __apply() {
-        myTask->execute();
-    }
-    
-    TaskWrapper(apgas::Task* t) : myTask(t) {}
-    
-    static const x10aux::RuntimeType* getRTT() { return x10aux::getRTT<x10::lang::VoidFun_0_0>(); }
-    virtual const x10aux::RuntimeType *_type() const { return x10aux::getRTT<x10::lang::VoidFun_0_0>(); }
-
-    x10aux::serialization_id_t _get_serialization_id() {
-        assert(false);
-        return 0;
-    }
-    
-    void _serialize_body(x10aux::serialization_buffer &buf) {
-        assert(false);
-    }
-};
-
-
-x10::lang::VoidFun_0_0::itable<TaskWrapper>TaskWrapper::_itable(&x10::lang::Reference::equals, &x10::lang::Closure::hashCode, &TaskWrapper::__apply, &TaskWrapper::toString, &x10::lang::Closure::typeName);
-x10aux::itable_entry TaskWrapper::_itables[2] = {x10aux::itable_entry(&x10aux::getRTT<x10::lang::VoidFun_0_0>, &TaskWrapper::_itable),x10aux::itable_entry(NULL, NULL)};
-
 
 namespace apgas {
 
@@ -66,6 +31,10 @@ namespace apgas {
     }
 
     void Pool::start() {
+        // HACK: Whack x10.lang.Activity.DEALLOC_BODY to be false.
+        x10::lang::Activity::FMGL(DEALLOC_BODY__get)();
+        x10::lang::Activity::FMGL(DEALLOC_BODY) = false;
+
         char* args = {"APGAS_LIB"};
         hack = this;
         x10aux::real_x10_main(1, &args, &dummy_main);
@@ -74,15 +43,12 @@ namespace apgas {
         
     void Pool::runAsync(Task* task) {
         task->setPool(this);
-        TaskWrapper* tw = new (Pool::alloc<TaskWrapper>()) TaskWrapper(task);
-        x10::lang::Runtime::runAsync(reinterpret_cast<x10::lang::VoidFun_0_0*>(tw));
+        x10::lang::Runtime::runAsync(reinterpret_cast<x10::lang::VoidFun_0_0*>(task));
     }
         
     void Pool::runFinish(Task* task) {
         task->setPool(this);
-        TaskWrapper* tw = new (Pool::alloc<TaskWrapper>()) TaskWrapper(task);
-        x10::lang::Runtime::runFinish(reinterpret_cast<x10::lang::VoidFun_0_0*>(tw));
-        Pool::dealloc(tw);
+        x10::lang::Runtime::runFinish(reinterpret_cast<x10::lang::VoidFun_0_0*>(task));
     }
 
     class FinishBlock : public Task {
