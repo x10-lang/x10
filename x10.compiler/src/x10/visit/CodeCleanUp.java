@@ -115,6 +115,10 @@ public class CodeCleanUp extends ContextVisitor {
             }
         }
         
+        if (n instanceof Return && ((Return) n).expr() instanceof StmtExpr) {
+            return sinkReturn((Return)n);
+        }
+        
         if (!(n instanceof Block) || n instanceof SwitchBlock) {
             return n;
         }
@@ -150,6 +154,16 @@ public class CodeCleanUp extends ContextVisitor {
         return b;
     }
 
+    //Return(StmtExpr(Block(S), e)) ==> Block(S, return e)
+    private Block sinkReturn(Return oldRet) {
+        StmtExpr stExpr = (StmtExpr)oldRet.expr();
+        List<Stmt> statements = new ArrayList<Stmt>(stExpr.statements());
+        Return newRet= nf.Return(oldRet.position(), stExpr.result());
+        statements.add(newRet);
+        return nf.Block(oldRet.position(), statements);
+    }
+    
+    
     /**
      * Turns a Block into a list of Stmts.
      **/
