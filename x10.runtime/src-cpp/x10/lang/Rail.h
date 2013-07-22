@@ -7,6 +7,7 @@
  *      http://www.opensource.org/licenses/eclipse-1.0.php
  *
  *  (C) Copyright IBM Corporation 2006-2013.
+ *  (C) Copyright Australian National University 2011-2013.
  */
 
 #ifndef __X10_LANG_RAIL_H
@@ -245,7 +246,6 @@ namespace x10 {
 #endif // X10_LANG_RAIL_H_GENERICS
 #ifndef X10_LANG_RAIL_H_IMPLEMENTATION
 #define X10_LANG_RAIL_H_IMPLEMENTATION
-#include <x10/lang/Rail.h>
 
 /*
  * Construction (_make methods)
@@ -518,7 +518,6 @@ template<class T> void x10::lang::Rail<T>::_serialize_body(x10aux::serialization
     }
 }
 
-// TODO: Replicate template specialization for primitives & Complex from IMC class for rails
 template<class T> x10::lang::Reference* x10::lang::Rail<T>::_deserializer(x10aux::deserialization_buffer& buf) {
     bool containsPtrs = x10aux::getRTT<T>()->containsPtrs;
     x10_long numElems = buf.read<x10_long>();
@@ -533,6 +532,47 @@ template<class T> x10::lang::Reference* x10::lang::Rail<T>::_deserializer(x10aux
 template<class T> void x10::lang::Rail<T>::_deserialize_body(x10aux::deserialization_buffer& buf) {
     for (x10_long i=0; i<FMGL(size); i++) {
         raw[i] = buf.read<T>();
+    }
+}
+
+#define PRIMITIVE_COPY_SERIALIZATION(TYPE) \
+template<> inline void x10::lang::Rail<TYPE>::_serialize_body(x10aux::serialization_buffer& buf) {\
+    x10_long sz = FMGL(size);\
+    buf.write<x10_long>(sz);\
+    buf.copyIn(buf, raw, sz, sizeof(TYPE));\
+}\
+template<> inline void x10::lang::Rail<TYPE>::_deserialize_body(x10aux::deserialization_buffer& buf) {\
+    buf.copyOut(buf, raw, FMGL(size), sizeof(TYPE));\
+}
+
+#include <x10/lang/Complex.h>
+
+namespace x10 {
+    namespace lang {
+        // efficient serialization for Rail of primitive types
+        PRIMITIVE_COPY_SERIALIZATION(x10_boolean)
+        PRIMITIVE_COPY_SERIALIZATION(x10_byte)
+        PRIMITIVE_COPY_SERIALIZATION(x10_ubyte)
+        PRIMITIVE_COPY_SERIALIZATION(x10_char)
+        PRIMITIVE_COPY_SERIALIZATION(x10_short)
+        PRIMITIVE_COPY_SERIALIZATION(x10_ushort)
+        PRIMITIVE_COPY_SERIALIZATION(x10_int)
+        PRIMITIVE_COPY_SERIALIZATION(x10_uint)
+        PRIMITIVE_COPY_SERIALIZATION(x10_long)
+        PRIMITIVE_COPY_SERIALIZATION(x10_ulong)
+        PRIMITIVE_COPY_SERIALIZATION(x10_float)
+        PRIMITIVE_COPY_SERIALIZATION(x10_double)
+
+        template<> inline void x10::lang::Rail<x10::lang::Complex>::_serialize_body(x10aux::serialization_buffer& buf) {
+            x10_long sz = FMGL(size);
+            buf.write<x10_long>(sz);
+            // Complex is serialized as two doubles
+            buf.copyIn(buf, raw, sz*2, sizeof(x10_double));
+        }
+
+        template<> inline void x10::lang::Rail<x10::lang::Complex>::_deserialize_body(x10aux::deserialization_buffer& buf) {
+            buf.copyOut(buf, raw, FMGL(size)*2, sizeof(x10_double));
+        }
     }
 }
 
