@@ -78,9 +78,9 @@ class ResilientKMeans {
          * Calculate KMeans using multiple places
          */
         val compute_before = System.nanoTime();
-        for (i in 1..ITERATIONS) {
+        for (var iter:Int=0 ; iter<ITERATIONS ; iter++) {
             
-            Console.OUT.println("---- Iteration: "+i);
+            Console.OUT.println("---- Iteration: "+iter);
             
             /* 
              * Deliver the central_clusters
@@ -238,7 +238,7 @@ class ResilientKMeans {
                 */
             }
             
-        } /* for (i) */
+        } /* for (iter) */
         val compute_after = System.nanoTime();
         Console.OUT.println("Entire computation took "+(compute_after-compute_before)/1E9+" seconds");
         

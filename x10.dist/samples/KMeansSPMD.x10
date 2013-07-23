@@ -188,12 +188,12 @@ public class KMeansSPMD {
                             Console.OUT.println(role.toString()+": Communication time: "+comm_time/1E9);
                         }
                         team.barrier();
-                        if (role==0L) {
-                            Console.OUT.println("\nFinal results:");
-                            printClusters(host_clusters,dim);
-                        }
-
                     }
+                    if (role==0L) {
+                        Console.OUT.println("\nFinal results:");
+                        printClusters(host_clusters,dim);
+                    }
+
 
                     team.delete();    
 
