@@ -48,6 +48,9 @@ public final class Configuration extends x10.config.Configuration {
     public boolean DEBUG_APP_ONLY = false;
     private static final String DEBUG_APP_ONLY_desc = "Only generate debug information for the user application; still link with non-debug version of libraries";
 
+    public boolean DEBUG_ENABLE_LINEMAPS = false;
+    private static final String DEBUG_ENABLE_LINEMAP_desc = "Generate linemaps and other debug info for experimental X10 debugger";
+
     public boolean NO_TRACES = false;
     private static final String NO_TRACES_desc = "Disable traces";
 

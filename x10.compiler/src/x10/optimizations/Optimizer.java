@@ -106,7 +106,7 @@ public class Optimizer {
         if (FLATTENING(extInfo)) {
             goals.add(ExpressionFlattener());
         }
-        if (config.CODE_CLEAN_UP && !config.DEBUG) {
+        if (config.CODE_CLEAN_UP && !config.DEBUG_ENABLE_LINEMAPS) {
             goals.add(CodeCleanUp());
         }
         if (config.OPTIMIZE) {

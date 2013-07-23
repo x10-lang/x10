@@ -192,7 +192,7 @@ public class X10CPPTranslator extends Translator {
 
 		final int endLine = w.currentStream().getStreamLineNumber() - w.currentStream().getOmittedLines(); // for debug info
 
-		if (opts.x10_config.DEBUG && line > 0 &&
+		if (opts.x10_config.DEBUG && opts.x10_config.DEBUG_ENABLE_LINEMAPS && line > 0 &&
 		    ((n instanceof Stmt && !(n instanceof SwitchBlock) && !(n instanceof Catch)) ||
 		     (n instanceof ClassMember)))
 		{
@@ -375,7 +375,7 @@ public class X10CPPTranslator extends Translator {
 			X10CPPCompilerOptions opts = (X10CPPCompilerOptions) job.extensionInfo().getOptions();
 			TypeSystem xts = typeSystem();
 
-			if (opts.x10_config.DEBUG)
+			if (opts.x10_config.DEBUG && opts.x10_config.DEBUG_ENABLE_LINEMAPS)
 				c.addData(FILE_TO_LINE_NUMBER_MAP, CollectionFactory.newHashMap());
 
 			// Use the source file name as the basename for the output .cc file
@@ -384,7 +384,7 @@ public class X10CPPTranslator extends Translator {
 			boolean generatedCode = false;
             WriterStreams fstreams = new WriterStreams(fname, pkg, job, tf);
 
-            if (opts.x10_config.DEBUG) {
+            if (opts.x10_config.DEBUG && opts.x10_config.DEBUG_ENABLE_LINEMAPS) {
                 Map<String, LineNumberMap> fileToLineNumberMap =
                     c.<Map<String, LineNumberMap>>getData(FILE_TO_LINE_NUMBER_MAP);
                 fileToLineNumberMap.put(fstreams.getStreamName(StreamWrapper.CC), new LineNumberMap());
@@ -443,7 +443,7 @@ public class X10CPPTranslator extends Translator {
 				String header = wstreams.getStreamName(StreamWrapper.Header);
 				job.compiler().addOutputFile(sfn, header);
 				
-				if (opts.x10_config.DEBUG) {
+				if (opts.x10_config.DEBUG && opts.x10_config.DEBUG_ENABLE_LINEMAPS) {
 					Map<String, LineNumberMap> fileToLineNumberMap =
 					    c.<Map<String, LineNumberMap>>getData(FILE_TO_LINE_NUMBER_MAP);
 					fileToLineNumberMap.put(header, new LineNumberMap());
@@ -467,7 +467,7 @@ public class X10CPPTranslator extends Translator {
 			    job.compiler().addOutputFile(sfn, cc);
                 opts.compilationUnits().add(cc);
                 
-                if (opts.x10_config.DEBUG) {
+                if (opts.x10_config.DEBUG && opts.x10_config.DEBUG_ENABLE_LINEMAPS) {
                     Map<String, LineNumberMap> fileToLineNumberMap =
                         c.<Map<String, LineNumberMap>>getData(FILE_TO_LINE_NUMBER_MAP);
                     ClassifiedStream debugStream = fstreams.getNewStream(StreamWrapper.CC, false);

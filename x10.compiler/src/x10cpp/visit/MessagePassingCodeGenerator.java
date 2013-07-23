@@ -1383,7 +1383,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
         sb.append("#include <x10aux/bootstrap.h>\n");
 		String mainTypeArgs = container;
         sb.append("extern \"C\" { int main(int ac, char **av) { return x10aux::template_main"+chevrons(mainTypeArgs)+"(ac,av); } }\n");
-        if (options.x10_config.DEBUG)
+        if (options.x10_config.DEBUG && options.x10_config.DEBUG_ENABLE_LINEMAPS)
 		{
 			sb.append("\n// Debugger stuff\n");
 			sb.append("#include<x10aux/place_local.h>\n");
@@ -3366,7 +3366,8 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
         }
         env = prunned;
         
-		if (((X10CPPCompilerOptions)tr.job().extensionInfo().getOptions()).x10_config.DEBUG && !in_template_closure)
+        Configuration config = ((X10CPPCompilerOptions)tr.job().extensionInfo().getOptions()).x10_config;
+		if (config.DEBUG && config.DEBUG_ENABLE_LINEMAPS && !in_template_closure)
 		{
 			String key = ((StreamWrapper)sw).getStreamName(StreamWrapper.CC);
 			Map<String, LineNumberMap> fileToLineNumberMap = c.<Map<String, LineNumberMap>>findData(X10CPPTranslator.FILE_TO_LINE_NUMBER_MAP);
