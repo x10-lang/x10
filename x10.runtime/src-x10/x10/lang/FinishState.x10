@@ -931,7 +931,7 @@ abstract class FinishState {
             val home = here;
             tmp_finish.notifySubActivitySpawn(place);
 
-            // [DC] do not use at (plcae) async since the finish state is handled internally
+            // [DC] do not use at (place) async since the finish state is handled internally
             // [DC] go to the lower level...
             val cl = () => @x10.compiler.RemoteInvocation("resilient_place_zero_run_at") {
                 val exc_body = () => {
@@ -969,7 +969,22 @@ abstract class FinishState {
             }
         }
         public def evalAt(place:Place, body:()=>Any, prof:Runtime.Profile):Any {
-            return Runtime.evalAtNonResilient(place, body, prof);
+            Runtime.ensureNotInAtomic();
+            if (place.id == Runtime.hereLong()) {
+                // local path can be the same as before
+                return Runtime.evalAtNonResilient(place, body, prof);
+            }
+
+            @StackAllocate val me = @StackAllocate new Cell[Any](null);
+            val me2 = GlobalRef(me);
+            at (place) {
+                val r : Any = body();
+                at (me2) {
+                    me2()(r);
+                }
+            }
+
+            return me();
         }
     }
 
