@@ -485,8 +485,14 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
     private void declareClass(X10ClassDef cd, ClassifiedStream h) {
         assert (cd != null);
         QName pkg = null;
-        if (cd.package_() != null)
+        if (cd.package_() != null) {
             pkg = cd.package_().get().fullName();
+        }
+        if (cd.isStruct() && pkg != null && pkg.startsWith(QName.make("x10.lang"))) {
+            if (cd.asType().isNumeric() || cd.asType().isBoolean()) {
+                return;  // Don't need forward class declaration for the structs that are mapped to C++ primitives by x10aux/config.h
+            }
+        }   
         if (pkg != null) {
             Emitter.openNamespaces(h, pkg);
             h.newline(0);
