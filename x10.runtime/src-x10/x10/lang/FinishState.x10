@@ -32,6 +32,7 @@ abstract class FinishState {
     abstract def waitForFinish():void;
     abstract def simpleLatch():SimpleLatch;
     abstract def runAt(place:Place, body:()=>void, prof:Runtime.Profile):void;
+    abstract def evalAt(place:Place, body:()=>Any, prof:Runtime.Profile):Any;
 
     // only Runtime.rootFinish gets this
     def notifyPlaceDeath() : void {
@@ -69,6 +70,9 @@ abstract class FinishState {
         public def simpleLatch() = latch;
         public def runAt(place:Place, body:()=>void, prof:Runtime.Profile):void {
             Runtime.runAtNonResilient(place, body, prof);
+        }
+        public def evalAt(place:Place, body:()=>Any, prof:Runtime.Profile):Any {
+            return Runtime.evalAtNonResilient(place, body, prof);
         }
     }
 
@@ -252,6 +256,9 @@ abstract class FinishState {
         public def runAt(place:Place, body:()=>void, prof:Runtime.Profile):void {
             Runtime.runAtNonResilient(place, body, prof);
         }
+        public def evalAt(place:Place, body:()=>Any, prof:Runtime.Profile):Any {
+            return Runtime.evalAtNonResilient(place, body, prof);
+        }
     }
     
     static UNCOUNTED_FINISH = new UncountedFinish();
@@ -291,6 +298,9 @@ abstract class FinishState {
         public def runAt(place:Place, body:()=>void, prof:Runtime.Profile):void {
             Runtime.runAtNonResilient(place, body, prof);
         }
+        public def evalAt(place:Place, body:()=>Any, prof:Runtime.Profile):Any {
+            return Runtime.evalAtNonResilient(place, body, prof);
+        }
     }
 
     // the top of the remote finish hierarchy
@@ -304,6 +314,9 @@ abstract class FinishState {
         public def simpleLatch():SimpleLatch = null;
         public def runAt(place:Place, body:()=>void, prof:Runtime.Profile):void {
             Runtime.runAtNonResilient(place, body, prof);
+        }
+        public def evalAt(place:Place, body:()=>Any, prof:Runtime.Profile):Any {
+            return Runtime.evalAtNonResilient(place, body, prof);
         }
     }
 
@@ -327,6 +340,9 @@ abstract class FinishState {
         public def simpleLatch() = me.simpleLatch();
         public def runAt(place:Place, body:()=>void, prof:Runtime.Profile):void {
             Runtime.runAtNonResilient(place, body, prof);
+        }
+        public def evalAt(place:Place, body:()=>Any, prof:Runtime.Profile):Any {
+            return Runtime.evalAtNonResilient(place, body, prof);
         }
     }
 
@@ -952,6 +968,9 @@ abstract class FinishState {
                 }
             }
         }
+        public def evalAt(place:Place, body:()=>Any, prof:Runtime.Profile):Any {
+            return Runtime.evalAtNonResilient(place, body, prof);
+        }
     }
 
     static final class FinishResilientZooKeeper(id:Int) extends FinishState {
@@ -980,6 +999,9 @@ abstract class FinishState {
         }
         def simpleLatch():SimpleLatch = null;
         public def runAt(place:Place, body:()=>void, prof:Runtime.Profile):void {
+            throw new Exception("under implementation");
+        }
+        public def evalAt(place:Place, body:()=>Any, prof:Runtime.Profile):Any {
             throw new Exception("under implementation");
         }
     }

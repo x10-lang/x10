@@ -1159,7 +1159,7 @@ public final class Runtime {
     /**
      * Eval at expression
      */
-    public static def evalAt[T](place:Place, eval:()=>T, prof:Profile):T {
+    public static def evalAtNonResilient(place:Place, eval:()=>Any, prof:Profile):Any {
         Runtime.ensureNotInAtomic();
         if (place.id == hereLong()) {
             try {
@@ -1174,8 +1174,8 @@ public final class Runtime {
                 throwCheckedWithoutThrows(deepCopy(t, null));
             }
         }
-        @StackAllocate val me = @StackAllocate new Remote[T]();
-        val box = GlobalRef(me as Remote[T]);
+        @StackAllocate val me = @StackAllocate new Remote[Any]();
+        val box = GlobalRef(me as Remote[Any]);
         val clockPhases = activity().clockPhases;
         @x10.compiler.Profile(prof) at(place) async {
             activity().clockPhases = clockPhases;
@@ -1183,9 +1183,9 @@ public final class Runtime {
                 try {
                     val result = eval();
                     val closure = ()=> @x10.compiler.RemoteInvocation("evalAt_1") { 
-                        val me2 = (box as GlobalRef[Remote[T]]{home==here})();
+                        val me2 = (box as GlobalRef[Remote[Any]]{home==here})();
                         // me2 has type Box[T{box.home==here}]... weird
-                        me2.t = new Box[T{box.home==here}](result as T{box.home==here});
+                        me2.t = new Box[Any](result as Any);
                         me2.clockPhases = clockPhases;
                         me2.release();
                     };
@@ -1196,7 +1196,7 @@ public final class Runtime {
                 }
             } catch (e:CheckedThrowable) {
                 val closure = ()=> @x10.compiler.RemoteInvocation("evalAt_2") { 
-                    val me2 = (box as GlobalRef[Remote[T]]{home==here})();
+                    val me2 = (box as GlobalRef[Remote[Any]]{home==here})();
                     me2.e = e;
                     me2.clockPhases = clockPhases;
                     me2.release();
@@ -1213,6 +1213,16 @@ public final class Runtime {
             throwCheckedWithoutThrows(me.e);
         }
         return me.t.value;
+    }
+
+    /**
+     * Eval at expression
+     */
+    public static def evalAt[T](place:Place, body:()=>T, prof:Profile):T {
+        val body2 = ()=>(body() as Any);
+        val r = activity().finishState().evalAt(place, body, prof) as T;
+        Unsafe.dealloc(body2); // optimisation since we always run with gc, no need to put it in a finally
+        return r;
     }
 
     // initialization of static fields in c++ backend
