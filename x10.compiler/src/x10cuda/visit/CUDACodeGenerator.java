@@ -18,7 +18,6 @@ import static x10cpp.visit.SharedVarsMethods.DESERIALIZATION_BUFFER;
 import static x10cpp.visit.SharedVarsMethods.DESERIALIZE_METHOD;
 import static x10cpp.visit.SharedVarsMethods.SERIALIZATION_BUFFER;
 import static x10cpp.visit.SharedVarsMethods.SERIALIZATION_ID_FIELD;
-import static x10cpp.visit.SharedVarsMethods.SERIALIZATION_MARKER;
 import static x10cpp.visit.SharedVarsMethods.SERIALIZE_BODY_METHOD;
 import static x10cpp.visit.SharedVarsMethods.THIS;
 import static x10cpp.visit.SharedVarsMethods.SAVED_THIS;

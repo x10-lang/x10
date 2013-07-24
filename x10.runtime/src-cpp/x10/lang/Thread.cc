@@ -93,9 +93,6 @@ Thread* Thread::_make() {
     return NULL;
 }
 
-const serialization_id_t Thread::_serialization_id =
-    DeserializationDispatcher::addDeserializer(Thread::_deserializer, x10aux::CLOSURE_KIND_NOT_ASYNC);
-
 // method to bind the process to a single processor
 void Thread::thread_bind_cpu()
 {
@@ -560,17 +557,12 @@ void Thread::__apply()
 {
 }
 
-void Thread::_serialize_body(serialization_buffer &buf) {
+x10aux::serialization_id_t Thread::_get_serialization_id() {
+    x10aux::throwUnsupportedOperationException("Can't serialize x10.lang.Thread");
 }
 
-void Thread::_deserialize_body(deserialization_buffer& buf) {
-}
-
-x10::lang::Reference* Thread::_deserializer(x10aux::deserialization_buffer &buf) {
-    Thread* this_ = new (x10aux::alloc<Thread>()) Thread();
-    buf.record_reference(this_); 
-    this_->_deserialize_body(buf);
-    return this_;
+void Thread::_serialize_body(x10aux::serialization_buffer &buf) {
+    x10aux::throwUnsupportedOperationException("Can't serialize x10.lang.Thread");
 }
 
 RTT_CC_DECLS0(Thread, "x10.lang.Thread", RuntimeType::class_kind)

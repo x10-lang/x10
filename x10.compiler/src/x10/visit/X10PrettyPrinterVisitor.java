@@ -655,6 +655,15 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
         // print the custom serializer
         if (subtypeOfCustomSerializer(def)) {
             er.generateCustomSerializer(def, n);
+        } else if (subtypeOfUnserializable(def)) {
+            w.write("public void " + Emitter.SERIALIZE_METHOD + "(" + Emitter.X10_JAVA_SERIALIZER_CLASS + " $serializer) throws java.io.IOException {");
+            w.newline(4);
+            w.begin(0);
+            w.write("throw new java.lang.UnsupportedOperationException(\"Can't serialize "+def.fullName()+"\");");
+            w.end();
+            w.newline();
+            w.writeln("}");
+            w.newline();
         } else if (subtypeOfHadoopWritable(def)) {
             w.write("public static ");
             if (typeParameters.size() > 0) {
@@ -1148,6 +1157,11 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 
     private static boolean subtypeOfCustomSerializer(X10ClassDef def) {
         return subtypeOfInterface(def, CUSTOM_SERIALIZATION);
+    }
+
+    private static final String UNSERIALIZABLE = "x10.io.Unserializable";
+    private static boolean subtypeOfUnserializable(X10ClassDef def) {
+        return subtypeOfInterface(def, UNSERIALIZABLE);
     }
 
     private static final String HADOOP_WRITABLE = "org.apache.hadoop.io.Writable";

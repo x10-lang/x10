@@ -2369,6 +2369,13 @@ public class TypeSystem_c implements TypeSystem
         return customSerializationType_;
     }
 
+    protected X10ClassType unserializableType_;
+    public X10ClassType Unserializable() {
+        if (unserializableType_ == null)
+            unserializableType_ = load("x10.io.Unserializable"); // java file
+        return unserializableType_;
+    }
+
     protected X10ClassType serialDataType_;
     public X10ClassType SerialData() {
         if (serialDataType_ == null)

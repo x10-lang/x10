@@ -17,8 +17,7 @@ import x10.compiler.Pragma;
 import x10.compiler.StackAllocate;
 import x10.compiler.NativeCPPInclude;
 
-import x10.io.CustomSerialization;
-import x10.io.SerialData;
+import x10.io.Unserializable;
 import x10.io.Reader;
 import x10.io.Writer;
 
@@ -531,7 +530,7 @@ public final class Runtime {
         public operator this(i:Int)=(worker:Worker) { workers(i) = worker; }
     }
 
-    public final static class Worker extends Thread implements CustomSerialization {
+    public final static class Worker extends Thread implements Unserializable {
         // bound on loop iterations to help j9 jit
         private static BOUND = 100;
 
@@ -661,23 +660,6 @@ public final class Runtime {
             if (!STATIC_THREADS) {
                 super.unpark();
             }
-        }
-        
-        /**
-         * Serialization of Worker objects is forbidden.
-         * @throws UnsupportedOperationException
-         */
-        public def serialize():SerialData {
-        	throw new UnsupportedOperationException("Cannot serialize "+typeName());
-        }
-
-        /**
-         * Serialization of Worker objects is forbidden.
-         * @throws UnsupportedOperationException
-         */
-        public def this(a:SerialData) {
-        	super();
-        	throw new UnsupportedOperationException("Cannot deserialize "+typeName());
         }
     }
 
@@ -992,9 +974,6 @@ public final class Runtime {
      */
     static class RemoteControl extends SimpleLatch implements Mortal {
         public def this() { super(); }
-        private def this(Any) {
-            throw new UnsupportedOperationException("Cannot deserialize "+typeName());
-        }
         var e:CheckedThrowable = null;
         var clockPhases:Activity.ClockPhases = null;
     }
@@ -1133,9 +1112,6 @@ public final class Runtime {
      */
     static class Remote[T] extends RemoteControl {
         public def this() { super(); }
-        private def this(SerialData) {
-            throw new UnsupportedOperationException("Cannot deserialize "+typeName());
-        }
         var t:Box[T] = null;
     }
 

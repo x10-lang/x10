@@ -1095,6 +1095,7 @@ public interface TypeSystem {
     X10ClassType Iterable();
     X10ClassType Iterable(Type index);
 
+    X10ClassType Unserializable();
     X10ClassType CustomSerialization();
     X10ClassType SerialData();
 

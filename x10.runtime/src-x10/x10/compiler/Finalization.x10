@@ -11,15 +11,14 @@
 
 package x10.compiler;
 
-import x10.io.CustomSerialization;
-import x10.io.SerialData;
+import x10.io.Unserializable;
 
 /** 
  * A class that is used in elimination of finally clauses for the C++ backend.
  * 
  * NOT INTENDED FOR USE BY X10 PROGRAMMERS
  */
-public class Finalization extends x10.lang.Exception implements CustomSerialization {
+public class Finalization extends x10.lang.Exception implements Unserializable {
     
     public var value: Any          = null;
     public var label: String       = null;
@@ -83,22 +82,5 @@ public class Finalization extends x10.lang.Exception implements CustomSerializat
         throw FALLTHROUGH;
     }
 
-    /**
-     * Serialization of Finalization objects is forbidden.
-     * @throws UnsupportedOperationException
-     */
-    public def serialize():SerialData {
-    	throw new UnsupportedOperationException("Cannot serialize "+typeName());
-    }
-
-    /**
-     * Serialization of Finalization objects is forbidden.
-     * @throws UnsupportedOperationException
-     */
-    public def this(SerialData) {
-    	throw new UnsupportedOperationException("Cannot deserialize "+typeName());
-    }
-
     public def this(){}
-
 }

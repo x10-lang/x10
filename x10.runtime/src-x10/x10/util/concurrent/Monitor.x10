@@ -12,7 +12,6 @@
 package x10.util.concurrent;
 
 import x10.compiler.Pinned;
-import x10.io.SerialData;
 import x10.util.GrowableRail;
 
 /**
@@ -21,14 +20,6 @@ import x10.util.GrowableRail;
  */
 @Pinned public class Monitor extends Lock {
     public def this() { super(); }
-
-    public def serialize():SerialData {
-        throw new UnsupportedOperationException("Cannot serialize "+typeName());
-    }
-
-    private def this(SerialData) {
-        throw new UnsupportedOperationException("Cannot deserialize "+typeName());
-    }
 
     static type Worker = Runtime.Worker;
 

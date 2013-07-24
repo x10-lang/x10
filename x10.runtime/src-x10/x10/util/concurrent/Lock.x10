@@ -13,8 +13,7 @@ package x10.util.concurrent;
 
 import x10.compiler.NativeClass;
 import x10.compiler.Pinned;
-import x10.io.CustomSerialization;
-import x10.io.SerialData;
+import x10.io.Unserializable;
 
 /**
  * <p>X10 wrapper class for native reentrant lock.
@@ -29,7 +28,7 @@ import x10.io.SerialData;
  */
 @NativeClass("java", "java.util.concurrent.locks", "ReentrantLock")
 @NativeClass("c++", "x10.lang", "Lock__ReentrantLock")
-@Pinned public class Lock implements CustomSerialization {
+@Pinned public class Lock implements Unserializable {
     public native def this();
 
     public native def lock():void;
@@ -39,21 +38,4 @@ import x10.io.SerialData;
     public native def unlock():void;
 
     public native def getHoldCount():Int; // only supported on some platforms
-
-   /**
-    * Serialization of Lock objects is forbidden.
-    * @throws UnsupportedOperationException
-    */
-    public def serialize():SerialData {
-        throw new UnsupportedOperationException("Cannot serialize "+typeName());
-    }
-
-   /**
-    * Serialization of Lock objects is forbidden.
-    * @throws UnsupportedOperationException
-    */
-    private def this(SerialData) {
-        throw new UnsupportedOperationException("Cannot deserialize "+typeName());
-    }
-
 }

@@ -67,16 +67,10 @@ namespace x10 {
                 return NULL;
             }
 
-            static const x10aux::serialization_id_t _serialization_id;
-
-            virtual x10aux::serialization_id_t _get_serialization_id() { return _serialization_id; };
+            virtual x10aux::serialization_id_t _get_serialization_id();
 
             virtual void _serialize_body(x10aux::serialization_buffer &buf);
-
-            static x10::lang::Reference* _deserializer(x10aux::deserialization_buffer &buf);
-
-            virtual void _deserialize_body(x10aux::deserialization_buffer& buf);
-
+            
             // destructor
             ~Thread();
 

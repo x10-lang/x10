@@ -14,6 +14,7 @@
 #include <x10/lang/ArithmeticException.h>
 #include <x10/lang/ClassCastException.h>
 #include <x10/lang/NullPointerException.h>
+#include <x10/lang/UnsupportedOperationException.h>
 #include <x10/lang/String.h>
 
 using namespace x10::lang;
@@ -44,4 +45,9 @@ void x10aux::throwClassCastException(const RuntimeType *from, const RuntimeType 
         msg = String::Steal(x10aux::alloc_printf("%s", to->name()));
     }
     throwException(ClassCastException::_make(msg));
+}
+
+void x10aux::throwUnsupportedOperationException(const char *msg_) {
+    String *msg = String::Lit(msg_);
+    throwException(UnsupportedOperationException::_make(msg));
 }

@@ -97,6 +97,11 @@ namespace x10aux {
 
     extern void throwClassCastException(const RuntimeType *from, const RuntimeType *to) X10_PRAGMA_NORETURN;
     extern void throwClassCastException(const char *msg) X10_PRAGMA_NORETURN;
+
+    /*
+     * Helper functions for UnsupportedOperationException
+     */
+    extern void throwUnsupportedOperationException(const char *msg) X10_PRAGMA_NORETURN;
 }
 
 #endif /* X10AUX_THROW_H */
