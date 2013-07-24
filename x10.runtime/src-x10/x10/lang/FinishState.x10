@@ -977,7 +977,7 @@ abstract class FinishState {
 
             @StackAllocate val me = @StackAllocate new Cell[Any](null);
             val me2 = GlobalRef(me);
-            at (place) {
+            @Profile(prof) at (place) {
                 val r : Any = body();
                 at (me2) {
                     me2()(r);
