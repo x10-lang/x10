@@ -198,7 +198,7 @@ namespace x10aux {
 
         ~serialization_buffer (void) {
             if (buffer!=NULL) {
-                x10aux::system_dealloc(buffer);
+                x10aux::dealloc(buffer);
             }
         }
 
@@ -282,7 +282,6 @@ namespace x10aux {
     PRIMITIVE_WRITE(x10_ulong)
     PRIMITIVE_WRITE(x10_float)
     PRIMITIVE_WRITE(x10_double)
-    //PRIMITIVE_WRITE(x10_addr_t) // already defined above
         
     PRIMITIVE_VOLATILE_WRITE(x10_int)
     PRIMITIVE_VOLATILE_WRITE(x10_long)
@@ -454,7 +453,6 @@ namespace x10aux {
     PRIMITIVE_READ(x10_ulong)
     PRIMITIVE_READ(x10_float)
     PRIMITIVE_READ(x10_double)
-    //PRIMITIVE_READ(x10_addr_t) // already defined above
 
     // Case for references e.g. Reference*, 
     template<class T> struct deserialization_buffer::Read<T*> {

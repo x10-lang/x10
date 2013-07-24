@@ -84,7 +84,7 @@ void serialization_buffer::grow (void) {
 void serialization_buffer::grow (size_t new_capacity) {
     size_t new_length = length(); // no change in used portion of buffer
     
-    buffer = (char*)x10aux::system_realloc(buffer, new_capacity);
+    buffer = (char*)x10aux::realloc(buffer, new_capacity);
 
     // update pointers to use (potentially) new buffer
     limit = buffer + new_capacity;
