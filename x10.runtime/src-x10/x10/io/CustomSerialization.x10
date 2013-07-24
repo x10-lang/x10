@@ -6,7 +6,7 @@
  *  You may obtain a copy of the License at
  *      http://www.opensource.org/licenses/eclipse-1.0.php
  *
- *  (C) Copyright IBM Corporation 2006-2010.
+ *  (C) Copyright IBM Corporation 2006-2013.
  */
 
 package x10.io;
@@ -32,6 +32,9 @@ package x10.io;
  * Unlike the default serialization implementation, when running the
  * custom serialization protocol the runtime system does not automatically
  * handle cycles in the serialized object graph.<p>
+ *
+ * @see SerialData
+ * @see Unserializable
  */
 public interface CustomSerialization {
     /**
