@@ -43,7 +43,7 @@ import x10.compiler.NativeRep;
 @NativeRep("java", "x10.core.Rail<#T$box>", null, "x10.rtt.ParameterizedType.make(x10.core.Rail.$RTT, #T$rtt)")
 @NativeRep("c++", "x10::lang::Rail<#T >*", "x10::lang::Rail<#T >", null)
 public final class Rail[T](
-    @Native("c++", "(x10_long)(#this->FMGL(size))")
+    @Native("c++", "(x10_long)(x10aux::nullCheck(#this)->FMGL(size))")
     /** The number of elements in the Rail */
     size:Long
 ) implements Iterable[T],(Long)=>T {
