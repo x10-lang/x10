@@ -106,13 +106,8 @@ public class ResilientHeatTransfer {
                     A.snapshot(); snapshot_iter = i; // SNAPSHOT!
                 }
                 
-            } catch (e:DeadPlaceException) {
-                processDeadPlaceException(e);
-            } catch (es:MultipleExceptions) {
-                for (e in es.exceptions()) {
-                    if (e instanceof DeadPlaceException) processDeadPlaceException(e);
-                    else throw e;
-                }
+            } catch (e:Exception) {
+                processException(e, 0);
             } /* try */
         } /* for (i) */
         
@@ -124,30 +119,37 @@ public class ResilientHeatTransfer {
     }
     
     /**
-     * Process a DeadPlaceException
+     * Process Exception(s)
+     * l is the nest level of MultipleExceptions (for pretty print)
      */
-    private static def processDeadPlaceException(e:Exception) {
-        val deadPlace = (e as DeadPlaceException).place;
-        Console.OUT.println("DeadPlaceException thrown from " + deadPlace);
-        livePlaces.remove(deadPlace);
-        restore_needed() = true;
+    private static def processException(e:Exception, l:Int) {
+        if (e instanceof DeadPlaceException) {
+            val deadPlace = (e as DeadPlaceException).place;
+            Console.OUT.println(new String(new Rail[Char](l,' ')) + "DeadPlaceException thrown from " + deadPlace);
+            livePlaces.remove(deadPlace); // may be removed multiple times
+            restore_needed() = true;
+        } else if (e instanceof MultipleExceptions) {
+            val exceptions = (e as MultipleExceptions).exceptions();
+            Console.OUT.println(new String(new Rail[Char](l,' ')) + "MultipleExceptions size=" + exceptions.size);
+            for (ec in exceptions) processException(ec, l+1);
+        } else throw e;
     }
     
-    // private static def stencil_1(A:ResilientDistArray[Double](2), [x,y]:Point(2)): Double {
-    //     return ((at(A.dist(x-1,y)) A(x-1,y)) + 
-    //             (at(A.dist(x+1,y)) A(x+1,y)) + 
-    //             (at(A.dist(x,y-1)) A(x,y-1)) + 
-    //             (at(A.dist(x,y+1)) A(x,y+1))) / 4;
-    // }
-    /* Tentative workaround since DeatPlaceException is not thrown for "at (p) ..." */
     private static def stencil_1(A:ResilientDistArray[Double](2), [x,y]:Point(2)): Double {
-        val a:Double, b:Double, c:Double, d:Double;
-        finish a = at(A.dist(x-1,y)) A(x-1,y);
-        finish b = at(A.dist(x+1,y)) A(x+1,y);
-        finish c = at(A.dist(x,y-1)) A(x,y-1);
-        finish d = at(A.dist(x,y+1)) A(x,y+1);
-        return (a+b+c+d)/4;
+        return ((at(A.dist(x-1,y)) A(x-1,y)) + 
+                (at(A.dist(x+1,y)) A(x+1,y)) + 
+                (at(A.dist(x,y-1)) A(x,y-1)) + 
+                (at(A.dist(x,y+1)) A(x,y+1))) / 4;
     }
+    // /* Tentative workaround since DeatPlaceException is not thrown for "at (p) ..." */
+    // private static def stencil_1(A:ResilientDistArray[Double](2), [x,y]:Point(2)): Double {
+    //     val a:Double, b:Double, c:Double, d:Double;
+    //     finish a = at(A.dist(x-1,y)) A(x-1,y);
+    //     finish b = at(A.dist(x+1,y)) A(x+1,y);
+    //     finish c = at(A.dist(x,y-1)) A(x,y-1);
+    //     finish d = at(A.dist(x,y+1)) A(x,y+1);
+    //     return (a+b+c+d)/4;
+    // }
     
     private static def prettyPrint(A:ResilientDistArray[Double](2)) {
         for ([i] in A.region.projection(0)) {
