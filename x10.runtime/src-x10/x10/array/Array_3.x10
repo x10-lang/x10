@@ -124,6 +124,9 @@ public final class Array_3[T] (
         return sb.toString();
     }
 
+    /**
+     * @return an IterationSpace containing all valid Points for indexing this Array.
+     */  
     public def indices():DenseIterationSpace_3{self!=null} {
         return new DenseIterationSpace_3(0L, 0L, 0L, numElems_1-1, numElems_2-1, numElems_3-1);
     }
