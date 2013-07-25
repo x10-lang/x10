@@ -21,6 +21,7 @@ import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 
 import x10.io.CustomSerialization;
+import x10.rtt.Types;
 import x10.runtime.impl.java.Runtime;
 import x10.serialization.SerializationDictionary.LocalSerializationDictionary;
 
@@ -52,7 +53,34 @@ public final class X10JavaSerializer implements SerializationConstants {
         this.out = new DataOutputStream(this.b_out);
         this.idDictionary = new LocalSerializationDictionary(SharedDictionaries.getSerializationDictionary(), FIRST_DYNAMIC_ID);
     }
-
+    
+    /*
+     * for use by @NativeClass code in x10.io.Serializer
+     */
+    public X10JavaSerializer(System[] ignored) {
+        this();
+    }
+    public X10JavaSerializer x10$serialization$X10JavaSerializer$$init$S() {
+        // init handled by System[] constructor; nothing else to do.
+        return this;
+    }
+    
+    @SuppressWarnings("rawtypes")
+    public x10.core.Rail toRail() {
+        try {
+            prepareMessage(false);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+        byte[] dictBytes = getDictionaryBytes();
+        byte[] dataBytes = getDataBytes();
+        byte[] messageBytes = new byte[getTotalMessageBytes()];
+        System.arraycopy(dictBytes, 0, messageBytes, 0, dictBytes.length);
+        System.arraycopy(dataBytes, 0, messageBytes, dictBytes.length, dataBytes.length);
+        return new x10.core.Rail(Types.BYTE, messageBytes.length, messageBytes);
+    }
+    
+    
     public DataOutput getOutForHadoop() {
         return out;
     }
@@ -434,6 +462,17 @@ public final class X10JavaSerializer implements SerializationConstants {
             return;
         }
         writeObjectUsingReflection(v);
+    }
+    
+    // Called from x10.io.Serializer.
+    // The point of this wrapper message is to avoid a throws java.io.IOException
+    // in the X10 API for Serializer.writeAny(v:Any).
+    public void writeAny(Object v) {
+        try {
+            write(v);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     public void write(String str) throws IOException {

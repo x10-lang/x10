@@ -16,6 +16,11 @@
 #include <x10aux/captured_lval.h>
 #include <x10aux/deserialization_dispatcher.h>
 
+class Serializer;
+namespace x10 { namespace lang { template<class T> class Rail; } }
+namespace x10 { namespace io { class Serializer; } }
+namespace x10 { namespace lang { class Any; } }
+
 namespace x10aux {
 
     // A buffer from which we can deserialize x10 objects
@@ -29,10 +34,16 @@ namespace x10aux {
         char *getBuffer() { return buffer; }
         size_t getLen() { return len; }
 
+        deserialization_buffer() : buffer(NULL), cursor(NULL), map(), len(0) {}
+        
         deserialization_buffer(char *buffer_, size_t len_)
             : buffer(buffer_), cursor(buffer_), map(), len(len_)
         { }
 
+        void _constructor(x10::io::Serializer*);
+
+        void _constructor(x10::lang::Rail<x10_byte>*);
+        
         size_t consumed (void) { return cursor - buffer; }
 
         static x10::lang::Reference* deserialize_reference(deserialization_buffer &buf);
@@ -54,6 +65,8 @@ namespace x10aux {
 
         template<typename T> void update_reference(T* r, T* newr);
 
+        x10::lang::Any* readAny();
+        
         // So it can access the addr_map
         template<class T> friend struct Read;
     };

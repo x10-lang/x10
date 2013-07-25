@@ -16,8 +16,10 @@
 #include <x10aux/network.h>
 
 #include <x10/lang/Reference.h>
-
+#include <x10/lang/Any.h>
+#include <x10/lang/Rail.h>
 #include <x10/lang/Runtime__Profile.h>
+#include <x10/io/Serializer.h>
 
 using namespace x10aux;
 using namespace x10::lang;
@@ -105,6 +107,26 @@ void serialization_buffer::serialize_reference(serialization_buffer &buf,
     }
 }
 
+Rail<x10_byte>* serialization_buffer::toRail() {
+    Rail<x10_byte>* ans = Rail<x10_byte>::_makeUnsafe(length(), false);
+    rail_copyRaw(buffer, ans->raw, length(), false);
+    return ans;
+}
+
+void serialization_buffer::writeAny(x10::lang::Any *val) {
+    write(val);
+}
+
+void deserialization_buffer::_constructor(x10::io::Serializer* ser) {
+    cursor = buffer = ser->FMGL(__NATIVE_FIELD__)->borrow();
+    len = ser->FMGL(__NATIVE_FIELD__)->length();
+}
+
+void deserialization_buffer::_constructor(x10::lang::Rail<x10_byte>*rail) {
+    cursor = buffer = (char*)(rail->raw);
+    len = rail->FMGL(size);
+}
+
 Reference* deserialization_buffer::deserialize_reference(deserialization_buffer &buf) {
     x10aux::serialization_id_t id = buf.read<x10aux::serialization_id_t>();
     if (id == 0) {
@@ -116,6 +138,10 @@ Reference* deserialization_buffer::deserialize_reference(deserialization_buffer 
     }
 }
 
+x10::lang::Any* deserialization_buffer::readAny() {
+    x10::lang::Any *val = read<x10::lang::Any*>();
+    return val;
+}    
 
 void x10aux::set_prof_data(x10::lang::Runtime__Profile *prof, unsigned long long bytes, unsigned long long nanos)
 {

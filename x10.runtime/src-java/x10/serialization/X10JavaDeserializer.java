@@ -22,6 +22,9 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 
+import x10.core.Byte;
+import x10.core.Rail;
+import x10.io.Serializer;
 import x10.rtt.Types;
 import x10.runtime.impl.java.Runtime;
 import x10.serialization.DeserializationDictionary.LocalDeserializationDictionary;
@@ -32,10 +35,10 @@ public final class X10JavaDeserializer implements SerializationConstants {
     private final ArrayList<Object> objectList = new ArrayList<Object>();
     private int counter = 0;
     
-    protected final DataInputStream in;
-    protected final DeserializationDictionary dict; 
+    protected DataInputStream in;
+    protected DeserializationDictionary dict; 
     
-    public X10JavaDeserializer(DataInputStream in, boolean readMessageDictionary) {
+    private void init(DataInputStream in, boolean readMessageDictionary) {
         this.in = in;
         if (readMessageDictionary) {
             dict = new LocalDeserializationDictionary(this, SharedDictionaries.getDeserializationDictionary());
@@ -47,16 +50,48 @@ public final class X10JavaDeserializer implements SerializationConstants {
         }
     }
     
+    private void init(X10JavaSerializer js) {
+        in = new DataInputStream(new ByteArrayInputStream(js.getDataBytes()));
+        dict = new LocalDeserializationDictionary(js.idDictionary, SharedDictionaries.getDeserializationDictionary());
+    }
+    
+    public X10JavaDeserializer(DataInputStream in, boolean readMessageDictionary) {
+        init(in, readMessageDictionary);
+    }
+        
     /**
      * Specialized constructor for use by deep copy. 
      * As much as possible, attempt to streamline the movement of serialized data when staying in the same place.
      * @param js
      */
-    public X10JavaDeserializer(X10JavaSerializer js) throws IOException { 
-        in = new DataInputStream(new ByteArrayInputStream(js.getDataBytes()));
-        dict = new LocalDeserializationDictionary(js.idDictionary, SharedDictionaries.getDeserializationDictionary());
+    public X10JavaDeserializer(X10JavaSerializer js) throws IOException {
+        init(js);
     }
+    
 
+    /*
+     * Constructor/init for usage as the backing @NativeClass for x10.io.Deserializer
+     */
+    public X10JavaDeserializer(System[] ignored) {
+        // for use by generated code; $init methods will set instance fields
+    }
+    public X10JavaDeserializer x10$serialization$X10JavaDeserializer$$init$S(x10.core.Rail<Byte> data,
+                                                                             x10.io.Deserializer.__0$1x10$lang$Byte$2 ignored) {
+        init(new DataInputStream(new ByteArrayInputStream(data.getByteArray())), true);
+        return this;
+    }    
+    public X10JavaDeserializer x10$serialization$X10JavaDeserializer$$init$S(x10.io.Serializer xjs) {
+        init(xjs.__NATIVE_FIELD__);
+        return this;
+    }
+    public java.lang.Object readAny() {
+        try {
+            return readRef();
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
+    
     public DataInput getInpForHadoop() {
         return in;
     }

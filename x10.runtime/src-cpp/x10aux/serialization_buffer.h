@@ -19,6 +19,9 @@
 #include <x10aux/captured_lval.h>
 #include <x10aux/deserialization_dispatcher.h>
 
+namespace x10 { namespace lang { template<class T> class Rail; } }
+namespace x10 { namespace lang { class Any; } }
+
 namespace x10aux {
     // addr_map can be used to detect and properly handle cycles when serializing object graphs
     // it can also be used to avoid serializing two copies of an object when serializing a DAG.
@@ -119,6 +122,8 @@ namespace x10aux {
             }
         }
 
+        void _constructor() {}
+        
         void grow (void);
 
         size_t length (void) { return cursor - buffer; }
@@ -133,6 +138,8 @@ namespace x10aux {
         template <class T> void manually_record_reference(T* val) {
             map.previous_position(val);
         }
+
+        x10::lang::Rail<x10_byte>* toRail();
         
         // Default case for primitives and other things that never contain pointers
         template<class T> struct Write;
@@ -141,6 +148,8 @@ namespace x10aux {
         template<class T> struct Write<captured_struct_lval<T> >;
         template<typename T> void write(const T &val);
 
+        void writeAny(x10::lang::Any* val);
+        
         // So it can access the addr_map
         template<class T> friend struct Write;
     };
