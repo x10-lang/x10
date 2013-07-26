@@ -1150,7 +1150,7 @@ public class Emitter {
                             String fieldName = mangled_field_name(f.name().toString());
                             w.write(fieldName+" = ");
                             tr.printAst(initExpr, sw);
-                            w.write(";");
+                            w.writeln(";");
                         }
                     }
                 }               
