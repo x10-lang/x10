@@ -17,10 +17,7 @@ import x10.compiler.Inline;
 import x10.compiler.Native;
 import x10.compiler.NoInline;
 import x10.compiler.NoReturn;
-import x10.compiler.Incomplete;
-
-import x10.io.CustomSerialization;
-import x10.io.SerialData;
+import x10.compiler.TransientInitExpr;
 
 /**
  * <p>A distributed array (DistArray) defines a mapping from {@link Point}s to data 
@@ -50,8 +47,7 @@ public final class DistArray[T] (
      */
     dist:Dist
 ) implements (Point(dist.region.rank))=>T,
-             Iterable[Point(dist.region.rank)],
-             CustomSerialization
+             Iterable[Point(dist.region.rank)]
 {
 
     //
@@ -83,21 +79,23 @@ public final class DistArray[T] (
     /** The place-local state for the DistArray */
     protected val localHandle:PlaceLocalHandle[LocalState[T]];
 
+
     /** 
      * The place-local backing storage for elements of the DistArray.
-     * Implementation note: this field is intentionally not serialized when 
-     *    the DistArray object is serialized.  Instead it is acquired from 
-     *    the LocalState via the PlaceLocalHandle during deserialization.
-     *    This enables optimized access (single unconditional load)
-     *    to the backing Rail.
      */
-    protected val raw:Rail[T]{self!=null};
+    @TransientInitExpr(getRawFromLocalHandle())
+    protected transient val raw:Rail[T]{self!=null};
+    protected def getRawFromLocalHandle():Rail[T]{self!=null} {
+      val ls = localHandle();
+      return ls != null ? ls.data : new Rail[T]();
+    }
+
     
     /**
      * Method to acquire a pointer to the backing storage for the 
      * array's data in the current place.
      */
-    protected final def raw():Rail[T]{self!=null} = raw;
+    public final def raw():Rail[T]{self!=null} = raw;
 
     /**
      * @return the portion of the DistArray that is stored 
@@ -121,30 +119,14 @@ public final class DistArray[T] (
         property(dist);
 
         val plsInit:()=>LocalState[T] = () => {
-            val size = dist.places().contains(here) ? dist.maxOffset()+1 : 0L;
+            val size = dist.maxOffset()+1;
             val localRaw = new Rail[T](size);
             return new LocalState(dist, localRaw);
         };
 
-        val mypg = dist.places();
-        localHandle = PlaceLocalHandle.makeFlat[LocalState[T]](PlaceGroup.WORLD, plsInit, (p:Place)=>!mypg.contains(p));
+        localHandle = PlaceLocalHandle.makeFlat[LocalState[T]](dist.places(), plsInit);
         raw = localHandle().data;
     }
-
-    def this(sd:SerialData) {
-      val plh:PlaceLocalHandle[LocalState[T]] = sd.data as PlaceLocalHandle[LocalState[T]];
-      val ls = plh();
-      val d:Dist = ls != null ? ls.dist : null;
-
-      property(d);
-      localHandle = plh;
-      raw = ls != null ? ls.data : new Rail[T]();
-    }
-
-    public def serialize():SerialData {
-        return new SerialData(localHandle, null);
-    }
-
 
     /**
      * Create a distributed array over the argument distribution whose elements
@@ -168,21 +150,15 @@ public final class DistArray[T] (
         property(dist);
 
         val plsInit:()=>LocalState[T] = () => {
-            val localRaw:Rail[T]{self!=null};
-            if (dist.places().contains(here)) {
-                localRaw = Unsafe.allocRailUninitialized[T](dist.maxOffset()+1);
-                val reg = dist.get(here);
-                for (pt in reg) {
-                    localRaw(dist.offset(pt)) = init(pt);
-                }
-            } else {
-                localRaw = new Rail[T]();
+            val localRaw = Unsafe.allocRailUninitialized[T](dist.maxOffset()+1);
+            val reg = dist.get(here);
+            for (pt in reg) {
+                localRaw(dist.offset(pt)) = init(pt);
             }
             return new LocalState(dist, localRaw);
         };
 
-        val mypg = dist.places();
-        localHandle = PlaceLocalHandle.make[LocalState[T]](PlaceGroup.WORLD, plsInit, (p:Place)=>!mypg.contains(p));
+        localHandle = PlaceLocalHandle.make[LocalState[T]](dist.places(), plsInit);
         raw = localHandle().data;
     }
 
@@ -202,21 +178,15 @@ public final class DistArray[T] (
         property(dist);
 
         val plsInit:()=>LocalState[T] = () => {
-            val localRaw:Rail[T]{self!=null};
-            if (dist.places().contains(here)) {
-                localRaw = Unsafe.allocRailUninitialized[T](dist.maxOffset()+1);
-                val reg = dist.get(here);
-                for (pt in reg) {
-                    localRaw(dist.offset(pt)) = init;
-                }
-            } else {
-                localRaw = new Rail[T]();
+            val localRaw = Unsafe.allocRailUninitialized[T](dist.maxOffset()+1);
+            val reg = dist.get(here);
+            for (pt in reg) {
+                localRaw(dist.offset(pt)) = init;
             }
             return new LocalState(dist, localRaw);
         };
 
-        val mypg = dist.places();
-        localHandle = PlaceLocalHandle.makeFlat[LocalState[T]](PlaceGroup.WORLD, plsInit, (p:Place)=>!mypg.contains(p));
+        localHandle = PlaceLocalHandle.makeFlat[LocalState[T]](dist.places(), plsInit);
         raw = localHandle().data;
     }
 
@@ -233,8 +203,7 @@ public final class DistArray[T] (
         property(d);
 
         val plsInit:()=>LocalState[T] = ()=> new LocalState(d, a.localHandle().data);
-        val mypg = dist.places();
-        localHandle = PlaceLocalHandle.makeFlat[LocalState[T]](PlaceGroup.WORLD, plsInit, (p:Place)=>!mypg.contains(p));
+        localHandle = PlaceLocalHandle.makeFlat[LocalState[T]](d.places(), plsInit);
         raw = localHandle().data;
     }
 
@@ -543,21 +512,16 @@ public final class DistArray[T] (
      * @return a new array with the same distribution as this array where <code>result(p) == op(this(p))</code>
      */
     public final def map[U](op:(T)=>U):DistArray[U](this.dist) {
-        val plh = PlaceLocalHandle.make[LocalState[U]](PlaceGroup.WORLD, ()=> {
-            val newRail:Rail[U]{self!=null};
-            if (dist.places().contains(here)) {
-                val srcRail = raw();
-                newRail = Unsafe.allocRailUninitialized[U](dist.maxOffset()+1);
-                val reg = dist.get(here);
-                for (pt in reg) {
-                    val offset = dist.offset(pt);
-                    newRail(offset) = op(srcRail(offset));
-                }
-            } else {
-                newRail = new Rail[U]();
+        val plh = PlaceLocalHandle.make[LocalState[U]](dist.places(), ()=> {
+            val srcRail = raw();
+            val newRail = Unsafe.allocRailUninitialized[U](dist.maxOffset()+1);
+            val reg = dist.get(here);
+            for (pt in reg) {
+                val offset = dist.offset(pt);
+                newRail(offset) = op(srcRail(offset));
             }
             return new LocalState[U](dist, newRail);
-        }, (p:Place)=>!dist.places().contains(p));
+        });
         return new DistArray[U](dist, plh);                       
     }
 
@@ -629,22 +593,17 @@ public final class DistArray[T] (
      * @return a new array with the same distribution as this array containing the result of the map
      */
     public final def map[S,U](src:DistArray[U](this.dist), op:(T,U)=>S):DistArray[S](dist) {
-        val plh = PlaceLocalHandle.make[LocalState[S]](PlaceGroup.WORLD, ()=> {
-            val newRail:Rail[S]{self!=null};
-            if (dist.places().contains(here)) {
-                val src1Rail = raw();
-                val src2Rail = src.raw();
-                newRail = Unsafe.allocRailUninitialized[S](dist.maxOffset()+1);
-                val reg = dist.get(here);
-                for (pt in reg) {
-                    val offset = dist.offset(pt);
-                    newRail(offset) = op(src1Rail(offset), src2Rail(offset));
-                }
-            } else {
-                newRail = new Rail[S]();
+        val plh = PlaceLocalHandle.make[LocalState[S]](dist.places(), ()=> {
+            val src1Rail = raw();
+            val src2Rail = src.raw();
+            val newRail = Unsafe.allocRailUninitialized[S](dist.maxOffset()+1);
+            val reg = dist.get(here);
+            for (pt in reg) {
+                val offset = dist.offset(pt);
+                newRail(offset) = op(src1Rail(offset), src2Rail(offset));
             }
             return new LocalState[S](dist, newRail);
-        }, (p:Place)=>!dist.places().contains(p));
+        });
         return new DistArray[S](dist, plh);                       
     }
     
