@@ -13,8 +13,6 @@ package x10.array;
 
 import x10.compiler.Inline;
 import x10.compiler.CompilerFlags;
-import x10.io.CustomSerialization;
-import x10.io.SerialData;
 
 /**
  * Implementation of DistArray that has exactly one element at each 
@@ -29,7 +27,7 @@ public final class DistArray_Unique[T] extends DistArray[T]{this.rank()==1} impl
      * Construct a zero-initialized DistArray_Unique object on the WORLD PlaceGroup
      */
     public def this(){T haszero} {
-        super(PlaceGroup.WORLD, () => new LocalState(PlaceGroup.WORLD, new Rail[T](1), PlaceGroup.WORLD.size()));
+        super(PlaceGroup.WORLD, () => new LocalState[T](PlaceGroup.WORLD, new Rail[T](1), PlaceGroup.WORLD.size()));
     }
 
     /**
@@ -37,21 +35,15 @@ public final class DistArray_Unique[T] extends DistArray[T]{this.rank()==1} impl
      * given initialization function.
      */
     public def this(init:()=>T) {
-        super(PlaceGroup.WORLD, () => new LocalState(PlaceGroup.WORLD, new Rail[T](1, init()), PlaceGroup.WORLD.size()));
+        super(PlaceGroup.WORLD, () => new LocalState[T](PlaceGroup.WORLD, new Rail[T](1, init()), PlaceGroup.WORLD.size()));
     }
 
     /**
      * Construct a DistArray_Unique object using the given PlaceGroup and
      * initialization function.
      */
-    public def this(pg:PlaceGroup, init:()=>T) {
-        super(pg, () => new LocalState(PlaceGroup.WORLD, new Rail[T](1, init()), pg.size()));
-    }
-
-    // Custom Serialization: for now just delegate to superclass as we have no state ourselves.
-    public def serialize():SerialData = super.serialize();
-    def this(sd:SerialData) { 
-      super(sd.data as PlaceLocalHandle[LocalState[T]]);
+    public def this(pg:PlaceGroup{self!=null}, init:()=>T) {
+        super(pg, () => new LocalState[T](pg, new Rail[T](1, init()), pg.size()));
     }
 
     /**

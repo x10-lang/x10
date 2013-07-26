@@ -14,9 +14,8 @@ package x10.array;
 import x10.compiler.Inline;
 import x10.compiler.NoInline;
 import x10.compiler.NoReturn;
-import x10.io.CustomSerialization;
-import x10.io.SerialData;
-
+import x10.compiler.NonEscaping;
+import x10.compiler.TransientInitExpr;
 
 /**
  * <p> This class hierarchy provides high-performance implementations of
@@ -41,7 +40,7 @@ public abstract class DistArray[T] (
          * The number of data values in the array.
          */
         size:Long
-) implements CustomSerialization, Iterable[Point(this.rank())] {
+) implements Iterable[Point(this.rank())] {
 
     /**
      * @return the rank (dimensionality) of the DistArray
@@ -55,60 +54,35 @@ public abstract class DistArray[T] (
 
     /**
      * The place-local backing storage for elements of the DistArray.
-     * Implementation note: this field is intentionally not serialized when 
-     *    the DistArray object is serialized.  Instead it is acquired from 
-     *    the LocalState via the PlaceLocalHandle during deserialization.
-     *    This enables optimized access (single unconditional load)
-     *    to the backing Rail.
      */
-    protected val raw:Rail[T]{self!=null};
+    @TransientInitExpr(getRailFromLocalHandle())
+    protected transient val raw:Rail[T]{self!=null};
+    @NonEscaping protected final def getRailFromLocalHandle():Rail[T]{self!=null} {
+      val ls = localHandle();
+      return ls != null ? ls.rail : new Rail[T]();
+    }
 
     /**
      * The PlaceGroup over which this DistArray is defined.
-     * Implementation note: as with raw, this field is not serialized
-     *    but instead reloaded from the PlaceLocalHandle during deserialization.
      */
     protected val placeGroup:PlaceGroup;
 
-
+    /**
+     * Construct the DistArray using the argument PlaceGroup
+     * and initialization closure to create the LocalState of
+     * the DistArray in every Place in the PlaceGroup.
+     * @param pg the PlaceGroup over which the DistArray is defined.
+     * @param init the closure to pass to PlaceLocalHandle.make
+     */
     protected def this(pg:PlaceGroup, init:()=>LocalState[T]) {
         val plh = PlaceLocalHandle.makeFlat[LocalState[T]](pg, init);
         val ls = plh();
         property(ls.size);
         localHandle = plh;
-	raw = ls.rail;
         placeGroup = pg;
+	raw = getRailFromLocalHandle();
     }
 
-    protected def this(sd:SerialData) {
-        this(sd.data as PlaceLocalHandle[LocalState[T]]);
-    }
-
-    protected def this(plh:PlaceLocalHandle[LocalState[T]]) {
-      val ls = plh();
-
-      property(ls != null ? ls.size : 0L);
-      localHandle = plh;
-
-      if (ls != null) {
-          raw = ls.rail;
-          placeGroup = ls.pg;
-      } else {
-          // plh was destroyed, but DistArray still alive.
-          // Bug in application logic, but we can't cleanly die in 
-          // deserialization, so set fields to bogus values and 
-          // if the DistArray object is actually used we'll die then.
-          raw = new Rail[T]();
-          placeGroup = null;
-      }
-
-    }
-
-    public def serialize():SerialData {
-        return new SerialData(localHandle, null);
-    }
-
-    
     /**
      * <p>Return the Rail[T] that is providing the backing storage for the array.
      * This method is primarily intended to be used to interface with native libraries 

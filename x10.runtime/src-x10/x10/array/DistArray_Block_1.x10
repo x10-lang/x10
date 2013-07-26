@@ -13,8 +13,8 @@ package x10.array;
 
 import x10.compiler.Inline;
 import x10.compiler.CompilerFlags;
-import x10.io.CustomSerialization;
-import x10.io.SerialData;
+import x10.compiler.NonEscaping;
+import x10.compiler.TransientInitExpr;
 
 /**
  * Implementation of a 1-D DistArray that distributes its data elements
@@ -24,14 +24,23 @@ public class DistArray_Block_1[T] extends DistArray[T]{this.rank()==1} implement
     
     public property rank() = 1;
 
-    protected val minLocalIndex:Long;
- 
-    protected val maxLocalIndex:Long;
-
     protected val globalIndices:DenseIterationSpace_1{self!=null};
 
-    protected val localIndices:DenseIterationSpace_1{self!=null};
+    @TransientInitExpr(reloadLocalIndices())
+    protected transient val localIndices:DenseIterationSpace_1{self!=null};
+    @NonEscaping protected final def reloadLocalIndices():DenseIterationSpace_1{self!=null} {
+        val ls = localHandle() as LocalState_B1[T];
+        return ls != null ? ls.localIndices : new DenseIterationSpace_1(0L,-1L);
+    }
     
+    @TransientInitExpr(reloadMinLocalIndex())
+    protected transient val minLocalIndex:Long;
+    @NonEscaping protected final def reloadMinLocalIndex() = localIndices.min(0);
+ 
+    @TransientInitExpr(reloadMaxLocalIndex())
+    protected transient val maxLocalIndex:Long;
+    @NonEscaping protected final def reloadMaxLocalIndex() = localIndices.max(0);
+
     /**
      * Construct a n-element block distributed DistArray
      * whose data is distrbuted over pg and initialized using
@@ -43,11 +52,10 @@ public class DistArray_Block_1[T] extends DistArray[T]{this.rank()==1} implement
      */
     public def this(n:long, pg:PlaceGroup{self!=null}, init:(long)=>T) {
         super(pg, () => LocalState_B1.make[T](pg, n, init));
-        val bls = localHandle() as LocalState_B1[T];
-        globalIndices = bls.globalIndices;
-        localIndices = bls.localIndices;
-        minLocalIndex = localIndices.min(0);
-        maxLocalIndex = localIndices.max(0);
+        globalIndices = new DenseIterationSpace_1(0L, n-1);
+        localIndices = reloadLocalIndices();
+        minLocalIndex = reloadMinLocalIndex();
+        maxLocalIndex = reloadMaxLocalIndex();
     }
 
 
@@ -88,19 +96,6 @@ public class DistArray_Block_1[T] extends DistArray[T]{this.rank()==1} implement
     }
 
 
-    // Custom Serialization: Superclass handles serialization of localHandle
-    public def serialize():SerialData = super.serialize();
-
-    def this(sd:SerialData) { 
-        super(sd.data as PlaceLocalHandle[LocalState[T]]);
-        val bls = localHandle() as LocalState_B1[T];
-        globalIndices = bls.globalIndices;
-        localIndices = bls.localIndices;
-        minLocalIndex = localIndices.min(0);
-        maxLocalIndex = localIndices.max(0);
-    }
-
-
     /**
      * Get an IterationSpace that represents all Points contained in
      * the global iteration space (valid indices) of the DistArray.
@@ -126,7 +121,7 @@ public class DistArray_Block_1[T] extends DistArray[T]{this.rank()==1} implement
      * @return the Place where i is a valid index in the DistArray; 
      *          will return Place.INVALID_PLACE if i is not contained in globalIndices
      */
-    public def place(i:long):Place {
+    public final def place(i:long):Place {
         val tmp = BlockingUtils.mapIndexToBlockPartition(globalIndices, placeGroup.size(), i);
 	return tmp == -1L ? Place.INVALID_PLACE : placeGroup(tmp);
     }
@@ -141,7 +136,7 @@ public class DistArray_Block_1[T] extends DistArray[T]{this.rank()==1} implement
      * @return the Place where p is a valid index in the DistArray; 
      *          will return Place.INVALID_PLACE if p is not contained in globalIndices
      */
-    public def place(p:Point(1)):Place = place(p(0));
+    public final def place(p:Point(1)):Place = place(p(0));
 
 
     /**

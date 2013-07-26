@@ -125,7 +125,7 @@ public final class DistArray[T] (
         };
 
         localHandle = PlaceLocalHandle.makeFlat[LocalState[T]](dist.places(), plsInit);
-        raw = localHandle().data;
+        raw = getRawFromLocalHandle();
     }
 
     /**
@@ -159,7 +159,7 @@ public final class DistArray[T] (
         };
 
         localHandle = PlaceLocalHandle.make[LocalState[T]](dist.places(), plsInit);
-        raw = localHandle().data;
+        raw = getRawFromLocalHandle();
     }
 
 
@@ -187,7 +187,7 @@ public final class DistArray[T] (
         };
 
         localHandle = PlaceLocalHandle.makeFlat[LocalState[T]](dist.places(), plsInit);
-        raw = localHandle().data;
+        raw = getRawFromLocalHandle();
     }
 
     /**
@@ -204,7 +204,7 @@ public final class DistArray[T] (
 
         val plsInit:()=>LocalState[T] = ()=> new LocalState(d, a.localHandle().data);
         localHandle = PlaceLocalHandle.makeFlat[LocalState[T]](d.places(), plsInit);
-        raw = localHandle().data;
+        raw = getRawFromLocalHandle();
     }
 
     /**
@@ -215,7 +215,7 @@ public final class DistArray[T] (
     protected def this(d:Dist, pls:PlaceLocalHandle[LocalState[T]]) {
         property(d);
         localHandle = pls;
-        raw = localHandle().data;
+        raw = getRawFromLocalHandle();
     }
     
     
