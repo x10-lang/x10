@@ -825,25 +825,25 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
                         //                            er.printType(f.type(), BOX_PRIMITIVES);
                         //                            w.write(") ");                            
                         w.writeln("$deserializer.readRef();");
-                    }
-                    
-                    if (specialTransients != null) {
-                        w.newline();
-                        w.writeln("/* fields with @TransientInitExpr annotations */");
-                        for (FieldInstance tf:specialTransients) {
-                            Expr initExpr = getInitExpr(((X10FieldInstance_c)tf).annotationsMatching(xts.TransientInitExpr()).get(0));
-                            if (initExpr != null) {
-                                X10CContext_c ctx = (X10CContext_c) tr.context();
-                                w.write("$_obj." + Emitter.mangleToJava(tf.name()) + " = ");
-                                String old = ctx.setOverideNameForThis("$_obj");
-                                tr.print(n, initExpr, w);
-                                ctx.setOverideNameForThis(old);
-                                w.writeln(";");
-                            }
-                        }
-                        w.newline();
-                    }               
+                    }            
                 }
+                                
+                if (specialTransients != null) {
+                    w.newline();
+                    w.writeln("/* fields with @TransientInitExpr annotations */");
+                    for (FieldInstance tf:specialTransients) {
+                        Expr initExpr = getInitExpr(((X10FieldInstance_c)tf).annotationsMatching(xts.TransientInitExpr()).get(0));
+                        if (initExpr != null) {
+                            X10CContext_c ctx = (X10CContext_c) tr.context();
+                            w.write("$_obj." + Emitter.mangleToJava(tf.name()) + " = ");
+                            String old = ctx.setOverideNameForThis("$_obj");
+                            tr.print(n, initExpr, w);
+                            ctx.setOverideNameForThis(old);
+                            w.writeln(";");
+                        }
+                    }
+                    w.newline();
+                } 
 
                 w.write("return $_obj;");
                 w.end();
