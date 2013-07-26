@@ -988,12 +988,12 @@ abstract class FinishState {
         }
     }
 
-    static final class FinishResilientZooKeeper(id:Int) extends FinishState {
+    static final class FinishResilientZooKeeper(id:Long) extends FinishState {
         // can be null, otherwise should call .release() upon quiescence (i.e. when a call to waitForFinish() would terminate immediately)...
         // note that it is not ok to call .release() within waitForFinish, it must be called when the counters are updated for the last time
         val latch:SimpleLatch;
         def this(latch:SimpleLatch) {
-            property(0);
+            property(0l);
             this.latch = latch;
             throw new Exception("under implementation");
         }
