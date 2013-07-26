@@ -86,6 +86,7 @@ import polyglot.types.ContainerType;
 import polyglot.types.Context;
 import polyglot.types.FieldDef;
 import polyglot.types.FieldInstance;
+import polyglot.types.FieldInstance_c;
 import polyglot.types.Flags;
 import polyglot.types.JavaArrayType;
 import polyglot.types.JavaArrayType_c;
@@ -166,6 +167,7 @@ import x10.types.X10ClassType;
 import x10.types.X10ConstructorDef;
 import x10.types.X10ConstructorInstance;
 import x10.types.X10FieldInstance;
+import x10.types.X10FieldInstance_c;
 import x10.types.X10MethodDef;
 import x10.types.X10ParsedClassType_c;
 import x10.types.X10TypeEnv;
@@ -711,7 +713,7 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
             w.newline();
             w.writeln("}");
             w.newline();
-            
+
         } else {
             if (!def.flags().isInterface()) {
 
@@ -732,7 +734,7 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 
                 //_deserialize_body method
                 w.write("public static ");
-//                if (supportUpperBounds)
+                //                if (supportUpperBounds)
                 if (typeParameters.size() > 0) {
                     er.printTypeParams(n, context, typeParameters);
                 }
@@ -761,64 +763,89 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
                 }
 
                 // Deserialize the public variables of this class , we do not serialize transient or static variables
-                    for (int i = 0; i < ct.fields().size(); i++) {
-                        String str;
-                        FieldInstance f = ct.fields().get(i);
-                        if (f instanceof X10FieldInstance && !query.ifdef(((X10FieldInstance) f).x10Def())) continue;
-                        if (f.flags().isStatic() || query.isSyntheticField(f.name().toString()))
-                            continue;
-                        if (f.flags().isTransient()) // don't serialize transient fields
-                            continue;
-                        if (f.type().isParameterType()) {
-                            w.write("$_obj." + Emitter.mangleToJava(f.name()) + " = ");
-                            if (supportUpperBounds) {
-                            w.write("(");
-                            er.printType(f.type(), BOX_PRIMITIVES);
-                            w.write(") ");
+                List<FieldInstance> specialTransients = null;
+                for (int i = 0; i < ct.fields().size(); i++) {
+                    String str;
+                    FieldInstance f = ct.fields().get(i);
+                    if (f instanceof X10FieldInstance && !query.ifdef(((X10FieldInstance) f).x10Def())) continue;
+                    if (f.flags().isStatic() || query.isSyntheticField(f.name().toString()))
+                        continue;
+                    if (f.flags().isTransient()) {
+                        if (!((X10FieldInstance_c)f).annotationsMatching(xts.TransientInitExpr()).isEmpty()) {
+                            if (specialTransients == null) {
+                                specialTransients = new ArrayList<FieldInstance>();
                             }
-                            w.writeln("$deserializer.readRef();");
-                        } else if ((str = needsCasting(f.type())) != null) {
-                            // Want these to be readInteger and so on.....  These do not need a explicit case cause we are calling special methods
-                            w.writeln("$_obj." + Emitter.mangleToJava(f.name()) + " = $deserializer.read" + str + "();");
-                        } else if (xts.isPrimitiveJavaArray(f.type())) {
-                            String type = f.type().toClass().typeArguments().get(0).toString();
-                            String primitiveType = type.substring(type.lastIndexOf(".") + 1);
-                            w.write("$_obj." + Emitter.mangleToJava(f.name()) + " = ");
-                            w.writeln("$deserializer.read" + primitiveType + "Array();");
-                        } else if (xts.isJavaArray(f.type())) {
-                            String type = f.type().toClass().typeArguments().get(0).toString();
-                            w.write("$_obj." + Emitter.mangleToJava(f.name()) + " = ");
+                            specialTransients.add(f);
+                        }
+                        continue;
+                    }
+                    if (f.type().isParameterType()) {
+                        w.write("$_obj." + Emitter.mangleToJava(f.name()) + " = ");
+                        if (supportUpperBounds) {
                             w.write("(");
                             er.printType(f.type(), BOX_PRIMITIVES);
                             w.write(") ");
-                            w.writeln("$deserializer.readArrayUsingReflection(" + type + ".class);");
-                        } else if (f.type().isArray() && f.type() instanceof JavaArrayType_c && ((JavaArrayType_c)f.type()).base().isParameterType()) {
-                            // This is to get the test case XTENLANG_2299 to compile. Hope its a generic fix
-                            w.write("$_obj." + Emitter.mangleToJava(f.name()) + " = ");
-                            // not needed because readRef takes type parameters
-//                            w.write("(");
-//                            er.printType(f.type(), BOX_PRIMITIVES);
-//                            w.write(") ");                            
-                            w.writeln("$deserializer.readRef();");
-                        } else if (f.type().toClass() != null && f.type().toClass().isJavaType()) {
-                            // deserialize the variable using reflection and cast it back to the correct type
-                            w.write("$_obj." + Emitter.mangleToJava(f.name()) + " = ");
-                            w.write("(");
-                            er.printType(f.type(), BOX_PRIMITIVES);
-                            w.write(") ");                            
-                            w.writeln("$deserializer.readRefUsingReflection();");
-                        } else {
-                            // deserialize the variable and cast it back to the correct type
-                            w.write("$_obj." + Emitter.mangleToJava(f.name()) + " = ");
-                            // not needed because readRef takes type parameters
-//                            w.write("(");
-//                            er.printType(f.type(), BOX_PRIMITIVES);
-//                            w.write(") ");                            
-                            w.writeln("$deserializer.readRef();");
                         }
+                        w.writeln("$deserializer.readRef();");
+                    } else if ((str = needsCasting(f.type())) != null) {
+                        // Want these to be readInteger and so on.....  These do not need a explicit case cause we are calling special methods
+                        w.writeln("$_obj." + Emitter.mangleToJava(f.name()) + " = $deserializer.read" + str + "();");
+                    } else if (xts.isPrimitiveJavaArray(f.type())) {
+                        String type = f.type().toClass().typeArguments().get(0).toString();
+                        String primitiveType = type.substring(type.lastIndexOf(".") + 1);
+                        w.write("$_obj." + Emitter.mangleToJava(f.name()) + " = ");
+                        w.writeln("$deserializer.read" + primitiveType + "Array();");
+                    } else if (xts.isJavaArray(f.type())) {
+                        String type = f.type().toClass().typeArguments().get(0).toString();
+                        w.write("$_obj." + Emitter.mangleToJava(f.name()) + " = ");
+                        w.write("(");
+                        er.printType(f.type(), BOX_PRIMITIVES);
+                        w.write(") ");
+                        w.writeln("$deserializer.readArrayUsingReflection(" + type + ".class);");
+                    } else if (f.type().isArray() && f.type() instanceof JavaArrayType_c && ((JavaArrayType_c)f.type()).base().isParameterType()) {
+                        // This is to get the test case XTENLANG_2299 to compile. Hope its a generic fix
+                        w.write("$_obj." + Emitter.mangleToJava(f.name()) + " = ");
+                        // not needed because readRef takes type parameters
+                        //                            w.write("(");
+                        //                            er.printType(f.type(), BOX_PRIMITIVES);
+                        //                            w.write(") ");                            
+                        w.writeln("$deserializer.readRef();");
+                    } else if (f.type().toClass() != null && f.type().toClass().isJavaType()) {
+                        // deserialize the variable using reflection and cast it back to the correct type
+                        w.write("$_obj." + Emitter.mangleToJava(f.name()) + " = ");
+                        w.write("(");
+                        er.printType(f.type(), BOX_PRIMITIVES);
+                        w.write(") ");                            
+                        w.writeln("$deserializer.readRefUsingReflection();");
+                    } else {
+                        // deserialize the variable and cast it back to the correct type
+                        w.write("$_obj." + Emitter.mangleToJava(f.name()) + " = ");
+                        // not needed because readRef takes type parameters
+                        //                            w.write("(");
+                        //                            er.printType(f.type(), BOX_PRIMITIVES);
+                        //                            w.write(") ");                            
+                        w.writeln("$deserializer.readRef();");
                     }
+                    
+                    if (specialTransients != null) {
+                        w.newline();
+                        w.writeln("/* fields with @TransientInitExpr annotations */");
+                        for (FieldInstance tf:specialTransients) {
+                            Expr initExpr = getInitExpr(((X10FieldInstance_c)tf).annotationsMatching(xts.TransientInitExpr()).get(0));
+                            if (initExpr != null) {
+                                X10CContext_c ctx = (X10CContext_c) tr.context();
+                                w.write("$_obj." + Emitter.mangleToJava(tf.name()) + " = ");
+                                String old = ctx.setOverideNameForThis("$_obj");
+                                tr.print(n, initExpr, w);
+                                ctx.setOverideNameForThis(old);
+                                w.writeln(";");
+                            }
+                        }
+                        w.newline();
+                    }               
+                }
 
-                w.writeln("return $_obj;");
+                w.write("return $_obj;");
                 w.end();
                 w.newline();
                 w.writeln("}");
@@ -1135,6 +1162,17 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
         w.newline();
         w.write("}");
         w.newline(0);
+    }
+
+    private Expr getInitExpr(Type at) {
+        at = Types.baseType(at);
+        if (at instanceof X10ClassType) {
+            X10ClassType act = (X10ClassType) at;
+            if (0 < act.propertyInitializers().size()) {
+                return act.propertyInitializer(0);
+            }
+        }
+        return null;
     }
 
     // used by custom serializer
@@ -3076,7 +3114,11 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 
     @Override
     public void visit(Special_c n) {
-        Context c = tr.context();
+        X10CContext_c c = (X10CContext_c) tr.context();
+        if (n.kind() == Special.THIS && c.getOverideNameForThis() != null) {
+            w.write(c.getOverideNameForThis());
+            return;
+        }
         /*
          * The InnerClassRemover will have replaced the
          */

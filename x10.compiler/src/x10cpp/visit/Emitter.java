@@ -90,6 +90,7 @@ import x10.types.X10ClassType;
 import x10.types.X10ConstructorDef;
 import x10.types.X10FieldDef;
 import x10.types.X10FieldInstance;
+import x10.types.X10FieldInstance_c;
 
 import x10.types.X10LocalDef;
 import x10.types.X10MethodDef;
@@ -1120,6 +1121,7 @@ public class Emitter {
                     w.write(translateType(parent)+"::"+DESERIALIZE_BODY_METHOD+"(buf);");
                     w.newline();
                 }
+                List<FieldInstance> specialTransients = null;
                 for (int i = 0; i < type.fields().size(); i++) {
                     if (i != 0)
                         w.newline();
@@ -1127,12 +1129,33 @@ public class Emitter {
                     if (f instanceof X10FieldInstance && !query.ifdef(((X10FieldInstance) f).x10Def())) continue;
                     if (f.flags().isStatic() || query.isSyntheticField(f.name().toString()))
                         continue;
-                    if (f.flags().isTransient()) // don't serialize transient fields of classes
-                        continue;
+                    if (f.flags().isTransient()) {
+                        if (!((X10FieldInstance_c)f).annotationsMatching(ts.TransientInitExpr()).isEmpty()) {
+                            if (specialTransients == null) {
+                                specialTransients = new ArrayList<FieldInstance>();
+                            }
+                            specialTransients.add(f);
+                        }
+                       continue;
+                    }
                     String fieldName = mangled_field_name(f.name().toString());
                     w.write(fieldName+" = buf.read"+chevrons(translateType(f.type(),true))+"();");
                 }
+                if (specialTransients != null) {
+                    w.newline();
+                    w.writeln("/* fields with @TransientInitExpr annotations */");
+                    for (FieldInstance f:specialTransients) {
+                        Expr initExpr = getInitExpr(((X10FieldInstance_c)f).annotationsMatching(ts.TransientInitExpr()).get(0));
+                        if (initExpr != null) {
+                            String fieldName = mangled_field_name(f.name().toString());
+                            w.write(fieldName+" = ");
+                            tr.printAst(initExpr, sw);
+                            w.write(";");
+                        }
+                    }
+                }               
             }
+
             w.end(); w.newline();
             w.write("}");
             w.newline();
@@ -1140,6 +1163,18 @@ public class Emitter {
         }
     }
 
+    private Expr getInitExpr(Type at) {
+        at = Types.baseType(at);
+        if (at instanceof X10ClassType) {
+            X10ClassType act = (X10ClassType) at;
+            if (0 < act.propertyInitializers().size()) {
+                return act.propertyInitializer(0);
+            }
+        }
+        return null;
+    }
+
+    
     void generateStructSerializationMethods(ClassType type, StreamWrapper sw) {
         X10ClassType ct = (X10ClassType) type.toClass();
         TypeSystem ts = (TypeSystem) type.typeSystem();

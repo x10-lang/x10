@@ -33,5 +33,14 @@ public class X10CContext_c extends  Context {
     public void addGeneratedClasses(ClassDef cd) {
         generatedClasses.add(cd);
     }
+    
+    // used internally, shallow
+    protected String overideNameForThis = null;
+    public String getOverideNameForThis() { return overideNameForThis; }
+    public String setOverideNameForThis(String s) { 
+        String old = overideNameForThis;
+        overideNameForThis = s; 
+        return old;
+    }
 
 }
