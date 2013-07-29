@@ -633,6 +633,7 @@ public final class Runtime {
                 // go to sleep if too many threads are running
                 activity = workers.yield(worker);
                 if (null != activity || latch()) return activity;
+                // mymark here
                 // try network
                 x10rtProbe();
                 if (Place.numDead() != numDead) {
@@ -849,7 +850,7 @@ public final class Runtime {
       val c = condition();
       if (c) {
          exitAtomicOnly();
-         val thisAtomicAct = new Activity(()=> {atomic body();}, here, state);
+         val thisAtomicAct = new Activity(()=> { atomic body(); }, here, state);
          executeLocal(thisAtomicAct);
       } else {
          val thisAct = new Activity(body, here, state);
@@ -1208,15 +1209,14 @@ public final class Runtime {
         // ------------------------
         // Recheck suspended whens
         val newSet = new HashSet[SuspendedWhen]();
-        val iter = pool.suspendedWhens.iterator();        
+        val iter = pool.suspendedWhens.iterator();
         while (iter.hasNext()) {
            val sw = iter.next();
            if (sw.cond()) {
               val act = sw.act;
               act.run();
               Unsafe.dealloc(act);
-           }
-           else
+           } else
               newSet.add(sw);
         }
         pool.suspendedWhens = newSet;

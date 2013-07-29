@@ -29,8 +29,10 @@ public class WaitingTask {
        val theAct = this.act;
        val theWorker = this.worker;
        @NoInline { Runtime.executeLocalInWorker(theAct, theWorker); }
+       // The annotation is added to go around a bug.
      }
    }
+   
 }
 
 
