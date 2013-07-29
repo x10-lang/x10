@@ -23,11 +23,12 @@ import x10.io.Writer;
 
 import x10.util.Random;
 import x10.util.Box;
+import x10.util.HashSet;
+import x10.util.ArrayList;
 
 import x10.util.concurrent.Lock;
 import x10.util.concurrent.Monitor;
 import x10.util.concurrent.SimpleLatch;
-
 
 /**
  * XRX invocation protocol:
@@ -225,7 +226,7 @@ public final class Runtime {
     public static atomicMonitor = new Monitor();
     static pool = new Pool();
     static finishStates = new FinishState.FinishStates();
-
+    
     // Work-stealing runtime
     
     public static def wsInit():void {
@@ -553,15 +554,27 @@ public final class Runtime {
         }
     }
 
+    static class SuspendedWhen {
+       var cond: () => Boolean;
+       var act: Activity;
+       def this(cond: () => Boolean, act: Activity) {
+          this.cond = cond;
+          this.act = act;
+       }
+    }
+        
     static class Pool {
         val latch = new SimpleLatch();
         
         var wsEnd:Boolean = false;
 
         private val workers = new Workers();
-
+        
         var wsBlockedContinuations:Deque = null;
-
+        
+        //var suspendedWhens = new Deque();
+        var suspendedWhens: HashSet[SuspendedWhen] = new HashSet[SuspendedWhen]();
+        
         var numDead : Long = 0;
 
         operator this(n:Int):void {
@@ -824,9 +837,63 @@ public final class Runtime {
         executeLocal(new Activity(body, here, state));
     }
 
-	public static def runFinish(body:()=>void):void {
+    public static def runAsyncWhen(condition:()=>Boolean, body:()=>void) {
+      val a = activity();
+      a.ensureNotInAtomic();
+        
+      val state = a.finishState();
+      state.notifySubActivitySpawn(here);
+      
+      // -----------------------------
+      enterAtomic();
+      val c = condition();
+      if (c) {
+         exitAtomicOnly();
+         val thisAtomicAct = new Activity(()=> {atomic body();}, here, state);
+         executeLocal(thisAtomicAct);
+      } else {
+         val thisAct = new Activity(body, here, state);
+         val suspendedWhen = new SuspendedWhen(condition, thisAct);
+         pool.suspendedWhens.add(suspendedWhen);
+         exitAtomicOnly();
+      }
+    }
+
+    public static def runAsyncWait(
+    	 futures: ArrayList[Future[Any]],
+    	 body: ()=>void) {
+    	   
+    	  // The usual initial steps:
+      val a = activity();
+      a.ensureNotInAtomic();
+        
+      val state = a.finishState();
+      state.notifySubActivitySpawn(here);      
+      
+      // -----------------------------
+      val thisAct = new Activity(body, here, state);
+      val task = new WaitingTask(thisAct, worker());
+      
+      val iter = futures.iterator();
+      var count: Int = 0;
+      while (iter.hasNext()) {
+        val f = iter.next();
+        val added = f.addIfNotSet(task);
+        if (added)
+          count = count + 1;
+      }
+      if (count == 0)
+        executeLocal(thisAct);
+      else {
+        count = task.count.addAndGet(-count);
+        if (count == 0)
+          executeLocal(thisAct);
+      }
+    }
+    
+    public static def runFinish(body:()=>void):void {
 	    finish body();
-	}
+	  }
 
     /**
      * Run @Uncounted asyncat
@@ -1124,11 +1191,39 @@ public final class Runtime {
            a.ensureNotInAtomic();
     }
 
+     public static def exitAtomicOnly() {
+        val a = activity();
+        if (a != null)
+           a.popAtomic();
+        if (null != pool.wsBlockedContinuations) wsUnblock();
+        atomicMonitor.release();
+     }
+
     public static def exitAtomic() {
         val a = activity();
         if (a != null)
            a.popAtomic();
         if (null != pool.wsBlockedContinuations) wsUnblock();
+        
+        // ------------------------
+        // Recheck suspended whens
+        val newSet = new HashSet[SuspendedWhen]();
+        val iter = pool.suspendedWhens.iterator();        
+        while (iter.hasNext()) {
+           val sw = iter.next();
+           if (sw.cond()) {
+              val act = sw.act;
+              act.run();
+              Unsafe.dealloc(act);
+           }
+           else
+              newSet.add(sw);
+        }
+        pool.suspendedWhens = newSet;
+        
+        // Keep the atomic block lock so that 
+        // the evaluation of conditions and 
+        // the execution of bodies happen atomically. 
         atomicMonitor.release();
     }
 
@@ -1250,6 +1345,10 @@ public final class Runtime {
 
     static def executeLocal(activity:Activity):void {
         if (!pool.deal(activity)) worker().push(activity);
+    }
+
+    public static def executeLocalInWorker(activity:Activity, worker: Worker):void {
+        if (!pool.deal(activity)) worker.push(activity);
     }
 
     // submit 
