@@ -122,6 +122,12 @@ public class SocketTransport {
 			for (int i=myPlaceId+1; i<nplaces; i++)
 				while (channels[i] == null)
 					x10rt_probe(true, 0); // wait for connections from all upper places
+		} 
+		else {
+			try {
+				if (localListenSocket != null)
+					localListenSocket.close();
+			} catch (IOException e) {}
 		}
 	
 		return RETURNCODE.X10RT_ERR_OK.ordinal();
@@ -132,10 +138,18 @@ public class SocketTransport {
     		return RETURNCODE.X10RT_ERR_INVALID.ordinal();
     		
     	this.myPlaceId = myPlaceId;
-    	if (connectionStrings != null)
+    	if (connectionStrings != null && connectionStrings.length > 1)
     		this.nplaces = connectionStrings.length;
-    	else
+    	else {
+    		// single place.  No need to establish any links.
     		this.nplaces = 1;
+    		if (localListenSocket != null) {
+    			try {
+					localListenSocket.close();
+				} catch (IOException e) {}
+    		}
+    		return RETURNCODE.X10RT_ERR_OK.ordinal();
+    	}
     	if (channels.length == 1 && channels[0] != null) {
     		// save the launcher link
     		SocketChannel ll = channels[0];
@@ -222,6 +236,8 @@ public class SocketTransport {
     
     // returns true if something is processed
     boolean x10rt_probe(boolean onlyProcessAccept, long timeout) {
+    	if (nplaces == 1) return false;
+    	
     	int eventCount = 0;
     	try {
     		SelectionKey key;
