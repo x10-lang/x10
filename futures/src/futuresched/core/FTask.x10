@@ -1,4 +1,4 @@
-package x10.lang;
+package futuresched.core;
 
 import x10.util.concurrent.AtomicInteger;
 import x10.util.ArrayList;
@@ -81,7 +81,8 @@ public class FTask {
     if (c == 0) {
       val theAct = this.act;
       val theWorker = this.worker;
-      Runtime.executeLocalInWorker(theAct, theWorker);
+      @NoInline { Runtime.executeLocalInWorker(theAct, theWorker); }
+      // The annotation is added to go around a bug.
     }
   }
 

@@ -1,4 +1,4 @@
-package x10.lang;
+package futuresched.core;
 
 
 import x10.util.concurrent.AtomicReference;
