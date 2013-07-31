@@ -1,0 +1,9 @@
+
+SmithWaterman benchmark is from
+Executing Task Graphs using Work Stealing. Kunal, Leiserson, Jim. IPDPS'10.
+
+E(i, j) = max_{k \in 0 .. i-1} M(k, j) + \gamma(i-k)
+F(i, j) = max_{k \in 0 .. j-1} M(i, k) + \gamma(j-k)
+M(i, j) = max(M(i-1, j-1)+s(i,j), E(i, j), F(i, j))
+
+
