@@ -4,7 +4,7 @@ import x10.util.concurrent.AtomicReference;
 import x10.util.concurrent.AtomicInteger;
 import x10.util.ArrayList;
 
-// SFuture is simpler version of Future.
+// SFuture is a simpler version of Future.
 // This implementation is more efficient based on the following assumption on the usage.
 // The two methods add and set are never called concurrently.
 //    i.e. When tasks are being added to the future for later notification, 

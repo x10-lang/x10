@@ -1,3 +1,5 @@
+package futuresched.benchs.xsimpletests;
+
 /**
  * The canonical "Hello, World" demo class expressed in X10
  */

@@ -1,4 +1,4 @@
-
+package futuresched.benchs.xsimpletests;
 
 //import x10.lang.Runtime;
 
