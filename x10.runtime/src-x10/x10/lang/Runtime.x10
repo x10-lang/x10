@@ -630,9 +630,9 @@ public final class Runtime {
               exitAtomicOnly();
               return;
            }
-           val change = checkSuspendedWhens1();
-           if (change)
-              checkSuspendedWhens2();
+           var change: Boolean = checkAndRunSuspendedWhens1();
+           while (change)
+              change = checkAndRunSuspendedWhens2();
            exitAtomicOnly();
         }
 
@@ -1217,9 +1217,11 @@ public final class Runtime {
         atomicMonitor.release();
     }
 
-    public static def checkSuspendedWhens1(): Boolean {
+    public static def checkAndRunSuspendedWhens1(): Boolean {
+        if (pool.suspendedWhens2.isEmpty())
+           return false;
         var change: Boolean = false;
-        val newSet = new HashSet[SuspendedWhen]();
+        //val newSet = new HashSet[SuspendedWhen]();
         val iter = pool.suspendedWhens1.iterator();
         while (iter.hasNext()) {
            val sw = iter.next();
@@ -1229,11 +1231,34 @@ public final class Runtime {
               Unsafe.dealloc(act);
               change = true;
            } else
-             newSet.add(sw);
+             //newSet.add(sw);
+             pool.suspendedWhens2.add(sw);
         }
-        pool.suspendedWhens1 = newSet;
+        //pool.suspendedWhens1 = newSet;
+        pool.suspendedWhens1 = new HashSet[SuspendedWhen]();
         return change;
     }
+
+    public static def checkAndRunSuspendedWhens2(): Boolean {
+        if (pool.suspendedWhens2.isEmpty())
+           return false;
+        var change: Boolean = false;
+        val newSet = new HashSet[SuspendedWhen]();
+        val iter = pool.suspendedWhens2.iterator();
+        while (iter.hasNext()) {
+           val sw = iter.next();
+           if (sw.cond()) {
+              val act = sw.act;
+              act.run();
+              Unsafe.dealloc(act);
+              change = true;
+           } else
+              newSet.add(sw);
+        }
+        pool.suspendedWhens2 = newSet;
+        return change;
+    }
+
 
     public static def checkSuspendedWhens2() {
         val newSet = new HashSet[SuspendedWhen]();
@@ -1242,9 +1267,6 @@ public final class Runtime {
            val sw = iter.next();
            if (sw.cond()) {
               pool.suspendedWhens1.add(sw);
-//              val act = sw.act;
-//              act.run();
-//              Unsafe.dealloc(act);
            } else
               newSet.add(sw);
         }
