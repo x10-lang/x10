@@ -3,6 +3,7 @@ package futuresched.core;
 import x10.compiler.NoInline;
 import x10.util.concurrent.AtomicInteger;
 import x10.util.ArrayList;
+import x10.compiler.NoInline;
 
 public class FTask {
    
