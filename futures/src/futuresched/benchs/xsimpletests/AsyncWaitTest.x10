@@ -2,7 +2,7 @@ package futuresched.xsimpletests;
 
 //import x10.lang.Runtime;
 
-import java.lang.Future;
+import futuresched.core.*;
 
 public class AsyncWaitTest {
 
@@ -20,18 +20,19 @@ public class AsyncWaitTest {
 		val f2 = new Future[Int]();
 		val fs1 = new ArrayList[Future]();
 		val fs2 = new ArrayList[Future]();
+
 		fs1.add(f1);
 		fs2.add(f2);
 		
 		finish {
-         Runtime.runAsyncWait(fs1, ()=> {
+         FTask.asyncWait(fs1, ()=> {
             Console.OUT.println("Inside wait 1");
             Console.OUT.println("Setting condition for 2");
             
          });
          
          
-         Runtime.runAsyncWait(fs2, ()=>{
+         FTask.asyncWait(fs2, ()=>{
             Console.OUT.println("Inside wait 2");
          });
          

@@ -2,6 +2,7 @@ package futuresched.core;
 
 import x10.util.concurrent.AtomicInteger;
 import x10.util.ArrayList;
+import x10.lang.Activity;
 
 public class FTask {
    
