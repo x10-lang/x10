@@ -264,7 +264,8 @@ public class SocketTransport {
 				
 				// see the format of "ctrl_msg" in Launcher.h
 				ByteBuffer controlMsg = ByteBuffer.allocateDirect(16);
-				SocketTransport.readNBytes(sc, controlMsg, controlMsg.capacity());
+				if (!SocketTransport.readNBytes(sc, controlMsg, controlMsg.capacity()))
+					return false;
 				controlMsg.flip();
 				int msgtype = controlMsg.getInt();
 				
@@ -297,7 +298,7 @@ public class SocketTransport {
 						int datalen = controlMsg.getInt();
 						byte[] chars = new byte[datalen];
 						ByteBuffer placeList = ByteBuffer.wrap(chars);
-						SocketTransport.readNBytes(sc, placeList, datalen);
+						while (!SocketTransport.readNBytes(sc, placeList, datalen)){}
 		    			String allPlaces = new String(chars, Charset.forName("UTF-8"));
 		    			String[] places = allPlaces.split(",");
 		    			controlMsg.clear();						
@@ -366,7 +367,8 @@ public class SocketTransport {
 				int msgType=0, callbackId=0, datalen;				
 				try {
 					synchronized (sc) {
-						SocketTransport.readNBytes(sc, controlData, controlData.capacity());
+						if (!SocketTransport.readNBytes(sc, controlData, controlData.capacity()))
+							return false;
 						controlData.flip(); // switch from write to read mode
 						// Format: type, p.type, p.len, p.msg
 						msgType = controlData.getInt();
@@ -378,7 +380,7 @@ public class SocketTransport {
 						}
 						//TODO - eliminate this buffer by modifying the deserializer to take the channel as input
 						bb = ByteBuffer.allocate(datalen);
-						SocketTransport.readNBytes(sc, bb, datalen);
+						while (!SocketTransport.readNBytes(sc, bb, datalen)){}
 						bb.flip();
 					}
 					if (msgType == MSGTYPE.STANDARD.ordinal()) {
@@ -510,7 +512,7 @@ public class SocketTransport {
     			placeRequest.flip();
     			SocketTransport.writeNBytes(channels[myPlaceId], placeRequest, placeRequest.capacity());
     			placeRequest.clear();
-    			SocketTransport.readNBytes(channels[myPlaceId], placeRequest, placeRequest.capacity());
+    			while (!SocketTransport.readNBytes(channels[myPlaceId], placeRequest, placeRequest.capacity())){}
     			placeRequest.flip();
     			int type = placeRequest.getInt();
     			if (type != CTRL_MSG_TYPE.PORT_RESPONSE.ordinal()) 
@@ -522,7 +524,7 @@ public class SocketTransport {
     				throw new IOException("Invalid response length to launcher lookup for place "+remotePlace);
     			byte[] chars = new byte[strlen];
     			ByteBuffer bb = ByteBuffer.wrap(chars);
-    			SocketTransport.readNBytes(channels[myPlaceId], bb, strlen);
+    			while (!SocketTransport.readNBytes(channels[myPlaceId], bb, strlen)){}
     			connectionInfo = new String(chars);
     			if (DEBUG) System.out.println("Place "+myPlaceId+" lookup of place "+remotePlace+" returned \""+connectionInfo+"\" (len="+strlen+")");
     		}
@@ -585,7 +587,7 @@ public class SocketTransport {
 				allPlaces.rewind();
 			}
 			controlMsg.clear();
-			SocketTransport.readNBytes(sc, controlMsg, 16);
+			while (!SocketTransport.readNBytes(sc, controlMsg, 16)){}
 			controlMsg.flip();
 			if (controlMsg.getInt() == CTRL_MSG_TYPE.HELLO.ordinal()) {
 				channels[remotePlace] = sc;
@@ -599,18 +601,23 @@ public class SocketTransport {
 	}
     
     // simple utility method which forces the read of a specific number of bytes before returning
-    static void readNBytes(SocketChannel sc, ByteBuffer data, int bytes) throws IOException {    	
+    // returns true if read ok, or false if nothing was available on the socket to read.
+    // throws an exception if the socket is closed
+    static boolean readNBytes(SocketChannel sc, ByteBuffer data, int bytes) throws IOException {    	
     	int totalBytesRead = 0;
     	int bytesRead = 0;
 		do {
 			bytesRead+=sc.read(data);
-			if (bytesRead >= 0) {
+			if (bytesRead > 0) {
 				totalBytesRead+=bytesRead;
 				bytesRead = 0;
 			}
 			else if (bytesRead < -100)
 				throw new IOException("End of stream");
+			else if (totalBytesRead == 0) // nothing is available to read, but the socket is alive
+				return false;
 		} while (totalBytesRead < bytes);
+		return true;
     }
     
     // simple utility method which forces out a specific number of bytes before returning
