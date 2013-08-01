@@ -1,6 +1,6 @@
 package futuresched.core;
 
-
+import x10.util.ArrayList;
 import x10.util.concurrent.AtomicReference;
 import x10.util.concurrent.AtomicInteger;
 
@@ -113,13 +113,13 @@ public final class Future[T]{T isref, T haszero} {
   }
 
   public def asyncSet(fun: ()=>T) {
-    async set(f());
+    async set(fun());
   }
 
-  public def asyncSet(futures: ArrayList[Future[Any]], fun: ()=>T) {
+  public def asyncSet(futures: ArrayList[Future[T]], fun: ()=>T) {
     FTask.asyncWait(
       futures,
-      ()=>{ set(f()) }
+      ()=>{ set(fun()); }
     );
   }
 
@@ -139,7 +139,7 @@ public final class Future[T]{T isref, T haszero} {
       val v = get();
       fun(v);
     };
-    FTask.asynWait(f, newBlock);
+    FTask.asyncWait(this, newBlock); // OLIVIER: is this right?
   }
 
   //public def registerDeferred(block: T=>void): void {

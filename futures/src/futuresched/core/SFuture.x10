@@ -10,7 +10,7 @@ import x10.util.ArrayList;
 //    i.e. When tasks are being added to the future for later notification, 
 //    the value of the future is not concurrently set.
 
-public final class SFuture[T]{T <: Any, T isref, T haszero} {
+public final class SFuture[T]{T isref, T haszero} {
   
   // The holder for the value of the future.
   var data: AtomicReference[T];
@@ -89,10 +89,10 @@ public final class SFuture[T]{T <: Any, T isref, T haszero} {
     async set(fun());
   }
 
-  public def asyncSet(futures: ArrayList[Future[Any]], fun: ()=>T) {
+  public def asyncSet(futures: ArrayList[Future[T]], fun: ()=>T) {
     FTask.asyncWait(
       futures, 
-      ()=>{ set(fun()) }
+      ()=>{ set(fun()); }
     );
   }
 

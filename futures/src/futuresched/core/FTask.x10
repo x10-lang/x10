@@ -1,8 +1,8 @@
 package futuresched.core;
 
+import x10.compiler.NoInline;
 import x10.util.concurrent.AtomicInteger;
 import x10.util.ArrayList;
-import x10.lang.Activity;
 
 public class FTask {
    
@@ -25,10 +25,10 @@ public class FTask {
     this.worker = Runtime.worker();
   }
 
-  // {T isref, T haszero}
+  // 
   public static def asyncWait[T](
     futures: ArrayList[Future[T]],
-    block: ()=>void) {
+    block: ()=>void){T isref, T haszero} {
 
     val thisAct = Runtime.initAsync(block);
     val task = new FTask(thisAct);
@@ -50,9 +50,9 @@ public class FTask {
     }
   }
 
-  public static def asyncWait(
-    future: Future[Any],
-    block: ()=>void) {
+  public static def asyncWait[T](
+    future: Future[T],
+    block: ()=>void){T isref, T haszero} {
     
     val thisAct = Runtime.initAsync(block);
     val task = new FTask(thisAct);
@@ -69,7 +69,7 @@ public class FTask {
   
   public static def asyncWait[T](
     future: SFuture[T],
-    block: ()=>void) {
+    block: ()=>void){T isref, T haszero} {
     
     val thisAct = Runtime.initAsync(block);
     val task = new FTask(thisAct);
@@ -88,9 +88,9 @@ public class FTask {
   }
 
   // Note that this is called when the futures are not set or being concurrently set.
-  public static def newFTask(
-    futures: ArrayList[SFuture[Any]],
-    block: ()=>void) {
+  public static def newFTask[T](
+    futures: ArrayList[SFuture[T]],
+    block: ()=>void){T isref, T haszero} {
 
     val thisAct = Runtime.initAsync(block);
     val fTask = new FTask(thisAct);

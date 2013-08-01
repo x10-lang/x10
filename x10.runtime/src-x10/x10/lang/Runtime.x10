@@ -1390,7 +1390,7 @@ public final class Runtime {
         worker().push(activity);
     }
 
-    static def executeLocal(activity:Activity):void {
+    public static def executeLocal(activity:Activity):void {
         if (!pool.deal(activity)) worker().push(activity);
     }
 
