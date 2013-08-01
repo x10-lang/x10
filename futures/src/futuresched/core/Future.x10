@@ -42,9 +42,18 @@ public final class Future[T]{T isref, T haszero} {
   }
   // ---------------------------------------------
 
-  def this() {
+  public def this() {
     super();
     this.data = new AtomicReference[T]();
+    //this.data.set(null);
+    this.head = new AtomicReference[Node[TentTask]]();
+    //this.head.set(null);
+  }
+
+  public def this(t: T) {
+    super();
+    this.data = new AtomicReference[T]();
+    this.data.set(t);
     //this.data.set(null);
     this.head = new AtomicReference[Node[TentTask]]();
     //this.head.set(null);
@@ -139,7 +148,8 @@ public final class Future[T]{T isref, T haszero} {
       val v = get();
       fun(v);
     };
-    FTask.asyncWait(this, newBlock); // OLIVIER: is this right?
+    FTask.asyncWait(this, newBlock);
+    // Olivier: is this right?
 
   }
 
