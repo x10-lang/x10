@@ -61,31 +61,37 @@ abstract class SerializationDictionary implements SerializationConstants {
             if (Runtime.OSGI) {
             	// Standard version
 //            	org.osgi.framework.Bundle bundle = org.osgi.framework.FrameworkUtil.getBundle(es.getKey());
-//            	assert bundle != null;
-//            	String bundleName = bundle.getSymbolicName();
-//            	dos.writeInt(bundleName.length());
-//            	dos.write(bundleName.getBytes());
-//            	String bundleVersion = bundle.getVersion().toString();
-//            	dos.writeInt(bundleVersion.length());
-//            	dos.write(bundleVersion.getBytes());
+//            	String bundleName, bundleVersion;
+//            	if (bundle != null) {
+//            		bundleName = bundle.getSymbolicName();
+//            		bundleVersion = bundle.getVersion().toString();
+//            	} else {
+//                	bundleName = bundleVersion = "";
+//            	}
+//        		dos.writeInt(bundleName.length());
+//        		dos.write(bundleName.getBytes());
+//        		dos.writeInt(bundleVersion.length());
+//        		dos.write(bundleVersion.getBytes());
             	// Reflection version
         		try {
 					Class<?> FrameworkUtilClass = Class.forName("org.osgi.framework.FrameworkUtil");
 					Method getBundleMethod = FrameworkUtilClass.getDeclaredMethod("getBundle", Class.class);
 					getBundleMethod.setAccessible(true);
 					Object/*Bundle*/ bundle = getBundleMethod.invoke(null, es.getKey());
-					assert bundle != null;
-					Class<?> BundleClass = Class.forName("org.osgi.framework.Bundle");
-					
-					Method getSymbolicNameMethod = BundleClass.getDeclaredMethod("getSymbolicName");
-					getSymbolicNameMethod.setAccessible(true);
-					String bundleName = (String) getSymbolicNameMethod.invoke(bundle);
+					String bundleName, bundleVersion;
+					if (bundle != null) {
+						Class<?> BundleClass = Class.forName("org.osgi.framework.Bundle");
+						Method getSymbolicNameMethod = BundleClass.getDeclaredMethod("getSymbolicName");
+						getSymbolicNameMethod.setAccessible(true);
+						bundleName = (String) getSymbolicNameMethod.invoke(bundle);
+						Method getVersionMethod = BundleClass.getDeclaredMethod("getVersion");
+						getVersionMethod.setAccessible(true);
+						bundleVersion = getVersionMethod.invoke(bundle).toString();
+					} else {
+						bundleName = bundleVersion = "";
+					}
 					dos.writeInt(bundleName.length());
 					dos.write(bundleName.getBytes());
-					
-					Method getVersionMethod = BundleClass.getDeclaredMethod("getVersion");
-					getVersionMethod.setAccessible(true);
-					String bundleVersion = getVersionMethod.invoke(bundle).toString();
 					dos.writeInt(bundleVersion.length());
 					dos.write(bundleVersion.getBytes());
         		} catch (RuntimeException e) {

@@ -51,6 +51,11 @@ abstract class DeserializationDictionary implements SerializationConstants {
     Class<?> loadClass(String name, String bundleName, String bundleVersion) throws ClassNotFoundException {
     	assert Runtime.OSGI;
     	
+    	if (bundleName.equals("")) {
+			if (Runtime.TRACE_SER) Runtime.printTraceMessage("DeserializationDictionary.loadClass: loading "+name+" without bundle");
+    		return Class.forName(name);
+    	}
+    	
     	// Standard version
 //    	org.osgi.framework.Bundle _bundle = org.osgi.framework.FrameworkUtil.getBundle(this.getClass());
 //    	assert _bundle != null;
