@@ -140,6 +140,7 @@ public final class Future[T]{T isref, T haszero} {
       fun(v);
     };
     FTask.asyncWait(this, newBlock); // OLIVIER: is this right?
+
   }
 
   //public def registerDeferred(block: T=>void): void {
