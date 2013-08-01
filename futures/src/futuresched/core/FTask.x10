@@ -47,7 +47,7 @@ public class FTask {
       if (count == 0)
         Runtime.executeLocal(thisAct);
     }
-  }   
+  }
 
   public static def asyncWait(
     future: Future[Any],
