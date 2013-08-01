@@ -234,9 +234,12 @@ public class SocketTransport {
     	return myPlaceId;
     }
     
+    // onlyProcessAccept is set to true only during startup time, to prioritize establishing links
+    // timeout is how long we're willing to block waiting for something to happen. 
     // returns true if something is processed
     boolean x10rt_probe(boolean onlyProcessAccept, long timeout) {
-    	if (nplaces == 1) return false;
+    	if (!onlyProcessAccept && nplaces == 1)
+    		return false;
     	
     	int eventCount = 0;
     	try {
