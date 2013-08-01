@@ -573,8 +573,9 @@ public final class Runtime {
         var wsBlockedContinuations:Deque = null;
         
         //var suspendedWhens = new Deque();
-        var suspendedWhens: HashSet[SuspendedWhen] = new HashSet[SuspendedWhen]();
-        
+        var suspendedWhens1: HashSet[SuspendedWhen] = new HashSet[SuspendedWhen]();
+        var suspendedWhens2: HashSet[SuspendedWhen] = new HashSet[SuspendedWhen]();
+
         var numDead : Long = 0;
 
         operator this(n:Int):void {
@@ -623,6 +624,18 @@ public final class Runtime {
             if (workers.count == workers.deadCount) workers(0).unpark();
         }
 
+        def checkSuspendedWhens() {
+           enterAtomic();
+           if (pool.suspendedWhens1.isEmpty()) {
+              exitAtomicOnly();
+              return;
+           }
+           val change = checkSuspendedWhens1();
+           if (change)
+              checkSuspendedWhens2();
+           exitAtomicOnly();
+        }
+
         // scan workers and network for pending activities
         def scan(random:Random, worker:Worker):Activity {
             var activity:Activity = null;
@@ -633,7 +646,9 @@ public final class Runtime {
                 // go to sleep if too many threads are running
                 activity = workers.yield(worker);
                 if (null != activity || latch()) return activity;
-                // mymark here
+
+                checkSuspendedWhens();
+
                 // try network
                 x10rtProbe();
                 if (Place.numDead() != numDead) {
@@ -839,58 +854,45 @@ public final class Runtime {
     }
 
     public static def runAsyncWhen(condition:()=>Boolean, body:()=>void) {
-      val a = activity();
-      a.ensureNotInAtomic();
-        
-      val state = a.finishState();
-      state.notifySubActivitySpawn(here);
-      
-      // -----------------------------
+
+      val thisAct = initAsync(body);
+      val suspendedWhen = new SuspendedWhen(condition, thisAct);
+
       enterAtomic();
       val c = condition();
-      if (c) {
-         exitAtomicOnly();
-         val thisAtomicAct = new Activity(()=> { atomic body(); }, here, state);
-         executeLocal(thisAtomicAct);
-      } else {
-         val thisAct = new Activity(body, here, state);
-         val suspendedWhen = new SuspendedWhen(condition, thisAct);
-         pool.suspendedWhens.add(suspendedWhen);
-         exitAtomicOnly();
-      }
+      if (c)
+         pool.suspendedWhens1.add(suspendedWhen);
+      else
+         pool.suspendedWhens2.add(suspendedWhen);
+      exitAtomicOnly();
+
+//      val thisAtomicAct = new Activity(()=> { atomic body(); }, here, state);
+//      executeLocal(thisAtomicAct);
     }
 
-    public static def runAsyncWait(
-    	 futures: ArrayList[Future[Any]],
-    	 body: ()=>void) {
-    	   
+    public static def initAsync(block: ()=>void): Activity {
     	  // The usual initial steps:
       val a = activity();
       a.ensureNotInAtomic();
-        
+
       val state = a.finishState();
-      state.notifySubActivitySpawn(here);      
-      
-      // -----------------------------
-      val thisAct = new Activity(body, here, state);
-      val task = new WaitingTask(thisAct, worker());
-      
-      val iter = futures.iterator();
-      var count: Int = 0;
-      while (iter.hasNext()) {
-        val f = iter.next();
-        val added = f.addIfNotSet(task);
-        if (added)
-          count = count + 1;
-      }
-      if (count == 0)
-        executeLocal(thisAct);
-      else {
-        count = task.count.addAndGet(-count);
-        if (count == 0)
-          executeLocal(thisAct);
-      }
+      state.notifySubActivitySpawn(here);
+
+      return new Activity(block, here, state);
     }
+
+
+    //public static def runAsyncWait(
+    	// futures: ArrayList[Future[Any]],
+    	// block: ()=>void) {
+    	//   return FTask.asyncWait(futures, block);
+    //}
+
+    //public static def runAsyncWait(
+    	// future: Future[Any],
+    	// block: ()=>void) {
+    	//   return FTask.asyncWait(future, block);
+    //}
     
     public static def runFinish(body:()=>void):void {
 	    finish body();
@@ -1208,24 +1210,47 @@ public final class Runtime {
         
         // ------------------------
         // Recheck suspended whens
+        checkSuspendedWhens2();
+        // Keep the atomic block lock so that 
+        // the evaluation of conditions and 
+        // the execution of bodies happen atomically. 
+        atomicMonitor.release();
+    }
+
+    public static def checkSuspendedWhens1(): Boolean {
+        var change: Boolean = false;
         val newSet = new HashSet[SuspendedWhen]();
-        val iter = pool.suspendedWhens.iterator();
+        val iter = pool.suspendedWhens1.iterator();
         while (iter.hasNext()) {
            val sw = iter.next();
            if (sw.cond()) {
               val act = sw.act;
               act.run();
               Unsafe.dealloc(act);
+              change = true;
+           } else
+             newSet.add(sw);
+        }
+        pool.suspendedWhens1 = newSet;
+        return change;
+    }
+
+    public static def checkSuspendedWhens2() {
+        val newSet = new HashSet[SuspendedWhen]();
+        val iter = pool.suspendedWhens2.iterator();
+        while (iter.hasNext()) {
+           val sw = iter.next();
+           if (sw.cond()) {
+              pool.suspendedWhens1.add(sw);
+//              val act = sw.act;
+//              act.run();
+//              Unsafe.dealloc(act);
            } else
               newSet.add(sw);
         }
-        pool.suspendedWhens = newSet;
-        
-        // Keep the atomic block lock so that 
-        // the evaluation of conditions and 
-        // the execution of bodies happen atomically. 
-        atomicMonitor.release();
+        pool.suspendedWhens2 = newSet;
     }
+
 
     public static def exitWSWhen(b:Boolean) {
         val a = activity();
