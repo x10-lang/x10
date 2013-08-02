@@ -42,7 +42,7 @@ public class PreCommit extends x10Test {
         ct.quiet = true;
         result &= myExecute(ct);
         result &= myExecute(new ClosureTypeParameters1b());
-        result &= myExecute(new DepType(3,9));
+        result &= myExecute(new DepType(3n,9n));
         result &= myExecute(new BlockDistWithPlaceGroup());
         result &= myExecute(new ForLoop3());
         result &= myExecute(new Generics2());

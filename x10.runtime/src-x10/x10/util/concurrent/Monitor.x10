@@ -52,7 +52,7 @@ import x10.util.GrowableRail;
         val size = workers.size() as Int;
         if (size > 0) {
             Runtime.decreaseParallelism(size);
-            for (var i:Int = 0; i<size; i++) workers.removeLast().unpark();
+            for (var i:Int = 0n; i<size; i++) workers.removeLast().unpark();
         }
         super.unlock();
     }

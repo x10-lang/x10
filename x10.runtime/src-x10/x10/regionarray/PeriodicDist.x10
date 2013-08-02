@@ -58,26 +58,26 @@ public final class PeriodicDist extends Dist {
                 delta = null;
             }
 
-            min0 = reg.min(0);
-            delta0 = reg.max(0) - min0 + 1;
+            min0 = reg.min(0n);
+            delta0 = reg.max(0n) - min0 + 1;
 
             if (rank > 1) {
-                min1 = reg.min(1);
-                delta1 = reg.max(1) - min1 + 1;
+                min1 = reg.min(1n);
+                delta1 = reg.max(1n) - min1 + 1;
             } else {
                 min1 = delta1 = 0;
             }
 
             if (rank > 2) {
-                min2 = reg.min(2);
-                delta2 = reg.max(2) - min2 + 1;
+                min2 = reg.min(2n);
+                delta2 = reg.max(2n) - min2 + 1;
             } else {
                 min2 = delta2 = 0;
             }
 
             if (rank > 3) {
-                min3 = reg.min(3);
-                delta3 = reg.max(3) - min3 + 1;
+                min3 = reg.min(3n);
+                delta3 = reg.max(3n) - min3 + 1;
             } else {
                 min3 = delta3 = 0;
             }
@@ -86,18 +86,18 @@ public final class PeriodicDist extends Dist {
 
     private @Inline def getPeriodicIndex(index : long, dim : int) : long {
         var regionMin : long = 0;
-        if (rank < 5) {
+        if (rank < 5n) {
             switch (dim) {
-                case 0:
+                case 0n:
                     regionMin = min0;
                     break;
-                case 1:
+                case 1n:
                     regionMin = min1;
                     break;
-                case 2:
+                case 2n:
                     regionMin = min2;
                     break;
-                case 3:
+                case 3n:
                     regionMin = min3;
                     break;
                 default:
@@ -107,18 +107,18 @@ public final class PeriodicDist extends Dist {
             regionMin = min(dim);
         }
         var regionDelta : long = 0;
-        if (rank < 5) {
+        if (rank < 5n) {
             switch (dim) {
-                case 0:
+                case 0n:
                     regionDelta = delta0;
                     break;
-                case 1:
+                case 1n:
                     regionDelta = delta1;
                     break;
-                case 2:
+                case 2n:
                     regionDelta = delta2;
                     break;
-                case 3:
+                case 3n:
                     regionDelta = delta3;
                     break;
                 default:
@@ -145,13 +145,13 @@ public final class PeriodicDist extends Dist {
         val actualPt = Point.make(rank, (i : int) => getPeriodicIndex(pt(i), i));
         return baseDist(actualPt);
     }
-    public @Inline operator this(i0:long){rank==1}:Place {
+    public @Inline operator this(i0:long){rank==1n}:Place {
         var a0 : long = i0;
         while (a0 < min0) a0 += delta0;
         while (a0 >= (min0 + delta0)) a0 -= delta0;
         return baseDist(a0);
     }
-    public @Inline operator this(i0:long, i1:long){rank==2}:Place {
+    public @Inline operator this(i0:long, i1:long){rank==2n}:Place {
         var a0 : long = i0;
         while (a0 < min0) a0 += delta0;
         while (a0 >= (min0 + delta0)) a0 -= delta0;
@@ -160,7 +160,7 @@ public final class PeriodicDist extends Dist {
         while (a1 >= (min1 + delta1)) a1 -= delta1;
         return baseDist(a0, a1);
     }
-    public @Inline operator this(i0:long, i1:long, i2:long){rank==3}:Place {
+    public @Inline operator this(i0:long, i1:long, i2:long){rank==3n}:Place {
         var a0 : long = i0;
         while (a0 < min0) a0 += delta0;
         while (a0 >= (min0 + delta0)) a0 -= delta0;
@@ -172,7 +172,7 @@ public final class PeriodicDist extends Dist {
         while (a2 >= (min2 + delta2)) a2 -= delta2;
         return baseDist(a0, a1, a2);
     }
-    public @Inline operator this(i0:long, i1:long, i2:long, i3:long){rank==4}:Place {
+    public @Inline operator this(i0:long, i1:long, i2:long, i3:long){rank==4n}:Place {
         var a0 : long = i0;
         while (a0 < min0) a0 += delta0;
         while (a0 >= (min0 + delta0)) a0 -= delta0;
@@ -192,13 +192,13 @@ public final class PeriodicDist extends Dist {
         val actualPt = Point.make(rank, (i : int) => getPeriodicIndex(pt(i), i));
         return baseDist.offset(actualPt);
     }
-    public @Inline def offset(i0:long){rank==1}:long {
+    public @Inline def offset(i0:long){rank==1n}:long {
         var a0 : long = i0;
         while (a0 < min0) a0 += delta0;
         while (a0 >= (min0 + delta0)) a0 -= delta0;
         return baseDist.offset(a0);
     }
-    public @Inline def offset(i0:long, i1:long){rank==2}:long {
+    public @Inline def offset(i0:long, i1:long){rank==2n}:long {
         var a0 : long = i0;
         while (a0 < min0) a0 += delta0;
         while (a0 >= (min0 + delta0)) a0 -= delta0;
@@ -207,7 +207,7 @@ public final class PeriodicDist extends Dist {
         while (a1 >= (min1 + delta1)) a1 -= delta1;
         return baseDist.offset(a0, a1);
     }
-    public @Inline def offset(i0:long, i1:long, i2:long){rank==3}:long {
+    public @Inline def offset(i0:long, i1:long, i2:long){rank==3n}:long {
         var a0 : long = i0;
         while (a0 < min0) a0 += delta0;
         while (a0 >= (min0 + delta0)) a0 -= delta0;
@@ -219,7 +219,7 @@ public final class PeriodicDist extends Dist {
         while (a2 >= (min2 + delta2)) a2 -= delta2;
         return baseDist.offset(a0, a1, a2);
     }
-    public @Inline def offset(i0:long, i1:long, i2:long, i3:long){rank==4}:long {
+    public @Inline def offset(i0:long, i1:long, i2:long, i3:long){rank==4n}:long {
         var a0 : long = i0;
         while (a0 < min0) a0 += delta0;
         while (a0 >= (min0 + delta0)) a0 -= delta0;

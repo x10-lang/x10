@@ -33,9 +33,9 @@ public final class Array_3[T] (
          * The number of elements in rank 3 (indexed 0..(numElems_3-1)).
          */
         numElems_3:Long
-) extends Array[T]{this.rank()==3} implements (Long,Long,Long)=>T {
+) extends Array[T]{this.rank()==3n} implements (Long,Long,Long)=>T {
     
-    public property rank() = 3;
+    public property rank() = 3n;
 
     /**
      * Construct a 3-dimensional array with indices [0..m-1][0..n-1][0..p-1] 
@@ -149,7 +149,7 @@ public final class Array_3[T] (
         return Unsafe.uncheckedRailApply(raw, offset(i, j, k));
     }
 
-    public @Inline operator this(p:Point(3)):T  = this(p(0), p(1), p(2));
+    public @Inline operator this(p:Point(3n)):T  = this(p(0n), p(1n), p(2n));
     
     /**
      * Set the element of this array corresponding to the given triple of indices to the given value.
@@ -172,7 +172,7 @@ public final class Array_3[T] (
         return v;
     }
 
-    public @Inline operator this(p:Point(3))=(v:T):T{self==v} = this(p(0), p(1), p(2)) = v;
+    public @Inline operator this(p:Point(3n))=(v:T):T{self==v} = this(p(0n), p(1n), p(2n)) = v;
 
     
     private @Inline def offset(i:long, j:long, k:long) {

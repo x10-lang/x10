@@ -58,7 +58,7 @@ public class HashMap[K,V] implements Map[K,V], CustomSerialization {
     public def this(var sz: Long) {
         var pow2: Long = MIN_SIZE;
         while (pow2 < sz)
-            pow2 <<= 1;
+            pow2 <<= 1n;
         init(pow2);
     }
     
@@ -80,7 +80,7 @@ public class HashMap[K,V] implements Map[K,V], CustomSerialization {
     
     protected def hash(k: K): Int = hashInternal(k);
     @NonEscaping protected final def hashInternal(k: K): Int {
-        return k.hashCode() * 17;
+        return k.hashCode() * 17n;
     }
     
     public operator this(k: K): Box[V] = get(k);

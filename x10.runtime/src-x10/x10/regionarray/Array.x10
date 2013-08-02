@@ -254,7 +254,7 @@ public final class Array[T] (
     {
         val s = backingStore.size-1;
         val myReg = new RectRegion1D(s);
-        property(myReg, 1, true, true, true, s);
+        property(myReg, 1n, true, true, true, s);
 
 	layout_min0 = layout_stride1 = layout_min1 = 0;
         layout = null;
@@ -268,7 +268,7 @@ public final class Array[T] (
     public @Inline def this(size:long) {T haszero}
     {
         val myReg = new RectRegion1D(size-1);
-        property(myReg, 1, true, true, true, size);
+        property(myReg, 1n, true, true, true, size);
 
 	layout_min0 = layout_stride1 = layout_min1 = 0L;
         layout = null;
@@ -282,7 +282,7 @@ public final class Array[T] (
     private @Inline def this(zeroed:boolean, size:long) {T haszero}
     {
     	val myReg = new RectRegion1D(size-1);
-    	property(myReg, 1, true, true, true, size);
+    	property(myReg, 1n, true, true, true, size);
 
     	layout_min0 = layout_stride1 = layout_min1 = 0L;
     	layout = null;
@@ -312,7 +312,7 @@ public final class Array[T] (
     public @Inline def this(size:long, init:(long)=>T)
     {
         val myReg = new RectRegion1D(size-1);
-        property(myReg, 1, true, true, true, size);
+        property(myReg, 1n, true, true, true, size);
         
         layout_min0 = layout_stride1 = layout_min1 = 0L;
         layout = null;
@@ -333,7 +333,7 @@ public final class Array[T] (
     public @Inline def this(size:long, init:T)
     {
         val myReg = new RectRegion1D(size-1);
-        property(myReg, 1, true, true, true, size);
+        property(myReg, 1n, true, true, true, size);
         
 	layout_min0 = layout_stride1 = layout_min1 = 0L;
         layout = null;
@@ -440,7 +440,7 @@ public final class Array[T] (
      * @see #set(T, long)
      */
     @Native("cuda", "(#this).raw[#i0]")
-    public @Inline operator this(i0:long){rank==1}:T {
+    public @Inline operator this(i0:long){rank==1n}:T {
         if (rail) {
             // Bounds checking by backing Rail is sufficient
             return raw(i0);
@@ -463,7 +463,7 @@ public final class Array[T] (
      * @see #operator(Point)
      * @see #set(T, long, long)
      */
-    public @Inline operator this(i0:long, i1:long){rank==2}:T {
+    public @Inline operator this(i0:long, i1:long){rank==2n}:T {
         if (CompilerFlags.checkBounds() && !region.contains(i0, i1)) {
             raiseBoundsError(i0, i1);
         }
@@ -484,7 +484,7 @@ public final class Array[T] (
      * @see #operator(Point)
      * @see #set(T, long, long, long)
      */
-    public @Inline operator this(i0:long, i1:long, i2:long){rank==3}:T {
+    public @Inline operator this(i0:long, i1:long, i2:long){rank==3n}:T {
         if (CompilerFlags.checkBounds() && !region.contains(i0, i1, i2)) {
             raiseBoundsError(i0, i1, i2);
         }
@@ -504,7 +504,7 @@ public final class Array[T] (
      * @see #operator(Point)
      * @see #set(T, long, long, long, long)
      */
-    public @Inline operator this(i0:long, i1:long, i2:long, i3:long){rank==4}:T {
+    public @Inline operator this(i0:long, i1:long, i2:long, i3:long){rank==4n}:T {
         if (CompilerFlags.checkBounds() && !region.contains(i0, i1, i2, i3)) {
             raiseBoundsError(i0, i1, i2, i3);
         }
@@ -541,7 +541,7 @@ public final class Array[T] (
      * @see #set(T, Point)
      */
     @Native("cuda", "(#this).raw[#i0] = (#v)")
-    public @Inline operator this(i0:long)=(v:T){rank==1}:T{self==v} {
+    public @Inline operator this(i0:long)=(v:T){rank==1n}:T{self==v} {
         if (rail) {
             // Bounds checking by backing Rail is sufficient
             raw(i0) = v;
@@ -567,7 +567,7 @@ public final class Array[T] (
      * @see #operator(long, long)
      * @see #set(T, Point)
      */
-    public @Inline operator this(i0:long,i1:long)=(v:T){rank==2}:T{self==v} {
+    public @Inline operator this(i0:long,i1:long)=(v:T){rank==2n}:T{self==v} {
         if (CompilerFlags.checkBounds() && !region.contains(i0, i1)) {
             raiseBoundsError(i0, i1);
         }
@@ -591,7 +591,7 @@ public final class Array[T] (
      * @see #operator(long, long, long)
      * @see #set(T, Point)
      */
-    public @Inline operator this(i0:long, i1:long, i2:long)=(v:T){rank==3}:T{self==v} {
+    public @Inline operator this(i0:long, i1:long, i2:long)=(v:T){rank==3n}:T{self==v} {
         if (CompilerFlags.checkBounds() && !region.contains(i0, i1, i2)) {
             raiseBoundsError(i0, i1, i2);
         }
@@ -614,7 +614,7 @@ public final class Array[T] (
      * @see #operator(long, long, long, long)
      * @see #set(T, Point)
      */
-    public @Inline operator this(i0:long, i1:long, i2:long, i3:long)=(v:T){rank==4}:T{self==v} {
+    public @Inline operator this(i0:long, i1:long, i2:long, i3:long)=(v:T){rank==4n}:T{self==v} {
         if (CompilerFlags.checkBounds() && !region.contains(i0, i1, i2, i3)) {
             raiseBoundsError(i0, i1, i2, i3);
         }
@@ -1219,11 +1219,11 @@ public final class Array[T] (
     }
 
     private @Inline def offset(pt:Point):long {
-        var offset:long = pt(0) - layout_min0;
+        var offset:long = pt(0n) - layout_min0;
         if (pt.rank>1) {
-            offset = offset*layout_stride1 + pt(1) - layout_min1;
-            for (i in 2..(pt.rank-1)) {
-                offset = offset * layout(2*(i-2)) + pt(i) - layout(2*(i-2)+1);
+            offset = offset*layout_stride1 + pt(1n) - layout_min1;
+            for (i in 2n..(pt.rank-1n)) {
+                offset = offset * layout(2n*(i-2n)) + pt(i) - layout(2n*(i-2n)+1n);
             }
         }
         return offset;
@@ -1248,25 +1248,25 @@ public final class Array[T] (
                 size = 0L;
                 layout = null;
             } else {
-                if (reg.rank == 1) {
-                    min0 = reg.min(0);
+                if (reg.rank == 1n) {
+                    min0 = reg.min(0n);
                     stride1 = 0L;
                     min1 = 0L;
-                    size = reg.max(0) - reg.min(0) + 1;
+                    size = reg.max(0n) - reg.min(0n) + 1;
                     layout = null;
-                } else if (reg.rank == 2) {
-                    min0 = reg.min(0);
-                    min1 = reg.min(1);
-                    stride1 = reg.max(1) - reg.min(1) + 1;
-                    size = stride1 * (reg.max(0)-reg.min(0)+1);
+                } else if (reg.rank == 2n) {
+                    min0 = reg.min(0n);
+                    min1 = reg.min(1n);
+                    stride1 = reg.max(1n) - reg.min(1n) + 1;
+                    size = stride1 * (reg.max(0n)-reg.min(0n)+1);
                     layout = null;
                 } else {
                     layout = new Rail[long](2*(reg.rank-2));
-                    min0 = reg.min(0);
-                    min1 = reg.min(1);
-                    stride1 = reg.max(1) - reg.min(1) + 1;
-                    var sz:long = stride1 * (reg.max(0)-reg.min(0)+1);
-                    for (i in 2..(reg.rank-1)) {
+                    min0 = reg.min(0n);
+                    min1 = reg.min(1n);
+                    stride1 = reg.max(1n) - reg.min(1n) + 1;
+                    var sz:long = stride1 * (reg.max(0n)-reg.min(0n)+1);
+                    for (i in 2n..(reg.rank-1n)) {
                         val stride = reg.max(i) - reg.min(i) + 1;
 	                sz *= stride;
                         layout(2*(i-2)) = stride;

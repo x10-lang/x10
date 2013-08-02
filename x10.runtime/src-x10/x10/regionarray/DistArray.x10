@@ -247,7 +247,7 @@ public final class DistArray[T] (
      * @see #operator(Point)
      * @see #set(T, long)
      */
-    public final operator this(i0:long){rank==1}: T {
+    public final operator this(i0:long){rank==1n}: T {
         val offset = dist.offset(i0);
         return raw(offset);
     }
@@ -265,7 +265,7 @@ public final class DistArray[T] (
      * @see #operator(Point)
      * @see #set(T, long, long)
      */
-    public final operator this(i0:long, i1:long){rank==2}: T {
+    public final operator this(i0:long, i1:long){rank==2n}: T {
         val offset = dist.offset(i0, i1);
         return raw(offset);
     }
@@ -284,7 +284,7 @@ public final class DistArray[T] (
      * @see #operator(Point)
      * @see #set(T, long, long, long)
      */
-    public final operator this(i0:long, i1:long, i2:long){rank==3}: T {
+    public final operator this(i0:long, i1:long, i2:long){rank==3n}: T {
         val offset = dist.offset(i0, i1, i2);
         return raw(offset);
     }
@@ -304,7 +304,7 @@ public final class DistArray[T] (
      * @see #operator(Point)
      * @see #set(T, long, long, long, long)
      */
-    public final operator this(i0:long, i1:long, i2:long, i3:long){rank==4}: T {
+    public final operator this(i0:long, i1:long, i2:long, i3:long){rank==4n}: T {
         val offset = dist.offset(i0, i1, i2, i3);
         return raw(offset);
     }
@@ -343,7 +343,7 @@ public final class DistArray[T] (
      * @see #operator(long)
      * @see #set(T, Point)
      */    
-    public final operator this(i0:long)=(v: T){rank==1}: T {
+    public final operator this(i0:long)=(v: T){rank==1n}: T {
         val offset = dist.offset(i0);
         raw(offset) = v;
         return v;
@@ -364,7 +364,7 @@ public final class DistArray[T] (
      * @see #operator(long, long)
      * @see #set(T, Point)
      */
-    public final operator this(i0:long, i1:long)=(v: T){rank==2}: T {
+    public final operator this(i0:long, i1:long)=(v: T){rank==2n}: T {
         val offset = dist.offset(i0, i1);
         raw(offset) = v;
         return v;
@@ -386,7 +386,7 @@ public final class DistArray[T] (
      * @see #operator(long, long, long)
      * @see #set(T, Point)
      */
-    public final operator this(i0:long, i1:long, i2:long)=(v: T){rank==3}: T {
+    public final operator this(i0:long, i1:long, i2:long)=(v: T){rank==3n}: T {
         val offset = dist.offset(i0,i1,i2);
         raw(offset) = v;
         return v;
@@ -409,7 +409,7 @@ public final class DistArray[T] (
      * @see #operator(long, long, long, long)
      * @see #set(T, Point)
      */
-    public final operator this(i0:long, i1:long, i2:long, i3:long)=(v: T){rank==4}: T {
+    public final operator this(i0:long, i1:long, i2:long, i3:long)=(v: T){rank==4n}: T {
         val offset = dist.offset(i0,i1,i2,i3);
         raw(offset) = v;
         return v;

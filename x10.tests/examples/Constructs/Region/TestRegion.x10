@@ -26,9 +26,9 @@ abstract public class TestRegion extends x10Test {
 
     def testName() {
         var cn:String = typeName();
-        val init = cn.substring(0,6); // XTENLANG-???
+        val init = cn.substring(0n,6n); // XTENLANG-???
         if (init.equals("class "))
-            cn = cn.substring(6, cn.length());
+            cn = cn.substring(6n, cn.length());
         return cn;
     }
 
@@ -91,32 +91,32 @@ abstract public class TestRegion extends x10Test {
             for (var i: long = 0L; i<os.size; i++) {
                 var o: Any = os(i);
                 if (o==null) {
-                    if (rank==1)
+                    if (rank==1n)
                         Out.print(".");
-                    else if (rank==2) {
+                    else if (rank==2n) {
                         if (min<=i && i<=max)
                             Out.print("    " + i + "\n");
                     }
                 } else if (o instanceof Grid) {
-                    if (rank==2)
+                    if (rank==2n)
                         Out.print("    " + i + "  ");
-                    else if (rank>=3) {
+                    else if (rank>=3n) {
                         Out.print("    ");
-                        for (var j: int = 0; j<rank; j++)
+                        for (var j: int = 0n; j<rank; j++)
                             Out.print("-");
                         Out.print(" " + i + "\n");
                     }
-                    (o as Grid).pr(rank-1);
+                    (o as Grid).pr(rank-1n);
                 } else {
                     // XTENLANG-34, XTENLANG-211
                     val d = (o as Box[double]).value;
                     Out.print(""+(d as int));
                 }
 
-                if (rank==1)
+                if (rank==1n)
                     Out.print(" ");
             }
-            if (rank==1)
+            if (rank==1n)
                 Out.print("\n");
         }
     }
@@ -128,10 +128,10 @@ abstract public class TestRegion extends x10Test {
     def prArray(test: String, r: Region, bump: boolean): Array[double]{rank==r.rank} = {
 
         val init1 : (Point(r.rank))=>double  = (pt: Point(r.rank)) => {
-            var v: int = 1;
-            for (var i: int = 0; i<pt.rank; i++)
+            var v: int = 1n;
+            for (var i: int = 0n; i<pt.rank; i++)
                 v *= pt(i);
-            return v%10 as double;
+            return v%10n as double;
         };
 
         val init0 : (Point(r.rank))=> double = (Point(r.rank)) => 0.0D as double;
@@ -189,18 +189,18 @@ abstract public class TestRegion extends x10Test {
         pr("  iterator");
         var grid: Grid = new Grid();
         for (p:Point in a.region) {
-            if (p.rank==1) {
-                val a2 = a as Array[double](1);
-                if (bump) a2(p(0)) = a2(p(0)) + 1;
-                grid.set(p(0), a2(p(0)));
-            } else if (p.rank==2) {
-                val a2 = a as Array[double](2);
-                if (bump) a2(p(0), p(1)) = a2(p(0), p(1)) + 1;
-                grid.set(p(0), p(1), a2(p(0),p(1)));
-            } else if (p.rank==3) {
-                val a2 = a as Array[double](3);
-                if (bump) a2(p(0), p(1), p(2)) = a2(p(0), p(1), p(2)) + 1;
-                grid.set(p(0), p(1), p(2), a2(p(0),p(1),p(2)));
+            if (p.rank==1n) {
+                val a2 = a as Array[double](1n);
+                if (bump) a2(p(0n)) = a2(p(0n)) + 1;
+                grid.set(p(0n), a2(p(0n)));
+            } else if (p.rank==2n) {
+                val a2 = a as Array[double](2n);
+                if (bump) a2(p(0n), p(1n)) = a2(p(0n), p(1n)) + 1;
+                grid.set(p(0n), p(1n), a2(p(0n),p(1n)));
+            } else if (p.rank==3n) {
+                val a2 = a as Array[double](3n);
+                if (bump) a2(p(0n), p(1n), p(2n)) = a2(p(0n), p(1n), p(2n)) + 1;
+                grid.set(p(0n), p(1n), p(2n), a2(p(0n),p(1n),p(2n)));
             }
         }
         grid.pr(a.rank);
@@ -211,7 +211,7 @@ abstract public class TestRegion extends x10Test {
         (out as GlobalRef[Printer]{self.home==here})().println(s);
     }
 
-    def r(a: int, b: int, c: int, d: int): Region(2) {
+    def r(a: int, b: int, c: int, d: int): Region(2n) {
         return Region.make(a..b, c..d);
     }
 
@@ -222,18 +222,18 @@ abstract public class TestRegion extends x10Test {
     // XXX coefficients must be -1,0,+1; can allow larger coefficients
     // by increasing # bits per coeff
 
-    static ZERO = 0xAAAAAAA;
-    static GE = 0;
-    static LE = 1;
-    def X(axis: int) = 0x1<<2*axis;
+    static ZERO = 0xAAAAAAAn;
+    static GE = 0n;
+    static LE = 1n;
+    def X(axis: int) = 0x1n<<2n*axis;
 
     public def reg(rank: int, var coeff: int, op: int, k: int): Region(rank) {
         coeff += ZERO;
         val as_ = new Rail[long](rank);
-        for (var i: int = 0; i<rank; i++) {
-            var a: int = (coeff&3) - 2;
+        for (var i: int = 0n; i<rank; i++) {
+            var a: int = (coeff&3n) - 2n;
             as_(i) = op==LE? a : - a;
-            coeff = coeff >> 2;
+            coeff = coeff >> 2n;
         }
         return Region.makeHalfspace(as_, op==LE? -k : k);
     }

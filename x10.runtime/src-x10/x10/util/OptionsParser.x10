@@ -146,10 +146,10 @@ public class OptionsParser {
      * means: don't assume this is part of the tail...keep looking for 
      * more keys.
      */
-    public static IGNORE = 0;
+    public static IGNORE = 0n;
 
     /** assume that the tail begins at this key, if not before */
-    public static START_TAIL = 1;
+    public static START_TAIL = 1n;
 
     /** 
      * what to do if we encounter a key that is not in the options set.
@@ -239,11 +239,11 @@ public class OptionsParser {
         (key: String, keyMap: HashMap[String, Option]) => {
             Console.ERR.println("Unknown key, '"+key+"' will be treated as flag.");
             var shortKey: String = "", longKey: String = "";
-            if (key.indexOf("--")==0) longKey = key;
-            else if (key.indexOf("-") == 0) shortKey = key;
+            if (key.indexOf("--")==0n) longKey = key;
+            else if (key.indexOf("-") == 0n) shortKey = key;
             else { longKey = "--"+key; shortKey = "-"+key; }
             if (shortKey.length() > 0 || longKey.length() > 0) {
-                val added = new Option(shortKey, longKey, "???", 0, true, false, true);
+                val added = new Option(shortKey, longKey, "???", 0n, true, false, true);
                 if (shortKey.length() > 0 ) keyMap.put(shortKey, added);
                 if (longKey.length() > 0 ) keyMap.put(longKey, added);
             }
@@ -273,7 +273,7 @@ public class OptionsParser {
     protected var keyMap: HashMap[String, Option]; // maps keys to Options
     protected var args: Rail[String] = null;   // expanded copy: look at expandArgs
     protected var properties: OptionsMap = null;   // maps key to value array
-    protected var tailStart: Int = -1;             // index into args of first tail argument
+    protected var tailStart: Int = -1n;             // index into args of first tail argument
     protected var required: HashSet[Option];       // keys for a which a value is required
     protected var oneCharFlags: HashSet[String];   // keys that are one character long and
     											   // are used as flags
@@ -296,15 +296,15 @@ public class OptionsParser {
         val lastArg = args.size - 1;
         for(n in 0..lastArg) {
             var argN: String = args(n);
-            if(argN(0) == '-') {
-                if(argN.length() > 1 && argN(1).isDigit()) continue;
+            if(argN(0n) == '-') {
+                if(argN.length() > 1 && argN(1n).isDigit()) continue;
                 else if (argN.equals("--")) break; // no keys for this cmd follow
                 val firstEq = argN.indexOf("=");   // allow key=value syntax
-                if (firstEq > 0) argN = argN.substring(0, firstEq);
-                if (argN(1)=='-') { // key is a "long form"
-                    builder.add(Option("",argN,"no description given", 0, true));
+                if (firstEq > 0n) argN = argN.substring(0n, firstEq);
+                if (argN(1n)=='-') { // key is a "long form"
+                    builder.add(Option("",argN,"no description given", 0n, true));
                 }
-                else builder.add(Option(argN,"","no description given", 0, true));
+                else builder.add(Option(argN,"","no description given", 0n, true));
             }
         }
         return builder.result();
@@ -386,15 +386,15 @@ public class OptionsParser {
         val keyIndex = makeKeyIndex(args, options); // n-th entry is index of n-th key
         val props = new OptionsMap();               // maps keys to their value arrays
         var keyInArgs: Rail[Int] = keyIndex;        // may need to compress it a bit
-        var newTailStart: Int = 0;                  // we'll use options to get a better value
-        var lastIndex: Int = keyInArgs.size as Int -2;      // may get smaller if we compress
+        var newTailStart: Int = 0n;                  // we'll use options to get a better value
+        var lastIndex: Int = keyInArgs.size as Int -2n;      // may get smaller if we compress
         this.properties = props;
-        for(var k:Int =0; k<=lastIndex; k++) { // find the values (if any) for each key
+        for(var k:Int =0n; k<=lastIndex; k++) { // find the values (if any) for each key
             val key = this.args(keyInArgs(k));
             val option = keyMap.getOrElse(key, Option.BAD);
             if (option == Option.BAD) break;
-            val first = keyInArgs(k)+1;
-            var valueCount: Int = keyInArgs(k+1) - first;
+            val first = keyInArgs(k)+1n;
+            var valueCount: Int = keyInArgs(k+1n) - first;
             val expected = option.minFollow;
             var values: Rail[String] = null;
             if(expected > valueCount) {
@@ -406,7 +406,7 @@ public class OptionsParser {
                     val newTail = first + valueCount;
                     val thisK = lastIndex = k; 
                     val init = (n:Long)=>(n<=thisK ? keyIndex(n) : newTail);
-                    keyInArgs = new Rail[Int](k+2, init);
+                    keyInArgs = new Rail[Int](k+2n, init);
                     // setting lastIndex above means the loop will terminate
                     // on the next iteration.  We don't break out here because
                     // we still need to update "properties" for this key.
@@ -414,13 +414,13 @@ public class OptionsParser {
             }
             newTailStart = first+valueCount;
             if (properties.containsKey(key)) {
-                if (valueCount > 0) {
+                if (valueCount > 0n) {
                     onDuplicate(key, props, this.args, first, valueCount);
                 }
             }
             else {
                 val whatToPut: Rail[String];
-                if (valueCount == 0) {
+                if (valueCount == 0n) {
                     if (option.arbFollow) {
                         whatToPut = new Rail[String]();
                     }
@@ -434,7 +434,7 @@ public class OptionsParser {
                 }
                 properties.put(key, whatToPut);
                 val otherForm = option.otherForm(key);
-                if(otherForm.length()>0) properties.put(otherForm, whatToPut);
+                if(otherForm.length()>0n) properties.put(otherForm, whatToPut);
             }
         }
         this.tailStart = keyInArgs(keyInArgs.size-1) = newTailStart;
@@ -449,11 +449,11 @@ public class OptionsParser {
             val o = options(ox);
             if (o.shortForm.length() > 0) {
                 km.put(o.shortForm, o);
-                if (o.shortForm.length() == 2 && o.minFollow == 0 && !o.arbFollow) {
+                if (o.shortForm.length() == 2n && o.minFollow == 0n && !o.arbFollow) {
                     ocf.add(o.shortForm); 
                 }               
             }
-            if (o.longForm.length() > 0) km.put(o.longForm, o);
+            if (o.longForm.length() > 0n) km.put(o.longForm, o);
             if (o.required) req.add(o);
         }
         keyMap = km;
@@ -470,16 +470,16 @@ public class OptionsParser {
     @NonEscaping 
     private def makeKeyIndex(args:Rail[String], options:Rail[Option]) {
         val keyIndex = new RailBuilder[Int](args.size);
-        var keyCount: Int = 0;
+        var keyCount: Int = 0n;
         var helpOnly: Boolean = false;
         val expanded = expandArgs(args);
         var tailStart: Int = expanded.size as Int;
-        val lastArg: Int = expanded.size as Int - 1;
+        val lastArg: Int = expanded.size as Int - 1n;
         val reqNotSeen = required.clone();
-        for(i in 0 .. lastArg) {
+        for(i in 0n .. lastArg) {
             val s = expanded(i);
-            if (s.length() > 0 && s(0) == '-') {
-                if (s.length() > 1 && s(1).isDigit()) continue;
+            if (s.length() > 0n && s(0n) == '-') {
+                if (s.length() > 1 && s(1n).isDigit()) continue;
                 else if (keyMap.containsKey(s)) {
                     keyIndex.add(i);
                     val optForS = keyMap.getOrElse(s, Option.BAD);
@@ -524,15 +524,15 @@ public class OptionsParser {
         var inTail: Boolean = false; // we have seen a key that is not recognized
         for(n in args.range()) {
             val argN = args(n);
-            if (argN.length() == 0 || argN(0) != '-' || inTail) builder.add(argN);
+            if (argN.length() == 0n || argN(0n) != '-' || inTail) builder.add(argN);
             else if (argN.equals("--")) { inTail = true; builder.add(argN); }
-            else if (argN.length() < 2) builder.add(argN);
-            else if(argN(1).isDigit()) builder.add(argN);
+            else if (argN.length() < 2n) builder.add(argN);
+            else if(argN(1n).isDigit()) builder.add(argN);
             else if (keyMap.containsKey(argN)) builder.add(argN);
             else { // expand one-char flags and key=value args
                 var isFlags: Boolean = true;
-                val count = argN.length() - 1;
-                val exploded = new Rail[String](count, (k:Long)=>"-"+argN((k as Int)+1));
+                val count = argN.length() - 1n;
+                val exploded = new Rail[String](count, (k:Long)=>"-"+argN((k as Int)+1n));
                 for(k in exploded.range()) { // is the arg a concatenation of one char flags?
                     if (!oneCharFlags.contains(exploded(k))) {
                         isFlags = false; break; // No! It is not!
@@ -541,9 +541,9 @@ public class OptionsParser {
                 if (isFlags) for(k in exploded.range()) builder.add(exploded(k));
                 else { // maybe it has the form -key=value:
                     val firstEq = argN.indexOf("=");
-                    if (firstEq > 0 && keyMap.containsKey(argN.substring(0,firstEq))) {
-                        builder.add(argN.substring(0, firstEq));
-                        builder.add(argN.substring(firstEq+1));
+                    if (firstEq > 0n && keyMap.containsKey(argN.substring(0n,firstEq))) {
+                        builder.add(argN.substring(0n, firstEq));
+                        builder.add(argN.substring(firstEq+1n));
                     }
                     else { // the key is not one of ours
                         builder.add(argN);
@@ -568,7 +568,7 @@ public class OptionsParser {
      */
     public def getTail() {
         if (tailStart >= args.size) return new Rail[String](0, "");
-        val first = args(tailStart).equals("--") ? tailStart+1 : tailStart;
+        val first = args(tailStart).equals("--") ? tailStart+1n : tailStart;
         val init = (n:Long)=>args(n+first);
         return new Rail[String](args.size-first, init);
     }
@@ -612,7 +612,7 @@ public class OptionsParser {
     public final def get(val key: String): Rail[String] {
         var winner: String = key;
         var isValid: Boolean = true;
-        if (key(0) == '-') {
+        if (key(0n) == '-') {
             if (keyMap.getOrElse(key, Option.BAD) == Option.BAD) isValid = false;  
         }
         else { // add dashes as needed in front of key to get a string we recognize
@@ -655,7 +655,7 @@ public class OptionsParser {
      * @return true if the key is an option found in the command line.
      */
     @NonEscaping public final operator this(key:String): Boolean {
-        if (key(0) == '-') {
+        if (key(0n) == '-') {
             if (keyMap.getOrElse(key, Option.BAD) == Option.BAD) return false;
             else return properties.containsKey(key);
         }
@@ -697,7 +697,7 @@ public class OptionsParser {
      */
     @NonEscaping public final operator this(key:String, d:Byte):Byte { 
         val v = this(key, "");
-        if (v.length() == 0) return d;
+        if (v.length() == 0n) return d;
         try { return StringUtil.parseByte(v); }
         catch (e:NumberFormatException) {
             throw new Err("Expected a byte, got: \""+v+"\"");
@@ -715,7 +715,7 @@ public class OptionsParser {
      */
     @NonEscaping public final operator this (key:String, d:Short):Short { 
         val v = this(key, "");
-        if (v.length() == 0) return d;
+        if (v.length() == 0n) return d;
         try { return StringUtil.parseShort(v); } 
         catch (e:NumberFormatException) {
             throw new Err("Expected a Short, got: \""+v+"\"");
@@ -733,7 +733,7 @@ public class OptionsParser {
      */
     @NonEscaping public final operator this(key:String, d:Int): Int { 
         val v = this(key, "");
-        if (v.length() == 0) return d;
+        if (v.length() == 0n) return d;
         try { return StringUtil.parseInt(v); } 
         catch (e:NumberFormatException) {
             throw new Err("Expected an Int, got: \""+v+"\"");
@@ -751,7 +751,7 @@ public class OptionsParser {
      */
     @NonEscaping public final operator this(key:String, d:Long): Long {
         val v = this(key, "");
-        if (v.length() == 0) return d;
+        if (v.length() == 0n) return d;
         try { return StringUtil.parseLong(v); }
         catch (e:NumberFormatException) {
             throw new Err("Expected a Long, got: \""+v+"\"");
@@ -769,7 +769,7 @@ public class OptionsParser {
      */
     @NonEscaping public final operator this(key:String, d:UByte):UByte { 
         val v = this(key, "");
-        if (v.length() == 0) return d;
+        if (v.length() == 0n) return d;
         try { return StringUtil.parseUByte(v); }
         catch (e:NumberFormatException) {
             throw new Err("Expected a UByte, got: \""+v+"\"");
@@ -787,7 +787,7 @@ public class OptionsParser {
      */
     @NonEscaping public final operator this (key:String, d:UShort):UShort { //throws Err {
         val v = this(key, "");
-        if (v.length() == 0) return d;
+        if (v.length() == 0n) return d;
         try { return StringUtil.parseUShort(v); }
         catch (e:NumberFormatException) {
             throw new Err("Expected a UShort, got: \""+v+"\"");
@@ -805,7 +805,7 @@ public class OptionsParser {
      */
     @NonEscaping public final operator this(key:String, d:UInt): UInt { 
         val v = this(key, "");
-        if (v.length() == 0) return d;
+        if (v.length() == 0n) return d;
         try { return StringUtil.parseUInt(v); }
         catch (e:NumberFormatException) {
             throw new Err("Expected a UInt, got: \""+v+"\"");
@@ -823,7 +823,7 @@ public class OptionsParser {
      */
     @NonEscaping public final operator this(key:String, d:ULong): ULong {
         val v = this(key, "");
-        if (v.length() == 0) return d;
+        if (v.length() == 0n) return d;
         try { return StringUtil.parseULong(v); }
         catch (e:NumberFormatException) {
             throw new Err("Expected a ULong, got: \""+v+"\"");
@@ -842,7 +842,7 @@ public class OptionsParser {
     @NonEscaping public final operator this(key:String, d:Double):Double {
         val v = this(key, "");
         //Console.OUT.println("v is '"+v+"' for '"+key+"'");
-        if (v.length() == 0) return d;
+        if (v.length() == 0n) return d;
         try { return Double.parse(v); }
         catch (e:NumberFormatException) {
             throw new Err("Expected a Double, got: \""+v+"\"");
@@ -860,7 +860,7 @@ public class OptionsParser {
      */
     @NonEscaping public final operator this(key:String, d:Float): Float { 
         val v =this(key, "");
-        if (v.length() == 0) return d;
+        if (v.length() == 0n) return d;
         try { return Float.parse(v); }
         catch (e:NumberFormatException) {
             throw new Err("Expected a Float, got: \""+v+"\"");
@@ -889,7 +889,7 @@ public class OptionsParser {
      */
     @NonEscaping public final operator this(key:String, d:Boolean): Boolean { 
         val v = this(key, "");
-        return v.length() == 0 ? d : StringUtil.checkBoolean(v);      
+        return v.length() == 0n ? d : StringUtil.checkBoolean(v);      
     }
 
     /**

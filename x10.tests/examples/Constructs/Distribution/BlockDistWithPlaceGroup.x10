@@ -32,23 +32,23 @@ import x10.util.ArrayList;
  */
 public class BlockDistWithPlaceGroup extends x10Test {
 
-    public static COUNT = 200;
-    public static L = 5;
+    public static COUNT = 200n;
+    public static L = 5n;
 
     public def run(): boolean = {
         var passed:Boolean = true;
-        for (tries in 1..COUNT) {
+        for (tries in 1n..COUNT) {
             val lb1: int = ranInt(-L, L);
             val lb2: int = ranInt(-L, L);
             val ub1: int = ranInt(lb1, L);
             val ub2: int = ranInt(lb2, L);
             val R = Region.make(lb1..ub1, lb2..ub2);
-            val totalPoints = (ub1-lb1+1)*(ub2-lb2+1);
-            val axisPoints = ub1-lb1+1;
+            val totalPoints = (ub1-lb1+1n)*(ub2-lb2+1n);
+            val axisPoints = ub1-lb1+1n;
             val placeGroup = createRandPlaceGroup();
             val np = placeGroup.numPlaces();
 
-            val DBlock = Dist.makeBlock(R, 0, placeGroup);
+            val DBlock = Dist.makeBlock(R, 0n, placeGroup);
             val p = axisPoints/np;
             val q = axisPoints%np;
             var offsWithinPlace:long = 0L;
@@ -80,9 +80,9 @@ public class BlockDistWithPlaceGroup extends x10Test {
     def createRandPlaceGroup():PlaceGroup {
         val places = new ArrayList[Place]();
         do {
-            val THRESH: int = ranInt(10, 90);
+            val THRESH: int = ranInt(10n, 90n);
             for (p in Place.places()) {
-                val x:int = ranInt(0, 99);
+                val x:int = ranInt(0n, 99n);
                 if (x >= THRESH) {
                     places.add(p);
                 }

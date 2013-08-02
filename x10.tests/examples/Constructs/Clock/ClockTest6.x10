@@ -62,10 +62,10 @@ import harness.x10Test;
  */
 public class ClockTest6 extends x10Test {
 
-	public static N_INSTANCES: int = 8; //number of instances of each async activity kind
-	public static N_NEXTS: int = 4; //number of next pairs in each async activity
-	public static N_KINDS: int = 4; // number of kinds of async activities
-	var globalCounter: int = 0;
+	public static N_INSTANCES: int = 8n; //number of instances of each async activity kind
+	public static N_NEXTS: int = 4n; //number of next pairs in each async activity
+	public static N_KINDS: int = 4n; // number of kinds of async activities
+	var globalCounter: int = 0n;
 
         public var quiet:boolean = false;
 
@@ -77,10 +77,10 @@ public class ClockTest6 extends x10Test {
 			val e: Clock = Clock.make();
 			// Spawn subactivities using different subset of the clocks
 			// The subactivities will perform N_NEXTS next pairs each
-			for (i in 1..N_INSTANCES) {
+			for (i in 1n..N_INSTANCES) {
 				/*Activity kind: 1 clocks = (c)*/
 				async clocked(c)
-					for (tick in 0..(N_NEXTS-1)) {
+					for (tick in 0n..(N_NEXTS-1n)) {
 						// do work
 						doWork("1_", i, "(c)", tick);
 						Clock.advanceAll(); //barrier
@@ -90,7 +90,7 @@ public class ClockTest6 extends x10Test {
 					}
 				/*Activity kind: 2 clocks = (c, d)*/
 				async clocked(c, d)
-					for (tick in 0..(N_NEXTS-1)) {
+					for (tick in 0n..(N_NEXTS-1n)) {
 						// do work
 						doWork("2_", i, "(c, d)", tick);
 						Clock.advanceAll(); //barrier
@@ -100,7 +100,7 @@ public class ClockTest6 extends x10Test {
 					}
 				/*Activity kind: 3 clocks = (c, e)*/
 				async  clocked(c, e)
-					for (tick in 0..(N_NEXTS-1)) {
+					for (tick in 0n..(N_NEXTS-1n)) {
 						// do work
 						doWork("3_", i, "(c, e)", tick);
 						Clock.advanceAll(); //barrier
@@ -110,7 +110,7 @@ public class ClockTest6 extends x10Test {
 					}
 				/*Activity kind: 4 clocks = (c, d, e)*/
 				async clocked(c, d, e)
-					for (tick in 0..(N_NEXTS-1)) {
+					for (tick in 0n..(N_NEXTS-1n)) {
 						// do work
 						doWork("4_", i, "(c, d, e)", tick);
 						Clock.advanceAll(); //barrier
@@ -142,7 +142,7 @@ public class ClockTest6 extends x10Test {
 	def verify(var kind: String, var instance: int, var tick: int): void = {
 		var tmp: int;
 		atomic { tmp = globalCounter; }
-		chk((tick+1) * N_KINDS * N_INSTANCES == tmp);
+		chk((tick+1n) * N_KINDS * N_INSTANCES == tmp);
 	}
 
 	public static def main(var args: Rail[String]): void = {

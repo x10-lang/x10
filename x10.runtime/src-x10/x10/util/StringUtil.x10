@@ -41,20 +41,20 @@ public class StringUtil {
      *    and 8 otherwise.
      */
     public static def radix(var v: String): Int {
-        if (v(0) == '-') v = v.substring(1);
-        if (v.length() < 2 || v(0) != '0') return 10;
-        else if (v(1) == 'x' || v(1) == 'X') return 16;
-        else return 8;
+        if (v(0n) == '-') v = v.substring(1n);
+        if (v.length() < 2n || v(0n) != '0') return 10n;
+        else if (v(1n) == 'x' || v(1n) == 'X') return 16n;
+        else return 8n;
     }
     
     // X10's numeric parse methods expect a string with no leading indicator of the
     //  radix in the case of hex literals.  We strip the radix off here.
     private static def stripRadix(var v: String) {
-        if (v(0) == '-') v = v.substring(1);
+        if (v(0n) == '-') v = v.substring(1n);
         switch(radix(v)) {
-        case 10: return v;
-        case 16: return v.substring(2);
-        case  8: return v.substring(1);
+        case 10n: return v;
+        case 16n: return v.substring(2n);
+        case  8n: return v.substring(1n);
         default: throw new IllegalArgumentException("Unexpected radix, "+radix(v));
         }
     }
@@ -72,24 +72,24 @@ public class StringUtil {
      */
     public static def stripNumericType(s: String): Pair[String, String] {
         val sLength = s.length();
-        var n: Int = sLength - 1;
+        var n: Int = sLength - 1n;
         var typeLit: String;
         val sUpper = s.toUpperCase();
         val xIndex = sUpper.indexOf("X");
         val dotIndex = sUpper.indexOf(".");
-        if (xIndex < 0) { // is base 10: cannot have trailing hex digits as such
-            val lastN = dotIndex > 0 ? dotIndex : 0; // may have a trailing dot
+        if (xIndex < 0n) { // is base 10: cannot have trailing hex digits as such
+            val lastN = dotIndex > 0n ? dotIndex : 0n; // may have a trailing dot
             // if it is float, there's trailing 'F'.  If it's a Double, there
             // must be at least one digit before the exponent starting 'E'.
             while(n > lastN && !sUpper(n).isDigit()) n--; 
         }
-        else while(n > 0 && !isHexDigit(sUpper(n))) n--;
-        if(n < sLength-1) typeLit = sUpper.substring(n+1); // is explicit
-        else if (xIndex>0) typeLit = "I";               //
-        else if (dotIndex>=0) typeLit = "D"; // need trailing F for float
-        else if (sUpper.indexOf("E")>0)  typeLit = "D"; // not hex, so must be the exponent
+        else while(n > 0n && !isHexDigit(sUpper(n))) n--;
+        if(n < sLength-1n) typeLit = sUpper.substring(n+1n); // is explicit
+        else if (xIndex>0n) typeLit = "I";               //
+        else if (dotIndex>=0n) typeLit = "D"; // need trailing F for float
+        else if (sUpper.indexOf("E")>0n)  typeLit = "D"; // not hex, so must be the exponent
         else typeLit = "I";                             // implicit integer
-        return Pair[String, String](sUpper.substring(0,n+1), typeLit) ; 
+        return Pair[String, String](sUpper.substring(0n,n+1n), typeLit) ; 
     }
 
     private static def isHexDigit(c: Char) {
@@ -97,16 +97,16 @@ public class StringUtil {
         return (ordC >= 0x30 && ordC <= 0x39) || (ordC >= 0x41 && ordC <= 0x46);
     }
     
-    public static def parseByte(s: String) = (s(0)=='-'?-1Y:1Y)*Byte.parse(stripRadix(s), radix(s));
-    public static def parseShort(s: String) = (s(0)=='-'?-1S:1S)*Short.parse(stripRadix(s), radix(s));
-    public static def parseInt(s: String) = (s(0)=='-'?-1:1)*Int.parse(stripRadix(s), radix(s));
-    public static def parseLong(s: String) = (s(0)=='-'?-1L:1L)*Long.parse(stripRadix(s), radix(s));
+    public static def parseByte(s: String) = (s(0n)=='-'?-1Y:1Y)*Byte.parse(stripRadix(s), radix(s));
+    public static def parseShort(s: String) = (s(0n)=='-'?-1S:1S)*Short.parse(stripRadix(s), radix(s));
+    public static def parseInt(s: String) = (s(0n)=='-'?-1n:1n)*Int.parse(stripRadix(s), radix(s));
+    public static def parseLong(s: String) = (s(0n)=='-'?-1L:1L)*Long.parse(stripRadix(s), radix(s));
     public static def parseUByte(s: String) = UByte.parse(stripRadix(s), radix(s));
     public static def parseUShort(s: String) = UShort.parse(stripRadix(s), radix(s));
     public static def parseUInt(s: String) = UInt.parse(stripRadix(s), radix(s));
     public static def parseULong(s: String) = ULong.parse(stripRadix(s), radix(s));
     
-    public static def formatArray[T](a: Rail[T]) = formatArray[T](a, ", ", "    ", 80);
+    public static def formatArray[T](a: Rail[T]) = formatArray[T](a, ", ", "    ", 80n);
     public static def formatArray[T](a: Rail[T], separator:String, leftPad: String, maxLength: Int) {
         if(a.size == 0L) return "";
         val lines = new StringBuilder();
@@ -135,7 +135,7 @@ public class StringUtil {
     }
     
     private static def makeSet[T](a: Rail[T]) {
-        return makeSet(a, (3*(a.size as Int))/2); // assume no duplicates, allow for slop
+        return makeSet(a, (3n*(a.size as Int))/2n); // assume no duplicates, allow for slop
     }
     
     private static def makeSet[T](a: Rail[T], hashTableSize: Int) {
@@ -154,8 +154,8 @@ public class StringUtil {
     public static falseStrings = makeSet[String](FALSE_STRINGS);
     private static def makeBooleanMap() {
         val map = new HashMap[String, Int]();
-        for(s in trueStrings) map.put(s, 1);
-        for(s in falseStrings) map.put(s, 0);
+        for(s in trueStrings) map.put(s, 1n);
+        for(s in falseStrings) map.put(s, 0n);
         return map;
     }
     /** maps the true strings to true and the false strings to false */
@@ -176,9 +176,9 @@ public class StringUtil {
      */
     public static def checkBoolean(v: String) {
         val vlow = v.toLowerCase();
-        val fromMap = booleans.getOrElse(vlow, -1);
-        if (fromMap == 1) return true;
-        else if(fromMap == 0) return false;
+        val fromMap = booleans.getOrElse(vlow, -1n);
+        if (fromMap == 1n) return true;
+        else if(fromMap == 0n) return false;
         else {
             throw new IllegalArgumentException("Expected boolean string literal, got \""+v+"\"");
         }

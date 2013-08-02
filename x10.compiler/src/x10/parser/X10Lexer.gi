@@ -166,11 +166,11 @@
     SlComment
     MlComment
     DocComment
-    IntegerLiteral
+    IntLiteral
     LongLiteral
     ByteLiteral
     ShortLiteral
-    UnsignedIntegerLiteral
+    UnsignedIntLiteral
     UnsignedLongLiteral
     UnsignedByteLiteral
     UnsignedShortLiteral
@@ -306,9 +306,9 @@
                     makeToken($_CharacterLiteral);
           $EndAction
         ./
-    Token ::= IntegerLiteral
+    Token ::= IntLiteral
         /.$BeginAction
-                    makeToken($_IntegerLiteral);
+                    makeToken($_IntLiteral);
           $EndAction
         ./
     Token ::= LongLiteral
@@ -326,9 +326,9 @@
                     makeToken($_ShortLiteral);
           $EndAction
         ./
-    Token ::= UnsignedIntegerLiteral
+    Token ::= UnsignedIntLiteral
         /.$BeginAction
-                    makeToken($_UnsignedIntegerLiteral);
+                    makeToken($_UnsignedIntLiteral);
           $EndAction
         ./
     Token ::= UnsignedLongLiteral
@@ -657,16 +657,21 @@
     IntegerLiteral -> Integer
                     | '0' LetterXx HexDigits
 
-    LongLiteral ::= IntegerLiteral LetterLl
+    IntLiteral ::= IntegerLiteral LetterNn
+
+    LongLiteral -> IntegerLiteral
+                 | IntegerLiteral LetterLl
 
     ByteLiteral ::= IntegerLiteral LetterYy
 
     ShortLiteral ::= IntegerLiteral LetterSs
     
-    UnsignedIntegerLiteral ::= IntegerLiteral LetterUu
+    UnsignedIntLiteral -> IntegerLiteral LetterUu LetterNn
+                        | IntegerLiteral LetterNn LetterUu
 
     UnsignedLongLiteral -> IntegerLiteral LetterUu LetterLl
                          | IntegerLiteral LetterLl LetterUu
+                         | IntegerLiteral LetterUu
 
     UnsignedByteLiteral -> IntegerLiteral LetterUu LetterYy
                          | IntegerLiteral LetterYy LetterUu
@@ -770,6 +775,9 @@
 
     LetterDd -> 'D'
               | 'd'
+
+    LetterNn -> 'N'
+              | 'n'
 
     LetterLl -> 'L'
               | 'l'
@@ -876,7 +884,7 @@
 
      --- X10 Tokens
 
-     Token ::= IntLiteralAndRange
+     Token ::= LongLiteralAndRange
  
      Token ::= '.' '.'
           /.$BeginAction
@@ -999,9 +1007,9 @@
         ./
 
 
-    IntLiteralAndRange ::= Integer '.' '.'
+    LongLiteralAndRange ::= Integer '.' '.'
          /.$BeginAction
-                     makeToken(getRhsFirstTokenIndex(1), getRhsLastTokenIndex(1), $_IntegerLiteral);
+                     makeToken(getRhsFirstTokenIndex(1), getRhsLastTokenIndex(1), $_LongLiteral);
                      makeToken(getToken(2), getToken(3), $_RANGE);
            $EndAction
          ./

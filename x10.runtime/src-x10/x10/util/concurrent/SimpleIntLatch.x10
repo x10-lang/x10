@@ -19,19 +19,19 @@ import x10.compiler.Pinned;
     static type Worker = Runtime.Worker;
 
     private var worker:Worker = null;
-    private var value:Int = 0;
+    private var value:Int = 0n;
 
     // can only be called once
     public def await():void {
-        if (value != 0) return;
+        if (value != 0n) return;
         lock();
-        if (value != 0) {
+        if (value != 0n) {
             unlock();
             return;
         }
         Runtime.increaseParallelism(); // likely to be blocked for a while
         worker = Runtime.worker();
-        while (value == 0) {
+        while (value == 0n) {
             unlock();
             Worker.park();
             lock();
@@ -44,7 +44,7 @@ import x10.compiler.Pinned;
         lock();
         value = v;
         if (worker != null) {
-            Runtime.decreaseParallelism(1);
+            Runtime.decreaseParallelism(1n);
             worker.unpark();
         }
         unlock();

@@ -28,9 +28,9 @@ final class EmptyRegion extends Region{rect} {
     public def intersection(that: Region(rank)): Region(rank) = this;
     public def product(that: Region)/*: Region(this.rank+that.rank)*/ 
         = new EmptyRegion(this.rank + that.rank);
-    public def projection(axis: int): Region(1) = new EmptyRegion(1);
+    public def projection(axis: int): Region(1n) = new EmptyRegion(1n);
     public def translate(p:Point(rank)) = this; 
-    public def eliminate(i:Int)= new EmptyRegion(rank-1);
+    public def eliminate(i:Int)= new EmptyRegion(rank-1n);
     protected def computeBoundingBox(): Region(rank) {
         throw new IllegalOperationException("bounding box not not defined for empty region");
     }

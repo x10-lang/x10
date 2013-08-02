@@ -127,10 +127,10 @@ public class System {
         try {
             Runtime.increaseParallelism();
             Thread.sleep(millis);
-            Runtime.decreaseParallelism(1);
+            Runtime.decreaseParallelism(1n);
             return true;
         } catch (e:InterruptedException) {
-            Runtime.decreaseParallelism(1);
+            Runtime.decreaseParallelism(1n);
             return false;
         }
     }

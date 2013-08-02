@@ -28,11 +28,12 @@
 %Terminals
 
     IntegerLiteral         -- the usual
-    LongLiteral            -- IntegerLiteral followed by 'l' or 'L'
+    IntLiteral             -- IntegerLiteral followed by 'n' or 'N'
+    LongLiteral            -- IntegerLiteral optionally followed by 'l' or 'L'
     ByteLiteral            -- IntegerLiteral followed by 'y' or 'Y'
     ShortLiteral           -- IntegerLiteral followed by 's' or 'S'
-    UnsignedIntegerLiteral -- IntegerLiteral followed by 'u' or 'U'
-    UnsignedLongLiteral    -- IntegerLiteral followed by 'u' or 'U' and 'l' or 'L' (in any order)
+    UnsignedIntLiteral     -- IntegerLiteral followed by 'u' or 'U' and 'n' or 'N' (in any order)
+    UnsignedLongLiteral    -- IntegerLiteral followed by 'u' or 'U' and optionally 'l' or 'L' (in any order)
     UnsignedByteLiteral    -- IntegerLiteral followed by 'u' or 'U' and 'y' or 'Y' (in any order)
     UnsignedShortLiteral   -- IntegerLiteral followed by 'u' or 'U' and 's' or 'S' (in any order)
     FloatingPointLiteral   --
@@ -1777,7 +1778,7 @@
               | FieldAccess
               | MethodInvocation
 
-    Literal ::= IntegerLiteral$lit
+    Literal ::= IntLiteral$lit
         /.$BeginJava
 			r.rule_Literal0();
         $EndJava./
@@ -1801,7 +1802,7 @@
         /.$BeginJava
 			r.rule_LiteralUShort();
         $EndJava./
-              | UnsignedIntegerLiteral$lit
+              | UnsignedIntLiteral$lit
         /.$BeginJava
 			r.rule_Literal2();
         $EndJava./

@@ -34,13 +34,13 @@ class PolyRow(rank:Int) extends ValRow {
     }
 
     def this(p:Point, k:int) {
-        super(p.rank+1, (i:Int) => i<p.rank? p(i) as int : k);
+        super(p.rank+1n, (i:Int) => i<p.rank? p(i) as int : k);
         property(p.rank);
     }
 
     def this(cols:int, init: (i:Int)=>int) {
         super(cols, init);
-        val cols1 = cols-1;
+        val cols1 = cols-1n;
         property(cols1);
     }
 
@@ -52,13 +52,13 @@ class PolyRow(rank:Int) extends ValRow {
      */
 
     static def compare(a: Row, b: Row): int {
-        for (var i: int = 0; i<a.cols; i++) {
+        for (var i: int = 0n; i<a.cols; i++) {
             if (a(i) < b(i))
-                return -1;
+                return -1n;
             else if (a(i) > b(i))
-                return 1;
+                return 1n;
         }
-        return 0;
+        return 0n;
     }
 
 
@@ -71,7 +71,7 @@ class PolyRow(rank:Int) extends ValRow {
      */
 
     def isParallel(that: PolyRow): boolean {
-        for (var i: int = 0; i<cols-1; i++)
+        for (var i: int = 0n; i<cols-1n; i++)
             if (this(i)!=that(i))
                 return false;
         return true;
@@ -85,8 +85,8 @@ class PolyRow(rank:Int) extends ValRow {
 
     def isRect(): boolean {
         var nz: boolean = false;
-        for (var i: int = 0; i<cols-1; i++) {
-            if (this(i)!=0) {
+        for (var i: int = 0n; i<cols-1n; i++) {
+            if (this(i)!=0n) {
                 if (nz) return false;
                 nz = true;
             }
@@ -101,9 +101,9 @@ class PolyRow(rank:Int) extends ValRow {
 
     def contains(p: Point): boolean {
         var sum: int = this(rank);
-        for (var i: int = 0; i<rank; i++)
+        for (var i: int = 0n; i<rank; i++)
             sum += this(i)*p(i);
-        return sum <= 0;
+        return sum <= 0n;
     }
 
 
@@ -118,8 +118,8 @@ class PolyRow(rank:Int) extends ValRow {
      */
 
     def complement(): PolyRow {
-        val init = (i:long) => (i as int)<rank? -this(i as int) : -this(rank)+1;
-        val as_ = new Rail[int](rank+1, init);
+        val init = (i:long) => (i as int)<rank? -this(i as int) : -this(rank)+1n;
+        val as_ = new Rail[int](rank+1n, init);
         return new PolyRow(as_);
     }
 
@@ -129,34 +129,34 @@ class PolyRow(rank:Int) extends ValRow {
      */
 
     def printEqn(ps: Printer, spc: String, row: int) {
-        var sgn: int = 0;
+        var sgn: int = 0n;
         var first: boolean = true;
-        for (var i: int = 0; i<cols-1; i++) {
-            if (sgn==0) {
-                if (this(i)<0)
-                    sgn = -1;
-                else if (this(i)>0)
-                    sgn = 1;
+        for (var i: int = 0n; i<cols-1; i++) {
+            if (sgn==0n) {
+                if (this(i)<0n)
+                    sgn = -1n;
+                else if (this(i)>0n)
+                    sgn = 1n;
             }
             val c = sgn*this(i);
-            if (c==1) {
+            if (c==1n) {
                 if (first)
                     ps.print("x" + i);
                 else
                     ps.print("+x" + i);
-            } else if (c==-1)
+            } else if (c==-1n)
                 ps.print("-x" + i);
-            else if (c!=0)
+            else if (c!=0n)
                 ps.print((c>=0&&!first?"+":"") + c + "*x" + i + " ");
-            if (c!=0)
+            if (c!=0n)
                 first = false;
         }
         if (first)
             ps.print("0");
-        if (sgn>0)
-            ps.print(spc + "<=" + spc + (-this(cols-1)));
+        if (sgn>0n)
+            ps.print(spc + "<=" + spc + (-this(cols-1n)));
         else
-            ps.print(spc + ">=" + spc + (this(cols-1)));
+            ps.print(spc + ">=" + spc + (this(cols-1n)));
     }
 
 }

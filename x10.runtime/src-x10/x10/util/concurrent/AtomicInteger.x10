@@ -23,7 +23,7 @@ public final class AtomicInteger {
     private @Volatile var value:Int;
     
     public def this() { 
-        value = 0; 
+        value = 0n; 
         // Memory model: acts like store of volatile field
         Fences.storeLoadBarrier();
     }
@@ -58,20 +58,20 @@ public final class AtomicInteger {
     public native def weakCompareAndSet(expect:Int, update:Int):Boolean;
     
     @Native("java", "#this.getAndIncrement()")
-    public def getAndIncrement():Int = getAndAdd(1);
+    public def getAndIncrement():Int = getAndAdd(1n);
 
     @Native("java", "#this.getAndDecrement()")
-    public def getAndDecrement():Int = getAndAdd(-1);
+    public def getAndDecrement():Int = getAndAdd(-1n);
     
     @Native("java", "#this.getAndAdd(#delta)")
     @Native("c++", "x10::util::concurrent::AtomicIntegerNatives::getAndAdd(#this, #delta)")
     public native def getAndAdd(delta:Int):Int;
     
     @Native("java", "#this.incrementAndGet()")
-    public def incrementAndGet():Int = addAndGet(1);
+    public def incrementAndGet():Int = addAndGet(1n);
 
     @Native("java", "#this.decrementAndGet()")
-    public def decrementAndGet():Int = addAndGet(-1);
+    public def decrementAndGet():Int = addAndGet(-1n);
     
     @Native("java", "#this.addAndGet(#delta)")
     @Native("c++", "x10::util::concurrent::AtomicIntegerNatives::addAndGet(#this, #delta)")

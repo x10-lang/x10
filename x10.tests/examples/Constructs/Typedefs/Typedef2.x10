@@ -20,9 +20,9 @@ public class Typedef2 extends x10Test {
 	public def run(): boolean = {
                 type foo[T] = T;
                 type bar(x: int) = int{self==x};
-                val x: foo[int] = 3;
-                val y: bar(5) = 5;
-		return x == 3 && y == 5;
+                val x: foo[int] = 3n;
+                val y: bar(5n) = 5n;
+		return x == 3n && y == 5n;
 	}
 
 	public static def main(var args: Rail[String]): void = {

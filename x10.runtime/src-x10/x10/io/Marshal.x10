@@ -50,7 +50,7 @@ public interface Marshal[T] {
         }
         public def write(w: Writer, s: String): void //throws IOException 
         {
-            for (var i: int = 0; i < s.length(); i++) {
+            for (var i: int = 0n; i < s.length(); i++) {
                 val ch = s(i);
                 CHAR.write(w, ch);
             }
@@ -93,16 +93,16 @@ public interface Marshal[T] {
                 val b2 = r.read();
                 val b3 = r.read();
                 val b4 = r.read();
-                return Char.chr(((b1 & 0x03) << 18) | ((b2 & 0x3f) << 12) | ((b3 & 0x3f) << 6) | (b4 & 0x3f));
+                return Char.chr(((b1 & 0x03n) << 18n) | ((b2 & 0x3fn) << 12n) | ((b3 & 0x3fn) << 6n) | (b4 & 0x3fn));
             }
             if ((b1 & 0xf0) == 0xe0) {
                 val b2 = r.read();
                 val b3 = r.read();
-                return Char.chr(((b1 & 0x1f) << 12) | ((b2 & 0x3f) << 6) | (b3 & 0x3f));
+                return Char.chr(((b1 & 0x1fn) << 12n) | ((b2 & 0x3fn) << 6n) | (b3 & 0x3fn));
             }
             if ((b1 & 0xe0) == 0xc0) {
                 val b2 = r.read();
-                return Char.chr(((b1 & 0x1f) << 6) | (b2 & 0x3f));
+                return Char.chr(((b1 & 0x1fn) << 6n) | (b2 & 0x3fn));
             }
 //            if ((b1 & 0x80) == 0)
                 return Char.chr(b1);
@@ -116,20 +116,20 @@ public interface Marshal[T] {
                 return;
             }
             if ((i & 0xfffff800) == 0) {
-                w.write((((i >> 6) & 0x0000001f) | 0x000000c0) as Byte);
+                w.write((((i >> 6n) & 0x0000001f) | 0x000000c0) as Byte);
                 w.write(((i & 0x0000003f) | 0x00000080) as Byte);
                 return;
             }
             if ((i & 0xffff0000) == 0) {
-                w.write((((i >> 12) & 0x0000000f) | 0x000000e0) as Byte);
-                w.write((((i >> 6) & 0x0000003f) | 0x00000080) as Byte);
+                w.write((((i >> 12n) & 0x0000000f) | 0x000000e0) as Byte);
+                w.write((((i >> 6n) & 0x0000003f) | 0x00000080) as Byte);
                 w.write(((i & 0x0000003f) | 0x00000080) as Byte);
                 return;
             }
             if ((i & 0xffe00000) == 0) {
-                w.write((((i >> 18) & 0x00000007) | 0x000000f0) as Byte);
-                w.write((((i >> 12) & 0x0000003f) | 0x00000080) as Byte);
-                w.write((((i >> 6) & 0x0000003f) | 0x00000080) as Byte);
+                w.write((((i >> 18n) & 0x00000007) | 0x000000f0) as Byte);
+                w.write((((i >> 12n) & 0x0000003f) | 0x00000080) as Byte);
+                w.write((((i >> 6n) & 0x0000003f) | 0x00000080) as Byte);
                 w.write(((i & 0x0000003f) | 0x00000080) as Byte);
                 return;
             }
@@ -141,13 +141,13 @@ public interface Marshal[T] {
         {
             val b1 = r.read();
             val b2 = r.read();
-            return (((b1 & 0xff) << 8) | (b2 & 0xff)) as Short;
+            return (((b1 & 0xffn) << 8n) | (b2 & 0xffn)) as Short;
         }
 
         public def write(w: Writer, s: Short): void //throws IOException 
         {
             val i = s as Int;
-            val b1 = (i >> 8) as Byte;
+            val b1 = (i >> 8n) as Byte;
             val b2 = i as Byte;
             w.write(b1);
             w.write(b2);
@@ -168,14 +168,14 @@ public interface Marshal[T] {
             val b2 = r.read();
             val b3 = r.read();
             val b4 = r.read();
-            return (((b1 & 0xff) << 24) | ((b2 & 0xff) << 16) | ((b3 & 0xff) << 8) | (b4 & 0xff)) as Int;
+            return (((b1 & 0xffn) << 24n) | ((b2 & 0xffn) << 16n) | ((b3 & 0xffn) << 8n) | (b4 & 0xffn)) as Int;
         }
         
         public def write(w: Writer, i: Int): void //throws IOException
         {
-            val b1 = (i >> 24) as Byte;
-            val b2 = (i >> 16) as Byte;
-            val b3 = (i >> 8) as Byte;
+            val b1 = (i >> 24n) as Byte;
+            val b2 = (i >> 16n) as Byte;
+            val b3 = (i >> 8n) as Byte;
             val b4 = i as Byte;
             w.write(b1);
             w.write(b2);
@@ -195,16 +195,16 @@ public interface Marshal[T] {
         public def read(r: Reader): Long //throws IOException 
         {
             var l: Long = 0l;
-            for (var i: Int = 0; i < 8; i++) {
+            for (var i: Int = 0n; i < 8n; i++) {
                 val b = r.read();
-                l = (l << 8) | (b & 0xff);
+                l = (l << 8n) | (b & 0xffn);
             }
             return l;
         }
         
         public def write(w: Writer, l: Long): void //throws IOException 
         {
-            var shift: int = 64;
+            var shift: int = 64n;
             while (shift > 0) {
                 shift -= 8;
                 val b = (l >> shift) as Byte;

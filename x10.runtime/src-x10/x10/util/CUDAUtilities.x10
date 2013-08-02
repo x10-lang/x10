@@ -32,12 +32,12 @@ public class CUDAUtilities {
      * </code>
      * @see autoThreads
      */
-    public static def autoBlocks() : Int = 8;
+    public static def autoBlocks() : Int = 8n;
 
     /** Automatically choose enough threads to saturate the GPU.  
       * @see autoBlocks
       */
-    public static def autoThreads() : Int = 1;
+    public static def autoThreads() : Int = 1n;
 
     private static def initCUDARail[T](local:Rail[T],
                                        remote:GlobalRail[T],

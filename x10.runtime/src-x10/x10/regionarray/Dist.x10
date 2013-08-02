@@ -48,8 +48,8 @@ public abstract class Dist(
      *
      * @return a "unique" distribution over all places.
      */
-    public static def makeUnique():Dist(1) {
-        return UNIQUE as Dist(1);        
+    public static def makeUnique():Dist(1n) {
+        return UNIQUE as Dist(1n);        
     }
     // Cache pre-allocated UniqueDist to optimize makeUnique calls.
     private static val UNIQUE = new UniqueDist();
@@ -84,7 +84,7 @@ public abstract class Dist(
      * @param axis the dimension to cycle over
      * @return a "cyclic" distribution over r.
      */     
-    public static def makeCyclic(r:Region, axis:int):Dist(r) = makeBlockCyclic(r, axis, 1);
+    public static def makeCyclic(r:Region, axis:int):Dist(r) = makeBlockCyclic(r, axis, 1n);
     
     /**
      * Create a distribution over the specified region that varies in
@@ -144,7 +144,7 @@ public abstract class Dist(
      * @param r the given region
      * @return a "block" distribution over r.
      */
-    public static def makeBlock(r:Region) = makeBlock(r, 0, PlaceGroup.WORLD);
+    public static def makeBlock(r:Region) = makeBlock(r, 0n, PlaceGroup.WORLD);
 
     /**
      * Create a distribution over the specified region that varies in
@@ -169,11 +169,11 @@ public abstract class Dist(
      * @param pg the set of places
      * @return a "unique" distribution over the places in ps
      */
-    public static def makeUnique(pg:PlaceGroup):Dist(1) {
+    public static def makeUnique(pg:PlaceGroup):Dist(1n) {
         if (pg.equals(PlaceGroup.WORLD)) {
             return makeUnique();
         } else {
-            return new UniqueDist(pg) as Dist(1);
+            return new UniqueDist(pg) as Dist(1n);
         }
     }
 
@@ -282,7 +282,7 @@ public abstract class Dist(
      * @return the place that this distribution maps the given index to.
      * @see #operator(Point)
      */
-    public operator this(i0:long){rank==1}:Place = this(Point.make(i0));
+    public operator this(i0:long){rank==1n}:Place = this(Point.make(i0));
 
     /**
      * Return the place which this distribution maps the specified pair of indices to.
@@ -294,7 +294,7 @@ public abstract class Dist(
      * @return the place that this distribution maps the given pair of indices to.
      * @see #operator(Point)
      */
-    public operator this(i0:long, i1:long){rank==2}:Place = this(Point.make(i0, i1));
+    public operator this(i0:long, i1:long){rank==2n}:Place = this(Point.make(i0, i1));
 
     /**
      * Return the place which this distribution maps the specified triple of indices to.
@@ -307,7 +307,7 @@ public abstract class Dist(
      * @return the place that this distribution maps the given triple of indices to.
      * @see #operator(Point)
      */
-    public operator this(i0:long, i1:long, i2:long){rank==3}:Place = this(Point.make(i0, i1, i2));
+    public operator this(i0:long, i1:long, i2:long){rank==3n}:Place = this(Point.make(i0, i1, i2));
 
     /**
      * Return the place which this distribution maps the specified quartet of indices to.
@@ -321,7 +321,7 @@ public abstract class Dist(
      * @return the place that this distribution maps the given quartet of indices to.
      * @see #operator(Point)
      */
-    public operator this(i0:long, i1:long, i2:long, i3:long){rank==4}:Place = this(Point.make(i0,i1,i2,i3));
+    public operator this(i0:long, i1:long, i2:long, i3:long){rank==4n}:Place = this(Point.make(i0,i1,i2,i3));
 
 
 
@@ -350,7 +350,7 @@ public abstract class Dist(
      * @return the storage offset assigned to [i0] by this distribution
      * @see #offset(Point)
      */
-    public def offset(i0:long){rank==1}:long = offset(Point.make(i0));
+    public def offset(i0:long){rank==1n}:long = offset(Point.make(i0));
 
     /**
      * Return the offset in linearized place-local storage of the point [i0,i1].
@@ -366,7 +366,7 @@ public abstract class Dist(
      * @return the storage offset assigned to [i0,i1] by this distribution
      * @see #offset(Point)
      */
-    public def offset(i0:long, i1:long){rank==2}:long = offset(Point.make(i0, i1));
+    public def offset(i0:long, i1:long){rank==2n}:long = offset(Point.make(i0, i1));
 
     /**
      * Return the offset in linearized place-local storage of the point [i0,i1,i2].
@@ -383,7 +383,7 @@ public abstract class Dist(
      * @return the storage offset assigned to [i0,i1,i2] by this distribution
      * @see #offset(Point)
      */
-    public def offset(i0:long, i1:long, i2:long){rank==3}:long = offset(Point.make(i0, i1, i2));
+    public def offset(i0:long, i1:long, i2:long){rank==3n}:long = offset(Point.make(i0, i1, i2));
 
     /**
      * Return the offset in linearized place-local storage of the point [i0,i1,i2,i3].
@@ -401,7 +401,7 @@ public abstract class Dist(
      * @return the storage offset assigned to [i0,i1,i2,i3] by this distribution
      * @see #offset(Point)
      */
-    public def offset(i0:long, i1:long, i2:long, i3:long){rank==4}:long = offset(Point.make(i0,i1,i2,i3));
+    public def offset(i0:long, i1:long, i2:long, i3:long){rank==4n}:long = offset(Point.make(i0,i1,i2,i3));
 
     /**
      * @return the maximum value returned by the offset method for

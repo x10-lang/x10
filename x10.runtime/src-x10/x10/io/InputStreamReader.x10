@@ -66,7 +66,7 @@ public class InputStreamReader extends Reader {
     public def read(): Byte //throws IOException 
     {
         val n: Int = stream.read();
-        if (n == -1) throw new EOFException();
+        if (n == -1n) throw new EOFException();
         return n as Byte;
     }
     

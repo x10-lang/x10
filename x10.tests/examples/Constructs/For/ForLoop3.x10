@@ -19,28 +19,28 @@ import x10.regionarray.*;
  */
 public class ForLoop3 extends x10Test {
 
-	public static N: int = 100;
+	public static N: int = 100n;
 
 	public def run(): boolean = {
 		//Ensure iterator works in lexicographic order
 		var n: long = 0L;
 		var prev: long = -1L;
-		for (val p: Point in Region.make(0, N-1)->here) {
-			n += p(0);
-			if (prev+1 != p(0)) return false;
-			prev = p(0);
+		for (val p: Point in Region.make(0n, N-1n)->here) {
+			n += p(0n);
+			if (prev+1 != p(0n)) return false;
+			prev = p(0n);
 		}
-		if (n != N*(N-1)/2L) return false;
+		if (n != N*(N-1n)/2L) return false;
 
 		// now iterate over a region
 		n = 0L;
 		prev = -1L;
-		for (val p: Point in Region.make(0, N-1)->here) {
-			n += p(0);
-			if (prev+1 != p(0)) return false;
-			prev = p(0);
+		for (val p: Point in Region.make(0n, N-1n)->here) {
+			n += p(0n);
+			if (prev+1 != p(0n)) return false;
+			prev = p(0n);
 		}
-		if (n != N*(N-1)/2L) return false;
+		if (n != N*(N-1n)/2L) return false;
 		return true;
 	}
 

@@ -29,7 +29,7 @@ class PolyMatBuilder(rank: int) extends MatBuilder {
      */
 
     public def this(rank: int): PolyMatBuilder{self.rank==rank} {
-        super(rank+1);
+        super(rank+1n);
         property(rank);
     }
 
@@ -40,7 +40,7 @@ class PolyMatBuilder(rank: int) extends MatBuilder {
 
     public def toSortedPolyMat(isSimplified:boolean): PolyMat(rank) {
         mat.sort((x:Row,y:Row)=>PolyRow.compare(x,y));
-        val result = new PolyMat(mat.size() as Int, rank+1, (i:Int,j:Int)=>mat(i)(j), isSimplified);
+        val result = new PolyMat(mat.size() as Int, rank+1n, (i:Int,j:Int)=>mat(i)(j), isSimplified);
         return result as PolyMat(rank); // XXXX
     }
 
@@ -54,22 +54,22 @@ class PolyMatBuilder(rank: int) extends MatBuilder {
      * by increasing # bits per coeff
      */
 
-    private static ZERO: int = 0xAAAAAAA;
+    private static ZERO: int = 0xAAAAAAAn;
 
-    public static GE: int = 0;
-    public static LE: int = 1;
+    public static GE: int = 0n;
+    public static LE: int = 1n;
 
     final public static def X(axis: int): int {
-        return 0x1<<2*axis;
+        return 0x1n<<2n*axis;
     }
 
     public def add(var coeff: int, op: int, k: int): void {
         coeff += ZERO;
         val as_ = new Array[int](rank+1);
-        for (var i: int = 0; i<rank; i++) {
-            val a = (coeff&3) - 2;
+        for (var i: int = 0n; i<rank; i++) {
+            val a = (coeff&3n) - 2n;
             as_(i) = op==LE? a : - a;
-            coeff = coeff >> 2;
+            coeff = coeff >> 2n;
         }
         as_(rank) = op==LE? -k : k;
         add((i:Int) => as_(i));

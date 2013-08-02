@@ -20,9 +20,9 @@ import x10.compiler.TransientInitExpr;
  * Implementation of a 2-D DistArray that distributes its data elements
  * over the places in its PlaceGroup in a 2-D blocked fashion.
  */
-public class DistArray_BlockBlock_2[T] extends DistArray[T]{this.rank()==2} implements (Long,Long)=>T {
+public class DistArray_BlockBlock_2[T] extends DistArray[T]{this.rank()==2n} implements (Long,Long)=>T {
     
-    public property rank() = 2;
+    public property rank() = 2n;
 
     protected val globalIndices:DenseIterationSpace_2{self!=null};
 
@@ -40,19 +40,19 @@ public class DistArray_BlockBlock_2[T] extends DistArray[T]{this.rank()==2} impl
     
     @TransientInitExpr(reloadMinIndex_1())
     protected transient val minIndex_1:Long;
-    @NonEscaping protected final def reloadMinIndex_1() = localIndices.min(0);
+    @NonEscaping protected final def reloadMinIndex_1() = localIndices.min(0n);
  
     @TransientInitExpr(reloadMinIndex_2())
     protected transient val minIndex_2:Long;
-    @NonEscaping protected final def reloadMinIndex_2() = localIndices.min(1);
+    @NonEscaping protected final def reloadMinIndex_2() = localIndices.min(1n);
 
     @TransientInitExpr(reloadNumElemsLocal_1())
     protected transient val numElemsLocal_1:Long;
-    @NonEscaping protected final def reloadNumElemsLocal_1() = localIndices.max(0) - minIndex_1 + 1L;
+    @NonEscaping protected final def reloadNumElemsLocal_1() = localIndices.max(0n) - minIndex_1 + 1L;
 
     @TransientInitExpr(reloadNumElemsLocal_2())
     protected transient val numElemsLocal_2:Long;
-    @NonEscaping protected final def reloadNumElemsLocal_2() = localIndices.max(1) - minIndex_2 + 1L;
+    @NonEscaping protected final def reloadNumElemsLocal_2() = localIndices.max(1n) - minIndex_2 + 1L;
 
     /**
      * Construct a m by n block-block distributed DistArray
@@ -67,8 +67,8 @@ public class DistArray_BlockBlock_2[T] extends DistArray[T]{this.rank()==2} impl
     public def this(m:long, n:long, pg:PlaceGroup{self!=null}, init:(long,long)=>T) {
         super(pg, () => LocalState_BB2.make[T](pg, m, n, init));
         globalIndices = new DenseIterationSpace_2(0L, 0L, m-1, n-1);
-        numElems_1 = globalIndices.max(0) - globalIndices.min(0) + 1;
-        numElems_2 = globalIndices.max(1) - globalIndices.min(1) + 1;
+        numElems_1 = globalIndices.max(0n) - globalIndices.min(0n) + 1;
+        numElems_2 = globalIndices.max(1n) - globalIndices.min(1n) + 1;
         localIndices = reloadLocalIndices();
         minIndex_1 = reloadMinIndex_1();
         minIndex_2 = reloadMinIndex_2();
@@ -158,7 +158,7 @@ public class DistArray_BlockBlock_2[T] extends DistArray[T]{this.rank()==2} impl
      * @return the Place where p is a valid index in the DistArray; 
      *          will return Place.INVALID_PLACE if p is not contained in globalIndices
      */
-    public final def place(p:Point(2)):Place = place(p(0), p(1));
+    public final def place(p:Point(2n)):Place = place(p(0n), p(1n));
 
 
     /**
@@ -182,7 +182,7 @@ public class DistArray_BlockBlock_2[T] extends DistArray[T]{this.rank()==2} impl
      * @return the element of this array corresponding to the given Point.
      * @see #set(T, Point)
      */
-    public final @Inline operator this(p:Point(2)):T  = this(p(0), p(1));
+    public final @Inline operator this(p:Point(2n)):T  = this(p(0n), p(1n));
 
     
     /**
@@ -211,7 +211,7 @@ public class DistArray_BlockBlock_2[T] extends DistArray[T]{this.rank()==2} impl
      * @return the new value of the element of this array corresponding to the given Point.
      * @see #operator(Int)
      */
-    public final @Inline operator this(p:Point(2))=(v:T):T{self==v} = this(p(0),p(1)) = v;
+    public final @Inline operator this(p:Point(2n))=(v:T):T{self==v} = this(p(0n),p(1n)) = v;
 
 
     /*
@@ -254,13 +254,13 @@ class LocalState_BB2[S] extends LocalState[S] {
         val localSpace = BlockingUtils.partitionBlockBlock(globalSpace, pg.numPlaces(), pg.indexOf(here));
 
 	val data:Rail[S]{self!=null};
-	if (localSpace.min(0) > localSpace.max(0)) { // TODO: add isEmpty() to IterationSpace API?
+	if (localSpace.min(0n) > localSpace.max(0n)) { // TODO: add isEmpty() to IterationSpace API?
             data = new Rail[S]();
         } else {            
-            val low1 = localSpace.min(0);
-            val hi1 = localSpace.max(0);
-            val low2 = localSpace.min(1);
-            val hi2 = localSpace.max(1);
+            val low1 = localSpace.min(0n);
+            val hi1 = localSpace.max(0n);
+            val low2 = localSpace.min(1n);
+            val hi2 = localSpace.max(1n);
             val localSize1 = hi1 - low1 + 1;
             val localSize2 = hi2 - low2 + 1;
             val dataSize = localSize1 * localSize2;

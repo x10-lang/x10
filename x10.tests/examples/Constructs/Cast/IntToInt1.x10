@@ -16,10 +16,10 @@ import harness.x10Test;
  */
 public class IntToInt1 extends x10Test {
 	public def run(): boolean = {
-		var zero: int{self==0} = 0;
-		var one: int{self==1} = 1;
+		var zero: int{self==0n} = 0n;
+		var one: int{self==1n} = 1n;
 		var i: int = one as int;
-		one = i as int{self==1};
+		one = i as int{self==1n};
 		return true;
 	}
 

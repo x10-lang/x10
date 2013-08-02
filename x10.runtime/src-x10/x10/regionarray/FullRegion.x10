@@ -60,9 +60,9 @@ final class FullRegion extends Region{rect} {
 	    throw new UnsupportedOperationException("haven't implemented FullRegion product with "+that.typeName());
         }
     }
-    public def projection(axis: int): Region(1) = new FullRegion(1);
+    public def projection(axis: int): Region(1n) = new FullRegion(1n);
     public def translate(p:Point(rank)): Region(rank) = this;
-    public def eliminate(i:Int)= new FullRegion(rank-1);
+    public def eliminate(i:Int)= new FullRegion(rank-1n);
     protected def computeBoundingBox(): Region(rank) = this;
     public def contains(that: Region(rank)):Boolean = true;
     public def contains(p:Point):Boolean = true;

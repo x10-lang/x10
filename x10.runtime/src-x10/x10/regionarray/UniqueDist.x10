@@ -75,19 +75,19 @@ final class UniqueDist extends Dist/*(1)*/ {
     // replicated from superclass to workaround xlC bug with using & itables
     public operator this(p:Place):Region(rank) = get(p);
 
-    public operator this(pt:Point(rank)):Place = pg(pt(0));
+    public operator this(pt:Point(rank)):Place = pg(pt(0n));
 
-    public operator this(i0:long){rank==1}:Place = pg(i0);
+    public operator this(i0:long){rank==1n}:Place = pg(i0);
 
     public def offset(pt:Point(rank)):long {
-        if (CompilerFlags.checkBounds() && !(pt(0) >= 0 && pt(0) < pg.numPlaces())) {
+        if (CompilerFlags.checkBounds() && !(pt(0n) >= 0 && pt(0n) < pg.numPlaces())) {
             raiseBoundsError(pt);
         }
-        if (CompilerFlags.checkPlace() && pt(0) != (pg.indexOf(here) as long)) raisePlaceError(pt);
+        if (CompilerFlags.checkPlace() && pt(0n) != (pg.indexOf(here) as long)) raisePlaceError(pt);
         return 0L;
     }
 
-    public def offset(i0:long){rank==1}:long {
+    public def offset(i0:long){rank==1n}:long {
         if (CompilerFlags.checkBounds() && !(i0 >= 0 && i0 < numPlaces())) {
             raiseBoundsError(i0);
         }
@@ -97,19 +97,19 @@ final class UniqueDist extends Dist/*(1)*/ {
 
     // replicated from superclass to workaround xlC bug with using & itables
     // This code is completely unreachable
-    public operator this(i0:long, i1:long){rank==2}:Place {
+    public operator this(i0:long, i1:long){rank==2n}:Place {
         throw new UnsupportedOperationException("operator(i0:long,i1:long)");
     }
 
     // replicated from superclass to workaround xlC bug with using & itables
     // This code is completely unreachable
-    public operator this(i0:long, i1:long, i2:long){rank==3}:Place {
+    public operator this(i0:long, i1:long, i2:long){rank==3n}:Place {
         throw new UnsupportedOperationException("operator(i0:long,i1:long,i2:long)");
     }
 
     // replicated from superclass to workaround xlC bug with using & itables
     // This code is completely unreachable
-    public operator this(i0:long, i1:long, i2:long, i3:long){rank==4}:Place {
+    public operator this(i0:long, i1:long, i2:long, i3:long){rank==4n}:Place {
        throw new UnsupportedOperationException("operator(i0:long,i1:long,i2:long,i3:long)");
     }
 

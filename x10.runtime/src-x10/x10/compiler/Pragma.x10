@@ -15,24 +15,24 @@ import x10.lang.annotations.StatementAnnotation;
 
 public interface Pragma(pragma:Int) extends StatementAnnotation {
     // a finish with a unique async possibly remote
-    public static FINISH_ASYNC = 1;
+    public static FINISH_ASYNC = 1n;
 
     // a finish counting local events but ignoring remote events
-    public static FINISH_HERE = 2;
+    public static FINISH_HERE = 2n;
 
     // a finish without nested remote asyncs in remote asyncs
-    public static FINISH_SPMD = 3;
+    public static FINISH_SPMD = 3n;
 
     // a finish without remote asyncs
-    public static FINISH_LOCAL = 4;
+    public static FINISH_LOCAL = 4n;
 
     // a finish implementation for large place counts
     // using two hops for finish update messages
-    public static FINISH_DENSE = 5;
+    public static FINISH_DENSE = 5n;
 
     public static FINISH_ASYNC_AND_BACK = FINISH_HERE;
     public static FINISH_ATEACH_UNIQUE = FINISH_SPMD;
 
-    public static FINISH_RESILIENT_PLACE_ZERO = 100;
-    public static FINISH_RESILIENT_ZOO_KEEPER = 101;
+    public static FINISH_RESILIENT_PLACE_ZERO = 100n;
+    public static FINISH_RESILIENT_ZOO_KEEPER = 101n;
 }

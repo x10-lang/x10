@@ -25,14 +25,14 @@ abstract public class FinishFrame extends Frame {
             this.redirect = null;
         }
         @Ifndef("__CPP__") {
-            this.asyncs = 1;
+            this.asyncs = 1n;
         }
     }
 
     @Ifdef("__CPP__")
     public def this(Int, o:FinishFrame) {
         super(o.up.realloc());
-        this.asyncs = 1;
+        this.asyncs = 1n;
         this.exceptions = null;
     }
 
@@ -67,7 +67,7 @@ abstract public class FinishFrame extends Frame {
     public def wrapResume(worker:Worker) {
         var n:Int;
         Runtime.atomicMonitor.lock(); n = --asyncs; Runtime.atomicMonitor.unlock();
-        if (0 != n) throw Abort.ABORT;
+        if (0n != n) throw Abort.ABORT;
         worker.throwable = MultipleExceptions.make(exceptions);
     }
 

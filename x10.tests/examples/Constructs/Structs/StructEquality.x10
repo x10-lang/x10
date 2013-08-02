@@ -16,8 +16,8 @@ import harness.x10Test;
  */
 public class StructEquality extends x10Test {
     public def run(): boolean = {
-        val v1 = V(1);
-        val v2 = V(1);
+        val v1 = V(1n);
+        val v2 = V(1n);
         return v1 == v2;
     }
 

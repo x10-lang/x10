@@ -6,7 +6,7 @@ import x10.compiler.Ifdef;
 public final class RootFinish extends FinishFrame {
     public def this() {
         super(null);
-        asyncs = 1;
+        asyncs = 1n;
     }
 
     @Ifdef("__CPP__")

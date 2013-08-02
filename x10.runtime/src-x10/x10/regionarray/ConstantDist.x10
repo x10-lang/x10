@@ -53,22 +53,22 @@ final class ConstantDist(onePlace:Place) extends Dist {
         return onePlace;
     }
     
-    public operator this(i0:long){rank==1}:Place {
+    public operator this(i0:long){rank==1n}:Place {
         if (CompilerFlags.checkBounds() && !region.contains(i0)) raiseBoundsError(i0);
         return onePlace;
     }
     
-    public operator this(i0:long, i1:long){rank==2}:Place {
+    public operator this(i0:long, i1:long){rank==2n}:Place {
         if (CompilerFlags.checkBounds() && !region.contains(i0, i1)) raiseBoundsError(i0,i1);
         return onePlace;
     }
     
-    public operator this(i0:long, i1:long, i2:long){rank==3}:Place {
+    public operator this(i0:long, i1:long, i2:long){rank==3n}:Place {
         if (CompilerFlags.checkBounds() && !region.contains(i0, i1, i2)) raiseBoundsError(i0,i1,i2);
         return onePlace;
     }
     
-    public operator this(i0:long, i1:long, i2:long, i3:long){rank==4}:Place {
+    public operator this(i0:long, i1:long, i2:long, i3:long){rank==4n}:Place {
         if (CompilerFlags.checkBounds() && !region.contains(i0, i1, i2, i3)) raiseBoundsError(i0,i1,i2,i3);
         return onePlace;
     }
@@ -82,7 +82,7 @@ final class ConstantDist(onePlace:Place) extends Dist {
         return offset;
     }
     
-    public def offset(i0:long){rank==1}:long {
+    public def offset(i0:long){rank==1n}:long {
         if (CompilerFlags.checkPlace() && here!=onePlace) raisePlaceError(i0);
         val offset = region.indexOf(i0);
         if (CompilerFlags.checkBounds() && offset == -1L) {
@@ -91,7 +91,7 @@ final class ConstantDist(onePlace:Place) extends Dist {
         return offset;
     }
     
-    public def offset(i0:long, i1:long){rank==2}:long {
+    public def offset(i0:long, i1:long){rank==2n}:long {
         if (CompilerFlags.checkPlace() && here!=onePlace) raisePlaceError(i0, i1);
         val offset = region.indexOf(i0, i1);
         if (CompilerFlags.checkBounds() && offset == -1L) {
@@ -100,7 +100,7 @@ final class ConstantDist(onePlace:Place) extends Dist {
         return offset;
     }
     
-    public def offset(i0:long, i1:long, i2:long){rank==3}:long {
+    public def offset(i0:long, i1:long, i2:long){rank==3n}:long {
         if (CompilerFlags.checkPlace() && here!=onePlace) raisePlaceError(i0, i1, i2);
         val offset = region.indexOf(i0, i1, i2);
         if (CompilerFlags.checkBounds() && offset == -1L) {
@@ -109,7 +109,7 @@ final class ConstantDist(onePlace:Place) extends Dist {
         return offset;
     }
     
-    public def offset(i0:long, i1:long, i2:long, i3:long){rank==4}:long {
+    public def offset(i0:long, i1:long, i2:long, i3:long){rank==4n}:long {
         if (CompilerFlags.checkPlace() && here!=onePlace) raisePlaceError(i0, i1, i2, i3);
         val offset = region.indexOf(i0, i1, i2, i3);
         if (CompilerFlags.checkBounds() && offset == -1L) {

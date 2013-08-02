@@ -82,7 +82,7 @@ final class BlockDist extends Dist {
             // General case handled via region algebra
             val r1 = Region.makeFull(axis);
             val r2 = Region.make(low, hi);
-            val r3 = Region.makeFull(region.rank-axis-1);
+            val r3 = Region.makeFull(region.rank-axis-1n);
             return (r1.product(r2).product(r3) as Region(region.rank)).intersection(region);
         }
     }
@@ -144,37 +144,37 @@ final class BlockDist extends Dist {
         return mapIndexToPlace(pt(axis));
     }
 
-    public operator this(i0:long){rank==1}:Place {
+    public operator this(i0:long){rank==1n}:Place {
         if (CompilerFlags.checkBounds() && !region.contains(i0)) raiseBoundsError(i0);
         return mapIndexToPlace(i0);
     }
 
-    public operator this(i0:long, i1:long){rank==2}:Place {
+    public operator this(i0:long, i1:long){rank==2n}:Place {
         if (CompilerFlags.checkBounds() && !region.contains(i0, i1)) raiseBoundsError(i0,i1);
         switch(axis) {
-        case 0: return mapIndexToPlace(i0);
-        case 1: return mapIndexToPlace(i1);
+        case 0n: return mapIndexToPlace(i0);
+        case 1n: return mapIndexToPlace(i1);
         default: return here; // UNREACHABLE
         }
     }
 
-    public operator this(i0:long, i1:long, i2:long){rank==3}:Place {
+    public operator this(i0:long, i1:long, i2:long){rank==3n}:Place {
         if (CompilerFlags.checkBounds() && !region.contains(i0, i1, i2)) raiseBoundsError(i0,i1,i2);
         switch(axis) {
-        case 0: return mapIndexToPlace(i0);
-        case 1: return mapIndexToPlace(i1);
-        case 2: return mapIndexToPlace(i2);
+        case 0n: return mapIndexToPlace(i0);
+        case 1n: return mapIndexToPlace(i1);
+        case 2n: return mapIndexToPlace(i2);
         default: return here; // UNREACHABLE
         }
     }
 
-    public operator this(i0:long, i1:long, i2:long, i3:long){rank==4}:Place {
+    public operator this(i0:long, i1:long, i2:long, i3:long){rank==4n}:Place {
         if (CompilerFlags.checkBounds() && !region.contains(i0, i1, i2, i3)) raiseBoundsError(i0,i1,i2,i3);
         switch(axis) {
-        case 0: return mapIndexToPlace(i0);
-        case 1: return mapIndexToPlace(i1);
-        case 2: return mapIndexToPlace(i2);
-        case 3: return mapIndexToPlace(i3);
+        case 0n: return mapIndexToPlace(i0);
+        case 1n: return mapIndexToPlace(i1);
+        case 2n: return mapIndexToPlace(i2);
+        case 3n: return mapIndexToPlace(i3);
         default: return here; // UNREACHABLE
         }
     }
@@ -190,7 +190,7 @@ final class BlockDist extends Dist {
     }
 
 
-    public def offset(i0:long){rank==1}:long {
+    public def offset(i0:long){rank==1n}:long {
         val r = get(here);
         val offset = r.indexOf(i0);
         if (offset == -1L) {
@@ -200,7 +200,7 @@ final class BlockDist extends Dist {
         return offset;
     }
 
-    public def offset(i0:long, i1:long){rank==2}:long {
+    public def offset(i0:long, i1:long){rank==2n}:long {
         val r = get(here);
         val offset = r.indexOf(i0,i1);
         if (offset == -1L) {
@@ -210,7 +210,7 @@ final class BlockDist extends Dist {
         return offset;
     }
 
-    public def offset(i0:long, i1:long, i2:long){rank==3}:long {
+    public def offset(i0:long, i1:long, i2:long){rank==3n}:long {
         val r = get(here);
         val offset = r.indexOf(i0,i1,i2);
         if (offset == -1L) {
@@ -220,7 +220,7 @@ final class BlockDist extends Dist {
         return offset;
     }
 
-    public def offset(i0:long, i1:long, i2:long, i3:long){rank==4}:long {
+    public def offset(i0:long, i1:long, i2:long, i3:long){rank==4n}:long {
         val r = get(here);
         val offset = r.indexOf(i0,i1,i2,i3);
         if (offset == -1L) {

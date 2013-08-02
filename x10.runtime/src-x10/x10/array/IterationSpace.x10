@@ -33,7 +33,7 @@ public abstract class IterationSpace(rank:int,rect:boolean) implements Iterable[
         val it = iterator();
 
         sb.add("{");
-        for (var c:int = 0; c < 10 && it.hasNext(); c++) {
+        for (var c:int = 0n; c < 10n && it.hasNext(); c++) {
             sb.add(it.next());
             if (it.hasNext()) sb.add(", ");
         }

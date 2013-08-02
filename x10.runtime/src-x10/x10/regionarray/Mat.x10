@@ -29,7 +29,7 @@ abstract class Mat[T](rows:Int, cols:Int){T <: Row}
 
     public def printInfo(ps:Printer, label:String): void {
         ps.printf("%s\n", label);
-        var row:int = 0;
+        var row:int = 0n;
         for (r:Row in this) {
             ps.printf("    ");
             r.printInfo(ps, row++);

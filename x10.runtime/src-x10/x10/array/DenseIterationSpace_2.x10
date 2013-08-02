@@ -15,7 +15,7 @@ package x10.array;
  * A DenseIterationSpace_2 represents the rank 2 
  * iteration space of points [min0,min1]..[max0,max1] inclusive.
  */
-public final class DenseIterationSpace_2 extends IterationSpace(2){rect} {
+public final class DenseIterationSpace_2 extends IterationSpace(2n){rect} {
 
     public val min0:long;
     public val min1:long;
@@ -23,7 +23,7 @@ public final class DenseIterationSpace_2 extends IterationSpace(2){rect} {
     public val max1:long;
 
     public def this(min0:long, min1:long, max0:long, max1:long) {
-        super(2, true);
+        super(2n, true);
         this.min0 = min0;
         this.min1 = min1;
         this.max0 = max0;
@@ -32,23 +32,23 @@ public final class DenseIterationSpace_2 extends IterationSpace(2){rect} {
 
     public def min(i:int):long {
        switch (i) {
-           case 0: return min0;
-           case 1: return min1;
+           case 0n: return min0;
+           case 1n: return min1;
            default: throw new IllegalOperationException(i +" is not a valid rank");
        }
     }
 
     public def max(i:int):long {
        switch (i) {
-           case 0: return max0;
-           case 1: return max1;
+           case 0n: return max0;
+           case 1n: return max1;
            default: throw new IllegalOperationException(i +" is not a valid rank");
        }
     }
 
-    public def iterator():Iterator[Point(2)] = new DIS2_It();
+    public def iterator():Iterator[Point(2n)] = new DIS2_It();
 
-    private class DIS2_It implements Iterator[Point(2)] {
+    private class DIS2_It implements Iterator[Point(2n)] {
         var cur0:long;
         var cur1:long;
 

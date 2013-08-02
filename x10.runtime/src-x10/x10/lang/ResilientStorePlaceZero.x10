@@ -90,9 +90,9 @@ public class ResilientStorePlaceZero {
         public def this(pfs:State, homeId:Long, id:Long, latch:SimpleLatch) {
             this.id = id;
             this.parent = pfs;
-            this.transit = new Rail[Int](Place.MAX_PLACES * Place.MAX_PLACES, 0);
-            this.live = new Rail[Int](Place.MAX_PLACES, 0);
-            this.live(homeId) = 1;
+            this.transit = new Rail[Int](Place.MAX_PLACES * Place.MAX_PLACES, 0n);
+            this.live = new Rail[Int](Place.MAX_PLACES, 0n);
+            this.live(homeId) = 1n;
             if (VERBOSE) Runtime.println("    initial live("+homeId+") == 1");
             this.homeId = homeId;
             this.adopted = false;
@@ -209,19 +209,19 @@ public class ResilientStorePlaceZero {
                 for (unused in 1..fs.live(i)) {
                     fs.addDeadPlaceException(Place(i));
                 }
-                fs.live(i) = 0;
+                fs.live(i) = 0n;
 
                 // kill horizontal and vertical lines in transit matrix
                 for (j in 0..(Place.MAX_PLACES-1)) {
                     for (unused in 1..fs.transit(i + j*Place.MAX_PLACES)) {
                         fs.addDeadPlaceException(Place(i));
                     }
-                    fs.transit(i + j*Place.MAX_PLACES) = 0;
+                    fs.transit(i + j*Place.MAX_PLACES) = 0n;
 
                     for (unused in 1..fs.transit(j + i*Place.MAX_PLACES)) {
                         fs.addDeadPlaceException(Place(i));
                     }
-                    fs.transit(j + i*Place.MAX_PLACES) = 0;
+                    fs.transit(j + i*Place.MAX_PLACES) = 0n;
                 }
             }
         }

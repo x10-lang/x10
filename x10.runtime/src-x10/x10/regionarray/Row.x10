@@ -28,9 +28,9 @@ abstract class Row(cols:Int) implements (Int)=>int {
 
     public def printInfo(ps: Printer, row:int) {
         ps.print("[");
-        for (var i: int = 0; i<cols; i++) {
+        for (var i: int = 0n; i<cols; i++) {
             ps.print(this(i));
-            if (i==cols-2) ps.print(" |");
+            if (i==cols-2n) ps.print(" |");
         }
         ps.print(" ]   ");
         printEqn(ps, " ", row);
@@ -44,28 +44,28 @@ abstract class Row(cols:Int) implements (Int)=>int {
     def printEqn(ps: Printer, spc: String, row: int) {
         var first: boolean = true;
         ps.print("y" + row + " = ");
-        for (var i: int = 0; i<cols-1; i++) {
+        for (var i: int = 0n; i<cols-1n; i++) {
             val c = this(i);
-            if (c==1) {
+            if (c==1n) {
                 if (first)
                     ps.print("x" + i);
                 else
                     ps.print("+x" + i);
-            } else if (c==-1)
+            } else if (c==-1n)
                 ps.print("-x" + i);
-            else if (c!=0)
-                ps.print((c>=0&&!first?"+":"") + c + "*x" + i + " ");
-            if (c!=0)
+            else if (c!=0n)
+                ps.print((c>=0n&&!first?"+":"") + c + "*x" + i + " ");
+            if (c!=0n)
                 first = false;
         }
-        val c = this(cols-1);
-        if (c!=0||first) ps.print((c>=0&&!first?"+":"") + c);
+        val c = this(cols-1n);
+        if (c!=0n||first) ps.print((c>=0n&&!first?"+":"") + c);
     }
 
     public def toString(): String {
         val os = new StringWriter();
         val ps = new Printer(os);
-        printEqn(ps, "", 0);
+        printEqn(ps, "", 0n);
         return os.result();
     }
 

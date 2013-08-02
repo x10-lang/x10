@@ -92,7 +92,7 @@ public struct Option {
      * @param d the description.
      */
     public def this(s:String, l:String, d:String) {
-        this(s,l,d,0,false,false,false);
+        this(s,l,d,0n,false,false,false);
     }     
 
     /**
@@ -151,8 +151,8 @@ public struct Option {
      */
     public def this(s:String, l:String, d:String, followers:Int,
                     mayBeMore:Boolean, mustSee:Boolean, otf:Boolean) {
-        shortForm   = s.length()==0 ? s : (s(0)== '-' ? s : "-"+s); 
-        longForm    = l.length()==0 ? l : (l.startsWith("--") ? l : "--"+l); 
+        shortForm   = s.length()==0n ? s : (s(0n)== '-' ? s : "-"+s); 
+        longForm    = l.length()==0n ? l : (l.startsWith("--") ? l : "--"+l); 
         description = d;
         minFollow   = followers;
         arbFollow   = mayBeMore;
@@ -168,8 +168,8 @@ public struct Option {
      * @return a flag with the given keys and description, etc.
      */
     public def asFlag(): Option {
-        if (minFollow == 0 && !arbFollow) return this;
-        else return Option(shortForm,longForm,description,0,false,false,onTheFly);
+        if (minFollow == 0n && !arbFollow) return this;
+        else return Option(shortForm,longForm,description,0n,false,false,onTheFly);
     }
 
     /**
@@ -183,9 +183,9 @@ public struct Option {
      * that expects one command line argument to follow the key as its value.
      */
     public def asSimpleParm(): Option {
-        if (minFollow == 1 && !arbFollow) return this;
+        if (minFollow == 1n && !arbFollow) return this;
         else {
-            return Option(shortForm,longForm,description,1,false,required,onTheFly);
+            return Option(shortForm,longForm,description,1n,false,required,onTheFly);
         }
     }
 
@@ -227,8 +227,8 @@ public struct Option {
         if (arbFollow) {
             values = " ("+minFollow+" or more values): ";
         }
-        else if (minFollow == 1) values = " ("+minFollow+" value): ";
-        else if (minFollow > 1) values = " ("+minFollow+" values): ";
+        else if (minFollow == 1n) values = " ("+minFollow+" value): ";
+        else if (minFollow > 1n) values = " ("+minFollow+" values): ";
         val req = required ? " (required)" : "";
         return keys+values+description+req;
     }
@@ -243,5 +243,5 @@ public struct Option {
      * This is a value you can use if you need an Option that is definitely
      * illegal
      */
-    public static BAD = Option("","","",0,true,true);
+    public static BAD = Option("","","",0n,true,true);
 }

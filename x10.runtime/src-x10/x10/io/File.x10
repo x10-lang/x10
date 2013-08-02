@@ -142,15 +142,15 @@ FileSystem operations
 
     public def this(fullName: String) {
         val i = fullName.lastIndexOf(SEPARATOR);
-        if (i == 0) {
+        if (i == 0n) {
                 parent = null;
                 name = fullName;
                 absolute = true;
         }
-        else if (i >= 0) {
-                parent = new File(fullName.substring(0, i));
-                name = fullName.substring(i+1, fullName.length());
-                absolute = fullName.charAt(0) == PATH_SEPARATOR;
+        else if (i >= 0n) {
+                parent = new File(fullName.substring(0n, i));
+                name = fullName.substring(i+1n, fullName.length());
+                absolute = fullName.charAt(0n) == PATH_SEPARATOR;
         }
         else {
                 parent = null;

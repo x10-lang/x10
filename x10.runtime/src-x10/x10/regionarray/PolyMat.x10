@@ -38,7 +38,7 @@ class PolyMat(rank: int) extends Mat[PolyRow] {
 
     public def this(rows: Int, cols: Int, init: (i:Int,j:Int)=>int, isSimplified:boolean) {
         super(rows, cols, new Rail[PolyRow](rows, (i:long)=>new PolyRow(cols, (j:Int)=>init(i as int,j))));
-        val cols1 = cols-1;
+        val cols1 = cols-1n;
         property(cols1);
         this.isSimplified = isSimplified;
     }
@@ -54,7 +54,7 @@ class PolyMat(rank: int) extends Mat[PolyRow] {
 
     def simplifyParallel(): PolyMat(rank) {
 
-        if (rows==0)
+        if (rows==0n)
             return this;
 
         val pmb = new PolyMatBuilder(rank);
@@ -87,10 +87,10 @@ class PolyMat(rank: int) extends Mat[PolyRow] {
         val pmb = new PolyMatBuilder(rank);
         val removed = new Rail[boolean](rows, false);
 
-        for (var i: int = 0; i<rows; i++) {
+        for (var i: int = 0n; i<rows; i++) {
             val r = this(i);
             val trial = new PolyMatBuilder(rank);
-            for (var j: int = 0; j<rows; j++)
+            for (var j: int = 0n; j<rows; j++)
                 if (!removed(j))
                     trial.add(i==j? r.complement() : this(j));
             if (!trial.toSortedPolyMat(false).isEmpty())
@@ -123,23 +123,23 @@ class PolyMat(rank: int) extends Mat[PolyRow] {
         val pmb = new PolyMatBuilder(rank);
         for (ir:PolyRow in this) {
             val ia = ir(k);
-            if (ia==0) {
+            if (ia==0n) {
                 pmb.add(ir);
             } else {
                 for (jr:PolyRow in this) {
                     val ja = jr(k);
-                    val as_ = new Rail[int](rank+1);
-                    if (ia>0 && ja<0) {
-                        for (var l: int = 0; l<=rank; l++)
+                    val as_ = new Rail[int](rank+1n);
+                    if (ia>0n && ja<0n) {
+                        for (var l: int = 0n; l<=rank; l++)
                             as_(l) = ia*jr(l) - ja*ir(l);
-                    } else if (ia<0 && ja>0) {
-                        for (var l: int = 0; l<=rank; l++)
+                    } else if (ia<0n && ja>0n) {
+                        for (var l: int = 0n; l<=rank; l++)
                             as_(l) = ja*ir(l) - ia*jr(l);
                     }
-                    val lim = simplifyDegenerate? rank : rank+1;
+                    val lim = simplifyDegenerate? rank : rank+1n;
                     var degenerate: boolean = true;
-                    for (var l: int = 0; l<lim; l++)
-                        if (as_(l)!=0)
+                    for (var l: int = 0n; l<lim; l++)
+                        if (as_(l)!=0n)
                             degenerate = false;
                     if (!degenerate) {
                         var r: PolyRow = new PolyRow(new Rail[int](as_.size, (i:long)=>as_(i)));
@@ -203,8 +203,8 @@ class PolyMat(rank: int) extends Mat[PolyRow] {
         if (!isRect())
             return false;
         try {
-            for (var i: int = 0; i<rank; i++)
-                if (rectMin(i)!=0)
+            for (var i: int = 0n; i<rank; i++)
+                if (rectMin(i)!=0n)
                     return false;
         } catch (e: UnboundedRegionException) {
             return false;
@@ -214,7 +214,7 @@ class PolyMat(rank: int) extends Mat[PolyRow] {
 
     def isBounded(): boolean {
         try {
-            for (var i: int = 0; i<rank; i++) {
+            for (var i: int = 0n; i<rank; i++) {
                 rectMin(i);
                 rectMax(i);
             }
@@ -234,7 +234,7 @@ class PolyMat(rank: int) extends Mat[PolyRow] {
     def isEmpty(): boolean {
         // eliminate all variables
         var pm: PolyMat = this;
-        for (var i: int = 0; i<rank; i++)
+        for (var i: int = 0n; i<rank; i++)
             pm = pm.eliminate(i, false);
     
         // look for contradictions

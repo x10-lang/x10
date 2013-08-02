@@ -99,9 +99,9 @@ class PolyRegion extends Region {
      * all but the axis of interest.
      */
 
-    public def projection(axis: int): Region(1) {
+    public def projection(axis: int): Region(1n) {
         var pm: PolyMat{self.rank==this.rank} = mat;
-        for (var k: int = 0; k<rank; k++)
+        for (var k: int = 0n; k<rank; k++)
             if (k!=axis)
                 pm = pm.eliminate(k, true);
         return Region.makeRectangular(pm.rectMin(axis), pm.rectMax(axis));// as Region(1);
@@ -129,7 +129,7 @@ class PolyRegion extends Region {
             throw new UnsupportedOperationException("product(" + r/*.getClass().getName()*/ + ")");
         val that = r as PolyRegion;
         val pmb = new PolyMatBuilder(this.rank + that.rank);
-        copy(pmb, this.mat, 0);         // padded w/ 0s on the right
+        copy(pmb, this.mat, 0n);         // padded w/ 0s on the right
         copy(pmb, that.mat, this.rank); // padded w/ 0s on the left
         val pm = pmb.toSortedPolyMat(false);
         return PolyRegion.make(pm);
@@ -139,7 +139,7 @@ class PolyRegion extends Region {
         for (r:PolyRow in ff) {
             val f = r;
             val t = new Rail[int](tt.rank+1);
-            for (var i: int = 0; i<ff.rank; i++)
+            for (var i: int = 0n; i<ff.rank; i++)
                 t(offset+i) = f(i);
             t(tt.rank) = f(ff.rank);
             tt.add(new PolyRow(t));
@@ -158,8 +158,8 @@ class PolyRegion extends Region {
         for (r:PolyRow in ff) {
             val f = r;
             val t = new Rail[int](ff.rank+1);
-            var s:Int = 0;
-            for (var i: int = 0; i<ff.rank; i++) {
+            var s:Int = 0n;
+            for (var i: int = 0n; i<ff.rank; i++) {
                 t(i) = f(i);
                 s += f(i)*v(i);
             }
@@ -202,9 +202,9 @@ class PolyRegion extends Region {
         val min = new Rail[long](rank);
         val max = new Rail[long](rank);
         var pm: PolyMat{self.rank==this.rank} = mat;
-        for (var axis: int = 0; axis<rank; axis++) {
+        for (var axis: int = 0n; axis<rank; axis++) {
             var x: PolyMat = pm;
-            for (var k: int = axis+1; k<rank; k++)
+            for (var k: int = axis+1n; k<rank; k++)
                 x = x.eliminate(k, true);
             min(axis) = x.rectMin(axis);
             max(axis) = x.rectMax(axis);
@@ -241,38 +241,38 @@ class PolyRegion extends Region {
      * col-row <= colMin-rowMin + (upper-1)
      */
 
-    private static ROW: int = PolyMatBuilder.X(0);
-    private static COL: int = PolyMatBuilder.X(1);
+    private static ROW: int = PolyMatBuilder.X(0n);
+    private static COL: int = PolyMatBuilder.X(1n);
 
-    public static def makeBanded(rowMin: int, colMin: int, rowMax: int, colMax: int, upper: int, lower: int): Region(2) {
-        val pmb = new PolyMatBuilder(2);
+    public static def makeBanded(rowMin: int, colMin: int, rowMax: int, colMax: int, upper: int, lower: int): Region(2n) {
+        val pmb = new PolyMatBuilder(2n);
         pmb.add(ROW, pmb.GE, rowMin);
         pmb.add(ROW, pmb.LE, rowMax);
         pmb.add(COL, pmb.GE, colMin);
         pmb.add(COL, pmb.LE, colMax);
-        pmb.add(COL-ROW, pmb.GE, colMin-rowMin-(lower-1));
-        pmb.add(COL-ROW, pmb.LE, colMin-rowMin+(upper-1));
+        pmb.add(COL-ROW, pmb.GE, colMin-rowMin-(lower-1n));
+        pmb.add(COL-ROW, pmb.LE, colMin-rowMin+(upper-1n));
         val pm = pmb.toSortedPolyMat(false);
         return PolyRegion.make(pm);
     }
 
-    public static def makeBanded(size: int, upper: int, lower: int): Region(2) {
-        return makeBanded(0, 0, size-1, size-1, upper, lower);
+    public static def makeBanded(size: int, upper: int, lower: int): Region(2n) {
+        return makeBanded(0n, 0n, size-1n, size-1n, upper, lower);
     }
 
-    public static def makeUpperTriangular2(rowMin: int, colMin: int, size: int): Region(2) {
-        val pmb = new PolyMatBuilder(2);
+    public static def makeUpperTriangular2(rowMin: int, colMin: int, size: int): Region(2n) {
+        val pmb = new PolyMatBuilder(2n);
         pmb.add(ROW, pmb.GE, rowMin);
-        pmb.add(COL, pmb.LE, colMin+size-1);
+        pmb.add(COL, pmb.LE, colMin+size-1n);
         pmb.add(COL-ROW, pmb.GE, colMin-rowMin);
         val pm = pmb.toSortedPolyMat(true);
         return PolyRegion.make(pm);
     }
 
-    public static def makeLowerTriangular2(rowMin: int, colMin: int, size: int): Region(2) {
-        val pmb = new PolyMatBuilder(2);
+    public static def makeLowerTriangular2(rowMin: int, colMin: int, size: int): Region(2n) {
+        val pmb = new PolyMatBuilder(2n);
         pmb.add(COL, pmb.GE, colMin);
-        pmb.add(ROW, pmb.LE, rowMin+size-1);
+        pmb.add(ROW, pmb.LE, rowMin+size-1n);
         pmb.add(ROW-COL, pmb.GE, rowMin-colMin);
         val pm = pmb.toSortedPolyMat(true);
         return PolyRegion.make(pm);

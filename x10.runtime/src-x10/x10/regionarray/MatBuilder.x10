@@ -41,25 +41,25 @@ class MatBuilder {
     public operator this(i:int, j:int) = mat(i)(j);
 
     public operator this(i:int, j:int)=(v:int) {
-        need(i+1);
+        need(i+1n);
         mat(i)(j) = v;
     }
 
     public def setDiagonal(i:Int, j:Int, n:Int, v:(Int)=>int) {
         need(i+n);
-        for (var k:int=0; k<n; k++)
+        for (var k:int=0n; k<n; k++)
             mat(i+k)(j+k) = v(k);
     }
 
     public def setColumn(i:Int, j:Int, n:Int, v:(Int)=>int) {
         need(i+n);
-        for (var k:int=0; k<n; k++)
+        for (var k:int=0n; k<n; k++)
             mat(i+k)(j) = v(k);
     }
 
     public def setRow(i:Int, j:Int, n:Int, v:(Int)=>int) {
-        need(i+1);
-        for (var k:int=0; k<n; k++)
+        need(i+1n);
+        for (var k:int=0n; k<n; k++)
             mat(i)(j+k) = v(k);
     }
 

@@ -11,7 +11,7 @@ public final class RemoteFinish extends FinishFrame {
 
     public def this(ff:FinishFrame) {
         super(null);
-        asyncs = 1;
+        asyncs = 1n;
         ffRef = GlobalRef[FinishFrame](ff);
         Runtime.atomicMonitor.lock(); ff.asyncs++; Runtime.atomicMonitor.unlock();
     }

@@ -33,7 +33,7 @@ public class PutbackReader extends FilterReader {
 
     public def read(r:Rail[Byte], off:Int, len:Int): void //throws IOException 
     {
-    	var read:Int = 0;
+    	var read:Int = 0n;
     	while (putback.size() > 0) {
     		if (read >= len) break;
     		val p = putback(putback.size()-1);

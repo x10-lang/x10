@@ -16,9 +16,9 @@ import x10.compiler.Inline;
 /**
  * Implementation of 1-dimensional Array.
  */
-public final class Array_1[T] extends Array[T]{this.rank()==1} implements (Long)=>T {
+public final class Array_1[T] extends Array[T]{this.rank()==1n} implements (Long)=>T {
     
-    public property rank() = 1;
+    public property rank() = 1n;
 
     /**
      * Construct a 1-dimensional array with indices 0..n-1 whose elements are zero-initialized.
@@ -101,7 +101,7 @@ public final class Array_1[T] extends Array[T]{this.rank()==1} implements (Long)
      * @return the element of this array corresponding to the given Point.
      * @see #set(T, Point)
      */
-    public @Inline operator this(p:Point(1)):T  = this(p(0));
+    public @Inline operator this(p:Point(1n)):T  = this(p(0n));
 
     
     /**
@@ -128,7 +128,7 @@ public final class Array_1[T] extends Array[T]{this.rank()==1} implements (Long)
      * @return the new value of the element of this array corresponding to the given Point.
      * @see #operator(Int)
      */
-    public @Inline operator this(p:Point(1))=(v:T):T{self==v} = this(p(0)) = v;
+    public @Inline operator this(p:Point(1n))=(v:T):T{self==v} = this(p(0n)) = v;
 }
 
 // vim:tabstop=4:shiftwidth=4:expandtab

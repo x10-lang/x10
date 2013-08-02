@@ -26,21 +26,21 @@ class ConsoleLogger implements Log {
     static val DEFAULT_LEVEL_ENV : String = "X10_LOG_LEVEL";
 
     @Native("java", "throw new java.lang.UnsupportedOperationException()")
-    static val LEVEL_ALL : Int = 7;
+    static val LEVEL_ALL : Int = 7n;
     @Native("java", "throw new java.lang.UnsupportedOperationException()")
-    static val LEVEL_TRACE : Int = 6;
+    static val LEVEL_TRACE : Int = 6n;
     @Native("java", "throw new java.lang.UnsupportedOperationException()")
-    static val LEVEL_DEBUG : Int = 5;
+    static val LEVEL_DEBUG : Int = 5n;
     @Native("java", "throw new java.lang.UnsupportedOperationException()")
-    static val LEVEL_INFO : Int = 4;
+    static val LEVEL_INFO : Int = 4n;
     @Native("java", "throw new java.lang.UnsupportedOperationException()")
-    static val LEVEL_WARN : Int = 3;
+    static val LEVEL_WARN : Int = 3n;
     @Native("java", "throw new java.lang.UnsupportedOperationException()")
-    static val LEVEL_ERROR : Int = 2;
+    static val LEVEL_ERROR : Int = 2n;
     @Native("java", "throw new java.lang.UnsupportedOperationException()")
-    static val LEVEL_FATAL : Int = 1;
+    static val LEVEL_FATAL : Int = 1n;
     @Native("java", "throw new java.lang.UnsupportedOperationException()")
-    static val LEVEL_NONE : Int = 0;
+    static val LEVEL_NONE : Int = 0n;
     
     @Native("java", "throw new java.lang.UnsupportedOperationException()")
     private static val LEVEL_STRINGS : Rail[String] = ["NONE", "FATAL", "ERROR", "WARN", "INFO", "DEBUG", "TRACE","ALL"];
@@ -55,7 +55,7 @@ class ConsoleLogger implements Log {
 
         val prefix = "LEVEL_";
         val prefixLength = prefix.length();
-        if (v.length() > prefixLength && prefix.equalsIgnoreCase(v.substring(0,prefixLength))) {
+        if (v.length() > prefixLength && prefix.equalsIgnoreCase(v.substring(0n,prefixLength))) {
             v = v.substring(prefixLength);
         }
         Console.ERR.println(v);
@@ -74,12 +74,12 @@ class ConsoleLogger implements Log {
     @Native("java", "throw new java.lang.UnsupportedOperationException()")
     private static def getLastPartOfDotName(name:String) : String {
         val index = name.lastIndexOf(".");
-        if (index == -1) {
+        if (index == -1n) {
             return name;
-        } else if (index >= name.length() - 1) {
+        } else if (index >= name.length() - 1n) {
             return name;
         } else {
-            return name.substring(index + 1);
+            return name.substring(index + 1n);
         }
     }
     

@@ -25,16 +25,16 @@ import x10.regionarray.*;
  * ("MPI-style").</p>
  */
 public class HeatTransfer_v4 {
-    static val n = 3;
+    static val n = 3n;
     static val epsilon = 1.0e-5;
 
-    static val BigD = Dist.makeBlock(Region.make(0..(n+1), 0..(n+1)), 0);
-    static val D = BigD | Region.make(1..n, 1..n);
-    static val LastRow = Region.make(0..0, 1..n);
+    static val BigD = Dist.makeBlock(Region.make(0n..(n+1n), 0n..(n+1n)), 0n);
+    static val D = BigD | Region.make(1n..n, 1n..n);
+    static val LastRow = Region.make(0n..0n, 1n..n);
 
     val A = DistArray.make[Double](BigD,(p:Point)=>{ LastRow.contains(p) ? 1.0 : 0.0 });
 
-    def stencil_1([x,y]:Point(2)): Double {
+    def stencil_1([x,y]:Point(2n)): Double {
         return ((at(A.dist(x-1,y)) A(x-1,y)) + 
                 (at(A.dist(x+1,y)) A(x+1,y)) + 
                 (at(A.dist(x,y-1)) A(x,y-1)) + 
@@ -59,12 +59,12 @@ public class HeatTransfer_v4 {
             for (z in D_Base) clocked async at (D_Base(z)) {
                 do {
                     diff(z) = 0;
-                    for (p:Point(2) in D | here) {
+                    for (p:Point(2n) in D | here) {
                         Temp(p) = stencil_1(p);
                         diff(z) = Math.max(diff(z), Math.abs(A(p) - Temp(p)));
                     }
                     Clock.advanceAll();
-                    for (p:Point(2) in D | here) {
+                    for (p:Point(2n) in D | here) {
                         A(p) = Temp(p);
                     }
                     reduceMax(diff, z, scratch);
@@ -74,8 +74,8 @@ public class HeatTransfer_v4 {
     }
  
    def prettyPrintResult() {
-       for ([i] in A.region.projection(0)) {
-           for ([j] in A.region.projection(1)) {
+       for ([i] in A.region.projection(0n)) {
+           for ([j] in A.region.projection(1n)) {
                 val pt = Point.make(i,j);
                 at (BigD(pt)) {
                     val tmp = A(pt);

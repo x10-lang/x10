@@ -267,11 +267,11 @@ public final class Runtime {
         // parked x10 threads (parkedCount == spareCount + idleCount)
         val parkedWorkers = new Rail[Worker](MAX_THREADS);
 
-        var count:Int = 0; // count every x10 threads (including promoted native threads)
-        var spareCount:Int = 0; // spare thread count
-        var idleCount:Int = 0; // idle thread count
-        var deadCount:Int = 0; // dead thread count
-        var spareNeeded:Int = 0; // running threads - NTHREADS
+        var count:Int = 0n; // count every x10 threads (including promoted native threads)
+        var spareCount:Int = 0n; // spare thread count
+        var idleCount:Int = 0n; // idle thread count
+        var deadCount:Int = 0n; // dead thread count
+        var spareNeeded:Int = 0n; // running threads - NTHREADS
 
         // reduce permits by n
         def reduce(n:Int):void {
@@ -284,18 +284,18 @@ public final class Runtime {
         // return allocated thread index if any
         def increase():Int {
             lock.lock();
-            if (spareNeeded > 0) {
+            if (spareNeeded > 0n) {
                 spareNeeded--;
                 lock.unlock();
-                return 0;
-            } else if (spareCount > 0) {
+                return 0n;
+            } else if (spareCount > 0n) {
                 // resume spare thread
                 val i = --spareCount + idleCount;
                 val worker = parkedWorkers(i);
                 parkedWorkers(i) = null;
                 lock.unlock();
                 worker.unpark();
-                return 0;
+                return 0n;
             } else {
                 // start new thread
                 val i = count++;
@@ -329,7 +329,7 @@ public final class Runtime {
 
         // convert idle threads to spare as needed
         def convert() {
-            while (spareNeeded > 0 && idleCount > 0) {
+            while (spareNeeded > 0n && idleCount > 0n) {
                 spareNeeded--;
                 idleCount--;
                 spareCount++;
@@ -338,10 +338,10 @@ public final class Runtime {
 
         // park if spare needed -> spare thread
         def yield(worker:Worker):Activity {
-            if (spareNeeded <= 0) return null;
+            if (spareNeeded <= 0n) return null;
             lock.lock();
             convert();
-            if (spareNeeded <= 0) {
+            if (spareNeeded <= 0n) {
                 lock.unlock();
                 return null;
             }
@@ -382,10 +382,10 @@ public final class Runtime {
         // return true on success
         def give(activity:Activity):Boolean {
             if (BUSY_WAITING) return false;
-            if (idleCount - spareNeeded <= 0) return false;
+            if (idleCount - spareNeeded <= 0n) return false;
             lock.lock();
             convert();
-            if (idleCount <= 0) {
+            if (idleCount <= 0n) {
                 lock.unlock();
                 return false;
             }
@@ -402,13 +402,13 @@ public final class Runtime {
         def reclaim():void {
             lock.lock();
             deadCount++;
-            while (idleCount > 0) {
+            while (idleCount > 0n) {
                 val i = spareCount + --idleCount;
                 val worker = parkedWorkers(i);
                 parkedWorkers(i) = null;
                 worker.unpark();
             }
-            if (spareCount > 0) {
+            if (spareCount > 0n) {
                 val worker = parkedWorkers(--spareCount);
                 parkedWorkers(spareCount) = null;
                 worker.unpark();
@@ -422,7 +422,7 @@ public final class Runtime {
 
     public final static class Worker extends Thread implements Unserializable {
         // bound on loop iterations to help j9 jit
-        private static BOUND = 100;
+        private static BOUND = 100n;
 
         // activity (about to be) executed by this worker
         var activity:Activity = null;
@@ -442,13 +442,13 @@ public final class Runtime {
         def this(workerId:Int) {
             super("thread-" + workerId);
             this.workerId = workerId;
-            random = new Random(workerId + (workerId << 8) + (workerId << 16) + (workerId << 24));
+            random = new Random(workerId + (workerId << 8n) + (workerId << 16n) + (workerId << 24n));
         }
 
         def this(workerId:Int, dummy:Boolean) {
             super();
             this.workerId = workerId;
-            random = new Random(workerId + (workerId << 8) + (workerId << 16) + (workerId << 24));
+            random = new Random(workerId + (workerId << 8n) + (workerId << 16n) + (workerId << 24n));
             // [DC] Using 'here' as the srcPlace for the new activity causes a cycle:  The managed X10
             // implementation of 'here' uses thread-local storage, and this can create a cycle in the case
             // where access of thread-local storage occurs from a native java thread and triggers the creation
@@ -486,7 +486,7 @@ public final class Runtime {
 
         // inner loop to help j9 jit
         private def loop():Boolean {
-            for (var i:Int = 0; i < BOUND; i++) {
+            for (var i:Int = 0n; i < BOUND; i++) {
                 activity = poll();
                 if (activity == null) {
                     activity = pool.scan(random, this);
@@ -522,7 +522,7 @@ public final class Runtime {
 
         // inner loop to help j9 jit
         private def loop2(latch:SimpleLatch):Boolean {
-            for (var i:Int = 0; i < BOUND; i++) {
+            for (var i:Int = 0n; i < BOUND; i++) {
                 if (latch()) return false;
                 activity = poll();
                 if (activity == null) return false;
@@ -566,21 +566,21 @@ public final class Runtime {
 
         operator this(n:Int):void {
             workers.count = n;
-            workers(0) = worker();
-            for (var i:Int = 1; i<n; i++) {
+            workers(0n) = worker();
+            for (var i:Int = 1n; i<n; i++) {
                 workers(i) = new Worker(i);
             }
-            for (var i:Int = 1; i<n; i++) {
+            for (var i:Int = 1n; i<n; i++) {
                 workers(i).start();
             }
-            workers(0)();
+            workers(0n)();
             while (workers.count > workers.deadCount) Worker.park();
         }
 
         // notify the pool a worker is about to execute a blocking operation
         def increase():void {
             val i = workers.increase();
-            if (i > 0) {
+            if (i > 0n) {
                 // if no spare thread is available allocate and start a new thread
                 val worker = new Worker(i);
                 workers(i) = worker;
@@ -607,14 +607,14 @@ public final class Runtime {
         // release permit (called by worker upon termination)
         def release():void {
             workers.reclaim();
-            if (workers.count == workers.deadCount) workers(0).unpark();
+            if (workers.count == workers.deadCount) workers(0n).unpark();
         }
 
         // scan workers and network for pending activities
         def scan(random:Random, worker:Worker):Activity {
             var activity:Activity = null;
             var next:Int = random.nextInt(workers.count);
-            var i:Int = 2;
+            var i:Int = 2n;
             for (;;) {
                 if (null != activity || latch()) return activity;
                 // go to sleep if too many threads are running
@@ -640,11 +640,11 @@ public final class Runtime {
                 if (next < MAX_THREADS && null != workers(next)) { // avoid race with increase method
                     activity = workers(next).steal();
                 }
-                if (++next == workers.count) next = 0;
-                if (i-- == 0) {
+                if (++next == workers.count) next = 0n;
+                if (i-- == 0n) {
                     if (null != activity || latch()) return activity;
                     activity = workers.take(worker);
-                    i = 2;
+                    i = 2n;
                 }
             }
         }
@@ -711,7 +711,7 @@ public final class Runtime {
         // initialize runtime
         x10rtInit();
 
-        if (hereInt() == 0) {
+        if (hereInt() == 0n) {
             // [DC] at this point: rootFinish has an implicit notifySubActivitySpawn and notifyActivityBegin
             // (due to constructor initialising counters appropriately)
             // do not need to alter rootFinish in activity constructor
@@ -735,7 +735,7 @@ public final class Runtime {
                     val cl1 = ()=> @x10.compiler.RemoteInvocation("start_1") {
                         val h = hereInt();
                         val cl = ()=> @x10.compiler.RemoteInvocation("start_2") {pool.latch.release();};
-                        for (var j:Int=Math.max(1, h-31); j<h; ++j) {
+                        for (var j:Int=Math.max(1n, h-31n); j<h; ++j) {
                             x10rtSendMessage(j, cl, null);
                         }
                         pool.latch.release();

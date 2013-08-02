@@ -19,7 +19,7 @@ import x10.compiler.CompilerFlags;
  * RectRegion class intended primarily to reduce the memory
  * overhead and serialization cost of Array meta-data.
  */
-final class RectRegion1D extends Region{rect,rank==1} {
+final class RectRegion1D extends Region{rect,rank==1n} {
     private val size:long;            /* Will be < 0 iff the true size of the region is not expressible as a long */
     private val min:long;
     private val max:long;
@@ -27,8 +27,8 @@ final class RectRegion1D extends Region{rect,rank==1} {
     /**
      * Create a 1-dim region min..max.
      */
-    def this(minArg:long, maxArg:long):RectRegion1D{self.rank==1, self.rect} {
-        super(1, true, minArg==0L);
+    def this(minArg:long, maxArg:long):RectRegion1D{self.rank==1n, self.rect} {
+        super(1n, true, minArg==0L);
 
        
         val s = maxArg - minArg +1L;
@@ -47,8 +47,8 @@ final class RectRegion1D extends Region{rect,rank==1} {
      * statically that the zeroBased and rail properties are true for all regions
      * made via this constructor.
      */
-    def this(maxArg:long):RectRegion1D{self.rank==1, self.rect, self.rail, self.zeroBased} {
-        super(1);
+    def this(maxArg:long):RectRegion1D{self.rank==1n, self.rect, self.rail, self.zeroBased} {
+        super(1n);
 
         size = maxArg +1L;
         min = 0L;
@@ -66,7 +66,7 @@ final class RectRegion1D extends Region{rect,rank==1} {
 
     public def indexOf(pt:Point):long {
 	if (!contains(pt)) return -1L;
-        return pt(0) - min;
+        return pt(0n) - min;
     }
 
     public def indexOf(i0:long):long {
@@ -87,12 +87,12 @@ final class RectRegion1D extends Region{rect,rank==1} {
 
 
     public def min(i:int):long {
-        if (i != 0) throw new ArrayIndexOutOfBoundsException("min: "+i+" is not a valid rank for "+this);
+        if (i != 0n) throw new ArrayIndexOutOfBoundsException("min: "+i+" is not a valid rank for "+this);
         return min;
     }
 
     public def max(i:int):long {
-        if (i !=0) throw new ArrayIndexOutOfBoundsException("max: "+i+" is not a valid rank for "+this);
+        if (i != 0n) throw new ArrayIndexOutOfBoundsException("max: "+i+" is not a valid rank for "+this);
         return max;
     }
 
@@ -116,7 +116,7 @@ final class RectRegion1D extends Region{rect,rank==1} {
         return toRectRegion().contains(p);
     }
 
-    public def contains(i0:long){rank==1}:boolean = containsInternal(i0);
+    public def contains(i0:long){rank==1n}:boolean = containsInternal(i0);
 
     private def containsInternal(i0:long):boolean {
         return i0>=min && i0<=max;
@@ -136,11 +136,11 @@ final class RectRegion1D extends Region{rect,rank==1} {
     }
 
     public def translate(v: Point(rank)):Region(rank){self.rect} {
-        return new RectRegion1D(min+v(0), max+v(0));
+        return new RectRegion1D(min+v(0n), max+v(0n));
     }
 
-    public def projection(axis:int):Region(1){self.rect} {
-        if (axis == 0) return this;
+    public def projection(axis:int):Region(1n){self.rect} {
+        if (axis == 0n) return this;
         throw new ArrayIndexOutOfBoundsException("projection: "+axis+" is not a valid rank for "+this);
     }
 
@@ -148,7 +148,7 @@ final class RectRegion1D extends Region{rect,rank==1} {
         return toRectRegion().eliminate(axis);
     }    
 
-    private static class RRIterator implements Iterator[Point(1)] {
+    private static class RRIterator implements Iterator[Point(1n)] {
         val min:long;
         val max:long;
         var cur:long;
@@ -161,12 +161,12 @@ final class RectRegion1D extends Region{rect,rank==1} {
 
         public def hasNext() = cur <= max;
 
-        public def next():Point(1) {
+        public def next():Point(1n) {
             return Point.make(cur++);
         }
     }
 
-    public def iterator():Iterator[Point(1)] {
+    public def iterator():Iterator[Point(1n)] {
         return new RRIterator(this);
     }
 

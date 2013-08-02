@@ -69,7 +69,7 @@ public abstract class Region(
      * Construct a region of rank 0 that contains the single point of
      * rank 0. Useful as the identity region under Cartesian product.
      */
-    public static def makeUnit():Region(0){self != null,rect} = new FullRegion(0);
+    public static def makeUnit():Region(0n){self != null,rect} = new FullRegion(0n);
 
 
     /**
@@ -104,7 +104,7 @@ public abstract class Region(
        if (minArg.size != maxArg.size) throw new IllegalArgumentException("min and max not equal size ("+minArg.size+" != "+maxArg.size+")");
            val rank = minArg.size as int;
            val pmb = new PolyMatBuilder(rank); 
-           for (i in 0..(rank-1)) {
+           for (i in 0n..(rank-1n)) {
                if (minArg(i) > Long.MIN_VALUE) {
                    // add -1*x(i) + minArg(i) <= 0, i.e. x(i) >= minArg(i)
                    val r = new PolyRow(Point.make(rank, (j:Int) => i==j ? -1L : 0L), minArg(i) as int);
@@ -173,95 +173,95 @@ public abstract class Region(
     /**
      * Construct a rectangular rank 1 region from an IntRange
      */
-    public static def make(r:IntRange):Region(1){self.rect} = new RectRegion1D(r.min, r.max);
+    public static def make(r:IntRange):Region(1n){self.rect} = new RectRegion1D(r.min, r.max);
     /**
      * Construct a rectangular rank 1 region from an IntRange
      */
-    public static def makeRectangular(r:IntRange):Region(1){self.rect} = new RectRegion1D(r.min, r.max);
+    public static def makeRectangular(r:IntRange):Region(1n){self.rect} = new RectRegion1D(r.min, r.max);
 
     /**
      * Construct a rectangular rank 1 region from a LongRange
      */
-    public static def make(r:LongRange):Region(1){self.rect} = new RectRegion1D(r.min, r.max);
+    public static def make(r:LongRange):Region(1n){self.rect} = new RectRegion1D(r.min, r.max);
     /**
      * Construct a rectangular rank 1 region from a LongRange
      */
-    public static def makeRectangular(r:LongRange):Region(1){self.rect} = new RectRegion1D(r.min, r.max);
+    public static def makeRectangular(r:LongRange):Region(1n){self.rect} = new RectRegion1D(r.min, r.max);
 
     /**
      * Construct a rectangular rank 2 region from a pair of IntRanges
      */
-    public static def makeRectangular(r1:IntRange, r2:IntRange):Region(2){self.rect} {
+    public static def makeRectangular(r1:IntRange, r2:IntRange):Region(2n){self.rect} {
         return new RectRegion([r1.min as long, r2.min as long], 
-                              [r1.max as long, r2.max as long]) as Region(2){self.rect};
+                              [r1.max as long, r2.max as long]) as Region(2n){self.rect};
     }
     /**
      * Construct a rectangular rank 2 region from a pair of IntRanges
      */
-    public static def make(r1:IntRange, r2:IntRange):Region(2){self.rect} = makeRectangular(r1, r2);
+    public static def make(r1:IntRange, r2:IntRange):Region(2n){self.rect} = makeRectangular(r1, r2);
 
     /**
      * Construct a rectangular rank 2 region from a pair of LongRanges
      */
-    public static def makeRectangular(r1:LongRange, r2:LongRange):Region(2){self.rect} {
-        return new RectRegion([r1.min, r2.min], [r1.max, r2.max]) as Region(2){self.rect};
+    public static def makeRectangular(r1:LongRange, r2:LongRange):Region(2n){self.rect} {
+        return new RectRegion([r1.min, r2.min], [r1.max, r2.max]) as Region(2n){self.rect};
     }
     /**
      * Construct a rectangular rank 2 region from a pair of LongRanges
      */
-    public static def make(r1:LongRange, r2:LongRange):Region(2){self.rect} = makeRectangular(r1, r2);
+    public static def make(r1:LongRange, r2:LongRange):Region(2n){self.rect} = makeRectangular(r1, r2);
 
     /**
      * Construct a rectangular rank 3 region from a triple of IntRanges
      */
-    public static def makeRectangular(r1:IntRange, r2:IntRange, r3:IntRange):Region(3){self.rect} {
+    public static def makeRectangular(r1:IntRange, r2:IntRange, r3:IntRange):Region(3n){self.rect} {
         return new RectRegion([r1.min as long, r2.min as long, r3.min as long], 
-                              [r1.max as long, r2.max as long, r3.max as long]) as Region(3){self.rect};
+                              [r1.max as long, r2.max as long, r3.max as long]) as Region(3n){self.rect};
     }
     /**
      * Construct a rectangular rank 3 region from a triple of IntRanges
      */
-    public static def make(r1:IntRange, r2:IntRange, r3:IntRange):Region(3){self.rect} {
+    public static def make(r1:IntRange, r2:IntRange, r3:IntRange):Region(3n){self.rect} {
         return makeRectangular(r1, r2, r3);
     }
 
     /**
      * Construct a rectangular rank 3 region from a triple of LongRanges
      */
-    public static def makeRectangular(r1:LongRange, r2:LongRange, r3:LongRange):Region(3){self.rect} {
-        return new RectRegion([r1.min, r2.min, r3.min], [r1.max, r2.max, r3.max]) as Region(3){self.rect};
+    public static def makeRectangular(r1:LongRange, r2:LongRange, r3:LongRange):Region(3n){self.rect} {
+        return new RectRegion([r1.min, r2.min, r3.min], [r1.max, r2.max, r3.max]) as Region(3n){self.rect};
     }
     /**
      * Construct a rectangular rank 3 region from a triple of LongRanges
      */
-    public static def make(r1:LongRange, r2:LongRange, r3:LongRange):Region(3){self.rect} {
+    public static def make(r1:LongRange, r2:LongRange, r3:LongRange):Region(3n){self.rect} {
         return makeRectangular(r1, r2, r3);
     }
 
     /**
      * Construct a rectangular rank 4 region from four IntRanges
      */
-    public static def makeRectangular(r1:IntRange, r2:IntRange, r3:IntRange, r4:IntRange):Region(4){self.rect}{
+    public static def makeRectangular(r1:IntRange, r2:IntRange, r3:IntRange, r4:IntRange):Region(4n){self.rect}{
         return new RectRegion([r1.min as long, r2.min as long, r3.min as long, r4.min as long], 
-                              [r1.max as long, r2.max as long, r3.max as long, r4.max as long]) as Region(4){self.rect};
+                              [r1.max as long, r2.max as long, r3.max as long, r4.max as long]) as Region(4n){self.rect};
     }
     /**
      * Construct a rectangular rank 4 region from four IntRanges
      */
-    public static def make(r1:IntRange, r2:IntRange, r3:IntRange, r4:IntRange):Region(4){self.rect} {
+    public static def make(r1:IntRange, r2:IntRange, r3:IntRange, r4:IntRange):Region(4n){self.rect} {
         return makeRectangular(r1, r2, r3, r4);
     }
 
     /**
      * Construct a rectangular rank 4 region from four LongRanges
      */
-    public static def makeRectangular(r1:LongRange, r2:LongRange, r3:LongRange, r4:LongRange):Region(4){self.rect}{
-        return new RectRegion([r1.min, r2.min, r3.min, r4.min], [r1.max, r2.max, r3.max, r4.max]) as Region(4){self.rect};
+    public static def makeRectangular(r1:LongRange, r2:LongRange, r3:LongRange, r4:LongRange):Region(4n){self.rect}{
+        return new RectRegion([r1.min, r2.min, r3.min, r4.min], [r1.max, r2.max, r3.max, r4.max]) as Region(4n){self.rect};
     }
     /**
      * Construct a rectangular rank 4 region from four LongRanges
      */
-    public static def make(r1:LongRange, r2:LongRange, r3:LongRange, r4:LongRange):Region(4){self.rect} {
+    public static def make(r1:LongRange, r2:LongRange, r3:LongRange, r4:LongRange):Region(4n){self.rect} {
         return makeRectangular(r1, r2, r3, r4);
     }
 
@@ -271,13 +271,13 @@ public abstract class Region(
      */
     // XTENLANG-109 prevents zeroBased==(min==0)
     // Changed RegionMaker_c to add clause explicitly.
-    public static def makeRectangular(min:long, max:long):Region(1){self.rect}
+    public static def makeRectangular(min:long, max:long):Region(1n){self.rect}
         = new RectRegion1D(min, max);
 
     /**
      * Construct a rank-1 rectangular region with the specified bounds.
      */
-    public static def make(min:long, max:long): Region(1){self.rect} = new RectRegion1D(min, max);
+    public static def make(min:long, max:long): Region(1n){self.rect} = new RectRegion1D(min, max);
 
     //
     // non-rectangular factories
@@ -291,38 +291,38 @@ public abstract class Region(
      * @param upper -- the number of diagonals in the band, above the main diagonal
      * @param lower -- the number of diagonals in the band, below the main diagonal
      */
-    public static def makeBanded(size:long, upper:long, lower:long):Region(2)
+    public static def makeBanded(size:long, upper:long, lower:long):Region(2n)
         = PolyRegion.makeBanded(size as int, upper as int, lower as int);
 
     /**
      * Construct a banded region of the given size that includes only
      * the main diagonal.
      */
-    public static def makeBanded(size:long):Region(2) = PolyRegion.makeBanded(size as int, 1, 1);
+    public static def makeBanded(size:long):Region(2n) = PolyRegion.makeBanded(size as int, 1, 1);
     
     /**
      * Construct an upper triangular region of the given size.
      */
 
-    public static def makeUpperTriangular(size:long):Region(2) = makeUpperTriangular(0, 0, size);
+    public static def makeUpperTriangular(size:long):Region(2n) = makeUpperTriangular(0, 0, size);
 
     /**
      * Construct an upper triangular region of the given size with the
      * given lower bounds.
      */
-    public static def makeUpperTriangular(rowMin:long, colMin:long, size:long): Region(2)
+    public static def makeUpperTriangular(rowMin:long, colMin:long, size:long): Region(2n)
         = PolyRegion.makeUpperTriangular2(rowMin as Int, colMin as Int, size as Int);
     
     /**
      * Construct a lower triangular region of the given size.
      */
-    public static def makeLowerTriangular(size:long): Region(2) = makeLowerTriangular(0, 0, size);
+    public static def makeLowerTriangular(size:long): Region(2n) = makeLowerTriangular(0, 0, size);
 
     /**
      * Construct an lower triangular region of the given size with the
      * given lower bounds.
      */
-    public static def makeLowerTriangular(rowMin:long, colMin:long, size:long):Region(2)
+    public static def makeLowerTriangular(rowMin:long, colMin:long, size:long):Region(2n)
         = PolyRegion.makeLowerTriangular2(rowMin as int, colMin as int, size as Int);
 
 
@@ -490,7 +490,7 @@ public abstract class Region(
      * <code>p(axis)==i</code>.
      */
 
-    abstract public def projection(axis: int): Region(1);
+    abstract public def projection(axis: int): Region(1n);
 
     /**
      * Returns the projection of a region onto all axes but the
@@ -546,16 +546,16 @@ public abstract class Region(
 
     abstract public def contains(p:Point):boolean;
     
-    public def contains(i:long){rank==1} = contains(Point.make(i));
+    public def contains(i:long){rank==1n} = contains(Point.make(i));
 
-    public def contains(i0:long, i1:long){rank==2} = contains(Point.make(i0,i1));
+    public def contains(i0:long, i1:long){rank==2n} = contains(Point.make(i0,i1));
 
-    public def contains(i0:long, i1:long, i2:long){rank==3} = contains(Point.make(i0,i1,i2));
+    public def contains(i0:long, i1:long, i2:long){rank==3n} = contains(Point.make(i0,i1,i2));
 
-    public def contains(i0:long, i1:long, i2:long, i3:long){rank==4} = contains(Point.make(i0,i1,i2,i3));
+    public def contains(i0:long, i1:long, i2:long, i3:long){rank==4n} = contains(Point.make(i0,i1,i2,i3));
 
     protected @Inline def this(r:int, t:boolean, z:boolean):Region{self.rank==r,self.rect==t,self.zeroBased==z} {
-        val isRail = (r == 1) && t && z;
+        val isRail = (r == 1n) && t && z;
         property(r, t, z, isRail);
     }
 
@@ -563,7 +563,7 @@ public abstract class Region(
     // the common case of the zero-based RectRegion1D constructor such that
     // the constraint solver can properly statically determine that the 
     // constructed RectRegion1D has all the desirable properties
-    protected @Inline def this(r:int{self==1}):Region{self.rank==r,self.zeroBased,self.rect,self.rail} {
+    protected @Inline def this(r:int{self==1n}):Region{self.rank==r,self.zeroBased,self.rect,self.rail} {
         property(r, true, true, true);
     }
 

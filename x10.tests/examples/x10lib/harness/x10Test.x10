@@ -70,13 +70,13 @@ abstract public class x10Test {
     public static def success(): void = {
         println(PREFIX+"Test succeeded.");
 	   at (Place.FIRST_PLACE) 
-	     System.setExitCode(0);
+	     System.setExitCode(0n);
     }
 
     public static def failure(): void = {
         println(PREFIX+"Test failed.");
         at (Place.FIRST_PLACE)
-           System.setExitCode(1);
+           System.setExitCode(1n);
     }
 
     protected static def reportResult(b: boolean): void = {
@@ -116,7 +116,7 @@ abstract public class x10Test {
      * Return a random integer between lb and ub (inclusive)
      */
     protected def ranInt(lb: int, ub: int): int = {
-        return lb + myRand.nextInt(ub-lb+1);
+        return lb + myRand.nextInt(ub-lb+1n);
     }
 
     protected var result: boolean;
@@ -153,7 +153,7 @@ abstract public class x10Test {
 
         public def errorString() : String = {
           var s : String = "";
-          var i : Int = 1;
+          var i : Int = 1n;
           for (es in errors) {
             s += "  " + i + ". " + es + "\n";
             i ++;
@@ -207,7 +207,7 @@ abstract public class x10Test {
 
         public static def eq(a:Point, b:Point) {
           if (a.rank != b.rank) return false;
-          for(var i : Int = 0; i < a.rank; i++) 
+          for(var i : Int = 0n; i < a.rank; i++) 
              if (a(i) != b(i)) return false;
           return true;
         }  

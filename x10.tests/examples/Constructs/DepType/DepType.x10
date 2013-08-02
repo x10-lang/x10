@@ -21,14 +21,14 @@ public class DepType(i:int, j:int) extends x10Test {
     // property declaration for an inner class.
     static class Test(k:int) extends DepType {
         def this(kk:int):Test = {
-            super(3,4);
+            super(3n,4n);
             property(kk);
         }
     }
 
     static class Test2 extends DepType {
         def this():Test2 = {
-            super(3,5);
+            super(3n,5n);
         }
     }
 
@@ -49,11 +49,11 @@ public class DepType(i:int, j:int) extends x10Test {
     }
 
     //  method specifies a thisClause.
-    public static def make(i: int{self==3}):DepType{self.i==3,self.j==3} = new DepType(i,i);
+    public static def make(i: int{self==3n}):DepType{self.i==3n,self.j==3n} = new DepType(i,i);
 
     // a local variable with a dep clause.
     public  def  run():boolean = {
-        val d:DepType{self.i==3} = new DepType(3,6);
+        val d:DepType{self.i==3n} = new DepType(3n,6n);
         return true;
     }
 
@@ -67,6 +67,6 @@ public class DepType(i:int, j:int) extends x10Test {
         return true;
     }
     public static def main(args: Rail[String]):void = {
-        new DepType(3,9).execute();
+        new DepType(3n,9n).execute();
     }
 }

@@ -40,23 +40,23 @@ public final class Point(rank:int) implements (int) => long,
         cs = rank>4 ? coords : null;
     }
 
-    def this(i0:long):Point(1) {
-        property(1);
+    def this(i0:long):Point(1n) {
+        property(1n);
         c0 = i0;
         c1 = c2 = c3 = 0L;
         cs = null;
     }
 
-    def this(i0:long, i1:long):Point(2) {
-        property(2);
+    def this(i0:long, i1:long):Point(2n) {
+        property(2n);
         c0 = i0;
         c1 = i1;
         c2 = c3 = 0L;
         cs = null;
     }
 
-    def this(i0:long, i1:long, i2:long):Point(3) {
-        property(3);
+    def this(i0:long, i1:long, i2:long):Point(3n) {
+        property(3n);
         c0 = i0;
         c1 = i1;
         c2 = i2;
@@ -64,8 +64,8 @@ public final class Point(rank:int) implements (int) => long,
         cs = null;
     }
 
-    def this(i0:long, i1:long, i2:long, i3:long):Point(4) {
-        property(4);
+    def this(i0:long, i1:long, i2:long, i3:long):Point(4n) {
+        property(4n);
         c0 = i0;
         c1 = i1;
         c2 = i2;
@@ -80,10 +80,10 @@ public final class Point(rank:int) implements (int) => long,
     public operator this(i:int):long {
         if (i<0 || i>= rank) throw new ArrayIndexOutOfBoundsException("index "+i+" not contained in "+this);
         switch (i) {
-            case 0: return c0;
-            case 1: return c1;
-            case 2: return c2;
-            case 3: return c3;
+            case 0n: return c0;
+            case 1n: return c1;
+            case 2n: return c2;
+            case 3n: return c3;
             default: return cs(i);
         }
     }
@@ -99,10 +99,10 @@ public final class Point(rank:int) implements (int) => long,
      */
     public static def make(r:Rail[Int]):Point(r.size as int) {
         switch(r.size as int) {
-            case 1: return new Point(r(0)) as Point(r.size as int);//{self.rank==r.size};
-            case 2: return new Point(r(0), r(1)) as Point(r.size as int);
-            case 3: return new Point(r(0), r(1), r(2)) as Point(r.size as int);
-            case 4: return new Point(r(0), r(1), r(2), r(3)) as Point(r.size as int);
+            case 1n: return new Point(r(0)) as Point(r.size as int);//{self.rank==r.size};
+            case 2n: return new Point(r(0), r(1)) as Point(r.size as int);
+            case 3n: return new Point(r(0), r(1), r(2)) as Point(r.size as int);
+            case 4n: return new Point(r(0), r(1), r(2), r(3)) as Point(r.size as int);
             default: return new Point(new Rail[long](r.size, (i:long)=>(r(i) as long)));
         }
     }
@@ -113,10 +113,10 @@ public final class Point(rank:int) implements (int) => long,
      */
     public static def make(r:Rail[Long]):Point(r.size as int) {
         switch(r.size as int) {
-            case 1: return new Point(r(0)) as Point(r.size as int);//{self.rank==r.size};
-            case 2: return new Point(r(0), r(1)) as Point(r.size as int);
-            case 3: return new Point(r(0), r(1), r(2)) as Point(r.size as int);
-            case 4: return new Point(r(0), r(1), r(2), r(3)) as Point(r.size as int);
+            case 1n: return new Point(r(0)) as Point(r.size as int);//{self.rank==r.size};
+            case 2n: return new Point(r(0), r(1)) as Point(r.size as int);
+            case 3n: return new Point(r(0), r(1), r(2)) as Point(r.size as int);
+            case 4n: return new Point(r(0), r(1), r(2), r(3)) as Point(r.size as int);
             default: return new Point(new Rail[long](r.size, r));
         }
     }
@@ -126,10 +126,10 @@ public final class Point(rank:int) implements (int) => long,
      */
     public static def make(rank:int, init:(i:int)=>long):Point(rank) {
         switch(rank) {
-            case 1: return new Point(init(0)) as Point(rank);
-            case 2: return new Point(init(0), init(1)) as Point(rank);
-            case 3: return new Point(init(0), init(1), init(2)) as Point(rank);
-            case 4: return new Point(init(0), init(1), init(2), init(3)) as Point(rank);
+            case 1n: return new Point(init(0n)) as Point(rank);
+            case 2n: return new Point(init(0n), init(1n)) as Point(rank);
+            case 3n: return new Point(init(0n), init(1n), init(2n)) as Point(rank);
+            case 4n: return new Point(init(0n), init(1n), init(2n), init(3n)) as Point(rank);
             default: return new Point(new Rail[long](rank, (l:long)=>init(l as int))) as Point(rank);
         }
     }
@@ -248,7 +248,7 @@ public final class Point(rank:int) implements (int) => long,
      * {@link Comparable#compareTo}
      */
     public def compareTo(that:Point(rank)) {
-        return this.equals(that) ? 0 : this < that ? -1 : 1;
+        return this.equals(that) ? 0n : this < that ? -1n : 1n;
     }
 
     /**
@@ -259,8 +259,8 @@ public final class Point(rank:int) implements (int) => long,
      * positive numbers.
      */
     public def hashCode():int {
-        var hc:long = this(0);
-        for (i in 1..(rank-1)) {
+        var hc:long = this(0n);
+        for (i in 1n..(rank-1n)) {
             hc = (hc * 17L) ^ this(i);
         }
 	return hc as int;
@@ -274,7 +274,7 @@ public final class Point(rank:int) implements (int) => long,
         if (!(other instanceof Point)) return false;
 	val otherPoint = other as Point;
         if (rank != otherPoint.rank) return false;
-        for (i in 0..(rank-1)) {
+        for (i in 0n..(rank-1n)) {
             if (!(this(i)==otherPoint(i)))
                 return false;
         }
@@ -285,13 +285,13 @@ public final class Point(rank:int) implements (int) => long,
      * For points a, b, <code> a &lt; b</code> if <code>a</code> is lexicographically smaller than <code>b</code>.
      */
     public operator this < (that: Point(rank)): boolean {
-        for (i in 0..(rank-2)) {
+        for (i in 0n..(rank-2n)) {
 	    val a = this(i);
 	    val b = that(i);
             if (a > b) return false;
 	    if (a < b) return true;
 	}
-        return this(rank-1) < that(rank-1);
+        return this(rank-1n) < that(rank-1n);
     }
 
     /** 
@@ -299,13 +299,13 @@ public final class Point(rank:int) implements (int) => long,
      * is lexicographically bigger than <code> b</code>.
      */
     public operator this > (that: Point(rank)): boolean {
-        for (i in 0..(rank-2)) {
+        for (i in 0n..(rank-2n)) {
 	    val a = this(i);
 	    val b = that(i);
             if (a < b) return false;
 	    if (a > b) return true;
 	}
-        return this(rank-1) > that(rank-1);
+        return this(rank-1n) > that(rank-1n);
     }
 
     /**
@@ -313,13 +313,13 @@ public final class Point(rank:int) implements (int) => long,
      * lexicographically less than <code> b</code> or the same as <code>b</code>.
      */
     public operator this <= (that: Point(rank)): boolean {
-        for (i in 0..(rank-2)) {
+        for (i in 0n..(rank-2n)) {
 	    val a = this(i);
 	    val b = that(i);
             if (a > b) return false;
 	    if (a < b) return true;
 	}
-        return this(rank-1) <= that(rank-1);
+        return this(rank-1n) <= that(rank-1n);
     }
 
     /**
@@ -327,13 +327,13 @@ public final class Point(rank:int) implements (int) => long,
      * lexicographically greater than <code> b</code> or the same as <code>b</code>.
      */
     public operator this >= (that: Point(rank)): boolean {
-        for (i in 0..(rank-2)) {
+        for (i in 0n..(rank-2n)) {
 	    val a = this(i);
 	    val b = that(i);
             if (a < b) return false;
 	    if (a > b) return true;
 	}
-        return this(rank-1) >= that(rank-1);
+        return this(rank-1n) >= that(rank-1n);
     }
 
     /**
@@ -341,8 +341,8 @@ public final class Point(rank:int) implements (int) => long,
      */
     public def toString() {
         var s:String = "[";
-        if (rank>0) s += this(0); 
-        for (i in 1..(rank-1)) {
+        if (rank>0n) s += this(0n); 
+        for (i in 1n..(rank-1n)) {
             s += "," + this(i);
         }
         s += "]";

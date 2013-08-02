@@ -571,9 +571,9 @@ class StringHelper {
             return new Rail[String](str.length(), (i:long)=>str.substring(i as int, (i+1) as int));
         }
         val ans = new GrowableRail[String]();
-        var pos:int = 0;
+        var pos:int = 0n;
         var nextMatch:int = str.indexOf(delim, pos);
-        while (nextMatch != -1) {
+        while (nextMatch != -1n) {
           ans.add(str.substring(pos, nextMatch));
           pos = nextMatch+delim.length();
           nextMatch = str.indexOf(delim, pos);

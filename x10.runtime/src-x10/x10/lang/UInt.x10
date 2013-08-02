@@ -380,14 +380,14 @@ public struct UInt implements Comparable[UInt], Arithmetic[UInt], Bitwise[UInt],
      */
     @Native("java", "0")
     @Native("c++", "((x10_uint)0U)")
-    public static MIN_VALUE: UInt{self==0U} = 0U;
+    public static MIN_VALUE: UInt{self==0UN} = 0UN;
 
     /**
      * A constant holding the maximum value a UInt can have, 2<sup>32</sup>-1.
      */
     @Native("java", "0xffffffff")
     @Native("c++", "((x10_uint)0xffffffffU)")
-    public static MAX_VALUE: UInt{self==0xffffffffU} = 0xffffffffU;
+    public static MAX_VALUE: UInt{self==0xffffffffUN} = 0xffffffffUN;
 
 
     /**

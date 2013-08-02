@@ -27,7 +27,7 @@ public class AtomicTest extends x10Test {
 	async  {
 	    atomic {
 		startCount = val_;
-		for (var i: int = 0; i < N; i++) val_++;
+		for (var i: int = 0n; i < N; i++) val_++;
 		endCount = val_;
 	    }
 	}

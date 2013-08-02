@@ -43,7 +43,7 @@ import x10.compiler.Pinned;
         lock();
         state = true;
         if (worker != null) {
-            Runtime.decreaseParallelism(1);
+            Runtime.decreaseParallelism(1n);
             worker.unpark();
         }
         unlock();

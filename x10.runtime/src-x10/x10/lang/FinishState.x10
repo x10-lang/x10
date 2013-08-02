@@ -43,7 +43,7 @@ abstract class FinishState {
 
     // a finish with local asyncs only
     static class LocalFinish extends FinishState {
-        @Embed private val count = @Embed new AtomicInteger(1);
+        @Embed private val count = @Embed new AtomicInteger(1n);
         @Embed private val latch = @Embed new SimpleLatch();
         private var exceptions:GrowableRail[Exception]; // lazily initialized
         public def notifySubActivitySpawn(place:Place) {
@@ -52,7 +52,7 @@ abstract class FinishState {
         }
         public def notifyActivityCreation(srcPlace:Place) = true;
         public def notifyActivityTermination() {
-            if (count.decrementAndGet() == 0) latch.release();
+            if (count.decrementAndGet() == 0n) latch.release();
         }
         public def pushException(t:Exception) {
             latch.lock();
@@ -96,13 +96,13 @@ abstract class FinishState {
 
     static class RootFinishSPMD extends RootFinishSkeleton {
         @Embed protected val latch = @Embed new SimpleLatch();
-        @Embed private val count = @Embed new AtomicInteger(1);
+        @Embed private val count = @Embed new AtomicInteger(1n);
         private var exceptions:GrowableRail[Exception]; // lazily initialized
         public def notifySubActivitySpawn(place:Place) {
             count.incrementAndGet();
         }
         public def notifyActivityTermination() {
-            if (count.decrementAndGet() == 0) latch.release();
+            if (count.decrementAndGet() == 0n) latch.release();
         }
         public def pushException(t:Exception) {
             latch.lock();
@@ -121,7 +121,7 @@ abstract class FinishState {
     }
 
     static class RemoteFinishSPMD extends RemoteFinishSkeleton {
-        @Embed private val count = @Embed new AtomicInteger(1);
+        @Embed private val count = @Embed new AtomicInteger(1n);
         private var exceptions:GrowableRail[Exception]; // lazily initialized
         @Embed private val lock = @Embed new Lock();
         def this(ref:GlobalRef[FinishState]) {
@@ -133,7 +133,7 @@ abstract class FinishState {
         }
         public def notifyActivityCreation(srcPlace:Place) = true;
         public def notifyActivityTermination() {
-            if (count.decrementAndGet() == 0) {
+            if (count.decrementAndGet() == 0n) {
                 val t = MultipleExceptions.make(exceptions);
                 val ref = this.ref();
                 val closure:()=>void;
@@ -373,7 +373,7 @@ abstract class FinishState {
 
     static class RootFinish extends RootFinishSkeleton {
         @Embed protected transient var latch:SimpleLatch;
-        protected var count:Int = 1;
+        protected var count:Int = 1n;
         protected var exceptions:GrowableRail[Exception]; // lazily initialized
         protected var counts:Rail[Int];
         protected var seen:Rail[Boolean];
@@ -400,13 +400,13 @@ abstract class FinishState {
         }
         public def notifyActivityTermination():void {
             latch.lock();
-            if (--count != 0) {
+            if (--count != 0n) {
                 latch.unlock();
                 return;
             }
             if (counts != null && counts.size != 0L) {
-                for(var i:Int=0; i<Place.MAX_PLACES; i++) {
-                    if (counts(i) != 0) {
+                for(var i:Int=0n; i<Place.MAX_PLACES; i++) {
+                    if (counts(i) != 0n) {
                         latch.unlock();
                         return;
                     }
@@ -435,7 +435,7 @@ abstract class FinishState {
                     val root = ref();
                     val closure = ()=>@RemoteInvocation("remoteFinishCleanup") { Runtime.finishStates.remove(root); };
                     seen(Runtime.hereInt()) = false;
-                    for(var i:Int=0; i<Place.MAX_PLACES; i++) {
+                    for(var i:Int=0n; i<Place.MAX_PLACES; i++) {
                         if (seen(i)) Runtime.x10rtSendMessage(i, closure, null);
                     }
                     Unsafe.dealloc(closure);
@@ -450,11 +450,11 @@ abstract class FinishState {
         protected def process(rail:Rail[Int]) {
             counts(ref().home.id) = -rail(ref().home.id);
             count += rail(ref().home.id);
-            var b:Boolean = count == 0;
+            var b:Boolean = count == 0n;
             for(var i:Long=0; i<Place.MAX_PLACES; i++) {
                 counts(i) += rail(i);
-                seen(i) |= counts(i) != 0;
-                if (counts(i) != 0) b = false;
+                seen(i) |= counts(i) != 0n;
+                if (counts(i) != 0n) b = false;
             }
             if (b) latch.release();
         }
@@ -471,10 +471,10 @@ abstract class FinishState {
                 seen(rail(i).first) = true;
             }
             count += counts(ref().home.id);
-            counts(ref().home.id) = 0;
-            if (count != 0) return;
-            for(var i:Int=0; i<Place.MAX_PLACES; i++) {
-                if (counts(i) != 0) return;
+            counts(ref().home.id) = 0n;
+            if (count != 0n) return;
+            for(var i:Int=0n; i<Place.MAX_PLACES; i++) {
+                if (counts(i) != 0n) return;
             }
             latch.release();
         }
@@ -505,11 +505,11 @@ abstract class FinishState {
     static class RemoteFinish extends RemoteFinishSkeleton {
         protected var exceptions:GrowableRail[Exception];
         @Embed protected transient var lock:Lock = @Embed new Lock();
-        protected var count:Int = 0;
+        protected var count:Int = 0n;
         protected var counts:Rail[Int];
         protected var places:Rail[Int];
-        protected var length:Int = 1;
-        @Embed protected val local = @Embed new AtomicInteger(0);
+        protected var length:Int = 1n;
+        @Embed protected val local = @Embed new AtomicInteger(0n);
         def this(ref:GlobalRef[FinishState]) {
             super(ref);
         }
@@ -532,7 +532,7 @@ abstract class FinishState {
             }
             val old = counts(place.id);
             counts(place.id)++;
-            if (old == 0 && id != place.id) {
+            if (old == 0n && id != place.id) {
                 places(length++) = place.id as int; // WARNING: assuming 32 bit places at X10 level.
             }
             lock.unlock();
@@ -575,7 +575,7 @@ abstract class FinishState {
                     }
                 }
                 counts.clear(0, counts.size);
-                length = 1;
+                length = 1n;
             } else {
                 val message = Unsafe.allocRailUninitialized[Pair[Int,Int]](1);
                 message(0) = Pair[Int,Int](Runtime.hereInt(), count);
@@ -585,7 +585,7 @@ abstract class FinishState {
                     closure = ()=>@RemoteInvocation("notifyActivityTermination_6") { deref[RootFinish](ref).notify(message); };
                 }
             }
-            count = 0;
+            count = 0n;
             exceptions = null;
             lock.unlock();
             Runtime.x10rtSendMessage(ref.home.id, closure, null);
@@ -621,11 +621,11 @@ abstract class FinishState {
     static class DenseRemoteFinish extends RemoteFinishSkeleton {
         protected var exceptions:GrowableRail[Exception];
         @Embed protected transient var lock:Lock = @Embed new Lock();
-        protected var count:Int = 0;
+        protected var count:Int = 0n;
         protected var counts:Rail[Int];
         protected var places:Rail[Int];
-        protected var length:Int = 1;
-        @Embed protected val local = @Embed new AtomicInteger(0);
+        protected var length:Int = 1n;
+        @Embed protected val local = @Embed new AtomicInteger(0n);
         def this(ref:GlobalRef[FinishState]) {
             super(ref);
         }
@@ -648,7 +648,7 @@ abstract class FinishState {
             }
             val old = counts(place.id);
             counts(place.id)++;
-            if (old == 0 && id != place.id) {
+            if (old == 0n && id != place.id) {
                 places(length++) = place.id as int; // WARNING: assuming 32 bit places at X10 level.
             }
             lock.unlock();
@@ -691,7 +691,7 @@ abstract class FinishState {
                     }
                 }
                 counts.clear(0, counts.size);
-                length = 1;
+                length = 1n;
             } else {
                 val message = Unsafe.allocRailUninitialized[Pair[Int,Int]](1);
                 message(0) = Pair[Int,Int](Runtime.hereInt(), count);
@@ -701,11 +701,11 @@ abstract class FinishState {
                     closure = ()=>@RemoteInvocation("notifyActivityTermination_6") { deref[RootFinish](ref).notify(message); };
                 }
             }
-            count = 0;
+            count = 0n;
             exceptions = null;
             lock.unlock();
             val h = Runtime.hereInt();
-            if ((Place.MAX_PLACES < 1024) || (h%32 == 0) || (h-h%32 == (ref.home.id as int))) {
+            if ((Place.MAX_PLACES < 1024) || (h%32n == 0n) || (h-h%32n == (ref.home.id as int))) {
                 Runtime.x10rtSendMessage(ref.home.id, closure, null);
             } else {
                 val clx = ()=>@RemoteInvocation("notifyActivityTermination_7") { Runtime.x10rtSendMessage(ref.home.id, closure, null); };
@@ -741,7 +741,7 @@ abstract class FinishState {
             }
         }
         def placeMerge() {
-            for(var i:Int=0; i<Runtime.MAX_THREADS; i++) {
+            for(var i:Int=0n; i<Runtime.MAX_THREADS; i++) {
                 if (workerFlag(i)) {
                     result = reducer(result, resultRail(i));
                     resultRail(i) = reducer.zero();
@@ -854,7 +854,7 @@ abstract class FinishState {
                     }
                 }
                 counts.clear(0, counts.size);
-                length = 1;
+                length = 1n;
             } else {
                 val message = Unsafe.allocRailUninitialized[Pair[Int,Int]](1);
                 message(0) = Pair[Int,Int](Runtime.hereInt(), count);
@@ -864,7 +864,7 @@ abstract class FinishState {
                     closure = ()=>@RemoteInvocation("notifyActivityTermination_6") { deref[RootCollectingFinish[T]](ref).notifyValue(message, result); };
                 }
             }
-            count = 0;
+            count = 0n;
             exceptions = null;
             lock.unlock();
             Runtime.x10rtSendMessage(ref.home.id, closure, null);

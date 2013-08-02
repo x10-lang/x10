@@ -54,16 +54,16 @@ final class WrappedDistPlaceRestricted extends Dist {
     }
 
     // replicated from superclass to workaround xlC bug with using & itables
-    public operator this(i0:long){rank==1}:Place = this(Point.make(i0));
+    public operator this(i0:long){rank==1n}:Place = this(Point.make(i0));
 
     // replicated from superclass to workaround xlC bug with using & itables
-    public operator this(i0:long, i1:long){rank==2}:Place = this(Point.make(i0, i1));
+    public operator this(i0:long, i1:long){rank==2n}:Place = this(Point.make(i0, i1));
 
     // replicated from superclass to workaround xlC bug with using & itables
-    public operator this(i0:long, i1:long, i2:long){rank==3}:Place = this(Point.make(i0, i1, i2));
+    public operator this(i0:long, i1:long, i2:long){rank==3n}:Place = this(Point.make(i0, i1, i2));
 
     // replicated from superclass to workaround xlC bug with using & itables
-    public operator this(i0:long, i1:long, i2:long, i3:long){rank==4}:Place = this(Point.make(i0,i1,i2,i3));
+    public operator this(i0:long, i1:long, i2:long, i3:long){rank==4n}:Place = this(Point.make(i0,i1,i2,i3));
 
     public def offset(pt:Point(rank)):long {
         if (here == filter) {

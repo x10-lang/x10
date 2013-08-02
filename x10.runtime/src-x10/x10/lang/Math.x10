@@ -373,7 +373,7 @@ public final class Math {
     @Native("java", "java.lang.Math.min(#a,#b)") // @Native for performance
     public static def min(a:Double, b:Double):Double = a<b?a:b;
 
-    public static def signum(a:Int):Int = (a == 0) ? 0 : ((a>0) ? 1 : -1);
+    public static def signum(a:Int):Int = (a == 0n) ? 0n : ((a>0n) ? 1n : -1n);
     public static def signum(a:Long):Long = (a == 0L) ? 0L : ((a>0L) ? 1L : -1L);
     @Native("java", "java.lang.Math.signum(#a)") // @Native for performance
     public static def signum(a:Float):Float = (a == 0.0f) ? 0.0f : ((a>0.0f) ? 1.0f : -1.0f);
@@ -388,10 +388,10 @@ public final class Math {
     public static native def copySign(a:Double, b:Double):Double;
 
     public static def nextPowerOf2(p:Int):Int {
-        if (p==0) return 0;
-        var pow2:Int = 1;
+        if (p==0n) return 0n;
+        var pow2:Int = 1n;
         while (pow2 < p)
-            pow2 <<= 1;
+            pow2 <<= 1n;
         return pow2;
     }
 
@@ -399,7 +399,7 @@ public final class Math {
     	if (p==0L) return 0L;
     	var pow2:Long = 1L;
     	while (pow2 < p)
-    		pow2 <<= 1;
+    		pow2 <<= 1n;
     	return pow2;
     }
 
@@ -408,8 +408,8 @@ public final class Math {
 
     public static def log2(var p:Int):Int {
         assert powerOf2(p);
-        var i:Int = 0;
-        while (p > 1) { p = p/2; i++; }
+        var i:Int = 0n;
+        while (p > 1n) { p = p/2n; i++; }
         return i;
     }
 
@@ -422,7 +422,7 @@ public final class Math {
 
     // returns 2^(max(0,i))
     public static def pow2(i:Int):Int {
-        return 1 << i;
+        return 1n << i;
     }
 
     // returns 2^(max(0,i))

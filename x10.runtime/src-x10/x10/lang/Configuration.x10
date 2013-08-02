@@ -42,24 +42,24 @@ final class Configuration {
     static def busy_waiting():Boolean = envOrElse("X10_BUSY_WAITING", false);
 
     static def nthreads():Int {
-        var v:Int = 0;
+        var v:Int = 0n;
         try {
             v = Int.parse(Runtime.env.getOrElse("X10_NTHREADS", "0"));
         } catch (NumberFormatException) {
         }
-        if (v <= 0) v = 1;
+        if (v <= 0) v = 1n;
         if (v > PLATFORM_MAX_THREADS) v = PLATFORM_MAX_THREADS;
         return v;
     }
 
     static def max_threads():Int {
-        var v:Int = 0;
+        var v:Int = 0n;
         try {
            v = Int.parse(Runtime.env.getOrElse("X10_MAX_THREADS", "0"));
        } catch (NumberFormatException) {
        }
        if (v <= 0) v = nthreads();
-       if (!static_threads() && v < 1000) v = 1000;
+       if (!static_threads() && v < 1000) v = 1000n;
        if (v > PLATFORM_MAX_THREADS) v = PLATFORM_MAX_THREADS;
        return v;
     }
