@@ -100,8 +100,7 @@
                 <equals arg1="${os.arch}" arg2="amd64"/>
             </or>
         </condition>
-        <property name="lpg.executable.location" location="${lpg.location}.${platform}_${arch}"/>
-        <property name="lpg.executable" location="${lpg.executable.location}/lpgexe/lpg-${platform}_${arch}"/>
+        <property name="lpg.executable" location="${lpg.location}/lpgexe/lpg-${platform}_${arch}"/>
         <!--
         <echo message="OS: ${os.name} ${os.arch}"/>
         <echo message="Platform: ${platform}"/>
