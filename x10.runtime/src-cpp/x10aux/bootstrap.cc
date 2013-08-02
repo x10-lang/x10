@@ -72,35 +72,11 @@ static x10::lang::Rail<x10::lang::String*>* convert_args(int ac, char **av) {
 static void* real_x10_main_inner(void* args);
 
 int x10aux::real_x10_main(int ac, char **av, ApplicationMainFunction mainFunc) {
-#if defined(__bg__)    
     x10_main_args args;
     args.ac = ac;
     args.av = av;
     args.mainFunc = mainFunc;
     real_x10_main_inner(&args);
-#else
-    x10_main_args* args = x10aux::system_alloc<x10_main_args>();
-    args->ac = ac;
-    args->av = av;
-    args->mainFunc = mainFunc;
-
-    pthread_t* xthread = x10aux::system_alloc<pthread_t>();
-    pthread_attr_t* xthread_attr = x10aux::system_alloc<pthread_attr_t>();
-
-    (void)pthread_attr_init(xthread_attr);
-    x10::lang::Thread::initAttributes(xthread_attr);
-    
-    int err = pthread_create(xthread, xthread_attr,
-                             &real_x10_main_inner, (void *)args);
-    if (err) {
-        ::fprintf(stderr,"Could not create first worker thread: %s\n", ::strerror(err));
-        ::abort();
-    }
-
-    pthread_join(*xthread, NULL);
-
-#endif
-    
     return x10aux::exitCode;
 }    
 
