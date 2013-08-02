@@ -1,38 +1,55 @@
 package futuresched.benchs.swithwaterman;
 
-import x10.util.Pair;
+import x10.util.Box;
+import futuresched.core.*;
+import x10.array.Array_2;
+import x10.util.ArrayList;
+import x10.util.concurrent.AtomicReference;
+
 
 public class SmithWaterman2 {
 
-  var eFutures: ConcurrentHashMap[Pair[Int, Int], SFuture[Int]];
-  var fFutures: ConcurrentHashMap[Pair[Int, Int], SFuture[Int]];
-  var mFutures: ConcurrentHashMap[Pair[Int, Int], SFuture[Int]];
+  var eFutures: Array_2[AtomicReference[SFuture[Box[Int]]]];
+  var fFutures: Array_2[AtomicReference[SFuture[Box[Int]]]];
+  var mFutures: Array_2[AtomicReference[SFuture[Box[Int]]]];
+
+  public def init(i: Int, j: Int) {
+    eFutures = new Array_2[AtomicReference[SFuture[Box[Int]]]](i+1, j+1);
+    fFutures = new Array_2[AtomicReference[SFuture[Box[Int]]]](i+1, j+1);
+    mFutures = new Array_2[AtomicReference[SFuture[Box[Int]]]](i+1, j+1);
+    for(var k: Int = 0; k < i+1; k++)
+      for(var l: Int = 0; l < i+1; l++) {
+        eFutures(k, l) = new AtomicReference[SFuture[Box[Int]]]();
+        fFutures(k, l) = new AtomicReference[SFuture[Box[Int]]]();
+        mFutures(k, l) = new AtomicReference[SFuture[Box[Int]]]();
+      }
+  }
   
   // --------------------------------------------------------
   // E function
-  val fire = new SFuture[Boolean]();
+  val fire = new SFuture[Box[Boolean]]();
   
-  public def eDep(i, j): SFuture[Int] {
-    val index = new Pair[Int, Int](i, j);
-    var ef: SFuture[Int] = eFutures.get(index);
+  public def eDeps(i: Int, j: Int): SFuture[Box[Int]] {
+    var efr: AtomicReference[SFuture[Box[Int]]] = eFutures(i, j);
+    var ef: SFuture[Box[Int]] = efr.get();
     if (ef != null)
       return ef;
-    ef = new SFuture[Int]();
-    eFutures.put(index, ef);
-    async {
-      val deps = new ArrayList[SFuture[Int]]();
-      for (var k: Int = 0; k < i; k++)
-        deps.add(mDep(k, j));
-      val fTask = FTask.newFTask(deps, ()=>{ ef.set(eFun(i,j)) });
-      if (deps.size() == 0)
-        fire.register(()=> { fTask.now() });
+    val nef = new SFuture[Box[Int]]();
+    if (efr.compareAndSet(null, nef)) {
+      async {
+        val deps = mDeps(i, j);
+        val fTask = FTask.newFTask(deps, ()=>{ nef.set(eFun(i,j)) });
+        if (deps.size() == 0)
+          fire.register(()=> { fTask.now() });
+      }
+      return ef;
     }
     return ef;
   }
   
-  public def eVal(i, j): SFuture[Int] {
+  public def eVal(i: Int, j: Int): SFuture[Box[Int]] {
     val index = new Pair[Int, Int](i, j);
-    var ef: SFuture[Int] = eFutures.get(index);
+    var ef: SFuture[Box[Int]] = eFutures.get(index);
     return ef;
   }
   
@@ -53,18 +70,16 @@ public class SmithWaterman2 {
 
   // --------------------------------------------------------
   // F function
-  public def fDeps(i: Int, j: Int): ArrayList[SFuture[Int]] {
+  public def fDeps(i: Int, j: Int): ArrayList[SFuture[Box[Int]]] {
     val index = new Pair[Int, Int](i, j);
-    var ef: SFuture[Int] = eFutures.get(index);
+    var ef: SFuture[Box[Int]] = eFutures.get(index);
     if (ef != null)
       return ef;
-    ef = new SFuture[Int]();
+    ef = new SFuture[Box[Int]]();
     eFutures.put(index, ef);
     async {
       //val deps = eDeps(i, j);
-      val deps = new ArrayList[SFuture[Int]]();
-      for (var k: Int = 0; k < j; k++) {
-        deps.add(mVal(i, k));
+      val deps = deps.add(mVal(i, k));
       val fTask = new FTask(deps, ()=>{ ef.set(eFun(i,j)) });
       if (deps.size() == 0)
         fire.register(()=> { fTask.now() });
@@ -72,13 +87,13 @@ public class SmithWaterman2 {
     return ef;
   }
 
-  public def fVal(i: Int, j: Int): SFuture[Int] {
+  public def fVal(i: Int, j: Int): SFuture[Box[Int]] {
     val index = new Pair[Int, Int](i, j);
-    var ff: SFuture[Int] = fFutures.get(index);
+    var ff: SFuture[Box[Int]] = fFutures.get(index);
     return ff;
   }
   
-  public def eFun(i: Int, j: Int): Int {
+  public def fFun(i: Int, j: Int): Int {
     var maxVal: Int = 0;
     for (var k: Int = 0; k < j; k++) {
       val mv = mVal(i, k).get();
@@ -89,23 +104,23 @@ public class SmithWaterman2 {
     return maxVal;
   }
   
-  public def f(i, j): Int {
+  public def f(i: Int, j: Int): Int {
     return fVal(i, j).get();
   }
 
   // --------------------------------------------------------
   // M function
   
-  public def mDeps(i: Int, j: Int): ArrayList[SFuture[Int]] {
+  public def mDeps(i: Int, j: Int): ArrayList[SFuture[Box[Int]]] {
     val index = new Pair[Int, Int](i, j);
-    var ef: SFuture[Int] = eFutures.get(index);
+    var ef: SFuture[Box[Int]] = eFutures.get(index);
     if (ef != null)
       return ef;
-    ef = new SFuture[Int]();
+    ef = new SFuture[Box[Int]]();
     eFutures.put(index, ef);
     async {
       //val deps = eDeps(i, j);
-      val deps = new ArrayList[SFuture[Int]]();
+      val deps = new ArrayList[SFuture[Box[Int]]]();
       if (i > 0 && j > 0)
         deps.add(mVal(i, j));
       deps.add(eVal(i, j));
@@ -117,9 +132,9 @@ public class SmithWaterman2 {
     return ef;
   }
 
-  public def mVal(i, j): SFuture[Int] {
+  public def mVal(i: Int, j: Int): SFuture[Box[Int]] {
     val index = new Pair[Int, Int](i, j);
-    var mf: SFuture[Int] = mFutures.get(index);
+    var mf: SFuture[Box[Int]] = mFutures.get(index);
     return mf;
   }
   
@@ -135,10 +150,10 @@ public class SmithWaterman2 {
     return Math.Max(Math.max(v, ev), fv);
   }
   
-  public def m(i, j): Int {
+  public def m(i: Int, j: Int): Int {
     return mVal(i, j).get();
   }
-  
+
   // --------------------------------------------------------
   public static def seqE(i: Int, j: Int): Int {
     var maxVal: Int = 0;
@@ -179,9 +194,9 @@ public class SmithWaterman2 {
     return i+1;
   }
   
-  public def s(i: Int): Int {
+  public def s(i: Int, j: Int): Int {
     // The function s can be computed in constant time.
-    return i+2;
+    return i+j;
   }
 
   // --------------------------------------------------------
@@ -197,7 +212,7 @@ public class SmithWaterman2 {
   
   // --------------------------------------------------------
   
-  public static def m(i: Int, j: Int): Int {
+  public static def futureM(i: Int, j: Int): Int {
     val s = new SmithWaterman2();
     s.init(i, j);
     s.backward(i, j);

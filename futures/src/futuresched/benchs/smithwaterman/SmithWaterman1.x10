@@ -1,6 +1,5 @@
 package futuresched.benchs.smithwaterman;
 
-import x10.util.Pair;
 import x10.util.Box;
 import futuresched.core.*;
 import x10.array.Array_2;
@@ -33,7 +32,7 @@ public class SmithWaterman1 {
     if (ef != null)
       return ef;
     val nef = new Future[Box[Int]]();
-    if (efr.compareAndSet(null, ef)) {
+    if (efr.compareAndSet(null, nef)) {
       async {
         val deps = eDeps(i, j);
         nef.asyncSet(
@@ -76,7 +75,7 @@ public class SmithWaterman1 {
     if (ef != null)
       return ef;
     val nef = new Future[Box[Int]]();
-    if (efr.compareAndSet(null, ef)) {
+    if (efr.compareAndSet(null, nef)) {
       async {
         val deps = fDeps(i, j);
         nef.asyncSet(
@@ -119,7 +118,7 @@ public class SmithWaterman1 {
     if (ef != null)
       return ef;
     val nef = new Future[Box[Int]]();
-    if (efr.compareAndSet(null, ef)) {
+    if (efr.compareAndSet(null, nef)) {
       async {
         val deps = mDeps(i, j);
         nef.asyncSet(

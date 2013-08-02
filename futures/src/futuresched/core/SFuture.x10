@@ -47,7 +47,7 @@ public final class SFuture[T]{T isref, T haszero} {
   }
   // ---------------------------------------------
 
-  def this() {
+  public def this() {
     super();
     this.data = new AtomicReference[T]();
     //this.data.set(null);
