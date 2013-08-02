@@ -10,7 +10,7 @@ public class SmithWaterman2 {
   
   // --------------------------------------------------------
   // E function
-  val SFuture[Boolean] fire = new SFuture[Boolean]();  
+  val fire = new SFuture[Boolean]();
   
   public def eDep(i, j): SFuture[Int] {
     val index = new Pair[Int, Int](i, j);
@@ -47,7 +47,7 @@ public class SmithWaterman2 {
     return maxVal;
   }
 
-  public def e(i, j): Int {
+  public def e(i: Int, j: Int): Int {
     return eVal(i, j).get();
   }
 
@@ -72,7 +72,7 @@ public class SmithWaterman2 {
     return ef;
   }
 
-  public def fVal(i, j): SFuture[Int] {
+  public def fVal(i: Int, j: Int): SFuture[Int] {
     val index = new Pair[Int, Int](i, j);
     var ff: SFuture[Int] = fFutures.get(index);
     return ff;
@@ -140,7 +140,40 @@ public class SmithWaterman2 {
   }
   
   // --------------------------------------------------------
-  
+  public static def seqE(i: Int, j: Int): Int {
+    var maxVal: Int = 0;
+    for (var k: Int = 0; k < i; k++) {
+      val mv = seqM(k, j);
+      val gv = gamma(i - k);
+      val cv = mv + gv;
+      maxVal = Math.max(maxVal, cv);
+    }
+    return maxVal;
+  }
+
+  public static def seqF(i: Int, j: Int): Int {
+    var maxVal: Int = 0;
+    for (var k: Int = 0; k < j; k++) {
+      val mv = seqM(i, k);
+      val gv = gamma(j - k);
+      val cv = mv + gv;
+      maxVal = Math.max(maxVal, cv);
+    }
+    return maxVal;
+  }
+
+  public static def seqM(i: Int, j: Int): Int {
+    var mv: Int = 0;
+    if (i > 0 && j > 0)
+      mv = seqM(i-1, j-1);
+    val sv = s(i, j);
+    val v = mv + sv;
+    val ev = seqE(i, j);
+    val fv = seqF(i, j);
+
+    return Math.max(Math.max(v, ev), fv);
+  }
+
   public def gmma(i: Int): Int {
     // The function gamma can be computed in constant time.
     return i+1;
@@ -165,7 +198,8 @@ public class SmithWaterman2 {
   // --------------------------------------------------------
   
   public static def m(i: Int, j: Int): Int {
-    val s = new SmithWaterman();
+    val s = new SmithWaterman2();
+    s.init(i, j);
     s.backward(i, j);
     s.forward();
     return s.m(i, j);
