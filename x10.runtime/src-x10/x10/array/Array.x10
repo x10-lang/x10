@@ -49,7 +49,7 @@ public abstract class Array[T] (
     /**
      * @return the rank (dimensionality) of the Array
      */
-    public abstract property rank():int;
+    public abstract property rank():long;
 
     /**
      * The backing storage for the array's elements

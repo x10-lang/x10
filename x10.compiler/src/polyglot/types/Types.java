@@ -956,7 +956,7 @@ public class Types {
 	    XTerm selfZeroBased = xt.translate(self, zeroBasedField);
 	    XTerm selfRail = xt.translate(self, railField);
 
-	    XLit rankLiteral = ConstraintManager.getConstraintSystem().makeLit(1, ts.Int());
+	    XLit rankLiteral = ConstraintManager.getConstraintSystem().makeLit(1L, ts.Long());
 	    c.addBinding(selfRank, rankLiteral);
 	    c.addBinding(selfRect, ConstraintManager.getConstraintSystem().xtrue());
 	    c.addBinding(selfZeroBased, ConstraintManager.getConstraintSystem().xtrue());

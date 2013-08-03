@@ -15,7 +15,7 @@ package x10.array;
  * A DenseIterationSpace_3 represents the rank 3 
  * iteration space of points [min1,min2,min3]..[max1,max2.max3] inclusive.
  */
-public final class DenseIterationSpace_3 extends IterationSpace(3n){rect} {
+public final class DenseIterationSpace_3 extends IterationSpace(3){rect} {
 
     public val min0:long;
     public val min1:long;
@@ -25,7 +25,7 @@ public final class DenseIterationSpace_3 extends IterationSpace(3n){rect} {
     public val max2:long;
 
     public def this(min0:long, min1:long, min2:long, max0:long, max1:long, max2:long) {
-        super(3n,true);
+        super(3,true);
         this.min0 = min0;
         this.min1 = min1;
         this.min2 = min2;
@@ -34,27 +34,23 @@ public final class DenseIterationSpace_3 extends IterationSpace(3n){rect} {
         this.max2 = max2;
     }
 
-    public def min(i:int):long {
-       switch (i) {
-           case 0n: return min0;
-           case 1n: return min1;
-           case 2n: return min2;
-           default: throw new IllegalOperationException(i +" is not a valid rank");
-       }
+    public def min(i:long):long {
+        if (i == 0) return min0;
+        if (i == 1) return min1;
+        if (i == 2) return min2;
+        throw new IllegalOperationException(i +" is not a valid rank");
     }
 
-    public def max(i:int):long {
-       switch (i) {
-           case 0n: return max0;
-           case 1n: return max1;
-           case 2n: return max2;
-           default: throw new IllegalOperationException(i +" is not a valid rank");
-       }
+    public def max(i:long):long {
+        if (i == 0) return max0;
+        if (i == 1) return max1;
+        if (i == 2) return max2;
+        throw new IllegalOperationException(i +" is not a valid rank");
     }
 
-    public def iterator():Iterator[Point(3n)] = new DIS3_It();
+    public def iterator():Iterator[Point(3)] = new DIS3_It();
 
-    private class DIS3_It implements Iterator[Point(3n)] {
+    private class DIS3_It implements Iterator[Point(3)] {
         var cur0:long;
         var cur1:long;
         var cur2:long;

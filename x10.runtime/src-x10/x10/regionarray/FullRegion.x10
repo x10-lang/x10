@@ -16,7 +16,7 @@ package x10.regionarray;
  */
 final class FullRegion extends Region{rect} {
 
-    def this(val rank:int):FullRegion{self.rank==rank} {
+    def this(val rank:long):FullRegion{self.rank==rank} {
         super(rank, true, false);
 	if (rank<0) throw new IllegalArgumentException("Rank is negative ("+rank+")");
     }
@@ -29,14 +29,14 @@ final class FullRegion extends Region{rect} {
     public def indexOf(Point):long {
         throw new UnboundedRegionException("indexOf not supported");
     }
-    public def min():(int)=>long {
-        return (i:int) => {
+    public def min():(long)=>long {
+        return (i:long) => {
             if (i<0 || i>=rank) throw new ArrayIndexOutOfBoundsException("min: "+i+" is not a valid rank for "+this);
             Long.MIN_VALUE
         };
     }
-    public def max():(int)=>long {
-        return (i:int) => {
+    public def max():(long)=>long {
+        return (i:long) => {
             if (i<0 || i>=rank) throw new ArrayIndexOutOfBoundsException("max: "+i+" is not a valid rank for "+this);
             Long.MAX_VALUE
         };
@@ -51,8 +51,8 @@ final class FullRegion extends Region{rect} {
             val thatMin = (that as RectRegion).min();
             val thatMax = (that as RectRegion).max();
             val newRank = rank+that.rank;
-            val newMin = new Rail[long](newRank, (i:long)=>i<rank?Long.MIN_VALUE:thatMin((i as int)-rank));
-            val newMax = new Rail[long](newRank, (i:long)=>i<rank?Long.MAX_VALUE:thatMax((i as int)-rank));
+            val newMin = new Rail[long](newRank, (i:long)=>i<rank?Long.MIN_VALUE:thatMin((i)-rank));
+            val newMax = new Rail[long](newRank, (i:long)=>i<rank?Long.MAX_VALUE:thatMax((i)-rank));
             return new RectRegion(newMin,newMax);
         } else if (that instanceof RectRegion1D) {
             return this.product((that as RectRegion1D).toRectRegion());
@@ -60,9 +60,9 @@ final class FullRegion extends Region{rect} {
 	    throw new UnsupportedOperationException("haven't implemented FullRegion product with "+that.typeName());
         }
     }
-    public def projection(axis: int): Region(1n) = new FullRegion(1n);
+    public def projection(axis:long): Region(1) = new FullRegion(1);
     public def translate(p:Point(rank)): Region(rank) = this;
-    public def eliminate(i:Int)= new FullRegion(rank-1n);
+    public def eliminate(i:long)= new FullRegion(rank-1);
     protected def computeBoundingBox(): Region(rank) = this;
     public def contains(that: Region(rank)):Boolean = true;
     public def contains(p:Point):Boolean = true;

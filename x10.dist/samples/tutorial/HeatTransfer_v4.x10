@@ -34,7 +34,7 @@ public class HeatTransfer_v4 {
 
     val A = DistArray.make[Double](BigD,(p:Point)=>{ LastRow.contains(p) ? 1.0 : 0.0 });
 
-    def stencil_1([x,y]:Point(2n)): Double {
+    def stencil_1([x,y]:Point(2)): Double {
         return ((at(A.dist(x-1,y)) A(x-1,y)) + 
                 (at(A.dist(x+1,y)) A(x+1,y)) + 
                 (at(A.dist(x,y-1)) A(x,y-1)) + 
@@ -59,12 +59,12 @@ public class HeatTransfer_v4 {
             for (z in D_Base) clocked async at (D_Base(z)) {
                 do {
                     diff(z) = 0;
-                    for (p:Point(2n) in D | here) {
+                    for (p:Point(2) in D | here) {
                         Temp(p) = stencil_1(p);
                         diff(z) = Math.max(diff(z), Math.abs(A(p) - Temp(p)));
                     }
                     Clock.advanceAll();
-                    for (p:Point(2n) in D | here) {
+                    for (p:Point(2) in D | here) {
                         A(p) = Temp(p);
                     }
                     reduceMax(diff, z, scratch);
@@ -74,8 +74,8 @@ public class HeatTransfer_v4 {
     }
  
    def prettyPrintResult() {
-       for ([i] in A.region.projection(0n)) {
-           for ([j] in A.region.projection(1n)) {
+       for ([i] in A.region.projection(0)) {
+           for ([j] in A.region.projection(1)) {
                 val pt = Point.make(i,j);
                 at (BigD(pt)) {
                     val tmp = A(pt);

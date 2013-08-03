@@ -52,7 +52,7 @@ public final class RemoteArray[T](
     /**
      * The rank of the RemoteArray is equal to region.rank
      */
-    public property rank():Int = region.rank;
+    public property rank():Long = region.rank;
     
     /**
      * The home location of the RemoteArray is equal to array.home
@@ -79,7 +79,7 @@ public final class RemoteArray[T](
      * @see #operator(Point)
      * @see #set(T, Int)
      */
-    public operator this(i:Int) {here==array.home, rank==1n}:T = this()(i);
+    public operator this(i:Int) {here==array.home, rank==1}:T = this()(i);
 
     /**
      * Return the element of this array corresponding to the given point.
@@ -106,7 +106,7 @@ public final class RemoteArray[T](
      * @see #operator(Int)
      * @see #set(T, Point)
      */
-    public operator this(i:Int)=(v:T) {here==array.home, rank==1n}:T{self==v} = this()(i)=v;
+    public operator this(i:Int)=(v:T) {here==array.home, rank==1}:T{self==v} = this()(i)=v;
 
     /**
      * Set the element of this array corresponding to the given point to the given value.

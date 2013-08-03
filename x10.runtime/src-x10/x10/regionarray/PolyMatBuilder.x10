@@ -19,7 +19,7 @@ import x10.io.Printer;
  * Additional builder utility functions for Mats destined to become
  * PolyMats.
  */
-class PolyMatBuilder(rank: int) extends MatBuilder {
+class PolyMatBuilder(rank:long) extends MatBuilder {
 
     // XTENLANG-49
 
@@ -28,8 +28,8 @@ class PolyMatBuilder(rank: int) extends MatBuilder {
      * Create a new empty builder.
      */
 
-    public def this(rank: int): PolyMatBuilder{self.rank==rank} {
-        super(rank+1n);
+    public def this(rank:long): PolyMatBuilder{self.rank==rank} {
+        super((rank+1) as int);
         property(rank);
     }
 
@@ -40,7 +40,7 @@ class PolyMatBuilder(rank: int) extends MatBuilder {
 
     public def toSortedPolyMat(isSimplified:boolean): PolyMat(rank) {
         mat.sort((x:Row,y:Row)=>PolyRow.compare(x,y));
-        val result = new PolyMat(mat.size() as Int, rank+1n, (i:Int,j:Int)=>mat(i)(j), isSimplified);
+        val result = new PolyMat(mat.size() as Int, (rank+1) as int, (i:Int,j:Int)=>mat(i)(j), isSimplified);
         return result as PolyMat(rank); // XXXX
     }
 
@@ -75,4 +75,4 @@ class PolyMatBuilder(rank: int) extends MatBuilder {
         add((i:Int) => as_(i));
     }
 }
-type PolyMatBuilder(rank:Int) = PolyMatBuilder{self.rank==rank};
+type PolyMatBuilder(rank:Long) = PolyMatBuilder{self.rank==rank};

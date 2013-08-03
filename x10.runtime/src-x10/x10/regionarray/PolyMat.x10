@@ -23,7 +23,7 @@ import x10.io.Printer;
  * conjunction of the linear inequalities represented by each PolyRow
  * object.
  */
-class PolyMat(rank: int) extends Mat[PolyRow] {
+class PolyMat(rank:long) extends Mat[PolyRow] {
 
     //
     // value
@@ -39,7 +39,7 @@ class PolyMat(rank: int) extends Mat[PolyRow] {
     public def this(rows: Int, cols: Int, init: (i:Int,j:Int)=>int, isSimplified:boolean) {
         super(rows, cols, new Rail[PolyRow](rows, (i:long)=>new PolyRow(cols, (j:Int)=>init(i as int,j))));
         val cols1 = cols-1n;
-        property(cols1);
+        property(cols1 as Long);
         this.isSimplified = isSimplified;
     }
 
@@ -176,7 +176,7 @@ class PolyMat(rank: int) extends Mat[PolyRow] {
         for (r:PolyRow in this) {
             val a = r(axis);
             if (a < 0)
-                return -r(rank) / a;
+                return -r(rank as int) / a;
         }
 
         var msg: String = "axis " + axis + " has no minimum";
@@ -188,7 +188,7 @@ class PolyMat(rank: int) extends Mat[PolyRow] {
         for (r:PolyRow in this) {
             val a = r(axis);
             if (a > 0)
-                return -r(rank) / a;
+                return -r(rank as int) / a;
         }
 
         val msg = "axis " + axis + " has no maximum";
@@ -239,7 +239,7 @@ class PolyMat(rank: int) extends Mat[PolyRow] {
     
         // look for contradictions
         for (r:PolyRow in pm) {
-            if (r(rank)>0)
+            if (r(rank as int)>0)
                 return true;
         }
 
@@ -277,4 +277,4 @@ class PolyMat(rank: int) extends Mat[PolyRow] {
     }
 
 }
-public type PolyMat(rank:Int) = PolyMat{self.rank==rank};
+public type PolyMat(rank:long) = PolyMat{self.rank==rank};

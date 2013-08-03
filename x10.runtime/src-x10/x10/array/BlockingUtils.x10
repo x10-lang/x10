@@ -38,9 +38,9 @@ public class BlockingUtils {
      * @param i is the index of the partition requested
      * @return the IterationSpace representing the ith partition
      */
-    public static def partitionBlock(is:IterationSpace(1n), n:long, i:long):DenseIterationSpace_1{self!=null} {
-        val min = is.min(0n);
-        val max = is.max(0n);
+    public static def partitionBlock(is:IterationSpace(1), n:long, i:long):DenseIterationSpace_1{self!=null} {
+        val min = is.min(0);
+        val max = is.max(0);
         val P = n;
         val numElems = max - min + 1L;
         val blockSize = numElems/P;
@@ -69,9 +69,9 @@ public class BlockingUtils {
      * @return the partition number into which i is mapped by the distribution
      *         (or -1 if not contained in the bounding box of the argument iteration space)
      */
-    public static def mapIndexToBlockPartition(is:IterationSpace(1n), n:long, i:long):long {
-        val min = is.min(0n);
-        val max = is.max(0n);
+    public static def mapIndexToBlockPartition(is:IterationSpace(1), n:long, i:long):long {
+        val min = is.min(0);
+        val max = is.max(0);
         if (i<min || i > max) return -1L;
         val P = n;
         val numElems = max - min + 1;
@@ -106,11 +106,11 @@ public class BlockingUtils {
      * @param i is the index of the partition requested
      * @return the IterationSpace representing the ith partition
      */
-    public static def partitionBlockBlock(is:IterationSpace(2n), n:long, i:long):DenseIterationSpace_2{self!=null} {
-        val min0 = is.min(0n);
-        val max0 = is.max(0n);
-        val min1 = is.min(1n);
-        val max1 = is.max(1n);
+    public static def partitionBlockBlock(is:IterationSpace(2), n:long, i:long):DenseIterationSpace_2{self!=null} {
+        val min0 = is.min(0);
+        val max0 = is.max(0);
+        val min1 = is.min(1);
+        val max1 = is.max(1);
         val size0 = (max0 - min0 + 1);
         val size1 = (max1 - min1 + 1);
         val size0Even = size0 % 2 == 0L ? size0 : size0-1;
@@ -156,11 +156,11 @@ public class BlockingUtils {
      * @return the partition number into which (i,j) is mapped by the distribution
      *         (or -1 if not contained in the bounding box of the argument iteration space)
      */
-    public static def mapIndexToBlockBlockPartition(is:IterationSpace(2n), n:long, i:long, j:long):long {
-        val min0 = is.min(0n);
-        val max0 = is.max(0n);
-        val min1 = is.min(1n);
-        val max1 = is.max(1n);
+    public static def mapIndexToBlockBlockPartition(is:IterationSpace(2), n:long, i:long, j:long):long {
+        val min0 = is.min(0);
+        val max0 = is.max(0);
+        val min1 = is.min(1);
+        val max1 = is.max(1);
         if (i<min0 || i>max0 || j<min1 || j>max1) return -1L;
 
         val size0 = (max0 - min0 + 1);

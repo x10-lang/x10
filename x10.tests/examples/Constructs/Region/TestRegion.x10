@@ -78,7 +78,7 @@ abstract public class TestRegion extends x10Test {
             grid.set(i1, i2, vue);
         }
 
-        def pr(rank: int): void = {
+        def pr(rank: long): void = {
             var min: long = os.size;
             var max: long = 0L;
             for (var i: long = 0L; i<os.size; i++) {
@@ -91,32 +91,32 @@ abstract public class TestRegion extends x10Test {
             for (var i: long = 0L; i<os.size; i++) {
                 var o: Any = os(i);
                 if (o==null) {
-                    if (rank==1n)
+                    if (rank==1)
                         Out.print(".");
-                    else if (rank==2n) {
+                    else if (rank==2) {
                         if (min<=i && i<=max)
                             Out.print("    " + i + "\n");
                     }
                 } else if (o instanceof Grid) {
-                    if (rank==2n)
+                    if (rank==2)
                         Out.print("    " + i + "  ");
-                    else if (rank>=3n) {
+                    else if (rank>=3) {
                         Out.print("    ");
                         for (var j: int = 0n; j<rank; j++)
                             Out.print("-");
                         Out.print(" " + i + "\n");
                     }
-                    (o as Grid).pr(rank-1n);
+                    (o as Grid).pr(rank-1);
                 } else {
                     // XTENLANG-34, XTENLANG-211
                     val d = (o as Box[double]).value;
                     Out.print(""+(d as int));
                 }
 
-                if (rank==1n)
+                if (rank==1)
                     Out.print(" ");
             }
-            if (rank==1n)
+            if (rank==1)
                 Out.print("\n");
         }
     }
@@ -189,16 +189,16 @@ abstract public class TestRegion extends x10Test {
         pr("  iterator");
         var grid: Grid = new Grid();
         for (p:Point in a.region) {
-            if (p.rank==1n) {
-                val a2 = a as Array[double](1n);
-                if (bump) a2(p(0n)) = a2(p(0n)) + 1;
-                grid.set(p(0n), a2(p(0n)));
-            } else if (p.rank==2n) {
-                val a2 = a as Array[double](2n);
+            if (p.rank==1) {
+                val a2 = a as Array[double](1);
+                if (bump) a2(p(0)) = a2(p(0)) + 1;
+                grid.set(p(0), a2(p(0)));
+            } else if (p.rank==2) {
+                val a2 = a as Array[double](2);
                 if (bump) a2(p(0n), p(1n)) = a2(p(0n), p(1n)) + 1;
                 grid.set(p(0n), p(1n), a2(p(0n),p(1n)));
-            } else if (p.rank==3n) {
-                val a2 = a as Array[double](3n);
+            } else if (p.rank==3) {
+                val a2 = a as Array[double](3);
                 if (bump) a2(p(0n), p(1n), p(2n)) = a2(p(0n), p(1n), p(2n)) + 1;
                 grid.set(p(0n), p(1n), p(2n), a2(p(0n),p(1n),p(2n)));
             }
@@ -211,7 +211,7 @@ abstract public class TestRegion extends x10Test {
         (out as GlobalRef[Printer]{self.home==here})().println(s);
     }
 
-    def r(a: int, b: int, c: int, d: int): Region(2n) {
+    def r(a: int, b: int, c: int, d: int): Region(2) {
         return Region.make(a..b, c..d);
     }
 
@@ -227,7 +227,7 @@ abstract public class TestRegion extends x10Test {
     static LE = 1n;
     def X(axis: int) = 0x1n<<2n*axis;
 
-    public def reg(rank: int, var coeff: int, op: int, k: int): Region(rank) {
+    public def reg(rank: long, var coeff: int, op: int, k: int): Region(rank) {
         coeff += ZERO;
         val as_ = new Rail[long](rank);
         for (var i: int = 0n; i<rank; i++) {

@@ -24,24 +24,24 @@ import x10.io.Printer;
  * Equivalently, this class may be considered to represent a linear
  * inequality constraint, or a row in a constraint matrix.
  */
-class PolyRow(rank:Int) extends ValRow {
+class PolyRow(rank:Long) extends ValRow {
 
-    def this(as_:Rail[int])= this(as_, (as_.size-1) as int);
+    def this(as_:Rail[int])= this(as_, as_.size-1);
 
-    private def this(as_:Rail[int], n:int): PolyRow(n) {
+    private def this(as_:Rail[int], n:long): PolyRow(n) {
         super(as_);
-        property(n);
+        property(n as long);
     }
 
     def this(p:Point, k:int) {
-        super(p.rank+1n, (i:Int) => i<p.rank? p(i) as int : k);
+        super((p.rank+1) as int, (i:Int) => i<p.rank? p(i) as int : k);
         property(p.rank);
     }
 
     def this(cols:int, init: (i:Int)=>int) {
         super(cols, init);
         val cols1 = cols-1n;
-        property(cols1);
+        property(cols1 as long);
     }
 
 
@@ -100,7 +100,7 @@ class PolyRow(rank:Int) extends ValRow {
      */
 
     def contains(p: Point): boolean {
-        var sum: int = this(rank);
+        var sum: int = this(rank as int);
         for (var i: int = 0n; i<rank; i++)
             sum += this(i)*p(i);
         return sum <= 0n;
@@ -118,7 +118,7 @@ class PolyRow(rank:Int) extends ValRow {
      */
 
     def complement(): PolyRow {
-        val init = (i:long) => (i as int)<rank? -this(i as int) : -this(rank)+1n;
+        val init = (i:long) => (i as int)<rank? -this(i as int) : -this(rank as int)+1n;
         val as_ = new Rail[int](rank+1n, init);
         return new PolyRow(as_);
     }
@@ -160,4 +160,4 @@ class PolyRow(rank:Int) extends ValRow {
     }
 
 }
-public type PolyRow(rank:Int) = PolyRow{self.rank==rank};
+public type PolyRow(rank:long) = PolyRow{self.rank==rank};

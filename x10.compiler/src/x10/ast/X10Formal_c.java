@@ -294,7 +294,7 @@ public class X10Formal_c extends Formal_c implements X10Formal {
                     XTerm size = cType.size(c);
                     if (rank instanceof XLit && size instanceof XLit) {
                         okOrError = true;
-                        int r = (Integer) ((XLit) rank).val();
+                        long r = (Long) ((XLit) rank).val();
                         Object val = ((XLit) size).val();
                         long s = (val instanceof Long) ? (Long) val : (Integer) val;
                         if (r!=1 || s!=num) {
@@ -308,7 +308,8 @@ public class X10Formal_c extends Formal_c implements X10Formal {
                     XTerm rank = cType.rank(c);
                     if (rank instanceof XLit) {
                         okOrError = true;
-                        int r = (Integer) ((XLit) rank).val();
+                        Object val = ((XLit) rank).val();
+                        long r = (val instanceof Long) ? (Long) val : (Integer) val;
                         if (r!=num) {
                             Errors.issue(tc.job(), new SemanticException("The rank of the exploded Point is "+r+" but it should be "+num, pos));
                         }

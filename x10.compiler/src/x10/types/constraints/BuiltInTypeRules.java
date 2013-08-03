@@ -80,8 +80,8 @@ public class BuiltInTypeRules {
         XVar selfVar = ct.selfVar();
 
         if (lrank instanceof XLit && rrank instanceof XLit) {
-            int xr = (Integer) ((XLit) lrank).val();
-            int yr = (Integer) ((XLit) rrank).val();
+            long xr = (Long) ((XLit) lrank).val();
+            long yr = (Long) ((XLit) rrank).val();
             ct = ct.addRank(xr+yr);
         }
         if (ltype.isRect(context) && rtype.isRect(context)) ct = ct.addRect();

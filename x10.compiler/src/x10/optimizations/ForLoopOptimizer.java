@@ -203,10 +203,8 @@ public class ForLoopOptimizer extends ContextVisitor {
         boolean      named      = !formal.isUnnamed();
         ConstrainedType domainType = Types.toConstrainedType(domain.type());
         boolean isRect     = domainType.isRect(context);
-        Integer domainRank = (Integer) getPropertyConstantValue(domain, RANK);
-        int rank       = (null != domainRank) ? (int) domainRank :
-            (null != formalVars) ? formalVars.size() : 
-                -1;
+        Long domainRank = (Long) getPropertyConstantValue(domain, RANK);
+        int rank       = (null != domainRank) ? domainRank.intValue() : (null != formalVars) ? formalVars.size() : -1;
         assert null == formalVars || formalVars.isEmpty() || formalVars.size() == rank;
 
         // Transform loops over IntRange and LongRange into counted for loops
@@ -335,8 +333,8 @@ public class ForLoopOptimizer extends ContextVisitor {
                         maxVal = syn.createFieldRef(domain.position(), syn.createLocal(domain.position(), domLDecl), Name.make("numElems_"+(r+1)));                       
                     }
                 } else {
-                    minVal = syn.createInstanceCall(pos, syn.createLocal(domain.position(), domLDecl), MIN, context, syn.createIntLit(r));
-                    maxVal = syn.createInstanceCall(pos, syn.createLocal(domain.position(), domLDecl), MAX, context, syn.createIntLit(r));
+                    minVal = syn.createInstanceCall(pos, syn.createLocal(domain.position(), domLDecl), MIN, context, syn.createLongLit(r));
+                    maxVal = syn.createInstanceCall(pos, syn.createLocal(domain.position(), domLDecl), MAX, context, syn.createLongLit(r));
                 }
                 
                 // create an AST node for the declaration of the temporary locations for the r-th var, min, and max

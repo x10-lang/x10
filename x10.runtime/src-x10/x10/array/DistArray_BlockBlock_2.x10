@@ -20,9 +20,9 @@ import x10.compiler.TransientInitExpr;
  * Implementation of a 2-D DistArray that distributes its data elements
  * over the places in its PlaceGroup in a 2-D blocked fashion.
  */
-public class DistArray_BlockBlock_2[T] extends DistArray[T]{this.rank()==2n} implements (Long,Long)=>T {
+public class DistArray_BlockBlock_2[T] extends DistArray[T]{this.rank()==2} implements (Long,Long)=>T {
     
-    public property rank() = 2n;
+    public property rank() = 2;
 
     protected val globalIndices:DenseIterationSpace_2{self!=null};
 
@@ -158,7 +158,7 @@ public class DistArray_BlockBlock_2[T] extends DistArray[T]{this.rank()==2n} imp
      * @return the Place where p is a valid index in the DistArray; 
      *          will return Place.INVALID_PLACE if p is not contained in globalIndices
      */
-    public final def place(p:Point(2n)):Place = place(p(0n), p(1n));
+    public final def place(p:Point(2)):Place = place(p(0), p(1));
 
 
     /**
@@ -182,7 +182,7 @@ public class DistArray_BlockBlock_2[T] extends DistArray[T]{this.rank()==2n} imp
      * @return the element of this array corresponding to the given Point.
      * @see #set(T, Point)
      */
-    public final @Inline operator this(p:Point(2n)):T  = this(p(0n), p(1n));
+    public final @Inline operator this(p:Point(2)):T  = this(p(0), p(1));
 
     
     /**
@@ -211,7 +211,7 @@ public class DistArray_BlockBlock_2[T] extends DistArray[T]{this.rank()==2n} imp
      * @return the new value of the element of this array corresponding to the given Point.
      * @see #operator(Int)
      */
-    public final @Inline operator this(p:Point(2n))=(v:T):T{self==v} = this(p(0n),p(1n)) = v;
+    public final @Inline operator this(p:Point(2))=(v:T):T{self==v} = this(p(0),p(1)) = v;
 
 
     /*

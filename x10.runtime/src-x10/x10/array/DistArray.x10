@@ -45,7 +45,7 @@ public abstract class DistArray[T] (
     /**
      * @return the rank (dimensionality) of the DistArray
      */
-    public abstract property rank():int;
+    public abstract property rank():long;
  
     /** 
      * The place-local state for the DistArray 

@@ -65,20 +65,20 @@ import x10.io.*;
  * The loop bounds for Xk are then obtained by computing mins and
  * maxes over the sum[k]/Ak for the halfspaces in elim[k].
  */
-final class PolyScanner(rank:Int)/*(C:PolyMat)*/ {
+final class PolyScanner(rank:long)/*(C:PolyMat)*/ {
 
      public val C: PolyMat;
 
   //  public val rank: int;
 
-    private val myMin: Array[VarMat]{self.rank==1n,self.zeroBased,self.rect,self.rail};
-    private val myMax: Array[VarMat]{self.rank==1n,self.zeroBased,self.rect,self.rail};
-    private val minSum: Array[VarMat]{self.rank==1n,self.zeroBased,self.rect,self.rail};
-    private val maxSum: Array[VarMat]{self.rank==1n,self.zeroBased,self.rect,self.rail};
+    private val myMin: Array[VarMat]{self.rank==1,self.zeroBased,self.rect,self.rail};
+    private val myMax: Array[VarMat]{self.rank==1,self.zeroBased,self.rect,self.rail};
+    private val minSum: Array[VarMat]{self.rank==1,self.zeroBased,self.rect,self.rail};
+    private val maxSum: Array[VarMat]{self.rank==1,self.zeroBased,self.rect,self.rail};
 
-    private val parFlags: Array[boolean]{self.rank==1n,self.zeroBased,self.rect,self.rail};
-    private val min2: Array[Array[PolyRow]{self.rank==1n,self.zeroBased,self.rect,self.rail}]{self.rank==1n,self.zeroBased,self.rect,self.rail};
-    private val max2: Array[Array[PolyRow]{self.rank==1n,self.zeroBased,self.rect,self.rail}]{self.rank==1n,self.zeroBased,self.rect,self.rail};
+    private val parFlags: Array[boolean]{self.rank==1,self.zeroBased,self.rect,self.rail};
+    private val min2: Array[Array[PolyRow]{self.rank==1,self.zeroBased,self.rect,self.rail}]{self.rank==1,self.zeroBased,self.rect,self.rail};
+    private val max2: Array[Array[PolyRow]{self.rank==1,self.zeroBased,self.rect,self.rail}]{self.rank==1,self.zeroBased,self.rect,self.rail};
 
     public static def make(pm:PolyMat):PolyScanner{self.rank==pm.rank} {
 	val x = new PolyScanner(pm);
@@ -100,9 +100,9 @@ final class PolyScanner(rank:Int)/*(C:PolyMat)*/ {
         minSum = nSum;
         val xSum = new Array[VarMat](r);
         maxSum = xSum;
-        val n2 = new Array[Array[PolyRow]{self.rank==1n,self.zeroBased,self.rect,self.rail}](r);
+        val n2 = new Array[Array[PolyRow]{self.rank==1,self.zeroBased,self.rect,self.rail}](r);
         min2 = n2;
-        val x2 = new Array[Array[PolyRow]{self.rank==1n,self.zeroBased,self.rect,self.rail}](r);
+        val x2 = new Array[Array[PolyRow]{self.rank==1,self.zeroBased,self.rect,self.rail}](r);
         max2 = x2;
         //printInfo(Console.OUT);
 
@@ -111,8 +111,8 @@ final class PolyScanner(rank:Int)/*(C:PolyMat)*/ {
 
     private def init() {
 	var pm:PolyMat =C;
-        init(pm, rank-1n);
-        for (var k: int = rank-2n; k>=0n; k--) {
+        init(pm, (rank as int)-1n);
+        for (var k: int = (rank as int)-2n; k>=0n; k--) {
             pm = pm.eliminate(k+1n, true);
             init(pm, k);
         }
@@ -152,14 +152,14 @@ final class PolyScanner(rank:Int)/*(C:PolyMat)*/ {
             if (r(axis)<0n) {
                 for (var i: int = 0n; i<=axis; i++)
                     myMin(axis)(imin)(i) = r(i);
-                minSum(axis)(imin)(0n) = r(rank);
+                minSum(axis)(imin)(0n) = r(rank as int);
                 min2(axis)(imin) = r;
                 imin++;
             }
             if (r(axis)>0n) {
                 for (var i: int = 0n; i<=axis; i++)
                     myMax(axis)(imax)(i) = r(i);
-                maxSum(axis)(imax)(0n) = r(rank);
+                maxSum(axis)(imax)(0n) = r(rank as int);
                 max2(axis)(imax) = r;
                 imax++;
             }
@@ -230,7 +230,7 @@ final class PolyScanner(rank:Int)/*(C:PolyMat)*/ {
 
 
     final private class RailIt implements Iterator[Rail[int]] {
-        private val rank: int = PolyScanner.this.rank;
+        private val rank: long = PolyScanner.this.rank;
         private val s =  PolyScanner.this;
 
         private val x = new Rail[int](rank);
@@ -257,7 +257,7 @@ final class PolyScanner(rank:Int)/*(C:PolyMat)*/ {
         public def hasNext() = doesHaveNext;
 
         private def checkHasNext():void {
-            k = rank-1n;
+            k = (rank as int)-1n;
             while (x(k)>=myMax(k)) {
                 if (--k<0) {
                     doesHaveNext = false;

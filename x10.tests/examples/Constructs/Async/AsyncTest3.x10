@@ -23,7 +23,7 @@ public class AsyncTest3 extends x10Test {
 
     public def run() {
         try {
-            val A: DistArray[int](1n) = DistArray.make[int](Dist.makeUnique());
+            val A: DistArray[int](1) = DistArray.make[int](Dist.makeUnique());
             chk(Place.MAX_PLACES >= 2);
             chk(A.dist(0) == here);
             chk(A.dist(1) != here);

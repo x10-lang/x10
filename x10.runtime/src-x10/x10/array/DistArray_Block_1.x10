@@ -20,9 +20,9 @@ import x10.compiler.TransientInitExpr;
  * Implementation of a 1-D DistArray that distributes its data elements
  * over the places in its PlaceGroup in a 1-D blocked fashion.
  */
-public class DistArray_Block_1[T] extends DistArray[T]{this.rank()==1n} implements (Long)=>T {
+public class DistArray_Block_1[T] extends DistArray[T]{this.rank()==1} implements (Long)=>T {
     
-    public property rank() = 1n;
+    public property rank() = 1;
 
     protected val globalIndices:DenseIterationSpace_1{self!=null};
 
@@ -35,11 +35,11 @@ public class DistArray_Block_1[T] extends DistArray[T]{this.rank()==1n} implemen
     
     @TransientInitExpr(reloadMinLocalIndex())
     protected transient val minLocalIndex:Long;
-    @NonEscaping protected final def reloadMinLocalIndex() = localIndices.min(0n);
+    @NonEscaping protected final def reloadMinLocalIndex() = localIndices.min(0);
  
     @TransientInitExpr(reloadMaxLocalIndex())
     protected transient val maxLocalIndex:Long;
-    @NonEscaping protected final def reloadMaxLocalIndex() = localIndices.max(0n);
+    @NonEscaping protected final def reloadMaxLocalIndex() = localIndices.max(0);
 
     /**
      * Construct a n-element block distributed DistArray
@@ -136,7 +136,7 @@ public class DistArray_Block_1[T] extends DistArray[T]{this.rank()==1n} implemen
      * @return the Place where p is a valid index in the DistArray; 
      *          will return Place.INVALID_PLACE if p is not contained in globalIndices
      */
-    public final def place(p:Point(1n)):Place = place(p(0n));
+    public final def place(p:Point(1)):Place = place(p(0));
 
 
     /**
@@ -164,7 +164,7 @@ public class DistArray_Block_1[T] extends DistArray[T]{this.rank()==1n} implemen
      * @return the element of this array corresponding to the given Point.
      * @see #set(T, Point)
      */
-    public final @Inline operator this(p:Point(1n)):T  = this(p(0n));
+    public final @Inline operator this(p:Point(1)):T  = this(p(0));
 
     
     /**
@@ -197,7 +197,7 @@ public class DistArray_Block_1[T] extends DistArray[T]{this.rank()==1n} implemen
      * @return the new value of the element of this array corresponding to the given Point.
      * @see #operator(Int)
      */
-    public final @Inline operator this(p:Point(1n))=(v:T):T{self==v} = this(p(0n)) = v;
+    public final @Inline operator this(p:Point(1))=(v:T):T{self==v} = this(p(0)) = v;
 }
 
 
@@ -219,11 +219,11 @@ class LocalState_B1[S] extends LocalState[S] {
         val localSpace = BlockingUtils.partitionBlock(globalSpace, pg.numPlaces(), pg.indexOf(here));
 
 	val data:Rail[S]{self!=null};
-	if (localSpace.min(0n) > localSpace.max(0n)) { // TODO: add isEmpty() to IterationSpace API?
+	if (localSpace.min(0) > localSpace.max(0)) { // TODO: add isEmpty() to IterationSpace API?
             data = new Rail[S]();
         } else {            
-            val low = localSpace.min(0n);
-            val hi = localSpace.max(0n);
+            val low = localSpace.min(0);
+            val hi = localSpace.max(0);
             val dataSize = hi - low + 1;
             data = Unsafe.allocRailUninitialized[S](dataSize);
             for (i in low..hi) {

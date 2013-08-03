@@ -16,17 +16,17 @@ package x10.array;
  * ie. a lexograpically ordered finite collection of 
  * equal rank Points.
  */
-public abstract class IterationSpace(rank:int,rect:boolean) implements Iterable[Point(this.rank)] {
+public abstract class IterationSpace(rank:long,rect:boolean) implements Iterable[Point(this.rank)] {
 
-    protected def this(rank:int, rect:boolean) {
+    protected def this(rank:long, rect:boolean) {
         property(rank, rect);
     }
 
     public abstract def iterator():Iterator[Point(this.rank)]; 
 
-    public abstract def min(i:Int):long;
+    public abstract def min(i:long):long;
 
-    public abstract def max(i:Int):long;
+    public abstract def max(i:long):long;
 
     public def toString() {
         val sb = new x10.util.StringBuilder();
@@ -44,4 +44,4 @@ public abstract class IterationSpace(rank:int,rect:boolean) implements Iterable[
     }
 }
 
-public type IterationSpace(r:int) = IterationSpace{self.rank==r};
+public type IterationSpace(r:long) = IterationSpace{self.rank==r};

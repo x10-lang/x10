@@ -50,9 +50,9 @@ public final class PeriodicDist extends Dist {
             }
         } else {
             if (rank>4) {
-                val tmpMin = new Rail[long](rank, (i:long) => reg.min(i as int));
+                val tmpMin = new Rail[long](rank, (i:long) => reg.min(i));
                 min = tmpMin;
-                delta = new Rail[long](rank, (i:long) => reg.max(i as int) - tmpMin(i as int) +1);
+                delta = new Rail[long](rank, (i:long) => reg.max(i) - tmpMin(i) +1);
             } else {
                 min = null;
                 delta = null;
@@ -84,45 +84,35 @@ public final class PeriodicDist extends Dist {
         }
     }
 
-    private @Inline def getPeriodicIndex(index : long, dim : int) : long {
+    private @Inline def getPeriodicIndex(index : long, dim : long) : long {
         var regionMin : long = 0;
         if (rank < 5n) {
-            switch (dim) {
-                case 0n:
-                    regionMin = min0;
-                    break;
-                case 1n:
-                    regionMin = min1;
-                    break;
-                case 2n:
-                    regionMin = min2;
-                    break;
-                case 3n:
-                    regionMin = min3;
-                    break;
-                default:
-                    throw new UnsupportedOperationException();
+            if (dim == 0) {
+                regionMin = min0;
+            } else if (dim == 1) {
+                regionMin = min1;
+            } else if (dim == 2) {
+                regionMin = min2;
+            } else if (dim == 3) {
+                regionMin = min3;
+            } else {
+                throw new UnsupportedOperationException();
             }
         } else {
             regionMin = min(dim);
         }
         var regionDelta : long = 0;
         if (rank < 5n) {
-            switch (dim) {
-                case 0n:
-                    regionDelta = delta0;
-                    break;
-                case 1n:
-                    regionDelta = delta1;
-                    break;
-                case 2n:
-                    regionDelta = delta2;
-                    break;
-                case 3n:
-                    regionDelta = delta3;
-                    break;
-                default:
-                    throw new UnsupportedOperationException();
+            if (dim == 0) {
+                regionDelta = delta0;
+            } else if (dim == 1) {
+                regionDelta = delta1;
+            } else if (dim == 2) {
+                regionDelta = delta2;
+            } else if (dim == 3) {
+                regionDelta = delta3;
+            } else {
+                throw new UnsupportedOperationException();
             }
         } else {
             regionDelta = delta(dim);
@@ -142,16 +132,16 @@ public final class PeriodicDist extends Dist {
     public operator this(p:Place):Region(rank) = get(p);
 
     public @Inline operator this(pt:Point(rank)):Place {
-        val actualPt = Point.make(rank, (i : int) => getPeriodicIndex(pt(i), i));
+        val actualPt = Point.make(rank, (i:long) => getPeriodicIndex(pt(i), i));
         return baseDist(actualPt);
     }
-    public @Inline operator this(i0:long){rank==1n}:Place {
+    public @Inline operator this(i0:long){rank==1}:Place {
         var a0 : long = i0;
         while (a0 < min0) a0 += delta0;
         while (a0 >= (min0 + delta0)) a0 -= delta0;
         return baseDist(a0);
     }
-    public @Inline operator this(i0:long, i1:long){rank==2n}:Place {
+    public @Inline operator this(i0:long, i1:long){rank==2}:Place {
         var a0 : long = i0;
         while (a0 < min0) a0 += delta0;
         while (a0 >= (min0 + delta0)) a0 -= delta0;
@@ -160,7 +150,7 @@ public final class PeriodicDist extends Dist {
         while (a1 >= (min1 + delta1)) a1 -= delta1;
         return baseDist(a0, a1);
     }
-    public @Inline operator this(i0:long, i1:long, i2:long){rank==3n}:Place {
+    public @Inline operator this(i0:long, i1:long, i2:long){rank==3}:Place {
         var a0 : long = i0;
         while (a0 < min0) a0 += delta0;
         while (a0 >= (min0 + delta0)) a0 -= delta0;
@@ -172,7 +162,7 @@ public final class PeriodicDist extends Dist {
         while (a2 >= (min2 + delta2)) a2 -= delta2;
         return baseDist(a0, a1, a2);
     }
-    public @Inline operator this(i0:long, i1:long, i2:long, i3:long){rank==4n}:Place {
+    public @Inline operator this(i0:long, i1:long, i2:long, i3:long){rank==4}:Place {
         var a0 : long = i0;
         while (a0 < min0) a0 += delta0;
         while (a0 >= (min0 + delta0)) a0 -= delta0;
@@ -189,16 +179,16 @@ public final class PeriodicDist extends Dist {
     }
 
     public @Inline def offset(pt:Point(rank)):long {
-        val actualPt = Point.make(rank, (i : int) => getPeriodicIndex(pt(i), i));
+        val actualPt = Point.make(rank, (i:long) => getPeriodicIndex(pt(i), i));
         return baseDist.offset(actualPt);
     }
-    public @Inline def offset(i0:long){rank==1n}:long {
+    public @Inline def offset(i0:long){rank==1}:long {
         var a0 : long = i0;
         while (a0 < min0) a0 += delta0;
         while (a0 >= (min0 + delta0)) a0 -= delta0;
         return baseDist.offset(a0);
     }
-    public @Inline def offset(i0:long, i1:long){rank==2n}:long {
+    public @Inline def offset(i0:long, i1:long){rank==2}:long {
         var a0 : long = i0;
         while (a0 < min0) a0 += delta0;
         while (a0 >= (min0 + delta0)) a0 -= delta0;
@@ -207,7 +197,7 @@ public final class PeriodicDist extends Dist {
         while (a1 >= (min1 + delta1)) a1 -= delta1;
         return baseDist.offset(a0, a1);
     }
-    public @Inline def offset(i0:long, i1:long, i2:long){rank==3n}:long {
+    public @Inline def offset(i0:long, i1:long, i2:long){rank==3}:long {
         var a0 : long = i0;
         while (a0 < min0) a0 += delta0;
         while (a0 >= (min0 + delta0)) a0 -= delta0;
@@ -219,7 +209,7 @@ public final class PeriodicDist extends Dist {
         while (a2 >= (min2 + delta2)) a2 -= delta2;
         return baseDist.offset(a0, a1, a2);
     }
-    public @Inline def offset(i0:long, i1:long, i2:long, i3:long){rank==4n}:long {
+    public @Inline def offset(i0:long, i1:long, i2:long, i3:long){rank==4}:long {
         var a0 : long = i0;
         while (a0 < min0) a0 += delta0;
         while (a0 >= (min0 + delta0)) a0 -= delta0;

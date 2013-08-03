@@ -99,12 +99,12 @@ class PolyRegion extends Region {
      * all but the axis of interest.
      */
 
-    public def projection(axis: int): Region(1n) {
+    public def projection(axis: long): Region(1) {
         var pm: PolyMat{self.rank==this.rank} = mat;
         for (var k: int = 0n; k<rank; k++)
-            if (k!=axis)
+            if (k!=(axis as int))
                 pm = pm.eliminate(k, true);
-        return Region.makeRectangular(pm.rectMin(axis), pm.rectMax(axis));// as Region(1);
+        return Region.makeRectangular(pm.rectMin(axis as int), pm.rectMax(axis as int));// as Region(1);
     }
 
     /**
@@ -113,8 +113,8 @@ class PolyRegion extends Region {
 
     // XXX add a test case for this; also for projection!
   
-    public def eliminate(axis: int): Region/*(rank1)*/ {
-        val pm = mat.eliminate(axis, true); 
+    public def eliminate(axis: long): Region/*(rank1)*/ {
+        val pm = mat.eliminate(axis as int, true); 
         val result = PolyRegion.make(pm);
         return result /*as Region(rank1)*/;
     }
@@ -130,7 +130,7 @@ class PolyRegion extends Region {
         val that = r as PolyRegion;
         val pmb = new PolyMatBuilder(this.rank + that.rank);
         copy(pmb, this.mat, 0n);         // padded w/ 0s on the right
-        copy(pmb, that.mat, this.rank); // padded w/ 0s on the left
+        copy(pmb, that.mat, this.rank as int); // padded w/ 0s on the left
         val pm = pmb.toSortedPolyMat(false);
         return PolyRegion.make(pm);
     }
@@ -141,7 +141,7 @@ class PolyRegion extends Region {
             val t = new Rail[int](tt.rank+1);
             for (var i: int = 0n; i<ff.rank; i++)
                 t(offset+i) = f(i);
-            t(tt.rank) = f(ff.rank);
+            t(tt.rank) = f(ff.rank as int);
             tt.add(new PolyRow(t));
         }
     }
@@ -163,7 +163,7 @@ class PolyRegion extends Region {
                 t(i) = f(i);
                 s += f(i)*v(i);
             }
-            t(ff.rank) = f(ff.rank) - s;
+            t(ff.rank) = f(ff.rank as int) - s;
             tt.add(new PolyRow(t));
         }
     }
@@ -244,8 +244,8 @@ class PolyRegion extends Region {
     private static ROW: int = PolyMatBuilder.X(0n);
     private static COL: int = PolyMatBuilder.X(1n);
 
-    public static def makeBanded(rowMin: int, colMin: int, rowMax: int, colMax: int, upper: int, lower: int): Region(2n) {
-        val pmb = new PolyMatBuilder(2n);
+    public static def makeBanded(rowMin: int, colMin: int, rowMax: int, colMax: int, upper: int, lower: int): Region(2) {
+        val pmb = new PolyMatBuilder(2);
         pmb.add(ROW, pmb.GE, rowMin);
         pmb.add(ROW, pmb.LE, rowMax);
         pmb.add(COL, pmb.GE, colMin);
@@ -256,26 +256,26 @@ class PolyRegion extends Region {
         return PolyRegion.make(pm);
     }
 
-    public static def makeBanded(size: int, upper: int, lower: int): Region(2n) {
+    public static def makeBanded(size: int, upper: int, lower: int): Region(2) {
         return makeBanded(0n, 0n, size-1n, size-1n, upper, lower);
     }
 
-    public static def makeUpperTriangular2(rowMin: int, colMin: int, size: int): Region(2n) {
+    public static def makeUpperTriangular2(rowMin: int, colMin: int, size: int): Region(2) {
         val pmb = new PolyMatBuilder(2n);
         pmb.add(ROW, pmb.GE, rowMin);
         pmb.add(COL, pmb.LE, colMin+size-1n);
         pmb.add(COL-ROW, pmb.GE, colMin-rowMin);
         val pm = pmb.toSortedPolyMat(true);
-        return PolyRegion.make(pm);
+        return PolyRegion.make(pm) as Region(2);
     }
 
-    public static def makeLowerTriangular2(rowMin: int, colMin: int, size: int): Region(2n) {
+    public static def makeLowerTriangular2(rowMin: int, colMin: int, size: int): Region(2) {
         val pmb = new PolyMatBuilder(2n);
         pmb.add(COL, pmb.GE, colMin);
         pmb.add(ROW, pmb.LE, rowMin+size-1n);
         pmb.add(ROW-COL, pmb.GE, rowMin-colMin);
         val pm = pmb.toSortedPolyMat(true);
-        return PolyRegion.make(pm);
+        return PolyRegion.make(pm) as Region(2);
     }
 
 
@@ -307,14 +307,14 @@ class PolyRegion extends Region {
 	//        cache = new Cache(this, hack198);
     }
 
-    public def min(): (int)=>long {
+    public def min(): (long)=>long {
         val t = boundingBox().min();
-        return (i:int)=>t(i);
+        return (i:long)=>t(i as int);
     }
 
-    public def max(): (int)=>long {
+    public def max(): (long)=>long {
         val t = boundingBox().max();
-        return (i:int)=>t(i);
+        return (i:long)=>t(i as int);
     }
 
 
@@ -331,4 +331,4 @@ class PolyRegion extends Region {
     }
 
 }
-public type PolyRegion(rank:Int) = PolyRegion{self.rank==rank};
+public type PolyRegion(rank:long) = PolyRegion{self.rank==rank};

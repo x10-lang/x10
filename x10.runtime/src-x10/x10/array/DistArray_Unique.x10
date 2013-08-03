@@ -19,9 +19,9 @@ import x10.compiler.CompilerFlags;
  * place in its PlaceGroup such that element i is stored at the
  * ith place as computed by the {@link x10.lang.PlaceGroup#indexOf(Place)}.
  */
-public final class DistArray_Unique[T] extends DistArray[T]{this.rank()==1n} implements (Long)=>T {
+public final class DistArray_Unique[T] extends DistArray[T]{this.rank()==1} implements (Long)=>T {
     
-    public property rank() = 1n;
+    public property rank() = 1;
 
     /**
      * Construct a zero-initialized DistArray_Unique object on the WORLD PlaceGroup
@@ -86,7 +86,7 @@ public final class DistArray_Unique[T] extends DistArray[T]{this.rank()==1n} imp
      * @return the Place where p is a valid index in the DistArray; 
      *          will return Place.INVALID_PLACE if p is not contained in globalIndices
      */
-    public def place(p:Point(this.rank())):Place = place(p(0n));
+    public def place(p:Point(this.rank())):Place = place(p(0));
 
 
     /**
@@ -108,7 +108,7 @@ public final class DistArray_Unique[T] extends DistArray[T]{this.rank()==1n} imp
      * @return the element of this array corresponding to the given Point.
      * @see #set(T, Point)
      */
-    public @Inline operator this(p:Point(this.rank())):T  = this(p(0n));
+    public @Inline operator this(p:Point(this.rank())):T  = this(p(0));
 
     
     /**
@@ -135,7 +135,7 @@ public final class DistArray_Unique[T] extends DistArray[T]{this.rank()==1n} imp
      * @return the new value of the element of this array corresponding to the given Point.
      * @see #operator(Int)
      */
-    public @Inline operator this(p:Point(this.rank()))=(v:T):T{self==v} = this(p(0n)) = v;
+    public @Inline operator this(p:Point(this.rank()))=(v:T):T{self==v} = this(p(0)) = v;
 
     /*
      * Order of tests is designed to minimize the dynamic number of comparisons

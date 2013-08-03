@@ -67,6 +67,7 @@ import polyglot.types.TypeSystem;
 import polyglot.types.LazyRef_c;
 import x10.types.checker.Converter;
 import x10.types.constraints.CConstraint;
+import x10.types.constraints.xnative.CNativeLit;
 
 import x10.types.matcher.Subst;
 import x10.util.Synthesizer;
@@ -204,7 +205,7 @@ public abstract class X10Loop_c extends Loop_c implements X10Loop {
             XVar self = Types.xclause(indexType).self();
             Synthesizer synth = new Synthesizer(nf, ts);
             XTerm v = synth.makePointRankTerm((XVar) self);
-            XTerm rank = ConstraintManager.getConstraintSystem().makeLit(length, ts.Int());
+            XTerm rank = ConstraintManager.getConstraintSystem().makeLit((long)length, ts.Long());
             indexType = Types.addBinding(indexType, v, rank);
             r.update(indexType);
             return;

@@ -28,9 +28,9 @@ public final class Array_2[T] (
          * The number of elements in rank 2 (indexed 0..(numElems_2-1)).
          */
         numElems_2:Long
-) extends Array[T]{this.rank()==2n} implements (Long,Long)=>T {
+) extends Array[T]{this.rank()==2} implements (Long,Long)=>T {
 
-    public property rank() = 2n;
+    public property rank() = 2;
 
     /**
      * Construct a 2-dimensional array with indices [0..m-1][0..n-1] whose elements are zero-initialized.
@@ -136,7 +136,7 @@ public final class Array_2[T] (
         return Unsafe.uncheckedRailApply(raw, offset(i, j));
     }
 
-    public @Inline operator this(p:Point(2n)):T  = this(p(0n), p(1n));
+    public @Inline operator this(p:Point(2)):T  = this(p(0), p(1));
     
     /**
      * Set the element of this array corresponding to the given pair of indices to the given value.
@@ -157,7 +157,7 @@ public final class Array_2[T] (
         return v;
     }
 
-    public @Inline operator this(p:Point(2n))=(v:T):T{self==v} = this(p(0n), p(1n)) = v;
+    public @Inline operator this(p:Point(2))=(v:T):T{self==v} = this(p(0), p(1)) = v;
     
     private @Inline def offset(i:long, j:long) {
          return j + (i * numElems_2);
