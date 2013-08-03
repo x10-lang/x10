@@ -7,3 +7,17 @@ F(i, j) = max_{k \in 0 .. j-1} M(i, k) + \gamma(j-k)
 M(i, j) = max(M(i-1, j-1)+s(i, j), E(i, j), F(i, j))
 
 
+-----------------------------------------------------------------
+SmithWaterman 1
+   On the first access to a future, the future is created and a task to compute its value is created. The task is dependent on some other futures. The tasks of the source nodes don't have dependencies so their tasks can be executed and set their values. When the value of a future is set, it notifies depending tasks. A depending task starts execution when it has no more dependencies.
+    When a future is notifying depending tasks, other tasks may be concurrently added as depending tasks. Therefore, the implementation of the future needs to manage the concurrency of adding dependent tasks and notifying them.
+
+SmithWaterman 2
+   The idea is to create futures and their tasks in one phase and then start the computation in the a second phase. Adding dependent tasks and notifying them will not be concurrent. Hence the implementation of the future can be simplified.
+
+
+
+
+
+
+-----------------------------------------------------------------

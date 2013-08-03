@@ -6,6 +6,7 @@ import x10.array.Array_2;
 import x10.util.ArrayList;
 import x10.util.concurrent.AtomicReference;
 
+
 public class SmithWaterman1 {
 
   var eFutures: Array_2[AtomicReference[Future[Box[Int]]]];
@@ -209,5 +210,4 @@ public class SmithWaterman1 {
   }
 
 }
-
 

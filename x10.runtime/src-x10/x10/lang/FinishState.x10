@@ -24,8 +24,8 @@ import x10.util.concurrent.SimpleLatch;
 import x10.io.CustomSerialization;
 import x10.io.SerialData;
 
-abstract class FinishState {
-    abstract def notifySubActivitySpawn(place:Place):void;
+public abstract class FinishState {
+    public abstract def notifySubActivitySpawn(place:Place):void;
     abstract def notifyActivityCreation(srcPlace:Place):Boolean;
     abstract def notifyActivityTermination():void;
     abstract def pushException(t:Exception):void;
@@ -889,7 +889,7 @@ abstract class FinishState {
             property(ResilientStorePlaceZero.make(here.id, parentFinish(), latch));
             assert latch==null || here.id == 0l;
         }
-        def notifySubActivitySpawn(place:Place) {
+        public def notifySubActivitySpawn(place:Place) {
             val srcId = here.id;
             val dstId = place.id;
             ResilientStorePlaceZero.notifySubActivitySpawn(id, srcId, dstId);
@@ -997,7 +997,7 @@ abstract class FinishState {
             this.latch = latch;
             throw new Exception("under implementation");
         }
-        def notifySubActivitySpawn(place:Place) {
+        public def notifySubActivitySpawn(place:Place) {
             throw new Exception("under implementation");
         }
         def notifyActivityCreation(srcPlace:Place) : Boolean {

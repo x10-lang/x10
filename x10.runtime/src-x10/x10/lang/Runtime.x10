@@ -701,7 +701,7 @@ public final class Runtime {
     /**
      * Return the current activity
      */
-    static def activity():Activity = worker().activity();
+    public static def activity():Activity = worker().activity();
 
     /**
      * Return the current place
@@ -881,6 +881,26 @@ public final class Runtime {
       return new Activity(block, here, state);
     }
 
+    public static def initAsyncExtern(block: ()=>void): Activity {
+      // Enclosing finish is reset later.
+      val a = activity();
+      val state = a.finishState();
+      return new Activity(block, here, state);
+//      return new Activity(block, here, null);
+    }
+
+    public static def getEnclosingFinish(): FinishState {
+      Console.OUT.println("I1");
+      val a = activity();
+      Console.OUT.println("I2");
+      a.ensureNotInAtomic();
+      Console.OUT.println("I3");
+      val state = a.finishState();
+      Console.OUT.println("I4");
+      //state.notifySubActivitySpawn(here);
+      Console.OUT.println("I5");
+      return state;
+    }
 
     //public static def runAsyncWait(
     	// futures: ArrayList[Future[Any]],

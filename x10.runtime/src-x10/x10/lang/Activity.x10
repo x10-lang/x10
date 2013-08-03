@@ -95,13 +95,13 @@ public class Activity {
     /**
      * Create activity.
      */
-    def this(body:()=>void, srcPlace:Place, finishState:FinishState) {
+    public def this(body:()=>void, srcPlace:Place, finishState:FinishState) {
         this(body, srcPlace, finishState, true);
     }
-    def this(body:()=>void, srcPlace:Place, finishState:FinishState, nac:Boolean) {
+    public  def this(body:()=>void, srcPlace:Place, finishState:FinishState, nac:Boolean) {
         this(body, srcPlace, finishState, nac, true);
     }
-    def this(body:()=>void, srcPlace:Place, finishState:FinishState, nac:Boolean, nt:Boolean) {
+    public  def this(body:()=>void, srcPlace:Place, finishState:FinishState, nac:Boolean, nt:Boolean) {
         this.finishState = finishState;
         if (nac) finishState.notifyActivityCreation(srcPlace);
         this.shouldNotifyTermination = nt;
@@ -111,7 +111,7 @@ public class Activity {
     /**
      * Create clocked activity.
      */
-    def this(body:()=>void, srcPlace:Place, finishState:FinishState, clockPhases:ClockPhases) {
+    public def this(body:()=>void, srcPlace:Place, finishState:FinishState, clockPhases:ClockPhases) {
         this(body, srcPlace, finishState);
         this.clockPhases = clockPhases;
     }
@@ -128,7 +128,7 @@ public class Activity {
     /**
      * Return the innermost finish state
      */
-    def finishState():FinishState = finishState;
+    public def finishState():FinishState = finishState;
 
     /**
      * Enter finish block
@@ -139,6 +139,9 @@ public class Activity {
         return old;
     }
 
+    public def setFinish(f:FinishState) {
+      this.finishState = finishState;
+    }
     // about atomic blocks
 
     def pushAtomic() {

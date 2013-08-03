@@ -20,13 +20,18 @@ public class FTask {
    
   public def this(act: Activity) {
     this.count = new AtomicInteger();
-    // The initial value of AtomicInteger() is 0. (?)
-    //this.count.set(0);
     this.act = act;
     this.worker = Runtime.worker();
+    // Scheduling the task in the worker that created it brings locality.
   }
 
-  // 
+  public def exec() {
+    val theAct = this.act;
+    val theWorker = this.worker;
+    @NoInline { Runtime.executeLocalInWorker(theAct, theWorker); }
+    // The annotation is added to go around a bug.
+  }
+
   public static def asyncWait[T](
     futures: ArrayList[Future[T]],
     block: ()=>void){T isref, T haszero} {
@@ -43,11 +48,11 @@ public class FTask {
         count = count + 1;
     }
     if (count == 0)
-      Runtime.executeLocal(thisAct);
+      task.exec();
     else {
       count = task.count.addAndGet(-count);
       if (count == 0)
-        Runtime.executeLocal(thisAct);
+        task.exec();
     }
   }
 
@@ -60,56 +65,91 @@ public class FTask {
 
     val added = future.addIfNotSet(task);
     if (!added)
-      Runtime.executeLocal(thisAct);
+      task.exec();
     else {
       val count = task.count.decrementAndGet();
       if (count == 0)
-        Runtime.executeLocal(thisAct);      
+        task.exec();
     }    	  
-  }
-  
-  public static def asyncWait[T](
-    future: SFuture[T],
-    block: ()=>void){T isref, T haszero} {
-    
-    val thisAct = Runtime.initAsync(block);
-    val task = new FTask(thisAct);
-
-    future.add(task);
   }
 
   public def inform() {
     val c = count.incrementAndGet();
-    if (c == 0) {
-      val theAct = this.act;
-      val theWorker = this.worker;
-      @NoInline { Runtime.executeLocalInWorker(theAct, theWorker); }
-      // The annotation is added to go around a bug.
-    }
+    if (c == 0)
+      exec();
   }
 
-  // Note that this is called when the futures are not set or being concurrently set.
-  public static def newFTask[T](
-    futures: ArrayList[SFuture[T]],
+  //----------------------------------------------------------------------------------
+
+  public static def asyncWait[T](
+    future: SFuture[T],
     block: ()=>void){T isref, T haszero} {
 
     val thisAct = Runtime.initAsync(block);
+    val task = new FTask(thisAct);
+
+    future.add(task);
+    task.count.set(-1);
+  }
+
+  static val mainFinish: FinishState = Runtime.activity().finishState();
+  public static def init(): FinishState {
+    return mainFinish;
+  }
+
+  // Note that this is called when the futures are not set or being concurrently set.
+  public static def newAsyncWait[T](
+    futures: ArrayList[SFuture[T]],
+    block: ()=>void){T isref, T haszero}: FTask {
+
+    val thisAct = new Activity(block, here, mainFinish);
+    mainFinish.notifySubActivitySpawn(here);
+//    val thisAct = Runtime.initAsyncExtern(block);
+//    thisAct.setFinish(mainFinish);
+
     val fTask = new FTask(thisAct);
     val iter = futures.iterator();
-    var c: Int = 0;
     while (iter.hasNext()) {
       val f = iter.next();
       f.add(fTask);
-      c = c + 1;
     }
-    fTask.count.set(-c);
+    fTask.count.set(-futures.size() as Int);
+    return fTask;
+  }
+
+  public static def newAsyncWait[T](
+    future: SFuture[T],
+    block: ()=>void){T isref, T haszero}: FTask {
+
+
+//    val thisAct = Runtime.initAsyncExtern(block);
+//    thisAct.setFinish(mainFinish);
+    val thisAct = new Activity(block, here, mainFinish);
+    mainFinish.notifySubActivitySpawn(here);
+
+    val fTask = new FTask(thisAct);
+    future.add(fTask);
+
+    fTask.count.set(-1);
+
+    return fTask;
   }
 
   public def now() {
     val theAct = this.act;
+//    Console.OUT.println("1");
+//    val state = Runtime.getEnclosingFinish();
+//    Console.OUT.println("2");
+//    theAct.setFinish(state);
+//    Console.OUT.println("3");
     val theWorker = this.worker;
-    Runtime.executeLocalInWorker(theAct, theWorker);    
+//    Console.OUT.println("4");
+    @NoInline { Runtime.executeLocalInWorker(theAct, theWorker); }
+    // The annotation is added to go around a bug.
+//    Console.OUT.println("5");
   }
+
+  //----------------------------------------------------------------------------------
 
 }
 

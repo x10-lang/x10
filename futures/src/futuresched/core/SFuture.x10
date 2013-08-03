@@ -55,21 +55,6 @@ public final class SFuture[T]{T isref, T haszero} {
     //this.head.set(null);
   }
 
-  public def register(block: ()=>void): void {
-    FTask.asyncWait(this, block);
-  }
-
-  public def register(block: (T)=>void): void {
-    val newBlock = () => {
-      val v = get();
-      block(v);
-    };
-    FTask.asyncWait(this, newBlock);
-  }
-  
-  //public def registerDeferred(block: T=>void): void {
-  //}
-  
   public def add(task: FTask) {
     addTask(task);
   }
@@ -82,7 +67,7 @@ public final class SFuture[T]{T isref, T haszero} {
   }
 
   private def notifyTask(fTask: FTask) {
-      fTask.inform();
+    fTask.inform();
   }
 
   public def asyncSet(fun: ()=>T) {
@@ -101,11 +86,28 @@ public final class SFuture[T]{T isref, T haszero} {
     if (d != null)
       return d;
     //throw new Exception("Future is not ready yet.");
+//    Console.OUT.println("Blocking on get().");
     finish {
-      register((t: T)=>{});
+      register(()=>{});
     }
+//    Console.OUT.println("get() released.");
     return data.get();
   }
-  
+
+    public def register(block: ()=>void): void {
+      FTask.asyncWait(this, block);
+    }
+
+    public def register(block: (T)=>void): void {
+      val newBlock = () => {
+        val v = get();
+        block(v);
+      };
+      FTask.asyncWait(this, newBlock);
+    }
+
+    //public def registerDeferred(block: T=>void): void {
+    //}
+
 }
 

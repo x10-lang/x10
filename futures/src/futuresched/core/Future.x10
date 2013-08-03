@@ -4,6 +4,8 @@ import x10.util.ArrayList;
 import x10.util.concurrent.AtomicReference;
 import x10.util.concurrent.AtomicInteger;
 
+
+
 public final class Future[T]{T isref, T haszero} {
 // If T is both a reference type and has a zero then this zero is the null.
 
@@ -136,11 +138,15 @@ public final class Future[T]{T isref, T haszero} {
     val d = data.get();
     if (d != null)
       return d;
-    //throw new Exception("Future is not ready yet.");
+//    throw new Exception("Future is not ready yet.");
     finish {
-      register((t: T)=>{});
+      register(()=>{});
     }
     return data.get();
+  }
+
+  public def register(block: ()=>void): void {
+    FTask.asyncWait(this, block);
   }
 
   public def register(fun: (T)=>void) {
@@ -150,15 +156,9 @@ public final class Future[T]{T isref, T haszero} {
     };
     FTask.asyncWait(this, newBlock);
     // Olivier: is this right?
-
   }
 
   //public def registerDeferred(block: T=>void): void {
   //}
 
-  //@Native("java", "java.lang.System.err.println(#any)")
-  //@Native("c++", "x10::lang::RuntimeNatives::println(x10aux::to_string(#any)->c_str())")
-  //public native static def println(any:Any):void;
-  
 }
-
