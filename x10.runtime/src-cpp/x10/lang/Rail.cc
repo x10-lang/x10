@@ -10,6 +10,7 @@
  */
 
 #include <x10/lang/Rail.h>
+#include <x10/lang/NegativeArraySizeException.h>
 
 x10aux::RuntimeType x10::lang::Rail<void>::rtt;
 
@@ -150,6 +151,12 @@ namespace x10 {
             throwException(x10::lang::ArrayIndexOutOfBoundsException::_make(String::Lit(msg)));
             #endif
         }
+
+        void throwNegativeArraySizeException() {
+            #ifndef NO_EXCEPTIONS
+            throwException(x10::lang::NegativeArraySizeException::_make());
+            #endif
+        }            
 
         void failAllocNoPointers(const char* msg) {
             x10aux::throwException(x10::lang::IllegalArgumentException::_make(x10aux::makeStringLit(msg)));

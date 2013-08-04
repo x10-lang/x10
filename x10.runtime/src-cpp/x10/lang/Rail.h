@@ -65,6 +65,7 @@ namespace x10 {
         extern void failAllocNoPointers(const char* msg);
 
         void throwArrayIndexOutOfBoundsException(x10_long index, x10_long size) X10_PRAGMA_NORETURN;
+        void throwNegativeArraySizeException() X10_PRAGMA_NORETURN;
     
         inline void checkBounds(x10_long index, x10_long size) {
             #ifndef NO_BOUNDS_CHECKS
@@ -260,6 +261,7 @@ template<class T> void x10::lang::Rail<T>::_constructor() {
 
 
 template<class T> x10::lang::Rail<T>* x10::lang::Rail<T>::_makeUnsafe(x10_long size, x10_boolean allocateZeroed) {
+    if (size < 0) throwNegativeArraySizeException();
     bool containsPtrs = x10aux::getRTT<T>()->containsPtrs;
     x10_long numElems = size;
     size_t numBytes = sizeof(x10::lang::Rail<T>) -sizeof(T) + (numElems * sizeof(T)); // -sizeof(T) accounts for raw[1]
@@ -288,6 +290,7 @@ template<class T> void x10::lang::Rail<T>::_constructor(x10::lang::Rail<T>* src)
 
 
 template<class T> x10::lang::Rail<T>* x10::lang::Rail<T>::_make(x10_long size) {
+    if (size < 0) throwNegativeArraySizeException();
     bool containsPtrs = x10aux::getRTT<T>()->containsPtrs;
     x10_long numElems = size;
     size_t numBytes = sizeof(x10::lang::Rail<T>) -sizeof(T) + (numElems * sizeof(T)); // -sizeof(T) accounts for raw[1]
@@ -302,6 +305,7 @@ template<class T> void x10::lang::Rail<T>::_constructor(x10_long size) {
 
 
 template<class T> x10::lang::Rail<T>* x10::lang::Rail<T>::_make(x10_long size, T init) {
+    if (size < 0) throwNegativeArraySizeException();
     bool containsPtrs = x10aux::getRTT<T>()->containsPtrs;
     x10_long numElems = size;
     size_t numBytes = sizeof(x10::lang::Rail<T>) -sizeof(T) + (numElems * sizeof(T)); // -sizeof(T) accounts for raw[1]
@@ -319,6 +323,7 @@ template<class T> void x10::lang::Rail<T>::_constructor(x10_long size, T init) {
 }
 
 template<class T> x10::lang::Rail<T>* x10::lang::Rail<T>::_make(x10_long size, x10::lang::Fun_0_1<x10_long, T>* init) {
+    if (size < 0) throwNegativeArraySizeException();
     bool containsPtrs = x10aux::getRTT<T>()->containsPtrs;
     x10_long numElems = size;
     size_t numBytes = sizeof(x10::lang::Rail<T>) -sizeof(T) + (numElems * sizeof(T)); // -sizeof(T) accounts for raw[1]
@@ -347,6 +352,7 @@ template<class T> void x10::lang::Rail<T>::_constructor(x10_long size, x10::lang
 
 
 template<class T> x10::lang::Rail<T>* x10::lang::Rail<T>::_make(x10_long size, x10::lang::Runtime__MemoryAllocator* alloc) {
+    if (size < 0) throwNegativeArraySizeException();
     bool containsPtrs = x10aux::getRTT<T>()->containsPtrs;
     x10_long numElems = size;
     size_t numBytes = sizeof(x10::lang::Rail<T>) -sizeof(T) + (numElems * sizeof(T)); // -sizeof(T) accounts for raw[1]

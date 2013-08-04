@@ -291,6 +291,8 @@ public class Types {
                     return UNSUPPORTED_OPERATION_EXCEPTION;
                 } else if (java.util.NoSuchElementException.class.equals(javaClass)) {
                     return NO_SUCH_ELEMENT_EXCEPTION;
+                } else if (java.lang.NegativeArraySizeException.class.equals(javaClass)) {
+                    return NEGATIVE_ARRAY_SIZE_EXCEPTION;
                 } else if (java.lang.ArrayIndexOutOfBoundsException.class.equals(javaClass)) {
                     return ARRAY_INDEX_OUT_OF_BOUNDS_EXCEPTION;
                 } else if (java.lang.StringIndexOutOfBoundsException.class.equals(javaClass)) {
@@ -413,6 +415,17 @@ public class Types {
 	// make sure deserialized RTT object is not duplicated
 	private Object readResolve() throws java.io.ObjectStreamException {
 	    return INDEX_OUT_OF_BOUNDS_EXCEPTION;
+	}
+    };
+    public static final RuntimeType<java.lang.NegativeArraySizeException> NEGATIVE_ARRAY_SIZE_EXCEPTION = new NamedType<java.lang.NegativeArraySizeException>(
+	"x10.lang.NegativeArraySizeException",
+	java.lang.NegativeArraySizeException.class,
+	null,
+	new Type[] { EXCEPTION }
+    ) {
+	// make sure deserialized RTT object is not duplicated
+	private Object readResolve() throws java.io.ObjectStreamException {
+	    return NEGATIVE_ARRAY_SIZE_EXCEPTION;
 	}
     };
     public static final RuntimeType<java.lang.ArrayIndexOutOfBoundsException> ARRAY_INDEX_OUT_OF_BOUNDS_EXCEPTION = new NamedType<java.lang.ArrayIndexOutOfBoundsException>(
