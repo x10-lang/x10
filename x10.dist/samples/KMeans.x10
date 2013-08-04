@@ -48,13 +48,13 @@ public class KMeans(myDim:Long) {
         def this(dim:Long, init:(Long)=>Float): SumVector(dim) {
            property(dim);
            vec = new Array[Float](this.dim, init);
-           count = 0;
+           count = 0n;
         }
         public operator this(i:Long) = vec(i);
         def makeZero() {
             for (i in 0..(dim-1))
                 vec(i) =0.0F;
-            count=0;
+            count=0n;
         }
         def addIn(a:ValVector(dim)) {
             for (i in 0..(dim-1))

@@ -19,13 +19,13 @@ public class NQueensPar {
 
     val N:Int;
     val P:Int;
-    var nSolutions:Int = 0;
+    var nSolutions:Int = 0n;
     val R:IntRange;
 
     def this(N:Int, P:Int) { 
        this.N=N;
        this.P=P;
-       this.R = 0..(N-1);
+       this.R = 0n..(N-1n);
     }
 
     def start() {
@@ -38,7 +38,7 @@ public class NQueensPar {
         var fixed:Int;
         def this() {
             q = new Rail[Int](N);
-            fixed = 0;
+            fixed = 0n;
         }
 
         def this(b:Board) {
@@ -51,7 +51,7 @@ public class NQueensPar {
          * on the next rank after the last fixed position.
          */
         def safe(j:Int) {
-            for (k in 0..(fixed-1)) {
+            for (k in 0n..(fixed-1n)) {
                 if (j == q(k) || Math.abs(fixed-k) == Math.abs(j-q(k)))
                     return false;
             }
@@ -70,7 +70,7 @@ public class NQueensPar {
          */
         def searchOne(k:Int) {
             if (safe(k)) {
-                if (fixed==(N-1)) {
+                if (fixed==(N-1n)) {
                     // all ranks safely filled
                     atomic NQueensPar.this.nSolutions++;
                 } else {
@@ -88,10 +88,10 @@ public class NQueensPar {
         def parSearch()  {
             val count = N/P;
             val extra = N%P;
-            for (thread in 0..(P-1)) async {
+            for (thread in 0n..(P-1n)) async {
                 val board = new Board(this);
-                val start = thread<=extra ? (thread*(count+1)) : (thread * count + extra);
-                val end = start + (thread<extra ? (count+1) : count) - 1;
+                val start = thread<=extra ? (thread*(count+1n)) : (thread * count + extra);
+                val end = start + (thread<extra ? (count+1n) : count) - 1n;
                 for (k in start..end) {
                     board.searchOne(k);
                 }
@@ -100,17 +100,17 @@ public class NQueensPar {
     }
 
     public static def main(args:Rail[String])  {
-        val n = args.size > 0 ? Int.parse(args(0)) : 8;
+        val n = args.size > 0 ? Int.parse(args(0)) : 8n;
         Console.OUT.println("N=" + n);
         //warmup
         //finish new NQueensPar(12, 1).start();
-        val ps = [1,2,4];
+        val ps = [1n,2n,4n];
         for (numTasks in ps) {
             Console.OUT.println("starting " + numTasks + " tasks");
             val nq = new NQueensPar(n,numTasks);
             var start:Long = -System.nanoTime();
             finish nq.start();
-            val result = nq.nSolutions==EXPECTED_SOLUTIONS(nq.N);
+            val result = (nq.nSolutions as Long)==EXPECTED_SOLUTIONS(nq.N);
             start += System.nanoTime();
             start /= 1000000;
             Console.OUT.println("NQueensPar " + nq.N + "(P=" + numTasks +

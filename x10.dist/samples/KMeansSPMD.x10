@@ -20,16 +20,15 @@ import x10.util.Team;
 
 /**
  * An SPMD formulation of KMeans.
- * Converted to 2.3 on 8/2/2012.
  *
  * For a scalable, high-performance version of this benchmark see
  * KMeans.x10 in the X10 Benchmarks (separate download from x10-lang.org)
  */
 public class KMeansSPMD {
 
-    public static def printClusters (clusters:Rail[Float], dims:Int) {
-        for (var d:Int=0 ; d<dims ; ++d) { 
-            for (var k:Long=0 ; k<clusters.size/dims ; ++k) { 
+    public static def printClusters (clusters:Rail[Float], dims:long) {
+        for (d in 0..(dims-1)) { 
+            for (k in 0..(clusters.size/dims-1)) { 
                 if (k>0)
                     Console.OUT.print(" ");
                 Console.OUT.print(clusters(k*dims+d).toString());
@@ -55,7 +54,7 @@ public class KMeansSPMD {
         if (opts.filteredArgs().size!=0L) {
             Console.ERR.println("Unexpected arguments: "+opts.filteredArgs());
             Console.ERR.println("Use -h or --help.");
-            System.setExitCode(1);
+            System.setExitCode(1n);
             return;
         }
         if (opts("-h")) {
@@ -121,7 +120,7 @@ public class KMeansSPMD {
 
                     team.barrier();
 
-                    main_loop: for (var iter:Int=0 ; iter<iterations ; iter++) {
+                    main_loop: for (iter in 0..(iterations-1)) {
 
                         //if (offset==0) Console.OUT.println("Iteration: "+iter);
 
@@ -132,12 +131,12 @@ public class KMeansSPMD {
                         host_cluster_counts.clear();
 
                         val compute_start = System.nanoTime();
-                        for (var p:Int=0 ; p<num_slice_points ; ++p) {
-                            var closest:Int = -1;
+                        for (p in 0..(num_slice_points-1)) {
+                            var closest:Long = -1;
                             var closest_dist:Float = Float.MAX_VALUE;
-                            for (var k:Int=0 ; k<num_clusters ; ++k) { 
+                            for (k in 0..(num_clusters-1)) { 
                                 var dist : Float = 0;
-                                for (var d:Int=0 ; d<dim ; ++d) { 
+                                for (d in 0..(dim-1)) { 
                                     val tmp = host_points(p+d*num_slice_points_stride) - old_clusters(k*dim+d);
                                     dist += tmp * tmp;
                                 }
@@ -146,7 +145,7 @@ public class KMeansSPMD {
                                     closest = k;
                                 }
                             }
-                            for (var d:Int=0 ; d<dim ; ++d) { 
+                            for (d in 0..(dim-1)) { 
                                 host_clusters(closest*dim+d) += host_points(p+d*num_slice_points_stride);
                             }
                             host_cluster_counts(closest)++;
@@ -158,17 +157,17 @@ public class KMeansSPMD {
                         team.allreduce(host_cluster_counts, 0L, host_cluster_counts, 0L, host_cluster_counts.size, Team.ADD);
                         comm_time += System.nanoTime() - comm_start;
 
-                        for (var k:Int=0 ; k<num_clusters ; ++k) {
-                            for (var d:Int=0 ; d<dim ; ++d) host_clusters(k*dim+d) /= host_cluster_counts(k);
+                        for (k in 0..(num_clusters-1)) {
+                            for (d in 0..(dim-1)) host_clusters(k*dim+d) /= host_cluster_counts(k);
                         }
 
-                        if (offset==0L && verbose) {
+                        if (offset==0 && verbose) {
                             Console.OUT.println("Iteration: "+iter);
                             printClusters(host_clusters,dim);
                         }
 
                         // TEST FOR CONVERGENCE
-                        for (var j:Int=0 ; j<num_clusters*dim ; ++j) {
+                        for (j in 0..(num_clusters*dim-1)) {
                             if (true/*||Math.abs(clusters_old(j)-host_clusters(j))>0.0001*/) continue main_loop;
                         }
 
@@ -181,7 +180,7 @@ public class KMeansSPMD {
                         if (!quiet) Console.OUT.print(num_global_points.toString()+" "+num_clusters+" "+dim+" ");
                         Console.OUT.println((stop_time-start_time)/1E3);
                     }
-                    for (var i:Long=0 ; i<team.size() ; ++i) {
+                    for (i in 0..(team.size()-1)) {
                         if (role == i) {                            
                             Console.OUT.println(role.toString()+": Computation time: "+compute_time/1E9);
                             Console.OUT.println(role.toString()+": barrier time: "+barrier_time/1E9);
@@ -189,7 +188,7 @@ public class KMeansSPMD {
                         }
                         team.barrier();
                     }
-                    if (role==0L) {
+                    if (role==0) {
                         Console.OUT.println("\nFinal results:");
                         printClusters(host_clusters,dim);
                     }
