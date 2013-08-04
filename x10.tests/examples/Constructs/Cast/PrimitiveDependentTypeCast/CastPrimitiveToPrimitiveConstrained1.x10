@@ -21,9 +21,9 @@ public class CastPrimitiveToPrimitiveConstrained1 extends x10Test {
 	public def run(): boolean = {
 		
 		try { 
-			var i: int{self == 0} = 0;
-			var j: int = 1;
-			i = j as int{self == 0};
+			var i: int{self == 0n} = 0n;
+			var j: int = 1n;
+			i = j as int{self == 0n};
 		}catch(e: ClassCastException) {
 			return true;
 		}

@@ -20,8 +20,8 @@ import x10.util.Box;
 	public def run(): boolean = {
 		var res1: boolean = false;
 		
-      var ni: Box[int(4)] = new Box[Int(4)](4);
-      var nn: Box[int(4)] = null;
+      var ni: Box[int(4n)] = new Box[Int(4n)](4n);
+      var nn: Box[int(4n)] = null;
 		
 		// test 1 to primitive		
 		// (int) <-- nullable<int>
@@ -38,15 +38,15 @@ import x10.util.Box;
 
 		// should fail compile
 		// try {
-			// (int(:self==3)) <-- nullable<int>
+			// (int(:self==3n)) <-- nullable<int>
 			// not null check when unboxing and deptype check
-			// int(:self==3) case2a = (int(:self==3)) ni; 
+			// int(:self==3n) case2a = (int(:self==3)) ni; 
 		// } catch (ClassCastException e) {
 			// res2 = true;
 		// }
 		
 		// try {
-			// (int(:self==3)) <-- nullable<int>
+			// (int(:self==3n)) <-- nullable<int>
 			// not null check when unboxing and deptype check
 			// int(:self==3) case2b = (int(:self==3)) nn; 
 		// } catch (ClassCastException e) {

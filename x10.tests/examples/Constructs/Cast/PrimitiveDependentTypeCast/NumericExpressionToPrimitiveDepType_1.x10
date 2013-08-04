@@ -18,13 +18,13 @@ import harness.x10Test;
  * @author vcave
  **/
 public class NumericExpressionToPrimitiveDepType_1 extends x10Test {
-	public var j: int = -1;
+	public var j: int = -1n;
 	
 	public def run(): boolean = {
-		var i: int{self == 0} = 0;
-		i = incr().j as int{self == 0};
+		var i: int{self == 0n} = 0n;
+		i = incr().j as int{self == 0n};
 
-		return j == 0;
+		return j == 0n;
 	}
 	
 	private def incr(): NumericExpressionToPrimitiveDepType_1 = {

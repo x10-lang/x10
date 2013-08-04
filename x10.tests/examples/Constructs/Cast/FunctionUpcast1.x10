@@ -22,17 +22,17 @@ import x10.compiler.NoInline;
  * Functionality implemented under XTENLANG-920.
  */
 public class FunctionUpcast1 extends x10Test {
-    public static @NoInline def eval1(cls:(Int,Int)=>Any) = cls(1000, 1);
+    public static @NoInline def eval1(cls:(Int,Int)=>Any) = cls(1000n, 1n);
     public static @NoInline def eval2(cls:()=>Any) = cls();
     public static @NoInline def eval3(i:Long, cls:(Long)=>Any) = cls(i);
 
     public def run(): boolean = {
-        val e1 = eval1((a:Any, b:Any)=>((a as Int)+(b as Int)+10));
-        val e2 = eval2(()=>1011);
+        val e1 = eval1((a:Any, b:Any)=>((a as Int)+(b as Int)+10n));
+        val e2 = eval2(()=>1011n);
         chk(e1 == e2);
-        chk(e1.equals(1011));
+        chk(e1.equals(1011n));
     
-        val data = [1,1,2,3,5,8,13,21];
+        val data = [1n,1n,2n,3n,5n,8n,13n,21n];
         for (pt in data.range()) {
             val e3 = data(pt);
             val e4 = eval3(pt, data);

@@ -21,8 +21,8 @@ public class AssignmentLitteralPrimitiveToPrimitiveConstrained_MustFailCompile e
 	public def run(): boolean = {
 		
 		try { 
-			var i: int{self == 0} = 0;
-			i = 1; // ERR
+			var i: int{self == 0n} = 0n;
+			i = 1n; // ERR
 		}catch(e: Exception) {
 			return false;
 		}

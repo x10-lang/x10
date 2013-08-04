@@ -27,11 +27,11 @@ import x10.util.Box;
 	public def run(): boolean = {
 		var res4: boolean = false;
 		
-      var ni: int(4) = 4;
+      var ni: int(4n) = 4n;
 		
 		try {
-			// (nullable<int(:self==3)>) <-- int(:c)
-         var case4b: Box[int(3)] = new Box[int(3)](ni); // ERR deptype check
+			// (nullable<int(:self==3n)>) <-- int(:c)
+         var case4b: Box[int(3n)] = new Box[int(3n)](ni); // ERR deptype check
 		} catch (e: ClassCastException) {
 			res4 = true;
 		}

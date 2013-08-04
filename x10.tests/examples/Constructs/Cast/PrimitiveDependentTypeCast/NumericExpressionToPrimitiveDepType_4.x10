@@ -21,10 +21,10 @@ import harness.x10Test;
 public class NumericExpressionToPrimitiveDepType_4 extends x10Test {
 
 	public def run(): boolean = {
-		var j: int = -1;
-		var i: int{self == 0} = 0;
-		i = (j+1) as int{self == 0};
-		return i == 0;
+		var j: int = -1n;
+		var i: int{self == 0n} = 0n;
+		i = (j+1) as int{self == 0n};
+		return i == 0n;
 	}
 
 	public static def main(var args: Rail[String]): void = {

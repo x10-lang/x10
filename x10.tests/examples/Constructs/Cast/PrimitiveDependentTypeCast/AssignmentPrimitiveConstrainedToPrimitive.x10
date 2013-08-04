@@ -20,9 +20,9 @@ public class AssignmentPrimitiveConstrainedToPrimitive extends x10Test {
 	public def run(): boolean = {
 		
 		try { 
-			var i: int{self == 0} = 0;
-			var k: int{self == 1} = 1;
-			var j: int = 0;
+			var i: int{self == 0n} = 0n;
+			var k: int{self == 1n} = 1n;
+			var j: int = 0n;
 			j = i;
 			j = k;
 		}catch(e: Exception) {

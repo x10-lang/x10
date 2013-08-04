@@ -21,8 +21,8 @@ public class CastPrimitiveConstrainedToPrimitiveConstrained2_MustFailCompile ext
 	public def run(): boolean = {
 		
 		try { 
-			var i: int{self == 1} = 1;
-			var j: int{self == 0} = i as int{self == 0}; // ERR
+			var i: int{self == 1n} = 1n;
+			var j: int{self == 0n} = i as int{self == 0n}; // ERR
 		}catch(e: Exception) {
 			return false;
 		}

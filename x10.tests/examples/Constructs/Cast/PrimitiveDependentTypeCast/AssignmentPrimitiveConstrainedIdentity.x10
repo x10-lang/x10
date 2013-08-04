@@ -21,8 +21,8 @@ public class AssignmentPrimitiveConstrainedIdentity extends x10Test {
 	public def run(): boolean = {
 		
 		try { 
-         var i: int(0) = 0;
-         var j: int(0) = 0;
+         var i: int(0n) = 0n;
+         var j: int(0n) = 0n;
          return i == j;
 		}catch(e: Exception) {
 			return false;

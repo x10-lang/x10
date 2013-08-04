@@ -20,7 +20,7 @@ public class PrimitiveAssignment extends x10Test {
 		var b: byte = 2y;
 		var c: char = 'c';
 		var s: short = 10s;
-		var j: int = 124;
+		var j: int = 124n;
 		var l: long = 1;
 		var f: float = 0;
 		var d: double = 0.001;

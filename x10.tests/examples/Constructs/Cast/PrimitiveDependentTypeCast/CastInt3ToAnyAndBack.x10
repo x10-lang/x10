@@ -20,11 +20,11 @@ import harness.x10Test;
  public class CastInt3ToAnyAndBack extends x10Test {
 
    public def run() {
-      val x = mth() as Int(3);
+      val x = mth() as Int(3n);
       return true;
    }
    
-   public def mth()=3 as Any;
+   public def mth()=3n as Any;
    public static def main(Rail[String]) {
       new CastInt3ToAnyAndBack().execute();
    }

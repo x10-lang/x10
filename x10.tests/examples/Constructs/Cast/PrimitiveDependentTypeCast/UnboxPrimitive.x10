@@ -22,7 +22,7 @@ import harness.x10Test;
 		var res2: boolean = false;
         var res4: boolean = false;
 		
-		var ni: int = 4;
+		var ni: int = 4n;
 		
 		// test 1 to primitive
 		// (int) <-- int
@@ -30,9 +30,9 @@ import harness.x10Test;
 		
 		// test 2 to primitive constrained
 		try {
-			// (int(:self==3)) <-- int
+			// (int(:self==3n)) <-- int
 			// check deptype is valid
-         val case2a = ni as int(3);
+         val case2a = ni as int(3n);
 		} catch (e: ClassCastException) {
 			res2 = true;
 		}

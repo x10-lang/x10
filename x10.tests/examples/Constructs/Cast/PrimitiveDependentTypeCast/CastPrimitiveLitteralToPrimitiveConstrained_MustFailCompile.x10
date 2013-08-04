@@ -21,7 +21,7 @@ public class CastPrimitiveLitteralToPrimitiveConstrained_MustFailCompile extends
 	public def run(): boolean {
 		
 		try { 
-           val j: int(0) = 1; // ERR
+           val j: int(0n) = 1n; // ERR
 		}catch(e: Exception) {
 			return false;
 		}

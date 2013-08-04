@@ -20,15 +20,15 @@ public class AssignmentIntegerLitteralToConstrainedShort_MustFailCompile extends
 
 	public def run2() = {
 		val constraint = 0s;
-		var i: short{self == constraint} = 0;
+		var i: short{self == constraint} = 0s;
     }
 	public def run3() = {
 		val constraint:short{self==0s} = 0s;
 		var i: short{self == constraint} = 0s;
     }
 	public def run(): boolean = {
-		val constraint: short = 0;
-		var i: short{self == constraint} = 0; // ERR: should fail because constraint: short, not short{self==0}
+		val constraint: short = 0s;
+		var i: short{self == constraint} = 0s; // ERR: should fail because constraint: short, not short{self==0s}
 		return false;
 	}
 

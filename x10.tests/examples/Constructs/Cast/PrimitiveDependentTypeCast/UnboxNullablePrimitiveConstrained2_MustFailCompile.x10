@@ -21,12 +21,12 @@ import x10.util.Box;
 	public def run(): boolean = {
 		var res4: boolean = false;
 		
-      var ni: Box[int(4)] = new Box[int(4)](4);
+      var ni: Box[int(4n)] = new Box[int(4n)](4n);
 
 		try {
 			// (nullable<int(:self==3)>) <-- nullable<int(:c)>
-         var case4a: Box[int(3)] = ni as Box[int(4)]; // ERR
-         var case5a: Box[int(4)] = ni as Box[int(4)];
+         var case4a: Box[int(3n)] = ni as Box[int(4n)]; // ERR
+         var case5a: Box[int(4n)] = ni as Box[int(4n)];
 		} catch (var e: ClassCastException) {
 			res4 = true;
 		}

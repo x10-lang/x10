@@ -20,8 +20,8 @@ public class AssignmentIntLitteralToConstrainedInt extends x10Test {
 	public def run(): boolean = {
 		
 		try { 
-			var i: int{self == 0} = 0;
-			i = 0;
+			var i: int{self == 0n} = 0n;
+			i = 0n;
          
 		}catch (e: Exception) {
 			return false;

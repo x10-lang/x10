@@ -19,8 +19,8 @@ import harness.x10Test;
 public class CastPrimitiveLitteralToPrimitiveConstrained1 extends x10Test {
 
 	public def run(): boolean = {
-		var i: int{self == 0} = 0;
-		i = 0 as int{self == 0};
+		var i: int{self == 0n} = 0n;
+		i = 0n as int{self == 0n};
 		return true;
 	}
 

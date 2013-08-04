@@ -18,11 +18,11 @@ import harness.x10Test;
 public class Integer_ConstraintWithVariable extends x10Test {
 
 	public def run(): boolean = {
-		val iconstraint: int{self==0} = 0;
+		val iconstraint: int{self==0n} = 0n;
 		// constraint's variable must be final
 		// hence these two types should be equivalent
-		var i1: int{self == iconstraint} = 0;
-		var i2: int{self==iconstraint} = 0 as int{self==iconstraint};
+		var i1: int{self == iconstraint} = 0n;
+		var i2: int{self==iconstraint} = 0n as int{self==iconstraint};
 		return true;
 	}
 

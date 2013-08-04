@@ -18,13 +18,13 @@ import harness.x10Test;
 public class NumericExpressionToPrimitiveDepType_2 extends x10Test {
 
 	public def run(): boolean = {
-		var j: int = -1;
-		var i: int{self == 0} = 0;
+		var j: int = -1n;
+		var i: int{self == 0n} = 0n;
 		try {
 			// j is incremented after the test is done;
-			i = (j++) as int{self == 0};
+			i = (j++) as int{self == 0n};
 		} catch (e: ClassCastException) {
-			return (j==0) && (i==0);
+			return (j==0n) && (i==0n);
 		}
 
 		return false;

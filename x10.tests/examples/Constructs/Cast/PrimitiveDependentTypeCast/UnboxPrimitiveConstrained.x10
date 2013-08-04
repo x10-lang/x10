@@ -21,7 +21,7 @@ import x10.util.Box;
 	public def run(): boolean = {
 		var res1: boolean = true;
 		
-      var ni: int(4) = 4;
+      var ni: int(4n) = 4n;
 		
 		// test 1 to primitive
 		// (int) <-- int(:c)
@@ -30,9 +30,9 @@ import x10.util.Box;
 		// test 2 to primitive constrained
 		// must fail compile @see
 		// try {
-			// (int(:self==3)) <-- int(:c)
+			// (int(:self==3n)) <-- int(:c)
 			// not null check when unboxing and deptype check
-			// int(:self==3) case2a = (int(:self==3)) ni; 
+			// int(:self==3n) case2a = (int(:self==3n)) ni; 
 		// } catch (ClassCastException e) {
 			// res2 = true;
 		// }

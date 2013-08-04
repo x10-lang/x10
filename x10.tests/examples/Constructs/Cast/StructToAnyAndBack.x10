@@ -46,7 +46,7 @@ class StructToAnyAndBack extends x10Test {
         res &= testAStruct[int,float](1);
         res &= testAStruct[ubyte, double](0yu);
         res &= testAStruct[float, short](3.0f);
-        res &= testAStruct[S, int](S(10));
+        res &= testAStruct[S, int](S(10n));
 
         return res;
     }
