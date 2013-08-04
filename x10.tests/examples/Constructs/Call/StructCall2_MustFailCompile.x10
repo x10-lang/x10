@@ -26,21 +26,8 @@ static struct S1 {
   public final def sum() = x + y;
 }
 
-/* Prior code -- which did not compile in v2.0 --
-
-static struct S2 extends struct S1 {
-  val z:int;
-  public def this(a:int, b:int, c:int) {
-    super(a, b);
-    z =c;
-  }
-
-  public final def sum2() = sum() + z;
-}
-*/
-
 	public def run():boolean {
-		  val a: S1 = S1(1, 3, "You looked like you were loathing the simple cobweb."); // ERR: Method or static constructor not found for given call.
+		  val a: S1 = S1(1n, 3n, "You looked like you were loathing the simple cobweb."); // ERR: Method or static constructor not found for given call.
           return true;
 	}
 	public static def main(var args: Rail[String]): void = {

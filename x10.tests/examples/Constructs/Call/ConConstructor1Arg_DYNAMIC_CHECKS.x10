@@ -18,7 +18,7 @@ import harness.x10Test;
 public class ConConstructor1Arg_DYNAMIC_CHECKS extends x10Test {
 	static class A(i:Int) {}
 	def this() {}
-	def this(A{self.i==2}){}
+	def this(A{self.i==2n}){}
 	def this(i:Int) {
 		// This call will compile only if -STATIC_CHECKS is not set.
 		this(new A(i)); // ERR warning: generated dynamic check
@@ -26,7 +26,7 @@ public class ConConstructor1Arg_DYNAMIC_CHECKS extends x10Test {
 	
 	public def run(): boolean {
 		try {
-			val x = new ConConstructor1Arg_DYNAMIC_CHECKS(3);
+			val x = new ConConstructor1Arg_DYNAMIC_CHECKS(3n);
 			return false;
 		} catch (ClassCastException) {
 			return true;
