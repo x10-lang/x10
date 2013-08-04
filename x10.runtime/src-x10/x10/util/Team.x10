@@ -216,19 +216,19 @@ public struct Team {
     }
 
     /** Indicates the operation to perform when reducing. */
-    public static val ADD = 0;
+    public static val ADD = 0n;
     /** Indicates the operation to perform when reducing. */
-    public static val MUL = 1;
+    public static val MUL = 1n;
     /** Indicates the operation to perform when reducing. */
-    public static val AND = 3;
+    public static val AND = 3n;
     /** Indicates the operation to perform when reducing. */
-    public static val OR  = 4;
+    public static val OR  = 4n;
     /** Indicates the operation to perform when reducing. */
-    public static val XOR = 5;
+    public static val XOR = 5n;
     /** Indicates the operation to perform when reducing. */
-    public static val MAX = 6;
+    public static val MAX = 6n;
     /** Indicates the operation to perform when reducing. */
-    public static val MIN = 7;
+    public static val MIN = 7n;
 
     /* using overloading is the correct thing to do here since the set of supported
      * types are finite, however the java backend will not be able to distinguish
