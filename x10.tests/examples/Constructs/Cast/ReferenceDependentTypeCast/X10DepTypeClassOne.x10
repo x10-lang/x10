@@ -23,7 +23,7 @@ public class X10DepTypeClassOne(p:int) extends x10Test implements X10InterfaceOn
    }
 
    public def run(): boolean = {
-      val p: int = 1;
+      val p: int = 1n;
       var one: X10DepTypeClassOne = new X10DepTypeClassOne(p);
       return one.p() == p;
    }
@@ -33,6 +33,6 @@ public class X10DepTypeClassOne(p:int) extends x10Test implements X10InterfaceOn
    }
    
    public static def main(var args: Rail[String]): void = {
-      new X10DepTypeClassOne(0).execute();
+      new X10DepTypeClassOne(0n).execute();
    }
    }

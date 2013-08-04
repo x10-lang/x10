@@ -21,8 +21,8 @@ public class DynamicCast4_MethodReturn extends x10Test {
    public def run(): boolean = {      
       try {                  
          // constraint not meet
-         var convertedObject: X10DepTypeClassTwo{p==0&&q==2} = 
-         this.objectReturner() as X10DepTypeClassTwo{p==0&&q==2};
+         var convertedObject: X10DepTypeClassTwo{p==0n&&q==2n} = 
+         this.objectReturner() as X10DepTypeClassTwo{p==0n&&q==2n};
          
       }catch(var e: ClassCastException) {
          return true;
@@ -32,7 +32,7 @@ public class DynamicCast4_MethodReturn extends x10Test {
    }
    
    public def objectReturner(): Any = {
-      return new X10DepTypeClassTwo(0,1);
+      return new X10DepTypeClassTwo(0n,1n);
    }
 
    public static def main(var args: Rail[String]): void = {

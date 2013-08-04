@@ -23,11 +23,11 @@ public class X10DepTypeClassTwo(p: int, q: int) extends x10Test {
     }
     
     public def run(): boolean = {
-        var one: X10DepTypeClassTwo{self.p==this.p} = new X10DepTypeClassTwo(this.p,0);
-        return one.p() == 0;
+        var one: X10DepTypeClassTwo{self.p==this.p} = new X10DepTypeClassTwo(this.p,0n);
+        return one.p() == 0n;
     }
     
     public static def main(args: Rail[String]): void = {
-        new X10DepTypeClassTwo(0,0).execute();
+        new X10DepTypeClassTwo(0n,0n).execute();
     }
 }
