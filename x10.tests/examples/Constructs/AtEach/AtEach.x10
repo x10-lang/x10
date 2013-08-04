@@ -28,13 +28,13 @@ public class AtEach extends x10Test {
         finish ateach (p in d) {
             // remember if here and d[p] disagree
             // at any activity at any place
-            disagree(p) |= ((here != d(p)) ? 1 : 0);
+            disagree(p) |= ((here != d(p)) ? 1n : 0n);
             async at(root){atomic {root().nplaces++;}}
         }
         // ensure that d[i] agreed with here in
         // all places
         // and that an activity ran in each place
-        return disagree.reduce(((x:Int,y:Int) => x+y),0) == 0 &&
+        return disagree.reduce(((x:Int,y:Int) => x+y),0n) == 0n &&
                 nplaces == Place.MAX_PLACES;
     }
 
