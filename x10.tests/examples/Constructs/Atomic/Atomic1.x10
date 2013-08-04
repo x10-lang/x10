@@ -18,12 +18,12 @@ import x10.util.concurrent.Future;
  * inside the same atomic section.
  */
 public class Atomic1 extends x10Test {
-	transient var cnt: int = 0;
-	transient var cnt_broken: int = 0;
-	public static N: int = 100;
-	def threadRun(): int = {
-		for (var i: int = 0; i < N; ++i) {
-			var t: int;
+	transient var cnt: long = 0;
+	transient var cnt_broken: long = 0;
+	public static N: long = 100;
+	def threadRun(): long = {
+		for (i in 0..(N-1)) {
+			var t: long;
 			atomic t = cnt_broken;
 			atomic ++cnt;
 			atomic cnt_broken = t + 1;
@@ -32,14 +32,14 @@ public class Atomic1 extends x10Test {
 	}
 
 	public def run(): boolean = {
-		val a = Future.make[int](()=>threadRun());
-		val b = Future.make[int](()=>threadRun());
-		val c = Future.make[int](()=>threadRun());
-		val d = Future.make[int](()=>threadRun());
-		val e = Future.make[int](()=>threadRun());
-		val f = Future.make[int](()=>threadRun());
-		val g = Future.make[int](()=>threadRun());
-		val h = Future.make[int](()=>threadRun());
+		val a = Future.make[long](()=>threadRun());
+		val b = Future.make[long](()=>threadRun());
+		val c = Future.make[long](()=>threadRun());
+		val d = Future.make[long](()=>threadRun());
+		val e = Future.make[long](()=>threadRun());
+		val f = Future.make[long](()=>threadRun());
+		val g = Future.make[long](()=>threadRun());
+		val h = Future.make[long](()=>threadRun());
 		val i = a();
 		val j = b();
 		val k = c();
@@ -48,8 +48,8 @@ public class Atomic1 extends x10Test {
 		val n = f();
 		val o = g();
 		val p = h();
-		var t1: int;
-		var t2: int;
+		var t1: long;
+		var t2: long;
 		atomic t1 = cnt;
 		atomic t2 = cnt_broken;
 		// x10.io.Console.OUT.println("Atomic1: " + t1 + " =?= " + t2);

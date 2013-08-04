@@ -28,7 +28,7 @@ public class NoFutureMakeInWhenMethod extends x10Test {
 		return false;
 	}
 	def m() {
-		return Future.make[int](()=>0);
+		return Future.make[long](()=>0);
 	}
 
 	public static def main(Rail[String]){

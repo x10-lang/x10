@@ -20,7 +20,7 @@ public class NoFutureForceInWhen extends x10Test {
 	public def run(): boolean = {
 	   try {
 		 val b=true;
-		 val x = Future.make[int](()=>0);
+		 val x = Future.make[long](()=>0);
 	     when (b==true) {
 		    x.force();
 	     }

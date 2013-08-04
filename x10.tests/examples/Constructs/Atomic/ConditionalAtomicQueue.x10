@@ -31,12 +31,12 @@ public class ConditionalAtomicQueue extends x10Test {
     transient private var head: int; // pointer to item to remove from the front
 
     public def this(): ConditionalAtomicQueue = {
-                val sz = 3;
+        val sz = 3n;
         Q = new Rail[T](sz);
-                siz = sz;
-        nelems = 0;
-        tail = 0;
-        head = 0;
+        siz = sz;
+        nelems = 0n;
+        tail = 0n;
+        head = 0n;
     }
 
     /**
@@ -61,23 +61,23 @@ public class ConditionalAtomicQueue extends x10Test {
      * increment x modulo n
      */
     static def inc(var x: int, var n: int): int = {
-        var y: int = x+1;
-        return y == n ? 0 : y;
+        var y: int = x+1n;
+        return y == n ? 0n : y;
     }
 
     /**
      * true iff queue is empty
      */
     @Pinned def empty(): boolean = {
-        chk(nelems> -1);
-        return nelems <= 0;
+        chk(nelems> -1n);
+        return nelems <= 0n;
     }
 
     /**
      * true iff queue is full
      */
     @Pinned def full(): boolean = {
-        chk(nelems < siz+1);
+        chk(nelems < siz+1n);
         return nelems >= siz;
     }
 
@@ -91,7 +91,7 @@ public class ConditionalAtomicQueue extends x10Test {
             // spawn producer activities on each place
             async 
                 ateach (val [i]: Point in MyDist.unique()) {
-                    for (val j in 0..(N-1)) {
+                    for (val j in 0n..(N-1n)) {
                         val t = new T(i as int, j); // produce a T
                         async at(root) {
                             val me = root();
@@ -107,7 +107,7 @@ public class ConditionalAtomicQueue extends x10Test {
                     val t1 = t.value;
                     async   { t1.consume(); } // consume the T
                     val m =  t1.getval();
-                    received(m) += 1;
+                    received(m) += 1n;
                     // remember how many times
                     // we received this item
                 }
@@ -115,7 +115,7 @@ public class ConditionalAtomicQueue extends x10Test {
         }
 
         // Ensure all messages were received exactly once
-        for (val p in D2.region) chk(received(p) == 1);
+        for (val p in D2.region) chk(received(p) == 1n);
 
         // Ensure the FIFO queue is empty now
         chk(empty());
@@ -132,7 +132,7 @@ public class ConditionalAtomicQueue extends x10Test {
      */
     static class T {
 
-        public static N: int = 2;
+        public static N: int = 2n;
 
         var val_: int; // the id of the item
 

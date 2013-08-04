@@ -17,12 +17,12 @@ import harness.x10Test;
 public class AtomicMethodTest extends x10Test {
 
     var val_: long = 0;
-    public static N: int = 1000;
+    public static N: long = 1000;
     var startCount: long = 0;
     var endCount: long = N;
     atomic def body() {
 	   startCount = this.val_;
-	   for (var i: int = 0; i < N; i++) this.val_++;
+	   for (i in 0..(N-1)) this.val_++;
 	   endCount = this.val_;
     }
 

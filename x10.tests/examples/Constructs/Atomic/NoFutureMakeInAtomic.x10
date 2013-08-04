@@ -20,7 +20,7 @@ public class NoFutureMakeInAtomic extends x10Test {
 	public def run(): boolean = {
 	   try {
 	     atomic {
-		    val x = Future.make[int](()=>0);
+		    val x = Future.make[int](()=>0n);
 	     }
 	   } catch (IllegalOperationException) {
 		   return true;

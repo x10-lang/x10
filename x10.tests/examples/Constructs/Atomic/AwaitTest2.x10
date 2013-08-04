@@ -16,7 +16,7 @@ import harness.x10Test;
  */
 public class AwaitTest2 extends x10Test {
 
-	var val_: int = 42;
+	var val_: long = 42;
 
 	public def run(): boolean = {
 		when (val_ == 42);

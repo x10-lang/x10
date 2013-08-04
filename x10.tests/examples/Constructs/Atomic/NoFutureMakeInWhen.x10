@@ -21,7 +21,7 @@ public class NoFutureMakeInWhen extends x10Test {
 	   try {
 		 val b=true;
 	     when (b==true) {
-		    val x = Future.make[int](()=>0);
+		    val x = Future.make[int](()=>0n);
 	     }
 	   } catch (IllegalOperationException) {
 		   return true;

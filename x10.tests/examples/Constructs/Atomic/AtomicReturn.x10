@@ -15,30 +15,30 @@ import harness.x10Test;
  * Atomic return test
  */
 public class AtomicReturn extends x10Test {
-	var a: int = 0;
-	static N: int = 100;
+    var a: long = 0;
+    static N: long = 100;
 
-	def update1(): int = {
-		atomic {
-			a++;
-			return a;
-		}
-	}
+    def update1(): long = {
+        atomic {
+            a++;
+            return a;
+        }
+    }
 
-	def update3(): int = {
-		atomic {
-			return a++;
-		}
-	}
+    def update3(): long = {
+        atomic {
+            return a++;
+        }
+    }
 
-	public def run(): boolean = {
-		update1();
-		update3();
-		//x10.io.Console.OUT.println(a);
-		return a == 2;
-	}
+    public def run(): boolean = {
+        update1();
+        update3();
+        //x10.io.Console.OUT.println(a);
+        return a == 2;
+    }
 
-	public static def main(Rail[String]) {
-		new AtomicReturn().execute();
-	}
+    public static def main(Rail[String]) {
+        new AtomicReturn().execute();
+    }
 }

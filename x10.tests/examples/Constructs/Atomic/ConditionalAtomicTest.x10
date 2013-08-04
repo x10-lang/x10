@@ -16,8 +16,8 @@ import harness.x10Test;
  */
 public class ConditionalAtomicTest extends x10Test {
 
-	var value1: int = 0;
-	var value2: int = 0;
+	var value1: int = 0n;
+	var value2: int = 0n;
 
 	public def run(): boolean = {
 		val c: Clock = Clock.make();
@@ -28,7 +28,7 @@ public class ConditionalAtomicTest extends x10Test {
 			while (true) {
 				var temp: int;
 				atomic temp = value1;
-				if (temp >= 42) break;
+				if (temp >= 42n) break;
 				when (value1 == value2) { value1++; value2--; }
 			}
 		}
@@ -39,12 +39,12 @@ public class ConditionalAtomicTest extends x10Test {
 			while (true) {
 				var temp: int;
 				atomic temp = value2;
-				if (temp >= 42) break;
-				when (value1 == value2 + 2 || (value1 != value2+2 && value1 != value2)) {
-					if (value1 == value2+2) {
+				if (temp >= 42n) break;
+				when (value1 == value2 + 2n || (value1 != value2+2n && value1 != value2)) {
+					if (value1 == value2+2n) {
 						value2 = value1;
 					} else {
-						value1 = value2 = 43; /* error */
+						value1 = value2 = 43n; /* error */
 					}
 				}
 				//when (value1 == value2 + 2)
@@ -58,7 +58,7 @@ public class ConditionalAtomicTest extends x10Test {
 
 		var temp: int;
 		atomic temp = value1;
-		return temp == 42;
+		return temp == 42n;
 	}
 
 	public static def main(Rail[String]) {

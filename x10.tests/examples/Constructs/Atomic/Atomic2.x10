@@ -19,7 +19,7 @@ import harness.x10Test;
  */
 public class Atomic2 extends x10Test {
 
-	var x: int = 0;
+	var x: long = 0;
 
 
 	public def run(): boolean = {

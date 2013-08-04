@@ -19,7 +19,7 @@ public class NoFutureForceInAtomic extends x10Test {
 	
 	public def run(): boolean = {
 	   try {
-		 val x = Future.make[int](()=>0);
+		 val x = Future.make[long](()=>0);
 	     atomic {
 		   x.force();
 	     }

@@ -16,30 +16,30 @@ import harness.x10Test;
  */
 public class AwaitTest extends x10Test {
 
-	var val_: int = 0;
+	var val_: int = 0n;
 
 	public def run(): boolean = {
 		val c: Clock = Clock.make();
 		async clocked(c) {
-			when(val_ > 43);
-			atomic val_ = 42;
-			when(val_ == 0);
-			atomic val_ = 42;
+			when(val_ > 43n);
+			atomic val_ = 42n;
+			when(val_ == 0n);
+			atomic val_ = 42n;
 		}
-		atomic val_ = 44;
-		when (val_ == 42);
+		atomic val_ = 44n;
+		when (val_ == 42n);
 		var temp: int;
 		atomic temp = val_;
 		//x10.io.Console.OUT.println("temp = " + temp);
-		if (temp != 42)
+		if (temp != 42n)
 			return false;
-		atomic val_ = 0;
-		when (val_ == 42);
+		atomic val_ = 0n;
+		when (val_ == 42n);
 		Clock.advanceAll();
 		var temp2: int;
 		atomic temp2 = val_;
 		//x10.io.Console.OUT.println("val_ = " + temp2);
-		return temp2 == 42;
+		return temp2 == 42n;
 	}
 
 	public static def main(Rail[String]){
