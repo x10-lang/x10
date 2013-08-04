@@ -17,7 +17,7 @@ import x10.regionarray.*;
  */
 public class ArrayMap extends TestArray {
 
-    public static N: int = 9;
+    public static N: long = 9;
 
     public def run(): boolean {
 	chk(Place.numPlaces() == 4L, "This test must be run with 4 places");

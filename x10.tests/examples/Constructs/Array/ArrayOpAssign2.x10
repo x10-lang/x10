@@ -19,13 +19,13 @@ import x10.regionarray.*;
 
 public class ArrayOpAssign2 extends x10Test {
 
-    var i: int = 1;
-    var j: int = 1;
+    var i: long = 1;
+    var j: long = 1;
 
     public def run(): boolean = {
 
         val R = Region.make(1..10, 1..10);
-        var ia: Array[int](2) = new Array[int](R, (Point)=>0);
+        var ia: Array[long](2) = new Array[long](R, (Point)=>0);
 
         ia(i, j) = 1;
 

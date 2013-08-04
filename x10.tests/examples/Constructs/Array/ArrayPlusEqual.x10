@@ -14,11 +14,11 @@ import x10.regionarray.*;
 
 public class ArrayPlusEqual extends x10Test {
 
-    val v = new Rail[int](2, 0);
+    val v = new Rail[int](2, 0n);
 
     public def run() {
-        for (i in 0..1) v(i) += 5;
-        for (i in 0..1) chk(v(i) == 5);
+        for (i in 0..1) v(i) += 5n;
+        for (i in 0..1) chk(v(i) == 5n);
         return true;
     }
 
