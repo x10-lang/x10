@@ -34,10 +34,10 @@ public class FlattenAsyncExpr2 extends x10Test {
     
     public def run(): boolean = {
         finish async at(a.dist(1)) {
-            m(50000);
-            atomic { a(1) = (a(1)^2);}
+            m(50000n);
+            atomic { a(1) = (a(1)^2n);}
         }
-        return a(1)== (2^2);
+        return a(1)== (2n^2n);
     }
 
     public static def main(Rail[String]) {

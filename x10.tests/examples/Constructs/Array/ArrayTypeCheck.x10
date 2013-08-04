@@ -48,9 +48,9 @@ public class ArrayTypeCheck extends x10Test {
             x10.io.Console.OUT.println("3");
         }
         
-        var i: int = 1;
-        var j: int = 2;
-        var k: int = 0;
+        var i: int = 1n;
+        var j: int = 2n;
+        var k: int = 0n;
         val p = [i, j, k] as Point;
         val q = [i, j] as Point;
         val r = [i] as Point;

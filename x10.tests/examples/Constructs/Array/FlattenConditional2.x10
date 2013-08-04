@@ -28,13 +28,13 @@ public class FlattenConditional2 extends x10Test {
     var extra: int = 4;
 
     def m(i: int): int = {
-        if (i==6) throw new Exception();
+        if (i==6n) throw new Exception();
         return i;
     }
 
     public def run(): boolean = {
-        var x: int = a(1, 1)==2? m(a(2, 2)) : m(a(3, 3));
-        return x==4;
+        var x: int = a(1, 1)==2n? m(a(2, 2)) : m(a(3, 3));
+        return x==4n;
     }
 
     public static def main(Rail[String])  {

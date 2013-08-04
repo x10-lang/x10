@@ -97,31 +97,31 @@ abstract public class TestArray extends x10Test {
             for (var i: long = 0L; i<os.size; i++) {
                 var o: Any = os(i);
                 if (o==null) {
-                    if (rank==1)
+                    if (rank==1n)
                         out.print(".");
-                    else if (rank==2) {
+                    else if (rank==2n) {
                         if (min<=i && i<=max)
                             out.print("    " + i + "\n");
                     }
                 } else if (o instanceof Grid) {
-                    if (rank==2)
+                    if (rank==2n)
                         out.print("    " + i + "  ");
-                    else if (rank>=3) {
+                    else if (rank>=3n) {
                         out.print("    ");
-                        for (var j: int = 0; j<rank; j++)
+                        for (var j: int = 0n; j<rank; j++)
                             out.print("-");
                         out.print(" " + i + "\n");
                     }
-                    (o as Grid).pr(rank-1);
+                    (o as Grid).pr(rank-1n);
                 } else {
                     val d = (o as Box[double]).value;
                     out.print("" + (d as int));
                 }
 
-                if (rank==1)
+                if (rank==1n)
                     out.print(" ");
             }
-            if (rank==1)
+            if (rank==1n)
                 out.print("\n");
         }
     } // Grid
@@ -134,7 +134,7 @@ abstract public class TestArray extends x10Test {
 
         val init1 = (pt: Point) => {
             var v: long = 1;
-            for (var i: int = 0; i<pt.rank; i++)
+            for (var i: int = 0n; i<pt.rank; i++)
                 v *= pt(i);
             return v%10 as double;
         };
@@ -222,12 +222,12 @@ abstract public class TestArray extends x10Test {
                 grid.set(p(0), p(1), p(2), a2(p(0),p(1),p(2)));
             }
         }
-        grid.pr(a.rank);
+        grid.pr(a.rank as int);
     }
 
     @Global def prPoint(test: String, p: Point): void = {
         var sum: long = 0;
-        for (var i: int = 0; i<p.rank; i++)
+        for (var i: int = 0n; i<p.rank; i++)
             sum += p(i);
         pr(test + " " + p + " sum=" + sum);
     }

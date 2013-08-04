@@ -17,7 +17,7 @@ public class Array1DCodeGen extends x10Test {
     final def matgen(val a: DistArray[double](3), val b: DistArray[double](3)): double = {
 
         var n: long = a.region.max(0);
-        var init: int = 1325;
+        var init: int = 1325n;
         var norma: double = 0.0;
 
         /* Next two for() statements switched.  Solver wants
