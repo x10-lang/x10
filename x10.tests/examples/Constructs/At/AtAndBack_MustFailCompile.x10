@@ -19,7 +19,7 @@ import harness.x10Test;
 public class AtAndBack_MustFailCompile extends x10Test {
 
     public def run():boolean {
-	var x:int = 10;
+	var x:long = 10;
 	val h = here;
 	at (here.next()) {
 	    at (h) {

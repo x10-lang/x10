@@ -36,7 +36,7 @@ public class ObjectArrayTest  extends x10Test {
 
     var start:long = System.nanoTime();
     at (here.next()) {
-        for (var i:int = 0; i<n-2; i += 2) {
+        for (var i:long = 0; i<n-2; i += 2) {
           chk(a1(i) == a1(i+2));
           chk(a1(i) != a1(i+1));
         }
@@ -46,7 +46,7 @@ public class ObjectArrayTest  extends x10Test {
 
     start = System.nanoTime();
     at (here.next()) {
-        for (var i:int = 0; i<n-2; i += 2) {
+        for (var i:long = 0; i<n-2; i += 2) {
           chk(a2(i) == a2(i+2));
           chk(a2(i) == a2(i+1));
         }
@@ -61,7 +61,7 @@ public class ObjectArrayTest  extends x10Test {
 
     start = System.nanoTime();
     at (here.next()) {
-        for (var i:int = 0; i<n-2; i += 2) {
+        for (var i:long = 0; i<n-2; i += 2) {
           chk(a3(i) == a3(i+2));
           chk(a3(i) != a3(i+1));
         }
@@ -71,7 +71,7 @@ public class ObjectArrayTest  extends x10Test {
 
     start = System.nanoTime();
     at (here.next()) {
-        for (var i:int = 0; i<n-2; i += 2) {
+        for (var i:long = 0; i<n-2; i += 2) {
           chk(a4(i) == a4(i+2));
           chk(a4(i) == a4(i+1));
         }
@@ -86,7 +86,7 @@ public class ObjectArrayTest  extends x10Test {
 
     start = System.nanoTime();
     at (here.next()) {
-        for (var i:int = 0; i<n-2; i += 2) {
+        for (var i:long = 0; i<n-2; i += 2) {
           chk(a5(i) == a5(i+2));
           chk(a5(i) != a5(i+1));
         }
@@ -96,7 +96,7 @@ public class ObjectArrayTest  extends x10Test {
 
     start = System.nanoTime();
     at (here.next()) {
-        for (var i:int = 0; i<n-2; i += 2) {
+        for (var i:long = 0; i<n-2; i += 2) {
           chk(a6(i) == a6(i+2));
           chk(a6(i) == a6(i+1));
         }
@@ -112,7 +112,7 @@ public class ObjectArrayTest  extends x10Test {
     if (args.size > 0) {
         n = Int.parseInt(args(0));
     } else {
-        n = 100;
+        n = 100n;
     }
     new ObjectArrayTest(n).execute();
   }

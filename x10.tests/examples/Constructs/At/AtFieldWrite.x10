@@ -20,7 +20,7 @@ public class AtFieldWrite extends x10Test {
        val Second = Place.FIRST_PLACE.next();
        val newT = (at (Second) new T()).root;
        at (newT) { 
-	      newT().i = 3; 
+	      newT().i = 3n; 
        }
        return true;
     }

@@ -21,20 +21,20 @@ import x10.util.HashMap;
 public class TestCustomSerialization2 extends x10Test {
 
     static class CS implements CustomSerialization {
-        val x:int;
-        val y:int;
-        transient var sum:int;
+        val x:long;
+        val y:long;
+        transient var sum:long;
  
          public def serialize() = new SerialData([x,y], null);
   
          def this(a:SerialData) {
-             val t = a.data as Rail[int]; // ERR: Warning: This is an unsound cast because X10 currently does not perform constraint solving at runtime for generic parameters.
+             val t = a.data as Rail[long]; // ERR: Warning: This is an unsound cast because X10 currently does not perform constraint solving at runtime for generic parameters.
              x = t(0);
              y = t(1);
              sum = x + y;
          }
  
-         def this(a:int, b:int) { x = a; y = b; sum = x + y; }
+         def this(a:long, b:long) { x = a; y = b; sum = x + y; }
     }
 
     public def run():boolean {

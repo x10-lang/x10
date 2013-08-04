@@ -27,8 +27,8 @@ public class AtFieldAccess extends x10Test {
 		}
 		val tt = this.t;
 		val ttroot = tt.root;
-		at (ttroot) ttroot().i = 3;
-		return 3 == (at(ttroot) ttroot().i);
+		at (ttroot) ttroot().i = 3n;
+		return 3n == (at(ttroot) ttroot().i);
 	}
 
 	public static def main(Rail[String]) {
