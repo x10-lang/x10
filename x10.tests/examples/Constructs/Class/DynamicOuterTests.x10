@@ -26,11 +26,11 @@ public class DynamicOuterTests extends x10Test {
     }
 
     public def run(): boolean = {
-        val a = new A(3);
+        val a = new A(3n);
         val x = a.new X(0xd00d1eabadbaff1eUL);
         x.m(a.i);
-        x.m(3);
-        // @ERR { x.m(4);  }
+        x.m(3n);
+        // @ERR { x.m(4n);  }
         var b:A=a;
         x.n(b, x); // ERR: Warning: Generated a dynamic check for the method call.
         return true;

@@ -84,12 +84,12 @@ public class OuterThisTests(i:Int) extends x10Test {
     }
 
     public def run(): boolean = {
-        val o = new OuterThisTests(3);
+        val o = new OuterThisTests(3n);
         val x = o.new X("x");
         x.m(o.i);
-        x.m(3);
+        x.m(3n);
         try {
-            @ERR { x.m(4); }
+            @ERR { x.m(4n); }
             return false;
         } catch (FailedDynamicCheckException) { }
 
@@ -97,6 +97,6 @@ public class OuterThisTests(i:Int) extends x10Test {
     }
 
     public static def main(Rail[String]) {
-        new OuterThisTests(4).execute();
+        new OuterThisTests(4n).execute();
     }
 }

@@ -23,10 +23,10 @@ import harness.x10Test;
 public class ConstructorsWithInferredTypes extends x10Test {
 
     public def run(): boolean = {
-       val s0 : Spot{x==0} = new Spot();
-       val s1 : Spot{x==1} = new Spot(1);
-       val q0 : Spot2{x==0} = new Spot2();
-       val q1 : Spot2{x==1} = new Spot2(1);
+       val s0 : Spot{x==0n} = new Spot();
+       val s1 : Spot{x==1n} = new Spot(1n);
+       val q0 : Spot2{x==0n} = new Spot2();
+       val q1 : Spot2{x==1n} = new Spot2(1n);
        // If this compiles then it's fine.
        return true;
     }
@@ -37,10 +37,10 @@ public class ConstructorsWithInferredTypes extends x10Test {
 }
 
 class Spot(x:Int) {
-   def this():Spot{self.x==0} {property(0);}
+   def this():Spot{self.x==0n} {property(0n);}
    def this(xx:Int):Spot{self.x==xx} {property(xx);}
 }
 class Spot2(x:Int) {
-   def this() {property(0);}
+   def this() {property(0n);}
    def this(xx:Int) {property(xx);}
 }
