@@ -19,17 +19,17 @@ import harness.x10Test;
  */
 public class AsyncTest6 extends x10Test {
 
-    public static N: int = 20;
+    public static N: long = 20;
 
     public def run(): boolean = {
-        var s: int = 0;
-        for (var i: int = 0; i < N; i++) {
+        var s: long = 0;
+        for (i in 0..(N-1)) {
             finish async x10.io.Console.OUT.println("s="+s+" i="+i);
             s += i;
         }
 	chk(s == 190);
 
-        val y: int;
+        val y: long;
         finish async { async y = 3; }
         x10.io.Console.OUT.println("y="+y);
 	chk(y == 3);

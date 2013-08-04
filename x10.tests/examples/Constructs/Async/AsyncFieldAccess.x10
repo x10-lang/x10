@@ -38,6 +38,6 @@ public class AsyncFieldAccess extends x10Test {
 
 	static class T {
 		private val root = GlobalRef[T](this);
-		transient public var i: int;
+		transient public var i: long;
 	}
 }

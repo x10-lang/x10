@@ -13,7 +13,7 @@ import harness.x10Test;
 
 public class AsyncInit2 extends x10Test {
 	static def test1():Boolean {
-		var v1:Int = 1;
+		var v1:Long = 1;
 		finish async {
 			v1 = 2;
 			finish async {
@@ -24,7 +24,7 @@ public class AsyncInit2 extends x10Test {
 		return true;
 	}
 	static def test2():Boolean {
-		var v1:Int = 1;
+		var v1:Long = 1;
 		finish async {
 			// v1 = 2;
 			finish async {

@@ -25,19 +25,19 @@ public class AsyncReturn extends x10Test {
 		}
 		val f = new T();
 		val froot = f.root;
-		f.t = 1;
+		f.t = 1n;
 		val v: int = f.t;
 		val body = ()=> {
-			if (v == 1)
+			if (v == 1n)
 			return;
 		    async at (froot) {
 			   atomic {
-				  froot().t = 2;
+				  froot().t = 2n;
 			   }
 		     }
 		};
 		finish async body();
-		return (f.t == 1);
+		return (f.t == 1n);
 	}
 
 	public static def main(Rail[String]) {

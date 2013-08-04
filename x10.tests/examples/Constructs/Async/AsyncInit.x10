@@ -12,18 +12,18 @@
 import harness.x10Test;
 
 public class AsyncInit extends x10Test {
-	static def testInt(v:Int) {
-		val x:Int;
-		finish async x = v;
-		return x;
-	}
+    static def testInt(v:Int) {
+	val x:Int;
+	finish async x = v;
+	return x;
+    }
     static def test[T](v:T) {
         val x:T;
         finish async x = v;
         return x;
     }
     public def run(): Boolean {
-    	Runtime.println(testInt(2));
+    	Runtime.println(testInt(2n));
         Runtime.println(test(2));
         return true;
     }

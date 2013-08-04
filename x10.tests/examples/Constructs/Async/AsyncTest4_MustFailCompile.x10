@@ -17,12 +17,12 @@ import harness.x10Test;
  */
 public class AsyncTest4_MustFailCompile extends x10Test {
 
-    public static N: int = 20;
+    public static N: int = 20n;
 
     public def run(): boolean = {
         finish {
-            var s: int = 0;
-            for (var i: int = 0; i < N; i++) {
+            var s: int = 0n;
+            for (var i: int = 0n; i < N; i++) {
                 //==> compiler error expected here
                 async x10.io.Console.OUT.println("s="+
                     s+ // ERR: cannot be captured in an async if there is no enclosing finish in the same scoping-level
@@ -32,8 +32,8 @@ public class AsyncTest4_MustFailCompile extends x10Test {
             }
         }
 
-        var s:int = 0;
-        for (var i: int = 0; i < N; i++) {
+        var s:int = 0n;
+        for (var i: int = 0n; i < N; i++) {
             // no compiler error here because s declared outside the finish
             finish async x10.io.Console.OUT.println("s="+s+" i="+i);
             s += i;
