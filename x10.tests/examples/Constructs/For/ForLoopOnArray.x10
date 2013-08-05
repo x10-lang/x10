@@ -19,7 +19,7 @@ import x10.regionarray.*;
  */
 public class ForLoopOnArray extends x10Test {
 
-    public static N: int = 3;
+    public static N: int = 3n;
 
     public def run(): boolean = {
         val a = new Array[double](11, (i:long) => i as double);
