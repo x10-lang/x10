@@ -22,11 +22,11 @@ import harness.x10Test;
 public class CircularLV(k: int ) extends x10Test {
     public def this(k: int): CircularLV = { property(k); }
     public def run(): boolean = { 
-	val h: CLV1{i==j} = new CLV1(4,4) ;
+	val h: CLV1{i==j} = new CLV1(4n,4n) ;
 	return true;
     }
    
     public static def main(var args: Rail[String]): void = {
-	new CircularLV(4).execute();
+	new CircularLV(4n).execute();
     }
  }
