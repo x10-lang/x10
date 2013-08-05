@@ -9,6 +9,8 @@
  *  (C) Copyright IBM Corporation 2006-2010.
  */
 
+//OPTIONS: -STATIC_CHECKS
+
 import harness.x10Test;
 
 /**
