@@ -18,8 +18,8 @@ import x10.regionarray.*;
  */
 public class Foreach1 extends x10Test {
 
-    public static N: int = 100;
-    var nActivities: int = 0;
+    public static N: int = 100n;
+    var nActivities: int = 0n;
 
     public def run(): boolean = {
         val P0  = here; // save current place
