@@ -27,8 +27,8 @@ import x10.util.concurrent.Future;
  */
 public class FutureTest3 extends x10Test {
 
-	public static N: int = 8;
-	public static OUTOFRANGE: int = 99;
+	public static N: int = 8n;
+	public static OUTOFRANGE: int = 99n;
 
 	/**
 	 * Spawns subactivities that cause delayed side-effects.
@@ -36,7 +36,7 @@ public class FutureTest3 extends x10Test {
 	def m1(val A: Rail[int], val K: long): int = {
 		for (i in A.range) async {
 			System.sleep(3000);
-			atomic A(i) += 1;
+			atomic A(i) += 1n;
 		}
 		var t: int;
 		atomic t = A(K); //returns old value
@@ -50,8 +50,8 @@ public class FutureTest3 extends x10Test {
 	def m2(val A: Rail[int], val K: long): int = {
 		for (i in A.range) async {
 			System.sleep(3000);
-			atomic A(i) += 1;
-			atomic A(OUTOFRANGE) = -1;
+			atomic A(i) += 1n;
+			atomic A(OUTOFRANGE) = -1n;
 		}
 		var t: int;
 		atomic t = A(K); //returns old value
@@ -63,32 +63,32 @@ public class FutureTest3 extends x10Test {
 	 * side effects and exceptions.
 	 */
 	public def run(): boolean = {
-		val A = new Rail[int](N, 0);
+		val A = new Rail[int](N);
 		val K:Long = 3;
 		var gotException: boolean;
 
 		// side effect in expression
 
 		// (need atomic here if there is sharing. x10 should support atomic { expression } )
-		var r1: int = Future.make( () => { return A(K) += 1;} ).force();
+		var r1: int = Future.make( () => { return A(K) += 1n;} ).force();
 		x10.io.Console.OUT.println("1");
-		atomic chk(A(K) == 1);
-		chk(r1 == 1);
+		atomic chk(A(K) == 1n);
+		chk(r1 == 1n);
 
 		// exception in expression
-		var r2: int = -1;
+		var r2: int = -1n;
 		gotException = false;
 		try {
-			r2 = Future.make( () => { return A(OUTOFRANGE) += 1; } ) .force();
+			r2 = Future.make( () => { return A(OUTOFRANGE) += 1n; } ) .force();
 		} catch (var e: Exception) {
 			gotException = true;
 		}
 		x10.io.Console.OUT.println("2");
-		chk(r2 == -1 && gotException);
+		chk(r2 == -1n && gotException);
 
 		//subactivities of e must be finished
 		//when future e .force() returns
-		var r3: int = -1;
+		var r3: int = -1n;
 		gotException = false;
 		try {
 			r3 = Future.make( () =>  m1(A, K)) .force();
@@ -96,15 +96,15 @@ public class FutureTest3 extends x10Test {
 			gotException = true;
 		}
 		x10.io.Console.OUT.println("3");
-		chk(r3 == 1 && !gotException);
+		chk(r3 == 1n && !gotException);
 		// must read new values of A here
 		for (i in A.range) x10.io.Console.OUT.println("A["+i+"] = "+A(i));
-		chk(A(K) == 2);
-		for (i in A.range) atomic chk(imp(i != K, A(i) == 1));
+		chk(A(K) == 2n);
+		for (i in A.range) atomic chk(imp(i != K, A(i) == 1n));
 
 		//future { e }.force() must throw
 		//exceptions from subactivities of e
-		var r4: int = -1;
+		var r4: int = -1n;
 		gotException = false;
 		try {
 			r4 = Future.make( () => m2(A, K)) .force();
@@ -112,11 +112,11 @@ public class FutureTest3 extends x10Test {
 			gotException = true;
 		}
 		x10.io.Console.OUT.println("4" + gotException + " r4 = " + r4);
-		chk(r4 ==-1 && gotException);
+		chk(r4 ==-1n && gotException);
 		// must read new values of A here
 		for (i in A.range) x10.io.Console.OUT.println("A["+i+"] = "+A(i));
-		atomic chk(A(K) == 3);
-		for (i in A.range) atomic chk(imp(i != K, A(i) == 2));
+		atomic chk(A(K) == 3n);
+		for (i in A.range) atomic chk(imp(i != K, A(i) == 2n));
 
 		//Only force() throws the exception,
 		//a plain future call just spawns the expression
@@ -125,18 +125,18 @@ public class FutureTest3 extends x10Test {
 		// must read old values of A here
 		//atomic chk(A(K) == 3);
 		//for (i in A.range) atomic chk(imp(i != K, A(i) == 2));
-		var r5: int = -1;
+		var r5: int = -1n;
 		gotException = false;
 		try {
 			r5 = fr5.force();
 		} catch (var e: Exception) {
 			gotException = true;
 		}
-		chk(r5 ==-1 && gotException);
+		chk(r5 ==-1n && gotException);
 		// must read new values of A here
 		for (i in A.range) x10.io.Console.OUT.println("A["+i+"] = "+A(i));
-		atomic chk(A(K) == 4);
-		for (i in A.range) atomic chk(imp(i != K, A(i) == 3));
+		atomic chk(A(K) == 4n);
+		for (i in A.range) atomic chk(imp(i != K, A(i) == 3n));
 
 		return true;
 	}

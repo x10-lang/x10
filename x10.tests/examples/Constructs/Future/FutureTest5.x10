@@ -41,7 +41,7 @@ public class FutureTest5 extends x10Test {
 	private def testUp_(val del: boolean): boolean = {
 		atomic fut = null;
 		async {
-			val t1 = Future.make[Int]( () => 42 );
+			val t1 = Future.make[Int]( () => 42n );
 			atomic fut = new Box[Future[Int]](t1);
 			if (del)
 				System.sleep(500);
@@ -50,14 +50,14 @@ public class FutureTest5 extends x10Test {
 		when (fut != null) { t2 = fut(); }
 		var fortytwo: int = t2.force();
 		x10.io.Console.OUT.println("up done");
-		return fortytwo == 42;
+		return fortytwo == 42n;
 	}
 
 	/**
 	 * Create future in parent, force it in child.
 	 */
 	private def testDown_(): boolean = {
-		val fut_l = Future.make( () => 42 );
+		val fut_l = Future.make( () => 42n );
 		finish async {
 			var fortytwo: int = fut_l.force();
 			x10.io.Console.OUT.println("down done");
@@ -71,7 +71,7 @@ public class FutureTest5 extends x10Test {
 	private def testSibling_(val del: boolean): boolean = {
 		atomic fut = null;
 		async {
-			val t1= Future.make[Int]( () => 42 );
+			val t1= Future.make[Int]( () => 42n );
 			atomic fut = new Box[Future[Int]](t1);
 			if (del)
 				System.sleep(500);

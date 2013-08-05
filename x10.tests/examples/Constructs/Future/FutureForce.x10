@@ -26,12 +26,12 @@ public class FutureForce extends x10Test {
 		System.sleep(2000);
 		x10.io.Console.OUT.println("done.");
 		atomic flag = true;
-		return 42;
+		return 42n;
 	}
 
 	public def foo(): Int = {
 		var r2: Future[Int] = Future.make( () => bar() );
-		return 42;
+		return 42n;
 	}
 
 	public def run(): Boolean = {

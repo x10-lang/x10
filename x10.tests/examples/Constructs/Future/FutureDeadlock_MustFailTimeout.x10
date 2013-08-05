@@ -65,7 +65,7 @@ public class FutureDeadlock_MustFailTimeout extends x10Test {
 		val tmpf2 = Future.make[Int](() => a2());
 		atomic f2 = tmpf2;
 		x10.io.Console.OUT.println("Activity #0 spawned both activities #1 and #2, waiting for completion of #1");
-		return tmpf1() == 42;
+		return tmpf1() == 42n;
 	}
 
 	public static def main(Rail[String]){
