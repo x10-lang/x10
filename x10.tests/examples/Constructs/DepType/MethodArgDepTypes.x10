@@ -26,7 +26,7 @@ public class MethodArgDepTypes extends x10Test {
         return true;
     }
     public def run(): boolean = {
-        return m(new Test(2,2));
+        return m(new Test(2n,2n));
     }
     public static def main(var args: Rail[String]): void = {
         new MethodArgDepTypes().execute();

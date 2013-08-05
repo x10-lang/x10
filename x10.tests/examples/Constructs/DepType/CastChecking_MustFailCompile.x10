@@ -34,9 +34,9 @@ public class CastChecking_MustFailCompile extends x10Test {
 	}
 	
 	public def run(): boolean = {
-		var a: Test2{k==1&&i==j} = new Test2(1);
+		var a: Test2{k==1n&&i==j} = new Test2(1n);
 		var b: Test{i==j} = a;
-		var d: Test =  new Test3(1) as Test;  // ERR must fail compile
+		var d: Test =  new Test3(1n) as Test;  // ERR must fail compile
 	   return true;
 	}
 	public static def main(var args: Rail[String]): void = {

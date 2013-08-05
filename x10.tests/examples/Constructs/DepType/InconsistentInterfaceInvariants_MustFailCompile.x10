@@ -32,7 +32,7 @@ public class InconsistentInterfaceInvariants_MustFailCompile extends x10Test {
      public def put():int;
     }
     
-    @ERR public static interface Test1{this.l() == 0, this.m() == 1} extends Test { // Semantic Error: Class invariant is inconsistent.
+    @ERR public static interface Test1{this.l() == 0n, this.m() == 1n} extends Test { // Semantic Error: Class invariant is inconsistent.
      public def foo(): int;
     }
     

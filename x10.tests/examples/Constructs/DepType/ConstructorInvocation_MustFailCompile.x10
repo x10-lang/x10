@@ -28,7 +28,7 @@ public class ConstructorInvocation_MustFailCompile extends x10Test {
 	class Test2(k:int) extends Test {
 	    def this(k:int):Test2 = { 
 		// the call to super below violates the constructor parameters constraint i == j
-		super(0,1); // ERR
+		super(0n,1n); // ERR
 		property(k);
 	    }
 	}

@@ -9,14 +9,15 @@
  *  (C) Copyright IBM Corporation 2006-2010.
  */
 
-/** Tests that the properties of an interface are implemented by a compliant class 
+import harness.x10Test;
+
+/** 
+ * Tests that the properties of an interface are implemented by a compliant class 
  * and that the interface constraint is entailed by the compliant class.
  *@author pvarma
  *
  */
 
-
-import harness.x10Test;
 
 public class InterfaceTypeInvariant extends x10Test { 
 
@@ -30,7 +31,7 @@ public class InterfaceTypeInvariant extends x10Test {
         public property l():int = l;
         public property m():int = m;
       public def this(arg:int):Tester { property(arg,arg); } 
-      public def put()=0;
+      public def put()=0n;
 	}
  
     public def run()=true;

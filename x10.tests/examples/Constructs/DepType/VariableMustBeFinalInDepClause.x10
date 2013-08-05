@@ -22,14 +22,14 @@ public class VariableMustBeFinalInDepClause extends x10Test {
             property(ii);
         }
     }
-    public def m(var t: Test{i==52}): Test{i==52} = {
-        val j: int{self==52} = 52;
+    public def m(var t: Test{i==52n}): Test{i==52n} = {
+        val j: int{self==52n} = 52n;
         var a: Test{i==j} = t;
         return a;
     }
     public def run(): boolean = {
-        var t: Test{i==52} = new Test(52);
-        return m(t).i==52;
+        var t: Test{i==52n} = new Test(52n);
+        return m(t).i==52n;
     }
     public static def main(var args: Rail[String]): void = {
         new VariableMustBeFinalInDepClause().execute();

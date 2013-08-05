@@ -16,7 +16,7 @@ import harness.x10Test;
  */
 public class NegIntLitDepType extends x10Test {
 	public def run(): boolean = {
-		var f: int{self==-2} = -2;
+		var f: int{self==-2n} = -2n;
 		return true;
 	}
 

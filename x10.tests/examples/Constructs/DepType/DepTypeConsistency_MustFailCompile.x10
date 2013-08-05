@@ -18,9 +18,9 @@ import harness.x10Test;
  * @author pvarma
  */
 public class DepTypeConsistency_MustFailCompile extends x10Test {
-    static val j:int = 3;
+    static val j:int = 3n;
     /* free variable j is not parametrically consistent */
-    class Tester(i:int){j == 2} { // ERR ERR ERR ERR
+    class Tester(i:int){j == 2n} { // ERR ERR ERR ERR
         public def this(arg:int):Tester { property(arg); }  // ERR
     }
 

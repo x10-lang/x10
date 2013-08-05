@@ -31,6 +31,6 @@ public class UninitializedProperty_MustFailCompile(i:int, j:int) extends x10Test
 	public def run()=true;
 	
 	public static def main(Rail[String]):void = {
-		new UninitializedProperty_MustFailCompile(2,3).execute();
+		new UninitializedProperty_MustFailCompile(2n,3n).execute();
 	}
 }

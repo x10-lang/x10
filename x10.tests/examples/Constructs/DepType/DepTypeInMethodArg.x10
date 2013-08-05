@@ -24,7 +24,7 @@ import harness.x10Test;
      }
      def m(t1:Test, t2:Test{i==t1.i})=true;
      public def run():boolean = {
-	 val x:Test{i==j} = new Test(1,1); 
+f	 val x:Test{i==j} = new Test(1n,1n);
 	 return true;
      }
      public static def main(var args: Rail[String]): void = {

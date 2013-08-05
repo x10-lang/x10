@@ -20,12 +20,12 @@ import harness.x10Test;
   public static type ClassDepClause(i:int, j:int)=ClassDepClause{self.i==i,self.j==j};
   public def this(i: int, j: int){i==j}: ClassDepClause(i,j) = { property(i,j);}
   public def run(): boolean = { 
-	  var x: ClassDepClause(2,2) =  new ClassDepClause(2,2);
+	  var x: ClassDepClause(2n,2n) =  new ClassDepClause(2n,2n);
       return true;
     }
     
    public static def main(var args: Rail[String]): void = {
-        new ClassDepClause(1,1).execute();
+        new ClassDepClause(1n,1n).execute();
     }
  }
 

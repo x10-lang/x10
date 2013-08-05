@@ -29,9 +29,9 @@ public class MethodInvocation_MustFailCompile extends x10Test {
     }
 
     public def run(): boolean = {
-        var t: Test = new Test(1, 2);
+        var t: Test = new Test(1n, 2n);
         // the following call should fail to type check
-        t.tester(3, 4); // ERR
+        t.tester(3n, 4n); // ERR
         return true;
     }
 

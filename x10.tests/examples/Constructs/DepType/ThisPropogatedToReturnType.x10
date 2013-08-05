@@ -29,8 +29,8 @@ public class ThisPropogatedToReturnType extends x10Test {
 	}
 	
 	public def run(): boolean = {
-		var t: Test{i==1} = new Test(1,2);
-		var one: int{self==1} = t.test();
+		var t: Test{i==1n} = new Test(1n,2n);
+		var one: int{self==1n} = t.test();
 		return true;
 	}
 	public static def main(Rail[String]): void = {

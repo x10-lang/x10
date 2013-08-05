@@ -29,7 +29,7 @@ public class CheckDescendEntails_MustFailCompile extends x10Test {
         }
     }
     public def run(): boolean = {
-	val p = new Prop(1,2);
+	val p = new Prop(1n,2n);
 		
 	var t: Test{self.a == self.b} = new Test(p,p);
 	@ERR var u: Test{self.a.i == self.b.j} = t; // this should fail type check.

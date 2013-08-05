@@ -16,7 +16,7 @@ import harness.x10Test;
  */
 public class IntLitDepType extends x10Test {
 	public def run(): boolean = {
-		var f: int(1) = 1;
+		var f: int(1n) = 1n;
 		return true;
 	}
 

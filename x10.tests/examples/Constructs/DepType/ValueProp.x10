@@ -23,7 +23,7 @@ public class ValueProp extends x10Test {
 	  }
 	}
 	public def run():boolean= {
-	Value1(2,3);
+	Value1(2n,3n);
 	return true;
 	}
 	 

@@ -17,7 +17,7 @@
 import harness.x10Test;
 
 public class DepType1(i:int, j:int) extends x10Test { 
-    val v: int(0);
+    val v: int(0n);
     val b: boolean(true);
     
      //  property declaration for an inner class.
@@ -32,18 +32,18 @@ public class DepType1(i:int, j:int) extends x10Test {
     
     public def this(i:int, j:int):DepType1{self.i==i,self.j==j} = {
       property(i,j);
-      v=0;
+      v=0n;
       b=true;
     }
     
  
     public def run():boolean= {
-    d:DepType1{self.i==3}= new DepType1(3,6);
+    d:DepType1{self.i==3n}= new DepType1(3n,6n);
 	return true;
     }
 	
     public static def main(a: Rail[String]):void = {
-        new DepType1(3,9).execute();
+        new DepType1(3n,9n).execute();
     }
    
 

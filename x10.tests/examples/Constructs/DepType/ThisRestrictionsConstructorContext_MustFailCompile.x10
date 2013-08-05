@@ -22,7 +22,7 @@ public class ThisRestrictionsConstructorContext_MustFailCompile extends x10Test 
     class Test(i:int, j:int) {
        public def this(i:int, j:int):Test{self.i==i,self.j==j} = { property(i,j);}
     }
-   public val a: Test = new Test(4, 4); // ERR: 'this' and 'super' cannot escape from a constructor or from methods called from a constructor
+   public val a: Test = new Test(4n, 4n); // ERR: 'this' and 'super' cannot escape from a constructor or from methods called from a constructor
    public var b: Test;
    
    // this is not allowed in argument deptypes of a constructor
@@ -31,7 +31,7 @@ public class ThisRestrictionsConstructorContext_MustFailCompile extends x10Test 
    }
    
    def this(): ThisRestrictionsConstructorContext_MustFailCompile = {
-   	b = new Test (4, 4); // ERR: 'this' and 'super' cannot escape from a constructor or from methods called from a constructor
+   	b = new Test (4n, 4n); // ERR: 'this' and 'super' cannot escape from a constructor or from methods called from a constructor
    }
     
 	public def run(): boolean = { 

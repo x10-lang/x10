@@ -19,7 +19,7 @@ import harness.x10Test;
 
 public class RefToSameFieldInDepClause extends x10Test { 
 
-    var v: int{v == 0};
+    var v: int{v == 0n};
 	
     public def run(): boolean = {
 	

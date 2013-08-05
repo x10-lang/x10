@@ -36,7 +36,7 @@ public class SelfFieldsMustBeProperties_MustFailCompile extends x10Test {
 	}
 	
 	public def run(): boolean = {
-	   var a: Test{i==52} = new Test(52) as Test{i==52 && bad} ;  // ERR ERR: Field "bad" is not a property of SelfFieldsMustBeProperties_MustFailCompile.Test.  Only properties may appear unqualified or prefixed with self in a dependent clause.
+	   var a: Test{i==52n} = new Test(52n) as Test{i==52n && bad} ;  // ERR ERR: Field "bad" is not a property of SelfFieldsMustBeProperties_MustFailCompile.Test.  Only properties may appear unqualified or prefixed with self in a dependent clause.
 	    return true;
 	}
 	public static def main(var args: Rail[String]): void = {

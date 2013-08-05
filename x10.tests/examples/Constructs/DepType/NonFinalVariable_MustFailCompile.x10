@@ -33,10 +33,10 @@ class Test(i: int) {
 	
 	
 	public def run(): boolean = {
-	   var ii: int{self==52} = 52;
+	   var ii: int{self==52n} = 52n;
 	   var a:
 	    Test{i==ii} // ERR 
-	    = new Test(52);
+	    = new Test(52n);
 	    return true;
 	}
 	public static def main(var args: Rail[String]): void = {

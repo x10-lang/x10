@@ -24,8 +24,8 @@ public class EntailsPositiveInnerMustPass extends x10Test {
     }
 
     public def run(): boolean = {
-        val j: int{self==1} = 1;
-        var x: Test{self.j==j} = new Test(1,1);
+        val j: int{self==1n} = 1n;
+        var x: Test{self.j==j} = new Test(1n,1n);
         return true;
     }
     public static def main(var args: Rail[String]): void = {

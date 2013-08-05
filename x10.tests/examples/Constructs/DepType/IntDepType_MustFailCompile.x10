@@ -30,7 +30,7 @@ public class IntDepType_MustFailCompile extends x10Test {
     }
   
 	public def run(): boolean = {
-		var i: int{self == 0} = 3;  // ERR
+		var i: int{self == 0n} = 3n;  // ERR
 	   return true;
 	}
 	public static def main(Rail[String])= {

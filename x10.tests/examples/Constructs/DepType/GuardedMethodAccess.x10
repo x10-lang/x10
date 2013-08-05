@@ -28,17 +28,17 @@ import harness.x10Test;
 public class GuardedMethodAccess extends x10Test { 
 
    class Test(i:int, j:int) {
-		public var v: int = 0;
+		public var v: int = 0n;
 		def this(i:int, j:int):Test{self.i==i,self.j==j} = {
 			property(i,j);
 		}
-		public def  key(){i==j}=5;
+		public def  key(){i==j}=5n;
 	}
 	
 		
 	public def run(): boolean = {
-		var t: Test{i==j} = new Test(5, 5);
-		t.v = t.key() + 1;
+		var t: Test{i==j} = new Test(5n, 5n);
+		t.v = t.key() + 1n;
 	   return true;
 	}  
 	

@@ -19,8 +19,8 @@ import harness.x10Test;
 public class EqualityInteger extends x10Test {
   
 	public def run(): boolean = {
-		var un: int{self==1} = 1;
-		var deux: int{self==2} = 2;
+		var un: int{self==1n} = 1n;
+		var deux: int{self==2n} = 2n;
 		
 		return !(un == deux) && (un != deux);
 	}

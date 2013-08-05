@@ -20,7 +20,7 @@ import harness.x10Test;
 public class DepTypeConsistency1_MustFailCompile extends x10Test { 
 
 /* free variable i is not parametrically consistent */
-    class Tester(i:int{self == 2}){i == 3} {  // ERR ERR ERR : [Semantic Error: Invalid type; the real clause of DepTypeConsistency1_MustFailCompile.Tester{self==DepTypeConsistency1_MustFailCompile.Tester#this} is inconsistent. , Semantic Error: Invalid type; the real clause of DepTypeConsistency1_MustFailCompile.Tester is inconsistent. , Semantic Error: Class invariant is inconsistent.]
+    class Tester(i:int{self == 2n}){i == 3n} {  // ERR ERR ERR : [Semantic Error: Invalid type; the real clause of DepTypeConsistency1_MustFailCompile.Tester{self==DepTypeConsistency1_MustFailCompile.Tester#this} is inconsistent. , Semantic Error: Invalid type; the real clause of DepTypeConsistency1_MustFailCompile.Tester is inconsistent. , Semantic Error: Class invariant is inconsistent.]
       public def this(arg:int):Tester = { property(arg);}  // ERR ShouldNotBeERR ShouldNotBeERR: [Semantic Error: Invalid type; the real clause of DepTypeConsistency1_MustFailCompile.Tester{self.i==arg} is inconsistent.]
     }
 	

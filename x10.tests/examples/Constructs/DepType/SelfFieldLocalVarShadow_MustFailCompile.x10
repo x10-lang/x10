@@ -29,8 +29,8 @@ public class SelfFieldLocalVarShadow_MustFailCompile extends x10Test {
         return true;
     }
     public def run(): boolean = {
-        val j: int = 0;
-        var t: Test{self.i==self.j} =  new Test(0,3) as Test{i==j}; // ERR: here j goes to the local variable, not self.j
+        val j: int = 0n;
+        var t: Test{self.i==self.j} =  new Test(0n,3n) as Test{i==j}; // ERR: here j goes to the local variable, not self.j
         // should fail to compile since Test(:self.i==j) is not a subtype of Test(:self.i==self.j)
         return m(t); 
     }

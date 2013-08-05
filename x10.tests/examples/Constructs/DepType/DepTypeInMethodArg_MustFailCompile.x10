@@ -27,12 +27,12 @@ public class DepTypeInMethodArg_MustFailCompile extends x10Test {
     public def m(t: Test{i==j}) = true; 
 
     public def run2(): boolean = {
-	val x = new Test(1,1);
+	val x = new Test(1n,1n);
 	return m(x); 
     }
     public def run(): boolean = {
 	// should fail because the declared type of the variable is just Test.
-	val x: Test = new Test(1,1); 
+	val x: Test = new Test(1n,1n); 
 	return m(x); // ERR
     }
     public static def main(var args: Rail[String]): void = {

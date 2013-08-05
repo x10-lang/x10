@@ -16,16 +16,16 @@ import harness.x10Test;
  * to the use of the type.
  */
 public class FieldPropFromThis extends x10Test {
-	class  Foo(i:int(0)) {
+	class  Foo(i:int(0n)) {
 		public def this():Foo {
-			property(0);
+			property(0n);
 		}
 	}
 	
 	                   
 	public def run(): boolean = {
 		var f: Foo = new Foo();
-		var s: int(0) = f.i;
+		var s: int(0n) = f.i;
 		return true;
 	}
 

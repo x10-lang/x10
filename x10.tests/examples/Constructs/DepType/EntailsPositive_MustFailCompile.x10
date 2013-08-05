@@ -31,11 +31,11 @@ public class EntailsPositive_MustFailCompile(i:int, j:int) extends x10Test {
 
 	public def this(ii:int, jj:int) { property(ii,jj);}
 	public def run():boolean  {
-	    @ERR val x:EntailsPositive_MustFailCompile{self.i==1}  =  new EntailsPositive_MustFailCompile(one(),2);
+	    @ERR val x:EntailsPositive_MustFailCompile{self.i==1n}  =  new EntailsPositive_MustFailCompile(one(),2n);
 	    return true;
 	}
-	def one():Int = 1;
+	def one():Int = 1n;
 	public static def main(Rail[String]) {
-		new EntailsPositive_MustFailCompile(1,2).execute();
+		new EntailsPositive_MustFailCompile(1n,2n).execute();
 	}
 }

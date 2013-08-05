@@ -31,7 +31,7 @@ import harness.x10Test;
 
 public class PropertyMustBeAssignedInConsBody_MustFailCompile extends x10Test { 
 
-    class Tester(i: int(2) ) {
+    class Tester(i: int(2n) ) {
       public def this(arg:int):Tester { } // ERR: You must call 'property(...)' at least once
     }
 	
