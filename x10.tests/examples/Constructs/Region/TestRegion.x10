@@ -225,7 +225,7 @@ abstract public class TestRegion extends x10Test {
     static ZERO = 0xAAAAAAAn;
     static GE = 0n;
     static LE = 1n;
-    def X(axis: int) = 0x1n<<2n*axis;
+    def X(axis:int) = 0x1n<<2n*axis;
 
     public def reg(rank: long, var coeff: int, op: int, k: int): Region(rank) {
         coeff += ZERO;

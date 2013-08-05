@@ -20,13 +20,13 @@ import x10.regionarray.*;
 public class RegionTriangular extends x10Test {
 
 	public def run(): boolean = {
-		val Universe: Region = Region.make(0..7, 0..7);
-		var upperT: Region = Region.makeUpperTriangular(8);
+		val Universe: Region(2) = Region.make(0..7, 0..7);
+		var upperT: Region(2) = Region.makeUpperTriangular(8);
 		pr("upperT", upperT);
-		for (val [i,j]: Point in Universe) chk(iff(i <= j, upperT.contains([i, j]))); // ERR: Warning: Expression 'Universe' was cast to type x10.regionarray.Region{self==Universe, Universe.x10.regionarray.Region#rank==2}.
+		for (val [i,j]: Point in Universe) chk(iff(i <= j, upperT.contains([i, j])));
 		var lowerT: Region = Region.makeLowerTriangular(8);
 		pr("lowerT", lowerT);
-		for (val [i,j]: Point in Universe) chk(iff(i >= j, lowerT.contains([i, j]))); // ERR: Warning: Expression 'Universe' was cast to type x10.regionarray.Region{self==Universe, Universe.x10.regionarray.Region#rank==2}.
+		for (val [i,j]: Point in Universe) chk(iff(i >= j, lowerT.contains([i, j])));
 		return true;
 	}
 
@@ -37,11 +37,11 @@ public class RegionTriangular extends x10Test {
 	static def pr(var s: String, var r: Region): void = {
 		x10.io.Console.OUT.println();
 		x10.io.Console.OUT.println("printing region "+s);
-		var k: int = 0;
-		val N: int = 8;
+		var k: int = 0n;
+		val N: int = 8n;
 		for (val [i,j]: Point in Region.make(0..(N-1), 0..(N-1))) {
 			x10.io.Console.OUT.print(" "+(r.contains([i, j]) ? "+" : "."));
-			if ((++k) % N == 0) x10.io.Console.OUT.println();
+			if ((++k) % N == 0n) x10.io.Console.OUT.println();
 		}
 	}
 

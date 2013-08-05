@@ -17,7 +17,7 @@ public class RegionEquality extends x10Test {
     // needs fix for XTENLANG-130
 
     public def run(): boolean = {
-        val size: int = 10;
+        val size = 10;
         val R: Region{rank==2} = Region.make(0..(size-1), 0..(size-1));
         val S: Region{rank==2} = Region.make(0..(size-1), 0..(size-1));
         return R.equals(S);

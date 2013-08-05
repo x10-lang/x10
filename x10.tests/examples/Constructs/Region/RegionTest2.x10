@@ -22,7 +22,7 @@ public class RegionTest2 extends x10Test {
 
         var reg: Region = Region.make(0, -1);
 
-        var sum: int = 0;
+        var sum: long = 0;
         for (val p: Point in reg) sum++;
 
         return sum == 0;

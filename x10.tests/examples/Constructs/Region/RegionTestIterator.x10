@@ -23,8 +23,8 @@ public class RegionTestIterator extends x10Test {
         val r = Region.make(0, 100);
         val reg = r*r;
 
-        var sum:int = 0;
-        var numPts:int = 0;
+        var sum:long = 0;
+        var numPts:long = 0;
         for ([i,j]:Point in reg) {
             sum += i - j;
             numPts++;

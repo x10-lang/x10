@@ -18,14 +18,13 @@ class PolyHalfspace3 extends TestRegion {
 
     public def run() {
 
-        val ROW = X(0);
-        val COL = X(1);
+        val ROW = X(0n);
+        val COL = X(1n);
 
         val r = 
-            reg(2, ROW, GE, 0) &&
-            reg(2, ROW, LE, 3) &&
-            
-            reg(2, COL, LE, 1);
+            reg(2, ROW, GE, 0n) &&
+            reg(2, ROW, LE, 3n) &&
+            reg(2, COL, LE, 1n);
         prUnbounded("unbounded rectangle", r);
 
         return status();
