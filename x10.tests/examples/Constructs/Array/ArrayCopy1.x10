@@ -88,7 +88,7 @@ public class ArrayCopy1 extends x10Test {
                 val D = dist2.getDist(dX, R);
                 val E = dist2.getDist(dY, R);
                 chk(D.region.equals(E.region) && D.region.equals(R));
-                val A = DistArray.make[int](D, (Point)=>0);
+                val A = DistArray.make[int](D, (Point)=>0n);
                 val B = DistArray.make[int](E,
                     (p[i,j,k,l]: Point): int => { 
                         val x = ((i*N+j)*N+k)*N+l; 
@@ -118,13 +118,13 @@ public class ArrayCopy1 extends x10Test {
      */
     static class dist2 {
 
-        static BLOCK: int = 0;
-        //public static val CYCLIC: int = 1;
+        static BLOCK: int = 0n;
+        //public static val CYCLIC: int = 1n;
         //public static val BLOCKCYCLIC: int = 2;
-        static CONSTANT: int = 1;
+        static CONSTANT: int = 1n;
         //public static val RANDOM: int = 4;
         //public static val ARBITRARY: int = 5;
-        static N_DIST_TYPES: int = 2; //6;
+        static N_DIST_TYPES: int = 2n; //6;
 
         /**
          * Return a dist with region r, of type disttype

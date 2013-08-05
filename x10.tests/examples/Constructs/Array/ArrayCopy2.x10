@@ -99,13 +99,13 @@ public class ArrayCopy2 extends x10Test {
             }
 
         // ensure each A[i] was accessed exactly once
-        finish ateach (i:Point(D.rank) in D) chk(accessed_a(i) == 1);
+        finish ateach (i:Point(D.rank) in D) chk(accessed_a(i) == 1n);
 
         // ensure each B[i] was accessed exactly once
-        finish ateach (i:Point(E.rank) in E) chk(accessed_b(i) == 1);
+        finish ateach (i:Point(E.rank) in E) chk(accessed_b(i) == 1n);
     }
 
-    public static N: int = 3;
+    public static N: int = 3n;
 
     /**
      * For all combinations of dists of arrays B and A,
@@ -148,10 +148,10 @@ public class ArrayCopy2 extends x10Test {
      */
     static class dist2 {
 
-        static BLOCK: int = 0;
-        static CONSTANT: int = 1;
+        static BLOCK: int = 0n;
+        static CONSTANT: int = 1n;
         //static BLOCKCYCLIC: int = 1;
-	static N_DIST_TYPES=2;
+	static N_DIST_TYPES=2n;
         /**
          * Return a dist with region r, of type disttype
          */

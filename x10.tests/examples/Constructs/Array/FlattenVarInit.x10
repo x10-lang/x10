@@ -34,7 +34,7 @@ public class FlattenVarInit extends x10Test {
     public def run(): boolean = {
         var t0: int;
         t0 = m(a(1, 1));
-        return t0==2;
+        return t0==2n;
     }
 
     public static def main(Rail[String]) {

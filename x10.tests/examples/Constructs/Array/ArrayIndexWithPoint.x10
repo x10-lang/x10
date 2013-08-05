@@ -21,9 +21,9 @@ public class ArrayIndexWithPoint extends x10Test {
 
     public def run() {
         val e = Region.make(1, 10);
-        val ia = new Array[int](e, (Point)=>0);
+        val ia = new Array[int](e, (Point)=>0n);
         for (p in ia.region) 
-            chk(ia(p)==0);
+            chk(ia(p)==0n);
         return true;
     }
 

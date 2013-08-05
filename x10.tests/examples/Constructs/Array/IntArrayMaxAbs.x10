@@ -25,10 +25,10 @@ public class IntArrayMaxAbs extends x10Test {
             val ma = Math.abs(a);
             val mb = Math.abs(b);
             ma <= mb? mb : ma
-        }, 0);
+        }, 0n);
 
 	    println("ABSmax=" + absMax);
-	    return absMax==10;
+	    return absMax==10n;
     }
 
     public static def main(Rail[String]) {

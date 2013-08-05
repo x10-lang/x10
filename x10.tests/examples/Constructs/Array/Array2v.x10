@@ -25,15 +25,15 @@ public class Array2v extends x10Test {
 
         chk(r.equals(Region.make(0..9, 0..9, 0..9)));
 
-        val ia = new Array[int](r, (Point)=>0);
+        val ia = new Array[long](r, (Point)=>0);
 
         for (val [i,j,k]: Point in r) {
             chk(ia(i, j, k) == 0);
-            ia(i, j, k) = (100*i + 10*j + k) as int;
+            ia(i, j, k) = 100*i + 10*j + k;
         }
 
         for (val [i,j,k]: Point in r) {
-            chk(ia(i, j, k) == (100*i + 10*j + k) as int);
+            chk(ia(i, j, k) == 100*i + 10*j + k);
         }
 
         return true;

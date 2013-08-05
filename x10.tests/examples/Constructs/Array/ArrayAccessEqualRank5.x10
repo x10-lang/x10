@@ -20,13 +20,11 @@ import x10.regionarray.*;
  * What is highly annoying is that ateach (i:Point(D.rank) in D) b(i)=i
  * succeeds. The compiler cant figure out that when iterating over D
  * the points have rank D.rank??
-
  */
-
 public class ArrayAccessEqualRank5 extends x10Test {
 
     public def run(): boolean = {
-	val b:DistArray[Int](1) = DistArray.make[Int](Region.make(0,9)->here,(Point)=>0);
+	val b:DistArray[Int](1) = DistArray.make[Int](Region.make(0,9)->here,(Point)=>0n);
 	finish ateach (x[i]:Point(1) in b.dist) 
 	   b(x)=(i as int);
         return true;

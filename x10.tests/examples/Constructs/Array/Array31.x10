@@ -21,9 +21,9 @@ public class Array31 extends x10Test {
 
     public def run(): boolean = {
         val r:Region(1) = Region.make(1, 10);
-        var ia: Array[Int](1) = new Array[Int](r, (Point)=>0);
-        ia(1) = 42;
-        return 42 == ia(1);
+        var ia: Array[Int](1) = new Array[Int](r, (Point)=>0n);
+        ia(1) = 42n;
+        return 42n == ia(1);
     }
 
     public static def main(var args: Rail[String]): void = {

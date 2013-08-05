@@ -66,10 +66,10 @@ public class ArrayCopy3 extends x10Test {
         val D_1 = Dist.makeUnique(D.places());
 
         // number of times elems of A are accessed
-        val accessed_a = DistArray.make[int](D, (Point)=>0);
+        val accessed_a = DistArray.make[int](D, (Point)=>0n);
 
         // number of times elems of B are accessed
-        val accessed_b  = DistArray.make[int](E, (Point)=>0);
+        val accessed_b  = DistArray.make[int](E, (Point)=>0n);
 
         finish
             ateach (val x in D_1) {
@@ -82,13 +82,13 @@ public class ArrayCopy3 extends x10Test {
                     val D_common: Dist(A.rank) = D | Common;
                     // the future's can be aggregated
                     for (val i: Point(A.rank) in D_common) {
-                        async at(py) atomic accessed_b(i) += 1;
+                        async at(py) atomic accessed_b(i) += 1n;
                         val temp  = at(py)B(i);
                         // the following may need to be bracketed in
                         // atomic, unless the disambiguator
                         // knows about dists
                         A(i) = temp;
-                        atomic accessed_a(i) += 1;
+                        atomic accessed_a(i) += 1n;
                     }
                     // check if dist ops are working
 	            /* TODO: Restore this part of test test when Region/Dist - is supported again
@@ -118,13 +118,13 @@ public class ArrayCopy3 extends x10Test {
             }
 
         // ensure each A[i] was accessed exactly once
-        finish ateach (i: Point(A.rank) in D) chk(accessed_a(i) == 1);
+        finish ateach (i: Point(A.rank) in D) chk(accessed_a(i) == 1n);
 
         // ensure each B[i] was accessed exactly once
-        finish ateach (i: Point(A.rank) in E) chk(accessed_b(i) == 1);
+        finish ateach (i: Point(A.rank) in E) chk(accessed_b(i) == 1n);
     }
 
-    public static N: int = 3;
+    public static N: int = 3n;
 
     /**
      * For all combinations of dists of arrays B and A,
@@ -158,11 +158,11 @@ public class ArrayCopy3 extends x10Test {
      */
     static class dist2 {
 
-        static BLOCK: int = 0;
+        static BLOCK: int = 0n;
         //public static val CYCLIC: int = 1;
         //public static val BLOCKCYCLIC: int = 2;
-        static CONSTANT: int = 1;
-        static N_DIST_TYPES: int = 2;
+        static CONSTANT: int = 1n;
+        static N_DIST_TYPES: int = 2n;
 
         /**
          * Return a dist with region r, of type disttype

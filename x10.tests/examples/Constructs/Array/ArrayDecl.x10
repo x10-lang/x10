@@ -20,7 +20,7 @@ import x10.regionarray.*;
 
 public class ArrayDecl extends x10Test {
 
-    public static N: int = 24;
+    public static N: int = 24n;
 
     public def run(): boolean = {
 
@@ -29,7 +29,7 @@ public class ArrayDecl extends x10Test {
 
         chk(ia0.dist.equals(Dist.makeConstant(Region.make(0, N-1), p)));
 
-        finish ateach (val [i]: Point in ia0.dist) chk(ia0(i) == 0);
+        finish ateach (val [i]: Point in ia0.dist) chk(ia0(i) == 0n);
 
         val v_ia2: DistArray[int](1) = DistArray.make[int](Dist.makeConstant(Region.make(0, N-1), here), ([i]: Point)=>(i as int));
         chk(v_ia2.dist.equals(Dist.makeConstant(Region.make(0, N-1), here)));

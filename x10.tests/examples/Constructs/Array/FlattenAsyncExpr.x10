@@ -33,7 +33,7 @@ public class FlattenAsyncExpr extends x10Test {
     
     public def run(): boolean = {
         async at(a.dist(1)) {
-            m(50000);
+            m(50000n);
             //atomic { a[1] = a[1]^2;
         }
         return true;

@@ -25,7 +25,7 @@ public class FlattenConditional2 extends x10Test {
         a = new Array[int](Region.make(1..10, 1..10), ([i,j]: Point) => { return (i+j) as int;});
     }
 
-    var extra: int = 4;
+    var extra: int = 4n;
 
     def m(i: int): int = {
         if (i==6n) throw new Exception();

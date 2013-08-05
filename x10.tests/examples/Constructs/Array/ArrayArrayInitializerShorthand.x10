@@ -22,7 +22,7 @@ public class ArrayArrayInitializerShorthand extends x10Test {
 
     public def run(): boolean = {
         val r = Region.make(1..10, 1..10);
-        val a = new Array[int](r, (Point)=>0);
+        val a = new Array[int](r, (Point)=>0n);
         val ia = new Array[Array[int]](r, ([i,j]: Point) => a);
         for (val [i,j]: Point(2) in ia) chk(ia(i, j) == a);
         return true;

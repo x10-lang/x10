@@ -25,7 +25,7 @@ public class Array1DCodeGen extends x10Test {
          */
 
         for ([i,j,k]: Point(3) in a) {
-            init = 3125*init % 65536;
+            init = 3125n*init % 65536n;
             var value: double = (init - 32768.0)/16384.0;
             finish write(a, i, j, k, value);
             norma = value > norma ? value : norma;

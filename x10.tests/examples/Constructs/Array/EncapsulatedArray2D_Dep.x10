@@ -29,7 +29,7 @@ public class EncapsulatedArray2D_Dep extends x10Test {
     
     public def run(): boolean = {
 
-        val size: int = 5;
+        val size: long = 5;
         val R = Region.make(0..(size-1), 0..(size-1));
         val D  = Dist.makeBlock(R, 0); 
         

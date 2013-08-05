@@ -38,14 +38,14 @@ public class TestCloneArray extends x10Test {
         // test Int
         val b = new Array[Int](N+1);
         for (i in 0..N) {
-            b(i) = i;
+            b(i) = i as int;
         }
         at (here) {
-            var sum : Int = 0;
+            var sum : Int = 0n;
             for (i in 0..N) {
                 sum += b(i);
             }
-            val expected = N*(N+1)/2;
+            val expected = N*(N+1n)/2n;
             chk(sum == expected);
         }
 
@@ -81,7 +81,7 @@ public class TestCloneArray extends x10Test {
     }
 
     public static def main(var args: Rail[String]): void = {
-        var n : Int = 10;
+        var n : Int = 10n;
         if (args.size > 0) {
             n = Int.parseInt(args(0));
         }

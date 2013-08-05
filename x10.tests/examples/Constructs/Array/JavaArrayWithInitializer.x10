@@ -20,16 +20,16 @@ import x10.regionarray.*;
 
 public class JavaArrayWithInitializer extends x10Test {
 
-    static N: int = 25;
+    static N: long = 25;
 
     public def run(): boolean = {
 
-        val foo1  = new Array[int](N, (i:long)=> (i as int));
+        val foo1  = new Array[long](N, (i:long)=> i);
 
         x10.io.Console.OUT.println("1");
 
         for (i in 0..(N-1)) chk(foo1(i) == i);
-        val foo2  = new Array[int](N, (i:long)=>(i as int));
+        val foo2  = new Array[long](N, (i:long)=>i);
 
         x10.io.Console.OUT.println("2");
 

@@ -28,7 +28,7 @@ public class ArrayAccessEqualRank4 extends x10Test {
     public def run(): boolean = {
         val R = Region.make(0,9);
 	val D = Dist.makeConstant(R);
-	val b:DistArray[Int](D) = DistArray.make[Int](D,(Point)=>0);
+	val b:DistArray[Int](D) = DistArray.make[Int](D,(Point)=>0n);
 	finish ateach (x[i] in D) b(x)=(i as int);
         return true;
     }

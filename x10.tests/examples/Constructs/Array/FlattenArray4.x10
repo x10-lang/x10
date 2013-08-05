@@ -34,7 +34,7 @@ public class FlattenArray4 extends x10Test {
     public def run(): boolean = {
         var x: int = m(a(1, 1)); // being called in a method to force flattening.
         var y: int = m(a(2, 2));
-        return x+y==1+1+2+2;
+        return x+y==1n+1n+2n+2n;
     }
 
     public static def main(var args: Rail[String]): void = {

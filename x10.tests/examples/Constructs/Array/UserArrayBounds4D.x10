@@ -25,11 +25,11 @@ public class UserArrayBounds4D extends x10Test {
 
     public def run(): boolean = {
 
-        val COUNT: int = 100;
-        val L: int = 3;
-        val K: int = 1;
+        val COUNT: int = 100n;
+        val L: int = 3n;
+        val K: int = 1n;
 
-        for(var n: int = 0; n < COUNT; n++) {
+        for(var n: int = 0n; n < COUNT; n++) {
             var i: int = ranInt(-L+K, L-K);
             var j: int = ranInt(-L+K, L-K);
             var k: int = ranInt(-L+K, L-K);
@@ -55,7 +55,7 @@ public class UserArrayBounds4D extends x10Test {
      */
     private static def arrayAccess(lb1: int, ub1: int, lb2: int, ub2: int, lb3: int, ub3: int, lb4:int, ub4:int, i: int, j: int, k: int, l : int): boolean = {
 
-        var a: Array[Int](4) = new Array[Int](Region.make(lb1..ub1, lb2..ub2, lb3..ub3, lb4..ub4), ([i,j,k,l]: Point)=> 0);
+        var a: Array[Int](4) = new Array[Int](Region.make(lb1..ub1, lb2..ub2, lb3..ub3, lb4..ub4), ([i,j,k,l]: Point)=> 0n);
 
         var withinBounds: boolean = true;
         try {

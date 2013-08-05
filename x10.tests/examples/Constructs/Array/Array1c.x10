@@ -32,10 +32,10 @@ public class Array1c extends x10Test {
         chk(d.equals(Dist.makeConstant(e*e, here)));
         chk(d.equals(Dist.makeConstant(r, here)));
 
-        val ia = DistArray.make[int](d, (Point)=>0);
+        val ia = DistArray.make[int](d, (Point)=>0n);
 
         for (val p[i] in e) for (val q[j]  in e) {
-            chk(ia(i, j) == 0);
+            chk(ia(i, j) == 0n);
             ia(i, j) = (i+j) as int;
         }
 
