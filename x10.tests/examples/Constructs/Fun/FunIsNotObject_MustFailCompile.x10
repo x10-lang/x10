@@ -17,9 +17,6 @@ import harness.x10Test;
  */
 public class FunIsNotObject_MustFailCompile extends x10Test {
 
-	public static N: int = 100;
-	var nActivities: int = 0;
-
 	public def run():Boolean {
 		val f = (x1:int, x2:int)=> x1+x2;
 		val x:Empty = f;  // ERR: Cannot assign expression to target.

@@ -20,14 +20,14 @@ import harness.x10Test;
  */
 public class GuardedFunctionInvocation_MustFailCompile extends x10Test {
 
-    def m(x:Int){x==3} = x;
+    def m(x:Int){x==3n} = x;
     def test() {
-        m(3);
-        m(4); // ERR
-        f(3);
-        f(4); // ERR
+        m(3n);
+        m(4n); // ERR
+        f(3n);
+        f(4n); // ERR
     }
-    val f = (x:Int){x==3}=>x;
+    val f = (x:Int){x==3n}=>x;
 
     public def run() = true;
 
