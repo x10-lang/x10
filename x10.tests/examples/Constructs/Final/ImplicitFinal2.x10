@@ -33,13 +33,13 @@ public class ImplicitFinal2 extends x10Test {
 		P = p;
 		R = r;
 		D  = d;
-		var A: int = 1;
-		A = A + 1;
-		var Bb: int = 1;
-		Bb = Bb + 1;
-		var BB: int = 1;
+		var A: int = 1n;
+		A = A + 1n;
+		var Bb: int = 1n;
+		Bb = Bb + 1n;
+		var BB: int = 1n;
 		BB = BB + BB;
-		var c: int = 1;
+		var c: int = 1n;
 		c = Bb + c;
 		return true;
 	}
