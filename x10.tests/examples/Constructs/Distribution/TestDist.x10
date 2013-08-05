@@ -92,7 +92,7 @@ abstract public class TestDist extends x10Test {
             grid.set(i1, i2, vue);
         }
 
-        def pr(rank: int): void = {
+        def pr(rank: long): void = {
             var min: long = os.size;
             var max: long = 0L;
             for (var i: long = 0L; i<os.size; i++) {
@@ -115,7 +115,7 @@ abstract public class TestDist extends x10Test {
                         print("    " + i + "  ");
                     else if (rank>=3) {
                         print("    ");
-                        for (var j: int = 0; j<rank; j++)
+                        for (var j: long = 0; j<rank; j++)
                             print("-");
                         print(" " + i + "\n");
                     }
@@ -145,7 +145,7 @@ abstract public class TestDist extends x10Test {
 
         val init1 = (pt: Point) => {
             var v: long = 1;
-            for (var i: int = 0; i<pt.rank; i++)
+            for (var i: long = 0; i<pt.rank; i++)
                 v *= pt(i);
             return v%10 as double;
         };
@@ -235,7 +235,7 @@ abstract public class TestDist extends x10Test {
     }
 
     // substitute for [a:b,c:d]
-    def r(a: int, b: int, c: int, d: int): Region(2) {
+    def r(a: long, b: long, c: long, d: long): Region(2) {
         return Region.makeRectangular(a..b, c..d);
     }
 

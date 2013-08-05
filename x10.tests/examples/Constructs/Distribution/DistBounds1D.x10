@@ -27,14 +27,14 @@ import x10.regionarray.*;
 public class DistBounds1D extends x10Test {
 
     public def run(): boolean = {
-        val COUNT: int = 200;
-        val L: int = 10;
-        val K: int = 3;
-        for (var n: int = 0; n < COUNT; n++) {
+        val COUNT: int = 200n;
+        val L: int = 10n;
+        val K: int = 3n;
+        for (var n: int = 0n; n < COUNT; n++) {
             var i: int = ranInt(-L-K, L+K);
             var lb1: int = ranInt(-L, L);
-            var ub1: int = ranInt(lb1-1, L); // include empty reg.
-            var d: int = ranInt(0, dist2.N_DIST_TYPES-1);
+            var ub1: int = ranInt(lb1-1n, L); // include empty reg.
+            var d: int = ranInt(0n, dist2.N_DIST_TYPES-1n);
             var withinBounds: boolean = arrayAccess(lb1, ub1, i, d);
             chk(iff(withinBounds, i >= lb1 && i <= ub1));
         }
@@ -95,12 +95,12 @@ public class DistBounds1D extends x10Test {
     static class dist2 {
 
         // X10 has poor support for enum
-        static BLOCK: int = 0;
-        static CONSTANT: int = 1;
+        static BLOCK: int = 0n;
+        static CONSTANT: int = 1n;
         //public static val CYCLIC: int = 2;
         //public static val RANDOM: int = 3;
         //public static val ARBITRARY: int = 4;
-        static N_DIST_TYPES: int = 2; // 5;
+        static N_DIST_TYPES: int = 2n; // 5;
 
         /**
          * Return a dist with region r, of type disttype
