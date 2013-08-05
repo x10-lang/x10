@@ -28,6 +28,6 @@ public class GenericInnerClass3a extends x10Test {
 class VomOuter[T] {
    def this(t:T) {}
    class VomInner extends VomOuter[Int] {
-      def this() {super(12321);}
+      def this() {super(12321n);}
    }
 }

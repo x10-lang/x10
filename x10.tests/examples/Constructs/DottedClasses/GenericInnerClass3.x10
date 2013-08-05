@@ -23,7 +23,7 @@
 
 public class GenericInnerClass3[T] extends harness.x10Test {
   public static def main(Rail[String]){
-     val p = new GenericInnerClass3[Int](818);
+     val p = new GenericInnerClass3[Int](818n);
      p.execute();
   }
   public def run():Boolean {
@@ -31,9 +31,9 @@ public class GenericInnerClass3[T] extends harness.x10Test {
     val innerString : GenericInnerClass3[String].Inner = gicString.new Inner("ow");
     innerString.test("ow", "hum?");
     
-    val gicInt = new GenericInnerClass3[Int](181);
-    val innerInt : GenericInnerClass3[Int].Inner = gicInt.new Inner(34543);
-    innerInt.test(34543, 181);
+    val gicInt = new GenericInnerClass3[Int](181n);
+    val innerInt : GenericInnerClass3[Int].Inner = gicInt.new Inner(34543n);
+    innerInt.test(34543n, 181n);
     
     return true;    
   }
@@ -52,14 +52,14 @@ public class GenericInnerClass3[T] extends harness.x10Test {
     val innerVal : T; 
     val innerVar : T;
     
-    def this(t :T) { super(888); innerVal = t; innerVar = t;
-       this.outerVar = 10; // allowed because Inner extends 
+    def this(t :T) { super(888n); innerVal = t; innerVar = t;
+       this.outerVar = 10n; // allowed because Inner extends 
        }
        
     def test(x:T, y:T): Boolean = {
-       chk(this.outerVar == 10, "outerVar==10");
-       chk(this.outerVal.equals(888), "this.outerVal");
-       chk(this.outerVar.equals(10), "this.outerVar");
+       chk(this.outerVar == 10n, "outerVar==10");
+       chk(this.outerVal.equals(888n), "this.outerVal");
+       chk(this.outerVar.equals(10n), "this.outerVar");
        chk(this.innerVal.equals(x), "this.innerVal");
        chk(this.innerVar.equals(x), "this.innerVar");
        chk(GenericInnerClass3.this.outerVal.equals(y), "GIC.outerVal");

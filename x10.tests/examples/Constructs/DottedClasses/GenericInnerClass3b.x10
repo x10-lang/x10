@@ -35,6 +35,6 @@ class YogOuter[T] {
    }
 
    class YogInner extends YogOuter[Int] {
-      def this() {super(12321);}
+      def this() {super(12321n);}
    }
 }

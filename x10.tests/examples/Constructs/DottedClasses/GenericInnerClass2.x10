@@ -20,7 +20,7 @@ This test just has to compile.
 
 public class GenericInnerClass2[T] extends x10Test {
   public static def main(Rail[String]){
-     val p = new GenericInnerClass2[Int](3);
+     val p = new GenericInnerClass2[Int](3n);
      p.execute();
   }
   public def run():Boolean {
