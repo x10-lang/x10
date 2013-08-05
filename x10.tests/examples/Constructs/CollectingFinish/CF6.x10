@@ -38,7 +38,7 @@ public class CF6 extends x10Test{
             val result = finish(b) {
                  for (p in Place.places()) at (p) async {
                       val v = Totals2(1,2);
-                      for (var i:Int = 0; i < iteration; i++)
+                      for (var i:Long = 0; i < iteration; i++)
                         offer v;
                  }
             };

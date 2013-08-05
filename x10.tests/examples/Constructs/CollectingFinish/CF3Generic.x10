@@ -17,9 +17,9 @@ import harness.x10Test;
  */
 public class CF3Generic extends x10Test {
 
-    static struct Reducer implements Reducible[Int] {
+    static struct Reducer implements Reducible[Long] {
      	public  def zero()=0;
-     	public  operator this(a:Int,b:Int)=a+b;
+     	public  operator this(a:Long,b:Long)=a+b;
     }
     static class C[T] {
     	 def m(b:T) offers T {
@@ -34,7 +34,7 @@ public class CF3Generic extends x10Test {
         }
         
   	}
-	public def run() = 6==new C[Int]().m(Reducer(), 3);
+	public def run() = 6==new C[Long]().m(Reducer(), 3);
 
 	public static def main(Rail[String]) {
 		new CF3Generic().execute();

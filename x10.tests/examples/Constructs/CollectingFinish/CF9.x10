@@ -40,7 +40,7 @@ public class CF9 extends x10Test{
                result = finish(b) {
                  for (p in Place.places()) at (p) async {
                       var case_ :Totals2 =new  Totals2(1,2);
-                      for (var i:Int = 0; i < iteration; i++)
+                      for (var i:Long = 0; i < iteration; i++)
                       offer case_;
              }
             };
