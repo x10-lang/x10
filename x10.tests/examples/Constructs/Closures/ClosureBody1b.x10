@@ -20,11 +20,11 @@ import harness.x10Test;
  * @author bdlucas 8/2008
  */
 
-public class ClosureBody1b extends ClosureTest {
+public class ClosureBody1b extends x10Test {
 
-    var x:int = 0;
+    var x:long = 0;
 
-    def x(x:int):void = {
+    def x(x:long):void = {
         this.x=x;
     }
 

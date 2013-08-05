@@ -20,13 +20,13 @@ import harness.x10Test;
  * @author bdlucas 8/2008
  */
 
-public class ClosureBody1a extends ClosureTest {
+public class ClosureBody1a extends x10Test {
 
     public def run(): boolean = {
         
         // expression
         val f = ()=>1+1;
-        check("f()", f(), 2);
+        check("f()", f(), 2l);
 
         return result;
     }

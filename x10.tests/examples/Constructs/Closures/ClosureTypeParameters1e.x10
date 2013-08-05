@@ -27,11 +27,11 @@ import harness.x10Test;
  * @author bdlucas 8/2008
  */
 
-public class ClosureTypeParameters1e extends ClosureTest {
+public class ClosureTypeParameters1e extends x10Test {
 
     public def run(): boolean = {
         
-        class X[T] {val f = (x:T,y:int) => x.toString() + y.toString();}
+        class X[T] {val f = (x:T,y:long) => x.toString() + y.toString();}
         check("new X[String].f(\"1\",1)", new X[String]().f("1",1), "11");
 
         return result;

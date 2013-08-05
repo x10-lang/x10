@@ -20,19 +20,19 @@ import harness.x10Test;
  * @author bdlucas 8/2008
  */
 
-public class ClosureEnclosingScope1s extends ClosureTest {
+public class ClosureEnclosingScope1s extends x10Test {
 
    val a = 1;
 
     public def run(): boolean = {
         
-        val b:int = 1;
+        val b:long = 1;
 
         class C {
             val c = 1;
             def foo() = {
                 val fun = () => {
-                    val d:int = 1;
+                    val d:long = 1;
                     (() => a+b+c+d)()
                 };
                 fun()

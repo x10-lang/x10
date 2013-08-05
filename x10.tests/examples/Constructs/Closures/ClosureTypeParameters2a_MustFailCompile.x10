@@ -18,7 +18,7 @@ import harness.x10Test;
  * declaration (§4.3,§9.5,§9.7,§12.5).
  */
 
-public class ClosureTypeParameters2a_MustFailCompile extends ClosureTest {
+public class ClosureTypeParameters2a_MustFailCompile extends x10Test {
 
     class V           {static name = "V";}
     class W extends V {static name = "W";}

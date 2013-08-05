@@ -19,7 +19,7 @@ import harness.x10Test;
  * @author bdlucas 8/2008
  */
 
-public class ClosureEnclosingScope4 extends ClosureTest {
+public class ClosureEnclosingScope4 extends x10Test {
 
     val a = 1;
 

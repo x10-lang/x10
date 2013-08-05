@@ -18,7 +18,7 @@ import harness.x10Test;
  */
 public class Closures1 extends x10Test {
 	public def run(): boolean = {
-                val j = ((i:int) => 3+i)(4);
+                val j = ((i:long) => 3+i)(4);
                 return j == 7;
 	}
 

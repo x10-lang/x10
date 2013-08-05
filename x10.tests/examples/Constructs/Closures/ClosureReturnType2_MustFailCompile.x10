@@ -23,7 +23,7 @@ import x10.compiler.tests.*; // err markers
  * @author bdlucas 8/2008
  */
 
-public class ClosureReturnType2_MustFailCompile extends ClosureTest {
+public class ClosureReturnType2_MustFailCompile extends x10Test {
 
     def foo() = {}
 

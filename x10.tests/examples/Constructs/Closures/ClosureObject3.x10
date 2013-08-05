@@ -22,11 +22,11 @@ import harness.x10Test;
  * @author bdlucas 8/2008
  */
 
-public class ClosureObject3 extends ClosureTest {
+public class ClosureObject3 extends x10Test {
 
     public def run(): boolean = {
         
-        val f:(int)=>int = (i:int) => i+1;
+        val f:(long)=>long = (i:long) => i+1;
         check("f(1)", f(1), 2);
         check("f(1)", f(1), 2);
 

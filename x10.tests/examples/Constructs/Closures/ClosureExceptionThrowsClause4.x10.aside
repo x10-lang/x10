@@ -19,7 +19,7 @@ import harness.x10Test;
  */
 
 
-public class ClosureException1g extends ClosureTest {
+public class ClosureException1g extends x10Test {
 
     public def run(): boolean = {
         

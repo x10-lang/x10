@@ -17,7 +17,7 @@ import harness.x10Test;
  * @author bdlucas 8/2008
  */
 
-public class ClosureObject1 extends ClosureTest {
+public class ClosureObject1 extends x10Test {
 
     public def run(): boolean = {
         

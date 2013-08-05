@@ -26,7 +26,7 @@ import harness.x10Test;
  * 9/2009 -- Closures are no longer permitted to take type parameters.
  */
 
-public class ClosureCall0b_MustFailCompile extends ClosureTest {
+public class ClosureCall0b_MustFailCompile extends x10Test {
 
     public def run(): boolean = {
 

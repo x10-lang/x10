@@ -18,12 +18,12 @@ import harness.x10Test;
  * @author bdlucas 8/2008
  */
 
-public class ClosureReturnType7_MustFailCompile extends ClosureTest {
+public class ClosureReturnType7_MustFailCompile extends x10Test {
 
     public def run(): boolean = {
         
         // inferred to be void
-        val f = (x:int) => {};
+        val f = (x:long) => {};
 
         // should fail because f() is void
         val g = f(0); // ERR

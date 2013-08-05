@@ -19,11 +19,11 @@ import harness.x10Test;
  *
  * @author bdlucas 8/2008
  */
-public class ClosureConstraint4_MustFailCompile extends ClosureTest {
+public class ClosureConstraint4_MustFailCompile extends x10Test {
 
     public def run(): boolean = {
         
-        val f = (x:int){x==1}=>x;
+        val f = (x:long){x==1}=>x;
 
         val d = 0;
         f(d); // ERR

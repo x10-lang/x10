@@ -20,7 +20,7 @@ import harness.x10Test;
  */
 
 
-public class ClosureConstraint1 extends ClosureTest {
+public class ClosureConstraint1 extends x10Test {
 
     public def run(): boolean = {
         

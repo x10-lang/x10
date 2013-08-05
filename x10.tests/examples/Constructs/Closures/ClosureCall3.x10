@@ -20,11 +20,11 @@ import x10.util.*;
  * @author vj
  */
 
-public class ClosureCall3 extends ClosureTest {
+public class ClosureCall3 extends x10Test {
 
     public def run(): boolean = {
-        val y = (x:Int)=> x;
-        val z :Int(1) = y(1);
+        val y = (x:Long)=> x;
+        val z :Long(1) = y(1);
         return result;
     }
 

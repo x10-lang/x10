@@ -29,7 +29,7 @@ import harness.x10Test;
  * @author bdlucas 8/2008
  */
 
-public class MethodSelector1 extends ClosureTest {
+public class MethodSelector1 extends x10Test {
 
     def foo() = 1;
     def foo(i:int) = i;

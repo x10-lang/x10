@@ -25,7 +25,7 @@ import harness.x10Test;
  * @author bdlucas 8/2008
  */
 
-public class ClosureFunctionType1 extends ClosureTest {
+public class ClosureFunctionType1 extends x10Test {
 
     var f: [T,U] (x:String, y:T) {y<0 && T<:X && U<:Exception} => T throws U, Exception;
 

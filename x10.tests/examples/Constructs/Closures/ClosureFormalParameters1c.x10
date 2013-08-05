@@ -18,11 +18,11 @@ import harness.x10Test;
  * @author bdlucas 8/2008
  */
 
-public class ClosureFormalParameters1c extends ClosureTest {
+public class ClosureFormalParameters1c extends x10Test {
 
     public def run(): boolean = {
         
-        check("((i:int,j:int)=>i+j)(1,1)", ((i:int,j:int)=>i+j)(1,1), 2);
+        check("((i:long,j:long)=>i+j)(1,1)", ((i:long,j:long)=>i+j)(1,1), 2);
 
         return result;
     }

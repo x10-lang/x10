@@ -16,7 +16,7 @@ import harness.x10Test;
  * Check that a closure literal returning null can be properly
  * invoked when assigned to types
  */
-public class ClosureReturningNull extends ClosureTest {
+public class ClosureReturningNull extends x10Test {
     val cls = ()=>null;
 
     public def run(): boolean = {

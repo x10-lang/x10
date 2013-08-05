@@ -19,7 +19,7 @@ import x10.compiler.NonEscaping;
  * @author bdlucas 8/2008
  */
 
-public class ClosureEnclosingScope6 extends ClosureTest {
+public class ClosureEnclosingScope6 extends x10Test {
 
     val a = 1;
 

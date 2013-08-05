@@ -18,7 +18,7 @@ import harness.x10Test;
  * @author bdlucas 8/2008
  */
 
-public class ClosureFormalParameters1a extends ClosureTest {
+public class ClosureFormalParameters1a extends x10Test {
 
     public def run(): boolean = {
         

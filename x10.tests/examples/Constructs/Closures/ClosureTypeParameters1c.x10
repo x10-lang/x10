@@ -27,7 +27,7 @@ import harness.x10Test;
  * @author bdlucas 8/2008
  */
 
-public class ClosureTypeParameters1c extends ClosureTest {
+public class ClosureTypeParameters1c extends x10Test {
 /*
 The following block of class definitions messed up compilation, but were not
 otherwise being used. I have commented them out.

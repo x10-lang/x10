@@ -19,7 +19,7 @@ import harness.x10Test;
  */
 
 
-public class ClosureException1h extends ClosureTest {
+public class ClosureException1h extends x10Test {
 
     class E extends Exception {}
 

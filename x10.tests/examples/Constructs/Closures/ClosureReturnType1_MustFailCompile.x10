@@ -19,7 +19,7 @@ import harness.x10Test;
  * @author bdlucas 8/2008
  */
 
-public class ClosureReturnType1_MustFailCompile extends ClosureTest {
+public class ClosureReturnType1_MustFailCompile extends x10Test {
 
     def foo() = {}
 

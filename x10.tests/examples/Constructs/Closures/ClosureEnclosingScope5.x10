@@ -19,16 +19,16 @@ import harness.x10Test;
  * @author bdlucas 8/2008
  */
 
-public class ClosureEnclosingScope5 extends ClosureTest {
+public class ClosureEnclosingScope5 extends x10Test {
 
 	val a = 1;
 
-	class C(a:int) {
-		def this(x:int) { 
+	class C(a:long) {
+		def this(x:long) { 
 			property(x);
 		}
-		class D(a:int) {
-			def this(x:int) { 
+		class D(a:long) {
+			def this(x:long) { 
 				property(x);
 			}
 			def sum() {

@@ -20,9 +20,9 @@ import harness.x10Test;
  * @author bdlucas 8/2008
  */
 
-public class ClosureCall2 extends ClosureTest {
+public class ClosureCall2 extends x10Test {
 
-    def f(x:int) = "method";
+    def f(x:long) = "method";
     val f = (x:String) => "closure";
 
     public def run(): boolean = {

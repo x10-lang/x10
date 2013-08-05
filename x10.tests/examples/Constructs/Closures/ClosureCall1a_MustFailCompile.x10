@@ -26,7 +26,7 @@ import harness.x10Test;
  * @author bdlucas 8/2008
  */
 
-public class ClosureCall1a_MustFailCompile extends ClosureTest {
+public class ClosureCall1a_MustFailCompile extends x10Test {
 
     class V           {public static val name = "V";}
     class W extends V {public static val name = "W";}
