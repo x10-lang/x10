@@ -9,6 +9,10 @@ public class Main {
 
 //      val i = 2;
 //      val j = 2;
+//      val i = 4;
+//      val j = 4;
+//      val i = 7;
+//      val j = 7;
 //      val i = 9;
 //      val j = 9;
 //      val i = 20;
@@ -22,21 +26,31 @@ public class Main {
 
       Console.OUT.println("SmithWaterman");
       Console.OUT.println("M(" + i + ", " + j + ")");
+      Console.OUT.println("");
 
 //      t1 = System.currentTimeMillis();
-//      v = SmithWaterman1.seqM(i, j);
+//      v = SmithWatermanRec.m(i, j);
 //      t2 = System.currentTimeMillis();
-//      Console.OUT.println("Seq: " + v);
+//      Console.OUT.println("Rec: " + v);
 //      Console.OUT.println("Time = " + (t2 - t1));
+//      Console.OUT.println("");
 
       t1 = System.currentTimeMillis();
-      v = SmithWaterman1.futureM(i, j);
+      v = SmithWatermanDyn.m(i, j);
+      t2 = System.currentTimeMillis();
+      Console.OUT.println("Dyn: " + v);
+      Console.OUT.println("Time = " + (t2 - t1));
+      Console.OUT.println("");
+
+      t1 = System.currentTimeMillis();
+      v = SmithWatermanFut1.m(i, j);
       t2 = System.currentTimeMillis();
       Console.OUT.println("Future1: " + v);
       Console.OUT.println("Time = " + (t2 - t1));
+      Console.OUT.println("");
 
       t1 = System.currentTimeMillis();
-	   v = SmithWaterman2.futureM(i, j);
+	   v = SmithWatermanFut2.m(i, j);
 	   t2 = System.currentTimeMillis();
 	   Console.OUT.println("Future2: " + v);
       Console.OUT.println("Time = " + (t2 - t1));

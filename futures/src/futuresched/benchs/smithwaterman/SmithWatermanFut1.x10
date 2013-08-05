@@ -7,7 +7,7 @@ import x10.util.ArrayList;
 import x10.util.concurrent.AtomicReference;
 
 
-public class SmithWaterman1 {
+public class SmithWatermanFut1 {
 
   var eFutures: Array_2[AtomicReference[Future[Box[Int]]]];
   var fFutures: Array_2[AtomicReference[Future[Box[Int]]]];
@@ -27,7 +27,7 @@ public class SmithWaterman1 {
 
   // --------------------------------------------------------
   // E function
-  private def eVal(i: Int, j: Int): Future[Box[Int]] {
+  private def eFut(i: Int, j: Int): Future[Box[Int]] {
     var efr: AtomicReference[Future[Box[Int]]] = eFutures(i, j);
     var ef: Future[Box[Int]] = efr.get();
     if (ef != null)
@@ -49,14 +49,14 @@ public class SmithWaterman1 {
   private def eDeps(i: Int, j: Int): ArrayList[Future[Box[Int]]] {
     val a = new ArrayList[Future[Box[Int]]]();
     for (var k: Int = 0; k < i; k++)
-      a.add(mVal(k, j));
+      a.add(mFut(k, j));
     return a;
   }
 
   private def eFun(i: Int, j: Int): Int {
     var maxVal: Int = 0;
     for (var k: Int = 0; k < i; k++) {
-      val mv = mVal(k, j).get()();
+      val mv = mFut(k, j).get()();
       val gv = gamma(i - k);
       val cv = mv + gv;
       maxVal = Math.max(maxVal, cv);
@@ -64,13 +64,13 @@ public class SmithWaterman1 {
     return maxVal;
   }
   
-  public def e(i: Int, j: Int): Int {
-    return eVal(i, j).get()();
+  public def eVal(i: Int, j: Int): Int {
+    return eFut(i, j).get()();
   }
 
   // --------------------------------------------------------
   // F function
-  private def fVal(i: Int, j: Int): Future[Box[Int]] {
+  private def fFut(i: Int, j: Int): Future[Box[Int]] {
     var efr: AtomicReference[Future[Box[Int]]] = fFutures(i, j);
     val ef = efr.get();
     if (ef != null)
@@ -92,14 +92,14 @@ public class SmithWaterman1 {
   private def fDeps(i: Int, j: Int): ArrayList[Future[Box[Int]]] {
     val a = new ArrayList[Future[Box[Int]]]();
     for (var k: Int = 0; k < j; k++)
-      a.add(mVal(i, k));
+      a.add(mFut(i, k));
     return a;
   }
   
   private def fFun(i: Int, j: Int): Int {
     var maxVal: Int = 0;
     for (var k: Int = 0; k < j; k++) {
-      val mv = mVal(i, k).get()();
+      val mv = mFut(i, k).get()();
       val gv = gamma(j - k);
       val cv = mv + gv;
       maxVal = Math.max(maxVal, cv);
@@ -107,13 +107,13 @@ public class SmithWaterman1 {
     return maxVal;
   }
   
-  public def f(i: Int, j: Int): Int {
-    return fVal(i, j).get()();
+  public def fVal(i: Int, j: Int): Int {
+    return fFut(i, j).get()();
   }
 
   // --------------------------------------------------------
   // M function
-  public def mVal(i: Int, j: Int): Future[Box[Int]] {
+  public def mFut(i: Int, j: Int): Future[Box[Int]] {
     var efr: AtomicReference[Future[Box[Int]]] = mFutures(i, j);
     val ef = efr.get();
     if (ef != null)
@@ -135,26 +135,26 @@ public class SmithWaterman1 {
   private def mDeps(i: Int, j: Int): ArrayList[Future[Box[Int]]] {
     val a = new ArrayList[Future[Box[Int]]]();
     if (i > 0 && j > 0)
-      a.add(mVal(i-1, j-1));
-    a.add(eVal(i, j));
-    a.add(fVal(i, j));
+      a.add(mFut(i-1, j-1));
+    a.add(eFut(i, j));
+    a.add(fFut(i, j));
     return a;
   }
   
   private def mFun(i: Int, j: Int): Int {
     var mv: Int = 0;
     if (i > 0 && j > 0)
-      mv = mVal(i-1, j-1).get()();
+      mv = mFut(i-1, j-1).get()();
     val sv = s(i, j);
     val v = mv + sv;
-    val ev = eVal(i, j).get()();
-    val fv = fVal(i, j).get()();
+    val ev = eFut(i, j).get()();
+    val fv = fFut(i, j).get()();
     
     return Math.max(Math.max(v, ev), fv);
   }
   
-  public def m(i: Int, j: Int): Int {
-    return mVal(i, j).get()();
+  public def mVal(i: Int, j: Int): Int {
+    return mFut(i, j).get()();
   }
   
   // --------------------------------------------------------
@@ -203,10 +203,10 @@ public class SmithWaterman1 {
     return i+j;
   }
 
-  public static def futureM(i: Int, j: Int): Int {
-    val s = new SmithWaterman1();
+  public static def m(i: Int, j: Int): Int {
+    val s = new SmithWatermanFut1();
     s.init(i, j);
-    return s.m(i, j);
+    return s.mVal(i, j);
   }
 
 }
