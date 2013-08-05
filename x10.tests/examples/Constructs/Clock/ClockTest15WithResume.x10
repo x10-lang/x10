@@ -78,7 +78,7 @@ import harness.x10Test;
  */
 public class ClockTest15WithResume extends x10Test {
 
-	var x: int = 0; // global counter
+	var x: long = 0; // global counter
 	var advanced_A1: boolean = false; // signals that A1 executed next and read x == 2
 	public def run(): boolean = {
 		finish /* A0 */ async {
@@ -87,7 +87,7 @@ public class ClockTest15WithResume extends x10Test {
 			/* A1 */ async clocked (a)  {
 				atomic x++;
 				Clock.advanceAll();
-				var tmp: int;
+				var tmp: long;
 				atomic tmp = x;
 				x10.io.Console.OUT.println("A1 advanced, x = "+tmp);
 				atomic advanced_A1 = true;
@@ -97,7 +97,7 @@ public class ClockTest15WithResume extends x10Test {
 			/* A2 */ async  clocked (a, b) {
 				atomic x++;
 				Clock.advanceAll();
-				var tmp: int;
+				var tmp: long;
 				atomic tmp = x;
 				x10.io.Console.OUT.println("A2 advanced, x = "+tmp);
 				chk (tmp == 3);
@@ -107,7 +107,7 @@ public class ClockTest15WithResume extends x10Test {
 				when (advanced_A1);
 				atomic x++;
 				Clock.advanceAll();
-				var tmp: int;
+				var tmp: long;
 				atomic tmp = x;
 				x10.io.Console.OUT.println("A3 advanced, x = "+tmp);
 				chk (tmp == 3);

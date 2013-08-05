@@ -74,7 +74,7 @@ import harness.x10Test;
  */
 public class ClockTest15 extends x10Test {
 
-	var x: int = 0; // global counter
+	var x: long = 0; // global counter
 	public def run(): boolean = {
 		finish /* A0 */ async {
 			val a = Clock.make();
@@ -82,7 +82,7 @@ public class ClockTest15 extends x10Test {
 			/* A1 */ async  clocked (a)  {
 				atomic x++;
 				Clock.advanceAll();
-				var tmp: int;
+				var tmp: long;
 				atomic tmp = x;
 				x10.io.Console.OUT.println("A1 advanced, x (expected 2) = "+tmp);
 				chk (tmp == 2);
@@ -91,7 +91,7 @@ public class ClockTest15 extends x10Test {
 			/* A2 */ async  clocked (a, b)  {
 				atomic x++;
 				Clock.advanceAll();
-				var tmp: int;
+				var tmp: long;
 				atomic tmp = x;
 				x10.io.Console.OUT.println("A2 advanced, x (expected 3) = "+tmp);
 				chk (tmp == 3);
@@ -101,7 +101,7 @@ public class ClockTest15 extends x10Test {
 				System.sleep(5000);
 				atomic x++;
 				Clock.advanceAll();
-				var tmp: int;
+				var tmp: long;
 				atomic tmp = x;
 				x10.io.Console.OUT.println("A3 advanced, x (expected 3) = "+tmp);
 				chk (tmp == 3);

@@ -17,8 +17,8 @@ import harness.x10Test;
  */
 public class ClockTest3 extends x10Test {
 
-	var value: int = 0;
-	static N: int = 32;
+	var value: long = 0;
+	static N: long = 32;
 
 	public def run(): boolean = {
 	 clocked finish
@@ -30,7 +30,7 @@ public class ClockTest3 extends x10Test {
 			       } 
 			   }
 			Clock.advanceAll();
-			var temp: int;
+			var temp: long;
 			atomic { temp = value; }
 			if (temp != N) {
 				throw new Exception();
@@ -40,7 +40,7 @@ public class ClockTest3 extends x10Test {
 			Clock.advanceAll();
 		}
 		Clock.advanceAll(); Clock.advanceAll(); Clock.advanceAll();
-		var temp2: int;
+		var temp2: long;
 		atomic { temp2 = value; }
 		if (temp2 != 2*N) {
 			throw new Exception();

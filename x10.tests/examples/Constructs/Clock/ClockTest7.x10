@@ -43,8 +43,8 @@ import harness.x10Test;
  */
 public class ClockTest7 extends x10Test {
 
-	var value: int = 0;
-	static val N: int = 16;
+	var value: long = 0;
+	static val N: long = 16;
 
 	public def run(): boolean = {
 		try {

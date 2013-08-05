@@ -78,7 +78,7 @@ public class ClockTest5 extends x10Test {
 		return true;
 	}
 
-	static def m(var a: String, var clocks: String, var phase: int): void = {
+	static def m(var a: String, var clocks: String, var phase: long): void = {
 		x10.io.Console.OUT.println("Actitivity "+a+" in phase "+phase+" of clocks "+clocks);
 	}
 

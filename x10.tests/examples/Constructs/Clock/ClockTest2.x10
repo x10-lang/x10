@@ -17,18 +17,18 @@ import harness.x10Test;
  */
 public class ClockTest2 extends x10Test {
 
-	var value: int = 0;
-	static  N: int = 10;
+	var value: long = 0;
+	static  N: long = 10;
 
 	public def run(): boolean = {
 		clocked finish {
-		   for (var i: int = 0; i < N; i++) {
+		   for (var i: long = 0; i < N; i++) {
 			 clocked 
 			    async   
 					atomic 
 						value++;
 			  Clock.advanceAll();
-			  var temp: int;
+			  var temp: long;
 			  atomic { temp = value; }
 			  if (temp != i+1) return false;
 		    }

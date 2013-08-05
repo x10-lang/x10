@@ -125,8 +125,8 @@ public class ClockTest17_MustFailTimeout extends x10Test {
 	 */
 	static class X {
 		public val z = [1,0];
-		def zero(): int = { return z(z(z(1))); }
-		def one(): int = { return z(z(z(0))); }
+		def zero(): long = { return z(z(z(1))); }
+		def one(): long = { return z(z(z(0))); }
 		def modify(): void = { z(0) += 1; }
 	}
 }

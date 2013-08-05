@@ -21,7 +21,7 @@ import harness.x10Test;
  */
 public class ClockTest12 extends x10Test {
 
-	var phase: int = 0;
+	var phase: long = 0;
 
 	public def run(): boolean = {
 		finish async {
@@ -33,8 +33,8 @@ public class ClockTest12 extends x10Test {
 		return true;
 	}
 
-	def taskA(var id: int, val c: Clock): void = {
-		var tmp: int;
+	def taskA(var id: long, val c: Clock): void = {
+		var tmp: long;
 		System.sleep(1000);
 		atomic tmp = phase;
 		x10.io.Console.OUT.println(""+id+" observed current phase = "+tmp);
@@ -67,7 +67,7 @@ public class ClockTest12 extends x10Test {
 	}
 
 	def taskB(val c: Clock): void = {
-		var tmp: int;
+		var tmp: long;
 		atomic tmp = phase;
 		x10.io.Console.OUT.println("now in phase "+tmp);
 		c.resume();

@@ -19,8 +19,8 @@ import harness.x10Test;
  */
 public class ClockTest3b extends x10Test {
 
-    var value: int = 0;
-    static val N: int = 32;
+    var value: long = 0;
+    static val N: long = 32;
 
     public def run(): boolean = {
         clocked finish  {

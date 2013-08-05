@@ -32,15 +32,15 @@ import harness.x10Test;
 public class ClockTest10a extends x10Test {
     // varX[0] and varX[1] serve alternately as
     // the "new result" and "old result"
-    val varA = new Rail[int](2, 0);
-    val varB = new Rail[int](2, 0);
-    val varC  = new Rail[int](2, 0);
-    val varD  = new Rail[int](2, 0);
-    val varE  = new Rail[int](2, 0);
+    val varA = new Rail[long](2, 0);
+    val varB = new Rail[long](2, 0);
+    val varC  = new Rail[long](2, 0);
+    val varD  = new Rail[long](2, 0);
+    val varE  = new Rail[long](2, 0);
     public static N = 10;
     public static pipeDepth = 2;
 
-    static def ph(var x: int): int = { return x % 2; }
+    static def ph(var x: long): long = { return x % 2; }
 
     public def run(): boolean = {
         finish async at(here) {
@@ -81,7 +81,7 @@ public class ClockTest10a extends x10Test {
         for (k in 1..N) {
             varD(ph(k)) = varB(ph(k-1))+varC(ph(k-1))+10;
             x10.io.Console.OUT.println("" + k+" D consuming oldC producing "+varD(ph(k)));
-            var n: int = k-pipeDepth;
+            var n: long = k-pipeDepth;
             chk(!(k>pipeDepth) || varD(ph(k)) == n+n+n*n+10);
             Clock.advanceAll();
         }
@@ -90,7 +90,7 @@ public class ClockTest10a extends x10Test {
         for (k in 1..N) {
             varE(ph(k)) = varC(ph(k-1))*7;
             x10.io.Console.OUT.println("" + k+" E consuming oldC producing "+varE(ph(k)));
-            var n: int = k-pipeDepth;
+            var n: long = k-pipeDepth;
             chk(!(k>pipeDepth) || varE(ph(k)) == n*n*7);
             Clock.advanceAll();
         }

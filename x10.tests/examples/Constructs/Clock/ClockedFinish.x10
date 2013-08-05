@@ -15,7 +15,7 @@ import harness.x10Test;
 
  */
 public class ClockedFinish extends x10Test {
-    var x:int=0;
+    var x:long=0;
     public def m():boolean {
     	clocked finish {
     		clocked async {

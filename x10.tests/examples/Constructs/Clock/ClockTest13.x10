@@ -78,13 +78,13 @@ import harness.x10Test;
  */
 public class ClockTest13 extends x10Test {
 
-	public static N: int = 20; // total clock periods per activity
-	public static M: int = N/2; // when to change from forward to reverse
-	public static chainLength: int = 3;
-	var phaseA: int = 0;
-	var phaseB: int = 0;
-	var phaseC: int = 0;
-	var phaseD: int = 0;
+	public static N: long = 20; // total clock periods per activity
+	public static M: long = N/2; // when to change from forward to reverse
+	public static chainLength: long = 3;
+	var phaseA: long = 0;
+	var phaseB: long = 0;
+	var phaseC: long = 0;
+	var phaseD: long = 0;
 
 	public def run(): boolean = {
 		finish async {
