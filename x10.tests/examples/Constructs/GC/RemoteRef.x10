@@ -22,7 +22,7 @@ public class RemoteRef extends x10Test {
     static val Debug = false;
 
     static class AnObject {
-      var f:Int = 0;
+      var f:Int = 0n;
     }
 
     static class ResultHolder {
@@ -30,11 +30,11 @@ public class RemoteRef extends x10Test {
     }
 
     public def run(): boolean = {
-        val iterCount = 20;
+        val iterCount = 20n;
         val c = Clock.make();
         val res = GlobalRef[ResultHolder](new ResultHolder());
         spawnRemoteTask(c, iterCount, res);
-        for (var i:int=0; i<iterCount; i++) {
+        for (var i:int=0n; i<iterCount; i++) {
             // TODO: Try to force GC to happen here by doing lots of allocation
             if (Debug) Console.OUT.println("Local before next: "+i);
             Clock.advanceAll();
@@ -51,7 +51,7 @@ public class RemoteRef extends x10Test {
         async clocked(c) {
             at(here.next()) {
                 try {
-                    for (var i:int = 0; i<iterCount; i++) {
+                    for (var i:int = 0n; i<iterCount; i++) {
                     if (Debug) Console.OUT.println("Remote before next: "+i);
                         Clock.advanceAll();
                     if (Debug) Console.OUT.println("Remote after next: "+i);
