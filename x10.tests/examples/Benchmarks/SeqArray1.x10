@@ -21,8 +21,8 @@ public class SeqArray1 extends Benchmark {
     // parameters
     //
 
-    val N = 1000000L;
-    val M = 20L;
+    val N = 1000000;
+    val M = 20;
     def expected() = N*M as double;
     def operations() = N*M as double;
 
@@ -35,8 +35,8 @@ public class SeqArray1 extends Benchmark {
 
     def once() {
         var sum: double = 0.0;
-        for (var k:int=0; k<M; k++)
-            for (var i:int=0; i<N; i++)
+        for (k in 0..(M-1))
+            for (i in 0..(N-1))
                 sum += a(i+k);
         return sum;
     }

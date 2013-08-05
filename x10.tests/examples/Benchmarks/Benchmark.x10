@@ -66,7 +66,7 @@ abstract class Benchmark extends x10Test {
         out.println("timing for >" + TIMING + "s");
         var avg:double = 0.0;
         var min:double = double.POSITIVE_INFINITY;
-        var count:int = 0;
+        var count:int = 0n;
         while (avg < TIMING) {
             val start = now();
             once();

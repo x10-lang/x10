@@ -58,7 +58,7 @@ public class BenchmarkClearArray extends x10Test {
 	}
 
 	public static def main(var args: Rail[String]): void = {
-        var n : Int = 1000000;
+        var n : Int = 1000000n;
         if (args.size > 0) {
             n = Int.parseInt(args(0));
         }

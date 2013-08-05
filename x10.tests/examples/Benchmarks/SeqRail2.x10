@@ -42,12 +42,12 @@ public class SeqRail2 extends Benchmark {
     val a = new Rail[double](N*N);
 
     def once() {
-        for (var i:int=0; i<N; i++)
-            for (var j:int=0; j<N; j++)
+        for (i in 0..(N-1))
+            for (j in 0..(N-1))
                 a(i*N+j) = (i+j) as double;
         var sum:double = 0.0;
-        for (var i:int=0; i<N; i++)
-            for (var j:int=0; j<N; j++)
+        for (i in 0..(N-1))
+            for (j in 0..(N-1))
                 sum += a(i*N+j);
         return sum;
     }

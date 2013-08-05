@@ -35,23 +35,23 @@ public class SeqPseudoArray2a extends Benchmark {
     // the benchmark
     //
 
-    final static class Arr implements (int,int)=>double {
+    final static class Arr implements (long,long)=>double {
 
-        val m0: int;
-        val m1: int;
+        val m0: long;
+        val m1: long;
         val raw: Rail[double];
         
-        def this(m0:int, m1:int) {
+        def this(m0:long, m1:long) {
             this.m0 = m0;
             this.m1 = m1;
             this.raw = new Rail[double](m0*m1);
         }
         
-        final operator this(i0: int, i1: int)=(v:double) {
+        final operator this(i0: long, i1: long)=(v:double) {
             raw(i0*m1+i1) = v;
         }
         
-        final public operator this(i0:int, i1: int) {
+        final public operator this(i0:long, i1: long) {
             return raw(i0*m1+i1);
         }
     }
@@ -59,12 +59,12 @@ public class SeqPseudoArray2a extends Benchmark {
     val a = new Arr(N, N);
 
     def once() {
-        for (var i:int=0; i<N; i++)
-            for (var j:int=0; j<N; j++)
+        for (i in 0..(N-1))
+            for (j in 0..(N-1))
                 a(i,j) = (i+j) as double;
         var sum:double = 0.0;
-        for (var i:int=0; i<N; i++)
-            for (var j:int=0; j<N; j++)
+        for (i in 0..(N-1))
+            for (j in 0..(N-1))
                 sum += a(i,j);
         return sum;
     }

@@ -35,7 +35,7 @@ public class BenchmarkFillArray extends x10Test {
         val b = new Array_1[Int](N+1);
         start = System.nanoTime();
         for (i in 0..REPS) {
-            b.fill(0);
+            b.fill(0n);
         }
         stop = System.nanoTime();
         Console.OUT.printf("fill Array[Int]: %g ms\n", ((stop-start) as Double) / REPS / 1e6);
@@ -60,11 +60,11 @@ public class BenchmarkFillArray extends x10Test {
 	}
 
 	public static def main(var args: Rail[String]): void = {
-        var n : Int = 100000;
+        var n : Int = 100000n;
         if (args.size > 0) {
             n = Int.parseInt(args(0));
         }
-		new BenchmarkFillArray(n).execute();
+	new BenchmarkFillArray(n).execute();
 	}
 
 }

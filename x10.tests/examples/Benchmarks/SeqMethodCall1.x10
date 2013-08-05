@@ -37,7 +37,7 @@ public class SeqMethodCall1 extends Benchmark {
         val c:double = 1;
         val d:double = 2;
         val e:double = -2;
-        for (var i:int=0; i<N; i++) {
+        for (1..N) {
             sum += x.foo(a);
             sum += x.foo(b);
             sum += x.foo(c);

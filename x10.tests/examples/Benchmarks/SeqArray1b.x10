@@ -20,8 +20,8 @@ public class SeqArray1b extends Benchmark {
     // parameters
     //
 
-    val N = 1000000L;
-    val M = 20L;
+    val N = 1000000;
+    val M = 20;
     def expected() = N*M as double;
     def operations() = N*M as double;
 
@@ -30,12 +30,12 @@ public class SeqArray1b extends Benchmark {
     // the benchmark
     //
 
-    val a = new Array_1[int](N+M, 1);
+    val a = new Array_1[int](N+M, 1n);
 
     def once() {
-        var sum: int = 0;
-        for (var k:int=0; k<M; k++)
-            for (var i:int=0; i<N; i++)
+        var sum: int = 0n;
+        for (k in 0..(M-1))
+            for (i in 0..(N-1))
                 sum += a(i+k);
         return sum as double;
     }

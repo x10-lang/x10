@@ -16,9 +16,9 @@ import x10.regionarray.*;
  * Tests performance of DistArray creation
  * @author milthorpe 09/2010
  */
-public class BenchmarkCreateDistArray(elementsPerPlace : Int) extends x10Test {
+public class BenchmarkCreateDistArray(elementsPerPlace : Long) extends x10Test {
 
-    public def this(elementsPerPlace : Int) {
+    public def this(elementsPerPlace : Long) {
         property(elementsPerPlace);
     }
 
@@ -42,9 +42,9 @@ public class BenchmarkCreateDistArray(elementsPerPlace : Int) extends x10Test {
 	}
 
 	public static def main(var args: Rail[String]): void = {
-        var elementsPerPlace : Int = 1;
+        var elementsPerPlace : Long = 1;
         if (args.size > 0) {
-            elementsPerPlace = Int.parse(args(0));
+            elementsPerPlace = Long.parse(args(0));
         }
 		new BenchmarkCreateDistArray(elementsPerPlace).execute();
 	}

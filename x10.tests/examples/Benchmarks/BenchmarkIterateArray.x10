@@ -16,9 +16,9 @@ import x10.array.Array_1;
  * Tests performance of Array iteration with IntRange and Region
  * @author milthorpe 03/2011
  */
-public class BenchmarkIterateArray(elements : Int) extends x10Test {
+public class BenchmarkIterateArray(elements : Long) extends x10Test {
 
-    public def this(elements : Int) {
+    public def this(elements : Long) {
         property(elements);
     }
 
@@ -62,9 +62,9 @@ public class BenchmarkIterateArray(elements : Int) extends x10Test {
     }
 
     public static def main(args:Rail[String]) {
-        var elements : Int = 10000;
+        var elements : Long = 10000;
         if (args.size > 0) {
-            elements = Int.parse(args(0));
+            elements = Long.parse(args(0));
         }
         new BenchmarkIterateArray(elements).execute();
     }

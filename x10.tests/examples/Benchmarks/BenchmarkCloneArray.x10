@@ -40,7 +40,7 @@ public class BenchmarkCloneArray extends x10Test {
         Console.OUT.printf("clone Array[Char]: %g ms\n", ((stop-start) as Double) / REPS / 1e6);
 
         val b = new Array_1[Int](N+1);
-        for (i in 0..N) {
+        for (i in 0n..N) {
             b(i) = i;
         }
 
@@ -85,7 +85,7 @@ public class BenchmarkCloneArray extends x10Test {
     }
 
     public static def main(var args: Rail[String]): void = {
-        var n : Int = 1000000;
+        var n : Int = 1000000n;
         if (args.size > 0) {
             n = Int.parseInt(args(0));
         }

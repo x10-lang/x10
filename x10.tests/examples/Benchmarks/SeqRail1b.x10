@@ -29,12 +29,12 @@ public class SeqRail1b extends Benchmark {
     // the benchmark
     //
 
-    val a = new Rail[int](N+M, 1);
+    val a = new Rail[int](N+M, 1n);
 
     def once() {
-        var sum: int= 0;
-        for (var k:int=0; k<M; k++)
-            for (var i:int=0; i<N; i++)
+        var sum: int= 0n;
+        for (k in 0..(M-1))
+            for (i in 0..(N-1))
                 sum += a(i+k);
         return sum as double;
     }
