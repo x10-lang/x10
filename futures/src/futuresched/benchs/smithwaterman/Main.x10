@@ -3,22 +3,16 @@ package futuresched.benchs.smithwaterman;
 import futuresched.core.*;
 
 public class Main {
-	public static def main(Rail[String]) {
 
-	   FTask.init();
+	public static def test(i: Int, j: Int) {
 
-//      val i = 2;
-//      val j = 2;
-//      val i = 4;
-//      val j = 4;
-//      val i = 7;
-//      val j = 7;
-//      val i = 9;
-//      val j = 9;
-//      val i = 20;
-//      val j = 20;
-      val i = 100;
-      val j = 100;
+      Console.OUT.println("---------------------------------------");
+//      t1 = System.currentTimeMillis();
+//      v = SmithWatermanRec.m(i, j);
+//      t2 = System.currentTimeMillis();
+//      Console.OUT.println("Rec: " + v);
+//      Console.OUT.println("Time = " + (t2 - t1));
+//      Console.OUT.println("");
 
       var t1: Long;
       var t2: Long;
@@ -27,13 +21,6 @@ public class Main {
       Console.OUT.println("SmithWaterman");
       Console.OUT.println("M(" + i + ", " + j + ")");
       Console.OUT.println("");
-
-//      t1 = System.currentTimeMillis();
-//      v = SmithWatermanRec.m(i, j);
-//      t2 = System.currentTimeMillis();
-//      Console.OUT.println("Rec: " + v);
-//      Console.OUT.println("Time = " + (t2 - t1));
-//      Console.OUT.println("");
 
       t1 = System.currentTimeMillis();
       v = SmithWatermanDyn.m(i, j);
@@ -54,6 +41,24 @@ public class Main {
 	   t2 = System.currentTimeMillis();
 	   Console.OUT.println("Future2: " + v);
       Console.OUT.println("Time = " + (t2 - t1));
+
+      Console.OUT.println("---------------------------------------");
+
+	}
+
+
+	public static def main(Rail[String]) {
+
+	   FTask.init();
+
+//        test(4, 4);
+//        test(7, 7);
+//        test(9, 9);
+        test(20, 20);
+        test(100, 100);
+
+
+
    }
 }
 
