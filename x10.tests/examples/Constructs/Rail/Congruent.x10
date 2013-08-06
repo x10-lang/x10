@@ -3,9 +3,9 @@ import x10.util.*;
 import harness.x10Test;
 
 public class Congruent extends x10Test { 
-    val probsize:int;
+    val probsize:long;
 
-    public def this(ps:int) {
+    public def this(ps:long) {
         probsize = ps;
     }
 
@@ -38,9 +38,9 @@ public class Congruent extends x10Test {
         Console.OUT.println("Remote ops complete.");
 
         // verify
-        val errs = new Cell[Int](0);
+        val errs = new Cell[Long](0);
         finish for (p in Place.places()) async at (p) {
-            var errors:Int = 0;
+            var errors:Long = 0;
             val rail = plh();
             for (i in 0L..(elements-1)) {
                 val oracle = Math.sqrt(i as Double) as Long;
@@ -61,9 +61,9 @@ public class Congruent extends x10Test {
         return true;
     }
     public static def main(args:Rail[String]) {
-        var kBytes:int = 4;
+        var kBytes:long = 4;
         if (args.size>0) {
-            kBytes = Int.parseInt(args(0));
+            kBytes = Long.parseLong(args(0));
         } 
         new Congruent(kBytes*1024/(Place.MAX_PLACES as int)).execute();
     }
