@@ -31,7 +31,7 @@ public class InitStaticField4 extends x10Test {
         }
     }
 
-    static val count = new Cell[Int](0);
+    static val count = new Cell[Int](0n);
     static val c = new C();
     static val d = new D();
 
@@ -73,11 +73,11 @@ public class InitStaticField4 extends x10Test {
         }
 
         // check atmost once semantics
-        if (count() != 1) {
+        if (count() != 1n) {
             Console.OUT.println("BUG: initializer expression was evaluated multiple times in a place for d!");
         }
         
-        return ok && count() == 1;
+        return ok && count() == 1n;
     }
 
     public static def main(Rail[String]) {

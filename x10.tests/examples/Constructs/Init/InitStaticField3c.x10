@@ -52,7 +52,7 @@ public class InitStaticField3c extends x10Test {
         chk(yb.isNaN());
         chk(yc.isNaN());
         
-        chk(za.equals("x10.lang.Int"));
+        chk(za.equals("x10.lang.Long"));
         chk(zb == false);
 
         return true;

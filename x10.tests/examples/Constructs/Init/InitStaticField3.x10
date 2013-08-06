@@ -25,9 +25,9 @@ public class InitStaticField3 extends x10Test {
     static val c = 2 * 3;
     static val d = 2 / 3;
     static val e = 2 % 3;
-    static val f = 2 << 3;
-    static val g = 2 >> 3;
-    static val h = 2 >>> 3;
+    static val f = 2 << 3n;
+    static val g = 2 >> 3n;
+    static val h = 2 >>> 3n;
     static val i = 2 & 3;
     static val j = 2 | 3;
     static val k = 2 ^ 3;

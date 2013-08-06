@@ -17,14 +17,14 @@ import harness.x10Test;
  * Valid for X10 2.2.3 and later.
  */
 public class StaticInitException extends x10Test {
-    static x:Int = f();
+    static x:Long = f();
     static def f() {
         if (Math.sin(42) < 1000) { // should always happen
             throw new Exception("I will try to break things.");
         }
         return 42;
     }
-    static y:Int = x;
+    static y:Long = x;
 
     public def run():Boolean {
         var ok:Boolean = true;

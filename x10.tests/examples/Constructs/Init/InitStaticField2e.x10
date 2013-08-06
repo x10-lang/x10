@@ -21,7 +21,7 @@ import harness.x10Test;
 public class InitStaticField2e extends x10Test {
 
     static val a = neverSucceed();
-    static val count = new Cell[Int](0);
+    static val count = new Cell[Int](0n);
     static val b = a;
     
     static val c = 1 / 0;
@@ -29,10 +29,10 @@ public class InitStaticField2e extends x10Test {
 
     static def neverSucceed():Int {
         count()++;
-        if (Math.sin(42) < 1000) { // should always happen
+        if (Math.sin(42n) < 1000) { // should always happen
         	throw new Exception("I will try to break things.");
         }
-        return 1;
+        return 1n;
     }
     
     public def run():Boolean {
@@ -61,7 +61,7 @@ public class InitStaticField2e extends x10Test {
         }
         
         // check atmost once semantics
-        if (count() != 1) {
+        if (count() != 1n) {
         	Console.OUT.println("BUG: initializer expression was evaluated multiple times in a place for a!");              
         }
         
@@ -131,7 +131,7 @@ public class InitStaticField2e extends x10Test {
         	Console.OUT.println("BUG: something other than ExceptionInInitializer was thrown for d!");
         }
         
-        return ok && count() == 1;
+        return ok && count() == 1n;
     }
 
     public static def main(Rail[String]) {
