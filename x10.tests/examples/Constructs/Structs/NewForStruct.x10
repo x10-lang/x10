@@ -23,7 +23,7 @@ public class NewForStruct extends x10Test {
     }
 
     public def run() {
-        val m : Metajamjirrox  = new Metajamjirrox(1);
+        val m : Metajamjirrox  = new Metajamjirrox(1n);
     	return true;
     }
 

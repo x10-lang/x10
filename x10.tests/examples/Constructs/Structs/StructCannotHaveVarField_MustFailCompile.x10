@@ -18,7 +18,7 @@ import harness.x10Test;
 public class StructCannotHaveVarField_MustFailCompile extends x10Test {
 
     static struct A {
-	 var x:int=5; // ERR ERR [Semantic Error: A struct may not have var fields., Semantic Error: Illegal field x10.lang.Int StructCannotHaveVarField_MustFailCompile.A.x; structs cannot have var fields.]
+	 var x:int=5n; // ERR ERR [Semantic Error: A struct may not have var fields., Semantic Error: Illegal field x10.lang.Int StructCannotHaveVarField_MustFailCompile.A.x; structs cannot have var fields.]
     }
     struct B {} // ERR: Struct must be declared static.
 

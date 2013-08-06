@@ -12,14 +12,14 @@
 import harness.x10Test;
 import x10.regionarray.*;
 
-struct S58[T] implements (Int,Int)=>T {
+struct S58[T] implements (Long,Long)=>T {
   private val data:Array[T](2);
 
   public def this(array:Array[T](2)) {
     data = array;
   }
 
-  public operator this(i:Int, j:Int) = data(i, j);
+  public operator this(i:Long, j:Long) = data(i, j);
 }
 
 public class StructGenericInterfaceTest extends x10Test {
@@ -28,8 +28,8 @@ public class StructGenericInterfaceTest extends x10Test {
     val a = new Array[Long](r, (p:Point(2)) => p(0)+p(1));
     val s = S58[Long](a);
 
-    chk(s(1,1) == 2L);
-    chk(s(4,4) == 8L);
+    chk(s(1,1) == 2);
+    chk(s(4,4) == 8);
 
     return true;
   }

@@ -12,14 +12,14 @@
 import harness.x10Test;
 
 interface StructInterfaceGenericTest_Sum {
-  def sum():int;
+  def sum():long;
 }
 
 struct StructInterfaceGenericTest_S implements StructInterfaceGenericTest_Sum {
-  val x:int;
-  val y:int;
+  val x:long;
+  val y:long;
 
-  public def this(a:int, b:int) { x = a; y = b; }
+  public def this(a:long, b:long) { x = a; y = b; }
 
   public final def sum() = x + y;
 }
