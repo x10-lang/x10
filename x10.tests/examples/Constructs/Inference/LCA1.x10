@@ -19,7 +19,7 @@ import harness.x10Test;
 public class LCA1 extends x10Test {
 	public def run() {
 	  val x:double = 1.2345678;
-      val y:int = 2;
+      val y:int = 2n;
 	// should succeed. LCA of double and int is Any.
       val z:Rail[Any] = [x,y];
 	  return true;

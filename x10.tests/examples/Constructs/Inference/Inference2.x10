@@ -20,7 +20,7 @@ public class Inference2 extends x10Test {
         def m[T](x: T) = x;
 
 	public def run(): boolean = {
-                val x = m(1);
+                val x = m(1n);
                 val y: int = x;
 		return x == y;
 	}

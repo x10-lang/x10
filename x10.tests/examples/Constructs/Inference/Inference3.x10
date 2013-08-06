@@ -17,7 +17,7 @@ import harness.x10Test;
  * @author nystrom 8/2008
  */
 public class Inference3 extends x10Test {
-        def m() = 3;
+        def m() = 3n;
 
 	public def run(): boolean = {
                 val x = m();
