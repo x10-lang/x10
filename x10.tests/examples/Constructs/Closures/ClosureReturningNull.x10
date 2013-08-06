@@ -25,7 +25,7 @@ public class ClosureReturningNull extends x10Test {
         chk (test1(cls) == null);
         chk (test2(cls) == null);
 
-        return result;
+        return true;
     }
 
     public def test1(c:()=>Any) = c();

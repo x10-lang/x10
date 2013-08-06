@@ -20,7 +20,6 @@ import x10.io.Console;
 /**
  * Test harness abstract class.
  */
-
 abstract public class x10Test {
 
     /**
@@ -128,88 +127,4 @@ abstract public class x10Test {
     }
 
     protected static def println(s:String) { x10.io.Console.OUT.println(s); }
-
-    public static abstract class BardTest extends x10Test {
-
-        static val MAX_ERRORS_TO_PRINT = 10;
-
-        public def run() : Boolean {
-       x10.io.Console.OUT.println("(Bard)I am about to test a " + this.typeName());
-           this.test();
-           val noErr = errors.size() == 0L;
-           if (!noErr) {
-              x10.io.Console.OUT.println("(Bard)FAIL - " + this.typeName() + "\n" + this.errorString());
-           }
-           else {
-              x10.io.Console.OUT.println("(Bard) SUCCESS");
-           }
-           x10.io.Console.OUT.println("noErr = " + noErr);
-           return noErr;
-        }
-
-        public abstract def test() : void;
-
-        public val errors : List[String] = new ArrayList[String]();
-
-        public def errorString() : String = {
-          var s : String = "";
-          var i : Int = 1n;
-          for (es in errors) {
-            s += "  " + i + ". " + es + "\n";
-            i ++;
-            if (i > MAX_ERRORS_TO_PRINT) {
-               s += "  (total of " + (errors.size()) + " failures)\n"; 
-               break;
-            }
-          }
-          return s;
-        }
-
-        public atomic final def err(loc:String) {
-          errors.add(loc);
-        }
-
-        public final def no(b:Boolean, loc: String) {
-          if(b) err(loc);
-        }
-
-        public final def yes(b: Boolean, loc: String) {
-          no(!b, loc);
-        }
-
-        public final def equals[T](a:T, b:T):Boolean {
-          if (a == b) return true;
-          if ((a as Any) == null || (b as Any) == null) return false;
-          return a.equals(b);
-        }
-
-        public final def eqeq[T](a:T, b:T, loc: String) {
-          yes(a==b, loc + " for (" + a + ").==((" + b + "))");
-        }
-
-        public final def eq[T](a:T, b:T, loc: String) {
-          yes(equals[T](a,b), loc + " for (" + a + ").equals((" + b + "))");
-        }
-
-        public final def neqeq[T](a:T, b:T, loc: String) {
-          no(a==b, loc + " for !((" + a + ").equals((" + b + ")))");
-        }
-        public final def neq[T](a:T, b:T, loc: String) {
-          no(equals[T](a,b), loc + " for !((" + a + ").equals((" + b + ")))");
-        }
-
-        public final def say(msg: String) { 
-          Console.OUT.println("(" + this.typeName() + ") " + msg);
-        }
-
-        public static def never():Boolean = false;
-        public static def always():Boolean = true;
-
-        public static def eq(a:Point, b:Point) {
-          if (a.rank != b.rank) return false;
-          for(var i : Int = 0n; i < a.rank; i++) 
-             if (a(i) != b(i)) return false;
-          return true;
-        }  
-    }
 }

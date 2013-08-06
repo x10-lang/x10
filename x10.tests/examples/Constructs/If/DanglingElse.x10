@@ -19,29 +19,23 @@ is interpreted as
 
 public class DanglingElse extends x10Test  {
   public static def main(Rail[String]){
-		new DanglingElse().execute();
-   
+      new DanglingElse().execute();
   }
+
+  def t():Boolean = true;
+  def f():Boolean = false;
+
   public def run():Boolean {
-	  val p:x10Test = new F();
-      return p.run();
-  }
-  class F extends x10Test.BardTest {
-  public def test() : void {
-	  assert (test2());
-  }
-  public def test2() : Boolean {
      var passed : Boolean = false;
-     if (true) if (true) passed = true; else passed = false;
+     if (t()) if (t()) passed = true; else passed = false;
      if (!passed) return false;
      passed = false;
-     if (true) if (false) passed = false; else passed = true;
+     if (t()) if (f()) passed = false; else passed = true;
      if (!passed) return false;
      passed = true;
-     if (false) if (false) passed = false; else passed = false;
+     if (f()) if (t()) passed = false; else passed = false;
      if (!passed) return false;
      return true;
-  }
   }
 }
 

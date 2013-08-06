@@ -22,22 +22,10 @@ import harness.x10Test;
  * A method, constructor, or closure may have type parameters whose scope
  * is the signature and body of the declaring method, constructor or
  * closure.
- * 
  *
  * @author bdlucas 8/2008
  */
-
 public class ClosureTypeParameters1c extends x10Test {
-/*
-The following block of class definitions messed up compilation, but were not
-otherwise being used. I have commented them out.
-    class V           {public static val name = "V";}
-    class W extends V {public static val name = "W";}
-    class X extends V {public static val name = "X";}
-    class Y extends X {public static val name = "Y";}
-    class Z extends X {public static val name = "Z";}
-*/
-
     public def run(): boolean = {
         
         class X[T] {val f = (x:T,y:T) => x.toString() + y.toString();}

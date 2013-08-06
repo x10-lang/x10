@@ -1,13 +1,22 @@
+/*
+ *  This file is part of the X10 project (http://x10-lang.org).
+ *
+ *  This file is licensed to You under the Eclipse Public License (EPL);
+ *  You may not use this file except in compliance with the License.
+ *  You may obtain a copy of the License at
+ *      http://www.opensource.org/licenses/eclipse-1.0.php
+ *
+ *  (C) Copyright IBM Corporation 2006-2010.
+ */
 
-import x10.util.*;
-import x10.regionarray.*;
 import harness.x10Test;
+import x10.regionarray.*;
 
-public class BlockDist2 extends x10Test.BardTest {
+public class BlockDist2 extends x10Test {
   public static def main(Rail[String]){
-     val p:x10Test = new BlockDist2();
-     p.execute();
+     new BlockDist2().execute();
   }
+
   static def str(d:Dist):String {
     var s : String = "";
     for(p in d.region) 
@@ -21,8 +30,7 @@ public class BlockDist2 extends x10Test.BardTest {
     return n;
   }
 
-
-  public def test() {
+  public def run():boolean {
      for (n in 10..100) {
         val R = Region.make(1,n);
         val D = Dist.makeBlock(R);
@@ -32,9 +40,9 @@ public class BlockDist2 extends x10Test.BardTest {
         for (p in Place.places()) {
           val atP =  D.get(p);
           val np = actualSize(atP);
-          eq(np, atP.size(), "Size of " + atP + " really: " + np + " but .size()=" + atP.size());
+          chk(np == atP.size(), "Size of " + atP + " really: " + np + " but .size()=" + atP.size());
           
-          yes (np == l || np == l+1, 
+          chk(np == l || np == l+1, 
             "number at p test for p=" + p + " + n=" + n
             + " -- expects l=" + l + " or " + (l+1) 
             + ", but found np=" + np
@@ -42,10 +50,11 @@ public class BlockDist2 extends x10Test.BardTest {
             + "\n atP = " + atP
             );
           if (prev != -1L) {
-            if (prev == l) yes(np == l, "big blocks before small blocks for p=" + p + ", n=" + n);
+            if (prev == l) chk(np == l, "big blocks before small blocks for p=" + p + ", n=" + n);
           }
           prev = np;
         }
      }
+     return true;
   }
 }
