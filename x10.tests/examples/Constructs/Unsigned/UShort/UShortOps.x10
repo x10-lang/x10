@@ -51,16 +51,16 @@ public class UShortOps extends x10Test {
     public def testComparable() : Boolean {
 	var r : Boolean = true;
 
-	if (3us.compareTo(3us) != 0) 			{ p(" (3us.compareTo(3us) != 0) 		    "); r = false; }
-	if (4us.compareTo(0xFFFFus) != -1)		{ p(" (4us.compareTo(0xFFFFus) != -1)	    "); r = false; }
-	if (0xF001us.compareTo(0xF000us) != 1)    { p(" (0xF001us.compareTo(0xF000us) != 1 "); r = false; }
+	if (3us.compareTo(3us) != 0n) 			{ p(" (3us.compareTo(3us) != 0) 		    "); r = false; }
+	if (4us.compareTo(0xFFFFus) != -1n)		{ p(" (4us.compareTo(0xFFFFus) != -1)	    "); r = false; }
+	if (0xF001us.compareTo(0xF000us) != 1n)    { p(" (0xF001us.compareTo(0xF000us) != 1 "); r = false; }
 
 	val u3 = 3us as Comparable[UShort];
 	val uf = 0xFFFFus as Comparable[UShort];
 	val u4 = 4us as Comparable[UShort];
-	if (u3.compareTo(3us) != 0) 			{ p(" (u3.compareTo(3us) != 0) 		    "); r = false; }
-	if (u4.compareTo(0xFFFFus) != -1)		{ p(" (u4.compareTo(0xFFFFus) != -1)	    "); r = false; }
-	if (uf.compareTo(0xF000us) != 1)    		{ p(" (uf.compareTo(0xF000us) != 1 "); r = false; }
+	if (u3.compareTo(3us) != 0n) 			{ p(" (u3.compareTo(3us) != 0) 		    "); r = false; }
+	if (u4.compareTo(0xFFFFus) != -1n)		{ p(" (u4.compareTo(0xFFFFus) != -1)	    "); r = false; }
+	if (uf.compareTo(0xF000us) != 1n)    		{ p(" (uf.compareTo(0xF000us) != 1 "); r = false; }
 	return r;
     }
 
@@ -115,12 +115,12 @@ public class UShortOps extends x10Test {
 	if ((0xFFFFus & 0xF000us) != 0xF000us)	{ p(" (0xFFFFus & 0xF000us != 0xF000000us)	 "); r = false; }
 	if ((0x0FFFus ^ 0xF000us) != 0xFFFFus) 	{ p(" (0x0FFFus ^ 0xF000us != 0xFFFFus) 	 "); r = false; }
 	if ((0xFFFFus ^ 0xF000us) != 0x0FFFus) 	{ p(" (0xFFFFus ^ 0xF000us != 0x0FFFus) 	 "); r = false; }
-	if ((0xFFFFus >> 4) != 0x0FFFus)		{ p(" (0xFFFFus >> 4 != 0x0FFFus)		 "); r = false; }
-	if ((0xFFFFus >> 1) != 0x7FFFus)		{ p(" (0xFFFFus >> 1 != 0x7FFFus)		 "); r = false; }
-	if ((0xFFFFus >>> 4) != 0x0FFFus)		{ p(" (0xFFFFus >>> 4 != 0x0FFFus)		 "); r = false; }
-	if ((0xFFFFus >>> 1) != 0x7FFFus)		{ p(" (0xFFFFus >>> 1 != 0x7FFFus)		 "); r = false; }
-	if ((0xFFFFus << 4) != 0xFFF0us)		{ p(" (0xFFFFus << 4 != 0xFFF0us)		 "); r = false; }
-	if ((0xFFFFus << 1) != 0xFFFEus)		{ p(" (0xFFFFus << 1 != 0xFFFEus)		 "); r = false; }
+	if ((0xFFFFus >> 4n) != 0x0FFFus)		{ p(" (0xFFFFus >> 4 != 0x0FFFus)		 "); r = false; }
+	if ((0xFFFFus >> 1n) != 0x7FFFus)		{ p(" (0xFFFFus >> 1 != 0x7FFFus)		 "); r = false; }
+	if ((0xFFFFus >>> 4n) != 0x0FFFus)		{ p(" (0xFFFFus >>> 4 != 0x0FFFus)		 "); r = false; }
+	if ((0xFFFFus >>> 1n) != 0x7FFFus)		{ p(" (0xFFFFus >>> 1 != 0x7FFFus)		 "); r = false; }
+	if ((0xFFFFus << 4n) != 0xFFF0us)		{ p(" (0xFFFFus << 4 != 0xFFF0us)		 "); r = false; }
+	if ((0xFFFFus << 1n) != 0xFFFEus)		{ p(" (0xFFFFus << 1 != 0xFFFEus)		 "); r = false; }
 
 	val uff = 0xFFFFus as Bitwise[UShort];
 	val u0f = 0x0FFFus as Bitwise[UShort];
@@ -132,12 +132,12 @@ public class UShortOps extends x10Test {
 	if ((uff & 0xF000us) != 0xF000us)	{ p(" (uff & 0xF000us != 0xF000000us)	 "); r = false; }
 	if ((u0f ^ 0xF000us) != uff) 	{ p(" (u0f ^ 0xF000us != uff) 	 "); r = false; }
 	if ((uff ^ 0xF000us) != u0f) 	{ p(" (uff ^ 0xF000us != u0f) 	 "); r = false; }
-	if ((uff >> 4) != u0f)		{ p(" (uff >> 4 != u0f)		 "); r = false; }
-	if ((uff >> 1) != u7f)		{ p(" (uff >> 1 != u7f)		 "); r = false; }
-	if ((uff >>> 4) != u0f)		{ p(" (uff >>> 4 != u0f)		 "); r = false; }
-	if ((uff >>> 1) != u7f)		{ p(" (uff >>> 1 != u7f)		 "); r = false; }
-	if ((uff << 4) != 0xFFF0us)		{ p(" (uff << 4 != 0xFFF0us)		 "); r = false; }
-	if ((uff << 1) != 0xFFFEus)		{ p(" (uff << 1 != 0xFFFEus)		 "); r = false; }
+	if ((uff >> 4n) != u0f)		{ p(" (uff >> 4 != u0f)		 "); r = false; }
+	if ((uff >> 1n) != u7f)		{ p(" (uff >> 1 != u7f)		 "); r = false; }
+	if ((uff >>> 4n) != u0f)		{ p(" (uff >>> 4 != u0f)		 "); r = false; }
+	if ((uff >>> 1n) != u7f)		{ p(" (uff >>> 1 != u7f)		 "); r = false; }
+	if ((uff << 4n) != 0xFFF0us)		{ p(" (uff << 4 != 0xFFF0us)		 "); r = false; }
+	if ((uff << 1n) != 0xFFFEus)		{ p(" (uff << 1 != 0xFFFEus)		 "); r = false; }
 
 	return r;
     }

@@ -19,7 +19,7 @@ import harness.x10Test;
 public class UShortCast0 extends x10Test {
     public def run(): boolean = {
 	val xx = 1us;
-	val i1 = 1;
+	val i1 = 1n;
 	val s1 = 1s;
 	val b1 = 1y;
 	if (!(xx as Short == s1)) return false;
@@ -30,7 +30,7 @@ public class UShortCast0 extends x10Test {
 	if (xx != b1 as UShort) return false;
 
 	val yy = 0xFFFFus;
-	val i2 = -1;
+	val i2 = -1n;
 	val s2 = -1s;
 	val b2 = -1y;
 	if (!(yy as Short == s2)) return false;
