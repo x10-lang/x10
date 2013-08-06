@@ -47,8 +47,8 @@ class XTENLANG_2638_desugarer
 	{
 	val mShape = Region.make(1..100, 1..200);
 	val mDist:Dist(2) = Dist.makeBlock(mShape);
-	val mat = DistArray.make[int] (mDist, 1);
-	val rhs = DistArray.make[int] (mDist, 2);
+	val mat = DistArray.make[long] (mDist, 1);
+	val rhs = DistArray.make[long] (mDist, 2);
 
 	finish for (place in mat.dist.places()) async
 	{
@@ -56,8 +56,8 @@ class XTENLANG_2638_desugarer
 	{
 	for (pt:Point in mat | here)//(mat.dist | here))
 	{
-		val x:Int = mat(pt); // ERR: Warning: Generated a dynamic check for the method call.
-		val y:Int = rhs(pt); // ERR: Warning: Generated a dynamic check for the method call.
+		val x:Long = mat(pt); // ERR: Warning: Generated a dynamic check for the method call.
+		val y:Long = rhs(pt); // ERR: Warning: Generated a dynamic check for the method call.
 		mat(pt) = x + y; // ERR: Warning: Generated a dynamic check for the method call.
 	}
 	}
@@ -65,7 +65,7 @@ class XTENLANG_2638_desugarer
 	}
 }
 
-class ConstrainedCall(x:Int) { // XTENLANG-2416
+class ConstrainedCall(x:Long) { // XTENLANG-2416
     def m(){x==0} = 10;
     def test() { m(); } // ERR
 }
@@ -81,19 +81,19 @@ class NestedArray_73    {  // see XTENLANG-2428
 		public var myField :VT;
 	}
 
-	class MyArray[ET](a:Array[ET]{rank==1}, size: Int)
+	class MyArray[ET](a:Array[ET]{rank==1}, size: Long)
 	{
-		def this(s: Int, e: ET) : MyArray[ET] {self.size == s}
+		def this(s: Long, e: ET) : MyArray[ET] {self.size == s}
 		{
 			val ma = new Array[ET](s, e);
 			property(ma, s);
 		}
 	}
 
-	 static type ElInt = MyElement[Int];
+	 static type ElInt = MyElement[Long];
 	 static type ArInt = MyArray[ElInt];
 
-	 static type ElIntNo123 = MyElement[Int{self != 123}];
+	 static type ElIntNo123 = MyElement[Long{self != 123}];
 	 static type ElArrayInt = MyElement[ArInt];
 	 static type ArArrayElInt = MyArray[ElArrayInt];
 
@@ -126,9 +126,9 @@ class NestedArray_73    {  // see XTENLANG-2428
 }
 
 class MethodInstanceArgTest  {//XTENLANG_2603
-	class A(i:Int) {}
+	class A(i:Long) {}
 	def m(A{self.i==2}) {}
-	def n(i:Int) {
+	def n(i:Long) {
 		val a = new A(i);
 		m(a); // ERR
 	}
@@ -142,26 +142,26 @@ class MethodInstanceArgTest  {//XTENLANG_2603
 }
 class XTENLANG_2370
 {
-    static def m[T](arr:T, p:Point){T<:Array[Int]} {
+    static def m[T](arr:T, p:Point){T<:Array[Long]} {
 		//val z = ((x1:T,x2:Point)=>x1(x2 as Point(x1.rank)))(arr,p);
 		// (x1:T,x2:Point)=>{ if (GUARD...) throw ...;  x1(x2); }
         arr(p); // ERR
     }
-    static def m2[T](arr:Array[Int], p:T){T<:Point} {
-		// (x1:Array[Int],x2:T)=>{ if (GUARD...) throw ...;  x1(x2); }
+    static def m2[T](arr:Array[Long], p:T){T<:Point} {
+		// (x1:Array[Long],x2:T)=>{ if (GUARD...) throw ...;  x1(x2); }
         arr(p); // ERR
     }
 	static def fail():void { throw new Exception("test failed!"); }
 	static def test() {
-		m(new Array[int](3, [1,2,3]), Point.make(2));
-		try { m(new Array[int](3, [1,2,3]), Point.make(2,3)); fail(); } catch (e:FailedDynamicCheckException) {}
+		m(new Array[long](3, [1,2,3]), Point.make(2));
+		try { m(new Array[long](3, [1,2,3]), Point.make(2,3)); fail(); } catch (e:FailedDynamicCheckException) {}
 	}
 }
 
 class XTENLANG_2603  {
-	class A(i:Int) {}
+	class A(i:Long) {}
 	def m(A{self.i==2}) {}
-	def n(i:Int) {
+	def n(i:Long) {
 		val a = new A(i);
 		m(a); // ERR
 	}
@@ -219,8 +219,8 @@ class DynamicCallsTest {
 		try { m(Point.make(1,2,3)); fail(); } catch (e:ClassCastException) {}
 		Console.OUT.println("Test succeeded!");
 	}
-	def m(a:Int, b:Int{self==a}) {}
-	def test(a:Int, b:Int) {
+	def m(a:Long, b:Long{self==a}) {}
+	def test(a:Long, b:Long) {
 		m(a+1,b); // ERR
 	}
 	def m(p:Point) {
@@ -235,7 +235,7 @@ struct AAA7(R:Long)
 {
     private val a:Point;
 
-    public def this (r:Long, v1:Rail[Int]{self.size==r}) {
+    public def this (r:Long, v1:Rail[Long]{self.size==r}) {
         property(r);
         a = Point.make(v1); // ERR
     }
@@ -253,13 +253,13 @@ class ABC23 {
   }
 }
 
-class XTENLANG_2712[T](a:Int) {
-	static type D=XTENLANG_2712[Int]{self.a==3};
+class XTENLANG_2712[T](a:Long) {
+	static type D=XTENLANG_2712[Long]{self.a==3};
 
-	def this(a:Int) {
+	def this(a:Long) {
 		property(a);
 	}
-	static def m(i:Int) {
+	static def m(i:Long) {
 		val v =
 			new D(i); // ERR: Warning: Expression 'new C[x10.lang.Int]{self.a==3}(...)' was cast to type C[x10.lang.Int]{self.a==3}.
 	}
@@ -269,7 +269,7 @@ class XTENLANG_2712[T](a:Int) {
 	}
 	static def fail():void { throw new Exception("test failed!"); }
 }
-class Helper2330(p:Int) {
+class Helper2330(p:Long) {
 	// test inner classes (both instance & nested), inheritance, overriding, generics (for generics I just checked codegen below, not runtime behaviour)
 	// new & call (with and without target/qualifier), operators
 
@@ -279,17 +279,17 @@ class Helper2330(p:Int) {
 		test(1);
 		try { test(0); fail(); } catch (e:FailedDynamicCheckException) {}
 	}
-	def test(i:Int) {
-		val x = new TestGeneric7[Int{self!=0}](i); // ERR: Warning: Generated a dynamic check for the method call.
+	def test(i:Long) {
+		val x = new TestGeneric7[Long{self!=0}](i); // ERR: Warning: Generated a dynamic check for the method call.
 	}
 
-	def run(z:Int) { // z is 0 at runtime (I use it to make sure the guard cannot be statically resolved)
+	def run(z:Long) { // z is 0 at runtime (I use it to make sure the guard cannot be statically resolved)
         test();
 
-        AAA7(1, [0 as Int]);
-		try { AAA7(1, [0 as Int, 0]); fail(); } catch (e:ClassCastException) {}
-		try { AAA7(2, [0 as Int, 0]); fail(); } catch (e:ClassCastException) {} // ERR
-		try { AAA7(2, [0 as Int]); fail(); } catch (e:ClassCastException) {} // ERR
+        AAA7(1, [0 as Long]);
+		try { AAA7(1, [0 as Long, 0]); fail(); } catch (e:ClassCastException) {}
+		try { AAA7(2, [0 as Long, 0]); fail(); } catch (e:ClassCastException) {} // ERR
+		try { AAA7(2, [0 as Long]); fail(); } catch (e:ClassCastException) {} // ERR
 
 		/////////////////////////////////////////////////////////////
 		// testing method calls (that return void or non-void)
@@ -379,14 +379,14 @@ class Helper2330(p:Int) {
 		this.new B(z+1,z+2); // ERR
 		try { this.new B(z+1,z+1); fail(); } catch (e:FailedDynamicCheckException) {} // ERR
 
-		// C's guard: (i1:Int, i2:Int) {i1!=i2, i1==p}
+		// C's guard: (i1:Long, i2:Long) {i1!=i2, i1==p}
 		val c1 = new C(z+50,z+42); // ERR
 		val c2 = r.new C(z+51,z+42); // ERR
 		try { new C(z+1,z+2); fail(); } catch (e:FailedDynamicCheckException) {} // ERR
 		try { new C(z+50,z+50); fail(); } catch (e:FailedDynamicCheckException) {} // ERR
 		try { r.new C(z+1,z+2); fail(); } catch (e:FailedDynamicCheckException) {} // ERR
 		try { r.new C(z+51,z+51); fail(); } catch (e:FailedDynamicCheckException) {} // ERR
-		// D's guard: (i1:Int, i2:Int) {i1!=i2, i1==p, i2==c}
+		// D's guard: (i1:Long, i2:Long) {i1!=i2, i1==p, i2==c}
 		val d1 = c1. new D(z+50,z+42); // ERR
 		val d2 = c2. new D(z+51,z+42); // ERR
 		try { c1. new D(z+1,z+42); fail(); } catch (e:FailedDynamicCheckException) {} // ERR
@@ -414,9 +414,9 @@ class Helper2330(p:Int) {
 
 		// implicit and explicit as (casting)
 		val dd1:Helper2330 = z+5.5; // ERR
-		val ss1:Helper2330 = ((z+'a') as Char) as Helper2330; // ERR
+		val ss1:Helper2330 = (((z as int)+'a') as Char) as Helper2330; // ERR
 		try { val dd2:Helper2330 = z+5.6; fail(); } catch (e:FailedDynamicCheckException) {} // ERR
-		try { val ss2:Helper2330 = ((z+'b') as Char) as Helper2330; fail(); } catch (e:FailedDynamicCheckException) {} // ERR
+		try { val ss2:Helper2330 = (((z as int)+'b') as Char) as Helper2330; fail(); } catch (e:FailedDynamicCheckException) {} // ERR
 
 		// apply & set (and SettableAssign)
 		this(z+50); // ERR
@@ -445,24 +445,24 @@ class Helper2330(p:Int) {
 	}
 	def use(x:Any) {}
 
-	def this(i:Int) {
+	def this(i:Long) {
 		property(i);
 	}
-	def this(i1:Int, i2:Int) {i1!=i2} {
+	def this(i1:Long, i2:Long) {i1!=i2} {
 		property(42);
 	}
 
-	static def m1(x:Int) {x==1} {}
-	def m2(x:Int) {x==2} {}
-	def m3(x:Int) {x==p} {}
-	def m33(x:Int) {x==p} = this;
+	static def m1(x:Long) {x==1} {}
+	def m2(x:Long) {x==2} {}
+	def m3(x:Long) {x==p} {}
+	def m33(x:Long) {x==p} = this;
 
 	// binary ops
-	static operator (x:Helper2330)+(i:int) {x.p==i} : Int = i;
-	operator this * (i:Int) {p==i} : Int = i;
+	static operator (x:Helper2330)+(i:long) {x.p==i} : Long = i;
+	operator this * (i:Long) {p==i} : Long = i;
 	// unary op
-	static operator +(x:Helper2330) {x.p==50} : Int = 42;
-	operator - this  {p==50} : Int = 43;
+	static operator +(x:Helper2330) {x.p==50} : Long = 42;
+	operator - this  {p==50} : Long = 43;
 
 	// implicit_as
 	static operator (x:Double) {x==5.5} : Helper2330= null;
@@ -470,46 +470,46 @@ class Helper2330(p:Int) {
 	static operator (x:Char) as ? {x=='a'} : Helper2330 = null;
 
 	// apply
-	operator this(i:Int) {i==p} :Int = i;
+	operator this(i:Long) {i==p} :Long = i;
 	// settable assign
-	operator this(i:Int)=(v: Int) {p==i, i==v} : void {}
+	operator this(i:Long)=(v: Long) {p==i, i==v} : void {}
 
 
-	static class A(a:Int) {
-		def this(i:Int) {
+	static class A(a:Long) {
+		def this(i:Long) {
 			property(i);
 		}
-		def this(i1:Int, i2:Int) {i1!=i2} {
+		def this(i1:Long, i2:Long) {i1!=i2} {
 			property(42);
 		}
 
-		static def m4(x:Int) {x==4} {}
-		def m5(x:Int) {x==A.this.a} {}
+		static def m4(x:Long) {x==4} {}
+		def m5(x:Long) {x==A.this.a} {}
 	}
-	class B(b:Int) {
-		def this(i:Int) {
+	class B(b:Long) {
+		def this(i:Long) {
 			property(i);
 		}
-		def this(i1:Int, i2:Int) {i1!=i2} {
+		def this(i1:Long, i2:Long) {i1!=i2} {
 			property(42);
 		}
 
-		def m6(x:Int) {x==Helper2330.this.p} {} // testing access to outer instance properties
+		def m6(x:Long) {x==Helper2330.this.p} {} // testing access to outer instance properties
 	}
-	class C(c:Int) extends B {
-		def m6(x:Int) {x==Helper2330.this.p} {} // testing overriding
+	class C(c:Long) extends B {
+		def m6(x:Long) {x==Helper2330.this.p} {} // testing overriding
 
-		def this(i:Int) {
+		def this(i:Long) {
 			super(i);
 			property(i);
 		}
-		def this(i1:Int, i2:Int) {i1!=i2, i1==p}  { // testing 2 binary expressions
+		def this(i1:Long, i2:Long) {i1!=i2, i1==p}  { // testing 2 binary expressions
 			super(i1);
 			property(i2);
 		}
 
-		class D(d:Int) extends A {
-			def this(i1:Int, i2:Int) {i1!=i2, i1==p, i2==c}  { // testing 3 binary expressions
+		class D(d:Long) extends A {
+			def this(i1:Long, i2:Long) {i1!=i2, i1==p, i2==c}  { // testing 3 binary expressions
 				super(i1);
 				property(i2);
 			}
@@ -544,22 +544,22 @@ class NullTestInGuard(x:String) {
 }
 
 class TestWithoutGenerics {
-	static def m2(a:Int, b:Outer.A) {a==44, b.x==null} = 1;
+	static def m2(a:Long, b:Outer.A) {a==44, b.x==null} = 1;
 
-	class Outer(zz:Int) {
-		class A(x:String,y:Int) {
-			def m0(a:Int, b:A) = 1;
-			def m(a:Int, b:A) {a==y, b.x==null, zz==33}  = 1;
-			def this(a:A,b:A,c:Int) {a==null && b.x!=null && c==42, zz==c} : A {
+	class Outer(zz:Long) {
+		class A(x:String,y:Long) {
+			def m0(a:Long, b:A) = 1;
+			def m(a:Long, b:A) {a==y, b.x==null, zz==33}  = 1;
+			def this(a:A,b:A,c:Long) {a==null && b.x!=null && c==42, zz==c} : A {
 				property(null,5);
 			}
 
-			def test(i:A,j:A,k:A, w:Int, h:TestWithoutGenerics, outer:Outer) {
+			def test(i:A,j:A,k:A, w:Long, h:TestWithoutGenerics, outer:Outer) {
 				val z:A = new A(k,null,3*4);  // ERR:  Warning: Generated a dynamic check for the method guard.
 				val z1:A = outer.new A(k,null,3*4);  // ERR:  Warning: Generated a dynamic check for the method guard.
 
 				// this is what the compiler generate
-				val z2 = ((x0:A, x1:Int, x2:A)=> {
+				val z2 = ((x0:A, x1:Long, x2:A)=> {
 						if (!(x1==x0.y && x2.x==null)) throw new ClassCastException();
 						return x0.m0(x1,x2);
 					}) (null, w*2, i);
@@ -574,22 +574,22 @@ class TestWithoutGenerics {
 	}
 }
 class TestWithGenerics {
-	static def m2(a:Int, b:Outer.A[Double]) {a==44} = 1;
+	static def m2(a:Long, b:Outer.A[Double]) {a==44} = 1;
 
-	class Outer(zz:Int) {
-		class A[T](x:String,y:Int) {
-			def m0(a:Int, b:A[T]) = 1;
-			def m(a:Int, b:A[T]) {a==y, b.x==null, zz==33}  = 1;
-			def this(a:A[A[Int]],b:A[T],c:Int) {a==null && b.x!=null && c==42, zz==c} : A[T] {
+	class Outer(zz:Long) {
+		class A[T](x:String,y:Long) {
+			def m0(a:Long, b:A[T]) = 1;
+			def m(a:Long, b:A[T]) {a==y, b.x==null, zz==33}  = 1;
+			def this(a:A[A[Long]],b:A[T],c:Long) {a==null && b.x!=null && c==42, zz==c} : A[T] {
 				property(null,5);
 			}
 
-			def test(i:A[Double],j:A[Double],k:A[A[Int]], w:Int, h:TestWithGenerics, outer:Outer) {
+			def test(i:A[Double],j:A[Double],k:A[A[Long]], w:Long, h:TestWithGenerics, outer:Outer) {
 				val z:A[Double] = new A[Double](k,null,3*4);  // ERR:  Warning: Generated a dynamic check for the method guard.
 			    // gives an error (see XTENLANG_2377) :val z1 = outer.new A[Double](k,null,3*4);
 
 				// this is what the compiler generate
-				val z2 = ((x0:A[Double], x1:Int, x2:A[Double])=> {
+				val z2 = ((x0:A[Double], x1:Long, x2:A[Double])=> {
 						if (!(x1==x0.y && x2.x==null)) throw new ClassCastException();
 						return x0.m0(x1,x2);
 					}) (null, w*2, i);
