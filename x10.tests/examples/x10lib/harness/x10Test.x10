@@ -118,13 +118,5 @@ abstract public class x10Test {
         return lb + myRand.nextInt(ub-lb+1n);
     }
 
-    protected var result: boolean;
-    protected final def check[T](test:String, actual:T, expected:T) = {
-	result = actual == expected;
-	println(test + (result ? " succeeds: got "
-			: " fails: exepected " + expected + ", got " )
-		+ actual);
-    }
-
     protected static def println(s:String) { x10.io.Console.OUT.println(s); }
 }
