@@ -27,7 +27,6 @@
 
 %Terminals
 
-    IntegerLiteral         -- the usual
     IntLiteral             -- IntegerLiteral followed by 'n' or 'N'
     LongLiteral            -- IntegerLiteral optionally followed by 'l' or 'L'
     ByteLiteral            -- IntegerLiteral followed by 'y' or 'Y'

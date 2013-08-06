@@ -532,7 +532,7 @@ public class X10Lexer extends Object implements RuleAction
                 if (valid && dot > token.getStartOffset())
                 {
                     token.setEndOffset(dot - 1);
-                    token.setKind(X10Parsersym.TK_IntegerLiteral);
+                    token.setKind(X10Parsersym.TK_LongLiteral);
                     lexStream.getIPrsStream().makeToken(dot, dot, X10Parsersym.TK_DOT);
                     if (dot < end)
                     {

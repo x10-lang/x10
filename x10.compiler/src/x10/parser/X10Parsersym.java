@@ -16,7 +16,6 @@ package x10.parser;
 
 public interface X10Parsersym {
     public final static int
-      TK_IntegerLiteral = 145,
       TK_IntLiteral = 22,
       TK_LongLiteral = 23,
       TK_ByteLiteral = 24,
@@ -76,7 +75,7 @@ public interface X10Parsersym {
       TK_EQUAL_EQUAL = 47,
       TK_GREATER = 53,
       TK_GREATER_EQUAL = 54,
-      TK_ELLIPSIS = 146,
+      TK_ELLIPSIS = 145,
       TK_RANGE = 55,
       TK_ARROW = 56,
       TK_DARROW = 120,
@@ -103,7 +102,7 @@ public interface X10Parsersym {
       TK_assert = 131,
       TK_async = 121,
       TK_at = 80,
-      TK_athome = 147,
+      TK_athome = 146,
       TK_ateach = 122,
       TK_atomic = 69,
       TK_break = 132,
@@ -122,7 +121,7 @@ public interface X10Parsersym {
       TK_finally = 127,
       TK_finish = 72,
       TK_for = 128,
-      TK_goto = 148,
+      TK_goto = 147,
       TK_haszero = 92,
       TK_here = 35,
       TK_if = 135,
@@ -163,12 +162,12 @@ public interface X10Parsersym {
       TK_while = 119,
       TK_EOF_TOKEN = 116,
       TK_IDENTIFIER = 7,
-      TK_SlComment = 149,
-      TK_MlComment = 150,
-      TK_DocComment = 151,
-      TK_PseudoDoubleLiteral = 152,
+      TK_SlComment = 148,
+      TK_MlComment = 149,
+      TK_DocComment = 150,
+      TK_PseudoDoubleLiteral = 151,
       TK_ErrorId = 86,
-      TK_ERROR_TOKEN = 153;
+      TK_ERROR_TOKEN = 152;
 
     public final static String orderedTerminalSymbols[] = {
                  "",
@@ -316,7 +315,6 @@ public interface X10Parsersym {
                  "throws",
                  "try",
                  "when",
-                 "IntegerLiteral",
                  "ELLIPSIS",
                  "athome",
                  "goto",
