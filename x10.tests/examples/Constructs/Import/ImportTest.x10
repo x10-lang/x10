@@ -19,7 +19,7 @@ import harness.x10Test;
 public class ImportTest extends x10Test {
 
 	public def run(): boolean = {
-		return _T2.m2(49);
+		return _T2.m2(49n);
 	}
 
 	public static def main(var args: Rail[String]): void = {

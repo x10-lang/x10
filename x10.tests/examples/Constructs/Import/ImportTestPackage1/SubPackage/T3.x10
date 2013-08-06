@@ -22,7 +22,7 @@ public class T3 extends x10Test {
 		return _T4.m4(x);
 	}
 	public def run(): boolean = {
-		return m3(49);
+		return m3(49n);
 	}
 
 	public static def main(var args: Rail[String]): void = {
