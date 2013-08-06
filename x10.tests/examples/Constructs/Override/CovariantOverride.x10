@@ -23,16 +23,16 @@ public class CovariantOverride extends x10Test {
     }
 
     static class B extends A[UInt] {
-	def f() : Int = 2;
+	def f() : Int = 2n;
 	def g() : String = "efg";
-	def h() : UInt = 3u;
+	def h() : UInt = 3un;
     }
 
     public def run(): boolean = {
 	val b = new B();
-	chk(b.f() == 2);
+	chk(b.f() == 2n);
 	chk(b.g().equals("efg"));
-	chk(b.h() == 3u);
+	chk(b.h() == 3un);
 	return true;
     }
 
