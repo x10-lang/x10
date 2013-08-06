@@ -20,11 +20,11 @@ import harness.x10Test;
  */
 public class HasTypeClosure_MustFailCompile extends x10Test {
 
-    def m(x:Int{self==1}) = x;
+    def m(x:Long{self==1}) = x;
 
     public def run(): boolean = {
-        val x = (y:Int)<: Int => y;
-        val z <:Int(0) = x(1); // ERR
+        val x = (y:Long)<: Long => y;
+        val z <:Long(0) = x(1); // ERR
         return true;
     }
 

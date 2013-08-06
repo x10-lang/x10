@@ -16,11 +16,11 @@ import harness.x10Test;
  *
  * @author vj
  */
-public class HasTypeConstructor_MustFailCompile(n:int) extends x10Test {
+public class HasTypeConstructor_MustFailCompile(n:long) extends x10Test {
 	def this(): HasTypeConstructor_MustFailCompile{self.n==0} {
 		property(0);
 	}
-	def this(x:int) <: Rail[String]  { // ERR
+	def this(x:long) <: Rail[String]  { // ERR
 		property(x);
 	}
 	public def run() =true;

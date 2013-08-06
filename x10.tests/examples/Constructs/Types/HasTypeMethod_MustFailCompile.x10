@@ -18,7 +18,7 @@ import harness.x10Test;
  */
 public class HasTypeMethod_MustFailCompile extends x10Test {
 
-	def m(x:Int{self==1}) <: Boolean {return x;} // ERR: Computed type is not a subtype of type bound.
+	def m(x:Long{self==1}) <: Boolean {return x;} // ERR: Computed type is not a subtype of type bound.
 	public def run() = true;
 
 	public static def main(Rail[String])  {

@@ -18,7 +18,7 @@ import harness.x10Test;
  * @author vj
  */
 public class HasTypeVarField_MustFailCompile extends x10Test {
-	var x <: Int = 1; // ERR ERR [Semantic Error: Cannot infer type of non-final fields., Semantic Error: Only val fields may have a has type.]
+	var x <: Long = 1; // ERR ERR [Semantic Error: Cannot infer type of non-final fields., Semantic Error: Only val fields may have a has type.]
 	
 	public def run()=true;
 
