@@ -19,7 +19,7 @@ public class ObjectToPrimitiveConstrained1 extends x10Test {
 	 
 	public def run(): boolean = {
 		var primitive: Any = 3;
-		return (primitive instanceof Int(3));
+		return (primitive instanceof Long(3));
 	}
 	
 	public static def main(Rail[String])  {

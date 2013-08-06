@@ -19,8 +19,8 @@ public class ObjectToNullablePrimitive extends x10Test {
 	 
 	public def run(): boolean = {
 		var primitive:Any = 3;
-		// Type to check is transformed to BoxedInt
-		return (primitive instanceof Int);
+		// Type to check is transformed to BoxedLong
+		return (primitive instanceof Long);
 	}
 	
 	public static def main(var args: Rail[String]): void = {

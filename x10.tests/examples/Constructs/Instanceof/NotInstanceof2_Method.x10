@@ -30,8 +30,8 @@ public class NotInstanceof2_Method extends x10Test {
 		new NotInstanceof2_Method().execute();
 	}
 		 
-	 public class OtherClass (p:int) {
-		public def this(p:int)= {
+	 public class OtherClass (p:long) {
+		public def this(p:long)= {
                     property(p);
 		}
 	 }
