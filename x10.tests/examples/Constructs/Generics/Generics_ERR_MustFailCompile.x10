@@ -14,47 +14,47 @@ class Bla[T] extends Exception
 		Bla[Bla]; // ERR
 	var x4:
 		Bla[Bla[Bla]]; // ERR
-	var x5:Bla[Bla[Bla[Int]]];
-	var x6:Bla[Int]{T<:Bla[Int]};
-	var x7:Bla[Int]{T<:
+	var x5:Bla[Bla[Bla[Long]]];
+	var x6:Bla[Long]{T<:Bla[Long]};
+	var x7:Bla[Long]{T<:
 		Bla}; // ERR
 
 	static def m() {}
-	static def m2():Bla[Int] {
+	static def m2():Bla[Long] {
 		Bla.m();
-		//Bla[Int].m(); // I would prefer it was a semantic error and not a parsing error!
+		//Bla[Long].m(); // I would prefer it was a semantic error and not a parsing error!
 		val z1 =
 			new Bla(); // ERR (ctor type parameters are inferred if they can be!)
 		val z2 = // ShouldNotBeERR
 			new Bla[Bla](); // ERR
 		val z3 =
-			new Bla[Int[Int]](); // ERR
+			new Bla[Int[Long]](); // ERR
 
 		val b1 =
-			null instanceof Bla[Int]
+			null instanceof Bla[Long]
 			|| null instanceof
 				Bla // ERR
 			|| null instanceof
 				Bla[Bla]; // ERR
 
-		val a1 = null as Bla[Int];
+		val a1 = null as Bla[Long];
 		val a2 =  // ShouldNotBeERR
 		    null as
 			Bla; // ERR
 
 		val c1 = // ShouldNotBeERR 
-		    (x:Bla[Int],
+		    (x:Bla[Long],
 				y:
 					Bla, // ERR
-				z:Bla[Bla[Int]]):
+				z:Bla[Bla[Long]]):
 					Bla // ERR
 				=> null;
 
-		return new Bla[Int]();
+		return new Bla[Long]();
 	}
 	static def m3(x:
 		Bla, // ERR
-		y:Bla[Int]):
+		y:Bla[Long]):
 			Bla // ERR
 		= null;
 
@@ -64,7 +64,7 @@ class Bla[T] extends Exception
 		{}
 
 
-	static type BlaInt = Bla[Int];
+	static type BlaInt = Bla[Long];
 	static type Bla2 =
 		Bla[Bla]; // ERR
 	static type Bla3 =
@@ -78,8 +78,8 @@ class Bla[T] extends Exception
 	var s2:Bla.S
 	    = new Bla.S();  // ctor params are inferred
 
-	var s3:Bla[Int].S;
-	//var s4 = new Bla[Int].S(); // I would prefer it was a semantic error and not a parsing error!
+	var s3:Bla[Long].S;
+	//var s4 = new Bla[Long].S(); // I would prefer it was a semantic error and not a parsing error!
 	var s5:
 		S[T]; // ERR
 
@@ -88,7 +88,7 @@ class Bla[T] extends Exception
 	class Inner {}
 	var i1:Inner = other.new Inner();
 	var i2:Bla[T].Inner = other.new Inner();
-	var i3:Bla[Int].Inner = new Bla[Int]().new Inner();
+	var i3:Bla[Long].Inner = new Bla[Long]().new Inner();
 	var i4:
 		Bla.Inner; // ShouldBeErr
 	var i5:Bla[T].Inner =
@@ -98,9 +98,9 @@ class Bla[T] extends Exception
 
 	class Inner2[U] {}
 
-	var j1:Inner2[Int] = other.new Inner2[Int]();
+	var j1:Inner2[Long] = other.new Inner2[Long]();
 	var j2:Bla[T].Inner2[T] = other.new Inner2[T]();
-	var j3:Bla[Int].Inner2[T] = new Bla[Int]().new Inner2[T](); 
+	var j3:Bla[Long].Inner2[T] = new Bla[Long]().new Inner2[T](); 
 	var j4:
 		Inner2; // ERR
 	var j5:Bla[T].Inner2[T] =

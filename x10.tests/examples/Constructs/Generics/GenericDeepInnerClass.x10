@@ -28,7 +28,7 @@ public class GenericDeepInnerClass[A] extends GenericTest {
     }
     public def make[G]() = new Inner[G]();
 
-    public static def foo():GenericDeepInnerClass[Int].Inner[Double].InnerInner[Long].InnerInnerInner[Char] = new GenericDeepInnerClass[Int]().make[Double]().make[Long]().make[Char]();
+    public static def foo():GenericDeepInnerClass[Long].Inner[Double].InnerInner[Long].InnerInnerInner[Char] = new GenericDeepInnerClass[Long]().make[Double]().make[Long]().make[Char]();
 
     public def run() = {
         return true;

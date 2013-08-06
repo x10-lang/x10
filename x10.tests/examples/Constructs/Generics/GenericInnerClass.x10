@@ -23,7 +23,7 @@ public class GenericInnerClass[A] extends GenericTest {
 
     public def make[C]() = new Inner[C]();
 
-    public static def foo() = new GenericInnerClass[Int]().make[Double]();
+    public static def foo() = new GenericInnerClass[Long]().make[Double]();
 
     public def run() = {
         return true;

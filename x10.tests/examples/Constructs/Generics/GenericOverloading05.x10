@@ -28,14 +28,14 @@ public class GenericOverloading05 extends GenericTest {
     def m(String) = 0;
     def m(long) = 1;
     def m(Rail[String]) = 2;
-    def m(Rail[Int]) = 3;
+    def m(Rail[Long]) = 3;
 
     public def run(): boolean = {
 
         genericCheck("m(\"1\")", m("1"), 0);
         genericCheck("m(1)", m(1), 1);
         genericCheck("m([\"0\"])", m(["0" as String]), 2);
-        genericCheck("m([0])", m([0 as Int]), 3);
+        genericCheck("m([0])", m([0 as Long]), 3);
 
         return result;
     }

@@ -31,7 +31,7 @@ public class GenericOverloading02_MustFailCompile extends GenericTest {
 		val x:long{self==0} = a.m("a");
 		val y:long{self==1} = a.m(2);
 	}
-	def test2(a:A[Int]) {
+	def test2(a:A[Long]) {
 		a.m(2); // ERR
 	}
 

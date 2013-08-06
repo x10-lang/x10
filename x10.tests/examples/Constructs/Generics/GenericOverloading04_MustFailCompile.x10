@@ -31,10 +31,10 @@ public class GenericOverloading04_MustFailCompile extends GenericTest {
     }
 	def test1(a:A[String]) {
 		val x:long{self==0} = a.m( new X[String]() );
-		val y:long{self==1} = a.m( new X[Int]() );
+		val y:long{self==1} = a.m( new X[Long]() );
 	}
-	def test2(a:A[Int]) {
-		a.m( new X[Int]() ); // ERR
+	def test2(a:A[Long]) {
+		a.m( new X[Long]() ); // ERR
 	}
 
     public def run(): boolean = true;

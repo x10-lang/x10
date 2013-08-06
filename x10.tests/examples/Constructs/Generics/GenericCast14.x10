@@ -40,7 +40,7 @@ public class GenericCast14 extends x10Test {
         }
 
         try {
-            val i = f[Int](null);
+            val i = f[Long](null);
             ok = false;
             Console.OUT.println("Error: ClassCastException should be thrown for null as T{T <: long}!");
         }
