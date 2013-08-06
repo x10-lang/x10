@@ -22,7 +22,7 @@ public class PointIndex extends x10Test {
 
     public def run(): boolean = {
 
-        var sum:int = 0;
+        var sum:long = 0;
         var gotException: boolean;
         var p: Point = [1, 2] as Point;
 

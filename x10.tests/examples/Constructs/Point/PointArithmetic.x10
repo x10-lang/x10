@@ -20,41 +20,41 @@ import x10.regionarray.*;
 
 public class PointArithmetic extends x10Test {
 
-    public static DIM: int = 5;
+    public static DIM: long = 5;
 
     public def run(): boolean = {
 
-        var sum: int = 0;
-        val p = [2 as int, 2, 2, 2, 2] as Point(DIM);
-        val q = [1 as int, 1, 1, 1, 1] as Point(DIM);
-        var c: int = 2;
+        var sum: long = 0;
+        val p = [2 as long, 2, 2, 2, 2] as Point(DIM);
+        val q = [1 as long, 1, 1, 1, 1] as Point(DIM);
+        var c: long = 2;
 
         // First test that the point/point arithmetic works
 
         var a: Point(DIM) = p + q;
         sum = 0;
-        for (var i: int = 0; i < DIM; i++)
+        for (var i: long = 0; i < DIM; i++)
             sum += a(i);
         x10.io.Console.OUT.println("p+p: sum = "+sum);
         if (sum != 15) return false;
 
         var s: Point(DIM) = p - q;
         sum = 0;
-        for (var i: int = 0; i < DIM; i++)
+        for (var i: long = 0; i < DIM; i++)
             sum += s(i);
         x10.io.Console.OUT.println("p-p: sum = "+sum);
         if (sum != 5) return false;
 
         var m: Point(DIM) = p * q;
         sum = 0;
-        for (var i: int = 0; i < DIM; i++)
+        for (var i: long = 0; i < DIM; i++)
             sum += m(i);
         x10.io.Console.OUT.println("p*p: sum = "+sum);
         if (sum != 10) return false;
 
         var d: Point(DIM) = p / q;
         sum = 0;
-        for (var i: int = 0; i < DIM; i++)
+        for (var i: long = 0; i < DIM; i++)
             sum += d(i);
         x10.io.Console.OUT.println("p/p: sum = "+sum);
         if (sum != 10) return false;
@@ -63,14 +63,14 @@ public class PointArithmetic extends x10Test {
 
         var u: Point(DIM) = -q;
         sum = 0;
-        for (var i: int = 0; i < DIM; i++)
+        for (var i: long = 0; i < DIM; i++)
             sum += u(i);
         x10.io.Console.OUT.println("-p: sum = "+sum);
         if (sum != -5) return false;
 
         u = +q;
         sum = 0;
-        for (var i: int = 0; i < DIM; i++)
+        for (var i: long = 0; i < DIM; i++)
             sum += u(i);
         x10.io.Console.OUT.println("+p: sum = "+sum);
         if (sum != 5) return false;
@@ -79,56 +79,56 @@ public class PointArithmetic extends x10Test {
 
         a = p + c;
         sum = 0;
-        for (var i: int = 0; i < DIM; i++)
+        for (var i: long = 0; i < DIM; i++)
             sum += a(i);
         x10.io.Console.OUT.println("p+c: sum = "+sum);
         if (sum != 20) return false;
 
         s = p - c;
         sum = 0;
-        for (var i: int = 0; i < DIM; i++)
+        for (var i: long = 0; i < DIM; i++)
             sum += s(i);
         x10.io.Console.OUT.println("p-c: sum = "+sum);
         if (sum != 0) return false;
 
         m = p * c;
         sum = 0;
-        for (var i: int = 0; i < DIM; i++)
+        for (var i: long = 0; i < DIM; i++)
             sum += m(i);
         x10.io.Console.OUT.println("p*c: sum = "+sum);
         if (sum != 20) return false;
 
         d = p / c;
         sum = 0;
-        for (var i: int = 0; i < DIM; i++)
+        for (var i: long = 0; i < DIM; i++)
             sum += d(i);
         x10.io.Console.OUT.println("p/c: sum = "+sum);
         if (sum != 5) return false;
 
         a = c + p;
         sum = 0;
-        for (var i: int = 0; i < DIM; i++)
+        for (var i: long = 0; i < DIM; i++)
             sum += a(i);
         x10.io.Console.OUT.println("c+p: sum = "+sum);
         if (sum != 20) return false;
 
         s = c - p;
         sum = 0;
-        for (var i: int = 0; i < DIM; i++)
+        for (var i: long = 0; i < DIM; i++)
             sum += s(i);
         x10.io.Console.OUT.println("c-p: sum = "+sum);
         if (sum != 0) return false;
 
         m = c * p;
         sum = 0;
-        for (var i: int = 0; i < DIM; i++)
+        for (var i: long = 0; i < DIM; i++)
             sum += m(i);
         x10.io.Console.OUT.println("c*p: sum = "+sum);
         if (sum != 20) return false;
 
         d = c / p;
         sum = 0;
-        for (var i: int = 0; i < DIM; i++)
+        for (var i: long = 0; i < DIM; i++)
             sum += d(i);
         x10.io.Console.OUT.println("c/p: sum = "+sum);
         if (sum != 5) return false;

@@ -22,8 +22,8 @@ public class PointAdd extends x10Test {
 
     public def run(): boolean = {
 
-        val p = [2 as int, 2, 2, 2, 2] as Point;
-        val q = [1 as int, 1, 1, 1, 1] as Point;
+        val p = [2 as long, 2, 2, 2, 2] as Point;
+        val q = [1 as long, 1, 1, 1, 1] as Point;
     
         var a:Point(p.rank) = p + q;
 
