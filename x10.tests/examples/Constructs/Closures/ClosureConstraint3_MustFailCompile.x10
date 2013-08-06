@@ -23,12 +23,12 @@ public class ClosureConstraint3_MustFailCompile extends x10Test {
 
     public def run(): boolean = {
         
-        val f = (x:int){x==1}=>x;
+        val f = (x:int){x==1n}=>x;
 
-        val b:int = 1;
+        val b:int = 1n;
         f(b); // ERR
 
-        return result;
+        return true;
     }
 
 

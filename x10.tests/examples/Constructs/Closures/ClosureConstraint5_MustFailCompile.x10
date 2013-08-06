@@ -27,7 +27,7 @@ public class ClosureConstraint5_MustFailCompile extends x10Test {
 
         g(1,1); // ERR
 
-        return result;
+        return true;
     }
 
 

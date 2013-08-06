@@ -47,13 +47,13 @@ public class ClosureCall1c_MustFailCompile extends x10Test {
         val yz = ([T](t1:T,t2:T){T<:V} => T.name)(y,z);
         val yy = ([T](t1:T,t2:T){T<:V} => T.name)(y,y);
 
-        check("vz", vz, "V");
-        check("wz", wz, "V");
-        check("xy", xy, "X");
-        check("yz", yz, "X");
-        check("yy", yy, "Y");
+        chk(vz.equals("V"), vz");
+        chk(wz.equals("V"));
+        chk(xy.equals("X"));
+        chk(yz.equals("X"));
+        chk(yy.equals("Y"));
 
-        return result;
+        return true;
     }
 
     public static def main(var args: Rail[String]): void = {

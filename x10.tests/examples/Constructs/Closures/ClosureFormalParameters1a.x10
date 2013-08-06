@@ -22,9 +22,9 @@ public class ClosureFormalParameters1a extends x10Test {
 
     public def run(): boolean = {
         
-        check("(()=>0)()", (()=>0)(), 0);
+        chk((()=>0)() == 0, "(()=>0)()");
 
-        return result;
+        return true;
     }
 
     public static def main(var args: Rail[String]): void = {

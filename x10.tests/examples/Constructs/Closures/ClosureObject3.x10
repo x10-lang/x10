@@ -27,10 +27,10 @@ public class ClosureObject3 extends x10Test {
     public def run(): boolean = {
         
         val f:(long)=>long = (i:long) => i+1;
-        check("f(1)", f(1), 2);
-        check("f(1)", f(1), 2);
+        chk(f(1) == 2, "f(1)");
+        chk(f(1) == 2, "f(1)");
 
-        return result;
+        return true;
     }
 
     public static def main(var args: Rail[String]): void = {

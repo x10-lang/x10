@@ -29,9 +29,9 @@ public class ClosureTypeParameters1c extends x10Test {
     public def run(): boolean = {
         
         class X[T] {val f = (x:T,y:T) => x.toString() + y.toString();}
-        check("new X[String]().f(\"1\",\"1\")", (new X[String]().f)("1","ow"), "1ow");
+        chk((new X[String]().f)("1","ow").equals("1ow"), "new X[String]().f(\"1\",\"1\")");
 
-        return result;
+        return true;
     }
 
     public static def main(var args: Rail[String]): void = {

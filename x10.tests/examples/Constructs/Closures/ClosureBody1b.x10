@@ -35,9 +35,9 @@ public class ClosureBody1b extends x10Test {
         // block
         val g = ()=>{x(1);}; // void
         g();
-        check("x after g()", x(), 1);
+        chk(x() == 1, "x after g()");
 
-        return result;
+        return true;
     }
 
     public static def main(var args: Rail[String]): void = {

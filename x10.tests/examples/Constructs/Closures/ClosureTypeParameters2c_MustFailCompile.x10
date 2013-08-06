@@ -29,9 +29,9 @@ public class ClosureTypeParameters2c_MustFailCompile extends x10Test {
     public def run(): boolean = {
         
         class C[T] {val f = (){Y<:T} => "hi";} // ERR: Type constraints not permitted in closure guards.
-        check("new C[Z]().f()", new C[Z]().f(), "hi");
+        chk(new C[Z]().f().equals("hi"));
 
-        return result;
+        return true;
     }
 
     public static def main(var args: Rail[String]): void = {

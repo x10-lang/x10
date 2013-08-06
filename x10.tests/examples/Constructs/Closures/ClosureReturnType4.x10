@@ -39,10 +39,10 @@ public class ClosureReturnType4 extends x10Test {
         val f = (x:long) => {if (x==0) return new B(); return new C();};
         val a0 = f(0);
         val a1 = f(1);
-        check("a0.name()", a0.name(), "B");
-        check("a1.name()", a1.name(), "C");
+        chk(a0.name().equals("B"), "a0.name()");
+        chk(a1.name().equals("C"), "a1.name()");
 
-        return result;
+        return true;
     }
 
 

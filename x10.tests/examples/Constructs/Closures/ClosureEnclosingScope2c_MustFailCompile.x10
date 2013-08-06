@@ -39,7 +39,7 @@ public class ClosureEnclosingScope2c_MustFailCompile extends x10Test {
             }
         }
 
-        return result;
+        return true;
     }
 
     public static def main(var args: Rail[String]): void = {

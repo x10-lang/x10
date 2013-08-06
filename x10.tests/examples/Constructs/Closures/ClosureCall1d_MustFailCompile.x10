@@ -36,9 +36,9 @@ public class ClosureCall1d_MustFailCompile extends x10Test {
     public def run(): boolean = {
 
         val d = ([T,U](t:T,u:U){T<:X && U<:X} => T.name + U.name)(new Y(), new Z());
-        check("d", d, "YZ");
+        chk(d.equals("YZ"), "d");
 
-        return result;
+        return true;
     }
 
     public static def main(var args: Rail[String]): void = {

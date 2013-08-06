@@ -28,7 +28,7 @@ public class ClosureConstraint4_MustFailCompile extends x10Test {
         val d = 0;
         f(d); // ERR
 
-        return result;
+        return true;
     }
 
 

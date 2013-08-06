@@ -27,10 +27,10 @@ public class ClosureCall2 extends x10Test {
 
     public def run(): boolean = {
 
-        check("f(1)", f(1), "method");
-        check("f(\"1\")", f("1"), "closure");
+        chk(f(1).equals("method"), "f(1)");
+        chk(f("1").equals("closure"), "f(\"1\")");
 
-        return result;
+        return true;
     }
 
     public static def main(var args: Rail[String]): void = {

@@ -29,11 +29,10 @@ public class ClosureTypeParameters2a_MustFailCompile extends x10Test {
     public def run(): boolean = {
         
         class C[T]{T==Y} {val f = ()=> "hi";}
-        check("new C[Z]().f()",
-            new C[Z] // ERR ERR: Type C[ClosureTypeParameters2a_MustFailCompile.Z] is inconsistent.   Actual type of property initializer is not a subtype of declared type.
-            ().f(), "hi");
+        chk(new C[Z] // ERR ERR: Type C[ClosureTypeParameters2a_MustFailCompile.Z] is inconsistent.   Actual type of property initializer is not a subtype of declared type.
+            ().f().equals("hi"));
 
-        return result;
+        return true;
     }
 
     public static def main(var args: Rail[String]): void = {

@@ -28,9 +28,9 @@ public class ClosureEnclosingScope1b extends x10Test {
         
         val b = 1;
 
-        check("(()=>a+b)()", (()=>a+b)(), 2);
+        chk((()=>a+b)() ==  2, "(()=>a+b)()");
 
-        return result;
+        return true;
     }
 
     public static def main(var args: Rail[String]): void = {

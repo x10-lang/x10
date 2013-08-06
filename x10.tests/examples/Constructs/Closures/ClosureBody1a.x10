@@ -26,9 +26,9 @@ public class ClosureBody1a extends x10Test {
         
         // expression
         val f = ()=>1+1;
-        check("f()", f(), 2l);
+        chk(f() == 2l, "f()");
 
-        return result;
+        return true;
     }
 
     public static def main(var args: Rail[String]): void = {

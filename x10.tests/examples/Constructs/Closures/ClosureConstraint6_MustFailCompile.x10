@@ -26,7 +26,7 @@ public class ClosureConstraint6_MustFailCompile extends x10Test {
         val f:Any =
             (var x:long){x==1} => x; // ERR
 
-        return result;
+        return true;
     }
 
 

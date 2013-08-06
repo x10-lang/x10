@@ -33,13 +33,13 @@ public class ClosureBody2 extends x10Test {
         
         // not evaluated here
         val f = () => {x(1);};
-        check("x after defn", x, 0);
+        chk(x == 0, "x after defn");
 
         // evaluated here
         f();
-        check("x after f()", x, 1);
+        chk(x == 1, "x after f()");
 
-        return result;
+        return true;
     }
 
     public static def main(var args: Rail[String]): void = {

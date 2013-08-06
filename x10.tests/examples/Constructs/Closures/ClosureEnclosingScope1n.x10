@@ -33,10 +33,9 @@ public class ClosureEnclosingScope1n extends x10Test {
             def foo() = (()=>a+b+c)();
         }.foo();
 
-        check("new Empty(){}.foo()", r, 3);
+        chk(r == 3, "new Empty(){}.foo()");
 
-
-        return result;
+        return true;
     }
 
     public static def main(Rail[String]) {

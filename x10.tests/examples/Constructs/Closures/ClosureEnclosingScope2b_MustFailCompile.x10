@@ -28,12 +28,11 @@ public class ClosureEnclosingScope2b_MustFailCompile extends x10Test {
         
         var b:long = 1;
 
-        check("(()=>a+b)()",
-            (()=>a+
+        chk((()=>a+
                 b) // ERR
-            (), 2);
+            () == 2, "(()=>a+b)()");
 
-        return result;
+        return true;
     }
 
     public static def main(var args: Rail[String]): void = {

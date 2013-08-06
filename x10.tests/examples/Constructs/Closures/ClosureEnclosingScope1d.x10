@@ -39,10 +39,9 @@ public class ClosureEnclosingScope1d extends x10Test {
             }
         }
 
-        check("new C().foo()", new C().foo(), 4);
+        chk(new C().foo() == 4, "new C().foo()");
 
-
-        return result;
+        return true;
     }
 
     public static def main(var args: Rail[String]): void = {

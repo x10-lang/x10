@@ -33,9 +33,9 @@ public class ClosureEnclosingScope4 extends x10Test {
             }
         }
 
-        check("new C().new D().sum", new C().new D().sum(), 11);
+        chk(new C().new D().sum() == 11, "new C().new D().sum");
 
-        return result;
+        return true;
     }
 
     public static def main(var args: Rail[String]): void = {

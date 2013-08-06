@@ -26,9 +26,9 @@ public class ClosureEnclosingScope1a extends x10Test {
 
     public def run(): boolean = {
         
-        check("(()=>a)()", (()=>a)(), 1);
+        chk((()=>a)() == 1, "(()=>a)()");
 
-        return result;
+        return true;
     }
 
     public static def main(var args: Rail[String]): void = {

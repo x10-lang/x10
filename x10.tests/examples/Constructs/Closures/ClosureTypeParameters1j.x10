@@ -32,9 +32,9 @@ public class ClosureTypeParameters1j extends x10Test {
     public def run(): boolean = {
         
         class X[T,U] {val f = (x:T,y:U) => x.toString() + y.toString();}
-        check("new X[String,long].f(\"1\",1)", new X[String,long]().f("1",1), "11");
+        chk(new X[String,long]().f("1",1).equals("11"));
 
-        return result;
+        return true;
     }
 
     public static def main(var args: Rail[String]): void = {

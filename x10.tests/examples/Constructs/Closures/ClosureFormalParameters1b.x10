@@ -22,9 +22,9 @@ public class ClosureFormalParameters1b extends x10Test {
 
     public def run(): boolean = {
         
-        check("((i:long)=>i+1)(1)", ((i:long)=>i+1)(1), 2);
+        chk(((i:long)=>i+1)(1) == 2, "((i:long)=>i+1)(1)");
 
-        return result;
+        return true;
     }
 
     public static def main(var args: Rail[String]): void = {

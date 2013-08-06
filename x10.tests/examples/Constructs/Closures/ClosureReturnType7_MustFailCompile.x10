@@ -28,7 +28,7 @@ public class ClosureReturnType7_MustFailCompile extends x10Test {
         // should fail because f() is void
         val g = f(0); // ERR
 
-        return result;
+        return true;
     }
 
 

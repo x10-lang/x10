@@ -34,10 +34,10 @@ public class ClosureBody1c extends x10Test {
         
         // block terminated by return expression
         val h = ()=>{x(2);x()+1};
-        check("h()", h(), 3);
-        check("x after h()", x(), 2);
+        chk(h() == 3, "h()");
+        chk(x() == 2, "x after h()");
 
-        return result;
+        return true;
     }
 
     public static def main(var args: Rail[String]): void = {

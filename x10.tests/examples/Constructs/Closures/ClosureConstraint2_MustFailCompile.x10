@@ -28,7 +28,7 @@ public class ClosureConstraint2_MustFailCompile extends x10Test {
         var a:long = 1;
         f(a); // ERR
 
-        return result;
+        return true;
     }
 
 
