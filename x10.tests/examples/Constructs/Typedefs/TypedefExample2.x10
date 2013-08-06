@@ -26,7 +26,7 @@ public class TypedefExample2 extends TypedefTest {
         type A = Int;
         type B = String;
         type C = String;
-        a: A = 3;
+        a: A = 3n;
         b: B = new C("Hi");
         c: C = b + ", Mom!";
 

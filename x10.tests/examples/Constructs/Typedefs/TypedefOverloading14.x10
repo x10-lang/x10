@@ -21,11 +21,11 @@ import harness.x10Test;
 
 public class TypedefOverloading14 extends TypedefTest {
 
-    static class A(i:int) {def this() = property(0);}
+    static class A(i:long) {def this() = property(0);}
 
     public def run(): boolean = {
 
-        type A = int;
+        type A = long;
 
         return result;
     }

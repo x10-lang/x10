@@ -32,20 +32,20 @@ public class TypedefOverloading11 extends TypedefTest {
         static class Z[T,U] {}
 
         static class U {}
-        static class V(i:int) {def this(i:int):V{self.i==i} = property(i);}
-        static class W(i:int,s:String) {def this(i:int,s:String):W{self.i==i&&self.s==s} = property(i,s);}
+        static class V(i:long) {def this(i:long):V{self.i==i} = property(i);}
+        static class W(i:long,s:String) {def this(i:long,s:String):W{self.i==i&&self.s==s} = property(i,s);}
 
-        static type A = int;
-        static type A/*B*/(i:int) = String;
-        static type A/*C*/[T] = Z[T,int];
-        static type A/*D*/[T](i:int) = V{self.i==i};
+        static type A = long;
+        static type A/*B*/(i:long) = String;
+        static type A/*C*/[T] = Z[T,long];
+        static type A/*D*/[T](i:long) = V{self.i==i};
 
     public def run(): boolean = {
         
         a1:A = 1;
         a2:A/*B*/(1) = "1";
-        a3:A/*C*/[String] = new Z[String,int]();
-        a4:A/*D*/[int](1) = new V(1);
+        a3:A/*C*/[String] = new Z[String,long]();
+        a4:A/*D*/[long](1) = new V(1);
 
         return result;
     }

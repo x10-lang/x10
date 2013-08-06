@@ -26,7 +26,7 @@ public class TypedefIterated03 extends TypedefTest {
     public def run(): boolean = {
 
         type A[T] = T;
-        var a:A[A[A[A[A[A[A[A[A[A[A[A[A[A[int]]]]]]]]]]]]]] = 0;
+        var a:A[A[A[A[A[A[A[A[A[A[A[A[A[A[int]]]]]]]]]]]]]] = 0n;
 
         return result;
     }

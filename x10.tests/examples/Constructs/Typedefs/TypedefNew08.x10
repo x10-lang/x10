@@ -29,7 +29,7 @@ public class TypedefNew08 extends TypedefTest {
 
     static class A[C] {
         def this() = {};
-        def this(i:int):A[C] = {};
+        def this(i:long):A[C] = {};
     }
 
     static type T[C] = A[C];

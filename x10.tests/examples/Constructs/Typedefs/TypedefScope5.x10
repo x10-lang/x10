@@ -24,7 +24,7 @@ public class TypedefScope5 extends TypedefTest {
     public def run(): boolean = {
         
         val foo = () => {
-            type T = int;
+            type T = long;
             a:T = 1;
             check("a", a, 1);
         };

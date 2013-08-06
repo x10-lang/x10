@@ -30,7 +30,7 @@ public class TypedefExample1 extends TypedefTest {
         type StringSet = Set[String];
         type MapToList[K,V] = Map[K,List[V]];
         // type Nat = Int{self>=0};
-        type Zero = Int{self==0};
+        type Zero = Int{self==0n};
         type Int(x: Int) = Int{self==x};
         // type Int(lo: Int, hi: Int) = Int{lo <= self, self <= hi};
         type Int(lo: Int, hi: Int) = Int{lo == self, self == hi};

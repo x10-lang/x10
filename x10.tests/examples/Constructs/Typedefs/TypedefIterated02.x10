@@ -28,9 +28,9 @@ public class TypedefIterated02 extends TypedefTest {
         type A[T] = X[T,String]; // = T
         type B = int;
         type C = A[B]; // = X[B,String] = B = int
-        var c:C = 0;
+        var c:C = 0n;
         type D = A[A[B]]; // = X[A[B],String] = A[B] = X[B,String] = B = int
-        var d:D = 0;
+        var d:D = 0n;
         return true;
     }
 

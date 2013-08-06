@@ -32,18 +32,18 @@ public class TypedefOverloading03 extends TypedefTest {
         static class Z[T,U] {}
 
         static class U {}
-        static class V(i:int) {def this(i:int):V{self.i==i} = property(i);}
-        static class W(i:int,s:String) {def this(i:int,s:String):W{self.i==i&&self.s==s} = property(i,s);}
+        static class V(i:long) {def this(i:long):V{self.i==i} = property(i);}
+        static class W(i:long,s:String) {def this(i:long,s:String):W{self.i==i&&self.s==s} = property(i,s);}
 
-        static type A = int;
+        static type A = long;
         static type A[T] = String;
         static type A[T,U] = Y[U];
 
     public def run(): boolean = {
         
         a1:A = 1;
-        a2:A[int] = "1";
-        a3:A[int,String] = new Y[String]();
+        a2:A[long] = "1";
+        a3:A[long,String] = new Y[String]();
 
         return result;
     }

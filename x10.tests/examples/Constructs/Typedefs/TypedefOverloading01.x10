@@ -22,14 +22,14 @@ import harness.x10Test;
 
 public class TypedefOverloading01 extends TypedefTest {
 
-    static class D(x: int, y: int) {
-        def this(a: int, b: int): D{self.x==a,self.y==b} {
+    static class D(x: long, y: long) {
+        def this(a: long, b: long): D{self.x==a,self.y==b} {
             property(a,b);
         }
     }
 
-    static type C(a: int) = D{x==a};
-    static type C(a: int, b: int) = C(a){self.y==b};
+    static type C(a: long) = D{x==a};
+    static type C(a: long, b: long) = C(a){self.y==b};
 
     public def run(): boolean = {
         var x:D = new D(0,0);

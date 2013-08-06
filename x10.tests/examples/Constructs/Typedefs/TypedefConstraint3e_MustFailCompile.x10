@@ -19,7 +19,7 @@ class TypedefConstraint3e_MustFailCompile extends TypedefTest {
 
     public def run():boolean = {
 
-        type T(x:int){x==1} = int;
+        type T(x:long){x==1} = long;
         val zero = 0;
         var a:T(zero); // ERR
 

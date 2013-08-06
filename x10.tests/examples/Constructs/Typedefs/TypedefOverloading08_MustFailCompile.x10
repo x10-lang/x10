@@ -21,8 +21,8 @@ import harness.x10Test;
 
 public class TypedefOverloading08_MustFailCompile extends TypedefTest {
 
-    static class A(i:int) {def this() = property(0);}
-    static type A = int; // ERR
+    static class A(i:long) {def this() = property(0);}
+    static type A = long; // ERR
 
     public def run(): boolean = {
         return result;

@@ -28,7 +28,7 @@ public class TypedefScope7 extends TypedefTest {
 
     public def run(): boolean = {
         
-        a:X.T[int] = 1;
+        a:X.T[long] = 1;
         check("a", a, 1);
 
         b:X.T[String] = "1";

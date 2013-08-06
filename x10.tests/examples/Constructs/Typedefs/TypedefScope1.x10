@@ -24,7 +24,7 @@ import harness.x10Test;
 
 
 public class TypedefScope1 extends TypedefTest {
-	static type T = int;
+	static type T = long;
 
     public def run(): boolean = {
         

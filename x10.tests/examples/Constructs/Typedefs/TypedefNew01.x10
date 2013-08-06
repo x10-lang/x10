@@ -28,22 +28,22 @@ public class TypedefNew01 extends TypedefTest {
     public def run(): boolean = {
         
         class A(k:int) {
-            def this():A{self.k==0} = property(0);
+            def this():A{self.k==0n} = property(0n);
             def this(i:int):A{self.k==i} = property(i);
         }
         
         type T(i:int) = A{k==i};
-        type T0 = A{k==0};
-        type T1 = A{k==1};
+        type T0 = A{k==0n};
+        type T1 = A{k==1n};
 
         // sanity check
         val a1 = new A();
-        val a2 = new A(0);
+        val a2 = new A(0n);
 
         // allowed
-        val t1:A{self.k==0} = new T0();  // A{k==0} <: A{k==0}
-        val t2:A{self.k==0} = new T0(0); // A{k==0} <: A{k==0}
-        val t3:A{self.k==1} = new T1(1); // A{k==1} <: A{k==1}
+        val t1:A{self.k==0n} = new T0();   // A{k==0n} <: A{k==0n}
+        val t2:A{self.k==0n} = new T0(0n); // A{k==0n} <: A{k==0n}
+        val t3:A{self.k==1n} = new T1(1n); // A{k==1n} <: A{k==1n}
 
         return result;
     }

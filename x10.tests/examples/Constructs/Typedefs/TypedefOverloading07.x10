@@ -33,14 +33,14 @@ public class TypedefOverloading07 extends TypedefTest {
         static class Z[T,U] {}
 
         static class U {}
-        static class V(i:int) {def this(i:int):V{self.i==i} = property(i);}
-        static class W(i:int,s:String) {def this(i:int,s:String):W{self.i==i&&self.s==s} = property(i,s);}
+        static class V(i:long) {def this(i:long):V{self.i==i} = property(i);}
+        static class W(i:long,s:String) {def this(i:long,s:String):W{self.i==i&&self.s==s} = property(i,s);}
 
-        static type A = int;
-        static type A/*B*/(i:int) = int{self==i};
+        static type A = long;
+        static type A/*B*/(i:long) = long{self==i};
         static type A/*C*/(s:String) = String{self==s};
-        static type A/*D*/(i:int,s:String) = W{self.i==i && self.s==s};
-        static type A/*E*/(s:String,i:int) = W{self.i==i && self.s==s};
+        static type A/*D*/(i:long,s:String) = W{self.i==i && self.s==s};
+        static type A/*E*/(s:String,i:long) = W{self.i==i && self.s==s};
 
     public def run(): boolean = {
 

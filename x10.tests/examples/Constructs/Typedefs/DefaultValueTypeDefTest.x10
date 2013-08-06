@@ -27,7 +27,7 @@ public class DefaultValueTypeDefTest extends x10Test {
     }
     public def run() = {
         val b:Box[String] = new Box[String]("a");
-        val x:Foo[String]{self.n==2 && self.s==b} = Foo[String](2,b);
+        val x:Foo[String]{self.n==2n && self.s==b} = Foo[String](2n,b);
         return true;
     }
 
