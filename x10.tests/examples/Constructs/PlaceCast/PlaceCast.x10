@@ -14,7 +14,7 @@ import x10.io.Console;
 import x10.regionarray.*;
 
 public class PlaceCast extends x10Test {
-    var nplaces: int = 0;
+    var nplaces: long = 0;
     private val root=GlobalRef[PlaceCast](this);
     public def run()  {
 	  val d: Dist = Dist.makeUnique();
