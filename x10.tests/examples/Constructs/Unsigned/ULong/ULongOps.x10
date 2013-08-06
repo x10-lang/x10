@@ -51,16 +51,16 @@ public class ULongOps extends x10Test {
     public def testComparable() : Boolean {
 	var r : Boolean = true;
 
-	if (3ul.compareTo(3ul) != 0) 			{ p(" (3ul.compareTo(3ul) != 0) 		    "); r = false; }
-	if (4ul.compareTo(0xFFFFffffFFFFfffful) != -1)		{ p(" (4ul.compareTo(0xFFFFffffFFFFfffful) != -1)	    "); r = false; }
-	if (0xF000000000000001ul.compareTo(0xF000000000000000ul) != 1)    { p(" (0xF000000000000001ul.compareTo(0xF000000000000000ul) != 1 "); r = false; }
+	if (3ul.compareTo(3ul) != 0n) 			{ p(" (3ul.compareTo(3ul) != 0) 		    "); r = false; }
+	if (4ul.compareTo(0xFFFFffffFFFFfffful) != -1n)		{ p(" (4ul.compareTo(0xFFFFffffFFFFfffful) != -1n)	    "); r = false; }
+	if (0xF000000000000001ul.compareTo(0xF000000000000000ul) != 1n)    { p(" (0xF000000000000001ul.compareTo(0xF000000000000000ul) != 1 "); r = false; }
 
 	val u3 = 3ul as Comparable[ULong];
 	val uf = 0xFFFFffffFFFFfffful as Comparable[ULong];
 	val u4 = 4ul as Comparable[ULong];
-	if (u3.compareTo(3ul) != 0) 			{ p(" (u3.compareTo(3ul) != 0) 		    "); r = false; }
-	if (u4.compareTo(0xFFFFffffFFFFfffful) != -1)		{ p(" (u4.compareTo(0xFFFFffffFFFFfffful) != -1)	    "); r = false; }
-	if (uf.compareTo(0xF000000000000000ul) != 1)    		{ p(" (uf.compareTo(0xF000000000000000ul) != 1 "); r = false; }
+	if (u3.compareTo(3ul) != 0n) 			{ p(" (u3.compareTo(3ul) != 0) 		    "); r = false; }
+	if (u4.compareTo(0xFFFFffffFFFFfffful) != -1n)		{ p(" (u4.compareTo(0xFFFFffffFFFFfffful) != -1)	    "); r = false; }
+	if (uf.compareTo(0xF000000000000000ul) != 1n)    		{ p(" (uf.compareTo(0xF000000000000000ul) != 1 "); r = false; }
 	return r;
     }
 
@@ -115,12 +115,12 @@ public class ULongOps extends x10Test {
 	if ((0xFFFFffffFFFFfffful & 0xF000000000000000ul) != 0xF000000000000000ul)	{ p(" (0xFFFFffffFFFFfffful & 0xF000000000000000ul != 0xF000000ul)	 "); r = false; }
 	if ((0x0FFFffffFFFFfffful ^ 0xF000000000000000ul) != 0xFFFFffffFFFFfffful) 	{ p(" (0x0FFFffffFFFFfffful ^ 0xF000000000000000ul != 0xFFFFffffFFFFfffful) 	 "); r = false; }
 	if ((0xFFFFffffFFFFfffful ^ 0xF000000000000000ul) != 0x0FFFffffFFFFfffful) 	{ p(" (0xFFFFffffFFFFfffful ^ 0xF000000000000000ul != 0x0FFFffffFFFFfffful) 	 "); r = false; }
-	if ((0xFFFFffffFFFFfffful >> 4) != 0x0FFFffffFFFFfffful)		{ p(" (0xFFFFffffFFFFfffful >> 4 != 0x0FFFffffFFFFfffful)		 "); r = false; }
-	if ((0xFFFFffffFFFFfffful >> 1) != 0x7FFFffffFFFFfffful)		{ p(" (0xFFFFffffFFFFfffful >> 1 != 0x7FFFffffFFFFfffful)		 "); r = false; }
-	if ((0xFFFFffffFFFFfffful >>> 4) != 0x0FFFffffFFFFfffful)		{ p(" (0xFFFFffffFFFFfffful >>> 4 != 0x0FFFffffFFFFfffful)		 "); r = false; }
-	if ((0xFFFFffffFFFFfffful >>> 1) != 0x7FFFffffFFFFfffful)		{ p(" (0xFFFFffffFFFFfffful >>> 1 != 0x7FFFffffFFFFfffful)		 "); r = false; }
-	if ((0xFFFFffffFFFFfffful << 4) != 0xFFFFffffFFFFfff0ul)		{ p(" (0xFFFFffffFFFFfffful << 4 != 0xFFFFffffFFFFfff0ul)		 "); r = false; }
-	if ((0xFFFFffffFFFFfffful << 1) != 0xFFFFffffFFFFfffeul)		{ p(" (0xFFFFffffFFFFfffful << 1 != 0xFFFFffffFFFFfffeul)		 "); r = false; }
+	if ((0xFFFFffffFFFFfffful >> 4n) != 0x0FFFffffFFFFfffful)		{ p(" (0xFFFFffffFFFFfffful >> 4 != 0x0FFFffffFFFFfffful)		 "); r = false; }
+	if ((0xFFFFffffFFFFfffful >> 1n) != 0x7FFFffffFFFFfffful)		{ p(" (0xFFFFffffFFFFfffful >> 1 != 0x7FFFffffFFFFfffful)		 "); r = false; }
+	if ((0xFFFFffffFFFFfffful >>> 4n) != 0x0FFFffffFFFFfffful)		{ p(" (0xFFFFffffFFFFfffful >>> 4 != 0x0FFFffffFFFFfffful)		 "); r = false; }
+	if ((0xFFFFffffFFFFfffful >>> 1n) != 0x7FFFffffFFFFfffful)		{ p(" (0xFFFFffffFFFFfffful >>> 1 != 0x7FFFffffFFFFfffful)		 "); r = false; }
+	if ((0xFFFFffffFFFFfffful << 4n) != 0xFFFFffffFFFFfff0ul)		{ p(" (0xFFFFffffFFFFfffful << 4 != 0xFFFFffffFFFFfff0ul)		 "); r = false; }
+	if ((0xFFFFffffFFFFfffful << 1n) != 0xFFFFffffFFFFfffeul)		{ p(" (0xFFFFffffFFFFfffful << 1 != 0xFFFFffffFFFFfffeul)		 "); r = false; }
 
 	val uff = 0xFFFFffffFFFFfffful as Bitwise[ULong];
 	val u0f = 0x0FFFffffFFFFfffful as Bitwise[ULong];
@@ -132,12 +132,12 @@ public class ULongOps extends x10Test {
 	if ((uff & 0xF000000000000000ul) != 0xF000000000000000ul)	{ p(" (uff & 0xF000000000000000ul != 0xF000000ul)	 "); r = false; }
 	if ((u0f ^ 0xF000000000000000ul) != uff) 	{ p(" (u0f ^ 0xF000000000000000ul != uff) 	 "); r = false; }
 	if ((uff ^ 0xF000000000000000ul) != u0f) 	{ p(" (uff ^ 0xF000000000000000ul != u0f) 	 "); r = false; }
-	if ((uff >> 4) != u0f)		{ p(" (uff >> 4 != u0f)		 "); r = false; }
-	if ((uff >> 1) != u7f)		{ p(" (uff >> 1 != u7f)		 "); r = false; }
-	if ((uff >>> 4) != u0f)		{ p(" (uff >>> 4 != u0f)		 "); r = false; }
-	if ((uff >>> 1) != u7f)		{ p(" (uff >>> 1 != u7f)		 "); r = false; }
-	if ((uff << 4) != 0xFFFFffffFFFFfff0ul)		{ p(" (uff << 4 != 0xFFFFffffFFFFfff0ul)		 "); r = false; }
-	if ((uff << 1) != 0xFFFFffffFFFFfffeul)		{ p(" (uff << 1 != 0xFFFFffffFFFFfffeul)		 "); r = false; }
+	if ((uff >> 4n) != u0f)		{ p(" (uff >> 4 != u0f)		 "); r = false; }
+	if ((uff >> 1n) != u7f)		{ p(" (uff >> 1 != u7f)		 "); r = false; }
+	if ((uff >>> 4n) != u0f)		{ p(" (uff >>> 4 != u0f)		 "); r = false; }
+	if ((uff >>> 1n) != u7f)		{ p(" (uff >>> 1 != u7f)		 "); r = false; }
+	if ((uff << 4n) != 0xFFFFffffFFFFfff0ul)		{ p(" (uff << 4 != 0xFFFFffffFFFFfff0ul)		 "); r = false; }
+	if ((uff << 1n) != 0xFFFFffffFFFFfffeul)		{ p(" (uff << 1 != 0xFFFFffffFFFFfffeul)		 "); r = false; }
 
 	return r;
     }

@@ -26,7 +26,7 @@ public class ULongArray0 extends x10Test {
 	val aaa = new Rail[ULong](10);
 	for (i in 0..9) aaa(i) = i as ULong;
 
-	var s : ULong = 0;
+	var s : ULong = 0ul;
 	for (i in aaa.range) s += aaa(i);
 
 	if (s != 45ul) return false;

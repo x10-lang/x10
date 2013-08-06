@@ -20,7 +20,7 @@ public class ULongCast1 extends x10Test {
     public def run(): boolean = {
 	val xx = 1ul;
 	val b1 = 1uy;
-	val i1 = 1u;
+	val i1 = 1un;
 	if (!(xx == b1 as ULong)) return false;
 	if (xx != b1 as ULong) return false;
 	if (!(xx as UByte == b1)) return false;
@@ -32,7 +32,7 @@ public class ULongCast1 extends x10Test {
 
 	val yy = 0xFFFFffffFFFFfffful;
 	val b2 = 0xffYU;
-	val u2 = 0xFFFFffffU;
+	val u2 = 0xFFFFffffUN;
 	if (!(yy as UByte == b2)) return false;
 	if (yy as UByte != b2) return false;
 	if (!(yy as UInt == u2)) return false;
