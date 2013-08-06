@@ -30,10 +30,10 @@ public class IntfMethod2 extends x10Test {
     interface O[T] { def compare(I[T]):void; }
     interface P[T] { def compare(I[T]):Any; }
     static class C extends S implements K[Int], L[S], M[Float], N[Any], O[UInt], P[ULong] {
-        public def compare(I[Int]) = 1;
+        public def compare(I[Int]) = 1n;
         public def compare(I[S]) = 2.0;
-        public def compare(I[Float]) = 3u;
-        public def compare(I[Any]) = 4;
+        public def compare(I[Float]) = 3un;
+        public def compare(I[Any]) = 4n;
         public def compare(I[UInt]) {}
         public def compare(I[ULong]):Any = null;
     }

@@ -19,7 +19,7 @@ public class IntfMethod1 extends x10Test {
         public def compare(a:T, b:T):Any = null;
     }
     static class B[T] extends A[T] implements Comparator[T] {
-        public def compare(a:T, b:T):Int = 0;
+        public def compare(a:T, b:T):Int = 0n;
     }
     public def run():Boolean = true;
     public static def main(Rail[String]) {
