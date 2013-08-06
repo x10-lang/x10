@@ -26,8 +26,8 @@ public class UIntCallStatic extends x10Test {
     }
 
     public def run(): boolean = {
-	val i0 = 0;
-	val u1 = 1u;
+	val i0 = 0n;
+	val u1 = 1un;
 	val s0 = f(i0);
 	val s1 = f(u1);
 	return (s0.equals("int = 0") && s1.equals("uint = 1"));

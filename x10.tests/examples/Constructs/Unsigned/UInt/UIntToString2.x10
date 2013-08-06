@@ -29,7 +29,7 @@ public class UIntToString2 extends x10Test {
     }
 
     public def run(): boolean = {
-	val u = 0xFFFFffffU;
+	val u = 0xFFFFffffUN;
 	val s1 = u.toString();
 	val s2 = toString(u);
 	val s3 = new A[UInt]().toString(u);

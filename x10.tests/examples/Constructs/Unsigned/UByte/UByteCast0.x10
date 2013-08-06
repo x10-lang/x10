@@ -19,7 +19,7 @@ import harness.x10Test;
 public class UByteCast0 extends x10Test {
     public def run(): boolean = {
 	val xx = 1uy;
-	val i1 = 1;
+	val i1 = 1n;
 	val l1 = 1y;
 	val b1 = 1y;
 	if (!(xx as Byte == l1)) return false;
@@ -30,7 +30,7 @@ public class UByteCast0 extends x10Test {
 	if (xx != b1 as UByte) return false;
 
 	val yy = 0xFFuy;
-	val i2 = -1;
+	val i2 = -1n;
 	val l2 = -1y;
 	val b2 = -1y;
 	if (!(yy as Byte == l2)) return false;

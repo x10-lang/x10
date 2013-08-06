@@ -26,10 +26,10 @@ public class UIntArray0 extends x10Test {
 	val aaa = new Rail[UInt](10);
 	for (i in 0..9) aaa(i) = i as UInt;
 
-	var s : UInt = 0u;
+	var s : UInt = 0un;
 	for (i in aaa.range) s += aaa(i);
 
-	if (s != 45u) return false;
+	if (s != 45un) return false;
 
 	return true;
     }

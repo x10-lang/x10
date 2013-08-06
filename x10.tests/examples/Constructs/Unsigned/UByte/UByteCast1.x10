@@ -19,8 +19,8 @@ import harness.x10Test;
 public class UByteCast1 extends x10Test {
     public def run(): boolean = {
 	val xx = 1uy;
-	val u1 = 1u;
-	val i1 = 1;
+	val u1 = 1un;
+	val i1 = 1n;
 	if (!(xx as UInt == u1)) return false;
 	if (xx as UInt != u1) return false;
 	if (!(xx == u1 as UByte)) return false;
@@ -29,8 +29,8 @@ public class UByteCast1 extends x10Test {
 	//if (xx as Int != i1) return false;	// fails compilation
 
 	val yy = 0xFFuy;
-	val i2 = 0xff;
-	val u2 = 0xFFu;
+	val i2 = 0xffn;
+	val u2 = 0xFFun;
 	if (!(yy as UInt == u2)) return false;
 	if (yy as UInt != u2) return false;
 	//if (!(yy as Int == i2)) return false; // fails compilation

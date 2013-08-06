@@ -43,8 +43,8 @@ public class UByteOps2 extends x10Test {
 	assert u1 / u2 == 0uy;
 	assert u2 % u1 == 0uy;
 	assert u1 % u2 == u1;
-	assert u2 << 1 == 4uy;
-	assert u2 >> 1 == 1uy;
+	assert u2 << 1n == 4uy;
+	assert u2 >> 1n == 1uy;
 	assert (u2 as Byte) == 2y;
 	assert (2 as UByte) == u2;
 	assert (u2 as UShort) == 2su;

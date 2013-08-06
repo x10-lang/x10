@@ -51,16 +51,16 @@ public class UByteOps extends x10Test {
     public def testComparable() : Boolean {
 	var r : Boolean = true;
 
-	if (3uy.compareTo(3uy) != 0) 			{ p(" (3uy.compareTo(3uy) != 0) 		    "); r = false; }
-	if (4uy.compareTo(0xFFuy) != -1)		{ p(" (4uy.compareTo(0xFFuy) != -1)	    "); r = false; }
-	if (0xF1uy.compareTo(0xF0uy) != 1)    { p(" (0xF1uy.compareTo(0xF0uy) != 1 "); r = false; }
+	if (3uy.compareTo(3uy) != 0n) 			{ p(" (3uy.compareTo(3uy) != 0) 		    "); r = false; }
+	if (4uy.compareTo(0xFFuy) != -1n)		{ p(" (4uy.compareTo(0xFFuy) != -1)	    "); r = false; }
+	if (0xF1uy.compareTo(0xF0uy) != 1n)    { p(" (0xF1uy.compareTo(0xF0uy) != 1 "); r = false; }
 
 	val u3 = 3uy as Comparable[UByte];
 	val uf = 0xFFuy as Comparable[UByte];
 	val u4 = 4uy as Comparable[UByte];
-	if (u3.compareTo(3uy) != 0) 			{ p(" (u3.compareTo(3uy) != 0) 		    "); r = false; }
-	if (u4.compareTo(0xFFuy) != -1)		{ p(" (u4.compareTo(0xFFuy) != -1)	    "); r = false; }
-	if (uf.compareTo(0xF0uy) != 1)    		{ p(" (uf.compareTo(0xF0uy) != 1 "); r = false; }
+	if (u3.compareTo(3uy) != 0n) 			{ p(" (u3.compareTo(3uy) != 0) 		    "); r = false; }
+	if (u4.compareTo(0xFFuy) != -1n)		{ p(" (u4.compareTo(0xFFuy) != -1)	    "); r = false; }
+	if (uf.compareTo(0xF0uy) != 1n)    		{ p(" (uf.compareTo(0xF0uy) != 1 "); r = false; }
 	return r;
     }
 
@@ -115,12 +115,12 @@ public class UByteOps extends x10Test {
 	if ((0xFFuy & 0xF0uy) != 0xF0uy)	{ p(" (0xFFuy & 0xF0uy != 0xF0uy)	 "); r = false; }
 	if ((0x0Fuy ^ 0xF0uy) != 0xFFuy) 	{ p(" (0x0Fuy ^ 0xF0uy != 0xFFuy) 	 "); r = false; }
 	if ((0xFFuy ^ 0xF0uy) != 0x0Fuy) 	{ p(" (0xFFuy ^ 0xF0uy != 0x0Fuy) 	 "); r = false; }
-	if ((0xFFuy >> 4) != 0x0Fuy)		{ p(" (0xFFuy >> 4 != 0x0Fuy)		 "); r = false; }
-	if ((0xFFuy >> 1) != 0x7Fuy)		{ p(" (0xFFuy >> 1 != 0x7Fuy)		 "); r = false; }
-	if ((0xFFuy >>> 4) != 0x0Fuy)		{ p(" (0xFFuy >>> 4 != 0x0Fuy)		 "); r = false; }
-	if ((0xFFuy >>> 1) != 0x7Fuy)		{ p(" (0xFFuy >>> 1 != 0x7Fuy)		 "); r = false; }
-	if ((0xFFuy << 4) != 0xF0uy)		{ p(" (0xFFuy << 4 != 0xF0uy)		 "); r = false; }
-	if ((0xFFuy << 1) != 0xFEuy)		{ p(" (0xFFuy << 1 != 0xFEuy)		 "); r = false; }
+	if ((0xFFuy >> 4n) != 0x0Fuy)		{ p(" (0xFFuy >> 4 != 0x0Fuy)		 "); r = false; }
+	if ((0xFFuy >> 1n) != 0x7Fuy)		{ p(" (0xFFuy >> 1 != 0x7Fuy)		 "); r = false; }
+	if ((0xFFuy >>> 4n) != 0x0Fuy)		{ p(" (0xFFuy >>> 4 != 0x0Fuy)		 "); r = false; }
+	if ((0xFFuy >>> 1n) != 0x7Fuy)		{ p(" (0xFFuy >>> 1 != 0x7Fuy)		 "); r = false; }
+	if ((0xFFuy << 4n) != 0xF0uy)		{ p(" (0xFFuy << 4 != 0xF0uy)		 "); r = false; }
+	if ((0xFFuy << 1n) != 0xFEuy)		{ p(" (0xFFuy << 1 != 0xFEuy)		 "); r = false; }
 
 	val uff = 0xFFuy as Bitwise[UByte];
 	val u0f = 0x0Fuy as Bitwise[UByte];
@@ -132,12 +132,12 @@ public class UByteOps extends x10Test {
 	if ((uff & 0xF0uy) != 0xF0uy)	{ p(" (uff & 0xF0uy != 0xF0uy)	 "); r = false; }
 	if ((u0f ^ 0xF0uy) != uff) 	{ p(" (u0f ^ 0xF0uy != uff) 	 "); r = false; }
 	if ((uff ^ 0xF0uy) != u0f) 	{ p(" (uff ^ 0xF0uy != u0f) 	 "); r = false; }
-	if ((uff >> 4) != u0f)		{ p(" (uff >> 4 != u0f)		 "); r = false; }
-	if ((uff >> 1) != u7f)		{ p(" (uff >> 1 != u7f)		 "); r = false; }
-	if ((uff >>> 4) != u0f)		{ p(" (uff >>> 4 != u0f)		 "); r = false; }
-	if ((uff >>> 1) != u7f)		{ p(" (uff >>> 1 != u7f)		 "); r = false; }
-	if ((uff << 4) != 0xF0uy)		{ p(" (uff << 4 != 0xF0uy)		 "); r = false; }
-	if ((uff << 1) != 0xFEuy)		{ p(" (uff << 1 != 0xFEuy)		 "); r = false; }
+	if ((uff >> 4n) != u0f)		{ p(" (uff >> 4 != u0f)		 "); r = false; }
+	if ((uff >> 1n) != u7f)		{ p(" (uff >> 1 != u7f)		 "); r = false; }
+	if ((uff >>> 4n) != u0f)		{ p(" (uff >>> 4 != u0f)		 "); r = false; }
+	if ((uff >>> 1n) != u7f)		{ p(" (uff >>> 1 != u7f)		 "); r = false; }
+	if ((uff << 4n) != 0xF0uy)		{ p(" (uff << 4 != 0xF0uy)		 "); r = false; }
+	if ((uff << 1n) != 0xFEuy)		{ p(" (uff << 1 != 0xFEuy)		 "); r = false; }
 
 	return r;
     }

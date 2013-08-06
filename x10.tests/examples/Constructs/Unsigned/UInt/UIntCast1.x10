@@ -18,7 +18,7 @@ import harness.x10Test;
  */
 public class UIntCast1 extends x10Test {
     public def run(): boolean = {
-	val u1 = 1u;
+	val u1 = 1un;
 	val b1 = 1uy;
 	val l1 = 1ul;
 	if (!(u1 == b1 as UInt)) return false;
@@ -30,15 +30,15 @@ public class UIntCast1 extends x10Test {
 	if (!(u1 as ULong == l1)) return false;
 	if (u1 as ULong != l1) return false;
 
-	val u2 = 0xFFFFffffU;
+	val u2 = 0xFFFFffffUN;
 	val b2 = 0xffYU;
 	val l2 = 0xFFFFffffLU;
 	if (!(u2 as UByte == b2)) return false;
 	if (u2 as UByte != b2) return false;
 	if (!(u2 as ULong == l2)) return false;
 	if (u2 as ULong != l2) return false;
-	if (!(u2 == 0xFFFFffffFFFFffffLU as UInt)) return false;
-	if (u2 != 0xFFFFffffFFFFffffLU as UInt) return false;
+	if (!(u2 == (0xFFFFffffFFFFffffLU as UInt))) return false;
+	if (u2 != (0xFFFFffffFFFFffffLU as UInt)) return false;
 
 	return true;
     }

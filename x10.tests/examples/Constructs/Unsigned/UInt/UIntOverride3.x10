@@ -32,10 +32,10 @@ public class UIntOverride3 extends x10Test {
 	val hu = new H[UInt]();
 	val hi2 = new HI();
 	val hu2 = new HU();
-	assert hi.f(1).equals("x10.lang.Int");
-	assert hu.f(1u).equals("x10.lang.UInt");
-	assert hi2.f(1).equals("x10.lang.Int");
-	assert hu2.f(1u).equals("x10.lang.UInt");
+	assert hi.f(1n).equals("x10.lang.Int");
+	assert hu.f(1un).equals("x10.lang.UInt");
+	assert hi2.f(1n).equals("x10.lang.Int");
+	assert hu2.f(1un).equals("x10.lang.UInt");
 	return true;
     }
 

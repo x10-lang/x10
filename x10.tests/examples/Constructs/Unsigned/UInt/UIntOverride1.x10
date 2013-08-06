@@ -42,14 +42,14 @@ public class UIntOverride1 extends x10Test {
 	val c = new C();
 	val d = new D();
 	val e = new E();
-	assert a.f(1u).equals("A:T");
-	assert b.f(1u).equals("A:T");
-	assert c.f(1u).equals("C:UInt");
-	assert c.f(1).equals("C:Int");
-	assert d.f(1u).equals("C:UInt");
-	assert d.f(1).equals("C:Int");
-	assert e.f(1u).equals("E:UInt");
-	assert e.f(1).equals("E:Int");
+	assert a.f(1un).equals("A:T");
+	assert b.f(1un).equals("A:T");
+	assert c.f(1un).equals("C:UInt");
+	assert c.f(1n).equals("C:Int");
+	assert d.f(1un).equals("C:UInt");
+	assert d.f(1n).equals("C:Int");
+	assert e.f(1un).equals("E:UInt");
+	assert e.f(1n).equals("E:Int");
 	return true;
     }
 
