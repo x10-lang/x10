@@ -23,19 +23,19 @@ class DisambiguatingMethodAndField extends x10Test {
         new DisambiguatingMethodAndField().execute();
     }
     
-    val a : (Int)=>Int = (Int)=>1;
-    def a (Int) = 2;
+    val a : (Int)=>Int = (Int)=>1n;
+    def a (Int) = 2n;
     
-    val b : Rail[Int] = [11 as Int];
-    def b (Int) = 22;
+    val b : Rail[Int] = [11n as Int];
+    def b (Int) = 22n;
     
     
     public def run() : boolean {
-      val t1 = ( this.a(0) == 2 );
-      val t2 = ( (this.a)(0) == 1 );
+      val t1 = ( this.a(0n) == 2n );
+      val t2 = ( (this.a)(0n) == 1n );
       
-      val t3 = ( this.b(0) == 22 );
-      val t4 = ( (this.b)(0) == 11 );
+      val t3 = ( this.b(0n) == 22n );
+      val t4 = ( (this.b)(0n) == 11n );
       
       chk(t1);
       chk(t2);
