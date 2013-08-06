@@ -18,18 +18,18 @@ import x10.compiler.NonEscaping;
 
 class XTENLANG_1565 extends x10Test {
 
-	val m:Int;
-	val n:Int;
-	val q:Int;
-	val z:Int;
+	val m:Long;
+	val n:Long;
+	val q:Long;
+	val z:Long;
 	def this() {
 		finish {
 			async { z = 0; }
 		}
 		
-		var i:Int;
-		var j:Int;
-		var k:Int;
+		var i:Long;
+		var j:Long;
+		var k:Long;
 
 		i=1;
 		// i:[1,1,1,1]
@@ -65,7 +65,7 @@ class XTENLANG_1565 extends x10Test {
 		// j:[1,2,1,2]
 		f(j);
 	}
-	@NonEscaping final def f(i:Int):Int=i+1;
+	@NonEscaping final def f(i:Long):Long=i+1;
 
     public def run(): boolean {
         return true;
