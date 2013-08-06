@@ -20,7 +20,7 @@ import harness.x10Test;
  */
 class BangAcrossPlaces2_MustFailCompile extends x10Test {
     class C {
-        var x:Int=0;
+        var x:Int=0n;
         def x() = x;
     }
     def m(z:GlobalRef[C]{self.home==here}) {

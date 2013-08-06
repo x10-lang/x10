@@ -22,7 +22,7 @@ import harness.x10Test;
 public class AtCheck3a_MustFailCompile extends x10Test {
     class T {
         private val root = GlobalRef[T](this);
-        var x:int=0;
+        var x:int=0n;
         def m(b: T, d:T) {
             at (b.root) {
                 val e = d.root().x;  // ERR: No valid method call found for call in given type.
