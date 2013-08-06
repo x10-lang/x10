@@ -18,7 +18,7 @@ import x10.compiler.Native;
 public class OverrideNative extends x10Test {
 
     static class Parent {
-        public def foo(a:int):int = a + 10;
+        public def foo(a:int):int = a + 10n;
     
         @Native("c++", "(#1)+100")
         @Native("java", "(#a)+100")
@@ -31,7 +31,7 @@ public class OverrideNative extends x10Test {
         @Native("java", "(#a)+200")
         public native def foo(a:int):int;
     
-        public def bar(a:int):int = a + 20;
+        public def bar(a:int):int = a + 20n;
     }
 
     public def run(): boolean {	
@@ -39,14 +39,14 @@ public class OverrideNative extends x10Test {
         val c1:Parent = new Child();
         val c2:Child = new Child();
 
-        chk(p.foo(1) == 11);
-        chk(p.bar(1) == 101);
+        chk(p.foo(1n) == 11n);
+        chk(p.bar(1n) == 101n);
 
-        chk(c1.foo(1) == 201);
-        chk(c1.bar(1) == 21);
+        chk(c1.foo(1n) == 201n);
+        chk(c1.bar(1n) == 21n);
 
-        chk(c2.foo(1) == 201);
-        chk(c2.bar(1) == 21);
+        chk(c2.foo(1n) == 201n);
+        chk(c2.bar(1n) == 21n);
 
         return true;
     }

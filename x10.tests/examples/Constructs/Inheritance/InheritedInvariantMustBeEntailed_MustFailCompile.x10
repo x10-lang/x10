@@ -29,7 +29,7 @@ public class InheritedInvariantMustBeEntailed_MustFailCompile extends x10Test {
         public property l():int = l;
         public property m():int = m;
       public def this(arg:int):Tester { property(arg,arg); } // ERR
-      public def put()=0;
+      public def put()=0n;
     }
  
     public def run()=false;
