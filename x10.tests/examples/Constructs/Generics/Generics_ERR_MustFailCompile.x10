@@ -9,7 +9,7 @@ class Bla[T] extends Exception
 	var x1:
 		Bla; // ERR
 	var x2:
-		Bla[Int,Int]; // ERR: Number of type arguments (2) for Bla is not the same as number of type parameters (1).
+		Bla[Long,Long]; // ERR: Number of type arguments (2) for Bla is not the same as number of type parameters (1).
 	var x3:
 		Bla[Bla]; // ERR
 	var x4:

@@ -20,7 +20,7 @@ import harness.x10Test;
 public class GenericInheritance04 extends GenericTest {
 
     interface I[T] {
-        def m(T):int;
+        def m(T):long;
     }
 
     class A[T] implements I[T] {
@@ -29,7 +29,7 @@ public class GenericInheritance04 extends GenericTest {
 
     public def run() = {
 
-        val a = new A[int]();
+        val a = new A[long]();
         genericCheck("a.m(0)", a.m(0), 0);
 
         return result;

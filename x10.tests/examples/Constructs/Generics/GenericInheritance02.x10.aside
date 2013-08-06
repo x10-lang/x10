@@ -22,11 +22,11 @@ import harness.x10Test;
 public class GenericInheritance02 extends GenericTest {
 
     interface I[T] {
-        def m(T):int;
+        def m(T):long;
     }
 
-    class A implements I[int], I[String] {
-        public def m(int) = 0;
+    class A implements I[long], I[String] {
+        public def m(long) = 0;
         public def m(String) = 1;
     }
 

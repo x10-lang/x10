@@ -24,11 +24,11 @@ import harness.x10Test;
 public class GenericOverriding11_MustFailCompile extends GenericTest {
 
     class A[T] {
-        def m[U](): int = 0;
+        def m[U]():long = 0;
     }
 
     class B[T] extends A[T] {
-        def m[U](){T<:U}: int = 1; // ERR (type constraint in a guard not entailed)
+        def m[U](){T<:U}:long = 1; // ERR (type constraint in a guard not entailed)
     }
 
     public def run() = true;

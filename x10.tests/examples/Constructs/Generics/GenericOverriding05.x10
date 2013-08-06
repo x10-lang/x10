@@ -20,17 +20,17 @@ import harness.x10Test;
 public class GenericOverriding05 extends GenericTest {
 
     static class A[T] {
-        def m(): Int = 0;
-        def m(T): Int = 1;
-        def m(int,T): Int = 2;
+        def m(): long = 0;
+        def m(T): long = 1;
+        def m(long,T): long = 2;
     }
 
     static class B[T] extends A[T] {
-        def m(): Int = 3;
+        def m(): long = 3;
     }
 
-    val a = new A[int]();
-    val b = new B[int]();
+    val a = new A[long]();
+    val b = new B[long]();
 
     public def run(): boolean = {
 

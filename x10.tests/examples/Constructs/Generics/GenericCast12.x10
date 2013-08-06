@@ -20,13 +20,13 @@ import harness.x10Test;
 public class GenericCast12 extends GenericTest {
 
     interface I[T] {
-        def m(T):int;
-        def n(T):int;
+        def m(T):long;
+        def n(T):long;
     }
 
     interface J[T] {
-        def m(T):int;
-        def o(T):int;
+        def m(T):long;
+        def o(T):long;
     }
 
     class A[T] implements I[T], J[T] {
@@ -37,9 +37,9 @@ public class GenericCast12 extends GenericTest {
 
     public def run() = {
 
-        var a:Any = new A[int]();
+        var a:Any = new A[long]();
 
-        var exceptions:int = 0;
+        var exceptions:long = 0;
 
         try {
             var i:I[String] = a as I[String]; // ERR: Warning: This is an unsound cast because X10 currently does not perform constraint solving at runtime for generic parameters.

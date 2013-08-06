@@ -22,17 +22,17 @@ public class GenericOverriding04 extends GenericTest {
     static class A[T] {
         def m() = 0;
         def m(T) = 1;
-        def m(int,T) = 2;
+        def m(long,T) = 2;
     }
 
     static class B[T] {
         def m() = 3;
         def m(T) = 4;
-        def m(int,T) = 5;
+        def m(long,T) = 5;
     }
 
-    val a = new A[int]();
-    val b = new B[int]();
+    val a = new A[long]();
+    val b = new B[long]();
 
     public def run(): boolean = {
 

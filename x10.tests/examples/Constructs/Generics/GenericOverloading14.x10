@@ -25,10 +25,10 @@ public class GenericOverloading14 extends GenericTest {
     }
 
     static class B[S] extends A[S] {
-        def m(int,S) = 2;
+        def m(long,S) = 2;
     }
 
-    val  b = new  B[int]();
+    val  b = new  B[long]();
 
     public def run(): boolean = {
 

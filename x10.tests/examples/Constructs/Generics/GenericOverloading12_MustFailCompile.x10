@@ -26,9 +26,9 @@ public class GenericOverloading12_MustFailCompile extends GenericTest {
     class B[T,U] extends A[T] {
         def m(U) = 1;
     }                           
-	def test1(a:B[String,Int]) {
-		val x:Int{self==0} = a.m("a");
-		val y:Int{self==1} = a.m(1);
+	def test1(a:B[String,Long]) {
+		val x:long{self==0} = a.m("a");
+		val y:long{self==1} = a.m(1);
 	}
 	def test2(a:B[String,String]) {
 		a.m("a"); // one overrides the other

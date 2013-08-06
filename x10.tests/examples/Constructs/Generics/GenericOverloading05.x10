@@ -26,7 +26,7 @@ import harness.x10Test;
 public class GenericOverloading05 extends GenericTest {
 
     def m(String) = 0;
-    def m(int) = 1;
+    def m(long) = 1;
     def m(Rail[String]) = 2;
     def m(Rail[Int]) = 3;
 

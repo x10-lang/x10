@@ -42,13 +42,13 @@ public class GenericCast14 extends x10Test {
         try {
             val i = f[Int](null);
             ok = false;
-            Console.OUT.println("Error: ClassCastException should be thrown for null as T{T <: Int}!");
+            Console.OUT.println("Error: ClassCastException should be thrown for null as T{T <: long}!");
         }
         catch (e:ClassCastException) {
         }
         catch (e:Exception) {
             ok = false;
-            Console.OUT.println("Error: something other than ClassCastException was thrown for null as T{T <: Int}!");
+            Console.OUT.println("Error: something other than ClassCastException was thrown for null as T{T <: long}!");
             e.printStackTrace();
         }
 

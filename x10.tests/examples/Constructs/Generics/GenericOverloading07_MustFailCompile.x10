@@ -23,8 +23,8 @@ import harness.x10Test;
 
 public class GenericOverloading07_MustFailCompile extends GenericTest {
 
-    static def m[T](): int = 0;
-    static def m[U](): int = 1; // ERR
+    static def m[T]():long = 0;
+    static def m[U]():long = 1; // ERR
 
     public def run(): boolean = true;
 

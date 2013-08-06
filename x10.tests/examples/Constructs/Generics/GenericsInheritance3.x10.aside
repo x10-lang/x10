@@ -17,9 +17,9 @@ import harness.x10Test;
  * @author nystrom 8/2008
  */
 public class GenericsInheritance3 extends x10Test {
-        class C implements (int) => int, (String) => int {
-                public def apply(x: String): int = { return 0; }
-                public def apply(x: int): int = { return 0; }
+        class C implements (long) => long, (String) => int {
+                public def apply(x: String):long = { return 0; }
+                public def apply(x:long):long = { return 0; }
         }
 
 	public def run(): boolean = {

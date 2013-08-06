@@ -24,17 +24,17 @@ import harness.x10Test;
 public class GenericOverriding09_MustFailCompile extends GenericTest {
 
     class A[T] {
-        def m():Int = 0;
-        def m1(){T<:String}:Int = 0;
-        def m2(x:Int):Int = x;
-        def m3(x:Int) {x!=0} :Int = x;
+        def m():long = 0;
+        def m1(){T<:String}:long = 0;
+        def m2(x:long):long = x;
+        def m3(x:long) {x!=0} :long = x;
     }
         
     class B[T] extends A[T] {
-        def m(){T<:String}:Int = 1; // ERR (type constraint in a guard not entailed)
-        def m1():Int = 1; // ok 
-        def m2(x:Int) {x!=0} :Int = x; // ERR (value constraint in a guard not entailed)
-        def m3(x:Int) :Int = x; // ok
+        def m(){T<:String}:long = 1; // ERR (type constraint in a guard not entailed)
+        def m1():long = 1; // ok 
+        def m2(x:long) {x!=0} :long = x; // ERR (value constraint in a guard not entailed)
+        def m3(x:long) :long = x; // ok
     }
 
     public def run() = true;

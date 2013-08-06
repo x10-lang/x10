@@ -22,15 +22,15 @@ import harness.x10Test;
 public class GenericInstanceof06 extends GenericTest {
 
     interface I[T] {
-        def m(T):int;
+        def m(T):long;
     }
 
     interface J[T] {
-        def m(T):int;
+        def m(T):long;
     }
 
-    class A implements I[int], J[String] {
-        public def m(int) = 0;
+    class A implements I[long], J[String] {
+        public def m(long) = 0;
         public def m(String) = 1;
     }
 
@@ -38,7 +38,7 @@ public class GenericInstanceof06 extends GenericTest {
         
         var a:Any = new A();
 
-        return a instanceof I[int] && a instanceof J[String];
+        return a instanceof I[long] && a instanceof J[String];
     }
 
     public static def main(var args: Rail[String]): void = {

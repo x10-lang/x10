@@ -19,7 +19,7 @@ import harness.x10Test;
 public class Bounds7 extends x10Test {
       
         interface Sum {
-          def sum():int;
+          def sum():long;
         }
 
         public class Test[T]{T <: Sum} {

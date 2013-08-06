@@ -21,12 +21,12 @@ public class Subclassing4 extends x10Test {
                 val x: T;
                 def this(y: T) = { x = y; }
                 def get(): T = x; }
-        class Getint extends Get[int] {
-                def this(y: int) = { super(y); } }
+        class Getint extends Get[long] {
+                def this(y:long) = { super(y); } }
 
 	public def run(): boolean = {
-                new Get[int](0);
-                new Get[int](1);
+                new Get[long](0);
+                new Get[long](1);
                 new Getint(2);
                 new Getint(3);
 		return true;

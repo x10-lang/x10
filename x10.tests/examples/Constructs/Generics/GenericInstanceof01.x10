@@ -20,18 +20,18 @@ import harness.x10Test;
 public class GenericInstanceof01 extends GenericTest {
 
     interface I[T] {
-        def m(T):int;
+        def m(T):long;
     }
 
-    class A implements I[int] {
-        public def m(int) = 0;
+    class A implements I[long] {
+        public def m(long) = 0;
     }
 
     public def run() = {
 
         var a:Any = new A();
 
-        return a instanceof I[int];
+        return a instanceof I[long];
     }
 
     public static def main(var args: Rail[String]): void = {

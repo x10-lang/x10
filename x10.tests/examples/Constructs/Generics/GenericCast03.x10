@@ -18,19 +18,19 @@ import harness.x10Test;
 public class GenericCast03 extends GenericTest {
 
     interface I[T] {
-        def m(T):int;
+        def m(T):long;
     }
 
     
-    class A implements I[int] {
-        public def m(int) = 0;
+    class A implements I[long] {
+        public def m(long) = 0;
         public def m(String) = 1;
     }
 
     public def run() = {
 
         var a:Any = new A();
-        var i:I[int] = a as I[int]; // ERR: Warning: This is an unsound cast because X10 currently does not perform constraint solving at runtime for generic parameters.
+        var i:I[long] = a as I[long]; // ERR: Warning: This is an unsound cast because X10 currently does not perform constraint solving at runtime for generic parameters.
         genericCheck("i.m(0)", i.m(0), 0);
 
         return result;

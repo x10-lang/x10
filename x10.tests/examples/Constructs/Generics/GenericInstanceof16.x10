@@ -23,7 +23,7 @@ public class GenericInstanceof16 extends GenericTest {
     class B[U1, U2] extends A[U2, U1] {}
     
     public def run() = {
-        return new B[Int, Double]() instanceof A[Double, Int] && !((new B[Int, Double]() as Any) instanceof A[Int, Double]);
+        return new B[Long, Double]() instanceof A[Double, Long] && !((new B[Long, Double]() as Any) instanceof A[Long, Double]);
     }
     
     public static def main(var args: Rail[String]): void = {

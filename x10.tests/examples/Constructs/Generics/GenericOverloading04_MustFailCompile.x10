@@ -27,11 +27,11 @@ public class GenericOverloading04_MustFailCompile extends GenericTest {
 
     class A[T] {
         def m(X[T]) = 0;
-        def m(X[int]) = 1;
+        def m(X[long]) = 1;
     }
 	def test1(a:A[String]) {
-		val x:Int{self==0} = a.m( new X[String]() );
-		val y:Int{self==1} = a.m( new X[Int]() );
+		val x:long{self==0} = a.m( new X[String]() );
+		val y:long{self==1} = a.m( new X[Int]() );
 	}
 	def test2(a:A[Int]) {
 		a.m( new X[Int]() ); // ERR

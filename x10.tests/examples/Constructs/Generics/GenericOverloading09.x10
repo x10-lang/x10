@@ -28,8 +28,8 @@ public class GenericOverloading09 extends GenericTest {
 
     public def run(): boolean = {
 
-        genericCheck("m[int]()", m[int](), 0);
-        genericCheck("m[int](int)", m[int](0), 1);
+        genericCheck("m[long]()", m[long](), 0);
+        genericCheck("m[long](long)", m[long](0), 1);
 
         return result;
     }

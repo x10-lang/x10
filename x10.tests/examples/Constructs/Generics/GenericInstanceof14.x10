@@ -20,7 +20,7 @@ import harness.x10Test;
 public class GenericInstanceof14 extends GenericTest {
 
     interface I[T] {
-        def m(T):int;
+        def m(T):long;
     }
 
     class A implements I[I[Super]] {

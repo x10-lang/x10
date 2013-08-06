@@ -23,7 +23,7 @@ public class GenericMethods4_MustFailCompile extends GenericTest {
 
     public def run() = {
 
-        m[int]("1"); // ERR: Method m[T](id$45: T): void in GenericMethods4_MustFailCompile{self==GenericMethods4_MustFailCompile#this} cannot be called with arguments [x10.lang.Int](x10.lang.String{self=="1"});    Invalid Parameter.
+        m[long]("1"); // ERR: Method m[T](id$45: T): void in GenericMethods4_MustFailCompile{self==GenericMethods4_MustFailCompile#this} cannot be called with arguments [x10.lang.Long](x10.lang.String{self=="1"});    Invalid Parameter.
 
         return result;
     }

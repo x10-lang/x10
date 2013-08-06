@@ -40,8 +40,8 @@ import harness.x10Test;
  */
 public class GenericsInheritance1 extends x10Test {
         interface I[T] { def m(): T; }
-        class C { public def m(): int = { return 0; } }
-        class D extends C implements I[int] { }
+        class C { public def m():long = { return 0; } }
+        class D extends C implements I[long] { }
 
 	public def run(): boolean = {
 		return true;

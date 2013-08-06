@@ -21,13 +21,13 @@ public class GenericOverPrimitives1x extends GenericTest {
 
     public def run(): boolean = {
         
-        class A[T]{T<:Int} {
+        class A[T]{T<:long} {
             val t:T;
             def this(t:T) = {this.t=t;}
             def get() = t+t;
         }
 
-        a:A[int]! = new A[int](1);
+        a:A[long]! = new A[long](1);
         check("a.get()", a.get(), 2);
 
         return result;

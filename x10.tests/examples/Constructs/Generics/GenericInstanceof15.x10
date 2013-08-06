@@ -21,10 +21,10 @@ public class GenericInstanceof15 extends GenericTest {
 
     interface I[T1,T2] {}
 
-    class A implements I[Int,Double] {}
+    class A implements I[Long,Double] {}
     
     public def run() = {
-        return new A() instanceof I[Int, Double];
+        return new A() instanceof I[Long, Double];
     }
     
     public static def main(var args: Rail[String]): void = {
