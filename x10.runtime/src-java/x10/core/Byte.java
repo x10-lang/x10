@@ -144,9 +144,9 @@ final public class Byte extends java.lang.Number implements StructI, java.lang.C
     public Byte $ampersand(java.lang.Object b, Type t) { return Byte.$box($value & ((Byte)b).$value); }
     public Byte $bar(java.lang.Object b, Type t) { return Byte.$box($value | ((Byte)b).$value); }
     public Byte $caret(java.lang.Object b, Type t) { return Byte.$box($value ^ ((Byte)b).$value); }
-    public Byte $left$G(int count) { return Byte.$box($value << count); }
-    public Byte $right$G(int count) { return Byte.$box($value >> count); }
-    public Byte $unsigned_right$G(int count) { return Byte.$box($value >>> count); }
+    public Byte $left$G(long count) { return Byte.$box($value << count); }
+    public Byte $right$G(long count) { return Byte.$box($value >> count); }
+    public Byte $unsigned_right$G(long count) { return Byte.$box($value >>> count); }
     // for X10PrettyPrinterVisitor.exposeSpecialDispatcherThroughSpecialInterface
     public byte $ampersand$B(java.lang.Object b, Type t) { return (byte) ($value & ((Byte)b).$value); }
     public byte $bar$B(java.lang.Object b, Type t) { return (byte) ($value | ((Byte)b).$value); }

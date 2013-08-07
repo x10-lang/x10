@@ -243,9 +243,9 @@ public struct UShort implements Comparable[UShort], Arithmetic[UShort], Bitwise[
      * @param count the shift count
      * @return this UShort shifted left by count.
      */
-    @Native("java", "((short) ((#this) << (0xf & (#count))))")
-    @Native("c++",  "((x10_ushort) ((#0) << (0xf & (#1))))")
-    public native operator this << (count:Int): UShort; /*  = UShort(shortVal << (0xf & count)); */
+    @Native("java", "((short) ((#this) << (0xf & (int)(#count))))")
+    @Native("c++",  "((x10_ushort) ((#0) << (0xf & (x10_int)(#1))))")
+    public native operator this << (count:Long): UShort; /*  = UShort(shortVal << (0xf & (count as int))); */
 
     /**
      * A bitwise right shift operator.
@@ -255,9 +255,9 @@ public struct UShort implements Comparable[UShort], Arithmetic[UShort], Bitwise[
      * @param count the shift count
      * @return this UShort shifted right by count.
      */
-    @Native("java", "((short) ((0xffff & #this) >>> (0xf & (#count))))")
-    @Native("c++",  "((x10_ushort) ((#0) >> (0xf & (#1))))")
-    public native operator this >> (count:Int): UShort; /*  = UShort(shortVal >>> (0xf & count)); */
+    @Native("java", "((short) ((0xffff & #this) >>> (0xf & (int)(#count))))")
+    @Native("c++",  "((x10_ushort) ((#0) >> (0xf & (x10_int)(#1))))")
+    public native operator this >> (count:Long): UShort; /*  = UShort(shortVal >>> (0xf & (count as int))); */
 
     /**
      * A bitwise logical right shift operator (zero-fill).
@@ -268,9 +268,9 @@ public struct UShort implements Comparable[UShort], Arithmetic[UShort], Bitwise[
      * @param count the shift count
      * @return this UShort shifted right by count with high bits zero-filled.
      */
-    @Native("java", "((short) ((0xffff & #this) >>> (0xf & (#count))))")
-    @Native("c++",  "((x10_ushort) ((#0) >> (0xf & (#1))))")
-    public native operator this >>> (count:Int): UShort; /*  = UShort(shortVal >>> (0xf & count)); */
+    @Native("java", "((short) ((0xffff & #this) >>> (0xf & (int)(#count))))")
+    @Native("c++",  "((x10_ushort) ((#0) >> (0xf & (x10_int)(#1))))")
+    public native operator this >>> (count:Long): UShort; /*  = UShort(shortVal >>> (0xf & (count as int))); */
 
     /**
      * A bitwise complement operator.

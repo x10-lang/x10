@@ -185,9 +185,9 @@ public struct Int implements Comparable[Int], Arithmetic[Int], Bitwise[Int], Ord
      * @param count the shift count
      * @return this Int shifted left by count.
      */
-    @Native("java", "((#this) << (#count))") // no mask. Java defines shift as masked.
-    @Native("c++",  "((x10_int) ((#0) << (0x1f & (#1))))")
-    public native operator this << (count:Int): Int;
+    @Native("java", "((#this) << (int)(#count))") // no mask. Java defines shift as masked.
+    @Native("c++",  "((x10_int) ((#0) << (0x1f & (x10_int)(#1))))")
+    public native operator this << (count:Long): Int;
 
     /**
      * A bitwise right shift operator.
@@ -197,9 +197,9 @@ public struct Int implements Comparable[Int], Arithmetic[Int], Bitwise[Int], Ord
      * @param count the shift count
      * @return this Int shifted right by count.
      */
-    @Native("java", "((#this) >> (#count))") // no mask. Java defines shift as masked.
-    @Native("c++",  "((x10_int) ((#0) >> (0x1f & (#1))))")
-    public native operator this >> (count:Int): Int;
+    @Native("java", "((#this) >> (int)(#count))") // no mask. Java defines shift as masked.
+    @Native("c++",  "((x10_int) ((#0) >> (0x1f & (x10_int)(#1))))")
+    public native operator this >> (count:Long): Int;
 
     /**
      * A bitwise logical right shift operator (zero-fill).
@@ -210,9 +210,9 @@ public struct Int implements Comparable[Int], Arithmetic[Int], Bitwise[Int], Ord
      * @param count the shift count
      * @return this Int shifted right by count with high bits zero-filled.
      */
-    @Native("java", "((#this) >>> (#count))") // no mask. Java defines shift as masked.
-    @Native("c++",  "((x10_int) ((x10_uint) (#0) >> (0x1f & (#1))))")
-    public native operator this >>> (count:Int): Int;
+    @Native("java", "((#this) >>> (int)(#count))") // no mask. Java defines shift as masked.
+    @Native("c++",  "((x10_int) ((x10_uint) (#0) >> (0x1f & (x10_int)(#1))))")
+    public native operator this >>> (count:Long): Int;
 
     /**
      * A bitwise complement operator.

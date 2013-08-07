@@ -182,9 +182,9 @@ public struct Short implements Comparable[Short], Arithmetic[Short], Bitwise[Sho
      * @param count the shift count
      * @return this Short shifted left by count.
      */
-    @Native("java", "((short) ((#this) << (0xf & (#count))))")
-    @Native("c++",  "((x10_short) ((#0) << (0xf & (#1))))")
-    public native operator this << (count:Int): Short;
+    @Native("java", "((short) ((#this) << (0xf & (int)(#count))))")
+    @Native("c++",  "((x10_short) ((#0) << (0xf & (x10_int)(#1))))")
+    public native operator this << (count:Long): Short;
 
     /**
      * A bitwise right shift operator.
@@ -194,9 +194,9 @@ public struct Short implements Comparable[Short], Arithmetic[Short], Bitwise[Sho
      * @param count the shift count
      * @return this Short shifted right by count.
      */
-    @Native("java", "((short) ((#this) >> (0xf & (#count))))")
-    @Native("c++",  "((x10_short) ((#0) >> (0xf & (#1))))")
-    public native operator this >> (count:Int): Short;
+    @Native("java", "((short) ((#this) >> (0xf & (int)(#count))))")
+    @Native("c++",  "((x10_short) ((#0) >> (0xf & (x10_int)(#1))))")
+    public native operator this >> (count:Long): Short;
 
     /**
      * A bitwise logical right shift operator (zero-fill).
@@ -207,9 +207,9 @@ public struct Short implements Comparable[Short], Arithmetic[Short], Bitwise[Sho
      * @param count the shift count
      * @return this Short shifted right by count with high bits zero-filled.
      */
-    @Native("java", "((short) ((#this) >>> (0xf & (#count))))")
-    @Native("c++",  "((x10_short) ((x10_uint) (#0) >> (0xf & (#1))))")
-    public native operator this >>> (count:Int): Short;
+    @Native("java", "((short) ((#this) >>> (0xf & (int)(#count))))")
+    @Native("c++",  "((x10_short) ((x10_uint) (#0) >> (0xf & (x10_int)(#1))))")
+    public native operator this >>> (count:Long): Short;
 
     /**
      * A bitwise complement operator.

@@ -63,7 +63,7 @@ public interface Bitwise[T] {
      * @return the current entity shifted left by count.
      */
     @Native("c++", "x10::lang::Bitwise<#T >::__left(#this, #count)")
-    operator this << (count: Int): T;
+    operator this << (count: Long): T;
 
     /**
      * A bitwise right shift operator.
@@ -74,7 +74,7 @@ public interface Bitwise[T] {
      * @return the current entity shifted right by count.
      */
     @Native("c++", "x10::lang::Bitwise<#T >::__right(#this, #count)")
-    operator this >> (count: Int): T;
+    operator this >> (count: Long): T;
 
     /**
      * A bitwise logical right shift operator (zero-fill).
@@ -87,6 +87,6 @@ public interface Bitwise[T] {
      * @return the current entity shifted right by count with high bits zero-filled.
      */
     @Native("c++", "x10::lang::Bitwise<#T >::__unsigned_right(#this, #count)")
-    operator this >>> (count: Int): T;
+    operator this >>> (count: Long): T;
 }
 

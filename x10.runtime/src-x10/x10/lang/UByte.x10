@@ -243,9 +243,9 @@ public struct UByte implements Comparable[UByte], Arithmetic[UByte], Bitwise[UBy
      * @param count the shift count
      * @return this UByte shifted left by count.
      */
-    @Native("java", "((byte) ((#this) << (0x7 & (#count))))")
-    @Native("c++",  "((x10_ubyte) ((#0) << (0x7 & (#1))))")
-    public native operator this << (count:Int): UByte; /*  = UByte(byteVal << (0x7 & count)); */
+    @Native("java", "((byte) ((#this) << (0x7 & (int)(#count))))")
+    @Native("c++",  "((x10_ubyte) ((#0) << (0x7 & (x10_int)(#1))))")
+    public native operator this << (count:Long): UByte; /*  = UByte(byteVal << (0x7 & (count as int)); */
 
     /**
      * A bitwise right shift operator.
@@ -255,9 +255,9 @@ public struct UByte implements Comparable[UByte], Arithmetic[UByte], Bitwise[UBy
      * @param count the shift count
      * @return this UByte shifted right by count.
      */
-    @Native("java", "((byte) ((0xff & #this) >>> (0x7 & (#count))))")
-    @Native("c++",  "((x10_ubyte) ((#0) >> (0x7 & (#1))))")
-    public native operator this >> (count:Int): UByte; /*  = UByte(byteVal >>> (0x7 & count)); */
+    @Native("java", "((byte) ((0xff & #this) >>> (0x7 & (int)(#count))))")
+    @Native("c++",  "((x10_ubyte) ((#0) >> (0x7 & (x10_int)(#1))))")
+    public native operator this >> (count:Long): UByte; /*  = UByte(byteVal >>> (0x7 & count as int)); */
 
     /**
      * A bitwise logical right shift operator (zero-fill).
@@ -268,9 +268,9 @@ public struct UByte implements Comparable[UByte], Arithmetic[UByte], Bitwise[UBy
      * @param count the shift count
      * @return this UByte shifted right by count with high bits zero-filled.
      */
-    @Native("java", "((byte) ((0xff & #this) >>> (0x7 & (#count))))")
-    @Native("c++",  "((x10_ubyte) ((#0) >> (0x7 & (#1))))")
-    public native operator this >>> (count:Int): UByte; /*  = UByte(byteVal >>> (0x7 & count)); */
+    @Native("java", "((byte) ((0xff & #this) >>> (0x7 & (int)(#count))))")
+    @Native("c++",  "((x10_ubyte) ((#0) >> (0x7 & (int)(#1))))")
+    public native operator this >>> (count:Long): UByte; /*  = UByte(byteVal >>> (0x7 & count as int)); */
 
     /**
      * A bitwise complement operator.

@@ -154,9 +154,9 @@ final public class UByte extends java.lang.Number implements StructI, java.lang.
     public UByte $ampersand(java.lang.Object a, Type t) { return UByte.$box($value & ((UByte)a).$value); }
     public UByte $bar(java.lang.Object a, Type t) { return UByte.$box($value | ((UByte)a).$value); }
     public UByte $caret(java.lang.Object a, Type t) { return UByte.$box($value ^ ((UByte)a).$value); }
-    public UByte $left$G(int count) { return UByte.$box($value << count); }
-    public UByte $right$G(int count) { return UByte.$box((0xff & $value) >>> count); } // UByte is always unsigned
-    public UByte $unsigned_right$G(int count) { return UByte.$box((0xff & $value) >>> count); }
+    public UByte $left$G(long count) { return UByte.$box($value << count); }
+    public UByte $right$G(long count) { return UByte.$box((0xff & $value) >>> count); } // UByte is always unsigned
+    public UByte $unsigned_right$G(long count) { return UByte.$box((0xff & $value) >>> count); }
     // for X10PrettyPrinterVisitor.exposeSpecialDispatcherThroughSpecialInterface
     public byte $ampersand$b(java.lang.Object a, Type t) { return (byte) ($value & ((UByte)a).$value); }
     public byte $bar$b(java.lang.Object a, Type t) { return (byte) ($value | ((UByte)a).$value); }

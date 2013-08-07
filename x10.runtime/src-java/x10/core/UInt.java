@@ -163,9 +163,9 @@ final public class UInt extends java.lang.Number implements StructI, java.lang.C
     public UInt $ampersand(java.lang.Object a, Type t) { return UInt.$box($value & ((UInt)a).$value); }
     public UInt $bar(java.lang.Object a, Type t) { return UInt.$box($value | ((UInt)a).$value); }
     public UInt $caret(java.lang.Object a, Type t) { return UInt.$box($value ^ ((UInt)a).$value); }
-    public UInt $left$G(int count) { return UInt.$box($value << count); }
-    public UInt $right$G(int count) { return UInt.$box($value >>> count); } // UInt is always unsigned
-    public UInt $unsigned_right$G(int count) { return UInt.$box($value >>> count); }
+    public UInt $left$G(long count) { return UInt.$box($value << count); }
+    public UInt $right$G(long count) { return UInt.$box($value >>> count); } // UInt is always unsigned
+    public UInt $unsigned_right$G(long count) { return UInt.$box($value >>> count); }
     // for X10PrettyPrinterVisitor.exposeSpecialDispatcherThroughSpecialInterface
     public int $ampersand$i(java.lang.Object a, Type t) { return $value & ((UInt)a).$value; }
     public int $bar$i(java.lang.Object a, Type t) { return $value | ((UInt)a).$value; }

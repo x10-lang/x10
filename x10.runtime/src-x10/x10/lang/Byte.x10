@@ -183,9 +183,9 @@ public struct Byte implements Comparable[Byte], Arithmetic[Byte], Bitwise[Byte],
      * @param count the shift count
      * @return this Byte shifted left by count.
      */
-    @Native("java", "((byte) ((#this) << (0x7 & (#count))))")
-    @Native("c++",  "((x10_byte) ((#0) << (0x7 & (#1))))")
-    public native operator this << (count:Int): Byte;
+    @Native("java", "((byte) ((#this) << (0x7 & (int)(#count))))")
+    @Native("c++",  "((x10_byte) ((#0) << (0x7 & (x10_int)(#1))))")
+    public native operator this << (count:Long): Byte;
 
     /**
      * A bitwise right shift operator.
@@ -195,9 +195,9 @@ public struct Byte implements Comparable[Byte], Arithmetic[Byte], Bitwise[Byte],
      * @param count the shift count
      * @return this Byte shifted right by count.
      */
-    @Native("java", "((byte) ((#this) >> (0x7 & (#count))))")
-    @Native("c++",  "((x10_byte) ((#0) >> (0x7 & (#1))))")
-    public native operator this >> (count:Int): Byte;
+    @Native("java", "((byte) ((#this) >> (0x7 & (int)(#count))))")
+    @Native("c++",  "((x10_byte) ((#0) >> (0x7 & (x10_int)(#1))))")
+    public native operator this >> (count:Long): Byte;
 
     /**
      * A bitwise logical right shift operator (zero-fill).
@@ -208,9 +208,9 @@ public struct Byte implements Comparable[Byte], Arithmetic[Byte], Bitwise[Byte],
      * @param count the shift count
      * @return this Byte shifted right by count with high bits zero-filled.
      */
-    @Native("java", "((byte) ((#this) >>> (0x7 & (#count))))")
-    @Native("c++",  "((x10_byte) ((x10_uint) (#0) >> (0x7 & (#1))))")
-    public native operator this >>> (count:Int): Byte;
+    @Native("java", "((byte) ((#this) >>> (0x7 & (int)(#count))))")
+    @Native("c++",  "((x10_byte) ((x10_uint) (#0) >> (0x7 & (x10_int)(#1))))")
+    public native operator this >>> (count:Long): Byte;
 
     /**
      * A bitwise complement operator.

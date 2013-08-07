@@ -27,13 +27,13 @@ namespace x10 {
             RTT_H_DECLS_INTERFACE
     
             template <class I> struct itable {
-                itable(x10_boolean (I::*equals) (x10::lang::Any*), x10_int (I::*hashCode) (), TPMGL(T) (I::*__ampersand) (TPMGL(T)), TPMGL(T) (I::*__left) (x10_int), TPMGL(T) (I::*__right) (x10_int), TPMGL(T) (I::*__unsigned_right) (x10_int), TPMGL(T) (I::*__caret) (TPMGL(T)), TPMGL(T) (I::*__bar) (TPMGL(T)), TPMGL(T) (I::*__tilde) (), x10::lang::String* (I::*toString) (), x10::lang::String* (I::*typeName) ()) : equals(equals), hashCode(hashCode), __ampersand(__ampersand), __left(__left), __right(__right), __unsigned_right(__unsigned_right), __caret(__caret), __bar(__bar), __tilde(__tilde), toString(toString), typeName(typeName) {}
+                itable(x10_boolean (I::*equals) (x10::lang::Any*), x10_int (I::*hashCode) (), TPMGL(T) (I::*__ampersand) (TPMGL(T)), TPMGL(T) (I::*__left) (x10_long), TPMGL(T) (I::*__right) (x10_long), TPMGL(T) (I::*__unsigned_right) (x10_long), TPMGL(T) (I::*__caret) (TPMGL(T)), TPMGL(T) (I::*__bar) (TPMGL(T)), TPMGL(T) (I::*__tilde) (), x10::lang::String* (I::*toString) (), x10::lang::String* (I::*typeName) ()) : equals(equals), hashCode(hashCode), __ampersand(__ampersand), __left(__left), __right(__right), __unsigned_right(__unsigned_right), __caret(__caret), __bar(__bar), __tilde(__tilde), toString(toString), typeName(typeName) {}
                 x10_boolean (I::*equals) (x10::lang::Any*);
                 x10_int (I::*hashCode) ();
                 TPMGL(T) (I::*__ampersand) (TPMGL(T));
-                TPMGL(T) (I::*__left) (x10_int);
-                TPMGL(T) (I::*__right) (x10_int);
-                TPMGL(T) (I::*__unsigned_right) (x10_int);
+                TPMGL(T) (I::*__left) (x10_long);
+                TPMGL(T) (I::*__right) (x10_long);
+                TPMGL(T) (I::*__unsigned_right) (x10_long);
                 TPMGL(T) (I::*__caret) (TPMGL(T));
                 TPMGL(T) (I::*__bar) (TPMGL(T));
                 TPMGL(T) (I::*__tilde) ();
@@ -62,25 +62,25 @@ namespace x10 {
             template <class R> static TPMGL(T) __ampersand(R _recv, TPMGL(T) arg0) {
                 return _recv->__ampersand(arg0);
             }
-            static TPMGL(T) __left(x10::lang::Bitwise<TPMGL(T)>* _recv, x10_int arg0) {
+            static TPMGL(T) __left(x10::lang::Bitwise<TPMGL(T)>* _recv, x10_long arg0) {
                 x10::lang::Reference* _refRecv = reinterpret_cast<x10::lang::Reference*>(_recv);
                 return (_refRecv->*(x10aux::findITable<x10::lang::Bitwise<TPMGL(T)> >(_refRecv->_getITables())->__left))(arg0);
             }
-            template <class R> static TPMGL(T) __left(R _recv, x10_int arg0) {
+            template <class R> static TPMGL(T) __left(R _recv, x10_long arg0) {
                 return _recv->__left(arg0);
             }
-            static TPMGL(T) __right(x10::lang::Bitwise<TPMGL(T)>* _recv, x10_int arg0) {
+            static TPMGL(T) __right(x10::lang::Bitwise<TPMGL(T)>* _recv, x10_long arg0) {
                 x10::lang::Reference* _refRecv = reinterpret_cast<x10::lang::Reference*>(_recv);
                 return (_refRecv->*(x10aux::findITable<x10::lang::Bitwise<TPMGL(T)> >(_refRecv->_getITables())->__right))(arg0);
             }
-            template <class R> static TPMGL(T) __right(R _recv, x10_int arg0) {
+            template <class R> static TPMGL(T) __right(R _recv, x10_long arg0) {
                 return _recv->__right(arg0);
             }
-            static TPMGL(T) __unsigned_right(x10::lang::Bitwise<TPMGL(T)>* _recv, x10_int arg0) {
+            static TPMGL(T) __unsigned_right(x10::lang::Bitwise<TPMGL(T)>* _recv, x10_long arg0) {
                 x10::lang::Reference* _refRecv = reinterpret_cast<x10::lang::Reference*>(_recv);
                 return (_refRecv->*(x10aux::findITable<x10::lang::Bitwise<TPMGL(T)> >(_refRecv->_getITables())->__unsigned_right))(arg0);
             }
-            template <class R> static TPMGL(T) __unsigned_right(R _recv, x10_int arg0) {
+            template <class R> static TPMGL(T) __unsigned_right(R _recv, x10_long arg0) {
                 return _recv->__unsigned_right(arg0);
             }
             static TPMGL(T) __caret(x10::lang::Bitwise<TPMGL(T)>* _recv, TPMGL(T) arg0) {
@@ -131,13 +131,13 @@ namespace x10 {
         public:                                                         \
             RTT_H_DECLS_INTERFACE                                       \
                 template <class I> struct itable {                      \
-                itable(x10_boolean (I::*equals) (x10::lang::Any*), x10_int (I::*hashCode) (), PRIM (I::*__ampersand) (PRIM), PRIM (I::*__left) (x10_int), PRIM (I::*__right) (x10_int), PRIM (I::*__unsigned_right) (x10_int), PRIM (I::*__caret) (PRIM), PRIM (I::*__bar) (PRIM), PRIM (I::*__tilde) (), x10::lang::String* (I::*toString) (), x10::lang::String* (I::*typeName) ()) : equals(equals), hashCode(hashCode), __ampersand(__ampersand), __left(__left), __right(__right), __unsigned_right(__unsigned_right), __caret(__caret), __bar(__bar), __tilde(__tilde), toString(toString), typeName(typeName) {} \
+                itable(x10_boolean (I::*equals) (x10::lang::Any*), x10_int (I::*hashCode) (), PRIM (I::*__ampersand) (PRIM), PRIM (I::*__left) (x10_long), PRIM (I::*__right) (x10_long), PRIM (I::*__unsigned_right) (x10_long), PRIM (I::*__caret) (PRIM), PRIM (I::*__bar) (PRIM), PRIM (I::*__tilde) (), x10::lang::String* (I::*toString) (), x10::lang::String* (I::*typeName) ()) : equals(equals), hashCode(hashCode), __ampersand(__ampersand), __left(__left), __right(__right), __unsigned_right(__unsigned_right), __caret(__caret), __bar(__bar), __tilde(__tilde), toString(toString), typeName(typeName) {} \
                 x10_boolean (I::*equals) (x10::lang::Any*); \
                 x10_int (I::*hashCode) ();                              \
                 PRIM (I::*__ampersand) (PRIM);                          \
-                PRIM (I::*__left) (x10_int);                            \
-                PRIM (I::*__right) (x10_int);                           \
-                PRIM (I::*__unsigned_right) (x10_int);                  \
+                PRIM (I::*__left) (x10_long);                           \
+                PRIM (I::*__right) (x10_long);                          \
+                PRIM (I::*__unsigned_right) (x10_long);                 \
                 PRIM (I::*__caret) (PRIM);                              \
                 PRIM (I::*__bar) (PRIM);                                \
                 PRIM (I::*__tilde) ();                                  \
@@ -153,26 +153,26 @@ namespace x10 {
             static inline PRIM __ampersand(PRIM recv, PRIM arg0) {      \
                 return recv & arg0;                                     \
             }                                                           \
-            static PRIM __left(x10::lang::Bitwise<PRIM>* _recv, x10_int arg0) { \
+            static PRIM __left(x10::lang::Bitwise<PRIM>* _recv, x10_long arg0) { \
                 x10::lang::Reference* recv = reinterpret_cast<x10::lang::Reference*>(_recv); \
                 return (recv->*(x10aux::findITable<x10::lang::Bitwise<PRIM> >(recv->_getITables())->__left))(arg0); \
             }                                                           \
-            static inline PRIM __left(PRIM recv, x10_int arg0) {        \
-                return recv << (SHIFT_MASK & arg0);                     \
+            static inline PRIM __left(PRIM recv, x10_long arg0) {       \
+                return recv << (SHIFT_MASK & (x10_int)arg0);           \
             }                                                           \
-            static PRIM __right(x10::lang::Bitwise<PRIM>* _recv, x10_int arg0) { \
+            static PRIM __right(x10::lang::Bitwise<PRIM>* _recv, x10_long arg0) { \
                 x10::lang::Reference* recv = reinterpret_cast<x10::lang::Reference*>(_recv); \
                 return (recv->*(x10aux::findITable<x10::lang::Bitwise<PRIM> >(recv->_getITables())->__right))(arg0); \
             }                                                           \
-            static inline PRIM __right(PRIM recv, x10_int arg0) {       \
-                return recv >> (SHIFT_MASK & arg0);                     \
+            static inline PRIM __right(PRIM recv, x10_long arg0) {      \
+                return recv >> (SHIFT_MASK & (x10_int)arg0);            \
             }                                                           \
-            static PRIM __unsigned_right(x10::lang::Bitwise<PRIM>* _recv, x10_int arg0) { \
+            static PRIM __unsigned_right(x10::lang::Bitwise<PRIM>* _recv, x10_long arg0) { \
                 x10::lang::Reference* recv = reinterpret_cast<x10::lang::Reference*>(_recv); \
                 return (recv->*(x10aux::findITable<x10::lang::Bitwise<PRIM> >(recv->_getITables())->__unsigned_right))(arg0); \
             }                                                           \
-            static inline PRIM __unsigned_right(PRIM recv, x10_int arg0) { \
-                return ((UNSIGNED_PRIM)recv) >> (SHIFT_MASK & arg0);   \
+            static inline PRIM __unsigned_right(PRIM recv, x10_long arg0) { \
+                return ((UNSIGNED_PRIM)recv) >> (SHIFT_MASK & (x10_int)arg0); \
             }                                                           \
             static PRIM __caret(x10::lang::Bitwise<PRIM>* _recv, PRIM arg0) { \
                 x10::lang::Reference* recv = reinterpret_cast<x10::lang::Reference*>(_recv); \
