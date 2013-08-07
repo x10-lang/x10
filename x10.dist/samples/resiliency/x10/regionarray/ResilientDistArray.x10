@@ -47,60 +47,60 @@ public class ResilientDistArray[T](region:Region) implements (Point(region.rank)
         da = DistArray.make[T](dist);
     }
     
-    /*
-     * Simple implementation of snapshot/restore (just for reference)
-     */
-    private val ss = at (Place.FIRST_PLACE) GlobalRef[Cell[Array[T](region)]](new Cell[Array[T](region)](null));
-    public def snapshot() {
-        at (ss) {
-            val a = new Array[T](region, (p:Point)=>at (dist(p)) da(p));
-            ss()() = a; // replace only when "a" is created successfully
-        }
-    }
-    public def restore(dist:Dist){dist.region==region} {
-        this.dist = dist;
-        da = DistArray.make[T](dist, (p:Point)=>at (ss) ss()()(p));
-    }
-    
     // /*
-    //  * Note that snapshot/restore should be executed for the master copy of DistArray
+    //  * Simple implementation of snapshot/restore (just for reference)
     //  */
-    // private val snapshots = new Rail[ResilientStore[Place,Rail[T]]](2, (Long)=>ResilientStore.make[Place,Rail[T]]());
-    // private var commit_count:Long = 0L;
-    // 
+    // private val ss = at (Place.FIRST_PLACE) GlobalRef[Cell[Array[T](region)]](new Cell[Array[T](region)](null));
     // public def snapshot() {
-    //     snapshot_try(); // may fail with DeadPlaceException
-    //     snapshot_commit();
-    // }
-    // public def snapshot_try() {
-    //     val idx = (commit_count+1) % 2;
-    //     val snapshot = snapshots(idx);
-    //     finish for (pl in dist.places()) {
-    //         at (pl) async {
-    //             val raw = da.raw();
-    //             snapshot.save(pl, raw); // the data should be copied by put
-    //         }
+    //     at (ss) {
+    //         val a = new Array[T](region, (p:Point)=>at (dist(p)) da(p));
+    //         ss()() = a; // replace only when "a" is created successfully
     //     }
     // }
-    // public def snapshot_commit() {
-    //     val idx = commit_count % 2;
-    //     commit_count++;
-    //     val old_snapshot = snapshots(idx);
-    //     try { old_snapshot.deleteAll(); } catch (e:Exception) { /* ignore errors */ }
+    // public def restore(dist:Dist){dist.region==region} {
+    //     this.dist = dist;
+    //     da = DistArray.make[T](dist, (p:Point)=>at (ss) ss()()(p));
     // }
-    // 
-    // public def restore(newDist:Dist){newDist.region==region} {
-    //     val idx = commit_count % 2;
-    //     val snapshot = snapshots(idx);
-    //     val init = (pt:Point)=>{ //TODO: This code is very slow
-    //         val raw = snapshot.load(dist(pt));
-    //         // val offset = dist.offset(pt); // This does not work at another place
-    //         val offset = dist.get(dist(pt)).indexOf(pt); //TODO: This may not be general
-    //         return raw(offset);
-    //     };
-    //     da = DistArray.make[T](newDist, init);
-    //     dist = newDist;
-    // }
+    
+    /*
+     * Note that snapshot/restore should be executed for the master copy of DistArray
+     */
+    private val snapshots = new Rail[ResilientStore[Place,Rail[T]]](2, (Long)=>ResilientStore.make[Place,Rail[T]]());
+    private var commit_count:Long = 0L;
+    
+    public def snapshot() {
+        snapshot_try(); // may fail with DeadPlaceException
+        snapshot_commit();
+    }
+    public def snapshot_try() {
+        val idx = (commit_count+1) % 2;
+        val snapshot = snapshots(idx);
+        finish for (pl in dist.places()) {
+            at (pl) async {
+                val raw = da.raw();
+                snapshot.save(pl, raw); // the data should be copied inside the call
+            }
+        }
+    }
+    public def snapshot_commit() {
+        val idx = commit_count % 2;
+        commit_count++;
+        val old_snapshot = snapshots(idx);
+        try { old_snapshot.deleteAll(); } catch (e:Exception) { /* ignore errors */ }
+    }
+    
+    public def restore(newDist:Dist){newDist.region==region} {
+        val idx = commit_count % 2;
+        val snapshot = snapshots(idx);
+        val init = (pt:Point)=>{ //TODO: This code is very slow
+            val raw = snapshot.load(dist(pt));
+            // val offset = dist.offset(pt); // This does not work at another place
+            val offset = dist.get(dist(pt)).indexOf(pt); //TODO: This may not be general
+            return raw(offset);
+        };
+        da = DistArray.make[T](newDist, init);
+        dist = newDist;
+    }
     
     /**
      * Place0 implementation of ResilientStore
@@ -113,7 +113,7 @@ public class ResilientDistArray[T](region:Region) implements (Point(region.rank)
             at (hm) hm().put(key,value); // value is deep-copied by "at"
         }
         public def load(key:K) {
-            return at (hm) hm().getOrThrow(key); // value is deep-copied
+            return at (hm) hm().getOrThrow(key); // value is deep-copied by "at"
         }
         public def delete(key:K) {
             at (hm) hm().remove(key);
