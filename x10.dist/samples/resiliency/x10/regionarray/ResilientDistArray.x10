@@ -36,7 +36,6 @@ public class ResilientDistArray[T](region:Region) implements (Point(region.rank)
     
     /*
      * Snapshot mechanism
-     * TODO: This currently uses Place0 to keep a snapshot, but should be imporoved to use resilient store
      */
     public def remake(dist:Dist, init:(Point(dist.rank))=>T){dist.region==region} {
         this.dist = dist;
@@ -102,34 +101,71 @@ public class ResilientDistArray[T](region:Region) implements (Point(region.rank)
         dist = newDist;
     }
     
-    // /**
-    //  * Place0 implementation of ResilientStore
-    //  */
-    // static class ResilientStore[K,V] {
-    //     val hm = at (Place.FIRST_PLACE) GlobalRef(new x10.util.HashMap[K,V]());
-    //     private def this() { } // to prohibit new
-    //     public static def make[K,V]() = new ResilientStore[K,V]();
-    //     public def save(key:K, value:V) {
-    //         at (hm) hm().put(key,value); // value is deep-copied by "at"
-    //     }
-    //     public def load(key:K) {
-    //         return at (hm) hm().getOrThrow(key); // value is deep-copied by "at"
-    //     }
-    //     public def delete(key:K) {
-    //         at (hm) hm().remove(key);
-    //     }
-    //     public def deleteAll() {
-    //         at (hm) hm().clear();
-    //     }
-    // }
-    /*
+    /**
+     * Test program, should print "0 1 2 3 4 5 6 7 8 9" without Exception
+     */
+    public static def main(ars:Rail[String]) {
+        val livePlaces = new x10.util.ArrayList[Place]();
+        for (pl in Place.places()) livePlaces.add(pl);
+        if (livePlaces.size() < 2) throw new Exception("numPlaces should be >=2");
+        val R = Region.make(0..9);
+        val D = Dist.makeBlock(R, 0, new SparsePlaceGroup(livePlaces.toRail()));
+        val A = ResilientDistArray.make[Long](D, ([x]:Point(1))=>x);
+        A.snapshot();
+        livePlaces.remove(here.next());
+        val newD = Dist.makeBlock(R, 0, new SparsePlaceGroup(livePlaces.toRail()));
+        A.restore(newD);
+        for (pt:Point(1) in A.region) Console.OUT.print(at(A.dist(pt))A(pt) + " ");
+        Console.OUT.println();
+    }
+    
+    /**
+     * ResilientStore interface used by snapshot/restore
+     */
+    static abstract class ResilientStore[K,V] {
+        static val mode = getMode();
+        static def getMode() {
+            val env = System.getenv("X10_RESILIENT_DIST_ARRAY_MODE");
+            val m = (env!=null) ? Int.parseInt(env) : 0N;
+            Console.OUT.println("X10_RESILIENT_DIST_ARRAY_MODE=" + m);
+            return m;
+        }
+        public static def make[K,V]():ResilientStore[K,V] {
+            switch (mode) {
+            case 0N: return new ResilientStorePlace0[K,V]();
+            case 1N: return new ResilientStoreDistributed[K,V]();
+            default: throw new Exception("unknown mode");
+            }
+        }
+        public abstract def save(key:K, value:V):void;
+        public abstract def load(key:K):V;
+        public abstract def delete(key:K):void;
+        public abstract def deleteAll():void;
+    }
+    /**
+     * Place0 implementation of ResilientStore
+     */
+    static class ResilientStorePlace0[K,V] extends ResilientStore[K,V] {
+        val hm = at (Place.FIRST_PLACE) GlobalRef(new x10.util.HashMap[K,V]());
+        public def save(key:K, value:V) {
+            at (hm) hm().put(key,value); // value is deep-copied by "at"
+        }
+        public def load(key:K) {
+            return at (hm) hm().getOrThrow(key); // value is deep-copied by "at"
+        }
+        public def delete(key:K) {
+            at (hm) hm().remove(key);
+        }
+        public def deleteAll() {
+            at (hm) hm().clear();
+        }
+    }
+    /**
      * Distributed (local+backup) implementation of ResilientStore
      */
-    static class ResilientStore[K,V] {
+    static class ResilientStoreDistributed[K,V] extends ResilientStore[K,V] {
         val hm = PlaceLocalHandle.make[x10.util.HashMap[K,V]](PlaceGroup.WORLD, ()=>new x10.util.HashMap[K,V]());
         private def DEBUG(key:K, msg:String) { Console.OUT.println(here + ": key=" + key + ": " + msg); }
-        private def this() { } // to prohibit new
-        public static def make[K,V]() = new ResilientStore[K,V]();
         public def save(key:K, value:V) {
             /* Store the copy of value locally */
             at (here) hm().put(key, value); // value is deep-copied by "at"
@@ -185,24 +221,6 @@ public class ResilientDistArray[T](region:Region) implements (Point(region.rank)
                 at (pl) async hm().clear();
             }
         }
-    }
-    
-    /**
-     * Test program, should print "0 1 2 3 4 5 6 7 8 9" without Exception
-     */
-    public static def main(ars:Rail[String]) {
-        val livePlaces = new x10.util.ArrayList[Place]();
-        for (pl in Place.places()) livePlaces.add(pl);
-        if (livePlaces.size() < 2) throw new Exception("numPlaces should be >=2");
-        val R = Region.make(0..9);
-        val D = Dist.makeBlock(R, 0, new SparsePlaceGroup(livePlaces.toRail()));
-        val A = ResilientDistArray.make[Long](D, ([x]:Point(1))=>x);
-        A.snapshot();
-        livePlaces.remove(here.next());
-        val newD = Dist.makeBlock(R, 0, new SparsePlaceGroup(livePlaces.toRail()));
-        A.restore(newD);
-        for (pt:Point(1) in A.region) Console.OUT.print(at(A.dist(pt))A(pt) + " ");
-        Console.OUT.println();
     }
 }
 static public type ResilientDistArray[T](r:Long) = ResilientDistArray[T]{self.rank==r};
