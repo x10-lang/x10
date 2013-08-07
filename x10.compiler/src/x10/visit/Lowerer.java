@@ -659,7 +659,7 @@ public class Lowerer extends ContextVisitor {
             env.add(clockStack.peek().localInstance());
         }
         if (isUncountedAsync(ts, a)) {
-            return uncountedAsync(pos, body, place, env);
+            return uncountedAsync(pos, body, place, env, prof);
         }
         Stmt specializedAsync = specializeAsync(a, place, body);
         if (specializedAsync != null)
@@ -872,28 +872,32 @@ public class Lowerer extends ContextVisitor {
     }
 
     private Stmt uncountedAsync(Position pos, Stmt body, Expr place,
-            List<VarInstance<? extends VarDef>> env) throws SemanticException {
+            List<VarInstance<? extends VarDef>> env, Expr prof) throws SemanticException {
         List<Expr> l = new ArrayList<Expr>(1);
         l.add(place);
         List<Type> t = new ArrayList<Type>(1);
         t.add(ts.Place());
-        return makeUncountedAsyncBody(pos, l, t, body, env);
+        return makeUncountedAsyncBody(pos, l, t, body, env, prof);
     }
 
     private Stmt uncountedAsync(Position pos, Stmt body,
             List<VarInstance<? extends VarDef>> env) throws SemanticException {
         return makeUncountedAsyncBody(pos, new LinkedList<Expr>(),
-                new LinkedList<Type>(), body, env);
+                new LinkedList<Type>(), body, env, null);
     }
 
     private Stmt makeUncountedAsyncBody(Position pos, List<Expr> exprs, List<Type> types, Stmt body,
-            List<VarInstance<? extends VarDef>> env) throws SemanticException {
+            List<VarInstance<? extends VarDef>> env, Expr prof) throws SemanticException {
         Closure closure = synth.makeClosure(body.position(), ts.Void(), synth.toBlock(body), context());
         closure.closureDef().setCapturedEnvironment(env);
         CodeInstance<?> mi = findEnclosingCode(Types.get(closure.closureDef().methodContainer()));
         closure.closureDef().setMethodContainer(Types.ref(mi));
         exprs.add(closure);
         types.add(closure.closureDef().asType());
+        if (prof != null) { 
+            exprs.add(prof);
+            types.add(prof.type());
+        }	
         Stmt result = nf.Eval(pos,
                 synth.makeStaticCall(pos, ts.Runtime(), RUN_UNCOUNTED_ASYNC, exprs,
                         ts.Void(), types, context()));
