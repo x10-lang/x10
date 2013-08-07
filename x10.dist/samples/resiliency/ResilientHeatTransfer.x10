@@ -26,13 +26,13 @@ import x10.util.*;
  */
 public class ResilientHeatTransfer {
     static val epsilon = 1.0e-5;
-    static val ITERATIONS=200;
+    static val ITERATIONS=200L;
     
     static val livePlaces = new ArrayList[Place]();
     static val restore_needed = new Cell[Boolean](false);
     
     public static def main(args:Rail[String]) {
-        val n = (args.size>=1) ? Int.parseInt(args(0)) : 10;
+        val n = (args.size>=1) ? Long.parseLong(args(0)) : 10L;
         Console.OUT.println("HeatTransfer for " + n + "x" + n + ", epsilon=" + epsilon);
         
         /*
@@ -57,7 +57,7 @@ public class ResilientHeatTransfer {
          * Do the computation
          */
         A.snapshot();
-        var snapshot_iter:Int = 0;
+        var snapshot_iter:Long = 0L;
         var delta:Double = 1.0;
         for (i in 1..ITERATIONS) {
             Console.OUT.println("---- Iteration: "+i);
@@ -122,7 +122,7 @@ public class ResilientHeatTransfer {
      * Process Exception(s)
      * l is the nest level of MultipleExceptions (for pretty print)
      */
-    private static def processException(e:Exception, l:Int) {
+    private static def processException(e:Exception, l:Long) {
         if (e instanceof DeadPlaceException) {
             val deadPlace = (e as DeadPlaceException).place;
             Console.OUT.println(new String(new Rail[Char](l,' ')) + "DeadPlaceException thrown from " + deadPlace);

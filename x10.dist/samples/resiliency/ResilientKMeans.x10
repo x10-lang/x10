@@ -26,14 +26,14 @@ import x10.compiler.*;
  */
 class ResilientKMeans {
     
-    static val DIM=4;
-    //static val CLUSTERS=4;
+    static val DIM=4N;
+    //static val CLUSTERS=4L;
     //static val POINTS=1000000L;
-    static val ITERATIONS=10;
+    static val ITERATIONS=10L;
     
     public static def main(args:Rail[String]) {
         val POINTS = (args.size>=1) ? Long.parseLong(args(0)) : 1000000L;
-        val CLUSTERS = (args.size>=2) ? Int.parseInt(args(1)): 4;
+        val CLUSTERS = (args.size>=2) ? Long.parseLong(args(1)): 4L;
         Console.OUT.println("KMeans: Divide " + DIM + " dim " + POINTS + " points into "
                             + CLUSTERS + " clusters, using " + Place.MAX_PLACES + " places");
         
@@ -63,7 +63,7 @@ class ResilientKMeans {
         /* Use the first CLUSTERS points as initial cluster values */
         val central_clusters = new Rail[Float](CLUSTERS*DIM, (i:Long) => points_master(i/DIM, i%DIM));
         val old_central_clusters = new Rail[Float](CLUSTERS*DIM);
-        val central_cluster_counts = new Rail[Int](CLUSTERS);
+        val central_cluster_counts = new Rail[Long](CLUSTERS);
         val processed_points = new Cell[Long](0L);
         /* GlobalRefs to access the structures from other places */
         val central_clusters_gr = GlobalRef(central_clusters);
@@ -72,13 +72,13 @@ class ResilientKMeans {
         /* For local calculation */
         val local_curr_clusters = PlaceLocalHandle.make[Rail[Float]](PlaceGroup.WORLD, ()=>new Rail[Float](CLUSTERS*DIM));
         val local_new_clusters = PlaceLocalHandle.make[Rail[Float]](PlaceGroup.WORLD, ()=>new Rail[Float](CLUSTERS*DIM));
-        val local_cluster_counts = PlaceLocalHandle.make[Rail[Int]](PlaceGroup.WORLD, ()=>new Rail[Int](CLUSTERS));
+        val local_cluster_counts = PlaceLocalHandle.make[Rail[Long]](PlaceGroup.WORLD, ()=>new Rail[Long](CLUSTERS));
         
         /*
          * Calculate KMeans using multiple places
          */
         val compute_before = System.nanoTime();
-        for (var iter:Int=0 ; iter<ITERATIONS ; iter++) {
+        for (var iter:Long=0L; iter<ITERATIONS ; iter++) {
             
             Console.OUT.println("---- Iteration: "+iter);
             
@@ -91,12 +91,12 @@ class ResilientKMeans {
                 finish for (pl in Place.places()) {
                     if (pl.isDead()) continue; // skip the dead place
                     at (pl) async {
-                        for (var j:Int=0 ; j<CLUSTERS*DIM ; ++j) {
+                        for (var j:Long=0L ; j<CLUSTERS*DIM ; ++j) {
                             local_curr_clusters()(j) = central_clusters(j);
                             local_new_clusters()(j) = 0f;
                         }
-                        for (var j:Int=0 ; j<CLUSTERS ; ++j) {
-                            local_cluster_counts()(j) = 0;
+                        for (var j:Long=0L ; j<CLUSTERS ; ++j) {
+                            local_cluster_counts()(j) = 0L;
                         }
                     }
                 }
@@ -114,12 +114,12 @@ class ResilientKMeans {
             Console.OUT.println("Took "+(dist_clusters_after-dist_clusters_before)/1E9+" seconds");
 
             /* Clear the central_clusters to collect results */
-            for (var j:Int=0 ; j<CLUSTERS*DIM ; ++j) {
+            for (var j:Long=0L ; j<CLUSTERS*DIM ; ++j) {
                 old_central_clusters(j) = central_clusters(j);
                 central_clusters(j) = 0f;
             }
-            for (var j:Int=0 ; j<CLUSTERS ; ++j) {
-                central_cluster_counts(j) = 0;
+            for (var j:Long=0L ; j<CLUSTERS ; ++j) {
+                central_cluster_counts(j) = 0L;
             }
             processed_points() = 0L;
             
@@ -131,7 +131,7 @@ class ResilientKMeans {
             val numAvail = Place.MAX_PLACES - Place.numDead(); // number of available places
             val div = POINTS/numAvail; // share for each place
             val rem = POINTS%numAvail; // extra share for Place0
-            var places_used : Int = 0;
+            var places_used : Long = 0L;
             var start:Long = 0L; // next point to be processed
             try {
                 finish for (pl in Place.places()) {
@@ -153,11 +153,11 @@ class ResilientKMeans {
                             //TODO: async
                             { // process the p-th point
                                 val points = points_local();
-                                var closest:Int = -1;
+                                var closest:Long = -1L;
                                 var closest_dist:Float = Float.MAX_VALUE;
-                                for (var k:Int=0 ; k<CLUSTERS ; ++k) { 
-                                    var dist:Float = 0;
-                                    for (var d:Int=0 ; d<DIM ; ++d) { 
+                                for (var k:Long=0L ; k<CLUSTERS ; ++k) { 
+                                    var dist:Float = 0f;
+                                    for (var d:Long=0L ; d<DIM ; ++d) { 
                                         val tmp = points(p,d) - local_curr_clusters()(k*DIM+d);
                                         dist += tmp * tmp;
                                     }
@@ -167,7 +167,7 @@ class ResilientKMeans {
                                     }
                                 }
                                 //atomic {
-                                    for (var d:Int=0 ; d<DIM ; ++d) { 
+                                    for (var d:Long=0L ; d<DIM ; ++d) { 
                                         local_new_clusters()(closest*DIM+d) += points(p,d);
                                     }
                                     local_cluster_counts()(closest)++;
@@ -185,10 +185,10 @@ class ResilientKMeans {
                         val tmp_processed_points = e - s;
                         val prof = new Runtime.Profile();
                         @Profile(prof) at (place0) async atomic {
-                            for (var j:Int=0 ; j<CLUSTERS*DIM; ++j) {
+                            for (var j:Long=0L ; j<CLUSTERS*DIM; ++j) {
                                 central_clusters_gr()(j) += tmp_new_clusters(j);
                             }
-                            for (var j:Int=0 ; j<CLUSTERS ; ++j) {
+                            for (var j:Long=0L ; j<CLUSTERS ; ++j) {
                                 central_cluster_counts_gr()(j) += tmp_cluster_counts(j);
                             }
                             processed_points_gr()() += tmp_processed_points;
@@ -216,8 +216,8 @@ class ResilientKMeans {
             /*
              * Compute new cluster values and test for convergence
              */
-            for (var k:Int=0 ; k<CLUSTERS ; ++k) { 
-                for (var d:Int=0 ; d<DIM ; ++d) { 
+            for (var k:Long=0L ; k<CLUSTERS ; ++k) { 
+                for (var d:Long=0L ; d<DIM ; ++d) { 
                     central_clusters(k*DIM+d) /= central_cluster_counts(k);
                 }
             }
@@ -227,7 +227,7 @@ class ResilientKMeans {
                 // [DC] removed this so we can run a fixed number of iterations instead (better for benchmarking)
                 /*
                 var b:Boolean = true;
-                for (var j:Int=0 ; j<CLUSTERS*DIM; ++j) { 
+                for (var j:Long=0L ; j<CLUSTERS*DIM; ++j) { 
                     if (Math.abs(old_central_clusters(j)-central_clusters(j))>0.0001) {
                         b = false; break;
                     }
@@ -247,8 +247,8 @@ class ResilientKMeans {
          */
         /*
         Console.OUT.println("---- Result of " + CLUSTERS + " clustering");
-        for (var d:Int=0 ; d<DIM ; ++d) { 
-            for (var k:Int=0 ; k<CLUSTERS ; ++k) { 
+        for (var d:Long=0L ; d<DIM ; ++d) { 
+            for (var k:Long=0L ; k<CLUSTERS ; ++k) { 
                 if (k>0) Console.OUT.print(" ");
                 Console.OUT.print(central_clusters(k*DIM+d));
             }

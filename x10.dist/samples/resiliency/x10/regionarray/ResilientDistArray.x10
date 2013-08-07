@@ -16,7 +16,7 @@ package x10.regionarray;
  * @author kawatiya
  */
 public class ResilientDistArray[T](region:Region) implements (Point(region.rank))=>T {
-    public property rank():Int = region.rank;
+    public property rank():Long = region.rank;
     public var dist:Dist; // mutable (but should not be set from outside)
     private var da:DistArray[T](rank);
     private def this(dist:Dist, da:DistArray[T](dist.rank)) {
@@ -141,4 +141,4 @@ public class ResilientDistArray[T](region:Region) implements (Point(region.rank)
         Console.OUT.println();
     }
 }
-static public type ResilientDistArray[T](r:Int) = ResilientDistArray[T]{self.rank==r};
+static public type ResilientDistArray[T](r:Long) = ResilientDistArray[T]{self.rank==r};

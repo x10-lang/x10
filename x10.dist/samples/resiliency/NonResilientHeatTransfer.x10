@@ -18,20 +18,20 @@ import x10.util.*;
  * 
  * For Managed X10:
  *   $ x10 NonResilientHeatTransfer.x10
- *   $ X10_NPLACES=4 run.sh x10 ResilientHeatTransfer [size]
+ *   $ X10_NPLACES=4 run.sh x10 NonResilientHeatTransfer [size]
  * For Native X10:
- *   $ x10c++ NonResilientHeatTransfer.x10 -o ResilientHeatTransfer
- *   $ X10_NPLACES=4 run.sh runx10 ResilientHeatTransfer [size]
+ *   $ x10c++ NonResilientHeatTransfer.x10 -o NonResilientHeatTransfer
+ *   $ X10_NPLACES=4 run.sh runx10 NonResilientHeatTransfer [size]
  */
 public class NonResilientHeatTransfer {
     static val epsilon = 1.0e-5;
-    static val ITERATIONS=200;
+    static val ITERATIONS=200L;
     
     // static val livePlaces = new ArrayList[Place]();
     // static val restore_needed = new Cell[Boolean](false);
     
     public static def main(args:Rail[String]) {
-        val n = (args.size>=1) ? Int.parseInt(args(0)) : 10;
+        val n = (args.size>=1) ? Long.parseLong(args(0)) : 10L;
         Console.OUT.println("HeatTransfer for " + n + "x" + n + ", epsilon=" + epsilon);
         
         /*
@@ -60,7 +60,7 @@ public class NonResilientHeatTransfer {
          * Do the computation
          */
         // A.snapshot();
-        // var snapshot_iter:Int = 0;
+        // var snapshot_iter:Long = 0L;
         var delta:Double = 1.0;
         for (i in 1..ITERATIONS) {
             Console.OUT.println("---- Iteration: "+i);
@@ -125,7 +125,7 @@ public class NonResilientHeatTransfer {
     //  * Process Exception(s)
     //  * l is the nest level of MultipleExceptions (for pretty print)
     //  */
-    // private static def processException(e:Exception, l:Int) {
+    // private static def processException(e:Exception, l:Long) {
     //     if (e instanceof DeadPlaceException) {
     //         val deadPlace = (e as DeadPlaceException).place;
     //         Console.OUT.println(new String(new Rail[Char](l,' ')) + "DeadPlaceException thrown from " + deadPlace);
