@@ -102,24 +102,88 @@ public class ResilientDistArray[T](region:Region) implements (Point(region.rank)
         dist = newDist;
     }
     
-    /**
-     * Place0 implementation of ResilientStore
+    // /**
+    //  * Place0 implementation of ResilientStore
+    //  */
+    // static class ResilientStore[K,V] {
+    //     val hm = at (Place.FIRST_PLACE) GlobalRef(new x10.util.HashMap[K,V]());
+    //     private def this() { } // to prohibit new
+    //     public static def make[K,V]() = new ResilientStore[K,V]();
+    //     public def save(key:K, value:V) {
+    //         at (hm) hm().put(key,value); // value is deep-copied by "at"
+    //     }
+    //     public def load(key:K) {
+    //         return at (hm) hm().getOrThrow(key); // value is deep-copied by "at"
+    //     }
+    //     public def delete(key:K) {
+    //         at (hm) hm().remove(key);
+    //     }
+    //     public def deleteAll() {
+    //         at (hm) hm().clear();
+    //     }
+    // }
+    /*
+     * Distributed (local+backup) implementation of ResilientStore
      */
     static class ResilientStore[K,V] {
-        val hm = at (Place.FIRST_PLACE) GlobalRef(new x10.util.HashMap[K,V]());
+        val hm = PlaceLocalHandle.make[x10.util.HashMap[K,V]](PlaceGroup.WORLD, ()=>new x10.util.HashMap[K,V]());
+        private def DEBUG(key:K, msg:String) { Console.OUT.println(here + ": key=" + key + ": " + msg); }
         private def this() { } // to prohibit new
         public static def make[K,V]() = new ResilientStore[K,V]();
         public def save(key:K, value:V) {
-            at (hm) hm().put(key,value); // value is deep-copied by "at"
+            /* Store the copy of value locally */
+            at (here) hm().put(key, value); // value is deep-copied by "at"
+            DEBUG(key, "backuped locally");
+            /* Backup the value in another place */
+            var backupPlace:Long = key.hashCode() % Place.MAX_PLACES;
+            var trial:Long;
+            for (trial = 0L; trial < Place.MAX_PLACES; trial++) {
+                if (backupPlace != here.id && !Place.isDead(backupPlace)) break; // found appropriate place
+                backupPlace = (backupPlace+1) % Place.MAX_PLACES;
+            }
+            if (trial == Place.MAX_PLACES) {
+                /* no backup place available */
+                DEBUG(key, "no backup place available");
+            } else {
+                at (Place(backupPlace)) hm().put(key, value);
+                DEBUG(key, "backuped at place " + backupPlace);
+            }
         }
         public def load(key:K) {
-            return at (hm) hm().getOrThrow(key); // value is deep-copied by "at"
+            /* First, try to load locally */
+            try {
+                val value = at (here) hm().getOrThrow(key); // value is deep-copied by "at"
+                DEBUG(key, "restored locally");
+                return value;
+            } catch (e:x10.util.NoSuchElementException) { /* falls through */ }
+            /* Try to load from another place */
+            var backupPlace:Long = key.hashCode() % Place.MAX_PLACES;
+            var trial:Long;
+            for (trial = 0L; trial < Place.MAX_PLACES; trial++) {
+                if (backupPlace != here.id && !Place.isDead(backupPlace)) {
+                    DEBUG(key, "checking backup place " + backupPlace);
+                    try {
+                        val value = at (Place(backupPlace)) hm().getOrThrow(key);
+                        DEBUG(key, "restored from backup place " + backupPlace);
+                        return value;
+                    } catch (e:x10.util.NoSuchElementException) { /* falls through */ }
+                }
+                backupPlace = (backupPlace+1) % Place.MAX_PLACES;
+            }
+            DEBUG(key, "no backup found, ERROR");
+            throw new Exception("No data for key " + key);
         }
         public def delete(key:K) {
-            at (hm) hm().remove(key);
+            finish for (pl in Place.places()) {
+                if (pl.isDead()) continue;
+                at (pl) async hm().remove(key);
+            }
         }
         public def deleteAll() {
-            at (hm) hm().clear();
+            finish for (pl in Place.places()) {
+                if (pl.isDead()) continue;
+                at (pl) async hm().clear();
+            }
         }
     }
     
