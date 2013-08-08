@@ -30,11 +30,11 @@ import x10.io.Console;
  */
 public class Fibonacci {
 
-  public static def fib(n:int) {
+  public static def fib(n:long) {
     if (n<=2) return 1;
     
-    val f1:int;
-    val f2:int;
+    val f1:long;
+    val f2:long;
     finish {
       async { f1 = fib(n-1); }
       f2 = fib(n-2);
@@ -43,7 +43,7 @@ public class Fibonacci {
   }
 
   public static def main(args:Rail[String]) {
-    val n = (args.size > 0) ? int.parse(args(0)) : 10;
+    val n = (args.size > 0) ? Long.parse(args(0)) : 10;
     Console.OUT.println("Computing fib("+n+")");
     val f = fib(n);
     Console.OUT.println("fib("+n+") = "+f);

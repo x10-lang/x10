@@ -48,7 +48,7 @@ public class IntegrateTutorial {
  
   public static def main(args:Rail[String]) {
     val obj = new IntegrateTutorial((x:double)=>(x*x + 1.0) * x);
-    val xMax = args.size > 0 ? Int.parse(args(0)) : 10;
+    val xMax = args.size > 0 ? Long.parse(args(0)) : 10;
     val area = obj.computeArea(0, xMax);
     Console.OUT.println("The area of (x*x +1) * x from 0 to "+xMax+" is "+area);
   }

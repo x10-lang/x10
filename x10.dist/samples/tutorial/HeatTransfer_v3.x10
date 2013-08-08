@@ -56,9 +56,9 @@ public class HeatTransfer_v3 {
     // TODO: This is a really inefficient implementation of this abstraction.
     //       Needs to be done properly and integrated into the Dist/Region/DistArray
     //       class library in x10.regionarray.
-    static def blockIt(d:Dist(2), numProcs:int):Array[ArrayList[Point(2)]](1) {
+    static def blockIt(d:Dist(2), numProcs:long):Array[ArrayList[Point(2)]](1) {
         val ans = new Array[ArrayList[Point(2)]](numProcs, (long) => new ArrayList[Point(2)]());
-	var modulo:int = 0;
+	var modulo:long = 0;
         for (p in d) {
 	    ans(modulo).add(p);
             modulo = (modulo + 1) % numProcs;
