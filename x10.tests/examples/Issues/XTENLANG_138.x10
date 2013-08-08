@@ -17,9 +17,9 @@ import harness.x10Test;
 
 class XTENLANG_138 extends x10Test {
 
-    def f() = f(0);
+    def f() = f(0n);
 
-    def f(i:Int) = 0;
+    def f(i:Int) = 0n;
 
     public def run(): boolean {
         val v:Int = f();

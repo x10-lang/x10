@@ -47,7 +47,7 @@ public class XTENLANG_1651 extends x10Test {
         println(i.typeName());
 	}
 	def test2() {		
-        val i = MyComplex(4,5);
+        val i = MyComplex(4n,5n);
         println(i.toString());
         println(i.typeName());
 

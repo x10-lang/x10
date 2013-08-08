@@ -21,7 +21,7 @@ class XTENLANG_238 extends x10Test {
 
 
     public def run(): boolean {
-        val a = new AtomicInteger(0);
+        val a = new AtomicInteger(0n);
         a.incrementAndGet();
         return true;
     }

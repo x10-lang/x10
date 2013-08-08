@@ -20,7 +20,7 @@ class XTENLANG_2171 extends x10Test {
   class A implements ITest {
     public def get():int{
       val r:int;
-      finish async r = 1;
+      finish async r = 1n;
         return r;
     }
   }

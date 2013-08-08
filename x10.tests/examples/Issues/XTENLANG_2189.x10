@@ -16,25 +16,25 @@ import harness.x10Test;
  * across at boundaries
  */
 class XTENLANG_2189 extends x10Test {
-    val a:int = 1;
-    transient val b:int = 2;
+    val a:int = 1n;
+    transient val b:int = 2n;
 
     public def run(): boolean {
-      chk(a == 1);
-      chk(b == 2);
+      chk(a == 1n);
+      chk(b == 2n);
       at (here.next()) {
-          chk(a == 1);
-          chk(b == 0);
+          chk(a == 1n);
+          chk(b == 0n);
       }
       return runS(this);
     }
 
     static def runS(t:XTENLANG_2189): boolean {
-      chk(t.a == 1);
-      chk(t.b == 2);
+      chk(t.a == 1n);
+      chk(t.b == 2n);
       at (here.next()) {
-          chk(t.a == 1);
-          chk(t.b == 0);
+          chk(t.a == 1n);
+          chk(t.b == 0n);
       }
       return true;
     }

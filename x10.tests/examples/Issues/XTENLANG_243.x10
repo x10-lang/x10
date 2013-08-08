@@ -18,7 +18,7 @@ import harness.x10Test;
 class XTENLANG_243 extends x10Test {
 
     val s = "hi";
-    val b = s.substring(0,1).equals("h");
+    val b = s.substring(0n,1n).equals("h");
 
     public def run(): boolean {
         return true;

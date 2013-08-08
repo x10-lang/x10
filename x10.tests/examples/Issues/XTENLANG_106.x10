@@ -23,7 +23,7 @@ class XTENLANG_106 extends x10Test {
     }
     
     def foo(a:A[double]) {
-        a(0) = 0;
+        a(0n) = 0n;
     }
 
     public def run(): boolean {

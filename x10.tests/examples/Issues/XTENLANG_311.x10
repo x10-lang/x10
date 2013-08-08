@@ -18,7 +18,7 @@ import harness.x10Test;
 class XTENLANG_311 extends x10Test {
 
     public def run(): boolean {
-        var t:int = 0;
+        var t:long = 0;
         t++;
         return t==1;
     }

@@ -18,7 +18,7 @@ import harness.x10Test;
 class XTENLANG_22 extends x10Test {
 
     class B {
-        public def m() = 0;
+        public def m() = 0n;
     }
     
     interface I {

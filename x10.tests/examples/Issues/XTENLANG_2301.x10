@@ -19,8 +19,8 @@ class XTENLANG_2301 extends x10Test {
   static def curry[T](f:(T,T)=>T, b:T) = (x:T)=>f(x,b);
   
   public def run(): boolean {
-    val inc = curry[Int](((x:Int,y:Int) => x+y), 1);
-    chk(inc(10) == 11);
+    val inc = curry[Int](((x:Int,y:Int) => x+y), 1n);
+    chk(inc(10n) == 11n);
     return true;
   }
   

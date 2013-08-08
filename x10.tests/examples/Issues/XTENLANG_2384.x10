@@ -22,10 +22,10 @@ class XTENLANG_2384 extends x10Test {
   static def example() {
     var correct : Boolean = false;
     try {
-       throw new SubExn(4);
+       throw new SubExn(4n);
     }
-    catch (e : SubExn{n==1}) { assert false; }
-    catch (e : SubExn{n==2}) { assert false; }
+    catch (e : SubExn{n==1n}) { assert false; }
+    catch (e : SubExn{n==2n}) { assert false; }
     catch (e : Exn)          { correct = true; }
     catch (e : Exception)    { assert false; }
     assert correct;

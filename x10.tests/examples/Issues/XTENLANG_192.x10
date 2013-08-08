@@ -22,7 +22,7 @@ class XTENLANG_192 extends x10Test {
         def this(x:int):C[T]{self.x==x} = property(x);
     }
     
-    val c: C[int] = C.make[int](0);
+    val c: C[int] = C.make[int](0n);
 
     public def run(): boolean {
         return true;

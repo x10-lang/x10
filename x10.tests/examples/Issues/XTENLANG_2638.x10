@@ -21,8 +21,8 @@ class XTENLANG_2638 extends x10Test
     {
         val mShape = Region.make(1..100, 1..200);
         val mDist:Dist(2) = Dist.makeBlock(mShape);
-        val mat = DistArray.make[int] (mDist, 1);
-        val rhs = DistArray.make[int] (mDist, 2);
+        val mat = DistArray.make[int] (mDist, 1n);
+        val rhs = DistArray.make[int] (mDist, 2n);
 
         finish for (place in mat.dist.places()) async
         {

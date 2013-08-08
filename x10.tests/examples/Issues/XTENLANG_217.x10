@@ -25,7 +25,7 @@ class XTENLANG_217 extends x10Test {
     val a = new A();
     
     def foo() {
-        a(0) = 0.0;
+        a(0n) = 0.0;
     }
 
     public def run(): boolean {

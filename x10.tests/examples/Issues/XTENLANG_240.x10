@@ -24,7 +24,7 @@ class XTENLANG_240 extends x10Test {
     }
         
     def foo(a:A) {
-        for (var i:int=0; i<0; i++)
+        for (var i:int=0n; i<0n; i++)
             a(i) = 0.0;
     }
 

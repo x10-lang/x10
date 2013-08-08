@@ -27,7 +27,7 @@ class XTENLANG_111 extends x10Test {
     }
         
     def foo(a:A) {
-        a([1,2,3]) = 0;
+        a([1n,2n,3n]) = 0n;
     }
 
     public def run(): boolean {

@@ -13,11 +13,8 @@ import harness.x10Test;
 
 public class XTENLANG_643 extends x10Test {
 
-
-
-
     public static def test() {
-        type Ome(x:Int) = String;
+        type Ome(x:Long) = String;
         var result:Boolean = "some string " instanceof Ome(5);
         return result;
     }

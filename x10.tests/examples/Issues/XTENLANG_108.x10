@@ -18,11 +18,11 @@ import harness.x10Test;
 class XTENLANG_108 extends x10Test {
 
 
-    static class R(rank:int) {
+    static class R(rank:long) {
 
         property rect() = true;
-        static type X(rank:int) = R{self.rank==rank};
-        def this(rank:int) = property(rank);
+        static type X(rank:long) = R{self.rank==rank};
+        def this(rank:long) = property(rank);
 
         var a: X(1){rect};
         var b: X(1) = a; // does not typecheck

@@ -21,7 +21,7 @@ class XTENLANG_202 extends x10Test {
 
     
     public def run(): boolean {
-        return "foo".hashCode()!=0;
+        return "foo".hashCode()!=0n;
     }
 
     public static def main(Rail[String]) {

@@ -18,8 +18,8 @@ import harness.x10Test;
 class XTENLANG_62 extends x10Test {
 
     class A[T] {
-        public operator this(i0:int): T {throw new Exception();} // FIXME: XTENLANG-1443
-        public operator this(i0: int)=(v:T) {}
+        public operator this(i0:long): T {throw new Exception();} // FIXME: XTENLANG-1443
+        public operator this(i0: long)=(v:T) {}
     }
     
     def foo(a:A[double]) {

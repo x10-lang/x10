@@ -32,6 +32,6 @@ interface Vossol{
 }
 
 class Chakrrire implements Vossol {
-  public def x()  = 1;
+  public def x()  = 1n;
   public def this() {}
 }

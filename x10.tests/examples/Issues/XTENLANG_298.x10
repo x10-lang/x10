@@ -18,11 +18,11 @@ import harness.x10Test;
 class XTENLANG_298 extends x10Test {
 
     
-    static class C(p:int) {
+    static class C(p:long) {
     	// The new initialization semantics guarantee that all properties
         // will be initialized before all the fields.
         val q=p; 
-        def this(p:int) {
+        def this(p:long) {
         	property(p);
         }
     }

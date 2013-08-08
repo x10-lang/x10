@@ -26,8 +26,8 @@ public class XTENLANG_1462 extends x10Test {
     }
 	
 	
-	static class Bar(p:Int) {
-		def this(q:Int):Bar{self.p==q} {
+	static class Bar(p:Long) {
+		def this(q:Long):Bar{self.p==q} {
 			property(q);
 		}
 		static def test(z:Bar{p==3}) {

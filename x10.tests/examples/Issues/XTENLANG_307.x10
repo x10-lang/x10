@@ -20,7 +20,7 @@ class XTENLANG_307 extends x10Test {
     val r = new Rail[char](1);
 
     public def run(): boolean {
-        r(0) = Char.chr('a'.ord()+1);
+        r(0) = Char.chr('a'.ord()+1n);
         return true;
     }
 

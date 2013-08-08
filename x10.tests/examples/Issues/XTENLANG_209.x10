@@ -20,7 +20,7 @@ public class XTENLANG_209 extends x10Test {
     public operator this + (c: int) = this;
     
     public def run():boolean {
-        val i = 0;
+        val i = 0n;
         val sum = this + i;
         return true;
     }

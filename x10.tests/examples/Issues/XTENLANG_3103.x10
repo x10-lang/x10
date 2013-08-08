@@ -21,7 +21,7 @@ public class XTENLANG_3103[T] extends x10Test {
     }
 
     public static def runIt() {
-        val myArTestIntNo123 : XTENLANG_3103[String].C[Int{self!=0}] = null;
+        val myArTestIntNo123 : XTENLANG_3103[String].C[Int{self!=0n}] = null;
         val arr = myArTestIntNo123.a;
         // Used to ICE here
         arr(Point.make(0));

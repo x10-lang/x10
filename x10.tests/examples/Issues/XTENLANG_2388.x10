@@ -17,14 +17,14 @@ import harness.x10Test;
 class XTENLANG_2388 extends x10Test {
     static struct S1 {}
     static struct S2(i:Int,j:Double) {}
-    static struct S3(i:Int{self!=0},j:Double) {}
+    static struct S3(i:Int{self!=0n},j:Double) {}
   
     public def run(): boolean {
         chk(Int haszero);
-        chk(!(Int{self!=0} haszero));
-        chk((Int{self!=1} haszero));
-        chk((Int{self==0} haszero));
-        chk(!(Int{self==1} haszero));
+        chk(!(Int{self!=0n} haszero));
+        chk((Int{self!=1n} haszero));
+        chk((Int{self==0n} haszero));
+        chk(!(Int{self==1n} haszero));
         chk(Char haszero);
         chk(Double haszero);
         chk(Float haszero);
@@ -46,7 +46,7 @@ class XTENLANG_2388 extends x10Test {
         chk(S1 haszero);
         chk(S2 haszero);
         chk(!(S3 haszero));
-        chk(!(S2{i!=0} haszero));
+        chk(!(S2{i!=0n} haszero));
 
         return true;
     }

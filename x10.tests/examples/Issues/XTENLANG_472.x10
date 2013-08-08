@@ -18,7 +18,7 @@ import harness.x10Test;
 public class XTENLANG_472 extends x10Test {
 
     public def run(): boolean {
-        var i:Int = 5;
+        var i:Long = 5;
         do {
             if (--i <= 0) break;
         } while(true);

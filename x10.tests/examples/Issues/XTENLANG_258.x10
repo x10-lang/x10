@@ -19,7 +19,7 @@ class XTENLANG_258 extends x10Test {
 
     public def run():boolean {
         val v: Rail[int] = new Rail[int](1);
-        v(0) += 1;
+        v(0) += 1n;
         return true;
     }
 
