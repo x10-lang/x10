@@ -26,9 +26,9 @@ public class MethodResolution_disamb_a extends x10Test {
     }
 
 
-// file Classes line 3720
+// file Classes line 3722
  static class Xhaver {
-  private var x: Int = 0;
+  private var x: Long = 0;
   public def x() = x;
   public def bumpX() { x ++; }
 }

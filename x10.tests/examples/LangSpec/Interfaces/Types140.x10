@@ -32,14 +32,14 @@ public class Types140 extends x10Test {
    def name():String;
  }
  static  interface Mobile {
-   def move(howFar:Int):void;
+   def move(howFar:Long):void;
  }
  static  interface Person extends Named, Mobile {}
  static  interface NamedPoint extends Named, Mobile{}
  static class Kim implements Person {
-   var pos : Int = 0;
+   var pos : Long = 0;
    public def name() = "Kim (" + pos + ")";
-   public def move(dPos:Int) { pos += dPos; }
+   public def move(dPos:Long) { pos += dPos; }
 }
 
  static class Hook {

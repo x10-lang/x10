@@ -30,8 +30,8 @@ public class Classes150 extends x10Test {
  static class Mful{
    def m() = 1;
    def m[T]() = 2;
-   def m(x:Int) = 3;
-   def m[T](x:Int) = 4;
+   def m(x:Long) = 3;
+   def m[T](x:Long) = 4;
 }
 
  static class Hook {

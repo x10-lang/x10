@@ -29,8 +29,8 @@ public class ReTypes9e4b extends x10Test {
 // file Types line 214
  static  class Example {
  static public def example() {
-val square : (x:Int)=>Int
-           = (x:Int)=>x*x;
+val square : (x:Long)=>Long
+           = (x:Long)=>x*x;
 assert square(5) == 25;
  } }
  static  class Hook{ def run() {Example.example(); return true;}}

@@ -26,7 +26,7 @@ public class Expressions250 extends x10Test {
     }
 
 
-// file Expressions line 1552
+// file Expressions line 1539
 
  static class Expressions37TestExp{
   def check()  = 12 as Byte;  }

@@ -34,9 +34,9 @@ public class Interfaces_static_val extends x10Test {
   abstract static  class Pushedness{}
  static   struct Pushy{}
  static   interface Pushing{}
-  static type Shove = Int;
+  static type Shove = Long;
   property text():String;
-  property prio():Int;
+  property prio():Long;
 }
  static class MessageButton(text:String)
   implements Pushable{self.prio()==Pushable.MAX_PRIO} {

@@ -28,10 +28,10 @@ public class ReTypes3h6w extends x10Test {
 
 // file Types line 262
  static  class Example{ static def example() {
-val f : (x:Int)=>Int{self!=x} = (x:Int) => (x+1) as Int{self!=x};
-val g : (y:Int)=>Int{self!=y} = f;
-val t : (x:Int)=>Int          = (x:Int) => x;
-val u : ( Int )=>Int          = t;
+val f : (x:Long)=>Long{self!=x} = (x:Long) => (x+1) as Long{self!=x};
+val g : (y:Long)=>Long{self!=y} = f;
+val t : (x:Long)=>Long          = (x:Long) => x;
+val u : ( Long )=>Long          = t;
 }}
 
  static class Hook {

@@ -29,7 +29,7 @@ public class DefiniteAssignment4a6n extends x10Test {
 // file DefiniteAssignment line 129
  static  class Example {
  def example() {
-val a : Int;
+val a : Long;
 finish {
   async {
     a = 1;

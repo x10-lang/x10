@@ -29,7 +29,7 @@ public class Activities4c2r extends x10Test {
 // file Activities line 709
  static  class Example {
  def example() {
-var n : Int = 0;
+var n : Long = 0;
 finish {
   async atomic n = n + 1; //(a)
   async atomic n = n + 2; //(b)

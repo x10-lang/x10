@@ -29,13 +29,13 @@ public class Vars20 extends x10Test {
 // file Vars line 103
  static class VarExample{
 static def example() {
-val a : Int = 0;               // Full 'val' syntax
-b : Int = 0;                   // 'val' implied
+val a : Long = 0;               // Full 'val' syntax
+b : Long = 0;                   // 'val' implied
 val c = 0;                     // Type inferred
-var d : Int = 0;               // Full 'var' syntax
-var e : Int;                   // Not initialized
-var f : Int{self != 100} = 0;  // Constrained type
-val g : Int;                   // Init. deferred
+var d : Long = 0;               // Full 'var' syntax
+var e : Long;                   // Not initialized
+var f : Long{self != 100} = 0;  // Constrained type
+val g : Long;                   // Init. deferred
 if (a > b) g = 1; else g = 2;  // Init. done here.
 }}
 

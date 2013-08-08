@@ -28,9 +28,9 @@ public class Types6m9z_Bad38_MustFailCompile extends x10Test {
 
 // file Types line 3037
 //OPTIONS: -STATIC_CHECKS
- static class Extra(n:Int) {
+ static class Extra(n:Long) {
   val f : Long;
-  def this(n:Int, f:Long) { property(n); this.f = f; }
+  def this(n:Long, f:Long) { property(n); this.f = f; }
   static def typeIs[T](val x:T) {}
   public static def main(argv:Rail[String]) {
      val x : Extra = new Extra(1,2L);

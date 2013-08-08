@@ -28,8 +28,8 @@ public class Expressions1i5k extends x10Test {
 
 // file Expressions line 867
  static  class Example{
- def example( something: ()=>Int, something_else: ()=>Int,
-   any_code_at_all: () => Int) {
+ def example( something: ()=>Long, something_else: ()=>Long,
+   any_code_at_all: () => Long) {
 val a = something();
 val b = something_else();
 val eq1 = (a == b);

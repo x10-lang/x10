@@ -28,8 +28,8 @@ public class Statements3d9l extends x10Test {
 
 // file Statements line 689
  static  class Example {
-static def sum(a:x10.util.List[Int]):Int {
-  var s : Int = 0;
+static def sum(a:x10.util.List[Long]):Long {
+  var s : Long = 0;
   for(x in a) s += x;
   return s;
 }

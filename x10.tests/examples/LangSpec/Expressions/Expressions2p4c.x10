@@ -26,11 +26,11 @@ public class Expressions2p4c extends x10Test {
     }
 
 
-// file Expressions line 1304
+// file Expressions line 1291
  static class Knot(s:String){
   public def is(t:String):Boolean = s.equals(t);
   // explicit conversion
-  public static operator (n:Int) as Knot = new Knot("knot-" + n);
+  public static operator (n:Long) as Knot = new Knot("knot-" + n);
   // implicit coercion
   public static operator (s:String):Knot = new Knot(s);
   // using them

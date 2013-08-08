@@ -29,7 +29,7 @@ public class Expressions1l4m extends x10Test {
 // file Expressions line 609
 
  static class Expressions12TestExp{
-  def check(x:Int, y:Int)  = x << y;  }
+  def check(x:Long, y:Long)  = x << y;  }
 
  static class Hook {
    def run():Boolean = true;

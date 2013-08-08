@@ -27,7 +27,7 @@ public class Types340 extends x10Test {
 
 
 // file Types line 1247
- static struct Position(x: Int, y: Int) {}
+ static struct Position(x: Long, y: Long) {}
  static struct Line(start: Position, end: Position){start != end}
   {}
 

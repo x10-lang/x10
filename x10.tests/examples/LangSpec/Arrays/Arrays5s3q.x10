@@ -28,7 +28,7 @@ public class Arrays5s3q extends x10Test {
 
 // file Arrays line 155
  static class Arrays10TestExp{
-  def check(size:Int)  = Region.makeBanded(size);  }
+  def check(size:Long)  = Region.makeBanded(size);  }
 
  static class Hook {
    def run():Boolean = true;

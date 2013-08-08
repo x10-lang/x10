@@ -27,13 +27,13 @@ public class Types150 extends x10Test {
 
 
 // file Types line 655
- static class Coords(x: Int, y: Int) {
-  def this(x: Int, y: Int) :
+ static class Coords(x: Long, y: Long) {
+  def this(x: Long, y: Long) :
     Coords{self.x==x, self.y==y} = {
     property(x, y);
   }
 
-  def move(dx: Int, dy: Int) = new Coords(x+dx, y+dy);
+  def move(dx: Long, dy: Long) = new Coords(x+dx, y+dy);
 }
 
  static class Hook {

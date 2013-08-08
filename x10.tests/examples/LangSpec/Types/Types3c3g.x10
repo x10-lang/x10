@@ -33,11 +33,11 @@ public class Types3c3g extends x10Test {
      def meth():X;
    }
   public static def example() {
-    val a = new Cont[Int]();
-    val b = new Inte[Int](){public def meth()=3;};
-    type A = Cont[Int];
+    val a = new Cont[Long]();
+    val b = new Inte[Long](){public def meth()=3;};
+    type A = Cont[Long];
     val aa = new A();
-    type B = Inte[Int];
+    type B = Inte[Long];
     val bb = new B(){public def meth()=4;};
   }
 }

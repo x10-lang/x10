@@ -32,7 +32,7 @@ public class Types9j6e extends x10Test {
   // With -VERBOSE, the following line gets a warning
   public static def cast[T](x:Any):T       = x as T;
 }
- static class Pea(p:Int) {}
+ static class Pea(p:Long) {}
  static class Example{
   static def example() {
      val pea : Pea = new Pea(1);

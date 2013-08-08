@@ -27,10 +27,10 @@ public class Classes100 extends x10Test {
 
 
 // file Classes line 824
- static class Example(x:Int, y:Int) {
-   def this(x:Int, y:Int) { property(x,y); }
+ static class Example(x:Long, y:Long) {
+   def this(x:Long, y:Long) { property(x,y); }
    property eq() = (x==y);
-   property is(z:Int) = x==z && y==z;
+   property is(z:Long) = x==z && y==z;
    def example( a : Example{eq()}, b : Example{is(3)} ) {}
 }
 

@@ -26,12 +26,12 @@ public class PlacesAtCopy extends x10Test {
     }
 
 
-// file Places line 820
+// file Places line 819
  static class example {
 static def Example() {
 
-val c = new Cell[Int](5);
-val a : Rail[Cell[Int]] = [c,c as Cell[Int]];
+val c = new Cell[Long](5);
+val a : Rail[Cell[Long]] = [c,c as Cell[Long]];
 assert(a(0)() == 5 && a(1)() == 5);     // (A)
 c.set(6);                               // (B)
 assert(a(0)() == 6 && a(1)() == 6);     // (C)

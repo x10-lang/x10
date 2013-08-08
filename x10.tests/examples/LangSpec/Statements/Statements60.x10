@@ -28,7 +28,7 @@ public class Statements60 extends x10Test {
 
 // file Statements line 386
  static  class LabelledBreakeyBreakyHeart {
- def findy(a:Rail[Rail[Int]], v:Int): Boolean {
+ def findy(a:Rail[Rail[Long]], v:Long): Boolean {
 var found: Boolean = false;
 outer: for (i in a.range)
     for (j in a(i).range)

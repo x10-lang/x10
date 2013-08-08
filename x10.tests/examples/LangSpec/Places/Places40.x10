@@ -26,12 +26,12 @@ public class Places40 extends x10Test {
     }
 
 
-// file Places line 888
+// file Places line 887
 
  static class Trans {
-   val a : Int = 1;
-   transient val b : Int = 2;
-   //ERROR: transient val c : Int{c != 0} = 3;
+   val a : Long = 1;
+   transient val b : Long = 2;
+   //ERROR: transient val c : Long{c != 0} = 3;
    def example() {
      assert(a == 1 && b == 2);
      at(here) {

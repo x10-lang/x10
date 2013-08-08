@@ -28,7 +28,7 @@ public class extern60 extends x10Test {
 
 // file NativeCode line 133
  static class Ability {
-  static val A : Int = 1;
+  static val A : Int = 1n;
   @Native("java", "A+2")
   @Native("c++", "Ability::FMGL(A)+2")
   static native def fromStatic():Int;

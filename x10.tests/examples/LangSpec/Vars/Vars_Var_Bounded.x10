@@ -27,8 +27,8 @@ public class Vars_Var_Bounded extends x10Test {
 
 
 // file Vars line 505
- static  class Tub(p:Int){
-   def this(pp:Int):Tub{self.p==pp} {property(pp);}
+ static  class Tub(p:Long){
+   def this(pp:Long):Tub{self.p==pp} {property(pp);}
    def example() {
      val t : Tub = new Tub(3);
    }
@@ -36,7 +36,7 @@ public class Vars_Var_Bounded extends x10Test {
  static  class TubBounded{
  def example() {
    val t <: Tub = new Tub(3);
-   // ERROR: val u <: Int = new Tub(3);
+   // ERROR: val u <: Long = new Tub(3);
 }}
 
  static class Hook {

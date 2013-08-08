@@ -26,12 +26,12 @@ public class Places40_Bad33_MustFailCompile extends x10Test {
     }
 
 
-// file Places line 888
+// file Places line 887
 
  static class Trans {
-   val a : Int = 1;
-   transient val b : Int = 2;
- transient val c : Int{c != 0} = 3; // ERR
+   val a : Long = 1;
+   transient val b : Long = 2;
+ transient val c : Long{c != 0} = 3; // ERR
    def example() {
      assert(a == 1 && b == 2);
      at(here) {

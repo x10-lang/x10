@@ -26,7 +26,7 @@ public class MethodResolution10_Bad58_MustFailCompile extends x10Test {
     }
 
 
-// file Classes line 3296
+// file Classes line 3298
  // This depends on https://jira.codehaus.org/browse/XTENLANG-2696
  static class Res {
   public static  interface Surface {}
@@ -43,13 +43,13 @@ public class MethodResolution10_Bad58_MustFailCompile extends x10Test {
   public static  class C extends B {}
 
   def m(x:A) = 0;
-  def m(x:Int) = 1;
+  def m(x:Long) = 1;
   def m(x:Boolean) = 2;
   def m(x:Surface) = 3;
   def m(x:Deface) = 4;
 
   def example() {
-     assert m(100) == 1 : "Int";
+     assert m(100) == 1 : "Long";
      assert m(new C()) == 0 : "C";
      // An Ace is a Surface, unambiguous best choice
      assert m(new Ace()) == 3 : "Ace";

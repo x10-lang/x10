@@ -27,14 +27,14 @@ public class Classes9c9r extends x10Test {
 
 
 // file Classes line 442
- static class Init(n:Int) {
+ static class Init(n:Long) {
   val a = new Rail[String](n, "");
-  def this(n:Int) { property(n); }
+  def this(n:Long) { property(n); }
 }
  static class Outit {
-  val n : Int;
+  val n : Long;
   //ERROR: val a = new Rail[String](n, "");
-  def this(m:Int) { this.n = m; }
+  def this(m:Long) { this.n = m; }
 }
 
  static class Hook {

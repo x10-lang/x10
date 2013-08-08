@@ -28,7 +28,7 @@ public class Arrays5s3qtri extends x10Test {
 
 // file Arrays line 158
  static class Arrays11TestExp{
-  def check(N:Int)  = Region.makeUpperTriangular(N);  }
+  def check(N:Long)  = Region.makeUpperTriangular(N);  }
 
  static class Hook {
    def run():Boolean = true;

@@ -29,7 +29,7 @@ public class Functions40 extends x10Test {
 // file Functions line 298
 
  static class Functions7TestExp{
-  def check()  = (Int):Rail[Double] => null;  }
+  def check()  = (Long):Rail[Double] => null;  }
 
  static class Hook {
    def run():Boolean = true;

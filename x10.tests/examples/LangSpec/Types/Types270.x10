@@ -32,10 +32,10 @@ public class Types270 extends x10Test {
  static class TypeExamples {
   static type StringSet = Set[String];
   static type MapToList[K,V] = Map[K,List[V]];
-  static type Int(x: Int) = Int{self==x};
-  static type Dist(r: Int) = Dist{self.rank==r};
+  static type Long(x: Long) = Long{self==x};
+  static type Dist(r: Long) = Dist{self.rank==r};
   static type Dist(r: Region) = Dist{self.region==r};
-  static type Redund(n:Int, r:Region){r.rank==n}
+  static type Redund(n:Long, r:Region){r.rank==n}
       = Dist{rank==n && region==r};
 }
 

@@ -26,12 +26,12 @@ public class Classes220 extends x10Test {
     }
 
 
-// file Classes line 1970
+// file Classes line 1972
  static  class Poly {
    public val coeff : Rail[Long];
    public def this(coeff: Rail[Long]) { this.coeff = coeff;}
    public def degree() = coeff.size-1;
-   public def  a(i:Int) = (i<0 || i>this.degree()) ? 0L : coeff(i);
+   public def  a(i:Long) = (i<0 || i>this.degree()) ? 0L : coeff(i);
   public operator - this = new Poly(
     new Rail[Long](coeff.size, (i:Long) => -coeff(i))
     );

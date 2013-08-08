@@ -26,7 +26,7 @@ public class Expressions3g5x extends x10Test {
     }
 
 
-// file Expressions line 1214
+// file Expressions line 1201
  static interface Snack {}
  static interface Crunchy {}
  static class Pretzel implements Snack, Crunchy{}

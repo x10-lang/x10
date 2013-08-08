@@ -28,7 +28,7 @@ public class Statements80 extends x10Test {
 
 // file Statements line 550
  static  class Example {
- def example(var n:Int) {
+ def example(var n:Long) {
   while (n > 1) {
      n = (n % 2 == 1) ? 3*n+1 : n/2;
   }

@@ -33,7 +33,7 @@ public class Statements40 extends x10Test {
   static def call() {
      x10.io.Console.OUT.println("call!");}
   def example() {
-     var a : Int = 0;
+     var a : Long = 0;
      a = 1; // assignment
      new StmtEx(); // allocation
      call(); // call

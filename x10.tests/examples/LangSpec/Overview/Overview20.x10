@@ -29,8 +29,8 @@ public class Overview20 extends x10Test {
 // file Overview line 112
  static  class Whatever{
  def chkplz() {
-  val square = (i:Int) => i*i;
-  val of4 = (f: (Int)=>Int) => f(4);
+  val square = (i:Long) => i*i;
+  val of4 = (f: (Long)=>Long) => f(4);
   val fourSquared = of4(square);
 }}
 

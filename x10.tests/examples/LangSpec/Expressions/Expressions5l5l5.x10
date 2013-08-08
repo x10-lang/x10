@@ -26,9 +26,9 @@ public class Expressions5l5l5 extends x10Test {
     }
 
 
-// file Expressions line 946
+// file Expressions line 936
  static  class Example{ def example() {
-for(var i : Long = 0; i <= 100; i++) {}
+for(var i : Int = 0n; i <= 100; i++) {}
 } }
 
  static class Hook {

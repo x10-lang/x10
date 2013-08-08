@@ -26,28 +26,28 @@ public class ObjectInitialization60 extends x10Test {
     }
 
 
-// file Classes line 3239
+// file Classes line 3241
  static  class Supertype[T]{}
  static  interface SuperInterface[T]{}
  static class Example (
-   prop : Int,
-   proq : Int{prop != proq},                    // (A)
-   pror : Int
+   prop : Long,
+   proq : Long{prop != proq},                    // (A)
+   pror : Long
    )
    {prop != 0}                                  // (B)
-   extends Supertype[Int{self != prop}]         // (C)
-   implements SuperInterface[Int{self != prop}] // (D)
+   extends Supertype[Long{self != prop}]         // (C)
+   implements SuperInterface[Long{self != prop}] // (D)
 {
    property def propmeth() = (prop == pror);    // (E)
    staticField
-      : Cell[Int{self != 0}]                    // (F)
-      = new Cell[Int{self != 0}](1);            // (G)
+      : Cell[Long{self != 0}]                    // (F)
+      = new Cell[Long{self != 0}](1);            // (G)
    var instanceField
-      : Int {self != prop}                      // (H)
-      = (prop + 1) as Int{self != prop};        // (I)
+      : Long {self != prop}                      // (H)
+      = (prop + 1) as Long{self != prop};        // (I)
    def this(
-      a : Int{a != 0},
-      b : Int{b != a}                           // (J)
+      a : Long{a != 0},
+      b : Long{b != a}                           // (J)
       )
       {a != b}                                  // (K)
       : Example{self.prop == a && self.proq==b} // (L)
@@ -55,7 +55,7 @@ public class ObjectInitialization60 extends x10Test {
       super();                                  // (M)
       property(a,b,a);                          // (N)
       // fields initialized here
-      instanceField = b as Int{self != prop};   // (O)
+      instanceField = b as Long{self != prop};   // (O)
    }
 
    def someMethod() =

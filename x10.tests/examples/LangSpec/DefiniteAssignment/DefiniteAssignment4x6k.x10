@@ -28,7 +28,7 @@ public class DefiniteAssignment4x6k extends x10Test {
 
 // file DefiniteAssignment line 343
  static class C {
-  val f : Int;
+  val f : Long;
   val g : String;
   def this() {
      f = fless();

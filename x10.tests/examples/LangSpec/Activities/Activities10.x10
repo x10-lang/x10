@@ -29,7 +29,7 @@ public class Activities10 extends x10Test {
 // file Activities.tex,  line 17
 
  static class Activities1TestStmt{
-  def check(x:Int, var y:Int)  {
+  def check(x:Long, var y:Long)  {
     when(x==0);
   }}
 

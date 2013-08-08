@@ -26,10 +26,10 @@ public class Expressions140 extends x10Test {
     }
 
 
-// file Expressions line 1904
+// file Expressions line 1891
  static  class Example {
  def example() {
-val ints <: Rail[Int] = [1,3,7,21];
+val ints <: Rail[Long] = [1,3,7,21];
 }}
 
  static class Hook {

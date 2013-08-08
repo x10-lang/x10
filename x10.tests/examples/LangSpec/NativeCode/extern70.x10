@@ -28,10 +28,10 @@ public class extern70 extends x10Test {
 
 // file NativeCode line 160
  static class Born {
-  var y : Int = 1;
+  var y : Int = 1n;
   public def example(x:Int):Int{
     @Native("java", "y=x;")
-    {y = 3;}
+    {y = 3n;}
     return y;
   }
 }

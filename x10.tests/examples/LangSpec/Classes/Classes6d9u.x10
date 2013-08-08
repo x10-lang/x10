@@ -26,7 +26,7 @@ public class Classes6d9u extends x10Test {
     }
 
 
-// file Classes line 2497
+// file Classes line 2499
  static class Colorized[T] {
   private var thing:T;
   private var color:String;
@@ -37,10 +37,10 @@ public class Classes6d9u extends x10Test {
   public def thing():T = thing;
   public def color():String = color;
   public static def example() {
-    val colInt  : Colorized[Int]
-                = new Colorized[Int](3, "green");
-    assert colInt.thing() == 3
-                && colInt.color().equals("green");
+    val colLong  : Colorized[Long]
+                = new Colorized[Long](3, "green");
+    assert colLong.thing() == 3
+                && colLong.color().equals("green");
     val colTrue : Colorized[Boolean]
                 = new Colorized[Boolean](true, "blue");
     assert colTrue.thing()

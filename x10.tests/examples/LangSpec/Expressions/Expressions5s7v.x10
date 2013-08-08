@@ -28,12 +28,12 @@ public class Expressions5s7v extends x10Test {
 
 // file Expressions line 144
  static class Fielded {
-  public val a : Int = 1;
-  public val b : Int{this.a == b} = this.a;
+  public val a : Long = 1;
+  public val b : Long{this.a == b} = this.a;
   static def example() {
     val f : Fielded = new Fielded();
     assert f.a == 1 && f.b == 1;
-    val fb : Int{fb == f.a} = f.b;
+    val fb : Long{fb == f.a} = f.b;
     assert fb == 1;
   }
 }

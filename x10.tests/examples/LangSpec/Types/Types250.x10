@@ -30,7 +30,7 @@ public class Types250 extends x10Test {
 
  static class Types21TypeTest{
   def check(n:Long)  { 
-     var checkycheck : x10.regionarray.Array[Int]{self.rank==1 && self.size == n};  }}
+     var checkycheck : x10.regionarray.Array[Long]{self.rank==1 && self.size == n};  }}
 
  static class Hook {
    def run():Boolean = true;

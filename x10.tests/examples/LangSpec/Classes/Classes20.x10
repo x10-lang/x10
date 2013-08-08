@@ -32,7 +32,7 @@ public class Classes20 extends x10Test {
 }
  static class Sub extends Super {
   val f = true;
-  def superf() : Int = super.f; // 1
+  def superf() : Long = super.f; // 1
 }
  static  class Hook { def run() {
    val sub = new Sub();

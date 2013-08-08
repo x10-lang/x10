@@ -28,8 +28,8 @@ public class Expressions60_Bad35_MustFailCompile extends x10Test {
 
 // file Expressions line 349
 //OPTIONS: -STATIC_CHECKS
- static class DivideBy(denom:Int) {
-  def div(numer:Int){denom != 0} = numer / denom;
+ static class DivideBy(denom:Long) {
+  def div(numer:Long){denom != 0} = numer / denom;
   def example() {
      val thisCast = (this as DivideBy{self.denom != 0});
      thisCast.div(100);

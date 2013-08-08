@@ -29,7 +29,7 @@ public class Functions6p3q extends x10Test {
 // file Functions line 177
  static  class Whatever {
  var
- f : (a:Int{a!=0}, b:Int{b!=a}){b!=0} => Int{self != a}
+ f : (a:Long{a!=0}, b:Long{b!=a}){b!=0} => Long{self != a}
  = null;
 }
 

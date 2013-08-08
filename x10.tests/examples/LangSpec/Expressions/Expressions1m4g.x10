@@ -26,7 +26,7 @@ public class Expressions1m4g extends x10Test {
     }
 
 
-// file Expressions line 967
+// file Expressions line 954
 
  static class Expressions21TestExp{
   def check()  = 1 as Any == 1ul as Any;  }

@@ -29,13 +29,13 @@ public class Classes6a1j extends x10Test {
 // file Classes line 1723
  static  class Whatever {
 
-static  class Trace(n:Int){
+static  class Trace(n:Long){
   public static operator !(f:Trace)
       = new Trace(10 * f.n + 1);
   public operator -this = new Trace (10 * this.n + 2);
 }
 static  class Brace extends Trace{
-  def this(n:Int) { super(n); }
+  def this(n:Long) { super(n); }
   public operator -this = new Brace (10 * this.n + 3);
   static def example() {
      val t = new Trace(1);

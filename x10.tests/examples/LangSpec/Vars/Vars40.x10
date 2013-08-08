@@ -28,7 +28,7 @@ public class Vars40 extends x10Test {
 
 // file Vars line 183
  static class Example {
-  val n : Int; // not initialized here
+  val n : Long; // not initialized here
   def this() { n = 1; }
   def this(dummy:Boolean) { n = 2;}
 }

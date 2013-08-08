@@ -29,7 +29,7 @@ public class Overview70 extends x10Test {
 // file Overview line 310
 
  static class Overview7TestExp{
-  def check(n:Int)  = n as Int{self != 0};  }
+  def check(n:Long)  = n as Long{self != 0};  }
 
  static class Hook {
    def run():Boolean = true;

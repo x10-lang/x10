@@ -29,12 +29,12 @@ public class Types6s1l_Bad42_MustFailCompile extends x10Test {
 // file Types line 1416
 //OPTIONS: -STATIC_CHECKS
  static class Keyed {
-  private val k : Int;
-  public def this(k : Int) {
+  private val k : Long;
+  public def this(k : Long) {
     this.k = k;
   }
-  public def secret(q:Int){q==this.k} = 11;
-  public def key():Int{self==this.k} = this.k;
+  public def secret(q:Long){q==this.k} = 11;
+  public def key():Long{self==this.k} = this.k;
 }
  static class Snooper {
   public static def main(argv:Rail[String]) {

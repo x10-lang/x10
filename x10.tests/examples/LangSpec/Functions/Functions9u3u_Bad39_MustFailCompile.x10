@@ -30,12 +30,12 @@ public class Functions9u3u_Bad39_MustFailCompile extends x10Test {
 
  // OK, we want to do the negative tests, but they don't work properly.
  static  class Lambda {
-    var a : Int = 0;
+    var a : Long = 0;
     val b = 0;
-    def m(var c : Int, val d : Int) {
-       var e : Int = 0;
-       val f : Int = 0;
-       val closure = (var i: Int, val j: Int) => {
+    def m(var c : Long, val d : Long) {
+       var e : Long = 0;
+       val f : Long = 0;
+       val closure = (var i: Long, val j: Long) => {
      	  // return a + b + d + f + j + this.a + Lambda.this.a;
  return c; // ERR
            // ERROR: return e;

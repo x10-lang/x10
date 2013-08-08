@@ -31,11 +31,11 @@ abstract static  class VarsForStars{
  abstract def cointoss(): Boolean;
  abstract def println(Any):void;
 def check() {
-  var muta : Int;
+  var muta : Long;
   println(muta); // ERR
   muta = 4;
   val use2A = muta * 10;
-  val immu : Int;
+  val immu : Long;
   // ERROR: println(immu);
   if (cointoss())   {immu = 1;}
   else              {immu = use2A;}

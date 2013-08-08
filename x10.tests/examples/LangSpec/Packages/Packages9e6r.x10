@@ -31,7 +31,7 @@ public class Packages9e6r extends x10Test {
   static def m() = 1;
   static def m(Boolean) = 2;
   static def i() = 3;
-  static def m(i:Int) {
+  static def m(i:Long) {
     if (i > 10) {
       return i() + 1;
     }

@@ -28,8 +28,8 @@ public class DefiniteAssignment4u7z_Bad32_MustFailCompile extends x10Test {
 
 // file DefiniteAssignment line 24
  static  class Example {
-def example(a:Int, b:Int) {
-  val max:Int;
+def example(a:Long, b:Long) {
+  val max:Long;
  assert max==max; // can't read 'max' // ERR
   if (a > b) max = a;
   else max = b;

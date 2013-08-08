@@ -29,9 +29,9 @@ public class Types3i2f extends x10Test {
 // file Types line 1970
  static  class Example{
  static def example() {
-val id : (x:Int) => Int{self==x}
-       = (y:Int) => y;
-val ie : (z:Int) => Int{self==z}
+val id : (x:Long) => Long{self==x}
+       = (y:Long) => y;
+val ie : (z:Long) => Long{self==z}
        = id;
 } }
 

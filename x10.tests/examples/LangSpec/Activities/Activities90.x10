@@ -29,7 +29,7 @@ public class Activities90 extends x10Test {
 // file Activities line 383
  static  class Redund[T] {
    val list = new ArrayList[T]();
-   var size : Int = 0;
+   var size : Long = 0;
 def add(x:T) { // Incorrect
   this.list.add(x);
   this.size = this.size + 1;

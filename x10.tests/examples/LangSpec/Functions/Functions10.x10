@@ -29,9 +29,9 @@ public class Functions10 extends x10Test {
 // file Functions line 37
  static  class Examplllll {
  static
-val sq: (Int) => Int
-      = (n:Int) => {
-           var s : Int = 0;
+val sq: (Long) => Long
+      = (n:Long) => {
+           var s : Long = 0;
            val abs_n = n < 0 ? -n : n;
            for (i in 1..abs_n) s += abs_n;
            s

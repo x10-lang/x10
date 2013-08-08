@@ -27,8 +27,8 @@ public class Types350 extends x10Test {
 
 
 // file Types line 1266
- static  struct Position(x: Int, y: Int) {
-    def this(x:Int,y:Int){property(x,y);}
+ static  struct Position(x: Long, y: Long) {
+    def this(x:Long,y:Long){property(x,y);}
     }
  static  class Line(start: Position,
             end: Position{self != start}) {}

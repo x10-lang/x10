@@ -27,9 +27,9 @@ public class Classes1v9a extends x10Test {
 
 
 // file Classes line 1337
- static class Ret(n:Int) {
+ static class Ret(n:Long) {
    def this()    { property(1); }     // (A)
-   def this(n:Int) : Ret{n==self.n} { // (B)
+   def this(n:Long) : Ret{n==self.n} { // (B)
       property(n);
    }
    static def typeIs[T](x:T){}

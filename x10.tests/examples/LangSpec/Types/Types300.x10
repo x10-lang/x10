@@ -27,7 +27,7 @@ public class Types300 extends x10Test {
 
 
 // file Types line 1137
- static class Matrix(rows:Int,cols:Int){}
+ static class Matrix(rows:Long,cols:Long){}
  static class Types26TypeTest{
   def check()  { 
      var checkycheck : Matrix{self.rows == self.cols};  }}

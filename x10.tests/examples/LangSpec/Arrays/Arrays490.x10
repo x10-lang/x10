@@ -28,9 +28,9 @@ public class Arrays490 extends x10Test {
 
 // file Arrays line 776
  static  class Example{
-static def add(da:DistArray[Int], db: DistArray[Int])
+static def add(da:DistArray[Long], db: DistArray[Long])
     {da.dist==db.dist}
-    = da.map(db, (a:Int,b:Int)=>a+b);
+    = da.map(db, (a:Long,b:Long)=>a+b);
 }
 
  static class Hook {

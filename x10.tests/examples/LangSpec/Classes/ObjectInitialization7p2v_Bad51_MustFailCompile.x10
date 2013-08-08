@@ -26,28 +26,28 @@ public class ObjectInitialization7p2v_Bad51_MustFailCompile extends x10Test {
     }
 
 
-// file Classes line 2863
+// file Classes line 2865
  static class UseNoThisAccess {
   static  class IDed {
-    protected static val counts = [0 as Int,0];
-    protected var code : Int;
+    protected static val counts = [0 as Long,0];
+    protected var code : Long;
     val id: Float;
-    public def this(kind:Int) {
+    public def this(kind:Long) {
       code = kind;
       this.id = this.count(kind);
     }
-    protected static def kind2count(kind:Int) = ++counts(kind % 2);
-    @NoThisAccess def count(kind:Int) : Float = kind2count(kind);
+    protected static def kind2count(kind:Long) = ++counts(kind % 2);
+    @NoThisAccess def count(kind:Long) : Float = kind2count(kind);
   }
   static  class SubIDed extends IDed {
-    protected static val subcounts = [0 as Int, 0, 0];
+    protected static val subcounts = [0 as Long, 0, 0];
     public static val all = new x10.util.ArrayList[SubIDed]();
-    public def this(kind:Int) {
+    public def this(kind:Long) {
        super(kind);
     }
     @NoThisAccess
-    def count(kind:Int) : Float {
-       val subcount <: Int = ++subcounts(kind % 3);
+    def count(kind:Long) : Float {
+       val subcount <: Long = ++subcounts(kind % 3);
        val supercount <: Float = kind2count(kind);
  val badSuperCount = super.count(kind); //(A) // ERR
        //ERROR: code = kind;                           //(B)

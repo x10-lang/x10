@@ -31,14 +31,14 @@ public class Types130 extends x10Test {
   def name():String;
 }
  static interface Mobile {
-  def where():Int;
-  def move(howFar:Int):void;
+  def where():Long;
+  def move(howFar:Long):void;
 }
  static interface NamedPoint extends Named, Mobile {}
  static class Person implements Named, Mobile {
-   var name:String; var pos: Int;
+   var name:String; var pos: Long;
    public def name() = this.name;
-   public def move(howFar:Int) { pos += howFar; }
+   public def move(howFar:Long) { pos += howFar; }
    public def where() = this.pos;
    public def example(putAt:Mobile) {
       this.pos = putAt.where();

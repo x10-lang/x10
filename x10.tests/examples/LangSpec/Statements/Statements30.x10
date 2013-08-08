@@ -28,7 +28,7 @@ public class Statements30 extends x10Test {
 
 // file Statements line 220
  static  class Example {
- def example(b:Boolean, S1:(Int)=>void, S2:(Int)=>void ) {
+ def example(b:Boolean, S1:(Long)=>void, S2:(Long)=>void ) {
 if (b) {
   // This is a block
   val v = 1;

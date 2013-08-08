@@ -27,14 +27,14 @@ public class Overview40 extends x10Test {
 
 
 // file Overview line 167
-abstract static  class Mat(rows:Int, cols:Int) {
- static type Mat(r:Int, c:Int) = Mat{rows==r&&cols==c};
+abstract static  class Mat(rows:Long, cols:Long) {
+ static type Mat(r:Long, c:Long) = Mat{rows==r&&cols==c};
  abstract operator this + (y:Mat(this.rows,this.cols))
                  :Mat(this.rows, this.cols);
  abstract operator this * (y:Mat) {this.cols == y.rows}
                  :Mat(this.rows, y.cols);
-  static def makeMat(r:Int,c:Int) : Mat(r,c) = null;
-  static def example(a:Int, b:Int, c:Int) {
+  static def makeMat(r:Long,c:Long) : Mat(r,c) = null;
+  static def example(a:Long, b:Long, c:Long) {
     val axb1 : Mat(a,b) = makeMat(a,b);
     val axb2 : Mat(a,b) = makeMat(a,b);
     val bxc  : Mat(b,c) = makeMat(b,c);

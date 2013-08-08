@@ -27,8 +27,8 @@ public class Classes50 extends x10Test {
 
 
 // file Classes line 340
- static class Proper(t:Int) {
-  def this(t:Int) {property(t);}
+ static class Proper(t:Long) {
+  def this(t:Long) {property(t);}
 }
  static  class Hook{ def run() {
    val p = new Proper(4);

@@ -27,7 +27,7 @@ public class ClassesCtor20 extends x10Test {
 
 
 // file Classes line 1240
- static class C(x:Int) {
+ static class C(x:Long) {
   static def example() {
     val c : C = new C(4);
     assert c.x == 4;

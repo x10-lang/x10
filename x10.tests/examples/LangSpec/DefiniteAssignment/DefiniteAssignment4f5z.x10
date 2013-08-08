@@ -30,7 +30,7 @@ public class DefiniteAssignment4f5z extends x10Test {
  static  class Example {
 
 def example(flag : Boolean) {
-  var x : Int;
+  var x : Long;
   if (flag) x = 1;
   // x is neither def. assigned nor unassigned.
   x = 2;

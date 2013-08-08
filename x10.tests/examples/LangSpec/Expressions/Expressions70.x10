@@ -29,8 +29,8 @@ public class Expressions70 extends x10Test {
 // file Expressions line 429
  static  class Example {
  static def exasmple() {
-  var x : Int;
-  val y : Int;
+  var x : Long;
+  val y : Long;
   x = 1;
   y = 2; // Correct; initializes y
   x = 3;

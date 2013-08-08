@@ -27,7 +27,7 @@ public class Structs3q6l extends x10Test {
 
 
 // file Structs line 187
- static struct Horse(x:Int){
+ static struct Horse(x:Long){
   static def example(){
     val aa : Rail[Any] = ["a String" as Any, "another one"];
     aa(0) = Horse(8);

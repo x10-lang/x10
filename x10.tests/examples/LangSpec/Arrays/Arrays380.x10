@@ -28,7 +28,7 @@ public class Arrays380 extends x10Test {
 
 // file Arrays line 640
  static class Arrays50TestExp{
-  def check(a:Array[Int](3), p:Point(3))  = a(p);  }
+  def check(a:Array[Long](3), p:Point(3))  = a(p);  }
 
  static class Hook {
    def run():Boolean = true;

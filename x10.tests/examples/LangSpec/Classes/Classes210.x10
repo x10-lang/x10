@@ -44,8 +44,10 @@ public class Classes210 extends x10Test {
    def makeSureItWorks() {
       val x = new Poly([0L,1L]);
       val p <: Poly = x+x+x;
-      val q <: Poly = 1+x;
-      val r <: Poly = x+1;
+      val q <: Poly = 1n+x;
+      val r <: Poly = x+1n;
+      val s <: Poly = 1+x;
+      val t <: Poly = x+1;
    }
 
  }

@@ -26,14 +26,14 @@ public class ObjectInitialization20 extends x10Test {
     }
 
 
-// file Classes line 2937
- static class Overlord(x:Int) {
-  def this(x:Int) { property(x); }
+// file Classes line 2939
+ static class Overlord(x:Long) {
+  def this(x:Long) { property(x); }
 }//Overlord
- static class Overdone(y:Int) extends Overlord  {
-  val a : Int;
+ static class Overdone(y:Long) extends Overlord  {
+  val a : Long;
   val b =  y * 9000;
-  def this(r:Int) {
+  def this(r:Long) {
     super(r);                      // (1)
     x10.io.Console.OUT.println(r); // (2)
     val rp1 = r+1;

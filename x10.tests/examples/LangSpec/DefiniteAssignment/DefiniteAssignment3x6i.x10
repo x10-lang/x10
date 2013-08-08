@@ -29,7 +29,7 @@ public class DefiniteAssignment3x6i extends x10Test {
 // file DefiniteAssignment line 105
  static  class Example{
 def example(flag:Boolean) {
-  var x : Int;
+  var x : Long;
   if (flag) x = 1;
   if (!flag) x = 2;
   // ERROR: assert x < 3;

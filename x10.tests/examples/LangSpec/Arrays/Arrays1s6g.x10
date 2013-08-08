@@ -28,7 +28,7 @@ public class Arrays1s6g extends x10Test {
 
 // file Arrays line 581
  static class Arrays48TestExp{
-  def check(N:Int)  = Dist.makeConstant(Region.make(0, N-1),here);  }
+  def check(N:Long)  = Dist.makeConstant(Region.make(0, N-1),here);  }
 
  static class Hook {
    def run():Boolean = true;

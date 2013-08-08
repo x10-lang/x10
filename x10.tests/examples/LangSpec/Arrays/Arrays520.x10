@@ -29,8 +29,8 @@ public class Arrays520 extends x10Test {
 // file Arrays line 826
  static  class Example {
  static def example() {
-val a = new Array[Int](4, (i:long)=>(i+1) as Int);
-val sum = a.reduce((a:Int,b:Int)=>a+b, 0);
+val a = new Array[Long](4, (i:long)=>i+1);
+val sum = a.reduce((a:Long,b:Long)=>a+b, 0);
 assert(sum == 10); // 10 == 1+2+3+4
 }}
  static  class Hook{ def run() {Example.example(); return true;}}

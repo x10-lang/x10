@@ -28,7 +28,7 @@ public class Arrays3x4j extends x10Test {
 
 // file Arrays line 132
  static class Arrays5TestExp{
-  def check(n:Int)  = Region.makeFull(n);  }
+  def check(n:Long)  = Region.makeFull(n);  }
 
  static class Hook {
    def run():Boolean = true;

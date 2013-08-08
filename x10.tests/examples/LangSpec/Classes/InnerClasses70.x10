@@ -26,7 +26,7 @@ public class InnerClasses70 extends x10Test {
     }
 
 
-// file Classes line 4118
+// file Classes line 4120
 abstract static  class Choice(name: String) {
   def this(name:String) {property(name);}
   def choose(b:Boolean) {
@@ -37,7 +37,7 @@ abstract static  class Choice(name: String) {
 
  static class Example {
   static def main(Rail[String]) {
-    val n = new Cell[Int](0);
+    val n = new Cell[Long](0);
     val c = new Choice("Inc Or Dec") {
       def yes() { n() += 1; }
       def no()  { n() -= 1; }

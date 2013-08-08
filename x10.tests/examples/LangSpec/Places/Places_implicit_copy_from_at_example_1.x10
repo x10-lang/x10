@@ -26,11 +26,11 @@ public class Places_implicit_copy_from_at_example_1 extends x10Test {
     }
 
 
-// file Places line 744
+// file Places line 743
  static  class Example {
  static def example() {
 
-val c = new Cell[Int](9); // (1)
+val c = new Cell[Long](9); // (1)
 at (here) {               // (2)
    assert(c() == 9);      // (3)
    c.set(8);              // (4)

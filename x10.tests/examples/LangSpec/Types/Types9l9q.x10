@@ -28,7 +28,7 @@ public class Types9l9q extends x10Test {
 
 // file Types line 1490
  static  class Example {
- static class Thing(p:Int){}
+ static class Thing(p:Long){}
 static def example(){
    var x : Thing{x.p==3} = null;
 }

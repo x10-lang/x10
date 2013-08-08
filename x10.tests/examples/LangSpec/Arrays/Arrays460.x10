@@ -29,9 +29,9 @@ public class Arrays460 extends x10Test {
 // file Arrays line 708
  static class Example{
 static def example() {
-val A = new Array[Int](11, (i:long)=>i as Int);
+val A = new Array[Long](11, (i:long)=>i);
 assert A(3) == 3 && A(4) == 4 && A(10) == 10;
-val cube = (i:Int) => i*i*i;
+val cube = (i:Long) => i*i*i;
 val B = A.map(cube);
 assert B(3) == 27 && B(4) == 64 && B(10) == 1000;
 } }

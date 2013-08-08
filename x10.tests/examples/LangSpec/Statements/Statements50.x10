@@ -28,7 +28,7 @@ public class Statements50 extends x10Test {
 
 // file Statements line 312
  static  class Example {
- def example(a:(Int,Int) => Int, do_things_to:(Int)=>Int) {
+ def example(a:(Long,Long) => Long, do_things_to:(Long)=>Long) {
 lbl : for (i in 1..10) {
    for (j in i..10) {
       if (a(i,j) == 0) break lbl;

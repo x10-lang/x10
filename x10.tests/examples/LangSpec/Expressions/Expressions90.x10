@@ -30,7 +30,7 @@ public class Expressions90 extends x10Test {
  static  class ExampleOfConversionAndStuff {
  def example() {
 val n : Byte = 123 as Byte; // explicit
-val f : (Int)=>Boolean = (Int) => true;
+val f : (Long)=>Boolean = (Long) => true;
 val ok = f(n); // implicit
  } }
 

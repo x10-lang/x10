@@ -28,7 +28,7 @@ public class Arrays140 extends x10Test {
 
 // file Arrays line 265
  static  class Example{
-static def addInto(src: Array[Int], dest:Array[Int])
+static def addInto(src: Array[Long], dest:Array[Long])
   {src.region == dest.region}
   = {
     for (p in src.region)
@@ -37,8 +37,8 @@ static def addInto(src: Array[Int], dest:Array[Int])
 }
  static  class Hook{
    def run() {
-     val a = new Array[Int](3, [1,2,3]);
-     val b = new Array[Int](a.region, (p:Point(1)) => 10*a(p) );
+     val a = new Array[Long](3, [1,2,3]);
+     val b = new Array[Long](a.region, (p:Point(1)) => 10*a(p) );
      Example.addInto(a, b);
      return b(0) == 11 && b(1) == 22 && b(2) == 33;
  }}

@@ -34,8 +34,8 @@ public class Functions60 extends x10Test {
   absent
 }
  static def checkery() {
-xs: List[Int] = new ArrayList[Int]();
-x: Int = find((x: Int) => x>0, xs, 0);
+xs: List[Long] = new ArrayList[Long]();
+x: Long = find((x: Long) => x>0, xs, 0);
 }}
 
  static class Hook {

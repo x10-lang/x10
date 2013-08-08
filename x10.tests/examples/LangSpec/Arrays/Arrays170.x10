@@ -28,7 +28,7 @@ public class Arrays170 extends x10Test {
 
 // file Arrays line 321
  static class Arrays26TestExp{
-  def check(a:Array[Int])  = a.region;  }
+  def check(a:Array[Long])  = a.region;  }
 
  static class Hook {
    def run():Boolean = true;

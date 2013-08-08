@@ -28,7 +28,7 @@ public class Arrays150 extends x10Test {
 
 // file Arrays line 296
  static class Arrays24TestExp{
-  def check(A:Array[Int], p:Point{self.rank == A.region.rank})  = A(p);  }
+  def check(A:Array[Long], p:Point{self.rank == A.region.rank})  = A(p);  }
 
  static class Hook {
    def run():Boolean = true;

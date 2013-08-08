@@ -40,13 +40,13 @@ public class Structs30 extends x10Test {
  static class Example {
   static def divmod(var a:UInt, b:UInt): Pair[UInt, UInt] {
      assert b > 0u;
-     var q : UInt = 0u;
-     while (a > b) {q += 1u; a -= b;}
+     var q : UInt = 0un;
+     while (a > b) {q += 1un; a -= b;}
      return Pair(q, a);
   }
   static def example() {
-     val qr = divmod(22u, 7u);
-     assert qr.first == 3u && qr.second == 1u;
+     val qr = divmod(22un, 7un);
+     assert qr.first == 3un && qr.second == 1un;
   }
 }
  static class Hook{ def run() { Example.example(); return true; } }

@@ -28,7 +28,7 @@ public class Arrays400 extends x10Test {
 
 // file Arrays.tex,  line 648
  static class Arrays52TestStmt{
-  def check(a:Array[Int](3), p:Point(3), t:Int)  {
+  def check(a:Array[Long](3), p:Point(3), t:Long)  {
     a(p)=t;
   }}
 

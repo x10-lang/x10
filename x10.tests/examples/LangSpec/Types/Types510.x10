@@ -27,9 +27,9 @@ public class Types510 extends x10Test {
 
 
 // file Types line 2532
- static class Spot(x:Int) {
+ static class Spot(x:Long) {
   def this() {property(0);}
-  def this(xx: Int) { property(xx); }
+  def this(xx: Long) { property(xx); }
 }
  static class Confirm{
  static val s0 : Spot{x==0} = new Spot();

@@ -29,7 +29,7 @@ public class DefiniteAssignment4x1u extends x10Test {
 // file DefiniteAssignment line 10
  static  class Example {
  def example() {
-  var x : Int = 0;
+  var x : Long = 0;
   assert x == 0;
 }}
 

@@ -29,7 +29,7 @@ public class Activities120 extends x10Test {
 // file Activities line 523
  static  class Redund[T] {
  val list = new ArrayList[T]();
- var size : Int = 0;
+ var size : Long = 0;
 def pop():T {
   var ret : T;
   when(size>0) {

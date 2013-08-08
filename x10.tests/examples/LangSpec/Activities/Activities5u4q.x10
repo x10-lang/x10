@@ -29,7 +29,7 @@ public class Activities5u4q extends x10Test {
 // file Activities line 731
  static  class Example {
  def example() {
-var n : Int = 0;
+var n : Long = 0;
 finish {
   // LEGAL BUT UNWISE
   async n = n + 1;          //(a)

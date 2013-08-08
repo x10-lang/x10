@@ -26,14 +26,14 @@ public class Expressions170 extends x10Test {
     }
 
 
-// file Expressions line 1939
+// file Expressions line 1926
  static class Eel{}
  static class Example{
 def example(){
-val zero <: Rail[Int{self == 0}]
+val zero <: Rail[Long{self == 0}]
           = [0];
-val non1 <: Rail[Int{self != 1}]
-          = [0 as Int{self != 1}];
+val non1 <: Rail[Long{self != 1}]
+          = [0 as Long{self != 1}];
 val eels <: Rail[Eel{self != null}]
           = [new Eel() as Eel{self != null},
              new Eel(), new Eel()];

@@ -28,13 +28,13 @@ public class Structs40 extends x10Test {
 
 // file Structs line 420
  static class Class2Struct {
-  val a : Int;
-  def this(a:Int) { this.a = a; }
+  val a : Long;
+  def this(a:Long) { this.a = a; }
   def m() = a;
 }
  static struct Struct2Class {
-  val a : Int;
-  def this(a:Int) { this.a = a; }
+  val a : Long;
+  def this(a:Long) { this.a = a; }
   def m() = a;
 }
 

@@ -30,8 +30,8 @@ public class ClassCtor30_MustFailCompile extends x10Test {
 
  
 // THIS CODE DOES NOT COMPILE
- static class Cfail(x:Int) {
-  val d: Int;
+ static class Cfail(x:Long) {
+  val d: Long;
   static def example() {
     val wrong = new Cfail(40);
   }

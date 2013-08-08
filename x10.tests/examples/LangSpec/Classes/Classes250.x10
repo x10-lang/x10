@@ -26,19 +26,19 @@ public class Classes250 extends x10Test {
     }
 
 
-// file Classes line 2183
+// file Classes line 2185
  static class Oddvec {
-  var v : Rail[Int] = new Rail[Int](3);
+  var v : Rail[Long] = new Rail[Long](3);
   public operator this () =
       "(" + v(0) + "," + v(1) + "," + v(2) + ")";
-  public operator this () = (newval: Int) {
+  public operator this () = (newval: Long) {
     for(p in v.range) v(p) = newval;
   }
-  public operator this(i:Int) = v(i);
-  public operator this(i:Int, j:Int) = [v(i),v(j)];
-  public operator this(i:Int) = (newval:Int)
+  public operator this(i:Long) = v(i);
+  public operator this(i:Long, j:Long) = [v(i),v(j)];
+  public operator this(i:Long) = (newval:Long)
       = {v(i) = newval;}
-  public operator this(i:Int, j:Int) = (newval:Int)
+  public operator this(i:Long, j:Long) = (newval:Long)
       = { v(i) = newval; v(j) = newval+1;}
   public def example() {
     this(1) = 6;   assert this(1) == 6;

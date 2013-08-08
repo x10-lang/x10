@@ -26,7 +26,7 @@ public class Expressions7f1h extends x10Test {
     }
 
 
-// file Expressions line 1409
+// file Expressions line 1396
  static  class Person{}
  static  class Child extends Person {}
  static class Example {

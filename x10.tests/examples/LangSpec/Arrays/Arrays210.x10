@@ -28,7 +28,7 @@ public class Arrays210 extends x10Test {
 
 // file Arrays line 349
  static class Arrays30TestExp{
-  def check()  = new Array[Int](3, (i:long)=>(11*i) as Int);  }
+  def check()  = new Array[Long](3, (i:long)=>11*i);  }
 
  static class Hook {
    def run():Boolean = true;

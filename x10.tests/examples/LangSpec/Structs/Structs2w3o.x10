@@ -27,8 +27,8 @@ public class Structs2w3o extends x10Test {
 
 
 // file Structs line 102
- static struct Ambig(x:Int) {
-  static def Ambig(x:Int) = "ambiguity please";
+ static struct Ambig(x:Long) {
+  static def Ambig(x:Long) = "ambiguity please";
   static def example() {
     val useMethod      = Ambig(1);
     val useConstructor = new Ambig(2);

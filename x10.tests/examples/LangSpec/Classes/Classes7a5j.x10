@@ -30,12 +30,12 @@ public class Classes7a5j extends x10Test {
  // If example4() compiles, then the limitation in Classes7a5j's section is
  // gone, so delete the whole subsection from the spec.
  static class Cls {
-  property concrete(a:Int) = 7;
+  property concrete(a:Long) = 7;
 }
  static interface Inf {
-  property nullary(): Int;
-  property topLevel(z:Int):Boolean;
-  property allThree(z:Int):Int;
+  property nullary(): Long;
+  property topLevel(z:Long):Boolean;
+  property allThree(z:Long):Long;
 }
  static class Example{
   def example1(Cls{self.concrete(3)==7}) = 1;

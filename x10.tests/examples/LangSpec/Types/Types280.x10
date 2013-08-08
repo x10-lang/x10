@@ -29,7 +29,7 @@ public class Types280 extends x10Test {
 // file Types line 1048
  static  class TypeDefNonGenerative {
 def someTypeDefs () {
-  type A = Int;
+  type A = Long;
   type B = String;
   type C = String;
   a: A = 3;

@@ -29,8 +29,8 @@ public class Types210 extends x10Test {
 // file Types line 756
  static class NonGeneric {
   static def first[T](x:List[T]):T = x(0);
-  def m(z:List[Int]) {
-    val f = first[Int](z);
+  def m(z:List[Long]) {
+    val f = first[Long](z);
     val g = first(z);
     return f == g;
   }

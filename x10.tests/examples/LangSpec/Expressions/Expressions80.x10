@@ -28,7 +28,7 @@ public class Expressions80 extends x10Test {
 
 // file Expressions line 482
  static  class Example {
- def example(A:()=>Rail[Int], I: () => Int, B: () => Int ) {
+ def example(A:()=>Rail[Long], I: () => Long, B: () => Long ) {
 {
   // The order of these evaluations is not specified
   val aa = A();  // Evaluate A() once

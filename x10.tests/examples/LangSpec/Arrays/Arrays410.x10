@@ -28,7 +28,7 @@ public class Arrays410 extends x10Test {
 
 // file Arrays.tex,  line 651
  static class Arrays53TestStmt{
-  def check(da:DistArray[Int](3), p:Point(3), t:Int)  {
+  def check(da:DistArray[Long](3), p:Point(3), t:Long)  {
     da(p)=t;
   }}
 

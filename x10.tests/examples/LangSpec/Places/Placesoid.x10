@@ -1,4 +1,4 @@
-/* Current test harness gets confused by packages, but it would be in package expsome_Places5;
+/* Current test harness gets confused by packages, but it would be in package expsome_Places4;
 */
 // Warning: This file is auto-generated from the TeX source of the language spec.
 // If you need it changed, work with the specification writers.
@@ -26,9 +26,9 @@ public class Placesoid extends x10Test {
     }
 
 
-// file Places line 56
+// file Places line 55
 
- static class Places5TestExp{
+ static class Places4TestExp{
   def check(pl:Place)  = pl.isCUDA();  }
 
  static class Hook {

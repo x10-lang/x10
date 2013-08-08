@@ -28,7 +28,7 @@ public class Arrays3l7z extends x10Test {
 
 // file Arrays line 139
  static class Arrays7TestExp{
-  def check(normal:Point, k:Int)  = Region.makeHalfspace(normal, k);  }
+  def check(normal:Point, k:Long)  = Region.makeHalfspace(normal, k);  }
 
  static class Hook {
    def run():Boolean = true;

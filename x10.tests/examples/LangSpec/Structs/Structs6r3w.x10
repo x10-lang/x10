@@ -30,7 +30,7 @@ public class Structs6r3w extends x10Test {
 
  static class StructDefault {
   static  struct Example {
-    val i : Int;
+    val i : Long;
     def this() { i = 1; }
   }
   var ex : Example;

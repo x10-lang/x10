@@ -30,7 +30,7 @@ public class Types290 extends x10Test {
 
  static class Types25TypeTest{
   def check()  { 
-     var checkycheck : Int{self != 0};  }}
+     var checkycheck : Long{self != 0};  }}
 
  static class Hook {
    def run():Boolean = true;

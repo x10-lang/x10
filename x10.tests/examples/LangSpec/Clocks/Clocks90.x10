@@ -28,7 +28,7 @@ public class Clocks90 extends x10Test {
 
 // file Clocks line 391
  static class Example{
-static def phase(String, Int) {}
+static def phase(String, Long) {}
 def example() {
 clocked finish {
   clocked async {

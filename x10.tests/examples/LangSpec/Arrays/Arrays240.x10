@@ -29,9 +29,9 @@ public class Arrays240 extends x10Test {
 // file Arrays line 372
  static class Example{
 static def example(){
-val A1 = new Array[Int](10, 0);
+val A1 = new Array[Long](10, 0);
 A1(4) = A1(4) + 1;
-val A4 = new Array[Int](Region.make(1..2, 1..3, 1..4, 1..5), 0);
+val A4 = new Array[Long](Region.make(1..2, 1..3, 1..4, 1..5), 0);
 A4(2,3,4,5) = A4(1,1,1,1)+1;
  assert A1(4) == 1 && A4(2,3,4,5) == 1;
 }}

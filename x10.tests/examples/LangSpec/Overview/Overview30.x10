@@ -29,8 +29,8 @@ public class Overview30 extends x10Test {
 // file Overview line 136
  static  class Whatevermore {
   def plzchk(){
-    val square = (i:Long) => ((i*i) as Int);
-  val r : Rail[Int] = new Rail[Int](10, square);
+    val square = (i:Long) => (i*i);
+  val r : Rail[Long] = new Rail[Long](10, square);
 }}
 
  static class Hook {

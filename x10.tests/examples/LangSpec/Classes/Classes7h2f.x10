@@ -27,11 +27,11 @@ public class Classes7h2f extends x10Test {
 
 
 // file Classes line 397
- static class Proper(a:Int, b:String) {
-  def this(a:Int, b:String) {
+ static class Proper(a:Long, b:String) {
+  def this(a:Long, b:String) {
       property(a, b);
   }
-  def this(z:Int) {
+  def this(z:Long) {
       val theA = z+5;
       val theB = "X"+z;
       property(theA, theB);

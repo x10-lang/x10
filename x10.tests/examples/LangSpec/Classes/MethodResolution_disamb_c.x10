@@ -26,10 +26,10 @@ public class MethodResolution_disamb_c extends x10Test {
     }
 
 
-// file Classes line 3770
+// file Classes line 3772
 
  static class Disambig {
-  public val f : (Int)=>Int =  (x:Int) => x*x;
+  public val f : (Long)=>Long =  (x:Long) => x*x;
   public def f(y:int) = y+1;
   public def example() {
       assert(  this.f(10)  == 11  );

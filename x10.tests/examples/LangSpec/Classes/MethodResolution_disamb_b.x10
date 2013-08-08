@@ -26,10 +26,10 @@ public class MethodResolution_disamb_b extends x10Test {
     }
 
 
-// file Classes line 3743
+// file Classes line 3745
 
  static class Ambig {
-  public val f : (Int)=>Int =  (x:Int) => x*x;
+  public val f : (Long)=>Long =  (x:Long) => x*x;
   public def f(y:int) = y+1;
   public def example() {
       val v = this.f(10);

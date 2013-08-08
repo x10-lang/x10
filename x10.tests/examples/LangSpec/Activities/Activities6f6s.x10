@@ -28,7 +28,7 @@ public class Activities6f6s extends x10Test {
 
 // file Activities line 308
  static  class Example { static def example() {
-var result : Int = 0;
+var result : Long = 0;
 finish {
   async result = 1;
 }

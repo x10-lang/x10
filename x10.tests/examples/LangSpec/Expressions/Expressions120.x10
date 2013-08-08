@@ -26,10 +26,10 @@ public class Expressions120 extends x10Test {
     }
 
 
-// file Expressions line 1725
+// file Expressions line 1712
 
  static class Expressions42TestExp{
-  def check(x:Int)  = 3 instanceof Int{self==x};  }
+  def check(x:Long)  = 3 instanceof Long{self==x};  }
 
  static class Hook {
    def run():Boolean = true;
