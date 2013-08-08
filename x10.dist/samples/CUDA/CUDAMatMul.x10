@@ -8,18 +8,18 @@ public class CUDAMatMul {
     //
     //  auxiliary routines
     //  
-    static def fill (A:Rail[Float], n:Long, maxi:Int)
+    static def fill (A:Rail[Float], N:Long, maxi:Int)
     {
         val r = new Random();
-        for(j in 0..(n-1))
-            A(j) = (r.nextInt(maxi*2) - maxi) / (maxi + 1.0f);
+        for(j in 0n..(N-1n))
+            A(j) = (r.nextInt(maxi*2N) - maxi) / (maxi + 1.0f);
     }
 
     static def diff (m:Int, n:Int, A:Rail[Float], lda:Int, B:Rail[Float], ldb:Int )
     {
         var err:Float = 0;
-        for(j in 0..(n-1))
-            for(i in 0..(m-1))
+        for(j in 0n..(n-1n))
+            for(i in 0n..(m-1n))
                 err = Math.max( err, Math.abs( A(i+j*lda) - B(i+j*ldb) ) );
         return err;
     }
@@ -40,14 +40,14 @@ public class CUDAMatMul {
             assert (k%16) == 0 && k > 0 : "unsupported shared dimension in ourSgemm( 'N', 'N', ... )";
             //sgemmNN<<<grid, threads>>>( A, lda, B, ldb, C, ldc, k, alpha, beta );
             finish async at (gpu) @CUDA @CUDADirectParams {
-                finish for (block in 0..(((m*n)/64/16)-1)) async {
+                finish for (block in 0n..(((m*n)/64n/16n)-1n)) async {
                     val bs = new Rail[Float](16*17, 0);
-                    clocked finish for (thread in 0..63) clocked async {
-                        val inx = thread % 16;
-                        val iny = thread / 16;
-                        val ibx = (block%(m/64)) * 64;
-                        val iby = (block/(m/64)) * 16;
-                        val id = inx + iny*16;
+                    clocked finish for (thread in 0n..63n) clocked async {
+                        val inx = thread % 16n;
+                        val iny = thread / 16n;
+                        val ibx = (block%(m/64n)) * 64n;
+                        val iby = (block/(m/64n)) * 16n;
+                        val id = inx + iny*16n;
 
                         var A_idx:Int = ibx + id;
                         var B_idx:Int = inx + ( iby + iny) * ( ldb );
@@ -61,14 +61,14 @@ public class CUDAMatMul {
                         {
                             Clock.advanceAll();
 
-                            @Unroll(4) for (i in 0..(4-1)) {
+                            @Unroll(4n) for (i in 0..(4-1)) {
                                 bs(inx*17+iny+4*i) = B(B_idx + (4*i)*ldb);
                             }
 
                             Clock.advanceAll();
 
-                            @Unroll(16)for (i in 0..(16-1)) {
-                                @Unroll(16) for (j in 0..(16-1)) {
+                            @Unroll(16n)for (i in 0..(16-1)) {
+                                @Unroll(16n) for (j in 0..(16-1)) {
                                     c(j) = c(j) + A(A_idx + i*lda) * bs(i*17 + j);
                                 }
                             }
@@ -80,7 +80,7 @@ public class CUDAMatMul {
 
                         } while( B_idx < Blast_idx );
 
-                        @Unroll(16) for (i in 0..(16-1)) {
+                        @Unroll(16n) for (i in 0..(16-1)) {
                             C(C_idx + i*ldc) = alpha*c(i) + beta*C(C_idx + i*ldc);
                         }
                     }
@@ -118,9 +118,9 @@ public class CUDAMatMul {
         val B = new Rail[Float](N*N);
         val C = new Rail[Float](N*N);
 
-        fill( A, N*N, 31 );
-        fill( B, N*N, 31 );
-        fill( C, N*N, 31 );
+        fill( A, N*N, 31n );
+        fill( B, N*N, 31n );
+        fill( C, N*N, 31n );
 
         finish {
             Rail.asyncCopy(A, 0l, dA, 0l, N*N);

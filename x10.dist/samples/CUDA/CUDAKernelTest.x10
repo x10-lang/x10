@@ -22,8 +22,8 @@ public class CUDAKernelTest {
         val remote : GlobalRail[Float]{self.home() == p} = CUDAUtilities.makeGlobalRail[Float](p, len); // allocate 
 
         finish async at (p) @CUDA {
-            finish for (block in 0..7) async {
-                clocked finish for (thread in 0..63) clocked async {
+            finish for (block in 0n..7n) async {
+                clocked finish for (thread in 0n..63n) clocked async {
                     val tid = block*64 + thread;
                     val tids = 8*64;
                     for (var i:Long=tid ; i<len ; i+=tids) {
@@ -54,8 +54,8 @@ public class CUDAKernelTest {
         val remote : GlobalRail[Double]{self.home() == p} = CUDAUtilities.makeGlobalRail[Double](p, len); // allocate 
 
         finish async at (p) @CUDA {
-            finish for (block in 0..7) async {
-                clocked finish for (thread in 0..63) clocked async {
+            finish for (block in 0n..7n) async {
+                clocked finish for (thread in 0n..63n) clocked async {
                     val tid = block*64 + thread;
                     val tids = 8*64;
                     for (var i:Long=tid ; i<len ; i+=tids) {
@@ -91,12 +91,12 @@ public class CUDAKernelTest {
         val arr2 = new Rail[Int](64);
 
         finish async at (p) @CUDA @CUDADirectParams {
-            finish for (block in 0..1) async {
+            finish for (block in 0n..1n) async {
                 val shm1 = new Rail[Float](arr1);
-                val shm2 = new Rail[Int](64l, (x:Long)=>{val tmp = (x as Int)+10; return tmp;});
-                val shm3 = new Rail[Int](64l, 0);
+                val shm2 = new Rail[Int](64l, (x:Long)=>{val tmp = (x as Int)+10n; return tmp;});
+                val shm3 = new Rail[Int](64l, 0n);
                 val shm4 = new Rail[Float](64l, (Long)=>0.0f);
-                clocked finish for (thread in 0..63) clocked async {
+                clocked finish for (thread in 0n..63n) clocked async {
                     shm1(thread) = thread;
                     Clock.advanceAll();
                     shm2(thread) = shm1(63-thread) as Int;
@@ -112,8 +112,8 @@ public class CUDAKernelTest {
 
         // validate
         var success:Boolean = true;
-        for (var i:Int=0 ; i<64 ; ++i) {
-            val oracle = 63-i%64;
+        for (var i:Int=0n ; i<64n ; ++i) {
+            val oracle = 63n-i%64n;
             if (Math.abs(oracle - recv(i)) > 1E-6f) {
                 Console.ERR.println("recv("+i+"): "+recv(i)+" not "+oracle);
                 success = false;
@@ -126,8 +126,8 @@ public class CUDAKernelTest {
 
     static def doTest3 (p:Place) {
 
-        val blocks = 30;
-        val threads = 64;
+        val blocks = 30n;
+        val threads = 64n;
         val tids = blocks * threads;
 
         val recv = new Rail[Float](tids,(i:Long)=>0.0f);
@@ -139,8 +139,8 @@ public class CUDAKernelTest {
 
         finish async at (p) @CUDA @CUDADirectParams {
             val ccache = CUDAConstantRail(arr1);
-            finish for (block in 0..(blocks-1)) async {
-                clocked finish for (thread in 0..(threads-1)) clocked async {
+            finish for (block in 0n..(blocks-1n)) async {
+                clocked finish for (thread in 0n..(threads-1n)) clocked async {
                     remote(threads*block + thread) = ccache(thread);
                 }
             }
@@ -162,12 +162,12 @@ public class CUDAKernelTest {
         CUDAUtilities.deleteGlobalRail(remote);
     }
 
-     @CUDA static def function (x:Int) : Int = x * x - 22;
+     @CUDA static def function (x:Int) : Int = x * x - 22n;
 
     static def doTest4 (p:Place) {
 
-        val blocks = 30;
-        val threads = 64;
+        val blocks = 30n;
+        val threads = 64n;
         val tids = blocks * threads;
 
         val recv = new Rail[Float](tids,(i:Long)=>0.0f);
@@ -175,9 +175,9 @@ public class CUDAKernelTest {
         val remote = CUDAUtilities.makeGlobalRail[Float](p,tids,(Long)=>0.0 as Float); // allocate 
 
         finish async at (p) @CUDA @CUDADirectParams {
-            finish for (block in 0..(blocks-1)) async {
-                clocked finish for (thread in 0..(threads-1)) clocked async {
-                    val r = function(5);
+            finish for (block in 0n..(blocks-1n)) async {
+                clocked finish for (thread in 0n..(threads-1n)) clocked async {
+                    val r = function(5n);
                     remote(threads*block + thread) = r;
                 }
             }
@@ -188,7 +188,7 @@ public class CUDAKernelTest {
         // validate
         var success:Boolean = true;
         for (i in recv.range) {
-            val oracle = 3;
+            val oracle = 3n;
             if (Math.abs(oracle - recv(i)) > 1E-6f) {
                 Console.ERR.println("recv("+i+"): "+recv(i)+" not "+oracle);
                 success = false;

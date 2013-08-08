@@ -9,10 +9,10 @@ import x10.compiler.NoInline;
 public class CUDA3DFD {
     public static def init_data(data:Rail[Float], dimx:Int, dimy:Int, dimz:Int)
     {
-        var off:Int = 0;
-        for(var iz:Int=0; iz<dimz; iz++)
-            for(var iy:Int=0; iy<dimy; iy++)
-                for(var ix:Int=0; ix<dimx; ix++)
+        var off:Int = 0n;
+        for(var iz:Int=0n; iz<dimz; iz++)
+            for(var iy:Int=0n; iy<dimy; iy++)
+                for(var ix:Int=0n; ix<dimx; ix++)
                 {
                     data(off++) = iz as Float;
                 }
@@ -20,12 +20,12 @@ public class CUDA3DFD {
 
     public static def random_data(data:Rail[Float], dimx:Int, dimy:Int, dimz:Int, lower_bound:Int, upper_bound:Int)
     {
-        val rnd = new Random(0);
+        val rnd = new Random(0n);
 
-        var off:Int = 0;
-        for(var iz:Int=0; iz<dimz; iz++)
-            for(var iy:Int=0; iy<dimy; iy++)
-                for(var ix:Int=0; ix<dimx; ix++)
+        var off:Int = 0n;
+        for(var iz:Int=0n; iz<dimz; iz++)
+            for(var iy:Int=0n; iy<dimy; iy++)
+                for(var ix:Int=0n; ix<dimx; ix++)
                 {
                     //data(off++) = (lower_bound + (rnd.nextInt() % (upper_bound - lower_bound))) as Float;
                     data(off++) = iz as Float; //(iy*dimx + ix) as Float;
@@ -34,25 +34,25 @@ public class CUDA3DFD {
 
     // note that this CPU implemenation is extremely naive and slow, NOT to be used for performance comparisons
     public static def reference_3D(output:Rail[Float], input:Rail[Float], coeff:Rail[Float], dimx:Int, dimy:Int, dimz:Int)
-    { reference_3D(output, input, coeff, dimx, dimy, dimz, 4); }
+    { reference_3D(output, input, coeff, dimx, dimy, dimz, 4n); }
     
     public static def reference_3D(output:Rail[Float], input:Rail[Float], coeff:Rail[Float], dimx:Int, dimy:Int, dimz:Int, radius:Int)
     {
         val dimxy = dimx*dimy;
 
-        var output_off:Int=0;
-        var input_off:Int=0;
-        for(var iz:Int=0; iz<dimz; iz++)
+        var output_off:Int=0n;
+        var input_off:Int=0n;
+        for(var iz:Int=0n; iz<dimz; iz++)
         {
-            for(var iy:Int=0; iy<dimy; iy++)
+            for(var iy:Int=0n; iy<dimy; iy++)
             {
-                for(var ix:Int=0; ix<dimx; ix++)
+                for(var ix:Int=0n; ix<dimx; ix++)
                 {
                     if( ix>=radius && ix<(dimx-radius) && iy>=radius && iy<(dimy-radius) && iz>=radius && iz<(dimz-radius) )
                     {
-                        var valu:Float = input(input_off)*coeff(0);
+                        var valu:Float = input(input_off)*coeff(0n);
 
-                        for(var ir:Int=1; ir<=radius; ir++)
+                        for(var ir:Int=1n; ir<=radius; ir++)
                         {
                             valu += coeff(ir) * (input(input_off+ir) + input(input_off-ir));                // horizontal
                             valu += coeff(ir) * (input(input_off+ir*dimx) + input(input_off-ir*dimx));        // vertical
@@ -70,22 +70,22 @@ public class CUDA3DFD {
     }
 
     public static def within_epsilon(output:Rail[Float], reference:Rail[Float], dimx:Int, dimy:Int, dimz:Int)
-    { return within_epsilon(output, reference, dimx, dimy, dimz, 4); }
+    { return within_epsilon(output, reference, dimx, dimy, dimz, 4n); }
     public static def within_epsilon(output:Rail[Float], reference:Rail[Float], dimx:Int, dimy:Int, dimz:Int, radius:Int)
-    { return within_epsilon(output, reference, dimx, dimy, dimz, radius, -1); }
+    { return within_epsilon(output, reference, dimx, dimy, dimz, radius, -1n); }
     public static def within_epsilon(output:Rail[Float], reference:Rail[Float], dimx:Int, dimy:Int, dimz:Int, radius:Int, zadjust:Int)
     { return within_epsilon(output, reference, dimx, dimy, dimz, radius, zadjust, 0.0001f); }
     public static def within_epsilon(output:Rail[Float], reference:Rail[Float], dimx:Int, dimy:Int, dimz:Int, radius:Int, zadjust:Int, delta:Float )
     {
         var retval:Boolean = true;
 
-        var output_off:Int=0;
-        var ref_off:Int=0;
-        for(var iz:Int=0; iz<dimz; iz++)
+        var output_off:Int=0n;
+        var ref_off:Int=0n;
+        for(var iz:Int=0n; iz<dimz; iz++)
         {
-            for(var iy:Int=0; iy<dimy; iy++)
+            for(var iy:Int=0n; iy<dimy; iy++)
             {
-                for(var ix:Int=0; ix<dimx; ix++)
+                for(var ix:Int=0n; ix<dimx; ix++)
                 {
                     if( ix>=radius && ix<(dimx-radius) && iy>=radius && iy<(dimy-radius) && iz>=radius && iz<(dimz-radius+zadjust) )
                     {
@@ -127,14 +127,14 @@ public class CUDA3DFD {
         // process command-line arguments,
         // set execution parameters
         //
-        var nreps:Int = 1;              // number of time-steps, over which performance is averaged
+        var nreps:Int = 1n;              // number of time-steps, over which performance is averaged
         var check_correctness:Boolean = true;  // 1=check correcness, 0-don't.  Note that CPU code is very
                                     //   naive and not optimized, so many steps will take a 
                                     //   long time on CPU
-        var pad:Int  = 0;
-        var dimx_:Int = 480+pad;
-        var dimy_:Int = 480;
-        var dimz_:Int = 400;
+        var pad:Int  = 0n;
+        var dimx_:Int = 480n+pad;
+        var dimy_:Int = 480n;
+        var dimz_:Int = 400n;
         
         //if( 2.2*nbytes > properties.totalGlobalMem )    // adjust the volume size if it exceeds available
         //{                                               // global memory (allowing for some memory use
@@ -166,7 +166,7 @@ public class CUDA3DFD {
         // initialize data
         val h_data = new Rail[Float](nelements);
         val h_reference = new Rail[Float](nelements);
-        random_data(h_data, dimx,dimy,dimz, 1, 5 );
+        random_data(h_data, dimx,dimy,dimz, 1n, 5n);
 
         // allocate CPU and GPU memory
         val gpu = here.children().size==0L ? here : here.child(0);
@@ -176,10 +176,10 @@ public class CUDA3DFD {
 
         Console.OUT.println(String.format("allocated %.6f MB on device", [((2.f*nelements*4)/(1024.f*1024.f)) as Any]));
 
-        val RADIUS = 4;
+        val RADIUS = 4n;
 
         // setup coefficients
-        val h_coeff_symmetric = new Rail[Float](RADIUS+1, 1);
+        val h_coeff_symmetric = new Rail[Float](RADIUS+1, 1n);
 
         // kernel launch configuration
 
@@ -187,18 +187,18 @@ public class CUDA3DFD {
         // kernel execution
         //
         var start_time : Long = System.currentTimeMillis();
-        for(var i:Int=0; i<nreps; i++) {
-            val BLOCK_DIMX = 16;
+        for(var i:Int=0n; i<nreps; i++) {
+            val BLOCK_DIMX = 16n;
             val BLOCK_DIMY = BLOCK_DIMX;
             val THREADS = BLOCK_DIMX*BLOCK_DIMY;
             val BLOCKS_X = dimx/BLOCK_DIMX;
             val BLOCKS_Y = dimy/BLOCK_DIMY;
-            val S_DATA_STRIDE = BLOCK_DIMX+2*RADIUS;
+            val S_DATA_STRIDE = BLOCK_DIMX+2n*RADIUS;
             finish async at (gpu) @CUDA @CUDADirectParams {
                 val c_coeff = CUDAConstantRail(h_coeff_symmetric);
-                finish for (block in 0..(BLOCKS_X*BLOCKS_Y-1)) async {
-                    val s_data = new Rail[Float]((BLOCK_DIMY+2*RADIUS)*S_DATA_STRIDE, 0);
-                    clocked finish for (thread in 0..(THREADS-1)) clocked async {
+                finish for (block in 0n..(BLOCKS_X*BLOCKS_Y-1n)) async {
+                    val s_data = new Rail[Float]((BLOCK_DIMY+2n*RADIUS)*S_DATA_STRIDE, 0);
+                    clocked finish for (thread in 0n..(THREADS-1n)) clocked async {
                         val blockidx = block%BLOCKS_X;
                         val blockidy = block/BLOCKS_X;
                         val threadidx = thread%BLOCK_DIMX;
@@ -206,7 +206,7 @@ public class CUDA3DFD {
                         val ix = blockidx * BLOCK_DIMX + threadidx;
                         val iy = blockidy * BLOCK_DIMY + threadidy;
                         var in_idx:Int=iy*dimx + ix;
-                        var out_idx:Int = 0;
+                        var out_idx:Int = 0n;
                         val stride  = dimx*dimy;
 
                         var infront1:Float; var infront2:Float; var infront3:Float; var infront4:Float;
@@ -314,7 +314,7 @@ public class CUDA3DFD {
             Console.OUT.println("comparing to CPU result...\n");
             reference_3D( h_reference, h_data, h_coeff_symmetric, dimx,dimy,dimz, RADIUS );
             finish Rail.asyncCopy(d_output, 0L, h_data, 0L, nelements as Long);
-            if( within_epsilon( h_data, h_reference, dimx,dimy,dimz, RADIUS*nreps, 0 ) ) 
+            if( within_epsilon( h_data, h_reference, dimx,dimy,dimz, RADIUS*nreps, 0n ) ) 
             {
                 Console.OUT.println("  Result within epsilon\n");
                 Console.OUT.println("  TEST PASSED!\n");

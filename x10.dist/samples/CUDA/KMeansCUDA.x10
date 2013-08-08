@@ -63,7 +63,7 @@ class KernelWorker {
             Console.OUT.println("GPU known as "+gpu+" gets offset "+kernelOffset+" len "+kernelNumPoints);
         }
         
-        val MEM_ALIGN = 32; // FOR CUDA
+        val MEM_ALIGN = 32n; // FOR CUDA
         kernelNumPointsStride = round_up(kernelNumPoints, MEM_ALIGN);
 
         val dim = 4l;
@@ -96,15 +96,15 @@ class KernelWorker {
         finish async at (g) @CUDA @CUDADirectParams {
             val blocks = CUDAUtilities.autoBlocks();
             val threads = CUDAUtilities.autoThreads();
-            finish for (block in 0..(blocks-1)) async {
+            finish for (block in 0n..(blocks-1n)) async {
                 val clustercache = new Rail[Float](the_host_clusters);
-                clocked finish for (thread in 0..(threads-1)) clocked async {
+                clocked finish for (thread in 0n..(threads-1n)) clocked async {
                     val tid = block * threads + thread;
                     val tids = blocks * threads;
                     for (var p:Long=tid ; p<kernel_num_points ; p+=tids) {
-                        var closest:Int = -1;
+                        var closest:Int = -1n;
                         var closest_dist:Float = Float.MAX_VALUE;
-                        for (k in 0..(the_num_clusters-1)) { 
+                        for (k in 0n..(the_num_clusters-1n)) { 
                             // Pythagoras (in dim dimensions)
                             var dist : Float = 0;
                             for (d in 0l..(the_dim-1l)) { 
@@ -167,12 +167,12 @@ public class KMeansCUDA {
             Option("w","work","number of points to process per activity (cpu part)")
         ]);
         val fname = opts("-p", "points.dat");
-        val num_clusters=opts("-c",8);
+        val num_clusters=opts("-c",8n);
         val global_num_points=opts("-n", 100000l);
         val iterations=opts("-i",500l);
         val verbose = opts("-v");
         val quiet = opts("-q");
-        val work = opts("-w", 100000);
+        val work = opts("-w", 100000n);
         val dim = 4l; // must be compiletime constant
 
 
@@ -206,9 +206,9 @@ public class KMeansCUDA {
 
 
 
-            val host_nearest = new Rail[Int](host_num_points, 0);
+            val host_nearest = new Rail[Int](host_num_points, 0n);
             val host_clusters  = new Rail[Float](num_clusters*dim, (i:Long)=>{ val p = i/dim, d=i%dim ; return global_points(p+host_offset + d*global_num_points); } );
-            val host_cluster_counts = new Rail[Int](num_clusters as Long, 0);
+            val host_cluster_counts = new Rail[Int](num_clusters as Long, 0n);
 
 
 
@@ -224,7 +224,7 @@ public class KMeansCUDA {
 
             val toplevel_start_time = System.currentTimeMillis();
 
-            main_loop: for (var iter:Int=0 ; iter<iterations ; iter++) {
+            main_loop: for (var iter:Int=0n ; iter<iterations ; iter++) {
 
                 finish for (kernel_worker in kernel_workers) async {
                     kernel_worker.doWork();

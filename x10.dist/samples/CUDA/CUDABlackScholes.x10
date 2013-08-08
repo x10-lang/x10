@@ -35,13 +35,13 @@ public class CUDABlackScholes {
             opt_N:Long,
             R:Float,
             V:Float) {
-        val blocks = p.isCUDA() ? 480 : 1;
-        val threads = 128;
+        val blocks = p.isCUDA() ? 480n : 1n;
+        val threads = 128n;
         finish async at (p) @CUDA @CUDADirectParams {
             //val blocks = CUDAUtilities.autoBlocks(),
             //    threads = CUDAUtilities.autoThreads();
-            finish for (block in 0..(blocks-1)) async {
-                clocked finish for (thread in 0..(threads-1)) clocked async {
+            finish for (block in 0n..(blocks-1n)) async {
+                clocked finish for (thread in 0n..(threads-1n)) clocked async {
                     val tid = block * threads + thread;
                     val tids = blocks * threads;
                     for (var opt:Long=tid; opt < opt_N; opt+=tids) {
@@ -118,7 +118,7 @@ public class CUDABlackScholes {
 
         Console.OUT.println("Running " + NUM_ITERATIONS + " times on place " + gpu);
         val gpuTimeStart = System.nanoTime();
-        for (var i:Int=0; i < NUM_ITERATIONS; i++) {
+        for (var i:Int=0n; i < NUM_ITERATIONS; i++) {
             doBlackScholes(gpu, 
                     d_OptionYears,
                     d_StockPrice,
@@ -163,7 +163,7 @@ public class CUDABlackScholes {
         var sum_delta:Float = 0.0f;
         var sum_ref:Float = 0.0f;
         var max_delta:Float = 0.0f;
-        for (var i:Int=0; i < OPT_N; i++) {
+        for (var i:Int=0n; i < OPT_N; i++) {
             val ref_val = h_CallResultCPU(i);
             val delta = Math.abs(ref_val - h_CallResultGPU(i));
             if(delta > max_delta) max_delta = delta;
