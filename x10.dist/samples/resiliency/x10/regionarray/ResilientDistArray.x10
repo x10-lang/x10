@@ -39,11 +39,17 @@ public class ResilientDistArray[T](region:Region) implements (Point(region.rank)
     /*
      * Snapshot mechanism
      */
+    /**
+     * Remake the ResilientDistArray over a new Dist using specified initializer
+     */
     public def remake(dist:Dist, init:(Point(dist.rank))=>T){dist.region==region} {
         this.da = DistArray.make[T](dist, init);
         this.dist = dist;
         this.savedDist = null;
     }
+    /**
+     * Remake the ResilientDistArray over a new Dist with zero
+     */
     public def remake(dist:Dist){dist.region==region,T haszero} {
         this.da = DistArray.make[T](dist);
         this.dist = dist;
@@ -61,8 +67,8 @@ public class ResilientDistArray[T](region:Region) implements (Point(region.rank)
     //     }
     // }
     // public def restore(dist:Dist){dist.region==region} {
+    //     this.da = DistArray.make[T](dist, (p:Point)=>at (ss) ss()()(p));
     //     this.dist = dist;
-    //     da = DistArray.make[T](dist, (p:Point)=>at (ss) ss()()(p));
     // }
     
     /*
@@ -72,12 +78,16 @@ public class ResilientDistArray[T](region:Region) implements (Point(region.rank)
     private transient var commit_count:Long = 0L;
     private transient var savedDist:Dist = null; // declared as transient to make restore possible only in master
     
-    /* create and commit a snapshot */
+    /**
+     * Create and commit a snapshot
+     */
     public def snapshot() {
         snapshot_try(); // may fail with DeadPlaceException
         snapshot_commit();
     }
-    /* try to create a snapshot (not committed yet) */
+    /**
+     * Try to create a snapshot (not committed yet)
+     */
     public def snapshot_try() {
         val idx = (commit_count+1) % 2;
         val snapshot = snapshots(idx);
@@ -88,7 +98,9 @@ public class ResilientDistArray[T](region:Region) implements (Point(region.rank)
             }
         }
     }
-    /* commit the snapshot created by snapshot_try */
+    /**
+     * Commit the snapshot created by snapshot_try
+     */
     public def snapshot_commit() {
         val idx = commit_count % 2;
         commit_count++; savedDist = dist; // swith to the new snapshot
@@ -96,7 +108,9 @@ public class ResilientDistArray[T](region:Region) implements (Point(region.rank)
         val old_snapshot = snapshots(idx);
         try { old_snapshot.deleteAll(); } catch (e:Exception) { /* ignore errors */ }
     }
-    /* restore from the snapshot with new Dist */
+    /**
+     * Restore from the snapshot with new Dist
+     */
     public def restore(newDist:Dist){newDist.region==region} {
         if (savedDist == null) {
             throw new Exception("No saved_dist, maybe not a master?");
@@ -104,16 +118,25 @@ public class ResilientDistArray[T](region:Region) implements (Point(region.rank)
         val oldDist = savedDist; // to make the transient savedDist copyable
         val idx = commit_count % 2;
         val snapshot = snapshots(idx); // get the active snapshot
-        val init = (pt:Point)=>{ //TODO: This code is very slow
+        val cached_raw = PlaceLocalHandle.make[Cell[Rail[T]]](newDist.places(), ()=>new Cell[Rail[T]](null));
+        val cached_place = PlaceLocalHandle.make[Cell[Place]](newDist.places(), ()=>new Cell[Place](Place.FIRST_PLACE)); // dummy data
+        val init = (pt:Point)=>{
             // val offset = oldDist.offset(pt); // This does not work at different place
             val place = oldDist(pt);
             val region = oldDist.get(place);
             val offset = region.indexOf(pt); //TODO: This may not be general
-            val oldRaw = snapshot.load(place); // load from snapshot
-            return oldRaw(offset);
+            // val raw = snapshot.load(place); // Better to reduce the access by caching
+            if (cached_raw()()==null || cached_place()()!=place) {
+                cached_raw()() = snapshot.load(place); // load from snapshot, only if not cached
+                cached_place()() = place;
+            }
+            val raw = cached_raw()();
+            return raw(offset);
         };
-        da = DistArray.make[T](newDist, init);
-        dist = newDist;
+        this.da = DistArray.make[T](newDist, init);
+        this.dist = newDist;
+        PlaceLocalHandle.destroy(newDist.places(), cached_raw);
+        PlaceLocalHandle.destroy(newDist.places(), cached_place);
     }
     
     /**
@@ -138,12 +161,13 @@ public class ResilientDistArray[T](region:Region) implements (Point(region.rank)
      * ResilientStore interface used by snapshot/restore
      */
     static abstract class ResilientStore[K,V] {
-        static val mode = getMode();
-        static def getMode() {
-            val env = System.getenv("X10_RESILIENT_DIST_ARRAY_MODE");
-            val m = (env!=null) ? Int.parseInt(env) : 0N;
-            Console.OUT.println("X10_RESILIENT_DIST_ARRAY_MODE=" + m);
-            return m;
+        static val mode = getEnvInt("X10_RESILIENT_STORE_MODE");
+        static val verbose = getEnvInt("X10_RESILIENT_STORE_VERBOSE");
+        static def getEnvInt(name:String) {
+            val env = System.getenv(name);
+            val v = (env!=null) ? Int.parseInt(env) : 0N;
+            if (here==Place.FIRST_PLACE) Console.OUT.println(name + "=" + v);
+            return v;
         }
         public static def make[K,V]():ResilientStore[K,V] {
             switch (mode) {
@@ -180,11 +204,11 @@ public class ResilientDistArray[T](region:Region) implements (Point(region.rank)
      */
     static class ResilientStoreDistributed[K,V] extends ResilientStore[K,V] {
         val hm = PlaceLocalHandle.make[x10.util.HashMap[K,V]](PlaceGroup.WORLD, ()=>new x10.util.HashMap[K,V]());
-        private def DEBUG(key:K, msg:String) { Console.OUT.println(here + ": key=" + key + ": " + msg); }
+        private def DEBUG(key:K, msg:String) { Console.OUT.println("At " + here + ": key=" + key + ": " + msg); }
         public def save(key:K, value:V) {
             /* Store the copy of value locally */
             at (here) hm().put(key, value); // value is deep-copied by "at"
-            DEBUG(key, "backuped locally");
+            if (verbose>=1) DEBUG(key, "backed up locally");
             /* Backup the value in another place */
             var backupPlace:Long = key.hashCode() % Place.MAX_PLACES;
             var trial:Long;
@@ -194,17 +218,17 @@ public class ResilientDistArray[T](region:Region) implements (Point(region.rank)
             }
             if (trial == Place.MAX_PLACES) {
                 /* no backup place available */
-                DEBUG(key, "no backup place available");
+                if (verbose>=1) DEBUG(key, "no backup place available");
             } else {
                 at (Place(backupPlace)) hm().put(key, value);
-                DEBUG(key, "backuped at place " + backupPlace);
+                if (verbose>=1) DEBUG(key, "backed up to place " + backupPlace);
             }
         }
         public def load(key:K) {
             /* First, try to load locally */
             try {
                 val value = at (here) hm().getOrThrow(key); // value is deep-copied by "at"
-                DEBUG(key, "restored locally");
+                if (verbose>=1) DEBUG(key, "restored locally");
                 return value;
             } catch (e:x10.util.NoSuchElementException) { /* falls through */ }
             /* Try to load from another place */
@@ -212,16 +236,16 @@ public class ResilientDistArray[T](region:Region) implements (Point(region.rank)
             var trial:Long;
             for (trial = 0L; trial < Place.MAX_PLACES; trial++) {
                 if (backupPlace != here.id && !Place.isDead(backupPlace)) {
-                    DEBUG(key, "checking backup place " + backupPlace);
+                    if (verbose>=1) DEBUG(key, "checking backup place " + backupPlace);
                     try {
                         val value = at (Place(backupPlace)) hm().getOrThrow(key);
-                        DEBUG(key, "restored from backup place " + backupPlace);
+                        if (verbose>=1) DEBUG(key, "restored from backup place " + backupPlace);
                         return value;
                     } catch (e:x10.util.NoSuchElementException) { /* falls through */ }
                 }
                 backupPlace = (backupPlace+1) % Place.MAX_PLACES;
             }
-            DEBUG(key, "no backup found, ERROR");
+            if (verbose>=1) DEBUG(key, "no backup found, ERROR");
             throw new Exception("No data for key " + key);
         }
         public def delete(key:K) {
