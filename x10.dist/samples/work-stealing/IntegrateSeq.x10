@@ -41,9 +41,9 @@ public class IntegrateSeq {
   }
  
   public static def main(args:Rail[String]) {
-    val xMax = args.size > 0 ? Int.parse(args(0)) : 10;
+    val xMax = args.size > 0 ? Long.parse(args(0)) : 10;
     var avgDur:Double = 0;
-    for (var i:Int = 0; i < 10; ++i) {
+    for (i in 0..9) {
         val v = (i%2 == 0 ? xMax : xMax+1)-i%2;
         val startTime = System.nanoTime();
         val area = computeArea(0, v);

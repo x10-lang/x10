@@ -26,9 +26,9 @@
  */
 public class QuickSort {
 
-  private static def partition(data:Rail[int], left:int, right:int) {
-      var i:int = left;
-      var j:int = right;
+  private static def partition(data:Rail[int], left:long, right:long) {
+      var i:long = left;
+      var j:long = right;
       var tmp:int;
       var pivot:int = data((left + right) / 2);
 
@@ -47,8 +47,8 @@ public class QuickSort {
       return i;
   }
 
-  static def qsort(data:Rail[int], left:int, right:int) {
-      index:int = partition(data, left, right);
+  static def qsort(data:Rail[int], left:long, right:long) {
+      index:long = partition(data, left, right);
       finish {
           if (left < index - 1)
               async qsort(data, left, index - 1);
@@ -59,19 +59,19 @@ public class QuickSort {
   }
 
   public static def main(args:Rail[String]) {
-      val N = args.size>0 ? Int.parse(args(0)) : 1000;
-      val r = new x10.util.Random(0);
+      val N = args.size>0 ? Long.parse(args(0)) : 1000;
+      val r = new x10.util.Random(0n);
       var avgDur:Double = 0;
-      for (var i:Int = 0; i < 10; ++i) {
-          val data = new Rail[int](N, (long)=>r.nextInt(9999));
+      for (i in 1..10) {
+          val data = new Rail[int](N, (long)=>r.nextInt(9999n));
 
           val startTime = System.nanoTime();
           qsort(data, 0, N-1);
           val duration = ((System.nanoTime() - startTime) as Double)/1e9;
           avgDur += duration;
           //check the result
-          var a:int = 0;
-          var b:int;
+          var a:long = 0;
+          var b:long;
           var ok:boolean = true;
           for (j in 0..(N-1)) {
               b = data(j);
