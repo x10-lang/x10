@@ -18,11 +18,11 @@ import harness.x10Test;
  * See XTENLANG-2329 (Method guards are not type checked on calls to unary operators or closures.)
  * @author bdlucas 10/2008
  */
-public class XTENLANG_2329_MustFailCompile(x:Int) extends x10Test {
-    public operator - this{x==0} : Int = 1; 
+public class XTENLANG_2329_MustFailCompile(x:Long) extends x10Test {
+    public operator - this{x==0} : Long = 1; 
     public operator this * (g:XTENLANG_2329_MustFailCompile){x==0} = 2;
-    public operator this(i:Int){x==0} = 3;
-    public operator this(i:Int) = (j:Int){x==0}  = 4;
+    public operator this(i:Long){x==0} = 3;
+    public operator this(i:Long) = (j:Long){x==0}  = 4;
 
     def test(g1:XTENLANG_2329_MustFailCompile, g2:XTENLANG_2329_MustFailCompile) {
         @ERR val a = -g1;
@@ -31,7 +31,7 @@ public class XTENLANG_2329_MustFailCompile(x:Int) extends x10Test {
         @ERR val d = g1(42)=43;
     }
 
-    def closureTest(c: (i:Int){i==0} => Int, k:Int) {
+    def closureTest(c: (i:Long){i==0} => Long, k:Long) {
         @ERR val a = c(k);
     }
 

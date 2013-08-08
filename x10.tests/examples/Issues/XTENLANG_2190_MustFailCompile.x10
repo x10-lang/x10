@@ -18,8 +18,8 @@ import x10.compiler.tests.*; // err markers
  * that are set both in initializers and in constructors
  */
 class XTENLANG_2190_MustFailCompile extends x10Test {
-    val a:int = 1;
-    val b:int = 2;
+    val a:long = 1;
+    val b:long = 2;
 
     def this() {}
     @ERR @ERR def this(x:int) { a = b = x; } // Final field 'b' might already have been initialized. Final field 'a' might already have been initialized.

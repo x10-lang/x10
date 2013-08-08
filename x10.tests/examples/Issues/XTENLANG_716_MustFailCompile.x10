@@ -21,7 +21,7 @@ class XTENLANG_716_MustFailCompile extends x10Test {
 		def this(x:Int){property(x);}
 	}
 
-		class B extends A{self.x==2} {
+		class B extends A{self.x==2n} {
 			def this(x:Int){super(x);} // ERR: Semantic Error: The super(..) call cannot establish the supertype
 		}
 	
@@ -29,7 +29,7 @@ class XTENLANG_716_MustFailCompile extends x10Test {
 
 
 	public def run(): boolean {
-		new B(1);
+		new B(1n);
 		
 		return true;
 	}

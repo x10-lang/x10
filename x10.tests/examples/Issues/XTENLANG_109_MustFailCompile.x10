@@ -21,11 +21,11 @@ class XTENLANG_109 extends x10Test {
     
         def this(zb:boolean) = property(zb);
     
-        static def m(min:int, max:int): R{self.zb==(min==0)} { throw new Exception(); } // ERR
+        static def m(min:int, max:int): R{self.zb==(min==0n)} { throw new Exception(); } // ERR
     
-        static def make(min:int, max:int): R{self.zb==(min==0)} { // ERR
+        static def make(min:int, max:int): R{self.zb==(min==0n)} { // ERR
             return m(min, max);
-            //return m(min, max) as R{zb==(min==0)}; // this doesn't work either
+            //return m(min, max) as R{zb==(min==0n)}; // this doesn't work either
         }
     }
 

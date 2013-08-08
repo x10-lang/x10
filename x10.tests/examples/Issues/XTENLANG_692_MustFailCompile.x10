@@ -25,8 +25,8 @@ class XTENLANG_692_MustFailCompile extends x10Test {
 	class A (x:Int) {
 	  def backwards(p: A{p.x==  // ERR
 	        n}, // ERR: Could not find n  ShouldNotBeERR (Could not find field or local variable "n".)
-	    n:Int) = 1;
-	  def this(){property(1);}
+	    n:Int) = 1n;
+	  def this(){property(1n);}
 	}
 	
 
