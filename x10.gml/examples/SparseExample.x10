@@ -24,8 +24,8 @@ import x10.matrix.sparse.SparseCSC;
 public class SparseExample{
 
     public static def main(args:Rail[String]) {
-    	val m = args.size > 0 ?Int.parse(args(0)):100;
-    	val n = args.size > 1 ?Int.parse(args(1)):101;
+    	val m = args.size > 0 ? Long.parse(args(0)):100;
+    	val n = args.size > 1 ? Long.parse(args(1)):101;
     	val d = args.size > 2 ?Double.parse(args(2)):0.5;
     	
 		val testcase = new RunSparseExample(m, n, d);

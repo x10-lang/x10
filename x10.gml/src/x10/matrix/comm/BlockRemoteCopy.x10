@@ -26,12 +26,12 @@ public type BlocksPLH = PlaceLocalHandle[BlockSet];
  * Implementation of send-receive matrix block across places, including x10 remote array copy and mpi send-receive implementations.
  */
 public class BlockRemoteCopy {
-	protected static val baseTagCopyTo:Int=100000;
-	protected static val baseTagCopyFrom:Int=200000;
-	protected static val baseTagCopyIdxTo:Int=300000;
-	protected static val baseTagCopyIdxFrom:Int=400000;
-	protected static val baseTagCopyValTo:Int=500000;
-	protected static val baseTagCopyValFrom:Int=600000;
+	protected static val baseTagCopyTo:Int=100000n;
+	protected static val baseTagCopyFrom:Int=200000n;
+	protected static val baseTagCopyIdxTo:Int=300000n;
+	protected static val baseTagCopyIdxFrom:Int=400000n;
+	protected static val baseTagCopyValTo:Int=500000n;
+	protected static val baseTagCopyValFrom:Int=600000n;
 
 	/**
 	 * Copy source block to target block in distributed block matrix structure.
@@ -41,7 +41,7 @@ public class BlockRemoteCopy {
 			dstbid:Long, dstColOff:Long, 
 			colCnt:Long):Long {
 		//Favor of current place is source place, and using copyto
-		if (srcbid ==dstbid) return 0;
+		if (srcbid == dstbid) return 0;
 		
 		val srcpid = distBS().findPlace(srcbid);
 		val dsz = at(Place(srcpid)) {

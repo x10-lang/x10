@@ -14,8 +14,8 @@ import x10.matrix.MathTool;
  */
 public class TestDense {
     public static def main(args:Rail[String]) {
-		val m = (args.size > 0) ? Int.parse(args(0)):5;
-		val n = (args.size > 1) ? Int.parse(args(1)):6;
+		val m = (args.size > 0) ? Long.parse(args(0)):5;
+		val n = (args.size > 1) ? Long.parse(args(1)):6;
 		val testcase = new AddScalTest(m, n);
 		testcase.run();
 		val propertiesTest = new PropertiesTest(m, n);

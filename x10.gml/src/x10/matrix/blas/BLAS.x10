@@ -80,7 +80,7 @@ public class BLAS {
 	
 	public static @NoInline def compTriMultVec(mA:Rail[Double], uplo:Boolean, bx:Rail[Double], 
 			lda:Long, tA:Int):void {
-		DriverBLAS.tri_vector_mult(mA, uplo?1:0, bx, lda, tA);
+		DriverBLAS.tri_vector_mult(mA, uplo?1n:0n, bx, lda, tA);
 	}
 
 	public static @NoInline def solveTriMultVec(mA:Rail[Double], bx:Rail[Double], 

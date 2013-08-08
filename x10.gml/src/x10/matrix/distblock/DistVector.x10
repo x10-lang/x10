@@ -300,7 +300,7 @@ public class DistVector(M:Long) {
         
     public def equals(dv:DistVector(this.M)):Boolean {
         var ret:Boolean = true;
-        for (var p:Int=0; p<Place.MAX_PLACES &&ret; p++) {
+        for (var p:Long=0; p<Place.MAX_PLACES &&ret; p++) {
             val pid = p;
             ret &= at(Place(pid)) {
                 val srcv = distV();
@@ -322,7 +322,7 @@ public class DistVector(M:Long) {
     
     public def equals(dval:Double):Boolean {
         var ret:Boolean = true;
-        for (var p:Int=0; p<Place.MAX_PLACES &&ret; p++) {
+        for (var p:Long=0; p<Place.MAX_PLACES &&ret; p++) {
             val pid = p;
             ret &= at(Place(pid)) distV().equals(dval);
         }

@@ -37,7 +37,7 @@ public class BlockScatter extends BlockRemoteCopy {
 		Debug.assure(src.size()<=nb, 
 			"Number blocks in dist and local array mismatch");
 		
-		finish for (var bid:Int=0; bid<nb; bid++) {
+		finish for (var bid:Long=0; bid<nb; bid++) {
 			//Debug.flushln("Scatter: copy to block:"+bid);
 			copy(src(bid).getMatrix(), dst, bid);
 		}
@@ -68,7 +68,7 @@ public class BlockScatter extends BlockRemoteCopy {
 	public static def scatterVector(src:DenseMatrix{self.N==1L}, dst:BlocksPLH): void {
 		var rowoff:Long=0;
 		val gp = dst().getGrid();
-		for (var rb:Int=0; rb<gp.numRowBlocks; rb++) {
+		for (var rb:Long=0; rb<gp.numRowBlocks; rb++) {
 			val rowcnt = gp.rowBs(rb);
 			
 			copyOffset(src, rowoff, dst, dst().findPlace(rb), rb, 0, rowcnt); 

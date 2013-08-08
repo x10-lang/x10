@@ -119,12 +119,12 @@ public class SummaMultTrans {
 	 */
 	public def parallelMultTrans() {
 		val K = B.M;
-		var itRow:Int = 0;
-		var itCol:Int = 0; //Current processing iteration
+		var itRow:Int = 0n;
+		var itCol:Int = 0n; //Current processing iteration
 		var iwrk:Long = 0;
 		var ii:Long = 0;
 		var jj:Long = 0;
-		var st:Long= 0;
+		var st:Long = 0;
 		val gA = A.getGrid();
 		val gB = B.getGrid();
 		val gC = C.getGrid();

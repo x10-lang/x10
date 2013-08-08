@@ -39,19 +39,19 @@ public class RequestHandleMPI {
 
 	public def this() {
 		valid = true;
-		val size_int = new Rail[Int](1, 0);
+		val size_int = new Rail[Int](1, 0n);
 
 		get_request_memsize(size_int);
 		
-		handle = new Rail[Int](size_int(0), 0);
+		handle = new Rail[Int](size_int(0), 0n);
 	}
 
 	public def this(vld:Boolean) {
 		valid = vld;
-		val size_int = new Rail[Int](1, 0);
+		val size_int = new Rail[Int](1, 0n);
 		get_request_memsize(size_int);
 		
-		handle = new Rail[Int](size_int(0), 0);
+		handle = new Rail[Int](size_int(0), 0n);
 	}
 
 	// stop until the requested communication is complete
@@ -61,7 +61,7 @@ public class RequestHandleMPI {
 	}
 
 	public def test():Boolean {
-		val flag = new Rail[Int](1, 0);
+		val flag = new Rail[Int](1, 0n);
 		if (valid) {
 			this.test_request(this.handle, flag);
 			if (flag(0) >0) 

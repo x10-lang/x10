@@ -37,9 +37,9 @@ class SummaMultTest {
 	public val pC:Grid;
 	
     public def this(args:Rail[String]) {
-		M = args.size > 0 ?Int.parse(args(0)):21;
-		N = args.size > 1 ?Int.parse(args(1)):23;
-		K = args.size > 2 ?Int.parse(args(2)):25;	
+		M = args.size > 0 ? Long.parse(args(0)):21;
+		N = args.size > 1 ? Long.parse(args(1)):23;
+		K = args.size > 2 ? Long.parse(args(2)):25;	
 		
 		val numP = Place.numPlaces();//Place.MAX_PLACES;
 		Console.OUT.printf("\nTest SUMMA dist dense matrix over %d places\n", numP);

@@ -13,7 +13,7 @@ import x10.matrix.MathTool;
  */
 public class TestVector {
     public static def main(args:Rail[String]) {
-		val n = (args.size > 0) ? Int.parse(args(0)):4;
+		val n = (args.size > 0) ? Long.parse(args(0)):4;
 		val testcase = new VectorTest(n);
 		testcase.run();
 	}

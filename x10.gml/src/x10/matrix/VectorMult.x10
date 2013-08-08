@@ -217,12 +217,12 @@ public class VectorMult {
 
 
 	public static def comp(A:TriDense, C:Vector(A.M)):Vector(C) {
-		BLAS.compTriMultVec(A.d, A.upper, C.d, C.M, 0);
+		BLAS.compTriMultVec(A.d, A.upper, C.d, C.M, 0n);
 		return C;
 	}
 	
 	public static def comp(C:Vector, A:TriDense(C.M)):Vector(C) {
-		BLAS.compTriMultVec(A.d, A.upper, C.d, C.M, 1); 
+		BLAS.compTriMultVec(A.d, A.upper, C.d, C.M, 1n); 
 		return C;
 	}
 

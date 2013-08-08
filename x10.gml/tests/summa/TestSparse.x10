@@ -40,9 +40,9 @@ class SummaSparseMultTest {
 	public val pC:Grid;
 	
     public def this(args:Rail[String]) {
-		M   = args.size > 0 ?Int.parse(args(0)):21;
-		N   = args.size > 1 ?Int.parse(args(1)):31;
-		K   = args.size > 2 ?Int.parse(args(2)):17;	
+		M   = args.size > 0 ? Long.parse(args(0)):21;
+		N   = args.size > 1 ? Long.parse(args(1)):31;
+		K   = args.size > 2 ? Long.parse(args(2)):17;	
 		nzd = args.size > 3 ?Double.parse(args(3)):0.5; 
 		
 		val numP = Place.numPlaces();//Place.MAX_PLACES;

@@ -246,7 +246,6 @@ public class BlockSet  {
 	 */
 	@Inline 
 	private static def cmp(b1:MatrixBlock, b2:MatrixBlock):Int {
-		val retval:Int=0;
 		if (b1.myColId == b2.myColId) 
 			return (b1.myRowId-b2.myRowId) as Int;
 		else 

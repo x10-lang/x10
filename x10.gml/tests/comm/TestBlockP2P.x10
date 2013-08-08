@@ -23,10 +23,10 @@ import x10.matrix.comm.BlockRemoteCopy;
  */
 public class TestBlockP2P{
     public static def main(args:Rail[String]) {
-		val m = args.size > 0 ?Int.parse(args(0)):60;
-		val n = args.size > 1 ?Int.parse(args(1)):60;
-		val bm= args.size > 2 ?Int.parse(args(2)):2;
-		val bn= args.size > 3 ?Int.parse(args(3)):6;
+		val m = args.size > 0 ? Long.parse(args(0)):60;
+		val n = args.size > 1 ? Long.parse(args(1)):60;
+		val bm= args.size > 2 ? Long.parse(args(2)):2;
+		val bn= args.size > 3 ? Long.parse(args(3)):6;
 		val d = args.size > 4 ? Double.parse(args(4)):0.80;
 		val testcase = new BlockP2PTest(m, n, bm, bn, d);
 		testcase.run();
@@ -101,7 +101,7 @@ class BlockP2PTest {
 		Console.OUT.println("\nTest P2P copyTo dist block matrix ("+M+"x"+N+") "+
 				"("+bM+","+bN+") blocks over "+ numplace+" places");
 		var st:Long =  Timer.milliTime();
-		for (var b:Int=0; b<bM*bN; b++) {
+		for (var b:Long=0; b<bM*bN; b++) {
 			val dstpid = dst.handleBS().findPlace(b);
 			ds += rmtcp.copy(src, dst.handleBS, dstpid, b);
 		}

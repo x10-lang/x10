@@ -26,8 +26,8 @@ import x10.matrix.dist.DupSparseMatrix;
  */
 public class TestSparseColl{
     public static def main(args:Rail[String]) {
-		val m = args.size > 0 ?Int.parse(args(0)):4;
-		val n = args.size > 1 ?Int.parse(args(1)):m+1;
+		val m = args.size > 0 ? Long.parse(args(0)):4;
+		val n = args.size > 1 ? Long.parse(args(1)):m+1;
 		val d = args.size > 2 ?Double.parse(args(2)):0.9;
 
 		val testcase = new RunSparseCollTest(m, n, d);

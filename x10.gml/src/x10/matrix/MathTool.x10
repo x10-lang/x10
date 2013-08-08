@@ -41,7 +41,7 @@ public class MathTool {
 	 */
 	public static def sqrt(n:Int):Int {
 		var rt:Int = Math.sqrt(n) as Int;
-		for (; rt > 1 && n%rt != 0; rt--);
+		for (; rt > 1n && n%rt != 0n; rt--);
 		return rt;
 	}
 	

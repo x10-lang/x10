@@ -17,10 +17,10 @@ import x10.matrix.distblock.summa.AllGridReduce;
 
 public class TestGridReduce{
     public static def main(args:Rail[String]) {
-		val m = args.size > 0 ?Int.parse(args(0)):4;
-		val n = args.size > 1 ?Int.parse(args(1)):5;
-		val bm= args.size > 2 ?Int.parse(args(2)):4;
-		val bn= args.size > 3 ?Int.parse(args(3)):5;
+		val m = args.size > 0 ? Long.parse(args(0)):4;
+		val n = args.size > 1 ? Long.parse(args(1)):5;
+		val bm= args.size > 2 ? Long.parse(args(2)):4;
+		val bn= args.size > 3 ? Long.parse(args(3)):5;
 		val d = args.size > 4 ? Double.parse(args(4)):0.9;
 		val testcase = new GridReduceTest(m, n, bm, bn, d);
 		testcase.run();
@@ -84,7 +84,7 @@ class GridReduceTest {
 		val work1 = distmat.makeTempFrontColBlocks(1);
 		distmat.reset();
 		
-		for (var colId:Int=0; colId<partgrid.numColBlocks; colId++) {
+		for (var colId:Long=0; colId<partgrid.numColBlocks; colId++) {
 			initFrontBlocks(1.0, work1);
 			finish AllGridReduce.startRowReduceSum(0, 1, colId, distmat, work1, tmp);			
 			//Debug.flushln("Done row-wise cast from column block "+colId+" over "+pN+" places row-wise");
@@ -107,7 +107,7 @@ class GridReduceTest {
 		val tmp   = distmat.makeTempFrontRowBlocks(1);
 		val work2 = distmat.makeTempFrontRowBlocks(1);
 		
-		for (var rowId:Int=0; rowId<grid.numRowBlocks; rowId++) {
+		for (var rowId:Long=0; rowId<grid.numRowBlocks; rowId++) {
 			initFrontBlocks(1.0, work2);
 			finish AllGridReduce.startColReduceSum(0, 1, rowId, distmat, work2, tmp);
 			//Debug.flushln("Done col-wise cast from row block "+rowId+" over "+pM+" places column-wise");

@@ -16,9 +16,9 @@ import x10.matrix.dist.summa.SummaSparse;
 
 public class DistSparseBench {
 	public static def main(args:Rail[String]) {
-		val M = args.size > 0 ?Int.parse(args(0)):1000;
-		val K = args.size > 1 ?Int.parse(args(1)):1000;
-		val N = args.size > 2 ?Int.parse(args(2)):1000;
+		val M = args.size > 0 ? Long.parse(args(0)):1000;
+		val K = args.size > 1 ? Long.parse(args(1)):1000;
+		val N = args.size > 2 ? Long.parse(args(2)):1000;
 		val nzD = args.size > 3 ?Double.parse(args(3)):0.1;
 		val iter = args.size > 4 ? Int.parse(args(4)):1;
 		val ps = args.size > 5 ? Int.parse(args(5)):0;

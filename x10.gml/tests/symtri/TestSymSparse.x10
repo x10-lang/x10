@@ -17,7 +17,7 @@ import x10.matrix.builder.SymSparseBuilder;
 public class TestSymSparse{
 
     public static def main(args:Rail[String]) {
-		val m = (args.size > 0) ? Int.parse(args(0)):8;
+		val m = (args.size > 0) ? Long.parse(args(0)):8;
 		val z = (args.size > 1) ? Double.parse(args(1)):0.5;
 		val testcase = new SymSpaTest(m, z);
 		testcase.run();

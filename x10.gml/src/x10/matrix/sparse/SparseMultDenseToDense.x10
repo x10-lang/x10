@@ -148,7 +148,7 @@ public class SparseMultDenseToDense {
 		//Debug.flushln("Using X10 driver: CSR * Dense -> Dense");
 		Debug.assure(m3.M>=m1.M&&m1.N == m2.M&&m2.N<=m3.N);
 		//
-		var m2stcol:Int = 0;
+		var m2stcol:Long = 0;
 		for (var r:Long=0; r<m1.M; r++) {
 			val m1row = m1.getRow(r);
 			m2stcol = 0;

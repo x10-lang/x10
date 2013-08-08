@@ -39,7 +39,7 @@ public class DenseMatrixLAPACK {
 
     public static def solveLinearEquation(A:DenseMatrix, BX:Vector(A.N), ipiv:Rail[Int]{self.size==A.N}):Int {
         Debug.assure(A.N < Int.MAX_VALUE, "32-bit LAPACK only supports matrix dimension < 2^31");
-		return DriverLAPACK.solveLinearEquation(A.d, BX.d, ipiv, [A.N as Int, 1]);
+		return DriverLAPACK.solveLinearEquation(A.d, BX.d, ipiv, [A.N as Int, 1n]);
  	}
 /*	
 	public static def solveLinearEquation(A:DenseMatrix, BX:DenseMatrix(A.N), ipvec:Vector(A.M)):Int {

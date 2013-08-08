@@ -39,12 +39,12 @@ public class MatMatMult {
 	public val vrf:Boolean;
 
     public def this(args:Rail[String]) {
-		M = args.size > 0 ?Int.parse(args(0)):30;
-		N = args.size > 1 ?Int.parse(args(1)):(M as Int)+1;
-		K = args.size > 2 ?Int.parse(args(2)):(M as Int)+2;
-		bM= args.size > 3 ?Int.parse(args(3)):(Place.MAX_PLACES as Int)+1;
-		bK= args.size > 4 ?Int.parse(args(4)):(bM as Int)+1;
-		bN= args.size > 5 ?Int.parse(args(5)):(Place.MAX_PLACES as Int)+15;
+		M = args.size > 0 ? Long.parse(args(0)):30;
+		N = args.size > 1 ? Long.parse(args(1)):(M as Int)+1;
+		K = args.size > 2 ? Long.parse(args(2)):(M as Int)+2;
+		bM= args.size > 3 ? Long.parse(args(3)):(Place.MAX_PLACES as Int)+1;
+		bK= args.size > 4 ? Long.parse(args(4)):(bM as Int)+1;
+		bN= args.size > 5 ? Long.parse(args(5)):(Place.MAX_PLACES as Int)+15;
 		nzp = args.size > 6 ?Double.parse(args(6)):0.9;
 		vrf = args.size > 7 ?false:true;
 		

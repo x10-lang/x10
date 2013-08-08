@@ -14,7 +14,7 @@ import x10.matrix.builder.SymSparseBuilder;
 
 public class TestSymBuilder{
     public static def main(args:Rail[String]) {
-		val m = (args.size > 0) ? Int.parse(args(0)):4;
+		val m = (args.size > 0) ? Long.parse(args(0)):4;
 		val d = (args.size > 1) ? Double.parse(args(1)):0.5;
 		val testcase = new TestBuilder(m, d);
 		testcase.run();

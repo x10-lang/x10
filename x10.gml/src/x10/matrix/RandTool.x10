@@ -85,7 +85,7 @@ public class RandTool {
 
 			// mean + std_deviation * p;
 			d = Math.floor((avg + avg/2.0*p) + 0.5) as Int ;
-			if (d < 1) d = 1;
+			if (d < 1n) d = 1n;
 			break;
 		}
 		//Console.OUT.println(" dst:"+d);
@@ -97,9 +97,9 @@ public class RandTool {
 	 * The mean is specified by avg within the range of [1, 2*avg]
 	 */
 	public static def nextUniRandDst(max:Double): Int {
-		val rg= RandTool.getRandGen();
+		val rg = RandTool.getRandGen();
 		//val max= (avg * 1.99 - 2) as Int;
-		val retval:Int = 1+Math.floor(rg.nextFloat()*max) as Int;
+		val retval = 1n + Math.floor(rg.nextFloat()*max) as Int;
 		return retval; 
 	}
 }

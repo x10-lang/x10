@@ -26,10 +26,10 @@ class TestGridDist {
 	public val K:Long;	
 
     public def this(args:Rail[String]) {
-		M = args.size > 0 ?Int.parse(args(0)):4;
+		M = args.size > 0 ? Long.parse(args(0)):4;
 		nzp = args.size > 1 ?Double.parse(args(1)):0.5;
-		N = args.size > 2 ?Int.parse(args(2)):M+1;
-		K = args.size > 3 ?Int.parse(args(3)):M+2;	
+		N = args.size > 2 ? Long.parse(args(2)):M+1;
+		K = args.size > 3 ? Long.parse(args(3)):M+2;	
 	}
 
 	public def run():Boolean {

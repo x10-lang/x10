@@ -32,7 +32,7 @@ public class ArrayReduce extends ArrayRemoteCopy {
     /** Reduce data from all places to here via PlaceLocalHandle */
 	public static def arraySum(src:Rail[Double],dst:Rail[Double], cnt:Long):Int {
 		for (var i:Long=0; i<cnt; i++) dst(i) += src(i);
-		return 1;
+		return 1n;
 	}
 	
 	/**

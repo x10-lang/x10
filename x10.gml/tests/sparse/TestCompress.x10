@@ -26,8 +26,8 @@ class CompArrayTest {
 	public val nzp:Double;
 
     public def this(args:Rail[String]) {
-		M = args.size > 0 ?Int.parse(args(0)):32;
-		nzp = args.size > 1 ?Double.parse(args(1)):0.5;
+		M = args.size > 0 ? Long.parse(args(0)):32;
+		nzp = args.size > 1 ? Double.parse(args(1)):0.5;
 	}
 
 	public def run(): void {

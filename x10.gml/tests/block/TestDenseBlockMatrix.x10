@@ -28,10 +28,10 @@ class TestDBMatrix {
 	public val grid:Grid;
 
     public def this(args:Rail[String]) {
-		M = args.size > 0 ?Int.parse(args(0)):50;
-		N = args.size > 1 ?Int.parse(args(1)):(M as Int)+1;
-		R = args.size > 2 ?Int.parse(args(2)):3;
-		C = args.size > 3 ?Int.parse(args(3)):(R as Int)+1;
+		M = args.size > 0 ? Long.parse(args(0)):50;
+		N = args.size > 1 ? Long.parse(args(1)):(M as Int)+1;
+		R = args.size > 2 ? Long.parse(args(2)):3;
+		C = args.size > 3 ? Long.parse(args(3)):(R as Int)+1;
 		grid = new Grid(M, N, R, C);
 	}
 

@@ -136,7 +136,7 @@ public class SparseCSCBuilder(M:Long, N:Long) implements MatrixBuilder {
 	 */
 	public def initRandom(nzd:Double, initFunc:(Long,Long)=>Double) : SparseCSCBuilder(this) {
 		val rgen = RandTool.getRandGen();
-		val maxdst:Int = ((1.0/nzd) as Int) * 2 - 1;
+		val maxdst:Long = ((1.0/nzd) as Int) * 2 - 1;
 		var r:Long = rgen.nextLong(maxdst/2);
 		var c:Long = 0;
 		while (true) {
@@ -364,9 +364,9 @@ public class SparseCSCBuilder(M:Long, N:Long) implements MatrixBuilder {
 
 	@Inline
 	public def cmpColMajor(nz1:NonZeroEntry,nz2:NonZeroEntry):Int {
-		if (nz1.row < nz2.row)  return -1;
-		if (nz1.row == nz2.row) return 0;
-		return 1;
+		if (nz1.row < nz2.row)  return -1n;
+		if (nz1.row == nz2.row) return 0n;
+		return 1n;
 	}
 
 	/*

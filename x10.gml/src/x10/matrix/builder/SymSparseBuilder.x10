@@ -65,7 +65,7 @@ public class SymSparseBuilder extends SparseCSCBuilder{self.M==self.N} implement
 	 */
 	public def initRandom(nzd:Double, fval:(Long,Long)=>Double):SymSparseBuilder(this) {
 		val rgen = RandTool.getRandGen();
-		val maxdst:Int = ((1.0/nzd) as Int) * 2 - 1;
+		val maxdst:Long = ((1.0/nzd) as Int) * 2 - 1;
 		var r:Long = rgen.nextLong(maxdst/2);
 		var c:Long = 0;
 		while (true) {

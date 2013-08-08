@@ -4,29 +4,22 @@
  *  (C) Copyright IBM Corporation 2011.
  */
 
-
 import x10.matrix.Matrix;
 import x10.matrix.DenseMatrix;
 import x10.matrix.TriDense;
 
 /**
    This class contains test cases for triangular dense matrix addition, scaling, and negation operations.
-   <p>
-
-   <p>
  */
 public class TestTriDense{
-
     public static def main(args:Rail[String]) {
-		val m = (args.size > 0) ? Int.parse(args(0)):5;
+		val m = (args.size > 0) ? Long.parse(args(0)):5;
 		val testcase = new TriMatTest(m);
 		testcase.run();
 	}
 }
 
-
 class TriMatTest {
-
 	public val M:Long;
 
 	public def this(m:Long) {

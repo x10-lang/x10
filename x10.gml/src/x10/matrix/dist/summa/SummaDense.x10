@@ -100,11 +100,11 @@ public class SummaDense {
         ret &= A.grid.numColBlocks == C.grid.numColBlocks;
                 Debug.assure(ret,"Grids mismatched! (#Blocks)");
         
-        for (var rb:Int=0; rb<C.grid.numRowBlocks && ret; rb++) 
+        for (var rb:Long=0; rb<C.grid.numRowBlocks && ret; rb++) 
             ret &= A.grid.rowBs(rb)==C.grid.rowBs(rb);
                 Debug.assure(ret,"Grids mismatched! (A row C row)");    
             
-        for (var cb:Int =0; cb<C.grid.numColBlocks && ret; cb++) 
+        for (var cb:Long=0; cb<C.grid.numColBlocks && ret; cb++) 
             ret &= B.grid.colBs(cb) == C.grid.colBs(cb);
                 Debug.assure(ret,"Grids mismatched! (B col C col)");
 
@@ -148,11 +148,11 @@ public class SummaDense {
         ret &= A.grid.numColBlocks == C.grid.numColBlocks;
                 Debug.assure(ret,"Grids mismatched! (#Blocks)");
         
-        for (var rb:Int=0; rb<C.grid.numRowBlocks && ret; rb++) 
+        for (var rb:Long=0; rb<C.grid.numRowBlocks && ret; rb++) 
             ret &= A.grid.rowBs(rb)==C.grid.rowBs(rb);    
                 Debug.assure(ret,"Grids mismatched! (A row C row)");    
 
-        for (var cb:Int=0; cb<A.grid.numColBlocks && ret; cb++) 
+        for (var cb:Long=0; cb<A.grid.numColBlocks && ret; cb++) 
             ret &= A.grid.colBs(cb) == B.grid.colBs(cb);
                 Debug.assure(ret,"Grids mismatched! (A col B col)");
 

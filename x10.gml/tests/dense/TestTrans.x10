@@ -18,7 +18,7 @@ import x10.matrix.DenseMultXTen;
  */
 public class TestTrans {
     public static def main(args:Rail[String]) {
-		val m = (args.size > 0) ? Int.parse(args(0)):50;
+		val m = (args.size > 0) ? Long.parse(args(0)):50;
 		val testcase = new TransMultTest(args);
 		testcase.run();
 	}
@@ -30,9 +30,9 @@ class TransMultTest {
 	public val K:Long;
 
     public def this(args:Rail[String]) {
-		M = args.size > 0 ?Int.parse(args(0)):50;
-		N = args.size > 1 ?Int.parse(args(1)):(M as Int)+1;
-		K = args.size > 2 ?Int.parse(args(2)):(M as Int)+2;
+		M = args.size > 0 ?Long.parse(args(0)):50;
+		N = args.size > 1 ?Long.parse(args(1)):(M as Int)+1;
+		K = args.size > 2 ?Long.parse(args(2)):(M as Int)+2;
 	}
 
     public def run(): void {

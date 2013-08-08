@@ -13,7 +13,7 @@ import x10.matrix.distblock.DupVector;
 
 public class TestDupVector{
     public static def main(args:Rail[String]) {
-		val n = (args.size > 0) ? Int.parse(args(0)):4;
+		val n = (args.size > 0) ? Long.parse(args(0)):4;
 		val testcase = new TestRunDV(n);
 		testcase.run();
 	}
@@ -122,8 +122,8 @@ class TestRunDV {
 		Console.OUT.println("Starting DupVector associative test");
 
 		val a = DupVector.make(M).init(1.0);
-		val b = DupVector.make(M).initRandom(1, 10);
-		val c = DupVector.make(M).initRandom(10, 100);
+		val b = DupVector.make(M).initRandom(1n, 10n);
+		val c = DupVector.make(M).initRandom(10n, 100n);
 		val c1 = a + b + c;
 		val c2 = a + (b + c);
 		val ret = c1.equals(c2);
@@ -153,8 +153,8 @@ class TestRunDV {
 	public def testCellMult():Boolean {
 		Console.OUT.println("Starting duplicated vector cellwise mult test");
 
-		val a = DupVector.make(M).initRandom(1, 10);
-		val b = DupVector.make(M).initRandom(10, 100);
+		val a = DupVector.make(M).initRandom(1n, 10n);
+		val b = DupVector.make(M).initRandom(10n, 100n);
 		val c = (a + b) * a;
 		val d = a * a + b * a;
 		val ret = c.equals(d);

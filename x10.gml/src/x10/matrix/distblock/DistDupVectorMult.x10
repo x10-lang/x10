@@ -26,9 +26,9 @@ public class DistDupVectorMult  {
 		Debug.assure(mA.isDistHorizontal(),	"First dist block matrix must have horizontal distribution");
 
 		val stt = Timer.milliTime();
-		var offb:Int = 0;
+		var offb:Long = 0;
 		val rootpid = here.id();
-		finish for (var p:Int=0; p<Place.MAX_PLACES; offb+=vB.segSize(p), p++) {
+		finish for (var p:Long=0; p<Place.MAX_PLACES; offb+=vB.segSize(p), p++) {
 			val pid = p;
 			val offsetB = offb;
 			at(Place(pid)) async {
@@ -46,8 +46,8 @@ public class DistDupVectorMult  {
 	public static def comp(mA:DistBlockMatrix, vB:DupVector(mA.N), vC:DistVector(mA.M), plus:Boolean):DistVector(vC) {
 		Debug.assure(mA.isDistVertical(), "First dist block matrix must have vertical distribution");
 		val stt = Timer.milliTime();
-		var offc:Int = 0;
-		finish for (var p:Int=0; p<Place.MAX_PLACES; offc+=vC.segSize(p), p++) {
+		var offc:Long = 0;
+		finish for (var p:Long=0; p<Place.MAX_PLACES; offc+=vC.segSize(p), p++) {
 			val pid = p;
 			val offsetC = offc;
 			//Debug.flushln("stating offset of C at for place "+here.id()+" is "+offsetC);
@@ -65,9 +65,9 @@ public class DistDupVectorMult  {
 				"Second operand dist block matrix must have vertical distribution");
 
 		val stt = Timer.milliTime();
-		var offb:Int=0;
+		var offb:Long=0;
 		val rootpid = here.id();
-		finish for (var p:Int=0; p<Place.MAX_PLACES; offb+=vB.segSize(p), p++) {
+		finish for (var p:Long=0; p<Place.MAX_PLACES; offb+=vB.segSize(p), p++) {
 			val pid = p;
 			val offsetB = offb;
 			at(Place(pid)) async {
@@ -85,8 +85,8 @@ public class DistDupVectorMult  {
 		Debug.assure(mA.isDistHorizontal(),
 				"Second operand dist block matrix must have horizontal distribution");
 		val stt = Timer.milliTime();
-		var offc:Int = 0;
-		finish for (var p:Int=0; p<Place.MAX_PLACES; offc+=vC.segSize(p), p++) {
+		var offc:Long = 0;
+		finish for (var p:Long=0; p<Place.MAX_PLACES; offc+=vC.segSize(p), p++) {
 			val pid = p;
 			val offsetC = offc;
 			at(Place(pid)) async {

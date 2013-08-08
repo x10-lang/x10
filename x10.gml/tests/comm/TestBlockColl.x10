@@ -23,10 +23,10 @@ import x10.matrix.comm.BlockReduce;
  */
 public class TestBlockColl{
     public static def main(args:Rail[String]) {
-		val m = args.size > 0 ?Int.parse(args(0)):2;
-		val n = args.size > 1 ?Int.parse(args(1)):3;
-		val bm= args.size > 2 ?Int.parse(args(2)):2;
-		val bn= args.size > 3 ?Int.parse(args(3)):2;
+		val m = args.size > 0 ? Long.parse(args(0)):2;
+		val n = args.size > 1 ? Long.parse(args(1)):3;
+		val bm= args.size > 2 ? Long.parse(args(2)):2;
+		val bn= args.size > 3 ? Long.parse(args(3)):2;
 		val d = args.size > 4 ? Double.parse(args(4)):0.9;
 		val testcase = new BlockCollTest(m, n, bm, bn, d);
 		testcase.run();

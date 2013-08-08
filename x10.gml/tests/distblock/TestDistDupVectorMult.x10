@@ -36,10 +36,10 @@ class RunDDVectorMult {
 	public val nzd:Double;
 	
 	public def this(args:Rail[String]) {
-		M = args.size > 0 ?Int.parse(args(0)):20;
-		N = args.size > 1 ?Int.parse(args(1)):(M as Int)+1;
-		bM = args.size > 2 ?Int.parse(args(2)):4;
-		bN = args.size > 3 ?Int.parse(args(3)):5;
+		M = args.size > 0 ? Long.parse(args(0)):20;
+		N = args.size > 1 ? Long.parse(args(1)):(M as Int)+1;
+		bM = args.size > 2 ? Long.parse(args(2)):4;
+		bN = args.size > 3 ? Long.parse(args(3)):5;
 		nzd =  args.size > 6 ?Double.parse(args(6)):0.99;
 	}
 

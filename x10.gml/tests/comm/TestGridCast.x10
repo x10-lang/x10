@@ -14,10 +14,10 @@ import x10.matrix.distblock.summa.AllGridCast;
 
 public class TestGridCast{
     public static def main(args:Rail[String]) {
-		val m = args.size > 0 ?Int.parse(args(0)):2;
-		val n = args.size > 1 ?Int.parse(args(1)):2;
-		val bm= args.size > 2 ?Int.parse(args(2)):2;
-		val bn= args.size > 3 ?Int.parse(args(3)):3;
+		val m = args.size > 0 ? Long.parse(args(0)):2;
+		val n = args.size > 1 ? Long.parse(args(1)):2;
+		val bm= args.size > 2 ? Long.parse(args(2)):2;
+		val bn= args.size > 3 ? Long.parse(args(3)):3;
 		val d = args.size > 4 ? Double.parse(args(4)):0.9;
 		val testcase = new GridCastTest(m, n, bm, bn, d);
 		testcase.run();
@@ -40,7 +40,7 @@ class GridCastTest {
 	public val dblks:BlockMatrix;
 	public val sblks:BlockMatrix;
 	
-	public val rootbid:Int = 0;
+	public val rootbid:Long = 0;
 	
     public def this(m:Long, n:Long, bm:Int, bn:Int, d:Double) {
 		M=m; N=n;
@@ -93,7 +93,7 @@ class GridCastTest {
 		val tmp = distmat.makeTempFrontColBlocks(1);
  		distmat.init((r:Long,c:Long)=>1.0*(r+c));
  		
-		for (var colId:Int=0; colId<grid.numColBlocks&&retval; colId++) {
+		for (var colId:Long=0; colId<grid.numColBlocks&&retval; colId++) {
 			finish AllGridCast.startRowCast(0, 1, colId, distmat, tmp);
 			Debug.flushln("Done row-wise cast from column block "+colId);
 			retval &= AllGridCast.startVerifyRowCast(0, 1, colId, distmat, tmp);
@@ -116,7 +116,7 @@ class GridCastTest {
 		val tmp = distmat.makeTempFrontRowBlocks(1);
 		distmat.init((r:Long,c:Long)=>1.0*(r+c)%2);
 		
-		for (var rowId:Int=0; rowId < grid.numRowBlocks&&retval; rowId++) {
+		for (var rowId:Long=0; rowId < grid.numRowBlocks&&retval; rowId++) {
 			finish AllGridCast.startColCast(0, 1, rowId, distmat, tmp);
 			Debug.flushln("Done column-wise cast from row block "+rowId);
 			retval &= AllGridCast.startVerifyColCast(0, 1, rowId, distmat, tmp);

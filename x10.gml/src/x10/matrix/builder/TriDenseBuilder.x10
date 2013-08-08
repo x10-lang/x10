@@ -82,9 +82,9 @@ public class TriDenseBuilder extends DenseBuilder{self.M==self.N} implements Mat
 	 * @param initFunc     nonzero value generating function.
 	 */
 	public def initUpperRandom(nzDensity:Double, initFunc:(Long,Long)=>Double):TriDenseBuilder(this) {
-		val maxdst:Int = ((1.0/nzDensity) as Int) * 2 - 1;
+		val maxdst:Long = ((1.0/nzDensity) as Int) * 2 - 1;
 		var i:Long= RandTool.nextLong(maxdst/2);
-		var stt:Int=0;
+		var stt:Long=0;
 		for (var c:Long=0; c<this.N; c++, stt+=dense.M, i+=(this.M-c)  ) {
 			var r:Long = i - stt;
 			for (;r<=c; i+= RandTool.nextLong(maxdst)+1, r=i-stt) 
@@ -94,9 +94,9 @@ public class TriDenseBuilder extends DenseBuilder{self.M==self.N} implements Mat
 	}
 
 	public def initLowerRandom(nzDensity:Double, initFunc:(Long,Long)=>Double):TriDenseBuilder(this) {
-		val maxdst:Int = ((1.0/nzDensity) as Int) * 2 - 1;
+		val maxdst:Long = ((1.0/nzDensity) as Int) * 2 - 1;
 		var i:Long= RandTool.nextLong(maxdst/2);
-		var stt:Int=0;
+		var stt:Long=0;
 		for (var c:Long=0; c<this.N; c++, stt+=dense.M, i+=c  ) {
 			var r:Long = i - stt;
 			for (;r<this.M; i+= RandTool.nextLong(maxdst)+1, r=i-stt) 

@@ -31,9 +31,9 @@ import x10.matrix.dist.summa.SummaSparse;
 public class SummaExample{
 	
     public static def main(args:Rail[String]) {
-    	val m = args.size > 0 ?Int.parse(args(0)):21;
-    	val n = args.size > 1 ?Int.parse(args(1)):23;
-    	val k = args.size > 2 ?Int.parse(args(2)):25;	
+    	val m = args.size > 0 ? Long.parse(args(0)):21;
+    	val n = args.size > 1 ? Long.parse(args(1)):23;
+    	val k = args.size > 2 ? Long.parse(args(2)):25;	
     	val p = args.size > 3 ? Double.parse(args(3)):0.5;
     	val testcase = new RunSummaExample(m, n, k, p);
 		testcase.run();

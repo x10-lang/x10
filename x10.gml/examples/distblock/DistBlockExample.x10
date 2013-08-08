@@ -34,12 +34,12 @@ class RunExample {
 	public val bN:Long;
 
     public def this(args:Rail[String]) {
-		M = args.size > 0 ?Int.parse(args(0)):30;
+		M = args.size > 0 ? Long.parse(args(0)):30;
 		nzp = args.size > 1 ?Double.parse(args(1)):0.9;
-		N = args.size > 2 ?Int.parse(args(2)):(M as Int)+1;
-		K = args.size > 3 ?Int.parse(args(3)):(M as Int)+2;
-		bM= args.size > 4 ?Int.parse(args(4)):(Place.MAX_PLACES as Int)+1;
-		bN= args.size > 5 ?Int.parse(args(5)):(Place.MAX_PLACES as Int)+15;
+		N = args.size > 2 ? Long.parse(args(2)):(M as Int)+1;
+		K = args.size > 3 ? Long.parse(args(3)):(M as Int)+2;
+		bM= args.size > 4 ? Long.parse(args(4)):(Place.MAX_PLACES as Int)+1;
+		bN= args.size > 5 ? Long.parse(args(5)):(Place.MAX_PLACES as Int)+15;
 		
 		Console.OUT.printf("Matrix M:%d K:%d N:%d, blocks(%d, %d) \n", M, N, K, bM, bN);
 	}

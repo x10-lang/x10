@@ -30,14 +30,14 @@ import x10.matrix.Debug;
  * run command "make help" at the root directory of GML library.
  */
 public class ArrayRemoteCopy {
-	private static val baseTagCopyTo:Int=100000;
-	private static val baseTagCopyFrom:Int=200000;
-	private static val baseTagCopyIdxTo:Int=300000;
-	private static val baseTagCopyIdxFrom:Int=400000;
-	private static val baseTagCopyValTo:Int=500000;
-	private static val baseTagCopyValFrom:Int=600000;
-	private static val baseTagCopyToPLH:Int=700000;
-	private static val baseTagCopyFromPLH:Int=800000;
+	private static val baseTagCopyTo:Int=100000n;
+	private static val baseTagCopyFrom:Int=200000n;
+	private static val baseTagCopyIdxTo:Int=300000n;
+	private static val baseTagCopyIdxFrom:Int=400000n;
+	private static val baseTagCopyValTo:Int=500000n;
+	private static val baseTagCopyValFrom:Int=600000n;
+	private static val baseTagCopyToPLH:Int=700000n;
+	private static val baseTagCopyFromPLH:Int=800000n;
 	
 	/**
 	 * Copy multiple columns from source array data at here to the specified remote 

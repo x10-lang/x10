@@ -106,10 +106,10 @@ public class WrapMPI {
 	 */
 	public static def getProcInfo():String {
 		val mlen = 128;//mpi_name_maxlen();
-		val rk   = new Rail[Int](1, 0);
-		val np   = new Rail[Int](1, 0);
-		val hlen = new Rail[Int](1, 0);
-		val hstr = new Rail[Int](mlen, 0);
+		val rk   = new Rail[Int](1, 0n);
+		val np   = new Rail[Int](1, 0n);
+		val hlen = new Rail[Int](1, 0n);
+		val hstr = new Rail[Int](mlen, 0n);
 		world.get_proc_info(rk, np, hlen, hstr);
 		val sc = new Rail[Char](hlen(0), (i:Long)=>(hstr(i) as Char));
 		return new String(sc, 0, hlen(0));
@@ -119,7 +119,7 @@ public class WrapMPI {
 	 * Return MPI process rank ID at here.
 	 */
 	public static def getCommProcID():Int {
-		val rk = new Rail[Int](1, 0);
+		val rk = new Rail[Int](1, 0n);
 		world.get_comm_pid(rk);
 		return rk(0);
 	}
@@ -346,7 +346,7 @@ public class WrapMPI {
 	}
 
 	public def bcast(buf:Rail[Double], cnt:Long, root:Long) :void {
-		mpi_bcast(buf, 0, cnt as Int, root as Int);
+		mpi_bcast(buf, 0n, cnt as Int, root as Int);
 	}
 
 	/**
@@ -368,7 +368,7 @@ public class WrapMPI {
 	}
 
 	public def bcast(buf:Rail[Long], cnt:Long, root:Long) :void {
-		mpi_bcast(buf, 0, cnt as Int, root as Int);
+		mpi_bcast(buf, 0n, cnt as Int, root as Int);
 	}
 
 	/**
@@ -459,7 +459,7 @@ public class WrapMPI {
         var intRecvcnts:Rail[Int];
 		var displs:Rail[Int];
 		if (root == here.id()) {
-			displs = new Rail[Int](Place.MAX_PLACES, 0);
+			displs = new Rail[Int](Place.MAX_PLACES, 0n);
             intRecvcnts = new Rail[Int](Place.MAX_PLACES);
             intRecvcnts(0) = recvcnts(0) as Int;
 			for (var i:Long=1; i<displs.size; i++) {
@@ -468,8 +468,8 @@ public class WrapMPI {
 				displs(i) = displs(i-1) + intRecvcnts(i-1);
 			}
 		} else {
-			displs = new Rail[Int](0); //Dummy
-            intRecvcnts = new Rail[Int](0); //Dummy
+			displs = new Rail[Int](0n); //Dummy
+            intRecvcnts = new Rail[Int](0n); //Dummy
 		}
 
 		gatherv_long(sendbuf, sendoff as Int, sendcnt as Int, 
@@ -629,7 +629,7 @@ public class WrapMPI {
 	 */
 	public def reduceSum(sendbuf:Rail[Double], recvbuf:Rail[Double],
 			cnt:Long, root:Long):void {
-		reduce_sum(sendbuf, 0, recvbuf, 0, cnt as Int, root as Int);
+		reduce_sum(sendbuf, 0n, recvbuf, 0n, cnt as Int, root as Int);
 	}
 
 	/**
@@ -654,7 +654,7 @@ public class WrapMPI {
 			sendbuf:Rail[Double], 
 			recvbuf:Rail[Double],	
 			cnt:Long): void {
-		allReduceSum(sendbuf, 0, recvbuf, 0, cnt as Int);
+		allReduceSum(sendbuf, 0n, recvbuf, 0n, cnt as Int);
 	}
 
 	// Non-blocking int P2P

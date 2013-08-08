@@ -32,7 +32,7 @@ class RunDistBlockMatrix {
 	public val K:Long;
 	public val N:Long;
 	public val bM:Long;
-	public val bK:Int;
+	public val bK:Long;
 	public val bN:Long;
 	public val nzd:Double;
 
@@ -45,12 +45,12 @@ class RunDistBlockMatrix {
 	val dB:DistMap, dTransB:DistMap;
 	
     public def this(args:Rail[String]) {
-		M = args.size > 0 ?Int.parse(args(0)):10;
-		K = args.size > 1 ?Int.parse(args(1)):(M as Int)+1;
-		N = args.size > 2 ?Int.parse(args(2)):(M as Int)+2;
-		bM = args.size > 3 ?Int.parse(args(3)):4;
-		bK = args.size > 4 ?Int.parse(args(4)):5;
-		bN = args.size > 5 ?Int.parse(args(5)):5;
+		M = args.size > 0 ? Long.parse(args(0)):10;
+		K = args.size > 1 ? Long.parse(args(1)):(M as Int)+1;
+		N = args.size > 2 ? Long.parse(args(2)):(M as Int)+2;
+		bM = args.size > 3 ? Long.parse(args(3)):4;
+		bK = args.size > 4 ? Long.parse(args(4)):5;
+		bN = args.size > 5 ? Long.parse(args(5)):5;
 		nzd =  args.size > 6 ?Double.parse(args(6)):0.99;
 		
 		gA = new Grid(M, K, bM, bK);

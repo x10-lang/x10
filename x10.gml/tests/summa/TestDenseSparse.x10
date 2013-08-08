@@ -39,9 +39,9 @@ class SummaDenseMultSparseTest {
 	public val pC:Grid;
 	
     public def this(args:Rail[String]) {
-		M   = args.size > 0 ?Int.parse(args(0)):25;
-		N   = args.size > 1 ?Int.parse(args(1)):21;
-		K   = args.size > 2 ?Int.parse(args(2)):27;	
+		M   = args.size > 0 ? Long.parse(args(0)):25;
+		N   = args.size > 1 ? Long.parse(args(1)):21;
+		K   = args.size > 2 ? Long.parse(args(2)):27;	
 		nzd = args.size > 3 ?Double.parse(args(3)):0.5; 
 		
 		val numP = Place.numPlaces();//Place.MAX_PLACES;

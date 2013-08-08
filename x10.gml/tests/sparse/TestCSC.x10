@@ -21,9 +21,9 @@ class AddSubCSC {
 	public val N:Long;
 
     public def this(args:Rail[String]) {
-		M = args.size > 0 ?Int.parse(args(0)):8;
-		N = args.size > 1 ?Int.parse(args(1)):8;
-		nzp = args.size > 2 ?Double.parse(args(2)):0.99;
+		M = args.size > 0 ? Long.parse(args(0)):8;
+		N = args.size > 1 ? Long.parse(args(1)):8;
+		nzp = args.size > 2 ? Double.parse(args(2)):0.99;
 	}
 
 	public def run(): void {

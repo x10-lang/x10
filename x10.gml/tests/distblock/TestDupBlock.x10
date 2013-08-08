@@ -28,12 +28,12 @@ class TestDupBlk {
 	public val grid:Grid;
 	
     public def this(args:Rail[String]) {
-		M = args.size > 0 ?Int.parse(args(0)):4;
+		M = args.size > 0 ? Long.parse(args(0)):4;
 		nzp = args.size > 1 ?Double.parse(args(1)):0.9;
-		N = args.size > 2 ?Int.parse(args(2)):4;
-		K = args.size > 3 ?Int.parse(args(3)):(M as Int)+2;
-		bM= args.size > 4 ?Int.parse(args(4)):2;
-		bN= args.size > 5 ?Int.parse(args(5)):2;
+		N = args.size > 2 ? Long.parse(args(2)):4;
+		K = args.size > 3 ? Long.parse(args(3)):(M as Int)+2;
+		bM= args.size > 4 ? Long.parse(args(4)):2;
+		bN= args.size > 5 ? Long.parse(args(5)):2;
 
 		grid = new Grid(M, N, bM, bN);
 		//dmap = DistGrid.make(grid).dmap; 

@@ -48,7 +48,7 @@ public class SymDenseBuilder extends DenseBuilder{self.M==self.N} implements Mat
 	 * Initial dense matrix with initial function.
 	 */
 	public def init(initFunc:(Long,Long)=>Double):SymDenseBuilder(this) {
-		var stt:Int=0;
+		var stt:Long=0;
 		for (var c:Long=0; c<this.N; c++, stt+=1+dense.M ) {
 			var i:Long = stt;
 			var j:Long = stt+dense.M;
@@ -65,9 +65,9 @@ public class SymDenseBuilder extends DenseBuilder{self.M==self.N} implements Mat
 	 * @param initFunc     nonzero value generating function.
 	 */
 	public def initRandom(nzDensity:Double, initFunc:(Long,Long)=>Double):SymDenseBuilder(this) {
-		val maxdst:Int = ((1.0/nzDensity) as Int) * 2 - 1;
+		val maxdst:Long = ((1.0/nzDensity) as Int) * 2 - 1;
 		var i:Long= RandTool.nextLong(maxdst/2);
-		var stt:Int=0;
+		var stt:Long=0;
 		for (var c:Long=0; c<this.N; c++, stt+=dense.M, i+=c) {
 			var r:Long = i - stt;
 			var j:Long = r*dense.M+c;

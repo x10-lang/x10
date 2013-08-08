@@ -104,8 +104,8 @@ public class SummaMult {
 	 */
 	public def parallelMult() {
 		val K = A.N;
-		var itRow:Int = 0;
-		var itCol:Int = 0; //Current processing iteration
+		var itRow:Int = 0n;
+		var itCol:Int = 0n; //Current processing iteration
 		var iwrk:Long = 0;
 		var ii:Long = 0;
 		var jj:Long = 0;

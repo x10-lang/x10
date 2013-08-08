@@ -16,8 +16,8 @@ import x10.matrix.lapack.DenseMatrixLAPACK;
 public class TestLapack {
 
     public static def main(args:Rail[String]) {
-		val m = (args.size > 0) ? Int.parse(args(0)):4;
-		val n = (args.size > 1) ? Int.parse(args(1)):1;
+		val m = (args.size > 0) ? Long.parse(args(0)):4;
+		val n = (args.size > 1) ? Long.parse(args(1)):1;
 		val testcase = new LapackTest(m, n);
 		testcase.run();
 	}
@@ -54,7 +54,7 @@ class LapackTest {
 		
 		val ipv = new Rail[Int](M);
 		val info = DenseMatrixLAPACK.solveLinearEquation(A, B, ipv);
-		Debug.assure(info==0, "Linear equation solve failed. Exit info code:"+info);
+		Debug.assure(info==0n, "Linear equation solve failed. Exit info code:"+info);
 				
 		val ret = B.equals(X);
 		if (ret)
@@ -73,9 +73,9 @@ class LapackTest {
 		val egv = Vector.make(M);
 		
 		val info = DenseMatrixLAPACK.compEigenValue(A, egv, tmp);
-		Debug.assure(info==0, "Compute eigen value failed. Exit info code:"+info);
+		Debug.assure(info==0n, "Compute eigen value failed. Exit info code:"+info);
 		
-		val ret = (info==0);
+		val ret = (info==0n);
 		if (ret)
 			Console.OUT.println("X10 dense LAPACK compute eigen value test passed!");
 		else
@@ -91,9 +91,9 @@ class LapackTest {
 		val tmp = new Rail[Double](4*M);
 		val egv = Vector.make(M);
 		val info = DenseMatrixLAPACK.compEigenVector(A, egv, tmp);
-		Debug.assure(info==0, "Compute eigen vector failed. Exit info code:"+info);
+		Debug.assure(info==0n, "Compute eigen vector failed. Exit info code:"+info);
 		
-		val ret = (info==0);
+		val ret = (info==0n);
 		if (ret)
 			Console.OUT.println("LAPACK compute eigen vector test passed!");
 		else

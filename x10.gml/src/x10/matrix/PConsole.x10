@@ -22,8 +22,8 @@ import x10.util.StringBuilder;
 public class PConsole {
 	public var disable:Boolean = false;
 
-	var baseline:Int    = 0;
-	var lastline:Int    = 0;
+	var baseline:Int    = 0n;
+	var lastline:Int    = 0n;
 	var overflow:Boolean=false;
 
 	val startTime:Long =  Timer.milliTime();
@@ -36,7 +36,6 @@ public class PConsole {
 
 	def reset() {
 		bufln = new StringBuilder();
-
 	}
 
 	def getStamp():String {
@@ -44,7 +43,7 @@ public class PConsole {
 		return "<P"+here.id().toString()+" "+pt+"ms>:";
 	}
 
-	public def toString(d:Rail[Double], st:Int, cnt:Long, inc:Int):String {
+	public def toString(d:Rail[Double], st:Long, cnt:Long, inc:Long):String {
 		var output:StringBuilder = new StringBuilder(); 
 		output.add("[ ");
 		for (var i:Long=st, c:Long=0; i<d.size && c<cnt; i+=inc, c++)
@@ -53,7 +52,7 @@ public class PConsole {
 		return output.toString(); 
 	}
 
-	public def toString(d:Rail[Int], st:Int, cnt:Long, inc:Int):String {
+	public def toString(d:Rail[Int], st:Long, cnt:Long, inc:Long):String {
 		var output:StringBuilder = new StringBuilder();
 		output.add("[");
 		for (var i:Long=st, c:Long=0; i<d.size && c<cnt; i+=inc, c++)
@@ -102,7 +101,6 @@ public class PConsole {
 				prt.println(outln);
 				prt.flush();
 			}
-			//
 			reset();
 			prt.close();
 		}

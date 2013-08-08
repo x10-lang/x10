@@ -33,8 +33,8 @@ public class TestDistSparse {
 		public val grow:Grid;
 
 		public def this(args:Rail[String]) {
-			M = args.size > 0 ?Int.parse(args(0)):5;
-			N = args.size > 1 ?Int.parse(args(1)):(M as Int)+1;
+			M = args.size > 0 ? Long.parse(args(0)):5;
+			N = args.size > 1 ? Long.parse(args(1)):(M as Int)+1;
 			nzp = args.size > 2 ?Double.parse(args(2)):1.0;
 
 			g   = Grid.make(M,N);

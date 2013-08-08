@@ -24,10 +24,10 @@ import x10.matrix.comm.BlockSetReduce;
  */
 public class TestBlockSetComm{
     public static def main(args:Rail[String]) {
-		val m = args.size > 0 ?Int.parse(args(0)):40;
-		val n = args.size > 1 ?Int.parse(args(1)):40;
-		val bm= args.size > 2 ?Int.parse(args(2)):3;
-		val bn= args.size > 3 ?Int.parse(args(3)):7;
+		val m = args.size > 0 ? Long.parse(args(0)):40;
+		val n = args.size > 1 ? Long.parse(args(1)):40;
+		val bm= args.size > 2 ? Long.parse(args(2)):3;
+		val bn= args.size > 3 ? Long.parse(args(3)):7;
 		val d = args.size > 4 ? Double.parse(args(4)):0.99;
 		val testcase = new BlockSetCommTest(m, n, bm, bn, d);
 		testcase.run();

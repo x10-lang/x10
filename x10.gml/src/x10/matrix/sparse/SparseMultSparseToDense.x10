@@ -53,7 +53,7 @@ public class SparseMultSparseToDense {
 		Debug.assure(m3.M>=m1.M&&m1.N == m2.M&&m2.N<=m3.N);
 		//
 		val dst = m3.d;//new Compress2D(m2.N);
-		var col_st:Int=0;
+		var col_st:Long = 0;
 		for (var c:Long=0; c<m2.N; c++, col_st+=m3.M) {
 			if (!plus) { //reset the column if no plus is required
 				for (var i:Long=col_st; i<col_st+m3.M; i++) dst(i) = 0.0;
@@ -144,7 +144,7 @@ public class SparseMultSparseToDense {
 		//
 		//val m3     = new SparseCSC(m1.M, m2.N);
 		val dst = m3.d;//new Compress2D(m2.N);
-		var col_st:Int = 0;
+		var col_st:Long = 0;
 		for (var c:Long=0; c<m2.N; c++, col_st+=m3.M) {
 			if (!plus) {
 				for (var i:Long=col_st; i<col_st+m3.M; i++) dst(i) = 0.0;
@@ -265,8 +265,8 @@ public class SparseMultSparseToDense {
 		//Debug.flushln("Using X10 driver: CSR * Dense -> Dense");
 		Debug.assure(m3.M>=m1.M&&m1.N == m2.M&&m2.N<=m3.N);
 		//
-		var m1strow:Int = 0;
-		var m2stcol:Int = 0;
+		var m1strow:Long = 0;
+		var m2stcol:Long = 0;
 		for (var c:Long=0; c<m2.N; c++) {
 			val m2col = m2.getCol(c);
 			for (var r:Long=0; r<m1.M; r++) {

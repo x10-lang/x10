@@ -848,7 +848,7 @@ public class DupDenseMatrix extends Matrix {
 	// Check integrity 
 	public def syncCheck():Boolean {
 		val m = local();
-		for (var p:Int=0; p<Place.MAX_PLACES; p++) {
+		for (var p:Long=0; p<Place.MAX_PLACES; p++) {
 			//if (p == here.id()) Clock.advanceAll();
 			val pid = p;
 			val dm = at(dupMs.dist(pid)) local();

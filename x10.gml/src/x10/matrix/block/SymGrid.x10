@@ -46,7 +46,7 @@ public class SymGrid extends Grid{self.M==self.N,self.numRowBlocks==self.numColB
 		if (g.M!=g.N) return false;
 		if (g.numRowBlocks!=g.numColBlocks) return false;
 		
-		for (var i:Int=0; i<g.numRowBlocks&&ret; i++)
+		for (var i:Long=0; i<g.numRowBlocks&&ret; i++)
 			ret &=(g.rowBs(i)==g.colBs(i));
 		return ret;
 	}
@@ -55,7 +55,7 @@ public class SymGrid extends Grid{self.M==self.N,self.numRowBlocks==self.numColB
 	public def toString() : String {
 		val strbld = new StringBuilder();
 		strbld.add("Symmetric Partition "+M+" rows into "+numRowBlocks+" [");
-		for (var i:Int=0; i<numColBlocks; i++, strbld.add(","))
+		for (var i:Long=0; i<numColBlocks; i++, strbld.add(","))
 			strbld.add(rowBs(i));
 		strbld.add("]\n");
 		return strbld.toString();
