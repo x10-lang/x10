@@ -21,7 +21,9 @@ public class ResilientDistArray[T](region:Region) implements (Point(region.rank)
     private var da:DistArray[T](rank);
     private def this(dist:Dist, da:DistArray[T](dist.rank)) {
         property(dist.region);
-        this.dist = dist; this.da = da;
+        this.da = da;
+        this.dist = dist;
+        this.savedDist = null;
     }
     public static def make[T](dist:Dist, init:(Point(dist.rank))=>T) = new ResilientDistArray[T](dist, DistArray.make[T](dist, init));
     public static def make[T](dist:Dist){T haszero} = new ResilientDistArray[T](dist, DistArray.make[T](dist));
@@ -38,12 +40,14 @@ public class ResilientDistArray[T](region:Region) implements (Point(region.rank)
      * Snapshot mechanism
      */
     public def remake(dist:Dist, init:(Point(dist.rank))=>T){dist.region==region} {
+        this.da = DistArray.make[T](dist, init);
         this.dist = dist;
-        da = DistArray.make[T](dist, init);
+        this.savedDist = null;
     }
     public def remake(dist:Dist){dist.region==region,T haszero} {
+        this.da = DistArray.make[T](dist);
         this.dist = dist;
-        da = DistArray.make[T](dist);
+        this.savedDist = null;
     }
     
     // /*
@@ -65,12 +69,15 @@ public class ResilientDistArray[T](region:Region) implements (Point(region.rank)
      * Note that snapshot/restore should be executed for the master copy of DistArray
      */
     private val snapshots = new Rail[ResilientStore[Place,Rail[T]]](2, (Long)=>ResilientStore.make[Place,Rail[T]]());
-    private var commit_count:Long = 0L;
+    private transient var commit_count:Long = 0L;
+    private transient var savedDist:Dist = null; // declared as transient to make restore possible only in master
     
+    /* create and commit a snapshot */
     public def snapshot() {
         snapshot_try(); // may fail with DeadPlaceException
         snapshot_commit();
     }
+    /* try to create a snapshot (not committed yet) */
     public def snapshot_try() {
         val idx = (commit_count+1) % 2;
         val snapshot = snapshots(idx);
@@ -81,21 +88,29 @@ public class ResilientDistArray[T](region:Region) implements (Point(region.rank)
             }
         }
     }
+    /* commit the snapshot created by snapshot_try */
     public def snapshot_commit() {
         val idx = commit_count % 2;
-        commit_count++;
+        commit_count++; savedDist = dist; // swith to the new snapshot
+        // delete the old snapshot
         val old_snapshot = snapshots(idx);
         try { old_snapshot.deleteAll(); } catch (e:Exception) { /* ignore errors */ }
     }
-    
+    /* restore from the snapshot with new Dist */
     public def restore(newDist:Dist){newDist.region==region} {
+        if (savedDist == null) {
+            throw new Exception("No saved_dist, maybe not a master?");
+        }
+        val oldDist = savedDist; // to make the transient savedDist copyable
         val idx = commit_count % 2;
-        val snapshot = snapshots(idx);
+        val snapshot = snapshots(idx); // get the active snapshot
         val init = (pt:Point)=>{ //TODO: This code is very slow
-            val raw = snapshot.load(dist(pt));
-            // val offset = dist.offset(pt); // This does not work at another place
-            val offset = dist.get(dist(pt)).indexOf(pt); //TODO: This may not be general
-            return raw(offset);
+            // val offset = oldDist.offset(pt); // This does not work at different place
+            val place = oldDist(pt);
+            val region = oldDist.get(place);
+            val offset = region.indexOf(pt); //TODO: This may not be general
+            val oldRaw = snapshot.load(place); // load from snapshot
+            return oldRaw(offset);
         };
         da = DistArray.make[T](newDist, init);
         dist = newDist;
