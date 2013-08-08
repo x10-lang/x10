@@ -149,6 +149,7 @@ public final class Future[T]{T isref, T haszero} {
     FTask.asyncWait(this, block);
   }
 
+  // To launch free async for register.
   public def register(fun: (T)=>void) {
     val newBlock = () => {
       val v = get();
