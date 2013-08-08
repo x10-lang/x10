@@ -10,16 +10,22 @@ public class SpanTree {
       this.nodes = nodes;
    }
 
-   public static def spanningTree(graph: Graph, node: Node) {
-      val nodes = graph.nodes;
-      val iter = nodes.iterator();
-      while (iter.hasNext()) {
-         val node = iter.next();
-         FTask.asyncWaitOr(node.neighbors, ()=> {
-
-         });
+   public static def spanningTree(g: Graph, n: Node) {
+      finish {
+         val nodes = g.nodes;
+         val iter = nodes.iterator();
+         while (iter.hasNext()) {
+            val node = iter.next();
+            FTask.asyncWaitOr(node.neighbors, ()=> {
+               node.parent.set(pNode);
+            });
+         }
+         n.parent.set(null);
       }
    }
 
 }
+
+
+
 
