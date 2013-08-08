@@ -48,7 +48,6 @@ public class Main {
 
 
 	public static def main(Rail[String]) {
-
 	   FTask.init();
 
 //        test(4, 4);
@@ -56,9 +55,7 @@ public class Main {
 //        test(9, 9);
         test(20, 20);
         test(100, 100);
-
-
-
    }
+
 }
 

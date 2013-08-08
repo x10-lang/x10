@@ -6,7 +6,7 @@ import x10.util.concurrent.AtomicInteger;
 
 
 
-public final class Future[T]{T isref, T haszero} {
+public final class Future[T]{T isref, T haszero} implements Notifier {
 // If T is both a reference type and has a zero then this zero is the null.
 
   // The holder for the value of the future.
@@ -119,7 +119,7 @@ public final class Future[T]{T isref, T haszero} {
       state = flag.get(); // Spin for a short time
     if (state == TentTask.STABLE) {
       val fTask = tentTask.task;
-      fTask.inform();
+      fTask.inform(this);
     }
   }
 
@@ -128,6 +128,13 @@ public final class Future[T]{T isref, T haszero} {
   }
 
   public def asyncSet(futures: ArrayList[Future[T]], fun: ()=>T) {
+    FTask.asyncWait(
+      futures,
+      ()=>{ set(fun()); }
+    );
+  }
+
+  public def asyncSet(futures: ArrayList[Notifier], fun: ()=>T) {
     FTask.asyncWait(
       futures,
       ()=>{ set(fun()); }
