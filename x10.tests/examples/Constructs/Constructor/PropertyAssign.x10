@@ -24,7 +24,7 @@ public class PropertyAssign extends x10Test {
         }
   
 	public def run(): boolean = {
-                var p: Prop = new Prop(1,2);
+                var p: Prop = new Prop(1n,2n);
 	        return true;
 	}
 
