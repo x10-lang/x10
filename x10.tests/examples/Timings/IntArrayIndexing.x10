@@ -25,7 +25,7 @@ public class IntArrayIndexing extends x10Test {
 	var _intArray4D: Array[int](4);
 
 	public def this(): IntArrayIndexing {
-		val kArraySize: int = 30;
+		val kArraySize: long = 30;
 		var range1D: Region(1);
                 var range2D: Region(2);
                 var range3D: Region(3);
@@ -56,7 +56,7 @@ public class IntArrayIndexing extends x10Test {
 		var l2: long = array.region.min(1);
 		var l3: long = array.region.min(2);
 
-		var count: int = 0;
+		var count: int = 0n;
 		for (var i: long = l1; i <= h1; ++i)
 			for (var j: long = l2; j <= h2; ++j)
 				for (var k: long = l3; k <= h3; ++k) {
@@ -80,7 +80,7 @@ public class IntArrayIndexing extends x10Test {
 		var l2: long = array.region.min(1);
 		var l3: long = array.region.min(2);
 		var l4: long = array.region.min(3);
-		var count: int = 0;
+		var count: int = 0n;
 		for (var i: long = l1; i <= h1; ++i)
 			for (var j: long = l2; j <= h2; ++j)
 				for (var k: long = l3; k <= h3; ++k)
@@ -97,7 +97,7 @@ public class IntArrayIndexing extends x10Test {
 	}
 
 	def initialize(val array: Array[int]): void {
-		var count: int = 0;
+		var count: int = 0n;
 		for (val p: Point(array.rank) in array.region) {
 			array(p) = count++;
 			if (verbose) x10.io.Console.OUT.println("init:"+p+" = "+count);
@@ -124,7 +124,7 @@ public class IntArrayIndexing extends x10Test {
 	}
 
 	public def run(): boolean {
-		var repeatCount: int = 4000;
+		var repeatCount: int = 4000n;
 
 		if (!runIntTests(repeatCount)) return false;
 

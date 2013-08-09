@@ -17,7 +17,7 @@ import x10.regionarray.*;
  */
 public class Initialization extends x10Test {
 
-	static kArraySize: int = 500;
+	static kArraySize: int = 500n;
 	var x_doubleArray1D: DistArray[double];
 	var x_doubleArray2D: DistArray[double];
 	var x_javaArray: Array[double];
