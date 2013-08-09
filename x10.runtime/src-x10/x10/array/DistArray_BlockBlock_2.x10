@@ -40,19 +40,19 @@ public class DistArray_BlockBlock_2[T] extends DistArray[T]{this.rank()==2} impl
     
     @TransientInitExpr(reloadMinIndex_1())
     protected transient val minIndex_1:Long;
-    @NonEscaping protected final def reloadMinIndex_1() = localIndices.min(0n);
+    @NonEscaping protected final def reloadMinIndex_1() = localIndices.min(0);
  
     @TransientInitExpr(reloadMinIndex_2())
     protected transient val minIndex_2:Long;
-    @NonEscaping protected final def reloadMinIndex_2() = localIndices.min(1n);
+    @NonEscaping protected final def reloadMinIndex_2() = localIndices.min(1);
 
     @TransientInitExpr(reloadNumElemsLocal_1())
     protected transient val numElemsLocal_1:Long;
-    @NonEscaping protected final def reloadNumElemsLocal_1() = localIndices.max(0n) - minIndex_1 + 1L;
+    @NonEscaping protected final def reloadNumElemsLocal_1() = localIndices.max(0) - minIndex_1 + 1L;
 
     @TransientInitExpr(reloadNumElemsLocal_2())
     protected transient val numElemsLocal_2:Long;
-    @NonEscaping protected final def reloadNumElemsLocal_2() = localIndices.max(1n) - minIndex_2 + 1L;
+    @NonEscaping protected final def reloadNumElemsLocal_2() = localIndices.max(1) - minIndex_2 + 1L;
 
     /**
      * Construct a m by n block-block distributed DistArray
@@ -67,8 +67,8 @@ public class DistArray_BlockBlock_2[T] extends DistArray[T]{this.rank()==2} impl
     public def this(m:long, n:long, pg:PlaceGroup{self!=null}, init:(long,long)=>T) {
         super(pg, () => LocalState_BB2.make[T](pg, m, n, init));
         globalIndices = new DenseIterationSpace_2(0L, 0L, m-1, n-1);
-        numElems_1 = globalIndices.max(0n) - globalIndices.min(0n) + 1;
-        numElems_2 = globalIndices.max(1n) - globalIndices.min(1n) + 1;
+        numElems_1 = globalIndices.max(0) - globalIndices.min(0) + 1;
+        numElems_2 = globalIndices.max(1) - globalIndices.min(1) + 1;
         localIndices = reloadLocalIndices();
         minIndex_1 = reloadMinIndex_1();
         minIndex_2 = reloadMinIndex_2();
@@ -224,7 +224,7 @@ public class DistArray_BlockBlock_2[T] extends DistArray[T]{this.rank()==2} impl
             if (i < minIndex_1 || i >= (minIndex_1 + numElemsLocal_1) || 
                 j < minIndex_2 || j >= (minIndex_2 + numElemsLocal_2)) {
                 if (CompilerFlags.checkBounds() && (i < 0 || i >= numElems_1 || j < 0 || j >= numElems_2)) {
-                    raiseBoundsError(i);
+                    raiseBoundsError(i, j);
                 }
                 if (CompilerFlags.checkPlace()) raisePlaceError(i,j);
             }
@@ -252,15 +252,14 @@ class LocalState_BB2[S] extends LocalState[S] {
     static def make[S](pg:PlaceGroup{self!=null}, m:long, n:long, init:(long,long)=>S):LocalState_BB2[S] {
         val globalSpace = new DenseIterationSpace_2(0L, 0L, m-1, n-1);
         val localSpace = BlockingUtils.partitionBlockBlock(globalSpace, pg.numPlaces(), pg.indexOf(here));
-
 	val data:Rail[S]{self!=null};
-	if (localSpace.min(0n) > localSpace.max(0n)) { // TODO: add isEmpty() to IterationSpace API?
+	if (localSpace.min(0) > localSpace.max(0)) { // TODO: add isEmpty() to IterationSpace API?
             data = new Rail[S]();
         } else {            
-            val low1 = localSpace.min(0n);
-            val hi1 = localSpace.max(0n);
-            val low2 = localSpace.min(1n);
-            val hi2 = localSpace.max(1n);
+            val low1 = localSpace.min(0);
+            val hi1 = localSpace.max(0);
+            val low2 = localSpace.min(1);
+            val hi2 = localSpace.max(1);
             val localSize1 = hi1 - low1 + 1;
             val localSize2 = hi2 - low2 + 1;
             val dataSize = localSize1 * localSize2;

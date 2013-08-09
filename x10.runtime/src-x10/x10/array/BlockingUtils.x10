@@ -113,9 +113,16 @@ public class BlockingUtils {
         val max1 = is.max(1);
         val size0 = (max0 - min0 + 1);
         val size1 = (max1 - min1 + 1);
-        val size0Even = size0 % 2 == 0L ? size0 : size0-1;
-        val P = Math.min(n, size0Even * size1);
-        val divisions0 = Math.min(size0Even, Math.pow2(Math.ceil((Math.log(P as Double) / Math.log(2.0)) / 2.0) as long));
+	val divisions0:long;
+	val P:long;
+	if (size0 > 1) {
+            val size0Even = size0 % 2 == 0 ? size0 : size0-1;
+            P = Math.min(n, size0Even * size1);
+            divisions0 = Math.min(size0Even, Math.pow2(Math.ceil((Math.log(P as Double) / Math.log(2.0)) / 2.0) as long));
+        } else {
+           divisions0 = 1;
+           P = Math.min(n, size1);
+        }
         val divisions1 = Math.min(size1, Math.ceil((P as Double) / divisions0) as long);
         val leftOver = divisions0*divisions1 - P;
 
@@ -165,9 +172,16 @@ public class BlockingUtils {
 
         val size0 = (max0 - min0 + 1);
         val size1 = (max1 - min1 + 1);
-        val size0Even = size0 % 2 == 0L ? size0 : size0-1;
-        val P = Math.min(n, size0Even * size1);
-        val divisions0 = Math.min(size0Even, Math.pow2(Math.ceil((Math.log(P as Double) / Math.log(2.0)) / 2.0) as long));
+	val divisions0:long;
+	val P:long;
+	if (size0 > 1) {
+            val size0Even = size0 % 2 == 0 ? size0 : size0-1;
+            P = Math.min(n, size0Even * size1);
+            divisions0 = Math.min(size0Even, Math.pow2(Math.ceil((Math.log(P as Double) / Math.log(2.0)) / 2.0) as long));
+        } else {
+           divisions0 = 1;
+           P = Math.min(n, size1);
+        }
         val divisions1 = Math.min(size1, Math.ceil((P as Double) / divisions0) as long);
         val numBlocks = divisions0 * divisions1;
         val leftOver = numBlocks - P;
