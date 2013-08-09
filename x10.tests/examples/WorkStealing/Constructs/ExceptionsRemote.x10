@@ -16,7 +16,7 @@ import harness.x10Test;
  * Test for remote x10 exceptions in X10 work-stealing
  */
 public class ExceptionsRemote extends x10Test {
-    static def e(msg:String): int = {
+    static def e(msg:String): long = {
         if (true) throw new x10.lang.Exception(msg);
         return -1;
     }
@@ -39,7 +39,7 @@ public class ExceptionsRemote extends x10Test {
             //should capture 3 & 4
             var ok1:boolean = false;
             var ok2:boolean = false;
-            for(var i:int = 0; i < es.size; i++){
+            for(i in es.range()){
                 if(es(i).getMessage().equals("LOCAL")){
                     Console.OUT.println("Local exception was caught");
                     ok1 = true;

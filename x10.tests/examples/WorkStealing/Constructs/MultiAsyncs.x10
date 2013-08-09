@@ -26,7 +26,7 @@ public class MultiAsyncs extends x10Test{
 		}
 
 		Console.OUT.println("MultiAsyncs: value = " + this.value);
-		return value == 3;
+		return value == 3n;
 	}
 
 	public static def main(Rail[String]) {

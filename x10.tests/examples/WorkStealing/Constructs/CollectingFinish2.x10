@@ -18,14 +18,14 @@ import harness.x10Test;
 
 class CollectingFinish2 extends x10Test {
     
-    static struct Reducer implements Reducible[Int] {
+    static struct Reducer implements Reducible[Long] {
         public def zero()=0;
-        public operator this(a:Int,b:Int)=a+b;
+        public operator this(a:Long,b:Long)=a+b;
     }
     
     public def sum[T](a:Reducible[T], n:T):T{
         val x = finish(a){
-            for(var i:int = 0; i < 1000; i++){
+            for(1..1000){
                 async offer n;
             }
         };
@@ -33,7 +33,7 @@ class CollectingFinish2 extends x10Test {
     }
     
     public def run():boolean {
-        val r = sum[int](Reducer(), 10);
+        val r = sum[long](Reducer(), 10);
         return (r == 10000);
     }
     

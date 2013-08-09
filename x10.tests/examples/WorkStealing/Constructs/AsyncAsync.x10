@@ -16,7 +16,7 @@ import harness.x10Test;
  */
 public class AsyncAsync extends x10Test{
 	
-	var value:int;
+	var value:long;
 	
 	public def run():boolean {
 		finish {
