@@ -16,24 +16,24 @@ import x10.io.Console;
  */
 public class ArraySum {
 
-    var sum:Int;
-    val data:Rail[Int];
+    var sum:Long;
+    val data:Rail[Long];
 
-    public def this(n:Int) {
+    public def this(n:Long) {
 	// Create a Rail with n elements (0..(n-1)), all initialized to 1.
-        data = new Rail[Int](n, 1);
+        data = new Rail[Long](n, 1);
         sum = 0;
     }
 
-    def sum(a:Rail[Int], start:Long, last:Long) {
-        var mySum: Int = 0;
+    def sum(a:Rail[Long], start:Long, last:Long) {
+        var mySum: Long = 0;
         for (i in start..(last-1)) { 
         	mySum += a(i);
         }
         return mySum;
     }
 
-    def sum(numThreads:Int) {
+    def sum(numThreads:Long) {
         val mySize = data.size/numThreads;
         finish for (p in 0..(numThreads-1)) async {
             val mySum = sum(data, p*mySize, (p+1)*mySize);
@@ -44,9 +44,9 @@ public class ArraySum {
     }
     
     public static def main(args:Rail[String]) {
-        var size:Int = 5*1000*1000;
+        var size:Long = 5*1000*1000;
         if (args.size >=1)
-            size = Int.parse(args(0));
+            size = Long.parse(args(0));
 
         Console.OUT.println("Initializing.");
         val a = new ArraySum(size);
