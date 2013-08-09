@@ -23,11 +23,11 @@ public class ForLoopUnroll extends x10Test {
 
         var x:Long = 0l;
 
-        @Unroll(10) for (i in 5 .. 98) {
+        @Unroll(10n) for (i in 5 .. 98) {
             x += i;
         }
 
-        @Unroll(10) for (i in 5l .. 98l) {
+        @Unroll(10n) for (i in 5l .. 98l) {
             x += i;
         }
 
