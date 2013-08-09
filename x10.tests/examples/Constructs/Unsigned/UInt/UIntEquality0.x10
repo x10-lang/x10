@@ -19,14 +19,14 @@ import harness.x10Test;
 public class UIntEquality0 extends x10Test {
     public def run(): boolean = {
 	var r:Boolean = true;
-        val u1 = 1u;
-	val u1any = u1 as Any;
-	val u2 = 0xFFFFffffu;
-	val u2any = u2 as Any;
-	val v1any = (2u-1u) as Any;
-	val v2any = (0u-1u) as Any;
-        if (!(u1 == 1u)) { p("! u1 == 1u"); r = false; }
-	if (u2 != 0xFFFFffffu) { p("u2 != 0xFFFFffffU"); r = false; }
+        val u1:UInt = 1un;
+	val u1any:Any = u1 as Any;
+	val u2:UInt = 0xFFFFffffun;
+	val u2any:Any = u2 as Any;
+	val v1any:Any = (2un-1un) as Any;
+	val v2any:Any = (0un-1un) as Any;
+        if (!(u1 == 1un)) { p("! u1 == 1u"); r = false; }
+	if (u2 != 0xFFFFffffun) { p("u2 != 0xFFFFffffU"); r = false; }
 	if (!(u1 == u1any)) { p("! u1 == u1 as Any"); r = false; }
 	if (!(u1any == u1)) { p("! u1 as Any == u1"); r = false; }
 	if (!(u2 == u2any)) { p("! u2 == u2 as Any"); r = false; }
@@ -35,8 +35,8 @@ public class UIntEquality0 extends x10Test {
 	if (v2any != u2any) { p("0u-1u as Any != 0xFFFFffffU"); r = false; }
 	if (u1any == u2any) { p("u1 as Any == u2 as Any"); r = false; }
 
-	val i1 = 1;
-	val i1any = i1 as Any;
+	val i1:Int = 1n;
+	val i1any:Any = i1 as Any;
 	// signed and unsigned values are disjoint in X10
 	if (u1 == i1any) { p("u1 == i1 as Any"); r = false; }
 	if (i1any == u1) { p("i1 as Any == u1"); r = false; }
@@ -45,12 +45,12 @@ public class UIntEquality0 extends x10Test {
 	if (i1any == u1any) { p("i1 as Any == u1 as Any"); r = false; }
 	if (!(i1any != u1any)) { p("! i1 as Any != u1 as Any"); r = false; }
 
-	if (0xffffFFFFu == (-1) as Any) { p("(0xffffFFFFu == (-1) as Any)"); r = false; }
-	if (0xffffFFFFu as Any == (-1) as Any) { p("(0xffffFFFFu as Any == (-1) as Any)"); r = false; }
-	if (0xffffFFFFu as Any == (-1)) { p("(0xffffFFFFu as Any == (-1))"); r = false; }
-	if (-1 == 0xffffFFFFu as Any) { p("(-1 == 0xffffFFFFu as Any)"); r = false; }
-	if ((-1) as Any == 0xffffFFFFu as Any) { p("((-1) as Any == 0xffffFFFFu as Any)"); r = false; }
-	if ((-1) as Any == 0xffffFFFFu) { p("((-1) as Any == 0xffffFFFFu)"); r = false; }
+	if (0xffffFFFFun == (-1n) as Any) { p("(0xffffFFFFu == (-1) as Any)"); r = false; }
+	if (0xffffFFFFun as Any == (-1n) as Any) { p("(0xffffFFFFu as Any == (-1) as Any)"); r = false; }
+	if (0xffffFFFFun as Any == (-1n)) { p("(0xffffFFFFu as Any == (-1))"); r = false; }
+	if (-1n == 0xffffFFFFun as Any) { p("(-1 == 0xffffFFFFu as Any)"); r = false; }
+	if ((-1n) as Any == 0xffffFFFFun as Any) { p("((-1) as Any == 0xffffFFFFu as Any)"); r = false; }
+	if ((-1n) as Any == 0xffffFFFFun) { p("((-1) as Any == 0xffffFFFFun)"); r = false; }
 	return r;
     }
 
