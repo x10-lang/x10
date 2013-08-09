@@ -70,9 +70,16 @@ final class BlockBlockDist extends Dist {
         val max1 = b.max(axis1);
         val size0 = (max0 - min0 + 1);
         val size1 = (max1 - min1 + 1);
-        val size0Even = size0 % 2 == 0L ? size0 : size0-1;
-        val P = Math.min(pg.numPlaces() as Long, size0Even * size1);
-        val divisions0 = Math.min(size0Even, Math.pow2(Math.ceil((Math.log(P as Double) / Math.log(2.0)) / 2.0) as long));
+        val divisions0:long;
+        val P:long;
+        if (size0 > 1) {
+            val size0Even = size0 % 2 == 0L ? size0 : size0-1;
+            P = Math.min(pg.numPlaces() as Long, size0Even * size1);
+            divisions0 = Math.min(size0Even, Math.pow2(Math.ceil((Math.log(P as Double) / Math.log(2.0)) / 2.0) as long));
+        } else {
+           P = Math.min(pg.numPlaces(), size1);
+           divisions0 = 1;
+        }            
         val divisions1 = Math.min(size1, Math.ceil((P as Double) / divisions0) as long);
         val leftOver = divisions0*divisions1 - P;
 
@@ -141,9 +148,16 @@ final class BlockBlockDist extends Dist {
         val max1 = b.max(axis1);
         val size0 = (max0 - min0 + 1);
         val size1 = (max1 - min1 + 1);
-        val size0Even = size0 % 2 == 0L ? size0 : size0-1;
-        val P = Math.min(pg.numPlaces() as Long, size0Even * size1);
-        val divisions0 = Math.min(size0Even, Math.pow2(Math.ceil((Math.log(P as Double) / Math.log(2.0)) / 2.0) as long));
+        val divisions0:long;
+        val P:long;
+        if (size0 > 1) {
+            val size0Even = size0 % 2 == 0L ? size0 : size0-1;
+            P = Math.min(pg.numPlaces() as Long, size0Even * size1);
+            divisions0 = Math.min(size0Even, Math.pow2(Math.ceil((Math.log(P as Double) / Math.log(2.0)) / 2.0) as long));
+        } else {
+           P = Math.min(pg.numPlaces(), size1);
+           divisions0 = 1;
+        }            
         val divisions1 = Math.min(size1, Math.ceil((P as Double) / divisions0) as long);
         val numBlocks = divisions0 * divisions1;
         val leftOver = numBlocks - P;
