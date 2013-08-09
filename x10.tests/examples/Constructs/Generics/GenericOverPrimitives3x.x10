@@ -28,7 +28,7 @@ public class GenericOverPrimitives3x extends GenericTest {
         }
 
         a:A[String] = new A[String]("012");
-        genericCheck("a.get(1)", a.get("013"), -1);
+        genericCheck("a.get(1)", a.get("013"), -1n);
 
         return result;
     }
