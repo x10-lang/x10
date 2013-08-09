@@ -14,7 +14,7 @@ import harness.x10Test;
 public class HistogramTest extends x10Test {
     public def run():boolean {
          val args = new Rail[String](0);
-         return Histogram.run(10000, 100);
+         return Histogram.run(10000n, 100n);
     }
 
     public static def main(args:Rail[String]) {
