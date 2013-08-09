@@ -22,12 +22,12 @@ import harness.x10Test;
  */
 public class BreakInForTest extends x10Test {
 
-    public static N: int = 100;
-    var n1: int = 91;
-    var n2: int = 27;
+    public static N: long = 100;
+    var n1: long = 91;
+    var n2: long = 27;
 
     public def run(): boolean = {
-        for (var i: int = 0; i < N; i++) {
+        for (var i: long = 0; i < N; i++) {
             if ((i+1) % n1 == 0) continue;
             if ((i+1) % n2 == 0) break;
         }

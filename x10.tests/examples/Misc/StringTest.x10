@@ -18,13 +18,13 @@ public class StringTest extends x10Test {
 
     public var v: int;
     public def this(): StringTest = {
-        v = 10;
+        v = 10n;
     }
 
     public def run(): boolean = {
         var foo: String = "the number is "+v;
-        if (!(v == 10 && foo.equals("the number is "+"10"))) return false;
-        if (foo.charAt(2) != 'e') return false;
+        if (!(v == 10n && foo.equals("the number is "+"10"))) return false;
+        if (foo.charAt(2n) != 'e') return false;
 
         val start = "Start Twelve  ";
         chk(start.trim().equals("Start Twelve"));

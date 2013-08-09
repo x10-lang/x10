@@ -16,15 +16,15 @@ import harness.x10Test;
  */
 public class ExpressionParentheses extends x10Test {
 
-	var x: UInt = 0x80000000u;
-	var n: UInt = 16u;
+	var x: UInt = 0x80000000un;
+	var n: UInt = 16un;
 	var z: UInt;
 
 	public def run(): boolean = {
-		z = ((x ^ (x>>8) ^ (x>>31)) & (n-1u));
-		if (z != 1u) return false;
-		z = ((x | (n-1u)) & 1u);
-		if (z != 1u) return false;
+		z = ((x ^ (x>>8) ^ (x>>31)) & (n-1un));
+		if (z != 1un) return false;
+		z = ((x | (n-1un)) & 1un);
+		if (z != 1un) return false;
 		return true;
 	}
 

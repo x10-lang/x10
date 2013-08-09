@@ -36,7 +36,7 @@ public class FinalInitializationTest extends x10Test {
 	}
 
 	static class foo {
-		var w: int = 19;
+		var w: int = 19n;
 	}
 
 	static class complex {
@@ -52,8 +52,8 @@ public class FinalInitializationTest extends x10Test {
 
 	public def run(): boolean = {
 		val f = new foo();
-		val x  = new myval(1, new complex(2, 3), f);
-		val y  = new myval(1, (new complex(1, 4)).add(new complex(1, -1)), f);
+		val x  = new myval(1n, new complex(2n, 3n), f);
+		val y  = new myval(1n, (new complex(1n, 4n)).add(new complex(1n, -1n)), f);
 		return (x.eq(y));
 	}
 

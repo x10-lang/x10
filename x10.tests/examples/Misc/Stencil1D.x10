@@ -17,14 +17,14 @@ import harness.x10Test;
  */
 public class Stencil1D extends x10Test {
     static epsilon  = 1E-4D;
-    val N: int;
-    val P: int;
-    var iters: int;
+    val N: long;
+    val P: long;
+    var iters: long;
     var delta: double = epsilon+1;
 
-    def this(n: int, p: int) { this.N=n; this.P=p;}
+    def this(n: long, p: long) { this.N=n; this.P=p;}
 
-    def step(A:Rail[Double], R:IntRange) {
+    def step(A:Rail[Double], R:LongRange) {
        var diff: Double = 0;
        for (q in R) {
            val newVal = (A(q-1)+ A(q+1))/2.0 ; 
@@ -48,23 +48,23 @@ public class Stencil1D extends x10Test {
        return true;
     }
 
-    public static def block(R:IntRange, P:Int):Rail[IntRange] = {
+    public static def block(R:LongRange, P:Long):Rail[LongRange] = {
         assert P >=0;
         val low = R.min;
         val high = R.max;
         val count = high-low+1;
         val baseSize = count/P;
         val extra = count - baseSize*P;
-        new Rail[IntRange](P, (j:long):IntRange => {
-          val i:int = j as Int;
-          val start = low+i*baseSize+ (i < extra? i:extra);
-          start..(start+baseSize+(i < extra?0:-1))
+        new Rail[LongRange](P, (i:long):LongRange => {
+          val start = low+i*baseSize+ (i < extra? i : extra);
+          start..(start+baseSize+(i < extra ? 0 : -1))
         })
     }
 
     public static def main(args: Rail[String]) {
-       var n: int = args.size > 0 ? Int.parse(args(0)) : 100;
-       var p: int = args.size > 1 ? Int.parse(args(1)) : 2;
-       val s = new Stencil1D(n, p); s.execute();
+       var n: long = args.size > 0 ? Long.parse(args(0)) : 100;
+       var p: long = args.size > 1 ? Long.parse(args(1)) : 2;
+       val s = new Stencil1D(n, p); 
+       s.execute();
     }
 }

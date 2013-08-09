@@ -20,9 +20,9 @@ public class TestByteToString extends x10Test {
         chk("2a".equals(a.toHexString()));
 
         chk(a == Byte.parse("42"));
-        chk(a == Byte.parse("101010", 2));
-        chk(a == Byte.parse("52", 8));
-        chk(a == Byte.parse("2a", 16));
+        chk(a == Byte.parse("101010", 2n));
+        chk(a == Byte.parse("52", 8n));
+        chk(a == Byte.parse("2a", 16n));
 
         val b = -23 as Byte;
         chk("-23".equals(b.toString()));
@@ -31,9 +31,9 @@ public class TestByteToString extends x10Test {
         chk("-17".equals(b.toHexString()));
 
         chk(b == Byte.parse("-23"));
-        chk(b == Byte.parse("-10111", 2));
-        chk(b == Byte.parse("-27", 8));
-        chk(b == Byte.parse("-17", 16));
+        chk(b == Byte.parse("-10111", 2n));
+        chk(b == Byte.parse("-27", 8n));
+        chk(b == Byte.parse("-17", 16n));
 
         val c = 127 as Byte;
         chk("127".equals(c.toString()));
@@ -42,9 +42,9 @@ public class TestByteToString extends x10Test {
         chk("7f".equals(c.toHexString()));
 
         chk(c == Byte.parse("127"));
-        chk(c == Byte.parse("1111111", 2));
-        chk(c == Byte.parse("177", 8));
-        chk(c == Byte.parse("7f", 16));
+        chk(c == Byte.parse("1111111", 2n));
+        chk(c == Byte.parse("177", 8n));
+        chk(c == Byte.parse("7f", 16n));
 
         val d = -128 as Byte;
         chk("-128".equals(d.toString()));
@@ -53,9 +53,9 @@ public class TestByteToString extends x10Test {
         chk("-80".equals(d.toHexString()));
 
         chk(d == Byte.parse("-128"));
-        chk(d == Byte.parse("-10000000", 2));
-        chk(d == Byte.parse("-200", 8));
-        chk(d == Byte.parse("-80", 16));
+        chk(d == Byte.parse("-10000000", 2n));
+        chk(d == Byte.parse("-200", 8n));
+        chk(d == Byte.parse("-80", 16n));
 
         return true;
     }

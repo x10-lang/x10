@@ -25,7 +25,7 @@ public class CommentTest extends x10Test {
 	 * Testing a comment before nullary constructor.
 	 */
 	public def this(): CommentTest = {
-		v = 10;
+		v = 10n;
 	}
 
 	/**
@@ -38,7 +38,7 @@ public class CommentTest extends x10Test {
 	/**
 	 * Testing comments for run
 	 */
-	public def run(): boolean = v == 10;
+	public def run(): boolean = v == 10n;
 
 	/**
 	 * Testing comments for main

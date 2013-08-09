@@ -15,15 +15,15 @@ import harness.x10Test;
  * Literal test, for java literals
  */
 public class LiteralTest extends x10Test {
-	var i1: int = -2147483648;
-	var i2: int = 020000000000;
-	var i3: int = 0x80000000;
-	var i4: int = 2147483647;
-	var i5: int = 0x7fffffff;
-	var i6: int = 017777777777;
+	var i1: int = -2147483648n;
+	var i2: int = 020000000000n;
+	var i3: int = 0x80000000n;
+	var i4: int = 2147483647n;
+	var i5: int = 0x7fffffffn;
+	var i6: int = 017777777777n;
 	var i7: int = 037777777777L as int;
 	var i8: int = 0xffffffffL as int;
-	var i9: int = -1;
+	var i9: int = -1n;
 	var l1: long = -9223372036854775808L;
 	var l2: long = 0x8000000000000000l;
 	var l3: long = 01000000000000000000000l;
@@ -42,9 +42,9 @@ public class LiteralTest extends x10Test {
 		chk(i1 == i2 && i2 == i3);
 		chk(i1 == -i1);
 		chk(i4 == i5 && i5 == i6);
-		chk(i4+1 == i1 && i6 == i1-1);
+		chk(i4+1n == i1 && i6 == i1-1n);
 		chk(i7 == i8 && i8 == i9);
-		chk(i9+1 == (i1-i3));
+		chk(i9+1n == (i1-i3));
 		chk((i9 << 31) == i1);
 		chk(l1 == l2 &&l2 == l3 && l1 == -l1);
 		chk(l1 == ((i1 as long)<<32));
@@ -53,9 +53,9 @@ public class LiteralTest extends x10Test {
 		chk(l7 == l8 && l8 == l9 && l9 == i9 as Long);
 		chk(l9+1 == (l1-l3));
 		chk((l9 << 63) == l1);
-		chk(foo.charAt(0) == 'a');
-		chk(foo.charAt(1) == '\r');
-		chk(foo.charAt(2) == '\n');
+		chk(foo.charAt(0n) == 'a');
+		chk(foo.charAt(1n) == '\r');
+		chk(foo.charAt(2n) == '\n');
 		chk(foo.equals("a"+"\r"+"\n"));
 		return true;
 	}
