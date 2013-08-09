@@ -24,8 +24,8 @@ public class InitStaticField3c extends x10Test {
 	static val b = "abc".length();
 	static val c = "abc".typeName();
 	static val d = "abc".equals("def");
-	static val e = "abc"(1);
-	static val f = "abc".substring(1,2);
+	static val e = "abc"(1n);
+	static val f = "abc".substring(1n,2n);
 
 	static val xa = 1.0 / 0.0;
 	static val xb = -1.0 / 0.0;
@@ -39,7 +39,7 @@ public class InitStaticField3c extends x10Test {
 
     public def run():Boolean {
         chk(a.equals("abcdef"));
-        chk(b == 3);
+        chk(b == 3n);
         chk(c.equals("x10.lang.String"));
         chk(d == false);
         chk(e == 'b');

@@ -59,7 +59,7 @@ public class InitStaticField3 extends x10Test {
         chk(i == 2);
         chk(j == 3);
         chk(k == 1);
-        chk(l == 0xfffffffd);
+        chk(l == 0xfffffffffffffffd);
 
         chk(m == false);
         chk(n == false);
