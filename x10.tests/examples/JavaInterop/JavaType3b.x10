@@ -17,8 +17,8 @@ import x10.interop.Java;
 public class JavaType3b extends x10Test {
 
     def test():Boolean {
-        var fails:Int = 0;
-        val a:Any = Java.newArray[Comparable[Int]](1);
+        var fails:Long = 0;
+        val a:Any = Java.newArray[Comparable[Int]](1n);
         
         // implementation limintation: x.l.Comparable[T] is mapped to j.l.Comparable<T> thus no runtime type for T.
         val s = a.typeName();

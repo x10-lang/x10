@@ -18,7 +18,7 @@ import x10.interop.Java;
 public class JavaArray2_MustFailCompile extends x10Test {
 
     public def run(): Boolean {
-        val jaui = Java.newArray[UInt](10);
+        val jaui = Java.newArray[UInt](10n);
         val ijaui = jaui instanceof Java.array[UInt];
         return ijaui;
     }

@@ -17,22 +17,22 @@ import x10.interop.Java;
 public class JavaArray3 extends x10Test {
 
     static def test1():void {
-        val o = Java.newArray[String](1);
-        o(0) = "abc";
+        val o = Java.newArray[String](1n);
+        o(0n) = "abc";
         at (here.next()) {
             o.toString();
-            val s = o(0);
+            val s = o(0n);
             chk("abc".equals(s));
         }               
     }
         
     static def test2():void {
-        val o = Java.newArray[String](1);
-        o(0) = "abc";
+        val o = Java.newArray[String](1n);
+        o(0n) = "abc";
         val a:Any = o;
         at (here.next()) {
             a.toString();
-            val s = (a as Java.array[String])(0);
+            val s = (a as Java.array[String])(0n);
             chk("abc".equals(s));
         }
     }

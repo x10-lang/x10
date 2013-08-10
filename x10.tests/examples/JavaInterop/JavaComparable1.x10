@@ -16,16 +16,16 @@ import harness.x10Test;
 public class JavaComparable1 extends x10Test {
 
     static class C[T] implements Comparable[T] {
-        public def compareTo(T) = 0;
+        public def compareTo(T) = 0n;
     }
 
     public def run(): Boolean = {
         val i = new Comparable[UInt]() {
-            public def compareTo(UInt) = 0;
+            public def compareTo(UInt) = 0n;
         };
-        val ir = i.compareTo(1U);
+        val ir = i.compareTo(1UN);
         val c = new C[UInt]();
-        val cr = c.compareTo(2U);
+        val cr = c.compareTo(2UN);
         return true;
     }
 

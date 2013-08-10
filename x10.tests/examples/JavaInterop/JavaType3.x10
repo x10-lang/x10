@@ -17,7 +17,7 @@ import x10.interop.Java;
 public class JavaType3 extends x10Test {
 
     def test1() {
-        val a:Any = Java.newArray[Int](1);
+        val a:Any = Java.newArray[Int](1n);
         val s = a.typeName();
         Console.OUT.println(s);
         chk("x10.interop.Java.array[x10.lang.Int]".equals(s));
@@ -25,7 +25,7 @@ public class JavaType3 extends x10Test {
     }
 
     def test2() {
-    	val a:Any = Java.newArray[Any](1);
+    	val a:Any = Java.newArray[Any](1n);
     	val s = a.typeName();
     	Console.OUT.println(s);
     	chk("x10.interop.Java.array[x10.lang.Any]".equals(s));
@@ -33,7 +33,7 @@ public class JavaType3 extends x10Test {
     }
 
     def test3() {
-    	val a:Any = Java.newArray[String](1);
+    	val a:Any = Java.newArray[String](1n);
     	val s = a.typeName();
     	Console.OUT.println(s);
     	chk("x10.interop.Java.array[x10.lang.String]".equals(s));

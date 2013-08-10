@@ -20,7 +20,7 @@ public class JavaArray2b extends x10Test {
     public def run(): Boolean {
         var ok:Boolean = true;
         
-        val a:Any = Java.newArray[Int](10);
+        val a:Any = Java.newArray[Int](10n);
 
         if (!(a instanceof Java.array[Int])) {
             Console.OUT.println("Failed: a instanceof Java.array[Int]");
