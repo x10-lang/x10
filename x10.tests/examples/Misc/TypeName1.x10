@@ -15,11 +15,11 @@ public class TypeName1 extends x10Test {
     public def run():Boolean {
         chk("x10.lang.Byte".equals(1y.typeName()));
         chk("x10.lang.Short".equals(1s.typeName()));
-        chk("x10.lang.Int".equals(1.typeName()));
+        chk("x10.lang.Int".equals(1n.typeName()));
         chk("x10.lang.Long".equals(1l.typeName()));
         chk("x10.lang.UByte".equals(1uy.typeName()));
         chk("x10.lang.UShort".equals(1us.typeName()));
-        chk("x10.lang.UInt".equals(1u.typeName()));
+        chk("x10.lang.UInt".equals(1un.typeName()));
         chk("x10.lang.ULong".equals(1ul.typeName()));
         chk("x10.lang.Float".equals(1.0f.typeName()));
         chk("x10.lang.Double".equals(1.0.typeName()));
