@@ -39,7 +39,7 @@ public class ExceptionsRemote extends x10Test {
             //should capture 3 & 4
             var ok1:boolean = false;
             var ok2:boolean = false;
-            for(i in es.range()){
+            for(var i:int =0n; i<es.size; i++){
                 if(es(i).getMessage().equals("LOCAL")){
                     Console.OUT.println("Local exception was caught");
                     ok1 = true;
