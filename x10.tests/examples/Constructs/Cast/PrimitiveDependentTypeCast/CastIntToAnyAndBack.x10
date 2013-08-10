@@ -22,7 +22,7 @@ import harness.x10Test;
       return true;
    }
    
-   public def mth() = 3 as Any;
+   public def mth() = 3n as Any;
    public static def main(Rail[String]) {
       new CastIntToAnyAndBack().execute();
    }
