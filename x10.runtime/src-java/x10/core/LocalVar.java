@@ -26,12 +26,7 @@ public class LocalVar<T> extends x10.core.Ref {
 
     private static final long serialVersionUID = 1L;
     
-    public static final RuntimeType<LocalVar<?>> $RTT =
-        x10.rtt.NamedType.<LocalVar<?>> make(
-                "x10.compiler.LocalVar",
-                /* base class */ LocalVar.class,
-                /* variances */ RuntimeType.INVARIANTS(1)
-    );
+    public static final RuntimeType<LocalVar<?>> $RTT = x10.rtt.NamedType.<LocalVar<?>> make("x10.compiler.LocalVar", LocalVar.class, 1);
     public RuntimeType<?> $getRTT() { return $RTT; }
     public Type<?> $getParam(int i) { if (i == 0) return T; return null; }
 

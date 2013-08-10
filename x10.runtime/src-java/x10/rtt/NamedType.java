@@ -28,10 +28,10 @@ public class NamedType<T> extends RuntimeType<T> implements X10JavaSerializable 
     public NamedType() {
         super();
     }
-    
+
     // N.B. this is also used to implement readResolve() in place for Types.COMPARABLE
-    protected NamedType(String typeName, Class<?> javaClass, Variance[] variances, Type<?>[] parents) {
-        super(javaClass, variances, parents);
+    protected NamedType(String typeName, Class<?> javaClass, int numParams, Type<?>[] parents) {
+        super(javaClass, numParams, parents);
         this.typeName = typeName;
     }
 
@@ -41,27 +41,27 @@ public class NamedType<T> extends RuntimeType<T> implements X10JavaSerializable 
         if (useCache) {
             NamedType<?> type = typeCache.get(javaClass);
             if (type == null) {
-                NamedType<?> type0 = new NamedType<T>(typeName, javaClass, null, null);
+                NamedType<?> type0 = new NamedType<T>(typeName, javaClass, 0, null);
                 type = typeCache.putIfAbsent(javaClass, type0);
                 if (type == null) type = type0;
             }
             return (NamedType<T>) type;
         } else {
-            return new NamedType<T>(typeName, javaClass, null, null);
+            return new NamedType<T>(typeName, javaClass, 0, null);
         }
     }
 
-    public static <T> NamedType/*<T>*/ make(String typeName, Class<?> javaClass, Variance[] variances) {
+    public static <T> NamedType/*<T>*/ make(String typeName, Class<?> javaClass, int numParams) {
         if (useCache) {
             NamedType<?> type = typeCache.get(javaClass);
             if (type == null) {
-                NamedType<?> type0 = new NamedType<T>(typeName, javaClass, variances, null);
+                NamedType<?> type0 = new NamedType<T>(typeName, javaClass, numParams, null);
                 type = typeCache.putIfAbsent(javaClass, type0);
                 if (type == null) type = type0;
             }
             return (NamedType<T>) type;
         } else {
-            return new NamedType<T>(typeName, javaClass, variances, null);
+            return new NamedType<T>(typeName, javaClass, numParams, null);
         }
     }
 
@@ -69,27 +69,27 @@ public class NamedType<T> extends RuntimeType<T> implements X10JavaSerializable 
         if (useCache) {
             NamedType<?> type = typeCache.get(javaClass);
             if (type == null) {
-                NamedType<?> type0 = new NamedType<T>(typeName, javaClass, null, parents);
+                NamedType<?> type0 = new NamedType<T>(typeName, javaClass, 0, parents);
                 type = typeCache.putIfAbsent(javaClass, type0);
                 if (type == null) type = type0;
             }
             return (NamedType<T>) type;
         } else {
-            return new NamedType<T>(typeName, javaClass, null, parents);
+            return new NamedType<T>(typeName, javaClass, 0, parents);
         }
     }
     
-    public static <T> NamedType/*<T>*/ make(String typeName, Class<?> javaClass, Variance[] variances, Type<?>[] parents) {
+    public static <T> NamedType/*<T>*/ make(String typeName, Class<?> javaClass, int numParams, Type<?>[] parents) {
         if (useCache) {
             NamedType<?> type = typeCache.get(javaClass);
             if (type == null) {
-                NamedType<?> type0 = new NamedType<T>(typeName, javaClass, variances, parents);
+                NamedType<?> type0 = new NamedType<T>(typeName, javaClass, numParams, parents);
                 type = typeCache.putIfAbsent(javaClass, type0);
                 if (type == null) type = type0;
             }
             return (NamedType<T>) type;
         } else {
-            return new NamedType<T>(typeName, javaClass, variances, parents);
+            return new NamedType<T>(typeName, javaClass, numParams, parents);
         }
     }
 

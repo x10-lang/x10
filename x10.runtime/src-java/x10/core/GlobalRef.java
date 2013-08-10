@@ -37,7 +37,7 @@ public final class GlobalRef<T> extends x10.core.Struct implements Externalizabl
     public static final RuntimeType<GlobalRef<?>> $RTT = x10.rtt.NamedType.<GlobalRef<?>> make(
         "x10.lang.GlobalRef",
         GlobalRef.class,
-        RuntimeType.INVARIANTS(1),
+        1,
         new Type[] { Types.STRUCT }
     );
     public RuntimeType<GlobalRef<?>> $getRTT() { return $RTT; }
@@ -710,8 +710,7 @@ public final class GlobalRef<T> extends x10.core.Struct implements Externalizabl
 	public static class $Closure$Eval<$T, $U> extends x10.core.Ref implements x10.core.fun.Fun_0_0 {
 	    private static final long serialVersionUID = 1L;
 	    public static final RuntimeType<$Closure$Eval> $RTT =
-		x10.rtt.StaticFunType.<$Closure$Eval> make($Closure$Eval.class, 
-							 RuntimeType.INVARIANTS(2),
+		x10.rtt.StaticFunType.<$Closure$Eval> make($Closure$Eval.class, 2,
 							 new Type[] {x10.rtt.ParameterizedType.make(x10.core.fun.Fun_0_0.$RTT, x10.rtt.UnresolvedType.PARAM(1))});
 	    public RuntimeType<?> $getRTT() {return $RTT;}
 	    public Type<?> $getParam(int i) {if (i ==0)return $T;if (i ==1)return $U;return null;}
@@ -768,8 +767,7 @@ public final class GlobalRef<T> extends x10.core.Struct implements Externalizabl
 	public static class $Closure$Apply<$T> extends x10.core.Ref implements x10.core.fun.Fun_0_0 {
 	    private static final long serialVersionUID = 1L;
 	    public static final RuntimeType<$Closure$Apply> $RTT =
-		x10.rtt.StaticFunType.<$Closure$Apply> make($Closure$Apply.class,
-                                                          RuntimeType.INVARIANTS(1),
+		x10.rtt.StaticFunType.<$Closure$Apply> make($Closure$Apply.class, 1,
 							  new Type[] {x10.rtt.ParameterizedType.make(x10.core.fun.Fun_0_0.$RTT, x10.rtt.UnresolvedType.PARAM(0))});
 	    public RuntimeType<?> $getRTT() {return $RTT;}
 	    public Type<?> $getParam(int i) {if (i ==0)return $T;return null;}

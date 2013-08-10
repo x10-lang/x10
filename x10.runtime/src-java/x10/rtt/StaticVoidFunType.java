@@ -18,21 +18,8 @@ public final class StaticVoidFunType<T> extends RuntimeType<T> {
     
     private static final long serialVersionUID = 1L;
 
-    // not used
-//    protected StaticVoidFunType(Class<?> javaClass) {
-//        super(javaClass);
-//    }
-//    
-//    protected StaticVoidFunType(Class<?> javaClass, Variance[] variances) {
-//        super(javaClass, variances);
-//    }
-//
-//    protected StaticVoidFunType(Class<?> javaClass, Type<?>[] parents) {
-//        super(javaClass, parents);
-//    }
-    
-    protected StaticVoidFunType(Class<?> javaClass, Variance[] variances, Type<?>[] parents) {
-        super(javaClass, variances, parents);
+    protected StaticVoidFunType(Class<?> javaClass, int numParams, Type<?>[] parents) {
+        super(javaClass, numParams, parents);
     }
 
     private static final boolean useCache = true;
@@ -41,27 +28,27 @@ public final class StaticVoidFunType<T> extends RuntimeType<T> {
         if (useCache) {
             StaticVoidFunType<?> type = typeCache.get(javaClass);
             if (type == null) {
-                StaticVoidFunType<?> type0 = new StaticVoidFunType<T>(javaClass, null, null);
+                StaticVoidFunType<?> type0 = new StaticVoidFunType<T>(javaClass, 0, null);
                 type = typeCache.putIfAbsent(javaClass, type0);
                 if (type == null) type = type0;
             }
             return (StaticVoidFunType<T>) type;
         } else {
-            return new StaticVoidFunType<T>(javaClass, null, null);
+            return new StaticVoidFunType<T>(javaClass, 0, null);
         }
     }
     
-    public static <T> StaticVoidFunType/*<T>*/ make(Class<?> javaClass, Variance[] variances) {
+    public static <T> StaticVoidFunType/*<T>*/ make(Class<?> javaClass, int numParams) {
         if (useCache) {
             StaticVoidFunType<?> type = typeCache.get(javaClass);
             if (type == null) {
-                StaticVoidFunType<?> type0 = new StaticVoidFunType<T>(javaClass, variances, null);
+                StaticVoidFunType<?> type0 = new StaticVoidFunType<T>(javaClass, numParams, null);
                 type = typeCache.putIfAbsent(javaClass, type0);
                 if (type == null) type = type0;
             }
             return (StaticVoidFunType<T>) type;
         } else {
-            return new StaticVoidFunType<T>(javaClass, variances, null);
+            return new StaticVoidFunType<T>(javaClass, numParams, null);
         }
     }
 
@@ -69,27 +56,27 @@ public final class StaticVoidFunType<T> extends RuntimeType<T> {
         if (useCache) {
             StaticVoidFunType<?> type = typeCache.get(javaClass);
             if (type == null) {
-                StaticVoidFunType<?> type0 = new StaticVoidFunType<T>(javaClass, null, parents);
+                StaticVoidFunType<?> type0 = new StaticVoidFunType<T>(javaClass, 0, parents);
                 type = typeCache.putIfAbsent(javaClass, type0);
                 if (type == null) type = type0;
             }
             return (StaticVoidFunType<T>) type;
         } else {
-            return new StaticVoidFunType<T>(javaClass, null, parents);
+            return new StaticVoidFunType<T>(javaClass, 0, parents);
         }
     }
     
-    public static <T> StaticVoidFunType/*<T>*/ make(Class<?> javaClass, Variance[] variances, Type<?>[] parents) {
+    public static <T> StaticVoidFunType/*<T>*/ make(Class<?> javaClass, int numParams, Type<?>[] parents) {
         if (useCache) {
             StaticVoidFunType<?> type = typeCache.get(javaClass);
             if (type == null) {
-                StaticVoidFunType<?> type0 = new StaticVoidFunType<T>(javaClass, variances, parents);
+                StaticVoidFunType<?> type0 = new StaticVoidFunType<T>(javaClass, numParams, parents);
                 type = typeCache.putIfAbsent(javaClass, type0);
                 if (type == null) type = type0;
             }
             return (StaticVoidFunType<T>) type;
         } else {
-            return new StaticVoidFunType<T>(javaClass, variances, parents);
+            return new StaticVoidFunType<T>(javaClass, numParams, parents);
         }
     }
 
@@ -107,5 +94,10 @@ public final class StaticVoidFunType<T> extends RuntimeType<T> {
         }
         return typeName;
     }
+
+	@Override
+	protected RuntimeType.Variance getVariance(int i) {
+		return RuntimeType.Variance.CONTRAVARIANT; // parameter types are contravarient
+	}
 
 }

@@ -43,9 +43,7 @@ public final class Rail<T> extends x10.core.Ref implements x10.lang.Iterable,
 
     @SuppressWarnings("unchecked")
     public static final RuntimeType<Rail> $RTT = 
-            NamedType.<Rail> make("x10.lang.Rail", /* base class */
-                                  Rail.class,
-                                  RuntimeType.INVARIANTS(1),
+            NamedType.<Rail> make("x10.lang.Rail", Rail.class, 1,
                                   new Type[] {
                                       ParameterizedType.make(x10.lang.Iterable.$RTT, UnresolvedType.PARAM(0)),
                                       ParameterizedType.make(x10.core.fun.Fun_0_1.$RTT, Types.LONG, UnresolvedType.PARAM(0)) 

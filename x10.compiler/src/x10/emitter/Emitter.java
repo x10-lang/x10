@@ -3452,43 +3452,8 @@ public class Emitter {
         w.write(".class");
         
         if (def.variances().size() > 0) {
-            boolean allInvariants = true;
-            for (int i = 0; i < def.variances().size(); ++i) {
-                if (def.variances().get(i) != ParameterType.Variance.INVARIANT) {
-                    allInvariants = false;
-                    break;
-                }
-            }
-            if (allInvariants) {
-                // use cached one to avoid creating array of Variance repeatedly
-                w.write(", ");
-//                w.newline();
-//                w.write("/* variances */ ");
-                w.write("x10.rtt.RuntimeType.INVARIANTS(" + def.variances().size() + ")");
-            }
-            else {
-                for (int i = 0; i < def.variances().size(); ++i) {
-                    w.write(", ");
-//                    w.newline();
-                    if (i == 0) {
-//                    	w.write("/* variances */ ");
-                    	w.write("new x10.rtt.RuntimeType.Variance[] {");
-                    }
-                    ParameterType.Variance v = def.variances().get(i);
-                    switch (v) {
-                    case INVARIANT:
-                        w.write("x10.rtt.RuntimeType.Variance.INVARIANT");
-                        break;
-                    case COVARIANT:
-                        w.write("x10.rtt.RuntimeType.Variance.COVARIANT");
-                        break;
-                    case CONTRAVARIANT:
-                        w.write("x10.rtt.RuntimeType.Variance.CONTRAVARIANT");
-                        break;
-                    }
-                    if (i == def.variances().size() - 1) w.write("}");
-                }
-            }
+        	// variance has been removed from the language. just record number of type perameters.
+            w.write(", " + def.variances().size());
         }
         
         TypeSystem xts = tr.typeSystem();
