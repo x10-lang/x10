@@ -121,4 +121,37 @@ public abstract class ResilientStoreForDistArray[K,V] {
             }
         }
     }
+    
+    /**
+     * Test program, should print "0 1 2 ..."
+     */
+    public static def main(ars:Rail[String]) {
+        if (Place.MAX_PLACES < 3) throw new Exception("numPlaces should be >=3");
+       
+        val rs = ResilientStoreForDistArray.make[Place,Rail[String]]();
+        
+        /* Store at each place */
+        finish for (pl in Place.places()) {
+            at (pl) async {
+                val data = new Rail[String](1); data(0) = pl.id.toString();
+                rs.save(pl, data);
+            }
+        }
+        
+        /* Kill place1 */
+        try {
+            at (Place(1)) System.killHere();
+        } catch (e:DeadPlaceException) {
+            Console.OUT.println("Place " + e.place + " died");
+        }
+        
+        /* Load at place2 */
+        at (Place(2)) {
+            for (pl in Place.places()) {
+                val data = rs.load(pl);
+                Console.OUT.print(data(0) + " ");
+            }
+            Console.OUT.println();
+        }
+    }
 }
