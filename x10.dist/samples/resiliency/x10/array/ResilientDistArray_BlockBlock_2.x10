@@ -114,17 +114,21 @@ public class ResilientDistArray_BlockBlock_2[T] implements (Long,Long)=>T {
              * calculate saved place for a point (i,j) from oldPg
              */
             val globalIndices = da.globalIndices; // this should not change if pg is changed
+            //TODO: remove this bug workaround...
+            if (i<globalIndices.min0||i>globalIndices.max0||j<globalIndices.min1||j>globalIndices.max1) {
+                return 0 as T;
+            }
             // code from DistArray_BlockBlock_2.place(i,j)
             val tmp = BlockingUtils.mapIndexToBlockBlockPartition(globalIndices, oldPg.size(), i, j);
             val place = oldPg(tmp);
             /*
              * get (and cache) saved info for the place
              */
-            // if (cached()()==null || cached()().place!=place) cached()() = snapshot.load(place);
-            // val raw = cached()().raw;
-            // val localIndices = cached()().localIndices;
-            val info= snapshot.load(place);
-            val raw = info.raw, localIndices = info.localIndices;
+            // val info= snapshot.load(place);
+            // val raw = info.raw, localIndices = info.localIndices;
+            if (cached()()==null || cached()().place!=place) cached()() = snapshot.load(place);
+            val raw = cached()().raw;
+            val localIndices = cached()().localIndices;
             /*
              * calculate local offset for a point (i,j)
              */
@@ -140,9 +144,7 @@ public class ResilientDistArray_BlockBlock_2[T] implements (Long,Long)=>T {
         };
         val m = da.numElems_1;
         val n = da.numElems_2;
-        Console.OUT.println("@@@@100"); Console.OUT.flush();
         this.da = new DistArray_BlockBlock_2[T](m, n, newPg, init);
-        Console.OUT.println("@@@@110"); Console.OUT.flush();
         PlaceLocalHandle.destroy(newPg, cached);
     }
     
@@ -192,16 +194,21 @@ public class ResilientDistArray_BlockBlock_2[T] implements (Long,Long)=>T {
      */
     static class ResilientStorePlace0[K,V] extends ResilientStore[K,V] {
         val hm = at (Place.FIRST_PLACE) GlobalRef(new x10.util.HashMap[K,V]());
+        private def DEBUG(msg:String) { Console.OUT.println(msg); Console.OUT.flush(); }
         public def save(key:K, value:V) {
+            if (verbose>=1) DEBUG("save: key=" + key);
             at (hm) hm().put(key,value); // value is deep-copied by "at"
         }
         public def load(key:K) {
+            if (verbose>=1) DEBUG("load: key=" + key);
             return at (hm) hm().getOrThrow(key); // value is deep-copied by "at"
         }
         public def delete(key:K) {
+            if (verbose>=1) DEBUG("delete: key=" + key);
             at (hm) hm().remove(key);
         }
         public def deleteAll() {
+            if (verbose>=1) DEBUG("deleteAll");
             at (hm) hm().clear();
         }
     }
