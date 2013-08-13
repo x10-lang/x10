@@ -60,7 +60,11 @@ public abstract class ResilientStoreForDistArray[K,V] {
     }
     
     /**
-     * Distributed (local+backup) implementation of ResilientStore
+     * Distributed (local+backup) implementation of ResilientStore, for reference
+     * NOTE: This implementation is just for using with ResilientDistArray
+     *       Currently, same key cannot be stored multiple times!
+     *       For it, delete(key) or deleteAll() must be called first
+     *       Racing between multiple places are not also considered.
      */
     static class ResilientStoreForDistArrayDistributed[K,V] extends ResilientStoreForDistArray[K,V] {
         val hm = PlaceLocalHandle.make[x10.util.HashMap[K,V]](PlaceGroup.WORLD, ()=>new x10.util.HashMap[K,V]());
