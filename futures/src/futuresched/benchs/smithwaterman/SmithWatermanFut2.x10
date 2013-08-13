@@ -180,7 +180,6 @@ public class SmithWatermanFut2 {
   }
   
   public def mVal(i: Int, j: Int): Int {
-//    Console.OUT.println("In mVal.");
     return mFut(i, j).get()();
   }
 
