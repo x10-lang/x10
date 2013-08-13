@@ -4,13 +4,14 @@ import x10.util.Random
 //import x10.util.HashMap
 
 public class Graph {
+
    public var nodes: ArrayList[Node];
 
    public def this(nodes: ArrayList[Node]) {
       this.nodes = nodes;
    }
 
-   // A random graph for with n nodes and mb maximum branching factor.
+   // A random graph with n nodes and mb maximum branching factor.
    public static def random(n: Int, mb: Int): Graph {
       val nRand = new Random();
       val bRand = new Random();

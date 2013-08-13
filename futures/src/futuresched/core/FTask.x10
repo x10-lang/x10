@@ -27,6 +27,12 @@ public class FTask {
     // Scheduling the task in the worker that created it brings locality.
   }
 
+  public def this() {
+    this.count = new AtomicInteger();
+    this.worker = Runtime.worker();
+    // Scheduling the task in the worker that created it brings locality.
+  }
+
   public def exec() {
     val theAct = this.act;
     val theWorker = this.worker;
@@ -159,37 +165,59 @@ public class FTask {
   }
 
   public def inform(f: Notifier) {
-    if (!isDone)
-       if (isAnd) {
-          val c = count.incrementAndGet();
-          if (c == 0)
-            exec();
-       } else {
-          val done = count.compareAndSet(0, 1);
-          if (done)
-            exec();
-       }
+     if (!isDone)
+        if (isAnd) {
+           val c = count.incrementAndGet();
+           if (c == 0)
+             exec();
+        } else {
+           val done = count.compareAndSet(0, 1);
+           if (done) {
+              val v = f.get() as T;
+              val block = ()=>{fun(v)};
+              val thisAct = new Activity(block, here, f.finishState);
+              this.act = thisAct;
+              exec();
+           }
+        }
   }
 
-  //  var orFuture: Future;
+  public static def captureFinish(): FinishState {
+     val a = activity();
+     a.ensureNotInAtomic();
+
+     val state = a.finishState();
+     state.notifySubActivitySpawn(here);
+
+     return state;
+  }
+
+  var finishState: FinishState;
   public static def asyncWaitOr[T](
-    futures: ArrayList[Future[T]],
-    block: ()=>void){T isref, T haszero} {
+     futures: ArrayList[Future[T]],
+     fun: ()=>void){T isref, T haszero} {
 
-    val thisAct = Runtime.initAsync(block);
-    val task = new FTask(thisAct);
-    task.isAnd = false;
+     //val thisAct = Runtime.initAsync(block);
+     val task = new FTask();
+     val finishState = captureFinish();
+     task.finishState = finishState;
+     task.isAnd = false;
 
-    val iter = futures.iterator();
-    while (iter.hasNext()) {
-      val f = iter.next();
-      val added = f.addIfNotSet(task);
-      if (!added) {
-         val done = task.count.compareAndSet(0, 1);
-         if (done)
-           task.exec();
-      }
-    }
+     val iter = futures.iterator();
+     while (iter.hasNext()) {
+        val f = iter.next();
+        val added = f.addIfNotSet(task);
+        if (!added) {
+           val done = task.count.compareAndSet(0, 1);
+           if (done) {
+              val v = f.get();
+              val block = ()=>{fun(v)};
+              val thisAct = new Activity(block, here, finishState);
+              task.act = thisAct;
+              task.exec();
+           }
+        }
+     }
   }
 
   //----------------------------------------------------------------------------------

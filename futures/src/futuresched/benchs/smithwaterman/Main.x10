@@ -56,6 +56,5 @@ public class Main {
         test(20, 20);
         test(100, 100);
    }
-
 }
 

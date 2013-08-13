@@ -11,6 +11,7 @@ public class SpanTree {
    }
 
    public static def spanningTree(g: Graph, n: Node) {
+      n.parent.set(null);
       finish {
          val nodes = g.nodes;
          val iter = nodes.iterator();
@@ -20,7 +21,6 @@ public class SpanTree {
                node.parent.set(pNode);
             });
          }
-         n.parent.set(null);
       }
    }
 
