@@ -10,10 +10,12 @@ import x10.util.ArrayList;
 //    i.e. When tasks are being added to the future for later notification, 
 //    the value of the future is not concurrently set.
 
-public final class SFuture[T]{T isref, T haszero} implements SNotifier {
+public final class SIntFuture implements SNotifier {
   
   // The holder for the value of the future.
-  var data: AtomicReference[T];
+  var data: AtomicInteger;
+  val NotSet = Int.MIN_VALUE;
+
   // ---------------------------------------------
   // The set of tasks.
   // Improvement spot:
@@ -49,18 +51,16 @@ public final class SFuture[T]{T isref, T haszero} implements SNotifier {
 
   public def this() {
     super();
-    this.data = new AtomicReference[T]();
-    //this.data.set(null);
+    this.data = new AtomicInteger(NotSet);
     this.head = new AtomicReference[Node[FTask]]();
-    //this.head.set(null);
   }
 
   public def add(task: FTask) {
     addTask(task);
   }
     
-  public def set(v: T) {
-    if (data.compareAndSet(null, v))
+  public def set(v: Int) {
+    if (data.compareAndSet(NotSet, v))
       notifyTasks();
     else
       throw new Exception("Future is already set.");
@@ -70,54 +70,41 @@ public final class SFuture[T]{T isref, T haszero} implements SNotifier {
     fTask.inform(this);
   }
 
-  public def asyncSet(fun: ()=>T) {
+  public def asyncSet(fun: ()=>Int) {
     async set(fun());
   }
 
-  public def asyncSet(futures: ArrayList[SFuture[T]], fun: ()=>T) {
+  public def asyncSet(futures: ArrayList[SIntFuture], fun: ()=>Int) {
     FTask.sAsyncWait(
       futures,
       ()=>{ set(fun()); }
     );
   }
-
-  public def asyncSet(futures: ArrayList[SNotifier], fun: ()=>T) {
+  public def asyncSet(futures: ArrayList[SNotifier], fun: ()=>Int) {
     FTask.sAsyncWait(
       futures, 
       ()=>{ set(fun()); }
     );
   }
 
-  public def get(): T {
+  public def get(): Int {
     val d = data.get();
-    if (d != null)
+    if (d != NotSet)
       return d;
-    throw new Exception("Future is not ready yet.");
+    //throw new Exception("Future is not ready yet.");
 //    Console.OUT.println("Blocking on get().");
-//    finish {
-//      FTask.asyncWait(this, ()=>{});
-      //register(()=>{});
-//    }
+    finish {
+      register(()=>{});
+    }
 //    Console.OUT.println("get() released.");
-//    return data.get();
-  }
-
-  public def fireAndGet(fire: ()=>void): T {
-      val d = data.get();
-      if (d != null)
-        return d;
-      finish {
-        FTask.enclosedSAsyncWait(this, ()=>{});
-        fire();
-      }
-      return data.get();
+    return data.get();
   }
 
   public def register(block: ()=>void): void {
     FTask.sAsyncWait(this, block);
   }
 
-  public def register(block: (T)=>void): void {
+  public def register(block: (Int)=>void): void {
     val newBlock = () => {
       val v = get();
       block(v);

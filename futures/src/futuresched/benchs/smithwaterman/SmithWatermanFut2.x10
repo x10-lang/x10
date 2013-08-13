@@ -38,16 +38,15 @@ public class SmithWatermanFut2 {
     if (efr.compareAndSet(null, nef)) {
       async {
         val deps = eDeps(i, j);
-        val fTask =
-          FTask.newAsyncWait(
-            deps,
-            ()=>{
+        val fTask = FTask.sAsyncWait(
+          deps,
+          ()=>{
 //               Console.OUT.println("Launching e(" + i + ", " + j +  ")");
-               nef.set(new Box[Int](eFun(i,j)));
-            }
-          );
+             nef.set(new Box[Int](eFun(i,j)));
+          }
+        );
         if (deps.isEmpty())
-          FTask.newAsyncWait(fire, ()=>{
+          FTask.sAsyncWait(fire, ()=>{
 //            Console.OUT.println("Init task being launched.");
             fTask.now();
           });
@@ -90,7 +89,7 @@ public class SmithWatermanFut2 {
     if (efr.compareAndSet(null, nef)) {
       async {
         val deps = fDeps(i, j);
-        val fTask = FTask.newAsyncWait(
+        val fTask = FTask.sAsyncWait(
           deps,
           ()=>{
 //            Console.OUT.println("Launching f(" + i + ", " + j +  ")");
@@ -98,7 +97,7 @@ public class SmithWatermanFut2 {
           }
         );
         if (deps.isEmpty())
-          FTask.newAsyncWait(fire, ()=>{
+          FTask.sAsyncWait(fire, ()=>{
 //            Console.OUT.println("Init task being launched.");
             fTask.now();
           });
@@ -141,7 +140,7 @@ public class SmithWatermanFut2 {
     if (efr.compareAndSet(null, nef)) {
       async {
         val deps = mDeps(i, j);
-        val fTask = FTask.newAsyncWait(
+        val fTask = FTask.sAsyncWait(
           deps,
           ()=>{
 //            Console.OUT.println("Launching m(" + i + ", " + j +  ")");
@@ -149,7 +148,7 @@ public class SmithWatermanFut2 {
           }
         );
         if (deps.isEmpty())
-          FTask.newAsyncWait(fire, ()=>{
+          FTask.sAsyncWait(fire, ()=>{
 //            Console.OUT.println("Init task being launched.");
             fTask.now();
           });
@@ -181,6 +180,7 @@ public class SmithWatermanFut2 {
   }
   
   public def mVal(i: Int, j: Int): Int {
+//    Console.OUT.println("In mVal.");
     return mFut(i, j).get()();
   }
 
@@ -203,6 +203,7 @@ public class SmithWatermanFut2 {
   }
 
   public def forward() {
+//    Console.OUT.println("Setting fire.");
     fire.set(new Box[Boolean](true));
   }
 
@@ -212,10 +213,11 @@ public class SmithWatermanFut2 {
     val s = new SmithWatermanFut2();
     s.init(i, j);
     s.backward(i, j);
-    s.forward();
-    return s.mVal(i, j);
-  }   
+    val f = s.mFut(i, j);
+    return f.fireAndGet(() => {
+      s.forward();
+    })();
+    //return s.mVal(i, j);
+  }
 }
-
-
 

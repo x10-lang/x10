@@ -2,8 +2,8 @@ package futuresched.benchs.bfs;
 
 import futuresched.core.*;
 
-public class Main {
 
+public class Main {
 	public static def main(Rail[String]) {
       FTask.init();
 
@@ -11,8 +11,10 @@ public class Main {
 
       SpanTree.spanningTree(graph);
 
-
    }
-
 }
+
+
+
+
 

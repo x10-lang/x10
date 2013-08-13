@@ -2,6 +2,7 @@ package futuresched.benchs.smithwaterman;
 
 import futuresched.core.*;
 
+/*
 @x10.compiler.NativeCPPInclude("google/profiler.h")
 public class MainGPT {
 
@@ -18,18 +19,18 @@ public class MainGPT {
       var t1: Long;
       var t2: Long;
       var v: Int;
-/*
-      Console.OUT.println("SmithWaterman");
-      Console.OUT.println("M(" + i + ", " + j + ")");
-      Console.OUT.println("");
 
-      t1 = System.currentTimeMillis();
-      v = SmithWatermanDyn.m(i, j);
-      t2 = System.currentTimeMillis();
-      Console.OUT.println("Dyn: " + v);
-      Console.OUT.println("Time = " + (t2 - t1));
-      Console.OUT.println("");
-*/
+//      Console.OUT.println("SmithWaterman");
+//      Console.OUT.println("M(" + i + ", " + j + ")");
+//      Console.OUT.println("");
+//
+//      t1 = System.currentTimeMillis();
+//      v = SmithWatermanDyn.m(i, j);
+//      t2 = System.currentTimeMillis();
+//      Console.OUT.println("Dyn: " + v);
+//      Console.OUT.println("Time = " + (t2 - t1));
+//      Console.OUT.println("");
+
       t1 = System.currentTimeMillis();
       @x10.compiler.Native("c++", "ProfilerStart(\"a.prof\");") {}
       v = SmithWatermanFut1.m(i, j);
@@ -38,15 +39,15 @@ public class MainGPT {
       Console.OUT.println("Future1: " + v);
       Console.OUT.println("Time = " + (t2 - t1));
       Console.OUT.println("");
-/*
-      t1 = System.currentTimeMillis();
-	   v = SmithWatermanFut2.m(i, j);
-	   t2 = System.currentTimeMillis();
-	   Console.OUT.println("Future2: " + v);
-      Console.OUT.println("Time = " + (t2 - t1));
 
-      Console.OUT.println("---------------------------------------");
-*/
+//      t1 = System.currentTimeMillis();
+//	   v = SmithWatermanFut2.m(i, j);
+//	   t2 = System.currentTimeMillis();
+//	   Console.OUT.println("Future2: " + v);
+//      Console.OUT.println("Time = " + (t2 - t1));
+//
+//      Console.OUT.println("---------------------------------------");
+
 	}
 
 
@@ -61,4 +62,6 @@ public class MainGPT {
    }
 
 }
+*/
+
 

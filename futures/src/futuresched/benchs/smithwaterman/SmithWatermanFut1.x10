@@ -38,7 +38,7 @@ public class SmithWatermanFut1 {
         val deps = eDeps(i, j);
         nef.asyncSet(
           deps,
-          ()=>{new Box[Int](eFun(i, j))}
+          ()=>{ new Box[Int](eFun(i, j)) }
         );
       }
       return nef;

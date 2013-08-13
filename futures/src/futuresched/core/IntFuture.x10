@@ -5,11 +5,12 @@ import x10.util.concurrent.AtomicReference;
 import x10.util.concurrent.AtomicInteger;
 
 
-public final class Future[T]{T isref, T haszero} implements Notifier {
+public final class IntFuture implements Notifier {
 // If T is both a reference type and has a zero then this zero is the null.
 
   // The holder for the value of the future.
-  var data: AtomicReference[T];
+  var data: AtomicInteger;
+  val NotSet = Int.MIN_VALUE;
   // ---------------------------------------------
   // The set of tasks.
   // Improvement spot:
@@ -60,17 +61,17 @@ public final class Future[T]{T isref, T haszero} implements Notifier {
 
   public def this() {
     super();
-    this.data = new AtomicReference[T]();
+    this.data = new AtomicInteger(NotSet);
     //this.data.set(null);
     //this.head = new AtomicReference[Node[TentTask]]();
     this.head = new AtomicReference[Node]();
     //this.head.set(null);
   }
 
-  public def this(t: T) {
+  public def this(v: Int) {
     super();
-    this.data = new AtomicReference[T]();
-    this.data.set(t);
+    this.data = new AtomicInteger(v);
+    //this.data.set(v);
     //this.data.set(null);
     //this.head = new AtomicReference[Node[TentTask]]();
     this.head = new AtomicReference[Node]();
@@ -97,10 +98,10 @@ public final class Future[T]{T isref, T haszero} implements Notifier {
   // Adds the task to the set of tasks if the future
   // is not set. Returns true if added.
   public def addIfNotSet(task: FTask): Boolean {
-    if (data.get() != null)
+    if (data.get() != NotSet)
       return false;
     val node = addTask(task);
-    if (data.get() != null) {
+    if (data.get() != NotSet) {
       // We know that data.compareAndSet() is linearized between the
       // two data.get(). Thus, the value is just set.
       // The future is ready.
@@ -120,8 +121,8 @@ public final class Future[T]{T isref, T haszero} implements Notifier {
     }
   }
     
-  public def set(v: T) {
-    if (data.compareAndSet(null, v))
+  public def set(v: Int) {
+    if (data.compareAndSet(NotSet, v))
       notifyTasks();
     else
       throw new Exception("Future is already set.");
@@ -140,7 +141,7 @@ public final class Future[T]{T isref, T haszero} implements Notifier {
 
   // Todo: inlining async at the call site not to create the closure.
   //  @Inline def asyncSet
-  public def asyncSet(fun: ()=>T) {
+  public def asyncSet(fun: ()=>Int) {
     async set(fun());
   }
 
@@ -148,23 +149,23 @@ public final class Future[T]{T isref, T haszero} implements Notifier {
   // FTask.asyncWait(
   //        futures,
   //        fun);
-  public def asyncSet(futures: ArrayList[Future[T]], fun: ()=>T) {
+  public def asyncSet(futures: ArrayList[IntFuture], fun: ()=>Int) {
     FTask.asyncWait(
       futures,
       ()=>{ set(fun()); }
     );
   }
 
-  public def asyncSet(futures: ArrayList[Notifier], fun: ()=>T) {
+  public def asyncSet(futures: ArrayList[Notifier], fun: ()=>Int) {
     FTask.asyncWait(
       futures,
       ()=>{ set(fun()); }
     );
   }
 
-  public def get(): T {
+  public def get(): Int {
     val d = data.get();
-    if (d != null)
+    if (d != NotSet)
       return d;
 //    throw new Exception("Future is not ready yet.");
     finish {
@@ -178,7 +179,7 @@ public final class Future[T]{T isref, T haszero} implements Notifier {
   }
 
   // To launch free async for register.
-  public def register(fun: (T)=>void) {
+  public def register(fun: (Int)=>void) {
     val newBlock = () => {
       val v = get();
       fun(v);
