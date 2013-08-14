@@ -406,8 +406,14 @@ abstract class DeserializerThunk {
                 }
                 if (X10JavaSerializer.THROWABLES_SERIALIZE_STACKTRACE) {
                     java.lang.StackTraceElement[] trace = (java.lang.StackTraceElement[]) jds.readArrayUsingReflection(java.lang.StackTraceElement.class);
-                    java.lang.Throwable t = (java.lang.Throwable) obj;
-                    t.setStackTrace(trace);
+                    try {
+                    	Field enableWritableStackTraceField = Throwable.class.getDeclaredField("enableWritableStackTrace");
+                    	enableWritableStackTraceField.setAccessible(true);
+                    	enableWritableStackTraceField.setBoolean(obj, true);
+                    } catch (Exception e) {
+                    	e.printStackTrace();
+                    }
+                    ((Throwable) obj).setStackTrace(trace);
                 }
                 if (X10JavaSerializer.THROWABLES_SERIALIZE_CAUSE) {
                     try {
