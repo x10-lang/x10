@@ -41,11 +41,23 @@ public class FTask {
     // The annotation is added to go around a bug.
   }
 
+   public static def initActEnclosed(block: ()=>void): Activity {
+     // The usual initial steps:
+     val a = Runtime.activity();
+//     a.ensureNotInAtomic();
+
+     val state = a.finishState();
+     state.notifySubActivitySpawn(here);
+
+     return new Activity(block, here, state);
+   }
+
+
   public static def asyncWait[T](
     futures: ArrayList[Future[T]],
     block: ()=>void){T isref, T haszero} {
 
-    val thisAct = Runtime.initAsync(block);
+    val thisAct = initActEnclosed(block);
     val task = new FTask(thisAct);
 
     val iter = futures.iterator();
@@ -69,7 +81,7 @@ public class FTask {
     future: Future[T],
     block: ()=>void){T isref, T haszero} {
 
-    val thisAct = Runtime.initAsync(block);
+    val thisAct = initActEnclosed(block);
     val task = new FTask(thisAct);
 
     val added = future.addIfNotSet(task);
@@ -86,7 +98,7 @@ public class FTask {
   public static def asyncWait(
     futures: ArrayList[Notifier],
     block: ()=>void) {
-    val thisAct = Runtime.initAsync(block);
+    val thisAct = initActEnclosed(block);
     val task = new FTask(thisAct);
 
     val iter = futures.iterator();
@@ -110,7 +122,7 @@ public class FTask {
     future: Notifier,
     block: ()=>void) {
     
-    val thisAct = Runtime.initAsync(block);
+    val thisAct = initActEnclosed(block);
     val task = new FTask(thisAct);
 
     val added = future.addIfNotSet(task);
@@ -127,7 +139,7 @@ public class FTask {
     futures: ArrayList[IntFuture],
     block: ()=>void) {
 
-    val thisAct = Runtime.initAsync(block);
+    val thisAct = initActEnclosed(block);
     val task = new FTask(thisAct);
 
     val iter = futures.iterator();
@@ -151,7 +163,7 @@ public class FTask {
     future: IntFuture,
     block: ()=>void) {
 
-    val thisAct = Runtime.initAsync(block);
+    val thisAct = initActEnclosed(block);
     val task = new FTask(thisAct);
 
     val added = future.addIfNotSet(task);
@@ -210,7 +222,7 @@ public class FTask {
             val v = f.get();
             val block = ()=>{ val fun = this.orFun; fun(v); };
 
-            val thisAct = Runtime.initAsync(block);
+            val thisAct = initActEnclosed(block);
 //            val finishState = this.finishState;
 //            val finishState = captureFinish();
 //            val thisAct = new Activity(block, here, finishState);
@@ -255,7 +267,7 @@ public class FTask {
      trans: (T1)=>Future[T2],
      fun: (T2)=>void){T2 isref, T2 haszero} {
 
-     //val thisAct = Runtime.initAsync(block);
+     //val thisAct = initActEnclosed(block);
      val task = new OrFTask[T2]();
      val finishState = captureFinish();
      task.finishState = finishState;
@@ -291,16 +303,17 @@ public class FTask {
     return mainFinish;
   }
 
+  var block: ()=>void;
   public static def sAsyncWait[T](
     futures: ArrayList[SFuture[T]],
-    block: ()=>void){T isref, T haszero}: FTask {
+    block: ()=>void){T isref, T haszero} { //: FTask {
 
-    val thisAct = new Activity(block, here, mainFinish);
-    mainFinish.notifySubActivitySpawn(here);
-//    val thisAct = Runtime.initAsyncExtern(block);
-//    thisAct.setFinish(mainFinish);
+//    val thisAct = new Activity(block, here, mainFinish);
+//    mainFinish.notifySubActivitySpawn(here);
+//    val fTask = new FTask(thisAct);
+    val fTask = new FTask();
+    fTask.block = block;
 
-    val fTask = new FTask(thisAct);
     val iter = futures.iterator();
     while (iter.hasNext()) {
       val f = iter.next();
@@ -312,95 +325,100 @@ public class FTask {
 
   public static def sAsyncWait[T](
     future: SFuture[T],
-    block: ()=>void){T isref, T haszero}: FTask {
+    block: ()=>void){T isref, T haszero} { //: FTask {
 
-//    val thisAct = Runtime.initAsync(block);
-    val thisAct = new Activity(block, here, mainFinish);
-    mainFinish.notifySubActivitySpawn(here);
+//    val thisAct = new Activity(block, here, mainFinish);
+//    mainFinish.notifySubActivitySpawn(here);
+//    val task = new FTask(thisAct);
 
-    val task = new FTask(thisAct);
+    val fTask = new FTask();
+    fTask.block = block;
 
-    future.add(task);
-    task.count.set(-1);
-    return task;
+    future.add(fTask);
+    fTask.count.set(-1);
+//    return task;
   }
 
   public static def sAsyncWait(
     futures: ArrayList[SNotifier],
-    block: ()=>void): FTask {
+    block: ()=>void){ //: FTask {
 
-    val thisAct = new Activity(block, here, mainFinish);
-    mainFinish.notifySubActivitySpawn(here);
-//    val thisAct = Runtime.initAsyncExtern(block);
-//    thisAct.setFinish(mainFinish);
+//    val thisAct = new Activity(block, here, mainFinish);
+//    mainFinish.notifySubActivitySpawn(here);
+//    val fTask = new FTask(thisAct);
 
-    val fTask = new FTask(thisAct);
+    val fTask = new FTask();
+    fTask.block = block;
+
     val iter = futures.iterator();
     while (iter.hasNext()) {
       val f = iter.next();
       f.add(fTask);
     }
     fTask.count.set(-futures.size() as Int);
-    return fTask;
+//    return fTask;
   }
 
 
   public static def sAsyncWait(
     future: SNotifier,
-    block: ()=>void): FTask {
-//    val thisAct = Runtime.initAsyncExtern(block);
-//    thisAct.setFinish(mainFinish);
-    val thisAct = new Activity(block, here, mainFinish);
-    mainFinish.notifySubActivitySpawn(here);
+    block: ()=>void) { //: FTask {
 
-    val fTask = new FTask(thisAct);
+//    val thisAct = new Activity(block, here, mainFinish);
+//    mainFinish.notifySubActivitySpawn(here);
+//    val fTask = new FTask(thisAct);
+
+    val fTask = new FTask();
+    fTask.block = block;
+
     future.add(fTask);
 
     fTask.count.set(-1);
-
-    return fTask;
+//    return fTask;
   }
 
   public static def sAsyncWait(
     futures: ArrayList[SIntFuture],
-    block: ()=>void): FTask {
+    block: ()=>void) { //:FTask {
 
-    val thisAct = new Activity(block, here, mainFinish);
-    mainFinish.notifySubActivitySpawn(here);
-//    val thisAct = Runtime.initAsyncExtern(block);
-//    thisAct.setFinish(mainFinish);
+//    val thisAct = new Activity(block, here, mainFinish);
+//    mainFinish.notifySubActivitySpawn(here);
+//    val fTask = new FTask(thisAct);
 
-    val fTask = new FTask(thisAct);
+    val fTask = new FTask();
+    fTask.block = block;
+
     val iter = futures.iterator();
     while (iter.hasNext()) {
       val f = iter.next();
       f.add(fTask);
     }
     fTask.count.set(-futures.size() as Int);
-    return fTask;
+//    return fTask;
   }
 
   public static def sAsyncWait(
     future: SIntFuture,
-    block: ()=>void): FTask {
-//    val thisAct = Runtime.initAsyncExtern(block);
-//    thisAct.setFinish(mainFinish);
-    val thisAct = new Activity(block, here, mainFinish);
-    mainFinish.notifySubActivitySpawn(here);
+    block: ()=>void) { //: FTask {
 
-    val fTask = new FTask(thisAct);
+//    val thisAct = new Activity(block, here, mainFinish);
+//    mainFinish.notifySubActivitySpawn(here);
+//    val fTask = new FTask(thisAct);
+
+    val fTask = new FTask();
+    fTask.block = block;
+
     future.add(fTask);
 
     fTask.count.set(-1);
-
-    return fTask;
+//    return fTask;
   }
 
   public static def enclosedSAsyncWait[T](
     future: SFuture[T],
     block: ()=>void){T isref, T haszero} {
 
-    val thisAct = Runtime.initAsync(block);
+    val thisAct = initActEnclosed(block);
     val task = new FTask(thisAct);
 
     future.add(task);
@@ -414,8 +432,8 @@ public class FTask {
 //    val block = ()=>{ fun(orSFuture) };
 
      val fTask = new OrFTask[T]();
-     val finishState = mainFinish;
-     fTask.finishState = finishState;
+//     val finishState = mainFinish;
+//     fTask.finishState = finishState;
      fTask.orFun = fun;
 
     val iter = futures.iterator();
@@ -431,14 +449,12 @@ public class FTask {
      trans: (T1)=>SFuture[T2],
      fun: (T2)=>void){T2 isref, T2 haszero} {
 
-     //val thisAct = Runtime.initAsync(block);
+     //val thisAct = initActEnclosed(block);
      val fTask = new OrFTask[T2]();
 //     val finishState = mainFinish;
 //     fTask.finishState = finishState;
      fTask.orFun = fun;
-//     task.isAnd = false;
 
-     //Console.OUT.println(futures);
      val iter = futures.iterator();
      while (iter.hasNext()) {
         val o = iter.next();
@@ -452,8 +468,13 @@ public class FTask {
   public def inform(f: SNotifier) {
     if (!isDone) {
        val c = count.incrementAndGet();
-       if (c == 0)
+       if (c == 0) {
+         act = initActEnclosed(block);
+//         val state = a.finishState();
+//         state.notifySubActivitySpawn(here);
+
          exec();
+       }
     }
   }
 

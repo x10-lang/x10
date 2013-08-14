@@ -27,7 +27,7 @@ public class SmithWatermanFut2 {
   
   // --------------------------------------------------------
   // E function
-  val fire = new SFuture[Box[Boolean]]();
+  val fire = new SFuture[Box[Int]]();
   
   public def eFut(val i: Int, val j: Int): SFuture[Box[Int]] {
     var efr: AtomicReference[SFuture[Box[Int]]] = eFutures(i, j);
@@ -38,6 +38,8 @@ public class SmithWatermanFut2 {
     if (efr.compareAndSet(null, nef)) {
       async {
         val deps = eDeps(i, j);
+        if (deps.isEmpty())
+          deps.add(fire);
         val fTask = FTask.sAsyncWait(
           deps,
           ()=>{
@@ -45,11 +47,10 @@ public class SmithWatermanFut2 {
              nef.set(new Box[Int](eFun(i,j)));
           }
         );
-        if (deps.isEmpty())
-          FTask.sAsyncWait(fire, ()=>{
-//            Console.OUT.println("Init task being launched.");
-            fTask.now();
-          });
+//        if (deps.isEmpty())
+//          FTask.sAsyncWait(fire, ()=>{
+//            fTask.now();
+//          });
       }
       return nef;
     }
@@ -89,6 +90,8 @@ public class SmithWatermanFut2 {
     if (efr.compareAndSet(null, nef)) {
       async {
         val deps = fDeps(i, j);
+        if (deps.isEmpty())
+          deps.add(fire);
         val fTask = FTask.sAsyncWait(
           deps,
           ()=>{
@@ -96,11 +99,10 @@ public class SmithWatermanFut2 {
             nef.set(new Box[Int](fFun(i,j)));
           }
         );
-        if (deps.isEmpty())
-          FTask.sAsyncWait(fire, ()=>{
-//            Console.OUT.println("Init task being launched.");
-            fTask.now();
-          });
+//        if (deps.isEmpty())
+//          FTask.sAsyncWait(fire, ()=>{
+//            fTask.now();
+//          });
       }
       return nef;
     }
@@ -140,6 +142,8 @@ public class SmithWatermanFut2 {
     if (efr.compareAndSet(null, nef)) {
       async {
         val deps = mDeps(i, j);
+        if (deps.isEmpty())
+          deps.add(fire);
         val fTask = FTask.sAsyncWait(
           deps,
           ()=>{
@@ -147,11 +151,10 @@ public class SmithWatermanFut2 {
             nef.set(new Box[Int](mFun(i,j)));
           }
         );
-        if (deps.isEmpty())
-          FTask.sAsyncWait(fire, ()=>{
-//            Console.OUT.println("Init task being launched.");
-            fTask.now();
-          });
+//        if (deps.isEmpty())
+//          FTask.sAsyncWait(fire, ()=>{
+//            fTask.now();
+//          });
       }
       return nef;
     }
@@ -203,7 +206,7 @@ public class SmithWatermanFut2 {
 
   public def forward() {
 //    Console.OUT.println("Setting fire.");
-    fire.set(new Box[Boolean](true));
+    fire.set(new Box[Int](1));
   }
 
   // --------------------------------------------------------
@@ -213,10 +216,13 @@ public class SmithWatermanFut2 {
     s.init(i, j);
     s.backward(i, j);
     val f = s.mFut(i, j);
-    return f.fireAndGet(() => {
+    finish {
       s.forward();
-    })();
-    //return s.mVal(i, j);
+    }
+//    return f.fireAndGet(() => {
+//      s.forward();
+//    })();
+    return s.mVal(i, j);
   }
 }
 
