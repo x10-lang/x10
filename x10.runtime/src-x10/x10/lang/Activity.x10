@@ -70,7 +70,7 @@ public class Activity {
     /**
      * the finish state governing the execution of this activity (may be remote)
      */
-    private var finishState:FinishState;
+    public var finishState:FinishState;
 
     /**
      * The user-specified code for this activity.
