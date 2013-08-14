@@ -890,15 +890,15 @@ public final class Runtime {
     }
 
     public static def getEnclosingFinish(): FinishState {
-      Console.OUT.println("I1");
+//      Console.OUT.println("I1");
       val a = activity();
-      Console.OUT.println("I2");
+//      Console.OUT.println("I2");
       a.ensureNotInAtomic();
-      Console.OUT.println("I3");
+//      Console.OUT.println("I3");
       val state = a.finishState();
-      Console.OUT.println("I4");
+//      Console.OUT.println("I4");
       //state.notifySubActivitySpawn(here);
-      Console.OUT.println("I5");
+//      Console.OUT.println("I5");
       return state;
     }
 

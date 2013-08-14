@@ -60,6 +60,7 @@ public final class SFuture[T]{T isref, T haszero} implements SNotifier {
   }
     
   public def set(v: T) {
+//    Console.OUT.println("SFuture.Set()");
     if (data.compareAndSet(null, v))
       notifyTasks();
     else
@@ -67,6 +68,7 @@ public final class SFuture[T]{T isref, T haszero} implements SNotifier {
   }
 
   private def notifyTask(fTask: FTask) {
+//    Console.OUT.println(this + ": informing");
     fTask.inform(this);
   }
 

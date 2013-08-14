@@ -152,7 +152,7 @@ public class Activity {
         atomicDepth--;
     }
 
-    def ensureNotInAtomic() {
+    public def ensureNotInAtomic() {
         if (atomicDepth > 0)
             throw new IllegalOperationException();
     }
