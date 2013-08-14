@@ -32,7 +32,11 @@ public class X10RT {
      * must be called before any other methods on this class or on any other X10RT 
      * related class can be successfully invoked.
      */
-    public static synchronized String init_library(final x10.runtime.impl.java.Runtime mainClass) {
+    public static String init_library(final x10.runtime.impl.java.Runtime mainClass) {
+    	return init_library(mainClass, true);
+    }
+    
+    public static synchronized String init_library(final x10.runtime.impl.java.Runtime mainClass, boolean createThread) {
     	if (state != State.UNINITIALIZED && 
     			state != State.TORN_DOWN) return null; // already initialized
 
@@ -52,33 +56,34 @@ public class X10RT {
       	    state = State.INITIALIZED;
       	    
       	    // create a thread which can accept configuration connections, and exits once X10 is up
-      	    new Thread("x10rt internally created worker thread") {
-	  			public void run() {
-	  				while (X10RT.state == x10.x10rt.X10RT.State.INITIALIZED) {
-	  					X10RT.javaSockets.x10rt_probe(true, 500);
-	  				}
-	  				// place 0 takes over the worker thread that called connect_library(..), but other
-	  				// places need a worker thread.  This becomes that worker thread.
-	  				if (X10RT.javaSockets.x10rt_here() > 0) {
-		  				x10.lang.Runtime.get$staticMonitor();
-		  				x10.lang.Runtime.get$STRICT_FINISH();
-		  				x10.lang.Runtime.get$NTHREADS();
-		  				x10.lang.Runtime.get$MAX_THREADS();
-		  				x10.lang.Runtime.get$STATIC_THREADS();
-		  				x10.lang.Runtime.get$WARN_ON_THREAD_CREATION();
-		  				x10.lang.Runtime.get$BUSY_WAITING();
-		  		        
-		  				// start and join main x10 thread
-		  				x10.lang.Runtime.Worker worker = new x10.lang.Runtime.Worker(0);
-		  				worker.body = mainClass;
-		  				worker.start();
-		  				try {
-		  					worker.join();
-		  				} catch (InterruptedException e) {}
-	  				}
-	  			}
-	  		}.start();
-      	    
+      	    if (createThread) {
+	     	    new Thread("x10rt internally created worker thread") {
+		  			public void run() {
+		  				while (X10RT.state == x10.x10rt.X10RT.State.INITIALIZED) {
+		  					X10RT.javaSockets.x10rt_probe(true, 500);
+		  				}
+		  				// place 0 takes over the worker thread that called connect_library(..), but other
+		  				// places need a worker thread.  This becomes that worker thread.
+		  				if (X10RT.javaSockets.x10rt_here() > 0) {
+			  				x10.lang.Runtime.get$staticMonitor();
+			  				x10.lang.Runtime.get$STRICT_FINISH();
+			  				x10.lang.Runtime.get$NTHREADS();
+			  				x10.lang.Runtime.get$MAX_THREADS();
+			  				x10.lang.Runtime.get$STATIC_THREADS();
+			  				x10.lang.Runtime.get$WARN_ON_THREAD_CREATION();
+			  				x10.lang.Runtime.get$BUSY_WAITING();
+			  		        
+			  				// start and join main x10 thread
+			  				x10.lang.Runtime.Worker worker = new x10.lang.Runtime.Worker(0);
+			  				worker.body = mainClass;
+			  				worker.start();
+			  				try {
+			  					worker.join();
+			  				} catch (InterruptedException e) {}
+		  				}
+		  			}
+		  		}.start();
+      	    }      	    
       	  	return X10RT.javaSockets.getLocalConnectionInfo();
         }
         else {
