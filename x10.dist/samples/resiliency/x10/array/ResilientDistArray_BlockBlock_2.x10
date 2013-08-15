@@ -114,7 +114,7 @@ public class ResilientDistArray_BlockBlock_2[T] implements (Long,Long)=>T {
              * calculate saved place for a point (i,j) from oldPg
              */
             val globalIndices = da.globalIndices; // this should not change if pg is changed
-            //TODO: remove this bug workaround...
+            //TODO: remove this workaround (see XTENLANG-3256)
             if (i<globalIndices.min0||i>globalIndices.max0||j<globalIndices.min1||j>globalIndices.max1) {
                 return 0 as T;
             }
@@ -150,6 +150,10 @@ public class ResilientDistArray_BlockBlock_2[T] implements (Long,Long)=>T {
     
     /**
      * Test program, should print "0 1 2 3 4 5 6 7 8 9" without Exception
+     * 
+     * Usage: [X10_RESILIENT_STORE_MODE=1] [X10_RESILIENT_STORE_VERBOSE=1] \
+     *         X10_RESILIENT_PLACE_ZERO=1 X10_NPLACES=4 \
+     *         run.sh x10 x10.array.ResilientDistArray_BlockBlock_2
      */
     public static def main(ars:Rail[String]) {
         val livePlaces = new x10.util.ArrayList[Place]();

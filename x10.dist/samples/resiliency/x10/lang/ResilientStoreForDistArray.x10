@@ -43,27 +43,34 @@ public abstract class ResilientStoreForDistArray[K,V] {
         private def DEBUG(msg:String) { Console.OUT.println(msg); Console.OUT.flush(); }
         public def save(key:K, value:V) {
             if (verbose>=1) DEBUG("save: key=" + key);
+           finish //TODO: remove this workaround (see XTENLANG-3260)
             at (hm) hm().put(key,value); // value is deep-copied by "at"
         }
         public def load(key:K) {
             if (verbose>=1) DEBUG("load: key=" + key);
-            return at (hm) hm().getOrThrow(key); // value is deep-copied by "at"
+            var value:V;
+           finish //TODO: remove this workaround (see XTENLANG-3260)
+            value = at (hm) hm().getOrThrow(key); // value is deep-copied by "at"
+            return value;
         }
         public def delete(key:K) {
             if (verbose>=1) DEBUG("delete: key=" + key);
+           finish //TODO: remove this workaround (see XTENLANG-3260)
             at (hm) hm().remove(key);
         }
         public def deleteAll() {
             if (verbose>=1) DEBUG("deleteAll");
+           finish //TODO: remove this workaround (see XTENLANG-3260)
             at (hm) hm().clear();
         }
     }
     
     /**
      * Distributed (local+backup) implementation of ResilientStore, for reference
+     * 
      * NOTE: This implementation is just for using with ResilientDistArray
-     *       Currently, same key cannot be stored multiple times!
-     *       For it, delete(key) or deleteAll() must be called first
+     *       Currently, same key cannot be stored multiple times!!!!
+     *       For it, delete(key) is or deleteAll() must be called first.
      *       Racing between multiple places are not also considered.
      */
     static class ResilientStoreForDistArrayDistributed[K,V] extends ResilientStoreForDistArray[K,V] {
@@ -71,6 +78,7 @@ public abstract class ResilientStoreForDistArray[K,V] {
         private def DEBUG(key:K, msg:String) { Console.OUT.println("At " + here + ": key=" + key + ": " + msg); }
         public def save(key:K, value:V) {
             /* Store the copy of value locally */
+           finish //TODO: remove this workaround (see XTENLANG-3260)
             at (here) hm().put(key, value); // value is deep-copied by "at"
             if (verbose>=1) DEBUG(key, "backed up locally");
             /* Backup the value in another place */
@@ -84,6 +92,7 @@ public abstract class ResilientStoreForDistArray[K,V] {
                 /* no backup place available */
                 if (verbose>=1) DEBUG(key, "no backup place available");
             } else {
+               finish //TODO: remove this workaround (see XTENLANG-3260)
                 at (Place(backupPlace)) hm().put(key, value);
                 if (verbose>=1) DEBUG(key, "backed up to place " + backupPlace);
             }
@@ -91,7 +100,9 @@ public abstract class ResilientStoreForDistArray[K,V] {
         public def load(key:K) {
             /* First, try to load locally */
             try {
-                val value = at (here) hm().getOrThrow(key); // value is deep-copied by "at"
+                var value:V;
+               finish //TODO: remove this workaround (see XTENLANG-3260)
+                value = at (here) hm().getOrThrow(key); // value is deep-copied by "at"
                 if (verbose>=1) DEBUG(key, "restored locally");
                 return value;
             } catch (e:x10.util.NoSuchElementException) { /* falls through */ }
@@ -102,7 +113,9 @@ public abstract class ResilientStoreForDistArray[K,V] {
                 if (backupPlace != here.id && !Place.isDead(backupPlace)) {
                     if (verbose>=1) DEBUG(key, "checking backup place " + backupPlace);
                     try {
-                        val value = at (Place(backupPlace)) hm().getOrThrow(key);
+                        var value:V;
+                       finish //TODO: remove this workaround (see XTENLANG-3260)
+                        value = at (Place(backupPlace)) hm().getOrThrow(key);
                         if (verbose>=1) DEBUG(key, "restored from backup place " + backupPlace);
                         return value;
                     } catch (e:x10.util.NoSuchElementException) { /* falls through */ }
@@ -128,6 +141,10 @@ public abstract class ResilientStoreForDistArray[K,V] {
     
     /**
      * Test program, should print "0 1 2 ..."
+     * 
+     * Usage: [X10_RESILIENT_STORE_MODE=1] [X10_RESILIENT_STORE_VERBOSE=1] \
+     *         X10_RESILIENT_PLACE_ZERO=1 X10_NPLACES=4 \
+     *         run.sh x10 x10.lang.ResilientStoreForDistArray
      */
     public static def main(ars:Rail[String]) {
         if (Place.MAX_PLACES < 3) throw new Exception("numPlaces should be >=3");
