@@ -135,7 +135,10 @@ public class NonResilientHeatTransfer {
     //         val exceptions = (e as MultipleExceptions).exceptions();
     //         Console.OUT.println(new String(new Rail[Char](l,' ')) + "MultipleExceptions size=" + exceptions.size);
     //         for (ec in exceptions) processException(ec, l+1);
-    //     } else throw e;
+    //     } else {
+    //         Console.OUT.println(new String(new Rail[Char](l,' ')) + e);
+    //         throw e;
+    //     }
     // }
     
     // private static def stencil_1(A:ResilientDistArray[Double](2), [x,y]:Point(2)): Double {
