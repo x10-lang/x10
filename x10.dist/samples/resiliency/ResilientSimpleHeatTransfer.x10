@@ -133,7 +133,7 @@ public class ResilientSimpleHeatTransfer {
                  */
                 if (i % 10 == 0) {
                     Console.OUT.println("Create a snapshot at iteration " + i);
-                    // A.snapshot(); snapshot_iter = i; // SNAPSHOT!
+                    A.snapshot(); snapshot_iter = i; // SNAPSHOT!
                 }
                 
             } catch (e:Exception) {
