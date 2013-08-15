@@ -406,13 +406,12 @@ abstract class DeserializerThunk {
                 }
                 if (X10JavaSerializer.THROWABLES_SERIALIZE_STACKTRACE) {
                     java.lang.StackTraceElement[] trace = (java.lang.StackTraceElement[]) jds.readArrayUsingReflection(java.lang.StackTraceElement.class);
+                	// XTENLANG-3258: we must set enableWritableStackTrace before calling setStackTrace on IBM Java VM
                     try {
                     	Field enableWritableStackTraceField = Throwable.class.getDeclaredField("enableWritableStackTrace");
                     	enableWritableStackTraceField.setAccessible(true);
                     	enableWritableStackTraceField.setBoolean(obj, true);
-                    } catch (Exception e) {
-                    	e.printStackTrace();
-                    }
+                    } catch (Exception e) { }
                     ((Throwable) obj).setStackTrace(trace);
                 }
                 if (X10JavaSerializer.THROWABLES_SERIALIZE_CAUSE) {
