@@ -77,6 +77,7 @@ public abstract class ResilientStoreForDistArray[K,V] {
         val hm = PlaceLocalHandle.make[x10.util.HashMap[K,V]](PlaceGroup.WORLD, ()=>new x10.util.HashMap[K,V]());
         private def DEBUG(key:K, msg:String) { Console.OUT.println("At " + here + ": key=" + key + ": " + msg); }
         public def save(key:K, value:V) {
+            if (verbose>=1) DEBUG(key, "save called");
             /* Store the copy of value locally */
            finish //TODO: remove this workaround (see XTENLANG-3260)
             at (here) hm().put(key, value); // value is deep-copied by "at"
@@ -96,16 +97,22 @@ public abstract class ResilientStoreForDistArray[K,V] {
                 at (Place(backupPlace)) hm().put(key, value);
                 if (verbose>=1) DEBUG(key, "backed up to place " + backupPlace);
             }
+            if (verbose>=1) DEBUG(key, "save returning");
         }
         public def load(key:K) {
+            if (verbose>=1) DEBUG(key, "load called");
             /* First, try to load locally */
             try {
                 var value:V;
                finish //TODO: remove this workaround (see XTENLANG-3260)
                 value = at (here) hm().getOrThrow(key); // value is deep-copied by "at"
                 if (verbose>=1) DEBUG(key, "restored locally");
+                if (verbose>=1) DEBUG(key, "load returning");
                 return value;
-            } catch (e:x10.util.NoSuchElementException) { /* falls through */ }
+            } catch (e:Exception) {
+                if (verbose>=1) DEBUG(key, "local restore failed with exception " + e);
+                /* falls through, check other places */
+            }
             /* Try to load from another place */
             var backupPlace:Long = key.hashCode() % Place.MAX_PLACES;
             var trial:Long;
@@ -117,12 +124,17 @@ public abstract class ResilientStoreForDistArray[K,V] {
                        finish //TODO: remove this workaround (see XTENLANG-3260)
                         value = at (Place(backupPlace)) hm().getOrThrow(key);
                         if (verbose>=1) DEBUG(key, "restored from backup place " + backupPlace);
+                        if (verbose>=1) DEBUG(key, "load returning");
                         return value;
-                    } catch (e:x10.util.NoSuchElementException) { /* falls through */ }
+                    } catch (e:Exception) {
+                        if (verbose>=1) DEBUG(key, "failed with exception " + e);
+                        /* falls through, try next place */
+                    }
                 }
                 backupPlace = (backupPlace+1) % Place.MAX_PLACES;
             }
             if (verbose>=1) DEBUG(key, "no backup found, ERROR");
+            if (verbose>=1) DEBUG(key, "load throwing exception");
             throw new Exception("No data for key " + key);
         }
         public def delete(key:K) {
