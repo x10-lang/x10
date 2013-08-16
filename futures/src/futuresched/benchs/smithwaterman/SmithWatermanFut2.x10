@@ -24,7 +24,7 @@ public class SmithWatermanFut2 {
         mFutures(k, l) = new AtomicReference[SFuture[Box[Int]]]();
       }
   }
-  
+
   // --------------------------------------------------------
   // E function
   val fire = new SFuture[Box[Int]]();
