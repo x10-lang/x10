@@ -584,7 +584,7 @@ public class Types {
     public static final RuntimeType<x10.core.UShort> USHORT = new UShortType();
     public static final RuntimeType<x10.core.UInt> UINT = new UIntType();
     public static final RuntimeType<x10.core.ULong> ULONG = new ULongType();
-    public static final x10.core.Boolean BOOLEAN_ZERO = x10.core.Boolean.FALSE;
+    public static final x10.core.Boolean BOOLEAN_ZERO = x10.core.Boolean.$box(false);
     public static final x10.core.Char CHAR_ZERO = x10.core.Char.$box((char)0);
     public static final x10.core.Byte BYTE_ZERO = x10.core.Byte.$box(0);
     public static final x10.core.Short SHORT_ZERO = x10.core.Short.$box(0);

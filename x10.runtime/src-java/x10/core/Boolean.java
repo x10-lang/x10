@@ -33,8 +33,8 @@ final public class Boolean extends Struct implements java.lang.Comparable<Boolea
     public RuntimeType<?> $getRTT() {return $RTT;}
     public Type<?> $getParam(int i) {return null;}
     
-    public static final Boolean TRUE = new Boolean(true);
-    public static final Boolean FALSE = new Boolean(false);
+    private static final Boolean TRUE = new Boolean(true);
+    private static final Boolean FALSE = new Boolean(false);
 
     final boolean $value;
 
