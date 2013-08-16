@@ -271,6 +271,12 @@ public class ResilientStorePlaceZero {
             }
             notifyActivityTermination(id, s.homeId);
             when (me.quiescent(s)) { }
+            // while (true) { //@@@@ busy check with sleep
+            //     val q:boolean;
+            //     atomic { q = me.quiescent(s); }
+            //     if (q) break;
+            //     System.sleep(10);
+            // }
             if (s.multipleExceptions != null) {
                 if (VERBOSE) Runtime.println("waitForFinish("+id+") done waiting (throwing exceptions)");
                 throw new MultipleExceptions(s.multipleExceptions);
