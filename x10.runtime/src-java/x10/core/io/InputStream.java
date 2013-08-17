@@ -43,6 +43,8 @@ public class InputStream extends Ref {
     }
     
     public final InputStream x10$io$InputStreamReader$InputStream$$init$S(java.io.InputStream stream) {
+    	// Note: enable buffering for performance
+    	if (!(stream instanceof java.io.BufferedInputStream)) stream = new java.io.BufferedInputStream(stream);
         this.stream = stream;
         return this;
     }
