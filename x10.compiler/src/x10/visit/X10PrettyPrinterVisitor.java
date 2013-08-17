@@ -1212,7 +1212,8 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
             for (Ref<? extends Type> ref : formalTypes) {
                 Type t = ref.get();
                 Type bt = Types.baseType(t);
-                if (bt.isParameterType() || hasParams(t) || bt.isUnsignedNumeric()) {
+                // XTENLANG-3259 to avoid post-compilation error with Java constructor with Comparable parameter.
+                if (bt.isParameterType() || (hasParams(t) && !Emitter.isNativeRepedToJava(t)) || bt.isUnsignedNumeric()) {
                     containsParamOrParameterized = true;
                     break;
                 }
@@ -4129,7 +4130,8 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
                         // TODO:CAST
                         w.write("(");
                         // XTENLANG-2895 use erasure to implement co/contra-variance of function type
-                        er.printType(castType, xts.isFunctionType(castType) ? 0 : PRINT_TYPE_PARAMS);
+                        // XTENLANG-3259 to avoid post-compilation error with Java constructor with Comparable parameter.
+                        er.printType(castType, (xts.isFunctionType(castType) || Emitter.isNativeRepedToJava(castType)) ? 0 : PRINT_TYPE_PARAMS);
                         w.write(")");
                     }
                     w.write("(");       // printBoxConvesion assumes parentheses around expression
