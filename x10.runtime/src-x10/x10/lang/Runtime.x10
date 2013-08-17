@@ -701,6 +701,9 @@ public final class Runtime {
     /** The finish state that manages the 'main' activity and sub activities. */
     private static rootFinish = makeDefaultFinish(pool.latch);
 
+    private static val processStartNanos_ = new Cell[Long](0);
+    public static def processStartNanos() = processStartNanos_();
+
     /**
      * Run main activity in a finish.
      * @param init Static initializers
@@ -710,6 +713,8 @@ public final class Runtime {
         // initialize thread pool for the current process
         // initialize runtime
         x10rtInit();
+
+        processStartNanos_(System.nanoTime());
 
         if (hereInt() == 0n) {
             // [DC] at this point: rootFinish has an implicit notifySubActivitySpawn and notifyActivityBegin
