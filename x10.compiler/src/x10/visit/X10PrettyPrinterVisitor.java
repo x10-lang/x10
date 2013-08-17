@@ -2314,7 +2314,7 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
         // When the target class is a generics , print a cast operation
         // explicitly.
         if (target instanceof TypeNode) {
-            er.printType(targetType, 0);
+            er.printType(targetType, BOX_PRIMITIVES);
         } else {
             // add a check that verifies if the target of the call is in place
             // 'here'
