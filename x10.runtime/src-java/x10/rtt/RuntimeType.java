@@ -150,6 +150,9 @@ public class RuntimeType<T> implements Type<T>, X10JavaSerializable {
 //    }
     
     private final Variance getVariance(int i) {
+    	// quick fix for XTENLANG-3248
+    	// TODO remove variances completely
+    	if (variances == null) return Variance.INVARIANT;
         return variances[i];
     }
     
@@ -620,6 +623,7 @@ public class RuntimeType<T> implements Type<T>, X10JavaSerializable {
     public void $_serialize(X10JavaSerializer serializer) throws IOException {
         short sid = serializer.getSerializationId(javaClass, null);
         serializer.write(sid);
+        // TODO parents needed?
     }
 
     public static X10JavaSerializable $_deserializer(X10JavaDeserializer deserializer) throws IOException {
@@ -636,6 +640,7 @@ public class RuntimeType<T> implements Type<T>, X10JavaSerializable {
         short classId = deserializer.readShort();
         Class<?> clazz = deserializer.getClassForID(classId);
         rt.javaClass = clazz;
+        // TODO parents needed?
         return rt;
     }
 }
