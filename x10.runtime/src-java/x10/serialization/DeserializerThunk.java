@@ -346,6 +346,8 @@ abstract class DeserializerThunk {
     }
     
     private static class SpecialCaseDeserializerThunk extends DeserializerThunk {
+    	// XTENLANG-3258: enable writable stack trace before calling setStackTrace
+        private static final StackTraceElement[] UNASSIGNED_STACK = new StackTraceElement[0];
 
         SpecialCaseDeserializerThunk(Class <? extends Object> clazz) {
             super(null);
@@ -393,12 +395,24 @@ abstract class DeserializerThunk {
                 }
                 if (X10JavaSerializer.THROWABLES_SERIALIZE_STACKTRACE) {
                     java.lang.StackTraceElement[] trace = (java.lang.StackTraceElement[]) jds.readArrayUsingReflection(java.lang.StackTraceElement.class);
-                	// XTENLANG-3258: we must set enableWritableStackTrace before calling setStackTrace on IBM Java VM
+                	// XTENLANG-3258: enable writable stack trace before calling setStackTrace
+                    boolean nonNonIBMJavaVM = false;
                     try {
+                    	// For IBM Java VM: set enableWritableStackTrace before calling setStackTrace
                     	Field enableWritableStackTraceField = Throwable.class.getDeclaredField("enableWritableStackTrace");
                     	enableWritableStackTraceField.setAccessible(true);
                     	enableWritableStackTraceField.setBoolean(obj, true);
+                    } catch (Exception e) {
+                    	nonNonIBMJavaVM = true;
+                    }
+                    if (nonNonIBMJavaVM) {
+                    try {
+                        // For Oracle Java VM: set stackTrace before calling setStackTrace
+                    	Field stackTraceField = Throwable.class.getDeclaredField("stackTrace");
+                    	stackTraceField.setAccessible(true);
+                    	stackTraceField.set(obj, UNASSIGNED_STACK);
                     } catch (Exception e) { }
+                    }
                     ((Throwable) obj).setStackTrace(trace);
                 }
                 if (X10JavaSerializer.THROWABLES_SERIALIZE_CAUSE) {
