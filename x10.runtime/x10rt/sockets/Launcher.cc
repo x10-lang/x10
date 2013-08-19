@@ -987,11 +987,8 @@ int Launcher::handleControlMessage(int fd)
 				TCP::write(_childControlLinks[_numchildren], data, m.datalen);
 			}
 			break;
-			case HELLO:
-				DIE("Unexpected HELLO message");
-			break;
-			case GOODBYE:
-				DIE("Unexpected GOODBYE message");
+			default:
+				DIE("Launcher %u got unexpected message type %i", _myproc, m.type);
 			break;
 		}
 	}
