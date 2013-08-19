@@ -44,11 +44,14 @@ ifdef BGP
 
 	POST_PATH	+= -L/opt/ibmmath/lib -L/opt/ibmcmp/xlf/bg/11.1/lib -L/opt/ibmcmp/xlsmp/bg/1.7/lib -L/opt/ibmcmp/vac/bg/9.0/lib
 	POST_LIBS	+= -lx10 -lesslbg -lxlf90_r -lxl -lxlsmp -lrt
-endif
+else
+  ifdef BGQ
+        CPP = /bgsys/drivers/ppcfloor/gnu-linux/bin/powerpc64-bgq-linux-g++
+        MCC = /bgsys/drivers/ppcfloor/comm/gcc/bin/mpicxx
 
-##################################################
-ifndef BGP
-
+        POST_PATH       += -L/opt/ibmmath/lib -L/opt/ibmcmp/xlf/bg/11.1/lib -L/opt/ibmcmp/xlsmp/bg/1.7/lib -L/opt/ibmcmp/vac/bg/9.0/lib
+        POST_LIBS       += -lx10 -lesslbg -lxlf90_r -lxl -lxlsmp -lrt
+  else
         ## JAVA include
 	JNI_inc     =$(JAVA_HOME)/include	
         #---------------------------------------------------------------
@@ -113,4 +116,5 @@ ifndef BGP
 	ifdef  gfortran
 		POST_LIBS	+= -l$(gfortran)
 	endif
+    endif
 endif
