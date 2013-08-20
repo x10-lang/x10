@@ -9,8 +9,8 @@
 
 #ifdef MPI_COMMU
 #include "mpi.h"
-#include "mpi_api.h"
 #endif
+#include "mpi_api.h"
 
 #ifdef MPI_COMMU
 MPI_Comm GML_COMM_WORLD;
