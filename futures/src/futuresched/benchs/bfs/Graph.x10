@@ -1,4 +1,4 @@
-package futuresched.benchs.spantree;
+package futuresched.benchs.bfs;
 
 import x10.util.Random;
 import x10.util.ArrayList;
