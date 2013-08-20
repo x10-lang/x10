@@ -85,8 +85,8 @@ class ResilientKMeans {
             /* 
              * Deliver the central_clusters
              */
-            Console.OUT.print("Distributing clusters...  ");
-            val dist_clusters_before = System.nanoTime();
+            //Console.OUT.print("Distributing clusters...  ");
+            //val dist_clusters_before = System.nanoTime();
             try {
                 finish for (pl in Place.places()) {
                     if (pl.isDead()) continue; // skip the dead place
@@ -110,8 +110,8 @@ class ResilientKMeans {
                     }
                 }
             }
-            val dist_clusters_after = System.nanoTime();
-            Console.OUT.println("Took "+(dist_clusters_after-dist_clusters_before)/1E9+" seconds");
+            //val dist_clusters_after = System.nanoTime();
+            //Console.OUT.println("Took "+(dist_clusters_after-dist_clusters_before)/1E9+" seconds");
 
             /* Clear the central_clusters to collect results */
             for (var j:Long=0L ; j<CLUSTERS*DIM ; ++j) {
@@ -126,8 +126,8 @@ class ResilientKMeans {
             /* 
              * Compute new clusters and counters at each place
              */
-            Console.OUT.println("Computing new clusters...  ");
-            val compute_clusters_before = System.nanoTime();
+            //Console.OUT.println("Computing new clusters...  ");
+            //val compute_clusters_before = System.nanoTime();
             val numAvail = Place.MAX_PLACES - Place.numDead(); // number of available places
             val div = POINTS/numAvail; // share for each place
             val rem = POINTS%numAvail; // extra share for Place0
@@ -145,7 +145,7 @@ class ResilientKMeans {
                     val s = start, e = end;
                     at (pl) async {
 
-                        val actual_work_before = System.nanoTime();
+                        //val actual_work_before = System.nanoTime();
 
                         //TODO: finish
                         for (var j:Long = s; j < e; ++j) {
@@ -175,16 +175,16 @@ class ResilientKMeans {
                                 //Runtime.probe(); // probably not necessary since load is statically balanced
                             }
                         } /* for (j) */
-                        val actual_work_after = System.nanoTime();
-                        Console.OUT.println("Actual work at place "+here+" took "+(actual_work_after-actual_work_before)/1E9+" seconds");
+                        //val actual_work_after = System.nanoTime();
+                        //Console.OUT.println("Actual work at place "+here+" took "+(actual_work_after-actual_work_before)/1E9+" seconds");
 
                         val msg_back_before = System.nanoTime();
                         /* All assigned points processed, return the local results */
                         val tmp_new_clusters = local_new_clusters();
                         val tmp_cluster_counts = local_cluster_counts();
                         val tmp_processed_points = e - s;
-                        val prof = new Runtime.Profile();
-                        @Profile(prof) at (place0) async atomic {
+                        /*val prof = new Runtime.Profile();
+                        @Profile(prof) */ at (place0) async atomic {
                             for (var j:Long=0L ; j<CLUSTERS*DIM; ++j) {
                                 central_clusters_gr()(j) += tmp_new_clusters(j);
                             }
@@ -193,9 +193,9 @@ class ResilientKMeans {
                             }
                             processed_points_gr()() += tmp_processed_points;
                         }
-                        val msg_back_after = System.nanoTime();
-                        Console.OUT.println("Profile: "+prof.bytes+" bytes, "+prof.serializationNanos/1E9+" ser, "+prof.communicationNanos/1E9+" comm");
-                        Console.OUT.println("Message back from place "+here+" took "+(msg_back_after-msg_back_before)/1E9+" seconds");
+                        //val msg_back_after = System.nanoTime();
+                        //Console.OUT.println("Profile: "+prof.bytes+" bytes, "+prof.serializationNanos/1E9+" ser, "+prof.communicationNanos/1E9+" comm");
+                        //Console.OUT.println("Message back from place "+here+" took "+(msg_back_after-msg_back_before)/1E9+" seconds");
                     } /* at (pl) async */
                     start = end; // point to be processed at the next place
                 } /* finish for (pl) */
@@ -209,9 +209,9 @@ class ResilientKMeans {
                     }
                 }
             }
-            val compute_clusters_after = System.nanoTime();
-            Console.OUT.println("Took "+(compute_clusters_after-compute_clusters_before)/1E9+" seconds");
-            Console.OUT.println("Used "+places_used+" places to do the work");
+            //val compute_clusters_after = System.nanoTime();
+            //Console.OUT.println("Took "+(compute_clusters_after-compute_clusters_before)/1E9+" seconds");
+            //Console.OUT.println("Used "+places_used+" places to do the work");
             
             /*
              * Compute new cluster values and test for convergence
