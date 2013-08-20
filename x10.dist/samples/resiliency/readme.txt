@@ -1,32 +1,25 @@
-How to compile and run ResilientMontePi.x10
+-----------------------
+Notes on resilient X10:
+-----------------------
 
-For Managed X10:
-x10c ResilientMontePiPlaceZero.x10
-X10_NPLACES=4 ./run.sh x10 ResilientMontePiPlaceZero
+Resilient X10 programs are compiled as normal.
 
-For Native X10:
-x10c++ ResilientMontePiPlaceZero.x10
-X10_NPLACES=4 ./run.sh a.out
+They can be executed as normal as well, but will not actually be resilient
+unless X10_RESILIENT_PLACE_ZERO=1 is specified, in which case the resilient
+finish is turned on.  This implementation of finish is slower than the default
+finish, which is why it is not enabled by default.
 
-----
-How to compile and run ResilientKMeans.x10
 
-For Managed X10:
-x10c ResilientKMeans.x10
-X10_RESILIENT_PLACE_ZERO=1 X10_NPLACES=4 run.sh x10 ResilientKMeans [num_points] [num_clusters]
+How to run each sample app:
 
-For Native X10:
-x10c++ ResilientKMeans.x10 -o ResilientKMeans
-X10_RESILIENT_PLACE_ZERO=1 X10_NPLACES=4 run.sh runx10 ResilientKMeans [num_points] [num_clusters]
+./ResilientMontePi
+./ResilientKMeans [num_points] [num_clusters]
+./ResilientHeatTransfer [size]
 
-----
-How to compile and run ResilientHeatTransfer.x10
-(ResilientDistArray.x10 and ResilientPlaceGroup.x10 are also compiled)
 
-For Managed X10:
-x10c ResilientHeatTransfer.x10
-X10_RESILIENT_PLACE_ZERO=1 X10_NPLACES=4 run.sh x10 ResilientHeatTransfer [size]
+MatVecMult assumes data exists on disk in a particular format.  This data is
+not publically available, although the format is simple and can be understood
+by reading thes ource code.  The app is included in SVN because it is an
+interesting example to read, but it is not expected that anyone will try to
+run it.
 
-For Native X10:
-x10c++ ResilientHeatTransfer.x10 -o ResilientHeatTransfer
-X10_RESILIENT_PLACE_ZERO=1 X10_NPLACES=4 run.sh runx10 ResilientHeatTransfer [size]
