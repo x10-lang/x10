@@ -24,14 +24,14 @@ public final class Array_1[T] extends Array[T]{this.rank()==1} implements (Long)
      * Construct a 1-dimensional array with indices 0..n-1 whose elements are zero-initialized.
      */
     public def this(n:Long) { T haszero } {
-        super(n, true);
+        super(validateSize(n), true);
     }
 
     /**
      * Construct a 1-dimensional array with indices 0..n-1 whose elements are initialized to init.
      */
     public def this(n:Long, init:T) {
-        super(n, false);
+        super(validateSize(n), false);
         raw.fill(init);
     }
 
@@ -39,8 +39,8 @@ public final class Array_1[T] extends Array[T]{this.rank()==1} implements (Long)
      * Construct a 1-dimensional array with indices 0..n-1 whose elements are initialized to 
      * the value computed by the init closure when applied to the element index.
      */
-    public @Inline def this(n:Long, init:(long)=>T) {
-        super(n, false);
+    public @Inline def this(n:Long, init:(Long)=>T) {
+        super(validateSize(n), false);
         for (i in raw.range()) {
             raw(i) = init(i);
         }
@@ -79,7 +79,7 @@ public final class Array_1[T] extends Array[T]{this.rank()==1} implements (Long)
      * @return an IterationSpace containing all valid Points for indexing this Array.
      */  
     public def indices():DenseIterationSpace_1{self!=null} {
-        return new DenseIterationSpace_1(0L, size-1L);
+        return new DenseIterationSpace_1(0, size-1);
     }
 
     /**
@@ -89,7 +89,7 @@ public final class Array_1[T] extends Array[T]{this.rank()==1} implements (Long)
      * @return the element of this array corresponding to the given index.
      * @see #set(T, Int)
      */
-    public @Inline operator this(i:long):T {
+    public @Inline operator this(i:Long):T {
         // Bounds checking by backing Rail is sufficient
         return raw(i);
     }
@@ -113,7 +113,7 @@ public final class Array_1[T] extends Array[T]{this.rank()==1} implements (Long)
      * @return the new value of the element of this array corresponding to the given index.
      * @see #operator(Int)
      */
-    public @Inline operator this(i:long)=(v:T):T{self==v} {
+    public @Inline operator this(i:Long)=(v:T):T{self==v} {
         // Bounds checking by backing Rail is sufficient
         raw(i) = v;
         return v;
@@ -129,6 +129,12 @@ public final class Array_1[T] extends Array[T]{this.rank()==1} implements (Long)
      * @see #operator(Int)
      */
     public @Inline operator this(p:Point(1))=(v:T):T{self==v} = this(p(0)) = v;
+
+
+    private @Inline static def validateSize(n:Long):Long {
+        if (n < 0) raiseNegativeArraySizeException();
+        return n;
+    }
 }
 
 // vim:tabstop=4:shiftwidth=4:expandtab

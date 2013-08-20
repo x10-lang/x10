@@ -49,7 +49,7 @@ public abstract class Array[T] (
     /**
      * @return the rank (dimensionality) of the Array
      */
-    public abstract property rank():long;
+    public abstract property rank():Long;
 
     /**
      * The backing storage for the array's elements
@@ -134,7 +134,7 @@ public abstract class Array[T] (
      * </code> dst(pt) == op(src(pt)) </code>.  When applied to arrays that use
      * a different iteration space, the mapping from src to dst is defined in
      * terms of the index of the backing rails, that is <code>dst.raw()(i) = op(src.raw()(i))</code>
-     * for i in <code>0L..(src.size()-1)</code>.
+     * for i in <code>0..(src.size()-1)</code>.
      * 
      * @param dst the destination array for the results of the map operation
      * @param op the function to apply to each element of the array
@@ -157,7 +157,7 @@ public abstract class Array[T] (
      * a different iteration space, the mapping from src to dst is defined in
      * terms of the index of the backing rails, that is 
      * <code>dst.raw()(i) = op(this.raw()(i), src.raw()(i))</code>
-     * for i in <code>0L..(src.size()-1)</code>.
+     * for i in <code>0..(src.size()-1)</code>.
      * 
      * @param src2 the second source array to use as input to the map function
      * @param dst the destination array for the results of the map operation
@@ -212,7 +212,7 @@ public abstract class Array[T] (
      * @param dst the destination array.
      */
     public static def copy[T](src:Array[T], dst:Array[T]){src.size==dst.size} {
-        Rail.copy(src.raw, 0L, dst.raw, 0L, src.raw.size);
+        Rail.copy(src.raw, 0, dst.raw, 0, src.raw.size);
     }
 
 
@@ -228,20 +228,24 @@ public abstract class Array[T] (
      *        array where copied data elements will be stored.
      * @param numElems the number of elements to be copied.
      */
-    public static def copy[T](src:Array[T], srcIndex:long, 
-                              dst:Array[T], dstIndex:long, numElems:long) {
+    public static def copy[T](src:Array[T], srcIndex:Long, 
+                              dst:Array[T], dstIndex:Long, numElems:Long) {
         Rail.copy(src.raw, srcIndex, dst.raw, dstIndex, numElems);
     }
 
 
-    protected static @NoInline @NoReturn def raiseBoundsError(i:long) {
+    protected static @NoInline @NoReturn def raiseBoundsError(i:Long) {
         throw new ArrayIndexOutOfBoundsException("(" + i + ") not contained in array");
     }    
-    protected static @NoInline @NoReturn def raiseBoundsError(i:long, j:long) {
+    protected static @NoInline @NoReturn def raiseBoundsError(i:Long, j:Long) {
         throw new ArrayIndexOutOfBoundsException("(" + i + ", "+j+") not contained in array");
     }    
-    protected static @NoInline @NoReturn def raiseBoundsError(i:long, j:long, k:long) {
+    protected static @NoInline @NoReturn def raiseBoundsError(i:Long, j:Long, k:Long) {
         throw new ArrayIndexOutOfBoundsException("(" + i + ", "+j+", "+k+") not contained in array");
+    }    
+
+    protected static @NoInline @NoReturn def raiseNegativeArraySizeException() {
+        throw new NegativeArraySizeException();
     }    
 }
 

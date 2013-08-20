@@ -30,7 +30,7 @@ public class DistArray_Block_1[T] extends DistArray[T]{this.rank()==1} implement
     protected transient val localIndices:DenseIterationSpace_1{self!=null};
     @NonEscaping protected final def reloadLocalIndices():DenseIterationSpace_1{self!=null} {
         val ls = localHandle() as LocalState_B1[T];
-        return ls != null ? ls.localIndices : new DenseIterationSpace_1(0L,-1L);
+        return ls != null ? ls.localIndices : new DenseIterationSpace_1(0,-1);
     }
     
     @TransientInitExpr(reloadMinLocalIndex())
@@ -50,9 +50,9 @@ public class DistArray_Block_1[T] extends DistArray[T]{this.rank()==1} implement
      * @param pg the PlaceGroup to use to distibute the elements.
      * @param init the element initialization function
      */
-    public def this(n:long, pg:PlaceGroup{self!=null}, init:(long)=>T) {
-        super(pg, () => LocalState_B1.make[T](pg, n, init));
-        globalIndices = new DenseIterationSpace_1(0L, n-1);
+    public def this(n:Long, pg:PlaceGroup{self!=null}, init:(Long)=>T) {
+        super(pg, () => LocalState_B1.make[T](pg, n, init), validateSize(n));
+        globalIndices = new DenseIterationSpace_1(0, n-1);
         localIndices = reloadLocalIndices();
         minLocalIndex = reloadMinLocalIndex();
         maxLocalIndex = reloadMaxLocalIndex();
@@ -67,7 +67,7 @@ public class DistArray_Block_1[T] extends DistArray[T]{this.rank()==1} implement
      * @param n number of elements
      * @param init the element initialization function
      */
-    public def this(n:long, init:(long)=>T) {
+    public def this(n:Long, init:(Long)=>T) {
         this(n, PlaceGroup.WORLD, init);
     }
 
@@ -79,8 +79,8 @@ public class DistArray_Block_1[T] extends DistArray[T]{this.rank()==1} implement
      * @param n number of elements 
      * @param pg the PlaceGroup to use to distibute the elements.
      */
-    public def this(n:long, pg:PlaceGroup{self!=null}){T haszero} {
-        this(n, pg, (long)=>Zero.get[T]());
+    public def this(n:Long, pg:PlaceGroup{self!=null}){T haszero} {
+        this(n, pg, (Long)=>Zero.get[T]());
     }
 
 
@@ -91,8 +91,8 @@ public class DistArray_Block_1[T] extends DistArray[T]{this.rank()==1} implement
      *
      * @param n number of elements
      */
-    public def this(n:long){T haszero} {
-        this(n, PlaceGroup.WORLD, (long)=>Zero.get[T]());
+    public def this(n:Long){T haszero} {
+        this(n, PlaceGroup.WORLD, (Long)=>Zero.get[T]());
     }
 
 
@@ -121,9 +121,9 @@ public class DistArray_Block_1[T] extends DistArray[T]{this.rank()==1} implement
      * @return the Place where i is a valid index in the DistArray; 
      *          will return Place.INVALID_PLACE if i is not contained in globalIndices
      */
-    public final def place(i:long):Place {
+    public final def place(i:Long):Place {
         val tmp = BlockingUtils.mapIndexToBlockPartition(globalIndices, placeGroup.size(), i);
-	return tmp == -1L ? Place.INVALID_PLACE : placeGroup(tmp);
+	return tmp == -1 ? Place.INVALID_PLACE : placeGroup(tmp);
     }
 
 
@@ -146,7 +146,7 @@ public class DistArray_Block_1[T] extends DistArray[T]{this.rank()==1} implement
      * @return the element of this array corresponding to the given index.
      * @see #set(T, Long)
      */
-    public final @Inline operator this(i:long):T {
+    public final @Inline operator this(i:Long):T {
         if (CompilerFlags.checkPlace() || CompilerFlags.checkBounds()) {
             if (i < minLocalIndex || i > maxLocalIndex) {
                 if (CompilerFlags.checkBounds() && (i < 0 || i >= size)) raiseBoundsError(i);
@@ -176,7 +176,7 @@ public class DistArray_Block_1[T] extends DistArray[T]{this.rank()==1} implement
      * @return the new value of the element of this array corresponding to the given index.
      * @see #operator(Long)
      */
-    public final @Inline operator this(i:long)=(v:T):T{self==v} {
+    public final @Inline operator this(i:Long)=(v:T):T{self==v} {
         if (CompilerFlags.checkPlace() || CompilerFlags.checkBounds()) {
             if (i < minLocalIndex || i > maxLocalIndex) {
                 if (CompilerFlags.checkBounds() && (i < 0 || i >= size)) raiseBoundsError(i);
@@ -198,6 +198,12 @@ public class DistArray_Block_1[T] extends DistArray[T]{this.rank()==1} implement
      * @see #operator(Int)
      */
     public final @Inline operator this(p:Point(1))=(v:T):T{self==v} = this(p(0)) = v;
+
+
+    private @Inline static def validateSize(n:Long):Long {
+        if (n < 0) raiseNegativeArraySizeException();
+        return n;
+    }
 }
 
 
@@ -207,19 +213,19 @@ class LocalState_B1[S] extends LocalState[S] {
     val globalIndices:DenseIterationSpace_1{self!=null};
     val localIndices:DenseIterationSpace_1{self!=null};
 
-    def this(pg:PlaceGroup{self!=null}, data:Rail[S]{self!=null}, size:long, 
+    def this(pg:PlaceGroup{self!=null}, data:Rail[S]{self!=null}, size:Long, 
              gs:DenseIterationSpace_1{self!=null}, ls:DenseIterationSpace_1{self!=null}) {
         super(pg, data, size);
         globalIndices = gs;
         localIndices = ls;
     }
 
-    static def make[S](pg:PlaceGroup{self!=null}, n:long, init:(long)=>S):LocalState_B1[S] {
-        val globalSpace = new DenseIterationSpace_1(0L, n-1);
+    static def make[S](pg:PlaceGroup{self!=null}, n:Long, init:(Long)=>S):LocalState_B1[S] {
+        val globalSpace = new DenseIterationSpace_1(0, n-1);
         val localSpace = BlockingUtils.partitionBlock(globalSpace, pg.numPlaces(), pg.indexOf(here));
 
 	val data:Rail[S]{self!=null};
-	if (localSpace.min(0) > localSpace.max(0)) { // TODO: add isEmpty() to IterationSpace API?
+	if (localSpace.isEmpty()) { 
             data = new Rail[S]();
         } else {            
             val low = localSpace.min(0);

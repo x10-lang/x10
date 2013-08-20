@@ -17,14 +17,14 @@ package x10.array;
  */
 public final class DenseIterationSpace_3 extends IterationSpace(3){rect} {
 
-    public val min0:long;
-    public val min1:long;
-    public val min2:long;
-    public val max0:long;
-    public val max1:long;
-    public val max2:long;
+    public val min0:Long;
+    public val min1:Long;
+    public val min2:Long;
+    public val max0:Long;
+    public val max1:Long;
+    public val max2:Long;
 
-    public def this(min0:long, min1:long, min2:long, max0:long, max1:long, max2:long) {
+    public def this(min0:Long, min1:Long, min2:Long, max0:Long, max1:Long, max2:Long) {
         super(3,true);
         this.min0 = min0;
         this.min1 = min1;
@@ -34,26 +34,28 @@ public final class DenseIterationSpace_3 extends IterationSpace(3){rect} {
         this.max2 = max2;
     }
 
-    public def min(i:long):long {
+    public def min(i:Long):Long {
         if (i == 0) return min0;
         if (i == 1) return min1;
         if (i == 2) return min2;
         throw new IllegalOperationException(i +" is not a valid rank");
     }
 
-    public def max(i:long):long {
+    public def max(i:Long):Long {
         if (i == 0) return max0;
         if (i == 1) return max1;
         if (i == 2) return max2;
         throw new IllegalOperationException(i +" is not a valid rank");
     }
 
+    public def isEmpty() = max0 < min0 || max1 < min1 || max2 < min2;
+
     public def iterator():Iterator[Point(3)] = new DIS3_It();
 
     private class DIS3_It implements Iterator[Point(3)] {
-        var cur0:long;
-        var cur1:long;
-        var cur2:long;
+        var cur0:Long;
+        var cur1:Long;
+        var cur2:Long;
 
         def this() {
             cur0 = min0;

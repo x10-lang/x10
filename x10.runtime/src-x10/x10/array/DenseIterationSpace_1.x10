@@ -17,32 +17,34 @@ package x10.array;
  */
 public final class DenseIterationSpace_1 extends IterationSpace(1){rect} {
 
-    public val min:long;
-    public val max:long;
+    public val min:Long;
+    public val max:Long;
 
-    public def this(min:long, max:long) {
+    public def this(min:Long, max:Long) {
         super(1, true);
         this.min = min;
         this.max = max;
     }
 
-    public def min(i:long):long {
+    public def min(i:Long):Long {
        if (i != 0) throw new IllegalOperationException(i +" is not a valid rank");
        return min;
     }
 
-    public def max(i:long):long {
+    public def max(i:Long):Long {
        if (i != 0) throw new IllegalOperationException(i +" is not a valid rank");
        return max;
     }
 
+    public def isEmpty() = max < min;
+
     public def iterator():Iterator[Point(1)] = new DIS_1_It(min, max);
 
     private static class DIS_1_It implements Iterator[Point(1)] {
-        var cur:long;
-        val last:long;
+        var cur:Long;
+        val last:Long;
         
-        def this(min:long, max:long) { 
+        def this(min:Long, max:Long) { 
            this.cur = min;
            this.last = max;
         }

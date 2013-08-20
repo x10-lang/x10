@@ -42,7 +42,7 @@ public final class Array_3[T] (
      * whose elements are zero-initialized.
      */
     public def this(m:Long, n:Long, p:Long) {
-        super(m*n*p, true);
+        super(validateSize(m, n, p), true);
         property(m, n, p);
     }
 
@@ -51,7 +51,7 @@ public final class Array_3[T] (
      * whose elements are initialized to init.
      */
     public def this(m:Long, n:Long, p:Long, init:T) {
-        super(m*n*p, false);
+        super(validateSize(m, n, p), false);
         property(m, n, p);
         raw.fill(init);
     }
@@ -60,8 +60,8 @@ public final class Array_3[T] (
      * Construct a 3-dimensional array with indices [0..m-1][0..n-1][0..p-1] 
      * whose elements are initialized to the value returned by the init closure for each index.
      */
-    public @Inline def this(m:Long, n:Long, p:Long, init:(long,long,long)=>T) {
-        super(m*n*p, false);
+    public @Inline def this(m:Long, n:Long, p:Long, init:(Long,Long,Long)=>T) {
+        super(validateSize(m, n, p), false);
         property(m, n, p);
         for (i in 0..(m-1)) {
             for (j in 0..(n-1)) {
@@ -105,12 +105,12 @@ public final class Array_3[T] (
     public def toString():String {
         val sb = new StringBuilder();
         sb.add("[");
-        val limit = 10L;
-        var printed:long = 0L;
-        outer: for (i in 0L..(numElems_1 - 1)) {
-            for (j in 0L..(numElems_2 - 1)) {
-                for (k in 0L..(numElems_3 - 1)) {
-                    if (k != 0L) sb.add(", ");
+        val limit = 10;
+        var printed:Long = 0;
+        outer: for (i in 0..(numElems_1 - 1)) {
+            for (j in 0..(numElems_2 - 1)) {
+                for (k in 0..(numElems_3 - 1)) {
+                    if (k != 0) sb.add(", ");
                     sb.add(this(i,j,k));
                     if (++printed > limit) break outer;
                  }
@@ -128,7 +128,7 @@ public final class Array_3[T] (
      * @return an IterationSpace containing all valid Points for indexing this Array.
      */  
     public def indices():DenseIterationSpace_3{self!=null} {
-        return new DenseIterationSpace_3(0L, 0L, 0L, numElems_1-1, numElems_2-1, numElems_3-1);
+        return new DenseIterationSpace_3(0, 0, 0, numElems_1-1, numElems_2-1, numElems_3-1);
     }
     
     /**
@@ -140,7 +140,7 @@ public final class Array_3[T] (
      * @return the element of this array corresponding to the given triple of indices.
      * @see #set(T, Int, Int)
      */
-    public @Inline operator this(i:long, j:long, k:long):T {
+    public @Inline operator this(i:Long, j:Long, k:Long):T {
         if (CompilerFlags.checkBounds() && (i < 0 || i >= numElems_1 || 
                                             j < 0 || j >= numElems_2 || 
                                             k < 0 || k >= numElems_3)) {
@@ -162,7 +162,7 @@ public final class Array_3[T] (
      * @return the new value of the element of this array corresponding to the given triple of indices.
      * @see #operator(Int, Int)
      */
-    public @Inline operator this(i:long,j:long,k:long)=(v:T):T{self==v} {
+    public @Inline operator this(i:Long,j:Long,k:Long)=(v:T):T{self==v} {
         if (CompilerFlags.checkBounds() && (i < 0 || i >= numElems_1 || 
                                             j < 0 || j >= numElems_2 || 
                                             k < 0 || k >= numElems_3)) {
@@ -175,8 +175,13 @@ public final class Array_3[T] (
     public @Inline operator this(p:Point(3))=(v:T):T{self==v} = this(p(0), p(1), p(2)) = v;
 
     
-    private @Inline def offset(i:long, j:long, k:long) {
+    private @Inline def offset(i:Long, j:Long, k:Long) {
         return k + numElems_3 * (j + (i * numElems_2));
+    }
+
+    private @Inline static def validateSize(m:Long, n:Long, p:Long):Long {
+        if (m < 0 || n < 0 || p < 0) raiseNegativeArraySizeException();
+        return m*n*p;
     }
 }
 

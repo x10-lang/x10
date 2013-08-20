@@ -36,7 +36,7 @@ public final class Array_2[T] (
      * Construct a 2-dimensional array with indices [0..m-1][0..n-1] whose elements are zero-initialized.
      */
     public def this(m:Long, n:Long) {
-        super(m*n, true);
+        super(validateSize(m, n), true);
         property(m, n);
     }
 
@@ -44,7 +44,7 @@ public final class Array_2[T] (
      * Construct a 2-dimensional array with indices [0..m-1][0..n-1] whose elements are initialized to init.
      */
     public def this(m:Long, n:Long, init:T) {
-        super(m*n, false);
+        super(validateSize(m, n), false);
         property(m, n);
         raw.fill(init);
     }
@@ -53,8 +53,8 @@ public final class Array_2[T] (
      * Construct a 2-dimensional array with indices [0..m-1][0..n-1] whose elements are initialized 
      * to the value returned by the init closure for each index.
      */
-    public @Inline def this(m:Long, n:Long, init:(long,long)=>T) {
-        super(m*n, false);
+    public @Inline def this(m:Long, n:Long, init:(Long,Long)=>T) {
+        super(validateSize(m, n), false);
         property(m, n);
         for (i in 0..(m-1)) {
             for (j in 0..(n-1)) {
@@ -96,11 +96,11 @@ public final class Array_2[T] (
     public def toString():String {
         val sb = new StringBuilder();
         sb.add("[");
-        val limit = 10L;
-        var printed:long = 0L;
-        outer: for (i in 0L..(numElems_1 - 1)) {
-            for (j in 0L..(numElems_2 - 1)) {
-                if (j != 0L) sb.add(", ");
+        val limit = 10;
+        var printed:Long = 0;
+        outer: for (i in 0..(numElems_1 - 1)) {
+            for (j in 0..(numElems_2 - 1)) {
+                if (j != 0) sb.add(", ");
                 sb.add(this(i,j));
                 if (++printed > limit) break outer;
             }
@@ -117,7 +117,7 @@ public final class Array_2[T] (
      * @return an IterationSpace containing all valid Points for indexing this Array.
      */  
     public def indices():DenseIterationSpace_2{self!=null} {
-        return new DenseIterationSpace_2(0L, 0L, numElems_1-1, numElems_2-1);
+        return new DenseIterationSpace_2(0, 0, numElems_1-1, numElems_2-1);
     }
 
     /**
@@ -128,7 +128,7 @@ public final class Array_2[T] (
      * @return the element of this array corresponding to the given pair of indices.
      * @see #set(T, Int, Int)
      */
-    public @Inline operator this(i:long, j:long):T {
+    public @Inline operator this(i:Long, j:Long):T {
         if (CompilerFlags.checkBounds() && (i < 0 || i >= numElems_1 || 
                                             j < 0 || j >= numElems_2)) {
             raiseBoundsError(i, j);
@@ -148,7 +148,7 @@ public final class Array_2[T] (
      * @return the new value of the element of this array corresponding to the given pair of indices.
      * @see #operator(Int, Int)
      */
-    public @Inline operator this(i:long,j:long)=(v:T):T{self==v} {
+    public @Inline operator this(i:Long,j:Long)=(v:T):T{self==v} {
         if (CompilerFlags.checkBounds() && (i < 0 || i >= numElems_1 || 
                                             j < 0 || j >= numElems_2)) {
             raiseBoundsError(i, j);
@@ -159,8 +159,13 @@ public final class Array_2[T] (
 
     public @Inline operator this(p:Point(2))=(v:T):T{self==v} = this(p(0), p(1)) = v;
     
-    private @Inline def offset(i:long, j:long) {
+    private @Inline def offset(i:Long, j:Long) {
          return j + (i * numElems_2);
+    }
+
+    private @Inline static def validateSize(m:Long, n:Long):Long {
+        if (m < 0 || n < 0) raiseNegativeArraySizeException();
+        return m*n;
     }
 }
 

@@ -45,7 +45,7 @@ public abstract class DistArray[T] (
     /**
      * @return the rank (dimensionality) of the DistArray
      */
-    public abstract property rank():long;
+    public abstract property rank():Long;
  
     /** 
      * The place-local state for the DistArray 
@@ -74,10 +74,10 @@ public abstract class DistArray[T] (
      * @param pg the PlaceGroup over which the DistArray is defined.
      * @param init the closure to pass to PlaceLocalHandle.make
      */
-    protected def this(pg:PlaceGroup, init:()=>LocalState[T]) {
+    protected def this(pg:PlaceGroup, init:()=>LocalState[T], sz:Long) {
+        property(sz);
         val plh = PlaceLocalHandle.makeFlat[LocalState[T]](pg, init);
         val ls = plh();
-        property(ls.size);
         localHandle = plh;
         placeGroup = pg;
 	raw = getRailFromLocalHandle();
@@ -159,31 +159,35 @@ public abstract class DistArray[T] (
      */
     public abstract operator this(p:Point(this.rank()))=(v:T):T{self==v};
 
-    protected static @NoInline @NoReturn def raiseBoundsError(i:long) {
+    protected static @NoInline @NoReturn def raiseBoundsError(i:Long) {
         throw new ArrayIndexOutOfBoundsException("(" + i + ") not contained in array");
     }    
-    protected static @NoInline @NoReturn def raiseBoundsError(i:long, j:long) {
+    protected static @NoInline @NoReturn def raiseBoundsError(i:Long, j:Long) {
         throw new ArrayIndexOutOfBoundsException("(" + i + ", "+j+") not contained in array");
     }    
-    protected static @NoInline @NoReturn def raiseBoundsError(i:long, j:long, k:long) {
+    protected static @NoInline @NoReturn def raiseBoundsError(i:Long, j:Long, k:Long) {
         throw new ArrayIndexOutOfBoundsException("(" + i + ", "+j+", "+k+") not contained in array");
     }    
 
-    protected static @NoInline @NoReturn def raisePlaceError(i:long) {
+    protected static @NoInline @NoReturn def raisePlaceError(i:Long) {
         throw new BadPlaceException("point (" + i + ") not defined at " + here);
     }    
-    protected static @NoInline @NoReturn def raisePlaceError(i:long, j:long) {
+    protected static @NoInline @NoReturn def raisePlaceError(i:Long, j:Long) {
         throw new BadPlaceException("point (" + i + ", "+ j +") not defined at " + here);
     }    
-    protected static @NoInline @NoReturn def raisePlaceError(i:long, j:long, k:long) {
+    protected static @NoInline @NoReturn def raisePlaceError(i:Long, j:Long, k:Long) {
         throw new BadPlaceException("point (" + i + ", "+ j +", "+ k +") not defined at " + here);
+    }    
+
+    protected static @NoInline @NoReturn def raiseNegativeArraySizeException() {
+        throw new NegativeArraySizeException();
     }    
 }
 
 // TODO:  Would prefer this to be a protected static nested class, but 
 //        when written that way we non-deterministically fail compilation.
-class LocalState[S](pg:PlaceGroup{self!=null},rail:Rail[S]{self!=null},size:long) {
-    def this(pg:PlaceGroup{self!=null},rail:Rail[S]{self!=null}, size:long) {
+class LocalState[S](pg:PlaceGroup{self!=null},rail:Rail[S]{self!=null},size:Long) {
+    def this(pg:PlaceGroup{self!=null},rail:Rail[S]{self!=null}, size:Long) {
         property(pg, rail, size);
     }
 }

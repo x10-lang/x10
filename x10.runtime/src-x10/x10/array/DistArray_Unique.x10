@@ -27,7 +27,7 @@ public final class DistArray_Unique[T] extends DistArray[T]{this.rank()==1} impl
      * Construct a zero-initialized DistArray_Unique object on the WORLD PlaceGroup
      */
     public def this(){T haszero} {
-        super(PlaceGroup.WORLD, () => new LocalState[T](PlaceGroup.WORLD, new Rail[T](1), PlaceGroup.WORLD.size()));
+        super(PlaceGroup.WORLD, () => new LocalState[T](PlaceGroup.WORLD, new Rail[T](1), PlaceGroup.WORLD.size()), PlaceGroup.WORLD.size());
     }
 
     /**
@@ -35,7 +35,7 @@ public final class DistArray_Unique[T] extends DistArray[T]{this.rank()==1} impl
      * given initialization function.
      */
     public def this(init:()=>T) {
-        super(PlaceGroup.WORLD, () => new LocalState[T](PlaceGroup.WORLD, new Rail[T](1, init()), PlaceGroup.WORLD.size()));
+        super(PlaceGroup.WORLD, () => new LocalState[T](PlaceGroup.WORLD, new Rail[T](1, init()), PlaceGroup.WORLD.size()), PlaceGroup.WORLD.size());
     }
 
     /**
@@ -43,7 +43,7 @@ public final class DistArray_Unique[T] extends DistArray[T]{this.rank()==1} impl
      * initialization function.
      */
     public def this(pg:PlaceGroup{self!=null}, init:()=>T) {
-        super(pg, () => new LocalState[T](pg, new Rail[T](1, init()), pg.size()));
+        super(pg, () => new LocalState[T](pg, new Rail[T](1, init()), pg.size()), pg.size());
     }
 
     /**
