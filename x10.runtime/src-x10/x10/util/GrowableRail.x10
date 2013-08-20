@@ -234,5 +234,20 @@ public final class GrowableRail[T] implements CustomSerialization {
     private static @NoInline @NoReturn def illegalGap(idx:long, size:long) {
         throw new UnsupportedOperationException("Insert at "+idx+" would have created gap (size = "+size+")");
     }
+
+    public def toString():String {
+        val sb = new StringBuilder();
+        sb.add("[");
+        val sz = size > 10L ? 10L : size;
+        for (var i : Long = 0L; i < sz; i++) {
+            if (i > 0L)
+                sb.add(",");
+            sb.add(data(i).toString());
+        }
+        if (sz < size)
+            sb.add("...(omitted " + (size - sz) + " elements)");
+        sb.add("]");
+        return sb.toString();
+    }
 }
 
