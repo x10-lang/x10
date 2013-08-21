@@ -238,6 +238,12 @@ public class X10Translator extends Translator {
             	javacCmd.add(st.nextToken());
             }
             
+            int javacOptionStart = javacCmd.size();
+            javacCmd.add("-source");
+            javacCmd.add("1.6");
+            
+            javacCmd.add("-nowarn");
+            
             javacCmd.add("-classpath");
             javacCmd.add(options.constructPostCompilerClasspath());
             
@@ -283,7 +289,30 @@ public class X10Translator extends Translator {
                     err.close();
                 }
 
-                proc.waitFor();
+                int procExitValue = proc.waitFor();
+
+
+                // WIP to use Java Compiler API
+//            	javax.tools.JavaCompiler javac = javax.tools.ToolProvider.getSystemJavaCompiler();
+//            	ByteArrayOutputStream baos = new ByteArrayOutputStream();
+//            	int procExitValue = javac.run(null, null, baos, javacCmd.subList(javacOptionStart, javacCmd.size()).toArray(strarray));
+//            	InputStreamReader err = new InputStreamReader(new java.io.ByteArrayInputStream(baos.toByteArray()));
+//            	try {
+//            		char[] c = new char[72];
+//            		int len;
+//            		StringBuilder sb = new StringBuilder();
+//            		while((len = err.read(c)) > 0) {
+//            			sb.append(String.valueOf(c, 0, len));
+//            		}
+//
+//            		if (sb.length() != 0) {
+//            			eq.enqueue(ErrorInfo.POST_COMPILER_ERROR, sb.toString());
+//            		}
+//            	}
+//            	finally {
+//            		err.close();
+//            	}
+
 
                 if (!options.keep_output_files) {
                 	java.util.ArrayList<String> rmCmd = new java.util.ArrayList<String>();
@@ -294,10 +323,9 @@ public class X10Translator extends Translator {
                     runtime.exec(rmCmd.toArray(strarray));
                 }
 
-                if (proc.exitValue() > 0) {
-                    eq.enqueue(ErrorInfo.POST_COMPILER_ERROR,
-                            "Non-zero return code: " + proc.exitValue());
-                    return false;
+                if (procExitValue > 0) {
+                	eq.enqueue(ErrorInfo.POST_COMPILER_ERROR, "Non-zero return code: " + procExitValue);
+                	return false;
                 }
 
                 if (options.executable_path != null) {  // -o executable_path

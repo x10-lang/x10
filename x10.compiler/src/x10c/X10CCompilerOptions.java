@@ -70,7 +70,7 @@ public class X10CCompilerOptions extends x10.X10CompilerOptions {
 
         // change post_compiler from "javac" to "java -jar ${x10.dist}/lib/ecj.jar"
         String ecj_jar = System.getProperty("x10c.ecj.jar", "ecj.jar");
-        post_compiler = findJavaCommand("java") + " -jar \"" + libdir + File.separator + ecj_jar + "\" -1.6 -nowarn";
+        post_compiler = findJavaCommand("java") + " -jar \"" + libdir + File.separator + ecj_jar + "\"";
     }
 
     @Override
