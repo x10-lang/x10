@@ -39,12 +39,33 @@ public class BlockingUtils {
      * @return the IterationSpace representing the ith partition
      */
     public static def partitionBlock(is:IterationSpace(1), n:Long, i:Long):DenseIterationSpace_1{self!=null} {
-        val min = is.min(0);
-        val max = is.max(0);
-        val P = n;
+        return partitionBlock(is.min(0), is.max(0), n, i);
+    }
+
+
+    /**
+     * A Block distribution takes a rank-1 iteration space
+     * and distributes all points contained in the bounding box of the 
+     * space roughly evenly into the requested number of units.
+     * If the input iteration space is dense, then the returned iteration space will
+     * only contain points that were also contained in the input iteration space.
+     * If the input iteration space is not dense, then the returned iteration space
+     * may contain points that were NOT in the input iteration space (and thus depending
+     * on the application may require additional filtering before being used).
+     * 
+     * This utility method computes and returns the ith element in such a distribution.
+     *
+     * @param min is the minimum element in the iteration space to partition
+     * @param max is the maximum element in the iteration space to partition
+     * @param n is the total number of partitions desired
+     * @param i is the index of the partition requested
+     * @return the IterationSpace representing the ith partition
+     */
+    public static def partitionBlock(min:Long, max:Long, n:Long, i:Long):DenseIterationSpace_1{self!=null} {
         val numElems = max - min + 1;
-        val blockSize = numElems/P;
-        val leftOver = numElems - P*blockSize;
+	if (numElems < 1) return DenseIterationSpace_1.EMPTY;
+        val blockSize = numElems/n;
+        val leftOver = numElems - n*blockSize;
         val low = min + blockSize*i + (i< leftOver ? i : leftOver);
         val hi = low + blockSize + (i < leftOver ? 0 : -1);
         return new DenseIterationSpace_1(low, hi);
@@ -72,11 +93,34 @@ public class BlockingUtils {
     public static def mapIndexToBlockPartition(is:IterationSpace(1), n:Long, i:Long):Long {
         val min = is.min(0);
         val max = is.max(0);
-        if (i<min || i > max) return -1;
-        val P = n;
+        return mapIndexToBlockPartition(is.min(0), is.max(0), n, i);
+    }
+
+
+    /**
+     * A Block distribution takes a rank-1 iteration space
+     * and distributes all points contained in the bounding box of the 
+     * space roughly evenly into the requested number of units.
+     * If the input iteration space is dense, then the returned iteration space will
+     * only contain points that were also contained in the input iteration space.
+     * If the input iteration space is not dense, then the returned iteration space
+     * may contain points that were NOT in the input iteration space (and thus depending
+     * on the application may require additional filtering before being used).
+     * 
+     * This utility method computes which partition an argument index would be placed.
+     *
+     * @param min is the minimum element in the iteration space to partition
+     * @param max is the maximum element in the iteration space to partition
+     * @param n is the total number of partitions desired
+     * @param i the given index 
+     * @return the partition number into which i is mapped by the distribution
+     *         (or -1 if not contained in the bounding box of the argument iteration space)
+     */
+    public static def mapIndexToBlockPartition(min:Long, max:Long, n:Long, i:Long):Long {
+        if (i < min || i > max) return -1;
         val numElems = max - min + 1;
-        val blockSize = numElems/P;
-        val leftOver = numElems - P*blockSize;
+        val blockSize = numElems/n;
+        val leftOver = numElems - n*blockSize;
         val normalizedIndex = i-min;
         val nominalIndex = normalizedIndex/(blockSize+1);
         if (nominalIndex < leftOver) {
@@ -113,21 +157,24 @@ public class BlockingUtils {
         val max1 = is.max(1);
         val size0 = (max0 - min0 + 1);
         val size1 = (max1 - min1 + 1);
-	val divisions0:Long;
-	val P:Long;
-	if (size0 > 1) {
-            val size0Even = size0 % 2 == 0 ? size0 : size0-1;
-            P = Math.min(n, size0Even * size1);
-            divisions0 = Math.min(size0Even, Math.pow2(Math.ceil((Math.log(P as Double) / Math.log(2.0)) / 2.0) as Long));
-        } else {
-           divisions0 = 1;
-           P = Math.min(n, size1);
+
+	if (size0 < 1 || size1 < 1) return DenseIterationSpace_2.EMPTY;
+	if (size0 == 1) {
+	    val is1 = partitionBlock(min1, max1, n, i);
+            return new DenseIterationSpace_2(min0, is1.min(0), max0, is1.max(0));
+	} 
+        if (size1 == 1) {
+	    val is0 = partitionBlock(min0, max0, n, i);
+            return new DenseIterationSpace_2(is0.min(0), min1, is0.max(0), max1);
         }
+
+        val size0Even = size0 % 2 == 0 ? size0 : size0-1;
+        val P = Math.min(n, size0Even * size1);
+        if (i >= P) return DenseIterationSpace_2.EMPTY;
+
+        val divisions0 = Math.min(size0Even, Math.pow2(Math.ceil((Math.log(P as Double) / Math.log(2.0)) / 2.0) as Long));
         val divisions1 = Math.min(size1, Math.ceil((P as Double) / divisions0) as Long);
         val leftOver = divisions0*divisions1 - P;
-
-        if (i >= P) return new DenseIterationSpace_2(0,0,-1,-1);  // Encode empty
-
         val leftOverOddOffset = (divisions0 % 2 == 0) ? 0 : i*2/(divisions0+1);
 
         val blockIndex0 = i < leftOver ? (i*2-leftOverOddOffset) % divisions0 : (i+leftOver) % divisions0;
@@ -172,16 +219,17 @@ public class BlockingUtils {
 
         val size0 = (max0 - min0 + 1);
         val size1 = (max1 - min1 + 1);
-	val divisions0:Long;
-	val P:Long;
-	if (size0 > 1) {
-            val size0Even = size0 % 2 == 0 ? size0 : size0-1;
-            P = Math.min(n, size0Even * size1);
-            divisions0 = Math.min(size0Even, Math.pow2(Math.ceil((Math.log(P as Double) / Math.log(2.0)) / 2.0) as Long));
-        } else {
-           divisions0 = 1;
-           P = Math.min(n, size1);
+
+	if (size0 == 1) {
+            return mapIndexToBlockPartition(min1, max1, n, j);
+	} 
+        if (size1 == 1) {
+            return mapIndexToBlockPartition(min0, max0, n, i);
         }
+
+        val size0Even = size0 % 2 == 0 ? size0 : size0-1;
+        val   P = Math.min(n, size0Even * size1);
+        val divisions0 = Math.min(size0Even, Math.pow2(Math.ceil((Math.log(P as Double) / Math.log(2.0)) / 2.0) as Long));
         val divisions1 = Math.min(size1, Math.ceil((P as Double) / divisions0) as Long);
         val numBlocks = divisions0 * divisions1;
         val leftOver = numBlocks - P;

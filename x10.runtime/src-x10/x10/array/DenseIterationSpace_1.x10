@@ -20,6 +20,8 @@ public final class DenseIterationSpace_1 extends IterationSpace(1){rect} {
     public val min:Long;
     public val max:Long;
 
+    public static val EMPTY = new DenseIterationSpace_1(0,-1);
+
     public def this(min:Long, max:Long) {
         super(1, true);
         this.min = min;

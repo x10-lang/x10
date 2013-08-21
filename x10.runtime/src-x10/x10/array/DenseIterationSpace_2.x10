@@ -22,6 +22,8 @@ public final class DenseIterationSpace_2 extends IterationSpace(2){rect} {
     public val max0:Long;
     public val max1:Long;
 
+    public static val EMPTY = new DenseIterationSpace_2(0,0,-1,-1);
+
     public def this(min0:Long, min1:Long, max0:Long, max1:Long) {
         super(2, true);
         this.min0 = min0;
