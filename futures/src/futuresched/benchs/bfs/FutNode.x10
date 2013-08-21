@@ -7,21 +7,21 @@ import futuresched.core.*;
 
 
 
-public class Node {
+public class FutNode {
 
    public var no: Int;
 
 //   public var parent: SFuture[Node];
-   public var parent: SFuture[Box[Pair[Node, Node]]];
+   public var parent: SFuture[Box[Pair[FutNode, FutNode]]];
 
-   public var neighbors: ArrayList[Node] = new ArrayList[Node]();
+   public var neighbors: ArrayList[FutNode] = new ArrayList[FutNode]();
 
    public def this(no: Int) {
       this.no = no;
-      this.parent = new SFuture[Box[Pair[Node, Node]]]();
+      this.parent = new SFuture[Box[Pair[FutNode, FutNode]]]();
    }
 
-   public def addNeighbor(node: Node) {
+   public def addNeighbor(node: FutNode) {
       neighbors.add(node);
    }
 
@@ -29,7 +29,7 @@ public class Node {
       return neighbors.size() as Int;
    }
 
-   public def contains(n: Node): Boolean {
+   public def contains(n: FutNode): Boolean {
       return neighbors.contains(n);
    }
 

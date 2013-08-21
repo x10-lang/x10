@@ -38,6 +38,8 @@ public class Phasing {
          thisPhaseCount.set(count);
          for(j = 0; j < Runtime.NTHREADS; j++)
             workers(j).nextPhase();
+         if (count == 0)
+            holder.start = true;
       }
    }
 

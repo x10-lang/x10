@@ -4,19 +4,19 @@ import x10.util.Random;
 import x10.util.ArrayList;
 
 
-public class Graph {
+public class SeqGraph {
 
-   public var nodes: ArrayList[Node];
+   public var nodes: ArrayList[SeqNode];
 
-   public def this(nodes: ArrayList[Node]) {
+   public def this(nodes: ArrayList[SeqNode]) {
       this.nodes = nodes;
    }
 
    // A random connected undirected graph with n nodes and mb maximum branching factor.
-   public static def random(n: Int, mb: Int): Graph {
-      val list = new ArrayList[Node]();
+   public static def random(n: Int, mb: Int): SeqGraph {
+      val list = new ArrayList[SeqNode]();
       for (var i: Int = 0; i < n; i++)
-         list.add(new Node(i));
+         list.add(new SeqNode(i));
 
       for (var i: Int = n - 1; i >= 1 ; i--) {
          val node1 = list.get(i);
@@ -43,7 +43,7 @@ public class Graph {
             }
          }
       }
-      return new Graph(list);
+      return new SeqGraph(list);
    }
 
    public def toString(): String {
@@ -71,7 +71,7 @@ public class Graph {
       val iter = nodes.iterator();
       while (iter.hasNext()) {
          val node = iter.next();
-         s += "\t" + node.no + " -> " + node.parent.get()().second.no + "\n";
+         s += "\t" + node.no + " -> " + node.parent.no + "\n";
       }
       s += "}\n";
       return s;
