@@ -62,7 +62,6 @@ while [ -n "$1" ]; do
         -host|--host) shift; export X10_HOSTLIST="$1";;
         -hostfile|--hostfile) shift; export X10_HOSTFILE="$1";;
         -x10rt) shift; x10rt_impl="$1";;
-        -config) shift; config="$1.cfg";;
         -nocompressedrefs) nocompressedrefs="true";;
         -nogcpolicy) nogcpolicy="true";;
         -nojitopts) nojitopts="true";;
@@ -102,7 +101,6 @@ where [options] includes:
     -host <host1,host2,...>  list of hosts to launch places on (overrides X10_HOSTLIST)
     -hostfile <file>         provide a hostfile (overrides X10_HOSTFILE)
     -x10rt <impl>            select X10RT implementation
-    -config <conf>           (IGNORED) read configuration from etc${FILE_SEP}<conf>.cfg
     -nocompressedrefs        disable compressed references (64-bit JVM only)
     -nogcpolicy              disable gc policy
     -nojitopts               disable jit options
@@ -133,8 +131,6 @@ then
     esac
     exit 0
 fi
-
-[ -n "$config" ] && config="-Dx10.configuration=\"${CONFIG_DIR}${FILE_SEP}${config}\""
 
 classpath=""
 [ -n "$dev" ] && classpath="${TOP}${FILE_SEP}..${FILE_SEP}x10.runtime${FILE_SEP}classes${PATH_SEP}"
@@ -294,7 +290,7 @@ if [ -n "${ibmj9vm}" ]; then
 fi
 
 
-command=("$JAVA" "${java_args[@]}" $config "${args[@]}")
+command=("$JAVA" "${java_args[@]}" "${args[@]}")
 [ -n "$verbose" ] && echo "${command[*]}"
 if [[ "$UNAME" = CYGWIN* && -z "$ENABLE_CYGWIN_MULTIVM" ]]; then
     exec $time$timelimit "${command[@]}"
