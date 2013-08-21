@@ -2,8 +2,6 @@ import x10.io.Console;
 import x10.util.*;
 import x10.compiler.*;
 
-/** A monte pi that runs in non-resilient x10 and throws an artifical PDE */
-
 public class ResilientMontePi {
 
     static val ITERS = 1000000000l / Place.MAX_PLACES;
