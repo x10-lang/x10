@@ -276,18 +276,24 @@ public class SocketTransport {
 					int to = controlMsg.getInt();										
 					if (to == myPlaceId) {
 						remote = controlMsg.getInt();
-						if (DEBUG) System.out.println("Incoming HELLO message to "+to+" from "+remote);
-						controlMsg.clear();
-						controlMsg.putInt(CTRL_MSG_TYPE.HELLO.ordinal());
-						controlMsg.putInt(remote);
-						controlMsg.putInt(myPlaceId);
-						controlMsg.putInt(0);
-						controlMsg.flip();
-						SocketTransport.writeNBytes(sc, controlMsg, controlMsg.capacity());
-						channels[remote] = sc;
-						sc.configureBlocking(false);
-						sc.register(selector, SelectionKey.OP_READ);
-						if (DEBUG) System.out.println("Place "+myPlaceId+" accepted a connection from place "+remote);
+						if (remote < channels.length) {
+							if (DEBUG) System.out.println("Incoming HELLO message to "+to+" from "+remote);
+							controlMsg.clear();
+							controlMsg.putInt(CTRL_MSG_TYPE.HELLO.ordinal());
+							controlMsg.putInt(remote);
+							controlMsg.putInt(myPlaceId);
+							controlMsg.putInt(0);
+							controlMsg.flip();
+							SocketTransport.writeNBytes(sc, controlMsg, controlMsg.capacity());
+							channels[remote] = sc;
+							sc.configureBlocking(false);
+							sc.register(selector, SelectionKey.OP_READ);
+							if (DEBUG) System.out.println("Place "+myPlaceId+" accepted a connection from place "+remote);
+						}
+						else {
+							remote = -1;
+							if (DEBUG) System.out.println("Incoming HELLO message from "+remote+" dropped because "+remote+" is an unknown place ID");
+						}
 					}
 					else if (DEBUG) 
 						System.out.println("Incoming HELLO message to place "+to+" ignored, because my place is ."+myPlaceId);
