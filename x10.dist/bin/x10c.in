@@ -1,8 +1,8 @@
 help=""
 time=""
 verbose=""
-extra_cp=""
-sourcepath=""
+extra_cp=()
+sourcepath=()
 ext=""
 rtdev=""
 java_args=()
@@ -30,22 +30,8 @@ while [ -n "$1" ]; do
         -h|-help|--help) help="1"; break;;
         -v|-verbose|--verbose) verbose="1";;
         -t|-time) time="time ";;
-        -classpath|-cp)
-            shift
-            if [ -z "$extra_cp" ] ; then
-                extra_cp="${1}"
-            else
-                extra_cp="${extra_cp}${PATH_SEP}${1}"
-            fi
-            ;;
-        -sourcepath)
-            shift
-            if [ -z "$sourcepath" ] ; then
-                sourcepath="${1}"
-            else
-                sourcepath="${sourcepath}${PATH_SEP}${1}"
-            fi
-            ;;
+        -classpath|-cp) shift; extra_cp=("${extra_cp[@]}" "${1}");;
+        -sourcepath) shift; sourcepath=("${sourcepath[@]}" "${1}");;
         -x10lib) shift; propfile="$(cd $(dirname "$1") && pwd)/$(basename "$1")"
                  [[ "$UNAME" = CYGWIN* ]] && propfile="$(cygpath -am "$propfile")"
                  args=("${args[@]}" "-x10lib" "$propfile");;
@@ -86,21 +72,24 @@ fi
 [ -z "$DEXT" ] && DEXT="x10c.ExtensionInfo"
 [ -z "$ext" ] && ext="$DEXT"
 
+# Set user-specified source path and class path
+extra_cp="$(IFS=${PATH_SEP}; echo "${extra_cp[*]}")"
 [ -n "$extra_cp" ] && args=("-classpath" "$extra_cp" "${args[@]}")
+sourcepath="$(IFS=${PATH_SEP}; echo "${sourcepath[*]}")"
 [ -n "$sourcepath" ] && args=("-sourcepath" "$sourcepath" "${args[@]}")
 
 LIB_DIR="${TOP}${FILE_SEP}lib"
 STDLIB_DIR="${TOP}${FILE_SEP}stdlib"
 
-WALA_JARS="${LIB_DIR}${FILE_SEP}${WALA_JAR}"
-WALA_JARS="${WALA_JARS}${PATH_SEP}${LIB_DIR}${FILE_SEP}${WALA2_JAR}"
-WALA_JARS="${WALA_JARS}${PATH_SEP}${LIB_DIR}${FILE_SEP}${WALA3_JAR}"
-WALA_JARS="${WALA_JARS}${PATH_SEP}${LIB_DIR}${FILE_SEP}${WALA4_JAR}"
-WALA_JARS="${WALA_JARS}${PATH_SEP}${LIB_DIR}${FILE_SEP}x10wala.jar"
-WALA_JARS="${WALA_JARS}${PATH_SEP}${LIB_DIR}${FILE_SEP}org.eclipse.equinox.common_3.6.0.v20100503.jar"
+# Set X10 compiler class path
+COMPILER_JARS=("x10c.jar" "${LPG_JAR}")
+WALA_JARS=("${WALA_JAR}" "${WALA2_JAR}" "${WALA3_JAR}" "${WALA4_JAR}" "x10wala.jar" "org.eclipse.equinox.common_3.6.0.v20100503.jar")
 
-classpath="${CP_OVERRIDE}"
-classpath="${classpath}${LIB_DIR}${FILE_SEP}x10c.jar${PATH_SEP}${LIB_DIR}${FILE_SEP}${LPG_JAR}${PATH_SEP}${WALA_JARS}"
+classpath=("${COMPILER_JARS[@]}" "${WALA_JARS[@]}")
+for ((i=0; i<${#classpath[@]}; ++i)); do classpath[$i]="${LIB_DIR}${FILE_SEP}${classpath[$i]}"; done
+
+[ -n "${CP_OVERRIDE}" ] && classpath=("${CP_OVERRIDE}" "${classpath[@]}")
+classpath="$(IFS=${PATH_SEP}; echo "${classpath[*]}")"
 
 # Set flags to generate optimized code if we've been asked to do so.
 [ "$optimize" = "true" ] && args=("-OPTIMIZE=true" "${args[@]}")

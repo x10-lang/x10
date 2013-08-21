@@ -5,8 +5,8 @@ help=""
 time=""
 timelimit=""
 verbose=""
-extra_cp=""
-extra_lib=""
+extra_cp=()
+extra_lib=()
 ms=""
 mx=""
 ss=""
@@ -49,15 +49,8 @@ while [ -n "$1" ]; do
              fi
              # TODO: add tests for more system properties above
              defs="${defs} $1";;
-        -classpath|-cp)
-            shift
-            if [ -z "$extra_cp" ] ; then
-                extra_cp="${1}"
-            else
-                extra_cp="${extra_cp}${PATH_SEP}${1}"
-            fi
-            ;;
-        -libpath) shift; extra_lib="$1";;
+        -classpath|-cp) shift; extra_cp=("${extra_cp[@]}" "${1}");;
+        -libpath) shift; extra_lib=("${extra_lib[@]}" "${1}");;
         -np|--np) shift; export X10_NPLACES="$1";;
         -host|--host) shift; export X10_HOSTLIST="$1";;
         -hostfile|--hostfile) shift; export X10_HOSTFILE="$1";;
@@ -132,9 +125,9 @@ then
     exit 0
 fi
 
-classpath=""
-[ -n "$dev" ] && classpath="${TOP}${FILE_SEP}..${FILE_SEP}x10.runtime${FILE_SEP}classes${PATH_SEP}"
-classpath=".${PATH_SEP}${classpath}${STDLIB_DIR}${FILE_SEP}x10.jar${PATH_SEP}${LIB_DIR}${FILE_SEP}${MATH_JAR}${PATH_SEP}${LIB_DIR}${FILE_SEP}${LOG_JAR}"
+classpath=(".")
+[ -n "$dev" ] && classpath=("${classpath[@]}" "${TOP}${FILE_SEP}..${FILE_SEP}x10.runtime${FILE_SEP}classes")
+classpath=("${classpath[@]}" "${STDLIB_DIR}${FILE_SEP}x10.jar" "${LIB_DIR}${FILE_SEP}${MATH_JAR}" "${LIB_DIR}${FILE_SEP}${LOG_JAR}")
 
 if [ -z "$dev" ]; then
   if [[ ! -a "${STDLIB_DIR}${FILE_SEP}x10.jar" ]]; then
@@ -143,22 +136,20 @@ if [ -z "$dev" ]; then
   fi
 fi
 
-if [ -n "$extra_cp" ]; then
-   classpath="$extra_cp${PATH_SEP}$classpath"
-fi
+classpath=("${extra_cp[@]}" "${classpath[@]}")
+classpath="$(IFS=${PATH_SEP}; echo "${classpath[*]}")"
 
-externpath="${LIB_DIR}"
+externpath=("${LIB_DIR}")
 if [ -n "$LD_LIBRARY_PATH" ] ; then
     OLD_IFS="$IFS"
     IFS=':'
     for i in $LD_LIBRARY_PATH ; do
-       externpath="$i${PATH_SEP}$externpath"
+       externpath=("$i" "${externpath[@]}")
     done
     IFS="$OLD_IFS"
 fi
-if [ -n "$extra_lib" ]; then
-    externpath="$extra_lib${PATH_SEP}$externpath"
-fi
+externpath=("${extra_lib[@]}" "${externpath[@]}")
+externpath="$(IFS=${PATH_SEP}; echo "${externpath[*]}")"
 
 if [[ "$UNAME" = CYGWIN* ]]; then 
     if [ -n "$ENABLE_CYGWIN_MULTIVM" ]; then
