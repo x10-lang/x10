@@ -30,16 +30,16 @@ public class Main {
       Console.OUT.println("");
 
       t1 = System.currentTimeMillis();
-      v = SmithWatermanFut1.m(i, j);
+      v = SmithWatermanFut.m(i, j);
       t2 = System.currentTimeMillis();
-      Console.OUT.println("Future1: " + v);
+      Console.OUT.println("Future: " + v);
       Console.OUT.println("Time = " + (t2 - t1));
       Console.OUT.println("");
 
       t1 = System.currentTimeMillis();
-	   v = SmithWatermanFut2.m(i, j);
+	   v = SmithWatermanSFut.m(i, j);
 	   t2 = System.currentTimeMillis();
-	   Console.OUT.println("Future2: " + v);
+	   Console.OUT.println("SFuture: " + v);
       Console.OUT.println("Time = " + (t2 - t1));
 
       Console.OUT.println("---------------------------------------");

@@ -267,28 +267,27 @@ public class AndFTask extends FTask {
    }
 
 // ------------------------------------------------------------
+// Single task scheduling
 
-  public def inform(f: Notifier) {
-     if (!isDone) {
-        val c = count.incrementAndGet();
-        if (c == 0)
-          exec();
-     }
-  }
+   public def inform(f: Notifier) {
+      if (!isDone) {
+         val c = count.incrementAndGet();
+         if (c == 0)
+            exec();
+      }
+   }
 
-  public def inform(f: SNotifier) {
-    if (!isDone) {
-       val c = count.incrementAndGet();
-       if (c == 0) {
-         act = initActEnclosed(block);
-//         val state = a.finishState();
-//         state.notifySubActivitySpawn(here);
-
-         exec();
-       }
-    }
-  }
+   public def inform(f: SNotifier) {
+      if (!isDone) {
+         val c = count.incrementAndGet();
+         if (c == 0) {
+            act = initActEnclosed(block);
+            exec();
+         }
+      }
+   }
 
 // ------------------------------------------------------------
 
 }
+

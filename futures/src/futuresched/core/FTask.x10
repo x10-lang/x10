@@ -194,26 +194,72 @@ public abstract class FTask {
    }
 
 // -------------------------------------------------------------------
+// phasedAsyncWait
+// ...
+
+// -------------------------------------------------------------------
+// sPhasedAsyncWait
+
+  public static def sPhasedAsyncWait[T](
+    futures: ArrayList[SFuture[T]],
+    block: ()=>void){T isref, T haszero} {
+    PhAndFTask.sPhasedAsyncWait(futures, block);
+  }
+
+  public static def sPhasedAsyncWait[T](
+    future: SFuture[T],
+    block: ()=>void){T isref, T haszero} {
+    PhAndFTask.sPhasedAsyncWait(future, block);
+  }
+
+  public static def sPhasedAsyncWait(
+    futures: ArrayList[SNotifier],
+    block: ()=>void){
+    PhAndFTask.sPhasedAsyncWait(futures, block);
+  }
+
+
+  public static def sPhasedAsyncWait(
+    future: SNotifier,
+    block: ()=>void) {
+    PhAndFTask.sPhasedAsyncWait(future, block);
+  }
+
+  public static def sPhasedAsyncWait(
+    futures: ArrayList[SIntFuture],
+    block: ()=>void) {
+    PhAndFTask.sPhasedAsyncWait(futures, block);
+  }
+
+  public static def sPhasedAsyncWait(
+    future: SIntFuture,
+    block: ()=>void) {
+    PhAndFTask.sPhasedAsyncWait(future, block);
+  }
+
+// -------------------------------------------------------------------
 // phasedAsyncWaitOr
 // ...
 
 // -------------------------------------------------------------------
-// phasedSAsyncWaitOr
+// sPhasedAsyncWaitOr
 
-   public static def phasedSAsyncWaitOr[T](
+   public static def sPhasedAsyncWaitOr[T](
       futures: ArrayList[SFuture[T]],
       fun: (T)=>void){T isref, T haszero}: FTask {
-      return PhOrFTask.phasedSAsyncWaitOr(futures, fun);
+      return PhOrFTask.sPhasedAsyncWaitOr(futures, fun);
    }
 
-  public static def phasedSAsyncWaitOr[T1, T2](
+  public static def sPhasedAsyncWaitOr[T1, T2](
       futures: ArrayList[T1],
       trans: (T1)=>SFuture[T2],
       fun: (T2)=>void){T2 isref, T2 haszero} {
-      return PhOrFTask.phasedSAsyncWaitOr(futures, trans, fun);
+      return PhOrFTask.sPhasedAsyncWaitOr(futures, trans, fun);
   }
 
 // ------------------------------------------------------
+
+
   /*
   public def now() {
     val theAct = this.act;

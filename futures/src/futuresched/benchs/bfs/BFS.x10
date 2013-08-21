@@ -17,7 +17,7 @@ public class BFS {
             val node = iter.next();
             if (node != n)
                async {
-                  FTask.phasedSAsyncWaitOr(
+                  FTask.sPhasedAsyncWaitOr(
                      node.neighbors,
                      (n: Node)=> {
                         return n.parent;

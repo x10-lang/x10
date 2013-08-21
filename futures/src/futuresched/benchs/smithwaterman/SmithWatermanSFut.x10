@@ -7,7 +7,7 @@ import x10.util.ArrayList;
 import x10.util.concurrent.AtomicReference;
 
 
-public class SmithWatermanFut2 {
+public class SmithWatermanSFut {
 
   var eFutures: Array_2[AtomicReference[SFuture[Box[Int]]]];
   var fFutures: Array_2[AtomicReference[SFuture[Box[Int]]]];
@@ -197,7 +197,7 @@ public class SmithWatermanFut2 {
   }
 
   // --------------------------------------------------------
-  public def backward(i: Int, j: Int) {
+  public def buildFutureGraph(i: Int, j: Int) {
     finish {
       mFut(i, j);
     }
@@ -205,24 +205,25 @@ public class SmithWatermanFut2 {
   }
 
   public def forward() {
+     finish {
+        fire.set(new Box[Int](1));
+     }
 //    Console.OUT.println("Setting fire.");
-    fire.set(new Box[Int](1));
   }
 
   // --------------------------------------------------------
 
-  public static def m(i: Int, j: Int): Int {
-    val s = new SmithWatermanFut2();
-    s.init(i, j);
-    s.backward(i, j);
-    val f = s.mFut(i, j);
-    finish {
+   public static def m(i: Int, j: Int): Int {
+      val s = new SmithWatermanSFut();
+      s.init(i, j);
+      s.buildFutureGraph(i, j);
+//    val f = s.mFut(i, j);
       s.forward();
-    }
+
 //    return f.fireAndGet(() => {
 //      s.forward();
 //    })();
-    return s.mVal(i, j);
-  }
+      return s.mVal(i, j);
+   }
 }
 

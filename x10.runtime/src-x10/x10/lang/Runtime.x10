@@ -224,7 +224,7 @@ public final class Runtime {
 
     static staticMonitor = new Monitor();
     public static atomicMonitor = new Monitor();
-    static pool = new Pool();
+    public static pool = new Pool();
     static finishStates = new FinishState.FinishStates();
     
     // Work-stealing runtime
@@ -259,11 +259,11 @@ public final class Runtime {
      */
     public interface Mortal {}
 
-    static final class Workers {
+    public static final class Workers {
         val lock = new Lock(); // master lock for all thread pool adjustments
 
         // every x10 thread (including promoted native threads)
-        val workers = new Rail[Worker](MAX_THREADS);
+        public val workers = new Rail[Worker](MAX_THREADS);
 
         // parked x10 threads (parkedCount == spareCount + idleCount)
         val parkedWorkers = new Rail[Worker](MAX_THREADS);
@@ -440,6 +440,44 @@ public final class Runtime {
         //Used for 1:1 mapping between WorkStealing Worker and X10 Worker (Temp Soltuion)
         val wsfifo = new Deque();
 
+        // -------------------------------------------------------------
+        // Scheduling phases
+
+        static class Node[T] {
+           var element: T;
+           var next: Node[T];
+
+           def this(element: T, next: Node[T]) {
+             //this.element = element;
+             this.element = element;
+             this.next = next;
+           }
+        }
+        var head: Node[Activity] = null;
+        var count: Int = 0;
+
+        public def addToNextPhase(act: Activity) {
+           val node = new Node[Activity](act, head);
+           head = node;
+           count = count + 1;
+        }
+
+        public def nextPhaseCount(): Int {
+           return count;
+        }
+
+        public def nextPhase() {
+           var node: Node[Activity] = head;
+           while (node != null) {
+              push(node.element);
+              node = node.next;
+           }
+           head = null;
+           count = 0;
+        }
+
+        // -------------------------------------------------------------------------
+
         def this(workerId:Int) {
             super("thread-" + workerId);
             this.workerId = workerId;
@@ -562,13 +600,13 @@ public final class Runtime {
           this.act = act;
        }
     }
-        
-    static class Pool {
+
+    public static class Pool {
         val latch = new SimpleLatch();
         
         var wsEnd:Boolean = false;
 
-        private val workers = new Workers();
+        public val workers = new Workers();
         
         var wsBlockedContinuations:Deque = null;
         
@@ -647,7 +685,8 @@ public final class Runtime {
                 activity = workers.yield(worker);
                 if (null != activity || latch()) return activity;
 
-                checkSuspendedWhens();
+                // Note: Uncomment this for asyncWhen
+                // checkSuspendedWhens();
 
                 // try network
                 x10rtProbe();

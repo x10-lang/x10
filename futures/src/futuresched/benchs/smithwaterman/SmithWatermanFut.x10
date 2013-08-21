@@ -7,7 +7,7 @@ import x10.util.ArrayList;
 import x10.util.concurrent.AtomicReference;
 
 
-public class SmithWatermanFut1 {
+public class SmithWatermanFut {
 
   var eFutures: Array_2[AtomicReference[Future[Box[Int]]]];
   var fFutures: Array_2[AtomicReference[Future[Box[Int]]]];
@@ -204,7 +204,7 @@ public class SmithWatermanFut1 {
   }
 
   public static def m(i: Int, j: Int): Int {
-    val s = new SmithWatermanFut1();
+    val s = new SmithWatermanFut();
     s.init(i, j);
     return s.mVal(i, j);
   }

@@ -1,7 +1,6 @@
 package futuresched.core;
 
 import x10.compiler.NoInline;
-import x10.util.Box;
 import x10.util.ArrayList;
 import x10.util.concurrent.Lock;
 import x10.util.concurrent.AtomicInteger;
@@ -9,7 +8,7 @@ import x10.util.concurrent.AtomicInteger;
 public class OrFTask[T]{T isref, T haszero} extends FTask {
 
    public var finishState: FinishState;
-   public var orFun: (T)=>void;
+   public var fun: (T)=>void;
 
    public def this(count: Int, act: Activity, worker: Runtime.Worker) {
       super(count, act, worker);
@@ -33,7 +32,7 @@ public class OrFTask[T]{T isref, T haszero} extends FTask {
      val task = new OrFTask[T]();
      val finishState = captureFinish();
      task.finishState = finishState;
-     task.orFun = fun;
+     task.fun = fun;
 //     task.isAnd = false;
 
      val iter = futures.iterator();
@@ -63,7 +62,7 @@ public class OrFTask[T]{T isref, T haszero} extends FTask {
      val task = new OrFTask[T2]();
      val finishState = captureFinish();
      task.finishState = finishState;
-     task.orFun = fun;
+     task.fun = fun;
 //     task.isAnd = false;
 
      //Console.OUT.println(futures);
@@ -98,7 +97,7 @@ public class OrFTask[T]{T isref, T haszero} extends FTask {
      val fTask = new OrFTask[T]();
 //     val finishState = mainFinish;
 //     fTask.finishState = finishState;
-     fTask.orFun = fun;
+     fTask.fun = fun;
 
     val iter = futures.iterator();
     while (iter.hasNext()) {
@@ -117,7 +116,7 @@ public class OrFTask[T]{T isref, T haszero} extends FTask {
      val fTask = new OrFTask[T2]();
 //     val finishState = mainFinish;
 //     fTask.finishState = finishState;
-     fTask.orFun = fun;
+     fTask.fun = fun;
 
      val iter = futures.iterator();
      while (iter.hasNext()) {
@@ -136,7 +135,7 @@ public class OrFTask[T]{T isref, T haszero} extends FTask {
          if (done) {
             val f = n as Future[T];
             val v = f.get();
-            val block = ()=>{ val fun = this.orFun; fun(v); };
+            val block = ()=>{ val fun = this.fun; fun(v); };
             val thisAct = new Activity(block, here, this.finishState);
             this.act = thisAct;
             exec();
@@ -150,7 +149,7 @@ public class OrFTask[T]{T isref, T haszero} extends FTask {
          if (done) {
             val f = n as SFuture[T];
             val v = f.get();
-            val block = ()=>{ val fun = this.orFun; fun(v); };
+            val block = ()=>{ val fun = this.fun; fun(v); };
 
             val thisAct = initActEnclosed(block);
             this.act = thisAct;
