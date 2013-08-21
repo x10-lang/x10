@@ -238,8 +238,11 @@ public class X10Translator extends Translator {
             	javacCmd.add(st.nextToken());
             }
             
-            int javacOptionStart = javacCmd.size();
+            int javacOptionsStart = javacCmd.size();
             javacCmd.add("-source");
+            javacCmd.add("1.6");
+            
+            javacCmd.add("-target");
             javacCmd.add("1.6");
             
             javacCmd.add("-nowarn");
@@ -256,6 +259,7 @@ public class X10Translator extends Translator {
                 javacCmd.add("-g");                
             }
 
+            int javacSourcesStart = javacCmd.size();
             for (Collection<String> files : compiler.outputFiles().values()) {
                 javacCmd.addAll(files);
             }
@@ -269,10 +273,9 @@ public class X10Translator extends Translator {
             }
 
             try {
+            	// invoke ecj as an external process
                 Process proc = runtime.exec(javacCmd.toArray(strarray));
-
                 InputStreamReader err = new InputStreamReader(proc.getErrorStream());
-
                 try {
                     char[] c = new char[72];
                     int len;
@@ -280,7 +283,6 @@ public class X10Translator extends Translator {
                     while((len = err.read(c)) > 0) {
                         sb.append(String.valueOf(c, 0, len));
                     }
-
                     if (sb.length() != 0) {
                         eq.enqueue(ErrorInfo.POST_COMPILER_ERROR, sb.toString());
                     }
@@ -288,30 +290,26 @@ public class X10Translator extends Translator {
                 finally {
                     err.close();
                 }
-
                 int procExitValue = proc.waitFor();
 
 
-                // WIP to use Java Compiler API
+                // invoke javac with Java Compiler API
 //            	javax.tools.JavaCompiler javac = javax.tools.ToolProvider.getSystemJavaCompiler();
-//            	ByteArrayOutputStream baos = new ByteArrayOutputStream();
-//            	int procExitValue = javac.run(null, null, baos, javacCmd.subList(javacOptionStart, javacCmd.size()).toArray(strarray));
-//            	InputStreamReader err = new InputStreamReader(new java.io.ByteArrayInputStream(baos.toByteArray()));
-//            	try {
-//            		char[] c = new char[72];
-//            		int len;
-//            		StringBuilder sb = new StringBuilder();
-//            		while((len = err.read(c)) > 0) {
-//            			sb.append(String.valueOf(c, 0, len));
-//            		}
-//
-//            		if (sb.length() != 0) {
-//            			eq.enqueue(ErrorInfo.POST_COMPILER_ERROR, sb.toString());
-//            		}
+//            	javax.tools.DiagnosticCollector<javax.tools.JavaFileObject> diagCollector = new javax.tools.DiagnosticCollector<javax.tools.JavaFileObject>();
+//            	javax.tools.StandardJavaFileManager fileManager = javac.getStandardFileManager(null, null, null);
+//            	javax.tools.JavaCompiler.CompilationTask task = javac.getTask(null, null,
+//            			diagCollector,
+//            			javacCmd.subList(javacOptionsStart, javacSourcesStart),
+//            			null,
+//            			fileManager.getJavaFileObjectsFromStrings(javacCmd.subList(javacSourcesStart, javacCmd.size()))
+//            			);
+//            	int procExitValue = task.call() ? 0 : 1;
+//            	for (javax.tools.Diagnostic<? extends javax.tools.JavaFileObject> diag : diagCollector.getDiagnostics()) {
+//            		String message = diag.toString();
+//            		int type = diag.getKind() == javax.tools.Diagnostic.Kind.ERROR ? ErrorInfo.POST_COMPILER_ERROR : ErrorInfo.WARNING;
+//            		eq.enqueue(type, message);
 //            	}
-//            	finally {
-//            		err.close();
-//            	}
+//            	fileManager.close();
 
 
                 if (!options.keep_output_files) {
