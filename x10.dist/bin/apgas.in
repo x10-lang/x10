@@ -23,6 +23,7 @@ while [ -n "$1" ]; do
              defs="${defs} $1";;
         -classpath|-cp) shift; extra_cp="$1";;
         -libpath) shift; extra_lib="$1";;
+        -config) shift; config="$1.cfg";;
         -dev) dev="true";;
         -J*) java_args="${java_args} '${1##-J}'";;
         -*=*) java_args="${java_args} -Dx10.${1##-}";;
@@ -44,6 +45,7 @@ where [options] includes:
     -D<name>=<value>         set system property <name> to <value>
     -classpath <path>        search path for class files
     -libpath <path>          search path for native libraries
+    -config <conf>           (IGNORED) read configuration from etc${FILE_SEP}<conf>.cfg
     -dev                     developer mode (use unpackaged X10 libraries)
     -J<arg>                  [USE WITH CAUTION] pass <arg> directly to java.
         e.g., use -J-verbose to make java execution verbose.
@@ -55,7 +57,10 @@ EOF
 fi
 
 
+CONFIG_DIR="${TOP}${FILE_SEP}etc"
 LIB_DIR=
+
+[ -n "$config" ] && config="-Dx10.configuration=\"${CONFIG_DIR}${FILE_SEP}${config}\""
 
 classpath=""
 [ -n "$dev" ] && classpath="${TOP}${FILE_SEP}..${FILE_SEP}x10.runtime${FILE_SEP}classes${PATH_SEP}"
@@ -88,7 +93,7 @@ fi
 
 java_args="${java_args} ${defs}"
 
-command="\"$JAVA\" $java_args $args"
+command="\"$JAVA\" $java_args $config $args"
 
 [ -n "$verbose" ] && echo "$command"
 
