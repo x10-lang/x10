@@ -14,25 +14,18 @@ diff -c -r configure trunk/configure
     --enable-gc-assertions  collector-internal assertion checking
 ***************
 *** 16237,16243 ****
---- 16239,16262 ----
+--- 16239,16255 ----
   fi
   
   
 + # Check whether --enable-sigrt-signals was given.
 + if test "${enable_sigrt_signals+set}" = set; then :
-+   enableval="$enable_sigrt_signals";
++   enableval=$enable_sigrt_signals;
 + fi
 + 
-+  if test x"$enable_sigrt_signals" != xno; then
-+   ENABLE_GC_USESIGRT_SIGNALS_TRUE=
-+   ENABLE_GC_USESIGRT_SIGNALS_FALSE='#'
-+ else
-+   ENABLE_GC_USESIGRT_SIGNALS_TRUE='#'
-+   ENABLE_GC_USESIGRT_SIGNALS_FALSE=
-+ fi
++ 
++ if test "${enable_sigrt_signals}" = yes; then
   
-+ if test x"$enable_gcj_support" != xno; then
-+ 
 + $as_echo "#define GC_USESIGRT_SIGNALS 1" >>confdefs.h
 + 
 + fi
