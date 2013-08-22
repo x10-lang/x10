@@ -18,13 +18,6 @@ import x10.io.Unserializable;
 /**
  * <p>X10 wrapper class for native reentrant lock.
  * Acquiring the lock halts the thread running the current activity until the lock is acquired.</p>
- * 
- * <p>Lock implements CustomSerialization to prevent instances of
- * Locks from being copied between places by <code>at</code> statements.
- * The motivation for this is to prevent implicit copying of Lock objects,
- * since that is very likely to lead to concurrency errors in the program.
- * If the serialize method of a Lock instance is invoked, an UnsupportedOperationException
- * will be thrown.</p>
  */
 @NativeClass("java", "java.util.concurrent.locks", "ReentrantLock")
 @NativeClass("c++", "x10.lang", "Lock__ReentrantLock")
