@@ -114,10 +114,10 @@ public class ResilientDistArray_BlockBlock_2[T] implements (Long,Long)=>T {
              * calculate saved place for a point (i,j) from oldPg
              */
             val globalIndices = da.globalIndices; // this should not change if pg is changed
-            //TODO: remove this workaround (see XTENLANG-3256)
-            if (i<globalIndices.min0||i>globalIndices.max0||j<globalIndices.min1||j>globalIndices.max1) {
-                return 0 as T;
-            }
+            // workaround for XTENLANG-3256. now unnecessary
+            // if (i<globalIndices.min0||i>globalIndices.max0||j<globalIndices.min1||j>globalIndices.max1) {
+            //     return 0 as T;
+            // }
             // code from DistArray_BlockBlock_2.place(i,j)
             val tmp = BlockingUtils.mapIndexToBlockBlockPartition(globalIndices, oldPg.size(), i, j);
             val place = oldPg(tmp);
