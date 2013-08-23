@@ -4375,7 +4375,7 @@ class E[F] {F <: String } { //1
  def test(f:F):String = f; // making sure "F" refers to the type parameter
 
  @ERR val f1 = new F(1); // in Java: unexpected type. found: type parameter F.  required: class
- class F { //2
+ class F { //2 // ShouldNotBeERR  XTENLANG-3267
     @ShouldBeErr val ff = new F(1); // in Java: unexpected type. found: type parameter F.  required: class
     def this(i:Long) {}
  }
@@ -4652,7 +4652,7 @@ class Outer {
 			//Semantic Error: Type is missing parameters.
 			// Type: Outer.A
 			// Expected parameters: [T]			
-			val z3 = outer.new A[Double](i);
+			val z3 = outer.new A[Double](i); // ShouldNotBeERR ShouldNotBeERR
 		}
 	}
 }
@@ -5777,12 +5777,12 @@ class CheckConstraintLanguage {
 }
 
 class F_Bounded_Polymorphism_example {
-	class Subj[X,Y] { X <: Subj[X,Y], Y <: Obs[X,Y] } {
+	class Subj[X,Y] { X <: Subj[X,Y], Y <: Obs[X,Y] } { // ShouldNotBeERR ShouldNotBeERR (see XTENLANG-3265)
 		def m(x:X) {
 			val y:Subj[X,Y] = x;
 		}
 	}
-	class Obs[X,Y] { X <: Subj[X,Y], Y <: Obs[X,Y] } {
+	class Obs[X,Y] { X <: Subj[X,Y], Y <: Obs[X,Y] } { // ShouldNotBeERR ShouldNotBeERR (see XTENLANG-3265)
 		def m(x:Y) {
 			val y:Obs[X,Y] = x;
 		}
@@ -6025,9 +6025,9 @@ class AbstractPropertyMethodsTests1 {
 	  }
 	}
 	abstract class C(x:Long) implements I {
-	  public property p():Long = x;
+	  public property p() = x;
 	  def test(c:C{self.x==2}) {
-		val i:I{self.p()==2} = c;
+		val i:I{self.p()==2} = c; // ShouldNotBeERR XTENLANG-3266
 	  }
 	  // mixing this and self
 	  def test2(c:C{this.x==2}, c2:C{this.p()==2}) {
@@ -6054,7 +6054,7 @@ class AbstractPropertyMethodsTests2 {
 	abstract class C(x:Long) extends I {
 	  public property p():Long = x;
 	  def test(c:C{self.x==2}) {
-		val i:I{self.p()==2} = c;
+		val i:I{self.p()==2} = c; // ShouldNotBeERR XTENLANG-3266
 	  }
 	}
 }
@@ -6065,7 +6065,7 @@ class AbstractPropertyMethodsTests3 {
 	abstract class C(x:Long) implements I {
 	  public property p(a:Long,b:Long):Boolean = a==3&&b==4&&x==2;
 	  def test(c:C{self.x==2},c2:C{self.x==3}) {
-		val i1:I{self.p(3,4)} = c;
+		val i1:I{self.p(3,4)} = c; // ShouldNotBeERR XTENLANG-3266
 		val i2:I{self.p(2,4)} = c; // ERR
 		val i3:I{self.p(3,5)} = c; // ERR
 		val i4:I{self.p(3,4)} = c2; // ERR
@@ -6177,10 +6177,10 @@ class XTENLANG_1914 {
 	  def test(var i1:I{self.i()==2}, var i2:I{self.i()==2}, var a1:A, var a2:A{self.i()==2}, var b1:B{self.i()==2}, var b2:B{x==2}) {
 		i1 = i2; 
 		i2 = i1; 
-		i1 = a1; 
-		i1 = a2; 
-		i1 = b1; 
-		i1 = b2; 
+		i1 = a1; // ShouldNotBeERR XTENLANG-3266
+		i1 = a2; // ShouldNotBeERR XTENLANG-3266
+		i1 = b1; // ShouldNotBeERR XTENLANG-3266
+		i1 = b2; // ShouldNotBeERR XTENLANG-3266
 		a2 = a1; 
 		a1 = a2; 
 		b2 = b1; 
@@ -6194,7 +6194,7 @@ class XTENLANG_1914 {
 	class S implements R {
 	  public property x()=2;
 	  def test(var i:R{self.x()==2}, var b:S) {
-		i = b;
+		i = b; // ShouldNotBeERR XTENLANG-3266
 	  }
 	}
 }
@@ -6204,7 +6204,7 @@ class TestTypeParamShadowing { // XTENLANG-2163
 	class B {}
 	class C {}
 	class Outer[X] {X<:A} {
-		class Inner[X] {X<:B} {
+		class Inner[X] {X<:B} { // ShouldNotBeERR XTENLANG-3268
 			def m[X](x:X) {X<:C} : C = x;
 			def m2[X](x:X) {X<:C} = new Any() {  // test anon class creation
 				def q(x:X):C = x;
