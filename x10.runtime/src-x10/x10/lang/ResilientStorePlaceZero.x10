@@ -18,7 +18,7 @@ import x10.util.concurrent.AtomicLong;
 import x10.util.concurrent.AtomicBoolean;
 import x10.util.concurrent.SimpleLatch;
 
-public class ResilientStorePlaceZero {
+class ResilientStorePlaceZero {
 
     static me = new ResilientStorePlaceZero();
 
