@@ -437,7 +437,7 @@ public final class Runtime {
         //Worker Id for CollectingFinish
         val workerId:Int;
 
-        //Used for 1:1 mapping between WorkStealing Worker and X10 Worker (Temp Soltuion)
+        //Used for 1:1 mapping between WorkStealing Worker and X10 Worker (Temp Solution)
         val wsfifo = new Deque();
 
         // -------------------------------------------------------------
@@ -448,11 +448,11 @@ public final class Runtime {
            var next: Node[T];
 
            def this(element: T, next: Node[T]) {
-             //this.element = element;
              this.element = element;
              this.next = next;
            }
         }
+
         var head: Node[Activity] = null;
         var count: Int = 0;
 
@@ -466,6 +466,9 @@ public final class Runtime {
            return count;
         }
 
+        // Todo:
+        // Each thread does his own pushing
+        // Batching at push or pull
         public def nextPhase() {
            var node: Node[Activity] = head;
            while (node != null) {

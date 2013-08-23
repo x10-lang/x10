@@ -12,13 +12,14 @@ public class FutNode {
    public var no: Int;
 
 //   public var parent: SFuture[Node];
-   public var parent: SFuture[Box[Pair[FutNode, FutNode]]];
+   public var parent: SFuture[FutNode];
 
    public var neighbors: ArrayList[FutNode] = new ArrayList[FutNode]();
 
    public def this(no: Int) {
       this.no = no;
-      this.parent = new SFuture[Box[Pair[FutNode, FutNode]]]();
+      this.parent = new SFuture[FutNode]();
+//      this.parent = new SFuture[Box[Pair[FutNode, FutNode]]]();
    }
 
    public def addNeighbor(node: FutNode) {

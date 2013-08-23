@@ -8,6 +8,7 @@ import x10.util.concurrent.AtomicInteger;
 
 public class AndFTask extends FTask {
    var block: ()=>void;
+   var inDeg: Int;
 
    public def this(count: Int, act: Activity, worker: Runtime.Worker) {
       super(count, act, worker);
@@ -35,7 +36,7 @@ public class AndFTask extends FTask {
     var count: Int = 0;
     while (iter.hasNext()) {
       val f = iter.next();
-      val added = f.addIfNotSet(task);
+      val added = f.addIfNotSet(task, null);
       if (added)
         count = count + 1;
     }
@@ -55,7 +56,7 @@ public class AndFTask extends FTask {
     val thisAct = initActEnclosed(block);
     val task = new AndFTask(thisAct);
 
-    val added = future.addIfNotSet(task);
+    val added = future.addIfNotSet(task, null);
     if (!added)
       task.exec();
     else {
@@ -76,7 +77,7 @@ public class AndFTask extends FTask {
     var count: Int = 0;
     while (iter.hasNext()) {
       val f = iter.next();
-      val added = f.addIfNotSet(task);
+      val added = f.addIfNotSet(task, null);
       if (added)
         count = count + 1;
     }
@@ -96,7 +97,7 @@ public class AndFTask extends FTask {
     val thisAct = initActEnclosed(block);
     val task = new AndFTask(thisAct);
 
-    val added = future.addIfNotSet(task);
+    val added = future.addIfNotSet(task, null);
     if (!added)
       task.exec();
     else {
@@ -117,7 +118,7 @@ public class AndFTask extends FTask {
     var count: Int = 0;
     while (iter.hasNext()) {
       val f = iter.next();
-      val added = f.addIfNotSet(task);
+      val added = f.addIfNotSet(task, null);
       if (added)
         count = count + 1;
     }
@@ -137,7 +138,7 @@ public class AndFTask extends FTask {
     val thisAct = initActEnclosed(block);
     val task = new AndFTask(thisAct);
 
-    val added = future.addIfNotSet(task);
+    val added = future.addIfNotSet(task, null);
     if (!added)
       task.exec();
     else {
@@ -153,7 +154,7 @@ public class AndFTask extends FTask {
 
   public static def sAsyncWait[T](
     futures: ArrayList[SFuture[T]],
-    block: ()=>void){T isref, T haszero} { //: FTask {
+    block: ()=>void){T isref, T haszero}: AndFTask {
 
 //    val thisAct = new Activity(block, here, mainFinish);
 //    mainFinish.notifySubActivitySpawn(here);
@@ -164,14 +165,17 @@ public class AndFTask extends FTask {
     val iter = futures.iterator();
     while (iter.hasNext()) {
       val f = iter.next();
-      f.add(fTask);
+      f.add(fTask, null);
     }
-    fTask.count.set(-futures.size() as Int);
+    val count = futures.size() as Int;
+    fTask.inDeg = count;
+    fTask.count.set(-count);
+    return fTask;
   }
 
   public static def sAsyncWait[T](
     future: SFuture[T],
-    block: ()=>void){T isref, T haszero} { //: FTask {
+    block: ()=>void){T isref, T haszero}: AndFTask {
 
 //    val thisAct = new Activity(block, here, mainFinish);
 //    mainFinish.notifySubActivitySpawn(here);
@@ -180,14 +184,15 @@ public class AndFTask extends FTask {
     val fTask = new AndFTask();
     fTask.block = block;
 
-    future.add(fTask);
+    future.add(fTask, null);
+    fTask.inDeg = 1;
     fTask.count.set(-1);
-//    return task;
+    return fTask;
   }
 
   public static def sAsyncWait(
     futures: ArrayList[SNotifier],
-    block: ()=>void){ //: FTask {
+    block: ()=>void): AndFTask {
 
 //    val thisAct = new Activity(block, here, mainFinish);
 //    mainFinish.notifySubActivitySpawn(here);
@@ -199,16 +204,18 @@ public class AndFTask extends FTask {
     val iter = futures.iterator();
     while (iter.hasNext()) {
       val f = iter.next();
-      f.add(fTask);
+      f.add(fTask, null);
     }
-    fTask.count.set(-futures.size() as Int);
-//    return fTask;
+    val count = futures.size() as Int;
+    fTask.inDeg = count;
+    fTask.count.set(-count);
+    return fTask;
   }
 
 
   public static def sAsyncWait(
     future: SNotifier,
-    block: ()=>void) { //: FTask {
+    block: ()=>void): AndFTask {
 
 //    val thisAct = new Activity(block, here, mainFinish);
 //    mainFinish.notifySubActivitySpawn(here);
@@ -217,15 +224,15 @@ public class AndFTask extends FTask {
     val fTask = new AndFTask();
     fTask.block = block;
 
-    future.add(fTask);
-
+    future.add(fTask, null);
+    fTask.inDeg = 1;
     fTask.count.set(-1);
-//    return fTask;
+    return fTask;
   }
 
   public static def sAsyncWait(
     futures: ArrayList[SIntFuture],
-    block: ()=>void) { //:FTask {
+    block: ()=>void): AndFTask {
 
 //    val thisAct = new Activity(block, here, mainFinish);
 //    mainFinish.notifySubActivitySpawn(here);
@@ -237,22 +244,25 @@ public class AndFTask extends FTask {
     val iter = futures.iterator();
     while (iter.hasNext()) {
       val f = iter.next();
-      f.add(fTask);
+      f.add(fTask, null);
     }
-    fTask.count.set(-futures.size() as Int);
-//    return fTask;
+    val count = futures.size() as Int;
+    fTask.inDeg = count;
+    fTask.count.set(-count);
+    return fTask;
   }
 
   public static def sAsyncWait(
     future: SIntFuture,
-    block: ()=>void) {
+    block: ()=>void): AndFTask {
 
     val fTask = new AndFTask();
     fTask.block = block;
 
-    future.add(fTask);
-
+    future.add(fTask, null);
+    fTask.inDeg = 1;
     fTask.count.set(-1);
+    return fTask;
   }
 
    public static def enclosedSAsyncWait[T](
@@ -262,30 +272,56 @@ public class AndFTask extends FTask {
       val thisAct = initActEnclosed(block);
       val task = new AndFTask(thisAct);
 
-      future.add(task);
+      future.add(task, null);
+      task.inDeg = 1;
       task.count.set(-1);
    }
 
 // ------------------------------------------------------------
 // Single task scheduling
 
-   public def inform(f: Notifier) {
-      if (!isDone) {
-         val c = count.incrementAndGet();
-         if (c == 0)
-            exec();
-      }
-   }
-
-   public def inform(f: SNotifier) {
-      if (!isDone) {
-         val c = count.incrementAndGet();
+   public def inform(g: Boolean, v: Any, obj: Any) {
+      if (!isDone || recurring) {
+         var c: Int;
+         c = count.incrementAndGet();
          if (c == 0) {
-            act = initActEnclosed(block);
+            if (!g)
+               act = initActEnclosed(block);
             exec();
+            if (recurring) {
+               // From the above incrementAndGet to this point,
+               // futures may have informed this task.
+               // Note: It is assumed that no incoming future informs for the n+1'th time,
+               //       before all the other futures have informed for the n'th time.
+               //       This is because we do not check the identity of the informers
+               //       but their count.
+               c = count.addAndGet(-inDeg);
+               while (c >= 0) {
+                  exec();
+                  c = count.addAndGet(-inDeg);
+               }
+            }
          }
       }
    }
+
+//   public def inform(f: SNotifier, obj) {
+//      if (!isDone || recurring) {
+//         var c: Int;
+//         c = count.incrementAndGet();
+//         if (c == 0) {
+//            act = initActEnclosed(block);
+//            exec();
+//            if (recurring) {
+//               c = count.addAndGet(-inDeg);
+//               while (c >= 0) {
+//                  exec();
+//                  c = count.addAndGet(-inDeg);
+//               }
+//            }
+//         }
+//      }
+//   }
 
 // ------------------------------------------------------------
 

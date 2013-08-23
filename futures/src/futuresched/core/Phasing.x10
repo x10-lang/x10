@@ -18,8 +18,10 @@ public class Phasing {
    static val holder: Holder = new Holder();
 
    static def schedule(task: FTask) {
+//      Console.OUT.println("Scheduling");
       if (holder.start) {
          // This is the first firing task
+//         Console.OUT.println("First Task");
          thisPhaseCount.set(1);
          holder.start = false;
          task.exec();
@@ -30,6 +32,7 @@ public class Phasing {
    static def end() {
       val i = thisPhaseCount.decrementAndGet();
       if (i == 0) {
+//         Console.OUT.println("Next Phase");
          var count: Int = 0;
          var j: Int;
          val workers = Runtime.pool.workers.workers;

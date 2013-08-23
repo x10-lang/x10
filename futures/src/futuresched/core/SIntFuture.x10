@@ -21,29 +21,37 @@ public final class SIntFuture implements SNotifier {
   // Improvement spot:
   // We can try alternative implementations
   // of this set such as a small Hashset.
-  static class Node[T2]{T2 isref} {
-    var element: T2;
-    var next: Node[T2];
+  static class Node[T2, T3]{T2 isref} {
+    public var elem1: T2;
+    public var elem2: T3;
+    public var next: Node[T2, T3];
 
-    def this(element: T2, next: Node[T2]) {
-      this.element = element;
+    def this(elem1: T2, elem2: T3, next: Node[T2, T3]) {
+      this.elem1 = elem1;
+      this.elem2 = elem2;
       this.next = next;
     }
+    def this(elem1: T2, elem2: T3) {
+      this.elem1 = elem1;
+      this.elem2 = elem2;
+    }
   }
-  var head: AtomicReference[Node[FTask]];
-  private def addTask(task: FTask) {
+  var head: AtomicReference[Node[FTask, Any]];
+  private def addTask(task: FTask, obj: Any) {
     var done: Boolean = false;
+    val node = new Node[FTask, Any](task, obj);
     while (!done) {
-      val currentHead: Node[FTask] = head.get(); 
-      val node = new Node[FTask](task, currentHead);
+      val currentHead: Node[FTask, Any] = head.get();
+      node.next = currentHead;
       done = head.compareAndSet(currentHead, node);
     }
   }
-  private def notifyTasks() {
-    var node: Node[FTask] = head.get();
+  private def notifyTasks(v: Any) {
+    var node: Node[FTask, Any] = head.get();
     while (node != null) {
-      val task = node.element;
-      notifyTask(task);
+      val task = node.elem1;
+      val obj = node.elem2;
+      notifyTask(task, v, obj);
       node = node.next;
     }      
   }
@@ -52,22 +60,34 @@ public final class SIntFuture implements SNotifier {
   public def this() {
     super();
     this.data = new AtomicInteger(NotSet);
-    this.head = new AtomicReference[Node[FTask]]();
+    this.head = new AtomicReference[Node[FTask, Any]]();
   }
 
-  public def add(task: FTask) {
-    addTask(task);
+  public def this(v: Int) {
+    super();
+    this.data = new AtomicInteger(v);
+    this.head = new AtomicReference[Node[FTask, Any]]();
+  }
+
+
+  public def add(task: FTask, obj: Any) {
+    addTask(task, obj);
   }
     
   public def set(v: Int) {
-    if (data.compareAndSet(NotSet, v))
-      notifyTasks();
-    else
-      throw new Exception("Future is already set.");
+     // Set once
+//    if (data.compareAndSet(NotSet, v))
+//      notifyTasks();
+//    else
+//      throw new Exception("Future is already set.");
+     // Set multiple times
+     data.set(v);
+     notifyTasks(v);
+
   }
 
-  private def notifyTask(fTask: FTask) {
-    fTask.inform(this);
+  private def notifyTask(fTask: FTask, v: Any, obj: Any) {
+    fTask.inform(false, v, obj);
   }
 
   public def asyncSet(fun: ()=>Int) {

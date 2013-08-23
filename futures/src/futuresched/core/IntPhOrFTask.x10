@@ -6,12 +6,10 @@ import x10.util.Pair;
 import x10.util.concurrent.Lock;
 import x10.util.concurrent.AtomicInteger;
 
-public class PhOrFTask[T, TP]{T isref, T haszero} extends FTask {
+public class IntPhOrFTask[TP] extends FTask {
 
    public var finishState: FinishState;
-   public var fun: (T, TP)=>void;
-   //public var fun: (T, Any)=>void;
-   //public var fun: Any;
+   public var fun: (Int, TP)=>void;
 
    public def this(count: Int, act: Activity, worker: Runtime.Worker) {
       super(count, act, worker);
@@ -32,15 +30,12 @@ public class PhOrFTask[T, TP]{T isref, T haszero} extends FTask {
 // -------------------------------------------------------------------
 // phasedSAsyncWaitOr
 
-   public static def sPhasedAsyncWaitOr[T](
-      futures: ArrayList[SFuture[T]],
+   public static def sPhasedAsyncWaitOr(
+      futures: ArrayList[SIntFuture],
 //    fun: (SFuture[T])=>void){T isref, T haszero}: FTask {
-      fun: (T, Any)=>void){T isref, T haszero}: PhOrFTask[T, Any] {
-//    val block = ()=>{ fun(orSFuture) };
+      fun: (Int, Any)=>void): IntPhOrFTask[Any] {
 
-      val fTask = new PhOrFTask[T, Any]();
-//     val finishState = mainFinish;
-//     fTask.finishState = finishState;
+      val fTask = new IntPhOrFTask[Any]();
       fTask.fun = fun;
 
       val iter = futures.iterator();
@@ -51,15 +46,12 @@ public class PhOrFTask[T, TP]{T isref, T haszero} extends FTask {
       return fTask;
    }
 
-   public static def sPhasedAsyncWaitOr[T1, T2](
+   public static def sPhasedAsyncWaitOr[T1](
       futures: ArrayList[T1],
-      trans: (T1)=>SFuture[T2],
-      fun: (T2, Any)=>void){T2 isref, T2 haszero}: PhOrFTask[T2, Any] {
+      trans: (T1)=>SIntFuture,
+      fun: (Int, Any)=>void): IntPhOrFTask[Any] {
 
-      //val thisAct = initActEnclosed(block);
-      val fTask = new PhOrFTask[T2, Any]();
-//     val finishState = mainFinish;
-//     fTask.finishState = finishState;
+      val fTask = new IntPhOrFTask[Any]();
       fTask.fun = fun;
 
       val iter = futures.iterator();
@@ -71,18 +63,16 @@ public class PhOrFTask[T, TP]{T isref, T haszero} extends FTask {
       return fTask;
    }
 
-  public static def sPhasedAsyncWaitOr[T1, T2, T3](
-     futures: ArrayList[T1],
-     trans: (T1)=>Pair[SFuture[T2], T3],
-     fun: (T2, T3)=>void){T2 isref, T2 haszero}: PhOrFTask[T2, T3] {
+  public static def sPhasedAsyncWaitOr[T, T2](
+     futures: ArrayList[T],
+     trans: (T)=>Pair[SIntFuture, T2],
+     fun: (Int, T2)=>void): IntPhOrFTask[T2] {
 
      //val thisAct = initActEnclosed(block);
-     val fTask = new PhOrFTask[T2, T3]();
+     val fTask = new IntPhOrFTask[T2]();
 //     val finishState = mainFinish;
 //     fTask.finishState = finishState;
-//     Console.OUT.println("Before");
-     fTask.fun = fun; //as (T2, Any)=>void;
-//     Console.OUT.println("After");
+     fTask.fun = fun as (Int, Any)=>void;
 
      val iter = futures.iterator();
      while (iter.hasNext()) {
@@ -95,6 +85,7 @@ public class PhOrFTask[T, TP]{T isref, T haszero} extends FTask {
      return fTask;
   }
 
+
 // -------------------------------------------------------------------
 // Deferred task scheduling
 
@@ -102,29 +93,17 @@ public class PhOrFTask[T, TP]{T isref, T haszero} extends FTask {
       var go: Boolean = recurring;
       if (!recurring && !isDone)
          go = count.compareAndSet(0, 1);
-//      Console.OUT.println("In inform");
       if (go) {
-//         val f = n as Future[T];
+//         val f = n as IntFuture;
 //         val v = f.get();
-         val block = ()=>{
-//            Console.OUT.println("1");
-            val fun = this.fun; // as (T, Any)=>void;
-//            Console.OUT.println("2");
-            fun(v as T, obj as TP);
-//            Console.OUT.println("3");
-            Phasing.end();
-//            Console.OUT.println("4");
-         };
+         val block = ()=>{ val fun = this.fun; fun(v as Int, obj as TP); Phasing.end(); };
          if (g) {
-//            Console.OUT.println("In g");
             val thisAct = new Activity(block, here, this.finishState);
             this.act = thisAct;
          } else {
-//            Console.OUT.println("In s");
             val thisAct = initActEnclosed(block);
             this.act = thisAct;
          }
-
          Phasing.schedule(this);
       }
    }
@@ -134,7 +113,7 @@ public class PhOrFTask[T, TP]{T isref, T haszero} extends FTask {
 //      if (!recurring && !isDone)
 //         go = count.compareAndSet(0, 1);
 //      if (go) {
-//         val f = n as SFuture[T];
+//         val f = n as SIntFuture;
 //         val v = f.get();
 //         val block = ()=>{ val fun = this.fun; fun(v); Phasing.end(); };
 //

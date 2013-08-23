@@ -2,6 +2,7 @@ package futuresched.core;
 
 import x10.compiler.NoInline;
 import x10.util.Box;
+import x10.util.Pair;
 import x10.util.ArrayList;
 import x10.util.concurrent.Lock;
 import x10.util.concurrent.AtomicInteger;
@@ -13,6 +14,7 @@ public abstract class FTask {
 
    var count: AtomicInteger;
    var isDone: Boolean = false;
+   public var recurring: Boolean = false;
 
    static val mainFinish: FinishState = Runtime.activity().finishState();
    public static def init(): FinishState {
@@ -68,9 +70,9 @@ public abstract class FTask {
       return state;
    }
 
-  public abstract def inform(f: Notifier): void;
+  public abstract def inform(g: Boolean, v: Any, obj: Any): void;
 
-  public abstract def inform(f: SNotifier): void;
+//  public abstract def inform(f: SNotifier): void;
 
 // ------------------------------------------------------
 // asyncWait (asyncWaitAnd)
@@ -120,38 +122,38 @@ public abstract class FTask {
    var block: ()=>void;
    public static def sAsyncWait[T](
       futures: ArrayList[SFuture[T]],
-      block: ()=>void){T isref, T haszero} {
-      AndFTask.sAsyncWait(futures, block);
+      block: ()=>void){T isref, T haszero}: AndFTask {
+      return AndFTask.sAsyncWait(futures, block);
    }
 
    public static def sAsyncWait[T](
       future: SFuture[T],
-      block: ()=>void){T isref, T haszero} {
-      AndFTask.sAsyncWait(future, block);
+      block: ()=>void){T isref, T haszero}: AndFTask {
+      return AndFTask.sAsyncWait(future, block);
    }
 
    public static def sAsyncWait(
       futures: ArrayList[SNotifier],
-      block: ()=>void){
-      AndFTask.sAsyncWait(futures, block);
+      block: ()=>void): AndFTask {
+      return AndFTask.sAsyncWait(futures, block);
    }
 
    public static def sAsyncWait(
       future: SNotifier,
-      block: ()=>void) {
-      AndFTask.sAsyncWait(future, block);
+      block: ()=>void): AndFTask {
+      return AndFTask.sAsyncWait(future, block);
    }
 
    public static def sAsyncWait(
       futures: ArrayList[SIntFuture],
-      block: ()=>void) {
-      AndFTask.sAsyncWait(futures, block);
+      block: ()=>void): AndFTask {
+      return AndFTask.sAsyncWait(futures, block);
    }
 
    public static def sAsyncWait(
       future: SIntFuture,
-      block: ()=>void) {
-      AndFTask.sAsyncWait(future, block);
+      block: ()=>void): AndFTask {
+      return AndFTask.sAsyncWait(future, block);
    }
 
    public static def enclosedSAsyncWait[T](
@@ -165,15 +167,15 @@ public abstract class FTask {
 
    public static def asyncWaitOr[T](
       futures: ArrayList[Future[T]],
-      fun: (T)=>void){T isref, T haszero} {
-      OrFTask.asyncWaitOr(futures, fun);
+      fun: (T, Any)=>void){T isref, T haszero}: OrFTask[T, Any] {
+      return OrFTask.asyncWaitOr(futures, fun);
    }
 
    public static def asyncWaitOr[T1, T2](
       futures: ArrayList[T1],
       trans: (T1)=>Future[T2],
-      fun: (T2)=>void){T2 isref, T2 haszero} {
-      OrFTask.asyncWaitOr(futures, trans, fun);
+      fun: (T2, Any)=>void){T2 isref, T2 haszero}: OrFTask[T2, Any] {
+      return OrFTask.asyncWaitOr(futures, trans, fun);
    }
 
 // ------------------------------------------------------
@@ -182,17 +184,23 @@ public abstract class FTask {
    public static def sAsyncWaitOr[T](
       futures: ArrayList[SFuture[T]],
 //    fun: (SFuture[T])=>void){T isref, T haszero}: FTask {
-      fun: (T)=>void){T isref, T haszero}: FTask {
+      fun: (T, Any)=>void){T isref, T haszero}: OrFTask[T, Any] {
       return OrFTask.sAsyncWaitOr(futures, fun);
    }
 
    public static def sAsyncWaitOr[T1, T2](
       futures: ArrayList[T1],
       trans: (T1)=>SFuture[T2],
-      fun: (T2)=>void){T2 isref, T2 haszero} {
+      fun: (T2, Any)=>void){T2 isref, T2 haszero}: OrFTask[T2, Any] {
       return OrFTask.sAsyncWaitOr(futures, trans, fun);
    }
 
+  public static def sAsyncWaitOr[T1, T2, T3](
+     futures: ArrayList[T1],
+     trans: (T1)=>Pair[SFuture[T2], T3],
+     fun: (T2, T3)=>void){T2 isref, T2 haszero}: OrFTask[T2, T3] {
+     return OrFTask.sAsyncWaitOr(futures, trans, fun);
+  }
 // -------------------------------------------------------------------
 // phasedAsyncWait
 // ...
@@ -202,39 +210,38 @@ public abstract class FTask {
 
   public static def sPhasedAsyncWait[T](
     futures: ArrayList[SFuture[T]],
-    block: ()=>void){T isref, T haszero} {
-    PhAndFTask.sPhasedAsyncWait(futures, block);
+    block: ()=>void){T isref, T haszero}: PhAndFTask {
+    return PhAndFTask.sPhasedAsyncWait(futures, block);
   }
 
   public static def sPhasedAsyncWait[T](
     future: SFuture[T],
-    block: ()=>void){T isref, T haszero} {
-    PhAndFTask.sPhasedAsyncWait(future, block);
+    block: ()=>void){T isref, T haszero}: PhAndFTask {
+    return PhAndFTask.sPhasedAsyncWait(future, block);
   }
 
   public static def sPhasedAsyncWait(
     futures: ArrayList[SNotifier],
-    block: ()=>void){
-    PhAndFTask.sPhasedAsyncWait(futures, block);
+    block: ()=>void): PhAndFTask {
+    return PhAndFTask.sPhasedAsyncWait(futures, block);
   }
-
 
   public static def sPhasedAsyncWait(
     future: SNotifier,
-    block: ()=>void) {
-    PhAndFTask.sPhasedAsyncWait(future, block);
+    block: ()=>void): PhAndFTask {
+    return PhAndFTask.sPhasedAsyncWait(future, block);
   }
 
   public static def sPhasedAsyncWait(
     futures: ArrayList[SIntFuture],
-    block: ()=>void) {
-    PhAndFTask.sPhasedAsyncWait(futures, block);
+    block: ()=>void): PhAndFTask {
+    return PhAndFTask.sPhasedAsyncWait(futures, block);
   }
 
   public static def sPhasedAsyncWait(
     future: SIntFuture,
-    block: ()=>void) {
-    PhAndFTask.sPhasedAsyncWait(future, block);
+    block: ()=>void): PhAndFTask {
+    return PhAndFTask.sPhasedAsyncWait(future, block);
   }
 
 // -------------------------------------------------------------------
@@ -246,16 +253,45 @@ public abstract class FTask {
 
    public static def sPhasedAsyncWaitOr[T](
       futures: ArrayList[SFuture[T]],
-      fun: (T)=>void){T isref, T haszero}: FTask {
+      fun: (T, Any)=>void){T isref, T haszero}: PhOrFTask[T, Any] {
       return PhOrFTask.sPhasedAsyncWaitOr(futures, fun);
    }
 
-  public static def sPhasedAsyncWaitOr[T1, T2](
+   public static def sPhasedAsyncWaitOr[T1, T2](
       futures: ArrayList[T1],
       trans: (T1)=>SFuture[T2],
-      fun: (T2)=>void){T2 isref, T2 haszero} {
+      fun: (T2, Any)=>void){T2 isref, T2 haszero}: PhOrFTask[T2, Any] {
       return PhOrFTask.sPhasedAsyncWaitOr(futures, trans, fun);
-  }
+   }
+
+   public static def sPhasedAsyncWaitOr[T1, T2, T3](
+      futures: ArrayList[T1],
+      trans: (T1)=>Pair[SFuture[T2], T3],
+      fun: (T2, T3)=>void){T2 isref, T2 haszero}: PhOrFTask[T2, T3] {
+      return PhOrFTask.sPhasedAsyncWaitOr(futures, trans, fun);
+   }
+
+   // -----
+
+   public static def sPhasedAsyncWaitOr(
+      futures: ArrayList[SIntFuture],
+      fun: (Int, Any)=>void): IntPhOrFTask[Any] {
+      return IntPhOrFTask.sPhasedAsyncWaitOr(futures, fun);
+   }
+
+   public static def sPhasedAsyncWaitOr[T](
+      futures: ArrayList[T],
+      trans: (T)=>SIntFuture,
+      fun: (Int, Any)=>void): IntPhOrFTask[Any] {
+      return IntPhOrFTask.sPhasedAsyncWaitOr(futures, trans, fun);
+   }
+
+   public static def sPhasedAsyncWaitOr[T, T2](
+     futures: ArrayList[T],
+     trans: (T)=>Pair[SIntFuture, T2],
+     fun: (Int, T2)=>void): IntPhOrFTask[T2] {
+     return IntPhOrFTask.sPhasedAsyncWaitOr(futures, trans, fun);
+   }
 
 // ------------------------------------------------------
 

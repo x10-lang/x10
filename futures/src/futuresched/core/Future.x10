@@ -17,8 +17,9 @@ public final class Future[T]{T isref, T haszero} implements Notifier {
   // of this set such as a small Hashset.  
   static class Node { //[T2]{T2 isref} {
     //var element: T2;
-    var task: FTask;
-    var next: Node; //[T2];
+    public var task: FTask;
+    public var obj: Any;
+    public var next: Node; //[T2];
     var flag: AtomicInteger;
 
     static val TENTATIVE = 1;
@@ -26,33 +27,40 @@ public final class Future[T]{T isref, T haszero} implements Notifier {
     static val REMOVED = 3;
 
     //def this(element: T2, next: Node[T2]) {
-    def this(task: FTask, next: Node) {
+    def this(task: FTask, obj: Any, next: Node) {
       //this.element = element;
       this.task = task;
+      this.obj = obj;
       this.next = next;
+      this.flag = new AtomicInteger();
+      this.flag.set(TENTATIVE);
+    }
+    def this(task: FTask, obj: Any) {
+      //this.element = element;
+      this.task = task;
+      this.obj = obj;
       this.flag = new AtomicInteger();
       this.flag.set(TENTATIVE);
     }
   }
   //var head: AtomicReference[Node[TentTask]];
   var head: AtomicReference[Node];
-  private def addTask(task: FTask): Node {
+  private def addTask(task: FTask, obj: Any): Node {
     var done: Boolean = false;
-    var currentHead: Node; //[TentTask]
-    var node: Node = null;
+    val node = new Node(task, obj);
     while (!done) {
-      currentHead = head.get();
+      val currentHead = head.get();
       //val node = new Node[TentTask](task, currentHead);
-      node = new Node(task, currentHead);
+      node.next = currentHead;
       done = head.compareAndSet(currentHead, node);
     }
     return node;
   }
-  private def notifyTasks() {
+  private def notifyTasks(v: Any) {
     var node: Node = head.get();
     while (node != null) {
       //val task = node.task;
-      notifyTask(node);
+      notifyTask(node, v, node.obj);
       node = node.next;
     }      
   }
@@ -96,10 +104,10 @@ public final class Future[T]{T isref, T haszero} implements Notifier {
 
   // Adds the task to the set of tasks if the future
   // is not set. Returns true if added.
-  public def addIfNotSet(task: FTask): Boolean {
+  public def addIfNotSet(task: FTask, obj: Any): Boolean {
     if (data.get() != null)
       return false;
-    val node = addTask(task);
+    val node = addTask(task, obj);
     if (data.get() != null) {
       // We know that data.compareAndSet() is linearized between the
       // two data.get(). Thus, the value is just set.
@@ -121,20 +129,26 @@ public final class Future[T]{T isref, T haszero} implements Notifier {
   }
     
   public def set(v: T) {
-    if (data.compareAndSet(null, v))
-      notifyTasks();
-    else
-      throw new Exception("Future is already set.");
+     // Set once
+//    if (data.compareAndSet(null, v))
+//      notifyTasks(v);
+//    else
+//      throw new Exception("Future is already set.");
+
+     // Set multiple times
+     data.set(v);
+     notifyTasks(v);
+
   }
 
-  private def notifyTask(node: Node) {
+  private def notifyTask(node: Node, v: Any, obj: Any) {
     val flag = node.flag;
     var state: Int = flag.get();
     while (state == Node.TENTATIVE)
       state = flag.get(); // Spin for a short time
     if (state == Node.STABLE) {
       val fTask = node.task;
-      fTask.inform(this);
+      fTask.inform(true, v, obj);
     }
   }
 

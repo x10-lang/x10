@@ -11,6 +11,7 @@ public class Main {
       var n: Int;      // Number of nodes
       var b: Int;      // Max branching factor
       var p: Boolean;  // Print
+//      p = true;
       p = false;
 
 //      n = 10;
@@ -24,7 +25,7 @@ public class Main {
 //      n = 100;
 //      b = 15;
 //      test(n, b, p);
-
+//
       n = 200;
       b = 40;
       test(n, b, p);
