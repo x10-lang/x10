@@ -574,6 +574,9 @@ public final class Runtime {
             for (var i:Int = 1n; i<n; i++) {
                 workers(i).start();
             }
+        }
+
+        def run():void {
             workers(0n)();
             while (workers.count > workers.deadCount) Worker.park();
         }
@@ -721,13 +724,14 @@ public final class Runtime {
             // [DC] at this point: rootFinish has an implicit notifySubActivitySpawn and notifyActivityBegin
             // (due to constructor initialising counters appropriately)
             // do not need to alter rootFinish in activity constructor
+            pool(NTHREADS);
             executeLocal(new Activity(body, here, rootFinish, false));
+            pool.run();
 
             // [DC] during call to pool(NTHREADS), queued activity runs, and eventually calls rootFinish.notifyActivityTermination
             // this ultimately triggers the return of pool(NTHREADS)
 
             // [DC] therefore, this call blocks until body has finished executing
-            pool(NTHREADS);
 
             // [DC] at this point, rootFinish has quiescent (counters are zero)
 
@@ -760,6 +764,7 @@ public final class Runtime {
             // wait for thread pool to die
             // (happens when a kill signal is received from place 0)
             pool(NTHREADS);
+            pool.run();
         }
     }
 
