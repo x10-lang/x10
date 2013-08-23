@@ -324,6 +324,7 @@ public final class Runtime {
             }
             if (WARN_ON_THREAD_CREATION) {
                 println(here+": WARNING: A new OS-level thread was discovered (there are now "+i+" threads).");
+                try { throw new Exception(); } catch (e:Exception) { e.printStackTrace(); }
             }
         }
 
@@ -487,7 +488,7 @@ public final class Runtime {
         // inner loop to help j9 jit
         private def loop():Boolean {
             for (var i:Int = 0n; i < BOUND; i++) {
-                activity = poll();
+                do activity = poll(); while (activity != null && pool.deal(activity));
                 if (activity == null) {
                     activity = pool.scan(random, this);
                     if (activity == null) return false; // [DC] only happens when pool's latch is released
@@ -524,7 +525,7 @@ public final class Runtime {
         private def loop2(latch:SimpleLatch):Boolean {
             for (var i:Int = 0n; i < BOUND; i++) {
                 if (latch()) return false;
-                activity = poll();
+                do activity = poll(); while (activity != null && pool.deal(activity));
                 if (activity == null) return false;
 //                if (activity.finishState().simpleLatch() != latch) {
 //                    push(activity);
@@ -614,7 +615,7 @@ public final class Runtime {
         def scan(random:Random, worker:Worker):Activity {
             var activity:Activity = null;
             var next:Int = random.nextInt(workers.count);
-            var i:Int = 2n;
+            val init:Int = next;
             for (;;) {
                 if (null != activity || latch()) return activity;
                 // go to sleep if too many threads are running
@@ -636,16 +637,16 @@ public final class Runtime {
                 }
                 activity = worker.poll();
                 if (null != activity || latch()) return activity;
-                // try random worker
-                if (next < MAX_THREADS && null != workers(next)) { // avoid race with increase method
-                    activity = workers(next).steal();
-                }
-                if (++next == workers.count) next = 0n;
-                if (i-- == 0n) {
+                do {
+                    // try local worker
+                    if (next < MAX_THREADS && null != workers(next)) { // avoid race with increase method
+                        activity = workers(next).steal();
+                    }
                     if (null != activity || latch()) return activity;
-                    activity = workers.take(worker);
-                    i = 2n;
-                }
+                    if (++next == workers.count) next = 0n;
+                } while (next != init);
+                // time to back off
+                activity = workers.take(worker);
             }
         }
 
