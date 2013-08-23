@@ -11,7 +11,8 @@
 
 package x10.lang;
 
-import x10.io.SerialData;
+import x10.io.Deserializer;
+import x10.io.Serializer;
 import x10.util.Map;
 import x10.util.HashMap;
 
@@ -52,16 +53,13 @@ class Activity {
             clear();
         }
 
-        // HashMap implements CustomSerialization, so we must as well
-        public def serialize():SerialData {
-	    // minor optimization instead of doing:
-            //    new SerialData(null, super.serialize())
-            // just return super.serialize() directly
-            return super.serialize();
+        // HashMap implements CustomSerialization2, so we must as well
+        public def serialize(s:Serializer) {
+            super.serialize(s);
         }
         def this() { super(); }
-        def this(a:SerialData) { 
-            super(a);  // see optimization in serialize();
+        def this(ds:Deserializer) { 
+            super(ds); 
         }
     }
 

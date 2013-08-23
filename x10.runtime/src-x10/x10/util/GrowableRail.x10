@@ -15,8 +15,10 @@ import x10.compiler.CompilerFlags;
 import x10.compiler.Inline;
 import x10.compiler.NoInline;
 import x10.compiler.NoReturn;
-import x10.io.CustomSerialization;
-import x10.io.SerialData;
+
+import x10.io.CustomSerialization2;
+import x10.io.Serializer;
+import x10.io.Deserializer;
 
 /**
  * A GrowableRail provides the abstraction of a variable size Rail.  
@@ -27,7 +29,7 @@ import x10.io.SerialData;
  * @See ArrayList, which provides a similar abstraction of a 
  *      Growable Array. Like Rail, ArrayList is type safe.
  */
-public final class GrowableRail[T] implements CustomSerialization {
+public final class GrowableRail[T] implements CustomSerialization2 {
     private var data:Rail[T];
 
     def rail() = data; // for use by ArrayList and other classes in util package
@@ -57,17 +59,17 @@ public final class GrowableRail[T] implements CustomSerialization {
         size = 0L;
     }
 
-    private def this(sd:SerialData) {
-        val src = sd.data as Rail[T];
+    private def this(ds:Deserializer) {
+        val src = ds.readAny() as Rail[T];
         data = Unsafe.allocRailUninitialized[T](src.size);
         Rail.copy(src, 0L, data, 0L, src.size);
         size = src.size;
     }
 
-    public def serialize():SerialData {
+    public def serialize(s:Serializer) {
         val tmp = Unsafe.allocRailUninitialized[T](size);
         Rail.copy(data, 0L, tmp, 0L, size);
-        return new SerialData(tmp, null);
+	s.writeAny(tmp);
     }
 
     /**

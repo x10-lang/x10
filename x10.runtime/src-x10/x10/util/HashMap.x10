@@ -12,10 +12,11 @@
 package x10.util;
 
 import x10.compiler.NonEscaping;
-import x10.io.CustomSerialization;
-import x10.io.SerialData;
+import x10.io.CustomSerialization2;
+import x10.io.Deserializer;
+import x10.io.Serializer;
 
-public class HashMap[K,V] implements Map[K,V], CustomSerialization {
+public class HashMap[K,V] implements Map[K,V], CustomSerialization2 {
     static class HashEntry[Key,Value] implements Map.Entry[Key,Value] {
         public def getKey() = key;
         public def getValue() = value;
@@ -298,9 +299,9 @@ public class HashMap[K,V] implements Map[K,V], CustomSerialization {
     /*
      * Custom deserialization
      */
-    public def this(x:SerialData) {
+    public def this(ds:Deserializer) {
         this();
-        val state = x.data as State[K,V]; // Warning: This is an unsound cast because the object or the target type might have constraints and X10 currently does not perform constraint solving at runtime on generic parameters.
+        val state = ds.readAny() as State[K,V]; // Warning: This is an unsound cast because the object or the target type might have constraints and X10 currently does not perform constraint solving at runtime on generic parameters.
 	    for (pair in state.content) {
             putInternal(pair.first, pair.second, true);
         }
@@ -309,5 +310,7 @@ public class HashMap[K,V] implements Map[K,V], CustomSerialization {
     /*
      * Custom serialization
      */
-    public def serialize():SerialData = new SerialData(new State(this), null);
+    public def serialize(s:Serializer) {
+        s.writeAny(new State(this));
+    }
 }

@@ -21,8 +21,9 @@ import x10.util.concurrent.AtomicInteger;
 import x10.util.concurrent.Lock;
 import x10.util.concurrent.SimpleLatch;
 
-import x10.io.CustomSerialization;
-import x10.io.SerialData;
+import x10.io.CustomSerialization2;
+import x10.io.Deserializer;
+import x10.io.Serializer;
 
 abstract class FinishState {
     abstract def notifySubActivitySpawn(place:Place):void;
@@ -77,15 +78,15 @@ abstract class FinishState {
     }
 
     // a finish without nested remote asyncs in remote asyncs
-    static class FinishSPMD extends FinishSkeleton implements CustomSerialization {
+    static class FinishSPMD extends FinishSkeleton implements CustomSerialization2 {
         def this() {
             super(new RootFinishSPMD());
         }
         protected def this(ref:GlobalRef[FinishState]) {
             super(ref);
         }
-        private def this(data:SerialData) {
-            super(data.data as GlobalRef[FinishState]);
+        private def this(ds:Deserializer) {
+            super(ds.readAny() as GlobalRef[FinishState]);
             if (ref.home.id == Runtime.hereLong()) {
                 me = (ref as GlobalRef[FinishState]{home==here})();
             } else {
@@ -160,15 +161,15 @@ abstract class FinishState {
     }
 
     // a finish guarding a unique async
-    static class FinishAsync extends FinishSkeleton implements CustomSerialization {
+    static class FinishAsync extends FinishSkeleton implements CustomSerialization2 {
         def this() {
             super(new RootFinishAsync());
         }
         protected def this(ref:GlobalRef[FinishState]) {
             super(ref);
         }
-        private def this(data:SerialData) {
-            super(data.data as GlobalRef[FinishState]);
+        private def this(ds:Deserializer) {
+            super(ds.readAny() as GlobalRef[FinishState]);
             if (ref.home.id == Runtime.hereLong()) {
                 me = (ref as GlobalRef[FinishState]{home==here})();
             } else {
@@ -225,15 +226,15 @@ abstract class FinishState {
     }
 
     // a finish ignoring remote events
-    static class FinishHere extends FinishSkeleton implements CustomSerialization {
+    static class FinishHere extends FinishSkeleton implements CustomSerialization2 {
         def this() {
             super(new RootFinishSPMD());
         }
         protected def this(ref:GlobalRef[FinishState]) {
             super(ref);
         }
-        private def this(data:SerialData) { 
-            super(data.data as GlobalRef[FinishState]);
+        private def this(ds:Deserializer) { 
+            super(ds.readAny() as GlobalRef[FinishState]);
             if (ref.home.id == Runtime.hereLong()) {
                 me = (ref as GlobalRef[FinishState]{home==here})();
             } else {
@@ -331,7 +332,9 @@ abstract class FinishState {
             property(ref);
             me = null;
         }
-        public def serialize():SerialData = new SerialData(ref, null);
+        public def serialize(s:Serializer) {
+            s.writeAny(ref);
+        }
         public def notifySubActivitySpawn(place:Place) { me.notifySubActivitySpawn(place); }
         public def notifyActivityCreation(srcPlace:Place) { return me.notifyActivityCreation(srcPlace); }
         public def notifyActivityTermination() { me.notifyActivityTermination(); }
@@ -347,7 +350,7 @@ abstract class FinishState {
     }
 
     // the default finish implementation
-    static class Finish extends FinishSkeleton implements CustomSerialization {
+    static class Finish extends FinishSkeleton implements CustomSerialization2 {
         protected def this(root:RootFinish) {
             super(root);
         }
@@ -360,8 +363,8 @@ abstract class FinishState {
         protected def this(ref:GlobalRef[FinishState]) {
             super(ref);
         }
-        private def this(data:SerialData) { 
-            super(data.data as GlobalRef[FinishState]);
+        private def this(ds:Deserializer) { 
+            super(ds.readAny() as GlobalRef[FinishState]);
             if (ref.home.id == Runtime.hereLong()) {
                 me = (ref as GlobalRef[FinishState]{home==here})();
             } else {
@@ -594,7 +597,7 @@ abstract class FinishState {
         }
     }
 
-    static class DenseFinish extends FinishSkeleton implements CustomSerialization {
+    static class DenseFinish extends FinishSkeleton implements CustomSerialization2 {
         protected def this(root:RootFinish) {
             super(root);
         }
@@ -607,8 +610,8 @@ abstract class FinishState {
         protected def this(ref:GlobalRef[FinishState]) {
             super(ref);
         }
-        private def this(data:SerialData) { 
-            super(data.data as GlobalRef[FinishState]);
+        private def this(ds:Deserializer) { 
+            super(ds.readAny() as GlobalRef[FinishState]);
             if (ref.home.id == Runtime.hereLong()) {
                 me = (ref as GlobalRef[FinishState]{home==here})();
             } else {
@@ -758,15 +761,15 @@ abstract class FinishState {
         def accept(t:T, id:Int):void;
     }
 
-    static class CollectingFinish[T] extends Finish implements CollectingFinishState[T],CustomSerialization {
+    static class CollectingFinish[T] extends Finish implements CollectingFinishState[T],CustomSerialization2 {
         val reducer:Reducible[T];
         def this(reducer:Reducible[T]) {
             super(new RootCollectingFinish(reducer));
             this.reducer = reducer;
         }
-        private def this(data:SerialData) { 
-            super(data.superclassData.data as GlobalRef[FinishState]);
-            val tmpReducer = data.data as Reducible[T];
+        private def this(ds:Deserializer) { 
+            super(ds.readAny() as GlobalRef[FinishState]);
+            val tmpReducer = ds.readAny() as Reducible[T];
             reducer = tmpReducer;
             if (ref.home.id == Runtime.hereLong()) {
                 me = (ref as GlobalRef[FinishState]{home==here})();
@@ -775,7 +778,10 @@ abstract class FinishState {
                 me = Runtime.finishStates(ref, ()=>new RemoteCollectingFinish[T](_ref, tmpReducer));
             }
         }
-        public def serialize():SerialData = new SerialData(reducer, super.serialize());
+        public def serialize(s:Serializer) {
+            s.writeAny(ref);
+            s.writeAny(reducer);
+        }
         public def accept(t:T, id:Int) { (me as CollectingFinishState[T]).accept(t, id); }   // Warning: This is an unsound cast because X10 currently does not perform constraint solving at runtime for generic parameters.
         public def waitForFinishExpr() = (me as RootCollectingFinish[T]).waitForFinishExpr();// Warning: This is an unsound cast because X10 currently does not perform constraint solving at runtime for generic parameters.
     }

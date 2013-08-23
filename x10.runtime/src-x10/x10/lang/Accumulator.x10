@@ -10,14 +10,16 @@
  */
 
 package x10.lang;
-import x10.io.CustomSerialization;
-import x10.io.SerialData;
+
+import x10.io.CustomSerialization2;
+import x10.io.Deserializer;
+import x10.io.Serializer;
 import x10.compiler.NonEscaping;
 
 /**
  * The naive implementation of an accumulator (without any piggybacking on finish or clocks).
  */
-public class Accumulator[T] extends Acc implements CustomSerialization {
+public class Accumulator[T] extends Acc implements CustomSerialization2 {
     //val owner:Activity;
     @NonEscaping private val root:GlobalRef[Acc];
 	protected var curr:T;
@@ -33,14 +35,16 @@ public class Accumulator[T] extends Acc implements CustomSerialization {
         this.root = new GlobalRef[Acc](this);
         this.curr = red.zero();
     }
-    public def this(data:SerialData) {
+    public def this(ds:Deserializer) {
         //owner = null;
-        val rail:Rail[Any] = data.data as Rail[Any];
-        this.red = rail(0) as Reducible[T];
-        this.root = rail(1) as GlobalRef[Acc];
+        this.red = ds.readAny() as Reducible[T];
+        this.root = ds.readAny() as GlobalRef[Acc];
         this.curr = red.zero();
     }
-    public def serialize():SerialData = new SerialData([red as Any, root as Any], null);
+    public def serialize(s:Serializer) {
+        s.writeAny(red);
+        s.writeAny(root);
+    }
 
     /*
     private def isSync():Boolean {
