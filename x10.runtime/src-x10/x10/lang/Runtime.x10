@@ -300,7 +300,7 @@ public final class Runtime {
                 // start new thread
                 val i = count++;
                 lock.unlock();
-                check(i);
+                check(i+1n);
                 return i;
             }
         }
@@ -312,18 +312,19 @@ public final class Runtime {
             val i = count++;
             deadCount++; // native threads should terminate on their own
             lock.unlock();
-            check(i);
+            check(i+1n);
             return i;
         }
 
         // check max thread count has not been reached
-        def check(i:Int):void {
-            if (i >= MAX_THREADS) {
-                println(here+": TOO MANY THREADS");
-                throw new InternalError(here+": TOO MANY THREADS");
+        def check(new_count:Int):void {
+            if (new_count > MAX_THREADS) {
+                println(here+": TOO MANY THREADS (there are now "+new_count+" threads).");
+                throw new InternalError(here+": TOO MANY THREADS (there are now "+new_count+" threads).");
             }
             if (WARN_ON_THREAD_CREATION) {
-                println(here+": WARNING: A new OS-level thread was discovered (there are now "+i+" threads).");
+                println(here+": WARNING: A new OS-level thread was discovered (there are now "+new_count+" threads).");
+                println("NOTE: The following stack trace is not an error, but to help identify the origin of the new OS-level thread.");
                 try { throw new Exception(); } catch (e:Exception) { e.printStackTrace(); }
             }
         }
