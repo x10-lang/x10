@@ -25,7 +25,8 @@ import x10.util.*;
 import x10.lang.annotations.*; // FieldAnnotation MethodAnnotation
 
 import x10.io.CustomSerialization;
-import x10.io.SerialData;
+import x10.io.Deserializer;
+import x10.io.Serializer;
 
 /**
  * A group of tests for various frontend-related compilation issues.
@@ -3753,10 +3754,6 @@ class TestSerialize {
 	    this.set(2);
 	}
 	private def set(x:Int{self!=0}) { i=x; }
-	public def serialize():SerialData {
-		assert i!=0; // will fail, because we haven't written anything to "i" yet!
-		return new SerialData(i,null); // here we read here the value of "i" though it wasn't set yet
-	}
 }
 
 class ClosureAndSerialize {
@@ -3765,12 +3762,6 @@ class ClosureAndSerialize {
     val A = DistArray.make[Double](BigD,(p:Point)=>
 		1.0*this.x); // ERR: 'this' or 'super' cannot escape via a closure during construction.
     val k:Int{self!=0} = 3;
-
-    public def serialize():SerialData {
-		Console.OUT.println(k);
-		assert k==3; // will fail when used on multiple places
-		return new SerialData(1,null);
-	}
 }
 class HashMapSerialize {
 	def testHashmapSerialize() {
@@ -3786,8 +3777,8 @@ class HashMapSerialize {
 }
 }
 
-class XTENLANG_2142 implements CustomSerialization { // ShouldBeErr: missing ctor "def this(SerialData)"
-	public def serialize():SerialData= null;
+class XTENLANG_2142 implements CustomSerialization2 { // ShouldBeErr: missing ctor "def this(Deserializer)"
+	public def serialize(Serializer) {} 
 }
 
 
@@ -6885,21 +6876,6 @@ class TestResolutionOfNull {
 }
 
 
-  // GlobalRef and costume serialization
-  class GlobalRefAndSerialize implements CustomSerialization {
-      @NonEscaping private val root:GlobalRef[GlobalRefAndSerialize];
-  	private transient var arr:Array[Int];
-
-  	public def this() {
-  		this.root = new GlobalRef[GlobalRefAndSerialize](this);
-  		this.arr = new Array[Int](10);
-  	}
-      private def this(data:SerialData) {
-  		this.root = data.data as GlobalRef[GlobalRefAndSerialize]; // ERR (Warning: unsound cast)
-  		this.arr = new Array[Int](10);
-      }
-      public def serialize():SerialData = new SerialData(root, null);
-  }
   class GlobalRefAndSerialize2 {
       private val root:GlobalRef[GlobalRefAndSerialize2];
   	public def this() {

@@ -10,8 +10,9 @@
  */
 
 import harness.x10Test;
-import x10.io.CustomSerialization;
-import x10.io.SerialData;
+import x10.io.CustomSerialization2;
+import x10.io.Deserializer;
+import x10.io.Serializer;
 import x10.util.HashMap;
 
 /*
@@ -20,17 +21,19 @@ import x10.util.HashMap;
  */
 public class TestCustomSerialization2 extends x10Test {
 
-    static class CS implements CustomSerialization {
+    static class CS implements CustomSerialization2 {
         val x:long;
         val y:long;
         transient var sum:long;
  
-         public def serialize() = new SerialData([x,y], null);
+         public def serialize(s:Serializer) {
+             s.writeAny(x);
+             s.writeAny(y);
+         }
   
-         def this(a:SerialData) {
-             val t = a.data as Rail[long]; // ERR: Warning: This is an unsound cast because X10 currently does not perform constraint solving at runtime for generic parameters.
-             x = t(0);
-             y = t(1);
+         def this(ds:Deserializer) {
+             x = ds.readAny() as long;
+             y = ds.readAny() as long;
              sum = x + y;
          }
  

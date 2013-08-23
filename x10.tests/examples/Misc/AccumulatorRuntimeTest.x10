@@ -5,10 +5,6 @@ import x10.compiler.tests.*; // err markers
 import x10.util.*;
 import x10.lang.annotations.*; // FieldAnnotation MethodAnnotation
 
-import x10.io.CustomSerialization;
-import x10.io.SerialData;
-
-
 // tests for Accumulators
 // todo: need to test Runtime.sync()
 
