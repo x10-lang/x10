@@ -71,7 +71,7 @@ public class Graph {
       val iter = nodes.iterator();
       while (iter.hasNext()) {
          val node = iter.next();
-         s += "\t" + node.no + " -> " + node.parent.get()().second.no + "\n";
+         s += "\t" + node.no + " -> " + node.parent.get().no + "\n";
       }
       s += "}\n";
       return s;

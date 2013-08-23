@@ -4,6 +4,7 @@ import x10.util.ArrayList;
 import x10.util.Pair;
 import x10.util.Box;
 import futuresched.core.FTask;
+import futuresched.core.SFuture;
 
 public class SpanTree {
 
@@ -17,7 +18,7 @@ public class SpanTree {
 //            val node = iter.next();
 //            if (node != n)
 //               async {
-//                  FTask.asyncWaitOr(
+//                  FTask.asyncOr(
 //                     node.neighbors,
 //                     (n: Node)=> {
 //                        return n.parent;
@@ -41,7 +42,32 @@ public class SpanTree {
             val node = iter.next();
             if (node != n)
                async {
-                  FTask.sAsyncWaitOr(
+                  FTask.newOr(
+                     node.neighbors,
+                     (n: Node)=> {
+                        return new Pair[SFuture[Node], Node](n.parent, n);
+                     },
+                     (grandParent: Node, parent: Node)=> {
+//                        Console.OUT.println("Setting parent of " + node.no + " to " + parent.no + ".");
+                        node.parent.set(parent);
+                     }
+                  );
+               }
+         }
+      }
+      finish {
+         n.parent.set(n);
+      }
+//      Console.OUT.println("Returning");
+   }
+
+}
+
+
+
+
+/*
+                  FTask.newOr(
                      node.neighbors,
                      (n: Node)=> {
                         return n.parent;
@@ -52,17 +78,4 @@ public class SpanTree {
                         node.parent.set(new Box(new Pair[Node, Node](node, parent)));
                      }
                   );
-               }
-         }
-      }
-      finish {
-         n.parent.set(new Box(new Pair[Node, Node](n, n)));
-      }
-//      Console.OUT.println("Returning");
-   }
-
-}
-
-
-
-
+*/

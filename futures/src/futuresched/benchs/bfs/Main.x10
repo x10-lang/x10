@@ -52,8 +52,8 @@ public class Main {
       Console.OUT.println("----------------------------------------");
       Console.OUT.println("Seq: ");
 
-      t1 = System.currentTimeMillis();
       val sGraph = SeqGraph.random(n, b);
+      t1 = System.currentTimeMillis();
       SeqBFS.bfs(sGraph, sGraph.nodes(0));
       t2 = System.currentTimeMillis();
 
@@ -71,8 +71,8 @@ public class Main {
       Console.OUT.println("----------------------------------------");
       Console.OUT.println("Future: ");
 
-      t1 = System.currentTimeMillis();
       val fGraph = FutGraph.random(n, b);
+      t1 = System.currentTimeMillis();
       FutBFS.bfs(fGraph, fGraph.nodes(0));
       t2 = System.currentTimeMillis();
 

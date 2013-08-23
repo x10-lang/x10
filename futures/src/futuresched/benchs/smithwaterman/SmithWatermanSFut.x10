@@ -40,7 +40,7 @@ public class SmithWatermanSFut {
         val deps = eDeps(i, j);
         if (deps.isEmpty())
           deps.add(fire);
-        FTask.sAsyncWait(
+        FTask.newAnd(
           deps,
           ()=>{
 //               Console.OUT.println("Launching e(" + i + ", " + j +  ")");
@@ -92,7 +92,7 @@ public class SmithWatermanSFut {
         val deps = fDeps(i, j);
         if (deps.isEmpty())
           deps.add(fire);
-        FTask.sAsyncWait(
+        FTask.newAnd(
           deps,
           ()=>{
 //            Console.OUT.println("Launching f(" + i + ", " + j +  ")");
@@ -144,7 +144,7 @@ public class SmithWatermanSFut {
         val deps = mDeps(i, j);
         if (deps.isEmpty())
           deps.add(fire);
-        FTask.sAsyncWait(
+        FTask.newAnd(
           deps,
           ()=>{
 //            Console.OUT.println("Launching m(" + i + ", " + j +  ")");
