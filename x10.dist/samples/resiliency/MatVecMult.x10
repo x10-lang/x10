@@ -382,7 +382,6 @@ public class MatVecMult {
         // initial task assignment -- assumes no places are dead yet
         val splits_assignments = new Rail[ArrayList[Long]](Place.MAX_PLACES, new ArrayList[Long]());
         val active_places = new Rail[Boolean](Place.MAX_PLACES, true);
-        before = System.nanoTime();
         var last_end : Long = 0L;
         for (i in active_places.range()) {
             val splits = new ArrayList[Long]();
@@ -393,8 +392,6 @@ public class MatVecMult {
             splits_assignments(i) = splits;
             last_end = last_end + num_assigned_splits;
         }
-        after = System.nanoTime();
-        Console.OUT.println("Combined read in matrix time: "+(after-before)/1E9+" seconds");
             
 
         var vector_blocks : Rail[VectorBlockDense] = new Rail[VectorBlockDense](cfg.numBlocks);
@@ -423,11 +420,14 @@ public class MatVecMult {
             val src_vector_blocks = vector_blocks;
             try {
                 if (need_set_splits) {
+                    before = System.nanoTime();
                     finish for (i in active_places.range()) {
                         if (!active_places(i)) continue;
                         val splits = splits_assignments(i);
                         at (Place(i)) async plh().setSplits(splits, active_places);
                     }
+                    after = System.nanoTime();
+                    Console.OUT.println("Combined read in matrix time: "+(after-before)/1E9+" seconds");
                 }
                 need_set_splits = false;
                 before = System.nanoTime();
