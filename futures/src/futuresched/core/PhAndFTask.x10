@@ -27,10 +27,10 @@ public class PhAndFTask extends FTask {
 // ...
 
 // ------------------------------------------------------------
-// sAsyncWait
-// Note that sAsyncWait is called when the futures are not already set or being concurrently set.
+// newPhasedAnd
+// Note that newPhasedAnd is called when the futures are not already set or being concurrently set.
 
-  public static def sPhasedAsyncWait[T](
+  public static def newPhasedAnd[T](
     futures: ArrayList[SFuture[T]],
     block: ()=>void){T isref, T haszero}: PhAndFTask {
 
@@ -48,7 +48,7 @@ public class PhAndFTask extends FTask {
     return fTask;
   }
 
-  public static def sPhasedAsyncWait[T](
+  public static def newPhasedAnd[T](
     future: SFuture[T],
     block: ()=>void){T isref, T haszero}: PhAndFTask {
 
@@ -61,7 +61,7 @@ public class PhAndFTask extends FTask {
     return fTask;
   }
 
-  public static def sPhasedAsyncWait(
+  public static def newPhasedAnd(
     futures: ArrayList[SNotifier],
     block: ()=>void): PhAndFTask {
 
@@ -80,7 +80,7 @@ public class PhAndFTask extends FTask {
   }
 
 
-  public static def sPhasedAsyncWait(
+  public static def newPhasedAnd(
     future: SNotifier,
     block: ()=>void): PhAndFTask {
 
@@ -93,7 +93,7 @@ public class PhAndFTask extends FTask {
     return fTask;
   }
 
-   public static def sPhasedAsyncWait(
+   public static def newPhasedAnd(
       futures: ArrayList[SIntFuture],
       block: ()=>void): PhAndFTask {
 
@@ -111,7 +111,7 @@ public class PhAndFTask extends FTask {
       return fTask;
    }
 
-   public static def sPhasedAsyncWait(
+   public static def newPhasedAnd(
       future: SIntFuture,
       block: ()=>void): PhAndFTask {
 

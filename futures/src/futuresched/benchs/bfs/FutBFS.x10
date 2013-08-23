@@ -17,7 +17,7 @@ public class FutBFS {
             val node = iter.next();
             if (node != n)
                async {
-                  FTask.sPhasedAsyncWaitOr(
+                  FTask.newPhasedOr(
                      node.neighbors,
                      (n: FutNode)=> {
                         return new Pair[SFuture[FutNode], FutNode](n.parent, n);

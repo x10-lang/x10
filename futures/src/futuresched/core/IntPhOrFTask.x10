@@ -24,13 +24,13 @@ public class IntPhOrFTask[TP] extends FTask {
    }
 
 // -------------------------------------------------------------------
-// phasedAsyncWaitOr
+// asyncPhasedOr
 // ...
 
 // -------------------------------------------------------------------
-// phasedSAsyncWaitOr
+// newPhasedOr
 
-   public static def sPhasedAsyncWaitOr(
+   public static def newPhasedOr(
       futures: ArrayList[SIntFuture],
 //    fun: (SFuture[T])=>void){T isref, T haszero}: FTask {
       fun: (Int, Any)=>void): IntPhOrFTask[Any] {
@@ -46,7 +46,7 @@ public class IntPhOrFTask[TP] extends FTask {
       return fTask;
    }
 
-   public static def sPhasedAsyncWaitOr[T1](
+   public static def newPhasedOr[T1](
       futures: ArrayList[T1],
       trans: (T1)=>SIntFuture,
       fun: (Int, Any)=>void): IntPhOrFTask[Any] {
@@ -63,7 +63,7 @@ public class IntPhOrFTask[TP] extends FTask {
       return fTask;
    }
 
-  public static def sPhasedAsyncWaitOr[T, T2](
+  public static def newPhasedOr[T, T2](
      futures: ArrayList[T],
      trans: (T)=>Pair[SIntFuture, T2],
      fun: (Int, T2)=>void): IntPhOrFTask[T2] {

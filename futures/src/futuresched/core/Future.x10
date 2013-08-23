@@ -163,14 +163,14 @@ public final class Future[T]{T isref, T haszero} implements Notifier {
   //        futures,
   //        fun);
   public def asyncSet(futures: ArrayList[Future[T]], fun: ()=>T) {
-    FTask.asyncWait(
+    FTask.asyncAnd(
       futures,
       ()=>{ set(fun()); }
     );
   }
 
   public def asyncSet(futures: ArrayList[Notifier], fun: ()=>T) {
-    FTask.asyncWait(
+    FTask.asyncAnd(
       futures,
       ()=>{ set(fun()); }
     );
@@ -188,7 +188,7 @@ public final class Future[T]{T isref, T haszero} implements Notifier {
   }
 
   public def register(block: ()=>void): void {
-    FTask.asyncWait(this, block);
+    FTask.asyncAnd(this, block);
   }
 
   // To launch free async for register.
@@ -197,7 +197,7 @@ public final class Future[T]{T isref, T haszero} implements Notifier {
       val v = get();
       fun(v);
     };
-    FTask.asyncWait(this, newBlock);
+    FTask.asyncAnd(this, newBlock);
   }
 
   //public def registerDeferred(block: T=>void): void {

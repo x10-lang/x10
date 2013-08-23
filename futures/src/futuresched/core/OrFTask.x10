@@ -24,9 +24,9 @@ public class OrFTask[T, TP]{T isref, T haszero} extends FTask {
    }
 
 // ------------------------------------------------------
-// asyncWaitOr
+// asyncOr
 
-  public static def asyncWaitOr[T](
+  public static def asyncOr[T](
      futures: ArrayList[Future[T]],
      fun: (T, Any)=>void){T isref, T haszero}: OrFTask[T, Any] {
 
@@ -54,7 +54,7 @@ public class OrFTask[T, TP]{T isref, T haszero} extends FTask {
      return task;
   }
 
-  public static def asyncWaitOr[T1, T2](
+  public static def asyncOr[T1, T2](
      futures: ArrayList[T1],
      trans: (T1)=>Future[T2],
      fun: (T2, Any)=>void){T2 isref, T2 haszero}: OrFTask[T2, Any] {
@@ -87,9 +87,9 @@ public class OrFTask[T, TP]{T isref, T haszero} extends FTask {
   }
 
 // ------------------------------------------------------
-// sAsyncWaitOr
+// newOr
 
-  public static def sAsyncWaitOr[T](
+  public static def newOr[T](
     futures: ArrayList[SFuture[T]],
 //    fun: (SFuture[T])=>void){T isref, T haszero}: FTask {
     fun: (T, Any)=>void){T isref, T haszero}: OrFTask[T, Any] {
@@ -108,7 +108,7 @@ public class OrFTask[T, TP]{T isref, T haszero} extends FTask {
     return fTask;
   }
 
-  public static def sAsyncWaitOr[T1, T2](
+  public static def newOr[T1, T2](
      futures: ArrayList[T1],
      trans: (T1)=>SFuture[T2],
      fun: (T2, Any)=>void){T2 isref, T2 haszero}: OrFTask[T2, Any] {
@@ -128,7 +128,7 @@ public class OrFTask[T, TP]{T isref, T haszero} extends FTask {
      return fTask;
   }
 
-  public static def sAsyncWaitOr[T1, T2, T3](
+  public static def newOr[T1, T2, T3](
      futures: ArrayList[T1],
      trans: (T1)=>Pair[SFuture[T2], T3],
      fun: (T2, T3)=>void){T2 isref, T2 haszero}: OrFTask[T2, T3] {

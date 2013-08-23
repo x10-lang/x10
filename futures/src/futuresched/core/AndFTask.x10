@@ -23,11 +23,11 @@ public class AndFTask extends FTask {
    }
 
 // ------------------------------------------------------------
-// asyncWait (asyncWaitAnd)
+// asyncAnd
 
-  public static def asyncWait[T](
+  public static def asyncAnd[T](
     futures: ArrayList[Future[T]],
-    block: ()=>void){T isref, T haszero} {
+    block: ()=>void){T isref, T haszero}: AndFTask {
 
     val thisAct = initActEnclosed(block);
     val task = new AndFTask(thisAct);
@@ -47,11 +47,12 @@ public class AndFTask extends FTask {
       if (count == 0)
         task.exec();
     }
+    return task;
   }
 
-  public static def asyncWait[T](
+  public static def asyncAnd[T](
     future: Future[T],
-    block: ()=>void){T isref, T haszero} {
+    block: ()=>void){T isref, T haszero}: AndFTask {
 
     val thisAct = initActEnclosed(block);
     val task = new AndFTask(thisAct);
@@ -64,12 +65,13 @@ public class AndFTask extends FTask {
       if (count == 0)
         task.exec();
     }
+    return task;
   }
 
   // To allow different types of futures.
-  public static def asyncWait(
+  public static def asyncAnd(
     futures: ArrayList[Notifier],
-    block: ()=>void) {
+    block: ()=>void): AndFTask {
     val thisAct = initActEnclosed(block);
     val task = new AndFTask(thisAct);
 
@@ -88,11 +90,12 @@ public class AndFTask extends FTask {
       if (count == 0)
         task.exec();
     }
+    return task;
   }
 
-  public static def asyncWait(
+  public static def asyncAnd(
     future: Notifier,
-    block: ()=>void) {
+    block: ()=>void): AndFTask {
 
     val thisAct = initActEnclosed(block);
     val task = new AndFTask(thisAct);
@@ -105,11 +108,12 @@ public class AndFTask extends FTask {
       if (count == 0)
         task.exec();
     }
+    return task;
   }
 
-  public static def asyncWait(
+  public static def asyncAnd(
     futures: ArrayList[IntFuture],
-    block: ()=>void) {
+    block: ()=>void): AndFTask  {
 
     val thisAct = initActEnclosed(block);
     val task = new AndFTask(thisAct);
@@ -129,11 +133,12 @@ public class AndFTask extends FTask {
       if (count == 0)
         task.exec();
     }
+    return task;
   }
 
-  public static def asyncWait(
+  public static def asyncAnd(
     future: IntFuture,
-    block: ()=>void) {
+    block: ()=>void): AndFTask  {
 
     val thisAct = initActEnclosed(block);
     val task = new AndFTask(thisAct);
@@ -146,13 +151,14 @@ public class AndFTask extends FTask {
       if (count == 0)
         task.exec();
     }
+    return task;
   }
 
 // ------------------------------------------------------------
-// sAsyncWait
-// Note that sAsyncWait is called when the futures are not already set or being concurrently set.
+// newAnd
+// Note that newAnd is called when the futures are not already set or being concurrently set.
 
-  public static def sAsyncWait[T](
+  public static def newAnd[T](
     futures: ArrayList[SFuture[T]],
     block: ()=>void){T isref, T haszero}: AndFTask {
 
@@ -173,7 +179,7 @@ public class AndFTask extends FTask {
     return fTask;
   }
 
-  public static def sAsyncWait[T](
+  public static def newAnd[T](
     future: SFuture[T],
     block: ()=>void){T isref, T haszero}: AndFTask {
 
@@ -190,7 +196,7 @@ public class AndFTask extends FTask {
     return fTask;
   }
 
-  public static def sAsyncWait(
+  public static def newAnd(
     futures: ArrayList[SNotifier],
     block: ()=>void): AndFTask {
 
@@ -213,7 +219,7 @@ public class AndFTask extends FTask {
   }
 
 
-  public static def sAsyncWait(
+  public static def newAnd(
     future: SNotifier,
     block: ()=>void): AndFTask {
 
@@ -230,7 +236,7 @@ public class AndFTask extends FTask {
     return fTask;
   }
 
-  public static def sAsyncWait(
+  public static def newAnd(
     futures: ArrayList[SIntFuture],
     block: ()=>void): AndFTask {
 
@@ -252,7 +258,7 @@ public class AndFTask extends FTask {
     return fTask;
   }
 
-  public static def sAsyncWait(
+  public static def newAnd(
     future: SIntFuture,
     block: ()=>void): AndFTask {
 

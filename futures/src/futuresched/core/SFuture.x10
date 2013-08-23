@@ -98,14 +98,14 @@ public final class SFuture[T]{T isref, T haszero} implements SNotifier {
   }
 
   public def asyncSet(futures: ArrayList[SFuture[T]], fun: ()=>T) {
-    FTask.sAsyncWait(
+    FTask.newAnd(
       futures,
       ()=>{ set(fun()); }
     );
   }
 
   public def asyncSet(futures: ArrayList[SNotifier], fun: ()=>T) {
-    FTask.sAsyncWait(
+    FTask.newAnd(
       futures, 
       ()=>{ set(fun()); }
     );
@@ -137,7 +137,7 @@ public final class SFuture[T]{T isref, T haszero} implements SNotifier {
   }
 
   public def register(block: ()=>void): void {
-    FTask.sAsyncWait(this, block);
+    FTask.newAnd(this, block);
   }
 
   public def register(block: (T)=>void): void {
@@ -145,7 +145,7 @@ public final class SFuture[T]{T isref, T haszero} implements SNotifier {
       val v = get();
       block(v);
     };
-    FTask.sAsyncWait(this, newBlock);
+    FTask.newAnd(this, newBlock);
   }
 
   //public def registerDeferred(block: T=>void): void {

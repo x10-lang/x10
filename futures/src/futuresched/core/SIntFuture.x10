@@ -95,13 +95,13 @@ public final class SIntFuture implements SNotifier {
   }
 
   public def asyncSet(futures: ArrayList[SIntFuture], fun: ()=>Int) {
-    FTask.sAsyncWait(
+    FTask.newAnd(
       futures,
       ()=>{ set(fun()); }
     );
   }
   public def asyncSet(futures: ArrayList[SNotifier], fun: ()=>Int) {
-    FTask.sAsyncWait(
+    FTask.newAnd(
       futures, 
       ()=>{ set(fun()); }
     );
@@ -121,7 +121,7 @@ public final class SIntFuture implements SNotifier {
   }
 
   public def register(block: ()=>void): void {
-    FTask.sAsyncWait(this, block);
+    FTask.newAnd(this, block);
   }
 
   public def register(block: (Int)=>void): void {
@@ -129,7 +129,7 @@ public final class SIntFuture implements SNotifier {
       val v = get();
       block(v);
     };
-    FTask.sAsyncWait(this, newBlock);
+    FTask.newAnd(this, newBlock);
   }
 
   //public def registerDeferred(block: T=>void): void {

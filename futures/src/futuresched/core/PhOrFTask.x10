@@ -26,13 +26,13 @@ public class PhOrFTask[T, TP]{T isref, T haszero} extends FTask {
    }
 
 // -------------------------------------------------------------------
-// phasedAsyncWaitOr
+// asyncPhasedOr
 // ...
 
 // -------------------------------------------------------------------
-// phasedSAsyncWaitOr
+// newPhasedOr
 
-   public static def sPhasedAsyncWaitOr[T](
+   public static def newPhasedOr[T](
       futures: ArrayList[SFuture[T]],
 //    fun: (SFuture[T])=>void){T isref, T haszero}: FTask {
       fun: (T, Any)=>void){T isref, T haszero}: PhOrFTask[T, Any] {
@@ -51,7 +51,7 @@ public class PhOrFTask[T, TP]{T isref, T haszero} extends FTask {
       return fTask;
    }
 
-   public static def sPhasedAsyncWaitOr[T1, T2](
+   public static def newPhasedOr[T1, T2](
       futures: ArrayList[T1],
       trans: (T1)=>SFuture[T2],
       fun: (T2, Any)=>void){T2 isref, T2 haszero}: PhOrFTask[T2, Any] {
@@ -71,7 +71,7 @@ public class PhOrFTask[T, TP]{T isref, T haszero} extends FTask {
       return fTask;
    }
 
-  public static def sPhasedAsyncWaitOr[T1, T2, T3](
+  public static def newPhasedOr[T1, T2, T3](
      futures: ArrayList[T1],
      trans: (T1)=>Pair[SFuture[T2], T3],
      fun: (T2, T3)=>void){T2 isref, T2 haszero}: PhOrFTask[T2, T3] {
