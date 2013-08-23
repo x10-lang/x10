@@ -9,7 +9,7 @@ import x10.util.concurrent.AtomicInteger;
 public class OrFTask[T, TP]{T isref, T haszero} extends FTask {
 
    public var finishState: FinishState;
-   public var fun: (T, Any)=>void;
+   public var fun: (T, TP)=>void;
 
    public def this(count: Int, act: Activity, worker: Runtime.Worker) {
       super(count, act, worker);
@@ -108,26 +108,6 @@ public class OrFTask[T, TP]{T isref, T haszero} extends FTask {
     return fTask;
   }
 
-  public static def newOr[T1, T2](
-     futures: ArrayList[T1],
-     trans: (T1)=>SFuture[T2],
-     fun: (T2, Any)=>void){T2 isref, T2 haszero}: OrFTask[T2, Any] {
-
-     //val thisAct = initActEnclosed(block);
-     val fTask = new OrFTask[T2, Any]();
-//     val finishState = mainFinish;
-//     fTask.finishState = finishState;
-     fTask.fun = fun;
-
-     val iter = futures.iterator();
-     while (iter.hasNext()) {
-        val o = iter.next();
-        val f = trans(o);
-        f.add(fTask, null);
-     }
-     return fTask;
-  }
-
   public static def newOr[T1, T2, T3](
      futures: ArrayList[T1],
      trans: (T1)=>Pair[SFuture[T2], T3],
@@ -137,7 +117,7 @@ public class OrFTask[T, TP]{T isref, T haszero} extends FTask {
      val fTask = new OrFTask[T2, T3]();
 //     val finishState = mainFinish;
 //     fTask.finishState = finishState;
-     fTask.fun = fun as (T2, Any)=>void;
+     fTask.fun = fun; // as (T2, Any)=>void;
 
      val iter = futures.iterator();
      while (iter.hasNext()) {
@@ -159,7 +139,7 @@ public class OrFTask[T, TP]{T isref, T haszero} extends FTask {
       if (go) {
 //         val f = n as Future[T];
 //         val v = f.get();
-         val block = ()=>{ val fun = this.fun; fun(v as T, obj); };
+         val block = ()=>{ val fun = this.fun; fun(v as T, obj as TP); };
          if (g) {
             val thisAct = new Activity(block, here, this.finishState);
             this.act = thisAct;

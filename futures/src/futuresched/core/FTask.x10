@@ -188,13 +188,6 @@ public abstract class FTask {
       return OrFTask.newOr(futures, fun);
    }
 
-   public static def newOr[T1, T2](
-      futures: ArrayList[T1],
-      trans: (T1)=>SFuture[T2],
-      fun: (T2, Any)=>void){T2 isref, T2 haszero}: OrFTask[T2, Any] {
-      return OrFTask.newOr(futures, trans, fun);
-   }
-
   public static def newOr[T1, T2, T3](
      futures: ArrayList[T1],
      trans: (T1)=>Pair[SFuture[T2], T3],
