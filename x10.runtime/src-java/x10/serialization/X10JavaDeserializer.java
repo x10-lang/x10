@@ -23,8 +23,6 @@ import java.lang.reflect.Method;
 import java.util.ArrayList;
 
 import x10.core.Byte;
-import x10.core.Rail;
-import x10.io.Serializer;
 import x10.rtt.Types;
 import x10.runtime.impl.java.Runtime;
 import x10.serialization.DeserializationDictionary.LocalDeserializationDictionary;
@@ -649,5 +647,10 @@ public final class X10JavaDeserializer implements SerializationConstants {
                 throw new RuntimeException("Unhandled hard-wired serialization id in readPrimitive!");    
         }
         return obj;
+    }
+    
+    public static void raiseSerializationProtocolError() {
+        Runtime.printTraceMessage("Protocol error in custom deserialization; raising exception");
+        throw new RuntimeException("CustomSerialization protocol error");
     }
 }
