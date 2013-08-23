@@ -24,7 +24,7 @@ import x10.regionarray.*;
 import x10.util.*;
 import x10.lang.annotations.*; // FieldAnnotation MethodAnnotation
 
-import x10.io.CustomSerialization;
+import x10.io.CustomSerialization2;
 import x10.io.Deserializer;
 import x10.io.Serializer;
 
@@ -44,7 +44,7 @@ public class FrontEndTests_MustFailCompile extends x10Test {
 // test object initialization (and more)
 
 class TestFinalField42 {
-	val q:Int;
+	val q:Long;
 	def this() { // ERR		
 		finish {
 			if (true) {
@@ -60,10 +60,10 @@ class TestFinalField42 {
 		}
 		f(q); // ERR
 	}
-	private def f(i:Int):Int=i+1;
+	private def f(i:Long):Long=i+1;
 }
 class TestFinalField43 {
-	val q:Int;
+	val q:Long;
 	def this() { // ERR		
 		finish {
 			if (true) {
@@ -75,17 +75,17 @@ class TestFinalField43 {
 		}
 		f(q); // ERR
 	}
-	private def f(i:Int):Int=i+1;
+	private def f(i:Long):Long=i+1;
 }
 class TestFinalField {
-	static val y:Int; // ERR
-	static val s:Int = 3;
+	static val y:Long; // ERR
+	static val s:Long = 3;
 	static def test() {
 		s = 4;  // ERR
 	}
 
-	val f:Int;
-	var i:Int;
+	val f:Long;
+	var i:Long;
 	native def this(); // a native ctor is assumed to initialize all fields
 	def foo(x:TestFinalField) {
 		s = 4;  // ERR
@@ -101,14 +101,14 @@ class TestFinalField {
 		i=2;
 		x.i = 2;
 	}
-	def this(Int) { 
+	def this(Long) { 
 		async f=2; 
 		f=2; // ERR
 	}
 }
 
 final class ClosuresDuringConstruction {
-	var k:Int;
+	var k:Long;
 	def f() = k=3;
 	def f2() = 3;
 	val c2 = ()=>f(); // ERR
@@ -143,14 +143,14 @@ class CaptureThisInAtStmtExpr {
 }
 
 
-class WithManyProperties(i:Int,j:Int) {
+class WithManyProperties(i:Long,j:Long) {
 	def this() {} // ERR: property(...) might not have been called
 }
 class NoPropertiesButWithPropertyCall {
 	def this() {
 		property(1); // ERR: Semantic Error: The property initializer must have the same number of arguments as properties for the class.
 	}
-	def this(Int) {
+	def this(Long) {
 		super();
 	}
 	def this(Double) {
@@ -159,11 +159,11 @@ class NoPropertiesButWithPropertyCall {
 	}
 }
 class FinalFieldWrittenExactlyOnce {
-	val f:Int;
+	val f:Long;
 	var flag:Boolean;
 	var i:Int;
 	def this() {} // ERR: not written
-	def this(Int) { f=1; }
+	def this(Long) { f=1; }
 	def this(Short) { if (flag) f=1; else f=2; }
 	def this(Double) { // ERR
 		async f=1; 
@@ -179,7 +179,7 @@ class FinalFieldWrittenExactlyOnce {
 		if (flag) f=1;
 		f=2; // ERR
 	}
-	def this(Long) { // ERR
+	def this(Int) { // ERR
 		while (flag) f=1; // ERR
 	}
 	def this(Long,Long) {
@@ -198,10 +198,10 @@ class FinalFieldWrittenExactlyOnce {
 	}
 	def this(UShort) { 
 		switch (i) {
-		case 1:
+		case 1n:
 			f=1;
 			break;
-		case 3:
+		case 3n:
 			f=2;
 			break;
 		default:
@@ -210,20 +210,20 @@ class FinalFieldWrittenExactlyOnce {
 	}
 	def this(UInt) { // ERR
 		switch (i) {
-		case 1:
+		case 1n:
 			f=1;
 			break;
-		case 3:
+		case 3n:
 			f=2;
 			break;
 		}
 	}
 	def this(ULong) {
-		switch (i) {
-		case 1:
+		switch (i as int) {
+		case 1n:
 			f=1;
 			break;
-		case 3:
+		case 3n:
 			f=2;
 			break;
 		}
@@ -231,7 +231,7 @@ class FinalFieldWrittenExactlyOnce {
 	}
 	def this(Char) {  
 		switch (i) {
-		case 1:
+		case 1n:
 			f=1;
 		default:
 			f=3; // ERR
@@ -241,13 +241,13 @@ class FinalFieldWrittenExactlyOnce {
 		if (flag) f=1;
 		else if (flag) f=2;
 	}
-	def this(Int,Byte) { // ERR
-		val b:Int = (b=5); // ERR
-		var k:Int = (k=5); // ERR
-		while (true) { val i:Int = 4;}
+	def this(Long,Byte) { // ERR
+		val b:Long = (b=5); // ERR
+		var k:Long = (k=5); // ERR
+		while (true) { val i:Long = 4;}
 		f=f+1; // ERR
 	}
-	def this(Int,Short) { // ERR: Field 'f' was not definitely assigned.
+	def this(Long,Short) { // ERR: Field 'f' was not definitely assigned.
 		m();
 	}
 	private def m() {
@@ -257,9 +257,9 @@ class FinalFieldWrittenExactlyOnce {
 
 class TestExceptionsDefAssignment {
 	def test() {
-		val x1:Int;
-		val x2:Int;
-		val x3:Int;
+		val x1:Long;
+		val x2:Long;
+		val x3:Long;
 		try {
 			x1 = 2;
 		} catch (e:Exception) {
@@ -273,7 +273,7 @@ class TestExceptionsDefAssignment {
 	}
 	var b:Boolean;
 	def testReturn() {
-		val x1:Int;
+		val x1:Long;
 		if (b) {
 			x1 = 1;
 			return;
@@ -284,7 +284,7 @@ class TestExceptionsDefAssignment {
 	def use(a:Any) {}
 }
 class InfiniteInit234 {
-	var i:Int{self!=0};
+	var i:Long{self!=0};
 	def this() {
 		foo();
 	}
@@ -292,7 +292,7 @@ class InfiniteInit234 {
 }
 
 class AllowCallsIfNoReadNorWrite {
-	class Inner(i:Int) {
+	class Inner(i:Long) {
 		def this() {
 			val w = this.foo1();
 			property(4);
@@ -304,15 +304,15 @@ class AllowCallsIfNoReadNorWrite {
 
 
 class DisallowCallsUnlessNoThisAccess {
-	class Inner(i:Int) {
+	class Inner(i:Long) {
 		static y=5;
-		var x:Int=2;
-		val z:Int=3;
+		var x:Long=2;
+		val z:Long=3;
 		def this() {
 			val w = this.foo1(); // ERR: You can use 'this' before 'property(...)' to call only @NoThisAccess methods or NonEscaping methods that do not read nor write any fields.
 			property(4);
 		}
-		def this(i:Int) {
+		def this(i:Long) {
 			val w = this.bar1(); // ERR: You can use 'this' before 'property(...)' to call only @NoThisAccess methods or NonEscaping methods that do not read nor write any fields.
 			property(4);
 		}
@@ -346,8 +346,8 @@ class DisallowCallsUnlessNoThisAccess {
 }
 
 class IllegalForwardRef234 {
-	var i1:Int{self!=0} = i2; // ERR: Cannot read from field 'i2' before it is definitely assigned.
-	var i2:Int{self!=0} = i1;
+	var i1:Long{self!=0} = i2; // ERR: Cannot read from field 'i2' before it is definitely assigned.
+	var i2:Long{self!=0} = i1;
 }
 
 class TestUncountedAsync1 {
@@ -357,8 +357,8 @@ class TestUncountedAsync1 {
 	//so the statement in S might or might not get executed.
 	//Therefore even after a "finish" we still can't use anything assigned in S.                
 	def test1() {
-		val q:Int;
-		val q2:Int;
+		val q:Long;
+		val q2:Long;
 		finish {
 			q2=2;
 			use(q2);
@@ -375,7 +375,7 @@ class TestUncountedAsync1 {
 		use(q); // ERR
 	}	
 	def test2() {
-		var q:Int;
+		var q:Long;
 		finish {
 			@Uncounted async {
 				q=1;
@@ -386,7 +386,7 @@ class TestUncountedAsync1 {
 		use(q); // ERR
 	}
 	def test3() {
-		var q:Int;
+		var q:Long;
 		finish {
 			@Uncounted async {
 				async { // it is implicitly @Uncounted
@@ -398,10 +398,10 @@ class TestUncountedAsync1 {
 		}
 		use(q); // ERR
 	}
-	def use(a:Int) {}
+	def use(a:Long) {}
 
-	var x:Int{self!=0};
-	var x2:Int{self!=0};
+	var x:Long{self!=0};
+	var x2:Long{self!=0};
 	def this() { // ERR: Field 'x' was not definitely assigned in this constructor.
 		finish {
 			async x2=1;
@@ -427,10 +427,10 @@ class TestUncountedAsync1 {
 }
 
 
-class SquareMatrixTest123(rows:Int, cols:Int, matDist:Dist, mat:DistArray[Int]){
-	var z:Int = 2;
-	val q:Int;
-	def this(r:Int, c:Int{self == r}) 	{
+class SquareMatrixTest123(rows:Long, cols:Long, matDist:Dist, mat:DistArray[Long]){
+	var z:Long = 2;
+	val q:Long;
+	def this(r:Long, c:Long{self == r}) 	{
 		val mShape:Region(2) = null;
 		val mDist = Dist.makeBlock(mShape);
 		z++; // ERR: Can use 'this' only after 'property(...)'
@@ -438,16 +438,16 @@ class SquareMatrixTest123(rows:Int, cols:Int, matDist:Dist, mat:DistArray[Int]){
 			z++; // ERR
 		val closure2 = () => 
 			q; // ERR
-		property(r, c, mDist, DistArray.make[Int](mDist, 
+		property(r, c, mDist, DistArray.make[Long](mDist, 
 			initMat // ERR: Can use 'this' only after 'property(...)'
 		));
 		q=3;
 	}
-	val initMat : (Point(2)) => int = ([x,y]:Point(2)) => x+y;
+	val initMat : (Point(2)) => long = ([x,y]:Point(2)) => x+y;
 } 
 
-class TwoErrorsInOneLineTest(o:Int) {
-	var k:Int;
+class TwoErrorsInOneLineTest(o:Long) {
+	var k:Long;
 	def this() {
 		k=  // ERR
 			o; // ERR
@@ -456,15 +456,15 @@ class TwoErrorsInOneLineTest(o:Int) {
 }
 
 class SomeSuper87 {
-	def this(i:Int) {}
+	def this(i:Long) {}
 }   
-class TestSuperThisAndPropertyCalls(p:Int) extends SomeSuper87 {
-	var i:Int;
+class TestSuperThisAndPropertyCalls(p:Long) extends SomeSuper87 {
+	var i:Long;
 	def this() {
 		super(i); // ERR: Can use 'this' only after 'property(...)'
 		property(i); // ERR: Can use 'this' only after 'property(...)'
 	}
-	def this(i:Int) {
+	def this(i:Long) {
 		super(i);
 		property(i);
 	}
@@ -491,17 +491,17 @@ interface BarI34 {
 	static x = 3;
 	val y = Math.sqrt(2.0);
 }
-class TestPropAndConstants(p:Int) implements BarI34 {
-	val q:Int = 3 as Int; // this will be moved (it might access properties)
-	val q3:Int = p+4;
-	val q2:Int = 42; // this is constant, so it won't be moved to the __fieldInitializers()
-	var x:Int;
+class TestPropAndConstants(p:Long) implements BarI34 {
+	val q:Long = 3 as Long; // this will be moved (it might access properties)
+	val q3:Long = p+4;
+	val q2:Long = 42; // this is constant, so it won't be moved to the __fieldInitializers()
+	var x:Long;
 	def this() {
 		val w=4;
 		property(45);
 		x=2;
 	}
-	def this(i:Int) {
+	def this(i:Long) {
 		this();
 		x=4;
 	}
@@ -519,18 +519,18 @@ class TestPropAndConstants(p:Int) implements BarI34 {
 
 class PropertySuperTests {
 static class WithouProperties {}
-static class WithProperties(x:Int) {
+static class WithProperties(x:Long) {
 	def this() {
 		property(1);
 	}
-	def this(i:Int) {
+	def this(i:Long) {
 		property(i);
 	}
 }
-static class SubWithProperties(y:Int) extends WithProperties {
+static class SubWithProperties(y:Long) extends WithProperties {
 	static S=1;
 	val k=3;
-	var z:Int = 4;
+	var z:Long = 4;
 	def this() {
 		super(1);
 		property(2);
@@ -538,7 +538,7 @@ static class SubWithProperties(y:Int) extends WithProperties {
 	def this(i:Boolean) {
 		this();
 	}
-	def this(i:Int) { 
+	def this(i:Long) { 
 		this();
 		property(1); // ERR: You cannot call 'property(...)' after 'this(...)'
 	}
@@ -582,13 +582,13 @@ static class SubWithoutProperties extends WithProperties {
 
 
 
-class TestPropertyCalls(p:Int, p2:Int) {
+class TestPropertyCalls(p:Long, p2:Long) {
 	def this() {} // ERR: property(...) might not have been called
 	def this(Char) {
 		property(1); // ERR: The property initializer must have the same number of arguments as properties for the class.
 	}
-	def this(i:Int) {
-		val x:Int;
+	def this(i:Long) {
+		val x:Long;
 		if (i==1)
 			x=2;
 		else
@@ -631,11 +631,11 @@ class ClosureExample {
   val closure4 = () =>i; // ERR
 }
 class ClosureIsNotAWrite {
-	var i:Int{self != 0}; // ERR: Semantic Error: Field 'i' was not definitely assigned.
+	var i:Long{self != 0}; // ERR: Semantic Error: Field 'i' was not definitely assigned.
 	val closure = () =>  { i=2; } ; // ERR
 }
 
-class TestPropertiesAndFields(i:Int, j:Int) {
+class TestPropertiesAndFields(i:Long, j:Long) {
 	def this() {
 		val x = 3;
 		property(x,x);
@@ -644,8 +644,8 @@ class TestPropertiesAndFields(i:Int, j:Int) {
 		j2 = j;
 	}		
 	
-	val i2 :Int{self==i} = i;
-	val j2 :Int{self==j};
+	val i2 :Long{self==i} = i;
+	val j2 :Long{self==j};
 }
 class CheckCtorContextIsNotStatic[T](p:Array[T]) {
     public def this(o:Any) {
@@ -654,16 +654,16 @@ class CheckCtorContextIsNotStatic[T](p:Array[T]) {
 } 
 
 
-class TransientTest(p:Int) { // The transient field '...' must have a type with a default value.
-	transient val x1 = 2; // ERR (because the type is infered to be Int{self==2}
-	transient val x2:Int = 2;
-	transient var y:Int;
-	transient var y2:Int{self==3} = 3; // ERR
-	transient var y3:Int{self!=0}; // ERR
-	transient var y4:Int{self==0}; 
-	transient var y5:Int{self!=3}; 
-	transient var y6:Int{self==p}; // ERR
-	def this(k:Int) {
+class TransientTest(p:Long) { // The transient field '...' must have a type with a default value.
+	transient val x1 = 2; // ERR (because the type is infered to be Long{self==2}
+	transient val x2:Long = 2;
+	transient var y:Long;
+	transient var y2:Long{self==3} = 3; // ERR
+	transient var y3:Long{self!=0}; // ERR
+	transient var y4:Long{self==0}; 
+	transient var y5:Long{self!=3}; 
+	transient var y6:Long{self==p}; // ERR
+	def this(k:Long) {
 		property(k);
 		y3 = 4;
 		y6 = p;
@@ -671,20 +671,20 @@ class TransientTest(p:Int) { // The transient field '...' must have a type with 
 }
 		
 class XTENLANG_1643 {
-  var i:Int{self!=0};
-  def this(j:Int{self!=0}) { i = j; }
+  var i:Long{self!=0};
+  def this(j:Long{self!=0}) { i = j; }
 }
 
 
 final class ClosureTest57 {
 	val z = 1;
 	val c1 = () => z+1; // ERR
-	var x:Int{self!=0} = 1;
+	var x:Long{self!=0} = 1;
 	val c2 = () => { 
 		x=3; // ERR
 		return x+1; // ERR
 	};
-	var y:Int{self!=0}; // ERR: Field 'y' was not definitely assigned.
+	var y:Long{self!=0}; // ERR: Field 'y' was not definitely assigned.
 	val c3 = () => { 
 		y=3; // ERR
 		return y+1; // ERR
@@ -713,29 +713,29 @@ final class ClosureTest57 {
 }
 final class ClosureTest58 {
   def f() = x*3;
-  val bar: ()=>Int = ()=>this.f(); // ERR: The method call reads from field 'x' before it is definitely assigned.
+  val bar: ()=>Long = ()=>this.f(); // ERR: The method call reads from field 'x' before it is definitely assigned.
   val z = bar();
   val x=2;
 
-  var w:Int{self!=0}; // ERR: Field 'w' was not definitely assigned.
+  var w:Long{self!=0}; // ERR: Field 'w' was not definitely assigned.
   def setW() = w=2;
   val q = ()=>this.setW(); // ERR
   
-  var w2:Int{self!=0}; 
+  var w2:Long{self!=0}; 
   def setW2() = w2=2;
   val q2 = this.setW2(); // ok
 }
 
 class MultipleCtorsAndFieldInits {
 	
-	var b:Int{self!=0};
-	var i:Int{self!=0};
-	var z:Int{self!=0} = (3*b*(b=1)) as Int{self!=0}; // ERR: Cannot read from field 'b' before it is definitely assigned.
+	var b:Long{self!=0};
+	var i:Long{self!=0};
+	var z:Long{self!=0} = (3*b*(b=1)) as Long{self!=0}; // ERR: Cannot read from field 'b' before it is definitely assigned.
 	var j:Boolean{self!=false}; 
 	var k:Any{self!=null}; 
 
 	
-	def this(a:Int) {
+	def this(a:Long) {
 		this();
 	}
 	def this(a:Boolean) { // ERR: Field 'k' was not definitely assigned in this conprivate structor.
@@ -763,14 +763,14 @@ class MultipleCtorsAndFieldInits {
 class UsingSuperFields {
 	static class Super {
 		val s1=1;
-		val s2:Int;
+		val s2:Long;
 		def this() {
 			s2 = 2;
 		}
 	}
 	static class Sub extends Super {
 		val a = s1+s2;
-		val b:Int;
+		val b:Long;
 		def this() {
 			super();
 			b = s1*s2;
@@ -782,33 +782,33 @@ class UsingSuperFields {
 
 class DynamicDispatchingInCtorTest {
 	abstract class Super {
-		val x:Int;
-		val size:Int;
+		val x:Long;
+		val size:Long;
 		def this() {
 			this.x = 42;
 			size = calcSize(x);
 		}
-		@NoThisAccess abstract def calcSize(x:Int):Int;
-		@NonEscaping def useError(i:Int):void {} // ERR: A @NonEscaping method must be private or final.	
-		@NonEscaping final def use(i:Int):void {} 
-		@NonEscaping private def useOk2(i:Int):void {} 
+		@NoThisAccess abstract def calcSize(x:Long):Long;
+		@NonEscaping def useError(i:Long):void {} // ERR: A @NonEscaping method must be private or final.	
+		@NonEscaping final def use(i:Long):void {} 
+		@NonEscaping private def useOk2(i:Long):void {} 
 	}
 	class Sub1 extends Super {
-		@NoThisAccess def calcSize(x:Int):Int { return x*2; }
+		@NoThisAccess def calcSize(x:Long):Long { return x*2; }
 	}
 	class Sub2 extends Super {
-		def calcSize(x:Int):Int { // ERR: You must annotate x10.lang.Int calcSize(...) with @NoThisAccess because it overrides a method annotated with that. 
+		def calcSize(x:Long):Long { // ERR: You must annotate x10.lang.Long calcSize(...) with @NoThisAccess because it overrides a method annotated with that. 
 			return x*4; 
 		}
 	}
-	class Sub3(p:Int) extends Super {
+	class Sub3(p:Long) extends Super {
 		val w = 3;
-		var k:Int{self==p};
+		var k:Long{self==p};
 		def this() {
 			property(4);
 			k = p;
 		}
-		@NoThisAccess def calcSize(x:Int):Int { 
+		@NoThisAccess def calcSize(x:Long):Long { 
 			use( // ERR: You cannot use 'this' or 'super' in a method annotated with @NoThisAccess
 				w); // ERR: You cannot use 'this' or 'super' in a method annotated with @NoThisAccess
 			return x+2; 
@@ -817,7 +817,7 @@ class DynamicDispatchingInCtorTest {
 }
 
 class TestAsync {	
-	var i:Int{self!=0};
+	var i:Long{self!=0};
 	def this() {
 		finish {
 			async {
@@ -829,17 +829,17 @@ class TestAsync {
 		val r3 = i;
 	}
 	
-	static def use(a:Int) {}
+	static def use(a:Long) {}
 	
 	public static def main(Rail[String]) {
-	     var i:Int;
-	     var j:Int;
-	     var k:Int;
-	     var x:Int;
-	     var y:Int;
-         val m:Int;
-         val n:Int;
-         val q:Int;
+	     var i:Long;
+	     var j:Long;
+	     var k:Long;
+	     var x:Long;
+	     var y:Long;
+         val m:Long;
+         val n:Long;
+         val q:Long;
 
          x=1;
 		 finish async { use(x); x=4; use(x); }
@@ -891,17 +891,17 @@ class TestAsync {
          // all (except q) are definitely-assigned now. 
 
 	}
-	static def use2(loc:Int,expected:Int,a:Int) { if (expected!=a) throw new Exception("ERROR! loc="+loc+" expected="+expected+" a="+a); }
+	static def use2(loc:Long,expected:Long,a:Long) { if (expected!=a) throw new Exception("ERROR! loc="+loc+" expected="+expected+" a="+a); }
 	
 	public static def main2(Rail[String]) {
-	     var i:Int;
-	     var j:Int;
-	     var k:Int;
-	     var x:Int;
-	     var y:Int;
-         val m:Int;
-         val n:Int;
-         val q:Int;
+	     var i:Long;
+	     var j:Long;
+	     var k:Long;
+	     var x:Long;
+	     var y:Long;
+         val m:Long;
+         val n:Long;
+         val q:Long;
 
          x=1;
 		 finish async { use2(101,1,x); x=4; use2(102,4,x); }
@@ -949,8 +949,8 @@ class TestAsync {
 }
 
 
-class PropertyTest(p:Int) {
-    public property p():Int = p;
+class PropertyTest(p:Long) {
+    public property p():Long = p;
 	static val i = 3;
 	def this() {
 		property(1);
@@ -980,13 +980,13 @@ class TestNonEscapingWarning {
 abstract class SuperClassTest {
 	val a=1;
 	val b=2;
-	val c:Int;
-	val d:Int;
-	var x:Int{self!=0}; 
-	var y:Int{self!=0};
-	var z:Int{self!=0};
+	val c:Long;
+	val d:Long;
+	var x:Long{self!=0}; 
+	var y:Long{self!=0};
+	var z:Long{self!=0};
 
-	def this(i:Int) { this(); x = y; }
+	def this(i:Long) { this(); x = y; }
 	def this() { 
 		super();
 		q();
@@ -1011,19 +1011,19 @@ abstract class SuperClassTest {
 		y = 42;
 	}
 
-	def g():Int = 1;
-	abstract @NonEscaping def q():Int; // ERR: A @NonEscaping method must be private or final.
-	@NonEscaping final def ba():Int = a+b;
-	@NonEscaping private def f0():Int = a+b+c;
-	@NonEscaping protected def f1():Int = a+c; // ERR: A @NonEscaping method must be private or final.
-	@NonEscaping final native def e1():Int; 
-	@NonEscaping native def e2():Int; // ERR: A @NonEscaping method must be private or final.
+	def g():Long = 1;
+	abstract @NonEscaping def q():Long; // ERR: A @NonEscaping method must be private or final.
+	@NonEscaping final def ba():Long = a+b;
+	@NonEscaping private def f0():Long = a+b+c;
+	@NonEscaping protected def f1():Long = a+c; // ERR: A @NonEscaping method must be private or final.
+	@NonEscaping final native def e1():Long; 
+	@NonEscaping native def e2():Long; // ERR: A @NonEscaping method must be private or final.
 }
 
 class Sub1Test extends SuperClassTest {
 	val w = 1;
-	var q:Int{self!=0} = 1;
-	def this(i:Int) { this(); x = y; }
+	var q:Long{self!=0} = 1;
+	def this(i:Long) { this(); x = y; }
 	def this() {
 		super();
 		readD(); 
@@ -1035,8 +1035,8 @@ class Sub1Test extends SuperClassTest {
 	final def readD() { // ERR: (warning) 
 		val q = d;
 	}
-	@NonEscaping private def f2():Int = 1;
-	def q():Int = 2;
+	@NonEscaping private def f2():Long = 1;
+	def q():Long = 2;
 }
 
 
@@ -1072,7 +1072,7 @@ class TestNonEscaping {
 
 
 interface BlaInterface {
-	def bla():Int{self!=0};
+	def bla():Long{self!=0};
 }
 class TestAnonymousClass {
 	static val anonymous1 = new Any() {};
@@ -1086,7 +1086,7 @@ class TestAnonymousClass {
 	}
 
 	val anonymous = new BlaInterface() { // ERR: 'this' cannot escape via an anonymous class during construction
-		public def bla():Int{self!=0} {
+		public def bla():Long{self!=0} {
 			return k;
 		}
 	};
@@ -1094,15 +1094,15 @@ class TestAnonymousClass {
 	
 	val qqqq = at (here.next()) this; // ERR: Semantic Error: 'this' and 'super' cannot escape from a constructor or from methods called from a constructor
 
-	val w:Int{self!=0} = anonymous.bla();
-	val k:Int{self!=0};
+	val w:Long{self!=0} = anonymous.bla();
+	val k:Long{self!=0};
 	def this() {
 		assert w!=0;
 		k = 3;
 	}
 
 	class Inner implements BlaInterface {
-		public def bla():Int{self!=0} {
+		public def bla():Long{self!=0} {
 			return k;
 		}
 	}
@@ -1110,8 +1110,8 @@ class TestAnonymousClass {
 
 
 class C57 {
- var m: Int{self!=0};
- var n: Int{self!=0};
+ var m: Long{self!=0};
+ var n: Long{self!=0};
  @NonEscaping private final def ctorLike() {
   n = m; 
  }
@@ -1197,11 +1197,11 @@ class TestGlobalRefRestriction {
 
 class TestFieldInitializer {
 	var flag:Boolean = true;
-	var z:Int = flag ? 3 : z+1; // ERR: Cannot read from field 'z' before it is definitely assigned.
+	var z:Long = flag ? 3 : z+1; // ERR: Cannot read from field 'z' before it is definitely assigned.
 	val j = flag ? 3 : foo(); // ERR: reads from j before it is assigned.
 	val k = foo();	
-	var i:Int{self!=0};
-	@NonEscaping final def foo():Int {
+	var i:Long{self!=0};
+	@NonEscaping final def foo():Long {
 		val z = j;
 		i = 1;
 		return 2;
@@ -1209,7 +1209,7 @@ class TestFieldInitializer {
 }
 
 class Test2 {
-    val layout:Int{self!=0};
+    val layout:Long{self!=0};
 	def this() {
 		bla(); // ERR: bla() reads from layout before it is written to!
 		layout = 1;
@@ -1230,7 +1230,7 @@ class Person {
 }
 class Example1 {
   var flag:Boolean;
-  var i1:Int{self!=0};
+  var i1:Long{self!=0};
   def this() {
     setI(); 
     // i1 is definitely-assigned now
@@ -1245,8 +1245,8 @@ class Example1 {
 }
 class Example2 {
   var flag:Boolean;
-  var i1:Int{self!=0};
-  var i2:Int{self!=0};
+  var i1:Long{self!=0};
+  var i2:Long{self!=0};
   def this() {
     finish m2();
   }
@@ -1275,14 +1275,14 @@ class Example2 {
 }
 class Example3 {
   var flag:Boolean;
-  var i1:Int{self!=0};
-  var i2:Int{self!=0};
-  var i3:Int{self!=0};
+  var i1:Long{self!=0};
+  var i2:Long{self!=0};
+  var i3:Long{self!=0};
 
   def this() {
     m1();
   }
-  def this(i:Int) {
+  def this(i:Long) {
     m2();
   }
   //Read=[] SeqWrite=[i1,i2,i3] Write=[i1,i2,i3]
@@ -1308,29 +1308,29 @@ class Example3 {
 
 
 class LegalExample {
-  val f1:Int = 4*2; 
-  val f2:Int; // must be initialized in every ctor
-  var v1:Int; // has a default value, does not have to be assigned
-  var v2:Int{self!=0};  // must be assigned because there is no default value
+  val f1:Long = 4*2; 
+  val f2:Long; // must be initialized in every ctor
+  var v1:Long; // has a default value, does not have to be assigned
+  var v2:Long{self!=0};  // must be assigned because there is no default value
   def this() {
     this(4);
   }
-  def this(i:Int{self!=0}) {
+  def this(i:Long{self!=0}) {
     super();
     f2 = m1();
     setV2(i);
   }
-  @NonEscaping private def m1():Int = v1++;
-  @NonEscaping public final def setV2(i:Int{self!=0}) { v2 = i; }
+  @NonEscaping private def m1():Long = v1++;
+  @NonEscaping public final def setV2(i:Long{self!=0}) { v2 = i; }
 }
 class IllegalExample {
-  var f2:Int{self!=0}; 
-  var v2:Int{self!=0};  
+  var f2:Long{self!=0}; 
+  var v2:Long{self!=0};  
   def this() { // ERR field is not initialized in this()
     f2 = 3;
     if (3==4) setV2();
   }
-  def this(i:Int) { // ERR field is not initialized in this(Int)
+  def this(i:Long) { // ERR field is not initialized in this(Long)
     setV2();
   }
   @NonEscaping final def setV2() { v2 = 3; }
@@ -1355,47 +1355,47 @@ class SuperCallTest extends SuperTest22 {
 
 class TestOverLoadingWithLiterals {
 	static def f(Byte)=1;
-	static def f(Int)=2;
+	static def f(Long)=2;
 	public static def main(Rail[String]) {
-		val i1:Int{self==1} = f(1y);
-		val i2:Int{self==2} = f(1);
+		val i1:Long{self==1} = f(1y);
+		val i2:Long{self==2} = f(1);
 		if (i1!=1 || i2!=2) throw new Exception("Failed");
 	}
 }
 class TestFieldInitForwardRef {
-	val Y:Int = this.X;
-	static val X:Int = 2;
+	val Y:Long = this.X;
+	static val X:Long = 2;
 
 	class Inner {
-		var g:Int = this.f+2; // ERR
-		var h:Int = this.h*3; // ERR
-		var f:Int = q+2;
+		var g:Long = this.f+2; // ERR
+		var h:Long = this.h*3; // ERR
+		var f:Long = q+2;
 	}
 	static class StaticInner {
-		var f:Int;
-		var g:Int = this.f+2; 
-		var h:Int = this.h*3; // ERR
+		var f:Long;
+		var g:Long = this.f+2; 
+		var h:Long = this.h*3; // ERR
 	}
 
-	var z1:Int = foo(null); 
-	var z2:Int = this.foo(null); 
+	var z1:Long = foo(null); 
+	var z2:Long = this.foo(null); 
 	var z3:TestFieldInitForwardRef = this; // ERR
-	var z4:Int = z3.foo(this); // ERR
-	var z5:Int = z3.foo(null);
-	var w1:Int = z3.a;
-	var w2:Int = this.a; // ERR
+	var z4:Long = z3.foo(this); // ERR
+	var z5:Long = z3.foo(null);
+	var w1:Long = z3.a;
+	var w2:Long = this.a; // ERR
 	
-	var a:Int = q+2; // ERR
-	var b:Int = this.q+2; // ERR
-	var c:Int = a+b+this.q+2; // ERR
-	var w:Int = a*b+this.c;
-	var p:Int = a*b+this.c+q; // ERR
-	var q:Int = 1;
+	var a:Long = q+2; // ERR
+	var b:Long = this.q+2; // ERR
+	var c:Long = a+b+this.q+2; // ERR
+	var w:Long = a*b+this.c;
+	var p:Long = a*b+this.c+q; // ERR
+	var q:Long = 1;
 
 	var e:Inner = new Inner(); // ERR
 	var e2:StaticInner = new StaticInner();
 
-	@NonEscaping private def foo(arg:TestFieldInitForwardRef):Int = 3;
+	@NonEscaping private def foo(arg:TestFieldInitForwardRef):Long = 3;
 }
 
 
@@ -1404,12 +1404,12 @@ class TestFieldInitForwardRef {
 //	  * Primitive structs (Short,UShort,Byte,UByte, Int, Long, ULong, UInt, Float, Double, Boolean, Char)
 //    * user defined structs without a constraint and without a class invariant where all fields haszero.
 class SimpleUserDefinedStructTest {	
-	static struct S(x:Int, y:Int) {}
+	static struct S(x:Long, y:Long) {}
 	static struct S2 {
-		val x:Int = 1;
+		val x:Long = 1;
 	}
 	static struct S3 {x==1} { // ERR
-		val x:Int = 1;
+		val x:Long = 1;
 	}
 	static struct S4 {
 		val x = 1;
@@ -1419,10 +1419,10 @@ class SimpleUserDefinedStructTest {
 	  val t:T = Zero.get[T](); 
 	}
 	static struct S6 {
-		val s:Int{self==1} = 1;
+		val s:Long{self==1} = 1;
 	}
 	static struct S7 {
-		val s:Int{self==0} = 0;
+		val s:Long{self==0} = 0;
 	}
 
 	static class C {
@@ -1430,27 +1430,27 @@ class SimpleUserDefinedStructTest {
 	  var x:S2; 
 	  var y:S3; // ERR
 	  var z1:S4; // ERR
-	  var z2:S5[Int];
+	  var z2:S5[Long];
 	  var z3:S6; // ERR
 	  var z4:S7;
 
 	  var s6:S{self.y==0};  // ERR (any constrained user-defined struct, doesn't haszero. because of a bug in ConstrainedType_c.fields())
 	}
 	def main(Rail[String]) {
-		Console.OUT.println( Zero.get[S5[S5[Int]]]().t.t );
+		Console.OUT.println( Zero.get[S5[S5[Long]]]().t.t );
 	}
 }
 class ConstraintPropagationToFields {
-	static struct S(x:Int,y:Int) {
-		def this(a:Int,b:Int):S{self.x==a,self.y==b} {
+	static struct S(x:Long,y:Long) {
+		def this(a:Long,b:Long):S{self.x==a,self.y==b} {
 			property(a,b);
 		}
 	}
 	static class C {
 	  val s1:S{y!=0} = S(0,1); 
 	  val s2:S{y!=0} = S(1,0); // ERR: The type of the field initializer is not a subtype of the field type.
-	  val z1:Int{self!=0} = s1.y;
-	  @ERR val z2:Int{self==0} = s1.y;
+	  val z1:Long{self!=0} = s1.y;
+	  @ERR val z2:Long{self==0} = s1.y;
 	}
 }
 struct UserDefinedStruct {}
@@ -1461,9 +1461,9 @@ class TestFieldsWithoutDefaults[T] {
 	// includes: Short,UShort,Byte,UByte, Int, Long, ULong, UInt, Float, Double, Boolean, Char
 	// primitive private struct tests
 	var i1:Int;
-	var i2:Int{self==0};
-	var i3:Int{self!=1};
-	var i4:Int{self!=0}; // ERR
+	var i2:Int{self==0n};
+	var i3:Int{self!=1n};
+	var i4:Int{self!=0n}; // ERR
 
 	var y1:Byte;
 	var y2:Byte{self==0y};
@@ -1486,14 +1486,14 @@ class TestFieldsWithoutDefaults[T] {
 	var us4:UShort{self!=0Su}; // ERR
 
 	var l1:Long;
-	var l2:Long{self==0l};
-	var l3:Long{self!=0l}; // ERR
+	var l2:Long{self==0};
+	var l3:Long{self!=0}; // ERR
 	var ul1:ULong;
 	var ul2:ULong{self==0ul};
 	var ul3:ULong{self!=0lu}; // ERR
 	var ui1:UInt;
-	var ui2:UInt{self==0u};
-	var ui3:UInt{self!=0u}; // ERR
+	var ui2:UInt{self==0un};
+	var ui3:UInt{self!=0un}; // ERR
 	var ff1:Float;
 	var ff2:Float{self==0.0f};
 	var ff3:Float{self!=0.0f}; // ERR
@@ -1512,7 +1512,7 @@ class TestFieldsWithoutDefaults[T] {
 	var ch3:Char{self!='\0'}; // ERR
 
 	// references (with or without null)
-	var r0:Array[Int{self!=0}];
+	var r0:Array[Int{self!=0n}];
 	var r1:Array[T];
 	var r2:Any;
 	var r3:Array[T]{self!=null}; // ERR
@@ -1538,15 +1538,15 @@ class TestFieldsWithoutDefaults[T] {
 
 class EscapingCtorTest(p:String) {
 	var tt:EscapingCtorTest;
-	val w:Int;
-	val v1:Int = 1;
-	var x1:Int;
+	val w:Long;
+	val v1:Long = 1;
+	var x1:Long;
 	static def foo(t:EscapingCtorTest)=2;	
 	static def bar(t:Inner)=2;	
 	def this() {
 		this(null);
 	}
-	def this(i:Int) {
+	def this(i:Long) {
 		this(i,null);
 	}
 	def this(a:EscapingCtorTest) {
@@ -1563,7 +1563,7 @@ class EscapingCtorTest(p:String) {
 		q.z(q);
 		val inner = q.new Inner();
 	}
-	def this(i:Int,a:EscapingCtorTest) {
+	def this(i:Long,a:EscapingCtorTest) {
 		property(null);
 		val q:EscapingCtorTest = null;
 		w = 4;
@@ -1605,9 +1605,9 @@ class EscapingCtorTest(p:String) {
 
 	// inner class - this of the inner class cannot escape, but the outer can escape (because you access it's fields via methods, e.g., Outer.this.getHeader())
 	class Inner {
-		val f:Int;
-		val v2:Int = 4;
-		var x2:Int;
+		val f:Long;
+		val v2:Long = 4;
+		var x2:Long;
 		def this() {
 			f = 3;
 			x2 = v2;
@@ -1631,14 +1631,14 @@ class EscapingCtorTest(p:String) {
 
 
 class Example4 {
-  var i1:Int{self!=0};
-  var i2:Int{self!=0};
-  var i3:Int{self!=0};
+  var i1:Long{self!=0};
+  var i2:Long{self!=0};
+  var i3:Long{self!=0};
 
   def this() {
     m1(); 
   }
-  def this(i:Int) {
+  def this(i:Long) {
     m2(); 
   }
   @NonEscaping final def m1() {
@@ -1662,7 +1662,7 @@ class Example4 {
 
 struct Bla2Struct {
 	val x = 4;
-	def equals(i:Int)=false;
+	def equals(i:Long)=false;
 }
 
 struct Outer[U] {
@@ -1676,12 +1676,12 @@ struct Outer[U] {
 }
 	
 interface InterfaceForStruct {}
-struct BlaStruct(p:Int) implements InterfaceForStruct {
-	val i:Int = 4;
+struct BlaStruct(p:Long) implements InterfaceForStruct {
+	val i:Long = 4;
 	val jj:String =  new String("as");
-	val j:UInt = 4;
+	val j:ULong = 4u;
 	val h:Empty = new Empty();
-	def this(p:Int) {		property(p);	}
+	def this(p:Long) {		property(p);	}
 }
 struct Test3[U,B] {
 	val u:U;
@@ -1693,17 +1693,17 @@ struct Test3[U,B] {
 }
 
 class TestSwitchOnFinalVal {
-    val i=2+1;
+    val i=2n+1n;
 	def this() {
-		switch(3+0) {
+		switch(3n+0n) {
             case i:
-            case 4:
+            case 4n:
         }
     }   
 	def testSwitchOnLocal(y:int) {
         switch(y) {
-            case 1: val x = 4;
-            case 4: Console.OUT.println(x); // ShouldBeErr (see XTENLANG-2267)
+            case 1n: val x = 4;
+            case 4n: Console.OUT.println(x); // ShouldBeErr (see XTENLANG-2267)
         }
     }
 }
@@ -1712,7 +1712,7 @@ class TestSwitchOnFinalVal {
 
 
 class XTENLANG_1196 {
-	def test1(P:Array[Int]) {
+	def test1(P:Array[Long]) {
 		for (p in P) 
 			async break; // ERR
 	}
@@ -1727,7 +1727,7 @@ class TestBreaksInAsyncAt {
 	class Shyk_Flup  { // XTENLANG-823
 	  public def test() {
 		 
-		 lesp_frobi: for (var i : Int = 0; i < 10; i++) {
+		 lesp_frobi: for (var i : Long = 0; i < 10; i++) {
 			 if (i<3) break lesp_frobi;
 		   finish async{
 			 break lesp_frobi; // ERR: Cannot break in an async
@@ -1805,11 +1805,11 @@ class Possel811 { //XTENLANG-811
 
 class LocalVarInAsyncTests {
 	def simple() {
-		var i:Int = 2;
+		var i:Long = 2;
 		finish async i++;
 	}
 	def atAndAsync() {
-		var i:Int = 2;
+		var i:Long = 2;
 		val p = here;
 		finish at (here.next()) async {
 		  finish async at (p) 
@@ -1817,13 +1817,13 @@ class LocalVarInAsyncTests {
 		}
 	}
 	def test1() {		
-		var i:Int = 2;
+		var i:Long = 2;
 		finish async {
 		  finish async i++; // ok
 		}
 	}
 	def test2() {
-		var i:Int = 2;
+		var i:Long = 2;
 		finish {
 			val x= ()=> { async 
 				i++; // ERR: cannot capture local var in a closure
@@ -1832,13 +1832,13 @@ class LocalVarInAsyncTests {
 	}
 	var flag:Boolean;
 	def test3() {
-		var i:Int = 2;
+		var i:Long = 2;
 		if (flag) {
 		  finish async i++; // ok
 		}
 	}
 	def test4() {
-		var i:Int = 2;
+		var i:Long = 2;
 		async 
 			i++;  // ERR: Local var 'i' cannot be captured in an async if there is no enclosing finish in the same scoping-level as 'i'; consider changing 'i' from var to val.
 		async async
@@ -1851,13 +1851,13 @@ class LocalVarInAsyncTests {
 	}
 }
 class AccessOfVarIllegalFromClosure { // XTENLANG-1888
-	val x:Int = 1;
-	var y:Int = 1;
+	val x:Long = 1;
+	var y:Long = 1;
 
     public def run() {
         
-        val a:Int = 1;
-        var b:Int = 1;
+        val a:Long = 1;
+        var b:Long = 1;
 
         val closure = 
 			() => 
@@ -1869,7 +1869,7 @@ class AccessOfVarIllegalFromClosure { // XTENLANG-1888
 
 	static def use(i:Any) {}
 	def test2() {
-		var q:Int = 1;
+		var q:Long = 1;
 		finish async q=2;
 		use(() => {
 			use(q); // ERR: Local variable "q" is accessed from an inner class or a closure, and must be declared final.
@@ -1881,27 +1881,27 @@ class AccessOfVarIllegalFromClosure { // XTENLANG-1888
 			use(q); // ERR: Local variable "q" is accessed from an inner class or a closure, and must be declared final.
 		});
 		
-		use(() => { var q:Int = 1;
+		use(() => { var q:Long = 1;
 			use(q);
 		});
-		use(() => { var q:Int = 1; async
+		use(() => { var q:Long = 1; async
 			use(q); // ERR
 		});
-		use(() => { var q:Int = 1; finish async { async
+		use(() => { var q:Long = 1; finish async { async
 			use(q);
 		}});
-		use(() => { finish async { var q:Int = 1; async
+		use(() => { finish async { var q:Long = 1; async
 			use(q); // ERR
 		}});
-		use(() => { finish { var q:Int = 1; async { async
+		use(() => { finish { var q:Long = 1; async { async
 			use(q); // ERR
 		}}});
-		use(() => { finish { async { async {var q:Int = 1; 
+		use(() => { finish { async { async {var q:Long = 1; 
 			use(q);
 		}}}});
 		use(() => { finish { async { async {
 			use(q); // ERR: Local variable "q" is accessed from an inner class or a closure, and must be declared final.
-			var q:Int = 1; 
+			var q:Long = 1; 
 		}}}});
 		val w = q;
 	}
@@ -1909,7 +1909,7 @@ class AccessOfVarIllegalFromClosure { // XTENLANG-1888
 
 class TestCaptureVarInClosureAsyncInnerAnon {
 	def test() {
-		var x:Int = 2;
+		var x:Long = 2;
 		class Inner {
 			val y = 
 				x+2; // ERR: Local variable "x" is accessed from an inner class or a closure, and must be declared final.
@@ -1928,20 +1928,20 @@ class TestCaptureVarInClosureAsyncInnerAnon {
 	}
 }
 class TestVarAccessInClosures {
-   val a1:int = 1;
-   var a2:int = 1;
+   val a1:long = 1;
+   var a2:long = 1;
     public def run() {
         
-        val b1:int = 1;
-        var b2:int = 1;
+        val b1:long = 1;
+        var b2:long = 1;
 
         class C {
-            val c1:int = 1;
-            var c2:int = 1;
+            val c1:long = 1;
+            var c2:long = 1;
             def foo() = {
                 val fun = () => {
-                    val d1:int = 1;
-                    var d2:int = 1;
+                    val d1:long = 1;
+                    var d2:long = 1;
                     (() => a1+b1+c1+d1+
 						a2+
 						b2+ // ERR: Local variable "b2" is accessed from an inner class or a closure, and must be declared final.
@@ -1958,7 +1958,7 @@ class TestVarAccessInClosures {
 
 class TestOnlyLocalVarAccess {
 	// for some reason, the origin of "frame" is null. I can reproduce it using type inference: see XTENLANG-1902
-	var i:Int;
+	var i:Long;
 	static def testInferReturnType()=test0(null);
 	static def test0(var b:TestOnlyLocalVarAccess) { // we type-checking test0 twice: once to infer its return type (then "b"'s placeTerm is null), then a second time to really type-check it (then the placeTerm is fine)
 		return b.i++;
@@ -1966,7 +1966,7 @@ class TestOnlyLocalVarAccess {
 
 	static def use(x:Any) {}
 	static def testUse() {
-		var x:Int = 0;
+		var x:Long = 0;
 		at (here) use(x);
 		use(x);
 		at (here.next()) 
@@ -1989,7 +1989,7 @@ class TestOnlyLocalVarAccess {
 		use(x);
 	}
 	static def test0() {
-		var x:Int = 0;
+		var x:Long = 0;
 		at (here) x=20; // ERR: Local variable "x" is accessed at a different place, and must be declared final.
 		x=10;
 		at (here.next()) 
@@ -2008,7 +2008,7 @@ class TestOnlyLocalVarAccess {
 		Console.OUT.println(x);
 	}
 	def test1() {
-		var x:Int = 0;
+		var x:Long = 0;
 		at (here) x=20; // ERR: Local variable "x" is accessed at a different place, and must be declared final.
 		x=10;
 		at (here.next()) 
@@ -2026,7 +2026,7 @@ class TestOnlyLocalVarAccess {
 		}
 		Console.OUT.println(x);
 	}
-	def test2(var x:Int) {
+	def test2(var x:Long) {
 		at (here) x=20; // ERR: Local variable "x" is accessed at a different place, and must be declared final.
 		x=10;
 		at (here.next()) 
@@ -2046,17 +2046,17 @@ class TestOnlyLocalVarAccess {
 	}
 
 	def test3(a: DistArray[double](1)) {		
-        var n: int = 1;
+        var n: long = 1;
 		at (here) n=2; // ERR: Local variable "x" is accessed at a different place, and must be declared final.
 		finish ateach ([i] in a.dist | 
-			(0..n)) { // checks XTENLANG-1902
+			Region.make(0..n)) { // checks XTENLANG-1902
 			n++; // ERR: Local variable "n" is accessed at a different place, and must be declared final.
 		}
 	}
 }
 class TestValInitUsingAt { // see XTENLANG-1942
     static def test2() {
-        var x_tmp:Int = 0; // we have to initialize it (otherwise, the dataflow
+        var x_tmp:Long = 0; // we have to initialize it (otherwise, the dataflow
         val p = here;
         at (p.next())
           at (p)
@@ -2064,23 +2064,23 @@ class TestValInitUsingAt { // see XTENLANG-1942
         val x = x_tmp; // if we hadn't initialized x_tmp, then the dataflow would complain that "x_tmp" may not have been initialized
     }
 	static def testVal() {
-		val x:Int;
+		val x:Long;
 		at (here.next()) 
 			x = 2; // ERR
 	}
 	static def testVar() {
-		var x:Int;
+		var x:Long;
 		at (here.next()) 
 			x = 2; // ERR
 	}
 	static def testVarAtScope() {
 		at (here.next()) {
-			var y:Int;
+			var y:Long;
 			y = 2;
 		}
 	}
 	static def testOkVal() {
-		val x:Int;
+		val x:Long;
 		val p = here;
 		at (p.next()) {
 			at (p)
@@ -2092,7 +2092,7 @@ class TestValInitUsingAt { // see XTENLANG-1942
 		val y = x;
 	}
 	static def testOkVar() {
-		var x:Int;
+		var x:Long;
 		val p = here;
 		at (p.next()) {
 			at (p)
@@ -2184,8 +2184,8 @@ class A564[T,U] {
     def foo(x:T,y:U, z:String):void {}
 }
 class B564 extends A564[String,String] { // ERR
-    def foo(x:String,y:String, z:String):Int { return 1; } // ERR: foo(x: x10.lang.String, y: x10.lang.String, z: x10.lang.String): x10.lang.Int in B cannot override foo(x: x10.lang.String, y: x10.lang.String, z: x10.lang.String): void in A[x10.lang.String, x10.lang.String]; attempting to use incompatible return type.
-	// B.foo(String,String,String) cannot override A.foo(T,U,String); attempting to use incompatible return type.  found: int required: void
+    def foo(x:String,y:String, z:String):Long { return 1; } // ERR: foo(x: x10.lang.String, y: x10.lang.String, z: x10.lang.String): x10.lang.Long in B cannot override foo(x: x10.lang.String, y: x10.lang.String, z: x10.lang.String): void in A[x10.lang.String, x10.lang.String]; attempting to use incompatible return type.
+	// B.foo(String,String,String) cannot override A.foo(T,U,String); attempting to use incompatible return type.  found: long required: void
 }
 
 
@@ -2198,13 +2198,13 @@ class ReturnStatementTest {
 	  }
 	}
 	
-	static def ok(b:Boolean):Int {
+	static def ok(b:Boolean):Long {
 		finish {
 			async { val y=1; }
 			return 3;
 		}
 	}
-	static def ok2(b:Boolean):Int {
+	static def ok2(b:Boolean):Long {
 		if (b) 
 			return 1;
 		else {
@@ -2217,23 +2217,23 @@ class ReturnStatementTest {
 		at (here.next())
 			return 2; // ShouldNotBeERR ERR todo: we get 2 errors: Cannot return value from void method or closure.		Cannot return a value from method public static x10.lang.Runtime.$dummyAsync(): void		
 	}
-	static def err1(b:Boolean):Int {
+	static def err1(b:Boolean):Long {
 		if (b) return 1;
 		async 
 			return 2; // ERR: Cannot return from an async.
 		return 3;
 	}
-	static def err2(b:Boolean):Int {
+	static def err2(b:Boolean):Long {
 		async at (here) 
 			return 1; // ERR: Cannot return from an async.
 		return 2;
 	}
-	static def err3(b:Boolean):Int {
+	static def err3(b:Boolean):Long {
 		at (here) async
 			return 1; // ERR: Cannot return from an async.
 		return 2;
 	}
-	static def err4(b:Boolean):Int {
+	static def err4(b:Boolean):Long {
 		finish async 
 			return 1; // ERR: Cannot return from an async.
 		return 2;
@@ -2246,27 +2246,27 @@ class ReturnStatementTest {
 class TestMethodResolution { // see XTENLANG-1915
   def m(Int)="";
   def m(Long)=true;
-  def m(Any)=3;
-  def rtype(c:Boolean) { if (c) return 1; else return 2l; }
+  def m(Any)=3n;
+  def rtype(c:Boolean) { if (c) return 1n; else return 2l; }
   def genm[T](a:T, b:T):T = a;
   def test(flag:Boolean) {
-    val arr = [1,2l]; // infers Array[Any]
-    val x = flag ? 1 : 2l; // infers Any
+    val arr = [1n,2l]; // infers Array[Any]
+    val x = flag ? 1n : 2l; // infers Any
     val r = rtype(flag); // infers Any
-    val g = genm(1,2l); // infers Any
-    val i1:Int = m(arr(0));
+    val g = genm(1n,2l); // infers Any
+    val i1:Int = m(arr(0n));
     val i2:Int = m(x); 
     val i3:Int = m(r);
     val i4:Int = m(g);
   }
 
   
-	def check[T](t:T)=1;
+	def check[T](t:T)=1n;
 	def check(t:Any)="";
 	def testGenerics() {
-		@ERR val r1:Int = check(1); // Err ambiguous Err
-		@ERR val r2:Int = ((x:Any)=>check(x))(1); // Err: should DEFNITELY resolve to the non-generic method
-        val r3:Int = check[Int](1); // be explicit
+		@ERR val r1:Int = check(1n); // Err ambiguous Err
+		@ERR val r2:Int = ((x:Any)=>check(x))(1n); // Err: should DEFNITELY resolve to the non-generic method
+        val r3:Int = check[Int](1n); // be explicit
 	}
 }
 
@@ -2327,10 +2327,10 @@ class TestHereInGenericTypes { // see also XTENLANG-1922
 
 class TestInterfaceInvariants { // see XTENLANG-1930
 	interface I {p()==1} {
-        public property p():Int;
+        public property p():Long;
 	}
-	class C(p:Int) implements I {
-        public property p():Int = p;
+	class C(p:Long) implements I {
+        public property p():Long = p;
 		def this() { 
 			property(0); // ERR
 		}
@@ -2343,7 +2343,7 @@ class TestInterfaceInvariants { // see XTENLANG-1930
 	}
 }
 
-class OuterThisConstraint(i:Int) { // see XTENLANG-1932
+class OuterThisConstraint(i:Long) { // see XTENLANG-1932
 	def m1():OuterThisConstraint{self.i==this.i} = this;
 	class Inner {
 		def m2():OuterThisConstraint{self.i==OuterThisConstraint.this.i} = OuterThisConstraint.this;
@@ -2357,7 +2357,7 @@ class OuterThisConstraint(i:Int) { // see XTENLANG-1932
 }
 
 class NullaryPropertyMethod {
-	static class E(x:Int) {
+	static class E(x:Long) {
 		property y() = x==2;
 		property z() = x==2;
 		
@@ -2399,8 +2399,8 @@ class TestXtenLang1938 { // see XTENLANG-1938
 
 
 class ConstraintsBugs {
-	class A(p:Int) {
-		def this(p:Int):A{self.p==p} {
+	class A(p:Long) {
+		def this(p:Long):A{self.p==p} {
 			property(p);
 		}
 	}
@@ -2420,8 +2420,8 @@ class SuperQualifier { // see XTENLANG-1948
 	//val x = Parent.super.f;  // ShouldNotBeERR: The nested class "Ego" does not have an enclosing instance of type "Parent".
 	}
 }
-class TestArrayLiteralInference {	
-	var z: Array[int](1){rect, zeroBased, size==4} = [ 1, 2,3,4 ];
+class TestRailLiteralInference {	
+	var z: Rail[long]{size==4} = [1,2,3,4];
 }
 
 class TestInstanceOperators {
@@ -2446,12 +2446,12 @@ class XTENLANG_2399 {
     def m(p:Point(1)) {
 		val [i,j] = p; // ERR
 		val q[m]:Point(2) = [3,4]; // ERR
-		for(x[n]:Point(2) in (3..4)*(3..4))  {} // ERR (the type doesn't match the number of exploded ints
+		for(x[n]:Point(2) in Region.make(3..4, 3..4))  {} // ERR (the type doesn't match the number of exploded ints
 	}
 }
 class ExplodingPointTest[T] {	
 	// you can explode either a Point or an Array[T] into its components, 
-	// so the elements are either of type T or Int.
+	// so the elements are either of type T or Long.
 	// The rank of the Point/Array must be EQUAL to the number of components.
 	// If you do not write in the type the rank of the Point/Array then it is assumed to be the number of components.
 	// You can explode either in:
@@ -2460,14 +2460,14 @@ class ExplodingPointTest[T] {
 	// 3) a local in a loop (we look at the collection to infer the type of the index)
 	def explodeArray(a[i,j,k]:Array[Array[T]]{size==3,rank==1}) {
 		val z:Array[T] = i;
-		val z2:Int = i; // ERR
+		val z2:Long = i; // ERR
 
 		val w3:Array[Array[T]]{size==3,rank==1} = a; 
 		val w4:Array[Array[T]]{size==2,rank==1} = a; // ERR
 		val w5:Array[Array[T]]{size==3,rank==2} = a; // ERR
 	}
 	def explodePoint(a[i,j]:Point) {
-		val z2:Int = i;
+		val z2:Long = i;
 		val z:Array[T] = i;  // ERR
 		val w2:Point(2) = a; 
 		val w3:Point(3) = a; // ERR
@@ -2501,27 +2501,27 @@ class ExplodingPointTest[T] {
 		{}
 
 
-    def f1([i,j]:Point(2),x:Int)= i+x+j;	
-    def f2(p[i,j]:Point(2),x:Int)= p(0)+i+x+j;
+    def f1([i,j]:Point(2),x:Long)= i+x+j;	
+    def f2(p[i,j]:Point(2),x:Long)= p(0)+i+x+j;
 
     def f3(p[i,j]:Point(1))=1; // ERR 
 
 	def test() {
-		val [i,j] = [1,2]; 
+		val [i,j] = [1,2]; // ShouldNotBeERR
 		return i+j;
 	}
 	def test2() {
-		val p[i,j] = [1,2]; 
+		val p[i,j] = [1,2]; // ShouldNotBeERR
 		return p(0)+i+j;
 	}
 	def test3() {
-		for(p[i,j] in (1..2)*(3..4)) 
+		for(p[i,j] in Region.make(1..2, 3..4))
 			return p(0)+i+j;
-		for(p[i] in (3..4)) 
+		for(p[i] in Region.make(3..4))
 			return p(0)+i;
-		for(p[i]:Point(2) in (3..4)*(3..4))  {} // ERR XTENLANG-2399 (the type doesn't match the number of exploded ints)
-		for(x[n]:Point in (3..4)*(3..4))  {} // ERR (otherwise it causes the ForLoopOptimizer to crash.)
-		for(x[n,m]:Point in (3..4)*(3..4))  {}
+		for(p[i]:Point(2) in Region.make(3..4, 3..4))  {} // ERR XTENLANG-2399 (the type doesn't match the number of exploded ints)
+		for(x[n]:Point in Region.make(3..4, 3..4))  {} // ERR (otherwise it causes the ForLoopOptimizer to crash.)
+		for(x[n,m]:Point in Region.make(3..4, 3..4))  {}
 		return 3;
 	}
     def m(p:Point(1)) { // XTENLANG-2399
@@ -2529,7 +2529,7 @@ class ExplodingPointTest[T] {
 		val q[m]:Point(2) = [3,4]; // ERR
 	}
 	def test4() {
-		for(p[i,j] in (3..4)) // ERR: Loop domain is not of expected type.  
+		for(p[i,j] in Region.make(3..4)) // ERR: Loop domain is not of expected type.  
 			return p(0)+i+j;
 		return 3;
 	}
@@ -2543,68 +2543,64 @@ class ExplodingPointTest[T] {
 	}
 	def exactTest() {		
         { val [i,j] = [1,2,3]; } // ERR
-        { val [i,j] = [1,2]; }
-        { val [i,j] = [1]; } // ERR
+        { val [i,j] = [1,2]; }  // ShouldNotBeERR
+        { val [i,j] = [1 as long]; } // ERR
         { val [i,j]:Point = [1,2,3]; } // ShouldBeErr
-        { val [i,j]:Point = [1,2]; }
-        { val [i,j]:Point = [1]; } // ShouldBeErr
+        { val [i,j]:Point = [1,2]; } 
+        { val [i,j]:Point = [1 as long]; } // ShouldBeErr
         { val [i,j]:Point(3) = [1,2,3]; } // ERR
         { val [i,j]:Point(2) = [1,2]; }
-        { val [i,j]:Point(1) = [1]; } // ERR
+        { val [i,j]:Point(1) = [1 as long]; } // ERR
 	}
 	
 	def checkVarPoint(var p[i,j] : Point(2)) {
 		p = [3,4];
 		i = 5; // ERR
 	}
-	def nonPointExploding(q[m]:Int) { // ERR
-		val z = m+1; // exploded variables are always assumed to be Int.
+	def nonPointExploding(q[m]:Long) { // ERR
+		val z = m+1; // exploded variables are always assumed to be Long.
 	}
 	def closureTest() {		
-		val f1: (Point(2)) => Int  =   (p[i,j]:Point) => i+j;
-		val f2: (Point) => Int  =   (p[i,j]:Point) => i+j; // ERR
+		val f1: (Point(2)) => Long  =   (p[i,j]:Point) => i+j;
+		val f2: (Point) => Long  =   (p[i,j]:Point) => i+j; // ERR
 	}
 	def explodingLocal() {		
-        { val p[i,j]: Array[Int] = new Array[Int](2); } // ERR ERR ERR: Semantic Error: You can exploded the Array only if its has the constraint {rank==1,size=2}
-        { val p[i,j]: Array[Int]{rank==1, size==2} = new Array[Int](2); }
+        { val p[i,j]: Array[Long] = new Array[Long](2); } // ERR ERR ERR: Semantic Error: You can exploded the Array only if its has the constraint {rank==1,size=2}
+        { val p[i,j]: Array[Long]{rank==1, size==2} = new Array[Long](2); }
         { val p[i,j]: Array[Point] = new Array[Point](2); }  // ERR ERR ERR: Semantic Error: You can exploded the Array only if its has the constraint {rank==1,size=2}
         { val p[i,j]: Array[Point]{rank==1, size==2} = new Array[Point](2); } 
         { val p[i,j]: Array[Point]{rank==1, size==2} = new Array[Point](3); } // ERR
         { val p[i,j]: Array[Point]{rank==1, size==2} = new Array[Point](2); }
         { val p[i,j]: Array[Point]{rank==2, size==2} = new Array[Point](2); } // ERR ERR ERR ERR 
         { val p[i,j]: Array[Point]{rank==1, size==3} = new Array[Point](3); } // ERR 
-        { val p[i,j]: Array[Point] = new Array[Point](2..3*4..5); } // ERR ERR ERR 
+        { val p[i,j]: Array[Point] = new Array[Point](Region.make(2..3, 4..5)); } // ERR ERR ERR 
 	}
 	def testArrayApplyMethod() {
         { 
-			val p = new Array[Int](2); 
+			val p = new Array[Long](2); 
 			val i = p(0);
 		}
         { 
-			val p:Array[Int]{self.rank==1} = new Array[Int](2); 
+			val p:Array[Long]{self.rank==1} = new Array[Long](2); 
 			val i = p(0);
 		}
 	}
-	def testArrayIntCtor() {
-        { val p: Array[Int] = new Array[Int](3); } 
-        { val p: Array[Int]{rank==1} = new Array[Int](3); } 
-        { val p: Array[Int]{rank==3} = new Array[Int](3); } // ERR 
-        { val p: Array[Int]{size==3} = new Array[Int](3); } 
-        { val p: Array[Int]{size==2} = new Array[Int](3); } // ERR 
-        { val p: Array[Int]{region.rank==1} = new Array[Int](3); } 
-        { val p: Array[Int]{region.rank==3} = new Array[Int](3); } // ERR 
-        { val p: Array[Int]{region.rect} = new Array[Int](3); } 
-        { val p: Array[Int]{region.rect==false} = new Array[Int](3); } // ERR 
-        { val p: Array[Int]{region.zeroBased} = new Array[Int](3); } 
-        { val p: Array[Int]{region.zeroBased==false} = new Array[Int](3); } // ERR 
-        { val p: Array[Int]{region.rail} = new Array[Int](3); } 
-        { val p: Array[Int]{region.rail==false} = new Array[Int](3); } // ERR 
-        { val p: Array[Int]{rect} = new Array[Int](3); } 
-        { val p: Array[Int]{rect==false} = new Array[Int](3); } // ERR 
-        { val p: Array[Int]{zeroBased} = new Array[Int](3); } 
-        { val p: Array[Int]{zeroBased==false} = new Array[Int](3); } // ERR 
-        { val p: Array[Int]{rail} = new Array[Int](3); } 
-        { val p: Array[Int]{rail==false} = new Array[Int](3); } // ERR 
+	def testArrayLongCtor() {
+        { val p: Array[Long] = new Array[Long](3); } 
+        { val p: Array[Long]{rank==1} = new Array[Long](3); } 
+        { val p: Array[Long]{rank==3} = new Array[Long](3); } // ERR 
+        { val p: Array[Long]{size==3} = new Array[Long](3); } 
+        { val p: Array[Long]{size==2} = new Array[Long](3); } // ERR 
+        { val p: Array[Long]{region.rank==1} = new Array[Long](3); } 
+        { val p: Array[Long]{region.rank==3} = new Array[Long](3); } // ERR 
+        { val p: Array[Long]{region.rect} = new Array[Long](3); } 
+        { val p: Array[Long]{region.rect==false} = new Array[Long](3); } // ERR 
+        { val p: Array[Long]{region.rail} = new Array[Long](3); } 
+        { val p: Array[Long]{region.rail==false} = new Array[Long](3); } // ERR 
+        { val p: Array[Long]{rect} = new Array[Long](3); } 
+        { val p: Array[Long]{rect==false} = new Array[Long](3); } // ERR 
+        { val p: Array[Long]{rail} = new Array[Long](3); } 
+        { val p: Array[Long]{rail==false} = new Array[Long](3); } // ERR 
 	}
 
 	// val p[i,j] = [1,2]; // doesn't parse for fields :)
@@ -2615,66 +2611,66 @@ class ExplodingPointTest[T] {
 
 class TestOverloadingAndInterface {
 interface XXX {
-	def m(Empty):Int;
+	def m(Empty):Long;
 }
 interface YYY {
 	def m(String):String;
 }
 class C3 implements XXX,YYY {
-	public def m(Empty):Int = 1;
+	public def m(Empty):Long = 1;
 	public def m(String):String="";
 	def test(c:C3) {
 		val f1:XXX = c;
 		val f2:YYY = c;
 	}
 }
-class C implements (Any)=>Int {
-	public operator this(Any):Int = 1;
+class C implements (Any)=>Long {
+	public operator this(Any):Long = 1;
 	public operator this(String):String="";
 
 	def test(c:C) {
-		val x:Int = c(1);
+		val x:Long = c(1);
 		val y:String = c("");
-		val f:(String)=>Int = c;
-		val i:Int = f("str");
+		val f:(String)=>Long = c;
+		val i:Long = f("str");
 	}	
 }
-class D[T] implements (T)=>Int {
-	public operator this(T):Int = 1;
+class D[T] implements (T)=>Long {
+	public operator this(T):Long = 1;
 	public operator this(String):String="";
 
 	def test(c:D[Any]) {
-		val x:Int = c(1);
+		val x:Long = c(1);
 		val y:String = c("");
-		val f:(String)=>Int = c;
-		val i:Int = f("str");
+		val f:(String)=>Long = c;
+		val i:Long = f("str");
 	}	
 }
-class C2 implements (Any)=>Int, (String)=>String {
-	public operator this(Any):Int = 1;
+class C2 implements (Any)=>Long, (String)=>String {
+	public operator this(Any):Long = 1;
 	public operator this(String):String="";
 
 	def test(c:C2) {
-		val x:Int = c(1);
+		val x:Long = c(1);
 		val y:String = c("");
-		val f1:(String)=>Int = c;
+		val f1:(String)=>Long = c;
 		val f2:(String)=>String = c; 
 	}	
 }
 }
 
-class TestPropertyAssignment(x:Int, y:Int{self==3}) {
-    def this(a:Int, b:Int) {
+class TestPropertyAssignment(x:Long, y:Long{self==3}) {
+    def this(a:Long, b:Long) {
 		property(a,b); // ERR
     }
 }
 
 final class ConstraintsInClosures {
-  def f(x:Int) {x!=0} = 1/x;
-  def f2(x:Int{self!=0}) = 1/x;
+  def f(x:Long) {x!=0} = 1/x;
+  def f2(x:Long{self!=0}) = 1/x;
   def test() {
-	  val bar: (Int)=>Int = (x:Int)=>this.f(x);  // ERR ERR: should we dynamically generate a new closure that checks the guard?
-	  val bar2: (Int)=>Int = (x:Int{self!=0})=>this.f2(x); // ERR
+	  val bar: (Long)=>Long = (x:Long)=>this.f(x);  // ERR ERR: should we dynamically generate a new closure that checks the guard?
+	  val bar2: (Long)=>Long = (x:Long{self!=0})=>this.f2(x); // ERR
   }
 }
 class TestCasting[T] {
@@ -2687,78 +2683,78 @@ class FieldNotFound {
 	val q= this.f;  // ERR: Field f not found in type "FieldNotFound{self==FieldNotFound#this}".
 }
 final class TestCasts { // TestInitInCasts
-	val b:Int{d==3} = 3 as Int{d==3}; // ShouldBeErr: Cannot read from field 'b' before it is definitely assigned.
-	val d:Int = 3;
-	val c:Int{c==3} = 3 as Int{self==3};
+	val b:Long{d==3} = 3 as Long{d==3}; // ShouldBeErr: Cannot read from field 'b' before it is definitely assigned.
+	val d:Long = 3;
+	val c:Long{c==3} = 3 as Long{self==3};
 
 	def test() {
-		val a3:Int = a3*3; // ERR ERR: "a3" may not have been initialized
-		val a:Int{a!=5} = 
-			3 as Int{a!=5}; // ERR ERR ERR [Semantic Error: Could not find field or local variable "a"., Semantic Error: Local variable may not have been initialized     Local variable: a]
-		val a2:Int{a2!=5} = 
-			3 as Int{self!=5};
+		val a3:Long = a3*3; // ERR ERR: "a3" may not have been initialized
+		val a:Long{a!=5} = 
+			3 as Long{a!=5}; // ERR ERR ERR [Semantic Error: Could not find field or local variable "a"., Semantic Error: Local variable may not have been initialized     Local variable: a]
+		val a2:Long{a2!=5} = 
+			3 as Long{self!=5};
 	}
 	
-	def use(x:Int) {}
-	val x:Int;
+	def use(x:Long) {}
+	val x:Long;
 	val w:TestCasts;
 	def this(a:TestCasts) {
-		use(3 as Int{a.x==self});
-		use(3 as Int{a.w.w.x==self});
-		use(3 as Int{x==self}); // ERR: Cannot read from field 'x' before it is definitely assigned.
-		val y:Int;
-		use(3 as Int{y==self}); // ERR: "y" may not have been initialized
+		use(3 as Long{a.x==self});
+		use(3 as Long{a.w.w.x==self});
+		use(3 as Long{x==self}); // ERR: Cannot read from field 'x' before it is definitely assigned.
+		val y:Long;
+		use(3 as Long{y==self}); // ERR: "y" may not have been initialized
 		val b:TestCasts;
-		use(3 as Int{b.x==self}); // ERR: "b" may not have been initialized
-		use(3 as Int{b.w.w.x==self}); // ERR: "b" may not have been initialized
-		use(3 as Int{b.w.x==b.x}); // ERR: "b" may not have been initialized
+		use(3 as Long{b.x==self}); // ERR: "b" may not have been initialized
+		use(3 as Long{b.w.w.x==self}); // ERR: "b" may not have been initialized
+		use(3 as Long{b.w.x==b.x}); // ERR: "b" may not have been initialized
 
-		val z:Int;
-		async use(3 as Int{z==self}); // ERR: "z" may not have been initialized
+		val z:Long;
+		async use(3 as Long{z==self}); // ERR: "z" may not have been initialized
 		z=2;
-		async use(3 as Int{z==self});
+		async use(3 as Long{z==self});
 
 		beforeX(); // ERR: Cannot read from field 'x' before it is definitely assigned.
-		async use(3 as Int{x==self}); // ERR: Cannot read from field 'x' before it is definitely assigned.
+		async use(3 as Long{x==self}); // ERR: Cannot read from field 'x' before it is definitely assigned.
 		x=2;
-		async use(3 as Int{x==self});
+		async use(3 as Long{x==self});
 		afterX();
 
-		use(3 as Int{w.x==self}); // ERR: Cannot read from field 'w' before it is definitely assigned.
+		use(3 as Long{w.x==self}); // ERR: Cannot read from field 'w' before it is definitely assigned.
 		w=null;
-		use(3 as Int{w.x==self});
+		use(3 as Long{w.x==self});
 	}
 	def beforeX() {
-		use(3 as Int{x==self});
+		use(3 as Long{x==self});
 	}
 	def afterX() {
-		use(3 as Int{x==self});
+		use(3 as Long{x==self});
 	}
 	def foo(a:TestCasts) {
-		use(3 as Int{a.x==self});
-		use(3 as Int{a.w.w.x==self});
-		use(3 as Int{x==self});
-		val y:Int;
-		use(3 as Int{y==self}); // ERR: "y" may not have been initialized
+		use(3 as Long{a.x==self});
+		use(3 as Long{a.w.w.x==self});
+		use(3 as Long{x==self});
+		val y:Long;
+		use(3 as Long{y==self}); // ERR: "y" may not have been initialized
 		val b:TestCasts;
-		use(3 as Int{b.x==self}); // ERR: "b" may not have been initialized
-		use(3 as Int{b.w.w.x==self}); // ERR: "b" may not have been initialized
-		use(3 as Int{b.w.x==b.x}); // ERR: "b" may not have been initialized
+		use(3 as Long{b.x==self}); // ERR: "b" may not have been initialized
+		use(3 as Long{b.w.w.x==self}); // ERR: "b" may not have been initialized
+		use(3 as Long{b.w.x==b.x}); // ERR: "b" may not have been initialized
 	}
 
 	class Inner {
 		val l:Inner;
 		def this(i:TestCasts) {
-			use(3 as Int{x==self});			
-			use(3 as Int{w.x==self});
-			use(3 as Int{i.x==self});			
-			use(3 as Int{i.w.x==self});
-			use(3 as Int{l==null});	// ERR: Cannot read from field 'l' before it is definitely assigned.
+			use(3 as Long{x==self});			
+			use(3 as Long{w.x==self});
+			use(3 as Long{i.x==self});			
+			use(3 as Long{i.w.x==self});
+			use(3 as Long{l==null});	// ERR: Cannot read from field 'l' before it is definitely assigned.
 			l=null;
-			use(3 as Int{l==null});
+			use(3 as Long{l==null});
 		}
 		def foo() {
-			use(3 as Int{l==null});
+			use(3 as Long{l==null});
 		}
 	}
 }
@@ -2778,21 +2774,21 @@ class CyclicInference {
 
 class ScopingRules { // see XTENLANG-2056
 	def test1() {
-		var i:Int = 1;
+		var i:Long = 1;
 		while (true) {
-			var i:Int = 1; // ERR: Local variable "i" multiply defined. Previous definition at ...
+			var i:Long = 1; // ERR: Local variable "i" multiply defined. Previous definition at ...
 		}
 	}
 	def test2() {
-		val i:Int = 1;
+		val i:Long = 1;
 		at (here) {
-			val i:Int = 1; // ERR, Local variable "i" multiply defined. Previous definition at ...
+			val i:Long = 1; // ERR, Local variable "i" multiply defined. Previous definition at ...
 		}
 	}
 	def test3() {
-		val i:Int = 1;
+		val i:Long = 1;
 		val c = () => {
-			val i:Int = 1; // ok
+			val i:Long = 1; // ok
 		};
 	}
 }
@@ -2871,30 +2867,30 @@ class TestOverflows { // see XTENLANG-1774
 		
 		// Int & Long
 		// in HEX
-		useInt(0x80000000);
-		useInt(0x7fffffff);
-		useInt(0xffffffff); // is negative
+		useInt(0x80000000n);
+		useInt(0x7fffffffn);
+		useInt(0xffffffffn); // is negative
 		useLong(0x8000000000000000L);
 		useLong(0x7fffffffffffffffL);
 		useLong(0xffffffffffffffffL);// is negative
-		useInt(0x800000000); // ERR: Integer literal 34359738368 is out of range. (todo: better err message)
+		useInt(0x800000000n); // ERR: Integer literal 34359738368 is out of range. (todo: better err message)
 		useLong(0x80000000000000000L); // ShouldBeErr (currently in generates 0L !)
 		// in decimal
-		useInt(-2147483648);
-		useInt(2147483647);
+		useInt(-2147483648n);
+		useInt(2147483647n);
 		useLong(-9223372036854775808l);
 		useLong(9223372036854775807l);		
-		useInt(-2147483649); // ERR ERR: Integer literal -2147483649 is out of range. (todo: better err message)
-		useInt(2147483648); // ShouldBeErr
+		useInt(-2147483649n); // ERR ERR: Integer literal -2147483649 is out of range. (todo: better err message)
+		useInt(2147483648n); // ShouldBeErr
 		useLong(-9223372036854775809l); // ShouldBeErr
 		useLong(9223372036854775808l); // ShouldBeErr
 
 		// in octal
-		useInt(020000000000);
-		useInt(017777777777);
+		useInt(020000000000n);
+		useInt(017777777777n);
 		useLong(01000000000000000000000L);
 		useLong(0777777777777777777777L);
-		useInt(0200000000000); // ERR: Integer literal 17179869184 is out of range. (todo: better err message)
+		useInt(0200000000000n); // ERR: Integer literal 17179869184 is out of range. (todo: better err message)
 		useLong(010000000000000000000000L); // ShouldBeErr
 		
 
@@ -2933,13 +2929,13 @@ class TestOverflows { // see XTENLANG-1774
 
 		// unsigned test cases		
 		// in HEX
-		useUInt(0x0u);
-		useUInt(0xffffffffu);
+		useUInt(0x0un);
+		useUInt(0xffffffffun);
 		useULong(0x00ul);
 		useULong(0xffffffffffffffffLu);
 		// in decimal
-		useUInt(0U);
-		useUInt(4294967295U);		
+		useUInt(0UN);
+		useUInt(4294967295UN);		
 		useULong(0ul);
 		useULong(18446744073709551616uL);
 	}
@@ -2994,8 +2990,8 @@ class XTENLANG_2054 {
 	val x = ULong.MAX_VALUE; //XTENLANG-2054
 }
 class XTENLANG_2070 {
-	var i:Int=0;
-	var j1:Int = ++(i); // ShouldNotBeERR
+	var i:Long=0;
+	var j1:Long = ++(i); // ShouldNotBeERR
 }
 class TestLoopLocalIsVal {
 	def testLoopLocalIsVal(r:Region) {
@@ -3029,10 +3025,10 @@ class LegalCoercionsBetweenJavaNumerics {
 	var f:Float=0;
 	var d:Double=0;
 
-	var b:Byte=0;
-	var i:Int=0;
-	var l:Long=0;
-	var s:Short=0;
+	var b:Byte=0y;
+	var i:Int=0n;
+	var l:Long=0l;
+	var s:Short=0s;
 
 	def test() {
 		f = d; // ERR (Semantic Error: Cannot assign expression to target.		 Expression: LegalCoercionsBetweenJavaNumerics.this.d		 Expected type: x10.lang.Float		 Found type: x10.lang.Double)
@@ -3047,13 +3043,13 @@ class LegalCoercionsBetweenJavaNumerics {
 		d = s;
 		b = f; // ERR (Semantic Error: Cannot assign expression to target.		 Expression: LegalCoercionsBetweenJavaNumerics.this.f		 Expected type: x10.lang.Byte		 Found type: x10.lang.Float)
 		b = d; // ERR (Semantic Error: Cannot assign expression to target.		 Expression: LegalCoercionsBetweenJavaNumerics.this.d		 Expected type: x10.lang.Byte		 Found type: x10.lang.Double)
-		b = i; // ERR (Semantic Error: Cannot assign expression to target.		 Expression: LegalCoercionsBetweenJavaNumerics.this.i		 Expected type: x10.lang.Byte		 Found type: x10.lang.Int)
+		b = i; // ERR (Semantic Error: Cannot assign expression to target.		 Expression: LegalCoercionsBetweenJavaNumerics.this.i		 Expected type: x10.lang.Byte		 Found type: x10.lang.Long)
 		b = l; // ERR (Semantic Error: Cannot assign expression to target.		 Expression: LegalCoercionsBetweenJavaNumerics.this.l		 Expected type: x10.lang.Byte		 Found type: x10.lang.Long)
 		b = s; // ERR (Semantic Error: Cannot assign expression to target.		 Expression: LegalCoercionsBetweenJavaNumerics.this.s		 Expected type: x10.lang.Byte		 Found type: x10.lang.Short)
-		i = f; // ERR (Semantic Error: Cannot assign expression to target.		 Expression: LegalCoercionsBetweenJavaNumerics.this.f		 Expected type: x10.lang.Int		 Found type: x10.lang.Float)
-		i = d; // ERR (Semantic Error: Cannot assign expression to target.		 Expression: LegalCoercionsBetweenJavaNumerics.this.d		 Expected type: x10.lang.Int		 Found type: x10.lang.Double)
+		i = f; // ERR (Semantic Error: Cannot assign expression to target.		 Expression: LegalCoercionsBetweenJavaNumerics.this.f		 Expected type: x10.lang.Long		 Found type: x10.lang.Float)
+		i = d; // ERR (Semantic Error: Cannot assign expression to target.		 Expression: LegalCoercionsBetweenJavaNumerics.this.d		 Expected type: x10.lang.Long		 Found type: x10.lang.Double)
 		i = b;
-		i = l; // ERR (Semantic Error: Cannot assign expression to target.		 Expression: LegalCoercionsBetweenJavaNumerics.this.l		 Expected type: x10.lang.Int		 Found type: x10.lang.Long)
+		i = l; // ERR (Semantic Error: Cannot assign expression to target.		 Expression: LegalCoercionsBetweenJavaNumerics.this.l		 Expected type: x10.lang.Long		 Found type: x10.lang.Long)
 		i = s;
 		l = f; // ERR (Semantic Error: Cannot assign expression to target.		 Expression: LegalCoercionsBetweenJavaNumerics.this.f		 Expected type: x10.lang.Long		 Found type: x10.lang.Float)
 		l = d; // ERR (Semantic Error: Cannot assign expression to target.		 Expression: LegalCoercionsBetweenJavaNumerics.this.d		 Expected type: x10.lang.Long		 Found type: x10.lang.Double)
@@ -3063,7 +3059,7 @@ class LegalCoercionsBetweenJavaNumerics {
 		s = f; // ERR (Semantic Error: Cannot assign expression to target.		 Expression: LegalCoercionsBetweenJavaNumerics.this.f		 Expected type: x10.lang.Short		 Found type: x10.lang.Float)
 		s = d; // ERR (Semantic Error: Cannot assign expression to target.		 Expression: LegalCoercionsBetweenJavaNumerics.this.d		 Expected type: x10.lang.Short		 Found type: x10.lang.Double)
 		s = b;
-		s = i; // ERR (Semantic Error: Cannot assign expression to target.		 Expression: LegalCoercionsBetweenJavaNumerics.this.i		 Expected type: x10.lang.Short		 Found type: x10.lang.Int)
+		s = i; // ERR (Semantic Error: Cannot assign expression to target.		 Expression: LegalCoercionsBetweenJavaNumerics.this.i		 Expected type: x10.lang.Short		 Found type: x10.lang.Long)
 		s = l; // ERR (Semantic Error: Cannot assign expression to target.		 Expression: LegalCoercionsBetweenJavaNumerics.this.l		 Expected type: x10.lang.Short		 Found type: x10.lang.Long)
 	}
 }
@@ -3071,15 +3067,15 @@ class LegalCoercionsBetweenAllNumerics {
 	var f:Float=0;
 	var d:Double=0;
 
-	var b:Byte=0;
-	var i:Int=0;
-	var l:Long=0;
-	var s:Short=0;
+	var b:Byte=0y;
+	var i:Int=0n; 
+	var l:Long=0l;
+	var s:Short=0s;
 
-	var ub:UByte=0;
-	var ui:UInt=0;
-	var ul:ULong=0;
-	var us:UShort=0;
+	var ub:UByte=0uy;
+	var ui:UInt=0un;
+	var ul:ULong=0ul;
+	var us:UShort=0us;
 
 	def test() {
 		f = d;  // ERR (Semantic Error: Cannot assign expression to target.		 Expression: LegalCoercionsBetweenAllNumerics.this.d		 Expected type: x10.lang.Float		 Found type: x10.lang.Double)
@@ -3176,39 +3172,39 @@ class LegalCoercionsBetweenAllNumerics {
 }
 class OperatorTestCases { // XTENLANG-2084
 	static class InstanceBinary1 {
-		operator this*(that:Int):Any = 1;
-		operator this*(that:Int):Any = 1; //  ERR (Semantic Error: Duplicate method "method OperatorTestCases.InstanceBinary1.operator*(that:x10.lang.Int): x10.lang.Any"; previous declaration at C:\cygwin\home\Yoav\test\Hello.x10:114,9-41.) 
+		operator this*(that:Long):Any = 1;
+		operator this*(that:Long):Any = 1; //  ERR (Semantic Error: Duplicate method "method OperatorTestCases.InstanceBinary1.operator*(that:x10.lang.Long): x10.lang.Any"; previous declaration at C:\cygwin\home\Yoav\test\Hello.x10:114,9-41.) 
 
-		operator this-(that:Int):Any = 1;
-		operator (that:Int)-this:Any = 1;
+		operator this-(that:Long):Any = 1;
+		operator (that:Long)-this:Any = 1;
 
 		operator this+(that:InstanceBinary1):Any = 1; 
 		operator (that:InstanceBinary1)+this:Any = 1; // ShouldBeErr 
 	}
 	static class InstanceAndStatic {
-		operator this*(that:Int):Any = 1;
-		static operator (x:InstanceAndStatic)*(that:Int):Any = 1; // ShouldBeErr
+		operator this*(that:Long):Any = 1;
+		static operator (x:InstanceAndStatic)*(that:Long):Any = 1; // ShouldBeErr
 
-		operator (that:Int)+this:Any = 1;
-		static operator (x:Int)+(that:InstanceAndStatic):Any = 1; // ShouldBeErr
+		operator (that:Long)+this:Any = 1;
+		static operator (x:Long)+(that:InstanceAndStatic):Any = 1; // ShouldBeErr
 	}
 
 	// test inheritance
 	static class Parent {
-		operator this*(that:Int):Any = 1;
-		operator this+(that:Int):Any = 1;
-		static operator (x:Parent)+(that:Int):Any = 1;
+		operator this*(that:Long):Any = 1;
+		operator this+(that:Long):Any = 1;
+		static operator (x:Parent)+(that:Long):Any = 1;
 	}
 	static class Child extends Parent {		
-		operator this*(that:Int):Any = 1; // overriding
-		operator (that:Int)+this:Any = 1; // ShouldBeErr
-		static operator (x:Parent)+(that:Int):Any = 1; // hiding
+		operator this*(that:Long):Any = 1; // overriding
+		operator (that:Long)+this:Any = 1; // ShouldBeErr
+		static operator (x:Parent)+(that:Long):Any = 1; // hiding
 	}
 
 	// test inheritance, static, instance
 	static class BinaryAndUnary { // ShouldNotBeERR
-		operator this+(that:Int):Any = 1; // ShouldNotBeERR (Semantic Error: operator+(that: x10.lang.Int): x10.lang.Any in OperatorTestCases.BinaryAndUnary cannot override operator+(that: x10.lang.Int): x10.lang.Any in OperatorTestCases.BinaryAndUnary; overridden method is static)
-		static operator +(that:Int):Any = 1; // ShouldNotBeERR (Semantic Error: operator+(that: x10.lang.Int): x10.lang.Any in OperatorTestCases.BinaryAndUnary cannot override operator+(that: x10.lang.Int): x10.lang.Any in OperatorTestCases.BinaryAndUnary; overridden method is notstatic) // ERR (Semantic Error: Duplicate method "method static OperatorTestCases.BinaryAndUnary.operator+(that:x10.lang.Int): x10.lang.Any"; previous declaration at C:\cygwin\home\Yoav\test\Hello.x10:39,9-41.)
+		operator this+(that:Long):Any = 1; // ShouldNotBeERR (Semantic Error: operator+(that: x10.lang.Long): x10.lang.Any in OperatorTestCases.BinaryAndUnary cannot override operator+(that: x10.lang.Long): x10.lang.Any in OperatorTestCases.BinaryAndUnary; overridden method is static)
+		static operator +(that:Long):Any = 1; // ShouldNotBeERR (Semantic Error: operator+(that: x10.lang.Long): x10.lang.Any in OperatorTestCases.BinaryAndUnary cannot override operator+(that: x10.lang.Long): x10.lang.Any in OperatorTestCases.BinaryAndUnary; overridden method is notstatic) // ERR (Semantic Error: Duplicate method "method static OperatorTestCases.BinaryAndUnary.operator+(that:x10.lang.Long): x10.lang.Any"; previous declaration at C:\cygwin\home\Yoav\test\Hello.x10:39,9-41.)
 	}
 
 }
@@ -3234,15 +3230,15 @@ class TestOperatorResolutionWithoutCoercions { // XTENLANG-1692
 		static operator (b:B)+(c:C)=4;
 
 		def example(a:A,b:B,c:C) { Console.OUT.println("Example:");
-			val x1:Int{self==1} = a+a; // resolves to A::op+(A,A) and dynamically dispatches on the first argument (so it might execute C::op+(C,A) at runtime)
-			val x2:Int{self==1} = a+b; // resolves to A::op+(A,A) and dynamically dispatches on the first argument (so it might execute C::op+(C,A) at runtime)
+			val x1:Long{self==1} = a+a; // resolves to A::op+(A,A) and dynamically dispatches on the first argument (so it might execute C::op+(C,A) at runtime)
+			val x2:Long{self==1} = a+b; // resolves to A::op+(A,A) and dynamically dispatches on the first argument (so it might execute C::op+(C,A) at runtime)
 			val x3 = a+c; // ERR: Semantic Error: Ambiguous operator because it matches more than one operator definition.  Matches both A::op+(A,C) and A::this+A
 			val x4 = b+a; // // ERR: Semantic Error: Ambiguous operator because it matches more than one operator definition.  Matches both A::this+A and A::B+this
-			val x5:Int{self==2} = b+b; // resolves to B::op+(B,B) and dynamically dispatches on the second argument
-			val x6:Int{self==2} = b+c; // ShouldBeErr:  should resolve to Example::op+(B,C) so it does a static call (so the return type should be 4!)
-			val x7:Int{self==1} = c+a; // resolves to C::op+(C,A) and dynamically dispatches on the first argument
-			val x8:Int{self==1} = c+b; // ShouldBeErr: Ambiguity! C::op+(C,A) or B::op+(B,B) ?
-			val x9:Int{self==1} = c+c;  // ShouldBeErr: Ambiguity! C::op+(C,A) or Example::op+(B,C) ?
+			val x5:Long{self==2} = b+b; // resolves to B::op+(B,B) and dynamically dispatches on the second argument
+			val x6:Long{self==2} = b+c; // ShouldBeErr:  should resolve to Example::op+(B,C) so it does a static call (so the return type should be 4!)
+			val x7:Long{self==1} = c+a; // resolves to C::op+(C,A) and dynamically dispatches on the first argument
+			val x8:Long{self==1} = c+b; // ShouldBeErr: Ambiguity! C::op+(C,A) or B::op+(B,B) ?
+			val x9:Long{self==1} = c+c;  // ShouldBeErr: Ambiguity! C::op+(C,A) or Example::op+(B,C) ?
 		}
 	}
 	static  class Main {
@@ -3256,15 +3252,15 @@ class TestOperatorResolutionWithoutCoercions { // XTENLANG-1692
 
 
 class TestStructEqualsClass {
-	def this(Int) {}
+	def this(Long) {}
 	def this(Any) {}
 }
 
 class SubtypeConstraints {
 class A[T] { T isref } {
 	var a1:A[T];
-	var a2:A[Int]; // ERR: Semantic Error: Type A[x10.lang.Int] is inconsistent.
-	var a4:A[Int{self==3}]; // ERR
+	var a2:A[Long]; // ERR: Semantic Error: Type A[x10.lang.Long] is inconsistent.
+	var a4:A[Long{self==3}]; // ERR
 }
 class Test[T]  {
 	def m1(GlobalRef[T]{self.home==here}) {} // ERR: Semantic Error: Type is inconsistent.
@@ -3273,19 +3269,19 @@ class Test[T]  {
 static class TestStatic[T]{T isref} {
 	public static def m1[T]():TestStatic[T]  = null; // ERR
 	public static def m2[T]() {T isref} :TestStatic[T] = null;
-    public static type TestStatic[T](p:Int) {T isref} = TestStatic[T]{1==p};
+    public static type TestStatic[T](p:Long) {T isref} = TestStatic[T]{1==p};
 }
 
 }
 class TransitivityOfEquality {
 // check for transitivity of equality
-class Tran[X,Y,W,U,Z] {X==Z, Z==Y,Int==Y, W==Z} {
+class Tran[X,Y,W,U,Z] {X==Z, Z==Y,Long==Y, W==Z} {
 	var a0:Tran[X,Y,W,U,Z];
-	var a9:Tran[Int,Int,Int,Int,Int];
+	var a9:Tran[Long,Long,Long,Long,Long];
 	var a1:Tran[Y,W,W,U,Z];
-	var a2:Tran[Y,W,Int,U,Int];
-	var a3:Tran[Y,Int,W,U,Z];
-	var a4:Tran[Z,W,Z,U,Int];
+	var a2:Tran[Y,W,Long,U,Long];
+	var a3:Tran[Y,Long,W,U,Z];
+	var a4:Tran[Z,W,Z,U,Long];
 	
 	var e1:Tran[U,Y,W,U,Z]; // ERR: Type Tran[U, Y, W, U, Z] is inconsistent.
 }
@@ -3311,7 +3307,7 @@ class M[T] {
 }
 class A[T] { T haszero } {}
 class B[U] {
-	def f1() { U == Int } {
+	def f1() { U == Long } {
 		var x:A[U] = null;
 	}
 	def f2() { U == Any } {
@@ -3322,12 +3318,12 @@ class B[U] {
 	}
 }
 
-class C[V] { V == Int } {
+class C[V] { V == Long } {
 	def f1() { 
 		var x:A[V] = null;
 	}
 }
-class D[V] { V == Int{self!=0} } {
+class D[V] { V == Long{self!=0} } {
 	def f1() { 
 		var x:A[V] = null; // ERR
 	}
@@ -3345,13 +3341,13 @@ class Test2[W] { W haszero } {
         var x:A[W];
     }
 }
-class Test[W](p:Int) {
+class Test[W](p:Long) {
 	def test() {
 		m1.q(); // ERR
 		m2.q();
 	}
-	var m1:M[Int{self!=0}];
-	var m2:M[Int];
+	var m1:M[Long{self!=0}];
+	var m2:M[Long];
 
 	var a0:A[W]; // ERR
     def test2() {
@@ -3360,13 +3356,13 @@ class Test[W](p:Int) {
     def test3() { W haszero } {
         var x:A[W];
     }
-	var a1:A[Int];
-	var a2:A[Int{self!=3}];
-	var a3:A[Int{self==0}];
-	var a4:A[Int{self==3}]; // ERR
-	var a5:A[Int{self!=0}]; // ERR
-	var a6:A[Int{self!=p}]; // ERR
-	var a7:A[Int{self==p}]; // ERR
+	var a1:A[Long];
+	var a2:A[Long{self!=3}];
+	var a3:A[Long{self==0}];
+	var a4:A[Long{self==3}]; // ERR
+	var a5:A[Long{self!=0}]; // ERR
+	var a6:A[Long{self!=p}]; // ERR
+	var a7:A[Long{self==p}]; // ERR
 }
 } // end HaszeroConstraints
 
@@ -3378,17 +3374,17 @@ class XTENLANG_967  {
 			val f1 = (){T isref} => "hi"; // ERR: Type constraints not permitted in closure guards.
 			def f2(){T isref} = "hi";
 		}
-        val res1 =  new C[Int]().f1();
-        val res2 =  new C[Int]().f2(); // ERR: Type guard {} cannot be established; inconsistent in calling context.
+        val res1 =  new C[Long]().f1();
+        val res2 =  new C[Long]().f2(); // ERR: Type guard {} cannot be established; inconsistent in calling context.
     }	
 }
-class XTENLANG_1574(v:Int) {v==1} {
+class XTENLANG_1574(v:Long) {v==1} {
 	static def m(a:XTENLANG_1574) {
 		val b:XTENLANG_1574{self.v==1} = a; 
 		@ERR @ERR val b2:XTENLANG_1574{self.v==2} = a; // [Semantic Error: Cannot assign expression to target.	 Expression: a	 Expected type: x10.frontend.tests.XTENLANG_1574{self.v==2}	 Found type: x10.frontend.tests.XTENLANG_1574{self==a}, Semantic Error: Invalid type; the real clause of x10.frontend.tests.XTENLANG_1574{self.v==2} is inconsistent.]
 	}
 }
-class TestMethodGuards[T](a:Int, p:Place) {
+class TestMethodGuards[T](a:Long, p:Place) {
 	def f() {a==1} {}
 	def q() {a==1} { f(); }
 	def m() {
@@ -3408,21 +3404,21 @@ class TestMethodGuards[T](a:Int, p:Place) {
 	}
 }
 class ProblemsWithFieldsInConstraints {	// these errors are both with STATIC_CHECKS and with DYNAMIC_CHECKS
-	val f1:Int;
-	val f2:Int{self==f1};
+	val f1:Long;
+	val f2:Long{self==f1};
 	def this() {
 		f2 = 2; // ERR
 		f1 = 2;
 	}
 	def test() {
-		val local1:Int;
-		val local2:Int{self==local1};
+		val local1:Long;
+		val local2:Long{self==local1};
 		local2 = 1; // ERR
 		local1 = 1;
 	}
 }
-class InconsistentPropertyVsField(p:Int) {
-	val f:Int = 2;
+class InconsistentPropertyVsField(p:Long) {
+	val f:Long = 2;
 	def test() {
 		val a0:InconsistentPropertyVsField{self.p==1} = null;
 		val a1:InconsistentPropertyVsField{self.f==1} = null; // ERR: Only properties may be prefixed with self in a constraint.
@@ -3436,22 +3432,22 @@ class InconsistentPropertyVsField(p:Int) {
 }
 
 class FieldInInvariant1 {a==1} { 
-	val a:Int;
+	val a:Long;
 	def this() { a=2; } // ERR
 }
 class FieldInInvariant2 {this.a==1} {  // ERR ERR
-	val a:Int = 2;
+	val a:Long = 2;
 }
 class FieldInInvariant3 {self.a==1} { // ERR ERR ERR: Semantic Error: self may only be used within a dependent type
-	val a:Int = 1;
+	val a:Long = 1;
 }
-class XTENLANG_688(a:Int) {
-	val f1:Int{self==a} = a;
-	val f2:Int{self==f1} = a;
+class XTENLANG_688(a:Long) {
+	val f1:Long{self==a} = a;
+	val f2:Long{self==f1} = a;
 }
-class XTENLANG_688_2(a:Int) { // fine even with DYNAMIC_CHECKS (cause we do not generate a cast)
-	val f2:Int{self==f1} = a;
-	val f1:Int{self==a} = a;
+class XTENLANG_688_2(a:Long) { // fine even with DYNAMIC_CHECKS (cause we do not generate a cast)
+	val f2:Long{self==f1} = a;
+	val f1:Long{self==a} = a;
 }
 
 
@@ -3466,25 +3462,25 @@ class LegalForwardRef {
     val f4:LegalForwardRef = null; 
 }
 class LegalForwardRef2 { 
-	val x:Int{self==y} = 1; // legal forward reference to y (we don't really use it's value)
-	val y:Int{self==1} = 1;
+	val x:Long{self==y} = 1; // legal forward reference to y (we don't really use it's value)
+	val y:Long{self==1} = 1;
 }
 class IllegalForwardRef2 { 
-	val x:Int{self==y} = 1; // ERR with STATIC_CHECKS (The type of the field initializer is not a subtype of the field type.) with DYNAMIC_CHECKS (Cannot read from field 'y' before it is definitely assigned.)
-	val y:Int{self==2} = 2;
+	val x:Long{self==y} = 1; // ERR with STATIC_CHECKS (The type of the field initializer is not a subtype of the field type.) with DYNAMIC_CHECKS (Cannot read from field 'y' before it is definitely assigned.)
+	val y:Long{self==2} = 2;
 }
-class XTENLANG_686_2(a:Int) {
+class XTENLANG_686_2(a:Long) {
 	def this() : XTENLANG_686_2{1==this.a}{property(1);} // ok to use this on the return type
-	def this(a:Int{self==this.a}) {property(a);} // ERR: Semantic Error: This or super cannot be used (implicitly or explicitly) in a constructor formal type.	 Formals: [val a: x10.lang.Int{self==FordesemiFoo#this.a}]
+	def this(a:Long{self==this.a}) {property(a);} // ERR: Semantic Error: This or super cannot be used (implicitly or explicitly) in a constructor formal type.	 Formals: [val a: x10.lang.Long{self==FordesemiFoo#this.a}]
 }
-class XTENLANG_686(a:Int) {
-	val f1:Int{self==a} = a;
-	val f2:Int{self==f1} = a;
+class XTENLANG_686(a:Long) {
+	val f1:Long{self==a} = a;
+	val f2:Long{self==f1} = a;
 
 	val f3:XTENLANG_686{self.a==this.f4} = null; // ok
-	val f4:Int = 2;
+	val f4:Long = 2;
 
-	val f5:Int{self==3};
+	val f5:Long{self==3};
 
 
 	def this(b:XTENLANG_686{self.a==1}) {
@@ -3496,12 +3492,12 @@ class XTENLANG_686(a:Int) {
 		val q4: XTENLANG_686{self.a==this.f1} = null; // ok
 		val q5: XTENLANG_686{self.a==this.f5} = null; // ok
 		
-		val i1:Int{self==f5} = 3; // ok
-		val i2:Int{self==f5} = 4; // ERR in both STATIC_CHECKS (Cannot assign expression to target.) and DYNAMIC_CHECKS (Cannot read from field 'f5' before it is definitely assigned.)
+		val i1:Long{self==f5} = 3; // ok
+		val i2:Long{self==f5} = 4; // ERR in both STATIC_CHECKS (Cannot assign expression to target.) and DYNAMIC_CHECKS (Cannot read from field 'f5' before it is definitely assigned.)
 
-		val i3:Int{3==f5} = 3; // ok
+		val i3:Long{3==f5} = 3; // ok
 		f5 = 3;
-		val i4:Int{3==f5} = 4; // ok
+		val i4:Long{3==f5} = 4; // ok
 	}
 }
 
@@ -3517,7 +3513,7 @@ class CastToTypeParam[T] {
 	}
 }
 
-class XTENLANG_685(a : Int, b : Int{this.a == 1}) {
+class XTENLANG_685(a : Long, b : Long{this.a == 1}) {
 	def this() {
 		property(1,1);
 	}  
@@ -3536,7 +3532,7 @@ class XTENLANG_685(a : Int, b : Int{this.a == 1}) {
 }
 
 //class Tree(left:Tree, right:Tree{this.left==self.left}) {} // ShouldNotBeERR, see XTENLANG-2117
-class NonStaticTypedef(p:Int) { 
+class NonStaticTypedef(p:Long) { 
 	type T = NonStaticTypedef{self.p==1}; // ERR: Illegal type def NonStaticTypedef.T: type-defs must be static.
 }
 
@@ -3624,13 +3620,13 @@ class hasZeroTests {
 	}
 
 	class haszeroUsages {
-		var x1:haszeroExamples2[Int{self!=0}]; // ok
-		var x2:haszeroExamples0[Int{self!=0}]; // ERR 
+		var x1:haszeroExamples2[Long{self!=0}]; // ok
+		var x2:haszeroExamples0[Long{self!=0}]; // ERR 
 		val x3 = 
-			new haszeroExamples2[Int{self!=0}](5); // ok
+			new haszeroExamples2[Long{self!=0}](5); // ok
 		val x4 = 
-			new haszeroExamples2[Int{self!=0}]();  // ERR
-		val x5 =  new haszeroExamples2[Int]();
+			new haszeroExamples2[Long{self!=0}]();  // ERR
+		val x5 =  new haszeroExamples2[Long]();
 		def test() {
 			x3.m0();
 			x3.m1(); // ERR 
@@ -3645,12 +3641,12 @@ class RuntimeTestsOfHaszero {
 		new RuntimeTestsOfHaszero().m();
 	}
 
-	var i:Int;
-	var k:Int{self!=3};
+	var i:Long;
+	var k:Long{self!=3};
 	var l:Long;
 	var s:String;
 	val a1 = new A[String]();
-	val a2 = new A[Int]();
+	val a2 = new A[Long]();
 	val a3 = new A[Long]();
 
 	def m() {
@@ -3663,7 +3659,7 @@ class RuntimeTestsOfHaszero {
 		assert(4==foo(Zero.get[Double]()));
 	}
 
-	def foo(Int)=3;
+	def foo(Long)=3;
 	def foo(Double)=4;
 
 	static class A[T] {T haszero} {
@@ -3677,7 +3673,7 @@ class StaticOverriding { // see XTENLANG-2121
     static def m() = 0;
   }
   static class D extends C {
-    static def m() = 1; // ShouldNotBeERR: Semantic Error: m(): x10.lang.Int{self==1} in StaticOverriding.D cannot override m(): x10.lang.Int{self==0} in StaticOverriding.C; attempting to use incompatible return type.
+    static def m() = 1; // ShouldNotBeERR: Semantic Error: m(): x10.lang.Long{self==1} in StaticOverriding.D cannot override m(): x10.lang.Long{self==0} in StaticOverriding.C; attempting to use incompatible return type.
   }
 }
 
@@ -3714,11 +3710,11 @@ class XTENLANG_1149_2 {
 }
 
 class TestClassInvariant78 {
-class AA(v:Int) {v==1} {} // ShouldBeErr
-class BB(v:Int) {v==1} {
-	def this(q:Int) { property(q); } // ERR
+class AA(v:Long) {v==1} {} // ShouldBeErr
+class BB(v:Long) {v==1} {
+	def this(q:Long) { property(q); } // ERR
 }
-static class A(v:Int) {v==1} {
+static class A(v:Long) {v==1} {
 	static def m(a:A) {
 		val b:A{self.v==1} = a;
 		@ERR @ERR val b2:A{self.v==2} = a;
@@ -3734,34 +3730,34 @@ static class A(v:Int) {v==1} {
 }
 
 class TestDuplicateClass { // XTENLANG-2132
-	class A(v:Int) {} 
-	// static class A(v:Int) {}  // ShouldBeErr (causes a crash: AssertionError: TestDuplicateClass.A->TestDuplicateClass.A x10.types.X10ParsedClassType_c is already in the cache; cannot replace with TestDuplicateClass.A x10.types.X10ParsedClassType_c)
+	class A(v:Long) {} 
+	// static class A(v:Long) {}  // ShouldBeErr (causes a crash: AssertionError: TestDuplicateClass.A->TestDuplicateClass.A x10.types.X10ParsedClassType_c is already in the cache; cannot replace with TestDuplicateClass.A x10.types.X10ParsedClassType_c)
 }
 
 class TestSerialization {
 class TestAt {
-	var i:Int{self!=0};
+	var i:Long{self!=0};
 	def this() { 
 		at (here.next()) 
 			i=2; // ERR: 'this' or 'super' cannot escape via an 'at' statement during construction.
 	}
 }
 class TestSerialize {
-	var i:Int{self!=0};
+	var i:Long{self!=0};
 	def this() {
 		at (here.next()) 
 			this.set(3); // ERR: 'this' or 'super' cannot escape via an 'at' statement during construction.
 	    this.set(2);
 	}
-	private def set(x:Int{self!=0}) { i=x; }
+	private def set(x:Long{self!=0}) { i=x; }
 }
 
 class ClosureAndSerialize {
     val x = 2;    
-	val BigD = Dist.makeBlock((0..10)*(0..10), 0);
+	val BigD = Dist.makeBlock(Region.make(0..10, 0..10), 0);
     val A = DistArray.make[Double](BigD,(p:Point)=>
 		1.0*this.x); // ERR: 'this' or 'super' cannot escape via a closure during construction.
-    val k:Int{self!=0} = 3;
+    val k:Long{self!=0} = 3;
 }
 class HashMapSerialize {
 	def testHashmapSerialize() {
@@ -3787,8 +3783,8 @@ class TestComparableAndArithmetic {
   def add[T](x:T,y:T) { T <: Arithmetic[T] } = x+y;
   def test() {
 	  {
-		  var x:Int=2;
-		  var y:Int=3;
+		  var x:Long=2;
+		  var y:Long=3;
 		  use(compare(x,y));
 		  use(compare(x,x));
 		  use(compare(y,y));
@@ -3813,15 +3809,15 @@ class TestComparableAndArithmetic {
 interface Ann42 //extends MethodAnnotation, ClassAnnotation, FieldAnnotation, ImportAnnotation, PackageAnnotation, TypeAnnotation, ExpressionAnnotation, StatementAnnotation 
 	{ }
 @ERR @Ann42 class TestAnnotationChecker( // Annotations on class declarations must implement x10.lang.annotations.ClassAnnotation
-	@ERR @Ann42 p:Int) { // Annotations on field declarations must implement x10.lang.annotations.FieldAnnotation
+	@ERR @Ann42 p:Long) { // Annotations on field declarations must implement x10.lang.annotations.FieldAnnotation
 	@ERR def use(@Ann42 x:Any)=x;  // Annotations must implement x10.lang.annotations.Annotation
 	@ERR @Ann42 def m0() {} // Annotations on method declarations must implement x10.lang.annotations.MethodAnnotation
 	def test() {
 		use(@ERR @Ann42 "A"); // Annotations on expressions must implement x10.lang.annotations.ExpressionAnnotation
 		@ERR @Ann42 {} // Annotations on statements must implement x10.lang.annotations.StatementAnnotation
 	}
-	var i:Int @ERR @Ann42; // Annotations on types must implement x10.lang.annotations.TypeAnnotation
-	@ERR @Ann42 var j:Int; // Annotations on field declarations must implement x10.lang.annotations.FieldAnnotation
+	var i:Long @ERR @Ann42; // Annotations on types must implement x10.lang.annotations.TypeAnnotation
+	@ERR @Ann42 var j:Long; // Annotations on field declarations must implement x10.lang.annotations.FieldAnnotation
 
 	def m11() {
 		@ERR @Ann42 {}
@@ -3841,8 +3837,8 @@ interface Ann42 //extends MethodAnnotation, ClassAnnotation, FieldAnnotation, Im
 		@ERR @Ann42 ;
 		@ERR @Ann42 assert false;
 		@ERR @Ann42 if (true);
-		var y:Int = @ERR @Ann42 5;
-		var x:Int = @ERR @Ann42 + 5;
+		var y:Long = @ERR @Ann42 5;
+		var x:Long = @ERR @Ann42 + 5;
 		@ERR @Ann42 val z = 
 			@ERR @Ann42 + 5;
 		use(@ERR @Ann42 ++x);
@@ -3868,7 +3864,7 @@ class SubtypeCheckForUserDefinedConversion { // see also SubtypeCheckForUserDefi
 		public static operator (x:Float) as A = null;
 
 		// far todo: trying 2+ or 0 formals causes a syntax error, and I think it should be a semantic error
-		// public static operator (p:Long, x:Int) as A = null;
+		// public static operator (p:Long, x:Long) as A = null;
 		// public static operator () as A = null;
 	}
 	static struct St {
@@ -3895,7 +3891,7 @@ class SubtypeCheckForUserDefinedConversion { // see also SubtypeCheckForUserDefi
 
 		// implicit_as
 	    public static operator[T](x:Double):B[T] = null;
-	    public static operator[T](x:Int):B[A] = null;
+	    public static operator[T](x:Long):B[A] = null;
 	    @ERR public static operator[T](x:T):T = x;
 	    @ERR public static operator[T](x:String):C[T] = null;
 		
@@ -3907,19 +3903,19 @@ class SubtypeCheckForUserDefinedConversion { // see also SubtypeCheckForUserDefi
 
 	// what happens if we have two possible implicit/explicit coercions?
 	// We give priority to coercions found in the target type (over the single one that can be found in the source type).
-	static class Y(j:Int) {
+	static class Y(j:Long) {
 		@ERR public static operator (p:Y):X{i==2} = null;
 		@ERR public static operator (p:Y) as ? :X{i==3} = null;
 	}
-	static class X(i:Int) {
+	static class X(i:Long) {
 		public static operator (p:Y):X{i==1} = null;
 		public static operator (p:Y) as ? :X{i==4} = null;
 	}
-	static class Z(i:Int) {
-		public static operator (p:Int) as Z{i==4} = null; // see XTENLANG-2202
+	static class Z(i:Long) {
+		public static operator (p:Long) as Z{i==4} = null; // see XTENLANG-2202
 	}
-	static class W(i:Int) {
-		public static operator (p:Int) as ? :W{i==4} = null;
+	static class W(i:Long) {
+		public static operator (p:Long) as ? :W{i==4} = null;
 	}
 	static class TestAmbiguity {
 	    // there are two ways to implicitly convert Y to X (to either X{i==1} or X{i==2}), but we first search in X.
@@ -3937,11 +3933,11 @@ class SubtypeCheckForUserDefinedConversion { // see also SubtypeCheckForUserDefi
 	}
 }
 class XTENLANG_2202 {
-	static class Z(i:Int) {
+	static class Z(i:Long) {
 		public static operator (p:Double) as Z{i==4} = new Z(4);
-		public static operator (p:Int) as Z{i==4} = new Z(3); // ERR [Cannot return expression of given type.]
+		public static operator (p:Long) as Z{i==4} = new Z(3); // ERR [Cannot return expression of given type.]
 		public static operator (p:String) as Z{i==4} {p!=null} = new Z(4);
-		public static operator (p:Float) as Z{i==4} {i==4} = new Z(4); // ERR ERR [Cannot access a non-static field field final property public Z.i: x10.lang.Int from a static context.	Cannot build constraint from expression |i == 4|.]
+		public static operator (p:Float) as Z{i==4} {i==4} = new Z(4); // ERR ERR [Cannot access a non-static field field final property public Z.i: x10.lang.Long from a static context.	Cannot build constraint from expression |i == 4|.]
 		public static operator (p:Byte) as Z{} {p==2y} = new Z(4);
 		static def test() {
 			val x:Z{i==4} = "asd" as Z;
@@ -3956,7 +3952,7 @@ class XTENLANG_2202 {
 
 class Void_Is_Not_A_Type_Tests { // see also XTENLANG-2220
 	static class B[T] {}
-	val i:Int=1;
+	val i:Long=1;
 	@ERR def test2(void) {}
 	def test3() {
 		@ERR val closure:Any = (void)=>{};
@@ -3979,7 +3975,7 @@ class MethodCollisionTests { // see also \x10.tests\examples\Constructs\Interfac
 		}
 		static interface A {
 			def m():void;
-			def m(i:Int):void;
+			def m(i:Long):void;
 		}
 		static interface A2 extends A {}
 		static interface D extends A {
@@ -4051,11 +4047,11 @@ class MethodCollisionTests { // see also \x10.tests\examples\Constructs\Interfac
 			def m():Any;
 		}
 		static interface B {
-			def m():Int; // gives java-backend errors: XTENLANG-2221
+			def m():Long; // gives java-backend errors: XTENLANG-2221
 		}
 		static interface C extends A,B {}
 		static class D implements C {
-			public def m():Int = 2;
+			public def m():Long = 2;
 		}
 	}
 	static class CovariantReturnTests2 {
@@ -4141,7 +4137,7 @@ class CircularityTestsWithInheritanceInterfacesAndStructs { // see XTENLANG-2187
 		static val z2:Z2 = Z2();
 	}
 
-	static struct Complex(i:Int,j:Int) {}
+	static struct Complex(i:Long,j:Long) {}
 
 	static struct Generic[T] {
 		val t:T;
@@ -4171,8 +4167,8 @@ class CircularityTestsWithInheritanceInterfacesAndStructs { // see XTENLANG-2187
 	
 
 	static struct GenStructUsage5 {
-		val x:GenStructUsage2[GenStructUsage2[GenStructUsage2[Generic[Int]]]];
-		def this(x:GenStructUsage2[GenStructUsage2[GenStructUsage2[Generic[Int]]]]) { this.x = x; }
+		val x:GenStructUsage2[GenStructUsage2[GenStructUsage2[Generic[Long]]]];
+		def this(x:GenStructUsage2[GenStructUsage2[GenStructUsage2[Generic[Long]]]]) { this.x = x; }
 	}
 
 	
@@ -4188,8 +4184,8 @@ class CircularityTestsWithInheritanceInterfacesAndStructs { // see XTENLANG-2187
 	}
 	static struct Infinite2[T](t:Infinite2[T]) {} // ERR ERR: A class can only have properties of a 'simpler' type
 	static struct GenStructUsage6 {
-		val x:Infinite[Int];
-		def this(x:Infinite[Int]) { this.x = x; }
+		val x:Infinite[Long];
+		def this(x:Infinite[Long]) { this.x = x; }
 	}
 
 	static struct A1 {
@@ -4246,7 +4242,7 @@ class CircularityTestsWithInheritanceInterfacesAndStructs { // see XTENLANG-2187
 	@ERR interface I3 extends I3 {}
 	@ERR interface I4[T] extends I4[I4[T]] {}
 	@ERR interface I5 extends I5{self.i()==1} {
-        public property i():Int;
+        public property i():Long;
 	}
 	interface I6 {
         public property i():I6;
@@ -4265,10 +4261,10 @@ class CircularityTestsWithInheritanceInterfacesAndStructs { // see XTENLANG-2187
 
 class ConformanceChecks { // see XTENLANG-989
 	interface A {
-	   def m(i:Int){i==3}:void;
+	   def m(i:Long){i==3}:void;
 	}
 	class IntDataPoint implements A { // ERR
-	   @ERR public def m(i:Int){i==4}:void {}
+	   @ERR public def m(i:Long){i==4}:void {}
 	}
 }
 
@@ -4284,7 +4280,7 @@ class TestThisAndInheritanceInConstraints {
 	}
 }
 
-class TestConstraintsAndProperties(i:Int, j:Int) {
+class TestConstraintsAndProperties(i:Long, j:Long) {
 	def test1(var x1:TestConstraintsAndProperties{self.i==1}, var x2:TestConstraintsAndProperties{self.i==2}) {
 		x1 = @ERR x2;
 	}
@@ -4298,7 +4294,7 @@ class TestConstraintsAndProperties(i:Int, j:Int) {
 
 class TestFieldsInConstraints { // see XTENLANG-989
 	class A {
-	 public val i:Int = 2;
+	 public val i:Long = 2;
 	 public val k = 2;
 	}
 	class B extends A {
@@ -4317,13 +4313,13 @@ class TestFieldsInConstraints { // see XTENLANG-989
 	  }
 	  // check field resolution
 	  def testResolution() {
-		  val Ak:Int{self==2} = B.super.k;
-		  val Bk:Int{self==3} = B.this.k;
-		  val Ck:Int{self==4} = C.this.k;
+		  val Ak:Long{self==2} = B.super.k;
+		  val Bk:Long{self==3} = B.this.k;
+		  val Ck:Long{self==4} = C.this.k;
 		  
-		  @ERR val Ak2:Int{self==5} = B.super.k; // todo: Found type: x10.lang.Int{self==2, B#this.k==2}  ???
-		  @ERR val Bk2:Int{self==5} = B.this.k; // ok: Found type: x10.lang.Int{self==3, B#this.k==3}
-		  @ERR val Ck2:Int{self==5} = C.this.k; // ok: Found type: x10.lang.Int{self==4, B.C#this.k==4}
+		  @ERR val Ak2:Long{self==5} = B.super.k; // todo: Found type: x10.lang.Long{self==2, B#this.k==2}  ???
+		  @ERR val Bk2:Long{self==5} = B.this.k; // ok: Found type: x10.lang.Long{self==3, B#this.k==3}
+		  @ERR val Ck2:Long{self==5} = C.this.k; // ok: Found type: x10.lang.Long{self==4, B.C#this.k==4}
 	  }
 	  // all these refer to different fields "k"
 	  def m2(var x1:C{C.this.k==1}, var x2:C{B.this.k==1}, var x3:C{B.super.k==1}) {
@@ -4349,22 +4345,22 @@ class TestFieldsInConstraints { // see XTENLANG-989
 
 class PropertyFieldResolution {
 	interface A {
-        public property i():Int;
+        public property i():Long;
 	}
-	class B(i:Int{self==0})  implements A {
-        public property i():Int = i;
+	class B(i:Long{self==0})  implements A {
+        public property i():Long = i;
 
-		val k1:Int{self==0} = this.i;
-		@ERR val k2:Int{self==1} = this.i;
+		val k1:Long{self==0} = this.i;
+		@ERR val k2:Long{self==1} = this.i;
 	}
 }
 class SettableAssignWithoutApply {
-    operator this(i:Int)=(v: Int): void {}
+    operator this(i:Long)=(v: Long): void {}
 	def m() {
         this(1) = 2;
         this(1) += @ERR @ERR 2;
 	}
-	def testSettableAssign(b:DistArray[Int], p:Point(b.rank)) {
+	def testSettableAssign(b:DistArray[Long], p:Point(b.rank)) {
 		b(p)+=1;
 		b(p)++;
 	}
@@ -4381,7 +4377,7 @@ class E[F] {F <: String } { //1
  @ERR val f1 = new F(1); // in Java: unexpected type. found: type parameter F.  required: class
  class F { //2
     @ShouldBeErr val ff = new F(1); // in Java: unexpected type. found: type parameter F.  required: class
-    def this(i:Int) {}
+    def this(i:Long) {}
  }
  @ERR val f2 = new F(1); // in Java: unexpected type. found: type parameter F.  required: class
  // you can choose the class over the type parameter by using the outer class as a qualifier
@@ -4396,7 +4392,7 @@ class ShaddowingTypeParametersTests[T, T2,T3] {
 	static def m2[T](t:T) {}
 	@ShouldBeErr static struct T {}
 	@ShouldBeErr static class T2 {}
-    @ShouldBeErr public static type T3 = Int;
+    @ShouldBeErr public static type T3 = Long;
 
 	class A {}
 	class B[A] {}
@@ -4436,11 +4432,11 @@ class ShaddowingTypeParametersTests[T, T2,T3] {
 
 class YetAnotherConstraintBugWithFieldPropogation {
 	def test1() {
-		val region = (1..1)*(1..1);
+		val region = Region.make(1..1, 1..1);
 		val i: Iterator[Point{self.rank==2}] = region.iterator();
 	}
 	def test2() {
-		val i: Iterator[Point{self.rank==2}] = ((1..1)*(1..1)).iterator(); // was XTENLANG-2275
+		val i: Iterator[Point{self.rank==2}] = (Region.make(1..1, 1..1)).iterator(); // was XTENLANG-2275
 	}
 }
 class CyclicTypeDefs {	
@@ -4450,21 +4446,21 @@ class CyclicTypeDefs {
 	static type Z = X; // ERR ERR
 }
 class XTENLANG_2277 {	
-	def m(a:Rail[Int]) {
-		@ERR val x:Int{self==2} = a(0)+=2;
+	def m(a:Rail[Long]) {
+		@ERR val x:Long{self==2} = a(0)+=2;
 	}
 }
 
 class TestSetAndApplyOperators {
 	static class OnlyApply {
-		operator this(i:Int) = 0;
+		operator this(i:Long) = 0;
 	}
 	static class OnlySet {
-		operator this(i:Int)=(v:Int) = 1;
+		operator this(i:Long)=(v:Long) = 1;
 	}
 	static class BothSetApply {
-		operator this(i:Int) = 2;
-		operator this(i:Int)=(v:Int):Int{self==v} = v;
+		operator this(i:Long) = 2;
+		operator this(i:Long)=(v:Long):Long{self==v} = v;
 	}
 	def test(s:OnlyApply, a:OnlySet, sa:BothSetApply) {
 		s(2);
@@ -4476,28 +4472,23 @@ class TestSetAndApplyOperators {
 		s(2) += 3; // ERR
 		a(2) += 3; // ERR ERR
 		sa(2) += 5; 
-		val i1:Int{self==5} = sa(2) = 5; 
-		val i2:Int{self==5} = sa(2) += 5; // ERR
-		val i3:Int{self==4} = sa(2) += 5; // ERR
+		val i1:Long{self==5} = sa(2) = 5; 
+		val i2:Long{self==5} = sa(2) += 5; // ERR
+		val i3:Long{self==4} = sa(2) += 5; // ERR
 	}
 }
 
 class ArrayAndRegionTests {
-	def test(a1:Array[Int](1){rect, zeroBased}, r:Region{zeroBased, rect, rank==1}, a2:Array[Int](r), a3:Array[Int]{zeroBased, rect, rank==1}) {
-	    // check zero based
-		val reg1:Region{zeroBased} = 0..10;
-		@ShouldBeErr val reg2:Region{zeroBased} = 5..10;
-		val reg3:Region{rail} = 0..10;
-		@ShouldBeErr val reg4:Region{rail} = 5..10;
-		val reg5:Region{zeroBased, rail, rect, rank==1} = 0..10;
-		@ERR val reg6:Region{rank==2} = 0..10;
-		val reg7:Region{rank==2} = 0..10 * 0..10;
+	def test(a1:Array[Long](1){rect}, r:Region{rect, rank==1}, a2:Array[Long](r), a3:Array[Long]{rect, rank==1}) {
+		val reg5:Region{rect, rank==1} = Region.make(0..10);
+		@ERR val reg6:Region{rank==2} = Region.make(0..10);
+		val reg7:Region{rank==2} = Region.make(0..10, 0..10);
 
-		val reg:Region{self!=null, zeroBased, rect, rank==1} = 0..10;
-		val arr1:Array[Int]{zeroBased, rect, rank==1} = new Array[Int](0..10,0);
-		val arr2:Array[Int]{zeroBased, rect, rank==1} = new Array[Int](reg,0); 
-		val arr3:Array[Int]{region.zeroBased, region.rect, region.rank==1} = new Array[Int](reg,0); 
-		val arr4:Array[Int](reg) = null;
+		val reg:Region{rect, rank==1} = Region.make(0..10);
+		val arr1:Array[Long]{rect, rank==1} = new Array[Long](11,0);
+		val arr2:Array[Long]{rect, rank==1} = new Array[Long](reg,0); 
+		val arr3:Array[Long]{region.rect, region.rank==1} = new Array[Long](reg,0); 
+		val arr4:Array[Long](reg) = null;
 		m1(a1);
 		m1(a2);
 		m1(a3);
@@ -4510,13 +4501,13 @@ class ArrayAndRegionTests {
 		m2(arr3);
 		m2(arr4);
 	}
-	def m1(Array[Int]{zeroBased, rect, rank==1}) {}
-	def m2(Array[Int]{region.zeroBased, region.rect, region.rank==1}) {}
+	def m1(Array[Long]{rect, rank==1}) {}
+	def m2(Array[Long]{region.rect, region.rank==1}) {}
 }
 
 class PropertyFieldTest42 { // XTENLANG-945
 	interface I {
-        public property a():Int;
+        public property a():Long;
 	}
 	class B {
 		def m(i:I) = i.a();
@@ -4524,7 +4515,7 @@ class PropertyFieldTest42 { // XTENLANG-945
 }
 
 class MethodGuardEntailsOverriden {
-	class A(i:Int) {
+	class A(i:Long) {
 	  def m() {i==1} {}
 	  def m2() {i!=0} {}
 	}
@@ -4537,10 +4528,10 @@ class MethodGuardEntailsOverriden {
 
 
 class TestOperatorsWithoutGuards {
-	public operator - this:Int = 1;
+	public operator - this:Long = 1;
 	public operator this * (g:TestOperatorsWithoutGuards) = 2;
-	public operator this(i:Int) = 3;
-	public operator this(i:Int) = (j:Int) = 4;
+	public operator this(i:Long) = 3;
+	public operator this(i:Long) = (j:Long) = 4;
 
 	def test(g1:TestOperatorsWithoutGuards, g2:TestOperatorsWithoutGuards) {
 		val a = -g1;
@@ -4549,10 +4540,10 @@ class TestOperatorsWithoutGuards {
 		val d = g1(42)=43;
 	}
 }
-class XTENLANG_2329(x:Int) { // see XTENLANG_2329, but here we check with VERBOSE_CHECKS (unlike in XTENLANG_2329.x10 where we check with STATIC_CHECKS)
+class XTENLANG_2329(x:Long) { // see XTENLANG_2329, but here we check with VERBOSE_CHECKS (unlike in XTENLANG_2329.x10 where we check with STATIC_CHECKS)
 	public operator this * (g:XTENLANG_2329) {x==0} = 2;
-	public operator this(i:Int) {x==0} = 3;
-	public operator this(i:Int) = (j:Int) {x==0}  = 4;
+	public operator this(i:Long) {x==0} = 3;
+	public operator this(i:Long) = (j:Long) {x==0}  = 4;
 
 	def test(g1:XTENLANG_2329, g2:XTENLANG_2329) {
 		@ERR val b = g1*g2;
@@ -4560,64 +4551,64 @@ class XTENLANG_2329(x:Int) { // see XTENLANG_2329, but here we check with VERBOS
 		@ERR val d = g1(42)=43;
 	}
 	
-	def closureTest(c: (i:Int) {i==0} => Int , k:Int ) {
+	def closureTest(c: (i:Long) {i==0} => Long , k:Long ) {
 		@ERR val a = c(k);
 	}
 }
 
 class DynamicGuardCheck {
 	class A {
-		def this(q:Int) {q==0} {}
+		def this(q:Long) {q==0} {}
 	}
 	class B extends A {
-		def m1(i:Int{self==0}) {}
-		def m2(i:Int) {i==0} {}
-		def this(i:Int, j:Int) {i==0} {
+		def m1(i:Long{self==0}) {}
+		def m2(i:Long) {i==0} {}
+		def this(i:Long, j:Long) {i==0} {
 			super(j); // ERR: with VERBOSE:	Warning: Generated a dynamic check for the method guard.
 		}
-		def this(i1:Int) {
+		def this(i1:Long) {
 			this(i1,4); // ERR ERR: with VERBOSE:	Warning: Generated a dynamic check for the method guard.
 		}
 
-		def test(q:Int) {
-			m1(q); // ERR: Warning: Expression 'q' was cast to type x10.lang.Int{self==0}.
-			m2(q); // ERR: with VERBOSE:	Warning: Generated a dynamic check for the method guard.		with STATIC_CHECKS: Method m2(i: x10.lang.Int){i==0}[]: void in Hello{self==Hello#this} cannot be called with arguments (x10.lang.Int{self==q}); Call invalid; calling environment does not entail the method guard.
+		def test(q:Long) {
+			m1(q); // ERR: Warning: Expression 'q' was cast to type x10.lang.Long{self==0}.
+			m2(q); // ERR: with VERBOSE:	Warning: Generated a dynamic check for the method guard.		with STATIC_CHECKS: Method m2(i: x10.lang.Long){i==0}[]: void in Hello{self==Hello#this} cannot be called with arguments (x10.lang.Long{self==q}); Call invalid; calling environment does not entail the method guard.
 			new B(q,q); // ERR: with VERBOSE:	Warning: Generated a dynamic check for the method guard.
 		}
 
-		def closureTest(c: (i:Int) {i==0} => Int , k:Int ) {
+		def closureTest(c: (i:Long) {i==0} => Long , k:Long ) {
 			@ERR { c(k); }
 		}
 	}
 }
 
-class XTENLANG_2346[T](x:Int) {
+class XTENLANG_2346[T](x:Long) {
 	def m1() {x==1} {}
-	def m2() {T<:Int} {}
-	def m11(a:Int{x==1}) {}
-	def m22(a:Int{T<:Int}) {}
+	def m2() {T<:Long} {}
+	def m11(a:Long{x==1}) {}
+	def m22(a:Long{T<:Long}) {}
 
 	def test() {
 		m1(); // ERR:  Warning: Generated a dynamic check for the method guard.
-		m2(); // ERR: Semantic Error: Method m2(){}[T <: x10.lang.Int]: void in TestGuard{self==TestGuard#this} cannot be called with arguments (); Type guard [T <: x10.lang.Int] cannot be established; inconsistent in calling context.
+		m2(); // ERR: Semantic Error: Method m2(){}[T <: x10.lang.Long]: void in TestGuard{self==TestGuard#this} cannot be called with arguments (); Type guard [T <: x10.lang.Long] cannot be established; inconsistent in calling context.
 
-		m11(3); // ERR:  Warning: Expression '3' was cast to type x10.lang.Int{TestGuard#this.x==1}.
+		m11(3); // ERR:  Warning: Expression '3' was cast to type x10.lang.Long{TestGuard#this.x==1}.
 		m22(3); // ShouldBeErr
 	}	
 }
 
 class XTENLANG_2376 {
 	class A {
-	  def test(b:Int) { 
+	  def test(b:Long) { 
 		val a = new A(b*3, b+5); // ERR: Warning: Generated a dynamic check for the method guard.
 	  }
-	  def this(i:Int, j:Int) {i==j} {}
-	  def this(i:Int) {
+	  def this(i:Long, j:Long) {i==j} {}
+	  def this(i:Long) {
 		this(i*i, i*2); // ERR ERR: The constructor guard was not satisfied.
 	  }
 	}
 	class B extends A {
-	  def this(m:Int) {
+	  def this(m:Long) {
 		super(m*m, m*2); // ERR: The constructor guard was not satisfied.
 	  }
 	}
@@ -4651,7 +4642,7 @@ class Outer {
 		def this(b:A[T]) {
 		}
 		def test(i:A[Double], outer:Outer) {
-			val z1 = outer.new A(i); // works ok (infers the type arguments)
+			val z1 = outer.new A(i);   // works ok (infers the type arguments)
 			val z2 = new A[Double](i); // works ok
 
 
@@ -4668,9 +4659,9 @@ class Outer {
 }
 
 class XTENLANG_2379 {
-	class B(b:Int) {}
-	class C(c:Int) extends B {
-		def this(i1:Int, i2:Int) {i1!=i2} {
+	class B(b:Long) {}
+	class C(c:Long) extends B {
+		def this(i1:Long, i2:Long) {i1!=i2} {
 			super(5);
 			property(6);
 		}
@@ -4700,32 +4691,32 @@ class XTENLANG_2379 {
 }
 
 class XTENLANG_2390 {
-	protected val a:Int;
-	def this(x:Int) {
+	protected val a:Long;
+	def this(x:Long) {
 		a = x;
 	}
-	def m1(i:Int{self==a}) {} // ShouldBeErr
+	def m1(i:Long{self==a}) {} // ShouldBeErr
 	def m2() {2==a} {} // ShouldBeErr
 }
 
 class XTENLANG_2401 {
-	def m(Int{self!=0}):String = "a";
-	def m(Double):Int = 1;
+	def m(Long{self!=0}):String = "a";
+	def m(Double):Long = 1;
 	def test() {
 		val z1:String = m(1); 
-		val z2:Int = m(1); // ERR, but it should be a different error! The current error is: Semantic Error: Cannot assign expression to target.	 Expression: m(x10.lang.Double.implicit_operator_as(0))	 Expected type: x10.lang.String,  and it should complain about the constraint that is not satisfied.
+		val z2:Long = m(1); // ERR, but it should be a different error! The current error is: Semantic Error: Cannot assign expression to target.	 Expression: m(x10.lang.Double.implicit_operator_as(0))	 Expected type: x10.lang.String,  and it should complain about the constraint that is not satisfied.
 		val z3:String = m(0); // ERR
-		val z4:Int = m(0); // ERR
+		val z4:Long = m(0); // ERR
 	}
 }
 class XTENLANG_2403 {
 	def shouldFail(dist:Dist) {
-		test((0..2)*(0..3), (Point) => 3 ); // ShouldBeErr
+		test(Region.make(0..2, 0..3), (Point) => 3 ); // ShouldBeErr
 	}
-	def test(r: Region, init: (Point(r.rank)) => Int) {}
+	def test(r: Region, init: (Point(r.rank)) => Long) {}
 }
 class RegionCastTests {
-	val e = (-10..10);
+	val e = Region.make(-10..10);
 	val r0:Region(2){rect} = e*e;
 	val r1 = (e*e) as Region(3); // ERR
 	val r2 = e*e as Region(2); // ERR
@@ -4734,26 +4725,26 @@ class RegionCastTests {
 class TestOverridingAndHasType {
 	val i <: Double = 2;
 	class A {
-		def m():Int = 1;
-		def t():Int = 1;
+		def m():Long = 1;
+		def t():Long = 1;
 		def p():Double = 1;
 	}
 	class B extends A {
 		def m() {throw new Exception();	} // ShouldNotBeERR
-		def t() <: Int { throw new Exception();	} // ShouldNotBeERR ShouldNotBeERR
+		def t() <: Long { throw new Exception();	} // ShouldNotBeERR ShouldNotBeERR
 		def p() = 2;  // ShouldNotBeERR
 	}
 	class C {	
 		def m() { throw new Exception();	} // infers void
 		def m1():void { throw new Exception();	}
-		def m2():Int { throw new Exception();	}
-		def m3() <: Int {throw new Exception();	} // ShouldNotBeERR ShouldNotBeERR 
+		def m2():Long { throw new Exception();	}
+		def m3() <: Long {throw new Exception();	} // ShouldNotBeERR ShouldNotBeERR 
 		def m3() <: Double = 2; // ShouldNotBeERR ShouldNotBeERR ShouldNotBeERR 
 		def m4() <: void {throw new Exception();	}
 	}
 }
 
-class CatchInitTest(a:Int) {
+class CatchInitTest(a:Long) {
 	def this() { // ERR: property(...) might not have been called
 		try {
 			property(2); 
@@ -4791,8 +4782,8 @@ static class D {
 
 class CopyBackTest {
     public def valTest() {
-        val result1 : Int; // Uninitialized
-        val result2 : Int; // Uninitialized
+        val result1 : Long; // Uninitialized
+        val result2 : Long; // Uninitialized
         val start = here;
         at(here.next()) {
             result1 = 3; // ERR
@@ -4804,8 +4795,8 @@ class CopyBackTest {
 		use(result2);
     }
     public def varTest() {
-        var result1 : Int; // Uninitialized
-        var result2 : Int; // Uninitialized
+        var result1 : Long; // Uninitialized
+        var result2 : Long; // Uninitialized
         val start = here;
 		use(result1); // ERR
 		use(result2); // ERR
@@ -4826,8 +4817,8 @@ class CopyBackTest {
 	def use(Any) {}
 }
 
-class XTENLANG_2447(a:Int) {a==1} {
-	def this(x:Int):XTENLANG_2447{self.a==x} {
+class XTENLANG_2447(a:Long) {a==1} {
+	def this(x:Long):XTENLANG_2447{self.a==x} {
 		property(x); // ERR
 	}
 	def test() {
@@ -4840,7 +4831,7 @@ class XTENLANG_2447(a:Int) {a==1} {
 		def this() {
 		}	
 		def test() {
-			val y = new X[Int{self!=0}](); // ERR ERR ERR [Semantic Error: Inconsistent constructor return type, Semantic Error: Type X[x10.lang.Int{self!=0}] is inconsistent.]
+			val y = new X[Long{self!=0}](); // ERR ERR ERR [Semantic Error: Inconsistent constructor return type, Semantic Error: Type X[x10.lang.Long{self!=0}] is inconsistent.]
 		}
 	}
 
@@ -4889,9 +4880,9 @@ class Accumulator5[T] {T haszero} {
 
 
 class CollectingFinishTests {
-    static struct Reducer implements Reducible[Int] {
+    static struct Reducer implements Reducible[Long] {
      	public   def zero()=0;
-     	public   operator this(a:Int,b:Int)=a+b;
+     	public   operator this(a:Long,b:Long)=a+b;
     }
     static struct ReducerDouble implements Reducible[Double] {
      	public   def zero()=0.0;
@@ -4902,7 +4893,7 @@ class CollectingFinishTests {
 			val y = finish (ReducerDouble()) {
 					async offer 6.0;
 			};
-			async offer (y as Int)+1;
+			async offer (y as Long)+1;
 		};
 	}
 	def normalFinishInside() {//	XTENLANG-2457
@@ -4916,10 +4907,10 @@ class CollectingFinishTests {
 
 class TestInterfaceInvariants_1930 { // XTENLANG-1930
 	interface I {p()==1} {
-        public property p():Int;
+        public property p():Long;
     }
-	class C(p:Int) implements I {
-        public property p():Int = p;
+	class C(p:Long) implements I {
+        public property p():Long = p;
 		def this() { 
 			property(0); // ERR
 		}
@@ -4940,140 +4931,140 @@ interface TestOverloadingAndConstraints {  // ERR ERR ERR ERR
 	static class Foo[T] {}
 
 	def m00():void; // ERR
-	def m00():Int; // ERR ERR
+	def m00():Long; // ERR ERR
 
-	def m0(Int):void;
-	def m0(Int):void; // ERR (Semantic Error: Duplicate method "method abstract public TestOverloadingAndConstraints.m0(id$1:x10.lang.Int): void"; previous declaration at C:\cygwin\home\Yoav\test\Hello.x10:11,5-21.)
+	def m0(Long):void;
+	def m0(Long):void; // ERR (Semantic Error: Duplicate method "method abstract public TestOverloadingAndConstraints.m0(id$1:x10.lang.Long): void"; previous declaration at C:\cygwin\home\Yoav\test\Hello.x10:11,5-21.)
 	
-	def m1(Int):void;
-	def m1(Int{self!=0}):void; // ERR
+	def m1(Long):void;
+	def m1(Long{self!=0}):void; // ERR
 
-	def m11(j:Int):void;
-	def m11(i:Int) {i!=0} :void; // ERR ERR
+	def m11(j:Long):void;
+	def m11(i:Long) {i!=0} :void; // ERR ERR
 	
-	def m2(Foo[Int]):void;
+	def m2(Foo[Long]):void;
 	def m2(Foo[Double]):void;
 
-	def m3(Foo[Int]):void;
-	def m3(Foo[Int]{self!=null}):void; // ERR
+	def m3(Foo[Long]):void;
+	def m3(Foo[Long]{self!=null}):void; // ERR
 
-	def m4(Foo[Int]):void;
-	def m4(Foo[Int{self!=0}]):void; // ERR
+	def m4(Foo[Long]):void;
+	def m4(Foo[Long{self!=0}]):void; // ERR
 	
-	def m5(Foo[Foo[Int]]):void;
-	def m5(Foo[Foo[Int{self!=0}]]):void; // ERR
+	def m5(Foo[Foo[Long]]):void;
+	def m5(Foo[Foo[Long{self!=0}]]):void; // ERR
 }
 class TestOverloadingAndConstraints_static {// ERR ERR ERR ERR
 	static class Foo[T] {}
 
 	static def m00():void {} // ERR
-	static def m00():Int {} // ERR ERR ERR
+	static def m00():Long {} // ERR ERR ERR
 
-	static def m0(Int):void {}
-	static def m0(Int):void {} // ERR (Semantic Error: Duplicate method "method abstract public TestOverloadingAndConstraints.m0(id$1:x10.lang.Int): void" {} previous declaration at C:\cygwin\home\Yoav\test\Hello.x10:11,5-21.)
+	static def m0(Long):void {}
+	static def m0(Long):void {} // ERR (Semantic Error: Duplicate method "method abstract public TestOverloadingAndConstraints.m0(id$1:x10.lang.Long): void" {} previous declaration at C:\cygwin\home\Yoav\test\Hello.x10:11,5-21.)
 	
-	static def m1(Int):void {}
-	static def m1(Int{self!=0}):void {} // ERR
+	static def m1(Long):void {}
+	static def m1(Long{self!=0}):void {} // ERR
 	
-	static def m11(j:Int):void {}
-	static def m11(i:Int) {i!=0} :void {} // ERR ERR	
+	static def m11(j:Long):void {}
+	static def m11(i:Long) {i!=0} :void {} // ERR ERR	
 	
-	static def m2(Foo[Int]):void {}
+	static def m2(Foo[Long]):void {}
 	static def m2(Foo[Double]):void {}
 
-	static def m3(Foo[Int]):void {}
-	static def m3(Foo[Int]{self!=null}):void {} // ERR
+	static def m3(Foo[Long]):void {}
+	static def m3(Foo[Long]{self!=null}):void {} // ERR
 
-	static def m4(Foo[Int]):void {}
-	static def m4(Foo[Int{self!=0}]):void {} // ERR
+	static def m4(Foo[Long]):void {}
+	static def m4(Foo[Long{self!=0}]):void {} // ERR
 	
-	static def m5(Foo[Foo[Int]]):void {}
-	static def m5(Foo[Foo[Int{self!=0}]]):void {} // ERR
+	static def m5(Foo[Foo[Long]]):void {}
+	static def m5(Foo[Foo[Long{self!=0}]]):void {} // ERR
 }
 interface TestOverloadingAndConstraints_macros { // ERR  ERR  ERR  ERR
-	static type Int1 = Int;
-	static type Int2 = Int1;
-	static type Int3Not0 = Int2{self!=0};
-	static type IntNot0 = Int3Not0;
+	static type Long1 = Long;
+	static type Long2 = Long1;
+	static type Long3Not0 = Long2{self!=0};
+	static type LongNot0 = Long3Not0;
 	static type FooNotNull[T] = Foo[T]{self!=null};
 	
 	static class Foo[T] {}
 
-	def m1(Int):void;
-	def m1(IntNot0):void; // ERR
+	def m1(Long):void;
+	def m1(LongNot0):void; // ERR
 	
-	def m2(Foo[Int]):void;
+	def m2(Foo[Long]):void;
 	def m2(Foo[Double]):void;
 
-	def m3(Foo[Int]):void;
-	def m3(FooNotNull[Int]):void; // ERR
+	def m3(Foo[Long]):void;
+	def m3(FooNotNull[Long]):void; // ERR
 
-	def m4(Foo[Int]):void;
-	def m4(Foo[IntNot0]):void; // ERR
+	def m4(Foo[Long]):void;
+	def m4(Foo[LongNot0]):void; // ERR
 	
-	def m5(Foo[Foo[Int]]):void;
-	def m5(Foo[Foo[IntNot0]]):void; // ERR
+	def m5(Foo[Foo[Long]]):void;
+	def m5(Foo[Foo[LongNot0]]):void; // ERR
 }
 // constructor overloading
 class TestOverloadingAndConstraints_ctors {
 	static class Foo[T] {}
 	class A0 {
-		def this(Int) {}
-		def this(Int) {} // ERR (Semantic Error: Duplicate method "method abstract public TestOverloadingAndConstraints.m0(id$1:x10.lang.Int): void"; previous declaration at C:\cygwin\home\Yoav\test\Hello.x10:11,5-21.)
+		def this(Long) {}
+		def this(Long) {} // ERR (Semantic Error: Duplicate method "method abstract public TestOverloadingAndConstraints.m0(id$1:x10.lang.Long): void"; previous declaration at C:\cygwin\home\Yoav\test\Hello.x10:11,5-21.)
 	}	
 	class A1 {
-		def this(Int) {}
-		def this(Int{self!=0}) {} // ERR
+		def this(Long) {}
+		def this(Long{self!=0}) {} // ERR
 	}	
 	class A11 {
-		def this(j:Int) {}
-		def this(i:Int) {i!=0} {} // ERR
+		def this(j:Long) {}
+		def this(i:Long) {i!=0} {} // ERR
 	}
 	class A2 {	
-		def this(Foo[Int]) {}
+		def this(Foo[Long]) {}
 		def this(Foo[Double]) {}
 	}
 	class A3 {	
-		def this(Foo[Int]) {}
-		def this(Foo[Int]{self!=null}) {} // ERR
+		def this(Foo[Long]) {}
+		def this(Foo[Long]{self!=null}) {} // ERR
 	}
 	class A4 {	
-		def this(Foo[Int]) {}
-		def this(Foo[Int{self!=0}]) {} // ERR
+		def this(Foo[Long]) {}
+		def this(Foo[Long{self!=0}]) {} // ERR
 	}
 	class A5 {		
-		def this(Foo[Foo[Int]]) {}
-		def this(Foo[Foo[Int{self!=0}]]) {} // ERR
+		def this(Foo[Foo[Long]]) {}
+		def this(Foo[Foo[Long{self!=0}]]) {} // ERR
 	}
 }
 class TestOverloadingAndConstraints_ctors_macros {
-	static type Int1 = Int;
-	static type Int2 = Int1;
-	static type Int3Not0 = Int2{self!=0};
-	static type IntNot0 = Int3Not0;
+	static type Long1 = Long;
+	static type Long2 = Long1;
+	static type Long3Not0 = Long2{self!=0};
+	static type LongNot0 = Long3Not0;
 	static type FooNotNull[T] = Foo[T]{self!=null};
 	
 	static class Foo[T] {}
 	
 	class A1 {
-		def this(Int) {}
-		def this(IntNot0) {} // ERR
+		def this(Long) {}
+		def this(LongNot0) {} // ERR
 	}
 	class A2 {	
-		def this(Foo[Int]) {}
+		def this(Foo[Long]) {}
 		def this(Foo[Double]) {}
 	}
 	class A3 {	
-		def this(Foo[Int]) {}
-		def this(FooNotNull[Int]) {} // ERR
+		def this(Foo[Long]) {}
+		def this(FooNotNull[Long]) {} // ERR
 	}
 	class A4 {	
-		def this(Foo[Int]) {}
-		def this(Foo[IntNot0]) {} // ERR
+		def this(Foo[Long]) {}
+		def this(Foo[LongNot0]) {} // ERR
 	}
 	class A5 {		
-		def this(Foo[Foo[Int]]) {}
-		def this(Foo[Foo[IntNot0]]) {} // ERR
+		def this(Foo[Foo[Long]]) {}
+		def this(Foo[Foo[LongNot0]]) {} // ERR
 	}
 }
 
@@ -5081,65 +5072,65 @@ class TestOverloadingAndConstraints_ctors_macros {
 interface TestTypeDefOverloadingAndConstraints {
 	static class Foo[T] {}
 
-	static type m00 = Int; 
+	static type m00 = Long; 
 	static type m00 = Double; // ERR [Semantic Error: Duplicate type definition "type static TestOverloadingAndConstraints.m00 = x10.lang.Double"; previous declaration at C:\cygwin\home\Yoav\test\Hello.x10:13,5-28.]
 
-	static type m0(Int) = Int;
-	static type m0(Int) = Int; // ERR (Semantic Error: Duplicate method "method abstract public TestOverloadingAndConstraints.m0(id$1:x10.lang.Int): void"; previous declaration at C:\cygwin\home\Yoav\test\Hello.x10:11,5-21.)
+	static type m0(Long) = Long;
+	static type m0(Long) = Long; // ERR (Semantic Error: Duplicate method "method abstract public TestOverloadingAndConstraints.m0(id$1:x10.lang.Long): void"; previous declaration at C:\cygwin\home\Yoav\test\Hello.x10:11,5-21.)
 	
-	static type m1(Int) = Int;
-	static type m1(Int{self!=0}) = Int; // ERR
+	static type m1(Long) = Long;
+	static type m1(Long{self!=0}) = Long; // ERR
 
-	static type m11(j:Int) = Int;
-	static type m11(i:Int) {i!=0}  = Int; // ERR [Semantic Error: Duplicate type definition "type static TestOverloadingAndConstraints.m11(x10.lang.Int){i!=0} = x10.lang.Int"; previous declaration at C:\cygwin\home\Yoav\test\Hello.x10:22,5-33.]
+	static type m11(j:Long) = Long;
+	static type m11(i:Long) {i!=0}  = Long; // ERR [Semantic Error: Duplicate type definition "type static TestOverloadingAndConstraints.m11(x10.lang.Long){i!=0} = x10.lang.Long"; previous declaration at C:\cygwin\home\Yoav\test\Hello.x10:22,5-33.]
 	
-	static type m2(Foo[Int]) = Int;
-	static type m2(Foo[Double]) = Int;
+	static type m2(Foo[Long]) = Long;
+	static type m2(Foo[Double]) = Long;
 
-	static type m3(Foo[Int]) = Int;
-	static type m3(Foo[Int]{self!=null}) = Int; // ERR
+	static type m3(Foo[Long]) = Long;
+	static type m3(Foo[Long]{self!=null}) = Long; // ERR
 
-	static type m4(Foo[Int]) = Int;
-	static type m4(Foo[Int{self!=0}]) = Int; // ERR
+	static type m4(Foo[Long]) = Long;
+	static type m4(Foo[Long{self!=0}]) = Long; // ERR
 	
-	static type m5(Foo[Foo[Int]]) = Int;
-	static type m5(Foo[Foo[Int{self!=0}]]) = Int; // ERR
+	static type m5(Foo[Foo[Long]]) = Long;
+	static type m5(Foo[Foo[Long{self!=0}]]) = Long; // ERR
 }
 interface TestTypeDefOverloadingAndConstraints_macros {
-	static type Int1 = Int;
-	static type Int2 = Int1;
-	static type Int3Not0 = Int2{self!=0};
-	static type IntNot0 = Int3Not0;
+	static type Long1 = Long;
+	static type Long2 = Long1;
+	static type Long3Not0 = Long2{self!=0};
+	static type LongNot0 = Long3Not0;
 	static type FooNotNull[T] = Foo[T]{self!=null};
 	
 	static class Foo[T] {}
 
-	static type m1(Int) = Int;
-	static type m1(IntNot0) = Int; // ERR
+	static type m1(Long) = Long;
+	static type m1(LongNot0) = Long; // ERR
 	
-	static type m2(Foo[Int]) = Int;
-	static type m2(Foo[Double]) = Int;
+	static type m2(Foo[Long]) = Long;
+	static type m2(Foo[Double]) = Long;
 
-	static type m3(Foo[Int]) = Int;
-	static type m3(FooNotNull[Int]) = Int; // ERR
+	static type m3(Foo[Long]) = Long;
+	static type m3(FooNotNull[Long]) = Long; // ERR
 
-	static type m4(Foo[Int]) = Int;
-	static type m4(Foo[IntNot0]) = Int; // ERR
+	static type m4(Foo[Long]) = Long;
+	static type m4(Foo[LongNot0]) = Long; // ERR
 	
-	static type m5(Foo[Foo[Int]]) = Int;
-	static type m5(Foo[Foo[IntNot0]]) = Int; // ERR
+	static type m5(Foo[Foo[Long]]) = Long;
+	static type m5(Foo[Foo[LongNot0]]) = Long; // ERR
 }
 
 class TestMemberTypeResolution {
-	static type Foo(i:Int{self!=0}) = Int;
-	static type Foo(i:Double) = Int;
+	static type Foo(i:Long{self!=0}) = Long;
+	static type Foo(i:Double) = Long;
 	var y:Foo(1);
 	var x:Foo(0); // ERR: todo: improve error: Semantic Error: Could not find type "Foo".
 	var z:Foo(0.1); 
 }
-class TestFieldResolution(p:Int) {
+class TestFieldResolution(p:Long) {
 	val f = 2;
-	val f2:Int{self==1 && self==this.p} = p as Int{self==1};
+	val f2:Long{self==1 && self==this.p} = p as Long{self==1};
 	def test1(me2:TestFieldResolution{self.p==2}) {
 		use(me2.f2); // ERR: Type inconsistent
 	}
@@ -5151,7 +5142,7 @@ class TestFieldResolution(p:Int) {
 
 class TestMultipleImplementAndFields {
 	interface I1 {
-        public property z():Int;
+        public property z():Long;
 	    static val a = 1;
 	}
 	interface I2 extends I1 {}
@@ -5160,13 +5151,13 @@ class TestMultipleImplementAndFields {
 	interface I5 extends I4 {
 		def m() {z==1} : void;
 	}
-	class Example1(z:Int) implements I5 {
-      public property z():Int = z;
+	class Example1(z:Long) implements I5 {
+      public property z():Long = z;
 	  def example() = a;
 	  public def m() {z==1} {};
 	}
-	class Example2(z:Int) implements I5,I3 {
-      public property z():Int = z;
+	class Example2(z:Long) implements I5,I3 {
+      public property z():Long = z;
 	  def example() = a;
 	  public def m() {z==1} {};
 	}
@@ -5174,19 +5165,19 @@ class TestMultipleImplementAndFields {
 
 
 class ResolutionAndInference {
-	def m[T](Int) = 1;
+	def m[T](Long) = 1;
 	def m(Double) = "1";
 
 	def test(){
-		val x2 = m(0);  // resolves to m(Double) because generic-type-inference failed on m[T](Int)
-		val x3:Int = x2; // ERR
+		val x2 = m(0);  // resolves to m(Double) because generic-type-inference failed on m[T](Long)
+		val x3:Long = x2; // ERR
 		val x5:String = m(0.0);
 	}
 }
 
 // resolution should ignore constraints and method guards
-class TestCtorResolutionAndConstraints(p:Int) {
-	def this(Int{self!=0}) {
+class TestCtorResolutionAndConstraints(p:Long) {
+	def this(Long{self!=0}) {
 		property(1);
 	}
 	def this(Double) {
@@ -5199,58 +5190,58 @@ class TestCtorResolutionAndConstraints(p:Int) {
 	}
 }
 class TestCtorOverloadingAndConstraints {
-	def this(Int{self!=0}) {
+	def this(Long{self!=0}) {
 	}
-	def this(Int) { // ERR
+	def this(Long) { // ERR
 	}
 }
 class TestMethodResolutionAndConstraints_instance {
-	def m(Int{self!=0}) = 1;
+	def m(Long{self!=0}) = 1;
 	def m(Double) = "1";
 	def test() {
-		val x1:Int = m(1);
+		val x1:Long = m(1);
 		val x2 = m(0); // ERR
-		val x3:Int = x2;
+		val x3:Long = x2;
 		val x4:String = m(0 as Double);
 		val x5:String = m(0.0);
 	}
 }
 class TestMethodResolutionAndConstraints_static {
-	static def m(Int{self!=0}) = 1;
+	static def m(Long{self!=0}) = 1;
 	static def m(Double) = "1";
 	static def test() {
-		val x1:Int = m(1);
+		val x1:Long = m(1);
 		val x2 = m(0); // ERR
-		val x3:Int = x2;
+		val x3:Long = x2;
 		val x4:String = m(0 as Double);
 		val x5:String = m(0.0);
 	}
 }
 class TestMethodResolutionAndConstraints_param_guard {
-	static def m(i:Int) {i!=0} = 1;
+	static def m(i:Long) {i!=0} = 1;
 	static def m(Double) = "1";
 	static def test() {
-		val x1:Int = m(1);
+		val x1:Long = m(1);
 		val x2 = m(0); // ERR
-		val x3:Int = x2;
+		val x3:Long = x2;
 		val x4:String = m(0 as Double);
 		val x5:String = m(0.0);
 	}
 }
-class TestMethodResolutionAndConstraints_this_guard(p:Int) {
-	def m(i:Int) {p!=0} = 1;
+class TestMethodResolutionAndConstraints_this_guard(p:Long) {
+	def m(i:Long) {p!=0} = 1;
 	def m(Double) = "1";
 	def test() {
-		val x1:Int = (this as TestMethodResolutionAndConstraints_this_guard{self.p==1}).m(1);
+		val x1:Long = (this as TestMethodResolutionAndConstraints_this_guard{self.p==1}).m(1);
 		val x2 = (this as TestMethodResolutionAndConstraints_this_guard{this.p==1}).m(0); 
-		val x3:Int = x2;
+		val x3:Long = x2;
 		val x4:String = m(0 as Double);
 		val x5:String = m(0.0);
 	}
 	static def test(me0:TestMethodResolutionAndConstraints_this_guard{p==0}, me1:TestMethodResolutionAndConstraints_this_guard{p==1}) {
-		val x1:Int = me1.m(1);
+		val x1:Long = me1.m(1);
 		val x2 = me0.m(0); // resolves to m(Double):String
-		val x3:Int = x2; // ERR
+		val x3:Long = x2; // ERR
 		val x33:String = x2; 
 		val x4:String = me0.m(0 as Double);
 		val x5:String = me1.m(0.0);
@@ -5258,36 +5249,36 @@ class TestMethodResolutionAndConstraints_this_guard(p:Int) {
 }
 // type constraints
 class TestMethodResolutionAndTypeConstraints_instance[T] {
-	def m(Int) {T haszero} = 1;
+	def m(Long) {T haszero} = 1;
 	def m(Double) = "1";
 	def test1() {T haszero} {
-		val x1:Int = m(1);
+		val x1:Long = m(1);
 		val x4:String = m(0 as Double);
 		val x5:String = m(0.0);
 	}
 	def test2() {
 		val x2 = m(0); // ERR
-		val x3:Int = x2;
+		val x3:Long = x2;
 	}
 }
 class TestMethodResolutionAndTypeConstraints_static {
-	static def m[T](Int{self!=0}) {T haszero} = 1;
+	static def m[T](Long{self!=0}) {T haszero} = 1;
 	static def m[T](Double) = "1";
 	static def test() {
-		val x1:Int = m[Int{self==1}](1);// ERR (Semantic Error: Cannot assign expression to target.		 Expression: m[x10.lang.Int{self==1}](x10.lang.Double.implicit_operator_as(1))		 Expected type: x10.lang.Int		 Found type: x10.lang.String{self=="1"})
-		val x2 = m[Int{self==0}](0); // ERR
-		val x3:Int = x2;
-		val x4:String = m[Int{self==1}](0 as Double);
-		val x5:String = m[Int{self==0}](0.0);
+		val x1:Long = m[Long{self==1}](1);// ERR (Semantic Error: Cannot assign expression to target.		 Expression: m[x10.lang.Long{self==1}](x10.lang.Double.implicit_operator_as(1))		 Expected type: x10.lang.Long		 Found type: x10.lang.String{self=="1"})
+		val x2 = m[Long{self==0}](0); // ERR
+		val x3:Long = x2;
+		val x4:String = m[Long{self==1}](0 as Double);
+		val x5:String = m[Long{self==0}](0.0);
 	}
 }
 
 // method overloading
 class TestStaticErr {
-	def test(b:Int) {}
+    def test(b:Int) {}
     static def test(b:Long) {}
     static def x() {
-        test(1); // ERR todo: should be:
+        test(1n); // ERR todo: should be:
 			//Cannot access a non-static member or refer to "this" or "super" from a static context.
 			// but it is: Method or static constructor not found for given call.
     }
@@ -5296,9 +5287,9 @@ class TestStaticErr {
 
 class Call_resolution_tests {	
 	class ClosureField {
-		var test:()=>Int;
+		var test:()=>Long;
 		def m() {
-			val x:Int = test();
+			val x:Long = test();
 		}
 	}
 	class MethodTest {
@@ -5313,63 +5304,63 @@ class Call_resolution_tests {
 	}
 	class LocalTest {
 		def m1[T](T:String) {
-			val y = T.substring(1); // local takes precedence over type-param
+			val y = T.substring(1n); // local takes precedence over type-param
 		}
-		def m2[T](T:()=>Int) {
+		def m2[T](T:()=>Long) {
 			val y = T(); // local takes precedence over type-param
 		}
 		def m3[T](x:String) {
-			val y = T.substring(1); // ERR ERR [Cannot invoke a static method of a type parameter. Method not found in Any.]
+			val y = T.substring(1n); // ERR ERR [Cannot invoke a static method of a type parameter. Method not found in Any.]
 		}
 		
 		def test():String = "a";
-		def vsMethod(test:()=>Int) {
+		def vsMethod(test:()=>Long) {
 			val x:String = test();
-			val y:Int = (test)();
+			val y:Long = (test)();
 		}
 	}
 	class FieldTest {
 		var T:String;
 		def m1[T]() {
-			val y = T.substring(1); // fields takes precedence over type-param
+			val y = T.substring(1n); // fields takes precedence over type-param
 		}
-		var U:()=>Int;
+		var U:()=>Long;
 		def m2[U]() {
 			val y = U(); // fields takes precedence over type-param
 		}
 		
-		var test:()=>Int;
+		var test:()=>Long;
 		def test():String = "a";
 		def vsMethod() {
 			val x:String = test();
-			val y:Int = (test)();
+			val y:Long = (test)();
 		}
 	}
 }
 
 
 class CallResolution_method_field_local {	 
-	var f: ()=>Int;
+	var f: ()=>Long;
 	def f():Double = 0.1;
 	def m(f: ()=>String) {
 		val x1:Double = this.f();
 		val x2:Double = f();
 		val x3:String = (f)();
-		val x4:Int = (this.f)();
+		val x4:Long = (this.f)();
 	}
 }
 class CallResolution_struct_vs_field_and_local {	 
 	static struct f {}
-	var f: ()=>Int;
+	var f: ()=>Long;
 	def m(f: ()=>String) {
 		val x1:String = f();
-		val x2:Int = this.f();
+		val x2:Long = this.f();
 		val x3:f = new f();
 	}
 }
 class CallResolution_struct_method_field_local {	 
 	static struct f {}
-	var f: ()=>Int;
+	var f: ()=>Long;
 	def f():Double = 0.1;
 	def m(f: ()=>String) {
 		val x1:Double = this.f();
@@ -5377,12 +5368,12 @@ class CallResolution_struct_method_field_local {
 		val x22:f = new f();
 		val x222:f = new CallResolution_struct_method_field_local.f();
 		val x3:String = (f)();
-		val x4:Int = (this.f)();
+		val x4:Long = (this.f)();
 	}
 }
 class CallResolution_typeParam_struct_method_field_local {	 
 	static struct f {}
-	var f: ()=>Int;
+	var f: ()=>Long;
 	def f():Double = 0.1;
 	def m[f](f: ()=>String) {
 		val x1:Double = this.f();
@@ -5390,14 +5381,14 @@ class CallResolution_typeParam_struct_method_field_local {
 		val x22 = new f(); // ERR [Semantic Error: No valid constructor found for f().]
 		val x222:CallResolution_typeParam_struct_method_field_local.f = new CallResolution_typeParam_struct_method_field_local.f();
 		val x3:String = (f)();
-		val x4:Int = (this.f)();
+		val x4:Long = (this.f)();
 	}
 }
 
 class TestConstraintErrMessage {
-	class A(a:Int) {}
-	class B[T](b:Int) {}
-	class F(r:Int) {
+	class A(a:Long) {}
+	class B[T](b:Long) {}
+	class F(r:Long) {
 		var b:B[A{self.a==this.r}]{self.b==this.r};
 		def test(f:F{self.r==1}) {
 			val bb:B[A{self.a==1}]{self.b==1} = f.b;
@@ -5412,29 +5403,29 @@ class LoopTests {
 		for (p:Point(1) in d) {}
 	}
     public def run() {
-        val r:Region(2){self!=null}  = (0..2)*(0..3);
+        val r:Region(2){rect}  = Region.make(0..2, 0..3);
 	}
 
-	class P(r:Int) {}
-	abstract class D(q:Int) implements Iterable[P{self.r==this.q}] {}
+	class P(r:Long) {}
+	abstract class D(q:Long) implements Iterable[P{self.r==this.q}] {}
 	def m2(d:D{q==1}) {
 		for (p:P{r==1} in d) {}
 	}
 
 	
 	class NonIterable {}
-	interface Int2Iterable2 extends Iterable[Int{self==2}] {}
-	abstract class Int2Iterable implements Int2Iterable2 {}
+	interface Long2Iterable2 extends Iterable[Long{self==2}] {}
+	abstract class Long2Iterable implements Long2Iterable2 {}
 
 	def m0(x:NonIterable) {
 		for (p:Any in x) {} // ERR
 	}
-	def m00(x:Int2Iterable) {
+	def m00(x:Long2Iterable) {
 		for (p:Any in x) {}
 		for (p:String in x) {} // ERR
-		for (p:Int in x) {}
-		for (p:Int{self==2} in x) {}
-		for (p:Int{self==1} in x) {} // ERR
+		for (p:Long in x) {}
+		for (p:Long{self==2} in x) {}
+		for (p:Long{self==1} in x) {} // ERR
 	}
 	def m1[T,U](x:T) {T <:Iterable[U]} {
 		for (p:Any in x) {}
@@ -5448,19 +5439,19 @@ class LoopTests {
 		for (p:U in x) {}
 		for (p:T in x) {} // ERR
 	}
-	def m2[T](x:T) {T <:Iterable[Int{self==2}]} {
+	def m2[T](x:T) {T <:Iterable[Long{self==2}]} {
 		for (p:Any in x) {}
 		for (p:String in x) {} // ERR
-		for (p:Int in x) {}
-		for (p:Int{self==2} in x) {}
-		for (p:Int{self==1} in x) {} // ERR
+		for (p:Long in x) {}
+		for (p:Long{self==2} in x) {}
+		for (p:Long{self==1} in x) {} // ERR
 	}
-	def m3(x:Iterable[Int{self==2}]) {
+	def m3(x:Iterable[Long{self==2}]) {
 		for (p:Any in x) {}
 		for (p:String in x) {} // ERR
-		for (p:Int in x) {}
-		for (p:Int{self==2} in x) {}
-		for (p:Int{self==1} in x) {} // ERR
+		for (p:Long in x) {}
+		for (p:Long{self==2} in x) {}
+		for (p:Long{self==1} in x) {} // ERR
 	}
 }
 
@@ -5489,22 +5480,22 @@ class XTENLANG_2491 {
 	}
 	static class Hello {
 		public def main(Rail[String]) {
-			val map = new MyHashMap[String,Int](5);
+			val map = new MyHashMap[String,Long](5);
 			Console.OUT.println(map.get());
 		}
 	}
 	static class LiteralTests {
 		val b1:Byte = 127y;
 		val b2:Byte = 128y; // ShouldBeErr
-		val b3:Byte = 127; // is it ok? where does it says so in the spec? (implicit coersions from Int to Byte cannot differentiate between 127 and 128)
-		val b4:Byte = 128; // ERR
+		val b3:Byte = 127;  // ERR
+		val b4:Byte = 128;  // ERR
 		val b5:Byte = 128 as Byte;
 	}
 }
 
 
 class SuperPropertyFieldResolution {
-	class B(a:Int) {}
+	class B(a:Long) {}
 	class C1 extends B{a==1} {
 		def this() { super(1); }
 	}
@@ -5529,8 +5520,8 @@ class SuperPropertyFieldResolution {
 }
 class SuperPropertyMethodResolution {
 	class B {
-		property a():Int = 1;
-		def this(z:Int) {}
+		property a():Long = 1;
+		def this(z:Long) {}
 	}
 	class C1 extends B{a()==1} { // ShouldNotBeERR ShouldNotBeERR: Method or static constructor not found for given call.	 Call: a()
 		def this() { super(1); }
@@ -5556,7 +5547,7 @@ class SuperPropertyMethodResolution {
 }
 class InterfaceSuperPropertyMethodResolution {
 	interface B {
-		property a():Int;
+		property a():Long;
 	}
 	abstract class C1 implements B{a()==1} { // ERR ShouldNotBeERR: Method or static constructor not found for given call.	 Call: a()
 	}
@@ -5583,8 +5574,8 @@ class InterfaceSuperPropertyMethodResolution {
 // redesign of property fields and property methods in interfaces
 //http://jira.codehaus.org/browse/XTENLANG-1914
 class InterfacePropertyMethods {
-	interface XX(i:Int) {} // ERR
-	interface YY(i:Int) extends MethodAnnotation, FieldAnnotation { } // ok
+	interface XX(i:Long) {} // ERR
+	interface YY(i:Long) extends MethodAnnotation, FieldAnnotation { } // ok
 	interface ZZ(j:String) extends YY {} // ok
 	class TestAnnotations {
 		@YY(23) val k1 = "1";
@@ -5596,19 +5587,19 @@ class InterfacePropertyMethods {
 	}
 
 	interface I {
-		property i():Int;
+		property i():Long;
 	}
 	abstract class A1 implements I {
-		public abstract property i():Int;
+		public abstract property i():Long;
 	}
 	class B1 extends A1 {
-		public property i():Int = 1; // properties are final
+		public property i():Long = 1; // properties are final
 	}
 	class C1 extends B1 {
-		public property i():Int = 2; // ERR: Semantic Error: i(): x10.lang.Int in C1 cannot override i(): x10.lang.Int in B1; overridden method is final
+		public property i():Long = 2; // ERR: Semantic Error: i(): x10.lang.Long in C1 cannot override i(): x10.lang.Long in B1; overridden method is final
 	}
 	class A2 implements I {
-		public property i():Int = 3;
+		public property i():Long = 3;
 	}
 }
 
@@ -5618,12 +5609,12 @@ struct StructCannotBeUsedInGlobalRef {
 
 class RuntimeChecksOfConstraintsInGenerics {
     public static def main(args: Rail[String]) {
-        val arr = new Array[Int{self==3}](0..100, ([p]:Point(1))=>3);
-		//arr(0) = 1; // err: Cannot assign expression to array element of given type.             Expression: 1             Type: x10.lang.Int{self==1}             Array element: arr(0)             Type: x10.lang.Int{self==3}    
+        val arr = new Array[Long{self==3}](101, (Long)=>3);
+		//arr(0) = 1; // err: Cannot assign expression to array element of given type.             Expression: 1             Type: x10.lang.Long{self==1}             Array element: arr(0)             Type: x10.lang.Long{self==3}    
 		arr(0) = 3; 
-		val arrAlias = (arr as Any) as Array[Int](1); // it should have failed HERE  // ERR: Warning: This is an unsound cast because X10 currently does not perform constraint solving at runtime for generic parameters.
+		val arrAlias = (arr as Any) as Array[Long](1); // it should have failed HERE  // ERR: Warning: This is an unsound cast because X10 currently does not perform constraint solving at runtime for generic parameters.
 		arrAlias(0) = 1; 
-		val x:Int{self==3} = arr(0); // Broke type safety
+		val x:Long{self==3} = arr(0); // Broke type safety
 		assert x==3 : "We should have failed before"; // but it fails HERE 
     }
 }
@@ -5649,29 +5640,29 @@ class PropDefConstraint_Circular(a: Boolean) { // see XTENLANG-2426
 		p.c(); // ERR
     }
 }
-class TestPropertsFieldsAndNullaryPropertyMethods(m:Int, q:String, w:Int) {
-    public property z():Int = 3;
-    public property n():Int = n; // ERR ERR (circularity)
-    public property m():Int = m;
+class TestPropertsFieldsAndNullaryPropertyMethods(m:Long, q:String, w:Long) {
+    public property z():Long = 3;
+    public property n():Long = n; // ERR ERR (circularity)
+    public property m():Long = m;
 	public property q():Double = 2.2;
 	def test() {
-		val x1:Int = m;
-		val x2:Int = m();
+		val x1:Long = m;
+		val x2:Long = m();
 		val x3:String = q;
 		val x4:Double = q();
-		val x5:Int = z;
-		val x6:Int = z();
-		val x7:Int = w;
-		val x8:Int = w(); // ERR
+		val x5:Long = z;
+		val x6:Long = z();
+		val x7:Long = w;
+		val x8:Long = w(); // ERR
 	}
 
 	class Super {
-		property a():Int = 1;
+		property a():Long = 1;
 	}
 	class Sub(a:String) extends Super {
 		def test(sub:Sub) {
 			val sup:Super = sub;
-			val x1:Int = sup.a;
+			val x1:Long = sup.a;
 			val x2:String = sub.a;
 		}
 	}
@@ -5680,7 +5671,7 @@ class TestPropertsFieldsAndNullaryPropertyMethods(m:Int, q:String, w:Int) {
 class PropertyTypeCannotBeParameterType[T](a:T) {} // ERR: A property type cannot be a type parameter.
 class SimplerPropertyTest {
 	class A(a:A) {} // ERR
-	class B(b:Int) {
+	class B(b:Long) {
 		def this() { property(2); }
 	}
 	class C(c:B) extends B {}
@@ -5696,15 +5687,15 @@ class XTENLANG_2535[T](x:Array[T]) {
 	def this() {
 		property(null);
 	}
-	def this(Int):XTENLANG_2535[T] {
+	def this(Long):XTENLANG_2535[T] {
 		property(null);
 	}
 }
 
-class PropertyAndCtorArgumentsBug(R:Int) {
-	public def this(r:Int)	{
+class PropertyAndCtorArgumentsBug(R:Long) {
+	public def this(r:Long)	{
 		property(r);
-		val x:Int{self==R} = r; 
+		val x:Long{self==R} = r; 
 	}
 }
 class TestUnsoundCastWarning {	
@@ -5720,16 +5711,16 @@ class TestConstraintLanguageAndRegions {
 
 	def test() {	
 		var t: Boolean(true) = false; 	// ERR
-		val R:Region{rank==2&&zeroBased&&rect} = 0..10*0..10;
+		val R:Region{rank==2&&rect} = Region.make(0..10, 0..10);
 
-		val Universe: Region = 0..7*0..7;
+		val Universe: Region = Region.make(0..7, 0..7);
 		for (val [i,j]: Point in Universe) {} // ERR
 	}
 }
 
 
 class TestExceptionsFlow {
-	var n:Int;
+	var n:Long;
 	def m() {
 		val x:TestExceptionsFlow;
 		try {
@@ -5742,12 +5733,12 @@ class TestExceptionsFlow {
 }
 class ResolvingPropertyMethods { 
 	interface I {
-		property p():Int;
-		def m():Int;
+		property p():Long;
+		def m():Long;
 	}
 	class C implements I {
-		public property p():Int = 2;
-		public def m():Int = 2;
+		public property p():Long = 2;
+		public def m():Long = 2;
 	}
 	// p()  should resolve to	self.p()
 	static def test(i:I{p()==1}) { // ShouldNotBeERR ShouldNotBeERR: Method or static constructor not found for given call.	 Call: p()
@@ -5761,23 +5752,23 @@ class ResolvingPropertyMethods {
 }
 
 class TestQuotes {
-	static val `+` = (x:Int, y:Int) => x+y;
+	static val `+` = (x:Long, y:Long) => x+y;
 	def test() {
-		val res:Int = (TestQuotes.`+`)(1,2);
+		val res:Long = (TestQuotes.`+`)(1,2);
 	}
 }
 
 class DefaultConstructorBug1 { // see XTENLANG-2273
-    public static def bar(y:Int):Foo{self.x==y} = new Foo(y);
-    public static class Foo(x:Int) {}
+    public static def bar(y:Long):Foo{self.x==y} = new Foo(y);
+    public static class Foo(x:Long) {}
 }
 class DefaultConstructorBug2 {
-    public static class Foo(x:Int) {}
-    public static def bar(y:Int):Foo{self.x==y} = new Foo(y);
+    public static class Foo(x:Long) {}
+    public static def bar(y:Long):Foo{self.x==y} = new Foo(y);
 }
 
 class CheckConstraintLanguage {
-  class A(x:Int) {
+  class A(x:Long) {
    property zero()= x==0;
    def z(a:A{self!=null && self.x==1}) {}
    def m(a:A, b:A) { a.zero()}{} // ok
@@ -5813,32 +5804,32 @@ class NullGuardTest2 {
 
 
 class TestNonConstraintInPropertyAssignCall {
-	class A(x:Int) {
-		def this(a:Int) {
+	class A(x:Long) {
+		def this(a:Long) {
 			property(a+1); // ERR
 		}
 	}
-	class B(x:Int) {
-		def this(a:Int) {
+	class B(x:Long) {
+		def this(a:Long) {
 			val z = a+1;
 			property(z);
 		}
 	}
 }
 class TestPropertyExpansion {
-    static class A(x:Int) {
-        property m(a:Int) = x;
-        static type B(a:Int) = A{x==1};
+    static class A(x:Long) {
+        property m(a:Long) = x;
+        static type B(a:Long) = A{x==1};
 
-        static def test1(i:Int, A{i==self.m(self.m(i))}) {}
-        static def test2(i:Int, A{i*3==self.m(i)}) {} // ERR
+        static def test1(i:Long, A{i==self.m(self.m(i))}) {}
+        static def test2(i:Long, A{i*3==self.m(i)}) {} // ERR
 
-        static def test3(i:Int, B(i*3)) {}
-        static def test4(i:Int, A{x==i*3}) {} // ERR
+        static def test3(i:Long, B(i*3)) {}
+        static def test4(i:Long, A{x==i*3}) {} // ERR
     }
 }
 class SelfRestrictionTest {
-	static class A(b:Int) {
+	static class A(b:Long) {
 		val a:A = null;
 		def test1(A{this.a.a.a!=null}) {}
 		def test2(x:A, A{x.a.a.a!=null}) {}
@@ -5848,8 +5839,8 @@ class SelfRestrictionTest {
 
 class TestInitChecker {
 	def m1() {
-		val x:Int;
-		val y:Int = 1;
+		val x:Long;
+		val y:Long = 1;
 		class A {
 			val a = 1;
 			class B {
@@ -5898,33 +5889,33 @@ class TestInitChecker {
 
 	// local definite-assignment tests
 	def testLoop() {
-		for ([i] in 0..10) {
+		for (i in 0..10) {
 			val x = i;
 		}
 	}
-	def testFormal(k:Int) {
+	def testFormal(k:Long) {
 		val x = ()=>k+1;
 	}
 	def test0() {
-		val d0:Int;
+		val d0:Long;
 		d0 = 2;
 	}
 	def test1() {
-		val d1:Int = 1;
+		val d1:Long = 1;
 		val z1 = ()=>d1;
 	}
 	def test2() {
-		val d2:Int;
+		val d2:Long;
 		val z2 =
 			()=>d2; // ERR
 		d2 = 2;
 	}
 	def test3() {
-		val d3:Int = 1;
+		val d3:Long = 1;
 		val z3 = ()=> { d3=3; }; // ERR
 	}
 	def test4() {
-		val d4:Int;
+		val d4:Long;
 		val z4 = ()=> { d4=4; }; // ERR
 	}
 
@@ -5934,14 +5925,14 @@ class TestInitChecker {
 			val z = ()=>d;
 		};
 
-		val x:Int;
+		val x:Long;
 		val y = () => {x=3;}; // ERR
 		x = 2;
 
     }
 	def test5() {
-        val x:Int{self!=0};
-        val y:Int{self!=0} = 2;
+        val x:Long{self!=0};
+        val y:Long{self!=0} = 2;
 		val o = new Any() {
 			val z = x; // ERR
 		};
@@ -5958,14 +5949,14 @@ class TestInitChecker {
 		x = 3;
 	}
 	def testInner() {
-		val i1:Int;
-		val i2:Int = 1;
+		val i1:Long;
+		val i2:Long = 1;
 		val x = new Any() {
 			def qq() {
 				use(i1); // ERR
 				use(i2);
-				val j1:Int;
-				val j2:Int = 2;
+				val j1:Long;
+				val j2:Long = 2;
 				val w =  new Any() {
 					def qq2() {
 						use(i1); // ERR
@@ -5980,12 +5971,12 @@ class TestInitChecker {
 	def use(Any) {}
 	val a = 0;
 	public def run() {
-        val b:int = 1;
+        val b:long = 1;
         class C {
             val c = 1;
             def foo() = {
                 val fun = () => {
-                    val d:int = 1;
+                    val d:long = 1;
                     (() => a+b+c+d)()
                 };
                 fun()
@@ -5999,9 +5990,9 @@ class TriangleTest_6 // see XTENLANG-2582
     static class Triangle
      {
         def this() {}
-        property def prop1(s:Int):Int = s;
+        property def prop1(s:Long):Long = s;
 
-        def area(s1:Int{prop1(self) == 1}) {}
+        def area(s1:Long{prop1(self) == 1}) {}
      }
 
     public static def test() {
@@ -6010,12 +6001,12 @@ class TriangleTest_6 // see XTENLANG-2582
 }
 
 
-class NonNullaryPropertiesInInterfaces { // see XTENLANG-2609
+class NonNullaryPropertiesInLongerfaces { // see XTENLANG-2609
 	interface I {
-		public property p(z:Int):Int;
+		public property p(z:Long):Long;
 	}
 	class C implements I {
-		public property p(z:Int):Int = 2;
+		public property p(z:Long):Long = 2;
 	}
 	static def test(i:I{self.p(3)==2}) {} // ShouldNotBeERR
 }
@@ -6026,15 +6017,15 @@ class TestAnnotationCheck {
 
 class AbstractPropertyMethodsTests1 {
 	interface I {
-	  public property p():Int;
+	  public property p():Long;
 	}
-	abstract class A(x:Int) implements I {
+	abstract class A(x:Long) implements I {
 	  def test(c:A{self.x==2}) {
 		val i:I{self.p()==2} = c; // ERR
 	  }
 	}
-	abstract class C(x:Int) implements I {
-	  public property p():Int = x;
+	abstract class C(x:Long) implements I {
+	  public property p():Long = x;
 	  def test(c:C{self.x==2}) {
 		val i:I{self.p()==2} = c;
 	  }
@@ -6053,15 +6044,15 @@ class AbstractPropertyMethodsTests1 {
 }
 class AbstractPropertyMethodsTests2 {
 	abstract class I {
-	  public abstract property p():Int;
+	  public abstract property p():Long;
 	}
-	abstract class A(x:Int) extends I {
+	abstract class A(x:Long) extends I {
 	  def test(c:A{self.x==2}) {
 		val i:I{self.p()==2} = c; // ERR
 	  }
 	}
-	abstract class C(x:Int) extends I {
-	  public property p():Int = x;
+	abstract class C(x:Long) extends I {
+	  public property p():Long = x;
 	  def test(c:C{self.x==2}) {
 		val i:I{self.p()==2} = c;
 	  }
@@ -6069,10 +6060,10 @@ class AbstractPropertyMethodsTests2 {
 }
 class AbstractPropertyMethodsTests3 {
 	interface I {
-	  public property p(a:Int,b:Int):Boolean;
+	  public property p(a:Long,b:Long):Boolean;
 	}
-	abstract class C(x:Int) implements I {
-	  public property p(a:Int,b:Int):Boolean = a==3&&b==4&&x==2;
+	abstract class C(x:Long) implements I {
+	  public property p(a:Long,b:Long):Boolean = a==3&&b==4&&x==2;
 	  def test(c:C{self.x==2},c2:C{self.x==3}) {
 		val i1:I{self.p(3,4)} = c;
 		val i2:I{self.p(2,4)} = c; // ERR
@@ -6087,10 +6078,10 @@ class AbstractPropertyMethodsTests3 {
 
 class ConstraintBug_2614 { // XTENLANG-2614
 	interface I {
-		property p():Int;
+		property p():Long;
 	}
 	class C implements I {
-		public property p():Int = 3;
+		public property p():Long = 3;
 	}
 	class Test {
 	  def test(a:I, c:C{a.p()==2}) {
@@ -6101,86 +6092,86 @@ class ConstraintBug_2614 { // XTENLANG-2614
 
 class XTENLANG_2615 {
 	interface A {
-		def m(Int):void;
+		def m(Long):void;
 	}
-	class B implements A { // ERR ERR: B should be declared abstract; it does not define m(x10.lang.Int): void, which is declared in A
-		public def m(Int{self!=0}):void {}
+	class B implements A { // ERR ERR: B should be declared abstract; it does not define m(x10.lang.Long): void, which is declared in A
+		public def m(Long{self!=0}):void {}
 	}
 	abstract class C {
-		abstract def m(Int):void;
+		abstract def m(Long):void;
 	}
-	class D extends C { // ERR ERR: D should be declared abstract; it does not define m(x10.lang.Int): void, which is declared in C
-		public def m(Int{self!=0}):void {}
+	class D extends C { // ERR ERR: D should be declared abstract; it does not define m(x10.lang.Long): void, which is declared in C
+		public def m(Long{self!=0}):void {}
 	}
 }
 class TestConformanceWithAbstractPropertyMethods3 {
 	interface DataPoint { // see XTENLANG-989
-	   public property dim(): Int;
+	   public property dim(): Long;
 	   public def distanceFrom(t: DataPoint{3 == this.dim()}):void;
 	   public def distanceFrom2(t: DataPoint{3 == self.dim()}):void;
 	}
-	class IntDataPoint implements DataPoint {
-	   public property dim(): Int = 3;
+	class LongDataPoint implements DataPoint {
+	   public property dim(): Long = 3;
 	   public def distanceFrom(t: DataPoint{3 == this.dim()}):void { }
 	   public def distanceFrom2(t: DataPoint{3 == self.dim()}):void {}
 	}
 }
 class TestConformanceWithAbstractPropertyMethods3b {
 	interface DataPoint {
-	   public property dim(): Int;
+	   public property dim(): Long;
 	   public def distanceFrom(t: DataPoint{3 == this.dim()}):void;
 	   public def distanceFrom2(t: DataPoint{3 == self.dim()}):void;
 	}
-	class IntDataPoint(dim:Int) implements DataPoint {
-	   public property dim(): Int = dim;
+	class LongDataPoint(dim:Long) implements DataPoint {
+	   public property dim(): Long = dim;
 	   public def distanceFrom(t: DataPoint{3 == this.dim()}):void { }
 	   public def distanceFrom2(t: DataPoint{3 == self.dim()}):void {}
 	}
 }
 class TestConformanceWithAbstractPropertyMethods3c {
 	interface DataPoint {
-	   public property dim(): Int;
+	   public property dim(): Long;
 	   public def distanceFrom(t: DataPoint{3 == this.dim()}):void;
 	   public def distanceFrom2(t: DataPoint{3 == self.dim()}):void;
 	}
-	class IntDataPoint(x:Int) implements DataPoint {
-	   public property dim(): Int = x;
+	class LongDataPoint(x:Long) implements DataPoint {
+	   public property dim(): Long = x;
 	   public def distanceFrom(t: DataPoint{3 == this.x}):void { }
 	   public def distanceFrom2(t: DataPoint{3 == self.dim}):void {}
 	}
 }
 class TestConformanceWithAbstractPropertyMethods3dGenerics {
 	interface DataPoint {
-	   public property dim(): Int;
+	   public property dim(): Long;
 	   public def distanceFrom(t: Array[DataPoint{3 == this.dim()}]):void;
 	   public def distanceFrom2(t: Array[DataPoint{3 == self.dim()}]):void;
 	}
-	class IntDataPoint(x:Int) implements DataPoint { // ShouldNotBeERR ShouldNotBeERR
-	   public property dim(): Int = x;
+	class LongDataPoint(x:Long) implements DataPoint {
+	   public property dim(): Long = x;
 	   public def distanceFrom(t: Array[DataPoint{3 == this.x}]):void { }
 	   public def distanceFrom2(t: Array[DataPoint{3 == self.dim}]):void {}
 	}
 }
 class TestConformanceWithAbstractPropertyMethods4 {
 	interface DataPoint {
-	   public property dim(): Int;
+	   public property dim(): Long;
 	   public def distanceFrom3(t: DataPoint{3 == self.dim()}):void;
 	}
-	class IntDataPoint implements DataPoint { // ShouldNotBeERR ShouldNotBeERR (XTENLANG-2615)
-	   public property dim(): Int = 3;
+	class LongDataPoint implements DataPoint { // ShouldNotBeERR ShouldNotBeERR (XTENLANG-2615)
+	   public property dim(): Long = 3;
 	   public def distanceFrom3(t: DataPoint{3 == this.dim()}):void {} // ShouldBeErr
 	}
 }
 
 class XTENLANG_1914 {
 	interface I {
-	  property i():Int;
+	  property i():Long;
 	}
 	class A implements I {
-	  public property i():Int = 2;
+	  public property i() = 2;
 	}
-	class B(x:Int) implements I {
-	  public property i():Int = x;
+	class B(x:Long) implements I {
+	  public property i() = x;
 	}
 	class Test {
 	  def test(var i1:I{self.i()==2}, var i2:I{self.i()==2}, var a1:A, var a2:A{self.i()==2}, var b1:B{self.i()==2}, var b2:B{x==2}) {
@@ -6198,7 +6189,7 @@ class XTENLANG_1914 {
 	}
 
 	interface R {
-	  public property x():Int;
+	  public property x():Long;
 	}
 	class S implements R {
 	  public property x()=2;
@@ -6231,23 +6222,23 @@ class TestTypeParamShadowing { // XTENLANG-2163
 }
 
 class XTENLANG_2617 {
-	class MySuper(supval:Int) {}
-	class MyClass(myval:Int) extends MySuper{self.supval==myval} {
-		public def this(i:Int) {
+	class MySuper(supval:Long) {}
+	class MyClass(myval:Long) extends MySuper{self.supval==myval} {
+		public def this(i:Long) {
 			super(i);
 			property(i);
 		}
 	}
-	class AssignPropertyTest(myval:Int) {
-		val x:Int{self==this.myval};
-		public def this(i:Int) {
+	class AssignPropertyTest(myval:Long) {
+		val x:Long{self==this.myval};
+		public def this(i:Long) {
 			property(i);
 			x = i;
 		}
 	}
 }
 
-class ConstrainedCall(x:Int) { // XTENLANG-2416
+class ConstrainedCall(x:Long) { // XTENLANG-2416
     def m(){x==0} = 10;
     def test() { m(); } // ERR
 }
@@ -6311,14 +6302,14 @@ class XTENLANG_1767 {
 }
 
 class DefaultCtorTests {
-	class A10(i:Int) {this.i==2} {}
-	class A1(i:Int) {this.i==2} {
+	class A10(i:Long) {this.i==2} {}
+	class A1(i:Long) {this.i==2} {
 		def this() { property(2); }
 	}
-	class B1(b:Int) 
+	class B1(b:Long) 
 		{this.i!=3} // ERR: Cannot create the default constructor because the class invariant uses self or super.
 		extends A1 {} 
-	class B2(b:Int) {b!=3} extends A1 {}
+	class B2(b:Long) {b!=3} extends A1 {}
 	class D 
 		{i!=3}  // ERR: Cannot create the default constructor because the class has no properties. Move the invariant as a constraint on the relevant supertype.
 		extends A1 {} 
@@ -6327,18 +6318,18 @@ class DefaultCtorTests {
 }
 class DefaultCtorTests2 {
 	interface B {
-		property a():Int;
+		property a():Long;
 	}
-	abstract class C5(x:Int) {this.a()!=x} implements B {
+	abstract class C5(x:Long) {this.a()!=x} implements B {
 		property a()=1;
-		def this(x:Int) {1!=x} { property(x); }
+		def this(x:Long) {1!=x} { property(x); }
 	}
-	abstract class C6(x:Int) {this.a()!=x} implements B { // ERR ERR
+	abstract class C6(x:Long) {this.a()!=x} implements B { // ERR ERR
 		property a()=1;
 	}
 }
 class TestCheckingClassInvariant {
-	class B(b:Int) {
+	class B(b:Long) {
 		def this() { property(1); }
 	}
 	class C2 
@@ -6368,7 +6359,7 @@ class TestCheckingClassInvariant {
 		}	
 	}
 
-	class C22(c:Int) 
+	class C22(c:Long) 
 		{this.b==1}
 		extends B {
 		def this() {
@@ -6376,7 +6367,7 @@ class TestCheckingClassInvariant {
 			property(5);
 		}	
 	}
-	class C2b(c:Int) 
+	class C2b(c:Long) 
 		{this.b==7}
 		extends B {
 		def this() { // ERR
@@ -6386,24 +6377,24 @@ class TestCheckingClassInvariant {
 	}
 }
 class XTENLANG_1636 {
-	class A1(i:Int) {this.i==2} {}
-	class A2(i:Int) {
-		def this(p:Int) {this.i==p} { // ERR (can't use "this" in the guard)
+	class A1(i:Long) {this.i==2} {}
+	class A2(i:Long) {
+		def this(p:Long) {this.i==p} { // ERR (can't use "this" in the guard)
 			property(3);
 		}
 	}
-	class IntSetter0(p:Int) {this.p==1} {}
-	class IntSetter1(p:Int) {f()} { // ERR ERR (too complicated to create a default ctor for this case)
+	class LongSetter0(p:Long) {this.p==1} {}
+	class LongSetter1(p:Long) {f()} { // ERR ERR (too complicated to create a default ctor for this case)
 		property f() = p==1;
 		// if we had the time, then the auto-generated ctor would have a guard, i.e., it would look like this:
-		// def this(x:Int) {x==1} {	property(x); }
+		// def this(x:Long) {x==1} {	property(x); }
 	}
-	class IntSetter2(p:Int) {f()} {
+	class LongSetter2(p:Long) {f()} {
 		property f() = p==1;
-		def this(x:Int) {
+		def this(x:Long) {
 			property(x); // ERR
 		}
-		def this(x:Int,y:Int) {x==1} {
+		def this(x:Long,y:Long) {x==1} {
 			property(x);
 		}
 		def this() {
@@ -6416,7 +6407,7 @@ class XTENLANG_1636 {
 }
 
 class Offery_1582 { //XTENLANG-1582
-  def this() offers Int {
+  def this() offers Long {
     offer 81;
   }
 }
@@ -6428,7 +6419,7 @@ class ImplicitTargetResolutionTest { // ERR
 	static def rankTest1(a:Dist{rank()==2}) {} // ERR ERR ERR 
 	static def rankTest2(a:Dist{self.rank()==2}) {} // ok
 
-	class TypeName(p:Int) {
+	class TypeName(p:Long) {
 		property p1():Boolean = p==3;
 
 		val f1:TypeName{p1()} = null;	// defaults to "this.p1()"
@@ -6446,9 +6437,9 @@ class ImplicitTargetResolutionTest { // ERR
 	  val bug3:TypeName{p1()} = new TypeName(3); // ERR ERR
 	}
 
-	static def rankTest(a:Array[Int]{rank==2}) {
-		val xa:Array[Int]{self.rank==2} = a;
-		val ya:Array[Int]{this.rank==2} = a; // ERR ERR ERR
+	static def rankTest(a:Array[Long]{rank==2}) {
+		val xa:Array[Long]{self.rank==2} = a;
+		val ya:Array[Long]{this.rank==2} = a; // ERR ERR ERR
 	}
 }
 
@@ -6457,9 +6448,9 @@ class StructLCATest { // see XTENLANG-2635
 	static struct A implements Op {}
 	static struct B implements Op {}
 	class Test {
-		val x:Array[Op] = [A(), B()]; 
-		val y:Array[Op] = [A() as Op, B()];
-		val z:Array[Op] = [A() as Op, B() as Op];
+		val x:Rail[Op] = [A(), B()]; 
+		val y:Rail[Op] = [A() as Op, B()];
+		val z:Rail[Op] = [A() as Op, B() as Op];
 	}
 }
 class ClassLCATest {
@@ -6468,10 +6459,10 @@ class ClassLCATest {
 	static class B implements Op {}
 	class Test {
 		// LCA of A and B should be Op or Any ?
-		val w:Array[Any{self!=null}] = [new A(), new B()]; // ERR
-		val x:Array[Op{self!=null}] = [new A(), new B()]; 
-		val y:Array[Op] = [new A() as Op, new B()];
-		val z:Array[Op] = [new A() as Op, new B() as Op];
+		val w:Rail[Any{self!=null}] = [new A(), new B()]; // ERR
+		val x:Rail[Op{self!=null}] = [new A(), new B()]; 
+		val y:Rail[Op] = [new A() as Op, new B()];
+		val z:Rail[Op] = [new A() as Op, new B() as Op];
 	}
 }
 class LCATests { // see XTENLANG-2635
@@ -6488,14 +6479,14 @@ class LCATests { // see XTENLANG-2635
 		static struct S23 implements Op,I2,I3 {}
 		static struct S123 implements Op,I1,I2,I3 {}
 		def test() {
-			val x1:Array[Op] = [new S1(), new S2()]; 
-			val x2:Array[Op] = [new S1(), new S2(), new S3()]; 
-			val x3:Array[Any] = [new S1(), new S13()]; 
-			val x4:Array[Op] = [new S1(), new S23()]; 
-			val x5:Array[Any] = [new S1(), new S123()]; 
-			val x6:Array[Any] = [new S123(), new S2()]; 
-			val x7:Array[Any] = [new S23(), new S2()]; 
-			val x8:Array[Op] = [new S13(), new S2()];
+			val x1:Rail[Op] = [new S1(), new S2()]; 
+			val x2:Rail[Op] = [new S1(), new S2(), new S3()]; 
+			val x3:Rail[Any] = [new S1(), new S13()]; 
+			val x4:Rail[Op] = [new S1(), new S23()]; 
+			val x5:Rail[Any] = [new S1(), new S123()]; 
+			val x6:Rail[Any] = [new S123(), new S2()]; 
+			val x7:Rail[Any] = [new S23(), new S2()]; 
+			val x8:Rail[Op] = [new S13(), new S2()];
 		}
 	}
 	static class ClassTests {
@@ -6506,14 +6497,14 @@ class LCATests { // see XTENLANG-2635
 		static class S23 implements Op,I2,I3 {}
 		static class S123 implements Op,I1,I2,I3 {}
 		def test() {
-			val x1:Array[Op{self!=null}] = [new S1(), new S2()]; 
-			val x2:Array[Op{self!=null}] = [new S1(), new S2(), new S3()]; 
-			val x3:Array[Any{self!=null}] = [new S1(), new S13()];
-			val x4:Array[Op{self!=null}] = [new S1(), new S23()]; 
-			val x5:Array[Any{self!=null}] = [new S1(), new S123()];
-			val x6:Array[Any{self!=null}] = [new S123(), new S2()];
-			val x7:Array[Any{self!=null}] = [new S23(), new S2()]; 
-			val x8:Array[Op{self!=null}] = [new S13(), new S2()];
+			val x1:Rail[Op{self!=null}] = [new S1(), new S2()]; 
+			val x2:Rail[Op{self!=null}] = [new S1(), new S2(), new S3()]; 
+			val x3:Rail[Any{self!=null}] = [new S1(), new S13()];
+			val x4:Rail[Op{self!=null}] = [new S1(), new S23()]; 
+			val x5:Rail[Any{self!=null}] = [new S1(), new S123()];
+			val x6:Rail[Any{self!=null}] = [new S123(), new S2()];
+			val x7:Rail[Any{self!=null}] = [new S23(), new S2()]; 
+			val x8:Rail[Op{self!=null}] = [new S13(), new S2()];
 		}
 	}
 	static class ClassTests2 {
@@ -6522,8 +6513,8 @@ class LCATests { // see XTENLANG-2635
 		static class S1 extends A implements Op {}
 		static class S2 extends A implements Op {}
 		def test() {
-			val x1:Array[A{self!=null}] = [new S1(), new S2()]; 
-			val x2:Array[A{self!=null}] = [new S1(), new A()]; 
+			val x1:Rail[A{self!=null}] = [new S1(), new S2()]; 
+			val x2:Rail[A{self!=null}] = [new S1(), new A()]; 
 		}
 	}
 	
@@ -6531,12 +6522,12 @@ class LCATests { // see XTENLANG-2635
 	static class ClassTests3 {
 		static class A {}
 
-		static class S1 implements GI[Int] {}
+		static class S1 implements GI[Long] {}
 		static class S2 implements GI[S1] {}
 		static class S3 implements GI[S1] {}
 		def test() {
-			val x1:Array[Any{self!=null}] = [new S1(), new S2()]; 
-			val x2:Array[GI[S1]{self!=null}] = [new S2(), new S3()]; 
+			val x1:Rail[Any{self!=null}] = [new S1(), new S2()]; 
+			val x2:Rail[GI[S1]{self!=null}] = [new S2(), new S3()]; 
 		}
 	}
 
@@ -6547,14 +6538,14 @@ class TestClassConformance { // XTENLANG-2509
 
 	public static def main(args:Rail[String]) { }
 
-	public abstract static class Matrix(M:Int, N:Int) {
-		protected def this(m:Int, n:Int) = property(m, n);
+	public abstract static class Matrix(M:Long, N:Long) {
+		protected def this(m:Long, n:Long) = property(m, n);
 		public abstract def mult(A:Matrix{self.M==this.M}, 
 								 B:Matrix{self.N==this.N, self.M==A.N}):void;
 	}
 	
 	public class ConcreteMatrix extends Matrix {
-		public def this(m:Int, n:Int) = super(m, n);
+		public def this(m:Long, n:Long) = super(m, n);
 		public def mult(A:Matrix{self.M==this.M}, 
 						B:Matrix{self.N==this.N, self.M==A.N}) { }
 	}
@@ -6570,7 +6561,7 @@ class TestFakeLocalError[T] { // I'm testing there is only one error (cause ther
 
 class XTENLANG_2302_test {
 	def mMismatchExample() {
-		val a <: Array[Boolean](1) = [true, false];
+		val a <: Rail[Boolean] = [true, false];
 		val p <: Point = [1,2] as Point;
 
 		// These are good: 
@@ -6594,12 +6585,12 @@ class XTENLANG_2302_test {
 		}
 	}
 	def mGoodExample() {
-		val a <: Array[Boolean](1) = [true, true, false];
+		val a <: Rail[Boolean] = [true, true, false];
 		val p <: Point = [1,2,3] as Point;
 
 		// These are good: 
 		{
-		  val [a1,a2,a3] = a;
+		  val [a1,a2,a3] = a; @ShouldNotBeERR
 		  assert a1 && a2 && !a3;
 		  // The Jira says that a needs to be Array[Boolean](3).
 		  // I think it's Array[Boolean]{rank==1,size==3}
@@ -6609,7 +6600,7 @@ class XTENLANG_2302_test {
 
 		// These are good too: 
 		{
-		  val aa[a1,a2,a3] = a;
+		  val aa[a1,a2,a3] = a; @ShouldNotBeERR
 		  // The JIRA says that type of aa is Array[Boolean](3)
 		  // I think it's Array[Boolean]{rank==1, size==3}
 		  // I'm going to stop saying this.
@@ -6620,11 +6611,11 @@ class XTENLANG_2302_test {
 }
 
 class XTENLANG_2691_test {
-	def m1():Int {
+	def m1():Long {
 		val x:String = at (here) {val y= 1; "a"};
 		return 3;
 	}
-	def m2():Int {
+	def m2():Long {
 		at (here) {
 			if (true) return 1; // ShouldNotBeERR ShouldNotBeERR
 		}
@@ -6634,10 +6625,10 @@ class XTENLANG_2691_test {
 
 
 class DifferentResolutionInDynamicAndStatic {
-	def m(Int{self!=0}):Int = 1;
-	def m(Double):Int = 2;
-	def test(x:Int) {
-		val z1:Int = m(x); // ERR
+	def m(Long{self!=0}):Long = 1;
+	def m(Double):Long = 2;
+	def test(x:Long) {
+		val z1:Long = m(x); // ERR
 	}
 }
 
@@ -6647,8 +6638,8 @@ class XTENLANG_1772_test {
                val i2:Float{self==0};// ERR
                val i3:Double{self==0};// ERR
                val i4:UInt{self==0us};// ERR
-               val i5:Long{self==0};// ERR
-               val i6:ULong{self==0u};// ERR
+               val i5:Long{self==0n};// ERR
+               val i6:ULong{self==0un};// ERR
                val i7:Char{self==0};   // ERR            
                val i8:Byte{self==0};// ERR
                val i9:UByte{self==0u};// ERR
@@ -6696,7 +6687,7 @@ class LegalOverloading1[U] {
 	def foo(x:U) {}
 }
 class LegalOverloading2[U] {	
-	def foo(x:Int) {}
+	def foo(x:Long) {}
 	def foo(x:U) {}
 }
 class LegalOverloading3[S,U] {
@@ -6712,8 +6703,8 @@ class PropertyMethodThatIsBothTopLevelAndNested {
 	interface BI {
 	  property m():Boolean;
 	}
-	class A(p:Int) {}
-	class B(a:A,b:Int) implements BI {
+	class A(p:Long) {}
+	class B(a:A,b:Long) implements BI {
 	  property m() = a.p==2 && b==5;
 	}
 	class Test {
@@ -6724,14 +6715,14 @@ class PropertyMethodThatIsBothTopLevelAndNested {
 	}
 }
 class XTENLANG_1729 {
-    var comparator:Int;
+    var comparator:Long;
 	static class A {
 		class B {
 			class AscendingSubMapEntrySet {
 				def test() {
 					val x = comparator();
 				}
-				public def comparator():Int = 5;
+				public def comparator():Long = 5;
 			}
 		}
 	}
@@ -6739,7 +6730,7 @@ class XTENLANG_1729 {
 
 class XTENLANG_2525 {
 	static class X1 { // choosing system-as over user-defined-as
-		static class A(p:Int) {
+		static class A(p:Long) {
 			static operator (x:B) as A{p==1} = null;
 			def this() { property(2); }
 		}
@@ -6751,7 +6742,7 @@ class XTENLANG_2525 {
 		}
 	}
 	static class X2 { // Now A extends B (instead of B extends A)
-		static class A(p:Int) extends B {
+		static class A(p:Long) extends B {
 			static operator (x:B) as A{p==1} = null;
 			def this() { property(2); }
 		}
@@ -6763,7 +6754,7 @@ class XTENLANG_2525 {
 		}
 	}
 	static class X3 { // Now A and B are not related - so we choose the user-defined-as
-		static class A(p:Int) {
+		static class A(p:Long) {
 			static operator (x:B) as A{p==1} = null;
 			def this() { property(2); }
 		}
@@ -6775,7 +6766,7 @@ class XTENLANG_2525 {
 	}
 	// Now with implicit casts (not explicit)	
 	static class X1_implicit { // choosing system-as over user-defined-as
-		static class A(p:Int) {
+		static class A(p:Long) {
 			static operator (x:B) : A{p==1} = null;
 			def this() { property(2); }
 		}
@@ -6787,7 +6778,7 @@ class XTENLANG_2525 {
 		}
 	}
 	static class X2_implicit { // Now A extends B (instead of B extends A)
-		static class A(p:Int) extends B {
+		static class A(p:Long) extends B {
 			static operator (x:B) : A{p==1} = null;
 			def this() { property(2); }
 		}
@@ -6799,7 +6790,7 @@ class XTENLANG_2525 {
 		}
 	}
 	static class X3_implicit { // Now A and B are not related - so we choose the user-defined-as
-		static class A(p:Int) {
+		static class A(p:Long) {
 			static operator (x:B) : A{p==1} = null;
 			def this() { property(2); }
 		}
@@ -6811,7 +6802,7 @@ class XTENLANG_2525 {
 	}
 }
 class XTENLANG_1851 {
-	val f:Int;
+	val f:Long;
 	var b:Boolean;
 	def this(Double) {
 		throw new Exception();
@@ -6865,10 +6856,10 @@ class XTENLANG_2745 {
 	}
 }
 class TestResolutionOfNull {
-	def m(Any):Int = 1;
+	def m(Any):Long = 1;
 	def m(String):String = "1";
 	def m2(String):String = "1";
-	def m2(Any):Int = 1;
+	def m2(Any):Long = 1;
 	def test() {
 		val x:String = m(null);
 		val y:String = m2(null);
@@ -6939,7 +6930,7 @@ class XTENLANG_2931 {
 	}
 }
 class XTENLANG_2925 {
-	def test2(arr:Array[Int]) {
+	def test2(arr:Array[Long]) {
 		for ([i] in arr) {} // ERR (Semantic Error: The loop iterator is a Point whose rank is not the same as the rank of the loop domain.)
 	}
 	def test(p:Point, p1:Point(1), p2:Point(2)) {
@@ -6950,11 +6941,11 @@ class XTENLANG_2925 {
 }
 
 class XTENLANG_2855 {
-	interface Throws2[T]{T <: x10.lang.CheckedThrowable} extends x10.lang.annotations.MethodAnnotation { }
+//	interface Throws2[T]{T <: x10.lang.CheckedThrowable} extends x10.lang.annotations.MethodAnnotation { }
 	class AnnotationTest {
 		def test() throws
             x10.lang.CheckedThrowable,
-            Any // ERR
+            Any // ShouldBeErr
         { } 
 	}
 }
