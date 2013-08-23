@@ -598,14 +598,14 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
                 }
             }
 
-            if (!subtypeOfCustomSerializer(def)) {
+            if (!subtypeOfCustomSerializer(def) && !subtypeOfCustomSerializer2(def)) {
                 if (alreadyPrintedTypes.size() != 0) {
                     w.write(", ");
                 }
                 w.write(Emitter.X10_JAVA_SERIALIZABLE_CLASS);
             }
 
-        } else if (!def.flags().isInterface() && !(def.asType().toString().equals(CUSTOM_SERIALIZATION))) {
+        } else if (!def.flags().isInterface() && !(def.asType().toString().equals(CUSTOM_SERIALIZATION)) && !(def.asType().toString().equals(CUSTOM_SERIALIZATION2))) {
             w.write(" implements " + Emitter.X10_JAVA_SERIALIZABLE_CLASS);
         } else {
         	// make all interfaces extend x10.core.Any
@@ -657,6 +657,8 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
         // print the custom serializer
         if (subtypeOfCustomSerializer(def)) {
             er.generateCustomSerializer(def, n);
+        } else if (subtypeOfCustomSerializer2(def)) {
+            er.generateCustomSerializer2(def, n);            
         } else if (subtypeOfUnserializable(def)) {
             w.write("public void " + Emitter.SERIALIZE_METHOD + "(" + Emitter.X10_JAVA_SERIALIZER_CLASS + " $serializer) throws java.io.IOException {");
             w.newline(4);
@@ -1190,11 +1192,18 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
     }
 
     private static final String CUSTOM_SERIALIZATION = "x10.io.CustomSerialization";
+    private static final String CUSTOM_SERIALIZATION2 = "x10.io.CustomSerialization2";
     public static final String SERIAL_DATA = "x10.io.SerialData";
     public static final String SERIAL_DATA_FIELD_NAME = "$$serialdata";
+    public static final String SERIALIZER = "x10.io.Serializer";
+    public static final String DESERIALIZER = "x10.io.Deserializer";
 
     private static boolean subtypeOfCustomSerializer(X10ClassDef def) {
         return subtypeOfInterface(def, CUSTOM_SERIALIZATION);
+    }
+    
+    private static boolean subtypeOfCustomSerializer2(X10ClassDef def) {
+        return subtypeOfInterface(def, CUSTOM_SERIALIZATION2);
     }
 
     private static final String UNSERIALIZABLE = "x10.io.Unserializable";

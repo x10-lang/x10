@@ -31,6 +31,8 @@ namespace x10aux {
         addr_map map;
         size_t len;
     public:
+        static const serialization_id_t CUSTOM_SERIALIZATION_END = 0x4abe;
+        
         char *getBuffer() { return buffer; }
         size_t getLen() { return len; }
 

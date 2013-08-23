@@ -285,6 +285,10 @@ public interface ClassDef extends MemberDef
      */
     boolean hasDeserializationConstructor(Context context);
     /**
+     * Does this class def have a custom deserialization constructor defined?
+     */
+    boolean hasDeserializationConstructor2(Context context);
+    /**
      * True if the class def used to be a non-static member class (used by {@link InnerClassRemover}).
      */
     boolean wasInner();

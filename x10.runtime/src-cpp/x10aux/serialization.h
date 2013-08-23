@@ -95,6 +95,8 @@ namespace x10aux {
     // avoid header inclusion problem, do this in a cc file
     void set_prof_data(x10::lang::Runtime__Profile *prof, unsigned long long bytes, unsigned long long nanos);
 
+    void raiseSerializationProtocolError();
+    
     template <class T> T deep_copy(T o, x10::lang::Runtime__Profile *prof) {
         serialization_buffer buf;
         unsigned long long before_nanos, before_bytes;

@@ -24,6 +24,8 @@
 using namespace x10aux;
 using namespace x10::lang;
 
+const serialization_id_t x10aux::deserialization_buffer::CUSTOM_SERIALIZATION_END;
+
 // used by simple_hashmap
 x10_uint x10aux::simple_hash_code(const void* id) {
     // the >> 4 is to ensure aligned pointer hashes are both odd and even
@@ -148,6 +150,15 @@ void x10aux::set_prof_data(x10::lang::Runtime__Profile *prof, unsigned long long
     prof->FMGL(bytes) += bytes;
     prof->FMGL(serializationNanos) += nanos;
 }
+
+void x10aux::raiseSerializationProtocolError() {
+    // TODO: This really should throw an x10-level exception, but that
+    //       is too likely to hang XRX, so make it a hard abort for now.
+    //       FIXME to make this throw an exception when XTENLANG-3219 is fixed.
+    fprintf(stderr, "\nError detected in custom serialization protocol. Aborting\n");
+    abort();
+}
+
 
 // vim:tabstop=4:shiftwidth=4:expandtab:textwidth=100
 

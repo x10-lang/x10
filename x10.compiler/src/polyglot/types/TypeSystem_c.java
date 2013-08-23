@@ -2368,6 +2368,13 @@ public class TypeSystem_c implements TypeSystem
             customSerializationType_ = load("x10.io.CustomSerialization"); // java file
         return customSerializationType_;
     }
+    
+    protected X10ClassType customSerialization2Type_;
+    public X10ClassType CustomSerialization2() {
+        if (customSerialization2Type_ == null)
+            customSerialization2Type_ = load("x10.io.CustomSerialization2"); // java file
+        return customSerialization2Type_;
+    }
 
     protected X10ClassType unserializableType_;
     public X10ClassType Unserializable() {
@@ -2381,6 +2388,20 @@ public class TypeSystem_c implements TypeSystem
         if (serialDataType_ == null)
             serialDataType_ = load("x10.io.SerialData"); // java file
         return serialDataType_;
+    }
+    
+    protected X10ClassType serializerType_;
+    public X10ClassType Serializer() {
+        if (serializerType_ == null)
+            serializerType_ = load("x10.io.Serializer"); // java file
+        return serializerType_;
+    }
+
+    protected X10ClassType deserializerType_;
+    public X10ClassType Deserializer() {
+        if (deserializerType_ == null)
+            deserializerType_ = load("x10.io.Deserializer"); // java file
+        return deserializerType_;
     }
 
     protected X10ClassType reducibleType_;

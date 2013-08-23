@@ -10,25 +10,28 @@
  */
 
 import harness.x10Test;
-import x10.io.CustomSerialization;
-import x10.io.SerialData;
+import x10.io.CustomSerialization2;
+import x10.io.Deserializer;
+import x10.io.Serializer;
 
 /*
  * Simple test case to check to see if custom serialization
  * protocol is being called by runtime system
  */
 public class TestCustomSerialization1 extends x10Test {
-  static class CS implements CustomSerialization {
+  static class CS implements CustomSerialization2 {
      val x:int;
      val y:int;
      transient var sum:int;
  
-     public def serialize() = new SerialData([x,y], null);
+     public def serialize(s:Serializer) {
+         s.writeAny(x);
+         s.writeAny(y);
+     }
   
-     def this(a:SerialData) {
-        val t = a.data as Rail[int]; // ERR: Warning: This is an unsound cast because X10 currently does not perform constraint solving at runtime for generic parameters.
-        x = t(0);
-        y = t(1);
+     def this(d:Deserializer) {
+        x = d.readAny() as int;
+        y = d.readAny() as int;
         sum = x + y;
      }
  
