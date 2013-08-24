@@ -256,7 +256,7 @@ extern "C" {
   //-------------------------------------------------------------
   // public static native void symRankKUpdate(double[] A, double[] C, ...)
   JNIEXPORT void JNICALL Java_x10_matrix_blas_WrapBLAS_symRankKUpdate
-  (JNIEnv *env, jclass cls, jdoubleArray A, jdoubleArray C, jlongArray dim, jdoubleArray scale, jboolean trans) {
+  (JNIEnv *env, jclass cls, jdoubleArray A, jdoubleArray C, jlongArray dim, jdoubleArray scale, jboolean upper, jboolean trans) {
 
 	jboolean isCopy;
 	jdouble* amat = env->GetDoubleArrayElements(A, NULL);
@@ -268,7 +268,7 @@ extern "C" {
     // to have a continuous memory layout like C arrays.
     env->GetLongArrayRegion(dim, 0, 2, dimlist);
 
-	sym_rank_k_update(amat, cmat, dimlist, scal, jboolean);
+	sym_rank_k_update(amat, cmat, dimlist, scal, upper, trans);
 
 	if (isCopy == JNI_TRUE) {
 	  //printf("Copying data from c library back to original data in JVM\n");
