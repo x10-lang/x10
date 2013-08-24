@@ -85,10 +85,9 @@ extern "C"  {
   // Level Two
   //------------------------------------------------------------------------
 
-
-  //------------------------------------------------------------------------
-  // for matrix vector multiply
   /**
+   * SUBROUTINE DGEMV(TRANS,M,N,ALPHA,A,LDA,X,INCX,BETA,Y,INCY)
+   *
    * DGEMV  performs one of the matrix-vector operations
    *
    *     y := alpha*A*x + beta*y,   or   y := alpha*A'*x + beta*y,
@@ -178,13 +177,10 @@ extern "C"  {
   //------------------------------------------------------------------------
    
 
-  //------------------------------------------------------------------------
-  //void cblas_dsymv(enum CBLAS_ORDER order, enum CBLAS_UPLO Uplo, blasint N, double alpha, double *A,
-  //             blasint lda, double *X, blasint incX, double beta, double *Y, blasint incY);
-  // for symmetric matrix vector multiply
-  /*  =======
+  /*
+   * SUBROUTINE DSYMV(UPLO,N,ALPHA,A,LDA,X,INCX,BETA,Y,INCY)
    *
-   *  DSYMV  performs the matrix-vector  operation
+   *  DSYMV  performs the matrix-vector operation
    *     y := alpha*A*x + beta*y,
    *  where alpha and beta are scalars, x and y are n element vectors and
    *  A is an n by n symmetric matrix.
@@ -264,18 +260,8 @@ extern "C"  {
 
   //----------------------------------------------------------------------
 
-  /*
-	  SUBROUTINE DTRMV(UPLO,TRANS,DIAG,N,A,LDA,X,INCX)
-	*     .. Scalar Arguments ..
-	   INTEGER INCX,LDA,N
-	   CHARACTER DIAG,TRANS,UPLO
-	*     ..
-	*     .. Array Arguments ..
-	   DOUBLE PRECISION A(LDA,*),X(*)
-	*     ..
-	*
-	*  Purpose
-	*  =======
+   /*
+	* SUBROUTINE DTRMV(UPLO,TRANS,DIAG,N,A,LDA,X,INCX)
 	*
 	*  DTRMV  performs one of the matrix-vector operations
 	*
@@ -354,20 +340,16 @@ extern "C"  {
 	*           On entry, INCX specifies the increment for the elements of
 	*           X. INCX must not be zero.
 	*           Unchanged on exit.
-	*
 	*/
-  //DTRMV(UPLO,TRANS,DIAG,N,A,LDA,X,INCX)
 #if defined(__bgp__)
   void dtrmv(char* uplo, char* trans, char* diag, blas_long* N, double* A, blas_long* lda, double* X, blas_long* incx);
 #else
   void dtrmv_(char* uplo, char* trans, char* diag, blas_long* N, double* A, blas_long* lda, double* X, blas_long* incx);
 #endif
 
-  //------------------------------------------------------------------------
-  // void cblas_dger(const enum CBLAS_ORDER order, const int M, const int N,
-  //              const double alpha, const double *X, const int incX,
-  //              const double *Y, const int incY, double *A, const int lda);
-  /**
+   /*
+    * SUBROUTINE SGER(M,N,ALPHA,X,INCX,Y,INCY,A,LDA)
+    *
     *  SGER   performs the rank 1 operation
     *
     *     A := alpha*x*y**T + A,
@@ -439,13 +421,8 @@ extern "C"  {
 
   //------------------------------------------------------------------------
 
-  //------------------------------------------------------------------------
-  // for solving triangular matrix problems
   /**
    * SUBROUTINE DTRSV(UPLO,TRANS,DIAG,N,A,LDA,X,INCX)
-   *
-   *  Purpose
-   *  =======
    *
    *  DTRSV  solves one of the systems of equations
    *
@@ -527,10 +504,6 @@ extern "C"  {
 			  double* X, blas_long* incx);
 #endif
 
-  //void cblas_dtrsv(enum CBLAS_ORDER order, enum CBLAS_UPLO Uplo, enum CBLAS_TRANSPOSE TransA, 
-  //				   enum CBLAS_DIAG Diag, blasint N, double *A, blasint lda, double *X, blasint incX);
-  //------------------------------------------------------------------------
-
 	   
   // for performs the symmetric rank 1 operation A := alpha*x*x' + A
   // void cblas_dsyr(enum CBLAS_ORDER order, enum CBLAS_UPLO Uplo, blasint N, double alpha, 
@@ -542,18 +515,13 @@ extern "C"  {
 
 
 
-
   //------------------------------------------------------------------------
-  // Level Three Routings
+  // Level Three
   //------------------------------------------------------------------------
 
-
-  //------------------------------------------------------------------------
   /**
    * SUBROUTINE DGEMM(TRANSA,TRANSB,M,N,K,ALPHA,A,LDA,B,LDB,BETA,C,LDC)
    *
-   *  Purpose
-   *  =======
    *  DGEMM performs one of the matrix-matrix operations
    *
    *     C := alpha*op( A )*op( B ) + beta*C,
@@ -665,18 +633,9 @@ extern "C"  {
  			  double* beta, double* C, blas_long* ldc);
 #endif
 
-  //void cblas_dgemm(enum CBLAS_ORDER Order, enum CBLAS_TRANSPOSE TransA, 
-  //enum CBLAS_TRANSPOSE TransB, blasint M, blasint N, blasint K,
-  //double alpha, double *A, blasint lda, double *B, blasint ldb, 
-  //double beta, double *C, blasint ldc);
-  //------------------------------------------------------------------------
-
-
-  //------------------------------------------------------------------------
   /**
    * SUBROUTINE DSYMM(SIDE,UPLO,M,N,ALPHA,A,LDA,B,LDB,BETA,C,LDC)
-   *  Purpose
-   *  =======
+   *
    *  DSYMM  performs one of the matrix-matrix operations
    *     C := alpha*A*B + beta*C,
    *  or
@@ -790,14 +749,117 @@ extern "C"  {
  			  double* beta, double* C, blas_long* ldc);
 #endif
 
-  // void cblas_dsymm(enum CBLAS_ORDER Order, enum CBLAS_SIDE Side, enum CBLAS_UPLO Uplo, 
-  //                  blasint M, blasint N, double alpha, double *A, blasint lda, 
-  //                  double *B, blasint ldb, double beta, double *C, blasint ldc);
-  //------------------------------------------------------------------------
+  /*
+   * SUBROUTINE DSYRK(UPLO,TRANS,N,K,ALPHA,A,LDA,BETA,C,LDC)
+   *
+   *  DSYRK  performs one of the symmetric rank k operations
+   *
+   *     C := alpha*A*A**T + beta*C,
+   *
+   *  or
+   *
+   *     C := alpha*A**T*A + beta*C,
+   *
+   *  where  alpha and beta  are scalars, C is an  n by n  symmetric matrix
+   *  and  A  is an  n by k  matrix in the first case and a  k by n  matrix
+   *  in the second case.
+   *
+   *  Arguments
+   *  ==========
+   *
+   *  UPLO   - CHARACTER*1.
+   *           On  entry,   UPLO  specifies  whether  the  upper  or  lower
+   *           triangular  part  of the  array  C  is to be  referenced  as
+   *           follows:
+   *
+   *              UPLO = 'U' or 'u'   Only the  upper triangular part of  C
+   *                                  is to be referenced.
+   *
+   *              UPLO = 'L' or 'l'   Only the  lower triangular part of  C
+   *                                  is to be referenced.
+   *
+   *           Unchanged on exit.
+   *
+   *  TRANS  - CHARACTER*1.
+   *           On entry,  TRANS  specifies the operation to be performed as
+   *           follows:
+   *
+   *              TRANS = 'N' or 'n'   C := alpha*A*A**T + beta*C.
+   *
+   *              TRANS = 'T' or 't'   C := alpha*A**T*A + beta*C.
+   *
+   *              TRANS = 'C' or 'c'   C := alpha*A**T*A + beta*C.
+   *
+   *           Unchanged on exit.
+   *
+   *  N      - INTEGER.
+   *           On entry,  N specifies the order of the matrix C.  N must be
+   *           at least zero.
+   *           Unchanged on exit.
+   *
+   *  K      - INTEGER.
+   *           On entry with  TRANS = 'N' or 'n',  K  specifies  the number
+   *           of  columns   of  the   matrix   A,   and  on   entry   with
+   *           TRANS = 'T' or 't' or 'C' or 'c',  K  specifies  the  number
+   *           of rows of the matrix  A.  K must be at least zero.
+   *           Unchanged on exit.
+   *
+   *  ALPHA  - DOUBLE PRECISION.
+   *           On entry, ALPHA specifies the scalar alpha.
+   *           Unchanged on exit.
+   *
+   *  A      - DOUBLE PRECISION array of DIMENSION ( LDA, ka ), where ka is
+   *           k  when  TRANS = 'N' or 'n',  and is  n  otherwise.
+   *           Before entry with  TRANS = 'N' or 'n',  the  leading  n by k
+   *           part of the array  A  must contain the matrix  A,  otherwise
+   *           the leading  k by n  part of the array  A  must contain  the
+   *           matrix A.
+   *           Unchanged on exit.
+   *
+   *  LDA    - INTEGER.
+   *           On entry, LDA specifies the first dimension of A as declared
+   *           in  the  calling  (sub)  program.   When  TRANS = 'N' or 'n'
+   *           then  LDA must be at least  max( 1, n ), otherwise  LDA must
+   *           be at least  max( 1, k ).
+   *           Unchanged on exit.
+   *
+   *  BETA   - DOUBLE PRECISION.
+   *           On entry, BETA specifies the scalar beta.
+   *           Unchanged on exit.
+   *
+   *  C      - DOUBLE PRECISION array of DIMENSION ( LDC, n ).
+   *           Before entry  with  UPLO = 'U' or 'u',  the leading  n by n
+   *           upper triangular part of the array C must contain the upper
+   *           triangular part  of the  symmetric matrix  and the strictly
+   *           lower triangular part of C is not referenced.  On exit, the
+   *           upper triangular part of the array  C is overwritten by the
+   *           upper triangular part of the updated matrix.
+   *           Before entry  with  UPLO = 'L' or 'l',  the leading  n by n
+   *           lower triangular part of the array C must contain the lower
+   *           triangular part  of the  symmetric matrix  and the strictly
+   *           upper triangular part of C is not referenced.  On exit, the
+   *           lower triangular part of the array  C is overwritten by the
+   *           lower triangular part of the updated matrix.
+   *
+   *  LDC    - INTEGER.
+   *           On entry, LDC specifies the first dimension of C as declared
+   *           in  the  calling  (sub)  program.   LDC  must  be  at  least
+   *           max( 1, n ).
+   *           Unchanged on exit.
+   *
+   */
+#if defined(__bgp__)
+   void dsyrk(char* uplo, char* trans, blas_long* N, blas_long* K, 
+              double* alpha, double* A, blas_long* lda, double* beta, double* C, blas_long* ldc);
+#else
+   void dsyrk_(char* uplo, char* trans, blas_long* N, blas_long* K, 
+              double* alpha, double* A, blas_long* lda, double* beta, double* C, blas_long* ldc);
+#endif
+
   
-  /*     SUBROUTINE DTRMM(SIDE,UPLO,TRANSA,DIAG,M,N,ALPHA,A,LDA,B,LDB)
-   *  Purpose
-   *  =======
+  /*     
+   * SUBROUTINE DTRMM(SIDE,UPLO,TRANSA,DIAG,M,N,ALPHA,A,LDA,B,LDB)
+   *
    *  DTRMM  performs one of the matrix-matrix operations
    *
    *     B := alpha*op( A )*B,   or   B := alpha*B*op( A ),
@@ -901,7 +963,6 @@ extern "C"  {
    *           max( 1, m ).
    *           Unchanged on exit.
    */
-  //DTRMM(SIDE,UPLO,TRANSA,DIAG,M,N,ALPHA,A,LDA,B,LDB)
 #if defined(__bgp__)
    void dtrmm(char* side, char* uplo, char* transA, char* diag,
  			  blas_long* M, blas_long* N, double* alpha, double* A, blas_long* lda, double* B, blas_long* ldb);
@@ -911,11 +972,9 @@ extern "C"  {
 #endif
 
 
-  //------------------------------------------------------------------------
   /*
    * SUBROUTINE DTRSM(SIDE,UPLO,TRANSA,DIAG,M,N,ALPHA,A,LDA,B,LDB)
-   *  Purpose
-   *  =======
+   *
    *  DTRSM  solves one of the matrix equations
    *     op( A )*X = alpha*B,   or   X*op( A ) = alpha*B,
    *
@@ -1015,11 +1074,6 @@ extern "C"  {
  			  double* alpha, double* A, blas_long* lda,
  			  double* B, blas_long* ldb);
 #endif
-
-  // for solving triangular matrix with multiple right hand sides
-  // void cblas_dtrsm(enum CBLAS_ORDER Order, enum CBLAS_SIDE Side, enum CBLAS_UPLO Uplo, 
-  //			 enum CBLAS_TRANSPOSE TransA, enum CBLAS_DIAG Diag, blasint M, blasint N, 
-  //			 double alpha, double *A, blasint lda, double *B, blasint ldb);
 
 #ifdef __cplusplus          
 }
@@ -1250,6 +1304,46 @@ void rank_one_update(double* A, double* x, double* y, blas_long* dim, blas_long*
 
 // C = alpha*op(A) * op(B) + beta*C
 void matrix_matrix_mult(double* A, double* B, double* C, blas_long* dim, 
+						blas_long* ld, blas_long* offset, double* scale, int* trans)
+{
+#ifdef ENABLE_BLAS
+  char transA = (trans[0])?'T':'N';
+  char transB = (trans[1])?'T':'N';
+  blas_long  m = dim[0];
+  blas_long  n = dim[1];
+  blas_long  k = dim[2];
+  blas_long  lda = ld[0];
+  blas_long  ldb = ld[1];
+  blas_long  ldc = ld[2];
+  blas_long  offsetA = offset[0] + offset[1]*dim[0];
+  blas_long  offsetB = offset[2] + offset[3]*dim[1];
+  blas_long  offsetC = offset[4] + offset[5]*dim[2];
+  double alpha = scale[0];
+  double beta  = scale[1];
+  //printf("call dgemm: %d %d %d, %c %c\n", m, n, k, transA, transB); fflush(stdout);
+#if defined(__bgp__)
+  dgemm(&transA, &transB,
+		 &m, &n, &k,
+		 &alpha, A+offsetA, &lda,
+		         B+offsetB, &ldb,
+		 &beta,  C+offsetC, &ldc);
+#else
+  dgemm_(&transA, &transB, 
+		 &m, &n, &k,
+		 &alpha, A+offsetA, &lda,
+		         B+offsetB, &ldb, 
+		 &beta,  C+offsetC, &ldc);
+#endif
+#else
+  printf("BLAS is not added in GML build.\n");
+  printf("Uncomment the line: add_blas = yes in system_setting.mk, and make sure blas lib and path names are correct\n");
+  fflush(stdout);
+  exit(1);
+#endif
+}
+
+// C = alpha*op(A) * op(B) + beta*C
+void matrix_matrix_mult(double* A, double* B, double* C, blas_long* dim, 
 						  blas_long* ld, double* scale, int* trans)
 {
   char transA = (trans[0])?'T':'N';
@@ -1306,6 +1400,39 @@ void matrix_matrix_mult(double* A, double* B, double* C, blas_long* dim,
 		 &alpha, A, &lda,
 		         B, &ldb, 
 		 &beta,  C, &ldc);
+#endif
+#else
+  printf("BLAS is not added in GML build.\n");
+  printf("Uncomment the line: add_blas = yes in system_setting.mk, and make sure blas lib and path names are correct\n");
+  fflush(stdout);
+  exit(1);
+#endif
+}
+
+// C = alpha*A*A**T + beta*C
+void sym_rank_k_update(double* A, double* C, blas_long* dim, 
+                       double* scale, bool upper, bool trans)
+{
+#ifdef ENABLE_BLAS
+  char uplo = (upper)?'U':'L'; // upper / lower triangular
+  char transA = (trans)?'T':'N';
+  blas_long  n = dim[0];
+  blas_long  k = dim[1];
+  blas_long  lda = (trans)?k:n;
+  blas_long  ldc = n;
+  double alpha = scale[0];
+  double beta  = scale[1];
+  //printf("call dsyrk: trans=%c, %d %d %d %d\n", transA, n, k, lda, ldc); fflush(stdout);
+#if defined(__bgp__)
+  dsyrk(&uplo, &transA,
+        &n, &k,
+        &alpha, A, &lda,
+        &beta,  C, &ldc);
+#else
+  dsyrk_(&uplo, &transA,
+         &n, &k,
+         &alpha, A, &lda,
+         &beta,  C, &ldc);
 #endif
 #else
   printf("BLAS is not added in GML build.\n");

@@ -135,7 +135,33 @@ protected class DriverBLAS {
 				mC:Rail[Double],
 				M:Long, N:Long, K:Long):void;
 
-	// C = alpah * op(A) * op(B) + beta*C
+	// C = alpha * op(A) * op(B) + beta*C
+	/**
+	 * Compute mC(M,N) = alpha &#42 mA(M,K) &#42 mB(K,N) + beta &#42 mC(M,N).
+	 *
+	 * @param mA     the first matrix in multiplication
+	 * @param mB     the second matrix in multiplication
+	 * @param mC     the output matrix
+     * @param dim    dimension array [M, N, K], which are rows of mA, columns of mB, and columns of mC.
+     * @param ld     leading dimension array [LDA, LDB, LDC], which are leading dimensions of A, B, C.
+     * @param offset row and column offsets [Ar, Ac, Br, Bc, Cr, Cc] into matrices
+	 * @param scale  scalars [alpha, beta] applying on the first matrix and output matrix
+	 * @param trans  integer array for transpose flags on the first and second matrix. 0 for non-transpose.
+	 *
+	 */
+	@Native("java","WrapBLAS.matmatMultOff((#1).getDoubleArray(),(#2).getDoubleArray(),(#3).getDoubleArray(),(#4).getLongArray(),(#5).getLongArray(),(#6).getLongArray(),(#7).getDoubleArray(),(#8).getIntArray())")
+	@Native("c++","matrix_matrix_mult((#1)->raw,(#2)->raw,(#3)->raw,(#4)->raw,(#5)->raw,(#6)->raw,(#7)->raw,(#8)->raw)")
+		public static native def matrix_matrix_mult(
+				mA:Rail[Double], 
+				mB:Rail[Double], 
+				mC:Rail[Double],
+				dim:Rail[Long], 
+				ld:Rail[Long], 
+                offset:Rail[Long],
+				scale:Rail[Double],
+				trans:Rail[Int]):void;
+
+	// C = alpha * op(A) * op(B) + beta*C
 	/**
 	 * Compute mC(M,N) = alpha &#42 mA(M,K) &#42 mB(K,N) + beta &#42 mC(M,N).
 	 *
@@ -159,7 +185,7 @@ protected class DriverBLAS {
 				scale:Rail[Double],
 				trans:Rail[Int]):void;
 
-	// C = alpah * op(A) * op(B) + beta*C
+	// C = alpha * op(A) * op(B) + beta*C
 	/**
 	 * Compute mC(M,N) = alpha &#42 mA(M,K) &#42 mB(K,N) + beta &#42 mC(M,N).
 	 *
@@ -181,6 +207,29 @@ protected class DriverBLAS {
 				scale:Rail[Double],
 				trans:Rail[Int]):void;
 
+	// C = alpha*A*A**T + beta*C
+	/**
+	 * Compute mC(N,N) = alpha &#42 mA(N,K) &#42 mA(K,N)' + beta &#42 mC(N,N).
+	 *
+	 * @param mA     the first matrix in multiplication
+         * @param mC     the output matrix
+         * @param dim    dimension array [N, K], which are rows of mA and columns of mA.
+	 * @param scale  scaling [alpha, beta] applied to the matrix mA and output matrix
+         * @param upper if true, update upper half of mC; otherwise update lower half
+	 * @param trans  whether to transpose mA
+	 *
+	 */
+
+    @Native("java","WrapBLAS.symRankKUpdate((#1).getDoubleArray(),(#2).getDoubleArray(),(#3).getLongArray(),(#4).getDoubleArray(),(#5),(#6))")
+    @Native("c++","sym_rank_k_update((#1)->raw,(#2)->raw,(#3)->raw,(#4)->raw,(#5),(#6))")
+    public static native def sym_rank_k_update(
+        mA:Rail[Double], 
+        mC:Rail[Double],
+        dim:Rail[Long], 
+        scale:Rail[Double],
+        upper:Boolean,
+        trans:Boolean
+    ):void;
 
 	/**
 	 * Compute mB =  alpha &#42 op( mA ) &#42 mB + beta &#42 mB, where mA is lower symmetric matrix
@@ -192,7 +241,7 @@ protected class DriverBLAS {
 	 * @param scale  scalars [alpha, beta] applying on the first matrix and output matrix
 	 *
 	 */
-	// C = alpah* op(A) * op(B) + beta*C, A is symmetrix of lower triangular matrix
+	// C = alpha* op(A) * op(B) + beta*C, A is symmetrix of lower triangular matrix
 	@Native("java","WrapBLAS.symmatMult((#1).getDoubleArray(),(#2).getDoubleArray(),(#3).getDoubleArray(),(#4).getLongArray(),(#5).getDoubleArray())")
 	@Native("c++","sym_matrix_mult((#1)->raw,(#2)->raw,(#3)->raw,(#4)->raw,(#5)->raw)")
 		public static native def sym_matrix_mult(
@@ -203,7 +252,7 @@ protected class DriverBLAS {
 				scale:Rail[Double]):void;
 
 
-	// C = alpah* op(A) * op(B) + beta*C, A is symmetrix of lower triangular matrix
+	// C = alpha* op(A) * op(B) + beta*C, A is symmetrix of lower triangular matrix
 	@Native("java","WrapBLAS.matsymMult((#1).getDoubleArray(),(#2).getDoubleArray(),(#3).getDoubleArray(),(#4).getLongArray(),(#5).getDoubleArray())")
 	@Native("c++","matrix_sym_mult((#1)->raw,(#2)->raw,(#3)->raw,(#4)->raw,(#5)->raw)")
 		public static native def matrix_sym_mult(
@@ -252,7 +301,7 @@ protected class DriverBLAS {
 	// Level Two
 
 	//y = A*x 
-	//y = alpah * op(A)*x + beta * y
+	//y = alpha * op(A)*x + beta * y
 	/**
 	 * Compute y = alpha &#42 mA &#42 y + beta &#42 y, matrix-vector multiplication.
 	 *
@@ -273,7 +322,7 @@ protected class DriverBLAS {
 				scale:Rail[Double], 
 				transA:Int):void;
 
-	////y = alpah* A *x + beta * y, A is symmetrix matrix of lower triangular part
+	////y = alpha* A *x + beta * y, A is symmetrix matrix of lower triangular part
 	/**
 	 * Compute  y = alpha &#42 mA &#42 y + beta &#42 y, where mA is symmetric matrix. Incremental step is 1.
 	 *
@@ -397,7 +446,7 @@ protected class DriverBLAS {
 		matrix_vector_mult(A.d, b.d, nv, M, n);
 		return new Vector(nv);
 	}
-	//y=alpah* A*b+ beta*y
+	//y=alpha* A*b+ beta*y
 	public static def doMultiply(A:DenseMatrix, b:Vector, y:Vector):void {
 		val M = A.M;
 		val n = b.N;

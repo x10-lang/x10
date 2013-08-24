@@ -31,18 +31,24 @@ double abs_sum(blas_long n, double* x);
 //------------------------------------------------------------------------
 //Simplified interface
 //------------------------------------------------------------------------
-// C = A * B
-/* void matrix_matrix_mult(double* A, double* B, double* C, */
-/* 						blas_long m, blas_long n, blas_long k); */
-// C = alpah* op(A) * op(B) + beta*C
+
+// C = alpha* op(A) * op(B) + beta*C
+void matrix_matrix_mult(double* A, double* B, double* C, 
+						blas_long* dim, blas_long* ld, blas_long* offset, double* scale, int* trans);
+
+// C = alpha* op(A) * op(B) + beta*C
 void matrix_matrix_mult(double* A, double* B, double* C, 
 						blas_long* dim, blas_long* ld, double* scale, int* trans);
 
-// C = alpah* op(A) * op(B) + beta*C
+// C = alpha* op(A) * op(B) + beta*C
 void matrix_matrix_mult(double* A, double* B, double* C, 
 						blas_long* dim, double* scale, int* trans);
 
-// C = alpah* A * B + beta*C, where A is symmetrix matrix of lower trianular part
+// C = alpha*A*A**T + beta*C
+void sym_rank_k_update(double* A, double* C, blas_long* dim, 
+                       double* scale, bool upper, bool trans);
+
+// C = alpha* A * B + beta*C, where A is symmetrix matrix of lower trianular part
 void sym_matrix_mult(double* A, double* B, double* C, 
 					 blas_long* dim, double* scale);
 void matrix_sym_mult(double* B, double* A, double* C,
@@ -53,10 +59,10 @@ void matrix_sym_mult(double* B, double* A, double* C,
 //y = A*x
 /* void matrix_vector_mult(double* A, double* x, double* y,  */
 /* 						blas_long m, blas_long n); */
-//y = alpah * op(A)*x + beta * y
+//y = alpha * op(A)*x + beta * y
 void matrix_vector_mult(double* A, double* x, double* y, 
 						blas_long* dim, double* scale, int transA);
-//y = alpah* x *A + beta * y, A is symmetrix matrix of lower triangular part
+//y = alpha* x *A + beta * y, A is symmetrix matrix of lower triangular part
 void sym_vector_mult(double* x, double* A, double* y,
 					 blas_long* dim, double* scale);
 //   A*x = b,   or   A'*x = b,

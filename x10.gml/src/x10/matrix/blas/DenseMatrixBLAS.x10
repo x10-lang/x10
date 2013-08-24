@@ -175,6 +175,35 @@ public class DenseMatrixBLAS {
 	}
 
 	/**
+	 * Using BLAS driver of dense matrix multiplication to
+	 * compute C += A &#42 B if plus is true, otherwise C = A &#42 B.
+	 *
+	 * @param A      the first operand dense matrix in multiplication
+	 * @param B      the second operand dense matrix
+	 * @param C      dense matrix which is used to store the result
+     * @param dim    the dimensions M, N and K used in BLAS multiply where
+     *               M is the number of rows in A and C,
+                     N is the number of columns in B and C, and
+                     K is the number of columns in A and rows in B
+     * @param offset row and column offsets [Ar, Ac, Br, Bc, Cr, Cc] into matrices
+	 * @param plus   the add-on flag
+	 */
+	public static def comp(A:DenseMatrix, B:DenseMatrix, C:DenseMatrix, dim:Rail[Long], offset:Rail[Long], plus:Boolean):void {
+        Debug.assure(offset(0)+dim(0) <= A.M && offset(1)+dim(2) <= A.N);
+        Debug.assure(offset(2)+dim(2) <= B.M && offset(3)+dim(1) <= B.N);
+        Debug.assure(offset(4)+dim(0) <= C.M && offset(5)+dim(1) <= C.N);
+
+		val scaling = new Rail[Double](2);
+		scaling(0) = 1.0;
+		scaling(1) = plus?1.0:0.0;
+
+		val trans = [ 0n, 0n as Int ];
+
+        val ld = [A.M, B.M, C.M];
+		DriverBLAS.matrix_matrix_mult(A.d, B.d, C.d, dim, ld, offset, scaling, trans);
+	}
+
+	/**
 	 * Compute C = A &#42 B
 	 *
 	 * @param A      the first operand dense matrix in multiplication
@@ -254,6 +283,35 @@ public class DenseMatrixBLAS {
 	}
 
 	/**
+	 * Using BLAS driver of dense matrix multiplication to
+	 * compute C += A<sup>T</sup> &#42 B if plus is true, otherwise C = A<sup>T</sup> &#42 B.
+	 *
+	 * @param A      the first operand dense matrix in multiplication
+	 * @param B      the second operand dense matrix
+	 * @param C      dense matrix which is used to store the result
+     * @param dim    the dimensions M, N and K used in BLAS multiply where
+     *               M is the number of rows in A<sup>T</sup> and C,
+                     N is the number of columns in B and C, and
+                     K is the number of columns in A<sup>T</sup> and rows in B
+     * @param offset row and column offsets [Ar, Ac, Br, Bc, Cr, Cc] into matrices
+	 * @param plus   the add-on flag
+	 */
+	public static def compTransMult(A:DenseMatrix, B:DenseMatrix, C:DenseMatrix, dim:Rail[Long], offset:Rail[Long], plus:Boolean):void {
+        Debug.assure(offset(0)+dim(2) <= A.M && offset(1)+dim(0) <= A.N);
+        Debug.assure(offset(2)+dim(2) <= B.M && offset(3)+dim(1) <= B.N);
+        Debug.assure(offset(4)+dim(0) <= C.M && offset(5)+dim(1) <= C.N);
+
+		val scaling = new Rail[Double](2);
+		scaling(0) = 1.0;
+		scaling(1) = plus?1.0:0.0;
+
+	    val trans = [ 1n, 0n ];
+        val ld = [A.M, B.M, C.M];
+
+		DriverBLAS.matrix_matrix_mult(A.d, B.d, C.d, dim, ld, offset, scaling, trans);
+	}
+
+	/**
 	 * Compute C += A<sup>T</sup> &#42 B if plus is true, otherwise 
 	 * C = A<sup>T</sup> &#42 B by calling BLAS driver
 	 *
@@ -326,6 +384,35 @@ public class DenseMatrixBLAS {
 		// Perform matrix operation
 		DriverBLAS.matrix_matrix_mult(A.d, B.d, C.d, dim, ld, scale, trans);
 	}
+
+	/**
+	 * Using BLAS driver of dense matrix multiplication to
+	 * compute C += A &#42 B<sup>T</sup> if plus is true, otherwise C = A &#42 B<sup>T</sup>.
+	 *
+	 * @param A      the first operand dense matrix in multiplication
+	 * @param B      the second operand dense matrix
+	 * @param C      dense matrix which is used to store the result
+     * @param dim    the dimensions M, N and K used in BLAS multiply where
+     *               M is the number of rows in A and C,
+                     N is the number of columns in B<sup>T</sup> and C, and
+                     K is the number of columns in A and rows in B<sup>T</sup>
+     * @param offset row and column offsets [Ar, Ac, Br, Bc, Cr, Cc] into matrices
+	 * @param plus   the add-on flag
+	 */
+	public static def compMultTrans(A:DenseMatrix, B:DenseMatrix, C:DenseMatrix, dim:Rail[Long], offset:Rail[Long], plus:Boolean):void {
+        Debug.assure(offset(0)+dim(0) <= A.M && offset(1)+dim(2) <= A.N);
+        Debug.assure(offset(2)+dim(1) <= B.M && offset(3)+dim(2) <= B.N);
+        Debug.assure(offset(4)+dim(0) <= C.M && offset(5)+dim(1) <= C.N);
+
+		val scaling = new Rail[Double](2);
+		scaling(0) = 1.0;
+		scaling(1) = plus?1.0:0.0;
+
+	    val trans = [ 0n, 1n ];
+        val ld = [A.M, B.M, C.M];
+
+		DriverBLAS.matrix_matrix_mult(A.d, B.d, C.d, dim, ld, offset, scaling, trans);
+	}
 	
 	/**
 	 * Compute C += A &#42 B<sup>T</sup> if plus is true,  otherwise
@@ -391,9 +478,38 @@ public class DenseMatrixBLAS {
 			plus:Boolean):void {
 		val dim      = [A.N, B.M, A.M];
 		val scale = plus?[1.0 as Double, 1.0]:[1.0 as Double, 0.0];
-	    val trans    = [  1n as Int,   1n ];
+	    val trans = [ 1n, 1n as Int ];
 		// Perform matrix operation
 		DriverBLAS.matrix_matrix_mult(A.d, B.d, C.d, dim, scale, trans);
+	}
+
+	/**
+	 * Using BLAS driver of dense matrix multiplication to
+	 * compute C += A<sup>T</sup> &#42 B<sup>T</sup> if plus is true, otherwise C = A<sup>T</sup> &#42 B<sup>T</sup>.
+	 *
+	 * @param A      the first operand dense matrix in multiplication
+	 * @param B      the second operand dense matrix
+	 * @param C      dense matrix which is used to store the result
+     * @param dim    the dimensions M, N and K used in BLAS multiply where
+     *               M is the number of rows in A<sup>T</sup> and C,
+                     N is the number of columns in B<sup>T</sup> and C, and
+                     K is the number of columns in A<sup>T</sup> and rows in B<sup>T</sup>
+     * @param offset row and column offsets [Ar, Ac, Br, Bc, Cr, Cc] into matrices
+	 * @param plus   the add-on flag
+	 */
+	public static def compTransMultTrans(A:DenseMatrix, B:DenseMatrix, C:DenseMatrix, dim:Rail[Long], offset:Rail[Long], plus:Boolean):void {
+        Debug.assure(offset(0)+dim(2) <= A.M && offset(1)+dim(0) <= A.N);
+        Debug.assure(offset(2)+dim(1) <= B.M && offset(3)+dim(2) <= B.N);
+        Debug.assure(offset(4)+dim(0) <= C.M && offset(5)+dim(1) <= C.N);
+
+		val scaling = new Rail[Double](2);
+		scaling(0) = 1.0;
+		scaling(1) = plus?1.0:0.0;
+
+	    val trans = [ 1n, 1n as Int ];
+		val ld = [A.M, B.M, C.M];
+
+		DriverBLAS.matrix_matrix_mult(A.d, B.d, C.d, dim, ld, offset, scaling, trans);
 	}
 
 	/**
@@ -409,6 +525,38 @@ public class DenseMatrixBLAS {
 		compTransMultTrans(A, B, C, false);
 		return C;
 	}
+
+    /**
+     * Compute symmetric rank K update C += A &#42 A<sup>T</sup>
+     *
+     * @param A      the first operand dense matrix in multiplication which is used in transposed form
+     * @param C      dense matrix which is used to store the result
+     * @param upper  if true, update upper half of C; otherwise update lower half
+     * @param plus   the add-on flag
+     */
+    public static def symRankKUpdate(A:DenseMatrix, C:DenseMatrix{C.M==C.N,C.N==A.M}, upper:Boolean, plus:Boolean):void {
+        val dim = [A.M, A.N];
+        val scaling = new Rail[Double](2);
+        scaling(0) = 1.0;
+        scaling(1) = plus?1.0:0.0;
+        DriverBLAS.sym_rank_k_update(A.d, C.d, dim, scaling, upper, false);
+    }
+
+    /**
+     * Compute symmetric rank K update C += A<sup>T</sup> &#42 A
+     *
+     * @param A      the first operand dense matrix in multiplication which is used in transposed form
+     * @param C      dense matrix which is used to store the result
+     * @param upper  if true, update upper half of C; otherwise update lower half
+     * @param plus   the add-on flag
+     */
+    public static def symRankKUpdateTrans(A:DenseMatrix, C:DenseMatrix{C.M==C.N,C.N==A.M}, upper:Boolean, plus:Boolean):void {
+        val dim = [A.M, A.N];
+        val scaling = new Rail[Double](2);
+        scaling(0) = 1.0;
+        scaling(1) = plus?1.0:0.0;
+        DriverBLAS.sym_rank_k_update(A.d, C.d, dim, scaling, upper, true);
+    }
 
 	/**
 	 * Triangular solver  A &#42  x = b
