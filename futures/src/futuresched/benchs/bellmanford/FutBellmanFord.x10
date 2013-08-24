@@ -4,6 +4,8 @@ import x10.util.ArrayList;
 import x10.util.Pair;
 import x10.util.Box;
 import futuresched.core.FTask;
+import futuresched.core.SFuture;
+import futuresched.core.SIntFuture;
 
 public class FutBellmanFord {
 
@@ -16,23 +18,21 @@ public class FutBellmanFord {
             val node = iter.next();
             if (node != n)
                async {
-                  val task = FTask.sPhasedAsyncWaitOr(
+                  val task = FTask.newPhasedOr(
                      node.neighbors,
                      (p: Pair[FutNode, Int])=> {
-                        return p.first.dist;
-                     },
-                     (p: Pair[FutNode, Int])=> {
-
-//                        val parentForThis = currentParent().first;
-//                        node.parent.set(new Box(new Pair[FutNode, FutNode](node, parentForThis)));
-                        val parent = p.first;
-                        val parentSP = parent.dist.get();
+                        val adj = p.first;
+                        val dist = adj.dist;
                         val weight = p.second;
-                        val nodeSP = node.dist.get();
-                        val newSP = parentSP + weight;
-                        if (newSP < nodeSP)
-                           node.dist.set(newSP);
-//                        Console.OUT.println("Setting parent of " + node.no + " to " + parentForThis.no + ".");
+                        return new Pair[SIntFuture, Int](dist, weight);
+                     },
+                     (parentDist: Int, weight: Int)=> {
+                        val nodeDist = node.dist.get();
+                        val newDist = parentDist + weight;
+                        if (newDist < nodeDist) {
+                           node.dist.set(newDist);
+//                           Console.OUT.println("Setting dist of " + newDist);
+                        }
                      }
                   );
                   task.recurring = true;

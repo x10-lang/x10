@@ -40,7 +40,7 @@ public class FutGraph {
             val node2Index = nRand.nextInt(n);
             val node2 = list.get(node2Index);
             if (node1 != node2 && !node1.contains(node2) && node2.degree() < mb) {
-               val wt = wRand.nextInt(w);
+               val wt = wRand.nextInt(w) + 1;
                node1.addNeighbor(node2, wt);
                node2.addNeighbor(node1, wt);
                d1 = node1.degree();
@@ -70,6 +70,19 @@ public class FutGraph {
       s += "}\n";
       return s;
    }
+
+   public def toStringDist(): String {
+
+      var s: String = "Dist\n";
+      val iter = nodes.iterator();
+      while (iter.hasNext()) {
+         val node = iter.next();
+         //s += node.no + ": ";
+         s += "\t" + node.no + ": " + node.dist.get() + "\n";
+      }
+      return s;
+   }
+
 }
 
 

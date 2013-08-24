@@ -21,7 +21,7 @@ public class Phasing {
 //      Console.OUT.println("Scheduling");
       if (holder.start) {
          // This is the first firing task
-//         Console.OUT.println("First Task");
+         Console.OUT.println("First Task");
          thisPhaseCount.set(1);
          holder.start = false;
          task.exec();
@@ -31,6 +31,7 @@ public class Phasing {
 
    static def end() {
       val i = thisPhaseCount.decrementAndGet();
+//      Console.OUT.println("Current count: " + i);
       if (i == 0) {
 //         Console.OUT.println("Next Phase");
          var count: Int = 0;

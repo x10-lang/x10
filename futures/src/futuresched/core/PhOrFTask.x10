@@ -71,29 +71,29 @@ public class PhOrFTask[T, TP]{T isref, T haszero} extends FTask {
       return fTask;
    }
 
-  public static def newPhasedOr[T1, T2, T3](
-     futures: ArrayList[T1],
-     trans: (T1)=>Pair[SFuture[T2], T3],
-     fun: (T2, T3)=>void){T2 isref, T2 haszero}: PhOrFTask[T2, T3] {
+   public static def newPhasedOr[T1, T2, T3](
+      futures: ArrayList[T1],
+      trans: (T1)=>Pair[SFuture[T2], T3],
+      fun: (T2, T3)=>void){T2 isref, T2 haszero}: PhOrFTask[T2, T3] {
 
-     //val thisAct = initActEnclosed(block);
-     val fTask = new PhOrFTask[T2, T3]();
-//     val finishState = mainFinish;
-//     fTask.finishState = finishState;
-//     Console.OUT.println("Before");
-     fTask.fun = fun; //as (T2, Any)=>void;
-//     Console.OUT.println("After");
+      //val thisAct = initActEnclosed(block);
+      val fTask = new PhOrFTask[T2, T3]();
+      //     val finishState = mainFinish;
+      //     fTask.finishState = finishState;
+      //     Console.OUT.println("Before");
+      fTask.fun = fun; //as (T2, Any)=>void;
+      //     Console.OUT.println("After");
 
-     val iter = futures.iterator();
-     while (iter.hasNext()) {
+      val iter = futures.iterator();
+      while (iter.hasNext()) {
         val o = iter.next();
         val p = trans(o);
         val f = p.first;
         val obj = p.second;
         f.add(fTask, obj);
-     }
-     return fTask;
-  }
+      }
+      return fTask;
+   }
 
 // -------------------------------------------------------------------
 // Deferred task scheduling

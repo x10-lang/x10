@@ -72,7 +72,7 @@ public class IntPhOrFTask[TP] extends FTask {
      val fTask = new IntPhOrFTask[T2]();
 //     val finishState = mainFinish;
 //     fTask.finishState = finishState;
-     fTask.fun = fun as (Int, Any)=>void;
+     fTask.fun = fun; //as (Int, Any)=>void;
 
      val iter = futures.iterator();
      while (iter.hasNext()) {
@@ -90,13 +90,22 @@ public class IntPhOrFTask[TP] extends FTask {
 // Deferred task scheduling
 
    public def inform(g: Boolean, v: Any, obj: Any) {
+//      Console.OUT.println("Informing");
       var go: Boolean = recurring;
       if (!recurring && !isDone)
          go = count.compareAndSet(0, 1);
       if (go) {
 //         val f = n as IntFuture;
 //         val v = f.get();
-         val block = ()=>{ val fun = this.fun; fun(v as Int, obj as TP); Phasing.end(); };
+         val block = ()=>{
+//            Console.OUT.println("1");
+            val fun = this.fun;
+//            Console.OUT.println("2");
+            fun(v as Int, obj as TP);
+//            Console.OUT.println("3");
+            Phasing.end();
+//            Console.OUT.println("4");
+         };
          if (g) {
             val thisAct = new Activity(block, here, this.finishState);
             this.act = thisAct;
@@ -105,6 +114,7 @@ public class IntPhOrFTask[TP] extends FTask {
             this.act = thisAct;
          }
          Phasing.schedule(this);
+//         Console.OUT.println("Scheduling");
       }
    }
 

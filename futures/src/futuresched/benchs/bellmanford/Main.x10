@@ -10,21 +10,23 @@ public class Main {
       var n: Int;      // Number of nodes
       var b: Int;      // Max branching factor
       var w: Int;      // Max weight
-      var p: Boolean;  // Print
-      p = false;
       w = 10;
+
+      var p: Boolean;  // Print
+//      p = false;
+      p = true;
 
       n = 10;
       b = 3;
       test(n, b, w, p);
 
-      n = 20;
-      b = 7;
-      test(n, b, w, p);
-
-      n = 100;
-      b = 15;
-      test(n, b, w, p);
+//      n = 20;
+//      b = 7;
+//      test(n, b, w, p);
+//
+//      n = 100;
+//      b = 15;
+//      test(n, b, w, p);
 
 //      n = 200;
 //      b = 40;
@@ -53,8 +55,8 @@ public class Main {
 //      Console.OUT.println("----------------------------------------");
 //      Console.OUT.println("Seq: ");
 //
-//      t1 = System.currentTimeMillis();
 //      val sGraph = SeqGraph.random(n, b, w);
+//      t1 = System.currentTimeMillis();
 //      SeqBellmanFord.compute(sGraph, sGraph.nodes(0));
 //      t2 = System.currentTimeMillis();
 //
@@ -69,14 +71,18 @@ public class Main {
 //      Console.OUT.println("----------------------------------------");
       Console.OUT.println("Future: ");
 
-      t1 = System.currentTimeMillis();
       val fGraph = FutGraph.random(n, b, w);
+      t1 = System.currentTimeMillis();
       FutBellmanFord.compute(fGraph, fGraph.nodes(0));
       t2 = System.currentTimeMillis();
 
       if (p) {
          s = fGraph.toString();
          Console.OUT.println("Graph: ");
+         Console.OUT.print(s);
+         Console.OUT.println("");
+         s = fGraph.toStringDist();
+         Console.OUT.println("Shortest distant: ");
          Console.OUT.print(s);
          Console.OUT.println("");
       }
