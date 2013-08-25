@@ -45,9 +45,10 @@ public class TestCustomSerialization2 extends x10Test {
 	map.put("a", new CS(10,20));
 	map.put("b", new CS(20,10));
 	map.put("c", new CS(25,5));
-	
-	val x = map.serialize();
-	val map2 = new HashMap[String,CS](x);
+
+        val ser = new Serializer();	
+        map.serialize(ser);
+	val map2 = new HashMap[String,CS](new Deserializer(ser));
         chk(map2.get("a")().sum == 30);        
         chk(map2.get("b")().sum == 30);        
         chk(map2.get("c")().sum == 30);        
