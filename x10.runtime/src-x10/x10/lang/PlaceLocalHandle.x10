@@ -154,7 +154,8 @@ public final struct PlaceLocalHandle[T]{T isref, T haszero} {
      * will be initialized and available via the returned PlaceLocalHandle instance
      * at every place in the PlaceGroup.
      *
-     * Requires an initialization closure that does not change place asynchronously.
+     * Requires an initialization closure which has no exposed at/async constructs
+     * (any async/at must be nested inside of a finish).
      *
      * @param pg a PlaceGroup specifiying the places where local objects should be created.
      * @param init the initialization closure used to create the local object.
@@ -173,7 +174,8 @@ public final struct PlaceLocalHandle[T]{T isref, T haszero} {
      * will be initialized and available via the returned PlaceLocalHandle instance
      * at every place in the PlaceGroup.
      *
-     * Requires an initialization closure that does not change place asynchronously.
+     * Requires an initialization closure which has no exposed at/async constructs
+     * (any async/at must be nested inside of a finish).
      *
      * @param pg a PlaceGroup specifiying the places where local objects should be created.
      * @param init the initialization closure used to create the local object.
@@ -197,7 +199,8 @@ public final struct PlaceLocalHandle[T]{T isref, T haszero} {
      * When this method returns, the local objects will be initialized and available 
      * via the returned PlaceLocalHandle instance at every place in the distribution.
      *
-     * Requires an initialization closure that does not change place asynchronously.
+     * Requires an init_there initialization closure which has no exposed at/async constructs
+     * (any async/at must be nested inside of a finish).
      *
      * @param dist a distribution specifiying the places where local objects should be created.
      * @param init_here a closure to compute the local portion of the initialization (evaluated in the current place)
@@ -222,7 +225,8 @@ public final struct PlaceLocalHandle[T]{T isref, T haszero} {
      * When this method returns, the local objects will be initialized and available 
      * via the returned PlaceLocalHandle instance at every place in the distribution.
      *
-     * Requires an initialization closure that does not change place asynchronously.
+     * Requires an init_there initialization closure which has no exposed at/async constructs
+     * (any async/at must be nested inside of a finish).
      *
      * @param dist a distribution specifiying the places where local objects should be created.
      * @param init_here a closure to compute the local portion of the initialization (evaluated in the current place)

@@ -106,12 +106,22 @@ public abstract class PlaceGroup implements Iterable[Place] {
     return true;
   }
 
+  /**
+   * Execute the closure cl at every place in the PlaceGroup.
+   * Note: cl must not have any exposed at/async constructs
+   *    (any async/at must be nested inside of a finish).
+   */
   public def broadcastFlat(cl:()=>void) {
     @Pragma(Pragma.FINISH_SPMD) finish for (p in this) {
       at (p) async cl();
     }
   }
 
+  /**
+   * Execute the closure cl at every live place in the PlaceGroup.
+   * Note: cl must not have any exposed at/async constructs
+   *    (any async/at must be nested inside of a finish).
+   */
   public def broadcastFlat(cl:()=>void, ignoreIfDead:(Place)=>boolean) {
     @Pragma(Pragma.FINISH_SPMD) finish for (p in this) {
       if (!p.isDead() || !ignoreIfDead(p)) {
