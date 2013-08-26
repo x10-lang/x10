@@ -2,7 +2,7 @@ package futuresched.benchs.smithwaterman;
 
 import futuresched.core.*;
 
-/*
+
 @x10.compiler.NativeCPPInclude("google/profiler.h")
 public class MainGPT {
 
@@ -33,7 +33,7 @@ public class MainGPT {
 
       t1 = System.currentTimeMillis();
       @x10.compiler.Native("c++", "ProfilerStart(\"a.prof\");") {}
-      v = SmithWatermanFut1.m(i, j);
+      v = SmithWatermanFutOpt.m(i, j);
       @x10.compiler.Native("c++", "ProfilerStop();") {}
       t2 = System.currentTimeMillis();
       Console.OUT.println("Future1: " + v);
@@ -62,6 +62,6 @@ public class MainGPT {
    }
 
 }
-*/
+
 
 
