@@ -19,7 +19,7 @@ import x10.util.HashMap;
  * Simple test case to check to see if custom serialization
  * protocol is being called by runtime system
  */
-public class TestCustomSerialization extends x10Test {
+public class TestCustomSerialization2 extends x10Test {
 
     static class CS implements CustomSerialization {
         val x:long;
@@ -64,7 +64,7 @@ public class TestCustomSerialization extends x10Test {
     }
 
     public static def main(Rail[String]) {
-        new TestCustomSerialization().execute();
+        new TestCustomSerialization2().execute();
     }
 }
   
