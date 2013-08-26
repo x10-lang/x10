@@ -598,14 +598,14 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
                 }
             }
 
-            if (!subtypeOfCustomSerializer(def) && !subtypeOfCustomSerializer2(def)) {
+            if (!subtypeOfCustomSerializer2(def)) {
                 if (alreadyPrintedTypes.size() != 0) {
                     w.write(", ");
                 }
                 w.write(Emitter.X10_JAVA_SERIALIZABLE_CLASS);
             }
 
-        } else if (!def.flags().isInterface() && !(def.asType().toString().equals(CUSTOM_SERIALIZATION)) && !(def.asType().toString().equals(CUSTOM_SERIALIZATION2))) {
+        } else if (!def.flags().isInterface() && !(def.asType().toString().equals(CUSTOM_SERIALIZATION))) {
             w.write(" implements " + Emitter.X10_JAVA_SERIALIZABLE_CLASS);
         } else {
         	// make all interfaces extend x10.core.Any
@@ -655,9 +655,7 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
         er.generateRTTInstance(def);
 
         // print the custom serializer
-        if (subtypeOfCustomSerializer(def)) {
-            er.generateCustomSerializer(def, n);
-        } else if (subtypeOfCustomSerializer2(def)) {
+        if (subtypeOfCustomSerializer2(def)) {
             er.generateCustomSerializer2(def, n);            
         } else if (subtypeOfUnserializable(def)) {
             w.write("public void " + Emitter.SERIALIZE_METHOD + "(" + Emitter.X10_JAVA_SERIALIZER_CLASS + " $serializer) throws java.io.IOException {");
@@ -1192,18 +1190,11 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
     }
 
     private static final String CUSTOM_SERIALIZATION = "x10.io.CustomSerialization";
-    private static final String CUSTOM_SERIALIZATION2 = "x10.io.CustomSerialization2";
-    public static final String SERIAL_DATA = "x10.io.SerialData";
-    public static final String SERIAL_DATA_FIELD_NAME = "$$serialdata";
     public static final String SERIALIZER = "x10.io.Serializer";
     public static final String DESERIALIZER = "x10.io.Deserializer";
-
-    private static boolean subtypeOfCustomSerializer(X10ClassDef def) {
-        return subtypeOfInterface(def, CUSTOM_SERIALIZATION);
-    }
     
     private static boolean subtypeOfCustomSerializer2(X10ClassDef def) {
-        return subtypeOfInterface(def, CUSTOM_SERIALIZATION2);
+        return subtypeOfInterface(def, CUSTOM_SERIALIZATION);
     }
 
     private static final String UNSERIALIZABLE = "x10.io.Unserializable";
@@ -1351,7 +1342,7 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 
         // Checks whether this is the constructor corresponding to CustomSerialization
         boolean isCustomSerializable = false;
-        if (n.formals().size() == 1 && SERIAL_DATA.equals(n.formals().get(0).type().toString())) {
+        if (n.formals().size() == 1 && DESERIALIZER.equals(n.formals().get(0).type().toString())) {
              isCustomSerializable = true;
         }
         printCreationMethodDecl(n);
@@ -1668,7 +1659,7 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
         // Refractored  method that can be called by reflection
         if (isCustomSerializable) {
             w.begin(4);
-            w.writeln("public void " + methodName + "(" + SERIAL_DATA +  " " + n.formals().get(0).name() + ") {");
+            w.writeln("public void " + methodName + "(" + DESERIALIZER +  " " + n.formals().get(0).name() + ") {");
             n.printSubStmt(body, w, tr);
             w.writeln("}");
             w.end();

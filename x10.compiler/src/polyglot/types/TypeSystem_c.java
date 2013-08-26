@@ -2361,19 +2361,12 @@ public class TypeSystem_c implements TypeSystem
             iterableType_ = load("x10.lang.Iterable"); // java file
         return iterableType_;
     }
-
+    
     protected X10ClassType customSerializationType_;
     public X10ClassType CustomSerialization() {
         if (customSerializationType_ == null)
             customSerializationType_ = load("x10.io.CustomSerialization"); // java file
         return customSerializationType_;
-    }
-    
-    protected X10ClassType customSerialization2Type_;
-    public X10ClassType CustomSerialization2() {
-        if (customSerialization2Type_ == null)
-            customSerialization2Type_ = load("x10.io.CustomSerialization2"); // java file
-        return customSerialization2Type_;
     }
 
     protected X10ClassType unserializableType_;
@@ -2381,13 +2374,6 @@ public class TypeSystem_c implements TypeSystem
         if (unserializableType_ == null)
             unserializableType_ = load("x10.io.Unserializable"); // java file
         return unserializableType_;
-    }
-
-    protected X10ClassType serialDataType_;
-    public X10ClassType SerialData() {
-        if (serialDataType_ == null)
-            serialDataType_ = load("x10.io.SerialData"); // java file
-        return serialDataType_;
     }
     
     protected X10ClassType serializerType_;

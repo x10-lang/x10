@@ -21,7 +21,6 @@ import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 
 import x10.io.CustomSerialization;
-import x10.io.CustomSerialization2;
 import x10.rtt.Types;
 import x10.runtime.impl.java.Runtime;
 import x10.serialization.SerializationDictionary.LocalSerializationDictionary;
@@ -197,11 +196,6 @@ public final class X10JavaSerializer implements SerializationConstants {
         write((X10JavaSerializable) obj);
     }
     
-    public void write(CustomSerialization2 obj) throws IOException {
-        write((X10JavaSerializable) obj);
-    }
-
-
     public void write(X10JavaSerializable obj[]) throws IOException {
         write(obj.length);
         for (X10JavaSerializable o : obj) {

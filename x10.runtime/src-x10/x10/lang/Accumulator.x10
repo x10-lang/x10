@@ -11,7 +11,7 @@
 
 package x10.lang;
 
-import x10.io.CustomSerialization2;
+import x10.io.CustomSerialization;
 import x10.io.Deserializer;
 import x10.io.Serializer;
 import x10.compiler.NonEscaping;
@@ -19,7 +19,7 @@ import x10.compiler.NonEscaping;
 /**
  * The naive implementation of an accumulator (without any piggybacking on finish or clocks).
  */
-public class Accumulator[T] extends Acc implements CustomSerialization2 {
+public class Accumulator[T] extends Acc implements CustomSerialization {
     //val owner:Activity;
     @NonEscaping private val root:GlobalRef[Acc];
 	protected var curr:T;

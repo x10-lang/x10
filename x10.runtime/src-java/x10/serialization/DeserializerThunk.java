@@ -24,7 +24,6 @@ import java.util.concurrent.ConcurrentHashMap;
 
 import sun.misc.Unsafe;
 import x10.io.Deserializer;
-import x10.io.SerialData;
 import x10.rtt.NamedStructType;
 import x10.rtt.NamedType;
 import x10.rtt.RuntimeType;
@@ -157,7 +156,6 @@ abstract class DeserializerThunk {
 
         Class<?>[] interfaces = clazz.getInterfaces();
         boolean isCustomSerializable = false;
-        boolean isCustomSerializable2 = false;
         boolean isHadoopSerializable = Runtime.implementsHadoopWritable(clazz);
         boolean isX10JavaSerializable = SerializationUtils.useX10SerializationProtocol(clazz);
         for (Class<?> aInterface : interfaces) {
@@ -165,20 +163,11 @@ abstract class DeserializerThunk {
                 isCustomSerializable = true;
                 break;
             }
-            if ("x10.io.CustomSerialization2".equals(aInterface.getName())) {
-                isCustomSerializable2 = true;
-                break;
-            }
         }
 
         if (isCustomSerializable) {
             return new CustomDeserializerThunk(clazz);
         }
-        
-        if (isCustomSerializable2) {
-            return new CustomDeserializer2Thunk(clazz);
-        }
-
 
         if (isHadoopSerializable) {
             return new HadoopDeserializerThunk(clazz);
@@ -315,48 +304,6 @@ abstract class DeserializerThunk {
         protected final Method makeMethod;
 
         CustomDeserializerThunk(Class<? extends Object> clazz) throws SecurityException, NoSuchFieldException, NoSuchMethodException {
-            super(null);
-
-            // Even though this class implements a custom serialization protocol,
-            // the runtime needs to invisibly serialize those instance fields that
-            // are used to provide RTT information for generic types (not visible at the user-level).
-            TypeVariable<? extends Class<? extends Object>>[] typeParameters = clazz.getTypeParameters();
-            if (typeParameters.length > 0) {
-                // Must sort the fields to get JVM-independent ordering.
-                Set<Field> flds = new TreeSet<Field>(new FieldComparator());
-                for (TypeVariable<? extends Class<? extends Object>> typeParameter: typeParameters) {
-                    Field field = clazz.getDeclaredField(typeParameter.getName());
-                    field.setAccessible(true);
-                    flds.add(field);
-                }
-                fields = flds.toArray(new Field[flds.size()]); 
-            } else {
-                fields = new Field[0];
-            }
-
-            // We can't use the same method name in all classes cause it creates an endless loop cause when super.init is called it calls back to this method
-            makeMethod = clazz.getMethod(clazz.getName().replace(".", "$") + "$" + DeserializerThunk.CONSTRUCTOR_METHOD_NAME_FOR_REFLECTION, SerialData.class);
-            makeMethod.setAccessible(true);
-        }
-
-        @Override
-        protected <T> T deserializeBody(Class<?> clazz, T obj, int i, X10JavaDeserializer jds) throws IOException, IllegalArgumentException, IllegalAccessException, InvocationTargetException {
-            for (Field field : fields) {
-                Object value = jds.readRefUsingReflection();
-                field.set(obj, value);
-            }
-
-            SerialData serialData = (SerialData) jds.readRefUsingReflection();
-            makeMethod.invoke(obj, serialData);
-            return obj;
-        }
-    }
-
-    private static class CustomDeserializer2Thunk extends DeserializerThunk {
-        protected final Field[] fields;
-        protected final Method makeMethod;
-
-        CustomDeserializer2Thunk(Class<? extends Object> clazz) throws SecurityException, NoSuchFieldException, NoSuchMethodException {
             super(null);
 
             // Even though this class implements a custom serialization protocol,

@@ -11,7 +11,7 @@
 
 package x10.lang;
 
-import x10.io.CustomSerialization2;
+import x10.io.CustomSerialization;
 import x10.io.Deserializer;
 import x10.io.Serializer;
 import x10.compiler.NonEscaping;

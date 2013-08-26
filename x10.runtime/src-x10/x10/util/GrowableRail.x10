@@ -16,7 +16,7 @@ import x10.compiler.Inline;
 import x10.compiler.NoInline;
 import x10.compiler.NoReturn;
 
-import x10.io.CustomSerialization2;
+import x10.io.CustomSerialization;
 import x10.io.Serializer;
 import x10.io.Deserializer;
 
@@ -29,7 +29,7 @@ import x10.io.Deserializer;
  * @See ArrayList, which provides a similar abstraction of a 
  *      Growable Array. Like Rail, ArrayList is type safe.
  */
-public final class GrowableRail[T] implements CustomSerialization2 {
+public final class GrowableRail[T] implements CustomSerialization {
     private var data:Rail[T];
 
     def rail() = data; // for use by ArrayList and other classes in util package

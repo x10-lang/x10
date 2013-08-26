@@ -24,7 +24,7 @@ import x10.regionarray.*;
 import x10.util.*;
 import x10.lang.annotations.*; // FieldAnnotation MethodAnnotation
 
-import x10.io.CustomSerialization2;
+import x10.io.CustomSerialization;
 import x10.io.Deserializer;
 import x10.io.Serializer;
 
@@ -3773,7 +3773,7 @@ class HashMapSerialize {
 }
 }
 
-class XTENLANG_2142 implements CustomSerialization2 { // ShouldBeErr: missing ctor "def this(Deserializer)"
+class XTENLANG_2142 implements CustomSerialization { // ShouldBeErr: missing ctor "def this(Deserializer)"
 	public def serialize(Serializer) {} 
 }
 

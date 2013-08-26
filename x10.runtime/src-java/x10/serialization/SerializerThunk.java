@@ -21,8 +21,6 @@ import java.util.TreeSet;
 import java.util.concurrent.ConcurrentHashMap;
 
 import x10.io.CustomSerialization;
-import x10.io.CustomSerialization2;
-import x10.io.SerialData;
 import x10.runtime.impl.java.Runtime;
 
 /**
@@ -106,7 +104,6 @@ abstract class SerializerThunk {
 
         Class<?>[] interfaces = clazz.getInterfaces();
         boolean isCustomSerializable = false;
-        boolean isCustomSerializable2 = false;
         boolean isHadoopSerializable = Runtime.implementsHadoopWritable(clazz);
         boolean isX10JavaSerializable = SerializationUtils.useX10SerializationProtocol(clazz);
         for (Class<?> aInterface : interfaces) {
@@ -114,15 +111,11 @@ abstract class SerializerThunk {
                 isCustomSerializable = true;
                 break;
             }
-            if ("x10.io.CustomSerialization2".equals(aInterface.getName())) {
-                isCustomSerializable2 = true;
-                break;
-            }
         }
 
         // Error checking. We don't support classes that try to implement both Hadoop and X10 serialization protocols
         if (isHadoopSerializable) {
-            if (isCustomSerializable || isCustomSerializable2) {
+            if (isCustomSerializable) {
                 throw new RuntimeException("serializer: " + clazz + " implements both x10.io.CustomSerialization and org.apache.hadoop.io.Writable.");
             }
             if (isX10JavaSerializable) {
@@ -133,11 +126,6 @@ abstract class SerializerThunk {
         if (isCustomSerializable) {
             return new SerializerThunk.CustomSerializerThunk(clazz);
         }
-        
-        if (isCustomSerializable2) {
-            return new SerializerThunk.CustomSerializer2Thunk(clazz);
-        }
-
         
         if (isX10JavaSerializable) {
             return new X10JavaSerializableSerializerThunk(clazz);
@@ -241,7 +229,7 @@ abstract class SerializerThunk {
             writeMethod.invoke(obj, xjs.out);
         }
     }
-
+    
     private static class CustomSerializerThunk extends SerializerThunk {
         protected final Field[] fields;
 
@@ -271,40 +259,6 @@ abstract class SerializerThunk {
                 xjs.writeObjectUsingReflection(field.get(obj));
             }
             CustomSerialization cs = (CustomSerialization)obj;
-            SerialData serialData = cs.serialize();
-            xjs.writeObjectUsingReflection(serialData);
-        }
-    }
-    
-    private static class CustomSerializer2Thunk extends SerializerThunk {
-        protected final Field[] fields;
-
-        CustomSerializer2Thunk(Class<? extends Object> clazz) throws SecurityException, NoSuchFieldException {
-            super(null);
-
-            // Even though this class implements a custom serialization protocol,
-            // the runtime needs to invisibly serialize those instance fields that
-            // are used to provide RTT information for generic types (not visible at the user-level).
-            TypeVariable<? extends Class<? extends Object>>[] typeParameters = clazz.getTypeParameters();
-            if (typeParameters.length > 0) {
-                // Must sort the fields to get JVM-independent ordering.
-                Set<Field> flds = new TreeSet<Field>(new FieldComparator());
-                for (TypeVariable<? extends Class<? extends Object>> typeParameter: typeParameters) {
-                    Field field = clazz.getDeclaredField(typeParameter.getName());
-                    field.setAccessible(true);
-                    flds.add(field);                  
-                }
-                fields = flds.toArray(new Field[flds.size()]);    
-            } else {
-                fields = new Field[0];
-            }                     
-        }
-
-        <T> void serializeBody(T obj, Class<? extends Object> clazz, X10JavaSerializer xjs) throws IllegalArgumentException, IOException, IllegalAccessException {
-            for (Field field: fields) {
-                xjs.writeObjectUsingReflection(field.get(obj));
-            }
-            CustomSerialization2 cs = (CustomSerialization2)obj;
             cs.serialize(new x10.io.Serializer(xjs));
             xjs.write(SerializationConstants.CUSTOM_SERIALIZATION_END);
         }

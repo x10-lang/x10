@@ -53,7 +53,7 @@ class Activity {
             clear();
         }
 
-        // HashMap implements CustomSerialization2, so we must as well
+        // HashMap implements CustomSerialization, so we must as well
         public def serialize(s:Serializer) {
             super.serialize(s);
         }

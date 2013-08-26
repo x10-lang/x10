@@ -10,7 +10,7 @@
  */
 
 import harness.x10Test;
-import x10.io.CustomSerialization2;
+import x10.io.CustomSerialization;
 import x10.io.Deserializer;
 import x10.io.Serializer;
 
@@ -19,7 +19,7 @@ import x10.io.Serializer;
  * protocol is being called by runtime system
  */
 public class TestCustomSerialization1 extends x10Test {
-  static class CS implements CustomSerialization2 {
+  static class CS implements CustomSerialization {
      val x:int;
      val y:int;
      transient var sum:int;

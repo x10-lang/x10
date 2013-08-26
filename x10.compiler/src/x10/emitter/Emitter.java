@@ -3742,82 +3742,17 @@ public class Emitter {
         return cd;
     }
 
-	public void generateCustomSerializer(X10ClassDef def, X10ClassDecl_c n) {
-	    X10CompilerOptions opts = (X10CompilerOptions) tr.job().extensionInfo().getOptions();
-	    String fieldName = X10PrettyPrinterVisitor.SERIAL_DATA_FIELD_NAME;
-	    w.write("// custom serializer");
-	    w.newline();
-        w.write("private transient x10.io.SerialData " + fieldName + ";");
-        w.newline();
-        w.write("private Object writeReplace() { ");
-        if (!opts.x10_config.NO_TRACES && !opts.x10_config.OPTIMIZE) {
-            w.write("if (" + X10PrettyPrinterVisitor.X10_RUNTIME_IMPL_JAVA_RUNTIME + ".TRACE_SER) { ");
-            w.write("java.lang.System.out.println(\"Serializer: serialize() of \" + this + \" calling\"); ");
-            w.write("} ");
-        }
-        w.write(fieldName + " = serialize(); ");
-        if (!opts.x10_config.NO_TRACES && !opts.x10_config.OPTIMIZE) {
-            w.write("if (" + X10PrettyPrinterVisitor.X10_RUNTIME_IMPL_JAVA_RUNTIME + ".TRACE_SER) { ");
-            w.write("java.lang.System.out.println(\"Serializer: serialize() of \" + this + \" returned \" + " + fieldName + "); ");
-            w.write("} ");
-        }
-        w.write("return this; }");
-        w.newline();
-        if (def.flags().isAbstract()) {
-            w.writeln("private Object readResolve() { throw new UnsupportedOperationException(\"Can't instantiate an abstract class\"); } ");            
-        } else {
-            w.write("private Object readResolve() { return ");
-            if (X10PrettyPrinterVisitor.generateFactoryMethod) {
-                printType(def.asType(), BOX_PRIMITIVES | NO_QUALIFIER);
-                w.write(".");
-                w.write(X10PrettyPrinterVisitor.CREATION_METHOD_NAME);
-            } else {
-                assert X10PrettyPrinterVisitor.generateOnePhaseConstructor;
-                w.write("new ");
-                printType(def.asType(), BOX_PRIMITIVES | NO_QUALIFIER);
-            }
-            w.write("(");
-            for (ParameterType type : def.typeParameters()) {
-                w.write(mangleParameterType(type) + ", ");
-            }
-            w.write(fieldName + "); }");
-            w.newline();
-        }
-        w.write("private void writeObject(java.io.ObjectOutputStream oos) throws java.io.IOException {");
-        w.newline();
-        for (ParameterType type : def.typeParameters()) {
-        	w.write("oos.writeObject(" + mangleParameterType(type) + ");");
-            w.newline();
-        }
-        w.write("oos.writeObject(" + fieldName + "); }");
-        w.newline();
-        w.write("private void readObject(java.io.ObjectInputStream ois) throws java.io.IOException, java.lang.ClassNotFoundException {");
-        w.newline();
-        for (ParameterType type : def.typeParameters()) {
-        	w.write(mangleParameterType(type) + " = (" + X10PrettyPrinterVisitor.X10_RTT_TYPE + ") ois.readObject();");
-            w.newline();
-        }
-        w.write(fieldName + " = (x10.io.SerialData) ois.readObject(); }");
-        w.newline();
-
-        /*
-        if (!hasCustomSerializer(def)) {
-            w.write("// default custom serializer");
-            w.newline();
-//            w.write("public x10.io.SerialData serialize() { return new x10.io.SerialData(null, super.serialize()); }");
-            w.write("public x10.io.SerialData serialize() { return super.serialize(); }");
-            w.newline();
-        }
-        */
-
+    public void generateCustomSerializer2(X10ClassDef def, X10ClassDecl_c n) {
+        X10CompilerOptions opts = (X10CompilerOptions) tr.job().extensionInfo().getOptions();
+        w.writeln("// custom serialization support");
         if (!def.hasDeserializationConstructor(tr.context())) {
             w.write("// default deserialization constructor");
             w.newline();
             w.write("public " + def.name().toString() + "(");
             for (ParameterType type : def.typeParameters()) {
-            	w.write("final x10.rtt.Type " + mangleParameterType(type) + ", ");
+                w.write("final x10.rtt.Type " + mangleParameterType(type) + ", ");
             }
-            w.write("final x10.io.SerialData a) { ");
+            w.write("final x10.io.Deserializer ds) { ");
 
             // call super deserialization constructor
             Ref<? extends Type> superType0Ref = def.superType();
@@ -3833,30 +3768,29 @@ public class Emitter {
                 if (superType.typeArguments() != null) {
                     for (Type type : superType.typeArguments()) {
                         // pass rtt of the type
-                    	// TODO mangle typa variable
+                        // TODO mangle typa variable
                         new RuntimeTypeExpander(this, type).expand();
                         w.write(", ");
                     }
                 }
-//                w.write("a.superclassData); ");
-                w.write("a); ");
+                w.write("ds); ");
             }
-            
+
             // initialize rtt
             for (ParameterType type : def.typeParameters()) {
-            	w.write("this." + mangleParameterType(type) + " = " + mangleParameterType(type) + "; ");            		
+                w.write("this." + mangleParameterType(type) + " = " + mangleParameterType(type) + "; ");                    
             }
-            
+
             // copy the rest of default (standard) constructor to initialize properties and fields
             X10ConstructorDecl ctor = hasDefaultConstructor(n);
             // we must have default constructor to initialize properties
-//          assert ctor != null;
+            //	          assert ctor != null;
             /*
-            if (ctor == null) {
-                ctor = createDefaultConstructor(def, (X10NodeFactory_c) tr.nodeFactory(), n);
-                // TODO apply FieldInitializerMover
-            }
-            */
+	            if (ctor == null) {
+	                ctor = createDefaultConstructor(def, (X10NodeFactory_c) tr.nodeFactory(), n);
+	                // TODO apply FieldInitializerMover
+	            }
+             */
             if (ctor != null) {
                 // initialize properties and call field initializer
                 Block_c body = (Block_c) ctor.body();
@@ -3896,30 +3830,31 @@ public class Emitter {
             w.writeln("} ");
         }
 
-        w.writeln("x10.io.SerialData " +  fieldName +  " = (x10.io.SerialData) $deserializer.readRef();");
+        w.writeln("x10.io.Deserializer $ds = new x10.io.Deserializer($deserializer);");
 
         // XTENLANG-2974
         // N.B. we cannot reinstantiating $_obj since it may have already been serialized (and thus registered).
-//        w.write("$_obj = (");
-//        printType(def.asType(), BOX_PRIMITIVES | NO_QUALIFIER);
-//        w.write(") ");
-//        if (X10PrettyPrinterVisitor.generateFactoryMethod) {
-//            printType(def.asType(), BOX_PRIMITIVES | NO_QUALIFIER);
-//            w.write(".");
-//            w.write(X10PrettyPrinterVisitor.CREATION_METHOD_NAME);
-//        } else {
-//            assert X10PrettyPrinterVisitor.generateOnePhaseConstructor;
-//            w.write("new ");
-//            printType(def.asType(), BOX_PRIMITIVES | NO_QUALIFIER);
-//        }
-//        String paramNames = "";
-//        for (String param : params) {
-//            paramNames = paramNames + param + ", ";
-//        }
-//        w.writeln("(" + paramNames + fieldName + ");");
+        //	        w.write("$_obj = (");
+        //	        printType(def.asType(), BOX_PRIMITIVES | NO_QUALIFIER);
+        //	        w.write(") ");
+        //	        if (X10PrettyPrinterVisitor.generateFactoryMethod) {
+        //	            printType(def.asType(), BOX_PRIMITIVES | NO_QUALIFIER);
+        //	            w.write(".");
+        //	            w.write(X10PrettyPrinterVisitor.CREATION_METHOD_NAME);
+        //	        } else {
+        //	            assert X10PrettyPrinterVisitor.generateOnePhaseConstructor;
+        //	            w.write("new ");
+        //	            printType(def.asType(), BOX_PRIMITIVES | NO_QUALIFIER);
+        //	        }
+        //	        String paramNames = "";
+        //	        for (String param : params) {
+        //	            paramNames = paramNames + param + ", ";
+        //	        }
+        //	        w.writeln("(" + paramNames + fieldName + ");");
         // set type objects to the fields of $_obj and initialize $_obj by calling $init(SerialData). 
-        w.writeln("$_obj." + X10PrettyPrinterVisitor.CONSTRUCTOR_METHOD_NAME(def) + "(" + fieldName + ");");
-        
+        w.writeln("$_obj." + X10PrettyPrinterVisitor.CONSTRUCTOR_METHOD_NAME(def) + "($ds);");
+        w.writeln("short $marker = $deserializer.readShort();");
+        w.writeln("if ($marker != x10.serialization.SerializationConstants.CUSTOM_SERIALIZATION_END) { x10.serialization.X10JavaDeserializer.raiseSerializationProtocolError(); }");
         w.writeln("return $_obj;");
         w.end();
         w.newline();
@@ -3954,7 +3889,7 @@ public class Emitter {
                 for (ParameterType typeParam : def.typeParameters()) {
                     w.write(mangleParameterType(typeParam)+", ");
                 }
-                w.writeln("(x10.io.SerialData) null);");
+                w.writeln("(x10.io.Deserializer) null);");
             }
             w.writeln("$deserializer.update_reference($obj_id, $_obj); /* Update entry in object map with the actual object before deserializing body */");
             w.writeln("return " + DESERIALIZE_BODY_METHOD + "($_obj, $deserializer);");
@@ -3976,17 +3911,17 @@ public class Emitter {
         for (ParameterType at : def.typeParameters()) {
             w.writeln("$serializer.write(" + mangleParameterType(at) + ");");
         }
-        w.writeln(fieldName + " = serialize(); ");
-        w.writeln("$serializer.write(" + fieldName + ");");
+        w.writeln("serialize(new "+X10PrettyPrinterVisitor.SERIALIZER+"($serializer)); ");
+        w.writeln("$serializer.write(x10.serialization.SerializationConstants.CUSTOM_SERIALIZATION_END);");
         w.end();
         w.newline();
         w.writeln("}");
         w.newline();
 
-        // XTENLANG-2974 generate dummy $init(SerialData) for non-splittable type to simplify above _deserialize_body method.
+        // XTENLANG-2974 generate dummy $init(Deserializer) for non-splittable type to simplify above _deserialize_body method.
         if (!X10PrettyPrinterVisitor.isSplittable(def.asType())) {
             w.writeln("// dummy 2nd-phase constructor for non-splittable type");
-            w.writeln("public void " + X10PrettyPrinterVisitor.CONSTRUCTOR_METHOD_NAME(def) + "(" + X10PrettyPrinterVisitor.SERIAL_DATA +  " " + fieldName + ") {");
+            w.writeln("public void " + X10PrettyPrinterVisitor.CONSTRUCTOR_METHOD_NAME(def) + "(" + X10PrettyPrinterVisitor.DESERIALIZER +  " $ds) {");
             w.newline(4);
             w.begin(0);
             w.write("throw new ");
@@ -3998,201 +3933,7 @@ public class Emitter {
             w.newline();
         }
 
-	}
-	
-	   public void generateCustomSerializer2(X10ClassDef def, X10ClassDecl_c n) {
-	        X10CompilerOptions opts = (X10CompilerOptions) tr.job().extensionInfo().getOptions();
-	        w.writeln("// custom serialization support");
-	        if (!def.hasDeserializationConstructor2(tr.context())) {
-	            w.write("// default deserialization constructor");
-	            w.newline();
-	            w.write("public " + def.name().toString() + "(");
-	            for (ParameterType type : def.typeParameters()) {
-	                w.write("final x10.rtt.Type " + mangleParameterType(type) + ", ");
-	            }
-	            w.write("final x10.io.Deserializer ds) { ");
-
-	            // call super deserialization constructor
-	            Ref<? extends Type> superType0Ref = def.superType();
-	            if (superType0Ref != null) {
-	                Type superType0 = superType0Ref.get();
-	                X10ClassType superType;
-	                if (superType0 instanceof ConstrainedType) {
-	                    superType = ((ConstrainedType) superType0).baseType().get().toClass();
-	                } else {
-	                    superType = superType0.toClass();
-	                }
-	                w.write("super(");
-	                if (superType.typeArguments() != null) {
-	                    for (Type type : superType.typeArguments()) {
-	                        // pass rtt of the type
-	                        // TODO mangle typa variable
-	                        new RuntimeTypeExpander(this, type).expand();
-	                        w.write(", ");
-	                    }
-	                }
-	                w.write("ds); ");
-	            }
-	            
-	            // initialize rtt
-	            for (ParameterType type : def.typeParameters()) {
-	                w.write("this." + mangleParameterType(type) + " = " + mangleParameterType(type) + "; ");                    
-	            }
-	            
-	            // copy the rest of default (standard) constructor to initialize properties and fields
-	            X10ConstructorDecl ctor = hasDefaultConstructor(n);
-	            // we must have default constructor to initialize properties
-//	          assert ctor != null;
-	            /*
-	            if (ctor == null) {
-	                ctor = createDefaultConstructor(def, (X10NodeFactory_c) tr.nodeFactory(), n);
-	                // TODO apply FieldInitializerMover
-	            }
-	            */
-	            if (ctor != null) {
-	                // initialize properties and call field initializer
-	                Block_c body = (Block_c) ctor.body();
-	                if (body.statements().size() > 0) {
-	                    if (body.statements().get(0) instanceof ConstructorCall) {
-	                        body = (Block_c) body.statements(body.statements().subList(1, body.statements().size()));
-	                    }
-	                    // X10PrettyPrinterVisitor.visit(Block_c body)
-	                    String s = getJavaImplForStmt(body, tr.typeSystem());
-	                    if (s != null) {
-	                        w.write(s);
-	                    } else {
-	                        body.translate(w, tr);
-	                    }
-	                }
-	            }
-
-	            w.write("}");
-	            w.newline();
-	        }
-
-	        //_deserialize_body method
-	        w.write("public static ");
-	        List<TypeParamNode> typeParameters = n.typeParameters();
-	        if (typeParameters.size() > 0) {
-	            printTypeParams(n, tr.context(), typeParameters);
-	        }
-	        w.write(X10_JAVA_SERIALIZABLE_CLASS + " " + DESERIALIZE_BODY_METHOD + "(");
-	        printType(def.asType(), PRINT_TYPE_PARAMS | BOX_PRIMITIVES);
-	        w.writeln(" $_obj , " + X10_JAVA_DESERIALIZER_CLASS + " $deserializer) throws java.io.IOException {");
-	        w.newline(4);
-	        w.begin(0);
-
-	        if (!opts.x10_config.NO_TRACES && !opts.x10_config.OPTIMIZE) {
-	            w.write("if (" + X10PrettyPrinterVisitor.X10_RUNTIME_IMPL_JAVA_RUNTIME + ".TRACE_SER) { ");
-	            w.write("java.lang.System.out.println(\"X10JavaSerializable: " + DESERIALIZE_BODY_METHOD + "() of \" + "  + mangleToJava(def.name()) + ".class + \" calling\"); ");
-	            w.writeln("} ");
-	        }
-
-	        w.writeln("x10.io.Deserializer $ds = new x10.io.Deserializer($deserializer);");
-
-	        // XTENLANG-2974
-	        // N.B. we cannot reinstantiating $_obj since it may have already been serialized (and thus registered).
-//	        w.write("$_obj = (");
-//	        printType(def.asType(), BOX_PRIMITIVES | NO_QUALIFIER);
-//	        w.write(") ");
-//	        if (X10PrettyPrinterVisitor.generateFactoryMethod) {
-//	            printType(def.asType(), BOX_PRIMITIVES | NO_QUALIFIER);
-//	            w.write(".");
-//	            w.write(X10PrettyPrinterVisitor.CREATION_METHOD_NAME);
-//	        } else {
-//	            assert X10PrettyPrinterVisitor.generateOnePhaseConstructor;
-//	            w.write("new ");
-//	            printType(def.asType(), BOX_PRIMITIVES | NO_QUALIFIER);
-//	        }
-//	        String paramNames = "";
-//	        for (String param : params) {
-//	            paramNames = paramNames + param + ", ";
-//	        }
-//	        w.writeln("(" + paramNames + fieldName + ");");
-	        // set type objects to the fields of $_obj and initialize $_obj by calling $init(SerialData). 
-	        w.writeln("$_obj." + X10PrettyPrinterVisitor.CONSTRUCTOR_METHOD_NAME(def) + "($ds);");
-	        w.writeln("short $marker = $deserializer.readShort();");
-	        w.writeln("if ($marker != x10.serialization.SerializationConstants.CUSTOM_SERIALIZATION_END) { x10.serialization.X10JavaDeserializer.raiseSerializationProtocolError(); }");
-	        w.writeln("return $_obj;");
-	        w.end();
-	        w.newline();
-	        w.writeln("}");
-	        w.newline();
-
-	        // _deserializer  method
-	        w.writeln("public static " + X10_JAVA_SERIALIZABLE_CLASS + " " + DESERIALIZER_METHOD + "(" + X10_JAVA_DESERIALIZER_CLASS + " $deserializer) throws java.io.IOException {");
-	        w.newline(4);
-	        w.begin(0);
-	        if (def.flags().isAbstract()) {
-	            w.write("throw new UnsupportedOperationException(\"Can't instantiate an abstract class\");");
-	        } else {
-	            w.writeln("int $obj_id = $deserializer.record_reference(null); /* Get id eagerly so that ordering in object map is stable (needed for repeated reference mechanism) */");
-	            for (ParameterType typeParam : def.typeParameters()) {
-	                w.write(X10PrettyPrinterVisitor.X10_RTT_TYPE + " ");
-	                printType(typeParam, PRINT_TYPE_PARAMS | BOX_PRIMITIVES);
-	                w.writeln(" = (" + X10PrettyPrinterVisitor.X10_RTT_TYPE + ") $deserializer.readRef();");
-	            }
-	            w.write(mangleToJava(def.name()) + " $_obj = new " + mangleToJava(def.name()) + "(");
-	            if (X10PrettyPrinterVisitor.supportConstructorSplitting
-	                    // XTENLANG-2830
-	                    /*&& !ConstructorSplitterVisitor.isUnsplittable(Types.baseType(def.asType()))*/
-	                    && !def.flags().isInterface()) {
-	                w.write("(" + X10PrettyPrinterVisitor.CONSTRUCTOR_FOR_ALLOCATION_DUMMY_PARAM_TYPE + ") null");
-	                for (ParameterType typeParam : def.typeParameters()) {
-	                    w.write(", (" + X10PrettyPrinterVisitor.X10_RTT_TYPE + ") "+mangleParameterType(typeParam));
-	                }
-	                w.write(");");
-	                w.newline();
-	            } else {
-	                for (ParameterType typeParam : def.typeParameters()) {
-	                    w.write(mangleParameterType(typeParam)+", ");
-	                }
-	                w.writeln("(x10.io.Deserializer) null);");
-	            }
-	            w.writeln("$deserializer.update_reference($obj_id, $_obj); /* Update entry in object map with the actual object before deserializing body */");
-	            w.writeln("return " + DESERIALIZE_BODY_METHOD + "($_obj, $deserializer);");
-	        }
-	        w.end();
-	        w.newline();
-	        w.writeln("}");
-	        w.newline();
-
-	        // _serialize()
-	        w.writeln("public void " + SERIALIZE_METHOD + "(" + X10_JAVA_SERIALIZER_CLASS + " $serializer) throws java.io.IOException {");
-	        w.newline(4);
-	        w.begin(0);
-	        if (!opts.x10_config.NO_TRACES && !opts.x10_config.OPTIMIZE) {
-	            w.write("if (" + X10PrettyPrinterVisitor.X10_RUNTIME_IMPL_JAVA_RUNTIME + ".TRACE_SER) { ");
-	            w.write("java.lang.System.out.println(\" CustomSerialization : " + SERIALIZE_METHOD + " of \" + this + \" calling\"); ");
-	            w.writeln("} ");
-	        }
-	        for (ParameterType at : def.typeParameters()) {
-	            w.writeln("$serializer.write(" + mangleParameterType(at) + ");");
-	        }
-	        w.writeln("serialize(new "+X10PrettyPrinterVisitor.SERIALIZER+"($serializer)); ");
-	        w.writeln("$serializer.write(x10.serialization.SerializationConstants.CUSTOM_SERIALIZATION_END);");
-	        w.end();
-	        w.newline();
-	        w.writeln("}");
-	        w.newline();
-
-	        // XTENLANG-2974 generate dummy $init(Deserializer) for non-splittable type to simplify above _deserialize_body method.
-	        if (!X10PrettyPrinterVisitor.isSplittable(def.asType())) {
-	            w.writeln("// dummy 2nd-phase constructor for non-splittable type");
-	            w.writeln("public void " + X10PrettyPrinterVisitor.CONSTRUCTOR_METHOD_NAME(def) + "(" + X10PrettyPrinterVisitor.DESERIALIZER +  " $ds) {");
-	            w.newline(4);
-	            w.begin(0);
-	            w.write("throw new ");
-	            new TypeExpander(this, tr.typeSystem().Error(), 0).expand();
-	            w.writeln("(\"dummy 2nd-phase constructor for non-splittable type should never be called.\");");
-	            w.end();
-	            w.newline();
-	            w.writeln("}");
-	            w.newline();
-	        }
-
-	    }
-
+    }
 
     private ClassType Thread_;
     private ClassType Thread() {

@@ -12,11 +12,11 @@
 package x10.util;
 
 import x10.compiler.NonEscaping;
-import x10.io.CustomSerialization2;
+import x10.io.CustomSerialization;
 import x10.io.Deserializer;
 import x10.io.Serializer;
 
-public class HashMap[K,V] implements Map[K,V], CustomSerialization2 {
+public class HashMap[K,V] implements Map[K,V], CustomSerialization {
     static class HashEntry[Key,Value] implements Map.Entry[Key,Value] {
         public def getKey() = key;
         public def getValue() = value;

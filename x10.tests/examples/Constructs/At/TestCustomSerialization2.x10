@@ -10,7 +10,7 @@
  */
 
 import harness.x10Test;
-import x10.io.CustomSerialization2;
+import x10.io.CustomSerialization;
 import x10.io.Deserializer;
 import x10.io.Serializer;
 import x10.util.HashMap;
@@ -19,9 +19,9 @@ import x10.util.HashMap;
  * Simple test case to check to see if custom serialization
  * protocol is being called by runtime system
  */
-public class TestCustomSerialization2 extends x10Test {
+public class TestCustomSerialization extends x10Test {
 
-    static class CS implements CustomSerialization2 {
+    static class CS implements CustomSerialization {
         val x:long;
         val y:long;
         transient var sum:long;
@@ -64,7 +64,7 @@ public class TestCustomSerialization2 extends x10Test {
     }
 
     public static def main(Rail[String]) {
-        new TestCustomSerialization2().execute();
+        new TestCustomSerialization().execute();
     }
 }
   

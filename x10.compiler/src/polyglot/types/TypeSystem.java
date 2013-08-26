@@ -1098,8 +1098,6 @@ public interface TypeSystem {
 
     X10ClassType Unserializable();
     X10ClassType CustomSerialization();
-    X10ClassType CustomSerialization2();
-    X10ClassType SerialData();
     X10ClassType Serializer();
     X10ClassType Deserializer();
 

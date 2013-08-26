@@ -21,7 +21,7 @@ import x10.util.concurrent.AtomicInteger;
 import x10.util.concurrent.Lock;
 import x10.util.concurrent.SimpleLatch;
 
-import x10.io.CustomSerialization2;
+import x10.io.CustomSerialization;
 import x10.io.Deserializer;
 import x10.io.Serializer;
 
@@ -78,7 +78,7 @@ abstract class FinishState {
     }
 
     // a finish without nested remote asyncs in remote asyncs
-    static class FinishSPMD extends FinishSkeleton implements CustomSerialization2 {
+    static class FinishSPMD extends FinishSkeleton implements CustomSerialization {
         def this() {
             super(new RootFinishSPMD());
         }
@@ -161,7 +161,7 @@ abstract class FinishState {
     }
 
     // a finish guarding a unique async
-    static class FinishAsync extends FinishSkeleton implements CustomSerialization2 {
+    static class FinishAsync extends FinishSkeleton implements CustomSerialization {
         def this() {
             super(new RootFinishAsync());
         }
@@ -226,7 +226,7 @@ abstract class FinishState {
     }
 
     // a finish ignoring remote events
-    static class FinishHere extends FinishSkeleton implements CustomSerialization2 {
+    static class FinishHere extends FinishSkeleton implements CustomSerialization {
         def this() {
             super(new RootFinishSPMD());
         }
@@ -350,7 +350,7 @@ abstract class FinishState {
     }
 
     // the default finish implementation
-    static class Finish extends FinishSkeleton implements CustomSerialization2 {
+    static class Finish extends FinishSkeleton implements CustomSerialization {
         protected def this(root:RootFinish) {
             super(root);
         }
@@ -597,7 +597,7 @@ abstract class FinishState {
         }
     }
 
-    static class DenseFinish extends FinishSkeleton implements CustomSerialization2 {
+    static class DenseFinish extends FinishSkeleton implements CustomSerialization {
         protected def this(root:RootFinish) {
             super(root);
         }
@@ -761,7 +761,7 @@ abstract class FinishState {
         def accept(t:T, id:Int):void;
     }
 
-    static class CollectingFinish[T] extends Finish implements CollectingFinishState[T],CustomSerialization2 {
+    static class CollectingFinish[T] extends Finish implements CollectingFinishState[T],CustomSerialization {
         val reducer:Reducible[T];
         def this(reducer:Reducible[T]) {
             super(new RootCollectingFinish(reducer));
