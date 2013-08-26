@@ -124,6 +124,14 @@ public final class Array_2[T] (
     }
 
     /**
+     * Map a 2-D (i,j) index into a 1-D index into the backing Rail
+     * returned by raw(). Uses row-major order.
+     */
+    public @Inline def offset(i:Long, j:Long) {
+         return j + (i * numElems_2);
+    }
+
+    /**
      * Return the element of this array corresponding to the given pair of indices.
      * 
      * @param i the given index in the first dimension
@@ -177,14 +185,6 @@ public final class Array_2[T] (
      * @see #operator(Point)
      */
     public @Inline operator this(p:Point(2))=(v:T):T{self==v} = this(p(0), p(1)) = v;
-
-    /**
-     * Map a 2-D (i,j) index into a 1-D index into the backing Rail
-     * returned by raw(). Uses row-major order.
-     */
-    public @Inline def offset(i:Long, j:Long) {
-         return j + (i * numElems_2);
-    }
 
     private @Inline static def validateSize(m:Long, n:Long):Long {
         if (m < 0 || n < 0) raiseNegativeArraySizeException();

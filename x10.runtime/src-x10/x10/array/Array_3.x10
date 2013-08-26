@@ -135,6 +135,14 @@ public final class Array_3[T] (
     }
     
     /**
+     * Map a 3-D (i,j,k) index into a 1-D index into the backing Rail
+     * returned by raw(). Uses row-major ordering.
+     */
+    public @Inline def offset(i:Long, j:Long, k:Long) {
+        return k + numElems_3 * (j + (i * numElems_2));
+    }
+
+    /**
      * Return the element of this array corresponding to the given triple of indices.
      * 
      * @param i the given index in the first dimension
@@ -194,14 +202,6 @@ public final class Array_3[T] (
     public @Inline operator this(p:Point(3))=(v:T):T{self==v} = this(p(0), p(1), p(2)) = v;
 
     
-    /**
-     * Map a 3-D (i,j,k) index into a 1-D index into the backing Rail
-     * returned by raw(). Uses row-major ordering.
-     */
-    public @Inline def offset(i:Long, j:Long, k:Long) {
-        return k + numElems_3 * (j + (i * numElems_2));
-    }
-
     private @Inline static def validateSize(m:Long, n:Long, p:Long):Long {
         if (m < 0 || n < 0 || p < 0) raiseNegativeArraySizeException();
         return m*n*p;
