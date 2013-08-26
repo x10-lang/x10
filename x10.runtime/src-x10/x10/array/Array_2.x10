@@ -16,7 +16,7 @@ import x10.compiler.Inline;
 import x10.util.StringBuilder;
 
 /**
- * Implementation of 2-dimensional Array.
+ * Implementation of 2-dimensional Array using row-major ordering.
  */
 public final class Array_2[T] (
         /**
@@ -30,6 +30,9 @@ public final class Array_2[T] (
         numElems_2:Long
 ) extends Array[T]{this.rank()==2} implements (Long,Long)=>T {
 
+    /**
+     * @return the rank (dimensionality) of the Array
+     */
     public property rank() = 2;
 
     /**
@@ -126,7 +129,7 @@ public final class Array_2[T] (
      * @param i the given index in the first dimension
      * @param j the given index in the second dimension
      * @return the element of this array corresponding to the given pair of indices.
-     * @see #set(T, Int, Int)
+     * @see #set(T, Long, Long)
      */
     public @Inline operator this(i:Long, j:Long):T {
         if (CompilerFlags.checkBounds() && (i < 0 || i >= numElems_1 || 
@@ -136,6 +139,13 @@ public final class Array_2[T] (
         return Unsafe.uncheckedRailApply(raw, offset(i, j));
     }
 
+    /**
+     * Return the element of this array corresponding to the given Point.
+     * 
+     * @param p the given Point
+     * @return the element of this array corresponding to the given Point.
+     * @see #set(T, Point)
+     */
     public @Inline operator this(p:Point(2)):T  = this(p(0), p(1));
     
     /**
@@ -146,7 +156,7 @@ public final class Array_2[T] (
      * @param i the given index in the first dimension
      * @param j the given index in the second dimension
      * @return the new value of the element of this array corresponding to the given pair of indices.
-     * @see #operator(Int, Int)
+     * @see #operator(Long, Long)
      */
     public @Inline operator this(i:Long,j:Long)=(v:T):T{self==v} {
         if (CompilerFlags.checkBounds() && (i < 0 || i >= numElems_1 || 
@@ -157,9 +167,22 @@ public final class Array_2[T] (
         return v;
     }
 
+    /**
+     * Set the element of this array corresponding to the given Point to the given value.
+     * Return the new value of the element.
+     * 
+     * @param v the given value
+     * @param p the given Point
+     * @return the new value of the element of this array corresponding to the given Point.
+     * @see #operator(Point)
+     */
     public @Inline operator this(p:Point(2))=(v:T):T{self==v} = this(p(0), p(1)) = v;
-    
-    private @Inline def offset(i:Long, j:Long) {
+
+    /**
+     * Map a 2-D (i,j) index into a 1-D index into the backing Rail
+     * returned by raw(). Uses row-major order.
+     */
+    public @Inline def offset(i:Long, j:Long) {
          return j + (i * numElems_2);
     }
 

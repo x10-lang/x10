@@ -16,7 +16,7 @@ import x10.compiler.Inline;
 import x10.util.StringBuilder;
 
 /**
- * Implementation of 3-dimensional Array.
+ * Implementation of 3-dimensional Array using row-major ordering.
  */
 public final class Array_3[T] (
         /**
@@ -35,6 +35,9 @@ public final class Array_3[T] (
         numElems_3:Long
 ) extends Array[T]{this.rank()==3} implements (Long,Long,Long)=>T {
     
+    /**
+     * @return the rank (dimensionality) of the Array
+     */
     public property rank() = 3;
 
     /**
@@ -138,7 +141,7 @@ public final class Array_3[T] (
      * @param j the given index in the second dimension
      * @param k the given index in the third dimension
      * @return the element of this array corresponding to the given triple of indices.
-     * @see #set(T, Int, Int)
+     * @see #set(T, Long, Long, Long)
      */
     public @Inline operator this(i:Long, j:Long, k:Long):T {
         if (CompilerFlags.checkBounds() && (i < 0 || i >= numElems_1 || 
@@ -149,6 +152,13 @@ public final class Array_3[T] (
         return Unsafe.uncheckedRailApply(raw, offset(i, j, k));
     }
 
+    /**
+     * Return the element of this array corresponding to the given Point.
+     * 
+     * @param p the given Point
+     * @return the element of this array corresponding to the given Point.
+     * @see #set(T, Point)
+     */
     public @Inline operator this(p:Point(3)):T  = this(p(0), p(1), p(2));
     
     /**
@@ -160,7 +170,7 @@ public final class Array_3[T] (
      * @param j the given index in the second dimension
      * @param k the given index in the third dimension
      * @return the new value of the element of this array corresponding to the given triple of indices.
-     * @see #operator(Int, Int)
+     * @see #operator(Long, Long, Long)
      */
     public @Inline operator this(i:Long,j:Long,k:Long)=(v:T):T{self==v} {
         if (CompilerFlags.checkBounds() && (i < 0 || i >= numElems_1 || 
@@ -172,10 +182,23 @@ public final class Array_3[T] (
         return v;
     }
 
+    /**
+     * Set the element of this array corresponding to the given Point to the given value.
+     * Return the new value of the element.
+     * 
+     * @param v the given value
+     * @param p the given Point
+     * @return the new value of the element of this array corresponding to the given Point.
+     * @see #operator(Point)
+     */
     public @Inline operator this(p:Point(3))=(v:T):T{self==v} = this(p(0), p(1), p(2)) = v;
 
     
-    private @Inline def offset(i:Long, j:Long, k:Long) {
+    /**
+     * Map a 3-D (i,j,k) index into a 1-D index into the backing Rail
+     * returned by raw(). Uses row-major ordering.
+     */
+    public @Inline def offset(i:Long, j:Long, k:Long) {
         return k + numElems_3 * (j + (i * numElems_2));
     }
 

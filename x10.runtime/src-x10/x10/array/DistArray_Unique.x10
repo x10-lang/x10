@@ -94,7 +94,7 @@ public final class DistArray_Unique[T] extends DistArray[T]{this.rank()==1} impl
      * 
      * @param i the given index in the first dimension
      * @return the element of this array corresponding to the given index.
-     * @see #set(T, Int)
+     * @see #set(T, Long)
      */
     public @Inline operator this(i:long):T {
         if (CompilerFlags.checkPlace() || CompilerFlags.checkBounds()) validateIndex(i);
@@ -118,7 +118,7 @@ public final class DistArray_Unique[T] extends DistArray[T]{this.rank()==1} impl
      * @param v the given value
      * @param i the given index in the first dimension
      * @return the new value of the element of this array corresponding to the given index.
-     * @see #operator(Int)
+     * @see #operator(Long)
      */
     public @Inline operator this(i:long)=(v:T):T{self==v} {
         if (CompilerFlags.checkPlace() || CompilerFlags.checkBounds()) validateIndex(i);
@@ -133,7 +133,7 @@ public final class DistArray_Unique[T] extends DistArray[T]{this.rank()==1} impl
      * @param v the given value
      * @param p the given Point
      * @return the new value of the element of this array corresponding to the given Point.
-     * @see #operator(Int)
+     * @see #operator(Point)
      */
     public @Inline operator this(p:Point(this.rank()))=(v:T):T{self==v} = this(p(0)) = v;
 

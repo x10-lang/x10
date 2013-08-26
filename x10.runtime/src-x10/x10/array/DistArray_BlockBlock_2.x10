@@ -193,7 +193,7 @@ public class DistArray_BlockBlock_2[T] extends DistArray[T]{this.rank()==2} impl
      * @param i the given index in the first dimension
      * @param j the given index in the second dimension
      * @return the new value of the element of this array corresponding to the given index.
-     * @see #operator(Int)
+     * @see #operator(Long, Long)
      */
     public final @Inline operator this(i:Long,j:Long)=(v:T):T{self==v} {
         if (CompilerFlags.checkPlace() || CompilerFlags.checkBounds()) validateIndex(i,j);
@@ -209,7 +209,7 @@ public class DistArray_BlockBlock_2[T] extends DistArray[T]{this.rank()==2} impl
      * @param v the given value
      * @param p the given Point
      * @return the new value of the element of this array corresponding to the given Point.
-     * @see #operator(Int)
+     * @see #operator(Point)
      */
     public final @Inline operator this(p:Point(2))=(v:T):T{self==v} = this(p(0),p(1)) = v;
 

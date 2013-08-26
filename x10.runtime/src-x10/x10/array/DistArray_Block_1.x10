@@ -195,7 +195,7 @@ public class DistArray_Block_1[T] extends DistArray[T]{this.rank()==1} implement
      * @param v the given value
      * @param p the given Point
      * @return the new value of the element of this array corresponding to the given Point.
-     * @see #operator(Int)
+     * @see #operator(Long)
      */
     public final @Inline operator this(p:Point(1))=(v:T):T{self==v} = this(p(0)) = v;
 

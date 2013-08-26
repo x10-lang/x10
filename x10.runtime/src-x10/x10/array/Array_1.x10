@@ -18,6 +18,9 @@ import x10.compiler.Inline;
  */
 public final class Array_1[T] extends Array[T]{this.rank()==1} implements (Long)=>T {
     
+    /**
+     * @return the rank (dimensionality) of the Array
+     */
     public property rank() = 1;
 
     /**
@@ -87,7 +90,7 @@ public final class Array_1[T] extends Array[T]{this.rank()==1} implements (Long)
      * 
      * @param i the given index in the first dimension
      * @return the element of this array corresponding to the given index.
-     * @see #set(T, Int)
+     * @see #set(T, Long)
      */
     public @Inline operator this(i:Long):T {
         // Bounds checking by backing Rail is sufficient
@@ -111,7 +114,7 @@ public final class Array_1[T] extends Array[T]{this.rank()==1} implements (Long)
      * @param v the given value
      * @param i the given index in the first dimension
      * @return the new value of the element of this array corresponding to the given index.
-     * @see #operator(Int)
+     * @see #operator(Long)
      */
     public @Inline operator this(i:Long)=(v:T):T{self==v} {
         // Bounds checking by backing Rail is sufficient
@@ -126,7 +129,7 @@ public final class Array_1[T] extends Array[T]{this.rank()==1} implements (Long)
      * @param v the given value
      * @param p the given Point
      * @return the new value of the element of this array corresponding to the given Point.
-     * @see #operator(Int)
+     * @see #operator(Point)
      */
     public @Inline operator this(p:Point(1))=(v:T):T{self==v} = this(p(0)) = v;
 
