@@ -32,6 +32,9 @@ namespace x10 {
                     static AtomicReference<T>* _make();
                     static AtomicReference<T>* _make(T val);
 
+                    static AtomicReference<T>* _make__tm__(x10tm::TMThread *SelfTM);
+                    static AtomicReference<T>* _make__tm__(x10tm::TMThread *SelfTM, T val);
+
                 private:
                     AtomicReference<T>* _constructor(T data) {
                         _data = data;
@@ -66,6 +69,30 @@ namespace x10 {
                     T getAndSet(T val);
 
                     virtual x10::lang::String* toString();
+
+                    T get__tm__(x10tm::TMThread *SelfTM) {
+                    	return get();
+                    }
+
+					void set__tm__(x10tm::TMThread *SelfTM, T val) {
+						set(val);
+					}
+
+					x10_boolean compareAndSet__tm__(x10tm::TMThread *SelfTM, T oldVal, T newVal) {
+						return compareAndSet(oldVal, newVal);
+					}
+
+					x10_boolean weakCompareAndSet__tm__(x10tm::TMThread *SelfTM, T oldVal, T newVal) {
+						return weakCompareAndSet(oldVal, newVal);
+					}
+
+					T getAndSet__tm__(x10tm::TMThread *SelfTM, T val) {
+						return getAndSet(val);
+					}
+
+					virtual x10::lang::String* toString__tm__(x10tm::TMThread *SelfTM) {
+						return toString();
+					}
                 };
 
                 template<class T> AtomicReference<T>* AtomicReference<T>::_make() {
@@ -80,6 +107,18 @@ namespace x10 {
                     return result;
                 }
                 
+                template<class T> AtomicReference<T>* AtomicReference<T>::_make__tm__(x10tm::TMThread *SelfTM) {
+					AtomicReference<T>* result = (new (x10aux::alloc<AtomicReference<T> >())AtomicReference<T>());
+					result->_constructor(NULL);
+					return result;
+				}
+
+				template<class T> AtomicReference<T>* AtomicReference<T>::_make__tm__(x10tm::TMThread *SelfTM, T val) {
+					AtomicReference<T>* result = (new (x10aux::alloc<AtomicReference<T> >())AtomicReference<T>());
+					result->_constructor(val);
+					return result;
+				}
+
                 template<class T> T AtomicReference<T>::get() {
                     T tmp = const_cast<T>(_data); /* drops volatile */
 

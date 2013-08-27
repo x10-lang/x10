@@ -48,6 +48,12 @@ namespace x10 {
                 return result;
             }
             
+            static PlaceLocalHandle_Impl<T> _make__tm__(x10tm::TMThread *SelfTM) {
+				PlaceLocalHandle_Impl<T> result;
+				result->_constructor();
+				return result;
+			}
+
             void _constructor () {
                 x10_int id = x10aux::place_local::nextId();
                 FMGL(id) = id;
@@ -62,6 +68,15 @@ namespace x10 {
                 }
                 return FMGL(localStorage);
             }
+
+            T __apply__tm__(x10tm::TMThread *SelfTM) {
+				if (!FMGL(cached)) {
+					T *tmp = (T*)(x10aux::place_local::lookupData(FMGL(id)));
+					FMGL(localStorage) = *tmp;
+					FMGL(cached) = true;
+				}
+				return FMGL(localStorage);
+			}
 
             x10::lang::String* toString() {
                 if (FMGL(cached)) {
@@ -79,6 +94,24 @@ namespace x10 {
             x10_boolean _struct_equals(PlaceLocalHandle_Impl<T> that) {
                 return FMGL(id) == that->FMGL(id);
             }
+
+            x10::lang::String* toString__tm__(x10tm::TMThread *SelfTM) {
+				if (FMGL(cached)) {
+					return x10aux::to_string(FMGL(localStorage));
+				} else {
+					return x10::lang::String::Lit("PlaceLocalHandle_Impl(uncached data)");
+				}
+			}
+
+			x10_int hashCode__tm__(x10tm::TMThread *SelfTM) {
+				return x10aux::hash_code(FMGL(id));
+			}
+
+
+			x10_boolean _struct_equals__tm__(x10tm::TMThread *SelfTM, PlaceLocalHandle_Impl<T> that) {
+				return FMGL(id) == that->FMGL(id);
+			}
+
 
             static void _serialize(PlaceLocalHandle_Impl<T> this_, x10aux::serialization_buffer &buf);
 

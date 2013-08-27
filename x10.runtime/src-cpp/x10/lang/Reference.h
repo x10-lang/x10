@@ -60,13 +60,23 @@ namespace x10 {
                 return this->_struct_equals(reinterpret_cast<Reference*>(other));
             }
 
+            virtual x10_boolean equals__tm__(x10tm::TMThread *Self, Any* other) {
+                            return this->_struct_equals__tm__(Self, reinterpret_cast<Reference*>(other));
+            }
+
             virtual x10_boolean _struct_equals(Reference* other) {
                 return other == this;
             }
             
+            virtual x10_boolean _struct_equals__tm__(x10tm::TMThread *Self, Reference* other) {
+            	return other == this;
+            }
+
             virtual x10_int hashCode() = 0;
+            virtual x10_int hashCode__tm__(x10tm::TMThread *Self) = 0;
 
             virtual String* toString() = 0;
+            virtual String* toString__tm__(x10tm::TMThread *Self) = 0;
 
             /*********************************************************************************
              * Serialization/Deserialization functions assumed to be defined for all types

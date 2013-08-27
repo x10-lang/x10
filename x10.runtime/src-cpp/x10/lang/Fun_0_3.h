@@ -34,16 +34,36 @@ namespace x10 {
 
             template <class I> struct itable {
                 itable(x10_boolean (I::*equals)(x10::lang::Any*),
+                		x10_boolean (I::*equals__tm__)(x10tm::TMThread *SelfTM, x10::lang::Any*),
                        x10_int (I::*hashCode)(),
+                       x10_int (I::*hashCode__tm__)(x10tm::TMThread *SelfTM),
                        R(I::*__apply)(P1,P2,P3),
+                       R(I::*__apply__tm__)(x10tm::TMThread *SelfTM, P1,P2,P3),
                        x10::lang::String* (I::*toString)(),
-                       x10::lang::String* (I::*typeName)()
-                    ) : equals(equals), hashCode(hashCode), __apply(__apply), toString(toString), typeName(typeName) {}
+                       x10::lang::String* (I::*toString__tm__)(x10tm::TMThread *SelfTM),
+                       x10::lang::String* (I::*typeName)(),
+                       x10::lang::String* (I::*typeName__tm__)(x10tm::TMThread *SelfTM)
+                    ) :
+                    equals(equals),
+                    equals__tm__(equals__tm__),
+                    hashCode(hashCode),
+                    hashCode__tm__(hashCode__tm__),
+                    __apply(__apply),
+                    __apply__tm__(__apply__tm__),
+                    toString(toString),
+                    toString__tm__(toString__tm__),
+                    typeName(typeName),
+                    typeName__tm__(typeName__tm__){}
                 x10_boolean (I::*equals)(x10::lang::Any*);
+                x10_boolean (I::*equals__tm__)(x10tm::TMThread *SelfTM, x10::lang::Any*);
                 x10_int (I::*hashCode)();
+                x10_int (I::*hashCode__tm__)(x10tm::TMThread *SelfTM);
                 R (I::*__apply)(P1,P2,P3);
+                R (I::*__apply__tm__)(x10tm::TMThread *SelfTM, P1,P2,P3);
                 x10::lang::String* (I::*toString)();
+                x10::lang::String* (I::*toString__tm__)(x10tm::TMThread *SelfTM);
                 x10::lang::String* (I::*typeName)();
+                x10::lang::String* (I::*typeName__tm__)(x10tm::TMThread *SelfTM);
             };
 
             static R __apply(Fun_0_3<P1,P2,P3,R>* fun, P1 arg1, P2 arg2, P3 arg3) {
@@ -66,6 +86,28 @@ namespace x10 {
                 x10::lang::Reference* recv = reinterpret_cast<x10::lang::Reference*>(fun);
                 return (recv->*(x10aux::findITable<Fun_0_3<P1, P2, P3, R> >(recv->_getITables())->typeName))();
             }
+            //
+            static R __apply__tm__(x10tm::TMThread *SelfTM, Fun_0_3<P1,P2,P3,R>* fun, P1 arg1, P2 arg2, P3 arg3) {
+                x10::lang::Reference* recv = reinterpret_cast<x10::lang::Reference*>(fun);
+                return (recv->*(x10aux::findITable<Fun_0_3<P1, P2, P3, R> >(recv->_getITables())->__apply))(arg1, arg2, arg3);
+            }
+            static x10_boolean equals__tm__(x10tm::TMThread *SelfTM, Fun_0_3<P1,P2,P3,R>* fun, x10::lang::Any* arg1) {
+                x10::lang::Reference* recv = reinterpret_cast<x10::lang::Reference*>(fun);
+                return (recv->*(x10aux::findITable<Fun_0_3<P1, P2, P3, R> >(recv->_getITables())->equals))(arg1);
+            }
+            static x10_int hashCode__tm__(x10tm::TMThread *SelfTM, Fun_0_3<P1,P2,P3,R>* fun) {
+                x10::lang::Reference* recv = reinterpret_cast<x10::lang::Reference*>(fun);
+                return (recv->*(x10aux::findITable<Fun_0_3<P1, P2, P3, R> >(recv->_getITables())->hashCode))();
+            }
+            static x10::lang::String* toString__tm__(x10tm::TMThread *SelfTM, Fun_0_3<P1,P2,P3,R>* fun) {
+                x10::lang::Reference* recv = reinterpret_cast<x10::lang::Reference*>(fun);
+                return (recv->*(x10aux::findITable<Fun_0_3<P1, P2, P3, R> >(recv->_getITables())->toString))();
+            }
+            static x10::lang::String* typeName__tm__(x10tm::TMThread *SelfTM, Fun_0_3<P1,P2,P3,R>* fun) {
+                x10::lang::Reference* recv = reinterpret_cast<x10::lang::Reference*>(fun);
+                return (recv->*(x10aux::findITable<Fun_0_3<P1, P2, P3, R> >(recv->_getITables())->typeName))();
+            }
+
         };
 
         template<class P1, class P2, class P3, class R> void Fun_0_3<P1,P2,P3,R>::_initRTT() {

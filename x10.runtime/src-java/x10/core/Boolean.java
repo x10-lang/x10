@@ -21,97 +21,112 @@ import x10.serialization.X10JavaSerializable;
 import x10.serialization.X10JavaSerializer;
 
 /**
- * Represents a boxed Boolean value. Boxed representation is used when casting
- * a Boolean value to type Any, parameter type T or superinterfaces such
- * as Comparable<Boolean>.
+ * Represents a boxed Boolean value. Boxed representation is used when casting a
+ * Boolean value to type Any, parameter type T or superinterfaces such as
+ * Comparable<Boolean>.
  */
-final public class Boolean extends Struct implements java.lang.Comparable<Boolean>
-{
-    private static final long serialVersionUID = 1L;
-    
-    public static final RuntimeType<?> $RTT = Types.BOOLEAN;
-    public RuntimeType<?> $getRTT() {return $RTT;}
-    public Type<?> $getParam(int i) {return null;}
-    
-    public static final Boolean TRUE = new Boolean(true);
-    public static final Boolean FALSE = new Boolean(false);
+final public class Boolean extends Struct implements
+		java.lang.Comparable<Boolean> {
+	private static final long serialVersionUID = 1L;
 
-    final boolean $value;
+	public static final RuntimeType<?> $RTT = Types.BOOLEAN;
 
-    private Boolean(boolean value) {
-        this.$value = value;
-    }
+	public RuntimeType<?> $getRTT() {
+		return $RTT;
+	}
 
-    public static Boolean $box(boolean value) {
-        return value ? TRUE : FALSE;
-    }
+	public Type<?> $getParam(int i) {
+		return null;
+	}
 
-    public static boolean $unbox(Boolean obj) {
-        return obj.$value;
-    }
-    
-    public static boolean $unbox(Object obj) {
-        if (obj instanceof Boolean) return ((Boolean)obj).$value;
-        else return ((java.lang.Boolean)obj).booleanValue();
-    }
-    
-    // make $box/$unbox idempotent
-    public static Boolean $box(Boolean obj) {
-        return obj;
-    }
+	public static final Boolean TRUE = new Boolean(true);
+	public static final Boolean FALSE = new Boolean(false);
 
-    public static Boolean $box(Object obj) {
-        if (obj instanceof Boolean) return (Boolean) obj;
-        else return $box(((java.lang.Boolean)obj).booleanValue());
-    }
+	final boolean $value;
 
-    public static boolean $unbox(boolean value) {
-        return value;
-    }
-    
-    public boolean _struct_equals$O(Object obj) {
-        if (obj instanceof Boolean && ((Boolean) obj).$value == $value)
-            return true;
-        return false;
-    }
-    
-    @Override
-    public boolean equals(Object value) {
-        if (value instanceof Boolean) {
-            return ((Boolean) value).$value == $value;
-        } else if (value instanceof java.lang.Boolean) { // Boolean literals come here as Boolean autoboxed values
-            return ((java.lang.Boolean) value).booleanValue() == $value;
-        }
-        return false;
-    }
-    
-    @Override
-    public int hashCode() {
-        return $value ? 1231 : 1237;
-    }
+	private Boolean(boolean value) {
+		this.$value = value;
+	}
 
-    @Override
-    public java.lang.String toString() {
-        return java.lang.Boolean.toString($value);
-    }
-    
-    // implements Comparable<Boolean>
-    public int compareTo(Boolean o) {
-        return (o.$value == $value ? 0 : ($value ? 1 : -1));
-    }
+	public static Boolean $box(boolean value) {
+		return value ? TRUE : FALSE;
+	}
 
-    public void $_serialize(X10JavaSerializer $serializer) throws IOException {
-        $serializer.write($value);
-    }
+	public static boolean $unbox(Boolean obj) {
+		return obj.$value;
+	}
 
-    public static X10JavaSerializable $_deserializer(X10JavaDeserializer $deserializer) throws IOException {
-        return $_deserialize_body(null, $deserializer);
-    }
+	public static boolean $unbox(Object obj) {
+		if (obj instanceof Boolean)
+			return ((Boolean) obj).$value;
+		else
+			return ((java.lang.Boolean) obj).booleanValue();
+	}
 
-    public static X10JavaSerializable $_deserialize_body(Boolean $_obj, X10JavaDeserializer $deserializer) throws IOException {
-        boolean value  = $deserializer.readBoolean();
-        $_obj = new Boolean(value);
-        $deserializer.record_reference($_obj);
-        return $_obj;
-    }
+	// make $box/$unbox idempotent
+	public static Boolean $box(Boolean obj) {
+		return obj;
+	}
+
+	public static Boolean $box(Object obj) {
+		if (obj instanceof Boolean)
+			return (Boolean) obj;
+		else
+			return $box(((java.lang.Boolean) obj).booleanValue());
+	}
+
+	public static boolean $unbox(boolean value) {
+		return value;
+	}
+
+	public boolean _struct_equals$O(Object obj) {
+		if (obj instanceof Boolean && ((Boolean) obj).$value == $value)
+			return true;
+		return false;
+	}
+
+	@Override
+	public boolean equals(Object value) {
+		if (value instanceof Boolean) {
+			return ((Boolean) value).$value == $value;
+		} else if (value instanceof java.lang.Boolean) { // Boolean literals
+															// come here as
+															// Boolean autoboxed
+															// values
+			return ((java.lang.Boolean) value).booleanValue() == $value;
+		}
+		return false;
+	}
+
+	@Override
+	public int hashCode() {
+		return $value ? 1231 : 1237;
+	}
+
+	@Override
+	public java.lang.String toString() {
+		return java.lang.Boolean.toString($value);
+	}
+
+	// implements Comparable<Boolean>
+	public int compareTo(Boolean o) {
+		return (o.$value == $value ? 0 : ($value ? 1 : -1));
+	}
+
+	public void $_serialize(X10JavaSerializer $serializer) throws IOException {
+		$serializer.write($value);
+	}
+
+	public static X10JavaSerializable $_deserializer(
+			X10JavaDeserializer $deserializer) throws IOException {
+		return $_deserialize_body(null, $deserializer);
+	}
+
+	public static X10JavaSerializable $_deserialize_body(Boolean $_obj,
+			X10JavaDeserializer $deserializer) throws IOException {
+		boolean value = $deserializer.readBoolean();
+		$_obj = new Boolean(value);
+		$deserializer.record_reference($_obj);
+		return $_obj;
+	}
 }

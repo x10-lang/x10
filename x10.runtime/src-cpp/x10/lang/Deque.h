@@ -33,6 +33,7 @@ namespace x10 {
             RTT_H_DECLS_CLASS;
 
             static Deque* _make();
+            static Deque* _make__tm__(x10tm::TMThread *SelfTM);
 
             Deque* _constructor();
 
@@ -147,6 +148,46 @@ namespace x10 {
                 int n = sp - base;
                 return n < 0 ? 0 : n; // suppress momentarily negative values
             }
+
+            /**
+			 * Pushes a task. Called only by current thread.
+			 * @param t the task. Caller must ensure nonnull
+			 */
+			void push__tm__(x10tm::TMThread *SelfTM, x10::lang::Any* t) {
+				push(t);
+			}
+
+			/**
+			 * Tries to take a task from the base of the queue, failing if
+			 * either empty or contended.
+			 * @return a task, or null if none or contended.
+			 */
+			x10::lang::Any* steal__tm__(x10tm::TMThread *SelfTM) {
+				return steal();
+			}
+
+			/**
+			 * Returns a popped task, or null if empty. Ensures active status
+			 * if nonnull. Called only by current thread.
+			 */
+			x10::lang::Any* poll__tm__(x10tm::TMThread *SelfTM) {
+				return poll();
+			}
+
+			/**
+			 * Returns next task to pop.
+			 */
+			inline x10::lang::Any* peekTask__tm__(x10tm::TMThread *SelfTM) {
+				return peekTask();
+			}
+
+			/**
+			 * Returns an estimate of the number of tasks in the queue.
+			 */
+			inline int size__tm__(x10tm::TMThread *SelfTM) {
+				return size();
+			}
+
 
         private:
             /**

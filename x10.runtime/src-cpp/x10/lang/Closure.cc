@@ -29,5 +29,21 @@ x10::lang::String* x10::lang::Closure::typeName() {
     return x10::lang::String::Lit(_type()->name());
 }
 
+x10_int x10::lang::Closure::hashCode__tm__(x10tm::TMThread *SelfTM) {
+    return x10aux::hash_code(_get_serialization_id());
+}
+
+x10::lang::String* x10::lang::Closure::toString__tm__(x10tm::TMThread *SelfTM) {
+    return String::Lit(this->toNativeString());
+}
+
+const char* x10::lang::Closure::toNativeString__tm__(x10tm::TMThread *SelfTM) {
+    return "Closure without toNativeString defined.";
+}
+
+x10::lang::String* x10::lang::Closure::typeName__tm__(x10tm::TMThread *SelfTM) {
+    return x10::lang::String::Lit(_type()->name());
+}
+
 
 // vim:tabstop=4:shiftwidth=4:expandtab

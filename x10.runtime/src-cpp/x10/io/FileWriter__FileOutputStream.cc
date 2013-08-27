@@ -26,6 +26,13 @@ FileWriter__FileOutputStream::_make(x10::lang::String* name, bool append) {
     return this_;
 }
 
+FileWriter__FileOutputStream*
+FileWriter__FileOutputStream::_make__tm__(x10tm::TMThread *SelfTM, x10::lang::String* name, bool append) {
+    FileWriter__FileOutputStream* this_ = new (x10aux::alloc<FileWriter__FileOutputStream>()) FileWriter__FileOutputStream ();
+    this_->_constructor(name, append);
+    return this_;
+}
+
 void FileWriter__FileOutputStream::_constructor(x10::lang::String* name, bool append) {
     this->OutputStreamWriter__OutputStream::_constructor();
 
@@ -51,6 +58,19 @@ void FileWriter__FileOutputStream::write(x10_int i) {
 }
 
 void FileWriter__FileOutputStream::write(x10::util::IndexedMemoryChunk<x10_byte> b, x10_int off, x10_int len) {
+    ::fwrite(((x10_byte*)b->raw())+off*sizeof(x10_byte), sizeof(x10_byte), len*sizeof(x10_byte), FMGL(file));
+}
+
+///
+void FileWriter__FileOutputStream::write__tm__(x10tm::TMThread *SelfTM, const char *str) {
+    ::fprintf(FMGL(file), "%s", str);
+}
+
+void FileWriter__FileOutputStream::write__tm__(x10tm::TMThread *SelfTM, x10_int i) {
+    ::fputc((char)i, FMGL(file));
+}
+
+void FileWriter__FileOutputStream::write__tm__(x10tm::TMThread *SelfTM, x10::util::IndexedMemoryChunk<x10_byte> b, x10_int off, x10_int len) {
     ::fwrite(((x10_byte*)b->raw())+off*sizeof(x10_byte), sizeof(x10_byte), len*sizeof(x10_byte), FMGL(file));
 }
 

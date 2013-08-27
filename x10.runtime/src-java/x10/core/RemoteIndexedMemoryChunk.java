@@ -24,134 +24,164 @@ import x10.serialization.X10JavaDeserializer;
 import x10.serialization.X10JavaSerializable;
 import x10.serialization.X10JavaSerializer;
 
-public final class RemoteIndexedMemoryChunk<T> extends x10.core.Struct implements X10JavaSerializable {
+public final class RemoteIndexedMemoryChunk<T> extends x10.core.Struct
+		implements X10JavaSerializable {
 
-    private static final long serialVersionUID = 1L;
+	private static final long serialVersionUID = 1L;
 
-    private static AtomicInteger lastId = new AtomicInteger(0);
-    // all referenced objects in this place
-    private static final ConcurrentHashMap<java.lang.Integer, Object> id2Object = new ConcurrentHashMap<java.lang.Integer, Object>();
-    private static final ConcurrentHashMap<Object, java.lang.Integer> object2Id = new ConcurrentHashMap<Object, java.lang.Integer>();
+	private static AtomicInteger lastId = new AtomicInteger(0);
+	// all referenced objects in this place
+	private static final ConcurrentHashMap<java.lang.Integer, Object> id2Object = new ConcurrentHashMap<java.lang.Integer, Object>();
+	private static final ConcurrentHashMap<Object, java.lang.Integer> object2Id = new ConcurrentHashMap<Object, java.lang.Integer>();
 
-    public Type<T> T;
-    public int length;
-    public Place home;
-    // TODO change id to Long as needed
-    public java.lang.Integer id; // place local id of referenced object
+	public Type<T> T;
+	public int length;
+	public Place home;
+	// TODO change id to Long as needed
+	public java.lang.Integer id; // place local id of referenced object
 
-    // constructor just for allocation
-    public RemoteIndexedMemoryChunk(java.lang.System[] $dummy) {
-        // call default constructor instead of "constructor just for allocation" for x10.core.Struct
-//        super($dummy);
-    }
+	// constructor just for allocation
+	public RemoteIndexedMemoryChunk(java.lang.System[] $dummy) {
+		// call default constructor instead of "constructor just for allocation"
+		// for x10.core.Struct
+		// super($dummy);
+	}
 
-    public final RemoteIndexedMemoryChunk<T> x10$util$RemoteIndexedMemoryChunk$$init$S(Type<T> T, int length, Object value) {
-        this.T = T;
-        this.length = length;
-        this.home = x10.lang.Runtime.home();
+	public final RemoteIndexedMemoryChunk<T> x10$util$RemoteIndexedMemoryChunk$$init$S(
+			Type<T> T, int length, Object value) {
+		this.T = T;
+		this.length = length;
+		this.home = x10.lang.Runtime.home();
 
-        java.lang.Integer tmpId = lastId.incrementAndGet(); //TODO: check wraparound
-        id2Object.put(tmpId, value);
-        java.lang.Integer existingId = object2Id.putIfAbsent(value, tmpId);
-        if (existingId != null) {
-            this.id = existingId;
-            id2Object.remove(tmpId);
-        } else {
-            this.id = tmpId;
-        }
-        return this;
-    }
+		java.lang.Integer tmpId = lastId.incrementAndGet(); // TODO: check
+															// wraparound
+		id2Object.put(tmpId, value);
+		java.lang.Integer existingId = object2Id.putIfAbsent(value, tmpId);
+		if (existingId != null) {
+			this.id = existingId;
+			id2Object.remove(tmpId);
+		} else {
+			this.id = tmpId;
+		}
+		return this;
+	}
 
-    private RemoteIndexedMemoryChunk(Type<T> T, int length, Object value) {
-        this.T = T;
-        this.length = length;
-        this.home = x10.lang.Runtime.home();
+	private RemoteIndexedMemoryChunk(Type<T> T, int length, Object value) {
+		this.T = T;
+		this.length = length;
+		this.home = x10.lang.Runtime.home();
 
-        java.lang.Integer tmpId = lastId.incrementAndGet(); //TODO: check wraparound
-        id2Object.put(tmpId, value);
-        java.lang.Integer existingId = object2Id.putIfAbsent(value, tmpId);
-        if (existingId != null) {
-            this.id = existingId;
-            id2Object.remove(tmpId);
-        } else {
-            this.id = tmpId;
-        }
-    }
+		java.lang.Integer tmpId = lastId.incrementAndGet(); // TODO: check
+															// wraparound
+		id2Object.put(tmpId, value);
+		java.lang.Integer existingId = object2Id.putIfAbsent(value, tmpId);
+		if (existingId != null) {
+			this.id = existingId;
+			id2Object.remove(tmpId);
+		} else {
+			this.id = tmpId;
+		}
+	}
 
-    public static Object getValue(int id) {
-        return id2Object.get(id);
-    }
+	public static Object getValue(int id) {
+		return id2Object.get(id);
+	}
 
-    public static <T> RemoteIndexedMemoryChunk<T> wrap(IndexedMemoryChunk<T> chunk) {
-        return new RemoteIndexedMemoryChunk<T>(chunk.T, chunk.length, chunk.value);
-    }
+	public static <T> RemoteIndexedMemoryChunk<T> wrap(
+			IndexedMemoryChunk<T> chunk) {
+		return new RemoteIndexedMemoryChunk<T>(chunk.T, chunk.length,
+				chunk.value);
+	}
 
-    public final IndexedMemoryChunk<T> $apply$G() {
-        Object obj = id2Object.get(this.id);
-        return new IndexedMemoryChunk<T>(T, length, obj);
-    }
+	public final IndexedMemoryChunk<T> $apply$G() {
+		Object obj = id2Object.get(this.id);
+		return new IndexedMemoryChunk<T>(T, length, obj);
+	}
 
-    public boolean _struct_equals$O(Object o) {
-        if (!(o instanceof RemoteIndexedMemoryChunk<?>))
-            return false;
-        RemoteIndexedMemoryChunk<?> that = (RemoteIndexedMemoryChunk<?>) o;
-        return (int) this.id == (int) that.id && this.home.id == that.home.id;
-    }
+	public boolean _struct_equals$O(Object o) {
+		if (!(o instanceof RemoteIndexedMemoryChunk<?>))
+			return false;
+		RemoteIndexedMemoryChunk<?> that = (RemoteIndexedMemoryChunk<?>) o;
+		return (int) this.id == (int) that.id && this.home.id == that.home.id;
+	}
 
-    // TODO implement remote operations
-    public void remoteAdd(int idx, long v) {
-        throw new java.lang.UnsupportedOperationException("Remote operations are not implemented.");
-    }
-    public void remoteAnd(int idx, long v) {
-        throw new java.lang.UnsupportedOperationException("Remote operations are not implemented.");
-    }
-    public void remoteOr(int idx, long v) {
-        throw new java.lang.UnsupportedOperationException("Remote operations are not implemented.");
-    }
-    public void remoteXor(int idx, long v) {
-        throw new java.lang.UnsupportedOperationException("Remote operations are not implemented.");
-    }
+	// TODO implement remote operations
+	public void remoteAdd(int idx, long v) {
+		throw new java.lang.UnsupportedOperationException(
+				"Remote operations are not implemented.");
+	}
 
-    public void remoteAdd__1$u(int idx, long v) {
-        throw new java.lang.UnsupportedOperationException("Remote operations are not implemented.");
-    }
-    public void remoteAnd__1$u(int idx, long v) {
-        throw new java.lang.UnsupportedOperationException("Remote operations are not implemented.");
-    }
-    public void remoteOr__1$u(int idx, long v) {
-        throw new java.lang.UnsupportedOperationException("Remote operations are not implemented.");
-    }
-    public void remoteXor__1$u(int idx, long v) {
-        throw new java.lang.UnsupportedOperationException("Remote operations are not implemented.");
-    }
+	public void remoteAnd(int idx, long v) {
+		throw new java.lang.UnsupportedOperationException(
+				"Remote operations are not implemented.");
+	}
 
-    public static final RuntimeType<RemoteIndexedMemoryChunk<?>> $RTT = NamedType.<RemoteIndexedMemoryChunk<?>> make("x10.util.RemoteIndexedMemoryChunk", RemoteIndexedMemoryChunk.class, RuntimeType.INVARIANTS(1), new Type[] { Types.STRUCT });
-    public RuntimeType<RemoteIndexedMemoryChunk<?>> $getRTT() {
-        return $RTT;
-    }
-    public Type<?> $getParam(int i) {
-        return i == 0 ? T : null;
-    }
+	public void remoteOr(int idx, long v) {
+		throw new java.lang.UnsupportedOperationException(
+				"Remote operations are not implemented.");
+	}
 
-    public void $_serialize(X10JavaSerializer $serializer) throws IOException {
-        $serializer.write(T);
-        $serializer.write(length);
-        $serializer.write(home);
-        $serializer.write((int) id);
-    }
+	public void remoteXor(int idx, long v) {
+		throw new java.lang.UnsupportedOperationException(
+				"Remote operations are not implemented.");
+	}
 
-    public static X10JavaSerializable $_deserializer(X10JavaDeserializer $deserializer) throws IOException {
-        RemoteIndexedMemoryChunk $_obj = new RemoteIndexedMemoryChunk(null);
-        $deserializer.record_reference($_obj);
-        return $_deserialize_body($_obj, $deserializer);
-    }
+	public void remoteAdd__1$u(int idx, long v) {
+		throw new java.lang.UnsupportedOperationException(
+				"Remote operations are not implemented.");
+	}
 
-    public static X10JavaSerializable $_deserialize_body(RemoteIndexedMemoryChunk $_obj, X10JavaDeserializer $deserializer) throws IOException {
-        $_obj.T = $deserializer.readRef();
-        $_obj.length = $deserializer.readInt();
-        $_obj.home = $deserializer.readRef();
-        $_obj.id = (java.lang.Integer) $deserializer.readInt();
-        return $_obj;
-    }
+	public void remoteAnd__1$u(int idx, long v) {
+		throw new java.lang.UnsupportedOperationException(
+				"Remote operations are not implemented.");
+	}
+
+	public void remoteOr__1$u(int idx, long v) {
+		throw new java.lang.UnsupportedOperationException(
+				"Remote operations are not implemented.");
+	}
+
+	public void remoteXor__1$u(int idx, long v) {
+		throw new java.lang.UnsupportedOperationException(
+				"Remote operations are not implemented.");
+	}
+
+	public static final RuntimeType<RemoteIndexedMemoryChunk<?>> $RTT = NamedType
+			.<RemoteIndexedMemoryChunk<?>> make(
+					"x10.util.RemoteIndexedMemoryChunk",
+					RemoteIndexedMemoryChunk.class, RuntimeType.INVARIANTS(1),
+					new Type[] { Types.STRUCT });
+
+	public RuntimeType<RemoteIndexedMemoryChunk<?>> $getRTT() {
+		return $RTT;
+	}
+
+	public Type<?> $getParam(int i) {
+		return i == 0 ? T : null;
+	}
+
+	public void $_serialize(X10JavaSerializer $serializer) throws IOException {
+		$serializer.write(T);
+		$serializer.write(length);
+		$serializer.write(home);
+		$serializer.write((int) id);
+	}
+
+	public static X10JavaSerializable $_deserializer(
+			X10JavaDeserializer $deserializer) throws IOException {
+		RemoteIndexedMemoryChunk $_obj = new RemoteIndexedMemoryChunk(null);
+		$deserializer.record_reference($_obj);
+		return $_deserialize_body($_obj, $deserializer);
+	}
+
+	public static X10JavaSerializable $_deserialize_body(
+			RemoteIndexedMemoryChunk $_obj, X10JavaDeserializer $deserializer)
+			throws IOException {
+		$_obj.T = $deserializer.readRef();
+		$_obj.length = $deserializer.readInt();
+		$_obj.home = $deserializer.readRef();
+		$_obj.id = (java.lang.Integer) $deserializer.readInt();
+		return $_obj;
+	}
 
 }

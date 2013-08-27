@@ -56,6 +56,16 @@ namespace x10aux {
     inline void event_probe (void)            { x10rt_probe(); }
     inline void blocking_probe (void)         { x10rt_blocking_probe(); }
 
+    inline place num_children__tm__ (x10tm::TMThread *SelfTM, place p)       { return x10rt_nchildren(p); }
+	inline x10_boolean is_host__tm__ (x10tm::TMThread *SelfTM, place p)      { return x10rt_is_host(p); }
+	inline place parent__tm__ (x10tm::TMThread *SelfTM, place p)             { return x10rt_parent(p); }
+	inline place child__tm__ (x10tm::TMThread *SelfTM, place p, place index) { return x10rt_child(p, index); }
+	inline place child_index__tm__ (x10tm::TMThread *SelfTM, place p)        { return x10rt_child_index(p); }
+	inline x10_boolean is_spe__tm__ (x10tm::TMThread *SelfTM, place p)       { return x10rt_is_spe(p); }
+	inline x10_boolean is_cuda__tm__ (x10tm::TMThread *SelfTM, place p)      { return x10rt_is_cuda(p); }
+	inline void event_probe__tm__ (x10tm::TMThread *SelfTM)            { x10rt_probe(); }
+	inline void blocking_probe__tm__ (x10tm::TMThread *SelfTM)         { x10rt_blocking_probe(); }
+
     extern const int cuda_cfgs[];
     void blocks_threads (place p, msg_type t, int shm, x10_ubyte &bs, x10_ubyte &ts, const int *cfgs=cuda_cfgs);
     void blocks_threads (place p, msg_type t, int shm, x10_byte &bs, x10_byte &ts, const int *cfgs=cuda_cfgs);
@@ -151,7 +161,10 @@ namespace x10aux {
     x10::util::HashMap<x10::lang::String*, x10::lang::String*>* loadenv();
 
     void run_closure_at (place p, x10::lang::VoidFun_0_0* body, x10::lang::Runtime__Profile *prof=NULL, endpoint e=0);
+    void run_closure_at__tm__ (x10tm::TMThread *SelfTM, place p, x10::lang::VoidFun_0_0* body, x10::lang::Runtime__Profile *prof=NULL, endpoint e=0);
+
     void run_async_at (place p, x10::lang::VoidFun_0_0* body, x10::lang::FinishState* fs, x10::lang::Runtime__Profile *prof=NULL, endpoint e=0);
+    void run_async_at__tm__ (x10tm::TMThread *SelfTM, place p, x10::lang::VoidFun_0_0* body, x10::lang::FinishState* fs, x10::lang::Runtime__Profile *prof=NULL, endpoint e=0);
 
     class serialization_buffer;
 

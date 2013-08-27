@@ -26,15 +26,23 @@ namespace x10 {
 
             template <class I> struct itable {
                 itable(x10_boolean (I::*equals)(x10::lang::Any*),
+                	   x10_boolean (I::*equals__tm__)(x10tm::TMThread *SelfTM, x10::lang::Any*),
                        x10_int (I::*hashCode)(),
+                       x10_int (I::*hashCode__tm__)(x10tm::TMThread *SelfTM),
                        x10::lang::String* (I::*toString)(),
-                       x10::lang::String* (I::*typeName)()) : equals(equals), hashCode(hashCode),
-                                                              toString(toString), typeName(typeName) {}
+                       x10::lang::String* (I::*toString__tm__)(x10tm::TMThread *SelfTM),
+                       x10::lang::String* (I::*typeName)(),
+                       x10::lang::String* (I::*typeName__tm__)(x10tm::TMThread *SelfTM)) : equals(equals), equals__tm__(equals__tm__), hashCode(hashCode), hashCode__tm__(hashCode__tm__),
+                                                              toString(toString), toString__tm__(toString__tm__), typeName(typeName), typeName__tm__(typeName__tm__) {}
 
                 x10_boolean (I::*equals)(x10::lang::Any*);
+                x10_boolean (I::*equals__tm__)(x10tm::TMThread *SelfTM, x10::lang::Any*);
                 x10_int (I::*hashCode)();
+                x10_int (I::*hashCode__tm__)(x10tm::TMThread *SelfTM);
                 x10::lang::String* (I::*toString)();
+                x10::lang::String* (I::*toString__tm__)(x10tm::TMThread *SelfTM);
                 x10::lang::String* (I::*typeName)();
+                x10::lang::String* (I::*typeName__tm__)(x10tm::TMThread *SelfTM);
             };
         };
     }

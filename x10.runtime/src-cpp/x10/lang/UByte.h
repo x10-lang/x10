@@ -27,6 +27,15 @@ namespace x10 {
             static inline x10_int compareTo(x10_ubyte v1, x10_ubyte v2) {
                 return v1 == v2 ? 0 : (v1 < v2 ? -1 : 1);
             }
+
+            ///
+            static String* toString__tm__(x10tm::TMThread *SelfTM, x10_ubyte value, x10_int radix);
+			static String* toString__tm__(x10tm::TMThread *SelfTM, x10_ubyte value);
+			static x10_ubyte parseUByte__tm__(x10tm::TMThread *SelfTM, String* s, x10_int radix);
+			static x10_ubyte parseUByte__tm__(x10tm::TMThread *SelfTM, String* s) { return parseUByte(s, 10); }
+			static inline x10_int compareTo__tm__(x10tm::TMThread *SelfTM, x10_ubyte v1, x10_ubyte v2) {
+				return v1 == v2 ? 0 : (v1 < v2 ? -1 : 1);
+			}
         };
     }
 }

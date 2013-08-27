@@ -14,6 +14,7 @@
 #define __X10_UTIL_INDEXEDMEMORYCHUNK_H
 
 #include <x10rt.h>
+#include <x10tm.h>
 
 #include <x10aux/config.h>
 #include <x10aux/RTT.h>
@@ -71,7 +72,8 @@ namespace x10 {
              */
             x10_int deltaToAlloced;
             
-            x10_int length() { return len; } 
+            x10_int length() { return len; }
+            x10_int length__tm__(x10tm::TMThread *SelfTM) { return len; }
             T *raw (void) const { return (T*)(size_t)data; }
             T &operator[] (int index) { return raw()[index]; }
             const T &operator[] (int index) const { return raw()[index]; }
@@ -84,28 +86,76 @@ namespace x10 {
                 len(_len),
                 deltaToAlloced((x10_int)(alignedData-rawData)) {}
 
+            void __ARR_tm_assign_gen_type(x10tm::TMThread *SelfTM, T *ptr, T val) {
+            	char *p_val = (char *)&val;
+            	//printf("__tm_assign_gen_type: %lu\n", sizeof(T));
+            	x10tm::tm_store_gen(SelfTM, (char *)ptr, p_val, sizeof(T));
+
+            }
+
+            T __ARR_tm_load_gen_type(x10tm::TMThread *SelfTM,T *ptr) {
+                T local_val;
+                //printf("__tm_load_gen_type: %lu\n", sizeof(T));
+                x10tm::tm_load_gen(SelfTM, (char *)ptr, (char *)&local_val, sizeof(T));
+                return local_val;
+           }
+
             inline T __apply(x10_int index) { 
                 checkBounds(index, len);
-                return raw()[index]; 
+				return raw()[index];
             }
+
             inline T __apply(x10_long index) { 
                 checkBounds((x10_int)index, len);
-                return raw()[index]; 
+				return raw()[index];
             }
             
+            inline T __apply__tm__(x10tm::TMThread *SelfTM, x10_int index) {
+				checkBounds(index, len);
+				//printf("__apply: %lu\n", sizeof(T));
+				//printf("__apply__tm__(int): \n");
+				return __ARR_tm_load_gen_type(SelfTM, &(raw()[index]));
+			}
+
+			inline T __apply__tm__(x10tm::TMThread *SelfTM, x10_long index) {
+				checkBounds((x10_int)index, len);
+				//printf("__apply__tm__(long): \n");
+				return __ARR_tm_load_gen_type(SelfTM, &(raw()[index]));
+			}
+
             inline void __set(x10_int index, T val) { 
                 checkBounds(index, len);
-                raw()[index] = val; 
+                raw()[index] = val;
             }
             inline void __set(x10_long index, T val) { 
                 checkBounds((x10_int)index, len);
-                raw()[index] = val; 
+				raw()[index] = val;
             }
+
+            inline void __set__tm__(x10tm::TMThread *SelfTM, x10_int index, T val) {
+				checkBounds(index, len);
+				//printf("__set__tm__(int, val): \n");
+				__ARR_tm_assign_gen_type(SelfTM, &(raw()[index]), val);
+			}
+			inline void __set__tm__(x10tm::TMThread *SelfTM, x10_long index, T val) {
+				checkBounds((x10_int)index, len);
+				//printf("__set__tm__(long, val): \n");
+				__ARR_tm_assign_gen_type(SelfTM, &(raw()[index]), val);
+			}
 
             void clear(x10_int index, x10_int numElems);
             void clear(x10_long index, x10_long numElems);
+            void clear__tm__(x10tm::TMThread *SelfTM, x10_int index, x10_int numElems) {
+            	clear__tm__(SelfTM, index, numElems);
+            }
+            void clear__tm__(x10tm::TMThread *SelfTM, x10_long index, x10_long numElems) {
+            	clear__tm__(SelfTM, index, numElems);
+            }
 
             void deallocate();
+            void deallocate__tm__(x10tm::TMThread *SelfTM) {
+            	deallocate();
+            }
             
             inline T apply_unsafe(x10_int index) { return raw()[index]; }
             inline T apply_unsafe(x10_long index) { return raw()[index]; }
@@ -140,6 +190,20 @@ namespace x10 {
             x10_int hashCode() { return (x10_int)data; }
 
             x10::lang::String* typeName();
+
+            x10_boolean equals__tm__(x10tm::TMThread *SelfTM, x10::lang::Any* that) { return _struct_equals__tm__(SelfTM, that); }
+
+			x10_boolean equals__tm__(x10tm::TMThread *SelfTM, x10::util::IndexedMemoryChunk<T> that) { return _struct_equals__tm__(SelfTM, that); }
+
+			x10_boolean _struct_equals__tm__(x10tm::TMThread *SelfTM, x10::lang::Any*);
+
+			x10_boolean _struct_equals__tm__(x10tm::TMThread *SelfTM, x10::util::IndexedMemoryChunk<T> that);
+
+			x10::lang::String* toString__tm__(x10tm::TMThread *SelfTM);
+
+			x10_int hashCode__tm__(x10tm::TMThread *SelfTM) { return (x10_int)data; }
+
+			x10::lang::String* typeName__tm__(x10tm::TMThread *SelfTM);
         };
     }
 }
@@ -165,6 +229,15 @@ namespace x10 {
                 return allocInternal<T>((size_t)numElements, alignment, congruent, zeroed);
             }
             
+            template<class T> static IndexedMemoryChunk<T> allocate1(x10tm::TMThread *SelfTM,
+            														x10_int numElements,
+																	x10_int alignment,
+																	x10_boolean congruent,
+																	x10_boolean zeroed) {
+				assert(numElements >=0);
+				return allocInternal<T>((size_t)numElements, alignment, congruent, zeroed);
+			}
+
             template<class T> static IndexedMemoryChunk<T> allocate(x10_long numElements,
                                                                     x10_int alignment,
                                                                     x10_boolean congruent,
@@ -173,6 +246,15 @@ namespace x10 {
                 assert(((x10_long)((size_t)numElements)) == numElements); // check for alloc requests >31 bits on 32 bit system
                 return allocInternal<T>((size_t)numElements, alignment, congruent, zeroed);
             }
+
+            template<class T> static IndexedMemoryChunk<T> allocate__tm__(x10tm::TMThread *SelfTM, x10_long numElements,
+																	x10_int alignment,
+																	x10_boolean congruent,
+																	x10_boolean zeroed) {
+				assert(numElements >= 0);
+				assert(((x10_long)((size_t)numElements)) == numElements); // check for alloc requests >31 bits on 32 bit system
+				return allocInternal<T>((size_t)numElements, alignment, congruent, zeroed);
+			}
 
             template<class T> static void asyncCopy(x10::util::IndexedMemoryChunk<T> src, x10_int srcIndex,
                                                     x10::util::RemoteIndexedMemoryChunk<T> dst, x10_int dstIndex,
@@ -196,6 +278,30 @@ namespace x10 {
             template<class T> static void copy(x10::util::IndexedMemoryChunk<T> src, x10_int srcIndex,
                                                x10::util::IndexedMemoryChunk<T> dst, x10_int dstIndex,
                                                x10_int numElems);
+
+            template<class T> static void asyncCopy__tm__(x10tm::TMThread *SelfTM, x10::util::IndexedMemoryChunk<T> src, x10_int srcIndex,
+													x10::util::RemoteIndexedMemoryChunk<T> dst, x10_int dstIndex,
+													x10_int numElems);
+
+			template<class T> static void asyncCopy__tm__(x10tm::TMThread *SelfTM, x10::util::IndexedMemoryChunk<T> src, x10_int srcIndex,
+													x10::util::RemoteIndexedMemoryChunk<T> dst, x10_int dstIndex,
+													x10_int numElems,
+													x10::lang::VoidFun_0_0* notif);
+
+
+			template<class T> static void asyncCopy__tm__(x10tm::TMThread *SelfTM, x10::util::RemoteIndexedMemoryChunk<T> src, x10_int srcIndex,
+													x10::util::IndexedMemoryChunk<T> dst, x10_int dstIndex,
+													x10_int numElems);
+
+			template<class T> static void asyncCopy__tm__(x10tm::TMThread *SelfTM, x10::util::RemoteIndexedMemoryChunk<T> src, x10_int srcIndex,
+													x10::util::IndexedMemoryChunk<T> dst, x10_int dstIndex,
+													x10_int numElems,
+													x10::lang::VoidFun_0_0* notif);
+
+			template<class T> static void copy__tm__(x10tm::TMThread *SelfTM, x10::util::IndexedMemoryChunk<T> src, x10_int srcIndex,
+											   x10::util::IndexedMemoryChunk<T> dst, x10_int dstIndex,
+											   x10_int numElems);
+
         };
 
         // avoid putting junk in the header, avoid putting junk in template code to save code size
@@ -288,9 +394,13 @@ namespace x10 {
 
         template<class T> x10::lang::Any::itable<IndexedMemoryChunk_ithunk0<T> >
             IndexedMemoryChunk_ithunk0<T>::itable(&IndexedMemoryChunk<T>::equals,
+            									  &IndexedMemoryChunk<T>::equals__tm__,
                                                   &IndexedMemoryChunk<T>::hashCode,
+                                                  &IndexedMemoryChunk<T>::hashCode__tm__,
                                                   &IndexedMemoryChunk<T>::toString,
-                                                  &IndexedMemoryChunk_ithunk0<T>::typeName);
+                                                  &IndexedMemoryChunk<T>::toString__tm__,
+                                                  &IndexedMemoryChunk_ithunk0<T>::typeName,
+                                                  &IndexedMemoryChunk_ithunk0<T>::typeName__tm__);
 
         template<class T> class IndexedMemoryChunk_iboxithunk0 : public x10::lang::IBox<x10::util::IndexedMemoryChunk<T> > {
         public:
@@ -307,13 +417,30 @@ namespace x10 {
             x10::lang::String* typeName() {
                 return this->value->typeName();
             }
+
+            x10_boolean equals__tm__(x10tm::TMThread *SelfTM, x10::lang::Any* arg0) {
+				return this->value->equals__tm__(SelfTM, arg0);
+			}
+			x10_int hashCode__tm__(x10tm::TMThread *SelfTM) {
+				return this->value->hashCode__tm__(SelfTM);
+			}
+			x10::lang::String* toString__tm__(x10tm::TMThread *SelfTM) {
+				return this->value->toString__tm__(SelfTM);
+			}
+			x10::lang::String* typeName__tm__(x10tm::TMThread *SelfTM) {
+				return this->value->typeName__tm__(SelfTM);
+			}
         };
 
         template<class T> x10::lang::Any::itable<IndexedMemoryChunk_iboxithunk0<T> >
             IndexedMemoryChunk_iboxithunk0<T>::itable(&IndexedMemoryChunk_iboxithunk0<T>::equals,
+            										  &IndexedMemoryChunk_iboxithunk0<T>::equals__tm__,
                                                       &IndexedMemoryChunk_iboxithunk0<T>::hashCode,
+                                                      &IndexedMemoryChunk_iboxithunk0<T>::hashCode__tm__,
                                                       &IndexedMemoryChunk_iboxithunk0<T>::toString,
-                                                      &IndexedMemoryChunk_iboxithunk0<T>::typeName);
+                                                      &IndexedMemoryChunk_iboxithunk0<T>::toString__tm__,
+                                                      &IndexedMemoryChunk_iboxithunk0<T>::typeName,
+                                                      &IndexedMemoryChunk_iboxithunk0<T>::typeName__tm__);
     }
 } 
 
@@ -403,6 +530,81 @@ template<class T> void x10::util::IndexedMemoryChunk<void>::asyncCopy(x10::util:
 }
 
 template<class T> void x10::util::IndexedMemoryChunk<void>::copy(x10::util::IndexedMemoryChunk<T> src, x10_int srcIndex,
+                                                                 x10::util::IndexedMemoryChunk<T> dst, x10_int dstIndex,
+                                                                 x10_int numElems) {
+    if (numElems <= 0) return;
+    void* srcAddr = (void*)(&src->raw()[srcIndex]);
+    void* dstAddr = (void*)(&dst->raw()[dstIndex]);
+    size_t numBytes = numElems * sizeof(T);
+    checkBounds(srcIndex, src.len);
+    checkBounds(srcIndex+numElems, src.len+1);
+    checkBounds(dstIndex, dst.len);
+    checkBounds(dstIndex+numElems, dst.len+1);
+    IMC_copyBody(srcAddr, dstAddr, numBytes, src->data == dst->data);
+}
+
+//////
+template<class T> void x10::util::IndexedMemoryChunk<void>::asyncCopy__tm__(x10tm::TMThread *SelfTM, x10::util::IndexedMemoryChunk<T> src, x10_int srcIndex,
+                                                                      x10::util::RemoteIndexedMemoryChunk<T> dst, x10_int dstIndex,
+                                                                      x10_int numElems) {
+    if (numElems <= 0) return;
+    void* srcAddr = (void*)(&src->raw()[srcIndex]);
+    void* dstAddr = (void*)(&dst->raw()[dstIndex]);
+    size_t numBytes = numElems * sizeof(T);
+    checkBounds(srcIndex, src.len);
+    checkBounds(srcIndex+numElems, src.len+1);
+    checkBounds(dstIndex, dst.len);
+    checkBounds(dstIndex+numElems, dst.len+1);
+    IMC_copyToBody(srcAddr, dstAddr, numBytes, dst.home, src->data == dst->data, NULL);
+}
+
+
+template<class T> void x10::util::IndexedMemoryChunk<void>::asyncCopy__tm__(x10tm::TMThread *SelfTM, x10::util::IndexedMemoryChunk<T> src, x10_int srcIndex,
+                                                                      x10::util::RemoteIndexedMemoryChunk<T> dst, x10_int dstIndex,
+                                                                      x10_int numElems,
+                                                                      x10::lang::VoidFun_0_0* notif) {
+    if (numElems <= 0) return;
+    void* srcAddr = (void*)(&src->raw()[srcIndex]);
+    void* dstAddr = (void*)(&dst->raw()[dstIndex]);
+    size_t numBytes = numElems * sizeof(T);
+    checkBounds(srcIndex, src.len);
+    checkBounds(srcIndex+numElems, src.len+1);
+    checkBounds(dstIndex, dst.len);
+    checkBounds(dstIndex+numElems, dst.len+1);
+    IMC_copyToBody(srcAddr, dstAddr, numBytes, dst.home, src->data == dst->data, notif);
+}
+
+
+template<class T> void x10::util::IndexedMemoryChunk<void>::asyncCopy__tm__(x10tm::TMThread *SelfTM, x10::util::RemoteIndexedMemoryChunk<T> src, x10_int srcIndex,
+                                                                      x10::util::IndexedMemoryChunk<T> dst, x10_int dstIndex,
+                                                                      x10_int numElems) {
+    if (numElems <= 0) return;
+    void* srcAddr = (void*)(&src->raw()[srcIndex]);
+    void* dstAddr = (void*)(&dst->raw()[dstIndex]);
+    size_t numBytes = numElems * sizeof(T);
+    checkBounds(srcIndex, src.len);
+    checkBounds(srcIndex+numElems, src.len+1);
+    checkBounds(dstIndex, dst.len);
+    checkBounds(dstIndex+numElems, dst.len+1);
+    IMC_copyFromBody(srcAddr, dstAddr, numBytes, src.home, src->data == dst->data, NULL);
+}
+
+template<class T> void x10::util::IndexedMemoryChunk<void>::asyncCopy__tm__(x10tm::TMThread *SelfTM, x10::util::RemoteIndexedMemoryChunk<T> src, x10_int srcIndex,
+                                                                      x10::util::IndexedMemoryChunk<T> dst, x10_int dstIndex,
+                                                                      x10_int numElems,
+                                                                      x10::lang::VoidFun_0_0* notif) {
+    if (numElems <= 0) return;
+    void* srcAddr = (void*)(&src->raw()[srcIndex]);
+    void* dstAddr = (void*)(&dst->raw()[dstIndex]);
+    size_t numBytes = numElems * sizeof(T);
+    checkBounds(srcIndex, src.len);
+    checkBounds(srcIndex+numElems, src.len+1);
+    checkBounds(dstIndex, dst.len);
+    checkBounds(dstIndex+numElems, dst.len+1);
+    IMC_copyFromBody(srcAddr, dstAddr, numBytes, src.home, src->data == dst->data, notif);
+}
+
+template<class T> void x10::util::IndexedMemoryChunk<void>::copy__tm__(x10tm::TMThread *SelfTM, x10::util::IndexedMemoryChunk<T> src, x10_int srcIndex,
                                                                  x10::util::IndexedMemoryChunk<T> dst, x10_int dstIndex,
                                                                  x10_int numElems) {
     if (numElems <= 0) return;
@@ -531,7 +733,18 @@ template<class T> x10_boolean x10::util::IndexedMemoryChunk<T>::_struct_equals(x
     return _struct_equals(x10aux::class_cast<x10::util::IndexedMemoryChunk<T> >(that));
 }
 
+template<class T> x10_boolean x10::util::IndexedMemoryChunk<T>::_struct_equals__tm__(x10tm::TMThread *SelfTM, x10::lang::Any* that) {
+    if ((!(x10aux::instanceof<x10::util::IndexedMemoryChunk<T> >(that)))) {
+        return false;
+    }
+    return _struct_equals__tm__(SelfTM, x10aux::class_cast<x10::util::IndexedMemoryChunk<T> >(that));
+}
+
 template<class T> x10_boolean x10::util::IndexedMemoryChunk<T>::_struct_equals(x10::util::IndexedMemoryChunk<T> that) { 
+    return x10aux::struct_equals(data, that->data) && x10aux::struct_equals(len, that->len);
+}
+
+template<class T> x10_boolean x10::util::IndexedMemoryChunk<T>::_struct_equals__tm__(x10tm::TMThread *SelfTM, x10::util::IndexedMemoryChunk<T> that) {
     return x10aux::struct_equals(data, that->data) && x10aux::struct_equals(len, that->len);
 }
 
@@ -548,7 +761,25 @@ template<class T> x10::lang::String* x10::util::IndexedMemoryChunk<T>::toString(
     return x10::lang::String::Steal(tmp);
 }
 
+template<class T> x10::lang::String* x10::util::IndexedMemoryChunk<T>::toString__tm__(x10tm::TMThread *SelfTM) {
+    char* tmp = x10aux::alloc_printf("IndexedMemoryChunk(");
+    int sz = length() > 10 ? 10 : length();
+    for (int i = 0; i < sz; i++) {
+        if (i > 0)
+            tmp = x10aux::realloc_printf(tmp, ",");
+        tmp = x10aux::realloc_printf(tmp,"%s",x10aux::to_string(__apply(i))->c_str());
+    }
+    if (sz < length()) tmp = x10aux::realloc_printf(tmp, "...(omitted %d elements", length() - sz);
+    tmp = x10aux::realloc_printf(tmp, ")");
+    return x10::lang::String::Steal(tmp);
+}
+
 template<class T> x10::lang::String* x10::util::IndexedMemoryChunk<T>::typeName() {
+    char* tmp = x10aux::alloc_printf("x10.util.IndexedMemoryChunk<%s>", x10aux::getRTT<T>()->name());
+    return x10::lang::String::Steal(tmp);
+}
+
+template<class T> x10::lang::String* x10::util::IndexedMemoryChunk<T>::typeName__tm__(x10tm::TMThread *SelfTM) {
     char* tmp = x10aux::alloc_printf("x10.util.IndexedMemoryChunk<%s>", x10aux::getRTT<T>()->name());
     return x10::lang::String::Steal(tmp);
 }

@@ -11,16 +11,15 @@
 
 package x10.runtime.impl.java;
 
-
 public abstract class ByteUtils {
 
-    public static java.lang.String toString(byte a, int radix) {
-        if (a >= 0) {
-            return java.lang.Integer.toString(a, radix);
-        } else {
-            int b = (0x80000000 - a) & 0x7FFFFFFF;
-            return "-" + java.lang.Integer.toString(b, radix);
-        }
-    }
+	public static java.lang.String toString(byte a, int radix) {
+		if (a >= 0) {
+			return java.lang.Integer.toString(a, radix);
+		} else {
+			int b = (0x80000000 - a) & 0x7FFFFFFF;
+			return "-" + java.lang.Integer.toString(b, radix);
+		}
+	}
 
 }

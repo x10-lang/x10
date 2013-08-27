@@ -34,6 +34,7 @@ namespace x10 {
             
             public:
             const char *c_str() const { return FMGL(content); }
+            const char *c_str__tm__(x10tm::TMThread *SelfTM) const { return FMGL(content); }
 
             RTT_H_DECLS_CLASS;
 
@@ -86,6 +87,51 @@ namespace x10 {
             }
 
 
+			// Set steal to true if you have just allocated the char * with
+			// alloc_printf or it's otherwise OK if the String frees it.  Leave
+			// steal false for string literals which ought not to be freed.
+			// Leave it false for 'static' malloced char* such as the RTT type
+			// names that also ought not to be freed.
+			static String* _make__tm__(x10tm::TMThread *SelfTM, const char *content, bool steal) {
+				String* this_ = new (x10aux::alloc<String>()) String();
+				this_->_constructor(content, steal);
+				return this_;
+			}
+
+
+			static String* _make__tm__(x10tm::TMThread *SelfTM) {
+				String* this_ = new (x10aux::alloc<String>()) String();
+				this_->_constructor();
+				return this_;
+			}
+
+
+			static String* _make__tm__(x10tm::TMThread *SelfTM, String* s) {
+				String* this_ = new (x10aux::alloc<String>()) String();
+				this_->_constructor(s);
+				return this_;
+			}
+
+			static String* _make__tm__(x10tm::TMThread *SelfTM, x10::array::Array<x10_byte>* array);
+
+
+			static String* _make__tm__(x10tm::TMThread *SelfTM, x10::array::Array<x10_byte>* array, x10_int start, x10_int length) {
+				String* this_ = new (x10aux::alloc<String>()) String();
+				this_->_constructor(array, start, length);
+				return this_;
+			}
+
+			static String* _make__tm__(x10tm::TMThread *SelfTM, x10::array::Array<x10_char>* array);
+
+
+			static String* _make__tm__(x10tm::TMThread *SelfTM, x10::array::Array<x10_char>* array, x10_int start, x10_int length) {
+				String* this_ = new (x10aux::alloc<String>()) String();
+				this_->_constructor(array, start, length);
+				return this_;
+			}
+
+
+
             // This is for string literals, brought out here so we have easier control
             // (Can later make this return a String without allocation)
             static String* Lit(const char *s) {
@@ -97,7 +143,19 @@ namespace x10 {
                 return _make(s, true);
             }
 
+            static String* Lit__tm__(x10tm::TMThread *SelfTM, const char *s) {
+				return _make(s, false);
+			}
+
+			// Useful when we have a malloced char* instead of a literal
+			static String* Steal__tm__(x10tm::TMThread *SelfTM, const char *s) {
+				return _make(s, true);
+			}
+
             String* trim();
+            String* trim__tm__(x10tm::TMThread *SelfTM) {
+            	return trim();
+            }
 
             String* toString() { return this; }
 
@@ -107,6 +165,18 @@ namespace x10 {
             x10_int indexOf(String* s, x10_int i = 0);
             x10_int indexOf(x10_char c, x10_int i = 0);
             x10_int lastIndexOf(String* s, x10_int i);
+
+            x10_int length__tm__(x10tm::TMThread *SelfTM) { return (x10_int) FMGL(content_length); }
+			x10_int indexOf__tm__(x10tm::TMThread *SelfTM, String* s, x10_int i = 0) {
+				return indexOf(s, i);
+			}
+			x10_int indexOf__tm__(x10tm::TMThread *SelfTM, x10_char c, x10_int i = 0) {
+				return indexOf(c, i);
+			}
+
+			x10_int lastIndexOf__tm__(x10tm::TMThread *SelfTM, String* s, x10_int i) {
+				return lastIndexOf(s, i);
+			}
 
             x10_int lastIndexOf(String* s) {
                 return lastIndexOf(s, this->length()-1);
@@ -124,6 +194,25 @@ namespace x10 {
                 return substring(start, this->length());
             }
 
+            x10_int lastIndexOf__tm__(x10tm::TMThread *SelfTM, String* s) {
+				return lastIndexOf(s, this->length()-1);
+			}
+
+			x10_int lastIndexOf__tm__(x10tm::TMThread *SelfTM, x10_char c, x10_int i);
+
+			x10_int lastIndexOf__tm__(x10tm::TMThread *SelfTM, x10_char c) {
+				return lastIndexOf(c, this->length()-1);
+			}
+
+			String* substring__tm__(x10tm::TMThread *SelfTM, x10_int start, x10_int end) {
+				return substring(start, end);
+			}
+
+			String* substring__tm__(x10tm::TMThread *SelfTM, x10_int start) {
+				return substring(start, this->length());
+			}
+
+
             // Forwarding method needed so that String can be used in Generic contexts (T <: (nat)=>char)
             x10_char __apply(x10_int i) { return charAt(i); }
             
@@ -132,6 +221,20 @@ namespace x10 {
             x10::array::Array<x10_char>* chars();
 
             x10::array::Array<x10_byte>* bytes();
+
+            x10_char __apply__tm__(x10tm::TMThread *SelfTM, x10_int i) { return charAt(i); }
+
+			x10_char charAt__tm__(x10tm::TMThread *SelfTM, x10_int i) {
+				return charAt(i);
+			}
+
+			x10::array::Array<x10_char>* chars__tm__(x10tm::TMThread *SelfTM) {
+				return chars();
+			}
+
+			x10::array::Array<x10_byte>* bytes__tm__(x10tm::TMThread *SelfTM) {
+				return bytes();
+			}
 
             static const x10aux::serialization_id_t _serialization_id;
 
@@ -146,16 +249,29 @@ namespace x10 {
             virtual void _destructor();
 
             static String* format(String* format, x10::array::Array<Any*>* parms);
+            static String* format__tm__(x10tm::TMThread *SelfTM, String* format_p, x10::array::Array<Any*>* parms) {
+            	return format(format_p, parms);
+            }
 
             virtual x10_boolean equals(x10::lang::Any* p0);
 
             x10_boolean equalsIgnoreCase(x10::lang::String* s);
+
+            virtual x10_boolean equals__tm__(x10tm::TMThread *SelfTM, x10::lang::Any* p0) {
+            	return equals(p0);
+            }
+
+            x10_boolean equalsIgnoreCase__tm__(x10tm::TMThread *SelfTM, x10::lang::String* s) {
+            	return equalsIgnoreCase(s);
+            }
+
 
             String* toLowerCase();
 
             String* toUpperCase();
 
             x10_int compareTo(x10::lang::String* s);
+            x10_int compareTo__tm__(x10tm::TMThread *SelfTM, x10::lang::String* s);
 
             x10_int compareToIgnoreCase(x10::lang::String* s);
 
@@ -171,6 +287,7 @@ namespace x10 {
             }
 
             template<class T1, class T2> static String* __plus(T1, T2);
+            template<class T1, class T2> static String* __plus__tm__(x10tm::TMThread *SelfTM, T1, T2);
         };
 
         template<class T1, class T2>
@@ -179,6 +296,13 @@ namespace x10 {
                                                       x10aux::safe_to_string(p1)->c_str(),
                                                       x10aux::safe_to_string(p2)->c_str()));
         }
+
+        template<class T1, class T2>
+		String* x10::lang::String::__plus__tm__(x10tm::TMThread *SelfTM, T1 p1, T2 p2) {
+			return String::Steal(x10aux::alloc_printf("%s%s",
+													  x10aux::safe_to_string(p1)->c_str(),
+													  x10aux::safe_to_string(p2)->c_str()));
+		}
             
         #ifndef NO_IOSTREAM
         inline std::ostream &operator<<(std::ostream &o, String *v) {

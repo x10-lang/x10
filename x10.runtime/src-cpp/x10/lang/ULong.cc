@@ -53,4 +53,35 @@ x10_ulong ULongNatives::parseULong(String* s, x10_int radix) {
     return ans;
 }
 
+/////
+String* ULongNatives::toString__tm__(x10tm::TMThread *SelfTM, x10_ulong value, x10_int radix) {
+    if (0 == value) return String::Lit("0");
+    if (radix < 2 || radix > 36) radix = 10;
+    // worst case is binary: 64 digits and a '\0'
+    char buf[65] = ""; //zeroes entire buffer (S6.7.8.21)
+    x10_ulong value2 = value;
+    char *b;
+    // start on the '\0', will predecrement so will not clobber it
+    for (b=&buf[64] ; value2>0 ; value2/=radix) {
+        *(--b) = numerals[value2 % radix];
+    }
+    return String::Steal(alloc_printf("%s",b));
+}
+
+String* ULongNatives::toString__tm__(x10tm::TMThread *SelfTM, x10_ulong value) {
+    return to_string(value);
+}
+
+x10_ulong ULongNatives::parseULong__tm__(x10tm::TMThread *SelfTM, String* s, x10_int radix) {
+    const char *start = nullCheck(s)->c_str();
+    char *end;
+    errno = 0;
+    x10_ulong ans = strtoull(start, &end, radix);
+    if (errno == ERANGE || (errno != 0 && ans == 0) ||
+        ((end-start) != s->length())) {
+        throwException(NumberFormatException::_make(s));
+    }
+    return ans;
+}
+
 // vim:tabstop=4:shiftwidth=4:expandtab

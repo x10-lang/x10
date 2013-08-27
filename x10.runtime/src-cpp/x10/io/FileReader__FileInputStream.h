@@ -32,6 +32,7 @@ namespace x10 {
             FileReader__FileInputStream() : FMGL(file)(NULL) { } 
             
             static FileReader__FileInputStream* _make(x10::lang::String* name);
+            static FileReader__FileInputStream* _make__tm__(x10tm::TMThread *SelfTM, x10::lang::String* name);
 
             void _constructor (x10::lang::String* file);
             void _constructor (FILE* file);
@@ -47,6 +48,29 @@ namespace x10 {
                                  x10_int len);
 
             virtual void skip(x10_int bytes);
+
+            ///
+            virtual char * gets__tm__(x10tm::TMThread *SelfTM, char *buf, int sz) {
+            	return gets(buf, sz);
+            }
+
+			virtual void close__tm__(x10tm::TMThread *SelfTM) {
+				close();
+			}
+
+			virtual x10_int read__tm__(x10tm::TMThread *SelfTM) {
+				return read();
+			}
+
+			virtual x10_int read__tm__(x10tm::TMThread *SelfTM, x10::util::IndexedMemoryChunk<x10_byte> b,
+								 x10_int off,
+								 x10_int len) {
+				return read(b, off, len);
+			}
+
+			virtual void skip__tm__(x10tm::TMThread *SelfTM, x10_int bytes) {
+				skip(bytes);
+			}
 
             // Serialization
             static const x10aux::serialization_id_t _serialization_id;

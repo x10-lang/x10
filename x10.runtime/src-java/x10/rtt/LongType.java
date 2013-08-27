@@ -17,98 +17,102 @@ import x10.serialization.SerializationConstants;
 
 public final class LongType extends RuntimeType<x10.core.Long> {
 
-    private static final long serialVersionUID = 1L;
+	private static final long serialVersionUID = 1L;
 
-    // make sure deserialized RTT object is not duplicated
-    private Object readResolve() throws java.io.ObjectStreamException {
-        return Types.LONG;
-    }
-    @Override
-    public short $_get_serialization_id() {
-        return SerializationConstants.RTT_LONG_ID;
-    }
+	// make sure deserialized RTT object is not duplicated
+	private Object readResolve() throws java.io.ObjectStreamException {
+		return Types.LONG;
+	}
 
-    public LongType() {
-        super(x10.core.Long.class,
-            new Type[] {
-                ParameterizedType.make(Types.COMPARABLE, UnresolvedType.THIS),
-                ParameterizedType.make(x10.lang.Arithmetic.$RTT, UnresolvedType.THIS),
-                ParameterizedType.make(x10.lang.Bitwise.$RTT, UnresolvedType.THIS),
-                ParameterizedType.make(x10.util.Ordered.$RTT, UnresolvedType.THIS),
-                Types.STRUCT
-            });
-    }
-    
-    @Override
-    public String typeName() {
-        return "x10.lang.Long";
-    }
+	@Override
+	public short $_get_serialization_id() {
+		return SerializationConstants.RTT_LONG_ID;
+	}
 
-    // for shortcut
-    @Override
-    public boolean isInstance(Object o) {
-        return o instanceof x10.core.Long;
-    }
-    
-    @Override
-    public long[] makeArray(int dim0) {
-        return new long[dim0];
-    }
-    
-    @Override
-    public long[][] makeArray(int dim0, int dim1) {
-        return new long[dim0][dim1];
-    }
-    
-    @Override
-    public long[][][] makeArray(int dim0, int dim1, int dim2) {
-        return new long[dim0][dim1][dim2];
-    }
-    
-    @Override
-    public long[][][][] makeArray(int dim0, int dim1, int dim2, int dim3) {
-        return new long[dim0][dim1][dim2][dim3];
-    }
-    
-    @Override
-    public Object makeArray(int... dims) {
-        return Array.newInstance(long.class, dims);
-    }
+	public LongType() {
+		super(x10.core.Long.class, new Type[] {
+				ParameterizedType.make(Types.COMPARABLE, UnresolvedType.THIS),
+				ParameterizedType.make(x10.lang.Arithmetic.$RTT,
+						UnresolvedType.THIS),
+				ParameterizedType.make(x10.lang.Bitwise.$RTT,
+						UnresolvedType.THIS),
+				ParameterizedType.make(x10.util.Ordered.$RTT,
+						UnresolvedType.THIS), Types.STRUCT });
+	}
 
-    @Override
-    public x10.core.Long getArray(Object array, int i) {
-        return x10.core.Long.$box(((long[]) array)[i]);
-    }
-    
-    @Override
-    public void setArray(Object array, int i, x10.core.Long v) {
-        ((long[]) array)[i] = x10.core.Long.$unbox(v);
-    }
-    
-    @Override
-    public int arrayLength(Object array) {
-    	return ((long[]) array).length;
-    }
+	@Override
+	public String typeName() {
+		return "x10.lang.Long";
+	}
 
-    @Override
-    public boolean isref() {
-        return false;
-    }
+	// for shortcut
+	@Override
+	public boolean isInstance(Object o) {
+		return o instanceof x10.core.Long;
+	}
 
-//    public void $_serialize(X10JavaSerializer serializer) throws IOException {
-//    }
-//
-//    public short $_get_serialization_id() {
-//        return _serialization_id;
-//    }
-//
-//    public static X10JavaSerializable $_deserializer(X10JavaDeserializer deserializer) throws IOException {
-//		return $_deserialize_body(null, deserializer);
-//	}
-//
-//    public static X10JavaSerializable $_deserialize_body(LongType t, X10JavaDeserializer deserializer) throws IOException {
-//        LongType longType = (LongType) Types.LONG;
-//        deserializer.record_reference(longType);
-//        return longType;
-//    }
+	@Override
+	public long[] makeArray(int dim0) {
+		return new long[dim0];
+	}
+
+	@Override
+	public long[][] makeArray(int dim0, int dim1) {
+		return new long[dim0][dim1];
+	}
+
+	@Override
+	public long[][][] makeArray(int dim0, int dim1, int dim2) {
+		return new long[dim0][dim1][dim2];
+	}
+
+	@Override
+	public long[][][][] makeArray(int dim0, int dim1, int dim2, int dim3) {
+		return new long[dim0][dim1][dim2][dim3];
+	}
+
+	@Override
+	public Object makeArray(int... dims) {
+		return Array.newInstance(long.class, dims);
+	}
+
+	@Override
+	public x10.core.Long getArray(Object array, int i) {
+		return x10.core.Long.$box(((long[]) array)[i]);
+	}
+
+	@Override
+	public void setArray(Object array, int i, x10.core.Long v) {
+		((long[]) array)[i] = x10.core.Long.$unbox(v);
+	}
+
+	@Override
+	public int arrayLength(Object array) {
+		return ((long[]) array).length;
+	}
+
+	@Override
+	public boolean isref() {
+		return false;
+	}
+
+	// public void $_serialize(X10JavaSerializer serializer) throws IOException
+	// {
+	// }
+	//
+	// public short $_get_serialization_id() {
+	// return _serialization_id;
+	// }
+	//
+	// public static X10JavaSerializable $_deserializer(X10JavaDeserializer
+	// deserializer) throws IOException {
+	// return $_deserialize_body(null, deserializer);
+	// }
+	//
+	// public static X10JavaSerializable $_deserialize_body(LongType t,
+	// X10JavaDeserializer deserializer) throws IOException {
+	// LongType longType = (LongType) Types.LONG;
+	// deserializer.record_reference(longType);
+	// return longType;
+	// }
 }

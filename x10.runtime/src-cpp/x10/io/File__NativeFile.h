@@ -34,6 +34,7 @@ namespace x10 {
         public:
 
             static File__NativeFile* _make(x10::lang::String* s);
+            static File__NativeFile* _make__tm__(x10tm::TMThread *SelfTM, x10::lang::String* s);
             File__NativeFile* _constructor(x10::lang::String* s) {
                 path = s;
                 return this;
@@ -72,6 +73,55 @@ namespace x10 {
             virtual x10_boolean setLastModified(x10_long t);
 
             virtual x10_long length();
+
+            ///
+
+			virtual x10::lang::String* getPath__tm__(x10tm::TMThread *SelfTM) { return path; }
+
+			virtual x10::lang::String* getAbsolutePath__tm__(x10tm::TMThread *SelfTM) {
+				return getAbsolutePath();
+			}
+
+			virtual x10::lang::String* getCanonicalPath__tm__(x10tm::TMThread *SelfTM) {
+				return getCanonicalPath();
+			}
+
+			virtual x10_boolean canRead__tm__(x10tm::TMThread *SelfTM) {
+				return canRead();
+			}
+
+			virtual x10_boolean canWrite__tm__(x10tm::TMThread *SelfTM) {
+				return canWrite();
+			}
+
+			virtual x10_boolean exists__tm__(x10tm::TMThread *SelfTM) {
+				return exists();
+			}
+
+			virtual x10_boolean isDirectory__tm__(x10tm::TMThread *SelfTM) {
+				return isDirectory();
+			}
+
+			virtual x10_boolean isFile__tm__(x10tm::TMThread *SelfTM) {
+				return isFile();
+			}
+
+			virtual x10_boolean isHidden__tm__(x10tm::TMThread *SelfTM) {
+				return isHidden();
+			}
+
+			virtual x10_long lastModified__tm__(x10tm::TMThread *SelfTM) {
+				return lastModified();
+			}
+
+			virtual x10_boolean setLastModified__tm__(x10tm::TMThread *SelfTM, x10_long t) {
+				return setLastModified(t);
+			}
+
+			virtual x10_long length__tm__(x10tm::TMThread *SelfTM) {
+				return length();
+			}
+
 
         };
     }

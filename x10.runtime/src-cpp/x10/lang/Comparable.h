@@ -2,6 +2,7 @@
 #define __X10_LANG_COMPARABLE_H
 
 #include <x10rt.h>
+#include <x10tm.h>
 
 #define X10_LANG_ANY_H_NODEPS
 #include <x10/lang/Any.h>
@@ -29,15 +30,25 @@ namespace x10 {
     
           template <class I> struct itable {
               itable(x10_int (I::*compareTo) (TPMGL(T)),
+            		 x10_int (I::*compareTo__tm__) (x10tm::TMThread *SelfTM, TPMGL(T)),
                      x10_boolean (I::*equals) (x10::lang::Any*),
+                     x10_boolean (I::*equals__tm__) (x10tm::TMThread *SelfTM, x10::lang::Any*),
                      x10_int (I::*hashCode) (),
+                     x10_int (I::*hashCode__tm__) (x10tm::TMThread *SelfTM),
                      x10::lang::String* (I::*toString) (),
-                     x10::lang::String* (I::*typeName) ()) : compareTo(compareTo), equals(equals), hashCode(hashCode), toString(toString), typeName(typeName) {}
+                     x10::lang::String* (I::*toString__tm__) (x10tm::TMThread *SelfTM),
+                     x10::lang::String* (I::*typeName) (),
+                     x10::lang::String* (I::*typeName__tm__) (x10tm::TMThread *SelfTM)) : compareTo(compareTo), compareTo__tm__(compareTo__tm__), equals(equals), equals__tm__(equals__tm__), hashCode(hashCode), hashCode__tm__(hashCode__tm__), toString(toString), toString__tm__(toString__tm__), typeName(typeName), typeName__tm__(typeName__tm__) {}
               x10_int (I::*compareTo) (TPMGL(T));
+              x10_int (I::*compareTo__tm__) (x10tm::TMThread *SelfTM, TPMGL(T));
               x10_boolean (I::*equals) (x10::lang::Any*);
+              x10_boolean (I::*equals__tm__) (x10tm::TMThread *SelfTM, x10::lang::Any*);
               x10_int (I::*hashCode) ();
+              x10_int (I::*hashCode__tm__) (x10tm::TMThread *SelfTM);
               x10::lang::String* (I::*toString) ();
+              x10::lang::String* (I::*toString__tm__) (x10tm::TMThread *SelfTM);
               x10::lang::String* (I::*typeName) ();
+              x10::lang::String* (I::*typeName__tm__) (x10tm::TMThread *SelfTM);
           };
     
           static x10_int compareTo(x10::lang::Comparable<TPMGL(T)>* _recv, TPMGL(T) arg0) {
@@ -64,6 +75,31 @@ namespace x10 {
               x10::lang::Reference* recv = reinterpret_cast<x10::lang::Reference*>(_recv);
               return (recv->*(x10aux::findITable<x10::lang::Comparable<TPMGL(T)> >(recv->_getITables())->typeName))();
           }
+
+        static x10_int compareTo__tm__(x10tm::TMThread *SelfTM, x10::lang::Comparable<TPMGL(T)>* _recv, TPMGL(T) arg0) {
+			x10::lang::Reference* _refRecv = reinterpret_cast<x10::lang::Reference*>(_recv);
+			return (_refRecv->*(x10aux::findITable<Comparable<TPMGL(T)> >(_refRecv->_getITables())->compareTo__tm__))(SelfTM, arg0);
+		}
+		template <class R> static x10_int compareTo__tm__(x10tm::TMThread *SelfTM, R _recv, TPMGL(T) arg0) {
+			return _recv->compareTo__tm__(SelfTM, arg0);
+		}
+
+		static x10_boolean equals__tm__(x10::lang::Comparable<TPMGL(T)>* _recv, x10tm::TMThread *SelfTM, x10::lang::Any* arg0) {
+			x10::lang::Reference* recv = reinterpret_cast<x10::lang::Reference*>(_recv);
+			return (recv->*(x10aux::findITable<x10::lang::Comparable<TPMGL(T)> >(recv->_getITables())->equals__tm__))(SelfTM, arg0);
+		}
+		static x10_int hashCode__tm__(x10::lang::Comparable<TPMGL(T)>* _recv, x10tm::TMThread *SelfTM) {
+			x10::lang::Reference* recv = reinterpret_cast<x10::lang::Reference*>(_recv);
+			return (recv->*(x10aux::findITable<x10::lang::Comparable<TPMGL(T)> >(recv->_getITables())->hashCode__tm__))(SelfTM);
+		}
+		static x10::lang::String* toString__tm__(x10::lang::Comparable<TPMGL(T)>* _recv, x10tm::TMThread *SelfTM) {
+			x10::lang::Reference* recv = reinterpret_cast<x10::lang::Reference*>(_recv);
+			return (recv->*(x10aux::findITable<x10::lang::Comparable<TPMGL(T)> >(recv->_getITables())->toString__tm__))(SelfTM);
+		}
+		static x10::lang::String* typeName__tm__(x10::lang::Comparable<TPMGL(T)>* _recv, x10tm::TMThread *SelfTM) {
+			x10::lang::Reference* recv = reinterpret_cast<x10::lang::Reference*>(_recv);
+			return (recv->*(x10aux::findITable<x10::lang::Comparable<TPMGL(T)> >(recv->_getITables())->typeName__tm__))(SelfTM);
+		}
         };
 
         template <> class Comparable<void> {
@@ -79,15 +115,25 @@ namespace x10 {
         RTT_H_DECLS_INTERFACE                       \
             template <class I> struct itable {                       \
                 itable(x10_int (I::*compareTo) (PRIM),               \
+                	   x10_int (I::*compareTo__tm__) (x10tm::TMThread *SelfTM, PRIM),               \
                        x10_boolean (I::*equals) (x10::lang::Any*), \
+                       x10_boolean (I::*equals__tm__) (x10tm::TMThread *SelfTM, x10::lang::Any*), \
                        x10_int (I::*hashCode) (),                       \
+                       x10_int (I::*hashCode__tm__) (x10tm::TMThread *SelfTM),                       \
                        x10::lang::String* (I::*toString) (), \
-                       x10::lang::String* (I::*typeName) ()) : compareTo(compareTo), equals(equals), hashCode(hashCode), toString(toString), typeName(typeName) {} \
+                       x10::lang::String* (I::*toString__tm__) (x10tm::TMThread *SelfTM), \
+                       x10::lang::String* (I::*typeName) (), \
+                       x10::lang::String* (I::*typeName__tm__) (x10tm::TMThread *SelfTM)) : compareTo(compareTo), compareTo__tm__(compareTo__tm__), equals(equals), equals__tm__(equals__tm__), hashCode(hashCode), hashCode__tm__(hashCode__tm__), toString(toString), toString__tm__(toString__tm__), typeName(typeName), typeName__tm__(typeName__tm__) {} \
                 x10_int (I::*compareTo) (PRIM);                      \
+                x10_int (I::*compareTo__tm__) (x10tm::TMThread *SelfTM, PRIM);                      \
                 x10_boolean (I::*equals) (x10::lang::Any*); \
+                x10_boolean (I::*equals__tm__) (x10tm::TMThread *SelfTM, x10::lang::Any*); \
                 x10_int (I::*hashCode) ();                              \
+                x10_int (I::*hashCode__tm__) (x10tm::TMThread *SelfTM);                              \
                 x10::lang::String* (I::*toString) ();       \
+                x10::lang::String* (I::*toString__tm__) (x10tm::TMThread *SelfTM);       \
                 x10::lang::String* (I::*typeName) ();       \
+                x10::lang::String* (I::*typeName__tm__) (x10tm::TMThread *SelfTM);       \
             };                                                          \
             static inline x10_int compareTo(PRIM recv, PRIM arg0) {     \
                 return UTILS::compareTo(recv, arg0);            \
@@ -100,6 +146,18 @@ namespace x10 {
             static x10_int hashCode(PRIM recv) { return x10aux::hash_code(recv); } \
             static x10::lang::String* toString(PRIM recv) { return x10aux::to_string(recv); } \
             static x10::lang::String* typeName(PRIM recv) { return x10aux::type_name(recv); } \
+            																				  \
+        	static inline x10_int compareTo__tm__(x10tm::TMThread *SelfTM, PRIM recv, PRIM arg0) {     \
+				return UTILS::compareTo(recv, arg0);            \
+			}                                                           \
+			static x10_int compareTo__tm__(x10tm::TMThread *SelfTM, Comparable<PRIM>* _recv, PRIM arg0) { \
+				x10::lang::Reference* recv = reinterpret_cast<x10::lang::Reference*>(_recv); \
+				return (recv->*(x10aux::findITable<x10::lang::Comparable<PRIM> >(recv->_getITables())->compareTo__tm__))(SelfTM, arg0); \
+			}                                                           \
+			static x10_boolean equals__tm__(x10tm::TMThread *SelfTM, PRIM recv, PRIM arg0) { return x10aux::equals(recv, arg0); } \
+			static x10_int hashCode__tm__(x10tm::TMThread *SelfTM, PRIM recv) { return x10aux::hash_code(recv); } \
+			static x10::lang::String* toString__tm__(x10tm::TMThread *SelfTM, PRIM recv) { return x10aux::to_string(recv); } \
+			static x10::lang::String* typeName__tm__(x10tm::TMThread *SelfTM, PRIM recv) { return x10aux::type_name(recv); } \
         };
         
 COMPARABLE_PRIM_DECL(x10_boolean, BooleanNatives)

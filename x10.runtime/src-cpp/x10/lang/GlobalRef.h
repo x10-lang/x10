@@ -2,7 +2,7 @@
 #define __X10_LANG_GLOBALREF
 
 #include <x10rt.h>
-
+#include <x10tm.h>
 #include <x10/lang/Any.h>
 
 namespace x10 {
@@ -27,6 +27,7 @@ namespace x10 {
             GlobalRef(x10aux::place p, x10_ulong obj = 0) : value(obj), location(p) { }
 	
             static inline GlobalRef<T> _make(T obj) { return GlobalRef<T>(obj); }
+            static inline GlobalRef<T> _make__tm__(x10tm::TMThread *SelfTM, T obj) { return GlobalRef<T>(obj); }
 
             static GlobalRef<T> _alloc () {GlobalRef<T> t; return t;} // Note: no need to zero t
 
@@ -36,6 +37,7 @@ namespace x10 {
             
             // we are assuming T is always a pointer type, becasue of the isRef constraint on GlobalRef
             inline T __apply() { return (T)(size_t)value; }
+            inline T __apply__tm__(x10tm::TMThread *SelfTM) { return (T)(size_t)value; }
 
             GlobalRef<T>* operator->() { return this; }
         
@@ -62,6 +64,20 @@ namespace x10 {
             x10_int hashCode();
 
             x10::lang::String* typeName();
+
+            x10_boolean equals__tm__(x10tm::TMThread *SelfTM, x10::lang::Any* that) { return _struct_equals__tm__(SelfTM, that); }
+
+			x10_boolean equals__tm__(x10tm::TMThread *SelfTM, GlobalRef<T> that) { return _struct_equals__tm__(SelfTM, that); }
+
+			x10_boolean _struct_equals__tm__(x10tm::TMThread *SelfTM, x10::lang::Any*);
+
+			x10_boolean _struct_equals__tm__(x10tm::TMThread *SelfTM, GlobalRef<T> that);
+
+			x10::lang::String* toString__tm__(x10tm::TMThread *SelfTM);
+
+			x10_int hashCode__tm__(x10tm::TMThread *SelfTM);
+
+			x10::lang::String* typeName__tm__(x10tm::TMThread *SelfTM);
         };
 
         template <> class GlobalRef<void> {
@@ -92,9 +108,13 @@ namespace x10 {
 
         template<class T> x10::lang::Any::itable<GlobalRef<T> >
             GlobalRef<T>::itable(&GlobalRef<T>::equals,
+            					 &GlobalRef<T>::equals__tm__,
                                  &GlobalRef<T>::hashCode,
+                                 &GlobalRef<T>::hashCode__tm__,
                                  &GlobalRef<T>::toString,
-                                 &GlobalRef<T>::typeName);
+                                 &GlobalRef<T>::toString__tm__,
+                                 &GlobalRef<T>::typeName,
+                                 &GlobalRef<T>::typeName__tm__);
 
         template<class T> class GlobalRef_iboxithunk0 : public x10::lang::IBox<x10::lang::GlobalRef<T> > {
         public:
@@ -111,13 +131,29 @@ namespace x10 {
             x10::lang::String* typeName() {
                 return this->value->typeName();
             }
+            x10_boolean equals__tm__(x10tm::TMThread *SelfTM, x10::lang::Any* arg0) {
+				return this->value->equals__tm__(SelfTM, arg0);
+			}
+			x10_int hashCode__tm__(x10tm::TMThread *SelfTM) {
+				return this->value->hashCode__tm__(SelfTM);
+			}
+			x10::lang::String* toString__tm__(x10tm::TMThread *SelfTM) {
+				return this->value->toString__tm__(SelfTM);
+			}
+			x10::lang::String* typeName__tm__(x10tm::TMThread *SelfTM) {
+				return this->value->typeName__tm__(SelfTM);
+			}
         };
 
         template<class T> x10::lang::Any::itable<GlobalRef_iboxithunk0<T> >
             GlobalRef_iboxithunk0<T>::itable(&GlobalRef_iboxithunk0<T>::equals,
+            								 &GlobalRef_iboxithunk0<T>::equals__tm__,
                                              &GlobalRef_iboxithunk0<T>::hashCode,
+                                             &GlobalRef_iboxithunk0<T>::hashCode__tm__,
                                              &GlobalRef_iboxithunk0<T>::toString,
-                                             &GlobalRef_iboxithunk0<T>::typeName);
+                                             &GlobalRef_iboxithunk0<T>::toString__tm__,
+                                             &GlobalRef_iboxithunk0<T>::typeName,
+                                             &GlobalRef_iboxithunk0<T>::typeName__tm__);
     }
 }
 
@@ -169,6 +205,32 @@ template<class T> x10::lang::String* x10::lang::GlobalRef<T>::typeName() {
     char* tmp = x10aux::alloc_printf("x10.lang.GlobalRef<%s>", x10aux::getRTT<T>()->name());
     return x10::lang::String::Steal(tmp);
 }
+
+template<class T> x10_boolean x10::lang::GlobalRef<T>::_struct_equals__tm__(x10tm::TMThread *SelfTM, x10::lang::Any* that) {
+    if ((!(x10aux::instanceof<x10::lang::GlobalRef<T> >(that)))) {
+        return false;
+    }
+    return _struct_equals__tm__(SelfTM, x10aux::class_cast<x10::lang::GlobalRef<T> >(that));
+}
+
+template<class T> x10_boolean x10::lang::GlobalRef<T>::_struct_equals__tm__(x10tm::TMThread *SelfTM, x10::lang::GlobalRef<T> that) {
+    return (location == that->location) && x10aux::struct_equals(value, that->value);
+}
+
+template<class T> x10::lang::String* x10::lang::GlobalRef<T>::toString__tm__(x10tm::TMThread *SelfTM) {
+    char* tmp = x10aux::alloc_printf("x10.lang.GlobalRef<%s>", x10aux::getRTT<T>()->name());
+    return x10::lang::String::Steal(tmp);
+}
+
+template<class T> x10_int x10::lang::GlobalRef<T>::hashCode__tm__(x10tm::TMThread *SelfTM) {
+    return (x10_int)value;
+}
+
+template<class T> x10::lang::String* x10::lang::GlobalRef<T>::typeName__tm__(x10tm::TMThread *SelfTM) {
+    char* tmp = x10aux::alloc_printf("x10.lang.GlobalRef<%s>", x10aux::getRTT<T>()->name());
+    return x10::lang::String::Steal(tmp);
+}
+
 
 template<class T> x10aux::RuntimeType x10::lang::GlobalRef<T>::rtt;
 

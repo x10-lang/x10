@@ -43,8 +43,10 @@ namespace x10 {
             }
 
             virtual void _constructor (void) { }
+            virtual void _constructor__tm__ (x10tm::TMThread *SelfTM) { }
 
             static Lock__ReentrantLock* _make();
+            static Lock__ReentrantLock* _make__tm__(x10tm::TMThread *SelfTM);
             ~Lock__ReentrantLock() { }
 
         public:
@@ -58,6 +60,7 @@ namespace x10 {
             * blocks until the lock is available.
             */
             void lock() { _lock.lock(); }
+            void lock__tm__(x10tm::TMThread *SelfTM) { _lock.lock(); }
 
 
             /**
@@ -69,6 +72,7 @@ namespace x10 {
              * IllegalMonitorStateException is thrown.
              */
             void unlock() { if (!_lock.unlock()) raiseException(); }
+            void unlock__tm__(x10tm::TMThread *SelfTM) { if (!_lock.unlock()) raiseException(); }
                 
 
             /**
@@ -84,6 +88,7 @@ namespace x10 {
              * return immediately with the value false.
              */
             x10_boolean tryLock() { return _lock.tryLock(); }
+            x10_boolean tryLock__tm__(x10tm::TMThread *SelfTM) { return _lock.tryLock(); }
 
             /**
              * Queries the number of holds on this lock by the calling thread.
@@ -92,6 +97,7 @@ namespace x10 {
              * Returns zero if this lock is not held by the calling thread.
              */
             x10_int getHoldCount() { return _lock.getHoldCount(); }
+            x10_int getHoldCount__tm__(x10tm::TMThread *SelfTM) { return _lock.getHoldCount(); }
 
         private:
             x10aux::reentrant_lock _lock;

@@ -27,6 +27,15 @@ namespace x10 {
             static x10_int compareTo(x10_ulong v1, x10_ulong v2) {
                 return v1 == v2 ? 0 : (v1 < v2 ? -1 : 1);
             }
+
+            ////
+            static String* toString__tm__(x10tm::TMThread *SelfTM, x10_ulong value, x10_int radix);
+			static String* toString__tm__(x10tm::TMThread *SelfTM, x10_ulong value);
+			static x10_ulong parseULong__tm__(x10tm::TMThread *SelfTM, String* s, x10_int radix);
+			static x10_ulong parseULong__tm__(x10tm::TMThread *SelfTM, String* s) { return parseULong(s, 10); }
+			static x10_int compareTo__tm__(x10tm::TMThread *SelfTM, x10_ulong v1, x10_ulong v2) {
+				return v1 == v2 ? 0 : (v1 < v2 ? -1 : 1);
+			}
         };
     }
 }

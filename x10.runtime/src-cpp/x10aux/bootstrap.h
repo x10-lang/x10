@@ -45,6 +45,10 @@ namespace x10aux {
             // Invoke the application main().
             main(args);
         }
+        void __apply__tm__ (x10tm::TMThread *SelfTM) {
+            // Invoke the application main().
+        	main(args);
+        }
 
         BootStrapClosure(ApplicationMainFunction main_,
                          x10::array::Array<x10::lang::String*>* args_)
@@ -56,6 +60,10 @@ namespace x10aux {
         x10::lang::String* toString() {
             return x10::lang::String::Lit("x10aux::BootStrapClosure ("__FILELINE__")");
         }
+
+        x10::lang::String* toString__tm__(x10tm::TMThread *SelfTM) {
+                    return x10::lang::String::Lit("x10aux::BootStrapClosure ("__FILELINE__")");
+                }
 
         virtual x10aux::serialization_id_t _get_serialization_id() {
             assert(false); // We should never be serializing this closure

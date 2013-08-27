@@ -43,6 +43,30 @@ namespace x10 {
             static inline x10_float mod(x10_float a, x10_float b) {
                 return (x10_float)::fmodf(a, b);
             }
+
+            ////
+            static String* toHexString__tm__(x10tm::TMThread *SelfTM, x10_float value);
+			static String* toString__tm__(x10tm::TMThread *SelfTM, x10_float value);
+			static x10_float parseFloat__tm__(x10tm::TMThread *SelfTM, String* s);
+			static x10_boolean isNaN__tm__(x10tm::TMThread *SelfTM, x10_float value);
+			static x10_boolean isInfinite__tm__(x10tm::TMThread *SelfTM, x10_float value);
+			static x10_int toIntBits__tm__(x10tm::TMThread *SelfTM, x10_float value);
+			static x10_int toRawIntBits__tm__(x10tm::TMThread *SelfTM, x10_float value);
+			static x10_float fromIntBits__tm__(x10tm::TMThread *SelfTM, x10_int value);
+			static inline x10_int compareTo__tm__(x10tm::TMThread *SelfTM, x10_float v1, x10_float v2) {
+				return v1 == v2 ? 0 : (v1 < v2 ? -1 : 1);
+			}
+			static x10_byte toByte__tm__(x10tm::TMThread *SelfTM, x10_float value);
+			static x10_ubyte toUByte__tm__(x10tm::TMThread *SelfTM, x10_float value);
+			static x10_short toShort__tm__(x10tm::TMThread *SelfTM, x10_float value);
+			static x10_ushort toUShort__tm__(x10tm::TMThread *SelfTM, x10_float value);
+			static x10_int toInt__tm__(x10tm::TMThread *SelfTM, x10_float value);
+			static x10_uint toUInt__tm__(x10tm::TMThread *SelfTM, x10_float value);
+			static x10_long toLong__tm__(x10tm::TMThread *SelfTM, x10_float value);
+			static x10_ulong toULong__tm__(x10tm::TMThread *SelfTM, x10_float value);
+			static inline x10_float mod__tm__(x10tm::TMThread *SelfTM, x10_float a, x10_float b) {
+				return (x10_float)::fmodf(a, b);
+			}
         };
     }
 }

@@ -82,7 +82,33 @@ CheckedThrowable* CheckedThrowable::_make(String* message, CheckedThrowable* cau
     return (new (x10aux::alloc<CheckedThrowable>()) CheckedThrowable())->_constructor(message, cause);
 }
 
+CheckedThrowable* CheckedThrowable::_make__tm__(x10tm::TMThread *SelfTM) {
+    return (new (x10aux::alloc<CheckedThrowable>()) CheckedThrowable())->_constructor();
+}
+
+CheckedThrowable* CheckedThrowable::_make__tm__(x10tm::TMThread *SelfTM, String* message) {
+    return (new (x10aux::alloc<CheckedThrowable>()) CheckedThrowable())->_constructor(message);
+}
+
+CheckedThrowable* CheckedThrowable::_make__tm__(x10tm::TMThread *SelfTM, CheckedThrowable* cause) {
+    return (new (x10aux::alloc<CheckedThrowable>()) CheckedThrowable())->_constructor(cause);
+}
+
+CheckedThrowable* CheckedThrowable::_make__tm__(x10tm::TMThread *SelfTM, String* message, CheckedThrowable* cause) {
+    return (new (x10aux::alloc<CheckedThrowable>()) CheckedThrowable())->_constructor(message, cause);
+}
+
+
 CheckedThrowable* CheckedThrowable::_constructor(String* message, CheckedThrowable* cause) {
+    this->FMGL(message) = message;
+    this->FMGL(cause) = cause;
+    this->FMGL(trace_size) = -1;
+    this->FMGL(trace) = NULL;
+    this->FMGL(cachedStackTrace) = NULL;
+    return this;
+}
+
+CheckedThrowable* CheckedThrowable::_constructor__tm__(x10tm::TMThread *Self, String* message, CheckedThrowable* cause) {
     this->FMGL(message) = message;
     this->FMGL(cause) = cause;
     this->FMGL(trace_size) = -1;
