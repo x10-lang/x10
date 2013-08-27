@@ -394,7 +394,9 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
             w.write(n.dims().get(0).toString());
             w.write(")");
             */
-            w.write("new java.lang.Object[" + n.dims().get(0) + "]");
+            w.write("new java.lang.Object[");
+            er.prettyPrint(n.dims().get(0), tr);
+            w.write("]");
             return;
         }
         w.write("new ");
