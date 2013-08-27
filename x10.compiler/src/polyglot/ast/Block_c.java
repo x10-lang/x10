@@ -29,9 +29,10 @@ import x10cuda.types.CUDAData;
  * sequence of statements.
  */
 public class Block_c extends AbstractBlock_c implements Block
-{
-    public Block_c(Position pos, List<Stmt> statements) {
-	super(pos, statements);
+{   
+	
+	public Block_c(Position pos, List<Stmt> statements) {
+		super(pos, statements);
     }
 
     /** Write the block to an output file. */

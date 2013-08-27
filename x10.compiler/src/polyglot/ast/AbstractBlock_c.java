@@ -26,8 +26,9 @@ import polyglot.visit.*;
  */
 public abstract class AbstractBlock_c extends Stmt_c implements Block
 {
-    protected List<Stmt> statements;
-
+	protected List<Stmt> statements;
+	public boolean is_tm_block = false;
+	
     public AbstractBlock_c(Position pos, List<Stmt> statements) {
 	super(pos);
 	assert(statements != null);
@@ -43,6 +44,7 @@ public abstract class AbstractBlock_c extends Stmt_c implements Block
     public Block statements(List<Stmt> statements) {
 	AbstractBlock_c n = (AbstractBlock_c) copy();
 	n.statements = TypedList.copyAndCheck(statements, Stmt.class, true);
+	n.is_tm_block = this.is_tm_block;
 	return n;
     }
 
@@ -67,6 +69,7 @@ public abstract class AbstractBlock_c extends Stmt_c implements Block
 	if (! CollectionUtil.allEqual(statements, this.statements)) {
 	    AbstractBlock_c n = (AbstractBlock_c) copy();
 	    n.statements = TypedList.copyAndCheck(statements, Stmt.class, true);
+	    n.is_tm_block = this.is_tm_block;
 	    return n;
 	}
 

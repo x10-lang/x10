@@ -20,6 +20,7 @@ import java.util.Stack;
 
 import polyglot.ast.Assign;
 import polyglot.ast.Block;
+import polyglot.ast.Block_c;
 import polyglot.ast.Call;
 import polyglot.ast.CanonicalTypeNode;
 import polyglot.ast.Catch;
@@ -42,6 +43,7 @@ import polyglot.ast.Return;
 import polyglot.ast.Stmt;
 import polyglot.ast.Throw;
 import polyglot.ast.Try;
+import polyglot.ast.Try_c;
 import polyglot.ast.TypeNode;
 import polyglot.ast.Unary;
 import polyglot.frontend.Job;
@@ -167,8 +169,10 @@ public class Lowerer extends ContextVisitor {
     
     private static final Name AWAIT_ATOMIC = Name.make("awaitAtomic");
     private static final Name ENTER_ATOMIC = Name.make("enterAtomic");
+    private static final Name ENTER_TM = Name.make("enterTM");
     private static final Name ENSURE_NOT_IN_ATOMIC = Name.make("ensureNotInAtomic");
     private static final Name EXIT_ATOMIC = Name.make("exitAtomic");
+    private static final Name EXIT_TM = Name.make("exitTM");
     
     private static final Name START_FINISH = Name.make("startFinish");
     private static final Name PUSH_EXCEPTION = Name.make("pushException");
@@ -182,6 +186,7 @@ public class Lowerer extends ContextVisitor {
     private static final Name XOR = Name.make("xor");
     private static final Name FENCE = Name.make("fence");
     private static final QName IMMEDIATE = QName.make("x10.compiler.Immediate");
+    private static final QName TRANSACTION = QName.make("x10.compiler.Transaction");
     private static final QName PRAGMA = QName.make("x10.compiler.Pragma");
     private static final QName REF = QName.make("x10.compiler.Ref");
     private static final QName UNCOUNTED = QName.make("x10.compiler.Uncounted");
@@ -876,10 +881,22 @@ public class Lowerer extends ContextVisitor {
 
     // atomic S; -> try { Runtime.enterAtomic(); S } finally { Runtime.exitAtomic(); }
     private Stmt visitAtomic(Atomic a) throws SemanticException {
-        Position pos = a.position();
-        Block tryBlock = nf.Block(pos, nf.Eval(pos, call(pos, ENTER_ATOMIC, ts.Void())), a.body());
-        Block finallyBlock = nf.Block(pos, nf.Eval(pos, call(pos, EXIT_ATOMIC, ts.Void())));
-        return nf.Try(pos, tryBlock, Collections.<Catch>emptyList(), finallyBlock);
+    	Try_c t;
+    	if (AnnotationUtils.hasAnnotation(ts, a, TRANSACTION)) {
+    		Position pos = a.position();
+	        Block tryBlock = nf.Block(pos, nf.Eval(pos, call(pos, ENTER_TM, ts.Void())), a.body());
+	        ((Block_c)tryBlock).is_tm_block = true;
+	        Block finallyBlock = nf.Block(pos, nf.Eval(pos, call(pos, EXIT_TM, ts.Void())));
+	        t = (Try_c)nf.Try(pos, tryBlock, Collections.<Catch>emptyList(), finallyBlock);
+	        
+    	} else {
+	    	Position pos = a.position();
+	        Block tryBlock = nf.Block(pos, nf.Eval(pos, call(pos, ENTER_ATOMIC, ts.Void())), a.body());
+	        Block finallyBlock = nf.Block(pos, nf.Eval(pos, call(pos, EXIT_ATOMIC, ts.Void())));
+	        t = (Try_c)nf.Try(pos, tryBlock, Collections.<Catch>emptyList(), finallyBlock);
+	        
+    	}
+        return t;
     }
 
     private Stmt wrap(Position pos, Stmt s) {

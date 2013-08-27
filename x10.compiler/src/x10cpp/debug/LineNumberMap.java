@@ -264,7 +264,7 @@ public class LineNumberMap extends StringTable {
 		}
 		MethodDescriptor src = createMethodDescriptor(sc, sn, sr, sa, new Key(-1, -1, lastX10Line));
 		String tc = Emitter.translateType(c);
-		String tn = n == null ? "_constructor" : Emitter.mangled_method_name(n);
+		String tn = n == null ? "_constructor" : Emitter.mangled_method_name(n, false);
 		String tr = r == null ? "void" : Emitter.translateType(r, true);
 		String[] ta = new String[sa.length];
 		for (int i = 0; i < ta.length; i++) {

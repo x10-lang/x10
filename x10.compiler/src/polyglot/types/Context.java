@@ -110,7 +110,7 @@ import x10.util.CollectionFactory;
  */
 public class Context implements Resolver, Cloneable
 {
-    /**
+	/**
      * The prefix for compiler generated variables. No user-specified
      * type or package or parameter name or local variable should begin
      * with this prefix.
@@ -166,7 +166,9 @@ public class Context implements Resolver, Cloneable
     public static final Kind SOURCE = Kind.SOURCE;
     private static final Collection<String> TOPICS = 
         CollectionUtil.list(Reporter.types, Reporter.context);
-
+    
+    public boolean is_inside_tm = false;
+    public boolean is_tm_init_self = false;
     protected Context outer;
     protected TypeSystem ts;
     protected Reporter reporter;
