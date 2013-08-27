@@ -26,6 +26,8 @@ public final class Deserializer implements Unserializable {
     /**
      * Create a Deserializer that will read serialized values
      * from the argument Serializer.
+     * NOTE: After being used to construct a Deserializer, 
+     *       the Serializer instance may no longer support calls to writeAny.
      */
     public native def this(Serializer);
 

@@ -49,6 +49,11 @@ public final class X10JavaDeserializer implements SerializationConstants {
     }
     
     private void init(X10JavaSerializer js) {
+        try {
+            js.prepareMessage(true);
+        } catch (IOException e) {
+            throw new RuntimeException("Error initializing deserializer",e);
+        }
         in = new DataInputStream(new ByteArrayInputStream(js.getDataBytes()));
         dict = new LocalDeserializationDictionary(js.idDictionary, SharedDictionaries.getDeserializationDictionary());
     }
