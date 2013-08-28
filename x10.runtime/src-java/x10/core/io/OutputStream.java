@@ -44,8 +44,6 @@ public class OutputStream extends Ref {
     }
 
     public final OutputStream x10$io$OutputStreamWriter$OutputStream$$init$S(java.io.OutputStream stream) {
-        // Note: enable buffering for performance
-        if (stream != null && !(stream instanceof java.io.BufferedOutputStream)) stream = new java.io.BufferedOutputStream(stream);
         this.stream = stream;
         return this;
     }
