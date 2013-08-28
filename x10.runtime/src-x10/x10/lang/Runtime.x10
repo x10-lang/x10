@@ -14,6 +14,7 @@ package x10.lang;
 import x10.compiler.Native;
 import x10.compiler.Inline;
 import x10.compiler.Pragma;
+import x10.compiler.Transaction;
 import x10.compiler.StackAllocate;
 import x10.compiler.NativeCPPInclude;
 
@@ -1019,7 +1020,28 @@ public final class Runtime {
         if (a != null)
            a.pushAtomic();
     }
-
+    
+    @Native("c++", "x10tm::tm_system_init()")
+    public static native def initTMSystem():void;
+    
+    @Native("c++", "x10tm::tm_system_finish()")
+    public static native def finishTMSystem():void;
+    
+    @Native("c++", "x10tm::TMThread *SelfTM = x10tm::tm_get_self(x10aux::here, x10tm::tm_get_next_thread_id() )")
+    public static native def initTMThread():void;
+    
+    @Native("c++", "x10tm::tm_thread_finish(SelfTM)")
+    public static native def finishTMThread():void;
+    
+    @Native("c++", "x10tm::tm_thread_get_uniq_id(SelfTM)")
+    public static native def getTMThreadUniqId():int;
+    
+    @Native("c++", "TM_START(SelfTM, {})")
+    public static native def enterTM():void;
+    
+    @Native("c++", "TM_END(SelfTM)")
+    public static native def exitTM():void;
+    
     public static def ensureNotInAtomic() {
         val a = activity();
         if (a != null)

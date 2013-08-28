@@ -39,6 +39,12 @@ namespace x10 {
             virtual void write(x10::util::IndexedMemoryChunk<x10_byte> b);
             virtual void write(x10::util::IndexedMemoryChunk<x10_byte> b, x10_int off, x10_int len);
 
+            virtual void close__tm__(x10tm::TMThread *SelfTM) { }
+			virtual void flush__tm__(x10tm::TMThread *SelfTM) { }
+			virtual void write__tm__(x10tm::TMThread *SelfTM, x10_int b) = 0;
+			virtual void write__tm__(x10tm::TMThread *SelfTM, x10::util::IndexedMemoryChunk<x10_byte> b);
+			virtual void write__tm__(x10tm::TMThread *SelfTM, x10::util::IndexedMemoryChunk<x10_byte> b, x10_int off, x10_int len);
+
             static OutputStreamWriter__OutputStream* STANDARD_OUT();
 
             static OutputStreamWriter__OutputStream* STANDARD_ERR();

@@ -39,6 +39,27 @@ namespace x10 {
             static inline x10_int compareTo(x10_char v1, x10_char v2) {
                 return v1 == v2 ? 0 : v1 < v2 ? -1 : 1;
             }
+
+            ///
+            static x10_boolean isLowerCase__tm__(x10_char value);
+			static x10_boolean isUpperCase__tm__(x10_char value);
+			static x10_boolean isTitleCase__tm__(x10_char value);
+			static x10_boolean isDigit__tm__(x10_char value);
+			static x10_boolean isLetter__tm__(x10_char value);
+			static x10_boolean isLetterOrDigit__tm__(x10_char value);
+			static x10_boolean isUnicodeIdentifierStart__tm__(x10_char value);
+			static x10_boolean isUnicodeIdentifierPart__tm__(x10_char value);
+			static x10_boolean isUnicodeIdentifierIgnorable__tm__(x10_char value);
+			static x10_boolean isSpaceChar__tm__(x10_char value);
+			static x10_boolean isWhitespace__tm__(x10_char value);
+			static x10_boolean isISOControl__tm__(x10_char value);
+			static x10_char toLowerCase__tm__(x10_char value);
+			static x10_char toUpperCase__tm__(x10_char value);
+			static x10_char toTitleCase__tm__(x10_char value);
+			static x10_char reverseBytes__tm__(x10_char value);
+			static inline x10_int compareTo__tm__(x10_char v1, x10_char v2) {
+				return v1 == v2 ? 0 : v1 < v2 ? -1 : 1;
+			}
         };
     }
 }

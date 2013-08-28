@@ -43,6 +43,19 @@ x10_int InputStreamReader__InputStream::read(x10::util::IndexedMemoryChunk<x10_b
     return i;
 }
 
+x10_int InputStreamReader__InputStream::read__tm__(x10tm::TMThread *SelfTM, x10::util::IndexedMemoryChunk<x10_byte> b) {
+    return this->read(b, 0, b->length());
+}
+
+x10_int InputStreamReader__InputStream::read__tm__(x10tm::TMThread *SelfTM, x10::util::IndexedMemoryChunk<x10_byte> b,
+                                             x10_int off, x10_int len) {
+    x10_int val;
+    x10_int i;
+    for (i = 0; i < len && (val = this->read()) != -1; i++)
+        b->operator[](off + i) = (x10_byte) (val & 0xFF);
+    return i;
+}
+
 void InputStreamReader__InputStream::_serialize_body(x10aux::serialization_buffer& buf) {
 }
 

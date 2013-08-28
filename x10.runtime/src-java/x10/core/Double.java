@@ -21,141 +21,214 @@ import x10.serialization.X10JavaSerializable;
 import x10.serialization.X10JavaSerializer;
 
 /**
- * Represents a boxed Double value. Boxed representation is used when casting
- * an Double value to type Any, parameter type T or superinterfaces such
- * as Comparable<Double>.
+ * Represents a boxed Double value. Boxed representation is used when casting an
+ * Double value to type Any, parameter type T or superinterfaces such as
+ * Comparable<Double>.
  */
-final public class Double extends java.lang.Number implements StructI, java.lang.Comparable<Double>,
-// for X10PrettyPrinterVisitor.exposeSpecialDispatcherThroughSpecialInterface
-//    x10.lang.Arithmetic<Double>, x10.util.Ordered<Double>
-    x10.core.Arithmetic.x10$lang$Double, x10.util.Ordered<Double>
-{
-    private static final long serialVersionUID = 1L;
-    
-    public static final RuntimeType<?> $RTT = Types.DOUBLE;
-    public RuntimeType<?> $getRTT() {return $RTT;}
-    public Type<?> $getParam(int i) {return null;}
+final public class Double extends java.lang.Number implements StructI,
+		java.lang.Comparable<Double>,
+		// for
+		// X10PrettyPrinterVisitor.exposeSpecialDispatcherThroughSpecialInterface
+		// x10.lang.Arithmetic<Double>, x10.util.Ordered<Double>
+		x10.core.Arithmetic.x10$lang$Double, x10.util.Ordered<Double> {
+	private static final long serialVersionUID = 1L;
 
-    final double $value;
+	public static final RuntimeType<?> $RTT = Types.DOUBLE;
 
-    private Double(double value) {
-        this.$value = value;
-    }
+	public RuntimeType<?> $getRTT() {
+		return $RTT;
+	}
 
-    public static Double $box(double value) { // int because literals essentially have int type in Java
-        return new Double(value);
-    }
+	public Type<?> $getParam(int i) {
+		return null;
+	}
 
-    public static double $unbox(Double obj) {
-        return obj.$value;
-    }
-    
-    public static double $unbox(Object obj) {
-        if (obj instanceof Double) return ((Double)obj).$value;
-        else return ((java.lang.Double)obj).doubleValue();
-    }
-    
-    // make $box/$unbox idempotent
-    public static Double $box(Double obj) {
-        return obj;
-    }
+	final double $value;
 
-    public static Double $box(Object obj) {
-        if (obj instanceof Double) return (Double) obj;
-        else return $box(((java.lang.Double)obj).doubleValue());
-    }
+	private Double(double value) {
+		this.$value = value;
+	}
 
-    public static double $unbox(double value) {
-        return value;
-    }
-    
-    public boolean _struct_equals$O(Object obj) {
-        if (obj instanceof Double && ((Double) obj).$value == $value)
-            return true;
-        return false;
-    }
-    
-    @Override
-    public boolean equals(Object value) {
-        if (value instanceof Double) {
-            return ((Double) value).$value == $value;
-        } else if (value instanceof java.lang.Double) {
-            return ((java.lang.Double) value).doubleValue() == $value;
-        }
-        return false;
-    }
-    
-    @Override
-    public int hashCode() {
-        return (int)$value;
-    }
+	public static Double $box(double value) { // int because literals
+												// essentially have int type in
+												// Java
+		return new Double(value);
+	}
 
-    @Override
-    public java.lang.String toString() {
-        return java.lang.Double.toString($value);
-    }
-    
-    // implements Comparable<Double>
-    public int compareTo(Double o) {
-        if ($value > o.$value) return 1;
-        else if ($value < o.$value) return -1;
-        return 0;
-    }
-    
-    // implements Arithmetic<Double>
-    public Double $plus$G() { return this; }
-    public Double $minus$G() { return Double.$box(-$value); }
-    public Double $plus(java.lang.Object b, Type t) { return Double.$box($value + ((Double)b).$value); }
-    public Double $minus(java.lang.Object b, Type t) { return Double.$box($value - ((Double)b).$value); }
-    public Double $times(java.lang.Object b, Type t) { return Double.$box($value * ((Double)b).$value); }
-    public Double $over(java.lang.Object b, Type t) { return Double.$box($value / ((Double)b).$value); }
-    // for X10PrettyPrinterVisitor.exposeSpecialDispatcherThroughSpecialInterface
-    public double $plus$D(java.lang.Object b, Type t) { return $value + ((Double)b).$value; }
-    public double $minus$D(java.lang.Object b, Type t) { return $value - ((Double)b).$value; }
-    public double $times$D(java.lang.Object b, Type t) { return $value * ((Double)b).$value; }
-    public double $over$D(java.lang.Object b, Type t) { return $value / ((Double)b).$value; }
-    
-    // implements Ordered<Double>
-    public java.lang.Object $lt(java.lang.Object b, Type t) { return x10.core.Boolean.$box($value < ((Double)b).$value); }
-    public java.lang.Object $gt(java.lang.Object b, Type t) { return x10.core.Boolean.$box($value > ((Double)b).$value); }
-    public java.lang.Object $le(java.lang.Object b, Type t) { return x10.core.Boolean.$box($value <= ((Double)b).$value); }
-    public java.lang.Object $ge(java.lang.Object b, Type t) { return x10.core.Boolean.$box($value >= ((Double)b).$value); }
-    // for X10PrettyPrinterVisitor.generateSpecialDispatcher
-    public boolean $lt$Z(java.lang.Object b, Type t) { return $value < ((Double)b).$value; }
-    public boolean $gt$Z(java.lang.Object b, Type t) { return $value > ((Double)b).$value; }
-    public boolean $le$Z(java.lang.Object b, Type t) { return $value <= ((Double)b).$value; }
-    public boolean $ge$Z(java.lang.Object b, Type t) { return $value >= ((Double)b).$value; }
+	public static double $unbox(Double obj) {
+		return obj.$value;
+	}
 
-    // extends abstract class java.lang.Number
-    @Override
-    public int intValue() {
-        return (int)$value;
-    }
-    @Override
-    public long longValue() {
-        return (long)$value;
-    }
-    @Override
-    public float floatValue() {
-        return (float)$value;
-    }
-    @Override
-    public double doubleValue() {
-        return (double)$value;
-    }
+	public static double $unbox(Object obj) {
+		if (obj instanceof Double)
+			return ((Double) obj).$value;
+		else
+			return ((java.lang.Double) obj).doubleValue();
+	}
 
-    public void $_serialize(X10JavaSerializer $serializer) throws IOException {
-        $serializer.write($value);
-    }
+	// make $box/$unbox idempotent
+	public static Double $box(Double obj) {
+		return obj;
+	}
 
-    public static X10JavaSerializable $_deserializer(X10JavaDeserializer $deserializer) throws IOException {
-        return $_deserialize_body(null, $deserializer);
-    }
+	public static Double $box(Object obj) {
+		if (obj instanceof Double)
+			return (Double) obj;
+		else
+			return $box(((java.lang.Double) obj).doubleValue());
+	}
 
-    public static X10JavaSerializable $_deserialize_body(Double $_obj, X10JavaDeserializer $deserializer) throws IOException {
-        double value  = $deserializer.readDouble();
-        $_obj = new Double(value);
-        $deserializer.record_reference($_obj);
-        return $_obj;
-    }
+	public static double $unbox(double value) {
+		return value;
+	}
+
+	public boolean _struct_equals$O(Object obj) {
+		if (obj instanceof Double && ((Double) obj).$value == $value)
+			return true;
+		return false;
+	}
+
+	@Override
+	public boolean equals(Object value) {
+		if (value instanceof Double) {
+			return ((Double) value).$value == $value;
+		} else if (value instanceof java.lang.Double) {
+			return ((java.lang.Double) value).doubleValue() == $value;
+		}
+		return false;
+	}
+
+	@Override
+	public int hashCode() {
+		return (int) $value;
+	}
+
+	@Override
+	public java.lang.String toString() {
+		return java.lang.Double.toString($value);
+	}
+
+	// implements Comparable<Double>
+	public int compareTo(Double o) {
+		if ($value > o.$value)
+			return 1;
+		else if ($value < o.$value)
+			return -1;
+		return 0;
+	}
+
+	// implements Arithmetic<Double>
+	public Double $plus$G() {
+		return this;
+	}
+
+	public Double $minus$G() {
+		return Double.$box(-$value);
+	}
+
+	public Double $plus(java.lang.Object b, Type t) {
+		return Double.$box($value + ((Double) b).$value);
+	}
+
+	public Double $minus(java.lang.Object b, Type t) {
+		return Double.$box($value - ((Double) b).$value);
+	}
+
+	public Double $times(java.lang.Object b, Type t) {
+		return Double.$box($value * ((Double) b).$value);
+	}
+
+	public Double $over(java.lang.Object b, Type t) {
+		return Double.$box($value / ((Double) b).$value);
+	}
+
+	// for
+	// X10PrettyPrinterVisitor.exposeSpecialDispatcherThroughSpecialInterface
+	public double $plus$D(java.lang.Object b, Type t) {
+		return $value + ((Double) b).$value;
+	}
+
+	public double $minus$D(java.lang.Object b, Type t) {
+		return $value - ((Double) b).$value;
+	}
+
+	public double $times$D(java.lang.Object b, Type t) {
+		return $value * ((Double) b).$value;
+	}
+
+	public double $over$D(java.lang.Object b, Type t) {
+		return $value / ((Double) b).$value;
+	}
+
+	// implements Ordered<Double>
+	public java.lang.Object $lt(java.lang.Object b, Type t) {
+		return x10.core.Boolean.$box($value < ((Double) b).$value);
+	}
+
+	public java.lang.Object $gt(java.lang.Object b, Type t) {
+		return x10.core.Boolean.$box($value > ((Double) b).$value);
+	}
+
+	public java.lang.Object $le(java.lang.Object b, Type t) {
+		return x10.core.Boolean.$box($value <= ((Double) b).$value);
+	}
+
+	public java.lang.Object $ge(java.lang.Object b, Type t) {
+		return x10.core.Boolean.$box($value >= ((Double) b).$value);
+	}
+
+	// for X10PrettyPrinterVisitor.generateSpecialDispatcher
+	public boolean $lt$Z(java.lang.Object b, Type t) {
+		return $value < ((Double) b).$value;
+	}
+
+	public boolean $gt$Z(java.lang.Object b, Type t) {
+		return $value > ((Double) b).$value;
+	}
+
+	public boolean $le$Z(java.lang.Object b, Type t) {
+		return $value <= ((Double) b).$value;
+	}
+
+	public boolean $ge$Z(java.lang.Object b, Type t) {
+		return $value >= ((Double) b).$value;
+	}
+
+	// extends abstract class java.lang.Number
+	@Override
+	public int intValue() {
+		return (int) $value;
+	}
+
+	@Override
+	public long longValue() {
+		return (long) $value;
+	}
+
+	@Override
+	public float floatValue() {
+		return (float) $value;
+	}
+
+	@Override
+	public double doubleValue() {
+		return (double) $value;
+	}
+
+	public void $_serialize(X10JavaSerializer $serializer) throws IOException {
+		$serializer.write($value);
+	}
+
+	public static X10JavaSerializable $_deserializer(
+			X10JavaDeserializer $deserializer) throws IOException {
+		return $_deserialize_body(null, $deserializer);
+	}
+
+	public static X10JavaSerializable $_deserialize_body(Double $_obj,
+			X10JavaDeserializer $deserializer) throws IOException {
+		double value = $deserializer.readDouble();
+		$_obj = new Double(value);
+		$deserializer.record_reference($_obj);
+		return $_obj;
+	}
 }

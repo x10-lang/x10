@@ -29,6 +29,11 @@ Lock__ReentrantLock* Lock__ReentrantLock::_make() {
     return this_;
 }
 
+Lock__ReentrantLock* Lock__ReentrantLock::_make__tm__(x10tm::TMThread *SelfTM) {
+    Lock__ReentrantLock* this_ = new (x10aux::alloc<Lock__ReentrantLock>()) Lock__ReentrantLock();
+    return this_;
+}
+
 void
 Lock__ReentrantLock::raiseException() {
     throwException<IllegalOperationException>();

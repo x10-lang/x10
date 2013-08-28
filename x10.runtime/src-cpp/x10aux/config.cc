@@ -13,6 +13,190 @@
 
 #include <cstdlib>
 #include <cstring>
+#include <stdio.h>
+
+//#define TM_DEBUG 1
+//
+//x10_byte x10aux::tm_load_x10_byte(x10_byte * ptr) {
+//#ifdef TM_DEBUG
+//	printf("tm_load_x10_byte: ptr=%p val=%c\n", (void *)ptr, *ptr);
+//#endif
+//	return *ptr;
+//}
+//
+//x10_short x10aux::tm_load_x10_short(x10_short * ptr) {
+//#ifdef TM_DEBUG
+//	printf("tm_load_x10_short: ptr=%p val=%hd\n", (void *)ptr, *ptr);
+//#endif
+//	return *ptr;
+//}
+//
+//x10_int x10aux::tm_load_x10_int(x10_int * ptr) {
+//#ifdef TM_DEBUG
+//	printf("tm_load_x10_int: ptr=%p val=%d\n", (void *)ptr, *ptr);
+//#endif
+//	return *ptr;
+//}
+//
+//x10_long x10aux::tm_load_x10_long(x10_long * ptr) {
+//#ifdef TM_DEBUG
+//	printf("tm_load_x10_long: ptr=%p val=%lld\n", (void *)ptr, *ptr);
+//#endif
+//	return *ptr;
+//}
+//
+//x10_long *x10aux::tm_load_x10_class(x10_long ** ptr) {
+//#ifdef TM_DEBUG
+//	printf("tm_load_x10_class: ptr=%p val=%p\n", (void **)ptr, (void *)*ptr);
+//#endif
+//	return *ptr;
+//}
+//
+//x10_byte x10aux::tm_assign_x10_byte(x10_byte * ptr, x10_byte val) {
+//#ifdef TM_DEBUG
+//	printf("tm_assign_x10_byte: ptr=%p new_val=%c\n", (void *)ptr, val);
+//#endif
+//	*ptr = val;
+//	return val;
+//}
+//
+//x10_short x10aux::tm_assign_x10_short(x10_short * ptr, x10_short val) {
+//#ifdef TM_DEBUG
+//	printf("tm_assign_x10_short: ptr=%p new_val=%hd\n", (void *)ptr, val);
+//#endif
+//	*ptr = val;
+//	return val;
+//}
+//
+//x10_int x10aux::tm_assign_x10_int(x10_int * ptr, x10_int val) {
+//#ifdef TM_DEBUG
+//	printf("tm_assign_x10_int: ptr=%p new_val=%d\n", (void *)ptr, val);
+//#endif
+//	*ptr = val;
+//	return val;
+//}
+//
+//x10_long x10aux::tm_assign_x10_long(x10_long * ptr, x10_long val) {
+//#ifdef TM_DEBUG
+//	printf("tm_assign_x10_long: ptr=%p new_val=%lld\n", (void *)ptr, val);
+//#endif
+//	*ptr = val;
+//	return val;
+//}
+//
+//x10_long *x10aux::tm_assign_x10_class(x10_long ** ptr, x10_long *val) {
+//#ifdef TM_DEBUG
+//	printf("tm_assign_x10_class: ptr=%p new_val=%p\n", (void *)ptr, val);
+//#endif
+//	*ptr = val;
+//	return val;
+//}
+//
+//volatile x10_int x10aux::tm_load_x10_int(volatile x10_int * ptr) {
+//#ifdef TM_DEBUG
+//	printf("tm_load_x10_int: ptr=%p val=%d\n", (void *)ptr, *ptr);
+//#endif
+//	return *ptr;
+//}
+//
+//volatile x10_int x10aux::tm_assign_x10_int(volatile x10_int * ptr, volatile x10_int val) {
+//#ifdef TM_DEBUG
+//	printf("tm_assign_x10_int: ptr=%p new_val=%d\n", (void *)ptr, val);
+//#endif
+//	*ptr = val;
+//	return val;
+//}
+//
+//void x10aux::tm_load_gen(char * ptr, char * p_val, unsigned long type_size) {
+//#ifdef TM_DEBUG
+//	printf("tm_load_gen: ptr=%p type_size=%lu\n", (void *)ptr, type_size);
+//#endif
+//	if (1 == type_size) {
+//		*(x10_byte *)p_val = x10aux::tm_load_x10_byte((x10_byte *)ptr);
+//	} else if (2 == type_size) {
+//		*(x10_short *)p_val = x10aux::tm_load_x10_short((x10_short *)ptr);
+//	} else if (4 == type_size) {
+//		*(x10_int *)p_val = x10aux::tm_load_x10_int((x10_int *)ptr);
+//	} else if (8 == type_size) {
+//		*(x10_long *)p_val = x10aux::tm_load_x10_long((x10_long *)ptr);
+//	} else
+//	{
+//		printf("ERROR: x10aux::tm_load_gen - unknown type_size [%lu]\n", type_size);
+//	}
+//}
+//
+//char g_tm_arr[100] = {0,};
+//
+//char * x10aux::tm_assign_gen(char * ptr, char * p_val, unsigned long type_size) {
+//#ifdef TM_DEBUG
+//	printf("tm_assign_gen: ptr=%p type_size=%lu\n", (void *)ptr, type_size);
+//#endif
+//	for (int i=0; i < type_size; i++)
+//	{
+//		g_tm_arr[i] = p_val[i];
+//	}
+//
+//	if (1 == type_size) {
+//		x10aux::tm_assign_x10_byte((x10_byte *)ptr, *(x10_byte *)p_val);
+//	} else if (2 == type_size) {
+//		x10aux::tm_assign_x10_short((x10_short *)ptr, *(x10_short *)p_val);
+//	} else if (4 == type_size) {
+//		x10aux::tm_assign_x10_int((x10_int *)ptr, *(x10_int *)p_val);
+//	} else if (8 == type_size) {
+//		x10aux::tm_assign_x10_long((x10_long *)ptr, *(x10_long *)p_val);
+//	} else
+//	{
+//		printf("ERROR: x10aux::tm_assign_gen - unknown type_size [%lu]\n", type_size);
+//	}
+//
+//	return (char *)g_tm_arr;
+//}
+//
+//template<class T> T tm_load(T * ptr) {
+//	T local_val;
+//	printf("tm_load: %lu\n", sizeof(T));
+//	x10aux::tm_load_gen((char *)ptr, (char *)&local_val, sizeof(T));
+//	return local_val;
+//}
+//
+//template<class T> T tm_assign(T * ptr, T val) {
+//	printf("tm_assign: %lu\n", sizeof(T));
+//	x10aux::tm_assign_gen((char *)ptr, (char *)&p_val, sizeof(T));
+//	return val;
+//}
+//
+//x10_int x10aux::is_tm_phase = 0;
+//
+//void x10aux::tm_enter() {
+//    x10aux::is_tm_phase = 1;
+//    return;
+//}
+//
+//void x10aux::tm_exit() {
+//	x10aux::is_tm_phase = 0;
+//	return;
+//}
+
+//template<class T> T x10aux::tm_load(T * ptr) {
+//	return *ptr;
+//}
+//
+//template<class T> T x10aux::tm_assign(T * ptr, T val) {
+//	*ptr = val;
+//	return val;
+//}
+
+/*void x10aux::tm_test() {
+	x10_int num_int = 0;
+	x10_long num_long = 0;
+
+	num_int = x10aux::tm_load<x10_int>(&num_int);
+	x10aux::tm_assign<x10_int>(&num_int, 1);
+
+	num_long = x10aux::tm_load<x10_long>(&num_long);
+	x10aux::tm_assign<x10_long>(&num_long, 1);
+
+}*/
 
 bool getBoolEnvVar(const char* name) {
     char* value = getenv(name);

@@ -21,54 +21,65 @@ import x10.serialization.X10JavaDeserializer;
 import x10.serialization.X10JavaSerializable;
 import x10.serialization.X10JavaSerializer;
 
-public final class AtomicLong extends java.util.concurrent.atomic.AtomicLong implements Any, X10JavaSerializable {
+public final class AtomicLong extends java.util.concurrent.atomic.AtomicLong
+		implements Any, X10JavaSerializable {
 
-    private static final long serialVersionUID = 1L;
+	private static final long serialVersionUID = 1L;
 
-    // constructor just for allocation
-    public AtomicLong(java.lang.System[] $dummy) {
-        super();
-    }
-    
-    public final AtomicLong x10$util$concurrent$AtomicLong$$init$S() {return this;}
+	// constructor just for allocation
+	public AtomicLong(java.lang.System[] $dummy) {
+		super();
+	}
 
-    public AtomicLong() {
-        super();
-    }
-    
-    public final AtomicLong x10$util$concurrent$AtomicLong$$init$S(long initialValue) {
-        // TODO
-        set(initialValue);
-        return this;
-    }
-    
-    public AtomicLong(long initialValue) {
-        super(initialValue);
-    }
-    
-    //
-    // Runtime type information
-    //
-    public static final RuntimeType<AtomicLong> $RTT = NamedType.<AtomicLong> make(
-        "x10.util.concurrent.AtomicLong",
-        AtomicLong.class
-    );
-    public RuntimeType<AtomicLong> $getRTT() {return $RTT;}
-    public Type<?> $getParam(int i) { return null; }
+	public final AtomicLong x10$util$concurrent$AtomicLong$$init$S() {
+		return this;
+	}
+
+	public AtomicLong() {
+		super();
+	}
+
+	public final AtomicLong x10$util$concurrent$AtomicLong$$init$S(
+			long initialValue) {
+		// TODO
+		set(initialValue);
+		return this;
+	}
+
+	public AtomicLong(long initialValue) {
+		super(initialValue);
+	}
+
+	//
+	// Runtime type information
+	//
+	public static final RuntimeType<AtomicLong> $RTT = NamedType
+			.<AtomicLong> make("x10.util.concurrent.AtomicLong",
+					AtomicLong.class);
+
+	public RuntimeType<AtomicLong> $getRTT() {
+		return $RTT;
+	}
+
+	public Type<?> $getParam(int i) {
+		return null;
+	}
 
 	public void $_serialize(X10JavaSerializer serializer) throws IOException {
 		serializer.write(this.get());
 	}
 
-    public static X10JavaSerializable $_deserializer(X10JavaDeserializer deserializer) throws IOException {
-        return $_deserialize_body(null, deserializer);
-    }
+	public static X10JavaSerializable $_deserializer(
+			X10JavaDeserializer deserializer) throws IOException {
+		return $_deserialize_body(null, deserializer);
+	}
 
-    public static X10JavaSerializable $_deserialize_body(AtomicLong atomicLong, X10JavaDeserializer deserializer) throws IOException {
-        long l = deserializer.readLong();
-        AtomicLong al = new AtomicLong(l);
-        deserializer.record_reference(al);
-        return al;
-    }
+	public static X10JavaSerializable $_deserialize_body(AtomicLong atomicLong,
+			X10JavaDeserializer deserializer) throws IOException {
+		long l = deserializer.readLong();
+		AtomicLong al = new AtomicLong(l);
+		deserializer.record_reference(al);
+		return al;
+	}
 
 }

@@ -11,25 +11,35 @@
 
 package x10.rtt;
 
+public interface Type<T> extends java.io.Serializable,
+		x10.serialization.X10JavaSerializable {
+	boolean isInstance(Object o);
 
-public interface Type<T> extends java.io.Serializable, x10.serialization.X10JavaSerializable {
-    boolean isInstance(Object o);
-    
-    boolean equals(Object o);
-    boolean isAssignableTo(Type<?> superType);
-    
-    Object makeArray(int dim0);
-    Object makeArray(int dim0, int dim1);
-    Object makeArray(int dim0, int dim1, int dim2);
-    Object makeArray(int dim0, int dim1, int dim2, int dim3);
-    Object makeArray(int... dims);
-    void setArray(Object array, int i, T v);
-    T getArray(Object array, int i);
-    int arrayLength(Object array);
+	boolean equals(Object o);
 
-    Class<?> getJavaClass();
-    String typeName();
+	boolean isAssignableTo(Type<?> superType);
 
-    boolean hasZero();
-    boolean isref();
+	Object makeArray(int dim0);
+
+	Object makeArray(int dim0, int dim1);
+
+	Object makeArray(int dim0, int dim1, int dim2);
+
+	Object makeArray(int dim0, int dim1, int dim2, int dim3);
+
+	Object makeArray(int... dims);
+
+	void setArray(Object array, int i, T v);
+
+	T getArray(Object array, int i);
+
+	int arrayLength(Object array);
+
+	Class<?> getJavaClass();
+
+	String typeName();
+
+	boolean hasZero();
+
+	boolean isref();
 }

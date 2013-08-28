@@ -11,49 +11,61 @@
 
 package x10.runtime.impl.java;
 
-
 public abstract class StringUtils {
 
-    public static java.lang.String format(java.lang.String format, java.lang.Object[] args) {
-        java.lang.Object[] copy = new java.lang.Object[args.length];
+	public static java.lang.String format(java.lang.String format,
+			java.lang.Object[] args) {
+		java.lang.Object[] copy = new java.lang.Object[args.length];
 
-        // rebox x10.core.Int objects into java.lang.Integers
-        for (int i = 0; i < args.length; ++i) {
-            java.lang.Object oldarg = args[i];
-            java.lang.Object newarg = null;
+		// rebox x10.core.Int objects into java.lang.Integers
+		for (int i = 0; i < args.length; ++i) {
+			java.lang.Object oldarg = args[i];
+			java.lang.Object newarg = null;
 
-            if (oldarg instanceof x10.core.Byte)
-                newarg = java.lang.Byte.valueOf(x10.core.Byte.$unbox((x10.core.Byte)oldarg));
-            else if (oldarg instanceof x10.core.Short)
-                newarg = java.lang.Short.valueOf(x10.core.Short.$unbox((x10.core.Short)oldarg));
-            else if (oldarg instanceof x10.core.Int)
-                newarg = java.lang.Integer.valueOf(x10.core.Int.$unbox((x10.core.Int)oldarg));
-            else if (oldarg instanceof x10.core.Long)
-                newarg = java.lang.Long.valueOf(x10.core.Long.$unbox((x10.core.Long)oldarg));
-            else if (oldarg instanceof x10.core.Float)
-                newarg = java.lang.Float.valueOf(x10.core.Float.$unbox((x10.core.Float)oldarg));
-            else if (oldarg instanceof x10.core.Double)
-                newarg = java.lang.Double.valueOf(x10.core.Double.$unbox((x10.core.Double)oldarg));
-            else if (oldarg instanceof x10.core.Char)
-                newarg = java.lang.Character.valueOf(x10.core.Char.$unbox((x10.core.Char)oldarg));
-            else if (oldarg instanceof x10.core.Boolean)
-                newarg = java.lang.Boolean.valueOf(x10.core.Boolean.$unbox((x10.core.Boolean)oldarg));
-            // FIXME unsigned types
-            else if (oldarg instanceof x10.core.UByte)
-                newarg = java.lang.Byte.valueOf(x10.core.UByte.$unbox((x10.core.UByte)oldarg));
-            else if (oldarg instanceof x10.core.UShort)
-                newarg = java.lang.Short.valueOf(x10.core.UShort.$unbox((x10.core.UShort)oldarg));
-            else if (oldarg instanceof x10.core.UInt)
-                newarg = java.lang.Integer.valueOf(x10.core.UInt.$unbox((x10.core.UInt)oldarg));
-            else if (oldarg instanceof x10.core.ULong)
-                newarg = java.lang.Long.valueOf(x10.core.ULong.$unbox((x10.core.ULong)oldarg));
-            else
-                newarg = oldarg;
+			if (oldarg instanceof x10.core.Byte)
+				newarg = java.lang.Byte.valueOf(x10.core.Byte
+						.$unbox((x10.core.Byte) oldarg));
+			else if (oldarg instanceof x10.core.Short)
+				newarg = java.lang.Short.valueOf(x10.core.Short
+						.$unbox((x10.core.Short) oldarg));
+			else if (oldarg instanceof x10.core.Int)
+				newarg = java.lang.Integer.valueOf(x10.core.Int
+						.$unbox((x10.core.Int) oldarg));
+			else if (oldarg instanceof x10.core.Long)
+				newarg = java.lang.Long.valueOf(x10.core.Long
+						.$unbox((x10.core.Long) oldarg));
+			else if (oldarg instanceof x10.core.Float)
+				newarg = java.lang.Float.valueOf(x10.core.Float
+						.$unbox((x10.core.Float) oldarg));
+			else if (oldarg instanceof x10.core.Double)
+				newarg = java.lang.Double.valueOf(x10.core.Double
+						.$unbox((x10.core.Double) oldarg));
+			else if (oldarg instanceof x10.core.Char)
+				newarg = java.lang.Character.valueOf(x10.core.Char
+						.$unbox((x10.core.Char) oldarg));
+			else if (oldarg instanceof x10.core.Boolean)
+				newarg = java.lang.Boolean.valueOf(x10.core.Boolean
+						.$unbox((x10.core.Boolean) oldarg));
+			// FIXME unsigned types
+			else if (oldarg instanceof x10.core.UByte)
+				newarg = java.lang.Byte.valueOf(x10.core.UByte
+						.$unbox((x10.core.UByte) oldarg));
+			else if (oldarg instanceof x10.core.UShort)
+				newarg = java.lang.Short.valueOf(x10.core.UShort
+						.$unbox((x10.core.UShort) oldarg));
+			else if (oldarg instanceof x10.core.UInt)
+				newarg = java.lang.Integer.valueOf(x10.core.UInt
+						.$unbox((x10.core.UInt) oldarg));
+			else if (oldarg instanceof x10.core.ULong)
+				newarg = java.lang.Long.valueOf(x10.core.ULong
+						.$unbox((x10.core.ULong) oldarg));
+			else
+				newarg = oldarg;
 
-            copy[i] = newarg;
-        }
+			copy[i] = newarg;
+		}
 
-        return java.lang.String.format(format, copy);
-    }
+		return java.lang.String.format(format, copy);
+	}
 
 }

@@ -11,34 +11,38 @@
 
 package x10.runtime.impl.java;
 
-
 public abstract class UIntUtils {
 
-    public static int inject(int a) {
-        return (a + java.lang.Integer.MIN_VALUE);
-    }
-    public static int deject(int a) {
-        return (a - java.lang.Integer.MIN_VALUE);
-    }
+	public static int inject(int a) {
+		return (a + java.lang.Integer.MIN_VALUE);
+	}
 
-    public static boolean le(int a, int b) {
-        return inject(a) <= inject(b);
-    }
-    public static boolean gt(int a, int b) {
-        return inject(a) > inject(b);
-    }
-    public static boolean ge(int a, int b) {
-        return inject(a) >= inject(b);
-    }
-    public static boolean lt(int a, int b) {
-        return inject(a) < inject(b);
-    }
+	public static int deject(int a) {
+		return (a - java.lang.Integer.MIN_VALUE);
+	}
 
-    public static int div(int a, int b) {
-        return (int) ((a & 0xFFFFFFFFL) / (b & 0xFFFFFFFFL));
-    }
-    public static int rem(int a, int b) {
-        return (int) ((a & 0xFFFFFFFFL) % (b & 0xFFFFFFFFL));
-    }
+	public static boolean le(int a, int b) {
+		return inject(a) <= inject(b);
+	}
+
+	public static boolean gt(int a, int b) {
+		return inject(a) > inject(b);
+	}
+
+	public static boolean ge(int a, int b) {
+		return inject(a) >= inject(b);
+	}
+
+	public static boolean lt(int a, int b) {
+		return inject(a) < inject(b);
+	}
+
+	public static int div(int a, int b) {
+		return (int) ((a & 0xFFFFFFFFL) / (b & 0xFFFFFFFFL));
+	}
+
+	public static int rem(int a, int b) {
+		return (int) ((a & 0xFFFFFFFFL) % (b & 0xFFFFFFFFL));
+	}
 
 }

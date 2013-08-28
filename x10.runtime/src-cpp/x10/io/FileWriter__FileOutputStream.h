@@ -32,6 +32,7 @@ namespace x10 {
             FileWriter__FileOutputStream(): FMGL(file)(NULL) { }
 
             static FileWriter__FileOutputStream* _make(x10::lang::String* name, bool append);
+            static FileWriter__FileOutputStream* _make__tm__(x10tm::TMThread *SelfTM, x10::lang::String* name, bool append);
 
             void _constructor (x10::lang::String* file, bool append);
             void _constructor (FILE* file);
@@ -41,6 +42,12 @@ namespace x10 {
             virtual void write(x10_int i);
 
             virtual void write(x10::util::IndexedMemoryChunk<x10_byte> b, x10_int off, x10_int len);
+
+            virtual void write__tm__(x10tm::TMThread *SelfTM, const char *str);
+
+            virtual void write__tm__(x10tm::TMThread *SelfTM, x10_int i);
+
+            virtual void write__tm__(x10tm::TMThread *SelfTM, x10::util::IndexedMemoryChunk<x10_byte> b, x10_int off, x10_int len);
 
             virtual void flush();
 

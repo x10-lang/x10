@@ -28,17 +28,67 @@ namespace x10 {
             RTT_H_DECLS_INTERFACE
     
             template <class I> struct itable {
-                itable(x10_boolean (I::*equals) (x10::lang::Any*), x10_int (I::*hashCode) (), TPMGL(T) (I::*__times) (TPMGL(T)), TPMGL(T) (I::*_m3____plus) (), TPMGL(T) (I::*_m4____plus) (TPMGL(T)), TPMGL(T) (I::*_m5____minus) (), TPMGL(T) (I::*_m6____minus) (TPMGL(T)), TPMGL(T) (I::*__over) (TPMGL(T)), x10::lang::String* (I::*toString) (), x10::lang::String* (I::*typeName) ()) : equals(equals), hashCode(hashCode), __times(__times), _m3____plus(_m3____plus), _m4____plus(_m4____plus), _m5____minus(_m5____minus), _m6____minus(_m6____minus), __over(__over), toString(toString), typeName(typeName) {}
+                itable(
+                x10_boolean (I::*equals) (x10::lang::Any*),
+                x10_boolean (I::*equals__tm__) (x10tm::TMThread *SelfTM, x10::lang::Any*),
+                x10_int (I::*hashCode) (),
+                x10_int (I::*hashCode__tm__) (x10tm::TMThread *SelfTM),
+                TPMGL(T) (I::*__times) (TPMGL(T)),
+                TPMGL(T) (I::*__times__tm__) (x10tm::TMThread *SelfTM, TPMGL(T)),
+                TPMGL(T) (I::*_m3____plus) (),
+                TPMGL(T) (I::*_m3____plus__tm__) (x10tm::TMThread *SelfTM),
+                TPMGL(T) (I::*_m4____plus) (TPMGL(T)),
+                TPMGL(T) (I::*_m4____plus__tm__) (x10tm::TMThread *SelfTM, TPMGL(T)),
+                TPMGL(T) (I::*_m5____minus) (),
+                TPMGL(T) (I::*_m5____minus__tm__) (x10tm::TMThread *SelfTM),
+                TPMGL(T) (I::*_m6____minus) (TPMGL(T)),
+                TPMGL(T) (I::*_m6____minus__tm__) (x10tm::TMThread *SelfTM, TPMGL(T)),
+                TPMGL(T) (I::*__over) (TPMGL(T)),
+                TPMGL(T) (I::*__over__tm__) (x10tm::TMThread *SelfTM, TPMGL(T)),
+                x10::lang::String* (I::*toString) (),
+                x10::lang::String* (I::*toString__tm__) (x10tm::TMThread *SelfTM),
+                x10::lang::String* (I::*typeName) (),
+                x10::lang::String* (I::*typeName__tm__) (x10tm::TMThread *SelfTM)) :
+																equals(equals),
+																equals__tm__(equals__tm__),
+																hashCode(hashCode),
+																hashCode__tm__(hashCode__tm__),
+																__times(__times),
+																__times__tm__(__times__tm__),
+																_m3____plus(_m3____plus),
+																_m3____plus__tm__(_m3____plus__tm__),
+																_m4____plus(_m4____plus),
+																_m4____plus__tm__(_m4____plus__tm__),
+																_m5____minus(_m5____minus),
+																_m5____minus__tm__(_m5____minus__tm__),
+																_m6____minus(_m6____minus),
+																_m6____minus__tm__(_m6____minus__tm__),
+																__over(__over),
+																__over__tm__(__over__tm__),
+																toString(toString),
+																toString__tm__(toString__tm__),
+																typeName(typeName),
+																typeName__tm__(typeName__tm__) {}
                 x10_boolean (I::*equals) (x10::lang::Any*);
+                x10_boolean (I::*equals__tm__) (x10tm::TMThread *SelfTM, x10::lang::Any*);
                 x10_int (I::*hashCode) ();
+                x10_int (I::*hashCode__tm__) (x10tm::TMThread *SelfTM);
                 TPMGL(T) (I::*__times) (TPMGL(T));
+                TPMGL(T) (I::*__times__tm__) (x10tm::TMThread *SelfTM, TPMGL(T));
                 TPMGL(T) (I::*_m3____plus) ();
+                TPMGL(T) (I::*_m3____plus__tm__) (x10tm::TMThread *SelfTM);
                 TPMGL(T) (I::*_m4____plus) (TPMGL(T));
+                TPMGL(T) (I::*_m4____plus__tm__) (x10tm::TMThread *SelfTM, TPMGL(T));
                 TPMGL(T) (I::*_m5____minus) ();
+                TPMGL(T) (I::*_m5____minus__tm__) (x10tm::TMThread *SelfTM);
                 TPMGL(T) (I::*_m6____minus) (TPMGL(T));
+                TPMGL(T) (I::*_m6____minus__tm__) (x10tm::TMThread *SelfTM, TPMGL(T));
                 TPMGL(T) (I::*__over) (TPMGL(T));
+                TPMGL(T) (I::*__over__tm__) (x10tm::TMThread *SelfTM, TPMGL(T));
                 x10::lang::String* (I::*toString) ();
+                x10::lang::String* (I::*toString__tm__) (x10tm::TMThread *SelfTM);
                 x10::lang::String* (I::*typeName) ();
+                x10::lang::String* (I::*typeName__tm__) (x10tm::TMThread *SelfTM);
             };
     
             static x10_boolean equals(Arithmetic<TPMGL(T)>* _recv, x10::lang::Any* arg0) {
@@ -111,7 +161,78 @@ namespace x10 {
             template <class R> static x10::lang::String* typeName(R _recv) {
                 return _recv->typeName();
             }
-    
+
+            static x10_boolean equals__tm__(x10tm::TMThread *SelfTM, Arithmetic<TPMGL(T)>* _recv, x10::lang::Any* arg0) {
+				x10::lang::Reference* _refRecv = reinterpret_cast<x10::lang::Reference*>(_recv);
+				return (_refRecv->*(x10aux::findITable<x10::lang::Arithmetic<TPMGL(T)> >(_refRecv->_getITables())->equals__tm__))(SelfTM, arg0);
+			}
+			template <class R> static x10_boolean equals__tm__(x10tm::TMThread *SelfTM, R _recv, x10::lang::Any* arg0) {
+				return _recv->equals__tm__(SelfTM, arg0);
+			}
+			static x10_int hashCode__tm__(x10tm::TMThread *SelfTM, Arithmetic<TPMGL(T)>* _recv) {
+				x10::lang::Reference* _refRecv = reinterpret_cast<x10::lang::Reference*>(_recv);
+				return (_refRecv->*(x10aux::findITable<x10::lang::Arithmetic<TPMGL(T)> >(_refRecv->_getITables())->hashCode__tm__))(SelfTM);
+			}
+			template <class R> static x10_int hashCode__tm__(x10tm::TMThread *SelfTM, R _recv) {
+				return _recv->hashCode__tm__(SelfTM);
+			}
+			static TPMGL(T) __times__tm__(x10tm::TMThread *SelfTM, Arithmetic<TPMGL(T)>* _recv, TPMGL(T) arg0) {
+				x10::lang::Reference* _refRecv = reinterpret_cast<x10::lang::Reference*>(_recv);
+				return (_refRecv->*(x10aux::findITable<x10::lang::Arithmetic<TPMGL(T)> >(_refRecv->_getITables())->__times__tm__))(SelfTM, arg0);
+			}
+			template <class R> static TPMGL(T) __times__tm__(x10tm::TMThread *SelfTM, R _recv, TPMGL(T) arg0) {
+				return _recv->__times__tm__(SelfTM, arg0);
+			}
+			static TPMGL(T) _m3____plus__tm__(x10tm::TMThread *SelfTM, Arithmetic<TPMGL(T)>* _recv) {
+				x10::lang::Reference* _refRecv = reinterpret_cast<x10::lang::Reference*>(_recv);
+				return (_refRecv->*(x10aux::findITable<x10::lang::Arithmetic<TPMGL(T)> >(_refRecv->_getITables())->_m3____plus__tm__))(SelfTM);
+			}
+			template <class R> static TPMGL(T) _m3____plus__tm__(x10tm::TMThread *SelfTM, R _recv) {
+				return _recv->__plus__tm__(SelfTM);
+			}
+			static TPMGL(T) _m4____plus__tm__(x10tm::TMThread *SelfTM, Arithmetic<TPMGL(T)>* _recv, TPMGL(T) arg0) {
+				x10::lang::Reference* _refRecv = reinterpret_cast<x10::lang::Reference*>(_recv);
+				return (_refRecv->*(x10aux::findITable<x10::lang::Arithmetic<TPMGL(T)> >(_refRecv->_getITables())->_m4____plus__tm__))(SelfTM, arg0);
+			}
+			template <class R> static TPMGL(T) _m4____plus__tm__(x10tm::TMThread *SelfTM, R _recv, TPMGL(T) arg0) {
+				return _recv->__plus__tm__(SelfTM, arg0);
+			}
+			static TPMGL(T) _m5____minus__tm__(x10tm::TMThread *SelfTM, Arithmetic<TPMGL(T)>* _recv) {
+				x10::lang::Reference* _refRecv = reinterpret_cast<x10::lang::Reference*>(_recv);
+				return (_refRecv->*(x10aux::findITable<x10::lang::Arithmetic<TPMGL(T)> >(_refRecv->_getITables())->_m5____minus__tm__))(SelfTM);
+			}
+			template <class R> static TPMGL(T) _m5____minus__tm__(x10tm::TMThread *SelfTM, R _recv) {
+				return _recv->__minus__tm__(SelfTM);
+			}
+			static TPMGL(T) _m6____minus__tm__(x10tm::TMThread *SelfTM, Arithmetic<TPMGL(T)>* _recv, TPMGL(T) arg0) {
+				x10::lang::Reference* _refRecv = reinterpret_cast<x10::lang::Reference*>(_recv);
+				return (_refRecv->*(x10aux::findITable<x10::lang::Arithmetic<TPMGL(T)> >(_refRecv->_getITables())->_m6____minus__tm__))(SelfTM, arg0);
+			}
+			template <class R> static TPMGL(T) _m6____minus__tm__(x10tm::TMThread *SelfTM, R _recv, TPMGL(T) arg0) {
+				return _recv->__minus__tm__(SelfTM, arg0);
+			}
+			static TPMGL(T) __over__tm__(x10tm::TMThread *SelfTM, Arithmetic<TPMGL(T)>* _recv, TPMGL(T) arg0) {
+				x10::lang::Reference* _refRecv = reinterpret_cast<x10::lang::Reference*>(_recv);
+				return (_refRecv->*(x10aux::findITable<x10::lang::Arithmetic<TPMGL(T)> >(_refRecv->_getITables())->__over__tm__))(SelfTM, arg0);
+			}
+			template <class R> static TPMGL(T) __over__tm__(x10tm::TMThread *SelfTM, R _recv, TPMGL(T) arg0) {
+				return _recv->__over__tm__(arg0);
+			}
+			static x10::lang::String* toString__tm__(x10tm::TMThread *SelfTM, Arithmetic<TPMGL(T)>* _recv) {
+				x10::lang::Reference* _refRecv = reinterpret_cast<x10::lang::Reference*>(_recv);
+				return (_refRecv->*(x10aux::findITable<x10::lang::Arithmetic<TPMGL(T)> >(_refRecv->_getITables())->toString__tm__))(SelfTM);
+			}
+			template <class R> static x10::lang::String* toString__tm__(x10tm::TMThread *SelfTM, R _recv) {
+				return _recv->toString__tm__();
+			}
+			static x10::lang::String* typeName__tm__(x10tm::TMThread *SelfTM, Arithmetic<TPMGL(T)>* _recv) {
+				x10::lang::Reference* _refRecv = reinterpret_cast<x10::lang::Reference*>(_recv);
+				return (_refRecv->*(x10aux::findITable<x10::lang::Arithmetic<TPMGL(T)> >(_refRecv->_getITables())->typeName__tm__))(SelfTM);
+			}
+			template <class R> static x10::lang::String* typeName__tm__(x10tm::TMThread *SelfTM, R _recv) {
+				return _recv->typeName__tm__(SelfTM);
+			}
+
         };
 
         template <> class Arithmetic<void> {
@@ -129,17 +250,47 @@ namespace x10 {
         public:                                                         \
             RTT_H_DECLS_INTERFACE                                       \
                 template <class I> struct itable {                      \
-                itable(x10_boolean (I::*equals) (x10::lang::Any*), x10_int (I::*hashCode) (), PRIM (I::*__times) (PRIM), PRIM (I::*_m3____plus) (), PRIM (I::*_m4____plus) (PRIM), PRIM (I::*_m5____minus) (), PRIM (I::*_m6____minus) (PRIM), PRIM (I::*__over) (PRIM), x10::lang::String* (I::*toString) (), x10::lang::String* (I::*typeName) ()) : equals(equals), hashCode(hashCode), __times(__times), _m3____plus(_m3____plus), _m4____plus(_m4____plus), _m5____minus(_m5____minus), _m6____minus(_m6____minus), __over(__over), toString(toString), typeName(typeName) {} \
+                itable(\
+        		x10_boolean (I::*equals) (x10::lang::Any*), \
+        		x10_boolean (I::*equals__tm__) (x10tm::TMThread *SelfTM, x10::lang::Any*), \
+        		x10_int (I::*hashCode) (), \
+        		x10_int (I::*hashCode__tm__) (x10tm::TMThread *SelfTM), \
+        		PRIM (I::*__times) (PRIM), \
+        		PRIM (I::*__times__tm__) (x10tm::TMThread *SelfTM, PRIM), \
+        		PRIM (I::*_m3____plus) (), \
+        		PRIM (I::*_m3____plus__tm__) (x10tm::TMThread *SelfTM), \
+        		PRIM (I::*_m4____plus) (PRIM),\
+        		PRIM (I::*_m4____plus__tm__) (x10tm::TMThread *SelfTM, PRIM),\
+        		PRIM (I::*_m5____minus) (), \
+        		PRIM (I::*_m5____minus__tm__) (x10tm::TMThread *SelfTM), \
+        		PRIM (I::*_m6____minus) (PRIM),\
+        		PRIM (I::*_m6____minus__tm__) (x10tm::TMThread *SelfTM, PRIM),\
+        		PRIM (I::*__over) (PRIM), \
+        		PRIM (I::*__over__tm__) (x10tm::TMThread *SelfTM, PRIM), \
+        		x10::lang::String* (I::*toString) (),\
+        		x10::lang::String* (I::*toString__tm__) (x10tm::TMThread *SelfTM),\
+        		x10::lang::String* (I::*typeName) (),\
+        		x10::lang::String* (I::*typeName__tm__) (x10tm::TMThread *SelfTM)) :	equals(equals), equals__tm__(equals__tm__), hashCode(hashCode),hashCode__tm__(hashCode__tm__), __times(__times), __times__tm__(__times__tm__), _m3____plus(_m3____plus), _m3____plus__tm__(_m3____plus__tm__), _m4____plus(_m4____plus), _m4____plus__tm__(_m4____plus__tm__), _m5____minus(_m5____minus), _m5____minus__tm__(_m5____minus__tm__), _m6____minus(_m6____minus), _m6____minus__tm__(_m6____minus__tm__), __over(__over), __over__tm__(__over__tm__), toString(toString), toString__tm__(toString__tm__), typeName(typeName), typeName__tm__(typeName__tm__) {} \
                 x10_boolean (I::*equals) (x10::lang::Any*); \
+                x10_boolean (I::*equals__tm__) (x10tm::TMThread *SelfTM, x10::lang::Any*); \
                 x10_int (I::*hashCode) ();                              \
+                x10_int (I::*hashCode__tm__) (x10tm::TMThread *SelfTM);                              \
                 PRIM (I::*__times) (PRIM);                              \
+                PRIM (I::*__times__tm__) (x10tm::TMThread *SelfTM, PRIM);                              \
                 PRIM (I::*_m3____plus) ();                              \
+                PRIM (I::*_m3____plus__tm__) (x10tm::TMThread *SelfTM);                              \
                 PRIM (I::*_m4____plus) (PRIM);                          \
+                PRIM (I::*_m4____plus__tm__) (x10tm::TMThread *SelfTM, PRIM);                          \
                 PRIM (I::*_m5____minus) ();                             \
+                PRIM (I::*_m5____minus__tm__) (x10tm::TMThread *SelfTM);                             \
                 PRIM (I::*_m6____minus) (PRIM);                         \
+                PRIM (I::*_m6____minus__tm__) (x10tm::TMThread *SelfTM, PRIM);                         \
                 PRIM (I::*__over) (PRIM);                               \
+                PRIM (I::*__over__tm__) (x10tm::TMThread *SelfTM, PRIM);                               \
                 x10::lang::String* (I::*toString) ();       \
+                x10::lang::String* (I::*toString__tm__) (x10tm::TMThread *SelfTM);       \
                 x10::lang::String* (I::*typeName) ();       \
+                x10::lang::String* (I::*typeName__tm__) (x10tm::TMThread *SelfTM);       \
                 };                                                      \
             static x10_boolean equals(PRIM recv, PRIM arg0) { return x10aux::equals(recv, arg0); } \
             static x10_int hashCode(PRIM recv) { return x10aux::hash_code(recv); } \
@@ -187,6 +338,53 @@ namespace x10 {
             }                                                           \
             static x10::lang::String* toString(PRIM recv) { return x10aux::to_string(recv); } \
             static x10::lang::String* typeName(PRIM recv) { return x10aux::type_name(recv); } \
+            \
+            static x10_boolean equals__tm__(x10tm::TMThread *SelfTM, PRIM recv, PRIM arg0) { return x10aux::equals(recv, arg0); } \
+			static x10_int hashCode__tm__(x10tm::TMThread *SelfTM, PRIM recv) { return x10aux::hash_code(recv); } \
+			static inline PRIM __times__tm__(x10tm::TMThread *SelfTM, PRIM recv, PRIM arg0) {          \
+				return recv * arg0;                                     \
+			}                                                           \
+			static PRIM __times__tm__(x10tm::TMThread *SelfTM, Arithmetic<PRIM>* _recv, PRIM arg0) { \
+				x10::lang::Reference* recv = reinterpret_cast<x10::lang::Reference*>(_recv); \
+				return (recv->*(x10aux::findITable<x10::lang::Arithmetic<PRIM> >(recv->_getITables())->__times__tm__))(SelfTM, arg0); \
+			}                                                           \
+			static inline PRIM _m3____plus__tm__(x10tm::TMThread *SelfTM, PRIM recv) {                 \
+				return recv;                                            \
+			}                                                           \
+			static PRIM _m3____plus__tm__(x10tm::TMThread *SelfTM, Arithmetic<PRIM>* _recv) { \
+				x10::lang::Reference* recv = reinterpret_cast<x10::lang::Reference*>(_recv); \
+				return (recv->*(x10aux::findITable<x10::lang::Arithmetic<PRIM> >(recv->_getITables())->_m3____plus__tm__))(SelfTM); \
+			}                                                           \
+			static inline PRIM _m4____plus__tm__(x10tm::TMThread *SelfTM, PRIM recv, PRIM arg0) {      \
+				return recv + arg0;                                     \
+			}                                                           \
+			static PRIM _m4____plus__tm__(x10tm::TMThread *SelfTM, Arithmetic<PRIM>* _recv, PRIM arg0) { \
+				x10::lang::Reference* recv = reinterpret_cast<x10::lang::Reference*>(_recv); \
+				return (recv->*(x10aux::findITable<x10::lang::Arithmetic<PRIM> >(recv->_getITables())->_m4____plus__tm__))(SelfTM, arg0); \
+			}                                                           \
+			static inline PRIM _m5____minus__tm__(x10tm::TMThread *SelfTM, PRIM recv) {                \
+				return -recv;                                           \
+			}                                                           \
+			static PRIM _m5____minus__tm__(x10tm::TMThread *SelfTM, Arithmetic<PRIM>* _recv) { \
+				x10::lang::Reference* recv = reinterpret_cast<x10::lang::Reference*>(_recv); \
+				return (recv->*(x10aux::findITable<x10::lang::Arithmetic<PRIM> >(recv->_getITables())->_m5____minus__tm__))(SelfTM); \
+			}                                                           \
+			static inline PRIM _m6____minus__tm__(x10tm::TMThread *SelfTM, PRIM recv, PRIM arg0) {     \
+				return recv - arg0;                                     \
+			}                                                           \
+			static PRIM _m6____minus__tm__(x10tm::TMThread *SelfTM, Arithmetic<PRIM>* _recv, PRIM arg0) { \
+				x10::lang::Reference* recv = reinterpret_cast<x10::lang::Reference*>(_recv); \
+				return (recv->*(x10aux::findITable<x10::lang::Arithmetic<PRIM> >(recv->_getITables())->_m6____minus__tm__))(SelfTM, arg0); \
+			}                                                           \
+			static inline PRIM __over__tm__(x10tm::TMThread *SelfTM, PRIM recv, PRIM arg0) {           \
+				return recv / arg0;                                     \
+			}                                                           \
+			static PRIM __over__tm__(x10tm::TMThread *SelfTM, Arithmetic<PRIM>* _recv, PRIM arg0) { \
+				x10::lang::Reference* recv = reinterpret_cast<x10::lang::Reference*>(_recv); \
+				return (recv->*(x10aux::findITable<x10::lang::Arithmetic<PRIM> >(recv->_getITables())->__over__tm__))(SelfTM, arg0); \
+			}                                                           \
+			static x10::lang::String* toString__tm__(x10tm::TMThread *SelfTM, PRIM recv) { return x10aux::to_string(recv); } \
+			static x10::lang::String* typeName__tm__(x10tm::TMThread *SelfTM, PRIM recv) { return x10aux::type_name(recv); } \
         };
 
         ARITHMETIC_PRIM_DECL(x10_byte)

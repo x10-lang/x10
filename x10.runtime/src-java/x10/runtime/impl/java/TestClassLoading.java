@@ -12,13 +12,13 @@
 package x10.runtime.impl.java;
 
 public class TestClassLoading {
-    public static void main(java.lang.String[] args) {
-        try {
-            java.lang.String name = args[0];
-            java.lang.Class.forName(name);
-        } catch (java.lang.Throwable e) {
-            java.lang.System.exit(1);
-        }
-        java.lang.System.exit(0);
-    }
+	public static void main(java.lang.String[] args) {
+		try {
+			java.lang.String name = args[0];
+			java.lang.Class.forName(name);
+		} catch (java.lang.Throwable e) {
+			java.lang.System.exit(1);
+		}
+		java.lang.System.exit(0);
+	}
 }

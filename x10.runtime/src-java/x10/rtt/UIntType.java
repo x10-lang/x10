@@ -11,88 +11,88 @@
 
 package x10.rtt;
 
-
 import java.lang.reflect.Array;
 
 import x10.serialization.SerializationConstants;
 
 public final class UIntType extends RuntimeType<x10.core.UInt> {
 
-    private static final long serialVersionUID = 1L;
+	private static final long serialVersionUID = 1L;
 
-    // make sure deserialized RTT object is not duplicated
-    private Object readResolve() throws java.io.ObjectStreamException {
-        return Types.UINT;
-    }
-    @Override
-    public short $_get_serialization_id() {
-        return SerializationConstants.RTT_UINT_ID;
-    }
+	// make sure deserialized RTT object is not duplicated
+	private Object readResolve() throws java.io.ObjectStreamException {
+		return Types.UINT;
+	}
 
-    public UIntType() {
-        super(x10.core.UInt.class,
-            new Type[] {
-                ParameterizedType.make(Types.COMPARABLE, UnresolvedType.THIS),
-                ParameterizedType.make(x10.lang.Arithmetic.$RTT, UnresolvedType.THIS),
-                ParameterizedType.make(x10.lang.Bitwise.$RTT, UnresolvedType.THIS),
-                ParameterizedType.make(x10.util.Ordered.$RTT, UnresolvedType.THIS),
-                Types.STRUCT
-            });
-    }
-    
-    @Override
-    public String typeName() {
-        return "x10.lang.UInt";
-    }
+	@Override
+	public short $_get_serialization_id() {
+		return SerializationConstants.RTT_UINT_ID;
+	}
 
-    // for shortcut
-    @Override
-    public boolean isInstance(Object o) {
-        return o instanceof x10.core.UInt;
-    }
-    
-    @Override
-    public int[] makeArray(int dim0) {
-        return new int[dim0];
-    }
-    
-    @Override
-    public int[][] makeArray(int dim0, int dim1) {
-        return new int[dim0][dim1];
-    }
-    
-    @Override
-    public int[][][] makeArray(int dim0, int dim1, int dim2) {
-        return new int[dim0][dim1][dim2];
-    }
-    
-    @Override
-    public int[][][][] makeArray(int dim0, int dim1, int dim2, int dim3) {
-        return new int[dim0][dim1][dim2][dim3];
-    }
-    
-    @Override
-    public Object makeArray(int... dims) {
-        return Array.newInstance(int.class, dims);
-    }
-    
-    @Override
-    public x10.core.UInt getArray(Object array, int i) {
-        return x10.core.UInt.$box(((int[]) array)[i]);
-    }
-    
-    @Override
-    public void setArray(Object array, int i, x10.core.UInt v) {
-        ((int[]) array)[i] = x10.core.UInt.$unbox(v);
-    }
-    
-    @Override
-    public int arrayLength(Object array) {
-    	return ((int[]) array).length;
-    }
+	public UIntType() {
+		super(x10.core.UInt.class, new Type[] {
+				ParameterizedType.make(Types.COMPARABLE, UnresolvedType.THIS),
+				ParameterizedType.make(x10.lang.Arithmetic.$RTT,
+						UnresolvedType.THIS),
+				ParameterizedType.make(x10.lang.Bitwise.$RTT,
+						UnresolvedType.THIS),
+				ParameterizedType.make(x10.util.Ordered.$RTT,
+						UnresolvedType.THIS), Types.STRUCT });
+	}
 
-    @Override
-    public boolean isref() {
-        return false;
-    }
+	@Override
+	public String typeName() {
+		return "x10.lang.UInt";
+	}
+
+	// for shortcut
+	@Override
+	public boolean isInstance(Object o) {
+		return o instanceof x10.core.UInt;
+	}
+
+	@Override
+	public int[] makeArray(int dim0) {
+		return new int[dim0];
+	}
+
+	@Override
+	public int[][] makeArray(int dim0, int dim1) {
+		return new int[dim0][dim1];
+	}
+
+	@Override
+	public int[][][] makeArray(int dim0, int dim1, int dim2) {
+		return new int[dim0][dim1][dim2];
+	}
+
+	@Override
+	public int[][][][] makeArray(int dim0, int dim1, int dim2, int dim3) {
+		return new int[dim0][dim1][dim2][dim3];
+	}
+
+	@Override
+	public Object makeArray(int... dims) {
+		return Array.newInstance(int.class, dims);
+	}
+
+	@Override
+	public x10.core.UInt getArray(Object array, int i) {
+		return x10.core.UInt.$box(((int[]) array)[i]);
+	}
+
+	@Override
+	public void setArray(Object array, int i, x10.core.UInt v) {
+		((int[]) array)[i] = x10.core.UInt.$unbox(v);
+	}
+
+	@Override
+	public int arrayLength(Object array) {
+		return ((int[]) array).length;
+	}
+
+	@Override
+	public boolean isref() {
+		return false;
+	}
 }

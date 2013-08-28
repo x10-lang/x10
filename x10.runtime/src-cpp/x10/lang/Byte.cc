@@ -58,4 +58,39 @@ x10_byte ByteNatives::parseByte(String* s, x10_int radix) {
     return (x10_byte)ans;
 }
 
+//////
+String* ByteNatives::toString__tm__(x10tm::TMThread *SelfTM, x10_byte value, x10_int radix) {
+    if (0 == value) return String::Lit("0");
+    if (radix < 2 || radix > 36) radix = 10;
+    // worst case is binary of Byte.MIN_VALUE -- - plus 8 digits and a '\0'
+    char buf[10] = ""; //zeroes entire buffer (S6.7.8.21)
+    x10_byte value2 = value;
+    char *b;
+    // start on the '\0', will predecrement so will not clobber it
+    for (b=&buf[9] ; value2 != 0 ; value2/=radix) {
+        *(--b) = numerals[::abs((int)(value2 % radix))];
+    }
+    if (value < 0) {
+        *(--b) = '-';
+    }
+    return String::Steal(alloc_printf("%s",b));
+}
+
+String* ByteNatives::toString__tm__(x10tm::TMThread *SelfTM, x10_byte value) {
+    return to_string(value);
+}
+
+x10_byte ByteNatives::parseByte__tm__(x10tm::TMThread *SelfTM, String* s, x10_int radix) {
+    const char *start = nullCheck(s)->c_str();
+    char *end;
+    errno = 0;
+    x10_int ans = strtol(start, &end, radix);
+    if (errno == ERANGE || (errno != 0 && ans == 0) ||
+        (ans != (x10_byte)ans) ||
+        ((end-start) != s->length())) {
+        throwException(NumberFormatException::_make(s));
+    }
+    return (x10_byte)ans;
+}
+
 // vim:tabstop=4:shiftwidth=4:expandtab

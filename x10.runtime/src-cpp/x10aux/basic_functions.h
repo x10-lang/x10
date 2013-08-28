@@ -13,7 +13,7 @@
 #define X10AUX_BASIC_FUNCTIONS_H
 
 #include <x10aux/config.h>
-
+#include <x10aux/x10tm.h>
 #ifndef X10AUX_THROW_H_NODEPS
 #define X10AUX_THROW_H_NODEPS
 #include <x10aux/throw.h>
@@ -50,6 +50,22 @@ namespace x10aux {
         return makeStringLit(getRTT<T>()->name());
     }
 
+    template<class T> inline x10::lang::String* type_name__tm__(x10tm::TMThread *SelfTM, T* x) {
+		x10::lang::Reference* xAsRef = reinterpret_cast<x10::lang::Reference*>(x);
+		return makeStringLit(nullCheck(xAsRef)->_type()->name());
+	}
+
+	template<class T> inline x10::lang::String* type_name__tm__(x10tm::TMThread *SelfTM, captured_ref_lval<T> x) {
+		return type_name(*x);
+	}
+
+	template<class T> inline x10::lang::String* type_name__tm__(x10tm::TMThread *SelfTM, captured_struct_lval<T> x) {
+		return type_name(*x);
+	}
+
+	template<typename T> inline x10::lang::String* type_name__tm__(x10tm::TMThread *SelfTM, T x) {
+		return makeStringLit(getRTT<T>()->name());
+	}
 
     /******* struct_equals ********/
 
@@ -137,6 +153,28 @@ namespace x10aux {
         return struct_equals_inner(*x, *y);
     }
     
+    template<class T, class U> inline x10_boolean struct_equals__tm__(x10tm::TMThread *SelfTM, T x, U y) {
+		return struct_equals_inner(x, y);
+	}
+	template<class T, class U> inline x10_boolean struct_equals__tm__(x10tm::TMThread *SelfTM, captured_ref_lval<T> x, U y) {
+		return struct_equals_inner(*x, y);
+	}
+	template<class T, class U> inline x10_boolean struct_equals__tm__(x10tm::TMThread *SelfTM, T x, captured_ref_lval<U> y) {
+		return struct_equals_inner(x, *y);
+	}
+	template<class T, class U> inline x10_boolean struct_equals__tm__(x10tm::TMThread *SelfTM, captured_ref_lval<T> x, captured_ref_lval<U> y) {
+		return struct_equals_inner(*x, *y);
+	}
+	template<class T, class U> inline x10_boolean struct_equals__tm__(x10tm::TMThread *SelfTM, captured_struct_lval<T> x, U y) {
+		return struct_equals_inner(*x, y);
+	}
+	template<class T, class U> inline x10_boolean struct_equals__tm__(x10tm::TMThread *SelfTM, T x, captured_struct_lval<U> y) {
+		return struct_equals_inner(x, *y);
+	}
+	template<class T, class U> inline x10_boolean struct_equals__tm__(x10tm::TMThread *SelfTM, captured_struct_lval<T> x, captured_struct_lval<U> y) {
+		return struct_equals_inner(*x, *y);
+	}
+
     /******* equals ********/
 
     // covers all heap-allocated values (Objects, Functions, Structs boxes to interface types)
@@ -155,6 +193,22 @@ namespace x10aux {
     
     // covers all X10 Structs that are not built-in C++ types and NativeRep'ed
     template<class T> inline x10_boolean equals(T x, x10::lang::Any*  y) { return x->equals(y); }
+
+    template<class T> inline x10_boolean equals__tm__(x10tm::TMThread *SelfTM, T* x, x10::lang::Any* y) {
+		x10::lang::Reference* xAsRef = reinterpret_cast<x10::lang::Reference*>(x);
+		return nullCheck(xAsRef)->equals(y);
+	}
+
+	template<class T> inline x10_boolean equals__tm__(x10tm::TMThread *SelfTM, captured_ref_lval<T> x, x10::lang::Any* y) {
+		return equals(*x, y);
+	}
+
+	template<class T> inline x10_boolean equals__tm__(x10tm::TMThread *SelfTM, captured_struct_lval<T> x, x10::lang::Any* y) {
+		return equals(*x, y);
+	}
+
+	// covers all X10 Structs that are not built-in C++ types and NativeRep'ed
+	template<class T> inline x10_boolean equals__tm__(x10tm::TMThread *SelfTM, T x, x10::lang::Any*  y) { return x->equals(y); }
 
     // Cover all X10 Structs that are built-in C++ types
     inline x10_boolean equals(x10_boolean x, x10::lang::Any* y) {
@@ -276,6 +330,127 @@ namespace x10aux {
             return false;
         }
     }
+    ////
+    // Cover all X10 Structs that are built-in C++ types
+    inline x10_boolean equals__tm__(x10tm::TMThread *SelfTM, x10_boolean x, x10::lang::Any* y) {
+        x10::lang::Reference* yAsRef = reinterpret_cast<x10::lang::Reference*>(y);
+        if (NULL != y && yAsRef->_type()->equals(getRTT<x10_boolean>())) {
+            x10::lang::IBox<x10_boolean>* yAsIBox = reinterpret_cast<x10::lang::IBox<x10_boolean>*>(y);
+            return x == yAsIBox->value;
+        } else {
+            return false;
+        }
+    }
+
+    inline x10_boolean equals__tm__(x10tm::TMThread *SelfTM, x10_byte x, x10::lang::Any* y) {
+        x10::lang::Reference* yAsRef = reinterpret_cast<x10::lang::Reference*>(y);
+        if (NULL != y && yAsRef->_type()->equals(getRTT<x10_byte>())) {
+            x10::lang::IBox<x10_byte>* yAsIBox = reinterpret_cast<x10::lang::IBox<x10_byte>*>(y);
+            return x == yAsIBox->value;
+        } else {
+            return false;
+        }
+    }
+
+    inline x10_boolean equals__tm__(x10tm::TMThread *SelfTM, x10_ubyte x, x10::lang::Any* y) {
+        x10::lang::Reference* yAsRef = reinterpret_cast<x10::lang::Reference*>(y);
+        if (NULL != y && yAsRef->_type()->equals(getRTT<x10_ubyte>())) {
+            x10::lang::IBox<x10_ubyte>* yAsIBox = reinterpret_cast<x10::lang::IBox<x10_ubyte>*>(y);
+            return x == yAsIBox->value;
+        } else {
+            return false;
+        }
+    }
+
+    inline x10_boolean equals__tm__(x10tm::TMThread *SelfTM, x10_char x, x10::lang::Any* y) {
+        x10::lang::Reference* yAsRef = reinterpret_cast<x10::lang::Reference*>(y);
+        if (NULL != y && yAsRef->_type()->equals(getRTT<x10_char>())) {
+            x10::lang::IBox<x10_char>* yAsIBox = reinterpret_cast<x10::lang::IBox<x10_char>*>(y);
+            return x.v == yAsIBox->value.v;
+        } else {
+            return false;
+        }
+    }
+
+    inline x10_boolean equals__tm__(x10tm::TMThread *SelfTM, x10_short x, x10::lang::Any* y) {
+        x10::lang::Reference* yAsRef = reinterpret_cast<x10::lang::Reference*>(y);
+        if (NULL != y && yAsRef->_type()->equals(getRTT<x10_short>())) {
+            x10::lang::IBox<x10_short>* yAsIBox = reinterpret_cast<x10::lang::IBox<x10_short>*>(y);
+            return x == yAsIBox->value;
+        } else {
+            return false;
+        }
+    }
+
+    inline x10_boolean equals__tm__(x10tm::TMThread *SelfTM, x10_ushort x, x10::lang::Any* y) {
+        x10::lang::Reference* yAsRef = reinterpret_cast<x10::lang::Reference*>(y);
+        if (NULL != y && yAsRef->_type()->equals(getRTT<x10_ushort>())) {
+            x10::lang::IBox<x10_ushort>* yAsIBox = reinterpret_cast<x10::lang::IBox<x10_ushort>*>(y);
+            return x == yAsIBox->value;
+        } else {
+            return false;
+        }
+    }
+
+    inline x10_boolean equals__tm__(x10tm::TMThread *SelfTM, x10_int x, x10::lang::Any* y) {
+        x10::lang::Reference* yAsRef = reinterpret_cast<x10::lang::Reference*>(y);
+        if (NULL != y && yAsRef->_type()->equals(getRTT<x10_int>())) {
+            x10::lang::IBox<x10_int>* yAsIBox = reinterpret_cast<x10::lang::IBox<x10_int>*>(y);
+            return x == yAsIBox->value;
+        } else {
+            return false;
+        }
+    }
+
+    inline x10_boolean equals__tm__(x10tm::TMThread *SelfTM, x10_uint x, x10::lang::Any* y) {
+        x10::lang::Reference* yAsRef = reinterpret_cast<x10::lang::Reference*>(y);
+        if (NULL != y && yAsRef->_type()->equals(getRTT<x10_uint>())) {
+            x10::lang::IBox<x10_uint>* yAsIBox = reinterpret_cast<x10::lang::IBox<x10_uint>*>(y);
+            return x == yAsIBox->value;
+        } else {
+            return false;
+        }
+    }
+
+    inline x10_boolean equals__tm__(x10tm::TMThread *SelfTM, x10_long x, x10::lang::Any* y) {
+        x10::lang::Reference* yAsRef = reinterpret_cast<x10::lang::Reference*>(y);
+        if (NULL != y && yAsRef->_type()->equals(getRTT<x10_long>())) {
+            x10::lang::IBox<x10_long>* yAsIBox = reinterpret_cast<x10::lang::IBox<x10_long>*>(y);
+            return x == yAsIBox->value;
+        } else {
+            return false;
+        }
+    }
+
+    inline x10_boolean equals__tm__(x10tm::TMThread *SelfTM, x10_ulong x, x10::lang::Any* y) {
+        x10::lang::Reference* yAsRef = reinterpret_cast<x10::lang::Reference*>(y);
+        if (NULL != y && yAsRef->_type()->equals(getRTT<x10_ulong>())) {
+            x10::lang::IBox<x10_ulong>* yAsIBox = reinterpret_cast<x10::lang::IBox<x10_ulong>*>(y);
+            return x == yAsIBox->value;
+        } else {
+            return false;
+        }
+    }
+
+    inline x10_boolean equals__tm__(x10tm::TMThread *SelfTM, x10_float x, x10::lang::Any* y) {
+        x10::lang::Reference* yAsRef = reinterpret_cast<x10::lang::Reference*>(y);
+        if (NULL != y && yAsRef->_type()->equals(getRTT<x10_float>())) {
+            x10::lang::IBox<x10_float>* yAsIBox = reinterpret_cast<x10::lang::IBox<x10_float>*>(y);
+            return x == yAsIBox->value;
+        } else {
+            return false;
+        }
+    }
+
+    inline x10_boolean equals__tm__(x10tm::TMThread *SelfTM, x10_double x, x10::lang::Any* y) {
+        x10::lang::Reference* yAsRef = reinterpret_cast<x10::lang::Reference*>(y);
+        if (NULL != y && yAsRef->_type()->equals(getRTT<x10_double>())) {
+            x10::lang::IBox<x10_double>* yAsIBox = reinterpret_cast<x10::lang::IBox<x10_double>*>(y);
+            return x == yAsIBox->value;
+        } else {
+            return false;
+        }
+    }
 
     inline x10_boolean equals(const x10_double x,  const x10_double y)  { return x==y; }
     inline x10_boolean equals(const x10_float x,   const x10_float y)   { return x==y; }
@@ -289,6 +464,19 @@ namespace x10aux {
     inline x10_boolean equals(const x10_ubyte x,   const x10_ubyte y)    { return x==y; }
     inline x10_boolean equals(const x10_char x,    const x10_char y)    { return x.v==y.v; }
     inline x10_boolean equals(const x10_boolean x, const x10_boolean y) { return x==y; }
+
+    inline x10_boolean equals__tm__(x10tm::TMThread *SelfTM, const x10_double x,  const x10_double y)  { return x==y; }
+	inline x10_boolean equals__tm__(x10tm::TMThread *SelfTM, const x10_float x,   const x10_float y)   { return x==y; }
+	inline x10_boolean equals__tm__(x10tm::TMThread *SelfTM, const x10_long x,    const x10_long y)    { return x==y; }
+	inline x10_boolean equals__tm__(x10tm::TMThread *SelfTM, const x10_int x,     const x10_int y)     { return x==y; }
+	inline x10_boolean equals__tm__(x10tm::TMThread *SelfTM, const x10_short x,   const x10_short y)   { return x==y; }
+	inline x10_boolean equals__tm__(x10tm::TMThread *SelfTM, const x10_byte x,    const x10_byte y)    { return x==y; }
+	inline x10_boolean equals__tm__(x10tm::TMThread *SelfTM, const x10_ulong x,   const x10_ulong y)    { return x==y; }
+	inline x10_boolean equals__tm__(x10tm::TMThread *SelfTM, const x10_uint x,    const x10_uint y)     { return x==y; }
+	inline x10_boolean equals__tm__(x10tm::TMThread *SelfTM, const x10_ushort x,  const x10_ushort y)   { return x==y; }
+	inline x10_boolean equals__tm__(x10tm::TMThread *SelfTM, const x10_ubyte x,   const x10_ubyte y)    { return x==y; }
+	inline x10_boolean equals__tm__(x10tm::TMThread *SelfTM, const x10_char x,    const x10_char y)    { return x.v==y.v; }
+	inline x10_boolean equals__tm__(x10tm::TMThread *SelfTM, const x10_boolean x, const x10_boolean y) { return x==y; }
 
     /******* hash_code ********/
 
@@ -309,6 +497,23 @@ namespace x10aux {
         return x->hashCode();
     }
 
+    template<class T> inline x10_int hash_code__tm__(x10tm::TMThread *SelfTM, T* x) {
+		x10::lang::Reference* xAsRef = reinterpret_cast<x10::lang::Reference*>(x);
+		return nullCheck(xAsRef)->hashCode();
+	}
+
+	template<class T> inline x10_int hash_code__tm__(x10tm::TMThread *SelfTM, captured_ref_lval<T> x) {
+		return hash_code(*x);
+	}
+
+	template<class T> inline x10_int hash_code__tm__(x10tm::TMThread *SelfTM, captured_struct_lval<T> x) {
+		return hash_code(*x);
+	}
+
+	template<class T> inline x10_int hash_code__tm__(x10tm::TMThread *SelfTM, T x) {
+		return x->hashCode();
+	}
+
     inline x10_int hash_code(const x10_boolean x) { return x; }
     inline x10_int hash_code(const x10_byte x) { return x; }
     inline x10_int hash_code(const x10_ubyte x) { return x; }
@@ -323,8 +528,27 @@ namespace x10aux {
     inline x10_int hash_code(const x10_long x) {
         return hash_code((x10_ulong)x);
     }
+
+    inline x10_int hash_code__tm__(x10tm::TMThread *SelfTM, const x10_boolean x) { return x; }
+	inline x10_int hash_code__tm__(x10tm::TMThread *SelfTM, const x10_byte x) { return x; }
+	inline x10_int hash_code__tm__(x10tm::TMThread *SelfTM, const x10_ubyte x) { return x; }
+	inline x10_int hash_code__tm__(x10tm::TMThread *SelfTM, const x10_short x) { return x; }
+	inline x10_int hash_code__tm__(x10tm::TMThread *SelfTM, const x10_ushort x) { return x; }
+	inline x10_int hash_code__tm__(x10tm::TMThread *SelfTM, const x10_char x) { return x.v; }
+	inline x10_int hash_code__tm__(x10tm::TMThread *SelfTM, const x10_int x) { return x; }
+	inline x10_int hash_code__tm__(x10tm::TMThread *SelfTM, const x10_uint x) { return x; }
+	inline x10_int hash_code__tm__(x10tm::TMThread *SelfTM, const x10_ulong x) {
+		return (x10_int)(x ^ (x >> 32));
+	}
+	inline x10_int hash_code__tm__(x10tm::TMThread *SelfTM, const x10_long x) {
+		return hash_code((x10_ulong)x);
+	}
+
     x10_int hash_code(const x10_double x);
     x10_int hash_code(const x10_float x);
+
+    x10_int hash_code__tm__(x10tm::TMThread *SelfTM, const x10_double x);
+    x10_int hash_code__tm__(x10tm::TMThread *SelfTM, const x10_float x);
 
 
     /******* identity hash_code ********/
@@ -354,6 +578,21 @@ namespace x10aux {
         return x.toString();
     }
 
+    template<class T> x10::lang::String* to_string__tm__(x10tm::TMThread *SelfTM, T* x) {
+		x10::lang::Reference* xAsRef = reinterpret_cast<x10::lang::Reference*>(x);
+		return nullCheck(xAsRef)->toString();
+	}
+	template<class T> x10::lang::String* to_string__tm__(x10tm::TMThread *SelfTM, captured_ref_lval<T> x) {
+		return to_string(*x);
+	}
+	template<class T> x10::lang::String* to_string__tm__(x10tm::TMThread *SelfTM, captured_struct_lval<T> x) {
+		return to_string(*x);
+	}
+
+	template<class T> x10::lang::String* to_string__tm__(x10tm::TMThread *SelfTM, T x) {
+		return x.toString();
+	}
+
     x10::lang::String* to_string(x10_boolean v);
     x10::lang::String* to_string(x10_ubyte v);
     x10::lang::String* to_string(x10_byte v);
@@ -368,6 +607,21 @@ namespace x10aux {
     x10::lang::String* to_string(x10_double v);
 
     x10::lang::String* to_string(x10_char v);
+
+    x10::lang::String* to_string__tm__(x10tm::TMThread *SelfTM, x10_boolean v);
+	x10::lang::String* to_string__tm__(x10tm::TMThread *SelfTM, x10_ubyte v);
+	x10::lang::String* to_string__tm__(x10tm::TMThread *SelfTM, x10_byte v);
+	x10::lang::String* to_string__tm__(x10tm::TMThread *SelfTM, x10_ushort v);
+	x10::lang::String* to_string__tm__(x10tm::TMThread *SelfTM, x10_short v);
+	x10::lang::String* to_string__tm__(x10tm::TMThread *SelfTM, x10_uint v);
+	x10::lang::String* to_string__tm__(x10tm::TMThread *SelfTM, x10_int v);
+	x10::lang::String* to_string__tm__(x10tm::TMThread *SelfTM, x10_ulong v);
+	x10::lang::String* to_string__tm__(x10tm::TMThread *SelfTM, x10_long v);
+
+	x10::lang::String* to_string__tm__(x10tm::TMThread *SelfTM, x10_float v);
+	x10::lang::String* to_string__tm__(x10tm::TMThread *SelfTM, x10_double v);
+
+    x10::lang::String* to_string__tm__(x10tm::TMThread *SelfTM, x10_char v);
 
 
     /*
@@ -418,6 +672,7 @@ namespace x10aux {
     template<> struct Zero<x10_char> { static x10_char _() { return x10_char(0); } };
 
     template <class T> T zeroValue() { return Zero<T>::_(); }
+    template <class T> T zeroValue__tm__(x10tm::TMThread *SelfTM) { return Zero<T>::_(); }
     
 }
 

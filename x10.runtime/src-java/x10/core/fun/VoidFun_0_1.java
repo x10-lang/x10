@@ -17,12 +17,9 @@ import x10.rtt.Type;
 import x10.rtt.VoidFunType;
 
 public interface VoidFun_0_1<T1> extends VoidFun {
-    Object $apply(T1 o1, Type t1);
-    
-    public static final RuntimeType<VoidFun_0_1<?>> $RTT = VoidFunType.<VoidFun_0_1<?>> make(
-        VoidFun_0_1.class,
-        new Variance[] {
-            Variance.CONTRAVARIANT
-        }
-    );
+	Object $apply(T1 o1, Type t1);
+
+	public static final RuntimeType<VoidFun_0_1<?>> $RTT = VoidFunType
+			.<VoidFun_0_1<?>> make(VoidFun_0_1.class,
+					new Variance[] { Variance.CONTRAVARIANT });
 }

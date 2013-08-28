@@ -57,6 +57,26 @@ namespace x10 {
 
             virtual x10_boolean markSupported() { return false; }
 
+            virtual void close__tm__(x10tm::TMThread *SelfTM) { }
+
+			virtual x10_int read__tm__(x10tm::TMThread *SelfTM) = 0;
+
+			virtual x10_int read__tm__(x10tm::TMThread *SelfTM, x10::util::IndexedMemoryChunk<x10_byte> b);
+
+			virtual x10_int read__tm__(x10tm::TMThread *SelfTM, x10::util::IndexedMemoryChunk<x10_byte> b,
+								 x10_int off,
+								 x10_int len);
+
+			virtual x10_int available__tm__(x10tm::TMThread *SelfTM) { return 0; }
+
+			virtual void skip__tm__(x10tm::TMThread *SelfTM, x10_int) = 0;
+
+			virtual void mark__tm__(x10tm::TMThread *SelfTM, x10_int) { };
+
+			virtual void reset__tm__(x10tm::TMThread *SelfTM) { }
+
+			virtual x10_boolean markSupported__tm__(x10tm::TMThread *SelfTM) { return false; }
+
             static InputStreamReader__InputStream* STANDARD_IN();
 
             // Serialization
