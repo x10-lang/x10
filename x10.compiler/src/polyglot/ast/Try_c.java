@@ -30,7 +30,7 @@ public class Try_c extends Stmt_c implements Try
     protected Block tryBlock;
     protected List<Catch> catchBlocks;
     protected Block finallyBlock;
-    
+
     public Try_c(Position pos, Block tryBlock, List<Catch> catchBlocks, Block finallyBlock) {
 	super(pos);
 	assert(tryBlock != null && catchBlocks != null); // finallyBlock may be null, catchBlocks empty

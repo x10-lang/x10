@@ -2712,13 +2712,6 @@ public class TypeSystem_c implements TypeSystem
         return abortType_;
     }
 
-    protected X10ClassType TransactionType_;
-    public X10ClassType Transaction() {
-        if (TransactionType_ == null)
-        	TransactionType_ = load("x10.compiler.Transaction");
-        return TransactionType_;
-    }
-    
     protected X10ClassType stackAllocateType_;
     public X10ClassType StackAllocate() {
         if (stackAllocateType_ == null)

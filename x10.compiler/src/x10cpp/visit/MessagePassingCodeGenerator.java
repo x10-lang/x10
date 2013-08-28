@@ -21,7 +21,6 @@ import static x10cpp.visit.Emitter.mangled_non_method_name;
 import static x10cpp.visit.Emitter.translateFQN;
 import static x10cpp.visit.Emitter.translate_mangled_FQN;
 import static x10cpp.visit.Emitter.voidTemplateInstantiation;
-import static x10cpp.visit.SharedVarsMethods.TM_POSTFIX;
 import static x10cpp.visit.SharedVarsMethods.CONSTRUCTOR;
 import static x10cpp.visit.SharedVarsMethods.DESERIALIZATION_BUFFER;
 import static x10cpp.visit.SharedVarsMethods.DESERIALIZE_METHOD;
@@ -71,7 +70,6 @@ import polyglot.ast.Block;
 import polyglot.ast.Block_c;
 import polyglot.ast.BooleanLit_c;
 import polyglot.ast.Branch_c;
-import polyglot.ast.Call_c;
 import polyglot.ast.CanonicalTypeNode;
 import polyglot.ast.Case_c;
 import polyglot.ast.Catch;
@@ -97,7 +95,6 @@ import polyglot.ast.ForUpdate;
 import polyglot.ast.For_c;
 import polyglot.ast.Formal;
 import polyglot.ast.Formal_c;
-import polyglot.ast.Id;
 import polyglot.ast.Id_c;
 import polyglot.ast.If_c;
 import polyglot.ast.Import_c;
@@ -120,7 +117,6 @@ import polyglot.ast.PackageNode_c;
 import polyglot.ast.Receiver;
 import polyglot.ast.Return_c;
 import polyglot.ast.Stmt;
-import polyglot.ast.Stmt_c;
 import polyglot.ast.StringLit_c;
 import polyglot.ast.SwitchBlock_c;
 import polyglot.ast.SwitchElement;
@@ -135,7 +131,6 @@ import polyglot.ast.While_c;
 import polyglot.main.Reporter;
 import polyglot.types.ClassType;
 import polyglot.types.CodeInstance;
-import polyglot.types.ConstructorDef;
 import polyglot.types.ConstructorInstance;
 import polyglot.types.Context;
 import polyglot.types.FieldInstance;
@@ -286,9 +281,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
     }
 
     public void visit(ConstructorCall_c call) {
-    	X10CPPContext_c context = (X10CPPContext_c) tr.context();
-    	
-    	String targetClass = Emitter.translateType(call.constructorInstance().container());
+        String targetClass = Emitter.translateType(call.constructorInstance().container());
         Expr target = call.target();
         sw.write("(");
         if (target == null) {
@@ -296,23 +289,8 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
         } else {
             call.print(target, sw, tr);
         }
-        
-        // TM - constructor call
-        if (context.is_inside_tm)
-        {
-        	sw.write(")->::" +targetClass+ "::" +SharedVarsMethods.CONSTRUCTOR+SharedVarsMethods.TM_POSTFIX+"(");	
-        } else 
-        {
-        	sw.write(")->::" +targetClass+ "::" +SharedVarsMethods.CONSTRUCTOR+ "(");
-        }
+        sw.write(")->::" +targetClass+ "::" +SharedVarsMethods.CONSTRUCTOR+ "(");
         boolean noArgsYet = true;
-        if (context.is_inside_tm) {
-        	sw.allowBreak(2, 2, "", 0); // miser mode
-            sw.begin(0);
-            noArgsYet = false;
-            sw.write(tm_get_self_name());
-        }
-        	
         List<Expr> args = call.arguments();
         for (int i=0; i<args.size(); i++) {
             if (noArgsYet) {
@@ -397,20 +375,13 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 		        sw.popCurrentStream();
 		        ((X10CPPTranslator)tr).setContext(context); // FIXME
 		    } else if (dec instanceof X10MethodDecl_c) {
-		    	// TM - pending static declarations - headers
-		    	if (((X10MethodDecl_c) dec).getTM())
-		        {
-		        	context.is_inside_tm = true;
-		        } 
-		    	X10MethodDecl_c md = (X10MethodDecl_c) dec;
+		        X10MethodDecl_c md = (X10MethodDecl_c) dec;
 		        ((X10CPPTranslator)tr).setContext(md.enterScope(context)); // FIXME
 		        sw.pushCurrentStream(h);
 		        emitter.printHeader(md, sw, tr, false, false);
 		        sw.popCurrentStream();
 		        h.write(";");
 		        ((X10CPPTranslator)tr).setContext(context); // FIXME
-		        
-		        context.is_inside_tm = false;
 		    }
 		    h.newline(); h.forceNewline();
 		}
@@ -421,30 +392,6 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 		h.newline();
 	}
 
-    private String tm_get_self_type() {
-    	return MessagePassingCodeGenerator.s_tm_get_self_type();
-    }
-    
-    private String tm_get_self_name() {
-    	return MessagePassingCodeGenerator.s_tm_get_self_name();
-    }
-    
-    private String tm_get_self_declare() {
-    	return MessagePassingCodeGenerator.s_tm_get_self_declare();
-    }
-    
-    static public String s_tm_get_self_declare() {
-    	return "x10tm::TMThread *SelfTM";
-    }
-    
-    static public String s_tm_get_self_type() {
-    	return "x10tm::TMThread *";
-    }
-    
-    static public String s_tm_get_self_name() {
-    	return "SelfTM";
-    }
-    
 	private void extractGenericStaticInits(X10ClassDef cd) {
 	    X10CPPContext_c context = (X10CPPContext_c) tr.context();
 
@@ -467,12 +414,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 	            generateStaticFieldSupportCode(fd, container, sw);
 	            ((X10CPPTranslator)tr).setContext(context); // FIXME
 	        } else if (dec instanceof X10MethodDecl_c) {
-	        	// TM - pending static declarations - implementations
-	        	if (((X10MethodDecl_c) dec).getTM())
-	            {
-	            	context.is_inside_tm = true;
-	            }
-	        	X10MethodDecl_c md = (X10MethodDecl_c) dec;
+	            X10MethodDecl_c md = (X10MethodDecl_c) dec;
 	            X10MethodDef def = md.methodDef();
 	            boolean templateMethod = def.typeParameters().size() != 0;
 	            if (templateMethod)
@@ -482,17 +424,9 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 	            emitter.printType(md.returnType().type(), sw);
 	            sw.allowBreak(2, " ");
 	            sw.write(container+"::");
-	            
-	            sw.write(mangled_method_name(md.name().id().toString(), context.is_inside_tm)+"(");
-	            
+	            sw.write(mangled_method_name(md.name().id().toString()) + "(");
 	            sw.begin(0);
 	            boolean first = true;
-	            // self - s
-	            if (context.is_inside_tm) {
-	            	sw.write(tm_get_self_declare());
-                    first = false;
-	            }
-	            // self - e 
 	            for (Formal f : md.formals()) {
 	                if (first) {
 	                    first = false;
@@ -512,9 +446,6 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 	            ((X10CPPTranslator)tr).setContext(context); // FIXME
 	            if (templateMethod)
 	                sw.popCurrentStream();
-	            
-	            context.is_inside_tm = false;
-	            
 	        } else if (dec instanceof Initializer_c) {
 	            assert (false) : ("Static initializer alert!");
 	        } else if (dec instanceof X10ClassDecl_c) {
@@ -651,7 +582,6 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
         h.write("#define __"+cguard); h.newline();
         h.forceNewline(0);
         h.write("#include <x10rt.h>"); h.newline();
-        h.write("#include <x10tm.h>"); h.newline();
         h.forceNewline(0);
         // process annotations relating to additional h/c++ files
         try {
@@ -1022,103 +952,6 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
         }
     }
 
-    private void visitInterfaceBody_handle_static(ClassifiedStream h,
-    										      ITable itable,
-    										      MethodInstance meth,
-    											  ClassBody_c n, 
-    											  X10ClassType currentClass, 
-    											  X10CPPContext_c context,
-    											  TypeSystem xts,
-    											  boolean is_inside_tm)
-    {
-    	// TM - Interface body 
-    	String mname = itable.mangledName(meth, is_inside_tm);
-        
-        // Method for x10::lang::Reference (objects, closures, boxed structs)
-        h.write("static "+Emitter.translateType(meth.returnType(), true));
-        h.write(" "+mname+"("+Emitter.translateType(currentClass, true)+" _recv");
-        int argNum=0;
-        // self - s
-        if (is_inside_tm) {
-        	h.write(", ");
-        	h.write(tm_get_self_type() +" arg"+(argNum++));
-        }
-        // self - e
-        for (Type f : meth.formalTypes()) {
-            h.write(", ");
-            h.write(Emitter.translateType(f, true)+" arg"+(argNum++));
-        }
-        h.write(") {"); h.newline(4); h.begin(0);
-        h.writeln("x10::lang::Reference* _refRecv = reinterpret_cast<x10::lang::Reference*>(_recv);");
-        boolean needsCast = false;
-        if (!meth.returnType().isVoid()) {
-            h.write("return ");
-            // the cast is because our generated member function may use a more general
-            // return type and c++ does not support covariant smartptr returns
-            // TODO: See TODO in CastInjector.
-            Type ret_type = emitter.findRootMethodReturnType(meth.x10Def(), null, meth);
-            needsCast = !xts.typeDeepBaseEquals(meth.returnType(), ret_type, context);
-            if (needsCast) {
-                h.write(selectUncheckedCast(xts, ret_type, meth.returnType()));
-                h.write(chevrons(Emitter.translateType(meth.returnType(), true)));
-                h.write("(");
-            }
-        }
-        h.write("(_refRecv->*(x10aux::findITable"+chevrons(Emitter.translateType(currentClass, false))+"(_refRecv->_getITables())->"+mname+"))(");
-        boolean first = true;
-        argNum = 0;
-        for (Type f : meth.formalTypes()) {
-            if (!first) h.write(", ");
-            h.write("arg"+(argNum++));
-            first = false;
-        }
-        // self - s
-        if (is_inside_tm) {
-        	if (!first) h.write(", ");
-            h.write("arg"+(argNum++));
-            first = false;
-        }
-        // self - e
-        if (needsCast) h.write(")");
-        h.write(");");
-        h.end(); h.newline();
-        h.writeln("}");
-        
-        
-        // Method for unboxed structs that are not C++ built-in primitives
-        h.write("template <class R> static "+Emitter.translateType(meth.returnType(), true));
-        h.write(" "+mname+"(R _recv");
-        argNum=0;
-        if (is_inside_tm) {
-        	h.write(", ");
-        	h.write(tm_get_self_type() + " arg"+(argNum++));
-        }
-        for (Type f : meth.formalTypes()) {
-            h.write(", ");
-            h.write(Emitter.translateType(f, true)+" arg"+(argNum++));
-        }
-        h.write(") {"); h.newline(4); h.begin(0);
-        if (!meth.returnType().isVoid()) h.write("return ");
-        h.write("_recv->"+Emitter.mangled_method_name(meth.name().toString(), is_inside_tm)+"(");
-        argNum = 0;
-        first = true;
-        for (Type f : meth.formalTypes()) {
-            if (!first) h.write(", ");
-            h.write("arg"+(argNum++));
-            first = false;
-        }
-        // self - s
-        if (is_inside_tm) {
-        	if (!first) h.write(", ");
-        	h.write("arg"+(argNum++));
-        }
-        // self - e 
-        
-        h.write(");");
-        h.end(); h.newline();
-        h.writeln("}");
-    }
-    
     private void visitInterfaceBody(ClassBody_c n, X10CPPContext_c context,
                                 X10ClassType currentClass, X10ClassType superClass,
                                 TypeSystem xts) {
@@ -1142,13 +975,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
                 h.write(", ");
             }
             firstMethod = false;
-            
-            itable.emitFunctionPointerDecl(h, emitter, meth, "I", true, false);
-            // --TM--
-            if (!firstMethod) {
-                h.write(", ");
-            }
-            itable.emitFunctionPointerDecl(h, emitter, meth, "I", true, true);
+            itable.emitFunctionPointerDecl(h, emitter, meth, "I", true);
         }
         h.write(") ");
         firstMethod = true;
@@ -1159,12 +986,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
             } else {
                 h.write(", ");
             }
-            String name = itable.mangledName(meth, false);
-            h.write(name+"("+name+")");
-            
-            // --TM--
-            h.write(", ");
-            name = itable.mangledName(meth, true);
+            String name = itable.mangledName(meth);
             h.write(name+"("+name+")");
         }
         h.write(" {}");
@@ -1174,12 +996,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
         for (MethodInstance meth : itable.getMethods()) {
             if (!firstMethod) h.newline();
             firstMethod = false;
-            itable.emitFunctionPointerDecl(h, emitter, meth, "I", true, false);
-            h.write(";");
-            
-            // --TM--
-            h.newline();
-            itable.emitFunctionPointerDecl(h, emitter, meth, "I", true, true);
+            itable.emitFunctionPointerDecl(h, emitter, meth, "I", true);
             h.write(";");
         }
         h.end(); h.newline();
@@ -1188,9 +1005,67 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
         
         // Static methods that encapsulate itable lookup and invocation
         for (MethodInstance meth : itable.getMethods()) {
-        	visitInterfaceBody_handle_static(h, itable, meth, n, currentClass, context, xts, false);
-        	// --TM--
-        	visitInterfaceBody_handle_static(h, itable, meth, n, currentClass, context, xts, true);
+            String mname = itable.mangledName(meth);
+            
+            // Method for x10::lang::Reference (objects, closures, boxed structs)
+            h.write("static "+Emitter.translateType(meth.returnType(), true));
+            h.write(" "+mname+"("+Emitter.translateType(currentClass, true)+" _recv");
+            int argNum=0;
+            for (Type f : meth.formalTypes()) {
+                h.write(", ");
+                h.write(Emitter.translateType(f, true)+" arg"+(argNum++));
+            }
+            h.write(") {"); h.newline(4); h.begin(0);
+            h.writeln("x10::lang::Reference* _refRecv = reinterpret_cast<x10::lang::Reference*>(_recv);");
+            boolean needsCast = false;
+            if (!meth.returnType().isVoid()) {
+                h.write("return ");
+                // the cast is because our generated member function may use a more general
+                // return type and c++ does not support covariant smartptr returns
+                // TODO: See TODO in CastInjector.
+                Type ret_type = emitter.findRootMethodReturnType(meth.x10Def(), null, meth);
+                needsCast = !xts.typeDeepBaseEquals(meth.returnType(), ret_type, context);
+                if (needsCast) {
+                    h.write(selectUncheckedCast(xts, ret_type, meth.returnType()));
+                    h.write(chevrons(Emitter.translateType(meth.returnType(), true)));
+                    h.write("(");
+                }
+            }
+            h.write("(_refRecv->*(x10aux::findITable"+chevrons(Emitter.translateType(currentClass, false))+"(_refRecv->_getITables())->"+mname+"))(");
+            boolean first = true;
+            argNum = 0;
+            for (Type f : meth.formalTypes()) {
+                if (!first) h.write(", ");
+                h.write("arg"+(argNum++));
+                first = false;
+            }
+            if (needsCast) h.write(")");
+            h.write(");");
+            h.end(); h.newline();
+            h.writeln("}");
+            
+            
+            // Method for unboxed structs that are not C++ built-in primitives
+            h.write("template <class R> static "+Emitter.translateType(meth.returnType(), true));
+            h.write(" "+mname+"(R _recv");
+            argNum=0;
+            for (Type f : meth.formalTypes()) {
+                h.write(", ");
+                h.write(Emitter.translateType(f, true)+" arg"+(argNum++));
+            }
+            h.write(") {"); h.newline(4); h.begin(0);
+            if (!meth.returnType().isVoid()) h.write("return ");
+            h.write("_recv->"+Emitter.mangled_method_name(meth.name().toString())+"(");
+            argNum = 0;
+            first = true;
+            for (Type f : meth.formalTypes()) {
+                if (!first) h.write(", ");
+                h.write("arg"+(argNum++));
+                first = false;
+            }
+            h.write(");");
+            h.end(); h.newline();
+            h.writeln("}");
         }
 
         if (!members.isEmpty()) {
@@ -1416,10 +1291,9 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
                                                        X10ClassType superClass, TypeSystem xts, ClassifiedStream h,
                                                        List<ClassMember> members) {
         boolean didSomething = false;
-        //Set<Name> possibleNames = CollectionFactory.newHashSet();
-        Set<MethodInstance> possibleNames = CollectionFactory.newHashSet();
+        Set<Name> possibleNames = CollectionFactory.newHashSet();
         for (MethodInstance mi : childClass.methods()) {
-            possibleNames.add(mi);
+            possibleNames.add(mi.name());
         }
         while (superClass != null && !possibleNames.isEmpty()) {
             didSomething = generateUsingDeclsHelper(context, childClass, superClass, h, didSomething, possibleNames);
@@ -1434,17 +1308,12 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
         if (didSomething) h.forceNewline();
     }
 
-//	private boolean generateUsingDeclsHelper(X10CPPContext_c context,
-//			X10ClassType childClass, X10ClassType superClass,
-//			ClassifiedStream h, boolean didSomething, Set<Name> possibleNames) {
-		private boolean generateUsingDeclsHelper(X10CPPContext_c context,
-				X10ClassType childClass, X10ClassType superClass,
-				ClassifiedStream h, boolean didSomething, Set<MethodInstance> possibleNames) {
-		Set<Name> existing_names = CollectionFactory.newHashSet();
-		Iterator<MethodInstance> names = possibleNames.iterator();
+	private boolean generateUsingDeclsHelper(X10CPPContext_c context,
+			X10ClassType childClass, X10ClassType superClass,
+			ClassifiedStream h, boolean didSomething, Set<Name> possibleNames) {
+		Iterator<Name> names = possibleNames.iterator();
 		nameLoop: while (names.hasNext()) {
-			MethodInstance mi = names.next();
-			Name methName = mi.name();
+		    Name methName = names.next();
 		    List<MethodInstance> childImpls = childClass.methodsNamed(methName);
 		    List<MethodInstance> parentImpls = superClass.methodsNamed(methName);
 		    if (!parentImpls.isEmpty()) {
@@ -1466,33 +1335,11 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 		        
 		        if (emitUsing) {
 		            names.remove();
-		            if (existing_names.contains(methName))
-		            {
-		            	continue nameLoop;
-		            }
-		            existing_names.add(methName);
-		            
-		            boolean is_native = false;
-		            for (MethodInstance parentImpl : parentImpls) {
-		            	if (parentImpl.flags().isNative()) {
-		            		is_native = true;
-		            	}
-		            }
 		            if (superClass.isAny()) {
-		            	h.writeln("using "+CLASS_TYPE+"::"+mangled_method_name(methName.toString(), false)+";");		            	
+		            	h.writeln("using "+CLASS_TYPE+"::"+mangled_method_name(methName.toString())+";");		            	
 		            } else {
-		            	h.writeln("using "+Emitter.translateType(superClass,false)+"::"+mangled_method_name(methName.toString(), false)+";");
+		            	h.writeln("using "+Emitter.translateType(superClass,false)+"::"+mangled_method_name(methName.toString())+";");
 		            }
-		            //--TM--
-		            if (!is_native) {
-			            if (superClass.isAny()) {
-			            	h.writeln("using "+CLASS_TYPE+"::"+mangled_method_name(methName.toString(), true)+";");		            	
-			            } else {
-			            	h.writeln("using "+Emitter.translateType(superClass,false)+"::"+mangled_method_name(methName.toString(), true)+";");
-			            }
-		            }
-		            
-		            //--TM--
 		            didSomething = true;
 		            continue nameLoop;
 		        }  
@@ -1540,8 +1387,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 
 	public static final QName HEADER_ANNOTATION = QName.make("x10.compiler.Header");
 
-	public void visit_method_decl(X10MethodDecl_c dec) {
-		
+	public void visit(X10MethodDecl_c dec) {
 		X10CPPContext_c context = (X10CPPContext_c) tr.context();
 		TypeSystem xts =  tr.typeSystem();
 		Flags flags = dec.flags().flags();
@@ -1564,9 +1410,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 		X10ClassType container = (X10ClassType) mi.container();
 		ClassifiedStream h = sw.header();
 		if ((container.x10Def().typeParameters().size() != 0) && flags.isStatic()) {
-			
-			// TM - pending static declarations list initialization
-			context.pendingStaticDecls().add(dec.setTM(context.is_inside_tm));
+			context.pendingStaticDecls().add(dec);
 			return;
 		}
 		int mid = getUniqueId_().intValue();
@@ -1575,9 +1419,8 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 		    sw.pushCurrentStream(context.genericFunctions);
 		    context.closures = context.genericFunctionClosures;
 		    String guard = getHeaderGuard(getHeader(mi.container().toClass()));
-		    // TM - generics protect ifdef
-		    sw.write("#ifndef "+guard+"_"+Emitter.mangled_method_name(mi.name().toString(), context.is_inside_tm)+"_"+mid); sw.newline();
-		    sw.write("#define "+guard+"_"+Emitter.mangled_method_name(mi.name().toString(), context.is_inside_tm)+"_"+mid); sw.newline();
+		    sw.write("#ifndef "+guard+"_"+Emitter.mangled_method_name(mi.name().toString())+"_"+mid); sw.newline();
+		    sw.write("#define "+guard+"_"+Emitter.mangled_method_name(mi.name().toString())+"_"+mid); sw.newline();
 		}
 
 		// we sometimes need to use a more general return type as c++ does not support covariant smartptr return types
@@ -1642,8 +1485,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
                 }
                 List<Type> classTypeArguments  = Collections.<Type>emptyList();
                 List<ParameterType> classTypeParams  = Collections.<ParameterType>emptyList();
-                // TM - native
-                emitNativeAnnotation(nativePat, mi.x10Def().typeParameters(), mi.typeParameters(), target, params, args, classTypeParams, classTypeArguments, context.is_inside_tm);
+                emitNativeAnnotation(nativePat, mi.x10Def().typeParameters(), mi.typeParameters(), target, params, args, classTypeParams, classTypeArguments);
                 sw.write(";");
                 sw.end(); sw.newline();
                 sw.writeln("}");
@@ -1678,35 +1520,13 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 		if (def.typeParameters().size() != 0) {
 		    sw.popCurrentStream();
 		    String guard = getHeaderGuard(getHeader(mi.container().toClass()));
-		    context.genericFunctions.writeln("#endif // "+guard+"_"+Emitter.mangled_method_name(mi.name().toString(), context.is_inside_tm)+"_"+mid);
+		    context.genericFunctions.writeln("#endif // "+guard+"_"+Emitter.mangled_method_name(mi.name().toString())+"_"+mid);
 		}
 		context.closures = saved_closure_stream;
 	}
-	
-	public void visit(X10MethodDecl_c dec) {
-		X10CPPContext_c context = (X10CPPContext_c) tr.context();
-		
-//		X10MethodDecl_c dec_orig = dec;
-//		Id name = dec.name();
-//		
-		String m_name = dec.name().toString();
-	
-//		dec = (X10MethodDecl_c)dec.name(name);
-//		
-		if (0 != m_name.compareTo("main"))
-		{
-			//def.setName(Name.make(methodName + "__tm__"));
-			// TM - method declaration
-			context.is_inside_tm = true;
-			visit_method_decl(dec);
-			context.is_inside_tm = false;
-		}
-		//def.setName(Name.make(methodName));
-		visit_method_decl(dec);
-	}
 
-	
-	public void visit_ConstructorDecl_c(ConstructorDecl_c dec) {
+
+	public void visit(ConstructorDecl_c dec) {
 
 	    // [DC] here we generate a pair of functions to form a fake
 	    // constructor.   Real constructors are no use to us because they
@@ -1720,7 +1540,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 	    X10CPPContext_c context = (X10CPPContext_c) tr.context();
 	    if (dec.flags().flags().isNative())
 	        return;
-	    
+
 	    ClassifiedStream h = sw.header();
 
 	    X10ClassType container = (X10ClassType) dec.constructorDef().container().get();
@@ -1767,15 +1587,8 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 	    VarInstance<?> ti = ts.localDef(Position.COMPILER_GENERATED, Flags.FINAL,
 	                                 Types.ref(container), Name.make(THIS)).asInstance();
 	    context.addVariable(ti);
-	    
-	    // TM - do not instrument struct constructor, because it creates a local struct variable, which is initialized
-	    // and returned AS IS (value copy). 
-	    boolean saved_is_inside_tm = context.is_inside_tm;
-	    if (container.isX10Struct()) {
-	    	context.is_inside_tm = false;
-	    }
-	    dec.printSubStmt(dec.body(), sw, tr);
-	    context.is_inside_tm = saved_is_inside_tm;
+
+        dec.printSubStmt(dec.body(), sw, tr);
 
 	    sw.newline();
 	    if (inlineInClassDecl) {
@@ -1808,18 +1621,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 	            sw.write(make_ref(typeName)+" this_ = "+
 	                    "new (memset(x10aux::alloc"+chevrons(typeName)+"(), 0, sizeof("+typeName+"))) "+typeName+"();"); sw.newline();
 	        }
-	        // TM - constructor declaration
-	        if (context.is_inside_tm) 
-	        {
-	        	sw.write("this_->"+CONSTRUCTOR+TM_POSTFIX+"("+tm_get_self_name()+"");
-	        	if (dec.formals().size() > 0) {
-		            sw.write(",");
-	                sw.allowBreak(0, " ");
-		        }
-	        } else {
-	        	sw.write("this_->"+CONSTRUCTOR+"(");
-	        }
-	        
+            sw.write("this_->"+CONSTRUCTOR+"(");
 	        for (Iterator<Formal> i = dec.formals().iterator(); i.hasNext(); ) {
 	            Formal f = i.next();
 	            sw.write(mangled_non_method_name(f.name().id().toString()));
@@ -1840,18 +1642,6 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 	    }
 
 	    sw.newline(); sw.forceNewline();
-
-	}
-	
-	public void visit(ConstructorDecl_c dec) {
-		X10CPPContext_c context = (X10CPPContext_c) tr.context();
-		
-		// TM - constructor declaration
-		context.is_inside_tm = true;
-		visit_ConstructorDecl_c(dec);
-		context.is_inside_tm = false;
-		
-		visit_ConstructorDecl_c(dec);
 	}
 
 	private String embeddedName(Name name) {
@@ -2214,17 +2004,6 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 	}
 
 
-	public boolean tm_is_pointer_type(Type type)
-	{
-		X10CPPContext_c context = (X10CPPContext_c) tr.context();
-		TypeSystem xts = tr.typeSystem();
-		
-
-		return (xts.isObjectType(type, context) || 
-				xts.isAny(type) || 
-				xts.isInterfaceType(type, context));
-	}
-	
 	public void visit(Assign_c asgn) {
         X10CPPContext_c context = (X10CPPContext_c) tr.context();
 	    boolean unsigned_op = false;
@@ -2244,46 +2023,6 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 
 	    Expr lhs = asgn.left();
 	    Expr rhs = asgn.right();
-	    
-	    // Alex - TM - s
-	    String real_type = "";
-	    String tm_type = ""; 
-	    // TM - field assignment
-	    boolean is_inside_tm = false;
-	    if (context.is_inside_tm && lhs instanceof Field_c)
-	    { 
-	    	is_inside_tm = true;
-	    	((Field_c) lhs).set_is_tm(false);
-	    	
-	    	real_type = Emitter.translateType(lhs.type());
-	    	tm_type = Emitter.translateType(lhs.type());
-	    	
-	    	String type_space = "";
-			
-			if (real_type.endsWith(">"))
-			{
-				type_space = " ";
-			}
-			
-			
-	    	if (tm_is_pointer_type(lhs.type()))
-	    	{
-	    		String ptr = " * ";
-	    		if (real_type.contains("TPMGL") && !real_type.contains(">")) {
-	    			ptr = "";
-	    		}
-	    		/*if (real_type.endsWith(")")) {
-	    			real_type = real_type.substring(0, real_type.length()-1) + "*)";
-	    			ptr = "";
-	    		}*/
-	    		sw.write("(x10tm::tm_store< "+real_type+ptr+type_space+">( "+tm_get_self_name()+", &(");
-	    	} else {
-	    		sw.write("(x10tm::tm_store< "+real_type+""+type_space+">( "+tm_get_self_name()+", &(");
-	    	}
-
-	    }
-	    // Alex - TM - e
-	    
 	    if (unsigned_op) {
 	        sw.write("("+Emitter.translateType(asgn.type())+")(");
 	        sw.write("(("+emitter.makeUnsignedType(lhs.type())+"&)");
@@ -2291,22 +2030,16 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 	    asgn.printSubExpr(lhs, false, sw, tr);
 	    if (unsigned_op)
 	        sw.write(")");
-	    // Alex - TM - s
-	    if (is_inside_tm) {
-	    	sw.write(") , ");
-	    } else {
-	    // Alex - TM - e
-		    sw.write(" ");
-		    if (asgn.operator() != Assign_c.ASSIGN) {
-		        assert (false);
-		        sw.write("/"+"*"+" op= "+"*"+"/");
-		        sw.write(" ");
-		    }
-		    
-		    // [IP] Are all the operators the same?
-		    sw.write(opString);
-		    sw.allowBreak(2, 2, " ", 1);
+	    sw.write(" ");
+	    if (asgn.operator() != Assign_c.ASSIGN) {
+	        assert (false);
+	        sw.write("/"+"*"+" op= "+"*"+"/");
+	        sw.write(" ");
 	    }
+	    // [IP] Are all the operators the same?
+	    sw.write(opString);
+	    sw.allowBreak(2, 2, " ", 1);
+
 	    if (unsigned_op)
 	        sw.write("(("+emitter.makeUnsignedType(rhs.type())+")");
 	    Boolean embed = false;
@@ -2316,49 +2049,24 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
                 embed = true;
             }
         }
-        
         if (embed && !xts.isStructType(rhs.type())) {
             FieldInstance fi = ((FieldAssign) asgn).fieldInstance();
             if (rhs instanceof StmtExpr_c && ((StmtExpr_c) rhs).statements().size()>=2 && ((StmtExpr_c) rhs).statements().get(1) instanceof ConstructorCall_c) {
-            	// rhs is split constructor
-            	// TM - right part is a split constructor
-            	if (is_inside_tm)
-                {
-                	sw.write("&"+embeddedName(fi.name()) + "));");
-                } else 
-                {
-                	sw.write("&"+embeddedName(fi.name())+";");
-                }
-            	is_inside_tm = false;
-            	sw.newline();
+                // rhs is split constructor
+                sw.write("&"+embeddedName(fi.name())+";");
+                sw.newline();
                 asgn.print(((ConstructorCall_c) ((StmtExpr_c) rhs).statements().get(1)).target(lhs), sw, tr);
-                
             } else {
                 // rhs is new
-            	// TM - "new" memory allocation: disable TM for now
-            	if (rhs instanceof New_c)
-            	{
-            		is_inside_tm = false;
-            	}
                 context.setEmbeddedFieldName(embeddedName(fi.name()));
                 asgn.printSubExpr(rhs, true, sw, tr);
                 context.setEmbeddedFieldName(null);
-                
             }
         } else {
-            if (is_inside_tm)
-            {
-            	sw.write("");
-            }
-        	asgn.printSubExpr(rhs, true, sw, tr);
+            asgn.printSubExpr(rhs, true, sw, tr);
         }
 	    if (unsigned_op)
 	        sw.write("))");
-	    // Alex - TM - s
-	    if (is_inside_tm) {
-	    	sw.write("))");
-	    }
-	    // Alex - TM - e
 	}
 
 
@@ -2465,30 +2173,15 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
             sw.newline(0);
             sw.begin(0);
         }
-        
-        
+
 		if (b.statements().size() > 0) {
 			sw.newline(4);
 			sw.begin(0);
-			boolean is_tm_init_self_saved = context.is_tm_init_self;
-			if (context.is_tm_init_self) {
-	        	sw.write("x10tm::TMThread *SelfTM = x10tm::tm_get_self(x10aux::here, tm_thread_id);");
-	        	sw.newline();
-	        	sw.write("TM_START(SelfTM, {});");
-	        	sw.newline();
-	        	context.is_tm_init_self = false;
-	        }
-	        
 			for (Iterator<Stmt> i = b.statements().iterator(); i.hasNext(); ) {
 				Stmt n = i.next();
 				b.printBlock(n, sw, tr);
 				if (i.hasNext())
 					sw.newline();
-			}
-			if (is_tm_init_self_saved) {
-				sw.newline();
-				sw.write("TM_END(SelfTM);");
-	        	sw.newline();
 			}
 			sw.end();
 			sw.newline(0);
@@ -2787,28 +2480,6 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 		Receiver target = n.target();
 		Type t = target.type();
 		
-		String m_name = n.name().id().toString();
-		
-		// TM - function call
-		// TM_TODO: consider removing this function names
-		boolean is_inside_tm = false;
-		if (context.is_inside_tm)
-		{
-			if (/*(!mi.flags().isNative()) &&*/
-				(m_name.compareTo("enterTM") != 0) &&
-				(m_name.compareTo("exitTM") != 0) && 
-				(m_name.compareTo("plausibleThrow") != 0) &&
-				/*(m_name.contains("operator") == false) &&*/
-				(m_name.contains("printStackTrace") == false)  &&
-				(m_name.contains("tm_") == false) &&
-				(m_name.contains("runAt") == false)
-			   )
-				
-			{
-				is_inside_tm = true;
-			}
-		}
-		
 		X10MethodDef md = mi.x10Def();
 		if (mi.flags().isStatic()) {
 		    TypeNode tn =
@@ -2839,8 +2510,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 					Map<String,Object> components = new HashMap<String,Object>();
 					components.put("this", target);
 					components.put("0", target);
-		            // TM - native replacement
-					emitter.nativeSubst("Native", components, tr, pat, sw, is_inside_tm);
+		            emitter.nativeSubst("Native", components, tr, pat, sw);
 		            return;
 		        }
 		    }
@@ -2879,8 +2549,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 		            if (classTypeArguments == null) classTypeArguments = Collections.<Type>emptyList();
 		            if (classTypeParams == null) classTypeParams = Collections.<ParameterType>emptyList();
 		        }
-		        // TM - native
-		        emitNativeAnnotation(pat, mi.x10Def().typeParameters(), mi.typeParameters(), target, params, n.arguments(), classTypeParams, classTypeArguments, is_inside_tm);
+		        emitNativeAnnotation(pat, mi.x10Def().typeParameters(), mi.typeParameters(), target, params, n.arguments(), classTypeParams, classTypeArguments);
 		        return;
 		    }
 		}
@@ -2898,7 +2567,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 		sw.begin(0);
 		String dangling = "";
 		boolean already_static = false;
-		String targetMethodName = mangled_method_name(n.name().id().toString(), is_inside_tm);
+		String targetMethodName = mangled_method_name(n.name().id().toString());
 		boolean isInterfaceInvoke = false;
 		boolean needsNullCheck = needsNullCheck(target);
 		if (!n.isTargetImplicit()) {
@@ -2920,7 +2589,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 		            if (t.isClass()) {
 		                X10ClassType clsType = (X10ClassType)t.toClass();
 		                if (clsType.flags().isInterface()) {
-		                    invokeInterface(n, (Expr) target, n.arguments(), make_ref(REFERENCE_TYPE), clsType, mi, needsNullCheck, is_inside_tm);
+		                    invokeInterface(n, (Expr) target, n.arguments(), make_ref(REFERENCE_TYPE), clsType, mi, needsNullCheck);
 		                    sw.end();
 		                    if (needsCast) {
 		                        sw.write(")");
@@ -2929,7 +2598,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 		                }
 		            } else if (xts.isParameterType(t)) {
 		                if (mi.container().isClass() && mi.container().toClass().flags().isInterface()) {
-		                    invokeInterface(n, (Expr) target, n.arguments(), Emitter.translateType(t), mi.container(), mi, true, is_inside_tm);
+		                    invokeInterface(n, (Expr) target, n.arguments(), Emitter.translateType(t), mi.container(), mi, true);
 		                    sw.end();
 		                    if (needsCast) {
 		                        sw.write(")");
@@ -2983,7 +2652,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 		    emitter.printTemplateInstantiation(mi, sw);
 		}
 		sw.write("(");
-		printCallActuals(n, context, xts, mi, n.arguments(), is_inside_tm);
+		printCallActuals(n, context, xts, mi, n.arguments());
 		sw.write(")");
 		sw.write(dangling);
 		sw.end();
@@ -2994,7 +2663,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 	}
 
 	private void invokeInterface(Node_c n, Expr target, List<Expr> args, String dispType, Type contType,
-	                             MethodInstance mi, boolean needsNullCheck, boolean is_inside_tm)
+	                             MethodInstance mi, boolean needsNullCheck)
 	{
 	    X10CPPContext_c context = (X10CPPContext_c) tr.context();
 	    TypeSystem xts = tr.typeSystem();
@@ -3005,42 +2674,24 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 	    assert (clsType.flags().isInterface()); // have to dispatch to an interface type.
 
 	    ITable itable= context.getITable(clsType);
-	    String targetMethodName = itable.mangledName(mi, is_inside_tm);
+	    String targetMethodName = itable.mangledName(mi);
 	    sw.write(Emitter.translateType(clsType, false)+"::"+targetMethodName+"(");
 	    if (needsNullCheck) sw.write("x10aux::nullCheck(");
 	    n.print(target, sw, tr);
 	    if (needsNullCheck) sw.write(")");
-	    if (is_inside_tm || mi.formalTypes().size()>0) sw.write(", ");
-	    printCallActuals(n, context, xts, mi, args, is_inside_tm);
+	    if (mi.formalTypes().size()>0) sw.write(", ");
+	    printCallActuals(n, context, xts, mi, args);
 	    sw.write(")");
 	}
 
 	private void printCallActuals(Node_c n, X10CPPContext_c context, TypeSystem xts, MethodInstance mi,
-	                              List<Expr> args, boolean is_inside_tm)
+	                              List<Expr> args)
 	{
 		int counter;
-		if (is_inside_tm)
-		{
+		if (args.size() > 0) {
 			sw.allowBreak(2, 2, "", 0); // miser mode
 			sw.begin(0);
-			sw.write(tm_get_self_name());
 			counter = 0;
-			if (args.size() > 0)
-			{
-				sw.write(",");
-				sw.allowBreak(0, " ");
-			} else {
-				sw.end();
-			}
-		}
-		if (args.size() > 0) {
-			if (!is_inside_tm) {
-				sw.allowBreak(2, 2, "", 0); // miser mode
-				sw.begin(0);
-				counter = 0;
-			} else {
-				counter = 1;
-			}
 			for (Iterator<Expr> i = args.iterator(); i.hasNext(); ) {
 				Expr e = i.next();
 				n.print(e, sw, tr);
@@ -3056,24 +2707,14 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 
 
 	public void visit(Field_c n) {
-		boolean is_inside_tm = false;
-		
 		X10CPPContext_c context = (X10CPPContext_c) tr.context();
 		Receiver target = n.target();
 		Type t = target.type();
 
 		TypeSystem xts = (TypeSystem) t.typeSystem();
 		X10FieldInstance fi = (X10FieldInstance) n.fieldInstance();
+
 		X10FieldDef fd = fi.x10Def();
-        
-		boolean saved_is_inside_tm = context.is_inside_tm;
-		
-		if (target instanceof Expr) {	 
-			if (target instanceof Tuple_c) {
-				context.is_inside_tm = false;
-			}
-		}
-		
 		if (target instanceof TypeNode) {
 		    assert (fi.flags().isStatic());
 		    TypeNode tn = (TypeNode) target;
@@ -3093,9 +2734,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 			Map<String,Object> components = new HashMap<String,Object>();
 			components.put("this", target);
 			components.put("0", target);
-			// TM - native replacement
-			emitter.nativeSubst("Native", components, tr, pat, sw, context.is_inside_tm);
-			context.is_inside_tm = context.is_inside_tm;
+			emitter.nativeSubst("Native", components, tr, pat, sw);
 			return;
 		}
 
@@ -3109,38 +2748,6 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 				//sw.write("->");
 			}
 		}
-
-		// TM - field load 
-		// NOTE 1: static fields ignored
-		if (context.is_inside_tm && n.get_is_tm() == true)
-		{
-			if (n.fieldInstance().flags().isStatic())
-			{
-				is_inside_tm = false;
-			} else {
-				is_inside_tm = true;
-				
-				String real_type = Emitter.translateType(n.type());
-				String type_space = "";
-				
-				if (real_type.endsWith(">"))
-				{
-					type_space = " ";
-				}
-				
-				
-		    	if (tm_is_pointer_type(n.type()))
-		    	{
-//		    		sw.write("(("+real_type+"*)x10aux::tm_load_x10_class((x10_long **)&( ");
-					sw.write("(x10tm::tm_load<"+real_type+"*"+type_space+">( "+tm_get_self_name()+", &( ");
-		    	} else {
-//		    		sw.write("(("+real_type+")x10aux::tm_load_"+real_type+"(("+real_type+" *)&( ");
-					sw.write("(x10tm::tm_load<"+real_type+""+type_space+">( "+tm_get_self_name()+", &( ");
-		    	}
-
-			}
-		}
-		// Alex - TM - e
 		String name = n.name().id().toString();
 		assert (target != null);
 		if (target instanceof Expr) {
@@ -3154,14 +2761,13 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 	            sw.write(mangled_field_name(name+STATIC_FIELD_ACCESSOR_SUFFIX) + "()");
 				sw.write(")");
 				sw.end();
-				context.is_inside_tm = context.is_inside_tm;
 				return;
 			} else {
 			    boolean needsNullCheck = !Types.isX10Struct(t) && needsNullCheck(target);
 				boolean assoc = !(target instanceof New_c || target instanceof Binary_c);
-				
+				if (needsNullCheck) sw.write("x10aux::nullCheck(");
 				n.printSubExpr((Expr) target, assoc, sw, tr);
-				
+				if (needsNullCheck) sw.write(")");
 			}
 		}
 		else if (target instanceof TypeNode || target instanceof AmbReceiver) {
@@ -3181,14 +2787,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 		} else {
 		    sw.write(mangled_field_name(name+STATIC_FIELD_ACCESSOR_SUFFIX) + "()");
 		}
-		// Alex - TM - s
-		if (is_inside_tm == true)
-		{
-			sw.write(" )))");
-		}
-		// Alex - TM - e
 		sw.end();
-		context.is_inside_tm = context.is_inside_tm;
 	}
 
 
@@ -3232,39 +2831,17 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 		if (n.body() != null)
 			throw new InternalCompilerError("Anonymous innner classes should have been removed.");
 
-		// TM - constructor call
-		if (context.is_inside_tm)
-		{
-			if (stackAllocate) {
-			    sw.write(context.getStackAllocName()+"."+CONSTRUCTOR+TM_POSTFIX+"(");
-			} else if (embed) {
-			    sw.write("&"+context.getEmbeddedFieldName()+"));");
-			    sw.newline();
-			    sw.write(context.getEmbeddedFieldName()+"."+CONSTRUCTOR+TM_POSTFIX+"(");
-			} else {
-			    sw.write(Emitter.translateType(n.objectType().type())+"::"+MAKE+TM_POSTFIX+"(");
-			}
+		if (stackAllocate) {
+		    sw.write(context.getStackAllocName()+"."+CONSTRUCTOR+"(");
+		} else if (embed) {
+		    sw.write("&"+context.getEmbeddedFieldName()+";");
+		    sw.newline();
+		    sw.write(context.getEmbeddedFieldName()+"."+CONSTRUCTOR+"(");
 		} else {
-			if (stackAllocate) {
-			    sw.write(context.getStackAllocName()+"."+CONSTRUCTOR+"(");
-			} else if (embed) {
-			    sw.write("&"+context.getEmbeddedFieldName()+";");
-			    sw.newline();
-			    sw.write(context.getEmbeddedFieldName()+"."+CONSTRUCTOR+"(");
-			} else {
-			    sw.write(Emitter.translateType(n.objectType().type())+"::"+MAKE+"(");
-			}
+		    sw.write(Emitter.translateType(n.objectType().type())+"::"+MAKE+"(");
 		}
-		
 		    
 		sw.begin(0);
-		if (context.is_inside_tm) {
-			sw.write(tm_get_self_name());
-			if (n.arguments().size() > 0) {
-				sw.write(",");
-				sw.allowBreak(0, " ");
-			}
-		}
 		for (Iterator<Expr> i = n.arguments().iterator(); i.hasNext(); ) {
 			Expr e = i.next();
 			n.print(e, sw, tr);
@@ -3526,26 +3103,9 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 		
 		sw.write("try");
 		assert (n.tryBlock() instanceof Block_c);
-				
-		try {
-			Stmt s_c = (((Block_c)n.tryBlock()).statements().get(0));
-			if (s_c instanceof Block_c)
-			{
-				if (((Block_c)s_c).is_tm_block)
-				{
-					// TM - identification of the TM transaction block
-					context.is_inside_tm = true;
-				}
-			}
-		} catch (java.lang.IndexOutOfBoundsException e) {
-			// pass
-		}
-		
 		n.printSubStmt(n.tryBlock(), sw, tr);
 		sw.newline(0);
         
-		context.is_inside_tm = false;
-		
 		// C++ does dispatching based on the static type of the thrown exception.
 		// X10, like Java needs to dispatch on the dynamic type of the thrown exception.
 		// So, we have to do the dispatching ourselves.
@@ -3637,7 +3197,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
         }
         return false;
     }
-    public void visit_Closure_c(Closure_c n) {
+    public void visit(Closure_c n) {
         X10CPPContext_c c = (X10CPPContext_c) tr.context();
 
         emitter.enterClosure(c);
@@ -3728,7 +3288,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
         sw.write("virtual x10aux::itable_entry* _getITables() { return _itables; }"); sw.newline(); sw.forceNewline();
 
         sw.write("// closure body"); sw.newline();
-        sw.write(Emitter.translateType(retType, true)+" "+Emitter.mangled_method_name(ClosureCall.APPLY.toString(), false)+"(");
+        sw.write(Emitter.translateType(retType, true)+" "+Emitter.mangled_method_name(ClosureCall.APPLY.toString())+"(");
         prefix = "";
         for (Formal formal : n.formals()) {
             sw.write(prefix);
@@ -3736,36 +3296,10 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
             prefix = ", ";
         }
         sw.write(") ");
-        if (c.is_inside_tm) {
-        	c.is_tm_init_self = true;
-        }
         n.print(n.body(), sw, tr);
         sw.newline(); sw.forceNewline();
-        
-        // TM - Closure apply method duplication
-        sw.write(Emitter.translateType(retType, true)+" "+Emitter.mangled_method_name(ClosureCall.APPLY.toString(), true)+"(");
-        prefix = "";
-
-    	sw.write(tm_get_self_declare() + "_NOT_USED");
-    	if (n.formals().size() > 0) {
-    		sw.write(", ");
-    	}
-
-        for (Formal formal : n.formals()) {
-            sw.write(prefix);
-            n.print(formal, sw, tr);
-            prefix = ", ";
-        }
-        sw.write(") ");
-        if (c.is_inside_tm) {
-        	c.is_tm_init_self = true;
-        }
-        n.print(n.body(), sw, tr);
-        sw.newline(); sw.forceNewline();
-        // --TM--
 
         sw.write("// captured environment"); sw.newline();
-
         List<VarInstance<?>> refs = computeBoxedRefs(c, closureDef);
 
         List<VarInstance<? extends VarDef>> env = closureDef.capturedEnvironment();
@@ -3815,11 +3349,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 		        }
 		    }
 		}
-		if (c.is_inside_tm) 
-        {
-			sw.write("x10_long tm_thread_id;\n");
-        }
-		
+
         emitter.printDeclarationList(sw, c, env, refs);
         sw.forceNewline();
 
@@ -3829,16 +3359,8 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
         sw.write("}"); sw.newline(); sw.forceNewline();
 
         generateClosureSerializationFunctions(c, cnamet, sw, n.body(), env, refs);
-        
+
         sw.write(cname+"(");
-        
-        if (c.is_inside_tm) 
-        {
-        	sw.write("x10_long thread_id");
-        	if (env.size() > 0) {
-        		sw.write(", ");
-        	}
-        }
         for (int i = 0; i < env.size(); i++) {
             if (i > 0) sw.write(", ");
             VarInstance<?> var = (VarInstance<?>) env.get(i);
@@ -3865,11 +3387,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
             sw.write(name + "(" + name + ")");
         }
         sw.end();
-        if (c.is_inside_tm) {
-        	sw.write(" { tm_thread_id = thread_id; }"); sw.newline(); sw.forceNewline();
-        } else {
-        	sw.write(" { }"); sw.newline(); sw.forceNewline();
-        }
+        sw.write(" { }"); sw.newline(); sw.forceNewline();
 
         sw.write("static const x10aux::serialization_id_t "+SERIALIZATION_ID_FIELD+";");
         sw.newline(); sw.forceNewline();
@@ -3903,18 +3421,10 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
         // This is less than ideal, since it can introduce subtle bugs when the C++ code is refactored
         // (an overridden member function will not be called from the itable, which is very non-intuitive).
         // As soon as XTENLANG-467 is fixed, take out the explicit qualifications and let C++ member lookup do its job...
-        String method_equals = "&"+REFERENCE_TYPE+"::equals";
-        String method_hashCode = "&"+CLOSURE_TYPE+"::hashCode";
-        String method_apply = "&"+cnamet+"::"+Emitter.mangled_method_name(ClosureCall.APPLY.toString(), false);
-        String method_toString = "&"+cnamet+"::toString";
-        String method_typeName = "&"+CLOSURE_TYPE+"::typeName";
-        
         defn_s.writeln((in_template_closure ? "typename ": "")+superType+(in_template_closure ? "::template itable ": "::itable")+chevrons(cnamet)+
-        			cnamet+"::_itable("+method_equals+", "+method_equals+"__tm__, "+
-        								method_hashCode+", "+method_hashCode+"__tm__, "+
-        								method_apply+", "+method_apply+"__tm__, "+
-        								method_toString+", "+method_toString+"__tm__, "+
-        								method_typeName+", "+method_typeName+"__tm__);");
+        			cnamet+"::_itable(&"+REFERENCE_TYPE+"::equals, &"+CLOSURE_TYPE+"::hashCode, &"+
+        			cnamet+"::"+Emitter.mangled_method_name(ClosureCall.APPLY.toString())+", &"+
+        			cnamet+"::toString, &"+CLOSURE_TYPE+"::typeName);");
 
         if (in_template_closure)
             emitter.printTemplateSignature(freeTypeParams, defn_s);
@@ -3971,12 +3481,6 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
             sw.write("(new (x10aux::alloc"+chevrons(superType)+"(sizeof("+cname+templateArgs+")))");
         }
         sw.write(cname+templateArgs+"(");
-        if (c.is_inside_tm) {
-        	sw.write("x10tm::tm_thread_get_uniq_id(SelfTM)");
-        	if (env.size() > 0) {
-        		sw.write(", ");
-        	}
-        }
         for (int i = 0; i < env.size(); i++) {
             if (i > 0) sw.write(", ");
             VarInstance<?> var = (VarInstance<?>) env.get(i);
@@ -4004,23 +3508,6 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 
         c.finalizeClosureInstance();
         emitter.exitClosure(c);
-    }
-    
-    public void visit(Closure_c n) {
-    	X10CPPContext_c context = (X10CPPContext_c) tr.context();
-    	//boolean saved_is_inside_tm = context.is_inside_tm;
-    	
-    	// --TM--
-    	//context.is_inside_tm = true;
-    	visit_Closure_c(n);
-    	 
-    	// TM - Closure declaration: NOW IGNORED
-    	// TM_TODO: handle it
-    	//context.is_inside_tm = false;
-    	// --TM--
-    	//visit_Closure_c(n);
-    	//context.is_inside_tm = saved_is_inside_tm;
-    	
     }
 
     protected List<VarInstance<?>> computeBoxedRefs(X10CPPContext_c c, ClosureDef closureDef) {
@@ -4050,11 +3537,6 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
         inc.write("void "+SERIALIZE_BODY_METHOD+"("+SERIALIZATION_BUFFER+" &buf) {");
         inc.newline(4); inc.begin(0);
         // FIXME: factor out this loop
-        if (c.is_inside_tm) 
-        {
-        	inc.write("buf.write(this->tm_thread_id);");
-        }
-        inc.newline();
         for (int i = 0; i < env.size(); i++) {
             if (i > 0) inc.newline();
             VarInstance<?> var = (VarInstance<?>) env.get(i);
@@ -4075,13 +3557,6 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
         inc.writeln("buf.record_reference(storage);");
         
         // FIXME: factor out this loop
-        if (c.is_inside_tm) 
-        {
-        	String type = "x10_long";
-        	String name = "tm_thread_id";
-        	inc.write(type + " that_"+name+" = buf.read"+chevrons(type)+"();");
-            inc.newline();
-        }
         for (int i = 0; i < env.size(); i++) {
             VarInstance<?> var = (VarInstance<?>) env.get(i);
             Type t = var.type();
@@ -4102,13 +3577,6 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
         }
         inc.write(make_ref(cnamet)+" this_ = new (storage) "+cnamet+"(");
         // FIXME: factor out this loop
-        if (c.is_inside_tm) 
-        {
-        	inc.write("that_tm_thread_id");
-        	if (env.size() > 0) {
-        		inc.write(", ");
-        	}
-        }
         for (int i = 0; i < env.size(); i++) {
             VarInstance<?> var = (VarInstance<?>) env.get(i);
             String name = var.name().toString();
@@ -4157,7 +3625,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
     //    (a) closure literal that for some odd reason wasn't inlined (should not really happen...)
     //    (b) a function type
     //    (c) an class (anonymous or not) that has an operator()
-	public void visit_ClosureCall_c(ClosureCall_c c) {
+	public void visit(ClosureCall_c c) {
         X10CPPContext_c context = (X10CPPContext_c) tr.context();
 		Expr target = c.target();
 		Type t = target.type();
@@ -4168,8 +3636,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 		    context.setStackAllocateClosure(true);
 		    c.printSubExpr(target, sw, tr);
 		    context.setStackAllocateClosure(false);
-		    // TM - Closure call of the apply method
-		    sw.write("."+Emitter.mangled_method_name(ClosureCall.APPLY.toString(), context.is_inside_tm)+"(");
+		    sw.write("."+Emitter.mangled_method_name(ClosureCall.APPLY.toString())+"(");
 		} else {
 		    if (t.isClass() && t.toClass().isAnonymous()) {
 		        ClassType tc = t.toClass();
@@ -4193,29 +3660,18 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 		            e.printStackTrace();
 		            assert (false);
 		        }
-		        // TM - Closure call of interface method
-		        invokeInterface(c, target, c.arguments(), make_ref(REFERENCE_TYPE), t.toClass(), ami, needsNullCheck, context.is_inside_tm);
+		        invokeInterface(c, target, c.arguments(), make_ref(REFERENCE_TYPE), t.toClass(), ami, needsNullCheck);
 		        return;
 		    } else {
 		        if (needsNullCheck) sw.write("x10aux::nullCheck(");
 		        c.printSubExpr(target, sw, tr);
 		        if (needsNullCheck) sw.write(")");
-		        // TM - Closure call of apply method
-		        sw.write("->"+Emitter.mangled_method_name(ClosureCall.APPLY.toString(), context.is_inside_tm)+"(");
+		        sw.write("->"+Emitter.mangled_method_name(ClosureCall.APPLY.toString())+"(");
 		    }
 		}
 
 		sw.begin(0);
 		boolean first = true;
-		if (context.is_inside_tm)
-		{
-			sw.write(tm_get_self_name());
-			if (c.arguments().size() > 0) {
-				sw.write(",");
-		    	sw.allowBreak(0, " ");
-			}
-			first = false;
-		}
 		for (Expr e : c.arguments()) {
 			if (!first) {
 			    sw.write(",");
@@ -4226,22 +3682,6 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 		}
 		sw.end();
 		sw.write(")");
-	}
-
-	public void visit(ClosureCall_c c) {
-        
-		X10CPPContext_c context = (X10CPPContext_c) tr.context();
-		// --TM--
-		boolean saved_is_inside_tm = context.is_inside_tm; 
-    	context.is_inside_tm = false;
-    	// --TM--
-    	visit_ClosureCall_c(c);
-    	context.is_inside_tm = saved_is_inside_tm;
-    	
-		
-		//context.is_inside_tm = false;
-		// --TM--
-		//visit_ClosureCall_c(c);
 	}
 
 
@@ -4314,12 +3754,8 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 
 
 	public void visit(X10Binary_c n) {
-	    X10CPPContext_c context = (X10CPPContext_c) tr.context(); 
-	    // TM - Binary operator
-	    // TM_TODO: instrument this after correction of native
-	    boolean saved_is_inside_tm = context.is_inside_tm;
-	    
-	    
+	    X10CPPContext_c context = (X10CPPContext_c) tr.context();
+
 	    Expr left = n.left();
 	    Type l = left.type();
 	    Expr right = n.right();
@@ -4329,18 +3765,11 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 	    Binary.Operator op = n.operator();
 
 	    if (op == Binary.EQ || op == Binary.NE) { // FIXME: get rid of this special case
-	    	//context.is_inside_tm = false;
-	    	sw.write("("); sw.begin(0);
+	        sw.write("("); sw.begin(0);
 	        if (op == Binary.NE) {
 	            sw.write("!");
 	        }
-	        // TM - struct_equals instrumentation
-	        if (context.is_inside_tm) {
-	        	sw.write(STRUCT_EQUALS+TM_POSTFIX+"("+tm_get_self_name()+", "); sw.begin(0);
-	        } else {
-	        	sw.write(STRUCT_EQUALS+"("); sw.begin(0);
-	        }
-	        
+	        sw.write(STRUCT_EQUALS+"("); sw.begin(0);
 	        n.printSubExpr(left, sw, tr);
  	        sw.write(",");
 	        sw.allowBreak(0, " ");
@@ -4348,22 +3777,18 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 
 	        sw.end(); sw.write(")");
 	        sw.end(); sw.write(")");
-	        context.is_inside_tm = saved_is_inside_tm;
 	        return;
 	    }
 	    if (l.isNumeric() && r.isNumeric()) { // TODO: get rid of this special case by defining native operators
 	        visit((Binary_c)n);
-	        context.is_inside_tm = saved_is_inside_tm;
 	        return;
 	    }
 	    if (l.isBoolean() && r.isBoolean()) { // TODO: get rid of this special case by defining native operators
 	        visit((Binary_c)n);
-	        context.is_inside_tm = saved_is_inside_tm;
 	        return;
 	    }
 	    if (op == Binary.ADD && (l.isSubtype(xts.String(), context) || r.isSubtype(xts.String(), context))) { // TODO: get rid of this special case by defining native operators
 	        visit((Binary_c)n);
-	        context.is_inside_tm = saved_is_inside_tm;
 	        return;
 	    }
 	    assert (false) : ("User-defined binary operators should have been desugared earier");
@@ -4450,7 +3875,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
     }
 
 	// FIXME: generic native methods will break
-	void emitNativeAnnotation(String pat, List<ParameterType> typeParams, List<Type> typeArgs, Object receiver, List<String> params, List<? extends Object> args, List<ParameterType> typeParams2, List<Type> typeArgs2, boolean is_inside_tm) {
+	void emitNativeAnnotation(String pat, List<ParameterType> typeParams, List<Type> typeArgs, Object receiver, List<String> params, List<? extends Object> args, List<ParameterType> typeParams2, List<Type> typeArgs2) {
 		assert (receiver != null);
 
 		//Object[] components = new Object[1+3*types.size() + args.size() + 3*typeArguments.size()];
@@ -4488,7 +3913,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 			components.put(Integer.toString(i++), "/"+"*"+" UNUSED "+"*"+"/");
 			components.put(Integer.toString(i++), "/"+"*"+" UNUSED "+"*"+"/");
 	    }
-	    emitter.nativeSubst("Native", components, tr, pat, sw, is_inside_tm);
+	    emitter.nativeSubst("Native", components, tr, pat, sw);
 	}
 
 	private static boolean isPODType(Type t) {
@@ -4513,21 +3938,10 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 		sw.write(make_ref(type)+" "+tmp+"(");
 
 		sw.write("x10::array::Array"+chevrons(Emitter.translateType(T, true)));
-		// TM - tuple
-		if (context.is_inside_tm) {
-			sw.writeln("::_make"+SharedVarsMethods.TM_POSTFIX+"("+tm_get_self_name()+", "+c.arguments().size()+"));");
-		} else {
-			sw.writeln("::_make("+c.arguments().size()+"));");
-		}
-		
+		sw.writeln("::_make("+c.arguments().size()+"));");
 		int count = 0;
 		for (Expr e : c.arguments()) {
-			if (context.is_inside_tm) {
-				sw.write(tmp+"->"+Emitter.mangled_method_name(SettableAssign.SET.toString(), true)+"("+tm_get_self_name()+", ");
-			} else {
-				sw.write(tmp+"->"+Emitter.mangled_method_name(SettableAssign.SET.toString(), false)+"(");
-			}
-			
+		    sw.write(tmp+"->"+Emitter.mangled_method_name(SettableAssign.SET.toString())+"(");
 		    sw.writeln((count++)+", ");
 		    c.printSubExpr(e, false, sw, tr);
 		    sw.writeln(");");

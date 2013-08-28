@@ -768,10 +768,6 @@ public class WSSynthesizer {
         return nf.AnnotationNode(compilerPos, annoTN);
     }
     
-    AnnotationNode genTransactionAnnotation(){
-        return genAnnotationNode(ts.Transaction());
-    }
-    
     AnnotationNode genStackAllocateAnnotation(){
         return genAnnotationNode(ts.StackAllocate());
     }

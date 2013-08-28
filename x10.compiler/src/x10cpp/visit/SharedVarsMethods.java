@@ -56,7 +56,6 @@ public class SharedVarsMethods {
 
 	// FIXME: [IP] cannot enable refsAsPointers unless the library was also rebuilt
 	// without refs and the Main template was changed
-	static final String TM_POSTFIX = "__tm__";
 	static final boolean refsAsPointers = false;
 	static final String VOID = "void";
 	static final String VOID_PTR = "void*";

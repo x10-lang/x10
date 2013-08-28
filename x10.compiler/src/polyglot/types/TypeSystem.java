@@ -945,7 +945,6 @@ public interface TypeSystem {
     X10ClassType Abort();
     
     // annotation types used in codegen
-    X10ClassType Transaction();
     X10ClassType StackAllocate();
     X10ClassType Inline();
     X10ClassType InlineOnly();

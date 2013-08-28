@@ -216,7 +216,6 @@ public class CXXCommandBuilder {
             cxxCmd.addAll(pcl.ldFlags);
             cxxCmd.addAll(pcl.libs);
         }
-        
         if (sharedLibProps.staticLib && !usingXLC()) {
             cxxCmd.add("-Wl,--end-group");
         }
@@ -229,7 +228,6 @@ public class CXXCommandBuilder {
         if (options.gpt) {
             cxxCmd.add("-lprofiler");
         }
-        //cxxCmd.add("-lx10tm");
         
         if (options.buildX10Lib != null) {
         	cxxCmd.addAll(sharedLibProps.ldFlags);
@@ -308,9 +306,7 @@ public class CXXCommandBuilder {
             if (file.endsWith(".cu")) continue;
             cxxCmd.add(file);
         }
-        
-        //cxxCmd.add("x10tm.cc");
-        
+
         while (st.hasMoreTokens()) {
             token = st.nextToken();
             // The second '#' delimits the libraries that have to go at the end

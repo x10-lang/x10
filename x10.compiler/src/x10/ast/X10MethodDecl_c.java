@@ -139,7 +139,6 @@ import x10.visit.X10TypeChecker;
  */
 public class X10MethodDecl_c extends MethodDecl_c implements X10MethodDecl {
 	// The representation of the  guard on the method definition
-	boolean is_tm = false; 
 	DepParameterExpr guard;
 	List<TypeParamNode> typeParameters;
 	List<TypeNode> throwsTypes;
@@ -159,16 +158,6 @@ public class X10MethodDecl_c extends MethodDecl_c implements X10MethodDecl {
 		this.throwsTypes = throwsTypes;
 	}
 
-	public X10MethodDecl_c setTM(boolean is_tm) {
-		X10MethodDecl_c n = (X10MethodDecl_c) copy();
-		n.is_tm = is_tm;
-		return n;	
-	}
-	
-	public boolean getTM() {
-		return this.is_tm;
-	}
-	
 	public TypeNode offerType() {
 		return offerType;
 	}
