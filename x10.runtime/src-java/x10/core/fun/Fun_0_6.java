@@ -16,14 +16,19 @@ import x10.rtt.RuntimeType;
 import x10.rtt.RuntimeType.Variance;
 import x10.rtt.Type;
 
-public interface Fun_0_6<T1, T2, T3, T4, T5, T6, U> extends Fun {
-	U $apply(T1 o1, Type t1, T2 o2, Type t2, T3 o3, Type t3, T4 o4, Type t4,
-			T5 o5, Type t5, T6 o6, Type t6);
+public interface Fun_0_6<T1,T2,T3,T4,T5,T6,U> extends Fun {
+    U $apply(T1 o1, Type t1, T2 o2, Type t2, T3 o3, Type t3, T4 o4, Type t4, T5 o5, Type t5, T6 o6, Type t6);
 
-	public static final RuntimeType<Fun_0_6<?, ?, ?, ?, ?, ?, ?>> $RTT = FunType
-			.<Fun_0_6<?, ?, ?, ?, ?, ?, ?>> make(Fun_0_6.class, new Variance[] {
-					Variance.CONTRAVARIANT, Variance.CONTRAVARIANT,
-					Variance.CONTRAVARIANT, Variance.CONTRAVARIANT,
-					Variance.CONTRAVARIANT, Variance.CONTRAVARIANT,
-					Variance.COVARIANT });
+    public static final RuntimeType<Fun_0_6<?,?,?,?,?,?,?>> $RTT = FunType.<Fun_0_6<?,?,?,?,?,?,?>> make(
+        Fun_0_6.class,
+        new Variance[] {
+            Variance.CONTRAVARIANT,
+            Variance.CONTRAVARIANT,
+            Variance.CONTRAVARIANT,
+            Variance.CONTRAVARIANT,
+            Variance.CONTRAVARIANT,
+            Variance.CONTRAVARIANT,
+            Variance.COVARIANT
+        }
+    );
 }

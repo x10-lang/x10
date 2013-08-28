@@ -31,10 +31,6 @@ void ppc_lwsync();
 #pragma reg_killed_by ppc_lwsync
 
 x10_int ppc_compareAndSet32(x10_int oldValue, volatile x10_int *address, x10_int newValue);
-x10_int ppc_compareAndSet32__tm__(x10tm::TMThread *SelfTM, x10_int oldValue, volatile x10_int *address, x10_int newValue) {
-	return ppc_compareAndSet32(oldValue, address, newValue);
-}
-
 #pragma mc_func ppc_compareAndSet32 {           \
 	"7c002028" /* 0: lwarx r0,0,r4 */           \
 	"7c001800" /* cmpw r0,r3 */                 \
@@ -47,10 +43,6 @@ x10_int ppc_compareAndSet32__tm__(x10tm::TMThread *SelfTM, x10_int oldValue, vol
 
 #if defined(_LP64)
 x10_long ppc_compareAndSet64(x10_long oldValue, volatile x10_long *address, x10_long newValue);
-x10_long ppc_compareAndSet64__tm__(x10tm::TMThread *SelfTM, x10_long oldValue, volatile x10_long *address, x10_long newValue) {
-	return ppc_compareAndSet64(oldValue, address, newValue);
-}
-
 #pragma mc_func ppc_compareAndSet64 {           \
 	"7c0020a8" /* 0: ldarx r0,0,r4 */           \
 	"7c201800" /* cmpd r0,r3 */                 \
@@ -134,9 +126,6 @@ namespace x10aux {
             ppc_sync(); /* TODO: sync is overkill for this barrier */
 #endif
         }
-        static inline void load_load_barrier__tm__(x10tm::TMThread *SelfTM) {
-        	load_load_barrier();
-        }
 
         /**
          * Ensure that all loads before the barrier have loaded
@@ -148,9 +137,7 @@ namespace x10aux {
             ppc_isync();
 #endif
         }
-        static inline void load_store_barrier__tm__(x10tm::TMThread *SelfTM) {
-        	load_store_barrier();
-        }
+
         /**
          * Ensure that all data from stores before the barrier
          * has been flushed before any data for loads after the
@@ -161,9 +148,7 @@ namespace x10aux {
             ppc_sync();
 #endif
         }
-        static inline void store_load_barrier__tm__(x10tm::TMThread *SelfTM) {
-        	store_load_barrier();
-        }
+
         /**
          * Ensure that all data from stores before the barrier
          * has been flushed before any data for stores after
@@ -174,9 +159,7 @@ namespace x10aux {
             ppc_lwsync();
 #endif
         }
-        static inline void store_store_barrier__tm__(x10tm::TMThread *SelfTM) {
-        	store_store_barrier();
-        }
+
         /**
          * Atomic compare and swap of a 32 bit value.
          * The semantics of this operation are:

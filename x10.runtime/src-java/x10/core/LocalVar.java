@@ -24,107 +24,91 @@ import x10.serialization.X10JavaSerializer;
 
 public class LocalVar<T> extends x10.core.Ref {
 
-	private static final long serialVersionUID = 1L;
+    private static final long serialVersionUID = 1L;
+    
+    public static final RuntimeType<LocalVar<?>> $RTT =
+        x10.rtt.NamedType.<LocalVar<?>> make(
+                "x10.compiler.LocalVar",
+                /* base class */ LocalVar.class,
+                /* variances */ RuntimeType.INVARIANTS(1)
+    );
+    public RuntimeType<?> $getRTT() { return $RTT; }
+    public Type<?> $getParam(int i) { if (i == 0) return T; return null; }
 
-	public static final RuntimeType<LocalVar<?>> $RTT = x10.rtt.NamedType
-			.<LocalVar<?>> make("x10.compiler.LocalVar",
-			/* base class */LocalVar.class,
-			/* variances */RuntimeType.INVARIANTS(1));
+    private void writeObject(java.io.ObjectOutputStream oos) throws java.io.IOException {
+        if (x10.runtime.impl.java.Runtime.TRACE_SER) {
+            java.lang.System.out.println("Serializer: writeObject(ObjectOutputStream) of " + this + " calling");
+        }
+        oos.defaultWriteObject();
+    }
 
-	public RuntimeType<?> $getRTT() {
-		return $RTT;
-	}
+    private static final Map<java.lang.Long, Object> idToObject = new ConcurrentHashMap<java.lang.Long, Object>();
+    private static final Object nullObject = new Object();
+    private static AtomicLong lastId = new AtomicLong(0);
 
-	public Type<?> $getParam(int i) {
-		if (i == 0)
-			return T;
-		return null;
-	}
+    private Type<?> T;
+    private long id;
 
-	private void writeObject(java.io.ObjectOutputStream oos)
-			throws java.io.IOException {
-		if (x10.runtime.impl.java.Runtime.TRACE_SER) {
-			java.lang.System.out
-					.println("Serializer: writeObject(ObjectOutputStream) of "
-							+ this + " calling");
-		}
-		oos.defaultWriteObject();
-	}
+    // constructor just for allocation
+    public LocalVar(java.lang.System[] $dummy) {
+        super($dummy);
+    }
 
-	private static final Map<java.lang.Long, Object> idToObject = new ConcurrentHashMap<java.lang.Long, Object>();
-	private static final Object nullObject = new Object();
-	private static AtomicLong lastId = new AtomicLong(0);
+    public final LocalVar<T> x10$compiler$LocalVar$$init$S(final Type<?> T, final T local, __0x10$compiler$LocalVar$$T $dummy) {
+        super.x10$lang$Object$$init$S();
+        this.T = T;
+        long temp = lastId.getAndIncrement();
+        while (idToObject.containsKey(temp)) {
+            temp = lastId.getAndIncrement();
+        }
+        id = temp;
+        idToObject.put(id, local == null ? nullObject : local);
+        return this;
+    }
 
-	private Type<?> T;
-	private long id;
+    public LocalVar(final Type<?> T, final T local, __0x10$compiler$LocalVar$$T $dummy) {
+        super();
+        this.T = T;
+        long temp = lastId.getAndIncrement();
+        while (idToObject.containsKey(temp)) {
+            temp = lastId.getAndIncrement();
+        }
+        id = temp;
+        idToObject.put(id, local == null ? nullObject : local);
+    }
+    // synthetic type for parameter mangling
+    public abstract static class __0x10$compiler$LocalVar$$T {}
+    
+    public T $apply$G() {
+        Object local = idToObject.remove(id);
+        return (T) (local == nullObject ? null : local);
+    }
 
-	// constructor just for allocation
-	public LocalVar(java.lang.System[] $dummy) {
-		super($dummy);
-	}
+    public T get$G() { 
+        Object local = idToObject.get(id);
+        return (T) (local == nullObject ? null : local);
+    }
 
-	public final LocalVar<T> x10$compiler$LocalVar$$init$S(final Type<?> T,
-			final T local, __0x10$compiler$LocalVar$$T $dummy) {
-		super.x10$lang$Object$$init$S();
-		this.T = T;
-		long temp = lastId.getAndIncrement();
-		while (idToObject.containsKey(temp)) {
-			temp = lastId.getAndIncrement();
-		}
-		id = temp;
-		idToObject.put(id, local == null ? nullObject : local);
-		return this;
-	}
+    public T set__0x10$compiler$LocalVar$$T$G(final T local) {
+        idToObject.put(id,local);
+        return local;
+    }
 
-	public LocalVar(final Type<?> T, final T local,
-			__0x10$compiler$LocalVar$$T $dummy) {
-		super();
-		this.T = T;
-		long temp = lastId.getAndIncrement();
-		while (idToObject.containsKey(temp)) {
-			temp = lastId.getAndIncrement();
-		}
-		id = temp;
-		idToObject.put(id, local == null ? nullObject : local);
-	}
-
-	// synthetic type for parameter mangling
-	public abstract static class __0x10$compiler$LocalVar$$T {
-	}
-
-	public T $apply$G() {
-		Object local = idToObject.remove(id);
-		return (T) (local == nullObject ? null : local);
-	}
-
-	public T get$G() {
-		Object local = idToObject.get(id);
-		return (T) (local == nullObject ? null : local);
-	}
-
-	public T set__0x10$compiler$LocalVar$$T$G(final T local) {
-		idToObject.put(id, local);
-		return local;
-	}
-
-	final public LocalVar<T> x10$compiler$LocalVar$$x10$compiler$LocalVar$this() {
-		return LocalVar.this;
-	}
-
-	public static X10JavaSerializable $_deserialize_body(Ref $_obj,
-			X10JavaDeserializer $deserializer) throws java.io.IOException {
-		return $_obj;
-	}
-
-	public static X10JavaSerializable $_deserializer(
-			X10JavaDeserializer $deserializer) throws java.io.IOException {
-		LocalVar $_obj = new LocalVar((java.lang.System[]) null);
-		$deserializer.record_reference($_obj);
-		return $_deserialize_body($_obj, $deserializer);
-	}
-
-	public void $_serialize(X10JavaSerializer $serializer)
-			throws java.io.IOException {
-
-	}
+    final public LocalVar<T> x10$compiler$LocalVar$$x10$compiler$LocalVar$this() {
+        return LocalVar.this;
+    }
+        
+    public static X10JavaSerializable $_deserialize_body(Ref $_obj, X10JavaDeserializer $deserializer) throws java.io.IOException {
+        return $_obj;
+    }
+    
+    public static X10JavaSerializable $_deserializer(X10JavaDeserializer $deserializer) throws java.io.IOException { 
+        LocalVar $_obj = new LocalVar((java.lang.System[]) null);
+        $deserializer.record_reference($_obj);
+        return $_deserialize_body($_obj, $deserializer);
+    }
+    
+    public void $_serialize(X10JavaSerializer $serializer) throws java.io.IOException {
+        
+    }
 }

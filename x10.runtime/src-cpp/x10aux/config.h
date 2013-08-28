@@ -112,14 +112,13 @@
 #include <stdio.h>
 
 #include <x10aux/pragmas.h>
-#include <x10aux/x10tm.h>
+
 struct x10_char {
     unsigned short v;
     x10_char() : v(0) { }
     x10_char(const char x) : v(x) { }
     x10_char(const int x) : v((unsigned short) x) { }
 };
-
 #ifndef NO_IOSTREAM
 inline std::ostream &operator << (std::ostream &o, const x10_char &c) {
     return o<<c.v;
@@ -130,7 +129,6 @@ namespace x10aux {
         for (size_t i=0 ; i<sizeof(T) ; ++i) str += "*";
         return str+"]";
     }
-
 }
 #endif
 inline bool operator==(const x10_char a, x10_char b) { return a.v == b.v; }
@@ -180,72 +178,6 @@ namespace x10aux {
     
     extern x10_int here;
     extern bool x10rt_initialized;
-
-//    // Alex - TM - s
-//    extern x10_int is_tm_phase;
-//
-//
-//    // X10 Types:
-//
-//    extern x10_byte tm_load_x10_byte(x10_byte * ptr);
-//    extern x10_short tm_load_x10_short(x10_short * ptr);
-//    extern x10_int tm_load_x10_int(x10_int * ptr);
-//    extern x10_long tm_load_x10_long(x10_long * ptr);
-//    extern x10_long *tm_load_x10_class(x10_long ** ptr);
-//
-//    extern void tm_load_gen(char * ptr, char * p_val, unsigned long type_size);
-//
-//    template<class T> T tm_load(T * ptr);
-//
-//    extern x10_byte tm_assign_x10_byte(x10_byte * ptr, x10_byte val);
-//    extern x10_short tm_assign_x10_short(x10_short * ptr, x10_short val);
-//    extern x10_int tm_assign_x10_int(x10_int * ptr, x10_int val);
-//    extern x10_long tm_assign_x10_long(x10_long * ptr, x10_long val);
-//    extern x10_long *tm_assign_x10_class(x10_long ** ptr, x10_long *val);
-//
-//    template<class T> T tm_assign(T * ptr, T val);
-//
-//    extern void tm_assign_gen(char * ptr, char * val, unsigned long type_size);
-//
-//    extern volatile x10_int tm_assign_x10_int(volatile x10_int * ptr, volatile x10_int val);
-//    extern volatile x10_int tm_load_x10_int(volatile x10_int * ptr);
-
-    /*extern void tm_enter() {
-    	x10aux::is_tm_phase = 1;
-    	return;
-    }
-    extern void tm_exit() {
-    	x10aux::is_tm_phase = 0;
-        return;
-    }
-
-    template<class T> extern T tm_load(T * ptr) {
-    	return *ptr;
-    }
-
-    template<class T> extern T tm_assign(T * ptr, T val) {
-		*ptr = val;
-		return val;
-    }*/
-//    extern void tm_test();
-//    extern void tm_enter();
-//    extern void tm_exit();
-
-    //template<class T> T tm_load(T * ptr);
-    //template<class T> T tm_assign(T * ptr, T val);
-
-    /*template<class T> class TM  {
-    	public:
-    	T tm_load(T * ptr) {
-    		return *ptr;
-    	}
-
-    	T tm_assign(T * ptr, T val) {
-    		*ptr = val;
-    		return val;
-    	}
-    };*/
-    // Alex - TM - e
 }
 
 #define ANSI_RESET       (::x10aux::trace_ansi_colors?"\x1b[0m" :"")

@@ -30,24 +30,6 @@ namespace x10 {
                 static x10_long getAndAdd(AtomicLong* obj, x10_long delta);
 	
                 static x10_long addAndGet(AtomicLong* obj, x10_long delta);
-
-                static x10_boolean compareAndSet__tm__(x10tm::TMThread *SelfTM, AtomicLong* obj,
-												 x10_long expect, x10_long update) {
-                	return compareAndSet(obj, expect, update);
-                }
-
-				static x10_boolean weakCompareAndSet__tm__(x10tm::TMThread *SelfTM, AtomicLong* obj,
-													 x10_long expect, x10_long update) {
-					return weakCompareAndSet(obj, expect, update);
-				}
-
-				static x10_long getAndAdd__tm__(x10tm::TMThread *SelfTM, AtomicLong* obj, x10_long delta) {
-					return getAndAdd(obj, delta);
-				}
-
-				static x10_long addAndGet__tm__(x10tm::TMThread *SelfTM, AtomicLong* obj, x10_long delta) {
-					return addAndGet(obj, delta);
-				}
             };
         }
     }

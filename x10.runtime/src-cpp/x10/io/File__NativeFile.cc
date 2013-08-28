@@ -34,10 +34,6 @@ File__NativeFile* File__NativeFile::_make(String* s) {
     return (new (x10aux::alloc<File__NativeFile>()) File__NativeFile())->_constructor(s);
 }
 
-File__NativeFile* File__NativeFile::_make__tm__(x10tm::TMThread *SelfTM, String* s) {
-    return (new (x10aux::alloc<File__NativeFile>()) File__NativeFile())->_constructor(s);
-}
-
 void File__NativeFile::_serialize_body(serialization_buffer &buf) {
 }
 

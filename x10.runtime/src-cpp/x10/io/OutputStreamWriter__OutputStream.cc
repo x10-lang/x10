@@ -47,16 +47,6 @@ void OutputStreamWriter__OutputStream::write(x10::util::IndexedMemoryChunk<x10_b
         this->write((x10_int) b->operator[](off + i));
 }
 
-void OutputStreamWriter__OutputStream::write__tm__(x10tm::TMThread *SelfTM, x10::util::IndexedMemoryChunk<x10_byte> b) {
-    this->write(b, 0, b->length());
-}
-
-void OutputStreamWriter__OutputStream::write__tm__(x10tm::TMThread *SelfTM, x10::util::IndexedMemoryChunk<x10_byte> b,
-                                             x10_int off, x10_int len) {
-    for (x10_int i = 0; i < len; i++)
-        this->write((x10_int) b->operator[](off + i));
-}
-
 void OutputStreamWriter__OutputStream::_serialize_body(x10aux::serialization_buffer& buf) {
 }
 

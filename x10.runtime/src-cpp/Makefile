@@ -34,8 +34,7 @@ ifdef ENABLE_GC
   override XRX_PROPS_LDLIBS += -lgc
 endif
 
-override XRX_PROPS_LDLIBS += -lm -lpthread -lx10tm
-
+override XRX_PROPS_LDLIBS += -lm -lpthread
 
 # -lrt
 ifeq ($(X10RT_PLATFORM),sunos)

@@ -60,19 +60,12 @@ namespace x10 {
                 thread_init(name);
                 return this;
             }
-            Thread* _constructor__tm__(x10tm::TMThread *SelfTM, x10::lang::String* name) {
-				thread_init(name);
-				return this;
-			}
 
             static Thread* _make();
 
             Thread* _constructor() {
                 return NULL;
             }
-            Thread* _constructor__tm__(x10tm::TMThread *SelfTM) {
-				return NULL;
-			}
 
             static const x10aux::serialization_id_t _serialization_id;
 
@@ -89,9 +82,6 @@ namespace x10 {
 
             // Returns a reference to the currently executing thread object.
             static Thread* currentThread(void);
-            static Thread* currentThread__tm__(x10tm::TMThread *SelfTM) {
-            	return currentThread();
-            }
 
             /**
              * Causes this thread to begin execution; the XRX runtime
@@ -104,34 +94,22 @@ namespace x10 {
              * already started.
              */
             void start(void);
-            void start__tm__(x10tm::TMThread *SelfTM) {
-            	start();
-            }
 
             /**
              * Waits forever for this thread to die.
              */
             void join(void);
-            void join__tm__(x10tm::TMThread *SelfTM) {
-            	join();
-            }
 
             /**
              * Tests if this thread is alive.
              * A thread is alive if it has been started and has not yet died.
              */
             x10_boolean isAlive();
-            x10_boolean isAlive__tm__(x10tm::TMThread *SelfTM) {
-            	return isAlive();
-            }
 
             /**
              * Interrupts this thread.
              */
             void interrupt();
-            void interrupt__tm__(x10tm::TMThread *SelfTM) {
-            	interrupt();
-            }
 
             /**
              * Causes the currently executing thread to sleep (cease
@@ -141,9 +119,6 @@ namespace x10 {
              * the current thread.
              */
             static void sleep(x10_long millis);
-            static void sleep__tm__(x10tm::TMThread *SelfTM, x10_long millis) {
-            	sleep(millis);
-            }
 
             /**
              * Causes the currently executing thread to sleep (cease
@@ -154,9 +129,6 @@ namespace x10 {
              * the current thread.
              */
             static void sleep(x10_long millis, x10_int nanos);
-            static void sleep__tm__(x10tm::TMThread *SelfTM, x10_long millis, x10_int nanos) {
-            	sleep(millis, nanos);
-            }
             /**
              * Disables the current thread for thread scheduling purposes
              * unless the permit is available.
@@ -173,9 +145,6 @@ namespace x10 {
              * caused the thread to park in the first place.
              */
             static void park(void);
-            static void park__tm__(x10tm::TMThread *SelfTM) {
-            	park();
-            }
 
             /**
              * Disables the current thread for thread scheduling purposes,
@@ -195,9 +164,6 @@ namespace x10 {
              * caused the thread to park in the first place.
              */
             static void parkNanos(x10_long nanos);
-            static void parkNanos__tm__(x10tm::TMThread *SelfTM, x10_long nanos) {
-            	parkNanos(nanos);
-            }
 
             /**
              * Makes available the permit for the given thread, if it was
@@ -208,31 +174,18 @@ namespace x10 {
              * started.
              */
             void unpark();
-            void unpark__tm__(x10tm::TMThread *SelfTM) {
-            	unpark();
-            }
 
             // Returns the current worker.
             x10::lang::Runtime__Worker* worker(void);
-            x10::lang::Runtime__Worker* worker__tm__(x10tm::TMThread *SelfTM) {
-            	return worker();
-            }
 
             // API matching for Java runtime.  Not actually needed for C++ runtime.
             x10::lang::Place home(void);
-            x10::lang::Place home__tm__(x10tm::TMThread *SelfTM);
             
             // Set the current worker.
-            void worker(x10::lang::Runtime__Worker* worker1);
-            void worker__tm__(x10tm::TMThread *SelfTM, x10::lang::Runtime__Worker* worker1) {
-            	worker(worker1);
-            }
+            void worker(x10::lang::Runtime__Worker* worker);
 
             // Returns this thread's name.
             x10::lang::String* name(void);
-            x10::lang::String* name__tm__(x10tm::TMThread *SelfTM) {
-            	return name();
-            }
 
             /**
              * Returns the identifier of this thread. The thread ID is
@@ -240,23 +193,14 @@ namespace x10 {
              * The thread ID is unique and remains unchanged during its lifetime.
              */
             long getId();
-            long getId__tm__(x10tm::TMThread *SelfTM) {
-            	return getId();
-            }
 
             /**
              * Returns the system thread id.
              */
             static x10_long getTid();
-            static x10_long getTid__tm__(x10tm::TMThread *SelfTM) {
-            	return getTid();
-            }
 
             // Changes the name of this thread to be equal to the argument name.
-            void name(x10::lang::String* name1);
-            void name__tm__(x10tm::TMThread *SelfTM, x10::lang::String* name1) {
-            	name(name1);
-            }
+            void name(x10::lang::String* name);
 
             /**
              * This method does nothing and returns.
@@ -264,16 +208,12 @@ namespace x10 {
              * This method is invoked when the thread is started.
              */
             virtual void __apply();
-            virtual void __apply__tm__(x10tm::TMThread *SelfTM);
 
             // pthread -> Thread mapping is maintained as thread specific data
             static pthread_key_t __thread_mapper;
             static x10_boolean __thread_mapper_inited;
 
-            static void initAttributes(pthread_attr_t*t);
-            static void initAttributes__tm__(x10tm::TMThread *SelfTM, pthread_attr_t*t) {
-            	initAttributes(t);
-            }
+            static void initAttributes(pthread_attr_t*);
             
         protected:
             // Helper method to initialize a Thread object.

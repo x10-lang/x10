@@ -30,16 +30,9 @@ using namespace x10aux;
 
 volatile x10_int x10aux::exitCode = 0;
 
-x10::lang::VoidFun_0_0::itable<BootStrapClosure> BootStrapClosure::_itable(&BootStrapClosure::equals,
-																		   &BootStrapClosure::equals__tm__,
-																	   	   &BootStrapClosure::hashCode,
-																		   &BootStrapClosure::hashCode__tm__,
+x10::lang::VoidFun_0_0::itable<BootStrapClosure> BootStrapClosure::_itable(&BootStrapClosure::equals, &BootStrapClosure::hashCode,
                                                                            &BootStrapClosure::__apply,
-                                                                           &BootStrapClosure::__apply__tm__,
-                                                                           &BootStrapClosure::toString,
-                                                                           &BootStrapClosure::toString__tm__,
-                                                                           &BootStrapClosure::typeName,
-                                                                           &BootStrapClosure::typeName__tm__);
+                                                                           &BootStrapClosure::toString, &BootStrapClosure::typeName);
 
 x10aux::itable_entry BootStrapClosure::_itables[2] = {
     x10aux::itable_entry(&x10aux::getRTT<x10::lang::VoidFun_0_0>, &_itable),

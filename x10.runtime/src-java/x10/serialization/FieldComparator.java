@@ -15,12 +15,12 @@ import java.lang.reflect.Field;
 import java.util.Comparator;
 
 /**
- * Used as the comparator to sort fields of classes for
- * serialization/deserialization using reflection
+ * Used as the comparator to sort fields of classes for serialization/deserialization
+ * using reflection
  */
-class FieldComparator implements Comparator<Field> {
+class FieldComparator implements Comparator<Field>{
 
-	public int compare(Field o1, Field o2) {
-		return o1.getName().compareTo(o2.getName());
-	}
+    public int compare(Field o1, Field o2) {
+        return o1.getName().compareTo(o2.getName());
+    }
 }

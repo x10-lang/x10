@@ -72,55 +72,6 @@ namespace x10aux {
         return val;
     }
 
-    inline x10_byte zeroCheck__tm__(x10tm::TMThread *SelfTM, x10_byte val) {
-		#if !defined(NO_CHECKS) && !defined(NO_EXCEPTIONS)
-		if (0 == val) throwArithmeticException();
-		#endif
-		return val;
-	}
-	inline x10_ubyte zeroCheck__tm__(x10tm::TMThread *SelfTM, x10_ubyte val) {
-		#if !defined(NO_CHECKS) && !defined(NO_EXCEPTIONS)
-		if (0 == val) throwArithmeticException();
-		#endif
-		return val;
-	}
-	inline x10_short zeroCheck__tm__(x10tm::TMThread *SelfTM, x10_short val) {
-		#if !defined(NO_CHECKS) && !defined(NO_EXCEPTIONS)
-		if (0 == val) throwArithmeticException();
-		#endif
-		return val;
-	}
-	inline x10_ushort zeroCheck__tm__(x10tm::TMThread *SelfTM, x10_ushort val) {
-		#if !defined(NO_CHECKS) && !defined(NO_EXCEPTIONS)
-		if (0 == val) throwArithmeticException();
-		#endif
-		return val;
-	}
-	inline x10_int zeroCheck__tm__(x10tm::TMThread *SelfTM, x10_int val) {
-		#if !defined(NO_CHECKS) && !defined(NO_EXCEPTIONS)
-		if (0 == val) throwArithmeticException();
-		#endif
-		return val;
-	}
-	inline x10_uint zeroCheck__tm__(x10tm::TMThread *SelfTM, x10_uint val) {
-		#if !defined(NO_CHECKS) && !defined(NO_EXCEPTIONS)
-		if (0 == val) throwArithmeticException();
-		#endif
-		return val;
-	}
-	inline x10_long zeroCheck__tm__(x10tm::TMThread *SelfTM, x10_long val) {
-		#if !defined(NO_CHECKS) && !defined(NO_EXCEPTIONS)
-		if (0 == val) throwArithmeticException();
-		#endif
-		return val;
-	}
-	inline x10_ulong zeroCheck__tm__(x10tm::TMThread *SelfTM, x10_ulong val) {
-		#if !defined(NO_CHECKS) && !defined(NO_EXCEPTIONS)
-		if (0 == val) throwArithmeticException();
-		#endif
-		return val;
-	}
-
     /*
      * Helper function for null pointer exceptions
      */
@@ -137,19 +88,6 @@ namespace x10aux {
     template <class T> inline T nullCheck(T x) {
         return x;
     }
-
-    template <class T> inline T* nullCheck__tm__(x10tm::TMThread *SelfTM, T* obj) {
-		#if !defined(NO_NULL_CHECKS) && !defined(NO_EXCEPTIONS)
-		if (NULL == obj) throwNPE();
-		#endif
-		return obj;
-	}
-
-	// A no-op for non-pointers (they can't be null)
-	template <class T> inline T nullCheck__tm__(x10tm::TMThread *SelfTM, T x) {
-		return x;
-	}
-
 
 
     /*
@@ -173,25 +111,15 @@ namespace x10aux {
 namespace x10aux {
 
     template<class T> void throwException() X10_PRAGMA_NORETURN;
-    template<class T> void throwException__tm__(x10tm::TMThread *SelfTM) X10_PRAGMA_NORETURN;
 
     void throwException(x10::lang::CheckedThrowable* e) X10_PRAGMA_NORETURN;
-    void throwException__tm__(x10tm::TMThread *SelfTM, x10::lang::CheckedThrowable* e) X10_PRAGMA_NORETURN;
 
     inline void throwException(x10::lang::CheckedThrowable* e) {
         throw e->fillInStackTrace();
     }
 
-    inline void throwException__tm__(x10tm::TMThread *SelfTM, x10::lang::CheckedThrowable* e) {
-            throw e->fillInStackTrace();
-        }
-
     template<class T> void throwException() {
         throwException(T::_make());
-    }
-
-    template<class T> void throwException__tm__(x10tm::TMThread *SelfTM) {
-        throwException__tm__(SelfTM, T::_make());
     }
 
 }

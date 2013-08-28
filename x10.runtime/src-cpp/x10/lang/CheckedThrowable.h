@@ -49,11 +49,6 @@ namespace x10 {
             static CheckedThrowable* _make(CheckedThrowable* cause);
             static CheckedThrowable* _make(String* message, CheckedThrowable* cause);
 
-            static CheckedThrowable* _make__tm__(x10tm::TMThread *SelfTM);
-			static CheckedThrowable* _make__tm__(x10tm::TMThread *SelfTM, String* message);
-			static CheckedThrowable* _make__tm__(x10tm::TMThread *SelfTM, CheckedThrowable* cause);
-			static CheckedThrowable* _make__tm__(x10tm::TMThread *SelfTM, String* message, CheckedThrowable* cause);
-
             CheckedThrowable* _constructor() {
                 return _constructor(NULL, NULL);
             }
@@ -67,20 +62,6 @@ namespace x10 {
             }
 
             CheckedThrowable* _constructor(String* message, CheckedThrowable* cause);
-
-            CheckedThrowable* _constructor__tm__(x10tm::TMThread *Self) {
-                return _constructor(NULL, NULL);
-            }
-
-            CheckedThrowable* _constructor__tm__(x10tm::TMThread *Self, String* message) {
-                return _constructor(message, NULL);
-            }
-
-            CheckedThrowable* _constructor__tm__(x10tm::TMThread *Self, CheckedThrowable* cause) {
-                return _constructor(NULL, cause);
-            }
-
-            CheckedThrowable* _constructor__tm__(x10tm::TMThread *Self, String* message, CheckedThrowable* cause);
 
             virtual String* getMessage() { return FMGL(message); }
             virtual CheckedThrowable* getCause() { return FMGL(cause); }

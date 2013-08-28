@@ -279,19 +279,6 @@ void x10aux::run_closure_at(x10aux::place p, x10::lang::VoidFun_0_0* body_fun,
 
 }
 
-///
-void x10aux::run_async_at__tm__(x10tm::TMThread *SelfTM, x10aux::place p, x10::lang::VoidFun_0_0* body_fun,
-                          x10::lang::FinishState* fs, x10::lang::Runtime__Profile *prof,
-                          x10aux::endpoint endpoint) {
-	return x10aux::run_async_at(p, body_fun, fs, prof, endpoint);
-}
-
-void x10aux::run_closure_at__tm__(x10tm::TMThread *SelfTM, x10aux::place p, x10::lang::VoidFun_0_0* body_fun,
-                            x10::lang::Runtime__Profile *prof, x10aux::endpoint endpoint) {
-	x10aux::run_closure_at(p, body_fun, prof, endpoint);
-}
-
-///
 void x10aux::send_get (x10aux::place place, x10aux::serialization_id_t id_,
                        serialization_buffer &buf, void *data, x10aux::copy_sz len, x10aux::endpoint endpoint)
 {

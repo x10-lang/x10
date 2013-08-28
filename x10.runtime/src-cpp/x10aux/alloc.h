@@ -150,11 +150,6 @@ namespace x10aux {
         dealloc_internal(obj_);
     }
 
-    template<class T> void dealloc__tm__(x10tm::TMThread *SelfTM, const T* obj_) {
-            _M_("Freeing chunk " << (void*)obj_ << " of type " << TYPENAME(T));
-            dealloc_internal(obj_);
-        }
-
     // Return an upper bound on the current size of the heap in bytes.
     // The accuracy of result returned by this method will vary widely depending on
     // the underlying implementation of allocation.

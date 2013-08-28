@@ -43,13 +43,10 @@ namespace x10 {
             static const x10aux::RuntimeType* getRTT();
 
             virtual x10_boolean _struct_equals(Reference* other);
-            virtual x10_boolean _struct_equals__tm__(x10tm::TMThread *SelfTM, Reference* other);
             
             virtual String* toString();
-            virtual String* toString__tm__(x10tm::TMThread *SelfTM);
 
             virtual x10_int hashCode();
-            virtual x10_int hashCode__tm__(x10tm::TMThread *SelfTM);
             
             static const x10aux::serialization_id_t _serialization_id;
 
@@ -106,10 +103,8 @@ namespace x10 {
         template<class T> const x10aux::RuntimeType* IBox<T>::getRTT() { return x10aux::getRTT<T>(); }
 
         template<class T> String* IBox<T>::toString() { return x10aux::to_string(value); }
-        template<class T> String* IBox<T>::toString__tm__(x10tm::TMThread *SelfTM) { return x10aux::to_string(value); }
 
         template<class T> x10_int IBox<T>::hashCode() { return x10aux::hash_code(value); }
-        template<class T> x10_int IBox<T>::hashCode__tm__(x10tm::TMThread *SelfTM) { return x10aux::hash_code(value); }
 
         template <class T> x10_boolean IBox<T>::_struct_equals(Reference* other) {
             if (NULL != other && _type()->equals(other->_type())) {
@@ -122,16 +117,6 @@ namespace x10 {
             }
         }
         
-        template <class T> x10_boolean IBox<T>::_struct_equals__tm__(x10tm::TMThread *SelfTM, Reference* other) {
-			if (NULL != other && _type()->equals(other->_type())) {
-				// implies that other is also an IBox<T>
-				IBox<T>* otherAsIBox = reinterpret_cast<IBox<T>*>(other);
-				return x10aux::struct_equals(value, otherAsIBox->value);
-			} else {
-				// If I'm an IBox<T> and the other guy is not an IBox<T> then has to be false.
-				return false;
-			}
-		}
         template<class T> const x10aux::serialization_id_t x10::lang::IBox<T>::_serialization_id = 
             x10aux::DeserializationDispatcher::addDeserializer(x10::lang::IBox<T>::_deserializer, x10aux::CLOSURE_KIND_NOT_ASYNC);
 

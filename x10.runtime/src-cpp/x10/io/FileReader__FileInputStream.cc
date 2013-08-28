@@ -26,13 +26,6 @@ FileReader__FileInputStream::_make(x10::lang::String* name) {
     return this_;
 }
 
-FileReader__FileInputStream*
-FileReader__FileInputStream::_make__tm__(x10tm::TMThread *SelfTM, x10::lang::String* name) {
-    FileReader__FileInputStream* this_ = new (x10aux::alloc<FileReader__FileInputStream>()) FileReader__FileInputStream ();
-    this_->_constructor(name);
-    return this_;
-}
-
 void FileReader__FileInputStream::_constructor(x10::lang::String* name) {
     this->InputStreamReader__InputStream::_constructor();
 

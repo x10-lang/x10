@@ -51,26 +51,16 @@ namespace x10 {
             virtual x10_boolean equals(Any* other) {
                 return this->_struct_equals(reinterpret_cast<Reference*>(other));
             }
-            virtual x10_boolean equals__tm__(x10tm::TMThread *SelfTM, Any* other) {
-                            return this->_struct_equals__tm__(SelfTM, reinterpret_cast<Reference*>(other));
-            }
 
             virtual x10_boolean _struct_equals(Reference* other) {
                 return other == this;
             }
             
-            virtual x10_boolean _struct_equals__tm__(x10tm::TMThread *SelfTM, Reference* other) {
-                return other == this;
-            }
-
             virtual x10_int hashCode() { return x10aux::identity_hash_code(this); }
-            virtual x10_int hashCode__tm__(x10tm::TMThread *SelfTM) { return x10aux::identity_hash_code(this); }
 
             virtual String* toString() { return x10aux::identity_to_string(this); }
-            virtual String* toString__tm__(x10tm::TMThread *SelfTM) { return x10aux::identity_to_string(this); }
 
             virtual String* typeName();
-            virtual String* typeName__tm__(x10tm::TMThread *SelfTM);
 
             // Like the destructor, but called only by dealloc_object()
             // To be overridden by native classes that have alloc'ed state

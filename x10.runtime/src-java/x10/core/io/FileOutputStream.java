@@ -16,50 +16,44 @@ import x10.rtt.RuntimeType;
 import x10.rtt.Type;
 
 public class FileOutputStream extends OutputStream {
+    
+    private static final long serialVersionUID = 1L;
 
-	private static final long serialVersionUID = 1L;
+    // constructor just for allocation
+    public FileOutputStream(java.lang.System[] $dummy) {
+        super($dummy);
+    }
 
-	// constructor just for allocation
-	public FileOutputStream(java.lang.System[] $dummy) {
-		super($dummy);
-	}
+    public final FileOutputStream x10$io$FileReader$FileOutputStream$$init$S(String name, boolean append) {
+        try {
+            super.x10$io$OutputStreamWriter$OutputStream$$init$S(new java.io.FileOutputStream(name, append));
+            return this;
+        } catch (java.io.FileNotFoundException e) {
+            throw new x10.io.FileNotFoundException(e.getMessage());
+        }
+    }
 
-	public final FileOutputStream x10$io$FileReader$FileOutputStream$$init$S(
-			String name, boolean append) {
-		try {
-			super.x10$io$OutputStreamWriter$OutputStream$$init$S(new java.io.FileOutputStream(
-					name, append));
-			return this;
-		} catch (java.io.FileNotFoundException e) {
-			throw new x10.io.FileNotFoundException(e.getMessage());
-		}
-	}
+    // not used
+//    // creation method for java code (factory method)
+//    public static FileOutputStream $make(String name, boolean append) {
+//        return new FileOutputStream((java.lang.System[]) null).$init(name, append);
+//    }
+    // creation method for java code (1-phase java constructor)
+    public FileOutputStream(String name, boolean append) {
+        this((java.lang.System[]) null);
+        x10$io$FileReader$FileOutputStream$$init$S(name, append);
+    }
 
-	// not used
-	// // creation method for java code (factory method)
-	// public static FileOutputStream $make(String name, boolean append) {
-	// return new FileOutputStream((java.lang.System[]) null).$init(name,
-	// append);
-	// }
-	// creation method for java code (1-phase java constructor)
-	public FileOutputStream(String name, boolean append) {
-		this((java.lang.System[]) null);
-		x10$io$FileReader$FileOutputStream$$init$S(name, append);
-	}
 
-	//
-	// Runtime type information
-	//
-	public static final RuntimeType<FileOutputStream> $RTT = NamedType
-			.<FileOutputStream> make("x10.io.FileWriter.FileOutputStream",
-					FileOutputStream.class, new Type[] { OutputStream.$RTT });
-
-	public RuntimeType<?> $getRTT() {
-		return $RTT;
-	}
-
-	public Type<?> $getParam(int i) {
-		return null;
-	}
+    //
+    // Runtime type information
+    //
+    public static final RuntimeType<FileOutputStream> $RTT = NamedType.<FileOutputStream> make(
+        "x10.io.FileWriter.FileOutputStream",
+        FileOutputStream.class,
+        new Type[] { OutputStream.$RTT }
+    );
+    public RuntimeType<?> $getRTT() { return $RTT; }
+    public Type<?> $getParam(int i) { return null; }
 
 }

@@ -42,16 +42,12 @@ namespace x10 {
             }
 
             virtual x10_int hashCode();
-            virtual x10_int hashCode__tm__(x10tm::TMThread *SelfTM);
             
             virtual String* toString();
-            virtual String* toString__tm__(x10tm::TMThread *SelfTM);
             
             virtual const char* toNativeString();
-            virtual const char* toNativeString__tm__(x10tm::TMThread *SelfTM);
 
             virtual x10::lang::String* typeName();
-            virtual x10::lang::String* typeName__tm__(x10tm::TMThread *SelfTM);
         };
     }
 }

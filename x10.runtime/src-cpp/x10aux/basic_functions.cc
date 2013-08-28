@@ -22,7 +22,6 @@
 using namespace x10aux;
 using namespace x10::lang;
 
-
 x10_int x10aux::hash_code(const x10_double x) {
     return hash_code(x10::lang::DoubleNatives::toLongBits(x));
 }
@@ -30,15 +29,6 @@ x10_int x10aux::hash_code(const x10_double x) {
 x10_int x10aux::hash_code(const x10_float x) {
     return hash_code(x10::lang::FloatNatives::toIntBits(x));
 }
-
-x10_int x10aux::hash_code__tm__(x10tm::TMThread *SelfTM, const x10_double x) {
-    return hash_code(x10::lang::DoubleNatives::toLongBits(x));
-}
-
-x10_int x10aux::hash_code__tm__(x10tm::TMThread *SelfTM, const x10_float x) {
-    return hash_code(x10::lang::FloatNatives::toIntBits(x));
-}
-
 
 String* x10aux::identity_type_name (Reference* ptr) {
     return String::Lit(alloc_printf("%s",ptr->_type()->name()));
@@ -50,15 +40,6 @@ String* x10aux::identity_to_string (Reference* ptr) {
 
 #define TO_STRING(SZ,T,C,FMT) \
 String* x10aux::to_string(T v) { \
-    char buf[SZ]; \
-    int amt = ::snprintf(buf, sizeof(buf), FMT, (C)v); \
-    (void)amt; \
-    assert((size_t)amt<sizeof(buf) && "buf too small "__TOKEN_STRING(SZ)" for "__TOKEN_STRING(T)); \
-    return x10::lang::String::Lit(buf);              \
-}
-
-#define TO_STRING__TM__(SZ,T,C,FMT) \
-String* x10aux::to_string__tm__(x10tm::TMThread *SelfTM, T v) { \
     char buf[SZ]; \
     int amt = ::snprintf(buf, sizeof(buf), FMT, (C)v); \
     (void)amt; \
@@ -79,24 +60,7 @@ TO_STRING(12, x10_int, signed long, "%ld")
 TO_STRING(21, x10_ulong, unsigned long long, "%llu")
 TO_STRING(21, x10_long, signed long long, "%lld")
 
-///
-TO_STRING__TM__(4, x10_ubyte, unsigned char, "%hu")
-TO_STRING__TM__(5, x10_byte, signed char, "%hd")
-
-TO_STRING__TM__(6, x10_ushort, unsigned short, "%hu")
-TO_STRING__TM__(7, x10_short, signed short, "%hd")
-
-TO_STRING__TM__(11, x10_uint, unsigned long, "%lu")
-TO_STRING__TM__(12, x10_int, signed long, "%ld")
-TO_STRING__TM__(21, x10_ulong, unsigned long long, "%llu")
-TO_STRING__TM__(21, x10_long, signed long long, "%lld")
-///
-
 String* x10aux::to_string(x10_float v) {
-    return x10aux::to_string((x10_double)v);
-}
-
-String* x10aux::to_string__tm__(x10tm::TMThread *SelfTM, x10_float v) {
     return x10aux::to_string((x10_double)v);
 }
 
@@ -145,10 +109,6 @@ String* x10aux::to_string(x10_double v_) {
     }   
     return x10::lang::String::Lit(buf);
 }   
-
-String* x10aux::to_string__tm__(x10tm::TMThread *SelfTM, x10_double v_) {
-	return x10aux::to_string(v_);
-}
     
 
 String* x10aux::to_string(x10_boolean v) {
@@ -156,18 +116,10 @@ String* x10aux::to_string(x10_boolean v) {
     static String* f = x10::lang::String::Lit("false");
     return ((bool)v) ? t : f;
 }   
-
-String* x10aux::to_string__tm__(x10tm::TMThread *SelfTM, x10_boolean v) {
-	return x10aux::to_string(v);
-}
     
 String* x10aux::to_string(x10_char v) {
     char v_[] = {(char)v.v,'\0'};
     return x10::lang::String::Lit(v_);
-}
-
-String* x10aux::to_string__tm__(x10tm::TMThread *SelfTM, x10_char v) {
-	return x10aux::to_string(v);
 }
 
 String* x10aux::makeStringLit(const char* s) {

@@ -29,19 +29,6 @@ namespace x10 {
                 static x10_boolean weakCompareAndSet(AtomicBoolean *obj,
                                                      x10_boolean expect,
                                                      x10_boolean update);
-
-                static x10_boolean compareAndSet__tm__(x10tm::TMThread *SelfTM, AtomicBoolean *obj,
-												 x10_boolean expect,
-												 x10_boolean update) {
-                	return compareAndSet(obj, expect, update);
-                }
-
-				static x10_boolean weakCompareAndSet__tm__(x10tm::TMThread *SelfTM, AtomicBoolean *obj,
-													 x10_boolean expect,
-													 x10_boolean update) {
-					return weakCompareAndSet(obj, expect, update);
-				}
-
             };
         }
     }

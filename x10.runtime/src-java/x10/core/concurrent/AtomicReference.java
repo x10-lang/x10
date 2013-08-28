@@ -21,75 +21,65 @@ import x10.serialization.X10JavaDeserializer;
 import x10.serialization.X10JavaSerializable;
 import x10.serialization.X10JavaSerializer;
 
-public final class AtomicReference<T> extends
-		java.util.concurrent.atomic.AtomicReference<T> implements Any,
-		X10JavaSerializable {
+public final class AtomicReference<T> extends java.util.concurrent.atomic.AtomicReference<T> implements Any, X10JavaSerializable {
 
-	private static final long serialVersionUID = 1L;
+    private static final long serialVersionUID = 1L;
 
-	// constructor just for allocation
-	public AtomicReference(java.lang.System[] $dummy) {
-		super();
-	}
+    // constructor just for allocation
+    public AtomicReference(java.lang.System[] $dummy) {
+        super();
+    }
+	
+    public final AtomicReference x10$util$concurrent$AtomicReference$$init$S(Type<T> T) {
+        this.T = T;
+        return this;
+    }
+	
+    public AtomicReference(Type<T> T) {
+        super();
+        this.T = T;
+    }
 
-	public final AtomicReference x10$util$concurrent$AtomicReference$$init$S(
-			Type<T> T) {
-		this.T = T;
-		return this;
-	}
-
-	public AtomicReference(Type<T> T) {
-		super();
-		this.T = T;
-	}
-
-	public final AtomicReference x10$util$concurrent$AtomicReference$$init$S(
-			Type<T> T, T initialValue) {
-		set(initialValue);
-		this.T = T;
-		return this;
-	}
-
-	public AtomicReference(Type<T> T, T initialValue) {
-		super(initialValue);
-		this.T = T;
-	}
-
-	//
-	// Runtime type information
-	//
-	public static final RuntimeType<AtomicReference> $RTT = NamedType
-			.<AtomicReference> make("x10.util.concurrent.AtomicReference",
-					AtomicReference.class, RuntimeType.INVARIANTS(1));
-
-	public RuntimeType<AtomicReference> $getRTT() {
-		return $RTT;
-	}
-
-	public Type<?> $getParam(int i) {
-		return i == 0 ? T : null;
-	}
-
-	public Type<T> T;
+    public final AtomicReference x10$util$concurrent$AtomicReference$$init$S(Type<T> T, T initialValue) {
+        set(initialValue);
+        this.T = T;
+        return this;
+    }
+    
+    public AtomicReference(Type<T> T, T initialValue) {
+        super(initialValue);
+        this.T = T;
+    }
+    
+    //
+    // Runtime type information
+    //
+    public static final RuntimeType<AtomicReference> $RTT = NamedType.<AtomicReference> make(
+        "x10.util.concurrent.AtomicReference",
+        AtomicReference.class,
+        RuntimeType.INVARIANTS(1)
+    );
+    public RuntimeType<AtomicReference> $getRTT() {return $RTT;}
+    public Type<?> $getParam(int i) { return i == 0 ? T : null; }
+    
+    public Type<T> T;
 
 	public void $_serialize(X10JavaSerializer serializer) throws IOException {
 		serializer.write(this.T);
 		serializer.write(get());
 	}
 
-	public static X10JavaSerializable $_deserializer(
-			X10JavaDeserializer deserializer) throws IOException {
-		AtomicReference ar = new AtomicReference((System[]) null);
-		deserializer.record_reference(ar);
+    public static X10JavaSerializable $_deserializer(X10JavaDeserializer deserializer) throws IOException {
+        AtomicReference ar = new AtomicReference((System[])null);
+        deserializer.record_reference(ar);
 		return $_deserialize_body(ar, deserializer);
 	}
 
-	public static X10JavaSerializable $_deserialize_body(AtomicReference ar,
-			X10JavaDeserializer deserializer) throws IOException {
-		Type T = (Type) deserializer.readRef();
-		ar.T = T;
-		Object value = deserializer.readRef();
-		ar.set(value);
-		return ar;
+	public static X10JavaSerializable $_deserialize_body(AtomicReference ar, X10JavaDeserializer deserializer) throws IOException {
+        Type T = (Type) deserializer.readRef();
+        ar.T = T;
+        Object value = deserializer.readRef();
+        ar.set(value);
+        return ar;
 	}
 }

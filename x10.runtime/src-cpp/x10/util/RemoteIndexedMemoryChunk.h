@@ -32,8 +32,7 @@ namespace x10 {
             x10::lang::Place home;
             x10_int len; /* TODO: we would like this to be const */ /* TODO, this should be an x10_long */
 
-            x10_int length() { return len; }
-            x10_int length__tm__(x10tm::TMThread *SelfTM) { return len; }
+            x10_int length() { return len; } 
             T *raw (void) const { return (T*)(size_t)data; }
 
             RemoteIndexedMemoryChunk(): data(0), len(0), home(RIMC_here_hack()) {}
@@ -67,20 +66,6 @@ namespace x10 {
             x10_int hashCode() { return (x10_int)data; }
 
             x10::lang::String* typeName();
-
-            /*x10_boolean equals__tm__(x10::lang::Any* that) { return _struct_equals(that); }
-
-			x10_boolean equals__tm__(x10::util::RemoteIndexedMemoryChunk<T> that) { return _struct_equals(that); }
-
-			x10_boolean _struct_equals__tm__(x10::lang::Any*);
-
-			x10_boolean _struct_equals__tm__(x10::util::RemoteIndexedMemoryChunk<T> that);
-
-			x10::lang::String* toString__tm__();
-
-			x10_int hashCode__tm__() { return (x10_int)data; }
-
-			x10::lang::String* typeName__tm__();*/
 
             void remoteAdd(x10_int idx, x10_ulong v)
             { x10aux::remote_op(home->FMGL(id), (x10rt_remote_ptr)(size_t)&raw()[idx], X10RT_OP_ADD, v); }

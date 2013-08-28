@@ -19,10 +19,6 @@ x10::lang::String* x10::lang::X10Class::typeName() {
     return x10::lang::String::Lit(_type()->name());
 }
 
-x10::lang::String* x10::lang::X10Class::typeName__tm__(x10tm::TMThread *SelfTM) {
-    return x10::lang::String::Lit(_type()->name());
-}
-
 void x10::lang::X10Class::dealloc_object(X10Class *obj) {
     _M_("Attempting to dealloc object "<<(void*)obj);
     obj->_destructor();

@@ -32,36 +32,16 @@ namespace x10 {
 
             template <class I> struct itable {
                 itable(x10_boolean (I::*equals)(x10::lang::Any*),
-                		x10_boolean (I::*equals__tm__)(x10tm::TMThread *SelfTM, x10::lang::Any*),
                        x10_int (I::*hashCode)(),
-                       x10_int (I::*hashCode__tm__)(x10tm::TMThread *SelfTM),
                        void(I::*__apply)(P1,P2),
-                       void(I::*__apply__tm__)(x10tm::TMThread *SelfTM, P1,P2),
                        x10::lang::String* (I::*toString)(),
-                       x10::lang::String* (I::*toString__tm__)(x10tm::TMThread *SelfTM),
-                       x10::lang::String* (I::*typeName)(),
-                       x10::lang::String* (I::*typeName__tm__)(x10tm::TMThread *SelfTM)
-                    ) :
-                    equals(equals),
-                    equals__tm__(equals__tm__),
-                    hashCode(hashCode),
-                    hashCode__tm__(hashCode__tm__),
-                    __apply(__apply),
-                    __apply__tm__(__apply__tm__),
-                    toString(toString),
-                    toString__tm__(toString__tm__),
-                    typeName(typeName),
-                    typeName__tm__(typeName__tm__){}
+                       x10::lang::String* (I::*typeName)()
+                    ) : equals(equals), hashCode(hashCode), __apply(__apply), toString(toString), typeName(typeName) {}
                 x10_boolean (I::*equals)(x10::lang::Any*);
-                x10_boolean (I::*equals__tm__)(x10tm::TMThread *SelfTM, x10::lang::Any*);
                 x10_int (I::*hashCode)();
-                x10_int (I::*hashCode__tm__)(x10tm::TMThread *SelfTM);
                 void (I::*__apply)(P1,P2);
-                void (I::*__apply__tm__)(x10tm::TMThread *SelfTM, P1,P2);
                 x10::lang::String* (I::*toString)();
-                x10::lang::String* (I::*toString__tm__)(x10tm::TMThread *SelfTM);
                 x10::lang::String* (I::*typeName)();
-                x10::lang::String* (I::*typeName__tm__)(x10tm::TMThread *SelfTM);
             };
 
             static void __apply(VoidFun_0_2<P1,P2>* fun, P1 arg1, P2 arg2) {
@@ -84,29 +64,6 @@ namespace x10 {
                 x10::lang::Reference* recv = reinterpret_cast<x10::lang::Reference*>(fun);
                 return (recv->*(x10aux::findITable<VoidFun_0_2<P1,P2> >(recv->_getITables())->typeName))();
             }
-
-            //
-            static void __apply__tm__(x10tm::TMThread *SelfTM, VoidFun_0_2<P1,P2>* fun, P1 arg1, P2 arg2) {
-				x10::lang::Reference* recv = reinterpret_cast<x10::lang::Reference*>(fun);
-				return (recv->*(x10aux::findITable<VoidFun_0_2<P1,P2> >(recv->_getITables())->__apply))(arg1, arg2);
-			}
-			static x10_boolean equals__tm__(x10tm::TMThread *SelfTM, VoidFun_0_2<P1,P2>* fun, x10::lang::Any* arg1) {
-				x10::lang::Reference* recv = reinterpret_cast<x10::lang::Reference*>(fun);
-				return (recv->*(x10aux::findITable<VoidFun_0_2<P1,P2> >(recv->_getITables())->equals))(arg1);
-			}
-			static x10_int hashCode__tm__(x10tm::TMThread *SelfTM, VoidFun_0_2<P1,P2>* fun) {
-				x10::lang::Reference* recv = reinterpret_cast<x10::lang::Reference*>(fun);
-				return (recv->*(x10aux::findITable<VoidFun_0_2<P1,P2> >(recv->_getITables())->hashCode))();
-			}
-			static x10::lang::String* toString__tm__(x10tm::TMThread *SelfTM, VoidFun_0_2<P1,P2>* fun) {
-				x10::lang::Reference* recv = reinterpret_cast<x10::lang::Reference*>(fun);
-				return (recv->*(x10aux::findITable<VoidFun_0_2<P1,P2> >(recv->_getITables())->toString))();
-			}
-			static x10::lang::String* typeName__tm__(x10tm::TMThread *SelfTM, VoidFun_0_2<P1,P2>* fun) {
-				x10::lang::Reference* recv = reinterpret_cast<x10::lang::Reference*>(fun);
-				return (recv->*(x10aux::findITable<VoidFun_0_2<P1,P2> >(recv->_getITables())->typeName))();
-			}
-
         };
 
         template<class P1, class P2> void VoidFun_0_2<P1,P2>::_initRTT() {

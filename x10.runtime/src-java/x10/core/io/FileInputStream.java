@@ -16,49 +16,44 @@ import x10.rtt.RuntimeType;
 import x10.rtt.Type;
 
 public class FileInputStream extends InputStream {
+    
+    private static final long serialVersionUID = 1L;
 
-	private static final long serialVersionUID = 1L;
+    // constructor just for allocation
+    public FileInputStream(java.lang.System[] $dummy) {
+        super($dummy);
+    }
 
-	// constructor just for allocation
-	public FileInputStream(java.lang.System[] $dummy) {
-		super($dummy);
-	}
+    public final FileInputStream x10$io$FileReader$FileInputStream$$init$S(String name) {
+        try {
+            super.x10$io$InputStreamReader$InputStream$$init$S(new java.io.FileInputStream(name));
+            return this;
+        } catch (java.io.FileNotFoundException e) {
+            throw new x10.io.FileNotFoundException(e.getMessage());
+        }
+    }
 
-	public final FileInputStream x10$io$FileReader$FileInputStream$$init$S(
-			String name) {
-		try {
-			super.x10$io$InputStreamReader$InputStream$$init$S(new java.io.FileInputStream(
-					name));
-			return this;
-		} catch (java.io.FileNotFoundException e) {
-			throw new x10.io.FileNotFoundException(e.getMessage());
-		}
-	}
+    // not used
+//    // creation method for java code (factory method)
+//    public static FileInputStream $make(String name) {
+//        return new FileInputStream((java.lang.System[]) null).$init(name);
+//    }
+    // creation method for java code (1-phase java constructor)
+    public FileInputStream(String name) {
+        this((java.lang.System[]) null);
+        x10$io$FileReader$FileInputStream$$init$S(name);
+    }
 
-	// not used
-	// // creation method for java code (factory method)
-	// public static FileInputStream $make(String name) {
-	// return new FileInputStream((java.lang.System[]) null).$init(name);
-	// }
-	// creation method for java code (1-phase java constructor)
-	public FileInputStream(String name) {
-		this((java.lang.System[]) null);
-		x10$io$FileReader$FileInputStream$$init$S(name);
-	}
 
-	//
-	// Runtime type information
-	//
-	public static final RuntimeType<FileInputStream> $RTT = NamedType
-			.<FileInputStream> make("x10.io.FileReader.FileInputStream",
-					FileInputStream.class, new Type[] { InputStream.$RTT });
-
-	public RuntimeType<?> $getRTT() {
-		return $RTT;
-	}
-
-	public Type<?> $getParam(int i) {
-		return null;
-	}
+    //
+    // Runtime type information
+    //
+    public static final RuntimeType<FileInputStream> $RTT = NamedType.<FileInputStream> make(
+        "x10.io.FileReader.FileInputStream",
+        FileInputStream.class,
+        new Type[] { InputStream.$RTT }
+    );
+    public RuntimeType<?> $getRTT() { return $RTT; }
+    public Type<?> $getParam(int i) { return null; }
 
 }

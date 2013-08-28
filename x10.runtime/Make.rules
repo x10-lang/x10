@@ -308,7 +308,7 @@ ifndef CROSS_COMPILE_BLUEGENE
       export X10RT_PLATFORM=$(shell echo | gcc -E -dM - | grep -q x86_64 && echo darwin64 || echo darwin)
       ifndef X10_STATIC_LIB
         override CXXFLAGS_SHARED += -fPIC
-        override LDFLAGS_SHARED += -dynamiclib -undefined dynamic_lookup --rpath=/Users/amatvee/X10/x10dt/workspace/x10.dist/stdlib -install_name '@rpath/$@'
+        override LDFLAGS_SHARED += -dynamiclib -undefined dynamic_lookup -install_name '@rpath/$@'
       endif
       export X10RT_TEST_LDFLAGS = -Wl,-rpath -Wl,"$(X10_HOME)"/x10.runtime/x10rt/lib -Wl,-rpath -Wl,"$(X10_HOME)"/x10.runtime/x10rt
       ifdef USE_32BIT

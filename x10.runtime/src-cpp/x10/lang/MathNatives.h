@@ -44,32 +44,6 @@ namespace x10 {
             static inline x10_double floor(x10_double x) { return ::floor(x); }
             static inline x10_double round(x10_double x) { return ::round(x); }
             static inline x10_double copysign(x10_double x, x10_double y) { return ::copysign(x, y); }
-
-            static inline x10_double pow__tm__(x10tm::TMThread *SelfTM, x10_double x, x10_double y) { return ::pow(x,y); }
-			static inline x10_double exp__tm__(x10tm::TMThread *SelfTM, x10_double x) { return ::exp(x); }
-			static inline x10_double expm1__tm__(x10tm::TMThread *SelfTM, x10_double x) { return ::expm1(x); }
-			static inline x10_double cos__tm__(x10tm::TMThread *SelfTM, x10_double x) { return ::cos(x); }
-			static inline x10_double sin__tm__(x10tm::TMThread *SelfTM, x10_double x) { return ::sin(x); }
-			static inline x10_double tan__tm__(x10tm::TMThread *SelfTM, x10_double x) { return ::tan(x); }
-			static inline x10_double acos__tm__(x10tm::TMThread *SelfTM, x10_double x) { return ::acos(x); }
-			static inline x10_double asin__tm__(x10tm::TMThread *SelfTM, x10_double x) { return ::asin(x); }
-			static inline x10_double atan__tm__(x10tm::TMThread *SelfTM, x10_double x) { return ::atan(x); }
-			static inline x10_double atan2__tm__(x10tm::TMThread *SelfTM, x10_double x, x10_double y) { return ::atan2(x, y); }
-			static inline x10_double cosh__tm__(x10tm::TMThread *SelfTM, x10_double x) { return ::cosh(x); }
-			static inline x10_double sinh__tm__(x10tm::TMThread *SelfTM, x10_double x) { return ::sinh(x); }
-			static inline x10_double tanh__tm__(x10tm::TMThread *SelfTM, x10_double x) { return ::tanh(x); }
-			static inline x10_double log__tm__(x10tm::TMThread *SelfTM, x10_double x) { return ::log(x); }
-			static inline x10_double log10__tm__(x10tm::TMThread *SelfTM, x10_double x) { return ::log10(x); }
-			static inline x10_double log1p__tm__(x10tm::TMThread *SelfTM, x10_double x) { return ::log1p(x); }
-			static inline x10_double sqrt__tm__(x10tm::TMThread *SelfTM, x10_double x) { return ::sqrt(x); }
-			static inline x10_double cbrt__tm__(x10tm::TMThread *SelfTM, x10_double x) { return ::cbrt(x); }
-			static inline x10_double erf__tm__(x10tm::TMThread *SelfTM, x10_double x) { return ::erf(x); }
-			static inline x10_double erfc__tm__(x10tm::TMThread *SelfTM, x10_double x) { return ::erfc(x); }
-			static inline x10_double hypot__tm__(x10tm::TMThread *SelfTM, x10_double x, x10_double y) { return ::hypot(x, y); }
-			static inline x10_double ceil__tm__(x10tm::TMThread *SelfTM, x10_double x) { return ::ceil(x); }
-			static inline x10_double floor__tm__(x10tm::TMThread *SelfTM, x10_double x) { return ::floor(x); }
-			static inline x10_double round__tm__(x10tm::TMThread *SelfTM, x10_double x) { return ::round(x); }
-			static inline x10_double copysign__tm__(x10tm::TMThread *SelfTM, x10_double x, x10_double y) { return ::copysign(x, y); }
         };
     }
 }

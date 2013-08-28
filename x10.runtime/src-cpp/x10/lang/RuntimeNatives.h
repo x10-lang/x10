@@ -52,39 +52,6 @@ namespace x10 {
             template<class T> static inline void printf(const char* fmt, const T& t) {
                 fprintf(stderr, fmt, t);
             }
-
-            //////
-            static x10::io::Reader* execForRead__tm__(x10tm::TMThread *SelfTM, const char *command) {
-            	return execForRead(command);
-            }
-			static x10::io::Writer* execForWrite__tm__(x10tm::TMThread *SelfTM, const char *command) {
-				return execForWrite(command);
-			}
-
-			/* Exit with the given exit code */
-			static void exit__tm__(x10tm::TMThread *SelfTM, x10_int code) {
-				exit(code);
-			}
-
-			/** Milliseconds since the Epoch: midnight, Jan 1, 1970. */
-			static x10_long currentTimeMillis__tm__(x10tm::TMThread *SelfTM) {
-				return currentTimeMillis();
-			}
-
-			/** Current value of the system timer, in nanoseconds.  May be rounded if system timer does not have nanosecond precision. */
-			static x10_long nanoTime__tm__(x10tm::TMThread *SelfTM) {
-				return nanoTime();
-			}
-
-			/** Low-level println to stderr; intended only for low-level debugging of XRX */
-			static void println__tm__(x10tm::TMThread *SelfTM, const char *msg) {
-				println(msg);
-			}
-
-			/** Low-level printf to stderr; intended only for low-level debugging of XRX */
-			template<class T> static inline void printf__tm__(x10tm::TMThread *SelfTM, const char* fmt, const T& t) {
-				fprintf(stderr, fmt, t);
-			}
         };
     }
 }

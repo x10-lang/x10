@@ -518,21 +518,6 @@ namespace x10aux {
         }
         return res;
     }
-
-    template <class T> T deep_copy__tm__(x10tm::TMThread *SelfTM, T o, x10::lang::Runtime__Profile *prof) {
-		serialization_buffer buf;
-		unsigned long long before_nanos, before_bytes;
-		if (prof!=NULL) {
-			before_nanos = x10::lang::RuntimeNatives::nanoTime();
-		}
-		buf.write(o);
-		deserialization_buffer buf2(buf.borrow(), buf.length());
-		T res = buf2.read<T>();
-		if (prof!=NULL) {
-			set_prof_data(prof, buf.length(), x10::lang::RuntimeNatives::nanoTime() - before_nanos);
-		}
-		return res;
-	}
 }
 
 #endif

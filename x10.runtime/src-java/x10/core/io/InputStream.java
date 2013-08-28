@@ -17,152 +17,138 @@ import x10.rtt.RuntimeType;
 import x10.rtt.Type;
 
 public class InputStream extends Ref {
+  
+    private static final long serialVersionUID = 1L;
+ 
+    public void $_serialize(x10.serialization.X10JavaSerializer $serializer) throws java.io.IOException {
+        // TODO need check
+        $serializer.write(stream);
+    }
+    public static x10.serialization.X10JavaSerializable $_deserialize_body(InputStream $_obj, x10.serialization.X10JavaDeserializer $deserializer) throws java.io.IOException {
+        // TODO need check
+        $_obj.stream = (java.io.InputStream) $deserializer.readRef();
+        return $_obj;
+    }
+    public static x10.serialization.X10JavaSerializable $_deserializer(x10.serialization.X10JavaDeserializer $deserializer) throws java.io.IOException {
+        InputStream $_obj = new InputStream((java.lang.System[]) null);
+        $deserializer.record_reference($_obj);
+        return $_deserialize_body($_obj, $deserializer);
+    }
 
-	private static final long serialVersionUID = 1L;
+    private java.io.InputStream stream;
 
-	public void $_serialize(x10.serialization.X10JavaSerializer $serializer)
-			throws java.io.IOException {
-		// TODO need check
-		$serializer.write(stream);
-	}
+    // constructor just for allocation
+    public InputStream(java.lang.System[] $dummy) {
+        super($dummy);
+    }
+    
+    public final InputStream x10$io$InputStreamReader$InputStream$$init$S(java.io.InputStream stream) {
+        this.stream = stream;
+        return this;
+    }
+    
+    // creation method for java code (1-phase java constructor)
+    public InputStream(java.io.InputStream stream) {
+        this((java.lang.System[]) null);
+        x10$io$InputStreamReader$InputStream$$init$S(stream);
+    }
+    
+    public void close() {
+        try {
+            stream.close();
+        } catch (java.io.IOException e) {
+            throw new x10.io.IOException(e.getMessage());
+        }
+    }
+    
+    public int read() {
+        try {
+            return stream.read();
+        } catch (java.io.IOException e) {
+            throw new x10.io.IOException(e.getMessage());
+        }
+    }
+    
+    // XTENLANG-2680
+    public int read$O() {
+        try {
+            return stream.read();
+        } catch (java.io.IOException e) {
+            throw new x10.io.IOException(e.getMessage());
+        }
+    }
 
-	public static x10.serialization.X10JavaSerializable $_deserialize_body(
-			InputStream $_obj,
-			x10.serialization.X10JavaDeserializer $deserializer)
-			throws java.io.IOException {
-		// TODO need check
-		$_obj.stream = (java.io.InputStream) $deserializer.readRef();
-		return $_obj;
-	}
+    public void read(byte[] b, int off, int len) {
+        try {
+            stream.read(b, off, len);
+        } catch (java.io.IOException e) {
+            throw new x10.io.IOException(e.getMessage());
+        }
+    }
 
-	public static x10.serialization.X10JavaSerializable $_deserializer(
-			x10.serialization.X10JavaDeserializer $deserializer)
-			throws java.io.IOException {
-		InputStream $_obj = new InputStream((java.lang.System[]) null);
-		$deserializer.record_reference($_obj);
-		return $_deserialize_body($_obj, $deserializer);
-	}
+    // XTENLANG-2680
+    public void read__0$1x10$lang$Byte$2(x10.array.Array r, int off, int len) {
+        try {
+            stream.read(r.raw().getByteArray(), off, len);
+        } catch (java.io.IOException e) {
+            throw new x10.io.IOException(e.getMessage());
+        }
+    }
+    
+    public int available() {
+        try {
+            return stream.available();
+        } catch (java.io.IOException e) {
+            throw new x10.io.IOException(e.getMessage());
+        }
+    }
+    
+    // XTENLANG-2680
+    public int available$O() {
+        try {
+            return stream.available();
+        } catch (java.io.IOException e) {
+            throw new x10.io.IOException(e.getMessage());
+        }
+    }
 
-	private java.io.InputStream stream;
+    public void skip(int n) {
+        try {
+            stream.skip(n);
+        } catch (java.io.IOException e) {
+            throw new x10.io.IOException(e.getMessage());
+        }
+    }
+    
+    public void mark(int readlimit) {
+        stream.mark(readlimit);
+    }
+    
+    public void reset() {
+        try {
+            stream.reset();
+        } catch (java.io.IOException e) {
+            throw new x10.io.IOException(e.getMessage());
+        }
+    }
+    
+    public boolean markSupported() {
+        return stream.markSupported();
+    }
+    
+    // XTENLANG-2680
+    public boolean markSupported$O() {
+        return stream.markSupported();
+    }
 
-	// constructor just for allocation
-	public InputStream(java.lang.System[] $dummy) {
-		super($dummy);
-	}
-
-	public final InputStream x10$io$InputStreamReader$InputStream$$init$S(
-			java.io.InputStream stream) {
-		this.stream = stream;
-		return this;
-	}
-
-	// creation method for java code (1-phase java constructor)
-	public InputStream(java.io.InputStream stream) {
-		this((java.lang.System[]) null);
-		x10$io$InputStreamReader$InputStream$$init$S(stream);
-	}
-
-	public void close() {
-		try {
-			stream.close();
-		} catch (java.io.IOException e) {
-			throw new x10.io.IOException(e.getMessage());
-		}
-	}
-
-	public int read() {
-		try {
-			return stream.read();
-		} catch (java.io.IOException e) {
-			throw new x10.io.IOException(e.getMessage());
-		}
-	}
-
-	// XTENLANG-2680
-	public int read$O() {
-		try {
-			return stream.read();
-		} catch (java.io.IOException e) {
-			throw new x10.io.IOException(e.getMessage());
-		}
-	}
-
-	public void read(byte[] b, int off, int len) {
-		try {
-			stream.read(b, off, len);
-		} catch (java.io.IOException e) {
-			throw new x10.io.IOException(e.getMessage());
-		}
-	}
-
-	// XTENLANG-2680
-	public void read__0$1x10$lang$Byte$2(x10.array.Array r, int off, int len) {
-		try {
-			stream.read(r.raw().getByteArray(), off, len);
-		} catch (java.io.IOException e) {
-			throw new x10.io.IOException(e.getMessage());
-		}
-	}
-
-	public int available() {
-		try {
-			return stream.available();
-		} catch (java.io.IOException e) {
-			throw new x10.io.IOException(e.getMessage());
-		}
-	}
-
-	// XTENLANG-2680
-	public int available$O() {
-		try {
-			return stream.available();
-		} catch (java.io.IOException e) {
-			throw new x10.io.IOException(e.getMessage());
-		}
-	}
-
-	public void skip(int n) {
-		try {
-			stream.skip(n);
-		} catch (java.io.IOException e) {
-			throw new x10.io.IOException(e.getMessage());
-		}
-	}
-
-	public void mark(int readlimit) {
-		stream.mark(readlimit);
-	}
-
-	public void reset() {
-		try {
-			stream.reset();
-		} catch (java.io.IOException e) {
-			throw new x10.io.IOException(e.getMessage());
-		}
-	}
-
-	public boolean markSupported() {
-		return stream.markSupported();
-	}
-
-	// XTENLANG-2680
-	public boolean markSupported$O() {
-		return stream.markSupported();
-	}
-
-	//
-	// Runtime type information
-	//
-	public static final RuntimeType<InputStream> $RTT = NamedType
-			.<InputStream> make("x10.io.InputStreamReader.InputStream",
-					InputStream.class);
-
-	public RuntimeType<?> $getRTT() {
-		return $RTT;
-	}
-
-	public Type<?> $getParam(int i) {
-		return null;
-	}
+    //
+    // Runtime type information
+    //
+    public static final RuntimeType<InputStream> $RTT = NamedType.<InputStream> make(
+        "x10.io.InputStreamReader.InputStream",
+        InputStream.class
+    );
+    public RuntimeType<?> $getRTT() { return $RTT; }
+    public Type<?> $getParam(int i) { return null; }
 
 }

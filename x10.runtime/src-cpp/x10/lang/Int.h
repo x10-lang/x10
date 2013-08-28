@@ -39,27 +39,6 @@ namespace x10 {
             static inline x10_int compareTo(x10_int v1, x10_int v2) {
                 return v1 == v2 ? 0 : (v1 < v2 ? -1 : 1);
             }
-
-            ///
-            static String* toString__tm__(x10tm::TMThread *SelfTM, x10_int value, x10_int radix);
-			static String* toString__tm__(x10tm::TMThread *SelfTM, x10_int value);
-			static x10_int parseInt__tm__(x10tm::TMThread *SelfTM, String* s, x10_int radix);
-			static x10_int parseInt__tm__(x10tm::TMThread *SelfTM, String* s) { return parseInt(s, 10); }
-			static x10_int highestOneBit__tm__(x10tm::TMThread *SelfTM, x10_int value);
-			static x10_int lowestOneBit__tm__(x10tm::TMThread *SelfTM, x10_int value);
-			static x10_int numberOfLeadingZeros__tm__(x10tm::TMThread *SelfTM, x10_int value);
-			static x10_int numberOfTrailingZeros__tm__(x10tm::TMThread *SelfTM, x10_int value);
-			static x10_int bitCount__tm__(x10tm::TMThread *SelfTM, x10_int value);
-			static x10_int rotateLeft__tm__(x10tm::TMThread *SelfTM, x10_int value, x10_int distance);
-			static x10_int rotateRight__tm__(x10tm::TMThread *SelfTM, x10_int value, x10_int distance);
-			static x10_int reverse__tm__(x10tm::TMThread *SelfTM, x10_int value);
-			static inline x10_int signum__tm__(x10tm::TMThread *SelfTM, x10_int value) {
-				return (value >> 31) | (((x10_uint)(-value)) >> 31);
-			}
-			static x10_int reverseBytes__tm__(x10tm::TMThread *SelfTM, x10_int value);
-			static inline x10_int compareTo__tm__(x10tm::TMThread *SelfTM, x10_int v1, x10_int v2) {
-				return v1 == v2 ? 0 : (v1 < v2 ? -1 : 1);
-			}
         };
     }
 }

@@ -521,12 +521,6 @@ Thread::home(void)
     return x10::lang::Place::_make(x10aux::here);
 }
 
-x10::lang::Place
-Thread::home__tm__(x10tm::TMThread *SelfTM)
-{
-    return x10::lang::Place::_make(x10aux::here);
-}
-
 // Set the current worker.
 void
 Thread::worker(Runtime__Worker* worker)
@@ -563,10 +557,6 @@ Thread::name(String* name)
 }
 
 void Thread::__apply()
-{
-}
-
-void Thread::__apply__tm__(x10tm::TMThread *SelfTM)
 {
 }
 

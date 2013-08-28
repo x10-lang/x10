@@ -401,17 +401,6 @@ x10_int String::compareTo(String* s) {
     return (x10_int) length_diff;
 }
 
-x10_int String::compareTo__tm__(x10tm::TMThread *SelfTM, String* s) {
-    nullCheck(s);
-    if (s == this) return 0; // short-circuit trivial equality
-    int length_diff = this->FMGL(content_length) - s->FMGL(content_length);
-    size_t min_length = length_diff < 0 ? this->FMGL(content_length) : s->FMGL(content_length);
-    int cmp = strncmp(this->FMGL(content), s->FMGL(content), min_length);
-    if (cmp != 0)
-        return (x10_int) cmp;
-    return (x10_int) length_diff;
-}
-
 /* FIXME: Unicode support */
 x10_int String::compareToIgnoreCase(String* s) {
     nullCheck(s);
@@ -480,15 +469,8 @@ Reference* String::_deserializer(x10aux::deserialization_buffer& buf) {
 }
 
 Comparable<String*>::itable<String> String::_itable_Comparable(&String::compareTo,
-															   &String::compareTo__tm__,
-                                                               &String::equals,
-                                                               &String::equals__tm__,
-                                                               &String::hashCode,
-                                                               &String::hashCode__tm__,
-                                                               &String::toString,
-                                                               &String::toString__tm__,
-                                                               &String::typeName,
-                                                               &String::typeName__tm__);
+                                                               &String::equals, &String::hashCode,
+                                                               &String::toString, &String::typeName);
 
 x10aux::itable_entry String::_itables[2] = {
     x10aux::itable_entry(&x10aux::getRTT<Comparable<String*> >, &String::_itable_Comparable),

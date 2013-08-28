@@ -28,12 +28,6 @@ Deque* Deque::_make() {
     return this_;
 }
 
-Deque* Deque::_make__tm__(x10tm::TMThread *SelfTM) {
-    Deque* this_ = new (x10aux::alloc<Deque>()) Deque();
-    this_->_constructor();
-    return this_;
-}
-
 Deque* Deque::_constructor() {
     queue = x10aux::alloc<Slots>();
     queue->capacity = INITIAL_QUEUE_CAPACITY;

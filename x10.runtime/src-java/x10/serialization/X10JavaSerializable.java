@@ -11,6 +11,7 @@
 
 package x10.serialization;
 
+
 import java.io.IOException;
 
 public interface X10JavaSerializable {
