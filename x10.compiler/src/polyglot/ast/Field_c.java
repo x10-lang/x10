@@ -34,17 +34,30 @@ public abstract class Field_c extends Expr_c implements Field
   protected Id name;
   protected FieldInstance fi;
   protected boolean targetImplicit;
-  
+  //Alex - TM - s 
+  protected boolean is_tm;
+  //Alex - TM - e 
   public Field_c(Position pos, Receiver target, Id name) {
     super(pos);
     assert(target != null && name != null);
     this.target = target;
     this.name = name;
     this.targetImplicit = false;
+    this.is_tm = true;
 e = new Exception();
   }
   Exception e;
 
+  // Alex - TM - s 
+  public boolean get_is_tm() { 
+    return this.is_tm;
+  }
+  
+  public void set_is_tm(boolean is_tm) { 
+    this.is_tm = is_tm;
+  }
+  // Alex - TM - e
+  
   /** Get the precedence of the field. */
   public Precedence precedence() { 
     return Precedence.LITERAL;

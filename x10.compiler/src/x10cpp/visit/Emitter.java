@@ -11,6 +11,7 @@
 
 package x10cpp.visit;
 
+
 import static x10cpp.visit.ASTQuery.getCppBoxRep;
 import static x10cpp.visit.ASTQuery.getCppRep;
 import static x10cpp.visit.SharedVarsMethods.CONSTRUCTOR;
@@ -151,9 +152,20 @@ public class Emitter {
             str = "_kwd__" + str;
         return str.replace("$", "__").replace("\\", "__");
     }
-    public static String mangled_method_name(String str) {
-        return mangle_to_cpp(str);
+    //public static String mangled_method_name(String str) {
+    //   return mangle_to_cpp(str);
+    //}
+    public static String mangled_method_name(String str, boolean is_inside_tm) {
+        if (is_inside_tm)
+        {
+        	return mangle_to_cpp(str) + SharedVarsMethods.TM_POSTFIX;
+        } else
+        {
+        	return mangle_to_cpp(str);
+        }
+    	
     }
+    
     public static String mangled_non_method_name(String str) {
         return mangle_to_cpp(str);
     }
@@ -583,6 +595,8 @@ public class Emitter {
 	}
 	public void printHeader(X10MethodDecl_c n, CodeWriter h, Translator tr, String name, Type ret, 
 	                 boolean qualify, boolean inlineDirective) {
+		X10CPPContext_c context = (X10CPPContext_c) tr.context();
+		
 		Flags flags = n.flags().flags();
 		X10MethodDef def = (X10MethodDef) n.methodDef();
 		MethodInstance mi = (MethodInstance) def.asInstance();
@@ -614,8 +628,11 @@ public class Emitter {
 		if (qualify) {
 		    h.write(translateType(container)+ "::");
 		}
-		h.write(mangled_method_name(name));
-		printFormalDecls(n, h, tr, flags, container);
+		
+		// TM - header function 
+		h.write(mangled_method_name(name, context.is_inside_tm));
+		
+		printFormalDecls(n, h, tr, flags, container, context.is_inside_tm);
 		
 		if (!qualify) {
 		    boolean noReturnPragma = false;
@@ -641,10 +658,17 @@ public class Emitter {
 		}
 	}
 	
-    private void printFormalDecls(X10MethodDecl_c n, CodeWriter h, Translator tr, Flags flags, X10ClassType container) {
+    private void printFormalDecls(X10MethodDecl_c n, CodeWriter h, Translator tr, Flags flags, X10ClassType container, boolean is_inside_tm) {
         h.write("(");
         h.allowBreak(2, 2, "", 0);
         h.begin(0);
+        if (is_inside_tm) {
+        	h.write(MessagePassingCodeGenerator.s_tm_get_self_declare());
+        	if (n.formals().size() > 0) {
+        		h.write(",");
+				h.allowBreak(0, " ");
+        	}
+        }
 		for (Iterator<Formal> i = n.formals().iterator(); i.hasNext(); ) {
 			Formal f = i.next();
 			n.print(f, h, tr);
@@ -850,7 +874,8 @@ public class Emitter {
     
 	void printHeader(ConstructorDecl_c n, CodeWriter h, Translator tr,
                      boolean define, boolean isMakeMethod, String rType) {
-        Flags flags = n.flags().flags();
+		X10CPPContext_c context = (X10CPPContext_c) tr.context();
+		Flags flags = n.flags().flags();
 
 		X10ClassType container = (X10ClassType) Types.get(n.constructorDef().container());
 		if (define){
@@ -868,9 +893,24 @@ public class Emitter {
 		if (define) {
 		    h.write(typeName + "::"); 
 		}
-		h.write((isMakeMethod ? SharedVarsMethods.MAKE : SharedVarsMethods.CONSTRUCTOR) + "(");
+		// TM - header constructor
+		if (context.is_inside_tm)
+		{
+			h.write((isMakeMethod ? SharedVarsMethods.MAKE + SharedVarsMethods.TM_POSTFIX : SharedVarsMethods.CONSTRUCTOR  + SharedVarsMethods.TM_POSTFIX) + "(");	
+		} else 
+		{
+			h.write((isMakeMethod ? SharedVarsMethods.MAKE : SharedVarsMethods.CONSTRUCTOR) + "(");
+		}
 		h.allowBreak(2, 2, "", 0);
 		h.begin(0);
+		if (context.is_inside_tm) {
+        	h.write(MessagePassingCodeGenerator.s_tm_get_self_declare());
+        	if (n.formals().size() > 0) {
+        		h.write(",");
+				h.allowBreak(0, " ");
+        	}
+
+		}
 		for (Iterator<Formal> i = n.formals().iterator(); i.hasNext(); ) {
 			Formal f = i.next();
 			n.print(f, h, tr);
@@ -1265,10 +1305,134 @@ public class Emitter {
         return out.toString();
 	}	
 	
-	public void nativeSubst(String annotation, Map<String, Object> components, Translator tr, String pattern, CodeWriter w) {
+    public String nativeSubst_method_name(String pattern, boolean is_inside_tm) {
+    	int curIndex = 0;
+        int newIndex = 0;
+    	
+        if (!is_inside_tm)
+        {
+        	return pattern;
+        }
+        
+        //System.out.println("nativeSubst_method_name[S]: " + pattern);
+        while (true) {
+        	newIndex = pattern.indexOf('(', curIndex);
+        	if (-1 == newIndex)
+        	{
+        		break;
+        	}
+        	curIndex = newIndex + 1;
+        }
+        if (curIndex == 0 || curIndex == 1)
+        {
+        	return pattern;
+        }
+
+        curIndex--;
+        curIndex--;
+        while ((curIndex >= 0) && 
+        	   (pattern.charAt(curIndex) == '(' /*|| Character.isWhitespace(pattern.charAt(curIndex))*/)) { curIndex--; }
+        if (curIndex == -1) 
+        {
+        	return pattern;
+        }
+        if (pattern.charAt(curIndex) == '>')
+        {
+        	curIndex--;
+        	curIndex--;
+        	
+        	int counter = 1;
+        	while (curIndex >= 0) {
+        		if (pattern.charAt(curIndex) == '>')
+        		{
+        			counter++;
+        		}
+        		if (pattern.charAt(curIndex) == '<')
+        		{
+        			counter--;
+        			if (counter == 0)
+        			{
+        				curIndex--;
+        				break;
+        			}
+        		}
+        		curIndex--;
+        	}
+        	
+        }
+        if (curIndex == -1) 
+        {
+        	return pattern;
+        }
+        int name_end_index = curIndex + 1;
+        while (curIndex >= 0 &&
+        	   pattern.charAt(curIndex) != '>' && 
+        	   pattern.charAt(curIndex) != ':' && 
+        	   pattern.charAt(curIndex) != ' ' &&
+        	   pattern.charAt(curIndex) != '-' &&
+        	   pattern.charAt(curIndex) != '(' &&
+        	   pattern.charAt(curIndex) != ')' &&
+        	   pattern.charAt(curIndex) != '~' &&
+        	   pattern.charAt(curIndex) != '+') { curIndex--; }
+        if (curIndex == -1) 
+        {
+        	return pattern;
+        }
+        
+        int name_start_index = curIndex+1;
+        int length =  name_end_index - name_start_index;
+        if (length < 1)
+        {
+        	return pattern;
+        }
+        String m_name = pattern.substring(name_start_index, name_end_index);
+        if ((m_name.compareTo("reinterpret_cast") == 0) ||
+        	(m_name.compareTo("x10_char") == 0) ||
+        	(m_name.compareTo("labs") == 0) ||
+        	(m_name.compareTo("llabs") == 0) ||
+        	(m_name.compareTo("fabsf") == 0) ||
+        	(m_name.compareTo("fabs") == 0) || 
+        	(m_name.compareTo("NativeVec") == 0) ||
+        	(m_name.contains("tm_")))	
+        {
+        	return pattern;
+        }
+        curIndex = name_end_index;
+        while (pattern.charAt(curIndex) != '(') { curIndex++;}
+        curIndex++;
+        int param_start_index = curIndex;
+        boolean exists_params = false;
+        while (pattern.charAt(curIndex) != ')' && 
+        	   curIndex < pattern.length()) { 
+        	if (!Character.isWhitespace(pattern.charAt(curIndex))) {
+        		exists_params = true;
+        		break;
+        	}
+        	curIndex++;
+        }
+        
+        String part1 = pattern.substring(0, param_start_index-1);
+        if (m_name.indexOf("__tm__") == -1) {
+        	part1 = part1.replace(m_name, m_name + "__tm__");
+        }
+        String part2 = pattern.substring(param_start_index, pattern.length());
+        String delim = exists_params? ", " : "";
+   
+        
+        part1 = nativeSubst_method_name(part1, is_inside_tm);
+        //System.out.println("nativeSubst_method_name[E]: " + part1 + "(SelfTM" + delim + part2);
+        return part1 + "(SelfTM" + delim + part2;
+    }
+    
+	public void nativeSubst(String annotation, Map<String, Object> components, Translator tr, String pattern, CodeWriter w, boolean is_inside_tm) {
 	
-        Matcher m = nativeSubstRegex.matcher(pattern);
+		//System.out.println("nativeSubst: " + pattern);
+        // TM - native 
+		pattern = nativeSubst_method_name(pattern, is_inside_tm);
+        
+		Matcher m = nativeSubstRegex.matcher(pattern);
         int last=0;
+
         while (m.find()) {
         	w.write(pattern.substring(last,m.start()));
             last = m.end();
