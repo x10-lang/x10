@@ -1393,7 +1393,7 @@ public class Emitter {
         	(m_name.compareTo("fabsf") == 0) ||
         	(m_name.compareTo("fabs") == 0) || 
         	(m_name.compareTo("NativeVec") == 0) ||
-        	(m_name.contains("tm_")))	
+        	((m_name.contains("tm_")) && (!m_name.contains("__tm__"))) )	
         {
         	return pattern;
         }
