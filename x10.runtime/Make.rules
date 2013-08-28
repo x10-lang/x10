@@ -189,8 +189,20 @@ ifdef ENABLE_CROSS_COMPILE_BGQ
     override XRX_PROPS_CXXFLAGS += -mminimal-toc
   endif
   ifdef USE_XLC
-      echo "FAILURE: haven't defined XLC rules for BGQ yet!"
-      exit -1
+    # have to override CXX, but let user specify CUSTOM_XLC if they
+    # need something other than just xlC_r to be used as CXX
+    ifdef CUSTOM_XLC
+      override CXX = $(CUSTOM_XLC)
+      override CC = $(CUSTOM_XLC)
+    else
+      override CXX = bgxlC_r
+      override CC = bgxlC_r     
+    endif
+    ifdef OPTIMIZE
+      override CXXFLAGS += -O3 -qinline
+    endif
+    override CXXFLAGS += -qsuppress=1540-0809:1500-029:1540-1101:1540-1102
+    override CXXFLAGS += $(XLC_EXTRA_FLAGS)
   endif
 endif
 
