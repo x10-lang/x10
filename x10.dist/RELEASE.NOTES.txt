@@ -1,17 +1,19 @@
-Release 2.3.1
+Release 2.4.0 Alpha1
+
+This is the first alpha release of X10 2.4.0.  
 
 MAJOR CHANGES
 
-No major changes were made in the X10 language
-specification and implementation in this release.
-
-Please consult the language specification for the details of
-any minor language changes and specification clarifications made in
-this release.
+Summary
+  (1) Shift to 64 bit Rail/Array/etc.
+  (2) Default integral literal is now a long (was int)
+  (3) Numerous class library API changes in support of
+      emphasis of 64bit integers/addresses
+  (4) First release with BlueGene/Q support
 
 LIMITATIONS OF THIS RELEASE
 
-The following features described in the 2.3 language manual do not
+The following features described in the 2.4 language manual do not
 currently work and may be fixed in the subsequent releases:
   - Non-static type definitions as class or interface members
     (static type defs do work)
@@ -42,29 +44,12 @@ we do almost all of our testing against g++ 4.4.
 
 SUMMARY OF ISSUES RESOLVED IN THIS RELEASE
 
-Below is a summary of JIRA issues addressed for the X10 2.3.1
+Below is a summary of JIRA issues addressed for the X10 2.4.0
 
-Release Notes - X10 - Version X10 2.3.1
-
-** New Features and Improvements
-    * [XTENLANG-2069] - Implement Team API for Managed X10
-    * [XTENLANG-3145] - Need a way to configure machines with multiple IP addresses
-    * [XTENLANG-3165] - Eliminate requirement to preload all X10 classes by Managed X10
-
-** Bug
-    * [XTENLANG-2793] - Fallback path in pure Java for forceSinglePlace not available in some Team methods (KMeansSPMD)
-    * [XTENLANG-3140] - Exception checking fails if the methods of a class are in the wrong order
-    * [XTENLANG-3143] - Compiler not allowing a method override when there is a simple subtyping constraint
-    * [XTENLANG-3144] - Generic overridden overloaded method with parameter does not match with superclass method
-    * [XTENLANG-3159] - CUDA broken on 2.3 release (X10RT: async 72 is not a CUDA kernel)
-    * [XTENLANG-3163] - Failure to generate dynamic constraint check on access to global reference
-
-** Task
-    * [XTENLANG-3142] - Synchronize languagespec testcases with language spec document
-    * [XTENLANG-3160] - Use balanced gc policy for IBM Java 7 64bit
+TODO:
 
 For the details of JIRA issues fixed in this release, see
-http://jira.codehaus.org/secure/ReleaseNote.jspa?projectId=11812&version=18657:
+http: TODO
 
 Please use the X10 JIRA to report bugs, after ensuring the problem is
 not already reported:
