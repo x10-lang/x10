@@ -137,7 +137,10 @@
         </or>
     </condition>
     <condition property="cppmake.x10rt_pgas" value="ENABLE_X10RT_PGAS=1" else="DISABLE_X10RT_PGAS=1">
-        <istrue value="${X10RT_PGAS}" />
+        <or> 
+	    <istrue value="${X10RT_PGAS}" />
+            <istrue value="${CROSS_COMPILE_BGP}" />
+        </or>
     </condition>
     <condition property="cppmake.x10rt_cuda" value="ENABLE_X10RT_CUDA=1" else="DISABLE_X10RT_CUDA=1">
         <istrue value="${X10RT_CUDA}" />
