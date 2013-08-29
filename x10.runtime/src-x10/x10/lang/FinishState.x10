@@ -1033,10 +1033,23 @@ abstract class FinishState {
         // note that it is not ok to call .release() within waitForFinish, it must be called when the counters are updated for the last time
         val latch:SimpleLatch;
         var counter : Long;
-        public def this (latch:SimpleLatch) { this.latch = latch; }
-        public def inc() { atomic { counter++; } }
-        public def dec() { atomic { counter--; if (counter==0) latch.release(); } }
-        public def isZero() { var b : Boolean; atomic { b = (counter == 0); } return b; }
+        public def this (latch:SimpleLatch) {
+            this.latch = latch;
+            this.counter = 1;
+        }
+        public def inc() {
+            atomic { counter++; }
+            //Runtime.println(this+" Now: "+counter);
+        }
+        public def dec() {
+            atomic { counter--; if (latch!=null && counter<=0) latch.release(); }
+            //Runtime.println(this+" Now: "+counter);
+        }
+        public def quiescent() {
+            var b : Boolean;
+            atomic { b = (counter <= 0); }
+            return b;
+        }
     }
 
     private static def lowLevelAt(dst:Place, cl:()=>void) : Boolean {
@@ -1068,7 +1081,9 @@ abstract class FinishState {
     static final class FinishResilientDistributed extends FinishState {
         val root : GlobalRef[FinishResilientDistributedRoot];
         def this(latch:SimpleLatch) {
-            this.root = new GlobalRef[FinishResilientDistributedRoot](new FinishResilientDistributedRoot(latch));
+            val the_root = new FinishResilientDistributedRoot(latch);
+            //Runtime.println(the_root+" just created."); 
+            this.root = new GlobalRef[FinishResilientDistributedRoot](the_root);
         }
         def notifySubActivitySpawn(place:Place) {
             lowLevelAt(root.home, () => { root.getLocalOrCopy().inc(); } );
@@ -1080,12 +1095,13 @@ abstract class FinishState {
             lowLevelAt(root.home, () => { root.getLocalOrCopy().dec(); } );
         }
         def pushException(t:Exception) {
+            t.printStackTrace();
             throw new Exception("under implementation");
         }
         def waitForFinish() {
             val the_root = root.getLocalOrCopy();
-            when (the_root.isZero()) { }
-            throw new Exception("under implementation");
+            the_root.dec();
+            when (the_root.quiescent()) { }
         }
         def simpleLatch():SimpleLatch = (root as GlobalRef[FinishResilientDistributedRoot]{home==here})().latch;
         public def runAt(place:Place, body:()=>void, prof:Runtime.Profile):void {
