@@ -41,4 +41,11 @@ public final class Serializer implements Unserializable {
      *       may no longer support calls to writeAny.
      */
     public native def toRail():Rail[byte];
+    
+    /**
+     * Return the approximate number of bytes of data that
+     * have been serialized so far.
+     */
+    public native def dataBytesWritten():Int;
+    
 }

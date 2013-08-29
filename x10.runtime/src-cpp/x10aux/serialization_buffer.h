@@ -128,6 +128,7 @@ namespace x10aux {
 
         size_t length (void) { return cursor - buffer; }
         size_t capacity (void) { return limit - buffer; }
+        x10_int dataBytesWritten(void) { return (x10_int)length(); }
 
         char *steal() { char *buf = buffer; buffer = NULL; return buf; }
         char *borrow() { return buffer; }

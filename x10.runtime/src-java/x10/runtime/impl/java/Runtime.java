@@ -250,9 +250,9 @@ public abstract class Runtime implements x10.core.fun.VoidFun_0_0 {
          
             serializer.write(finishState);
             serializer.write(Place.place(X10RT.here()));
-            long before_bytes = serializer.numDataBytesWritten();
+            long before_bytes = serializer.dataBytesWritten();
             serializer.write(body);
-            long ser_bytes = serializer.numDataBytesWritten() - before_bytes;
+            long ser_bytes = serializer.dataBytesWritten() - before_bytes;
             serializer.prepareMessage(false);
             
             if (prof != null) {
