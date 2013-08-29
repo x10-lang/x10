@@ -198,6 +198,7 @@ public final class Runtime {
     public static BUSY_WAITING = Configuration.busy_waiting();
     public static RESILIENT_PLACE_ZERO = Configuration.envOrElse("X10_RESILIENT_PLACE_ZERO", false);
     public static RESILIENT_ZOO_KEEPER = Configuration.envOrElse("X10_RESILIENT_ZOO_KEEPER", false);
+    public static RESILIENT_DISTRIBUTED = Configuration.envOrElse("X10_RESILIENT_DISTRIBUTED", false);
 
     // External process execution
 
@@ -1166,6 +1167,8 @@ public final class Runtime {
             return new FinishState.FinishResilientPlaceZero(null);
         } else if (RESILIENT_ZOO_KEEPER) {
             return new FinishState.FinishResilientZooKeeper(null);
+        } else if (RESILIENT_DISTRIBUTED) {
+            return new FinishState.FinishResilientDistributed(null);
         } else {
             return new FinishState.Finish();
         }
@@ -1175,6 +1178,8 @@ public final class Runtime {
             return new FinishState.FinishResilientPlaceZero(latch);
         } else if (RESILIENT_ZOO_KEEPER) {
             return new FinishState.FinishResilientZooKeeper(latch);
+        } else if (RESILIENT_DISTRIBUTED) {
+            return new FinishState.FinishResilientDistributed(latch);
         } else {
             return new FinishState.Finish(latch);
         }
@@ -1205,6 +1210,8 @@ public final class Runtime {
             f = new FinishState.FinishResilientPlaceZero(null); break;
         case Pragma.FINISH_RESILIENT_ZOO_KEEPER:
             f = new FinishState.FinishResilientZooKeeper(null); break;
+        case Pragma.FINISH_RESILIENT_DISTRIBUTED:
+            f = new FinishState.FinishResilientDistributed(null); break;
         default: 
             f = makeDefaultFinish();
         }

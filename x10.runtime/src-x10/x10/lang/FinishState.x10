@@ -18,6 +18,7 @@ import x10.util.HashMap;
 import x10.util.Pair;
 
 import x10.util.concurrent.AtomicInteger;
+import x10.util.concurrent.AtomicBoolean;
 import x10.util.concurrent.Lock;
 import x10.util.concurrent.SimpleLatch;
 
@@ -1024,6 +1025,74 @@ abstract class FinishState {
         }
         public def evalAt(place:Place, body:()=>Any, prof:Runtime.Profile):Any {
             throw new Exception("under implementation");
+        }
+    }
+
+    static final class FinishResilientDistributedRoot {
+        // can be null, otherwise should call .release() upon quiescence (i.e. when a call to waitForFinish() would terminate immediately)...
+        // note that it is not ok to call .release() within waitForFinish, it must be called when the counters are updated for the last time
+        val latch:SimpleLatch;
+        var counter : Long;
+        public def this (latch:SimpleLatch) { this.latch = latch; }
+        public def inc() { atomic { counter++; } }
+        public def dec() { atomic { counter--; if (counter==0) latch.release(); } }
+        public def isZero() { var b : Boolean; atomic { b = (counter == 0); } return b; }
+    }
+
+    private static def lowLevelAt(dst:Place, cl:()=>void) : Boolean {
+        if (here == dst) {
+            cl();
+            return true;
+        } else {
+            val c = new GlobalRef(new AtomicBoolean());
+            Runtime.x10rtSendMessage(dst.id, () => @RemoteInvocation("low_level_at_out") {
+                try {
+                    cl();
+                } catch (t:Exception) {
+                    t.printStackTrace();
+                }
+                Runtime.x10rtSendMessage(c.home.id, () => @RemoteInvocation("low_level_at_back") {
+                    c.getLocalOrCopy().getAndSet(true);
+                }, null);
+            }, null);
+            while (!c().get()) {
+                Runtime.probe();
+                if (dst.isDead()) {
+                    return false;
+                }
+            }
+            return true;
+        }
+    }
+
+    static final class FinishResilientDistributed extends FinishState {
+        val root : GlobalRef[FinishResilientDistributedRoot];
+        def this(latch:SimpleLatch) {
+            this.root = new GlobalRef[FinishResilientDistributedRoot](new FinishResilientDistributedRoot(latch));
+        }
+        def notifySubActivitySpawn(place:Place) {
+            lowLevelAt(root.home, () => { root.getLocalOrCopy().inc(); } );
+        }
+        def notifyActivityCreation(srcPlace:Place) : Boolean {
+            return true;
+        }
+        def notifyActivityTermination() {
+            lowLevelAt(root.home, () => { root.getLocalOrCopy().dec(); } );
+        }
+        def pushException(t:Exception) {
+            throw new Exception("under implementation");
+        }
+        def waitForFinish() {
+            val the_root = root.getLocalOrCopy();
+            when (the_root.isZero()) { }
+            throw new Exception("under implementation");
+        }
+        def simpleLatch():SimpleLatch = (root as GlobalRef[FinishResilientDistributedRoot]{home==here})().latch;
+        public def runAt(place:Place, body:()=>void, prof:Runtime.Profile):void {
+            Runtime.runAtNonResilient(place, body, prof);
+        }
+        public def evalAt(place:Place, body:()=>Any, prof:Runtime.Profile):Any {
+            return Runtime.evalAtNonResilient(place, body, prof);
         }
     }
 }
