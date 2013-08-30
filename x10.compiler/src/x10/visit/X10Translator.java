@@ -293,23 +293,45 @@ public class X10Translator extends Translator {
                 int procExitValue = proc.waitFor();
 
 
-                // invoke javac with Java Compiler API
-//            	javax.tools.JavaCompiler javac = javax.tools.ToolProvider.getSystemJavaCompiler();
-//            	javax.tools.DiagnosticCollector<javax.tools.JavaFileObject> diagCollector = new javax.tools.DiagnosticCollector<javax.tools.JavaFileObject>();
-//            	javax.tools.StandardJavaFileManager fileManager = javac.getStandardFileManager(null, null, null);
-//            	javax.tools.JavaCompiler.CompilationTask task = javac.getTask(null, null,
-//            			diagCollector,
-//            			javacCmd.subList(javacOptionsStart, javacSourcesStart),
-//            			null,
-//            			fileManager.getJavaFileObjectsFromStrings(javacCmd.subList(javacSourcesStart, javacCmd.size()))
-//            			);
-//            	int procExitValue = task.call() ? 0 : 1;
-//            	for (javax.tools.Diagnostic<? extends javax.tools.JavaFileObject> diag : diagCollector.getDiagnostics()) {
-//            		String message = diag.toString();
-//            		int type = diag.getKind() == javax.tools.Diagnostic.Kind.ERROR ? ErrorInfo.POST_COMPILER_ERROR : ErrorInfo.WARNING;
-//            		eq.enqueue(type, message);
-//            	}
-//            	fileManager.close();
+                /*
+                // invoke ecj with Java Compiler API (JSR 199)
+                javax.tools.JavaCompiler javac = null;
+                // look up user-specified java compiler from classpath and ${x10.dist}/lib/ecj.jar
+                String javac_jar = System.getProperty("x10.dist") + File.separator + "lib" + File.separator + System.getProperty("x10c.ecj.jar", "ecj.jar");
+                java.net.URL javac_url = new java.io.File(javac_jar).toURI().toURL();
+                ClassLoader cl = new java.net.URLClassLoader(new java.net.URL[] { javac_url });
+                java.util.Iterator<javax.tools.JavaCompiler> iter = java.util.ServiceLoader.load(javax.tools.JavaCompiler.class, cl).iterator();
+                while (iter.hasNext()) {
+                    try {
+                        javac = iter.next();
+                        assert javac != null;
+                        break;
+                    } catch (Throwable e) { }
+                }
+//                if (javac == null) {
+//                    // look up system java compiler (javac)
+//                    javac = javax.tools.ToolProvider.getSystemJavaCompiler();
+//                }
+                if (javac == null) {
+                    eq.enqueue(ErrorInfo.POST_COMPILER_ERROR, "Cannot find post java compiler.");
+                    return false;
+                }
+                javax.tools.DiagnosticCollector<javax.tools.JavaFileObject> diagCollector = new javax.tools.DiagnosticCollector<javax.tools.JavaFileObject>();
+                javax.tools.StandardJavaFileManager fileManager = javac.getStandardFileManager(null, null, null);
+                javax.tools.JavaCompiler.CompilationTask task = javac.getTask(null, null,
+            			diagCollector,
+            			javacCmd.subList(javacOptionsStart, javacSourcesStart),
+            			null,
+            			fileManager.getJavaFileObjectsFromStrings(javacCmd.subList(javacSourcesStart, javacCmd.size()))
+            			);
+                int procExitValue = task.call() ? 0 : 1;
+                for (javax.tools.Diagnostic<? extends javax.tools.JavaFileObject> diag : diagCollector.getDiagnostics()) {
+                    String message = diag.toString();
+                    int type = diag.getKind() == javax.tools.Diagnostic.Kind.ERROR ? ErrorInfo.POST_COMPILER_ERROR : ErrorInfo.WARNING;
+                    eq.enqueue(type, message);
+                }
+                fileManager.close();
+                */
 
 
                 if (!options.keep_output_files) {
