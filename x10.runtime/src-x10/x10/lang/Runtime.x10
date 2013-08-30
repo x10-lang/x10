@@ -1168,7 +1168,7 @@ public final class Runtime {
         } else if (RESILIENT_ZOO_KEEPER) {
             return new FinishState.FinishResilientZooKeeper(null);
         } else if (RESILIENT_DISTRIBUTED) {
-            return new FinishState.FinishResilientDistributed(null);
+            return new FinishState.FinishResilientDistributed(new SimpleLatch());
         } else {
             return new FinishState.Finish();
         }

@@ -1038,17 +1038,17 @@ abstract class FinishState {
             this.counter = 1;
         }
         public def inc() {
-            atomic { counter++; }
-            //Runtime.println(this+" Now: "+counter);
+            latch.lock();
+            counter++;
+            latch.unlock();
+            //Runtime.println(this+" Incrased to: "+counter);
         }
         public def dec() {
-            atomic { counter--; if (latch!=null && counter<=0) latch.release(); }
-            //Runtime.println(this+" Now: "+counter);
-        }
-        public def quiescent() {
-            var b : Boolean;
-            atomic { b = (counter <= 0); }
-            return b;
+            latch.lock();
+            counter--;
+            if (counter<=0) latch.release();
+            latch.unlock();
+            //Runtime.println(this+" Decreased to: "+counter);
         }
     }
 
@@ -1068,12 +1068,14 @@ abstract class FinishState {
                     c.getLocalOrCopy().getAndSet(true);
                 }, null);
             }, null);
+            //Runtime.println("Waiting for reply to message...");
             while (!c().get()) {
                 Runtime.probe();
                 if (dst.isDead()) {
                     return false;
                 }
             }
+            //Runtime.println("Got reply.");
             return true;
         }
     }
@@ -1101,7 +1103,10 @@ abstract class FinishState {
         def waitForFinish() {
             val the_root = root.getLocalOrCopy();
             the_root.dec();
-            when (the_root.quiescent()) { }
+            //Runtime.println("Waiting for finish...");
+            if (!Runtime.STRICT_FINISH) Runtime.worker().join(the_root.latch);
+            the_root.latch.await();
+            //Runtime.println("Finish has finished.");
         }
         def simpleLatch():SimpleLatch = (root as GlobalRef[FinishResilientDistributedRoot]{home==here})().latch;
         public def runAt(place:Place, body:()=>void, prof:Runtime.Profile):void {
