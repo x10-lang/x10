@@ -85,7 +85,10 @@ public final class X10JavaSerializer implements SerializationConstants {
         return out;
     }
     
-    public int numDataBytesWritten() {
+    public int dataBytesWritten$O() {
+        return dataBytesWritten();
+    }
+    public int dataBytesWritten() {
         return b_out.size();
     }
     
