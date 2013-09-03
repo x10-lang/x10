@@ -23,7 +23,8 @@ class ResilientStorePlaceZero {
     static me = new ResilientStorePlaceZero();
 
     // Turn this on to debug deadlocks within the finish implementation
-    static VERBOSE = false;
+    // moved VERBOSE flag to x10.lang.FinishState
+    //static VERBOSE = false;
 
 
     /** Simply utility function to send a message to place zero at the x10rt level.
@@ -79,6 +80,7 @@ class ResilientStorePlaceZero {
         val live : Rail[Int];
         val homeId : Long;
         var adopted : Boolean;
+        var adoptedParent : Long;
         var multipleExceptions : GrowableRail[Exception] = null;
         val latch : SimpleLatch;
 
@@ -93,7 +95,7 @@ class ResilientStorePlaceZero {
             this.transit = new Rail[Int](Place.MAX_PLACES * Place.MAX_PLACES, 0n);
             this.live = new Rail[Int](Place.MAX_PLACES, 0n);
             this.live(homeId) = 1n;
-            if (VERBOSE) Runtime.println("    initial live("+homeId+") == 1");
+            if (FinishState.VERBOSE) Runtime.println("    initial live("+homeId+") == 1");
             this.homeId = homeId;
             this.adopted = false;
             this.latch = latch;
@@ -104,7 +106,7 @@ class ResilientStorePlaceZero {
             return parent.findFirstNonDeadParent();
         }
 
-        def stealCounters(child:State) : void {
+        def adopt(child:State) : void {
             for (i in 0..(Place.MAX_PLACES-1)) {
                 live(i) += child.live(i);
                 for (j in 0..(Place.MAX_PLACES-1)) {
@@ -112,6 +114,7 @@ class ResilientStorePlaceZero {
                 }
             }
             child.adopted = true;
+            child.adoptedParent = id;
         }
 
         def addDeadPlaceException(p:Place) {
@@ -133,7 +136,7 @@ class ResilientStorePlaceZero {
             atomic {
                 val pfs = parentId==-1l ? null : me.states(parentId);
                 val id = me.states.size();
-                if (VERBOSE) Runtime.println("make("+parentId+","+id+") @ "+homeId);
+                if (FinishState.VERBOSE) Runtime.println("make("+parentId+","+id+") @ "+homeId);
                 val fs = new State(pfs, homeId, id, latch);
                 me.states.add(fs);
                 return fs.id;
@@ -141,49 +144,56 @@ class ResilientStorePlaceZero {
         });
     }
 
+    static def getStateAccountingForAdoption(id:Long) {
+        var fs:State = me.states(id);
+        while (fs.adopted) fs = me.states(fs.adoptedParent);
+        return fs;
+    }
+
     static def notifySubActivitySpawn(id:Long, srcId:Long, dstId:Long) {
         lowLevelAt(() => { atomic {
-            if (VERBOSE) Runtime.println("notifySubActivitySpawn("+id+", "+srcId+", "+dstId+")");
-            val fs = me.states(id);
+            if (FinishState.VERBOSE) Runtime.println("notifySubActivitySpawn("+id+", "+srcId+", "+dstId+")");
+            val fs = getStateAccountingForAdoption(id);
             fs.transit(srcId + dstId*Place.MAX_PLACES)++;
-            if (VERBOSE) Runtime.println("    transit("+srcId+","+dstId+") == "+fs.transit(srcId + dstId*Place.MAX_PLACES));
+            if (FinishState.VERBOSE) Runtime.println("    transit("+srcId+","+dstId+") == "+fs.transit(srcId + dstId*Place.MAX_PLACES));
         } });
     }
 
     static def notifyActivityCreation(id:Long, srcId:Long, dstId:Long) {
         return 1l==lowLevelAtExprLong(() => { atomic {
-            if (VERBOSE) Runtime.println("notifyActivityCreation("+id+", "+srcId+", "+dstId+")");
+            if (FinishState.VERBOSE) Runtime.println("notifyActivityCreation("+id+", "+srcId+", "+dstId+")");
             if (Place(srcId).isDead()) return 0l;
-            val fs = me.states(id);
+            val fs = getStateAccountingForAdoption(id);
             fs.live(dstId)++;
             fs.transit(srcId + dstId*Place.MAX_PLACES)--;
-            if (VERBOSE) Runtime.println("    live("+dstId+") == "+fs.live(dstId));
-            if (VERBOSE) Runtime.println("    transit("+srcId+","+dstId+") == "+fs.transit(srcId + dstId*Place.MAX_PLACES));
+            if (FinishState.VERBOSE) Runtime.println("    live("+dstId+") == "+fs.live(dstId));
+            if (FinishState.VERBOSE) Runtime.println("    transit("+srcId+","+dstId+") == "+fs.transit(srcId + dstId*Place.MAX_PLACES));
             return 1l;
         } });
     }
 
     static def notifyActivityTermination(id:Long, dstId:Long) {
         lowLevelAt(() => { atomic {
-            if (VERBOSE) Runtime.println("notifyActivityTermination("+id+", "+dstId+")");
-            val fs = me.states(id);
+            if (FinishState.VERBOSE) Runtime.println("notifyActivityTermination("+id+", "+dstId+")");
+            val fs = getStateAccountingForAdoption(id);
             fs.live(dstId)--;
-            if (VERBOSE) Runtime.println("    live("+dstId+") == "+fs.live(dstId));
+            if (FinishState.VERBOSE) Runtime.println("    live("+dstId+") == "+fs.live(dstId));
             if (fs.latch != null && me.quiescent(fs)) {
-                if (VERBOSE) Runtime.println("    Releasing latch...");
+                if (FinishState.VERBOSE) Runtime.println("    Releasing latch...");
                 fs.latch.release();
             }
         } });
     }
 
-    static def notifyPlaceDeath(id:Long) {
+    static def notifyPlaceDeath(root_id:Long) {
         assert here == Place.FIRST_PLACE;
+        me.pushUp();
         atomic {
-            if (VERBOSE) Runtime.println("Notify place death...");
-            val fs = me.states(id);
-            if (fs.latch != null && me.quiescent(fs)) {
-                if (VERBOSE) Runtime.println("    Releasing latch...");
-                fs.latch.release();
+            if (FinishState.VERBOSE) Runtime.println("Checking if root finished has quiesced after place death...");
+            val root_fs = me.states(root_id);
+            if (root_fs.latch != null && me.quiescent(root_fs)) {
+                if (FinishState.VERBOSE) Runtime.println("    Releasing latch on root...");
+                root_fs.latch.release();
             }
         }
     }
@@ -191,12 +201,23 @@ class ResilientStorePlaceZero {
     static def pushException(id:Long, t:Exception) {
         lowLevelAt(() => { atomic {
             val fs = me.states(id);
-            if (VERBOSE) Runtime.println("pushException("+id+", "+t+")");
-            fs.ensureMultipleExceptions().add(t);
+            if (fs.adopted) {
+                // ignoring exception since finish is dead
+                if (FinishState.VERBOSE) Runtime.println("pushException("+id+", "+t+") dropped due to dead finish");
+            } else {
+                if (FinishState.VERBOSE) Runtime.println("pushException("+id+", "+t+")");
+                fs.ensureMultipleExceptions().add(t);
+            }
         } });
     }
 
     def quiescent(fs:State) : Boolean {
+
+        // There is actually a race condition here (despite quiescent being called in an atomic section
+        // The Place.isDead() can go to false between the pushUp() and the code after it, causing
+        // a finish to 
+        // TODO: store dead places in an array, use the same data to drive pushUp() and DPE generation
+
         val nd = Place.numDead();
         if (nd != me.numDead) {
             numDead = nd;
@@ -231,15 +252,15 @@ class ResilientStorePlaceZero {
         // as the root finish implementation (outside of main)
         // this as no longer adequate since finishes used as root finish are used in a
         // quirky fashion
-        if (VERBOSE) Runtime.println("quiescent("+fs.id+")");
+        if (FinishState.VERBOSE) Runtime.println("quiescent("+fs.id+")");
         for (i in 0..(Place.MAX_PLACES-1)) {
             if (fs.live(i)>0) {
-                if (VERBOSE) Runtime.println("    "+fs.id+" Live at "+i);
+                if (FinishState.VERBOSE) Runtime.println("    "+fs.id+" Live at "+i);
                 return false;
             }
             for (j in 0..(Place.MAX_PLACES-1)) {
                 if (fs.transit(i + j*Place.MAX_PLACES)>0) {
-                    if (VERBOSE) Runtime.println("    "+fs.id+" In transit from "+i+" -> "+j);
+                    if (FinishState.VERBOSE) Runtime.println("    "+fs.id+" In transit from "+i+" -> "+j);
                     return false;
                 }
             }
@@ -256,7 +277,8 @@ class ResilientStorePlaceZero {
                 if (fs.adopted) continue;
                 if (Place.isDead(fs.homeId)) {
                     val pfs = fs.findFirstNonDeadParent();
-                    pfs.stealCounters(fs);
+                    if (FinishState.VERBOSE) Runtime.println("Finish has died ("+fs.id+"), adopting activities into ("+pfs.id+")");
+                    pfs.adopt(fs);
                 }
             }
         }
@@ -264,24 +286,22 @@ class ResilientStorePlaceZero {
 
     static def waitForFinish(id:Long) {
         lowLevelAt(() => {
-            if (VERBOSE) Runtime.println("waitForFinish("+id+")");
+            if (FinishState.VERBOSE) Runtime.println("waitForFinish("+id+")");
             val s : State;
             atomic {
                 s = me.states(id);
             }
             notifyActivityTermination(id, s.homeId);
-            when (me.quiescent(s)) { }
-            // while (true) { //@@@@ busy check with sleep
-            //     val q:boolean;
-            //     atomic { q = me.quiescent(s); }
-            //     if (q) break;
-            //     System.sleep(10);
-            // }
-            if (s.multipleExceptions != null) {
-                if (VERBOSE) Runtime.println("waitForFinish("+id+") done waiting (throwing exceptions)");
-                throw new MultipleExceptions(s.multipleExceptions);
+            when (s.adopted || me.quiescent(s)) { }
+            if (!s.adopted) {
+                if (s.multipleExceptions != null) {
+                    if (FinishState.VERBOSE) Runtime.println("waitForFinish("+id+") done waiting (throwing exceptions)");
+                    throw new MultipleExceptions(s.multipleExceptions);
+                }
+                if (FinishState.VERBOSE) Runtime.println("waitForFinish("+id+") done waiting");
+            } else {
+                if (FinishState.VERBOSE) Runtime.println("waitForFinish("+id+") done waiting, finish was dead (cleaning up)");
             }
-            if (VERBOSE) Runtime.println("waitForFinish("+id+") done waiting");
         });
     }
 }

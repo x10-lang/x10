@@ -21,12 +21,17 @@ import x10.util.concurrent.AtomicInteger;
 import x10.util.concurrent.AtomicBoolean;
 import x10.util.concurrent.Lock;
 import x10.util.concurrent.SimpleLatch;
+import x10.util.ArrayList;
 
 import x10.io.CustomSerialization;
 import x10.io.Deserializer;
 import x10.io.Serializer;
 
 abstract class FinishState {
+
+    // Turn this on to debug deadlocks within the finish implementation
+    static VERBOSE = true;
+
     abstract def notifySubActivitySpawn(place:Place):void;
     abstract def notifyActivityCreation(srcPlace:Place):Boolean;
     abstract def notifyActivityTermination():void;
@@ -35,11 +40,6 @@ abstract class FinishState {
     abstract def simpleLatch():SimpleLatch;
     abstract def runAt(place:Place, body:()=>void, prof:Runtime.Profile):void;
     abstract def evalAt(place:Place, body:()=>Any, prof:Runtime.Profile):Any;
-
-    // only Runtime.rootFinish gets this
-    def notifyPlaceDeath() : void {
-        throw new Exception("Only resilient X10 handles place death");
-    }
 
     static def deref[T](root:GlobalRef[FinishState]) = (root as GlobalRef[FinishState]{home==here})() as T;
 
@@ -917,10 +917,6 @@ abstract class FinishState {
             ResilientStorePlaceZero.waitForFinish(id);
         }
         def simpleLatch():SimpleLatch = null;
-        def notifyPlaceDeath() {
-            assert id == 0l : id;
-            ResilientStorePlaceZero.notifyPlaceDeath(id);
-        }
         public def runAt(place:Place, body:()=>void, prof:Runtime.Profile):void {
             Runtime.ensureNotInAtomic();
             if (place.id == Runtime.hereLong()) {
@@ -961,13 +957,13 @@ abstract class FinishState {
             Runtime.x10rtSendMessage(place.id, cl, prof);
 
             try {
-                if (ResilientStorePlaceZero.VERBOSE) Runtime.println("Entering resilient at waitForFinish");
+                if (VERBOSE) Runtime.println("Entering resilient at waitForFinish");
                 tmp_finish.waitForFinish();
-                if (ResilientStorePlaceZero.VERBOSE) Runtime.println("Exiting resilient at waitForFinish");
+                if (VERBOSE) Runtime.println("Exiting resilient at waitForFinish");
             } catch (e:MultipleExceptions) {
                 assert e.exceptions.size == 1l : e.exceptions();
                 val e2 = e.exceptions(0);
-                if (ResilientStorePlaceZero.VERBOSE) Runtime.println("Received from resilient at: "+e2);
+                if (VERBOSE) Runtime.println("Received from resilient at: "+e2);
                 if (e2 instanceof WrappedThrowable) {
                     Runtime.throwCheckedWithoutThrows(e2.getCause());
                 } else {
@@ -1028,27 +1024,32 @@ abstract class FinishState {
         }
     }
 
-    static final class FinishResilientDistributedRoot {
-        // can be null, otherwise should call .release() upon quiescence (i.e. when a call to waitForFinish() would terminate immediately)...
-        // note that it is not ok to call .release() within waitForFinish, it must be called when the counters are updated for the last time
-        val latch:SimpleLatch;
-        var counter : Long;
-        public def this (latch:SimpleLatch) {
-            this.latch = latch;
-            this.counter = 1;
-        }
-        public def inc() {
-            latch.lock();
-            counter++;
-            latch.unlock();
-            //Runtime.println(this+" Incrased to: "+counter);
-        }
-        public def dec() {
-            latch.lock();
-            counter--;
-            if (counter<=0) latch.release();
-            latch.unlock();
-            //Runtime.println(this+" Decreased to: "+counter);
+
+    private static def lowLevelFetch[T](dst:Place, cl:()=>T, cell:Cell[T]) : Boolean {
+        if (here == dst) {
+            cell(cl());
+            return true;
+        } else {
+            val gcell = new GlobalRef(cell);
+            Runtime.x10rtSendMessage(dst.id, () => @RemoteInvocation("low_level_fetch_out") {
+                try {
+                    val r = cl();
+                    Runtime.x10rtSendMessage(gcell.home.id, () => @RemoteInvocation("low_level_fetch_back") {
+                        gcell.getLocalOrCopy()(r);
+                    }, null);
+                } catch (t:CheckedThrowable) {
+                   t.printStackTrace();
+                }
+            }, null);
+            //Runtime.println("Waiting for reply to message...");
+            while (cell() == null) {
+                Runtime.probe();
+                if (dst.isDead()) {
+                    return false;
+                }
+            }
+            //Runtime.println("Got reply.");
+            return true;
         }
     }
 
@@ -1061,7 +1062,7 @@ abstract class FinishState {
             Runtime.x10rtSendMessage(dst.id, () => @RemoteInvocation("low_level_at_out") {
                 try {
                     cl();
-                } catch (t:Exception) {
+                } catch (t:CheckedThrowable) {
                     t.printStackTrace();
                 }
                 Runtime.x10rtSendMessage(c.home.id, () => @RemoteInvocation("low_level_at_back") {
@@ -1080,40 +1081,369 @@ abstract class FinishState {
         }
     }
 
-    static final class FinishResilientDistributed extends FinishState {
+    static final class FinishResilientDistributedBackup {
+
+        // guarded by atomic { }
+        static MAP = new HashMap[GlobalRef[FinishResilientDistributedRoot], FinishResilientDistributedBackup]();
+
+        val transit : Rail[Int];
+        val live : Rail[Int];
         val root : GlobalRef[FinishResilientDistributedRoot];
+
+        private def this(root:GlobalRef[FinishResilientDistributedRoot]) {
+            this.transit = new Rail[Int](Place.MAX_PLACES * Place.MAX_PLACES, 0n);
+            this.live = new Rail[Int](Place.MAX_PLACES, 0n);
+            this.root = root;
+            this.live(root.home.id) = 1n;
+        }
+        static def make(root:GlobalRef[FinishResilientDistributedRoot]) {
+            val nu = new FinishResilientDistributedBackup(root);
+            atomic {
+                MAP.put(root, nu);
+            }
+            return GlobalRef[FinishResilientDistributedBackup](nu);
+        }
+
+        def notifySubActivitySpawn(srcId:Long, dstId:Long) {
+            atomic {
+                transit(srcId + dstId*Place.MAX_PLACES)++;
+            }
+        }
+        def notifyActivityCreation(srcId:Long, dstId:Long) {
+            atomic {
+                transit(srcId + dstId*Place.MAX_PLACES)--;
+                live(dstId)++;
+            }
+        }
+        def notifyActivityTermination(dstId:Long) {
+            atomic {
+                live(dstId)--;
+            }
+        }
+    }
+
+    static final class FinishResilientDistributedRoot {
+
+        // guarded by atomic { }
+        static ALL = new ArrayList[FinishResilientDistributedRoot]();
+
+        val transit : Rail[Int];
+        val live : Rail[Int];
+        var multipleExceptions : GrowableRail[Exception] = null;
+        val latch : SimpleLatch;
+
+        var backup : GlobalRef[FinishResilientDistributedBackup];
+        var hasBackup : Boolean;
+
+        private def ensureMultipleExceptions() {
+            if (multipleExceptions == null) multipleExceptions = new GrowableRail[Exception]();
+            return multipleExceptions;
+        }
+        def addDeadPlaceException(p:Place) {
+            val e = new DeadPlaceException(p);
+            e.fillInStackTrace();
+            ensureMultipleExceptions().add(e);
+        }
+
+        private def this(latch:SimpleLatch) {
+            this.transit = new Rail[Int](Place.MAX_PLACES * Place.MAX_PLACES, 0n);
+            this.live = new Rail[Int](Place.MAX_PLACES, 0n);
+            this.live(here.id) = 1n;
+            if (VERBOSE) Runtime.println("    initial live("+here.id+") == 1");
+            this.latch = latch;
+        }
+        static def make(latch:SimpleLatch) {
+            val nu = new FinishResilientDistributedRoot(latch);
+            val gnu = GlobalRef[FinishResilientDistributedRoot](nu);
+
+            // look for a place to put backup
+            var dst : Place = here.next();
+            val cell = new Cell[GlobalRef[FinishResilientDistributedBackup]](GlobalRef(null as FinishResilientDistributedBackup));
+            val success = lowLevelFetch(dst, ()=>FinishResilientDistributedBackup.make(gnu), cell);
+            if (!success) {
+                // TODO: try more places 
+                throw new Exception("Could not find a backup place");
+            }
+
+            if (FinishState.VERBOSE) Runtime.println("make("+nu+") @ "+here.id+" backup is "+cell());
+
+
+            nu.backup = cell();
+            nu.hasBackup = true;
+
+            atomic {
+                ALL.add(nu);
+            }
+            return nu;
+        }
+
+        def notifySubActivitySpawn(srcId:Long, dstId:Long) {
+            latch.lock();
+            if (VERBOSE) Runtime.println("notifySubActivitySpawn("+this+", "+srcId+", "+dstId+")");
+            transit(srcId + dstId*Place.MAX_PLACES)++;
+            if (VERBOSE) Runtime.println("    transit("+srcId+","+dstId+") == "+transit(srcId + dstId*Place.MAX_PLACES));
+            latch.unlock();
+            if (hasBackup) {
+                val bup = this.backup; // avoid capturing this
+                val success = lowLevelAt(bup.home, () => { bup.getLocalOrCopy().notifySubActivitySpawn(srcId, dstId); } );
+                if (!success) {
+                    // TODO: recreate backup somewhere else
+                    throw new Exception("Could not notifySubActivitySpawn() to backup");
+                }
+            }
+        }
+
+        def notifyActivityCreation(srcId:Long, dstId:Long) : Boolean {
+            latch.lock();
+            if (VERBOSE) Runtime.println("notifyActivityCreation("+this+", "+srcId+", "+dstId+")");
+            if (Place(srcId).isDead()) {
+                latch.unlock();
+                return false;
+            }
+            live(dstId)++;
+            transit(srcId + dstId*Place.MAX_PLACES)--;
+            if (VERBOSE) Runtime.println("    live("+dstId+") == "+live(dstId));
+            if (VERBOSE) Runtime.println("    transit("+srcId+","+dstId+") == "+transit(srcId + dstId*Place.MAX_PLACES));
+            latch.unlock();
+            if (hasBackup) {
+                val bup = this.backup; // avoid capturing this
+                val success = lowLevelAt(bup.home, () => { bup.getLocalOrCopy().notifyActivityCreation(srcId, dstId); } );
+                if (!success) {
+                    // TODO: recreate backup somewhere else
+                    throw new Exception("Could not notifyActivityCreation() to backup");
+                }
+            }
+            return true;
+        }
+
+        def notifyActivityTermination(dstId:Long) {
+            latch.lock();
+            if (VERBOSE) Runtime.println("notifyActivityTermination("+this+", "+dstId+")");
+            live(dstId)--;
+            if (VERBOSE) Runtime.println("    live("+dstId+") == "+live(dstId));
+            if (quiescent()) {
+                if (VERBOSE) Runtime.println("    Releasing latch...");
+                latch.release();
+            }
+            latch.unlock();
+            if (hasBackup) {
+                val bup = this.backup; // avoid capturing this
+                val success = lowLevelAt(bup.home, () => { bup.getLocalOrCopy().notifyActivityTermination(dstId); } );
+                if (!success) {
+                    // TODO: recreate backup somewhere else
+                    throw new Exception("Could not notifyActivityTermination() to backup");
+                }
+            }
+        }
+
+        def notifyPlaceDeath() {
+            latch.lock();
+            if (FinishState.VERBOSE) Runtime.println("notifyPlaceDeath("+this+")");
+            if (quiescent()) {
+                if (VERBOSE) Runtime.println("    Releasing latch...");
+                latch.release();
+            }
+            latch.unlock();
+        }
+
+        static def notifyAllPlaceDeath() {
+            atomic {
+                for (x in ALL) {
+                    x.notifyPlaceDeath();
+                }
+            }
+        }
+
+        def pushException(t:Exception) {
+            latch.lock();
+            if (VERBOSE) Runtime.println("pushException("+this+", "+t+")");
+            ensureMultipleExceptions().add(t);
+            latch.unlock();
+        }
+
+        // must be called with latch locked
+        private def quiescent() : Boolean {
+
+            // overwrite counters with 0 if places have died, accumuluate exceptions
+            for (i in 0..(Place.MAX_PLACES-1)) {
+                if (Place.isDead(i)) {
+                    for (unused in 1..live(i)) {
+                        addDeadPlaceException(Place(i));
+                    }
+                    live(i) = 0n;
+
+                    // kill horizontal and vertical lines in transit matrix
+                    for (j in 0..(Place.MAX_PLACES-1)) {
+                        for (unused in 1..transit(i + j*Place.MAX_PLACES)) {
+                            addDeadPlaceException(Place(i));
+                        }
+                        transit(i + j*Place.MAX_PLACES) = 0n;
+
+                        for (unused in 1..transit(j + i*Place.MAX_PLACES)) {
+                            addDeadPlaceException(Place(i));
+                        }
+                        transit(j + i*Place.MAX_PLACES) = 0n;
+                    }
+                }
+            }
+
+            // Counters can become negative due to quirky use of finish below main
+            if (VERBOSE) Runtime.println("quiescent("+this+")");
+            for (i in 0..(Place.MAX_PLACES-1)) {
+                if (live(i)>0) {
+                    if (VERBOSE) Runtime.println("    "+this+" Live at "+i);
+                    return false;
+                }
+                for (j in 0..(Place.MAX_PLACES-1)) {
+                    if (transit(i + j*Place.MAX_PLACES)>0) {
+                        if (FinishState.VERBOSE) Runtime.println("    "+this+" In transit from "+i+" -> "+j);
+                        return false;
+                    }
+                }
+            }
+
+            return true;
+        }
+
+    }
+
+    static final class FinishResilientDistributed extends FinishState {
+
+        val root : GlobalRef[FinishResilientDistributedRoot];
+
         def this(latch:SimpleLatch) {
-            val the_root = new FinishResilientDistributedRoot(latch);
+            val the_root = FinishResilientDistributedRoot.make(latch);
             //Runtime.println(the_root+" just created."); 
             this.root = new GlobalRef[FinishResilientDistributedRoot](the_root);
         }
+
         def notifySubActivitySpawn(place:Place) {
-            lowLevelAt(root.home, () => { root.getLocalOrCopy().inc(); } );
+            val srcId = here.id;
+            val dstId = place.id;
+            lowLevelAt(root.home, () => { root.getLocalOrCopy().notifySubActivitySpawn(srcId, dstId); } );
         }
+
         def notifyActivityCreation(srcPlace:Place) : Boolean {
-            return true;
+            val srcId = srcPlace.id;
+            val dstId = here.id;
+            return lowLevelAt(root.home, () => { root.getLocalOrCopy().notifyActivityCreation(srcId, dstId); } );
         }
+
         def notifyActivityTermination() {
-            lowLevelAt(root.home, () => { root.getLocalOrCopy().dec(); } );
+            val dstId = here.id;
+            lowLevelAt(root.home, () => { root.getLocalOrCopy().notifyActivityTermination(dstId); } );
         }
+
         def pushException(t:Exception) {
-            t.printStackTrace();
-            throw new Exception("under implementation");
+            lowLevelAt(root.home, () => { root.getLocalOrCopy().pushException(t); } );
         }
+
         def waitForFinish() {
+            if (VERBOSE) Runtime.println("waitForFinish("+this+")");
             val the_root = root.getLocalOrCopy();
-            the_root.dec();
-            //Runtime.println("Waiting for finish...");
+            the_root.notifyActivityTermination(here.id);
             if (!Runtime.STRICT_FINISH) Runtime.worker().join(the_root.latch);
             the_root.latch.await();
-            //Runtime.println("Finish has finished.");
+            if (the_root.multipleExceptions != null) {
+                if (FinishState.VERBOSE) Runtime.println("waitForFinish("+this+") done waiting (throwing exceptions)");
+                throw MultipleExceptions.make(the_root.multipleExceptions);
+            }
+            if (FinishState.VERBOSE) Runtime.println("waitForFinish("+this+") done waiting");
         }
+
         def simpleLatch():SimpleLatch = (root as GlobalRef[FinishResilientDistributedRoot]{home==here})().latch;
+
         public def runAt(place:Place, body:()=>void, prof:Runtime.Profile):void {
-            Runtime.runAtNonResilient(place, body, prof);
+            Runtime.ensureNotInAtomic();
+            if (place.id == Runtime.hereLong()) {
+                // local path can be the same as before
+                Runtime.runAtNonResilient(place, body, prof);
+                return;
+            }
+
+            val real_finish = this;
+
+            val tmp_finish = new FinishResilientDistributed(new SimpleLatch());
+            // TODO: clockPhases -- clocks not supported in resilient X10 at the moment
+            // TODO: This implementation of runAt does not explicitly dealloc things
+            val home = here;
+            tmp_finish.notifySubActivitySpawn(place);
+
+            // [DC] do not use at (place) async since the finish state is handled internally
+            // [DC] go to the lower level...
+            val cl = () => @x10.compiler.RemoteInvocation("resilient_place_zero_run_at") {
+                val exc_body = () => {
+                    if (tmp_finish.notifyActivityCreation(home)) {
+                        try {
+                            try {
+                                body();
+                            } catch (e:Runtime.AtCheckedWrapper) {
+                                throw e.getCheckedCause();
+                            }
+                        } catch (t:CheckedThrowable) {
+                            val e = Exception.ensureException(t);
+                            tmp_finish.pushException(e);
+                        }
+                        tmp_finish.notifyActivityTermination();
+                    }
+                };
+                Runtime.execute(new Activity(exc_body, home, real_finish, false, false));
+            };
+            Runtime.x10rtSendMessage(place.id, cl, prof);
+
+            try {
+                if (VERBOSE) Runtime.println("Entering resilient at waitForFinish");
+                tmp_finish.waitForFinish();
+                if (VERBOSE) Runtime.println("Exiting resilient at waitForFinish");
+            } catch (e:MultipleExceptions) {
+                assert e.exceptions.size == 1l : e.exceptions();
+                val e2 = e.exceptions(0);
+                if (VERBOSE) Runtime.println("Received from resilient at: "+e2);
+                if (e2 instanceof WrappedThrowable) {
+                    Runtime.throwCheckedWithoutThrows(e2.getCause());
+                } else {
+                    throw e2;
+                }
+            }
         }
+
         public def evalAt(place:Place, body:()=>Any, prof:Runtime.Profile):Any {
-            return Runtime.evalAtNonResilient(place, body, prof);
+            Runtime.ensureNotInAtomic();
+            if (place.id == Runtime.hereLong()) {
+                // local path can be the same as before
+                return Runtime.evalAtNonResilient(place, body, prof);
+            }
+
+            @StackAllocate val me = @StackAllocate new Cell[Any](null);
+            val me2 = GlobalRef(me);
+            @Profile(prof) at (place) {
+                val r : Any = body();
+                at (me2) {
+                    me2()(r);
+                }
+            }
+
+            return me();
+        }
+
+    }
+
+    static def notifyPlaceDeath() : void {
+        if (Runtime.RESILIENT_PLACE_ZERO) {
+            if (here.id == 0l) {
+                // most finishes are woken up by 'atomic'
+                atomic { }
+                // the root one also needs to have its latch released
+                // also adopt activities of finishes whose homes are dead into closest live parent
+                ResilientStorePlaceZero.notifyPlaceDeath((Runtime.rootFinish as FinishResilientPlaceZero).id);
+            }
+        } else if (Runtime.RESILIENT_ZOO_KEEPER) {
+            //
+        } else if (Runtime.RESILIENT_DISTRIBUTED) {
+            FinishResilientDistributedRoot.notifyAllPlaceDeath();
+            // merge backups to parent
+        } else {
+            throw new Exception("Only resilient X10 handles place death");
         }
     }
 }

@@ -629,7 +629,6 @@ public final class Runtime {
                 // try network
                 x10rtProbe();
                 if (Place.numDead() != numDead) {
-                    // atomic wakes up ResilientFinish...
                     atomic {
                         numDead = Place.numDead();
                         //Runtime.println("Number of dead places now "+numDead);
@@ -637,8 +636,8 @@ public final class Runtime {
                         //    if (p.isDead()) Runtime.println("Dead: "+p);
                         //}
                     }
-                    // release the pool
-                    if (here.id == 0l) Runtime.rootFinish.notifyPlaceDeath();
+                    // release any finishes that may have quiesced due to activities vanishing
+                    FinishState.notifyPlaceDeath();
                 }
                 activity = worker.poll();
                 if (null != activity || latch()) return activity;
@@ -705,7 +704,7 @@ public final class Runtime {
     public static def surplusActivityCount():int = worker().size();
 
     /** The finish state that manages the 'main' activity and sub activities. */
-    private static rootFinish = makeDefaultFinish(pool.latch);
+    static rootFinish = makeDefaultFinish(pool.latch);
 
     private static val processStartNanos_ = new Cell[Long](0);
     public static def processStartNanos() = processStartNanos_();
