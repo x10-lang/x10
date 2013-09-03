@@ -1030,11 +1030,13 @@ abstract class FinishState {
             cell(cl());
             return true;
         } else {
+            val done = new GlobalRef(new AtomicBoolean(false));
             val gcell = new GlobalRef(cell);
             Runtime.x10rtSendMessage(dst.id, () => @RemoteInvocation("low_level_fetch_out") {
                 try {
                     val r = cl();
                     Runtime.x10rtSendMessage(gcell.home.id, () => @RemoteInvocation("low_level_fetch_back") {
+                        done.getLocalOrCopy().getAndSet(true);
                         gcell.getLocalOrCopy()(r);
                     }, null);
                 } catch (t:CheckedThrowable) {
@@ -1042,7 +1044,7 @@ abstract class FinishState {
                 }
             }, null);
             //Runtime.println("Waiting for reply to message...");
-            while (cell() == null) {
+            while (!done().get()) {
                 Runtime.probe();
                 if (dst.isDead()) {
                     return false;
@@ -1188,7 +1190,8 @@ abstract class FinishState {
                 val success = lowLevelAt(bup.home, () => { bup.getLocalOrCopy().notifySubActivitySpawn(srcId, dstId); } );
                 if (!success) {
                     // TODO: recreate backup somewhere else
-                    throw new Exception("Could not notifySubActivitySpawn() to backup");
+                    Console.ERR.println("Could not back up notifySubActivitySpawn(), backup place dead");
+                    hasBackup = false;
                 }
             }
         }
@@ -1210,7 +1213,8 @@ abstract class FinishState {
                 val success = lowLevelAt(bup.home, () => { bup.getLocalOrCopy().notifyActivityCreation(srcId, dstId); } );
                 if (!success) {
                     // TODO: recreate backup somewhere else
-                    throw new Exception("Could not notifyActivityCreation() to backup");
+                    Console.ERR.println("Could not back up notifyActivityCreation(), backup place dead");
+                    hasBackup = false;
                 }
             }
             return true;
@@ -1231,7 +1235,8 @@ abstract class FinishState {
                 val success = lowLevelAt(bup.home, () => { bup.getLocalOrCopy().notifyActivityTermination(dstId); } );
                 if (!success) {
                     // TODO: recreate backup somewhere else
-                    throw new Exception("Could not notifyActivityTermination() to backup");
+                    Console.ERR.println("Could not back up notifyActivityTermination(), backup place dead");
+                    hasBackup = false;
                 }
             }
         }
