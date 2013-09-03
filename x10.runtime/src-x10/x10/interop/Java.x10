@@ -106,12 +106,6 @@ public class Java {
     @Native("java", "#c.charValue()")
     public static native def convert(c:java.lang.Character):x10.lang.Char;
     
-    // Java conversions (array)
-    @Native("java", "(#T[])#a.raw.getBackingArray()")
-    public static native def convert[T](a:x10.regionarray.Array[T](1)):array[T];
-    @Native("java", "new x10.regionarray.Array((java.lang.System[]) null, #T$rtt).x10$regionarray$Array$$init$S(new x10.core.Rail(#T$rtt, #a.length, #a), (x10.regionarray.Array.__0$1x10$regionarray$Array$$T$2) null)")
-    public static native def convertArray[T](a:array[T]):x10.regionarray.Array[T](1);
-    
     // Java conversions (rail)
     @Native("java", "(#T[])#a.getBackingArray()")
     public static native def convert[T](a:x10.lang.Rail[T]):array[T];
