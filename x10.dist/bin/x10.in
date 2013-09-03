@@ -12,9 +12,6 @@ mx=""
 ss=""
 defs=""
 dev=""
-nocompressedrefs=""
-nogcpolicy=""
-nojitopts=""
 noassert=""
 noclassloadtest=""
 java_args=()
@@ -63,9 +60,6 @@ while [ -n "$1" ]; do
         -hostfile|--hostfile) shift; export X10_HOSTFILE="$1";;
         -x10rt) shift; x10rt_impl="$1";;
         -config) shift; config="$1.cfg";;
-        -nocompressedrefs) nocompressedrefs="true";;
-        -nogcpolicy) nogcpolicy="true";;
-        -nojitopts) nojitopts="true";;
         -noassert) noassert="true";;
         -noclassloadtest) noclassloadtest="true";;
         -dev) dev="true";;
@@ -103,9 +97,6 @@ where [options] includes:
     -hostfile <file>         provide a hostfile (overrides X10_HOSTFILE)
     -x10rt <impl>            select X10RT implementation
     -config <conf>           (IGNORED) read configuration from etc${FILE_SEP}<conf>.cfg
-    -nocompressedrefs        disable compressed references (64-bit JVM only)
-    -nogcpolicy              disable gc policy
-    -nojitopts               disable jit options
     -noassert                disable assertion check
     -noclassloadtest         disable class load test
     -dev                     developer mode (use unpackaged X10 libraries)
@@ -237,61 +228,6 @@ fi
 fi
 
 [ -n "${java_version}" ] || java_version=`"$JAVACMD" -version 2>&1`
-
-
-#
-# IBM J9 VM specific options
-#
-ibmj9vm=
-ibmj9vmr26=
-ibmj9vm64bit=
-# following pattern matches with bash 3.2 but doesn't match with bash 4.1
-#[[ "${java_version}" =~ ".*IBM J9 VM.*" ]] && ibmj9vm=true
-case "${java_version}" in
-    *IBM\ J9\ VM*) ibmj9vm=true
-    case "${java_version}" in
-        *build\ 2.6*) ibmj9vmr26=true ;;
-    esac
-    case "${java_version}" in
-        *amd64-64*) ibmj9vm64bit=true ;;
-        *ppc64-64*) ibmj9vm64bit=true ;;
-    esac
-    ;;
-esac
-if [ -n "${ibmj9vm}" ]; then
-    ibmj9vmjitopts=
-
-    if [ -n "${ibmj9vmr26}" ]; then
-        if [ -z "${nojitopts}" ]; then
-            # experimental support for java7
-            if [ -n "${ibmj9vmjitopts}" ]; then
-                ibmj9vmjitopts="${ibmj9vmjitopts},"
-            fi
-            ibmj9vmjitopts="${ibmj9vmjitopts}count=1000,bcount=250,milcount=1"
-        fi
-        if [ -z "${nogcpolicy}" ]; then
-            if [ -n "${ibmj9vm64bit}" ]; then
-                java_args=("-Xgcpolicy:balanced" "${java_args[@]}")
-            else
-                java_args=("-Xgcpolicy:gencon" "${java_args[@]}")
-            fi
-        fi
-    else
-        if [ -z "${nogcpolicy}" ]; then
-            java_args=("-Xgcpolicy:gencon" "${java_args[@]}")
-        fi
-    fi
-
-    if [ -n "${ibmj9vm64bit}" ]; then
-        if [ -z "${nocompressedrefs}" ]; then
-            java_args=("-Xcompressedrefs" "${java_args[@]}")
-        fi
-    fi
-
-    if [ -n "${ibmj9vmjitopts}" ]; then
-        java_args=("-Xjit:${ibmj9vmjitopts}" "${java_args[@]}")
-    fi
-fi
 
 
 command=("$JAVA" "${java_args[@]}" $config "${args[@]}")
