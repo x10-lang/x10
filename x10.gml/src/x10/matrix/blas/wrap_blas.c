@@ -1315,9 +1315,9 @@ void matrix_matrix_mult(double* A, double* B, double* C, blas_long* dim,
   blas_long  lda = ld[0];
   blas_long  ldb = ld[1];
   blas_long  ldc = ld[2];
-  blas_long  offsetA = offset[0] + offset[1]*dim[0];
-  blas_long  offsetB = offset[2] + offset[3]*dim[1];
-  blas_long  offsetC = offset[4] + offset[5]*dim[2];
+  blas_long  offsetA = offset[0] + offset[1]*ld[0];
+  blas_long  offsetB = offset[2] + offset[3]*ld[1];
+  blas_long  offsetC = offset[4] + offset[5]*ld[2];
   double alpha = scale[0];
   double beta  = scale[1];
   //printf("call dgemm: %d %d %d, %c %c\n", m, n, k, transA, transB); fflush(stdout);

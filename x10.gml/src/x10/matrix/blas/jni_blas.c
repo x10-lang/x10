@@ -188,7 +188,7 @@ extern "C" {
     // to have a continuous memory layout like C arrays.
     env->GetLongArrayRegion(dim, 0, 3, dimlist);
     env->GetLongArrayRegion(ld, 0, 3, ldlist);
-    env->GetLongArrayRegion(off, 0, 6, ldlist);
+    env->GetLongArrayRegion(off, 0, 6, offlist);
     env->GetIntArrayRegion(trans, 0, 2, trnlist);
 
 	matrix_matrix_mult(amat, bmat, cmat, dimlist, ldlist, offlist, scal, trnlist);
