@@ -30,7 +30,7 @@ import x10.io.Serializer;
 abstract class FinishState {
 
     // Turn this on to debug deadlocks within the finish implementation
-    static VERBOSE = true;
+    static VERBOSE = false;
 
     abstract def notifySubActivitySpawn(place:Place):void;
     abstract def notifyActivityCreation(srcPlace:Place):Boolean;
