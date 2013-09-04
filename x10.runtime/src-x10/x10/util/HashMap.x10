@@ -280,30 +280,16 @@ public class HashMap[K,V] implements Map[K,V], CustomSerialization {
         public def size(): Long = map.size();
     }
 
-
-    protected static class State[Key,Value] {
-        val content:Rail[Pair[Key,Value]];
-
-        def this(map:HashMap[Key,Value]) {
-            val size = map.size();
-            val it = map.entriesIterator();
-            content = new Rail[Pair[Key,Value]](size,
-              (p:Long) => {
-                   val entry = it.next();
-                   return Pair[Key,Value](entry.getKey(),entry.getValue());
-              }
-            );
-        }
-    }
-
     /*
      * Custom deserialization
      */
     public def this(ds:Deserializer) {
         this();
-        val state = ds.readAny() as State[K,V]; // Warning: This is an unsound cast because the object or the target type might have constraints and X10 currently does not perform constraint solving at runtime on generic parameters.
-	    for (pair in state.content) {
-            putInternal(pair.first, pair.second, true);
+        val numEntries = ds.readAny() as Long;
+	for (1..numEntries) {
+           val key = ds.readAny() as K;
+	   val value = ds.readAny() as V;
+	   putInternal(key, value, true);
         }
     }
 
@@ -311,6 +297,12 @@ public class HashMap[K,V] implements Map[K,V], CustomSerialization {
      * Custom serialization
      */
     public def serialize(s:Serializer) {
-        s.writeAny(new State(this));
+	val it = entriesIterator();
+        s.writeAny(size());
+	while (it.hasNext()) {
+            val entry = it.next();
+            s.writeAny(entry.getKey());
+            s.writeAny(entry.getValue());
+        }
     }
 }
