@@ -78,6 +78,8 @@ class ResilientStorePlaceZero {
         val parent : State;
         val transit : Rail[Int];
         val live : Rail[Int];
+        val transitAdopted : Rail[Int];
+        val liveAdopted : Rail[Int];
         val homeId : Long;
         var adopted : Boolean;
         var adoptedParent : Long;
@@ -94,6 +96,8 @@ class ResilientStorePlaceZero {
             this.parent = pfs;
             this.transit = new Rail[Int](Place.MAX_PLACES * Place.MAX_PLACES, 0n);
             this.live = new Rail[Int](Place.MAX_PLACES, 0n);
+            this.transitAdopted = new Rail[Int](Place.MAX_PLACES * Place.MAX_PLACES, 0n);
+            this.liveAdopted = new Rail[Int](Place.MAX_PLACES, 0n);
             this.live(homeId) = 1n;
             if (FinishState.VERBOSE) Runtime.println("    initial live("+homeId+") == 1");
             this.homeId = homeId;
@@ -108,9 +112,9 @@ class ResilientStorePlaceZero {
 
         def adopt(child:State) : void {
             for (i in 0..(Place.MAX_PLACES-1)) {
-                live(i) += child.live(i);
+                liveAdopted(i) += child.live(i);
                 for (j in 0..(Place.MAX_PLACES-1)) {
-                    transit(j + i*Place.MAX_PLACES) += child.transit(j + i*Place.MAX_PLACES);
+                    transitAdopted(j + i*Place.MAX_PLACES) += child.transit(j + i*Place.MAX_PLACES);
                 }
             }
             child.adopted = true;
@@ -261,6 +265,18 @@ class ResilientStorePlaceZero {
             for (j in 0..(Place.MAX_PLACES-1)) {
                 if (fs.transit(i + j*Place.MAX_PLACES)>0) {
                     if (FinishState.VERBOSE) Runtime.println("    "+fs.id+" In transit from "+i+" -> "+j);
+                    return false;
+                }
+            }
+        }
+        for (i in 0..(Place.MAX_PLACES-1)) {
+            if (fs.liveAdopted(i)>0) {
+                if (FinishState.VERBOSE) Runtime.println("    "+fs.id+" Live (adopted) at "+i);
+                return false;
+            }
+            for (j in 0..(Place.MAX_PLACES-1)) {
+                if (fs.transitAdopted(i + j*Place.MAX_PLACES)>0) {
+                    if (FinishState.VERBOSE) Runtime.println("    "+fs.id+" In transit (adopted) from "+i+" -> "+j);
                     return false;
                 }
             }

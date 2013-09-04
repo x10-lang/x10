@@ -1086,19 +1086,19 @@ abstract class FinishState {
     static final class FinishResilientDistributedBackup {
 
         // guarded by atomic { }
-        static MAP = new HashMap[GlobalRef[FinishResilientDistributedRoot], FinishResilientDistributedBackup]();
+        static MAP = new HashMap[GlobalRef[FinishResilientDistributedMaster], FinishResilientDistributedBackup]();
 
         val transit : Rail[Int];
         val live : Rail[Int];
-        val root : GlobalRef[FinishResilientDistributedRoot];
+        val root : GlobalRef[FinishResilientDistributedMaster];
 
-        private def this(root:GlobalRef[FinishResilientDistributedRoot]) {
+        private def this(root:GlobalRef[FinishResilientDistributedMaster]) {
             this.transit = new Rail[Int](Place.MAX_PLACES * Place.MAX_PLACES, 0n);
             this.live = new Rail[Int](Place.MAX_PLACES, 0n);
             this.root = root;
             this.live(root.home.id) = 1n;
         }
-        static def make(root:GlobalRef[FinishResilientDistributedRoot]) {
+        static def make(root:GlobalRef[FinishResilientDistributedMaster]) {
             val nu = new FinishResilientDistributedBackup(root);
             atomic {
                 MAP.put(root, nu);
@@ -1124,13 +1124,17 @@ abstract class FinishState {
         }
     }
 
-    static final class FinishResilientDistributedRoot {
+    static final class FinishResilientDistributedMaster {
 
         // guarded by atomic { }
-        static ALL = new ArrayList[FinishResilientDistributedRoot]();
+        static ALL = new ArrayList[FinishResilientDistributedMaster]();
 
         val transit : Rail[Int];
         val live : Rail[Int];
+        val transitAdopted : Rail[Int];
+        val liveAdopted : Rail[Int];
+        var children  = new GrowableRail[GlobalRef[FinishResilientDistributedMaster]]();
+
         var multipleExceptions : GrowableRail[Exception] = null;
         val latch : SimpleLatch;
 
@@ -1155,23 +1159,28 @@ abstract class FinishState {
             this.latch = latch;
         }
         static def make(latch:SimpleLatch) {
-            val nu = new FinishResilientDistributedRoot(latch);
-            val gnu = GlobalRef[FinishResilientDistributedRoot](nu);
+            val nu = new FinishResilientDistributedMaster(latch);
+            val gnu = GlobalRef[FinishResilientDistributedMaster](nu);
 
-            // look for a place to put backup
-            var dst : Place = here.next();
-            val cell = new Cell[GlobalRef[FinishResilientDistributedBackup]](GlobalRef(null as FinishResilientDistributedBackup));
-            val success = lowLevelFetch(dst, ()=>FinishResilientDistributedBackup.make(gnu), cell);
-            if (!success) {
-                // TODO: try more places 
-                throw new Exception("Could not find a backup place");
+            if (here.id == 0) {
+                // at place 0, do not need a backup
+                nu.hasBackup = false;
+            } else {
+                // look for a place to put backup
+                var dst : Place = here.next();
+                val cell = new Cell[GlobalRef[FinishResilientDistributedBackup]](GlobalRef(null as FinishResilientDistributedBackup));
+                val success = lowLevelFetch(dst, ()=>FinishResilientDistributedBackup.make(gnu), cell);
+                if (!success) {
+                    // TODO: try more places 
+                    throw new Exception("Could not find a backup place");
+                }
+
+                if (FinishState.VERBOSE) Runtime.println("make("+nu+") @ "+here.id+" backup is "+cell());
+
+
+                nu.backup = cell();
+                nu.hasBackup = true;
             }
-
-            if (FinishState.VERBOSE) Runtime.println("make("+nu+") @ "+here.id+" backup is "+cell());
-
-
-            nu.backup = cell();
-            nu.hasBackup = true;
 
             atomic {
                 ALL.add(nu);
@@ -1314,12 +1323,12 @@ abstract class FinishState {
 
     static final class FinishResilientDistributed extends FinishState {
 
-        val root : GlobalRef[FinishResilientDistributedRoot];
+        val root : GlobalRef[FinishResilientDistributedMaster];
 
         def this(latch:SimpleLatch) {
-            val the_root = FinishResilientDistributedRoot.make(latch);
+            val the_root = FinishResilientDistributedMaster.make(latch);
             //Runtime.println(the_root+" just created."); 
-            this.root = new GlobalRef[FinishResilientDistributedRoot](the_root);
+            this.root = new GlobalRef[FinishResilientDistributedMaster](the_root);
         }
 
         def notifySubActivitySpawn(place:Place) {
@@ -1356,7 +1365,7 @@ abstract class FinishState {
             if (FinishState.VERBOSE) Runtime.println("waitForFinish("+this+") done waiting");
         }
 
-        def simpleLatch():SimpleLatch = (root as GlobalRef[FinishResilientDistributedRoot]{home==here})().latch;
+        def simpleLatch():SimpleLatch = (root as GlobalRef[FinishResilientDistributedMaster]{home==here})().latch;
 
         public def runAt(place:Place, body:()=>void, prof:Runtime.Profile):void {
             Runtime.ensureNotInAtomic();
@@ -1445,7 +1454,7 @@ abstract class FinishState {
         } else if (Runtime.RESILIENT_ZOO_KEEPER) {
             //
         } else if (Runtime.RESILIENT_DISTRIBUTED) {
-            FinishResilientDistributedRoot.notifyAllPlaceDeath();
+            FinishResilientDistributedMaster.notifyAllPlaceDeath();
             // merge backups to parent
         } else {
             // This case seems occur naturally on shutdown, so transparently ignore it.
