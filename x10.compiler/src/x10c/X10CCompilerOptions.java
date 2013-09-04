@@ -64,7 +64,7 @@ public class X10CCompilerOptions extends x10.X10CompilerOptions {
         x10_jar = "x10.jar"; // FIXME: is this overridable?
         math_jar = System.getProperty("x10c.math.jar", "commons-math3-3.2.jar");
         log_jar = System.getProperty("x10c.log.jar",  "commons-logging-1.1.3.jar");
-        ecj_jar = System.getProperty("x10c.ecj.jar", "ecj.jar");
+        ecj_jar = System.getProperty("x10c.ecj.jar", "ecj-4.3.jar");
         
         // default value of output_directory will be set in the last of parseCommandLine
         output_directory = null;
