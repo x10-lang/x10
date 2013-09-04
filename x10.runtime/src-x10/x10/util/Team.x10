@@ -435,7 +435,8 @@ public struct Team {
         }
         else {
         	// TODO
-        	return Team.WORLD; // this is just here for compiling, until split is implemented
+		Console.ERR.println("Team.split not implemented on emulated collectives; Raising exception!!!");
+		throw new UnsupportedOperationException("Team.split not implemented on emulated collectives");
         }
     }
 
