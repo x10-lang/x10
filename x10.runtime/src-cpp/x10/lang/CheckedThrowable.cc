@@ -185,9 +185,9 @@ CheckedThrowable* CheckedThrowable::fillInStackTrace() {
 #if defined(__GLIBC__) || defined(__APPLE__)
     void *buffer[MAX_TRACE_SIZE];
 
-    int numFrames = ::backtrace(buffer, MAX_TRACE_SIZE);
+    int numFrames = (::backtrace(buffer, MAX_TRACE_SIZE)) - 1; // 1 frame smaller to cut out this "fillInStackTrace" method from the disalayed stack
     FMGL(trace) = x10aux::alloc<void*>(numFrames*sizeof(void*), false); // does not contain pointers to GC heap
-    memcpy(FMGL(trace), buffer, numFrames*sizeof(void*));
+    memcpy(FMGL(trace), &buffer[1], numFrames*sizeof(void*));
     FMGL(trace_size) = numFrames;
 #elif defined(_AIX)
     int numFrames = 0;
