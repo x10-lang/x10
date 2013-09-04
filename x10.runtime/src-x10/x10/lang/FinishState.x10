@@ -1185,7 +1185,7 @@ abstract class FinishState {
             transit(srcId + dstId*Place.MAX_PLACES)++;
             if (VERBOSE) Runtime.println("    transit("+srcId+","+dstId+") == "+transit(srcId + dstId*Place.MAX_PLACES));
             latch.unlock();
-            if (hasBackup) {
+            if (hasBackup && !(srcId==here.id && dstId==here.id)) {
                 val bup = this.backup; // avoid capturing this
                 val success = lowLevelAt(bup.home, () => { bup.getLocalOrCopy().notifySubActivitySpawn(srcId, dstId); } );
                 if (!success) {
@@ -1208,7 +1208,7 @@ abstract class FinishState {
             if (VERBOSE) Runtime.println("    live("+dstId+") == "+live(dstId));
             if (VERBOSE) Runtime.println("    transit("+srcId+","+dstId+") == "+transit(srcId + dstId*Place.MAX_PLACES));
             latch.unlock();
-            if (hasBackup) {
+            if (hasBackup && !(srcId==here.id && dstId==here.id)) {
                 val bup = this.backup; // avoid capturing this
                 val success = lowLevelAt(bup.home, () => { bup.getLocalOrCopy().notifyActivityCreation(srcId, dstId); } );
                 if (!success) {
@@ -1230,7 +1230,7 @@ abstract class FinishState {
                 latch.release();
             }
             latch.unlock();
-            if (hasBackup) {
+            if (hasBackup && dstId!=here.id) {
                 val bup = this.backup; // avoid capturing this
                 val success = lowLevelAt(bup.home, () => { bup.getLocalOrCopy().notifyActivityTermination(dstId); } );
                 if (!success) {
@@ -1448,7 +1448,9 @@ abstract class FinishState {
             FinishResilientDistributedRoot.notifyAllPlaceDeath();
             // merge backups to parent
         } else {
-            throw new Exception("Only resilient X10 handles place death");
+            // This case seems occur naturally on shutdown, so transparently ignore it.
+            // The launcher is responsible for tear-down in the case of place death, nothing we need to do.
+            //throw new Exception("Only resilient X10 handles place death");
         }
     }
 }
