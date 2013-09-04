@@ -43,12 +43,16 @@ public struct Team {
     		if (id > 0) {
 	    		if (Team.roles.capacity() < id) // TODO move this check into the GrowableRail.grow() method
 	    			Team.roles.grow(id);
-	    		Team.roles(id-1L) = role as Int;
+	    		while (Team.roles.size() < (id-1))
+	    			Team.roles.add(-1n); // I am not a member of this team id.  Insert a dummy value.
+	    		Team.roles(id-1) = role as Int;
     		}
     	}
     	else {
     		if (Team.state.capacity() <= id) // TODO move this check into the GrowableRail.grow() method
     			Team.state.grow(id+1);
+    		while (Team.state.size() < id);
+    			Team.state.add(null); // I am not a member of this team id.  Insert a dummy value.
     		Team.state(id) = new LocalTeamState(places, id);
     		Team.state(id).init();
     	}
@@ -74,6 +78,8 @@ public struct Team {
 	       	PlaceGroup.WORLD.broadcastFlat(()=>{
 	            if (Team.roles.capacity() < teamidcopy) // TODO move this check into the GrowableRail.grow() method
 	       			Team.roles.grow(teamidcopy);
+	            while (Team.roles.size() < (teamidcopy-1))
+	            	Team.roles.add(-1n); // I am not a member of this team id.  Insert a dummy value.
 	       		Team.roles(teamidcopy-1) = places.indexOf(here) as Int;
 	       	});
 	    }
