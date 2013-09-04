@@ -43,7 +43,6 @@ import x10.runtime.impl.java.Runtime;
  */
 abstract class DeserializerThunk {
 
-    protected static final String CONSTRUCTOR_METHOD_NAME_FOR_REFLECTION = "$initForReflection";
     protected static Unsafe unsafe = DeserializerThunk.getUnsafe();
 
     protected static ConcurrentHashMap<Class<?>, DeserializerThunk> thunks = new ConcurrentHashMap<Class<?>, DeserializerThunk>(50);
@@ -301,7 +300,7 @@ abstract class DeserializerThunk {
 
     private static class CustomDeserializerThunk extends DeserializerThunk {
         protected final Field[] fields;
-        protected final Method makeMethod;
+        protected final Method deserializationConstructor;
 
         CustomDeserializerThunk(Class<? extends Object> clazz) throws SecurityException, NoSuchFieldException, NoSuchMethodException {
             super(null);
@@ -324,8 +323,8 @@ abstract class DeserializerThunk {
             }
 
             // We can't use the same method name in all classes cause it creates an endless loop cause when super.init is called it calls back to this method
-            makeMethod = clazz.getMethod(clazz.getName().replace(".", "$") + "$" + DeserializerThunk.CONSTRUCTOR_METHOD_NAME_FOR_REFLECTION, Deserializer.class);
-            makeMethod.setAccessible(true);
+            deserializationConstructor = clazz.getMethod(clazz.getName().replace(".", "$") + "$_deserialize_body", Deserializer.class);
+            deserializationConstructor.setAccessible(true);
         }
 
         @Override
@@ -335,7 +334,7 @@ abstract class DeserializerThunk {
                 field.set(obj, value);
             }
 
-            makeMethod.invoke(obj, new Deserializer(jds));
+            deserializationConstructor.invoke(obj, new Deserializer(jds));
             short marker = jds.readShort();
             if (marker != SerializationConstants.CUSTOM_SERIALIZATION_END) {
                 X10JavaDeserializer.raiseSerializationProtocolError();

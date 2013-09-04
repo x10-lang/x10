@@ -538,18 +538,19 @@ public final class X10JavaSerializer implements SerializationConstants {
             writeNull();
             return;
         }
-        Integer pos = previous_position(body, true);
-        if (pos != null) {
-            return;
-        }
         
         // Special case: optimize transmission of RTT's for primitives
         if (body instanceof x10.rtt.RuntimeType<?>) {
-            int id = ((x10.rtt.RuntimeType<?>) body).$_get_serialization_id();
+            short id = ((x10.rtt.RuntimeType<?>) body).$_get_serialization_id();
             if (id <= MAX_HARDCODED_ID) {
                 write(id);
                 return;
             }   
+        }
+        
+        Integer pos = previous_position(body, true);
+        if (pos != null) {
+            return;
         }
 
         try {
