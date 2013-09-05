@@ -14,6 +14,7 @@ package x10.lang;
 import x10.compiler.*;
 
 import x10.util.GrowableRail;
+import x10.util.ArrayList;
 import x10.util.HashMap;
 import x10.util.Pair;
 
@@ -1088,15 +1089,37 @@ abstract class FinishState {
         // guarded by atomic { }
         static MAP = new HashMap[GlobalRef[FinishResilientDistributedMaster], FinishResilientDistributedBackup]();
 
+        static def fetchBackup (master:GlobalRef[FinishResilientDistributedMaster], cell:Cell[FinishResilientDistributedBackup]) : Boolean {
+            var place : Place = master.home;
+            while (true) {
+                place = place.next();
+                if (place == master.home) return false;
+                lowLevelFetch(place, ()=>{
+                    atomic {
+                        val r = MAP.getOrElse(master, null);
+                        if (r != null) {
+                            if (r.adopted) {
+                                Console.ERR.println("should not be adopted already! FinishResilientDistributedBackup.fetchBackup");
+                            }
+                            r.adopted = true;
+                            r.adoptedRoot = master;
+                        }
+                        return r;
+                    }
+                }, cell);
+            }
+        }
+
         val transit : Rail[Int];
         val live : Rail[Int];
-        val root : GlobalRef[FinishResilientDistributedMaster];
+        val children  = new ArrayList[GlobalRef[FinishResilientDistributedMaster]]();
+        var adopted : Boolean = false;
+        var adoptedRoot : GlobalRef[FinishResilientDistributedMaster];
 
         private def this(root:GlobalRef[FinishResilientDistributedMaster]) {
             this.transit = new Rail[Int](Place.MAX_PLACES * Place.MAX_PLACES, 0n);
             this.live = new Rail[Int](Place.MAX_PLACES, 0n);
-            this.root = root;
-            this.live(root.home.id) = 1n;
+            this.adoptedRoot = root;
         }
         static def make(root:GlobalRef[FinishResilientDistributedMaster]) {
             val nu = new FinishResilientDistributedBackup(root);
@@ -1131,10 +1154,10 @@ abstract class FinishState {
 
         val transit : Rail[Int];
         val live : Rail[Int];
-// FIXME:  commented out new/unused fields so that the build isn't broken...
-//        val transitAdopted : Rail[Int];
-//        val liveAdopted : Rail[Int];
-//        var children  = new GrowableRail[GlobalRef[FinishResilientDistributedMaster]]();
+        val transitAdopted : Rail[Int];
+        val liveAdopted : Rail[Int];
+        val children : ArrayList[GlobalRef[FinishResilientDistributedMaster]];
+        var numDead : Long;
 
         var multipleExceptions : GrowableRail[Exception] = null;
         val latch : SimpleLatch;
@@ -1155,7 +1178,11 @@ abstract class FinishState {
         private def this(latch:SimpleLatch) {
             this.transit = new Rail[Int](Place.MAX_PLACES * Place.MAX_PLACES, 0n);
             this.live = new Rail[Int](Place.MAX_PLACES, 0n);
+            this.transitAdopted = new Rail[Int](Place.MAX_PLACES * Place.MAX_PLACES, 0n);
+            this.liveAdopted = new Rail[Int](Place.MAX_PLACES, 0n);
+            this.children = new ArrayList[GlobalRef[FinishResilientDistributedMaster]]();
             this.live(here.id) = 1n;
+            this.numDead = 0;
             if (VERBOSE) Runtime.println("    initial live("+here.id+") == 1");
             this.latch = latch;
         }
@@ -1276,8 +1303,57 @@ abstract class FinishState {
             latch.unlock();
         }
 
+        // for each child, if that child is dead, take its counters and flag it
+        // recurse for other finishes under that one, if they are dead
+        private def pullUpDeadChildFinishes() {
+            val this_ = GlobalRef(this);
+            latch.lock();
+            for (var chindex:Long=0 ; chindex<children.size() ; ++chindex) {
+                val child = children(chindex);
+                if (!child.home.isDead()) continue;
+
+                // remove child
+                if (chindex!=children.size()-1) {
+                    children(chindex) = children(children.size()-1);
+                }
+                children.removeLast();
+                chindex--; // don't advance this iteration
+
+                // TODO: race condition -- what if we die after fetchBackup but before committing to our backup
+                // state would be inconsistent
+                val backup_cell = new Cell[FinishResilientDistributedBackup](null);
+                val found = FinishResilientDistributedBackup.fetchBackup(child, backup_cell);
+                if (!found) {
+                    Console.ERR.println("Fatal error: both master and backup finish store lost due to place failure.");
+                }
+                val bup = backup_cell();
+                children.addAll(bup.children);
+                for (i in 0..(Place.MAX_PLACES-1)) {
+                    liveAdopted(i) += bup.live(i);
+                    for (j in 0..(Place.MAX_PLACES-1)) {
+                        transitAdopted(j + i*Place.MAX_PLACES) += bup.transit(j + i*Place.MAX_PLACES);
+                    }
+                }
+
+                //TODO: commit new children to backup
+            }
+            latch.unlock();
+        }
+
+
         // must be called with latch locked
         private def quiescent() : Boolean {
+
+            // There is actually a race condition here (despite quiescent being called in a latch lock)
+            // The Place.isDead() can go to false between the pushUp() and the code after it, causing
+            // a finish to 
+            // TODO: store dead places in an array, use the same data to drive pushUp() and DPE generation
+
+            val nd = Place.numDead();
+            if (nd != numDead) {
+                numDead = nd;
+                pullUpDeadChildFinishes();
+            }
 
             // overwrite counters with 0 if places have died, accumuluate exceptions
             for (i in 0..(Place.MAX_PLACES-1)) {
@@ -1312,6 +1388,18 @@ abstract class FinishState {
                 for (j in 0..(Place.MAX_PLACES-1)) {
                     if (transit(i + j*Place.MAX_PLACES)>0) {
                         if (FinishState.VERBOSE) Runtime.println("    "+this+" In transit from "+i+" -> "+j);
+                        return false;
+                    }
+                }
+            }
+            for (i in 0..(Place.MAX_PLACES-1)) {
+                if (liveAdopted(i)>0) {
+                    if (VERBOSE) Runtime.println("    "+this+" Live (adopted) at "+i);
+                    return false;
+                }
+                for (j in 0..(Place.MAX_PLACES-1)) {
+                    if (transitAdopted(i + j*Place.MAX_PLACES)>0) {
+                        if (FinishState.VERBOSE) Runtime.println("    "+this+" In transit (adopted) from "+i+" -> "+j);
                         return false;
                     }
                 }
