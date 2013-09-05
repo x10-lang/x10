@@ -1131,9 +1131,10 @@ abstract class FinishState {
 
         val transit : Rail[Int];
         val live : Rail[Int];
-        val transitAdopted : Rail[Int];
-        val liveAdopted : Rail[Int];
-        var children  = new GrowableRail[GlobalRef[FinishResilientDistributedMaster]]();
+// FIXME:  commented out new/unused fields so that the build isn't broken...
+//        val transitAdopted : Rail[Int];
+//        val liveAdopted : Rail[Int];
+//        var children  = new GrowableRail[GlobalRef[FinishResilientDistributedMaster]]();
 
         var multipleExceptions : GrowableRail[Exception] = null;
         val latch : SimpleLatch;
