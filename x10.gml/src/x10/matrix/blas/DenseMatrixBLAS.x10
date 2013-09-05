@@ -11,6 +11,8 @@
 
 package x10.matrix.blas;
 
+import x10.compiler.CompilerFlags;
+
 import x10.matrix.Debug;
 import x10.matrix.DenseMatrix;
 import x10.matrix.Vector;
@@ -189,12 +191,14 @@ public class DenseMatrixBLAS {
 	 * @param plus   the add-on flag
 	 */
 	public static def comp(A:DenseMatrix, B:DenseMatrix, C:DenseMatrix, dim:Rail[Long], offset:Rail[Long], plus:Boolean):void {
-        Debug.assure(offset(0)+dim(0) <= A.M && offset(1)+dim(2) <= A.N,
-            offset(0)+"+"+dim(0) + " <= " + A.M + " && " + offset(1)+"+"+dim(2) + " <= " + A.N);
-        Debug.assure(offset(2)+dim(2) <= B.M && offset(3)+dim(1) <= B.N,
-            offset(2)+"+"+dim(2) + " <= " + B.M + " && " + offset(3)+"+"+dim(1) + " <= " + B.N);
-        Debug.assure(offset(4)+dim(0) <= C.M && offset(5)+dim(1) <= C.N,
-            offset(4)+"+"+dim(0) + " <= " + C.M + " && " + offset(5)+"+"+dim(1) + " <= " + C.N);
+        if (CompilerFlags.checkBounds()) {
+            Debug.assure(offset(0)+dim(0) <= A.M && offset(1)+dim(2) <= A.N,
+                offset(0)+"+"+dim(0) + " <= " + A.M + " && " + offset(1)+"+"+dim(2) + " <= " + A.N);
+            Debug.assure(offset(2)+dim(2) <= B.M && offset(3)+dim(1) <= B.N,
+                offset(2)+"+"+dim(2) + " <= " + B.M + " && " + offset(3)+"+"+dim(1) + " <= " + B.N);
+            Debug.assure(offset(4)+dim(0) <= C.M && offset(5)+dim(1) <= C.N,
+                offset(4)+"+"+dim(0) + " <= " + C.M + " && " + offset(5)+"+"+dim(1) + " <= " + C.N);
+        }
 
 		val scaling = new Rail[Double](2);
 		scaling(0) = 1.0;
@@ -300,12 +304,14 @@ public class DenseMatrixBLAS {
 	 * @param plus   the add-on flag
 	 */
 	public static def compTransMult(A:DenseMatrix, B:DenseMatrix, C:DenseMatrix, dim:Rail[Long], offset:Rail[Long], plus:Boolean):void {
-        Debug.assure(offset(0)+dim(2) <= A.M && offset(1)+dim(0) <= A.N,
-            offset(0)+"+"+dim(2) + " <= " + A.M + " && " + offset(1)+"+"+dim(0) + " <= " + A.N);
-        Debug.assure(offset(2)+dim(2) <= B.M && offset(3)+dim(1) <= B.N,
-            offset(2)+"+"+dim(2) + " <= " + B.M + " && " + offset(3)+"+"+dim(1) + " <= " + B.N);
-        Debug.assure(offset(4)+dim(0) <= C.M && offset(5)+dim(1) <= C.N,
-            offset(4)+"+"+dim(0) + " <= " + C.M + " && " + offset(5)+"+"+dim(1) + " <= " + C.N);
+        if (CompilerFlags.checkBounds()) {
+            Debug.assure(offset(0)+dim(2) <= A.M && offset(1)+dim(0) <= A.N,
+                offset(0)+"+"+dim(2) + " <= " + A.M + " && " + offset(1)+"+"+dim(0) + " <= " + A.N);
+            Debug.assure(offset(2)+dim(2) <= B.M && offset(3)+dim(1) <= B.N,
+                offset(2)+"+"+dim(2) + " <= " + B.M + " && " + offset(3)+"+"+dim(1) + " <= " + B.N);
+            Debug.assure(offset(4)+dim(0) <= C.M && offset(5)+dim(1) <= C.N,
+                offset(4)+"+"+dim(0) + " <= " + C.M + " && " + offset(5)+"+"+dim(1) + " <= " + C.N);
+        }
 
 		val scaling = new Rail[Double](2);
 		scaling(0) = 1.0;
@@ -406,12 +412,14 @@ public class DenseMatrixBLAS {
 	 * @param plus   the add-on flag
 	 */
 	public static def compMultTrans(A:DenseMatrix, B:DenseMatrix, C:DenseMatrix, dim:Rail[Long], offset:Rail[Long], plus:Boolean):void {
-        Debug.assure(offset(0)+dim(0) <= A.M && offset(1)+dim(2) <= A.N,
-            offset(0)+"+"+dim(0) + " <= " + A.M + " && " + offset(1)+"+"+dim(2) + " <= " + A.N);
-        Debug.assure(offset(2)+dim(1) <= B.M && offset(3)+dim(2) <= B.N,
-            offset(2)+"+"+dim(1) + " <= " + B.M + " && " + offset(3)+"+"+dim(2) + " <= " + B.N);
-        Debug.assure(offset(4)+dim(0) <= C.M && offset(5)+dim(1) <= C.N,
-            offset(4)+"+"+dim(0) + " <= " + C.M + " && " + offset(5)+"+"+dim(1) + " <= " + C.N);
+        if (CompilerFlags.checkBounds()) {
+            Debug.assure(offset(0)+dim(0) <= A.M && offset(1)+dim(2) <= A.N,
+                offset(0)+"+"+dim(0) + " <= " + A.M + " && " + offset(1)+"+"+dim(2) + " <= " + A.N);
+            Debug.assure(offset(2)+dim(1) <= B.M && offset(3)+dim(2) <= B.N,
+                offset(2)+"+"+dim(1) + " <= " + B.M + " && " + offset(3)+"+"+dim(2) + " <= " + B.N);
+            Debug.assure(offset(4)+dim(0) <= C.M && offset(5)+dim(1) <= C.N,
+                offset(4)+"+"+dim(0) + " <= " + C.M + " && " + offset(5)+"+"+dim(1) + " <= " + C.N);
+        }
 
 		val scaling = new Rail[Double](2);
 		scaling(0) = 1.0;
@@ -507,9 +515,14 @@ public class DenseMatrixBLAS {
 	 * @param plus   the add-on flag
 	 */
 	public static def compTransMultTrans(A:DenseMatrix, B:DenseMatrix, C:DenseMatrix, dim:Rail[Long], offset:Rail[Long], plus:Boolean):void {
-        Debug.assure(offset(0)+dim(2) <= A.M && offset(1)+dim(0) <= A.N);
-        Debug.assure(offset(2)+dim(1) <= B.M && offset(3)+dim(2) <= B.N);
-        Debug.assure(offset(4)+dim(0) <= C.M && offset(5)+dim(1) <= C.N);
+        if (CompilerFlags.checkBounds()) {
+            Debug.assure(offset(0)+dim(2) <= A.M && offset(1)+dim(0) <= A.N,
+                offset(0)+"+"+dim(2) + " <= " + A.M + " && " + offset(1)+"+"+dim(0) + " <= " + A.N);
+            Debug.assure(offset(2)+dim(1) <= B.M && offset(3)+dim(2) <= B.N,
+                offset(2)+"+"+dim(1) + " <= " + B.M + " && " + offset(3)+"+"+dim(2) + " <= " + B.N);
+            Debug.assure(offset(4)+dim(0) <= C.M && offset(5)+dim(1) <= C.N,
+                offset(4)+"+"+dim(0) + " <= " + C.M + " && " + offset(5)+"+"+dim(1) + " <= " + C.N);
+        }
 
 		val scaling = new Rail[Double](2);
 		scaling(0) = 1.0;
