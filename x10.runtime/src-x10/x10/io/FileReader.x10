@@ -14,6 +14,11 @@ package x10.io;
 import x10.compiler.Native;
 import x10.compiler.NativeRep;
 
+/**
+ * A reader that reads its data from a File.
+ * Note: The backing InputStream is implicitly created with 
+ *       buffering enabled at the native layer.
+ */
 public class FileReader extends InputStreamReader {
     // TODO: This is questionable.
     //       What does it mean to send a File to another node?

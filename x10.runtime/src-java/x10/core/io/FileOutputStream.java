@@ -15,6 +15,9 @@ import x10.rtt.NamedType;
 import x10.rtt.RuntimeType;
 import x10.rtt.Type;
 
+/*
+ * NOTE: In X10, all FileOutputStreams are buffered (matches libC)
+ */
 public class FileOutputStream extends OutputStream {
     
     private static final long serialVersionUID = 1L;
@@ -26,7 +29,7 @@ public class FileOutputStream extends OutputStream {
 
     public final FileOutputStream x10$io$FileReader$FileOutputStream$$init$S(String name, boolean append) {
         try {
-            super.x10$io$OutputStreamWriter$OutputStream$$init$S(new java.io.FileOutputStream(name, append));
+            super.x10$io$OutputStreamWriter$OutputStream$$init$S(new java.io.BufferedOutputStream(new java.io.FileOutputStream(name, append)));
             return this;
         } catch (java.io.FileNotFoundException e) {
             throw new x10.io.FileNotFoundException(e.getMessage());
