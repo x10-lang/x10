@@ -88,7 +88,7 @@ namespace x10aux {
 
     // copy bulk data of size n of a given length, with Endian encoding/decoding support
     inline void copy_bulk(void *dest, const void *src, x10_long length, size_t n) {
-        #if !defined(HOMOGENEOUS) && (defined(__i386__) && defined(__x86_64__))
+        #if !defined(HOMOGENEOUS) && (defined(__i386__) || defined(__x86_64__))
         unsigned char *x = (unsigned char*) dest;
         unsigned char *y = (unsigned char*) src;
         for (x10_long k=0; k<length; k++) {
