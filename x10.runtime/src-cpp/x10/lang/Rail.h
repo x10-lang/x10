@@ -264,7 +264,8 @@ template<class T> x10::lang::Rail<T>* x10::lang::Rail<T>::_makeUnsafe(x10_long s
     if (size < 0) throwNegativeArraySizeException();
     bool containsPtrs = x10aux::getRTT<T>()->containsPtrs;
     x10_long numElems = size;
-    size_t numBytes = sizeof(x10::lang::Rail<T>) -sizeof(T) + (numElems * sizeof(T)); // -sizeof(T) accounts for raw[1]
+    x10_long allocElems = numElems > 0 ? numElems - 1 : numElems;   // account for raw[1]
+    size_t numBytes = sizeof(x10::lang::Rail<T>) + (allocElems * sizeof(T)); 
     x10::lang::Rail<T>* this_ = new (x10aux::alloc_internal(numBytes, containsPtrs)) x10::lang::Rail<T>(numElems);
 
     if (allocateZeroed) {
@@ -277,7 +278,8 @@ template<class T> x10::lang::Rail<T>* x10::lang::Rail<T>::_makeUnsafe(x10_long s
 template<class T> x10::lang::Rail<T>* x10::lang::Rail<T>::_make(x10::lang::Rail<T>* src) {
     bool containsPtrs = x10aux::getRTT<T>()->containsPtrs;
     x10_long numElems = x10aux::nullCheck(src)->FMGL(size);
-    size_t numBytes = sizeof(x10::lang::Rail<T>) -sizeof(T) + (numElems * sizeof(T)); // -sizeof(T) accounts for raw[1]
+    x10_long allocElems = numElems > 0 ? numElems - 1 : numElems;   // account for raw[1]
+    size_t numBytes = sizeof(x10::lang::Rail<T>) + (allocElems * sizeof(T));
     x10::lang::Rail<T>* this_ = new (x10aux::alloc_internal(numBytes, containsPtrs)) x10::lang::Rail<T>(numElems);
 
     rail_copyRaw(&src->raw, &this_->raw, numElems*sizeof(T), false);
@@ -293,7 +295,8 @@ template<class T> x10::lang::Rail<T>* x10::lang::Rail<T>::_make(x10_long size) {
     if (size < 0) throwNegativeArraySizeException();
     bool containsPtrs = x10aux::getRTT<T>()->containsPtrs;
     x10_long numElems = size;
-    size_t numBytes = sizeof(x10::lang::Rail<T>) -sizeof(T) + (numElems * sizeof(T)); // -sizeof(T) accounts for raw[1]
+    x10_long allocElems = numElems > 0 ? numElems - 1 : numElems;   // account for raw[1]
+    size_t numBytes = sizeof(x10::lang::Rail<T>) + (allocElems * sizeof(T));
     x10::lang::Rail<T>* this_ = new (x10aux::alloc_internal(numBytes, containsPtrs)) x10::lang::Rail<T>(numElems);
 
     memset(&(this_->raw), 0, size*sizeof(T));
@@ -308,7 +311,8 @@ template<class T> x10::lang::Rail<T>* x10::lang::Rail<T>::_make(x10_long size, T
     if (size < 0) throwNegativeArraySizeException();
     bool containsPtrs = x10aux::getRTT<T>()->containsPtrs;
     x10_long numElems = size;
-    size_t numBytes = sizeof(x10::lang::Rail<T>) -sizeof(T) + (numElems * sizeof(T)); // -sizeof(T) accounts for raw[1]
+    x10_long allocElems = numElems > 0 ? numElems - 1 : numElems;   // account for raw[1]
+    size_t numBytes = sizeof(x10::lang::Rail<T>) + (allocElems * sizeof(T));
     x10::lang::Rail<T>* this_ = new (x10aux::alloc_internal(numBytes, containsPtrs)) x10::lang::Rail<T>(numElems);
 
     for (x10_long i = 0ll; i < size; i++) {
@@ -326,7 +330,8 @@ template<class T> x10::lang::Rail<T>* x10::lang::Rail<T>::_make(x10_long size, x
     if (size < 0) throwNegativeArraySizeException();
     bool containsPtrs = x10aux::getRTT<T>()->containsPtrs;
     x10_long numElems = size;
-    size_t numBytes = sizeof(x10::lang::Rail<T>) -sizeof(T) + (numElems * sizeof(T)); // -sizeof(T) accounts for raw[1]
+    x10_long allocElems = numElems > 0 ? numElems - 1 : numElems;   // account for raw[1]
+    size_t numBytes = sizeof(x10::lang::Rail<T>) + (allocElems * sizeof(T));
     x10::lang::Rail<T>* this_ = new (x10aux::alloc_internal(numBytes, containsPtrs)) x10::lang::Rail<T>(numElems);
 
     if (size > 0) {
@@ -355,7 +360,8 @@ template<class T> x10::lang::Rail<T>* x10::lang::Rail<T>::_make(x10_long size, x
     if (size < 0) throwNegativeArraySizeException();
     bool containsPtrs = x10aux::getRTT<T>()->containsPtrs;
     x10_long numElems = size;
-    size_t numBytes = sizeof(x10::lang::Rail<T>) -sizeof(T) + (numElems * sizeof(T)); // -sizeof(T) accounts for raw[1]
+    x10_long allocElems = numElems > 0 ? numElems - 1 : numElems;   // account for raw[1]
+    size_t numBytes = sizeof(x10::lang::Rail<T>) + (allocElems * sizeof(T));
 
     x10::lang::Rail<T>* this_;
     if (alloc->FMGL(congruent)) {
@@ -527,7 +533,8 @@ template<class T> void x10::lang::Rail<T>::_serialize_body(x10aux::serialization
 template<class T> x10::lang::Reference* x10::lang::Rail<T>::_deserializer(x10aux::deserialization_buffer& buf) {
     bool containsPtrs = x10aux::getRTT<T>()->containsPtrs;
     x10_long numElems = buf.read<x10_long>();
-    size_t numBytes = sizeof(x10::lang::Rail<T>) -sizeof(T) + (numElems * sizeof(T)); // -sizeof(T) accounts for raw[1]
+    x10_long allocElems = numElems > 0 ? numElems - 1 : numElems;   // account for raw[1]
+    size_t numBytes = sizeof(x10::lang::Rail<T>) + (allocElems * sizeof(T));
     x10::lang::Rail<T>* this_ = new (x10aux::alloc_internal(numBytes, containsPtrs)) x10::lang::Rail<T>(numElems);
 
     buf.record_reference(this_);
