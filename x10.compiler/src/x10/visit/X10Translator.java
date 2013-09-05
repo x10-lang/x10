@@ -297,9 +297,9 @@ public class X10Translator extends Translator {
                 // invoke ecj with Java Compiler API (JSR 199)
                 javax.tools.JavaCompiler javac = null;
                 // look up user-specified java compiler from classpath and ${x10.dist}/lib/ecj.jar
-                String javac_jar = System.getProperty("x10.dist") + File.separator + "lib" + File.separator + System.getProperty("x10c.ecj.jar", "ecj.jar");
-                java.net.URL javac_url = new java.io.File(javac_jar).toURI().toURL();
-                ClassLoader cl = new java.net.URLClassLoader(new java.net.URL[] { javac_url });
+                String ecj_path = ((X10CCompilerOptions) options).x10_dist + File.separator + "lib" + File.separator + ((X10CCompilerOptions) options).ecj_jar;
+                java.net.URL ecj_url = new java.io.File(ecj_path).toURI().toURL();
+                ClassLoader cl = new java.net.URLClassLoader(new java.net.URL[] { ecj_url });
                 java.util.Iterator<javax.tools.JavaCompiler> iter = java.util.ServiceLoader.load(javax.tools.JavaCompiler.class, cl).iterator();
                 while (iter.hasNext()) {
                     try {
@@ -376,10 +376,9 @@ public class X10Translator extends Translator {
                     if (main_class != null) {
                         // add Main-Class attribute for executable jar
                         out.println("Main-Class: " + main_class + "$" + X10PrettyPrinterVisitor.MAIN_CLASS);
-                        // N.B. Following jar files should be same as the ones used in X10CCompilerOptions.setDefaultValues()
-                        String x10_jar = "x10.jar";
-                        String math_jar = System.getProperty("x10c.math.jar", "commons-math3-3.2.jar");
-                        String log_jar = System.getProperty("x10c.log.jar",  "commons-logging-1.1.3.jar");
+                        String x10_jar = ((X10CCompilerOptions) options).x10_jar;
+                        String math_jar = ((X10CCompilerOptions) options).math_jar;
+                        String log_jar = ((X10CCompilerOptions) options).log_jar;
                         // XTENLANG-2722
                         // need a new preloading mechanism which does not use classloader to determine system classes
                         out.println("Class-Path: " + x10_jar + " " + math_jar + " " + log_jar);
