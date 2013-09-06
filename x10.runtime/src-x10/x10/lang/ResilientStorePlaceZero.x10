@@ -13,6 +13,7 @@ package x10.lang;
 
 import x10.compiler.*;
 
+import x10.util.Pair;
 import x10.util.GrowableRail;
 import x10.util.concurrent.AtomicLong;
 import x10.util.concurrent.AtomicBoolean;
@@ -113,8 +114,10 @@ class ResilientStorePlaceZero {
         def adopt(child:State) : void {
             for (i in 0..(Place.MAX_PLACES-1)) {
                 liveAdopted(i) += child.live(i);
+                liveAdopted(i) += child.liveAdopted(i);
                 for (j in 0..(Place.MAX_PLACES-1)) {
                     transitAdopted(j + i*Place.MAX_PLACES) += child.transit(j + i*Place.MAX_PLACES);
+                    transitAdopted(j + i*Place.MAX_PLACES) += child.transitAdopted(j + i*Place.MAX_PLACES);
                 }
             }
             child.adopted = true;
@@ -150,15 +153,25 @@ class ResilientStorePlaceZero {
 
     static def getStateAccountingForAdoption(id:Long) {
         var fs:State = me.states(id);
-        while (fs.adopted) fs = me.states(fs.adoptedParent);
-        return fs;
+        var adopted : Boolean = false;
+        while (fs.adopted) {
+            adopted = true;
+            fs = me.states(fs.adoptedParent);
+        }
+        return Pair(fs, adopted);
     }
 
     static def notifySubActivitySpawn(id:Long, srcId:Long, dstId:Long) {
         lowLevelAt(() => { atomic {
             if (FinishState.VERBOSE) Runtime.println("notifySubActivitySpawn("+id+", "+srcId+", "+dstId+")");
-            val fs = getStateAccountingForAdoption(id);
-            fs.transit(srcId + dstId*Place.MAX_PLACES)++;
+            val pair = getStateAccountingForAdoption(id);
+            val fs = pair.first;
+            val adopted = pair.second;
+            if (adopted) {
+                fs.transitAdopted(srcId + dstId*Place.MAX_PLACES)++;
+            } else {
+                fs.transit(srcId + dstId*Place.MAX_PLACES)++;
+            }
             if (FinishState.VERBOSE) Runtime.println("    transit("+srcId+","+dstId+") == "+fs.transit(srcId + dstId*Place.MAX_PLACES));
         } });
     }
@@ -167,9 +180,16 @@ class ResilientStorePlaceZero {
         return 1l==lowLevelAtExprLong(() => { atomic {
             if (FinishState.VERBOSE) Runtime.println("notifyActivityCreation("+id+", "+srcId+", "+dstId+")");
             if (Place(srcId).isDead()) return 0l;
-            val fs = getStateAccountingForAdoption(id);
-            fs.live(dstId)++;
-            fs.transit(srcId + dstId*Place.MAX_PLACES)--;
+            val pair = getStateAccountingForAdoption(id);
+            val fs = pair.first;
+            val adopted = pair.second;
+            if (adopted) {
+                fs.liveAdopted(dstId)++;
+                fs.transitAdopted(srcId + dstId*Place.MAX_PLACES)--;
+            } else {
+                fs.live(dstId)++;
+                fs.transit(srcId + dstId*Place.MAX_PLACES)--;
+            }
             if (FinishState.VERBOSE) Runtime.println("    live("+dstId+") == "+fs.live(dstId));
             if (FinishState.VERBOSE) Runtime.println("    transit("+srcId+","+dstId+") == "+fs.transit(srcId + dstId*Place.MAX_PLACES));
             return 1l;
@@ -179,8 +199,14 @@ class ResilientStorePlaceZero {
     static def notifyActivityTermination(id:Long, dstId:Long) {
         lowLevelAt(() => { atomic {
             if (FinishState.VERBOSE) Runtime.println("notifyActivityTermination("+id+", "+dstId+")");
-            val fs = getStateAccountingForAdoption(id);
-            fs.live(dstId)--;
+            val pair = getStateAccountingForAdoption(id);
+            val fs = pair.first;
+            val adopted = pair.second;
+            if (adopted) {
+                fs.liveAdopted(dstId)--;
+            } else {
+                fs.live(dstId)--;
+            }
             if (FinishState.VERBOSE) Runtime.println("    live("+dstId+") == "+fs.live(dstId));
             if (fs.latch != null && me.quiescent(fs)) {
                 if (FinishState.VERBOSE) Runtime.println("    Releasing latch...");
@@ -235,18 +261,22 @@ class ResilientStorePlaceZero {
                     fs.addDeadPlaceException(Place(i));
                 }
                 fs.live(i) = 0n;
+                fs.liveAdopted(i) = 0n;
 
                 // kill horizontal and vertical lines in transit matrix
                 for (j in 0..(Place.MAX_PLACES-1)) {
-                    for (unused in 1..fs.transit(i + j*Place.MAX_PLACES)) {
-                        fs.addDeadPlaceException(Place(i));
-                    }
+                    // do not generate DPEs for these guys, they were technically never sent!
+                    //for (unused in 1..fs.transit(i + j*Place.MAX_PLACES)) {
+                    //    fs.addDeadPlaceException(Place(i));
+                    //}
                     fs.transit(i + j*Place.MAX_PLACES) = 0n;
+                    fs.transitAdopted(i + j*Place.MAX_PLACES) = 0n;
 
                     for (unused in 1..fs.transit(j + i*Place.MAX_PLACES)) {
                         fs.addDeadPlaceException(Place(i));
                     }
                     fs.transit(j + i*Place.MAX_PLACES) = 0n;
+                    fs.transitAdopted(j + i*Place.MAX_PLACES) = 0n;
                 }
             }
         }

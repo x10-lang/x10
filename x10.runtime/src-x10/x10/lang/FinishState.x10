@@ -31,7 +31,7 @@ import x10.io.Serializer;
 abstract class FinishState {
 
     // Turn this on to debug deadlocks within the finish implementation
-    static VERBOSE = false;
+    static VERBOSE = Configuration.envOrElse("X10_FINISH_VERBOSE", false);
 
     abstract def notifySubActivitySpawn(place:Place):void;
     abstract def notifyActivityCreation(srcPlace:Place):Boolean;
@@ -1176,6 +1176,7 @@ abstract class FinishState {
         }
 
         private def this(latch:SimpleLatch) {
+            if (VERBOSE) Runtime.println("Creating finish state...");
             this.transit = new Rail[Int](Place.MAX_PLACES * Place.MAX_PLACES, 0n);
             this.live = new Rail[Int](Place.MAX_PLACES, 0n);
             this.transitAdopted = new Rail[Int](Place.MAX_PLACES * Place.MAX_PLACES, 0n);
@@ -1188,6 +1189,7 @@ abstract class FinishState {
         }
         static def make(latch:SimpleLatch) {
             val nu = new FinishResilientDistributedMaster(latch);
+            if (VERBOSE) Runtime.println("    finish state is "+nu);
             val gnu = GlobalRef[FinishResilientDistributedMaster](nu);
 
             if (here.id == 0) {
@@ -1362,18 +1364,22 @@ abstract class FinishState {
                         addDeadPlaceException(Place(i));
                     }
                     live(i) = 0n;
+                    liveAdopted(i) = 0n;
 
                     // kill horizontal and vertical lines in transit matrix
                     for (j in 0..(Place.MAX_PLACES-1)) {
-                        for (unused in 1..transit(i + j*Place.MAX_PLACES)) {
-                            addDeadPlaceException(Place(i));
-                        }
+                        // Do not generate DPEs for these activities, they were never sent
+                        //for (unused in 1..transit(i + j*Place.MAX_PLACES)) {
+                        //    addDeadPlaceException(Place(i));
+                        //}
                         transit(i + j*Place.MAX_PLACES) = 0n;
+                        transitAdopted(i + j*Place.MAX_PLACES) = 0n;
 
                         for (unused in 1..transit(j + i*Place.MAX_PLACES)) {
                             addDeadPlaceException(Place(i));
                         }
                         transit(j + i*Place.MAX_PLACES) = 0n;
+                        transitAdopted(j + i*Place.MAX_PLACES) = 0n;
                     }
                 }
             }
