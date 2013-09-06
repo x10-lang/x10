@@ -367,11 +367,15 @@
         <pathconvert property="xrx.list" refid="changed.xrx.files" dirsep="/" pathsep=" ">
             <map from="${basedir}${file.separator}src-x10${file.separator}" to=""/>
         </pathconvert>
-        <echo message="x10c ${x10c.optimize} ${x10c.experimental} ${x10c.eliminate_dead_variables} ${x10c.copy_propagation} ${x10c.no_checks} -c ${xrx.list}"/>
+	<tempfile destdir="${java.io.tmpdir}" prefix="XRXChanges" property="xrx.filelist"/>
+	<echo file="${xrx.filelist}" message="${xrx.list}"/>
+	<echo message="Compiling X10 source files ${xrx.list}"/>
+        <echo message="x10c ${x10c.optimize} ${x10c.experimental} ${x10c.eliminate_dead_variables} ${x10c.copy_propagation} ${x10c.no_checks} @${xrx.filelist}"/>
         <exec executable="${bash.exe}" failonerror="true" dir="${basedir}/src-x10">
             <arg value="-c" />
-            <arg value="'${x10.dist.location}/bin/x10c' -J-Xmx1024M ${x10c.optimize} ${x10c.experimental} ${x10c.eliminate_dead_variables} ${x10c.copy_propagation} ${x10c.no_checks} -d '${gen}' -J-ea -rtdev -sourcepath . -STATIC_CHECKS -commandlineonly -c ${xrx.list}" />
+            <arg value="'${x10.dist.location}/bin/x10c' -J-Xmx1024M ${x10c.optimize} ${x10c.experimental} ${x10c.eliminate_dead_variables} ${x10c.copy_propagation} ${x10c.no_checks} -d '${gen}' -J-ea -rtdev -sourcepath . -STATIC_CHECKS -commandlineonly -c @'${xrx.filelist}'" />
         </exec>
+	<delete file="${xrx.filelist}" quiet="true"/>
     </target>
     <target name="build-xrx" depends="init,gen-xrx,build-java">
         <!--
