@@ -207,19 +207,42 @@ protected class DriverBLAS {
 				scale:Rail[Double],
 				trans:Rail[Int]):void;
 
-	// C = alpha*A*A**T + beta*C
-	/**
-	 * Compute mC(N,N) = alpha &#42 mA(N,K) &#42 mA(K,N)' + beta &#42 mC(N,N).
-	 *
-	 * @param mA     the first matrix in multiplication
-         * @param mC     the output matrix
-         * @param dim    dimension array [N, K], which are rows of mA and columns of mA.
-	 * @param scale  scaling [alpha, beta] applied to the matrix mA and output matrix
-         * @param upper if true, update upper half of mC; otherwise update lower half
-	 * @param trans  whether to transpose mA
-	 *
-	 */
+    // C = alpha*A*A**T + beta*C
+    /**
+     * Compute mC(N,N) = alpha &#42 mA(N,K) &#42 mA(K,N)' + beta &#42 mC(N,N).
+     *
+     * @param mA     the first matrix in multiplication
+     * @param mC     the output matrix
+     * @param dim    dimension array [N, K], which are rows of mA and columns of mA.
+     * @param offset row and column offsets [Ar, Ac, Br, Bc, Cr, Cc] into matrices
+     * @param scale  scaling [alpha, beta] applied to the matrix mA and output matrix
+     * @param upper if true, update upper half of mC; otherwise update lower half
+     * @param trans  whether to transpose mA
+     */
+    @Native("java","WrapBLAS.symRankKUpdateOff((#1).getDoubleArray(),(#2).getDoubleArray(),(#3).getLongArray(),(#4).getLongArray(),(#5).getLongArray(),(#6).getDoubleArray(),(#7),(#8))")
+    @Native("c++","sym_rank_k_update((#1)->raw,(#2)->raw,(#3)->raw,(#4)->raw,(#5)->raw,(#6)->raw,(#7),(#8))")
+    public static native def sym_rank_k_update(
+        mA:Rail[Double],
+        mC:Rail[Double],
+        dim:Rail[Long],
+        ld:Rail[Long],
+        offset:Rail[Long],
+        scale:Rail[Double],
+        upper:Boolean,
+        trans:Boolean
+    ):void;
 
+    // C = alpha*A*A**T + beta*C
+    /**
+     * Compute mC(N,N) = alpha &#42 mA(N,K) &#42 mA(K,N)' + beta &#42 mC(N,N).
+     *
+     * @param mA     the first matrix in multiplication
+     * @param mC     the output matrix
+     * @param dim    dimension array [N, K], which are rows of mA and columns of mA.
+     * @param scale  scaling [alpha, beta] applied to the matrix mA and output matrix
+     * @param upper if true, update upper half of mC; otherwise update lower half
+     * @param trans  whether to transpose mA
+     */
     @Native("java","WrapBLAS.symRankKUpdate((#1).getDoubleArray(),(#2).getDoubleArray(),(#3).getLongArray(),(#4).getDoubleArray(),(#5),(#6))")
     @Native("c++","sym_rank_k_update((#1)->raw,(#2)->raw,(#3)->raw,(#4)->raw,(#5),(#6))")
     public static native def sym_rank_k_update(

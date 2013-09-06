@@ -1315,9 +1315,9 @@ void matrix_matrix_mult(double* A, double* B, double* C, blas_long* dim,
   blas_long  lda = ld[0];
   blas_long  ldb = ld[1];
   blas_long  ldc = ld[2];
-  blas_long  offsetA = offset[0] + offset[1]*ld[0];
-  blas_long  offsetB = offset[2] + offset[3]*ld[1];
-  blas_long  offsetC = offset[4] + offset[5]*ld[2];
+  blas_long  offsetA = offset[0] + offset[1]*lda;
+  blas_long  offsetB = offset[2] + offset[3]*ldb;
+  blas_long  offsetC = offset[4] + offset[5]*ldc;
   double alpha = scale[0];
   double beta  = scale[1];
   //printf("call dgemm: %d %d %d, %c %c\n", m, n, k, transA, transB); fflush(stdout);
@@ -1400,6 +1400,41 @@ void matrix_matrix_mult(double* A, double* B, double* C, blas_long* dim,
 		 &alpha, A, &lda,
 		         B, &ldb, 
 		 &beta,  C, &ldc);
+#endif
+#else
+  printf("BLAS is not added in GML build.\n");
+  printf("Uncomment the line: add_blas = yes in system_setting.mk, and make sure blas lib and path names are correct\n");
+  fflush(stdout);
+  exit(1);
+#endif
+}
+
+// C = alpha*A*A**T + beta*C
+void sym_rank_k_update(double* A, double* C, blas_long* dim, 
+                       blas_long* ld, blas_long* offset, double* scale, bool upper, bool trans)
+{
+#ifdef ENABLE_BLAS
+  char uplo = (upper)?'U':'L'; // upper / lower triangular
+  char transA = (trans)?'T':'N';
+  blas_long  n = dim[0];
+  blas_long  k = dim[1];
+  blas_long  lda = ld[0];
+  blas_long  ldc = ld[1];
+  blas_long  offsetA = offset[0] + offset[1]*lda;
+  blas_long  offsetC = offset[2] + offset[3]*ldc;
+  double alpha = scale[0];
+  double beta  = scale[1];
+  //printf("call dsyrk: trans=%c, %d %d %d %d\n", transA, n, k, lda, ldc); fflush(stdout);
+#if defined(__bgp__)
+  dsyrk(&uplo, &transA,
+        &n, &k,
+        &alpha, A+offsetA, &lda,
+        &beta,  C+offsetC, &ldc);
+#else
+  dsyrk_(&uplo, &transA,
+         &n, &k,
+         &alpha, A+offsetA, &lda,
+         &beta,  C+offsetC, &ldc);
 #endif
 #else
   printf("BLAS is not added in GML build.\n");

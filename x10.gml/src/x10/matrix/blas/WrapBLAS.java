@@ -31,6 +31,7 @@ public class WrapBLAS {
 	public static native void matmatMultLd(double[] A, double[] B, double[] C, long[] dim, long[] ld, double[] scale, int[] trans);
 	public static native void matmatMult(double[] A, double[] B, double[] C, long[] dim, double[] scale, int[] trans);
 
+	public static native void symRankKUpdateOff(double[] A, double[] C, long[] dim, long[] ld, long[] off, double[] scale, boolean upper, boolean trans);
 	public static native void symRankKUpdate(double[] A, double[] C, long[] dim, double[] scale, boolean upper, boolean trans);
 
 	public static native void symmatMult(double[] A, double[] B, double[] C, long[] dim, double[] scale);

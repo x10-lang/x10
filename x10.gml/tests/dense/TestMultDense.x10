@@ -47,6 +47,7 @@ public class TestMultDense{
 			ret &= (testMultDrivers());
 			ret &= (testMatMultVector());
 			ret &= (testSymRankKUpdate());
+			ret &= (testSymRankKUpdateOffset());
 			//ret &= (mm.testSmallMult());
 			
 			if (ret)
@@ -288,6 +289,43 @@ public class TestMultDense{
 				Console.OUT.println("Dense matrix X10 symmetric rank-K update driver test passed!");
 			else
 				Console.OUT.println("-----Dense matrix X10 symmetric rank-K update driver test failed!-----");
+			return ret;
+		}
+
+        public def testSymRankKUpdateOffset():Boolean {
+			Console.OUT.printf("\nTest X10 symmetric rank-K update with offsets: (%dx%d) * (%dx%d)\n",
+					M, M, M, M);
+			val a:DenseMatrix(M,M) = DenseMatrix.makeRand(M, M);
+            // force matrix A to be symmetric
+            for (m in 0..(M-1)) {
+                for (n in 0..(m-1)) {
+                    a(n,m) = a(m,n);
+                }
+            }
+			val c:DenseMatrix(a.M,a.N) = DenseMultXTen.comp(a, a);
+
+			val half = M / 2;
+
+            // calculate the top left quadrant of A*A^T, but write it into the bottom left quadrant of C
+            val partC = new DenseMatrix(M, M);
+            DenseMatrixBLAS.symRankKUpdate(a, partC, [M - half, N], [0, 0, half, 0], false, false);
+
+            // check the calculated quadrant is the same for matmul and rank-K update
+            var ret:Boolean=true;
+            for (m in 0..(half-1)) {
+                for (n in 0..(m-1)) {
+                    val same = MathTool.equals(c(m,n), partC(m+half,n));
+                    if (!same) {
+                        Console.OUT.println("c("+m+","+n+") = " + c(m,n) + " != partC("+(m+half)+","+n+") = " + partC(m+half,n));
+                    }
+                    ret &= same;
+                }
+            }
+			
+			if (ret)
+				Console.OUT.println("Dense matrix X10 symmetric rank-K update with offsets passed!");
+			else
+				Console.OUT.println("-----Dense matrix X10 symmetric rank-K update with offsets failed!-----");
 			return ret;
 		}
 		

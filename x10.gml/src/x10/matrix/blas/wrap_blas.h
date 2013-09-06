@@ -45,6 +45,10 @@ void matrix_matrix_mult(double* A, double* B, double* C,
 						blas_long* dim, double* scale, int* trans);
 
 // C = alpha*A*A**T + beta*C
+void sym_rank_k_update(double* A, double* C, blas_long* dim, blas_long* ld,
+                       blas_long* offset, double* scale, bool upper, bool trans);
+
+// C = alpha*A*A**T + beta*C
 void sym_rank_k_update(double* A, double* C, blas_long* dim, 
                        double* scale, bool upper, bool trans);
 
