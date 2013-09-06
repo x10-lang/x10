@@ -99,6 +99,10 @@ public struct GlobalRef[T](
     @Native("c++", "(#this)->hashCode()")
     public native def hashCode():Int;
 
+    @Native("java", "(#this).isNull()")
+    @Native("c++", "(#this)->isNull()")
+    public native def isNull():Boolean;
+
     private static class LocalEval {
         /**
          * Evaluates the given closure at the home place of <code>ref</code>.

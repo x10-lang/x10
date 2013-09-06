@@ -68,6 +68,8 @@ namespace x10 {
     
             x10_boolean _struct_equals(GlobalRef<T> that);
     
+            x10_boolean isNull();
+    
             x10::lang::String* toString();
     
             x10_int hashCode();
@@ -167,17 +169,22 @@ template<class T> x10_boolean x10::lang::GlobalRef<T>::_struct_equals(x10::lang:
     return (location == that->location) && x10aux::struct_equals(value, that->value);
 }
 
+template<class T> x10_boolean x10::lang::GlobalRef<T>::isNull() {
+    return value == 0;
+}
+
 template<class T> x10::lang::String* x10::lang::GlobalRef<T>::toString() {
-    char* tmp = x10aux::alloc_printf("x10.lang.GlobalRef<%s>", x10aux::getRTT<T>()->name());
+    char* tmp = x10aux::alloc_printf("GlobalRef[%s](%lld, 0x%llx)", x10aux::getRTT<T>()->name(), (long long) location, (long long)value);
     return x10::lang::String::Steal(tmp);
 }
 
 template<class T> x10_int x10::lang::GlobalRef<T>::hashCode() {
+    // TODO: match this implementation with the java GlobalRef.hashCode
     return (x10_int)value;
 }
 
 template<class T> x10::lang::String* x10::lang::GlobalRef<T>::typeName() {
-    char* tmp = x10aux::alloc_printf("x10.lang.GlobalRef<%s>", x10aux::getRTT<T>()->name());
+    char* tmp = x10aux::alloc_printf("x10.lang.GlobalRef[%s]", x10aux::getRTT<T>()->name());
     return x10::lang::String::Steal(tmp);
 }
 

@@ -464,6 +464,10 @@ public final class GlobalRef<T> extends x10.core.Struct implements Externalizabl
     // synthetic type for parameter mangling
     public abstract static class __0x10$lang$GlobalRef$$T {}
 
+    public boolean isNull() {
+        return id == 0L;
+    }
+
     private void globalize() {
         if (isGlobalized()) return; // allready allocated
         assert (T != null);
@@ -492,7 +496,8 @@ public final class GlobalRef<T> extends x10.core.Struct implements Externalizabl
     @Override
     final public java.lang.String toString() {
         globalize(); // necessary to decide the id for this object
-        return "GlobalRef(" + this.home + "," + this.id + ")";
+        // correctness of this requires that this.id is never < 0
+        return "GlobalRef["+T+"](" + this.home + ", 0x" + (isNull() ? "0" : java.lang.Long.toString(this.id, 16)) + ")";
     }
 
     @Override
