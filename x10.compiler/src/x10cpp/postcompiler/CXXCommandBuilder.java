@@ -108,7 +108,7 @@ public class CXXCommandBuilder {
 
     
     protected final boolean usingXLC() {
-        return defaultPostCompiler().contains("xlC");
+        return defaultPostCompiler().contains("xlC") || defaultPostCompiler().contains("mpCC");
     }
     
     protected final boolean bluegene() {
