@@ -41,24 +41,24 @@ endif
 #CXXFLAGS += -H
 
 ifdef OPTIMIZE
-  CXXFLAGS += -DNO_TRACING
-  X10CPPFLAGS += -optimize
+  override CXXFLAGS += -DNO_TRACING
+  override X10CPPFLAGS += -optimize
 endif
 ifdef NO_CHECKS
-  CXXFLAGS += -DNO_CHECKS
-  X10CPPFLAGS += -NO_CHECKS
+  override CXXFLAGS += -DNO_CHECKS
+  override X10CPPFLAGS += -NO_CHECKS
 endif
 ifdef EXPERIMENTAL
-  X10CPPFLAGS += -EXPERIMENTAL
+  override X10CPPFLAGS += -EXPERIMENTAL
 endif
 
 ifdef ENABLE_GCC_SYMBOLS
-  CXXFLAGS += -g
+  override CXXFLAGS += -g
 endif
 
 ifdef DEBUG
-  CXXFLAGS += -g -DDEBUG_SUPPORT
-  X10CPPFLAGS += -DEBUG
+  override CXXFLAGS += -g -DDEBUG_SUPPORT
+  override X10CPPFLAGS += -DEBUG
 endif
 
 # This has to be here, because it impacts x10rt_types.h
@@ -70,7 +70,7 @@ endif
 
 # Impacts inline functions in header files, so it has to be sticky in the properties file
 ifdef HOMOGENEOUS
-  CXXFLAGS += -DHOMOGENEOUS
+  override CXXFLAGS += -DHOMOGENEOUS
   override X10RT_PROPS_CXXFLAGS += -DHOMOGENEOUS
   override XRX_PROPS_CXXFLAGS += -DHOMOGENEOUS
 endif
