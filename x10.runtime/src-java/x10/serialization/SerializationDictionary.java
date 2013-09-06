@@ -11,13 +11,11 @@
 
 package x10.serialization;
 
-import java.io.ByteArrayOutputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
 import java.lang.reflect.Method;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Map.Entry;
 import java.util.concurrent.ConcurrentHashMap;
 
 import x10.rtt.RuntimeType;
@@ -34,7 +32,7 @@ abstract class SerializationDictionary implements SerializationConstants {
         dict = myMap;
     }
 
-    short getSerializationId(Class<?> clazz, Object obj) {
+    short getSerializationId(Class<?> clazz, Object obj, DataOutputStream unused) throws IOException {
         if (obj instanceof RuntimeType<?>) {
             short sid = ((RuntimeType<?>)obj).$_get_serialization_id();
             if (sid <= MAX_HARDCODED_ID) {
@@ -45,68 +43,57 @@ abstract class SerializationDictionary implements SerializationConstants {
         return null == id ? NO_PREASSIGNED_ID : id.shortValue();
     }
 
-    byte[] encode() throws IOException {
-        if (dict.size() == 0) {
-            return new byte[2]; // zero initialized, so 2 bytes of 0 is the short 0.
-        }
-        
-        ByteArrayOutputStream baos = new ByteArrayOutputStream();
-        DataOutputStream dos = new DataOutputStream(baos);
-        dos.writeShort(dict.size());
-        for (Entry<Class<?>, Short> es  : dict.entrySet()) {
-            dos.writeShort(es.getValue());
-            String name = es.getKey().getName();
-            dos.writeInt(name.length());
-            dos.write(name.getBytes());
-            if (Runtime.OSGI) {
-            	// Standard version
-//            	org.osgi.framework.Bundle bundle = org.osgi.framework.FrameworkUtil.getBundle(es.getKey());
-//            	String bundleName, bundleVersion;
-//            	if (bundle != null) {
-//            		bundleName = bundle.getSymbolicName();
-//            		bundleVersion = bundle.getVersion().toString();
-//            	} else {
-//                	bundleName = bundleVersion = "";
-//            	}
-//        		dos.writeInt(bundleName.length());
-//        		dos.write(bundleName.getBytes());
-//        		dos.writeInt(bundleVersion.length());
-//        		dos.write(bundleVersion.getBytes());
-            	// Reflection version
-        		try {
-					Class<?> FrameworkUtilClass = Class.forName("org.osgi.framework.FrameworkUtil");
-					Method getBundleMethod = FrameworkUtilClass.getDeclaredMethod("getBundle", Class.class);
-					getBundleMethod.setAccessible(true);
-					Object/*Bundle*/ bundle = getBundleMethod.invoke(null, es.getKey());
-					String bundleName, bundleVersion;
-					if (bundle != null) {
-						Class<?> BundleClass = Class.forName("org.osgi.framework.Bundle");
-						Method getSymbolicNameMethod = BundleClass.getDeclaredMethod("getSymbolicName");
-						getSymbolicNameMethod.setAccessible(true);
-						bundleName = (String) getSymbolicNameMethod.invoke(bundle);
-						Method getVersionMethod = BundleClass.getDeclaredMethod("getVersion");
-						getVersionMethod.setAccessible(true);
-						bundleVersion = getVersionMethod.invoke(bundle).toString();
-					} else {
-						bundleName = bundleVersion = "";
-					}
-					dos.writeInt(bundleName.length());
-					dos.write(bundleName.getBytes());
-					dos.writeInt(bundleVersion.length());
-					dos.write(bundleVersion.getBytes());
-        		} catch (RuntimeException e) {
-        			throw e;
-        		} catch (IOException e) {
-        			throw e;
-				} catch (Exception e) {
-//					e.printStackTrace();
-					throw new IOException(e.getMessage(), e);
-				}
+    void serializeIdAssignment(DataOutputStream dos, short id, Class<?> clazz) throws IOException {
+        dos.writeShort(DYNAMIC_ID_ID);
+        dos.writeShort(id);
+        String name = clazz.getName();
+        dos.writeInt(name.length());
+        dos.write(name.getBytes());
+        if (Runtime.OSGI) {
+            // Standard version
+//          org.osgi.framework.Bundle bundle = org.osgi.framework.FrameworkUtil.getBundle(es.getKey());
+//          String bundleName, bundleVersion;
+//          if (bundle != null) {
+//              bundleName = bundle.getSymbolicName();
+//              bundleVersion = bundle.getVersion().toString();
+//          } else {
+//              bundleName = bundleVersion = "";
+//          }
+//          dos.writeInt(bundleName.length());
+//          dos.write(bundleName.getBytes());
+//          dos.writeInt(bundleVersion.length());
+//          dos.write(bundleVersion.getBytes());
+            // Reflection version
+            try {
+                Class<?> FrameworkUtilClass = Class.forName("org.osgi.framework.FrameworkUtil");
+                Method getBundleMethod = FrameworkUtilClass.getDeclaredMethod("getBundle", Class.class);
+                getBundleMethod.setAccessible(true);
+                Object/*Bundle*/ bundle = getBundleMethod.invoke(null, clazz);
+                String bundleName, bundleVersion;
+                if (bundle != null) {
+                    Class<?> BundleClass = Class.forName("org.osgi.framework.Bundle");
+                    Method getSymbolicNameMethod = BundleClass.getDeclaredMethod("getSymbolicName");
+                    getSymbolicNameMethod.setAccessible(true);
+                    bundleName = (String) getSymbolicNameMethod.invoke(bundle);
+                    Method getVersionMethod = BundleClass.getDeclaredMethod("getVersion");
+                    getVersionMethod.setAccessible(true);
+                    bundleVersion = getVersionMethod.invoke(bundle).toString();
+                } else {
+                    bundleName = bundleVersion = "";
+                }
+                dos.writeInt(bundleName.length());
+                dos.write(bundleName.getBytes());
+                dos.writeInt(bundleVersion.length());
+                dos.write(bundleVersion.getBytes());
+            } catch (RuntimeException e) {
+                throw e;
+            } catch (IOException e) {
+                throw e;
+            } catch (Exception e) {
+//              e.printStackTrace();
+                throw new IOException(e.getMessage(), e);
             }
         }
-        dos.close();
-
-        return baos.toByteArray();
     }
 
     @Override
@@ -150,15 +137,16 @@ abstract class SerializationDictionary implements SerializationConstants {
             this.nextId = firstId;
         }
 
-        short getSerializationId(Class<?> clazz, Object obj) {
+        short getSerializationId(Class<?> clazz, Object obj, DataOutputStream dos) throws IOException {
             if (parent != null) {
-                short sid = parent.getSerializationId(clazz, obj);
+                short sid = parent.getSerializationId(clazz, obj, dos);
                 if (sid != NO_PREASSIGNED_ID) return sid;
             }
-            short sid = super.getSerializationId(clazz, obj);
+            short sid = super.getSerializationId(clazz, obj, dos);
             if (sid == NO_PREASSIGNED_ID) {
                 sid = Short.valueOf(nextId++);
-                dict.put(clazz, sid);           
+                dict.put(clazz, sid);
+                serializeIdAssignment(dos, sid, clazz);
             }
             return sid;
         }

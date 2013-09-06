@@ -600,7 +600,7 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
                 }
             }
 
-            if (!subtypeOfCustomSerializer2(def)) {
+            if (!subtypeOfCustomSerializer(def)) {
                 if (alreadyPrintedTypes.size() != 0) {
                     w.write(", ");
                 }
@@ -657,8 +657,8 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
         er.generateRTTInstance(def);
 
         // print the custom serializer
-        if (subtypeOfCustomSerializer2(def)) {
-            er.generateCustomSerializer2(def, n);            
+        if (subtypeOfCustomSerializer(def)) {
+            er.generateCustomSerializer(def, n);            
         } else if (subtypeOfUnserializable(def)) {
             w.write("public void " + Emitter.SERIALIZE_METHOD + "(" + Emitter.X10_JAVA_SERIALIZER_CLASS + " $serializer) throws java.io.IOException {");
             w.newline(4);
@@ -1195,7 +1195,7 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
     public static final String SERIALIZER = "x10.io.Serializer";
     public static final String DESERIALIZER = "x10.io.Deserializer";
     
-    private static boolean subtypeOfCustomSerializer2(X10ClassDef def) {
+    private static boolean subtypeOfCustomSerializer(X10ClassDef def) {
         return subtypeOfInterface(def, CUSTOM_SERIALIZATION);
     }
 

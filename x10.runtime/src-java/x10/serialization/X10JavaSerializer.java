@@ -29,10 +29,7 @@ public final class X10JavaSerializer implements SerializationConstants {
         
     protected final DataOutputStream out;
     protected final ByteArrayOutputStream b_out;
-    
-    protected byte[] dictBytes;
-    protected byte[] dataBytes;
-    
+        
     protected boolean messagePrepared = false;
     
     // When a Object is serialized record its position
@@ -67,17 +64,8 @@ public final class X10JavaSerializer implements SerializationConstants {
     
     @SuppressWarnings("rawtypes")
     public x10.core.Rail toRail() {
-        try {
-            prepareMessage(false);
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
-        byte[] dictBytes = getDictionaryBytes();
         byte[] dataBytes = getDataBytes();
-        byte[] messageBytes = new byte[getTotalMessageBytes()];
-        System.arraycopy(dictBytes, 0, messageBytes, 0, dictBytes.length);
-        System.arraycopy(dataBytes, 0, messageBytes, dictBytes.length, dataBytes.length);
-        return new x10.core.Rail(Types.BYTE, messageBytes.length, messageBytes);
+        return new x10.core.Rail(Types.BYTE, dataBytes.length, dataBytes);
     }
     
     
@@ -92,50 +80,27 @@ public final class X10JavaSerializer implements SerializationConstants {
         return b_out.size();
     }
     
-    public void prepareMessage(boolean dataOnly) throws IOException {
-        if (messagePrepared) return; // make it cheap to call prepareMessage multiple times
-        out.close();
-        
-        if (dataOnly) {
-            dictBytes = new byte[0];
-        } else {
-            if (Runtime.TRACE_SER) {
-                Runtime.printTraceMessage("Encoding per-message serialization ids: "+idDictionary);
-            }
-            dictBytes = idDictionary.encode();
-        }
-        dataBytes = b_out.toByteArray();
-        messagePrepared = true;
-    }
-    
-    public boolean mustSendDictionary() { 
-        return idDictionary.dict.size() > 0;
-    }
-    
-    public byte[] getDictionaryBytes() {
-        if (Runtime.TRACE_SER && !messagePrepared) {
-            Runtime.printTraceMessage("Fatal error: getDictionaryBytes call before prepareMessage)");
-        }
-            
-        assert messagePrepared : "Must call prepareMessage before asking for dictBytes";
-        return dictBytes;
-    }
-    
     public byte[] getDataBytes() {
-        if (Runtime.TRACE_SER && !messagePrepared) {
-            Runtime.printTraceMessage("Fatal error: getDataBytes call before prepareMessage)");
+        try {
+            out.flush();
+            b_out.flush();
+        } catch (IOException e) {
+            if (Runtime.TRACE_SER) {
+                Runtime.printTraceMessage("Suppressed IOException when flushing backing streams");
+                if (Runtime.TRACE_SER_DETAIL) {
+                    e.printStackTrace();
+                }
+            }
         }
-            
-        assert messagePrepared : "Must call prepareMessage before asking for dataBytes";
-        return dataBytes;
+        return b_out.toByteArray();
     }
     
     public int getTotalMessageBytes() {
-        return getDictionaryBytes().length + getDataBytes().length;
+        return b_out.size();
     }
         
-    public short getSerializationId(Class<?> clazz, Object obj) {
-        return idDictionary.getSerializationId(clazz, obj);
+    public short getSerializationId(Class<?> clazz, Object obj) throws IOException {
+        return idDictionary.getSerializationId(clazz, obj, out);
     }
     
     public void write(X10JavaSerializable obj) throws IOException {

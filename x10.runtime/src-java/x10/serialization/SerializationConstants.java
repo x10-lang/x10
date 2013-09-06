@@ -52,4 +52,5 @@ public interface SerializationConstants {
     public static final short JAVA_OBJECT_STREAM_ID = REPEATED_OBJECT_ID - 1;
     public static final short JAVA_ARRAY_ID = REPEATED_OBJECT_ID - 2;
     public static final short CUSTOM_SERIALIZATION_END = REPEATED_OBJECT_ID - 3;
+    public static final short DYNAMIC_ID_ID = REPEATED_OBJECT_ID - 4;
 }

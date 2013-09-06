@@ -33,7 +33,7 @@ public class SocketTransport {
 	public static final String X10_LAUNCHER_PARENT = "X10_LAUNCHER_PARENT";
 	private static enum CTRL_MSG_TYPE {HELLO, CONFIGURE, GOODBYE, PORT_REQUEST, PORT_RESPONSE};
 	private static enum MSGTYPE {STANDARD, PUT, GET, GET_COMPLETED};
-	public static enum CALLBACKID {closureMessageID, closureMessageNoDictionaryID, simpleAsyncMessageID, simpleAsyncMessageNoDictionaryID};
+	public static enum CALLBACKID {closureMessageNoDictionaryID, simpleAsyncMessageNoDictionaryID};
 	public static enum RETURNCODE { // see matching list of error codes "x10rt_error" in x10rt_types.h 
 	    X10RT_ERR_OK,   /* No error */
 	    X10RT_ERR_MEM,   /* Out of memory error */
@@ -393,14 +393,10 @@ public class SocketTransport {
 						bb.flip();
 					}
 					if (msgType == MSGTYPE.STANDARD.ordinal()) {
-						if (callbackId == CALLBACKID.closureMessageID.ordinal())
-							SocketTransport.runClosureAtReceive(bb, true);
-						else if (callbackId == CALLBACKID.closureMessageNoDictionaryID.ordinal())
-							SocketTransport.runClosureAtReceive(bb, false);
-						else if (callbackId == CALLBACKID.simpleAsyncMessageID.ordinal())
-							SocketTransport.runSimpleAsyncAtReceive(bb, true);
+					    if (callbackId == CALLBACKID.closureMessageNoDictionaryID.ordinal())
+							SocketTransport.runClosureAtReceive(bb);
 						else if (callbackId == CALLBACKID.simpleAsyncMessageNoDictionaryID.ordinal())
-							SocketTransport.runSimpleAsyncAtReceive(bb, false);
+							SocketTransport.runSimpleAsyncAtReceive(bb);
 						else
 							System.err.println("Unknown message callback type: "+callbackId);
 						
@@ -636,16 +632,16 @@ public class SocketTransport {
 		} while (bytesWritten < bytes);
     }
 
-    private static void runClosureAtReceive(ByteBuffer input, boolean messageHasDictionary) throws IOException {
-    	//X10JavaDeserializer deserializer = new X10JavaDeserializer(new DataInputStream(Channels.newInputStream(input)), messageHasDictionary);
-    	X10JavaDeserializer deserializer = new X10JavaDeserializer(new DataInputStream(new ByteArrayInputStream(input.array())), messageHasDictionary);
+    private static void runClosureAtReceive(ByteBuffer input) throws IOException {
+    	//X10JavaDeserializer deserializer = new X10JavaDeserializer(new DataInputStream(Channels.newInputStream(input)));
+    	X10JavaDeserializer deserializer = new X10JavaDeserializer(new DataInputStream(new ByteArrayInputStream(input.array())));
     	x10.core.fun.VoidFun_0_0 actObj = (x10.core.fun.VoidFun_0_0) deserializer.readRef();
     	actObj.$apply();
     }
     
-    private static void runSimpleAsyncAtReceive(ByteBuffer input, boolean messageHasDictionary) throws IOException {
-    	//X10JavaDeserializer deserializer = new X10JavaDeserializer(new DataInputStream(Channels.newInputStream(input)), messageHasDictionary);
-    	X10JavaDeserializer deserializer = new X10JavaDeserializer(new DataInputStream(new ByteArrayInputStream(input.array())), messageHasDictionary);
+    private static void runSimpleAsyncAtReceive(ByteBuffer input) throws IOException {
+    	//X10JavaDeserializer deserializer = new X10JavaDeserializer(new DataInputStream(Channels.newInputStream(input)));
+    	X10JavaDeserializer deserializer = new X10JavaDeserializer(new DataInputStream(new ByteArrayInputStream(input.array())));
     	FinishState finishState = (FinishState) deserializer.readRef();
     	Place src = (Place) deserializer.readRef();
     	x10.core.fun.VoidFun_0_0 actObj = (x10.core.fun.VoidFun_0_0) deserializer.readRef();
