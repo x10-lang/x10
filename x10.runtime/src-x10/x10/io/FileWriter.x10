@@ -17,6 +17,8 @@ import x10.compiler.Native;
 /**
  * Supports writing and appending to a File.
  * Modeled after java.io.FileWriter.
+ * Note: The backing OutputStream is implicitly created with 
+ *       buffering enabled at the native layer.
  */
 public class FileWriter extends OutputStreamWriter {
     @NativeRep("java", "x10.core.io.FileOutputStream", null, "x10.core.io.FileOutputStream.$RTT")
