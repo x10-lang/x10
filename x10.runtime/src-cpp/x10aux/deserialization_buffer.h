@@ -18,7 +18,7 @@
 
 class Serializer;
 namespace x10 { namespace lang { template<class T> class Rail; } }
-namespace x10 { namespace io { class Serializer; } }
+namespace x10 { namespace io { class Serializer; class InputStreamReader; } }
 namespace x10 { namespace lang { class Any; } }
 
 namespace x10aux {
@@ -46,6 +46,8 @@ namespace x10aux {
 
         void _constructor(x10::lang::Rail<x10_byte>*);
         
+        void _constructor(x10::io::InputStreamReader*);
+
         size_t consumed (void) { return cursor - buffer; }
 
         static x10::lang::Reference* deserialize_reference(deserialization_buffer &buf);

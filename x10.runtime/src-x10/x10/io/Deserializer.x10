@@ -38,6 +38,16 @@ public final class Deserializer implements Unserializable {
      * a Serializer object.
      */
     public native def this(Rail[byte]);
+    
+    /**
+     * Create a Deserializer that will read serialized values
+     * from the argument InputStreamReader.  The contents of the
+     * InputStreamReader should have originated from a Serializer object
+     * from the same program execution. 
+     * 
+     * NOTE: This constructor is currently only implemented for ManagedX10
+     */
+    public native def this(InputStreamReader);
 
     /**
      * Deserialize a value
