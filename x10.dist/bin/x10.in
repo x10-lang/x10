@@ -212,22 +212,17 @@ fi
 
 java_args=("${java_args[@]}" ${defs})
 
-java_version=
+
 # skip loading test in case of executable jar
 if [ -z "$noclassloadtest" -a -n "$main" ]; then
-command=("$JAVA" -showversion "${java_args[@]}" x10.runtime.impl.java.TestClassLoading "$main\$${MAIN_CLASS}")
+command=("$JAVA" "${java_args[@]}" x10.runtime.impl.java.TestClassLoading "$main\$${MAIN_CLASS}")
 #[ -n "$verbose" ] && echo "${command[*]}"
-java_version=`(
-unset X10_NPLACES
-"${command[@]}" 2>&1
+dummy=`(unset X10_NPLACES; "${command[@]}" 2>&1)`
 if [ "$?" -ne "0" ]; then
   echo >&2 "Error: Cannot load main class for" "$main" "with classpath" "$classpath"
   exit 1
 fi
-)`
 fi
-
-[ -n "${java_version}" ] || java_version=`"$JAVACMD" -version 2>&1`
 
 
 command=("$JAVA" "${java_args[@]}" $config "${args[@]}")
