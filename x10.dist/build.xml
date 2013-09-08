@@ -228,7 +228,7 @@
         <exec executable="${bash.exe}" failonerror="true" dir="${xrx.src.dir}">
             <env key="X10_ROOT" value="${x10.home}" />
             <arg value="-c" />
-            <arg value="'${basedir}/bin/x10doc' -d '${stdlib}/x10doc' -rtdev -sourcepath '${xrx.src.dir}' ${xrx.list}" />
+            <arg value="'${bin}/x10doc' -d '${stdlib}/x10doc' -rtdev -sourcepath '${xrx.src.dir}' ${xrx.list}" />
         </exec>
     </target>
 
@@ -437,7 +437,7 @@
     <target name="tools-java" depends="build,compiler-jar,runtime-java">
         <exec executable="${bash.exe}" failonerror="true" dir="${basedir}/tools/runjava">
 	    <arg value="-c" />
-	    <arg value="'${x10.home}/x10.dist/bin/x10c' -O -NO_CHECKS -o '${lib}/RunJava.jar' RunJava.x10" />
+	    <arg value="'${bin}/x10c' -O -NO_CHECKS -o '${lib}/RunJava.jar' RunJava.x10" />
         </exec>
     </target>
 
@@ -706,7 +706,7 @@ ENABLE_X10RT_PAMI='${X10RT_PAMI}'
     <target name="tar" depends="init,set-tar-location,dist">
         <tar destfile="${tar.location}/x10-${x10.version}.tar.bz2" compression="bzip2" longfile="gnu">
             <tarfileset prefix="" dir="${basedir}" includes="epl-v10.html,RELEASE.NOTES,INSTALL"/>
-            <tarfileset prefix="bin" dir="${basedir}/bin" includes="x10,x10c,x10cj,runjava"/>
+            <tarfileset prefix="bin" dir="${bin}" includes="x10,x10c,x10cj,runjava"/>
             <tarfileset prefix="doc" dir="${basedir}/doc" excludes="releng/**,**/.*.swp"/>
             <tarfileset prefix="etc" dir="${etc}" includes="${config}"/>
             <tarfileset prefix="lib" dir="${lib}" includes="*.jar"/>
