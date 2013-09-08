@@ -36,6 +36,10 @@ public class InputStream extends Ref {
     }
 
     private java.io.InputStream stream;
+    
+    public java.io.InputStream getJavaInputStream() {
+        return stream;
+    }
 
     // constructor just for allocation
     public InputStream(java.lang.System[] $dummy) {

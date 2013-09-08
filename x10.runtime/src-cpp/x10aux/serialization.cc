@@ -129,6 +129,10 @@ void deserialization_buffer::_constructor(x10::lang::Rail<x10_byte>*rail) {
     len = rail->FMGL(size);
 }
 
+void deserialization_buffer::_constructor(x10::io::InputStreamReader *is) {
+	x10aux::throwUnsupportedOperationException("Haven't implemented Deserializer(InputStreamReader) constructor for Native x10");
+}
+
 Reference* deserialization_buffer::deserialize_reference(deserialization_buffer &buf) {
     x10aux::serialization_id_t id = buf.read<x10aux::serialization_id_t>();
     if (id == 0) {

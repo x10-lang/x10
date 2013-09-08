@@ -87,6 +87,12 @@ public final class X10JavaDeserializer implements SerializationConstants {
         init(xjs.__NATIVE_FIELD__);
         return this;
     }
+    
+    public X10JavaDeserializer x10$serialization$X10JavaDeserializer$$init$S(x10.io.InputStreamReader is) {
+        init(new DataInputStream(is.stream().getJavaInputStream()), true);
+        return this;
+    }
+        
     public java.lang.Object readAny() {
         try {
             return readRef();
