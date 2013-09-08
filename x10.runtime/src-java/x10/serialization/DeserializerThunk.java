@@ -335,7 +335,7 @@ abstract class DeserializerThunk {
             }
 
             deserializationConstructor.invoke(obj, new Deserializer(jds));
-            short marker = jds.readShort();
+            short marker = jds.readSerializationId();
             if (marker != SerializationConstants.CUSTOM_SERIALIZATION_END) {
                 X10JavaDeserializer.raiseSerializationProtocolError();
             }

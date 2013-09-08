@@ -253,7 +253,6 @@ public abstract class Runtime implements x10.core.fun.VoidFun_0_0 {
             long before_bytes = serializer.dataBytesWritten();
             serializer.write(body);
             long ser_bytes = serializer.dataBytesWritten() - before_bytes;
-            serializer.prepareMessage(false);
             
             if (prof != null) {
             	long stop = System.nanoTime();
@@ -266,19 +265,16 @@ public abstract class Runtime implements x10.core.fun.VoidFun_0_0 {
             }
             start = prof!=null ? System.nanoTime() : 0;
             // TODO: these methods return an error code if the communication fails.  Use it.
-            if (serializer.mustSendDictionary()) {
-            	if (X10RT.javaSockets != null)
-					X10RT.javaSockets.sendMessage(place, SocketTransport.CALLBACKID.simpleAsyncMessageID.ordinal(), new ByteBuffer[]{ByteBuffer.wrap(serializer.getDictionaryBytes()), ByteBuffer.wrap(serializer.getDataBytes())});
-				else
-					x10.x10rt.MessageHandlers.runSimpleAsyncAtSend(place, serializer.getDictionaryBytes(), serializer.getDataBytes());
+            if (X10RT.javaSockets != null) {
+                X10RT.javaSockets.sendMessage(place, SocketTransport.CALLBACKID.simpleAsyncMessageNoDictionaryID.ordinal(), new ByteBuffer[]{ByteBuffer.wrap(serializer.getDataBytes())});
             } else {
-            	if (X10RT.javaSockets != null)
-					X10RT.javaSockets.sendMessage(place, SocketTransport.CALLBACKID.simpleAsyncMessageNoDictionaryID.ordinal(), new ByteBuffer[]{ByteBuffer.wrap(serializer.getDataBytes())});
-				else
-					x10.x10rt.MessageHandlers.runSimpleAsyncAtSend(place, serializer.getDataBytes());
+                x10.x10rt.MessageHandlers.runSimpleAsyncAtSend(place, serializer.getDataBytes());
             }
             if (prof!=null) {
                 prof.communicationNanos += System.nanoTime() - start;
+            }
+            if (TRACE_SER_DETAIL) {
+                System.out.println("Message sent for runAsyncAt " + body.getClass());
             }
         } catch (java.io.IOException e) {
             java.lang.RuntimeException xe = x10.runtime.impl.java.ThrowableUtils.ensureX10Exception(e);
@@ -319,7 +315,6 @@ public abstract class Runtime implements x10.core.fun.VoidFun_0_0 {
             } else {
             	serializer.write(body);
             }
-            serializer.prepareMessage(true);
             if (TRACE_SER_DETAIL) {
             	System.out.println("Done with serialization for deepCopy " + body.getClass());
             }
@@ -370,7 +365,6 @@ public abstract class Runtime implements x10.core.fun.VoidFun_0_0 {
 			long start = prof!=null ? System.nanoTime() : 0;
 			X10JavaSerializer serializer = new X10JavaSerializer();
 			serializer.write(body);
-			serializer.prepareMessage(false);
 			if (prof!=null) {
 				long stop = System.nanoTime();
 				long duration = stop-start;
@@ -382,19 +376,16 @@ public abstract class Runtime implements x10.core.fun.VoidFun_0_0 {
 			}
 
 			start = prof!=null ? System.nanoTime() : 0;
-			if (serializer.mustSendDictionary()) {
-				if (X10RT.javaSockets != null)
-					X10RT.javaSockets.sendMessage(place, SocketTransport.CALLBACKID.closureMessageID.ordinal(), new ByteBuffer[]{ByteBuffer.wrap(serializer.getDictionaryBytes()), ByteBuffer.wrap(serializer.getDataBytes())});
-				else
-					x10.x10rt.MessageHandlers.runClosureAtSend(place, serializer.getDictionaryBytes(), serializer.getDataBytes());
+			if (X10RT.javaSockets != null) {
+			    X10RT.javaSockets.sendMessage(place, SocketTransport.CALLBACKID.closureMessageNoDictionaryID.ordinal(), new ByteBuffer[]{ByteBuffer.wrap(serializer.getDataBytes())});
 			} else {
-				if (X10RT.javaSockets != null)
-					X10RT.javaSockets.sendMessage(place, SocketTransport.CALLBACKID.closureMessageNoDictionaryID.ordinal(), new ByteBuffer[]{ByteBuffer.wrap(serializer.getDataBytes())});
-				else
-					x10.x10rt.MessageHandlers.runClosureAtSend(place, serializer.getDataBytes());			    
+			    x10.x10rt.MessageHandlers.runClosureAtSend(place, serializer.getDataBytes());
 			}
 			if (prof!=null) {
                 prof.communicationNanos += System.nanoTime() - start;
+            }
+            if (TRACE_SER_DETAIL) {
+                System.out.println("Message sent for runAt " + body.getClass());
             }
 		} catch (java.io.IOException e) {
 			e.printStackTrace();

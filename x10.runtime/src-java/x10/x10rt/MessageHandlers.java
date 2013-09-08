@@ -25,9 +25,7 @@ public class MessageHandlers {
     
     // values set in native method registerHandlers()
     private static int closureMessageID;
-    private static int closureMessageNoDictionaryID;
     private static int simpleAsyncMessageID;
-    private static int simpleAsyncMessageNoDictionaryID;
 		
     /**
      * Register the native methods that will invoke runClosureAtReceive
@@ -42,11 +40,6 @@ public class MessageHandlers {
      */
     private static native void sendMessage(int place, int msg_id, int arraylen, byte[] rawBytes);
 
-    /**
-     * Send an active message.
-     */
-    private static native void sendMessage(int place, int msg_id, int len1, byte[] rawBytes1, int len2, byte[] rawBytes2);
-
 	/*
 	 * This send/receive pair is used to serialize a ()=>void closure to
 	 * a remote place, which will deserialize the closure object and calls apply on it.
@@ -56,18 +49,13 @@ public class MessageHandlers {
 	 */
 	
     public static void runClosureAtSend(int place, byte[] rawBytes) {
-        sendMessage(place, closureMessageNoDictionaryID, rawBytes.length, rawBytes);
+        sendMessage(place, closureMessageID, rawBytes.length, rawBytes);
     }
-    
-    public static void runClosureAtSend(int place, byte[] rawBytes1, byte[] rawBytes2) {
-        sendMessage(place, closureMessageID, rawBytes1.length, rawBytes1, rawBytes2.length, rawBytes2);
-    }
-
-    
+        
     // Invoked from native code at receiving place
     // This function gets called by the x10rt callback that is registered to handle
     // the receipt of general closures.
-    private static void runClosureAtReceive(byte[] args, boolean messageHasDictionary) {
+    private static void runClosureAtReceive(byte[] args) {
     	try{
     		if (X10RT.VERBOSE) System.out.println("runClosureAtReceive is called");
     		java.io.ByteArrayInputStream byteStream = new java.io.ByteArrayInputStream(args);
@@ -76,7 +64,7 @@ public class MessageHandlers {
     		long start = Runtime.PROF_SER ? System.nanoTime() : 0;
     		DataInputStream objStream = new DataInputStream(byteStream);
     		if (X10RT.VERBOSE) System.out.println("runClosureAtReceive: ObjectInputStream");
-    		X10JavaDeserializer deserializer = new X10JavaDeserializer(objStream, messageHasDictionary);
+    		X10JavaDeserializer deserializer = new X10JavaDeserializer(objStream);
     		if (x10.runtime.impl.java.Runtime.TRACE_SER_DETAIL) {
     			System.out.println("Starting deserialization ");
     		}
@@ -115,15 +103,11 @@ public class MessageHandlers {
     public static void runSimpleAsyncAtSend(int place, byte[] rawBytes) { 
         sendMessage(place, simpleAsyncMessageID, rawBytes.length, rawBytes);
     }
-
-    public static void runSimpleAsyncAtSend(int place, byte[] rawBytes1, byte[] rawBytes2) { 
-        sendMessage(place, simpleAsyncMessageID, rawBytes1.length, rawBytes1, rawBytes2.length, rawBytes2);
-    }
     
     /**
      * Receive a simple async
      */
-    private static void runSimpleAsyncAtReceive(byte[] args,  boolean messageHasDictionary) {
+    private static void runSimpleAsyncAtReceive(byte[] args) {
     	try{
     		if (X10RT.VERBOSE) System.out.println("runSimpleAsyncAtReceive is called");
     		ByteArrayInputStream byteStream = new ByteArrayInputStream(args);
@@ -133,7 +117,7 @@ public class MessageHandlers {
     		long start = Runtime.PROF_SER ? System.nanoTime() : 0;
     		DataInputStream objStream = new DataInputStream(byteStream);
     		if (X10RT.VERBOSE) System.out.println("runSimpleAsyncAtReceive: ObjectInputStream");
-    		X10JavaDeserializer deserializer = new X10JavaDeserializer(objStream, messageHasDictionary);
+    		X10JavaDeserializer deserializer = new X10JavaDeserializer(objStream);
     		if (x10.runtime.impl.java.Runtime.TRACE_SER_DETAIL) {
     			System.out.println("Starting deserialization ");
     		}

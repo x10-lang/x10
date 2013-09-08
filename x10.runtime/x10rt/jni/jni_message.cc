@@ -44,7 +44,7 @@ static methodDescription runSimpleAsync;
  * 
  *************************************************************************/
 
-static void jni_messageReceiver_runClosureInternal(const x10rt_msg_params *msg, jboolean hasDict){
+void jni_messageReceiver_runClosure(const x10rt_msg_params *msg) {
     JNIEnv *env = jniHelper_getEnv();
     MessageReader reader(msg);
 
@@ -59,19 +59,11 @@ static void jni_messageReceiver_runClosureInternal(const x10rt_msg_params *msg, 
 
     env->SetByteArrayRegion(arg, 0, numElems, (jbyte*)reader.cursor);
 
-    env->CallStaticVoidMethod(runClosure.targetClass, runClosure.targetMethod, arg, hasDict);
-}
-
-void jni_messageReceiver_runClosure(const x10rt_msg_params *msg) {
-    jni_messageReceiver_runClosureInternal(msg, JNI_TRUE);
+    env->CallStaticVoidMethod(runClosure.targetClass, runClosure.targetMethod, arg);
 }
     
-void jni_messageReceiver_runClosureNoDict(const x10rt_msg_params *msg) {
-    jni_messageReceiver_runClosureInternal(msg, JNI_FALSE);
-}
 
-
-static void jni_messageReceiver_runSimpleAsyncInternal(const x10rt_msg_params *msg, jboolean hasDict) {
+void jni_messageReceiver_runSimpleAsync(const x10rt_msg_params *msg) {
     JNIEnv *env = jniHelper_getEnv();
     MessageReader reader(msg);
 
@@ -86,15 +78,7 @@ static void jni_messageReceiver_runSimpleAsyncInternal(const x10rt_msg_params *m
 
     env->SetByteArrayRegion(arg, 0, numElems, (jbyte*)reader.cursor);
 
-    env->CallStaticVoidMethod(runSimpleAsync.targetClass, runSimpleAsync.targetMethod, arg, hasDict);
-}
-
-void jni_messageReceiver_runSimpleAsync(const x10rt_msg_params *msg) {
-    jni_messageReceiver_runSimpleAsyncInternal(msg, JNI_TRUE);
-}
-
-void jni_messageReceiver_runSimpleAsyncNoDict(const x10rt_msg_params *msg) {
-    jni_messageReceiver_runSimpleAsyncInternal(msg, JNI_FALSE);
+    env->CallStaticVoidMethod(runSimpleAsync.targetClass, runSimpleAsync.targetMethod, arg);
 }
 
 
@@ -110,11 +94,10 @@ void jni_messageReceiver_runSimpleAsyncNoDict(const x10rt_msg_params *msg) {
  * Method:    sendJavaRemote
  * Signature: (III[B)V
  */
-JNIEXPORT void JNICALL Java_x10_x10rt_MessageHandlers_sendMessage__III_3B(JNIEnv *env, jclass klazz,
-                                                                          jint place,
-                                                                          jint msg_id,
-                                                                          jint arrayLen, jbyteArray array) {
-
+JNIEXPORT void JNICALL Java_x10_x10rt_MessageHandlers_sendMessage(JNIEnv *env, jclass klazz,
+                                                                  jint place,
+                                                                  jint msg_id,
+                                                                  jint arrayLen, jbyteArray array) {
     unsigned long numBytes = arrayLen * sizeof(jbyte);
     void* buffer;
 
@@ -145,34 +128,6 @@ JNIEXPORT void JNICALL Java_x10_x10rt_MessageHandlers_sendMessage__III_3B(JNIEnv
     }
 }
 
-/*
- * Class:     x10_x10rt_MessageHandlers
- * Method:    sendJavaRemote
- * Signature: (III[BI[B)V
- */
-JNIEXPORT void JNICALL Java_x10_x10rt_MessageHandlers_sendMessage__III_3BI_3B(JNIEnv *env, jclass klazz,
-                                                                              jint place,
-                                                                              jint msg_id,
-                                                                              jint arrayLen1, jbyteArray array1,
-                                                                              jint arrayLen2, jbyteArray array2) {
-    unsigned long numBytes = (arrayLen1 + arrayLen2) * sizeof(jbyte);
-    jbyte* buffer = (jbyte*)malloc(numBytes);
-    if (NULL == buffer) {
-        char msg[64];
-        snprintf(msg, 64, "OOM in native allocation of message buffer (numBytes = %d)", (int)numBytes);
-        jniHelper_oom(env, msg);
-        return;
-    }
-
-    env->GetByteArrayRegion(array1, 0, arrayLen1, buffer);
-    env->GetByteArrayRegion(array2, 0, arrayLen2, (buffer+arrayLen1));
-
-    // buffer is a byte array, so no need to endian swap
-    x10rt_msg_params msg = {place, msg_id, (void*)buffer, numBytes, 0};
-    x10rt_send_msg(&msg);
-}
-
-
 /*************************************************************************
  *
  * Support for method registration
@@ -192,12 +147,12 @@ JNIEXPORT void JNICALL Java_x10_x10rt_MessageHandlers_sendMessage__III_3BI_3B(JN
 JNIEXPORT void JNICALL Java_x10_x10rt_MessageHandlers_registerHandlers(JNIEnv *env, jclass klazz) {
 
     /* Get a hold of MessageHandlers.receiveAsync and stash away its invoke information */
-    jmethodID receiveId1 = env->GetStaticMethodID(klazz, "runClosureAtReceive", "([BZ)V");
+    jmethodID receiveId1 = env->GetStaticMethodID(klazz, "runClosureAtReceive", "([B)V");
     if (NULL == receiveId1) {
         jniHelper_abort("Unable to resolve methodID for MessageHandlers.runClosureAtReceive\n");
         return;
     }
-    jmethodID receiveId2 = env->GetStaticMethodID(klazz, "runSimpleAsyncAtReceive", "([BZ)V");
+    jmethodID receiveId2 = env->GetStaticMethodID(klazz, "runSimpleAsyncAtReceive", "([B)V");
     if (NULL == receiveId1) {
         jniHelper_abort("Unable to resolve methodID for MessageHandlers.runSimpleAsyncAtReceive\n");
         return;
@@ -214,9 +169,7 @@ JNIEXPORT void JNICALL Java_x10_x10rt_MessageHandlers_registerHandlers(JNIEnv *e
     runSimpleAsync.targetMethod = receiveId2;
 
     jint closureId = x10rt_register_msg_receiver(&jni_messageReceiver_runClosure, NULL, NULL, NULL, NULL);
-    jint closureNoDictId = x10rt_register_msg_receiver(&jni_messageReceiver_runClosureNoDict, NULL, NULL, NULL, NULL);
     jint simpleAsyncId = x10rt_register_msg_receiver(&jni_messageReceiver_runSimpleAsync, NULL, NULL, NULL, NULL);
-    jint simpleAsyncNoDictId = x10rt_register_msg_receiver(&jni_messageReceiver_runSimpleAsyncNoDict, NULL, NULL, NULL, NULL);
 
 
     jfieldID clsFieldId = env->GetStaticFieldID(klazz, "closureMessageID", "I");
@@ -225,28 +178,14 @@ JNIEXPORT void JNICALL Java_x10_x10rt_MessageHandlers_registerHandlers(JNIEnv *e
         return;
     }
 
-    jfieldID clsNoDictFieldId = env->GetStaticFieldID(klazz, "closureMessageNoDictionaryID", "I");
-    if (NULL == clsNoDictFieldId) {
-        jniHelper_abort("Unable to resolve fieldID for MessageHandlers.closureMessageID\n");
-        return;
-    }
-    
     jfieldID asyncFieldId = env->GetStaticFieldID(klazz, "simpleAsyncMessageID", "I");
     if (NULL == asyncFieldId) {
         jniHelper_abort("Unable to resolve fieldID for MessageHandlers.simpleAsyncMessageID\n");
         return;
     }
 
-    jfieldID asyncNoDictFieldId = env->GetStaticFieldID(klazz, "simpleAsyncMessageNoDictionaryID", "I");
-    if (NULL == asyncNoDictFieldId) {
-        jniHelper_abort("Unable to resolve fieldID for MessageHandlers.simpleAsyncMessageID\n");
-        return;
-    }
-
     env->SetStaticIntField(klazz, clsFieldId, closureId);
-    env->SetStaticIntField(klazz, clsNoDictFieldId, closureNoDictId);
     env->SetStaticIntField(klazz, asyncFieldId, simpleAsyncId);
-    env->SetStaticIntField(klazz, asyncNoDictFieldId, simpleAsyncNoDictId);
     
     // We are done with registering message handlers
     x10rt_registration_complete();

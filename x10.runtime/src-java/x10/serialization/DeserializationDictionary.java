@@ -186,36 +186,6 @@ abstract class DeserializationDictionary implements SerializationConstants {
             super(new HashMap<Short, Method>(), new HashMap<Short, Class<?>>());
             this.shared = parent;
         }
-
-        LocalDeserializationDictionary(X10JavaDeserializer jds, DeserializationDictionary parent) {
-            this(parent);
-
-            try {
-                short numEntries = jds.readShort();
-                if (Runtime.TRACE_SER) {
-                    Runtime.printTraceMessage("\tReceiving "+numEntries+" serialization ids");                
-                }
-                for (short i=0; i<numEntries; i++) {
-                    short id = jds.readShort();
-                    String name = jds.readStringValue();
-                    if (Runtime.OSGI) {
-                    	String bundleName = jds.readStringValue();
-                    	String bundleVersion = jds.readStringValue();
-                    	if (Runtime.TRACE_SER) {
-                    		Runtime.printTraceMessage("\tserialization id: "+id+" = "+name+", bundle = "+bundleName+" "+bundleVersion);                
-                    	}
-                    	addEntry(id, name, bundleName, bundleVersion);
-                    } else {
-                    	if (Runtime.TRACE_SER) {
-                    		Runtime.printTraceMessage("\tserialization id: "+id+" = "+name);                
-                    	}
-                    	addEntry(id, name);
-                    }
-                }
-            } catch (IOException e) {
-                throw new RuntimeException("Failure while reading message dictionary", e);
-            }
-        }
         
         public LocalDeserializationDictionary(SerializationDictionary js, DeserializationDictionary parent) {
             this(parent);
@@ -232,9 +202,26 @@ abstract class DeserializationDictionary implements SerializationConstants {
                 }
                 addEntry(id, clazz);
             }
-        
         }
 
+        void deserializeIdAssignment(X10JavaDeserializer jds) throws IOException {
+            short id = jds.readShort();
+            String name = jds.readStringValue();
+            if (Runtime.OSGI) {
+                String bundleName = jds.readStringValue();
+                String bundleVersion = jds.readStringValue();
+                if (Runtime.TRACE_SER) {
+                    Runtime.printTraceMessage("\tserialization id: "+id+" = "+name+", bundle = "+bundleName+" "+bundleVersion);                
+                }
+                addEntry(id, name, bundleName, bundleVersion);
+            } else {
+                if (Runtime.TRACE_SER) {
+                    Runtime.printTraceMessage("\tserialization id: "+id+" = "+name);                
+                }
+                addEntry(id, name);
+            }
+        }
+        
 		@Override
 		Class<?> getClassForID(short sid) {
             if (sid < FIRST_DYNAMIC_ID) {

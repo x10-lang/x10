@@ -441,7 +441,7 @@ public final class Rail<T> extends x10.core.Ref implements x10.lang.Iterable,
         public static X10JavaSerializable $_deserialize_body($Closure$0 $_obj, X10JavaDeserializer $deserializer) throws IOException {
             $_obj.numElems = $deserializer.readInt();
             if ($_obj.numElems > 0) {
-                short serializationID = $deserializer.readShort();
+                short serializationID = $deserializer.readSerializationId();
                 if (serializationID == SerializationConstants.JAVA_OBJECT_STREAM_ID) {
                     $_obj.srcData = $deserializer.readUsingObjectInputStream();
                 } else if (serializationID == SerializationConstants.STRING_ID) {

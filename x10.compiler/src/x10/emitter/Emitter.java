@@ -3742,7 +3742,7 @@ public class Emitter {
         return cd;
     }
 
-    public void generateCustomSerializer2(X10ClassDef def, X10ClassDecl_c n) {
+    public void generateCustomSerializer(X10ClassDef def, X10ClassDecl_c n) {
         X10CompilerOptions opts = (X10CompilerOptions) tr.job().extensionInfo().getOptions();
         w.writeln("// custom serialization support");
         if (!def.hasDeserializationConstructor(tr.context())) {
@@ -3853,7 +3853,7 @@ public class Emitter {
         //	        w.writeln("(" + paramNames + fieldName + ");");
         // set type objects to the fields of $_obj and initialize $_obj by calling $init(SerialData). 
         w.writeln("$_obj." + X10PrettyPrinterVisitor.CONSTRUCTOR_METHOD_NAME(def) + "($ds);");
-        w.writeln("short $marker = $deserializer.readShort();");
+        w.writeln("short $marker = $deserializer.readSerializationId();");
         w.writeln("if ($marker != x10.serialization.SerializationConstants.CUSTOM_SERIALIZATION_END) { x10.serialization.X10JavaDeserializer.raiseSerializationProtocolError(); }");
         w.writeln("return $_obj;");
         w.end();

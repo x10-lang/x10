@@ -34,32 +34,20 @@ public final class X10JavaDeserializer implements SerializationConstants {
     private int counter = 0;
     
     protected DataInputStream in;
-    protected DeserializationDictionary dict; 
+    protected LocalDeserializationDictionary dict; 
     
-    private void init(DataInputStream in, boolean readMessageDictionary) {
+    private void init(DataInputStream in) {
         this.in = in;
-        if (readMessageDictionary) {
-            dict = new LocalDeserializationDictionary(this, SharedDictionaries.getDeserializationDictionary());
-        } else {
-            if (Runtime.TRACE_SER) {
-                Runtime.printTraceMessage("\tMessage has no per-message serialization ids");                
-            }
-            dict = SharedDictionaries.getDeserializationDictionary();
-        }
+        dict = new LocalDeserializationDictionary(SharedDictionaries.getDeserializationDictionary());
     }
     
     private void init(X10JavaSerializer js) {
-        try {
-            js.prepareMessage(true);
-        } catch (IOException e) {
-            throw new RuntimeException("Error initializing deserializer",e);
-        }
         in = new DataInputStream(new ByteArrayInputStream(js.getDataBytes()));
         dict = new LocalDeserializationDictionary(js.idDictionary, SharedDictionaries.getDeserializationDictionary());
     }
     
-    public X10JavaDeserializer(DataInputStream in, boolean readMessageDictionary) {
-        init(in, readMessageDictionary);
+    public X10JavaDeserializer(DataInputStream in) {
+        init(in);
     }
         
     /**
@@ -80,7 +68,7 @@ public final class X10JavaDeserializer implements SerializationConstants {
     }
     public X10JavaDeserializer x10$serialization$X10JavaDeserializer$$init$S(x10.core.Rail<Byte> data,
                                                                              x10.io.Deserializer.__0$1x10$lang$Byte$2 ignored) {
-        init(new DataInputStream(new ByteArrayInputStream(data.getByteArray())), true);
+        init(new DataInputStream(new ByteArrayInputStream(data.getByteArray())));
         return this;
     }    
     public X10JavaDeserializer x10$serialization$X10JavaDeserializer$$init$S(x10.io.Serializer xjs) {
@@ -89,7 +77,7 @@ public final class X10JavaDeserializer implements SerializationConstants {
     }
     
     public X10JavaDeserializer x10$serialization$X10JavaDeserializer$$init$S(x10.io.InputStreamReader is) {
-        init(new DataInputStream(is.stream().getJavaInputStream()), true);
+        init(new DataInputStream(is.stream().getJavaInputStream()));
         return this;
     }
         
@@ -130,10 +118,33 @@ public final class X10JavaDeserializer implements SerializationConstants {
     public Class<?> getClassForID(short sid) {
         return dict.getClassForID(sid);
     }
+
+    /**
+     * Read the next serialization id that is not DYNAMIC_ID_ID
+     * and return it.  Process all DYNAMIC_ID_ID entries encountered
+     * when caller is expecting a serialization id.
+     * @return the next serializationId that is not DYNAMIC_ID_ID
+     */
+    public short readSerializationId() throws IOException {
+        short sid = in.readShort();
+        while (sid == DYNAMIC_ID_ID) {
+            // A dictionary entry; read it and recurse to read the real ref that is next
+            if (Runtime.TRACE_SER) {
+                Runtime.printTraceMessage("Adding a dynamic serialization id to the dictionary");
+            }
+            dict.deserializeIdAssignment(this);
+            sid = in.readShort();
+        }
+        if (Runtime.TRACE_SER) {
+            Runtime.printTraceMessage("Deserialized a serialization id "+sid);
+        }
+        return sid;
+    }    
+
     
     @SuppressWarnings("unchecked")
     public <T> T readRef() throws IOException {
-        short serializationID = readShort();
+        short serializationID = readSerializationId();
         return (T) readRef(serializationID);
     }
 
@@ -154,7 +165,7 @@ public final class X10JavaDeserializer implements SerializationConstants {
         }
 
         if (serializationID == JAVA_ARRAY_ID) {
-            short componentTypeID = readShort();
+            short componentTypeID = readSerializationId();
             if (componentTypeID == INTEGER_ID) {
                 return readIntArray();
             } else if (componentTypeID == DOUBLE_ID) {
@@ -387,7 +398,7 @@ public final class X10JavaDeserializer implements SerializationConstants {
     }
 
     public String readString() throws IOException {
-        short serializationID = readShort();
+        short serializationID = readSerializationId();
         if (serializationID == NULL_ID) {
             if (Runtime.TRACE_SER) {
                 Runtime.printTraceMessage("Deserializing a null reference");
@@ -424,7 +435,7 @@ public final class X10JavaDeserializer implements SerializationConstants {
     }
 
     public Object readRefUsingReflection() throws IOException {
-        short serializationID = readShort();
+        short serializationID = readSerializationId();
         if (serializationID == NULL_ID) {
             if (Runtime.TRACE_SER) {
                 Runtime.printTraceMessage("Deserializing a null reference");
@@ -507,7 +518,7 @@ public final class X10JavaDeserializer implements SerializationConstants {
     }
 
     public Object readArrayUsingReflection(Class<?> componentType) throws IOException {
-        short serializationID = readShort();
+        short serializationID = readSerializationId();
         if (serializationID == NULL_ID) {
             if (Runtime.TRACE_SER) {
                 Runtime.printTraceMessage("Deserializing a null array");

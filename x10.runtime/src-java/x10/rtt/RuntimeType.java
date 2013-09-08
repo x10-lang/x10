@@ -610,7 +610,7 @@ public class RuntimeType<T> implements Type<T>, X10JavaSerializable {
     }
 
     public static X10JavaSerializable $_deserialize_body(RuntimeType rt, X10JavaDeserializer deserializer) throws IOException {
-        short classId = deserializer.readShort();
+        short classId = deserializer.readSerializationId();
         Class<?> clazz = deserializer.getClassForID(classId);
         rt.javaClass = clazz;
         rt.numParams = deserializer.readByte();
