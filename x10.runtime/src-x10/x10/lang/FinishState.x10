@@ -1026,6 +1026,34 @@ abstract class FinishState {
     }
 
 
+    private static def lowLevelAt(dst:Place, cl:()=>void) : Boolean {
+        if (here == dst) {
+            cl();
+            return true;
+        } else {
+            val c = new GlobalRef(new AtomicBoolean());
+            Runtime.x10rtSendMessage(dst.id, () => @RemoteInvocation("low_level_at_out") {
+                try {
+                    cl();
+                } catch (t:CheckedThrowable) {
+                    t.printStackTrace();
+                }
+                Runtime.x10rtSendMessage(c.home.id, () => @RemoteInvocation("low_level_at_back") {
+                    c.getLocalOrCopy().getAndSet(true);
+                }, null);
+            }, null);
+            //Runtime.println("Waiting for reply to message...");
+            while (!c().get()) {
+                Runtime.probe();
+                if (dst.isDead()) {
+                    return false;
+                }
+            }
+            //Runtime.println("Got reply.");
+            return true;
+        }
+    }
+
     private static def lowLevelFetch[T](dst:Place, cl:()=>T, cell:Cell[T]) : Boolean {
         if (here == dst) {
             cell(cl());
@@ -1056,57 +1084,82 @@ abstract class FinishState {
         }
     }
 
-    private static def lowLevelAt(dst:Place, cl:()=>void) : Boolean {
-        if (here == dst) {
-            cl();
-            return true;
-        } else {
-            val c = new GlobalRef(new AtomicBoolean());
-            Runtime.x10rtSendMessage(dst.id, () => @RemoteInvocation("low_level_at_out") {
-                try {
-                    cl();
-                } catch (t:CheckedThrowable) {
-                    t.printStackTrace();
-                }
-                Runtime.x10rtSendMessage(c.home.id, () => @RemoteInvocation("low_level_at_back") {
-                    c.getLocalOrCopy().getAndSet(true);
-                }, null);
-            }, null);
-            //Runtime.println("Waiting for reply to message...");
-            while (!c().get()) {
-                Runtime.probe();
-                if (dst.isDead()) {
-                    return false;
-                }
-            }
-            //Runtime.println("Got reply.");
-            return true;
-        }
-    }
-
     static final class FinishResilientDistributedBackup {
 
         // guarded by atomic { }
         static MAP = new HashMap[GlobalRef[FinishResilientDistributedMaster], FinishResilientDistributedBackup]();
 
-        static def fetchBackup (master:GlobalRef[FinishResilientDistributedMaster], cell:Cell[FinishResilientDistributedBackup]) : Boolean {
+        static def backupLowLevelFetch[T] (master:GlobalRef[FinishResilientDistributedMaster], cl:(FinishResilientDistributedBackup)=>T, cell:Cell[T]) : Boolean {
             var place : Place = master.home;
             while (true) {
                 place = place.next();
                 if (place == master.home) return false;
-                lowLevelFetch(place, ()=>{
+                val done = new GlobalRef(new AtomicInteger(0n)); // use an AtomicInteger only for the fence instructions
+                val gcell = new GlobalRef(cell);
+                if (place == here) {
+                    atomic {
+                        val bup = MAP.getOrElse(master, null);
+                        if (bup == null) {
+                            done().set(2n);
+                        } else {
+                            done().set(1n);
+                            cell(cl(bup));
+                        }
+                    }
+                } else {
+                    Runtime.x10rtSendMessage(place.id, () => @RemoteInvocation("backup_low_level_fetch_out") {
+                        try {
+                            Runtime.atomicMonitor.lock(); // would use atomic { } but scope is not lexical
+                            val bup = MAP.getOrElse(master, null);
+                            if (bup == null) {
+                                // couldn't find it
+                                Runtime.atomicMonitor.release();
+                                Runtime.x10rtSendMessage(gcell.home.id, () => @RemoteInvocation("backup_low_level_fetch_not_found") {
+                                    done.getLocalOrCopy().set(2n);
+                                }, null);
+                            } else {
+                                // did find it
+                                val r = cl(bup);
+                                Runtime.atomicMonitor.release();
+                                Runtime.x10rtSendMessage(gcell.home.id, () => @RemoteInvocation("backup_low_level_fetch_back") {
+                                    done.getLocalOrCopy().set(1n);
+                                    gcell.getLocalOrCopy()(r);
+                                }, null);
+                            }
+                        } catch (t:CheckedThrowable) {
+                            Runtime.atomicMonitor.release();
+                            t.printStackTrace();
+                        }
+                    }, null);
+                    //Runtime.println("Waiting for reply to message...");
+                    while (done().get() == 0n) {
+                        Runtime.probe();
+                        if (place.isDead()) {
+                            break;
+                        }
+                    }
+                }
+                if (done().get() == 1n) return true;
+                // otherwise, try again until we have tried every place
+            }
+        }
+
+        static def backupLowLevelAt (master:GlobalRef[FinishResilientDistributedMaster], cl:(FinishResilientDistributedBackup)=>void) : Boolean {
+            var place : Place = master.home;
+            while (true) {
+                place = place.next();
+                if (place == master.home) return false;
+                val found = new Cell[Boolean](false);
+                val success = lowLevelFetch[Boolean](place, ()=>{
                     atomic {
                         val r = MAP.getOrElse(master, null);
-                        if (r != null) {
-                            if (r.adopted) {
-                                Console.ERR.println("should not be adopted already! FinishResilientDistributedBackup.fetchBackup");
-                            }
-                            r.adopted = true;
-                            r.adoptedRoot = master;
-                        }
-                        return r;
+                        if (r == null) return false;
+                        cl(r);
+                        return true;
                     }
-                }, cell);
+                }, found);
+                if (success) return found();
+                // otherwise, try again until we have tried every place
             }
         }
 
@@ -1152,6 +1205,8 @@ abstract class FinishState {
         // guarded by atomic { }
         static ALL = new ArrayList[FinishResilientDistributedMaster]();
 
+        static val nameCounter = new AtomicInteger();
+
         val transit : Rail[Int];
         val live : Rail[Int];
         val transitAdopted : Rail[Int];
@@ -1165,6 +1220,8 @@ abstract class FinishState {
         var backup : GlobalRef[FinishResilientDistributedBackup];
         var hasBackup : Boolean;
 
+        val name : String;
+
         private def ensureMultipleExceptions() {
             if (multipleExceptions == null) multipleExceptions = new GrowableRail[Exception]();
             return multipleExceptions;
@@ -1176,7 +1233,9 @@ abstract class FinishState {
         }
 
         private def this(latch:SimpleLatch) {
-            if (VERBOSE) Runtime.println("Creating finish state...");
+            val name = VERBOSE ? nameCounter.getAndIncrement()+"@"+here.id : null;
+            this.name = name;
+            if (VERBOSE) Runtime.println("Creating master finish state ("+name+")...");
             this.transit = new Rail[Int](Place.MAX_PLACES * Place.MAX_PLACES, 0n);
             this.live = new Rail[Int](Place.MAX_PLACES, 0n);
             this.transitAdopted = new Rail[Int](Place.MAX_PLACES * Place.MAX_PLACES, 0n);
@@ -1187,10 +1246,26 @@ abstract class FinishState {
             if (VERBOSE) Runtime.println("    initial live("+here.id+") == 1");
             this.latch = latch;
         }
-        static def make(latch:SimpleLatch) {
+        def addChild(child:GlobalRef[FinishResilientDistributedMaster]) {
+            latch.lock();
+            children.add(child);
+            latch.unlock();
+            // TODO: add to backup as well...
+        }
+        static def make(parent:GlobalRef[FinishResilientDistributedMaster], latch:SimpleLatch) {
             val nu = new FinishResilientDistributedMaster(latch);
-            if (VERBOSE) Runtime.println("    finish state is "+nu);
             val gnu = GlobalRef[FinishResilientDistributedMaster](nu);
+
+            if (FinishState.VERBOSE) Runtime.println("    parent is "+parent);
+            if (here.id == 0) {
+                // we can never die, so no need to add to parents' children
+                // (this conveniently also covers the case of the root finish, where parent() == null)
+            } else {
+                val success = lowLevelAt(parent.home, () => { parent.getLocalOrCopy().addChild(gnu); });
+                if (!success) {
+                    Runtime.println("TODO: registering new child with parent: handle case where parent is dead (find nearest workable parent or backup)");
+                }
+            }
 
             if (here.id == 0) {
                 // at place 0, do not need a backup
@@ -1199,17 +1274,16 @@ abstract class FinishState {
                 // look for a place to put backup
                 var dst : Place = here.next();
                 val cell = new Cell[GlobalRef[FinishResilientDistributedBackup]](GlobalRef(null as FinishResilientDistributedBackup));
-                val success = lowLevelFetch(dst, ()=>FinishResilientDistributedBackup.make(gnu), cell);
-                if (!success) {
+                val success2 = lowLevelFetch(dst, ()=>FinishResilientDistributedBackup.make(gnu), cell);
+                if (!success2) {
                     // TODO: try more places 
-                    throw new Exception("Could not find a backup place");
+                    Runtime.println("Could not find a backup place");
+                } else {
+                    if (FinishState.VERBOSE) Runtime.println("    backup is "+cell());
+
+                    nu.backup = cell();
+                    nu.hasBackup = true;
                 }
-
-                if (FinishState.VERBOSE) Runtime.println("make("+nu+") @ "+here.id+" backup is "+cell());
-
-
-                nu.backup = cell();
-                nu.hasBackup = true;
             }
 
             atomic {
@@ -1218,9 +1292,26 @@ abstract class FinishState {
             return nu;
         }
 
+        def notifyAdoptedSubActivitySpawn(srcId:Long, dstId:Long) {
+            latch.lock();
+            if (VERBOSE) Runtime.println("("+name+").notifyAdoptedSubActivitySpawn("+srcId+", "+dstId+")");
+            transit(srcId + dstId*Place.MAX_PLACES)++;
+            if (VERBOSE) Runtime.println("    transitAdopted("+srcId+","+dstId+") == "+transitAdopted(srcId + dstId*Place.MAX_PLACES));
+            latch.unlock();
+            if (hasBackup && !(srcId==here.id && dstId==here.id)) {
+                val bup = this.backup; // avoid capturing this
+                val success = lowLevelAt(bup.home, () => { bup.getLocalOrCopy().notifySubActivitySpawn(srcId, dstId); } );
+                if (!success) {
+                    // TODO: recreate backup somewhere else
+                    Runtime.println("Could not back up notifyAdoptedSubActivitySpawn(), backup place dead");
+                    hasBackup = false;
+                }
+            }
+        }
+
         def notifySubActivitySpawn(srcId:Long, dstId:Long) {
             latch.lock();
-            if (VERBOSE) Runtime.println("notifySubActivitySpawn("+this+", "+srcId+", "+dstId+")");
+            if (VERBOSE) Runtime.println("("+name+").notifySubActivitySpawn("+srcId+", "+dstId+")");
             transit(srcId + dstId*Place.MAX_PLACES)++;
             if (VERBOSE) Runtime.println("    transit("+srcId+","+dstId+") == "+transit(srcId + dstId*Place.MAX_PLACES));
             latch.unlock();
@@ -1229,15 +1320,39 @@ abstract class FinishState {
                 val success = lowLevelAt(bup.home, () => { bup.getLocalOrCopy().notifySubActivitySpawn(srcId, dstId); } );
                 if (!success) {
                     // TODO: recreate backup somewhere else
-                    Console.ERR.println("Could not back up notifySubActivitySpawn(), backup place dead");
+                    Runtime.println("Could not back up notifySubActivitySpawn(), backup place dead");
                     hasBackup = false;
                 }
             }
         }
 
+        def notifyAdoptedActivityCreation(srcId:Long, dstId:Long) : Boolean {
+            latch.lock();
+            if (VERBOSE) Runtime.println("("+name+").notifyAdoptedActivityCreation("+srcId+", "+dstId+")");
+            if (Place(srcId).isDead()) {
+                latch.unlock();
+                return false;
+            }
+            liveAdopted(dstId)++;
+            transitAdopted(srcId + dstId*Place.MAX_PLACES)--;
+            if (VERBOSE) Runtime.println("    liveAdopted("+dstId+") == "+liveAdopted(dstId));
+            if (VERBOSE) Runtime.println("    transitAdopted("+srcId+","+dstId+") == "+transitAdopted(srcId + dstId*Place.MAX_PLACES));
+            latch.unlock();
+            if (hasBackup && !(srcId==here.id && dstId==here.id)) {
+                val bup = this.backup; // avoid capturing this
+                val success = lowLevelAt(bup.home, () => { bup.getLocalOrCopy().notifyActivityCreation(srcId, dstId); } );
+                if (!success) {
+                    // TODO: recreate backup somewhere else
+                    Runtime.println("Could not back up notifyAdoptedActivityCreation(), backup place dead");
+                    hasBackup = false;
+                }
+            }
+            return true;
+        }
+
         def notifyActivityCreation(srcId:Long, dstId:Long) : Boolean {
             latch.lock();
-            if (VERBOSE) Runtime.println("notifyActivityCreation("+this+", "+srcId+", "+dstId+")");
+            if (VERBOSE) Runtime.println("("+name+").notifyActivityCreation("+srcId+", "+dstId+")");
             if (Place(srcId).isDead()) {
                 latch.unlock();
                 return false;
@@ -1252,16 +1367,37 @@ abstract class FinishState {
                 val success = lowLevelAt(bup.home, () => { bup.getLocalOrCopy().notifyActivityCreation(srcId, dstId); } );
                 if (!success) {
                     // TODO: recreate backup somewhere else
-                    Console.ERR.println("Could not back up notifyActivityCreation(), backup place dead");
+                    Runtime.println("Could not back up notifyActivityCreation(), backup place dead");
                     hasBackup = false;
                 }
             }
             return true;
         }
 
+        def notifyAdoptedActivityTermination(dstId:Long) {
+            latch.lock();
+            if (VERBOSE) Runtime.println("("+name+").notifyAdoptedActivityTermination("+dstId+")");
+            liveAdopted(dstId)--;
+            if (VERBOSE) Runtime.println("    liveAdopted("+dstId+") == "+liveAdopted(dstId));
+            if (quiescent()) {
+                if (VERBOSE) Runtime.println("    Releasing latch...");
+                latch.release();
+            }
+            latch.unlock();
+            if (hasBackup && dstId!=here.id) {
+                val bup = this.backup; // avoid capturing this
+                val success = lowLevelAt(bup.home, () => { bup.getLocalOrCopy().notifyActivityTermination(dstId); } );
+                if (!success) {
+                    // TODO: recreate backup somewhere else
+                    Runtime.println("Could not back up notifyAdoptedActivityTermination(), backup place dead");
+                    hasBackup = false;
+                }
+            }
+        }
+
         def notifyActivityTermination(dstId:Long) {
             latch.lock();
-            if (VERBOSE) Runtime.println("notifyActivityTermination("+this+", "+dstId+")");
+            if (VERBOSE) Runtime.println("("+name+").notifyActivityTermination("+dstId+")");
             live(dstId)--;
             if (VERBOSE) Runtime.println("    live("+dstId+") == "+live(dstId));
             if (quiescent()) {
@@ -1274,7 +1410,7 @@ abstract class FinishState {
                 val success = lowLevelAt(bup.home, () => { bup.getLocalOrCopy().notifyActivityTermination(dstId); } );
                 if (!success) {
                     // TODO: recreate backup somewhere else
-                    Console.ERR.println("Could not back up notifyActivityTermination(), backup place dead");
+                    Runtime.println("Could not back up notifyActivityTermination(), backup place dead");
                     hasBackup = false;
                 }
             }
@@ -1282,7 +1418,7 @@ abstract class FinishState {
 
         def notifyPlaceDeath() {
             latch.lock();
-            if (FinishState.VERBOSE) Runtime.println("notifyPlaceDeath("+this+")");
+            if (FinishState.VERBOSE) Runtime.println("("+name+").notifyPlaceDeath()");
             if (quiescent()) {
                 if (VERBOSE) Runtime.println("    Releasing latch...");
                 latch.release();
@@ -1300,7 +1436,7 @@ abstract class FinishState {
 
         def pushException(t:Exception) {
             latch.lock();
-            if (VERBOSE) Runtime.println("pushException("+this+", "+t+")");
+            if (VERBOSE) Runtime.println("("+name+").pushException("+t+")");
             ensureMultipleExceptions().add(t);
             latch.unlock();
         }
@@ -1308,11 +1444,13 @@ abstract class FinishState {
         // for each child, if that child is dead, take its counters and flag it
         // recurse for other finishes under that one, if they are dead
         private def pullUpDeadChildFinishes() {
-            val this_ = GlobalRef(this);
+            val this_ = GlobalRef[FinishResilientDistributedMaster](this);
             latch.lock();
             for (var chindex:Long=0 ; chindex<children.size() ; ++chindex) {
                 val child = children(chindex);
                 if (!child.home.isDead()) continue;
+
+                Runtime.println("Adopting child finish...");
 
                 // remove child
                 if (chindex!=children.size()-1) {
@@ -1324,16 +1462,26 @@ abstract class FinishState {
                 // TODO: race condition -- what if we die after fetchBackup but before committing to our backup
                 // state would be inconsistent
                 val backup_cell = new Cell[FinishResilientDistributedBackup](null);
-                val found = FinishResilientDistributedBackup.fetchBackup(child, backup_cell);
+                val found = FinishResilientDistributedBackup.backupLowLevelFetch(child, (r:FinishResilientDistributedBackup)=>{
+                    if (r.adopted) {
+                        Runtime.println("should not be adopted already! FinishResilientDistributedBackup.fetchBackup");
+                    }
+                    r.adopted = true;
+                    r.adoptedRoot = this_;
+                    return r;
+                }, backup_cell);
                 if (!found) {
-                    Console.ERR.println("Fatal error: both master and backup finish store lost due to place failure.");
+                    Runtime.println("Fatal error: both master and backup finish store lost due to place failure.");
                 }
                 val bup = backup_cell();
+
                 children.addAll(bup.children);
                 for (i in 0..(Place.MAX_PLACES-1)) {
+                    if (VERBOSE && bup.live(i)!=0n) Runtime.println("live at adopted finish ("+i+") = "+bup.live(i));
                     liveAdopted(i) += bup.live(i);
                     for (j in 0..(Place.MAX_PLACES-1)) {
-                        transitAdopted(j + i*Place.MAX_PLACES) += bup.transit(j + i*Place.MAX_PLACES);
+                        if (VERBOSE && bup.transit(i + j*Place.MAX_PLACES)!=0n) Runtime.println("transit at adopted finish ("+i+","+j+") = "+bup.transit(i + j*Place.MAX_PLACES));
+                        transitAdopted(i + j*Place.MAX_PLACES) += bup.transit(i + j*Place.MAX_PLACES);
                     }
                 }
 
@@ -1385,27 +1533,27 @@ abstract class FinishState {
             }
 
             // Counters can become negative due to quirky use of finish below main
-            if (VERBOSE) Runtime.println("quiescent("+this+")");
+            if (VERBOSE) Runtime.println("("+name+").quiescent()");
             for (i in 0..(Place.MAX_PLACES-1)) {
                 if (live(i)>0) {
-                    if (VERBOSE) Runtime.println("    "+this+" Live at "+i);
+                    if (VERBOSE) Runtime.println("    ("+name+") Live at "+i);
                     return false;
                 }
                 for (j in 0..(Place.MAX_PLACES-1)) {
                     if (transit(i + j*Place.MAX_PLACES)>0) {
-                        if (FinishState.VERBOSE) Runtime.println("    "+this+" In transit from "+i+" -> "+j);
+                        if (FinishState.VERBOSE) Runtime.println("    ("+name+") In transit from "+i+" -> "+j);
                         return false;
                     }
                 }
             }
             for (i in 0..(Place.MAX_PLACES-1)) {
                 if (liveAdopted(i)>0) {
-                    if (VERBOSE) Runtime.println("    "+this+" Live (adopted) at "+i);
+                    if (VERBOSE) Runtime.println("    ("+name+") Live (adopted) at "+i);
                     return false;
                 }
                 for (j in 0..(Place.MAX_PLACES-1)) {
                     if (transitAdopted(i + j*Place.MAX_PLACES)>0) {
-                        if (FinishState.VERBOSE) Runtime.println("    "+this+" In transit (adopted) from "+i+" -> "+j);
+                        if (FinishState.VERBOSE) Runtime.println("    ("+name+") In transit (adopted) from "+i+" -> "+j);
                         return false;
                     }
                 }
@@ -1420,8 +1568,17 @@ abstract class FinishState {
 
         val root : GlobalRef[FinishResilientDistributedMaster];
 
+        private static def parentFinish() : GlobalRef[FinishResilientDistributedMaster] {
+            val a = Runtime.activity();
+            if (a == null) return GlobalRef(null as FinishResilientDistributedMaster); // creating the main activity (root finish)
+            val par = a.finishState();
+            if (par instanceof FinishResilientDistributed) return (par as FinishResilientDistributed).root;
+            return GlobalRef(null as FinishResilientDistributedMaster);
+        }
+
         def this(latch:SimpleLatch) {
-            val the_root = FinishResilientDistributedMaster.make(latch);
+
+            val the_root = FinishResilientDistributedMaster.make(parentFinish(), latch);
             //Runtime.println(the_root+" just created."); 
             this.root = new GlobalRef[FinishResilientDistributedMaster](the_root);
         }
@@ -1429,35 +1586,78 @@ abstract class FinishState {
         def notifySubActivitySpawn(place:Place) {
             val srcId = here.id;
             val dstId = place.id;
-            lowLevelAt(root.home, () => { root.getLocalOrCopy().notifySubActivitySpawn(srcId, dstId); } );
+            val success = lowLevelAt(root.home, () => { root.getLocalOrCopy().notifySubActivitySpawn(srcId, dstId); } );
+            if (!success) {
+                Runtime.println("TODO: talk to backup if master is dead");
+            }
         }
 
         def notifyActivityCreation(srcPlace:Place) : Boolean {
             val srcId = srcPlace.id;
             val dstId = here.id;
-            return lowLevelAt(root.home, () => { root.getLocalOrCopy().notifyActivityCreation(srcId, dstId); } );
+            val cell = new Cell[Boolean](false);
+            val success = lowLevelFetch(root.home, () => { return root.getLocalOrCopy().notifyActivityCreation(srcId, dstId); }, cell);
+            if (!success) {
+                Runtime.println("TODO: talk to backup if master is dead");
+            }
+            return cell();
         }
 
         def notifyActivityTermination() {
             val dstId = here.id;
-            lowLevelAt(root.home, () => { root.getLocalOrCopy().notifyActivityTermination(dstId); } );
+            var success : Boolean = false;
+            var the_root : GlobalRef[FinishResilientDistributedMaster] = root;
+            var adopted : Boolean = false;
+            while (!success) {
+                val the_root_ = the_root;
+
+                if (adopted) {
+                    success = lowLevelAt(the_root_.home, () => { the_root_.getLocalOrCopy().notifyAdoptedActivityTermination(dstId); } );
+                } else {
+                    success = lowLevelAt(the_root_.home, () => { the_root_.getLocalOrCopy().notifyActivityTermination(dstId); } );
+                }
+
+                if (success) break;
+
+                // return true if it was adopted (and the new master) or false meaning we updated the backup and all is good
+                val cell = new Cell(Pair[Boolean, GlobalRef[FinishResilientDistributedMaster]](false, the_root_));
+                success = FinishResilientDistributedBackup.backupLowLevelFetch(the_root_, (bup:FinishResilientDistributedBackup)=>{
+                    // already in an atomic
+                    if (!bup.adopted) {
+                        bup.notifyActivityTermination(dstId);
+                    }
+                    return Pair[Boolean, GlobalRef[FinishResilientDistributedMaster]](bup.adopted, bup.adoptedRoot);
+                }, cell);
+
+                if (!success) {
+                    Runtime.println("Fatal Error: master and backup dead, in notifyActivityTermination()");
+                }
+
+                if (!cell().first) break;
+
+                adopted = true;
+                the_root = cell().second;
+            }
         }
 
         def pushException(t:Exception) {
-            lowLevelAt(root.home, () => { root.getLocalOrCopy().pushException(t); } );
+            val success = lowLevelAt(root.home, () => { root.getLocalOrCopy().pushException(t); } );
+            if (!success) {
+                // do nothing here, exceptions should be dropped if home place dies
+            }
         }
 
         def waitForFinish() {
-            if (VERBOSE) Runtime.println("waitForFinish("+this+")");
             val the_root = root.getLocalOrCopy();
+            if (VERBOSE) Runtime.println("("+the_root.name+").waitForFinish()");
             the_root.notifyActivityTermination(here.id);
             if (!Runtime.STRICT_FINISH) Runtime.worker().join(the_root.latch);
             the_root.latch.await();
             if (the_root.multipleExceptions != null) {
-                if (FinishState.VERBOSE) Runtime.println("waitForFinish("+this+") done waiting (throwing exceptions)");
+                if (FinishState.VERBOSE) Runtime.println("("+the_root.name+").waitForFinish() done waiting (throwing exceptions)");
                 throw MultipleExceptions.make(the_root.multipleExceptions);
             }
-            if (FinishState.VERBOSE) Runtime.println("waitForFinish("+this+") done waiting");
+            if (FinishState.VERBOSE) Runtime.println("("+the_root.name+").waitForFinish() done waiting");
         }
 
         def simpleLatch():SimpleLatch = (root as GlobalRef[FinishResilientDistributedMaster]{home==here})().latch;
