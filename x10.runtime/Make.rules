@@ -228,7 +228,11 @@ ifndef CROSS_COMPILE_BLUEGENE
     else
       override CXX = xlC_r
     endif
-    override MPICXX = mpCC_r
+    ifeq ($(shell uname -s),AIX)
+      override MPICXX = mpCC_r
+    else
+      override MPICXX = mpCC
+    endif
     override SHLINK = $(CXX)
     ifdef OPTIMIZE
       override CXXFLAGS += -O3 -qinline -qarch=auto -qtune=auto -qhot
