@@ -17,6 +17,7 @@ import x10.util.GrowableRail;
 import x10.util.ArrayList;
 import x10.util.HashMap;
 import x10.util.Pair;
+import x10.util.Triple;
 
 import x10.util.concurrent.AtomicInteger;
 import x10.util.concurrent.AtomicBoolean;
@@ -1189,9 +1190,14 @@ abstract class FinishState {
         }
         def notifyActivityCreation(srcId:Long, dstId:Long) {
             atomic {
+                // may have problem with backup place's view on place death being different to master's?
+                if (Place(srcId).isDead()) {
+                    return false;
+                }
                 transit(srcId + dstId*Place.MAX_PLACES)--;
                 live(dstId)++;
             }
+            return true;
         }
         def notifyActivityTermination(dstId:Long) {
             atomic {
@@ -1586,25 +1592,90 @@ abstract class FinishState {
         def notifySubActivitySpawn(place:Place) {
             val srcId = here.id;
             val dstId = place.id;
-            val success = lowLevelAt(root.home, () => { root.getLocalOrCopy().notifySubActivitySpawn(srcId, dstId); } );
-            if (!success) {
-                Runtime.println("TODO: talk to backup if master is dead");
+
+            var success : Boolean = false;
+            var the_root : GlobalRef[FinishResilientDistributedMaster] = root;
+            var adopted : Boolean = false;
+            while (!success) {
+                val the_root_ = the_root;
+
+                if (adopted) {
+                    success = lowLevelAt(the_root_.home, () => { the_root_.getLocalOrCopy().notifyAdoptedSubActivitySpawn(srcId, dstId); } );
+                } else {
+                    success = lowLevelAt(the_root_.home, () => { the_root_.getLocalOrCopy().notifySubActivitySpawn(srcId, dstId); } );
+                }
+
+                if (success) break;
+
+                // return true if it was adopted (and the new master) or false meaning we updated the backup and all is good
+                val cell = new Cell(Pair[Boolean, GlobalRef[FinishResilientDistributedMaster]](false, the_root_));
+                success = FinishResilientDistributedBackup.backupLowLevelFetch(the_root_, (bup:FinishResilientDistributedBackup)=>{
+                    // already in an atomic
+                    if (!bup.adopted) {
+                        bup.notifySubActivitySpawn(srcId,dstId);
+                    }
+                    return Pair[Boolean, GlobalRef[FinishResilientDistributedMaster]](bup.adopted, bup.adoptedRoot);
+                }, cell);
+
+                if (!success) {
+                    Runtime.println("Fatal Error: master and backup dead, in notifySubActivitySpawn()");
+                }
+
+                if (!cell().first) break;
+
+                adopted = true;
+                the_root = cell().second;
             }
         }
 
         def notifyActivityCreation(srcPlace:Place) : Boolean {
             val srcId = srcPlace.id;
             val dstId = here.id;
-            val cell = new Cell[Boolean](false);
-            val success = lowLevelFetch(root.home, () => { return root.getLocalOrCopy().notifyActivityCreation(srcId, dstId); }, cell);
-            if (!success) {
-                Runtime.println("TODO: talk to backup if master is dead");
+
+            var success : Boolean = false;
+            var the_root : GlobalRef[FinishResilientDistributedMaster] = root;
+            var adopted : Boolean = false;
+            while (!success) {
+                val the_root_ = the_root;
+
+                val simple_cell = new Cell[Boolean](false);
+                if (adopted) {
+                    success = lowLevelFetch(the_root_.home, () => { return the_root_.getLocalOrCopy().notifyAdoptedActivityCreation(srcId, dstId); }, simple_cell );
+                } else {
+                    success = lowLevelFetch(the_root_.home, () => { return the_root_.getLocalOrCopy().notifyActivityCreation(srcId, dstId); }, simple_cell );
+                }
+
+                if (success) return simple_cell();
+
+                // return true if it was adopted (and the new master) or false meaning we updated the backup and all is good
+                val cell = new Cell(Triple[Boolean, GlobalRef[FinishResilientDistributedMaster], Boolean](false, the_root_, false));
+                success = FinishResilientDistributedBackup.backupLowLevelFetch(the_root_, (bup:FinishResilientDistributedBackup)=>{
+                    // already in an atomic
+                    var r:Boolean = false;
+                    if (!bup.adopted) {
+                        r = bup.notifyActivityCreation(srcId, dstId);
+                    }
+                    return Triple[Boolean, GlobalRef[FinishResilientDistributedMaster], Boolean](bup.adopted, bup.adoptedRoot, r);
+                }, cell);
+
+                if (!success) {
+                    Runtime.println("Fatal Error: master and backup dead, in notifyActivityCreation()");
+                }
+
+                if (!cell().first) return cell().third;
+
+                adopted = true;
+                the_root = cell().second;
             }
-            return cell();
+
+            // never happens
+            assert false;
+            return true;
         }
 
         def notifyActivityTermination() {
             val dstId = here.id;
+
             var success : Boolean = false;
             var the_root : GlobalRef[FinishResilientDistributedMaster] = root;
             var adopted : Boolean = false;

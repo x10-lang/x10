@@ -339,6 +339,9 @@ class ResilientStorePlaceZero {
             }
             notifyActivityTermination(id, s.homeId);
             when (s.adopted || me.quiescent(s)) { }
+            atomic {
+                me.states(id) = null;
+            }
             if (!s.adopted) {
                 if (s.multipleExceptions != null) {
                     if (FinishState.VERBOSE) Runtime.println("waitForFinish("+id+") done waiting (throwing exceptions)");
