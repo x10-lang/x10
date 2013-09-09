@@ -320,7 +320,7 @@ class ResilientStorePlaceZero {
         atomic {
             for (i in 0..(states.size()-1)) {
                 val fs = states(i);
-                if (fs.adopted) continue;
+                if (fs==null || fs.adopted) continue;
                 if (Place.isDead(fs.homeId)) {
                     val pfs = fs.findFirstNonDeadParent();
                     if (FinishState.VERBOSE) Runtime.println("Finish has died ("+fs.id+"), adopting activities into ("+pfs.id+")");
