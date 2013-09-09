@@ -664,7 +664,7 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
             w.write("public void " + Emitter.SERIALIZE_METHOD + "(" + Emitter.X10_JAVA_SERIALIZER_CLASS + " $serializer) throws java.io.IOException {");
             w.newline(4);
             w.begin(0);
-            w.write("throw new java.lang.UnsupportedOperationException(\"Can't serialize "+def.fullName()+"\");");
+            w.write("throw new x10.io.NotSerializableException(\"Can't serialize "+def.fullName()+"\");");
             w.end();
             w.newline();
             w.writeln("}");

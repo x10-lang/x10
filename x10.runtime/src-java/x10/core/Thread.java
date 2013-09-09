@@ -11,16 +11,15 @@
 
 package x10.core;
 
+import java.io.IOException;
+
 import x10.io.Unserializable;
 import x10.lang.Place;
 import x10.rtt.NamedType;
 import x10.rtt.RuntimeType;
 import x10.rtt.Type;
-import x10.rtt.Types;
 import x10.serialization.X10JavaSerializer;
 import x10.x10rt.X10RT;
-
-import java.io.IOException;
 
 /**
  */
@@ -137,11 +136,11 @@ public class Thread implements Any, Unserializable {
     }
 
     public short $_get_serialization_id() {
-        throw new java.lang.UnsupportedOperationException("Cannot serialize " + getClass());
+        throw new x10.io.NotSerializableException("Cannot serialize " + getClass());
     }
 
     public void $_serialize(X10JavaSerializer $serializer) throws IOException {
-        throw new java.lang.UnsupportedOperationException("Cannot serialize " + getClass());
+        throw new x10.io.NotSerializableException("Cannot serialize " + getClass());
     }
 
 }
