@@ -166,6 +166,7 @@ import x10.types.X10ClassDef;
 import x10.types.X10ClassType;
 import x10.types.X10ConstructorDef;
 import x10.types.X10ConstructorInstance;
+import x10.types.X10FieldDef_c;
 import x10.types.X10FieldInstance;
 import x10.types.X10FieldInstance_c;
 import x10.types.X10MethodDef;
@@ -3962,6 +3963,18 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
             f = f.clearPublic();
             f = f.clearStatic();
             f = f.clearFinal();
+        }
+
+        // print volatile modifier
+        boolean isVolatile = false;
+        try {
+            if (!((X10FieldDef_c)fieldDef).annotationsMatching(getType("x10.compiler.Volatile")).isEmpty()) {
+                isVolatile = true;
+            }
+        } catch (SemanticException e) {
+        }
+        if (isVolatile) {
+            w.write("volatile ");
         }
 
         w.write(f.translateJava());
