@@ -33,7 +33,7 @@ public class SocketTransport {
 	public static final String X10_LAUNCHER_PARENT = "X10_LAUNCHER_PARENT";
 	private static enum CTRL_MSG_TYPE {HELLO, CONFIGURE, GOODBYE, PORT_REQUEST, PORT_RESPONSE};
 	private static enum MSGTYPE {STANDARD, PUT, GET, GET_COMPLETED};
-	public static enum CALLBACKID {closureMessageNoDictionaryID, simpleAsyncMessageNoDictionaryID};
+	public static enum CALLBACKID {closureMessageID, simpleAsyncMessageID};
 	public static enum RETURNCODE { // see matching list of error codes "x10rt_error" in x10rt_types.h 
 	    X10RT_ERR_OK,   /* No error */
 	    X10RT_ERR_MEM,   /* Out of memory error */
@@ -393,9 +393,9 @@ public class SocketTransport {
 						bb.flip();
 					}
 					if (msgType == MSGTYPE.STANDARD.ordinal()) {
-					    if (callbackId == CALLBACKID.closureMessageNoDictionaryID.ordinal())
+					    if (callbackId == CALLBACKID.closureMessageID.ordinal())
 							SocketTransport.runClosureAtReceive(bb);
-						else if (callbackId == CALLBACKID.simpleAsyncMessageNoDictionaryID.ordinal())
+						else if (callbackId == CALLBACKID.simpleAsyncMessageID.ordinal())
 							SocketTransport.runSimpleAsyncAtReceive(bb);
 						else
 							System.err.println("Unknown message callback type: "+callbackId);

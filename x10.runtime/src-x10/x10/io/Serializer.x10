@@ -24,9 +24,23 @@ import x10.compiler.NativeClass;
 public final class Serializer implements Unserializable {
 
     /**
-     * Create and initializer a Serializer
+     * Create and initialize a Serializer that will serialize
+     * values to an in-memory Rail[] that can be accessed
+     * by calling {@link #toRail}.
      */
     public native def this();
+    
+    /**
+     * Create and initialize a Serializer that will serialize
+     * values to the argument OutputStreamWriter.
+     * Serializer instances constructed using this constructor
+     * do not support the {@link #toRail()} and cannot be
+     * used as arguments to the {@link Deserializer(Serializer)}
+     * constructor of the Deserializer class.
+     * 
+     * NOTE: This constructor is currently only implemented for ManagedX10
+     */
+    public native def this(OutputStreamWriter);
 
     /**
      * Write the argument value v (and the object
@@ -37,13 +51,14 @@ public final class Serializer implements Unserializable {
 
     /**
      * Get the serialized values as a Rail[byte].
-     * NOTE: After this method is called the Serializer
-     *       may no longer support calls to writeAny.
+     * If this Serializer was created with a user-provided
+     * OutputStreamWriter, then toRail will throw an
+     * UnsupportedOperationException.
      */
     public native def toRail():Rail[byte];
     
     /**
-     * Return the approximate number of bytes of data that
+     * Return the number of bytes of data that
      * have been serialized so far.
      */
     public native def dataBytesWritten():Int;

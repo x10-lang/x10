@@ -77,6 +77,10 @@ int addr_map::_position(const void* p) {
     return 0;
 }
 
+void serialization_buffer::_constructor(x10::io::OutputStreamWriter *os) {
+	x10aux::throwUnsupportedOperationException("Haven't implemented Serializer(OutputStreamWriter) constructor for Native x10");
+}
+
 void serialization_buffer::grow (void) {
     size_t old_capacity = capacity();
     size_t new_capacity = (size_t) (old_capacity * 2.0); // increase capacity by a factor
