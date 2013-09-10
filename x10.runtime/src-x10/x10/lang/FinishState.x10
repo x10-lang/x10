@@ -16,6 +16,7 @@ import x10.compiler.*;
 import x10.util.GrowableRail;
 import x10.util.ArrayList;
 import x10.util.HashMap;
+import x10.util.HashSet;
 import x10.util.Pair;
 import x10.util.Triple;
 
@@ -23,7 +24,6 @@ import x10.util.concurrent.AtomicInteger;
 import x10.util.concurrent.AtomicBoolean;
 import x10.util.concurrent.Lock;
 import x10.util.concurrent.SimpleLatch;
-import x10.util.ArrayList;
 
 import x10.io.CustomSerialization;
 import x10.io.Deserializer;
@@ -1085,10 +1085,18 @@ abstract class FinishState {
         }
     }
 
-    static final class FinishResilientDistributedBackup {
+    static final class FinishResilientDistributedBackup implements Runtime.Mortal {
 
         // guarded by atomic { }
         static MAP = new HashMap[GlobalRef[FinishResilientDistributedMaster], FinishResilientDistributedBackup]();
+
+        static def backupForget (master:GlobalRef[FinishResilientDistributedMaster], backup_place:Place) {
+            Runtime.x10rtSendMessage(backup_place.id, () => @RemoteInvocation("backup_forget") {
+                atomic {
+                    val bup = MAP.put(master, null);
+                }
+            }, null);
+        }
 
         static def backupLowLevelFetch[T] (master:GlobalRef[FinishResilientDistributedMaster], cl:(FinishResilientDistributedBackup)=>T, cell:Cell[T]) : Boolean {
             var place : Place = master.home;
@@ -1206,10 +1214,10 @@ abstract class FinishState {
         }
     }
 
-    static final class FinishResilientDistributedMaster {
+    static final class FinishResilientDistributedMaster implements Runtime.Mortal {
 
         // guarded by atomic { }
-        static ALL = new ArrayList[FinishResilientDistributedMaster]();
+        static ALL = new HashSet[FinishResilientDistributedMaster]();
 
         static val nameCounter = new AtomicInteger();
 
@@ -1435,7 +1443,7 @@ abstract class FinishState {
         static def notifyAllPlaceDeath() {
             atomic {
                 for (x in ALL) {
-                    x.notifyPlaceDeath();
+                    if (x != null) x.notifyPlaceDeath();
                 }
             }
         }
@@ -1724,6 +1732,9 @@ abstract class FinishState {
             the_root.notifyActivityTermination(here.id);
             if (!Runtime.STRICT_FINISH) Runtime.worker().join(the_root.latch);
             the_root.latch.await();
+            atomic {
+                FinishResilientDistributedMaster.ALL.remove(the_root);
+            }
             if (the_root.multipleExceptions != null) {
                 if (FinishState.VERBOSE) Runtime.println("("+the_root.name+").waitForFinish() done waiting (throwing exceptions)");
                 throw MultipleExceptions.make(the_root.multipleExceptions);
