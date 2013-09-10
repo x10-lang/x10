@@ -594,7 +594,7 @@ public class RuntimeType<T> implements Type<T>, X10JavaSerializable {
     
     public void $_serialize(X10JavaSerializer serializer) throws IOException {
         short sid = serializer.getSerializationId(javaClass, null);
-        serializer.write(sid);
+        serializer.writeSerializationId(sid);
         serializer.write((byte) numParams);
         // TODO parents needed?
     }

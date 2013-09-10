@@ -63,4 +63,17 @@ public final class Serializer implements Unserializable {
      */
     public native def dataBytesWritten():Int;
     
+    /**
+     * Indicates that the program wants to serialize a logically
+     * new object graph.  This resets the internal state that is used
+     * to detect duplicate objects and preserve object identity when
+     * the object graph is deserialized.  So even if the same object
+     * has already been serialized before the call to newObjectGraph,
+     * it will be fully serialized again and when deserialized two
+     * copies of the object will be created (instead of one).
+     * 
+     * Note: This function is currently only implemented for Managed X10
+     */
+    public native def newObjectGraph():void;
+    
 }

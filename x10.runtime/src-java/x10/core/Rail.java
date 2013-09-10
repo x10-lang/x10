@@ -417,10 +417,10 @@ public final class Rail<T> extends x10.core.Ref implements x10.lang.Iterable,
             if (this.numElems > 0) {
                 Class<?> componentType = this.srcData.getClass().getComponentType();
                 if (componentType.isPrimitive()) {
-                    $serializer.write(SerializationConstants.JAVA_OBJECT_STREAM_ID);
+                    $serializer.writeSerializationId(SerializationConstants.JAVA_OBJECT_STREAM_ID);
                     $serializer.writeUsingObjectOutputStream(this.srcData);
                 } else if (componentType.equals(java.lang.String.class)) {
-                    $serializer.write(SerializationConstants.STRING_ID);
+                    $serializer.writeSerializationId(SerializationConstants.STRING_ID);
                     $serializer.write((java.lang.String[]) this.srcData);
                 } else if (this.srcData instanceof X10JavaSerializable[]) {
                     $serializer.write((X10JavaSerializable[]) this.srcData);

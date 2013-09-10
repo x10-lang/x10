@@ -260,7 +260,7 @@ abstract class SerializerThunk {
             }
             CustomSerialization cs = (CustomSerialization)obj;
             cs.serialize(new x10.io.Serializer(xjs));
-            xjs.write(SerializationConstants.CUSTOM_SERIALIZATION_END);
+            xjs.writeSerializationId(SerializationConstants.CUSTOM_SERIALIZATION_END);
         }
     }
 
@@ -299,7 +299,7 @@ abstract class SerializerThunk {
                 Field javaClassField = clazz.getDeclaredField("javaClass");
                 Class<?> javaClass = (Class<?>) javaClassField.get(obj);
                 short sid = xjs.getSerializationId(javaClass, null);
-                xjs.write(sid);
+                xjs.writeSerializationId(sid);
             } else if (x10.core.GlobalRef.class.getName().equals(clazz.getName())) {
                 ((x10.core.GlobalRef) obj).$_serialize(xjs);
             } else if ("java.lang.Throwable".equals(clazz.getName())) {

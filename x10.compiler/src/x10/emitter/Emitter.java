@@ -3912,7 +3912,7 @@ public class Emitter {
             w.writeln("$serializer.write(" + mangleParameterType(at) + ");");
         }
         w.writeln("serialize(new "+X10PrettyPrinterVisitor.SERIALIZER+"($serializer)); ");
-        w.writeln("$serializer.write(x10.serialization.SerializationConstants.CUSTOM_SERIALIZATION_END);");
+        w.writeln("$serializer.writeSerializationId(x10.serialization.SerializationConstants.CUSTOM_SERIALIZATION_END);");
         w.end();
         w.newline();
         w.writeln("}");

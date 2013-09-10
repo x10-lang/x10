@@ -126,6 +126,19 @@ public final class X10JavaSerializer implements SerializationConstants {
             return b_out.toByteArray();
         }
     }
+    
+    public void newObjectGraph() {
+        try {
+            if (Runtime.TRACE_SER) {
+                Runtime.printTraceMessage("RESETTING OBJECT GRAPH IDS");
+            }
+            out.writeShort(RESET_OBJECT_GRAPH_BOUNDARY_ID);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+        objectMap.clear();
+        counter = 0;
+    }
         
     public short getSerializationId(Class<?> clazz, Object obj) throws IOException {
         return idDictionary.getSerializationId(clazz, obj, out);
@@ -182,7 +195,7 @@ public final class X10JavaSerializer implements SerializationConstants {
     }
 
     private void writeNull() throws IOException {
-        write(NULL_ID);
+        writeSerializationId(NULL_ID);
         if (Runtime.TRACE_SER) {
             Runtime.printTraceMessage("Serializing a null reference");
         }
@@ -335,6 +348,13 @@ public final class X10JavaSerializer implements SerializationConstants {
         out.writeShort(s);
     }
 
+    public void writeSerializationId(short sid) throws IOException {
+        if (Runtime.TRACE_SER) {
+            Runtime.printTraceMessage("Serializing [**] a " + Runtime.ANSI_CYAN + "serialization id" + Runtime.ANSI_RESET + ": " + sid);
+        }
+        out.writeShort(sid);
+    }
+    
     public void write(Short p) throws IOException {
         if (p == null) {
             writeNull();
@@ -485,7 +505,7 @@ public final class X10JavaSerializer implements SerializationConstants {
         if (pos != null) {
             return;
         }
-        write(STRING_ID);
+        writeSerializationId(STRING_ID);
         writeStringValue(str);
     }
 
@@ -513,7 +533,7 @@ public final class X10JavaSerializer implements SerializationConstants {
             }
             // We have serialized this object before hence no need to do it again
             if (writeRef) {
-                write(REPEATED_OBJECT_ID);
+                writeSerializationId(REPEATED_OBJECT_ID);
                 write(pos.intValue());
             }
         } else {
@@ -548,7 +568,7 @@ public final class X10JavaSerializer implements SerializationConstants {
 
         try {
             Class<? extends Object> bodyClass = body.getClass();
-            write(getSerializationId(bodyClass, body));
+            writeSerializationId(getSerializationId(bodyClass, body));
             SerializerThunk st = SerializerThunk.getSerializerThunk(bodyClass);
             st.serializeObject(body, bodyClass, this);
         } catch (SecurityException e) {
@@ -611,7 +631,7 @@ public final class X10JavaSerializer implements SerializationConstants {
         if (pos != null) {
             return;
         }
-        write(JAVA_ARRAY_ID);
+        writeSerializationId(JAVA_ARRAY_ID);
         int length = Array.getLength(obj);
         write(length);
         Class<?> componentType = obj.getClass().getComponentType();
@@ -676,39 +696,39 @@ public final class X10JavaSerializer implements SerializationConstants {
         if (pos != null) {
             return;
         }
-        write(JAVA_ARRAY_ID);
+        writeSerializationId(JAVA_ARRAY_ID);
         Class<?> componentType = obj.getClass().getComponentType();
         if (componentType.isPrimitive()) {
             if ("int".equals(componentType.getName())) {
-                write(INTEGER_ID);
+                writeSerializationId(INTEGER_ID);
                 write((int[]) obj);
             } else if ("double".equals(componentType.getName())) {
-                write(DOUBLE_ID);
+                writeSerializationId(DOUBLE_ID);
                 write((double[]) obj);
             } else if ("float".equals(componentType.getName())) {
-                write(FLOAT_ID);
+                writeSerializationId(FLOAT_ID);
                 write((float[]) obj);
             } else if ("boolean".equals(componentType.getName())) {
-                write(BOOLEAN_ID);
+                writeSerializationId(BOOLEAN_ID);
                 write((boolean[]) obj);
             } else if ("byte".equals(componentType.getName())) {
-                write(BYTE_ID);
+                writeSerializationId(BYTE_ID);
                 write((byte[]) obj);
             } else if ("short".equals(componentType.getName())) {
-                write(SHORT_ID);
+                writeSerializationId(SHORT_ID);
                 write((short[]) obj);
             } else if ("long".equals(componentType.getName())) {
-                write(LONG_ID);
+                writeSerializationId(LONG_ID);
                 write((long[]) obj);
             } else if ("char".equals(componentType.getName())) {
-                write(CHARACTER_ID);
+                writeSerializationId(CHARACTER_ID);
                 write((char[]) obj);
             }
         } else if ("java.lang.String".equals(componentType.getName())) {
-            write(STRING_ID);
+            writeSerializationId(STRING_ID);
             write((java.lang.String[]) obj);
         } else {
-            write(getSerializationId(componentType, null));
+            writeSerializationId(getSerializationId(componentType, null));
             if (componentType.isArray()) {
                 int length = Array.getLength(obj);
                 write(length);

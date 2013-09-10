@@ -145,6 +145,8 @@ namespace x10aux {
 
         x10::lang::Rail<x10_byte>* toRail();
         
+        void newObjectGraph();
+
         // Default case for primitives and other things that never contain pointers
         template<class T> struct Write;
         template<class T> struct Write<T*>;
