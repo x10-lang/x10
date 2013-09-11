@@ -119,6 +119,10 @@ Rail<x10_byte>* serialization_buffer::toRail() {
     return ans;
 }
 
+void serialization_buffer::newObjectGraph() {
+	x10aux::throwUnsupportedOperationException("Haven't implemented newObjectGraph for Native x10");
+}
+
 void serialization_buffer::writeAny(x10::lang::Any *val) {
     write(val);
 }
