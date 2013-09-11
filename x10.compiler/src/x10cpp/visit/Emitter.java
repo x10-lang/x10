@@ -1007,7 +1007,7 @@ public class Emitter {
             h.write("virtual ");
             h.write("void "+SERIALIZE_BODY_METHOD+"("+SERIALIZATION_BUFFER+"& buf) {");
             h.newline(4); h.begin(0);
-            h.write("x10aux::throwUnsupportedOperationException(\"Can't serialize "+type.fullName().toString()+"\");");
+            h.write("x10aux::throwNotSerializableException(\"Can't serialize "+type.fullName().toString()+"\");");
             h.end(); h.newline();
             h.write("}"); h.newline();
             h.forceNewline();
@@ -1016,7 +1016,7 @@ public class Emitter {
                 h.write("virtual ");
             h.write("x10aux::serialization_id_t "+SERIALIZE_ID_METHOD+"() {");
             h.newline(4); h.begin(0);
-            h.write("x10aux::throwUnsupportedOperationException(\"Can't serialize "+type.fullName().toString()+"\");");
+            h.write("x10aux::throwNotSerializableException(\"Can't serialize "+type.fullName().toString()+"\");");
             h.end(); h.newline();
             h.write("}"); h.newline();
             h.forceNewline();

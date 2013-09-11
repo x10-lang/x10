@@ -558,11 +558,11 @@ void Thread::__apply()
 }
 
 x10aux::serialization_id_t Thread::_get_serialization_id() {
-    x10aux::throwUnsupportedOperationException("Can't serialize x10.lang.Thread");
+    x10aux::throwNotSerializableException("Can't serialize x10.lang.Thread");
 }
 
 void Thread::_serialize_body(x10aux::serialization_buffer &buf) {
-    x10aux::throwUnsupportedOperationException("Can't serialize x10.lang.Thread");
+    x10aux::throwNotSerializableException("Can't serialize x10.lang.Thread");
 }
 
 RTT_CC_DECLS0(Thread, "x10.lang.Thread", RuntimeType::class_kind)

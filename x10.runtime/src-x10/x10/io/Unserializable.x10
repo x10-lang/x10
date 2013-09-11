@@ -15,8 +15,9 @@ package x10.io;
  * Types that implement this marker interface indicate that 
  * they cannot be serialized from one place to another.
  * Any attempt to serialize an instance of a type will result in
- * an UnsupportedOperationException being thrown during
- * serialization.
+ * a NotSerializableException being thrown during serialization.
+ * 
+ * @see NotSerializableException
  */
 public interface Unserializable {
 }
