@@ -266,7 +266,7 @@ public abstract class Runtime implements x10.core.fun.VoidFun_0_0 {
             start = prof!=null ? System.nanoTime() : 0;
             // TODO: these methods return an error code if the communication fails.  Use it.
             if (X10RT.javaSockets != null) {
-                X10RT.javaSockets.sendMessage(place, SocketTransport.CALLBACKID.simpleAsyncMessageNoDictionaryID.ordinal(), new ByteBuffer[]{ByteBuffer.wrap(serializer.getDataBytes())});
+                X10RT.javaSockets.sendMessage(place, SocketTransport.CALLBACKID.simpleAsyncMessageID.ordinal(), new ByteBuffer[]{ByteBuffer.wrap(serializer.getDataBytes())});
             } else {
                 x10.x10rt.MessageHandlers.runSimpleAsyncAtSend(place, serializer.getDataBytes());
             }
@@ -326,7 +326,7 @@ public abstract class Runtime implements x10.core.fun.VoidFun_0_0 {
     			long stop = System.nanoTime();
     			long duration = stop-start;
                 prof.serializationNanos += duration;
-                prof.bytes += serializer.getTotalMessageBytes();
+                prof.bytes += serializer.dataBytesWritten();
     		}
     		if (TRACE_SER_DETAIL) {
     			System.out.println("Done with deserialization for deepCopy of " + body.getClass());
@@ -368,7 +368,7 @@ public abstract class Runtime implements x10.core.fun.VoidFun_0_0 {
 			if (prof!=null) {
 				long stop = System.nanoTime();
 				long duration = stop-start;
-                prof.bytes += serializer.getTotalMessageBytes();
+                prof.bytes += serializer.dataBytesWritten();
                 prof.serializationNanos += duration;
 			}
 			if (TRACE_SER_DETAIL) {
@@ -377,7 +377,7 @@ public abstract class Runtime implements x10.core.fun.VoidFun_0_0 {
 
 			start = prof!=null ? System.nanoTime() : 0;
 			if (X10RT.javaSockets != null) {
-			    X10RT.javaSockets.sendMessage(place, SocketTransport.CALLBACKID.closureMessageNoDictionaryID.ordinal(), new ByteBuffer[]{ByteBuffer.wrap(serializer.getDataBytes())});
+			    X10RT.javaSockets.sendMessage(place, SocketTransport.CALLBACKID.closureMessageID.ordinal(), new ByteBuffer[]{ByteBuffer.wrap(serializer.getDataBytes())});
 			} else {
 			    x10.x10rt.MessageHandlers.runClosureAtSend(place, serializer.getDataBytes());
 			}

@@ -16,6 +16,7 @@ import java.io.DataOutput;
 import java.io.DataOutputStream;
 import java.io.IOException;
 import java.io.ObjectOutputStream;
+import java.io.OutputStream;
 import java.lang.reflect.Array;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
@@ -27,11 +28,19 @@ import x10.serialization.SerializationDictionary.LocalSerializationDictionary;
 
 public final class X10JavaSerializer implements SerializationConstants {
         
-    protected final DataOutputStream out;
-    protected final ByteArrayOutputStream b_out;
-        
-    protected boolean messagePrepared = false;
+    /**
+     * The primary output stream for writing; use this instead of the backing streams
+     * when writing data to the serializer!
+     */
+    protected DataOutputStream out;
     
+    /*
+     * Alternative backing output streams.  
+     * Exactly one of these will be non-null.
+     */
+    private ByteArrayOutputStream b_out;
+    private OutputStream o_out;
+        
     // When a Object is serialized record its position
     // N.B. use custom IdentityHashMap class, as standard one has poor performance on J9
     X10IdentityHashMap<Object, Integer> objectMap = new X10IdentityHashMap<Object, Integer>();
@@ -43,24 +52,44 @@ public final class X10JavaSerializer implements SerializationConstants {
     public java.util.Map<x10.core.GlobalRef<?>, Integer> getGrefMap() { return grefMap; }
     
     // per-message id dictionary
-    protected final LocalSerializationDictionary idDictionary;
+    protected LocalSerializationDictionary idDictionary;
     
+    
+    /*
+     * For use in Managed X10 serialization code; parallels the make/init constructors used
+     * from generated code
+     */
     public X10JavaSerializer() {
-        this.b_out = new ByteArrayOutputStream();
-        this.out = new DataOutputStream(this.b_out);
-        this.idDictionary = new LocalSerializationDictionary(SharedDictionaries.getSerializationDictionary(), FIRST_DYNAMIC_ID);
+        x10$serialization$X10JavaSerializer$$init$S();
+    }
+    public X10JavaSerializer(x10.io.OutputStreamWriter os) {
+        x10$serialization$X10JavaSerializer$$init$S(os);
+    }
+    /*
+     * for use by generated code in two-phase construction. 
+     */
+    public X10JavaSerializer(System[] ignored) {
+        // for use by generated code; will be followed by call to $init in generated code
     }
     
     /*
-     * for use by @NativeClass code in x10.io.Serializer
+     * Initialization code
      */
-    public X10JavaSerializer(System[] ignored) {
-        this();
-    }
     public X10JavaSerializer x10$serialization$X10JavaSerializer$$init$S() {
-        // init handled by System[] constructor; nothing else to do.
+        this.b_out = new ByteArrayOutputStream();
+        initCommon(b_out);
         return this;
     }
+    public X10JavaSerializer x10$serialization$X10JavaSerializer$$init$S(x10.io.OutputStreamWriter os) {
+        this.o_out = os.getNativeOutputStream().stream;
+        initCommon(o_out);
+        return this;
+    }
+    public void initCommon(java.io.OutputStream os) {
+        this.out = new DataOutputStream(os);
+        this.idDictionary = new LocalSerializationDictionary(SharedDictionaries.getSerializationDictionary(), FIRST_DYNAMIC_ID);
+    }
+
     
     @SuppressWarnings("rawtypes")
     public x10.core.Rail toRail() {
@@ -77,13 +106,12 @@ public final class X10JavaSerializer implements SerializationConstants {
         return dataBytesWritten();
     }
     public int dataBytesWritten() {
-        return b_out.size();
+        return out.size();
     }
     
     public byte[] getDataBytes() {
         try {
             out.flush();
-            b_out.flush();
         } catch (IOException e) {
             if (Runtime.TRACE_SER) {
                 Runtime.printTraceMessage("Suppressed IOException when flushing backing streams");
@@ -92,11 +120,11 @@ public final class X10JavaSerializer implements SerializationConstants {
                 }
             }
         }
-        return b_out.toByteArray();
-    }
-    
-    public int getTotalMessageBytes() {
-        return b_out.size();
+        if (b_out == null) {
+            throw new java.lang.UnsupportedOperationException("Cannot call getDataBytes() on Serializer that is backed with an OutputStreamWriter");
+        } else {
+            return b_out.toByteArray();
+        }
     }
         
     public short getSerializationId(Class<?> clazz, Object obj) throws IOException {

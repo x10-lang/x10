@@ -21,6 +21,8 @@
 
 namespace x10 { namespace lang { template<class T> class Rail; } }
 namespace x10 { namespace lang { class Any; } }
+namespace x10 { namespace io { class OutputStreamWriter; } }
+
 
 namespace x10aux {
     // addr_map can be used to detect and properly handle cycles when serializing object graphs
@@ -123,6 +125,7 @@ namespace x10aux {
         }
 
         void _constructor() {}
+        void _constructor(x10::io::OutputStreamWriter*);
         
         void grow (void);
 

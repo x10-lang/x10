@@ -25,9 +25,13 @@ public final class Deserializer implements Unserializable {
 
     /**
      * Create a Deserializer that will read serialized values
-     * from the argument Serializer.
-     * NOTE: After being used to construct a Deserializer, 
-     *       the Serializer instance may no longer support calls to writeAny.
+     * from the argument Serializer. The argument Serializer must
+     * have been created using the default constructor that
+     * serializes to an in-memory Rail[byte].  Deserializing directly
+     * from a Serializer that serializes to an OutputStreamWriter
+     * {@link Serializer#Serializer(OutputStreamWriter)} is not supported
+     * and calling this constructor with such a Serializer instance 
+     * will raise an UnsupportedOperationException.
      */
     public native def this(Serializer);
 
