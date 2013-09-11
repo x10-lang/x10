@@ -26,9 +26,9 @@ import x10.matrix.blas.DenseMatrixBLAS;
  */
 public class DenseBlasBench {
 	public static def main(args:Rail[String]) {
-		val M = args.size > 0 ?Int.parse(args(0)):50;
-		val K = args.size > 1 ?Int.parse(args(1)):M;
-		val N = args.size > 2 ?Int.parse(args(2)):M;
+		val M = args.size > 0 ? Long.parse(args(0)):50;
+		val K = args.size > 1 ? Long.parse(args(1)):M;
+		val N = args.size > 2 ? Long.parse(args(2)):M;
 		val iter = args.size > 3 ? Int.parse(args(3)):1;
 		val ps = args.size > 4 ? Int.parse(args(4)):0;
 		val tc = new RunBlasComp(M, K, N, iter);

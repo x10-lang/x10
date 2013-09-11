@@ -23,13 +23,13 @@ import x10.matrix.distblock.summa.SummaMultTrans;
 public class DistBlockSUMMA {
 	
 	public static def main(args:Rail[String]) {
-		val M   = args.size > 0 ?Int.parse(args(0)):100;
-		val K   = args.size > 1 ?Int.parse(args(1)):100;
-		val N   = args.size > 2 ?Int.parse(args(2)):100;
+		val M   = args.size > 0 ? Long.parse(args(0)):100;
+		val K   = args.size > 1 ? Long.parse(args(1)):100;
+		val N   = args.size > 2 ? Long.parse(args(2)):100;
 		val nzd = args.size > 3 ?Double.parse(args(3)):1.0;//Default is dense block matrix
-		val pnl = args.size > 4 ?Int.parse(args(4)):64;
-		val bMN = args.size > 5 ?Int.parse(args(5)):1;
-		val it  = args.size > 6 ?Int.parse(args(6)):4;
+		val pnl = args.size > 4 ? Long.parse(args(4)):64;
+		val bMN = args.size > 5 ? Long.parse(args(5)):1;
+		val it  = args.size > 6 ? Long.parse(args(6)):4;
 
 		val testcase = new BenchRunSumma(M,K,N,nzd,it,pnl,bMN);
 		testcase.run();

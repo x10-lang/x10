@@ -28,11 +28,11 @@ public class DistDistToDup{
 	
     public static def main(args:Rail[String]) {
     	
-    	val M   = args.size > 0 ?Int.parse(args(0)):100;
-    	val bM  = args.size > 1 ?Int.parse(args(1)):-1;
+    	val M   = args.size > 0 ? Long.parse(args(0)):100;
+    	val bM  = args.size > 1 ? Long.parse(args(1)):-1;
     	val nzd = args.size > 2 ?Double.parse(args(2)):0.5;
-    	val it  = args.size > 3 ?Int.parse(args(3)):3;
-    	val vrf = args.size > 4 ?Int.parse(args(4)):0;
+    	val it  = args.size > 3 ? Long.parse(args(3)):3;
+    	val vrf = args.size > 4 ? Long.parse(args(4)):0;
     	
    	
 		val testcase = new DistDistToDup(M, bM, nzd, it, vrf);

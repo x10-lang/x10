@@ -41,10 +41,10 @@ public class MatVecMult{
 	
     public static def main(args:Rail[String]) {
     	
-    	val M   = args.size > 0 ?Int.parse(args(0)):100;
+    	val M   = args.size > 0 ? Long.parse(args(0)):100;
     	val nnz = args.size > 1 ?Double.parse(args(1)):0.5;
-    	val it  = args.size > 2 ?Int.parse(args(2)):3;
-    	val vrf = args.size > 3 ?Int.parse(args(3)):0;
+    	val it  = args.size > 2 ? Long.parse(args(2)):3;
+    	val vrf = args.size > 3 ? Long.parse(args(3)):0;
    	
 		val testcase = new DVMultRowwise(M, nnz, it, vrf);
 		testcase.run();

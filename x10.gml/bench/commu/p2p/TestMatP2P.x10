@@ -51,8 +51,8 @@ class TestMatP2PCopy {
 
 
     public def this(args:Rail[String]) {
-		M = args.size > 0 ?Int.parse(args(0)):50;
-		N = args.size > 1 ?Int.parse(args(1)):M;
+		M = args.size > 0 ? Long.parse(args(0)):50;
+		N = args.size > 1 ? Long.parse(args(1)):M;
 		iter = args.size > 2 ? Int.parse(args(2)):1;
 		vrfy = args.size > 3 ? true : false;
 

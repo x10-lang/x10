@@ -28,13 +28,13 @@ import x10.matrix.dist.summa.mpi.SummaMPI;
 
 public class CMPI_SUMMA {
 	public static def main(args:Rail[String]) {
-		val M   = args.size > 0 ?Int.parse(args(0)):100;
-		val K   = args.size > 1 ?Int.parse(args(1)):100;
-		val N   = args.size > 2 ?Int.parse(args(2)):100;
+		val M   = args.size > 0 ? Long.parse(args(0)):100;
+		val K   = args.size > 1 ? Long.parse(args(1)):100;
+		val N   = args.size > 2 ? Long.parse(args(2)):100;
 		val nzd = args.size > 3 ?Double.parse(args(3)):1.0;//Ignore
-		val pnl = args.size > 4 ?Int.parse(args(4)):64;
-		val bMN = args.size > 5 ?Int.parse(args(5)):1; //Ignore
-		val it  = args.size > 6 ?Int.parse(args(6)):4;
+		val pnl = args.size > 4 ? Long.parse(args(4)):64;
+		val bMN = args.size > 5 ? Long.parse(args(5)):1; //Ignore
+		val it  = args.size > 6 ? Long.parse(args(6)):4;
 		
 		val tc = new RunSummaMPIBench(M, K, N, it, pnl);
 		tc.run();

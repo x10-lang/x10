@@ -13,6 +13,9 @@
 
 import x10.util.Timer;
 
+import x10.regionarray.Dist;
+import x10.regionarray.DistArray;
+
 import x10.matrix.Debug;
 import x10.matrix.Matrix;
 import x10.matrix.DenseMatrix;
@@ -23,7 +26,6 @@ import x10.matrix.block.DenseBlockMatrix;
 import x10.matrix.dist.DistDenseMatrix;
 import x10.matrix.dist.DupDenseMatrix;
 
-import x10.matrix.comm.CommHandle;
 import x10.matrix.comm.MatrixRemoteCopy;
 import x10.matrix.comm.MatrixBcast;
 import x10.matrix.comm.MatrixGather;
@@ -31,12 +33,8 @@ import x10.matrix.comm.MatrixScatter;
 import x10.matrix.comm.MatrixReduce;
 
 /**
-   This class contains test cases for dense matrix multiplication.
-   <p>
-
-   <p>
+ * This class contains benchmarks for array communication operations.
  */
-
 public class TestCommu{
     public static def main(args:Rail[String]) {
 		val testcase = new TestDistMatrixCommu(args);
@@ -44,16 +42,13 @@ public class TestCommu{
 	}
 }
 
-
 class TestDistMatrixCommu {
-
 	public val vrfy:Boolean;
-	public val iter:Int;
+	public val iter:Long;
 	public val M:Long;
 
-	public val nplace:Int = Place.MAX_PLACES;
-	public val segt;
-
+	public val nplace:Long = Place.MAX_PLACES;
+	public val segt:Rail[Long];
 	
 	public var syncTime:Long = 0;
 	public var gatherTime:Long = 0;
@@ -61,7 +56,6 @@ class TestDistMatrixCommu {
 	public var allgatherTime:Long = 0;
 	public var reduceTime:Long = 0;
 	
--
 	public val dist:Dist= Dist.makeUnique();
 	
 	public val dA:DistDenseMatrix;
@@ -75,17 +69,17 @@ class TestDistMatrixCommu {
 		
 	public val gpart:Grid;
 	
-	public val szlist;
+	public val szlist:Rail[Long];
 	
-	public val checkTime:Array[Long](1) = new Array[Long](Place.MAX_PLACES);
+	public val checkTime = new Rail[Long](Place.MAX_PLACES);
 	
 	public def this(args:Rail[String]) {
-		val m = args.size > 0 ?Int.parse(args(0)):1024;
+		val m = args.size > 0 ? Long.parse(args(0)):1024;
 		M = m;
-		iter = args.size > 1 ? Int.parse(args(1)):1;
+		iter = args.size > 1 ? Long.parse(args(1)):1;
 		vrfy = args.size > 2 ? true : false;
 		
-		segt =  new Array[Int](nplace, (i:Int)=>m);   
+		segt =  new Rail[Long](nplace, (i:Long)=>m);   
 		gpart = new Grid(m*nplace, 1, nplace, 1);
 		
 		dA   = DistDenseMatrix.make(gpart);
