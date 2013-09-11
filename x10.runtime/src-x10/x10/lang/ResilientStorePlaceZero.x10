@@ -14,6 +14,7 @@ package x10.lang;
 import x10.compiler.*;
 
 import x10.util.Pair;
+import x10.util.HashMap;
 import x10.util.GrowableRail;
 import x10.util.concurrent.AtomicLong;
 import x10.util.concurrent.AtomicBoolean;
@@ -77,15 +78,32 @@ class ResilientStorePlaceZero {
 
         val id : Long;
         val parent : State;
-        val transit : Rail[Int];
+        //val transit : Rail[Int];
+        val transit : HashMap[Pair[Long,Long], Int];
         val live : Rail[Int];
-        val transitAdopted : Rail[Int];
+        //val transitAdopted : Rail[Int];
+        val transitAdopted : HashMap[Pair[Long,Long], Int];
         val liveAdopted : Rail[Int];
         val homeId : Long;
         var adopted : Boolean;
         var adoptedParent : Long;
         var multipleExceptions : GrowableRail[Exception] = null;
         val latch : SimpleLatch;
+        var totalCounter : Long;
+
+        private def recalculateTotal() {
+            totalCounter = 0;
+            for (i in 0..(Place.MAX_PLACES-1)) {
+                totalCounter += live(i);
+                totalCounter += liveAdopted(i);
+            }
+            for (ent in transit.entries()) {
+                totalCounter += ent.getValue();
+            }
+            for (ent in transitAdopted.entries()) {
+                totalCounter += ent.getValue();
+            }
+        }
 
         private def ensureMultipleExceptions() {
             if (multipleExceptions == null) multipleExceptions = new GrowableRail[Exception]();
@@ -95,16 +113,69 @@ class ResilientStorePlaceZero {
         public def this(pfs:State, homeId:Long, id:Long, latch:SimpleLatch) {
             this.id = id;
             this.parent = pfs;
-            this.transit = new Rail[Int](Place.MAX_PLACES * Place.MAX_PLACES, 0n);
+            //this.transit = new Rail[Int](Place.MAX_PLACES * Place.MAX_PLACES, 0n);
+            this.transit = new HashMap[Pair[Long,Long],Int]();
             this.live = new Rail[Int](Place.MAX_PLACES, 0n);
-            this.transitAdopted = new Rail[Int](Place.MAX_PLACES * Place.MAX_PLACES, 0n);
+            //this.transitAdopted = new Rail[Int](Place.MAX_PLACES * Place.MAX_PLACES, 0n);
+            this.transitAdopted = new HashMap[Pair[Long,Long],Int]();
             this.liveAdopted = new Rail[Int](Place.MAX_PLACES, 0n);
             this.live(homeId) = 1n;
             if (FinishState.VERBOSE) Runtime.println("    initial live("+homeId+") == 1");
+            this.totalCounter = 1;
             this.homeId = homeId;
             this.adopted = false;
             this.latch = latch;
         }
+
+        //def transitInc(src:Long, dst:Long, v:Int) { transit(src + dst*Place.MAX_PLACES) += v; }
+        //def transitDec(src:Long, dst:Long) { transit(src + dst*Place.MAX_PLACES)--; }
+        //def transitGet(src:Long, dst:Long) = transit(src + dst*Place.MAX_PLACES);
+        //def transitSet(src:Long, dst:Long, v:Int) { transit(src + dst*Place.MAX_PLACES) = v; }
+        def transitInc(src:Long, dst:Long, v:Int) {
+            if (v==0n) return;
+            val p = Pair[Long, Long](src, dst);
+            val old = transit.getOrElse(p, 0n);
+            transit.put(p, old+v);
+        }
+        def transitDec(src:Long, dst:Long) {
+            val p = Pair[Long, Long](src, dst);
+            val old = transit.getOrElse(p, 0n);
+            transit.put(p, old-1n);
+        }
+        def transitGet(src:Long, dst:Long) : Int { 
+            val p = Pair[Long, Long](src, dst);
+            return transit.getOrElse(p, 0n);
+        }
+        def transitSet(src:Long, dst:Long, v:Int) {
+            val p = Pair[Long, Long](src, dst);
+            transit.put(p, v);
+        }
+        //def transitAdoptedInc(src:Long, dst:Long, v:Int) { transitAdopted(src + dst*Place.MAX_PLACES) += v; }
+        //def transitAdoptedDec(src:Long, dst:Long) { transitAdopted(src + dst*Place.MAX_PLACES)--; }
+        //def transitAdoptedGet(src:Long, dst:Long) = transitAdopted(src + dst*Place.MAX_PLACES);
+        //def transitAdoptedSet(src:Long, dst:Long, v:Int) { transitAdopted(src + dst*Place.MAX_PLACES) = v; }
+        def transitAdoptedInc(src:Long, dst:Long, v:Int) {
+            if (v==0n) return;
+            val p = Pair[Long, Long](src, dst);
+            val old = transitAdopted.getOrElse(p, 0n);
+            transitAdopted.put(p, old+v);
+        }
+        def transitAdoptedDec(src:Long, dst:Long) {
+            val p = Pair[Long, Long](src, dst);
+            val old = transitAdopted.getOrElse(p, 0n);
+            transitAdopted.put(p, old-1n);
+        }
+        def transitAdoptedGet(src:Long, dst:Long) : Int { 
+            val p = Pair[Long, Long](src, dst);
+            return transitAdopted.getOrElse(p, 0n);
+        }
+        def transitAdoptedSet(src:Long, dst:Long, v:Int) {
+            val p = Pair[Long, Long](src, dst);
+            transitAdopted.put(p, v);
+        }
+
+        def transitInc(src:Long, dst:Long) { transitInc(src,dst,1n); }
+        def transitAdoptedInc(src:Long, dst:Long) { transitAdoptedInc(src,dst,1n); }
 
         def findFirstNonDeadParent() : State {
             if (!Place.isDead(parent.homeId)) return parent;
@@ -116,10 +187,11 @@ class ResilientStorePlaceZero {
                 liveAdopted(i) += child.live(i);
                 liveAdopted(i) += child.liveAdopted(i);
                 for (j in 0..(Place.MAX_PLACES-1)) {
-                    transitAdopted(j + i*Place.MAX_PLACES) += child.transit(j + i*Place.MAX_PLACES);
-                    transitAdopted(j + i*Place.MAX_PLACES) += child.transitAdopted(j + i*Place.MAX_PLACES);
+                    transitAdoptedInc(j, i, child.transitGet(j, i));
+                    transitAdoptedInc(j, i, child.transitAdoptedGet(j, i));
                 }
             }
+            recalculateTotal();
             child.adopted = true;
             child.adoptedParent = id;
         }
@@ -168,11 +240,13 @@ class ResilientStorePlaceZero {
             val fs = pair.first;
             val adopted = pair.second;
             if (adopted) {
-                fs.transitAdopted(srcId + dstId*Place.MAX_PLACES)++;
+                fs.transitAdoptedInc(srcId, dstId);
+                if (FinishState.VERBOSE) Runtime.println("    transitAdopted("+srcId+","+dstId+") == "+fs.transitAdoptedGet(srcId, dstId));
             } else {
-                fs.transit(srcId + dstId*Place.MAX_PLACES)++;
+                fs.transitInc(srcId, dstId);
+                if (FinishState.VERBOSE) Runtime.println("    transit("+srcId+","+dstId+") == "+fs.transitGet(srcId, dstId));
             }
-            if (FinishState.VERBOSE) Runtime.println("    transit("+srcId+","+dstId+") == "+fs.transit(srcId + dstId*Place.MAX_PLACES));
+            fs.totalCounter++;
         } });
     }
 
@@ -185,13 +259,15 @@ class ResilientStorePlaceZero {
             val adopted = pair.second;
             if (adopted) {
                 fs.liveAdopted(dstId)++;
-                fs.transitAdopted(srcId + dstId*Place.MAX_PLACES)--;
+                fs.transitAdoptedDec(srcId, dstId);
+                if (FinishState.VERBOSE) Runtime.println("    liveAdopted("+dstId+") == "+fs.liveAdopted(dstId));
+                if (FinishState.VERBOSE) Runtime.println("    transitAdopted("+srcId+","+dstId+") == "+fs.transitAdoptedGet(srcId, dstId));
             } else {
                 fs.live(dstId)++;
-                fs.transit(srcId + dstId*Place.MAX_PLACES)--;
+                fs.transitDec(srcId, dstId);
+                if (FinishState.VERBOSE) Runtime.println("    live("+dstId+") == "+fs.live(dstId));
+                if (FinishState.VERBOSE) Runtime.println("    transit("+srcId+","+dstId+") == "+fs.transitGet(srcId, dstId));
             }
-            if (FinishState.VERBOSE) Runtime.println("    live("+dstId+") == "+fs.live(dstId));
-            if (FinishState.VERBOSE) Runtime.println("    transit("+srcId+","+dstId+") == "+fs.transit(srcId + dstId*Place.MAX_PLACES));
             return 1l;
         } });
     }
@@ -207,6 +283,7 @@ class ResilientStorePlaceZero {
             } else {
                 fs.live(dstId)--;
             }
+            fs.totalCounter--;
             if (FinishState.VERBOSE) Runtime.println("    live("+dstId+") == "+fs.live(dstId));
             if (fs.latch != null && me.quiescent(fs)) {
                 if (FinishState.VERBOSE) Runtime.println("    Releasing latch...");
@@ -255,6 +332,7 @@ class ResilientStorePlaceZero {
         }
 
         // overwrite counters with 0 if places have died, accumuluate exceptions
+        var recalc_needed : Boolean = false;
         for (i in 0..(Place.MAX_PLACES-1)) {
             if (Place.isDead(i)) {
                 for (unused in 1..fs.live(i)) {
@@ -266,53 +344,55 @@ class ResilientStorePlaceZero {
                 // kill horizontal and vertical lines in transit matrix
                 for (j in 0..(Place.MAX_PLACES-1)) {
                     // do not generate DPEs for these guys, they were technically never sent!
-                    //for (unused in 1..fs.transit(i + j*Place.MAX_PLACES)) {
-                    //    fs.addDeadPlaceException(Place(i));
-                    //}
-                    fs.transit(i + j*Place.MAX_PLACES) = 0n;
-                    fs.transitAdopted(i + j*Place.MAX_PLACES) = 0n;
+                    fs.transitSet(i, j, 0n);
+                    fs.transitAdoptedSet(i, j, 0n);
 
-                    for (unused in 1..fs.transit(j + i*Place.MAX_PLACES)) {
+                    for (unused in 1..fs.transitGet(j, i)) {
                         fs.addDeadPlaceException(Place(i));
                     }
-                    fs.transit(j + i*Place.MAX_PLACES) = 0n;
-                    fs.transitAdopted(j + i*Place.MAX_PLACES) = 0n;
+                    fs.transitSet(j, i, 0n);
+                    fs.transitAdoptedSet(j, i, 0n);
                 }
+                recalc_needed = true;
             }
         }
+        if (recalc_needed) fs.recalculateTotal();
 
-        // [DC] a previous version of this used != instead of >
-        // however when I made the adjustment to allow resilient finish to be used
-        // as the root finish implementation (outside of main)
-        // this as no longer adequate since finishes used as root finish are used in a
-        // quirky fashion
-        if (FinishState.VERBOSE) Runtime.println("quiescent("+fs.id+")");
-        for (i in 0..(Place.MAX_PLACES-1)) {
-            if (fs.live(i)>0) {
-                if (FinishState.VERBOSE) Runtime.println("    "+fs.id+" Live at "+i);
-                return false;
+        // note that counter can go below 0 due to quirky use of top level finish
+        if (fs.totalCounter <= 0) return true;
+
+
+        if (FinishState.VERBOSE) {
+            Runtime.println("quiescent("+fs.id+")");
+            for (i in 0..(Place.MAX_PLACES-1)) {
+                if (fs.live(i)>0) {
+                    if (FinishState.VERBOSE) Runtime.println("    "+fs.id+" Live at "+i);
+                    return false;
+                }
             }
-            for (j in 0..(Place.MAX_PLACES-1)) {
-                if (fs.transit(i + j*Place.MAX_PLACES)>0) {
-                    if (FinishState.VERBOSE) Runtime.println("    "+fs.id+" In transit from "+i+" -> "+j);
+            for (ent in fs.transit.entries()) {
+                if (ent.getValue()>0) {
+                    val pair = ent.getKey();
+                    if (FinishState.VERBOSE) Runtime.println("    "+fs.id+" In transit from "+pair.first+" -> "+pair.second);
+                    return false;
+                }
+            }
+            for (i in 0..(Place.MAX_PLACES-1)) {
+                if (fs.liveAdopted(i)>0) {
+                    if (FinishState.VERBOSE) Runtime.println("    "+fs.id+" Live (adopted) at "+i);
+                    return false;
+                }
+            }
+            for (ent in fs.transitAdopted.entries()) {
+                if (ent.getValue()>0) {
+                    val pair = ent.getKey();
+                    if (FinishState.VERBOSE) Runtime.println("    "+fs.id+" In transit (adopted) from "+pair.first+" -> "+pair.second);
                     return false;
                 }
             }
         }
-        for (i in 0..(Place.MAX_PLACES-1)) {
-            if (fs.liveAdopted(i)>0) {
-                if (FinishState.VERBOSE) Runtime.println("    "+fs.id+" Live (adopted) at "+i);
-                return false;
-            }
-            for (j in 0..(Place.MAX_PLACES-1)) {
-                if (fs.transitAdopted(i + j*Place.MAX_PLACES)>0) {
-                    if (FinishState.VERBOSE) Runtime.println("    "+fs.id+" In transit (adopted) from "+i+" -> "+j);
-                    return false;
-                }
-            }
-        }
 
-        return true;
+        return false;
     }
 
     /** Grandfather activities under a dead finish into the nearest parent finish at a place that is still alive. */
