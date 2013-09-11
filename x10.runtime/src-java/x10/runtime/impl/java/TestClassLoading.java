@@ -12,13 +12,27 @@
 package x10.runtime.impl.java;
 
 public class TestClassLoading {
-    public static void main(java.lang.String[] args) {
-        try {
-            java.lang.String name = args[0];
-            java.lang.Class.forName(name);
-        } catch (java.lang.Throwable e) {
-            java.lang.System.exit(1);
+    public static void main(String[] args) {
+        /* check java version */
+        String javaversionstring = System.getProperty("java.specification.version");
+        if (javaversionstring == null) {
+            System.out.println("Error: Unknow Java version.  Use Java 6 or newer.");
+            System.exit(1);
         }
-        java.lang.System.exit(0);
+        double javaversion = Double.parseDouble(javaversionstring);
+        if (javaversion < 1.6) {
+            System.out.println("Error: Unsupported Java version.  Use Java 6 or newer.");
+            System.exit(1);
+        }
+
+        /* check application class */
+        try {
+            String name = args[0];
+            Class.forName(name);
+        } catch (Throwable e) {
+            System.exit(1);
+        }
+
+        System.exit(0);
     }
 }
