@@ -1269,7 +1269,7 @@ abstract class FinishState {
             val nu = new FinishResilientDistributedMaster(latch);
             val gnu = GlobalRef[FinishResilientDistributedMaster](nu);
 
-            if (FinishState.VERBOSE) Runtime.println("    parent is "+parent);
+            if (FinishState.VERBOSE) Runtime.println("    "+gnu+" parent is "+parent);
             if (here.id == 0) {
                 // we can never die, so no need to add to parents' children
                 // (this conveniently also covers the case of the root finish, where parent() == null)
@@ -1463,7 +1463,7 @@ abstract class FinishState {
                 val child = children(chindex);
                 if (!child.home.isDead()) continue;
 
-                Runtime.println("Adopting child finish...");
+                if (VERBOSE) Runtime.println("Adopting child finish...");
 
                 // remove child
                 if (chindex!=children.size()-1) {
@@ -1476,6 +1476,7 @@ abstract class FinishState {
                 // state would be inconsistent
                 val backup_cell = new Cell[FinishResilientDistributedBackup](null);
                 val found = FinishResilientDistributedBackup.backupLowLevelFetch(child, (r:FinishResilientDistributedBackup)=>{
+                    if (VERBOSE) Runtime.println("Setting forwarding pointer on backup "+r);
                     if (r.adopted) {
                         Runtime.println("should not be adopted already! FinishResilientDistributedBackup.fetchBackup");
                     }
@@ -1603,7 +1604,7 @@ abstract class FinishState {
             var success : Boolean = false;
             var the_root : GlobalRef[FinishResilientDistributedMaster] = root;
             var adopted : Boolean = false;
-            while (!success) {
+            while (true) {
                 val the_root_ = the_root;
 
                 if (adopted) {
@@ -1626,6 +1627,7 @@ abstract class FinishState {
 
                 if (!success) {
                     Runtime.println("Fatal Error: master and backup dead, in notifySubActivitySpawn()");
+                    break;
                 }
 
                 if (!cell().first) break;
@@ -1642,7 +1644,7 @@ abstract class FinishState {
             var success : Boolean = false;
             var the_root : GlobalRef[FinishResilientDistributedMaster] = root;
             var adopted : Boolean = false;
-            while (!success) {
+            while (true) {
                 val the_root_ = the_root;
 
                 val simple_cell = new Cell[Boolean](false);
@@ -1667,6 +1669,7 @@ abstract class FinishState {
 
                 if (!success) {
                     Runtime.println("Fatal Error: master and backup dead, in notifyActivityCreation()");
+                    break;
                 }
 
                 if (!cell().first) return cell().third;
@@ -1686,7 +1689,7 @@ abstract class FinishState {
             var success : Boolean = false;
             var the_root : GlobalRef[FinishResilientDistributedMaster] = root;
             var adopted : Boolean = false;
-            while (!success) {
+            while (true) {
                 val the_root_ = the_root;
 
                 if (adopted) {
@@ -1696,6 +1699,8 @@ abstract class FinishState {
                 }
 
                 if (success) break;
+
+                if (VERBOSE) Runtime.println(the_root+" master dead, looking for backup");
 
                 // return true if it was adopted (and the new master) or false meaning we updated the backup and all is good
                 val cell = new Cell(Pair[Boolean, GlobalRef[FinishResilientDistributedMaster]](false, the_root_));
@@ -1709,12 +1714,19 @@ abstract class FinishState {
 
                 if (!success) {
                     Runtime.println("Fatal Error: master and backup dead, in notifyActivityTermination()");
+                    break;
                 }
 
-                if (!cell().first) break;
+                if (!cell().first) {
+                    if (VERBOSE) Runtime.println(the_root+" found backup, updated it");
+                    break;
+                }
+
+                if (VERBOSE) Runtime.println(the_root+" found backup, using forwarding pointer: "+cell().second);
 
                 adopted = true;
                 the_root = cell().second;
+
             }
         }
 
