@@ -80,6 +80,16 @@ public final class GrowableRail[T] implements CustomSerialization {
         data(size++) = v;
     }
 
+    /**
+     * Add all elements from the argument GrowableRail to this.
+     */
+    public def addAll(x:GrowableRail[T]) {
+       if (size+x.size > capacity()) grow(size+x.size);
+       for (i in 0..(x.size-1)) {
+           data(size++) = x(i);
+       }
+    }
+
     /** 
      * Insert all elements of items starting at the specified index.
      * This will raise an UnsupportedOperationException if p > size.

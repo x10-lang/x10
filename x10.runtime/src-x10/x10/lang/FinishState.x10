@@ -14,7 +14,6 @@ package x10.lang;
 import x10.compiler.*;
 
 import x10.util.GrowableRail;
-import x10.util.ArrayList;
 import x10.util.HashMap;
 import x10.util.HashSet;
 import x10.util.Pair;
@@ -1174,7 +1173,7 @@ abstract class FinishState {
 
         val transit : Rail[Int];
         val live : Rail[Int];
-        val children  = new ArrayList[GlobalRef[FinishResilientDistributedMaster]]();
+        val children  = new GrowableRail[GlobalRef[FinishResilientDistributedMaster]]();
         var adopted : Boolean = false;
         var adoptedRoot : GlobalRef[FinishResilientDistributedMaster];
 
@@ -1225,7 +1224,7 @@ abstract class FinishState {
         val live : Rail[Int];
         val transitAdopted : Rail[Int];
         val liveAdopted : Rail[Int];
-        val children : ArrayList[GlobalRef[FinishResilientDistributedMaster]];
+        val children : GrowableRail[GlobalRef[FinishResilientDistributedMaster]];
         var numDead : Long;
 
         var multipleExceptions : GrowableRail[Exception] = null;
@@ -1254,7 +1253,7 @@ abstract class FinishState {
             this.live = new Rail[Int](Place.MAX_PLACES, 0n);
             this.transitAdopted = new Rail[Int](Place.MAX_PLACES * Place.MAX_PLACES, 0n);
             this.liveAdopted = new Rail[Int](Place.MAX_PLACES, 0n);
-            this.children = new ArrayList[GlobalRef[FinishResilientDistributedMaster]]();
+            this.children = new GrowableRail[GlobalRef[FinishResilientDistributedMaster]]();
             this.live(here.id) = 1n;
             this.numDead = 0;
             if (VERBOSE) Runtime.println("    initial live("+here.id+") == 1");
