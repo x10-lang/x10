@@ -1224,6 +1224,7 @@ abstract class FinishState {
         val live : Rail[Int];
         val transitAdopted : Rail[Int];
         val liveAdopted : Rail[Int];
+        var totalCounter : Long;
         val children : GrowableRail[GlobalRef[FinishResilientDistributedMaster]];
         var numDead : Long;
 
@@ -1234,6 +1235,32 @@ abstract class FinishState {
         var hasBackup : Boolean;
 
         val name : String;
+
+        def transitInc(src:Long, dst:Long, v:Int) { transit(src + dst*Place.MAX_PLACES) += v; }
+        def transitDec(src:Long, dst:Long) { transit(src + dst*Place.MAX_PLACES)--; }
+        def transitGet(src:Long, dst:Long) = transit(src + dst*Place.MAX_PLACES);
+        def transitSet(src:Long, dst:Long, v:Int) { transit(src + dst*Place.MAX_PLACES) = v; }
+        def transitAdoptedInc(src:Long, dst:Long, v:Int) { transitAdopted(src + dst*Place.MAX_PLACES) += v; }
+        def transitAdoptedDec(src:Long, dst:Long) { transitAdopted(src + dst*Place.MAX_PLACES)--; }
+        def transitAdoptedGet(src:Long, dst:Long) = transitAdopted(src + dst*Place.MAX_PLACES);
+        def transitAdoptedSet(src:Long, dst:Long, v:Int) { transitAdopted(src + dst*Place.MAX_PLACES) = v; }
+
+        def transitInc(src:Long, dst:Long) { transitInc(src,dst,1n); }
+        def transitAdoptedInc(src:Long, dst:Long) { transitAdoptedInc(src,dst,1n); }
+
+
+        private def recalculateTotal() {
+            totalCounter = 0;
+            for (i in 0..(Place.MAX_PLACES-1)) {
+                totalCounter += live(i);
+                totalCounter += liveAdopted(i);
+                for (j in 0..(Place.MAX_PLACES-1)) {
+                    totalCounter += transitGet(j, i);
+                    totalCounter += transitAdoptedGet(j, i);
+                }
+            }
+        }
+
 
         private def ensureMultipleExceptions() {
             if (multipleExceptions == null) multipleExceptions = new GrowableRail[Exception]();
@@ -1255,6 +1282,7 @@ abstract class FinishState {
             this.liveAdopted = new Rail[Int](Place.MAX_PLACES, 0n);
             this.children = new GrowableRail[GlobalRef[FinishResilientDistributedMaster]]();
             this.live(here.id) = 1n;
+            this.totalCounter = 1;
             this.numDead = 0;
             if (VERBOSE) Runtime.println("    initial live("+here.id+") == 1");
             this.latch = latch;
@@ -1308,7 +1336,8 @@ abstract class FinishState {
         def notifyAdoptedSubActivitySpawn(srcId:Long, dstId:Long) {
             latch.lock();
             if (VERBOSE) Runtime.println("("+name+").notifyAdoptedSubActivitySpawn("+srcId+", "+dstId+")");
-            transit(srcId + dstId*Place.MAX_PLACES)++;
+            transitAdopted(srcId + dstId*Place.MAX_PLACES)++;
+            totalCounter++;
             if (VERBOSE) Runtime.println("    transitAdopted("+srcId+","+dstId+") == "+transitAdopted(srcId + dstId*Place.MAX_PLACES));
             latch.unlock();
             if (hasBackup && !(srcId==here.id && dstId==here.id)) {
@@ -1326,6 +1355,7 @@ abstract class FinishState {
             latch.lock();
             if (VERBOSE) Runtime.println("("+name+").notifySubActivitySpawn("+srcId+", "+dstId+")");
             transit(srcId + dstId*Place.MAX_PLACES)++;
+            totalCounter++;
             if (VERBOSE) Runtime.println("    transit("+srcId+","+dstId+") == "+transit(srcId + dstId*Place.MAX_PLACES));
             latch.unlock();
             if (hasBackup && !(srcId==here.id && dstId==here.id)) {
@@ -1391,6 +1421,7 @@ abstract class FinishState {
             latch.lock();
             if (VERBOSE) Runtime.println("("+name+").notifyAdoptedActivityTermination("+dstId+")");
             liveAdopted(dstId)--;
+            totalCounter--;
             if (VERBOSE) Runtime.println("    liveAdopted("+dstId+") == "+liveAdopted(dstId));
             if (quiescent()) {
                 if (VERBOSE) Runtime.println("    Releasing latch...");
@@ -1412,6 +1443,7 @@ abstract class FinishState {
             latch.lock();
             if (VERBOSE) Runtime.println("("+name+").notifyActivityTermination("+dstId+")");
             live(dstId)--;
+            totalCounter--;
             if (VERBOSE) Runtime.println("    live("+dstId+") == "+live(dstId));
             if (quiescent()) {
                 if (VERBOSE) Runtime.println("    Releasing latch...");
@@ -1499,6 +1531,8 @@ abstract class FinishState {
                     }
                 }
 
+                recalculateTotal();
+
                 //TODO: commit new children to backup
             }
             latch.unlock();
@@ -1520,6 +1554,7 @@ abstract class FinishState {
             }
 
             // overwrite counters with 0 if places have died, accumuluate exceptions
+            var need_recalculate : Boolean = false;
             for (i in 0..(Place.MAX_PLACES-1)) {
                 if (Place.isDead(i)) {
                     for (unused in 1..live(i)) {
@@ -1543,37 +1578,43 @@ abstract class FinishState {
                         transit(j + i*Place.MAX_PLACES) = 0n;
                         transitAdopted(j + i*Place.MAX_PLACES) = 0n;
                     }
+                    need_recalculate = true;
                 }
             }
+            if (need_recalculate) recalculateTotal();
 
             // Counters can become negative due to quirky use of finish below main
-            if (VERBOSE) Runtime.println("("+name+").quiescent()");
-            for (i in 0..(Place.MAX_PLACES-1)) {
-                if (live(i)>0) {
-                    if (VERBOSE) Runtime.println("    ("+name+") Live at "+i);
-                    return false;
-                }
-                for (j in 0..(Place.MAX_PLACES-1)) {
-                    if (transit(i + j*Place.MAX_PLACES)>0) {
-                        if (FinishState.VERBOSE) Runtime.println("    ("+name+") In transit from "+i+" -> "+j);
+            if (totalCounter <= 0) return true;
+
+            if (VERBOSE) {
+                Runtime.println("("+name+").quiescent()");
+                for (i in 0..(Place.MAX_PLACES-1)) {
+                    if (live(i)>0) {
+                        if (VERBOSE) Runtime.println("    ("+name+") Live at "+i);
                         return false;
                     }
+                    for (j in 0..(Place.MAX_PLACES-1)) {
+                        if (transit(i + j*Place.MAX_PLACES)>0) {
+                            if (FinishState.VERBOSE) Runtime.println("    ("+name+") In transit from "+i+" -> "+j);
+                            return false;
+                        }
+                    }
                 }
-            }
-            for (i in 0..(Place.MAX_PLACES-1)) {
-                if (liveAdopted(i)>0) {
-                    if (VERBOSE) Runtime.println("    ("+name+") Live (adopted) at "+i);
-                    return false;
-                }
-                for (j in 0..(Place.MAX_PLACES-1)) {
-                    if (transitAdopted(i + j*Place.MAX_PLACES)>0) {
-                        if (FinishState.VERBOSE) Runtime.println("    ("+name+") In transit (adopted) from "+i+" -> "+j);
+                for (i in 0..(Place.MAX_PLACES-1)) {
+                    if (liveAdopted(i)>0) {
+                        if (VERBOSE) Runtime.println("    ("+name+") Live (adopted) at "+i);
                         return false;
+                    }
+                    for (j in 0..(Place.MAX_PLACES-1)) {
+                        if (transitAdopted(i + j*Place.MAX_PLACES)>0) {
+                            if (FinishState.VERBOSE) Runtime.println("    ("+name+") In transit (adopted) from "+i+" -> "+j);
+                            return false;
+                        }
                     }
                 }
             }
 
-            return true;
+            return false;
         }
 
     }
