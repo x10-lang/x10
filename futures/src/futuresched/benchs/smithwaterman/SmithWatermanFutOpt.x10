@@ -34,10 +34,14 @@ public class SmithWatermanFutOpt {
     if (CAS(eFutures, i, j, null, nef)) {
       async {
         val deps = eDeps(i, j);
-        nef.asyncSet(
-          deps,
-          ()=>{ (eFun(i, j)) }
+        FTask.asyncAnd(
+         deps,
+         ()=>{ nef.set(eFun(i, j)); }
         );
+//        nef.asyncSet(
+//          deps,
+//          ()=>{ (eFun(i, j)) }
+//        );
       }
       return nef;
     } else
@@ -76,10 +80,14 @@ public class SmithWatermanFutOpt {
     if (CAS(fFutures, i, j, null, nef)) {
       async {
         val deps = fDeps(i, j);
-        nef.asyncSet(
-          deps,
-          ()=>{(fFun(i,j))}
+        FTask.asyncAnd(
+         deps,
+         ()=>{ nef.set(fFun(i, j)); }
         );
+//        nef.asyncSet(
+//          deps,
+//          ()=>{(fFun(i,j))}
+//        );
       }
       return nef;
     } else
@@ -118,10 +126,14 @@ public class SmithWatermanFutOpt {
     if (CAS(mFutures, i, j, null, nef)) {
       async {
         val deps = mDeps(i, j);
-        nef.asyncSet(
-          deps,
-          ()=>{(mFun(i,j))}
+        FTask.asyncAnd(
+         deps,
+         ()=>{ nef.set(mFun(i, j)); }
         );
+//        nef.asyncSet(
+//          deps,
+//          ()=>{(mFun(i,j))}
+//        );
       }
       return nef;
     } else

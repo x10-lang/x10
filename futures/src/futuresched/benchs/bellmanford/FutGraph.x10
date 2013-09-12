@@ -30,21 +30,24 @@ public class FutGraph {
          node1.addNeighbor(node2, wt);
          node2.addNeighbor(node1, wt);
       }
-
+      var t: Int = 0;
       for (var i: Int = 0; i < n; i++) {
          val node1 = list.get(i);
          val b = 1 + bRand.nextInt(mb);
          //Console.OUT.println("branching: " + b);
          var d1: Int = node1.degree();
+         t = 0;
          while (d1 < b) {
             val node2Index = nRand.nextInt(n);
             val node2 = list.get(node2Index);
-            if (node1 != node2 && !node1.contains(node2) && node2.degree() < mb) {
+            if ((node1 != node2 && !node1.contains(node2) && node2.degree() < mb) || t == 10) {
                val wt = wRand.nextInt(w) + 1;
                node1.addNeighbor(node2, wt);
                node2.addNeighbor(node1, wt);
                d1 = node1.degree();
             }
+            else
+               t = t + 1;
          }
       }
       return new FutGraph(list);

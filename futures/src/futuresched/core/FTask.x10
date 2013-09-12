@@ -115,6 +115,14 @@ public abstract class FTask {
       return AndFTask.asyncAnd(future, block);
    }
 
+//   // Not to create extra closures:
+//   public static def asyncAndSet(
+//      futures: ArrayList[IntFuture],
+//      fun: ()=>Int,
+//      future: IntFuture): AndFTask {
+//      return AndFTask.asyncAndSet(futures, fun, future);
+//   }
+
 //----------------------------------------------------------------------------------
 // newAnd
 // Note that newAnd is called when the futures are not already set or being concurrently set.
@@ -258,10 +266,10 @@ public abstract class FTask {
    }
 
    public static def newPhasedOr[T1, T2, T3](
-      futures: ArrayList[T1],
+      list: ArrayList[T1],
       trans: (T1)=>Pair[SFuture[T2], T3],
       fun: (T2, T3)=>void){T2 isref, T2 haszero}: PhOrFTask[T2, T3] {
-      return PhOrFTask.newPhasedOr(futures, trans, fun);
+      return PhOrFTask.newPhasedOr(list, trans, fun);
    }
 
    // -----

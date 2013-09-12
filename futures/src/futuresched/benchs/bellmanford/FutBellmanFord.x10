@@ -20,10 +20,15 @@ public class FutBellmanFord {
                async {
                   val task = FTask.newPhasedOr(
                      node.neighbors,
+                     // Each neighbor is a pair of vertex node and the edge weight to it.
                      (p: Pair[FutNode, Int])=> {
                         val adj = p.first;
                         val dist = adj.dist;
                         val weight = p.second;
+                        // For each, we return a future that the task is dependent on and
+                        // a value that we want to be returned back, when this dependency is resolved.
+                        // In this case, for each neighbor, we return its distance future and
+                        // the edge weight to the neighbor.
                         return new Pair[SIntFuture, Int](dist, weight);
                      },
                      (parentDist: Int, weight: Int)=> {

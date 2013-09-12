@@ -21,7 +21,7 @@ public class Phasing {
 //      Console.OUT.println("Scheduling");
       if (holder.start) {
          // This is the first firing task
-         Console.OUT.println("First Task");
+//         Console.OUT.println("First Task");
          thisPhaseCount.set(1);
          holder.start = false;
          task.exec();

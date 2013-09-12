@@ -154,6 +154,32 @@ public class AndFTask extends FTask {
     return task;
   }
 
+//   public static def asyncAndSet(
+//      futures: ArrayList[IntFuture],
+//      fun: ()=>Int,
+//      future: IntFuture): AndFTask {
+//
+//      val thisAct = initActEnclosed(future.set(fun());
+//      val task = new AndFTask(thisAct);
+//
+//      val iter = futures.iterator();
+//      var count: Int = 0;
+//      while (iter.hasNext()) {
+//         val f = iter.next();
+//         val added = f.addIfNotSet(task, null);
+//         if (added)
+//         count = count + 1;
+//      }
+//      if (count == 0)
+//         task.exec();
+//      else {
+//         count = task.count.addAndGet(-count);
+//         if (count == 0)
+//         task.exec();
+//      }
+//      return task;
+//   }
+
 // ------------------------------------------------------------
 // newAnd
 // Note that newAnd is called when the futures are not already set or being concurrently set.
@@ -301,6 +327,9 @@ public class AndFTask extends FTask {
                //       before all the other futures have informed for the n'th time.
                //       This is because we do not check the identity of the informers
                //       but their count.
+               // For example, recurring AndTasks can be used to construct a computation
+               // graph and then to fire it with an input and get the result and then to
+               // fire it again with another input.
                c = count.addAndGet(-inDeg);
                while (c >= 0) {
                   exec();

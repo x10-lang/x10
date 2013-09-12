@@ -36,6 +36,7 @@ public final class IntFuture implements Notifier {
       this.flag = new AtomicInteger();
       this.flag.set(TENTATIVE);
     }
+
     def this(task: FTask, obj: Any) {
       //this.element = element;
       this.task = task;
@@ -152,21 +153,20 @@ public final class IntFuture implements Notifier {
     }
   }
 
-  // Todo: inlining async at the call site not to create the closure.
   //  @Inline def asyncSet
   public def asyncSet(fun: ()=>Int) {
     async set(fun());
   }
 
-  // Todo: To not make another closure.
-  // FTask.asyncWait(
-  //        futures,
-  //        fun);
   public def asyncSet(futures: ArrayList[IntFuture], fun: ()=>Int) {
     FTask.asyncAnd(
       futures,
       ()=>{ set(fun()); }
     );
+//    // To not make another closure.
+//    FTask.asyncAndSet(
+//      futures, fun, this
+//    );
   }
 
   public def asyncSet(futures: ArrayList[Notifier], fun: ()=>Int) {

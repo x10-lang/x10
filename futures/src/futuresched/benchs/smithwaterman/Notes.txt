@@ -19,8 +19,8 @@ SmithWaterman 2
 
 Note that in SFuture, all the waiting tasks that are launched as a result of set() are launched in the enclosing finish of set().
 
-
 -----------------------------------------------------------------
+
 
 
 

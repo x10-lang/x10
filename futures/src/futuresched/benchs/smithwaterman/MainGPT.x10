@@ -2,7 +2,7 @@ package futuresched.benchs.smithwaterman;
 
 import futuresched.core.*;
 
-
+/*
 @x10.compiler.NativeCPPInclude("google/profiler.h")
 public class MainGPT {
 
@@ -63,5 +63,4 @@ public class MainGPT {
 
 }
 
-
-
+*/
