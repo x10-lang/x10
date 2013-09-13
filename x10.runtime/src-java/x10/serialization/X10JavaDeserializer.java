@@ -145,9 +145,10 @@ public final class X10JavaDeserializer implements SerializationConstants {
         if (sid == RESET_OBJECT_GRAPH_BOUNDARY_ID) {
             if (Runtime.TRACE_SER) {
                 Runtime.printTraceMessage("RESETTING OBJECT GRAPH IDS");
-                objectList.clear();
-                counter = 0;
             }
+            objectList.clear();
+            counter = 0;
+
             return readSerializationId();
         }
         return sid;
