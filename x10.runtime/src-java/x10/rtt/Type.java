@@ -12,7 +12,7 @@
 package x10.rtt;
 
 
-public interface Type<T> extends java.io.Serializable, x10.serialization.X10JavaSerializable {
+public interface Type<T> extends x10.serialization.X10JavaSerializable {
     boolean isInstance(Object o);
     
     boolean equals(Object o);

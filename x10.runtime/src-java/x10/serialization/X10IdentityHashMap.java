@@ -20,7 +20,6 @@ package x10.serialization;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
-import java.io.Serializable;
 import java.util.AbstractCollection;
 import java.util.AbstractMap;
 import java.util.AbstractSet;
@@ -39,10 +38,7 @@ import java.util.Set;
  * This map is used to implement duplicate object serialization by the X10
  * serialization protocol.
  */
-class X10IdentityHashMap<K, V> extends AbstractMap<K, V> implements Map<K, V>,
-        Cloneable, Serializable {
-    private static final long serialVersionUID = 362498820763181265L;
-
+class X10IdentityHashMap<K, V> extends AbstractMap<K, V> implements Map<K, V>, Cloneable {
     transient int elementCount;
 
     transient Entry<K, V>[] elementData;
@@ -930,32 +926,6 @@ class X10IdentityHashMap<K, V> extends AbstractMap<K, V> implements Map<K, V>,
             };
         }
         return valuesCollection;
-    }
-
-    private void writeObject(ObjectOutputStream stream) throws IOException {
-        stream.defaultWriteObject();
-        stream.writeInt(elementData.length);
-        stream.writeInt(elementCount);
-        Iterator<Map.Entry<K, V>> iterator = entrySet().iterator();
-        while (iterator.hasNext()) {
-            Map.Entry<K, V> entry = iterator.next();
-            stream.writeObject(entry.getKey());
-            stream.writeObject(entry.getValue());
-        }
-    }
-
-    @SuppressWarnings("unchecked")
-    private void readObject(ObjectInputStream stream) throws IOException,
-            ClassNotFoundException {
-        stream.defaultReadObject();
-        int length = stream.readInt();
-        elementData = newElementArray(length);
-        elementCount = stream.readInt();
-        for (int i = elementCount; --i >= 0;) {
-            K key = (K) stream.readObject();
-            int index = (null == key) ? 0 : (System.identityHashCode(key) & (length - 1));
-            createEntry(key, index, (V) stream.readObject());
-        }
     }
     
     static boolean areEqualKeys(Object key1, Object key2) {

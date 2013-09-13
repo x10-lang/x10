@@ -10,10 +10,7 @@
  */
 package x10.core;
 
-import java.io.Externalizable;
 import java.io.IOException;
-import java.io.ObjectInput;
-import java.io.ObjectOutput;
 import java.lang.ref.ReferenceQueue;
 import java.lang.ref.WeakReference;
 import java.util.concurrent.ConcurrentHashMap;
@@ -32,7 +29,7 @@ import x10.serialization.X10JavaSerializer;
  * [GlobalGC] Managed X10 (X10 on Java) supports distributed GC, which is mainly implemented here, in GlobalRef.java.
  *            See a paper "Distributed Garbage Collection for Managed X10" in ACM SIGPLAN 2012 X10 Workshop, June 2012.
  */
-public final class GlobalRef<T> extends x10.core.Struct implements Externalizable, X10JavaSerializable {
+public final class GlobalRef<T> extends x10.core.Struct implements X10JavaSerializable {
 	
     public static final RuntimeType<GlobalRef<?>> $RTT = x10.rtt.NamedType.<GlobalRef<?>> make(
         "x10.lang.GlobalRef",
@@ -367,20 +364,12 @@ public final class GlobalRef<T> extends x10.core.Struct implements Externalizabl
         // modified from the compiled code of "async at (place) { changeRemoteCount(id, delta); }"
         private /*@@public@@*/ static class $Closure$0 extends x10.core.Ref implements x10.core.fun.VoidFun_0_0,
                 x10.serialization.X10JavaSerializable {
-            private static final long serialVersionUID = 1L;
 
             public static final x10.rtt.RuntimeType<$Closure$0> $RTT = x10.rtt.StaticVoidFunType.<$Closure$0> make(
             /* base class */$Closure$0.class, /* parents */new x10.rtt.Type[] { x10.core.fun.VoidFun_0_0.$RTT });
 
             public x10.rtt.RuntimeType<?> $getRTT() {return $RTT;}
             public Type<?> $getParam(int i) {return null;}
-
-            private void writeObject(java.io.ObjectOutputStream oos) throws java.io.IOException {
-                if (x10.runtime.impl.java.Runtime.TRACE_SER) {
-                    java.lang.System.out.println("Serializer: writeObject(ObjectOutputStream) of " + this + " calling");
-                }
-                oos.defaultWriteObject();
-            }
 
             public static x10.serialization.X10JavaSerializable $_deserialize_body($Closure$0 $_obj, X10JavaDeserializer $deserializer) throws java.io.IOException {
                 if (x10.runtime.impl.java.Runtime.TRACE_SER) {
@@ -555,35 +544,6 @@ public final class GlobalRef<T> extends x10.core.Struct implements Externalizabl
         }
     }
 
-    public void writeExternal(ObjectOutput out) throws IOException {
-        if (true) {
-            if(GLOBALGC_DEBUG>=1)GlobalGCDebug("GlobalRef.writeExternal: not supported!");
-            throw new RuntimeException("GlobalRef.writeExternal is not supported");
-        }
-        
-        globalize();
-        out.writeObject(T);
-        out.writeObject(home);
-        out.writeLong(id);
-    }
-
-    public void readExternal(ObjectInput in) throws IOException, ClassNotFoundException {
-        if (true) {
-            if(GLOBALGC_DEBUG>=1)GlobalGCDebug("GlobalRef.readExternal: not supported!");
-            throw new RuntimeException("GlobalRef.readExternal is not supported");
-        }
-        
-        T = (Type<?>) in.readObject();
-        home = (x10.lang.Place) in.readObject();
-        id = in.readLong();
-
-        if (home.id == x10.lang.Runtime.home().id) {
-            obj = GlobalizedObjectTracker.getObject(id);
-        } else {
-            obj = null;
-        }
-    }
-
     public void $_serialize(X10JavaSerializer $serializer) throws IOException {
         globalize();
         int weight = adjustWeight();
@@ -679,7 +639,6 @@ public final class GlobalRef<T> extends x10.core.Struct implements Externalizabl
 
     public static class LocalEval extends x10.core.Ref {
 
-	private static final long serialVersionUID = 1L;
 	public static final RuntimeType<LocalEval> $RTT = x10.rtt.NamedType.<LocalEval> make("x10.lang.GlobalRef.LocalEval", LocalEval.class);
 	public RuntimeType<?> $getRTT() {return $RTT;}
 	public Type<?> $getParam(int i) {return null;}
@@ -731,7 +690,6 @@ public final class GlobalRef<T> extends x10.core.Struct implements Externalizabl
 
 
 	public static class $Closure$Eval<$T, $U> extends x10.core.Ref implements x10.core.fun.Fun_0_0 {
-	    private static final long serialVersionUID = 1L;
 	    public static final RuntimeType<$Closure$Eval> $RTT =
 		x10.rtt.StaticFunType.<$Closure$Eval> make($Closure$Eval.class, 2,
 							 new Type[] {x10.rtt.ParameterizedType.make(x10.core.fun.Fun_0_0.$RTT, x10.rtt.UnresolvedType.PARAM(1))});
@@ -788,7 +746,6 @@ public final class GlobalRef<T> extends x10.core.Struct implements Externalizabl
 
             
 	public static class $Closure$Apply<$T> extends x10.core.Ref implements x10.core.fun.Fun_0_0 {
-	    private static final long serialVersionUID = 1L;
 	    public static final RuntimeType<$Closure$Apply> $RTT =
 		x10.rtt.StaticFunType.<$Closure$Apply> make($Closure$Apply.class, 1,
 							  new Type[] {x10.rtt.ParameterizedType.make(x10.core.fun.Fun_0_0.$RTT, x10.rtt.UnresolvedType.PARAM(0))});

@@ -148,7 +148,6 @@ public final class X10JavaDeserializer implements SerializationConstants {
             }
             objectList.clear();
             counter = 0;
-
             return readSerializationId();
         }
         return sid;

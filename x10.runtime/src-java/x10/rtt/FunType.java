@@ -15,8 +15,6 @@ import java.util.concurrent.ConcurrentHashMap;
 
 public final class FunType<T> extends RuntimeType<T> {
 
-    private static final long serialVersionUID = 1L;
-
     protected FunType(Class<?> javaClass, int numParams, Type<?>[] parents) {
         super(javaClass, numParams, parents);
     }

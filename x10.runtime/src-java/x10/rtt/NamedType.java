@@ -20,8 +20,6 @@ import x10.serialization.X10JavaSerializer;
 
 public class NamedType<T> extends RuntimeType<T> implements X10JavaSerializable {
 
-    private static final long serialVersionUID = 1L;
-    
     public String typeName;
 
     // Just for allocation
@@ -29,7 +27,6 @@ public class NamedType<T> extends RuntimeType<T> implements X10JavaSerializable 
         super();
     }
 
-    // N.B. this is also used to implement readResolve() in place for Types.COMPARABLE
     protected NamedType(String typeName, Class<?> javaClass, int numParams, Type<?>[] parents) {
         super(javaClass, numParams, parents);
         this.typeName = typeName;

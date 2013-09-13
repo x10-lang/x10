@@ -19,8 +19,6 @@ import x10.serialization.X10JavaSerializable;
 import x10.serialization.X10JavaSerializer;
 
 public class NamedStructType<T> extends RuntimeType<T> implements X10JavaSerializable {
-
-    private static final long serialVersionUID = 1L;
     
     public String typeName;
 
@@ -29,7 +27,6 @@ public class NamedStructType<T> extends RuntimeType<T> implements X10JavaSeriali
         super();
     }
 
-    // N.B. this is also used to implement readResolve() in place for Types.COMPARABLE
     protected NamedStructType(String typeName, Class<?> javaClass, int numParams, Type<?>[] parents) {
         super(javaClass, numParams, parents);
         this.typeName = typeName;

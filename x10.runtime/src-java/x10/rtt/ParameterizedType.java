@@ -22,8 +22,6 @@ import java.util.concurrent.ConcurrentHashMap;
 
 public final class ParameterizedType<T> implements Type<T>, X10JavaSerializable {
 
-    private static final long serialVersionUID = 1L;
-
     public RuntimeType<T> rawType;
     public Type<?>[] actualTypeArguments;
     

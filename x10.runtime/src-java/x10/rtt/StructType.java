@@ -14,13 +14,6 @@ package x10.rtt;
 
 public final class StructType extends RuntimeType<x10.core.StructI> {
 
-    private static final long serialVersionUID = 1L;
-
-    // make sure deserialized RTT object is not duplicated
-    private Object readResolve() throws java.io.ObjectStreamException {
-        return Types.STRUCT;
-    }
-
     public StructType() {
         super(x10.core.StructI.class,
             new Type[] { Types.ANY }

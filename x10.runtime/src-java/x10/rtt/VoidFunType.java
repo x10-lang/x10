@@ -15,8 +15,6 @@ import java.util.concurrent.ConcurrentHashMap;
 
 public final class VoidFunType<T> extends RuntimeType<T> {
     
-    private static final long serialVersionUID = 1L;
-
     protected VoidFunType(Class<?> javaClass, int numParams, Type<?>[] parents) {
         super(javaClass, numParams, parents);
     }
