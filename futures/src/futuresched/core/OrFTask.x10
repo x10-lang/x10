@@ -11,12 +11,23 @@ public class OrFTask[T, TP]{T isref, T haszero} extends FTask {
    public var finishState: FinishState;
    public var fun: (T, TP)=>void;
 
-   public def this(count: Int, act: Activity, worker: Runtime.Worker) {
-      super(count, act, worker);
+   public def this(count: Int, act: Activity, worker: Runtime.Worker, enclosed: Boolean) {
+      super(count, act, worker, enclosed);
    }
 
-   public def this(act: Activity) {
-      super(act);
+   public def this(act: Activity, enclosed: Boolean) {
+      super(act, enclosed);
+   }
+
+   public def this(finishState: FinishState, fun: (T, TP)=>void, enclosed: Boolean) {
+      super(enclosed);
+      this.finishState = finishState;
+      this.fun = fun;
+   }
+
+   public def this(fun: (T, TP)=>void, enclosed: Boolean) {
+      super(enclosed);
+      this.fun = fun;
    }
 
    public def this() {
@@ -30,10 +41,8 @@ public class OrFTask[T, TP]{T isref, T haszero} extends FTask {
      futures: ArrayList[Future[T]],
      fun: (T, Any)=>void){T isref, T haszero}: OrFTask[T, Any] {
 
-     val task = new OrFTask[T, Any]();
      val finishState = captureFinish();
-     task.finishState = finishState;
-     task.fun = fun;
+     val task = new OrFTask[T, Any](finishState, fun, true);
 
      val iter = futures.iterator();
      while (iter.hasNext()) {
@@ -60,10 +69,8 @@ public class OrFTask[T, TP]{T isref, T haszero} extends FTask {
      fun: (T2, Any)=>void){T2 isref, T2 haszero}: OrFTask[T2, Any] {
 
      //val thisAct = initActEnclosed(block);
-     val task = new OrFTask[T2, Any]();
      val finishState = captureFinish();
-     task.finishState = finishState;
-     task.fun = fun;
+     val task = new OrFTask[T2, Any](finishState, fun, true);
 
      //Console.OUT.println(futures);
      val iter = futures.iterator();
@@ -95,10 +102,9 @@ public class OrFTask[T, TP]{T isref, T haszero} extends FTask {
     fun: (T, Any)=>void){T isref, T haszero}: OrFTask[T, Any] {
 //    val block = ()=>{ fun(orSFuture) };
 
-     val fTask = new OrFTask[T, Any]();
+     val fTask = new OrFTask[T, Any](fun, false);
 //     val finishState = mainFinish;
 //     fTask.finishState = finishState;
-     fTask.fun = fun;
 
     val iter = futures.iterator();
     while (iter.hasNext()) {
@@ -114,10 +120,9 @@ public class OrFTask[T, TP]{T isref, T haszero} extends FTask {
      fun: (T2, T3)=>void){T2 isref, T2 haszero}: OrFTask[T2, T3] {
 
      //val thisAct = initActEnclosed(block);
-     val fTask = new OrFTask[T2, T3]();
+     val fTask = new OrFTask[T2, T3](fun, false);
 //     val finishState = mainFinish;
 //     fTask.finishState = finishState;
-     fTask.fun = fun; // as (T2, Any)=>void;
 
      val iter = futures.iterator();
      while (iter.hasNext()) {
@@ -132,7 +137,7 @@ public class OrFTask[T, TP]{T isref, T haszero} extends FTask {
 
 // ------------------------------------------------------
 
-   public def inform(g: Boolean, v: Any, obj: Any) {
+   public def inform(v: Any, obj: Any) {
       var go: Boolean = recurring;
       if (!recurring && !isDone)
          go = count.compareAndSet(0, 1);
@@ -140,7 +145,7 @@ public class OrFTask[T, TP]{T isref, T haszero} extends FTask {
 //         val f = n as Future[T];
 //         val v = f.get();
          val block = ()=>{ val fun = this.fun; fun(v as T, obj as TP); };
-         if (g) {
+         if (enclosed) {
             val thisAct = new Activity(block, here, this.finishState);
             this.act = thisAct;
          } else {

@@ -6,16 +6,22 @@ import x10.util.ArrayList;
 import x10.util.concurrent.Lock;
 import x10.util.concurrent.AtomicInteger;
 
+
 public class AndFTask extends FTask {
    var block: ()=>void;
    var inDeg: Int;
 
-   public def this(count: Int, act: Activity, worker: Runtime.Worker) {
-      super(count, act, worker);
+   public def this(count: Int, act: Activity, worker: Runtime.Worker, enclosed: Boolean) {
+      super(count, act, worker, enclosed);
    }
 
-   public def this(act: Activity) {
-      super(act);
+   public def this(act: Activity, enclosed: Boolean) {
+      super(act, enclosed);
+   }
+
+   public def this(block: ()=>void, enclosed: Boolean) {
+      this.block  = block;
+      this.enclosed = enclosed;
    }
 
    public def this() {
@@ -30,7 +36,7 @@ public class AndFTask extends FTask {
     block: ()=>void){T isref, T haszero}: AndFTask {
 
     val thisAct = initActEnclosed(block);
-    val task = new AndFTask(thisAct);
+    val task = new AndFTask(thisAct, true);
 
     val iter = futures.iterator();
     var count: Int = 0;
@@ -55,7 +61,7 @@ public class AndFTask extends FTask {
     block: ()=>void){T isref, T haszero}: AndFTask {
 
     val thisAct = initActEnclosed(block);
-    val task = new AndFTask(thisAct);
+    val task = new AndFTask(thisAct, true);
 
     val added = future.addIfNotSet(task, null);
     if (!added)
@@ -73,7 +79,7 @@ public class AndFTask extends FTask {
     futures: ArrayList[Notifier],
     block: ()=>void): AndFTask {
     val thisAct = initActEnclosed(block);
-    val task = new AndFTask(thisAct);
+    val task = new AndFTask(thisAct, true);
 
     val iter = futures.iterator();
     var count: Int = 0;
@@ -98,7 +104,7 @@ public class AndFTask extends FTask {
     block: ()=>void): AndFTask {
 
     val thisAct = initActEnclosed(block);
-    val task = new AndFTask(thisAct);
+    val task = new AndFTask(thisAct, true);
 
     val added = future.addIfNotSet(task, null);
     if (!added)
@@ -116,7 +122,7 @@ public class AndFTask extends FTask {
     block: ()=>void): AndFTask  {
 
     val thisAct = initActEnclosed(block);
-    val task = new AndFTask(thisAct);
+    val task = new AndFTask(thisAct, true);
 
     val iter = futures.iterator();
     var count: Int = 0;
@@ -141,7 +147,7 @@ public class AndFTask extends FTask {
     block: ()=>void): AndFTask  {
 
     val thisAct = initActEnclosed(block);
-    val task = new AndFTask(thisAct);
+    val task = new AndFTask(thisAct, true);
 
     val added = future.addIfNotSet(task, null);
     if (!added)
@@ -191,8 +197,7 @@ public class AndFTask extends FTask {
 //    val thisAct = new Activity(block, here, mainFinish);
 //    mainFinish.notifySubActivitySpawn(here);
 //    val fTask = new FTask(thisAct);
-    val fTask = new AndFTask();
-    fTask.block = block;
+    val fTask = new AndFTask(block, false);
 
     val iter = futures.iterator();
     while (iter.hasNext()) {
@@ -213,8 +218,7 @@ public class AndFTask extends FTask {
 //    mainFinish.notifySubActivitySpawn(here);
 //    val task = new FTask(thisAct);
 
-    val fTask = new AndFTask();
-    fTask.block = block;
+    val fTask = new AndFTask(block, false);
 
     future.add(fTask, null);
     fTask.inDeg = 1;
@@ -230,8 +234,7 @@ public class AndFTask extends FTask {
 //    mainFinish.notifySubActivitySpawn(here);
 //    val fTask = new FTask(thisAct);
 
-    val fTask = new AndFTask();
-    fTask.block = block;
+    val fTask = new AndFTask(block, false);
 
     val iter = futures.iterator();
     while (iter.hasNext()) {
@@ -253,8 +256,7 @@ public class AndFTask extends FTask {
 //    mainFinish.notifySubActivitySpawn(here);
 //    val fTask = new FTask(thisAct);
 
-    val fTask = new AndFTask();
-    fTask.block = block;
+    val fTask = new AndFTask(block, false);
 
     future.add(fTask, null);
     fTask.inDeg = 1;
@@ -270,8 +272,7 @@ public class AndFTask extends FTask {
 //    mainFinish.notifySubActivitySpawn(here);
 //    val fTask = new FTask(thisAct);
 
-    val fTask = new AndFTask();
-    fTask.block = block;
+    val fTask = new AndFTask(block, false);
 
     val iter = futures.iterator();
     while (iter.hasNext()) {
@@ -288,8 +289,7 @@ public class AndFTask extends FTask {
     future: SIntFuture,
     block: ()=>void): AndFTask {
 
-    val fTask = new AndFTask();
-    fTask.block = block;
+    val fTask = new AndFTask(block, false);
 
     future.add(fTask, null);
     fTask.inDeg = 1;
@@ -302,7 +302,7 @@ public class AndFTask extends FTask {
       block: ()=>void){T isref, T haszero} {
 
       val thisAct = initActEnclosed(block);
-      val task = new AndFTask(thisAct);
+      val task = new AndFTask(thisAct, true);
 
       future.add(task, null);
       task.inDeg = 1;
@@ -312,12 +312,12 @@ public class AndFTask extends FTask {
 // ------------------------------------------------------------
 // Single task scheduling
 
-   public def inform(g: Boolean, v: Any, obj: Any) {
+   public def inform(v: Any, obj: Any) {
       if (!isDone || recurring) {
          var c: Int;
          c = count.incrementAndGet();
          if (c == 0) {
-            if (!g)
+            if (!enclosed)
                act = initActEnclosed(block);
             exec();
             if (recurring) {

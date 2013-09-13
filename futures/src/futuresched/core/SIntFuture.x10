@@ -87,7 +87,7 @@ public final class SIntFuture implements SNotifier {
   }
 
   private def notifyTask(fTask: FTask, v: Any, obj: Any) {
-    fTask.inform(false, v, obj);
+    fTask.inform(v, obj);
   }
 
   public def asyncSet(fun: ()=>Int) {

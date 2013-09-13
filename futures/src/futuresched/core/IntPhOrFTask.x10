@@ -6,18 +6,32 @@ import x10.util.Pair;
 import x10.util.concurrent.Lock;
 import x10.util.concurrent.AtomicInteger;
 
+
+
 public class IntPhOrFTask[TP] extends FTask {
 
    public var finishState: FinishState;
    public var fun: (Int, TP)=>void;
 
-   public def this(count: Int, act: Activity, worker: Runtime.Worker) {
-      super(count, act, worker);
+   public def this(count: Int, act: Activity, worker: Runtime.Worker, enclosed: Boolean) {
+      super(count, act, worker, enclosed);
    }
 
-   public def this(act: Activity) {
-      super(act);
+   public def this(act: Activity, enclosed: Boolean) {
+      super(act, enclosed);
    }
+
+   public def this(finishState: FinishState, fun: (Int, TP)=>void, enclosed: Boolean) {
+      super(enclosed);
+      this.finishState = finishState;
+      this.fun = fun;
+   }
+
+   public def this(fun: (Int, TP)=>void, enclosed: Boolean) {
+      super(enclosed);
+      this.fun = fun;
+   }
+
 
    public def this() {
       super();
@@ -35,8 +49,7 @@ public class IntPhOrFTask[TP] extends FTask {
 //    fun: (SFuture[T])=>void){T isref, T haszero}: FTask {
       fun: (Int, Any)=>void): IntPhOrFTask[Any] {
 
-      val fTask = new IntPhOrFTask[Any]();
-      fTask.fun = fun;
+      val fTask = new IntPhOrFTask[Any](fun, false);
 
       val iter = futures.iterator();
       while (iter.hasNext()) {
@@ -51,8 +64,7 @@ public class IntPhOrFTask[TP] extends FTask {
       trans: (T1)=>SIntFuture,
       fun: (Int, Any)=>void): IntPhOrFTask[Any] {
 
-      val fTask = new IntPhOrFTask[Any]();
-      fTask.fun = fun;
+      val fTask = new IntPhOrFTask[Any](fun, false);
 
       val iter = futures.iterator();
       while (iter.hasNext()) {
@@ -69,10 +81,9 @@ public class IntPhOrFTask[TP] extends FTask {
      fun: (Int, T2)=>void): IntPhOrFTask[T2] {
 
      //val thisAct = initActEnclosed(block);
-     val fTask = new IntPhOrFTask[T2]();
+     val fTask = new IntPhOrFTask[T2](fun, false);
 //     val finishState = mainFinish;
 //     fTask.finishState = finishState;
-     fTask.fun = fun; //as (Int, Any)=>void;
 
      val iter = futures.iterator();
      while (iter.hasNext()) {
@@ -89,7 +100,7 @@ public class IntPhOrFTask[TP] extends FTask {
 // -------------------------------------------------------------------
 // Deferred task scheduling
 
-   public def inform(g: Boolean, v: Any, obj: Any) {
+   public def inform(v: Any, obj: Any) {
 //      Console.OUT.println("Informing");
       var go: Boolean = recurring;
       if (!recurring && !isDone)
@@ -106,7 +117,7 @@ public class IntPhOrFTask[TP] extends FTask {
             Phasing.end();
 //            Console.OUT.println("4");
          };
-         if (g) {
+         if (enclosed) {
             val thisAct = new Activity(block, here, this.finishState);
             this.act = thisAct;
          } else {

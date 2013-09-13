@@ -7,6 +7,8 @@ import x10.util.ArrayList;
 import x10.util.concurrent.Lock;
 import x10.util.concurrent.AtomicInteger;
 
+
+
 public abstract class FTask {
    
    var act: Activity;
@@ -14,24 +16,38 @@ public abstract class FTask {
 
    var count: AtomicInteger;
    var isDone: Boolean = false;
+   var enclosed: Boolean;
+
    public var recurring: Boolean = false;
+   // For a task that depends on only futures that not already set,
+   // setting recurring to true makes it callable multiple times.
 
    static val mainFinish: FinishState = Runtime.activity().finishState();
    public static def init(): FinishState {
       return mainFinish;
    }
 
-   public def this(count: Int, act: Activity, worker: Runtime.Worker) {
+   public def this(count: Int, act: Activity, worker: Runtime.Worker, enclosed: Boolean) {
       this.count = new AtomicInteger();
       this.count.set(count);
       this.act = act;
       this.worker = worker;
+      this.enclosed = enclosed;
    }
    
-   public def this(act: Activity) {
+   public def this(act: Activity, enclosed: Boolean) {
       this.count = new AtomicInteger();
       this.act = act;
       this.worker = Runtime.worker();
+      this.enclosed = enclosed;
+      // Scheduling the task in the worker that created it brings locality.
+   }
+
+   public def this(enclosed: Boolean) {
+      this.count = new AtomicInteger();
+      this.act = act;
+      this.worker = Runtime.worker();
+      this.enclosed = enclosed;
       // Scheduling the task in the worker that created it brings locality.
    }
 
@@ -70,7 +86,7 @@ public abstract class FTask {
       return state;
    }
 
-  public abstract def inform(g: Boolean, v: Any, obj: Any): void;
+  public abstract def inform(v: Any, obj: Any): void;
 
 //  public abstract def inform(f: SNotifier): void;
 

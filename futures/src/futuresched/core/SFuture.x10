@@ -90,7 +90,7 @@ public final class SFuture[T]{T isref, T haszero} implements SNotifier {
 
   private def notifyTask(fTask: FTask, v: Any, obj: Any) {
 //    Console.OUT.println(this + ": informing");
-    fTask.inform(false, v, obj);
+    fTask.inform(v, obj);
   }
 
   public def asyncSet(fun: ()=>T) {

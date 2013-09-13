@@ -13,12 +13,23 @@ public class PhOrFTask[T, TP]{T isref, T haszero} extends FTask {
    //public var fun: (T, Any)=>void;
    //public var fun: Any;
 
-   public def this(count: Int, act: Activity, worker: Runtime.Worker) {
-      super(count, act, worker);
+   public def this(count: Int, act: Activity, worker: Runtime.Worker, enclosed: Boolean) {
+      super(count, act, worker, enclosed);
    }
 
-   public def this(act: Activity) {
-      super(act);
+   public def this(act: Activity, enclosed: Boolean) {
+      super(act, enclosed);
+   }
+
+   public def this(finishState: FinishState, fun: (T, TP)=>void, enclosed: Boolean) {
+      super(enclosed);
+      this.finishState = finishState;
+      this.fun = fun;
+   }
+
+   public def this(fun: (T, TP)=>void, enclosed: Boolean) {
+      super(enclosed);
+      this.fun = fun;
    }
 
    public def this() {
@@ -38,10 +49,9 @@ public class PhOrFTask[T, TP]{T isref, T haszero} extends FTask {
       fun: (T, Any)=>void){T isref, T haszero}: PhOrFTask[T, Any] {
 //    val block = ()=>{ fun(orSFuture) };
 
-      val fTask = new PhOrFTask[T, Any]();
+      val fTask = new PhOrFTask[T, Any](fun, false);
 //     val finishState = mainFinish;
 //     fTask.finishState = finishState;
-      fTask.fun = fun;
 
       val iter = futures.iterator();
       while (iter.hasNext()) {
@@ -57,10 +67,9 @@ public class PhOrFTask[T, TP]{T isref, T haszero} extends FTask {
       fun: (T2, Any)=>void){T2 isref, T2 haszero}: PhOrFTask[T2, Any] {
 
       //val thisAct = initActEnclosed(block);
-      val fTask = new PhOrFTask[T2, Any]();
+      val fTask = new PhOrFTask[T2, Any](fun, false);
 //     val finishState = mainFinish;
 //     fTask.finishState = finishState;
-      fTask.fun = fun;
 
       val iter = futures.iterator();
       while (iter.hasNext()) {
@@ -77,11 +86,10 @@ public class PhOrFTask[T, TP]{T isref, T haszero} extends FTask {
       fun: (T2, T3)=>void){T2 isref, T2 haszero}: PhOrFTask[T2, T3] {
 
       //val thisAct = initActEnclosed(block);
-      val fTask = new PhOrFTask[T2, T3]();
+      val fTask = new PhOrFTask[T2, T3](fun, false);
       //     val finishState = mainFinish;
       //     fTask.finishState = finishState;
       //     Console.OUT.println("Before");
-      fTask.fun = fun; //as (T2, Any)=>void;
       //     Console.OUT.println("After");
 
       val iter = futures.iterator();
@@ -98,7 +106,7 @@ public class PhOrFTask[T, TP]{T isref, T haszero} extends FTask {
 // -------------------------------------------------------------------
 // Deferred task scheduling
 
-   public def inform(g: Boolean, v: Any, obj: Any) {
+   public def inform(v: Any, obj: Any) {
       var go: Boolean = recurring;
       if (!recurring && !isDone)
          go = count.compareAndSet(0, 1);
@@ -115,7 +123,7 @@ public class PhOrFTask[T, TP]{T isref, T haszero} extends FTask {
             Phasing.end();
 //            Console.OUT.println("4");
          };
-         if (g) {
+         if (enclosed) {
 //            Console.OUT.println("In g");
             val thisAct = new Activity(block, here, this.finishState);
             this.act = thisAct;

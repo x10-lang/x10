@@ -10,12 +10,17 @@ public class PhAndFTask extends FTask {
    var block: ()=>void;
    var inDeg: Int;
 
-   public def this(count: Int, act: Activity, worker: Runtime.Worker) {
-      super(count, act, worker);
+   public def this(count: Int, act: Activity, worker: Runtime.Worker, enclosed: Boolean) {
+      super(count, act, worker, enclosed);
    }
 
-   public def this(act: Activity) {
-      super(act);
+   public def this(act: Activity, enclosed: Boolean) {
+      super(act, enclosed);
+   }
+
+   public def this(block: ()=>void, enclosed: Boolean) {
+      this.block  = block;
+      this.enclosed = enclosed;
    }
 
    public def this() {
@@ -34,8 +39,8 @@ public class PhAndFTask extends FTask {
     futures: ArrayList[SFuture[T]],
     block: ()=>void){T isref, T haszero}: PhAndFTask {
 
-    val fTask = new PhAndFTask();
-    fTask.block = ()=>{ block(); Phasing.end(); };
+    val newBlock = ()=>{ block(); Phasing.end(); };
+    val fTask = new PhAndFTask(newBlock, false);
 
     val iter = futures.iterator();
     while (iter.hasNext()) {
@@ -52,8 +57,8 @@ public class PhAndFTask extends FTask {
     future: SFuture[T],
     block: ()=>void){T isref, T haszero}: PhAndFTask {
 
-    val fTask = new PhAndFTask();
-    fTask.block = ()=>{ block(); Phasing.end(); };
+    val newBlock = ()=>{ block(); Phasing.end(); };
+    val fTask = new PhAndFTask(newBlock, false);
 
     future.add(fTask, null);
     fTask.inDeg = 1;
@@ -65,8 +70,8 @@ public class PhAndFTask extends FTask {
     futures: ArrayList[SNotifier],
     block: ()=>void): PhAndFTask {
 
-    val fTask = new PhAndFTask();
-    fTask.block = ()=>{ block(); Phasing.end(); };
+    val newBlock = ()=>{ block(); Phasing.end(); };
+    val fTask = new PhAndFTask(newBlock, false);
 
     val iter = futures.iterator();
     while (iter.hasNext()) {
@@ -84,8 +89,9 @@ public class PhAndFTask extends FTask {
     future: SNotifier,
     block: ()=>void): PhAndFTask {
 
-    val fTask = new PhAndFTask();
-    fTask.block = ()=>{ block(); Phasing.end(); };
+    val newBlock = ()=>{ block(); Phasing.end(); };
+    val fTask = new PhAndFTask(newBlock, false);
+
 
     future.add(fTask, null);
     fTask.inDeg = 1;
@@ -97,8 +103,8 @@ public class PhAndFTask extends FTask {
       futures: ArrayList[SIntFuture],
       block: ()=>void): PhAndFTask {
 
-      val fTask = new PhAndFTask();
-      fTask.block = ()=>{ block(); Phasing.end(); };
+      val newBlock = ()=>{ block(); Phasing.end(); };
+      val fTask = new PhAndFTask(newBlock, false);
 
       val iter = futures.iterator();
       while (iter.hasNext()) {
@@ -115,8 +121,9 @@ public class PhAndFTask extends FTask {
       future: SIntFuture,
       block: ()=>void): PhAndFTask {
 
-      val fTask = new PhAndFTask();
-      fTask.block = ()=>{ block(); Phasing.end(); };
+      val newBlock = ()=>{ block(); Phasing.end(); };
+      val fTask = new PhAndFTask(newBlock, false);
+
 
       future.add(fTask, null);
       fTask.inDeg = 1;
@@ -130,7 +137,7 @@ public class PhAndFTask extends FTask {
 
       val newBlock = ()=>{ block(); Phasing.end(); };
       val thisAct = initActEnclosed(newBlock);
-      val task = new PhAndFTask(thisAct);
+      val task = new PhAndFTask(thisAct, true);
 
       future.add(task, null);
       task.inDeg = 1;
@@ -140,12 +147,12 @@ public class PhAndFTask extends FTask {
 // ------------------------------------------------------------
 // Deferred task scheduling
 
-   public def inform(g: Boolean, v: Any, obj: Any) {
+   public def inform(v: Any, obj: Any) {
       if (!isDone || recurring) {
          var c: Int;
          c = count.incrementAndGet();
          if (c == 0) {
-            if (!g)
+            if (!enclosed)
                act = initActEnclosed(block);
             Phasing.schedule(this);
             if (recurring) {

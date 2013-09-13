@@ -148,7 +148,7 @@ public final class Future[T]{T isref, T haszero} implements Notifier {
       state = flag.get(); // Spin for a short time
     if (state == Node.STABLE) {
       val fTask = node.task;
-      fTask.inform(true, v, obj);
+      fTask.inform(v, obj);
     }
   }
 
