@@ -13,6 +13,7 @@ public abstract class FTask {
    
    var act: Activity;
    var worker: Runtime.Worker;
+   // Scheduling the task in the worker that created it for locality.
 
    var count: AtomicInteger;
    var isDone: Boolean = false;
@@ -40,7 +41,6 @@ public abstract class FTask {
       this.act = act;
       this.worker = Runtime.worker();
       this.enclosed = enclosed;
-      // Scheduling the task in the worker that created it brings locality.
    }
 
    public def this(enclosed: Boolean) {
@@ -48,14 +48,14 @@ public abstract class FTask {
       this.act = act;
       this.worker = Runtime.worker();
       this.enclosed = enclosed;
-      // Scheduling the task in the worker that created it brings locality.
    }
 
    public def this() {
       this.count = new AtomicInteger();
       this.worker = Runtime.worker();
-      // Scheduling the task in the worker that created it brings locality.
    }
+
+
 
    public def exec() {
       val theAct = this.act;

@@ -1,6 +1,7 @@
 package futuresched.core;
 
 import x10.lang.Runtime;
+import x10.lang.Activity;
 import x10.util.ArrayList;
 import x10.util.ArrayList;
 import x10.util.concurrent.Lock;
@@ -8,16 +9,15 @@ import x10.util.concurrent.AtomicInteger;
 
 
 public class Phasing {
-   // Thread-local bags for next phase
 
-   static val thisPhaseCount: AtomicInteger = new AtomicInteger();
+   public static val thisPhaseCount: AtomicInteger = new AtomicInteger();
 
    static class Holder {
       var start: Boolean = true;
    }
    static val holder: Holder = new Holder();
 
-   static def schedule(task: FTask) {
+   public static def schedule(task: FTask) {
 //      Console.OUT.println("Scheduling");
       if (holder.start) {
          // This is the first firing task
@@ -29,19 +29,28 @@ public class Phasing {
          Runtime.worker().addToNextPhase(task.act);
    }
 
-   static def end() {
+   public static def addToNext(act: Activity) {
+      Runtime.worker().addToNextPhase(act);
+   }
+
+   public static def nextPhase() {
+      var count: Int = 0;
+      var j: Int;
+      val workers = Runtime.pool.workers.workers;
+      for(j = 0; j < Runtime.NTHREADS; j++)
+         count += workers(j).nextPhaseCount();
+      thisPhaseCount.set(count);
+
+      for(j = 0; j < Runtime.NTHREADS; j++)
+         workers(j).nextPhase();
+   }
+
+   public static def end() {
       val i = thisPhaseCount.decrementAndGet();
 //      Console.OUT.println("Current count: " + i);
       if (i == 0) {
 //         Console.OUT.println("Next Phase");
-         var count: Int = 0;
-         var j: Int;
-         val workers = Runtime.pool.workers.workers;
-         for(j = 0; j < Runtime.NTHREADS; j++)
-            count += workers(j).nextPhaseCount();
-         thisPhaseCount.set(count);
-         for(j = 0; j < Runtime.NTHREADS; j++)
-            workers(j).nextPhase();
+         nextPhase();
          if (count == 0)
             holder.start = true;
       }
