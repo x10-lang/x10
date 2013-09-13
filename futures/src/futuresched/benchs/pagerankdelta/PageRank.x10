@@ -4,7 +4,6 @@ import x10.util.ArrayList;
 import futuresched.core.Heart;
 
 
-
 public class PageRank {
 
    public static def compute(g: Graph, dampFact: Double) {
@@ -46,6 +45,7 @@ public class PageRank {
             }
          }
       );
+
    }
 
 }
