@@ -33,24 +33,33 @@ public class Phasing {
       Runtime.worker().addToNextPhase(act);
    }
 
-   public static def nextPhase() {
-      var count: Int = 0;
-      var j: Int;
-      val workers = Runtime.pool.workers.workers;
-      for(j = 0; j < Runtime.NTHREADS; j++)
-         count += workers(j).nextPhaseCount();
-      thisPhaseCount.set(count);
-
-      for(j = 0; j < Runtime.NTHREADS; j++)
-         workers(j).nextPhase();
-   }
+//   public static def nextPhase() {
+//      var count: Int = 0;
+//      var j: Int;
+//      val workers = Runtime.pool.workers.workers;
+//      for(j = 0; j < Runtime.NTHREADS; j++)
+//         count += workers(j).nextPhaseCount();
+//      thisPhaseCount.set(count);
+//
+//      for(j = 0; j < Runtime.NTHREADS; j++)
+//         workers(j).nextPhase();
+//   }
 
    public static def end() {
       val i = thisPhaseCount.decrementAndGet();
 //      Console.OUT.println("Current count: " + i);
       if (i == 0) {
 //         Console.OUT.println("Next Phase");
-         nextPhase();
+         var count: Int = 0;
+         var j: Int;
+         val workers = Runtime.pool.workers.workers;
+         for(j = 0; j < Runtime.NTHREADS; j++)
+            count += workers(j).nextPhaseCount();
+         thisPhaseCount.set(count);
+
+         for(j = 0; j < Runtime.NTHREADS; j++)
+            workers(j).nextPhase();
+
          if (count == 0)
             holder.start = true;
       }
