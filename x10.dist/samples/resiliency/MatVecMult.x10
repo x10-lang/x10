@@ -296,6 +296,7 @@ public class MatVecMult {
                     if (cfg.verbose)
                         Console.OUT.println("Read in matrix part "+split+" at "+here);
                     matrixSplits(split) = readMatrixSplit(cfg.gName+"/part-"+String.format("%05d",[split as Any]));
+                    Runtime.probe();
                 }
             }
             after = System.nanoTime();
@@ -319,6 +320,7 @@ public class MatVecMult {
                     }
                     v_dst_block.multiplyIn(g_block, v_src_block);
                     count++;
+                    if (count%100 == 0) Runtime.probe();
                 }
             }
             after = System.nanoTime();
