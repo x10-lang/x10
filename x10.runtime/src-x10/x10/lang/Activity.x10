@@ -85,6 +85,10 @@ class Activity {
      */
     val shouldNotifyTermination:Boolean;
 
+    /** Set to true unless this activity was spawned by a place that then immediately died
+     */
+    val confirmed:Boolean;
+
     /**
      * Depth of enclosong atomic blocks
      */
@@ -101,8 +105,12 @@ class Activity {
     }
     def this(body:()=>void, srcPlace:Place, finishState:FinishState, nac:Boolean, nt:Boolean) {
         this.finishState = finishState;
-        if (nac) finishState.notifyActivityCreation(srcPlace);
         this.shouldNotifyTermination = nt;
+        if (nac) {
+            this.confirmed = finishState.notifyActivityCreation(srcPlace);
+        } else {
+            this.confirmed = true;
+        }
         this.body = body;
     }
 
@@ -156,15 +164,17 @@ class Activity {
      * Run activity.
      */
     def run():void {
-        try {
-            body();
-        } catch (t:Error) {
-            finishState.pushException(new WrappedThrowable(t));
-        } catch (t:Exception) {
-            finishState.pushException(t);
+        if (confirmed) {
+            try {
+                body();
+            } catch (t:Error) {
+                finishState.pushException(new WrappedThrowable(t));
+            } catch (t:Exception) {
+                finishState.pushException(t);
+            }
+            if (null != clockPhases) clockPhases.drop();
+            if (shouldNotifyTermination) finishState.notifyActivityTermination();
         }
-        if (null != clockPhases) clockPhases.drop();
-        if (shouldNotifyTermination) finishState.notifyActivityTermination();
         if (DEALLOC_BODY) Unsafe.dealloc(body);
     }
 }
