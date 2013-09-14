@@ -20,28 +20,24 @@ import x10.matrix.block.Grid;
 import x10.matrix.dist.DistDenseMatrix;
 import x10.matrix.dist.DistSparseMatrix;
 import x10.matrix.dist.summa.SummaSparse;
-/**
-   <p>
 
-   <p>
- */
 public class DistSparseBench {
 	public static def main(args:Rail[String]) {
 		val M = args.size > 0 ? Long.parse(args(0)):1000;
 		val K = args.size > 1 ? Long.parse(args(1)):1000;
 		val N = args.size > 2 ? Long.parse(args(2)):1000;
 		val nzD = args.size > 3 ?Double.parse(args(3)):0.1;
-		val iter = args.size > 4 ? Int.parse(args(4)):1;
-		val ps = args.size > 5 ? Int.parse(args(5)):0;
+		val iter = args.size > 4 ? Long.parse(args(4)):1;
+		val ps = args.size > 5 ? Long.parse(args(5)):0;
 		val tc = new RunDistSparseBench(M, K, N, nzD, iter, ps);
 		tc.run();
 	}
 }
 
-class RunDistSparseBench{
-	public val M:Long, N:Long, K:Long, iter:Int, nzD:Double, pCmp:Double;
-	public val testps:Int; lastps:Int;
-	public val nplace:Int = Place.MAX_PLACES;
+class RunDistSparseBench {
+	public val M:Long, N:Long, K:Long, iter:Long, nzD:Double, pCmp:Double;
+	public val testps:Long; lastps:Long;
+	public val nplace:Long = Place.MAX_PLACES;
 
 	public val aPart:Grid;
 	public val bPart:Grid;
@@ -53,7 +49,7 @@ class RunDistSparseBench{
 	val tB:DistSparseMatrix(btPart.M, btPart.N);
 	val C:DistDenseMatrix(cPart.M, cPart.N);
 	
-	public def this(m:Long, k:Int, n:Long, nzd:Double, it:Int, p:Int) {
+	public def this(m:Long, k:Long, n:Long, nzd:Double, it:Long, p:Long) {
 		M = m; N = n; K=k; iter=it; nzD =nzd; pCmp=nzD*nzD;
 		aPart = Grid.make(M, K);
 		bPart = Grid.make(K, N);
@@ -88,12 +84,11 @@ class RunDistSparseBench{
 	}
     
     public def testSummaSparseMult():Boolean {
-
     	Console.OUT.printf("\nTest dist sparse multiply: (%dx%d) * (%dx%d) over %dx%d places\n",
     			M, K, K, N, aPart.numRowBlocks, aPart.numColBlocks);
     	Debug.flushln("Start computation");
     	
-    	for (var ps:Int=testps; ps <=lastps; ps*=2) {
+    	for (var ps:Long=testps; ps <=lastps; ps*=2) {
     		C.init(0.1/7);
     		C.distBs(here.id()).calcTime=0; 
     		C.distBs(here.id()).commTime=0; 
@@ -117,7 +112,7 @@ class RunDistSparseBench{
     			M, K, N, K, aPart.numRowBlocks, aPart.numColBlocks);
 
     	Debug.flushln("Start computation");
-    	for (var ps:Int=testps; ps <=lastps; ps*=2) {
+    	for (var ps:Long=testps; ps <=lastps; ps*=2) {
     		C.init(0.1/7);
     		C.distBs(here.id()).calcTime=0; 
     		C.distBs(here.id()).commTime=0; 
