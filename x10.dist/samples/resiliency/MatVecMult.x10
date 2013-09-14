@@ -296,7 +296,6 @@ public class MatVecMult {
                     if (cfg.verbose)
                         Console.OUT.println("Read in matrix part "+split+" at "+here);
                     matrixSplits(split) = readMatrixSplit(cfg.gName+"/part-"+String.format("%05d",[split as Any]));
-                    Runtime.probe();
                 }
             }
             after = System.nanoTime();
@@ -320,7 +319,7 @@ public class MatVecMult {
                     }
                     v_dst_block.multiplyIn(g_block, v_src_block);
                     count++;
-                    if (count%100 == 0) Runtime.probe();
+                    if (count%30 == 0) Runtime.probe();
                 }
             }
             after = System.nanoTime();
@@ -506,6 +505,7 @@ public class MatVecMult {
                 if (magic2 != 0xdcdcdcdcn) throw new Exception("File corrupted midway through: "+name);
             } catch (e:EOFException) { break; }
             r.add(new MatrixBlockCSC(fr));
+            if (r.size() % 10 == 0) Runtime.probe();
         }
         return r.toRail();
     }
