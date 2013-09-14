@@ -246,6 +246,7 @@ public class MatVecMult {
         var iterations : Int;
         var verbose : Boolean;
         var quiet : Boolean;
+        var killTest : Int;
     }
 
     public static interface Task {
@@ -334,6 +335,7 @@ public class MatVecMult {
             Option("h","help","this information")
         ], [
             Option("i","iterations","number of iterations"),
+            Option("k","kill","kill place 1 at this iteration"),
             Option("G","inputMatrix","location of input directory"),
             Option("V","inputVector","location of input directory"),
             Option("o","outVector","location of output file"),
@@ -363,6 +365,7 @@ public class MatVecMult {
         cfg.iterations = opts("-i",50n);
         cfg.verbose = opts("-v");
         cfg.quiet = opts("-q");
+        cfg.killTest = opts("-k", -1n);
         cfg.numSplits = opts("-s", 100n);
 
         if (cfg.matrixSize % cfg.blockSize != 0n) {
@@ -372,6 +375,8 @@ public class MatVecMult {
         }
             
         Console.OUT.println("MatVecMult started.  Loading matrix...");
+
+        val before_all = System.nanoTime();
 
         var before:Long=0, after:Long=0; // for timings
 
@@ -431,8 +436,10 @@ public class MatVecMult {
                 }
                 need_set_splits = false;
                 before = System.nanoTime();
+                val iter_ = iter;
                 finish launchTree[PerPlaceState](0, plh, () => {
                     val state = plh();
+                    if (here.id==1 && state.cfg.killTest==iter_) System.killHere();
                     val local_dst_vector_blocks = state.calcNewVector(src_vector_blocks);
                     val block_size = state.cfg.blockSize;
                     at (Place.FIRST_PLACE) async {
@@ -480,6 +487,9 @@ public class MatVecMult {
         after = System.nanoTime();
         Console.OUT.println("Write out vector time: "+(after-before)/1E9+" seconds");
 
+        val after_all = System.nanoTime();
+
+        Console.OUT.println("Total time: "+(after_all-before_all)/1E9+" seconds");
     }
 
     static def readMatrixSplit(name:String) : Rail[MatrixBlockCSC] {
