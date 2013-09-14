@@ -17,27 +17,20 @@ import x10.matrix.DenseMatrix;
 import x10.matrix.DenseMultXTen;
 import x10.matrix.VerifyTools;
 
-
-/**
-   <p>
-
-   <p>
- */
 public class DenseMultBench {
 	public static def main(args:Rail[String]) {
 		val M = args.size > 0 ? Long.parse(args(0)):50;
 		val K = args.size > 1 ? Long.parse(args(1)):M;
 		val N = args.size > 2 ? Long.parse(args(2)):M;
-		val iter = args.size > 3 ? Int.parse(args(3)):1;
-		val ps = args.size > 4 ? Int.parse(args(4)):0;
+		val iter = args.size > 3 ? Long.parse(args(3)):1;
+		val ps = args.size > 4 ? Long.parse(args(4)):0;
 		val tc = new RunDenseComp(M, K, N, iter);
 		tc.run();
 	}
 }
 
-class RunDenseComp{
-
-	public val iter:Int;
+class RunDenseComp {
+	public val iter:Long;
 	public val M:Long;
 	public val N:Long;
 	public val K:Long;
@@ -47,7 +40,7 @@ class RunDenseComp{
 	val tB:DenseMatrix(N, K);
 	val C:DenseMatrix(M, N);
 	
-	public def this(m:Long, k:Int, n:Long, it:Int) {
+	public def this(m:Long, k:Long, n:Long, it:Long) {
 		M = m; N = n; K=k; iter=it;
 		
 		A  = DenseMatrix.make(M, K);
