@@ -194,6 +194,7 @@ class ResilientStorePlaceZero {
             recalculateTotal();
             child.adopted = true;
             child.adoptedParent = id;
+            child.latch.release(); // stop blocked activities building up
         }
 
         def addDeadPlaceException(p:Place) {
@@ -216,7 +217,7 @@ class ResilientStorePlaceZero {
                 val pfs = parentId==-1l ? null : me.states(parentId);
                 val id = me.states.size();
                 if (FinishState.VERBOSE) Runtime.println("make("+parentId+","+id+") @ "+homeId);
-                val fs = new State(pfs, homeId, id, latch);
+                val fs = new State(pfs, homeId, id, latch == null ? new SimpleLatch() : latch);
                 me.states.add(fs);
                 return fs.id;
             }
@@ -285,7 +286,7 @@ class ResilientStorePlaceZero {
             }
             fs.totalCounter--;
             if (FinishState.VERBOSE) Runtime.println("    live("+dstId+") == "+fs.live(dstId));
-            if (fs.latch != null && me.quiescent(fs)) {
+            if (me.quiescent(fs)) {
                 if (FinishState.VERBOSE) Runtime.println("    Releasing latch...");
                 fs.latch.release();
             }
@@ -295,14 +296,6 @@ class ResilientStorePlaceZero {
     static def notifyPlaceDeath(root_id:Long) {
         assert here == Place.FIRST_PLACE;
         me.pushUp();
-        atomic {
-            if (FinishState.VERBOSE) Runtime.println("Checking if root finished has quiesced after place death...");
-            val root_fs = me.states(root_id);
-            if (root_fs.latch != null && me.quiescent(root_fs)) {
-                if (FinishState.VERBOSE) Runtime.println("    Releasing latch on root...");
-                root_fs.latch.release();
-            }
-        }
     }
 
     static def pushException(id:Long, t:Exception) {
@@ -407,6 +400,12 @@ class ResilientStorePlaceZero {
                     pfs.adopt(fs);
                 }
             }
+            // have to do two traversals, since quiescent may go from true to false after adopting more activities
+            for (i in 0..(states.size()-1)) {
+                val fs = states(i);
+                if (fs==null || fs.adopted) continue;
+                if (me.quiescent(fs)) fs.latch.release();
+            }
         }
     }
 
@@ -418,7 +417,8 @@ class ResilientStorePlaceZero {
                 s = me.states(id);
             }
             notifyActivityTermination(id, s.homeId);
-            when (s.adopted || me.quiescent(s)) { }
+            if (!Runtime.STRICT_FINISH) Runtime.worker().join(s.latch);
+            s.latch.await();
             atomic {
                 me.states(id) = null;
             }
