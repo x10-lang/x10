@@ -1,24 +1,24 @@
 
 
 public class ResilientHeatTransfer_v3 {
-    static val arrayColsPerPlace : Int = 256;
+    static val arrayColsPerPlace : Long = 256;
     static val epsilon = 1.0e-3;
-    static val dimensionSize : Int = arrayColsPerPlace * (Place.MAX_PLACES as Int);
-    static val iterationsPerBackup = 1;
+    static val dimensionSize : Long = arrayColsPerPlace * Place.MAX_PLACES;
+    static val iterationsPerBackup = 0;
     
 
     public static class PartitionedHeatArray {
       var partition : Rail[Double];
-      var numColumns : Int;
-      var arraySize : Int;
+      var numColumns : Long;
+      var arraySize : Long;
 
-      def this(colsInPartition:Int) {
+      def this(colsInPartition:Long) {
         arraySize = (dimensionSize + 2) * (colsInPartition +2);
         partition = new Rail[Double](arraySize, 0.0);
 	numColumns = colsInPartition;
       } 
       
-      def newPrimary(colsInPartition:Int) {
+      def newPrimary(colsInPartition:Long) {
         arraySize = (dimensionSize + 2) * (colsInPartition +2);
         partition = new Rail[Double](arraySize, 0.0);
 	numColumns = colsInPartition;
@@ -29,7 +29,7 @@ public class ResilientHeatTransfer_v3 {
 	if (backup.numColumns != numColumns)
 	  newPrimary(backup.numColumns);
 
-        for (i : int in 0..(arraySize - 1))
+        for (i : Long in 0..(arraySize - 1))
 	  partition(i) = backup.partition(i);
       }
 
@@ -47,12 +47,12 @@ public class ResilientHeatTransfer_v3 {
 
     public static class BackupPartition {
       var partition : Rail[Double];
-      var numColumns : Int;
-      var arraySize : Int;
+      var numColumns : Long;
+      var arraySize : Long;
       var isValid : Boolean;
-      var iterationNumber : Int;
+      var iterationNumber : Long;
 
-      def this(colsInPartition:Int) {
+      def this(colsInPartition:Long) {
         arraySize = (dimensionSize + 2) * (colsInPartition +2);
         partition = new Rail[Double](arraySize, 0.0);
 	numColumns = colsInPartition;
@@ -60,17 +60,17 @@ public class ResilientHeatTransfer_v3 {
 	iterationNumber = -1;
       }
 
-      def newBackupArray(colsInPartition:Int) {
+      def newBackupArray(colsInPartition:Long) {
         arraySize = (dimensionSize + 2) * (colsInPartition +2);
         partition = new Rail[Double](arraySize, 0.0);
 	numColumns = colsInPartition;
       }
 
-      def updateBackup(primary:PartitionedHeatArray, iteration:int) {
+      def updateBackup(primary:PartitionedHeatArray, iteration:Long) {
         if (primary.numColumns != numColumns)
           // failed place might change # of columns in backup partition
 	  newBackupArray(primary.numColumns);	  
-        for (i : int in 0..(arraySize - 1))
+        for (i : Long in 0..(arraySize - 1))
 	  partition(i) = primary.partition(i);
         iterationNumber = iteration;
         isValid = true;        
@@ -87,20 +87,20 @@ public class ResilientHeatTransfer_v3 {
       backup1 : BackupPartition;
       localBackup : BackupPartition;
 
-      def this(colsInPartition:Int) {
+      def this(colsInPartition:Long) {
         backup0 = new BackupPartition(colsInPartition);
         backup1 = new BackupPartition(colsInPartition);
         localBackup = new BackupPartition(colsInPartition);
       }
 
-      def updatePartition(primary:PartitionedHeatArray, iteration:int) {
+      def updatePartition(primary:PartitionedHeatArray, iteration:Long) {
         if (((iteration/iterationsPerBackup) % 2) == 0)
 	  backup0.updateBackup(primary, iteration);
 	else
 	  backup1.updateBackup(primary, iteration);
       }
 
-      def updateLocalPartition(primary:PartitionedHeatArray, iteration:int) {
+      def updateLocalPartition(primary:PartitionedHeatArray, iteration:Long) {
 	localBackup.updateBackup(primary, iteration);
       }
 
@@ -118,19 +118,19 @@ public class ResilientHeatTransfer_v3 {
 
     public static class RecoveryInformation {
       val activePlaces : Rail[Boolean];
-      var lastActivePlace : Int;
-      var lastCheckPointIter : Int;
-      var numCheckPoints : Int;
+      var lastActivePlace : Long;
+      var lastCheckPointIter : Long;
+      var numCheckPoints : Long;
 
       def this() {
-        activePlaces = new Rail[Boolean]((Place.MAX_PLACES as Int), true);
-	lastActivePlace = (Place.MAX_PLACES as Int) - 1;
+        activePlaces = new Rail[Boolean](Place.MAX_PLACES, true);
+	lastActivePlace = Place.MAX_PLACES - 1;
 	lastCheckPointIter = 0;
 	numCheckPoints = 0;
       }
     }
 
-    static def tupleToIndex(row:int, col:int, colSize:int): int {
+    static def tupleToIndex(row:Long, col:Long, colSize:Long): Long {
 // Console.OUT.printf("row %i, col %i, colSize %i, real index %i\n", row, col, colSize, (row * colSize) + col);
       return (row * colSize) + col;
     }
@@ -157,13 +157,13 @@ public class ResilientHeatTransfer_v3 {
     }
 
     static def getColumn(heatArray:PartitionedHeatArray, highCol:Boolean, column:Rail[double]) {
-      val j : int;
+      val j : Long;
 
       if (highCol)
         j = heatArray.numColumns;
       else
         j = 1;
-      for (i : int in 0..(dimensionSize + 1))
+      for (i : Long in 0..(dimensionSize + 1))
         column(i) = heatArray.partition(tupleToIndex(i,j,heatArray.numColumns+2));
     }
 
@@ -190,7 +190,7 @@ public class ResilientHeatTransfer_v3 {
     }
 
     static def replaceColumn(heatArray:PartitionedHeatArray, highCol:Boolean, column:Rail[Double]) {
-      val j : int;
+      val j : Long;
 
       if (highCol)
         j = heatArray.numColumns + 1;
@@ -200,7 +200,7 @@ public class ResilientHeatTransfer_v3 {
         heatArray.partition(tupleToIndex(i,j,heatArray.numColumns+2)) = column(i);
     }
 
-    static def printHeatArray(heatArray:Rail[Double], numColumns:Int) {
+    static def printHeatArray(heatArray:Rail[Double], numColumns:Long) {
       Console.OUT.println("Number of columns: " + numColumns);
       for (i in 0..(dimensionSize+1)) {
         for (j in 0..(numColumns+1))
@@ -211,7 +211,7 @@ public class ResilientHeatTransfer_v3 {
 
     }
 
-    static def outputAcrossAllPlaces(heatArrayPlh:PlaceLocalHandle[PartitionedHeatArray], backupPlh:PlaceLocalHandle[BackupPartitions], iterationNumber:Int, activePlaces:Rail[Boolean]) {
+    static def outputAcrossAllPlaces(heatArrayPlh:PlaceLocalHandle[PartitionedHeatArray], backupPlh:PlaceLocalHandle[BackupPartitions], iterationNumber:Long, activePlaces:Rail[Boolean]) {
       Console.OUT.printf("Total Iterations: %i\n", iterationNumber);
       for (p in Place.places()) {
         if (activePlaces(p.id())) {
@@ -227,7 +227,7 @@ public class ResilientHeatTransfer_v3 {
     }
 
 
-    static def checkpoint(backupPlh:PlaceLocalHandle[BackupPartitions], heatArrayPlh:PlaceLocalHandle[PartitionedHeatArray], iterationNumber:int, recoveryInfo:RecoveryInformation): boolean {
+    static def checkpoint(backupPlh:PlaceLocalHandle[BackupPartitions], heatArrayPlh:PlaceLocalHandle[PartitionedHeatArray], iterationNumber:Long, recoveryInfo:RecoveryInformation): boolean {
       var placeNum : Long = 0;
       var p : Place = Place.FIRST_PLACE;
       var checkpointSucceeded : Boolean = true;
@@ -261,7 +261,7 @@ public class ResilientHeatTransfer_v3 {
       return checkpointSucceeded;
     }
 
-    static def handleDeadPlaces(heatArrayPlh:PlaceLocalHandle[PartitionedHeatArray], backupPlh:PlaceLocalHandle[BackupPartitions], recoveryInfo:RecoveryInformation, e:MultipleExceptions, failureLocation:Int) {
+    static def handleDeadPlaces(heatArrayPlh:PlaceLocalHandle[PartitionedHeatArray], backupPlh:PlaceLocalHandle[BackupPartitions], recoveryInfo:RecoveryInformation, e:MultipleExceptions, failureLocation:Long) {
     // failureLocation can be one of the following: 
     // 1: While the new heat array values are being calculated
     // 2. While the border columns are being copied
@@ -295,10 +295,10 @@ public class ResilientHeatTransfer_v3 {
       val columnArrayPlhHigh = PlaceLocalHandle.make[Rail[Double]](PlaceGroup.WORLD, ()=>initializeColumnArray());
       val backupPlh = PlaceLocalHandle.make[BackupPartitions](PlaceGroup.WORLD, ()=>new BackupPartitions(arrayColsPerPlace));
       var keepIterating : Boolean = true;
-      val continueVariables = new Rail[Boolean](Place.MAX_PLACES as Int);
+      val continueVariables = new Rail[Boolean](Place.MAX_PLACES);
       val outputResults : Boolean = false;
       val printDebugInfo : Boolean = false;
-      var iterationNumber : Int = 0;
+      var iterationNumber : Long = 0;
       var before : Long;
       var after : Long;
       val maxIterations = 100;
@@ -326,7 +326,7 @@ public class ResilientHeatTransfer_v3 {
 	  continue;
         }
         keepIterating = false;
-        for (i in 0..((Place.MAX_PLACES-1) as Int)) {
+        for (i in 0..(Place.MAX_PLACES-1)) {
 	  if (recoveryInfo.activePlaces(i))
             if (continueVariables(i) == true) {
               keepIterating = true;  // only 1 needs to be true to continue iterating
