@@ -222,6 +222,17 @@ public class X10Translator extends Translator {
             }
         }
     }
+    
+    /*
+     * Delete file or directory. In case of directory, delete it recursively.
+     */
+    private static void deleteFile(File file) {
+    	if (!file.exists()) return;
+    	if (file.isDirectory()) {
+    		for (File childFile : file.listFiles()) deleteFile(childFile);
+    	}
+		file.delete();
+    }
 
     public static final String postcompile = "postcompile";
 
@@ -335,12 +346,19 @@ public class X10Translator extends Translator {
 
 
                 if (!options.keep_output_files) {
+                	/*
                 	java.util.ArrayList<String> rmCmd = new java.util.ArrayList<String>();
                 	rmCmd.add("rm");
                 	for (Collection<String> files : compiler.outputFiles().values()) {
                 	    rmCmd.addAll(files);
                 	}
                     runtime.exec(rmCmd.toArray(strarray));
+                    */
+                	for (Collection<String> files : compiler.outputFiles().values()) {
+                		for (String file : files) {
+                			deleteFile(new File(file));
+                		}
+                	}
                 }
 
                 if (procExitValue > 0) {
@@ -517,12 +535,15 @@ public class X10Translator extends Translator {
                 }
                 // XTENLANG-2126
                 if (!options.keep_output_files) {
+                	/*
                     java.util.ArrayList<String> rmCmd = new java.util.ArrayList<String>();
                     rmCmd.add("rm");
                     rmCmd.add("-rf");
                     rmCmd.add(options.output_directory.getAbsolutePath()); // N.B. output_directory is a temporary directory
 //                    System.out.println(java.util.Arrays.toString(rmCmd.toArray(strarray)));
                     runtime.exec(rmCmd.toArray(strarray));
+                    */
+                	deleteFile(options.output_directory);
                 }
             }
             catch(Exception e) {
