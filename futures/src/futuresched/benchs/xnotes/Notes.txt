@@ -1,0 +1,51 @@
+-----------------------------------------------------------------
+SmithWaterman
+   SmithWaterman benchmark is from
+   Executing Task Graphs using Work Stealing. Kunal, Leiserson, Jim. IPDPS'10.
+
+   E(i, j) = max_{k \in 0 .. i-1} M(k, j) + \gamma(i-k)
+   F(i, j) = max_{k \in 0 .. j-1} M(i, k) + \gamma(j-k)
+   M(i, j) = max(M(i-1, j-1)+s(i, j), E(i, j), F(i, j))
+
+
+SmithWaterman 1
+   On the first access to a future, the future is created and a task to compute its value is created. The task is dependent on some other futures. The tasks of the source nodes don't have dependencies so their tasks can be executed and set their values. When the value of a future is set, it notifies depending tasks. A depending task starts execution when it has no more dependencies.
+    When a future is notifying depending tasks, other tasks may be concurrently added as depending tasks. Therefore, the implementation of the future needs to manage the concurrency of adding dependent tasks and notifying them.
+
+SmithWaterman 2
+   The idea is to create futures and their tasks in one phase and then start the computation in the a second phase. Adding dependent tasks and notifying them will not be concurrent. Hence the implementation of the future can be simplified.
+
+Note that in SFuture, all the waiting tasks that are launched as a result of set() are launched in the enclosing finish of set().
+
+The first implementation seems to be more efficient maybe because construction and execution can overlap.
+
+
+-----------------------------------------------------------------
+BFS
+
+Since only one thread sets the parent, the parent does not need to be an atomic register.
+
+
+
+-----------------------------------------------------------------
+BellmanFord
+
+If the dist of a node is updated multiple times, it launches tasks for each of its next nodes multiple times. Is there a way that we launch only one task for each next node.
+This happens in bellmanford and not in bfs because bellmanford is a recurring OrTask but bfs is an OrTask.
+
+-----------------------------------------------------------------
+
+
+
+-----------------------------------------------------------------
+Future Types:
+
+Making Future and SFuture gets blocking. Revise the get methods
+
+To have a non atomic head pointer after all the tasks are added.
+-----------------------------------------------------------------
+
+
+
+
+

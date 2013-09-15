@@ -141,6 +141,21 @@ public final class Future[T]{T isref, T haszero} implements Notifier {
 
   }
 
+  public def cas(v1: T, v2: T): Boolean {
+     // Set once
+//    if (data.compareAndSet(NotSet, v))
+//      notifyTasks();
+//    else
+//      throw new Exception("Future is already set.");
+
+     // Set multiple times
+     val done = data.compareAndSet(v1, v2);
+     if (done)
+       notifyTasks(v2);
+     return done;
+  }
+
+
   private def notifyTask(node: Node, v: Any, obj: Any) {
     val flag = node.flag;
     var state: Int = flag.get();

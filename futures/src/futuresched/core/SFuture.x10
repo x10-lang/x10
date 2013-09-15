@@ -88,6 +88,21 @@ public final class SFuture[T]{T isref, T haszero} implements SNotifier {
      notifyTasks(v);
   }
 
+  public def cas(v1: T, v2: T): Boolean {
+     // Set once
+//    if (data.compareAndSet(NotSet, v))
+//      notifyTasks();
+//    else
+//      throw new Exception("Future is already set.");
+
+     // Set multiple times
+     val done = data.compareAndSet(v1, v2);
+     if (done)
+       notifyTasks(v2);
+     return done;
+  }
+
+
   private def notifyTask(fTask: FTask, v: Any, obj: Any) {
 //    Console.OUT.println(this + ": informing");
     fTask.inform(v, obj);

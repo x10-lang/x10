@@ -1,4 +1,3 @@
-/*
 package futuresched.core;
 
 import x10.lang.Runtime;
@@ -55,4 +54,3 @@ public class Heart {
 
 
 }
-*/

@@ -142,6 +142,20 @@ public final class IntFuture implements Notifier {
      notifyTasks(v);
   }
 
+  public def cas(v1: Int, v2: Int): Boolean {
+     // Set once
+//    if (data.compareAndSet(NotSet, v))
+//      notifyTasks();
+//    else
+//      throw new Exception("Future is already set.");
+
+     // Set multiple times
+     val done = data.compareAndSet(v1, v2);
+     if (done)
+       notifyTasks(v2);
+     return done;
+  }
+
   private def notifyTask(node: Node, v: Any, obj: Any) {
     val flag = node.flag;
     var state: Int = flag.get();

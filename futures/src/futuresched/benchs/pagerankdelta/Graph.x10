@@ -21,42 +21,26 @@ public class Graph {
       for (var i: Int = 0; i < n; i++)
          list.add(new FutNode(i));
 
-//      for (var i: Int = n - 1; i >= 1 ; i--) {
-//         val node1 = list.get(i);
-//         val node2 = list.get(i-1);
-//         node1.addNeighbor(node2);
-//         node2.addNeighbor(node1);
-//      }
+      for (var i: Int = n - 1; i >= 1 ; i--) {
+         val node1 = list.get(i);
+         val node2 = list.get(i-1);
+         node2.addOutNeighbor(node1);
+         node1.addInNeighbor(node2);
+      }
 
       val nRand = new Random();
       val bRand = new Random();
 
-      for (var i: Int = 0; i < n/2; i++) {
+      for (var i: Int = 0; i < n; i++) {
          val node1 = list.get(i);
          val b = 1 + bRand.nextInt(mb);
-         //Console.OUT.println("branching: " + b);
          var d1: Int = node1.degree();
          while (d1 < b) {
-            val node2Index = nRand.nextInt(n/2);
+            val node2Index = nRand.nextInt(n);
             val node2 = list.get(node2Index);
             if (node1 != node2 && !node1.contains(node2) && node2.degree() < mb) {
-               node1.addNeighbor(node2);
-               node2.addNeighbor(node1);
-               d1 = node1.degree();
-            }
-         }
-      }
-      for (var i: Int = n/2; i < n; i++) {
-         val node1 = list.get(i);
-         val b = 1 + bRand.nextInt(mb);
-         //Console.OUT.println("branching: " + b);
-         var d1: Int = node1.degree();
-         while (d1 < b) {
-            val node2Index = n/2 + nRand.nextInt(n/2);
-            val node2 = list.get(node2Index);
-            if (node1 != node2 && !node1.contains(node2) && node2.degree() < mb) {
-               node1.addNeighbor(node2);
-               node2.addNeighbor(node1);
+               node1.addOutNeighbor(node2);
+               node2.addInNeighbor(node1);
                d1 = node1.degree();
             }
          }
@@ -67,7 +51,7 @@ public class Graph {
 
    public def toString(): String {
 
-      var s: String = "graph {\n";
+      var s: String = "digraph {\n";
       val iter = nodes.iterator();
       while (iter.hasNext()) {
          val node = iter.next();
@@ -75,8 +59,7 @@ public class Graph {
          val iter2 = node.neighbors.iterator();
          while (iter2.hasNext()) {
             val node2 = iter2.next();
-            if (node.no <= node2.no)
-               s += "\t" + node.no + " -- " + node2.no + ";\n";
+            s += "\t" + node.no + " -> " + node2.no + ";\n";
          }
          //s += "\n";
       }
@@ -84,14 +67,14 @@ public class Graph {
       return s;
    }
 
-   public def toStringComps(): String {
+   public def toStringRanks(): String {
 
-      var s: String = "Comp:\n";
+      var s: String = "Ranks:\n";
       val iter = nodes.iterator();
       while (iter.hasNext()) {
          val node = iter.next();
          //s += node.no + ": ";
-         s += "\t" + node.no + ": " + node.comp.get() + "\n";
+         s += "\t" + node.no + ": " + node.rank + "\n";
       }
       return s;
    }

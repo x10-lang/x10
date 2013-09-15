@@ -86,6 +86,20 @@ public final class SIntFuture implements SNotifier {
 
   }
 
+  public def cas(v1: Int, v2: Int): Boolean {
+     // Set once
+//    if (data.compareAndSet(NotSet, v))
+//      notifyTasks();
+//    else
+//      throw new Exception("Future is already set.");
+
+     // Set multiple times
+     val done = data.compareAndSet(v1, v2);
+     if (done)
+       notifyTasks(v2);
+     return done;
+  }
+
   private def notifyTask(fTask: FTask, v: Any, obj: Any) {
     fTask.inform(v, obj);
   }

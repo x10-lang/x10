@@ -31,11 +31,15 @@ public class FutBellmanFord {
                         // the edge weight to the neighbor.
                         return new Pair[SIntFuture, Int](dist, weight);
                      },
-                     (parentDist: Int, weight: Int)=> {
-                        val nodeDist = node.dist.get();
-                        val newDist = parentDist + weight;
-                        if (newDist < nodeDist) {
-                           node.dist.set(newDist);
+                     (preDist: Int, weight: Int)=> {
+                        while (true) {
+                           val currDist = node.dist.get();
+                           val newDist = preDist + weight;
+                           if (newDist >= currDist)
+                              return;
+                           val done = node.dist.cas(currDist, newDist);
+                           if (done)
+                              return;
 //                           Console.OUT.println("Setting dist of " + newDist);
                         }
                      }

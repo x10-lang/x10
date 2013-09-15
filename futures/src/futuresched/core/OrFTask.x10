@@ -153,7 +153,6 @@ public class OrFTask[T, TP]{T isref, T haszero} extends FTask {
             this.act = thisAct;
          }
 
-
          exec();
       }
    }
