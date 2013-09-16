@@ -2,7 +2,7 @@ import x10.array.*;
 
 import x10.util.*;
 
-public class HeatTransfer_v9 {
+public class ResilientHeatTransfer_v4 {
 
     public final static class Config {
         var quiet : Boolean;
@@ -14,6 +14,7 @@ public class HeatTransfer_v9 {
         var globalHeight : Long;
         var globalDim : DenseIterationSpace_2;
         var iterations : Long;
+        var iterationsPerCheckpoint : Long;
 
         public def toString() {
             return "Array Dimension: ("+(globalDim.max0+1)+" x "+(globalDim.max1+1)+"), iterations: "+iterations+", number of places: "+Place.MAX_PLACES;
@@ -24,6 +25,13 @@ public class HeatTransfer_v9 {
         val cfg : Config;
         var frontArray : Rail[Double];
         var backArray : Rail[Double];
+
+        var backupPlace : Place;
+
+        var checkpoint : Rail[Double];
+        var checkpointLast : Rail[Double];
+        var backupCheckpoint : Rail[Double];
+        var backupCheckpointLast : Rail[Double];
 
         var localWidth : Long;
         var localHeight : Long;
@@ -52,10 +60,12 @@ public class HeatTransfer_v9 {
             throw new Exception("Shouldn't get here");
         }
 
-        public def assignPartition(mapping:Rail[Long]) {
+        public def assignPartition(mapping:Rail[Long], num_parts:Long) {
+            assert mapping(here.id) >= 0;
         
-            val localDim = BlockingUtils.partitionBlockBlock(cfg.globalDim, mapping.size, mapping(here.id));
+            val localDim  = BlockingUtils.partitionBlockBlock(cfg.globalDim, num_parts, mapping(here.id));
 
+            this.backupPlace = whoMapsTo(mapping, (mapping(here.id)+1)%num_parts);
 
             this.localWidth = localDim.max0 - localDim.min0 + 1;
             this.localHeight = localDim.max1 - localDim.min1 + 1;
@@ -169,6 +179,17 @@ public class HeatTransfer_v9 {
           }
         }
 
+        public def checkpoint(plh:PlaceLocalHandle[PlaceState]) {
+            checkpointLast = checkpoint;
+            checkpoint = at (here) frontArray;
+            val tmp = frontArray;
+            at (backupPlace) {
+                val state = plh();
+                state.backupCheckpointLast = state.backupCheckpoint;
+                state.backupCheckpoint = tmp;
+            }
+        }
+
     }
 
 
@@ -182,6 +203,7 @@ public class HeatTransfer_v9 {
         ], [
             Option("i","iterations","number of iterations"),
             Option("k","kill","kill place 1 at this iteration"),
+            Option("c","checkpoint","number of iterations per checkpoint"),
             Option("W","width","width of grid"),
             Option("H","height","height of grid")
         ]);
@@ -201,6 +223,7 @@ public class HeatTransfer_v9 {
         cfg.verbose = opts("-v");
         cfg.result = opts("-r");
         cfg.killTest = opts("-k",-1);
+        cfg.iterationsPerCheckpoint = opts("-c",6);
         cfg.globalWidth = opts("-W",1000);
         cfg.globalHeight = opts("-H",1000);
         cfg.globalDim = new DenseIterationSpace_2(0, 0, cfg.globalWidth-1, cfg.globalHeight-1);
@@ -217,7 +240,7 @@ public class HeatTransfer_v9 {
 
         finish for (active_id in active_places.range()) {
             if (active_places(active_id)==-1) continue;
-            at (Place(active_places(active_id))) async plh().assignPartition(active_places);
+            at (Place(active_places(active_id))) async plh().assignPartition(active_places, Place.MAX_PLACES);
         }
 
 
@@ -239,6 +262,15 @@ public class HeatTransfer_v9 {
                         val state = plh();
                         state.compute();
                         state.transmit(plh);
+                    }
+                }
+                if ((iter+1)%cfg.iterationsPerCheckpoint == 0) {
+                    finish for (active_id in active_places.range()) {
+                        if (active_places(active_id)==-1) continue;
+                        at (Place(active_places(active_id))) async {
+                            val state = plh();
+                            state.checkpoint(plh);
+                        }
                     }
                 }
             } catch (e:MultipleExceptions) {
