@@ -13,6 +13,7 @@ package x10.visit;
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;
+import java.io.FileOutputStream;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -23,6 +24,8 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
+import java.util.jar.Attributes;
+import java.util.jar.Manifest;
 
 import polyglot.ast.Block;
 import polyglot.ast.ClassDecl;
@@ -346,6 +349,7 @@ public class X10Translator extends Translator {
 
 
                 if (!options.keep_output_files) {
+                	// TODO remove this
                 	/*
                 	java.util.ArrayList<String> rmCmd = new java.util.ArrayList<String>();
                 	rmCmd.add("rm");
@@ -369,9 +373,6 @@ public class X10Translator extends Translator {
                 if (options.executable_path != null) {  // -o executable_path
                     // create jar file
                     
-                    java.util.ArrayList<String> jarCmdList = new java.util.ArrayList<String>();
-                    jarCmdList.add(X10CCompilerOptions.findJavaCommand("jar"));
-                    
                     // create Main-Class attribute from main (= first) source name if MAIN_CLASS is not specified
                     String main_class = options.x10_config.MAIN_CLASS;
                     // Fix for XTENLANG-2410
@@ -388,6 +389,8 @@ public class X10Translator extends Translator {
                     */
                     
                     // create manifest file
+                	// TODO remove this
+                    /*
                     File manifest = File.createTempFile("x10c.manifest.", null);
                     manifest.deleteOnExit();    // TODO delete explicitly
                     PrintWriter out = new PrintWriter(new FileWriter(manifest));
@@ -403,6 +406,26 @@ public class X10Translator extends Translator {
                     }
                     out.println("Created-By: " + compiler.sourceExtension().compilerName() + " version " + compiler.sourceExtension().version());
                     out.close();
+                    */
+                    Manifest mf = new Manifest();
+                    Attributes attributes = mf.getMainAttributes();
+                	attributes.put(Attributes.Name.MANIFEST_VERSION, "1.0");
+                    if (main_class != null) {
+                    	// add Main-Class attribute for executable jar
+                    	attributes.putValue("Main-Class", main_class + "$" + X10PrettyPrinterVisitor.MAIN_CLASS);
+                    	String x10_jar = ((X10CCompilerOptions) options).x10_jar;
+                    	String math_jar = ((X10CCompilerOptions) options).math_jar;
+                    	String log_jar = ((X10CCompilerOptions) options).log_jar;
+                    	// XTENLANG-2722
+                    	// need a new preloading mechanism which does not use classloader to determine system classes
+                    	attributes.putValue("Class-Path", x10_jar + " " + math_jar + " " + log_jar);
+                    }
+                    attributes.putValue("Created-By", compiler.sourceExtension().compilerName() + " version " + compiler.sourceExtension().version());
+                    File manifest = File.createTempFile("x10c.manifest.", null);
+                    manifest.deleteOnExit();    // TODO delete explicitly
+                    FileOutputStream out = new FileOutputStream(manifest);
+                    mf.write(out);
+                    out.close();
 
                     // create directory for jar file
                     File jarFile = new File(options.executable_path);
@@ -414,6 +437,8 @@ public class X10Translator extends Translator {
                     }
                     
                     // execute "jar cmf ${manifest_file} ${executable_path} -C ${output_directory} ."
+                    java.util.ArrayList<String> jarCmdList = new java.util.ArrayList<String>();
+                    jarCmdList.add(X10CCompilerOptions.findJavaCommand("jar"));
                     jarCmdList.add("cmf");
                     jarCmdList.add(manifest.getAbsolutePath());
                     jarCmdList.add(options.executable_path);
@@ -535,6 +560,7 @@ public class X10Translator extends Translator {
                 }
                 // XTENLANG-2126
                 if (!options.keep_output_files) {
+                	// TODO remove this
                 	/*
                     java.util.ArrayList<String> rmCmd = new java.util.ArrayList<String>();
                     rmCmd.add("rm");
@@ -543,6 +569,7 @@ public class X10Translator extends Translator {
 //                    System.out.println(java.util.Arrays.toString(rmCmd.toArray(strarray)));
                     runtime.exec(rmCmd.toArray(strarray));
                     */
+//                	System.out.println(options.output_directory.getAbsolutePath()); // N.B. output_directory is a temporary directory
                 	deleteFile(options.output_directory);
                 }
             }
