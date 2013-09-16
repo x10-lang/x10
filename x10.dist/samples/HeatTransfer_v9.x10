@@ -109,14 +109,14 @@ public class HeatTransfer_v9 {
         }
 
         public def receiveLeft(home:Place, offset:Long, data:Rail[Double]) {
-            Console.OUT.println(here+" receiveLeft "+data.size+" offset "+offset+" from "+home);
+            //Console.OUT.println(here+" receiveLeft "+data.size+" offset "+offset+" from "+home);
             for (i in 0..(localHeight-1)) {
                 val index = i+localYOffset - offset;
                 if (index >=0 && index < data.size) front(-1, i, data(index));
             }
         }
         public def receiveRight(home:Place, offset:Long, data:Rail[Double]) {
-            Console.OUT.println(here+" receiveRight "+data.size+" offset "+offset+" from "+home);
+            //Console.OUT.println(here+" receiveRight "+data.size+" offset "+offset+" from "+home);
             for (i in 0..(localHeight-1)) {
                 val index = i+localYOffset - offset;
                 //if (here.id==0) Console.OUT.println(index+" = "+data(index));
@@ -124,14 +124,14 @@ public class HeatTransfer_v9 {
             }
         }
         public def receiveAbove(home:Place, offset:Long, data:Rail[Double]) {
-            Console.OUT.println(here+" receiveAbove "+data.size+" offset "+offset+" from "+home);
+            //Console.OUT.println(here+" receiveAbove "+data.size+" offset "+offset+" from "+home);
             for (i in 0..(localWidth-1)) {
                 val index = i+localXOffset - offset;
                 if (index >=0 && index < data.size) front(i, -1, data(index));
             }
         }
         public def receiveBelow(home:Place, offset:Long, data:Rail[Double]) {
-            Console.OUT.println(here+" receiveBelow "+data.size+" offset "+offset+" from "+home);
+            //Console.OUT.println(here+" receiveBelow "+data.size+" offset "+offset+" from "+home);
             for (i in 0..(localWidth-1)) {
                 val index = i+localXOffset - offset;
                 if (index >=0 && index < data.size) front(i, localHeight, data(index));
