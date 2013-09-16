@@ -11,8 +11,10 @@
 
 package x10.visit;
 
+import java.io.BufferedInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.FileWriter;
 import java.io.IOException;
@@ -25,6 +27,8 @@ import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 import java.util.jar.Attributes;
+import java.util.jar.JarEntry;
+import java.util.jar.JarOutputStream;
 import java.util.jar.Manifest;
 
 import polyglot.ast.Block;
@@ -236,6 +240,66 @@ public class X10Translator extends Translator {
     	}
 		file.delete();
     }
+    
+    
+    private static String toCanonicalPath(File file) throws IOException {
+    	String path = file.getCanonicalPath().replace("\\", "/");
+        if (file.isDirectory() && !path.endsWith("/"))
+        	path += "/";
+        return path;
+    }
+    
+    private static void addFileToJar(File file, String basePath, JarOutputStream jarOutputStream) throws IOException {
+        BufferedInputStream is = null;
+        try {
+            String path = toCanonicalPath(file);
+            
+            // change path relative to basePath
+            if (basePath != null)
+            	path = path.substring(basePath.length());
+            
+            if (file.isDirectory()) {
+                if (!path.isEmpty()) {
+                    JarEntry jarEntry = new JarEntry(path);
+                    jarEntry.setTime(file.lastModified());
+                    jarOutputStream.putNextEntry(jarEntry);
+                    jarOutputStream.closeEntry();
+                }
+                for (File childFile: file.listFiles())
+                    addFileToJar(childFile, basePath, jarOutputStream);
+                return;
+            }
+            
+            JarEntry jarEntry = new JarEntry(path);
+            jarEntry.setTime(file.lastModified());
+            jarOutputStream.putNextEntry(jarEntry);
+            
+            is = new BufferedInputStream(new FileInputStream(file));
+            byte[] buffer = new byte[1024];
+            while (true) {
+                int count = is.read(buffer);
+                if (count == -1)
+                    break;
+                jarOutputStream.write(buffer, 0, count);
+            }
+            jarOutputStream.closeEntry();
+        }
+        finally {
+            if (is != null)
+                is.close();
+        }
+    }
+    
+    /*
+     * equivalent to "jar cmf ${manifest_file} ${jar_file} -C ${base_dir} ."
+     */
+    private static void createJarFile(File jarFile, Manifest manifest, File baseDir) throws IOException {
+    	JarOutputStream jarOutputStream = new JarOutputStream(new FileOutputStream(jarFile), manifest);
+        String basePath = toCanonicalPath(baseDir);
+        addFileToJar(baseDir, basePath, jarOutputStream);
+    	jarOutputStream.close();
+    }
+
 
     public static final String postcompile = "postcompile";
 
@@ -421,11 +485,14 @@ public class X10Translator extends Translator {
                     	attributes.putValue("Class-Path", x10_jar + " " + math_jar + " " + log_jar);
                     }
                     attributes.putValue("Created-By", compiler.sourceExtension().compilerName() + " version " + compiler.sourceExtension().version());
+                    // TODO remote this
+                    /*
                     File manifest = File.createTempFile("x10c.manifest.", null);
                     manifest.deleteOnExit();    // TODO delete explicitly
                     FileOutputStream out = new FileOutputStream(manifest);
                     mf.write(out);
                     out.close();
+                    */
 
                     // create directory for jar file
                     File jarFile = new File(options.executable_path);
@@ -437,6 +504,8 @@ public class X10Translator extends Translator {
                     }
                     
                     // execute "jar cmf ${manifest_file} ${executable_path} -C ${output_directory} ."
+                    // TODO remote this
+                    /*
                     java.util.ArrayList<String> jarCmdList = new java.util.ArrayList<String>();
                     jarCmdList.add(X10CCompilerOptions.findJavaCommand("jar"));
                     jarCmdList.add("cmf");
@@ -469,6 +538,8 @@ public class X10Translator extends Translator {
                         eq.enqueue(ErrorInfo.POST_COMPILER_ERROR, "Non-zero return code: " + jarProc.exitValue());
                         return false;
                     }
+                    */
+                    createJarFile(jarFile, mf, options.output_directory); // -d output_directory
 
                     // pre XTENLANG-3199
 //                    if (options.buildX10Lib != null) {  // ignore lib from -buildx10lib <lib>
