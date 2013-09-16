@@ -63,25 +63,36 @@ public class ResilientHeatTransfer_v4 {
         public def assignPartition(mapping:Rail[Long], num_parts:Long) {
             assert mapping(here.id) >= 0;
         
-            val localDim  = BlockingUtils.partitionBlockBlock(cfg.globalDim, num_parts, mapping(here.id));
+            val backup_part = (mapping(here.id)+1)%num_parts;
 
-            this.backupPlace = whoMapsTo(mapping, (mapping(here.id)+1)%num_parts);
+            val local_dim  = BlockingUtils.partitionBlockBlock(cfg.globalDim, num_parts, mapping(here.id));
+            val backup_dim  = BlockingUtils.partitionBlockBlock(cfg.globalDim, num_parts, backup_part);
 
-            this.localWidth = localDim.max0 - localDim.min0 + 1;
-            this.localHeight = localDim.max1 - localDim.min1 + 1;
-            this.localXOffset = localDim.min0;
-            this.localYOffset = localDim.min1;
+            this.backupPlace = whoMapsTo(mapping, backup_part);
+
+            this.localWidth = local_dim.max0 - local_dim.min0 + 1;
+            this.localHeight = local_dim.max1 - local_dim.min1 + 1;
+            this.localXOffset = local_dim.min0;
+            this.localYOffset = local_dim.min1;
 
             Console.OUT.println(here+" gets ("+localXOffset+","+localYOffset+") size ("+localWidth+","+localHeight+")");
             
-            this.frontArray = new Rail[Double]((this.localWidth + 2) * (this.localHeight + 2)); 
-            this.backArray = new Rail[Double]((this.localWidth + 2) * (this.localHeight + 2)); 
+            val sz = (this.localWidth + 2) * (this.localHeight + 2);
+            val backup_sz = (this.localWidth + 2) * (this.localHeight + 2);
+
+            this.frontArray = new Rail[Double](sz); 
+            this.backArray = new Rail[Double](sz); 
             if (this.localYOffset == 0) {
                 for (x in -1..localWidth) {
                     back(x, -1, 1.0);
                     front(x, -1, 1.0);
                 }
             }
+
+            this.checkpoint = new Rail[Double](sz);
+            this.checkpointLast = new Rail[Double](sz);
+            this.backupCheckpoint = new Rail[Double](sz);
+            this.backupCheckpointLast = new Rail[Double](sz);
 
             leftPlaces.clear();
             rightPlaces.clear();
@@ -179,14 +190,25 @@ public class ResilientHeatTransfer_v4 {
           }
         }
 
-        public def checkpoint(plh:PlaceLocalHandle[PlaceState]) {
+        public def swapCheckpoints() {
+            val tmp = checkpointLast;   
             checkpointLast = checkpoint;
-            checkpoint = at (here) frontArray;
-            val tmp = frontArray;
-            at (backupPlace) {
-                val state = plh();
-                state.backupCheckpointLast = state.backupCheckpoint;
-                state.backupCheckpoint = tmp;
+            checkpoint = tmp;
+            val btmp = backupCheckpointLast;
+            backupCheckpointLast = backupCheckpoint;
+            backupCheckpoint = btmp;
+        }
+
+        public def checkpoint(plh:PlaceLocalHandle[PlaceState]) {
+            Rail.copy(frontArray, 0, checkpoint, 0, frontArray.size);
+            val tmp = new Rail[Double](8*1024*1024);
+            for (var i:Long=0 ; i<frontArray.size ; i+=tmp.size) {
+                val sz = Math.min(tmp.size, frontArray.size - i);
+                Rail.copy(frontArray, i, tmp, 0, sz);
+                val i_ = i;
+                at (backupPlace) {
+                    Rail.copy(tmp, 0, plh().backupCheckpoint, i_, sz);
+                }
             }
         }
 
@@ -265,6 +287,13 @@ public class ResilientHeatTransfer_v4 {
                     }
                 }
                 if ((iter+1)%cfg.iterationsPerCheckpoint == 0) {
+                    finish for (active_id in active_places.range()) {
+                        if (active_places(active_id)==-1) continue;
+                        at (Place(active_places(active_id))) async {
+                            val state = plh();
+                            state.swapCheckpoints();
+                        }
+                    }
                     finish for (active_id in active_places.range()) {
                         if (active_places(active_id)==-1) continue;
                         at (Place(active_places(active_id))) async {
