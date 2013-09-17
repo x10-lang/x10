@@ -40,7 +40,12 @@ import x10.compiler.Pinned;
     }
 
     public def release():void {
+        if (state) return;
         lock();
+        if (state) {
+            unlock();
+            return;
+        }
         state = true;
         if (worker != null) {
             Runtime.decreaseParallelism(1n);
