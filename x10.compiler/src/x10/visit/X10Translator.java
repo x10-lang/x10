@@ -70,17 +70,7 @@ public class X10Translator extends Translator {
     }
     
     private static String escapePath(String path) {
-    	StringBuilder sb = new StringBuilder();
-        for (int i = 0; i < path.length(); ++i) {
-            char c = path.charAt(i);
-            if (c == '\\') {
-//                sb.append(c).append(c);
-                sb.append('/');
-            } else {
-                sb.append(c);
-            }
-        }
-        return sb.toString();
+        return path.replace('\\', '/');
     }
 
     /**
@@ -242,8 +232,8 @@ public class X10Translator extends Translator {
     }
     
     
-    private static String toCanonicalPath(File file) throws IOException {
-    	String path = file.getCanonicalPath().replace("\\", "/");
+    private static String toJarCompatiblePath(File file) throws IOException {
+    	String path = file.getCanonicalPath().replace('\\', '/');
         if (file.isDirectory() && !path.endsWith("/"))
         	path += "/";
         return path;
@@ -252,11 +242,13 @@ public class X10Translator extends Translator {
     private static void addFileToJar(File file, String basePath, JarOutputStream jarOutputStream) throws IOException {
         BufferedInputStream is = null;
         try {
-            String path = toCanonicalPath(file);
+            String path = toJarCompatiblePath(file);
             
             // change path relative to basePath
-            if (basePath != null)
+            if (basePath != null) {
+            	assert path.startsWith(basePath);
             	path = path.substring(basePath.length());
+            }
             
             if (file.isDirectory()) {
                 if (!path.isEmpty()) {
@@ -282,6 +274,7 @@ public class X10Translator extends Translator {
                     break;
                 jarOutputStream.write(buffer, 0, count);
             }
+            
             jarOutputStream.closeEntry();
         }
         finally {
@@ -295,7 +288,7 @@ public class X10Translator extends Translator {
      */
     private static void createJarFile(File jarFile, Manifest manifest, File baseDir) throws IOException {
     	JarOutputStream jarOutputStream = new JarOutputStream(new FileOutputStream(jarFile), manifest);
-        String basePath = toCanonicalPath(baseDir);
+        String basePath = toJarCompatiblePath(baseDir);
         addFileToJar(baseDir, basePath, jarOutputStream);
     	jarOutputStream.close();
     }
