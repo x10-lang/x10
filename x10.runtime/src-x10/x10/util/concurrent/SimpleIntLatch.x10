@@ -42,6 +42,10 @@ import x10.compiler.Pinned;
     public operator this()=(v:Int):void { set(v); }
     public def set(v:Int):void {
         lock();
+        if (value != 0n) {
+            unlock();
+            return;
+        }
         value = v;
         if (worker != null) {
             Runtime.decreaseParallelism(1n);
