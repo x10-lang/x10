@@ -11,8 +11,11 @@
 
 package x10.visit;
 
+import java.io.BufferedInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -23,6 +26,10 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
+import java.util.jar.Attributes;
+import java.util.jar.JarEntry;
+import java.util.jar.JarOutputStream;
+import java.util.jar.Manifest;
 
 import polyglot.ast.Block;
 import polyglot.ast.ClassDecl;
@@ -233,6 +240,66 @@ public class X10Translator extends Translator {
     	}
 		file.delete();
     }
+    
+    
+    private static String toCanonicalPath(File file) throws IOException {
+    	String path = file.getCanonicalPath().replace("\\", "/");
+        if (file.isDirectory() && !path.endsWith("/"))
+        	path += "/";
+        return path;
+    }
+    
+    private static void addFileToJar(File file, String basePath, JarOutputStream jarOutputStream) throws IOException {
+        BufferedInputStream is = null;
+        try {
+            String path = toCanonicalPath(file);
+            
+            // change path relative to basePath
+            if (basePath != null)
+            	path = path.substring(basePath.length());
+            
+            if (file.isDirectory()) {
+                if (!path.isEmpty()) {
+                    JarEntry jarEntry = new JarEntry(path);
+                    jarEntry.setTime(file.lastModified());
+                    jarOutputStream.putNextEntry(jarEntry);
+                    jarOutputStream.closeEntry();
+                }
+                for (File childFile: file.listFiles())
+                    addFileToJar(childFile, basePath, jarOutputStream);
+                return;
+            }
+            
+            JarEntry jarEntry = new JarEntry(path);
+            jarEntry.setTime(file.lastModified());
+            jarOutputStream.putNextEntry(jarEntry);
+            
+            is = new BufferedInputStream(new FileInputStream(file));
+            byte[] buffer = new byte[1024];
+            while (true) {
+                int count = is.read(buffer);
+                if (count == -1)
+                    break;
+                jarOutputStream.write(buffer, 0, count);
+            }
+            jarOutputStream.closeEntry();
+        }
+        finally {
+            if (is != null)
+                is.close();
+        }
+    }
+    
+    /*
+     * equivalent to "jar cmf ${manifest_file} ${jar_file} -C ${base_dir} ."
+     */
+    private static void createJarFile(File jarFile, Manifest manifest, File baseDir) throws IOException {
+    	JarOutputStream jarOutputStream = new JarOutputStream(new FileOutputStream(jarFile), manifest);
+        String basePath = toCanonicalPath(baseDir);
+        addFileToJar(baseDir, basePath, jarOutputStream);
+    	jarOutputStream.close();
+    }
+
 
     public static final String postcompile = "postcompile";
 
@@ -346,6 +413,7 @@ public class X10Translator extends Translator {
 
 
                 if (!options.keep_output_files) {
+                	// TODO remove this
                 	/*
                 	java.util.ArrayList<String> rmCmd = new java.util.ArrayList<String>();
                 	rmCmd.add("rm");
@@ -369,9 +437,6 @@ public class X10Translator extends Translator {
                 if (options.executable_path != null) {  // -o executable_path
                     // create jar file
                     
-                    java.util.ArrayList<String> jarCmdList = new java.util.ArrayList<String>();
-                    jarCmdList.add(X10CCompilerOptions.findJavaCommand("jar"));
-                    
                     // create Main-Class attribute from main (= first) source name if MAIN_CLASS is not specified
                     String main_class = options.x10_config.MAIN_CLASS;
                     // Fix for XTENLANG-2410
@@ -388,6 +453,8 @@ public class X10Translator extends Translator {
                     */
                     
                     // create manifest file
+                	// TODO remove this
+                    /*
                     File manifest = File.createTempFile("x10c.manifest.", null);
                     manifest.deleteOnExit();    // TODO delete explicitly
                     PrintWriter out = new PrintWriter(new FileWriter(manifest));
@@ -403,6 +470,29 @@ public class X10Translator extends Translator {
                     }
                     out.println("Created-By: " + compiler.sourceExtension().compilerName() + " version " + compiler.sourceExtension().version());
                     out.close();
+                    */
+                    Manifest mf = new Manifest();
+                    Attributes attributes = mf.getMainAttributes();
+                	attributes.put(Attributes.Name.MANIFEST_VERSION, "1.0");
+                    if (main_class != null) {
+                    	// add Main-Class attribute for executable jar
+                    	attributes.putValue("Main-Class", main_class + "$" + X10PrettyPrinterVisitor.MAIN_CLASS);
+                    	String x10_jar = ((X10CCompilerOptions) options).x10_jar;
+                    	String math_jar = ((X10CCompilerOptions) options).math_jar;
+                    	String log_jar = ((X10CCompilerOptions) options).log_jar;
+                    	// XTENLANG-2722
+                    	// need a new preloading mechanism which does not use classloader to determine system classes
+                    	attributes.putValue("Class-Path", x10_jar + " " + math_jar + " " + log_jar);
+                    }
+                    attributes.putValue("Created-By", compiler.sourceExtension().compilerName() + " version " + compiler.sourceExtension().version());
+                    // TODO remote this
+                    /*
+                    File manifest = File.createTempFile("x10c.manifest.", null);
+                    manifest.deleteOnExit();    // TODO delete explicitly
+                    FileOutputStream out = new FileOutputStream(manifest);
+                    mf.write(out);
+                    out.close();
+                    */
 
                     // create directory for jar file
                     File jarFile = new File(options.executable_path);
@@ -414,6 +504,10 @@ public class X10Translator extends Translator {
                     }
                     
                     // execute "jar cmf ${manifest_file} ${executable_path} -C ${output_directory} ."
+                    // TODO remote this
+                    /*
+                    java.util.ArrayList<String> jarCmdList = new java.util.ArrayList<String>();
+                    jarCmdList.add(X10CCompilerOptions.findJavaCommand("jar"));
                     jarCmdList.add("cmf");
                     jarCmdList.add(manifest.getAbsolutePath());
                     jarCmdList.add(options.executable_path);
@@ -444,6 +538,8 @@ public class X10Translator extends Translator {
                         eq.enqueue(ErrorInfo.POST_COMPILER_ERROR, "Non-zero return code: " + jarProc.exitValue());
                         return false;
                     }
+                    */
+                    createJarFile(jarFile, mf, options.output_directory); // -d output_directory
 
                     // pre XTENLANG-3199
 //                    if (options.buildX10Lib != null) {  // ignore lib from -buildx10lib <lib>
@@ -535,6 +631,7 @@ public class X10Translator extends Translator {
                 }
                 // XTENLANG-2126
                 if (!options.keep_output_files) {
+                	// TODO remove this
                 	/*
                     java.util.ArrayList<String> rmCmd = new java.util.ArrayList<String>();
                     rmCmd.add("rm");
@@ -543,6 +640,7 @@ public class X10Translator extends Translator {
 //                    System.out.println(java.util.Arrays.toString(rmCmd.toArray(strarray)));
                     runtime.exec(rmCmd.toArray(strarray));
                     */
+//                	System.out.println(options.output_directory.getAbsolutePath()); // N.B. output_directory is a temporary directory
                 	deleteFile(options.output_directory);
                 }
             }
