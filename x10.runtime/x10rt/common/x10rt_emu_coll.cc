@@ -1032,7 +1032,7 @@ namespace {
             T &dest = static_cast<T*>(m.reduce.dbuf)[i];
             dest = reduce<T,op>::_(dest,tmp[i]);
         }
-        safe_free(tmp);
+        ::safe_free(tmp);
     }
 
     template<x10rt_red_op_type op, x10rt_red_type dtype>
