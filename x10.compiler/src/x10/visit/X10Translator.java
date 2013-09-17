@@ -26,6 +26,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Properties;
 import java.util.jar.Attributes;
 import java.util.jar.JarEntry;
 import java.util.jar.JarOutputStream;
@@ -613,12 +614,24 @@ public class X10Translator extends Translator {
 //                    	System.out.println("jarDirPath = " + jarDirPath);
                     	
                     	// generate property file for use as "x10c -x10lib foo.properties ..."
+                    	// TODO remove this
+                    	/*
                     	String jarFileName = jarFile.getName(); // foo.jar
                     	String propFileName = jarFileName.substring(0, jarFileName.length() - ".jar".length()) + ".properties"; // foo.properties
                     	File propFile = new File(propDir, propFileName);
                     	PrintWriter propFileWriter = new PrintWriter(new FileWriter(propFile));
                     	propFileWriter.println("X10LIB_TIMESTAMP=" + String.format("%tc", Calendar.getInstance()));
                     	propFileWriter.println("X10LIB_SRC_JAR=" + jarDirPath + jarFileName);
+                    	propFileWriter.close();
+                    	*/
+                    	String jarFileName = jarFile.getName(); // foo.jar
+                    	Properties props = new Properties();
+                    	props.setProperty("X10LIB_TIMESTAMP", String.format("%tc", Calendar.getInstance()));
+                    	props.setProperty("X10LIB_SRC_JAR", jarDirPath + jarFileName);
+                    	String propFileName = jarFileName.substring(0, jarFileName.length() - ".jar".length()) + ".properties"; // foo.properties
+                    	File propFile = new File(propDir, propFileName);
+                    	FileWriter propFileWriter = new FileWriter(propFile);
+                    	props.store(propFileWriter, "Created by " + compiler.sourceExtension().compilerName() + " version " + compiler.sourceExtension().version());
                     	propFileWriter.close();
                     }
                 }
@@ -633,8 +646,8 @@ public class X10Translator extends Translator {
 //                    System.out.println(java.util.Arrays.toString(rmCmd.toArray(strarray)));
                     runtime.exec(rmCmd.toArray(strarray));
                     */
-//                	System.out.println(options.output_directory.getAbsolutePath()); // N.B. output_directory is a temporary directory
-                	deleteFile(options.output_directory);
+//                	System.out.println(options.output_directory.getAbsolutePath());
+                	deleteFile(options.output_directory); // N.B. output_directory is a temporary directory
                 }
             }
             catch(Exception e) {
