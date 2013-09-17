@@ -23,12 +23,14 @@ import x10cpp.postcompiler.PrecompiledLibrary;
 
 public class X10CCompilerOptions extends x10.X10CompilerOptions {
 
+    // read system properties
+    public final String x10_dist = System.getProperty("x10.dist");
+    public final String x10_jar = "x10.jar"; // FIXME: is this overridable?
+    public final String math_jar = System.getProperty("x10c.math.jar", "commons-math3-3.2.jar");
+    public final String log_jar = System.getProperty("x10c.log.jar",  "commons-logging-1.1.3.jar");
+    public final String ecj_jar = System.getProperty("x10c.ecj.jar", "ecj-4.3.jar");
+
     public String main_source = null;
-    public String x10_dist = null;
-    public String x10_jar = null;
-    public String math_jar = null;
-    public String log_jar = null;
-    public String ecj_jar = null;
 
     public X10CCompilerOptions(ExtensionInfo extension) {
         super(extension);
@@ -59,13 +61,6 @@ public class X10CCompilerOptions extends x10.X10CompilerOptions {
     public void setDefaultValues() {
         super.setDefaultValues();
 
-        // read system properties
-        x10_dist = System.getProperty("x10.dist");
-        x10_jar = "x10.jar"; // FIXME: is this overridable?
-        math_jar = System.getProperty("x10c.math.jar", "commons-math3-3.2.jar");
-        log_jar = System.getProperty("x10c.log.jar",  "commons-logging-1.1.3.jar");
-        ecj_jar = System.getProperty("x10c.ecj.jar", "ecj-4.3.jar");
-        
         // default value of output_directory will be set in the last of parseCommandLine
         output_directory = null;
 

@@ -345,6 +345,7 @@ public class X10Translator extends Translator {
             }
 
             try {
+            	/*
             	// invoke ecj as an external process
                 Process proc = runtime.exec(javacCmd.toArray(strarray));
                 InputStreamReader err = new InputStreamReader(proc.getErrorStream());
@@ -363,9 +364,9 @@ public class X10Translator extends Translator {
                     err.close();
                 }
                 int procExitValue = proc.waitFor();
+                */
 
 
-                /*
                 // invoke ecj with Java Compiler API (JSR 199)
                 javax.tools.JavaCompiler javac = null;
                 // look up user-specified java compiler from classpath and ${x10.dist}/lib/ecj.jar
@@ -403,7 +404,6 @@ public class X10Translator extends Translator {
                     eq.enqueue(type, message);
                 }
                 fileManager.close();
-                */
 
 
                 if (!options.keep_output_files) {
