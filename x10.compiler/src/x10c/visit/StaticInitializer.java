@@ -810,7 +810,9 @@ public class StaticInitializer extends ContextVisitor {
         
         // gen if (AtomicInteger.get() == EXCEPTION_RAISED) { throw exception; }
         stmts = new ArrayList<Stmt>();
-        stmts.add(xnf.If(pos, genPrintStmtCheckGuard(pos), makePrintStmtExcept(pos, name, classDef)));
+        if (!opts.x10_config.NO_TRACES && !opts.x10_config.OPTIMIZE) {
+        	stmts.add(xnf.If(pos, genPrintStmtCheckGuard(pos), makePrintStmtExcept(pos, name, classDef)));
+        }
         throwExceptStmt = xnf.Throw(pos, xnf.Field(pos, receiver, xnf.Id(pos, fdExcept.name())).fieldInstance(fdExcept.asInstance()).type(fdExcept.asInstance().type()));
         stmts.add(throwExceptStmt);
         shortCutBlockExcept = xnf.If(pos, genCheckExceptionRaised(pos, receiver, fdCond, true), xnf.Block(pos, stmts));
@@ -829,7 +831,9 @@ public class StaticInitializer extends ContextVisitor {
         catchBlocks.add(genCatch(pos, fdExcept, fdCond, excName, xts.CheckedThrowable(), receiver, throwExceptStmt));
         stmts.add(xnf.Try(pos, xnf.Block(pos, fieldAssignStmt), catchBlocks));
 
-        stmts.add(xnf.If(pos, genPrintStmtCheckGuard(pos), makePrintStmt(pos, name, classDef)));
+        if (!opts.x10_config.NO_TRACES && !opts.x10_config.OPTIMIZE) {
+        	stmts.add(xnf.If(pos, genPrintStmtCheckGuard(pos), makePrintStmt(pos, name, classDef)));
+        }
 
         stmts.add(xnf.Eval(pos, genStatusSet(pos, receiver, fdCond)));
         stmts.add(xnf.Eval(pos, genLock(pos)));
