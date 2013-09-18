@@ -104,8 +104,7 @@ public class SocketTransport {
 			e.printStackTrace();
 		}
 		
-		String noWriteBufferFlag = System.getenv(X10_NOWRITEBUFFER);
-		if (!Boolean.parseBoolean(noWriteBufferFlag))
+		if (!Boolean.parseBoolean(System.getenv(X10_NOWRITEBUFFER)) && !Boolean.parseBoolean(System.getProperty(X10_NOWRITEBUFFER)))
 			pendingWrites = new LinkedList<PendingData>();
 		
 		if (DEBUG) System.out.println("Socket library initialized");
