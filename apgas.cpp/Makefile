@@ -114,6 +114,12 @@ testme: $(X10_COPY_SRC) $(NATIVE_COPY_SRC)
 ###############################
 
 X10CPPFLAGS += -APGAS_LIB_MODE -STATIC_CHECKS -J-Xmx512M -rtdev -commandlineonly
+ifdef OPTIMIZE
+	X10CPPFLAGS += -O
+endif
+ifdef NO_CHECKS
+	x10CPPFLAGS += -NO_CHECKS
+endif
 
 $(GEN_DIR)/all-cpp-generated: $(X10_COPY_SRC)
 	@echo "Compiling X10 source files to C++"
