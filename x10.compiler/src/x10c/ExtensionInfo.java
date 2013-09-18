@@ -125,6 +125,7 @@ public class ExtensionInfo extends x10.ExtensionInfo {
         protected Goal PostCompiled() {
             return new PostCompiled(extInfo) {
                 private static final long serialVersionUID = 1L;
+                @Override
                 protected boolean invokePostCompiler(Options options, Compiler compiler, ErrorQueue eq) {
                     if (System.getProperty("x10.postcompile", "TRUE").equals("FALSE"))
                         return true;
