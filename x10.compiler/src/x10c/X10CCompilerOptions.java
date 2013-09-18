@@ -24,11 +24,11 @@ import x10cpp.postcompiler.PrecompiledLibrary;
 public class X10CCompilerOptions extends x10.X10CompilerOptions {
 
     // read system properties
-    public final String x10_dist = System.getProperty("x10.dist");
-    public final String x10_jar = "x10.jar"; // FIXME: is this overridable?
-    public final String math_jar = System.getProperty("x10c.math.jar", "commons-math3-3.2.jar");
-    public final String log_jar = System.getProperty("x10c.log.jar",  "commons-logging-1.1.3.jar");
-    public final String ecj_jar = System.getProperty("x10c.ecj.jar", "ecj-4.3.jar");
+    public static final String x10_dist = System.getProperty("x10.dist");
+    public static final String x10_jar = "x10.jar"; // FIXME: is this overridable?
+    public static final String math_jar = System.getProperty("x10c.math.jar", "commons-math3-3.2.jar");
+    public static final String log_jar = System.getProperty("x10c.log.jar",  "commons-logging-1.1.3.jar");
+    public static final String ecj_jar = System.getProperty("x10c.ecj.jar", "ecj-4.3.jar");
 
     public String main_source = null;
 
