@@ -24,7 +24,8 @@ class Activity {
     // This flag is hacked to be false in the APGAS C++ library
     // TODO: refactor XRX so body is more than a ()=>void so that run
     //       can simply ask the body if it should be deallocated on completion.
-    private static DEALLOC_BODY:Boolean = true;
+    private static DEALLOC_BODY:Boolean = canDealloc();
+    private static def canDealloc():Boolean = true;  // sigh. Block constant propagation.
 
     static class ClockPhases extends HashMap[Clock,Int] {
         // compute spawnee clock phases from spawner clock phases in async clocked(clocks)
