@@ -12,56 +12,54 @@ public class Phasing {
 
    public static val thisPhaseCount: AtomicInteger = new AtomicInteger();
 
-   static class Holder {
-      var start: Boolean = true;
-   }
-   static val holder: Holder = new Holder();
+//   static class Holder {
+//      var start: Boolean = true;
+//   }
+//   static val holder: Holder = new Holder();
 
-   public static def schedule(task: FTask) {
+//   public static def schedule(task: FTask) {
+   public static def schedule(act: Activity) {
 //      Console.OUT.println("Scheduling");
-      if (holder.start) {
+//      if (holder.start) {
          // This is the first firing task
 //         Console.OUT.println("First Task");
-         thisPhaseCount.set(1);
-         holder.start = false;
-         task.exec();
-      } else
-         Runtime.worker().addToNextPhase(task.act);
+//         thisPhaseCount.set(1);
+//         holder.start = false;
+//         task.exec();
+//      } else
+//         Runtime.worker().addToNextPhase(task.act);
+      Runtime.worker().addToNextPhase(act);
    }
 
    public static def addToNext(act: Activity) {
       Runtime.worker().addToNextPhase(act);
    }
 
-//   public static def nextPhase() {
-//      var count: Int = 0;
-//      var j: Int;
-//      val workers = Runtime.pool.workers.workers;
-//      for(j = 0; j < Runtime.NTHREADS; j++)
-//         count += workers(j).nextPhaseCount();
-//      thisPhaseCount.set(count);
-//
-//      for(j = 0; j < Runtime.NTHREADS; j++)
-//         workers(j).nextPhase();
-//   }
+   public static def startPhasing() {
+      nextPhase();
+   }
+
+   public static def nextPhase() {
+      var count: Int = 0;
+      var j: Int;
+      val workers = Runtime.pool.workers.workers;
+      for(j = 0; j < Runtime.NTHREADS; j++)
+         count += workers(j).nextPhaseCount();
+      thisPhaseCount.set(count);
+
+      for(j = 0; j < Runtime.NTHREADS; j++)
+         workers(j).nextPhase();
+
+//      if (count == 0)
+//         holder.start = true;
+   }
 
    public static def end() {
       val i = thisPhaseCount.decrementAndGet();
 //      Console.OUT.println("Current count: " + i);
       if (i == 0) {
 //         Console.OUT.println("Next Phase");
-         var count: Int = 0;
-         var j: Int;
-         val workers = Runtime.pool.workers.workers;
-         for(j = 0; j < Runtime.NTHREADS; j++)
-            count += workers(j).nextPhaseCount();
-         thisPhaseCount.set(count);
-
-         for(j = 0; j < Runtime.NTHREADS; j++)
-            workers(j).nextPhase();
-
-         if (count == 0)
-            holder.start = true;
+         nextPhase();
       }
    }
 

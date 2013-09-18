@@ -5,6 +5,7 @@ import x10.util.Pair;
 import x10.util.Box;
 import futuresched.core.FTask;
 import futuresched.core.SFuture;
+import futuresched.core.Phasing;
 
 public class FutComp {
 
@@ -38,6 +39,7 @@ public class FutComp {
             val n = iter.next();
             n.comp.set(n.no);
          }
+         Phasing.startPhasing();
       }
 //      Console.OUT.println("Returning");
    }

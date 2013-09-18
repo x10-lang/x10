@@ -124,7 +124,7 @@ public class IntPhOrFTask[TP] extends FTask {
             val thisAct = initActEnclosed(block);
             this.act = thisAct;
          }
-         Phasing.schedule(this);
+         Phasing.schedule(this.act);
 //         Console.OUT.println("Scheduling");
       }
    }

@@ -16,10 +16,10 @@ public class Graph {
       return nodes.size() as Int;
    }
    // A random connected undirected graph with n nodes and mb maximum branching factor.
-   public static def random(n: Int, mb: Int): FutGraph {
-      val list = new ArrayList[FutNode]();
+   public static def random(n: Int, mb: Int): Graph {
+      val list = new ArrayList[Node]();
       for (var i: Int = 0; i < n; i++)
-         list.add(new FutNode(i));
+         list.add(new Node(i));
 
       for (var i: Int = n - 1; i >= 1 ; i--) {
          val node1 = list.get(i);

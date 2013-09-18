@@ -28,19 +28,22 @@ public class FutGraph {
       val nRand = new Random();
       val bRand = new Random();
 
+      var t: Int = 0;
       for (var i: Int = 0; i < n/2; i++) {
          val node1 = list.get(i);
          val b = 1 + bRand.nextInt(mb);
          //Console.OUT.println("branching: " + b);
          var d1: Int = node1.degree();
+         t = 0;
          while (d1 < b) {
             val node2Index = nRand.nextInt(n/2);
             val node2 = list.get(node2Index);
-            if (node1 != node2 && !node1.contains(node2) && node2.degree() < mb) {
+            if ((node1 != node2 && !node1.contains(node2) && node2.degree() < mb) || t == 10) {
                node1.addNeighbor(node2);
                node2.addNeighbor(node1);
                d1 = node1.degree();
-            }
+            } else
+               t = t + 1;
          }
       }
       for (var i: Int = n/2; i < n; i++) {
@@ -48,14 +51,16 @@ public class FutGraph {
          val b = 1 + bRand.nextInt(mb);
          //Console.OUT.println("branching: " + b);
          var d1: Int = node1.degree();
+         t = 0;
          while (d1 < b) {
             val node2Index = n/2 + nRand.nextInt(n/2);
             val node2 = list.get(node2Index);
-            if (node1 != node2 && !node1.contains(node2) && node2.degree() < mb) {
+            if ((node1 != node2 && !node1.contains(node2) && node2.degree() < mb) || t == 10) {
                node1.addNeighbor(node2);
                node2.addNeighbor(node1);
                d1 = node1.degree();
-            }
+            } else
+               t = t + 1;
          }
       }
 

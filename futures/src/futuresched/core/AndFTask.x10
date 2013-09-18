@@ -143,6 +143,32 @@ public class AndFTask extends FTask {
   }
 
   public static def asyncAnd(
+    futures: ArrayList[DoubleFuture],
+    block: ()=>void): AndFTask  {
+
+    val thisAct = initActEnclosed(block);
+    val task = new AndFTask(thisAct, true);
+
+    val iter = futures.iterator();
+    var count: Int = 0;
+    while (iter.hasNext()) {
+      val f = iter.next();
+      val added = f.addIfNotSet(task, null);
+      if (added)
+        count = count + 1;
+    }
+    if (count == 0)
+      task.exec();
+    else {
+      count = task.count.addAndGet(-count);
+      if (count == 0)
+        task.exec();
+    }
+    return task;
+  }
+
+
+  public static def asyncAnd(
     future: IntFuture,
     block: ()=>void): AndFTask  {
 
@@ -284,6 +310,23 @@ public class AndFTask extends FTask {
     fTask.count.set(-count);
     return fTask;
   }
+
+  public static def newAnd(
+      futures: ArrayList[SDoubleFuture],
+      block: ()=>void): AndFTask {
+
+      val fTask = new AndFTask(block, false);
+
+      val iter = futures.iterator();
+      while (iter.hasNext()) {
+         val f = iter.next();
+         f.add(fTask, null);
+      }
+      val count = futures.size() as Int;
+      fTask.inDeg = count;
+      fTask.count.set(-count);
+      return fTask;
+   }
 
   public static def newAnd(
     future: SIntFuture,

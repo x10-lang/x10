@@ -118,9 +118,14 @@ public abstract class FTask {
       return AndFTask.asyncAnd(future, block);
    }
 
-
    public static def asyncAnd(
       futures: ArrayList[IntFuture],
+      block: ()=>void): AndFTask {
+      return AndFTask.asyncAnd(futures, block);
+   }
+
+   public static def asyncAnd(
+      futures: ArrayList[DoubleFuture],
       block: ()=>void): AndFTask {
       return AndFTask.asyncAnd(futures, block);
    }
@@ -178,6 +183,12 @@ public abstract class FTask {
       future: SIntFuture,
       block: ()=>void): AndFTask {
       return AndFTask.newAnd(future, block);
+   }
+
+   public static def newAnd(
+      futures: ArrayList[SDoubleFuture],
+      block: ()=>void): AndFTask {
+      return AndFTask.newAnd(futures, block);
    }
 
    public static def enclosedSAsyncWait[T](
@@ -259,6 +270,32 @@ public abstract class FTask {
     future: SIntFuture,
     block: ()=>void): PhAndFTask {
     return PhAndFTask.newPhasedAnd(future, block);
+  }
+
+  public static def newPhasedDoubleAdd(
+    futures: ArrayList[SDoubleFuture],
+    fun: (Double)=>Boolean): PhDoubleAddFTask {
+    return PhDoubleAddFTask.newPhasedDoubleAnd(futures, fun);
+  }
+
+  public static def newPhasedDoubleAdd(
+    futures: ArrayList[SUDoubleFuture],
+    fun: (Double)=>Boolean): PhDoubleAddFTask {
+    return PhDoubleAddFTask.newPhasedDoubleAnd(futures, fun);
+  }
+
+  public static def newPhasedDoubleAdd[T](
+    objs: ArrayList[T],
+    trans: (T)=>SDoubleFuture,
+    fun: (Double)=>Boolean): PhDoubleAddFTask {
+    return PhDoubleAddFTask.newPhasedDoubleAnd(objs, trans, fun);
+  }
+
+  public static def newPhasedDoubleAdd[T](
+    objs: ArrayList[T],
+    trans: (T)=>SUDoubleFuture,
+    fun: (Double)=>Boolean): PhDoubleAddFTask {
+    return PhDoubleAddFTask.newPhasedDoubleAnd(objs, trans, fun);
   }
 
 // -------------------------------------------------------------------

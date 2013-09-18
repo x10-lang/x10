@@ -5,7 +5,7 @@ import x10.util.Pair;
 import x10.util.Box;
 import futuresched.core.FTask;
 import futuresched.core.SFuture;
-
+import futuresched.core.Phasing;
 
 public class FutBFS {
 
@@ -34,6 +34,7 @@ public class FutBFS {
 //      Console.OUT.println("Finished creating tasks");
       finish {
          n.parent.set(n);
+         Phasing.startPhasing();
       }
 //      Console.OUT.println("Returning");
    }

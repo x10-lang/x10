@@ -154,11 +154,11 @@ public class PhAndFTask extends FTask {
          if (c == 0) {
             if (!enclosed)
                act = initActEnclosed(block);
-            Phasing.schedule(this);
+            Phasing.schedule(this.act);
             if (recurring) {
                c = count.addAndGet(-inDeg);
                while (c >= 0) {
-                  Phasing.schedule(this);
+                  Phasing.schedule(this.act);
                   c = count.addAndGet(-inDeg);
                }
             }

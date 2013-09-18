@@ -6,6 +6,7 @@ import x10.util.Box;
 import futuresched.core.FTask;
 import futuresched.core.SFuture;
 import futuresched.core.SIntFuture;
+import futuresched.core.Phasing;
 
 public class FutBellmanFord {
 
@@ -51,6 +52,7 @@ public class FutBellmanFord {
 //      Console.OUT.println("Finished creating tasks");
       finish {
          n.dist.set(0);
+         Phasing.startPhasing();
       }
 //      Console.OUT.println("Returning");
    }
