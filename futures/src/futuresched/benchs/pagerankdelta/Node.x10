@@ -15,6 +15,8 @@ public class Node {
    public var rank: Double;
    public var delta: SUDoubleFuture;
 
+   public var task: PhDoubleAddFTask;
+
    public def this(no: Int) {
       this.no = no;
       this.delta = new SUDoubleFuture();
@@ -40,6 +42,24 @@ public class Node {
       return outNeighbors.size() as Int;
    }
 
+   public def containsIn(n: Node): Boolean {
+      val iter = inNeighbors.iterator();
+      while (iter.hasNext()) {
+         val node = iter.next();
+         if (node == n) return true;
+      }
+      return false;
+   }
+
+   public def containsOut(n: Node): Boolean {
+      val iter = outNeighbors.iterator();
+      while (iter.hasNext()) {
+         val node = iter.next();
+         if (node == n) return true;
+      }
+      return false;
+   }
+
 }
 
 
@@ -48,3 +68,4 @@ public class Node {
 //   public var currRank: Double;
 //   public var prevRank: Double;
 //   public var oddPhase: Boolean = true;
+

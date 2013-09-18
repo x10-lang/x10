@@ -1,15 +1,14 @@
 package futuresched.core;
 
-import x10.util.Box;
 import x10.util.ArrayList;
-import x10.util.concurrent.Lock;
 import x10.util.concurrent.AtomicDouble;
 
 
 public class PhDoubleAddFTask extends FTask {
-   var fun: (Double)=>void;
+
+   var fun: (Double)=>Boolean;
    var inDeg: Int;
-   var stopped: Boolean;
+   var stopped: Boolean = false;
    var value: AtomicDouble = new AtomicDouble(0);
 
    public def this(count: Int, act: Activity, worker: Runtime.Worker, enclosed: Boolean) {
@@ -20,7 +19,7 @@ public class PhDoubleAddFTask extends FTask {
       super(act, enclosed);
    }
 
-   public def this(fun: (Double)=>void, enclosed: Boolean) {
+   public def this(fun: (Double)=>Boolean, enclosed: Boolean) {
       this.fun  = fun;
       this.enclosed = enclosed;
    }
@@ -43,14 +42,7 @@ public class PhDoubleAddFTask extends FTask {
       futures: ArrayList[SDoubleFuture],
       fun: (Double)=>Boolean): PhDoubleAddFTask {
 
-      val fTask = new PhDoubleAddFTask(false);
-      val newFun = (v: Double) => {
-         val stop = fun(v);
-         if (stop)
-            fTask.stopped = true;
-         Phasing.end();
-      };
-      fTask.fun = newFun;
+      val fTask = new PhDoubleAddFTask(fun, false);
 
       val iter = futures.iterator();
       while (iter.hasNext()) {
@@ -67,14 +59,7 @@ public class PhDoubleAddFTask extends FTask {
       futures: ArrayList[SUDoubleFuture],
       fun: (Double)=>Boolean): PhDoubleAddFTask {
 
-      val fTask = new PhDoubleAddFTask(false);
-      val newFun = (v: Double) => {
-         val stop = fun(v);
-         if (stop)
-            fTask.stopped = true;
-         Phasing.end();
-      };
-      fTask.fun = newFun;
+      val fTask = new PhDoubleAddFTask(fun, false);
 
       val iter = futures.iterator();
       while (iter.hasNext()) {
@@ -92,21 +77,14 @@ public class PhDoubleAddFTask extends FTask {
       trans: (T)=>SDoubleFuture,
       fun: (Double)=>Boolean): PhDoubleAddFTask {
 
-      val fTask = new PhDoubleAddFTask(false);
-      val newFun = (v: Double) => {
-         val stop = fun(v);
-         if (stop)
-            fTask.stopped = true;
-         Phasing.end();
-      };
-      fTask.fun = newFun;
+      val fTask = new PhDoubleAddFTask(fun, false);
 
       val iter = objs.iterator();
       while (iter.hasNext()) {
          val f = trans(iter.next());
          f.add(fTask, null);
       }
-      val count = futures.size() as Int;
+      val count = objs.size() as Int;
       fTask.inDeg = count;
       fTask.count.set(-count);
       return fTask;
@@ -117,21 +95,14 @@ public class PhDoubleAddFTask extends FTask {
       trans: (T)=>SUDoubleFuture,
       fun: (Double)=>Boolean): PhDoubleAddFTask {
 
-      val fTask = new PhDoubleAddFTask(false);
-      val newFun = (v: Double) => {
-         val stop = fun(v);
-         if (stop)
-            fTask.stopped = true;
-         Phasing.end();
-      };
-      fTask.fun = newFun;
+      val fTask = new PhDoubleAddFTask(fun, false);
 
       val iter = objs.iterator();
       while (iter.hasNext()) {
          val f = trans(iter.next());
          f.add(fTask, null);
       }
-      val count = futures.size() as Int;
+      val count = objs.size() as Int;
       fTask.inDeg = count;
       fTask.count.set(-count);
       return fTask;
@@ -147,6 +118,7 @@ public class PhDoubleAddFTask extends FTask {
 // Deferred task scheduling
 
    public def inform(v: Any, obj: Any) {
+//      Console.OUT.println("In inform ");
       if (stopped)
          return;
       if (isDone && !recurring)
@@ -159,10 +131,21 @@ public class PhDoubleAddFTask extends FTask {
       // knows that the value contains the sum.
       var c: Int;
       c = count.incrementAndGet();
+//      Console.OUT.println("Scheduling for next phase");
       if (c == 0) {
-         if (!enclosed)
-            act = initActEnclosed(block);
-         Phasing.schedule(this.act);
+         if (!enclosed) {
+            val sum = value.get();
+            val block = () => {
+               val stop = fun(sum);
+               if (stop)
+                  this.stopped = true;
+               Phasing.end();
+            };
+            val act = initActEnclosed(block);
+            Phasing.schedule(act);
+         } else {
+            Phasing.schedule(this.act);
+         }
          if (recurring) {
             // It is assumed that the task is fired once in each phase.
             count.set(-inDeg);

@@ -1,5 +1,6 @@
 package futuresched.benchs.pagerankdelta;
 
+
 import x10.util.Random;
 import x10.util.ArrayList;
 
@@ -31,22 +32,27 @@ public class Graph {
       val nRand = new Random();
       val bRand = new Random();
 
+      var t: Int = 0;
       for (var i: Int = 0; i < n; i++) {
          val node1 = list.get(i);
          val b = 1 + bRand.nextInt(mb);
-         var d1: Int = node1.degree();
+         var d1: Int = node1.outDegree();
+         t = 0;
          while (d1 < b) {
             val node2Index = nRand.nextInt(n);
             val node2 = list.get(node2Index);
-            if (node1 != node2 && !node1.contains(node2) && node2.degree() < mb) {
+            if ((node1 != node2 &&
+                 !node1.containsOut(node2) && !node2.containsOut(node1) &&
+                 node2.outDegree() < mb) || t == 10) {
                node1.addOutNeighbor(node2);
                node2.addInNeighbor(node1);
-               d1 = node1.degree();
-            }
+               d1 = node1.outDegree();
+            } else
+               t = t + 1;
          }
       }
 
-      return new FutGraph(list);
+      return new Graph(list);
    }
 
    public def toString(): String {
@@ -56,7 +62,7 @@ public class Graph {
       while (iter.hasNext()) {
          val node = iter.next();
          //s += node.no + ": ";
-         val iter2 = node.neighbors.iterator();
+         val iter2 = node.outNeighbors.iterator();
          while (iter2.hasNext()) {
             val node2 = iter2.next();
             s += "\t" + node.no + " -> " + node2.no + ";\n";
@@ -69,16 +75,19 @@ public class Graph {
 
    public def toStringRanks(): String {
 
-      var s: String = "Ranks:\n";
+      var s: String = "";
+      var sum: Double = 0;
       val iter = nodes.iterator();
       while (iter.hasNext()) {
          val node = iter.next();
          //s += node.no + ": ";
          s += "\t" + node.no + ": " + node.rank + "\n";
+         sum += node.rank;
       }
+      s += "Sum: " + sum + "\n";
+
       return s;
    }
-
 
 }
 

@@ -6,7 +6,7 @@ import futuresched.core.*;
 
 public class PageRank {
 
-   public static def compute(g: Graph, dampFact: Double, sigma: Double) {
+   public static def compute(g: Graph, gamma: Double, sigma: Double) {
 
       val v = g.nodeCount();
 
@@ -24,18 +24,21 @@ public class PageRank {
                   // One all the deltas are accumulated, in the next phase
                   // either set the rank and set delta for outgoing neighbors
                   // or deregister outgoing neighbors and stop the task.
-                  (deltas: Int) => {
-                     if ((deltas / node.rank) > sigma) {
-                        val delta = dampFact * deltas;
+                  (deltas: Double) => {
+                     Console.OUT.println("Executing task for " + node.no);
+                     val ratio = Math.abs(deltas / node.rank);
+//                     Console.OUT.println("Ratio " + ratio);
+                     if (ratio > sigma) {
+                        val delta = gamma * deltas;
                         node.rank += delta;
                         node.delta.set(delta);
                         return true;
                      } else {
                         // Deregister next nodes that are dependent on this delta.
-                        val iter2 = node.outNeighbors();
+                        val iter2 = node.outNeighbors.iterator();
                         while (iter2.hasNext()) {
                            val n = iter2.next();
-                           n.deregister();
+                           n.task.deregister();
                         }
                         return false; //stops this task
                      }
@@ -50,26 +53,32 @@ public class PageRank {
          val iter = g.nodes.iterator();
          while (iter.hasNext()) {
             val n = iter.next();
-            val outs = node.inNeighbors;
+            val outs = n.outNeighbors;
             val share = (1.0 / v) / outs.size();
             val outsIter = outs.iterator();
             while (outsIter.hasNext()) {
-               val outNode = insIter.next();
+               val outNode = outsIter.next();
                outNode.rank += share;
             }
          }
          val iter2 = g.nodes.iterator();
          while (iter2.hasNext()) {
             val n = iter2.next();
-            async {
+//            async {
                val shares = gamma * n.rank;
-               val rank = (1 - gamma) / v + shares;
-               n.rank = rank;
-               val delta = rank - (1 / v);
-               n.delta.set(delta);
-            }
+               val rank = (1.0 - gamma) / v + shares;
+               val delta = rank - (1.0 / v);
+               n.rank = 1.0 / v;
+               val outDeg = n.outDegree();
+               n.delta.set(delta / outDeg);
+//            }
          }
-         Phasing.startPhasing();
+         val s = g.toStringRanks();
+         Console.OUT.println("Ranks: ");
+         Console.OUT.print(s);
+         Console.OUT.println("");
+         //Phasing.startPhasing();
+         Phasing.startPhasing(g);
       }
 
    }

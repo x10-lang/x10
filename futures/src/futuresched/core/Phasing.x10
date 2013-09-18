@@ -7,6 +7,7 @@ import x10.util.ArrayList;
 import x10.util.concurrent.Lock;
 import x10.util.concurrent.AtomicInteger;
 
+import futuresched.benchs.pagerankdelta.Graph;
 
 public class Phasing {
 
@@ -47,6 +48,8 @@ public class Phasing {
          count += workers(j).nextPhaseCount();
       thisPhaseCount.set(count);
 
+      Console.OUT.println("Next phase with " + count + " tasks.");
+
       for(j = 0; j < Runtime.NTHREADS; j++)
          workers(j).nextPhase();
 
@@ -58,9 +61,24 @@ public class Phasing {
       val i = thisPhaseCount.decrementAndGet();
 //      Console.OUT.println("Current count: " + i);
       if (i == 0) {
-//         Console.OUT.println("Next Phase");
+
+         val s = holder.g.toStringRanks();
+         Console.OUT.println("Ranks: ");
+         Console.OUT.print(s);
+         Console.OUT.println("");
+
          nextPhase();
       }
+   }
+
+   static class Holder {
+      var g: Graph = null;
+   }
+   static val holder: Holder = new Holder();
+
+   public static def startPhasing(g: Graph) {
+      holder.g = g;
+      nextPhase();
    }
 
    /*

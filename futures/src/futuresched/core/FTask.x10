@@ -275,27 +275,27 @@ public abstract class FTask {
   public static def newPhasedDoubleAdd(
     futures: ArrayList[SDoubleFuture],
     fun: (Double)=>Boolean): PhDoubleAddFTask {
-    return PhDoubleAddFTask.newPhasedDoubleAnd(futures, fun);
+    return PhDoubleAddFTask.newPhasedDoubleAdd(futures, fun);
   }
 
   public static def newPhasedDoubleAdd(
     futures: ArrayList[SUDoubleFuture],
     fun: (Double)=>Boolean): PhDoubleAddFTask {
-    return PhDoubleAddFTask.newPhasedDoubleAnd(futures, fun);
+    return PhDoubleAddFTask.newPhasedDoubleAdd(futures, fun);
   }
 
   public static def newPhasedDoubleAdd[T](
     objs: ArrayList[T],
     trans: (T)=>SDoubleFuture,
     fun: (Double)=>Boolean): PhDoubleAddFTask {
-    return PhDoubleAddFTask.newPhasedDoubleAnd(objs, trans, fun);
+    return PhDoubleAddFTask.newPhasedDoubleAdd(objs, trans, fun);
   }
 
   public static def newPhasedDoubleAdd[T](
     objs: ArrayList[T],
     trans: (T)=>SUDoubleFuture,
     fun: (Double)=>Boolean): PhDoubleAddFTask {
-    return PhDoubleAddFTask.newPhasedDoubleAnd(objs, trans, fun);
+    return PhDoubleAddFTask.newPhasedDoubleAdd(objs, trans, fun);
   }
 
 // -------------------------------------------------------------------

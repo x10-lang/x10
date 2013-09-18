@@ -8,19 +8,25 @@ public class Main {
 	public static def main(Rail[String]) {
       FTask.init();
 
+      var gamma: Double;
+      var sigma: Double;
+
       var n: Int;      // Number of nodes
       var b: Int;      // Max branching factor
       var p: Boolean;  // Print
       p = true;
 //      p = false;
 
+      gamma = 0.85;
+      sigma = 0.001;
+
       n = 10;
       b = 3;
-      test(n, b, p);
+      test(n, b, gamma, sigma, p);
 
-      n = 20;
-      b = 7;
-      test(n, b, p);
+//      n = 20;
+//      b = 7;
+//      test(n, b, gamma, sigma, p);
 
 //      n = 100;
 //      b = 15;
@@ -41,7 +47,7 @@ public class Main {
 
    }
 
-   public static def test(n: Int, b: Int, p: Boolean) {
+   public static def test(n: Int, b: Int, gamma: Double, sigma: Double, p: Boolean) {
 
       var t1: Long;
       var t2: Long;
@@ -73,6 +79,7 @@ public class Main {
       Console.OUT.println("Future: ");
 
       val graph = Graph.random(n, b);
+
       if (p) {
          s = graph.toString();
          Console.OUT.println("Graph: ");
@@ -81,10 +88,10 @@ public class Main {
       }
 
       t1 = System.currentTimeMillis();
-      PageRank.compute(graph);
+      PageRank.compute(graph, gamma, sigma);
       t2 = System.currentTimeMillis();
       if (p) {
-         s = graph.toStringRank();
+         s = graph.toStringRanks();
          Console.OUT.println("Ranks: ");
          Console.OUT.print(s);
       }
