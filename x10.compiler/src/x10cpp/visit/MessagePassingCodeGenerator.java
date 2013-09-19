@@ -2684,8 +2684,19 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 		    }
 		}
 		if (!virtual_dispatch && !already_static ) {
-		    // disable virtual dispatch
-		    sw.write(Emitter.translateType(t));
+		    // Statically bind call at C++ level by explictly qualifying
+		    String methodContainerType = Emitter.translateType(t);
+		    if ((context.inTemplate() || context.isInsideTemplateClosure()) && (t.isClass() && t.toClass().hasParams())) {
+		        int firstTemplate = methodContainerType.indexOf("<");
+		        int i = methodContainerType.lastIndexOf("::", firstTemplate-1); // UGH. This is hacky, but it is really hard to restructure translateType to avoid needing a hack
+		        if (i >= 0) {
+		            methodContainerType = methodContainerType.substring(0, i+2)+"template "+methodContainerType.substring(i+2, methodContainerType.length());
+		        } else {
+		            methodContainerType = "template "+methodContainerType;
+		        }		        
+		    }
+		    
+		    sw.write(methodContainerType);
 		    sw.write("::");
 		}
 		if (context.inTemplate() && mi.typeParameters().size() != 0) {
@@ -3303,7 +3314,9 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
         // Thus, later closures can be used by earlier ones, but not vice versa.
         ClassifiedStream saved_closures = c.closures;
         ClassifiedStream saved_generic_closures = c.genericFunctionClosures;
+        boolean saved_inside_template_closure = c.isInsideTemplateClosure();
         c.closures = sw.getNewStream(c.closures.ext, c.closures, true);
+        c.setInsideTemplateClosure(in_template_closure);
         sw.pushCurrentStream(c.closures);
 
         // A stream to put definitions of static variables for the closure class.
@@ -3506,6 +3519,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
         sw.popCurrentStream();
         c.closures = saved_closures;
         c.genericFunctionClosures = saved_generic_closures;
+        c.setInsideTemplateClosure(saved_inside_template_closure);
         
         // create closure instantiation.
         // note that we alloc using the typeof the superType but we pass in the correct size
@@ -3963,11 +3977,6 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 			components.put(Integer.toString(i++), "/"+"*"+" UNUSED "+"*"+"/");
 	    }
 	    emitter.nativeSubst("Native", components, tr, pat, sw);
-	}
-
-	private static boolean isPODType(Type t) {
-	    return (t.isBoolean() || t.isByte() || t.isShort() || t.isInt() || t.isLong() ||
-	            t.isFloat() || t.isDouble());
 	}
 
 	public void visit(Tuple_c c) {
