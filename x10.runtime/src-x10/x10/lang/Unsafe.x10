@@ -34,10 +34,10 @@ public final class Unsafe {
     @Native("java", "(#x).clear(#start, #numElems)")
     public native static def clearRail[T](x:Rail[T], start:long, numElems:long):void;
 
-    @Native("c++", "(#r)->x10::lang::Rail<#T >::unchecked_apply(#i)")
+    @Native("c++", "(#r)->unchecked_apply(#i)")
     public static @Inline def uncheckedRailApply[T](r:Rail[T], i:long):T = r(i);
 
-    @Native("c++", "(#r)->x10::lang::Rail<#T >::unchecked_set(#i, #v)")
+    @Native("c++", "(#r)->unchecked_set(#i, #v)")
     public static @Inline def uncheckedRailSet[T](r:Rail[T], i:long, v:T):T {
         r(i) = v;
         return v;
