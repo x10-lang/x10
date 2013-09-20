@@ -11,6 +11,11 @@ import futuresched.benchs.pagerankdelta.Graph;
 
 public class Phasing {
 
+   static class IntHolder {
+      var v: Int = 0;
+   }
+   public static val phaseNoHolder: IntHolder = new IntHolder();
+
    public static val thisPhaseCount: AtomicInteger = new AtomicInteger();
 
 //   static class Holder {
@@ -37,10 +42,12 @@ public class Phasing {
    }
 
    public static def startPhasing() {
+      phaseNoHolder.v = 0;
       nextPhase();
    }
 
    public static def nextPhase() {
+      phaseNoHolder.v = phaseNoHolder.v + 1;
       var count: Int = 0;
       var j: Int;
       val workers = Runtime.pool.workers.workers;
@@ -48,7 +55,7 @@ public class Phasing {
          count += workers(j).nextPhaseCount();
       thisPhaseCount.set(count);
 
-      Console.OUT.println("Next phase with " + count + " tasks.");
+//      Console.OUT.println("Next phase with " + count + " tasks.");
 
       for(j = 0; j < Runtime.NTHREADS; j++)
          workers(j).nextPhase();
@@ -62,22 +69,24 @@ public class Phasing {
 //      Console.OUT.println("Current count: " + i);
       if (i == 0) {
 
-         val s = holder.g.toStringRanks();
-         Console.OUT.println("Ranks: ");
-         Console.OUT.print(s);
-         Console.OUT.println("");
+//         val s = graphHolder.v.toStringRanks();
+//         Console.OUT.println("Ranks: ");
+//         Console.OUT.print(s);
+//         Console.OUT.println("");
 
          nextPhase();
       }
    }
 
-   static class Holder {
-      var g: Graph = null;
+   static class GraphHolder {
+      var v: Graph = null;
    }
-   static val holder: Holder = new Holder();
+
+   static val graphHolder: GraphHolder = new GraphHolder();
 
    public static def startPhasing(g: Graph) {
-      holder.g = g;
+      graphHolder.v = g;
+      phaseNoHolder.v = 0;
       nextPhase();
    }
 

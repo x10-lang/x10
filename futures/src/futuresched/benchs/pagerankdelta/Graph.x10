@@ -81,11 +81,23 @@ public class Graph {
       while (iter.hasNext()) {
          val node = iter.next();
          //s += node.no + ": ";
-         s += "\t" + node.no + ": " + node.rank + "\n";
-         sum += node.rank;
+         s += "\t" + node.no + ":\n";
+//         s += "\t\t" + node.prevRank + "\n";
+         s += "\t\t" + node.currRank + "\n";
+//         s += "\t\t" + node.delta.get() + "\n";
+         sum += node.currRank;
       }
       s += "Sum: " + sum + "\n";
-
+      s += "Normalized:\n";
+      val iter2 = nodes.iterator();
+      while (iter2.hasNext()) {
+         val node = iter2.next();
+         //s += node.no + ": ";
+         s += "\t" + node.no + ":\n";
+//         s += "\t\t" + node.prevRank + "\n";
+         s += "\t\t" + (node.currRank/sum) + "\n";
+//         s += "\t\t" + node.delta.get() + "\n";
+      }
       return s;
    }
 

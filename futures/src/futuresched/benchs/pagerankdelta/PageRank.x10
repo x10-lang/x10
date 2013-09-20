@@ -21,35 +21,70 @@ public class PageRank {
                   (n: Node) => {
                      return n.delta;
                   },
-                  // One all the deltas are accumulated, in the next phase
+                  // Once all the deltas are accumulated, in the next phase
                   // either set the rank and set delta for outgoing neighbors
-                  // or deregister outgoing neighbors and stop the task.
+                  // or untie outgoing neighbors and stop the task.
                   (deltas: Double) => {
-                     Console.OUT.println("Executing task for " + node.no);
-                     val ratio = Math.abs(deltas / node.rank);
-//                     Console.OUT.println("Ratio " + ratio);
-                     if (ratio > sigma) {
-                        val delta = gamma * deltas;
-                        node.rank += delta;
-                        node.delta.set(delta);
-                        return true;
-                     } else {
-                        // Deregister next nodes that are dependent on this delta.
-                        val iter2 = node.outNeighbors.iterator();
-                        while (iter2.hasNext()) {
-                           val n = iter2.next();
-                           n.task.deregister();
-                        }
-                        return false; //stops this task
+                     val v = Math.abs(deltas);
+                     if (v < 0.000000001)
+                        return false;
+                     else {
+                        val ratio = v / node.currRank;
+                        return (ratio > sigma);
+                     }
+//                     return true;
+                  },
+                  (deltas: Double) => {
+//                     Console.OUT.println("Executing task for " + node.no);
+//                     Console.OUT.println("deltas for " + node.no + ": " + deltas);
+                     val delta = gamma * deltas;
+                     val initRank = node.prevRank;
+                     node.prevRank = node.currRank;
+                     val rank = initRank + delta;
+                     if (rank < 0)
+                        node.currRank = 0.0;
+//                     else if (rank > 1)
+//                        node.currRank = 1.0;
+                     else
+                        node.currRank = rank;
+
+                     val diff = node.currRank - node.prevRank;
+//                     if (Math.abs(diff) < 0.000000001)
+//                        node.delta.set(0);
+//                     else {
+                        val outDeg = node.outDegree();
+                        val d = diff / outDeg;
+                        node.delta.set(d);
+//                     }
+                  },
+                  () => {
+                     // Untie next nodes that are dependent on this delta.
+//                     Console.OUT.println("Untie for " + node.no);
+                     val iter2 = node.outNeighbors.iterator();
+                     while (iter2.hasNext()) {
+                        val n = iter2.next();
+                        n.task.untie();
+                     }
+                  },
+                  () => {
+                     // Retie next nodes that are dependent on this delta.
+//                     Console.OUT.println("Retie for " + node.no);
+                     val iter2 = node.outNeighbors.iterator();
+                     while (iter2.hasNext()) {
+                        val n = iter2.next();
+                        n.task.tie();
                      }
                   }
                );
+               node.task = task;
                task.recurring = true;
             }
          }
       }
 
       finish {
+
+/*
          val iter = g.nodes.iterator();
          while (iter.hasNext()) {
             val n = iter.next();
@@ -68,19 +103,29 @@ public class PageRank {
                val shares = gamma * n.rank;
                val rank = (1.0 - gamma) / v + shares;
                val delta = rank - (1.0 / v);
-               n.rank = 1.0 / v;
                val outDeg = n.outDegree();
                n.delta.set(delta / outDeg);
+               n.rank = 1.0 / v;
 //            }
          }
-         val s = g.toStringRanks();
-         Console.OUT.println("Ranks: ");
-         Console.OUT.print(s);
-         Console.OUT.println("");
-         //Phasing.startPhasing();
-         Phasing.startPhasing(g);
-      }
+*/
+         val iter2 = g.nodes.iterator();
+         while (iter2.hasNext()) {
+            val n = iter2.next();
+            val outDeg = n.outDegree();
+            n.prevRank = 0;
+            n.currRank = 1.0 / v;
+            n.delta.set((1.0 / v) / outDeg);
+         }
 
+//         val s = g.toStringRanks();
+//         Console.OUT.println("Ranks: ");
+//         Console.OUT.print(s);
+//         Console.OUT.println("");
+//         Phasing.startPhasing(g);
+
+         Phasing.startPhasing();
+      }
    }
 }
 

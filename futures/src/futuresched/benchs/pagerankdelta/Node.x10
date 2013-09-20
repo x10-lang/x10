@@ -12,7 +12,8 @@ public class Node {
    public var inNeighbors: ArrayList[Node] = new ArrayList[Node]();
    public var outNeighbors: ArrayList[Node] = new ArrayList[Node]();
 
-   public var rank: Double;
+   public var prevRank: Double;
+   public var currRank: Double;
    public var delta: SUDoubleFuture;
 
    public var task: PhDoubleAddFTask;

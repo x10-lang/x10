@@ -55,8 +55,6 @@ public abstract class FTask {
       this.worker = Runtime.worker();
    }
 
-
-
    public def exec() {
       val theAct = this.act;
       val theWorker = this.worker;
@@ -272,31 +270,50 @@ public abstract class FTask {
     return PhAndFTask.newPhasedAnd(future, block);
   }
 
-  public static def newPhasedDoubleAdd(
-    futures: ArrayList[SDoubleFuture],
-    fun: (Double)=>Boolean): PhDoubleAddFTask {
-    return PhDoubleAddFTask.newPhasedDoubleAdd(futures, fun);
-  }
+  // ---------------------------------------
 
-  public static def newPhasedDoubleAdd(
-    futures: ArrayList[SUDoubleFuture],
-    fun: (Double)=>Boolean): PhDoubleAddFTask {
-    return PhDoubleAddFTask.newPhasedDoubleAdd(futures, fun);
-  }
+   public static def newPhasedDoubleAdd(
+      futures: ArrayList[SDoubleFuture],
+      cond: (Double)=>Boolean,
+      block: (Double)=>void,
+      stop: ()=>void,
+      restart: ()=>void): PhDoubleAddFTask {
 
-  public static def newPhasedDoubleAdd[T](
-    objs: ArrayList[T],
-    trans: (T)=>SDoubleFuture,
-    fun: (Double)=>Boolean): PhDoubleAddFTask {
-    return PhDoubleAddFTask.newPhasedDoubleAdd(objs, trans, fun);
-  }
+      return PhDoubleAddFTask.newPhasedDoubleAdd(
+         futures, cond, block, stop, restart);
+   }
 
-  public static def newPhasedDoubleAdd[T](
-    objs: ArrayList[T],
-    trans: (T)=>SUDoubleFuture,
-    fun: (Double)=>Boolean): PhDoubleAddFTask {
-    return PhDoubleAddFTask.newPhasedDoubleAdd(objs, trans, fun);
-  }
+   public static def newPhasedDoubleAdd(
+      futures: ArrayList[SUDoubleFuture],
+      cond: (Double)=>Boolean,
+      block: (Double)=>void,
+      stop: ()=>void,
+      restart: ()=>void): PhDoubleAddFTask {
+      return PhDoubleAddFTask.newPhasedDoubleAdd(
+         futures, cond, block, stop, restart);
+   }
+
+   public static def newPhasedDoubleAdd[T](
+      objs: ArrayList[T],
+      trans: (T)=>SDoubleFuture,
+      cond: (Double)=>Boolean,
+      block: (Double)=>void,
+      stop: ()=>void,
+      restart: ()=>void): PhDoubleAddFTask {
+      return PhDoubleAddFTask.newPhasedDoubleAdd(
+         objs, trans, cond, block, stop, restart);
+   }
+
+   public static def newPhasedDoubleAdd[T](
+      objs: ArrayList[T],
+      trans: (T)=>SUDoubleFuture,
+      cond: (Double)=>Boolean,
+      block: (Double)=>void,
+      stop: ()=>void,
+      restart: ()=>void): PhDoubleAddFTask {
+      return PhDoubleAddFTask.newPhasedDoubleAdd(
+         objs, trans, cond, block, stop, restart);
+   }
 
 // -------------------------------------------------------------------
 // asyncPhasedOr
@@ -349,16 +366,5 @@ public abstract class FTask {
 
 // ------------------------------------------------------
 
-
-  /*
-  public def now() {
-    val theAct = this.act;
-//    val state = Runtime.getEnclosingFinish();
-//    theAct.setFinish(state);
-    val theWorker = this.worker;
-    @NoInline { Runtime.executeLocalInWorker(theAct, theWorker); }
-    // The annotation is added to go around a bug.
-  }
-  */
 }
 

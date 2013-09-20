@@ -18,10 +18,14 @@ public class Main {
 //      p = false;
 
       gamma = 0.85;
+//      gamma = 1;
       sigma = 0.001;
+//      sigma = 0.00000000001;
 
       n = 10;
       b = 3;
+//      n = 4;
+//      b = 2;
       test(n, b, gamma, sigma, p);
 
 //      n = 20;
