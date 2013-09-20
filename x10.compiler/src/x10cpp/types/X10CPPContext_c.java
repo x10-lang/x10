@@ -127,6 +127,11 @@ public class X10CPPContext_c extends Context {
     public boolean isInsideClosure() { return insideClosure; }
     public void setInsideClosure(boolean b) { insideClosure = b; }
 
+    // used externally, deep
+    protected boolean insideTemplateClosure;
+    public boolean isInsideTemplateClosure() { return insideTemplateClosure; }
+    public void setInsideTemplateClosure(boolean b) { insideTemplateClosure = b; }
+
     // used internally, shallow
     public boolean stackAllocateClosure = false;
     public void setStackAllocateClosure(boolean val) { stackAllocateClosure = val; }

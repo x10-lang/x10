@@ -1001,8 +1001,6 @@ public class Emitter {
         h.write("// Serialization"); h.newline();
         String klass = translateType(type);
 
-        String template = context.inTemplate() ? "template " : "";
-        
         if (unserializable) {
             h.write("virtual ");
             h.write("void "+SERIALIZE_BODY_METHOD+"("+SERIALIZATION_BUFFER+"& buf) {");
