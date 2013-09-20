@@ -203,7 +203,11 @@ case "${__cat_system}" in
 esac
 __cat_backend_arch="${__cat_backend}-${__cat_arch}"
 __cat_arch_os="${__cat_arch}-${__cat_os}"
-__cat_hostname=$(hostname)
+if [[ -z "$CAT_LOGICAL_HOSTNAME" ]]; then
+    __cat_hostname=$(hostname)
+else
+    __cat_hostname=$CAT_LOGICAL_HOSTNAME
+fi
 __cat_target_arch=${__cat_arch}
 __cat_target_os=${__cat_os}
 if [[ "$(uname -s)" == CYGWIN* ]]; then
