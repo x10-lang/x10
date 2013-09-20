@@ -18,8 +18,8 @@ import x10.util.Ordered;
  * rank-dimensional space. The coordinates of a point <code>p</code>
  * may be accessed individually (with zero-based indexing) using
  * <code>p(i)</code> because <code>Point</code> implements
- * <code>(int)=>int</code>. The coordinates may also be accessed as a
- * Rail[int]. Point arithmetic is supported.
+ * <code>(long)=>long</code>.
+ * Point arithmetic is supported.
  */
 public final class Point(rank:long) implements (long) => long, 
                                               Ordered[Point(rank)], 
