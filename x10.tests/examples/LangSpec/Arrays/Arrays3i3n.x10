@@ -1,4 +1,4 @@
-/* Current test harness gets confused by packages, but it would be in package expsome_Arrays8;
+/* Current test harness gets confused by packages, but it would be in package expsome_Arrays17;
 */
 // Warning: This file is auto-generated from the TeX source of the language spec.
 // If you need it changed, work with the specification writers.
@@ -26,8 +26,8 @@ public class Arrays3i3n extends x10Test {
     }
 
 
-// file Arrays line 145
- static class Arrays8TestExp{
+// file Arrays line 421
+ static class Arrays17TestExp{
   def check(min:Rail[Long], max:Rail[Long])  = Region.makeRectangular(min, max);  }
 
  static class Hook {

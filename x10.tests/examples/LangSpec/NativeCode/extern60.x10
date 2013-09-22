@@ -26,7 +26,7 @@ public class extern60 extends x10Test {
     }
 
 
-// file NativeCode line 133
+// file NativeCode line 136
  static class Ability {
   static val A : Int = 1n;
   @Native("java", "A+2")

@@ -1,4 +1,4 @@
-/* Current test harness gets confused by packages, but it would be in package stmtsome_Arrays53;
+/* Current test harness gets confused by packages, but it would be in package stmtsome_Arrays63;
 */
 // Warning: This file is auto-generated from the TeX source of the language spec.
 // If you need it changed, work with the specification writers.
@@ -26,8 +26,8 @@ public class Arrays410 extends x10Test {
     }
 
 
-// file Arrays.tex,  line 651
- static class Arrays53TestStmt{
+// file Arrays.tex,  line 936
+ static class Arrays63TestStmt{
   def check(da:DistArray[Long](3), p:Point(3), t:Long)  {
     da(p)=t;
   }}

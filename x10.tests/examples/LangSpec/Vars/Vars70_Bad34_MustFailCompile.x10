@@ -26,7 +26,7 @@ public class Vars70_Bad34_MustFailCompile extends x10Test {
     }
 
 
-// file Vars line 278
+// file Vars line 281
 abstract static  class VarsForStars{
  abstract def cointoss(): Boolean;
  abstract def println(Any):void;

@@ -26,7 +26,7 @@ public class DefiniteAssignment4a6n extends x10Test {
     }
 
 
-// file DefiniteAssignment line 129
+// file DefiniteAssignment line 130
  static  class Example {
  def example() {
 val a : Long;

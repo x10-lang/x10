@@ -26,7 +26,7 @@ public class Expressions4w6f extends x10Test {
     }
 
 
-// file Expressions line 1031
+// file Expressions line 1032
  static  class Example {
 def m(a:Long{self==1}, b:Long{self==2}) = (a==b);
 }

@@ -26,7 +26,7 @@ public class Statements10 extends x10Test {
     }
 
 
-// file Statements line 18
+// file Statements line 20
  static  class EmptyStatementExample {
 static def search[T](a: Rail[T], v: T):Long {
   var i : Long;

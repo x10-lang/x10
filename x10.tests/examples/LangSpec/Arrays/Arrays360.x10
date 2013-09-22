@@ -26,7 +26,7 @@ public class Arrays360 extends x10Test {
     }
 
 
-// file Arrays line 551
+// file Arrays line 843
  static  class Example {
  def example() {
 val R <: Region = Region.make(1..1000);

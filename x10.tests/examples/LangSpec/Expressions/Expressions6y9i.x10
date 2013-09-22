@@ -26,7 +26,7 @@ public class Expressions6y9i extends x10Test {
     }
 
 
-// file Expressions line 1338
+// file Expressions line 1339
  static class Person {
   static operator (f:Fop) as Person = new Person();
   static def asPerson(f:Fop) = new Person();

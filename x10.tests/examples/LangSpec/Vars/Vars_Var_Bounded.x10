@@ -26,7 +26,7 @@ public class Vars_Var_Bounded extends x10Test {
     }
 
 
-// file Vars line 505
+// file Vars line 508
  static  class Tub(p:Long){
    def this(pp:Long):Tub{self.p==pp} {property(pp);}
    def example() {

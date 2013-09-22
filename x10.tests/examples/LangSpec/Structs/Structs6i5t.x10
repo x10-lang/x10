@@ -26,7 +26,7 @@ public class Structs6i5t extends x10Test {
     }
 
 
-// file Structs line 125
+// file Structs line 127
  static struct Exam[T](nQuestions:Long){T <: Question} {
   public static  interface Question {}
   // ...

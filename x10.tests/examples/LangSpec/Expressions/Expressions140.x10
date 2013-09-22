@@ -26,7 +26,7 @@ public class Expressions140 extends x10Test {
     }
 
 
-// file Expressions line 1891
+// file Expressions line 1892
  static  class Example {
  def example() {
 val ints <: Rail[Long] = [1,3,7,21];

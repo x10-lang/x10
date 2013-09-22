@@ -1,4 +1,4 @@
-/* Current test harness gets confused by packages, but it would be in package expsome_Arrays48;
+/* Current test harness gets confused by packages, but it would be in package expsome_Arrays58;
 */
 // Warning: This file is auto-generated from the TeX source of the language spec.
 // If you need it changed, work with the specification writers.
@@ -26,8 +26,8 @@ public class Arrays1s6g extends x10Test {
     }
 
 
-// file Arrays line 581
- static class Arrays48TestExp{
+// file Arrays line 873
+ static class Arrays58TestExp{
   def check(N:Long)  = Dist.makeConstant(Region.make(0, N-1),here);  }
 
  static class Hook {

@@ -26,7 +26,7 @@ public class Clocks40 extends x10Test {
     }
 
 
-// file Clocks line 182
+// file Clocks line 185
  static class Example{
 static def S():void{}
 static def a_phase_two():void{}

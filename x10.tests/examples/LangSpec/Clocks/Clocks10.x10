@@ -26,10 +26,11 @@ public class Clocks10 extends x10Test {
     }
 
 
-// file Clocks line 34
+// file Clocks line 36
  static class ClockEx {
-  static def say(s:String) =
-     { atomic{x10.io.Console.OUT.println(s);} }
+  static def say(s:String) {
+    Console.OUT.println(s);
+  }
   public static def main(argv:Rail[String]) {
     finish async{
       val cl = Clock.make();

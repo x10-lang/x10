@@ -26,11 +26,12 @@ public class Functions20 extends x10Test {
     }
 
 
-// file Functions line 68
+// file Functions line 67
  abstract static  class FunctionsTooManyFlippingFunctions[T, T1, T2]{
  abstract def arg1():T1;
  abstract def arg2():T2;
- def thing1(e:T) {var result:T;
+ def thing1(e:T) {
+var result:T;
 {
   val f = (x1:T1,x2:T2){true}:T => e;
   val a1 : T1 = arg1();

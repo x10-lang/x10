@@ -17,7 +17,7 @@
 
 import harness.x10Test;
 
- import x10.regionarray.*;
+
 
 public class Arrays30 extends x10Test {
    public def run() : boolean = (new Hook()).run();
@@ -26,7 +26,7 @@ public class Arrays30 extends x10Test {
     }
 
 
-// file Arrays line 61
+// file Arrays line 209
  static  class Example{
  def example() {
 val p : Point = [1,2,3];

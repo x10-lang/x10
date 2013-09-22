@@ -26,7 +26,7 @@ public class Classes210 extends x10Test {
     }
 
 
-// file Classes line 1902
+// file Classes line 1900
  static  class Poly {
    public val coeff : Rail[Long];
    public def this(coeff: Rail[Long]) { this.coeff = coeff;}

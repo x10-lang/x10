@@ -26,7 +26,7 @@ public class Statements80 extends x10Test {
     }
 
 
-// file Statements line 550
+// file Statements line 552
  static  class Example {
  def example(var n:Long) {
   while (n > 1) {

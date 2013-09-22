@@ -26,7 +26,7 @@ public class Activities4c2r extends x10Test {
     }
 
 
-// file Activities line 709
+// file Activities line 680
  static  class Example {
  def example() {
 var n : Long = 0;

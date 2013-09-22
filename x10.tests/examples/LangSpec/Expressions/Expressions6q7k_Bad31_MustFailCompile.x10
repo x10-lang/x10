@@ -26,7 +26,7 @@ public class Expressions6q7k_Bad31_MustFailCompile extends x10Test {
     }
 
 
-// file Expressions line 905
+// file Expressions line 907
 
  static  class Example{ static def example() {
  for(var i : Int = 0n; i != 100; i++)  {} // ERR

@@ -26,7 +26,7 @@ public class Structs2w3o extends x10Test {
     }
 
 
-// file Structs line 102
+// file Structs line 104
  static struct Ambig(x:Long) {
   static def Ambig(x:Long) = "ambiguity please";
   static def example() {

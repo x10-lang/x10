@@ -26,7 +26,7 @@ public class ClassesCtor10 extends x10Test {
     }
 
 
-// file Classes line 1204
+// file Classes line 1202
  static class C {
   public val a : Long;
   def this(b : Long) { a = b; }

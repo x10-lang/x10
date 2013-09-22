@@ -26,7 +26,7 @@ public class Statements3d9l extends x10Test {
     }
 
 
-// file Statements line 689
+// file Statements line 691
  static  class Example {
 static def sum(a:x10.util.List[Long]):Long {
   var s : Long = 0;
