@@ -3615,8 +3615,8 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 
         inc.write("template<class __T> static "+make_ref("__T")+" "+DESERIALIZE_METHOD+"("+DESERIALIZATION_BUFFER+" &buf) {");
         inc.newline(4); inc.begin(0);
-        inc.writeln("void* storage = x10aux::alloc"+chevrons(cnamet)+"();");
-        inc.writeln("buf.record_reference(("+cnamet+"*)storage);");
+        inc.writeln(cnamet+"* storage = x10aux::alloc_z"+chevrons(cnamet)+"();");
+        inc.writeln("buf.record_reference(storage);");
         
         // FIXME: factor out this loop
         for (int i = 0; i < env.size(); i++) {
