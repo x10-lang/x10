@@ -26,7 +26,7 @@ public class DefiniteAssignment4x6k extends x10Test {
     }
 
 
-// file DefiniteAssignment line 343
+// file DefiniteAssignment line 337
  static class C {
   val f : Long;
   val g : String;

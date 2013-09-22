@@ -26,7 +26,7 @@ public class Arrays460 extends x10Test {
     }
 
 
-// file Arrays line 708
+// file Arrays line 993
  static class Example{
 static def example() {
 val A = new Array[Long](11, (i:long)=>i);

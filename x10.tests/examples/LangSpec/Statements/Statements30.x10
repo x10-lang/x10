@@ -26,7 +26,7 @@ public class Statements30 extends x10Test {
     }
 
 
-// file Statements line 220
+// file Statements line 222
  static  class Example {
  def example(b:Boolean, S1:(Long)=>void, S2:(Long)=>void ) {
 if (b) {

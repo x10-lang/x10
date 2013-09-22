@@ -26,12 +26,12 @@ public class Types3d5j extends x10Test {
     }
 
 
-// file Types line 2677
+// file Types line 2687
  static  class Example {
 static def first[T](x:Rail[T]) = x(0);
 static def example() {
-  val ss <: Rail[String] = ["X10", "Scala", "Thorn"];
-  val s1 = first(ss);
+  val ss <: Rail[String] = ["X10", "Java", "C++"]; // ok
+  val s1 <: String = first(ss); // ok
   assert s1.equals("X10");
 }
 }

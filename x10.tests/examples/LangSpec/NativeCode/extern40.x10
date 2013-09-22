@@ -26,7 +26,7 @@ public class extern40 extends x10Test {
     }
 
 
-// file NativeCode line 90
+// file NativeCode line 93
  static class Return {
   @Native("c++", "1")
   @Native("java", "1")

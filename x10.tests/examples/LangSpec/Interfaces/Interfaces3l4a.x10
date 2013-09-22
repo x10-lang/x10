@@ -26,7 +26,7 @@ public class Interfaces3l4a extends x10Test {
     }
 
 
-// file Interfaces line 298
+// file Interfaces line 300
  static class TheOne {
   static val ONE = 1;
  static   interface WelshOrFrench {

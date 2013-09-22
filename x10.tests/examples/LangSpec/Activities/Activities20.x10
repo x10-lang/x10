@@ -26,7 +26,7 @@ public class Activities20 extends x10Test {
     }
 
 
-// file Activities line 56
+// file Activities line 55
  static  class Example {
  def example( s1:() => void, s2 : () => void ) {
 async {s1();}

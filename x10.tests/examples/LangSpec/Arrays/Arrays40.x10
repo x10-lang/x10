@@ -26,7 +26,7 @@ public class Arrays40 extends x10Test {
     }
 
 
-// file Arrays line 93
+// file Arrays line 369
  static  class Example {
  static def example() {
 val MAX_HEIGHT=20;

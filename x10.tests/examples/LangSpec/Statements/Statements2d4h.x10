@@ -26,7 +26,7 @@ public class Statements2d4h extends x10Test {
     }
 
 
-// file Statements line 705
+// file Statements line 707
  static  class Example {
 static def sum(a: Rail[Long]): Long {
   var s : Long = 0;

@@ -26,7 +26,7 @@ public class Vars80 extends x10Test {
     }
 
 
-// file Vars line 365
+// file Vars line 368
  static  class Example {
  static def example () {
 val [i] : Point = Point.make(11);

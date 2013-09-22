@@ -1,4 +1,4 @@
-/* Current test harness gets confused by packages, but it would be in package expsome_Arrays7;
+/* Current test harness gets confused by packages, but it would be in package expsome_Arrays16;
 */
 // Warning: This file is auto-generated from the TeX source of the language spec.
 // If you need it changed, work with the specification writers.
@@ -26,8 +26,8 @@ public class Arrays3l7z extends x10Test {
     }
 
 
-// file Arrays line 139
- static class Arrays7TestExp{
+// file Arrays line 415
+ static class Arrays16TestExp{
   def check(normal:Point, k:Long)  = Region.makeHalfspace(normal, k);  }
 
  static class Hook {

@@ -26,7 +26,7 @@ public class Clocks90 extends x10Test {
     }
 
 
-// file Clocks line 391
+// file Clocks line 394
  static class Example{
 static def phase(String, Long) {}
 def example() {

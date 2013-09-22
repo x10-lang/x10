@@ -26,7 +26,7 @@ public class Expressions1l4m extends x10Test {
     }
 
 
-// file Expressions line 609
+// file Expressions line 611
 
  static class Expressions12TestExp{
   def check(x:Long, y:Long)  = x << y;  }

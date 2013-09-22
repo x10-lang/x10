@@ -26,7 +26,7 @@ public class Functions40 extends x10Test {
     }
 
 
-// file Functions line 298
+// file Functions line 304
 
  static class Functions7TestExp{
   def check()  = (Long):Rail[Double] => null;  }

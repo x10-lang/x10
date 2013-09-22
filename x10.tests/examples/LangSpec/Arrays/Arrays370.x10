@@ -26,7 +26,7 @@ public class Arrays370 extends x10Test {
     }
 
 
-// file Arrays line 593
+// file Arrays line 885
  static  class Example {
  def example() {
 val ident = ([i]:Point(1)) => i;

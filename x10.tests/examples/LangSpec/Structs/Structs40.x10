@@ -26,7 +26,7 @@ public class Structs40 extends x10Test {
     }
 
 
-// file Structs line 420
+// file Structs line 422
  static class Class2Struct {
   val a : Long;
   def this(a:Long) { this.a = a; }

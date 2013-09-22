@@ -26,7 +26,7 @@ public class extern70 extends x10Test {
     }
 
 
-// file NativeCode line 160
+// file NativeCode line 163
  static class Born {
   var y : Int = 1n;
   public def example(x:Int):Int{
