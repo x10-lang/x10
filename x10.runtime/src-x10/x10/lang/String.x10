@@ -31,7 +31,7 @@ import x10.util.GrowableRail;
  */
 @NativeRep("java", "java.lang.String", null, "x10.rtt.Types.STRING")
 @NativeRep("c++", "x10::lang::String*", "x10::lang::String", null)
-public final class String implements Comparable[String] {
+public final class String implements Comparable[String], CharSequence {
 
     /**
      * Default constructor.
@@ -162,6 +162,14 @@ public final class String implements Comparable[String] {
     @Native("java", "x10.runtime.impl.java.ArrayUtils.<x10.core.Byte>makeRailFromJavaArray(x10.rtt.Types.BYTE, (#this).getBytes(), false)")
     @Native("c++", "(#this)->bytes()")
     public native def bytes():Rail[Byte];
+
+    /**
+     * Has the same result as substring, but is present so that String may implement CharSequence.
+     * @see #substring(Int,Int)
+     */
+    @Native("java", "(#this).substring(#fromIndex, #toIndex)")
+    @Native("c++", "(#this)->substring(#fromIndex, #toIndex)")
+    public native def subSequence(fromIndex: Int, toIndex: Int): CharSequence;
 
     /**
      * Returns a new String that is a substring of this String.
