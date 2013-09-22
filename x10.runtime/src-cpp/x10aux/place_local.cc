@@ -34,8 +34,7 @@ void place_local::initialize() {
     _lock = new (alloc<reentrant_lock>())reentrant_lock();
 
     _map = new (x10aux::alloc< x10aux::simple_hashmap<int, void*> >()) x10aux::simple_hashmap<int, void*>();
-    _fastData = alloc<void*>((MAX_FAST_ID+1)*sizeof(void*));
-    memset(_fastData, 0, (MAX_FAST_ID+1)*sizeof(void*));
+    _fastData = alloc_z<void*>((MAX_FAST_ID+1)*sizeof(void*));
 }
 
 x10_int place_local::nextId() {

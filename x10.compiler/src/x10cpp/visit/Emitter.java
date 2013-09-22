@@ -1099,8 +1099,7 @@ public class Emitter {
                 printTemplateSignature(ct.x10Def().typeParameters(), sw);
                 sw.write(make_ref("x10::lang::Reference")+" "+klass+"::"+DESERIALIZER_METHOD+"("+DESERIALIZATION_BUFFER+"& buf) {");
                 sw.newline(4); sw.begin(0);
-                sw.writeln(make_ref(klass)+" this_ = "+
-                        "new (memset(x10aux::alloc"+chevrons(klass)+"(), 0, sizeof("+klass+"))) "+klass+"();");
+                sw.writeln(make_ref(klass)+" this_ = new (x10aux::alloc_z"+chevrons(klass)+"()) "+klass+"();");
                 sw.writeln("buf.record_reference(this_);");
                 sw.writeln("this_->"+DESERIALIZE_BODY_METHOD+"(buf);");
                 sw.write("return this_;");

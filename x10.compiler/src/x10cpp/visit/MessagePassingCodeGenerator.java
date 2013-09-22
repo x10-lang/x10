@@ -274,10 +274,10 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
         if (Types.isX10Struct(type)) {
             sw.write(typeName+ "::" +SharedVarsMethods.ALLOC+ "()");
         } else {
-            // XTENLANG-1407: Remove this memset call once we finish the default value specification/implementation.
+            // XTENLANG-1407: Replace alloc_z with alloc once we finish the default value specification/implementation.
             //                Expect it to be more efficient to explicitly initialize all of the object fields instead
-            //                of first calling memset, then storing into most of the fields a second time.
-            sw.write("((new (memset(x10aux::alloc"+chevrons(typeName)+"(), 0, sizeof("+typeName+"))) "+typeName+"()))");
+            //                of first calling alloc_z, then storing into most of the fields a second time.
+            sw.write("(new (x10aux::alloc_z"+chevrons(typeName)+"()) "+typeName+"())");
             sw.newline();
         }
     }
@@ -1632,11 +1632,10 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 	        if (container.isX10Struct()) {
 	            sw.write(typeName+" this_; "); sw.newline();
 	        } else {
-	            // XTENLANG-1407: Remove this memset call once we finish the default value specification/implementation.
+	            // XTENLANG-1407: Replace alloc_z with alloc once we finish the default value specification/implementation.
 	            //                Expect it to be more efficient to explicitly initialize all of the object fields instead
-	            //                of first calling memset, then storing into most of the fields a second time.
-	            sw.write(make_ref(typeName)+" this_ = "+
-	                    "new (memset(x10aux::alloc"+chevrons(typeName)+"(), 0, sizeof("+typeName+"))) "+typeName+"();"); sw.newline();
+	            //                of first calling alloc_z, then storing into most of the fields a second time.
+	            sw.writeln(make_ref(typeName)+" this_ = new (x10aux::alloc_z"+chevrons(typeName)+"()) "+typeName+"();");
 	        }
             sw.write("this_->"+CONSTRUCTOR+"(");
 	        for (Iterator<Formal> i = dec.formals().iterator(); i.hasNext(); ) {
@@ -3616,8 +3615,8 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 
         inc.write("template<class __T> static "+make_ref("__T")+" "+DESERIALIZE_METHOD+"("+DESERIALIZATION_BUFFER+" &buf) {");
         inc.newline(4); inc.begin(0);
-        inc.writeln(cnamet+"* storage = x10aux::alloc"+chevrons(cnamet)+"();");
-        inc.writeln("buf.record_reference(storage);");
+        inc.writeln("void* storage = x10aux::alloc"+chevrons(cnamet)+"();");
+        inc.writeln("buf.record_reference(("+cnamet+"*)storage);");
         
         // FIXME: factor out this loop
         for (int i = 0; i < env.size(); i++) {
