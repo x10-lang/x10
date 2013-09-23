@@ -32,7 +32,7 @@ static def allNonNegatives(a:Array[Double]):Boolean {
  for (v in a.values()) if (v < 0.0D) return false;
  return true;
 }
- static  class Hook{ def run() { val a = new Array[Double](2, [1.0,2.0]); return Example.allNonNegatives(a);  }}
 }
+ static  class Hook{ def run() { val a = new Array[Double](2, [1.0,2.0]); return Example.allNonNegatives(a);  }}
 
 }
