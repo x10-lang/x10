@@ -295,7 +295,7 @@
     </target>
     <target name="dist" depends="dist-java,dist-cpp" description="generate part of the distribution">
     </target>
-    <target name="dist-par" depends="init,available-procs">
+    <target name="dist-par" depends="init,available-procs,dist-stdlibprops">
         <parallel>
             <antcall target="dist-java-x10rt"/>
             <antcall target="dist-cpp-no-x10rt"/>
