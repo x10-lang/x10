@@ -57,13 +57,18 @@ case "$UNAME" in
       ;;
   Linux,*86_64*,*) 
       SHORT_HOSTNAME=`hostname -s`
-      if [[ "$SHORT_HOSTNAME" == "triloka4" ]]; then 
+      if [[ "$SHORT_HOSTNAME" == "triloka1" ]]; then 
           EXTRA_X10RT_BUILD_ARG="-DX10RT_PAMI=true"
       fi
       X10_PLATFORM='linux_x86_64'
       ;;
   Linux,*86*,*) X10_PLATFORM='linux_x86';;
-  Linux,ppc*,*) X10_PLATFORM='linux_ppc';;
+  Linux,ppc*,*) X10_PLATFORM='linux_ppc'
+      if [[ "$SHORT_HOSTNAME" == "f01c08n02-hf0" ]]; then 
+          EXTRA_X10RT_BUILD_ARG="-DX10RT_PAMI=true"
+          export USE_XLC=1
+      fi
+      ;;
   AIX,*,powerpc) 
       X10_PLATFORM='aix_ppc'
       SKIP_DEBUG_BUILD=1
