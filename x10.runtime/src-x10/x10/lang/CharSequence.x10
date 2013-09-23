@@ -18,7 +18,6 @@ import x10.compiler.NativeRep;
  * This interface provides uniform, read-only access to different kinds of Char sequences.
  */
 @NativeRep("java", "java.lang.CharSequence", null, "x10.rtt.Types.CHAR_SEQUENCE")
-@NativeRep("c++", "x10::lang::CharSequence*", "x10::lang::CharSequence", null)
 public interface CharSequence {
 
     /**
@@ -26,7 +25,6 @@ public interface CharSequence {
      * @return the number of Chars in this sequence.
      */
     @Native("java", "(#this).length()")
-    @Native("c++", "(#this)->length()")
     def length():Int;
 
     /**
@@ -36,7 +34,6 @@ public interface CharSequence {
      * @throws IndexOutOfBoundsException if the index argument is negative or not less than length()
      */
     @Native("java", "(#this).charAt(#index)")
-    @Native("c++", "(#this)->charAt(#index)")
     def charAt(index:Int):Char;
 
     /**
@@ -50,7 +47,6 @@ public interface CharSequence {
      * or if fromIndex is greater than toIndex
      */
     @Native("java", "(#this).subSequence(#fromIndex, #toIndex)")
-    @Native("c++", "(#this)->subSequence(#fromIndex, #toIndex)")
     def subSequence(fromIndex:Int, toIndex:Int):CharSequence;
 
     /**
@@ -59,7 +55,6 @@ public interface CharSequence {
      * @return a String consisting of exactly this sequence of Chars
      */
     @Native("java", "(#this).toString()")
-    @Native("c++", "x10aux::to_string(#this)")
     def toString():String;
 }
 

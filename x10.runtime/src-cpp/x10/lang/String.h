@@ -18,6 +18,7 @@
 
 #include <x10/lang/X10Class.h>
 #include <x10/lang/Fun_0_1.h>
+#include <x10/lang/CharSequence.h>
 #include <x10/lang/Comparable.h>
 
 namespace x10 {
@@ -37,7 +38,8 @@ namespace x10 {
             RTT_H_DECLS_CLASS;
 
             static Comparable<String*>::itable<String> _itable_Comparable;
-            static x10aux::itable_entry _itables[2];
+            static CharSequence::itable<String> _itable_CharSequence;
+            static x10aux::itable_entry _itables[3];
             virtual x10aux::itable_entry* _getITables() { return _itables; }
 
             void _constructor(const char *content, bool steal);
@@ -115,6 +117,10 @@ namespace x10 {
 
             x10_int lastIndexOf(x10_char c) {
                 return lastIndexOf(c, this->length()-1);
+            }
+
+            CharSequence* subSequence(x10_int start, x10_int end) {
+                return reinterpret_cast<CharSequence*>(substring(start, end));
             }
 
             String* substring(x10_int start, x10_int end);
