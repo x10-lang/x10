@@ -15,6 +15,7 @@ import java.nio.channels.ServerSocketChannel;
 import java.nio.channels.SocketChannel;
 import java.nio.charset.Charset;
 import java.util.Iterator;
+import java.util.LinkedList;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import x10.lang.FinishState;
@@ -31,6 +32,7 @@ public class SocketTransport {
 	public static final String X10_LAUNCHER_PLACE = "X10_LAUNCHER_PLACE";
 	public static final String X10_NPLACES = "X10_NPLACES";
 	public static final String X10_LAUNCHER_PARENT = "X10_LAUNCHER_PARENT";
+	public static final String X10_NOWRITEBUFFER = "X10_NOWRITEBUFFER"; // turns off non-blocking sockets
 	private static enum CTRL_MSG_TYPE {HELLO, CONFIGURE, GOODBYE, PORT_REQUEST, PORT_RESPONSE};
 	private static enum MSGTYPE {STANDARD, PUT, GET, GET_COMPLETED};
 	public static enum CALLBACKID {closureMessageID, simpleAsyncMessageID};
@@ -50,7 +52,17 @@ public class SocketTransport {
 	private Object writeLocks[] = null; // simple lock object, one per channel.  Readers synchronize on the channel itself
 	private Selector selector = null;
 	private Iterator<SelectionKey> events = null;
-	private AtomicInteger numDead = new AtomicInteger(0); 	
+	private AtomicInteger numDead = new AtomicInteger(0);
+	private LinkedList<PendingData> pendingWrites = null; // holds pending writes.  Null when this feature is disabled
+    private class PendingData {
+    	private PendingData(SocketChannel sc, ByteBuffer data) {
+			super();
+			this.sc = sc;
+			this.data = data;
+		}
+		SocketChannel sc;
+    	ByteBuffer data;
+    }
 	
 	public SocketTransport() {
 		String nplacesFlag = System.getenv(X10_NPLACES);
@@ -91,6 +103,11 @@ public class SocketTransport {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
+		
+		String noWriteBufferFlag = System.getenv(X10_NOWRITEBUFFER);
+		if (!Boolean.parseBoolean(noWriteBufferFlag))
+			pendingWrites = new LinkedList<PendingData>();
+		
 		if (DEBUG) System.out.println("Socket library initialized");
 	}
 	
@@ -243,6 +260,9 @@ public class SocketTransport {
     	
     	int eventCount = 0;
     	try {
+        	if (pendingWrites != null && !pendingWrites.isEmpty())
+        		writeBufferedBytes();
+        	
     		SelectionKey key;
     		synchronized (selector) {
     			if (events != null && events.hasNext()) {
@@ -267,7 +287,7 @@ public class SocketTransport {
 				
 				// see the format of "ctrl_msg" in Launcher.h
 				ByteBuffer controlMsg = ByteBuffer.allocateDirect(16);
-				if (!SocketTransport.readNBytes(sc, controlMsg, controlMsg.capacity()))
+				if (!readNBytes(sc, controlMsg, controlMsg.capacity()))
 					return false;
 				controlMsg.flip();
 				int msgtype = controlMsg.getInt();
@@ -284,7 +304,7 @@ public class SocketTransport {
 							controlMsg.putInt(myPlaceId);
 							controlMsg.putInt(0);
 							controlMsg.flip();
-							SocketTransport.writeNBytes(sc, controlMsg, controlMsg.capacity());
+							writeBytes(sc, controlMsg);
 							channels[remote] = sc;
 							sc.configureBlocking(false);
 							sc.register(selector, SelectionKey.OP_READ);
@@ -307,7 +327,7 @@ public class SocketTransport {
 						int datalen = controlMsg.getInt();
 						byte[] chars = new byte[datalen];
 						ByteBuffer placeList = ByteBuffer.wrap(chars);
-						while (!SocketTransport.readNBytes(sc, placeList, datalen)){}
+						while (!readNBytes(sc, placeList, datalen)){}
 		    			String allPlaces = new String(chars, Charset.forName("UTF-8"));
 		    			String[] places = allPlaces.split(",");
 		    			controlMsg.clear();						
@@ -318,7 +338,7 @@ public class SocketTransport {
 						controlMsg.putInt(mynewid);
 						controlMsg.putInt(0);
 						controlMsg.flip();
-						SocketTransport.writeNBytes(sc, controlMsg, controlMsg.capacity());
+						writeBytes(sc, controlMsg);
 
 						// configure myself
 						this.myPlaceId = mynewid;
@@ -376,7 +396,7 @@ public class SocketTransport {
 				int msgType=0, callbackId=0, datalen;				
 				try {
 					synchronized (sc) {
-						if (!SocketTransport.readNBytes(sc, controlData, controlData.capacity()))
+						if (!readNBytes(sc, controlData, controlData.capacity()))
 							return false;
 						controlData.flip(); // switch from write to read mode
 						// Format: type, p.type, p.len, p.msg
@@ -389,7 +409,7 @@ public class SocketTransport {
 						}
 						//TODO - eliminate this buffer by modifying the deserializer to take the channel as input
 						bb = ByteBuffer.allocate(datalen);
-						while (!SocketTransport.readNBytes(sc, bb, datalen)){}
+						while (!readNBytes(sc, bb, datalen)){}
 						bb.flip();
 					}
 					if (msgType == MSGTYPE.STANDARD.ordinal()) {
@@ -474,10 +494,10 @@ public class SocketTransport {
     	}
     	try {
 	    	synchronized (writeLocks[place]) {
-		    	SocketTransport.writeNBytes(channels[place], controlData, controlData.capacity());
+		    	writeBytes(channels[place], controlData);
 		    	if (bytes != null)
 		    		for (int i=0; i<bytes.length; i++)
-		    			SocketTransport.writeNBytes(channels[place], bytes[i], bytes[i].remaining());
+		    			writeBytes(channels[place], bytes[i]);
 				if (DEBUG) System.out.println("Sent");
 	    	}
     	}
@@ -515,9 +535,9 @@ public class SocketTransport {
     			placeRequest.putInt(myPlaceId);
     			placeRequest.putInt(0);
     			placeRequest.flip();
-    			SocketTransport.writeNBytes(channels[myPlaceId], placeRequest, placeRequest.capacity());
+    			writeBytes(channels[myPlaceId], placeRequest);
     			placeRequest.clear();
-    			while (!SocketTransport.readNBytes(channels[myPlaceId], placeRequest, placeRequest.capacity())){}
+    			while (!readNBytes(channels[myPlaceId], placeRequest, placeRequest.capacity())){}
     			placeRequest.flip();
     			int type = placeRequest.getInt();
     			if (type != CTRL_MSG_TYPE.PORT_RESPONSE.ordinal()) 
@@ -529,7 +549,7 @@ public class SocketTransport {
     				throw new IOException("Invalid response length to launcher lookup for place "+remotePlace);
     			byte[] chars = new byte[strlen];
     			ByteBuffer bb = ByteBuffer.wrap(chars);
-    			while (!SocketTransport.readNBytes(channels[myPlaceId], bb, strlen)){}
+    			while (!readNBytes(channels[myPlaceId], bb, strlen)){}
     			connectionInfo = new String(chars);
     			if (DEBUG) System.out.println("Place "+myPlaceId+" lookup of place "+remotePlace+" returned \""+connectionInfo+"\" (len="+strlen+")");
     		}
@@ -574,7 +594,7 @@ public class SocketTransport {
 			controlMsg.put((byte)myPort);
 			controlMsg.putShort((short)0);
 			controlMsg.flip();
-			SocketTransport.writeNBytes(sc, controlMsg, 20);
+			writeBytes(sc, controlMsg);
 			channels[myPlaceId] = sc;
 			sc.configureBlocking(false);
 			sc.register(selector, SelectionKey.OP_READ);
@@ -586,13 +606,13 @@ public class SocketTransport {
 			else
 				controlMsg.putInt(allPlaces.remaining());			
 			controlMsg.flip();
-			SocketTransport.writeNBytes(sc, controlMsg, 16);
+			writeBytes(sc, controlMsg);
 			if (null != allPlaces) {
-				SocketTransport.writeNBytes(sc, allPlaces, allPlaces.remaining());
+				writeBytes(sc, allPlaces);
 				allPlaces.rewind();
 			}
 			controlMsg.clear();
-			while (!SocketTransport.readNBytes(sc, controlMsg, 16)){}
+			while (!readNBytes(sc, controlMsg, 16)){}
 			controlMsg.flip();
 			if (controlMsg.getInt() == CTRL_MSG_TYPE.HELLO.ordinal()) {
 				channels[remotePlace] = sc;
@@ -608,7 +628,7 @@ public class SocketTransport {
     // simple utility method which forces the read of a specific number of bytes before returning
     // returns true if read ok, or false if nothing was available on the socket to read.
     // throws an exception if the socket is closed
-    static boolean readNBytes(SocketChannel sc, ByteBuffer data, int bytes) throws IOException {    	
+    boolean readNBytes(SocketChannel sc, ByteBuffer data, int bytes) throws IOException {    	
     	int totalBytesRead = 0;
     	int bytesRead = 0;
 		do {
@@ -619,17 +639,43 @@ public class SocketTransport {
 			}
 			else if (bytesRead < -100)
 				throw new IOException("End of stream");
-			else if (totalBytesRead == 0) // nothing is available to read, but the socket is alive
-				return false;
+			else {
+				if (pendingWrites != null && !pendingWrites.isEmpty())
+					writeBufferedBytes(); // write out pending data if available, to make some progress
+				if (totalBytesRead == 0) // nothing is available to read, but the socket is alive
+					return false;
+			}
 		} while (totalBytesRead < bytes);
 		return true;
     }
-    
+
+    private void writeBytes(SocketChannel sc, ByteBuffer data) throws IOException {
+    	if (pendingWrites == null)
+    		writeNBytes(sc, data);
+    	else { // write buffering is enabled, and there is data leftover from a previous send to flush out first.
+   			pendingWrites.addLast(new PendingData(sc, data)); // store the current write request at the end of the queue
+   			writeBufferedBytes();
+    	}
+    }
+    	
+    private void writeBufferedBytes() throws IOException {
+    	while (!pendingWrites.isEmpty()) {
+	   		PendingData pw = pendingWrites.getFirst();
+	   		long bytesWrittenThisRound;
+			do { bytesWrittenThisRound=pw.sc.write(pw.data);
+			} while (bytesWrittenThisRound > 0 && pw.data.hasRemaining());
+			// Did we get the whole message out?
+			if (!pw.data.hasRemaining())
+				pendingWrites.removeFirst(); // all out.  Remove the message from the pending queue
+			else
+				return; // data remains to be written, and the network is full.  Simply return and try writing the rest later.
+    	}
+    }
+    	
     // simple utility method which forces out a specific number of bytes before returning
-    static void writeNBytes(SocketChannel sc, ByteBuffer data, int bytes) throws IOException {
-    	int bytesWritten = 0;
-		do { bytesWritten+=sc.write(data);
-		} while (bytesWritten < bytes);
+    private void writeNBytes(SocketChannel sc, ByteBuffer data) throws IOException {    	
+		do { sc.write(data);
+		} while (data.hasRemaining());
     }
 
     private static void runClosureAtReceive(ByteBuffer input) throws IOException {
