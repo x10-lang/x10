@@ -93,9 +93,9 @@ where [options] includes:
     -D<name>=<value>         set system property <name> to <value>
     -classpath <path>        search path for class files
     -libpath <path>          search path for native libraries
-    -np <num>                number of places to launch (overrides X10_NPLACES)
-    -host <host1,host2,...>  list of hosts to launch places on (overrides X10_HOSTLIST) (IGNORED with poe)
-    -hostfile <file>         provide a hostfile (overrides X10_HOSTFILE)
+    -np <num>                number of places to launch (overrides X10_NPLACES or MP_PROCS)
+    -host <host1,host2,...>  list of hosts to launch places on (overrides X10_HOSTLIST. ignored with IBM PE)
+    -hostfile <file>         provide a hostfile (overrides X10_HOSTFILE or MP_HOSTFILE)
     -x10rt <impl>            select X10RT implementation
     -config <conf>           (IGNORED) read configuration from etc${FILE_SEP}<conf>.cfg
     -noassert                disable assertion check
@@ -179,7 +179,7 @@ else
         if [ $(which poe 2>/dev/null) ]; then
             launcher="poe"
             [ -n "$X10_NPLACES" ] && launcher_env=("MP_PROCS=$X10_NPLACES" "${launcher_env[@]}")
-            [ -n "$X10_HOSTLIST" ] && echo "Warning: -host option is not supported with poe (IGNORED). Use -hostfile instead."
+            [ -n "$X10_HOSTLIST" ] && echo "Warning: -host option is ignored with IBM PE. Use -hostfile instead."
             [ -n "$X10_HOSTFILE" ] && launcher_env=("MP_HOSTFILE=$X10_HOSTFILE" "${launcher_env[@]}")
         else
             launcher="mpirun"
@@ -193,7 +193,7 @@ else
     elif [ "${x10rt_impl}" = "pami" ]; then
         launcher="poe"
         [ -n "$X10_NPLACES" ] && launcher_env=("MP_PROCS=$X10_NPLACES" "${launcher_env[@]}")
-        [ -n "$X10_HOSTLIST" ] && echo "Warning: -host option is not supported with poe (IGNORED). Use -hostfile instead."
+        [ -n "$X10_HOSTLIST" ] && echo "Warning: -host option is ignored with IBM PE. Use -hostfile instead."
         [ -n "$X10_HOSTFILE" ] && launcher_env=("MP_HOSTFILE=$X10_HOSTFILE" "${launcher_env[@]}")
         java_args=("-DX10RT_IMPL=${x10rt_impl}" "${java_args[@]}")
         noclassloadtest="true"
@@ -245,7 +245,7 @@ command=("$JAVA" "${java_args[@]}" $config "${args[@]}")
 if [[ "$UNAME" = CYGWIN* && -z "$ENABLE_CYGWIN_MULTIVM" ]]; then
     exec $time$timelimit "${command[@]}"
 else 
-    [ ${#launcher_env[@]} -gt 0 ] && launcher_env=("env" "${launcher_env[@]}")
+    [ ${#launcher_env[@]} -gt 0 ] && launcher_env=("/usr/bin/env" "${launcher_env[@]}")
     exec "${launcher_env[@]}" $time$timelimit$launcher "${launcher_args[@]}" "${command[@]}"
 fi
 
