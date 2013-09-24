@@ -62,6 +62,10 @@ public class Thread implements Any, Unserializable {
         home = Place.place(X10RT.here());
         return this;
     }
+    
+    public void removeWorkerContext() {
+        context.set(null);
+    }
 
     public Thread(java.lang.String name) {
         x10$lang$Thread$$init$S(name);

@@ -188,6 +188,9 @@ namespace x10 {
              */
             long getId();
 
+			// Thread context is not used in Native X10, only in Managed X10
+            void removeWorkerContext();
+
             /**
              * Returns the system thread id.
              */

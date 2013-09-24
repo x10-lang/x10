@@ -46,6 +46,8 @@ class Thread implements Unserializable {
     public native def home():Place;
 
     public native operator this():void;
+
+    public native def removeWorkerContext():void;
 }
 
 // vim:shiftwidth=4:tabstop=4:expandtab

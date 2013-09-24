@@ -443,7 +443,7 @@ public final class Runtime {
         val wsfifo = new Deque();
 
         def this(workerId:Int) {
-            super("thread-" + workerId);
+            super("X10 worker thread-" + workerId);
             this.workerId = workerId;
             random = new Random(workerId + (workerId << 8n) + (workerId << 16n) + (workerId << 24n));
         }
@@ -566,6 +566,11 @@ public final class Runtime {
         var wsBlockedContinuations:Deque = null;
 
         var numDead : Long = 0;
+
+        public def removeThreadLocalContexts() {
+            for(var i:Int=0n; i<workers.count; i++) 
+            	workers.workers(i).removeWorkerContext();
+        }
 
         operator this(n:Int):void {
             workers.count = n;
@@ -1293,6 +1298,10 @@ public final class Runtime {
         }
     }
 
+    public static def removeThreadLocalContexts() {
+        pool.removeThreadLocalContexts();
+    }
+    
     public static def wrapNativeThread():Worker {
         return pool.wrapNativeThread();
     }
