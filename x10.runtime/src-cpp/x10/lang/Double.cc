@@ -39,11 +39,28 @@ String* DoubleNatives::toString(x10_double value) {
 x10_double DoubleNatives::parseDouble(String* s) {
     const char *start = nullCheck(s)->c_str();
     char *end;
+    // skip over leading whitespace
+    int numChars = s->length();
+    while (isspace(*start)) {
+        start++;
+        numChars--;
+    }
+    // attempt to parse as double
     errno = 0;
     x10_double ans = strtod(start, &end);
-    if (errno != 0 || ((end-start) != s->length())) {
+    if (errno != 0) {
         x10aux::throwException(x10::lang::NumberFormatException::_make(s));
     }
+    // any trailing characters must be whitespace
+    if (end-start != numChars) {
+        for (int i = end-start; i<numChars; i++) {
+            if (!isspace(start[i])) {
+                // trailing non-space...error!
+                x10aux::throwException(x10::lang::NumberFormatException::_make(s));
+            }
+        }
+    }
+    
     return ans;
 }
 
