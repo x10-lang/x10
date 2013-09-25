@@ -122,7 +122,7 @@ if [[ -z "$SKIP_X10_BUILD" ]]; then
     ant -Doptimize=true -Dx10.version=$X10_VERSION srctar
     ant $EXTRA_X10RT_BUILD_ARG -Doptimize=true dist
     if [[ -z "$SKIP_DEBUG_BUILD" ]]; then
-        ant -Ddebug=true dist-cpp
+        ant $EXTRA_X10RT_BUILD_ARG -Ddebug=true dist-cpp
     fi 
     ant xrx-xdoc
     $distdir/x10.dist/releng/packageRelease.sh -version $X10_VERSION -platform $X10_PLATFORM
