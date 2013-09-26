@@ -38,9 +38,9 @@
 package x10.util.concurrent;
 
 public final class SPMDBarrier(count:Int) {
-    private val alive:AtomicInteger = new AtomicInteger(count);
+    private val alive = new AtomicInteger(count);
     private val workers = new Rail[Runtime.Worker](count);
-    private var index:Int = 0n;
+    private val index = new AtomicInteger(0n);
 
     /* constructs an SPMDBarrier for the given task count */
     /* does not implicitly register caller task */
@@ -51,7 +51,9 @@ public final class SPMDBarrier(count:Int) {
     
     /* register caller task with the barrier */
     public def register() {
-        workers(index++) = Runtime.worker();
+    	val i = index.getAndIncrement();
+    	assert (i < count) : "SPMDBarrier register invoked too many times";
+        workers(i) = Runtime.worker();
     }
 
     /* blocks until all tasks have called advance */
