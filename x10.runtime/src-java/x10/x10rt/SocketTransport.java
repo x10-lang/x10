@@ -35,6 +35,7 @@ public class SocketTransport {
 	public static final String X10_NPLACES = "X10_NPLACES";
 	public static final String X10_LAUNCHER_PARENT = "X10_LAUNCHER_PARENT";
 	public static final String X10_NOWRITEBUFFER = "X10_NOWRITEBUFFER"; // turns off non-blocking sockets
+	public static final String X10_SOCKET_TIMEOUT = "X10_SOCKET_TIMEOUT";
 	private static enum CTRL_MSG_TYPE {HELLO, CONFIGURE, GOODBYE, PORT_REQUEST, PORT_RESPONSE};
 	private static enum MSGTYPE {STANDARD, PUT, GET, GET_COMPLETED};
 	public static enum CALLBACKID {closureMessageID, simpleAsyncMessageID};
@@ -67,6 +68,7 @@ public class SocketTransport {
 	private Iterator<SelectionKey> events = null;
 	private AtomicInteger numDead = new AtomicInteger(0);
 	private boolean bufferedWrites = true;
+	private int socketTimeout = -1;
     
 	
 	public SocketTransport() {
@@ -106,6 +108,11 @@ public class SocketTransport {
 		
 		if (Boolean.parseBoolean(System.getenv(X10_NOWRITEBUFFER)) || Boolean.parseBoolean(System.getProperty(X10_NOWRITEBUFFER)))
 			bufferedWrites = false;
+		
+		try {
+			socketTimeout = Integer.parseInt(System.getProperty(X10_SOCKET_TIMEOUT));
+		}
+		catch (NumberFormatException e){} // not set.		
 		
 		if (DEBUG) System.out.println("Socket library initialized");
 	}
@@ -308,6 +315,7 @@ public class SocketTransport {
 							writeNBytes(sc, controlMsg);
 							channels[remote] = new CommunicationLink(sc);
 							sc.configureBlocking(false);
+							if (socketTimeout != -1) sc.socket().setSoTimeout(socketTimeout);
 							sc.register(selector, SelectionKey.OP_READ);
 							if (DEBUG) System.out.println("Place "+myPlaceId+" accepted a connection from place "+remote);
 						}
@@ -627,6 +635,7 @@ public class SocketTransport {
 			if (controlMsg.getInt() == CTRL_MSG_TYPE.HELLO.ordinal()) {
 				channels[remotePlace] = new CommunicationLink(sc);
 				sc.configureBlocking(false);
+				if (socketTimeout != -1) sc.socket().setSoTimeout(socketTimeout);
 				sc.register(selector, SelectionKey.OP_READ);
 				if (DEBUG) System.out.println("Place "+myPlaceId+" established a link to place "+remotePlace+" and sent place info");
 			}
