@@ -532,6 +532,12 @@ Thread::getId()
     return __thread_id;
 }
 
+// Thread context is not used in Native X10, only in Managed X10
+void
+Thread::removeWorkerContext()
+{
+}
+
 // Returns the system thread id.
 x10_long
 Thread::getTid()
