@@ -57,8 +57,8 @@ ifeq ($(X10RT_PLATFORM), linux_ppc_64_xlc)
 endif
 ifeq ($(X10RT_PLATFORM), bgq)
   override CXXFLAGS += -I/bgsys/drivers/ppcfloor/comm/sys/include
-  MOV_LDFLAGS_PAMI  += -L/bgsys/drivers/ppcfloor/comm/sys/lib -L/bgsys/drivers/ppcfloor/spi/lib
-  MOV_LDLIBS_PAMI   += -lpami -lSPI_cnk -lrt -lstdc++ -lpthread -lm
+  MOV_LDFLAGS_PAMI  += -L/bgsys/drivers/ppcfloor/comm/lib -L/bgsys/drivers/ppcfloor/comm/sys/lib -L/bgsys/drivers/ppcfloor/spi/lib
+  MOV_LDLIBS_PAMI   += -lpami-gcc -lSPI_cnk -lrt -lstdc++ -lpthread -lm
   PAMI_MPCC = $(CC)
 endif
 
