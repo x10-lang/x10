@@ -3839,23 +3839,6 @@ public class Emitter {
 
         // XTENLANG-2974
         // N.B. we cannot reinstantiating $_obj since it may have already been serialized (and thus registered).
-        //	        w.write("$_obj = (");
-        //	        printType(def.asType(), BOX_PRIMITIVES | NO_QUALIFIER);
-        //	        w.write(") ");
-        //	        if (X10PrettyPrinterVisitor.generateFactoryMethod) {
-        //	            printType(def.asType(), BOX_PRIMITIVES | NO_QUALIFIER);
-        //	            w.write(".");
-        //	            w.write(X10PrettyPrinterVisitor.CREATION_METHOD_NAME);
-        //	        } else {
-        //	            assert X10PrettyPrinterVisitor.generateOnePhaseConstructor;
-        //	            w.write("new ");
-        //	            printType(def.asType(), BOX_PRIMITIVES | NO_QUALIFIER);
-        //	        }
-        //	        String paramNames = "";
-        //	        for (String param : params) {
-        //	            paramNames = paramNames + param + ", ";
-        //	        }
-        //	        w.writeln("(" + paramNames + fieldName + ");");
         // set type objects to the fields of $_obj and initialize $_obj by calling $init(SerialData). 
         w.writeln("$_obj." + X10PrettyPrinterVisitor.CONSTRUCTOR_METHOD_NAME(def) + "($ds);");
         w.writeln("short $marker = $deserializer.readSerializationId();");

@@ -653,9 +653,6 @@ public final class GlobalRef<T> extends x10.core.Struct implements X10JavaSerial
             this((java.lang.System[]) null);
             x10$lang$GlobalRef$LocalEval$$init$S();
         }
-        // not used
-//	// creation method for java code
-//	public static LocalEval $make(){return new LocalEval((java.lang.System[])null).$init();}
         
 
 	public static <$T, $U> $U evalAtHome(Type $T, Type $U, x10.core.GlobalRef<$T> ref, x10.core.fun.Fun_0_1<$T,$U> eval) {
@@ -704,11 +701,6 @@ public final class GlobalRef<T> extends x10.core.Struct implements X10JavaSerial
                 this.ref = ref;
                 this.eval = eval;
             }
-            // not used
-//            // creation method for java code
-//            public static <$T, $U> $Closure$Eval $make(Type $T, Type $U, x10.core.GlobalRef<$T> ref, x10.core.fun.Fun_0_1<$T,$U> eval, __0$1x10$lang$GlobalRef$LocalEval$$Closure$Eval$$T$2__1$1x10$lang$GlobalRef$LocalEval$$Closure$Eval$$T$3x10$lang$GlobalRef$LocalEval$$Closure$Eval$$U$2 $dummy){
-//                return new $Closure$Eval($T, $U, ref, eval, $dummy);
-//            }
             // synthetic type for parameter mangling
             public abstract static class __0$1x10$lang$GlobalRef$LocalEval$$Closure$Eval$$T$2__1$1x10$lang$GlobalRef$LocalEval$$Closure$Eval$$T$3x10$lang$GlobalRef$LocalEval$$Closure$Eval$$U$2 {}
 
@@ -758,11 +750,6 @@ public final class GlobalRef<T> extends x10.core.Struct implements X10JavaSerial
                 this.$T = $T;
                 this.ref = ref;
             }
-            // not used
-//            // creation method for java code
-//            public static <$T> $Closure$Apply $make(Type $T, x10.core.GlobalRef<$T> ref, __0$1x10$lang$GlobalRef$LocalEval$$Closure$Apply$$T$2 $dummy) {
-//                return new $Closure$Apply($T, ref, $dummy);
-//            }
 	    // synthetic type for parameter mangling
 	    public abstract static class __0$1x10$lang$GlobalRef$LocalEval$$Closure$Apply$$T$2 {}
 	

@@ -87,7 +87,6 @@ public class OutputStream extends Ref {
     }
     
     // XTENLANG-2680
-    // for !Emitter.manglePrimitivesAsShortName
     public void write__0$1x10$lang$Byte$2(x10.core.Rail buf) {
         try {
             stream.write(buf.getByteArray());
@@ -95,14 +94,6 @@ public class OutputStream extends Ref {
             throw new x10.io.IOException(e.getMessage());
         }
     }
-//    // for Emitter.manglePrimitivesAsShortName
-//    public void write__0$1$B$2(x10.regionarray.Array buf) {
-//        try {
-//            stream.write(buf.raw().getByteArray());
-//        } catch (java.io.IOException e) {
-//            throw x10.runtime.impl.java.ThrowableUtils.getCorrespondingX10Throwable(e);
-//        }
-//    }
 
     public void write(byte[] b, int off, int len) {
         try {
@@ -113,7 +104,6 @@ public class OutputStream extends Ref {
     }
     
     // XTENLANG-2680
-    // for !Emitter.manglePrimitivesAsShortName
     // LONG_RAIL: unsafe int cast
     public void write__0$1x10$lang$Byte$2(x10.core.Rail buf, long off, long len) {
         try {
@@ -122,14 +112,6 @@ public class OutputStream extends Ref {
             throw new x10.io.IOException(e.getMessage());
         }
     }
-//    // for Emitter.manglePrimitivesAsShortName
-//    public void write__0$1$B$2(x10.regionarray.Array buf, int off, int len) {
-//        try {
-//            stream.write(buf.raw().getByteArray(), off, len);
-//        } catch (java.io.IOException e) {
-//            throw x10.runtime.impl.java.ThrowableUtils.getCorrespondingX10Throwable(e);
-//        }
-//    }
 
     public static OutputStream getNativeOutputStream(x10.io.Writer w) {
         OutputStream os = null;
