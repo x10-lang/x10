@@ -27,10 +27,6 @@ public abstract class Ref implements Any {
     // constructor for non-virtual call
     public final Ref x10$lang$Object$$init$S() {return this;}
     
-	
-    // not used
-//    public static Ref $make() { return new Ref(); }
-
     /* TODO to be removed
     public void $init(Object out$){}
     

@@ -36,11 +36,6 @@ public class FileOutputStream extends OutputStream {
         }
     }
 
-    // not used
-//    // creation method for java code (factory method)
-//    public static FileOutputStream $make(String name, boolean append) {
-//        return new FileOutputStream((java.lang.System[]) null).$init(name, append);
-//    }
     // creation method for java code (1-phase java constructor)
     public FileOutputStream(String name, boolean append) {
         this((java.lang.System[]) null);

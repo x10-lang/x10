@@ -218,8 +218,6 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
     public static final boolean generateSpecialDispatcherNotUse = false;  // TODO to be removed
     public static final boolean supportGenericOverloading = true;
     public static final boolean supportConstructorSplitting = true;
-    public static final boolean generateFactoryMethod = false;
-    public static final boolean generateOnePhaseConstructor = true;
     // XTENLANG-3058
     public static final boolean supportTypeConstraintsWithErasure = true;
     // XTENLANG-3090 (switched back to use java assertion)
@@ -262,7 +260,6 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
         return InlineHelper.makeSuperBridgeName(cd, Name.make(CONSTRUCTOR_METHOD_NAME)).toString();
     }
     public static final String CONSTRUCTOR_METHOD_NAME_FOR_REFLECTION = "$initForReflection";
-    public static final String CREATION_METHOD_NAME = "$make";
     public static final String BOX_METHOD_NAME = "$box";
     public static final String UNBOX_METHOD_NAME = "$unbox";
 
@@ -878,12 +875,8 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
                     } else {
                         if (def.flags().isAbstract()) {
                             w.write(mangledDefQName + " $_obj = (" + mangledDefQName + ") ");
-                            if (generateFactoryMethod) {
-                                w.write(mangledDefQName + "." + CREATION_METHOD_NAME);
-                            } else {
-                                assert generateOnePhaseConstructor;
-                                w.write("new " + mangledDefQName);
-                            }
+                            // call 1-phase constructor
+                            w.write("new " + mangledDefQName);
                             w.writeln("();");
                         } else {
                             w.write(mangledDefQName + " $_obj = new " + mangledDefQName + "(");
@@ -1415,79 +1408,8 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 
         List<Formal> formals = n.formals();
 
-        if (generateFactoryMethod) {
-
-        w.write("// creation method for java code (factory method)");
-        w.newline();
-
-        tr.print(n,
-                 tr.nodeFactory().FlagsNode(n.flags().position(),
-                                            n.flags().flags().clearPrivate().clearProtected().Public().Static()), w);
-
-        // TODO check without type bounds
-        er.printMethodParams(typeParameters);
-
-        // N.B. printing type parameters causes post compilation error for XTENLANG_423 and GenericInstanceof16
-        er.printType(type, 0);
-
-        w.write(" ");
-        w.write(CREATION_METHOD_NAME);
-
-        printConstructorFormals(n, true);
-
-        boolean isFirst = true;
-        for (Ref<? extends Type> _throws : n.constructorDef().throwTypes()) {
-            if (isFirst) {
-                w.write(" throws ");
-                isFirst = false;
-            } else {
-                w.write(", ");                
-            }
-            er.printType(_throws.get(), 0);
-        }
-
-        w.write("{");
-        w.begin(4);
-
-        w.write("return ");
-
+        // N.B. we don't generate 1-phase constructor here, since it will be generated as a normal compilation result of X10 constructor.
         if (isSplittable) {
-            printAllocationCall(type, typeParameters);                
-            w.write(".");
-            w.write(CONSTRUCTOR_METHOD_NAME(type.def()));
-        } else {
-            w.write("new ");
-            w.write(n.name().toString());
-        }
-        w.write("(");
-
-        if (!isSplittable) {
-            printArgumentsForTypeParams(typeParameters, formals.size() == 0);
-        }
-
-        for (int i = 0; i < formals.size(); i++) {
-            Formal formal = formals.get(i);
-            if (i != 0) {
-                w.write(",");
-            }
-            tr.print(n, formal.name(), w);
-        }
-
-        printExtraArgments((X10ConstructorInstance) n.constructorDef().asInstance());
-
-        w.write(")");
-
-        w.write(";");
-
-        w.end();
-        w.write("}");
-        w.newline();
-
-        }
-        
-        // N.B. we don't generate 1-phase constructor here, since it will be generated as a normal compilation result of X10 constructor. 
-        if (generateOnePhaseConstructor && isSplittable) {
-
         w.write("// creation method for java code (1-phase java constructor)");
         w.newline();
 
@@ -1515,7 +1437,6 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
         w.write("{");
         w.begin(4);
 
-        if (isSplittable) {
             w.write("this");
             w.write("((" + CONSTRUCTOR_FOR_ALLOCATION_DUMMY_PARAM_TYPE + ") null");
             printArgumentsForTypeParamsPreComma(typeParameters, false);
@@ -1524,14 +1445,7 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
             w.write(";"); w.newline();
             
             w.write(CONSTRUCTOR_METHOD_NAME(type.toClass().def()));
-        } else {
-            w.write("this");
-        }
         w.write("(");
-
-        if (!isSplittable) {
-            printArgumentsForTypeParams(typeParameters, formals.size() == 0);
-        }
 
         for (int i = 0; i < formals.size(); i++) {
             Formal formal = formals.get(i);
