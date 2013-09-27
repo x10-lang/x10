@@ -261,6 +261,8 @@ public class Types {
             return STRING;
         } else if (java.lang.Comparable.class.equals(javaClass)) {
             return COMPARABLE;
+        } else if (java.lang.CharSequence.class.equals(javaClass)) {
+            return CHAR_SEQUENCE;
         } else if (javaClass.isPrimitive()) {
             if (byte.class.equals(javaClass)) {
                 return BYTE;
@@ -335,13 +337,13 @@ public class Types {
 
     public static final RuntimeType<Object> ANY = new AnyType();
     // Struct is not an X10 type, but it has RTT for runtime type checking such as instanceof
-    // create rtt of struct before all struct types (e.g. int)
+    // create rtt of struct before all struct types (e.g. Int)
     public static final RuntimeType<x10.core.StructI> STRUCT = new StructType();
 
-    // create rtt of comparable before all types that implement comparable (e.g. int)
-    public static final RuntimeType<Comparable> COMPARABLE = new NamedType<Comparable>(
+    // create rtt of Comparable before all types that implement Comparable (e.g. Int)
+    public static final RuntimeType<java.lang.Comparable> COMPARABLE = new NamedType<java.lang.Comparable>(
         "x10.lang.Comparable",
-        Comparable.class,
+        java.lang.Comparable.class,
         1,
         null
     ) {
@@ -350,6 +352,14 @@ public class Types {
             return COMPARABLE;
         }
     };
+
+    // create rtt of CharSequence before all types that implement CharSequence (e.g. String)
+    public static final RuntimeType<java.lang.CharSequence> CHAR_SEQUENCE = new NamedType<java.lang.CharSequence>(
+        "x10.lang.CharSequence",
+        java.lang.CharSequence.class,
+        0,
+        null
+        );
 
     public static final RuntimeType<java.lang.Throwable> CHECKED_THROWABLE = new NamedType<java.lang.Throwable>(
 	"x10.lang.CheckedThrowable",

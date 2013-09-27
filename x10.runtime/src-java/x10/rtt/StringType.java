@@ -31,7 +31,8 @@ public final class StringType extends RuntimeType<java.lang.String> {
     public StringType() {
         super(java.lang.String.class,
             new Type[] {
-                ParameterizedType.make(Types.COMPARABLE, UnresolvedType.THIS)
+                ParameterizedType.make(Types.COMPARABLE, UnresolvedType.THIS),
+                Types.CHAR_SEQUENCE
             }
         );
     }
