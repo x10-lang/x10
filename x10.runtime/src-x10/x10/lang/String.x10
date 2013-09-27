@@ -168,7 +168,7 @@ public final class String implements Comparable[String], CharSequence {
      * @see #substring(Int,Int)
      */
     @Native("java", "(#this).substring(#fromIndex, #toIndex)")
-    @Native("c++", "(#this)->substring(#fromIndex, #toIndex)")
+    @Native("c++", "(#this)->subSequence(#fromIndex, #toIndex)")
     public native def subSequence(fromIndex: Int, toIndex: Int): CharSequence;
 
     /**
