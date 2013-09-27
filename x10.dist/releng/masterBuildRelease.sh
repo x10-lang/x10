@@ -2,7 +2,7 @@
 
 # Dave Grove
 
-hosts="condor.watson.ibm.com triloka1.pok.ibm.com bellatrix.watson.ibm.com nashira.watson.ibm.com p7ih x10aix.watson.ibm.com"
+hosts="condor.watson.ibm.com triloka1.pok.ibm.com bellatrix.watson.ibm.com nashira.watson.ibm.com p7ih x10aix.watson.ibm.com bgqfen1.watson.ibm.com"
 
 x10dt_hosts="condor.watson.ibm.com triloka1.pok.ibm.com bellatrix.watson.ibm.com nashira.watson.ibm.com"
 
@@ -73,5 +73,5 @@ do
 	export pushed_source="done"
     fi
 
-    #ssh $host rm -rf /tmp/x10-rc-$USER 
+    ssh $host "rm -rf /tmp/x10-rc-$USER"
 done
