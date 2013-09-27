@@ -767,9 +767,14 @@ public class Emitter {
             String methodName = def.name().toString();
             List<Ref<? extends Type>> formalTypes = def.formalTypes();
             int numFormals = formalTypes.size();
+            // x10.lang.Any (=java.lang.Object)
             if (methodName.equals("toString") && numFormals == 0) return true;
             if (methodName.equals("hashCode") && numFormals == 0) return true;
             if (methodName.equals("equals") && numFormals == 1 && formalTypes.get(0).get().isAny()) return true;
+            // x10.lang.CharSequence (=java.lang.CharSequence)
+            if (methodName.equals("length") && numFormals == 0) return true;
+            if (methodName.equals("charAt") && numFormals == 1 && formalTypes.get(0).get().isInt()) return true;
+            if (methodName.equals("subSequence") && numFormals == 2 && formalTypes.get(0).get().isInt() && formalTypes.get(1).get().isInt()) return true;
 
             Context context = def.typeSystem().emptyContext();
             MethodInstance mi = def.asInstance();

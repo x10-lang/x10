@@ -20,6 +20,18 @@ public class CharSequenceTest extends x10Test {
         public def toString() = s.toString();
     }
 
+    class MyCharSequence1(s:CharSequence) {
+        public def subSequence(fromIndex:Int, toIndex:Int) = s.subSequence(fromIndex, toIndex);
+        public def charAt(index:Int) = s.charAt(index);
+        public def length() = s.length();
+        public def toString() = s.toString();
+    }
+    class MyCharSequence2 extends MyCharSequence1 implements CharSequence {
+        def this(s:CharSequence) {
+            super(s);
+        }
+    }
+
     public def run(): boolean = {
         val s = "abcde";
         chk(s instanceof String);
@@ -41,6 +53,30 @@ public class CharSequenceTest extends x10Test {
         chk(m.toString().equals(s.toString()));
         chk(m.subSequence(1n,2n).equals(s.substring(1n,2n)));
         
+        val m1 = new MyCharSequence1(s);
+        chk(m1.length() == s.length());
+        chk(m1.charAt(1n) == s.charAt(1n));
+        chk(m1.toString().equals(s.toString()));
+        chk(m1.subSequence(1n,2n).equals(s.substring(1n,2n)));
+        
+        val m2 = new MyCharSequence2(s);
+        chk(m2.length() == s.length());
+        chk(m2.charAt(1n) == s.charAt(1n));
+        chk(m2.toString().equals(s.toString()));
+        chk(m2.subSequence(1n,2n).equals(s.substring(1n,2n)));
+        
+        val m21:MyCharSequence1 = m2;
+        chk(m21.length() == s.length());
+        chk(m21.charAt(1n) == s.charAt(1n));
+        chk(m21.toString().equals(s.toString()));
+        chk(m21.subSequence(1n,2n).equals(s.substring(1n,2n)));
+
+        val m2c:CharSequence = m2;
+        chk(m2c.length() == s.length());
+        chk(m2c.charAt(1n) == s.charAt(1n));
+        chk(m2c.toString().equals(s.toString()));
+        chk(m2c.subSequence(1n,2n).equals(s.substring(1n,2n)));
+
         return true;
     }
 
