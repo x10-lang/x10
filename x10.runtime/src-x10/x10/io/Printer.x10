@@ -54,7 +54,7 @@ public class Printer extends FilterWriter {
         try {
             val ss = s != null ? s : "null";
             val b = ss.bytes();
-            write(b, 0, b.size);
+            write(b);
         } finally {
             lock.unlock();
         }
