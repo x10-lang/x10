@@ -48,6 +48,9 @@ ifdef NO_CHECKS
   override CXXFLAGS += -DNO_CHECKS
   override X10CPPFLAGS += -NO_CHECKS
 endif
+ifdef FLATTEN_EXPRESSIONS
+  override X10CPPFLAGS += -FLATTEN_EXPRESSIONS
+endif
 ifdef EXPERIMENTAL
   override X10CPPFLAGS += -EXPERIMENTAL
 endif
