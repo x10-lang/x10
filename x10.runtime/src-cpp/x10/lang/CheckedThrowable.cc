@@ -90,7 +90,7 @@ CheckedThrowable* CheckedThrowable::_constructor(String* message, CheckedThrowab
     return this;
 }
 
-Exception* CheckedThrowable::getCauseAsException() {
+Exception* CheckedThrowable::getCause() {
     return x10::lang::Exception::ensureException(this);
 }
 
@@ -438,7 +438,7 @@ void CheckedThrowable::printStackTrace() {
     Rail<String*>* trace = this->getStackTrace();
     for (int i = 0; i < trace->FMGL(size); ++i)
         fprintf(stderr, "\tat %s\n", trace->__apply(i)->c_str());
-    CheckedThrowable* cause = getCause();
+    CheckedThrowable* cause = FMGL(cause);
     if (NULL != cause) {
         fprintf(stderr, "Caused by: ");
         cause->printStackTrace();
@@ -453,7 +453,7 @@ void CheckedThrowable::printStackTrace(x10::io::Printer* printer) {
         printer->print(atStr);
         printer->println(class_cast<Any*,String*>(trace->__apply(i)));
     }
-    CheckedThrowable* cause = getCause();
+    CheckedThrowable* cause = FMGL(cause);
     if (NULL != cause) {
         printer->print(x10::lang::String::Lit("Caused by: "));
         cause->printStackTrace(printer);

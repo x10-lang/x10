@@ -19,23 +19,18 @@ public class OutputStreamWriter extends Writer {
     @NativeRep("c++", "x10::io::OutputStreamWriter__OutputStream*", "x10::io::OutputStreamWriter__OutputStream", null)
     protected abstract static class OutputStream {
         @Native("java", "#this.close()")
-        @Native("c++", "(#this)->close()")
         public native def close(): void; //throws IOException;
 
         @Native("java", "#this.flush()")
-        @Native("c++", "(#this)->flush()")
         public native def flush(): void; //throws IOException;
         
         @Native("java", "#this.write(#v)")
-        @Native("c++", "(#this)->write(#v)")
         public native def write(v:Int): void; //throws IOException
         
         @Native("java", "#this.write((#r).getByteArray())")
-        @Native("c++", "(#this)->write(#r)")
         public native def write(r:Rail[Byte]): void; //throws IOException
         
         @Native("java", "#this.write((#r).getByteArray(), #off, #len)")
-        @Native("c++", "(#this)->write(#r, #off, #len)")
         public native def write(r:Rail[Byte], off:Long, len:Long): void; //throws IOException
     }
 

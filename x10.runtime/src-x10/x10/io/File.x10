@@ -38,81 +38,64 @@ public class File {
         native def this(String);
 
         @Native("java", "#this.getName()")
-        @Native("c++", "(#this)->getName()")
         native def getName(): String;
+        
         @Native("java", "#this.getParent()")
-        @Native("c++", "(#this)->getParent()")
         native def getParent(): String;
+        
         @Native("java", "#this.getPath()")
-        @Native("c++", "(#this)->getPath()")
         native def getPath(): String;
 
         @Native("java", "#this.isAbsolute()")
-        @Native("c++", "(#this)->isAbsolute()")
         native def isAbsolute(): Boolean;
 
         @Native("java", "#this.getAbsolutePath()")
-        @Native("c++", "(#this)->getAbsolutePath()")
         native def getAbsolutePath(): String;
 
         @Native("java", "#this.getCanonicalPath()")
-        @Native("c++", "(#this)->getCanonicalPath()")
         native def getCanonicalPath(): String; //throws IOException;
 
         @Native("java", "#this.canRead()")
-        @Native("c++", "(#this)->canRead()")
         native def canRead(): Boolean;
 
         @Native("java", "#this.canWrite()")
-        @Native("c++", "(#this)->canWrite()")
         native def canWrite(): Boolean;
 
         @Native("java", "#this.exists()")
-        @Native("c++", "(#this)->exists()")
         native def exists(): Boolean;
 
         @Native("java", "#this.isDirectory()")
-        @Native("c++", "(#this)->isDirectory()")
         native def isDirectory(): Boolean;
 
         @Native("java", "#this.isFile()")
-        @Native("c++", "(#this)->isFile()")
         native def isFile(): Boolean;
 
         @Native("java", "#this.isHidden()")
-        @Native("c++", "(#this)->isHidden()")
         native def isHidden(): Boolean;
 
         @Native("java", "#this.lastModified()")
-        @Native("c++", "(#this)->lastModified()")
         native def lastModified(): Long;
 
         @Native("java", "#this.length()")
-        @Native("c++", "(#this)->length()")
         native def length(): Long;
 
         @Native("java", "#this.setLastModified(#v)")
-        @Native("c++", "(#this)->setLastModified(#v)")
         native def setLastModified(v:Long): Boolean;
 
         @Native("java", "#this.delete()")
-        @Native("c++", "(#this)->del()")
+        @Native("c++", "(#this)->del()") // delete is a keyword in C++, we we need to rename method in @Native
         native def delete(): Boolean;
 
         @Native("java", "#this.listInternal()")
-        @Native("c++", "(#this)->list()")
         native def list(): Rail[String];
 
         @Native("java", "#this.mkdir()")
-        @Native("c++", "(#this)->mkdir()")
         native def mkdir(): Boolean;
 
         @Native("java", "#this.mkdirs()")
-        @Native("c++", "(#this)->mkdirs()")
         native def mkdirs(): Boolean;
 
         @Native("java", "#this.renameTo(#dest)")
-        @Native("c++", "(#this)->renameTo(#dest)")
         native def renameTo(dest:NativeFile): Boolean;
     }
 

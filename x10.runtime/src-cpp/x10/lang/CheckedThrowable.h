@@ -66,8 +66,8 @@ namespace x10 {
             CheckedThrowable* _constructor(String* message, CheckedThrowable* cause);
 
             virtual String* getMessage() { return FMGL(message); }
-            virtual CheckedThrowable* getCause() { return FMGL(cause); }
-            virtual Exception* getCauseAsException();
+            virtual CheckedThrowable* getCheckedCause() { return FMGL(cause); }
+            virtual Exception* getCause();
             virtual String* toString();
             virtual CheckedThrowable* fillInStackTrace();
             virtual x10::lang::Rail<String*>* getStackTrace();

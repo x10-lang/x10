@@ -19,17 +19,15 @@ import x10.compiler.NativeRep;
  * Note: The backing InputStream is implicitly created with 
  *       buffering enabled at the native layer.
  */
-public class FileReader extends InputStreamReader {
-    // TODO: This is questionable.
-    //       What does it mean to send a File to another node?
-    val file:File;
-
+public class FileReader extends InputStreamReader implements Unserializable {
     @NativeRep("java", "x10.core.io.FileInputStream", null, "x10.core.io.FileInputStream.$RTT")
     @NativeRep("c++", "x10::io::FileReader__FileInputStream*", "x10::io::FileReader__FileInputStream", null)
     protected final static class FileInputStream extends InputStream {
     	@Native("java", "new x10.core.io.FileInputStream((java.lang.System[]) null).x10$io$FileReader$FileInputStream$$init$S(#path)")
         public native def this(path: String); //throws FileNotFoundException;
     }
+
+    val file:File;
 
     public def this(file: File) //throws IOException 
     {
