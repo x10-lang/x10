@@ -17,6 +17,7 @@
 #include <x10/lang/Rail.h>
 #include <x10/lang/String.h>
 #include <x10/io/Printer.h>
+#include <x10/lang/Exception.h>
 
 #if defined(__GLIBC__) || defined(__APPLE__)
 #   include <execinfo.h> // for backtrace()
@@ -89,6 +90,9 @@ CheckedThrowable* CheckedThrowable::_constructor(String* message, CheckedThrowab
     return this;
 }
 
+Exception* CheckedThrowable::getCauseAsException() {
+    return x10::lang::Exception::ensureException(this);
+}
 
 String* CheckedThrowable::toString() {
     String* message = getMessage();

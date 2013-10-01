@@ -22,7 +22,8 @@ namespace x10 {
     namespace lang {
 
         class String;
-
+        class Exception;
+        
         template <class T> class Rail;
 
         class CheckedThrowable : public X10Class {
@@ -66,6 +67,7 @@ namespace x10 {
 
             virtual String* getMessage() { return FMGL(message); }
             virtual CheckedThrowable* getCause() { return FMGL(cause); }
+            virtual Exception* getCauseAsException();
             virtual String* toString();
             virtual CheckedThrowable* fillInStackTrace();
             virtual x10::lang::Rail<String*>* getStackTrace();
