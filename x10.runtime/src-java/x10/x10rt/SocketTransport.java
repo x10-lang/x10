@@ -237,8 +237,10 @@ public class SocketTransport {
 	    			if (channels[i] != null) {
 	    				channels[i].writeLock.lock();
 	    				try {
-	    					channels[i].sc.close();
-	    					channels[i].sc = null;
+	    					if (channels[i].sc != null) {
+	    						 channels[i].sc.close();
+	    						 channels[i].sc = null;
+	    					}
 	    				}
 	    				finally {
 	    					channels[i].writeLock.unlock();
