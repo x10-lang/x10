@@ -30,6 +30,7 @@
     <property name="EXPERIMENTAL" value="false" />
     <property name="DISABLE_GC" value="false" />
     <property name="NO_CHECKS" value="false" />
+    <property name="FLATTEN_EXPRESSIONS" value="false" />
     <property name="HOMOGENEOUS" value="true" />
     <property name="GCC_SYMBOLS" value="false" />
     <path id="project.classpath">
@@ -127,6 +128,9 @@
     </condition>
     <condition property="cppmake.no_checks" value="NO_CHECKS=1" else="CHECKS=1">
         <istrue value="${NO_CHECKS}" />
+    </condition>
+    <condition property="cppmake.flatten_expressions" value="FLATTEN_EXPRESSIONS=1" else="DUMMY_ARG=1">
+        <istrue value="${FLATTEN_EXPRESSIONS}" />
     </condition>
     <condition property="cppmake.x10rt_mpi" value="ENABLE_X10RT_MPI=1" else="DISABLE_X10RT_MPI=1">
         <istrue value="${X10RT_MPI}" />
@@ -459,6 +463,7 @@
             <arg value="${cppmake.debug}" />
             <arg value="${cppmake.gcc_symbols}" />
             <arg value="${cppmake.no_checks}" />
+            <arg value="${cppmake.flatten_expressions}" />
             <arg value="${cppmake.x10rt_mpi}" />
        	    <arg value="${cppmake.x10rt_pami}" />
             <arg value="${cppmake.x10rt_pgas}" />
