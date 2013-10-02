@@ -668,7 +668,7 @@ public class SocketTransport {
 				if (flush==channels.length)
 					flush=0;
 				for (; flush<channels.length; flush++) {
-		    		if (flushBufferedBytes(null, flush))
+		    		if (!isPlaceDead(flush) && flushBufferedBytes(null, flush))
 		    			break;
 		    	}
 			}
