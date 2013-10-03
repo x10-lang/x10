@@ -1,0 +1,16 @@
+Notes on how to make an X10 2.4.0.N minor release from the 2.4 branch
+
+Simply a subset of the steps for making a full-blown weekly build
+You need a checkout of branches/x10-2.4/x10.dist (needs 2.4 branch scripts)
+   1. "Tag" the weekly build by using x10.dist/releng/makeTag.sh 
+      Use a "good" svn revision number that matches one reported by a 
+      night-sanity run. i.e.
+
+      makeTag -rev 12500 -tag SF_RELEASE_2_4_0_2 -code 
+
+   2. run masterBuildRelease.sh to build tarball for linux_x86_64 
+      and push it to orquesta.  You will need to run this script from a
+      machine where you have passwordless ssh working to all relevant machines.
+
+      masterBuildRelease.sh -version 2.4.0.2 -tag SF_RELEASE_2_4_0_2 -hosts triloka1.pok.ibm.com
+
