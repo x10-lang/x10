@@ -175,7 +175,7 @@ public class Inliner extends ContextVisitor {
             Source s = ((SourceFile) node).source();
             Warnings.issue(this.job, "(begin inlining)", pos);
         }
-        if (ExpressionFlattener.cannotFlatten(node)) { // TODO: check that flattening is actually required
+        if (ExpressionFlattener.cannotFlatten(node, job)) { // TODO: check that flattening is actually required
             if (DEBUG) debug("Cannot flatten: short-circuiting inlining for children of " + node, node);
             return node; // don't inline inside Nodes that cannot be Flattened
         }

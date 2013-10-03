@@ -167,7 +167,7 @@ public final class ExpressionFlattener extends ContextVisitor {
             if (DEBUG) System.out.println("DEBUG: flattening: " +((X10ClassDecl) n).classDef()+ " (@" +((X10ClassDecl) n).position()+ ")");
             return null;
         }
-        if (cannotFlatten(n)) return n;
+        if (cannotFlatten(n, job)) return n;
         return null;
     }
 
@@ -184,7 +184,7 @@ public final class ExpressionFlattener extends ContextVisitor {
      * @param n an AST node that might be flattened
      * @return true if the node cannot be flattened, false otherwise
      */
-    public static boolean cannotFlatten(Node n) {
+    public static boolean cannotFlatten(Node n, Job job) {
         Position pos = n.position(); // for DEBUGGING
         if (n instanceof SourceFile){
             Source s = ((SourceFile) n).source();
@@ -192,7 +192,7 @@ public final class ExpressionFlattener extends ContextVisitor {
                 return true;
             }
         }
-        if (n instanceof ConstructorDecl) { // can't flatten constructors unless local assignments can precede super() and this() in Java
+        if (n instanceof ConstructorDecl && javaBackend(job)) { // can't flatten constructors unless local assignments can precede super() and this() in Java
             ClassType type = ((ConstructorDecl) n).constructorDef().container().get().toClass();
             if (ConstructorSplitterVisitor.isUnsplittable(type))
                 return true;
