@@ -51,7 +51,7 @@ void FileWriter__FileOutputStream::write(x10_int i) {
     ::fputc((char)i, FMGL(file));
 }
 
-void FileWriter__FileOutputStream::write(x10::lang::Rail<x10_byte>* b, x10_int off, x10_int len) {
+void FileWriter__FileOutputStream::write(x10::lang::Rail<x10_byte>* b, x10_long off, x10_long len) {
     ::fwrite(&b->raw[off], sizeof(x10_byte), len*sizeof(x10_byte), FMGL(file));
 }
 
