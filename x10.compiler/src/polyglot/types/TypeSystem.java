@@ -907,6 +907,8 @@ public interface TypeSystem {
     X10ClassType FinishState();
 
     X10ClassType Runtime(); // used by asyncCodeInstance
+    
+    X10ClassType Unsafe();
 
     /**
      * <code>x10.lang.FailedDynamicCheckException</code>

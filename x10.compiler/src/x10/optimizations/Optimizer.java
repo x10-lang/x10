@@ -32,6 +32,7 @@ import x10.visit.ConstructorSplitterVisitor;
 import x10.visit.DeadVariableEliminator;
 import x10.visit.ExpressionFlattener;
 import x10.visit.X10CopyPropagator;
+import x10cpp.visit.TupleRemover;
 
 public class Optimizer {
     
@@ -152,7 +153,7 @@ public class Optimizer {
         Goal goal = new ValidatingVisitorGoal("ExpressionFlattener", job, visitor);
         return goal.intern(scheduler);
     }
-
+    
     public Goal DeadVariableEliminator() {
         NodeVisitor visitor = new DeadVariableEliminator(job, ts, nf);
         Goal goal = new ValidatingVisitorGoal("Dead Variable Elimination", job, visitor);

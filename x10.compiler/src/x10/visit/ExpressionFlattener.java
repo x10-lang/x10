@@ -1368,7 +1368,7 @@ public final class ExpressionFlattener extends ContextVisitor {
      * @return true if expr has no sub-expressions; otherwise, false
      * TODO: it may be expedient to consider other kinds of Expr primary on an interim basis.
      */
-    static boolean isPrimary(Expr expr) {
+    public static boolean isPrimary(Expr expr) {
         if (null == expr) return true; // DEBUG
         if (expr instanceof Lit) return true;
         if (expr instanceof Local) return ((Local) expr).flags().contains(Flags.FINAL);

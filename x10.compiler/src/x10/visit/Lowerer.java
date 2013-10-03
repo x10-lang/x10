@@ -845,7 +845,7 @@ public class Lowerer extends ContextVisitor {
                 LocalDef catchFormalLocalDef = ts.localDef(pos, ts.NoFlags(), Types.ref(ts.CheckedThrowable()), catchFormalName);
                 Formal catchFormal = nf.Formal(pos, nf.FlagsNode(pos, ts.NoFlags()),
                         nf.CanonicalTypeNode(pos, ts.CheckedThrowable()), nf.Id(pos, catchFormalName)).localDef(catchFormalLocalDef);                
-                Expr catchLocal = nf.Local(pos, nf.Id(pos, catchFormalName)).localInstance(catchFormalLocalDef.asInstance()).type(ts.Error());
+                Expr catchLocal = nf.Local(pos, nf.Id(pos, catchFormalName)).localInstance(catchFormalLocalDef.asInstance()).type(ts.CheckedThrowable());
                 Expr wrap = synth.makeStaticCall(pos, ts.Exception(), Name.make("ensureException"), Collections.singletonList(catchLocal), ts.Exception(), context());
                 Block catchBlock = nf.Block(pos, nf.Throw(pos, wrap));
                 catches.add(nf.Catch(pos, catchFormal, catchBlock));

@@ -2562,6 +2562,13 @@ public class TypeSystem_c implements TypeSystem
         return runtimeType_;
     }
 
+    protected X10ClassType unsafeType_;
+    public X10ClassType Unsafe() {
+        if (unsafeType_ == null)
+            unsafeType_ = load("x10.lang.Unsafe");
+        return unsafeType_;
+    }
+
     protected X10ClassType systemType_;
     public X10ClassType System() {
         if (systemType_ == null)
