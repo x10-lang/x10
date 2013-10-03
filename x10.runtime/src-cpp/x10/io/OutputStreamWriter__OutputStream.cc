@@ -41,8 +41,8 @@ void OutputStreamWriter__OutputStream::write(Rail<x10_byte>* b) {
     this->write(b, 0, b->FMGL(size));
 }
 
-void OutputStreamWriter__OutputStream::write(Rail<x10_byte>* b, x10_int off, x10_int len) {
-    for (x10_int i = 0; i < len; i++)
+void OutputStreamWriter__OutputStream::write(Rail<x10_byte>* b, x10_long off, x10_long len) {
+    for (x10_long i = 0; i < len; i++)
         this->write((x10_int) b->raw[off + i]);
 }
 
