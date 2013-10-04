@@ -164,6 +164,7 @@ import x10.types.ParameterType;
 import x10.types.ParameterType.Variance;
 import x10.types.X10ClassDef;
 import x10.types.X10ClassType;
+import x10.types.X10CodeDef;
 import x10.types.X10ConstructorDef;
 import x10.types.X10ConstructorInstance;
 import x10.types.X10FieldDef_c;
@@ -1778,6 +1779,21 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
         }
     }
 
+    // XTENLANG-3287
+    private static boolean isFormalTypeErased(X10CodeDef codedef) {
+        if (!(codedef instanceof X10MethodDef)) return false;
+        X10MethodDef def = (X10MethodDef) codedef;
+        if (def.flags().isStatic()) return false;
+        String methodName = def.name().toString();
+        List<Ref<? extends Type>> formalTypes = def.formalTypes();
+        int numFormals = formalTypes.size();
+
+        // the 1st parameter of x10.lang.Comparable[T].compareTo(T)
+        if (methodName.equals("compareTo") && numFormals == 1) return true;
+
+        return false;
+    }
+
     @Override
     public void visit(FieldAssign_c n) {
         Type t = n.fieldInstance().type();
@@ -1788,7 +1804,7 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
                 er.printType(n.target().type(), 0);
             else {
                 // XTENLANG-3206, XTENLANG-3208
-                if (ts.isParameterType(n.target().type()) || hasParams(n.fieldInstance().container())) {
+                if (ts.isParameterType(n.target().type()) || hasParams(n.fieldInstance().container()) || isFormalTypeErased(tr.context().currentCode())) {
                     // TODO:CAST
                     w.write("(");
                     w.write("(");
@@ -2296,7 +2312,7 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
                     w.write(")");
 
                     w.write(")");
-                } else if ((useSelfDispatch && (mi.typeParameters().size() > 0 || hasParams(containerType))) ||
+                } else if ((useSelfDispatch && (mi.typeParameters().size() > 0 || hasParams(containerType) || isFormalTypeErased(tr.context().currentCode()))) ||
                            (target instanceof NullLit_c)) {
                     // TODO:CAST
                     w.write("(");
@@ -2807,8 +2823,8 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
             }
             w.begin(0);
             if (!n.isTargetImplicit()) {
-                if ((target instanceof NullLit_c) || 
-                    (!(target instanceof Special || target instanceof New) && (xts.isParameterType(targetType) || hasParams(fi.container())))) {
+                if ((target instanceof NullLit_c) ||
+                    (!(target instanceof Special || target instanceof New) && (xts.isParameterType(targetType) || hasParams(fi.container()) || isFormalTypeErased(tr.context().currentCode())))) {
                     // TODO:CAST
                     w.write("(");
                     w.write("(");

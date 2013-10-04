@@ -758,6 +758,7 @@ public class Emitter {
 //        return false;
 //	}
 
+	// XTENLANG-3287
 	// check if the formal parameter of the specified method is type erased
 	// e.g. x10.lang.Point.compareTo(Point) is compiled as compareTo(Object) since it implements java.lang.Comparable/*<x10.lang.Point>*/.compareTo(Object)
 	private static boolean isFormalTypeErased(X10MethodDef def, int formal) {

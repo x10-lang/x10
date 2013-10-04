@@ -11,7 +11,18 @@
 
 import harness.x10Test;
 
+/*
+ * testcase for XTENLANG-3287
+ */
 public class ComparableTest extends x10Test {
+
+    static class S implements Comparable[S] {
+        var x:Int;
+        def this(a:Int) { x = a; }
+        static def xxx():void {}
+        def yyy():void {}
+        public def compareTo(o:S) { o.x = 1001n; o.xxx(); o.yyy(); return x.compareTo(o.x); }
+    }
 
     class MyComparable(s:Comparable[Int]) implements Comparable[Int] {
         public def compareTo(v:Int) = s.compareTo(v);
