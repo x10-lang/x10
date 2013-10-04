@@ -367,7 +367,7 @@ template<class T> x10::lang::Rail<T>* x10::lang::Rail<T>::_make(x10_long size, x
     if (alloc->FMGL(congruent)) {
         if (containsPtrs) failAllocNoPointers("Congruent memory cannot contain pointers");
         this_ = new (x10aux::alloc_internal_congruent(numBytes)) x10::lang::Rail<T>(numElems);
-    } else if (alloc->FMGL(congruent)) {
+    } else if (alloc->FMGL(hugePages)) {
         if (containsPtrs) failAllocNoPointers("Huge pages cannot contain pointers");
         this_ = new (x10aux::alloc_internal_huge(numBytes)) x10::lang::Rail<T>(numElems);
     } else {
