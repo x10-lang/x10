@@ -758,20 +758,6 @@ public class Emitter {
 //        return false;
 //	}
 
-	// check if the formal parameter of the specified method is type erased
-	// e.g. x10.lang.Point.compareTo(Point) is compiled as compareTo(Object) since it implements java.lang.Comparable/*<x10.lang.Point>*/.compareTo(Object)
-	private static boolean isFormalTypeErased(X10MethodDef def, int formal) {
-		if (def.flags().isStatic()) return false;
-		String methodName = def.name().toString();
-		List<Ref<? extends Type>> formalTypes = def.formalTypes();
-		int numFormals = formalTypes.size();
-		
-		// the 1st parameter of x10.lang.Comparable[T].compareTo(T)
-		if (methodName.equals("compareTo") && numFormals == 1 && formal == 0) return true;
-		
-		return false;
-	}
-
 	// check if the specified method overrides or implements Java method (= a method whose container is a Java type)
         public static boolean canOverrideOrImplementJavaMethod(MethodDef def) {
             if (def.flags().isStatic()) return false;
@@ -789,8 +775,6 @@ public class Emitter {
             if (methodName.equals("length") && numFormals == 0) return true;
             if (methodName.equals("charAt") && numFormals == 1 && formalTypes.get(0).get().isInt()) return true;
             if (methodName.equals("subSequence") && numFormals == 2 && formalTypes.get(0).get().isInt() && formalTypes.get(1).get().isInt()) return true;
-            // x10.lang.Comparable[T] (=java.lang.Comparable/*<T>*/)
-            if (methodName.equals("compareTo") && numFormals == 1) return true;
 
             Context context = def.typeSystem().emptyContext();
             MethodInstance mi = def.asInstance();
@@ -1333,20 +1317,12 @@ public class Emitter {
                 tr.print(n, f.name().id(name1), w);
             }
             else {
-                // the 1st formal parameter of x10.lang.Comparable[T].compareTo(T) must be erased since it implements java.lang.Comparable/*<T>*/.compareTo(Object).
-                // for x10.lang.Point implements java.lang.Comparable/*<x10.lang.Point>*/
-                if (isFormalTypeErased(n.methodDef(), i)) {
-                    w.write(X10PrettyPrinterVisitor.JAVA_LANG_OBJECT);
-                } else {
-
                 printType(
                     type,
                     (n.flags().flags().isStatic() ? PRINT_TYPE_PARAMS : 0) |
                     // N.B. @NativeRep'ed interface (e.g. Comparable) does not use dispatch method nor mangle method. primitives need to be boxed to allow instantiating type parameter.
                     (boxPrimitives || forceBoxing ? BOX_PRIMITIVES : 0)
                 );
-
-                }
                 w.write(" ");
                 Name name = f.name().id();
                 if (name.toString().equals("")) {
@@ -2841,9 +2817,6 @@ public class Emitter {
         List<MethodInstance> overrides = new ArrayList<MethodInstance>();
         getInheritedMethods(ct, inheriteds, overrides);
         for (MethodInstance mi : inheriteds) {
-            // x10.lang.Comparable[T].compareTo(T) does not use dispatcher method since it implements java.lang.Comparable/*<T>*/.compareTo(Object).
-            if (canOverrideOrImplementJavaMethod(mi.x10Def())) continue;
-
             List<MethodInstance> implMethods = new ArrayList<MethodInstance>();
             getImplMethodsForDispatch(mi, implMethods, interfaces);
             add(dispatcherToMyMethods, mi, implMethods);

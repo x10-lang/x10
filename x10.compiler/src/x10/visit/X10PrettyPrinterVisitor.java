@@ -592,9 +592,9 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
                         w.write(", ");
                     }
                     alreadyPrintedTypes.add(tn.type());
-                    // the 1st formal parameter of x10.lang.Comparable[T].compareTo(T) must be erased since it implements java.lang.Comparable/*<T>*/.compareTo(Object).
-                    // for x10.lang.Point implements java.lang.Comparable/*<x10.lang.Point>*/
-                    er.printType(tn.type(), (useSelfDispatch ? 0 : PRINT_TYPE_PARAMS) | BOX_PRIMITIVES | NO_VARIANCE);
+                    boolean isJavaNative = Emitter.isNativeRepedToJava(tn.type());
+                    er.printType(tn.type(), (useSelfDispatch && !isJavaNative ? 0 : PRINT_TYPE_PARAMS) | BOX_PRIMITIVES
+                            | NO_VARIANCE);
                 }
             }
 
