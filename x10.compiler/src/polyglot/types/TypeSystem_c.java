@@ -2583,13 +2583,6 @@ public class TypeSystem_c implements TypeSystem
         return embedType_;
     }
 
-    protected X10ClassType perProcessType_;
-    public X10ClassType PerProcess() {
-        if (perProcessType_ == null)
-            perProcessType_ = load("x10.compiler.PerProcess");
-        return perProcessType_;
-    }
-
     protected X10ClassType remoteInvocationType_;
     public X10ClassType RemoteInvocation() {
         if (remoteInvocationType_ == null)
