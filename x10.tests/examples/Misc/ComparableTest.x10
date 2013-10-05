@@ -21,7 +21,9 @@ public class ComparableTest extends x10Test {
         def this(a:Int) { x = a; }
         static def xxx():void {}
         def yyy():void {}
-        public def compareTo(o:S) { o.x = 1001n; o.xxx(); o.yyy(); return x.compareTo(o.x); }
+        static def xxx2(a:S):void {}
+        def yyy2(a:S):void {}
+        public def compareTo(o:S) { o.x = 1001n; o.xxx(); o.yyy(); o.xxx2(o); o.yyy2(o); return x.compareTo(o.x); }
     }
 
     class MyComparable(s:Comparable[Int]) implements Comparable[Int] {
