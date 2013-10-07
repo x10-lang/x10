@@ -27,49 +27,55 @@ import x10.compiler.Native;
  * } catch (IOException) { }
  */    
 public abstract class Writer {
-    public abstract def close(): void ; //throws IOException
-    public abstract def flush(): void ; //throws IOException
-    public abstract def write(x: Byte): void ; //throws IOException
+    public abstract def close():void;
+    public abstract def flush():void;
+    public abstract def write(x:Byte):void;
+    public abstract def write(x:Rail[Byte], off:Long, len:Long):void;
 
-    public def writeByte(x: Byte): void //throws IOException 
-    { Marshal.BYTE.write(this, x); }
-    public def writeUByte(x: UByte): void //throws IOException 
-    { Marshal.UBYTE.write(this, x); }
-    public def writeChar(x: Char): void //throws IOException 
-    {  Marshal.CHAR.write(this, x); }
-    public def writeShort(x: Short): void //throws IOException 
-    { Marshal.SHORT.write(this, x); }
-    public def writeUShort(x: UShort): void //throws IOException 
-    { Marshal.USHORT.write(this, x); }
-    public def writeInt(x: Int): void //throws IOException 
-    { Marshal.INT.write(this, x); }
-    public def writeUInt(x: UInt): void //throws IOException 
-    { Marshal.UINT.write(this, x); }
-    public def writeLong(x: Long): void //throws IOException 
-    { Marshal.LONG.write(this, x); }
-    public def writeULong(x: ULong): void //throws IOException 
-    { Marshal.ULONG.write(this, x); }
-    public def writeFloat(x: Float): void //throws IOException 
-    { Marshal.FLOAT.write(this, x); }
-    public def writeDouble(x: Double): void //throws IOException 
-    { Marshal.DOUBLE.write(this, x); }
-    public def writeBoolean(x: Boolean): void //throws IOException 
-    { Marshal.BOOLEAN.write(this, x); }
-    
-    // made final to satisfy the restrictions on template functions in c++
-    public final def write[T](m: Marshal[T], x: T): void //throws IOException 
-    { m.write(this, x); }
-
-    public def write(buf: Rail[Byte]): void //throws IOException 
-    {
+    public def write(buf:Rail[Byte]):void {
         write(buf, 0, buf.size);
     }
 
-    public def write(buf: Rail[Byte], off: Long, len: Long): void //throws IOException 
-    {
-        for (var i: Long = off; i < off+len; i++) {
-            write(buf(i));
-        }
+    public def writeByte(x:Byte):void { 
+        Marshal.BYTE.write(this, x); 
+    }
+    public def writeUByte(x:UByte):void { 
+        Marshal.UBYTE.write(this, x); 
+    }
+    public def writeChar(x:Char):void {  
+        Marshal.CHAR.write(this, x); 
+    }
+    public def writeShort(x:Short):void { 
+        Marshal.SHORT.write(this, x); 
+    }
+    public def writeUShort(x:UShort):void { 
+        Marshal.USHORT.write(this, x); 
+    }
+    public def writeInt(x:Int):void {
+        Marshal.INT.write(this, x); 
+    }
+    public def writeUInt(x:UInt):void { 
+        Marshal.UINT.write(this, x); 
+    }
+    public def writeLong(x:Long):void { 
+        Marshal.LONG.write(this, x); 
+    }
+    public def writeULong(x:ULong):void { 
+        Marshal.ULONG.write(this, x); 
+    }
+    public def writeFloat(x:Float):void { 
+        Marshal.FLOAT.write(this, x); 
+    }
+    public def writeDouble(x:Double):void { 
+        Marshal.DOUBLE.write(this, x); 
+    }
+    public def writeBoolean(x:Boolean):void {
+        Marshal.BOOLEAN.write(this, x); 
+    }
+    
+    // made final to satisfy the restrictions on genric instance methods for Native X10
+    public final def write[T](m:Marshal[T], x:T):void { 
+        m.write(this, x); 
     }
 
     // DO NOT CALL from X10 code -- only used in @Native annotations

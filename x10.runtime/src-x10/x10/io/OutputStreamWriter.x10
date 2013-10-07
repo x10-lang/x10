@@ -19,45 +19,42 @@ public class OutputStreamWriter extends Writer {
     @NativeRep("c++", "x10::io::OutputStreamWriter__OutputStream*", "x10::io::OutputStreamWriter__OutputStream", null)
     protected abstract static class OutputStream {
         @Native("java", "#this.close()")
-        public native def close(): void; //throws IOException;
+        public native def close():void;
 
         @Native("java", "#this.flush()")
-        public native def flush(): void; //throws IOException;
+        public native def flush():void;
         
         @Native("java", "#this.write(#v)")
-        public native def write(v:Int): void; //throws IOException
+        public native def write(v:Int):void;
         
         @Native("java", "#this.write((#r).getByteArray())")
-        public native def write(r:Rail[Byte]): void; //throws IOException
+        public native def write(r:Rail[Byte]):void;
         
         @Native("java", "#this.write((#r).getByteArray(), #off, #len)")
-        public native def write(r:Rail[Byte], off:Long, len:Long): void; //throws IOException
+        public native def write(r:Rail[Byte], off:Long, len:Long):void;
     }
 
     val out: OutputStream;
     
-    def stream(): OutputStream = out;
+    def stream():OutputStream = out;
     
     public def this(out: OutputStream) {
         this.out = out;
     }
     
-    public def flush(): void //throws IOException 
-    { out.flush(); }
-
-    public def close(): void //throws IOException 
-    { out.close(); }
-    
-    public def write(x: Byte): void //throws IOException 
-    { out.write(x); }
-    
-    public def write(buf:Rail[Byte]): void //throws IOException 
-    {
-        out.write(buf);
+    public def flush():void { 
+        out.flush(); 
     }
 
-    public def write(buf:Rail[Byte], off: Long, len: Long): void //throws IOException 
-    {
+    public def close():void {
+        out.close(); 
+    }
+    
+    public def write(x:Byte):void {
+        out.write(x); 
+    }
+    
+    public def write(buf:Rail[Byte], off:Long, len:Long):void {
         out.write(buf, off, len);
     }
 }
