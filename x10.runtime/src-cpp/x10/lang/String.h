@@ -176,6 +176,25 @@ namespace x10 {
             }
 
             template<class T1, class T2> static String* __plus(T1, T2);
+            static String* __plus(String* p1, String* p2);
+            static String* __plus(String* p1, x10_boolean p2);
+            static String* __plus(String* p1, x10_byte p2);
+            static String* __plus(String* p1, x10_ubyte p2);
+            static String* __plus(String* p1, x10_short p2);
+            static String* __plus(String* p1, x10_ushort p2);
+            static String* __plus(String* p1, x10_int p2);
+            static String* __plus(String* p1, x10_uint p2);
+            static String* __plus(String* p1, x10_long p2);
+            static String* __plus(String* p1, x10_ulong p2);
+            static String* __plus(x10_boolean p1, String* p2);
+            static String* __plus(x10_byte p1, String* p2);
+            static String* __plus(x10_ubyte p1, String* p2);
+            static String* __plus(x10_short p1, String* p2);
+            static String* __plus(x10_ushort p1, String* p2);
+            static String* __plus(x10_int p1, String* p2);
+            static String* __plus(x10_uint p1, String* p2);
+            static String* __plus(x10_long p1, String* p2);
+            static String* __plus(x10_ulong p1, String* p2);
         };
 
         template<class T1, class T2>
@@ -184,7 +203,9 @@ namespace x10 {
                                                       x10aux::safe_to_string(p1)->c_str(),
                                                       x10aux::safe_to_string(p2)->c_str()));
         }
-            
+
+
+        
         #ifndef NO_IOSTREAM
         inline std::ostream &operator<<(std::ostream &o, String *v) {
             return o << v->c_str();

@@ -438,6 +438,65 @@ x10_boolean String::endsWith(String* s) {
     return (cmp == 0);
 }
 
+
+String* String::__plus(String* p1, String* p2) {
+    std::size_t newLength = p1->FMGL(content_length) + p2->FMGL(content_length);
+    char *newChars = x10aux::alloc<char>(newLength+1, false);
+    memcpy(newChars, p1->FMGL(content), p1->FMGL(content_length));
+    memcpy(&newChars[p1->FMGL(content_length)], p2->FMGL(content), p2->FMGL(content_length));
+    newChars[newLength] = '\0';
+    return String::Steal(newChars);
+}
+
+String* String::__plus(String* p1, x10_boolean p2) {
+    // Note: to_string(x10_boolean) doesn't allocate; simply returns static String*
+    return String::__plus(p1, x10aux::to_string(p2));
+}
+
+String* String::__plus(x10_boolean p1, String* p2) {
+    // Note: to_string(x10_boolean) doesn't allocate; simply returns static String*
+    return String::__plus(x10aux::to_string(p1), p2);
+}
+
+
+#define STRING_PLUS_DEFS(SZ,T,C,FMT) \
+String* String::__plus(String* p1, T p2) { \
+    char buf[SZ]; \
+    size_t used = (size_t)(::snprintf(buf, SZ, FMT, (C)p2)); \
+    std::size_t newLength = p1->FMGL(content_length) + used; \
+    char *newChars = x10aux::alloc<char>(newLength+1, false); \
+    memcpy(newChars, p1->FMGL(content), p1->FMGL(content_length)); \
+    memcpy(&newChars[p1->FMGL(content_length)], buf, used); \
+    newChars[newLength] = '\0'; \
+    return String::Steal(newChars); \
+} \
+String* String::__plus(T p1, String* p2) { \
+    char buf[SZ]; \
+    size_t used = (size_t)(::snprintf(buf, SZ, FMT, (C)p1)); \
+    std::size_t newLength = used + p2->FMGL(content_length); \
+    char *newChars = x10aux::alloc<char>(newLength+1, false); \
+    memcpy(newChars, buf, used);                              \
+    memcpy(&newChars[used], p2->FMGL(content), p2->FMGL(content_length)); \
+    newChars[newLength] = '\0'; \
+    return String::Steal(newChars); \
+}
+
+// hh is C99, not ansi c, so we use h instead.
+// This is fine as va_args turns everything to int anyway
+STRING_PLUS_DEFS(4, x10_ubyte, unsigned char, "%hu")
+STRING_PLUS_DEFS(5, x10_byte, signed char, "%hd")
+
+STRING_PLUS_DEFS(6, x10_ushort, unsigned short, "%hu")
+STRING_PLUS_DEFS(7, x10_short, signed short, "%hd")
+
+STRING_PLUS_DEFS(11, x10_uint, unsigned long, "%lu")
+STRING_PLUS_DEFS(12, x10_int, signed long, "%ld")
+STRING_PLUS_DEFS(21, x10_ulong, unsigned long long, "%llu")
+STRING_PLUS_DEFS(21, x10_long, signed long long, "%lld")
+
+
+
+
 const serialization_id_t String::_serialization_id =
     DeserializationDispatcher::addDeserializer(String::_deserializer, x10aux::CLOSURE_KIND_NOT_ASYNC);
 
