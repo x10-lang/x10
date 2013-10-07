@@ -105,6 +105,11 @@ public final class Configuration extends x10.config.Configuration {
     public boolean STATIC_CHECKS = false;
     private static final String STATIC_CHECKS_desc = "Treat dynamic constraint checks as errors.";
 
+    public boolean VERBOSE_INFERENCE = false;
+    private static final String VERBOSE_INFERENCE_desc = "Print details of inferred guards.";
+
+    public boolean CONSTRAINT_INFERENCE = false;
+    private static final String CONSTRAINT_INFERENCE_desc = "Allow guard inference through the annotation @InferGuard.";
 
     public boolean VERBOSE = false;
     private static final String VERBOSE_desc = "Print details for various warnings that might be interested to the programmer.";

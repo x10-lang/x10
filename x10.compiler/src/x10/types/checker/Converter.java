@@ -92,6 +92,7 @@ import polyglot.types.TypeSystem;
 import x10.types.constants.ConstantValue;
 import x10.types.constraints.CConstraint;
 import x10.types.constraints.CLocal;
+import x10.types.constraints.CNativeRequirement;
 import x10.types.constraints.TypeConstraint;
 
 import x10.types.matcher.Subst;
@@ -608,8 +609,25 @@ public class Converter {
 		// Added 03/28/10 to support new call conversion semantics.
 		Type baseFrom = Types.baseType(fromType);
 		Type baseTo = Types.baseType(toType);
-		if (ts.isSubtype(baseFrom, baseTo, context))
-			if (!opts.x10_config.STATIC_CHECKS)
+
+		boolean inferGuard = false;
+		ProcedureDef procDef = null;
+		if (opts.x10_config.CONSTRAINT_INFERENCE) {
+			assert (context.currentCode() instanceof ProcedureDef);
+			procDef = (ProcedureDef) context.currentCode();
+			inferGuard = procDef.inferGuard();
+		}
+
+		if (ts.isSubtype(baseFrom, baseTo, context)) {
+			if (inferGuard) {
+				try {
+					procDef.requirements().add(fromType, toType, context);
+				} catch (XFailure e) {
+					return null;
+				}
+			}
+			if (!opts.x10_config.STATIC_CHECKS || inferGuard)
+				// TODO we do not have to check constraints at runtime with inferGuard
 				if (( cast.conversionType() == ConversionType.CALL_CONVERSION)
 						&& ts.isCastValid(fromType, toType, context)) {
 					//return cast.conversionType(ConversionType.DESUGAR_LATER).type(baseTo);
@@ -619,6 +637,7 @@ public class Converter {
 					    toType = Types.addSelfBinding((Type) toType.copy(), sv);
 					return n.type(toType);
 				}
+		}
 
         return null;
     }

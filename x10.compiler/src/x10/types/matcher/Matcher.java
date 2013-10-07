@@ -17,10 +17,12 @@ import java.util.List;
 
 import polyglot.types.Context;
 import polyglot.types.Flags;
+import polyglot.types.InitializerDef;
 import polyglot.types.LazyRef_c;
 import polyglot.types.LocalInstance;
 import polyglot.types.LocalInstance_c;
 import polyglot.types.Name;
+import polyglot.types.ProcedureDef;
 import polyglot.types.Ref;
 import polyglot.types.UnknownType;
 
@@ -39,6 +41,7 @@ import x10.errors.Errors;
 import x10.types.ConstrainedType;
 import x10.types.ParameterType;
 import x10.types.X10ClassDef;
+import x10.types.X10CodeDef;
 import x10.types.X10LocalDef;
 import x10.types.X10LocalDef_c;
 import x10.types.X10LocalInstance;
@@ -50,6 +53,7 @@ import polyglot.types.TypeSystem;
 import x10.types.checker.PlaceChecker;
 import x10.types.constraints.CConstraint;
 import x10.types.constraints.CLocal;
+import x10.types.constraints.CNativeRequirement;
 import x10.types.constraints.ConstraintMaker;
 import x10.types.constraints.SubtypeConstraint;
 import x10.types.constraints.TypeConstraint;
@@ -406,6 +410,23 @@ public class Matcher {
 		boolean dynamicChecks = !opts.x10_config.STATIC_CHECKS &&
 		!(newMe instanceof MacroType); // MacroType cannot have its guard checked at runtime
 
+		boolean inferGuard = false;
+		ProcedureDef procDef = null;
+		if (opts.x10_config.CONSTRAINT_INFERENCE) {
+			if (context2.currentCode() != null) { // FIXME check why it can be null
+				if (context2.currentCode() instanceof ProcedureDef) {
+					procDef = (ProcedureDef) context2.currentCode();
+					inferGuard = procDef.inferGuard();
+				}
+				else if (context2.currentCode() instanceof InitializerDef) {
+					// FIXME check if we have some thing to do
+				}
+				else {
+					assert false: "context2.currentCode().getClass() = " + context2.currentCode().getClass();
+				}
+			}
+		}
+
 		if ( query != null) {
 			if (! query.consistent())
 				throw new SemanticException("Call invalid; guard inconsistent for actual parameters of call.");
@@ -414,12 +435,22 @@ public class Matcher {
 				public CConstraint make() throws XFailure {
 					return context2.constraintProjection(returnEnv, query);
 				}})) {
-				if (dynamicChecks)
+				if (inferGuard) {
+					try {
+						procDef.requirements().add(returnEnv, query, context2);
+					} catch (XFailure e) {
+						throw new SemanticException("Call invalid; calling environment does not entail the method guard."
+								+ "\n\t arg types:" + actualsIn
+								+ "\n\t query residue: " + returnEnv.residue(query));
+					}
+				}
+				if (dynamicChecks || inferGuard)
+					// TODO we do not have to check constraints at runtime with inferGuard
 					newMe = newMe.checkConstraintsAtRuntime(true);
 				else
 					throw new SemanticException("Call invalid; calling environment does not entail the method guard."
-					       + "\n\t arg types:" + actualsIn
-					       + "\n\t query residue: " + returnEnv.residue(query));
+							+ "\n\t arg types:" + actualsIn
+							+ "\n\t query residue: " + returnEnv.residue(query));
 			}
 		}
 
@@ -456,12 +487,21 @@ public class Matcher {
 				throw new SemanticException("Parameter type " + xtype 
 						+ " of call is inconsistent in calling context.");
 			}
-			if (! xts.isSubtype(ytype, xtype, context2)) {                    
-				if (dynamicChecks && xts.isSubtype(Types.baseType(ytype), 
-						Types.baseType(xtype), context2))
+			if (! xts.isSubtype(ytype, xtype, context2)) {
+				if ((dynamicChecks || inferGuard) && xts.isSubtype(Types.baseType(ytype), 
+						Types.baseType(xtype), context2)) {
+					if (inferGuard) {
+						try {
+							procDef.requirements().add(ytype, xtype, context2);
+						} catch (XFailure e) {
+							throw Errors.InvalidParameter.make(i, newMe, ytype, xtype, context2, me.position());
+						}
+					}
+					// TODO we do not have to check constraints at runtime with inferGuard
 					newMe = newMe.checkConstraintsAtRuntime(true);
-				else
+				} else {
 					throw Errors.InvalidParameter.make(i, newMe, ytype, xtype, context2, me.position());
+				}
 			}
 		}
 		// Update the types to reflect the newly computed formalTypes.

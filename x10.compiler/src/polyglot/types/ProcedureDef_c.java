@@ -18,6 +18,9 @@ import java.util.*;
 
 import polyglot.util.Position;
 import polyglot.util.TypedList;
+import x10.types.constraints.CNativeRequirementCollection;
+import x10.types.constraints.CRequirement;
+import x10.types.constraints.CRequirementCollection;
 
 /**
  * A <code>ProcedureInstance_c</code> contains the type information for a Java
@@ -62,5 +65,11 @@ public abstract class ProcedureDef_c extends MemberDef_c implements ProcedureDef
     public void setThrowTypes(List<Ref<? extends Type>> throwTypes) {
         this.throwTypes = TypedList.copyAndCheck(throwTypes, Ref.class, true);
     }
+
+	CNativeRequirementCollection requirements = new CNativeRequirementCollection();
+	@Override
+	public CRequirementCollection requirements() {
+		return this.requirements;
+	}
 
 }

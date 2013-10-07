@@ -68,6 +68,7 @@ import x10.extension.X10Ext;
 import x10.types.X10ClassDef;
 import x10.types.X10ClassType;
 import x10.types.X10ConstructorDef;
+import x10.types.X10MethodDef;
 import polyglot.types.Context;
 import x10.types.X10MemberDef;
 import x10.types.X10ParsedClassType;
@@ -297,11 +298,16 @@ public class X10ConstructorDecl_c extends ConstructorDecl_c implements X10Constr
         n = (X10ConstructorDecl_c) n.returnType(rtn);
         
         ci.setReturnType((Ref<? extends X10ClassType>) n.returnType().typeRef());
-        
+
+        // XXXX inferred
         if (n.guard() != null) {
-            ci.setGuard(n.guard().valueConstraint());
+            ci.setSourceGuard(n.guard().valueConstraint());
+			ci.setGuard(Types.<CConstraint>lazyRef(ConstraintManager.getConstraintSystem().makeCConstraint()));
             ci.setTypeGuard(n.guard().typeConstraint());
-        }
+        } else {
+			ci.setGuard(Types.<CConstraint>lazyRef(ConstraintManager.getConstraintSystem().makeCConstraint()));
+		}
+
         
         if (n.typeParameters().size() > 0) {
             Errors.issue(tb.job(), new Errors.ConstructorsCannotHaveTypeParameters(n.position()));
@@ -471,6 +477,35 @@ public class X10ConstructorDecl_c extends ConstructorDecl_c implements X10Constr
 
     @Override
     public Node setResolverOverride(Node parent, TypeCheckPreparer v) {
+		final X10ConstructorDef ci = (X10ConstructorDef) this.ci;
+		if (ci.inferGuard() && body() != null) {
+			NodeVisitor childv = v.enter(parent, this);
+			childv = childv.enter(this, v.nodeFactory().Empty(Position.COMPILER_GENERATED));
+
+			if (ci.guard() instanceof LazyRef<?>) {
+				TypeCheckPreparer tcp = (TypeCheckPreparer) childv;
+				final LazyRef<CConstraint> r = (LazyRef<CConstraint>) ci.guard();
+				TypeChecker tc = new X10TypeChecker(v.job(), v.typeSystem(), v.nodeFactory(), v.getMemo(), true);
+				tc = (TypeChecker) tc.context(tcp.context().freeze());
+				r.setResolver(new TypeCheckInferredGuardGoal(this, new Node[] { }, body(), tc, r, ci.sourceGuard()));
+			}
+		}
+		else {
+			if (ci.guard() instanceof LazyRef<?>) {
+				final LazyRef<CConstraint> r = (LazyRef<CConstraint>) ci.guard();
+				r.setResolver(new Runnable(){
+					public void run() {
+						if (ci.sourceGuard() != null) {
+							r.update(ci.sourceGuard().get());
+//							System.err.println("Propagating source guard unmodified " + r.get());
+						} else {
+							r.update(ConstraintManager.getConstraintSystem().makeCConstraint());
+						}
+					}
+				});
+			}
+		}
+
         if (constructorDef().inferReturnType() && body() != null) {
             TypeNode tn = returnType();
 
