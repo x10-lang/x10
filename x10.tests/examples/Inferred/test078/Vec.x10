@@ -7,7 +7,7 @@ package test078;
 
 import x10.compiler.InferGuard;
 
-class Vec(len: Int) {
+class Vec(len: Long) {
     static def add (x: Vec, y: Vec){ x.len == y.len }: Vec{ self.len == x.len } {
 	val v = new Vec(x.len);
 	return v;

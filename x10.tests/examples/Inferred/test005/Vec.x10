@@ -10,12 +10,12 @@ package test005;
 
 import x10.compiler.InferGuard;
 
-class Vec(len: Int) {
+class Vec(len: Long) {
     static def copy (x: Vec, y: Vec{ self.len == x.len }) {}
 
     @InferGuard
-    static def cp (x: Vec, l: Int) { // l should be a local variable to infer
-        /* val l <: Int  = ?; */
+    static def cp (x: Vec, l: Long) { // l should be a local variable to infer
+        /* val l <: Long  = ?; */
          val y = new Vec(l);       //  =>  y.len == l
          val z = new Vec(x.len);   //  =>  z.len == x.len
          copy(x, z);               // <=   x.len == z.len

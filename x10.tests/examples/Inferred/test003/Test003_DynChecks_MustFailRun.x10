@@ -13,7 +13,7 @@ public class Test003_DynChecks_MustFailRun extends x10Test {
         return true;
     }
 
-    public static def main(Array[String](1)) {
+    public static def main(Rail[String]) {
     	new Test003_DynChecks_MustFailRun().execute();
     }
 

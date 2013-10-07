@@ -14,7 +14,7 @@ public class Test078bis_MustFailCompile extends x10Test {
         return true;
     }
 
-    public static def main(Array[String](1)) {
+    public static def main(Rail[String]) {
     	new Test078bis_MustFailCompile().execute();
     }
 
