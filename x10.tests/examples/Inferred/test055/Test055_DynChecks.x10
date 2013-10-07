@@ -12,11 +12,11 @@ import x10.compiler.InferGuard;
 
 public class Test055_DynChecks extends x10Test {
 
-    static def assertDisEq(a: int, b: int){ a != b } {}
+    static def assertDisEq(a: Long, b: Long){ a != b } {}
     static def assert0(x: Long{ self == 0 }){}
 
     @InferGuard
-    static def f (x: int, y: int) {
+    static def f (x: Long, y: Long) {
 	val v1: Long{self == 0} = x;
 	val v2: Long{self != 0} = y;
 	assertDisEq(x, y);

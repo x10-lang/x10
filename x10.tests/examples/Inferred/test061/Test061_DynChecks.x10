@@ -12,12 +12,12 @@ import x10.compiler.InferGuard;
 public class Test061_DynChecks extends x10Test {
 
     @InferGuard
-    static def f(x: int) {
-	val v: int{self == 0} = x;
+    static def f(x: Long) {
+	val v: Long{self == 0} = x;
     }
 
     @InferGuard
-    static def g(x: int) {
+    static def g(x: Long) {
 	f(x);
     }
 

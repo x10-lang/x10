@@ -11,10 +11,10 @@ import x10.compiler.InferGuard;
 
 public class Test052 extends x10Test {
 
-    static def assertEq(a: int, b: int){ a == b } {}
+    static def assertEq(a: Long, b: Long){ a == b } {}
 
     @InferGuard
-    static def f (x: int, y: int) {
+    static def f (x: Long, y: Long) {
 	val v1: Long{self == 0} = x;
 	val v2: Long{self == 0} = y;
 	assertEq(x, y);

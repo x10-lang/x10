@@ -13,8 +13,8 @@ public class Test065_DynChecks extends x10Test {
     static def assert0(x: Long{ self == 0 }){}
 
     @InferGuard
-    static def f(x: int) {
-	val v: int{self == 0} = x;
+    static def f(x: Long) {
+	val v: Long{self == 0} = x;
 	return v;
     }
 

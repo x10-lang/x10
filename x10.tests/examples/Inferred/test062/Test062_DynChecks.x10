@@ -14,13 +14,13 @@ import x10.compiler.InferGuard;
 public class Test062_DynChecks extends x10Test {
 
     @InferGuard
-    static def g(x: int) {
+    static def g(x: Long) {
 	f(x);
     }
 
     @InferGuard
-    static def f(x: int) {
-	val v: int{self == 0} = x;
+    static def f(x: Long) {
+	val v: Long{self == 0} = x;
     }
 
     public def run(): boolean {

@@ -13,7 +13,7 @@ public class Test067_DynChecks_MustFailRun extends x10Test {
     static def assert0(x: Long{ self == 0 }){}
 
     @InferGuard
-    static def f(b: boolean, x: int) {
+    static def f(b: boolean, x: Long) {
 	assert0(x);
 	if ( b ) { return; }
 	f(true, 1);

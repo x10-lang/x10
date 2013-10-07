@@ -10,7 +10,7 @@ import harness.x10Test;
 import x10.compiler.InferGuard;
 
 public class Test068_DynChecks extends x10Test {
-    static def assertEq (x: int, y: int){ x == y } {}
+    static def assertEq (x: Long, y: Long){ x == y } {}
     static def assertEqB (x: B, y: B){ x == y } {}
 
     @InferGuard

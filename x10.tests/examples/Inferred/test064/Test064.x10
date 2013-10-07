@@ -14,13 +14,13 @@ import x10.compiler.InferGuard;
 public class Test064 extends x10Test {
 
     @InferGuard
-    static def g(x: int): int {
+    static def g(x: Long): Long {
 	return f(x);
     }
 
     @InferGuard
-    static def f(x: int): int {
-	val v: int{self == 0} = x;
+    static def f(x: Long): Long {
+	val v: Long{self == 0} = x;
 	return v;
     }
 

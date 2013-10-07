@@ -16,7 +16,7 @@ public class Test050 extends x10Test {
     @InferGuard
     static def f(f_arg:Long){/*??< f_arg == 0 >??*/ } {
         val y1: Long{self == 0};
-        val y2: Long = 0;
+        val y2 = 0;
         y1 = y2;
         assertEq(f_arg, y1);
     }

@@ -13,14 +13,14 @@ public class Test066 extends x10Test {
     static def assert0(x: Long{ self == 0 }){}
 
     @InferGuard
-    static def f(b: boolean, x: int, y: int) {
+    static def f(b: boolean, x: Long, y: Long) {
 	assert0(x);
 	if ( b ) { return; }
 	g(y, x);
     }
 
     @InferGuard
-    static def g(x: int, y: int) {
+    static def g(x: Long, y: Long) {
 	assert0(x);
 	f(true, y, x);
     }

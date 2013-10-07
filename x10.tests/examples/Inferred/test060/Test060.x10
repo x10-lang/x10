@@ -14,7 +14,7 @@ import x10.compiler.InferGuard;
 public class Test060 extends x10Test {
 
     @InferGuard
-    static def f (x: int, y: int) {
+    static def f (x: Long, y: Long) {
 	val v1 <: Long = x;
 	val v2: Long{self == v1} = y;
     }
