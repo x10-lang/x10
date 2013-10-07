@@ -20,7 +20,7 @@ public class Test059_DynChecks_MustFailRun extends x10Test {
     }
 
     public def run(): boolean {
-	f(0, 0);
+	f(0, 1);
 	return true;
     }
 

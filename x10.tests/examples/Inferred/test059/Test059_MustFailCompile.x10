@@ -20,7 +20,6 @@ public class Test059_MustFailCompile extends x10Test {
     }
 
     public def run(): boolean {
-	f(0, 0);
 	return true;
     }
 
