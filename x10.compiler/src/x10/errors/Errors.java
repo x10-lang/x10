@@ -817,7 +817,7 @@ public class Errors {
             CConstraint 
             c = Types.xclause(type), 
             d = Types.xclause(targetType);
-            XConstraint residue = c.residue(d);
+            XConstraint residue = c==null? d: c.residue(d);
             
             
             return new CannotReturnExpr(expr, type, residue, pos);
