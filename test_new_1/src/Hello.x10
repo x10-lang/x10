@@ -41,22 +41,31 @@ public class Hello {
     	/*at (Other) {
     		Runtime.initTMSystem();
     	}*/
-    	finish for (var k:int=0; k < 1; k++)
+    	finish for (var k:int=0; k < 4; k++)
     	{
     		async {
     			Runtime.initTMThread();
     			
-    			for (var j:int = 0; j < 2; j++) {
+    			for (var j:int = 0; j < 100; j++) {
 	    			@Transaction
 			    	atomic {
 			        	// local variable
 			        	num = num + 1;
 			        	
-			        	a.obj_any = new C[int,long](1, 2);
-			        	a.obj_C = new C[int,long](1, 2);
-			        	a.obj_D = new D[C[int,long]](a.obj_C); 
-			        	a.obj_E = new E_Struct_Template[int, short](1,2);
-			        	a.obj_F = new F_Struct(3,4);
+			        	//Runtime.x10rtProbe();
+			        	
+			        	//@Transaction
+			        	//atomic {
+			        		//@Transaction
+			        		//atomic {
+				        		a.obj_any = new C[int,long](1, 2);
+					        	a.obj_C = new C[int,long](1, 2);
+					        	a.obj_D = new D[C[int,long]](a.obj_C); 
+					        	a.obj_E = new E_Struct_Template[int, short](1,2);
+					        	a.obj_F = new F_Struct(3,4);
+			        		//}
+			        	//} 
+			        	
 			        	// 
 			        	// field load and assignment - primitive types 
 			        	a.num_byte = a.num_byte + 1;
@@ -65,19 +74,11 @@ public class Hello {
 			        	a.num_long = a.num_long + 1; 
 			        	
 			        	at (Other) {
-			        		a.num_byte = a.num_byte + 1;
-			        		a.num_short = a.num_short + 1;
-			        		a.num_int = a.num_int + 1;
-			        		a.num_long = a.num_long + 1;
+			        		//a.num_byte = a.num_byte + 1;
+			        		//a.num_short = a.num_short + 1;
+			        		//a.num_int = a.num_int + 1;
+			        		//a.num_long = a.num_long + 1;
 			        	}
-			        	
-			        	/*at (Other) {
-			        		a.num_byte = a.num_byte + 1;
-			        		a.num_short = a.num_short + 1;
-			        		a.num_int = a.num_int + 1;
-			        		a.num_long = a.num_long + 1;
-			        	}*/
-			        	
 			        	
 			        	// field load and assignment - object types
 			        	a.obj = new B();
@@ -103,9 +104,10 @@ public class Hello {
 			        	a.arr_obj(0).boo_1(6);
 	        		}
     			}
-    			
+    		
     			Runtime.finishTMThread();
     		}
+		
         }
       
         Console.OUT.println("a.num_byte = " + a.num_byte);
