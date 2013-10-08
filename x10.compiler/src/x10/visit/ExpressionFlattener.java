@@ -114,7 +114,7 @@ public final class ExpressionFlattener extends ContextVisitor {
 
     private static final boolean DEBUG = false;
 
-    private static final boolean XTENLANG_2336 = true; // bug work around: don't flatten Runtime.x10
+    private static final boolean XTENLANG_2336 = false; // bug work around: don't flatten Runtime.x10
 
     private final TypeSystem xts;
     private AltSynthesizer syn; // move functionality to Synthesizer
