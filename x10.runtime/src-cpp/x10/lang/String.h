@@ -29,9 +29,6 @@ namespace x10 {
             const char *FMGL(content);
             std::size_t FMGL(content_length);
 
-            private:
-            static void _formatHelper(std::ostringstream &ss, char* fmt, x10::lang::Any* p);
-            
             public:
             const char *c_str() const { return FMGL(content); }
 

@@ -268,46 +268,63 @@ x10::lang::Rail<x10_byte>* String::bytes() {
     return rail;
 }
 
-void String::_formatHelper(std::ostringstream &ss, char* fmt, Any* p) {
-    char* buf = NULL;
-    if (NULL == p) {
-        ss << (buf = x10aux::alloc_printf(fmt, "null")); // FIXME: Ignore nulls for now
-    } else if (x10aux::instanceof<String*>(p)) {
-        ss << (buf = x10aux::alloc_printf(fmt, class_cast_unchecked<String*>(p)->c_str()));
-    } else if (x10aux::instanceof<x10_boolean>(p)) {
-        ss << (buf = x10aux::alloc_printf(fmt, class_cast_unchecked<x10_boolean>(p)));
-    } else if (x10aux::instanceof<x10_byte>(p)) {
-        ss << (buf = x10aux::alloc_printf(fmt, class_cast_unchecked<x10_byte>(p)));
-    } else if (x10aux::instanceof<x10_ubyte>(p)) {
-        ss << (buf = x10aux::alloc_printf(fmt, class_cast_unchecked<x10_ubyte>(p)));
-    } else if (x10aux::instanceof<x10_char>(p)) {
-        ss << (buf = x10aux::alloc_printf(fmt, class_cast_unchecked<x10_char>(p).v));
-    } else if (x10aux::instanceof<x10_short>(p)) {
-        ss << (buf = x10aux::alloc_printf(fmt, class_cast_unchecked<x10_short>(p)));
-    } else if (x10aux::instanceof<x10_ushort>(p)) {
-        ss << (buf = x10aux::alloc_printf(fmt, class_cast_unchecked<x10_ushort>(p)));
-    } else if (x10aux::instanceof<x10_int>(p)) {
-        ss << (buf = x10aux::alloc_printf(fmt, class_cast_unchecked<x10_int>(p)));
-    } else if (x10aux::instanceof<x10_uint>(p)) {
-        ss << (buf = x10aux::alloc_printf(fmt, class_cast_unchecked<x10_uint>(p)));
-    } else if (x10aux::instanceof<x10_long>(p)) {
-        ss << (buf = x10aux::alloc_printf(fmt, class_cast_unchecked<x10_ulong>(p)));
-    } else if (x10aux::instanceof<x10_float>(p)) {
-        ss << (buf = x10aux::alloc_printf(fmt, class_cast_unchecked<x10_float>(p)));
-    } else if (x10aux::instanceof<x10_double>(p)) {
-        ss << (buf = x10aux::alloc_printf(fmt, class_cast_unchecked<x10_double>(p)));
-    } else {
-        Reference* tmp = reinterpret_cast<x10::lang::Reference*>(p);
-        ss << (buf = x10aux::alloc_printf(fmt, tmp->toString()->c_str()));
+
+// A lightweight version of std::ostringstream ss;
+// Rolling it ourself is a huge performance win (roughly 3x).
+class MyBuf {
+  public:
+    size_t capacity;
+    size_t cursor;
+    char* buffer;
+
+    MyBuf(size_t cap) {
+        capacity = cap;
+        cursor = 0;
+        buffer = x10aux::alloc<char>(capacity);
+        buffer[0] = '\0';
     }
-    if (buf != NULL)
-        dealloc(buf);
-}
+
+    inline size_t available() { return capacity - cursor; }
+    
+    // Implementation note: to better match snprintf API,
+    // enable ensures that buffer has enough backing memory
+    // to support a write of min+1 bytes
+    void enable(size_t min) {
+        size_t newCapacity = cursor + min + 1;
+        buffer = x10aux::realloc<char>(buffer, newCapacity);
+        capacity = newCapacity;
+    }
+    
+    void sprint(char* val) {
+        size_t writeSize = strlen(val);
+        if (writeSize + 1 < available()) {
+            ::memcpy(&buffer[cursor], val, writeSize+1);
+            cursor += writeSize;
+        } else {
+            enable(writeSize);
+            ::memcpy(&buffer[cursor], val, writeSize+1);
+            cursor += writeSize;
+        }
+    }
+
+    template <class T> void sprintf(char *fmt, T val) {
+        size_t writeSize = ::snprintf(&buffer[cursor], available(), fmt, val);
+        if (writeSize < available()) {
+            cursor += writeSize;
+        } else {
+            enable(writeSize);
+            size_t writeSize2 = ::snprintf(&buffer[cursor], available(), fmt, val);
+            assert(writeSize2 == writeSize);
+            cursor += writeSize2;
+        }
+    }
+};    
 
 String* String::format(String* format, x10::lang::Rail<Any*>* parms) {
-    std::ostringstream ss;
     nullCheck(format);
     nullCheck(parms);
+
+    MyBuf buf(format->length() + 32); // Add a little room to print a couple values.
     char* orig = alloc_utils::strdup(format->c_str());
     char* fmt = orig;
     char* next = NULL;
@@ -316,25 +333,60 @@ String* String::format(String* format, x10::lang::Rail<Any*>* parms) {
         if (next != NULL)
             *next = '\0';
         if (*fmt != '%') {
-            ss << fmt;
+            buf.sprint(fmt);
         } else {
             if (next == fmt+1) {
                 *next = '%';
                 next = strchr(next+1, '%');
                 if (next != NULL)
                     *next = '\0';
-                _formatHelper(ss, fmt, NULL);
+                buf.sprintf(fmt, NULL);
             } else {
                 Any* p = parms->__apply(i);
-                _formatHelper(ss, fmt, p);
                 i += 1;
+                if (NULL == p) {
+                    buf.sprintf(fmt, NULL);
+                } else {
+                    Reference* pAsRef = reinterpret_cast<x10::lang::Reference*>(p);
+                    const x10aux::RuntimeType* rtt = pAsRef->_type();
+                    // Ordered by guesstimate at frequency in printfs...
+                    if (rtt->equals(x10aux::getRTT<x10_long>())) {
+                        buf.sprintf(fmt, class_cast_unchecked<x10_long>(p));
+                    } else if (rtt->equals(x10aux::getRTT<x10_double>())) {
+                        buf.sprintf(fmt, class_cast_unchecked<x10_double>(p));
+                    } else if (rtt->equals(x10aux::getRTT<x10_int>())) {
+                        buf.sprintf(fmt, class_cast_unchecked<x10_int>(p));
+                    } else if (rtt->equals(x10aux::getRTT<x10_float>())) {
+                        buf.sprintf(fmt, class_cast_unchecked<x10_float>(p));
+                    } else if (rtt->equals(x10aux::getRTT<x10::lang::String>())) {
+                        buf.sprintf(fmt, class_cast_unchecked<String*>(pAsRef)->c_str());
+                    } else if (rtt->equals(x10aux::getRTT<x10_boolean>())) {
+                        buf.sprintf(fmt, class_cast_unchecked<x10_boolean>(p));
+                    } else if (rtt->equals(x10aux::getRTT<x10_byte>())) {
+                        buf.sprintf(fmt, class_cast_unchecked<x10_byte>(p));
+                    } else if (rtt->equals(x10aux::getRTT<x10_short>())) {
+                        buf.sprintf(fmt, class_cast_unchecked<x10_short>(p));
+                    } else if (rtt->equals(x10aux::getRTT<x10_char>())) {
+                        buf.sprintf(fmt, class_cast_unchecked<x10_char>(p).v);
+                    } else if (rtt->equals(x10aux::getRTT<x10_ubyte>())) {
+                        buf.sprintf(fmt, class_cast_unchecked<x10_ubyte>(p));
+                    } else if (rtt->equals(x10aux::getRTT<x10_ushort>())) {
+                        buf.sprintf(fmt, class_cast_unchecked<x10_ushort>(p));
+                    } else if (rtt->equals(x10aux::getRTT<x10_uint>())) {
+                        buf.sprintf(fmt, class_cast_unchecked<x10_uint>(p));
+                    } else if (rtt->equals(x10aux::getRTT<x10_ulong>())) {
+                        buf.sprintf(fmt, class_cast_unchecked<x10_ulong>(p));
+                    } else {
+                        buf.sprintf(fmt, pAsRef->toString()->c_str());
+                    }
+                }
             }
         }
         if (next != NULL)
             *next = '%';
     }
-    dealloc(orig);
-    return String::Lit(ss.str().c_str());
+    x10aux::dealloc(orig);
+    return String::Steal(buf.buffer);
 }
 
 x10_boolean String::equals(Any* p0) {
