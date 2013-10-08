@@ -90,6 +90,9 @@ namespace x10 {
             virtual void printStackTrace();
             virtual void printStackTrace(x10::io::Printer*);
             
+            // TM
+			virtual CheckedThrowable* getCause__tm__(x10tm::TMThread *Self) { return FMGL(cause); }
+            // TM
             static const x10aux::serialization_id_t _serialization_id;
 
             virtual x10aux::serialization_id_t _get_serialization_id() { return _serialization_id; };

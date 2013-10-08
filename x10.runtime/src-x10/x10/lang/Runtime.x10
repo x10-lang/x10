@@ -784,6 +784,7 @@ public final class Runtime {
         }
         var e:CheckedThrowable = null;
         var clockPhases:Activity.ClockPhases = null;
+        var tm_res:int;
     }
 
     /** Subvert X10 and target language exception checking.
@@ -870,6 +871,69 @@ public final class Runtime {
         if (null != me.e) {
             throwCheckedWithoutThrows(me.e);
         }
+    }
+    
+    /**
+     * Run at statement
+     */
+    public static def runAt_for_tm(tm_tid:int, place:Place, body:()=>void, prof:Profile):void {
+    	Runtime.ensureNotInAtomic();
+    	
+    	X10TM.addPlace(tm_tid, place);
+    	
+    	if (place.id == hereInt()) {
+    		try {
+    			try {
+    				deepCopy(body, prof)();
+    				return;
+    			} catch (t:AtCheckedWrapper) {
+    				throw t.getCheckedCause();
+    			}
+    		} catch (t:CheckedThrowable) {
+    			throwCheckedWithoutThrows(deepCopy(t, null));
+    		}
+    	}
+    	@StackAllocate val me = @StackAllocate new RemoteControl();
+    	val box:GlobalRef[RemoteControl] = GlobalRef(me as RemoteControl);
+    	val clockPhases = activity().clockPhases;
+    	@x10.compiler.Profile(prof) at(place) async {
+    		activity().clockPhases = clockPhases;
+    		try {
+    			try {
+    				body();
+    				val tm_res = X10TM.getResult(tm_tid);
+    				val closure = ()=> @x10.compiler.RemoteInvocation("runAt_11") { 
+    					val me2 = (box as GlobalRef[RemoteControl]{home==here})();
+    					me2.tm_res = tm_res;
+    					me2.clockPhases = clockPhases;
+    					me2.release();
+    				};
+    				x10rtSendMessage(box.home.id, closure, null);
+    				dealloc(closure);
+    			} catch (e:AtCheckedWrapper) {
+    				throw e.getCheckedCause();
+    			}
+    		} catch (e:CheckedThrowable) {
+    			val closure = ()=> @x10.compiler.RemoteInvocation("runAt_22") { 
+    				val me2 = (box as GlobalRef[RemoteControl]{home==here})();
+    				me2.e = e;
+    				me2.clockPhases = clockPhases;
+    				me2.release();
+    			};
+    			x10rtSendMessage(box.home.id, closure, null);
+    			dealloc(closure);
+    		}
+    		activity().clockPhases = null;
+    	}
+    	me.await();
+    	dealloc(body);
+    	if (0 == me.tm_res) {
+    		X10TM.abort(tm_tid);
+    	}
+    	activity().clockPhases = me.clockPhases;
+    	if (null != me.e) {
+    		throwCheckedWithoutThrows(me.e);
+    	}
     }
 
     /*
@@ -994,6 +1058,74 @@ public final class Runtime {
         return me.t.value;
     }
 
+    /**
+     * Eval at expression
+     */
+    public static def evalAt_for_tm[T](tm_tid:int, place:Place, eval:()=>T, prof:Profile):T {
+    	Runtime.ensureNotInAtomic();
+    	
+    	X10TM.addPlace(tm_tid, place);
+    	
+    	if (place.id == hereInt()) {
+    		try {
+    			try {
+    				// TODO the second deep copy is needed only if eval makes its result escaped (it is very rare).
+    				val result = deepCopy(eval,prof)();
+    				return deepCopy(result,prof);
+    			} catch (t:AtCheckedWrapper) {
+    				throw t.getCheckedCause();
+    			}
+    		} catch (t:CheckedThrowable) {
+    			throwCheckedWithoutThrows(deepCopy(t, null));
+    		}
+    	}
+    	@StackAllocate val me = @StackAllocate new Remote[T]();
+    	val box = GlobalRef(me as Remote[T]);
+    	val clockPhases = activity().clockPhases;
+    	@x10.compiler.Profile(prof) at(place) async {
+    		activity().clockPhases = clockPhases;
+    		try {
+    			try {
+    				val result = eval();
+    				val tm_res = X10TM.getResult(tm_tid);
+    				val closure = ()=> @x10.compiler.RemoteInvocation("evalAt_11") { 
+    					val me2 = (box as GlobalRef[Remote[T]]{home==here})();
+    					// me2 has type Box[T{box.home==here}]... weird
+    					me2.tm_res = tm_res;
+    					me2.t = new Box[T{box.home==here}](result as T{box.home==here});
+    					me2.clockPhases = clockPhases;
+    					me2.release();
+    				};
+    				x10rtSendMessage(box.home.id, closure, null);
+    				dealloc(closure);
+    			} catch (t:AtCheckedWrapper) {
+    				throw t.getCheckedCause();
+    			}
+    		} catch (e:CheckedThrowable) {
+    			val closure = ()=> @x10.compiler.RemoteInvocation("evalAt_22") { 
+    				val me2 = (box as GlobalRef[Remote[T]]{home==here})();
+    				me2.e = e;
+    				me2.clockPhases = clockPhases;
+    				me2.release();
+    			};
+    			x10rtSendMessage(box.home.id, closure, null);
+    			dealloc(closure);
+    		}
+    		activity().clockPhases = null;
+    	}
+    	me.await();
+    	dealloc(eval);
+    	if (0 == me.tm_res) {
+    		X10TM.abort(tm_tid);
+    	}
+    	
+    	activity().clockPhases = me.clockPhases;
+    	if (null != me.e) {
+    		throwCheckedWithoutThrows(me.e);
+    	}
+    	return me.t.value;
+    }
+    
     // initialization of static fields in c++ backend
 
     public static def StaticInitBroadcastDispatcherLock() {
@@ -1021,13 +1153,14 @@ public final class Runtime {
            a.pushAtomic();
     }
     
-    @Native("c++", "x10tm::tm_system_init()")
+    @Native("c++", "x10tm::tm_system_init(x10aux::here)")
     public static native def initTMSystem():void;
     
-    @Native("c++", "x10tm::tm_system_finish()")
+    @Native("c++", "x10tm::tm_system_finish(x10aux::here)")
     public static native def finishTMSystem():void;
     
-    @Native("c++", "x10tm::TMThread *SelfTM = x10tm::tm_get_self(x10aux::here, x10tm::tm_get_next_thread_id() )")
+    //@Native("c++", "x10::lang::X10TM *SelfTM_X10 = x10::lang::X10TM::_make(); x10tm::TMThread *SelfTM = x10tm::tm_get_self(x10aux::here, (void *)SelfTM_X10, x10tm::tm_get_next_thread_id() )")
+    @Native("c++", "x10tm::TMThread *SelfTM = x10tm::tm_get_self(x10aux::here, NULL, x10tm::tm_get_next_thread_id() )")
     public static native def initTMThread():void;
     
     @Native("c++", "x10tm::tm_thread_finish(SelfTM)")
@@ -1036,11 +1169,17 @@ public final class Runtime {
     @Native("c++", "x10tm::tm_thread_get_uniq_id(SelfTM)")
     public static native def getTMThreadUniqId():int;
     
-    @Native("c++", "TM_START(SelfTM, {})")
+    @Native("c++", "TM_START(SelfTM, { x10::lang::X10TM::failCommits__tm__(SelfTM, SelfTM->uniq_id); }); if (SelfTM->num_of_cur_aborts > 5) { x10aux::event_probe(); SelfTM->num_of_cur_aborts = 0; } ")
     public static native def enterTM():void;
     
-    @Native("c++", "TM_END(SelfTM)")
+    @Native("c++", "TM_END(SelfTM); x10::lang::X10TM::finishCommits__tm__(SelfTM, SelfTM->uniq_id)")
     public static native def exitTM():void;
+    
+    @Native("c++", "TM_END_PLACE(SelfTM, 1)")
+    public static native def finishTMCommit():void;
+    
+    @Native("c++", "TM_END_PLACE(SelfTM, 0)")
+    public static native def failTMCommit():void;
     
     public static def ensureNotInAtomic() {
         val a = activity();

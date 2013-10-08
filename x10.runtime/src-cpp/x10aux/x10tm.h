@@ -20,6 +20,7 @@
 
 #define MAX_RS (512)
 #define MAX_WS (256)
+#define MAX_NESTING (100)
 
 namespace x10tm {
 	typedef struct _LogEntry {
@@ -47,8 +48,12 @@ namespace x10tm {
 
 	typedef struct _TMThread {
 		long is_init;
+		long n_nesting_level;
+		long place_id;
 		long uniq_id;
 		long th_id_system;
+		long is_aborted;
+		long last_result;
 
 		RSEntry read_set[MAX_RS];
 		LogEntry log_set[MAX_WS];
@@ -56,9 +61,10 @@ namespace x10tm {
 		int ls_max_index;
 
 		long rv;
-		jmp_buf * on_failure ;
-		jmp_buf abort_retry ;
+		jmp_buf * on_failure[MAX_NESTING];
+		jmp_buf abort_retry[MAX_NESTING];
 
+		long num_of_cur_aborts;
 		long num_of_aborts;
 		long num_of_success;
 
@@ -96,22 +102,28 @@ namespace x10tm {
 		return val;
 	}
 
-    void tm_system_init();
-    void tm_system_finish();
+    void tm_system_init(long place_id);
+    void tm_system_finish(long place_id);
 
     long tm_get_next_thread_id();
 
-    void tm_thread_init(TMThread *SelfTM);
+    void tm_thread_init(TMThread *SelfTM, void *p_x10tm_obj, long place_id, long th_id);
     void tm_thread_finish(TMThread *SelfTM);
 
     long tm_thread_get_uniq_id(TMThread *SelfTM);
 
+    long tm_thread_get_result(int tm_thread_id);
+    long tm_thread_abort(int tm_thread_id);
+
     void tm_start(TMThread *SelfTM, jmp_buf *jb);
 	void tm_commit(TMThread *SelfTM);
+	void tm_commit_place(TMThread *SelfTM, int is_success);
+	void tm_commit_closure(TMThread *SelfTM);
     void tm_start__tm__(TMThread *SelfTM, jmp_buf *jb);
     void tm_commit__tm__(TMThread *SelfTM);
 
-    TMThread *tm_get_self(int place_id, long th_id);
+
+    TMThread *tm_get_self(int place_id, void *p_x10tm_obj, long th_id);
 
 
 
@@ -120,17 +132,42 @@ namespace x10tm {
 #define TM_START__tm__(SelfTM, AbortActions) TM_START(SelfTM, AbortActions)
 
 #define TM_START(SelfTM, AbortActions) {            \
-  static int SiteSpecific = 0 ;                     \
-  if (setjmp (SelfTM->abort_retry) != 0) {       \
-    AbortActions;                                   \
+  if (setjmp (SelfTM->abort_retry[SelfTM->n_nesting_level]) != 0) {       \
+	x10aux::event_probe(); \
+	AbortActions;                                   \
   }                                                 \
-  tm_start (SelfTM, &SelfTM->abort_retry) ;           \
+  tm_start (SelfTM, &SelfTM->abort_retry[SelfTM->n_nesting_level]) ;           \
+}
+
+#define TM_START_CLOSURE_VOID(SelfTM) {            \
+  SelfTM->last_result = 1; \
+  if (setjmp (SelfTM->abort_retry[SelfTM->n_nesting_level]) != 0) {       \
+	x10aux::event_probe(); \
+	x10::lang::X10TM::failCommits__tm__(SelfTM, SelfTM->uniq_id); \
+	SelfTM->last_result = 0; \
+	return;                     \
+  }                                                 \
+  tm_start(SelfTM, &SelfTM->abort_retry[SelfTM->n_nesting_level]) ;           \
+}
+
+#define TM_START_CLOSURE_RET(SelfTM, ret_var) {            \
+  SelfTM->last_result = 1; \
+  if (setjmp (SelfTM->abort_retry[SelfTM->n_nesting_level]) != 0) {       \
+	x10aux::event_probe(); \
+	x10::lang::X10TM::failCommits__tm__(SelfTM, SelfTM->uniq_id); \
+  	SelfTM->last_result = 0; \
+    return ret_var;                     \
+  }                                                 \
+  tm_start(SelfTM, &SelfTM->abort_retry[SelfTM->n_nesting_level]) ;           \
 }
 
 #define TM_END__tm__(SelfTM) TM_END(SelfTM)
 
 #define TM_END(SelfTM) { tm_commit (SelfTM); }
 
+#define TM_END_CLOSURE(SelfTM) { tm_commit_closure (SelfTM); }
+
+#define TM_END_PLACE(SelfTM, is_success) { tm_commit_place(SelfTM, is_success); }
 
 #endif
 
