@@ -29,7 +29,9 @@ import x10.compiler.Native;
 public abstract class Writer {
     public abstract def close():void;
     public abstract def flush():void;
+
     public abstract def write(x:Byte):void;
+    public abstract def write(x:String):void;
     public abstract def write(x:Rail[Byte], off:Long, len:Long):void;
 
     public def write(buf:Rail[Byte]):void {

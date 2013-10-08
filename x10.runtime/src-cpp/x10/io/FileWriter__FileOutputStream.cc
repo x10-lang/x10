@@ -51,8 +51,13 @@ void FileWriter__FileOutputStream::write(x10_int i) {
     ::fputc((char)i, FMGL(file));
 }
 
+void FileWriter__FileOutputStream::write(x10::lang::String* s) {
+    x10aux::nullCheck(s);
+    ::fwrite(s->c_str(), sizeof(char), s->length(), FMGL(file));
+}
+
 void FileWriter__FileOutputStream::write(x10::lang::Rail<x10_byte>* b, x10_long off, x10_long len) {
-    ::fwrite(&b->raw[off], sizeof(x10_byte), len*sizeof(x10_byte), FMGL(file));
+    ::fwrite(&b->raw[off], sizeof(x10_byte), len, FMGL(file));
 }
 
 void FileWriter__FileOutputStream::flush() {

@@ -85,6 +85,14 @@ public class OutputStream extends Ref {
             throw new x10.io.IOException(e.getMessage());
         }
     }
+
+    public void write(java.lang.String s) {
+        try {
+            stream.write(s.getBytes());
+        } catch (java.io.IOException e) {
+            throw new x10.io.IOException(e.getMessage());
+        }
+    }
     
     // XTENLANG-2680
     public void write__0$1x10$lang$Byte$2(x10.core.Rail buf) {
