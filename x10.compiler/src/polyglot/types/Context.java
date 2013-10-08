@@ -167,8 +167,14 @@ public class Context implements Resolver, Cloneable
     private static final Collection<String> TOPICS = 
         CollectionUtil.list(Reporter.types, Reporter.context);
     
-    public boolean is_inside_tm = false;
+    public int tm_enter_cnt = 0;
+    public int tm_exit_cnt = 0;
+    //public boolean is_inside_tm = false;
+    //public boolean is_inside_nested_tm = false;
     public boolean is_tm_init_self = false;
+    public String tm_closure_ret_type = "";
+    public boolean is_x10tm_closure = false;
+    public boolean is_x10tm_function = false;
     protected Context outer;
     protected TypeSystem ts;
     protected Reporter reporter;

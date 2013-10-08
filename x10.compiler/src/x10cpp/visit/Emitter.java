@@ -155,8 +155,8 @@ public class Emitter {
     //public static String mangled_method_name(String str) {
     //   return mangle_to_cpp(str);
     //}
-    public static String mangled_method_name(String str, boolean is_inside_tm) {
-        if (is_inside_tm)
+    public static String mangled_method_name(String str, int tm_enter_cnt) {
+        if (tm_enter_cnt > 0)
         {
         	return mangle_to_cpp(str) + SharedVarsMethods.TM_POSTFIX;
         } else
@@ -630,9 +630,9 @@ public class Emitter {
 		}
 		
 		// TM - header function 
-		h.write(mangled_method_name(name, context.is_inside_tm));
+		h.write(mangled_method_name(name, context.tm_enter_cnt));
 		
-		printFormalDecls(n, h, tr, flags, container, context.is_inside_tm);
+		printFormalDecls(n, h, tr, flags, container, context.tm_enter_cnt);
 		
 		if (!qualify) {
 		    boolean noReturnPragma = false;
@@ -658,11 +658,11 @@ public class Emitter {
 		}
 	}
 	
-    private void printFormalDecls(X10MethodDecl_c n, CodeWriter h, Translator tr, Flags flags, X10ClassType container, boolean is_inside_tm) {
+    private void printFormalDecls(X10MethodDecl_c n, CodeWriter h, Translator tr, Flags flags, X10ClassType container, int tm_enter_cnt) {
         h.write("(");
         h.allowBreak(2, 2, "", 0);
         h.begin(0);
-        if (is_inside_tm) {
+        if (tm_enter_cnt > 0) {
         	h.write(MessagePassingCodeGenerator.s_tm_get_self_declare());
         	if (n.formals().size() > 0) {
         		h.write(",");
@@ -894,7 +894,7 @@ public class Emitter {
 		    h.write(typeName + "::"); 
 		}
 		// TM - header constructor
-		if (context.is_inside_tm)
+		if (context.tm_enter_cnt > 0)
 		{
 			h.write((isMakeMethod ? SharedVarsMethods.MAKE + SharedVarsMethods.TM_POSTFIX : SharedVarsMethods.CONSTRUCTOR  + SharedVarsMethods.TM_POSTFIX) + "(");	
 		} else 
@@ -903,7 +903,7 @@ public class Emitter {
 		}
 		h.allowBreak(2, 2, "", 0);
 		h.begin(0);
-		if (context.is_inside_tm) {
+		if (context.tm_enter_cnt > 0) {
         	h.write(MessagePassingCodeGenerator.s_tm_get_self_declare());
         	if (n.formals().size() > 0) {
         		h.write(",");
@@ -1305,13 +1305,21 @@ public class Emitter {
         return out.toString();
 	}	
 	
-    public String nativeSubst_method_name(String pattern, boolean is_inside_tm) {
+    public String nativeSubst_method_name(String pattern, int tm_enter_cnt, boolean is_inside_nested_tm) {
     	int curIndex = 0;
         int newIndex = 0;
     	
-        if (!is_inside_tm)
+        if (tm_enter_cnt == 0)
         {
         	return pattern;
+        }
+        
+        if ((is_inside_nested_tm) && (pattern.contains("TM_START(SelfTM"))) {
+        	return "TM_START(SelfTM, {})";
+        }
+        
+        if ((is_inside_nested_tm) && (pattern.contains("TM_END(SelfTM"))) {
+        	return "TM_END(SelfTM)";
         }
         
         //System.out.println("nativeSubst_method_name[S]: " + pattern);
@@ -1419,16 +1427,16 @@ public class Emitter {
         String delim = exists_params? ", " : "";
    
         
-        part1 = nativeSubst_method_name(part1, is_inside_tm);
+        part1 = nativeSubst_method_name(part1, tm_enter_cnt, false);
         //System.out.println("nativeSubst_method_name[E]: " + part1 + "(SelfTM" + delim + part2);
         return part1 + "(SelfTM" + delim + part2;
     }
     
-	public void nativeSubst(String annotation, Map<String, Object> components, Translator tr, String pattern, CodeWriter w, boolean is_inside_tm) {
+	public void nativeSubst(String annotation, Map<String, Object> components, Translator tr, String pattern, CodeWriter w, int tm_enter_cnt, boolean is_inside_nested_tm) {
 	
 		//System.out.println("nativeSubst: " + pattern);
         // TM - native 
-		pattern = nativeSubst_method_name(pattern, is_inside_tm);
+		pattern = nativeSubst_method_name(pattern, tm_enter_cnt, is_inside_nested_tm);
         
 		Matcher m = nativeSubstRegex.matcher(pattern);
         int last=0;

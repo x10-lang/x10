@@ -128,34 +128,34 @@ public final class ITable {
 	    return methods.length == 0;
 	}
 
-	public String mangledName(MethodInstance meth, boolean is_inside_tm) {
+	public String mangledName(MethodInstance meth, int tm_enter_cnt) {
 		if (hasOverloadedMethods) {
 			for (int i=0; i<methods.length; i++) {
 				if (MethodComparator.compareTo(methods[i], meth) == 0) {
 					if (overloaded[i]) {
-						return "_m"+i+"__"+Emitter.mangled_method_name(meth.name().toString(), is_inside_tm);
+						return "_m"+i+"__"+Emitter.mangled_method_name(meth.name().toString(), tm_enter_cnt);
 					} else {
-						return Emitter.mangled_method_name(meth.name().toString(), is_inside_tm);
+						return Emitter.mangled_method_name(meth.name().toString(), tm_enter_cnt);
 					}
 				}
 			}
 			assert false : "Method "+meth+" is not a member of interface "+interfaceType;
-			return Emitter.mangled_method_name(meth.name().toString(), is_inside_tm);
+			return Emitter.mangled_method_name(meth.name().toString(), tm_enter_cnt);
 		} else {
-			return Emitter.mangled_method_name(meth.name().toString(), is_inside_tm);
+			return Emitter.mangled_method_name(meth.name().toString(), tm_enter_cnt);
 		}
 	}
 
-	public void emitFunctionPointerDecl(CodeWriter cw, Emitter emitter, MethodInstance meth, String memberPtr, boolean includeName, boolean is_inside_tm) {
+	public void emitFunctionPointerDecl(CodeWriter cw, Emitter emitter, MethodInstance meth, String memberPtr, boolean includeName, int tm_enter_cnt) {
 		MethodInstance mi = (MethodInstance) meth;
 		X10MethodDef md = mi.x10Def();
 		Type rootReturnType = emitter.findRootMethodReturnType(md, null, mi);
 		String returnType = Emitter.translateType(rootReturnType, true);
-		String name = mangledName(meth, is_inside_tm); 
+		String name = mangledName(meth, tm_enter_cnt); 
 		cw.write(returnType+" ("+memberPtr+"::*"+(includeName ? name : "")+") (");
 		boolean first = true;
 		// TM - itable
-		if (is_inside_tm) {
+		if (tm_enter_cnt > 0) {
 			cw.write(MessagePassingCodeGenerator.s_tm_get_self_declare());
 			first = false;
 		}
@@ -216,7 +216,7 @@ public final class ITable {
             for (MethodInstance meth : methods) {
                 sw.write(Emitter.translateType(meth.returnType(), true));
                 sw.write(" ");
-                sw.write(Emitter.mangled_method_name(meth.name().toString(), false)); 
+                sw.write(Emitter.mangled_method_name(meth.name().toString(), 0)); 
                 sw.write("(");
                 boolean first = true;
                 int argNum=0;
@@ -228,7 +228,7 @@ public final class ITable {
                 sw.write(") {"); sw.newline(4); sw.begin(0);
                 if (!meth.returnType().isVoid()) sw.write("return ");
 
-                sw.write(recvArg+"->"+Emitter.mangled_method_name(meth.name().toString(), false)+"(");
+                sw.write(recvArg+"->"+Emitter.mangled_method_name(meth.name().toString(), 0)+"(");
                 boolean firstArg = true;
                 for (int j=0; j<meth.formalTypes().size(); j++) {
                     sw.write((firstArg ? "arg": ", arg")+j);
@@ -242,7 +242,7 @@ public final class ITable {
                 // TM - itable initialization
                 sw.write(Emitter.translateType(meth.returnType(), true));
                 sw.write(" ");
-                sw.write(Emitter.mangled_method_name(meth.name().toString(), true)); 
+                sw.write(Emitter.mangled_method_name(meth.name().toString(), 1)); 
                 sw.write("(");
                 first = true;
                 argNum=0;
@@ -256,7 +256,7 @@ public final class ITable {
                 sw.write(") {"); sw.newline(4); sw.begin(0);
                 if (!meth.returnType().isVoid()) sw.write("return ");
 
-                sw.write(recvArg+"->"+Emitter.mangled_method_name(meth.name().toString(), true)+"(");
+                sw.write(recvArg+"->"+Emitter.mangled_method_name(meth.name().toString(), 1)+"(");
                 firstArg = true;
                 int arg_num = 0;
                 sw.write((firstArg ? "arg": ", arg")+(arg_num++));
@@ -282,11 +282,11 @@ public final class ITable {
                 sw.write("(");
                 for (MethodInstance meth : methods) {
                     if (methodNum > 0) sw.write(", ");
-                    sw.write("&"+thunkType+thunkParams+"::"+Emitter.mangled_method_name(meth.name().toString(), false));
+                    sw.write("&"+thunkType+thunkParams+"::"+Emitter.mangled_method_name(meth.name().toString(), 0));
                     methodNum++;
                     // --TM--
                 	if (methodNum > 0) sw.write(", ");
-                	sw.write("&"+thunkType+thunkParams+"::"+Emitter.mangled_method_name(meth.name().toString(), true));
+                	sw.write("&"+thunkType+thunkParams+"::"+Emitter.mangled_method_name(meth.name().toString(), 1));
                 	methodNum++;
                     // --TM--
                 }
@@ -311,11 +311,11 @@ public final class ITable {
 	        sw.write("(");
 	        for (MethodInstance meth : methods) {
 	            if (methodNum > 0) sw.write(", ");
-	            sw.write("&"+clsCType+"::"+Emitter.mangled_method_name(meth.name().toString(), false));
+	            sw.write("&"+clsCType+"::"+Emitter.mangled_method_name(meth.name().toString(), 0));
 	            methodNum++;
 	            // --TM--
 	            if (methodNum > 0) sw.write(", ");
-	            sw.write("&"+clsCType+"::"+Emitter.mangled_method_name(meth.name().toString(), true));
+	            sw.write("&"+clsCType+"::"+Emitter.mangled_method_name(meth.name().toString(), 1));
 	            methodNum++;
 	            // --TM--
 	        }
