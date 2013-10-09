@@ -29,8 +29,7 @@ public class FileReader extends InputStreamReader implements Unserializable {
 
     val file:File;
 
-    public def this(file: File) //throws IOException 
-    {
+    public def this(file: File) {
         super(new FileInputStream(file.getPath()));
         this.file = file;
     }
