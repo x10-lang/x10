@@ -2241,6 +2241,10 @@ void x10rt_net_reduce (x10rt_team team, x10rt_place role,
 		tcb->operation.cmd.xfer_reduce.op = OPERATION_CONVERSION_TABLE[op];
 	tcb->operation.cmd.xfer_reduce.data_cookie = NULL;
 	tcb->operation.cmd.xfer_reduce.commutative = 1;
+	if (team == 0)
+		tcb->operation.cmd.xfer_reduce.root = root;
+	else
+		tcb->operation.cmd.xfer_reduce.root = state.teams[team].places[root];
 	#ifdef DEBUG
 		fprintf(stderr, "Place %u executing reduce, with type=%u and op=%u\n", state.myPlaceId, dtype, op);
 	#endif
