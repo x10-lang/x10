@@ -223,7 +223,7 @@ public class SocketTransport {
     	if (place < 0 || place >= channels.length)
     		return true;
     	
-    	return (channels[place] == null || channels[place].sc == null);
+    	return (channels[place] != null && channels[place].sc == null);
     }
     
     public int shutdown() {
@@ -705,7 +705,7 @@ public class SocketTransport {
     private boolean flushBufferedBytes(SelectionKey key, int placeid) {
     	if (DEBUG) System.out.println("Flush called for place "+placeid);
     	
-    	if (channels[placeid].writeLock.tryLock()) {
+    	if (channels[placeid] != null && channels[placeid].writeLock.tryLock()) {
     		try {
     			if (channels[placeid].pendingWrites == null) return false;
     	    	
