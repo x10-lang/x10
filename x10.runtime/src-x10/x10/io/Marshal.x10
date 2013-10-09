@@ -11,7 +11,7 @@
 
 package x10.io;
 
-import x10.util.StringBuilder;
+import x10.util.GrowableRail;
 
 public interface Marshal[T] {
     public def read(r:Reader):T;
@@ -32,27 +32,23 @@ public interface Marshal[T] {
     public static LINE = new LineMarshal();
     
     public final static class LineMarshal implements Marshal[String] {
-        public def read(r: Reader):String {
-            val sb = new StringBuilder();
-            var ch: Char;
+        public def read(r:Reader):String {
+            val buf = new GrowableRail[byte]();
             try {
-                while(true) {
-                    ch = CHAR.read(r);
-                    if (ch == '\n') break;
-                    sb.add(ch);
+                while (true) {
+                    val b = r.read();
+                    if ((b as Char) == '\n') break;
+		    buf.add(b);
                 };
             } catch (e:IOException) {
-                if (sb.length() == 0L) {
+                if (buf.size() == 0) {
                     throw e;
                 }
             }
-            return sb.result();
+	    return new String(buf.toRail());
         }
         public def write(w:Writer, s:String):void {
-            for (var i:int = 0n; i < s.length(); i++) {
-                val ch = s(i);
-                CHAR.write(w, ch);
-            }
+	    w.write(s.bytes());
         }
     }
     
