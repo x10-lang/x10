@@ -64,7 +64,7 @@ public class TypeCheckInferredGuardGoal extends TypeCheckFragmentGoal<CConstrain
         			newGuard.addIn(additionalGuard);
         			r().update(newGuard);
         		} catch (XFailure e) {
-        			v().errorQueue().enqueue(ErrorInfo.SEMANTIC_ERROR, "Could not infer guard; inconsistent requirements.", n().position());
+        			v().errorQueue().enqueue(ErrorInfo.SEMANTIC_ERROR, "Could not infer guard: "+e.getMessage()+".", n().position());
         		}
         	}
         }

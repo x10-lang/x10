@@ -111,6 +111,7 @@ public class CNativeRequirement implements CRequirement {
 	 * correct guard.
 	 * 
 	 * @throws XFailure  -- if the hypothesis or the require is inconsistent
+	 *                      or if the requirement contains an universally quantified variable
 	 */
 	public CConstraint makeGuard(Context ctx) throws XFailure {
 		CNativeRequirement req = this.simplifyUnboundVars(ctx);
@@ -121,6 +122,7 @@ public class CNativeRequirement implements CRequirement {
 			consistancy.addIn(req.require());
 			if (!consistancy.consistent()) { throw new XFailure("hypothesis and require are not consistent"); }
 		}
+		req.checkUQVS();
 		return req.require();
 	}
 
@@ -147,6 +149,20 @@ public class CNativeRequirement implements CRequirement {
 			}
 		}
 		return result;
+	}
+	
+	/**
+	 * Throws XFailure if the requirement contains an universally quantified variable.
+	 * 
+	 * @throws XFailure
+	 */
+	public void checkUQVS() throws XFailure {
+		CNativeRequirement result = this;
+		for (XVar x: result.require().vars()) {
+			if ( x instanceof XUQV ) {
+				throw new XFailure("the requirement contains an universally quantified variable");
+			}
+		}
 	}
 
 	/**
