@@ -223,7 +223,7 @@ public class SocketTransport {
     	if (place < 0 || place >= channels.length)
     		return true;
     	
-    	return (channels[place] != null && channels[place].sc == null);
+    	return (channels[place] == null || channels[place].sc == null);
     }
     
     public int shutdown() {
