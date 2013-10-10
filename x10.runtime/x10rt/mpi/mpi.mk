@@ -17,7 +17,9 @@ LIBS += $(LIB_FILE_MPI)
 PROPERTIES += etc/x10rt_mpi.properties
 
 ifndef ENABLE_CROSS_COMPILE_FX10
+ifndef ENABLE_CROSS_COMPILE_BGQ
   EXECUTABLES += mpi/X10MPIJava
+endif
 endif
 
 MOV_LDFLAGS_MPI = $(MOV_LDFLAGS)

@@ -177,7 +177,8 @@ ifdef ENABLE_CROSS_COMPILE_BGQ
   export BGQ_FLOOR ?= /bgsys/driver/ppcfloor
   export X10_STATIC_LIB=1
   ifdef USE_GCC
-    override CXX = /bgsys/drivers/ppcfloor/gnu-linux/bin/powerpc64-bgq-linux-g++
+    override MPICXX=/bgsys/drivers/ppcfloor/comm/bin/gcc/mpicxx
+    override CXX=/bgsys/drivers/ppcfloor/gnu-linux/bin/powerpc64-bgq-linux-g++
     override CC =/bgsys/drivers/ppcfloor/gnu-linux/bin/powerpc64-bgq-linux-gcc
     override AR =/bgsys/drivers/ppcfloor/gnu-linux/bin/powerpc64-bgq-linux-ar
     ifndef X10_STATIC_LIB

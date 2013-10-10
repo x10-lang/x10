@@ -133,7 +133,10 @@
         <istrue value="${FLATTEN_EXPRESSIONS}" />
     </condition>
     <condition property="cppmake.x10rt_mpi" value="ENABLE_X10RT_MPI=1" else="DISABLE_X10RT_MPI=1">
-        <istrue value="${X10RT_MPI}" />
+        <or>
+            <istrue value="${X10RT_MPI}" />
+            <istrue value="${CROSS_COMPILE_BGQ}" />
+        </or>
     </condition>
     <condition property="cppmake.x10rt_pami" value="ENABLE_X10RT_PAMI=1" else="DISABLE_X10RT_PAMI=1">
         <or> 
