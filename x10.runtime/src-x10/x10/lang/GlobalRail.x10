@@ -92,6 +92,13 @@ public final struct GlobalRail[T] (
 
     /*
      * Support for remote update operations (Power775 HFI access).
+     *
+     * NOTE:  The remote update operations are not thread safe.
+     *        They cannot be used simultaneously by multiple X10 activities
+     *        in the same Place.  
+     *        This constraint is not dynamically checked; concurrent access
+     *        will simply result in incorrect operations.
+     *        The cause is batching of operations in x10aux::network.h
      */
 
     @Native("java", "x10.x10rt.X10RT.remoteAdd__1$u(#target, #idx, #v)")
@@ -125,4 +132,8 @@ public final struct GlobalRail[T] (
     @Native("java", "x10.x10rt.X10RT.remoteXor(#target, #idx, #v)")
     @Native("c++", "x10::lang::RemoteOps::remoteXor((#target)->FMGL(rail), #idx ,#v)")
     public static native def remoteXor(target:GlobalRail[Long], idx:Long, v:Long):void;
+
+    @Native("java", "")
+    @Native("c++", "x10aux::flush_remote_ops()")
+    public static native def flushRemoteOps():void;
 }
