@@ -63,7 +63,7 @@ ifeq ($(X10RT_PLATFORM), bgq)
 endif
 
 
-TESTS += $(patsubst test/%,test/%.pami,$(BASE_TESTS))
+TESTS += $(patsubst test/%,test/%.pami,$(BASE_TESTS)) pami/list_collectives pami/bench_collectives
 LIB_FILE_PAMI = lib/$(LIBPREFIX)x10rt_pami$(LIBSUFFIX)
 LIBS += $(LIB_FILE_PAMI)
 PROPERTIES += etc/x10rt_pami.properties
@@ -73,6 +73,12 @@ PROPERTIES += etc/x10rt_pami.properties
 
 pami/x10rt_pami.o: pami/x10rt_pami.cc
 	$(PAMI_MPCC) $(CXXFLAGS) $(CXXFLAGS_SHARED) $< -c -o $@
+
+pami/list_collectives:	pami/ListCollectiveOptions.c
+	$(PAMI_MPCC) $(CXXFLAGS) $< $(APP_LDFLAGS_PAMI) $(APP_LDLIBS_PAMI)  $(X10RT_TEST_LDFLAGS) -o $@
+
+pami/bench_collectives:	pami/BenchmarkCollectiveOptions.c
+	$(PAMI_MPCC) $(CXXFLAGS) $< $(APP_LDFLAGS_PAMI) $(APP_LDLIBS_PAMI)  $(X10RT_TEST_LDFLAGS) -o $@
 
 $(LIB_FILE_PAMI): pami/x10rt_pami.o $(COMMON_OBJS)
 ifdef X10_STATIC_LIB
