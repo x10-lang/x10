@@ -403,14 +403,31 @@ endif
 endif
 
 ifdef ENABLE_CROSS_COMPILE_FX10
-#export X10_STATIC_LIB=1
+  export CROSS_COMPILE_FX10=true
+  export X10_STATIC_LIB=1
+
+  override CXX = FCCpx
+  override CC = fccpx
+  override CFLAGS = -Xg -w -DENABLE_CROSS_COMPILE_FX10=true
+  override CXXFLAGS = -Xg -w -DENABLE_CROSS_COMPILE_FX10=true -Wp,--special_module_id 
+#  override CFLAGS = -Xg -w -Kfast
+#  override CXXFLAGS = -Xg -w -Kfast -Wp,--special_module_id
+  override CXX_NO_WARNING=true
   override CXX_WARNING_FLAGS = 
+  override MPICXX= mpiFCCpx -Xg
+  ifndef X10_STATIC_LIB
+    override CXXFLAGS_SHARED += -shared -fPIC
+    export X10RT_TEST_LDFLAGS = -dynamic -Wl,--rpath -Wl,"$(X10_HOME)"/x10.runtime/x10rt/lib
+  endif
+  ifdef OPTIMIZE
+    override CFLAGS += -Kfast
+    override CXXFLAGS += -Kfast
+    override X10CPPFLAGS += -FLATTEN_EXPRESSIONS=true
+  endif
+  override CXXFLAGS += -g
   ifdef TARGET_JAVA_HOME
     jarch = s64fx
     override JNI_LIBS = -L"$(TARGET_JAVA_HOME)"/jre/lib/$(jarch)/server
   endif
-  override MPICXX=/opt/FJSVfxlang/GM-1.2.1-04/bin/mpiFCC -Xg
 endif
-
-
 
