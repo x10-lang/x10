@@ -56,7 +56,7 @@ ifeq ($(X10RT_PLATFORM), linux_ppc_64_xlc)
   MOV_LDLIBS_PAMI    += -lpoe -lmpi_ibm -lpami
 endif
 ifeq ($(X10RT_PLATFORM), bgq)
-  override CXXFLAGS += -I/bgsys/drivers/ppcfloor/comm/sys/include -std=gnu99
+  override CXXFLAGS += -I/bgsys/drivers/ppcfloor/comm/sys/include
   MOV_LDFLAGS_PAMI  += -L/bgsys/drivers/ppcfloor/comm/lib -L/bgsys/drivers/ppcfloor/comm/sys/lib -L/bgsys/drivers/ppcfloor/spi/lib
   MOV_LDLIBS_PAMI   += -lpami-gcc -lSPI_cnk -lrt -lstdc++ -lpthread -lm
   PAMI_MPCC = $(CC)
@@ -75,10 +75,10 @@ pami/x10rt_pami.o: pami/x10rt_pami.cc
 	$(PAMI_MPCC) $(CXXFLAGS) $(CXXFLAGS_SHARED) $< -c -o $@
 
 pami/list_collectives:	pami/ListCollectiveOptions.c
-	$(PAMI_MPCC) $(CXXFLAGS) $< $(APP_LDFLAGS_PAMI) $(APP_LDLIBS_PAMI)  $(X10RT_TEST_LDFLAGS) -o $@
+	$(PAMI_MPCC) $(CXXFLAGS) -std=gnu99 $< $(APP_LDFLAGS_PAMI) $(APP_LDLIBS_PAMI)  $(X10RT_TEST_LDFLAGS) -o $@
 
 pami/bench_collectives:	pami/BenchmarkCollectiveOptions.c
-	$(PAMI_MPCC) $(CXXFLAGS) $< $(APP_LDFLAGS_PAMI) $(APP_LDLIBS_PAMI)  $(X10RT_TEST_LDFLAGS) -o $@
+	$(PAMI_MPCC) $(CXXFLAGS) -std=gnu99 $< $(APP_LDFLAGS_PAMI) $(APP_LDLIBS_PAMI)  $(X10RT_TEST_LDFLAGS) -o $@
 
 $(LIB_FILE_PAMI): pami/x10rt_pami.o $(COMMON_OBJS)
 ifdef X10_STATIC_LIB
