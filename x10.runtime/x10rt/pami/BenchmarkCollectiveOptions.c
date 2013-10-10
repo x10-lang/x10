@@ -44,7 +44,7 @@ const char* knownBadAllReduce[] = {"I1:ShortAllreduce:P2P:P2P", "I1:HybridShortA
 const char* knownBadBroadcast[] = {"I0:Binomial:P2P:P2P", "I0:BinomialSingleTh:P2P:P2P", "I0:Sync2-nary:P2P:P2P", "I0:BinomialSingleTh:P2P:P2P", "I0:SequenceBased_Binomial:P2P:P2P",
 									"I0:2-nomial:P2P:P2P", "I0:3-nomial:P2P:P2P", "I0:4-nomial:P2P:P2P", "I0:2-nary:P2P:P2P", "I0:3-nary:P2P:P2P", "I0:4-nary:P2P:P2P",
 									"I0:RankBased_Binomial:P2P:P2P", "I0:MultiCastComposite:SHMEM:CAU", "X0:Ring:P2P:P2P", "X0:RingSingleTh:P2P:P2P"};
-
+const char* knownBadBarrier[] = {"I0:MultiSyncComposite:SHMEM:CAU", "I0:MultiSyncComposite:BSR:CAU"};
 
 pami_xfer_type_t collectives[] = {PAMI_XFER_BROADCAST, PAMI_XFER_BARRIER, PAMI_XFER_SCATTER, PAMI_XFER_ALLTOALL, PAMI_XFER_ALLREDUCE, PAMI_XFER_ALLGATHER};
 const char* collectiveNames[] = {"PAMI_XFER_BROADCAST", "PAMI_XFER_BARRIER", "PAMI_XFER_SCATTER", "PAMI_XFER_ALLTOALL", "PAMI_XFER_ALLREDUCE", "PAMI_XFER_ALLGATHER"};
@@ -93,6 +93,10 @@ int checkIfKnownBad(pami_xfer_type_t collective, char* alg)
 {
 	switch (collective)
 	{
+	case PAMI_XFER_BARRIER:
+		for (int i=0; i<(sizeof(knownBadBarrier)/sizeof(char*)); i++)
+			if (strcmp(knownBadBarrier[i], alg) == 0) return 1;
+	break;
 	case PAMI_XFER_ALLREDUCE:
 		for (int i=0; i<(sizeof(knownBadAllReduce)/sizeof(char*)); i++)
 			if (strcmp(knownBadAllReduce[i], alg) == 0) return 1;
