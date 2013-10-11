@@ -90,6 +90,8 @@ public struct Team {
 	        	PlaceGroup.WORLD.broadcastFlat(()=>{
 	        		if (Team.state.capacity() <= teamidcopy)
 	        			Team.state.grow(teamidcopy+1);
+	        		while (Team.state.size() < teamidcopy)
+	        			Team.state.add(null); // I am not a member of this team id.  Insert a dummy value.
 		        	Team.state(teamidcopy) = new LocalTeamState(places, teamidcopy);
 		        	Team.state(teamidcopy).init();
 		        });
@@ -379,7 +381,7 @@ public struct Team {
      */
     public def indexOfMax (v:Double, idx:Int) : Int {
         val src = new Rail[DoubleIdx](1, DoubleIdx(v, idx));
-        val dst = new Rail[DoubleIdx](1);
+        val dst = new Rail[DoubleIdx](1, DoubleIdx(0.0, -1n));
         if (nativeSupportsCollectives())
         	finish nativeIndexOfMax(id, id==0n?here.id() as Int:roles(id-1), src, dst);
         else
@@ -402,7 +404,7 @@ public struct Team {
      */
     public def indexOfMin (v:Double, idx:Int) : Int {
         val src = new Rail[DoubleIdx](1, DoubleIdx(v, idx));
-        val dst = new Rail[DoubleIdx](1);
+        val dst = new Rail[DoubleIdx](1, DoubleIdx(0.0, -1n));
         if (nativeSupportsCollectives())
         	finish nativeIndexOfMin(id, id==0n?here.id() as Int:roles(id-1), src, dst);
         else
