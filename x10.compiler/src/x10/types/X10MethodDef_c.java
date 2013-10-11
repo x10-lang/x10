@@ -101,6 +101,7 @@ public class X10MethodDef_c extends MethodDef_c implements X10MethodDef {
         this.typeParameters = TypedList.copyAndCheck(typeParams, ParameterType.class, true);
         this.formalNames = TypedList.copyAndCheck(formalNames, LocalDef.class, true);
         this.sourceGuard = guard;
+        this.guard = guard; // assume no guard inference for now
         this.typeGuard = typeGuard;
         this.thisDef = thisDef;
         this.body = body;

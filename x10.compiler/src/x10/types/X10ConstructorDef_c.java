@@ -68,6 +68,7 @@ public class X10ConstructorDef_c extends ConstructorDef_c implements X10Construc
         this.returnType = returnType;
         this.formalNames = TypedList.copyAndCheck(formalNames, LocalDef.class, true);
         this.sourceGuard = guard;
+        this.guard = guard; // assume no guard inference for now
         this.typeGuard = typeGuard;
         this.thisDef = thisDef;
         this.offerType = offerType;
