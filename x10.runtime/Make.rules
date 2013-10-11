@@ -177,6 +177,7 @@ ifdef ENABLE_CROSS_COMPILE_BGQ
   export BGQ_FLOOR ?= /bgsys/driver/ppcfloor
   export X10_STATIC_LIB=1
   ifdef USE_GCC
+    export X10RT_PLATFORM=bgq_gcc
     override MPICXX=/bgsys/drivers/ppcfloor/comm/bin/gcc/mpicxx
     override CXX=/bgsys/drivers/ppcfloor/gnu-linux/bin/powerpc64-bgq-linux-g++
     override CC =/bgsys/drivers/ppcfloor/gnu-linux/bin/powerpc64-bgq-linux-gcc
@@ -193,6 +194,7 @@ ifdef ENABLE_CROSS_COMPILE_BGQ
     override XRX_PROPS_CXXFLAGS += -mminimal-toc
   endif
   ifdef USE_XLC
+    export X10RT_PLATFORM=bgq_xlc
     # have to override CXX, but let user specify CUSTOM_XLC if they
     # need something other than just xlC_r to be used as CXX
     ifdef CUSTOM_XLC
@@ -202,6 +204,7 @@ ifdef ENABLE_CROSS_COMPILE_BGQ
       override CXX = bgxlC_r
       override CC = bgxlC_r     
     endif
+    override MPICXX=/bgsys/drivers/ppcfloor/comm/bin/xl/mpixlcxx_r
     ifdef OPTIMIZE
       override CXXFLAGS += -O3 -qinline
     endif
