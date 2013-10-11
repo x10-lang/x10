@@ -6,7 +6,7 @@
  */
 //OPTIONS: -STATIC_CHECKS=false -CONSTRAINT_INFERENCE=false -VERBOSE_INFERENCE=true
 
-package test045;
+
 
 import harness.x10Test;
 import x10.compiler.InferGuard;

@@ -1,6 +1,6 @@
 //OPTIONS: -STATIC_CHECKS=false -CONSTRAINT_INFERENCE=false -VERBOSE_INFERENCE=true
 
-package test052;
+
 
 import harness.x10Test;
 

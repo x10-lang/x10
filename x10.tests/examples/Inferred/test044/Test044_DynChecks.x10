@@ -3,7 +3,7 @@
  *
  */
 
-package test044;
+
 
 //OPTIONS: -STATIC_CHECKS=false -CONSTRAINT_INFERENCE=false -VERBOSE_INFERENCE=true
 

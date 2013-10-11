@@ -1,4 +1,4 @@
-package test076;
+
 
 import x10.compiler.InferGuard;
 

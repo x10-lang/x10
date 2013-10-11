@@ -6,7 +6,7 @@
  *
  */
 
-package test006;
+
 
 import x10.compiler.InferGuard;
 

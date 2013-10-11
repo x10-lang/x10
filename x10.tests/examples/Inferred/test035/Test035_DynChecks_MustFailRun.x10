@@ -1,5 +1,5 @@
 //OPTIONS: -STATIC_CHECKS=false -CONSTRAINT_INFERENCE=false -VERBOSE_INFERENCE=true
-package test035;
+
 
 import harness.x10Test;
 

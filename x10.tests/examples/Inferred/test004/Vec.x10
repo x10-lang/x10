@@ -3,7 +3,7 @@
  *
  */
 
-package test004;
+
 
 import x10.compiler.InferGuard;
 
