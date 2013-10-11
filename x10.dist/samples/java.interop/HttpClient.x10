@@ -30,7 +30,7 @@ public class HttpClient {
             at (p) async {
                 val ncores = java.lang.Runtime.getRuntime().availableProcessors();
                 Console.OUT.println("Place " + p.id + " has " + ncores + " cores.");
-                finish for (var i:Int = 0; i < ncores; ++i) {
+                finish for (var i:Int = 0n; i < ncores; ++i) {
                     val coreid = i;
                     async {
                         Console.OUT.println("Place " + p.id + " core " + coreid + " start.");

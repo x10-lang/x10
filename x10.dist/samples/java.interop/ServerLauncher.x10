@@ -54,7 +54,7 @@ public class ServerLauncher {
 
                     // TODO implement recovery process.
                     // ideally, in case of node failure or addition of a new node, we will change request routing for load balancing.
-                    // for the first demo, we just terminate all x10 places and restart the cluster (due to the limitation of X10 2.3).
+                    // for the first demo, we just terminate all x10 places and restart the cluster.
                     // for now, we just dump all children recursively.
 
                     // recursively dump children
@@ -79,7 +79,7 @@ public class ServerLauncher {
 
                     // TODO implement recovery process.
                     // ideally, in case of node failure or addition of a new node, we will change request routing for load balancing.
-                    // for the first demo, we just terminate all x10 places and restart the cluster (due to the limitation of X10 2.3).
+                    // for the first demo, we just terminate all x10 places and restart the cluster.
                     // for now, we just dump all children recursively.
 
                     // recursively dump children
@@ -108,7 +108,7 @@ public class ServerLauncher {
         public def processResult(rc:Int, path:String, ctx:Any, children:java.util.List):void {
             var parent:String = path;
             // remove trailing slash
-            if (parent.endsWith("/")) parent = parent.substring(0, parent.length()-1);
+            if (parent.endsWith("/")) parent = parent.substring(0n, parent.length()-1n);
             val childStat = new Stat();
             try {
                 for (_childAny in children) {
@@ -131,7 +131,7 @@ public class ServerLauncher {
     static val PROJECT_SERVER_NAME_PREFIX = "/server";
 
     static val PROJECT_ZOO_SERVER_DEFAULT = "localhost:2181";
-    static val PROJECT_ZOO_TIMEOUT = 1000;
+    static val PROJECT_ZOO_TIMEOUT = 1000n;
 
     public static def main(args:Rail[String]) throws CheckedException :void {
         val PROJECT_ZOO_SERVER = args.size > 0 ? args(0) : PROJECT_ZOO_SERVER_DEFAULT;
