@@ -180,7 +180,7 @@ static void team_create_dispatch (pami_context_t context, void* cookie, const vo
  *  return code behavior on BG/Q
  */
 pami_result_t x10rt_PAMI_Context_advance(pami_context_t context, size_t maximum) {
-#if defined(__bgq__) 
+#if defined(__bgq__)
   // Temporary workaround observed behavior on BG/Q.  
   // PAMI_Context_advance seems to always return PAMI_SUCCESS
   // So convert SUCCESS to EAGAIN and rely on higher-level looping to drain the network
@@ -2128,7 +2128,7 @@ void x10rt_net_alltoall (x10rt_team team, x10rt_place role, const void *sbuf, vo
 		if (team != 0) error("Internal implementation of ALLTOALL only works with world\n");
 
 		#ifdef DEBUG
-			fprintf(stderr, "Place %u, role %u executing internal AllToAll with team %u. chunksize=%lu\n", state.myPlaceId, role, team, chunksize);
+			fprintf(stderr, "Place %u, role %u executing internal AllToAll with team %u. chunksize=%lu\n", state.myPlaceId, role, team, el*count);
 		#endif
 		x10rt_pami_internal_alltoall *tcb = (x10rt_pami_internal_alltoall *)malloc(sizeof(x10rt_pami_internal_alltoall));
 		if (tcb == NULL) error("Unable to allocate memory for the all-to-all cookie");
@@ -2241,6 +2241,10 @@ void x10rt_net_reduce (x10rt_team team, x10rt_place role,
 		tcb->operation.cmd.xfer_reduce.op = OPERATION_CONVERSION_TABLE[op];
 	tcb->operation.cmd.xfer_reduce.data_cookie = NULL;
 	tcb->operation.cmd.xfer_reduce.commutative = 1;
+	if (team == 0)
+		tcb->operation.cmd.xfer_reduce.root = root;
+	else
+		tcb->operation.cmd.xfer_reduce.root = state.teams[team].places[root];
 	#ifdef DEBUG
 		fprintf(stderr, "Place %u executing reduce, with type=%u and op=%u\n", state.myPlaceId, dtype, op);
 	#endif

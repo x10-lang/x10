@@ -21,7 +21,7 @@ public class XNativeUQV<T extends XType> extends XNativeVar<T> implements XUQV<T
     public final int num;
     
     public XNativeUQV(String str, T type, int num) {
-    	super(type, str == null ? "uqv#" + num: str);
+    	super(type, str == null ? "uqv#" + num: str); // +"#"+num); // vj...adding this breaks the build!
         this.num = num;
     }
     public XNativeUQV(T type, int num) {

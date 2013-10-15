@@ -117,6 +117,12 @@ namespace x10aux {
         }
     }
 
+    inline void flush_remote_ops() {
+        if (opc > 0) {
+            x10rt_remote_ops(opv,opc);
+            opc = 0;
+        }
+    }
 
     msg_type register_async_handler (const char *cubin=NULL, const char *kernel=NULL);
     msg_type register_put_handler (void);
