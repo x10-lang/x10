@@ -26,7 +26,7 @@ import x10.interop.Java;
  * An example to show how to use mongoDB from X10.
  *
  * The original is example/QuickTour.java
- * Ported to X10 2.3
+ * Ported to X10 2.4
  *
  * Compile as "x10c -cp mongo-2.9.1.jar QuickTour.x10"
  * Run as "x10 -cp .:mongo-2.9.1.jar QuickTour [mongohost]"
@@ -65,16 +65,16 @@ public class QuickTour {
         doc.put("name", "MongoDB");
         doc.put("type", "database");
         // N.B. Java classes don't understand x10.core.Int etc.
-        //doc.put("count", 1);
-        doc.put("count", Java.convert(1));
+        //doc.put("count", 1n);
+        doc.put("count", Java.convert(1n));
 
         val info = new BasicDBObject();
 
         // N.B. Java classes don't understand x10.core.Int etc.
-        //info.put("x", 203);
-        //info.put("y", 102);
-        info.put("x", Java.convert(203));
-        info.put("y", Java.convert(102));
+        //info.put("x", 203n);
+        //info.put("y", 102n);
+        info.put("x", Java.convert(203n));
+        info.put("y", Java.convert(102n));
 
         doc.put("info", info);
 
@@ -87,7 +87,7 @@ public class QuickTour {
         Console.OUT.println(myDoc);
 
         // now, lets add lots of little documents to the collection so we can explore queries and cursors
-        for (var i:Int=0; i < 100; i++) {
+        for (var i:Int=0n; i < 100n; i++) {
             // N.B. X10 doesn't support varargs
             // N.B. Java classes don't understand x10.core.Int etc.
             //coll.insert(new BasicDBObject().append("i", i));
@@ -108,8 +108,8 @@ public class QuickTour {
         //  now use a query to get 1 document out
         var query:BasicDBObject = new BasicDBObject();
         // N.B. Java classes don't understand x10.core.Int etc.
-        //query.put("i", 71);
-        query.put("i", Java.convert(71));
+        //query.put("i", 71n);
+        query.put("i", Java.convert(71n));
         cursor = coll.find(query);
 
         try {
@@ -123,8 +123,8 @@ public class QuickTour {
         //  now use a range query to get a larger subset
         query = new BasicDBObject();
         // N.B. Java classes don't understand x10.core.Int etc.
-        //query.put("i", new BasicDBObject("$gt", 50));  // i.e. find all where i > 50
-        query.put("i", new BasicDBObject("$gt", Java.convert(50)));  // i.e. find all where i > 50
+        //query.put("i", new BasicDBObject("$gt", 50n));  // i.e. find all where i > 50
+        query.put("i", new BasicDBObject("$gt", Java.convert(50n)));  // i.e. find all where i > 50
         cursor = coll.find(query);
 
         try {
@@ -138,8 +138,8 @@ public class QuickTour {
         // range query with multiple contstraings
         query = new BasicDBObject();
         // N.B. Java classes don't understand x10.core.Int etc.
-        //query.put("i", new BasicDBObject("$gt", 20).append("$lte", 30));  // i.e.   20 < i <= 30
-        query.put("i", new BasicDBObject("$gt", Java.convert(20)).append("$lte", Java.convert(30)));  // i.e.   20 < i <= 30
+        //query.put("i", new BasicDBObject("$gt", 20n).append("$lte", 30n));  // i.e.   20 < i <= 30
+        query.put("i", new BasicDBObject("$gt", Java.convert(20n)).append("$lte", Java.convert(30n)));  // i.e.   20 < i <= 30
         cursor = coll.find(query);
 
         try {
@@ -152,8 +152,8 @@ public class QuickTour {
 
         // create an index on the "i" field
         // N.B. Java classes don't understand x10.core.Int etc.
-        //coll.createIndex(new BasicDBObject("i", 1));  // create index on "i", ascending
-        coll.createIndex(new BasicDBObject("i", Java.convert(1)));  // create index on "i", ascending
+        //coll.createIndex(new BasicDBObject("i", 1n));  // create index on "i", ascending
+        coll.createIndex(new BasicDBObject("i", Java.convert(1n)));  // create index on "i", ascending
 
 
         //  list the indexes on the collection
