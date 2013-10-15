@@ -58,7 +58,7 @@ public class AllReduce extends x10Test {
             for (i in 0..(count-1)) {
                 val oracle:double = oracle_base * i * i;
                 if (dst(i) != oracle) {
-                    Console.OUT.printf("Team %d place %d received invalid max %f at %d instead of %f\n",
+                    Console.OUT.printf("Team %d place %d received invalid min %f at %d instead of %f\n",
                                        team.id(), here.id, dst(i), i, oracle);
                     success = false;
                 }
