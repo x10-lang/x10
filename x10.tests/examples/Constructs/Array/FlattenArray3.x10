@@ -10,6 +10,7 @@
  */
 
 import harness.x10Test;
+import x10.regionarray.*;
 
 /**
  * Test for array reference flattening. Checks that after flattening
@@ -26,7 +27,7 @@ public class FlattenArray3 extends x10Test {
     var a: Array[int](2);
 
     public def this(): FlattenArray3 = {
-        a = new Array[int]((1..10)*(1..10), ([i,j]: Point) => { return i+j;});
+        a = new Array[int](Region.make(1..10, 1..10), ([i,j]: Point) => { return (i+j) as int;});
     }
 
     def m(var x: int): int = {
@@ -39,7 +40,7 @@ public class FlattenArray3 extends x10Test {
         return true;
     }
 
-    public static def main(var args: Array[String](1)): void = {
+    public static def main(var args: Rail[String]): void = {
         new FlattenArray3().execute();
     }
     

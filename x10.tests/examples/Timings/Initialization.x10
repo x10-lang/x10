@@ -10,13 +10,14 @@
  */
 
 import harness.x10Test;
+import x10.regionarray.*;
 
 /**
- * Synthetic benchmark to time arary accesses.
+ * Synthetic benchmark to time array initialization.
  */
 public class Initialization extends x10Test {
 
-	static kArraySize: int = 500;
+	static kArraySize: int = 500n;
 	var x_doubleArray1D: DistArray[double];
 	var x_doubleArray2D: DistArray[double];
 	var x_javaArray: Array[double];
@@ -35,14 +36,14 @@ public class Initialization extends x10Test {
 
 		start = System.currentTimeMillis();
 		x10.io.Console.OUT.println("creating dist array size "+OneDSize);
-		val r = 0..OneDSize;
+		val r = Region.make(0, OneDSize);
 		val D = Dist.makeBlock(r);
 		x_doubleArray1D = DistArray.make[double](D);
 		stop = System.currentTimeMillis();
 		x10.io.Console.OUT.println("Created array in "+(((stop-start) as double)/1000)+" seconds");
 
 		x10.io.Console.OUT.println("creating array ["+kArraySize+","+kArraySize+"] ("+(kArraySize*kArraySize)+")");
-		val r2 = (0..kArraySize)*(0..kArraySize);
+		val r2 = Region.make(0..kArraySize, 0..kArraySize);
 		val D2 = Dist.makeBlock(r2);
 		x10.io.Console.OUT.println("Start allocation...");
 		start = System.currentTimeMillis();
@@ -59,7 +60,7 @@ public class Initialization extends x10Test {
 		return true;
 	}
 
-	public static def main(Array[String](1)):void {
+	public static def main(Rail[String]):void {
 		new Initialization().execute();
 	}
 }

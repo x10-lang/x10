@@ -18,14 +18,13 @@ class PolyHalfspace2 extends TestRegion {
 
     public def run() {
 
-        val ROW = X(0);
-        val COL = X(1);
+        val ROW = X(0n);
+        val COL = X(1n);
 
         val r =
-            reg(2, COL+ROW, LE, 7) &&
-            reg(2, COL+ROW, GE, 3) &&
-            
-            reg(2, COL-ROW, LE, 1);
+            reg(2, COL+ROW, LE, 7n) &&
+            reg(2, COL+ROW, GE, 3n) &&
+            reg(2, COL-ROW, LE, 1n);
         prUnbounded("unbounded diamond", r);
 
         return status();
@@ -40,9 +39,9 @@ class PolyHalfspace2 extends TestRegion {
         "isConvex() true\n"+
         "size() axis 0 has no maximum\n"+
         "region: (x0+x1>=3 && x0-x1>=-1 && x0+x1<=7)\n"+
-        "x10.array.UnboundedRegionException: axis 0 has no maximum\n";
+        "x10.regionarray.UnboundedRegionException: axis 0 has no maximum\n";
     
-    public static def main(Array[String](1)) {
+    public static def main(Rail[String]) {
         new PolyHalfspace2().execute();
     }
 

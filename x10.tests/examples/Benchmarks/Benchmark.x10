@@ -37,7 +37,7 @@ abstract class Benchmark extends x10Test {
     @Native("c++", "x10::lang::String::Lit(\"cpp\")")
     static lg:String = "";
 
-    static WARMUP = 30.0;  // java warmup time in secs
+    static WARMUP = 60.0;  // java warmup time in secs
     static TIMING = 10.0;  // how long to run tests in secs
 
     def this() {
@@ -66,7 +66,7 @@ abstract class Benchmark extends x10Test {
         out.println("timing for >" + TIMING + "s");
         var avg:double = 0.0;
         var min:double = double.POSITIVE_INFINITY;
-        var count:int = 0;
+        var count:int = 0n;
         while (avg < TIMING) {
             val start = now();
             once();

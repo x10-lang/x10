@@ -19,7 +19,7 @@ public class CUDA3DFDTest extends x10Test {
          return true;
     }
 
-    public static def main(args:Array[String](1)) {
+    public static def main(args:Rail[String]) {
 	new CUDA3DFDTest().execute();
     }
 }

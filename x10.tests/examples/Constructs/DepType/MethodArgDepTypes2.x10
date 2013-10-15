@@ -11,6 +11,7 @@
 
 import harness.x10Test;
 import x10.util.concurrent.Future;
+import x10.regionarray.*;
 
 /**
  * Check that a method arg can have a deptype and it is propagated into the body.
@@ -38,7 +39,7 @@ public class MethodArgDepTypes2 extends x10Test {
 	}
 	public def run()=true;
 	
-	public static def main(var args: Array[String](1)): void = {
+	public static def main(var args: Rail[String]): void = {
 		new MethodArgDepTypes2().execute();
 	}
 }

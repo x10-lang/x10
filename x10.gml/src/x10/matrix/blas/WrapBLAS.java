@@ -21,28 +21,32 @@ public class WrapBLAS {
 		System.loadLibrary("jblas");
 	}
 
-	public static native void test();
-	public static native void scale(int n,  double alpha, double[] x);
-	public static native void copy(int n, double[] x, double[] y);
-	public static native double dotProd(int n, double[] x, double[] y);
-	public static native double norm2(int n, double[] x);
+	public static native void scale(long n, double alpha, double[] x);
+	public static native void copy(long n, double[] x, double[] y);
+	public static native double dotProd(long n, double[] x, double[] y);
+	public static native double norm2(long n, double[] x);
+	public static native double absSum(long n, double[] x);
 
-	public static native double absSum(int n, double[] x);
+    public static native void matmatMultOff(double[] A, double[] B, double[] C, long[] dim, long[] ld, long[] off, double[] scale, int[] trans);
+	public static native void matmatMultLd(double[] A, double[] B, double[] C, long[] dim, long[] ld, double[] scale, int[] trans);
+	public static native void matmatMult(double[] A, double[] B, double[] C, long[] dim, double[] scale, int[] trans);
 
-	public static native void matmatMult(double[] A, double[] B, double[] C, int[] dim, double[] scale, int[] trans);
+	public static native void symRankKUpdateOff(double[] A, double[] C, long[] dim, long[] ld, long[] off, double[] scale, boolean upper, boolean trans);
+	public static native void symRankKUpdate(double[] A, double[] C, long[] dim, double[] scale, boolean upper, boolean trans);
 
-	public static native void symmatMult(double[] A, double[] B, double[] C, int[] dim, double[] scale);
-	public static native void matsymMult(double[] B, double[] A, double[] C, int[] dim, double[] scale);
+	public static native void symmatMult(double[] A, double[] B, double[] C, long[] dim, double[] scale);
+	public static native void matsymMult(double[] B, double[] A, double[] C, long[] dim, double[] scale);
 
-	public static native void matvecMult(double[] A, double[] x, double[] y, int[] dim, double[] scale, int transA);
-	public static native void symvecMult(double[] A, double[] x, double[] y, int[] dim, double[] scale);
-	public static native void trivecMult(double[] A, int uplo, double[] bx, int lda, int tranA);
+	public static native void matvecMult(double[] A, double[] x, double[] y, long[] dim, double[] scale, int transA);
+	public static native void symvecMult(double[] A, double[] x, double[] y, long[] dim, double[] scale);
+	public static native void trivecMult(double[] A, int uplo, double[] bx, long lda, int tranA);
+	public static native void rankOneUpdate(double[] A, double[] x, double[] y, long[] dim, long[] offset, long[] inc, long lda, double alpha);
 
-	public static native void trimatMult(double[] A, double[] B, int[] dim, int tranA);
-	public static native void mattriMult(double[] B, double[] A, int[] dim, int tranA);
+	public static native void trimatMult(double[] A, double[] B, long[] dim, int tranA);
+	public static native void mattriMult(double[] B, double[] A, long[] dim, int tranA);
 	
-	public static native void trivecSolve(double[] A, double[] bx, int[] dim, int tranA);
-	public static native void trimatSolve(double[] A, double[] BX, int[] dim, int tranA);
-	public static native void mattriSolve(double[] BX, double[] A, int[] dim, int tranA);
+	public static native void trivecSolve(double[] A, double[] bx, long[] dim, int tranA);
+	public static native void trimatSolve(double[] A, double[] BX, long[] dim, int tranA);
+	public static native void mattriSolve(double[] BX, double[] A, long[] dim, int tranA);
 
 }

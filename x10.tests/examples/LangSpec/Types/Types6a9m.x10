@@ -21,12 +21,12 @@ import harness.x10Test;
 
 public class Types6a9m extends x10Test {
    public def run() : boolean = (new Hook()).run();
-   public static def main(var args: Array[String](1)): void = {
+   public static def main(args:Rail[String]):void {
         new Types6a9m().execute();
     }
 
 
-// file Types line 2629
+// file Types line 2945
  // NOzzTEST
  static  class B{ static  class C{}}
  static  class D{ static  interface E{}}

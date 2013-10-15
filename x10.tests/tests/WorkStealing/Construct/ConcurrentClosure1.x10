@@ -36,7 +36,7 @@ public class ConcurrentClosure1 {
 		return value == 1;
 	}
 	
-	public static def main(Array[String](1)) {
+	public static def main(Rail[String]) {
         val r = new ConcurrentClosure1().run();
         if(r){
              x10.io.Console.OUT.println("++++++Test succeeded.");

@@ -29,10 +29,10 @@ public class IntDepType extends x10Test {
     }
   
 	public def run(): boolean = {
-		var i: int{self == 0} = 0;
+		var i: int{self == 0n} = 0n;
 	   return true;
 	}
-	public static def main(var args: Array[String](1)): void = {
+	public static def main(var args: Rail[String]): void = {
 		new IntDepType().execute();
 	}
 }

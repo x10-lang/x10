@@ -14,6 +14,9 @@
 
 package polyglot.ast;
 
+import polyglot.types.Type;
+import polyglot.util.InternalCompilerError;
+
 /**
  * An <code>IntLit</code> represents a literal in Java of an integer
  * type.
@@ -41,6 +44,18 @@ public interface IntLit extends NumLit
         }
         public boolean isUnsigned() {
             return this == ULONG || this == UINT || this == USHORT || this == UBYTE;
+        }
+        public static Kind get(Type t) {
+            if (t.isLong()) return LONG;
+            if (t.isInt()) return INT;
+            if (t.isShort()) return SHORT;
+            if (t.isByte()) return BYTE;
+            if (t.isULong()) return ULONG;
+            if (t.isUInt()) return UINT;
+            if (t.isUShort()) return USHORT;
+            if (t.isUByte()) return UBYTE;
+            
+            return INT; // default type for an integral literal is INT.
         }
 
     }

@@ -20,11 +20,10 @@ public class AsyncFieldAccess extends x10Test {
     private val root = GlobalRef[AsyncFieldAccess](this);
 	@SuppressTransientError transient var t: GlobalRef[T] = GlobalRef[T](null);
 	public def run(): boolean = {
-		var Second: Place = Place.FIRST_PLACE.next();
-		val r  = 0..0;
-		val D: Dist = r->Second;
+		var second: Place = Place.FIRST_PLACE.next();
 		val root = this.root;
-		finish ateach (val p: Point in D) {
+		finish 
+                    at (second) async {
 			val NewT = (new T()).root;
 			async at (root) { root().t = NewT; }
 		}
@@ -33,12 +32,12 @@ public class AsyncFieldAccess extends x10Test {
 		return 3 == (at (tt) tt().i);
 	}
 
-	public static def main(Array[String](1)){
+	public static def main(Rail[String]){
 		new AsyncFieldAccess().execute();
 	}
 
 	static class T {
 		private val root = GlobalRef[T](this);
-		transient public var i: int;
+		transient public var i: long;
 	}
 }

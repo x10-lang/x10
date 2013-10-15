@@ -61,7 +61,7 @@ namespace x10aux {
 
     class RuntimeType {
     private:
-        static volatile x10aux::reentrant_lock *initRTTLock;
+        static x10aux::reentrant_lock *initRTTLock;
         
     public:
         /*
@@ -152,6 +152,12 @@ namespace x10aux {
         static void initUShortType();
         static void initUIntType();
         static void initULongType();
+
+        // This method must be called by the C main function before any
+        // concurrent activity is enabled in this place.
+        // It initializes the initRTTLock field which is used to synchronize
+        // the initialization of RuntimeType objects
+        static void initializeForMultiThreading();
     };
 
     class RuntimeFunType : public RuntimeType {

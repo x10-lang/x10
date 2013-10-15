@@ -24,7 +24,7 @@
 
 # build path
 doc_path	= html
-src_path 	= ../sandbox
+src_path 	= ../src
 
 ###################################################
 ## Compiler settings
@@ -77,7 +77,7 @@ doc_src= \
 	x10/matrix/comm/MatrixRingCast.x10 \
 	x10/matrix/comm/SparseRemoteDestInfo.x10 \
 	x10/matrix/comm/SparseRemoteSourceInfo.x10\
-	x10/matrix/blas/DenseMultBLAS.x10 \
+	x10/matrix/blas/DenseMatrixBLAS.x10 \
 	x10/matrix/blas/DriverBLAS.x10 \
 	x10/matrix/sparse/Compress1D.x10 \
     x10/matrix/sparse/Compress2D.x10 \
@@ -96,8 +96,8 @@ doc_src= \
 	x10/matrix/dist/summa/SummaDense.x10 \
 	x10/matrix/dist/summa/SummaSparseMultDense.x10 \
 	x10/matrix/dist/summa/SummaSparse.x10 \
-	x10/matrix/comm/RequestHandleMPI.x10  \
-	x10/matrix/comm/WrapMPI.x10 \
+	x10/matrix/comm/mpi/RequestHandleMPI.x10  \
+	x10/matrix/comm/mpi/WrapMPI.x10 \
 	x10/matrix/dist/summa/mpi/SummaMPI.x10
 
 
@@ -111,15 +111,15 @@ docfiles = $(foreach src, $(doc_src), $(src_path)/$(src) )
 
 doc		: $(docfiles)
 		$(XDOC) -d $(doc_path) -sourcepath $(src_path) $(docfiles)
-	
+
 html	: $(x10src)
 		$(XDOC) -d $(doc_path) -sourcepath $(src_path) $(x10src)
 
 eachdoc	: $(docfiles)
 		$(foreach s, $(docfiles), $(MAKE) x10src=$(s) html;) 
-		
-clean	:
-		rm -rf html
+
+#clean	:
+#		rm -rf html
 ###################################################
 # help info
 ###################################################

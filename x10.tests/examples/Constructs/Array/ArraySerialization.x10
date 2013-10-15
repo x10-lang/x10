@@ -10,6 +10,7 @@
  */
 
 import harness.x10Test;
+import x10.regionarray.*;
 
 /**
  * Test serialization of arrays between places.
@@ -17,7 +18,7 @@ import harness.x10Test;
 public class ArraySerialization extends x10Test {
 
     public def run():boolean {
-        val a1 = new Array[int](0..20, (p:Point(1))=>p(0));
+        val a1 = new Array[long](20, (i:long)=>i);
         at (here.next()) {
 	    for ([i] in a1) {
 	        chk(a1(i) == i);
@@ -27,7 +28,7 @@ public class ArraySerialization extends x10Test {
         return true;
     }
 
-    public static def main(Array[String](1)) {
+    public static def main(Rail[String]) {
         new ArraySerialization().execute();
     }
 }

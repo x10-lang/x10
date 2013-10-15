@@ -14,39 +14,32 @@
 
 #include <x10aux/config.h>
 #include <x10aux/basic_functions.h>
+#include <x10aux/simple_hashmap.h>
 
 namespace x10aux {
     class reentrant_lock;
 
     class place_local {
+#ifndef ENABLE_CROSS_COMPILE_FX10
     private:
-        class Bucket {
-        public:
-            x10_int _id;
-            void *_data;
-            Bucket *_next;
-        };
-
+#else
+    public:
+#endif
         static x10_int _nextId;
-        static Bucket **_buckets;
+        static simple_hashmap<int, void*> *_map;
         static x10aux::reentrant_lock* _lock;
 
     public:
         static void** _fastData;
         static void initialize();
         static x10_int nextId();
-        static void* lookupData(x10_int id);
-        static void registerData(x10_int id, void *data);
-        static void unregisterData(x10_int id);
+        static void* get(x10_int id);
+        static void put(x10_int id, void *data);
+        static void remove(x10_int id);
         template<class T> friend const char *x10aux::typeName();
     };
 
     template<> inline const char *typeName<place_local>() { return "place_local"; }
-    template<> inline const char *typeName<place_local::Bucket*>() { return "place_local::Bucket *"; }
-    template<> inline const char *typeName<place_local::Bucket>() { return "place_local::Bucket"; }
-
 }
 
 #endif
-
-

@@ -21,12 +21,12 @@ import harness.x10Test;
 
 public class Interfaces6g4u extends x10Test {
    public def run() : boolean = (new Hook()).run();
-   public static def main(var args: Array[String](1)): void = {
+   public static def main(args:Rail[String]):void {
         new Interfaces6g4u().execute();
     }
 
 
-// file Interfaces line 95
+// file Interfaces line 101
  static interface Star{}
  static interface Dog{}
  static class Sirius implements Dog, Star{}

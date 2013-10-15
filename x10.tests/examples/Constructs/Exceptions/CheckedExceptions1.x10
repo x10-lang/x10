@@ -37,7 +37,7 @@ public class CheckedExceptions1 extends x10Test {
                 }   
             }   
         } catch (e:MultipleExceptions) {
-            if (e.exceptions().size != 1) {
+            if (e.exceptions().size != 1L) {
                 ok = false;
                 Console.OUT.println("Error: incorrect number of MultipleExceptions elements: " + e.exceptions.size);
             }
@@ -62,7 +62,7 @@ public class CheckedExceptions1 extends x10Test {
                 }
             }   
         } catch (e:MultipleExceptions) {
-            if (e.exceptions().size != 1) {
+            if (e.exceptions().size != 1L) {
                 ok = false;
                 Console.OUT.println("Error: incorrect number of MultipleExceptions elements: " + e.exceptions.size);
             }
@@ -149,7 +149,7 @@ public class CheckedExceptions1 extends x10Test {
         return ok;
     }
 
-    public static def main(Array[String](1)) {
+    public static def main(Rail[String]) {
         new CheckedExceptions1().execute();
     }
 

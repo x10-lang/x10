@@ -12,9 +12,9 @@ package x10.x10rt;
 
 import java.io.ByteArrayInputStream;
 import java.io.DataInputStream;
-import java.io.InputStream;
 
 import x10.lang.FinishState;
+import x10.lang.Place;
 import x10.runtime.impl.java.Runtime;
 import x10.serialization.X10JavaDeserializer;
 
@@ -48,10 +48,10 @@ public class MessageHandlers {
 	 * x10.lang.Runtime.runClosureAt and x10.lang.Runtime.runClosureCopyAt. 
 	 */
 	
-    public static void runClosureAtSend(int place, int arraylen, byte[] rawBytes) {
-        sendMessage(place, closureMessageID, arraylen, rawBytes);
+    public static void runClosureAtSend(int place, byte[] rawBytes) {
+        sendMessage(place, closureMessageID, rawBytes.length, rawBytes);
     }
-    
+        
     // Invoked from native code at receiving place
     // This function gets called by the x10rt callback that is registered to handle
     // the receipt of general closures.
@@ -62,9 +62,9 @@ public class MessageHandlers {
     		if (X10RT.VERBOSE) System.out.println("runClosureAtReceive: ByteArrayInputStream");
 
     		long start = Runtime.PROF_SER ? System.nanoTime() : 0;
-    		InputStream objStream = new DataInputStream(byteStream);
+    		DataInputStream objStream = new DataInputStream(byteStream);
     		if (X10RT.VERBOSE) System.out.println("runClosureAtReceive: ObjectInputStream");
-    		X10JavaDeserializer deserializer = new X10JavaDeserializer((DataInputStream) objStream);
+    		X10JavaDeserializer deserializer = new X10JavaDeserializer(objStream);
     		if (x10.runtime.impl.java.Runtime.TRACE_SER_DETAIL) {
     			System.out.println("Starting deserialization ");
     		}
@@ -100,10 +100,10 @@ public class MessageHandlers {
      * This is the "normal" case of used to implement a typical X10-level async.
      */
     
-    public static void runSimpleAsyncAtSend(int place, int arraylen, byte[] rawBytes) { 
-        sendMessage(place, simpleAsyncMessageID, arraylen, rawBytes);
+    public static void runSimpleAsyncAtSend(int place, byte[] rawBytes) { 
+        sendMessage(place, simpleAsyncMessageID, rawBytes.length, rawBytes);
     }
-        
+    
     /**
      * Receive a simple async
      */
@@ -115,13 +115,14 @@ public class MessageHandlers {
     		x10.core.fun.VoidFun_0_0 actObj;
 
     		long start = Runtime.PROF_SER ? System.nanoTime() : 0;
-    		InputStream objStream = new DataInputStream(byteStream);
+    		DataInputStream objStream = new DataInputStream(byteStream);
     		if (X10RT.VERBOSE) System.out.println("runSimpleAsyncAtReceive: ObjectInputStream");
-    		X10JavaDeserializer deserializer = new X10JavaDeserializer((DataInputStream) objStream);
+    		X10JavaDeserializer deserializer = new X10JavaDeserializer(objStream);
     		if (x10.runtime.impl.java.Runtime.TRACE_SER_DETAIL) {
     			System.out.println("Starting deserialization ");
     		}
     		FinishState finishState = (FinishState) deserializer.readRef();
+            Place src = (Place) deserializer.readRef();
     		actObj = (x10.core.fun.VoidFun_0_0) deserializer.readRef();
     		if (Runtime.PROF_SER) {
     			long stop = System.nanoTime();
@@ -135,7 +136,7 @@ public class MessageHandlers {
     		}
 
     		if (X10RT.VERBOSE) System.out.println("runSimpleAsyncAtReceive: after cast and deserialization");
-    		x10.lang.Runtime.execute(actObj, finishState);
+    		x10.lang.Runtime.execute(actObj, src, finishState);
     		if (X10RT.VERBOSE) System.out.println("runSimpleAsyncAtReceive: after apply");
     		objStream.close();
     		if (X10RT.VERBOSE) System.out.println("runSimpleAsyncAtReceive is done !");

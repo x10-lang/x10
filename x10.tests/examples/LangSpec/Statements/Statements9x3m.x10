@@ -21,12 +21,12 @@ import harness.x10Test;
 
 public class Statements9x3m extends x10Test {
    public def run() : boolean = (new Hook()).run();
-   public static def main(var args: Array[String](1)): void = {
+   public static def main(args:Rail[String]):void {
         new Statements9x3m().execute();
     }
 
 
-// file Statements line 948
+// file Statements line 949
 
  static class Example {
  static   class ThisExn extends Exception {}

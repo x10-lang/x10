@@ -15,6 +15,16 @@ long long nano_time() {
     return (long long)(tv.tv_sec * 1000000000LL + tv.tv_usec * 1000LL);
 } // }}}
 
+static void x10rt_aborting_probe (void)
+{
+    x10rt_error err = x10rt_probe();
+    if (err != X10RT_ERR_OK) {
+        if (x10rt_error_msg() != NULL)
+            std::cerr << "X10RT fatal error: " << x10rt_error_msg() << std::endl;
+        abort();
+    }
+}
+
 
 x10rt_msg_type PING_ID, PONG_ID, PING_PUT_ID, PONG_PUT_ID, PING_GET_ID, PONG_GET_ID, QUIT_ID;
 
@@ -158,7 +168,7 @@ long long run_test(unsigned long iters,
                 pongs_outstanding++;
             }
         }
-        while (pongs_outstanding) x10rt_probe();
+        while (pongs_outstanding) x10rt_aborting_probe();
     }
     nanos += nano_time();
     return nanos;
@@ -168,7 +178,12 @@ long long run_test(unsigned long iters,
 // {{{ main
 int main(int argc, char **argv)
 {
-    x10rt_init(&argc, &argv);
+    x10rt_error init_err = x10rt_init(&argc, &argv);
+    if (init_err != X10RT_ERR_OK) {
+        if (x10rt_error_msg() != NULL)
+            std::cerr << "X10RT fatal initialization error:  " << x10rt_error_msg() << std::endl;
+        abort();
+    }
 
     PING_ID = x10rt_register_msg_receiver(&recv_msg_ping, NULL, NULL, NULL, NULL);
     PONG_ID = x10rt_register_msg_receiver(&recv_msg_pong, NULL, NULL, NULL, NULL);
@@ -301,7 +316,7 @@ int main(int argc, char **argv)
         finished = true;
     }
 
-    while (!finished) x10rt_probe();
+    while (!finished) x10rt_aborting_probe();
 
     x10rt_finalize();
 

@@ -10,6 +10,7 @@
  */
 
 import harness.x10Test;
+import x10.regionarray.*;
 
 /**
  * Testing 3D arrays.
@@ -19,12 +20,12 @@ public class Array2v extends x10Test {
 
     public def run(): boolean = {
 
-        val e = 0..9;
+        val e = Region.make(0,9);
         val r = e*e*e;
 
-        chk(r.equals((0..9)*(0..9)*(0..9)));
+        chk(r.equals(Region.make(0..9, 0..9, 0..9)));
 
-        val ia = new Array[int](r, (Point)=>0);
+        val ia = new Array[long](r, (Point)=>0);
 
         for (val [i,j,k]: Point in r) {
             chk(ia(i, j, k) == 0);
@@ -38,7 +39,7 @@ public class Array2v extends x10Test {
         return true;
     }
 
-    public static def main(var args: Array[String](1)): void = {
+    public static def main(var args: Rail[String]): void = {
         new Array2v().execute();
     }
 }

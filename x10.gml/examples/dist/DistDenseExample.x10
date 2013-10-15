@@ -9,7 +9,6 @@
  *  (C) Copyright IBM Corporation 2006-2011.
  */
 
-import x10.io.Console;
 
 import x10.matrix.Debug;
 import x10.matrix.DenseMatrix;
@@ -24,19 +23,19 @@ import x10.matrix.dist.DistDenseMatrix;
  */
 public class DistDenseExample {
 	
-	public static def main(args:Array[String](1)) {
-		val m = args.size > 0 ?Int.parse(args(0)):50;
-		val n = args.size > 1 ?Int.parse(args(1)):m+1;
-		val k = args.size > 2 ?Int.parse(args(2)):m+2;	    	
+	public static def main(args:Rail[String]) {
+		val m = args.size > 0 ? Long.parse(args(0)):50;
+		val n = args.size > 1 ? Long.parse(args(1)):m+1;
+		val k = args.size > 2 ? Long.parse(args(2)):m+2;	    	
 		val p = args.size > 3 ?Double.parse(args(3)):0.5;
 		
 		val testcase = new RunDistDense(m,n,k,p);
 		testcase.run();
 	}
 	
-	static class RunDistDense(M:Int, N:Int, K:Int, nzp:Double) {
+	static class RunDistDense(M:Long, N:Long, K:Long, nzp:Double) {
 		
-		public def this(m:Int, n:Int, k:Int, p:Double) {
+		public def this(m:Long, n:Long, k:Int, p:Double) {
 			property(m, n, k, p);
 		}
 		
@@ -69,7 +68,6 @@ public class DistDenseExample {
 			val ddm = DistDenseMatrix.make(M, N);
 			ddm.initRandom();
 			
-			//dm.printBlock("Dist dense");
 			val ddm1 = ddm.clone();
 			ret = ddm.equals(ddm1);
 			

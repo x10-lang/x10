@@ -20,32 +20,31 @@ import harness.x10Test;
  * @author bdlucas 8/2008
  */
 
-public class ClosureEnclosingScope1s extends ClosureTest {
+public class ClosureEnclosingScope1s extends x10Test {
 
    val a = 1;
 
     public def run(): boolean = {
         
-        val b:int = 1;
+        val b:long = 1;
 
         class C {
             val c = 1;
             def foo() = {
                 val fun = () => {
-                    val d:int = 1;
+                    val d:long = 1;
                     (() => a+b+c+d)()
                 };
                 fun()
             }
         }
 
-        check("new C().foo()", new C().foo(), 4);
+        chk(new C().foo() == 4, "new C().foo()");
 
-
-        return result;
+        return true;
     }
 
-    public static def main(var args: Array[String](1)): void = {
+    public static def main(var args: Rail[String]): void = {
         new ClosureEnclosingScope1s().execute();
     }
 }

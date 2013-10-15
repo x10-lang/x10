@@ -16,8 +16,9 @@
 
 namespace x10 {
 
-    namespace util {
-        template<class T> class IndexedMemoryChunk;
+    namespace lang {
+        template<class T> class Rail;
+        class String;
     }
 
     namespace io {
@@ -36,8 +37,8 @@ namespace x10 {
             virtual void close() { }
             virtual void flush() { }
             virtual void write(x10_int b) = 0;
-            virtual void write(x10::util::IndexedMemoryChunk<x10_byte> b);
-            virtual void write(x10::util::IndexedMemoryChunk<x10_byte> b, x10_int off, x10_int len);
+            virtual void write(x10::lang::Rail<x10_byte>* b, x10_long off, x10_long len) = 0;
+            virtual void write(x10::lang::String* s) = 0;
 
             static OutputStreamWriter__OutputStream* STANDARD_OUT();
 

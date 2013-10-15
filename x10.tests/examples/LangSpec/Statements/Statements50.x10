@@ -21,14 +21,14 @@ import harness.x10Test;
 
 public class Statements50 extends x10Test {
    public def run() : boolean = (new Hook()).run();
-   public static def main(var args: Array[String](1)): void = {
+   public static def main(args:Rail[String]):void {
         new Statements50().execute();
     }
 
 
-// file Statements line 315
+// file Statements line 314
  static  class Example {
- def example(a:(Int,Int) => Int, do_things_to:(Int)=>Int) {
+ def example(a:(Long,Long) => Long, do_things_to:(Long)=>Long) {
 lbl : for (i in 1..10) {
    for (j in i..10) {
       if (a(i,j) == 0) break lbl;

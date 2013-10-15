@@ -24,11 +24,11 @@ public class PropertyAssign extends x10Test {
         }
   
 	public def run(): boolean = {
-                var p: Prop = new Prop(1,2);
+                var p: Prop = new Prop(1n,2n);
 	        return true;
 	}
 
-	public static def main(var args: Array[String](1)): void = {
+	public static def main(var args: Rail[String]): void = {
 		new PropertyAssign().execute();
 	}
 }

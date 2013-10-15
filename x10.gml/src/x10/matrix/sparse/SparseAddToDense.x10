@@ -13,16 +13,12 @@ package x10.matrix.sparse;
 
 import x10.matrix.Debug;
 import x10.matrix.Matrix;
-import x10.matrix.Matrix;
 import x10.matrix.DenseMatrix;
 
 /**
  * Implementation of addition operations on sparse matrices.
- *  
  */
-
 public class SparseAddToDense {
-
 	/**
 	 * Add sparse matrix with dense matrix, result store in dense. 
 	 * C += A
@@ -30,10 +26,10 @@ public class SparseAddToDense {
 	public static def comp(A:SparseCSC, 
 						   C:DenseMatrix(A.M,A.N)) : void {
 		
-		var off:Int = 0;
-		for (var c:Int=0; c<C.N; c++) {
+		var off:Long = 0;
+		for (var c:Long=0; c<C.N; c++) {
 			val aln = A.getCol(c);
-			for (var r:Int=0; r<aln.size(); r++) C.d(off+aln.getIndex(r)) += aln.getValue(r);
+			for (var r:Long=0; r<aln.size(); r++) C.d(off+aln.getIndex(r)) += aln.getValue(r);
 			off += C.M;
 		}
 	}
@@ -79,23 +75,19 @@ public class SparseAddToDense {
 		comp(A, C);
 	}
 
-    //------------------------------------------------------------------------
+
 	// CSR format 
-    //------------------------------------------------------------------------
+
 	/**
 	 * Add sparse CSR with dense matrix. Result store in dense
 	 * C += A
 	 */
 	public static def comp(A:SparseCSR, 
 						   C:DenseMatrix(A.M,A.N)):void {
-		//
-		//A.print("Input sparse");
-		//C.print("Input-output dense");
-		for (var r:Int=0; r<A.M; r++) {
+		for (var r:Long=0; r<A.M; r++) {
 			val aln = A.getRow(r);
-			for (var c:Int=0; c<aln.size(); c++) C.d(aln.getIndex(c)*C.M+r) += aln.getValue(c);
+			for (var c:Long=0; c<aln.size(); c++) C.d(aln.getIndex(c)*C.M+r) += aln.getValue(c);
 		}
-		//C.print("Output dense");
 	}
 
 	/**
@@ -138,5 +130,4 @@ public class SparseAddToDense {
 		B.copyTo(C);
 		comp(A, C);
 	}
-
 }

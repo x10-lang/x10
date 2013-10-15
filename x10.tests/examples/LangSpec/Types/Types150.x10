@@ -21,19 +21,19 @@ import harness.x10Test;
 
 public class Types150 extends x10Test {
    public def run() : boolean = (new Hook()).run();
-   public static def main(var args: Array[String](1)): void = {
+   public static def main(args:Rail[String]):void {
         new Types150().execute();
     }
 
 
-// file Types line 481
- static class Coords(x: Int, y: Int) {
-  def this(x: Int, y: Int) :
+// file Types line 655
+ static class Coords(x: Long, y: Long) {
+  def this(x: Long, y: Long) :
     Coords{self.x==x, self.y==y} = {
     property(x, y);
   }
 
-  def move(dx: Int, dy: Int) = new Coords(x+dx, y+dy);
+  def move(dx: Long, dy: Long) = new Coords(x+dx, y+dy);
 }
 
  static class Hook {

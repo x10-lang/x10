@@ -4,7 +4,6 @@
  *  (C) Copyright IBM Corporation 2011.
  */
 
-import x10.io.Console;
 import x10.compiler.Ifdef;
 import x10.compiler.Ifndef;
 
@@ -20,34 +19,29 @@ import x10.matrix.dist.DistSparseMatrix;
 import x10.matrix.dist.summa.SummaDenseMultSparse;
 
 /**
-   This class contains test cases for dense matrix multiplication.
-   <p>
-
-   <p>
+ * This class contains test cases for dense-sparse matrix multiplication with SUMMA.
  */
-
 public class TestDenseSparse{
-    public static def main(args:Array[String](1)) {
+    public static def main(args:Rail[String]) {
 		val testcase = new SummaDenseMultSparseTest(args);
 		testcase.run();
 	}
 }
 
 class SummaDenseMultSparseTest {
-
-	public val M:Int;
-	public val N:Int;
-	public val K:Int;
+	public val M:Long;
+	public val N:Long;
+	public val K:Long;
 	public val nzd:Double;
 
 	public val pA:Grid;
 	public val pB:Grid;
 	public val pC:Grid;
 	
-    public def this(args:Array[String](1)) {
-		M   = args.size > 0 ?Int.parse(args(0)):25;
-		N   = args.size > 1 ?Int.parse(args(1)):21;
-		K   = args.size > 2 ?Int.parse(args(2)):27;	
+    public def this(args:Rail[String]) {
+		M   = args.size > 0 ? Long.parse(args(0)):25;
+		N   = args.size > 1 ? Long.parse(args(1)):21;
+		K   = args.size > 2 ? Long.parse(args(2)):27;	
 		nzd = args.size > 3 ?Double.parse(args(3)):0.5; 
 		
 		val numP = Place.numPlaces();//Place.MAX_PLACES;
@@ -60,7 +54,7 @@ class SummaDenseMultSparseTest {
 	
 	public def run(): void {
 		var ret:Boolean = true;
- 		// Set the matrix function
+	@Ifndef("MPI_COMMU") { // TODO Deadlocks!
 
 		ret &= (testDenseMultSparse());
 		ret &= (testDenseMultSparseTrans());
@@ -69,10 +63,8 @@ class SummaDenseMultSparseTest {
 			Console.OUT.println("SUMMA x10 distributed dense * sparse matrix multiply test passed!");
 		else
 			Console.OUT.println("--------SUMMA x10 distributed dense * sparse matrix multiply test failed!--------");
+    }
 	}
-	//------------------------------------------------
-
-	//-----------------------------------------------------------------
 	
 	public def testDenseMultSparse():Boolean {
 		val numP = Place.numPlaces();//Place.MAX_PLACES;
@@ -91,7 +83,7 @@ class SummaDenseMultSparseTest {
 		val dc = DistDenseMatrix.make(pC); 
 
 		Debug.flushln("Start calling SUMMA distributed dense*sparse routine");
-		SummaDenseMultSparse.mult(1, 0.0, da, db, dc);
+		SummaDenseMultSparse.mult(0, 0.0, da, db, dc);
 		Debug.flushln("SUMMA done");
 		
 		val ma = da.toDense();
@@ -129,7 +121,7 @@ class SummaDenseMultSparseTest {
 		val dc = DistDenseMatrix.make(M, N);
 
 		Debug.flushln("Start calling SUMMA dense*sparse^T X10 routine");
-		SummaDenseMultSparse.multTrans(1, 0.0, da, db, dc);
+		SummaDenseMultSparse.multTrans(0, 0.0, da, db, dc);
 		Debug.flushln("SUMMA done");
 		
 		val ma = da.toDense();

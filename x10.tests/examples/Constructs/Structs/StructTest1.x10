@@ -12,10 +12,10 @@
 import harness.x10Test;
 
 struct StructTest1__S {
-  val x:int;
-  val y:int;
+  val x:long;
+  val y:long;
 
-  public def this(a:int, b:int) { x = a; y = b; }
+  public def this(a:long, b:long) { x = a; y = b; }
 
   public final def sum() = x + y;
 
@@ -49,7 +49,7 @@ public class StructTest1 extends x10Test {
     return a.sum() + b.sum() + a.x;
   }
 
-  public static def main(Array[String](1)) {
+  public static def main(Rail[String]) {
     new StructTest1().execute();
   }
 

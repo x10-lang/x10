@@ -1336,11 +1336,11 @@ return L;
 //#line 515 "/Users/bard/x10/juss/Actors/mongo/mongo4x10/drivers/x10/mongo/yak/YakUtil.x10"
 public static com.mongodb.DBObject[]
                                                                                                        convert__0$1x10$mongo$yak$YakMap$2(
-                                                                                                       final x10.array.Array<x10.mongo.yak.YakMap> r){
+                                                                                                       final x10.regionarray.Array<x10.mongo.yak.YakMap> r){
             
 //#line 517 "/Users/bard/x10/juss/Actors/mongo/mongo4x10/drivers/x10/mongo/yak/YakUtil.x10"
 final int t2844 =
-              ((x10.array.Array<x10.mongo.yak.YakMap>)r).
+              ((x10.regionarray.Array<x10.mongo.yak.YakMap>)r).
                 size;
             
 //#line 517 "/Users/bard/x10/juss/Actors/mongo/mongo4x10/drivers/x10/mongo/yak/YakUtil.x10"
@@ -1348,9 +1348,9 @@ final x10.core.fun.Fun_0_1 t2845 =
               ((x10.core.fun.Fun_0_1)(new x10.mongo.yak.YakUtil.$Closure$0(r, (x10.mongo.yak.YakUtil.$Closure$0.__0$1x10$mongo$yak$YakMap$2) null)));
             
 //#line 516 "/Users/bard/x10/juss/Actors/mongo/mongo4x10/drivers/x10/mongo/yak/YakUtil.x10"
-final x10.array.Array dr =
-              ((x10.array.Array)(new x10.array.Array<com.mongodb.DBObject>((java.lang.System[]) null, x10.rtt.Types.getRTT(com.mongodb.DBObject.class)).x10$array$Array$$init$S(((int)(t2844)),
-                                                                                                                                                                                ((x10.core.fun.Fun_0_1)(t2845)), (x10.array.Array.__1$1x10$lang$Int$3x10$array$Array$$T$2) null)));
+final x10.regionarray.Array dr =
+              ((x10.regionarray.Array)(new x10.regionarray.Array<com.mongodb.DBObject>((java.lang.System[]) null, x10.rtt.Types.getRTT(com.mongodb.DBObject.class)).x10.regionarray$Array$$init$S(((int)(t2844)),
+                                                                                                                                                                                ((x10.core.fun.Fun_0_1)(t2845)), (x10.regionarray.Array.__1$1x10$lang$Int$3x10.regionarray$Array$$T$2) null)));
             
 //#line 518 "/Users/bard/x10/juss/Actors/mongo/mongo4x10/drivers/x10/mongo/yak/YakUtil.x10"
 final com.mongodb.DBObject[] t2846 =
@@ -1596,7 +1596,7 @@ return x10.mongo.yak.YakUtil.this;
                 ((int) 0) &&
                   x10.mongo.yak.YakUtil.initStatus$them.compareAndSet((int)(x10.runtime.impl.java.InitDispatcher.UNINITIALIZED),
                                                                       (int)(x10.runtime.impl.java.InitDispatcher.INITIALIZING))) {
-                x10.mongo.yak.YakUtil.them = x10.lang.PlaceLocalHandle.<x10.mongo.yak.YakUtil>make__1$1x10$lang$PlaceLocalHandle$$T$2(x10.mongo.yak.YakUtil.$RTT, ((x10.array.Dist)(x10.array.Dist.makeUnique())),
+                x10.mongo.yak.YakUtil.them = x10.lang.PlaceLocalHandle.<x10.mongo.yak.YakUtil>make__1$1x10$lang$PlaceLocalHandle$$T$2(x10.mongo.yak.YakUtil.$RTT, ((x10.regionarray.Dist)(x10.regionarray.Dist.makeUnique())),
                                                                                                                                       ((x10.core.fun.Fun_0_0)(new x10.mongo.yak.YakUtil.$Closure$1())));
                 if (((boolean) x10.runtime.impl.java.InitDispatcher.TRACE_STATIC_INIT) ==
                       ((boolean) true)) {
@@ -1641,7 +1641,7 @@ return x10.mongo.yak.YakUtil.this;
                 ((int) 0) &&
                   x10.mongo.yak.YakUtil.initStatus$mongoCell.compareAndSet((int)(x10.runtime.impl.java.InitDispatcher.UNINITIALIZED),
                                                                            (int)(x10.runtime.impl.java.InitDispatcher.INITIALIZING))) {
-                x10.mongo.yak.YakUtil.mongoCell = x10.lang.PlaceLocalHandle.<x10.lang.Cell<com.mongodb.Mongo>>make__1$1x10$lang$PlaceLocalHandle$$T$2(x10.rtt.ParameterizedType.make(x10.lang.Cell.$RTT, x10.rtt.Types.getRTT(com.mongodb.Mongo.class)), ((x10.array.Dist)(x10.array.Dist.makeUnique())),
+                x10.mongo.yak.YakUtil.mongoCell = x10.lang.PlaceLocalHandle.<x10.lang.Cell<com.mongodb.Mongo>>make__1$1x10$lang$PlaceLocalHandle$$T$2(x10.rtt.ParameterizedType.make(x10.lang.Cell.$RTT, x10.rtt.Types.getRTT(com.mongodb.Mongo.class)), ((x10.regionarray.Dist)(x10.regionarray.Dist.makeUnique())),
                                                                                                                                                       ((x10.core.fun.Fun_0_0)(new x10.mongo.yak.YakUtil.$Closure$2())));
                 if (((boolean) x10.runtime.impl.java.InitDispatcher.TRACE_STATIC_INIT) ==
                       ((boolean) true)) {
@@ -1686,7 +1686,7 @@ return x10.mongo.yak.YakUtil.this;
                 ((int) 0) &&
                   x10.mongo.yak.YakUtil.initStatus$mongoCellLock.compareAndSet((int)(x10.runtime.impl.java.InitDispatcher.UNINITIALIZED),
                                                                                (int)(x10.runtime.impl.java.InitDispatcher.INITIALIZING))) {
-                x10.mongo.yak.YakUtil.mongoCellLock = x10.lang.PlaceLocalHandle.<x10.util.concurrent.Lock>make__1$1x10$lang$PlaceLocalHandle$$T$2(x10.util.concurrent.Lock.$RTT, ((x10.array.Dist)(x10.array.Dist.makeUnique())),
+                x10.mongo.yak.YakUtil.mongoCellLock = x10.lang.PlaceLocalHandle.<x10.util.concurrent.Lock>make__1$1x10$lang$PlaceLocalHandle$$T$2(x10.util.concurrent.Lock.$RTT, ((x10.regionarray.Dist)(x10.regionarray.Dist.makeUnique())),
                                                                                                                                                   ((x10.core.fun.Fun_0_0)(new x10.mongo.yak.YakUtil.$Closure$3())));
                 if (((boolean) x10.runtime.impl.java.InitDispatcher.TRACE_STATIC_INIT) ==
                       ((boolean) true)) {
@@ -1731,7 +1731,7 @@ return x10.mongo.yak.YakUtil.this;
                 ((int) 0) &&
                   x10.mongo.yak.YakUtil.initStatus$mongonessHandle.compareAndSet((int)(x10.runtime.impl.java.InitDispatcher.UNINITIALIZED),
                                                                                  (int)(x10.runtime.impl.java.InitDispatcher.INITIALIZING))) {
-                x10.mongo.yak.YakUtil.mongonessHandle = x10.lang.PlaceLocalHandle.<x10.mongo.yak.YakUtil.Mongoness>make__1$1x10$lang$PlaceLocalHandle$$T$2(x10.mongo.yak.YakUtil.Mongoness.$RTT, ((x10.array.Dist)(x10.array.Dist.makeUnique())),
+                x10.mongo.yak.YakUtil.mongonessHandle = x10.lang.PlaceLocalHandle.<x10.mongo.yak.YakUtil.Mongoness>make__1$1x10$lang$PlaceLocalHandle$$T$2(x10.mongo.yak.YakUtil.Mongoness.$RTT, ((x10.regionarray.Dist)(x10.regionarray.Dist.makeUnique())),
                                                                                                                                                            ((x10.core.fun.Fun_0_0)(new x10.mongo.yak.YakUtil.$Closure$4())));
                 if (((boolean) x10.runtime.impl.java.InitDispatcher.TRACE_STATIC_INIT) ==
                       ((boolean) true)) {
@@ -1789,7 +1789,7 @@ return x10.mongo.yak.YakUtil.this;
             public static x10.x10rt.X10JavaSerializable $_deserialize_body($Closure$0 $_obj , x10.x10rt.X10JavaDeserializer $deserializer) throws java.io.IOException { 
             
                 if (x10.runtime.impl.java.Runtime.TRACE_SER) { x10.runtime.impl.java.Runtime.printTraceMessage("X10JavaSerializable: $_deserialize_body() of " + $Closure$0.class + " calling"); } 
-                x10.array.Array r = (x10.array.Array) $deserializer.readRef();
+                x10.regionarray.Array r = (x10.regionarray.Array) $deserializer.readRef();
                 $_obj.r = r;
                 return $_obj;
                 
@@ -1835,17 +1835,17 @@ return x10.mongo.yak.YakUtil.this;
                     
 //#line 517 "/Users/bard/x10/juss/Actors/mongo/mongo4x10/drivers/x10/mongo/yak/YakUtil.x10"
 final x10.mongo.yak.YakMap t2843 =
-                      ((x10.array.Array<x10.mongo.yak.YakMap>)this.
+                      ((x10.regionarray.Array<x10.mongo.yak.YakMap>)this.
                                                                 r).$apply$G((int)(i));
                     
 //#line 517 "/Users/bard/x10/juss/Actors/mongo/mongo4x10/drivers/x10/mongo/yak/YakUtil.x10"
 return t2843;
                 }
                 
-                public x10.array.Array<x10.mongo.yak.YakMap> r;
+                public x10.regionarray.Array<x10.mongo.yak.YakMap> r;
                 
-                public $Closure$0(final x10.array.Array<x10.mongo.yak.YakMap> r, __0$1x10$mongo$yak$YakMap$2 $dummy) { {
-                                                                                                                              this.r = ((x10.array.Array)(r));
+                public $Closure$0(final x10.regionarray.Array<x10.mongo.yak.YakMap> r, __0$1x10$mongo$yak$YakMap$2 $dummy) { {
+                                                                                                                              this.r = ((x10.regionarray.Array)(r));
                                                                                                                           }}
                 // synthetic type for parameter mangling
                 public abstract static class __0$1x10$mongo$yak$YakMap$2 {}

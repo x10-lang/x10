@@ -14,10 +14,27 @@ package x10.runtime.impl.java;
 
 public abstract class ArrayUtils {
 
-    public static <T> x10.array.Array<T> makeArrayFromJavaArray(x10.rtt.Type type, java.lang.Object value) {
+    public static <T> x10.regionarray.Array<T> makeArrayFromJavaArray(x10.rtt.Type type, java.lang.Object value) {
         int length = type.arrayLength(value);
-        x10.array.Array<T> array = new x10.array.Array<T>((java.lang.System[]) null, type).x10$array$Array$$init$S(length);
+        x10.regionarray.Array<T> array = new x10.regionarray.Array<T>((java.lang.System[]) null, type).x10$regionarray$Array$$init$S(length);
         java.lang.System.arraycopy(value, 0, array.raw.value, 0, length);
         return array;
     }
+
+    public static <T> x10.core.Rail<T> makeRailFromJavaArray(x10.rtt.Type type, java.lang.Object value, boolean copy) {
+        int length = type.arrayLength(value);
+        x10.core.Rail<T> rail;
+        if (copy) {
+            rail = new x10.core.Rail<T>(type, length);
+            java.lang.System.arraycopy(value, 0, rail.value, 0, length);
+        } else {
+            rail = new x10.core.Rail<T>(type, length, value);
+        }
+        return rail;
+    }
+
+    public static <T> x10.core.Rail<T> makeRailFromJavaArray(x10.rtt.Type type, java.lang.Object value) {
+        return makeRailFromJavaArray(type, value, true);
+    }
+
 }

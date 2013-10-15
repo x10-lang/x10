@@ -32,7 +32,7 @@ public class NoAsyncInWhenMethod extends x10Test {
 			Console.OUT.println("This should not print.");
 	}
 
-	public static def main(Array[String](1)){
+	public static def main(Rail[String]){
 		new NoAsyncInWhenMethod().execute();
 	}
 }

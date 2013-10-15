@@ -10,22 +10,22 @@
  */
 
 import harness.x10Test;
+import x10.regionarray.*;
 
 /**
  * The test checks that property syntax is accepted.
  *
  * @author pvarma
  */
-
 public class RailTest extends x10Test {
 
     public def run(): boolean = {
-        val r: Region{rail} = 0..10;
+        val r: Region{rail} = Region.make(0,10);
         var a: Array[double]{rail} = new Array[double](r, (x:Point)=>0.0);
         return true;
     }
 
-    public static def main(var args: Array[String](1)): void = {
+    public static def main(var args: Rail[String]): void = {
         new RailTest().execute();
     }
 }

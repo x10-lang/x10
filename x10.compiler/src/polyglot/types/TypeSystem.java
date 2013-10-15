@@ -451,21 +451,6 @@ public interface TypeSystem extends XTypeSystem<Type> {
     Type Exception();
 
     /**
-     * <code>java.lang.Cloneable</code>
-     */
-    Type Cloneable();
-
-    /**
-     * <code>java.lang.Iterable</code>
-     */
-    Type JLIterable();
-
-    /**
-     * <code>java.io.Serializable</code>
-     */
-    Type Serializable();
-
-    /**
      * <code>java.lang.NullPointerException</code>
      */
     Type NullPointerException();
@@ -924,13 +909,13 @@ public interface TypeSystem extends XTypeSystem<Type> {
     X10ClassType FinishState();
 
     X10ClassType Runtime(); // used by asyncCodeInstance
+    
+    X10ClassType Unsafe();
 
     /**
      * <code>x10.lang.FailedDynamicCheckException</code>
      */
     X10ClassType FailedDynamicCheckException();
-
-    X10ClassType IndexedMemoryChunk();
 
     // types used in WS codegen
     X10ClassType Frame();
@@ -948,6 +933,7 @@ public interface TypeSystem extends XTypeSystem<Type> {
     
     // annotation types used in codegen
     X10ClassType StackAllocate();
+    X10ClassType StackAllocateUninitialized();
     X10ClassType Inline();
     X10ClassType InlineOnly();
     X10ClassType NoInline();
@@ -955,8 +941,8 @@ public interface TypeSystem extends XTypeSystem<Type> {
     X10ClassType Header();
     X10ClassType Uninitialized();
     X10ClassType SuppressTransientError();
+    X10ClassType TransientInitExpr();
     X10ClassType Embed();
-    X10ClassType PerProcess();
     X10ClassType RemoteInvocation();
 
     //Type Value();
@@ -1061,10 +1047,19 @@ public interface TypeSystem extends XTypeSystem<Type> {
     X10LocalDef localDef(Position pos, Flags flags, Ref<? extends Type> type, Name name);
 
     /**
+     * Return the ClassType object for the x10.regionarray.Array class.
+     */
+    X10ClassType RegionArray();
+
+    /**
+     * Return the ClassType object for the x10.lang.Rail class.
+     */
+    X10ClassType Rail();
+
+    /**
      * Return the ClassType object for the x10.array.Array class.
      */
     X10ClassType Array();
-
 
     /**
      * Return the ClassType object for the x10.array.DistArray class.
@@ -1072,13 +1067,30 @@ public interface TypeSystem extends XTypeSystem<Type> {
     X10ClassType DistArray();
 
     /**
+     * Return the ClassType object for the x10.regionarray.DistArray class.
+     */
+    X10ClassType RegionDistArray();
+
+    /**
      * Return the ClassType object for the x10.lang.Runtime.Mortal interface.
      */
     X10ClassType Mortal();
 
-    boolean isArray(Type t);
+    boolean isRegionArray(Type t);
 
-    public boolean isArrayOf(Type t, Type p);
+    boolean isRail(Type t);
+    
+    boolean isArray(Type t);
+    
+    boolean isDistArray(Type t);
+
+    public boolean isRegionArrayOf(Type t, Type p);
+
+    public boolean isRailOf(Type t, Type p);
+
+    X10ClassType RegionArray(Type arg);
+
+    X10ClassType Rail(Type arg);
 
     X10ClassType Array(Type arg);
 
@@ -1089,16 +1101,16 @@ public interface TypeSystem extends XTypeSystem<Type> {
     X10ClassType Iterable();
     X10ClassType Iterable(Type index);
 
+    X10ClassType Unserializable();
     X10ClassType CustomSerialization();
-    X10ClassType SerialData();
+    X10ClassType Serializer();
+    X10ClassType Deserializer();
 
     boolean isAny(Type me);
 
     boolean isStruct(Type me);
 
     boolean isString(Type me);
-
-    boolean isIndexedMemoryChunk(Type me);
 
     boolean isRuntime(Type me);
 
@@ -1220,6 +1232,8 @@ public interface TypeSystem extends XTypeSystem<Type> {
     boolean isParameterType(Type toType);
 
     X10ClassType Region();
+    
+    X10ClassType IterationSpace();
 
     X10ClassType IntRange();
 
@@ -1229,9 +1243,9 @@ public interface TypeSystem extends XTypeSystem<Type> {
 
     public Long size(Type t);
 
-    boolean isX10Array(Type me);
+    boolean isX10RegionArray(Type me);
 
-    boolean isX10DistArray(Type me);
+    boolean isX10RegionDistArray(Type me);
     
     boolean isIntRange(Type me);
 
@@ -1247,10 +1261,10 @@ public interface TypeSystem extends XTypeSystem<Type> {
     ClassType load(String name);
 
     boolean isRegion(Type me);
+    
+    boolean isIterationSpace(Type me);
 
     boolean isDistribution(Type me);
-
-    boolean isDistributedArray(Type me);
 
     boolean isComparable(Type me);
 
@@ -1301,4 +1315,8 @@ public interface TypeSystem extends XTypeSystem<Type> {
 	X10ClassType System();
 
 	Type Profile();
+
+	boolean typeIsJLIterable(Type classType);
+
+	public boolean isGlobalRail(Type typ);
 }

@@ -1,4 +1,4 @@
-/* Current test harness gets confused by packages, but it would be in package expsome_Places13;
+/* Current test harness gets confused by packages, but it would be in package expsome_Places12;
 */
 // Warning: This file is auto-generated from the TeX source of the language spec.
 // If you need it changed, work with the specification writers.
@@ -21,14 +21,14 @@ import harness.x10Test;
 
 public class Places4e7q extends x10Test {
    public def run() : boolean = (new Hook()).run();
-   public static def main(var args: Array[String](1)): void = {
+   public static def main(args:Rail[String]):void {
         new Places4e7q().execute();
     }
 
 
-// file Places line 965
+// file Places line 972
 
- static class Places13TestExp{
+ static class Places12TestExp{
   def check(g:GlobalRef[Any]{here == g.home})  = g();  }
 
  static class Hook {

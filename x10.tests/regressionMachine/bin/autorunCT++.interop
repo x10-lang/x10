@@ -1,0 +1,9 @@
+#!/bin/bash
+
+export X10_HOME=/tmp/x10reg_cpp.interop
+export X10_SVNROOT="http://svn.code.sf.net/p/x10/code/branches/java-interop-exceptions"
+export CAT_BACKEND_NAME=x10cpp-interop
+
+. /home/x10reg/bin/autorunCT++_common
+
+exit $?

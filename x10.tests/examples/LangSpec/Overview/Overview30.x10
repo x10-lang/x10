@@ -21,7 +21,7 @@ import harness.x10Test;
 
 public class Overview30 extends x10Test {
    public def run() : boolean = (new Hook()).run();
-   public static def main(var args: Array[String](1)): void = {
+   public static def main(args:Rail[String]):void {
         new Overview30().execute();
     }
 
@@ -29,8 +29,8 @@ public class Overview30 extends x10Test {
 // file Overview line 136
  static  class Whatevermore {
   def plzchk(){
-    val square = (i:Int) => i*i;
-  val r : Array[Int](1) = new Array[Int](10, square);
+    val square = (i:Long) => (i*i);
+  val r : Rail[Long] = new Rail[Long](10, square);
 }}
 
  static class Hook {

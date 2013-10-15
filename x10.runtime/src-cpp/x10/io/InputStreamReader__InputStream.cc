@@ -15,7 +15,7 @@
 
 #include <x10/io/InputStreamReader__InputStream.h>
 #include <x10/io/FileReader__FileInputStream.h>
-#include <x10/util/IndexedMemoryChunk.h>
+#include <x10/lang/Rail.h>
 
 using namespace x10::lang;
 using namespace x10::io;
@@ -30,16 +30,16 @@ InputStreamReader__InputStream* InputStreamReader__InputStream::STANDARD_IN()
     return _STANDARD_IN_cache;
 }
 
-x10_int InputStreamReader__InputStream::read(x10::util::IndexedMemoryChunk<x10_byte> b) {
-    return this->read(b, 0, b->length());
+x10_int InputStreamReader__InputStream::read(x10::lang::Rail<x10_byte>* b) {
+    return this->read(b, 0, b->FMGL(size));
 }
 
-x10_int InputStreamReader__InputStream::read(x10::util::IndexedMemoryChunk<x10_byte> b,
+x10_int InputStreamReader__InputStream::read(x10::lang::Rail<x10_byte>* b,
                                              x10_int off, x10_int len) {
     x10_int val;
     x10_int i;
     for (i = 0; i < len && (val = this->read()) != -1; i++)
-        b->operator[](off + i) = (x10_byte) (val & 0xFF);
+        b->raw[off + i] = (x10_byte) (val & 0xFF);
     return i;
 }
 

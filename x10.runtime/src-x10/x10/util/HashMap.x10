@@ -13,9 +13,10 @@ package x10.util;
 
 import x10.compiler.NonEscaping;
 import x10.io.CustomSerialization;
-import x10.io.SerialData;
+import x10.io.Deserializer;
+import x10.io.Serializer;
 
-  public class HashMap[K,V] implements Map[K,V], CustomSerialization {
+public class HashMap[K,V] implements Map[K,V], CustomSerialization {
     static class HashEntry[Key,Value] implements Map.Entry[Key,Value] {
         public def getKey() = key;
         public def getValue() = value;
@@ -35,45 +36,42 @@ import x10.io.SerialData;
     }
     
     /** The actual table, must be of size 2**n */
-    var table: IndexedMemoryChunk[HashEntry[K,V]];
+    var table: Rail[HashEntry[K,V]];
     
     /** Number of non-null, non-removed entries in the table. */
-    var size: Int;
+    var size: Long;
 
     /** Number of non-null entries in the table. */
-    var occupation: Int;
+    var occupation: Long;
     
     /** table.length - 1 */
-    var mask: Int;
+    var mask: Long;
 
-	var modCount:Int = 0; // to discover concurrent modifications
+	var modCount:Long = 0; // to discover concurrent modifications
     
-    var shouldRehash: Boolean;
-
-    static MAX_PROBES = 3;
-    static MIN_SIZE = 4;
+    static val MAX_PROBES = 3L;
+    static val MIN_SIZE = 4L;
     
     public def this() {
         init(MIN_SIZE);
     }
     
-    public def this(var sz: int) {
-        var pow2: int = MIN_SIZE;
+    public def this(var sz: Long) {
+        var pow2: Long = MIN_SIZE;
         while (pow2 < sz)
-            pow2 <<= 1;
+            pow2 <<= 1n;
         init(pow2);
     }
     
-    @NonEscaping final def init(sz: int): void {
+    @NonEscaping final def init(sz: Long): void {
         // check that sz is a power of 2
         assert (sz & -sz) == sz;
         assert sz >= MIN_SIZE;
     
-        table = IndexedMemoryChunk.allocateZeroed[HashEntry[K,V]](sz);
+        table = new Rail[HashEntry[K,V]](sz);
         mask = sz - 1;
         size = 0;
         occupation = 0;
-        shouldRehash = false;
     }
 
     public def clear(): void {
@@ -83,7 +81,7 @@ import x10.io.SerialData;
     
     protected def hash(k: K): Int = hashInternal(k);
     @NonEscaping protected final def hashInternal(k: K): Int {
-        return k.hashCode() * 17;
+        return k.hashCode() * 17n;
     }
     
     public operator this(k: K): Box[V] = get(k);
@@ -108,16 +106,11 @@ import x10.io.SerialData;
     }
     
     protected def getEntry(k: K): HashEntry[K,V] {
-        if (size == 0)
+        if (size == 0L)
             return null;
- 
-// incompatible with iterators            
-//        if (shouldRehash)
-//            rehash();
-            
-        val h = hash(k);
 
-        var i: int = h;
+        val h = hash(k);
+        var i:Long = h;
 
         while (true) {        
             val j = i & mask;
@@ -125,32 +118,24 @@ import x10.io.SerialData;
             
             val e = table(j);
             if (e == null) {
-                if (i - h > MAX_PROBES)
-                    shouldRehash = true;
                 return null;
             }
             if (e != null) {
                 if (e.hash == h && k.equals(e.key)) {
-                    if (i - h > MAX_PROBES)
-                        shouldRehash = true;
                     return e;
                 }
-                if (i - h > table.length()) {
-                    if (i - h > MAX_PROBES)
-                        shouldRehash = true;
+                if (i - h > table.size) {
                     return null;
                 }
             }
         }
     }
     
-    public def put(k: K, v: V): Box[V] = putInternal(k,v);
-    @NonEscaping protected final def putInternal(k: K, v: V): Box[V] {
-        if (occupation == table.length() || (shouldRehash && occupation >= table.length() / 2))
-            rehashInternal();
+    public def put(k: K, v: V): Box[V] = putInternal(k,v,true);
+    @NonEscaping protected final def putInternal(k: K, v: V, mayRehash:Boolean): Box[V] {
 
         val h = hashInternal(k);
-        var i: int = h;
+        var i:Long = h;
 
         while (true) {
             val j = i & mask;
@@ -158,16 +143,15 @@ import x10.io.SerialData;
             
             val e = table(j);
             if (e == null) {
-                if (i - h > MAX_PROBES)
-                    shouldRehash = true;
                 modCount++;
                 table(j) = new HashEntry[K,V](k, v, h);
                 size++;
                 occupation++;
+                if (mayRehash && (((i - h > MAX_PROBES) && (occupation >= table.size / 2)) || (occupation == table.size))) {
+                    rehashInternal();
+                }
                 return null;
             } else if (e.hash == h && k.equals(e.key)) {
-//                if (i - h > MAX_PROBES)
-//                    shouldRehash = true;
                 val old = e.value;
                 e.value = v;
                 if (e.removed) {
@@ -185,20 +169,17 @@ import x10.io.SerialData;
         modCount++;
         val t = table;
         val oldSize = size;
-        table = IndexedMemoryChunk.allocateZeroed[HashEntry[K,V]](t.length()*2);
-        mask = table.length() - 1;
+        table = new Rail[HashEntry[K,V]](t.size*2);
+        mask = table.size - 1;
         size = 0;
         occupation = 0;
-        shouldRehash = false;
 
-        for (var i: int = 0; i < t.length(); i++) {
+        for (var i: Long = 0; i < t.size; i++) {
             if (t(i) != null && ! t(i).removed) {
-                putInternal(t(i).key, t(i).value);
-                shouldRehash = false;
+                putInternal(t(i).key, t(i).value, false);
             }
         }
         assert size == oldSize;
-        size = oldSize;
     }
     
     public def containsKey(k: K): boolean {
@@ -228,13 +209,13 @@ import x10.io.SerialData;
 
     protected static class EntriesIterator[Key,Value] implements Iterator[HashEntry[Key,Value]] {
         val map: HashMap[Key,Value];
-        var i: Int;
-		var originalModCount:Int;
+        var i: Long;
+		var originalModCount:Long;
         
         def this(map: HashMap[Key,Value]) { this.map = map; this.i = 0; originalModCount = map.modCount; } // you call advance() after the ctor
 
         def advance(): void {
-            while (i < map.table.length()) {
+            while (i < map.table.size) {
                if (map.table(i) != null && ! map.table(i).removed)
                    return;
                i++;
@@ -242,7 +223,7 @@ import x10.io.SerialData;
         }
         
         public def hasNext(): Boolean {
-            if (i < map.table.length()) {
+            if (i < map.table.size) {
 //              assert map.table(i) != null && ! map.table(i).removed : "map entry " + i + " is null or removed";
                 return true;
             }
@@ -259,7 +240,7 @@ import x10.io.SerialData;
         }
     }
     
-    public def size() = size;
+    public def size():Long = size;
     
     protected static class KeySet[Key,Value] extends AbstractCollection[Key] implements Set[Key] {
         val map: HashMap[Key,Value];
@@ -277,7 +258,7 @@ import x10.io.SerialData;
         public def add(k: Key): Boolean { throw new UnsupportedOperationException(); }
         public def remove(k: Key): Boolean { throw new UnsupportedOperationException(); }
         public def clone(): KeySet[Key,Value] { throw new UnsupportedOperationException(); }
-        public def size(): Int = map.size();
+        public def size(): Long = map.size();
     }
 
     protected static class EntrySet[Key,Value] 
@@ -296,39 +277,32 @@ import x10.io.SerialData;
         public def add(k: Map.Entry[Key,Value]): Boolean { throw new UnsupportedOperationException(); }
         public def remove(k: Map.Entry[Key,Value]): Boolean { throw new UnsupportedOperationException(); }
         public def clone(): EntrySet[Key,Value] { throw new UnsupportedOperationException(); }
-        public def size(): Int = map.size();
-    }
-
-
-    protected static class State[Key,Value] {
-        val content:Array[Pair[Key,Value]](1);
-
-        def this(map:HashMap[Key,Value]) {
-            val size = map.size();
-            val it = map.entriesIterator();
-            content = new Array[Pair[Key,Value]](size,
-              (p:Int) => {
-                   val entry = it.next();
-                   return Pair[Key,Value](entry.getKey(),entry.getValue());
-              }
-            );
-        }
+        public def size(): Long = map.size();
     }
 
     /*
      * Custom deserialization
      */
-    public def this(x:SerialData) {
+    public def this(ds:Deserializer) {
         this();
-        val state = x.data as State[K,V]; // Warning: This is an unsound cast because the object or the target type might have constraints and X10 currently does not perform constraint solving at runtime on generic parameters.
-	    for (p in state.content) {
-	        val pair = state.content(p);
-            putInternal(pair.first, pair.second);
+        val numEntries = ds.readAny() as Long;
+	for (1..numEntries) {
+           val key = ds.readAny() as K;
+	   val value = ds.readAny() as V;
+	   putInternal(key, value, true);
         }
     }
 
     /*
      * Custom serialization
      */
-    public def serialize():SerialData = new SerialData(new State(this), null);
+    public def serialize(s:Serializer) {
+	val it = entriesIterator();
+        s.writeAny(size());
+	while (it.hasNext()) {
+            val entry = it.next();
+            s.writeAny(entry.getKey());
+            s.writeAny(entry.getValue());
+        }
+    }
 }

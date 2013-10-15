@@ -21,12 +21,12 @@ import harness.x10Test;
 
 public class Clocks40 extends x10Test {
    public def run() : boolean = (new Hook()).run();
-   public static def main(var args: Array[String](1)): void = {
+   public static def main(args:Rail[String]):void {
         new Clocks40().execute();
     }
 
 
-// file Clocks line 182
+// file Clocks line 185
  static class Example{
 static def S():void{}
 static def a_phase_two():void{}

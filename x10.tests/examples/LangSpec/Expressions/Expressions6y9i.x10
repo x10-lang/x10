@@ -21,18 +21,18 @@ import harness.x10Test;
 
 public class Expressions6y9i extends x10Test {
    public def run() : boolean = (new Hook()).run();
-   public static def main(var args: Array[String](1)): void = {
+   public static def main(args:Rail[String]):void {
         new Expressions6y9i().execute();
     }
 
 
-// file Expressions line 1340
+// file Expressions line 1339
  static class Person {
   static operator (f:Fop) as Person = new Person();
   static def asPerson(f:Fop) = new Person();
   public static def example() {
      val f = new Fop();
-     val cast = f as Person; // ERR WARNING on this line
+     val cast = f as Person; // WARNING on this line
      assert cast == f;
      val meth = asPerson(f);
      assert meth != f;

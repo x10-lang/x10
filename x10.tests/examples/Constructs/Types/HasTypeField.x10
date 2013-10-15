@@ -18,14 +18,14 @@ import harness.x10Test;
  */
 public class HasTypeField extends x10Test {
 
-	val x <: Int = 1; 
-	def m(x:Int{self==1}) = x;
+	val x <: Long = 1; 
+	def m(x:Long{self==1}) = x;
 	public def run(): boolean = {
 		m(x);
 		return true;
 	}
 
-	public static def main(Array[String](1))  {
+	public static def main(Rail[String])  {
 		new HasTypeField().execute();
 	}
 }

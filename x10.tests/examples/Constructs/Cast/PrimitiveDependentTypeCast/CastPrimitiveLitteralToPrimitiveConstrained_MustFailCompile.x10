@@ -21,7 +21,7 @@ public class CastPrimitiveLitteralToPrimitiveConstrained_MustFailCompile extends
 	public def run(): boolean {
 		
 		try { 
-           val j: int(0) = 1; // ERR
+           val j: int(0n) = 1n; // ERR
 		}catch(e: Exception) {
 			return false;
 		}
@@ -29,7 +29,7 @@ public class CastPrimitiveLitteralToPrimitiveConstrained_MustFailCompile extends
 		return true;
 	}
 
-	public static def main(args: Array[String](1)): void {
+	public static def main(args: Rail[String]): void {
 		new CastPrimitiveLitteralToPrimitiveConstrained_MustFailCompile().execute();
 	}
 

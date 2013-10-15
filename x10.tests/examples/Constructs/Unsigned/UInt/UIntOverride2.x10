@@ -33,14 +33,14 @@ public class UIntOverride2 extends x10Test {
 	val a = new A[Int]();
 	val f = new F();
 	val g = new G();
-	assert a.f(1).equals("A:T");
-	assert f.f(1).equals("A:T");
-	assert g.f(1).equals("G:Int");
-	assert g.f(1u).equals("G:UInt");
+	assert a.f(1n).equals("A:T");
+	assert f.f(1n).equals("A:T");
+	assert g.f(1n).equals("G:Int");
+	assert g.f(1un).equals("G:UInt");
 	return true;
     }
 
-    public static def main(Array[String]) {
+    public static def main(Rail[String]) {
         new UIntOverride2().execute();
     }
 }

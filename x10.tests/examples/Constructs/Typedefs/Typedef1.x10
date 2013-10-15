@@ -21,12 +21,12 @@ public class Typedef1 extends x10Test {
                 static type bar = Typedef1;
 
 	public def run(): boolean = {
-                val x: foo = 3;
+                val x: foo = 3n;
                 val y: bar = this;
-		return x == 3 && y == this;
+		return x == 3n && y == this;
 	}
 
-	public static def main(var args: Array[String](1)): void = {
+	public static def main(var args: Rail[String]): void = {
 		new Typedef1().execute();
 	}
 }

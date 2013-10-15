@@ -29,9 +29,9 @@ public class GenericOverloading03_MustFailCompile extends GenericTest {
         def m(X[T]) = 0;
         def m(X[U]) = 1;
     }
-	def test1(a:A[String,Int]) {
-		val x:Int{self==0} = a.m( new X[String]() );
-		val y:Int{self==1} = a.m( new X[Int]() );
+	def test1(a:A[String,Long]) {
+		val x:long{self==0} = a.m( new X[String]() );
+		val y:long{self==1} = a.m( new X[Long]() );
 	}
 	def test2(a:A[String,String]) {
 		a.m( new X[String]() ); // ERR
@@ -39,7 +39,7 @@ public class GenericOverloading03_MustFailCompile extends GenericTest {
 
     public def run(): boolean = true;
 
-    public static def main(var args: Array[String](1)): void = {
+    public static def main(var args: Rail[String]): void = {
         new GenericOverloading03_MustFailCompile().execute();
     }
 }

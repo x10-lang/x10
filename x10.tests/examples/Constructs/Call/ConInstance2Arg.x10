@@ -18,24 +18,24 @@ import harness.x10Test;
 public class ConInstance2Arg extends x10Test {
 	class A(i:Int) {}
 	
-	def m(q:A{self.i==2},  i:Int(q.i)) {
+	def m(q:A{self.i==2n},  i:Int(q.i)) {
 	}
 	def n(i:Int) {
 		val a = new A(i);
 		// This call will compile only if -strictCalls is not set.
-		m(a, i); // ERR: Warning: Expression 'a' was cast to type ConInstance2Arg.A{self.i==2}.
+		m(a, i); // ERR: Warning: Expression 'a' was cast to type ConInstance2Arg.A{self.i==2n}.
 	}
 	
 	public def run(): boolean {
 		try {
-			n(3);
+			n(3n);
 			return false;
 		} catch (ClassCastException) {
 			return true;
 		}
 	}
 
-	public static def main(Array[String](1)) {
+	public static def main(Rail[String]) {
 		new ConInstance2Arg().execute();
 	}
 

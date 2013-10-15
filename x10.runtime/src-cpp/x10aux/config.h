@@ -30,8 +30,6 @@
  *   X10_USE_BDWGC     - enable BDW conservative GC
  *
  * The following debugging macros are supported:
- *   TRACE_CAST        - trace casts
- *   TRACE_ALLOC       - trace allocation operations
  *   TRACE_ENV_VAR     - turn on support for the tracing variables listed below
  *
  * Note, tracing is not actually enabled unless the following environment variables are defined:
@@ -82,7 +80,7 @@
 #define PLACE_CHECK_BOOL true
 #endif
 
-#ifdef __bg__
+#ifdef __bgp__
 #define DEFAULT_STATIC_THREADS true
 #else
 #define DEFAULT_STATIC_THREADS false
@@ -213,24 +211,8 @@ namespace x10aux {
     fprintf(stderr,"%s\n",ss.str().c_str()); \
 } while (0)
 
-#define ANSI_ALLOC ANSI_WHITE
-#define ANSI_CAST ANSI_RED
 #define ANSI_SER ANSI_CYAN
 #define ANSI_X10RT ANSI_BLUE
-
-#if !defined(NO_IOSTREAM) && defined(TRACE_ALLOC)
-#include <stdio.h>
-#define _M_(x) _DEBUG_MSG(ANSI_ALLOC,"MM",x)
-#else
-#define _M_(x)
-#endif
-
-#if !defined(NO_IOSTREAM) && defined(TRACE_CAST)
-#include <stdio.h>
-#define _CAST_(x) _DEBUG_MSG(ANSI_CAST,"CAST",x)
-#else
-#define _CAST_(x)
-#endif
 
 #if !defined(NO_IOSTREAM) && defined(TRACE_ENV_VAR)
 #include <stdio.h>

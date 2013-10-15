@@ -21,12 +21,12 @@ import harness.x10Test;
 	public def run(): boolean = {
 		var res2: boolean = false;
 		
-      var ni: int(4) = 4;
+      var ni: int(4n) = 4n;
 		
 		try {
-			// (int(:self==3)) <-- int(:c)
+			// (int(:self==3n)) <-- int(:c)
 			// not null check when unboxing and deptype check
-         var case2a: int(3) = ni as int(3); // ERR
+         var case2a: int(3n) = ni as int(3n); // ERR
 		} catch (e: ClassCastException) {
 			res2 = true;
 		}
@@ -34,7 +34,7 @@ import harness.x10Test;
 		return res2;
 	}
 
-	public static def main(var args: Array[String](1)): void = {
+	public static def main(var args: Rail[String]): void = {
 		new UnboxPrimitiveConstrained1_MustFailCompile().execute();
 	}
 }

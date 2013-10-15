@@ -21,15 +21,15 @@ import harness.x10Test;
 
 public class Expressions1l4m extends x10Test {
    public def run() : boolean = (new Hook()).run();
-   public static def main(var args: Array[String](1)): void = {
+   public static def main(args:Rail[String]):void {
         new Expressions1l4m().execute();
     }
 
 
-// file Expressions line 612
+// file Expressions line 611
 
  static class Expressions12TestExp{
-  def check(x:Int)  = x << 1U;  }
+  def check(x:Long, y:Long)  = x << y;  }
 
  static class Hook {
    def run():Boolean = true;

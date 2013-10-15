@@ -20,7 +20,7 @@ import harness.x10Test;
 public class GenericCast11 extends GenericTest {
 
     interface I[T] {
-        def m(T):int;
+        def m(T):long;
     }
 
     class A[T] implements I[T] {
@@ -29,7 +29,7 @@ public class GenericCast11 extends GenericTest {
 
     public def run() = {
 
-        var a:Any = new A[int]();
+        var a:Any = new A[long]();
 
         try {
             var i:I[String] = a as I[String]; // ERR: Warning: This is an unsound cast because X10 currently does not perform constraint solving at runtime for generic parameters.
@@ -40,7 +40,7 @@ public class GenericCast11 extends GenericTest {
         return false;
     }
 
-    public static def main(var args: Array[String](1)): void = {
+    public static def main(var args: Rail[String]): void = {
         new GenericCast11().execute();
     }
 }

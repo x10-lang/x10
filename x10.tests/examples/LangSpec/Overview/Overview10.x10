@@ -21,7 +21,7 @@ import harness.x10Test;
 
 public class Overview10 extends x10Test {
    public def run() : boolean = (new Hook()).run();
-   public static def main(var args: Array[String](1)): void = {
+   public static def main(args:Rail[String]):void {
         new Overview10().execute();
     }
 
@@ -36,8 +36,7 @@ public class Overview10 extends x10Test {
   public def move(dx:Double) { x += dx; }
 }
  static struct PlanePoint implements Normed {
-  val x : Double;
-  val y : Double;
+  val x : Double; val y:Double;
   public def this(x:Double, y:Double) {
     this.x = x; this.y = y;
   }

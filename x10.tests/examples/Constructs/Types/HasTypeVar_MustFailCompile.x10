@@ -20,11 +20,11 @@ import harness.x10Test;
 public class HasTypeVar_MustFailCompile extends x10Test {
 	
 	public def run() {
-		var x <: Int = 1; // ERR: Cannot infer type of a mutable (non-val) variable.
+		var x <: Long = 1; // ERR: Cannot infer type of a mutable (non-val) variable.
 		return true;
 	}
 
-	public static def main(Array[String](1))  {
+	public static def main(Rail[String])  {
 		new HasTypeVar_MustFailCompile().execute();
 	}
 }

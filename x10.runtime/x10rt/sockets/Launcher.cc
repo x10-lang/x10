@@ -448,9 +448,12 @@ void Launcher::handleRequestsLoop(bool onlyCheckForNewConnections)
 	if (!onlyCheckForNewConnections)
 		fprintf(stderr, "Launcher %u: main loop start\n", _myproc);
 	#endif
-	bool running = true;
+	bool parent_alive = true;
+    int num_children_alive = _numchildren + 1; // must include runtime
 
-	while (running)
+    // [DC] resilient X10: if your parent launcher dies, you always die (TODO: heal the tree)
+    // [DC] resilient X10: only die if you have run out of children
+	while (parent_alive && num_children_alive>0)
 	{
 		struct timeval timeout = { 0, 100000 };
 		fd_set infds, efds;
@@ -488,40 +491,45 @@ void Launcher::handleRequestsLoop(bool onlyCheckForNewConnections)
 		if (_parentLauncherControlLink >= 0)
 		{
 			if (FD_ISSET(_parentLauncherControlLink, &efds))
-				running = handleDeadParent();
+				parent_alive = handleDeadParent();
 			else if (FD_ISSET(_parentLauncherControlLink, &infds))
 				if (handleControlMessage(_parentLauncherControlLink) < 0)
-					running = handleDeadParent();
+					parent_alive = handleDeadParent();
 		}
 		/* runtime and children control, stdout and stderr */
 		for (uint32_t i = 0; i <= _numchildren; i++)
 		{
+            bool this_child_alive = true;
 			if (_childControlLinks[i] >= 0)
 			{
 				if (FD_ISSET(_childControlLinks[i], &efds))
-					running = handleDeadChild(i, 0);
+					this_child_alive = handleDeadChild(i, 0);
 				else if (FD_ISSET(_childControlLinks[i], &infds))
 					if (handleControlMessage(_childControlLinks[i]) < 0)
-						running = handleDeadChild(i, 0);
+						this_child_alive = handleDeadChild(i, 0);
 			}
 
 			if (_childCoutLinks[i] >= 0)
 			{
 				if (FD_ISSET(_childCoutLinks[i], &efds))
-					running = handleDeadChild(i, 1);
+					this_child_alive = handleDeadChild(i, 1);
 				else if (FD_ISSET(_childCoutLinks[i], &infds))
-					running = handleChildCout(i);
+					this_child_alive = handleChildCout(i);
 			}
 
 			if (_childCerrorLinks[i] >= 0)
 			{
 				if (FD_ISSET(_childCerrorLinks[i], &efds))
-					running = handleDeadChild(i, 2);
+					this_child_alive = handleDeadChild(i, 2);
 				else if (FD_ISSET(_childCerrorLinks[i], &infds))
-					running = handleChildCerror(i);
+					this_child_alive = handleChildCerror(i);
 			}
+            if (!this_child_alive) num_children_alive--;
 		}
 	}
+    #ifdef DEBUG
+        fprintf(stdout, "Launcher %d: coming out of main loop\n", _myproc);
+    #endif
 
 	/* --------------------------------------------- */
 	/* end of main loop. kill & wait every process   */
@@ -874,7 +882,7 @@ bool Launcher::handleDeadChild(uint32_t childNo, int type)
 			#ifdef DEBUG
 				fprintf(stdout, "Launcher %d: child runtime gave return code %i.  Forwarding.\n", _myproc, _exitcode);
 			#endif
-			Launcher::cb_sighandler_term(SIGTERM);
+			//Launcher::cb_sighandler_term(SIGTERM);
 			return false;
 		}
 	}
@@ -979,11 +987,8 @@ int Launcher::handleControlMessage(int fd)
 				TCP::write(_childControlLinks[_numchildren], data, m.datalen);
 			}
 			break;
-			case HELLO:
-				DIE("Unexpected HELLO message");
-			break;
-			case GOODBYE:
-				DIE("Unexpected GOODBYE message");
+			default:
+				DIE("Launcher %u got unexpected message type %i", _myproc, m.type);
 			break;
 		}
 	}
@@ -1122,10 +1127,19 @@ void Launcher::cb_sighandler_cld(int signo)
 	// limit our lifetime to a few seconds, to allow any children to shut down on their own. Then kill em' all.
 	if (_singleton->_dieAt == 0)
 	{
-		_singleton->_dieAt = 2+time(NULL);
-		#ifdef DEBUG
-			fprintf(stderr, "Launcher %u: started the doomsday device\n", _singleton->_myproc);
-		#endif
+        bool resilient_x10 = checkBoolEnvVar(getenv(X10_RESILIENT_PLACE_ZERO))
+                          || checkBoolEnvVar(getenv(X10_RESILIENT_ZOO_KEEPER))
+                          || checkBoolEnvVar(getenv(X10_RESILIENT_DISTRIBUTED));
+        if ((_singleton->_myproc == 0 && signo!=SIGCHLD) || !resilient_x10) {
+            _singleton->_dieAt = 2+time(NULL);
+            #ifdef DEBUG
+                fprintf(stderr, "Launcher %u: started the doomsday device\n", _singleton->_myproc);
+            #endif
+        } else {
+            #ifdef DEBUG
+                fprintf(stderr, "Launcher %u: not starting the doomsday device\n", _singleton->_myproc);
+            #endif
+        }
 	}
 }
 
@@ -1287,8 +1301,9 @@ void Launcher::startSSHclient(uint32_t id, char* masterPort, char* remotehost)
 	char ** argv = (char **) alloca (sizeof(char *) * (_argc+environ_sz+32));
 	int z = 0;
 	argv[z] = _ssh_command;
-	static char ttyarg[] = "-tt";
+	static char ttyarg[] = "-t";
 	argv[++z] = ttyarg;
+	argv[++z] = ttyarg; // put in -t twice
 	static char quietarg[] = "-q";
 	argv[++z] = quietarg;
 	argv[++z] = remotehost;

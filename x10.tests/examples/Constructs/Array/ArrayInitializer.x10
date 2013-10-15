@@ -10,6 +10,7 @@
  */
 
 import harness.x10Test;
+import x10.regionarray.*;
 
 /**
  * Array Initializer test.
@@ -19,16 +20,16 @@ public class ArrayInitializer extends x10Test {
 
     public def run(): boolean = {
 
-        val e = 0..9;
+        val e = Region.make(0, 9);
         val r = e*e*e;
 
-        val ia = new Array[Int](r, (val [i,j,k]: Point)=> i);
+        val ia = new Array[Long](r, (val [i,j,k]: Point)=> i);
         for (val [i,j,k]: Point in ia.region) chk(ia(i, j, k) == i);
 
         return true;
     }
 
-    public static def main(var args: Array[String](1)): void = {
+    public static def main(var args: Rail[String]): void = {
         new ArrayInitializer().execute();
     }
 }

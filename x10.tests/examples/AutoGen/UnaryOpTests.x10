@@ -22,7 +22,7 @@ class UnaryOpTests {
 	def m18():void { var l:Float = w7++; }
 	def m19():void { var l:Float = w8++; }
 	def m20():void { var l:Float = w9++; }
-	def m21():void { var l:Float = w10++; }  // ERR (Semantic Error: Cannot assign expression to target.		 Expression: UnaryOpTests.this.w10++		 Expected type: x10.lang.Float		 Found type: x10.array.Point)
+	def m21():void { var l:Float = w10++; }  // ERR (Semantic Error: Cannot assign expression to target.		 Expression: UnaryOpTests.this.w10++		 Expected type: x10.lang.Float		 Found type: x10.lang.Point)
 	def m22():void { var l:Float = 0++; }  // ERR (Semantic Error: Cannot apply ++ to an arbitrary expression.)
 	def m23():void { var l:Float = (-0)++; }  // ERR (Semantic Error: Cannot apply ++ to an arbitrary expression.)
 	def m24():void { var l:Float = 1.1f++; }  // ERR (Semantic Error: Cannot apply ++ to an arbitrary expression.)
@@ -61,7 +61,7 @@ class UnaryOpTests {
 	def m57():void { var l:Float = -w7; }
 	def m58():void { var l:Float = -w8; }
 	def m59():void { var l:Float = -w9; }
-	def m60():void { var l:Float = -w10; }  // ERR (Semantic Error: Cannot assign expression to target.		 Expression: -UnaryOpTests.this.w10		 Expected type: x10.lang.Float		 Found type: x10.array.Point{})
+	def m60():void { var l:Float = -w10; }  // ERR (Semantic Error: Cannot assign expression to target.		 Expression: -UnaryOpTests.this.w10		 Expected type: x10.lang.Float		 Found type: x10.lang.Point{})
 	def m61():void { var l:Float = -0; }
 	def m62():void { var l:Float = -(-0); }
 	def m63():void { var l:Float = -1.1f; }
@@ -100,7 +100,7 @@ class UnaryOpTests {
 	def m96():void { var l:Double = w7++; }
 	def m97():void { var l:Double = w8++; }
 	def m98():void { var l:Double = w9++; }
-	def m99():void { var l:Double = w10++; }  // ERR (Semantic Error: Cannot assign expression to target.		 Expression: UnaryOpTests.this.w10++		 Expected type: x10.lang.Double		 Found type: x10.array.Point)
+	def m99():void { var l:Double = w10++; }  // ERR (Semantic Error: Cannot assign expression to target.		 Expression: UnaryOpTests.this.w10++		 Expected type: x10.lang.Double		 Found type: x10.lang.Point)
 	def m100():void { var l:Double = 0++; }  // ERR (Semantic Error: Cannot apply ++ to an arbitrary expression.)
 	def m101():void { var l:Double = (-0)++; }  // ERR (Semantic Error: Cannot apply ++ to an arbitrary expression.)
 	def m102():void { var l:Double = 1.1f++; }  // ERR (Semantic Error: Cannot apply ++ to an arbitrary expression.)
@@ -139,7 +139,7 @@ class UnaryOpTests {
 	def m135():void { var l:Double = -w7; }
 	def m136():void { var l:Double = -w8; }
 	def m137():void { var l:Double = -w9; }
-	def m138():void { var l:Double = -w10; }  // ERR (Semantic Error: Cannot assign expression to target.		 Expression: -UnaryOpTests.this.w10		 Expected type: x10.lang.Double		 Found type: x10.array.Point{})
+	def m138():void { var l:Double = -w10; }  // ERR (Semantic Error: Cannot assign expression to target.		 Expression: -UnaryOpTests.this.w10		 Expected type: x10.lang.Double		 Found type: x10.lang.Point{})
 	def m139():void { var l:Double = -0; }
 	def m140():void { var l:Double = -(-0); }
 	def m141():void { var l:Double = -1.1f; }
@@ -178,7 +178,7 @@ class UnaryOpTests {
 	def m174():void { var l:Byte = w7++; }  // ERR (Semantic Error: Cannot assign expression to target.		 Expression: UnaryOpTests.this.w7++		 Expected type: x10.lang.Byte		 Found type: x10.lang.UInt)
 	def m175():void { var l:Byte = w8++; }  // ERR (Semantic Error: Cannot assign expression to target.		 Expression: UnaryOpTests.this.w8++		 Expected type: x10.lang.Byte		 Found type: x10.lang.ULong)
 	def m176():void { var l:Byte = w9++; }  // ERR (Semantic Error: Cannot assign expression to target.		 Expression: UnaryOpTests.this.w9++		 Expected type: x10.lang.Byte		 Found type: x10.lang.UShort)
-	def m177():void { var l:Byte = w10++; }  // ERR (Semantic Error: Cannot assign expression to target.		 Expression: UnaryOpTests.this.w10++		 Expected type: x10.lang.Byte		 Found type: x10.array.Point)
+	def m177():void { var l:Byte = w10++; }  // ERR (Semantic Error: Cannot assign expression to target.		 Expression: UnaryOpTests.this.w10++		 Expected type: x10.lang.Byte		 Found type: x10.lang.Point)
 	def m178():void { var l:Byte = 0++; }  // ERR (Semantic Error: Cannot apply ++ to an arbitrary expression.)
 	def m179():void { var l:Byte = (-0)++; }  // ERR (Semantic Error: Cannot apply ++ to an arbitrary expression.)
 	def m180():void { var l:Byte = 1.1f++; }  // ERR (Semantic Error: Cannot apply ++ to an arbitrary expression.)
@@ -217,7 +217,7 @@ class UnaryOpTests {
 	def m213():void { var l:Byte = -w7; }  // ERR (Semantic Error: Cannot assign expression to target.		 Expression: -UnaryOpTests.this.w7		 Expected type: x10.lang.Byte		 Found type: x10.lang.UInt)
 	def m214():void { var l:Byte = -w8; }  // ERR (Semantic Error: Cannot assign expression to target.		 Expression: -UnaryOpTests.this.w8		 Expected type: x10.lang.Byte		 Found type: x10.lang.ULong)
 	def m215():void { var l:Byte = -w9; }  // ERR (Semantic Error: Cannot assign expression to target.		 Expression: -UnaryOpTests.this.w9		 Expected type: x10.lang.Byte		 Found type: x10.lang.UShort)
-	def m216():void { var l:Byte = -w10; }  // ERR (Semantic Error: Cannot assign expression to target.		 Expression: -UnaryOpTests.this.w10		 Expected type: x10.lang.Byte		 Found type: x10.array.Point{})
+	def m216():void { var l:Byte = -w10; }  // ERR (Semantic Error: Cannot assign expression to target.		 Expression: -UnaryOpTests.this.w10		 Expected type: x10.lang.Byte		 Found type: x10.lang.Point{})
 	def m217():void { var l:Byte = -0; }
 	def m218():void { var l:Byte = -(-0); }
 	def m219():void { var l:Byte = -1.1f; }  // ERR (Semantic Error: Cannot assign expression to target.		 Expression: -1.100000023841858		 Expected type: x10.lang.Byte		 Found type: x10.lang.Float)
@@ -256,7 +256,7 @@ class UnaryOpTests {
 	def m252():void { var l:Int = w7++; }// ERR (Semantic Error: Cannot assign expression to target.		 Expression: UnaryOpTests.this.w7++		 Expected type: x10.lang.Int		 Found type: x10.lang.UInt)
 	def m253():void { var l:Int = w8++; }  // ERR (Semantic Error: Cannot assign expression to target.		 Expression: UnaryOpTests.this.w8++		 Expected type: x10.lang.Int		 Found type: x10.lang.ULong)
 	def m254():void { var l:Int = w9++; }  // ERR (Semantic Error: Cannot assign expression to target.		 Expression: UnaryOpTests.this.w9++		 Expected type: x10.lang.Int		 Found type: x10.lang.UShort)
-	def m255():void { var l:Int = w10++; }  // ERR (Semantic Error: Cannot assign expression to target.		 Expression: UnaryOpTests.this.w10++		 Expected type: x10.lang.Int		 Found type: x10.array.Point)
+	def m255():void { var l:Int = w10++; }  // ERR (Semantic Error: Cannot assign expression to target.		 Expression: UnaryOpTests.this.w10++		 Expected type: x10.lang.Int		 Found type: x10.lang.Point)
 	def m256():void { var l:Int = 0++; }  // ERR (Semantic Error: Cannot apply ++ to an arbitrary expression.)
 	def m257():void { var l:Int = (-0)++; }  // ERR (Semantic Error: Cannot apply ++ to an arbitrary expression.)
 	def m258():void { var l:Int = 1.1f++; }  // ERR (Semantic Error: Cannot apply ++ to an arbitrary expression.)
@@ -295,7 +295,7 @@ class UnaryOpTests {
 	def m291():void { var l:Int = -w7; }// ERR (Semantic Error: Cannot assign expression to target.		 Expression: -UnaryOpTests.this.w7		 Expected type: x10.lang.Int		 Found type: x10.lang.UInt)
 	def m292():void { var l:Int = -w8; }  // ERR (Semantic Error: Cannot assign expression to target.		 Expression: -UnaryOpTests.this.w8		 Expected type: x10.lang.Int		 Found type: x10.lang.ULong)
 	def m293():void { var l:Int = -w9; }  // ERR (Semantic Error: Cannot assign expression to target.		 Expression: -UnaryOpTests.this.w9		 Expected type: x10.lang.Int		 Found type: x10.lang.UShort)
-	def m294():void { var l:Int = -w10; }  // ERR (Semantic Error: Cannot assign expression to target.		 Expression: -UnaryOpTests.this.w10		 Expected type: x10.lang.Int		 Found type: x10.array.Point{})
+	def m294():void { var l:Int = -w10; }  // ERR (Semantic Error: Cannot assign expression to target.		 Expression: -UnaryOpTests.this.w10		 Expected type: x10.lang.Int		 Found type: x10.lang.Point{})
 	def m295():void { var l:Int = -0; }
 	def m296():void { var l:Int = -(-0); }
 	def m297():void { var l:Int = -1.1f; }  // ERR (Semantic Error: Cannot assign expression to target.		 Expression: -1.100000023841858		 Expected type: x10.lang.Int		 Found type: x10.lang.Float)
@@ -334,7 +334,7 @@ class UnaryOpTests {
 	def m330():void { var l:Long = w7++; }  // ERR (Semantic Error: Cannot assign expression to target.		 Expression: UnaryOpTests.this.w7++		 Expected type: x10.lang.Long		 Found type: x10.lang.UInt)
 	def m331():void { var l:Long = w8++; }// ERR (Semantic Error: Cannot assign expression to target.		 Expression: UnaryOpTests.this.w8++		 Expected type: x10.lang.Long		 Found type: x10.lang.ULong)
 	def m332():void { var l:Long = w9++; }  // ERR (Semantic Error: Cannot assign expression to target.		 Expression: UnaryOpTests.this.w9++		 Expected type: x10.lang.Long		 Found type: x10.lang.UShort)
-	def m333():void { var l:Long = w10++; }  // ERR (Semantic Error: Cannot assign expression to target.		 Expression: UnaryOpTests.this.w10++		 Expected type: x10.lang.Long		 Found type: x10.array.Point)
+	def m333():void { var l:Long = w10++; }  // ERR (Semantic Error: Cannot assign expression to target.		 Expression: UnaryOpTests.this.w10++		 Expected type: x10.lang.Long		 Found type: x10.lang.Point)
 	def m334():void { var l:Long = 0++; }  // ERR (Semantic Error: Cannot apply ++ to an arbitrary expression.)
 	def m335():void { var l:Long = (-0)++; }  // ERR (Semantic Error: Cannot apply ++ to an arbitrary expression.)
 	def m336():void { var l:Long = 1.1f++; }  // ERR (Semantic Error: Cannot apply ++ to an arbitrary expression.)
@@ -373,7 +373,7 @@ class UnaryOpTests {
 	def m369():void { var l:Long = -w7; }  // ERR (Semantic Error: Cannot assign expression to target.		 Expression: -UnaryOpTests.this.w7		 Expected type: x10.lang.Long		 Found type: x10.lang.UInt)
 	def m370():void { var l:Long = -w8; }// ERR (Semantic Error: Cannot assign expression to target.		 Expression: -UnaryOpTests.this.w8		 Expected type: x10.lang.Long		 Found type: x10.lang.ULong)
 	def m371():void { var l:Long = -w9; }  // ERR (Semantic Error: Cannot assign expression to target.		 Expression: -UnaryOpTests.this.w9		 Expected type: x10.lang.Long		 Found type: x10.lang.UShort)
-	def m372():void { var l:Long = -w10; }  // ERR (Semantic Error: Cannot assign expression to target.		 Expression: -UnaryOpTests.this.w10		 Expected type: x10.lang.Long		 Found type: x10.array.Point{})
+	def m372():void { var l:Long = -w10; }  // ERR (Semantic Error: Cannot assign expression to target.		 Expression: -UnaryOpTests.this.w10		 Expected type: x10.lang.Long		 Found type: x10.lang.Point{})
 	def m373():void { var l:Long = -0; }
 	def m374():void { var l:Long = -(-0); }
 	def m375():void { var l:Long = -1.1f; }  // ERR (Semantic Error: Cannot assign expression to target.		 Expression: -1.100000023841858		 Expected type: x10.lang.Long		 Found type: x10.lang.Float)
@@ -412,7 +412,7 @@ class UnaryOpTests {
 	def m408():void { var l:Short = w7++; }  // ERR (Semantic Error: Cannot assign expression to target.		 Expression: UnaryOpTests.this.w7++		 Expected type: x10.lang.Short		 Found type: x10.lang.UInt)
 	def m409():void { var l:Short = w8++; }  // ERR (Semantic Error: Cannot assign expression to target.		 Expression: UnaryOpTests.this.w8++		 Expected type: x10.lang.Short		 Found type: x10.lang.ULong)
 	def m410():void { var l:Short = w9++; }// ERR (Semantic Error: Cannot assign expression to target.		 Expression: UnaryOpTests.this.w9++		 Expected type: x10.lang.Short		 Found type: x10.lang.UShort)
-	def m411():void { var l:Short = w10++; }  // ERR (Semantic Error: Cannot assign expression to target.		 Expression: UnaryOpTests.this.w10++		 Expected type: x10.lang.Short		 Found type: x10.array.Point)
+	def m411():void { var l:Short = w10++; }  // ERR (Semantic Error: Cannot assign expression to target.		 Expression: UnaryOpTests.this.w10++		 Expected type: x10.lang.Short		 Found type: x10.lang.Point)
 	def m412():void { var l:Short = 0++; }  // ERR (Semantic Error: Cannot apply ++ to an arbitrary expression.)
 	def m413():void { var l:Short = (-0)++; }  // ERR (Semantic Error: Cannot apply ++ to an arbitrary expression.)
 	def m414():void { var l:Short = 1.1f++; }  // ERR (Semantic Error: Cannot apply ++ to an arbitrary expression.)
@@ -451,7 +451,7 @@ class UnaryOpTests {
 	def m447():void { var l:Short = -w7; }  // ERR (Semantic Error: Cannot assign expression to target.		 Expression: -UnaryOpTests.this.w7		 Expected type: x10.lang.Short		 Found type: x10.lang.UInt)
 	def m448():void { var l:Short = -w8; }  // ERR (Semantic Error: Cannot assign expression to target.		 Expression: -UnaryOpTests.this.w8		 Expected type: x10.lang.Short		 Found type: x10.lang.ULong)
 	def m449():void { var l:Short = -w9; }// ERR (Semantic Error: Cannot assign expression to target.		 Expression: -UnaryOpTests.this.w9		 Expected type: x10.lang.Short		 Found type: x10.lang.UShort)
-	def m450():void { var l:Short = -w10; }  // ERR (Semantic Error: Cannot assign expression to target.		 Expression: -UnaryOpTests.this.w10		 Expected type: x10.lang.Short		 Found type: x10.array.Point{})
+	def m450():void { var l:Short = -w10; }  // ERR (Semantic Error: Cannot assign expression to target.		 Expression: -UnaryOpTests.this.w10		 Expected type: x10.lang.Short		 Found type: x10.lang.Point{})
 	def m451():void { var l:Short = -0; }
 	def m452():void { var l:Short = -(-0); }
 	def m453():void { var l:Short = -1.1f; }  // ERR (Semantic Error: Cannot assign expression to target.		 Expression: -1.100000023841858		 Expected type: x10.lang.Short		 Found type: x10.lang.Float)
@@ -490,7 +490,7 @@ class UnaryOpTests {
 	def m486():void { var l:UByte = w7++; }  // ERR (Semantic Error: Cannot assign expression to target.		 Expression: UnaryOpTests.this.w7++		 Expected type: x10.lang.UByte		 Found type: x10.lang.UInt)
 	def m487():void { var l:UByte = w8++; }  // ERR (Semantic Error: Cannot assign expression to target.		 Expression: UnaryOpTests.this.w8++		 Expected type: x10.lang.UByte		 Found type: x10.lang.ULong)
 	def m488():void { var l:UByte = w9++; }  // ERR (Semantic Error: Cannot assign expression to target.		 Expression: UnaryOpTests.this.w9++		 Expected type: x10.lang.UByte		 Found type: x10.lang.UShort)
-	def m489():void { var l:UByte = w10++; }  // ERR (Semantic Error: Cannot assign expression to target.		 Expression: UnaryOpTests.this.w10++		 Expected type: x10.lang.UByte		 Found type: x10.array.Point)
+	def m489():void { var l:UByte = w10++; }  // ERR (Semantic Error: Cannot assign expression to target.		 Expression: UnaryOpTests.this.w10++		 Expected type: x10.lang.UByte		 Found type: x10.lang.Point)
 	def m490():void { var l:UByte = 0++; }  // ERR (Semantic Error: Cannot apply ++ to an arbitrary expression.)
 	def m491():void { var l:UByte = (-0)++; }  // ERR (Semantic Error: Cannot apply ++ to an arbitrary expression.)
 	def m492():void { var l:UByte = 1.1f++; }  // ERR (Semantic Error: Cannot apply ++ to an arbitrary expression.)
@@ -529,7 +529,7 @@ class UnaryOpTests {
 	def m525():void { var l:UByte = -w7; }  // ERR (Semantic Error: Cannot assign expression to target.		 Expression: -UnaryOpTests.this.w7		 Expected type: x10.lang.UByte		 Found type: x10.lang.UInt)
 	def m526():void { var l:UByte = -w8; }  // ERR (Semantic Error: Cannot assign expression to target.		 Expression: -UnaryOpTests.this.w8		 Expected type: x10.lang.UByte		 Found type: x10.lang.ULong)
 	def m527():void { var l:UByte = -w9; }  // ERR (Semantic Error: Cannot assign expression to target.		 Expression: -UnaryOpTests.this.w9		 Expected type: x10.lang.UByte		 Found type: x10.lang.UShort)
-	def m528():void { var l:UByte = -w10; }  // ERR (Semantic Error: Cannot assign expression to target.		 Expression: -UnaryOpTests.this.w10		 Expected type: x10.lang.UByte		 Found type: x10.array.Point{})
+	def m528():void { var l:UByte = -w10; }  // ERR (Semantic Error: Cannot assign expression to target.		 Expression: -UnaryOpTests.this.w10		 Expected type: x10.lang.UByte		 Found type: x10.lang.Point{})
 	def m529():void { var l:UByte = -0; }
 	def m530():void { var l:UByte = -(-0); }
 	def m531():void { var l:UByte = -1.1f; }  // ERR (Semantic Error: Cannot assign expression to target.		 Expression: -1.100000023841858		 Expected type: x10.lang.UByte		 Found type: x10.lang.Float)
@@ -568,7 +568,7 @@ class UnaryOpTests {
 	def m564():void { var l:UInt = w7++; }
 	def m565():void { var l:UInt = w8++; }  // ERR (Semantic Error: Cannot assign expression to target.		 Expression: UnaryOpTests.this.w8++		 Expected type: x10.lang.UInt		 Found type: x10.lang.ULong)
 	def m566():void { var l:UInt = w9++; }
-	def m567():void { var l:UInt = w10++; }  // ERR (Semantic Error: Cannot assign expression to target.		 Expression: UnaryOpTests.this.w10++		 Expected type: x10.lang.UInt		 Found type: x10.array.Point)
+	def m567():void { var l:UInt = w10++; }  // ERR (Semantic Error: Cannot assign expression to target.		 Expression: UnaryOpTests.this.w10++		 Expected type: x10.lang.UInt		 Found type: x10.lang.Point)
 	def m568():void { var l:UInt = 0++; }  // ERR (Semantic Error: Cannot apply ++ to an arbitrary expression.)
 	def m569():void { var l:UInt = (-0)++; }  // ERR (Semantic Error: Cannot apply ++ to an arbitrary expression.)
 	def m570():void { var l:UInt = 1.1f++; }  // ERR (Semantic Error: Cannot apply ++ to an arbitrary expression.)
@@ -607,7 +607,7 @@ class UnaryOpTests {
 	def m603():void { var l:UInt = -w7; }
 	def m604():void { var l:UInt = -w8; }  // ERR (Semantic Error: Cannot assign expression to target.		 Expression: -UnaryOpTests.this.w8		 Expected type: x10.lang.UInt		 Found type: x10.lang.ULong)
 	def m605():void { var l:UInt = -w9; }
-	def m606():void { var l:UInt = -w10; }  // ERR (Semantic Error: Cannot assign expression to target.		 Expression: -UnaryOpTests.this.w10		 Expected type: x10.lang.UInt		 Found type: x10.array.Point{})
+	def m606():void { var l:UInt = -w10; }  // ERR (Semantic Error: Cannot assign expression to target.		 Expression: -UnaryOpTests.this.w10		 Expected type: x10.lang.UInt		 Found type: x10.lang.Point{})
 	def m607():void { var l:UInt = -0; }
 	def m608():void { var l:UInt = -(-0); }
 	def m609():void { var l:UInt = -1.1f; }  // ERR (Semantic Error: Cannot assign expression to target.		 Expression: -1.100000023841858		 Expected type: x10.lang.UInt		 Found type: x10.lang.Float)
@@ -646,7 +646,7 @@ class UnaryOpTests {
 	def m642():void { var l:ULong = w7++; }
 	def m643():void { var l:ULong = w8++; }
 	def m644():void { var l:ULong = w9++; }
-	def m645():void { var l:ULong = w10++; }  // ERR (Semantic Error: Cannot assign expression to target.		 Expression: UnaryOpTests.this.w10++		 Expected type: x10.lang.ULong		 Found type: x10.array.Point)
+	def m645():void { var l:ULong = w10++; }  // ERR (Semantic Error: Cannot assign expression to target.		 Expression: UnaryOpTests.this.w10++		 Expected type: x10.lang.ULong		 Found type: x10.lang.Point)
 	def m646():void { var l:ULong = 0++; }  // ERR (Semantic Error: Cannot apply ++ to an arbitrary expression.)
 	def m647():void { var l:ULong = (-0)++; }  // ERR (Semantic Error: Cannot apply ++ to an arbitrary expression.)
 	def m648():void { var l:ULong = 1.1f++; }  // ERR (Semantic Error: Cannot apply ++ to an arbitrary expression.)
@@ -685,7 +685,7 @@ class UnaryOpTests {
 	def m681():void { var l:ULong = -w7; }
 	def m682():void { var l:ULong = -w8; }
 	def m683():void { var l:ULong = -w9; }
-	def m684():void { var l:ULong = -w10; }  // ERR (Semantic Error: Cannot assign expression to target.		 Expression: -UnaryOpTests.this.w10		 Expected type: x10.lang.ULong		 Found type: x10.array.Point{})
+	def m684():void { var l:ULong = -w10; }  // ERR (Semantic Error: Cannot assign expression to target.		 Expression: -UnaryOpTests.this.w10		 Expected type: x10.lang.ULong		 Found type: x10.lang.Point{})
 	def m685():void { var l:ULong = -0; }
 	def m686():void { var l:ULong = -(-0); }
 	def m687():void { var l:ULong = -1.1f; }  // ERR (Semantic Error: Cannot assign expression to target.		 Expression: -1.100000023841858		 Expected type: x10.lang.ULong		 Found type: x10.lang.Float)
@@ -724,7 +724,7 @@ class UnaryOpTests {
 	def m720():void { var l:UShort = w7++; }  // ERR (Semantic Error: Cannot assign expression to target.		 Expression: UnaryOpTests.this.w7++		 Expected type: x10.lang.UShort		 Found type: x10.lang.UInt)
 	def m721():void { var l:UShort = w8++; }  // ERR (Semantic Error: Cannot assign expression to target.		 Expression: UnaryOpTests.this.w8++		 Expected type: x10.lang.UShort		 Found type: x10.lang.ULong)
 	def m722():void { var l:UShort = w9++; }
-	def m723():void { var l:UShort = w10++; }  // ERR (Semantic Error: Cannot assign expression to target.		 Expression: UnaryOpTests.this.w10++		 Expected type: x10.lang.UShort		 Found type: x10.array.Point)
+	def m723():void { var l:UShort = w10++; }  // ERR (Semantic Error: Cannot assign expression to target.		 Expression: UnaryOpTests.this.w10++		 Expected type: x10.lang.UShort		 Found type: x10.lang.Point)
 	def m724():void { var l:UShort = 0++; }  // ERR (Semantic Error: Cannot apply ++ to an arbitrary expression.)
 	def m725():void { var l:UShort = (-0)++; }  // ERR (Semantic Error: Cannot apply ++ to an arbitrary expression.)
 	def m726():void { var l:UShort = 1.1f++; }  // ERR (Semantic Error: Cannot apply ++ to an arbitrary expression.)
@@ -763,7 +763,7 @@ class UnaryOpTests {
 	def m759():void { var l:UShort = -w7; }  // ERR (Semantic Error: Cannot assign expression to target.		 Expression: -UnaryOpTests.this.w7		 Expected type: x10.lang.UShort		 Found type: x10.lang.UInt)
 	def m760():void { var l:UShort = -w8; }  // ERR (Semantic Error: Cannot assign expression to target.		 Expression: -UnaryOpTests.this.w8		 Expected type: x10.lang.UShort		 Found type: x10.lang.ULong)
 	def m761():void { var l:UShort = -w9; }
-	def m762():void { var l:UShort = -w10; }  // ERR (Semantic Error: Cannot assign expression to target.		 Expression: -UnaryOpTests.this.w10		 Expected type: x10.lang.UShort		 Found type: x10.array.Point{})
+	def m762():void { var l:UShort = -w10; }  // ERR (Semantic Error: Cannot assign expression to target.		 Expression: -UnaryOpTests.this.w10		 Expected type: x10.lang.UShort		 Found type: x10.lang.Point{})
 	def m763():void { var l:UShort = -0; }
 	def m764():void { var l:UShort = -(-0); }
 	def m765():void { var l:UShort = -1.1f; }  // ERR (Semantic Error: Cannot assign expression to target.		 Expression: -1.100000023841858		 Expected type: x10.lang.UShort		 Found type: x10.lang.Float)
@@ -792,16 +792,16 @@ class UnaryOpTests {
 	def m788():void { var l:UShort = -(-16777217); }  // ERR (Semantic Error: Cannot assign expression to target.		 Expression: -(-16777217)		 Expected type: x10.lang.UShort		 Found type: x10.lang.Int)
 	def m789():void { var l:UShort = -2147483647; }  // ERR (Semantic Error: Cannot assign expression to target.		 Expression: -2147483647		 Expected type: x10.lang.UShort		 Found type: x10.lang.Int{self==-2147483647})
 	def m790():void { var l:UShort = -(-2147483647); }  // ERR (Semantic Error: Cannot assign expression to target.		 Expression: -(-2147483647)		 Expected type: x10.lang.UShort		 Found type: x10.lang.Int)
-	def m791():void { var l:Point = w0++; }  // ERR (Semantic Error: Cannot assign expression to target.		 Expression: UnaryOpTests.this.w0++		 Expected type: x10.array.Point		 Found type: x10.lang.Float)
-	def m792():void { var l:Point = w1++; }  // ERR (Semantic Error: Cannot assign expression to target.		 Expression: UnaryOpTests.this.w1++		 Expected type: x10.array.Point		 Found type: x10.lang.Double)
-	def m793():void { var l:Point = w2++; }  // ERR (Semantic Error: Cannot assign expression to target.		 Expression: UnaryOpTests.this.w2++		 Expected type: x10.array.Point		 Found type: x10.lang.Byte)
-	def m794():void { var l:Point = w3++; }  // ERR (Semantic Error: Cannot assign expression to target.		 Expression: UnaryOpTests.this.w3++		 Expected type: x10.array.Point		 Found type: x10.lang.Int)
-	def m795():void { var l:Point = w4++; }  // ERR (Semantic Error: Cannot assign expression to target.		 Expression: UnaryOpTests.this.w4++		 Expected type: x10.array.Point		 Found type: x10.lang.Long)
-	def m796():void { var l:Point = w5++; }  // ERR (Semantic Error: Cannot assign expression to target.		 Expression: UnaryOpTests.this.w5++		 Expected type: x10.array.Point		 Found type: x10.lang.Short)
-	def m797():void { var l:Point = w6++; }  // ERR (Semantic Error: Cannot assign expression to target.		 Expression: UnaryOpTests.this.w6++		 Expected type: x10.array.Point		 Found type: x10.lang.UByte)
-	def m798():void { var l:Point = w7++; }  // ERR (Semantic Error: Cannot assign expression to target.		 Expression: UnaryOpTests.this.w7++		 Expected type: x10.array.Point		 Found type: x10.lang.UInt)
-	def m799():void { var l:Point = w8++; }  // ERR (Semantic Error: Cannot assign expression to target.		 Expression: UnaryOpTests.this.w8++		 Expected type: x10.array.Point		 Found type: x10.lang.ULong)
-	def m800():void { var l:Point = w9++; }  // ERR (Semantic Error: Cannot assign expression to target.		 Expression: UnaryOpTests.this.w9++		 Expected type: x10.array.Point		 Found type: x10.lang.UShort)
+	def m791():void { var l:Point = w0++; }  // ERR (Semantic Error: Cannot assign expression to target.		 Expression: UnaryOpTests.this.w0++		 Expected type: x10.lang.Point		 Found type: x10.lang.Float)
+	def m792():void { var l:Point = w1++; }  // ERR (Semantic Error: Cannot assign expression to target.		 Expression: UnaryOpTests.this.w1++		 Expected type: x10.lang.Point		 Found type: x10.lang.Double)
+	def m793():void { var l:Point = w2++; }  // ERR (Semantic Error: Cannot assign expression to target.		 Expression: UnaryOpTests.this.w2++		 Expected type: x10.lang.Point		 Found type: x10.lang.Byte)
+	def m794():void { var l:Point = w3++; }  // ERR (Semantic Error: Cannot assign expression to target.		 Expression: UnaryOpTests.this.w3++		 Expected type: x10.lang.Point		 Found type: x10.lang.Int)
+	def m795():void { var l:Point = w4++; }  // ERR (Semantic Error: Cannot assign expression to target.		 Expression: UnaryOpTests.this.w4++		 Expected type: x10.lang.Point		 Found type: x10.lang.Long)
+	def m796():void { var l:Point = w5++; }  // ERR (Semantic Error: Cannot assign expression to target.		 Expression: UnaryOpTests.this.w5++		 Expected type: x10.lang.Point		 Found type: x10.lang.Short)
+	def m797():void { var l:Point = w6++; }  // ERR (Semantic Error: Cannot assign expression to target.		 Expression: UnaryOpTests.this.w6++		 Expected type: x10.lang.Point		 Found type: x10.lang.UByte)
+	def m798():void { var l:Point = w7++; }  // ERR (Semantic Error: Cannot assign expression to target.		 Expression: UnaryOpTests.this.w7++		 Expected type: x10.lang.Point		 Found type: x10.lang.UInt)
+	def m799():void { var l:Point = w8++; }  // ERR (Semantic Error: Cannot assign expression to target.		 Expression: UnaryOpTests.this.w8++		 Expected type: x10.lang.Point		 Found type: x10.lang.ULong)
+	def m800():void { var l:Point = w9++; }  // ERR (Semantic Error: Cannot assign expression to target.		 Expression: UnaryOpTests.this.w9++		 Expected type: x10.lang.Point		 Found type: x10.lang.UShort)
 	def m801():void { var l:Point = w10++; }
 	def m802():void { var l:Point = 0++; }  // ERR (Semantic Error: Cannot apply ++ to an arbitrary expression.)
 	def m803():void { var l:Point = (-0)++; }  // ERR (Semantic Error: Cannot apply ++ to an arbitrary expression.)
@@ -831,43 +831,43 @@ class UnaryOpTests {
 	def m827():void { var l:Point = (-16777217)++; }  // ERR (Semantic Error: Cannot apply ++ to an arbitrary expression.)
 	def m828():void { var l:Point = 2147483647++; }  // ERR (Semantic Error: Cannot apply ++ to an arbitrary expression.)
 	def m829():void { var l:Point = (-2147483647)++; }  // ERR (Semantic Error: Cannot apply ++ to an arbitrary expression.)
-	def m830():void { var l:Point = -w0; }  // ERR (Semantic Error: Cannot assign expression to target.		 Expression: -UnaryOpTests.this.w0		 Expected type: x10.array.Point		 Found type: x10.lang.Float)
-	def m831():void { var l:Point = -w1; }  // ERR (Semantic Error: Cannot assign expression to target.		 Expression: -UnaryOpTests.this.w1		 Expected type: x10.array.Point		 Found type: x10.lang.Double)
-	def m832():void { var l:Point = -w2; }  // ERR (Semantic Error: Cannot assign expression to target.		 Expression: -UnaryOpTests.this.w2		 Expected type: x10.array.Point		 Found type: x10.lang.Byte)
-	def m833():void { var l:Point = -w3; }  // ERR (Semantic Error: Cannot assign expression to target.		 Expression: -UnaryOpTests.this.w3		 Expected type: x10.array.Point		 Found type: x10.lang.Int)
-	def m834():void { var l:Point = -w4; }  // ERR (Semantic Error: Cannot assign expression to target.		 Expression: -UnaryOpTests.this.w4		 Expected type: x10.array.Point		 Found type: x10.lang.Long)
-	def m835():void { var l:Point = -w5; }  // ERR (Semantic Error: Cannot assign expression to target.		 Expression: -UnaryOpTests.this.w5		 Expected type: x10.array.Point		 Found type: x10.lang.Short)
-	def m836():void { var l:Point = -w6; }  // ERR (Semantic Error: Cannot assign expression to target.		 Expression: -UnaryOpTests.this.w6		 Expected type: x10.array.Point		 Found type: x10.lang.UByte)
-	def m837():void { var l:Point = -w7; }  // ERR (Semantic Error: Cannot assign expression to target.		 Expression: -UnaryOpTests.this.w7		 Expected type: x10.array.Point		 Found type: x10.lang.UInt)
-	def m838():void { var l:Point = -w8; }  // ERR (Semantic Error: Cannot assign expression to target.		 Expression: -UnaryOpTests.this.w8		 Expected type: x10.array.Point		 Found type: x10.lang.ULong)
-	def m839():void { var l:Point = -w9; }  // ERR (Semantic Error: Cannot assign expression to target.		 Expression: -UnaryOpTests.this.w9		 Expected type: x10.array.Point		 Found type: x10.lang.UShort)
+	def m830():void { var l:Point = -w0; }  // ERR (Semantic Error: Cannot assign expression to target.		 Expression: -UnaryOpTests.this.w0		 Expected type: x10.lang.Point		 Found type: x10.lang.Float)
+	def m831():void { var l:Point = -w1; }  // ERR (Semantic Error: Cannot assign expression to target.		 Expression: -UnaryOpTests.this.w1		 Expected type: x10.lang.Point		 Found type: x10.lang.Double)
+	def m832():void { var l:Point = -w2; }  // ERR (Semantic Error: Cannot assign expression to target.		 Expression: -UnaryOpTests.this.w2		 Expected type: x10.lang.Point		 Found type: x10.lang.Byte)
+	def m833():void { var l:Point = -w3; }  // ERR (Semantic Error: Cannot assign expression to target.		 Expression: -UnaryOpTests.this.w3		 Expected type: x10.lang.Point		 Found type: x10.lang.Int)
+	def m834():void { var l:Point = -w4; }  // ERR (Semantic Error: Cannot assign expression to target.		 Expression: -UnaryOpTests.this.w4		 Expected type: x10.lang.Point		 Found type: x10.lang.Long)
+	def m835():void { var l:Point = -w5; }  // ERR (Semantic Error: Cannot assign expression to target.		 Expression: -UnaryOpTests.this.w5		 Expected type: x10.lang.Point		 Found type: x10.lang.Short)
+	def m836():void { var l:Point = -w6; }  // ERR (Semantic Error: Cannot assign expression to target.		 Expression: -UnaryOpTests.this.w6		 Expected type: x10.lang.Point		 Found type: x10.lang.UByte)
+	def m837():void { var l:Point = -w7; }  // ERR (Semantic Error: Cannot assign expression to target.		 Expression: -UnaryOpTests.this.w7		 Expected type: x10.lang.Point		 Found type: x10.lang.UInt)
+	def m838():void { var l:Point = -w8; }  // ERR (Semantic Error: Cannot assign expression to target.		 Expression: -UnaryOpTests.this.w8		 Expected type: x10.lang.Point		 Found type: x10.lang.ULong)
+	def m839():void { var l:Point = -w9; }  // ERR (Semantic Error: Cannot assign expression to target.		 Expression: -UnaryOpTests.this.w9		 Expected type: x10.lang.Point		 Found type: x10.lang.UShort)
 	def m840():void { var l:Point = -w10; }
-	def m841():void { var l:Point = -0; }  // ERR (Semantic Error: Cannot assign expression to target.		 Expression: 0		 Expected type: x10.array.Point		 Found type: x10.lang.Int{self==0})
-	def m842():void { var l:Point = -(-0); }  // ERR (Semantic Error: Cannot assign expression to target.		 Expression: -(0)		 Expected type: x10.array.Point		 Found type: x10.lang.Int)
-	def m843():void { var l:Point = -1.1f; }  // ERR (Semantic Error: Cannot assign expression to target.		 Expression: -1.100000023841858		 Expected type: x10.array.Point		 Found type: x10.lang.Float)
-	def m844():void { var l:Point = -(-1.1f); }  // ERR (Semantic Error: Cannot assign expression to target.		 Expression: -(-1.100000023841858)		 Expected type: x10.array.Point		 Found type: x10.lang.Float)
-	def m845():void { var l:Point = -2.2; }  // ERR (Semantic Error: Cannot assign expression to target.		 Expression: -2.2		 Expected type: x10.array.Point		 Found type: x10.lang.Double)
-	def m846():void { var l:Point = -(-2.2); }  // ERR (Semantic Error: Cannot assign expression to target.		 Expression: -(-2.2)		 Expected type: x10.array.Point		 Found type: x10.lang.Double)
-	def m847():void { var l:Point = -127; }  // ERR (Semantic Error: Cannot assign expression to target.		 Expression: -127		 Expected type: x10.array.Point		 Found type: x10.lang.Int{self==-127})
-	def m848():void { var l:Point = -(-127); }  // ERR (Semantic Error: Cannot assign expression to target.		 Expression: -(-127)		 Expected type: x10.array.Point		 Found type: x10.lang.Int)
-	def m849():void { var l:Point = -128; }  // ERR (Semantic Error: Cannot assign expression to target.		 Expression: -128		 Expected type: x10.array.Point		 Found type: x10.lang.Int{self==-128})
-	def m850():void { var l:Point = -(-128); }  // ERR (Semantic Error: Cannot assign expression to target.		 Expression: -(-128)		 Expected type: x10.array.Point		 Found type: x10.lang.Int)
-	def m851():void { var l:Point = -255; }  // ERR (Semantic Error: Cannot assign expression to target.		 Expression: -255		 Expected type: x10.array.Point		 Found type: x10.lang.Int{self==-255})
-	def m852():void { var l:Point = -(-255); }  // ERR (Semantic Error: Cannot assign expression to target.		 Expression: -(-255)		 Expected type: x10.array.Point		 Found type: x10.lang.Int)
-	def m853():void { var l:Point = -256; }  // ERR (Semantic Error: Cannot assign expression to target.		 Expression: -256		 Expected type: x10.array.Point		 Found type: x10.lang.Int{self==-256})
-	def m854():void { var l:Point = -(-256); }  // ERR (Semantic Error: Cannot assign expression to target.		 Expression: -(-256)		 Expected type: x10.array.Point		 Found type: x10.lang.Int)
-	def m855():void { var l:Point = -32767; }  // ERR (Semantic Error: Cannot assign expression to target.		 Expression: -32767		 Expected type: x10.array.Point		 Found type: x10.lang.Int{self==-32767})
-	def m856():void { var l:Point = -(-32767); }  // ERR (Semantic Error: Cannot assign expression to target.		 Expression: -(-32767)		 Expected type: x10.array.Point		 Found type: x10.lang.Int)
-	def m857():void { var l:Point = -32768; }  // ERR (Semantic Error: Cannot assign expression to target.		 Expression: -32768		 Expected type: x10.array.Point		 Found type: x10.lang.Int{self==-32768})
-	def m858():void { var l:Point = -(-32768); }  // ERR (Semantic Error: Cannot assign expression to target.		 Expression: -(-32768)		 Expected type: x10.array.Point		 Found type: x10.lang.Int)
-	def m859():void { var l:Point = -65535; }  // ERR (Semantic Error: Cannot assign expression to target.		 Expression: -65535		 Expected type: x10.array.Point		 Found type: x10.lang.Int{self==-65535})
-	def m860():void { var l:Point = -(-65535); }  // ERR (Semantic Error: Cannot assign expression to target.		 Expression: -(-65535)		 Expected type: x10.array.Point		 Found type: x10.lang.Int)
-	def m861():void { var l:Point = -65536; }  // ERR (Semantic Error: Cannot assign expression to target.		 Expression: -65536		 Expected type: x10.array.Point		 Found type: x10.lang.Int{self==-65536})
-	def m862():void { var l:Point = -(-65536); }  // ERR (Semantic Error: Cannot assign expression to target.		 Expression: -(-65536)		 Expected type: x10.array.Point		 Found type: x10.lang.Int)
-	def m863():void { var l:Point = -16777216; }  // ERR (Semantic Error: Cannot assign expression to target.		 Expression: -16777216		 Expected type: x10.array.Point		 Found type: x10.lang.Int{self==-16777216})
-	def m864():void { var l:Point = -(-16777216); }  // ERR (Semantic Error: Cannot assign expression to target.		 Expression: -(-16777216)		 Expected type: x10.array.Point		 Found type: x10.lang.Int)
-	def m865():void { var l:Point = -16777217; }  // ERR (Semantic Error: Cannot assign expression to target.		 Expression: -16777217		 Expected type: x10.array.Point		 Found type: x10.lang.Int{self==-16777217})
-	def m866():void { var l:Point = -(-16777217); }  // ERR (Semantic Error: Cannot assign expression to target.		 Expression: -(-16777217)		 Expected type: x10.array.Point		 Found type: x10.lang.Int)
-	def m867():void { var l:Point = -2147483647; }  // ERR (Semantic Error: Cannot assign expression to target.		 Expression: -2147483647		 Expected type: x10.array.Point		 Found type: x10.lang.Int{self==-2147483647})
-	def m868():void { var l:Point = -(-2147483647); }  // ERR (Semantic Error: Cannot assign expression to target.		 Expression: -(-2147483647)		 Expected type: x10.array.Point		 Found type: x10.lang.Int)
+	def m841():void { var l:Point = -0; }  // ERR (Semantic Error: Cannot assign expression to target.		 Expression: 0		 Expected type: x10.lang.Point		 Found type: x10.lang.Int{self==0})
+	def m842():void { var l:Point = -(-0); }  // ERR (Semantic Error: Cannot assign expression to target.		 Expression: -(0)		 Expected type: x10.lang.Point		 Found type: x10.lang.Int)
+	def m843():void { var l:Point = -1.1f; }  // ERR (Semantic Error: Cannot assign expression to target.		 Expression: -1.100000023841858		 Expected type: x10.lang.Point		 Found type: x10.lang.Float)
+	def m844():void { var l:Point = -(-1.1f); }  // ERR (Semantic Error: Cannot assign expression to target.		 Expression: -(-1.100000023841858)		 Expected type: x10.lang.Point		 Found type: x10.lang.Float)
+	def m845():void { var l:Point = -2.2; }  // ERR (Semantic Error: Cannot assign expression to target.		 Expression: -2.2		 Expected type: x10.lang.Point		 Found type: x10.lang.Double)
+	def m846():void { var l:Point = -(-2.2); }  // ERR (Semantic Error: Cannot assign expression to target.		 Expression: -(-2.2)		 Expected type: x10.lang.Point		 Found type: x10.lang.Double)
+	def m847():void { var l:Point = -127; }  // ERR (Semantic Error: Cannot assign expression to target.		 Expression: -127		 Expected type: x10.lang.Point		 Found type: x10.lang.Int{self==-127})
+	def m848():void { var l:Point = -(-127); }  // ERR (Semantic Error: Cannot assign expression to target.		 Expression: -(-127)		 Expected type: x10.lang.Point		 Found type: x10.lang.Int)
+	def m849():void { var l:Point = -128; }  // ERR (Semantic Error: Cannot assign expression to target.		 Expression: -128		 Expected type: x10.lang.Point		 Found type: x10.lang.Int{self==-128})
+	def m850():void { var l:Point = -(-128); }  // ERR (Semantic Error: Cannot assign expression to target.		 Expression: -(-128)		 Expected type: x10.lang.Point		 Found type: x10.lang.Int)
+	def m851():void { var l:Point = -255; }  // ERR (Semantic Error: Cannot assign expression to target.		 Expression: -255		 Expected type: x10.lang.Point		 Found type: x10.lang.Int{self==-255})
+	def m852():void { var l:Point = -(-255); }  // ERR (Semantic Error: Cannot assign expression to target.		 Expression: -(-255)		 Expected type: x10.lang.Point		 Found type: x10.lang.Int)
+	def m853():void { var l:Point = -256; }  // ERR (Semantic Error: Cannot assign expression to target.		 Expression: -256		 Expected type: x10.lang.Point		 Found type: x10.lang.Int{self==-256})
+	def m854():void { var l:Point = -(-256); }  // ERR (Semantic Error: Cannot assign expression to target.		 Expression: -(-256)		 Expected type: x10.lang.Point		 Found type: x10.lang.Int)
+	def m855():void { var l:Point = -32767; }  // ERR (Semantic Error: Cannot assign expression to target.		 Expression: -32767		 Expected type: x10.lang.Point		 Found type: x10.lang.Int{self==-32767})
+	def m856():void { var l:Point = -(-32767); }  // ERR (Semantic Error: Cannot assign expression to target.		 Expression: -(-32767)		 Expected type: x10.lang.Point		 Found type: x10.lang.Int)
+	def m857():void { var l:Point = -32768; }  // ERR (Semantic Error: Cannot assign expression to target.		 Expression: -32768		 Expected type: x10.lang.Point		 Found type: x10.lang.Int{self==-32768})
+	def m858():void { var l:Point = -(-32768); }  // ERR (Semantic Error: Cannot assign expression to target.		 Expression: -(-32768)		 Expected type: x10.lang.Point		 Found type: x10.lang.Int)
+	def m859():void { var l:Point = -65535; }  // ERR (Semantic Error: Cannot assign expression to target.		 Expression: -65535		 Expected type: x10.lang.Point		 Found type: x10.lang.Int{self==-65535})
+	def m860():void { var l:Point = -(-65535); }  // ERR (Semantic Error: Cannot assign expression to target.		 Expression: -(-65535)		 Expected type: x10.lang.Point		 Found type: x10.lang.Int)
+	def m861():void { var l:Point = -65536; }  // ERR (Semantic Error: Cannot assign expression to target.		 Expression: -65536		 Expected type: x10.lang.Point		 Found type: x10.lang.Int{self==-65536})
+	def m862():void { var l:Point = -(-65536); }  // ERR (Semantic Error: Cannot assign expression to target.		 Expression: -(-65536)		 Expected type: x10.lang.Point		 Found type: x10.lang.Int)
+	def m863():void { var l:Point = -16777216; }  // ERR (Semantic Error: Cannot assign expression to target.		 Expression: -16777216		 Expected type: x10.lang.Point		 Found type: x10.lang.Int{self==-16777216})
+	def m864():void { var l:Point = -(-16777216); }  // ERR (Semantic Error: Cannot assign expression to target.		 Expression: -(-16777216)		 Expected type: x10.lang.Point		 Found type: x10.lang.Int)
+	def m865():void { var l:Point = -16777217; }  // ERR (Semantic Error: Cannot assign expression to target.		 Expression: -16777217		 Expected type: x10.lang.Point		 Found type: x10.lang.Int{self==-16777217})
+	def m866():void { var l:Point = -(-16777217); }  // ERR (Semantic Error: Cannot assign expression to target.		 Expression: -(-16777217)		 Expected type: x10.lang.Point		 Found type: x10.lang.Int)
+	def m867():void { var l:Point = -2147483647; }  // ERR (Semantic Error: Cannot assign expression to target.		 Expression: -2147483647		 Expected type: x10.lang.Point		 Found type: x10.lang.Int{self==-2147483647})
+	def m868():void { var l:Point = -(-2147483647); }  // ERR (Semantic Error: Cannot assign expression to target.		 Expression: -(-2147483647)		 Expected type: x10.lang.Point		 Found type: x10.lang.Int)
 }

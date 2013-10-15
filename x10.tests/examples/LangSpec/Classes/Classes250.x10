@@ -21,24 +21,24 @@ import harness.x10Test;
 
 public class Classes250 extends x10Test {
    public def run() : boolean = (new Hook()).run();
-   public static def main(var args: Array[String](1)): void = {
+   public static def main(args:Rail[String]):void {
         new Classes250().execute();
     }
 
 
-// file Classes line 2004
+// file Classes line 2183
  static class Oddvec {
-  var v : Array[Int](1) = new Array[Int](3, (Int)=>0);
+  var v : Rail[Long] = new Rail[Long](3);
   public operator this () =
       "(" + v(0) + "," + v(1) + "," + v(2) + ")";
-  public operator this () = (newval: Int) {
-    for(p in v) v(p) = newval;
+  public operator this () = (newval: Long) {
+    for(p in v.range) v(p) = newval;
   }
-  public operator this(i:Int) = v(i);
-  public operator this(i:Int, j:Int) = [v(i),v(j)];
-  public operator this(i:Int) = (newval:Int)
+  public operator this(i:Long) = v(i);
+  public operator this(i:Long, j:Long) = [v(i),v(j)];
+  public operator this(i:Long) = (newval:Long)
       = {v(i) = newval;}
-  public operator this(i:Int, j:Int) = (newval:Int)
+  public operator this(i:Long, j:Long) = (newval:Long)
       = { v(i) = newval; v(j) = newval+1;}
   public def example() {
     this(1) = 6;   assert this(1) == 6;

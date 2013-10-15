@@ -10,6 +10,7 @@
  */
 
 import harness.x10Test;
+import x10.regionarray.*;
 
 /**
  * Testing exploding syntax for local variables.
@@ -22,11 +23,11 @@ public class ExplodingLocalVar1Test extends x10Test {
 	    // the type Point is not supplied. 
 	    // This should really not work, according to Sec 4.13.1 (type inference)
 	    // and Section 10 (destructuring syntax). But it does.
-		val p[x,y]  = [2, 2];
-		return x+y==4 && p(0)+p(1)==4;
+		val p[x,y]  = Point.make(2, 2);
+		return x+y==4L && p(0)+p(1)==4L;
 		}
 
-	public static def main(Array[String](1)) {
+	public static def main(Rail[String]) {
 		new ExplodingLocalVar1Test().execute();
 	}
 }

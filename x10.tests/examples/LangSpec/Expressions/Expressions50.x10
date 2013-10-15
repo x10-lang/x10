@@ -21,12 +21,12 @@ import harness.x10Test;
 
 public class Expressions50 extends x10Test {
    public def run() : boolean = (new Hook()).run();
-   public static def main(var args: Array[String](1)): void = {
+   public static def main(args:Rail[String]):void {
         new Expressions50().execute();
     }
 
 
-// file Expressions line 295
+// file Expressions line 292
  static  class Callsome {static val closure = () => 1; static def method () = 2; static val methodEvaluated = Callsome.method();
   static def closure () = 3;
   static def example() {

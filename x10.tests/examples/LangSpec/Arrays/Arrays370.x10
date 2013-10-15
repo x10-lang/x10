@@ -17,24 +17,24 @@
 
 import harness.x10Test;
 
-
+ import x10.regionarray.*;
 
 public class Arrays370 extends x10Test {
    public def run() : boolean = (new Hook()).run();
-   public static def main(var args: Array[String](1)): void = {
+   public static def main(args:Rail[String]):void {
         new Arrays370().execute();
     }
 
 
-// file Arrays line 601
+// file Arrays line 885
  static  class Example {
  def example() {
 val ident = ([i]:Point(1)) => i;
-val data : DistArray[Int]
-    = DistArray.make[Int](Dist.makeConstant(1..9), ident);
-val blk = Dist.makeBlock((1..9)*(1..9));
-val data2 : DistArray[Int]
-    = DistArray.make[Int](blk, ([i,j]:Point(2)) => i*j);
+val data : DistArray[Long]
+    = DistArray.make[Long](Dist.makeConstant(Region.make(1, 9)), ident);
+val blk = Dist.makeBlock(Region.make(1..9, 1..9));
+val data2 : DistArray[Long]
+    = DistArray.make[Long](blk, ([i,j]:Point(2)) => i*j);
  }  }
 
  static class Hook {

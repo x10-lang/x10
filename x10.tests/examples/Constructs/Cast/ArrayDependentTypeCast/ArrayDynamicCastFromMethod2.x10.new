@@ -6,8 +6,8 @@
  *
  */
 import harness.x10Test;;
-import x10.array.Dist;
-import x10.array.Array;
+import x10.regionarray.Dist;
+import x10.regionarray.Array;
 
 /**
  * Purpose: Checks a constraint composed of a shortcut property is translated as a runtime constraint.

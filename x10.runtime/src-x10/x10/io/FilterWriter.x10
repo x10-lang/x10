@@ -16,13 +16,27 @@ public class FilterWriter extends Writer {
     
     protected def inner(): Writer = w;
 
-    public def this(w: Writer) { this.w = w; }
+    public def this(w: Writer) { 
+        this.w = w; 
+    }
 
-    public def close(): void //throws IOException 
-    { w.close(); }
-    public def flush(): void //throws IOException 
-    { w.flush(); }
+    public def close():void { 
+        w.close(); 
+    }
 
-    public def write(b: Byte): void //throws IOException 
-    { w.write(b); }
+    public def flush():void { 
+        w.flush(); 
+    }
+
+    public def write(b:Byte):void {
+        w.write(b); 
+    }
+
+    public def write(s:String):void {
+        w.write(s); 
+    }
+
+    public def write(x:Rail[Byte], off:Long, len:Long):void {
+        w.write(x, off, len);
+    }
 }

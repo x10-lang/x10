@@ -1,4 +1,4 @@
-/* Current test harness gets confused by packages, but it would be in package typesome_Types58;
+/* Current test harness gets confused by packages, but it would be in package typesome_Types49;
 */
 // Warning: This file is auto-generated from the TeX source of the language spec.
 // If you need it changed, work with the specification writers.
@@ -21,14 +21,14 @@ import harness.x10Test;
 
 public class Types490 extends x10Test {
    public def run() : boolean = (new Hook()).run();
-   public static def main(var args: Array[String](1)): void = {
+   public static def main(args:Rail[String]):void {
         new Types490().execute();
     }
 
 
-// file Types line 2214
+// file Types line 2492
 
- static class Types58TypeTest{
+ static class Types49TypeTest{
   def check()  { 
      var checkycheck : Boolean{self==false};  }}
 

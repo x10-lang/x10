@@ -31,8 +31,7 @@ Deque* Deque::_make() {
 Deque* Deque::_constructor() {
     queue = x10aux::alloc<Slots>();
     queue->capacity = INITIAL_QUEUE_CAPACITY;
-    queue->data = x10aux::alloc<volatile void*>(INITIAL_QUEUE_CAPACITY * sizeof(void*));
-    memset(queue->data, 0, (INITIAL_QUEUE_CAPACITY * sizeof(void*)));
+    queue->data = x10aux::alloc_z<volatile void*>(INITIAL_QUEUE_CAPACITY * sizeof(void*));
     sp = 0;
     base = 0;
     return this;
@@ -50,8 +49,7 @@ void Deque::growQueue() {
     }
     Slots *newQ = x10aux::alloc<Slots>();
     newQ->capacity = newSize;
-    newQ->data = x10aux::alloc<volatile void*>(newSize * sizeof(void*));
-    memset(newQ->data, 0, (newSize * sizeof(void*)));
+    newQ->data = x10aux::alloc_z<volatile void*>(newSize * sizeof(void*));
     queue = newQ;
     
     int b = base;

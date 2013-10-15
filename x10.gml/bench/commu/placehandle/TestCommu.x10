@@ -11,8 +11,10 @@
 
 //package commu.placehandle;
 
-import x10.io.Console;
 import x10.util.Timer;
+
+import x10.regionarray.Dist;
+import x10.regionarray.DistArray;
 
 import x10.matrix.Debug;
 import x10.matrix.DenseMatrix;
@@ -20,39 +22,30 @@ import x10.matrix.block.Grid;
 import x10.matrix.dist.DistDenseMatrix;
 import x10.matrix.dist.DupDenseMatrix;
 
-//import x10.matrix.comm.CommHandle;
 import x10.matrix.comm.ArrayRemoteCopy;
 import x10.matrix.comm.ArrayBcast;
 import x10.matrix.comm.ArrayGather;
 import x10.matrix.comm.ArrayScatter;
 import x10.matrix.comm.ArrayReduce;
-
-public type DataArrayPLH  =PlaceLocalHandle[Array[Double](1){rail}];
-
+import x10.matrix.comm.DataArrayPLH;
 
 /**
-   This class contains test cases for dense matrix multiplication.
-   <p>
-
-   <p>
+ * This class contains benchmarks for array communication operations.
  */
-
 public class TestCommu{
-    public static def main(args:Array[String](1)) {
+    public static def main(args:Rail[String]) {
 		val testcase = new TestArrayCommu(args);
 		testcase.run();
 	}
 }
 
 class TestArrayCommu {
-
 	public val vrfy:Boolean;
-	public val iter:Int;
-	public val M:Int;
+	public val iter:Long;
+	public val M:Long;
 
-	public val nplace:Int = Place.MAX_PLACES;
-	public val segt:Array[Int](1);
-
+	public val nplace:Long = Place.MAX_PLACES;
+	public val segt:Rail[Long];
 	
 	public var syncTime:Long = 0;
 	public var gatherTime:Long = 0;
@@ -60,35 +53,40 @@ class TestArrayCommu {
 	public var allgatherTime:Long = 0;
 	public var reduceTime:Long = 0;
 	
-	//---------
-	public val dist:Dist= Dist.makeUnique();
-	public val dstA:DataArrayPLH;
-	public val dstB:DataArrayPLH;
-	public val dat:Array[Double](1){rail};
-	public val datAll:Array[Double](1){rail};
+	public val localA:DataArrayPLH;
+	public val localB:DataArrayPLH;
+	public val dstA:DistArray[Rail[Double]];
+	public val dstB:DistArray[Rail[Double]];
+	public val dat:Rail[Double];
+	public val datAll:Rail[Double];
 	
 	public val gpart:Grid;
 	
-	public val szlist:Array[Int](1);
+	public val szlist:Rail[Long];
 	
-	public val checkTime:Array[Long](1) = new Array[Long](Place.MAX_PLACES);
+	public val checkTime = new Rail[Long](Place.MAX_PLACES);
 	
-	public def this(args:Array[String](1)) {
-		val m = args.size > 0 ?Int.parse(args(0)):1024;
+	public def this(args:Rail[String]) {
+		val m = args.size > 0 ? Long.parse(args(0)):1024;
 		M = m;
-		iter = args.size > 1 ? Int.parse(args(1)):1;
+		iter = args.size > 1 ? Long.parse(args(1)):1;
 		vrfy = args.size > 2 ? true : false;
 
-		segt =  new Array[Int](nplace, (i:Int)=>m);   
-		//
-		dstA = DataArrayPLH.make[Array[Double](1){rail}](dist, ()=>(new Array[Double](m)));
-		dstB = DataArrayPLH.make[Array[Double](1){rail}](dist, ()=>(new Array[Double](m)));
+		segt =  new Rail[Long](nplace, (i:Long)=>m);   
 
-		dat    = new Array[Double](m);
-		datAll = new Array[Double](M*nplace);
+        val localA = PlaceLocalHandle.make[Rail[Double]](PlaceGroup.WORLD, ()=>(new Rail[Double](m)));
+        dstA = DistArray.make[Rail[Double]](Dist.makeUnique(), (Point)=>localA());
+        this.localA = localA;
+
+        val localB = PlaceLocalHandle.make[Rail[Double]](PlaceGroup.WORLD, ()=>(new Rail[Double](m)));
+        dstB = DistArray.make[Rail[Double]](Dist.makeUnique(), (Point)=>localB());
+        this.localB = localB;
+
+		dat    = new Rail[Double](m);
+		datAll = new Rail[Double](M*nplace);
 		
 		gpart = new Grid(M*nplace, 1, nplace, 1);
-		szlist = new Array[Int](nplace, (i:Int)=>m);
+		szlist = new Rail[Long](nplace, (i:Long)=>m);
 	}
 	
 	public def run(): void {
@@ -102,12 +100,12 @@ class TestArrayCommu {
 
 		if (vrfy) {
 			if (ret)	
-				Console.OUT.println("Test and benchmark array handle commuication passed!");
+				Console.OUT.println("Test and benchmark rail handle communication passed!");
 			else
-				Console.OUT.println("--------Test of array handle communication failed!--------");
+				Console.OUT.println("--------Test of rail handle communication failed!--------");
 		}	
 	}
-	//------------------------------------------------
+
 	public def testCopy():Boolean {
 		val op:ArrayRemoteCopy = new ArrayRemoteCopy();
 		var ret:Boolean = true;
@@ -117,11 +115,11 @@ class TestArrayCommu {
 		dd.local().initRandom();
 		
 		val stt:Long = Timer.milliTime();
-		for (var i:Int=0; i<iter; i++) {
-			for (var p:Int=0; p<nplace; p++) {
+		for (var i:Long=0; i<iter; i++) {
+			for (var p:Long=0; p<nplace; p++) {
 				if (p != here.id()) {
 					//var st:Long =  Timer.milliTime();
-					op.copy(src, 0, dstA, p, 0, M);
+					op.copy(src, 0, localA, p, 0, M);
 					//checkTime(p) =  Timer.milliTime() - st; 
 				}
 			}
@@ -140,20 +138,18 @@ class TestArrayCommu {
 		return ret;
 		
 	}	
-	
-	
-	//------------------------------------------------
+
 	public def testBcast():Boolean {
 		val op:ArrayBcast = new ArrayBcast();
 		var ret:Boolean = true;
-		val den = new DenseMatrix(M, 1, dstA() as Array[Double](1){rail});
+		val den = new DenseMatrix(M, 1, localA() as Rail[Double]);
 		den.initRandom();
 		Console.OUT.printf("\nTest PlaceLocalHandle bcast over %d places\n", nplace);
 		
 		//denA.initRandom();
 		val stt=Timer.milliTime();
-		for (var i:Int=0; i<iter; i++) {
-			op.bcast(dstA, M);
+		for (var i:Long=0; i<iter; i++) {
+			op.bcast(localA, M);
 		}
 		val tt = 1.0 * (Timer.milliTime() - stt)/iter;
 		Console.OUT.printf("Test bcast for %d iterations: %.4f ms, thput: %2.2f MB/s per iteration\n", 
@@ -177,14 +173,14 @@ class TestArrayCommu {
 		dd.initRandom();
 
 		val st = Timer.milliTime();
-		for (var i:Int=0; i<iter; i++) {
-			op.gather(dstA, datAll, gpart.rowBs);
+		for (var i:Long=0; i<iter; i++) {
+			op.gather(localA, datAll, gpart.rowBs);
 		}
 		val tt = (1.0*Timer.milliTime()-st)/iter;
 		Console.OUT.printf("Test gather for %d iterations: %.4f ms, thput: %.2f MB/s\n", 
 						   iter, tt, 8.0*1000*M/tt/1024/1024);
 		if (vrfy) {
-			val den = new DenseMatrix(M*nplace, 1, datAll as Array[Double](1){rail});
+			val den = new DenseMatrix(M*nplace, 1, datAll as Rail[Double]);
 			ret = den.equals(dd as Matrix(den.M, den.N));
 			if (ret)
 				Console.OUT.println("Test gather of PlaceLocalHandle commu test passed!");
@@ -202,8 +198,8 @@ class TestArrayCommu {
 		den.initRandom();
 		//den.print();
 		val stt = Timer.milliTime();
-		for (var i:Int=0; i<iter; i++) {
-			op.scatter(datAll, dstA, szlist); 
+		for (var i:Long=0; i<iter; i++) {
+			op.scatter(datAll, localA, szlist); 
 		}
 		val tt = 1.0*(Timer.milliTime() - stt)/iter;
 				
@@ -220,7 +216,6 @@ class TestArrayCommu {
 		}
 		return ret;
 	}
-	
 
 	public def testReduce(): Boolean {
 		val op:ArrayReduce = new ArrayReduce();
@@ -229,17 +224,17 @@ class TestArrayCommu {
 		dd.init(1.0);
 		//dd.print("Source");
 		Console.OUT.printf("\nTest reduce of PlaceLocalHandle over %d places\n", nplace);
-		val org:Array[Double](1){rail}=new Array[Double](dstA());
+		val org=new Rail[Double](localA());
 
 		val stt=Timer.milliTime();
-		for (var i:Int=0; i<iter; i++) {
-			op.reduceSum(dstA, dstB, M);
+		for (var i:Long=0; i<iter; i++) {
+			op.reduceSum(localA, localB, M);
 		}
 		val tt = 1.0*(Timer.milliTime() - stt)/iter;
 		Console.OUT.printf("Test reduce for %d iterations: %.4f ms, thput: %.2f MB/s\n", 
 						   iter, tt, 8.0*1000*M/tt/1024/1024);
 		if (vrfy && iter==1) {
-			val dat=new DenseMatrix(M, 1, dstA() as Array[Double](1){rail});
+			val dat=new DenseMatrix(M, 1, localA() as Rail[Double]);
 			//dat.print("Result");
 			val tgt=new DenseMatrix(M, 1, org);
 			tgt.cellMult(nplace);

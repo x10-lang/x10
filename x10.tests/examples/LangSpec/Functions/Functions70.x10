@@ -21,22 +21,22 @@ import harness.x10Test;
 
 public class Functions70 extends x10Test {
    public def run() : boolean = (new Hook()).run();
-   public static def main(var args: Array[String](1)): void = {
+   public static def main(args:Rail[String]):void {
         new Functions70().execute();
     }
 
 
-// file Functions line 381
+// file Functions line 379
  static class Lambda {
-   var a : Int = 0;
+   var a : Long = 0;
    val b = 0;
-   def m(var c : Int, val d : Int) {
-      var e : Int = 0;
-      val f : Int = 0;
-      val closure = (var i: Int, val j: Int) => {
-    	  return a + b + d + f + i
-               + j + this.a + Lambda.this.a;
+   def m(var c : Long, val d : Long) {
+      var e : Long = 0;
+      val f : Long = 0;
+      val closure = (var i: Long, val j: Long) => {
           // c and e are not usable here
+    	  a + b + d + f + i
+               + j + this.a + Lambda.this.a
       };
       return closure;
    }

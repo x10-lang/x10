@@ -13,7 +13,6 @@ package x10.core.fun;
 
 import x10.rtt.FunType;
 import x10.rtt.RuntimeType;
-import x10.rtt.RuntimeType.Variance;
 import x10.rtt.Type;
 
 public interface Fun_0_5<T1,T2,T3,T4,T5,U> extends Fun {
@@ -21,13 +20,6 @@ public interface Fun_0_5<T1,T2,T3,T4,T5,U> extends Fun {
     
     public static final RuntimeType<Fun_0_5<?,?,?,?,?,?>> $RTT = FunType.<Fun_0_5<?,?,?,?,?,?>> make(
         Fun_0_5.class,
-        new Variance[] {
-            Variance.CONTRAVARIANT,
-            Variance.CONTRAVARIANT,
-            Variance.CONTRAVARIANT,
-            Variance.CONTRAVARIANT,
-            Variance.CONTRAVARIANT,
-            Variance.COVARIANT
-        }
+        6
     );
 }

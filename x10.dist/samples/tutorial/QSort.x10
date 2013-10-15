@@ -22,11 +22,11 @@
  */
 public class QSort {
 
-  private static def partition(data:Rail[int], left:int, right:int) {
-      var i:int = left;
-      var j:int = right;
+  private static def partition(data:Rail[int], left:long, right:long) {
+      var i:long = left;
+      var j:long = right;
       var tmp:int;
-      var pivot:int = data((left + right) / 2);
+      var pivot:long = data((left + right) / 2);
 
       while (i <= j) {
           while (data(i) < pivot) i++;
@@ -43,8 +43,8 @@ public class QSort {
       return i;
   }
 
-  static def qsort(data:Rail[int], left:int, right:int) {
-      index:int = partition(data, left, right);
+  static def qsort(data:Rail[int], left:long, right:long) {
+      index:long = partition(data, left, right);
       finish {
           if (left < index - 1)
               async qsort(data, left, index - 1);
@@ -55,11 +55,11 @@ public class QSort {
   }
 
   public static def main(args:Rail[String]) {
-      val N = args.size>0 ? Int.parse(args(0)) : 100;
+      val N = args.size>0 ? Long.parse(args(0)) : 100;
       val r = new x10.util.Random();
-      val data = new Rail[int](N, (int)=>r.nextInt(9999));
+      val data = new Rail[int](N, (long)=>r.nextInt(9999n));
       qsort(data, 0, N-1);
-      for ([i] in 0..(N-1)) {
+      for (i in 0..(N-1)) {
           Console.OUT.print(data(i)); 
           if (i%10 == 9) {
 	      Console.OUT.println();

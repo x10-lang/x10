@@ -21,10 +21,10 @@ class XTENLANG_202 extends x10Test {
 
     
     public def run(): boolean {
-        return "foo".hashCode()!=0;
+        return "foo".hashCode()!=0n;
     }
 
-    public static def main(Array[String](1)) {
+    public static def main(Rail[String]) {
         new XTENLANG_202().execute();
     }
 }

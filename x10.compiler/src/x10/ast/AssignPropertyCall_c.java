@@ -362,6 +362,7 @@ public class AssignPropertyCall_c extends Stmt_c implements AssignPropertyCall {
                         Errors.issue(tc.job(),
                                      new Errors.ConstructorReturnTypeNotEntailed(known, result, pos));
                 }
+
     			 */
     			// [DC] surely just:
     			if (result != null) {

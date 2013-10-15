@@ -21,25 +21,25 @@ import harness.x10Test;
 
 public class AtomicOrdered extends x10Test {
 
-	public static CACHESIZE: int = 32*1024/4;
-	public static LINESIZE: int = 128/4;
-	public static MAX_ASSOC: int = 8;
+	public static CACHESIZE: long = 32*1024/4;
+	public static LINESIZE: long = 128/4;
+	public static MAX_ASSOC: long = 8;
 
-	val A = new Array[int](0..(CACHESIZE*(MAX_ASSOC+2)-1));
+	val A = new Rail[int](CACHESIZE*(MAX_ASSOC+2));
 
 	public def run(): boolean = {
 		val r  = new pair();
 		finish {
 			async  {
 				finish { } // delay
-				atomic A(0) = 1;
+				atomic A(0) = 1n;
 				var t: int;
 				atomic t = A(LINESIZE);
 				r.v1 = t;
 			}
 			async  {
 				finish { } // delay
-				atomic A(LINESIZE) = 1;
+				atomic A(LINESIZE) = 1n;
 				var t: int;
 				atomic t = A(0);
 				r.v2 = t;
@@ -47,11 +47,11 @@ public class AtomicOrdered extends x10Test {
 		}
 		x10.io.Console.OUT.println("v1 = "+r.v1+" v2 = "+r.v2);
 		// not both could have read the old value
-		atomic chk(!(r.v1 == 0 && r.v2 == 0));
+		atomic chk(!(r.v1 == 0n && r.v2 == 0n));
 		return true;
 	}
 
-	public static def main(Array[String](1))  {
+	public static def main(Rail[String])  {
 		new AtomicOrdered().execute();
 	}
 

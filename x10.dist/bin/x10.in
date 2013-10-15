@@ -1,3 +1,4 @@
+JAVACMD="$JAVA"
 MAIN_CLASS='$Main'
 
 help=""
@@ -11,10 +12,13 @@ mx=""
 ss=""
 defs=""
 dev=""
-nocompressedrefs=""
 noassert=""
+noclassloadtest=""
 java_args=()
 args=()
+x10rt_impl=""
+launcher_args=()
+launcher_env=()
 
 PRINT_DIR=""
 
@@ -37,6 +41,10 @@ while [ -n "$1" ]; do
                  echo >&2 "Error: Cannot reset java.library.path, use -libpath instead"
                  exit 1
              fi
+             if [[ "${1##-D}" = java.class.path=* ]]; then
+                 echo >&2 "Error: Cannot reset java.class.path, use -classpath instead"
+                 exit 1
+             fi
              # TODO: add tests for more system properties above
              defs="${defs} $1";;
         -classpath|-cp)
@@ -48,9 +56,13 @@ while [ -n "$1" ]; do
             fi
             ;;
         -libpath) shift; extra_lib="$1";;
+        -np|--np) shift; export X10_NPLACES="$1";;
+        -host|--host) shift; export X10_HOSTLIST="$1";;
+        -hostfile|--hostfile) shift; export X10_HOSTFILE="$1";;
+        -x10rt) shift; x10rt_impl="$1";;
         -config) shift; config="$1.cfg";;
-        -nocompressedrefs) nocompressedrefs="true";;
         -noassert) noassert="true";;
+        -noclassloadtest) noclassloadtest="true";;
         -dev) dev="true";;
         -pkg-conf=) echo "Please use the -help option to get a list of valid options"; exit 1;;
         -pkg-conf=*) PRINT_DIR="${1##-pkg-conf=}" ; args=(dummy argument) ;;
@@ -81,9 +93,13 @@ where [options] includes:
     -D<name>=<value>         set system property <name> to <value>
     -classpath <path>        search path for class files
     -libpath <path>          search path for native libraries
+    -np <num>                number of places to launch (overrides X10_NPLACES or MP_PROCS)
+    -host <host1,host2,...>  list of hosts to launch places on (overrides X10_HOSTLIST. ignored with IBM PE)
+    -hostfile <file>         provide a hostfile (overrides X10_HOSTFILE or MP_HOSTFILE)
+    -x10rt <impl>            select X10RT implementation
     -config <conf>           (IGNORED) read configuration from etc${FILE_SEP}<conf>.cfg
-    -nocompressedrefs        disable compressed references (64-bit JVM only)
     -noassert                disable assertion check
+    -noclassloadtest         disable class load test
     -dev                     developer mode (use unpackaged X10 libraries)
     -pkg-conf=dir            print absolute directory, where dir is one of
                                [bin, etc, include, lib, stdlib]
@@ -114,7 +130,7 @@ fi
 
 classpath=""
 [ -n "$dev" ] && classpath="${TOP}${FILE_SEP}..${FILE_SEP}x10.runtime${FILE_SEP}classes${PATH_SEP}"
-classpath=".${PATH_SEP}${classpath}${STDLIB_DIR}${FILE_SEP}x10.jar${PATH_SEP}${LIB_DIR}${FILE_SEP}${MATH_JAR}"
+classpath=".${PATH_SEP}${classpath}${STDLIB_DIR}${FILE_SEP}x10.jar${PATH_SEP}${LIB_DIR}${FILE_SEP}${MATH_JAR}${PATH_SEP}${LIB_DIR}${FILE_SEP}${LOG_JAR}"
 
 if [ -z "$dev" ]; then
   if [[ ! -a "${STDLIB_DIR}${FILE_SEP}x10.jar" ]]; then
@@ -137,7 +153,7 @@ if [ -n "$LD_LIBRARY_PATH" ] ; then
     IFS="$OLD_IFS"
 fi
 if [ -n "$extra_lib" ]; then
-   externpath="$extra_lib${PATH_SEP}$externpath"
+    externpath="$extra_lib${PATH_SEP}$externpath"
 fi
 
 if [[ "$UNAME" = CYGWIN* ]]; then 
@@ -148,13 +164,51 @@ if [[ "$UNAME" = CYGWIN* ]]; then
         java_args=("-DX10RT_IMPL=disabled" "${java_args[@]}")
     fi
 else
-    launcher="${TOP}${FILE_SEP}bin${FILE_SEP}X10Launcher"
+    if [ -z "${x10rt_impl}" ]; then
+        launcher="${TOP}${FILE_SEP}bin${FILE_SEP}X10Launcher"
+    elif [ "${x10rt_impl}" = "sockets" ]; then
+        launcher="${TOP}${FILE_SEP}bin${FILE_SEP}X10Launcher"
+        java_args=("-DX10RT_IMPL=${x10rt_impl}" "${java_args[@]}")
+    elif [ "${x10rt_impl}" = "JavaSockets" ]; then
+        launcher="${TOP}${FILE_SEP}bin${FILE_SEP}X10Launcher"
+        java_args=("-DX10RT_IMPL=${x10rt_impl}" "${java_args[@]}")
+#    elif [ "${x10rt_impl}" = "standalone" ]; then
+#        launcher="${TOP}${FILE_SEP}bin${FILE_SEP}X10Launcher"
+#        java_args=("-DX10RT_IMPL=${x10rt_impl}" "${java_args[@]}")
+    elif [ "${x10rt_impl}" = "mpi" ]; then
+        if [ $(which poe 2>/dev/null) ]; then
+            launcher="poe"
+            [ -n "$X10_NPLACES" ] && launcher_env=("MP_PROCS=$X10_NPLACES" "${launcher_env[@]}")
+            [ -n "$X10_HOSTLIST" ] && echo "Warning: -host option is ignored with IBM PE. Use -hostfile instead."
+            [ -n "$X10_HOSTFILE" ] && launcher_env=("MP_HOSTFILE=$X10_HOSTFILE" "${launcher_env[@]}")
+        else
+            launcher="mpirun"
+            [ -n "$X10_NPLACES" ] && launcher_args=("-np" "$X10_NPLACES" "${launcher_args[@]}")
+            [ -n "$X10_HOSTLIST" ] && launcher_args=("--host" "$X10_HOSTLIST" "${launcher_args[@]}")
+            [ -n "$X10_HOSTFILE" ] && launcher_args=("--hostfile" "$X10_HOSTFILE" "${launcher_args[@]}")
+        fi
+        JAVA="${TOP}${FILE_SEP}bin${FILE_SEP}X10MPIJava"
+        java_args=("-DX10RT_IMPL=${x10rt_impl}" "${java_args[@]}")
+        noclassloadtest="true"
+    elif [ "${x10rt_impl}" = "pami" ]; then
+        launcher="poe"
+        [ -n "$X10_NPLACES" ] && launcher_env=("MP_PROCS=$X10_NPLACES" "${launcher_env[@]}")
+        [ -n "$X10_HOSTLIST" ] && echo "Warning: -host option is ignored with IBM PE. Use -hostfile instead."
+        [ -n "$X10_HOSTFILE" ] && launcher_env=("MP_HOSTFILE=$X10_HOSTFILE" "${launcher_env[@]}")
+        java_args=("-DX10RT_IMPL=${x10rt_impl}" "${java_args[@]}")
+        noclassloadtest="true"
+    elif [ "${x10rt_impl}" = "disabled" ]; then
+        java_args=("-DX10RT_IMPL=${x10rt_impl}" "${java_args[@]}")
+    else
+        echo >&2 "Error: Unsupported x10rt implementation"
+        exit 1
+    fi
 fi
 
 
 # TODO: executable jar
 # Note: use bootstrap class path instead of user class path to make it visible from jar file
-java_args=("-Djava.library.path=$externpath" -classpath "$classpath" "${java_args[@]}")
+java_args=("-Djava.library.path=$externpath" "-Djava.class.path=$classpath" "${java_args[@]}")
 #java_args=("-Djava.library.path=$externpath" "-Xbootclasspath/a:$classpath" "${java_args[@]}")
 
 if [ -z "$noassert" ]; then
@@ -173,70 +227,16 @@ fi
 
 java_args=("${java_args[@]}" ${defs})
 
-java_version=
+
 # skip loading test in case of executable jar
-if [ -n "$main" ]; then
-command=("$JAVA" -showversion "${java_args[@]}" x10.runtime.impl.java.TestClassLoading "$main\$${MAIN_CLASS}")
+if [ -z "$noclassloadtest" -a -n "$main" ]; then
+command=("$JAVA" "${java_args[@]}" x10.runtime.impl.java.TestClassLoading "$main\$${MAIN_CLASS}")
 #[ -n "$verbose" ] && echo "${command[*]}"
-java_version=`(
-unset X10_NPLACES
-"${command[@]}" 2>&1
+dummy=`(unset X10_NPLACES; "${command[@]}" 2>&1)`
 if [ "$?" -ne "0" ]; then
   echo >&2 "Error: Cannot load main class for" "$main" "with classpath" "$classpath"
   exit 1
 fi
-)`
-fi
-
-[ -n "${java_version}" ] || java_version=`"$JAVA" -version 2>&1`
-
-
-#
-# IBM J9 VM specific options
-#
-ibmj9vm=
-ibmj9vmr26=
-ibmj9vm64bit=
-# following pattern matches with bash 3.2 but doesn't match with bash 4.1
-#[[ "${java_version}" =~ ".*IBM J9 VM.*" ]] && ibmj9vm=true
-case "${java_version}" in
-    *IBM\ J9\ VM*) ibmj9vm=true
-    case "${java_version}" in
-        *build\ 2.6*) ibmj9vmr26=true ;;
-    esac
-    case "${java_version}" in
-        *amd64-64*) ibmj9vm64bit=true ;;
-        *ppc64-64*) ibmj9vm64bit=true ;;
-    esac
-    ;;
-esac
-if [ -n "${ibmj9vm}" ]; then
-    ibmj9vmjitopts=
-
-    if [ -n "${ibmj9vmr26}" ]; then
-        # experimental support for java7
-        if [ -n "${ibmj9vmjitopts}" ]; then
-            ibmj9vmjitopts="${ibmj9vmjitopts},"
-        fi
-        ibmj9vmjitopts="${ibmj9vmjitopts}count=1000,bcount=250,milcount=1"
-        if [ -n "${ibmj9vm64bit}" ]; then
-            java_args=("-Xgcpolicy:balanced" "${java_args[@]}")
-        else
-            java_args=("-Xgcpolicy:gencon" "${java_args[@]}")
-        fi
-    else
-        java_args=("-Xgcpolicy:gencon" "${java_args[@]}")
-    fi
-
-    if [ -n "${ibmj9vm64bit}" ]; then
-        if [ -z "${nocompressedrefs}" ]; then
-            java_args=("-Xcompressedrefs" "${java_args[@]}")
-        fi
-    fi
-
-    if [ -n "${ibmj9vmjitopts}" ]; then
-        java_args=("-Xjit:${ibmj9vmjitopts}" "${java_args[@]}")
-    fi
 fi
 
 
@@ -245,7 +245,8 @@ command=("$JAVA" "${java_args[@]}" $config "${args[@]}")
 if [[ "$UNAME" = CYGWIN* && -z "$ENABLE_CYGWIN_MULTIVM" ]]; then
     exec $time$timelimit "${command[@]}"
 else 
-    exec $time$timelimit$launcher "${command[@]}"
+    [ ${#launcher_env[@]} -gt 0 ] && launcher_env=("/usr/bin/env" "${launcher_env[@]}")
+    exec "${launcher_env[@]}" $time$timelimit$launcher "${launcher_args[@]}" "${command[@]}"
 fi
 
 exit $?

@@ -27,12 +27,12 @@ public class TypedefNew05_MustFailCompile extends TypedefTest {
 
     public def run(): boolean = {
         
-        class A(k:int) {
+        class A(k:long) {
             def this():A{self.k==0} = property(0);
-            def this(i:int):A{self.k==i} = property(i);
+            def this(i:long):A{self.k==i} = property(i);
         }
         
-        type T(i:int) = A{self.k==i};
+        type T(i:long) = A{self.k==i};
         type T0 = A{self.k==0};
         type T1 = A{self.k==1};
 
@@ -42,7 +42,7 @@ public class TypedefNew05_MustFailCompile extends TypedefTest {
         return result;
     }
 
-    public static def main(var args: Array[String](1)): void = {
+    public static def main(var args: Rail[String]): void = {
         new TypedefNew05_MustFailCompile().execute();
     }
 }

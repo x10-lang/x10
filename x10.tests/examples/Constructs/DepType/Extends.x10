@@ -31,11 +31,11 @@ public class Extends extends x10Test {
         }
     }
     public def run(): boolean = {
-        var a: Test2{self.k==1 && self.i==self.j} = new Test2(1);
+        var a: Test2{self.k==1n && self.i==self.j} = new Test2(1n);
         var b: Test{self.i==self.j} = a;
         return true;
     }
-    public static def main(var args: Array[String](1)): void = {
+    public static def main(var args: Rail[String]): void = {
         new Extends().execute();
     }
 }

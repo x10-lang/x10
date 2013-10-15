@@ -217,8 +217,8 @@ int comp_eigenvalue(double* A, double* W, double* WORK, int* dim)
 {
 	char JOBZ = 'N';   //Compute eigenvalues
 	char UPLO = dim[1]?'U':'L';
-	int  N    = dim[0]; //order of A
-	int  LDA  = N; //leading dimension of A
+	int  N   = dim[0]; //order of A
+	int  LDA = N; //leading dimension of A
 	//double* A;// Input, on exit, A is destroyed.
 	//doulbe* W;// If INFO = 0, the eigenvalues in ascending order
 	//double* WORK; //work space
@@ -247,7 +247,7 @@ int comp_eigenvector(double* A, double* W, double* WORK, int* dim)
 {
 	char JOBZ = 'V';    //Compute eigenvalues and eigenvectors
 	char UPLO = dim[1]?'U':'L';
-	int  N    = dim[0]; //order of A
+	int  N   = dim[0]; //order of A
 	int  LDA  = N; //leading dimension of A
 	//double* A;// On exit, if INFO = 0, A contains the orthonormal eigenvectors of the matrix A.
 	//doulbe* W;// If INFO = 0, the eigenvalues in ascending order

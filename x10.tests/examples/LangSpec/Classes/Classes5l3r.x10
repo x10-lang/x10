@@ -21,18 +21,19 @@ import harness.x10Test;
 
 public class Classes5l3r extends x10Test {
    public def run() : boolean = (new Hook()).run();
-   public static def main(var args: Array[String](1)): void = {
+   public static def main(args:Rail[String]):void {
         new Classes5l3r().execute();
     }
 
 
-// file Classes line 999
+// file Classes line 1128
+ // FOR-ERR-CASE-DELETE: def recip(m:Long){true} = 1.0/m;
  static class Super {
-  def recip(n:Int){n != 0} = 1.0/n;
+  def recip(n:Long){n != 0} = 1.0/n;
 }
  static class Sub extends Super{
-  //ERROR: def recip(n:Int){n != 0, n != 3} = 1.0/(n * (n-3));
-  def recip(n:Int){true} = 1.0/n;
+  //ERROR: def recip(n:Long){n != 0, n != 3} = 1.0/(n * (n-3));
+  def recip(m:Long){true} = 1.0/m;
 }
  static class Example{
   static def example() {

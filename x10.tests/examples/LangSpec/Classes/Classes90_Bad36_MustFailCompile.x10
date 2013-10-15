@@ -21,12 +21,12 @@ import harness.x10Test;
 
 public class Classes90_Bad36_MustFailCompile extends x10Test {
    public def run() : boolean = (new Hook()).run();
-   public static def main(var args: Array[String](1)): void = {
+   public static def main(args:Rail[String]):void {
         new Classes90_Bad36_MustFailCompile().execute();
     }
 
 
-// file Classes line 602
+// file Classes line 731
 //OPTIONS: -STATIC_CHECKS
  static  class Example {var f : String = ""; def example(x:Any){x != null} = {this.f = x.toString();}}
  static  class Eyample {

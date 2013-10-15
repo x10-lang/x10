@@ -141,9 +141,9 @@ final public class UShort extends java.lang.Number implements StructI, java.lang
     public UShort $ampersand(java.lang.Object a, Type t) { return UShort.$box($value & ((UShort)a).$value); }
     public UShort $bar(java.lang.Object a, Type t) { return UShort.$box($value | ((UShort)a).$value); }
     public UShort $caret(java.lang.Object a, Type t) { return UShort.$box($value ^ ((UShort)a).$value); }
-    public UShort $left$G(int count) { return UShort.$box($value << count); }
-    public UShort $right$G(int count) { return UShort.$box((0xffff & $value) >>> count); } // UShort is always unsigned
-    public UShort $unsigned_right$G(int count) { return UShort.$box((0xffff & $value) >>> count); }
+    public UShort $left$G(long count) { return UShort.$box($value << count); }
+    public UShort $right$G(long count) { return UShort.$box((0xffff & $value) >>> count); } // UShort is always unsigned
+    public UShort $unsigned_right$G(long count) { return UShort.$box((0xffff & $value) >>> count); }
     // for X10PrettyPrinterVisitor.exposeSpecialDispatcherThroughSpecialInterface
     public short $ampersand$s(java.lang.Object a, Type t) { return (short) ($value & ((UShort)a).$value); }
     public short $bar$s(java.lang.Object a, Type t) { return (short) ($value | ((UShort)a).$value); }

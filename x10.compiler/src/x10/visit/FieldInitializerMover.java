@@ -147,10 +147,14 @@ public class FieldInitializerMover extends ContextVisitor {
             }
         }
         Stmt evalCall = nf.Block(p); // an empty statement
-        if (assignments.size()>0) {
+        // Workaround for XTENLANG-3207
+        // Missing __fieldInitializers causes post-compilation error with inlining.
+        // Until inliner is fixed, workaround the issue by always generating __fieldInitializers. 
+//        if (assignments.size()>0) {
+        if (true) {
             // create a final method that includes all the field initializers
             TypeNode returnType = nf.CanonicalTypeNode(p,ts.Void());
-            final Name name = Name.makeFresh("__fieldInitializers");
+            final Name name = Name.make("__fieldInitializers_" + cdecl.classDef().asType().fullName().toString().replace(".", "_"));
             final Id nameId = nf.Id(p, name);
             final Flags flags = Flags.PUBLIC.Final();
             MethodDecl method = nf.MethodDecl(p,nf.FlagsNode(p, flags),returnType, nameId,

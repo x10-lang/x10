@@ -26,12 +26,12 @@ public class TypedefIterated03 extends TypedefTest {
     public def run(): boolean = {
 
         type A[T] = T;
-        var a:A[A[A[A[A[A[A[A[A[A[A[A[A[A[int]]]]]]]]]]]]]] = 0;
+        var a:A[A[A[A[A[A[A[A[A[A[A[A[A[A[int]]]]]]]]]]]]]] = 0n;
 
         return result;
     }
 
-    public static def main(var args: Array[String](1)): void = {
+    public static def main(var args: Rail[String]): void = {
         new TypedefIterated03().execute();
     }
 }

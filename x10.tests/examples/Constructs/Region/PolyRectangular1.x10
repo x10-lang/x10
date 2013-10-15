@@ -9,17 +9,16 @@
  *  (C) Copyright IBM Corporation 2006-2010.
  */
 
+import x10.regionarray.*;
+
 /**
  * Construct a 3-d rectangular region, make an array from from it, and
  * examine it.
  */
-
 class PolyRectangular1 extends TestRegion {
 
     public def run() {
-        val min  = [1, 2, 3];
-        val max  = [2, 4, 6];
-        var r: Region = Region.makeRectangular(min, max);
+        var r: Region = Region.makeRectangular(1..2, 2..4, 3..6);
         prArray("3-d rect array", r);
         return status();
     }
@@ -43,7 +42,7 @@ class PolyRectangular1 extends TestRegion {
         "    3  . . . 8 4 0 6 . . . \n" +
         "    4  . . . 4 2 0 8 . . . \n";
 
-    public static def main(Array[String](1)) {
+    public static def main(Rail[String]) {
         new PolyRectangular1().execute();
     }
 }

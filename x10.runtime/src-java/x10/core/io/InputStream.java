@@ -36,6 +36,10 @@ public class InputStream extends Ref {
     }
 
     private java.io.InputStream stream;
+    
+    public java.io.InputStream getJavaInputStream() {
+        return stream;
+    }
 
     // constructor just for allocation
     public InputStream(java.lang.System[] $dummy) {
@@ -87,9 +91,10 @@ public class InputStream extends Ref {
     }
 
     // XTENLANG-2680
-    public void read__0$1x10$lang$Byte$2(x10.array.Array r, int off, int len) {
+    // LONG_RAIL: unsafe int cast
+    public void read__0$1x10$lang$Byte$2(x10.core.Rail r, long off, long len) {
         try {
-            stream.read(r.raw().getByteArray(), off, len);
+            stream.read(r.getByteArray(), (int)off, (int)len);
         } catch (java.io.IOException e) {
             throw new x10.io.IOException(e.getMessage());
         }

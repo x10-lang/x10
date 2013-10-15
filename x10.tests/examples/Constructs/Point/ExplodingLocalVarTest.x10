@@ -10,6 +10,7 @@
  */
 
 import harness.x10Test;
+import x10.regionarray.*;
 
 /**
  * Testing exploding syntax for local variables.
@@ -19,11 +20,11 @@ import harness.x10Test;
 public class ExplodingLocalVarTest extends x10Test {
 
 	public def run(): boolean = {
-		val p[x,y] :Point  = [2, 2];
+		val p[x,y] :Point  = [2 as long, 2];
 		return x+y==4;
 		}
 
-	public static def main(Array[String](1)){
+	public static def main(Rail[String]){
 		new ExplodingLocalVarTest().execute();
 	}
 }

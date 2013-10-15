@@ -10,6 +10,7 @@
  */
 
 import harness.x10Test;
+import x10.regionarray.*;
 
 /**
  * Simple array test.
@@ -19,14 +20,14 @@ import harness.x10Test;
 public class ArrayIndexWithPoint extends x10Test {
 
     public def run() {
-        val e = 1..10;
-        val ia = new Array[int](e, (Point)=>0);
+        val e = Region.make(1, 10);
+        val ia = new Array[int](e, (Point)=>0n);
         for (p in ia.region) 
-            chk(ia(p)==0);
+            chk(ia(p)==0n);
         return true;
     }
 
-    public static def main(Array[String](1)) = {
+    public static def main(Rail[String]) = {
         new ArrayIndexWithPoint().execute();
     }
 }

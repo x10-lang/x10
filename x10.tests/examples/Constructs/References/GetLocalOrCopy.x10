@@ -17,8 +17,8 @@ import harness.x10Test;
  */
 class GetLocalOrCopy extends x10Test {
     public def run(): boolean {
-        val x = new Cell[Int](1);
-        val globalX = new GlobalRef[Cell[Int]](x);
+        val x = new Cell[Long](1);
+        val globalX = new GlobalRef[Cell[Long]](x);
         val home = here;
         at (here.next()) {
             val y = globalX.getLocalOrCopy();
@@ -30,7 +30,7 @@ class GetLocalOrCopy extends x10Test {
         return true;
     }
 
-    public static def main(Array[String](1)) {
+    public static def main(Rail[String]) {
         new GetLocalOrCopy().execute();
     }
 }

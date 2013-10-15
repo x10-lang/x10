@@ -10,6 +10,7 @@
  */
 
 import harness.x10Test;
+import x10.regionarray.*;
 
 /**
  * @author bdlucas
@@ -17,11 +18,11 @@ import harness.x10Test;
 
 public class ArrayScan extends TestArray {
 
-    public static N: int = 9;
+    public static N: long = 9;
 
     public def run(): boolean {
 
-        val a = new Array[double](0..N, (p:Point)=>p(0) as double);
+        val a = new Array[double](Region.make(0,N), (p:Point)=>p(0) as double);
         pr("original", a);
 
         val sum = (a:double,b:double) => a+b;
@@ -36,7 +37,7 @@ public class ArrayScan extends TestArray {
         return status();
     }
 
-    public static def main(var args: Array[String](1)): void = {
+    public static def main(var args: Rail[String]): void = {
         new ArrayScan().execute();
     }
 

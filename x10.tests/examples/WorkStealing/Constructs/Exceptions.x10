@@ -16,7 +16,7 @@ import harness.x10Test;
  * Test for x10 exceptions in X10 work-stealing
  */
 public class Exceptions extends x10Test {
-    static def e(msg:String): int = {
+    static def e(msg:String): long = {
         if (true) throw new x10.lang.Exception(msg);
         return -1;
     }
@@ -79,11 +79,11 @@ public class Exceptions extends x10Test {
             //correct
             val es = e.exceptions();
             Console.OUT.println("In multiple exception handling: size =" + es.size);
-            ok = (es.size == 2);
+            ok = (es.size == 2L);
             //should capture 3 & 4
             var ok3:boolean = false;
             var ok4:boolean = false;
-            for(var i:int = 0; i < es.size; i++){
+            for(var i:int = 0n; i<es.size; i++){
                 if(es(i).getMessage().equals("STEP3")){
                     ok3 = true;
                 }
@@ -102,7 +102,7 @@ public class Exceptions extends x10Test {
         return ok;
     }
 
-    public static def main(Array[String](1)) {
+    public static def main(Rail[String]) {
         new Exceptions().execute();
     }
 }

@@ -20,16 +20,21 @@ public final class Math {
    public static E = 2.718281828459045D;
    public static PI = 3.141592653589793D;
 
+   @Native("java", "java.lang.Math.abs(#a)") // @Native for performance
    @Native("c++", "((x10_int)::labs(#a))") // @Native for performance
    public static def abs(a:Int):Int = a<0 ? -a : a;
 
+   @Native("java", "java.lang.Math.abs(#a)") // @Native for performance
    @Native("c++", "((x10_long)::llabs(#a))") // @Native for performance
    public static def abs(a:Long):Long = a<0l ? -a : a;
 
+   @Native("java", "java.lang.Math.abs(#a)") // @Native for performance
    @Native("cuda", "fabsf(#a)")
    @Native("c++", "::fabsf(#a)") // @Native for performance
    public static def abs(a:Float):Float = a<0.0f ? -a : a;
 
+   @Native("java", "java.lang.Math.abs(#a)") // @Native for performance
+   @Native("cuda", "fabs(#a)")
    @Native("c++", "::fabs(#a)") // @Native for performance
    public static def abs(a:Double):Double = a<0.0 ? -a : a;
 
@@ -72,6 +77,7 @@ public final class Math {
 
    @Native("java", "java.lang.Math.exp(#a)")
    @Native("c++", "x10::lang::MathNatives::exp(#a)")
+   @Native("cuda", "exp(#a)")
    public static native def exp(a:Double):Double;
 
    // GPUs don't like doubles
@@ -268,6 +274,7 @@ public final class Math {
 
    @Native("java", "java.lang.Math.sqrt(#a)")
    @Native("c++", "x10::lang::MathNatives::sqrt(#a)")
+   @Native("cuda", "sqrt(#a)")
    public static native def sqrt(a:Double):Double;
 
     /**
@@ -315,6 +322,7 @@ public final class Math {
 
    @Native("java", "java.lang.Math.log(#a)")
    @Native("c++", "x10::lang::MathNatives::log(#a)")
+   @Native("cuda", "log(#a)")
    public static native def log(a:Double):Double;
 
    // GPUs don't like doubles
@@ -344,50 +352,81 @@ public final class Math {
    @Native("c++", "x10::lang::MathNatives::log1p(#a)")
    public static native def log1p(a:Double):Double;
 
-    public static def max(a:Int, b:Int)= a<b?b:a;
-    public static def min(a:Int, b:Int)= a<b?a:b;
-    public static def max(a:UInt, b:UInt)= a<b?b:a;
- 	public static def min(a:UInt, b:UInt)= a<b?a:b;
-    public static def max(a:Long, b:Long)= a<b?b:a;
-    public static def min(a:Long, b:Long)= a<b?a:b;
-    public static def max(a:ULong, b:ULong)= a<b?b:a;
-  	public static def min(a:ULong, b:ULong)= a<b?a:b;
-    public static def max(a:Float, b:Float)= a<b?b:a;
-    public static def min(a:Float, b:Float)= a<b?a:b;
-    public static def max(a:Double, b:Double)= a<b?b:a;
-    public static def min(a:Double, b:Double)= a<b?a:b;
+    @Native("java", "java.lang.Math.max(#a,#b)") // @Native for performance
+    public static def max(a:Int, b:Int):Int = a<b?b:a;
+    @Native("java", "java.lang.Math.min(#a,#b)") // @Native for performance
+    public static def min(a:Int, b:Int):Int = a<b?a:b;
+    public static def max(a:UInt, b:UInt):UInt = a<b?b:a;
+    public static def min(a:UInt, b:UInt):UInt = a<b?a:b;
+    @Native("java", "java.lang.Math.max(#a,#b)") // @Native for performance
+    public static def max(a:Long, b:Long):Long = a<b?b:a;
+    @Native("java", "java.lang.Math.min(#a,#b)") // @Native for performance
+    public static def min(a:Long, b:Long):Long = a<b?a:b;
+    public static def max(a:ULong, b:ULong):ULong = a<b?b:a;
+    public static def min(a:ULong, b:ULong):ULong = a<b?a:b;
+    @Native("java", "java.lang.Math.max(#a,#b)") // @Native for performance
+    public static def max(a:Float, b:Float):Float = a<b?b:a;
+    @Native("java", "java.lang.Math.min(#a,#b)") // @Native for performance
+    public static def min(a:Float, b:Float):Float = a<b?a:b;
+    @Native("java", "java.lang.Math.max(#a,#b)") // @Native for performance
+    public static def max(a:Double, b:Double):Double = a<b?b:a;
+    @Native("java", "java.lang.Math.min(#a,#b)") // @Native for performance
+    public static def min(a:Double, b:Double):Double = a<b?a:b;
 
-    public static def signum(a:Int) = (a == 0) ? 0 : ((a>0) ? 1 : -1);
-    public static def signum(a:Long) = (a == 0L) ? 0 : ((a>0L) ? 1 : -1);
-    public static def signum(a:Float) = (a == 0.0f) ? 0 : ((a>0.0f) ? 1 : -1);
-    public static def signum(a:Double) = (a == 0.0d) ? 0 : ((a>0.0d) ? 1 : -1);
+    public static def signum(a:Int):Int = (a == 0n) ? 0n : ((a>0n) ? 1n : -1n);
+    public static def signum(a:Long):Long = (a == 0L) ? 0L : ((a>0L) ? 1L : -1L);
+    @Native("java", "java.lang.Math.signum(#a)") // @Native for performance
+    public static def signum(a:Float):Float = (a == 0.0f) ? 0.0f : ((a>0.0f) ? 1.0f : -1.0f);
+    @Native("java", "java.lang.Math.signum(#a)") // @Native for performance
+    public static def signum(a:Double):Double = (a == 0.0d) ? 0.0d : ((a>0.0d) ? 1.0d : -1.0d);
 
     /**
      * @return the value of a with the sign of b
      */
-    @Native("java", "java.lang.Math.signum(#a) == java.lang.Math.signum(#b) ? #a : -1 * #a")
+    @Native("java", "java.lang.Math.copySign(#a,#b)")
     @Native("c++", "x10::lang::MathNatives::copysign(#a,#b)")
     public static native def copySign(a:Double, b:Double):Double;
 
-   public static def nextPowerOf2(val p: int): int {
-        if (p==0) return 0;
-        var pow2: int = 1;
+    public static def nextPowerOf2(p:Int):Int {
+        if (p==0n) return 0n;
+        var pow2:Int = 1n;
         while (pow2 < p)
-            pow2 <<= 1;
+            pow2 <<= 1n;
         return pow2;
     }
 
-    public static def powerOf2(p:int) {
-       return (p & -p) == p;
+    public static def nextPowerOf2(p:Long):Long {
+    	if (p==0L) return 0L;
+    	var pow2:Long = 1L;
+    	while (pow2 < p)
+    		pow2 <<= 1n;
+    	return pow2;
     }
+
+    public static def powerOf2(p:Int):Boolean = (p & -p) == p;
+    public static def powerOf2(p:Long):Boolean = (p & -p) == p;
+
     public static def log2(var p:Int):Int {
         assert powerOf2(p);
-        var i:Int = 0;
-        while (p > 1) { p = p/2; i++; }
+        var i:Int = 0n;
+        while (p > 1n) { p = p/2n; i++; }
         return i;
     }
+
+    public static def log2(var p:Long):Long {
+    	assert powerOf2(p);
+    	var i:Long = 0L;
+    	while (p > 1L) { p = p/2L; i++; }
+    	return i;
+    }
+
     // returns 2^(max(0,i))
-    public static def pow2(i:Int) {
-        return 1 << i;
+    public static def pow2(i:Int):Int {
+        return 1n << i;
+    }
+
+    // returns 2^(max(0,i))
+    public static def pow2(i:Long):Long {
+        return 1L << (i as Int);
     }
 }

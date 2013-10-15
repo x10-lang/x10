@@ -21,12 +21,12 @@ import harness.x10Test;
 
 public class Interfaces7n1z extends x10Test {
    public def run() : boolean = (new Hook()).run();
-   public static def main(var args: Array[String](1)): void = {
+   public static def main(args:Rail[String]):void {
         new Interfaces7n1z().execute();
     }
 
 
-// file Interfaces line 293
+// file Interfaces line 328
  static interface ListOfFuns[T,U] extends x10.util.List[(T)=>U] {}
 
  static class Hook {

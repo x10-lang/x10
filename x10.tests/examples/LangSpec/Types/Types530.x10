@@ -21,12 +21,12 @@ import harness.x10Test;
 
 public class Types530 extends x10Test {
    public def run() : boolean = (new Hook()).run();
-   public static def main(var args: Array[String](1)): void = {
+   public static def main(args:Rail[String]):void {
         new Types530().execute();
     }
 
 
-// file Types line 2298
+// file Types line 2577
  static  class EEEEVil {
   static def eval[T] (f:()=>T):T = f();
  }

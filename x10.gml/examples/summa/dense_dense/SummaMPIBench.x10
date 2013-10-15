@@ -4,7 +4,6 @@
  *  (C) Copyright IBM Corporation 2011.
  */
 
-import x10.io.Console;
 import x10.util.Timer;
 import x10.compiler.Ifdef;
 import x10.compiler.Ifndef;
@@ -28,10 +27,10 @@ import x10.matrix.dist.summa.mpi.SummaMPI;
  */
 
 public class SummaMPIBench {
-	public static def main(args:Array[String](1)) {
-		val M = args.size > 0 ?Int.parse(args(0)):50;
-		val K = args.size > 1 ?Int.parse(args(1)):50;
-		val N = args.size > 2 ?Int.parse(args(2)):50;
+	public static def main(args:Rail[String]) {
+		val M = args.size > 0 ? Long.parse(args(0)):50;
+		val K = args.size > 1 ? Long.parse(args(1)):50;
+		val N = args.size > 2 ? Long.parse(args(2)):50;
 		val iter = args.size > 3 ? Int.parse(args(3)):1;
 		val ps = args.size > 4 ? Int.parse(args(4)):0;
 		val tc = new RunSummaMPIBench(M, K, N, iter, ps);
@@ -42,7 +41,7 @@ public class SummaMPIBench {
 class RunSummaMPIBench{
 
 	public val iter:Int;
-	public val M:Int, N:Int, K:Int;
+	public val M:Long, N:Long, K:Long;
 	public val testps:Int, lastps:Int;
 	public val nplace:Int = Place.MAX_PLACES;
 	public val aPart:Grid, bPart:Grid, btPart:Grid, cPart:Grid;
@@ -52,7 +51,7 @@ class RunSummaMPIBench{
 	val tB:DistDenseMatrix(btPart.M, btPart.N);
 	val C:DistDenseMatrix(cPart.M, cPart.N);
 	
-	public def this(m:Int, k:Int, n:Int, it:Int, p:Int) {
+	public def this(m:Long, k:Int, n:Long, it:Int, p:Int) {
 		M = m; N = n; K=k; iter=it;
 		aPart = Grid.make(M, K);
 		bPart = Grid.make(K, N);

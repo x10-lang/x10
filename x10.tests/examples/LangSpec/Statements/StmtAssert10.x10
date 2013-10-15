@@ -21,12 +21,12 @@ import harness.x10Test;
 
 public class StmtAssert10 extends x10Test {
    public def run() : boolean = (new Hook()).run();
-   public static def main(var args: Array[String](1)): void = {
+   public static def main(args:Rail[String]):void {
         new StmtAssert10().execute();
     }
 
 
-// file Statements line 1008
+// file Statements line 1009
  static  class Example {
 static def percentDiff(x:Double, y:Double) {
   val diff = x-y;

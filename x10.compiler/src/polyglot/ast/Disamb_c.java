@@ -136,6 +136,7 @@ public abstract class Disamb_c implements Disamb
             }
         }
 
+        
         if (q == null) {
             Package p = ts.createPackage(pn.package_(), name.id());
             q = p;
@@ -143,9 +144,13 @@ public abstract class Disamb_c implements Disamb
 
         if (q.isPackage() && packageOK()) {
             return nf.PackageNode(pos, Types.ref(q.toPackage()));
-        }
-        else if (q.isType() && typeOK()) {
-            return makeTypeNode(q.toType());
+        } else if (q.isType() && typeOK()) {
+        	Type qt = q.toType();
+        	QName askedName = QName.make(pn.package_().get().fullName(), name.id());
+            if (!qt.fullName().equals(askedName)) {
+                throw new SemanticException("Java interop type "+askedName+" is represented by the X10 type "+q+".");
+            }
+            return makeTypeNode(qt);
         }
 
         return null;

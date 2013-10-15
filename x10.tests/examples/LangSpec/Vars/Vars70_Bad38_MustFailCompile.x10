@@ -21,21 +21,21 @@ import harness.x10Test;
 
 public class Vars70_Bad38_MustFailCompile extends x10Test {
    public def run() : boolean = (new Hook()).run();
-   public static def main(var args: Array[String](1)): void = {
+   public static def main(args:Rail[String]):void {
         new Vars70_Bad38_MustFailCompile().execute();
     }
 
 
-// file Vars line 278
+// file Vars line 281
 abstract static  class VarsForStars{
  abstract def cointoss(): Boolean;
  abstract def println(Any):void;
 def check() {
-  var muta : Int;
+  var muta : Long;
   // ERROR:  println(muta);
   muta = 4;
   val use2A = muta * 10;
-  val immu : Int;
+  val immu : Long;
  println(immu); // ERR
   if (cointoss())   {immu = 1;}
   else              {immu = use2A;}

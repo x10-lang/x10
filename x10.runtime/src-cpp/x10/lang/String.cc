@@ -18,10 +18,9 @@
 #include <x10aux/throw.h>
 
 #include <x10/lang/Char.h>
+#include <x10/lang/Rail.h>
 #include <x10/lang/String.h>
 #include <x10/lang/StringIndexOutOfBoundsException.h>
-
-#include <x10/array/Array.h>
 
 #include <cstdarg>
 #include <sstream>
@@ -67,17 +66,17 @@ String::_constructor(String* s) {
 }
 
 String*
-String::_make(x10::array::Array<x10_byte>* array) {
-    return _make(array, 0, array->FMGL(size));
+String::_make(x10::lang::Rail<x10_byte>* rail) {
+    return _make(rail, 0, rail->FMGL(size));
 }
 
 void
-String::_constructor(x10::array::Array<x10_byte>* array, x10_int start, x10_int length) {
-    nullCheck(array);
+String::_constructor(x10::lang::Rail<x10_byte>* rail, x10_int start, x10_int length) {
+    nullCheck(rail);
     x10_int i = 0;
     char *content= x10aux::alloc<char>(length+1);
     for (i=0; i<length; i++) {
-        content[i] = (char)(array->raw()[start + i]);
+        content[i] = (char)(rail->raw[start + i]);
     }
     content[i] = '\0';
     this->FMGL(content) = content;
@@ -85,17 +84,17 @@ String::_constructor(x10::array::Array<x10_byte>* array, x10_int start, x10_int 
 }
 
 String*
-String::_make(x10::array::Array<x10_char>* array) {
-    return _make(array, 0, array->FMGL(size));
+String::_make(x10::lang::Rail<x10_char>* rail) {
+    return _make(rail, 0, rail->FMGL(size));
 }
 
 void
-String::_constructor(x10::array::Array<x10_char>* array, x10_int start, x10_int length) {
-    nullCheck(array);
+String::_constructor(x10::lang::Rail<x10_char>* rail, x10_int start, x10_int length) {
+    nullCheck(rail);
     x10_int i = 0;
     char *content= x10aux::alloc<char>(length+1);
     for (i=0; i<length; i++) {
-        content[i] = (char)(array->raw()[start + i].v);
+        content[i] = (char)(rail->raw[start + i].v);
     }
     content[i] = '\0';
     this->FMGL(content) = content;
@@ -253,82 +252,141 @@ x10_char String::charAt(x10_int i) {
 }
 
 
-x10::array::Array<x10_char>* String::chars() {
+x10::lang::Rail<x10_char>* String::chars() {
     x10_int sz = length();
-    x10::array::Array<x10_char>* array = x10::array::Array<x10_char>::_make(sz);
+    x10::lang::Rail<x10_char>* rail = x10::lang::Rail<x10_char>::_make(sz);
     for (int i = 0; i < sz; ++i)
-        array->__set(i, (x10_char) FMGL(content)[i]);
-    return array;
+        rail->__set(i, (x10_char) FMGL(content)[i]);
+    return rail;
 }
 
-x10::array::Array<x10_byte>* String::bytes() {
+x10::lang::Rail<x10_byte>* String::bytes() {
     x10_int sz = length();
-    x10::array::Array<x10_byte>* array = x10::array::Array<x10_byte>::_make(sz);
+    x10::lang::Rail<x10_byte>* rail = x10::lang::Rail<x10_byte>::_make(sz);
     for (int i = 0; i < sz; ++i)
-        array->__set(i, FMGL(content)[i]); 
-    return array;
+        rail->__set(i, FMGL(content)[i]);
+    return rail;
 }
 
-void String::_formatHelper(std::ostringstream &ss, char* fmt, Any* p) {
-    char* buf = NULL;
-    if (NULL == p) {
-        ss << (buf = x10aux::alloc_printf(fmt, "null")); // FIXME: Ignore nulls for now
-    } else if (x10aux::instanceof<String*>(p)) {
-        ss << (buf = x10aux::alloc_printf(fmt, class_cast_unchecked<String*>(p)->c_str()));
-    } else if (x10aux::instanceof<x10_boolean>(p)) {
-        ss << (buf = x10aux::alloc_printf(fmt, class_cast_unchecked<x10_boolean>(p)));
-    } else if (x10aux::instanceof<x10_byte>(p)) {
-        ss << (buf = x10aux::alloc_printf(fmt, class_cast_unchecked<x10_byte>(p)));
-    } else if (x10aux::instanceof<x10_ubyte>(p)) {
-        ss << (buf = x10aux::alloc_printf(fmt, class_cast_unchecked<x10_ubyte>(p)));
-    } else if (x10aux::instanceof<x10_char>(p)) {
-        ss << (buf = x10aux::alloc_printf(fmt, class_cast_unchecked<x10_char>(p).v));
-    } else if (x10aux::instanceof<x10_short>(p)) {
-        ss << (buf = x10aux::alloc_printf(fmt, class_cast_unchecked<x10_short>(p)));
-    } else if (x10aux::instanceof<x10_ushort>(p)) {
-        ss << (buf = x10aux::alloc_printf(fmt, class_cast_unchecked<x10_ushort>(p)));
-    } else if (x10aux::instanceof<x10_int>(p)) {
-        ss << (buf = x10aux::alloc_printf(fmt, class_cast_unchecked<x10_int>(p)));
-    } else if (x10aux::instanceof<x10_uint>(p)) {
-        ss << (buf = x10aux::alloc_printf(fmt, class_cast_unchecked<x10_uint>(p)));
-    } else if (x10aux::instanceof<x10_long>(p)) {
-        ss << (buf = x10aux::alloc_printf(fmt, class_cast_unchecked<x10_ulong>(p)));
-    } else if (x10aux::instanceof<x10_float>(p)) {
-        ss << (buf = x10aux::alloc_printf(fmt, class_cast_unchecked<x10_float>(p)));
-    } else if (x10aux::instanceof<x10_double>(p)) {
-        ss << (buf = x10aux::alloc_printf(fmt, class_cast_unchecked<x10_double>(p)));
-    } else {
-        Reference* tmp = reinterpret_cast<x10::lang::Reference*>(p);
-        ss << (buf = x10aux::alloc_printf(fmt, tmp->toString()->c_str()));
+
+// A lightweight version of std::ostringstream ss;
+// Rolling it ourself is a huge performance win (roughly 3x).
+class MyBuf {
+  public:
+    size_t capacity;
+    size_t cursor;
+    char* buffer;
+
+    MyBuf(size_t cap) {
+        capacity = cap;
+        cursor = 0;
+        buffer = x10aux::alloc<char>(capacity);
+        buffer[0] = '\0';
     }
-    if (buf != NULL)
-        dealloc(buf);
-}
 
-String* String::format(String* format, x10::array::Array<Any*>* parms) {
-    std::ostringstream ss;
+    inline size_t available() { return capacity - cursor; }
+    
+    // Implementation note: to better match snprintf API,
+    // enable ensures that buffer has enough backing memory
+    // to support a write of min+1 bytes
+    void enable(size_t min) {
+        size_t newCapacity = cursor + min + 1;
+        buffer = x10aux::realloc<char>(buffer, newCapacity);
+        capacity = newCapacity;
+    }
+    
+    void sprint(char* val) {
+        size_t writeSize = strlen(val);
+        if (writeSize + 1 < available()) {
+            ::memcpy(&buffer[cursor], val, writeSize+1);
+            cursor += writeSize;
+        } else {
+            enable(writeSize);
+            ::memcpy(&buffer[cursor], val, writeSize+1);
+            cursor += writeSize;
+        }
+    }
+
+    template <class T> void sprintf(char *fmt, T val) {
+        size_t writeSize = ::snprintf(&buffer[cursor], available(), fmt, val);
+        if (writeSize < available()) {
+            cursor += writeSize;
+        } else {
+            enable(writeSize);
+            size_t writeSize2 = ::snprintf(&buffer[cursor], available(), fmt, val);
+            assert(writeSize2 == writeSize);
+            cursor += writeSize2;
+        }
+    }
+};    
+
+String* String::format(String* format, x10::lang::Rail<Any*>* parms) {
     nullCheck(format);
     nullCheck(parms);
-    //size_t len = format->FMGL(content_length);
+
+    MyBuf buf(format->length() + 32); // Add a little room to print a couple values.
     char* orig = alloc_utils::strdup(format->c_str());
     char* fmt = orig;
     char* next = NULL;
-    for (x10_int i = 0; fmt != NULL; ++i, fmt = next) {
-        next = strchr(fmt+1, '%'); // FIXME: this is only ok if we always null-terminate content
+    for (x10_int i = 0; fmt != NULL; fmt = next) {
+        next = strchr(fmt+1, '%');
         if (next != NULL)
             *next = '\0';
         if (*fmt != '%') {
-            ss << fmt;
-            --i;
+            buf.sprint(fmt);
         } else {
-            Any* p = parms->__apply(i);
-            _formatHelper(ss, fmt, p);
+            if (next == fmt+1) {
+                *next = '%';
+                next = strchr(next+1, '%');
+                if (next != NULL)
+                    *next = '\0';
+                buf.sprintf(fmt, NULL);
+            } else {
+                Any* p = parms->__apply(i);
+                i += 1;
+                if (NULL == p) {
+                    buf.sprintf(fmt, NULL);
+                } else {
+                    Reference* pAsRef = reinterpret_cast<x10::lang::Reference*>(p);
+                    const x10aux::RuntimeType* rtt = pAsRef->_type();
+                    // Ordered by guesstimate at frequency in printfs...
+                    if (rtt->equals(x10aux::getRTT<x10_long>())) {
+                        buf.sprintf(fmt, class_cast_unchecked<x10_long>(p));
+                    } else if (rtt->equals(x10aux::getRTT<x10_double>())) {
+                        buf.sprintf(fmt, class_cast_unchecked<x10_double>(p));
+                    } else if (rtt->equals(x10aux::getRTT<x10_int>())) {
+                        buf.sprintf(fmt, class_cast_unchecked<x10_int>(p));
+                    } else if (rtt->equals(x10aux::getRTT<x10_float>())) {
+                        buf.sprintf(fmt, class_cast_unchecked<x10_float>(p));
+                    } else if (rtt->equals(x10aux::getRTT<x10::lang::String>())) {
+                        buf.sprintf(fmt, class_cast_unchecked<String*>(pAsRef)->c_str());
+                    } else if (rtt->equals(x10aux::getRTT<x10_boolean>())) {
+                        buf.sprintf(fmt, class_cast_unchecked<x10_boolean>(p));
+                    } else if (rtt->equals(x10aux::getRTT<x10_byte>())) {
+                        buf.sprintf(fmt, class_cast_unchecked<x10_byte>(p));
+                    } else if (rtt->equals(x10aux::getRTT<x10_short>())) {
+                        buf.sprintf(fmt, class_cast_unchecked<x10_short>(p));
+                    } else if (rtt->equals(x10aux::getRTT<x10_char>())) {
+                        buf.sprintf(fmt, class_cast_unchecked<x10_char>(p).v);
+                    } else if (rtt->equals(x10aux::getRTT<x10_ubyte>())) {
+                        buf.sprintf(fmt, class_cast_unchecked<x10_ubyte>(p));
+                    } else if (rtt->equals(x10aux::getRTT<x10_ushort>())) {
+                        buf.sprintf(fmt, class_cast_unchecked<x10_ushort>(p));
+                    } else if (rtt->equals(x10aux::getRTT<x10_uint>())) {
+                        buf.sprintf(fmt, class_cast_unchecked<x10_uint>(p));
+                    } else if (rtt->equals(x10aux::getRTT<x10_ulong>())) {
+                        buf.sprintf(fmt, class_cast_unchecked<x10_ulong>(p));
+                    } else {
+                        buf.sprintf(fmt, pAsRef->toString()->c_str());
+                    }
+                }
+            }
         }
         if (next != NULL)
             *next = '%';
     }
-    dealloc(orig);
-    return String::Lit(ss.str().c_str());
+    x10aux::dealloc(orig);
+    return String::Steal(buf.buffer);
 }
 
 x10_boolean String::equals(Any* p0) {
@@ -432,6 +490,65 @@ x10_boolean String::endsWith(String* s) {
     return (cmp == 0);
 }
 
+
+String* String::__plus(String* p1, String* p2) {
+    std::size_t newLength = p1->FMGL(content_length) + p2->FMGL(content_length);
+    char *newChars = x10aux::alloc<char>(newLength+1, false);
+    memcpy(newChars, p1->FMGL(content), p1->FMGL(content_length));
+    memcpy(&newChars[p1->FMGL(content_length)], p2->FMGL(content), p2->FMGL(content_length));
+    newChars[newLength] = '\0';
+    return String::Steal(newChars);
+}
+
+String* String::__plus(String* p1, x10_boolean p2) {
+    // Note: to_string(x10_boolean) doesn't allocate; simply returns static String*
+    return String::__plus(p1, x10aux::to_string(p2));
+}
+
+String* String::__plus(x10_boolean p1, String* p2) {
+    // Note: to_string(x10_boolean) doesn't allocate; simply returns static String*
+    return String::__plus(x10aux::to_string(p1), p2);
+}
+
+
+#define STRING_PLUS_DEFS(SZ,T,C,FMT) \
+String* String::__plus(String* p1, T p2) { \
+    char buf[SZ]; \
+    size_t used = (size_t)(::snprintf(buf, SZ, FMT, (C)p2)); \
+    std::size_t newLength = p1->FMGL(content_length) + used; \
+    char *newChars = x10aux::alloc<char>(newLength+1, false); \
+    memcpy(newChars, p1->FMGL(content), p1->FMGL(content_length)); \
+    memcpy(&newChars[p1->FMGL(content_length)], buf, used); \
+    newChars[newLength] = '\0'; \
+    return String::Steal(newChars); \
+} \
+String* String::__plus(T p1, String* p2) { \
+    char buf[SZ]; \
+    size_t used = (size_t)(::snprintf(buf, SZ, FMT, (C)p1)); \
+    std::size_t newLength = used + p2->FMGL(content_length); \
+    char *newChars = x10aux::alloc<char>(newLength+1, false); \
+    memcpy(newChars, buf, used);                              \
+    memcpy(&newChars[used], p2->FMGL(content), p2->FMGL(content_length)); \
+    newChars[newLength] = '\0'; \
+    return String::Steal(newChars); \
+}
+
+// hh is C99, not ansi c, so we use h instead.
+// This is fine as va_args turns everything to int anyway
+STRING_PLUS_DEFS(4, x10_ubyte, unsigned char, "%hu")
+STRING_PLUS_DEFS(5, x10_byte, signed char, "%hd")
+
+STRING_PLUS_DEFS(6, x10_ushort, unsigned short, "%hu")
+STRING_PLUS_DEFS(7, x10_short, signed short, "%hd")
+
+STRING_PLUS_DEFS(11, x10_uint, unsigned long, "%lu")
+STRING_PLUS_DEFS(12, x10_int, signed long, "%ld")
+STRING_PLUS_DEFS(21, x10_ulong, unsigned long long, "%llu")
+STRING_PLUS_DEFS(21, x10_long, signed long long, "%lld")
+
+
+
+
 const serialization_id_t String::_serialization_id =
     DeserializationDispatcher::addDeserializer(String::_deserializer, x10aux::CLOSURE_KIND_NOT_ASYNC);
 
@@ -472,8 +589,14 @@ Comparable<String*>::itable<String> String::_itable_Comparable(&String::compareT
                                                                &String::equals, &String::hashCode,
                                                                &String::toString, &String::typeName);
 
-x10aux::itable_entry String::_itables[2] = {
+CharSequence::itable<String> String::_itable_CharSequence(&String::charAt,
+                                                          &String::equals, &String::hashCode,
+                                                          &String::length, &String::subSequence,
+                                                          &String::toString, &String::typeName);
+
+x10aux::itable_entry String::_itables[3] = {
     x10aux::itable_entry(&x10aux::getRTT<Comparable<String*> >, &String::_itable_Comparable),
+    x10aux::itable_entry(&x10aux::getRTT<CharSequence>, &String::_itable_CharSequence),
     x10aux::itable_entry(NULL,  (void*)x10aux::getRTT<String>())
 };
 
@@ -481,9 +604,9 @@ x10aux::RuntimeType String::rtt;
 
 void String::_initRTT() {
     if (rtt.initStageOne(&rtt)) return;
-    const x10aux::RuntimeType* parents[1] = { Comparable<String>::getRTT() };
+    const x10aux::RuntimeType* parents[2] = { Comparable<String>::getRTT(), CharSequence::getRTT() };
     
-    rtt.initStageTwo("x10.lang.String", RuntimeType::class_kind, 1, parents, 0, NULL, NULL);
+    rtt.initStageTwo("x10.lang.String", RuntimeType::class_kind, 2, parents, 0, NULL, NULL);
 }    
 
 // vim:tabstop=4:shiftwidth=4:expandtab

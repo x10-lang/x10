@@ -21,14 +21,14 @@ import harness.x10Test;
 
 public class Expressions40 extends x10Test {
    public def run() : boolean = (new Hook()).run();
-   public static def main(var args: Array[String](1)): void = {
+   public static def main(args:Rail[String]):void {
         new Expressions40().execute();
     }
 
 
-// file Expressions line 276
+// file Expressions line 273
  static class Callsome {
-  static val closure : () => Int = () => 1;
+  static val closure : () => Long = () => 1;
   static def method()            = 2;
   static def example() {
      assert Callsome.closure() == 1;

@@ -10,13 +10,14 @@
  */
 
 import harness.x10Test;
+import x10.regionarray.*;
 
 // vj Nov 9, 2009. This will throw a compiler error until we fix
 // the XTerm translator so it can accept d(p) as a term, where d is
 // a distribution and p a place.
 
 public class PlaceCast2 extends x10Test {
-    var nplaces: int = 0;
+    var nplaces: long = 0L;
     private val root = GlobalRef[PlaceCast2](this);
     public def run(): boolean = {
             val d = Dist.makeUnique();
@@ -43,7 +44,7 @@ public class PlaceCast2 extends x10Test {
         return nplaces == Place.numPlaces();
     }
 
-    public static def main(Array[String](1)) {
+    public static def main(Rail[String]) {
         new PlaceCast2().execute();
     }
 

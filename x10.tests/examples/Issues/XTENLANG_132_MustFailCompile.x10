@@ -27,15 +27,15 @@ class XTENLANG_132_MustFailCompile extends x10Test {
     
         public static def run():boolean {
     
-            val a = new A(0);
-            val a1 = a as A(1); // ERR Must fail compilation.
+            val a = new A(0n);
+            val a1 = a as A(1n); // ERR Must fail compilation.
             return false;
         }
     }
 
     public def run()=Bug.run();
 
-    public static def main(Array[String](1)) {
+    public static def main(Rail[String]) {
         new XTENLANG_132_MustFailCompile().execute();
     }
 }

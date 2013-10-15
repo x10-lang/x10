@@ -10,6 +10,7 @@
  */
 
 import harness.x10Test;
+import x10.regionarray.*;
 
 /**
  *
@@ -17,7 +18,7 @@ import harness.x10Test;
  *
  */
 public class FieldDepType extends x10Test {
-    var f: Array[Double](1) = new Array[double](0..10, (i: Point)=> (10-i(0)) as Double);
+    var f: Array[Double](1) = new Array[double](11, (i:long)=> (10-i) as Double);
 
     def m(a: Array[Double]{rank==1&&rect&&zeroBased}): void = {
     }
@@ -25,7 +26,7 @@ public class FieldDepType extends x10Test {
         m(f as Array[Double]{zeroBased, rect, rank==1});
         return f(0)==10.0D;
     }
-    public static def main(Array[String](1)): void = {
+    public static def main(Rail[String]): void = {
         new FieldDepType().execute();
     }
 }

@@ -11,6 +11,7 @@
 
 import harness.x10Test;
 
+import x10.regionarray.*;
 import x10.compiler.Pinned;
 /**
  * Remote accesses must be flagged by the compiler.
@@ -28,28 +29,28 @@ public class AsyncTest3 extends x10Test {
             chk(A.dist(1) != here);
             val x= new X();
 
-            finish async  { A(0) += 1; }
-            A(0) += 1;
-            finish async { A(1) += 1; }
-            A(1) += 1; //  remote communication
+            finish async  { A(0) += 1n; }
+            A(0) += 1n;
+            finish async { A(1) += 1n; }
+            A(1) += 1n; //  remote communication
             x10.io.Console.OUT.println("1");
             
-            finish async  { A(x.zero()) += 1; }
-            A(x.zero()) += 1;
+            finish async  { A(x.zero()) += 1n; }
+            A(x.zero()) += 1n;
 
             finish async  { A(0) += A(x.one()); }
             A(0) += A(x.one());//  remote communication
             x10.io.Console.OUT.println("2");
         
-            chk(A(0) == 8 && A(1) == 2);
+            chk(A(0) == 8n && A(1) == 2n);
             x10.io.Console.OUT.println("3");
             return false;
         } catch (z:MultipleExceptions) {
-            return (z.exceptions.size == 1 && z.exceptions(0) instanceof BadPlaceException);
+            return (z.exceptions.size == 1L && z.exceptions(0) instanceof BadPlaceException);
         }
     }
 
-    public static def main(Array[String](1)) {
+    public static def main(Rail[String]) {
         new AsyncTest3().execute();
     }
 
@@ -58,7 +59,7 @@ public class AsyncTest3 extends x10Test {
      * for a typical compiler
      */
     @Pinned static class X {
-        public var z: Array[int](1){rect} = [ 1, 0 ];
+        public var z: Rail[int] = [ 1n, 0n ];
         def zero() = z(z(z(1))); 
         def one() = z(z(z(0))); 
         def modify() { z(0)++; }

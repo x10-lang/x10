@@ -10,6 +10,7 @@
  */
 
 import harness.x10Test;
+import x10.regionarray.*;
 
 /**
  * @author vj
@@ -19,11 +20,11 @@ public class ArrayConstructor extends x10Test {
 
     public def run(): boolean = {
         val x  = 1.0;
-        val a  = new Array[double](0..5, (Point)=>2.0);
+        val a  = new Array[double](6, 2.0);
         return true;
     }
 
-    public static def main(Array[String](1)) {
+    public static def main(Rail[String]) {
         new ArrayConstructor().execute();
     }
 }

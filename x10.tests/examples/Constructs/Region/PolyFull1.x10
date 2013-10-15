@@ -9,11 +9,12 @@
  *  (C) Copyright IBM Corporation 2006-2010.
  */
 
+import x10.regionarray.*;
+
 /**
  * Make a full region, examine it, observing an
  * UnboundedRegionException when attemppting to scan it
  */
-
 class PolyFull1 extends TestRegion {
 
     public def run() {
@@ -31,9 +32,9 @@ class PolyFull1 extends TestRegion {
         "isConvex() true\n"+
         "size() size not supported\n"+
         "region: full(3)\n"+
-        "x10.array.UnboundedRegionException: iterator not supported\n";
+        "x10.regionarray.UnboundedRegionException: iterator not supported\n";
     
-    public static def main(Array[String](1)) {
+    public static def main(Rail[String]) {
         new PolyFull1().execute();
     }
 }

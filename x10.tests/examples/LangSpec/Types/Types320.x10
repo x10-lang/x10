@@ -1,4 +1,4 @@
-/* Current test harness gets confused by packages, but it would be in package Types320_Types35;
+/* Current test harness gets confused by packages, but it would be in package Types320_Types28;
 */
 // Warning: This file is auto-generated from the TeX source of the language spec.
 // If you need it changed, work with the specification writers.
@@ -21,12 +21,12 @@ import harness.x10Test;
 
 public class Types320 extends x10Test {
    public def run() : boolean = (new Hook()).run();
-   public static def main(var args: Array[String](1)): void = {
+   public static def main(args:Rail[String]):void {
         new Types320().execute();
     }
 
 
-// file Types line 987
+// file Types line 1164
 
  static  class ConstraintsMayReferToValues {
  def thoseValues() {

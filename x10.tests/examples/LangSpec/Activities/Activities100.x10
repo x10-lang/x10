@@ -21,15 +21,15 @@ import harness.x10Test;
 
 public class Activities100 extends x10Test {
    public def run() : boolean = (new Hook()).run();
-   public static def main(var args: Array[String](1)): void = {
+   public static def main(args:Rail[String]):void {
         new Activities100().execute();
     }
 
 
-// file Activities line 436
+// file Activities line 427
  static  class Redund[T] {
    val list = new ArrayList[T]();
-   var size : Int = 0;
+   var size : Long = 0;
 def add(x:T) {
   atomic {
     this.list.add(x);

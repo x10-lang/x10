@@ -21,12 +21,12 @@ import harness.x10Test;
 
 public class Expressions6o2b extends x10Test {
    public def run() : boolean = (new Hook()).run();
-   public static def main(var args: Array[String](1)): void = {
+   public static def main(args:Rail[String]):void {
         new Expressions6o2b().execute();
     }
 
 
-// file Expressions line 793
+// file Expressions line 792
  static  class Hook {
  static def example(ob:Any) =
 (ob == null) ? null : ob.toString();

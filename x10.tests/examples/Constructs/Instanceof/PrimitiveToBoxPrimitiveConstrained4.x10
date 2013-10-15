@@ -20,10 +20,10 @@ public class PrimitiveToBoxPrimitiveConstrained4 extends x10Test {
 	 
 	public def run(): boolean = {
 		val a:Any = 3;
-		return !(a instanceof Box[Int(4)]);
+		return !(a instanceof Box[Long(4)]);
 	}
 	
-	public static def main(var args: Array[String](1)): void = {
+	public static def main(var args: Rail[String]): void = {
 		new PrimitiveToBoxPrimitiveConstrained4().execute();
 	}
 }

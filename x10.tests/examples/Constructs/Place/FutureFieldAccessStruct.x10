@@ -20,7 +20,7 @@ import x10.util.concurrent.Future;
 public class FutureFieldAccessStruct extends x10Test {
 
    static struct C[S] {
-        property p():int = 0;
+        property p():int = 0n;
         val x:S;
         def foo() {}
         def foo(x:S) {}
@@ -44,14 +44,14 @@ public class FutureFieldAccessStruct extends x10Test {
     }
 
     public def run(): boolean {
-    	if (Place.MAX_PLACES == 1) {
+    	if (Place.MAX_PLACES == 1L) {
     		x10.io.Console.OUT.println("not enough places to run this test");
     		return false;
     	}
     	return run02();
 	}
 
-    public static def main(Array[String](1)) {
+    public static def main(Rail[String]) {
         new FutureFieldAccessStruct().execute();
     }
 }

@@ -47,19 +47,19 @@ public class UIntOverride0 extends x10Test {
 	val b = new B();
 
 	var r : Boolean = true;
-	r = r && "T".equals(a.f(1u));
-	r = r && "T".equals(a0.f(1u));
-	r = r && "T".equals(aint.f(1));
-	r = r && "UInt".equals(aint.f(1u));
-	r = r && "T".equals(auint.f(1u));
-	r = r && "Int".equals(auint.f(1));
-	r = r && "UInt".equals(b.f(1u));
-	r = r && "Int".equals(b.f(1));
+	r = r && "T".equals(a.f(1un));
+	r = r && "T".equals(a0.f(1un));
+	r = r && "T".equals(aint.f(1n));
+	r = r && "UInt".equals(aint.f(1un));
+	r = r && "T".equals(auint.f(1un));
+	r = r && "Int".equals(auint.f(1n));
+	r = r && "UInt".equals(b.f(1un));
+	r = r && "Int".equals(b.f(1n));
 
 	return r;
     }
 
-    public static def main(Array[String]) {
+    public static def main(Rail[String]) {
         new UIntOverride0().execute();
     }
 }

@@ -238,20 +238,29 @@ public class SettableAssign_c extends Assign_c implements SettableAssign {
 		ami = Checker.findAppropriateMethod(tc, array.type(), ClosureCall.APPLY, typeArgs, actualTypes);
 
 		if (op != Assign.ASSIGN) {
+		    X10Call left = nf.X10Call(position(), array, nf.Id(position(),
+		            ClosureCall.APPLY), Collections.<TypeNode>emptyList(),
+		            index);
+            if (ami.error() != null) {
+		        // Now, try to find the method with implicit conversions, making them explicit.
+		        try {
+		            Pair<MethodInstance,List<Expr>> p = Checker.tryImplicitConversions(left, tc, array.type(), ClosureCall.APPLY, typeArgs, actualTypes);
+		            ami =  p.fst();
+		        } catch (SemanticException se) { }
+		    }
+            left = (X10Call_c) left.methodInstance(ami).type(ami.returnType());
 		    if (ami.error() != null) { // it's an error only if op is not =, e.g., a(1)+=1;
 		        Type bt = Types.baseType(array.type());
-		        boolean arrayP = xts.isX10Array(bt) || xts.isX10DistArray(bt);
+		        boolean arrayP = xts.isX10RegionArray(bt) || xts.isX10RegionDistArray(bt);
 		        Errors.issue(tc.job(), new Errors.CannotAssignToElement(leftToString(), arrayP, right, Types.arrayElementType(array.type()), position(), ami.error()));
 		    }
-		    X10Call_c left = (X10Call_c) nf.X10Call(position(), array, nf.Id(position(),
-		            ClosureCall.APPLY), Collections.<TypeNode>emptyList(),
-		            index).methodInstance(ami).type(ami.returnType());
 		    X10Binary_c n = (X10Binary_c) nf.Binary(position(), left, op.binaryOperator(), right);
 		    X10Call c = X10Binary_c.desugarBinaryOp(n, tc);
 		    MethodInstance cmi = (MethodInstance) c.methodInstance();
 		    if (cmi.error() != null) {
 		        Type bt = Types.baseType(array.type());
-		        boolean arrayP = xts.isX10Array(bt) || xts.isX10DistArray(bt);
+		        // arrayP is used to tweak the error message used
+		        boolean arrayP = xts.isX10RegionArray(bt) || xts.isX10RegionDistArray(bt);
 		        Errors.issue(tc.job(),
 		                new Errors.CannotPerformAssignmentOperation(leftToString(), arrayP, op.toString(), right, Types.arrayElementType(array.type()), position(), cmi.error()));
 		    }
@@ -283,7 +292,7 @@ public class SettableAssign_c extends Assign_c implements SettableAssign {
 		            throw new InternalCompilerError("Unexpected cast error", mi.error());
 		        }
 		        Type bt = Types.baseType(array.type());
-		        boolean arrayP = xts.isX10Array(bt) || xts.isX10DistArray(bt);
+		        boolean arrayP = xts.isX10RegionArray(bt) || xts.isX10RegionDistArray(bt);
 		        Errors.issue(tc.job(), new Errors.CannotAssignToElement(leftToString(), arrayP, right, Types.arrayElementType(array.type()), position(), mi.error()));
 		    }
 		}

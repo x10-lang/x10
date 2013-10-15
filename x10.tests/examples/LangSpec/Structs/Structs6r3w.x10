@@ -21,16 +21,16 @@ import harness.x10Test;
 
 public class Structs6r3w extends x10Test {
    public def run() : boolean = (new Hook()).run();
-   public static def main(var args: Array[String](1)): void = {
+   public static def main(args:Rail[String]):void {
         new Structs6r3w().execute();
     }
 
 
-// file Structs line 376
+// file Structs line 383
 
  static class StructDefault {
   static  struct Example {
-    val i : Int;
+    val i : Long;
     def this() { i = 1; }
   }
   var ex : Example;

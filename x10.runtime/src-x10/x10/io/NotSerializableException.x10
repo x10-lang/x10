@@ -11,7 +11,11 @@
 
 package x10.io;
 
-
+/**
+ * This exception will be throw when the program attempts
+ * to serialize a non-serializable class
+ * (eg one that implements Unserializable).
+ */
 public class NotSerializableException extends IOException {
 
     public def this() { super(); }

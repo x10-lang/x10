@@ -30,15 +30,15 @@ import harness.x10Test;
  * @author kemal 4/2005
  */
 public class ClockTest10 extends x10Test {
-    val varA = new Rail[int](2,(x:int)=>0);
-    val varB = new Rail[int](2,(x:int)=>0);
-    val varC = new Rail[int](2,(x:int)=>0);
-    val varD = new Rail[int](2,(x:int)=>0);
-    val varE = new Rail[int](2,(x:int)=>0);
-    public static N: int = 10;
-    public static pipeDepth: int = 2;
+    val varA = new Rail[long](2, 0);
+    val varB = new Rail[long](2, 0);
+    val varC = new Rail[long](2, 0);
+    val varD = new Rail[long](2, 0);
+    val varE = new Rail[long](2, 0);
+    public static N: long = 10;
+    public static pipeDepth: long = 2;
 
-    static def ph(var x: int): int = { return x % 2; }
+    static def ph(var x: long): long = { return x % 2; }
 
     public def run(): boolean = {
 	finish async {
@@ -55,15 +55,15 @@ public class ClockTest10 extends x10Test {
     }
 
     def taskA(val a: Clock): void = {
-	for ([k]:Point(1) in 1..N) {
+	for (k in 1..N) {
 	    varA(ph(k)) = k;
 	    x10.io.Console.OUT.println( " " + k + " A producing " + varA(ph(k)));
 	    Clock.advanceAll();
 	}
     }
     def taskB(val a: Clock, val b: Clock): void = {
-	for ([k]:Point(1) in 1..N) {
-	    val tmp = new boxedInt();
+	for (k in 1..N) {
+	    val tmp = new boxedLong();
 	    finish tmp.value = varA(ph(k-1))+varA(ph(k-1));
 	    x10.io.Console.OUT.println(" " + k + " B consuming oldA producing " + tmp.value);
 	    a.resume();
@@ -73,8 +73,8 @@ public class ClockTest10 extends x10Test {
 	}
     }
     def taskC(val a: Clock, val c: Clock): void = {
-	for ([k]:Point(1) in 1 ..N) {
-	    val tmp  = new boxedInt();
+	for (k in 1 ..N) {
+	    val tmp  = new boxedLong();
 	    finish tmp.value = varA(ph(k-1))*varA(ph(k-1));
 	    x10.io.Console.OUT.println(" " + k + " C consuming oldA "+ tmp.value);
 	    a.resume();
@@ -84,38 +84,38 @@ public class ClockTest10 extends x10Test {
 	}
     }
     def taskD(val b: Clock, val c: Clock): void = {
-	for ([k]:Point(1) in 1 ..N) {
-	    val tmp  = new boxedInt();
+	for (k in 1 ..N) {
+	    val tmp  = new boxedLong();
 	    finish tmp.value = varB(ph(k-1))+varC(ph(k-1))+10;
 	    x10.io.Console.OUT.println(" " + k + " D consuming oldB+oldC producing " + tmp.value);
 	    c.resume();
 	    b.resume();
 	    varD(ph(k)) = tmp.value;
 	    x10.io.Console.OUT.println(" " + k + " D before next");
-	    var n: int = k-pipeDepth;
+	    var n: long = k-pipeDepth;
 	    chk(!(k>pipeDepth) || varD(ph(k)) == n+n+n*n+10);
 	    Clock.advanceAll();
 	}
     }
     def taskE(val c: Clock): void = {
-	for ([k]:Point(1) in 1 ..N) {
-	    val tmp  = new boxedInt();
+	for (k in 1 ..N) {
+	    val tmp  = new boxedLong();
 	    finish tmp.value = varC(ph(k-1))*7;
 	    x10.io.Console.OUT.println(" " + k + " E consuming oldC producing " + tmp.value);
 	    c.resume();
 	    varE(ph(k)) = tmp.value;
 	    x10.io.Console.OUT.println(" " + k + " E before next");
-	    var n: int = k-pipeDepth;
+	    var n: long = k-pipeDepth;
 	    chk(!(k>pipeDepth) || varE(ph(k)) == n*n*7);
 	    Clock.advanceAll();
 	}
     }
 
-    public static def main(var args: Array[String](1)): void = {
+    public static def main(var args: Rail[String]): void = {
 	new ClockTest10().execute();
     }
 
-    static class boxedInt {
-	var value: int;
+    static class boxedLong {
+	var value: long;
     }
 }

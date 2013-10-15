@@ -21,12 +21,12 @@ import harness.x10Test;
 
 public class Classes40 extends x10Test {
    public def run() : boolean = (new Hook()).run();
-   public static def main(var args: Array[String](1)): void = {
+   public static def main(args:Rail[String]):void {
         new Classes40().execute();
     }
 
 
-// file Classes line 279
+// file Classes line 283
 
  static class Trans {
    val copied = "copied";

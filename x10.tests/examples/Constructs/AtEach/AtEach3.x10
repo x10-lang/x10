@@ -10,6 +10,7 @@
  */
 
 import harness.x10Test;
+import x10.regionarray.*;
 
 /**
  * Test ateach on the points of a DistArray using 
@@ -18,9 +19,9 @@ import harness.x10Test;
 public class AtEach3 extends x10Test {
 
     public def run(): boolean = {
-        val R:Region(2) = 1..10*1..10;
+        val R:Region(2) = Region.make(1..10, 1..10);
         val D:Dist(2) = Dist.makeBlock(R);
-        val data:DistArray[Int](2) = DistArray.make[Int](D, ([i,j]:Point)=>i+j);
+        val data:DistArray[Long](2) = DistArray.make[Long](D, ([i,j]:Point)=>i+j);
 
         finish ateach([i,j]:Point(2) in data) {
             chk(data(i,j) == i+j);
@@ -29,7 +30,7 @@ public class AtEach3 extends x10Test {
         return true;
     }
 
-    public static def main(Array[String](1))  {
+    public static def main(Rail[String])  {
         new AtEach3().execute();
     }
 }

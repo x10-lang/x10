@@ -21,7 +21,7 @@ import harness.x10Test;
 
 public class Functions30 extends x10Test {
    public def run() : boolean = (new Hook()).run();
-   public static def main(var args: Array[String](1)): void = {
+   public static def main(args:Rail[String]):void {
         new Functions30().execute();
     }
 
@@ -30,7 +30,8 @@ public class Functions30 extends x10Test {
  abstract static  class FunctionsTooManyFlippingFunctions[T, T1, T2]{
  abstract def arg1():T1;
  abstract def arg2():T2;
- def thing1(e:T) {var result:T;
+ def thing1(e:T) {
+var result:T;
 {
   val a1 : T1 = arg1();
   val a2 : T2 = arg2();

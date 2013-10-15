@@ -33,7 +33,7 @@ public class ConstrainedTypeTests extends x10Test {
         return (res1 && res2 && !res3 && !res4 && !res5 && res6);
     }
 
-    public static def main(var args: Array[String](1)): void = {
+    public static def main(var args: Rail[String]): void = {
         new ConstrainedTypeTests().execute();
     }
 }

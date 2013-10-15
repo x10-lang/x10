@@ -14,7 +14,7 @@ import x10.util.*;
 import harness.x10Test;
 
 public class GenericInnerClass3a extends x10Test {
-  public static def main(Array[String](1)){
+  public static def main(Rail[String]){
      val p = new GenericInnerClass3a();
      p.execute();
   }
@@ -28,6 +28,6 @@ public class GenericInnerClass3a extends x10Test {
 class VomOuter[T] {
    def this(t:T) {}
    class VomInner extends VomOuter[Int] {
-      def this() {super(12321);}
+      def this() {super(12321n);}
    }
 }

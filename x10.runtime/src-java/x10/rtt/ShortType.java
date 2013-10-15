@@ -17,12 +17,6 @@ import x10.serialization.SerializationConstants;
 
 public final class ShortType extends RuntimeType<x10.core.Short> {
 
-    private static final long serialVersionUID = 1L;
-
-    // make sure deserialized RTT object is not duplicated
-    private Object readResolve() throws java.io.ObjectStreamException {
-        return Types.SHORT;
-    }
     @Override
     public short $_get_serialization_id() {
         return SerializationConstants.RTT_SHORT_ID;

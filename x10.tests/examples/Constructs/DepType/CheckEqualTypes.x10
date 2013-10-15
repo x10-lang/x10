@@ -27,12 +27,12 @@ public class CheckEqualTypes extends x10Test {
       return true;
     }
 	public def run(): boolean = {
-	    val j = 0;
-	    var t: Test{i==j&&self.j==j} = new Test(0,0); 
+	    val j = 0n;
+	    var t: Test{i==j&&self.j==j} = new Test(0n,0n); 
 	    // should compile since the type entails Test{i==j}.
 	    return m(t); 
 	}
-	public static def main(var args: Array[String](1)): void = {
+	public static def main(var args: Rail[String]): void = {
 		new CheckEqualTypes().execute();
 	}
 }

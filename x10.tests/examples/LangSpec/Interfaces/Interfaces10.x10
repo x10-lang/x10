@@ -21,12 +21,12 @@ import harness.x10Test;
 
 public class Interfaces10 extends x10Test {
    public def run() : boolean = (new Hook()).run();
-   public static def main(var args: Array[String](1)): void = {
+   public static def main(args:Rail[String]):void {
         new Interfaces10().execute();
     }
 
 
-// file Interfaces line 185
+// file Interfaces line 220
  static interface KnowsPi {
   PI = 3.14159265358;
 }

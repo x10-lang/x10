@@ -21,12 +21,12 @@ import harness.x10Test;
 
 public class Expressions130 extends x10Test {
    public def run() : boolean = (new Hook()).run();
-   public static def main(var args: Array[String](1)): void = {
+   public static def main(args:Rail[String]):void {
         new Expressions130().execute();
     }
 
 
-// file Expressions line 1814
+// file Expressions line 1815
  static class OrderedList[T]{T <: x10.util.Ordered[T]} {
   // ...
 }

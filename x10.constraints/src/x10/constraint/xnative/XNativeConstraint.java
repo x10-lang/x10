@@ -233,8 +233,14 @@ public class XNativeConstraint<T extends XType> implements Cloneable, XConstrain
     @Override
     public XNativeTerm<T> bindingForVar(XTerm<T> v) {
     	assert v != null;
+    	if (v==null) return null;
 		XPromise<T> p = nfp((XNativeTerm<T>)v);
-    	if (p != null && ! p.term().equals(v)) {
+		if (p==null) return null;
+		// vj
+		// work around until we find out why pt may be null.
+		XNativeTerm<T> pt = p.term();
+		if (pt==null) return null;
+    	if (! pt.equals(v)) {
     		// [DC] why not just return p.term() at this point?
     		// [DC] CURRENT BUG: NEED TO FIND WHY THIS RETURNS NULL!
     		return nfp(p.term()).term();
@@ -415,6 +421,7 @@ public class XNativeConstraint<T extends XType> implements Cloneable, XConstrain
         if (!consistent) return;
         valid = false;
         if (roots == null) roots = CollectionFactory.<XNativeTerm<T>,XPromise<T>> newHashMap();
+        assert term !=null;
         XNativeTerm<T> t = (XNativeTerm<T>) term;
         XPromise<T> p = nfp(t);
         if (p != null) return;           // nothing to do    
@@ -480,7 +487,7 @@ public class XNativeConstraint<T extends XType> implements Cloneable, XConstrain
 	 * 
 	 * @return
 	 */
-    protected List<XNativeTerm<T>> constraints() {
+    public List<XNativeTerm<T>> constraints() {
         if (roots == null) return new ArrayList<XNativeTerm<T>>(0);
         ConstraintGenerator<T> cg = new ConstraintGenerator<T>(sys(), ts(), true, false);
         visit(cg);
@@ -537,6 +544,9 @@ public class XNativeConstraint<T extends XType> implements Cloneable, XConstrain
     	XNativeTerm<T> t1 = (XNativeTerm<T>)term1;
     	XNativeTerm<T> t2 = (XNativeTerm<T>)term2;
     	
+    	assert t1!=null;
+    	assert t2!=null;
+    	
     	if (! consistent) return true;
     	XPromise<T> p1 = nfp(t1);
     	if (p1 == null) return false; // this constraint knows nothing about t1.
@@ -572,6 +582,8 @@ public class XNativeConstraint<T extends XType> implements Cloneable, XConstrain
     public boolean entailsEquality(XTerm<T> term1, XTerm<T> term2)  {
     	XNativeTerm<T> t1 = (XNativeTerm<T>)term1;
     	XNativeTerm<T> t2 = (XNativeTerm<T>)term2;
+    	assert t1 !=null;
+    	assert t2 !=null;
 
         if (!consistent) return true;
         XPromise<T> p1 = nfp(t1);
@@ -779,12 +791,15 @@ public class XNativeConstraint<T extends XType> implements Cloneable, XConstrain
         roots.put(p, node);
     }
 
-	@Override
+	//@Override
 	public List<? extends XTerm<T>> terms() {
+		return constraints();
+		/*
 		ArrayList<XNativeTerm<T>> r = new ArrayList<XNativeTerm<T>>();
 		if (roots == null) return r;
 		for (XNativeTerm<T> root : roots.keySet()) r.add(root);
 		return r;
+		*/
 	}
 
 	
@@ -808,6 +823,7 @@ public class XNativeConstraint<T extends XType> implements Cloneable, XConstrain
 			// [DC] special case for fields...
 			@SuppressWarnings("unchecked")
 			XNativeField<T,?> field = (XNativeField<T,?>)term;
+			assert field.receiver() != null;
 			XPromise<T> root =  nfp(field.receiver());
 			root.ensureFields();
 			Map<Object, XPromise<T>>  map = root.fields(); 

@@ -32,7 +32,7 @@ public class TypedefNew11_MustFailCompile extends TypedefTest {
 
         class A[C] {
             def this() = {};
-            def this(i:int){C<:X}:A[C] = {};
+            def this(i:long){C<:X}:A[C] = {};
         }
         
         type T[C] = A[C];
@@ -45,7 +45,7 @@ public class TypedefNew11_MustFailCompile extends TypedefTest {
         return result;
     }
 
-    public static def main(var args: Array[String](1)): void = {
+    public static def main(var args: Rail[String]): void = {
         new TypedefNew11_MustFailCompile().execute();
     }
 }

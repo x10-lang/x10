@@ -16,7 +16,7 @@ import harness.x10Test;
  */
 public class AsyncAsync extends x10Test{
 	
-	var value:int;
+	var value:long;
 	
 	public def run():boolean {
 		finish {
@@ -33,7 +33,7 @@ public class AsyncAsync extends x10Test{
 		return value == 6;
 	}
 
-	public static def main(Array[String](1)) {
+	public static def main(Rail[String]) {
         new AsyncAsync().execute();
 	}
 }

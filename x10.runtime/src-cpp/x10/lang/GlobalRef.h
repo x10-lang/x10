@@ -1,3 +1,14 @@
+/*
+ *  This file is part of the X10 project (http://x10-lang.org).
+ *
+ *  This file is licensed to You under the Eclipse Public License (EPL);
+ *  You may not use this file except in compliance with the License.
+ *  You may obtain a copy of the License at
+ *      http://www.opensource.org/licenses/eclipse-1.0.php
+ *
+ *  (C) Copyright IBM Corporation 2006-2013.
+ */
+
 #ifndef __X10_LANG_GLOBALREF
 #define __X10_LANG_GLOBALREF
 
@@ -23,7 +34,7 @@ namespace x10 {
             x10_ulong value; 
             x10aux::place location;	
 
-        GlobalRef(T obj = NULL) : value((size_t)(obj)), location(x10aux::here) { }
+            GlobalRef(T obj = NULL) : value((size_t)(obj)), location(x10aux::here) { }
             GlobalRef(x10aux::place p, x10_ulong obj = 0) : value(obj), location(p) { }
 	
             static inline GlobalRef<T> _make(T obj) { return GlobalRef<T>(obj); }
@@ -56,6 +67,8 @@ namespace x10 {
             x10_boolean _struct_equals(x10::lang::Any*);
     
             x10_boolean _struct_equals(GlobalRef<T> that);
+    
+            x10_boolean isNull();
     
             x10::lang::String* toString();
     
@@ -134,7 +147,7 @@ template<class T> void x10::lang::GlobalRef<T>::_serialize(x10::lang::GlobalRef<
     buf.write(this_->value);
     #if defined(X10_USE_BDWGC) || defined(X10_DEBUG_REFERENCE_LOGGER)
     if (this_->location == x10aux::here) {
-        if (NULL != this_->__apply()) logGlobalReference(this_->__apply());
+        if (NULL != this_->__apply()) logGlobalReference(reinterpret_cast<x10::lang::Reference*>(this_->__apply()));
     }
     #endif
 }
@@ -156,17 +169,22 @@ template<class T> x10_boolean x10::lang::GlobalRef<T>::_struct_equals(x10::lang:
     return (location == that->location) && x10aux::struct_equals(value, that->value);
 }
 
+template<class T> x10_boolean x10::lang::GlobalRef<T>::isNull() {
+    return value == 0;
+}
+
 template<class T> x10::lang::String* x10::lang::GlobalRef<T>::toString() {
-    char* tmp = x10aux::alloc_printf("x10.lang.GlobalRef<%s>", x10aux::getRTT<T>()->name());
+    char* tmp = x10aux::alloc_printf("GlobalRef[%s](%lld, 0x%llx)", x10aux::getRTT<T>()->name(), (long long) location, (long long)value);
     return x10::lang::String::Steal(tmp);
 }
 
 template<class T> x10_int x10::lang::GlobalRef<T>::hashCode() {
+    // TODO: match this implementation with the java GlobalRef.hashCode
     return (x10_int)value;
 }
 
 template<class T> x10::lang::String* x10::lang::GlobalRef<T>::typeName() {
-    char* tmp = x10aux::alloc_printf("x10.lang.GlobalRef<%s>", x10aux::getRTT<T>()->name());
+    char* tmp = x10aux::alloc_printf("x10.lang.GlobalRef[%s]", x10aux::getRTT<T>()->name());
     return x10::lang::String::Steal(tmp);
 }
 

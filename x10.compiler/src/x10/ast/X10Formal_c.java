@@ -197,11 +197,11 @@ public class X10Formal_c extends Formal_c implements X10Formal {
 	                Type containerType = ff.type().type();
 	                final Type indexType;
 
-                    if (ts.isArray(containerType)) {
+                    if (ts.isRegionArray(containerType)) {
                         indexType = TypeSystem_c.getArrayComponentType(containerType);
                     } else {
                         // must be a Point or we had complained when typeChecking the parent.
-                        indexType = ts.Int();
+                        indexType = ts.Long();
                     }
                     r.update(indexType); // It used to be: ts.unknownType(tn.position()), however now I complain in checkExplodedVars if the type of the parent is not Point nor Array, so no need to complain we cannot infer the type of the components. 
 	            }
@@ -282,7 +282,7 @@ public class X10Formal_c extends Formal_c implements X10Formal {
 
         if (num>0) {
             // check the type is a subtype of Point/Array, and that it's rank is vars.size()
-            final boolean isArray = ts.isArray(myType);
+            final boolean isArray = ts.isRegionArray(myType);
             if (!ts.isSubtype(myType, ts.Point(), c) && !isArray)
                 Errors.issue(tc.job(), new Errors.OnlyTypePointOrArrayCanBeExploded(myType, pos));
             else {
@@ -294,8 +294,9 @@ public class X10Formal_c extends Formal_c implements X10Formal {
                     XTerm<Type> size = cType.size(c);
                     if (rank instanceof XLit && size instanceof XLit) {
                         okOrError = true;
-                        int r = (Integer) ((XLit) rank).val();
-                        int s = (Integer) ((XLit) size).val();
+                        long r = (Long) ((XLit) rank).val();
+                        Object val = ((XLit) size).val();
+                        long s = (val instanceof Long) ? (Long) val : (Integer) val;
                         if (r!=1 || s!=num) {
                             if (r!=1)
                                 Errors.issue(tc.job(), new SemanticException("The rank of the exploded Array is "+r+" but it should be 1", pos));
@@ -307,7 +308,8 @@ public class X10Formal_c extends Formal_c implements X10Formal {
                     XTerm<Type> rank = cType.rank(c);
                     if (rank instanceof XLit) {
                         okOrError = true;
-                        int r = (Integer) ((XLit) rank).val();
+                        Object val = ((XLit) rank).val();
+                        long r = (val instanceof Long) ? (Long) val : (Integer) val;
                         if (r!=num) {
                             Errors.issue(tc.job(), new SemanticException("The rank of the exploded Point is "+r+" but it should be "+num, pos));
                         }
@@ -319,11 +321,11 @@ public class X10Formal_c extends Formal_c implements X10Formal {
                             // Just adding
                             cType = cType.addRank(1).addSize(num);
                             // is not enough, because it gives the type:
-                            //x10.array.Array[x10.lang.Int]{self.x10.array.Array#rank==1, self.x10.array.Array#size==2}
+                            //x10.regionarray.Array[x10.lang.Int]{self.x10.regionarray.Array#rank==1, self.x10.regionarray.Array#size==2}
                             // and we should get the type:
-                            //x10.array.Array[x10.lang.Int]{self.x10.array.Array#region.x10.array.Region#rank==1, self.x10.array.Array#region.x10.array.Region#rect==true, self.x10.array.Array#region.x10.array.Region#zeroBased==true, self.x10.array.Array#region.x10.array.Region#rail==true, self.x10.array.Array#rank==1, self.x10.array.Array#rect==true, self.x10.array.Array#zeroBased==true, self.x10.array.Array#rail==true, self.x10.array.Array#size==2, self!=null}
+                            //x10.regionarray.Array[x10.lang.Int]{self.x10.regionarray.Array#region.x10.regionarray.Region#rank==1, self.x10.regionarray.Array#region.x10.regionarray.Region#rect==true, self.x10.regionarray.Array#region.x10.regionarray.Region#zeroBased==true, self.x10.regionarray.Array#region.x10.regionarray.Region#rail==true, self.x10.regionarray.Array#rank==1, self.x10.regionarray.Array#rect==true, self.x10.regionarray.Array#zeroBased==true, self.x10.regionarray.Array#rail==true, self.x10.regionarray.Array#size==2, self!=null}
                             // you can test it with this code:                            
-                            //{ val p[i,j]: Array[Int] = new Array[Int](2); } // ShouldNotBeERR: Message: Semantic Error: Method operator()(i0: x10.lang.Int){x10.array.Array#this.x10.array.Array#rank==1}[] in x10.array.Array[x10.lang.Int]{self.x10.array.Array#rank==1, self==p, p.x10.array.Array#size==2} cannot be called with arguments (x10.lang.Int{self==1}); Call invalid; calling environment does not entail the method guard.
+                            //{ val p[i,j]: Array[Int] = new Array[Int](2); } // ShouldNotBeERR: Message: Semantic Error: Method operator()(i0: x10.lang.Int){x10.regionarray.Array#this.x10.regionarray.Array#rank==1}[] in x10.regionarray.Array[x10.lang.Int]{self.x10.regionarray.Array#rank==1, self==p, p.x10.regionarray.Array#size==2} cannot be called with arguments (x10.lang.Int{self==1}); Call invalid; calling environment does not entail the method guard.
                         } else
                             Errors.issue(tc.job(), new Errors.ArrayExplosionError(num,  pos));
                     } else {

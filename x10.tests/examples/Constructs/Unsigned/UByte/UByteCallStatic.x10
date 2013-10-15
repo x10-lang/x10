@@ -33,7 +33,7 @@ public class UByteCallStatic extends x10Test {
 	return (s0.equals("byte = 0") && s1.equals("ubyte = 1"));
     }
 
-    public static def main(Array[String]) {
+    public static def main(Rail[String]) {
         new UByteCallStatic().execute();
     }
 }

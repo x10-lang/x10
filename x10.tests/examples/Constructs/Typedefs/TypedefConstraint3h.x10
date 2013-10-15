@@ -19,14 +19,14 @@ class TypedefConstraint3h extends TypedefTest {
 
     public def run():boolean = {
 
-        type T(x:int){x==1} = int;
-        val one:int{self==1} = 1;
+        type T(x:long){x==1} = long;
+        val one:long{self==1} = 1;
         var a:T(one);
 
         return result;
     }
 
-    public static def main(var args: Array[String](1)): void = {
+    public static def main(var args: Rail[String]): void = {
         new TypedefConstraint3h().execute();
     }
 }

@@ -11,6 +11,6 @@
 
 package x10.util;
 
-public interface Indexed[T] extends Container[T], (Int)=>T {
-    public operator this(Int): T;
+public interface Indexed[T] extends Container[T], (Long)=>T {
+    public operator this(Long): T;
 }

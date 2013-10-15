@@ -24,7 +24,7 @@ public class IntLitHexBad_MustFailCompile extends x10Test {
 		return true;
 	}
 
-	public static def main(args: Array[String](1)): void= {
+	public static def main(args: Rail[String]): void= {
 		new IntLitHexBad_MustFailCompile().execute();
 	}
 

@@ -17,8 +17,8 @@ import harness.x10Test;
  * @author nystrom 8/2008
  */
 public class Closures4 extends x10Test {
-        static class C implements (int, int) => int {
-                public operator this(i: int, j: int):int = {
+        static class C implements (long, long) => long {
+                public operator this(i: long, j: long):long = {
                         return i+j;
                 }
         }
@@ -29,7 +29,7 @@ public class Closures4 extends x10Test {
                 return j == 7;
 	}
 
-	public static def main(var args: Array[String](1)): void = {
+	public static def main(var args: Rail[String]): void = {
 		new Closures4().execute();
 	}
 }

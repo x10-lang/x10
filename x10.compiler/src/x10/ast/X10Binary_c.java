@@ -178,6 +178,7 @@ public class X10Binary_c extends Binary_c {
                 return true;
             }
         }
+        
         boolean rconst = right.isConstant();
         Type rt = right.type();
         if (lconst && rconst && isPureOperation(lt, op, rt)) {
@@ -253,19 +254,42 @@ public class X10Binary_c extends Binary_c {
             return null;
         }
 
-        if (op == ADD && (lv instanceof StringValue || rv instanceof StringValue)) {
-            // toString() on a ConstantValue gives the same String as toString on the value itself.
-        	return ConstantValue.makeString(lv.toString() + rv.toString());       
-        }
+        int numNulls = (lv instanceof NullValue ? 1 : 0) + (rv instanceof NullValue ? 1 : 0);
+        int numStrings = (lv instanceof StringValue ? 1 : 0) + (rv instanceof StringValue ? 1 : 0);
 
-        if (op == EQ && (lv instanceof StringValue && rv instanceof StringValue)) {
-            return ConstantValue.makeBoolean(((StringValue) lv).value().equals(((StringValue)rv).value()));
-        }
+        if (numNulls + numStrings > 0) {            
+            if (op == ADD && (numStrings > 0)) {
+                // toString() on a ConstantValue gives the same String as toString on the value itself.
+                ConstantValue tmp = ConstantValue.makeString(lv.toString() + rv.toString());
+                return tmp;
+            }
 
-        if (op == NE && (lv instanceof StringValue && rv instanceof StringValue)) {
-            return ConstantValue.makeBoolean(!((StringValue) lv).value().equals(((StringValue)rv).value()));
+            if (op == EQ) {
+                if (numStrings == 2) {
+                    return ConstantValue.makeBoolean(((StringValue) lv).value().equals(((StringValue)rv).value()));
+                } else if (numStrings == 1 && numNulls == 1) {
+                    return ConstantValue.makeBoolean(false);
+                } else if (numNulls == 2) {
+                    return ConstantValue.makeBoolean(true);
+                }
+            }
+
+            if (op == NE) {
+                if (numStrings == 2) {
+                    return ConstantValue.makeBoolean(!((StringValue) lv).value().equals(((StringValue)rv).value()));
+                } else if (numStrings == 1 && numNulls == 1) {
+                    return ConstantValue.makeBoolean(true);
+                } else if (numNulls == 2) {
+                    return ConstantValue.makeBoolean(false);
+                }
+            }
         }
         
+        if (numNulls > 0) {
+            // The only binops that we can constant fold when we have a NULL are EQ and NE.
+            return null;
+        }
+                
         if (lv instanceof BooleanValue && rv instanceof BooleanValue) {
             boolean l = ((BooleanValue) lv).value();
             boolean r = ((BooleanValue)rv).value();
@@ -934,7 +958,7 @@ public class X10Binary_c extends Binary_c {
             mi = mi.returnType(type);
             result = (X10Call_c) result.methodInstance(mi).type(type);
         }
-        // Add support for patching up the return type of IntRegion's operator*().
+        // Add support for patching up the return type of IntRanges's operator*().
         // The rank of the result is 2.  Further the result is zeroBased if both args are zeroBased.
         if (op == Binary.MUL && xts.typeEquals(xts.IntRange(), lbase, context)
                 && xts.typeEquals(xts.IntRange(), rbase, context)) {

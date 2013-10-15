@@ -4,29 +4,20 @@
  *  (C) Copyright IBM Corporation 2011.
  */
 
-package pagerank;
-
-import x10.io.Console;
-import x10.util.Timer;
-//
 import x10.matrix.Debug;
-//
 import x10.matrix.Matrix;
 import x10.matrix.DenseMatrix;
 import x10.matrix.blas.DenseMatrixBLAS;
-//
 
 /**
- * 
  * Sequential implementation of page rank algorithm based on GML dense/sparse 
  * matrix.
  */
 public class SeqPageRank {
+	val rowG:Long;
+	val colP:Long;
 
-	val rowG:Int;
-	val colP:Int;
-
-	public val iteration:Int;
+	public val iteration:Long;
 	val nzDensity:Double;
 	val alpha:Double= 0.85;
 
@@ -59,7 +50,7 @@ public class SeqPageRank {
 	
 	public def run():DenseMatrix {
 		Debug.flushln("Start sequential PageRank");
-		for (var i:Int=0; i<iteration; i++) {
+		for (var i:Long=0; i<iteration; i++) {
 			GP.mult(G, P).scale(alpha);			
 			//DenseMatrixBLAS.comp(G, P, GP);
 			//GP.scale(alpha);
@@ -73,5 +64,4 @@ public class SeqPageRank {
 		Debug.flushln("Sequential PageRank completes");
 		return P;
 	}
-		
 }

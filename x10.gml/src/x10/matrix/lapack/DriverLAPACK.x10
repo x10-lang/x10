@@ -27,46 +27,37 @@ import x10.compiler.NativeCPPCompilationUnit;
  *  
  */
 protected class DriverLAPACK {
-
-	
 	/**
 	 * Solve linear equations A * X = B
-	 *
-	 *
 	 */
-	@Native("java","WrapLAPACK.solveLinearEquation((#1).raw().getDoubleArray(),(#2).raw().getDoubleArray(),(#3).raw().getIntArray(),(#4).raw().getIntArray())")
-	@Native("c++","solve_linear_equation((#1)->raw()->raw(),(#2)->raw()->raw(),(#3)->raw()->raw(),(#4)->raw()->raw())")
+	@Native("java","WrapLAPACK.solveLinearEquation((#1).getDoubleArray(),(#2).getDoubleArray(),(#3).getIntArray(),(#4).getIntArray())")
+	@Native("c++","solve_linear_equation((#1)->raw,(#2)->raw,(#3)->raw,(#4)->raw)")
 		public static native def solveLinearEquation(
-				A:Array[Double](1), 
-				BX:Array[Double](1), 
-				ip:Array[Int](1),
-				dim:Array[Int](1)):Int;
+				A:Rail[Double], 
+				BX:Rail[Double], 
+				ip:Rail[Int],
+				dim:Rail[Int]):Int;
 	//int solve_linear_equation(double* A, double* B, int* IPIV, int* dim)
 
-	//========================================================================
-
 	/**
 	 * Compute eigenvalues
-	 *
 	 */
-	@Native("java","WrapLAPACK.compEigenValue((#1).raw().getDoubleArray(),(#2).raw().getDoubleArray(),(#3).raw().getDoubleArray(),(#4).raw().getIntArray())")
-	@Native("c++","comp_eigenvalue((#1)->raw()->raw(),(#2)->raw()->raw(),(#3)->raw()->raw(),(#4)->raw()->raw())")
+	@Native("java","WrapLAPACK.compEigenValue((#1).getDoubleArray(),(#2).getDoubleArray(),(#3).getDoubleArray(),(#4).getIntArray())")
+	@Native("c++","comp_eigenvalue((#1)->raw,(#2)->raw,(#3)->raw,(#4)->raw)")
 		public static native def compEigenValue(
-				A:Array[Double](1), 
-				W:Array[Double](1), 
-				WORK:Array[Double](1),
-				dim:Array[Int](1)):Int;
+				A:Rail[Double], 
+				W:Rail[Double], 
+				WORK:Rail[Double],
+				dim:Rail[Int]):Int;
 
 	/**
 	 * Compute eigenvalues
-	 * 
 	 */
-	@Native("java","WrapLAPACK.compEigenVector((#1).raw().getDoubleArray(),(#2).raw().getDoubleArray(),(#3).raw().getDoubleArray(),(#4).raw().getIntArray())")
-	@Native("c++","comp_eigenvector((#1)->raw()->raw(),(#2)->raw()->raw(),(#3)->raw()->raw(),(#4)->raw()->raw())")
+	@Native("java","WrapLAPACK.compEigenVector((#1).getDoubleArray(),(#2).getDoubleArray(),(#3).getDoubleArray(),(#4).getIntArray())")
+	@Native("c++","comp_eigenvector((#1)->raw,(#2)->raw,(#3)->raw,(#4)->raw)")
 	public static native def compEigenVector(
-			A:Array[Double](1), 
-			W:Array[Double](1), 
-			WORK:Array[Double](1),
-			dim:Array[Int](1)):Int;
-
+			A:Rail[Double], 
+			W:Rail[Double], 
+			WORK:Rail[Double],
+			dim:Rail[Int]):Int;
 }

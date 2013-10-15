@@ -26,10 +26,10 @@ public class GenericOverloading06 extends GenericTest {
     static class A[T] {
         def m() = 0;
         def m(T) = 1;
-        def m(int,T) = 2;
+        def m(long,T) = 2;
     }
 
-    val a = new A[int]();
+    val a = new A[long]();
 
     public def run(): boolean = {
 
@@ -40,7 +40,7 @@ public class GenericOverloading06 extends GenericTest {
         return result;
     }
 
-    public static def main(var args: Array[String](1)): void = {
+    public static def main(var args: Rail[String]): void = {
         new GenericOverloading06().execute();
     }
 }

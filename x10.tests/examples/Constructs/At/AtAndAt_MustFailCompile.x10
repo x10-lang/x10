@@ -19,7 +19,7 @@ import harness.x10Test;
 public class AtAndAt_MustFailCompile extends x10Test {
 
     public def run():boolean {
-	var x:int = 10;
+	var x:long = 10;
 	at (here.next()) {
 	    at (here.next()) {
                 x = 20; // ERR: Local variable "x" is accessed at a different place, and must be declared final.
@@ -28,7 +28,7 @@ public class AtAndAt_MustFailCompile extends x10Test {
 	return x == 20;
     }
 
-    public static def main(Array[String](1)) {
+    public static def main(Rail[String]) {
         new AtAndAt_MustFailCompile().execute();
     }
 }

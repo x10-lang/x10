@@ -20,7 +20,7 @@ public class NoFutureForceInWhenMethod extends x10Test {
 	public def run(): boolean = {
         try {
 			val b=true;
-			val f=Future.make[int](()=>0);
+			val f=Future.make[int](()=>0n);
 			when (b==true)
 			  m(f);
 		} catch (IllegalOperationException) {
@@ -32,7 +32,7 @@ public class NoFutureForceInWhenMethod extends x10Test {
 		return f.force();
 	}
 
-	public static def main(Array[String](1)){
+	public static def main(Rail[String]){
 		new NoFutureForceInWhenMethod().execute();
 	}
 }

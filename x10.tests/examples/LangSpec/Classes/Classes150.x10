@@ -21,17 +21,17 @@ import harness.x10Test;
 
 public class Classes150 extends x10Test {
    public def run() : boolean = (new Hook()).run();
-   public static def main(var args: Array[String](1)): void = {
+   public static def main(args:Rail[String]):void {
         new Classes150().execute();
     }
 
 
-// file Classes line 872
+// file Classes line 1001
  static class Mful{
    def m() = 1;
    def m[T]() = 2;
-   def m(x:Int) = 3;
-   def m[T](x:Int) = 4;
+   def m(x:Long) = 3;
+   def m[T](x:Long) = 4;
 }
 
  static class Hook {

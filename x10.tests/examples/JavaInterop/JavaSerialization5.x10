@@ -19,8 +19,8 @@ public class JavaSerialization5 extends x10Test {
     static class C {
         val a:Any;
         def this() {
-            val ja = Java.newArray[Any](1);
-            ja(0) = "abc";
+            val ja = Java.newArray[Any](1n);
+            ja(0n) = "abc";
             a = ja;
         }
     }
@@ -37,7 +37,7 @@ public class JavaSerialization5 extends x10Test {
         return true;
     }
 
-    public static def main(args: Array[String](1)) {
+    public static def main(args: Rail[String]) {
         new JavaSerialization5().execute();
     }
 

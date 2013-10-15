@@ -21,16 +21,16 @@ import harness.x10Test;
 
 public class Vars100 extends x10Test {
    public def run() : boolean = (new Hook()).run();
-   public static def main(var args: Array[String](1)): void = {
+   public static def main(args:Rail[String]):void {
         new Vars100().execute();
     }
 
 
-// file Vars line 428
+// file Vars line 433
  static  class Example {
-static def inc(var i:Int) { i += 1; }
+static def inc(var i:Long) { i += 1; }
 static def example() {
-   var j : Int = 0;
+   var j : Long = 0;
    assert j == 0;
    inc(j);
    assert j == 0;

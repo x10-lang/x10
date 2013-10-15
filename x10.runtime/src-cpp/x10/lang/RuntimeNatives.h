@@ -19,6 +19,9 @@ namespace x10 {
         class Reader;
         class Writer;
     }
+    namespace util {
+        template <class K, class V> class HashMap;
+    }
 }
 
 namespace x10aux {
@@ -35,6 +38,9 @@ namespace x10 {
         public:
             static x10::io::Reader* execForRead(const char *command);
             static x10::io::Writer* execForWrite(const char *command);
+
+            /* load environment variables into HashMap */
+            static x10::util::HashMap<x10::lang::String*, x10::lang::String*>* loadenv();
 
             /* Exit with the given exit code */
             static void exit(x10_int code);

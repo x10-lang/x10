@@ -16,19 +16,19 @@ import harness.x10Test;
  * Testing a bug in definite-assignment rules
  */
 public class XTENLANG_1666 extends x10Test {
-    public static def main(Array[String](1)) {
+    public static def main(Rail[String]) {
         new XTENLANG_1666().execute();
     }
     var flag:Boolean;
     public def run(): boolean {	
-        var z:Int;
+        var z:long;
         z = flag || (z=3)>0 ? 3 : z++;
 
-        var y:Int;
+        var y:long;
         y = (flag || (y=3)>0) ? 3 : y++;  // the bug was in ParExpr (parenthesis expressions)
 
 
-        var k:Int;
+        var k:long;
         k = !(!(flag || (k=3)>0)) ? 3 : k++;
 
         z++;

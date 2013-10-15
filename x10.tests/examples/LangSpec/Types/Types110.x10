@@ -1,4 +1,4 @@
-/* Current test harness gets confused by packages, but it would be in package Types110_Types11;
+/* Current test harness gets confused by packages, but it would be in package Types110_Types15;
 */
 // Warning: This file is auto-generated from the TeX source of the language spec.
 // If you need it changed, work with the specification writers.
@@ -21,19 +21,23 @@ import harness.x10Test;
 
 public class Types110 extends x10Test {
    public def run() : boolean = (new Hook()).run();
-   public static def main(var args: Array[String](1)): void = {
+   public static def main(args:Rail[String]):void {
         new Types110().execute();
     }
 
 
-// file Types line 287
+// file Types line 725
 
- static class Cell[T] {
+ static class Bottle[T] {
   var contents : T;
   public def this(t:T) { contents = t;  }
   public def putIn(t:T) { contents = t; }
   public def get() = contents;
+  static def example() {
+    val yup : Bottle[Boolean] = new Bottle[Boolean](true);
+    //ERROR: var nope : Bottle = null;
   }
+}
 
  static class Hook {
    def run():Boolean = true;

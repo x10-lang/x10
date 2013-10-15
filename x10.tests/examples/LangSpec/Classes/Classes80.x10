@@ -21,16 +21,16 @@ import harness.x10Test;
 
 public class Classes80 extends x10Test {
    public def run() : boolean = (new Hook()).run();
-   public static def main(var args: Array[String](1)): void = {
+   public static def main(args:Rail[String]):void {
         new Classes80().execute();
     }
 
 
-// file Classes line 560
+// file Classes line 691
 
  static class Example {
    var f : String = "";
-   def setF(x:Any){x != null} = {
+   def setF(x:Any){x != null} : void = {
       this.f = x.toString();
    }
 }

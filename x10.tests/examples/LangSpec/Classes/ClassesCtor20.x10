@@ -21,13 +21,13 @@ import harness.x10Test;
 
 public class ClassesCtor20 extends x10Test {
    public def run() : boolean = (new Hook()).run();
-   public static def main(var args: Array[String](1)): void = {
+   public static def main(args:Rail[String]):void {
         new ClassesCtor20().execute();
     }
 
 
-// file Classes line 1107
- static class C(x:Int) {
+// file Classes line 1238
+ static class C(x:Long) {
   static def example() {
     val c : C = new C(4);
     assert c.x == 4;

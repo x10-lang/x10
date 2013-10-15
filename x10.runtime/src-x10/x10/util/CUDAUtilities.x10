@@ -32,84 +32,85 @@ public class CUDAUtilities {
      * </code>
      * @see autoThreads
      */
-    public static def autoBlocks() : Int = 8;
+    public static def autoBlocks() : Int = 8n;
 
     /** Automatically choose enough threads to saturate the GPU.  
       * @see autoBlocks
       */
-    public static def autoThreads() : Int = 1;
+    public static def autoThreads() : Int = 1n;
 
-    private static def initCUDAArray[T] (local:IndexedMemoryChunk[T],
-                                         remote:RemoteIndexedMemoryChunk[T],
-                                         numElements:Int) : void {
-          finish IndexedMemoryChunk.asyncCopy(local, 0, remote, 0, numElements);
+    private static def initCUDARail[T](local:Rail[T],
+                                       remote:GlobalRail[T],
+                                       numElements:Long) : void {
+          finish Rail.asyncCopy(local, 0l, remote, 0l, numElements);
     }
 
-    private static def makeCUDAArray[T] (gpu:Place, numElements:Int, init:IndexedMemoryChunk[T])
-      : RemoteArray[T]{self.home==gpu, self.rank()==1} {
-        val reg = (0 .. (numElements-1)) as Region;
+    private static def makeCUDARail[T](gpu:Place, numElements:Long, init:Rail[T])
+      : GlobalRail[T]{self.home==gpu} {
         @Native("c++",
             "x10_ulong addr = x10aux::remote_alloc(gpu.FMGL(id), ((size_t)numElements)*sizeof(TPMGL(T)));\n"+
-            "RemoteIndexedMemoryChunk<TPMGL(T)> rimc(addr, numElements, gpu);\n"+
-            "initCUDAArray<TPMGL(T)>(init,rimc,numElements);\n"+
-            "return x10::array::RemoteArray<TPMGL(T)>::_make(reg, rimc);\n"
+            "x10::lang::GlobalRef<x10::lang::Rail<TPMGL(T)> *> gr(gpu->FMGL(id), addr);\n"+
+            "x10::lang::GlobalRail<TPMGL(T)> remote_rail = x10::lang::GlobalRail<TPMGL(T)>::_make(numElements, gr);\n"+
+            "initCUDARail<TPMGL(T)>(init,remote_rail,numElements);\n"+
+            "return remote_rail;\n"
         ) { }
         throw new UnsupportedOperationException();
     }
 
-    public static def makeRemoteArray[T] (place:Place, numElements:Int, init: Array[T](1){rail})
-        : RemoteArray[T]{self.rank==1, self.array.home==place}
+
+    // Init from Rail[T]
+    public static def makeGlobalRail[T](place:Place, numElements:Long, init: Rail[T])
     {
         if (place.isCUDA()) {
-            return makeCUDAArray(place, numElements, init.raw());
+            return makeCUDARail(place, numElements, init);
         } else {
-            return (at (place) new RemoteArray(new Array[T](numElements, (p:Int)=>init(p)))) as RemoteArray[T]{self.rank==1, self.array.home==place};
+            return (at (place) GlobalRail(new Rail[T](numElements, (p:Long)=>init(p as int)))) as GlobalRail[T]{self.home==place};
         }
     }
 
-    public static def makeRemoteArray[T] (place:Place, numElements:Int) { T haszero }
-        : RemoteArray[T]{self.rank==1, self.home==place}
+    // Init as zero
+    public static def makeGlobalRail[T](place:Place, numElements:Long) { T haszero }
     {
-        return makeRemoteArray[T](place, numElements, Zero.get[T]());
+        return makeGlobalRail[T](place, numElements, Zero.get[T]());
     }
 
-    public static def makeRemoteArray[T] (place:Place, numElements:Int, init: T)
-        : RemoteArray[T]{self.rank==1, self.home==place}
+    // Init from single T value
+    public static def makeGlobalRail[T](place:Place, numElements:Long, init: T)
     {
         if (place.isCUDA()) {
-            val chunk = IndexedMemoryChunk.allocateUninitialized[T](numElements);
-            for ([i] in 0..(numElements-1)) chunk(i) = init;
-            return makeCUDAArray(place, numElements, chunk);
+            val chunk = new Rail[T](numElements, init);
+            return makeCUDARail(place, numElements, chunk);
         } else {
-            return (at (place) new RemoteArray(new Array[T](numElements, init))) as RemoteArray[T]{self.rank==1, self.home==place};
+            return (at (place) GlobalRail(new Rail[T](numElements, init))) as GlobalRail[T]{self.home==place};
         }
     }
 
-    public static def makeRemoteArray[T] (place:Place, numElements:Int, init: (Int)=>T)
-        : RemoteArray[T]{self.rank==1, self.home==place}
+    // Init with closure
+    public static def makeGlobalRail[T](place:Place, numElements:Long, init: (Long)=>T)
     {
         if (place.isCUDA()) {
-            val chunk = IndexedMemoryChunk.allocateUninitialized[T](numElements);
-            for ([i] in 0..(numElements-1)) chunk(i) = init(i);
-            return makeCUDAArray(place, numElements, chunk);
+            val chunk = new Rail[T](numElements, init);
+            return makeCUDARail(place, numElements, chunk);
         } else {
-            return (at (place) new RemoteArray(new Array[T](numElements, (p:Int)=>init(p)))) as RemoteArray[T]{self.rank==1, self.home==place};
+            return (at (place) GlobalRail(new Rail[T](numElements, (p:long)=>init(p as int)))) as GlobalRail[T]{self.home==place};
         }
     }
 
-    public static def deleteRemoteArray[T] (arr: RemoteArray[T]{self.rank==1}) : void
+
+    public static def deleteGlobalRail[T](arr: GlobalRail[T]) : void
     {
         val place = arr.home;
         if (place.isCUDA()) {
             @Native("c++",
-                "RemoteIndexedMemoryChunk<TPMGL(T)> rimc = arr->FMGL(rawData);\n"+
-                "x10aux::remote_free(place.FMGL(id), (x10_ulong)(size_t)rimc->data);\n"
+                "x10aux::remote_free(place.FMGL(id), arr->FMGL(rail)->value);\n"
             ) { }
+        } else {
+            // let it be garbage collected
         }
     }
 
     @Native("cuda","__mul24(#1,#2)")
-    public static def mul24 (a:Int, b:Int) : Int = a * b;
+    public static def mul24(a:Int, b:Int) : Int = a * b;
 }
 
 // vim: shiftwidth=4:tabstop=4:expandtab

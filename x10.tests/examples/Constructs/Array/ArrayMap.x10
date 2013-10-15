@@ -10,18 +10,19 @@
  */
 
 import x10.util.concurrent.Future;
+import x10.regionarray.*;
 
 /**
  * @author bdlucas
  */
 public class ArrayMap extends TestArray {
 
-    public static N: int = 9;
+    public static N: long = 9;
 
     public def run(): boolean {
-	chk(Place.numPlaces() == 4, "This test must be run with 4 places");
+	chk(Place.numPlaces() == 4L, "This test must be run with 4 places");
 
-        val dist = Dist.makeBlock(0..N);
+        val dist = Dist.makeBlock(Region.make(0,N));
         prDist("dist", dist);
 
         pr("--- original");
@@ -43,7 +44,7 @@ public class ArrayMap extends TestArray {
         return status();
     }
 
-    public static def main(var args: Array[String](1)): void = {
+    public static def main(var args: Rail[String]): void = {
         new ArrayMap().execute();
     }
 

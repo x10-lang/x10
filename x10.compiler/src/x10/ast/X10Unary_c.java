@@ -183,7 +183,7 @@ public class X10Unary_c extends Unary_c {
 
             if (et != null) {
                 // Check that there's a binary operator with the right return type
-                IntLit lit = nf.IntLit(position(), IntLit.INT, 1);
+                IntLit lit = nf.IntLit(position(), IntLit.Kind.get(et), 1);
                 try {
                     lit = Converter.check(lit, tc);
                 } catch (SemanticException e) {

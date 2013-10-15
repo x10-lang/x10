@@ -1,9 +1,25 @@
+/*
+ *  This file is part of the X10 project (http://x10-lang.org).
+ *
+ *  This file is licensed to You under the Eclipse Public License (EPL);
+ *  You may not use this file except in compliance with the License.
+ *  You may obtain a copy of the License at
+ *      http://www.opensource.org/licenses/eclipse-1.0.php
+ *
+ *  (C) Copyright IBM Corporation 2006-2013.
+ */
+
 #ifndef X10RT_INTERNAL_H
 #define X10RT_INTERNAL_H
 
 #include <cstring>
+#include <cstdarg>
+#include <cstdio>
 
 #include <x10rt_types.h>
+
+// set false to remove abort
+#define ABORT_NEEDED	true
 
 #if 1
 #include <pthread.h>
@@ -142,12 +158,13 @@ X10RT_C void x10rt_emu_alltoall (x10rt_team team, x10rt_place role,
                                  size_t el, size_t count,
                                  x10rt_completion_handler *ch, void *arg);
 
-X10RT_C void x10rt_emu_allreduce (x10rt_team team, x10rt_place role,
-                                  const void *sbuf, void *dbuf,
-                                  x10rt_red_op_type op,
-                                  x10rt_red_type dtype,
-                                  size_t count,
-                                  x10rt_completion_handler *ch, void *arg);
+X10RT_C void x10rt_emu_reduce (x10rt_team team, x10rt_place role,
+                                x10rt_place root, const void *sbuf, void *dbuf,
+                                x10rt_red_op_type op,
+                                x10rt_red_type dtype,
+                                size_t count,
+                                x10rt_completion_handler *ch, void *arg,
+                                bool allreduce);
 
 
 

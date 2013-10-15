@@ -24,15 +24,15 @@ import harness.x10Test;
 public class GenericOverriding12 extends GenericTest {
 
     static class A[T] {
-        def m[U](): int = 0;
+        def m[U]():long = 0;
     }
 
     static class B[T] extends A[T] {
-        def m[U](): int = 1;
+        def m[U]():long = 1;
     }
 
-    val a = new A[int]();
-    val b = new B[int]();
+    val a = new A[long]();
+    val b = new B[long]();
 
     public def run() = {
 
@@ -42,7 +42,7 @@ public class GenericOverriding12 extends GenericTest {
         return result;
     }
 
-    public static def main(var args: Array[String](1)): void = {
+    public static def main(var args: Rail[String]): void = {
         new GenericOverriding12().execute();
     }
 }

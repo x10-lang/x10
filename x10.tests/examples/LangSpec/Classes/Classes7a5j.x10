@@ -21,21 +21,21 @@ import harness.x10Test;
 
 public class Classes7a5j extends x10Test {
    public def run() : boolean = (new Hook()).run();
-   public static def main(var args: Array[String](1)): void = {
+   public static def main(args:Rail[String]):void {
         new Classes7a5j().execute();
     }
 
 
-// file Classes line 824
+// file Classes line 953
  // If example4() compiles, then the limitation in Classes7a5j's section is
  // gone, so delete the whole subsection from the spec.
  static class Cls {
-  property concrete(a:Int) = 7;
+  property concrete(a:Long) = 7;
 }
  static interface Inf {
-  property nullary(): Int;
-  property topLevel(z:Int):Boolean;
-  property allThree(z:Int):Int;
+  property nullary(): Long;
+  property topLevel(z:Long):Boolean;
+  property allThree(z:Long):Long;
 }
  static class Example{
   def example1(Cls{self.concrete(3)==7}) = 1;

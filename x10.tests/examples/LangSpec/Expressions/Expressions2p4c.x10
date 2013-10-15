@@ -21,16 +21,16 @@ import harness.x10Test;
 
 public class Expressions2p4c extends x10Test {
    public def run() : boolean = (new Hook()).run();
-   public static def main(var args: Array[String](1)): void = {
+   public static def main(args:Rail[String]):void {
         new Expressions2p4c().execute();
     }
 
 
-// file Expressions line 1293
+// file Expressions line 1292
  static class Knot(s:String){
   public def is(t:String):Boolean = s.equals(t);
   // explicit conversion
-  public static operator (n:Int) as Knot = new Knot("knot-" + n);
+  public static operator (n:Long) as Knot = new Knot("knot-" + n);
   // implicit coercion
   public static operator (s:String):Knot = new Knot(s);
   // using them

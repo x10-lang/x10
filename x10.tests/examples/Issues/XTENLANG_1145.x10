@@ -59,7 +59,7 @@ public class XTENLANG_1145 extends x10Test {
         return result;
     }
 
-    public static def main(Array[String](1)) {
+    public static def main(Rail[String]) {
         new XTENLANG_1145().execute();
     }
 

@@ -21,7 +21,7 @@ import harness.x10Test;
 
 public class Vars30 extends x10Test {
    public def run() : boolean = (new Hook()).run();
-   public static def main(var args: Array[String](1)): void = {
+   public static def main(args:Rail[String]):void {
         new Vars30().execute();
     }
 
@@ -29,7 +29,7 @@ public class Vars30 extends x10Test {
 // file Vars line 156
  static  class ABitTedious{
  def example() {
-val a : Int = 10;
+val a : Long = 10;
 val b = (a+1)*(a-1);
 // ERROR: a = 11;  // vals cannot be assigned to.
 // ERROR: val a = 11; // no redeclaration.

@@ -10,6 +10,7 @@
  */
 
 import harness.x10Test;
+import x10.regionarray.*;
 
 /**
  * Test for for ... async.
@@ -17,12 +18,12 @@ import harness.x10Test;
  */
 public class Foreach1 extends x10Test {
 
-    public static N: int = 100;
-    var nActivities: int = 0;
+    public static N: int = 100n;
+    var nActivities: int = 0n;
 
     public def run(): boolean = {
         val P0  = here; // save current place
-        val d = 0..(N-1)->here;
+        val d = Region.make(0, N-1)->here;
         val hasbug  = DistArray.make[boolean](d);
 
         finish for (p[i]: Point(1) in d.region) async {
@@ -36,7 +37,7 @@ public class Foreach1 extends x10Test {
         return !hasbug.reduce((x:Boolean,y:Boolean) => x|y, false) &&
             nActivities == N;
     }
-    public static def main(var args: Array[String](1)): void = {
+    public static def main(var args: Rail[String]): void = {
         new Foreach1().execute();
     }
 }

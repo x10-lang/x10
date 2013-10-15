@@ -10,6 +10,7 @@
  */
 
 import harness.x10Test;
+import x10.regionarray.*;
 
 /**
  * Simple array test.
@@ -21,39 +22,39 @@ public class Array1b extends x10Test {
 
     public def run(): boolean = {
 
-        val e = 1..10;
+        val e = Region.make(1,10);
         val r = e*e;
 
-        chk(r.equals((1..10)*(1..10)));
-        val d = Dist.makeConstant((1..10)*(1..10), here);
+        chk(r.equals(Region.make(1..10, 1..10)));
+        val d = Dist.makeConstant(Region.make(1..10, 1..10), here);
 
-        chk(d.equals(Dist.makeConstant((1..10)*(1..10), here)));
+        chk(d.equals(Dist.makeConstant(Region.make(1..10, 1..10), here)));
         chk(d.equals(Dist.makeConstant(e*e, here)));
         chk(d.equals(Dist.makeConstant(r, here)));
 
-        val ia = DistArray.make[int](d, (Point)=>0);
+        val ia = DistArray.make[int](d, (Point)=>0n);
 
         for (p[i] in e) for (q[j] in e) {
-            chk(ia(i, j) == 0);
-            ia(i, j) = i+j;
+            chk(ia(i, j) == 0n);
+            ia(i, j) = (i+j) as int;
         }
 
         for (p[i,j]  in ia.region) {
             val q1[m,n] = [i, j] as Point;
             chk(i == m);
             chk(j == n);
-            chk(ia(i, j) == i+j);
+            chk(ia(i, j) == (i+j) as int);
             chk(ia(i, j) == ia(p));
             chk(ia(q1) == ia(p));
-            ia(p) = ia(p) - 1;
-            chk(ia(p) == i + j - 1);
+            ia(p) = ia(p) - 1n;
+            chk(ia(p) == (i + j - 1) as int);
             chk(ia(q1) == ia(p));
         }
 
         return true;
     }
 
-    public static def main(var args: Array[String](1)): void = {
+    public static def main(var args: Rail[String]): void = {
         new Array1b().execute();
     }
 }

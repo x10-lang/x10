@@ -17,23 +17,23 @@ public type MatrixBuilder(blder:MatrixBuilder)=MatrixBuilder{self==blder};
 
 public interface MatrixBuilder {
 	
-	//-----------------------------------------------------------------
-	public def init(initFun:(Int,Int)=>Double):MatrixBuilder(this);
 
-	public def initRandom(nonZeroDensity:Double, initFun:(Int,Int)=>Double):MatrixBuilder(this);
+	public def init(initFun:(Long,Long)=>Double):MatrixBuilder(this);
+
+	public def initRandom(nonZeroDensity:Double, initFun:(Long,Long)=>Double):MatrixBuilder(this);
 
 	//public def initRandomTri(up:Boolean):MatrixBuilder;
 	//public def initRandomTri(halfNonZeroDensity:Double, up:Boolean):MatrixBuilder(this);
 	//public def initRandomSym(halfNonZeroDensity:Double):MatrixBuilder(this);
-	//-----------------------------------------------------------------
-	public def set(r:Int, c:Int, value:Double): void;
-	public def reset(r:Int, c:Int):Boolean;
+
+	public def set(r:Long, c:Long, value:Double): void;
+	public def reset(r:Long, c:Long):Boolean;
 	
-	//-----------------------------------------------------------------
+
 	//public def makeTranspose(mat:Matrix):void;
 	
 	public def toMatrix():Matrix;
 
-	//-----------------------------------------------------------------
+
 
 }

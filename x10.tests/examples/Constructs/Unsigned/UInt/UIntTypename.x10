@@ -18,7 +18,7 @@ import harness.x10Test;
  */
 public class UIntTypename extends x10Test {
     public def run(): boolean = {
-	val u1 = 1u;
+	val u1 = 1un;
 	val a1 = u1 as Any;
 	if (!(u1.typeName().equals("x10.lang.UInt"))) return false;
 	if (!(a1.typeName().equals("x10.lang.UInt"))) return false;
@@ -33,7 +33,7 @@ public class UIntTypename extends x10Test {
 	}
     }
 
-    public static def main(Array[String]) {
+    public static def main(Rail[String]) {
         new UIntTypename().execute();
     }
 }

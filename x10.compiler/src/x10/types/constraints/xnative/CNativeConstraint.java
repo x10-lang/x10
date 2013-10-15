@@ -413,6 +413,7 @@ public class CNativeConstraint extends XNativeConstraint<Type>  implements CCons
     @Override
     public XTerm<Type> bindingForSelfField(XDef<Type> def) {
         XNativeField<Type, XDef<Type>> term = sys().makeField(self(), def);
+        assert term!=null;
 		XPromise<Type> p = nfp(term);
 		if (p == null) return null;
 		return p.term();

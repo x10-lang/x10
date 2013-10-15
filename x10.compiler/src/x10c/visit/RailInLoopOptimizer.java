@@ -382,7 +382,7 @@ public class RailInLoopOptimizer extends ContextVisitor {
                             LocalAssign la = (LocalAssign) ((Eval) n).expr();
                             Type type = Types.baseType(la.type());
                             Local local = la.local();
-                            if (isIMC(type)) {
+                            if (isRail(type)) {
                                 boolean contains = false;
                                 Id id = null;
                                 for (int i = 0; i < backingArrayAndIsFinals.size(); i++) {
@@ -501,7 +501,7 @@ public class RailInLoopOptimizer extends ContextVisitor {
         Expr init2 = ld.init();
         if (init2 != null && ld.flags().flags().isFinal()) { 
             Type lt = ld.localDef().type().get();
-            if (Types.isX10Array(init2.type()) && Types.isX10Array(lt)) {
+            if (Types.isX10RegionArray(init2.type()) && Types.isX10RegionArray(lt)) {
                 if (init2 instanceof Local) {
                     Local local = (Local) init2;
                     if (nameToArray.containsKey(local.name().id())) {
@@ -516,7 +516,7 @@ public class RailInLoopOptimizer extends ContextVisitor {
                     }
                 }
             }
-            else if (isIMC(init2.type()) && isIMC(lt)) {
+            else if (isRail(init2.type()) && isRail(lt)) {
                 if (init2 instanceof Local) {
                     Local local = (Local) init2;
                     if (nameToRailIMC.containsKey(local.name().id())) {
@@ -530,7 +530,7 @@ public class RailInLoopOptimizer extends ContextVisitor {
                     Field f = (Field) init2;
                     // special care for the raw field of array.
                     // var/val imc:IndexedMemoryChunck[T] = array.raw;
-                    if (f.target() instanceof Local && Types.isX10Array(f.target().type()) && f.name().toString().equals(IMC_FIELD_NAME)) {
+                    if (f.target() instanceof Local && Types.isX10RegionArray(f.target().type()) && f.name().toString().equals(IMC_FIELD_NAME)) {
                         Local target = (Local) f.target();
                         if (nameToArray.containsKey(target.name().id())) {
                             Field f2 = (Field) xnf.Field(ld.position(), nameToArray.get(target.name().id()), f.name()).fieldInstance(f.fieldInstance()).type(f.type());
@@ -549,14 +549,15 @@ public class RailInLoopOptimizer extends ContextVisitor {
         return xts.createBackingArray(t.position(), Types.ref(t));
     }
 
-    private boolean isIMC(Type type) {
+    private boolean isRail(Type type) {
         Type tbase = Types.baseType(type);
-        return tbase instanceof X10ParsedClassType_c && ((X10ParsedClassType_c) tbase).def().asType().typeEquals(xts.IndexedMemoryChunk(), context);
-    };
+        return tbase instanceof X10ParsedClassType_c && ((X10ParsedClassType_c) tbase).def().asType().typeEquals(xts.Rail(), context);
+    }
+
 
     private boolean isOptimizationTarget(Type ttype) {
         ttype = Types.baseType(ttype);
-        if (!isIMC(ttype))
+        if (!isRail(ttype))
             return false;
         if (!X10PrettyPrinterVisitor.hasParams(ttype))
             return true;

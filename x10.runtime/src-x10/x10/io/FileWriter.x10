@@ -17,29 +17,29 @@ import x10.compiler.Native;
 /**
  * Supports writing and appending to a File.
  * Modeled after java.io.FileWriter.
+ * Note: The backing OutputStream is implicitly created with 
+ *       buffering enabled at the native layer.
  */
-public class FileWriter extends OutputStreamWriter {
+public class FileWriter extends OutputStreamWriter implements Unserializable { 
     @NativeRep("java", "x10.core.io.FileOutputStream", null, "x10.core.io.FileOutputStream.$RTT")
     @NativeRep("c++", "x10::io::FileWriter__FileOutputStream*", "x10::io::FileWriter__FileOutputStream", null)
     protected final static class FileOutputStream extends OutputStream {
         @Native("java", "new x10.core.io.FileOutputStream((java.lang.System[]) null).x10$io$FileReader$FileOutputStream$$init$S(#path, #append)")
-        public native def this(path: String, append: Boolean); // throws IOException;
+        public native def this(path:String, append:Boolean);
     }
 
-    // TODO: This is questionable.
-    //       What does it mean to send a File to another node?
-    val file: File;
+    val file:File;
     
     // @Native("java", "new java.io.BufferedOutputStream(new java.io.FileOutputStream(#path))")
-    private static def make(path: String, append: Boolean):OutputStream{ //throws IOException {
+    private static def make(path: String, append: Boolean):OutputStream {
         return new FileOutputStream(path, append);       
     }
 
-    public def this(file: File) { //throws IOException {
+    public def this(file: File) {
         this(file, false);
     }
 
-    public def this(file: File, append: Boolean) { //throws IOException {
+    public def this(file: File, append: Boolean) {
         super(make(file.getPath(), append));
         this.file = file;
     }

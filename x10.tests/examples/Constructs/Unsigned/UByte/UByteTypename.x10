@@ -33,7 +33,7 @@ public class UByteTypename extends x10Test {
 	}
     }
 
-    public static def main(Array[String]) {
+    public static def main(Rail[String]) {
         new UByteTypename().execute();
     }
 }

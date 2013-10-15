@@ -21,12 +21,12 @@ import harness.x10Test;
 
 public class Interfaces3l4a extends x10Test {
    public def run() : boolean = (new Hook()).run();
-   public static def main(var args: Array[String](1)): void = {
+   public static def main(args:Rail[String]):void {
         new Interfaces3l4a().execute();
     }
 
 
-// file Interfaces line 265
+// file Interfaces line 300
  static class TheOne {
   static val ONE = 1;
  static   interface WelshOrFrench {

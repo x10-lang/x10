@@ -6,7 +6,6 @@
 
 package logreg;
 
-import x10.io.Console;
 import x10.util.Timer;
 //
 import x10.matrix.Debug;
@@ -250,7 +249,7 @@ public class SeqLogReg {
 		Debug.flushln("End");
 	}
 	
-	//==================================================
+
 	
 	protected def compute_XmultB(result:Vector(X.M), opB:Vector(X.N)):void {
 		//o = X %*% w

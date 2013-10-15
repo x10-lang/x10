@@ -18,14 +18,14 @@ import harness.x10Test;
  */
 public class HasTypeVariable extends x10Test {
 
-	def m(x:Int{self==1}) = x;
+	def m(x:Long{self==1}) = x;
 	public def run(): boolean = {
-		val x <: Int = 1; 
+		val x <: Long = 1; 
 		m(x);
 		return true;
 	}
 
-	public static def main(Array[String](1))  {
+	public static def main(Rail[String])  {
 		new HasTypeVariable().execute();
 	}
 }

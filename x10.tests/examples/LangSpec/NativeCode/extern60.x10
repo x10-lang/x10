@@ -21,14 +21,14 @@ import x10.compiler.Native;
 
 public class extern60 extends x10Test {
    public def run() : boolean = (new Hook()).run();
-   public static def main(var args: Array[String](1)): void = {
+   public static def main(args:Rail[String]):void {
         new extern60().execute();
     }
 
 
-// file NativeCode line 122
+// file NativeCode line 136
  static class Ability {
-  static val A : Int = 1;
+  static val A : Int = 1n;
   @Native("java", "A+2")
   @Native("c++", "Ability::FMGL(A)+2")
   static native def fromStatic():Int;

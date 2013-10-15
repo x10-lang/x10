@@ -1,4 +1,4 @@
-/* Current test harness gets confused by packages, but it would be in package stmtsome_Types57;
+/* Current test harness gets confused by packages, but it would be in package stmtsome_Types48;
 */
 // Warning: This file is auto-generated from the TeX source of the language spec.
 // If you need it changed, work with the specification writers.
@@ -21,14 +21,14 @@ import harness.x10Test;
 
 public class Types470 extends x10Test {
    public def run() : boolean = (new Hook()).run();
-   public static def main(var args: Array[String](1)): void = {
+   public static def main(args:Rail[String]):void {
         new Types470().execute();
     }
 
 
-// file Types.tex,  line 2193
+// file Types.tex,  line 2471
 
- static class Types57TestStmt{
+ static class Types48TestStmt{
   def check()  {
     val seven = 7;
   }}

@@ -21,15 +21,15 @@ import harness.x10Test;
 
 public class DefiniteAssignment4u7z extends x10Test {
    public def run() : boolean = (new Hook()).run();
-   public static def main(var args: Array[String](1)): void = {
+   public static def main(args:Rail[String]):void {
         new DefiniteAssignment4u7z().execute();
     }
 
 
 // file DefiniteAssignment line 24
  static  class Example {
-def example(a:Int, b:Int) {
-  val max:Int;
+def example(a:Long, b:Long) {
+  val max:Long;
   //ERROR: assert max==max; // can't read 'max'
   if (a > b) max = a;
   else max = b;

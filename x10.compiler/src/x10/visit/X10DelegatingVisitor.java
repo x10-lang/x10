@@ -233,7 +233,6 @@ public class X10DelegatingVisitor {
 		if (n instanceof X10StringLit_c) { visit((X10StringLit_c)n); return; }
 		if (n instanceof StringLit_c) { visit((StringLit_c)n); return; }
 		if (n instanceof IntLit_c) { visit((IntLit_c)n); return; }
-		if (n instanceof IntLit_c) { visit((IntLit_c)n); return; }
 		if (n instanceof X10CharLit_c) { visit((X10CharLit_c)n); return; }
 		if (n instanceof CharLit_c) { visit((CharLit_c)n); return; }
 		if (n instanceof NumLit_c) { visit((NumLit_c)n); return; }

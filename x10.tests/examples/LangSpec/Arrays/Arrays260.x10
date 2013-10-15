@@ -17,19 +17,19 @@
 
 import harness.x10Test;
 
-
+import x10.regionarray.*;
 
 public class Arrays260 extends x10Test {
    public def run() : boolean = (new Hook()).run();
-   public static def main(var args: Array[String](1)): void = {
+   public static def main(args:Rail[String]):void {
         new Arrays260().execute();
     }
 
 
-// file Arrays line 436
+// file Arrays line 718
  static  class Example{
  def example() {
-val R  <: Region = 1..100;
+val R  <: Region = Region.make(1..100);
 val D1 <: Dist = Dist.makeBlock(R);
 val D2 <: Dist = Dist.makeConstant(R, here);
  } }

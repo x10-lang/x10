@@ -21,15 +21,15 @@ import harness.x10Test;
 
 public class Lex1p9o extends x10Test {
    public def run() : boolean = (new Hook()).run();
-   public static def main(var args: Array[String](1)): void = {
+   public static def main(args:Rail[String]):void {
         new Lex1p9o().execute();
     }
 
 
-// file Lex line 42
+// file Lex line 45
 
  static  class Backyquotey {
- def hokey(e:Int, a:Int, b:Int, d:Int, c:Int) = 0;
+ def hokey(e:Long, a:Long, b:Long, d:Long, c:Long) = 0;
  def example() {
  val `while`=0; val `!`=0; val  `(unbalanced(`=0;  val `\`\\`=0; val `0` = 0;
  hokey(

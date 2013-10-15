@@ -21,18 +21,18 @@ import harness.x10Test;
 
 public class Types9j6e extends x10Test {
    public def run() : boolean = (new Hook()).run();
-   public static def main(var args: Array[String](1)): void = {
+   public static def main(args:Rail[String]):void {
         new Types9j6e().execute();
     }
 
 
-// file Types line 1476
+// file Types line 1834
  static class Generic {
   public static def inst[T](x:Any):Boolean = x instanceof T;
   // With -VERBOSE, the following line gets a warning
-  public static def cast[T](x:Any):T       = x as T; // ERR: Warning: This is an unsound cast because X10 currently does not perform constraint solving at runtime for generic parameters.
+  public static def cast[T](x:Any):T       = x as T;
 }
- static class Pea(p:Int) {}
+ static class Pea(p:Long) {}
  static class Example{
   static def example() {
      val pea : Pea = new Pea(1);
@@ -40,7 +40,8 @@ public class Types9j6e extends x10Test {
      assert (pea instanceof Pea{p==1});
      assert (pea as Pea{p==1}).p == 1;
      assert ! (pea instanceof Pea{p==2});
-     // 'val x = pea as Pea{p==2};' throws a FailedDynamicCheckException.
+     // 'val x = pea as Pea{p==2};'
+     // throws a FailedDynamicCheckException.
 
      // But the genericized versions don't do the same thing:
      assert Generic.inst[Pea{p==1}](pea);

@@ -1,4 +1,4 @@
-/* Current test harness gets confused by packages, but it would be in package expsome_Expressions31;
+/* Current test harness gets confused by packages, but it would be in package expsome_Expressions32;
 */
 // Warning: This file is auto-generated from the TeX source of the language spec.
 // If you need it changed, work with the specification writers.
@@ -21,14 +21,14 @@ import harness.x10Test;
 
 public class Expressions200 extends x10Test {
    public def run() : boolean = (new Hook()).run();
-   public static def main(var args: Array[String](1)): void = {
+   public static def main(args:Rail[String]):void {
         new Expressions200().execute();
     }
 
 
-// file Expressions line 1517
+// file Expressions line 1516
 
- static class Expressions31TestExp{
+ static class Expressions32TestExp{
   def check()  = 54.321 as Int;  }
 
  static class Hook {

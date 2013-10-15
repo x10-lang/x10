@@ -18,14 +18,14 @@ import harness.x10Test;
 class XTENLANG_193 extends x10Test {
 
     public static final class Bug[T]  {
-        private static x = new Rail[int](0, (int)=>0);
+        private static x = new Rail[int](0, 0n);
     }
 
     public def run(): boolean {
         return true;
     }
 
-    public static def main(Array[String](1)) {
+    public static def main(Rail[String]) {
         new XTENLANG_193().execute();
     }
 }

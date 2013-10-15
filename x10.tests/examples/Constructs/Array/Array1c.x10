@@ -10,6 +10,7 @@
  */
 
 import harness.x10Test;
+import x10.regionarray.*;
 
 /**
  * Simple array test.
@@ -20,23 +21,22 @@ public class Array1c extends x10Test {
 
     public def run(): boolean = {
 
-        val e  = 1..10;
+        val e  = Region.make(1,10);
         val r = e*e;
 
-        chk(r.equals((1..10)*(1..10)));
+        chk(r.equals(Region.make(1..10, 1..10)));
 
         val d = Dist.makeConstant(r, here);
-        //final dist d = [1:10,1:10]->here;
 
-        chk(d.equals(Dist.makeConstant((1..10)*(1..10), here)));
+        chk(d.equals(Dist.makeConstant(Region.make(1..10,1..10), here)));
         chk(d.equals(Dist.makeConstant(e*e, here)));
         chk(d.equals(Dist.makeConstant(r, here)));
 
-        val ia = DistArray.make[int](d, (Point)=>0);
+        val ia = DistArray.make[int](d, (Point)=>0n);
 
         for (val p[i] in e) for (val q[j]  in e) {
-            chk(ia(i, j) == 0);
-            ia(i, j) = i+j;
+            chk(ia(i, j) == 0n);
+            ia(i, j) = (i+j) as int;
         }
 
 /*
@@ -57,7 +57,7 @@ public class Array1c extends x10Test {
         return true;
     }
 
-    public static def main(var args: Array[String](1)): void = {
+    public static def main(var args: Rail[String]): void = {
         new Array1c().execute();
     }
 }

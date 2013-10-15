@@ -21,13 +21,13 @@ public class Assign2 extends x10Test {
 	public def run(): boolean = {
                 val a = new ArrayList[String]();
                 a(0) = "hi";
-                var i:Settable[int,String] = a;
+                var i:Settable[Long,String] = a;
                 i(1) = "bye";
 
                 return true;
 	}
 
-	public static def main(Array[String](1))  {
+	public static def main(Rail[String])  {
 		new Assign2().execute();
 	}
 }

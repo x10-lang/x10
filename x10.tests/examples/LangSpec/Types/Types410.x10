@@ -1,4 +1,4 @@
-/* Current test harness gets confused by packages, but it would be in package expsome_Types50;
+/* Current test harness gets confused by packages, but it would be in package expsome_Types41;
 */
 // Warning: This file is auto-generated from the TeX source of the language spec.
 // If you need it changed, work with the specification writers.
@@ -21,14 +21,14 @@ import harness.x10Test;
 
 public class Types410 extends x10Test {
    public def run() : boolean = (new Hook()).run();
-   public static def main(var args: Array[String](1)): void = {
+   public static def main(args:Rail[String]):void {
         new Types410().execute();
     }
 
 
-// file Types line 2015
+// file Types line 2305
 
- static class Types50TestExp{
+ static class Types41TestExp{
   def check(test:Boolean)  = test ? 0 : "non-zero";  }
 
  static class Hook {

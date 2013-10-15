@@ -28,12 +28,12 @@ public class GenericOverPrimitives3x extends GenericTest {
         }
 
         a:A[String] = new A[String]("012");
-        genericCheck("a.get(1)", a.get("013"), -1);
+        genericCheck("a.get(1)", a.get("013"), -1n);
 
         return result;
     }
 
-    public static def main(var args: Array[String](1)): void = {
+    public static def main(var args: Rail[String]): void = {
         new GenericOverPrimitives3x().execute();
     }
 }

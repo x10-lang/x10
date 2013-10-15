@@ -11,7 +11,8 @@
 
 import harness.x10Test;
 import x10.io.CustomSerialization;
-import x10.io.SerialData;
+import x10.io.Deserializer;
+import x10.io.Serializer;
 
 /*
  * Simple test case to check to see if custom serialization
@@ -23,12 +24,14 @@ public class TestCustomSerialization1 extends x10Test {
      val y:int;
      transient var sum:int;
  
-     public def serialize() = new SerialData([x,y], null);
+     public def serialize(s:Serializer) {
+         s.writeAny(x);
+         s.writeAny(y);
+     }
   
-     def this(a:SerialData) {
-        val t = a.data as Array[int](1); // ERR: Warning: This is an unsound cast because X10 currently does not perform constraint solving at runtime for generic parameters.
-        x = t(0);
-        y = t(1);
+     def this(d:Deserializer) {
+        x = d.readAny() as int;
+        y = d.readAny() as int;
         sum = x + y;
      }
  
@@ -36,7 +39,7 @@ public class TestCustomSerialization1 extends x10Test {
   }
 
   public def run():boolean {
-    val x = new CS(10,20);
+    val x = new CS(10n,20n);
     at (here.next()) {
         // The custom serialization logic re-establishes that sum = x + y
         // Default serialzation would result in sum having the value of zero.
@@ -45,7 +48,7 @@ public class TestCustomSerialization1 extends x10Test {
     return true;
   }
 
-  public static def main(Array[String]) {
+  public static def main(Rail[String]) {
       new TestCustomSerialization1().execute();
   }
 

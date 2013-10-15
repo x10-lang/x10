@@ -18,12 +18,6 @@ import x10.serialization.SerializationConstants;
 
 public final class DoubleType extends RuntimeType<x10.core.Double> {
 
-    private static final long serialVersionUID = 1L;
-
-    // make sure deserialized RTT object is not duplicated
-    private Object readResolve() throws java.io.ObjectStreamException {
-        return Types.DOUBLE;
-    }
     @Override
     public short $_get_serialization_id() {
         return SerializationConstants.RTT_DOUBLE_ID;

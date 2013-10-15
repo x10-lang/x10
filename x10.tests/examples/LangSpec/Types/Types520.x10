@@ -21,12 +21,12 @@ import harness.x10Test;
 
 public class Types520 extends x10Test {
    public def run() : boolean = (new Hook()).run();
-   public static def main(var args: Array[String](1)): void = {
+   public static def main(args:Rail[String]):void {
         new Types520().execute();
     }
 
 
-// file Types line 2280
+// file Types line 2558
  static  class voidddd {
  static
 def m():void {return;}

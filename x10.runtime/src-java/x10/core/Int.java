@@ -150,9 +150,9 @@ final public class Int extends java.lang.Number implements StructI, java.lang.Co
     public Int $ampersand(java.lang.Object b, Type t) { return Int.$box($value & ((Int)b).$value); }
     public Int $bar(java.lang.Object b, Type t) { return Int.$box($value | ((Int)b).$value); }
     public Int $caret(java.lang.Object b, Type t) { return Int.$box($value ^ ((Int)b).$value); }
-    public Int $left$G(int count) { return Int.$box($value << count); }
-    public Int $right$G(int count) { return Int.$box($value >> count); }
-    public Int $unsigned_right$G(int count) { return Int.$box($value >>> count); }
+    public Int $left$G(long count) { return Int.$box($value << count); }
+    public Int $right$G(long count) { return Int.$box($value >> count); }
+    public Int $unsigned_right$G(long count) { return Int.$box($value >>> count); }
     // for X10PrettyPrinterVisitor.exposeSpecialDispatcherThroughSpecialInterface
     public int $ampersand$I(java.lang.Object b, Type t) { return $value & ((Int)b).$value; }
     public int $bar$I(java.lang.Object b, Type t) { return $value | ((Int)b).$value; }

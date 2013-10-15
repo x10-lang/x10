@@ -137,9 +137,9 @@ final public class Long extends java.lang.Number implements StructI, java.lang.C
     public Long $ampersand(java.lang.Object b, Type t) { return Long.$box($value & ((Long)b).$value); }
     public Long $bar(java.lang.Object b, Type t) { return Long.$box($value | ((Long)b).$value); }
     public Long $caret(java.lang.Object b, Type t) { return Long.$box($value ^ ((Long)b).$value); }
-    public Long $left$G(int count) { return Long.$box($value << count); }
-    public Long $right$G(int count) { return Long.$box($value >> count); }
-    public Long $unsigned_right$G(int count) { return Long.$box($value >>> count); }
+    public Long $left$G(long count) { return Long.$box($value << count); }
+    public Long $right$G(long count) { return Long.$box($value >> count); }
+    public Long $unsigned_right$G(long count) { return Long.$box($value >>> count); }
     // for X10PrettyPrinterVisitor.exposeSpecialDispatcherThroughSpecialInterface
     public long $ampersand$J(java.lang.Object b, Type t) { return $value & ((Long)b).$value; }
     public long $bar$J(java.lang.Object b, Type t) { return $value | ((Long)b).$value; }

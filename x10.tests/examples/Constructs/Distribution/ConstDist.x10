@@ -10,13 +10,14 @@
  */
 
 import harness.x10Test;
+import x10.regionarray.*;
 
 
 public class ConstDist extends x10Test {
 
     public def run(): boolean = {
     
-        val R = (0..9)*(0..9);
+        val R = Region.make(0..9, 0..9);
         val D = Dist.makeConstant(R, here);
         val a = DistArray.make[double](Dist.makeConstant(R, here));
         val b = DistArray.make[double](Dist.makeConstant(R, here));
@@ -26,7 +27,7 @@ public class ConstDist extends x10Test {
         return true;
     }
 
-    public static def main(var args: Array[String](1)): void = {
+    public static def main(var args: Rail[String]): void = {
         new ConstDist().execute();
     }
 }

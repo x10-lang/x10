@@ -19,15 +19,15 @@ import harness.x10Test;
  */
 public class AsyncInitAndAt extends x10Test {
     static class C {
-      var data:int;
-      def this(d:int) { data = d; }
+      var data:long;
+      def this(d:long) { data = d; }
     }
 
     public def run():boolean {
 	return doit(5);
     }
  
-    public def doit(val x:int):boolean {
+    public def doit(val x:long):boolean {
         val y:C;
         finish {
             async { y = new C(x + 5); }
@@ -39,7 +39,7 @@ public class AsyncInitAndAt extends x10Test {
 	return y.data == 10; // original unchanged
     }
 
-    public static def main(Array[String](1)) {
+    public static def main(Rail[String]) {
         new AsyncInitAndAt().execute();
     }
 }

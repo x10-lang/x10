@@ -25,12 +25,12 @@ public class TypedefBasic5 extends TypedefTest {
     public def run(): boolean = {
         
         type A(i:int) = int{self==i};
-        a:A(1) = 1;
+        a:A(1n) = 1n;
 
         return result;
     }
 
-    public static def main(var args: Array[String](1)): void = {
+    public static def main(var args: Rail[String]): void = {
         new TypedefBasic5().execute();
     }
 }

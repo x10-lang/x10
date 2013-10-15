@@ -18,12 +18,12 @@ import harness.x10Test;
  */
 public class Inference1 extends x10Test {
 	public def run(): boolean = {
-                val x = 1;
+                val x = 1n;
                 val y: int = x;
 		return x == y;
 	}
 
-	public static def main(var args: Array[String](1)): void = {
+	public static def main(var args: Rail[String]): void = {
 		new Inference1().execute();
 	}
 }

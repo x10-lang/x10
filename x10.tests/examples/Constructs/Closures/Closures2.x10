@@ -22,7 +22,7 @@ public class Closures2 extends x10Test {
                 return j == 7;
 	}
 
-	public static def main(var args: Array[String](1)): void = {
+	public static def main(var args: Rail[String]): void = {
 		new Closures2().execute();
 	}
 }

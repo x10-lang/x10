@@ -21,12 +21,12 @@ import x10.compiler.Native;
 
 public class extern20 extends x10Test {
    public def run() : boolean = (new Hook()).run();
-   public static def main(var args: Array[String](1)): void = {
+   public static def main(args:Rail[String]):void {
         new extern20().execute();
     }
 
 
-// file NativeCode line 42
+// file NativeCode line 56
  static class Land {
   @Native("c++", "printf(\"Hi from C++!\")")
   static def example():void = {

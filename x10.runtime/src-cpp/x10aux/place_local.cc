@@ -13,27 +13,28 @@
 
 #include <x10aux/place_local.h>
 #include <x10aux/lock.h>
-#include <x10aux/basic_functions.h>
 
 using namespace x10::lang;
 using namespace x10aux;
 
 #define MAX_FAST_ID 255
-#define NUM_BUCKETS 100
 
 x10_int place_local::_nextId;
-place_local::Bucket **place_local::_buckets;
+simple_hashmap<int, void*>* place_local::_map;
 void **place_local::_fastData;
 x10aux::reentrant_lock* place_local::_lock;
+
+// used by simple_hashmap
+x10_uint x10aux::simple_hash_code(int id) {
+    return (x10_uint)id;
+}
 
 void place_local::initialize() {
     _nextId = 0;
     _lock = new (alloc<reentrant_lock>())reentrant_lock();
 
-    _buckets = alloc<Bucket*>(NUM_BUCKETS*sizeof(Bucket*));
-    memset(_buckets, 0, NUM_BUCKETS*sizeof(Bucket*));
-    _fastData = alloc<void*>((MAX_FAST_ID+1)*sizeof(void*));
-    memset(_fastData, 0, (MAX_FAST_ID+1)*sizeof(void*));
+    _map = new (x10aux::alloc< x10aux::simple_hashmap<int, void*> >()) x10aux::simple_hashmap<int, void*>();
+    _fastData = alloc_z<void*>((MAX_FAST_ID+1)*sizeof(void*));
 }
 
 x10_int place_local::nextId() {
@@ -45,64 +46,40 @@ x10_int place_local::nextId() {
     return id;
 }
 
-void* place_local::lookupData(x10_int id) {
+void* place_local::get(x10_int id) {
+    void* data;
+    _lock->lock();
     if (id < MAX_FAST_ID) {
-        return _fastData[id];
+        data = _fastData[id];
     } else {
-        _lock->lock();
-        int bucket = hash_code(id) % NUM_BUCKETS;
-        Bucket *cur = _buckets[bucket];
-        while (cur != NULL) {
-            if (cur->_id == id) {
-                _lock->unlock();
-                return cur->_data;
-            }
-            cur = cur->_next;
-        }
-        _lock->unlock();
-        return NULL;
+        data = _map->get(id);
     }
+    _lock->unlock();
+    return data;
 }
 
-void place_local::registerData(x10_int id, void *data) {
-    assert(NULL == lookupData(id));
+void place_local::put(x10_int id, void *data) {
+    _lock->lock();
     if (id < MAX_FAST_ID) {
         _fastData[id] = data;
     } else {
-        _lock->lock();
-        int bucket = hash_code(id) % NUM_BUCKETS;
-        Bucket *newBucket = alloc<Bucket>();
-        newBucket->_id = id;
-        newBucket->_data = data;
-        newBucket->_next = _buckets[bucket];
-        _buckets[bucket] = newBucket;
-        _lock->unlock();
+        if (NULL == data) {
+            // optimize storing NULL as absence of the key (match Java Map semantics)
+            remove(id);
+        } else {
+            _map->put(id, data);
+        }
     }
+    _lock->unlock();
 }
 
-void place_local::unregisterData(x10_int id) {
-    assert(NULL == lookupData(id));
+void place_local::remove(x10_int id) {
+    _lock->lock();
     if (id < MAX_FAST_ID) {
+        assert(NULL != _fastData[id]);
         _fastData[id] = NULL;
     } else {
-        _lock->lock();
-        int bucket = hash_code(id) % NUM_BUCKETS;
-        Bucket **trailer = &(_buckets[bucket]);
-        Bucket *cur = _buckets[bucket];
-        while (cur != NULL) {
-            if (cur->_id == id) {
-                // cut cur out of bucket chain by setting trailer to cur->next;
-                *trailer = cur->_next;
-                _lock->unlock();
-                return;
-            }
-            trailer = &(cur->_next);
-            cur = cur->_next;
-        }
-        // hmm, wasn't registered in the first place
-        // probably an error...but not entirely fatal, so we don't
-        // have to about if running with assertions disabled.
-        _lock->unlock();
-        assert(false);
+        _map->remove(id);
     }
+    _lock->unlock();
 }

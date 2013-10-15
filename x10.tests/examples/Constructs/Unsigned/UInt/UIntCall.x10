@@ -46,8 +46,8 @@ public class UIntCall extends x10Test {
 
     public def run(): boolean = {
 	var r : Boolean = true;
-	val i0 = 0;
-	val u1 = 1u;
+	val i0 = 0n;
+	val u1 = 1un;
 	if (!(f(i0).equals("int = 0"))) 	 	{ p(" !(f(i0).equals('int = 0')) "); r = false; }
 	if (!(f(u1).equals("uint = 1"))) 		{ p(" !(f(u1).equals('uint = 1') "); r = false; }
 	if (!(fs(i0).equals("int0")))			{ p(" !(fs(i0).equals('int0')))  "); r = false; }
@@ -61,7 +61,7 @@ public class UIntCall extends x10Test {
 	return r;
     }
 
-    public static def main(Array[String]) {
+    public static def main(Rail[String]) {
         new UIntCall().execute();
     }
 

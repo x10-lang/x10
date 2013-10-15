@@ -19,7 +19,7 @@ import harness.x10Test;
 class InheritedInterfaceMethod extends x10Test {
 
     class A {
-        public def m() = 0;
+        public def m() = 0n;
     }
 
     interface I {
@@ -30,10 +30,10 @@ class InheritedInterfaceMethod extends x10Test {
 
     public def run(): boolean {
         val v = new B();
-        return v.m() == 0;
+        return v.m() == 0n;
     }
 
-    public static def main(Array[String](1)) {
+    public static def main(Rail[String]) {
         new InheritedInterfaceMethod().execute();
     }
 }

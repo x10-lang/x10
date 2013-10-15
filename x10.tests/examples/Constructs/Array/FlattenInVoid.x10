@@ -10,6 +10,7 @@
  */
 
 import harness.x10Test;
+import x10.regionarray.*;
 
 
 /**
@@ -24,7 +25,7 @@ public class FlattenInVoid extends x10Test {
     var a: Array[int](2);
 
     public def this(): FlattenInVoid = {
-        a = new Array[int]((1..10)*(1..10), (var p[i,j]: Point): int => { return i+j;});
+        a = new Array[int](Region.make(1..10, 1..10), ([i,j]: Point) => (i+j) as Int);
     }
 
     def m(x: int): boolean =  true;
@@ -34,7 +35,7 @@ public class FlattenInVoid extends x10Test {
         return true;
     }
 
-    public static def main(Array[String](1)) {
+    public static def main(Rail[String]) {
         new FlattenInVoid().execute();
     }
 }

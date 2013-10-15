@@ -10,6 +10,7 @@
  */
 
 import harness.x10Test;
+import x10.regionarray.*;
 
 /**
  * Test the shorthand syntax for object array initializer.
@@ -20,7 +21,7 @@ import harness.x10Test;
 public class ObjectArrayInitializerShorthand extends x10Test {
 
     public def run(): boolean = {
-        val d  = Dist.makeConstant((1..10)*(1..10), here);
+        val d  = Dist.makeConstant(Region.make(1..10, 1..10), here);
         val dr = GlobalRef[Dist](d);
         // DistArray could be copying when it initializes. So never use == unless
         // the object is global.
@@ -29,7 +30,7 @@ public class ObjectArrayInitializerShorthand extends x10Test {
         return true;
     }
 
-    public static def main(Array[String](1)){
+    public static def main(Rail[String]){
         new ObjectArrayInitializerShorthand().execute();
     }
 }

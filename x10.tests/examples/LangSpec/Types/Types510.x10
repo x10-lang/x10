@@ -21,15 +21,15 @@ import harness.x10Test;
 
 public class Types510 extends x10Test {
    public def run() : boolean = (new Hook()).run();
-   public static def main(var args: Array[String](1)): void = {
+   public static def main(args:Rail[String]):void {
         new Types510().execute();
     }
 
 
-// file Types line 2254
- static class Spot(x:Int) {
+// file Types line 2532
+ static class Spot(x:Long) {
   def this() {property(0);}
-  def this(xx: Int) { property(xx); }
+  def this(xx: Long) { property(xx); }
 }
  static class Confirm{
  static val s0 : Spot{x==0} = new Spot();

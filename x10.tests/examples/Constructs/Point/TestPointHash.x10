@@ -11,6 +11,7 @@
  */
 
 import harness.x10Test;
+import x10.regionarray.*;
 
 /**
  * Tests Point equals and hashCode operations.
@@ -27,7 +28,7 @@ public class TestPointHash extends x10Test {
         return true;
 	}
 
-	public static def main(Array[String](1)) {
+	public static def main(Rail[String]) {
 		new TestPointHash().execute();
 	}
 }

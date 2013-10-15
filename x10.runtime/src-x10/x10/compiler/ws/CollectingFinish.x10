@@ -5,16 +5,15 @@ import x10.compiler.Ifdef;
 import x10.compiler.Ifndef;
 import x10.compiler.Inline;
 import x10.compiler.Uninitialized;
-import x10.util.IndexedMemoryChunk;
 import x10.compiler.Header;
 
-import x10.util.Stack;
+import x10.util.GrowableRail;
 
 //For collecting Finish frame usage
 
 abstract public class CollectingFinish[T] extends FinishFrame {
     @Uninitialized public val reducer:Reducible[T];
-    @Uninitialized public val resultRail:IndexedMemoryChunk[T];
+    @Uninitialized public val resultRail:Rail[T];
     @Ifdef("__CPP__") @Uninitialized public var result:T; //Only for CPP
 
     public def this(up:Frame, rd:Reducible[T]) {
@@ -23,8 +22,8 @@ abstract public class CollectingFinish[T] extends FinishFrame {
         @Ifdef("__CPP__") {this.result = rd.zero();}
         @Ifndef("__CPP__"){ //java path 
             val size = Runtime.NTHREADS;
-            this.resultRail = IndexedMemoryChunk.allocateUninitialized[T](size);
-            for(var i:int = 0; i < size; i++){
+            this.resultRail = Unsafe.allocRailUninitialized[T](size);
+            for(var i:int = 0n; i < size; i++){
                 resultRail(i) = reducer.zero();
             }
         }
@@ -36,8 +35,8 @@ abstract public class CollectingFinish[T] extends FinishFrame {
         //delay copy the result after fully remapped
         this.reducer = o.reducer;
         val size = Runtime.NTHREADS;
-        this.resultRail = IndexedMemoryChunk.allocateUninitialized[T](size);
-        for(var i:int = 0; i < size; i++){
+        this.resultRail = Unsafe.allocRailUninitialized[T](size);
+        for(var i:int = 0n; i < size; i++){
             resultRail(i) = reducer.zero();
         }
     }
@@ -47,11 +46,11 @@ abstract public class CollectingFinish[T] extends FinishFrame {
         if (null != redirect) return redirect;
         val tmp = remap();
         tmp.redirect = tmp;
-        if (null != stack) {
-            tmp.stack = new Stack[Exception]();
+        if (null != exceptions) {
+            tmp.exceptions = new GrowableRail[Exception]();
             Runtime.atomicMonitor.lock();
-            while (!stack.isEmpty()) tmp.stack.push(stack.pop());
-            stack = null;
+            while (!exceptions.isEmpty()) tmp.exceptions.add(exceptions.removeLast());
+            exceptions = null;
             Runtime.atomicMonitor.unlock();
         }
         atomic redirect = tmp; //use atomic to refresh
@@ -84,7 +83,7 @@ abstract public class CollectingFinish[T] extends FinishFrame {
         }
         @Ifndef("__CPP__"){
             val result = resultRail(worker.id);
-            resultRail.deallocate();
+            Unsafe.dealloc(resultRail);
             return result;
         }
     
@@ -94,19 +93,19 @@ abstract public class CollectingFinish[T] extends FinishFrame {
         //do merge
         @Ifdef("__CPP__"){
             val size = Runtime.NTHREADS;
-            for(var i:int = 0; i < size; i++){
+            for(var i:int = 0n; i < size; i++){
                 result = reducer(result, resultRail(i));
             }
-            resultRail.deallocate();
+            Unsafe.dealloc(resultRail);
             return result;
         }
         @Ifndef("__CPP__"){
             var result:T = resultRail(0);
             val size = Runtime.NTHREADS;
-            for(var i:int = 1; i < size; i++){
+            for(var i:int = 1n; i < size; i++){
                 result = reducer(result, resultRail(i));
             }
-            resultRail.deallocate();
+            Unsafe.dealloc(resultRail);
             return result;
         }
     }

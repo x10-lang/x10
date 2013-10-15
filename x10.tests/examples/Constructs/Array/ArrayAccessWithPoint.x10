@@ -10,6 +10,7 @@
  */
 
 import harness.x10Test;
+import x10.regionarray.*;
 
 /**
  * Simple array test.
@@ -22,16 +23,16 @@ public class ArrayAccessWithPoint extends x10Test {
 
     public def run(): boolean = {
 
-        val e = 1..10;
-        val ia = new Array[int](e, (Point)=>0); // will infer ia:Array[int](1)
-        val p = [1] as Point; // will infer p:Point(1).
+        val e = Region.make(1, 10);
+        val ia = new Array[int](e, (Point)=>0n); // will infer ia:Array[int](1)
+        val p = [1n as Int] as Point; // will infer p:Point(1).
 
         a(ia(p)); 
 
         return true;
     }
 
-    public static def main(Array[String](1)) = {
+    public static def main(Rail[String]) = {
         new ArrayAccessWithPoint().execute();
     }
 }

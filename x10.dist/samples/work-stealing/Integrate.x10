@@ -53,10 +53,10 @@ public class Integrate {
     return expr1 + expr2;
   }
  
-  public static def main(args:Array[String](1)) {
-    val xMax = args.size > 0 ? Int.parse(args(0)) : 10;
+  public static def main(args:Rail[String]) {
+    val xMax = args.size > 0 ? Long.parse(args(0)) : 10;
     var avgDur:Double = 0;
-    for (var i:Int = 0; i < 10; ++i) {
+    for (1..10) {
         val startTime = System.nanoTime();
         val area = computeArea(0, xMax);
         val duration = ((System.nanoTime() - startTime) as Double)/1e9;

@@ -1,0 +1,21 @@
+Notes on how to make an X10/X10DT Weekly Build
+
+Making a weekly build is a subset of the steps to make a full-blown release.
+   1. "Tag" the weekly build by using x10.dist/releng/makeTag.sh 
+      Use a "good" svn revision number that matches one reported by a 
+      night-sanity run. i.e.
+
+      makeTag -rev 12500 -tag WB_20130620 -code -x10dt
+
+   2. run masterBuildRelease.sh to build tarballs for the x10dt platforms 
+      and push them to orquesta.  You will need to run this script from a
+      machine where you have passwordless ssh working to all relevant machines.
+
+      masterBuildRelease.sh -version 2.4.0.WB_20130620 -tag WB_20130620 -x10dt_hosts
+
+   3. In the RTC build engine, edit the definitions for the X10DT and 
+      X10DT Editor Only Weekly Builds to use the tag/branch you created
+      in steps 1 and 2.
+
+   4. Request builds of X10DT/X10DT Editor Edition
+

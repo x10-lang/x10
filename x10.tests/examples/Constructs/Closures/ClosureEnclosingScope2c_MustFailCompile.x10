@@ -22,7 +22,7 @@ import x10.compiler.tests.*; // err markers
  * @author bdlucas 8/2008
  */
 
-public class ClosureEnclosingScope2c_MustFailCompile extends ClosureTest {
+public class ClosureEnclosingScope2c_MustFailCompile extends x10Test {
 
     val a = 1;
 
@@ -32,17 +32,17 @@ public class ClosureEnclosingScope2c_MustFailCompile extends ClosureTest {
 
         class C {
             def foo(): void {
-              var c:int = 1;
+              var c:long = 1;
               (()=>a+b+
                 @ERR c)
                 ();
             }
         }
 
-        return result;
+        return true;
     }
 
-    public static def main(var args: Array[String](1)): void = {
+    public static def main(var args: Rail[String]): void = {
         new ClosureEnclosingScope2c_MustFailCompile().execute();
     }
 }

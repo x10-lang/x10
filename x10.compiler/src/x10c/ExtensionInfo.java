@@ -125,9 +125,15 @@ public class ExtensionInfo extends x10.ExtensionInfo {
         protected Goal PostCompiled() {
             return new PostCompiled(extInfo) {
                 private static final long serialVersionUID = 1L;
+                @Override
                 protected boolean invokePostCompiler(Options options, Compiler compiler, ErrorQueue eq) {
                     if (System.getProperty("x10.postcompile", "TRUE").equals("FALSE"))
                         return true;
+                    
+                    // Ensure that there is no post compilation for ONLY_TYPE_CHECKING jobs
+                                      X10CompilerOptions opts = extensionInfo().getOptions();
+                                       if (opts.x10_config.ONLY_TYPE_CHECKING) return true;
+                                       
                     return X10Translator.postCompile((X10CompilerOptions)options, compiler, eq);
                 }
             }.intern(this);

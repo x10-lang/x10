@@ -45,17 +45,17 @@ public class UShortReturnType extends x10Test {
 	}
 
 	def bbb():Short {
-	    return aaa()-1;
+	    return aaa()-1s;
 	}
     }
 
     public def run() : Boolean {
 	if (new AUShort(1us).bbb() != 0us) return false;
-	if (new AShort(1).bbb() != 0s) return false;
+	if (new AShort(1s).bbb() != 0s) return false;
 	return true;
     }
 
-    public static def main(Array[String]) {
+    public static def main(Rail[String]) {
         new UShortReturnType().execute();
     }
 }

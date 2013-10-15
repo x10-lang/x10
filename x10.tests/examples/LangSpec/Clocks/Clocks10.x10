@@ -21,15 +21,16 @@ import harness.x10Test;
 
 public class Clocks10 extends x10Test {
    public def run() : boolean = (new Hook()).run();
-   public static def main(var args: Array[String](1)): void = {
+   public static def main(args:Rail[String]):void {
         new Clocks10().execute();
     }
 
 
-// file Clocks line 34
+// file Clocks line 36
  static class ClockEx {
-  static def say(s:String) =
-     { atomic{x10.io.Console.OUT.println(s);} }
+  static def say(s:String) {
+    Console.OUT.println(s);
+  }
   public static def main(argv:Rail[String]) {
     finish async{
       val cl = Clock.make();

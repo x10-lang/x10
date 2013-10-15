@@ -9,7 +9,6 @@
  *  (C) Copyright IBM Corporation 2006-2011.
  */
 
-import x10.io.Console;
 import x10.util.Timer;
 
 import x10.matrix.Matrix;
@@ -18,30 +17,23 @@ import x10.matrix.DenseMatrix;
 import x10.matrix.sparse.SparseCSC;
 import x10.matrix.sparse.SparseMultSparseToDense;
 
-
-/**
-   <p>
-
-   <p>
- */
 public class SparseMultBench {
-	public static def main(args:Array[String](1)) {
-		val M = args.size > 0 ?Int.parse(args(0)):1000;
-		val K = args.size > 1 ?Int.parse(args(1)):M;
-		val N = args.size > 2 ?Int.parse(args(2)):M;
+	public static def main(args:Rail[String]) {
+		val M = args.size > 0 ? Long.parse(args(0)):1000;
+		val K = args.size > 1 ? Long.parse(args(1)):M;
+		val N = args.size > 2 ? Long.parse(args(2)):M;
 		val nzD = args.size > 3 ?Double.parse(args(3)):0.1;
-		val iter = args.size > 4 ? Int.parse(args(4)):1;
+		val iter = args.size > 4 ? Long.parse(args(4)):1;
 		val tc = new RunSparseComp(M, K, N, nzD, iter);
 		tc.run();
 	}
 }
 
-class RunSparseComp{
-
-	public val iter:Int;
-	public val M:Int;
-	public val N:Int;
-	public val K:Int;
+class RunSparseComp {
+	public val iter:Long;
+	public val M:Long;
+	public val N:Long;
+	public val K:Long;
 	public val nzD:Double;
 	public val pCmp:Double;
 
@@ -50,7 +42,7 @@ class RunSparseComp{
 	val tB:SparseCSC(N, K);
 	val C:DenseMatrix(M, N);
 	
-	public def this(m:Int, k:Int, n:Int, nzd:Double, it:Int) {
+	public def this(m:Long, k:Long, n:Long, nzd:Double, it:Long) {
 		M = m; N = n; K=k; iter=it; nzD=nzd;
 		pCmp = nzd*nzd;
 		

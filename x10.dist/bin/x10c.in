@@ -7,10 +7,13 @@ rtdev=""
 java_args=""
 args=""
 optimize=""
+debug=""
 
 if [ "$CROSS_COMPILE_BGP" = "true" ]; then
     x10rt_impl="pgas_bgp"
 elif [ "$CROSS_COMPILE_BGQ" = "true" ]; then
+    x10rt_impl="pami"
+elif [ "$ENABLE_X10RT_PAMI" = "true" ]; then
     x10rt_impl="pami"
 else
     x10rt_impl="sockets"
@@ -28,12 +31,16 @@ while [ -n "$1" ]; do
         -v|-verbose|--verbose) verbose="1";;
         -t|-time) time="time ";;
         -classpath|-cp) shift; extra_cp="$1";;
-        -x10lib) shift; propfile="$(cd $(dirname "$1") && pwd)/$(basename "$1")"; args="$args -x10lib '$propfile'";;
+        -x10lib) shift; propfile="$(cd $(dirname "$1") && pwd)/$(basename "$1")"
+                 [[ "$UNAME" = CYGWIN* ]] && propfile="$(cygpath -am "$propfile")"
+                 args="$args -x10lib '$propfile'";;
         -profile) profile="-Xrunhprof:cpu=samples";;
         -config) shift; config="$1.cfg";;
         -extclass) shift; ext=$1;;
         -x10rt) shift; x10rt_impl=$1;;
         -O|-optimize) optimize="true";;
+        -g|-DEBUG) debug="true";;
+        -DEBUG=*) debug='${1##-DEBUG=}';;
         -rtdev) rtdev="true";;
         -J*) java_args="${java_args} '${1##-J}'";;
         --) parse=;;
@@ -49,7 +56,7 @@ where [options] includes:
     -sourcepath <path>       source path
     -classpath <path>        search path for class files
     -x10lib <lib.properties> use the precompiled x10 library described by <lib.properties>
-    -buildx10lib <dummy>     build an x10 library
+    -buildx10lib <dir>       generate property file in <dir>
     -config <conf>           read configuration <conf> from etc${FILE_SEP}<conf>.cfg
     -version                 print version info
     -x10rt <impl>            select x10rt impl (sockets, standalone, pami, mpi, bgas_bgp)
@@ -59,6 +66,7 @@ where [options] includes:
     -disable <pass>          disable compiler pass <pass>
                              valid passes are: async-elimination
     -O -optimize             generate optimized code
+    -g                       generate debug information
 
     Use "x10c -- -help" to get more detailed help on compiler options
 EOF
@@ -90,6 +98,9 @@ classpath="${classpath}${LIB_DIR}${FILE_SEP}x10c.jar${PATH_SEP}${LIB_DIR}${FILE_
 # Set flags to generate optimized code if we've been asked to do so.
 [ "$optimize" = "true" ] && args="-OPTIMIZE=true $args"
 
+# Set flags to generate debug information if we've been asked to do so.
+[ -n "$debug" ] && args="-DEBUG=$debug $args"
+
 # include libx10.properties as a x10lib unless rtdev
 [ -z "$rtdev" ] && args="-x10lib ${STDLIB_DIR}/libx10.properties $args"
 
@@ -98,7 +109,7 @@ export X10RT_IMPL=$x10rt_impl
 
 [ -z "$MAIN" ] && MAIN="polyglot.main.Main"
 
-command="\"$JAVA\" -Xmx1024m -Dfile.encoding=UTF-8 -Dx10.dist=\"$TOP\" -Dx10c.ecj.jar=\"$ECJ_JAR\" -Dx10c.math.jar=\"$MATH_JAR\" $config $profile -classpath \"$classpath\" ${java_args} $MAIN -extclass $ext $args"
+command="\"$JAVA\" -Xmx1024m -Dfile.encoding=UTF-8 -Dx10.dist=\"$TOP\" $config $profile -classpath \"$classpath\" ${java_args} $MAIN -extclass $ext $args"
 
 [ -n "$verbose" ] && echo "$command"
 

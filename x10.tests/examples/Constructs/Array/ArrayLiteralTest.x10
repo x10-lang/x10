@@ -10,6 +10,7 @@
  */
 
 import harness.x10Test;
+import x10.regionarray.*;
 
 /**
  * Array Literal test.
@@ -19,17 +20,16 @@ public class ArrayLiteralTest extends x10Test {
 
     public def run(): boolean = {
 
-        val e = 0..9;
-        val r = [1, 2, 3];
+        val r = [1n, 2n, 3n];
         val a = [1 as Int,2 as Int,3 as Int];
-        var sumr:int=0;
-        var suma:int=0;
-        for (i in a.values()) suma += i;
-        for (i in r.values()) sumr += i;
-        return suma==6 && sumr==6;
+        var sumr:int=0n;
+        var suma:int=0n;
+        for (i in a) suma += i;
+        for (i in r) sumr += i;
+        return suma==6n && sumr==6n;
     }
 
-    public static def main(Array[String](1)): void = {
+    public static def main(Rail[String]): void = {
         new ArrayLiteralTest().execute();
     }
 }

@@ -20,13 +20,13 @@ import x10.util.Box;
 public class PrimitiveToBoxPrimitive1_MustFailCompile extends x10Test {
 	 
 	public def run()=
-	    3 instanceof Box[int]; // ERR: Left operand of instanceof must be castable to right type.
+	    3n instanceof Box[int]; // ERR: Left operand of instanceof must be castable to right type.
     def test() {
-        val y = 3 instanceof Box[int]; // ERR: Left operand of instanceof must be castable to right type.
-        val x = 3 as Box[int]; // ERR: Box is no longer covariant
+        val y = 3n instanceof Box[int]; // ERR: Left operand of instanceof must be castable to right type.
+        val x = 3n as Box[int]; // ERR: Box is no longer covariant
     }
 	
-	public static def main(var args: Array[String](1)): void = {
+	public static def main(var args: Rail[String]): void = {
 		new PrimitiveToBoxPrimitive1_MustFailCompile().execute();
 	}
 }

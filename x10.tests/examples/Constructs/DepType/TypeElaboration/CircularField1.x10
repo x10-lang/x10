@@ -22,5 +22,5 @@
      public def this(i:int, j:int):CircularField1{self.i==i,self.j==j} {
 	    property(i,j);
      }
-     var f:CircularField{k==3} = null;
+     var f:CircularField{k==3n} = null;
  }

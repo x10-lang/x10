@@ -11,13 +11,13 @@
 
 package x10.runtime.impl.java;
 
-import java.io.ByteArrayInputStream;
-import java.io.DataInputStream;
 import java.lang.reflect.InvocationTargetException;
+import java.nio.ByteBuffer;
 import java.util.Map;
 
 import x10.io.Reader;
 import x10.io.Writer;
+import x10.lang.Place;
 import x10.lang.FinishState;
 import x10.rtt.RuntimeType;
 import x10.rtt.Type;
@@ -25,6 +25,7 @@ import x10.rtt.Types;
 import x10.serialization.X10JavaDeserializer;
 import x10.serialization.X10JavaSerializable;
 import x10.serialization.X10JavaSerializer;
+import x10.x10rt.SocketTransport;
 import x10.x10rt.X10RT;
 
 public abstract class Runtime implements x10.core.fun.VoidFun_0_0 {
@@ -56,6 +57,7 @@ public abstract class Runtime implements x10.core.fun.VoidFun_0_0 {
 
     /**
      * Body of main java thread
+     * (only called in non-library mode)
      */
     protected void start(final String[] args) {
         this.args = args;
@@ -68,7 +70,11 @@ public abstract class Runtime implements x10.core.fun.VoidFun_0_0 {
                 System.loadLibrary(libs[i]);
         }
 
-        X10RT.init();
+        boolean initialized = X10RT.init(); // TODO retry?
+        if (!initialized) {
+            System.err.println("Failed to initialize X10RT.");
+            throw new InternalError("Failed to initialize X10RT.");
+        }
 
         x10.lang.Runtime.get$staticMonitor();
         x10.lang.Runtime.get$STRICT_FINISH();
@@ -103,7 +109,7 @@ public abstract class Runtime implements x10.core.fun.VoidFun_0_0 {
     static class $Closure$Main implements x10.core.fun.VoidFun_0_0 {
         private static final long serialVersionUID = 1L;
         private final Runtime out$;
-        private final x10.array.Array<String> aargs;
+        private final x10.core.Rail<String> aargs;
 
         public void $apply() {
             // catch and rethrow checked exceptions (closures cannot throw
@@ -120,7 +126,7 @@ public abstract class Runtime implements x10.core.fun.VoidFun_0_0 {
             }
         }
 
-        $Closure$Main(Runtime out$, x10.array.Array<String> aargs) {
+        $Closure$Main(Runtime out$, x10.core.Rail<String> aargs) {
             this.out$ = out$;
             this.aargs = aargs;
         }
@@ -130,25 +136,23 @@ public abstract class Runtime implements x10.core.fun.VoidFun_0_0 {
         public Type<?> $getParam(int i) { return null; }
 
         public void $_serialize(X10JavaSerializer $serializer) throws java.io.IOException {
-            throw new java.lang.UnsupportedOperationException("Serialization not supported for " + getClass());
+            throw new x10.io.NotSerializableException("Serialization not supported for " + getClass());
         }
 
         public short $_get_serialization_id() {
-            throw new java.lang.UnsupportedOperationException("Serialization not supported for " + getClass());
+            throw new x10.io.NotSerializableException("Serialization not supported for " + getClass());
         }
     }
 
     public void $apply() {
         // x10rt-level registration of MessageHandlers
-        if (X10RT.numPlaces() > 1) {
-            x10.x10rt.MessageHandlers.registerHandlers();
-        }
+        X10RT.registerHandlers();
 
-        // build up Array[String] for args
-        final x10.array.Array<String> aargs = new x10.array.Array<String>((java.lang.System[]) null, Types.STRING).x10$array$Array$$init$S((args == null)?0:args.length);
+        // build up Rail[String] for args
+        final x10.core.Rail<String> aargs = new x10.core.Rail<String>(Types.STRING, (args == null) ? 0 : args.length);
         if (args != null) {
 	        for (int i = 0; i < args.length; i++) {
-	            aargs.$set__1x10$array$Array$$T$G(i, args[i]);
+	            aargs.$set__1x10$lang$Rail$$T$G(i, args[i]);
 	        }
         }
 
@@ -170,7 +174,7 @@ public abstract class Runtime implements x10.core.fun.VoidFun_0_0 {
      * User code provided by Main template - start xrx runtime - run main
      * activity
      */
-    public abstract void runtimeCallback(x10.array.Array<java.lang.String> args) throws java.lang.Throwable;
+    public abstract void runtimeCallback(x10.core.Rail<java.lang.String> args) throws java.lang.Throwable;
 
     /**
      * Application exit code
@@ -235,12 +239,42 @@ public abstract class Runtime implements x10.core.fun.VoidFun_0_0 {
     }
 
     public static void runAsyncAt(int place, x10.core.fun.VoidFun_0_0 body, FinishState finishState, x10.lang.Runtime.Profile prof) {
+		// TODO: bherta - all of this serialization needs to be reworked to write directly to the network (when possible), 
+		// skipping the intermediate buffers contained within the X10JavaSerializer class.
         try {
-            byte[] bytes = serialize(body, finishState, prof);
-			long start = prof!=null ? System.nanoTime() : 0;
-            x10.x10rt.MessageHandlers.runSimpleAsyncAtSend(place, bytes.length, bytes);
+            if (TRACE_SER_DETAIL) {
+            	System.out.println("Starting serialization for runAsyncAt  " + body.getClass());
+            }
+            long start = prof!=null ? System.nanoTime() : 0;
+            X10JavaSerializer serializer = new X10JavaSerializer();
+         
+            serializer.write(finishState);
+            serializer.write(Place.place(X10RT.here()));
+            long before_bytes = serializer.dataBytesWritten();
+            serializer.write(body);
+            long ser_bytes = serializer.dataBytesWritten() - before_bytes;
+            
+            if (prof != null) {
+            	long stop = System.nanoTime();
+            	long duration = stop-start;
+                prof.bytes += ser_bytes;
+                prof.serializationNanos += duration;
+            }
+            if (TRACE_SER_DETAIL) {
+            	System.out.println("Done with serialization for runAsyncAt " + body.getClass());
+            }
+            start = prof!=null ? System.nanoTime() : 0;
+            // TODO: these methods return an error code if the communication fails.  Use it.
+            if (X10RT.javaSockets != null) {
+                X10RT.javaSockets.sendMessage(place, SocketTransport.CALLBACKID.simpleAsyncMessageID.ordinal(), new ByteBuffer[]{ByteBuffer.wrap(serializer.getDataBytes())});
+            } else {
+                x10.x10rt.MessageHandlers.runSimpleAsyncAtSend(place, serializer.getDataBytes());
+            }
             if (prof!=null) {
                 prof.communicationNanos += System.nanoTime() - start;
+            }
+            if (TRACE_SER_DETAIL) {
+                System.out.println("Message sent for runAsyncAt " + body.getClass());
             }
         } catch (java.io.IOException e) {
             java.lang.RuntimeException xe = x10.runtime.impl.java.ThrowableUtils.ensureX10Exception(e);
@@ -274,17 +308,25 @@ public abstract class Runtime implements x10.core.fun.VoidFun_0_0 {
     			System.out.println("Starting deepCopy of " + body.getClass());
     		}
     		long start = prof!=null ? System.nanoTime() : 0;
+            
+            X10JavaSerializer serializer = new X10JavaSerializer();
+            if (body instanceof X10JavaSerializable) {
+            	serializer.write((X10JavaSerializable) body);
+            } else {
+            	serializer.write(body);
+            }
+            if (TRACE_SER_DETAIL) {
+            	System.out.println("Done with serialization for deepCopy " + body.getClass());
+            }
 
-    		byte[] ba = serialize(body, null);
-    		DataInputStream ois = new DataInputStream(new ByteArrayInputStream(ba));
-    		X10JavaDeserializer deserializer = new X10JavaDeserializer(ois);
+    		X10JavaDeserializer deserializer = new X10JavaDeserializer(serializer);
     		body = (T) deserializer.readRef();
 
     		if (prof!=null) {
     			long stop = System.nanoTime();
     			long duration = stop-start;
-                prof.bytes += ba.length;
                 prof.serializationNanos += duration;
+                prof.bytes += serializer.dataBytesWritten();
     		}
     		if (TRACE_SER_DETAIL) {
     			System.out.println("Done with deserialization for deepCopy of " + body.getClass());
@@ -297,32 +339,7 @@ public abstract class Runtime implements x10.core.fun.VoidFun_0_0 {
     	}
     }
 
-    public static <T> byte[] serialize(T body, x10.lang.Runtime.Profile prof) throws java.io.IOException {
-    	if (TRACE_SER_DETAIL) {
-    		System.out.println("Starting serialization for runAtAll  " + body.getClass());
-    	}
-    	long start = prof!=null ? System.nanoTime() : 0;
-
-    	X10JavaSerializer serializer = new X10JavaSerializer();
-    	if (body instanceof X10JavaSerializable) {
-    		serializer.write((X10JavaSerializable) body);
-    	} else {
-    		serializer.write(body);
-    	}
-    	byte[] ba = serializer.toMessage();
-    	if (prof != null) {
-    		long stop = System.nanoTime();
-    		long duration = stop-start;
-            prof.bytes += ba.length;
-            prof.serializationNanos += duration;
-    	}
-    	if (TRACE_SER_DETAIL) {
-    		System.out.println("Done with serialization for runAtAll " + body.getClass());
-    	}
-    	return ba;
-    }
-
-	private static Class<? extends Object> hadoopWritableClass = getHadoopClass();
+    private static Class<? extends Object> hadoopWritableClass = getHadoopClass();
 	private static Class<? extends Object> getHadoopClass() {
 		try {
 			return Class.forName("org.apache.hadoop.io.Writable");
@@ -338,82 +355,46 @@ public abstract class Runtime implements x10.core.fun.VoidFun_0_0 {
 		return hadoopWritableClass.isAssignableFrom(clazz);
 	}
 	
-	private static byte[] serialize(x10.core.fun.VoidFun_0_0 body, FinishState finishState, x10.lang.Runtime.Profile prof) throws java.io.IOException {
-		if (TRACE_SER_DETAIL) {
-			System.out.println("Starting serialization for runAtAll  " + body.getClass());
-		}
-		long start = prof!=null ? System.nanoTime() : 0;
-		X10JavaSerializer serializer = new X10JavaSerializer();
-		serializer.write(finishState);
-        long before_bytes = serializer.numBytesWritten();
-        serializer.write(body);
-        long ser_bytes = serializer.numBytesWritten() - before_bytes;
-
-		byte[] ba = serializer.toMessage();
-		if (prof != null) {
-			long stop = System.nanoTime();
-			long duration = stop-start;
-            prof.bytes += ser_bytes;
-            prof.serializationNanos += duration;
-		}
-		if (TRACE_SER_DETAIL) {
-			System.out.println("Done with serialization for runAtAll " + body.getClass());
-		}
-		return ba;
-	}
-    
 	public static void runAt(int place, x10.core.fun.VoidFun_0_0 body, x10.lang.Runtime.Profile prof) {
 		try {
+			// TODO: bherta - all of this serialization needs to be reworked to write directly to the network (when possible), 
+			// skipping the intermediate buffers contained within the X10JavaSerializer class.
 			if (TRACE_SER_DETAIL) {
-				System.out.println("Starting serialization for runAtAll  " + body.getClass());
+				System.out.println("Starting serialization for runAt  " + body.getClass());
 			}
 			long start = prof!=null ? System.nanoTime() : 0;
 			X10JavaSerializer serializer = new X10JavaSerializer();
 			serializer.write(body);
-			byte[] msgBody = serializer.toMessage();
 			if (prof!=null) {
 				long stop = System.nanoTime();
 				long duration = stop-start;
-                prof.bytes += msgBody.length;
+                prof.bytes += serializer.dataBytesWritten();
                 prof.serializationNanos += duration;
 			}
 			if (TRACE_SER_DETAIL) {
-				System.out.println("Done with serialization for runAtAll " + body.getClass());
+				System.out.println("Done with serialization for runAt " + body.getClass());
 			}
 
-			int msgLen = msgBody.length;
-			if (X10RT.VERBOSE) System.out.println("@MultiVM: sendJavaRemote");
-			if (prof!=null) {
-                start = System.nanoTime();
-            }
-			x10.x10rt.MessageHandlers.runClosureAtSend(place, msgLen, msgBody);
+			start = prof!=null ? System.nanoTime() : 0;
+			if (X10RT.javaSockets != null) {
+			    X10RT.javaSockets.sendMessage(place, SocketTransport.CALLBACKID.closureMessageID.ordinal(), new ByteBuffer[]{ByteBuffer.wrap(serializer.getDataBytes())});
+			} else {
+			    x10.x10rt.MessageHandlers.runClosureAtSend(place, serializer.getDataBytes());
+			}
 			if (prof!=null) {
                 prof.communicationNanos += System.nanoTime() - start;
+            }
+            if (TRACE_SER_DETAIL) {
+                System.out.println("Message sent for runAt " + body.getClass());
             }
 		} catch (java.io.IOException e) {
 			e.printStackTrace();
 			throw new x10.lang.WrappedThrowable(e);
-		} finally {
-			if (X10RT.VERBOSE) System.out.println("@MultiVM: finally section");
 		}
 	}
 
-    // Special version of runAt for broadcast type communication
-    // (Serialize once, run everywhere)
-
-    public static void runAtAll(boolean includeHere, byte[] msg) {
-        int hereId = X10RT.here();
-        for (int place = hereId + 1; place < Runtime.MAX_PLACES; ++place) {
-            x10.x10rt.MessageHandlers.runClosureAtSend(place, msg.length, msg);
-        }
-        int endPlace = includeHere ? hereId : hereId - 1;
-        for (int place = 0; place <= endPlace; ++place) {
-            x10.x10rt.MessageHandlers.runClosureAtSend(place, msg.length, msg);
-        }
-    }
-
     /**
-     * @MultiVM: Return true if place(id) is local to this node
+     * Return true if place(id) is local to this node
      */
     public static boolean local(int id) {
         int hereId = X10RT.here();
@@ -421,17 +402,17 @@ public abstract class Runtime implements x10.core.fun.VoidFun_0_0 {
     }
 
     /**
-     * @MultiVM: mapped to Runtime.x10 -> event_probe(): void
+     * mapped to Runtime.x10 -> event_probe(): void
      */
-    public static void eventProbe() {
-        X10RT.probe();
+    public static int eventProbe() {
+        return X10RT.probe();
     }
 
     /**
-     * @MultiVM: mapped to Runtime.x10 -> blocking_probe(): void
+     * mapped to Runtime.x10 -> blocking_probe(): void
      */
-    public static void blockingProbe() {
-        X10RT.blockingProbe();
+    public static int blockingProbe() {
+        return X10RT.blockingProbe();
     }
 
     /**
@@ -507,11 +488,11 @@ public abstract class Runtime implements x10.core.fun.VoidFun_0_0 {
     }
 
     public short $_get_serialization_id() {
-		throw new java.lang.UnsupportedOperationException("Cannot serialize " + getClass());
+		throw new x10.io.NotSerializableException("Cannot serialize " + getClass());
 	}
 
     public void $_serialize(X10JavaSerializer $serializer) throws java.io.IOException {
-        throw new java.lang.UnsupportedOperationException("Cannot serialize " + getClass());
+        throw new x10.io.NotSerializableException("Cannot serialize " + getClass());
 	}
 
     
@@ -526,5 +507,11 @@ public abstract class Runtime implements x10.core.fun.VoidFun_0_0 {
      * The default value is 10ms.
      */
     public static final long PROF_SER_FILTER = 1000 * 1000 * Long.getLong("x10.PROF_SER_FILTER", 10);
+
+
+    /**
+     * Enable OSGI framework support.
+     */
+    public static final boolean OSGI = Boolean.getBoolean("X10_OSGI");
 
 }

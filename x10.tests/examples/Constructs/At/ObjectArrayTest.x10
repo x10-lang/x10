@@ -12,7 +12,7 @@
 import harness.x10Test;
 
 /**
- * Unit test for serialization of Arrays of classes
+ * Unit test for serialization of Rails of classes
  * with a mix of unique and repeated objects.
  * 
  * Testing at both unique class (Blat) and at String/Empty 
@@ -31,12 +31,12 @@ public class ObjectArrayTest  extends x10Test {
 
   public def run() {
     val ub = new Blat();
-    val a1 = new Array[Blat](n, (i:int)=>(i%2 == 0) ? ub : new Blat());
-    val a2 = new Array[Blat](n, ub);
+    val a1 = new Rail[Blat](n, (i:long)=>(i%2 == 0L) ? ub : new Blat());
+    val a2 = new Rail[Blat](n, ub);
 
     var start:long = System.nanoTime();
     at (here.next()) {
-        for (var i:int = 0; i<n-2; i += 2) {
+        for (var i:long = 0; i<n-2; i += 2) {
           chk(a1(i) == a1(i+2));
           chk(a1(i) != a1(i+1));
         }
@@ -46,7 +46,7 @@ public class ObjectArrayTest  extends x10Test {
 
     start = System.nanoTime();
     at (here.next()) {
-        for (var i:int = 0; i<n-2; i += 2) {
+        for (var i:long = 0; i<n-2; i += 2) {
           chk(a2(i) == a2(i+2));
           chk(a2(i) == a2(i+1));
         }
@@ -56,12 +56,12 @@ public class ObjectArrayTest  extends x10Test {
 
 
     val uo = new Empty();
-    val a3 = new Array[Empty](n, (i:int)=>(i%2 == 0) ? uo : new Empty());
-    val a4 = new Array[Empty](n, uo);
+    val a3 = new Rail[Empty](n, (i:long)=>(i%2 == 0L) ? uo : new Empty());
+    val a4 = new Rail[Empty](n, uo);
 
     start = System.nanoTime();
     at (here.next()) {
-        for (var i:int = 0; i<n-2; i += 2) {
+        for (var i:long = 0; i<n-2; i += 2) {
           chk(a3(i) == a3(i+2));
           chk(a3(i) != a3(i+1));
         }
@@ -71,7 +71,7 @@ public class ObjectArrayTest  extends x10Test {
 
     start = System.nanoTime();
     at (here.next()) {
-        for (var i:int = 0; i<n-2; i += 2) {
+        for (var i:long = 0; i<n-2; i += 2) {
           chk(a4(i) == a4(i+2));
           chk(a4(i) == a4(i+1));
         }
@@ -81,12 +81,12 @@ public class ObjectArrayTest  extends x10Test {
 
 
     val us = "hello";
-    val a5 = new Array[String](n, (i:int)=>(i%2 == 0) ? us : i.toString());
-    val a6 = new Array[String](n, us);
+    val a5 = new Rail[String](n, (i:long)=>(i%2 == 0L) ? us : i.toString());
+    val a6 = new Rail[String](n, us);
 
     start = System.nanoTime();
     at (here.next()) {
-        for (var i:int = 0; i<n-2; i += 2) {
+        for (var i:long = 0; i<n-2; i += 2) {
           chk(a5(i) == a5(i+2));
           chk(a5(i) != a5(i+1));
         }
@@ -96,7 +96,7 @@ public class ObjectArrayTest  extends x10Test {
 
     start = System.nanoTime();
     at (here.next()) {
-        for (var i:int = 0; i<n-2; i += 2) {
+        for (var i:long = 0; i<n-2; i += 2) {
           chk(a6(i) == a6(i+2));
           chk(a6(i) == a6(i+1));
         }
@@ -107,12 +107,12 @@ public class ObjectArrayTest  extends x10Test {
     return true;
   }
 
-  public static def main(args:Array[String](1)) {
+  public static def main(args:Rail[String]) {
     val n:int;
     if (args.size > 0) {
         n = Int.parseInt(args(0));
     } else {
-        n = 100;
+        n = 100n;
     }
     new ObjectArrayTest(n).execute();
   }

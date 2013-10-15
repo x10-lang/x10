@@ -21,16 +21,16 @@ import harness.x10Test;
 
 public class Types210 extends x10Test {
    public def run() : boolean = (new Hook()).run();
-   public static def main(var args: Array[String](1)): void = {
+   public static def main(args:Rail[String]):void {
         new Types210().execute();
     }
 
 
-// file Types line 589
+// file Types line 756
  static class NonGeneric {
   static def first[T](x:List[T]):T = x(0);
-  def m(z:List[Int]) {
-    val f = first[Int](z);
+  def m(z:List[Long]) {
+    val f = first[Long](z);
     val g = first(z);
     return f == g;
   }

@@ -169,7 +169,9 @@ ALL_XRCPP_OBJECTS = \
 	x10/lang/Int.o \
 	x10/lang/Float.o \
 	x10/lang/Long.o \
+	x10/lang/Rail.o \
 	x10/lang/Reference.o \
+	x10/lang/RemoteOps.o \
 	x10/lang/RuntimeNatives.o \
 	x10/lang/Short.o \
 	x10/lang/String.o \
@@ -182,10 +184,7 @@ ALL_XRCPP_OBJECTS = \
 	x10/lang/ULong.o \
 	x10/lang/UShort.o \
 	x10/lang/X10Class.o \
-	x10/util/IndexedMemoryChunk.o \
 	x10/util/Ordered.o \
-	x10/util/RemoteIndexedMemoryChunk.o \
-	x10/util/Vec.o \
 	x10/util/concurrent/AtomicBooleanNatives.o \
 	x10/util/concurrent/AtomicIntegerNatives.o \
 	x10/util/concurrent/AtomicLongNatives.o \

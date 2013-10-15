@@ -18,7 +18,7 @@ import harness.x10Test;
 public class ConInstance1Arg extends x10Test {
 	class A(i:Int) {}
 	
-	def m(A{self.i==2}) {
+	def m(A{self.i==2n}) {
 	}
 	def n(i:Int) {
 		val a = new A(i);
@@ -28,14 +28,14 @@ public class ConInstance1Arg extends x10Test {
 	
 	public def run(): boolean {
 		try {
-			n(3);
+			n(3n);
 			return false;
 		} catch (ClassCastException) {
 			return true;
 		}
 	}
 
-	public static def main(Array[String](1)) {
+	public static def main(Rail[String]) {
 		new ConInstance1Arg().execute();
 	}
 

@@ -10,6 +10,7 @@
  */
 
 import harness.x10Test;
+import x10.regionarray.*;
 
 /**
  * Ensures double arrays are implemented. Tests literal occurring in RHS of an ==, with array
@@ -18,14 +19,14 @@ import harness.x10Test;
 public class Array3DoubleSwapped extends x10Test {
 
     public def run(): boolean = {
-        val r  = (1..10)*(1..10);
+        val r  = Region.make(1..10, 1..10);
         val ia = new Array[Double](r, (x:Point)=>0.0D);
         ia(1, 1) = 42.0D;
         x10.io.Console.OUT.println("ia(1,1)=" + ia(1,1));
         return ia(1,1) == 42.0D;
     }
 
-    public static def main(Array[String](1)) = {
+    public static def main(Rail[String]) = {
         new Array3DoubleSwapped().execute();
     }
 }

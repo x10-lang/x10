@@ -10,29 +10,30 @@
  */
 
 import harness.x10Test;
+import x10.regionarray.*;
 
 /**
  * Simple tests for copyTo/copyFrom functionality
  */
 public class ArrayCopyTo extends x10Test {
-    static R1 = 20..100;
-    static R2:Region(2) = (0..9)*(0..9);
+    static R1 = Region.make(20,100);
+    static R2:Region(2) = Region.make(0..9, 0..9);
 
     public def run() {
-       val localA = new Array[int](R1,(p:Point)=>p(0));
-       val localB = new Array[int](R2,(p:Point(2))=>10*p(1)+p(0));
-       val remoteA = at (here.next()) new RemoteArray[int](new Array[int](R1));
-       val remoteB = at (here.next()) new RemoteArray[int](new Array[int](R2));
-       val finalA = new Array[int](R1);
-       val finalB = new Array[int](R2);
+       val localA = new Array[long](R1,(p:Point)=>p(0));
+       val localB = new Array[long](R2,(p:Point(2))=>10*p(1)+p(0));
+       val remoteA = at (here.next()) new RemoteArray[long](new Array[long](R1));
+       val remoteB = at (here.next()) new RemoteArray[long](new Array[long](R2));
+       val finalA = new Array[long](R1);
+       val finalB = new Array[long](R2);
        var fail:boolean = false;
        
        finish {
-         Array.asyncCopy(localA, 0, remoteA, 0, 81);
+         Array.asyncCopy(localA, 0L, remoteA, 0L, 81L);
          Array.asyncCopy(localB, remoteB);
        }
        finish {
-         Array.asyncCopy(remoteA, 0, finalA, 0, 81);
+         Array.asyncCopy(remoteA, 0L, finalA, 0L, 81L);
          Array.asyncCopy(remoteB, finalB);
        }
         
@@ -53,7 +54,7 @@ public class ArrayCopyTo extends x10Test {
        return !fail;    
     }
 
-    public static def main(var args: Array[String](1)) {
+    public static def main(var args: Rail[String]) {
         new ArrayCopyTo().execute();
     }
 

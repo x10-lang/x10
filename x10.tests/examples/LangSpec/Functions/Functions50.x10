@@ -21,12 +21,12 @@ import harness.x10Test;
 
 public class Functions50 extends x10Test {
    public def run() : boolean = (new Hook()).run();
-   public static def main(var args: Array[String](1)): void = {
+   public static def main(args:Rail[String]):void {
         new Functions50().execute();
     }
 
 
-// file Functions line 311
+// file Functions line 312
  static  class Finder {
  static
 def find[T](f: (T) => Boolean, xs: List[T], no:T): T = {

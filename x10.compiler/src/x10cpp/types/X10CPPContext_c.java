@@ -127,6 +127,11 @@ public class X10CPPContext_c extends Context {
     public boolean isInsideClosure() { return insideClosure; }
     public void setInsideClosure(boolean b) { insideClosure = b; }
 
+    // used externally, deep
+    protected boolean insideTemplateClosure;
+    public boolean isInsideTemplateClosure() { return insideTemplateClosure; }
+    public void setInsideTemplateClosure(boolean b) { insideTemplateClosure = b; }
+
     // used internally, shallow
     public boolean stackAllocateClosure = false;
     public void setStackAllocateClosure(boolean val) { stackAllocateClosure = val; }
@@ -189,12 +194,8 @@ public class X10CPPContext_c extends Context {
             cd = supertypeDeclarationType();
         X10MethodDef md = currentCode() instanceof X10MethodDef ? (X10MethodDef) currentCode() : null;
         boolean genericClass = cd.typeParameters().size() != 0;
-        boolean staticMethod = md != null && md.flags().isStatic();
         boolean genericMethod = md != null && md.typeParameters().size() != 0;
-        //[DC] FIXME: what if we've in a static initialiser of a generic class
-        //should return false, but does return true?
-        //[IP] The above should also check for an initializer
-        return (!staticMethod && genericClass) || genericMethod;
+        return (!inStaticContext() && genericClass) || genericMethod;
     }
 
     public X10MethodDef currentMethod() {

@@ -20,7 +20,7 @@ import harness.x10Test;
  */
 public class At_MustFailCompile extends x10Test {
     private val root = GlobalRef[At_MustFailCompile](this);
-    var x:Int = 0;
+    var x:Int = 0n;
     def globalRefCanBeUsedOnlyWithObjects(
         GlobalRef[Int] // ERR
     ) {}
@@ -33,7 +33,7 @@ public class At_MustFailCompile extends x10Test {
 
     public def run()=true;
 
-    public static def main(Array[String](1)) {
+    public static def main(Rail[String]) {
         new At_MustFailCompile().execute();
     }
 }

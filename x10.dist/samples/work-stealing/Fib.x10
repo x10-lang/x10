@@ -14,9 +14,9 @@
  */
 
 class Fib {
-    static def fib(n:Int):Int {
-        val t1:Int;
-        val t2:Int;
+    static def fib(n:Long):Long {
+        val t1:Long;
+        val t2:Long;
         if (n < 2) return 1;
         finish {
             async t1 = fib(n-1);
@@ -25,10 +25,10 @@ class Fib {
         return t1 + t2;
     }
 
-    public static def main(args:Array[String](1)) {
-        val n = args.size > 0 ? Int.parse(args(0)) : 10;
+    public static def main(args:Rail[String]) {
+        val n = args.size > 0 ? Long.parse(args(0)) : 10;
         var avgDur:Double = 0;
-        for (var i:Int = 0; i < 10; ++i) {
+        for (1..10) {
             val startTime = System.nanoTime();
             val r = fib(n);
             val duration = ((System.nanoTime() - startTime) as Double)/1e9;

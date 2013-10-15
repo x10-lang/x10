@@ -32,7 +32,7 @@ MAKE=make
 bench_dirs	=placehandle distarray distmatrix
 test_list 	=probsizes nodes  
 
-suite_dirs	= $(foreach bt, $(bench_dirs), $(bt)/test_suite )
+suite_dirs	= $(foreach bt, $(bench_dirs), $(bt) )
 
 ## default settings
 testcase=placehandle
@@ -57,7 +57,7 @@ bench_all	: $(suite_dirs)
 $(suite_dirs)	:
 		@echo "====================================================================================================="
 		@echo "================================== run benchmark test suite in $@  ====================================="
-		$(MAKE) -C $@ bench_all
+		$(MAKE) -C $@ runall
 
 #--------------
 

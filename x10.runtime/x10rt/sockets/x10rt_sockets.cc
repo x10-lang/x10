@@ -26,6 +26,7 @@
 
 #include <stdlib.h>
 #include <stdio.h>
+#include <signal.h> // SIGPIPE
 #include <string.h>
 #include <unistd.h> // for close() and sleep()
 #include <errno.h> // for the strerror function
@@ -51,6 +52,7 @@ typedef void *(*finderCallback)(const x10rt_msg_params *, x10rt_copy_sz);
 typedef void (*notifierCallback)(const x10rt_msg_params *, x10rt_copy_sz);
 
 enum MSGTYPE {STANDARD, PUT, GET, GET_COMPLETED};
+enum STATUS {UNKNOWN, PREINITIALIZED, RUNNING_LIBRARY, RUNNING, SHUTDOWN};
 #define COPY_PUT_GET_BUFFER false // if the network is full, and a message needs to be sent in chunks, should the put/get buffer arg be copied, or reused?
 //#define DEBUG 1
 //#define DEBUG_MESSAGING 1
@@ -82,15 +84,17 @@ struct x10SocketState
 	bool linkAtStartup; // this flag tells us that we should establish all our connections at startup, not on-demand.  It gets flipped after all links are up.
 	pthread_mutex_t readLock; // a lock to prevent overlapping reads on each socket
 	uint32_t nextSocketToCheck; // this is used in the socket read loop so that we don't give preference to the low-numbered places
-	struct pollfd* socketLinks; // the file descriptors for each socket to other places
+	struct pollfd* socketLinks; // the file descriptors for each socket to other places.  FD=-1 means not yet connected, FD=-2 means connection lost
 	pthread_mutex_t* writeLocks; // a lock to prevent overlapping writes on each socket
 	// special case for index=myPlaceId on the above three.  The socket link is the local listen socket,
 	// the read lock is used for listen socket handling and write lock for launcher communication
 	bool useNonblockingLinks; // flag to enable/disable buffered writes.  True by default
 	struct x10SocketDataToWrite* pendingWrites;
 	pthread_mutex_t pendingWriteLock;
-	bool runAsLibrary; // main() is not X10... operate with an external launcher, act as a library, don't call system exit, etc.
-} state;
+	STATUS state;
+    x10rt_error errorCode;
+    char *errorMsg;
+} context;
 
 bool probe (bool onlyProcessAccept, bool block);
 
@@ -98,14 +102,35 @@ bool probe (bool onlyProcessAccept, bool block);
  *  utility methods
 *********************************************/
 
-void error(const char* message)
+#define ESCAPE_IF_ERR if (context.errorCode != X10RT_ERR_OK) return; else { }
+#define CHECK_ERR_AND_RETURN if (context.errorCode != X10RT_ERR_OK) return context.errorCode; else { }
+
+static x10rt_error fatal (const char *format, ...)
+{
+    if (context.errorCode == X10RT_ERR_OK)
+    	context.errorCode = X10RT_ERR_INTL;
+
+    va_list va_args;
+    va_start(va_args, format);
+
+    //int sz = vsnprintf(NULL, 0, format, va_args);
+    //free(context.errorMsg);
+    //context.errorMsg = (char*)malloc(sz);
+    context.errorMsg = (char*)malloc(1200);
+    vsprintf(context.errorMsg, format, va_args);
+
+    va_end(va_args);
+
+    //fprintf(stderr, "%s\n", context.errorMsg);
+    return context.errorCode;
+}
+
+x10rt_error fatal_error(const char* message)
 {
 	if (errno)
-		fprintf(stderr, "Fatal Error at place %u: %s: %s\n", state.myPlaceId, message, strerror(errno));
+		return fatal("(at place %u): %s: %s\n", context.myPlaceId, message, strerror(errno));
 	else
-		fprintf(stderr, "Fatal Error at place %u: %s\n", state.myPlaceId, message);
-	fflush(stderr);
-	if (!state.runAsLibrary) abort();
+		return fatal("(at place %u): %s\n", context.myPlaceId, message);
 }
 
 /*
@@ -131,7 +156,8 @@ int getPortEnv(unsigned int whichPlace)
 			for (unsigned int i=1; i<=whichPlace; i++)
 			{
 				if (end == NULL) {
-					error("Not enough ports defined in "X10_FORCEPORTS);
+					context.errorCode = X10RT_ERR_OTHER;
+					fatal_error("Not enough ports defined in "X10_FORCEPORTS);
 					return -1;
 				}
 				start = end+1;
@@ -148,7 +174,7 @@ int getPortEnv(unsigned int whichPlace)
 			}
 		}
 		#ifdef DEBUG
-		if (whichPlace == state.myPlaceId)
+		if (whichPlace == context.myPlaceId)
 			fprintf(stderr, "Place %u forced to port %i\n", whichPlace, lp);
 		#endif
 	}
@@ -160,62 +186,67 @@ int getPortEnv(unsigned int whichPlace)
  */
 bool flushPendingData()
 {
-	if (state.pendingWrites == NULL)
+	if (context.pendingWrites == NULL)
 		return false;
 
 	bool ableToFlush = true;
 	bool dataRemains = false;
 
-	pthread_mutex_lock(&state.pendingWriteLock);
-	while (state.pendingWrites != NULL && ableToFlush)
+	pthread_mutex_lock(&context.pendingWriteLock);
+	while (context.pendingWrites != NULL && ableToFlush)
 	{
-		if (pthread_mutex_trylock(&state.writeLocks[state.pendingWrites->place]) == 0)
+		if (pthread_mutex_trylock(&context.writeLocks[context.pendingWrites->place]) == 0)
 		{
-			char * src = (char *) state.pendingWrites->data + (state.pendingWrites->size - state.pendingWrites->remainingToWrite);
-			while (state.pendingWrites->remainingToWrite > 0)
+			char * src = (char *) context.pendingWrites->data + (context.pendingWrites->size - context.pendingWrites->remainingToWrite);
+			while (context.pendingWrites->remainingToWrite > 0)
 			{
-				int rc = ::write(state.socketLinks[state.pendingWrites->place].fd, src, state.pendingWrites->remainingToWrite);
+				int rc = ::write(context.socketLinks[context.pendingWrites->place].fd, src, context.pendingWrites->remainingToWrite);
 				if (rc == -1)
 				{
 					if (errno == EINTR) continue;
 					if (errno == EAGAIN) break;
-					fprintf(stderr, "flush errno=%i", errno);
-					error("Unable to flush data");
+					context.socketLinks[context.pendingWrites->place].fd = -2;
+					pthread_mutex_unlock(&context.writeLocks[context.pendingWrites->place]);
+					pthread_mutex_destroy(&context.writeLocks[context.pendingWrites->place]);
+					fatal_error("Unable to flush data"); // TODO: remove this fatal error and return a proper return code
 					return false;
 				}
 				if (rc == 0) {
-					error("Unable to flush data - socket closed");
+					context.socketLinks[context.pendingWrites->place].fd = -2;
+					pthread_mutex_unlock(&context.writeLocks[context.pendingWrites->place]);
+					pthread_mutex_destroy(&context.writeLocks[context.pendingWrites->place]);
+					fatal_error("Unable to flush data - socket closed"); // TODO: remove this fatal error and return a proper return code
 					return false;
 				}
 				src += rc;
-				state.pendingWrites->remainingToWrite -= rc;
+				context.pendingWrites->remainingToWrite -= rc;
 			}
-			pthread_mutex_unlock(&state.writeLocks[state.pendingWrites->place]);
+			pthread_mutex_unlock(&context.writeLocks[context.pendingWrites->place]);
 
 			#ifdef DEBUG
-				if (state.pendingWrites->size - state.pendingWrites->remainingToWrite > 0)
-					fprintf(stderr, "Place %u flushed %u bytes of old data\n", state.myPlaceId, state.pendingWrites->size - state.pendingWrites->remainingToWrite);
+				if (context.pendingWrites->size - context.pendingWrites->remainingToWrite > 0)
+					fprintf(stderr, "Place %u flushed %u bytes of old data\n", context.myPlaceId, context.pendingWrites->size - context.pendingWrites->remainingToWrite);
 			#endif
 
-			if (state.pendingWrites->remainingToWrite > 0)
+			if (context.pendingWrites->remainingToWrite > 0)
 				ableToFlush = false;
 			else
 			{
-				if (state.pendingWrites->deleteBufferWhenComplete)
-					free(state.pendingWrites->data);
-				void* deleteme = state.pendingWrites;
-				state.pendingWrites = state.pendingWrites->next;
+				if (context.pendingWrites->deleteBufferWhenComplete)
+					free(context.pendingWrites->data);
+				void* deleteme = context.pendingWrites;
+				context.pendingWrites = context.pendingWrites->next;
 				free(deleteme);
 			}
-			dataRemains = (state.pendingWrites != NULL);
+			dataRemains = (context.pendingWrites != NULL);
 		}
 		else
 		{
-			pthread_mutex_unlock(&state.pendingWriteLock);
+			pthread_mutex_unlock(&context.pendingWriteLock);
 			return true;
 		}
 	}
-	pthread_mutex_unlock(&state.pendingWriteLock);
+	pthread_mutex_unlock(&context.pendingWriteLock);
 	return dataRemains;
 }
 
@@ -228,24 +259,23 @@ bool flushPendingData()
  */
 int nonBlockingWrite(int dest, void * p, unsigned cnt, bool copyBuffer=true)
 {
-	if (!state.useNonblockingLinks)
-		return TCP::write(state.socketLinks[dest].fd, p, cnt);
+	if (!context.useNonblockingLinks)
+		return TCP::write(context.socketLinks[dest].fd, p, cnt);
 
 	char * src = (char *) p;
 	unsigned bytesleft = cnt;
 	uint8_t allowConnResetTries = 10;
-	if (state.pendingWrites == NULL)
+	if (context.pendingWrites == NULL)
 	{
 		while (bytesleft > 0)
 		{
-			int rc = ::write(state.socketLinks[dest].fd, src, bytesleft);
-			if (rc == -1) /* !!!! read interrupted */
+			int rc = ::write(context.socketLinks[dest].fd, src, bytesleft);
+			if (rc == -1) /* !!!! write interrupted */
 			{
 				if (errno == EINTR) continue;
 				if (errno == EAGAIN) break;
 				if (errno == ECONNRESET && allowConnResetTries--)
 					continue; // this seems to happen, every once in a great while.  We allow a few only.
-				fprintf(stderr, "write errno=%i ", errno);
 				return -1;
 			}
 			if (rc == 0) break;
@@ -257,12 +287,13 @@ int nonBlockingWrite(int dest, void * p, unsigned cnt, bool copyBuffer=true)
 	if (bytesleft > 0)
 	{
 		#ifdef DEBUG
-			fprintf(stderr, "Place %u network buffer is full.  Saving %u bytes of data to flush later.\n", state.myPlaceId, bytesleft);
+			fprintf(stderr, "Place %u network buffer is full.  Saving %u bytes of data to flush later.\n", context.myPlaceId, bytesleft);
 		#endif
 		// save the remaining data for later writing
 		struct x10SocketDataToWrite* pendingData = (struct x10SocketDataToWrite *)malloc(sizeof(struct x10SocketDataToWrite));
 		if (pendingData == NULL) {
-			error("Allocating memory for a pending write");
+			context.errorCode = X10RT_ERR_MEM;
+			fatal_error("Allocating memory for a pending write");
 			return -1;
 		}
 		pendingData->deleteBufferWhenComplete = copyBuffer;
@@ -270,7 +301,8 @@ int nonBlockingWrite(int dest, void * p, unsigned cnt, bool copyBuffer=true)
 		{
 			pendingData->data = (char *)malloc(bytesleft);
 			if (pendingData->data == NULL) {
-				error("Allocating memory for pending write data");
+				context.errorCode = X10RT_ERR_MEM;
+				fatal_error("Allocating memory for pending write data");
 				return -1;
 			}
 			memcpy(pendingData->data, src, bytesleft);
@@ -282,18 +314,18 @@ int nonBlockingWrite(int dest, void * p, unsigned cnt, bool copyBuffer=true)
 		pendingData->next = NULL;
 		pendingData->place = dest;
 
-		pthread_mutex_lock(&state.pendingWriteLock);
-		if (state.pendingWrites == NULL)
-			state.pendingWrites = pendingData;
+		pthread_mutex_lock(&context.pendingWriteLock);
+		if (context.pendingWrites == NULL)
+			context.pendingWrites = pendingData;
 		else
 		{
-			struct x10SocketDataToWrite* currentSlot = state.pendingWrites;
+			struct x10SocketDataToWrite* currentSlot = context.pendingWrites;
 			while(currentSlot->next != NULL)
 				currentSlot = currentSlot->next;
 			currentSlot->next = pendingData;
 		}
-		pthread_mutex_unlock(&state.pendingWriteLock);
-		if (state.yieldAfterProbe)
+		pthread_mutex_unlock(&context.pendingWriteLock);
+		if (context.yieldAfterProbe)
 			sched_yield();
 	}
 	return cnt;
@@ -301,7 +333,7 @@ int nonBlockingWrite(int dest, void * p, unsigned cnt, bool copyBuffer=true)
 
 int nonBlockingRead(int fd, void * p, unsigned cnt)
 {
-	if (!state.useNonblockingLinks)
+	if (!context.useNonblockingLinks)
 		return TCP::read(fd, p, cnt);
 
 	flushPendingData();
@@ -320,7 +352,6 @@ int nonBlockingRead(int fd, void * p, unsigned cnt)
 				flushPendingData();
 				continue;
 			}
-			fprintf(stderr, "ERRNO = %i\n", errno);
 			return -1;
 		}
 		if (rc == 0)
@@ -340,9 +371,9 @@ int nonBlockingRead(int fd, void * p, unsigned cnt)
 int handleConnectionRequest()
 {
 	#ifdef DEBUG
-		fprintf(stderr, "X10rt.Sockets: place %u handling a connection request.\n", state.myPlaceId);
+		fprintf(stderr, "X10rt.Sockets: place %u handling a connection request.\n", context.myPlaceId);
 	#endif
-	int newFD = TCP::accept(state.socketLinks[state.myPlaceId].fd, true);
+	int newFD = TCP::accept(context.socketLinks[context.myPlaceId].fd, true);
 	if (newFD > 0)
 	{
 		struct ctrl_msg m;
@@ -351,18 +382,18 @@ int handleConnectionRequest()
 		{
 			uint32_t from = m.from;
 			// the higher-numbered place always decides if this connection goes or stays
-			if (from < state.myPlaceId)
+			if (from < context.myPlaceId)
 			{
-				if (state.socketLinks[from].fd > 0) // already connected.
+				if (context.socketLinks[from].fd > 0) // already connected.
 				{
 					m.type = GOODBYE;
 					m.to = from;
-					m.from = state.myPlaceId;
+					m.from = context.myPlaceId;
 					m.datalen = 0;
 					r = TCP::write(newFD, &m, sizeof(struct ctrl_msg));
 					close(newFD);
 					#ifdef DEBUG
-						fprintf(stderr, "X10rt.Sockets: place %u got a redundant connection from place %u\n", state.myPlaceId, from);
+						fprintf(stderr, "X10rt.Sockets: place %u got a redundant connection from place %u\n", context.myPlaceId, from);
 					#endif
 					return 0;
 				}
@@ -370,26 +401,27 @@ int handleConnectionRequest()
 				{
 					m.type = HELLO;
 					m.to = from;
-					m.from = state.myPlaceId;
+					m.from = context.myPlaceId;
 					m.datalen = 0;
 					r = TCP::write(newFD, &m, sizeof(struct ctrl_msg));
 				}
 			}
 			#ifdef DEBUG
-				fprintf(stderr, "X10rt.Sockets: place %u got a new connection from place %u\n", state.myPlaceId, from);
+				fprintf(stderr, "X10rt.Sockets: place %u got a new connection from place %u\n", context.myPlaceId, from);
 			#endif
-			pthread_mutex_init(&state.writeLocks[from], NULL);
-	    	state.socketLinks[from].fd = newFD;
-			state.socketLinks[from].events = POLLIN | POLLPRI;
+			pthread_mutex_init(&context.writeLocks[from], NULL);
+	    	context.socketLinks[from].fd = newFD;
+			context.socketLinks[from].events = POLLIN | POLLPRI;
 			// set SO_LINGER
 			struct linger linger;
 			linger.l_onoff = 1;
 			linger.l_linger = 1;
 			if (setsockopt(newFD, SOL_SOCKET, SO_LINGER, &linger, sizeof(linger)) < 0) {
-				error("Error setting SO_LINGER on incoming socket");
+				context.errorCode = X10RT_ERR_OTHER;
+				fatal_error("Error setting SO_LINGER on incoming socket");
 				return -1;
 			}
-			if (state.useNonblockingLinks)
+			if (context.useNonblockingLinks)
 			{
 				int flags = fcntl(newFD, F_GETFL, 0);
 				fcntl(newFD, F_SETFL, flags | O_NONBLOCK);
@@ -398,24 +430,24 @@ int handleConnectionRequest()
 		}
 	}
 	#ifdef DEBUG
-		fprintf(stderr, "X10rt.Sockets: place %u got a bad connection request\n", state.myPlaceId);
+		fprintf(stderr, "X10rt.Sockets: place %u got a bad connection request\n", context.myPlaceId);
 	#endif
 	return -1;
 }
 
-// Initialise a link to a place.  The connectionInfo may be a host:port, or may be null
+// Initialize a link to a place.  The connectionInfo may be a host:port, or may be null
 int initLink(uint32_t remotePlace, char* connectionInfo)
 {
-	if (remotePlace > state.numPlaces || remotePlace == state.myPlaceId)
+	if (remotePlace > context.numPlaces || remotePlace == context.myPlaceId)
 		return -1;
 
-	if (!state.linkAtStartup || state.socketLinks[remotePlace].fd <= 0)
+	if (!context.linkAtStartup || context.socketLinks[remotePlace].fd == -1)
 		probe(true, false); // handle any incoming connection requests - we may be able to skip a lookup.
 
-	if (state.socketLinks[remotePlace].fd <= 0)
+	if (context.socketLinks[remotePlace].fd == -1)
 	{
 		#ifdef DEBUG
-			fprintf(stderr, "X10rt.Sockets: Place %u looking up place %u for a new connection\n", state.myPlaceId, remotePlace);
+			fprintf(stderr, "X10rt.Sockets: Place %u looking up place %u for a new connection\n", context.myPlaceId, remotePlace);
 		#endif
 		int newFD;
 
@@ -428,23 +460,23 @@ int initLink(uint32_t remotePlace, char* connectionInfo)
 
 			// ask the launcher
 			link = (char *)alloca(1024);
-			pthread_mutex_lock(&state.writeLocks[state.myPlaceId]); // because the lookup isn't currently thread-safe
+			pthread_mutex_lock(&context.writeLocks[context.myPlaceId]); // because the lookup isn't currently thread-safe
 
 			port = getPortEnv(remotePlace);
 			if (port == 0)
 			{
-				int r = Launcher::lookupPlace(state.myPlaceId, remotePlace, link, 1024);
+				int r = Launcher::lookupPlace(context.myPlaceId, remotePlace, link, 1024);
 				if (r <= 0)
 				{
-					pthread_mutex_unlock(&state.writeLocks[state.myPlaceId]);
+					pthread_mutex_unlock(&context.writeLocks[context.myPlaceId]);
 					return -1;
 				}
 
 				// check that the other end didn't connect to us while we were waiting for our lookup to complete.
-				if (state.socketLinks[remotePlace].fd > 0)
+				if (context.socketLinks[remotePlace].fd > 0)
 				{
-					pthread_mutex_unlock(&state.writeLocks[state.myPlaceId]);
-					return state.socketLinks[remotePlace].fd;
+					pthread_mutex_unlock(&context.writeLocks[context.myPlaceId]);
+					return context.socketLinks[remotePlace].fd;
 				}
 
 				// break apart the link into host and port
@@ -453,7 +485,8 @@ int initLink(uint32_t remotePlace, char* connectionInfo)
 				{
 					char* suicideNote = (char*)alloca(512);
 					sprintf(suicideNote, "Unable to establish a connection to place %u because %s!", remotePlace, link);
-					error(suicideNote);
+					context.errorCode = X10RT_ERR_OTHER;
+					fatal_error(suicideNote);
 					return -1;
 				}
 				c[0] = '\0';
@@ -470,7 +503,8 @@ int initLink(uint32_t remotePlace, char* connectionInfo)
 					for (unsigned int i=1; i<=remotePlace; i++)
 					{
 						if (end == NULL) {
-							error("Not enough hosts defined in "X10_HOSTLIST);
+							context.errorCode = X10RT_ERR_OTHER;
+							fatal_error("Not enough hosts defined in "X10_HOSTLIST);
 							return -1;
 						}
 
@@ -499,133 +533,170 @@ int initLink(uint32_t remotePlace, char* connectionInfo)
 			struct ctrl_msg m;
 			m.type = HELLO;
 			m.to = remotePlace;
-			m.from = state.myPlaceId;
+			m.from = context.myPlaceId;
 			m.datalen = 0;
 			int r = TCP::write(newFD, &m, sizeof(m));
 			if (r != sizeof(m))
 			{
-				pthread_mutex_unlock(&state.writeLocks[state.myPlaceId]);
+				pthread_mutex_unlock(&context.writeLocks[context.myPlaceId]);
 				return -1;
 			}
 			// both ends may reach this same point at the same time, so we can't always block on a read.
 			// if we are connecting to a *higher* number place, we block, waiting to hear if this is
 			// redundant or not.  Otherwise, we set the FD and continue on, assuming that the connection is good.
-			if (m.to > state.myPlaceId)
+			if (m.to > context.myPlaceId)
 			{
 				#ifdef DEBUG
-					fprintf(stderr, "X10rt.Sockets: Place %u waiting for response from place %u\n", state.myPlaceId, remotePlace);
+					fprintf(stderr, "X10rt.Sockets: Place %u waiting for response from place %u\n", context.myPlaceId, remotePlace);
 				#endif
 				r = TCP::read(newFD, &m, sizeof(m));
 				if (r != sizeof(m))
 				{
-					pthread_mutex_unlock(&state.writeLocks[state.myPlaceId]);
+					pthread_mutex_unlock(&context.writeLocks[context.myPlaceId]);
 					return -1;
 				}
 			}
 
 			if (m.type == HELLO)
 			{
-				pthread_mutex_init(&state.writeLocks[remotePlace], NULL);
-				state.socketLinks[remotePlace].fd = newFD;
-				state.socketLinks[remotePlace].events = POLLIN | POLLPRI;
+				pthread_mutex_init(&context.writeLocks[remotePlace], NULL);
+				context.socketLinks[remotePlace].fd = newFD;
+				context.socketLinks[remotePlace].events = POLLIN | POLLPRI;
 
 				// set SO_LINGER
 				struct linger linger;
 				linger.l_onoff = 1;
 				linger.l_linger = 1;
 				if (setsockopt(newFD, SOL_SOCKET, SO_LINGER, &linger, sizeof(linger)) < 0) {
-					error("Error setting SO_LINGER on outgoing socket");
+					context.errorCode = X10RT_ERR_OTHER;
+					fatal_error("Error setting SO_LINGER on outgoing socket");
 					return -1;
 				}
-				if (state.useNonblockingLinks)
+				if (context.useNonblockingLinks)
 				{
 					int flags = fcntl(newFD, F_GETFL, 0);
 					fcntl(newFD, F_SETFL, flags | O_NONBLOCK);
 				}
 				#ifdef DEBUG
-					fprintf(stderr, "X10rt.Sockets: Place %u established a link to place %u\n", state.myPlaceId, remotePlace);
+					fprintf(stderr, "X10rt.Sockets: Place %u established a link to place %u\n", context.myPlaceId, remotePlace);
 				#endif
-				pthread_mutex_unlock(&state.writeLocks[state.myPlaceId]);
+				pthread_mutex_unlock(&context.writeLocks[context.myPlaceId]);
 			}
 			else
 			{
-				pthread_mutex_unlock(&state.writeLocks[state.myPlaceId]);
+				pthread_mutex_unlock(&context.writeLocks[context.myPlaceId]);
 				#ifdef DEBUG
-					fprintf(stderr, "X10rt.Sockets: Place %u did NOT establish a link to place %u\n", state.myPlaceId, remotePlace);
+					fprintf(stderr, "X10rt.Sockets: Place %u did NOT establish a link to place %u\n", context.myPlaceId, remotePlace);
 				#endif
-				while (state.socketLinks[remotePlace].fd < 0) // there is a pending connection coming in.
+				while (context.socketLinks[remotePlace].fd == -1) // there is a pending connection coming in.
 					probe(true, false);
 			}
 		}
 		else
 		{ // failed to connect to the other end.
-			pthread_mutex_unlock(&state.writeLocks[state.myPlaceId]);
+			pthread_mutex_unlock(&context.writeLocks[context.myPlaceId]);
 			return -1;
 		}
 	}
-	return state.socketLinks[remotePlace].fd;
+	return context.socketLinks[remotePlace].fd;
 }
 
 /******************************************************
  *  Main API calls.  See x10rt_net.h for documentation
 *******************************************************/
-void x10rt_net_init (int * argc, char ***argv, x10rt_msg_type *counter)
-{
-	char* libraryModeString = getenv(X10_LIBRARY_MODE);
-	if (libraryModeString && strcmp(libraryModeString, "preinit") == 0) {
-		// initial entry into the init in library mode.  We *only* open a random listen port,
-		// and return the port information back.
-		state.runAsLibrary = true;
-
-		// open listen port
-		unsigned listenPort;
-		int fd = TCP::listen(&listenPort, 10);
-		if (fd < 0)
-			error("cannot create listener port");
-
-		// set the environment variable to return information about the listen port
-		char str[1000];
-		TCP::getname(fd, str, 1000);
-		setenv(X10_LIBRARY_MODE, str, 1);
-		#ifdef DEBUG
-			fprintf(stderr, "X10rt.Sockets in library mode at %s\n", str);
-		#endif
-
-		// store the listen port into the placeid variable temporarily, until phase 2 just below
-		state.myPlaceId = (uint)fd;
-		return;
+x10rt_error x10rt_net_preinit(char* connInfoBuffer, int connInfoBufferSize) {
+	// initial entry into the init in library mode.  We *only* open a random listen port,
+	// and return the port information back.
+	// open listen port
+	unsigned listenPort;
+	int fd = TCP::listen(&listenPort, 10);
+	if (fd < 0) {
+		context.myPlaceId = 0;
+		context.errorCode = X10RT_ERR_OTHER;
+		return fatal_error("cannot create listener port");
 	}
-	else if (libraryModeString) {
+
+	// set the environment variable to return information about the listen port
+	TCP::getname(fd, connInfoBuffer, connInfoBufferSize);
+	#ifdef DEBUG
+		fprintf(stderr, "X10rt.Sockets in library mode at %s\n", connInfoBuffer);
+	#endif
+
+	// store the listen port into the placeid variable temporarily, until phase 2 just below
+	context.myPlaceId = (uint)fd;
+	context.state = PREINITIALIZED;
+	context.errorCode = X10RT_ERR_OK;
+	return context.errorCode;
+}
+
+x10rt_error x10rt_net_init (int * argc, char ***argv, x10rt_msg_type *counter)
+{
+    /** [DC] A note on SIGPIPE:
+     *
+     * The SIGPIPE signal is raised when writing to a socket that is closed.
+     * This sometimes occurs in resilient X10 when a place dies, particularly the
+     * death occurs during a (maybe large) write of data.
+     * We catch this and do nothing, to stop it killing the process.
+     *
+     * On OSX (and presumably BSD) one can use OPT_NOSIGPIPE when creating the socket.
+     * On Linux, one can use MSG_NOSIGNAL in the send() call.
+     * On AIX, neither of these options are available
+     *
+     * So we choose to catch SIGPIPE on all platforms.
+     */
+    signal(SIGPIPE, SIG_IGN);
+	context.pendingWrites = NULL;
+	context.useNonblockingLinks = !checkBoolEnvVar(getenv(X10_NOWRITEBUFFER));
+	if (context.useNonblockingLinks)
+		pthread_mutex_init(&context.pendingWriteLock, NULL);
+
+	if (context.state == PREINITIALIZED) {
 		// phase 2 of the library mode.  Basically, initialize everything other than what was done above.  The arguments
 		// list is expected to contain the connection information needed to link up to the other runtimes, as well as the
 		// number of places and which one is us
-
-		// TODO: get the number of places
-
-		state.linkAtStartup = true;
-		state.yieldAfterProbe = true;
-		state.useNonblockingLinks = !checkBoolEnvVar(getenv(X10_NOWRITEBUFFER));
-
-		state.nextSocketToCheck = 0;
-		pthread_mutex_init(&state.readLock, NULL);
-		state.socketLinks = safe_malloc<pollfd>(state.numPlaces);
-		state.writeLocks = safe_malloc<pthread_mutex_t>(state.numPlaces);
-		for (unsigned int i=0; i<state.numPlaces; i++)
+		context.numPlaces = *argc;
+		#ifdef DEBUG		
+			fprintf(stderr, "There are %u places!\n", context.numPlaces);
+		#endif		
+		context.yieldAfterProbe = true;
+		context.nextSocketToCheck = 0;
+		context.linkAtStartup = false;
+		context.state = RUNNING_LIBRARY;
+		pthread_mutex_init(&context.readLock, NULL);
+		context.socketLinks = safe_malloc<pollfd>(context.numPlaces);
+		context.writeLocks = safe_malloc<pthread_mutex_t>(context.numPlaces);
+		for (unsigned int i=0; i<context.numPlaces; i++)
 		{
-			state.socketLinks[i].fd = -1;
-			state.socketLinks[i].events = 0;
+			context.socketLinks[i].events = 0;
+			if (NULL == (*argv)[i]) {
+				#ifdef DEBUG
+					fprintf(stderr, "My Place is %u!\n", i);
+				#endif
+				context.socketLinks[i].fd = context.myPlaceId;
+				context.myPlaceId = i;
+			}
+			else {
+				#ifdef DEBUG			
+					fprintf(stderr, "Place %u is at %s!\n", i, (*argv)[i]);
+				#endif
+				context.socketLinks[i].fd = -1;
+			}
 		}
-
-		// TODO: get my place ID
-
-		// TODO: save the listen port FD from phase 1
-
-		// TODO: connect to other places
-
-		unsetenv(X10_LIBRARY_MODE);
+		// establish connections to remote places with lower place IDs
+		for (unsigned i=0; i<context.myPlaceId; i++) {
+			int ret = initLink(i, (*argv)[i]); // connect to all lower places
+			if (ret <= 0) {
+				fatal("Unable to connect to %s", (*argv)[i]);
+				return X10RT_ERR_INVALID;
+			}
+		}
+		for (unsigned i=context.myPlaceId+1; i<context.numPlaces; i++)
+			while (context.socketLinks[i].fd == -1)
+				probe(true, false); // wait for connections from all upper places
 	}
 	else {
-		state.runAsLibrary = false;
+		context.state = RUNNING;
+		context.errorCode = X10RT_ERR_OK;
 
 		// If this is to be a launcher process, this method will not return.
 		Launcher::Setup(*argc, *argv);
@@ -638,353 +709,434 @@ void x10rt_net_init (int * argc, char ***argv, x10rt_msg_type *counter)
 		if (NPROCS == NULL)
 		{
 	//		fprintf(stderr, "%s not set.  Assuming 1 place, running locally\n", X10_NPLACES);
-			state.numPlaces = 1;
+			context.numPlaces = 1;
 		}
 		else
 		{
-			state.numPlaces = atol(NPROCS);
-			if (state.numPlaces <= 0) // atol failed
-				error(X10_NPLACES" is not set to a valid number of places!");
+			context.numPlaces = atol(NPROCS);
+			if (context.numPlaces <= 0) {// atol failed
+				context.errorCode = X10RT_ERR_OTHER;
+				return fatal_error(X10_NPLACES" is not set to a valid number of places!");
+			}
 		}
 
-		if (state.numPlaces == 1)
+		if (context.numPlaces == 1)
 		{
-			state.myPlaceId = 0;
-			return; // If there is only 1 place, then there are no sockets to set up.
+			context.myPlaceId = 0;
+            return X10RT_ERR_OK; // If there is only 1 place, then there are no sockets to set up.
 		}
 
 		// determine my place ID
 		char* ID = getenv(X10_LAUNCHER_PLACE);
-		if (ID == NULL)
-			error(X10_LAUNCHER_PLACE" not set!");
+		if (ID == NULL) {
+			context.errorCode = X10RT_ERR_OTHER;
+			return fatal_error(X10_LAUNCHER_PLACE" not set!");
+		}
 		else
-			state.myPlaceId = atol(ID);
+			context.myPlaceId = atol(ID);
 
-		state.yieldAfterProbe = !checkBoolEnvVar(getenv(X10_NOYIELD));
-		state.linkAtStartup = !checkBoolEnvVar(getenv(X10_LAZYLINKS));
-		state.useNonblockingLinks = !checkBoolEnvVar(getenv(X10_NOWRITEBUFFER));
+		context.yieldAfterProbe = !checkBoolEnvVar(getenv(X10_NOYIELD));
+		context.linkAtStartup = !checkBoolEnvVar(getenv(X10_LAZYLINKS));
 
-		state.nextSocketToCheck = 0;
-		pthread_mutex_init(&state.readLock, NULL);
-		state.socketLinks = safe_malloc<pollfd>(state.numPlaces);
-		state.writeLocks = safe_malloc<pthread_mutex_t>(state.numPlaces);
-		for (unsigned int i=0; i<state.numPlaces; i++)
+		context.nextSocketToCheck = 0;
+		pthread_mutex_init(&context.readLock, NULL);
+		context.socketLinks = safe_malloc<pollfd>(context.numPlaces);
+		context.writeLocks = safe_malloc<pthread_mutex_t>(context.numPlaces);
+		for (unsigned int i=0; i<context.numPlaces; i++)
 		{
-			state.socketLinks[i].fd = -1;
-			state.socketLinks[i].events = 0;
+			context.socketLinks[i].fd = -1;
+			context.socketLinks[i].events = 0;
 		}
 
 		// open local listen port.
-		unsigned listenPort = getPortEnv(state.myPlaceId);
+		unsigned listenPort = getPortEnv(context.myPlaceId);
 		bool useLauncher = (listenPort == 0);
-		state.socketLinks[state.myPlaceId].fd = TCP::listen(&listenPort, 10);
-		if (state.socketLinks[state.myPlaceId].fd < 0)
-			error("cannot create listener port");
-		pthread_mutex_init(&state.writeLocks[state.myPlaceId], NULL);
-		state.socketLinks[state.myPlaceId].events = POLLIN | POLLPRI;
+		context.socketLinks[context.myPlaceId].fd = TCP::listen(&listenPort, 10);
+		if (context.socketLinks[context.myPlaceId].fd < 0) {
+			context.errorCode = X10RT_ERR_OTHER;
+			return fatal_error("cannot create listener port");
+		}
+		pthread_mutex_init(&context.writeLocks[context.myPlaceId], NULL);
+		context.socketLinks[context.myPlaceId].events = POLLIN | POLLPRI;
 
 		if (useLauncher)
 		{   // Tell our launcher our communication port number
 			sockaddr_in addr;
 			socklen_t len = sizeof(addr);
-			if (getsockname(state.socketLinks[state.myPlaceId].fd, (sockaddr *) &addr, &len) < 0)
-				error("failed to get the local socket information");
-
-			pthread_mutex_lock(&state.writeLocks[state.myPlaceId]);
-			if (Launcher::setPort(state.myPlaceId, addr.sin_port) < 0)
-				error("failed to connect to the local runtime");
-			pthread_mutex_unlock(&state.writeLocks[state.myPlaceId]);
+			if (getsockname(context.socketLinks[context.myPlaceId].fd, (sockaddr *) &addr, &len) < 0) {
+				context.errorCode = X10RT_ERR_OTHER;
+				return fatal_error("failed to get the local socket information");
+			}
+			pthread_mutex_lock(&context.writeLocks[context.myPlaceId]);
+			if (Launcher::setPort(context.myPlaceId, addr.sin_port) < 0) {
+				context.errorCode = X10RT_ERR_OTHER;
+				return fatal_error("failed to connect to the local runtime");
+			}
+			pthread_mutex_unlock(&context.writeLocks[context.myPlaceId]);
 		}
 	}
 
-	state.pendingWrites = NULL;
-	if (state.useNonblockingLinks)
-		pthread_mutex_init(&state.pendingWriteLock, NULL);
 	#ifdef DEBUG
-		fprintf(stderr, "X10rt.Sockets: place %u running\n", state.myPlaceId);
+		fprintf(stderr, "X10rt.Sockets: place %u running\n", context.myPlaceId);
 	#endif
+	return context.errorCode;
 }
 
 void x10rt_net_register_msg_receiver (x10rt_msg_type msg_type, x10rt_handler *callback)
 {
+    ESCAPE_IF_ERR;
 	// register a pointer to methods that will handle specific message types.
 	// add an entry to our type/handler table
 
 	// there are more efficient ways to do this, but this is not in our critical path of execution, so we do it the easy way
-	if (msg_type >= state.callBackTableSize)
+	if (msg_type >= context.callBackTableSize)
 	{
-		state.callBackTable = (x10SocketCallback*)realloc(state.callBackTable, sizeof(struct x10SocketCallback)*(msg_type+1));
-		if (state.callBackTable == NULL) error("Unable to allocate space for the callback table");
-		state.callBackTableSize = msg_type+1;
+		context.callBackTable = (x10SocketCallback*)realloc(context.callBackTable, sizeof(struct x10SocketCallback)*(msg_type+1));
+		if (context.callBackTable == NULL) {
+			context.errorCode = X10RT_ERR_MEM;
+			return (void)fatal_error("Unable to allocate space for the callback table");
+		}
+		context.callBackTableSize = msg_type+1;
 	}
 
-	state.callBackTable[msg_type].handler = callback;
-	state.callBackTable[msg_type].finder = NULL;
-	state.callBackTable[msg_type].notifier = NULL;
+	context.callBackTable[msg_type].handler = callback;
+	context.callBackTable[msg_type].finder = NULL;
+	context.callBackTable[msg_type].notifier = NULL;
 
 	#ifdef DEBUG_MESSAGING
-		fprintf(stderr, "X10rt.Sockets: place %u registered standard message %u\n", state.myPlaceId, msg_type);
+		fprintf(stderr, "X10rt.Sockets: place %u registered standard message %u\n", context.myPlaceId, msg_type);
 	#endif
 }
 
 void x10rt_net_register_put_receiver (x10rt_msg_type msg_type, x10rt_finder *finderCallback, x10rt_notifier *notifierCallback)
 {
+    ESCAPE_IF_ERR;
 	// register a pointer to methods that will handle specific message types.
 	// add an entry to our type/handler table
 
 	// there are more efficient ways to do this, but this is not in our critical path of execution, so we do it the easy way
-	if (msg_type >= state.callBackTableSize)
+	if (msg_type >= context.callBackTableSize)
 	{
-		state.callBackTable = (x10SocketCallback*)realloc(state.callBackTable, sizeof(struct x10SocketCallback)*(msg_type+1));
-		if (state.callBackTable == NULL) error("Unable to allocate space for the callback table");
+		context.callBackTable = (x10SocketCallback*)realloc(context.callBackTable, sizeof(struct x10SocketCallback)*(msg_type+1));
+		if (context.callBackTable == NULL) {
+			context.errorCode = X10RT_ERR_MEM;
+			return (void)fatal_error("Unable to allocate space for the callback table");
+		}
 	}
 
-	state.callBackTable[msg_type].handler = NULL;
-	state.callBackTable[msg_type].finder = finderCallback;
-	state.callBackTable[msg_type].notifier = notifierCallback;
+	context.callBackTable[msg_type].handler = NULL;
+	context.callBackTable[msg_type].finder = finderCallback;
+	context.callBackTable[msg_type].notifier = notifierCallback;
 
 	#ifdef DEBUG_MESSAGING
-		fprintf(stderr, "X10rt.Sockets: place %u registered put message %u\n", state.myPlaceId, msg_type);
+		fprintf(stderr, "X10rt.Sockets: place %u registered put message %u\n", context.myPlaceId, msg_type);
 	#endif
 }
 
 void x10rt_net_register_get_receiver (x10rt_msg_type msg_type, x10rt_finder *finderCallback, x10rt_notifier *notifierCallback)
 {
+    ESCAPE_IF_ERR;
 	// register a pointer to methods that will handle specific message types.
 	// add an entry to our type/handler table
 
 	// there are more efficient ways to do this, but this is not in our critical path of execution, so we do it the easy way
-	if (msg_type >= state.callBackTableSize)
+	if (msg_type >= context.callBackTableSize)
 	{
-		state.callBackTable = (x10SocketCallback*)realloc(state.callBackTable, sizeof(struct x10SocketCallback)*(msg_type+1));
-		if (state.callBackTable == NULL) error("Unable to allocate space for the callback table");
+		context.callBackTable = (x10SocketCallback*)realloc(context.callBackTable, sizeof(struct x10SocketCallback)*(msg_type+1));
+		if (context.callBackTable == NULL) {
+			context.errorCode = X10RT_ERR_MEM;
+			return (void)fatal_error("Unable to allocate space for the callback table");
+		}
 	}
 
-	state.callBackTable[msg_type].handler = NULL;
-	state.callBackTable[msg_type].finder = finderCallback;
-	state.callBackTable[msg_type].notifier = notifierCallback;
+	context.callBackTable[msg_type].handler = NULL;
+	context.callBackTable[msg_type].finder = finderCallback;
+	context.callBackTable[msg_type].notifier = notifierCallback;
 
 	#ifdef DEBUG_MESSAGING
-		fprintf(stderr, "X10rt.Sockets: place %u registered get message %u\n", state.myPlaceId, msg_type);
+		fprintf(stderr, "X10rt.Sockets: place %u registered get message %u\n", context.myPlaceId, msg_type);
 	#endif
+}
+
+x10rt_place x10rt_net_ndead (void) {
+	x10rt_place count = 0;
+	for (x10rt_place i=0; i<context.numPlaces; i++)
+		if (context.socketLinks!=NULL && context.socketLinks[i].fd == -2) count++;
+	return count;
+}
+
+bool x10rt_net_is_place_dead (x10rt_place p) {
+	if (p >= context.numPlaces) return true;
+
+	return (context.socketLinks!=NULL && context.socketLinks[p].fd == -2);
+}
+
+x10rt_error x10rt_net_get_dead (x10rt_place *dead_places, x10rt_place len) {
+	x10rt_place position = 0;
+	for (x10rt_place i=0; i<context.numPlaces; i++)
+		if (context.socketLinks!=NULL && context.socketLinks[i].fd == -2) {
+			dead_places[position] = i;
+			if (position == len)
+				return X10RT_ERR_OK;
+			position++;
+		}
+	return X10RT_ERR_OK;
 }
 
 x10rt_place x10rt_net_nhosts (void)
 {
 	// return the number of places that exist.
-	return state.numPlaces;
+	return context.numPlaces;
 }
 
 x10rt_place x10rt_net_here (void)
 {
 	// return which place this is
-	return state.myPlaceId;
+	return context.myPlaceId;
 }
 
 void x10rt_net_send_msg (x10rt_msg_params *parameters)
 {
+    ESCAPE_IF_ERR;
+    if (x10rt_net_is_place_dead(parameters->dest_place)) // check for dead place
+    	return;
 	#ifdef DEBUG_MESSAGING
-		fprintf(stderr, "X10rt.Sockets: place %u sending a %d byte message of type %d to place %u\n", state.myPlaceId, parameters->len, (int)parameters->type, parameters->dest_place);
+		fprintf(stderr, "X10rt.Sockets: place %u sending a %d byte message of type %d to place %u\n", context.myPlaceId, parameters->len, (int)parameters->type, parameters->dest_place);
 	#endif
     x10rt_lgl_stats.msg.messages_sent++ ;
     x10rt_lgl_stats.msg.bytes_sent += parameters->len;
+    x10rt_place dp = parameters->dest_place;
 	flushPendingData();
-	if (initLink(parameters->dest_place, NULL) < 0)
-		error("establishing a connection");
-	pthread_mutex_lock(&state.writeLocks[parameters->dest_place]);
+	if (initLink(dp, NULL) < 0)
+		return (void)fatal_error("establishing a connection");
+	pthread_mutex_lock(&context.writeLocks[dp]);
 
 	// write out the x10SocketMessage data
 	// Format: type, p.type, p.len, p.msg
 	enum MSGTYPE m = STANDARD;
-	if (nonBlockingWrite(parameters->dest_place, &m, sizeof(m)) < (int)sizeof(m))
-		error("sending STANDARD type");
-	if (nonBlockingWrite(parameters->dest_place, &parameters->type, sizeof(parameters->type)) < (int)sizeof(parameters->type))
-		error("sending STANDARD x10rt_msg_params.type");
-	if (nonBlockingWrite(parameters->dest_place, &parameters->len, sizeof(parameters->len)) < (int)sizeof(parameters->len))
-		error("sending STANDARD x10rt_msg_params.len");
-	if (parameters->len > 0)
-		if (nonBlockingWrite(parameters->dest_place, parameters->msg, parameters->len) < (int)parameters->len)
-			error("sending STANDARD msg");
-	pthread_mutex_unlock(&state.writeLocks[parameters->dest_place]);
+	if (nonBlockingWrite(dp, &m, sizeof(m)) < (int)sizeof(m)) {
+		//return (void)fatal_error("sending STANDARD type");
+        close(context.socketLinks[dp].fd);
+        context.socketLinks[dp].fd = -2;
+        pthread_mutex_unlock(&context.writeLocks[dp]);
+        return;
+    }
+	if (nonBlockingWrite(dp, &parameters->type, sizeof(parameters->type)) < (int)sizeof(parameters->type)) {
+		//return (void)fatal_error("sending STANDARD x10rt_msg_params.type");
+        close(context.socketLinks[dp].fd);
+        context.socketLinks[dp].fd = -2;
+        pthread_mutex_unlock(&context.writeLocks[dp]);
+        return;
+    }
+	if (nonBlockingWrite(dp, &parameters->len, sizeof(parameters->len)) < (int)sizeof(parameters->len)) {
+		//return (void)fatal_error("sending STANDARD x10rt_msg_params.len");
+        close(context.socketLinks[dp].fd);
+        context.socketLinks[dp].fd = -2;
+        pthread_mutex_unlock(&context.writeLocks[dp]);
+        return;
+    }
+	if (parameters->len > 0) {
+		if (nonBlockingWrite(dp, parameters->msg, parameters->len) < (int)parameters->len) {
+			//return (void)fatal_error("sending STANDARD msg");
+            close(context.socketLinks[dp].fd);
+            context.socketLinks[dp].fd = -2;
+            pthread_mutex_unlock(&context.writeLocks[dp]);
+            return;
+        }
+    }
+	pthread_mutex_unlock(&context.writeLocks[dp]);
 }
 
 void x10rt_net_send_get (x10rt_msg_params *parameters, void *buffer, x10rt_copy_sz bufferLen)
 {
+    ESCAPE_IF_ERR;
+    if (x10rt_net_is_place_dead(parameters->dest_place)) // check for dead place
+        return;
 	#ifdef DEBUG_MESSAGING
-		fprintf(stderr, "X10rt.Sockets: place %u sending a %d byte GET message with %d byte payload to place %u\n", state.myPlaceId, parameters->len, bufferLen, parameters->dest_place);
+		fprintf(stderr, "X10rt.Sockets: place %u sending a %d byte GET message with %d byte payload to place %u\n", context.myPlaceId, parameters->len, bufferLen, parameters->dest_place);
 	#endif
     x10rt_lgl_stats.get.messages_sent++ ;
     x10rt_lgl_stats.get.bytes_sent += parameters->len;
 	flushPendingData();
 	if (initLink(parameters->dest_place, NULL) < 0)
-		error("establishing a connection");
-	pthread_mutex_lock(&state.writeLocks[parameters->dest_place]);
+		return (void)fatal_error("establishing a connection");
+	pthread_mutex_lock(&context.writeLocks[parameters->dest_place]);
 
 	// write out the x10SocketMessage data
 	// Format: type, p.type, p.len, p.msg, bufferlen, bufferADDRESS
 	enum MSGTYPE m = GET;
 	if (nonBlockingWrite(parameters->dest_place, &m, sizeof(m)) < (int)sizeof(m))
-		error("sending GET MSGTYPE");
+		return (void)fatal_error("sending GET MSGTYPE");
 	if (nonBlockingWrite(parameters->dest_place, &parameters->type, sizeof(parameters->type)) < (int)sizeof(parameters->type))
-		error("sending GET x10rt_msg_params.type");
+		return (void)fatal_error("sending GET x10rt_msg_params.type");
 	if (nonBlockingWrite(parameters->dest_place, &parameters->len, sizeof(parameters->len)) < (int)sizeof(parameters->len))
-		error("sending GET x10rt_msg_params.len");
+		return (void)fatal_error("sending GET x10rt_msg_params.len");
 	if (parameters->len > 0)
 		if (nonBlockingWrite(parameters->dest_place, parameters->msg, parameters->len) < (int)parameters->len)
-			error("sending GET x10rt_msg_params.msg");
+			return (void)fatal_error("sending GET x10rt_msg_params.msg");
 	if (nonBlockingWrite(parameters->dest_place, &bufferLen, sizeof(x10rt_copy_sz)) < (int)sizeof(x10rt_copy_sz))
-		error("sending GET bufferLen");
+		return (void)fatal_error("sending GET bufferLen");
 	if (bufferLen > 0)
 		if (nonBlockingWrite(parameters->dest_place, &buffer, sizeof(void*), COPY_PUT_GET_BUFFER) < (int)sizeof(void*))
-			error("sending GET buffer pointer");
-	pthread_mutex_unlock(&state.writeLocks[parameters->dest_place]);
+			return (void)fatal_error("sending GET buffer pointer");
+	pthread_mutex_unlock(&context.writeLocks[parameters->dest_place]);
 }
 
 void x10rt_net_send_put (x10rt_msg_params *parameters, void *buffer, x10rt_copy_sz bufferLen)
 {
+    ESCAPE_IF_ERR;
+    if (x10rt_net_is_place_dead(parameters->dest_place)) // check for dead place
+        return;
 	#ifdef DEBUG_MESSAGING
-		fprintf(stderr, "X10rt.Sockets: place %u sending a %d byte PUT message with %d byte payload to place %u\n", state.myPlaceId, parameters->len, bufferLen, parameters->dest_place);
+		fprintf(stderr, "X10rt.Sockets: place %u sending a %d byte PUT message with %d byte payload to place %u\n", context.myPlaceId, parameters->len, bufferLen, parameters->dest_place);
 	#endif
     x10rt_lgl_stats.put.messages_sent++ ;
     x10rt_lgl_stats.put.bytes_sent += parameters->len;
     x10rt_lgl_stats.put_copied_bytes_sent += bufferLen;
 	flushPendingData();
 	if (initLink(parameters->dest_place, NULL) < 0)
-		error("establishing a connection");
-	pthread_mutex_lock(&state.writeLocks[parameters->dest_place]);
+		return (void)fatal_error("establishing a connection");
+	pthread_mutex_lock(&context.writeLocks[parameters->dest_place]);
 
 	// write out the x10SocketMessage data
 	// Format: type, p.type, p.len, p.msg, bufferlen, buffer contents
 	enum MSGTYPE m = PUT;
 	if (nonBlockingWrite(parameters->dest_place, &m, sizeof(m)) < (int)sizeof(m))
-		error("sending PUT MSGTYPE");
+		return (void)fatal_error("sending PUT MSGTYPE");
 	if (nonBlockingWrite(parameters->dest_place, &parameters->type, sizeof(parameters->type)) < (int)sizeof(parameters->type))
-		error("sending PUT x10rt_msg_params.type");
+		return (void)fatal_error("sending PUT x10rt_msg_params.type");
 	if (nonBlockingWrite(parameters->dest_place, &parameters->len, sizeof(parameters->len)) < (int)sizeof(parameters->len))
-		error("sending PUT x10rt_msg_params.len");
+		return (void)fatal_error("sending PUT x10rt_msg_params.len");
 	if (parameters->len > 0)
 		if (nonBlockingWrite(parameters->dest_place, parameters->msg, parameters->len) < (int)parameters->len)
-			error("sending PUT x10rt_msg_params.len");
+			return (void)fatal_error("sending PUT x10rt_msg_params.len");
 	if (nonBlockingWrite(parameters->dest_place, &bufferLen, sizeof(x10rt_copy_sz)) < (int)sizeof(x10rt_copy_sz))
-		error("sending PUT bufferLen");
+		return (void)fatal_error("sending PUT bufferLen");
 	if (bufferLen > 0)
 		if (nonBlockingWrite(parameters->dest_place, buffer, bufferLen, COPY_PUT_GET_BUFFER) < (int)bufferLen)
-			error("sending PUT buffer");
-	pthread_mutex_unlock(&state.writeLocks[parameters->dest_place]);
+			return (void)fatal_error("sending PUT buffer");
+	pthread_mutex_unlock(&context.writeLocks[parameters->dest_place]);
 }
 
-void x10rt_net_probe ()
+x10rt_error x10rt_net_probe ()
 {
-	if (state.numPlaces == 1)
+    CHECK_ERR_AND_RETURN;
+	if (context.numPlaces == 1)
 		sched_yield(); // why is the runtime calling probe() with only one place?  It looses its CPU as punishment. ;-)
-	else if (state.linkAtStartup)
+	else if (context.linkAtStartup)
 	{
-		for (unsigned i=0; i<state.myPlaceId; i++)
+		for (unsigned i=0; i<context.myPlaceId; i++)
 			initLink(i, NULL); // connect to all lower places
-		for (unsigned i=state.myPlaceId+1; i<state.numPlaces; i++)
-			while (state.socketLinks[i].fd <= 0)
+		for (unsigned i=context.myPlaceId+1; i<context.numPlaces; i++)
+			while (context.socketLinks[i].fd == -1)
 				probe(true, false); // wait for connections from all upper places
-		state.linkAtStartup = false;
+		context.linkAtStartup = false;
 	}
 	else
 		while (probe(false, false)) { }
+
+    return context.errorCode;
 }
 
-void x10rt_net_blocking_probe ()
+x10rt_error x10rt_net_blocking_probe ()
 {
+    CHECK_ERR_AND_RETURN;
 	// Call the blocking form of probe, returning after the one call.
 	probe(false, true);
 	// then, loop again to gather everything from the network before returning.
 	while (probe(false, false)) { }
+
+    return context.errorCode;
 }
 
 // return T if data was processed or sent, F if not
 bool probe (bool onlyProcessAccept, bool block)
 {
-	if (pthread_mutex_lock(&state.readLock) < 0)
+	if (pthread_mutex_lock(&context.readLock) < 0)
 		return false;
-	uint32_t whichPlaceToHandle = state.nextSocketToCheck;
-	int ret = poll(state.socketLinks, state.numPlaces, (block && state.pendingWrites == NULL)?-1:(state.linkAtStartup?100:0));
+	uint32_t whichPlaceToHandle = context.nextSocketToCheck;
+	int ret = poll(context.socketLinks, context.numPlaces, (block && context.pendingWrites == NULL)?-1:(context.linkAtStartup?100:0));
 	if (ret > 0)
 	{ // There is at least one socket with something interesting to look at
 
 		// the listen port always gets priority
-		if ((state.socketLinks[state.myPlaceId].revents & POLLIN) || (state.socketLinks[state.myPlaceId].revents & POLLPRI))
-			whichPlaceToHandle = state.myPlaceId;
+		if ((context.socketLinks[context.myPlaceId].revents & POLLIN) || (context.socketLinks[context.myPlaceId].revents & POLLPRI))
+			whichPlaceToHandle = context.myPlaceId;
 		else if (onlyProcessAccept)
 		{
-			pthread_mutex_unlock(&state.readLock);
+			pthread_mutex_unlock(&context.readLock);
 			return false;
 		}
 		else
 		{
 			while(true)
 			{
-				if (state.socketLinks[whichPlaceToHandle].fd != -1 && state.socketLinks[whichPlaceToHandle].revents)
+				if (context.socketLinks[whichPlaceToHandle].fd > -1 && context.socketLinks[whichPlaceToHandle].revents)
 					break;
 
 				whichPlaceToHandle++;
-				if (whichPlaceToHandle == state.numPlaces)
+				if (whichPlaceToHandle == context.numPlaces)
 					whichPlaceToHandle = 0;
-				if (whichPlaceToHandle == state.nextSocketToCheck)
+				if (whichPlaceToHandle == context.nextSocketToCheck)
 				{
 					// we should never get here, because if we do, it means that poll said there is something to do (ret > 0), but we didn't find it
-					pthread_mutex_unlock(&state.readLock);
+					pthread_mutex_unlock(&context.readLock);
 					return false;
 				}
 			}
 
 			// Set nextSocketToCheck
-			if (whichPlaceToHandle == state.numPlaces-1)
-				state.nextSocketToCheck = 0;
+			if (whichPlaceToHandle == context.numPlaces-1)
+				context.nextSocketToCheck = 0;
 			else
-				state.nextSocketToCheck = whichPlaceToHandle+1;
+				context.nextSocketToCheck = whichPlaceToHandle+1;
 		}		
-		state.socketLinks[whichPlaceToHandle].events = 0; // disable any further polls on this socket
-		pthread_mutex_unlock(&state.readLock);
+		context.socketLinks[whichPlaceToHandle].events = 0; // disable any further polls on this socket
+		pthread_mutex_unlock(&context.readLock);
 
-		if ((state.socketLinks[whichPlaceToHandle].revents & POLLIN) || (state.socketLinks[whichPlaceToHandle].revents & POLLPRI))
+		if ((context.socketLinks[whichPlaceToHandle].revents & POLLIN) || (context.socketLinks[whichPlaceToHandle].revents & POLLPRI))
 		{
-			if (whichPlaceToHandle == state.myPlaceId) // special case.  This is an incoming connection request.
+			if (whichPlaceToHandle == context.myPlaceId) // special case.  This is an incoming connection request.
 			{
 				#ifdef DEBUG_MESSAGING
-					fprintf(stderr, "X10rt.Sockets: place %u probe processing a connection request\n", state.myPlaceId);
+					fprintf(stderr, "X10rt.Sockets: place %u probe processing a connection request\n", context.myPlaceId);
 				#endif
 				handleConnectionRequest();
-				pthread_mutex_lock(&state.readLock);
-				state.socketLinks[whichPlaceToHandle].events = POLLIN | POLLPRI;
-				pthread_mutex_unlock(&state.readLock);
+				pthread_mutex_lock(&context.readLock);
+				context.socketLinks[whichPlaceToHandle].events = POLLIN | POLLPRI;
+				pthread_mutex_unlock(&context.readLock);
 			}
 			else
 			{
 				#ifdef DEBUG_MESSAGING
-					fprintf(stderr, "X10rt.Sockets: place %u probe processing a message from place %u\n", state.myPlaceId, whichPlaceToHandle);
+					fprintf(stderr, "X10rt.Sockets: place %u probe processing a message from place %u\n", context.myPlaceId, whichPlaceToHandle);
 				#endif
 				// Format: type, p.type, p.len, p.msg
 				enum MSGTYPE t;
-				int r = nonBlockingRead(state.socketLinks[whichPlaceToHandle].fd, &t, sizeof(enum MSGTYPE));
+				int r = nonBlockingRead(context.socketLinks[whichPlaceToHandle].fd, &t, sizeof(enum MSGTYPE));
 				if (r < (int)sizeof(enum MSGTYPE) || t > GET_COMPLETED) // closed connection
 				{
 					#ifdef DEBUG_MESSAGING
-						fprintf(stderr, "X10rt.Sockets: Place %u detected a bad message from place %u (likely a closed socket)\n", state.myPlaceId, whichPlaceToHandle);
+						fprintf(stderr, "X10rt.Sockets: Place %u detected a bad message from place %u (likely a closed socket)\n", context.myPlaceId, whichPlaceToHandle);
 					#endif
-					close(state.socketLinks[whichPlaceToHandle].fd);
-					state.socketLinks[whichPlaceToHandle].fd = -1;
+					close(context.socketLinks[whichPlaceToHandle].fd);
+					context.socketLinks[whichPlaceToHandle].fd = -2;
+					pthread_mutex_destroy(&context.writeLocks[whichPlaceToHandle]);
 					return false;
 				}
 				#ifdef DEBUG_MESSAGING
-					fprintf(stderr, "X10rt.Sockets: place %u picked up a message from place %u\n", state.myPlaceId, whichPlaceToHandle);
+					fprintf(stderr, "X10rt.Sockets: place %u picked up a message from place %u\n", context.myPlaceId, whichPlaceToHandle);
 				#endif
 
 				x10rt_msg_params mp;
 				mp.dest_endpoint = 0;
-				mp.dest_place = state.myPlaceId;
-				if (nonBlockingRead(state.socketLinks[whichPlaceToHandle].fd, &mp.type, sizeof(x10rt_msg_type)) < (int)sizeof(x10rt_msg_type))
-					error("reading x10rt_msg_params.type");
-				if (nonBlockingRead(state.socketLinks[whichPlaceToHandle].fd, &mp.len, sizeof(uint32_t)) < (int)sizeof(uint32_t))
-					error("reading x10rt_msg_params.len");
+				mp.dest_place = context.myPlaceId;
+				if (nonBlockingRead(context.socketLinks[whichPlaceToHandle].fd, &mp.type, sizeof(x10rt_msg_type)) < (int)sizeof(x10rt_msg_type))
+					return fatal_error("reading x10rt_msg_params.type"), false;
+				if (nonBlockingRead(context.socketLinks[whichPlaceToHandle].fd, &mp.len, sizeof(uint32_t)) < (int)sizeof(uint32_t))
+					return fatal_error("reading x10rt_msg_params.len"), false;
 				#ifdef DEBUG_MESSAGING
-					fprintf(stderr, "X10rt.Sockets: place %u decoded a message of type %d from place %u\n", state.myPlaceId, (int)mp.type, whichPlaceToHandle);
+					fprintf(stderr, "X10rt.Sockets: place %u decoded a message of type %d from place %u\n", context.myPlaceId, (int)mp.type, whichPlaceToHandle);
 				#endif
 				bool heapAllocated = false;
 				if (mp.len > 0)
@@ -997,11 +1149,11 @@ bool probe (bool onlyProcessAccept, bool block)
 					{
 						mp.msg = malloc(mp.len);
 						if (mp.msg == NULL)
-							error("unable to allocate memory for an incoming message");
+							return fatal_error("unable to allocate memory for an incoming message"), false;
 						heapAllocated = true;
 					}
-					if (nonBlockingRead(state.socketLinks[whichPlaceToHandle].fd, mp.msg, mp.len) < (int)mp.len)
-						error("reading x10rt_msg_params.msg");
+					if (nonBlockingRead(context.socketLinks[whichPlaceToHandle].fd, mp.msg, mp.len) < (int)mp.len)
+						return fatal_error("reading x10rt_msg_params.msg"), false;
 				}
 				else
 					mp.msg = NULL;
@@ -1010,10 +1162,10 @@ bool probe (bool onlyProcessAccept, bool block)
 				{
 					case STANDARD:
 					{
-						pthread_mutex_lock(&state.readLock);
-						state.socketLinks[whichPlaceToHandle].events = POLLIN | POLLPRI;
-						pthread_mutex_unlock(&state.readLock);
-						handlerCallback hcb = state.callBackTable[mp.type].handler;
+						pthread_mutex_lock(&context.readLock);
+						context.socketLinks[whichPlaceToHandle].events = POLLIN | POLLPRI;
+						pthread_mutex_unlock(&context.readLock);
+						handlerCallback hcb = context.callBackTable[mp.type].handler;
                         x10rt_lgl_stats.msg.messages_received++;
                         x10rt_lgl_stats.msg.bytes_received += mp.len;
 						hcb(&mp);
@@ -1022,21 +1174,21 @@ bool probe (bool onlyProcessAccept, bool block)
 					case PUT:
 					{
 						x10rt_copy_sz dataLen;
-						if (nonBlockingRead(state.socketLinks[whichPlaceToHandle].fd, &dataLen, sizeof(x10rt_copy_sz)) < (int)sizeof(x10rt_copy_sz))
-							error("reading PUT datalen");
+						if (nonBlockingRead(context.socketLinks[whichPlaceToHandle].fd, &dataLen, sizeof(x10rt_copy_sz)) < (int)sizeof(x10rt_copy_sz))
+							return fatal_error("reading PUT datalen"), false;
 
-						finderCallback fcb = state.callBackTable[mp.type].finder;
+						finderCallback fcb = context.callBackTable[mp.type].finder;
                         x10rt_lgl_stats.put.messages_received++;
                         x10rt_lgl_stats.put.bytes_received += mp.len;
 						void* dest = fcb(&mp, dataLen); // get the pointer to the destination location
 						if (dest == NULL)
-							error("invalid buffer provided for a PUT");
-						if (nonBlockingRead(state.socketLinks[whichPlaceToHandle].fd, dest, dataLen) < (int)dataLen)
-							error("reading PUT data");
-						pthread_mutex_lock(&state.readLock);
-						state.socketLinks[whichPlaceToHandle].events = POLLIN | POLLPRI;
-						pthread_mutex_unlock(&state.readLock);
-						notifierCallback ncb = state.callBackTable[mp.type].notifier;
+							return fatal_error("invalid buffer provided for a PUT"), false;
+						if (nonBlockingRead(context.socketLinks[whichPlaceToHandle].fd, dest, dataLen) < (int)dataLen)
+							return fatal_error("reading PUT data"), false;
+						pthread_mutex_lock(&context.readLock);
+						context.socketLinks[whichPlaceToHandle].events = POLLIN | POLLPRI;
+						pthread_mutex_unlock(&context.readLock);
+						notifierCallback ncb = context.callBackTable[mp.type].notifier;
 						ncb(&mp, dataLen);
                         x10rt_lgl_stats.put_copied_bytes_received += dataLen;
 					}
@@ -1047,45 +1199,45 @@ bool probe (bool onlyProcessAccept, bool block)
 						// Format: type, p.type, p.len, p.msg, bufferlen, bufferADDRESS
 						x10rt_copy_sz dataLen;
 						void* remotePtr; // THIS IS A POINTER ON A REMOTE MACHINE.  NOT VALID HERE
-						if (nonBlockingRead(state.socketLinks[whichPlaceToHandle].fd, &dataLen, sizeof(x10rt_copy_sz)) < (int)sizeof(x10rt_copy_sz))
-							error("reading GET dataLen");
+						if (nonBlockingRead(context.socketLinks[whichPlaceToHandle].fd, &dataLen, sizeof(x10rt_copy_sz)) < (int)sizeof(x10rt_copy_sz))
+							return fatal_error("reading GET dataLen"), false;
 						if (dataLen > 0)
-							if (nonBlockingRead(state.socketLinks[whichPlaceToHandle].fd, &remotePtr, sizeof(void*)) < (int)sizeof(void*))
-								error("reading GET pointer");
+							if (nonBlockingRead(context.socketLinks[whichPlaceToHandle].fd, &remotePtr, sizeof(void*)) < (int)sizeof(void*))
+								return fatal_error("reading GET pointer"), false;
 
-						pthread_mutex_lock(&state.readLock);
-						state.socketLinks[whichPlaceToHandle].events = POLLIN | POLLPRI;
-						pthread_mutex_unlock(&state.readLock);
+						pthread_mutex_lock(&context.readLock);
+						context.socketLinks[whichPlaceToHandle].events = POLLIN | POLLPRI;
+						pthread_mutex_unlock(&context.readLock);
 
-						finderCallback fcb = state.callBackTable[mp.type].finder;
+						finderCallback fcb = context.callBackTable[mp.type].finder;
                         x10rt_lgl_stats.get.messages_received++;
                         x10rt_lgl_stats.get.bytes_received += mp.len;
 						void* src = fcb(&mp, dataLen);
                         x10rt_lgl_stats.get_copied_bytes_received += dataLen;
 
 						// send the data to the other side (the link is good, because we just read from it)
-						pthread_mutex_lock(&state.writeLocks[whichPlaceToHandle]);
+						pthread_mutex_lock(&context.writeLocks[whichPlaceToHandle]);
 						// Format: type, p.type, p.len, p.msg, bufferlen, bufferADDRESS, buffer
 						enum MSGTYPE m = GET_COMPLETED;
 						if (nonBlockingWrite(whichPlaceToHandle, &m, sizeof(m)) < (int)sizeof(m))
-							error("sending GET_COMPLETED MSGTYPE");
+							return fatal_error("sending GET_COMPLETED MSGTYPE"), false;
 						if (nonBlockingWrite(whichPlaceToHandle, &mp.type, sizeof(mp.type)) < (int)sizeof(mp.type))
-							error("sending GET_COMPLETED x10rt_msg_params.type");
+							return fatal_error("sending GET_COMPLETED x10rt_msg_params.type"), false;
 						if (nonBlockingWrite(whichPlaceToHandle, &mp.len, sizeof(mp.len)) < (int)sizeof(mp.len))
-							error("sending GET_COMPLETED x10rt_msg_params.len");
+							return fatal_error("sending GET_COMPLETED x10rt_msg_params.len"), false;
 						if (mp.len > 0)
 							if (nonBlockingWrite(whichPlaceToHandle, mp.msg, mp.len) < (int)mp.len)
-								error("sending GET_COMPLETED x10rt_msg_params.msg");
+								return fatal_error("sending GET_COMPLETED x10rt_msg_params.msg"), false;
 						if (nonBlockingWrite(whichPlaceToHandle, &dataLen, sizeof(x10rt_copy_sz)) < (int)sizeof(x10rt_copy_sz))
-							error("sending GET_COMPLETED dataLen");
+							return fatal_error("sending GET_COMPLETED dataLen"), false;
 						if (dataLen > 0)
 						{
 							if (nonBlockingWrite(whichPlaceToHandle, &remotePtr, sizeof(void*)) < (int)sizeof(void*))
-								error("sending GET_COMPLETED remotePtr");
+								return fatal_error("sending GET_COMPLETED remotePtr"), false;
 							if (nonBlockingWrite(whichPlaceToHandle, src, dataLen) < (int)dataLen)
-								error("sending GET_COMPLETED data");
+								return fatal_error("sending GET_COMPLETED data"), false;
 						}
-						pthread_mutex_unlock(&state.writeLocks[whichPlaceToHandle]);
+						pthread_mutex_unlock(&context.writeLocks[whichPlaceToHandle]);
 					}
 					break;
 					case GET_COMPLETED:
@@ -1093,67 +1245,67 @@ bool probe (bool onlyProcessAccept, bool block)
 						x10rt_copy_sz dataLen;
 						void* buffer;
 
-						if (nonBlockingRead(state.socketLinks[whichPlaceToHandle].fd, &dataLen, sizeof(x10rt_copy_sz)) < (int)sizeof(x10rt_copy_sz))
-							error("reading GET_COMPLETED dataLen");
+						if (nonBlockingRead(context.socketLinks[whichPlaceToHandle].fd, &dataLen, sizeof(x10rt_copy_sz)) < (int)sizeof(x10rt_copy_sz))
+							return fatal_error("reading GET_COMPLETED dataLen"), false;
 						if (dataLen > 0)
 						{
-							if (nonBlockingRead(state.socketLinks[whichPlaceToHandle].fd, &buffer, sizeof(void*)) < (int)sizeof(void*))
-								error("reading GET_COMPLETED pointer");
-							if (nonBlockingRead(state.socketLinks[whichPlaceToHandle].fd, buffer, dataLen) < (int)dataLen)
-								error("reading GET_COMPLETED data");
+							if (nonBlockingRead(context.socketLinks[whichPlaceToHandle].fd, &buffer, sizeof(void*)) < (int)sizeof(void*))
+								return fatal_error("reading GET_COMPLETED pointer"), false;
+							if (nonBlockingRead(context.socketLinks[whichPlaceToHandle].fd, buffer, dataLen) < (int)dataLen)
+								return fatal_error("reading GET_COMPLETED data"), false;
 						}
-						pthread_mutex_lock(&state.readLock);
-						state.socketLinks[whichPlaceToHandle].events = POLLIN | POLLPRI;
-						pthread_mutex_unlock(&state.readLock);
+						pthread_mutex_lock(&context.readLock);
+						context.socketLinks[whichPlaceToHandle].events = POLLIN | POLLPRI;
+						pthread_mutex_unlock(&context.readLock);
 
 						mp.dest_place = whichPlaceToHandle;
-						notifierCallback ncb = state.callBackTable[mp.type].notifier;
+						notifierCallback ncb = context.callBackTable[mp.type].notifier;
 						ncb(&mp, dataLen);
                         x10rt_lgl_stats.get_copied_bytes_sent += dataLen;
 					}
 					break;
 					default: // this should never happen
-						error("Unknown message type found");
+						return fatal_error("Unknown message type found"), false;
 					break;
 				}
 				if (heapAllocated)
 					free(mp.msg);
 			}
 		}
-		else if ((state.socketLinks[whichPlaceToHandle].revents & POLLHUP) || (state.socketLinks[whichPlaceToHandle].revents & POLLERR) || (state.socketLinks[whichPlaceToHandle].revents & POLLNVAL))
+		else if ((context.socketLinks[whichPlaceToHandle].revents & POLLHUP) || (context.socketLinks[whichPlaceToHandle].revents & POLLERR) || (context.socketLinks[whichPlaceToHandle].revents & POLLNVAL))
 		{
 			#ifdef DEBUG
-				fprintf(stderr, "X10rt.Sockets: place %u detected a broken link to place %u!\n", state.myPlaceId, whichPlaceToHandle);
+				fprintf(stderr, "X10rt.Sockets: place %u detected a broken link to place %u!\n", context.myPlaceId, whichPlaceToHandle);
 			#endif
 
 			// link is broken.  Close it down.
 			#ifdef DEBUG
-            	int r = close(state.socketLinks[whichPlaceToHandle].fd);
+            	int r = close(context.socketLinks[whichPlaceToHandle].fd);
 				if (r < 0)
-					fprintf(stderr, "X10rt.Sockets: place %u failed closing link to %u: %i\n", state.myPlaceId, whichPlaceToHandle, r);
+					fprintf(stderr, "X10rt.Sockets: place %u failed closing link to %u: %i\n", context.myPlaceId, whichPlaceToHandle, r);
 			#else
-				close(state.socketLinks[whichPlaceToHandle].fd);
+				close(context.socketLinks[whichPlaceToHandle].fd);
 			#endif
-			state.socketLinks[whichPlaceToHandle].fd = -1;
-			// TODO - notify the runtime of this?
+			context.socketLinks[whichPlaceToHandle].fd = -2;
+			pthread_mutex_destroy(&context.writeLocks[whichPlaceToHandle]);
 		}
 		else
 		{
 			// when the socket gets closed, we might get into this code here.
 			#ifdef DEBUG_MESSAGING
-				fprintf(stderr, "X10rt.Sockets: place %u got a dud message from place %u\n", state.myPlaceId, whichPlaceToHandle);
+				fprintf(stderr, "X10rt.Sockets: place %u got a dud message from place %u\n", context.myPlaceId, whichPlaceToHandle);
 			#endif
-			pthread_mutex_lock(&state.readLock);
-			state.socketLinks[whichPlaceToHandle].events = POLLIN | POLLPRI;
-			pthread_mutex_unlock(&state.readLock);
+			pthread_mutex_lock(&context.readLock);
+			context.socketLinks[whichPlaceToHandle].events = POLLIN | POLLPRI;
+			pthread_mutex_unlock(&context.readLock);
 		}
 		return true;
 	}
 	else
 	{
-		pthread_mutex_unlock(&state.readLock);
+		pthread_mutex_unlock(&context.readLock);
 		bool dataRemains = flushPendingData();
-		if (state.yieldAfterProbe) // This would be a good time for a yield in some systems.
+		if (context.yieldAfterProbe) // This would be a good time for a yield in some systems.
 			sched_yield();
 		return dataRemains && block;
 	}
@@ -1161,33 +1313,35 @@ bool probe (bool onlyProcessAccept, bool block)
 
 void x10rt_net_finalize (void)
 {
-	if (state.numPlaces == 1)
+    free(context.errorMsg);
+
+	if (context.numPlaces == 1)
 		return;
 
 	#ifdef DEBUG
-		fprintf(stderr, "X10rt.Sockets: shutting down place %u\n", state.myPlaceId);
+		fprintf(stderr, "X10rt.Sockets: shutting down place %u\n", context.myPlaceId);
 	#endif
 
-	if (state.useNonblockingLinks)
+	if (context.useNonblockingLinks)
 	{
 		while(flushPendingData()){}
-		pthread_mutex_destroy(&state.pendingWriteLock);
+		pthread_mutex_destroy(&context.pendingWriteLock);
 	}
 
-	for (unsigned int i=0; i<state.numPlaces; i++)
+	for (unsigned int i=0; i<context.numPlaces; i++)
 	{
-		if (state.socketLinks[i].fd != -1)
+		if (context.socketLinks[i].fd > -1)
 		{
-			pthread_mutex_lock(&state.writeLocks[i]);
+			pthread_mutex_lock(&context.writeLocks[i]);
 			#ifdef DEBUG
-				int r = close(state.socketLinks[i].fd);
+				int r = close(context.socketLinks[i].fd);
 				if (r < 0)
-					fprintf(stderr, "X10rt.Sockets: runtime %u failed closing link to %u: %i\n", state.myPlaceId, i, r);
+					fprintf(stderr, "X10rt.Sockets: runtime %u failed closing link to %u: %i\n", context.myPlaceId, i, r);
 			#else
-				close(state.socketLinks[i].fd);
+				close(context.socketLinks[i].fd);
 			#endif
-			pthread_mutex_unlock(&state.writeLocks[i]);
-			pthread_mutex_destroy(&state.writeLocks[i]);
+			pthread_mutex_unlock(&context.writeLocks[i]);
+			pthread_mutex_destroy(&context.writeLocks[i]);
 		}
 	}
 
@@ -1196,14 +1350,14 @@ void x10rt_net_finalize (void)
 		#ifdef DEBUG
 			int r = close(Launcher::_parentLauncherControlLink);
 			if (r < 0)
-				fprintf(stderr, "X10rt.Sockets: runtime %u failed closing link to parent launcher: %i\n", state.myPlaceId, r);
+				fprintf(stderr, "X10rt.Sockets: runtime %u failed closing link to parent launcher: %i\n", context.myPlaceId, r);
 		#else
 			close(Launcher::_parentLauncherControlLink);
 		#endif
 	}
-	pthread_mutex_destroy(&state.readLock);
-	free(state.socketLinks);
-	free(state.writeLocks);
+	pthread_mutex_destroy(&context.readLock);
+	free(context.socketLinks);
+	free(context.writeLocks);
 }
 
 /*************************************************
@@ -1211,15 +1365,6 @@ void x10rt_net_finalize (void)
  * backend, and we rely on the emulation layer to
  * convert these into messages for us.
  *************************************************/
-
-
-void x10rt_net_internal_barrier (void)
-{
-	#ifdef DEBUG
-		fprintf(stderr, "X10rt.Sockets internal barrier called at place %u\n", state.myPlaceId);
-	#endif
-}
-
 int x10rt_net_supports (x10rt_opt o)
 {
     return 0;
@@ -1227,70 +1372,81 @@ int x10rt_net_supports (x10rt_opt o)
 
 void x10rt_net_remote_op (x10rt_place place, x10rt_remote_ptr victim, x10rt_op_type type, unsigned long long value)
 {
-	error("x10rt_net_remote_op not implemented");
+	fatal_error("x10rt_net_remote_op not implemented");
 }
 
 void x10rt_net_remote_ops (x10rt_remote_op_params *ops, size_t numOps)
 {
-	error("x10rt_net_remote_ops not implemented");
+	fatal_error("x10rt_net_remote_ops not implemented");
 }
 
-x10rt_remote_ptr x10rt_net_register_mem (void *ptr, size_t len)
+void x10rt_net_register_mem (void *ptr, size_t len)
 {
     // assume remote ops will be handled by regular x10rt_send_msg so
     // no special work to do here
-    return (x10rt_remote_ptr)(size_t)ptr;
 }
 
 void x10rt_net_team_new (x10rt_place placec, x10rt_place *placev,
                          x10rt_completion_handler2 *ch, void *arg)
 {
-	error("x10rt_net_team_new not implemented");
+	fatal_error("x10rt_net_team_new not implemented");
 }
 
 void x10rt_net_team_del (x10rt_team team, x10rt_place role,
                          x10rt_completion_handler *ch, void *arg)
 {
-	error("x10rt_net_team_del not implemented");
+	fatal_error("x10rt_net_team_del not implemented");
 }
 
 x10rt_place x10rt_net_team_sz (x10rt_team team)
 {
-	error("x10rt_net_team_sz not implemented");
+	fatal_error("x10rt_net_team_sz not implemented");
     return 0;
 }
 
 void x10rt_net_team_split (x10rt_team parent, x10rt_place parent_role, x10rt_place color,
 		x10rt_place new_role, x10rt_completion_handler2 *ch, void *arg)
 {
-	error("x10rt_net_team_split not implemented");
+	fatal_error("x10rt_net_team_split not implemented");
 }
 
 void x10rt_net_barrier (x10rt_team team, x10rt_place role, x10rt_completion_handler *ch, void *arg)
 {
-	error("x10rt_net_barrier not implemented");
+	fatal_error("x10rt_net_barrier not implemented");
 }
 
 void x10rt_net_bcast (x10rt_team team, x10rt_place role, x10rt_place root, const void *sbuf,
 		void *dbuf, size_t el, size_t count, x10rt_completion_handler *ch, void *arg)
 {
-	error("x10rt_net_bcast not implemented");
+	fatal_error("x10rt_net_bcast not implemented");
 }
 
 void x10rt_net_scatter (x10rt_team team, x10rt_place role, x10rt_place root, const void *sbuf,
 		void *dbuf, size_t el, size_t count, x10rt_completion_handler *ch, void *arg)
 {
-	error("x10rt_net_scatter not implemented");
+	fatal_error("x10rt_net_scatter not implemented");
 }
 
 void x10rt_net_alltoall (x10rt_team team, x10rt_place role, const void *sbuf, void *dbuf,
 		size_t el, size_t count, x10rt_completion_handler *ch, void *arg)
 {
-	error("x10rt_net_alltoall not implemented");
+	fatal_error("x10rt_net_alltoall not implemented");
+}
+
+void x10rt_net_reduce (x10rt_team team, x10rt_place role,
+                        x10rt_place root, const void *sbuf, void *dbuf,
+                        x10rt_red_op_type op, 
+                        x10rt_red_type dtype,
+                        size_t count,
+                        x10rt_completion_handler *ch, void *arg)
+{
+	fatal_error("x10rt_net_reduce not implemented");
 }
 
 void x10rt_net_allreduce (x10rt_team team, x10rt_place role, const void *sbuf, void *dbuf,
 		x10rt_red_op_type op, x10rt_red_type dtype, size_t count, x10rt_completion_handler *ch, void *arg)
 {
-	error("x10rt_net_allreduce not implemented");
+	fatal_error("x10rt_net_allreduce not implemented");
 }
+
+const char *x10rt_net_error_msg (void) { return context.errorMsg; }

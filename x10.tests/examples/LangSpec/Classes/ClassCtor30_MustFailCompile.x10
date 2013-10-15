@@ -1,4 +1,4 @@
-/* Current test harness gets confused by packages, but it would be in package ClassCtor30_MustFailCompile_Classes22;
+/* Current test harness gets confused by packages, but it would be in package ClassCtor30_MustFailCompile_Classes24;
 */
 // Warning: This file is auto-generated from the TeX source of the language spec.
 // If you need it changed, work with the specification writers.
@@ -21,17 +21,17 @@ import harness.x10Test;
 
 public class ClassCtor30_MustFailCompile extends x10Test {
    public def run() : boolean = (new Hook()).run();
-   public static def main(var args: Array[String](1)): void = {
+   public static def main(args:Rail[String]):void {
         new ClassCtor30_MustFailCompile().execute();
     }
 
 
-// file Classes line 1127
+// file Classes line 1258
 
  
 // THIS CODE DOES NOT COMPILE
- static class Cfail(x:Int) {
-  val d: Int;
+ static class Cfail(x:Long) {
+  val d: Long;
   static def example() {
     val wrong = new Cfail(40);
   }

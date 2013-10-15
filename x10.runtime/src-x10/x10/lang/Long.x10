@@ -183,9 +183,9 @@ public struct Long implements Comparable[Long], Arithmetic[Long], Bitwise[Long],
      * @param count the shift count
      * @return this Long shifted left by count.
      */
-    @Native("java", "((#this) << (#count))")  // no mask. Java defines shift as masked.
-    @Native("c++",  "((x10_long) ((#0) << (0x3f & (#1))))")
-    public native operator this << (count:Int): Long;
+    @Native("java", "((#this) << (int)(#count))")  // no mask. Java defines shift as masked.
+    @Native("c++",  "((x10_long) ((#0) << (0x3f & (x10_int)(#1))))")
+    public native operator this << (count:Long): Long;
 
     /**
      * A bitwise right shift operator.
@@ -195,9 +195,9 @@ public struct Long implements Comparable[Long], Arithmetic[Long], Bitwise[Long],
      * @param count the shift count
      * @return this Long shifted right by count.
      */
-    @Native("java", "((#this) >> (#count))")  // no mask. Java defines shift as masked.
-    @Native("c++",  "((x10_long) ((#0) >> (0x3f & (#1))))")
-    public native operator this >> (count:Int): Long;
+    @Native("java", "((#this) >> (int)(#count))")  // no mask. Java defines shift as masked.
+    @Native("c++",  "((x10_long) ((#0) >> (0x3f & (x10_int)(#1))))")
+    public native operator this >> (count:Long): Long;
 
     /**
      * A bitwise logical right shift operator (zero-fill).
@@ -208,9 +208,9 @@ public struct Long implements Comparable[Long], Arithmetic[Long], Bitwise[Long],
      * @param count the shift count
      * @return this Long shifted right by count with high bits zero-filled.
      */
-    @Native("java", "((#this) >>> (#count))")  // no mask. Java defines shift as masked.
-    @Native("c++",  "((x10_long) ((x10_ulong) (#0) >> (0x3f & (#1))))")
-    public native operator this >>> (count:Int): Long;
+    @Native("java", "((#this) >>> (int)(#count))")  // no mask. Java defines shift as masked.
+    @Native("c++",  "((x10_long) ((x10_ulong) (#0) >> (0x3f & (x10_int)(#1))))")
+    public native operator this >>> (count:Long): Long;
 
     /**
      * A bitwise complement operator.

@@ -24,12 +24,12 @@ public class CheckDescendEntails extends x10Test {
      }
   
 	public def run(): boolean = {
-	   val p: Prop = new Prop(1,2);	
+	   val p: Prop = new Prop(1n,2n);	
 	   var t: Test{a == b} = new Test(p,p);
 	   var u: Test{a.i == b.i} = t;
 	   return true;
 	}
-	public static def main(var args: Array[String](1)): void = {
+	public static def main(var args: Rail[String]): void = {
 		new CheckDescendEntails().execute();
 	}
 }

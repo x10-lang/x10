@@ -22,7 +22,7 @@ public class XTENLANG_655 extends x10Test {
         return true;
     }
 
-    public static def main(Array[String](1)) {
+    public static def main(Rail[String]) {
         new XTENLANG_655().execute();
     }
 }
@@ -32,6 +32,6 @@ interface Vossol{
 }
 
 class Chakrrire implements Vossol {
-  public def x()  = 1;
+  public def x()  = 1n;
   public def this() {}
 }

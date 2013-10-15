@@ -13,9 +13,9 @@ package x10.util;
 
 /** A mutable or immutable collection. */
 public abstract class AbstractContainer[T] implements Container[T] {
-  public abstract def size(): Int;
+  public abstract def size(): Long;
   
-  public def isEmpty(): Boolean = size() == 0;
+  public def isEmpty(): Boolean = size() == 0L;
   
   public abstract def contains(y: T): Boolean;
   public abstract def clone(): Container[T];

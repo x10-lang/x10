@@ -25,9 +25,9 @@ public class InitStaticField3 extends x10Test {
     static val c = 2 * 3;
     static val d = 2 / 3;
     static val e = 2 % 3;
-    static val f = 2 << 3;
-    static val g = 2 >> 3;
-    static val h = 2 >>> 3;
+    static val f = 2 << 3n;
+    static val g = 2 >> 3n;
+    static val h = 2 >>> 3n;
     static val i = 2 & 3;
     static val j = 2 | 3;
     static val k = 2 ^ 3;
@@ -59,7 +59,7 @@ public class InitStaticField3 extends x10Test {
         chk(i == 2);
         chk(j == 3);
         chk(k == 1);
-        chk(l == 0xfffffffd);
+        chk(l == 0xfffffffffffffffd);
 
         chk(m == false);
         chk(n == false);
@@ -78,7 +78,7 @@ public class InitStaticField3 extends x10Test {
         return true;
     }
 
-    public static def main(Array[String](1)) {
+    public static def main(Rail[String]) {
         new InitStaticField3().execute();
     }
 

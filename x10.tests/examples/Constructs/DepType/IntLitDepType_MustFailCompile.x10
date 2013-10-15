@@ -16,11 +16,11 @@ import harness.x10Test;
  */
 public class IntLitDepType_MustFailCompile extends x10Test {
 	public def run(): boolean = {
-		var f: int{self==1} = 2; // ERR
+		var f: int{self==1n} = 2n; // ERR
 		return true;
 	}
 
-	public static def main(var args: Array[String](1)): void = {
+	public static def main(var args: Rail[String]): void = {
 		new IntLitDepType_MustFailCompile().execute();
 	}
 

@@ -12,18 +12,9 @@
 package x10.util.concurrent;
 
 import x10.compiler.Pinned;
-import x10.io.SerialData;
 
 @Pinned public class SimpleLatch extends Lock {
     public def this() { super(); }
-
-    public def serialize():SerialData {
-        throw new UnsupportedOperationException("Cannot serialize "+typeName());
-    }
-
-    private def this(SerialData) {
-        throw new UnsupportedOperationException("Cannot deserialize "+typeName());
-    }
 
     static type Worker = Runtime.Worker;
 
@@ -49,10 +40,15 @@ import x10.io.SerialData;
     }
 
     public def release():void {
+        if (state) return;
         lock();
+        if (state) {
+            unlock();
+            return;
+        }
         state = true;
         if (worker != null) {
-            Runtime.decreaseParallelism(1);
+            Runtime.decreaseParallelism(1n);
             worker.unpark();
         }
         unlock();

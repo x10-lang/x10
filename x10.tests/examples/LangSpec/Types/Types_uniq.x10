@@ -21,12 +21,12 @@ import harness.x10Test;
 
 public class Types_uniq extends x10Test {
    public def run() : boolean = (new Hook()).run();
-   public static def main(var args: Array[String](1)): void = {
+   public static def main(args:Rail[String]):void {
         new Types_uniq().execute();
     }
 
 
-// file Types line 2041
+// file Types line 2331
  static   class A {} static  class B extends A{} static  class C extends A{}
  static  class D {
 static def pick(t:Boolean, b:B, c:C) = t ? b : c;

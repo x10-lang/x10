@@ -9,8 +9,9 @@
  *  (C) Copyright IBM Corporation 2006-2010.
  */
 
-import x10.util.Box;
 import harness.x10Test;
+import x10.regionarray.*;
+import x10.util.Box;
 
 /**
  * Test for for loop with for (Point p:[1:N,1:N,1:N]) syntax.
@@ -19,13 +20,13 @@ import harness.x10Test;
  */
 public class ForLoop4 extends x10Test {
 
-	public static N: int = 3;
+	public static N: long = 3;
 
 	public def run(): boolean = {
 		//Ensure iterator works in lexicographic order
-		var n: int = 0;
+		var n: long = 0L;
 		var prev: Box[Point] = null;
-		for (p in 0..(N-1)*0..(N-1)*0..(N-1)->here) {
+		for (p in Region.make(0..(N-1), 0..(N-1), 0..(N-1))->here) {
 			if (!successor(prev, p)) return false;
 			prev = new Box[Point](p);
 			n++;
@@ -43,17 +44,17 @@ public class ForLoop4 extends x10Test {
 	static def successor(var prev: Box[Point], var p: Point): boolean = {
 		if (prev == null) return true;
                 val v = prev();
-		var i: int = v(0);
-		var j: int = v(1);
-		var k: int = v(2);
+		var i: long = v(0);
+		var j: long = v(1);
+		var k: long = v(2);
 		//x10.io.Console.OUT.println("Prev:"+i+" "+j+" "+k);
 		//x10.io.Console.OUT.println("Actual:"+ p.get(0)+" "+p.get(1)+" "+p.get(2));
 		k++;
 		if (k == N) {
-			k = 0;
+			k = 0L;
 			j++;
 			if (j == N) {
-				j = 0;
+				j = 0L;
 				i++;
 			}
 		}
@@ -64,7 +65,7 @@ public class ForLoop4 extends x10Test {
 		return true;
 	}
 
-	public static def main(Array[String](1)) {
+	public static def main(Rail[String]) {
 		new ForLoop4().execute();
 	}
 }

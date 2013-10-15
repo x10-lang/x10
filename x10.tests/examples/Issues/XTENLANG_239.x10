@@ -24,7 +24,7 @@ class XTENLANG_239 extends x10Test {
         return true;
     }
 
-    public static def main(Array[String](1)) {
+    public static def main(Rail[String]) {
         new XTENLANG_239().execute();
     }
 }

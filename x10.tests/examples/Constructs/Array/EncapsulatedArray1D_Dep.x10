@@ -17,6 +17,7 @@
  *
  */
 import harness.x10Test;
+import x10.regionarray.*;
 
 /**
  * Building arrays distributed across places using the encapsulation approach 
@@ -35,8 +36,8 @@ public class EncapsulatedArray1D_Dep extends x10Test {
     
     public def run() {
 
-        val size: int = 5;
-        val R  = 0..(size-1)*0..(size-1);
+        val size: long = 5;
+        val R  = Region.make(0..(size-1), 0..(size-1));
         val D  = Dist.makeUnique(); 
         val numOfPlaces = Place.MAX_PLACES;
         
@@ -55,7 +56,7 @@ public class EncapsulatedArray1D_Dep extends x10Test {
         return true;
     }
     
-    public static def main(Array[String](1)) {
+    public static def main(Rail[String]) {
         new EncapsulatedArray1D_Dep().execute();
     }
 

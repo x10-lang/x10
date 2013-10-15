@@ -19,34 +19,22 @@ import harness.x10Test;
 public class ULongArray0 extends x10Test {
     public def run(): boolean = {
 	if (!test_simple()) return false;
-	if (!test_range()) return false;
-	return true;
-    }
-
-    public def test_range():boolean {
-	val aaa = new Array[ULong](1..10);
-	for (i in 1..10) aaa(i) = i as ULong;
-
-	var s : ULong = 0;
-	for (i in aaa.region) s += aaa(i);
-
-	if (s != 55ul) return false;
 	return true;
     }
 
     public def test_simple():boolean {
-	val aaa = new Array[ULong](10);
+	val aaa = new Rail[ULong](10);
 	for (i in 0..9) aaa(i) = i as ULong;
 
-	var s : ULong = 0;
-	for (i in aaa.region) s += aaa(i);
+	var s : ULong = 0ul;
+	for (i in aaa.range) s += aaa(i);
 
 	if (s != 45ul) return false;
 
 	return true;
     }
 
-    public static def main(Array[String]) {
+    public static def main(Rail[String]) {
         new ULongArray0().execute();
     }
 }

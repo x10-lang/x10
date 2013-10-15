@@ -24,17 +24,17 @@ public class XTENLANG_2297 extends x10Test {
         return true;
     }
     
-    public static def main(Array[String](1)) {
+    public static def main(Rail[String]) {
         new XTENLANG_2297().execute();
     }
 }
 
 class clogua {
-  public static def main(argv:Array[String](1)) {
-    val n = 3;
+  public static def main(argv:Rail[String]) {
+    val n = 3n;
     val f 
 // : (x:Int){x != n} => Int
-          = (x:Int){x != n} => (12/(n-x));
-    Console.OUT.println("f(5)=" + f(5));    
+          = (x:Int){x != n} => (12n/(n-x));
+    Console.OUT.println("f(5)=" + f(5n));    
   }
 }

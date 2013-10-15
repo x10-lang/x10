@@ -16,11 +16,11 @@ import harness.x10Test;
  *
  * @author vj
  */
-public class HasTypeConstructor(n:int) extends x10Test {
+public class HasTypeConstructor(n:long) extends x10Test {
 	def this(): HasTypeConstructor{self.n==0} {
 		property(0);
 	}
-	def this(x:int)  {
+	def this(x:long)  {
 		property(x);
 	}
 	public def run() {
@@ -29,7 +29,7 @@ public class HasTypeConstructor(n:int) extends x10Test {
 		return true;
 	}
 
-	public static def main(Array[String](1))  {
+	public static def main(Rail[String])  {
 		new HasTypeConstructor().execute();
 	}
 }

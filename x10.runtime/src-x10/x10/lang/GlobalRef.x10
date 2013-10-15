@@ -31,14 +31,10 @@ public struct GlobalRef[T](
     @Native("c++", "x10::lang::Place::place((#this)->location)")
     home:Place) {T isref} {
 
-    //@Native("java", "(#this).home")
-    //@Native("c++", "x10::lang::Place::place((#this)->location)")
-    //public property home():Place = home;
-
     /** 
      * Create a value encapsulating the given object of type T.
      */
-    @Native("c++", "x10::lang::GlobalRef(#this)")
+    @Native("c++", "x10::lang::GlobalRef(#t)")
     public native def this(t:T):GlobalRef[T]{self.home==here}; 
 
     /** 
@@ -102,6 +98,10 @@ public struct GlobalRef[T](
     @Native("java", "(#this).hashCode()")
     @Native("c++", "(#this)->hashCode()")
     public native def hashCode():Int;
+
+    @Native("java", "(#this).isNull()")
+    @Native("c++", "(#this)->isNull()")
+    public native def isNull():Boolean;
 
     private static class LocalEval {
         /**

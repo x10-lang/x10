@@ -71,7 +71,7 @@ public class ClockTest18 extends x10Test {
 		return true;
 	}
 
-	public static def main(Array[String](1)){
+	public static def main(Rail[String]){
 		new ClockTest18().execute();
 	}
 
@@ -105,8 +105,8 @@ public class ClockTest18 extends x10Test {
 	 */
 	static class X {
 		public val z = [1,0];
-		def zero(): int = { return z(z(z(1))); /* that is a 0 */ }
-		def one(): int = { return z(z(z(0))); /* that is a 1 */ }
+		def zero(): long = { return z(z(z(1))); /* that is a 0 */ }
+		def one(): long = { return z(z(z(0))); /* that is a 1 */ }
 		def modify(): void = { z(0) += 1; }
 	}
 }

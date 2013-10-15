@@ -1,0 +1,9 @@
+#!/bin/bash
+
+export X10_HOME=/tmp/x10reg_c
+export X10_SVNROOT="http://svn.code.sf.net/p/x10/code/trunk"
+export CAT_BACKEND_NAME=x10c
+
+. /home/x10reg/bin/autorunCT_common
+
+exit $status

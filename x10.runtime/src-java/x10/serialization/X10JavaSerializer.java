@@ -16,21 +16,31 @@ import java.io.DataOutput;
 import java.io.DataOutputStream;
 import java.io.IOException;
 import java.io.ObjectOutputStream;
+import java.io.OutputStream;
 import java.lang.reflect.Array;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
-import java.util.HashMap;
-import java.util.Map.Entry;
 
 import x10.io.CustomSerialization;
-import x10.rtt.RuntimeType;
+import x10.rtt.Types;
 import x10.runtime.impl.java.Runtime;
+import x10.serialization.SerializationDictionary.LocalSerializationDictionary;
 
 public final class X10JavaSerializer implements SerializationConstants {
         
-    protected final DataOutputStream out;
-    protected final ByteArrayOutputStream b_out;
+    /**
+     * The primary output stream for writing; use this instead of the backing streams
+     * when writing data to the serializer!
+     */
+    protected DataOutputStream out;
     
+    /*
+     * Alternative backing output streams.  
+     * Exactly one of these will be non-null.
+     */
+    private ByteArrayOutputStream b_out;
+    private OutputStream o_out;
+        
     // When a Object is serialized record its position
     // N.B. use custom IdentityHashMap class, as standard one has poor performance on J9
     X10IdentityHashMap<Object, Integer> objectMap = new X10IdentityHashMap<Object, Integer>();
@@ -41,39 +51,97 @@ public final class X10JavaSerializer implements SerializationConstants {
     public void addToGrefMap(x10.core.GlobalRef<?> gr, int weight) { grefMap.put(gr, weight); }
     public java.util.Map<x10.core.GlobalRef<?>, Integer> getGrefMap() { return grefMap; }
     
-    // Build up per-message id dictionary
-    protected SerializationDictionary idDictionary = new SerializationDictionary(FIRST_DYNAMIC_ID);
-
+    // per-message id dictionary
+    protected LocalSerializationDictionary idDictionary;
+    
+    
+    /*
+     * For use in Managed X10 serialization code; parallels the make/init constructors used
+     * from generated code
+     */
     public X10JavaSerializer() {
+        x10$serialization$X10JavaSerializer$$init$S();
+    }
+    public X10JavaSerializer(x10.io.OutputStreamWriter os) {
+        x10$serialization$X10JavaSerializer$$init$S(os);
+    }
+    /*
+     * for use by generated code in two-phase construction. 
+     */
+    public X10JavaSerializer(System[] ignored) {
+        // for use by generated code; will be followed by call to $init in generated code
+    }
+    
+    /*
+     * Initialization code
+     */
+    public X10JavaSerializer x10$serialization$X10JavaSerializer$$init$S() {
         this.b_out = new ByteArrayOutputStream();
-        this.out = new DataOutputStream(this.b_out);
+        initCommon(b_out);
+        return this;
+    }
+    public X10JavaSerializer x10$serialization$X10JavaSerializer$$init$S(x10.io.OutputStreamWriter os) {
+        this.o_out = os.getNativeOutputStream().stream;
+        initCommon(o_out);
+        return this;
+    }
+    public void initCommon(java.io.OutputStream os) {
+        this.out = new DataOutputStream(os);
+        this.idDictionary = new LocalSerializationDictionary(SharedDictionaries.getSerializationDictionary(), FIRST_DYNAMIC_ID);
     }
 
+    
+    @SuppressWarnings("rawtypes")
+    public x10.core.Rail toRail() {
+        byte[] dataBytes = getDataBytes();
+        return new x10.core.Rail(Types.BYTE, dataBytes.length, dataBytes);
+    }
+    
+    
     public DataOutput getOutForHadoop() {
         return out;
     }
     
-    public int numBytesWritten() {
-        return b_out.size();
+    public int dataBytesWritten$O() {
+        return dataBytesWritten();
+    }
+    public int dataBytesWritten() {
+        return out.size();
     }
     
-    public byte[] toMessage() throws IOException {
-        out.close();
-
-        if (Runtime.TRACE_SER) {
-            Runtime.printTraceMessage("Sending per-message serialization ids: "+idDictionary);
+    public byte[] getDataBytes() {
+        try {
+            out.flush();
+        } catch (IOException e) {
+            if (Runtime.TRACE_SER) {
+                Runtime.printTraceMessage("Suppressed IOException when flushing backing streams");
+                if (Runtime.TRACE_SER_DETAIL) {
+                    e.printStackTrace();
+                }
+            }
         }
-
-        byte[] dictBytes = idDictionary.encode();
-        byte[] dataBytes = b_out.toByteArray();
-        byte[] message = new byte[dictBytes.length + dataBytes.length];
-        System.arraycopy(dictBytes, 0, message, 0, dictBytes.length);
-        System.arraycopy(dataBytes, 0, message, dictBytes.length, dataBytes.length);
-        return message;
+        if (b_out == null) {
+            throw new java.lang.UnsupportedOperationException("Cannot call getDataBytes() on Serializer that is backed with an OutputStreamWriter");
+        } else {
+            return b_out.toByteArray();
+        }
     }
     
-    public short getSerializationId(Class<?> clazz, Object obj) {
-        return idDictionary.getSerializationId(clazz, obj);
+    public void newObjectGraph() {
+        try {
+            if (Runtime.TRACE_SER) {
+                Runtime.printTraceMessage("RESETTING OBJECT GRAPH IDS");
+            }
+            out.writeShort(RESET_OBJECT_GRAPH_BOUNDARY_ID);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+        objectMap.clear();
+        counter = 0;
+    }
+        
+    public short getSerializationId(Class<?> clazz, Object obj) throws IOException {
+        return idDictionary.getSerializationId(clazz, obj, out);
     }
     
     public void write(X10JavaSerializable obj) throws IOException {
@@ -127,7 +195,7 @@ public final class X10JavaSerializer implements SerializationConstants {
     }
 
     private void writeNull() throws IOException {
-        write(NULL_ID);
+        writeSerializationId(NULL_ID);
         if (Runtime.TRACE_SER) {
             Runtime.printTraceMessage("Serializing a null reference");
         }
@@ -136,7 +204,7 @@ public final class X10JavaSerializer implements SerializationConstants {
     public void write(CustomSerialization obj) throws IOException {
         write((X10JavaSerializable) obj);
     }
-
+    
     public void write(X10JavaSerializable obj[]) throws IOException {
         write(obj.length);
         for (X10JavaSerializable o : obj) {
@@ -280,6 +348,13 @@ public final class X10JavaSerializer implements SerializationConstants {
         out.writeShort(s);
     }
 
+    public void writeSerializationId(short sid) throws IOException {
+        if (Runtime.TRACE_SER) {
+            Runtime.printTraceMessage("Serializing [**] a " + Runtime.ANSI_CYAN + "serialization id" + Runtime.ANSI_RESET + ": " + sid);
+        }
+        out.writeShort(sid);
+    }
+    
     public void write(Short p) throws IOException {
         if (p == null) {
             writeNull();
@@ -404,6 +479,17 @@ public final class X10JavaSerializer implements SerializationConstants {
         }
         writeObjectUsingReflection(v);
     }
+    
+    // Called from x10.io.Serializer.
+    // The point of this wrapper message is to avoid a throws java.io.IOException
+    // in the X10 API for Serializer.writeAny(v:Any).
+    public void writeAny(Object v) {
+        try {
+            write(v);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
 
     public void write(String str) throws IOException {
         if (str == null) {
@@ -419,7 +505,7 @@ public final class X10JavaSerializer implements SerializationConstants {
         if (pos != null) {
             return;
         }
-        write(STRING_ID);
+        writeSerializationId(STRING_ID);
         writeStringValue(str);
     }
 
@@ -447,7 +533,7 @@ public final class X10JavaSerializer implements SerializationConstants {
             }
             // We have serialized this object before hence no need to do it again
             if (writeRef) {
-                write(REPEATED_OBJECT_ID);
+                writeSerializationId(REPEATED_OBJECT_ID);
                 write(pos.intValue());
             }
         } else {
@@ -465,23 +551,24 @@ public final class X10JavaSerializer implements SerializationConstants {
             writeNull();
             return;
         }
-        Integer pos = previous_position(body, true);
-        if (pos != null) {
-            return;
-        }
         
         // Special case: optimize transmission of RTT's for primitives
         if (body instanceof x10.rtt.RuntimeType<?>) {
-            int id = ((x10.rtt.RuntimeType<?>) body).$_get_serialization_id();
+            short id = ((x10.rtt.RuntimeType<?>) body).$_get_serialization_id();
             if (id <= MAX_HARDCODED_ID) {
                 write(id);
                 return;
             }   
         }
+        
+        Integer pos = previous_position(body, true);
+        if (pos != null) {
+            return;
+        }
 
         try {
             Class<? extends Object> bodyClass = body.getClass();
-            write(getSerializationId(bodyClass, body));
+            writeSerializationId(getSerializationId(bodyClass, body));
             SerializerThunk st = SerializerThunk.getSerializerThunk(bodyClass);
             st.serializeObject(body, bodyClass, this);
         } catch (SecurityException e) {
@@ -544,7 +631,7 @@ public final class X10JavaSerializer implements SerializationConstants {
         if (pos != null) {
             return;
         }
-        write(JAVA_ARRAY_ID);
+        writeSerializationId(JAVA_ARRAY_ID);
         int length = Array.getLength(obj);
         write(length);
         Class<?> componentType = obj.getClass().getComponentType();
@@ -609,39 +696,39 @@ public final class X10JavaSerializer implements SerializationConstants {
         if (pos != null) {
             return;
         }
-        write(JAVA_ARRAY_ID);
+        writeSerializationId(JAVA_ARRAY_ID);
         Class<?> componentType = obj.getClass().getComponentType();
         if (componentType.isPrimitive()) {
             if ("int".equals(componentType.getName())) {
-                write(INTEGER_ID);
+                writeSerializationId(INTEGER_ID);
                 write((int[]) obj);
             } else if ("double".equals(componentType.getName())) {
-                write(DOUBLE_ID);
+                writeSerializationId(DOUBLE_ID);
                 write((double[]) obj);
             } else if ("float".equals(componentType.getName())) {
-                write(FLOAT_ID);
+                writeSerializationId(FLOAT_ID);
                 write((float[]) obj);
             } else if ("boolean".equals(componentType.getName())) {
-                write(BOOLEAN_ID);
+                writeSerializationId(BOOLEAN_ID);
                 write((boolean[]) obj);
             } else if ("byte".equals(componentType.getName())) {
-                write(BYTE_ID);
+                writeSerializationId(BYTE_ID);
                 write((byte[]) obj);
             } else if ("short".equals(componentType.getName())) {
-                write(SHORT_ID);
+                writeSerializationId(SHORT_ID);
                 write((short[]) obj);
             } else if ("long".equals(componentType.getName())) {
-                write(LONG_ID);
+                writeSerializationId(LONG_ID);
                 write((long[]) obj);
             } else if ("char".equals(componentType.getName())) {
-                write(CHARACTER_ID);
+                writeSerializationId(CHARACTER_ID);
                 write((char[]) obj);
             }
         } else if ("java.lang.String".equals(componentType.getName())) {
-            write(STRING_ID);
+            writeSerializationId(STRING_ID);
             write((java.lang.String[]) obj);
         } else {
-            write(getSerializationId(componentType, null));
+            writeSerializationId(getSerializationId(componentType, null));
             if (componentType.isArray()) {
                 int length = Array.getLength(obj);
                 write(length);

@@ -18,11 +18,11 @@ import harness.x10Test;
 public class ObjectToPrimitive extends x10Test {
 	 
 	public def run(): boolean = {
-		var primitive: x10.lang.Any = 3;
+		var primitive: x10.lang.Any = 3n;
 		return (primitive instanceof Int);
 	}
 	
-	public static def main(Array[String](1))  {
+	public static def main(Rail[String])  {
 		new ObjectToPrimitive().execute();
 	}
 }

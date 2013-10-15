@@ -10,6 +10,7 @@
  */
 
 import x10.io.Printer;
+import x10.regionarray.*;
 import x10.io.StringWriter;
 
 
@@ -25,9 +26,9 @@ abstract public class TestRegion extends x10Test {
 
     def testName() {
         var cn:String = typeName();
-        val init = cn.substring(0,6); // XTENLANG-???
+        val init = cn.substring(0n,6n); // XTENLANG-???
         if (init.equals("class "))
-            cn = cn.substring(6, cn.length());
+            cn = cn.substring(6n, cn.length());
         return cn;
     }
 
@@ -61,33 +62,33 @@ abstract public class TestRegion extends x10Test {
 
         var os: Rail[Any] = new Rail[Any](10);
 
-        def set(i0: int, vue: double): void = {
+        def set(i0: long, vue: double): void = {
             os(i0) = new Box[double](vue);
         }
 
-        def set(i0: int, i1: int, vue: double): void = {
+        def set(i0: long, i1: long, vue: double): void = {
             if (os(i0)==null) os(i0) = new Grid();
             val grid = os(i0) as Grid;
             grid.set(i1, vue);
         }
 
-        def set(i0: int, i1: int, i2: int, vue: double): void = {
+        def set(i0: long, i1: long, i2: long, vue: double): void = {
             if (os(i0)==null) os(i0) = new Grid();
             val grid = os(i0) as Grid;
             grid.set(i1, i2, vue);
         }
 
-        def pr(rank: int): void = {
-            var min: int = os.size;
-            var max: int = 0;
-            for (var i: int = 0; i<os.size; i++) {
+        def pr(rank: long): void = {
+            var min: long = os.size;
+            var max: long = 0L;
+            for (var i: long = 0L; i<os.size; i++) {
                 if (os(i)!=null) {
                     if (i<min) min = i;
                     else if (i>max) max = i;
                 }
             }
             Out : Printer = (out as GlobalRef[Printer]{self.home==here})();
-            for (var i: int = 0; i<os.size; i++) {
+            for (var i: long = 0L; i<os.size; i++) {
                 var o: Any = os(i);
                 if (o==null) {
                     if (rank==1)
@@ -101,7 +102,7 @@ abstract public class TestRegion extends x10Test {
                         Out.print("    " + i + "  ");
                     else if (rank>=3) {
                         Out.print("    ");
-                        for (var j: int = 0; j<rank; j++)
+                        for (var j: int = 0n; j<rank; j++)
                             Out.print("-");
                         Out.print(" " + i + "\n");
                     }
@@ -127,10 +128,10 @@ abstract public class TestRegion extends x10Test {
     def prArray(test: String, r: Region, bump: boolean): Array[double]{rank==r.rank} = {
 
         val init1 : (Point(r.rank))=>double  = (pt: Point(r.rank)) => {
-            var v: int = 1;
-            for (var i: int = 0; i<pt.rank; i++)
+            var v: int = 1n;
+            for (var i: int = 0n; i<pt.rank; i++)
                 v *= pt(i);
-            return v%10 as double;
+            return v%10n as double;
         };
 
         val init0 : (Point(r.rank))=> double = (Point(r.rank)) => 0.0D as double;
@@ -194,12 +195,12 @@ abstract public class TestRegion extends x10Test {
                 grid.set(p(0), a2(p(0)));
             } else if (p.rank==2) {
                 val a2 = a as Array[double](2);
-                if (bump) a2(p(0), p(1)) = a2(p(0), p(1)) + 1;
-                grid.set(p(0), p(1), a2(p(0),p(1)));
+                if (bump) a2(p(0n), p(1n)) = a2(p(0n), p(1n)) + 1;
+                grid.set(p(0n), p(1n), a2(p(0n),p(1n)));
             } else if (p.rank==3) {
                 val a2 = a as Array[double](3);
-                if (bump) a2(p(0), p(1), p(2)) = a2(p(0), p(1), p(2)) + 1;
-                grid.set(p(0), p(1), p(2), a2(p(0),p(1),p(2)));
+                if (bump) a2(p(0n), p(1n), p(2n)) = a2(p(0n), p(1n), p(2n)) + 1;
+                grid.set(p(0n), p(1n), p(2n), a2(p(0n),p(1n),p(2n)));
             }
         }
         grid.pr(a.rank);
@@ -211,7 +212,7 @@ abstract public class TestRegion extends x10Test {
     }
 
     def r(a: int, b: int, c: int, d: int): Region(2) {
-        return (a..b)*(c..d);
+        return Region.make(a..b, c..d);
     }
 
     // a simple mechanism of somewhat dubious utility to allow
@@ -221,22 +222,20 @@ abstract public class TestRegion extends x10Test {
     // XXX coefficients must be -1,0,+1; can allow larger coefficients
     // by increasing # bits per coeff
 
-    static ZERO = 0xAAAAAAA;
-    static GE = 0;
-    static LE = 1;
-    def X(axis: int) = 0x1<<2*axis;
+    static ZERO = 0xAAAAAAAn;
+    static GE = 0n;
+    static LE = 1n;
+    def X(axis:int) = 0x1n<<2n*axis;
 
-    public def reg(rank: int, var coeff: int, op: int, k: int): Region(rank) {
+    public def reg(rank: long, var coeff: int, op: int, k: int): Region(rank) {
         coeff += ZERO;
-        val as_ = new Rail[int](rank);
-        for (var i: int = 0; i<rank; i++) {
-            var a: int = (coeff&3) - 2;
+        val as_ = new Rail[long](rank);
+        for (var i: int = 0n; i<rank; i++) {
+            var a: int = (coeff&3n) - 2n;
             as_(i) = op==LE? a : - a;
-            coeff = coeff >> 2;
+            coeff = coeff >> 2n;
         }
         return Region.makeHalfspace(as_, op==LE? -k : k);
     }
-
-
 
 }

@@ -10,6 +10,7 @@
  */
 
 import harness.x10Test;
+import x10.regionarray.*;
 
 /**
  * Ensures char arrays are implemented.
@@ -17,13 +18,13 @@ import harness.x10Test;
 public class Array3Char extends x10Test {
 
     public def run(): boolean = {
-        val r  = (1..10)*(1..10);
+        val r  = Region.make(1..10, 1..10);
         val ia  = new Array[Char](r, (x:Point)=>'_');
         ia(1, 1) = 'a';
         return ('a' == ia(1, 1));
     }
 
-    public static def main(var args: Array[String](1)): void = {
+    public static def main(var args: Rail[String]): void = {
         new Array3Char().execute();
     }
 }

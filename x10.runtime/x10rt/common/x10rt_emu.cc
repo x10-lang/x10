@@ -1,7 +1,23 @@
+/*
+ *  This file is part of the X10 project (http://x10-lang.org).
+ *
+ *  This file is licensed to You under the Eclipse Public License (EPL);
+ *  You may not use this file except in compliance with the License.
+ *  You may obtain a copy of the License at
+ *      http://www.opensource.org/licenses/eclipse-1.0.php
+ *
+ *  (C) Copyright IBM Corporation 2006-2013.
+ */
+
+#if defined(__CYGWIN__) || defined(__FreeBSD__)
+#undef __STRICT_ANSI__ // Strict ANSI mode is too strict in Cygwin and FreeBSD
+#endif
+
 #include <x10rt_net.h>
 #include <x10rt_internal.h>
 #include <x10rt_types.h>
 #include <x10rt_ser.h>
+#include <x10rt_front.h>
 
 #include <cstring>
 #include <cstdio>
@@ -55,15 +71,15 @@ namespace {
 void x10rt_emu_remote_op (x10rt_place place, x10rt_remote_ptr victim,
                           x10rt_op_type type, unsigned long long value)
 {
-    x10rt_msg_type id;
+    x10rt_msg_type id = REMOTE_ADD_ID;
     switch (type) {
         case X10RT_OP_ADD: id=REMOTE_ADD_ID; break;
         case X10RT_OP_AND: id=REMOTE_AND_ID; break;
         case X10RT_OP_OR:  id=REMOTE_OR_ID; break;
         case X10RT_OP_XOR: id=REMOTE_XOR_ID; break;
         default:
-            fprintf(stderr,"Garbage op type given to x10rt_remote_op.\n");
-            abort();
+            // caller should ensure this never happens
+            fprintf(stderr,"Garbage op type given to x10rt_emu_remote_op.\n");
     }
     x10rt_serbuf b; x10rt_serbuf_init(&b, place, id);
     x10rt_serbuf_write(&b, &victim);

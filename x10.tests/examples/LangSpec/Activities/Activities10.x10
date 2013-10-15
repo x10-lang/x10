@@ -21,7 +21,7 @@ import harness.x10Test;
 
 public class Activities10 extends x10Test {
    public def run() : boolean = (new Hook()).run();
-   public static def main(var args: Array[String](1)): void = {
+   public static def main(args:Rail[String]):void {
         new Activities10().execute();
     }
 
@@ -29,7 +29,7 @@ public class Activities10 extends x10Test {
 // file Activities.tex,  line 17
 
  static class Activities1TestStmt{
-  def check(x:Int, var y:Int)  {
+  def check(x:Long, var y:Long)  {
     when(x==0);
   }}
 

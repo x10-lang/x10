@@ -28,7 +28,7 @@ public class TypedefScope7 extends TypedefTest {
 
     public def run(): boolean = {
         
-        a:X.T[int] = 1;
+        a:X.T[long] = 1;
         check("a", a, 1);
 
         b:X.T[String] = "1";
@@ -37,7 +37,7 @@ public class TypedefScope7 extends TypedefTest {
         return result;
     }
 
-    public static def main(var args: Array[String](1)): void = {
+    public static def main(var args: Rail[String]): void = {
         new TypedefScope7().execute();
     }
 }

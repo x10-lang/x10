@@ -28,12 +28,12 @@ public class TypedefIterated01 extends TypedefTest {
         type A = int;
         type B = A;
         type C = B;
-        var c:C = 0;
+        var c:C = 0n;
 
         return result;
     }
 
-    public static def main(var args: Array[String](1)): void = {
+    public static def main(var args: Rail[String]): void = {
         new TypedefIterated01().execute();
     }
 }

@@ -43,14 +43,14 @@ import harness.x10Test;
  */
 public class ClockTest7 extends x10Test {
 
-	var value: int = 0;
-	static val N: int = 16;
+	var value: long = 0;
+	static val N: long = 16;
 
 	public def run(): boolean = {
 		try {
 		val c: Clock = Clock.make();
 
-		finish for ([i] in 0..(N-1)) async {
+		finish for (i in 0..(N-1)) async {
 			atomic value++;
 			x10.io.Console.OUT.println("Activity "+i+" phase 0");
 			Clock.advanceAll();
@@ -78,7 +78,7 @@ public class ClockTest7 extends x10Test {
 		return false;
 	}
 
-	public static def main(Array[String](1)) {
+	public static def main(Rail[String]) {
 		new ClockTest7().executeAsync();
 	}
 }

@@ -21,17 +21,17 @@ import harness.x10Test;
 
 public class Statements60 extends x10Test {
    public def run() : boolean = (new Hook()).run();
-   public static def main(var args: Array[String](1)): void = {
+   public static def main(args:Rail[String]):void {
         new Statements60().execute();
     }
 
 
-// file Statements line 389
+// file Statements line 388
  static  class LabelledBreakeyBreakyHeart {
- def findy(a:Array[Array[Int](1)](1), v:Int): Boolean {
+ def findy(a:Rail[Rail[Long]], v:Long): Boolean {
 var found: Boolean = false;
-outer: for (var i: Int = 0; i < a.size; i++)
-    for (var j: Int = 0; j < a(i).size; j++)
+outer: for (i in a.range)
+    for (j in a(i).range)
         if (a(i)(j) == v) {
             found = true;
             break outer;

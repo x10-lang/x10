@@ -11,20 +11,12 @@
 
 package x10.matrix;
 
-import x10.io.Console;
-import x10.util.Random;
-
-
 /**
  *  This class provides matrix multiplication driver in X10, when the actual matrix type is unknown.
  *  All elements are accessed via the abstract method, which could have high latency.
  *  The result of multiply is stored in dense format.
- *  
  */
 public class MatrixMultXTen {
-
-	//================================================================
-	//================================================================
 	// C = A * B + plus * C
 
 	/**
@@ -44,20 +36,18 @@ public class MatrixMultXTen {
 			B:Matrix{self.M==A.N}, 
 			C:DenseMatrix{C.M==A.M&&C.N==B.N}, 
 			plus:Boolean):Matrix(C){
-		var startcol:Int = 0;
-		for (var c:Int=0; c<B.N; c++) {
+		var startcol:Long = 0;
+		for (var c:Long=0; c<B.N; c++) {
 			if (!plus) {
-				for (var i:Int=startcol; i<startcol+C.M; i++)
+				for (var i:Long=startcol; i<startcol+C.M; i++)
 					C.d(i) = 0.0D;
 			}
 
-			for (var k:Int=0; k<A.N; k++) {
+			for (var k:Long=0; k<A.N; k++) {
 				val v2    = B(k, c); //m2(k, c)
-				//
 				if (MathTool.isZero(v2)) continue;
-				for (var r:Int=0; r<A.M; r++) {
+				for (var r:Long=0; r<A.M; r++) {
 					val v1= A(r, k); //m1(r, k)
-					if (MathTool.isZero(v1)) continue;
 					C.d(startcol+r) += v1 * v2;
 				}
 			}
@@ -65,8 +55,6 @@ public class MatrixMultXTen {
 		}		
 		return C;
 	}
-
-	//
 
 	/**
 	 * X10 driver of matrix multiplication: C+= A<sup>T</sup> &#42 B if plus is true, 
@@ -83,19 +71,17 @@ public class MatrixMultXTen {
 			B:Matrix{B.M==A.M}, 
 			C:DenseMatrix(A.N,B.N), 
 			plus:Boolean):DenseMatrix(C) {
-		var startcol:Int = 0;
-		for (var c:Int=0; c<B.N; c++) {
+		var startcol:Long = 0;
+		for (var c:Long=0; c<B.N; c++) {
 			if (!plus) {
-				for (var i:Int=startcol; i<startcol+C.M; i++) C.d(i) = 0.0D;
+				for (var i:Long=startcol; i<startcol+C.M; i++) C.d(i) = 0.0D;
 			}
 
-			for (var k:Int=0; k<A.M; k++) {
+			for (var k:Long=0; k<A.M; k++) {
 				val v2    = B(k, c);
-				//
 				if (MathTool.isZero(v2)) continue;
-				for (var r:Int=0; r<A.N; r++) {
+				for (var r:Long=0; r<A.N; r++) {
 					val v1= A(k, r);
-					if (MathTool.isZero(v1)) continue;
 					C.d(startcol+r) += v1 * v2;
 				}
 			}
@@ -104,7 +90,6 @@ public class MatrixMultXTen {
 		return C;
 	}
 
-	// 
 	/**
 	 * x10 matrix driver of matrix multiplication, C = A &#42 B<sup>T</sup> if plus is true
 	 * else C = A &#42 B<sup>T</sup> 
@@ -119,19 +104,17 @@ public class MatrixMultXTen {
 			B:Matrix{B.N==A.N}, 
 			C:DenseMatrix(A.M, B.M), 
 			plus:Boolean):DenseMatrix(C) {
-		var startcol:Int = 0;
-		for (var c:Int=0; c<B.M; c++) {
+		var startcol:Long = 0;
+		for (var c:Long=0; c<B.M; c++) {
 			if (!plus) {
-				for (var i:Int=startcol; i<startcol+C.M; i++) C.d(i) = 0.0D;
+				for (var i:Long=startcol; i<startcol+C.M; i++) C.d(i) = 0.0D;
 			}
 
-			for (var k:Int=0; k<A.N; k++) {
+			for (var k:Long=0; k<A.N; k++) {
 				val v2 = B(c, k);
-				//
 				if (MathTool.isZero(v2)) continue;
-				for (var r:Int=0; r<A.M; r++) {
+				for (var r:Long=0; r<A.M; r++) {
 					val v1= A(r, k);
-					if (MathTool.isZero(v1)) continue;
 					C.d(startcol+r) += v1 * v2;
 				}
 			}
@@ -154,21 +137,19 @@ public class MatrixMultXTen {
 			B:Matrix{B.N==A.M}, 
 			C:DenseMatrix(A.N, B.M),
 			plus:Boolean):DenseMatrix(C) {
-		var startcol:Int = 0;
+		var startcol:Long = 0;
 		//SysUtil.assure(C.M==A.N&&A.M==B.N&&B.M==C.N, 
 		//			   "Dimension mismatch in Matrix.T()*Matrix.T()");
 
-		for (var c:Int=0; c<B.M; c++) {
+		for (var c:Long=0; c<B.M; c++) {
 			if (!plus) {
-				for (var i:Int=startcol; i<startcol+C.M; i++) C.d(i) = 0.0D;
+				for (var i:Long=startcol; i<startcol+C.M; i++) C.d(i) = 0.0D;
 			}
-			for (var k:Int=0; k<A.M; k++) {
+			for (var k:Long=0; k<A.M; k++) {
 				val v2    = B(c, k);
-				//
 				if (MathTool.isZero(v2)) continue;
-				for (var r:Int=0; r<A.N; r++) {
+				for (var r:Long=0; r<A.N; r++) {
 					val v1= A(k, r);
-					if (MathTool.isZero(v1)) continue;
 					C.d(startcol+r) += v1 * v2;
 				}
 			}
@@ -177,9 +158,8 @@ public class MatrixMultXTen {
 		return C;
 	}
 
-	//-------------------------------------------------------------------
 	// Simplified mult interface
-	//-------------------------------------------------------------------
+
 	/**
 	 * X10 driver of matrix multiplication in short: C = A &#42 B,
 	 * where C is user-provided dense matrix

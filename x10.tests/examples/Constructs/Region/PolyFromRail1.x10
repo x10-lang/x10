@@ -10,14 +10,15 @@
  *  (C) Copyright IBM Corporation 2006-2010.
  */
 
+import x10.regionarray.*;
+
 /**
  * Construct an array from a native rail and examine it.
  */
-
 class PolyFromRail1 extends TestRegion {
 
     public def run() {
-        val a = [5.0,4.0,3.0,2.0,1.0];
+        val a = new Array[Double](5, [5.0,4.0,3.0,2.0,1.0]);
         prArray("from native rail", a);
         return status();
     }
@@ -34,7 +35,7 @@ class PolyFromRail1 extends TestRegion {
         "  iterator\n"+
         "5 4 3 2 1 . . . . . \n";
     
-    public static def main(Array[String](1)) {
+    public static def main(Rail[String]) {
         new PolyFromRail1().execute();
     }
 }

@@ -10,6 +10,7 @@
  */
 
 import harness.x10Test;
+import x10.regionarray.*;
 
 /**
  * Test that there is an implicit conversion from Array[Int] to Point.
@@ -27,7 +28,7 @@ public class ImplicitCastFromArray extends x10Test {
         return m(p).equals(Point.make(p));
     }
 
-    public static def main(Array[String](1)) {
+    public static def main(Rail[String]) {
         new  ImplicitCastFromArray().execute();
     }
 }

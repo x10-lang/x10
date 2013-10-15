@@ -21,14 +21,14 @@ import harness.x10Test;
 
 public class Expressions80 extends x10Test {
    public def run() : boolean = (new Hook()).run();
-   public static def main(var args: Array[String](1)): void = {
+   public static def main(args:Rail[String]):void {
         new Expressions80().execute();
     }
 
 
-// file Expressions line 485
+// file Expressions line 482
  static  class Example {
- def example(A:()=>Rail[Int], I: () => Int, B: () => Int ) {
+ def example(A:()=>Rail[Long], I: () => Long, B: () => Long ) {
 {
   // The order of these evaluations is not specified
   val aa = A();  // Evaluate A() once

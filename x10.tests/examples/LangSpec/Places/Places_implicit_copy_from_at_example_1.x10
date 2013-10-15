@@ -21,16 +21,16 @@ import harness.x10Test;
 
 public class Places_implicit_copy_from_at_example_1 extends x10Test {
    public def run() : boolean = (new Hook()).run();
-   public static def main(var args: Array[String](1)): void = {
+   public static def main(args:Rail[String]):void {
         new Places_implicit_copy_from_at_example_1().execute();
     }
 
 
-// file Places line 734
+// file Places line 741
  static  class Example {
  static def example() {
 
-val c = new Cell[Int](9); // (1)
+val c = new Cell[Long](9); // (1)
 at (here) {               // (2)
    assert(c() == 9);      // (3)
    c.set(8);              // (4)

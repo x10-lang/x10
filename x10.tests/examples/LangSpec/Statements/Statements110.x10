@@ -21,14 +21,14 @@ import harness.x10Test;
 
 public class Statements110 extends x10Test {
    public def run() : boolean = (new Hook()).run();
-   public static def main(var args: Array[String](1)): void = {
+   public static def main(args:Rail[String]):void {
         new Statements110().execute();
     }
 
 
-// file Statements line 881
+// file Statements line 882
  static  class ThrowStatementExample {
- def thingie(i:Int, x:Array[Boolean](1))  {
+ def thingie(i:Long, x:Rail[Boolean])  {
 if (i < 0 || i >= x.size)
     throw new MyIndexOutOfBoundsException();
 } }

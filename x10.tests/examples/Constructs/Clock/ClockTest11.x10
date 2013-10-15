@@ -44,11 +44,11 @@ public class ClockTest11 extends x10Test {
 		    }
 		    return false;
 		} catch (var e: MultipleExceptions) {
-            return (e.exceptions.size == 1 && e.exceptions(0) instanceof ClockUseException);
+            return (e.exceptions.size == 1L && e.exceptions(0) instanceof ClockUseException);
 		}
 	}
 
-	public static def main(var args: Array[String](1)): void = {
+	public static def main(var args: Rail[String]): void = {
 		new ClockTest11().execute();
 	}
 }

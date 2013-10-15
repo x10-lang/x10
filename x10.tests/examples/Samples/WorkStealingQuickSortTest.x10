@@ -18,15 +18,15 @@ public class WorkStealingQuickSortTest extends x10Test {
     	val r = new x10.util.Random();
         //val data = new Array[int](N, (int)=>r.nextInt(9999));
         //Use loop to create data before FIX XTENLANG-2300
-        val data:Array[int](1){rail,rect,zeroBased} = new Array[int](N);
-        for(var j:Int = 0; j < N; j++) { data(j) = r.nextInt(9999);}
+        val data:Rail[int] = new Rail[int](N);
+        for(var j:Int = 0n; j < N; j++) { data(j) = r.nextInt(9999n);}
     	QuickSort.qsort(data, 0, N-1);
 
     	//check result
-    	var a:int = 0;
+    	var a:int = 0n;
         var b:int;
         var ok:boolean = true;
-        for ([j] in 0..(N-1)) {
+        for (j in 0..(N-1)) {
             b = data(j);
             ok &= (a <= b);
             a = b;
@@ -34,7 +34,7 @@ public class WorkStealingQuickSortTest extends x10Test {
         return ok;
     }
 
-    public static def main(args:Array[String](1)) {
+    public static def main(args:Rail[String]) {
         new WorkStealingQuickSortTest().execute();
     }
 }

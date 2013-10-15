@@ -111,7 +111,7 @@ class LocalClass[T1,T2](p1:Empty, p2:Empty) {p1==p2} extends x10Test {
     }
 
     public static def main (args : Rail[String]) {
-        new LocalClass[String,Int]("foo", 4).execute();
+        new LocalClass[String,Int]("foo", 4n).execute();
     }
 
     public def run() {

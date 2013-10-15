@@ -21,15 +21,15 @@ import harness.x10Test;
 
 public class Expressions3e9h extends x10Test {
    public def run() : boolean = (new Hook()).run();
-   public static def main(var args: Array[String](1)): void = {
+   public static def main(args:Rail[String]):void {
         new Expressions3e9h().execute();
     }
 
 
-// file Expressions line 1181
+// file Expressions line 1180
  static  class Example { static def example() {
    val ob : Any = "a String" as Any; // upcast
-   val st : String = ob as String;         // downcast
+   val st : String = ob as String;   // downcast
    assert st == ob;
  } }
  static  class Hook{ def run() { Example.example(); return true;} }

@@ -10,6 +10,7 @@
  */
 
 import harness.x10Test;
+import x10.regionarray.*;
 
 
 /**
@@ -23,7 +24,7 @@ public class FlattenCast extends x10Test {
     var a: Array[int](2);
 
     public def this(): FlattenCast = {
-        a = new Array[int]((1..10)*(1..10), (p[i,j]: Point) => i+j);
+        a = new Array[int](Region.make(1..10, 1..10), (p[i,j]: Point) => (i+j) as Int);
     }
 
     def m(x: int)=x;
@@ -33,7 +34,7 @@ public class FlattenCast extends x10Test {
         return 2.0==x;
     }
     
-    public static def main(var args: Array[String](1)): void = {
+    public static def main(var args: Rail[String]): void = {
         new FlattenCast().execute();
     }
 }

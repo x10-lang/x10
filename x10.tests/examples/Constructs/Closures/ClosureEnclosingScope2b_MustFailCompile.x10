@@ -20,23 +20,22 @@ import harness.x10Test;
  * @author bdlucas 8/2008
  */
 
-public class ClosureEnclosingScope2b_MustFailCompile extends ClosureTest {
+public class ClosureEnclosingScope2b_MustFailCompile extends x10Test {
 
     val a = 1;
 
     public def run(): boolean = {
         
-        var b:int = 1;
+        var b:long = 1;
 
-        check("(()=>a+b)()",
-            (()=>a+
+        chk((()=>a+
                 b) // ERR
-            (), 2);
+            () == 2, "(()=>a+b)()");
 
-        return result;
+        return true;
     }
 
-    public static def main(var args: Array[String](1)): void = {
+    public static def main(var args: Rail[String]): void = {
         new ClosureEnclosingScope2b_MustFailCompile().execute();
     }
 }

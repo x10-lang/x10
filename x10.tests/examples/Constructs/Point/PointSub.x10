@@ -10,9 +10,10 @@
  */
 
 import harness.x10Test;
+import x10.regionarray.*;
 
 /**
- * Testing point subtraction..
+ * Testing point subtraction.
  *
  * @author vj 08/29/08
  */
@@ -21,14 +22,14 @@ public class PointSub extends x10Test {
 
     public def run(): boolean = {
 
-        val p  = [2, 2, 2, 2, 2] as Point;
-        val q = [1, 1, 1, 1, 1] as Point;
+        val p = [2 as long, 2, 2, 2, 2] as Point;
+        val q = [1 as long, 1, 1, 1, 1] as Point;
     
         val a = p - q;
         return (a+q).equals(p);
     }
 
-    public static def main(var args: Array[String](1)): void = {
+    public static def main(var args: Rail[String]): void = {
         new PointSub().execute();
     }
 }

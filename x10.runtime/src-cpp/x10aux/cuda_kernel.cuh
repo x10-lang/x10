@@ -35,10 +35,10 @@ namespace x10aux {
     template<class T, class U> __device__ x10_boolean struct_equals (T a, U b) { return a==b; }
 
     template<class T> struct cuda_array {
-        x10_int FMGL(size);
+        x10_long FMGL(size);
         T *raw;
-        __device__ T &__apply (x10_int i) { return raw[i]; }
-        __device__ T __set (const T &v, x10_int i) { return raw[i] = v; }
+        __device__ T &__apply (x10_long i) { return raw[i]; }
+        __device__ T __set (const T &v, x10_long i) { return raw[i] = v; }
     };
 
     template<class T> __device__ cuda_array<T> *nullCheck (cuda_array<T> &v) { return &v; }
@@ -50,6 +50,7 @@ __device__ void _X10_STATEMENT_HOOK() { }
 
 namespace x10 { namespace util {
 
+/*
         template <class T, x10_int SZ> struct NativeVec{
                 __device__ inline x10_int size() const { return SZ; }
                 T arr[SZ];
@@ -62,6 +63,8 @@ namespace x10 { namespace util {
                         ::memcpy(arr, src.arr, SZ * sizeof(T));
                 }
         };      
+*/
+
 } }
 
 #endif

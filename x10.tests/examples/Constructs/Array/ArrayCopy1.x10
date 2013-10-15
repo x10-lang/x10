@@ -10,6 +10,7 @@
  */
 
 import harness.x10Test;
+import x10.regionarray.*;
 import x10.io.*;
 
 /**
@@ -80,18 +81,18 @@ public class ArrayCopy1 extends x10Test {
 
         try {
 
-            val R  = 0..(N-1)*0..(N-1)*0..(N-1)*0..(N-1);
-            val TestDists = 0..(dist2.N_DIST_TYPES-1)*0..(dist2.N_DIST_TYPES-1);
+            val R  = Region.make(0..(N-1), 0..(N-1), 0..(N-1), 0..(N-1));
+            val TestDists = Region.make(0..(dist2.N_DIST_TYPES-1), 0..(dist2.N_DIST_TYPES-1));
 
             for (distP[dX,dY]: Point in TestDists) {
                 val D = dist2.getDist(dX, R);
                 val E = dist2.getDist(dY, R);
                 chk(D.region.equals(E.region) && D.region.equals(R));
-                val A = DistArray.make[int](D, (Point)=>0);
+                val A = DistArray.make[int](D, (Point)=>0n);
                 val B = DistArray.make[int](E,
                     (p[i,j,k,l]: Point): int => { 
-                        var x: int = ((i*N+j)*N+k)*N+l; 
-                        return x*x+1; 
+                        val x = ((i*N+j)*N+k)*N+l; 
+                        return (x*x+1) as Int; 
                     }
                 );
                 arrayCopy(A, B);
@@ -107,7 +108,7 @@ public class ArrayCopy1 extends x10Test {
         }
     }
 
-    public static def main(Array[String](1)) {
+    public static def main(Rail[String]) {
         new ArrayCopy1().execute();
     }
 
@@ -117,19 +118,19 @@ public class ArrayCopy1 extends x10Test {
      */
     static class dist2 {
 
-        static BLOCK: int = 0;
-        //public static val CYCLIC: int = 1;
+        static BLOCK: int = 0n;
+        //public static val CYCLIC: int = 1n;
         //public static val BLOCKCYCLIC: int = 2;
-        static CONSTANT: int = 1;
+        static CONSTANT: int = 1n;
         //public static val RANDOM: int = 4;
         //public static val ARBITRARY: int = 5;
-        static N_DIST_TYPES: int = 2; //6;
+        static N_DIST_TYPES: int = 2n; //6;
 
         /**
          * Return a dist with region r, of type disttype
          */
-        public static def getDist(distType: Int, r: Region): Dist(r) {
-            switch(distType) {
+        public static def getDist(distType: Long, r: Region): Dist(r) {
+            switch(distType as Int) {
                 case BLOCK: return Dist.makeBlock(r, 0);
                 //case CYCLIC: return Dist.makeCyclic(r, 0);
                 //case BLOCKCYCLIC: return Dist.makeBlockCyclic(r, 0, 3);

@@ -15,32 +15,16 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicLong;
 
 import x10.rtt.RuntimeType;
-import x10.rtt.RuntimeType.Variance;
 import x10.rtt.Type;
-import x10.rtt.Types;
 import x10.serialization.X10JavaDeserializer;
 import x10.serialization.X10JavaSerializable;
 import x10.serialization.X10JavaSerializer;
 
 public class LocalVar<T> extends x10.core.Ref {
-
-    private static final long serialVersionUID = 1L;
     
-    public static final RuntimeType<LocalVar<?>> $RTT =
-        x10.rtt.NamedType.<LocalVar<?>> make(
-                "x10.compiler.LocalVar",
-                /* base class */ LocalVar.class,
-                /* variances */ RuntimeType.INVARIANTS(1)
-    );
+    public static final RuntimeType<LocalVar<?>> $RTT = x10.rtt.NamedType.<LocalVar<?>> make("x10.compiler.LocalVar", LocalVar.class, 1);
     public RuntimeType<?> $getRTT() { return $RTT; }
     public Type<?> $getParam(int i) { if (i == 0) return T; return null; }
-
-    private void writeObject(java.io.ObjectOutputStream oos) throws java.io.IOException {
-        if (x10.runtime.impl.java.Runtime.TRACE_SER) {
-            java.lang.System.out.println("Serializer: writeObject(ObjectOutputStream) of " + this + " calling");
-        }
-        oos.defaultWriteObject();
-    }
 
     private static final Map<java.lang.Long, Object> idToObject = new ConcurrentHashMap<java.lang.Long, Object>();
     private static final Object nullObject = new Object();
@@ -98,7 +82,7 @@ public class LocalVar<T> extends x10.core.Ref {
         return LocalVar.this;
     }
         
-    public static X10JavaSerializable $_deserialize_body(Ref $_obj, X10JavaDeserializer $deserializer) throws java.io.IOException {
+    public static X10JavaSerializable $_deserialize_body(LocalVar<?> $_obj, X10JavaDeserializer $deserializer) throws java.io.IOException {
         return $_obj;
     }
     

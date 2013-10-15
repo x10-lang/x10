@@ -21,12 +21,12 @@ import harness.x10Test;
 
 public class Placesoijo extends x10Test {
    public def run() : boolean = (new Hook()).run();
-   public static def main(var args: Array[String](1)): void = {
+   public static def main(args:Rail[String]):void {
         new Placesoijo().execute();
     }
 
 
-// file Places line 78
+// file Places line 75
  static  class Example {
  def example() {
 val h0 = here;

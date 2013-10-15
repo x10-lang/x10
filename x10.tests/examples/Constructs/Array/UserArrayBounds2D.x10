@@ -10,6 +10,7 @@
  */
 
 import x10.util.Random;
+import x10.regionarray.*;
 import harness.x10Test;
 
 /**
@@ -27,11 +28,11 @@ public class UserArrayBounds2D extends x10Test {
 
     public def run(): boolean = {
 
-        val COUNT: int = 100;
-        val L: int = 10;
-        val K: int = 3;
+        val COUNT: int = 100n;
+        val L: int = 10n;
+        val K: int = 3n;
 
-        for(var n: int = 0; n < COUNT; n++) {
+        for(var n: int = 0n; n < COUNT; n++) {
             var i: int = ranInt(-L-K, L+K);
             var j: int = ranInt(-L-K, L+K);
             var lb1: int = ranInt(-L, L);
@@ -49,7 +50,7 @@ public class UserArrayBounds2D extends x10Test {
      * no array bounds exception occurred
      */
     private static def arrayAccess(lb1: int, ub1: int, lb2: int, ub2: int, i: int, j: int): boolean = {
-        var a: Array[Int](2) = new Array[Int]((lb1..ub1)*(lb2..ub2), ([i,j]: Point):Int=> 0);
+        var a: Array[Int](2) = new Array[Int](Region.make(lb1..ub1, lb2..ub2), ([i,j]: Point):Int=> 0n);
 
         var withinBounds: boolean = true;
         try {
@@ -75,7 +76,7 @@ public class UserArrayBounds2D extends x10Test {
      * true iff (x if and only if y)
      */
     private static def iff(x: boolean, y: boolean) = x == y;
-    public static def main(Array[String](1)){
+    public static def main(Rail[String]){
         new UserArrayBounds2D().execute();
     }
 }

@@ -26,22 +26,22 @@ public class GenericOverloading13_MustFailCompile extends GenericTest {
     }
 
     class B[T] extends A[T] {
-        def m(int) = 1;
+        def m(long) = 1;
     }
 	def test1(a:B[String]) {
-		val x:Int{self==0} = a.m("a");
-		val y:Int{self==1} = a.m(1);
+		val x:long{self==0} = a.m("a");
+		val y:long{self==1} = a.m(1);
 	}
-	def test2(a:B[Int]) {
+	def test2(a:B[Long]) {
 		a.m(0); // one overrides the other
 	}
-	def test3(a:B[Int{self==1}]) {
+	def test3(a:B[Long{self==1}]) {
 		a.m(1); // ERR
 	}
 
     public def run(): boolean = true;
 
-    public static def main(var args: Array[String](1)): void = {
+    public static def main(var args: Rail[String]): void = {
         new GenericOverloading13_MustFailCompile().execute();
     }
 }

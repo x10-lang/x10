@@ -21,12 +21,12 @@ import harness.x10Test;
 
 public class Statements5e4u extends x10Test {
    public def run() : boolean = (new Hook()).run();
-   public static def main(var args: Array[String](1)): void = {
+   public static def main(args:Rail[String]):void {
         new Statements5e4u().execute();
     }
 
 
-// file Statements line 664
+// file Statements line 663
  static  class ForAll {
  def forall[T](c:Iterable[T], S: () => void) {
 val iterator: Iterator[T] = c.iterator();

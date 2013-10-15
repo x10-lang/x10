@@ -13,24 +13,19 @@ package x10.matrix.lapack;
 
 import x10.compiler.NoInline;
 
-/**
- */
 public class LAPACK {
-
-	public static @NoInline def solveLinearEquation(A:Array[Double](1), B:Array[Double](1), ipiv:Array[Int](1),
-			dim:Array[Int](1)):Int {
+	public static @NoInline def solveLinearEquation(A:Rail[Double], B:Rail[Double], ipiv:Rail[Int],
+			dim:Rail[Int]):Int {
 		return DriverLAPACK.solveLinearEquation(A, B, ipiv, dim);
 	}
 	
-	public static @NoInline def compEigenValue(A:Array[Double](1), W:Array[Double](1), WORK:Array[Double](1),
-			dim:Array[Int](1)):Int {
+	public static @NoInline def compEigenValue(A:Rail[Double], W:Rail[Double], WORK:Rail[Double],
+			dim:Rail[Int]):Int {
 		return DriverLAPACK.compEigenValue(A, W, WORK, dim);
 	}
 	
-	public static @NoInline def compEigenVector(A:Array[Double](1), W:Array[Double](1), WORK:Array[Double](1),
-			dim:Array[Int](1)):Int {
+	public static @NoInline def compEigenVector(A:Rail[Double], W:Rail[Double], WORK:Rail[Double],
+			dim:Rail[Int]):Int {
 		return DriverLAPACK.compEigenVector(A, W, WORK, dim);
 	}
-	
-	
 }

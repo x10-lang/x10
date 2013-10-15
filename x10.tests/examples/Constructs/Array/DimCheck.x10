@@ -10,6 +10,7 @@
  */
 
 import harness.x10Test;
+import x10.regionarray.*;
 
 /**
  * This must compile and run fine. Checks that the initializer may not specify
@@ -21,11 +22,11 @@ import harness.x10Test;
 public class DimCheck extends x10Test {
 
     public def run() {
-        var a1: Array[int] = new Array[int]((0..2)*(0..3), (p: Point) => p(0));
+        var a1: Array[long] = new Array[long](Region.make(0..2, 0..3), (p: Point) => p(0));
         return true;
     }
 
-    public static def main(var args: Array[String](1)): void = {
+    public static def main(var args: Rail[String]): void = {
         new DimCheck().execute();
     }
 }

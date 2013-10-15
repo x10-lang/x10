@@ -22,7 +22,7 @@ public class XTENLANG_1466 extends x10Test {
         return f == null;
     }
 
-    public static def main(Array[String](1)) {
+    public static def main(Rail[String]) {
         new XTENLANG_1466().execute();
     }
 }

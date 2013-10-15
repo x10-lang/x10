@@ -468,7 +468,7 @@ public class WSCodePreprocessor extends ContextVisitor {
         Name tmp = Context.getNewVarName(); //for the dist
         Expr domain = a.domain();
         Type dType = domain.type();
-        if (ts.isX10DistArray(dType)) {
+        if (ts.isX10RegionDistArray(dType)) {
             domain = altsynth.createFieldRef(pos, domain, DIST);
             dType = domain.type();
         }

@@ -16,7 +16,7 @@ import harness.x10Test;
  * Check that a closure literal returning null can be properly
  * invoked when assigned to types
  */
-public class ClosureReturningNull extends ClosureTest {
+public class ClosureReturningNull extends x10Test {
     val cls = ()=>null;
 
     public def run(): boolean = {
@@ -25,13 +25,13 @@ public class ClosureReturningNull extends ClosureTest {
         chk (test1(cls) == null);
         chk (test2(cls) == null);
 
-        return result;
+        return true;
     }
 
     public def test1(c:()=>Any) = c();
     public def test2(c:()=>String) = c();
 
-    public static def main(var args: Array[String](1)): void = {
+    public static def main(var args: Rail[String]): void = {
         new ClosureReturningNull().execute();
     }
 }

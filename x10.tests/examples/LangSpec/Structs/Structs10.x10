@@ -21,12 +21,12 @@ import harness.x10Test;
 
 public class Structs10 extends x10Test {
    public def run() : boolean = (new Hook()).run();
-   public static def main(var args: Array[String](1)): void = {
+   public static def main(args:Rail[String]):void {
         new Structs10().execute();
     }
 
 
-// file Structs line 80
+// file Structs line 85
  static struct Polar(r:Double, theta:Double){
   def this(r:Double, theta:Double) {property(r,theta);}
   static val Origin = Polar(0,0);

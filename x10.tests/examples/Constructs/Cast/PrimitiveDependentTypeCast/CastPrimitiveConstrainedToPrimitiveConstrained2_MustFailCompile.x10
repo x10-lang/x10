@@ -21,8 +21,8 @@ public class CastPrimitiveConstrainedToPrimitiveConstrained2_MustFailCompile ext
 	public def run(): boolean = {
 		
 		try { 
-			var i: int{self == 1} = 1;
-			var j: int{self == 0} = i as int{self == 0}; // ERR
+			var i: int{self == 1n} = 1n;
+			var j: int{self == 0n} = i as int{self == 0n}; // ERR
 		}catch(e: Exception) {
 			return false;
 		}
@@ -30,7 +30,7 @@ public class CastPrimitiveConstrainedToPrimitiveConstrained2_MustFailCompile ext
 		return true;
 	}
 
-	public static def main(var args: Array[String](1)): void = {
+	public static def main(var args: Rail[String]): void = {
 		new CastPrimitiveConstrainedToPrimitiveConstrained2_MustFailCompile().execute();
 	}
 

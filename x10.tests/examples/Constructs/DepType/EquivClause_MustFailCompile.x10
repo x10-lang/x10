@@ -17,14 +17,14 @@ import harness.x10Test;
  * @author vj
  */
 public class EquivClause_MustFailCompile extends x10Test {
-    var i: int{self==1} = 1;
-    var j: int{self==0} = i; // ERR
+    var i: int{self==1n} = 1n;
+    var j: int{self==0n} = 1n; // ERR
 
 	public def run(): boolean = {
 	   
 	    return true;
 	}
-	public static def main(var args: Array[String](1)): void = {
+	public static def main(var args: Rail[String]): void = {
 		new EquivClause_MustFailCompile().execute();
 	}
 	

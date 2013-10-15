@@ -3,57 +3,42 @@
  *
  *  (C) Copyright IBM Corporation 2011.
  */
-package linreg;
 
-import x10.io.Console;
-import x10.util.Timer;
-//
-import x10.matrix.Debug;
-//
 import x10.matrix.Matrix;
 import x10.matrix.DenseMatrix;
-import x10.matrix.sparse.SparseCSC;
-
-import x10.matrix.blas.DenseMatrixBLAS;
-import x10.matrix.sparse.SparseMultDenseToDense;
 
 /**
-   Sequential implementation of linear regression
-   <p>
-
-   <p>
+ * Sequential implementation of linear regression
  */
 public class SeqLinearRegression{
-
-	public val iteration:Int;
-	public val w:DenseMatrix(V.N, 1);
+	public val iteration:Long;
+	public val w:DenseMatrix(V.N, 1L);
 	val lambda:Double;
 
 	public val V:DenseMatrix;
 	public val b:DenseMatrix;
 	
-	val p:DenseMatrix(V.N, 1);
-	val p1:DenseMatrix(V.N, 1);
-	val Vp:DenseMatrix(V.M, 1);
+	val p:DenseMatrix(V.N, 1L);
+	val p1:DenseMatrix(V.N, 1L);
+	val Vp:DenseMatrix(V.M, 1L);
 
-	val r:DenseMatrix(V.N, 1);
-	val q:DenseMatrix(V.N, 1);
+	val r:DenseMatrix(V.N, 1L);
+	val q:DenseMatrix(V.N, 1L);
 	
-	public def this(v:DenseMatrix, inb:DenseMatrix(v.N,1), it:Int) {
-		V =v; 
+	public def this(v:DenseMatrix, inb:DenseMatrix(v.N,1L), it:Int) {
+		V = v; 
 		b = inb; 
 		iteration = it;
 
 		lambda = 0.000001;
 
-		Vp = DenseMatrix.make(V.M, 1);
-		r  = DenseMatrix.make(V.N, 1);
-		p  = DenseMatrix.make(V.N, 1);
-		p1 = DenseMatrix.make(V.N, 1);
-		q  = DenseMatrix.make(V.N, 1);
-		w  = DenseMatrix.make(V.N, 1);
+		Vp = DenseMatrix.make(V.M, 1L);
+		r  = DenseMatrix.make(V.N, 1L);
+		p  = DenseMatrix.make(V.N, 1L);
+		p1 = DenseMatrix.make(V.N, 1L);
+		q  = DenseMatrix.make(V.N, 1L);
+		w  = DenseMatrix.make(V.N, 1L);
 		w.init(0.0);
-
 	}
 	
 	public def run():DenseMatrix {
@@ -99,5 +84,4 @@ public class SeqLinearRegression{
 		}
 		return w;
 	}
-		
 }

@@ -192,7 +192,7 @@ public class X10CPPTranslator extends Translator {
 
 		final int endLine = w.currentStream().getStreamLineNumber() - w.currentStream().getOmittedLines(); // for debug info
 
-		if (opts.x10_config.DEBUG && line > 0 &&
+		if (opts.x10_config.DEBUG && opts.x10_config.DEBUG_ENABLE_LINEMAPS && line > 0 &&
 		    ((n instanceof Stmt && !(n instanceof SwitchBlock) && !(n instanceof Catch)) ||
 		     (n instanceof ClassMember)))
 		{
@@ -328,7 +328,7 @@ public class X10CPPTranslator extends Translator {
 		context = c;
 	}
 
-    private static void maybeCopyTo (String file, String src_path_, String dest_path_) {
+    private static void maybeCopyTo (String file, String src_path_, String dest_path_, Compiler compiler, boolean noPostCompiler) {
 		File src_path = new File(src_path_);
     	File dest_path = new File(dest_path_);
     	// don't copy if the two dirs are the same...
@@ -350,8 +350,9 @@ public class X10CPPTranslator extends Translator {
 	    		dest.write(b);
 	    	}
     	} catch (IOException e) {
-        	System.err.println("While copying "+file + " from "+src_path_+" to "+dest_path_);
-    		System.err.println(e);
+    	    if (!noPostCompiler) {
+    	        compiler.errorQueue().enqueue(ErrorInfo.WARNING, "Failed to copy "+file + " from "+src_path_+" to "+dest_path_);
+    	    }
     	}
     }
 
@@ -374,7 +375,7 @@ public class X10CPPTranslator extends Translator {
 			X10CPPCompilerOptions opts = (X10CPPCompilerOptions) job.extensionInfo().getOptions();
 			TypeSystem xts = typeSystem();
 
-			if (opts.x10_config.DEBUG)
+			if (opts.x10_config.DEBUG && opts.x10_config.DEBUG_ENABLE_LINEMAPS)
 				c.addData(FILE_TO_LINE_NUMBER_MAP, CollectionFactory.newHashMap());
 
 			// Use the source file name as the basename for the output .cc file
@@ -383,7 +384,7 @@ public class X10CPPTranslator extends Translator {
 			boolean generatedCode = false;
             WriterStreams fstreams = new WriterStreams(fname, pkg, job, tf);
 
-            if (opts.x10_config.DEBUG) {
+            if (opts.x10_config.DEBUG && opts.x10_config.DEBUG_ENABLE_LINEMAPS) {
                 Map<String, LineNumberMap> fileToLineNumberMap =
                     c.<Map<String, LineNumberMap>>getData(FILE_TO_LINE_NUMBER_MAP);
                 fileToLineNumberMap.put(fstreams.getStreamName(StreamWrapper.CC), new LineNumberMap());
@@ -406,14 +407,14 @@ public class X10CPPTranslator extends Translator {
 		                ASTQuery.assertNumberOfInitializers(at, 1);
 		                String include = getStringPropertyInit(at, 0);
 		                job.compiler().addOutputFile(sfn, pkg_+include);
-		                maybeCopyTo(include, path, out_path+pkg_);
+		                maybeCopyTo(include, path, out_path+pkg_, job.compiler(), opts.post_compiler == null);
 		            }
 		            as = ext.annotationMatching(xts.systemResolver().findOne(QName.make("x10.compiler.NativeCPPOutputFile")));
 		            for (Type at : as) {
 		                ASTQuery.assertNumberOfInitializers(at, 1);
 		                String file = getStringPropertyInit(at, 0);
 		                job.compiler().addOutputFile(sfn, pkg_+file);
-		                maybeCopyTo(file, path, out_path+pkg_);
+		                maybeCopyTo(file, path, out_path+pkg_, job.compiler(), opts.post_compiler == null);
 		            }
 		            as = ext.annotationMatching(xts.systemResolver().findOne(QName.make("x10.compiler.NativeCPPCompilationUnit")));
 		            for (Type at : as) {
@@ -421,7 +422,7 @@ public class X10CPPTranslator extends Translator {
 		                String compilation_unit = getStringPropertyInit(at, 0);
 		                job.compiler().addOutputFile(sfn, pkg_+compilation_unit);
 		                opts.compilationUnits().add(pkg_+compilation_unit);
-		                maybeCopyTo(compilation_unit, path, out_path+pkg_);
+		                maybeCopyTo(compilation_unit, path, out_path+pkg_, job.compiler(), opts.post_compiler == null);
 		            }
 		        } catch (SemanticException e) {
 		            assert false : e;
@@ -442,7 +443,7 @@ public class X10CPPTranslator extends Translator {
 				String header = wstreams.getStreamName(StreamWrapper.Header);
 				job.compiler().addOutputFile(sfn, header);
 				
-				if (opts.x10_config.DEBUG) {
+				if (opts.x10_config.DEBUG && opts.x10_config.DEBUG_ENABLE_LINEMAPS) {
 					Map<String, LineNumberMap> fileToLineNumberMap =
 					    c.<Map<String, LineNumberMap>>getData(FILE_TO_LINE_NUMBER_MAP);
 					fileToLineNumberMap.put(header, new LineNumberMap());
@@ -466,7 +467,7 @@ public class X10CPPTranslator extends Translator {
 			    job.compiler().addOutputFile(sfn, cc);
                 opts.compilationUnits().add(cc);
                 
-                if (opts.x10_config.DEBUG) {
+                if (opts.x10_config.DEBUG && opts.x10_config.DEBUG_ENABLE_LINEMAPS) {
                     Map<String, LineNumberMap> fileToLineNumberMap =
                         c.<Map<String, LineNumberMap>>getData(FILE_TO_LINE_NUMBER_MAP);
                     ClassifiedStream debugStream = fstreams.getNewStream(StreamWrapper.CC, false);

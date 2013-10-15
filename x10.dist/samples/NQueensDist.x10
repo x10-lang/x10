@@ -10,6 +10,10 @@
  *  (C) Copyright Australian National University 2011.
  */
 
+import x10.regionarray.Dist;
+import x10.regionarray.DistArray;
+import x10.regionarray.Region;
+
 /**
  * A distributed version of NQueens. Runs over NUM_PLACES.
  * Identical to NQueensPar, except that work is distributed 
@@ -19,32 +23,32 @@ public class NQueensDist {
     public static val EXPECTED_SOLUTIONS =
         [0, 1, 0, 0, 2, 10, 4, 40, 92, 352, 724, 2680, 14200, 73712, 365596, 2279184, 14772512];
 
-    val N:Int;
-    val P:Int;
-    val results:DistArray[Int](1);
+    val N:Long;
+    val P:Long;
+    val results:DistArray[Long](1);
     val R:Region(1){rect};
 
-    def this(N:Int, P:Int) { 
+    def this(N:Long, P:Long) { 
         this.N=N;
         this.P=P;
-        this.results = DistArray.make[Int](Dist.makeUnique(), 0);
-        this.R = 0..(N-1);
+        this.results = DistArray.make[Long](Dist.makeUnique(), 0);
+        this.R = Region.make(0, N-1);
     }
     def start() {
         new Board().distSearch();
     }
-    def run():Int {
+    def run():Long {
        finish start();
-       val result = results.reduce(((x:Int,y:Int) => x+y),0);
+       val result = results.reduce(((x:Long,y:Long) => x+y),0);
        return result;
     }
 
     class Board {
-        val q: Rail[Int];
+        val q: Rail[Long];
         /** The number of low-rank positions that are fixed in this board for the purposes of search. */
-        var fixed:Int;
+        var fixed:Long;
         def this() {
-            q = new Rail[Int](N);
+            q = new Rail[Long](N);
             fixed = 0;
         }
 
@@ -52,7 +56,7 @@ public class NQueensDist {
          * @return true if it is safe to put a queen in file <code>j</code>
          * on the next rank after the last fixed position.
          */
-        def safe(j:Int) {
+        def safe(j:Long) {
             for (k in 0..(fixed-1)) {
                 if (j == q(k) || Math.abs(fixed-k) == Math.abs(j-q(k)))
                     return false;
@@ -70,7 +74,7 @@ public class NQueensDist {
          * in file <code>k</code> on rank <code>fixed</code>,
          * and search for all safe positions with this prefix.
          */
-        def searchOne(k:Int) {
+        def searchOne(k:Long) {
             if (safe(k)) {
                 if (fixed==(N-1)) {
                     // all ranks safely filled
@@ -95,8 +99,8 @@ public class NQueensDist {
         }
     }
 
-    public static def main(args:Array[String](1))  {
-        val n = args.size > 0 ? Int.parse(args(0)) : 8;
+    public static def main(args:Rail[String])  {
+        val n = args.size > 0 ? Long.parse(args(0)) : 8;
         Console.OUT.println("N=" + n);
         //warmup
         //finish new NQueensPar(12, 1).start();

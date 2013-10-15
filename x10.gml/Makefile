@@ -17,11 +17,14 @@ lib_path	=lib
 build_path	=include
 
 ###
-# Configure system settings for blas library
+# Configure system settings for blas and lapack libraries
 # check script/system_settings.mk
+# add_blas  = ...
 # blas_path = ... 
-# blas_lib	= ...
+# blas_name = ...
 # add_lapack= ...
+# lapack_path = ... 
+# lapack_name = ...
 
 #----
 # Output libs, properties, and tar files
@@ -71,7 +74,6 @@ comm_src=\
 	x10/matrix/comm/DenseRemoteSourceInfo.x10 \
 	x10/matrix/comm/MatrixReduce.x10 \
 	x10/matrix/comm/MatrixScatter.x10 \
-	x10/matrix/comm/CommHandle.x10  \
 	x10/matrix/comm/MatrixBcast.x10 \
 	x10/matrix/comm/MatrixRemoteCopy.x10 \
 	x10/matrix/comm/SparseRemoteDestInfo.x10 \
@@ -82,36 +84,39 @@ comm_src=\
 	x10/matrix/comm/BlockRemoteCopy.x10 \
 	x10/matrix/comm/BlockBcast.x10 \
 	x10/matrix/comm/BlockGather.x10 \
-	x10/matrix/comm/BlockScatter.x10 \
 	x10/matrix/comm/BlockReduce.x10 \
-	x10/matrix/comm/BlockSetRemoteCopy.x10 \
+	x10/matrix/comm/BlockScatter.x10 \
 	x10/matrix/comm/BlockSetBcast.x10 \
-	x10/matrix/comm/BlockSetReduce.x10
-
-
+	x10/matrix/comm/BlockSetReduce.x10 \
+	x10/matrix/comm/BlockSetRemoteCopy.x10 \
+    x10/matrix/comm/CompArrayPLH.x10 \
+    x10/matrix/comm/DataArrayPLH.x10 \
+    x10/matrix/comm/DistCompArray.x10 \
+    x10/matrix/comm/DistDataArray.x10
 
 bwrap_src=\
 	x10/matrix/blas/DenseMatrixBLAS.x10 \
 	x10/matrix/blas/BLAS.x10 \
 	x10/matrix/blas/DriverBLAS.x10
+
 lapack_src=\
 	x10/matrix/lapack/DenseMatrixLAPACK.x10 \
 	x10/matrix/lapack/LAPACK.x10 \
 	x10/matrix/lapack/DriverLAPACK.x10
 
 sparse_src=\
-  	x10/matrix/sparse/Compress1D.x10 \
-   	x10/matrix/sparse/Compress2D.x10 \
-   	x10/matrix/sparse/DenseMultSparseToDense.x10 \
-    	x10/matrix/sparse/SparseCSR.x10 \
-    	x10/matrix/sparse/SparseMultSparseToDense.x10 \
-    	x10/matrix/sparse/SparseAddToDense.x10 \
-    	x10/matrix/sparse/SparseDivToDense.x10 \
-    	x10/matrix/sparse/SparseSubToDense.x10 \
-    	x10/matrix/sparse/CompressArray.x10  \
-    	x10/matrix/sparse/SparseCSC.x10  \
-    	x10/matrix/sparse/SparseMultDenseToDense.x10 
-
+	x10/matrix/sparse/Compress1D.x10 \
+	x10/matrix/sparse/Compress2D.x10 \
+	x10/matrix/sparse/DenseMultSparseToDense.x10 \
+	x10/matrix/sparse/SparseCSR.x10 \
+	x10/matrix/sparse/SparseMultSparseToDense.x10 \
+	x10/matrix/sparse/SparseAddToDense.x10 \
+	x10/matrix/sparse/SparseDivToDense.x10 \
+	x10/matrix/sparse/SparseSubToDense.x10 \
+	x10/matrix/sparse/CompressArray.x10  \
+	x10/matrix/sparse/SparseCSC.x10  \
+	x10/matrix/sparse/SparseMultDenseToDense.x10 \
+	x10/matrix/sparse/SymSparseCSC.x10
 
 block_src=\
 	x10/matrix/block/BlockMatrix.x10  \
@@ -176,8 +181,8 @@ summa_src=\
 ##----
 ## for mpi binding
 comm_mpi_src=\
-	x10/matrix/comm/RequestHandleMPI.x10  \
-	x10/matrix/comm/WrapMPI.x10
+	x10/matrix/comm/mpi/RequestHandleMPI.x10  \
+	x10/matrix/comm/mpi/WrapMPI.x10
 
 summa_mpi_src=\
 	x10/matrix/dist/summa/mpi/SummaMPI.x10
@@ -201,18 +206,23 @@ include scripts/system_setting.mk
 
 
 #X10_FLAG	= -d $(build_path) -report postcompile=2 -v -errors 5 -VERBOSE_CHECKS #-O -NO_CHECKS
-X10_FLAG	= -VERBOSE_CHECKS #-O -NO_CHECKS  
+X10_FLAG	= -VERBOSE_CHECKS # -O -NO_CHECKS
+ifdef COVERAGE
+    X10_FLAG += -cxx-prearg --coverage
+    POST_LIBS += --coverage
+endif
+
 #-define ENABLE_RING_COMM
 
 MPI_CFLAG   = -define MPI_COMMU -cxx-prearg -DMPI_COMMU 
 
-POST_CPP	= $(LAPACK_CFLAG) -post $(CPP) \# $(POST_PATH) \# $(POST_LIBS)
-POST_MPI	= $(MPI_CFLAG) $(LAPACK_CFLAG) -post $(MCC) \# $(POST_PATH) \# $(POST_LIBS)
+POST_CPP	= $(BLAS_CFLAG) $(LAPACK_CFLAG) -post $(CPP) \# $(POST_PATH) \# $(POST_LIBS)
+POST_MPI	= $(MPI_CFLAG) $(BLAS_CFLAG) $(LAPACK_CFLAG) -post $(MCC) \# $(POST_PATH) \# $(POST_LIBS)
 
 ###
 # __bgp__ should be defined on Blue gene env
 
-POST_CPP_SLNK = $(LAPACK_CFLAG) -cxx-postarg $(CPP) \# $(POST_PATH) \# $(POST_LIBS)
+POST_CPP_SLNK = $(BLAS_CFLAG) $(LAPACK_CFLAG) -cxx-postarg $(CPP) \# $(POST_PATH) \# $(POST_LIBS)
 
 ###################################################
 # X10 file built rules
@@ -223,7 +233,7 @@ POST_CPP_SLNK = $(LAPACK_CFLAG) -cxx-postarg $(CPP) \# $(POST_PATH) \# $(POST_LI
 ###----------------------------------------------------
 ### build dist lib, multi-place parallel execution 
 ## build for managed backend
-jlib : $(src) chk_dir chk_jblas $(add_jlapack)
+jlib : $(src) chk_dir $(add_jblas) $(add_jlapack)
 	@echo "------------------ build lib for $(target) on $(server)-------------------"
 	cd $(src_path) && $(XJ) $(X10_FLAG) -buildx10lib ../. $(src) -d ../include -o ../lib/$(target).jar
 	@echo "------------ making properties file for $(target) ------------"
@@ -256,32 +266,24 @@ managed_seq_gml	: $(seq_src)
 native_seq_gml	: $(seq_src)
 		@($(MAKE) clib target=$@ src="$(seq_src)" post_opts='$(POST_CPP)')
 
-###----------------------------------------------------
-check_blas: 
-		@if [ -f $(blas_lib) ]; then \
-			echo "Find: $(blas_lib)"; \
-		else \
-			echo "Not find: $(blas_lib)"; \
-		fi;
 
-#
 ###------------------------------------------------
 ### BLAS lib for java backend
 
 chk_jblas	: chk_blas jblas 
 			cp $(bwrap_path)/WrapBLAS.java $(build_path)/x10/matrix/blas
-			
+
 chk_blas	: 
 			mkdir -p $(build_path)/x10/matrix/blas 
 
 wrap_blas.o	: wrap_blas.c
-			g++ -c -v -fPIC $< -o $@
+			g++ -c -v -fPIC -DENABLE_BLAS $< -o $@
 
 jni_blas.o 	: jni_blas.c
 			g++ -I $(JNI_inc) -c -v -fPIC $< -o $@
 
-libjblas.so	: wrap_blas.o jni_blas.o $(blas_lib)
-			g++ -shared -fPIC $^ -lgfortran -o $@
+libjblas.so	: wrap_blas.o jni_blas.o
+			g++ -shared -fPIC $^ -L$(blas_path) -l$(blas_name) -lgfortran -o $@
 
 jblas		: libjblas.so
 			cp $< $(lib_path)/.
@@ -299,8 +301,8 @@ wrap_lapack.o: wrap_lapack.c
 jni_lapack.o: jni_lapack.c
 			g++ -I $(JNI_inc) -c -v -fPIC $< -o $@
 
-libjlapack.so: wrap_lapack.o jni_lapack.o $(lapack_lib)
-			g++ -shared -fPIC $^ $(lapack_lib) -lgfortran -o $@
+libjlapack.so: wrap_lapack.o jni_lapack.o
+			g++ -shared -fPIC $^ -L$(blas_path) -l$(lapack_name) -lgfortran -o $@
 
 jlapack		: libjlapack.so
 			cp $< $(lib_path)/.
@@ -330,13 +332,13 @@ help	::
 	@echo ""
 	@echo "1) Build full library for multi-place execution"
 	@echo "make managed    -- make library tar file for managed backend: lib/managed_gml.jar and managed_gml.properties"
-	@echo "make native     -- make library and jar files for native backed: lib/libnative_gml.so, lib/native_gml.jar and native_gml.properties"
+	@echo "make native     -- make library and jar files for native backend: lib/libnative_gml.so, lib/native_gml.jar and native_gml.properties"
 	@echo "make native_mpi -- make library and jar files for native backend running on MPI transport: lib/libnative_mpi_gml.so, lib/native_mpi_gml.jar, and native_mpi_gml.properties"
 	@echo "make all   -- make all above"
 	@echo ""
 	@echo "2) Build subset library for single place or sequential code"  
-	@echo "make native_seq_gml  -- make subset of matrix library for sequential execution in native backed: lib/libnative_seq_gml.so, lib/native_seq_gml.jar, and native_seq_gml.properties "
-	@echo "make managed_seq_gml -- make subset of matrix library for sequential execution in managed backed: lib/managed_seq_gml.jar, and managed_seq_gml.properties"
+	@echo "make native_seq_gml  -- make subset of matrix library for sequential execution in native backend: lib/libnative_seq_gml.so, lib/native_seq_gml.jar, and native_seq_gml.properties "
+	@echo "make managed_seq_gml -- make subset of matrix library for sequential execution in managed backend: lib/managed_seq_gml.jar, and managed_seq_gml.properties"
 	@echo ""
 	@echo "3) Clean all files: make clean"
 	@echo ""
@@ -346,22 +348,24 @@ help	::
 	@echo "GML lib path: gml_lib=\$$(gml_path)/lib"
 	@echo "Application build path: build_path"
 	@echo ""
-	@echo "1) Build app for managed backend and add following settings in x10c command line"
-	@echo "   \"-classpath \$$(gml_lib)/managed_gml.jar\"" 
+	@echo "1) Build app for managed backend, add following settings in x10c command line"
 	@echo "   \"-x10lib \$$(gml_path)/managed_gml.properties\""
 	@echo ""
-	@echo "2) Build app for native backend and add following settings in x10c++ command line"
+	@echo "2) Build app for native backend, add following settings in x10c++ command line"
 	@echo "   \"-classpath \$$(gml_lib)/native_gml.jar\""
 	@echo "   \"-x10lib \$$(gml_path)/native_gml.properties\""
 	@echo ""
-	@echo "3) Build app for native backend for MPI transport"
+	@echo "3) Build app for native backend for MPI transport, add following settings in x10c++ command line"
 	@echo "   \"-classpath \$$(gml_lib)/native_mpi_gml.jar\""
 	@echo "   \"-x10lib \$$(gml_path)/native_mpi_gml.properties\""
 	@echo ""
 	@echo "------------------- Run application --------------------"
-	@echo "1) Managed backed"
+	@echo "1) Managed backend"
 	@echo "   Add classpath:\"-classpath \$$(build_path):\$$(gml_lib)/managed_gml.jar\""
 	@echo "   Add libpath: \"-libpath \$$(build_path):\$$(gml_lib)\""
+
+coverage:	
+	lcov --directory include --ignore-errors gcov --capture -o lcov.info; genhtml lcov.info --output-directory coverage
 
 ################################################
 .PHONY	: clean clear help clib jlib chk_dir

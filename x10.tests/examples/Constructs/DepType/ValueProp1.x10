@@ -25,10 +25,10 @@ public class ValueProp1 extends x10Test {
     }
 
     public def run():boolean = {
-        new Value2(4);
+        new Value2(4n);
         return true;
     }
-    public static def main(var args: Array[String](1)): void = {
+    public static def main(var args: Rail[String]): void = {
         new ValueProp1().execute();
     }
 }

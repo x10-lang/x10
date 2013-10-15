@@ -16,24 +16,24 @@ import harness.x10Test;
  */
 class XTENLANG_50 extends x10Test {
 
-    static class R(rank:int) {
+    static class R(rank:Long) {
     
-        public static def make[T](val rs: Array[T]){T<:R}: R{self.rank==rs.size} {
+        public static def make[T](val rs: Rail[T]){T<:R}: R{self.rank==rs.size} {
             return new R(rs.size);
         }
     
-        public static operator [T](rs:Array[T]){T<:R} = make(rs);
+        public static operator [T](rs:Rail[T]){T<:R} = make(rs);
     
-        def this(rank:int):R{self.rank==rank} = property(rank);
+        def this(rank:Long):R{self.rank==rank} = property(rank);
     }
     
-    val x: R{rank==2} = [new R(1), new R(1)];
+    val x: R{rank==2L} = [new R(1), new R(1)];
 
     public def run(): boolean {
         return true;
     }
 
-    public static def main(Array[String](1)) {
+    public static def main(Rail[String]) {
         new XTENLANG_50().execute();
     }
 }

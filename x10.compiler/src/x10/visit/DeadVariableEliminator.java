@@ -110,7 +110,7 @@ public class DeadVariableEliminator extends ContextVisitor {
      */
     @Override
     public Node override(Node n) {
-        if (ExpressionFlattener.cannotFlatten(n)) {
+        if (ExpressionFlattener.cannotFlatten(n, job)) {
             return n;
         }
         return super.override(n);

@@ -21,12 +21,12 @@ import x10.compiler.Native;
 
 public class extern30 extends x10Test {
    public def run() : boolean = (new Hook()).run();
-   public static def main(var args: Array[String](1)): void = {
+   public static def main(args:Rail[String]):void {
         new extern30().execute();
     }
 
 
-// file NativeCode line 61
+// file NativeCode line 75
  static class Plants {
   @Native("c++", "printf(\"Hi!\")")
   @Native("java", "System.out.println(\"Hi!\")")

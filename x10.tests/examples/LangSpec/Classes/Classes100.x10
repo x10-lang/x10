@@ -21,16 +21,16 @@ import harness.x10Test;
 
 public class Classes100 extends x10Test {
    public def run() : boolean = (new Hook()).run();
-   public static def main(var args: Array[String](1)): void = {
+   public static def main(args:Rail[String]):void {
         new Classes100().execute();
     }
 
 
-// file Classes line 693
- static class Example(x:Int, y:Int) {
-   def this(x:Int, y:Int) { property(x,y); }
+// file Classes line 822
+ static class Example(x:Long, y:Long) {
+   def this(x:Long, y:Long) { property(x,y); }
    property eq() = (x==y);
-   property is(z:Int) = x==z && y==z;
+   property is(z:Long) = x==z && y==z;
    def example( a : Example{eq()}, b : Example{is(3)} ) {}
 }
 

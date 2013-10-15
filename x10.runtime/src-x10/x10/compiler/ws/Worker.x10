@@ -20,7 +20,7 @@ public final class Worker {
     public var throwable:Exception = null;
     
     public def this(i:Int, workers:Rail[Worker]) {
-        random = new Random(i + (i << 8) + (i << 16) + (i << 24));
+        random = new Random(i + (i << 8n) + (i << 16n) + (i << 24n));
         this.id = i;
         this.workers = workers;
     }
@@ -91,20 +91,20 @@ public final class Worker {
             frame.wrapResume(this);
             up = frame.up;
             up.wrapBack(this, frame);
-            Runtime.dealloc(frame);
+            Unsafe.dealloc(frame);
             frame = up;
         }
     }
 
-    public static def wsRunAsync(id:Int, body:()=>void):void {
-        if (id == Runtime.hereInt()) {
+    public static def wsRunAsync(id:long, body:()=>void):void {
+        if (id == Runtime.hereLong()) {
             val copy = Runtime.deepCopy(body);
             copy();
-            Runtime.dealloc(copy);
+            Unsafe.dealloc(copy);
         } else {
             Runtime.x10rtSendMessage(id, body, null);
         }
-        Runtime.dealloc(body);
+        Unsafe.dealloc(body);
     }
 
     public static def runAsyncAt(place:Place, frame:RegularFrame){
@@ -120,21 +120,21 @@ public final class Worker {
 
     public static def stop(){
         val body = ()=> @x10.compiler.RemoteInvocation("stop") { Runtime.wsEnd(); };
-        for (var i:Int = 1; i<Place.MAX_PLACES; i++) {
+        for (var i:Int = 1n; i<Place.MAX_PLACES; i++) {
             Runtime.x10rtSendMessage(i, body, null);
         }
-        Runtime.dealloc(body);
+        Unsafe.dealloc(body);
         Runtime.wsEnd();
     }
 
     public static def startHere() {
         Runtime.wsInit();
         val workers = new Rail[Worker](Runtime.NTHREADS);
-        for (var i:Int = 0; i<Runtime.NTHREADS; i++) {
+        for (var i:Int = 0n; i<Runtime.NTHREADS; i++) {
             workers(i) = new Worker(i, workers);
         }
         workers(0).fifo = Runtime.wsFIFO();
-        for(var i:Int = 1; i<Runtime.NTHREADS; i++) {
+        for(var i:Int = 1n; i<Runtime.NTHREADS; i++) {
             val worker = workers(i);
             async {
                 worker.fifo = Runtime.wsFIFO();
@@ -146,7 +146,7 @@ public final class Worker {
 
     public static def start() {
         val worker = startHere(); // init place 0 first
-        for (var i:Int = 1; i<Place.MAX_PLACES; i++) { // init place >0
+        for (var i:Int = 1n; i<Place.MAX_PLACES; i++) { // init place >0
             val p = Place.place(i);
             at(p) async startHere().run();
         }

@@ -35,10 +35,10 @@ class Test(i:int) {
 	
 	
 	public def run(): boolean = {
-	   var a: Test{i==52} = new Test(52) as Test{i==52 && self.bad};  // ERR: Only properties may be prefixed with self in a constraint.
+	   var a: Test{i==52n} = new Test(52n) as Test{i==52n && self.bad};  // ERR: Only properties may be prefixed with self in a constraint.
 	    return true;
 	}
-	public static def main(var args: Array[String](1)): void = {
+	public static def main(var args: Rail[String]): void = {
 		new SelfFieldsMustBeProperties1_MustFailCompile().execute();
 	}
 }

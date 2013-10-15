@@ -54,14 +54,14 @@ public static class $Main extends x10.runtime.impl.java.Runtime {
         }
         
         // called by native runtime inside main x10 thread
-        public void runtimeCallback(final x10.array.Array<java.lang.String> args)  {
+        public void runtimeCallback(final x10.regionarray.Array<java.lang.String> args)  {
         // call the original app-main method
         A_Main.main(args);
         }
         }
         
         // the original app-main method
-        public static void main(final x10.array.Array<java.lang.String> argv)  {
+        public static void main(final x10.regionarray.Array<java.lang.String> argv)  {
             
 //#line 5 "/Users/bard/x10/juss/Actors/mongo/mongo4x10/tutorial/tutcode/A_Main.x10"
 final x10.mongo.yak.YakUtil y =

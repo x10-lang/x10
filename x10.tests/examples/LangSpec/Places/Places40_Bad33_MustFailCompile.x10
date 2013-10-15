@@ -21,17 +21,17 @@ import harness.x10Test;
 
 public class Places40_Bad33_MustFailCompile extends x10Test {
    public def run() : boolean = (new Hook()).run();
-   public static def main(var args: Array[String](1)): void = {
+   public static def main(args:Rail[String]):void {
         new Places40_Bad33_MustFailCompile().execute();
     }
 
 
-// file Places line 878
+// file Places line 885
 
  static class Trans {
-   val a : Int = 1;
-   transient val b : Int = 2;
- transient val c : Int{c != 0} = 3; // ERR
+   val a : Long = 1;
+   transient val b : Long = 2;
+ transient val c : Long{c != 0} = 3; // ERR
    def example() {
      assert(a == 1 && b == 2);
      at(here) {

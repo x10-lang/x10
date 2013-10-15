@@ -261,6 +261,8 @@ public class Types {
             return STRING;
         } else if (java.lang.Comparable.class.equals(javaClass)) {
             return COMPARABLE;
+        } else if (java.lang.CharSequence.class.equals(javaClass)) {
+            return CHAR_SEQUENCE;
         } else if (javaClass.isPrimitive()) {
             if (byte.class.equals(javaClass)) {
                 return BYTE;
@@ -291,6 +293,8 @@ public class Types {
                     return UNSUPPORTED_OPERATION_EXCEPTION;
                 } else if (java.util.NoSuchElementException.class.equals(javaClass)) {
                     return NO_SUCH_ELEMENT_EXCEPTION;
+                } else if (java.lang.NegativeArraySizeException.class.equals(javaClass)) {
+                    return NEGATIVE_ARRAY_SIZE_EXCEPTION;
                 } else if (java.lang.ArrayIndexOutOfBoundsException.class.equals(javaClass)) {
                     return ARRAY_INDEX_OUT_OF_BOUNDS_EXCEPTION;
                 } else if (java.lang.StringIndexOutOfBoundsException.class.equals(javaClass)) {
@@ -301,6 +305,8 @@ public class Types {
                     return NUMBER_FORMAT_EXCEPTION;
                 } else if (java.lang.IllegalArgumentException.class.equals(javaClass)) {
                     return ILLEGAL_ARGUMENT_EXCEPTION;
+                } else if (java.lang.IllegalStateException.class.equals(javaClass)) {
+                    return ILLEGAL_STATE_EXCEPTION;
                 } else if (java.lang.RuntimeException.class.equals(javaClass)) {
                     return EXCEPTION;
                 }
@@ -331,220 +337,164 @@ public class Types {
 
     public static final RuntimeType<Object> ANY = new AnyType();
     // Struct is not an X10 type, but it has RTT for runtime type checking such as instanceof
-    // create rtt of struct before all struct types (e.g. int)
+    // create rtt of struct before all struct types (e.g. Int)
     public static final RuntimeType<x10.core.StructI> STRUCT = new StructType();
 
-    // create rtt of comparable before all types that implement comparable (e.g. int)
-    public static final RuntimeType<Comparable> COMPARABLE = new NamedType<Comparable>(
+    // create rtt of Comparable before all types that implement Comparable (e.g. Int)
+    public static final RuntimeType<java.lang.Comparable> COMPARABLE = new NamedType<java.lang.Comparable>(
         "x10.lang.Comparable",
-        Comparable.class,
-        RuntimeType.INVARIANTS(1),
+        java.lang.Comparable.class,
+        1,
         null
-    ) {
-        // make sure deserialized RTT object is not duplicated
-        private Object readResolve() throws java.io.ObjectStreamException {
-            return COMPARABLE;
-        }
-    };
+        );
+
+    // create rtt of CharSequence before all types that implement CharSequence (e.g. String)
+    public static final RuntimeType<java.lang.CharSequence> CHAR_SEQUENCE = new NamedType<java.lang.CharSequence>(
+        "x10.lang.CharSequence",
+        java.lang.CharSequence.class,
+        0,
+        null
+        );
 
     public static final RuntimeType<java.lang.Throwable> CHECKED_THROWABLE = new NamedType<java.lang.Throwable>(
 	"x10.lang.CheckedThrowable",
 	java.lang.Throwable.class,
-	null,
+	0,
 	new Type[] { ANY }
-    ) {
-	// make sure deserialized RTT object is not duplicated
-	private Object readResolve() throws java.io.ObjectStreamException {
-	    return CHECKED_THROWABLE;
-	}
-    };
+    );
+    
     public static final RuntimeType<java.lang.Exception> CHECKED_EXCEPTION = new NamedType<java.lang.Exception>(
 	"x10.lang.CheckedException",
 	java.lang.Exception.class,
-	null,
+	0,
 	new Type[] { CHECKED_THROWABLE }
-    ) {
-	// make sure deserialized RTT object is not duplicated
-	private Object readResolve() throws java.io.ObjectStreamException {
-	    return CHECKED_EXCEPTION;
-	}
-    };
+    );
+    
     public static final RuntimeType<java.lang.RuntimeException> EXCEPTION = new NamedType<java.lang.RuntimeException>(
 	"x10.lang.Exception",
 	java.lang.RuntimeException.class,
-	null,
+	0,
 	new Type[] { CHECKED_EXCEPTION }
-    ) {
-	// make sure deserialized RTT object is not duplicated
-	private Object readResolve() throws java.io.ObjectStreamException {
-	    return EXCEPTION;
-	}
-    };
+    );
+    
     public static final RuntimeType<java.lang.NullPointerException> NULL_POINTER_EXCEPTION = new NamedType<java.lang.NullPointerException>(
 	"x10.lang.NullPointerException",
 	java.lang.NullPointerException.class,
-	null,
+	0,
 	new Type[] { EXCEPTION }
-    ) {
-	// make sure deserialized RTT object is not duplicated
-	private Object readResolve() throws java.io.ObjectStreamException {
-	    return NULL_POINTER_EXCEPTION;
-	}
-    };
+    );
+    
     public static final RuntimeType<java.lang.ClassCastException> CLASS_CAST_EXCEPTION = new NamedType<java.lang.ClassCastException>(
 	"x10.lang.ClassCastException",
 	java.lang.ClassCastException.class,
-	null,
+	0,
 	new Type[] { EXCEPTION }
-    ) {
-	// make sure deserialized RTT object is not duplicated
-	private Object readResolve() throws java.io.ObjectStreamException {
-	    return CLASS_CAST_EXCEPTION;
-	}
-    };
+    );
+    
     public static final RuntimeType<java.lang.IndexOutOfBoundsException> INDEX_OUT_OF_BOUNDS_EXCEPTION = new NamedType<java.lang.IndexOutOfBoundsException>(
 	"x10.lang.IndexOutOfBoundsException",
 	java.lang.IndexOutOfBoundsException.class,
-	null,
+	0,
 	new Type[] { EXCEPTION }
-    ) {
-	// make sure deserialized RTT object is not duplicated
-	private Object readResolve() throws java.io.ObjectStreamException {
-	    return INDEX_OUT_OF_BOUNDS_EXCEPTION;
-	}
-    };
+    );
+    
+    public static final RuntimeType<java.lang.NegativeArraySizeException> NEGATIVE_ARRAY_SIZE_EXCEPTION = new NamedType<java.lang.NegativeArraySizeException>(
+	"x10.lang.NegativeArraySizeException",
+	java.lang.NegativeArraySizeException.class,
+	0,
+	new Type[] { EXCEPTION }
+    );
+    
     public static final RuntimeType<java.lang.ArrayIndexOutOfBoundsException> ARRAY_INDEX_OUT_OF_BOUNDS_EXCEPTION = new NamedType<java.lang.ArrayIndexOutOfBoundsException>(
 	"x10.lang.ArrayIndexOutOfBoundsException",
 	java.lang.ArrayIndexOutOfBoundsException.class,
-	null,
+	0,
 	new Type[] { INDEX_OUT_OF_BOUNDS_EXCEPTION }
-    ) {
-	// make sure deserialized RTT object is not duplicated
-	private Object readResolve() throws java.io.ObjectStreamException {
-	    return ARRAY_INDEX_OUT_OF_BOUNDS_EXCEPTION;
-	}
-    };
+    );
+    
     public static final RuntimeType<java.lang.StringIndexOutOfBoundsException> STRING_INDEX_OUT_OF_BOUNDS_EXCEPTION = new NamedType<java.lang.StringIndexOutOfBoundsException>(
 	"x10.lang.StringIndexOutOfBoundsException",
 	java.lang.StringIndexOutOfBoundsException.class,
-	null,
+	0,
 	new Type[] { INDEX_OUT_OF_BOUNDS_EXCEPTION }
-    ) {
-	// make sure deserialized RTT object is not duplicated
-	private Object readResolve() throws java.io.ObjectStreamException {
-	    return STRING_INDEX_OUT_OF_BOUNDS_EXCEPTION;
-	}
-    };
+    );
+    
     public static final RuntimeType<java.lang.ArithmeticException> ARITHMETIC_EXCEPTION = new NamedType<java.lang.ArithmeticException>(
 	"x10.lang.ArithmeticException",
 	java.lang.ArithmeticException.class,
-	null,
+	0,
 	new Type[] { EXCEPTION }
-    ) {
-	// make sure deserialized RTT object is not duplicated
-	private Object readResolve() throws java.io.ObjectStreamException {
-	    return ARITHMETIC_EXCEPTION;
-	}
-    };
+    );
+    
+    public static final RuntimeType<java.lang.IllegalStateException> ILLEGAL_STATE_EXCEPTION = new NamedType<java.lang.IllegalStateException>(
+        "x10.lang.IllegalStateException",
+        java.lang.IllegalStateException.class,
+    	0,
+        new Type[] { EXCEPTION }
+    );
+    
     public static final RuntimeType<java.lang.IllegalArgumentException> ILLEGAL_ARGUMENT_EXCEPTION = new NamedType<java.lang.IllegalArgumentException>(
 	"x10.lang.IllegalArgumentException",
 	java.lang.IllegalArgumentException.class,
-	null,
+	0,
 	new Type[] { EXCEPTION }
-    ) {
-	// make sure deserialized RTT object is not duplicated
-	private Object readResolve() throws java.io.ObjectStreamException {
-	    return ILLEGAL_ARGUMENT_EXCEPTION;
-	}
-    };
+    );
+    
     public static final RuntimeType<java.lang.NumberFormatException> NUMBER_FORMAT_EXCEPTION = new NamedType<java.lang.NumberFormatException>(
 	"x10.lang.NumberFormatException",
 	java.lang.NumberFormatException.class,
-	null,
+	0,
 	new Type[] { ILLEGAL_ARGUMENT_EXCEPTION }
-    ) {
-	// make sure deserialized RTT object is not duplicated
-	private Object readResolve() throws java.io.ObjectStreamException {
-	    return NUMBER_FORMAT_EXCEPTION;
-	}
-    };
+    );
+    
     public static final RuntimeType<java.lang.UnsupportedOperationException> UNSUPPORTED_OPERATION_EXCEPTION = new NamedType<java.lang.UnsupportedOperationException>(
 	"x10.lang.UnsupportedOperationException",
 	java.lang.UnsupportedOperationException.class,
-	null,
+	0,
 	new Type[] { EXCEPTION }
-    ) {
-	// make sure deserialized RTT object is not duplicated
-	private Object readResolve() throws java.io.ObjectStreamException {
-	    return UNSUPPORTED_OPERATION_EXCEPTION;
-	}
-    };
+    );
+    
     public static final RuntimeType<java.util.NoSuchElementException> NO_SUCH_ELEMENT_EXCEPTION = new NamedType<java.util.NoSuchElementException>(
 	"x10.util.NoSuchElementException",
 	java.util.NoSuchElementException.class,
-	null,
+	0,
 	new Type[] { EXCEPTION }
-    ) {
-	// make sure deserialized RTT object is not duplicated
-	private Object readResolve() throws java.io.ObjectStreamException {
-	    return NO_SUCH_ELEMENT_EXCEPTION;
-	}
-    };
+    );
+    
     public static final RuntimeType<java.lang.Error> ERROR = new NamedType<java.lang.Error>(
 	"x10.lang.Error",
 	java.lang.Error.class,
-	null,
+	0,
 	new Type[] { CHECKED_THROWABLE }
-    ) {
-	// make sure deserialized RTT object is not duplicated
-	private Object readResolve() throws java.io.ObjectStreamException {
-	    return ERROR;
-	}
-    };
+    );
+    
     public static final RuntimeType<java.lang.AssertionError> ASSERTION_ERROR = new NamedType<java.lang.AssertionError>(
 	"x10.lang.AssertionError",
 	java.lang.AssertionError.class,
-	null,
+	0,
 	new Type[] { ERROR }
-    ) {
-	// make sure deserialized RTT object is not duplicated
-	private Object readResolve() throws java.io.ObjectStreamException {
-	    return ASSERTION_ERROR;
-	}
-    };
+    );
+    
     public static final RuntimeType<java.lang.StackOverflowError> STACK_OVERFLOW_ERROR = new NamedType<java.lang.StackOverflowError>(
 	"x10.lang.StackOverflowError",
 	java.lang.StackOverflowError.class,
-	null,
+	0,
 	new Type[] { ERROR }
-    ) {
-	// make sure deserialized RTT object is not duplicated
-	private Object readResolve() throws java.io.ObjectStreamException {
-	    return STACK_OVERFLOW_ERROR;
-	}
-    };
+    );
+    
     public static final RuntimeType<java.lang.OutOfMemoryError> OUT_OF_MEMORY_ERROR = new NamedType<java.lang.OutOfMemoryError>(
 	"x10.lang.OutOfMemoryError",
 	java.lang.OutOfMemoryError.class,
-	null,
+	0,
 	new Type[] { ERROR }
-    ) {
-	// make sure deserialized RTT object is not duplicated
-	private Object readResolve() throws java.io.ObjectStreamException {
-	    return OUT_OF_MEMORY_ERROR;
-	}
-    };
+    );
+    
     public static final RuntimeType<java.lang.InternalError> INTERNAL_ERROR = new NamedType<java.lang.InternalError>(
         "x10.lang.InternalError",
         java.lang.InternalError.class,
-        null,
+    	0,
         new Type[] { ERROR }
-    ) {
-        // make sure deserialized RTT object is not duplicated
-        private Object readResolve() throws java.io.ObjectStreamException {
-            return INTERNAL_ERROR;
-        }
-    };
+    );
 
     public static final RuntimeType<x10.core.Boolean> BOOLEAN = new BooleanType();
     public static final RuntimeType<x10.core.Char> CHAR = new CharType();
@@ -558,18 +508,18 @@ public class Types {
     public static final RuntimeType<x10.core.UShort> USHORT = new UShortType();
     public static final RuntimeType<x10.core.UInt> UINT = new UIntType();
     public static final RuntimeType<x10.core.ULong> ULONG = new ULongType();
-    public static final x10.core.Boolean BOOLEAN_ZERO = x10.core.Boolean.FALSE;
+    public static final x10.core.Boolean BOOLEAN_ZERO = x10.core.Boolean.$box(false);
     public static final x10.core.Char CHAR_ZERO = x10.core.Char.$box((char)0);
     public static final x10.core.Byte BYTE_ZERO = x10.core.Byte.$box(0);
     public static final x10.core.Short SHORT_ZERO = x10.core.Short.$box(0);
     public static final x10.core.Int INT_ZERO = x10.core.Int.$box(0);
-    public static final x10.core.Long LONG_ZERO = x10.core.Long.$box(0l);
+    public static final x10.core.Long LONG_ZERO = x10.core.Long.$box(0L);
     public static final x10.core.Float FLOAT_ZERO = x10.core.Float.$box(0.0F);
     public static final x10.core.Double DOUBLE_ZERO = x10.core.Double.$box(0.0);
-    public static final x10.core.UByte UBYTE_ZERO = x10.core.UByte.$box((byte)0);
-    public static final x10.core.UShort USHORT_ZERO = x10.core.UShort.$box((short)0);
+    public static final x10.core.UByte UBYTE_ZERO = x10.core.UByte.$box(0);
+    public static final x10.core.UShort USHORT_ZERO = x10.core.UShort.$box(0);
     public static final x10.core.UInt UINT_ZERO = x10.core.UInt.$box(0);
-    public static final x10.core.ULong ULONG_ZERO = x10.core.ULong.$box((long)0);
+    public static final x10.core.ULong ULONG_ZERO = x10.core.ULong.$box(0L);
 
     public static final RuntimeType<String> STRING = new StringType();
 
@@ -822,8 +772,7 @@ public class Types {
             if (rtt == CHAR) return CHAR_ZERO;
             if (rtt == BOOLEAN) return BOOLEAN_ZERO;
             // N.B. to enable following special paths, make corresponding $RTTs singleton
-            // N.B. since GlobalRef and IndexedMemoryChunk have their own zero value constructor, special paths are no longer needed
-//            if (rtt == x10.core.IndexedMemoryChunk.$RTT) return new x10.core.IndexedMemoryChunk(actualTypeArguments[0], (java.lang.System) null);
+            // N.B. since GlobalRef has their own zero value constructor, special paths are no longer needed
 //            if (rtt == x10.core.GlobalRef.$RTT) return new x10.core.GlobalRef(actualTypeArguments[0], (java.lang.System) null);
             // for user-defined structs, call zero value constructor
             try {

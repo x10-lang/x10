@@ -16,19 +16,19 @@ import harness.x10Test;
  */
 public class ExpressionParentheses extends x10Test {
 
-	var x: UInt = 0x80000000u;
-	var n: UInt = 16;
+	var x: UInt = 0x80000000un;
+	var n: UInt = 16un;
 	var z: UInt;
 
 	public def run(): boolean = {
-		z = ((x ^ (x>>8) ^ (x>>31)) & (n-1));
-		if (z != 1u) return false;
-		z = ((x | (n-1)) & 1);
-		if (z != 1u) return false;
+		z = ((x ^ (x>>8) ^ (x>>31)) & (n-1un));
+		if (z != 1un) return false;
+		z = ((x | (n-1un)) & 1un);
+		if (z != 1un) return false;
 		return true;
 	}
 
-	public static def main(var args: Array[String](1)): void = {
+	public static def main(var args: Rail[String]): void = {
 		new ExpressionParentheses().execute();
 	}
 }

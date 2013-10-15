@@ -18,7 +18,7 @@ import harness.x10Test;
 class XTENLANG_367 extends x10Test {
 
     public def run(): boolean {
-        var count: int = 0;
+        var count: int = 0n;
         try {
             try {
                 count++;
@@ -30,10 +30,10 @@ class XTENLANG_367 extends x10Test {
                 throw new Exception();
             }
         } catch (e: Exception) { }
-        return count == 3;
+        return count == 3n;
     }
 
-    public static def main(Array[String](1)) {
+    public static def main(Rail[String]) {
         new XTENLANG_367().execute();
     }
 }

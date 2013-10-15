@@ -21,12 +21,12 @@ import harness.x10Test;
 
 public class Interfaces6l3f extends x10Test {
    public def run() : boolean = (new Hook()).run();
-   public static def main(var args: Array[String](1)): void = {
+   public static def main(args:Rail[String]):void {
         new Interfaces6l3f().execute();
     }
 
 
-// file Interfaces line 65
+// file Interfaces line 71
  static interface Star { def rise():void; }
  static class AlphaCentauri implements Star {
    public def rise() {}

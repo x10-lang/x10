@@ -10,11 +10,11 @@
  */
 
 import harness.x10Test;
+import x10.regionarray.*;
 
 /**
  * @author bdlucas 12/2008
  */
-
 class XTENLANG_265 extends x10Test {
 
     public def run(): boolean = {
@@ -26,7 +26,7 @@ class XTENLANG_265 extends x10Test {
         return true;
     }
 
-    public static def main(Array[String](1)) {
+    public static def main(Rail[String]) {
         new XTENLANG_265().execute();
     }
 }

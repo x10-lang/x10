@@ -16,6 +16,7 @@ import java.util.List;
 
 import polyglot.ast.Assign;
 import polyglot.ast.Binary;
+import polyglot.ast.Binary.Operator;
 import polyglot.ast.Block;
 import polyglot.ast.Branch;
 import polyglot.ast.Call;
@@ -78,9 +79,13 @@ public class ForLoopOptimizer extends ContextVisitor {
     private static final Name NEXT     = Name.make("next");
     private static final Name MAKE     = Name.make("make");
     private static final Name RANK     = Name.make("rank");
+    private static final Name RANGE    = Name.make("range");
+    private static final Name INDICES  = Name.make("indices");
     private static final Name MIN      = Name.make("min");
     private static final Name MAX      = Name.make("max");
+    private static final Name SIZE     = Name.make("size");
     private static final Name SET      = SettableAssign.SET;
+    private static final Name APPLY    = ClosureCall.APPLY;
 
     private final TypeSystem xts;
     private AltSynthesizer   syn;
@@ -133,7 +138,7 @@ public class ForLoopOptimizer extends ContextVisitor {
      * <pre>
      * for (p:Point(k+1) in r) S ->
      *     {                                      // k=r.rank-1
-     *        point = Rail.make[Int](k+1);        // if p is named
+     *        point = Rail.make[Long](k+1);        // if p is named
      *        mink=r.min(k); maxk=r.max(k);
      *        ...
      *        min0=r.min(0); max0=r.max(0); 
@@ -172,7 +177,7 @@ public class ForLoopOptimizer extends ContextVisitor {
         }
 
         // if domain <: DistArray, transform to Distribution
-        if (xts.isX10DistArray(domain.type())) {
+        if (xts.isX10RegionDistArray(domain.type())) {
             if (VERBOSE) System.out.println("  domain is DistArray, tranforming to Dist");
             domain = syn.createFieldRef(pos, domain, DIST);
             assert (null != domain);
@@ -186,7 +191,7 @@ public class ForLoopOptimizer extends ContextVisitor {
         }
         
         // if domain <: Array, transform to Region
-        if (xts.isX10Array(domain.type())) {
+        if (xts.isX10RegionArray(domain.type())) {
             if (VERBOSE) System.out.println("  domain is Array, tranforming to Region");
             domain = syn.createFieldRef(pos, domain, REGION);
             assert (null != domain);
@@ -198,10 +203,8 @@ public class ForLoopOptimizer extends ContextVisitor {
         boolean      named      = !formal.isUnnamed();
         ConstrainedType domainType = Types.toConstrainedType(domain.type());
         boolean isRect     = domainType.isRect(context);
-        Integer domainRank = (Integer) getPropertyConstantValue(domain, RANK);
-        int rank       = (null != domainRank) ? (int) domainRank :
-            (null != formalVars) ? formalVars.size() : 
-                -1;
+        Long domainRank = (Long) getPropertyConstantValue(domain, RANK);
+        int rank       = (null != domainRank) ? domainRank.intValue() : (null != formalVars) ? formalVars.size() : -1;
         assert null == formalVars || formalVars.isEmpty() || formalVars.size() == rank;
 
         // Transform loops over IntRange and LongRange into counted for loops
@@ -214,6 +217,7 @@ public class ForLoopOptimizer extends ContextVisitor {
             Expr low;
             Expr high;
             LocalDecl  domLDecl;
+            Operator compareOp = Binary.LE;
             if (domain instanceof Call && ((Call)domain).name().id().equals(X10Binary_c.binaryMethodName(Binary.DOT_DOT))) {
                 // SPECIAL CASE: if The IntRange is being created in the for loop header itself with the .. operator, avoid creating it entirely.
                 List<Expr> args = ((Call) loop.domain()).arguments();
@@ -221,6 +225,13 @@ public class ForLoopOptimizer extends ContextVisitor {
                 low = args.get(0);
                 high = args.get(1);
                 domLDecl = null;
+            } else if (domain instanceof Call && ((Call)domain).name().id().equals(RANGE) &&
+                    ((Call)domain).target() instanceof Expr && xts.isRail(((Call)domain).target().type())){
+                // SPECIAL CASE: if the LongRange is being returned from Rail.range(), then avoid creating it and use 0..size-1
+                domLDecl   = syn.createLocalDecl(domain.position(), Flags.FINAL, Name.makeFresh("rail"), (Expr)((Call)domain).target());
+                low = syn.createLongLit(0);
+                high =  syn.createFieldRef(pos, syn.createLocal(pos, domLDecl), SIZE);
+                compareOp = Binary.LT;
             } else {
                 domLDecl   = syn.createLocalDecl(domain.position(), Flags.FINAL, Name.makeFresh(varName+"domain"), domain);
                 low = syn.createFieldRef(pos, syn.createLocal(pos, domLDecl), MIN);
@@ -231,16 +242,16 @@ public class ForLoopOptimizer extends ContextVisitor {
             LocalDecl maxLDecl = syn.createLocalDecl(pos, Flags.FINAL, maxName, high);
            
             LocalDecl varLDecl = syn.createLocalDecl(pos, Flags.NONE, varName, isLong ? xts.Long() : xts.Int(), syn.createLocal(pos, minLDecl));
-            Expr cond = syn.createBinary( domain.position(),
-                                          syn.createLocal(pos, varLDecl),
-                                          Binary.LE,
-                                          syn.createLocal(pos, maxLDecl),
-                                          this );
-            Expr update = syn.createAssign( domain.position(),
-                                            syn.createLocal(pos, varLDecl),
-                                            Assign.ADD_ASSIGN,
-                                            isLong ? syn.createLongLit(1) : syn.createIntLit(1),
-                                            this);
+            Expr cond = syn.createBinary(domain.position(),
+                                         syn.createLocal(pos, varLDecl),
+                                         compareOp,
+                                         syn.createLocal(pos, maxLDecl),
+                                         this );
+            Expr update = syn.createAssign(domain.position(),
+                                           syn.createLocal(pos, varLDecl),
+                                           Assign.ADD_ASSIGN,
+                                           isLong ? syn.createLongLit(1) : syn.createIntLit(1),
+                                           this);
             
             List<Stmt> bodyStmts = new ArrayList<Stmt>();
             if (named) {
@@ -262,10 +273,10 @@ public class ForLoopOptimizer extends ContextVisitor {
             }
         }
         
-        // transform loops over rectangular regions of known rank 
-        if (xts.isRegion(domainType) && isRect && rank > 0) {
+        // transform loops over rectangular regions or iteration spaces of known rank 
+        if ((xts.isRegion(domainType) || xts.isIterationSpace(domainType)) && isRect && rank > 0) {
             assert xts.isPoint(formal.declType());
-            if (VERBOSE) System.out.println("  rectangular region, rank=" +rank+ " point=" +formal);
+            if (VERBOSE) System.out.println("  rectangular region/iteration space, rank=" +rank+ " point=" +formal);
             
             if (1 < rank) {
                 body = labelFreeBreaks(body, label);
@@ -273,23 +284,33 @@ public class ForLoopOptimizer extends ContextVisitor {
             
             List<Stmt> stmts      = new ArrayList<Stmt>();
             Name       prefix     = named ? formal.name().id() : Name.make("p");
-            
-            // cache the value of domain in a local temporary variable
-            LocalDecl  domLDecl   = syn.createLocalDecl(domain.position(), Flags.FINAL, Name.makeFresh(prefix), domain);
-            stmts.add(domLDecl);
-            
+            Operator compareOp = Binary.LE;
+                        
             // Prepare to redeclare the formal iterate as local Point variable (if the formal is not anonymous)
             Type       indexType  = null; // type of the formal var initializer (if any)
             LocalDecl  indexLDecl = null; // redeclaration of the formal var (if it has a name)
             if (named) {
-                // create an array to contain the value of the formal at each iteration
+                // create a rail to contain the value of the formal at each iteration
                 Name       indexName  = Name.makeFresh(prefix);
-                           indexType  = Types.makeArrayRailOf(xts.Int(), rank, pos);           
-                Expr       indexInit  = syn.createTuple(pos, rank, syn.createIntLit(0));
+                           indexType  = Types.makeRailOf(xts.Long(), rank, pos);           
+                Expr       indexInit  = syn.createTuple(pos, rank, syn.createLongLit(0));
                            indexLDecl = syn.createLocalDecl(pos, Flags.FINAL, indexName, indexType, indexInit);
                 // add the declaration of the index rail to the list of statements to be executed before the loop nest
                 stmts.add(indexLDecl);
             }
+            
+            boolean simpleArrayOpt = false;
+            LocalDecl  domLDecl = null;
+            if (domain instanceof Call && ((Call)domain).name().id().equals(INDICES) && xts.isArray(((Call)domain).target().type())) {
+                // SPECIAL CASE: if The IterationSpace is being created in the for loop header by calling Array.indices(), avoid creating it entirely.
+                domLDecl = syn.createLocalDecl(domain.position(), Flags.FINAL, Name.makeFresh(prefix), (Expr)((Call)domain).target());
+                simpleArrayOpt = true;
+                compareOp = Binary.LT;
+            } else {
+                // cache the value of domain in a local temporary variable
+                domLDecl   = syn.createLocalDecl(domain.position(), Flags.FINAL, Name.makeFresh(prefix), domain);
+            }
+            stmts.add(domLDecl);
             
             LocalDecl varLDecls[] = new LocalDecl[rank];
             // syn.create the loop nest (from the inside out)
@@ -302,13 +323,24 @@ public class ForLoopOptimizer extends ContextVisitor {
                 Name maxName  = Name.makeFresh(varName+ "max");
                 
                 // create an AST node for the calls to domain.min() and domain.max()
-                Expr minVal   = syn.createInstanceCall(pos, syn.createLocal(domain.position(), domLDecl), MIN, context, syn.createIntLit(r));
-                Expr maxVal   = syn.createInstanceCall(pos, syn.createLocal(domain.position(), domLDecl), MAX, context, syn.createIntLit(r));
+                Expr minVal;
+                Expr maxVal;
+                if (simpleArrayOpt) {
+                    minVal = syn.createLongLit(0);
+                    if (rank == 1) {
+                        maxVal = syn.createFieldRef(domain.position(), syn.createLocal(domain.position(), domLDecl), SIZE);
+                    } else {
+                        maxVal = syn.createFieldRef(domain.position(), syn.createLocal(domain.position(), domLDecl), Name.make("numElems_"+(r+1)));                       
+                    }
+                } else {
+                    minVal = syn.createInstanceCall(pos, syn.createLocal(domain.position(), domLDecl), MIN, context, syn.createLongLit(r));
+                    maxVal = syn.createInstanceCall(pos, syn.createLocal(domain.position(), domLDecl), MAX, context, syn.createLongLit(r));
+                }
                 
                 // create an AST node for the declaration of the temporary locations for the r-th var, min, and max
                 LocalDecl minLDecl = syn.createLocalDecl(pos, Flags.FINAL, minName, minVal);
                 LocalDecl maxLDecl = syn.createLocalDecl(pos, Flags.FINAL, maxName, maxVal);
-                LocalDecl varLDecl = syn.createLocalDecl(pos, Flags.NONE, varName, xts.Int(), syn.createLocal(pos, minLDecl));
+                LocalDecl varLDecl = syn.createLocalDecl(pos, Flags.NONE, varName, xts.Long(), syn.createLocal(pos, minLDecl));
                 
                 varLDecls[r] = varLDecl;
                 
@@ -317,16 +349,10 @@ public class ForLoopOptimizer extends ContextVisitor {
                 stmts.add(maxLDecl);
                 
                 // create expressions for the second and third positions in the r-th for clause
-                Expr cond = syn.createBinary( domain.position(),
-                                              syn.createLocal(pos, varLDecl),
-                                              Binary.LE,
-                                              syn.createLocal(pos, maxLDecl),
-                                              this );
-                Expr update = syn.createAssign( domain.position(),
-                                                syn.createLocal(pos, varLDecl),
-                                                Assign.ADD_ASSIGN,
-                                                syn.createIntLit(1),
-                                                this );
+                Expr cond = syn.createBinary(domain.position(), syn.createLocal(pos, varLDecl),
+                                             compareOp, syn.createLocal(pos, maxLDecl), this);
+                Expr update = syn.createAssign(domain.position(), syn.createLocal(pos, varLDecl),
+                                               Assign.ADD_ASSIGN, syn.createLongLit(1), this);
                 
                 List<Stmt> bodyStmts = new ArrayList<Stmt>(); 
                 
@@ -341,7 +367,7 @@ public class ForLoopOptimizer extends ContextVisitor {
                                                            syn.createLocal(pos, indexLDecl), 
                                                            SET, 
                                                            context,
-                                                           syn.createIntLit(r),
+                                                           syn.createLongLit(r),
                                                            syn.createLocal(pos, varLDecl) );
                     bodyStmts.addAll(syn.convertToStmtList(setExpr));
                     if (r+1 == rank) { // the innermost loop
@@ -372,6 +398,33 @@ public class ForLoopOptimizer extends ContextVisitor {
             Block result = syn.createBlock(pos, stmts);
             if (VERBOSE) result.dump(System.out);
             return result;
+        }
+        
+        // for (d in aRail) BODY ===> t = aRail; max = t.size; for (long idx = 0; idx < max; idx += 1) { d = t(i); BODY }
+        if (xts.isRail(domainType)) {
+            Name varName  = Name.makeFresh("idx");
+
+            LocalDecl domLDecl   = syn.createLocalDecl(domain.position(), Flags.FINAL, Name.makeFresh("rail"), domain);
+            Expr size = syn.createFieldRef(pos, syn.createLocal(pos, domLDecl), SIZE);
+            LocalDecl sizeLDecl  = syn.createLocalDecl(domain.position(), Flags.FINAL, Name.makeFresh("size"), size);
+            
+            LocalDecl varLDecl = syn.createLocalDecl(pos, Flags.NONE, varName, xts.Long(), syn.createLongLit(0));
+            Expr cond = syn.createBinary(domain.position(), syn.createLocal(pos, varLDecl), Binary.LT, syn.createLocal(pos, sizeLDecl), this);
+            Expr update = syn.createAssign(domain.position(), syn.createLocal(pos, varLDecl), Assign.ADD_ASSIGN, syn.createLongLit(1), this);
+
+            Expr valueExpr = syn.createInstanceCall(pos, syn.createLocal(domain.position(), domLDecl), APPLY, context, syn.createLocal(pos, varLDecl));
+            LocalDecl formalLDecl = syn.createLocalDecl(formal, valueExpr);
+
+            List<Stmt> bodyStmts = new ArrayList<Stmt>();           
+            bodyStmts.add(formalLDecl);
+            bodyStmts.add(body);
+            body = syn.createBlock(loop.body().position(), bodyStmts);
+            For forLoop = syn.createStandardFor(pos, varLDecl, cond, update, body);
+            Stmt newLoop = forLoop;
+            if (label() != null) {
+                newLoop = syn.createLabeledStmt(pos, label(), forLoop);
+            }
+            return syn.createBlock(pos, domLDecl, sizeLDecl , newLoop);
         }
 
         assert Types.getIterableIndex(domainType, context).size()>=1; // When Iterable was covariant:  (xts.isSubtype(domainType, xts.Iterable(xts.Any()), context)); 

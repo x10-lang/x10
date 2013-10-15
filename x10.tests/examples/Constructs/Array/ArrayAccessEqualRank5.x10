@@ -10,6 +10,7 @@
  */
 
 import harness.x10Test;
+import x10.regionarray.*;
 
 /**
  * Test that a can be accessed through point p if p ranges over b.dist
@@ -19,19 +20,17 @@ import harness.x10Test;
  * What is highly annoying is that ateach (i:Point(D.rank) in D) b(i)=i
  * succeeds. The compiler cant figure out that when iterating over D
  * the points have rank D.rank??
-
  */
-
 public class ArrayAccessEqualRank5 extends x10Test {
 
     public def run(): boolean = {
-	val b:DistArray[Int](1) = DistArray.make[Int](0..9->here,(Point)=>0);
+	val b:DistArray[Int](1) = DistArray.make[Int](Region.make(0,9)->here,(Point)=>0n);
 	finish ateach (x[i]:Point(1) in b.dist) 
-	   b(x)=i;
+	   b(x)=(i as int);
         return true;
     }
 
-    public static def main(Array[String](1)) = {
+    public static def main(Rail[String]) = {
         new ArrayAccessEqualRank5().execute();
     }
 }

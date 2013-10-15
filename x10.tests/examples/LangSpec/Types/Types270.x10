@@ -17,23 +17,25 @@
 
 import harness.x10Test;
 
- import x10.util.*;
+import x10.util.*;
+import x10.regionarray.*;
 
 public class Types270 extends x10Test {
    public def run() : boolean = (new Hook()).run();
-   public static def main(var args: Array[String](1)): void = {
+   public static def main(args:Rail[String]):void {
         new Types270().execute();
     }
 
 
-// file Types line 858
+// file Types line 1023
+
  static class TypeExamples {
   static type StringSet = Set[String];
   static type MapToList[K,V] = Map[K,List[V]];
-  static type Int(x: Int) = Int{self==x};
-  static type Dist(r: Int) = Dist{self.rank==r};
+  static type Long(x: Long) = Long{self==x};
+  static type Dist(r: Long) = Dist{self.rank==r};
   static type Dist(r: Region) = Dist{self.region==r};
-  static type Redund(n:Int, r:Region){r.rank==n}
+  static type Redund(n:Long, r:Region){r.rank==n}
       = Dist{rank==n && region==r};
 }
 

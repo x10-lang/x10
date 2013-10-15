@@ -10,6 +10,7 @@
  */
 
 import harness.x10Test;
+import x10.regionarray.*;
 import x10.util.concurrent.Future;
 
 /**
@@ -21,13 +22,13 @@ import x10.util.concurrent.Future;
 public class ArrayFuture extends x10Test {
 
     public def run(): boolean = {
-        val d = Dist.makeConstant((1..10)*(1..10), here);
-        val ia  = DistArray.make[Future[Int]](d, ([i,j]: Point) => Future.make[Int](()=>{i+j}));
+        val d = Dist.makeConstant(Region.make(1..10, 1..10), here);
+        val ia  = DistArray.make[Future[long]](d, ([i,j]: Point) => Future.make[long](()=>{i+j}));
         for ([i,j]: Point in ia.region) chk(ia(i, j)() == i+j);
         return true;
     }
 
-    public static def main(Array[String](1)): void = {
+    public static def main(Rail[String]): void = {
         new ArrayFuture().execute();
     }
 }

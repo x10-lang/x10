@@ -18,16 +18,16 @@ import harness.x10Test;
  */
 class EvalAtHome extends x10Test {
     public def run(): boolean {
-        val x = new Cell[Int](1);
-        val globalX = new GlobalRef[Cell[Int]](x);
+        val x = new Cell[long](1);
+        val globalX = new GlobalRef[Cell[long]](x);
         at (here.next()) {
-            val y = globalX.evalAtHome[Int]((a:Cell[Int]) => (a()+1));
+            val y = globalX.evalAtHome[long]((a:Cell[long]) => (a()+1));
             chk(y == 2);
         }
         return true;
     }
 
-    public static def main(Array[String](1)) {
+    public static def main(Rail[String]) {
         new EvalAtHome().execute();
     }
 }

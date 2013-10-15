@@ -206,14 +206,15 @@ public class XTypeTranslator {
     }
     
     static public XTerm<Type> expandSelfPropertyMethod(CConstraint c, XTerm<Type> term) {
-        return expandPropertyMethod(c, term,false,null,null,null);
+        return expandPropertyMethod(c, term,false,null,null);
     }
     // todo: merge this code with Checker.expandCall and try to get rid of ts.expandMacros
     @SuppressWarnings("unchecked")
-	static public XTerm<Type> expandPropertyMethod(CConstraint originalConst, XTerm<Type> term, boolean isThisOrSelf,
+	static public XTerm<Type> expandPropertyMethod(CConstraint originalConst, 
+			XTerm<Type> term, boolean isThisOrSelf,
                         // these three formals help us search for a concrete implementation of the property method
                         // they can be null (then we don't search for an implementation)
-                        TypeSystem ts, ClassType classType, Context context) {
+						       TypeSystem ts, Context context) {
         XDef<Type> aDef = null;
         List<? extends XTerm<Type>> args = null; // the first arg is the this-receiver
         if (term.isProjection()) {
@@ -224,15 +225,18 @@ public class XTypeTranslator {
         
         if (aDef==null || !(aDef instanceof X10MethodDef)) return term;
         XTerm<Type> receiver = args.get(0);
+        ClassType classType;
         if (isThisOrSelf) {
             // for methods (checking overriding) we replace "this.p(...)"
             if (!(receiver.isUQVOfName("this"))) return term;
+            classType = (ClassType)(receiver.type());
         } else {
             // for subtyping tests we replace "self.p(...)"
         	if (!receiver.equals(originalConst.self())) return term;
+        	classType = (ClassType)(receiver).type();
         }
         X10MethodDef def = (X10MethodDef) aDef;
-        if (classType!=null) {
+        if (classType!=null && ts != null) {
             // find the correct def, and return a clone of the XTerm
             final MethodInstance method = ts.findImplementingMethod(classType, def.asInstance(), false, context);
             if (method==null) // the property is abstract in t1

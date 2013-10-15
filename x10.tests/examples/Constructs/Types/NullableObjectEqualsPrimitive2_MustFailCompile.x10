@@ -26,7 +26,7 @@ public class NullableObjectEqualsPrimitive2_MustFailCompile extends x10Test {
 		return !res1 && !res2;
 	}
 
-	public static def main(Array[String](1)) {
+	public static def main(Rail[String]) {
 		new NullableObjectEqualsPrimitive2_MustFailCompile().execute();
 	}
 }

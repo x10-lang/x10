@@ -12,6 +12,10 @@
 #include <x10aux/config.h>
 
 #include <x10aux/network.h>
+
+#include <sys/types.h>
+#include <unistd.h>
+
 #include <x10aux/RTT.h>
 #include <x10aux/basic_functions.h>
 
@@ -27,13 +31,6 @@
 
 #include <x10/lang/Runtime.h>
 #include <x10/lang/FinishState.h>
-
-
-#include <strings.h>
-
-#ifdef __MACH__
-#include <crt_externs.h>
-#endif
 
 using namespace x10::lang;
 using namespace x10aux;
@@ -155,7 +152,12 @@ size_t x10aux::opc;
 size_t x10aux::remote_op_batch;
 
 void x10aux::network_init (int ac, char **av) {
-    x10rt_init(&ac, &av);
+    x10rt_error err = x10rt_init(&ac, &av);
+    if (err != X10RT_ERR_OK) {
+        if (x10rt_error_msg() != NULL)
+            fprintf(stderr,"X10RT fatal initialization error: %s\n", x10rt_error_msg());
+        abort();
+    }
     x10aux::here = x10rt_here();
     x10aux::num_places = x10rt_nplaces();
     x10aux::num_hosts = x10rt_nhosts();
@@ -192,6 +194,9 @@ void x10aux::run_async_at(x10aux::place p, x10::lang::VoidFun_0_0* body_fun,
     // WRITE FINISH STATE
     buf.write(fs);
 
+    // WRITE SOURCE PLACE
+    buf.write(x10::lang::Place::_make(x10aux::here));
+
     // WRITE BODY
     unsigned long long before_nanos, before_bytes;
     if (prof!=NULL) {
@@ -223,7 +228,7 @@ void x10aux::run_async_at(x10aux::place p, x10::lang::VoidFun_0_0* body_fun,
     if (prof!=NULL) {
         before_nanos = x10::lang::RuntimeNatives::nanoTime();
     }
-    x10rt_msg_params params = {p, real_id, buf.borrow(), sz, endpoint};
+    x10rt_msg_params params = {x10rt_place(p), real_id, buf.borrow(), sz, endpoint};
     x10rt_send_msg(&params);
     if (prof!=NULL) {
         prof->FMGL(communicationNanos) += x10::lang::RuntimeNatives::nanoTime() - before_nanos;
@@ -274,7 +279,7 @@ void x10aux::run_closure_at(x10aux::place p, x10::lang::VoidFun_0_0* body_fun,
 
     _X_(ANSI_BOLD<<ANSI_X10RT<<"async size: "<<ANSI_RESET<<sz);
 
-    x10rt_msg_params params = {p, id, buf.borrow(), sz, endpoint};
+    x10rt_msg_params params = {x10rt_place(p), id, buf.borrow(), sz, endpoint};
     x10rt_send_msg(&params);
 
 }
@@ -283,7 +288,7 @@ void x10aux::send_get (x10aux::place place, x10aux::serialization_id_t id_,
                        serialization_buffer &buf, void *data, x10aux::copy_sz len, x10aux::endpoint endpoint)
 {
     msg_type id = DeserializationDispatcher::getMsgType(id_);
-    x10rt_msg_params p = { place, id, buf.borrow(), buf.length(), endpoint};
+    x10rt_msg_params p = { x10rt_place(place), id, buf.borrow(), buf.length(), endpoint};
     _X_(ANSI_BOLD<<ANSI_X10RT<<"Transmitting a get: "<<ANSI_RESET<<data<<" sid "<<id_<<" id "<<id
     		<<" size "<<len<<" header "<<buf.length()<<" to place: "<<place<<" endpoint: "<<endpoint);
     x10rt_send_get(&p, data, len);
@@ -293,7 +298,7 @@ void x10aux::send_put (x10aux::place place, x10aux::serialization_id_t id_,
                        serialization_buffer &buf, void *data, x10aux::copy_sz len, x10aux::endpoint endpoint)
 {
     msg_type id = DeserializationDispatcher::getMsgType(id_);
-    x10rt_msg_params p = { place, id, buf.borrow(), buf.length(), endpoint};
+    x10rt_msg_params p = { x10rt_place(place), id, buf.borrow(), buf.length(), endpoint};
     _X_(ANSI_BOLD<<ANSI_X10RT<<"Transmitting a put: "<<ANSI_RESET<<data<<" sid "<<id_<<" id "<<id
     		<<" size "<<len<<" header "<<buf.length()<<" to place: "<<place<<" endpoint: "<<endpoint);
     x10rt_send_put(&p, data, len);
@@ -318,12 +323,13 @@ static void receive_async (const x10rt_msg_params *p) {
         } break;
         case x10aux::CLOSURE_KIND_SIMPLE_ASYNC: {
             x10::lang::FinishState* fs = buf.read<x10::lang::FinishState*>();
+            x10::lang::Place src = buf.read<x10::lang::Place>();
             Reference* body(x10aux::DeserializationDispatcher::create(buf, sid));
             assert(buf.consumed() <= p->len);
             _X_("The deserialised simple async was: "<<x10aux::safe_to_string(body));
             deserialized_bytes += buf.consumed()  ; asyncs_received++;
             if (NULL == body) return;
-            x10::lang::Runtime::execute(reinterpret_cast<VoidFun_0_0*>(body), fs);
+            x10::lang::Runtime::execute(reinterpret_cast<VoidFun_0_0*>(body), src, fs);
         } break;
         default: abort();
     }
@@ -334,7 +340,9 @@ static void cuda_pre (const x10rt_msg_params *p, size_t *blocks, size_t *threads
 {
     _X_(ANSI_X10RT<<"Receiving a kernel pre callback, deserialising..."<<ANSI_RESET);
     x10aux::deserialization_buffer buf(static_cast<char*>(p->msg), p->len);
-    buf.read<x10::lang::FinishState*>();
+    x10::lang::FinishState* fs = buf.read<x10::lang::FinishState*>();
+    // FIXME: if we make it so that not just the host place can spawn a gpu job, we'll need to know who it is
+    fs->notifyActivityCreation(x10::lang::Place::_make(x10aux::here));
     // note: high bytes thrown away in implicit conversion
     serialization_id_t sid = x10aux::DeserializationDispatcher::getSerializationId(p->type);
     x10aux::CUDAPre pre = x10aux::DeserializationDispatcher::getCUDAPre(sid);
@@ -355,7 +363,6 @@ static void cuda_post (const x10rt_msg_params *p, size_t blocks, size_t threads,
     {
         x10aux::deserialization_buffer buf(static_cast<char*>(p->msg), p->len);
         x10::lang::FinishState* fs = buf.read<x10::lang::FinishState*>();
-        fs->notifyActivityCreation();
         fs->notifyActivityTermination();
     }
 }
@@ -476,7 +483,7 @@ void x10aux::cuda_put (place gpu, x10_ulong addr, void *var, size_t sz)
     buf.write((x10_ulong)(size_t)&finished);
     buf.write(addr);
     size_t len = buf.length();
-    x10rt_msg_params p = {gpu, kernel_put, buf.borrow(), len, 0};
+    x10rt_msg_params p = {x10rt_place(gpu), kernel_put, buf.borrow(), len, 0};
     x10rt_send_put(&p, var, sz);
     while (!finished) x10rt_probe();
 }
@@ -486,7 +493,7 @@ void x10aux::cuda_put (place gpu, x10_ulong addr, void *var, size_t sz)
 void *x10aux::coll_enter() {
     x10::lang::FinishState* fs = Runtime::activity()->finishState();
     fs->notifySubActivitySpawn(x10::lang::Place::_make(x10aux::here));
-    fs->notifyActivityCreation();
+    fs->notifyActivityCreation(x10::lang::Place::_make(x10aux::here));
     return fs;
 }
 
@@ -519,25 +526,15 @@ void x10aux::coll_handler2(x10rt_team id, void *arg) {
     fs->notifyActivityTermination();
 }
 
-#ifndef __MACH__
-    extern char **environ;
-#endif
-
-x10::util::HashMap<x10::lang::String*,x10::lang::String*>* x10aux::loadenv() {
-#ifdef __MACH__
-    char** environ = *_NSGetEnviron();
-#endif
-    x10::util::HashMap<x10::lang::String*,x10::lang::String*>* map =
-        x10::util::HashMap<x10::lang::String*, x10::lang::String*>::_make();
-    for (unsigned i=0 ; environ[i]!=NULL ; ++i) {
-        char *var = x10aux::alloc_utils::strdup(environ[i]);
-        *strchr(var,'=') = '\0';
-        char* val = getenv(var);
-        assert(val!=NULL);
-//        fprintf(stderr, "Loading environment variable %s=%s\n", var, val);
-        map->put(x10::lang::String::Lit(var), x10::lang::String::Lit(val));
+x10::lang::String *x10aux::runtime_name (void)
+{
+    pid_t pid = getpid();
+    char hname[1024] = "";
+    if (gethostname(hname, sizeof hname)) {
+        perror("x10aux::runtime_name");
     }
-    return map;
+    x10::lang::String *str = x10::lang::String::Lit(alloc_printf("%lu@%s", (unsigned long) pid, hname));
+    return str;
 }
 
 // vim:tabstop=4:shiftwidth=4:expandtab

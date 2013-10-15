@@ -9,19 +9,20 @@
  *  (C) Copyright IBM Corporation 2006-2010.
  */
 
+import x10.regionarray.*;
+
 /**
  * Construct a rectangular array, make an array view on it, modify it,
  * and examine the results in the original array.
  */
-
 class PolyRestriction1 extends TestArray {
 
     public def run() {
 
-        val r1 = Region.makeRectangular([0,0], [5,5]);
+        val r1 = Region.makeRectangular(0..5, 0..5);
         val a1 = prArray("whole array", r1);
 
-        val r2 = Region.makeRectangular([1,2], [3,4]);
+        val r2 = Region.makeRectangular(1..3, 2..4);
         val a2 = a1.restriction(r2);
         prArray("restricted array", a2);
 
@@ -77,7 +78,7 @@ class PolyRestriction1 extends TestArray {
         "    4  0 4 8 2 6 0 . . . . \n"+
         "    5  0 5 0 5 0 5 . . . . \n";
     
-    public static def main(Array[String](1)) {
+    public static def main(Rail[String]) {
         new PolyRestriction1().execute();
     }
 }

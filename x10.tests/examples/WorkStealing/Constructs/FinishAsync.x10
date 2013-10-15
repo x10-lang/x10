@@ -27,7 +27,7 @@ public class FinishAsync extends x10Test{
         return flag;
     }
 
-    public static def main(Array[String](1)) {
+    public static def main(Rail[String]) {
         new FinishAsync().execute();
     }
     

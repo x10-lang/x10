@@ -238,7 +238,7 @@ public struct Float implements Comparable[Float], Arithmetic[Float], Ordered[Flo
     @Native("java", "java.lang.Float.MIN_VALUE")
     @Native("c++", "x10::lang::FloatNatives::fromIntBits(0x00000001)")
     @Native("cuda", "1.401298464E-45")
-    public static MIN_VALUE: Float = Float.fromIntBits(0x00000001);
+    public static MIN_VALUE: Float = Float.fromIntBits(0x00000001n);
 
     /**
      * A constant holding the smallest positive normal value of type Float,
@@ -249,7 +249,7 @@ public struct Float implements Comparable[Float], Arithmetic[Float], Ordered[Flo
     @Native("java", "java.lang.Float.intBitsToFloat(0x00800000)")
     @Native("c++", "x10::lang::FloatNatives::fromIntBits(0x00800000)")
     @Native("cuda", "FLT_MIN")
-    public static MIN_NORMAL: Float = Float.fromIntBits(0x00800000);
+    public static MIN_NORMAL: Float = Float.fromIntBits(0x00800000n);
 
     /**
      * A constant holding the largest positive finite value of type Float,
@@ -260,7 +260,7 @@ public struct Float implements Comparable[Float], Arithmetic[Float], Ordered[Flo
     @Native("java", "java.lang.Float.MAX_VALUE")
     @Native("c++", "x10::lang::FloatNatives::fromIntBits(0x7f7fffff)")
     @Native("cuda", "FLT_MAX")
-    public static MAX_VALUE: Float = Float.fromIntBits(0x7f7fffff);
+    public static MAX_VALUE: Float = Float.fromIntBits(0x7f7fffffn);
 
     /**
      * A constant holding the positive infinity of type Float.
@@ -268,7 +268,7 @@ public struct Float implements Comparable[Float], Arithmetic[Float], Ordered[Flo
      */
     @Native("java", "java.lang.Float.POSITIVE_INFINITY")
     @Native("c++", "x10::lang::FloatNatives::fromIntBits(0x7f800000)")
-    public static POSITIVE_INFINITY: Float = Float.fromIntBits(0x7f800000);
+    public static POSITIVE_INFINITY: Float = Float.fromIntBits(0x7f800000n);
 
     /**
      * A constant holding the negative infinity of type Float.
@@ -276,7 +276,7 @@ public struct Float implements Comparable[Float], Arithmetic[Float], Ordered[Flo
      */
     @Native("java", "java.lang.Float.NEGATIVE_INFINITY")
     @Native("c++", "x10::lang::FloatNatives::fromIntBits(0xff800000)")
-    public static NEGATIVE_INFINITY: Float = Float.fromIntBits(0xff800000);
+    public static NEGATIVE_INFINITY: Float = Float.fromIntBits(0xff800000n);
 
     /**
      * A constant holding a Not-a-Number (NaN) value of type Float.
@@ -284,7 +284,7 @@ public struct Float implements Comparable[Float], Arithmetic[Float], Ordered[Flo
      */
     @Native("java", "java.lang.Float.NaN")
     @Native("c++", "x10::lang::FloatNatives::fromIntBits(0x7fc00000)")
-    public static NaN: Float = Float.fromIntBits(0x7fc00000);
+    public static NaN: Float = Float.fromIntBits(0x7fc00000n);
 
 
     /**

@@ -9,7 +9,7 @@
 #
 
 # set the target
-sub_dirs 	= dense sparse block comm dist dup summa symtri vector distblock
+sub_dirs 	= dense sparse block comm dist dup summa symtri vector distblock builder
 
 .PHONY		: test_all clean $(sub_dirs) help
 

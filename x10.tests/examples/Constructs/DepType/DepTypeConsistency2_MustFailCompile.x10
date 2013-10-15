@@ -20,13 +20,13 @@ import harness.x10Test;
 public class DepTypeConsistency2_MustFailCompile extends x10Test { 
 
 /* free variable i is not parametrically consistent */
-    class Tester(i:int{self == 2,self==3}) { // ERR ERR ERR: Type x10.lang.Int{inconsistent} is inconsistent. Invalid type; the real clause of x10.lang.Int{inconsistent} is inconsistent.
+    class Tester(i:int{self == 2n,self==3n}) { // ERR ERR ERR: Type x10.lang.Int{inconsistent} is inconsistent. Invalid type; the real clause of x10.lang.Int{inconsistent} is inconsistent.
       public def this(arg:int):Tester = { property(arg);}
     }
 	
     public def run()=true; 
 	
-   public static def main(var args: Array[String](1)): void = {
+   public static def main(var args: Rail[String]): void = {
         new DepTypeConsistency2_MustFailCompile().execute();
     }
 }

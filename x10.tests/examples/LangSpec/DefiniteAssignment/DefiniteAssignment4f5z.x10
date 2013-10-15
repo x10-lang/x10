@@ -21,16 +21,16 @@ import harness.x10Test;
 
 public class DefiniteAssignment4f5z extends x10Test {
    public def run() : boolean = (new Hook()).run();
-   public static def main(var args: Array[String](1)): void = {
+   public static def main(args:Rail[String]):void {
         new DefiniteAssignment4f5z().execute();
     }
 
 
-// file DefiniteAssignment line 70
+// file DefiniteAssignment line 71
  static  class Example {
 
 def example(flag : Boolean) {
-  var x : Int;
+  var x : Long;
   if (flag) x = 1;
   // x is neither def. assigned nor unassigned.
   x = 2;

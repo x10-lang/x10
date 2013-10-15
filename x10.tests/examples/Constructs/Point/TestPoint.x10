@@ -10,6 +10,7 @@
  */
 
 import x10.io.Printer;
+import x10.regionarray.*;
 import x10.io.StringWriter;
 
 import harness.x10Test;
@@ -18,7 +19,7 @@ abstract public class TestPoint extends x10Test {
     
     var os: StringWriter;
     var out: Printer;
-    val testName = this.typeName().substring(6,this.typeName().length());
+    val testName = this.typeName().substring(6n,this.typeName().length());
 
     def this() {
         System.setProperty("line.separator", "\n");
@@ -47,8 +48,8 @@ abstract public class TestPoint extends x10Test {
     }
 
     def prPoint(test: String, p: Point): void = {
-        var sum: int = 0;
-        for (var i: int = 0; i<p.rank; i++)
+        var sum: long = 0;
+        for (var i: long = 0; i<p.rank; i++)
             sum += p(i);
         pr(test + " " + p + " sum=" + sum);
     }

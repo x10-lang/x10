@@ -10,6 +10,7 @@
  */
 
 import harness.x10Test;
+import x10.regionarray.*;
 
 /**
  * Slightly different test for ateach.
@@ -18,8 +19,8 @@ import harness.x10Test;
  * @author vj
  */
 public class AtEach2 extends x10Test {
-	private val root = GlobalRef[AtEach2](this);
-    transient var nplaces: int = 0;
+    private val root = GlobalRef[AtEach2](this);
+    transient var nplaces: long = 0L;
 
     public def run(): boolean = {
         val d: Dist = Dist.makeUnique();
@@ -35,7 +36,7 @@ public class AtEach2 extends x10Test {
         return nplaces == Place.MAX_PLACES;
     }
 
-    public static def main(Array[String](1))  {
+    public static def main(Rail[String])  {
         new AtEach2().execute();
     }
 }

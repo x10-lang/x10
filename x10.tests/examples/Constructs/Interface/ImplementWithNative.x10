@@ -58,14 +58,14 @@ public class ImplementWithNative extends x10Test {
         val c2:I = new C2();
         val s:I = new S();
 
-        chk(c1.foo(c1.bar(1)) == 111);
-        chk(c2.foo(c2.bar(2)) == 222);
-        chk(s.foo(s.bar(3)) == 333);
+        chk(c1.foo(c1.bar(1n)) == 111n);
+        chk(c2.foo(c2.bar(2n)) == 222n);
+        chk(s.foo(s.bar(3n)) == 333n);
 
         return true;
     }
 
-    public static def main(Array[String](1)) {
+    public static def main(Rail[String]) {
         new ImplementWithNative().execute();
     }
 }

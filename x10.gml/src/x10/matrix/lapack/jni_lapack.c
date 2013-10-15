@@ -18,11 +18,11 @@ extern "C" {
 //int solve_linear_equation(double* A, double* B, int* IPIV, int* dim)
 
   JNIEXPORT int JNICALL Java_x10_matrix_lapack_WrapLAPACK_solveLinearEquation
-  (JNIEnv *env, jobject obj, jdoubleArray A, jdoubleArray B, jintArray IPIV, jintArray dim) {
+  (JNIEnv *env, jclass cls, jdoubleArray A, jdoubleArray B, jintArray IPIV, jintArray dim) {
 	jboolean isCopyA, isCopyB;
 	jdouble* Amat = env->GetDoubleArrayElements(A, &isCopyA);
 	jdouble* Bmat = env->GetDoubleArrayElements(B, &isCopyB);
-	jint*    ip   = env->GetIntArrayElements(IPIV, NULL);
+	jint*   ip   = env->GetIntArrayElements(IPIV, NULL);
 
 	jint dimlist[2];
     // This line is necessary, since Java arrays are not guaranteed
@@ -46,7 +46,7 @@ extern "C" {
   //int comp_engenvalue(double* A, double* W, double* WORK, int* dim)
 
   JNIEXPORT int JNICALL Java_x10_matrix_lapack_WrapLAPACK_compEigenValue
-  (JNIEnv *env, jobject obj, jdoubleArray A, jdoubleArray W, jdoubleArray WORK, jintArray dim) {
+  (JNIEnv *env, jclass cls, jdoubleArray A, jdoubleArray W, jdoubleArray WORK, jintArray dim) {
 
     jboolean isCopyW;
     jboolean isCopyDim;
@@ -69,7 +69,7 @@ extern "C" {
   }
 
   JNIEXPORT int JNICALL Java_x10_matrix_lapack_WrapLAPACK_compEigenVector
-  (JNIEnv *env, jobject obj, jdoubleArray A, jdoubleArray W, jdoubleArray WORK, jintArray dim) {
+  (JNIEnv *env, jclass cls, jdoubleArray A, jdoubleArray W, jdoubleArray WORK, jintArray dim) {
 
 	jboolean isCopyA;
 	jboolean isCopyW;

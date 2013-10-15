@@ -32,14 +32,14 @@ public class TypedefOverloading09 extends TypedefTest {
         static class Z[T,U] {}
 
         static class U {}
-        static class V(i:int) {def this(i:int):V{self.i==i} = property(i);}
-        static class W(i:int,s:String) {def this(i:int,s:String):W{self.i==i && self.s==s} = property(i,s);}
+        static class V(i:long) {def this(i:long):V{self.i==i} = property(i);}
+        static class W(i:long,s:String) {def this(i:long,s:String):W{self.i==i && self.s==s} = property(i,s);}
 
         static type A = X;
-        static type A/*B*/(i:int) = int{self==i};
+        static type A/*B*/(i:long) = long{self==i};
         static type A/*C*/(s:String) = W{self.i==1 && self.s==s};
-        static type A/*D*/(i:int,s:String) = W{self.i==i && self.s==s};
-        static type A/*E*/(s:String,i:int) = W{self.s==s && self.i==i};
+        static type A/*D*/(i:long,s:String) = W{self.i==i && self.s==s};
+        static type A/*E*/(s:String,i:long) = W{self.s==s && self.i==i};
 
     public def run(): boolean = {
         
@@ -51,7 +51,7 @@ public class TypedefOverloading09 extends TypedefTest {
         return result;
     }
 
-    public static def main(var args: Array[String](1)): void = {
+    public static def main(var args: Rail[String]): void = {
         new TypedefOverloading09().execute();
     }
 }

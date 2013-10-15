@@ -14,27 +14,25 @@ package x10.matrix.comm;
 /**
  * This struct is used to pack information of sparse matrix from the source place.
  * The data fields of the struct are captured and copied to here, which are needed
- * by remote array copy to transfer data from the remote place to here..
- *
+ * by remote array copy to transfer data from the remote place to here.
  */
 protected struct SparseRemoteSourceInfo {
-	public val idxbuf:RemoteArray[Int];
-	public val valbuf:RemoteArray[Double];
-	public val offset:Int;
-	public val length:Int;
+	public val idxbuf:GlobalRail[Long];
+	public val valbuf:GlobalRail[Double];
+	public val offset:Long;
+	public val length:Long;
 	
-	public def this(idx:RemoteArray[Int], vlu:RemoteArray[Double], off:Int, len:Int) {
+	public def this(idx:GlobalRail[Long], vlu:GlobalRail[Double], off:Long, len:Long) {
 		idxbuf = idx; 
 		valbuf = vlu;	
 		offset = off; 
 		length = len;
 	}
 
-	public def this(idx:Array[Int], vlu:Array[Double], off:Int, len:Int) {
-		idxbuf = new RemoteArray[Int](idx as Array[Int]{self!=null}); 
-		valbuf = new RemoteArray[Double](vlu as Array[Double]{self!=null});	
+	public def this(idx:Rail[Long], vlu:Rail[Double], off:Long, len:Long) {
+		idxbuf = new GlobalRail[Long](idx as Rail[Long]{self!=null}); 
+		valbuf = new GlobalRail[Double](vlu as Rail[Double]{self!=null});	
 		offset = off; 
 		length = len;
 	}
-
 }

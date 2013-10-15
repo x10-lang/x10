@@ -258,10 +258,10 @@ public interface Type extends Qualifier, Annotated, Named, XType
     boolean isString();
     
     /**
-     * Return true if the type is IndexedMemoryChunk
+     * Return true if the type is Rail
      */
-    boolean isIndexedMemoryChunk();
-    
+    boolean isRail();
+
     /**
      * Return true if the type is Runtime
      */

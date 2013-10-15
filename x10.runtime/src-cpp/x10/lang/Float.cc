@@ -39,10 +39,26 @@ String* FloatNatives::toString(x10_float value) {
 x10_float FloatNatives::parseFloat(String* s) {
     const char *start = nullCheck(s)->c_str();
     char *end;
+    // skip over leading whitespace
+    int numChars = s->length();
+    while (isspace(*start)) {
+        start++;
+        numChars--;
+    }
+    // attempt to parse as float
     errno = 0;
     x10_float ans = strtof(start, &end);
-    if (errno != 0 || ((end-start) != s->length())) {
-        throwException(NumberFormatException::_make(s));
+    if (errno != 0) {
+        x10aux::throwException(x10::lang::NumberFormatException::_make(s));
+    }
+    // any trailing characters must be whitespace
+    if (end-start != numChars) {
+        for (int i = end-start; i<numChars; i++) {
+            if (!isspace(start[i])) {
+                // trailing non-space...error!
+                x10aux::throwException(x10::lang::NumberFormatException::_make(s));
+            }
+        }
     }
     return ans;
 }

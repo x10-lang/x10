@@ -120,9 +120,9 @@ extends x10.lang.Object</pre>
 <td class="colLast"><code><strong><a href="../../../x10/matrix/comm/WrapMPI.html#world">world</a></strong></code></td>
 </tr>
 <tr class="rowColor">
-<td class="colFirst"><code>x10.array.Dist</code></td>
+<td class="colFirst"><code>x10.regionarray.Dist</code></td>
 <td class="colLast"><code><strong><a href="../../../x10/matrix/comm/WrapMPI.html#dist">dist</a></strong></code>
-<div class="block"><B>Field Type</B>: <TT>x10.array.Dist{self.region.rank==1}</TT>
+<div class="block"><B>Field Type</B>: <TT>x10.regionarray.Dist{self.region.rank==1}</TT>
 </div>
 </td>
 </tr>
@@ -141,8 +141,8 @@ extends x10.lang.Object</pre>
 <th class="colOne" scope="col">Constructor and Description</th>
 </tr>
 <tr class="altColor">
-<td class="colOne"><code><strong><a href="../../../x10/matrix/comm/WrapMPI.html#WrapMPI(x10.array.Dist{self.region.rank==1})">WrapMPI</a></strong>(x10.array.Dist&nbsp;d)</code>
-<div class="block"><B>Declaration</B>: <TT>this(x10.array.Dist{self.region.rank==1}): x10.matrix.comm.WrapMPI.</TT>
+<td class="colOne"><code><strong><a href="../../../x10/matrix/comm/WrapMPI.html#WrapMPI(x10.regionarray.Dist{self.region.rank==1})">WrapMPI</a></strong>(x10.regionarray.Dist&nbsp;d)</code>
+<div class="block"><B>Declaration</B>: <TT>this(x10.regionarray.Dist{self.region.rank==1}): x10.matrix.comm.WrapMPI.</TT>
 </div>
 </td>
 </tr>
@@ -168,25 +168,25 @@ extends x10.lang.Object</pre>
 </tr>
 <tr class="altColor">
 <td class="colFirst"><code>static void</code></td>
-<td class="colLast"><code><strong><a href="../../../x10/matrix/comm/WrapMPI.html#get_proc_info(x10.array.Array[x10.lang.Int],x10.array.Array[x10.lang.Int],x10.array.Array[x10.lang.Int],x10.array.Array[x10.lang.Int])">get_proc_info</a></strong>(x10.array.Array&lt;x10.lang.Int&gt;&nbsp;rk,
-             x10.array.Array&lt;x10.lang.Int&gt;&nbsp;np,
-             x10.array.Array&lt;x10.lang.Int&gt;&nbsp;hlen,
-             x10.array.Array&lt;x10.lang.Int&gt;&nbsp;hstr)</code>
-<div class="block"><B>Declaration:</B> <TT>get_proc_info(rk:x10.array.Array[x10.lang.Int]{self.rank==1, self.zeroBased==true, self.rect==true, self.rail==true},np:x10.array.Array[x10.lang.Int]{self.rank==1, self.zeroBased==true, self.rect==true, self.rail==true},hlen:x10.array.Array[x10.lang.Int]{self.rank==1, self.zeroBased==true, self.rect==true, self.rail==true},hstr:x10.array.Array[x10.lang.Int]{self.rank==1, self.zeroBased==true, self.rect==true, self.rail==true}): void.</TT>
+<td class="colLast"><code><strong><a href="../../../x10/matrix/comm/WrapMPI.html#get_proc_info(x10.regionarray.Array[x10.lang.Int],x10.regionarray.Array[x10.lang.Int],x10.regionarray.Array[x10.lang.Int],x10.regionarray.Array[x10.lang.Int])">get_proc_info</a></strong>(x10.regionarray.Array&lt;x10.lang.Int&gt;&nbsp;rk,
+             x10.regionarray.Array&lt;x10.lang.Int&gt;&nbsp;np,
+             x10.regionarray.Array&lt;x10.lang.Int&gt;&nbsp;hlen,
+             x10.regionarray.Array&lt;x10.lang.Int&gt;&nbsp;hstr)</code>
+<div class="block"><B>Declaration:</B> <TT>get_proc_info(rk:x10.regionarray.Array[x10.lang.Int]{self.rank==1, self.zeroBased==true, self.rect==true, self.rail==true},np:x10.regionarray.Array[x10.lang.Int]{self.rank==1, self.zeroBased==true, self.rect==true, self.rail==true},hlen:x10.regionarray.Array[x10.lang.Int]{self.rank==1, self.zeroBased==true, self.rect==true, self.rail==true},hstr:x10.regionarray.Array[x10.lang.Int]{self.rank==1, self.zeroBased==true, self.rect==true, self.rail==true}): void.</TT>
 </div>
 </td>
 </tr>
 <tr class="rowColor">
 <td class="colFirst"><code>static void</code></td>
-<td class="colLast"><code><strong><a href="../../../x10/matrix/comm/WrapMPI.html#get_name_maxlen(x10.array.Array[x10.lang.Int])">get_name_maxlen</a></strong>(x10.array.Array&lt;x10.lang.Int&gt;&nbsp;l)</code>
-<div class="block"><B>Declaration:</B> <TT>get_name_maxlen(l:x10.array.Array[x10.lang.Int]{self.rank==1, self.zeroBased==true, self.rect==true, self.rail==true}): void.</TT>
+<td class="colLast"><code><strong><a href="../../../x10/matrix/comm/WrapMPI.html#get_name_maxlen(x10.regionarray.Array[x10.lang.Int])">get_name_maxlen</a></strong>(x10.regionarray.Array&lt;x10.lang.Int&gt;&nbsp;l)</code>
+<div class="block"><B>Declaration:</B> <TT>get_name_maxlen(l:x10.regionarray.Array[x10.lang.Int]{self.rank==1, self.zeroBased==true, self.rect==true, self.rail==true}): void.</TT>
 </div>
 </td>
 </tr>
 <tr class="altColor">
 <td class="colFirst"><code>static void</code></td>
-<td class="colLast"><code><strong><a href="../../../x10/matrix/comm/WrapMPI.html#get_comm_nproc(x10.array.Array[x10.lang.Int])">get_comm_nproc</a></strong>(x10.array.Array&lt;x10.lang.Int&gt;&nbsp;np)</code>
-<div class="block"><B>Declaration:</B> <TT>get_comm_nproc(np:x10.array.Array[x10.lang.Int]{self.rank==1, self.zeroBased==true, self.rect==true, self.rail==true}): void.</TT>
+<td class="colLast"><code><strong><a href="../../../x10/matrix/comm/WrapMPI.html#get_comm_nproc(x10.regionarray.Array[x10.lang.Int])">get_comm_nproc</a></strong>(x10.regionarray.Array&lt;x10.lang.Int&gt;&nbsp;np)</code>
+<div class="block"><B>Declaration:</B> <TT>get_comm_nproc(np:x10.regionarray.Array[x10.lang.Int]{self.rank==1, self.zeroBased==true, self.rect==true, self.rail==true}): void.</TT>
 </div>
 </td>
 </tr>
@@ -208,331 +208,331 @@ extends x10.lang.Object</pre>
 </tr>
 <tr class="altColor">
 <td class="colFirst"><code>void</code></td>
-<td class="colLast"><code><strong><a href="../../../x10/matrix/comm/WrapMPI.html#send(x10.array.Array[x10.lang.Double],x10.lang.Int,x10.lang.Int,x10.lang.Int)">send</a></strong>(x10.array.Array&lt;x10.lang.Double&gt;&nbsp;buf,
+<td class="colLast"><code><strong><a href="../../../x10/matrix/comm/WrapMPI.html#send(x10.regionarray.Array[x10.lang.Double],x10.lang.Int,x10.lang.Int,x10.lang.Int)">send</a></strong>(x10.regionarray.Array&lt;x10.lang.Double&gt;&nbsp;buf,
     x10.lang.Int&nbsp;cnt,
     x10.lang.Int&nbsp;dst,
     x10.lang.Int&nbsp;tag)</code>
-<div class="block"><B>Declaration:</B> <TT>send(buf:x10.array.Array[x10.lang.Double]{self.rank==1},cnt:x10.lang.Int,dst:x10.lang.Int,tag:x10.lang.Int): void.</TT>
+<div class="block"><B>Declaration:</B> <TT>send(buf:x10.regionarray.Array[x10.lang.Double]{self.rank==1},cnt:x10.lang.Int,dst:x10.lang.Int,tag:x10.lang.Int): void.</TT>
 Send double-precision data array.</div>
 </td>
 </tr>
 <tr class="rowColor">
 <td class="colFirst"><code>void</code></td>
-<td class="colLast"><code><strong><a href="../../../x10/matrix/comm/WrapMPI.html#send(x10.array.Array[x10.lang.Double],x10.lang.Int,x10.lang.Int,x10.lang.Int,x10.lang.Int)">send</a></strong>(x10.array.Array&lt;x10.lang.Double&gt;&nbsp;buf,
+<td class="colLast"><code><strong><a href="../../../x10/matrix/comm/WrapMPI.html#send(x10.regionarray.Array[x10.lang.Double],x10.lang.Int,x10.lang.Int,x10.lang.Int,x10.lang.Int)">send</a></strong>(x10.regionarray.Array&lt;x10.lang.Double&gt;&nbsp;buf,
     x10.lang.Int&nbsp;off,
     x10.lang.Int&nbsp;cnt,
     x10.lang.Int&nbsp;dst,
     x10.lang.Int&nbsp;tag)</code>
-<div class="block"><B>Declaration:</B> <TT>send(buf:x10.array.Array[x10.lang.Double]{self.rank==1},off:x10.lang.Int,cnt:x10.lang.Int,dst:x10.lang.Int,tag:x10.lang.Int): void.</TT>
+<div class="block"><B>Declaration:</B> <TT>send(buf:x10.regionarray.Array[x10.lang.Double]{self.rank==1},off:x10.lang.Int,cnt:x10.lang.Int,dst:x10.lang.Int,tag:x10.lang.Int): void.</TT>
 Send double-precision data array.</div>
 </td>
 </tr>
 <tr class="altColor">
 <td class="colFirst"><code>void</code></td>
-<td class="colLast"><code><strong><a href="../../../x10/matrix/comm/WrapMPI.html#recv(x10.array.Array[x10.lang.Double],x10.lang.Int,x10.lang.Int,x10.lang.Int)">recv</a></strong>(x10.array.Array&lt;x10.lang.Double&gt;&nbsp;buf,
+<td class="colLast"><code><strong><a href="../../../x10/matrix/comm/WrapMPI.html#recv(x10.regionarray.Array[x10.lang.Double],x10.lang.Int,x10.lang.Int,x10.lang.Int)">recv</a></strong>(x10.regionarray.Array&lt;x10.lang.Double&gt;&nbsp;buf,
     x10.lang.Int&nbsp;cnt,
     x10.lang.Int&nbsp;src,
     x10.lang.Int&nbsp;tag)</code>
-<div class="block"><B>Declaration:</B> <TT>recv(buf:x10.array.Array[x10.lang.Double]{self.rank==1},cnt:x10.lang.Int,src:x10.lang.Int,tag:x10.lang.Int): void.</TT>
+<div class="block"><B>Declaration:</B> <TT>recv(buf:x10.regionarray.Array[x10.lang.Double]{self.rank==1},cnt:x10.lang.Int,src:x10.lang.Int,tag:x10.lang.Int): void.</TT>
 Receive double-precision data array.</div>
 </td>
 </tr>
 <tr class="rowColor">
 <td class="colFirst"><code>void</code></td>
-<td class="colLast"><code><strong><a href="../../../x10/matrix/comm/WrapMPI.html#recv(x10.array.Array[x10.lang.Double],x10.lang.Int,x10.lang.Int,x10.lang.Int,x10.lang.Int)">recv</a></strong>(x10.array.Array&lt;x10.lang.Double&gt;&nbsp;buf,
+<td class="colLast"><code><strong><a href="../../../x10/matrix/comm/WrapMPI.html#recv(x10.regionarray.Array[x10.lang.Double],x10.lang.Int,x10.lang.Int,x10.lang.Int,x10.lang.Int)">recv</a></strong>(x10.regionarray.Array&lt;x10.lang.Double&gt;&nbsp;buf,
     x10.lang.Int&nbsp;off,
     x10.lang.Int&nbsp;cnt,
     x10.lang.Int&nbsp;src,
     x10.lang.Int&nbsp;tag)</code>
-<div class="block"><B>Declaration:</B> <TT>recv(buf:x10.array.Array[x10.lang.Double]{self.rank==1},off:x10.lang.Int,cnt:x10.lang.Int,src:x10.lang.Int,tag:x10.lang.Int): void.</TT>
+<div class="block"><B>Declaration:</B> <TT>recv(buf:x10.regionarray.Array[x10.lang.Double]{self.rank==1},off:x10.lang.Int,cnt:x10.lang.Int,src:x10.lang.Int,tag:x10.lang.Int): void.</TT>
 Receive double-precision data array.</div>
 </td>
 </tr>
 <tr class="altColor">
 <td class="colFirst"><code><a href="../../../x10/matrix/comm/RequestHandleMPI.html" title="class in x10.matrix.comm">RequestHandleMPI</a></code></td>
-<td class="colLast"><code><strong><a href="../../../x10/matrix/comm/WrapMPI.html#immSend(x10.array.Array[x10.lang.Double],x10.lang.Int,x10.lang.Int,x10.lang.Int)">immSend</a></strong>(x10.array.Array&lt;x10.lang.Double&gt;&nbsp;buf,
+<td class="colLast"><code><strong><a href="../../../x10/matrix/comm/WrapMPI.html#immSend(x10.regionarray.Array[x10.lang.Double],x10.lang.Int,x10.lang.Int,x10.lang.Int)">immSend</a></strong>(x10.regionarray.Array&lt;x10.lang.Double&gt;&nbsp;buf,
        x10.lang.Int&nbsp;cnt,
        x10.lang.Int&nbsp;dst,
        x10.lang.Int&nbsp;tag)</code>
-<div class="block"><B>Declaration:</B> <TT>immSend(buf:x10.array.Array[x10.lang.Double]{self.rank==1},cnt:x10.lang.Int,dst:x10.lang.Int,tag:x10.lang.Int): x10.matrix.comm.RequestHandleMPI.</TT>
+<div class="block"><B>Declaration:</B> <TT>immSend(buf:x10.regionarray.Array[x10.lang.Double]{self.rank==1},cnt:x10.lang.Int,dst:x10.lang.Int,tag:x10.lang.Int): x10.matrix.comm.RequestHandleMPI.</TT>
 Non-blocking send double-precision data array.</div>
 </td>
 </tr>
 <tr class="rowColor">
 <td class="colFirst"><code><a href="../../../x10/matrix/comm/RequestHandleMPI.html" title="class in x10.matrix.comm">RequestHandleMPI</a></code></td>
-<td class="colLast"><code><strong><a href="../../../x10/matrix/comm/WrapMPI.html#immSend(x10.array.Array[x10.lang.Double],x10.lang.Int,x10.lang.Int,x10.lang.Int,x10.lang.Int)">immSend</a></strong>(x10.array.Array&lt;x10.lang.Double&gt;&nbsp;buf,
+<td class="colLast"><code><strong><a href="../../../x10/matrix/comm/WrapMPI.html#immSend(x10.regionarray.Array[x10.lang.Double],x10.lang.Int,x10.lang.Int,x10.lang.Int,x10.lang.Int)">immSend</a></strong>(x10.regionarray.Array&lt;x10.lang.Double&gt;&nbsp;buf,
        x10.lang.Int&nbsp;off,
        x10.lang.Int&nbsp;cnt,
        x10.lang.Int&nbsp;dst,
        x10.lang.Int&nbsp;tag)</code>
-<div class="block"><B>Declaration:</B> <TT>immSend(buf:x10.array.Array[x10.lang.Double]{self.rank==1},off:x10.lang.Int,cnt:x10.lang.Int,dst:x10.lang.Int,tag:x10.lang.Int): x10.matrix.comm.RequestHandleMPI.</TT>
+<div class="block"><B>Declaration:</B> <TT>immSend(buf:x10.regionarray.Array[x10.lang.Double]{self.rank==1},off:x10.lang.Int,cnt:x10.lang.Int,dst:x10.lang.Int,tag:x10.lang.Int): x10.matrix.comm.RequestHandleMPI.</TT>
 Non-block send double-precision data array.</div>
 </td>
 </tr>
 <tr class="altColor">
 <td class="colFirst"><code><a href="../../../x10/matrix/comm/RequestHandleMPI.html" title="class in x10.matrix.comm">RequestHandleMPI</a></code></td>
-<td class="colLast"><code><strong><a href="../../../x10/matrix/comm/WrapMPI.html#immRecv(x10.array.Array[x10.lang.Double],x10.lang.Int,x10.lang.Int,x10.lang.Int)">immRecv</a></strong>(x10.array.Array&lt;x10.lang.Double&gt;&nbsp;buf,
+<td class="colLast"><code><strong><a href="../../../x10/matrix/comm/WrapMPI.html#immRecv(x10.regionarray.Array[x10.lang.Double],x10.lang.Int,x10.lang.Int,x10.lang.Int)">immRecv</a></strong>(x10.regionarray.Array&lt;x10.lang.Double&gt;&nbsp;buf,
        x10.lang.Int&nbsp;cnt,
        x10.lang.Int&nbsp;src,
        x10.lang.Int&nbsp;tag)</code>
-<div class="block"><B>Declaration:</B> <TT>immRecv(buf:x10.array.Array[x10.lang.Double]{self.rank==1},cnt:x10.lang.Int,src:x10.lang.Int,tag:x10.lang.Int): x10.matrix.comm.RequestHandleMPI.</TT>
+<div class="block"><B>Declaration:</B> <TT>immRecv(buf:x10.regionarray.Array[x10.lang.Double]{self.rank==1},cnt:x10.lang.Int,src:x10.lang.Int,tag:x10.lang.Int): x10.matrix.comm.RequestHandleMPI.</TT>
 Non-blocking receive double-precision data array.</div>
 </td>
 </tr>
 <tr class="rowColor">
 <td class="colFirst"><code><a href="../../../x10/matrix/comm/RequestHandleMPI.html" title="class in x10.matrix.comm">RequestHandleMPI</a></code></td>
-<td class="colLast"><code><strong><a href="../../../x10/matrix/comm/WrapMPI.html#immRecv(x10.array.Array[x10.lang.Double],x10.lang.Int,x10.lang.Int,x10.lang.Int,x10.lang.Int)">immRecv</a></strong>(x10.array.Array&lt;x10.lang.Double&gt;&nbsp;buf,
+<td class="colLast"><code><strong><a href="../../../x10/matrix/comm/WrapMPI.html#immRecv(x10.regionarray.Array[x10.lang.Double],x10.lang.Int,x10.lang.Int,x10.lang.Int,x10.lang.Int)">immRecv</a></strong>(x10.regionarray.Array&lt;x10.lang.Double&gt;&nbsp;buf,
        x10.lang.Int&nbsp;off,
        x10.lang.Int&nbsp;cnt,
        x10.lang.Int&nbsp;src,
        x10.lang.Int&nbsp;tag)</code>
-<div class="block"><B>Declaration:</B> <TT>immRecv(buf:x10.array.Array[x10.lang.Double]{self.rank==1},off:x10.lang.Int,cnt:x10.lang.Int,src:x10.lang.Int,tag:x10.lang.Int): x10.matrix.comm.RequestHandleMPI.</TT>
+<div class="block"><B>Declaration:</B> <TT>immRecv(buf:x10.regionarray.Array[x10.lang.Double]{self.rank==1},off:x10.lang.Int,cnt:x10.lang.Int,src:x10.lang.Int,tag:x10.lang.Int): x10.matrix.comm.RequestHandleMPI.</TT>
 Non-blocking receive double-precision data array.</div>
 </td>
 </tr>
 <tr class="altColor">
 <td class="colFirst"><code>void</code></td>
-<td class="colLast"><code><strong><a href="../../../x10/matrix/comm/WrapMPI.html#send(x10.array.Array[x10.lang.Int],x10.lang.Int,x10.lang.Int,x10.lang.Int)">send</a></strong>(x10.array.Array&lt;x10.lang.Int&gt;&nbsp;buf,
+<td class="colLast"><code><strong><a href="../../../x10/matrix/comm/WrapMPI.html#send(x10.regionarray.Array[x10.lang.Int],x10.lang.Int,x10.lang.Int,x10.lang.Int)">send</a></strong>(x10.regionarray.Array&lt;x10.lang.Int&gt;&nbsp;buf,
     x10.lang.Int&nbsp;cnt,
     x10.lang.Int&nbsp;dst,
     x10.lang.Int&nbsp;tag)</code>
-<div class="block"><B>Declaration:</B> <TT>send(buf:x10.array.Array[x10.lang.Int]{self.rank==1},cnt:x10.lang.Int,dst:x10.lang.Int,tag:x10.lang.Int): void.</TT>
+<div class="block"><B>Declaration:</B> <TT>send(buf:x10.regionarray.Array[x10.lang.Int]{self.rank==1},cnt:x10.lang.Int,dst:x10.lang.Int,tag:x10.lang.Int): void.</TT>
 </div>
 </td>
 </tr>
 <tr class="rowColor">
 <td class="colFirst"><code>void</code></td>
-<td class="colLast"><code><strong><a href="../../../x10/matrix/comm/WrapMPI.html#send(x10.array.Array[x10.lang.Int],x10.lang.Int,x10.lang.Int,x10.lang.Int,x10.lang.Int)">send</a></strong>(x10.array.Array&lt;x10.lang.Int&gt;&nbsp;buf,
+<td class="colLast"><code><strong><a href="../../../x10/matrix/comm/WrapMPI.html#send(x10.regionarray.Array[x10.lang.Int],x10.lang.Int,x10.lang.Int,x10.lang.Int,x10.lang.Int)">send</a></strong>(x10.regionarray.Array&lt;x10.lang.Int&gt;&nbsp;buf,
     x10.lang.Int&nbsp;off,
     x10.lang.Int&nbsp;cnt,
     x10.lang.Int&nbsp;dst,
     x10.lang.Int&nbsp;tag)</code>
-<div class="block"><B>Declaration:</B> <TT>send(buf:x10.array.Array[x10.lang.Int]{self.rank==1},off:x10.lang.Int,cnt:x10.lang.Int,dst:x10.lang.Int,tag:x10.lang.Int): void.</TT>
+<div class="block"><B>Declaration:</B> <TT>send(buf:x10.regionarray.Array[x10.lang.Int]{self.rank==1},off:x10.lang.Int,cnt:x10.lang.Int,dst:x10.lang.Int,tag:x10.lang.Int): void.</TT>
 Send integer array</div>
 </td>
 </tr>
 <tr class="altColor">
 <td class="colFirst"><code>void</code></td>
-<td class="colLast"><code><strong><a href="../../../x10/matrix/comm/WrapMPI.html#recv(x10.array.Array[x10.lang.Int],x10.lang.Int,x10.lang.Int,x10.lang.Int)">recv</a></strong>(x10.array.Array&lt;x10.lang.Int&gt;&nbsp;buf,
+<td class="colLast"><code><strong><a href="../../../x10/matrix/comm/WrapMPI.html#recv(x10.regionarray.Array[x10.lang.Int],x10.lang.Int,x10.lang.Int,x10.lang.Int)">recv</a></strong>(x10.regionarray.Array&lt;x10.lang.Int&gt;&nbsp;buf,
     x10.lang.Int&nbsp;cnt,
     x10.lang.Int&nbsp;src,
     x10.lang.Int&nbsp;tag)</code>
-<div class="block"><B>Declaration:</B> <TT>recv(buf:x10.array.Array[x10.lang.Int]{self.rank==1},cnt:x10.lang.Int,src:x10.lang.Int,tag:x10.lang.Int): void.</TT>
+<div class="block"><B>Declaration:</B> <TT>recv(buf:x10.regionarray.Array[x10.lang.Int]{self.rank==1},cnt:x10.lang.Int,src:x10.lang.Int,tag:x10.lang.Int): void.</TT>
 Receive integer array</div>
 </td>
 </tr>
 <tr class="rowColor">
 <td class="colFirst"><code>void</code></td>
-<td class="colLast"><code><strong><a href="../../../x10/matrix/comm/WrapMPI.html#recv(x10.array.Array[x10.lang.Int],x10.lang.Int,x10.lang.Int,x10.lang.Int,x10.lang.Int)">recv</a></strong>(x10.array.Array&lt;x10.lang.Int&gt;&nbsp;buf,
+<td class="colLast"><code><strong><a href="../../../x10/matrix/comm/WrapMPI.html#recv(x10.regionarray.Array[x10.lang.Int],x10.lang.Int,x10.lang.Int,x10.lang.Int,x10.lang.Int)">recv</a></strong>(x10.regionarray.Array&lt;x10.lang.Int&gt;&nbsp;buf,
     x10.lang.Int&nbsp;off,
     x10.lang.Int&nbsp;cnt,
     x10.lang.Int&nbsp;src,
     x10.lang.Int&nbsp;tag)</code>
-<div class="block"><B>Declaration:</B> <TT>recv(buf:x10.array.Array[x10.lang.Int]{self.rank==1},off:x10.lang.Int,cnt:x10.lang.Int,src:x10.lang.Int,tag:x10.lang.Int): void.</TT>
+<div class="block"><B>Declaration:</B> <TT>recv(buf:x10.regionarray.Array[x10.lang.Int]{self.rank==1},off:x10.lang.Int,cnt:x10.lang.Int,src:x10.lang.Int,tag:x10.lang.Int): void.</TT>
 </div>
 </td>
 </tr>
 <tr class="altColor">
 <td class="colFirst"><code>void</code></td>
-<td class="colLast"><code><strong><a href="../../../x10/matrix/comm/WrapMPI.html#bcast(x10.array.Array[x10.lang.Double],x10.lang.Int,x10.lang.Int,x10.lang.Int)">bcast</a></strong>(x10.array.Array&lt;x10.lang.Double&gt;&nbsp;buf,
+<td class="colLast"><code><strong><a href="../../../x10/matrix/comm/WrapMPI.html#bcast(x10.regionarray.Array[x10.lang.Double],x10.lang.Int,x10.lang.Int,x10.lang.Int)">bcast</a></strong>(x10.regionarray.Array&lt;x10.lang.Double&gt;&nbsp;buf,
      x10.lang.Int&nbsp;off,
      x10.lang.Int&nbsp;cnt,
      x10.lang.Int&nbsp;root)</code>
-<div class="block"><B>Declaration:</B> <TT>bcast(buf:x10.array.Array[x10.lang.Double]{self.rank==1},off:x10.lang.Int,cnt:x10.lang.Int,root:x10.lang.Int): void.</TT>
+<div class="block"><B>Declaration:</B> <TT>bcast(buf:x10.regionarray.Array[x10.lang.Double]{self.rank==1},off:x10.lang.Int,cnt:x10.lang.Int,root:x10.lang.Int): void.</TT>
 Broadcast double-precision data array.</div>
 </td>
 </tr>
 <tr class="rowColor">
 <td class="colFirst"><code>void</code></td>
-<td class="colLast"><code><strong><a href="../../../x10/matrix/comm/WrapMPI.html#bcast(x10.array.Array[x10.lang.Double],x10.lang.Int,x10.lang.Int)">bcast</a></strong>(x10.array.Array&lt;x10.lang.Double&gt;&nbsp;buf,
+<td class="colLast"><code><strong><a href="../../../x10/matrix/comm/WrapMPI.html#bcast(x10.regionarray.Array[x10.lang.Double],x10.lang.Int,x10.lang.Int)">bcast</a></strong>(x10.regionarray.Array&lt;x10.lang.Double&gt;&nbsp;buf,
      x10.lang.Int&nbsp;cnt,
      x10.lang.Int&nbsp;root)</code>
-<div class="block"><B>Declaration:</B> <TT>bcast(buf:x10.array.Array[x10.lang.Double]{self.rank==1},cnt:x10.lang.Int,root:x10.lang.Int): void.</TT>
+<div class="block"><B>Declaration:</B> <TT>bcast(buf:x10.regionarray.Array[x10.lang.Double]{self.rank==1},cnt:x10.lang.Int,root:x10.lang.Int): void.</TT>
 </div>
 </td>
 </tr>
 <tr class="altColor">
 <td class="colFirst"><code>void</code></td>
-<td class="colLast"><code><strong><a href="../../../x10/matrix/comm/WrapMPI.html#bcast(x10.array.Array[x10.lang.Int],x10.lang.Int,x10.lang.Int,x10.lang.Int)">bcast</a></strong>(x10.array.Array&lt;x10.lang.Int&gt;&nbsp;buf,
+<td class="colLast"><code><strong><a href="../../../x10/matrix/comm/WrapMPI.html#bcast(x10.regionarray.Array[x10.lang.Int],x10.lang.Int,x10.lang.Int,x10.lang.Int)">bcast</a></strong>(x10.regionarray.Array&lt;x10.lang.Int&gt;&nbsp;buf,
      x10.lang.Int&nbsp;off,
      x10.lang.Int&nbsp;cnt,
      x10.lang.Int&nbsp;root)</code>
-<div class="block"><B>Declaration:</B> <TT>bcast(buf:x10.array.Array[x10.lang.Int]{self.rank==1},off:x10.lang.Int,cnt:x10.lang.Int,root:x10.lang.Int): void.</TT>
+<div class="block"><B>Declaration:</B> <TT>bcast(buf:x10.regionarray.Array[x10.lang.Int]{self.rank==1},off:x10.lang.Int,cnt:x10.lang.Int,root:x10.lang.Int): void.</TT>
 Broadcast integer data array.</div>
 </td>
 </tr>
 <tr class="rowColor">
 <td class="colFirst"><code>void</code></td>
-<td class="colLast"><code><strong><a href="../../../x10/matrix/comm/WrapMPI.html#bcast(x10.array.Array[x10.lang.Int],x10.lang.Int,x10.lang.Int)">bcast</a></strong>(x10.array.Array&lt;x10.lang.Int&gt;&nbsp;buf,
+<td class="colLast"><code><strong><a href="../../../x10/matrix/comm/WrapMPI.html#bcast(x10.regionarray.Array[x10.lang.Int],x10.lang.Int,x10.lang.Int)">bcast</a></strong>(x10.regionarray.Array&lt;x10.lang.Int&gt;&nbsp;buf,
      x10.lang.Int&nbsp;cnt,
      x10.lang.Int&nbsp;root)</code>
-<div class="block"><B>Declaration:</B> <TT>bcast(buf:x10.array.Array[x10.lang.Int]{self.rank==1},cnt:x10.lang.Int,root:x10.lang.Int): void.</TT>
+<div class="block"><B>Declaration:</B> <TT>bcast(buf:x10.regionarray.Array[x10.lang.Int]{self.rank==1},cnt:x10.lang.Int,root:x10.lang.Int): void.</TT>
 </div>
 </td>
 </tr>
 <tr class="altColor">
 <td class="colFirst"><code>void</code></td>
-<td class="colLast"><code><strong><a href="../../../x10/matrix/comm/WrapMPI.html#gatherv(x10.array.Array[x10.lang.Double],x10.lang.Int,x10.array.Array[x10.lang.Double],x10.array.Array[x10.lang.Int],x10.lang.Int)">gatherv</a></strong>(x10.array.Array&lt;x10.lang.Double&gt;&nbsp;sendbuf,
+<td class="colLast"><code><strong><a href="../../../x10/matrix/comm/WrapMPI.html#gatherv(x10.regionarray.Array[x10.lang.Double],x10.lang.Int,x10.regionarray.Array[x10.lang.Double],x10.regionarray.Array[x10.lang.Int],x10.lang.Int)">gatherv</a></strong>(x10.regionarray.Array&lt;x10.lang.Double&gt;&nbsp;sendbuf,
        x10.lang.Int&nbsp;sendcnt,
-       x10.array.Array&lt;x10.lang.Double&gt;&nbsp;recvbuf,
-       x10.array.Array&lt;x10.lang.Int&gt;&nbsp;recvcnts,
+       x10.regionarray.Array&lt;x10.lang.Double&gt;&nbsp;recvbuf,
+       x10.regionarray.Array&lt;x10.lang.Int&gt;&nbsp;recvcnts,
        x10.lang.Int&nbsp;root)</code>
-<div class="block"><B>Declaration:</B> <TT>gatherv(sendbuf:x10.array.Array[x10.lang.Double]{self.rank==1},sendcnt:x10.lang.Int,recvbuf:x10.array.Array[x10.lang.Double]{self.rank==1},recvcnts:x10.array.Array[x10.lang.Int]{self.rank==1},root:x10.lang.Int): void.</TT>
+<div class="block"><B>Declaration:</B> <TT>gatherv(sendbuf:x10.regionarray.Array[x10.lang.Double]{self.rank==1},sendcnt:x10.lang.Int,recvbuf:x10.regionarray.Array[x10.lang.Double]{self.rank==1},recvcnts:x10.regionarray.Array[x10.lang.Int]{self.rank==1},root:x10.lang.Int): void.</TT>
 Gather double-precision data arrays from all places to here.</div>
 </td>
 </tr>
 <tr class="rowColor">
 <td class="colFirst"><code>void</code></td>
-<td class="colLast"><code><strong><a href="../../../x10/matrix/comm/WrapMPI.html#gatherv(x10.array.Array[x10.lang.Double],x10.lang.Int,x10.lang.Int,x10.array.Array[x10.lang.Double],x10.lang.Int,x10.array.Array[x10.lang.Int],x10.lang.Int)">gatherv</a></strong>(x10.array.Array&lt;x10.lang.Double&gt;&nbsp;sendbuf,
+<td class="colLast"><code><strong><a href="../../../x10/matrix/comm/WrapMPI.html#gatherv(x10.regionarray.Array[x10.lang.Double],x10.lang.Int,x10.lang.Int,x10.regionarray.Array[x10.lang.Double],x10.lang.Int,x10.regionarray.Array[x10.lang.Int],x10.lang.Int)">gatherv</a></strong>(x10.regionarray.Array&lt;x10.lang.Double&gt;&nbsp;sendbuf,
        x10.lang.Int&nbsp;sendoff,
        x10.lang.Int&nbsp;sendcnt,
-       x10.array.Array&lt;x10.lang.Double&gt;&nbsp;recvbuf,
+       x10.regionarray.Array&lt;x10.lang.Double&gt;&nbsp;recvbuf,
        x10.lang.Int&nbsp;recvoff,
-       x10.array.Array&lt;x10.lang.Int&gt;&nbsp;recvcnts,
+       x10.regionarray.Array&lt;x10.lang.Int&gt;&nbsp;recvcnts,
        x10.lang.Int&nbsp;root)</code>
-<div class="block"><B>Declaration:</B> <TT>gatherv(sendbuf:x10.array.Array[x10.lang.Double]{self.rank==1},sendoff:x10.lang.Int,sendcnt:x10.lang.Int,recvbuf:x10.array.Array[x10.lang.Double]{self.rank==1},recvoff:x10.lang.Int,recvcnts:x10.array.Array[x10.lang.Int]{self.rank==1},root:x10.lang.Int): void.</TT>
+<div class="block"><B>Declaration:</B> <TT>gatherv(sendbuf:x10.regionarray.Array[x10.lang.Double]{self.rank==1},sendoff:x10.lang.Int,sendcnt:x10.lang.Int,recvbuf:x10.regionarray.Array[x10.lang.Double]{self.rank==1},recvoff:x10.lang.Int,recvcnts:x10.regionarray.Array[x10.lang.Int]{self.rank==1},root:x10.lang.Int): void.</TT>
 </div>
 </td>
 </tr>
 <tr class="altColor">
 <td class="colFirst"><code>void</code></td>
-<td class="colLast"><code><strong><a href="../../../x10/matrix/comm/WrapMPI.html#gatherv(x10.array.Array[x10.lang.Int],x10.lang.Int,x10.array.Array[x10.lang.Int],x10.array.Array[x10.lang.Int],x10.lang.Int)">gatherv</a></strong>(x10.array.Array&lt;x10.lang.Int&gt;&nbsp;sendbuf,
+<td class="colLast"><code><strong><a href="../../../x10/matrix/comm/WrapMPI.html#gatherv(x10.regionarray.Array[x10.lang.Int],x10.lang.Int,x10.regionarray.Array[x10.lang.Int],x10.regionarray.Array[x10.lang.Int],x10.lang.Int)">gatherv</a></strong>(x10.regionarray.Array&lt;x10.lang.Int&gt;&nbsp;sendbuf,
        x10.lang.Int&nbsp;sendcnt,
-       x10.array.Array&lt;x10.lang.Int&gt;&nbsp;recvbuf,
-       x10.array.Array&lt;x10.lang.Int&gt;&nbsp;recvcnts,
+       x10.regionarray.Array&lt;x10.lang.Int&gt;&nbsp;recvbuf,
+       x10.regionarray.Array&lt;x10.lang.Int&gt;&nbsp;recvcnts,
        x10.lang.Int&nbsp;root)</code>
-<div class="block"><B>Declaration:</B> <TT>gatherv(sendbuf:x10.array.Array[x10.lang.Int]{self.rank==1},sendcnt:x10.lang.Int,recvbuf:x10.array.Array[x10.lang.Int]{self.rank==1},recvcnts:x10.array.Array[x10.lang.Int]{self.rank==1},root:x10.lang.Int): void.</TT>
+<div class="block"><B>Declaration:</B> <TT>gatherv(sendbuf:x10.regionarray.Array[x10.lang.Int]{self.rank==1},sendcnt:x10.lang.Int,recvbuf:x10.regionarray.Array[x10.lang.Int]{self.rank==1},recvcnts:x10.regionarray.Array[x10.lang.Int]{self.rank==1},root:x10.lang.Int): void.</TT>
 </div>
 </td>
 </tr>
 <tr class="rowColor">
 <td class="colFirst"><code>void</code></td>
-<td class="colLast"><code><strong><a href="../../../x10/matrix/comm/WrapMPI.html#gatherv(x10.array.Array[x10.lang.Int],x10.lang.Int,x10.lang.Int,x10.array.Array[x10.lang.Int],x10.lang.Int,x10.array.Array[x10.lang.Int],x10.lang.Int)">gatherv</a></strong>(x10.array.Array&lt;x10.lang.Int&gt;&nbsp;sendbuf,
+<td class="colLast"><code><strong><a href="../../../x10/matrix/comm/WrapMPI.html#gatherv(x10.regionarray.Array[x10.lang.Int],x10.lang.Int,x10.lang.Int,x10.regionarray.Array[x10.lang.Int],x10.lang.Int,x10.regionarray.Array[x10.lang.Int],x10.lang.Int)">gatherv</a></strong>(x10.regionarray.Array&lt;x10.lang.Int&gt;&nbsp;sendbuf,
        x10.lang.Int&nbsp;sendoff,
        x10.lang.Int&nbsp;sendcnt,
-       x10.array.Array&lt;x10.lang.Int&gt;&nbsp;recvbuf,
+       x10.regionarray.Array&lt;x10.lang.Int&gt;&nbsp;recvbuf,
        x10.lang.Int&nbsp;recvoff,
-       x10.array.Array&lt;x10.lang.Int&gt;&nbsp;recvcnts,
+       x10.regionarray.Array&lt;x10.lang.Int&gt;&nbsp;recvcnts,
        x10.lang.Int&nbsp;root)</code>
-<div class="block"><B>Declaration:</B> <TT>gatherv(sendbuf:x10.array.Array[x10.lang.Int]{self.rank==1},sendoff:x10.lang.Int,sendcnt:x10.lang.Int,recvbuf:x10.array.Array[x10.lang.Int]{self.rank==1},recvoff:x10.lang.Int,recvcnts:x10.array.Array[x10.lang.Int]{self.rank==1},root:x10.lang.Int): void.</TT>
+<div class="block"><B>Declaration:</B> <TT>gatherv(sendbuf:x10.regionarray.Array[x10.lang.Int]{self.rank==1},sendoff:x10.lang.Int,sendcnt:x10.lang.Int,recvbuf:x10.regionarray.Array[x10.lang.Int]{self.rank==1},recvoff:x10.lang.Int,recvcnts:x10.regionarray.Array[x10.lang.Int]{self.rank==1},root:x10.lang.Int): void.</TT>
 </div>
 </td>
 </tr>
 <tr class="altColor">
 <td class="colFirst"><code>void</code></td>
-<td class="colLast"><code><strong><a href="../../../x10/matrix/comm/WrapMPI.html#scatterv(x10.array.Array[x10.lang.Double],x10.array.Array[x10.lang.Int],x10.array.Array[x10.lang.Double],x10.lang.Int,x10.lang.Int)">scatterv</a></strong>(x10.array.Array&lt;x10.lang.Double&gt;&nbsp;sendbuf,
-        x10.array.Array&lt;x10.lang.Int&gt;&nbsp;sendcnts,
-        x10.array.Array&lt;x10.lang.Double&gt;&nbsp;recvbuf,
+<td class="colLast"><code><strong><a href="../../../x10/matrix/comm/WrapMPI.html#scatterv(x10.regionarray.Array[x10.lang.Double],x10.regionarray.Array[x10.lang.Int],x10.regionarray.Array[x10.lang.Double],x10.lang.Int,x10.lang.Int)">scatterv</a></strong>(x10.regionarray.Array&lt;x10.lang.Double&gt;&nbsp;sendbuf,
+        x10.regionarray.Array&lt;x10.lang.Int&gt;&nbsp;sendcnts,
+        x10.regionarray.Array&lt;x10.lang.Double&gt;&nbsp;recvbuf,
         x10.lang.Int&nbsp;recvcnt,
         x10.lang.Int&nbsp;root)</code>
-<div class="block"><B>Declaration:</B> <TT>scatterv(sendbuf:x10.array.Array[x10.lang.Double]{self.rank==1},sendcnts:x10.array.Array[x10.lang.Int]{self.rank==1},recvbuf:x10.array.Array[x10.lang.Double]{self.rank==1},recvcnt:x10.lang.Int,root:x10.lang.Int): void.</TT>
+<div class="block"><B>Declaration:</B> <TT>scatterv(sendbuf:x10.regionarray.Array[x10.lang.Double]{self.rank==1},sendcnts:x10.regionarray.Array[x10.lang.Int]{self.rank==1},recvbuf:x10.regionarray.Array[x10.lang.Double]{self.rank==1},recvcnt:x10.lang.Int,root:x10.lang.Int): void.</TT>
 Scatter double-precision data array.</div>
 </td>
 </tr>
 <tr class="rowColor">
 <td class="colFirst"><code>void</code></td>
-<td class="colLast"><code><strong><a href="../../../x10/matrix/comm/WrapMPI.html#scatterv(x10.array.Array[x10.lang.Int],x10.array.Array[x10.lang.Int],x10.array.Array[x10.lang.Int],x10.lang.Int,x10.lang.Int)">scatterv</a></strong>(x10.array.Array&lt;x10.lang.Int&gt;&nbsp;sendbuf,
-        x10.array.Array&lt;x10.lang.Int&gt;&nbsp;sendcnts,
-        x10.array.Array&lt;x10.lang.Int&gt;&nbsp;recvbuf,
+<td class="colLast"><code><strong><a href="../../../x10/matrix/comm/WrapMPI.html#scatterv(x10.regionarray.Array[x10.lang.Int],x10.regionarray.Array[x10.lang.Int],x10.regionarray.Array[x10.lang.Int],x10.lang.Int,x10.lang.Int)">scatterv</a></strong>(x10.regionarray.Array&lt;x10.lang.Int&gt;&nbsp;sendbuf,
+        x10.regionarray.Array&lt;x10.lang.Int&gt;&nbsp;sendcnts,
+        x10.regionarray.Array&lt;x10.lang.Int&gt;&nbsp;recvbuf,
         x10.lang.Int&nbsp;recvcnt,
         x10.lang.Int&nbsp;root)</code>
-<div class="block"><B>Declaration:</B> <TT>scatterv(sendbuf:x10.array.Array[x10.lang.Int]{self.rank==1},sendcnts:x10.array.Array[x10.lang.Int]{self.rank==1},recvbuf:x10.array.Array[x10.lang.Int]{self.rank==1},recvcnt:x10.lang.Int,root:x10.lang.Int): void.</TT>
+<div class="block"><B>Declaration:</B> <TT>scatterv(sendbuf:x10.regionarray.Array[x10.lang.Int]{self.rank==1},sendcnts:x10.regionarray.Array[x10.lang.Int]{self.rank==1},recvbuf:x10.regionarray.Array[x10.lang.Int]{self.rank==1},recvcnt:x10.lang.Int,root:x10.lang.Int): void.</TT>
 </div>
 </td>
 </tr>
 <tr class="altColor">
 <td class="colFirst"><code>void</code></td>
-<td class="colLast"><code><strong><a href="../../../x10/matrix/comm/WrapMPI.html#allGatherv(x10.array.Array[x10.lang.Double],x10.lang.Int,x10.lang.Int,x10.array.Array[x10.lang.Double],x10.lang.Int,x10.array.Array[x10.lang.Int])">allGatherv</a></strong>(x10.array.Array&lt;x10.lang.Double&gt;&nbsp;sendbuf,
+<td class="colLast"><code><strong><a href="../../../x10/matrix/comm/WrapMPI.html#allGatherv(x10.regionarray.Array[x10.lang.Double],x10.lang.Int,x10.lang.Int,x10.regionarray.Array[x10.lang.Double],x10.lang.Int,x10.regionarray.Array[x10.lang.Int])">allGatherv</a></strong>(x10.regionarray.Array&lt;x10.lang.Double&gt;&nbsp;sendbuf,
           x10.lang.Int&nbsp;sendoff,
           x10.lang.Int&nbsp;sendcnt,
-          x10.array.Array&lt;x10.lang.Double&gt;&nbsp;recvbuf,
+          x10.regionarray.Array&lt;x10.lang.Double&gt;&nbsp;recvbuf,
           x10.lang.Int&nbsp;recvoff,
-          x10.array.Array&lt;x10.lang.Int&gt;&nbsp;recvcnts)</code>
-<div class="block"><B>Declaration:</B> <TT>allGatherv(sendbuf:x10.array.Array[x10.lang.Double]{self.rank==1},sendoff:x10.lang.Int,sendcnt:x10.lang.Int,recvbuf:x10.array.Array[x10.lang.Double]{self.rank==1},recvoff:x10.lang.Int,recvcnts:x10.array.Array[x10.lang.Int]{self.rank==1}): void.</TT>
+          x10.regionarray.Array&lt;x10.lang.Int&gt;&nbsp;recvcnts)</code>
+<div class="block"><B>Declaration:</B> <TT>allGatherv(sendbuf:x10.regionarray.Array[x10.lang.Double]{self.rank==1},sendoff:x10.lang.Int,sendcnt:x10.lang.Int,recvbuf:x10.regionarray.Array[x10.lang.Double]{self.rank==1},recvoff:x10.lang.Int,recvcnts:x10.regionarray.Array[x10.lang.Int]{self.rank==1}): void.</TT>
 All gather double-precision arrays from all places</div>
 </td>
 </tr>
 <tr class="rowColor">
 <td class="colFirst"><code>void</code></td>
-<td class="colLast"><code><strong><a href="../../../x10/matrix/comm/WrapMPI.html#reduceSum(x10.array.Array[x10.lang.Double],x10.lang.Int,x10.array.Array[x10.lang.Double],x10.lang.Int,x10.lang.Int,x10.lang.Int)">reduceSum</a></strong>(x10.array.Array&lt;x10.lang.Double&gt;&nbsp;sendbuf,
+<td class="colLast"><code><strong><a href="../../../x10/matrix/comm/WrapMPI.html#reduceSum(x10.regionarray.Array[x10.lang.Double],x10.lang.Int,x10.regionarray.Array[x10.lang.Double],x10.lang.Int,x10.lang.Int,x10.lang.Int)">reduceSum</a></strong>(x10.regionarray.Array&lt;x10.lang.Double&gt;&nbsp;sendbuf,
          x10.lang.Int&nbsp;sendoff,
-         x10.array.Array&lt;x10.lang.Double&gt;&nbsp;recvbuf,
+         x10.regionarray.Array&lt;x10.lang.Double&gt;&nbsp;recvbuf,
          x10.lang.Int&nbsp;recvoff,
          x10.lang.Int&nbsp;cnt,
          x10.lang.Int&nbsp;root)</code>
-<div class="block"><B>Declaration:</B> <TT>reduceSum(sendbuf:x10.array.Array[x10.lang.Double]{self.rank==1},sendoff:x10.lang.Int,recvbuf:x10.array.Array[x10.lang.Double]{self.rank==1},recvoff:x10.lang.Int,cnt:x10.lang.Int,root:x10.lang.Int): void.</TT>
+<div class="block"><B>Declaration:</B> <TT>reduceSum(sendbuf:x10.regionarray.Array[x10.lang.Double]{self.rank==1},sendoff:x10.lang.Int,recvbuf:x10.regionarray.Array[x10.lang.Double]{self.rank==1},recvoff:x10.lang.Int,cnt:x10.lang.Int,root:x10.lang.Int): void.</TT>
 Reduce all values from all places to one by adding them up.</div>
 </td>
 </tr>
 <tr class="altColor">
 <td class="colFirst"><code>void</code></td>
-<td class="colLast"><code><strong><a href="../../../x10/matrix/comm/WrapMPI.html#reduceSum(x10.array.Array[x10.lang.Double],x10.array.Array[x10.lang.Double],x10.lang.Int,x10.lang.Int)">reduceSum</a></strong>(x10.array.Array&lt;x10.lang.Double&gt;&nbsp;sendbuf,
-         x10.array.Array&lt;x10.lang.Double&gt;&nbsp;recvbuf,
+<td class="colLast"><code><strong><a href="../../../x10/matrix/comm/WrapMPI.html#reduceSum(x10.regionarray.Array[x10.lang.Double],x10.regionarray.Array[x10.lang.Double],x10.lang.Int,x10.lang.Int)">reduceSum</a></strong>(x10.regionarray.Array&lt;x10.lang.Double&gt;&nbsp;sendbuf,
+         x10.regionarray.Array&lt;x10.lang.Double&gt;&nbsp;recvbuf,
          x10.lang.Int&nbsp;cnt,
          x10.lang.Int&nbsp;root)</code>
-<div class="block"><B>Declaration:</B> <TT>reduceSum(sendbuf:x10.array.Array[x10.lang.Double]{self.rank==1},recvbuf:x10.array.Array[x10.lang.Double]{self.rank==1},cnt:x10.lang.Int,root:x10.lang.Int): void.</TT>
+<div class="block"><B>Declaration:</B> <TT>reduceSum(sendbuf:x10.regionarray.Array[x10.lang.Double]{self.rank==1},recvbuf:x10.regionarray.Array[x10.lang.Double]{self.rank==1},cnt:x10.lang.Int,root:x10.lang.Int): void.</TT>
 Reduce all values from all places to one by adding them up.</div>
 </td>
 </tr>
 <tr class="rowColor">
 <td class="colFirst"><code>static void</code></td>
-<td class="colLast"><code><strong><a href="../../../x10/matrix/comm/WrapMPI.html#allReduceSum(x10.array.Array[x10.lang.Double],x10.lang.Int,x10.array.Array[x10.lang.Double],x10.lang.Int,x10.lang.Int)">allReduceSum</a></strong>(x10.array.Array&lt;x10.lang.Double&gt;&nbsp;sendbuf,
+<td class="colLast"><code><strong><a href="../../../x10/matrix/comm/WrapMPI.html#allReduceSum(x10.regionarray.Array[x10.lang.Double],x10.lang.Int,x10.regionarray.Array[x10.lang.Double],x10.lang.Int,x10.lang.Int)">allReduceSum</a></strong>(x10.regionarray.Array&lt;x10.lang.Double&gt;&nbsp;sendbuf,
             x10.lang.Int&nbsp;sendoff,
-            x10.array.Array&lt;x10.lang.Double&gt;&nbsp;recvbuf,
+            x10.regionarray.Array&lt;x10.lang.Double&gt;&nbsp;recvbuf,
             x10.lang.Int&nbsp;recvoff,
             x10.lang.Int&nbsp;cnt)</code>
-<div class="block"><B>Declaration:</B> <TT>allReduceSum(sendbuf:x10.array.Array[x10.lang.Double]{self.rank==1},sendoff:x10.lang.Int,recvbuf:x10.array.Array[x10.lang.Double]{self.rank==1},recvoff:x10.lang.Int,cnt:x10.lang.Int): void.</TT>
+<div class="block"><B>Declaration:</B> <TT>allReduceSum(sendbuf:x10.regionarray.Array[x10.lang.Double]{self.rank==1},sendoff:x10.lang.Int,recvbuf:x10.regionarray.Array[x10.lang.Double]{self.rank==1},recvoff:x10.lang.Int,cnt:x10.lang.Int): void.</TT>
 Reduce-sum and broadcast result to all places</div>
 </td>
 </tr>
 <tr class="altColor">
 <td class="colFirst"><code>void</code></td>
-<td class="colLast"><code><strong><a href="../../../x10/matrix/comm/WrapMPI.html#allReduceSum(x10.array.Array[x10.lang.Double],x10.array.Array[x10.lang.Double],x10.lang.Int)">allReduceSum</a></strong>(x10.array.Array&lt;x10.lang.Double&gt;&nbsp;sendbuf,
-            x10.array.Array&lt;x10.lang.Double&gt;&nbsp;recvbuf,
+<td class="colLast"><code><strong><a href="../../../x10/matrix/comm/WrapMPI.html#allReduceSum(x10.regionarray.Array[x10.lang.Double],x10.regionarray.Array[x10.lang.Double],x10.lang.Int)">allReduceSum</a></strong>(x10.regionarray.Array&lt;x10.lang.Double&gt;&nbsp;sendbuf,
+            x10.regionarray.Array&lt;x10.lang.Double&gt;&nbsp;recvbuf,
             x10.lang.Int&nbsp;cnt)</code>
-<div class="block"><B>Declaration:</B> <TT>allReduceSum(sendbuf:x10.array.Array[x10.lang.Double]{self.rank==1},recvbuf:x10.array.Array[x10.lang.Double]{self.rank==1},cnt:x10.lang.Int): void.</TT>
+<div class="block"><B>Declaration:</B> <TT>allReduceSum(sendbuf:x10.regionarray.Array[x10.lang.Double]{self.rank==1},recvbuf:x10.regionarray.Array[x10.lang.Double]{self.rank==1},cnt:x10.lang.Int): void.</TT>
 Reduce-sum and broadcast result to all places</div>
 </td>
 </tr>
 <tr class="rowColor">
 <td class="colFirst"><code><a href="../../../x10/matrix/comm/RequestHandleMPI.html" title="class in x10.matrix.comm">RequestHandleMPI</a></code></td>
-<td class="colLast"><code><strong><a href="../../../x10/matrix/comm/WrapMPI.html#immSend(x10.array.Array[x10.lang.Int],x10.lang.Int,x10.lang.Int,x10.lang.Int)">immSend</a></strong>(x10.array.Array&lt;x10.lang.Int&gt;&nbsp;buf,
+<td class="colLast"><code><strong><a href="../../../x10/matrix/comm/WrapMPI.html#immSend(x10.regionarray.Array[x10.lang.Int],x10.lang.Int,x10.lang.Int,x10.lang.Int)">immSend</a></strong>(x10.regionarray.Array&lt;x10.lang.Int&gt;&nbsp;buf,
        x10.lang.Int&nbsp;cnt,
        x10.lang.Int&nbsp;dst,
        x10.lang.Int&nbsp;tag)</code>
-<div class="block"><B>Declaration:</B> <TT>immSend(buf:x10.array.Array[x10.lang.Int]{self.rank==1},cnt:x10.lang.Int,dst:x10.lang.Int,tag:x10.lang.Int): x10.matrix.comm.RequestHandleMPI.</TT>
+<div class="block"><B>Declaration:</B> <TT>immSend(buf:x10.regionarray.Array[x10.lang.Int]{self.rank==1},cnt:x10.lang.Int,dst:x10.lang.Int,tag:x10.lang.Int): x10.matrix.comm.RequestHandleMPI.</TT>
 </div>
 </td>
 </tr>
 <tr class="altColor">
 <td class="colFirst"><code><a href="../../../x10/matrix/comm/RequestHandleMPI.html" title="class in x10.matrix.comm">RequestHandleMPI</a></code></td>
-<td class="colLast"><code><strong><a href="../../../x10/matrix/comm/WrapMPI.html#immSend(x10.array.Array[x10.lang.Int],x10.lang.Int,x10.lang.Int,x10.lang.Int,x10.lang.Int)">immSend</a></strong>(x10.array.Array&lt;x10.lang.Int&gt;&nbsp;buf,
+<td class="colLast"><code><strong><a href="../../../x10/matrix/comm/WrapMPI.html#immSend(x10.regionarray.Array[x10.lang.Int],x10.lang.Int,x10.lang.Int,x10.lang.Int,x10.lang.Int)">immSend</a></strong>(x10.regionarray.Array&lt;x10.lang.Int&gt;&nbsp;buf,
        x10.lang.Int&nbsp;off,
        x10.lang.Int&nbsp;cnt,
        x10.lang.Int&nbsp;dst,
        x10.lang.Int&nbsp;tag)</code>
-<div class="block"><B>Declaration:</B> <TT>immSend(buf:x10.array.Array[x10.lang.Int]{self.rank==1},off:x10.lang.Int,cnt:x10.lang.Int,dst:x10.lang.Int,tag:x10.lang.Int): x10.matrix.comm.RequestHandleMPI.</TT>
+<div class="block"><B>Declaration:</B> <TT>immSend(buf:x10.regionarray.Array[x10.lang.Int]{self.rank==1},off:x10.lang.Int,cnt:x10.lang.Int,dst:x10.lang.Int,tag:x10.lang.Int): x10.matrix.comm.RequestHandleMPI.</TT>
 </div>
 </td>
 </tr>
 <tr class="rowColor">
 <td class="colFirst"><code><a href="../../../x10/matrix/comm/RequestHandleMPI.html" title="class in x10.matrix.comm">RequestHandleMPI</a></code></td>
-<td class="colLast"><code><strong><a href="../../../x10/matrix/comm/WrapMPI.html#immRecv(x10.array.Array[x10.lang.Int],x10.lang.Int,x10.lang.Int,x10.lang.Int)">immRecv</a></strong>(x10.array.Array&lt;x10.lang.Int&gt;&nbsp;buf,
+<td class="colLast"><code><strong><a href="../../../x10/matrix/comm/WrapMPI.html#immRecv(x10.regionarray.Array[x10.lang.Int],x10.lang.Int,x10.lang.Int,x10.lang.Int)">immRecv</a></strong>(x10.regionarray.Array&lt;x10.lang.Int&gt;&nbsp;buf,
        x10.lang.Int&nbsp;cnt,
        x10.lang.Int&nbsp;src,
        x10.lang.Int&nbsp;tag)</code>
-<div class="block"><B>Declaration:</B> <TT>immRecv(buf:x10.array.Array[x10.lang.Int]{self.rank==1},cnt:x10.lang.Int,src:x10.lang.Int,tag:x10.lang.Int): x10.matrix.comm.RequestHandleMPI.</TT>
+<div class="block"><B>Declaration:</B> <TT>immRecv(buf:x10.regionarray.Array[x10.lang.Int]{self.rank==1},cnt:x10.lang.Int,src:x10.lang.Int,tag:x10.lang.Int): x10.matrix.comm.RequestHandleMPI.</TT>
 </div>
 </td>
 </tr>
 <tr class="altColor">
 <td class="colFirst"><code><a href="../../../x10/matrix/comm/RequestHandleMPI.html" title="class in x10.matrix.comm">RequestHandleMPI</a></code></td>
-<td class="colLast"><code><strong><a href="../../../x10/matrix/comm/WrapMPI.html#immRecv(x10.array.Array[x10.lang.Int],x10.lang.Int,x10.lang.Int,x10.lang.Int,x10.lang.Int)">immRecv</a></strong>(x10.array.Array&lt;x10.lang.Int&gt;&nbsp;buf,
+<td class="colLast"><code><strong><a href="../../../x10/matrix/comm/WrapMPI.html#immRecv(x10.regionarray.Array[x10.lang.Int],x10.lang.Int,x10.lang.Int,x10.lang.Int,x10.lang.Int)">immRecv</a></strong>(x10.regionarray.Array&lt;x10.lang.Int&gt;&nbsp;buf,
        x10.lang.Int&nbsp;off,
        x10.lang.Int&nbsp;cnt,
        x10.lang.Int&nbsp;src,
        x10.lang.Int&nbsp;tag)</code>
-<div class="block"><B>Declaration:</B> <TT>immRecv(buf:x10.array.Array[x10.lang.Int]{self.rank==1},off:x10.lang.Int,cnt:x10.lang.Int,src:x10.lang.Int,tag:x10.lang.Int): x10.matrix.comm.RequestHandleMPI.</TT>
+<div class="block"><B>Declaration:</B> <TT>immRecv(buf:x10.regionarray.Array[x10.lang.Int]{self.rank==1},off:x10.lang.Int,cnt:x10.lang.Int,src:x10.lang.Int,tag:x10.lang.Int): x10.matrix.comm.RequestHandleMPI.</TT>
 </div>
 </td>
 </tr>
@@ -588,8 +588,8 @@ Reduce-sum and broadcast result to all places</div>
 <ul class="blockListLast">
 <li class="blockList">
 <h4>dist</h4>
-<pre>public final&nbsp;x10.array.Dist dist</pre>
-<div class="block"><B>Field Type</B>: <TT>x10.array.Dist{self.region.rank==1}</TT><PRE>
+<pre>public final&nbsp;x10.regionarray.Dist dist</pre>
+<div class="block"><B>Field Type</B>: <TT>x10.regionarray.Dist{self.region.rank==1}</TT><PRE>
 </PRE></div>
 </li>
 </ul>
@@ -601,14 +601,14 @@ Reduce-sum and broadcast result to all places</div>
 <!--   -->
 </a>
 <h3>Constructor Detail</h3>
-<a name="WrapMPI(x10.array.Dist{self.region.rank==1})">
+<a name="WrapMPI(x10.regionarray.Dist{self.region.rank==1})">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
 <h4>WrapMPI</h4>
-<pre>public&nbsp;WrapMPI(x10.array.Dist&nbsp;d)</pre>
-<div class="block"><B>Declaration</B>: <TT>this(x10.array.Dist{self.region.rank==1}): x10.matrix.comm.WrapMPI.</TT><PRE>
+<pre>public&nbsp;WrapMPI(x10.regionarray.Dist&nbsp;d)</pre>
+<div class="block"><B>Declaration</B>: <TT>this(x10.regionarray.Dist{self.region.rank==1}): x10.matrix.comm.WrapMPI.</TT><PRE>
 </PRE></div>
 </li>
 </ul>
@@ -630,39 +630,39 @@ Reduce-sum and broadcast result to all places</div>
 <!--   -->
 </a>
 <h3>Method Detail</h3>
-<a name="get_proc_info(x10.array.Array[x10.lang.Int],x10.array.Array[x10.lang.Int],x10.array.Array[x10.lang.Int],x10.array.Array[x10.lang.Int])">
+<a name="get_proc_info(x10.regionarray.Array[x10.lang.Int],x10.regionarray.Array[x10.lang.Int],x10.regionarray.Array[x10.lang.Int],x10.regionarray.Array[x10.lang.Int])">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
 <h4>get_proc_info</h4>
-<pre>public static&nbsp;void&nbsp;get_proc_info(x10.array.Array&lt;x10.lang.Int&gt;&nbsp;rk,
-                 x10.array.Array&lt;x10.lang.Int&gt;&nbsp;np,
-                 x10.array.Array&lt;x10.lang.Int&gt;&nbsp;hlen,
-                 x10.array.Array&lt;x10.lang.Int&gt;&nbsp;hstr)</pre>
-<div class="block"><B>Declaration:</B> <TT>get_proc_info(rk:x10.array.Array[x10.lang.Int]{self.rank==1, self.zeroBased==true, self.rect==true, self.rail==true},np:x10.array.Array[x10.lang.Int]{self.rank==1, self.zeroBased==true, self.rect==true, self.rail==true},hlen:x10.array.Array[x10.lang.Int]{self.rank==1, self.zeroBased==true, self.rect==true, self.rail==true},hstr:x10.array.Array[x10.lang.Int]{self.rank==1, self.zeroBased==true, self.rect==true, self.rail==true}): void.</TT><PRE>
+<pre>public static&nbsp;void&nbsp;get_proc_info(x10.regionarray.Array&lt;x10.lang.Int&gt;&nbsp;rk,
+                 x10.regionarray.Array&lt;x10.lang.Int&gt;&nbsp;np,
+                 x10.regionarray.Array&lt;x10.lang.Int&gt;&nbsp;hlen,
+                 x10.regionarray.Array&lt;x10.lang.Int&gt;&nbsp;hstr)</pre>
+<div class="block"><B>Declaration:</B> <TT>get_proc_info(rk:x10.regionarray.Array[x10.lang.Int]{self.rank==1, self.zeroBased==true, self.rect==true, self.rail==true},np:x10.regionarray.Array[x10.lang.Int]{self.rank==1, self.zeroBased==true, self.rect==true, self.rail==true},hlen:x10.regionarray.Array[x10.lang.Int]{self.rank==1, self.zeroBased==true, self.rect==true, self.rail==true},hstr:x10.regionarray.Array[x10.lang.Int]{self.rank==1, self.zeroBased==true, self.rect==true, self.rail==true}): void.</TT><PRE>
 </PRE></div>
 </li>
 </ul>
-<a name="get_name_maxlen(x10.array.Array[x10.lang.Int])">
+<a name="get_name_maxlen(x10.regionarray.Array[x10.lang.Int])">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
 <h4>get_name_maxlen</h4>
-<pre>public static&nbsp;void&nbsp;get_name_maxlen(x10.array.Array&lt;x10.lang.Int&gt;&nbsp;l)</pre>
-<div class="block"><B>Declaration:</B> <TT>get_name_maxlen(l:x10.array.Array[x10.lang.Int]{self.rank==1, self.zeroBased==true, self.rect==true, self.rail==true}): void.</TT><PRE>
+<pre>public static&nbsp;void&nbsp;get_name_maxlen(x10.regionarray.Array&lt;x10.lang.Int&gt;&nbsp;l)</pre>
+<div class="block"><B>Declaration:</B> <TT>get_name_maxlen(l:x10.regionarray.Array[x10.lang.Int]{self.rank==1, self.zeroBased==true, self.rect==true, self.rail==true}): void.</TT><PRE>
 </PRE></div>
 </li>
 </ul>
-<a name="get_comm_nproc(x10.array.Array[x10.lang.Int])">
+<a name="get_comm_nproc(x10.regionarray.Array[x10.lang.Int])">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
 <h4>get_comm_nproc</h4>
-<pre>public static&nbsp;void&nbsp;get_comm_nproc(x10.array.Array&lt;x10.lang.Int&gt;&nbsp;np)</pre>
-<div class="block"><B>Declaration:</B> <TT>get_comm_nproc(np:x10.array.Array[x10.lang.Int]{self.rank==1, self.zeroBased==true, self.rect==true, self.rail==true}): void.</TT><PRE>
+<pre>public static&nbsp;void&nbsp;get_comm_nproc(x10.regionarray.Array&lt;x10.lang.Int&gt;&nbsp;np)</pre>
+<div class="block"><B>Declaration:</B> <TT>get_comm_nproc(np:x10.regionarray.Array[x10.lang.Int]{self.rank==1, self.zeroBased==true, self.rect==true, self.rail==true}): void.</TT><PRE>
 </PRE></div>
 </li>
 </ul>
@@ -695,470 +695,470 @@ Reduce-sum and broadcast result to all places</div>
 <div class="block">Return MPI process rank ID at here.</div>
 </li>
 </ul>
-<a name="send(x10.array.Array[x10.lang.Double],x10.lang.Int,x10.lang.Int,x10.lang.Int)">
+<a name="send(x10.regionarray.Array[x10.lang.Double],x10.lang.Int,x10.lang.Int,x10.lang.Int)">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
 <h4>send</h4>
-<pre>public&nbsp;void&nbsp;send(x10.array.Array&lt;x10.lang.Double&gt;&nbsp;buf,
+<pre>public&nbsp;void&nbsp;send(x10.regionarray.Array&lt;x10.lang.Double&gt;&nbsp;buf,
         x10.lang.Int&nbsp;cnt,
         x10.lang.Int&nbsp;dst,
         x10.lang.Int&nbsp;tag)</pre>
-<div class="block"><B>Declaration:</B> <TT>send(buf:x10.array.Array[x10.lang.Double]{self.rank==1},cnt:x10.lang.Int,dst:x10.lang.Int,tag:x10.lang.Int): void.</TT><PRE>
+<div class="block"><B>Declaration:</B> <TT>send(buf:x10.regionarray.Array[x10.lang.Double]{self.rank==1},cnt:x10.lang.Int,dst:x10.lang.Int,tag:x10.lang.Int): void.</TT><PRE>
 </PRE>Send double-precision data array.</div>
 </li>
 </ul>
-<a name="send(x10.array.Array[x10.lang.Double],x10.lang.Int,x10.lang.Int,x10.lang.Int,x10.lang.Int)">
+<a name="send(x10.regionarray.Array[x10.lang.Double],x10.lang.Int,x10.lang.Int,x10.lang.Int,x10.lang.Int)">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
 <h4>send</h4>
-<pre>public&nbsp;void&nbsp;send(x10.array.Array&lt;x10.lang.Double&gt;&nbsp;buf,
+<pre>public&nbsp;void&nbsp;send(x10.regionarray.Array&lt;x10.lang.Double&gt;&nbsp;buf,
         x10.lang.Int&nbsp;off,
         x10.lang.Int&nbsp;cnt,
         x10.lang.Int&nbsp;dst,
         x10.lang.Int&nbsp;tag)</pre>
-<div class="block"><B>Declaration:</B> <TT>send(buf:x10.array.Array[x10.lang.Double]{self.rank==1},off:x10.lang.Int,cnt:x10.lang.Int,dst:x10.lang.Int,tag:x10.lang.Int): void.</TT><PRE>
+<div class="block"><B>Declaration:</B> <TT>send(buf:x10.regionarray.Array[x10.lang.Double]{self.rank==1},off:x10.lang.Int,cnt:x10.lang.Int,dst:x10.lang.Int,tag:x10.lang.Int): void.</TT><PRE>
 </PRE>Send double-precision data array.</div>
 <dl><dt><span class="strong">Parameters:</span></dt><dd><code>buf</code> - data buffer in Double-precision array</dd><dd><code>off</code> - offset for the starting index</dd><dd><code>cnt</code> - count of data to sent</dd><dd><code>dst</code> - destination process rank or place ID.</dd><dd><code>tag</code> - message tag</dd></dl>
 </li>
 </ul>
-<a name="recv(x10.array.Array[x10.lang.Double],x10.lang.Int,x10.lang.Int,x10.lang.Int)">
+<a name="recv(x10.regionarray.Array[x10.lang.Double],x10.lang.Int,x10.lang.Int,x10.lang.Int)">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
 <h4>recv</h4>
-<pre>public&nbsp;void&nbsp;recv(x10.array.Array&lt;x10.lang.Double&gt;&nbsp;buf,
+<pre>public&nbsp;void&nbsp;recv(x10.regionarray.Array&lt;x10.lang.Double&gt;&nbsp;buf,
         x10.lang.Int&nbsp;cnt,
         x10.lang.Int&nbsp;src,
         x10.lang.Int&nbsp;tag)</pre>
-<div class="block"><B>Declaration:</B> <TT>recv(buf:x10.array.Array[x10.lang.Double]{self.rank==1},cnt:x10.lang.Int,src:x10.lang.Int,tag:x10.lang.Int): void.</TT><PRE>
+<div class="block"><B>Declaration:</B> <TT>recv(buf:x10.regionarray.Array[x10.lang.Double]{self.rank==1},cnt:x10.lang.Int,src:x10.lang.Int,tag:x10.lang.Int): void.</TT><PRE>
 </PRE>Receive double-precision data array.</div>
 </li>
 </ul>
-<a name="recv(x10.array.Array[x10.lang.Double],x10.lang.Int,x10.lang.Int,x10.lang.Int,x10.lang.Int)">
+<a name="recv(x10.regionarray.Array[x10.lang.Double],x10.lang.Int,x10.lang.Int,x10.lang.Int,x10.lang.Int)">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
 <h4>recv</h4>
-<pre>public&nbsp;void&nbsp;recv(x10.array.Array&lt;x10.lang.Double&gt;&nbsp;buf,
+<pre>public&nbsp;void&nbsp;recv(x10.regionarray.Array&lt;x10.lang.Double&gt;&nbsp;buf,
         x10.lang.Int&nbsp;off,
         x10.lang.Int&nbsp;cnt,
         x10.lang.Int&nbsp;src,
         x10.lang.Int&nbsp;tag)</pre>
-<div class="block"><B>Declaration:</B> <TT>recv(buf:x10.array.Array[x10.lang.Double]{self.rank==1},off:x10.lang.Int,cnt:x10.lang.Int,src:x10.lang.Int,tag:x10.lang.Int): void.</TT><PRE>
+<div class="block"><B>Declaration:</B> <TT>recv(buf:x10.regionarray.Array[x10.lang.Double]{self.rank==1},off:x10.lang.Int,cnt:x10.lang.Int,src:x10.lang.Int,tag:x10.lang.Int): void.</TT><PRE>
 </PRE>Receive double-precision data array.</div>
 <dl><dt><span class="strong">Parameters:</span></dt><dd><code>buf</code> - receiving data buffer in double-precision array</dd><dd><code>off</code> - offset for the starting index for the receiving data</dd><dd><code>cnt</code> - count of data to receive</dd><dd><code>src</code> - source process rank or place ID.</dd><dd><code>tag</code> - message tag</dd></dl>
 </li>
 </ul>
-<a name="immSend(x10.array.Array[x10.lang.Double],x10.lang.Int,x10.lang.Int,x10.lang.Int)">
+<a name="immSend(x10.regionarray.Array[x10.lang.Double],x10.lang.Int,x10.lang.Int,x10.lang.Int)">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
 <h4>immSend</h4>
-<pre>public&nbsp;<a href="../../../x10/matrix/comm/RequestHandleMPI.html" title="class in x10.matrix.comm">RequestHandleMPI</a>&nbsp;immSend(x10.array.Array&lt;x10.lang.Double&gt;&nbsp;buf,
+<pre>public&nbsp;<a href="../../../x10/matrix/comm/RequestHandleMPI.html" title="class in x10.matrix.comm">RequestHandleMPI</a>&nbsp;immSend(x10.regionarray.Array&lt;x10.lang.Double&gt;&nbsp;buf,
                        x10.lang.Int&nbsp;cnt,
                        x10.lang.Int&nbsp;dst,
                        x10.lang.Int&nbsp;tag)</pre>
-<div class="block"><B>Declaration:</B> <TT>immSend(buf:x10.array.Array[x10.lang.Double]{self.rank==1},cnt:x10.lang.Int,dst:x10.lang.Int,tag:x10.lang.Int): x10.matrix.comm.RequestHandleMPI.</TT><PRE>
+<div class="block"><B>Declaration:</B> <TT>immSend(buf:x10.regionarray.Array[x10.lang.Double]{self.rank==1},cnt:x10.lang.Int,dst:x10.lang.Int,tag:x10.lang.Int): x10.matrix.comm.RequestHandleMPI.</TT><PRE>
 </PRE>Non-blocking send double-precision data array.</div>
 </li>
 </ul>
-<a name="immSend(x10.array.Array[x10.lang.Double],x10.lang.Int,x10.lang.Int,x10.lang.Int,x10.lang.Int)">
+<a name="immSend(x10.regionarray.Array[x10.lang.Double],x10.lang.Int,x10.lang.Int,x10.lang.Int,x10.lang.Int)">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
 <h4>immSend</h4>
-<pre>public&nbsp;<a href="../../../x10/matrix/comm/RequestHandleMPI.html" title="class in x10.matrix.comm">RequestHandleMPI</a>&nbsp;immSend(x10.array.Array&lt;x10.lang.Double&gt;&nbsp;buf,
+<pre>public&nbsp;<a href="../../../x10/matrix/comm/RequestHandleMPI.html" title="class in x10.matrix.comm">RequestHandleMPI</a>&nbsp;immSend(x10.regionarray.Array&lt;x10.lang.Double&gt;&nbsp;buf,
                        x10.lang.Int&nbsp;off,
                        x10.lang.Int&nbsp;cnt,
                        x10.lang.Int&nbsp;dst,
                        x10.lang.Int&nbsp;tag)</pre>
-<div class="block"><B>Declaration:</B> <TT>immSend(buf:x10.array.Array[x10.lang.Double]{self.rank==1},off:x10.lang.Int,cnt:x10.lang.Int,dst:x10.lang.Int,tag:x10.lang.Int): x10.matrix.comm.RequestHandleMPI.</TT><PRE>
+<div class="block"><B>Declaration:</B> <TT>immSend(buf:x10.regionarray.Array[x10.lang.Double]{self.rank==1},off:x10.lang.Int,cnt:x10.lang.Int,dst:x10.lang.Int,tag:x10.lang.Int): x10.matrix.comm.RequestHandleMPI.</TT><PRE>
 </PRE>Non-block send double-precision data array.</div>
 <dl><dt><span class="strong">Parameters:</span></dt><dd><code>buf</code> - receiving data buffer in double-precision array</dd><dd><code>off</code> - offset for the starting index for the receiving data</dd><dd><code>cnt</code> - count of data to receive</dd><dd><code>dst</code> - destination process rank or place ID.</dd><dd><code>tag</code> - message tag</dd><dd><code>rh</code> - sending message handle</dd></dl>
 </li>
 </ul>
-<a name="immRecv(x10.array.Array[x10.lang.Double],x10.lang.Int,x10.lang.Int,x10.lang.Int)">
+<a name="immRecv(x10.regionarray.Array[x10.lang.Double],x10.lang.Int,x10.lang.Int,x10.lang.Int)">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
 <h4>immRecv</h4>
-<pre>public&nbsp;<a href="../../../x10/matrix/comm/RequestHandleMPI.html" title="class in x10.matrix.comm">RequestHandleMPI</a>&nbsp;immRecv(x10.array.Array&lt;x10.lang.Double&gt;&nbsp;buf,
+<pre>public&nbsp;<a href="../../../x10/matrix/comm/RequestHandleMPI.html" title="class in x10.matrix.comm">RequestHandleMPI</a>&nbsp;immRecv(x10.regionarray.Array&lt;x10.lang.Double&gt;&nbsp;buf,
                        x10.lang.Int&nbsp;cnt,
                        x10.lang.Int&nbsp;src,
                        x10.lang.Int&nbsp;tag)</pre>
-<div class="block"><B>Declaration:</B> <TT>immRecv(buf:x10.array.Array[x10.lang.Double]{self.rank==1},cnt:x10.lang.Int,src:x10.lang.Int,tag:x10.lang.Int): x10.matrix.comm.RequestHandleMPI.</TT><PRE>
+<div class="block"><B>Declaration:</B> <TT>immRecv(buf:x10.regionarray.Array[x10.lang.Double]{self.rank==1},cnt:x10.lang.Int,src:x10.lang.Int,tag:x10.lang.Int): x10.matrix.comm.RequestHandleMPI.</TT><PRE>
 </PRE>Non-blocking receive double-precision data array.</div>
 </li>
 </ul>
-<a name="immRecv(x10.array.Array[x10.lang.Double],x10.lang.Int,x10.lang.Int,x10.lang.Int,x10.lang.Int)">
+<a name="immRecv(x10.regionarray.Array[x10.lang.Double],x10.lang.Int,x10.lang.Int,x10.lang.Int,x10.lang.Int)">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
 <h4>immRecv</h4>
-<pre>public&nbsp;<a href="../../../x10/matrix/comm/RequestHandleMPI.html" title="class in x10.matrix.comm">RequestHandleMPI</a>&nbsp;immRecv(x10.array.Array&lt;x10.lang.Double&gt;&nbsp;buf,
+<pre>public&nbsp;<a href="../../../x10/matrix/comm/RequestHandleMPI.html" title="class in x10.matrix.comm">RequestHandleMPI</a>&nbsp;immRecv(x10.regionarray.Array&lt;x10.lang.Double&gt;&nbsp;buf,
                        x10.lang.Int&nbsp;off,
                        x10.lang.Int&nbsp;cnt,
                        x10.lang.Int&nbsp;src,
                        x10.lang.Int&nbsp;tag)</pre>
-<div class="block"><B>Declaration:</B> <TT>immRecv(buf:x10.array.Array[x10.lang.Double]{self.rank==1},off:x10.lang.Int,cnt:x10.lang.Int,src:x10.lang.Int,tag:x10.lang.Int): x10.matrix.comm.RequestHandleMPI.</TT><PRE>
+<div class="block"><B>Declaration:</B> <TT>immRecv(buf:x10.regionarray.Array[x10.lang.Double]{self.rank==1},off:x10.lang.Int,cnt:x10.lang.Int,src:x10.lang.Int,tag:x10.lang.Int): x10.matrix.comm.RequestHandleMPI.</TT><PRE>
 </PRE>Non-blocking receive double-precision data array.</div>
 <dl><dt><span class="strong">Parameters:</span></dt><dd><code>buf</code> - receiving data buffer in double-precision array</dd><dd><code>off</code> - offset for the starting index for the receiving data</dd><dd><code>cnt</code> - count of data to receive</dd><dd><code>src</code> - source process rank or place ID.</dd><dd><code>tag</code> - message tag</dd><dd><code>rh</code> - receive message handle</dd></dl>
 </li>
 </ul>
-<a name="send(x10.array.Array[x10.lang.Int],x10.lang.Int,x10.lang.Int,x10.lang.Int)">
+<a name="send(x10.regionarray.Array[x10.lang.Int],x10.lang.Int,x10.lang.Int,x10.lang.Int)">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
 <h4>send</h4>
-<pre>public&nbsp;void&nbsp;send(x10.array.Array&lt;x10.lang.Int&gt;&nbsp;buf,
+<pre>public&nbsp;void&nbsp;send(x10.regionarray.Array&lt;x10.lang.Int&gt;&nbsp;buf,
         x10.lang.Int&nbsp;cnt,
         x10.lang.Int&nbsp;dst,
         x10.lang.Int&nbsp;tag)</pre>
-<div class="block"><B>Declaration:</B> <TT>send(buf:x10.array.Array[x10.lang.Int]{self.rank==1},cnt:x10.lang.Int,dst:x10.lang.Int,tag:x10.lang.Int): void.</TT><PRE>
+<div class="block"><B>Declaration:</B> <TT>send(buf:x10.regionarray.Array[x10.lang.Int]{self.rank==1},cnt:x10.lang.Int,dst:x10.lang.Int,tag:x10.lang.Int): void.</TT><PRE>
 </PRE></div>
 </li>
 </ul>
-<a name="send(x10.array.Array[x10.lang.Int],x10.lang.Int,x10.lang.Int,x10.lang.Int,x10.lang.Int)">
+<a name="send(x10.regionarray.Array[x10.lang.Int],x10.lang.Int,x10.lang.Int,x10.lang.Int,x10.lang.Int)">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
 <h4>send</h4>
-<pre>public&nbsp;void&nbsp;send(x10.array.Array&lt;x10.lang.Int&gt;&nbsp;buf,
+<pre>public&nbsp;void&nbsp;send(x10.regionarray.Array&lt;x10.lang.Int&gt;&nbsp;buf,
         x10.lang.Int&nbsp;off,
         x10.lang.Int&nbsp;cnt,
         x10.lang.Int&nbsp;dst,
         x10.lang.Int&nbsp;tag)</pre>
-<div class="block"><B>Declaration:</B> <TT>send(buf:x10.array.Array[x10.lang.Int]{self.rank==1},off:x10.lang.Int,cnt:x10.lang.Int,dst:x10.lang.Int,tag:x10.lang.Int): void.</TT><PRE>
+<div class="block"><B>Declaration:</B> <TT>send(buf:x10.regionarray.Array[x10.lang.Int]{self.rank==1},off:x10.lang.Int,cnt:x10.lang.Int,dst:x10.lang.Int,tag:x10.lang.Int): void.</TT><PRE>
 </PRE>Send integer array</div>
 <dl><dt><span class="strong">Parameters:</span></dt><dd><code>buf</code> - sending data buffer of integer array</dd><dd><code>off</code> - starting index for the sending data</dd><dd><code>cnt</code> - count of data to receive</dd><dd><code>dst</code> - source process rank or place ID.</dd><dd><code>tag</code> - message tag</dd></dl>
 </li>
 </ul>
-<a name="recv(x10.array.Array[x10.lang.Int],x10.lang.Int,x10.lang.Int,x10.lang.Int)">
+<a name="recv(x10.regionarray.Array[x10.lang.Int],x10.lang.Int,x10.lang.Int,x10.lang.Int)">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
 <h4>recv</h4>
-<pre>public&nbsp;void&nbsp;recv(x10.array.Array&lt;x10.lang.Int&gt;&nbsp;buf,
+<pre>public&nbsp;void&nbsp;recv(x10.regionarray.Array&lt;x10.lang.Int&gt;&nbsp;buf,
         x10.lang.Int&nbsp;cnt,
         x10.lang.Int&nbsp;src,
         x10.lang.Int&nbsp;tag)</pre>
-<div class="block"><B>Declaration:</B> <TT>recv(buf:x10.array.Array[x10.lang.Int]{self.rank==1},cnt:x10.lang.Int,src:x10.lang.Int,tag:x10.lang.Int): void.</TT><PRE>
+<div class="block"><B>Declaration:</B> <TT>recv(buf:x10.regionarray.Array[x10.lang.Int]{self.rank==1},cnt:x10.lang.Int,src:x10.lang.Int,tag:x10.lang.Int): void.</TT><PRE>
 </PRE>Receive integer array</div>
 <dl><dt><span class="strong">Parameters:</span></dt><dd><code>buf</code> - receive data buffer of integer array</dd><dd><code>off</code> - the starting index for the receiving data</dd><dd><code>cnt</code> - count of data to receive</dd><dd><code>dst</code> - destination process rank or place ID.</dd><dd><code>tag</code> - message tag</dd></dl>
 </li>
 </ul>
-<a name="recv(x10.array.Array[x10.lang.Int],x10.lang.Int,x10.lang.Int,x10.lang.Int,x10.lang.Int)">
+<a name="recv(x10.regionarray.Array[x10.lang.Int],x10.lang.Int,x10.lang.Int,x10.lang.Int,x10.lang.Int)">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
 <h4>recv</h4>
-<pre>public&nbsp;void&nbsp;recv(x10.array.Array&lt;x10.lang.Int&gt;&nbsp;buf,
+<pre>public&nbsp;void&nbsp;recv(x10.regionarray.Array&lt;x10.lang.Int&gt;&nbsp;buf,
         x10.lang.Int&nbsp;off,
         x10.lang.Int&nbsp;cnt,
         x10.lang.Int&nbsp;src,
         x10.lang.Int&nbsp;tag)</pre>
-<div class="block"><B>Declaration:</B> <TT>recv(buf:x10.array.Array[x10.lang.Int]{self.rank==1},off:x10.lang.Int,cnt:x10.lang.Int,src:x10.lang.Int,tag:x10.lang.Int): void.</TT><PRE>
+<div class="block"><B>Declaration:</B> <TT>recv(buf:x10.regionarray.Array[x10.lang.Int]{self.rank==1},off:x10.lang.Int,cnt:x10.lang.Int,src:x10.lang.Int,tag:x10.lang.Int): void.</TT><PRE>
 </PRE></div>
 </li>
 </ul>
-<a name="bcast(x10.array.Array[x10.lang.Double],x10.lang.Int,x10.lang.Int,x10.lang.Int)">
+<a name="bcast(x10.regionarray.Array[x10.lang.Double],x10.lang.Int,x10.lang.Int,x10.lang.Int)">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
 <h4>bcast</h4>
-<pre>public&nbsp;void&nbsp;bcast(x10.array.Array&lt;x10.lang.Double&gt;&nbsp;buf,
+<pre>public&nbsp;void&nbsp;bcast(x10.regionarray.Array&lt;x10.lang.Double&gt;&nbsp;buf,
          x10.lang.Int&nbsp;off,
          x10.lang.Int&nbsp;cnt,
          x10.lang.Int&nbsp;root)</pre>
-<div class="block"><B>Declaration:</B> <TT>bcast(buf:x10.array.Array[x10.lang.Double]{self.rank==1},off:x10.lang.Int,cnt:x10.lang.Int,root:x10.lang.Int): void.</TT><PRE>
+<div class="block"><B>Declaration:</B> <TT>bcast(buf:x10.regionarray.Array[x10.lang.Double]{self.rank==1},off:x10.lang.Int,cnt:x10.lang.Int,root:x10.lang.Int): void.</TT><PRE>
 </PRE>Broadcast double-precision data array.</div>
 <dl><dt><span class="strong">Parameters:</span></dt><dd><code>buf</code> - data buffer to broadcast</dd><dd><code>off</code> - the starting index for the broadcast data</dd><dd><code>cnt</code> - count of data to receive</dd><dd><code>root</code> - root place which has the source of the broadcast data.</dd></dl>
 </li>
 </ul>
-<a name="bcast(x10.array.Array[x10.lang.Double],x10.lang.Int,x10.lang.Int)">
+<a name="bcast(x10.regionarray.Array[x10.lang.Double],x10.lang.Int,x10.lang.Int)">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
 <h4>bcast</h4>
-<pre>public&nbsp;void&nbsp;bcast(x10.array.Array&lt;x10.lang.Double&gt;&nbsp;buf,
+<pre>public&nbsp;void&nbsp;bcast(x10.regionarray.Array&lt;x10.lang.Double&gt;&nbsp;buf,
          x10.lang.Int&nbsp;cnt,
          x10.lang.Int&nbsp;root)</pre>
-<div class="block"><B>Declaration:</B> <TT>bcast(buf:x10.array.Array[x10.lang.Double]{self.rank==1},cnt:x10.lang.Int,root:x10.lang.Int): void.</TT><PRE>
+<div class="block"><B>Declaration:</B> <TT>bcast(buf:x10.regionarray.Array[x10.lang.Double]{self.rank==1},cnt:x10.lang.Int,root:x10.lang.Int): void.</TT><PRE>
 </PRE></div>
 </li>
 </ul>
-<a name="bcast(x10.array.Array[x10.lang.Int],x10.lang.Int,x10.lang.Int,x10.lang.Int)">
+<a name="bcast(x10.regionarray.Array[x10.lang.Int],x10.lang.Int,x10.lang.Int,x10.lang.Int)">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
 <h4>bcast</h4>
-<pre>public&nbsp;void&nbsp;bcast(x10.array.Array&lt;x10.lang.Int&gt;&nbsp;buf,
+<pre>public&nbsp;void&nbsp;bcast(x10.regionarray.Array&lt;x10.lang.Int&gt;&nbsp;buf,
          x10.lang.Int&nbsp;off,
          x10.lang.Int&nbsp;cnt,
          x10.lang.Int&nbsp;root)</pre>
-<div class="block"><B>Declaration:</B> <TT>bcast(buf:x10.array.Array[x10.lang.Int]{self.rank==1},off:x10.lang.Int,cnt:x10.lang.Int,root:x10.lang.Int): void.</TT><PRE>
+<div class="block"><B>Declaration:</B> <TT>bcast(buf:x10.regionarray.Array[x10.lang.Int]{self.rank==1},off:x10.lang.Int,cnt:x10.lang.Int,root:x10.lang.Int): void.</TT><PRE>
 </PRE>Broadcast integer data array.</div>
 <dl><dt><span class="strong">Parameters:</span></dt><dd><code>buf</code> - data buffer to broadcast. Significant in all places.</dd><dd><code>off</code> - the starting index for the broadcast data</dd><dd><code>cnt</code> - count of data to receive</dd><dd><code>root</code> - root place</dd></dl>
 </li>
 </ul>
-<a name="bcast(x10.array.Array[x10.lang.Int],x10.lang.Int,x10.lang.Int)">
+<a name="bcast(x10.regionarray.Array[x10.lang.Int],x10.lang.Int,x10.lang.Int)">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
 <h4>bcast</h4>
-<pre>public&nbsp;void&nbsp;bcast(x10.array.Array&lt;x10.lang.Int&gt;&nbsp;buf,
+<pre>public&nbsp;void&nbsp;bcast(x10.regionarray.Array&lt;x10.lang.Int&gt;&nbsp;buf,
          x10.lang.Int&nbsp;cnt,
          x10.lang.Int&nbsp;root)</pre>
-<div class="block"><B>Declaration:</B> <TT>bcast(buf:x10.array.Array[x10.lang.Int]{self.rank==1},cnt:x10.lang.Int,root:x10.lang.Int): void.</TT><PRE>
+<div class="block"><B>Declaration:</B> <TT>bcast(buf:x10.regionarray.Array[x10.lang.Int]{self.rank==1},cnt:x10.lang.Int,root:x10.lang.Int): void.</TT><PRE>
 </PRE></div>
 </li>
 </ul>
-<a name="gatherv(x10.array.Array[x10.lang.Double],x10.lang.Int,x10.array.Array[x10.lang.Double],x10.array.Array[x10.lang.Int],x10.lang.Int)">
+<a name="gatherv(x10.regionarray.Array[x10.lang.Double],x10.lang.Int,x10.regionarray.Array[x10.lang.Double],x10.regionarray.Array[x10.lang.Int],x10.lang.Int)">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
 <h4>gatherv</h4>
-<pre>public&nbsp;void&nbsp;gatherv(x10.array.Array&lt;x10.lang.Double&gt;&nbsp;sendbuf,
+<pre>public&nbsp;void&nbsp;gatherv(x10.regionarray.Array&lt;x10.lang.Double&gt;&nbsp;sendbuf,
            x10.lang.Int&nbsp;sendcnt,
-           x10.array.Array&lt;x10.lang.Double&gt;&nbsp;recvbuf,
-           x10.array.Array&lt;x10.lang.Int&gt;&nbsp;recvcnts,
+           x10.regionarray.Array&lt;x10.lang.Double&gt;&nbsp;recvbuf,
+           x10.regionarray.Array&lt;x10.lang.Int&gt;&nbsp;recvcnts,
            x10.lang.Int&nbsp;root)</pre>
-<div class="block"><B>Declaration:</B> <TT>gatherv(sendbuf:x10.array.Array[x10.lang.Double]{self.rank==1},sendcnt:x10.lang.Int,recvbuf:x10.array.Array[x10.lang.Double]{self.rank==1},recvcnts:x10.array.Array[x10.lang.Int]{self.rank==1},root:x10.lang.Int): void.</TT><PRE>
+<div class="block"><B>Declaration:</B> <TT>gatherv(sendbuf:x10.regionarray.Array[x10.lang.Double]{self.rank==1},sendcnt:x10.lang.Int,recvbuf:x10.regionarray.Array[x10.lang.Double]{self.rank==1},recvcnts:x10.regionarray.Array[x10.lang.Int]{self.rank==1},root:x10.lang.Int): void.</TT><PRE>
 </PRE>Gather double-precision data arrays from all places to here.</div>
 <dl><dt><span class="strong">Parameters:</span></dt><dd><code>sendbuf</code> - sending buffer. Significant in all places.</dd><dd><code>sendcnt</code> - count of data to send to root place.</dd><dd><code>recvbuf</code> - receiving buffer. Significant at the root place. 0-length array for non-root place.</dd><dd><code>recvcnts</code> - the data counts received from all places. Significant only at the root place</dd><dd><code>root</code> - root place ID.</dd></dl>
 </li>
 </ul>
-<a name="gatherv(x10.array.Array[x10.lang.Double],x10.lang.Int,x10.lang.Int,x10.array.Array[x10.lang.Double],x10.lang.Int,x10.array.Array[x10.lang.Int],x10.lang.Int)">
+<a name="gatherv(x10.regionarray.Array[x10.lang.Double],x10.lang.Int,x10.lang.Int,x10.regionarray.Array[x10.lang.Double],x10.lang.Int,x10.regionarray.Array[x10.lang.Int],x10.lang.Int)">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
 <h4>gatherv</h4>
-<pre>public&nbsp;void&nbsp;gatherv(x10.array.Array&lt;x10.lang.Double&gt;&nbsp;sendbuf,
+<pre>public&nbsp;void&nbsp;gatherv(x10.regionarray.Array&lt;x10.lang.Double&gt;&nbsp;sendbuf,
            x10.lang.Int&nbsp;sendoff,
            x10.lang.Int&nbsp;sendcnt,
-           x10.array.Array&lt;x10.lang.Double&gt;&nbsp;recvbuf,
+           x10.regionarray.Array&lt;x10.lang.Double&gt;&nbsp;recvbuf,
            x10.lang.Int&nbsp;recvoff,
-           x10.array.Array&lt;x10.lang.Int&gt;&nbsp;recvcnts,
+           x10.regionarray.Array&lt;x10.lang.Int&gt;&nbsp;recvcnts,
            x10.lang.Int&nbsp;root)</pre>
-<div class="block"><B>Declaration:</B> <TT>gatherv(sendbuf:x10.array.Array[x10.lang.Double]{self.rank==1},sendoff:x10.lang.Int,sendcnt:x10.lang.Int,recvbuf:x10.array.Array[x10.lang.Double]{self.rank==1},recvoff:x10.lang.Int,recvcnts:x10.array.Array[x10.lang.Int]{self.rank==1},root:x10.lang.Int): void.</TT><PRE>
+<div class="block"><B>Declaration:</B> <TT>gatherv(sendbuf:x10.regionarray.Array[x10.lang.Double]{self.rank==1},sendoff:x10.lang.Int,sendcnt:x10.lang.Int,recvbuf:x10.regionarray.Array[x10.lang.Double]{self.rank==1},recvoff:x10.lang.Int,recvcnts:x10.regionarray.Array[x10.lang.Int]{self.rank==1},root:x10.lang.Int): void.</TT><PRE>
 </PRE></div>
 </li>
 </ul>
-<a name="gatherv(x10.array.Array[x10.lang.Int],x10.lang.Int,x10.array.Array[x10.lang.Int],x10.array.Array[x10.lang.Int],x10.lang.Int)">
+<a name="gatherv(x10.regionarray.Array[x10.lang.Int],x10.lang.Int,x10.regionarray.Array[x10.lang.Int],x10.regionarray.Array[x10.lang.Int],x10.lang.Int)">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
 <h4>gatherv</h4>
-<pre>public&nbsp;void&nbsp;gatherv(x10.array.Array&lt;x10.lang.Int&gt;&nbsp;sendbuf,
+<pre>public&nbsp;void&nbsp;gatherv(x10.regionarray.Array&lt;x10.lang.Int&gt;&nbsp;sendbuf,
            x10.lang.Int&nbsp;sendcnt,
-           x10.array.Array&lt;x10.lang.Int&gt;&nbsp;recvbuf,
-           x10.array.Array&lt;x10.lang.Int&gt;&nbsp;recvcnts,
+           x10.regionarray.Array&lt;x10.lang.Int&gt;&nbsp;recvbuf,
+           x10.regionarray.Array&lt;x10.lang.Int&gt;&nbsp;recvcnts,
            x10.lang.Int&nbsp;root)</pre>
-<div class="block"><B>Declaration:</B> <TT>gatherv(sendbuf:x10.array.Array[x10.lang.Int]{self.rank==1},sendcnt:x10.lang.Int,recvbuf:x10.array.Array[x10.lang.Int]{self.rank==1},recvcnts:x10.array.Array[x10.lang.Int]{self.rank==1},root:x10.lang.Int): void.</TT><PRE>
+<div class="block"><B>Declaration:</B> <TT>gatherv(sendbuf:x10.regionarray.Array[x10.lang.Int]{self.rank==1},sendcnt:x10.lang.Int,recvbuf:x10.regionarray.Array[x10.lang.Int]{self.rank==1},recvcnts:x10.regionarray.Array[x10.lang.Int]{self.rank==1},root:x10.lang.Int): void.</TT><PRE>
 </PRE></div>
 </li>
 </ul>
-<a name="gatherv(x10.array.Array[x10.lang.Int],x10.lang.Int,x10.lang.Int,x10.array.Array[x10.lang.Int],x10.lang.Int,x10.array.Array[x10.lang.Int],x10.lang.Int)">
+<a name="gatherv(x10.regionarray.Array[x10.lang.Int],x10.lang.Int,x10.lang.Int,x10.regionarray.Array[x10.lang.Int],x10.lang.Int,x10.regionarray.Array[x10.lang.Int],x10.lang.Int)">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
 <h4>gatherv</h4>
-<pre>public&nbsp;void&nbsp;gatherv(x10.array.Array&lt;x10.lang.Int&gt;&nbsp;sendbuf,
+<pre>public&nbsp;void&nbsp;gatherv(x10.regionarray.Array&lt;x10.lang.Int&gt;&nbsp;sendbuf,
            x10.lang.Int&nbsp;sendoff,
            x10.lang.Int&nbsp;sendcnt,
-           x10.array.Array&lt;x10.lang.Int&gt;&nbsp;recvbuf,
+           x10.regionarray.Array&lt;x10.lang.Int&gt;&nbsp;recvbuf,
            x10.lang.Int&nbsp;recvoff,
-           x10.array.Array&lt;x10.lang.Int&gt;&nbsp;recvcnts,
+           x10.regionarray.Array&lt;x10.lang.Int&gt;&nbsp;recvcnts,
            x10.lang.Int&nbsp;root)</pre>
-<div class="block"><B>Declaration:</B> <TT>gatherv(sendbuf:x10.array.Array[x10.lang.Int]{self.rank==1},sendoff:x10.lang.Int,sendcnt:x10.lang.Int,recvbuf:x10.array.Array[x10.lang.Int]{self.rank==1},recvoff:x10.lang.Int,recvcnts:x10.array.Array[x10.lang.Int]{self.rank==1},root:x10.lang.Int): void.</TT><PRE>
+<div class="block"><B>Declaration:</B> <TT>gatherv(sendbuf:x10.regionarray.Array[x10.lang.Int]{self.rank==1},sendoff:x10.lang.Int,sendcnt:x10.lang.Int,recvbuf:x10.regionarray.Array[x10.lang.Int]{self.rank==1},recvoff:x10.lang.Int,recvcnts:x10.regionarray.Array[x10.lang.Int]{self.rank==1},root:x10.lang.Int): void.</TT><PRE>
 </PRE></div>
 </li>
 </ul>
-<a name="scatterv(x10.array.Array[x10.lang.Double],x10.array.Array[x10.lang.Int],x10.array.Array[x10.lang.Double],x10.lang.Int,x10.lang.Int)">
+<a name="scatterv(x10.regionarray.Array[x10.lang.Double],x10.regionarray.Array[x10.lang.Int],x10.regionarray.Array[x10.lang.Double],x10.lang.Int,x10.lang.Int)">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
 <h4>scatterv</h4>
-<pre>public&nbsp;void&nbsp;scatterv(x10.array.Array&lt;x10.lang.Double&gt;&nbsp;sendbuf,
-            x10.array.Array&lt;x10.lang.Int&gt;&nbsp;sendcnts,
-            x10.array.Array&lt;x10.lang.Double&gt;&nbsp;recvbuf,
+<pre>public&nbsp;void&nbsp;scatterv(x10.regionarray.Array&lt;x10.lang.Double&gt;&nbsp;sendbuf,
+            x10.regionarray.Array&lt;x10.lang.Int&gt;&nbsp;sendcnts,
+            x10.regionarray.Array&lt;x10.lang.Double&gt;&nbsp;recvbuf,
             x10.lang.Int&nbsp;recvcnt,
             x10.lang.Int&nbsp;root)</pre>
-<div class="block"><B>Declaration:</B> <TT>scatterv(sendbuf:x10.array.Array[x10.lang.Double]{self.rank==1},sendcnts:x10.array.Array[x10.lang.Int]{self.rank==1},recvbuf:x10.array.Array[x10.lang.Double]{self.rank==1},recvcnt:x10.lang.Int,root:x10.lang.Int): void.</TT><PRE>
+<div class="block"><B>Declaration:</B> <TT>scatterv(sendbuf:x10.regionarray.Array[x10.lang.Double]{self.rank==1},sendcnts:x10.regionarray.Array[x10.lang.Int]{self.rank==1},recvbuf:x10.regionarray.Array[x10.lang.Double]{self.rank==1},recvcnt:x10.lang.Int,root:x10.lang.Int): void.</TT><PRE>
 </PRE>Scatter double-precision data array.</div>
 <dl><dt><span class="strong">Parameters:</span></dt><dd><code>sendbuf</code> - the data source buffers containing segments to all places.</dd><dd><code>sendcnts</code> - the data counts for all places. Significant at root only. 0-length array for non-root.</dd><dd><code>recvbuf</code> - data receiving buffer in each place.</dd><dd><code>recvcnt</code> - data receiving counts at the receiving place</dd><dd><code>root</code> - root place ID.</dd></dl>
 </li>
 </ul>
-<a name="scatterv(x10.array.Array[x10.lang.Int],x10.array.Array[x10.lang.Int],x10.array.Array[x10.lang.Int],x10.lang.Int,x10.lang.Int)">
+<a name="scatterv(x10.regionarray.Array[x10.lang.Int],x10.regionarray.Array[x10.lang.Int],x10.regionarray.Array[x10.lang.Int],x10.lang.Int,x10.lang.Int)">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
 <h4>scatterv</h4>
-<pre>public&nbsp;void&nbsp;scatterv(x10.array.Array&lt;x10.lang.Int&gt;&nbsp;sendbuf,
-            x10.array.Array&lt;x10.lang.Int&gt;&nbsp;sendcnts,
-            x10.array.Array&lt;x10.lang.Int&gt;&nbsp;recvbuf,
+<pre>public&nbsp;void&nbsp;scatterv(x10.regionarray.Array&lt;x10.lang.Int&gt;&nbsp;sendbuf,
+            x10.regionarray.Array&lt;x10.lang.Int&gt;&nbsp;sendcnts,
+            x10.regionarray.Array&lt;x10.lang.Int&gt;&nbsp;recvbuf,
             x10.lang.Int&nbsp;recvcnt,
             x10.lang.Int&nbsp;root)</pre>
-<div class="block"><B>Declaration:</B> <TT>scatterv(sendbuf:x10.array.Array[x10.lang.Int]{self.rank==1},sendcnts:x10.array.Array[x10.lang.Int]{self.rank==1},recvbuf:x10.array.Array[x10.lang.Int]{self.rank==1},recvcnt:x10.lang.Int,root:x10.lang.Int): void.</TT><PRE>
+<div class="block"><B>Declaration:</B> <TT>scatterv(sendbuf:x10.regionarray.Array[x10.lang.Int]{self.rank==1},sendcnts:x10.regionarray.Array[x10.lang.Int]{self.rank==1},recvbuf:x10.regionarray.Array[x10.lang.Int]{self.rank==1},recvcnt:x10.lang.Int,root:x10.lang.Int): void.</TT><PRE>
 </PRE></div>
 </li>
 </ul>
-<a name="allGatherv(x10.array.Array[x10.lang.Double],x10.lang.Int,x10.lang.Int,x10.array.Array[x10.lang.Double],x10.lang.Int,x10.array.Array[x10.lang.Int])">
+<a name="allGatherv(x10.regionarray.Array[x10.lang.Double],x10.lang.Int,x10.lang.Int,x10.regionarray.Array[x10.lang.Double],x10.lang.Int,x10.regionarray.Array[x10.lang.Int])">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
 <h4>allGatherv</h4>
-<pre>public&nbsp;void&nbsp;allGatherv(x10.array.Array&lt;x10.lang.Double&gt;&nbsp;sendbuf,
+<pre>public&nbsp;void&nbsp;allGatherv(x10.regionarray.Array&lt;x10.lang.Double&gt;&nbsp;sendbuf,
               x10.lang.Int&nbsp;sendoff,
               x10.lang.Int&nbsp;sendcnt,
-              x10.array.Array&lt;x10.lang.Double&gt;&nbsp;recvbuf,
+              x10.regionarray.Array&lt;x10.lang.Double&gt;&nbsp;recvbuf,
               x10.lang.Int&nbsp;recvoff,
-              x10.array.Array&lt;x10.lang.Int&gt;&nbsp;recvcnts)</pre>
-<div class="block"><B>Declaration:</B> <TT>allGatherv(sendbuf:x10.array.Array[x10.lang.Double]{self.rank==1},sendoff:x10.lang.Int,sendcnt:x10.lang.Int,recvbuf:x10.array.Array[x10.lang.Double]{self.rank==1},recvoff:x10.lang.Int,recvcnts:x10.array.Array[x10.lang.Int]{self.rank==1}): void.</TT><PRE>
+              x10.regionarray.Array&lt;x10.lang.Int&gt;&nbsp;recvcnts)</pre>
+<div class="block"><B>Declaration:</B> <TT>allGatherv(sendbuf:x10.regionarray.Array[x10.lang.Double]{self.rank==1},sendoff:x10.lang.Int,sendcnt:x10.lang.Int,recvbuf:x10.regionarray.Array[x10.lang.Double]{self.rank==1},recvoff:x10.lang.Int,recvcnts:x10.regionarray.Array[x10.lang.Int]{self.rank==1}): void.</TT><PRE>
 </PRE>All gather double-precision arrays from all places</div>
 <dl><dt><span class="strong">Parameters:</span></dt><dd><code>sendbuf</code> - data array to send to all places</dd><dd><code>sendoff</code> - offset of the starting index in sending buffer</dd><dd><code>sendcnt</code> - the data count to send</dd><dd><code>recvbuf</code> - receiving data buffer</dd><dd><code>recvoff</code> - offset of the starting index in receiving buffer</dd><dd><code>recvcnts</code> - data counts received from all places</dd></dl>
 </li>
 </ul>
-<a name="reduceSum(x10.array.Array[x10.lang.Double],x10.lang.Int,x10.array.Array[x10.lang.Double],x10.lang.Int,x10.lang.Int,x10.lang.Int)">
+<a name="reduceSum(x10.regionarray.Array[x10.lang.Double],x10.lang.Int,x10.regionarray.Array[x10.lang.Double],x10.lang.Int,x10.lang.Int,x10.lang.Int)">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
 <h4>reduceSum</h4>
-<pre>public&nbsp;void&nbsp;reduceSum(x10.array.Array&lt;x10.lang.Double&gt;&nbsp;sendbuf,
+<pre>public&nbsp;void&nbsp;reduceSum(x10.regionarray.Array&lt;x10.lang.Double&gt;&nbsp;sendbuf,
              x10.lang.Int&nbsp;sendoff,
-             x10.array.Array&lt;x10.lang.Double&gt;&nbsp;recvbuf,
+             x10.regionarray.Array&lt;x10.lang.Double&gt;&nbsp;recvbuf,
              x10.lang.Int&nbsp;recvoff,
              x10.lang.Int&nbsp;cnt,
              x10.lang.Int&nbsp;root)</pre>
-<div class="block"><B>Declaration:</B> <TT>reduceSum(sendbuf:x10.array.Array[x10.lang.Double]{self.rank==1},sendoff:x10.lang.Int,recvbuf:x10.array.Array[x10.lang.Double]{self.rank==1},recvoff:x10.lang.Int,cnt:x10.lang.Int,root:x10.lang.Int): void.</TT><PRE>
+<div class="block"><B>Declaration:</B> <TT>reduceSum(sendbuf:x10.regionarray.Array[x10.lang.Double]{self.rank==1},sendoff:x10.lang.Int,recvbuf:x10.regionarray.Array[x10.lang.Double]{self.rank==1},recvoff:x10.lang.Int,cnt:x10.lang.Int,root:x10.lang.Int): void.</TT><PRE>
 </PRE>Reduce all values from all places to one by adding them up.</div>
 <dl><dt><span class="strong">Parameters:</span></dt><dd><code>sendbuf</code> - the source data buffer</dd><dd><code>sendoff</code> - the starting offset in source buffer</dd><dd><code>recvbuf</code> - the receiving buffer for the result of addition</dd><dd><code>recvoff</code> - the starting offset in receiving buffer.</dd><dd><code>cnt</code> - data count in the array</dd><dd><code>root</code> - root place ID</dd></dl>
 </li>
 </ul>
-<a name="reduceSum(x10.array.Array[x10.lang.Double],x10.array.Array[x10.lang.Double],x10.lang.Int,x10.lang.Int)">
+<a name="reduceSum(x10.regionarray.Array[x10.lang.Double],x10.regionarray.Array[x10.lang.Double],x10.lang.Int,x10.lang.Int)">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
 <h4>reduceSum</h4>
-<pre>public&nbsp;void&nbsp;reduceSum(x10.array.Array&lt;x10.lang.Double&gt;&nbsp;sendbuf,
-             x10.array.Array&lt;x10.lang.Double&gt;&nbsp;recvbuf,
+<pre>public&nbsp;void&nbsp;reduceSum(x10.regionarray.Array&lt;x10.lang.Double&gt;&nbsp;sendbuf,
+             x10.regionarray.Array&lt;x10.lang.Double&gt;&nbsp;recvbuf,
              x10.lang.Int&nbsp;cnt,
              x10.lang.Int&nbsp;root)</pre>
-<div class="block"><B>Declaration:</B> <TT>reduceSum(sendbuf:x10.array.Array[x10.lang.Double]{self.rank==1},recvbuf:x10.array.Array[x10.lang.Double]{self.rank==1},cnt:x10.lang.Int,root:x10.lang.Int): void.</TT><PRE>
+<div class="block"><B>Declaration:</B> <TT>reduceSum(sendbuf:x10.regionarray.Array[x10.lang.Double]{self.rank==1},recvbuf:x10.regionarray.Array[x10.lang.Double]{self.rank==1},cnt:x10.lang.Int,root:x10.lang.Int): void.</TT><PRE>
 </PRE>Reduce all values from all places to one by adding them up.</div>
 </li>
 </ul>
-<a name="allReduceSum(x10.array.Array[x10.lang.Double],x10.lang.Int,x10.array.Array[x10.lang.Double],x10.lang.Int,x10.lang.Int)">
+<a name="allReduceSum(x10.regionarray.Array[x10.lang.Double],x10.lang.Int,x10.regionarray.Array[x10.lang.Double],x10.lang.Int,x10.lang.Int)">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
 <h4>allReduceSum</h4>
-<pre>public static&nbsp;void&nbsp;allReduceSum(x10.array.Array&lt;x10.lang.Double&gt;&nbsp;sendbuf,
+<pre>public static&nbsp;void&nbsp;allReduceSum(x10.regionarray.Array&lt;x10.lang.Double&gt;&nbsp;sendbuf,
                 x10.lang.Int&nbsp;sendoff,
-                x10.array.Array&lt;x10.lang.Double&gt;&nbsp;recvbuf,
+                x10.regionarray.Array&lt;x10.lang.Double&gt;&nbsp;recvbuf,
                 x10.lang.Int&nbsp;recvoff,
                 x10.lang.Int&nbsp;cnt)</pre>
-<div class="block"><B>Declaration:</B> <TT>allReduceSum(sendbuf:x10.array.Array[x10.lang.Double]{self.rank==1},sendoff:x10.lang.Int,recvbuf:x10.array.Array[x10.lang.Double]{self.rank==1},recvoff:x10.lang.Int,cnt:x10.lang.Int): void.</TT><PRE>
+<div class="block"><B>Declaration:</B> <TT>allReduceSum(sendbuf:x10.regionarray.Array[x10.lang.Double]{self.rank==1},sendoff:x10.lang.Int,recvbuf:x10.regionarray.Array[x10.lang.Double]{self.rank==1},recvoff:x10.lang.Int,cnt:x10.lang.Int): void.</TT><PRE>
 </PRE>Reduce-sum and broadcast result to all places</div>
 </li>
 </ul>
-<a name="allReduceSum(x10.array.Array[x10.lang.Double],x10.array.Array[x10.lang.Double],x10.lang.Int)">
+<a name="allReduceSum(x10.regionarray.Array[x10.lang.Double],x10.regionarray.Array[x10.lang.Double],x10.lang.Int)">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
 <h4>allReduceSum</h4>
-<pre>public&nbsp;void&nbsp;allReduceSum(x10.array.Array&lt;x10.lang.Double&gt;&nbsp;sendbuf,
-                x10.array.Array&lt;x10.lang.Double&gt;&nbsp;recvbuf,
+<pre>public&nbsp;void&nbsp;allReduceSum(x10.regionarray.Array&lt;x10.lang.Double&gt;&nbsp;sendbuf,
+                x10.regionarray.Array&lt;x10.lang.Double&gt;&nbsp;recvbuf,
                 x10.lang.Int&nbsp;cnt)</pre>
-<div class="block"><B>Declaration:</B> <TT>allReduceSum(sendbuf:x10.array.Array[x10.lang.Double]{self.rank==1},recvbuf:x10.array.Array[x10.lang.Double]{self.rank==1},cnt:x10.lang.Int): void.</TT><PRE>
+<div class="block"><B>Declaration:</B> <TT>allReduceSum(sendbuf:x10.regionarray.Array[x10.lang.Double]{self.rank==1},recvbuf:x10.regionarray.Array[x10.lang.Double]{self.rank==1},cnt:x10.lang.Int): void.</TT><PRE>
 </PRE>Reduce-sum and broadcast result to all places</div>
 <dl><dt><span class="strong">Parameters:</span></dt><dd><code>sendbuf</code> - data source</dd><dd><code>recvbuf</code> - result buffer</dd><dd><code>cnt</code> - data count</dd></dl>
 </li>
 </ul>
-<a name="immSend(x10.array.Array[x10.lang.Int],x10.lang.Int,x10.lang.Int,x10.lang.Int)">
+<a name="immSend(x10.regionarray.Array[x10.lang.Int],x10.lang.Int,x10.lang.Int,x10.lang.Int)">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
 <h4>immSend</h4>
-<pre>public&nbsp;<a href="../../../x10/matrix/comm/RequestHandleMPI.html" title="class in x10.matrix.comm">RequestHandleMPI</a>&nbsp;immSend(x10.array.Array&lt;x10.lang.Int&gt;&nbsp;buf,
+<pre>public&nbsp;<a href="../../../x10/matrix/comm/RequestHandleMPI.html" title="class in x10.matrix.comm">RequestHandleMPI</a>&nbsp;immSend(x10.regionarray.Array&lt;x10.lang.Int&gt;&nbsp;buf,
                        x10.lang.Int&nbsp;cnt,
                        x10.lang.Int&nbsp;dst,
                        x10.lang.Int&nbsp;tag)</pre>
-<div class="block"><B>Declaration:</B> <TT>immSend(buf:x10.array.Array[x10.lang.Int]{self.rank==1},cnt:x10.lang.Int,dst:x10.lang.Int,tag:x10.lang.Int): x10.matrix.comm.RequestHandleMPI.</TT><PRE>
+<div class="block"><B>Declaration:</B> <TT>immSend(buf:x10.regionarray.Array[x10.lang.Int]{self.rank==1},cnt:x10.lang.Int,dst:x10.lang.Int,tag:x10.lang.Int): x10.matrix.comm.RequestHandleMPI.</TT><PRE>
 </PRE></div>
 </li>
 </ul>
-<a name="immSend(x10.array.Array[x10.lang.Int],x10.lang.Int,x10.lang.Int,x10.lang.Int,x10.lang.Int)">
+<a name="immSend(x10.regionarray.Array[x10.lang.Int],x10.lang.Int,x10.lang.Int,x10.lang.Int,x10.lang.Int)">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
 <h4>immSend</h4>
-<pre>public&nbsp;<a href="../../../x10/matrix/comm/RequestHandleMPI.html" title="class in x10.matrix.comm">RequestHandleMPI</a>&nbsp;immSend(x10.array.Array&lt;x10.lang.Int&gt;&nbsp;buf,
+<pre>public&nbsp;<a href="../../../x10/matrix/comm/RequestHandleMPI.html" title="class in x10.matrix.comm">RequestHandleMPI</a>&nbsp;immSend(x10.regionarray.Array&lt;x10.lang.Int&gt;&nbsp;buf,
                        x10.lang.Int&nbsp;off,
                        x10.lang.Int&nbsp;cnt,
                        x10.lang.Int&nbsp;dst,
                        x10.lang.Int&nbsp;tag)</pre>
-<div class="block"><B>Declaration:</B> <TT>immSend(buf:x10.array.Array[x10.lang.Int]{self.rank==1},off:x10.lang.Int,cnt:x10.lang.Int,dst:x10.lang.Int,tag:x10.lang.Int): x10.matrix.comm.RequestHandleMPI.</TT><PRE>
+<div class="block"><B>Declaration:</B> <TT>immSend(buf:x10.regionarray.Array[x10.lang.Int]{self.rank==1},off:x10.lang.Int,cnt:x10.lang.Int,dst:x10.lang.Int,tag:x10.lang.Int): x10.matrix.comm.RequestHandleMPI.</TT><PRE>
 </PRE></div>
 </li>
 </ul>
-<a name="immRecv(x10.array.Array[x10.lang.Int],x10.lang.Int,x10.lang.Int,x10.lang.Int)">
+<a name="immRecv(x10.regionarray.Array[x10.lang.Int],x10.lang.Int,x10.lang.Int,x10.lang.Int)">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
 <h4>immRecv</h4>
-<pre>public&nbsp;<a href="../../../x10/matrix/comm/RequestHandleMPI.html" title="class in x10.matrix.comm">RequestHandleMPI</a>&nbsp;immRecv(x10.array.Array&lt;x10.lang.Int&gt;&nbsp;buf,
+<pre>public&nbsp;<a href="../../../x10/matrix/comm/RequestHandleMPI.html" title="class in x10.matrix.comm">RequestHandleMPI</a>&nbsp;immRecv(x10.regionarray.Array&lt;x10.lang.Int&gt;&nbsp;buf,
                        x10.lang.Int&nbsp;cnt,
                        x10.lang.Int&nbsp;src,
                        x10.lang.Int&nbsp;tag)</pre>
-<div class="block"><B>Declaration:</B> <TT>immRecv(buf:x10.array.Array[x10.lang.Int]{self.rank==1},cnt:x10.lang.Int,src:x10.lang.Int,tag:x10.lang.Int): x10.matrix.comm.RequestHandleMPI.</TT><PRE>
+<div class="block"><B>Declaration:</B> <TT>immRecv(buf:x10.regionarray.Array[x10.lang.Int]{self.rank==1},cnt:x10.lang.Int,src:x10.lang.Int,tag:x10.lang.Int): x10.matrix.comm.RequestHandleMPI.</TT><PRE>
 </PRE></div>
 </li>
 </ul>
-<a name="immRecv(x10.array.Array[x10.lang.Int],x10.lang.Int,x10.lang.Int,x10.lang.Int,x10.lang.Int)">
+<a name="immRecv(x10.regionarray.Array[x10.lang.Int],x10.lang.Int,x10.lang.Int,x10.lang.Int,x10.lang.Int)">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
 <h4>immRecv</h4>
-<pre>public&nbsp;<a href="../../../x10/matrix/comm/RequestHandleMPI.html" title="class in x10.matrix.comm">RequestHandleMPI</a>&nbsp;immRecv(x10.array.Array&lt;x10.lang.Int&gt;&nbsp;buf,
+<pre>public&nbsp;<a href="../../../x10/matrix/comm/RequestHandleMPI.html" title="class in x10.matrix.comm">RequestHandleMPI</a>&nbsp;immRecv(x10.regionarray.Array&lt;x10.lang.Int&gt;&nbsp;buf,
                        x10.lang.Int&nbsp;off,
                        x10.lang.Int&nbsp;cnt,
                        x10.lang.Int&nbsp;src,
                        x10.lang.Int&nbsp;tag)</pre>
-<div class="block"><B>Declaration:</B> <TT>immRecv(buf:x10.array.Array[x10.lang.Int]{self.rank==1},off:x10.lang.Int,cnt:x10.lang.Int,src:x10.lang.Int,tag:x10.lang.Int): x10.matrix.comm.RequestHandleMPI.</TT><PRE>
+<div class="block"><B>Declaration:</B> <TT>immRecv(buf:x10.regionarray.Array[x10.lang.Int]{self.rank==1},off:x10.lang.Int,cnt:x10.lang.Int,src:x10.lang.Int,tag:x10.lang.Int): x10.matrix.comm.RequestHandleMPI.</TT><PRE>
 </PRE></div>
 </li>
 </ul>

@@ -10,6 +10,7 @@
  */
 
 import harness.x10Test;
+import x10.regionarray.*;
 
 
 /**
@@ -26,7 +27,7 @@ public class Force extends x10Test {
    
     public def run(): boolean = true;
 
-    public static def main(Array[String](1))  {
+    public static def main(Rail[String])  {
         new Force().execute();
     }
 }

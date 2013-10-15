@@ -17,11 +17,11 @@ import harness.x10Test;
 
 class TypedefConstraint3a extends TypedefTest {
 
-    class A(x:int) {def this(x:int):A{self.x==x} = property(x);}
+    class A(x:long) {def this(x:long):A{self.x==x} = property(x);}
 
     public def run():boolean = {
 
-        type T(x:int){x==1} = A{self.x==x};
+        type T(x:long){x==1} = A{self.x==x};
         val one = 1;
         val a:T(one) = new A(one);
         check("a.x", a.x, 1);
@@ -29,7 +29,7 @@ class TypedefConstraint3a extends TypedefTest {
         return result;
     }
 
-    public static def main(var args: Array[String](1)): void = {
+    public static def main(var args: Rail[String]): void = {
         new TypedefConstraint3a().execute();
     }
 }

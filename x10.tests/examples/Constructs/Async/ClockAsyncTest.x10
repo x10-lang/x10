@@ -14,8 +14,8 @@ import harness.x10Test;
 /**
  * Test that creating an array of clocks will not work -- you need to
  * do the following instead:
-	    val clocks = Array.make[Clock](0..5, (point)=>null);
-	    for ((i) in 0..5) clocks(i) = Clock.make();
+	    val clocks = Array.make[Clock](6, null);
+	    for (i in 0..5) clocks(i) = Clock.make();
 
  * @author Tong Wen 7/2006
  * 9/23/2010
@@ -27,7 +27,7 @@ public class ClockAsyncTest extends x10Test {
 
     public def run(): boolean {
 	  try {
-	    val clocks = new Array[Clock](0..5, (Point)=>Clock.make());
+	    val clocks = new Rail[Clock](6, (i:long)=>Clock.make());
 	    finish {
 	    	async clocked (clocks(0)){
 	    		Clock.advanceAll();
@@ -40,7 +40,7 @@ public class ClockAsyncTest extends x10Test {
 	  return true;
     }
 
-    public static def main(Array[String](1)) {
+    public static def main(Rail[String]) {
 	   new ClockAsyncTest().execute();
     }
 }

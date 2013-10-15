@@ -45,10 +45,10 @@ public class InterfaceProp_MustFailCompile extends x10Test {
     }
 
     public def run(): Boolean = {
-        new E(1);
+        new E(1n);
         return true;
     }
-    public static def main(args: Array[String](1)): void = {
+    public static def main(args: Rail[String]): void = {
         new InterfaceProp_MustFailCompile().execute();
     }
 }

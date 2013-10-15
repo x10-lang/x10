@@ -21,18 +21,18 @@ import harness.x10Test;
 
 public class Structs3q6l extends x10Test {
    public def run() : boolean = (new Hook()).run();
-   public static def main(var args: Array[String](1)): void = {
+   public static def main(args:Rail[String]):void {
         new Structs3q6l().execute();
     }
 
 
-// file Structs line 184
- static struct Horse(x:Int){
+// file Structs line 189
+ static struct Horse(x:Long){
   static def example(){
-    val aa : Array[Any](1) = ["an Object" as Any, "another one"];
+    val aa : Rail[Any] = ["a String" as Any, "another one"];
     aa(0) = Horse(8);
     aa(1) = 13;
-    val ah : Array[Horse](1) = [Horse(7), Horse(13)];
+    val ah : Rail[Horse] = [Horse(7), Horse(13)];
   }
 }
 

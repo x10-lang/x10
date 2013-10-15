@@ -21,15 +21,15 @@ import harness.x10Test;
 
 public class Vars10 extends x10Test {
    public def run() : boolean = (new Hook()).run();
-   public static def main(var args: Array[String](1)): void = {
+   public static def main(args:Rail[String]):void {
         new Vars10().execute();
     }
 
 
 // file Vars line 51
  static class Counter {
-  private var n : Int = 0;
-  public def bump() : Int {
+  private var n : Long = 0;
+  public def bump() : Long {
     val nxt = n+1;
     n = nxt;
     return nxt;

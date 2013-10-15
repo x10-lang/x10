@@ -21,12 +21,12 @@ import harness.x10Test;
 
 public class Types460 extends x10Test {
    public def run() : boolean = (new Hook()).run();
-   public static def main(var args: Array[String](1)): void = {
+   public static def main(args:Rail[String]):void {
         new Types460().execute();
     }
 
 
-// file Types line 2074
+// file Types line 2364
  static interface I1 {}
  static interface I2 {}
  static class A implements I1, I2 {}

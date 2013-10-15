@@ -161,9 +161,9 @@ final public class ULong extends java.lang.Number implements StructI, java.lang.
     public ULong $ampersand(java.lang.Object a, Type t) { return ULong.$box($value & ((ULong)a).$value); }
     public ULong $bar(java.lang.Object a, Type t) { return ULong.$box($value | ((ULong)a).$value); }
     public ULong $caret(java.lang.Object a, Type t) { return ULong.$box($value ^ ((ULong)a).$value); }
-    public ULong $left$G(int count) { return ULong.$box($value << count); }
-    public ULong $right$G(int count) { return ULong.$box($value >>> count); } // ULong is always unsigned
-    public ULong $unsigned_right$G(int count) { return ULong.$box($value >>> count); }
+    public ULong $left$G(long count) { return ULong.$box($value << count); }
+    public ULong $right$G(long count) { return ULong.$box($value >>> count); } // ULong is always unsigned
+    public ULong $unsigned_right$G(long count) { return ULong.$box($value >>> count); }
     // for X10PrettyPrinterVisitor.exposeSpecialDispatcherThroughSpecialInterface
     public long $ampersand$j(java.lang.Object a, Type t) { return $value & ((ULong)a).$value; }
     public long $bar$j(java.lang.Object a, Type t) { return $value | ((ULong)a).$value; }

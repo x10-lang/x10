@@ -9,6 +9,7 @@
  *  (C) Copyright IBM Corporation 2006-2010.
  */
 
+import x10.regionarray.*;
 
 /**
  * This is one of a series of programs showing how to express
@@ -24,12 +25,12 @@
  * ("MPI-style").</p>
  */
 public class HeatTransfer_v4 {
-    static val n = 3;
+    static val n = 3n;
     static val epsilon = 1.0e-5;
 
-    static val BigD = Dist.makeBlock((0..(n+1))*(0..(n+1)), 0);
-    static val D = BigD | (1..n)*(1..n);
-    static val LastRow = (0..0)*(1..n);
+    static val BigD = Dist.makeBlock(Region.make(0n..(n+1n), 0n..(n+1n)), 0n);
+    static val D = BigD | Region.make(1n..n, 1n..n);
+    static val LastRow = Region.make(0n..0n, 1n..n);
 
     val A = DistArray.make[Double](BigD,(p:Point)=>{ LastRow.contains(p) ? 1.0 : 0.0 });
 
@@ -85,7 +86,7 @@ public class HeatTransfer_v4 {
         }
     }
 
-    public static def main(Array[String]) {
+    public static def main(Rail[String]) {
         Console.OUT.println("HeatTransfer Tutorial example with n="+n+" and epsilon="+epsilon);
         Console.OUT.println("Initializing data structures");
         val s = new HeatTransfer_v4();

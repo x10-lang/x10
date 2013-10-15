@@ -1,3 +1,14 @@
+/*
+ *  This file is part of the X10 project (http://x10-lang.org).
+ *
+ *  This file is licensed to You under the Eclipse Public License (EPL);
+ *  You may not use this file except in compliance with the License.
+ *  You may obtain a copy of the License at
+ *      http://www.opensource.org/licenses/eclipse-1.0.php
+ *
+ *  (C) Copyright IBM Corporation 2006-2013.
+ */
+
 #ifndef X10RT_LOGICAL_H
 #define X10RT_LOGICAL_H
 
@@ -28,8 +39,6 @@
 enum x10rt_lgl_cat {
 /** A host on the network. */
   X10RT_LGL_HOST,
-/** An SPE within a CELL. */
-  X10RT_LGL_SPE,
 /** A CUDA-capable GPU. */
   X10RT_LGL_CUDA
 };
@@ -39,9 +48,25 @@ enum x10rt_lgl_cat {
 struct x10rt_lgl_cfg_accel {
     /** The kind of accelerator. */
     x10rt_lgl_cat cat;
-    /** The identity of the hardware within the system (e.g. device id, SPE id, etc.). */
+    /** The identity of the hardware within the system (e.g. device id, etc.). */
     unsigned index;
 };
+
+
+/** Get a detailed user-readable error about the fatal error that has rendered X10RT inoperable. 
+ * \returns Text describing the error, or NULL if no error has occured.
+ */
+X10RT_C const char *x10rt_lgl_error_msg (void);
+
+/** Partially initialize the X10RT API logical layer.
+ *
+ * \see #x10rt_preinit
+ *
+ * \param connInfoBuffer As in x10rt_preinit.
+ *
+ * \param connInfoBufferSize As in x10rt_preinit.
+ */
+X10RT_C x10rt_error x10rt_lgl_preinit (char* connInfoBuffer, int connInfoBufferSize);
 
 /** Initialize the X10RT API logical layer.  This versions uses the X10RT_ACCELS environment
  * variable.
@@ -55,7 +80,7 @@ struct x10rt_lgl_cfg_accel {
  * \param counter A counter that is used to find the next available message type for any internal
  * message types needed by the various backends.
 */
-X10RT_C void x10rt_lgl_init (int *argc, char ***argv, x10rt_msg_type *counter);
+X10RT_C x10rt_error x10rt_lgl_init (int *argc, char ***argv, x10rt_msg_type *counter);
 
 /** Initialize the X10RT API logical layer (alternate extended version).  This version configures
  * the accelerators using an explicit list instead of reading the X10RT_ACCELS environment variable.
@@ -73,8 +98,8 @@ X10RT_C void x10rt_lgl_init (int *argc, char ***argv, x10rt_msg_type *counter);
  * \param counter As in x10rt_lgl_init.
 */
 
-X10RT_C void x10rt_lgl_init_ex (int *argc, char ***argv, x10rt_lgl_cfg_accel *cfgv,
-                                x10rt_place cfgc, x10rt_msg_type *counter);
+X10RT_C x10rt_error x10rt_lgl_init_ex (int *argc, char ***argv, x10rt_lgl_cfg_accel *cfgv,
+                                       x10rt_place cfgc, x10rt_msg_type *counter);
 
 /** Register handlers for a plain message.
  *
@@ -170,6 +195,15 @@ x10rt_place x10rt_lgl_nplaces (void);
 /** \see #x10rt_nhosts */
 x10rt_place x10rt_lgl_nhosts (void);
 
+/** \see #x10rt_ndead */
+x10rt_place x10rt_lgl_ndead (void);
+
+/** \see #x10rt_is_place_dead */
+bool x10rt_lgl_is_place_dead (x10rt_place p);
+
+/** \see #x10rt_get_dead */
+x10rt_error x10rt_lgl_get_dead (x10rt_place *dead_places, x10rt_place len);
+
 /** \see #x10rt_here */
 x10rt_place x10rt_lgl_here (void);
 
@@ -222,10 +256,6 @@ X10RT_C void x10rt_lgl_send_get (x10rt_msg_params *p, void *buf, x10rt_copy_sz l
  */
 X10RT_C void x10rt_lgl_send_put (x10rt_msg_params *p, void *buf, x10rt_copy_sz len);
 
-X10RT_C void x10rt_lgl_get_stats (x10rt_stats *s);
-X10RT_C void x10rt_lgl_set_stats (x10rt_stats *s);
-X10RT_C void x10rt_lgl_zero_stats (x10rt_stats *s);
-
 
 /** \see #x10rt_remote_alloc
  * \param place As in x10rt_remote_alloc.
@@ -261,9 +291,8 @@ X10RT_C void x10rt_lgl_remote_ops (x10rt_remote_op_params *ops, size_t num_ops);
 /** \see #x10rt_register_mem
  * \param ptr As in #x10rt_register_mem
  * \param len As in #x10rt_register_mem
- * \returns As in #x10rt_register_mem
  */
-X10RT_C x10rt_remote_ptr x10rt_lgl_register_mem (void *ptr, size_t len);
+X10RT_C void x10rt_lgl_register_mem (void *ptr, size_t len);
 
 
 /** \see #x10rt_blocks_threads
@@ -279,12 +308,12 @@ X10RT_C void x10rt_lgl_blocks_threads (x10rt_place d, x10rt_msg_type type, int d
 
 /** Probe all the underlying backends. \see #x10rt_probe
  */
-X10RT_C void x10rt_lgl_probe (void);
+X10RT_C x10rt_error x10rt_lgl_probe (void);
 
 
 /** Probe all the underlying backends, blocking if nothing is available.  \see #x10rt_blocking_probe
  */
-X10RT_C void x10rt_lgl_blocking_probe (void);
+X10RT_C x10rt_error x10rt_lgl_blocking_probe (void);
 
 
 /** Clean up the logical layer.  Called by #x10rt_finalize.
@@ -382,6 +411,24 @@ X10RT_C void x10rt_lgl_alltoall (x10rt_team team, x10rt_place role,
                                  const void *sbuf, void *dbuf,
                                  size_t el, size_t count,
                                  x10rt_completion_handler *ch, void *arg);
+
+/** \see #x10rt_reduce
+ * \param team As in #x10rt_reduce
+ * \param role As in #x10rt_reduce
+ * \param root As in #x10rt_reduce
+ * \param sbuf As in #x10rt_reduce
+ * \param dbuf As in #x10rt_reduce
+ * \param el As in #x10rt_reduce
+ * \param count As in #x10rt_reduce
+ * \param ch As in #x10rt_reduce
+ * \param arg As in #x10rt_reduce
+ */
+X10RT_C void x10rt_lgl_reduce (x10rt_team team, x10rt_place role,
+                                x10rt_place root, const void *sbuf, void *dbuf,
+                                x10rt_red_op_type op,
+                                x10rt_red_type dtype,
+                                size_t count,
+                                x10rt_completion_handler *ch, void *arg);
 
 /** \see #x10rt_allreduce
  * \param team As in #x10rt_allreduce

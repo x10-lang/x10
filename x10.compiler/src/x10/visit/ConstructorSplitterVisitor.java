@@ -176,6 +176,8 @@ public class ConstructorSplitterVisitor extends ContextVisitor {
         assert null != ts;
         if (hasNativeAnnotation(type))
             return true;
+        if (type.toClass() != null && type.toClass().isJavaType()) return true;
+        // if (ts.isJavaArray(type)) return false; // MT this is questionable
         if (type instanceof ObjectType) {
             return inheritsUnsplittability(((ObjectType) type).superClass(), ts);
         }
@@ -189,7 +191,7 @@ public class ConstructorSplitterVisitor extends ContextVisitor {
      */
     public static boolean inheritsUnsplittability(Type type, TypeSystem ts) {
         if (null == type)
-            return false; // some non-Native ObjectClass's (x10.array.RectLayout for one) don't have a superClass ????
+            return false; // hit the top of the class hierarchy
 
         if (hasNativeAnnotation(type)) 
             return true;   // inheriting from any other native class is not

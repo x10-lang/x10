@@ -24,12 +24,12 @@ import harness.x10Test;
  */
 public class PropertyNotInvoked2_MustFailCompile extends x10Test {
 
-    static class Tester(i: int(2)) {
-        public def this(arg:int(2)):Tester{self.i==arg} { // ERR: property(...) might not have been called
-            if (arg == 2) {
+    static class Tester(i: int(2n)) {
+        public def this(arg:int(2n)):Tester{self.i==arg} { // ERR: property(...) might not have been called
+            if (arg == 2n) {
                 property(arg);
             } else {
-                i=2; // ERR: Must use property(...) to assign to a property.
+                i=2n; // ERR: Must use property(...) to assign to a property.
             }
         }
     }
@@ -38,7 +38,7 @@ public class PropertyNotInvoked2_MustFailCompile extends x10Test {
         return true;
     }
 
-    public static def main(var args: Array[String](1)): void = {
+    public static def main(var args: Rail[String]): void = {
         new PropertyNotInvoked2_MustFailCompile().execute();
     }
 }

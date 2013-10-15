@@ -20,11 +20,11 @@ import harness.x10Test;
 public class GenericInheritance01 extends GenericTest {
 
     interface I[T] {
-        def m(T):int;
+        def m(T):long;
     }
 
-    class A implements I[int] {
-        public def m(int) = 0;
+    class A implements I[long] {
+        public def m(long) = 0;
     }
 
     public def run() = {
@@ -35,7 +35,7 @@ public class GenericInheritance01 extends GenericTest {
         return result;
     }
 
-    public static def main(var args: Array[String](1)): void = {
+    public static def main(var args: Rail[String]): void = {
         new GenericInheritance01().execute();
     }
 }

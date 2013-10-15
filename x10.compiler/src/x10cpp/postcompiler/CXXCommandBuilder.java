@@ -108,7 +108,7 @@ public class CXXCommandBuilder {
 
     
     protected final boolean usingXLC() {
-        return defaultPostCompiler().contains("xlC");
+        return defaultPostCompiler().contains("xlC") || defaultPostCompiler().contains("mpCC");
     }
     
     protected final boolean bluegene() {
@@ -226,7 +226,9 @@ public class CXXCommandBuilder {
         cxxCmd.addAll(x10rt.libs);
 
         if (options.gpt) {
+            cxxCmd.add("-Wl,--no-as-needed");
             cxxCmd.add("-lprofiler");
+            cxxCmd.add("-Wl,--as-needed");
         }
         
         if (options.buildX10Lib != null) {
@@ -374,7 +376,7 @@ public class CXXCommandBuilder {
         	cbb = new Linux_CXXCommandBuilder();
         } else if (platform.startsWith("aix_")) {
         	cbb = new AIX_CXXCommandBuilder();
-        } else if (platform.startsWith("sunos_")) {
+        } else if (platform.startsWith("sunos")) {
         	cbb = new SunOS_CXXCommandBuilder();
         } else if (platform.startsWith("macosx_") || platform.startsWith("darwin")) {
         	cbb = new MacOSX_CXXCommandBuilder();

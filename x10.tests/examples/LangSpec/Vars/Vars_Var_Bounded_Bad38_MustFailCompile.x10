@@ -21,14 +21,14 @@ import harness.x10Test;
 
 public class Vars_Var_Bounded_Bad38_MustFailCompile extends x10Test {
    public def run() : boolean = (new Hook()).run();
-   public static def main(var args: Array[String](1)): void = {
+   public static def main(args:Rail[String]):void {
         new Vars_Var_Bounded_Bad38_MustFailCompile().execute();
     }
 
 
-// file Vars line 503
- static  class Tub(p:Int){
-   def this(pp:Int):Tub{self.p==pp} {property(pp);}
+// file Vars line 508
+ static  class Tub(p:Long){
+   def this(pp:Long):Tub{self.p==pp} {property(pp);}
    def example() {
      val t : Tub = new Tub(3);
    }
@@ -36,7 +36,7 @@ public class Vars_Var_Bounded_Bad38_MustFailCompile extends x10Test {
  static  class TubBounded{
  def example() {
    val t <: Tub = new Tub(3);
- val u <: Int = new Tub(3); // ERR
+ val u <: Long = new Tub(3); // ERR
 }}
 
  static class Hook {

@@ -3,5 +3,7 @@
 	<classpathentry excluding="x10/types/constraints/xnative/CNativeAtom.java" kind="src" path="src"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
 	<classpathentry kind="con" path="org.eclipse.pde.core.requiredPlugins"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/x10.constraints"/>
+	<classpathentry kind="lib" path="/x10.dist/lib/lpg.jar"/>
 	<classpathentry kind="output" path="classes"/>
 </classpath>

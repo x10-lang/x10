@@ -10,17 +10,19 @@
  */
 
 import harness.x10Test;
+import x10.regionarray.Dist;
+import x10.regionarray.Region;
 
 /**
  * Check that the dist.block method propagates region properties from arg to result
  */
 public class Block2 extends x10Test {
 	public def run(): boolean = {
-		var d: Dist(1) = Dist.makeBlock(0..1, 0);
+		var d: Dist(1) = Dist.makeBlock(Region.makeRectangular(0,1), 0);
 		return true;
 	}
 
-	public static def main(var args: Array[String](1)): void = {
+	public static def main(var args: Rail[String]): void = {
 		new Block2().execute();
 	}
 

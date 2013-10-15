@@ -21,12 +21,12 @@ import harness.x10Test;
 
 public class Classes10 extends x10Test {
    public def run() : boolean = (new Hook()).run();
-   public static def main(var args: Array[String](1)): void = {
+   public static def main(args:Rail[String]):void {
         new Classes10().execute();
     }
 
 
-// file Classes line 147
+// file Classes line 151
  static class Fld{
   val a = 1;
   val b = 2+a;

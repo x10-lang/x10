@@ -21,17 +21,17 @@ import x10.compiler.Native;
 
 public class extern70 extends x10Test {
    public def run() : boolean = (new Hook()).run();
-   public static def main(var args: Array[String](1)): void = {
+   public static def main(args:Rail[String]):void {
         new extern70().execute();
     }
 
 
-// file NativeCode line 149
+// file NativeCode line 163
  static class Born {
-  var y : Int = 1;
+  var y : Int = 1n;
   public def example(x:Int):Int{
     @Native("java", "y=x;")
-    {y = 3;}
+    {y = 3n;}
     return y;
   }
 }

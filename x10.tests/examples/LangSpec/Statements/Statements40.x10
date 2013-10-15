@@ -21,19 +21,19 @@ import harness.x10Test;
 
 public class Statements40 extends x10Test {
    public def run() : boolean = (new Hook()).run();
-   public static def main(var args: Array[String](1)): void = {
+   public static def main(args:Rail[String]):void {
         new Statements40().execute();
     }
 
 
-// file Statements line 269
+// file Statements line 268
  static class StmtEx {
   def this() {
      x10.io.Console.OUT.println("New StmtEx made");  }
   static def call() {
      x10.io.Console.OUT.println("call!");}
   def example() {
-     var a : Int = 0;
+     var a : Long = 0;
      a = 1; // assignment
      new StmtEx(); // allocation
      call(); // call

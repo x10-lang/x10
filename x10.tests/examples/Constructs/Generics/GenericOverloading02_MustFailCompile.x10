@@ -25,19 +25,19 @@ public class GenericOverloading02_MustFailCompile extends GenericTest {
 
     class A[T] {
         def m(T) = 0;
-        def m(int) = 1;
+        def m(long) = 1;
     }
 	def test1(a:A[String]) {
-		val x:Int{self==0} = a.m("a");
-		val y:Int{self==1} = a.m(2);
+		val x:long{self==0} = a.m("a");
+		val y:long{self==1} = a.m(2);
 	}
-	def test2(a:A[Int]) {
+	def test2(a:A[Long]) {
 		a.m(2); // ERR
 	}
 
     public def run(): boolean = true;
 
-    public static def main(var args: Array[String](1)): void = {
+    public static def main(var args: Rail[String]): void = {
         new GenericOverloading02_MustFailCompile().execute();
     }
 }

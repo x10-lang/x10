@@ -3,7 +3,6 @@ verbose=""
 extra_cp=""
 x10_args=""
 args=""
-extra_preload=""
 java_main=""
 
 parse=true
@@ -27,11 +26,6 @@ while [ -n "${1}" ]; do
             ;;
         -preload)
             shift
-            if [ -z "${extra_preload}" ] ; then
-                extra_preload="${1}"
-            else
-                extra_preload="${extra_preload}${PATH_SEP}${1}"
-            fi
             ;;
         --) parse=;;
         -*) x10_args="${x10_args} '${1}'";;
@@ -47,7 +41,7 @@ if [ -n "$help" -o -z "${args}" ]; then
     cat << EOF
 Usage: runjava [options] <java-main-class> [arg0 arg1 ...]
 where [options] includes all x10 options, and:
-    -preload <class>         class to be preloaded
+    -preload <class>         class to be preloaded (ignored)
 EOF
     exit 1
 fi

@@ -16,11 +16,11 @@ package x10.parser;
 
 public interface X10Parsersym {
     public final static int
-      TK_IntegerLiteral = 22,
+      TK_IntLiteral = 22,
       TK_LongLiteral = 23,
       TK_ByteLiteral = 24,
       TK_ShortLiteral = 25,
-      TK_UnsignedIntegerLiteral = 26,
+      TK_UnsignedIntLiteral = 26,
       TK_UnsignedLongLiteral = 27,
       TK_UnsignedByteLiteral = 28,
       TK_UnsignedShortLiteral = 29,
@@ -192,11 +192,11 @@ public interface X10Parsersym {
                  "this",
                  "new",
                  "super",
-                 "IntegerLiteral",
+                 "IntLiteral",
                  "LongLiteral",
                  "ByteLiteral",
                  "ShortLiteral",
-                 "UnsignedIntegerLiteral",
+                 "UnsignedIntLiteral",
                  "UnsignedLongLiteral",
                  "UnsignedByteLiteral",
                  "UnsignedShortLiteral",

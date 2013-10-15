@@ -9,6 +9,7 @@
  *  (C) Copyright IBM Corporation 2006-2010.
  */
 
+import x10.regionarray.*;
 
 /**
  * This is one of a series of programs showing how to express
@@ -27,9 +28,9 @@ public class HeatTransfer_v0 {
     static val n = 3;
     static val epsilon = 1.0e-5;
 
-    static val BigD = (0..(n+1))*(0..(n+1));
-    static val D = (1..n)*(1..n);
-    static val LastRow = (0..0)*(1..n);
+    static val BigD = Region.make(0..(n+1), 0..(n+1));
+    static val D = Region.make(1..n, 1..n);
+    static val LastRow = Region.make(0..0, 1..n);
     static val A = new Array[Double](BigD,(p:Point)=>{ LastRow.contains(p) ? 1.0 : 0.0 });
     static val Temp = new Array[Double](BigD,(p:Point(BigD.rank))=>{ A(p) });
 
@@ -63,7 +64,7 @@ public class HeatTransfer_v0 {
         }
     }
 
-    public static def main(Array[String]) {
+    public static def main(Rail[String]) {
         Console.OUT.println("HeatTransfer Tutorial example with n="+n+" and epsilon="+epsilon);
         Console.OUT.println("Initializing data structures");
         val s = new HeatTransfer_v0();

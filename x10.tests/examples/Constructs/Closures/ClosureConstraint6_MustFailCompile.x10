@@ -18,19 +18,19 @@ import harness.x10Test;
  * @author bdlucas 8/2008
  */
 
-public class ClosureConstraint6_MustFailCompile extends ClosureTest {
+public class ClosureConstraint6_MustFailCompile extends x10Test {
 
     public def run(): boolean = {
         
         // not allowed
         val f:Any =
-            (var x:int){x==1} => x; // ERR
+            (var x:long){x==1} => x; // ERR
 
-        return result;
+        return true;
     }
 
 
-    public static def main(var args: Array[String](1)): void = {
+    public static def main(var args: Rail[String]): void = {
         new ClosureConstraint6_MustFailCompile().execute();
     }
 }

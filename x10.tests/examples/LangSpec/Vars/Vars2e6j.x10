@@ -17,19 +17,19 @@
 
 import harness.x10Test;
 
-
+ import x10.regionarray.*;
 
 public class Vars2e6j extends x10Test {
    public def run() : boolean = (new Hook()).run();
-   public static def main(var args: Array[String](1)): void = {
+   public static def main(args:Rail[String]):void {
         new Vars2e6j().execute();
     }
 
 
-// file Vars line 391
+// file Vars line 395
  static class Example {
 static def example1(x[a,b,c]:Point){}
-static def example2(x[a,b,c]:Array[String]{rank==1,size==3}){}
+static def example2(x[a,b,c]:Array[String]{rank==1,size==3L}){}
 }
 
  static class Hook {

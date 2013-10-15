@@ -1,4 +1,4 @@
-/* Current test harness gets confused by packages, but it would be in package genexpsome_Arrays65;
+/* Current test harness gets confused by packages, but it would be in package genexpsome_Arrays71;
 */
 // Warning: This file is auto-generated from the TeX source of the language spec.
 // If you need it changed, work with the specification writers.
@@ -17,18 +17,17 @@
 
 import harness.x10Test;
 
-
+import x10.regionarray.*;
 
 public class Arrays500 extends x10Test {
    public def run() : boolean = (new Hook()).run();
-   public static def main(var args: Array[String](1)): void = {
+   public static def main(args:Rail[String]):void {
         new Arrays500().execute();
     }
 
 
-// file Arrays line 802
-
- static class Arrays65GenexpTest{
+// file Arrays line 1084
+ static class Arrays71GenexpTest{
   def check[T](f:(T,T)=>T, a : Array[T], unit:T)  = a.reduce(f, unit);  }
 
  static class Hook {

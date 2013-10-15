@@ -21,21 +21,21 @@ import harness.x10Test;
 
 public class Functions6w6w extends x10Test {
    public def run() : boolean = (new Hook()).run();
-   public static def main(var args: Array[String](1)): void = {
+   public static def main(args:Rail[String]):void {
         new Functions6w6w().execute();
     }
 
 
-// file Functions line 127
- static class Funny implements (Boolean) => Int,
-                       (Int, Int) => Int
+// file Functions line 128
+ static class Funny implements (Boolean) => Long,
+                       (Long, Long) => Long
 {
   public operator this(Boolean) = 1;
-  public operator this(x:Int, y:Int) = 10*x+y;
+  public operator this(x:Long, y:Long) = 10*x+y;
   static def example() {
     val f <: Funny  = new Funny();
-    assert f(true) == 1; // (Boolean)=>Int behavior
-    assert f(1,2) == 12; // (Int,Int)=>Int behavior
+    assert f(true) == 1; // (Boolean)=>Long behavior
+    assert f(1,2) == 12; // (Long,Long)=>Long behavior
   }
 }
  static  class Hook{ def run() { Funny.example(); return true; }}

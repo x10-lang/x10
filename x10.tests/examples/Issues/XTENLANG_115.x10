@@ -27,7 +27,7 @@ class XTENLANG_115 extends x10Test {
         return a.size()==z;
     }
 
-    public static def main(Array[String](1)) {
+    public static def main(Rail[String]) {
         new XTENLANG_115().execute();
     }
 }

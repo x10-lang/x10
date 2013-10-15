@@ -14,7 +14,7 @@ package x10.lang;
 import x10.compiler.Native;
 import x10.compiler.NativeRep;
 import x10.util.Ordered;
-import x10.util.ArrayList;
+import x10.util.GrowableRail;
 
 /**
  * The String class represents character strings.
@@ -31,7 +31,7 @@ import x10.util.ArrayList;
  */
 @NativeRep("java", "java.lang.String", null, "x10.rtt.Types.STRING")
 @NativeRep("c++", "x10::lang::String*", "x10::lang::String", null)
-public final class String implements Comparable[String] {
+public final class String implements Comparable[String], CharSequence {
 
     /**
      * Default constructor.
@@ -44,28 +44,30 @@ public final class String implements Comparable[String] {
     public native def this(String): String;
 
     /**
-     * Construct a String from an Array[Byte].
+     * Construct a String from a Rail[Byte].
      */
-    @Native("java", "new java.lang.String((#r).raw().getByteArray())")
-    public native def this(r:Array[Byte]): String;
+    @Native("java", "new java.lang.String((#r).getByteArray())")
+    public native def this(r:Rail[Byte]): String;
 
     /**
-     * Construct a String from an Array[Byte], offset and length.
+     * Construct a String from a Rail[Byte], offset and length.
+     * LONG_RAIL: unsafe int cast
      */
-    @Native("java", "new java.lang.String((#r).raw().getByteArray(),#offset,#length)")
-    public native def this(r:Array[Byte], offset:Int, length:Int): String;
+    @Native("java", "new java.lang.String((#r).getByteArray(),(int)#offset,(int)#length)")
+    public native def this(r:Rail[Byte], offset:Long, length:Long): String;
 
     /**
-     * Construct a String from an Array[Char].
+     * Construct a String from a Rail[Char].
      */
-    @Native("java", "new java.lang.String((#r).raw().getCharArray())")
-    public native def this(r:Array[Char]): String;
+    @Native("java", "new java.lang.String((#r).getCharArray())")
+    public native def this(r:Rail[Char]): String;
 
     /**
-     * Construct a String from an Array[Char], offset and length.
+     * Construct a String from a Rail[Char], offset and length.
+     * LONG_RAIL: unsafe int cast
      */
-    @Native("java", "new java.lang.String((#r).raw().getCharArray(),#offset,#length)")
-    public native def this(r:Array[Char], offset:Int, length:Int): String;
+    @Native("java", "new java.lang.String((#r).getCharArray(),(int)#offset,(int)#length)")
+    public native def this(r:Rail[Char], offset:Long, length:Long): String;
 
     /**
      * Return true if the given entity is a String, and this String is equal
@@ -84,7 +86,6 @@ public final class String implements Comparable[String] {
      * @return true if this String is equal to the given String ignoring case.
      */
     @Native("java", "(#this).equalsIgnoreCase(#that)")
-    @Native("c++", "(#this)->equalsIgnoreCase(#that)")
     public native def equalsIgnoreCase(that:String): boolean;
 
     /**
@@ -108,7 +109,6 @@ public final class String implements Comparable[String] {
      * @return the String itself.
      */
     @Native("java", "(#this).toString()")
-    @Native("c++", "x10aux::to_string(#this)")
     public native def toString(): String;
 
 
@@ -117,7 +117,6 @@ public final class String implements Comparable[String] {
      * @return the length of this String.
      */
     @Native("java", "(#this).length()")
-    @Native("c++", "(#this)->length()")
     public native def length(): Int;
 
     /**
@@ -139,27 +138,31 @@ public final class String implements Comparable[String] {
      * @see #operator(Int)
      */
     @Native("java", "(#this).charAt(#index)")
-    @Native("c++", "(#this)->charAt(#index)")
     public native def charAt(index: Int): Char;
 
     /**
-     * Converts this String to an Array of Chars.
-     * @return an Array of Chars whose length is the length of this String and
+     * Converts this String to a Rail of Chars.
+     * @return a Rail of Chars whose length is the length of this String and
      *         whose contents are initialized to contain the Chars in this String.
      * @see #bytes()
      */
-    @Native("java", "x10.runtime.impl.java.ArrayUtils.<x10.core.Char>makeArrayFromJavaArray(x10.rtt.Types.CHAR, (#this).toCharArray())")
-    @Native("c++", "(#this)->chars()")
+    @Native("java", "x10.runtime.impl.java.ArrayUtils.<x10.core.Char>makeRailFromJavaArray(x10.rtt.Types.CHAR, (#this).toCharArray(), false)")
     public native def chars():Rail[Char];
 
     /**
      * Encodes this String into a sequence of Bytes using the platform's default charset.
-     * @return the Array of Bytes representing this String in the default charset.
+     * @return the Rail of Bytes representing this String in the default charset.
      * @see #chars()
      */
-    @Native("java", "x10.runtime.impl.java.ArrayUtils.<x10.core.Byte>makeArrayFromJavaArray(x10.rtt.Types.BYTE, (#this).getBytes())")
-    @Native("c++", "(#this)->bytes()")
+    @Native("java", "x10.runtime.impl.java.ArrayUtils.<x10.core.Byte>makeRailFromJavaArray(x10.rtt.Types.BYTE, (#this).getBytes(), false)")
     public native def bytes():Rail[Byte];
+
+    /**
+     * Has the same result as substring, but is present so that String may implement CharSequence.
+     * @see #substring(Int,Int)
+     */
+    @Native("java", "(#this).substring(#fromIndex, #toIndex)")
+    public native def subSequence(fromIndex: Int, toIndex: Int): CharSequence;
 
     /**
      * Returns a new String that is a substring of this String.
@@ -170,7 +173,6 @@ public final class String implements Comparable[String] {
      * @return the specified substring.
      */
     @Native("java", "(#this).substring(#fromIndex, #toIndex)")
-    @Native("c++", "(#this)->substring(#fromIndex, #toIndex)")
     public native def substring(fromIndex: Int, toIndex: Int): String;
 
     /**
@@ -181,7 +183,6 @@ public final class String implements Comparable[String] {
      * @return the specified substring.
      */
     @Native("java", "(#this).substring(#fromIndex)")
-    @Native("c++", "(#this)->substring(#fromIndex)")
     public native def substring(fromIndex: Int): String;
 
     /**
@@ -200,7 +201,6 @@ public final class String implements Comparable[String] {
      * @see #lastIndexOf(Char)
      */
     @Native("java", "(#this).indexOf(#ch)")
-    @Native("c++", "(#this)->indexOf(#ch)")
     public native def indexOf(ch: Char): Int;
 
     /**
@@ -222,7 +222,6 @@ public final class String implements Comparable[String] {
      * @see #lastIndexOf(Char,Int)
      */
     @Native("java", "(#this).indexOf(#ch, #i)")
-    @Native("c++", "(#this)->indexOf(#ch, #i)")
     public native def indexOf(ch: Char, i: Int): Int;
 
     /**
@@ -241,7 +240,6 @@ public final class String implements Comparable[String] {
      * @see #lastIndexOf(String)
      */
     @Native("java", "(#this).indexOf(#str)")
-    @Native("c++", "(#this)->indexOf(#str)")
     public native def indexOf(str: String): Int;
 
     /**
@@ -262,7 +260,6 @@ public final class String implements Comparable[String] {
      * @see #lastIndexOf(String,Int)
      */
     @Native("java", "(#this).indexOf(#str, #i)")
-    @Native("c++", "(#this)->indexOf(#str, #i)")
     public native def indexOf(str: String, i: Int): Int;
 
     /**
@@ -282,7 +279,6 @@ public final class String implements Comparable[String] {
      * @see #indexOf(Char)
      */
     @Native("java", "(#this).lastIndexOf(#ch)")
-    @Native("c++", "(#this)->lastIndexOf(#ch)")
     public native def lastIndexOf(ch: Char): Int;
 
     /**
@@ -305,7 +301,6 @@ public final class String implements Comparable[String] {
      * @see #indexOf(Char,Int)
      */
     @Native("java", "(#this).lastIndexOf(#ch, #i)")
-    @Native("c++", "(#this)->lastIndexOf(#ch, #i)")
     public native def lastIndexOf(ch: Char, i: Int): Int;
 
     /**
@@ -326,7 +321,6 @@ public final class String implements Comparable[String] {
      * @see #indexOf(String)
      */
     @Native("java", "(#this).lastIndexOf(#str)")
-    @Native("c++", "(#this)->lastIndexOf(#str)")
     public native def lastIndexOf(str: String): Int;
 
     /**
@@ -349,7 +343,6 @@ public final class String implements Comparable[String] {
      * @see #indexOf(String,Int)
      */
     @Native("java", "(#this).lastIndexOf(#str, #i)")
-    @Native("c++", "(#this)->lastIndexOf(#str, #i)")
     public native def lastIndexOf(str: String, i: Int): Int;
 
 
@@ -358,10 +351,10 @@ public final class String implements Comparable[String] {
      * unlike in Java the splitting String is treated as a simple String
      * to be matched character by character (as in indexOf), not as 
      * a regular expression.
-     * Trailing empty strings are not included in the resulting Array.
+     * Trailing empty strings are not included in the resulting Rail.
      *
      * @param split the String to use as a delimiter.
-     * @return the Array of Strings computed by splitting this String around matches of the delimiter.
+     * @return the Rail of Strings computed by splitting this String around matches of the delimiter.
      */
     @Native("java", "x10.lang.StringHelper.split(#regex, #this)")
     @Native("c++", "x10::lang::StringHelper::split(#regex, #this)")
@@ -373,7 +366,6 @@ public final class String implements Comparable[String] {
      * @return The new string with no leading/trailing whitespace.
      */
     @Native("java", "(#this).trim()")
-    @Native("c++", "(#this)->trim()")
     public native def trim(): String;
 
 
@@ -398,9 +390,9 @@ public final class String implements Comparable[String] {
      * @param args the arguments referenced by the format specifiers in the format string.
      * @return a formatted string.
      */
-    @Native("java", "x10.runtime.impl.java.StringUtils.format(#fmt,(java.lang.Object[]) (#args).raw().value)")
+    @Native("java", "x10.runtime.impl.java.StringUtils.format(#fmt,(java.lang.Object[]) (#args).value)")
     @Native("c++", "x10::lang::String::format(#fmt,#args)")
-    public native static def format(fmt: String, args:Array[Any]): String;
+    public native static def format(fmt: String, args:Rail[Any]): String;
 
 
     // FIXME: Locale sensitivity
@@ -409,7 +401,6 @@ public final class String implements Comparable[String] {
      * @return this String, converted to lowercase.
      */
     @Native("java", "(#this).toLowerCase()")
-    @Native("c++", "(#this)->toLowerCase()")
     public native def toLowerCase(): String;
 
     // FIXME: Locale sensitivity
@@ -418,7 +409,6 @@ public final class String implements Comparable[String] {
      * @return this String, converted to uppercase.
      */
     @Native("java", "(#this).toUpperCase()")
-    @Native("c++", "(#this)->toUpperCase()")
     public native def toUpperCase(): String;
 
 
@@ -441,7 +431,6 @@ public final class String implements Comparable[String] {
      * @return 0 if the argument String is equal to this String; a negative Int if this String is lexicographically less than the argument String; and a positive Int if this String is lexicographically greater than the argument String.
      */
     @Native("java", "(#this).compareTo(#arg)")
-    @Native("c++", "(#this)->compareTo(#arg)")
     public native def compareTo(arg: String): Int;
 
     // FIXME: Locale sensitivity
@@ -454,7 +443,6 @@ public final class String implements Comparable[String] {
      * @return a negative Int, zero, or a positive Int as the argument String is greater than, equal to, or less than this String, ignoring case considerations.
      */
     @Native("java", "(#this).compareToIgnoreCase(#arg)")
-    @Native("c++", "(#this)->compareToIgnoreCase(#arg)")
     public native def compareToIgnoreCase(arg: String): Int;
 
     /**
@@ -464,7 +452,6 @@ public final class String implements Comparable[String] {
      *         The method returns false otherwise.
      */
     @Native("java", "(#this).startsWith(#arg)")
-    @Native("c++", "(#this)->startsWith(#arg)")
     public native def startsWith(arg: String): Boolean;
 
     /**
@@ -474,7 +461,6 @@ public final class String implements Comparable[String] {
      *         The method returns false otherwise.
      */
     @Native("java", "(#this).endsWith(#arg)")
-    @Native("c++", "(#this)->endsWith(#arg)")
     public native def endsWith(arg: String): Boolean;
 
     // FIXME: Locale sensitivity
@@ -498,7 +484,7 @@ public final class String implements Comparable[String] {
      * @return true if this String is strictly after the other String.
      */
     @Native("java", "((#this).compareTo(#x) > 0)")
-    @Native("c++",  "((#this)->compareTo(#x) > 0)")
+    @Native("c++",  "(x10aux::nullCheck(#this)->compareTo(#x) > 0)")
     public native operator this > (x:String): Boolean;
 
     // FIXME: Locale sensitivity
@@ -510,7 +496,7 @@ public final class String implements Comparable[String] {
      * @return true if this String is before or equal to the other String.
      */
     @Native("java", "((#this).compareTo(#x) <= 0)")
-    @Native("c++",  "((#this)->compareTo(#x) <= 0)")
+    @Native("c++",  "(x10aux::nullCheck(#this)->compareTo(#x) <= 0)")
     public native operator this <= (x:String): Boolean;
 
     // FIXME: Locale sensitivity
@@ -522,7 +508,7 @@ public final class String implements Comparable[String] {
      * @return true if this String is after or equal to the other String.
      */
     @Native("java", "((#this).compareTo(#x) >= 0)")
-    @Native("c++",  "((#this)->compareTo(#x) >= 0)")
+    @Native("c++",  "(x10aux::nullCheck(#this)->compareTo(#x) >= 0)")
     public native operator this >= (x:String): Boolean;
 
     /**
@@ -566,12 +552,12 @@ public type String(s:String) = String{self==s};
 class StringHelper {
     static def split(delim:String, str:String):Rail[String] {
         if (delim.equals("")) {
-            return new Rail[String](str.length(), (i:int)=>str.substring(i, i+1));
+            return new Rail[String](str.length(), (i:long)=>str.substring(i as int, (i+1) as int));
         }
-        val ans = new ArrayList[String]();
-        var pos:int = 0;
+        val ans = new GrowableRail[String]();
+        var pos:int = 0n;
         var nextMatch:int = str.indexOf(delim, pos);
-        while (nextMatch != -1) {
+        while (nextMatch != -1n) {
           ans.add(str.substring(pos, nextMatch));
           pos = nextMatch+delim.length();
           nextMatch = str.indexOf(delim, pos);
@@ -579,6 +565,6 @@ class StringHelper {
         if (pos < str.length()) {
             ans.add(str.substring(pos, str.length()));
         }
-        return ans.toArray();
+        return ans.toRail();
     }
 }

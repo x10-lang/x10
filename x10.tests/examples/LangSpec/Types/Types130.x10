@@ -21,20 +21,29 @@ import harness.x10Test;
 
 public class Types130 extends x10Test {
    public def run() : boolean = (new Hook()).run();
-   public static def main(var args: Array[String](1)): void = {
+   public static def main(args:Rail[String]):void {
         new Types130().execute();
     }
 
 
-// file Types line 413
+// file Types line 606
  static interface Named {
   def name():String;
 }
  static interface Mobile {
-  def move(howFar:Int):void;
+  def where():Long;
+  def move(howFar:Long):void;
 }
- static interface Person extends Named, Mobile {}
  static interface NamedPoint extends Named, Mobile {}
+ static class Person implements Named, Mobile {
+   var name:String; var pos: Long;
+   public def name() = this.name;
+   public def move(howFar:Long) { pos += howFar; }
+   public def where() = this.pos;
+   public def example(putAt:Mobile) {
+      this.pos = putAt.where();
+   }
+}
 
  static class Hook {
    def run():Boolean = true;

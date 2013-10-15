@@ -21,15 +21,15 @@ import harness.x10Test;
 
 public class Classes5q6q extends x10Test {
    public def run() : boolean = (new Hook()).run();
-   public static def main(var args: Array[String](1)): void = {
+   public static def main(args:Rail[String]):void {
         new Classes5q6q().execute();
     }
 
 
-// file Classes line 1159
+// file Classes line 1290
  static class Ctors {
-  public val a : Int;
-  def this(a:Int) { this.a = a; }
+  public val a : Long;
+  def this(a:Long) { this.a = a; }
   def this()      { this(100);  }
 }
  static class Hook{ def run() {

@@ -10,11 +10,11 @@
  */
 
 import harness.x10Test;
+import x10.regionarray.*;
 
 /**
  * @author bdlucas
  */
-
 public class PlaceCheckArray extends x10Test {
 
 
@@ -46,7 +46,7 @@ public class PlaceCheckArray extends x10Test {
         return run01() && run02();
     }
 
-    public static def main(Array[String](1)) {
+    public static def main(Rail[String]) {
         new PlaceCheckArray().execute();
     }
 }

@@ -17,13 +17,13 @@ import harness.x10Test;
  */
 public class ClockTest3a extends x10Test {
 
-	var value: int = 0;
-	static val N: int = 32;
+	var value: long = 0;
+	static val N: long = 32;
 
 	public def run(): boolean = {
 		clocked finish {
 
-			for  ([i] in 0..(N-1)) clocked async {
+			for  (i in 0..(N-1)) clocked async {
 				clocked async  finish async { atomic value++; }
 				Clock.advanceAll();
 				if (value != N) {
@@ -41,7 +41,7 @@ public class ClockTest3a extends x10Test {
 		return true;
 }
 
-public static def main(Array[String](1)) {
+public static def main(Rail[String]) {
 	new ClockTest3a().executeAsync();
 }
 }

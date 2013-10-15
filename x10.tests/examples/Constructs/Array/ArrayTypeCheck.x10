@@ -10,6 +10,7 @@
  */
 
 import harness.x10Test;
+import x10.regionarray.*;
 
 /**
  * Array operations and points must be type checked.
@@ -21,11 +22,11 @@ public class ArrayTypeCheck extends x10Test {
 
     public def run(): boolean = {
 
-        var a1: DistArray[int] = DistArray.make[int](Dist.makeConstant((0..2)*(0..3), here), (var p[i,j]: Point): int => { return i; });
+        var a1: DistArray[int] = DistArray.make[int](Dist.makeConstant(Region.make(0..2, 0..3), here), (var p[i,j]: Point): int => { return i as int; });
 
         x10.io.Console.OUT.println("1");
 
-        val E: Dist = Dist.makeConstant(-1..-2, here);
+        val E: Dist = Dist.makeConstant(Region.make(-1, -2), here);
 
         try {
             x10.io.Console.OUT.println("a1.dist " + a1.dist);
@@ -47,9 +48,9 @@ public class ArrayTypeCheck extends x10Test {
             x10.io.Console.OUT.println("3");
         }
         
-        var i: int = 1;
-        var j: int = 2;
-        var k: int = 0;
+        var i: int = 1n;
+        var j: int = 2n;
+        var k: int = 0n;
         val p = [i, j, k] as Point;
         val q = [i, j] as Point;
         val r = [i] as Point;
@@ -59,7 +60,7 @@ public class ArrayTypeCheck extends x10Test {
         return true;
     }
 
-    public static def main(var args: Array[String](1)): void = {
+    public static def main(var args: Rail[String]): void = {
         new ArrayTypeCheck().execute();
     }
 }

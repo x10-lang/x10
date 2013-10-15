@@ -466,7 +466,7 @@ public class X10ClassDef_c extends ClassDef_c implements X10ClassDef {
         for (ConstructorDef cd: constructors()) {
             if (cd.formalTypes().size() == 1) {
                 Type type = cd.formalTypes().get(0).get();
-                if (type.isSubtype(type.typeSystem().SerialData(), context)) {
+                if (type.isSubtype(type.typeSystem().Deserializer(), context)) {
                     return true;
                 }
             }

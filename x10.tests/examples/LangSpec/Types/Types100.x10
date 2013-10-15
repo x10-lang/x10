@@ -21,16 +21,22 @@ import harness.x10Test;
 
 public class Types100 extends x10Test {
    public def run() : boolean = (new Hook()).run();
-   public static def main(var args: Array[String](1)): void = {
+   public static def main(args:Rail[String]):void {
         new Types100().execute();
     }
 
 
-// file Types line 263
- static class Position {
-  private var x : Int = 0;
-  public def move(dx:Int) { x += dx; }
-  public def pos() : Int = x;
+// file Types line 520
+ static interface Poser {
+  def pos():Long;
+  }
+ static class Position implements Poser {
+  private var x : Long = 0;
+  public def move(dx:Long) { x += dx; }
+  public def pos() : Long = x;
+  static def example() {
+    var p : Position;
+  }
 }
 
  static class Hook {

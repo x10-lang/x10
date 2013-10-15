@@ -21,17 +21,17 @@ import harness.x10Test;
 
 public class Classes7h2f extends x10Test {
    public def run() : boolean = (new Hook()).run();
-   public static def main(var args: Array[String](1)): void = {
+   public static def main(args:Rail[String]):void {
         new Classes7h2f().execute();
     }
 
 
-// file Classes line 376
- static class Proper(a:Int, b:String) {
-  def this(a:Int, b:String) {
+// file Classes line 397
+ static class Proper(a:Long, b:String) {
+  def this(a:Long, b:String) {
       property(a, b);
   }
-  def this(z:Int) {
+  def this(z:Long) {
       val theA = z+5;
       val theB = "X"+z;
       property(theA, theB);

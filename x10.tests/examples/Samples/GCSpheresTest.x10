@@ -16,7 +16,7 @@ public class GCSpheresTest extends x10Test {
          return GCSpheres.compute();
     }
 
-    public static def main(args:Array[String](1)) {
+    public static def main(args:Rail[String]) {
 	new GCSpheresTest().execute();
     }
 }

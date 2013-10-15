@@ -2,41 +2,36 @@
  *  This file is part of the X10 Applications project.
  * 
  *  (C) Copyright IBM Corporation 2011.
+ *  (C) Copyright Australian National University 2013.
  */
 
-import x10.io.Console;
-
 import x10.matrix.Matrix;
+import x10.matrix.Vector;
 import x10.matrix.DenseMatrix;
 import x10.matrix.blas.DenseMatrixBLAS;
 import x10.matrix.MatrixMultXTen;
 import x10.matrix.DenseMultXTen;
+import x10.matrix.MathTool;
 import x10.matrix.VerifyTools;
 
 /**
  * This class contains test cases for dense matrix multiplication.
- * <p>
- * 
- * <p>
  */
-
 public class TestMultDense{
-	public static def main(args:Array[String](1)) {
+	public static def main(args:Rail[String]) {
 		val testcase = new MultiplyTest(args);
 		testcase.run();
 	}
-	static 
-	class MultiplyTest {
+
+	static class MultiplyTest {
+		public val M:Long;
+		public val N:Long;
+		public val K:Long;
 		
-		public val M:Int;
-		public val N:Int;
-		public val K:Int;
-		
-		public def this(args:Array[String](1)) {
-			M = args.size > 0 ?Int.parse(args(0)):50;
-			N = args.size > 1 ?Int.parse(args(1)):M+1;
-			K = args.size > 2 ?Int.parse(args(2)):M+2;
-			
+		public def this(args:Rail[String]) {
+			M = args.size > 0 ?Long.parse(args(0)):50;
+			N = args.size > 1 ?Long.parse(args(1)):(M as Int)+1;
+			K = args.size > 2 ?Long.parse(args(2)):(M as Int)+2;
 		}
 		
 		public def run(): void {
@@ -47,8 +42,12 @@ public class TestMultDense{
 			ret &= (testSubMultDist());
 			ret &= (testMatrixMult());
 			ret &= (testDenseMult());
+			ret &= (testDenseMultOffset());
 			ret &= (testBlasMult());
 			ret &= (testMultDrivers());
+			ret &= (testMatMultVector());
+			ret &= (testSymRankKUpdate());
+			ret &= (testSymRankKUpdateOffset());
 			//ret &= (mm.testSmallMult());
 			
 			if (ret)
@@ -56,8 +55,8 @@ public class TestMultDense{
 			else
 				Console.OUT.println("--------Dense matrix multiply Test failed!--------");
 		}
-		//------------------------------------------------
-		//------------------------------------------------
+
+
 		public def testMultAssociative():Boolean {
 			Console.OUT.printf("\nTest Dense matrix multiply associative: %dx%d * %dx%d * %dx%d\n",
 					M, K, K, N, N, M);
@@ -73,7 +72,6 @@ public class TestMultDense{
 			
 			val ret = d1.equals(d);
 			Console.OUT.printf("Result matrix: %dx%d\n", d.M, d.N);
-			//dc.print("Dense a*b=\n");
 			if (ret)
 				Console.OUT.println("Dense matrix multiply associative test passed!");
 			else
@@ -90,7 +88,6 @@ public class TestMultDense{
 			val d = (a + b) % c;
 			val d1= a % c + b % c;
 			val ret = d1.equals(d);
-			//dc.print("Dense a*b=\n");
 			if (ret)
 				Console.OUT.println("Dense matrix (a+b)*c = a*c+b*c test passed!");
 			else
@@ -134,8 +131,7 @@ public class TestMultDense{
 				Console.OUT.println("-----Matrix base X10 multply driver test failed!-----");
 			return ret;
 		}
-		
-		
+
 		public def testDenseMult():Boolean {
 			Console.OUT.printf("\nTest X10 dense multiplication driver: (%dx%d) * (%dx%d)\n",
 					M, K, K, N);
@@ -150,6 +146,37 @@ public class TestMultDense{
 				Console.OUT.println("Dense matrix X10 multiply driver test passed!");
 			else
 				Console.OUT.println("-----Dense matrix X10 multiply driver test failed!-----");
+			return ret;
+		}
+
+		public def testDenseMultOffset():Boolean {
+			Console.OUT.printf("\nTest X10 dense multiplication with offsets driver: (%dx%d) * (%dx%d)\n",
+					M, K, K, N);
+			val a:DenseMatrix(M,K) = DenseMatrix.makeRand(M, K);
+			val b:DenseMatrix(K,N) = DenseMatrix.makeRand(K, N);
+			val c:DenseMatrix(a.M,b.N) = DenseMultXTen.comp(a, b);
+			
+			val offsetM = M / 3;
+            val offsetN = N / 3;
+
+            val partC = new DenseMatrix(M, N);
+            DenseMatrixBLAS.comp(a, b, partC, [M - offsetM, N - offsetN, K], [offsetM, 0, 0, offsetN, offsetM, offsetN], false);
+
+            var ret:Boolean = true;
+            for (m in offsetM..(M-1)) {
+                for (n in offsetN..(N-1)) {
+                    val same = MathTool.equals(c(m,n), partC(m,n));
+                    if (!same) {
+                        Console.OUT.println("c("+m+","+n+") = " + c(m,n) + " != partC("+m+","+n+") = " + partC(m,n));
+                    }
+                    ret &= same;
+                }
+            }
+			
+			if (ret)
+				Console.OUT.println("Dense matrix X10 multiply with offsets driver test passed!");
+			else
+				Console.OUT.println("-----Dense matrix X10 multiply with offsets driver test failed!-----");
 			return ret;
 		}
 		
@@ -197,6 +224,108 @@ public class TestMultDense{
 			if (ret)
 				Console.OUT.println("BLAS == X10 Matrix == X10 Dense driver\n");
 			
+			return ret;
+		}
+
+        public def testMatMultVector():Boolean {
+			Console.OUT.printf("\nTest X10 Dense, Matrix-Vector, BLAS multiply driver: (%dx%d) * (%dx%d)\n",
+					M, K, K, N);
+			val a = DenseMatrix.make(M, K).initRandom();
+			val v = Vector.make(K).initRandom();
+			val c1 = Vector.make(M);
+			val c2 = Vector.make(M);
+
+			DenseMatrixBLAS.comp(a, v, c1, false);
+			DenseMultXTen.comp(a, v, c2, false);
+			
+			var ret:Boolean = true;
+			if (!c1.equals(c2)) {
+				Console.OUT.println("----- c = Av : BLAS != X10 Dense driver -----\n");
+				ret = false;
+			}
+
+			DenseMatrixBLAS.comp(a, v, c1, true);
+			DenseMultXTen.comp(a, v, c2, true);
+
+			if (!c1.equals(c2)) {
+				Console.OUT.println("----- c += Av : BLAS != X10 Dense driver -----\n");
+				ret = false;
+			}
+			
+			if (ret)
+				Console.OUT.println("BLAS == X10 Dense driver\n");
+			
+			return ret;
+		}
+
+		public def testSymRankKUpdate():Boolean {
+			Console.OUT.printf("\nTest X10 symmetric rank-K update driver: (%dx%d) * (%dx%d)\n",
+					M, M, M, M);
+			val a:DenseMatrix(M,M) = DenseMatrix.makeRand(M, M);
+            // force matrix A to be symmetric
+            for (m in 0..(M-1)) {
+                for (n in 0..(m-1)) {
+                    a(n,m) = a(m,n);
+                }
+            }
+			val c:DenseMatrix(a.M,a.N) = DenseMultXTen.comp(a, a);
+			
+			val d = new DenseMatrix(M, M);
+            DenseMatrixBLAS.symRankKUpdate(a, d, false, false);
+
+            // check lower triangle same for matmul and rank-K update
+            var ret:Boolean=true;
+            for (m in 0..(M-1)) {
+                for (n in 0..(m-1)) {
+                    val same = MathTool.equals(c(m,n), d(m,n));
+                    if (!same) {
+                        Console.OUT.println("c("+m+","+n+") = " + c(m,n) + " != d("+m+","+n+") = " + d(m,n));
+                    }
+                    ret &= same;
+                }
+            }
+			
+			if (ret)
+				Console.OUT.println("Dense matrix X10 symmetric rank-K update driver test passed!");
+			else
+				Console.OUT.println("-----Dense matrix X10 symmetric rank-K update driver test failed!-----");
+			return ret;
+		}
+
+        public def testSymRankKUpdateOffset():Boolean {
+			Console.OUT.printf("\nTest X10 symmetric rank-K update with offsets: (%dx%d) * (%dx%d)\n",
+					M, M, M, M);
+			val a:DenseMatrix(M,M) = DenseMatrix.makeRand(M, M);
+            // force matrix A to be symmetric
+            for (m in 0..(M-1)) {
+                for (n in 0..(m-1)) {
+                    a(n,m) = a(m,n);
+                }
+            }
+			val c:DenseMatrix(a.M,a.N) = DenseMultXTen.comp(a, a);
+
+			val half = M / 2;
+
+            // calculate the top left quadrant of A*A^T, but write it into the bottom left quadrant of C
+            val partC = new DenseMatrix(M, M);
+            DenseMatrixBLAS.symRankKUpdate(a, partC, [M - half, N], [0, 0, half, 0], false, false);
+
+            // check the calculated quadrant is the same for matmul and rank-K update
+            var ret:Boolean=true;
+            for (m in 0..(half-1)) {
+                for (n in 0..(m-1)) {
+                    val same = MathTool.equals(c(m,n), partC(m+half,n));
+                    if (!same) {
+                        Console.OUT.println("c("+m+","+n+") = " + c(m,n) + " != partC("+(m+half)+","+n+") = " + partC(m+half,n));
+                    }
+                    ret &= same;
+                }
+            }
+			
+			if (ret)
+				Console.OUT.println("Dense matrix X10 symmetric rank-K update with offsets passed!");
+			else
+				Console.OUT.println("-----Dense matrix X10 symmetric rank-K update with offsets failed!-----");
 			return ret;
 		}
 		

@@ -11,14 +11,26 @@
 
 package x10.visit;
 
+import java.io.BufferedInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.Iterator;
+import java.util.List;
+import java.util.Properties;
+import java.util.jar.Attributes;
+import java.util.jar.JarEntry;
+import java.util.jar.JarOutputStream;
+import java.util.jar.Manifest;
 
 import polyglot.ast.Block;
 import polyglot.ast.ClassDecl;
@@ -59,17 +71,7 @@ public class X10Translator extends Translator {
     }
     
     private static String escapePath(String path) {
-    	StringBuilder sb = new StringBuilder();
-        for (int i = 0; i < path.length(); ++i) {
-            char c = path.charAt(i);
-            if (c == '\\') {
-//                sb.append(c).append(c);
-                sb.append('/');
-            } else {
-                sb.append(c);
-            }
-        }
-        return sb.toString();
+        return path.replace('\\', '/');
     }
 
     /**
@@ -119,7 +121,10 @@ public class X10Translator extends Translator {
         return tr;
     }
 
+    // XTENLANG-3170: X10DT requires Java file to make sure there is no compiler bug.
+    private static final boolean alwaysGenerateJavaFile = true;
     private static boolean generateJavaFile(TopLevelDecl decl) {
+    	if (alwaysGenerateJavaFile) return true;
         if (decl instanceof TypeDecl) return false;  // public type Int(b:Int) = Int{self==b};
 //        assert decl instanceof ClassDecl;
         if (!(decl instanceof ClassDecl)) return true; // for safety
@@ -127,6 +132,7 @@ public class X10Translator extends Translator {
         return false;
     }
     private static boolean generateJavaFile(SourceFile sfn) {
+    	if (alwaysGenerateJavaFile) return true;
         for (TopLevelDecl decl : sfn.decls()) {
             if (generateJavaFile(decl)) return true;
         }
@@ -141,9 +147,6 @@ public class X10Translator extends Translator {
         int outputWidth = job.compiler().outputWidth();
         CodeWriter w= null;
 
-        // if all toplevel decls are @NativeRep'ed, stop generating Java file
-        if (!generateJavaFile(sfn)) return true;
-
         try {
             QName pkg = null;
 
@@ -151,6 +154,9 @@ public class X10Translator extends Translator {
                 Package p = sfn.package_().package_().get();
                 pkg = p.fullName();
             }
+
+            // if all toplevel decls are @NativeRep'ed, stop generating Java file
+            if (generateJavaFile(sfn)) {
 
             // Use the source name to derive a default output file name.
             File of = tf.outputFile(pkg, sfn.source());
@@ -171,6 +177,8 @@ public class X10Translator extends Translator {
             }
 
             w.flush();
+
+            }
 
             X10CompilerOptions options = (X10CompilerOptions) ts.extensionInfo().getOptions();
             if (options.post_compiler != null && !options.output_stdout && options.executable_path != null) {
@@ -212,6 +220,80 @@ public class X10Translator extends Translator {
             }
         }
     }
+    
+    /*
+     * Delete file or directory. In case of directory, delete it recursively.
+     */
+    private static void deleteFile(File file) {
+    	if (!file.exists()) return;
+    	if (file.isDirectory()) {
+    		for (File childFile : file.listFiles()) deleteFile(childFile);
+    	}
+		file.delete();
+    }
+    
+    
+    private static String toJarCompatiblePath(File file) throws IOException {
+    	String path = file.getCanonicalPath().replace('\\', '/');
+        if (file.isDirectory() && !path.endsWith("/"))
+        	path += "/";
+        return path;
+    }
+    
+    private static void addFileToJar(File file, String basePath, JarOutputStream jarOutputStream) throws IOException {
+        BufferedInputStream is = null;
+        try {
+            String path = toJarCompatiblePath(file);
+            
+            // change path relative to basePath
+            if (basePath != null) {
+            	assert path.startsWith(basePath);
+            	path = path.substring(basePath.length());
+            }
+            
+            if (file.isDirectory()) {
+                if (!path.isEmpty()) {
+                    JarEntry jarEntry = new JarEntry(path);
+                    jarEntry.setTime(file.lastModified());
+                    jarOutputStream.putNextEntry(jarEntry);
+                    jarOutputStream.closeEntry();
+                }
+                for (File childFile: file.listFiles())
+                    addFileToJar(childFile, basePath, jarOutputStream);
+                return;
+            }
+            
+            JarEntry jarEntry = new JarEntry(path);
+            jarEntry.setTime(file.lastModified());
+            jarOutputStream.putNextEntry(jarEntry);
+            
+            is = new BufferedInputStream(new FileInputStream(file));
+            byte[] buffer = new byte[1024];
+            while (true) {
+                int count = is.read(buffer);
+                if (count == -1)
+                    break;
+                jarOutputStream.write(buffer, 0, count);
+            }
+            
+            jarOutputStream.closeEntry();
+        }
+        finally {
+            if (is != null)
+                is.close();
+        }
+    }
+    
+    /*
+     * equivalent to "jar cmf ${manifest_file} ${jar_file} -C ${base_dir} ."
+     */
+    private static void createJarFile(File jarFile, Manifest manifest, File baseDir) throws IOException {
+    	JarOutputStream jarOutputStream = new JarOutputStream(new FileOutputStream(jarFile), manifest);
+        String basePath = toJarCompatiblePath(baseDir);
+        addFileToJar(baseDir, basePath, jarOutputStream);
+    	jarOutputStream.close();
+    }
+
 
     public static final String postcompile = "postcompile";
 
@@ -228,6 +310,15 @@ public class X10Translator extends Translator {
             	javacCmd.add(st.nextToken());
             }
             
+            int javacOptionsStart = javacCmd.size();
+            javacCmd.add("-source");
+            javacCmd.add("1.6");
+            
+            javacCmd.add("-target");
+            javacCmd.add("1.6");
+            
+            javacCmd.add("-nowarn");
+            
             javacCmd.add("-classpath");
             javacCmd.add(options.constructPostCompilerClasspath());
             
@@ -240,6 +331,7 @@ public class X10Translator extends Translator {
                 javacCmd.add("-g");                
             }
 
+            int javacSourcesStart = javacCmd.size();
             for (Collection<String> files : compiler.outputFiles().values()) {
                 javacCmd.addAll(files);
             }
@@ -253,10 +345,10 @@ public class X10Translator extends Translator {
             }
 
             try {
+            	/*
+            	// invoke ecj as an external process
                 Process proc = runtime.exec(javacCmd.toArray(strarray));
-
                 InputStreamReader err = new InputStreamReader(proc.getErrorStream());
-
                 try {
                     char[] c = new char[72];
                     int len;
@@ -264,7 +356,6 @@ public class X10Translator extends Translator {
                     while((len = err.read(c)) > 0) {
                         sb.append(String.valueOf(c, 0, len));
                     }
-
                     if (sb.length() != 0) {
                         eq.enqueue(ErrorInfo.POST_COMPILER_ERROR, sb.toString());
                     }
@@ -272,29 +363,73 @@ public class X10Translator extends Translator {
                 finally {
                     err.close();
                 }
+                int procExitValue = proc.waitFor();
+                */
 
-                proc.waitFor();
+
+                // invoke ecj with Java Compiler API (JSR 199)
+                javax.tools.JavaCompiler javac = null;
+                // look up user-specified java compiler from classpath and ${x10.dist}/lib/ecj.jar
+                String ecj_path = ((X10CCompilerOptions) options).x10_dist + File.separator + "lib" + File.separator + ((X10CCompilerOptions) options).ecj_jar;
+                java.net.URL ecj_url = new java.io.File(ecj_path).toURI().toURL();
+                ClassLoader cl = new java.net.URLClassLoader(new java.net.URL[] { ecj_url });
+                java.util.Iterator<javax.tools.JavaCompiler> iter = java.util.ServiceLoader.load(javax.tools.JavaCompiler.class, cl).iterator();
+                while (iter.hasNext()) {
+                    try {
+                        javac = iter.next();
+                        assert javac != null;
+                        break;
+                    } catch (Throwable e) { }
+                }
+//                if (javac == null) {
+//                    // look up system java compiler (javac)
+//                    javac = javax.tools.ToolProvider.getSystemJavaCompiler();
+//                }
+                if (javac == null) {
+                    eq.enqueue(ErrorInfo.POST_COMPILER_ERROR, "Cannot find post java compiler.");
+                    return false;
+                }
+                javax.tools.DiagnosticCollector<javax.tools.JavaFileObject> diagCollector = new javax.tools.DiagnosticCollector<javax.tools.JavaFileObject>();
+                javax.tools.StandardJavaFileManager fileManager = javac.getStandardFileManager(null, null, null);
+                javax.tools.JavaCompiler.CompilationTask task = javac.getTask(null, null,
+            			diagCollector,
+            			javacCmd.subList(javacOptionsStart, javacSourcesStart),
+            			null,
+            			fileManager.getJavaFileObjectsFromStrings(javacCmd.subList(javacSourcesStart, javacCmd.size()))
+            			);
+                int procExitValue = task.call() ? 0 : 1;
+                for (javax.tools.Diagnostic<? extends javax.tools.JavaFileObject> diag : diagCollector.getDiagnostics()) {
+                    String message = diag.toString();
+                    int type = diag.getKind() == javax.tools.Diagnostic.Kind.ERROR ? ErrorInfo.POST_COMPILER_ERROR : ErrorInfo.WARNING;
+                    eq.enqueue(type, message);
+                }
+                fileManager.close();
+
 
                 if (!options.keep_output_files) {
+                	// TODO remove this
+                	/*
                 	java.util.ArrayList<String> rmCmd = new java.util.ArrayList<String>();
                 	rmCmd.add("rm");
                 	for (Collection<String> files : compiler.outputFiles().values()) {
                 	    rmCmd.addAll(files);
                 	}
                     runtime.exec(rmCmd.toArray(strarray));
+                    */
+                	for (Collection<String> files : compiler.outputFiles().values()) {
+                		for (String file : files) {
+                			deleteFile(new File(file));
+                		}
+                	}
                 }
 
-                if (proc.exitValue() > 0) {
-                    eq.enqueue(ErrorInfo.POST_COMPILER_ERROR,
-                            "Non-zero return code: " + proc.exitValue());
-                    return false;
+                if (procExitValue > 0) {
+                	eq.enqueue(ErrorInfo.POST_COMPILER_ERROR, "Non-zero return code: " + procExitValue);
+                	return false;
                 }
 
                 if (options.executable_path != null) {  // -o executable_path
                     // create jar file
-                    
-                    java.util.ArrayList<String> jarCmdList = new java.util.ArrayList<String>();
-                    jarCmdList.add(X10CCompilerOptions.findJavaCommand("jar"));
                     
                     // create Main-Class attribute from main (= first) source name if MAIN_CLASS is not specified
                     String main_class = options.x10_config.MAIN_CLASS;
@@ -312,30 +447,61 @@ public class X10Translator extends Translator {
                     */
                     
                     // create manifest file
+                	// TODO remove this
+                    /*
                     File manifest = File.createTempFile("x10c.manifest.", null);
                     manifest.deleteOnExit();    // TODO delete explicitly
                     PrintWriter out = new PrintWriter(new FileWriter(manifest));
                     if (main_class != null) {
                         // add Main-Class attribute for executable jar
                         out.println("Main-Class: " + main_class + "$" + X10PrettyPrinterVisitor.MAIN_CLASS);
-                        // N.B. Following jar files should be same as the ones used in X10CCompilerOptions.setDefaultValues()
-                        String x10_jar = "x10.jar";
-                        String math_jar = System.getProperty("x10c.math.jar", "commons-math3-3.0.jar");
+                        String x10_jar = ((X10CCompilerOptions) options).x10_jar;
+                        String math_jar = ((X10CCompilerOptions) options).math_jar;
+                        String log_jar = ((X10CCompilerOptions) options).log_jar;
                         // XTENLANG-2722
                         // need a new preloading mechanism which does not use classloader to determine system classes
-                        out.println("Class-Path: " + x10_jar + " " + math_jar);
+                        out.println("Class-Path: " + x10_jar + " " + math_jar + " " + log_jar);
                     }
                     out.println("Created-By: " + compiler.sourceExtension().compilerName() + " version " + compiler.sourceExtension().version());
                     out.close();
+                    */
+                    Manifest mf = new Manifest();
+                    Attributes attributes = mf.getMainAttributes();
+                	attributes.put(Attributes.Name.MANIFEST_VERSION, "1.0");
+                    if (main_class != null) {
+                    	// add Main-Class attribute for executable jar
+                    	attributes.putValue("Main-Class", main_class + "$" + X10PrettyPrinterVisitor.MAIN_CLASS);
+                    	String x10_jar = ((X10CCompilerOptions) options).x10_jar;
+                    	String math_jar = ((X10CCompilerOptions) options).math_jar;
+                    	String log_jar = ((X10CCompilerOptions) options).log_jar;
+                    	// XTENLANG-2722
+                    	// need a new preloading mechanism which does not use classloader to determine system classes
+                    	attributes.putValue("Class-Path", x10_jar + " " + math_jar + " " + log_jar);
+                    }
+                    attributes.putValue("Created-By", compiler.sourceExtension().compilerName() + " version " + compiler.sourceExtension().version());
+                    // TODO remote this
+                    /*
+                    File manifest = File.createTempFile("x10c.manifest.", null);
+                    manifest.deleteOnExit();    // TODO delete explicitly
+                    FileOutputStream out = new FileOutputStream(manifest);
+                    mf.write(out);
+                    out.close();
+                    */
 
                     // create directory for jar file
                     File jarFile = new File(options.executable_path);
                     File directoryHoldingJarFile = jarFile.getParentFile();
                     if (directoryHoldingJarFile != null) {
                     	directoryHoldingJarFile.mkdirs();
+                    } else {
+                    	directoryHoldingJarFile = new File(".");
                     }
                     
                     // execute "jar cmf ${manifest_file} ${executable_path} -C ${output_directory} ."
+                    // TODO remote this
+                    /*
+                    java.util.ArrayList<String> jarCmdList = new java.util.ArrayList<String>();
+                    jarCmdList.add(X10CCompilerOptions.findJavaCommand("jar"));
                     jarCmdList.add("cmf");
                     jarCmdList.add(manifest.getAbsolutePath());
                     jarCmdList.add(options.executable_path);
@@ -366,30 +532,128 @@ public class X10Translator extends Translator {
                         eq.enqueue(ErrorInfo.POST_COMPILER_ERROR, "Non-zero return code: " + jarProc.exitValue());
                         return false;
                     }
+                    */
+                    createJarFile(jarFile, mf, options.output_directory); // -d output_directory
 
-                    if (options.buildX10Lib != null) {  // ignore lib from -buildx10lib <lib>
+                    // pre XTENLANG-3199
+//                    if (options.buildX10Lib != null) {  // ignore lib from -buildx10lib <lib>
+//                    	// generate property file for use as "x10c -x10lib foo.properties ..."
+//                    	String jarFileName = jarFile.getName(); // foo.jar
+//                    	String propFileName = jarFileName.substring(0, jarFileName.length() - ".jar".length()) + ".properties"; // foo.properties
+//                    	File propFile = new File(directoryHoldingJarFile, propFileName);
+//                    	PrintWriter propFileWriter = new PrintWriter(new FileWriter(propFile));
+//                    	propFileWriter.println("X10LIB_TIMESTAMP=" + String.format("%tc", Calendar.getInstance()));
+//                    	propFileWriter.println("X10LIB_SRC_JAR=" + jarFileName);
+//                    	propFileWriter.close();
+//                    }
+                    // post XTENLANG-3199
+                    if (options.buildX10Lib != null) {	// "-buildx10lib <dir> -o foo.jar" generates <dir>/foo.properties
+                    	File propDir = new File(options.buildX10Lib);
+//                    	System.out.println("buildx10lib = " + options.buildX10Lib);
+                    	
+                        // ensure propDir exists and is a directory
+                    	if (propDir.exists()) {
+                    		if (!propDir.isDirectory()) {
+                                eq.enqueue(ErrorInfo.SEMANTIC_ERROR, "-buildx10lib <dir> only accepts directory name. property file was not generated.");
+                                return false;
+                    		}
+                    	} else {
+                    		propDir.mkdirs();
+                    	}
+                    	
+                    	String jarDirPath; // either absolute or relative
+                    	if (directoryHoldingJarFile.isAbsolute()) {
+                    		// When jar file is specified with absolute path, refer it with absolute path.
+                    		jarDirPath = directoryHoldingJarFile.getCanonicalPath();
+                    		if (!jarDirPath.endsWith("/")) jarDirPath += "/";
+                    	} else {
+                    		// Otherwise, refer the jar file with relative path from prop file.
+                    		File f;
+                    		
+                    		List<File> listPropDir = new ArrayList<File>();
+                    		f = propDir.getCanonicalFile(); // "/usr/local/bin"
+                    		do {
+                    			listPropDir.add(f);
+                    			f = f.getParentFile();
+                    		} while (f != null);
+                    		Collections.reverse(listPropDir); // [ "/", "/usr", "/usr/local", "/usr/local/bin" ]
+//                    		System.out.println("listPropDir = " + listPropDir);
+                    		
+                    		List<File> listJarDir = new ArrayList<File>();
+                    		File jarDir = directoryHoldingJarFile;
+                    		f = jarDir.getCanonicalFile(); // "/usr/bin"
+                    		do {
+                    			listJarDir.add(f);
+                    			f = f.getParentFile();                        	
+                    		} while (f != null);
+                    		Collections.reverse(listJarDir); // [ "/", "/usr", "/usr/bin" ]
+//                    		System.out.println("listJarDir = " + listJarDir);
+                    		
+                    		// compute relative path from propDir /usr/local/bin to jarDir /usr/bin
+                    		
+                    		// first compute the same header length
+                    		int i = 0;
+                    		while (i < listPropDir.size() && i < listJarDir.size() && listPropDir.get(i).equals(listJarDir.get(i))) {
+                    			++i;
+                    		}
+                    		// i == 2
+                    		
+                    		// compute relative path from propDir to list{Prop,Jar}Dir(i)
+                    		StringBuilder sb = new StringBuilder();
+                    		for (int j = i; j < listPropDir.size(); ++j) {
+                    			sb.append(".." + "/");
+                    		}
+                    		
+                    		// compute relative path from list{Prop,Jar}Dir(i) to jarDir
+                    		for (int j = i; j < listJarDir.size(); ++j) {
+                    			sb.append(listJarDir.get(j).getName() + "/");
+                    		}
+                    		
+                    		jarDirPath = sb.toString();
+                    	}
+//                    	System.out.println("jarDirPath = " + jarDirPath);
+                    	
                     	// generate property file for use as "x10c -x10lib foo.properties ..."
+                    	// TODO remove this
+                    	/*
                     	String jarFileName = jarFile.getName(); // foo.jar
                     	String propFileName = jarFileName.substring(0, jarFileName.length() - ".jar".length()) + ".properties"; // foo.properties
-                    	File propFile = new File(directoryHoldingJarFile, propFileName);
+                    	File propFile = new File(propDir, propFileName);
                     	PrintWriter propFileWriter = new PrintWriter(new FileWriter(propFile));
                     	propFileWriter.println("X10LIB_TIMESTAMP=" + String.format("%tc", Calendar.getInstance()));
-                    	propFileWriter.println("X10LIB_SRC_JAR=" + jarFileName);
+                    	propFileWriter.println("X10LIB_SRC_JAR=" + jarDirPath + jarFileName);
+                    	propFileWriter.close();
+                    	*/
+                    	String jarFileName = jarFile.getName(); // foo.jar
+                    	Properties props = new Properties();
+                    	props.setProperty("X10LIB_TIMESTAMP", String.format("%tc", Calendar.getInstance()));
+                    	props.setProperty("X10LIB_SRC_JAR", jarDirPath + jarFileName);
+                    	String propFileName = jarFileName.substring(0, jarFileName.length() - ".jar".length()) + ".properties"; // foo.properties
+                    	File propFile = new File(propDir, propFileName);
+                    	FileWriter propFileWriter = new FileWriter(propFile);
+                    	props.store(propFileWriter, "Created by " + compiler.sourceExtension().compilerName() + " version " + compiler.sourceExtension().version());
                     	propFileWriter.close();
                     }
                 }
                 // XTENLANG-2126
                 if (!options.keep_output_files) {
+                	// TODO remove this
+                	/*
                     java.util.ArrayList<String> rmCmd = new java.util.ArrayList<String>();
                     rmCmd.add("rm");
                     rmCmd.add("-rf");
                     rmCmd.add(options.output_directory.getAbsolutePath()); // N.B. output_directory is a temporary directory
 //                    System.out.println(java.util.Arrays.toString(rmCmd.toArray(strarray)));
                     runtime.exec(rmCmd.toArray(strarray));
+                    */
+//                	System.out.println(options.output_directory.getAbsolutePath());
+                	deleteFile(options.output_directory); // N.B. output_directory is a temporary directory
                 }
             }
             catch(Exception e) {
-                eq.enqueue(ErrorInfo.POST_COMPILER_ERROR, e.getMessage());
+            	ByteArrayOutputStream baos = new ByteArrayOutputStream();
+            	e.printStackTrace(new PrintWriter(baos, true));
+                eq.enqueue(ErrorInfo.POST_COMPILER_ERROR, baos.toString());
                 return false;
             }
         }

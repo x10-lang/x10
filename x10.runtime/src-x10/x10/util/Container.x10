@@ -13,7 +13,7 @@ package x10.util;
 
 /** A mutable or immutable collection. */
 public interface Container[T]  extends Iterable[T] {
-  public def size(): Int;
+  public def size(): Long;
   public def isEmpty(): Boolean;
   public def contains(T): Boolean;
   public def containsAll(Container[T]): Boolean;

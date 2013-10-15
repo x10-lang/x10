@@ -10,6 +10,7 @@
  */
 
 import harness.x10Test;
+import x10.regionarray.Region;
 
 /**
  * Struct test:
@@ -21,7 +22,7 @@ import harness.x10Test;
 public class StructTest2 extends x10Test {
 
     public def run(): boolean = {
-        val r = 0..9;
+        val r = Region.make(0, 9);
         val d = r->here;
         val f = new foo();
         var x:myval = myval(1, Complex(2,3), f);
@@ -33,7 +34,7 @@ public class StructTest2 extends x10Test {
         val one = Complex(1,1);
         val minusone = Complex(-1,-1);
         val t = x.cval+one+minusone;
-        y = myval(x.intval, t, x.refval);
+        y = myval(x.lval, t, x.refval);
         // x and y are still equal
         x10.io.Console.OUT.println("2");
         if (x != y) return false;
@@ -52,33 +53,33 @@ public class StructTest2 extends x10Test {
         if (y.refval.getW() != 20) return false;
         val P0: Place = here;
         // the "place" of a value class instance is here
-        var n: int;
+        var n: long;
         { val y0: myval = y;
-            n = y0.intval;
+            n = y0.lval;
             
         }
         x10.io.Console.OUT.println("6");
         return n != -1;
     }
 
-    public static def main(var args: Array[String](1)): void = {
+    public static def main(var args: Rail[String]): void = {
         new StructTest2().execute();
     }
 
     static final struct myval {
-      val intval: int;
+      val lval: long;
       val cval: Complex;
       val refval: foo;
 
-      def this(intval: int, cval: Complex, refval:foo) = {
-        this.intval = intval;
+      def this(lval: long, cval: Complex, refval:foo) = {
+        this.lval = lval;
         this.cval = cval;
         this.refval = refval;
       }
    }
 
    static class foo {
-     var w: int = 19;
+     var w: long = 19;
 
      def getW() {
 	return w;

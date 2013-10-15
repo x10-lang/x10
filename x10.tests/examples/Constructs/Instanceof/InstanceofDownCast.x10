@@ -20,9 +20,9 @@ import harness.x10Test;
  **/
 public class InstanceofDownCast extends x10Test {
 	 // method calls invocation counters
-	 private var counter1: int = 0;
-	 private var counter2: int = 0;
-	 private var counter3: int = 0;
+	 private var counter1: long = 0;
+	 private var counter2: long = 0;
+	 private var counter3: long = 0;
 	 
 	public def run(): boolean = {
 		var upcast1: Any = new X10DepTypeClassOneB(1);
@@ -55,22 +55,22 @@ public class InstanceofDownCast extends x10Test {
 				(counter1==1) && (counter2==2) && (counter3==2));
 	}
 	
-	private def getX10DepTypeClassOneB(var c1: int): Any = {
+	private def getX10DepTypeClassOneB(var c1: long): Any = {
 		counter1++;
 		return new X10DepTypeClassOneB(c1);
 	}
 
-	private def getX10DepTypeSubClassOneB(var c1: int, var c2: int): Any = {
+	private def getX10DepTypeSubClassOneB(var c1: long, var c2: long): Any = {
 		counter2++;
 		return new X10DepTypeSubClassOneB(c1, c2);
 	}
 
-	private def getX10DepTypeSubClassOneB_2(var c1: int, var c2: int): X10DepTypeClassOneB = {
+	private def getX10DepTypeSubClassOneB_2(var c1: long, var c2: long): X10DepTypeClassOneB = {
 		counter3++;
 		return new X10DepTypeSubClassOneB(c1, c2);
 	}
 
-	public static def main(var args: Array[String](1)): void = {
+	public static def main(var args: Rail[String]): void = {
 		new InstanceofDownCast().execute();
 	}
 

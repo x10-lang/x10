@@ -25,11 +25,11 @@ struct S1 {
 public class StructCall extends x10Test  {
     
     public def run():boolean {
-      val a = S1(3,4);
-      return a.sum() == 7;
+      val a = S1(3n,4n);
+      return a.sum() == 7n;
     }
 
-    public static def main(var args: Array[String](1)): void = {
+    public static def main(var args: Rail[String]): void = {
         new StructCall().execute();
     }
 }

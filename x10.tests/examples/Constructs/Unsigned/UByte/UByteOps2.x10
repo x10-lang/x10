@@ -24,7 +24,7 @@ public class UByteOps2 extends x10Test {
 	assert u1 + u2 == 3uy;
 	assert u1 + u1 != 3uy;
 	assert u1 == 1uy;
-	assert u1 + 1 == 2uy;
+	assert u1 + 1uy == 2uy;
 	assert u1 + 1uy == 2uy;
 	assert ((1 + u2) as UByte) == 3uy;
 	assert 1 + u2 == 3;
@@ -38,13 +38,13 @@ public class UByteOps2 extends x10Test {
 	assert u2 * u1 == 2uy;
 	assert 1 * u2 == 2;
 	assert (1 * u2) as UByte == 2uy;
-	assert u2 * 1 == 2uy;
+	assert u2 * 1uy == 2uy;
 	assert u2 / u1 == 2uy;
 	assert u1 / u2 == 0uy;
 	assert u2 % u1 == 0uy;
 	assert u1 % u2 == u1;
-	assert u2 << 1 == 4uy;
-	assert u2 >> 1 == 1uy;
+	assert u2 << 1n == 4uy;
+	assert u2 >> 1n == 1uy;
 	assert (u2 as Byte) == 2y;
 	assert (2 as UByte) == u2;
 	assert (u2 as UShort) == 2su;
@@ -61,7 +61,7 @@ public class UByteOps2 extends x10Test {
     }
 
 
-    public static def main(Array[String]) {
+    public static def main(Rail[String]) {
         new UByteOps2().execute();
     }
 }

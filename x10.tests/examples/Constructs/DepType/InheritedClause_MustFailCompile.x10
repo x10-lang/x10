@@ -28,18 +28,18 @@ import harness.x10Test;
 
  public class InheritedClause_MustFailCompile extends x10Test { 
 	 
-	 class A(i:int(2), b:int(2)) {
-		 public def this(i:int(2), b:int(2)):A ={
+	 class A(i:int(2n), b:int(2n)) {
+		 public def this(i:int(2n), b:int(2n)):A ={
 			property(i,b); 
 		 }
 	 }
 	 public def run(): boolean = { 
-		 var a: A = new A(2,2);
-		 var x: A{i==3} = a; // ERR
+		 var a: A = new A(2n,2n);
+		 var x: A{i==3n} = a; // ERR
 		 return true;
 	 }
     
-	 public static def main(var args: Array[String](1)): void = {
+	 public static def main(var args: Rail[String]): void = {
 		 new InheritedClause_MustFailCompile().execute();
 	 }
    

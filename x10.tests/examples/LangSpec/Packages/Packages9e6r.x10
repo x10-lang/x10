@@ -21,17 +21,17 @@ import harness.x10Test;
 
 public class Packages9e6r extends x10Test {
    public def run() : boolean = (new Hook()).run();
-   public static def main(var args: Array[String](1)): void = {
+   public static def main(args:Rail[String]):void {
         new Packages9e6r().execute();
     }
 
 
-// file Packages line 143
+// file Packages line 145
  static class Example {
   static def m() = 1;
   static def m(Boolean) = 2;
   static def i() = 3;
-  static def m(i:Int) {
+  static def m(i:Long) {
     if (i > 10) {
       return i() + 1;
     }

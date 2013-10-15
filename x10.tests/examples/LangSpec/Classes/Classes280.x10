@@ -17,28 +17,28 @@
 
 import harness.x10Test;
 
-
+import x10.regionarray.*;
 
 public class Classes280 extends x10Test {
    public def run() : boolean = (new Hook()).run();
-   public static def main(var args: Array[String](1)): void = {
+   public static def main(args:Rail[String]):void {
         new Classes280().execute();
     }
 
 
-// file Classes line 2203
- static class MyRegion(rank:Int) {
-  static type MyRegion(n:Int)=MyRegion{rank==n};
-  def this(r:Int):MyRegion(r) {
+// file Classes line 2401
+ static class MyRegion(rank:Long) {
+  static type MyRegion(n:Long)=MyRegion{rank==n};
+  def this(r:Long):MyRegion(r) {
     property(r);
   }
-  def this(diag:Array[Int](1)):MyRegion(diag.size){
+  def this(diag:Rail[Long]):MyRegion(diag.size){
     property(diag.size);
   }
   def mockUnion(r:MyRegion(rank)):MyRegion(rank) = this;
   def example() {
-    val R1 : MyRegion(3) = new MyRegion([4,4,4 as Int]);
-    val R2 : MyRegion(3) = new MyRegion([5,4,1]);
+    val R1 : MyRegion(3L) = new MyRegion([4,4,4 as Long]);
+    val R2 : MyRegion(3L) = new MyRegion([5,4,1]);
     val R3 = R1.mockUnion(R2); // inferred type MyRegion(3)
   }
 }

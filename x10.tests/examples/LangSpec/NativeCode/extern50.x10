@@ -21,15 +21,15 @@ import x10.compiler.Native;
 
 public class extern50 extends x10Test {
    public def run() : boolean = (new Hook()).run();
-   public static def main(var args: Array[String](1)): void = {
+   public static def main(args:Rail[String]):void {
         new extern50().execute();
     }
 
 
-// file NativeCode line 102
+// file NativeCode line 116
  static class Species {
   @Native("c++","printf(\"Sum=%d\", ((#1)+(#2)) )")
-  @Native("java","System.out.println(\"\" + ((#x)+(#y)))")
+  @Native("java","System.out.println(\"\" + ((#1)+(#2)))")
   static native def printNatively(x:Int, y:Int):void;
 }
 

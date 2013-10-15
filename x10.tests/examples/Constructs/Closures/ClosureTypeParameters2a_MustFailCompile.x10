@@ -18,7 +18,7 @@ import harness.x10Test;
  * declaration (§4.3,§9.5,§9.7,§12.5).
  */
 
-public class ClosureTypeParameters2a_MustFailCompile extends ClosureTest {
+public class ClosureTypeParameters2a_MustFailCompile extends x10Test {
 
     class V           {static name = "V";}
     class W extends V {static name = "W";}
@@ -29,14 +29,13 @@ public class ClosureTypeParameters2a_MustFailCompile extends ClosureTest {
     public def run(): boolean = {
         
         class C[T]{T==Y} {val f = ()=> "hi";}
-        check("new C[Z]().f()",
-            new C[Z] // ERR ERR: Type C[ClosureTypeParameters2a_MustFailCompile.Z] is inconsistent.   Actual type of property initializer is not a subtype of declared type.
-            ().f(), "hi");
+        chk(new C[Z] // ERR ERR: Type C[ClosureTypeParameters2a_MustFailCompile.Z] is inconsistent.   Actual type of property initializer is not a subtype of declared type.
+            ().f().equals("hi"));
 
-        return result;
+        return true;
     }
 
-    public static def main(var args: Array[String](1)): void = {
+    public static def main(var args: Rail[String]): void = {
         new ClosureTypeParameters2a_MustFailCompile().execute();
     }
 }

@@ -10,6 +10,7 @@
  */
 
 import harness.x10Test;
+import x10.regionarray.*;
 
 /**
  * An ateach statement cannot occur in a method called from within an atomic.
@@ -27,11 +28,11 @@ public class NoAtEachInAtomicMethod extends x10Test {
 		return false;
 	}
 	def m() {
-		ateach(p in 1..10->here) 
+		ateach(p in Region.make(1,10)->here) 
 			Console.OUT.println("This should not print.");
 	}
 
-	public static def main(Array[String](1)){
+	public static def main(Rail[String]){
 		new NoAtEachInAtomicMethod().execute();
 	}
 }

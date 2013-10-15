@@ -34,7 +34,7 @@ public class TypedefConstraint2c extends TypedefTest {
         return result;
     }
 
-    public static def main(var args: Array[String](1)): void = {
+    public static def main(var args: Rail[String]): void = {
         new TypedefConstraint2c().execute();
     }
 }

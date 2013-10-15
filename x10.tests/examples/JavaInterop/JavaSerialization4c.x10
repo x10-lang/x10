@@ -16,10 +16,10 @@ import harness.x10Test;
 public class JavaSerialization4c extends x10Test {
 
     static def test():void {
-        val e = new java.lang.Integer(99);
+        val e = new java.lang.Integer(99n);
         at (here.next()) {
             val i = e.intValue();
-            chk(i == 99);
+            chk(i == 99n);
         }
     }
 
@@ -28,7 +28,7 @@ public class JavaSerialization4c extends x10Test {
         return true;
     }
 
-    public static def main(args: Array[String](1)) {
+    public static def main(args: Rail[String]) {
         new JavaSerialization4c().execute();
     }
 

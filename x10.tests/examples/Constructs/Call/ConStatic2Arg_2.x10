@@ -18,24 +18,24 @@ import harness.x10Test;
 public class ConStatic2Arg_2 extends x10Test {
 	static class A(i:Int) {}
 	
-	static def m(q:A{self.i==2},  i:Int(q.i)) {
+	static def m(q:A{self.i==2n},  i:Int(q.i)) {
 	}
 	static def n(i:Int) {
 		val a = new A(i);
 		// This call will compile only if -strictCalls is not set.
-		m(a, i+1); // ERR
+		m(a, i+1n); // ERR
 	}
 	
 	public def run(): boolean {
 		try {
-			n(2);
+			n(2n);
 			return false;
 		} catch (ClassCastException) {
 			return true;
 		}
 	}
 
-	public static def main(Array[String](1)) {
+	public static def main(Rail[String]) {
 		new ConStatic2Arg_2().execute();
 	}
 

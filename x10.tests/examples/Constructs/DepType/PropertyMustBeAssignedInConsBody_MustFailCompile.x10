@@ -31,7 +31,7 @@ import harness.x10Test;
 
 public class PropertyMustBeAssignedInConsBody_MustFailCompile extends x10Test { 
 
-    class Tester(i: int(2) ) {
+    class Tester(i: int(2n) ) {
       public def this(arg:int):Tester { } // ERR: You must call 'property(...)' at least once
     }
 	
@@ -39,7 +39,7 @@ public class PropertyMustBeAssignedInConsBody_MustFailCompile extends x10Test {
     public def run()=true;
   
 	
-    public static def main(var args: Array[String](1)): void = {
+    public static def main(var args: Rail[String]): void = {
         new PropertyMustBeAssignedInConsBody_MustFailCompile().execute();
     }
    

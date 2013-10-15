@@ -9,11 +9,12 @@
  *  (C) Copyright IBM Corporation 2006-2010.
  */
 
+import x10.regionarray.*;
+
 /**
  * Intersect a rectangular region with a triangular region, construct
  * an array from it, and examine it.
  */
-
 class PolyIntersection1 extends TestRegion {
 
     public def run() {
@@ -21,9 +22,7 @@ class PolyIntersection1 extends TestRegion {
         val r1 = Region.makeUpperTriangular(2, 1, 7);
         prArray("tri", r1);
 
-        val min = [3, 3];
-        val max = [6, 7];
-        val r2 = Region.makeRectangular(min, max);
+        val r2 = Region.makeRectangular(3..6, 3..7);
         prArray("rect", r2);
 
         val r3 = r2.intersection(r1);
@@ -76,7 +75,7 @@ class PolyIntersection1 extends TestRegion {
         "    5  . . . . 0 5 0 5 . . \n"+
         "    6  . . . . . 0 6 2 . . \n";
     
-    public static def main(Array[String](1)) {
+    public static def main(Rail[String]) {
         new PolyIntersection1().execute();
     }
 }

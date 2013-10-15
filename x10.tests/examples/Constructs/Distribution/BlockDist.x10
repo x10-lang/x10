@@ -9,6 +9,7 @@
  *  (C) Copyright IBM Corporation 2006-2010.
  */
 
+import x10.regionarray.*;        
 
 /**
  * Basic distributions
@@ -17,9 +18,9 @@
 class BlockDist extends TestDist {
 
     public def run() {
-	chk(Place.numPlaces() == 4, "This test must be run with 4 places");
+	chk(Place.numPlaces() == 4L, "This test must be run with 4 places");
 
-        val r = (1..4)*(1..7);
+        val r = Region.make(1..4, 1..7);
         pr("r " + r);
 
         prDist("block 0", Dist.makeBlock(r, 0));
@@ -41,7 +42,7 @@ class BlockDist extends TestDist {
         "    3  . 0 0 1 1 2 2 3 . . \n"+
         "    4  . 0 0 1 1 2 2 3 . . \n";
     
-    public static def main(var args: Array[String](1)) {
+    public static def main(var args: Rail[String]) {
         new BlockDist().execute();
     }
 }

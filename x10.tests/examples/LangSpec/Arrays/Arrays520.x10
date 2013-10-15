@@ -17,20 +17,20 @@
 
 import harness.x10Test;
 
-
+import x10.regionarray.*;
 
 public class Arrays520 extends x10Test {
    public def run() : boolean = (new Hook()).run();
-   public static def main(var args: Array[String](1)): void = {
+   public static def main(args:Rail[String]):void {
         new Arrays520().execute();
     }
 
 
-// file Arrays line 828
+// file Arrays line 1111
  static  class Example {
  static def example() {
-val a = [1,2,3,4];
-val sum = a.reduce((a:Int,b:Int)=>a+b, 0);
+val a = new Array[Long](4, (i:long)=>i+1);
+val sum = a.reduce((a:Long,b:Long)=>a+b, 0);
 assert(sum == 10); // 10 == 1+2+3+4
 }}
  static  class Hook{ def run() {Example.example(); return true;}}

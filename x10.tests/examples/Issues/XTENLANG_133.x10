@@ -10,21 +10,21 @@
  */
 
 import harness.x10Test;
+import x10.regionarray.*;
 
 /**
  * @author bdlucas 10/2008
  */
-
 class XTENLANG_133 extends x10Test {
 
     public def run():boolean {
-        val d1 = Dist.makeConstant((0..2)*(0..3));
-        val d2 = Dist.makeConstant(-1..-2, here);
+        val d1 = Dist.makeConstant(Region.make(0..2, 0..3));
+        val d2 = Dist.makeConstant(Region.make(-1, -2), here);
         d1.equals(d2);
         return true;
     }
 
-    public static def main(Array[String](1)) {
+    public static def main(Rail[String]) {
         new XTENLANG_133().execute();
     }
 }

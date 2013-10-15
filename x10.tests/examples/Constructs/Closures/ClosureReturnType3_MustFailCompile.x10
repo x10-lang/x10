@@ -21,7 +21,7 @@ import harness.x10Test;
  * @author bdlucas 8/2008
  */
 
-public class ClosureReturnType3_MustFailCompile extends ClosureTest {
+public class ClosureReturnType3_MustFailCompile extends x10Test {
 
     def foo() = {}
 
@@ -31,7 +31,7 @@ public class ClosureReturnType3_MustFailCompile extends ClosureTest {
         return true;
     }
 
-    public static def main(var args: Array[String](1)): void = {
+    public static def main(var args: Rail[String]): void = {
         new ClosureReturnType3_MustFailCompile().execute();
     }
 }

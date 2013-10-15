@@ -41,7 +41,7 @@ public class Variance2_MustFailCompile extends x10Test {
                     && x == a && y == b;
         }
 
-	public static def main(var args: Array[String](1)): void = {
+	public static def main(var args: Rail[String]): void = {
 		new Variance2_MustFailCompile().execute();
 	}
 }

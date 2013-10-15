@@ -11,15 +11,11 @@
 
 package x10.util;
 
-import x10.compiler.Native;
-import x10.compiler.Pinned;
-
-@Pinned 
 public class StringBuilder implements Builder[Any,String] {
-     val buf: ArrayList[Char];
+     val buf: GrowableRail[Char];
 
     public def this() {
-        buf = new ArrayList[Char]();
+        buf = new GrowableRail[Char]();
     }
 
     /**
@@ -71,7 +67,7 @@ public class StringBuilder implements Builder[Any,String] {
     public def insert(p:Int, x:String) = x == null ? insertString(p, "null") : insertString(p, x);
 
     public def addString(s:String/*{self!=null}*/): StringBuilder {
-        for (var i: int = 0; i < s.length(); i++) {
+        for (var i: int = 0n; i < s.length(); i++) {
             val ch = s(i);
             buf.add(ch);
         }
@@ -80,17 +76,17 @@ public class StringBuilder implements Builder[Any,String] {
 
     public def insertString(pos:Int, s: String/*{self!=null}*/): StringBuilder {
         var loc:Int = pos;
-        if (s.length() == 0)
+        if (s.length() == 0n)
             return this;
 
         if (loc > buf.size()) { // treat it as append if postion is beyond the tail.
             return addString(s);
         }
 
-        if (loc < 0)    // Ensure loc is a valid index.
-            loc = 0;
+        if (loc < 0n)    // Ensure loc is a valid index.
+            loc = 0n;
 
-        for (var i: int = 0; i < s.length(); i++) {
+        for (var i: int = 0n; i < s.length(); i++) {
             val ch = s(i);
             buf(loc+i)= ch;
         }
@@ -102,7 +98,7 @@ public class StringBuilder implements Builder[Any,String] {
     }
 
     public def result():String {
-        val array = buf.toArray();
-        return new String(array, 0, array.size);
+        val rail = buf.toRail();
+        return new String(rail, 0n, rail.size);
     }
 }

@@ -20,9 +20,9 @@ public class CastPrimitiveConstrainedToPrimitiveConstrained extends x10Test {
 	public def run(): boolean = {
 		
 		try { 
-			var i: int{self == 0} = 0;
-			var j: int{self == 0} = 0;
-			i = j as int{self == 0};
+			var i: int{self == 0n} = 0n;
+			var j: int{self == 0n} = 0n;
+			i = j as int{self == 0n};
 		}catch(e: Exception) {
 			return false;
 		}
@@ -30,7 +30,7 @@ public class CastPrimitiveConstrainedToPrimitiveConstrained extends x10Test {
 		return true;
 	}
 
-	public static def main(var args: Array[String](1)): void = {
+	public static def main(var args: Rail[String]): void = {
 		new CastPrimitiveConstrainedToPrimitiveConstrained().execute();
 	}
 

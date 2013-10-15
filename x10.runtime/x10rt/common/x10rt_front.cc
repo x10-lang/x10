@@ -1,3 +1,14 @@
+/*
+ *  This file is part of the X10 project (http://x10-lang.org).
+ *
+ *  This file is licensed to You under the Eclipse Public License (EPL);
+ *  You may not use this file except in compliance with the License.
+ *  You may obtain a copy of the License at
+ *      http://www.opensource.org/licenses/eclipse-1.0.php
+ *
+ *  (C) Copyright IBM Corporation 2006-2013.
+ */
+
 #if defined(__CYGWIN__) || defined(__FreeBSD__)
 #undef __STRICT_ANSI__ // Strict ANSI mode is too strict in Cygwin and FreeBSD
 #endif
@@ -11,19 +22,22 @@
 
 static x10rt_msg_type counter = 0;
 
-char* x10rt_preinit() {
-	// Because we don't want to break the old PGAS-BG/P implementation of x10rt_net.h, we
-	// can't add methods to lower API layers.  So instead, we set environment variables
-	// to pass & return values needed inside the regular x10rt_init method call of sockets.
-	// Yuck.
-	setenv("X10_LIBRARY_MODE", "preinit", 1);
-	x10rt_net_init(NULL, NULL, &counter);
-	char* connInfo = getenv("X10_LIBRARY_MODE");
-	return connInfo;
+static bool run_as_library = false;
+
+x10rt_error x10rt_preinit (char* connInfoBuffer, int connInfoBufferSize) {
+	run_as_library = true;
+	return x10rt_lgl_preinit(connInfoBuffer, connInfoBufferSize);
 }
 
-void x10rt_init (int *argc, char ***argv)
-{ x10rt_lgl_init(argc, argv, &counter); }
+bool x10rt_run_as_library (void)
+{ return run_as_library; }
+
+const char *x10rt_error_msg (void) {
+    return x10rt_lgl_error_msg();
+}
+
+x10rt_error x10rt_init (int *argc, char ***argv)
+{ return x10rt_lgl_init(argc, argv, &counter); }
 
 x10rt_msg_type x10rt_register_msg_receiver (x10rt_handler *cb,
                                             x10rt_cuda_pre *pre, x10rt_cuda_post *post,
@@ -62,6 +76,15 @@ x10rt_place x10rt_nplaces (void)
 x10rt_place x10rt_nhosts (void)
 { return x10rt_lgl_nhosts(); }
 
+x10rt_place x10rt_ndead (void)
+{ return x10rt_lgl_ndead(); }
+
+bool x10rt_is_place_dead (x10rt_place p)
+{ return x10rt_lgl_is_place_dead(p); }
+
+x10rt_error x10rt_get_dead (x10rt_place *dead_places, x10rt_place len)
+{ return x10rt_lgl_get_dead(dead_places, len); }
+
 x10rt_place x10rt_here (void)
 { return x10rt_lgl_here(); }
 
@@ -70,9 +93,6 @@ bool x10rt_is_host (x10rt_place place)
 
 bool x10rt_is_cuda (x10rt_place place)
 { return x10rt_lgl_type(place) == X10RT_LGL_CUDA; }
-
-bool x10rt_is_spe (x10rt_place place)
-{ return x10rt_lgl_type(place) == X10RT_LGL_SPE; }
 
 x10rt_place x10rt_parent (x10rt_place place)
 { return x10rt_lgl_parent(place); }
@@ -93,7 +113,7 @@ static uint32_t print_headers = getenv("X10RT_PRINT_MSG_HEADERS") != NULL
 void x10rt_send_msg (x10rt_msg_params *p)
 {
     if (p->len > print_headers) {
-        ::fprintf(stderr,"p%llu --%llu--> p%llu (%'llu bytes)\n",
+        ::fprintf(stderr,"p%llu --%llu--> p%llu (%llu bytes)\n",
                   (unsigned long long)x10rt_lgl_here(),
                   (unsigned long long)p->type,
                   (unsigned long long)p->dest_place,
@@ -123,19 +143,19 @@ void x10rt_remote_op (x10rt_place place, x10rt_remote_ptr remote_addr,
 void x10rt_remote_ops (x10rt_remote_op_params *opv, size_t opc)
 { x10rt_lgl_remote_ops(opv, opc); }
 
-x10rt_remote_ptr x10rt_register_mem (void *ptr, size_t len)
-{ return x10rt_lgl_register_mem(ptr, len); }
+void x10rt_register_mem (void *ptr, size_t len)
+{ x10rt_lgl_register_mem(ptr, len); }
 
 void x10rt_blocks_threads (x10rt_place d, x10rt_msg_type type, int dyn_shm,
                            int *blocks, int *threads, const int *cfg)
 { x10rt_lgl_blocks_threads (d, type, dyn_shm, blocks, threads, cfg); }
 
 
-void x10rt_probe (void)
-{ x10rt_lgl_probe(); }
+x10rt_error x10rt_probe (void)
+{ return x10rt_lgl_probe(); }
 
-void x10rt_blocking_probe (void)
-{ x10rt_lgl_blocking_probe(); }
+x10rt_error x10rt_blocking_probe (void)
+{ return x10rt_lgl_blocking_probe(); }
 
 
 void x10rt_finalize (void)
@@ -197,6 +217,16 @@ void x10rt_alltoall (x10rt_team team, x10rt_place role,
     x10rt_lgl_alltoall(team, role, sbuf, dbuf, el, count, ch, arg);
 }
 
+void x10rt_reduce (x10rt_team team, x10rt_place role,
+                    x10rt_place root, const void *sbuf, void *dbuf,
+                    x10rt_red_op_type op, 
+                    x10rt_red_type dtype,
+                    size_t count,
+                    x10rt_completion_handler *ch, void *arg)
+{
+    x10rt_lgl_reduce(team, role, root, sbuf, dbuf, op, dtype, count, ch, arg);
+}
+
 void x10rt_allreduce (x10rt_team team, x10rt_place role,
                       const void *sbuf, void *dbuf,
                       x10rt_red_op_type op, 
@@ -217,15 +247,4 @@ void x10rt_team_setter (x10rt_team v, void *arg)
 
 void x10rt_remote_ptr_setter (x10rt_remote_ptr v, void *arg)
 { *((x10rt_remote_ptr*)arg) = v; }
-
-
-
-void x10rt_get_stats (x10rt_stats *s)
-{ x10rt_lgl_get_stats(s); }
-
-void x10rt_set_stats (x10rt_stats *s)
-{ x10rt_lgl_set_stats(s); }
-
-void x10rt_zero_stats (x10rt_stats *s)
-{ x10rt_lgl_zero_stats(s); }
 

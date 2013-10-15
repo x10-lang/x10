@@ -21,14 +21,14 @@ import harness.x10Test;
 
 public class Expressions4w6f extends x10Test {
    public def run() : boolean = (new Hook()).run();
-   public static def main(var args: Array[String](1)): void = {
+   public static def main(args:Rail[String]):void {
         new Expressions4w6f().execute();
     }
 
 
-// file Expressions line 1035
+// file Expressions line 1032
  static  class Example {
-def m(a:Int{self==1}, b:Int{self==2}) = (a==b);
+def m(a:Long{self==1}, b:Long{self==2}) = (a==b);
 }
 
  static class Hook {

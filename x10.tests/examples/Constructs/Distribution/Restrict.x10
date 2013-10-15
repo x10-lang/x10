@@ -10,6 +10,7 @@
  */
 
 import harness.x10Test;
+import x10.regionarray.*;
 
 /**
  * Minimal test for distribution restriction.
@@ -18,7 +19,7 @@ import harness.x10Test;
 public class Restrict extends x10Test {
 
     public def run(): boolean = {
-        val r = 0..100;
+        val r = Region.make(0,100);
         val R = r*r;
         val d = R->here;
         val R2  = (d | here).region;
@@ -31,7 +32,7 @@ public class Restrict extends x10Test {
         return (R.size() == R2.size());
     }
 
-    public static def main(var args: Array[String](1)): void = {
+    public static def main(var args: Rail[String]): void = {
         new Restrict().execute();
     }
 }

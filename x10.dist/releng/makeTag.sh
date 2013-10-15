@@ -56,24 +56,24 @@ if [[ -z "$TAG" ]]; then
 fi
 
 if [[ $DO_CODE == 1 ]]; then
-    svn copy -r $REVISION https://x10.svn.sourceforge.net/svnroot/x10/trunk/ \
-        https://x10.svn.sourceforge.net/svnroot/x10/tags/$TAG \
+    svn copy -r $REVISION https://svn.code.sourceforge.net/p/x10/code/trunk/ \
+        https://svn.code.sourceforge.net/p/x10/code/tags/$TAG \
         -m "Tagging trunk revision $REVISION as $TAG release of X10"
 
-    svn copy -r $REVISION https://x10.svn.sourceforge.net/svnroot/x10/benchmarks/trunk/ \
-        https://x10.svn.sourceforge.net/svnroot/x10/benchmarks/tags/$TAG \
+    svn copy -r $REVISION https://svn.code.sourceforge.net/p/x10/code/benchmarks/trunk/ \
+        https://svn.code.sourceforge.net/p/x10/code/benchmarks/tags/$TAG \
         -m "Tagging benchmarks trunk revision $REVISION as $TAG release of X10"
 fi
 
 if [[ $DO_MAN == 1 ]]; then
-    svn copy -r $REVISION https://x10.svn.sourceforge.net/svnroot/x10/documentation/trunk/ \
-        https://x10.svn.sourceforge.net/svnroot/x10/documentation/tags/$TAG \
+    svn copy -r $REVISION https://svn.code.sourceforge.net/p/x10/code/documentation/trunk/ \
+        https://svn.code.sourceforge.net/p/x10/code/documentation/tags/$TAG \
         -m "Tagging documentation trunk revision $REVISION as $TAG release of X10"
 fi
 
 if [[ $DO_X10DT == 1 ]]; then
-    svn copy -r $REVISION https://x10.svn.sourceforge.net/svnroot/x10/x10dt/trunk/ \
-        https://x10.svn.sourceforge.net/svnroot/x10/x10dt/tags/$TAG \
+    svn copy -r $REVISION https://svn.code.sourceforge.net/p/x10/code/x10dt/trunk/ \
+        https://svn.code.sourceforge.net/p/x10/code/x10dt/tags/$TAG \
         -m "Tagging X10DT trunk revision $REVISION as $TAG release of X10DT"
 fi
 

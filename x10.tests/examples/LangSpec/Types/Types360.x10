@@ -21,12 +21,12 @@ import harness.x10Test;
 
 public class Types360 extends x10Test {
    public def run() : boolean = (new Hook()).run();
-   public static def main(var args: Array[String](1)): void = {
+   public static def main(args:Rail[String]):void {
         new Types360().execute();
     }
 
 
-// file Types line 1731
+// file Types line 1914
  static  class RecipEx {
  static
 val recip = (x : Double) => 1/x;

@@ -9,15 +9,16 @@
  *  (C) Copyright IBM Corporation 2006-2010.
  */
 
+import x10.regionarray.*;
+
 /**
  * Intersect a rectangular region with a full region, construct an
  * array from it, and examine it.
  */
-
 class PolyIntersection3 extends TestRegion {
 
     public def run() {
-        val r1 = Region.makeRectangular([1,2], [3,4]);
+        val r1 = Region.makeRectangular(1..3, 2..4);
         val r2 = Region.makeFull(2);
         val r3 = r1.intersection(r2);
         prArray("full intersected with rectangle", r3);
@@ -38,7 +39,7 @@ class PolyIntersection3 extends TestRegion {
         "    2  . . 4 6 8 . . . . . \n"+
         "    3  . . 6 9 2 . . . . . \n";
     
-    public static def main(Array[String](1)) {
+    public static def main(Rail[String]) {
         new PolyIntersection3().execute();
     }
 }

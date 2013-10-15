@@ -23,10 +23,10 @@ public class EntailsPositiveInner_MustFailCompile extends x10Test {
     }
 
     public def run(): boolean = {
-        var x: Test{self.i==self.j} = new Test(1,2); // ERR should fail
+        var x: Test{self.i==self.j} = new Test(1n,2n); // ERR should fail
         return true;
     }
-    public static def main(var args: Array[String](1)): void = {
+    public static def main(var args: Rail[String]): void = {
         new EntailsPositiveInner_MustFailCompile().execute();
     }
 }

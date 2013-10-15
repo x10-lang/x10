@@ -21,14 +21,14 @@ import harness.x10Test;
 
 public class Classes50 extends x10Test {
    public def run() : boolean = (new Hook()).run();
-   public static def main(var args: Array[String](1)): void = {
+   public static def main(args:Rail[String]):void {
         new Classes50().execute();
     }
 
 
-// file Classes line 319
- static class Proper(t:Int) {
-  def this(t:Int) {property(t);}
+// file Classes line 340
+ static class Proper(t:Long) {
+  def this(t:Long) {property(t);}
 }
  static  class Hook{ def run() {
    val p = new Proper(4);

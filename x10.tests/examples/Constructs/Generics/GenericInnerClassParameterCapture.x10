@@ -23,13 +23,13 @@ public class GenericInnerClassParameterCapture[A] extends GenericTest {
     }
     public def make[G]() = new Inner[G]();
 
-    public static def foo():GenericInnerClassParameterCapture[Int].Inner[Int] = new GenericInnerClassParameterCapture[Int]().make[Double]().m();
+    public static def foo():GenericInnerClassParameterCapture[Long].Inner[Long] = new GenericInnerClassParameterCapture[Long]().make[Double]().m();
 
     public def run() = {
         return true;
     }
 
-    public static def main(var args: Array[String](1)): void = {
+    public static def main(var args: Rail[String]): void = {
         new GenericInnerClassParameterCapture[Any]().execute();
     }
 }

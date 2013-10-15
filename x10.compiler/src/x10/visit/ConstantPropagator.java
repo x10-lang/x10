@@ -238,9 +238,6 @@ public class ConstantPropagator extends ContextVisitor {
         if (e.isConstant())
             return e.constantValue();
         
-        if (e.type().isNull())
-            return ConstantValue.makeNull();
-
         if (e instanceof Field) {
         	Field f = (Field) e;
         	if (f.target() instanceof Expr) {
@@ -278,13 +275,10 @@ public class ConstantPropagator extends ContextVisitor {
         TypeSystem ts = type.typeSystem();
         if (isNative(e, ts))
             return false;
-
-        if (type.isNull())
-            return true;
                 
         if (e.isConstant()) {
             ConstantValue cv = e.constantValue();
-            if (!type.isReference()) return true;
+            if (type.isNull() || !type.isReference()) return true;
             return (cv instanceof ClosureValue);  // ClosureLiterals are the only non-null reference type that we allow ourselves to constant propagate.
         }
 

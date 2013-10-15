@@ -227,14 +227,14 @@ namespace x10 {
             CPRIM __caret(CPRIM arg0) {                                 \
                 return (CPRIM)(value^arg0);                             \
             }                                                           \
-            CPRIM __left(x10_int arg0) {                                \
-                return (CPRIM)(value<<(0x1f&arg0));                     \
+            CPRIM __left(x10_long arg0) {                               \
+                return (CPRIM)(value<<(0x1f&(x10_int)arg0));            \
             }                                                           \
-            CPRIM __right(x10_int arg0) {                               \
-                return (CPRIM)(value>>(0x1f&arg0));                     \
+            CPRIM __right(x10_long arg0) {                              \
+                return (CPRIM)(value>>(0x1f&(x10_int)arg0));            \
             }                                                           \
-            CPRIM __unsigned_right(x10_int arg0) {                      \
-                return (CPRIM)(((x10_ulong)value)>>(0x1f&arg0));        \
+            CPRIM __unsigned_right(x10_long arg0) {                     \
+                return (CPRIM)(((x10_ulong)value)>>(0x1f&(x10_int)arg0)); \
             }                                                           \
             /* Methods of Ordered */                                    \
             x10_boolean __lt(CPRIM arg0) {                              \

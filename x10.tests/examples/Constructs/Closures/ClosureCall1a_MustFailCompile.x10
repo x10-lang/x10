@@ -1,4 +1,3 @@
-
 /*
  *  This file is part of the X10 project (http://x10-lang.org).
  *
@@ -26,7 +25,7 @@ import harness.x10Test;
  * @author bdlucas 8/2008
  */
 
-public class ClosureCall1a_MustFailCompile extends ClosureTest {
+public class ClosureCall1a_MustFailCompile extends x10Test {
 
     class V           {public static val name = "V";}
     class W extends V {public static val name = "W";}
@@ -38,12 +37,12 @@ public class ClosureCall1a_MustFailCompile extends ClosureTest {
 
         // must fail compile
         val a = ([T](){T<:X} => T.name)();
-        check("a", a, "hi");
+        chk(a.equals("hi"), "a");
 
-        return result;
+        return true;
     }
 
-    public static def main(var args: Array[String](1)): void = {
+    public static def main(var args: Rail[String]): void = {
         new ClosureCall1a_MustFailCompile().execute();
     }
 }

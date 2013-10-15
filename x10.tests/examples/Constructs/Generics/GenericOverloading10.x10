@@ -28,13 +28,13 @@ public class GenericOverloading10 extends GenericTest {
 
     public def run(): boolean = {
 
-        genericCheck("m[int]()", m[int](0), 0);
-        genericCheck("m[int,String](int)", m[int,String](0), 1);
+        genericCheck("m[long]()", m[long](0), 0);
+        genericCheck("m[long,String](long)", m[long,String](0), 1);
 
         return result;
     }
 
-    public static def main(var args: Array[String](1)): void = {
+    public static def main(var args: Rail[String]): void = {
         new GenericOverloading10().execute();
     }
 }

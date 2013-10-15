@@ -21,13 +21,13 @@ public class XTENLANG_1462 extends x10Test {
         return true;
     }
 
-    public static def main(Array[String](1)) {
+    public static def main(Rail[String]) {
         new XTENLANG_1462().execute();
     }
 	
 	
-	static class Bar(p:Int) {
-		def this(q:Int):Bar{self.p==q} {
+	static class Bar(p:Long) {
+		def this(q:Long):Bar{self.p==q} {
 			property(q);
 		}
 		static def test(z:Bar{p==3}) {

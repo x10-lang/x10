@@ -21,12 +21,12 @@ import harness.x10Test;
 
 public class Types240 extends x10Test {
    public def run() : boolean = (new Hook()).run();
-   public static def main(var args: Array[String](1)): void = {
+   public static def main(args:Rail[String]):void {
         new Types240().execute();
     }
 
 
-// file Types line 823
+// file Types line 988
 
  static class Example {
   static type Nonnull[T]{T isref}  = T{self!=null};

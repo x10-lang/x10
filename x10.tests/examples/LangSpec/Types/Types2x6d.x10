@@ -21,12 +21,12 @@ import harness.x10Test;
 
 public class Types2x6d extends x10Test {
    public def run() : boolean = (new Hook()).run();
-   public static def main(var args: Array[String](1)): void = {
+   public static def main(args:Rail[String]):void {
         new Types2x6d().execute();
     }
 
 
-// file Types line 2649
+// file Types line 2965
  static interface ComparableTo[T] {
   def eq(T):Boolean;
 }

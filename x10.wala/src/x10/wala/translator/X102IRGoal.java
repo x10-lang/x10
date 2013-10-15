@@ -137,7 +137,7 @@ public class X102IRGoal extends SourceGoal_c {
                 final TypeReference typeRef = TypeReference.findOrCreate(X10LOADER, "L" + mainClass);
                 final MethodReference mainRef = MethodReference.findOrCreate(
                         typeRef, Atom.findOrCreateAsciiAtom("main"),
-                        Descriptor.findOrCreateUTF8("(Lx10/array/Array;)V"));
+                        Descriptor.findOrCreateUTF8("(Lx10.regionarray/Array;)V"));
                 entrypoints.add(new DefaultEntrypoint(mainRef, engine.getClassHierarchy()));
             }
             if(Report.verbose)

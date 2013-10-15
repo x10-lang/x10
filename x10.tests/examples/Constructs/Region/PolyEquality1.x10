@@ -9,19 +9,20 @@
  *  (C) Copyright IBM Corporation 2006-2010.
  */
 
+import x10.regionarray.*;
+
 /**
  * Basic rectangular region equality.
  *
  * (was RegionEquality)
  */
-
 class PolyEquality1 extends TestRegion {
 
     public def run() {
 
-        val r1 = Region.makeRectangular([0,1], [5,6]);
-        val r2 = Region.makeRectangular([1,2], [6,7]);
-        val r3 = Region.makeRectangular([1,2], [5,6]);
+        val r1 = Region.makeRectangular(0..5, 1..6) as Region(2);
+        val r2 = Region.makeRectangular(1..6, 2..7) as Region(2);
+        val r3 = Region.makeRectangular(1..5, 2..6) as Region(2);
         val r4 = r1.intersection(r2);
 
         comp(r1,r2);
@@ -51,7 +52,7 @@ class PolyEquality1 extends TestRegion {
         "[1..5,2..6]==[0..5,1..6] false false\n"+
         "[1..5,2..6]==[1..5,2..6] true true\n";
     
-    public static def main(Array[String](1)) {
+    public static def main(Rail[String]) {
         new PolyEquality1().execute();
     }
 }

@@ -10,8 +10,10 @@
  */
 
 package x10.lang;
+
 import x10.io.CustomSerialization;
-import x10.io.SerialData;
+import x10.io.Deserializer;
+import x10.io.Serializer;
 import x10.compiler.NonEscaping;
 
 /**
@@ -26,11 +28,13 @@ public final class FinishAccumulator[T] {}
 	    super(red);
 		this.sr = new FinishState.StatefulReducer[T](red);
 	}
-    public def this(data:SerialData) {
-        super(data);
+    public def this(ds:Deserializer) {
+        super(ds);
         this.sr = new FinishState.StatefulReducer[T](red);
     }
-    public def serialize():SerialData = super.serialize();
+    public def serialize(s:Serializer) {
+        super.serialize(s);
+    }
 
     // This method supplies/offers a value to the accumulator.
 	public operator this <- (t:T):void {

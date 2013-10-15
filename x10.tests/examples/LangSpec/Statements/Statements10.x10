@@ -21,16 +21,16 @@ import harness.x10Test;
 
 public class Statements10 extends x10Test {
    public def run() : boolean = (new Hook()).run();
-   public static def main(var args: Array[String](1)): void = {
+   public static def main(args:Rail[String]):void {
         new Statements10().execute();
     }
 
 
-// file Statements line 18
+// file Statements line 20
  static  class EmptyStatementExample {
-static def search[T](a: Array[T](1), v: T):Int {
-  var i : Int;
-  for(i = a.region.min(0); a(i) != v; i++)
+static def search[T](a: Rail[T], v: T):Long {
+  var i : Long;
+  for(i = 0L; a(i) != v; i++)
      ;
   return i;
 }

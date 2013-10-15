@@ -119,7 +119,7 @@ public class X10TypeEnv_c extends TypeEnv_c implements X10TypeEnv {
                         continue;
                     }
 
-                    mi = expandPropertyInMethod(ct,mi);
+                    mi = expandPropertyInMethod(mi);
                     MethodInstance mj = ts.findImplementingMethod(ct, mi, context);
                     if (mj == null) {
                     	if (Types.isX10Struct(ct)) {
@@ -742,21 +742,26 @@ public class X10TypeEnv_c extends TypeEnv_c implements X10TypeEnv {
     private boolean isInterface(ClassType t) {
         return t.flags().isInterface();
     }
-    public MethodInstance expandPropertyInMethod(final ClassType t1, MethodInstance mi) {
+    public MethodInstance expandPropertyInMethod(MethodInstance mi) {
         // expand property methods in all formals and guard
-        if (t1==null || isInterface(t1)) return mi;
-        mi = (MethodInstance) mi.formalNames(new TransformingList<LocalInstance,LocalInstance>(mi.formalNames(), new Transformation<LocalInstance, LocalInstance>() {
-            public LocalInstance transform(LocalInstance o) {
-                return o.type(expandPropertyInMethodNonNull(t1,o.type()));
-            }
-        }));
+    	//if (t1==null || isInterface(t1)) return mi;
+    	mi = (MethodInstance) mi.formalNames(new TransformingList<LocalInstance,LocalInstance>(mi.formalNames(), 
+    			new Transformation<LocalInstance, LocalInstance>() {
+    		public LocalInstance transform(LocalInstance o) {
+    			return o.type(expandPropertyInMethodNonNull(o.type()));
+    		}
+    	}));
         if (mi.guard()!=null)
-            mi = (MethodInstance) mi.guard( ifNull(expandProperty(true,t1,mi.guard()),mi.guard()) );
-        mi = (MethodInstance) mi.formalTypes(new TransformingList<Type,Type>(mi.formalTypes(), new Transformation<Type, Type>() {
+            mi = (MethodInstance) mi.guard( ifNull(expandProperty(true,mi.guard()),mi.guard()) );
+        mi = (MethodInstance) mi.formalTypes(new TransformingList<Type,Type>(mi.formalTypes(), 
+        		new Transformation<Type, Type>() {
             public Type transform(Type o) {
-                return expandPropertyInMethodNonNull(t1,o);
+                return expandPropertyInMethodNonNull(o);
             }
         }));
+        if (mi.returnType()!=null) {
+        	mi = mi.returnType(expandPropertyInMethodNonNull(mi.returnType()));
+        }
         return mi;
     }
     private Type expandPropertyInSubtype(Type t1, Type t2) {
@@ -765,33 +770,36 @@ public class X10TypeEnv_c extends TypeEnv_c implements X10TypeEnv {
         // where I is an interface with abstract property p, and C is a class with concrete definition for p.
         final ClassType t1ClassType = Types.getClassType(t1,ts,context);
         if (t1ClassType==null || isInterface(t1ClassType)) return t2;  // if t1 is an interface, then there is no way it has any non-abstract property definitions.
-        return expandProperty(false,t1ClassType, t2);
+        return expandProperty(false, t2);
     }
     /** Return t if non-null, otherwise return def. */
     public static <T> T ifNull(T t, T def) {
         return t==null ? def : t;
     }
-    private Type expandPropertyInMethodNonNull(final ClassType t1ClassType, Type t2) {
-        return ifNull(expandProperty(true,t1ClassType,t2), t2);
+    private Type expandPropertyInMethodNonNull(Type t2) {
+        return ifNull(expandProperty(true,t2), t2);
     }
-    private Type expandProperty(final boolean isMethod, final ClassType t1ClassType, Type t2) {
+    private Type expandProperty(final boolean isMethod, Type t2) {
         if (!(t2 instanceof ConstrainedType)) return t2;
         ConstrainedType t2c = (ConstrainedType) t2;
         CConstraint originalConst = Types.get(t2c.constraint());
-        CConstraint newConstraint = expandProperty(isMethod, t1ClassType,originalConst);
+        CConstraint newConstraint = expandProperty(isMethod,  originalConst);
         if (newConstraint==null) return null;
         if (newConstraint!=originalConst)
             t2 = Types.xclause(Types.baseType(t2), newConstraint);
         return t2;
     }
-    private CConstraint expandProperty(final boolean isMethod, final ClassType t1ClassType, final CConstraint originalConst) {
+
+    private CConstraint expandProperty(final boolean isMethod, final CConstraint originalConst) {
         final List<? extends XTerm<Type>> terms = originalConst.terms();
         final ArrayList<XTerm<Type>> newTerms = new ArrayList<XTerm<Type>>(terms.size());
         boolean wasNew = false;
         for (XTerm<Type> xTerm : terms) {
             final XTerm.TermVisitor<Type> visitor = new XTerm.TermVisitor<Type>() {
                 public XTerm<Type> visit(XTerm<Type> term) {
-                    XTerm<Type> res = XTypeTranslator.expandPropertyMethod(originalConst,term,isMethod,ts,t1ClassType,context);
+                    XTerm<Type> res = XTypeTranslator.expandPropertyMethod(originalConst,
+                    		term,isMethod,
+                    		ts,context);
                     return res==term ? null : res;
                 }
             };
@@ -834,7 +842,7 @@ public class X10TypeEnv_c extends TypeEnv_c implements X10TypeEnv {
 
     	t1 = ts.expandMacros(t1);
     	t2 = ts.expandMacros(t2);
-        t2 = expandPropertyInSubtype(t1,t2);
+        t2 = expandPropertyInSubtype(t1, t2);
         if (t2==null) return false;
         assert !t1.isVoid() && !t2.isVoid();
         
@@ -1502,6 +1510,9 @@ public class X10TypeEnv_c extends TypeEnv_c implements X10TypeEnv {
     public boolean numericConversionValid(Type toType, Type fromType, java.lang.Object value) {
             if (value == null)
                 return false;
+            
+            // [DC] seems this code is now redundant since we have user-defined operators
+            if (true) return false;
             
             if (value instanceof Float || value instanceof Double)
                 return false;
@@ -2216,7 +2227,8 @@ public class X10TypeEnv_c extends TypeEnv_c implements X10TypeEnv {
     }
 
     @Override
-    public void checkOverride(MethodInstance r, MethodInstance other, boolean allowCovariantReturn) throws SemanticException {
+    public void checkOverride(MethodInstance r, MethodInstance other, 
+    		boolean allowCovariantReturn) throws SemanticException {
 
         MethodInstance mi = (MethodInstance) r;
         MethodInstance mj = (MethodInstance) other;
@@ -2232,13 +2244,16 @@ public class X10TypeEnv_c extends TypeEnv_c implements X10TypeEnv {
         @SuppressWarnings("unchecked")
 		final XVar<Type>[] x = xs.toArray(new XVar[ys.size()]);
 
-        mi = fixThis(mi, y, x);
-        mj = fixThis(mj, y, x);
-
-
         // Force evaluation to help debugging.
+
+        mi = fixThis(mi, y, x);
         mi.returnType();
+        mi = expandPropertyInMethod(mi);
+
+        mj = fixThis(mj, y, x);
         mj.returnType();
+        mj = expandPropertyInMethod(mj);
+
 
         superCheckOverride(mi, mj, allowCovariantReturn);
 

@@ -23,8 +23,8 @@ public class JavaType2 extends x10Test {
         l.add(d);
         l.add(d);
         val ll = at (here.next()) {
-            val d0 = l.get(0);
-            val d1 = l.get(1);
+            val d0 = l.get(0n);
+            val d1 = l.get(1n);
             chk(d0 != null);
             chk(d0 == d1);
             return l;
@@ -37,7 +37,7 @@ public class JavaType2 extends x10Test {
         return true;
     }
 
-    public static def main(args: Array[String](1)) {
+    public static def main(args: Rail[String]) {
         new JavaType2().execute();
     }
 }

@@ -157,7 +157,7 @@ if [[ -z "$CVS_RSH" ]]; then
 fi
 
 if [[ -z "$X10_SVNROOT" ]]; then
-	export X10_SVNROOT="http://x10.svn.sf.net/svnroot/x10/trunk"
+    export X10_SVNROOT="http://svn.code.sf.net/p/x10/code/trunk"
 fi
 
 if [[ -z "$X10_INTERNAL_TESTS" ]]; then

@@ -17,41 +17,31 @@ public abstract class ThrowableUtils {
     public static final boolean supportConversionForJavaErrors = false;
 
     private static final java.util.Map<Class<? extends java.lang.Throwable>,Class<? extends java.lang.RuntimeException>> x10Exceptions = new java.util.HashMap<Class<? extends java.lang.Throwable>,Class<? extends java.lang.RuntimeException>>();
-    private static Class<? extends java.lang.RuntimeException> x10_io_IOException;
+    private static final Class<? extends java.lang.RuntimeException> x10_io_IOException;
     static {
-        try {
             Class<? extends java.lang.Throwable> javaClass;
-            java.lang.String x10Name;
             Class<? extends java.lang.RuntimeException> x10Class;
 
             javaClass = java.io.NotSerializableException.class;
-            x10Name = "x10.io.NotSerializableException";
-            x10Class = Class.forName(x10Name).asSubclass(java.lang.RuntimeException.class);
+            x10Class = x10.io.NotSerializableException.class;
             x10Exceptions.put(javaClass, x10Class);
 
             javaClass = java.io.EOFException.class;
-            x10Name = "x10.io.EOFException";
-            x10Class = Class.forName(x10Name).asSubclass(java.lang.RuntimeException.class);
+            x10Class = x10.io.EOFException.class;
             x10Exceptions.put(javaClass, x10Class);
 
             javaClass = java.io.FileNotFoundException.class;
-            x10Name = "x10.io.FileNotFoundException";
-            x10Class = Class.forName(x10Name).asSubclass(java.lang.RuntimeException.class);
+            x10Class = x10.io.FileNotFoundException.class;
             x10Exceptions.put(javaClass, x10Class);
 
             javaClass = java.io.IOException.class;
-            x10Name = "x10.io.IOException";
-            x10Class = Class.forName(x10Name).asSubclass(java.lang.RuntimeException.class);
+            x10Class = x10.io.IOException.class;
             x10Exceptions.put(javaClass, x10Class);
             x10_io_IOException = x10Class;
 
             javaClass = java.lang.InterruptedException.class;
-            x10Name = "x10.lang.InterruptedException";
-            x10Class = Class.forName(x10Name).asSubclass(java.lang.RuntimeException.class);
+            x10Class = x10.lang.InterruptedException.class;
             x10Exceptions.put(javaClass, x10Class);
-        } catch (java.lang.ClassNotFoundException e) {
-            e.printStackTrace();
-        }
     }
         
     private static java.lang.RuntimeException asX10Exception(Class<? extends java.lang.RuntimeException> x10Class, java.lang.String message, java.lang.Throwable t) {
@@ -102,13 +92,13 @@ public abstract class ThrowableUtils {
         return message == null ? typeName : typeName + ": " + message;
     }
 
-    public static x10.array.Array<java.lang.String> getStackTrace(java.lang.Throwable e) {
+    public static x10.core.Rail<java.lang.String> getStackTrace(java.lang.Throwable e) {
         java.lang.StackTraceElement[] elements = e.getStackTrace();
         java.lang.String str[] = new java.lang.String[elements.length];
         for (int i = 0; i < elements.length; ++i) {
             str[i] = elements[i].toString();
         }
-        return x10.runtime.impl.java.ArrayUtils.<java.lang.String>makeArrayFromJavaArray(x10.rtt.Types.STRING, str);
+        return x10.runtime.impl.java.ArrayUtils.<java.lang.String>makeRailFromJavaArray(x10.rtt.Types.STRING, str);
     }
     
     public static void printStackTrace(java.lang.Throwable t, x10.io.Printer p) {

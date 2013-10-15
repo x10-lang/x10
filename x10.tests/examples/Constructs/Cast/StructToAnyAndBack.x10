@@ -43,15 +43,15 @@ class StructToAnyAndBack extends x10Test {
     
     public def run():boolean {
         var res:boolean = true;
-        res &= testAStruct[int,float](1);
+        res &= testAStruct[int,float](1n);
         res &= testAStruct[ubyte, double](0yu);
         res &= testAStruct[float, short](3.0f);
-        res &= testAStruct[S, int](S(10));
+        res &= testAStruct[S, int](S(10n));
 
         return res;
     }
 
-    public static def main(Array[String](1)) {
+    public static def main(Rail[String]) {
         new StructToAnyAndBack().execute();
     }
 }

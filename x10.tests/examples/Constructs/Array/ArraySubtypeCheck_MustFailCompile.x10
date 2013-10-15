@@ -10,6 +10,7 @@
  */
 
 import harness.x10Test;
+import x10.regionarray.*;
 import x10.compiler.*; // @Uncounted @NonEscaping @NoThisAccess
 import x10.compiler.tests.*; // err markers
 
@@ -22,13 +23,13 @@ public class ArraySubtypeCheck_MustFailCompile extends x10Test {
     class Sub extends Sup {}
     
     public def run(): boolean = {
-        val R:Region = 0..3;
+        val R:Region = Region.make(0,3);
         var subarr00: Array[Sub] = new Array[Sub](R, (Point)=>null);
         var suparr00: Array[Sup] = subarr00; // ERR
         return true;
     }
 
-    public static def main(var args: Array[String](1)): void = {
+    public static def main(var args: Rail[String]): void = {
         new ArraySubtypeCheck_MustFailCompile().execute();
     }
 }

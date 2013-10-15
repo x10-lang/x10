@@ -21,15 +21,15 @@ import harness.x10Test;
 
 public class Functions40 extends x10Test {
    public def run() : boolean = (new Hook()).run();
-   public static def main(var args: Array[String](1)): void = {
+   public static def main(args:Rail[String]):void {
         new Functions40().execute();
     }
 
 
-// file Functions line 303
+// file Functions line 304
 
  static class Functions7TestExp{
-  def check()  = (Int):Array[Double](1) => null;  }
+  def check()  = (Long):Rail[Double] => null;  }
 
  static class Hook {
    def run():Boolean = true;

@@ -9,6 +9,7 @@
  *  (C) Copyright IBM Corporation 2006-2010.
  */
 
+import x10.regionarray.*;
 import x10.util.ArrayList;
 
 /**
@@ -39,9 +40,9 @@ public class HeatTransfer_v3 {
     static val epsilon = 1.0e-5;
     static val P = 2;
 
-    static val BigD = Dist.makeBlock((0..(n+1))*(0..(n+1)), 0);
-    static val D = BigD | (1..n)*(1..n);
-    static val LastRow = (0..0)*(1..n);
+    static val BigD = Dist.makeBlock(Region.make(0..(n+1), 0..(n+1)), 0);
+    static val D = BigD | Region.make(1..n, 1..n);
+    static val LastRow = Region.make(0..0, 1..n);
 
     val A = DistArray.make[Double](BigD,(p:Point)=>{ LastRow.contains(p) ? 1.0 : 0.0 });
 
@@ -54,10 +55,10 @@ public class HeatTransfer_v3 {
 
     // TODO: This is a really inefficient implementation of this abstraction.
     //       Needs to be done properly and integrated into the Dist/Region/DistArray
-    //       class library in x10.array.
-    static def blockIt(d:Dist(2), numProcs:int):Array[ArrayList[Point(2)]](1) {
-        val ans = new Array[ArrayList[Point(2)]](numProcs, (int) => new ArrayList[Point(2)]());
-	var modulo:int = 0;
+    //       class library in x10.regionarray.
+    static def blockIt(d:Dist(2), numProcs:long):Array[ArrayList[Point(2)]](1) {
+        val ans = new Array[ArrayList[Point(2)]](numProcs, (long) => new ArrayList[Point(2)]());
+	var modulo:long = 0;
         for (p in d) {
 	    ans(modulo).add(p);
             modulo = (modulo + 1) % numProcs;
@@ -73,7 +74,7 @@ public class HeatTransfer_v3 {
         do {
             finish ateach (z in D_Base) {
                 val blocks = blockIt(D | here, P);
-                for ([q] in 0..(P-1)) async {
+                for (q in 0..(P-1)) async {
                     for (p in blocks(q)) {
                         Temp(p) = stencil_1(p);
                     }
@@ -101,7 +102,7 @@ public class HeatTransfer_v3 {
         }
     }
 
-    public static def main(Array[String]) {
+    public static def main(Rail[String]) {
         Console.OUT.println("HeatTransfer Tutorial example with n="+n+" and epsilon="+epsilon);
         Console.OUT.println("Initializing data structures");
         val s = new HeatTransfer_v3();

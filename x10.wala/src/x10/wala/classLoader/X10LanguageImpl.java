@@ -60,7 +60,7 @@ public class X10LanguageImpl extends LanguageImpl implements BytecodeLanguage {
     private final static TypeName X10LangPlaceName = TypeName.string2TypeName("Lx10/lang/Place");
     public final static TypeReference X10LangPlace = TypeReference.findOrCreate(X10Loader, X10LangPlaceName);
 
-    private final static TypeName X10ArrayArrayName = TypeName.string2TypeName("Lx10/array/Array");
+    private final static TypeName X10ArrayArrayName = TypeName.string2TypeName("Lx10.regionarray/Array");
     public final static TypeReference X10ArrayArray = TypeReference.findOrCreate(X10Loader, X10ArrayArrayName);
 
     private final static TypeName X10LangObjectName = TypeName.string2TypeName("Lx10/lang/Object");

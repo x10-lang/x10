@@ -22,10 +22,10 @@ public class InnerDepType extends x10Test {
     }
 	public def run(): boolean = {
 	 
-	    var x: Test{self.i==0} = new Test(0); 
+	    var x: Test{self.i==0n} = new Test(0n); 
 	    return true;
 	}
-	public static def main(var args: Array[String](1)): void = {
+	public static def main(var args: Rail[String]): void = {
 		new InnerDepType().execute();
 	}
 }

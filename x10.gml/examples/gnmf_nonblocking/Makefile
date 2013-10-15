@@ -1,3 +1,4 @@
+
 ###################################################
 ###################################################
 ## Name:  	X10 application test
@@ -23,8 +24,7 @@ depend_src  = SeqGNNMF.x10 GNNMF.x10
 build_path	= build
 
 # GML path
-gml_path    = ../../../matrix
-
+gml_path    = ../..
 
 # compile options
 X10_FLAG	= -sourcepath ../.  -d $(build_path) -report postcompile=2 -v -errors 5 -VERBOSE_CHECKS -O -NO_CHECKS
@@ -65,5 +65,3 @@ help::
 	@echo " If runtime shows \"NoClassDefFoundError: x10/matrix/Matrix\"";
 	@echo " replace \"~\" by relative directory path or absolute explicit directory path name";
 	@echo "";
-	
-	

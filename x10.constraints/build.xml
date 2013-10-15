@@ -41,7 +41,7 @@
     </target>
     <target name="build" depends="init">
         <echo message="${ant.project.name}: ${ant.file}"/>
-        <javac destdir="${build}" source="1.5" target="1.5" debug="on">
+        <javac destdir="${build}" source="1.6" target="1.6" debug="on">
             <src path="${src}"/>
             <include name="x10/**"/>
             <exclude name="x10/constraint/test/**"/>
@@ -52,7 +52,7 @@
         </javac>
     </target>
     <target name="tests" depends="init,build">
-        <javac destdir="${build}" source="1.5" target="1.5" debug="on">
+        <javac destdir="${build}" source="1.6" target="1.6" debug="on">
             <src path="${src}"/>
             <include name="x10/constraint/test/**"/>
             <classpath>

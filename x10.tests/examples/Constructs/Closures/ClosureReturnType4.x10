@@ -20,7 +20,7 @@ import harness.x10Test;
  * @author bdlucas 8/2008
  */
 
-public class ClosureReturnType4 extends ClosureTest {
+public class ClosureReturnType4 extends x10Test {
 
     class A {
         def name(): String = "A";
@@ -36,17 +36,17 @@ public class ClosureReturnType4 extends ClosureTest {
 
     public def run(): boolean = {
         
-        val f = (x:int) => {if (x==0) return new B(); return new C();};
+        val f = (x:long) => {if (x==0) return new B(); return new C();};
         val a0 = f(0);
         val a1 = f(1);
-        check("a0.name()", a0.name(), "B");
-        check("a1.name()", a1.name(), "C");
+        chk(a0.name().equals("B"), "a0.name()");
+        chk(a1.name().equals("C"), "a1.name()");
 
-        return result;
+        return true;
     }
 
 
-    public static def main(var args: Array[String](1)): void = {
+    public static def main(var args: Rail[String]): void = {
         new ClosureReturnType4().execute();
     }
 }

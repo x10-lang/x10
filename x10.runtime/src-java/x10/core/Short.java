@@ -146,9 +146,9 @@ final public class Short extends java.lang.Number implements StructI, java.lang.
     public Short $ampersand(java.lang.Object b, Type t) { return Short.$box($value & ((Short)b).$value); }
     public Short $bar(java.lang.Object b, Type t) { return Short.$box($value | ((Short)b).$value); }
     public Short $caret(java.lang.Object b, Type t) { return Short.$box($value ^ ((Short)b).$value); }
-    public Short $left$G(int count) { return Short.$box($value << count); }
-    public Short $right$G(int count) { return Short.$box($value >> count); }
-    public Short $unsigned_right$G(int count) { return Short.$box($value >>> count); }
+    public Short $left$G(long count) { return Short.$box($value << count); }
+    public Short $right$G(long count) { return Short.$box($value >> count); }
+    public Short $unsigned_right$G(long count) { return Short.$box($value >>> count); }
     // for X10PrettyPrinterVisitor.exposeSpecialDispatcherThroughSpecialInterface
     public short $ampersand$S(java.lang.Object b, Type t) { return (short) ($value & ((Short)b).$value); }
     public short $bar$S(java.lang.Object b, Type t) { return (short) ($value | ((Short)b).$value); }

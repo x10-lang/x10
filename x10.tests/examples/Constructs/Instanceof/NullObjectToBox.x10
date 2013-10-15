@@ -21,8 +21,7 @@ import harness.x10Test;
 public class NullObjectToBox extends x10Test {
 	 
     public def run(): boolean = {
-	var array: Rail[Box[ValueClass]] 
-	  = new Rail[Box[ValueClass]](1, (int):Box[ValueClass]=>null);
+	var array: Rail[Box[ValueClass]] = new Rail[Box[ValueClass]](1);
 	var v: Box[ValueClass] = array(0);
 	var nullableVarNull: Box[ValueClass] = null;
 
@@ -44,7 +43,7 @@ public class NullObjectToBox extends x10Test {
     public def getNullNullable() = null;
 
 	
-    public static def main(Array[String](1)) = {
+    public static def main(Rail[String]) = {
 	new NullObjectToBox().execute();
     }
 }

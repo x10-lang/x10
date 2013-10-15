@@ -1,0 +1,9 @@
+#!/bin/bash
+
+export X10_HOME=/tmp/x10reg_cpp.release
+export X10_SVNROOT="http://svn.code.sf.net/p/x10/code/tags/SF_RELEASE_2_2_3"
+export CAT_BACKEND_NAME=x10cpp-release
+
+. /home/x10reg/bin/autorunCT++_common
+
+exit $?

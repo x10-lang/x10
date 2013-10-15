@@ -20,12 +20,12 @@ public class Inference4 extends x10Test {
         def m[T](x: T): T = x;
 
 	public def run(): boolean = {
-                val x = m(1);
+                val x = m(1n);
                 val y: int = x;
 		return x == y;
 	}
 
-	public static def main(var args: Array[String](1)): void = {
+	public static def main(var args: Rail[String]): void = {
 		new Inference4().execute();
 	}
 }

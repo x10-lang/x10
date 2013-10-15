@@ -21,12 +21,12 @@ class XTENLANG_238 extends x10Test {
 
 
     public def run(): boolean {
-        val a = new AtomicInteger(0);
+        val a = new AtomicInteger(0n);
         a.incrementAndGet();
         return true;
     }
 
-    public static def main(Array[String](1)) {
+    public static def main(Rail[String]) {
         new XTENLANG_238().execute();
     }
 }

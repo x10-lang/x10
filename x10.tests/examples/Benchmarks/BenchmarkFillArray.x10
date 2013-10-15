@@ -8,7 +8,9 @@
  *
  *  (C) Copyright Australian National University 2011.
  */
+
 import harness.x10Test;
+import x10.array.Array_1;
 
 /**
  * Tests performance of filling arrays of different base 
@@ -22,7 +24,7 @@ public class BenchmarkFillArray extends x10Test {
         this.N = N;
     }
 	public def run(): Boolean = {
-        val a = new Array[Char](N+1);
+        val a = new Array_1[Char](N+1);
         var start : Long = System.nanoTime();
         for (i in 0..REPS) {
             a.fill('\0');
@@ -30,15 +32,15 @@ public class BenchmarkFillArray extends x10Test {
         var stop : Long = System.nanoTime();
         Console.OUT.printf("fill Array[Char]: %g ms\n", ((stop-start) as Double) / REPS / 1e6);
 
-        val b = new Array[Int](N+1);
+        val b = new Array_1[Int](N+1);
         start = System.nanoTime();
         for (i in 0..REPS) {
-            b.fill(0);
+            b.fill(0n);
         }
         stop = System.nanoTime();
         Console.OUT.printf("fill Array[Int]: %g ms\n", ((stop-start) as Double) / REPS / 1e6);
 
-        val c = new Array[Double](N+1);
+        val c = new Array_1[Double](N+1);
         start = System.nanoTime();
         for (i in 0..REPS) {
             c.fill(0.0);
@@ -46,7 +48,7 @@ public class BenchmarkFillArray extends x10Test {
         stop = System.nanoTime();
         Console.OUT.printf("fill Array[Double]: %g ms\n", ((stop-start) as Double) / REPS / 1e6);
 
-        val d = new Array[Complex](N+1);
+        val d = new Array_1[Complex](N+1);
         start = System.nanoTime();
         for (i in 0..REPS) {
             d.fill(Complex.ZERO);
@@ -58,11 +60,11 @@ public class BenchmarkFillArray extends x10Test {
 	}
 
 	public static def main(var args: Rail[String]): void = {
-        var n : Int = 100000;
+        var n : Int = 100000n;
         if (args.size > 0) {
             n = Int.parseInt(args(0));
         }
-		new BenchmarkFillArray(n).execute();
+	new BenchmarkFillArray(n).execute();
 	}
 
 }

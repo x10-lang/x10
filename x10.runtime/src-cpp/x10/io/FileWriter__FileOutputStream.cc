@@ -11,7 +11,8 @@
 
 #include <x10/io/FileWriter__FileOutputStream.h>
 
-#include <x10/util/IndexedMemoryChunk.h>
+#include <x10/lang/Rail.h>
+
 #include <x10/io/FileNotFoundException.h>
 #include <x10/io/NotSerializableException.h>
 
@@ -50,8 +51,13 @@ void FileWriter__FileOutputStream::write(x10_int i) {
     ::fputc((char)i, FMGL(file));
 }
 
-void FileWriter__FileOutputStream::write(x10::util::IndexedMemoryChunk<x10_byte> b, x10_int off, x10_int len) {
-    ::fwrite(((x10_byte*)b->raw())+off*sizeof(x10_byte), sizeof(x10_byte), len*sizeof(x10_byte), FMGL(file));
+void FileWriter__FileOutputStream::write(x10::lang::String* s) {
+    x10aux::nullCheck(s);
+    ::fwrite(s->c_str(), sizeof(char), s->length(), FMGL(file));
+}
+
+void FileWriter__FileOutputStream::write(x10::lang::Rail<x10_byte>* b, x10_long off, x10_long len) {
+    ::fwrite(&b->raw[off], sizeof(x10_byte), len, FMGL(file));
 }
 
 void FileWriter__FileOutputStream::flush() {

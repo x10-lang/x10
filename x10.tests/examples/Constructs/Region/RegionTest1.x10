@@ -10,6 +10,7 @@
  */
 
 import harness.x10Test;
+import x10.regionarray.*;
 
 /**
  * Minimal test for regions.
@@ -19,16 +20,16 @@ public class RegionTest1 extends x10Test {
 
     public def run(): boolean = {
 
-        var r: Region(1){rect} = 0..100;
+        var r: Region(1){rect} = Region.make(0, 100);
         var reg: Region(2){rect} = r*r;
 
-        var sum: int = 0;
+        var sum: long = 0;
         for (p[i,j] in reg) sum += i-j;
 
         return sum == 0;
     }
 
-    public static def main(var args: Array[String](1)): void = {
+    public static def main(var args: Rail[String]): void = {
         new RegionTest1().execute();
     }
 }

@@ -1,3 +1,14 @@
+/*
+ *  This file is part of the X10 project (http://x10-lang.org).
+ *
+ *  This file is licensed to You under the Eclipse Public License (EPL);
+ *  You may not use this file except in compliance with the License.
+ *  You may obtain a copy of the License at
+ *      http://www.opensource.org/licenses/eclipse-1.0.php
+ *
+ *  (C) Copyright IBM Corporation 2006-2013.
+ */
+
 #ifndef X10RT_TYPES_H
 #define X10RT_TYPES_H
 
@@ -121,7 +132,7 @@ typedef void x10rt_notifier(const x10rt_msg_params *, x10rt_copy_sz);
  * The numerical values used correspond to the PAMI HFI operation values
  */
 typedef enum {
-    X10RT_OP_ADD = 0x00,
+    X10RT_OP_ADD = 0x00, // the ordering of these is important
     X10RT_OP_AND = 0x01,
     X10RT_OP_OR  = 0x02,
     X10RT_OP_XOR = 0x03
@@ -225,6 +236,18 @@ typedef struct {
     /** The total number of bytes copied as a result of get operations received by this place  */
     uint64_t get_copied_bytes_received;
 } x10rt_stats;
+
+/**
+ * Error code for x10rt apis.
+ */
+typedef enum {
+    X10RT_ERR_OK			= 0,   /* No error */
+    X10RT_ERR_MEM			= 1,   /* Out of memory error */
+    X10RT_ERR_INVALID		= 2,   /* Invalid method call, at this time (e.g. probe() before init()) */
+    X10RT_ERR_UNSUPPORTED	= 3,   /* Not supported by this implementation of X10RT */
+    X10RT_ERR_INTL			= 254, /* Internal implementation error */
+    X10RT_ERR_OTHER			= 255  /* Other unclassified runtime error */
+} x10rt_error;
 
 #endif
 

@@ -46,9 +46,12 @@ public interface SerializationConstants {
     public static final short NO_PREASSIGNED_ID = MAX_HARDCODED_ID + 1;
     public static final short FIRST_SHARED_ID = NO_PREASSIGNED_ID + 1;
     
-    public static final short FIRST_DYNAMIC_ID = 500;
+    public static final short FIRST_DYNAMIC_ID = 1000;
 
     public static final short REPEATED_OBJECT_ID = Short.MAX_VALUE;
     public static final short JAVA_OBJECT_STREAM_ID = REPEATED_OBJECT_ID - 1;
     public static final short JAVA_ARRAY_ID = REPEATED_OBJECT_ID - 2;
+    public static final short CUSTOM_SERIALIZATION_END = REPEATED_OBJECT_ID - 3;
+    public static final short DYNAMIC_ID_ID = REPEATED_OBJECT_ID - 4;
+    public static final short RESET_OBJECT_GRAPH_BOUNDARY_ID = REPEATED_OBJECT_ID -5;
 }

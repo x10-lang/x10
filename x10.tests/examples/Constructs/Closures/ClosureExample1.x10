@@ -33,10 +33,10 @@ public class ClosureExample1 extends x10Test {
         return null;
     }
 
-    val xs  = new ArrayList[Int]();
+    val xs  = new ArrayList[Long]();
     
-    // val x: Int = find((x: Int) => (x>0), xs);
-    val x: Box[Int] = find((x: Int) => (x>0), xs);
+    // val x: Int = find((x: Long) => (x>0), xs);
+    val x: Box[Long] = find((x: Long) => (x>0), xs);
 
     public def run(): boolean = {
         // XXX just syntax and type check for now
@@ -46,7 +46,7 @@ public class ClosureExample1 extends x10Test {
         return true;
     }
 
-    public static def main(var args: Array[String](1)): void = {
+    public static def main(var args: Rail[String]): void = {
         new ClosureExample1().execute();
     }
 }

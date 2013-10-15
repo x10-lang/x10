@@ -17,9 +17,9 @@ import harness.x10Test;
  */
 public class CF1 extends x10Test {
 
-    static struct Reducer implements Reducible[Int] {
+    static struct Reducer implements Reducible[Long] {
      	public def zero()=0;
-     	public operator this(a:Int,b:Int)=a+b;
+     	public operator this(a:Long,b:Long)=a+b;
     }
 	public def run() {
 		val x = finish (Reducer()){
@@ -28,7 +28,7 @@ public class CF1 extends x10Test {
 		return 6==x;
 	}
 
-	public static def main(Array[String](1)) {
+	public static def main(Rail[String]) {
 		new CF1().execute();
 	}
 }

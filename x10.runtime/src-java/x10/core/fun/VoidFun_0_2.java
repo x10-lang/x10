@@ -12,7 +12,6 @@
 package x10.core.fun;
 
 import x10.rtt.RuntimeType;
-import x10.rtt.RuntimeType.Variance;
 import x10.rtt.Type;
 import x10.rtt.VoidFunType;
 
@@ -21,9 +20,6 @@ public interface VoidFun_0_2<T1,T2> extends VoidFun {
 
     public static final RuntimeType<VoidFun_0_2<?,?>> $RTT = VoidFunType.<VoidFun_0_2<?,?>> make(
         VoidFun_0_2.class,
-        new Variance[] {
-            Variance.CONTRAVARIANT,
-            Variance.CONTRAVARIANT
-        }
+        2
     );
 }

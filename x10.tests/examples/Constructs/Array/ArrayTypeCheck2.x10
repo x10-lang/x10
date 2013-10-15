@@ -10,6 +10,7 @@
  */
 
 import harness.x10Test;
+import x10.regionarray.*;
 
 /**
  * @author vj
@@ -21,12 +22,12 @@ public class ArrayTypeCheck2 extends x10Test {
 
         val two = 2;
         
-        var a1: Array[int](two) = new Array[int]((0..2)*(0..3), ([i,j]: Point)=> i);
+        var a1: Array[long](two) = new Array[long](Region.make(0..2, 0..3), ([i,j]: Point)=> i);
         
         return true;
     }
 
-    public static def main(var args: Array[String](1)): void = {
+    public static def main(var args: Rail[String]): void = {
         new ArrayTypeCheck2().execute();
     }
 }

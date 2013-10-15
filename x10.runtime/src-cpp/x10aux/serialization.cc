@@ -7,6 +7,7 @@
  *      http://www.opensource.org/licenses/eclipse-1.0.php
  *
  *  (C) Copyright IBM Corporation 2006-2010.
+ *  (C) Copyright Australian National University 2013.
  */
 
 #include <x10aux/config.h>
@@ -15,11 +16,23 @@
 #include <x10aux/network.h>
 
 #include <x10/lang/Reference.h>
-
+#include <x10/lang/Any.h>
+#include <x10/lang/Rail.h>
 #include <x10/lang/Runtime__Profile.h>
+#include <x10/io/Serializer.h>
 
 using namespace x10aux;
 using namespace x10::lang;
+
+const serialization_id_t x10aux::deserialization_buffer::CUSTOM_SERIALIZATION_END;
+
+// used by simple_hashmap
+x10_uint x10aux::simple_hash_code(const void* id) {
+    // the >> 4 is to ensure aligned pointer hashes are both odd and even
+    x10_ulong ptr = reinterpret_cast<uint64_t>(id) >> 4;
+    x10_uint hash = ptr ^ (ptr >> 32);
+    return hash;
+}
 
 void addr_map::_grow() {
     int newSize = _size << 1;
@@ -31,29 +44,27 @@ void addr_map::_add(const void* ptr) {
     if (_top == _size) {
         _grow();
     }
+    _ptrPos->put(ptr, _top);
     _ptrs[_top++] = ptr;
 }
 
 int addr_map::_find(const void* ptr) {
-    for (int i = -1; i >= -_top; i--) {
-        if (_ptrs[_top+i] == ptr) {
-            return i;
-        }
-    }
-    return 0;
+    int pos = _ptrPos->get(ptr); // 0 or NULL means ptr is not in the table
+    return pos;
 }
 
 const void* addr_map::_get(int pos) {
-    if (pos < -_top || pos >= 0)
+    if (pos > _top || pos == 0)
         return NULL;
-    return _ptrs[_top+pos];
+    return _ptrs[pos];
 }
 
 const void* addr_map::_set(int pos, const void* ptr) {
-    if (pos < -_top || pos >= 0)
+    if (pos > _top || pos == 0)
         return NULL;
-    const void* old = _ptrs[_top+pos];
-    _ptrs[_top+pos] = ptr;
+    const void* old = _ptrs[pos];
+    _ptrs[pos] = ptr;
+    _ptrPos->put(ptr, pos);
     return old;
 }
 
@@ -64,6 +75,10 @@ int addr_map::_position(const void* p) {
     }
     _add(p);
     return 0;
+}
+
+void serialization_buffer::_constructor(x10::io::OutputStreamWriter *os) {
+	x10aux::throwUnsupportedOperationException("Haven't implemented Serializer(OutputStreamWriter) constructor for Native x10");
 }
 
 void serialization_buffer::grow (void) {
@@ -77,7 +92,7 @@ void serialization_buffer::grow (void) {
 void serialization_buffer::grow (size_t new_capacity) {
     size_t new_length = length(); // no change in used portion of buffer
     
-    buffer = (char*)x10aux::system_realloc(buffer, new_capacity);
+    buffer = (char*)x10aux::realloc(buffer, new_capacity);
 
     // update pointers to use (potentially) new buffer
     limit = buffer + new_capacity;
@@ -98,6 +113,34 @@ void serialization_buffer::serialize_reference(serialization_buffer &buf,
     }
 }
 
+Rail<x10_byte>* serialization_buffer::toRail() {
+    Rail<x10_byte>* ans = Rail<x10_byte>::_makeUnsafe(length(), false);
+    rail_copyRaw(buffer, ans->raw, length(), false);
+    return ans;
+}
+
+void serialization_buffer::newObjectGraph() {
+	x10aux::throwUnsupportedOperationException("Haven't implemented newObjectGraph for Native x10");
+}
+
+void serialization_buffer::writeAny(x10::lang::Any *val) {
+    write(val);
+}
+
+void deserialization_buffer::_constructor(x10::io::Serializer* ser) {
+    cursor = buffer = ser->FMGL(__NATIVE_FIELD__)->borrow();
+    len = ser->FMGL(__NATIVE_FIELD__)->length();
+}
+
+void deserialization_buffer::_constructor(x10::lang::Rail<x10_byte>*rail) {
+    cursor = buffer = (char*)(rail->raw);
+    len = rail->FMGL(size);
+}
+
+void deserialization_buffer::_constructor(x10::io::InputStreamReader *is) {
+	x10aux::throwUnsupportedOperationException("Haven't implemented Deserializer(InputStreamReader) constructor for Native x10");
+}
+
 Reference* deserialization_buffer::deserialize_reference(deserialization_buffer &buf) {
     x10aux::serialization_id_t id = buf.read<x10aux::serialization_id_t>();
     if (id == 0) {
@@ -109,12 +152,25 @@ Reference* deserialization_buffer::deserialize_reference(deserialization_buffer 
     }
 }
 
+x10::lang::Any* deserialization_buffer::readAny() {
+    x10::lang::Any *val = read<x10::lang::Any*>();
+    return val;
+}    
 
 void x10aux::set_prof_data(x10::lang::Runtime__Profile *prof, unsigned long long bytes, unsigned long long nanos)
 {
     prof->FMGL(bytes) += bytes;
     prof->FMGL(serializationNanos) += nanos;
 }
+
+void x10aux::raiseSerializationProtocolError() {
+    // TODO: This really should throw an x10-level exception, but that
+    //       is too likely to hang XRX, so make it a hard abort for now.
+    //       FIXME to make this throw an exception when XTENLANG-3219 is fixed.
+    fprintf(stderr, "\nError detected in custom serialization protocol. Aborting\n");
+    abort();
+}
+
 
 // vim:tabstop=4:shiftwidth=4:expandtab:textwidth=100
 

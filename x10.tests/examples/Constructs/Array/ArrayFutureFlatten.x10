@@ -10,6 +10,7 @@
  */
 
 import harness.x10Test;
+import x10.regionarray.*;
 import x10.util.concurrent.Future;
 
 /**
@@ -21,14 +22,14 @@ import x10.util.concurrent.Future;
 public class ArrayFutureFlatten extends x10Test {
 
     public def run(): boolean = { 
-        val A = new Array[int]((1..10)*(1..10), (Point)=>0);
-        val B = new Array[int]((1..10)*(1..10), (Point)=>0);
-        val b = (Future.make[int](()=>3))();
-        chk(0 == (Future.make[int](()=>B(1,1))()));
+        val A = new Array[int](Region.make(1..10,1..10), (Point)=>0n);
+        val B = new Array[int](Region.make(1..10, 1..10), (Point)=>0n);
+        val b = (Future.make[int](()=>3n))();
+        chk(0n == (Future.make[int](()=>B(1,1))()));
         return true;
     }
 
-    public static def main(var args: Array[String](1)): void = {
+    public static def main(var args: Rail[String]): void = {
         new ArrayFutureFlatten().execute();
     }
 }

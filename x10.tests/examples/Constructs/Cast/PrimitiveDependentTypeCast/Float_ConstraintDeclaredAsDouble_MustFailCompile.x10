@@ -48,7 +48,7 @@ public class Float_ConstraintDeclaredAsDouble_MustFailCompile extends x10Test {
 		return false;
 	}
 
-	public static def main(var args: Array[String](1)): void = {
+	public static def main(var args: Rail[String]): void = {
 		new Float_ConstraintDeclaredAsDouble_MustFailCompile().execute();
 	}
 

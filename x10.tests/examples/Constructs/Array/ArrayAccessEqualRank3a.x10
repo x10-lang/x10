@@ -10,6 +10,7 @@
  */
 
 import harness.x10Test;
+import x10.regionarray.*;
 
 /**
  * Test that a can be accessed through point p if p ranges over b.dist
@@ -27,12 +28,12 @@ public class ArrayAccessEqualRank3a extends x10Test {
 
     public def run(): boolean = {
         val R = Region.make(0,9);
-	val b = new Array[Int](R,(Point)=>0);
-	finish for (x[i] in R) async b(x)=i;
+	val b = new Array[Int](R,(Point)=>0n);
+	finish for (x[i] in R) async b(x)=(i as int);
         return true;
     }
 
-    public static def main(Array[String](1)) = {
+    public static def main(Rail[String]) = {
         new ArrayAccessEqualRank3a().execute();
     }
 }

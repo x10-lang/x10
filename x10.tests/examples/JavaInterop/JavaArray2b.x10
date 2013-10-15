@@ -11,6 +11,7 @@
 
 import harness.x10Test;
 import x10.interop.Java;
+import x10.regionarray.*;
 
 // MANAGED_X10_ONLY
 
@@ -19,7 +20,7 @@ public class JavaArray2b extends x10Test {
     public def run(): Boolean {
         var ok:Boolean = true;
         
-        val a:Any = Java.newArray[Int](10);
+        val a:Any = Java.newArray[Int](10n);
 
         if (!(a instanceof Java.array[Int])) {
             Console.OUT.println("Failed: a instanceof Java.array[Int]");
@@ -35,7 +36,7 @@ public class JavaArray2b extends x10Test {
         return ok;
     }
 
-    public static def main(args: Array[String](1)) {
+    public static def main(args: Rail[String]) {
         new JavaArray2b().execute();
     }
 

@@ -18,14 +18,14 @@ class PolyHalfspace1 extends TestRegion {
 
     public def run() {
 
-        val ROW = X(0);
-        val COL = X(1);
+        val ROW = X(0n);
+        val COL = X(1n);
 
         val r =  
-            reg(2, COL+ROW, LE, 7) &&
-            reg(2, COL+ROW, GE, 3) &&
-            reg(2, COL-ROW, LE, 1) &&
-            reg(2, COL-ROW, GE, -1);
+            reg(2, COL+ROW, LE, 7n) &&
+            reg(2, COL+ROW, GE, 3n) &&
+            reg(2, COL-ROW, LE, 1n) &&
+            reg(2, COL-ROW, GE, -1n);
         prArray("diamond", r);
 
         return status();
@@ -46,7 +46,7 @@ class PolyHalfspace1 extends TestRegion {
         "    3  . . 6 9 2 . . . . . \n"+
         "    4  . . . 2 . . . . . . \n";
 
-    public static def main(Array[String](1)) {
+    public static def main(Rail[String]) {
         new PolyHalfspace1().execute();
     }
     

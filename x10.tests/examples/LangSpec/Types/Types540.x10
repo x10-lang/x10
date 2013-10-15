@@ -21,12 +21,12 @@ import harness.x10Test;
 
 public class Types540 extends x10Test {
    public def run() : boolean = (new Hook()).run();
-   public static def main(var args: Array[String](1)): void = {
+   public static def main(args:Rail[String]):void {
         new Types540().execute();
     }
 
 
-// file Types line 2346
+// file Types line 2662
  static  class Exampllll{
   static def choose[T](a: T, b: T): T = a;
   static val j : Any = choose("string", 1);

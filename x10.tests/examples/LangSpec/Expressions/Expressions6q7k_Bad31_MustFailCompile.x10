@@ -21,15 +21,15 @@ import harness.x10Test;
 
 public class Expressions6q7k_Bad31_MustFailCompile extends x10Test {
    public def run() : boolean = (new Hook()).run();
-   public static def main(var args: Array[String](1)): void = {
+   public static def main(args:Rail[String]):void {
         new Expressions6q7k_Bad31_MustFailCompile().execute();
     }
 
 
-// file Expressions line 908
+// file Expressions line 907
 
  static  class Example{ static def example() {
- for(var i : Long = 0; i != 100; i++)  {} // ERR
+ for(var i : Int = 0n; i != 100; i++)  {} // ERR
 } }
 
  static class Hook {

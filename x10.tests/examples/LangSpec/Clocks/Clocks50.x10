@@ -21,12 +21,12 @@ import harness.x10Test;
 
 public class Clocks50 extends x10Test {
    public def run() : boolean = (new Hook()).run();
-   public static def main(var args: Array[String](1)): void = {
+   public static def main(args:Rail[String]):void {
         new Clocks50().execute();
     }
 
 
-// file Clocks line 217
+// file Clocks line 220
 
  static class Clocks5TestExp{
   def check(c:Clock)  = c.registered();  }

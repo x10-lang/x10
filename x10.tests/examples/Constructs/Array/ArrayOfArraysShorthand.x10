@@ -10,6 +10,7 @@
  */
 
 import harness.x10Test;
+import x10.regionarray.*;
 
 /**
  * Test the syntax for creating an array of arrays.
@@ -21,17 +22,17 @@ public class ArrayOfArraysShorthand extends x10Test {
 
     public def run(): boolean = {
 
-        val r1 = 0..7;
-        val r2 = 0..9;
+        val r1 = Region.make(0,7);
+        val r2 = Region.make(0,9);
         val r  = r1*r2;
-        val ia = new Array[Array[Int](1)](r1, (Point)=> new Array[Int](r2, ([j]:Point)=>j));
+        val ia = new Array[Array[Long](1)](r1, (Point)=> new Array[Long](r2, ([j]:Point)=>j));
 
         for (val [i,j]: Point in r) chk(ia(i)(j) == j);
 
         return true;
     }
 
-    public static def main(var args: Array[String](1)): void = {
+    public static def main(var args: Rail[String]): void = {
         new ArrayOfArraysShorthand().execute();
     }
 }

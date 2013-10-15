@@ -116,7 +116,7 @@ fi
 
 export CVS_RSH=ssh
 if [[ -z "X10_SVNROOT" ]]; then
-    export X10_SVNROOT="https://x10.svn.sf.net/svnroot/x10/trunk"
+    export X10_SVNROOT="http://svn.code.sf.net/p/x10/code/trunk"
 fi
 #export X10CPP_CVSROOT=":ext:userid@orquesta.watson.ibm.com:/usr/src/cvs/X10_FLASH"
 export X10CPP_CVSROOT=":ext:sreedhar@localhost:/usr/src/cvs/X10_FLASH"

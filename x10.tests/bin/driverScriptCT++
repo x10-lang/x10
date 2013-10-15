@@ -154,7 +154,7 @@ fi
 
 export CVS_RSH=ssh
 if [[ -z "X10_SVNROOT" ]]; then
-    export X10_SVNROOT="http://x10.svn.sf.net/svnroot/x10/trunk"
+    export X10_SVNROOT="http://svn.code.sf.net/p/x10/code/trunk"
 fi
 
 ##### cat feed - init
@@ -203,7 +203,11 @@ case "${__cat_system}" in
 esac
 __cat_backend_arch="${__cat_backend}-${__cat_arch}"
 __cat_arch_os="${__cat_arch}-${__cat_os}"
-__cat_hostname=$(hostname)
+if [[ -z "$CAT_LOGICAL_HOSTNAME" ]]; then
+    __cat_hostname=$(hostname)
+else
+    __cat_hostname=$CAT_LOGICAL_HOSTNAME
+fi
 __cat_target_arch=${__cat_arch}
 __cat_target_os=${__cat_os}
 if [[ "$(uname -s)" == CYGWIN* ]]; then
@@ -330,7 +334,7 @@ __cat_x10c_time="true"
 __cat_x10c_verbose="true"
 __cat_x10c_commandlineonly="false"
 __cat_x10c_serial="true"
-__cat_x10c_post="java -jar $X10_HOME/x10.dist/lib/ecj.jar -1.5 -nowarn"
+__cat_x10c_post="java -jar $X10_HOME/x10.dist/lib/ecj.jar -1.6 -nowarn"
 __cat_x10c_COMPILER_FRAGMENT_DATA_DIRECTORY="data/"
 __cat_x10c_LOOP_OPTIMIZATIONS="true"
 __cat_x10c_ARRAY_OPTIMIZATIONS="true"

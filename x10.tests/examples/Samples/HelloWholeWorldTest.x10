@@ -13,12 +13,12 @@ import harness.x10Test;
 
 public class HelloWholeWorldTest extends x10Test {
     public def run():boolean {
-         val args = new Array[String](0);
+         val args = ["greetings", "friend"];
          HelloWholeWorld.main(args);
          return true;
     }
 
-    public static def main(args:Array[String](1)) {
+    public static def main(args:Rail[String]) {
 	new HelloWholeWorldTest().execute();
     }
 }

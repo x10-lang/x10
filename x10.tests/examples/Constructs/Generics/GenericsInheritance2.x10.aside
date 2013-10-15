@@ -18,8 +18,8 @@ import harness.x10Test;
  */
 public class GenericsInheritance2 extends x10Test {
         interface I[T] { def m(x:T): void; }
-        class C implements I[int], I[float] {
-                public def m(x: int): void = { } 
+        class C implements I[long], I[float] {
+                public def m(x:long): void = { } 
                 public def m(x: float): void = { }
         }
 

@@ -21,14 +21,14 @@ import harness.x10Test;
 
 public class Expressions4t3m extends x10Test {
    public def run() : boolean = (new Hook()).run();
-   public static def main(var args: Array[String](1)): void = {
+   public static def main(args:Rail[String]):void {
         new Expressions4t3m().execute();
     }
 
 
-// file Expressions line 775
+// file Expressions line 774
  static  class Hook {
- static def example(num:Int, den:Int ) =
+ static def example(num:Long, den:Long ) =
 (den == 0) ? 0 : num/den
 ;
  def run() {

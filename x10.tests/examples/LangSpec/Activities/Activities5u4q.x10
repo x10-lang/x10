@@ -21,15 +21,15 @@ import harness.x10Test;
 
 public class Activities5u4q extends x10Test {
    public def run() : boolean = (new Hook()).run();
-   public static def main(var args: Array[String](1)): void = {
+   public static def main(args:Rail[String]):void {
         new Activities5u4q().execute();
     }
 
 
-// file Activities line 685
+// file Activities line 702
  static  class Example {
  def example() {
-var n : Int = 0;
+var n : Long = 0;
 finish {
   // LEGAL BUT UNWISE
   async n = n + 1;          //(a)

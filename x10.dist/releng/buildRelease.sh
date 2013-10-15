@@ -57,13 +57,24 @@ case "$UNAME" in
       ;;
   Linux,*86_64*,*) 
       SHORT_HOSTNAME=`hostname -s`
-      if [[ "$SHORT_HOSTNAME" == "triloka4" ]]; then 
+      if [[ "$SHORT_HOSTNAME" == "triloka1" ]]; then 
           EXTRA_X10RT_BUILD_ARG="-DX10RT_PAMI=true"
       fi
       X10_PLATFORM='linux_x86_64'
       ;;
   Linux,*86*,*) X10_PLATFORM='linux_x86';;
-  Linux,ppc*,*) X10_PLATFORM='linux_ppc';;
+  Linux,ppc*,*) X10_PLATFORM='linux_ppc'
+      SHORT_HOSTNAME=`hostname -s`
+      if [[ "$SHORT_HOSTNAME" == "f01c08n02-hf0" ]]; then 
+          EXTRA_X10RT_BUILD_ARG="-DX10RT_PAMI=true"
+          export USE_XLC=1
+      fi
+      if [[ "$SHORT_HOSTNAME" == "bgqfen1" ]]; then 
+          EXTRA_X10RT_BUILD_ARG="-DCROSS_COMPILE_BGQ=true"
+	  X10_PLATFORM='linux_bgq'
+	  SKIP_DEBUG_BUILD=1
+      fi
+      ;;
   AIX,*,powerpc) 
       X10_PLATFORM='aix_ppc'
       SKIP_DEBUG_BUILD=1
@@ -103,7 +114,7 @@ for i in \
 	x10.tests \
 	x10.wala
 do
-    svn $svn_command -q https://x10.svn.sourceforge.net/svnroot/x10/tags/$X10_TAG/$i
+    svn $svn_command -q https://svn.code.sourceforge.net/p/x10/code/tags/$X10_TAG/$i
 done
 )
 
@@ -112,11 +123,11 @@ echo "The distribution is now exported to the directory $workdir"
 if [[ -z "$SKIP_X10_BUILD" ]]; then
     echo "Building distribution"
     cd $distdir/x10.dist
-    ant -Doptimize=true -Dtar.version=$X10_VERSION testtar
-    ant -Doptimize=true -Dtar.version=$X10_VERSION srctar
+    ant $EXTRA_X10RT_BUILD_ARG -Doptimize=true -Dx10.version=$X10_VERSION testtar
+    ant $EXTRA_X10RT_BUILD_ARG -Doptimize=true -Dx10.version=$X10_VERSION srctar
     ant $EXTRA_X10RT_BUILD_ARG -Doptimize=true dist
     if [[ -z "$SKIP_DEBUG_BUILD" ]]; then
-        ant -Ddebug=true dist-cpp
+        ant $EXTRA_X10RT_BUILD_ARG -Ddebug=true dist-cpp
     fi 
     ant xrx-xdoc
     $distdir/x10.dist/releng/packageRelease.sh -version $X10_VERSION -platform $X10_PLATFORM

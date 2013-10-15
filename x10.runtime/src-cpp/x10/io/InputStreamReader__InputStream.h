@@ -16,8 +16,8 @@
 
 namespace x10 {
 
-    namespace util {
-        template<class T> class IndexedMemoryChunk;
+    namespace lang {
+        template<class T> class Rail;
     }
 
     namespace io {
@@ -41,9 +41,9 @@ namespace x10 {
 
             virtual x10_int read() = 0;
 
-            virtual x10_int read(x10::util::IndexedMemoryChunk<x10_byte> b);
+            virtual x10_int read(x10::lang::Rail<x10_byte>* b);
 
-            virtual x10_int read(x10::util::IndexedMemoryChunk<x10_byte> b,
+            virtual x10_int read(x10::lang::Rail<x10_byte>* b,
                                  x10_int off,
                                  x10_int len);
             

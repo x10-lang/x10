@@ -21,12 +21,12 @@ import harness.x10Test;
 
 public class Activities20 extends x10Test {
    public def run() : boolean = (new Hook()).run();
-   public static def main(var args: Array[String](1)): void = {
+   public static def main(args:Rail[String]):void {
         new Activities20().execute();
     }
 
 
-// file Activities line 56
+// file Activities line 55
  static  class Example {
  def example( s1:() => void, s2 : () => void ) {
 async {s1();}

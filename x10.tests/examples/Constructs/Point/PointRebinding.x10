@@ -10,13 +10,13 @@
  */
 
 import harness.x10Test;
+import x10.regionarray.*;
 
 /**
  * Must allow binding components to an existing point.
  *
  * @author igor, 1/2006
  */
-
 public class PointRebinding extends x10Test {
 
     public def run(): boolean = {
@@ -24,10 +24,10 @@ public class PointRebinding extends x10Test {
         val p: Point = [1, 2] as Point;
         val [i, j]: Point = p;
 
-        return (i == 1 && j == 2);
+        return (i == 1L && j == 2L);
     }
 
-    public static def main(var args: Array[String](1)): void = {
+    public static def main(var args: Rail[String]): void = {
         new PointRebinding().execute();
     }
 }

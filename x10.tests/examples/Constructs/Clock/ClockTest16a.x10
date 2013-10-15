@@ -120,12 +120,12 @@ public class ClockTest16a extends x10Test {
 			}
 		}
 		} catch (e: MultipleExceptions) {
-            return (e.exceptions.size == 1 && e.exceptions(0) instanceof ClockUseException);
+            return (e.exceptions.size == 1L && e.exceptions(0) instanceof ClockUseException);
 		}
 		return false;
 	}
 
-	public static def main(var args: Array[String](1)): void = {
+	public static def main(var args: Rail[String]): void = {
 		new ClockTest16a().execute();
 	}
 
@@ -163,8 +163,8 @@ public class ClockTest16a extends x10Test {
 	 */
 	static class X {
 		public val z = [1,0];
-		def zero(): int = { return z(z(z(1))); }
-		def one(): int = { return z(z(z(0))); }
+		def zero(): long = { return z(z(z(1))); }
+		def one(): long = { return z(z(z(0))); }
 		def modify(): void = { z(0) += 1; }
 	}
 }

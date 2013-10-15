@@ -24,19 +24,19 @@ import x10.matrix.DenseMatrix;
 class SparseSubToDense {
 
 	/**
-	 *  Substract sparse matrix in CSC by a dense matrix 
+	 *  Subtract sparse matrix in CSC by a dense matrix 
 	 *  C = A - C
 	 */
 	public static def comp(A:SparseCSC, 
 						   C:DenseMatrix(A.M,A.N)) : void {
 
-		var off:Int = 0;
+		var off:Long = 0;
 					   
-		for (var c:Int=0; c<C.N; c++) {
+		for (var c:Long=0; c<C.N; c++) {
 			val aln = A.getCol(c);
 			
-			for (var r:Int=off; r<off+C.M;  r++) C.d(r) = -C.d(r);
-			for (var r:Int=0; r<aln.size(); r++) C.d(off+aln.getIndex(r)) += aln.getValue(r);
+			for (var r:Long=off; r<off+C.M;  r++) C.d(r) = -C.d(r);
+			for (var r:Long=0; r<aln.size(); r++) C.d(off+aln.getIndex(r)) += aln.getValue(r);
 			off += C.M;
 		}
 	}
@@ -47,16 +47,16 @@ class SparseSubToDense {
 	 */
 	public static def comp(C:DenseMatrix, 
 						   A:SparseCSC(C.M,C.N)):void {
-		var off:Int = 0;
-		for (var c:Int=0; c<C.N; c++) {
+		var off:Long = 0;
+		for (var c:Long=0; c<C.N; c++) {
 			val aln = A.getCol(c);
-			for (var r:Int=0; r<aln.size(); r++) C.d(off+aln.getIndex(r)) -= aln.getValue(r);
+			for (var r:Long=0; r<aln.size(); r++) C.d(off+aln.getIndex(r)) -= aln.getValue(r);
 			off += C.M;	
 		}
 	}
 
 	/**
-	 *  Substract sparse CSC with another CSC to a dense matrix 
+	 *  Subtract sparse CSC with another CSC to a dense matrix 
 	 *  C = A - B
 	 */
 	public static def comp(A:SparseCSC, 
@@ -67,7 +67,7 @@ class SparseSubToDense {
 	}
 
 	/**
-	 *  Substract sparse CSC with CSR to a dense matrix 
+	 *  Subtract sparse CSC with CSR to a dense matrix 
 	 *  C = A - B
 	 */
 	public static def comp(A:SparseCSC, 
@@ -78,7 +78,7 @@ class SparseSubToDense {
 	}
 
 	/**
-	 *  Substract sparse matrix from a dense matrix
+	 *  Subtract sparse matrix from a dense matrix
 	 *  C = A - B
 	 */
 	public static def comp(A:DenseMatrix, 
@@ -91,7 +91,7 @@ class SparseSubToDense {
 
 
 
-    //------------------------------------------------------------------------
+
 	/**
 	 * Sub sparse CSR by dense, which also stores the result
 	 * C = A - C 
@@ -99,10 +99,10 @@ class SparseSubToDense {
 	public static def comp(A:SparseCSR, 
 						   C:DenseMatrix(A.M,A.N)):void {
 		//
-		for (var r:Int=0; r<A.M; r++) {
+		for (var r:Long=0; r<A.M; r++) {
 			val aln = A.getRow(r);
-			for (var i:Int=r; i<A.M*A.N; i+=A.M) C.d(i) = - C.d(i);
-			for (var c:Int=0; c<aln.size(); c++) {
+			for (var i:Long=r; i<A.M*A.N; i+=A.M) C.d(i) = - C.d(i);
+			for (var c:Long=0; c<aln.size(); c++) {
 				val idx = r+C.M*aln.getIndex(c);
 				C.d(idx) +=  aln.getValue(c);
 			}
@@ -116,9 +116,9 @@ class SparseSubToDense {
 	public static def comp(C:DenseMatrix,
 						   A:SparseCSR(C.M,C.N)):void {
 
-		for (var r:Int=0; r<C.M; r++) {
+		for (var r:Long=0; r<C.M; r++) {
 			val aln = A.getRow(r);
-			for (var c:Int=0; c<aln.size(); c++) {
+			for (var c:Long=0; c<aln.size(); c++) {
 				val idx = r+C.M*aln.getIndex(c);
 				C.d(idx) -= aln.getValue(c);
 			}
@@ -126,7 +126,7 @@ class SparseSubToDense {
 	}
 
 	/**
-	 *  Substract sparse CSR with another CSR to a dense matrix 
+	 *  Subtract sparse CSR with another CSR to a dense matrix 
 	 *  C = A - B
 	 */
 	public static def comp(A:SparseCSR, 
@@ -137,7 +137,7 @@ class SparseSubToDense {
 	}
 
 	/**
-	 *  Substract sparse CSR with another CSC to a dense matrix 
+	 *  Subtract sparse CSR with another CSC to a dense matrix 
 	 *  C = A - B
 	 */
 	public static def comp(A:SparseCSR, 
@@ -149,7 +149,7 @@ class SparseSubToDense {
 
 
 	/**
-	 *  Substract sparse CSR with a dense to a dense matrix 
+	 *  Subtract sparse CSR with a dense to a dense matrix 
 	 *  C = A - B
 	 */
 	public static def comp(A:SparseCSR, 
@@ -161,7 +161,7 @@ class SparseSubToDense {
 
 
 	/**
-	 *  Substract a dense with CSR to a dense matrix 
+	 *  Subtract a dense with CSR to a dense matrix 
 	 *  C = A - B
 	 */
 	public static def comp(A:DenseMatrix, 

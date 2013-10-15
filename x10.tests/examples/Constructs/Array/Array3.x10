@@ -10,25 +10,25 @@
  */
 
 import harness.x10Test;
+import x10.regionarray.*;
 
 /**
  * Tests declaration of arrays, storing in local variables, accessing and
  * updating 2D arrays.
  */
-
 public class Array3 extends x10Test {
 
     public def run(): boolean = {
     
-        val r = (1..10)*(1..10);
-        val ia = new Array[int](r, (x:Point)=>0);
+        val r = Region.make(1..10, 1..10);
+        val ia = new Array[int](r, (x:Point)=>0n);
 
-        ia(1, 1) = 42;
+        ia(1, 1) = 42n;
 
-        return 42 == ia(1, 1);
+        return 42n == ia(1, 1);
     }
 
-    public static def main(var args: Array[String](1)): void = {
+    public static def main(var args: Rail[String]): void = {
         new Array3().execute();
     }
 }

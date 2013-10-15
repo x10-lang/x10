@@ -21,12 +21,12 @@ import harness.x10Test;
 
 public class Types500 extends x10Test {
    public def run() : boolean = (new Hook()).run();
-   public static def main(var args: Array[String](1)): void = {
+   public static def main(args:Rail[String]):void {
         new Types500().execute();
     }
 
 
-// file Types line 2215
+// file Types line 2493
  static class Shape {
   def isTriangle() = false;
 }

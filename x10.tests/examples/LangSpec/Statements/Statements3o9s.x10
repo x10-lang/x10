@@ -21,14 +21,14 @@ import harness.x10Test;
 
 public class Statements3o9s extends x10Test {
    public def run() : boolean = (new Hook()).run();
-   public static def main(var args: Array[String](1)): void = {
+   public static def main(args:Rail[String]):void {
         new Statements3o9s().execute();
     }
 
 
-// file Statements line 728
+// file Statements line 724
  static  class Example { static def example() {
-var sum : Int = 0;
+var sum : Long = 0;
 for(i in 1..10) sum += i;
 assert sum == 55;
 } }

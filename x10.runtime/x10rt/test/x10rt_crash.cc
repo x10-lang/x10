@@ -36,7 +36,12 @@ int main(int argc, char **argv)
 //	signal(SIGSEGV,report_fault);
 //	signal(SIGFPE,report_fault);
 
-    x10rt_init(&argc, &argv);
+    x10rt_error init_err = x10rt_init(&argc, &argv);
+    if (init_err != X10RT_ERR_OK) {
+        if (x10rt_error_msg() != NULL)
+            std::cerr << "X10RT fatal initialization error:  " << x10rt_error_msg() << std::endl;
+        abort();
+    }
     x10rt_registration_complete();
 
     if (x10rt_here()==0) {

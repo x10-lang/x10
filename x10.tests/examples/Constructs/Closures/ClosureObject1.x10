@@ -17,17 +17,17 @@ import harness.x10Test;
  * @author bdlucas 8/2008
  */
 
-public class ClosureObject1 extends ClosureTest {
+public class ClosureObject1 extends x10Test {
 
     public def run(): boolean = {
         
         val f = ()=>1;
-        check("(f as ()=>int)()", (f as ()=>int)(), 1);
+        chk((f as ()=>long)() == 1, "(f as ()=>long)()");
 
-        return result;
+        return true;
     }
 
-    public static def main(var args: Array[String](1)): void = {
+    public static def main(var args: Rail[String]): void = {
         new ClosureObject1().execute();
     }
 }

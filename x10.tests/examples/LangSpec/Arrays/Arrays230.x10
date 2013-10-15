@@ -1,4 +1,4 @@
-/* Current test harness gets confused by packages, but it would be in package expsome_Arrays36;
+/* Current test harness gets confused by packages, but it would be in package expsome_Arrays41;
 */
 // Warning: This file is auto-generated from the TeX source of the language spec.
 // If you need it changed, work with the specification writers.
@@ -17,19 +17,18 @@
 
 import harness.x10Test;
 
-
+import x10.regionarray.*;
 
 public class Arrays230 extends x10Test {
    public def run() : boolean = (new Hook()).run();
-   public static def main(var args: Array[String](1)): void = {
+   public static def main(args:Rail[String]):void {
         new Arrays230().execute();
     }
 
 
-// file Arrays line 379
-
- static class Arrays36TestExp{
-  def check(a:Array[Int], p:Point{rank == a.rank}, t:Int)  = a(p)=t;  }
+// file Arrays line 643
+ static class Arrays41TestExp{
+  def check(a:Array[Long], p:Point{rank == a.rank}, t:Long)  = a(p)=t;  }
 
  static class Hook {
    def run():Boolean = true;

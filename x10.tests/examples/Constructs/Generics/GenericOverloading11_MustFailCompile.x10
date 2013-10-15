@@ -26,16 +26,16 @@ public class GenericOverloading11_MustFailCompile extends GenericTest {
     static def m[T,U](T) = 0;
     static def m[T,U](U) = 1;
 	def test1() {
-		val x:Int{self==0} = m[Int,String](1);
-		val y:Int{self==1} = m[Int,String]("a");
+		val x:long{self==0} = m[Long,String](1);
+		val y:long{self==1} = m[Long,String]("a");
 	}
 	def test2() {
-		m[Int,Int](1); // ERR
+		m[Long,Long](1); // ERR
 	}
 
     public def run(): boolean = true;
 
-    public static def main(var args: Array[String](1)): void = {
+    public static def main(var args: Rail[String]): void = {
         new GenericOverloading11_MustFailCompile().execute();
     }
 }

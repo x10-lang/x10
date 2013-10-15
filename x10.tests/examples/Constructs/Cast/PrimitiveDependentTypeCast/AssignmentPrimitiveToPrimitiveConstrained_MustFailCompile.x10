@@ -25,8 +25,8 @@ public class AssignmentPrimitiveToPrimitiveConstrained_MustFailCompile extends x
 	public def run(): boolean = {
 		
 		try { 
-			var i: int{self == 0} = 0;
-			var j: int = 0;
+			var i: int{self == 0n} = 0n;
+			var j: int = 0n;
 			// Even if j equals zero, types are not compatible
 			// A cast would be necessary to check conversion validity
 			i = @ERR j;
@@ -37,7 +37,7 @@ public class AssignmentPrimitiveToPrimitiveConstrained_MustFailCompile extends x
 		return true;
 	}
 
-	public static def main(var args: Array[String](1)): void = {
+	public static def main(var args: Rail[String]): void = {
 		new AssignmentPrimitiveToPrimitiveConstrained_MustFailCompile().execute();
 	}
 

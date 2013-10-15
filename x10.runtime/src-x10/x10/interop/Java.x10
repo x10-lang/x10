@@ -43,7 +43,7 @@ public class Java {
     public static native def newArray[T](d0:Int, d1:Int, d2:Int):array[array[array[T]{self.length==d2}]{self.length==d1}]{self.length==d0};
     @Native("java", "(#T[][][][])#T$rtt.makeArray(#d0,#d1,#d2,#d3)")
     public static native def newArray[T](d0:Int, d1:Int, d2:Int, d3:Int):array[array[array[array[T]{self.length==d3}]{self.length==d2}]{self.length==d1}]{self.length==d0};
-    
+
     // Java classes
     @Native("java", "#T$rtt.getJavaClass()")
     public static native def javaClass[T]():java.lang.Class;
@@ -106,9 +106,17 @@ public class Java {
     @Native("java", "#c.charValue()")
     public static native def convert(c:java.lang.Character):x10.lang.Char;
     
-    // Java conversions (array)
-    @Native("java", "(#T[])#a.raw.getBackingArray()")
-    public static native def convert[T](a:x10.array.Array[T](1)):Java.array[T];
-    @Native("java", "new x10.array.Array((java.lang.System[]) null, #T$rtt).x10$array$Array$$init$S(new x10.core.IndexedMemoryChunk(#T$rtt, #a.length, #a), (x10.array.Array.__0$1x10$array$Array$$T$2) null)")
-    public static native def convert[T](a:Java.array[T]):x10.array.Array[T](1);
+    // Java conversions (rail)
+    @Native("java", "(#T[])#a.getBackingArray()")
+    public static native def convert[T](a:x10.lang.Rail[T]):array[T];
+    @Native("java", "new x10.core.Rail(#T$rtt, #a.length, #a)")
+    public static native def convert[T](a:array[T]):x10.lang.Rail[T];
+
+    // Utilities for programmatic serialization
+    public static def serialize(a:Any):array[Byte] {
+    	val s = new x10.io.Serializer();
+    	s.writeAny(a);
+    	return convert(s.toRail());
+    }
+    public static def deserialize(a:array[Byte]):Any = new x10.io.Deserializer(convert(a)).readAny();
 }

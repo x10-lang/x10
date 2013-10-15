@@ -10,21 +10,22 @@
  */
 
 import harness.x10Test;
+import x10.regionarray.*;
 
 public class ArrayStaticPlusEqual extends x10Test {
 
-    val v  = GlobalRef[Rail[int]](new Rail[int](2, (x:int)=>0));
+    val v  = GlobalRef[Rail[long]](new Rail[long](2, 0));
 
     public def run() {
 	    at (v) {
-	    	val myV = (v as GlobalRef[Rail[int]]{self.home==here})();
-            for ([i]:Point(1) in 0..1) myV(i) += 5;
-            for ([i]:Point(1) in 0..1) chk(myV(i) == 5);
+	    	val myV = (v as GlobalRef[Rail[long]]{self.home==here})();
+            for (i in 0..1) myV(i) += 5;
+            for (i in 0..1) chk(myV(i) == 5);
         }
         return true;
     }
 
-    public static def main(var args: Array[String](1)): void = {
+    public static def main(var args: Rail[String]): void = {
         new ArrayStaticPlusEqual().execute();
     }
 }

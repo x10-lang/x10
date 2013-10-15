@@ -21,12 +21,12 @@ import harness.x10Test;
 
 public class Functions60 extends x10Test {
    public def run() : boolean = (new Hook()).run();
-   public static def main(var args: Array[String](1)): void = {
+   public static def main(args:Rail[String]):void {
         new Functions60().execute();
     }
 
 
-// file Functions line 330
+// file Functions line 331
  static  class Finderator {
  static def find[T](f: (T) => Boolean, xs: x10.util.List[T], absent:T): T = {
   for (x: T in xs)
@@ -34,8 +34,8 @@ public class Functions60 extends x10Test {
   absent
 }
  static def checkery() {
-xs: List[Int] = new ArrayList[Int]();
-x: Int = find((x: Int) => x>0, xs, 0);
+xs: List[Long] = new ArrayList[Long]();
+x: Long = find((x: Long) => x>0, xs, 0);
 }}
 
  static class Hook {

@@ -19,14 +19,14 @@ class TypedefConstraint3e_MustFailCompile extends TypedefTest {
 
     public def run():boolean = {
 
-        type T(x:int){x==1} = int;
+        type T(x:long){x==1} = long;
         val zero = 0;
         var a:T(zero); // ERR
 
         return result;
     }
 
-    public static def main(var args: Array[String](1)): void = {
+    public static def main(var args: Rail[String]): void = {
         new TypedefConstraint3e_MustFailCompile().execute();
     }
 }

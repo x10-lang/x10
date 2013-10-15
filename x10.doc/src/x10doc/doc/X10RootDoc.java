@@ -667,11 +667,11 @@ public class X10RootDoc extends X10Doc implements RootDoc {
 			}
 		}
 
-		// x10.lang and x10.array are auto-imported.
+		// x10.lang and x10.regionarray are auto-imported.
 		String lang = "x10.lang." + startingName;
 		classDoc = (X10ClassDoc) this.classNamed(lang);
 		if (classDoc == null) {
-	        String array = "x10.array." + startingName;
+	        String array = "x10.regionarray." + startingName;
 	        classDoc = (X10ClassDoc) this.classNamed(array);
 		}
 		return classDoc;

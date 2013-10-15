@@ -12,17 +12,12 @@
 package x10.matrix.builder;
 
 import x10.compiler.Inline;
-import x10.io.Console;
-import x10.util.Pair;
 import x10.util.StringBuilder;
 import x10.util.ArrayList;
 
-import x10.matrix.Debug;
 import x10.matrix.Matrix;
 import x10.matrix.MathTool;
 import x10.matrix.DenseMatrix;
-import x10.matrix.VerifyTools;
-
 import x10.matrix.sparse.CompressArray;
 import x10.matrix.sparse.Compress2D;
 import x10.matrix.sparse.SparseCSC;
@@ -49,29 +44,27 @@ public class SparseCSRBuilder {
 	
 	static val zeroEntry = NonZeroEntry(0, 0.0);
 	
-	//=======================================================
-	var nzcount:Int=0;
-	val nzrow:Array[ArrayList[NonZeroEntry]](1){rail};
+	var nzcount:Long=0;
+	val nzrow:Rail[ArrayList[NonZeroEntry]];
 
-	public var M:Int;
-	public var N:Int;
-	//=======================================================
-	public def this(m:Int, n:Int) {
+	public var M:Long;
+	public var N:Long;
+
+	public def this(m:Long, n:Long) {
 		M = m; N=n; 
 		nzrow    = new Array[ArrayList[NonZeroEntry]](m, (i:Int)=>new ArrayList[NonZeroEntry]());
 	}
-	
-	//----------------------------------------------
+
 	/*
 	 * Creating sparse csc matrix builder using given existing sparse matrix.
 	 */
 	public static def make(spamat:SparseCSR): SparseCSRBuilder {
 		val bld = new SparseCSRBuilder(spamat.M, spamat.N);
 		val ca = spamat.getStorage();
-		var offset:Int = 0;
-		for (var r:Int=0; r<bld.M; r++) {
+		var offset:Long = 0;
+		for (var r:Long=0; r<bld.M; r++) {
 			val cnt = spamat.crdata.cLine(r).length;
-			for (var i:Int=0; i<cnt; i++, offset++) {
+			for (var i:Long=0; i<cnt; i++, offset++) {
 				bld.add(r, ca.index(offset), ca.value(offset));
 			}
 		}
@@ -81,10 +74,10 @@ public class SparseCSRBuilder {
 	public static def make(spamat:SparseCSC): SparseCSRBuilder {
 		val bld = new SparseCSRBuilder(spamat.M, spamat.N);
 		val ca = spamat.getStorage();
-		var offset:Int = 0;
-		for (var c:Int=0; c<bld.N; c++) {
+		var offset:Long = 0;
+		for (var c:Long=0; c<bld.N; c++) {
 			val cnt = spamat.ccdata.cLine(c).length;
-			for (var i:Int=0; i<cnt; i++, offset++) {
+			for (var i:Long=0; i<cnt; i++, offset++) {
 				bld.add(ca.index(offset), c, ca.value(offset));
 			}
 		}
@@ -94,10 +87,10 @@ public class SparseCSRBuilder {
 	public static def makeTranspose(spamat:SparseCSR): SparseCSRBuilder {
 		val bld = new SparseCSRBuilder(spamat.N, spamat.M);
 		val ca = spamat.getStorage();
-		var offset:Int = 0;
-		for (var r:Int=0; r<spamat.M; r++) {
+		var offset:Long = 0;
+		for (var r:Long=0; r<spamat.M; r++) {
 			val cnt = spamat.crdata.cLine(r).length;
-			for (var i:Int=0; i<cnt; i++, offset++) {
+			for (var i:Long=0; i<cnt; i++, offset++) {
 				val c = ca.index(offset);
 				bld.add(c, r, ca.value(offset));
 			}
@@ -105,11 +98,11 @@ public class SparseCSRBuilder {
 		return bld;
 	}
 	
-	//==============================================
+
 	/*
 	 * Add new nonzero entry at the ordered nonzero list of the specified column
 	 */
-	public def add(r:Int, c:Int, v:Double) {
+	public def add(r:Long, c:Long, v:Double) {
 		val nz = NonZeroEntry(c, v);
 		val idx = findIndex(r, c);
 		if (idx < 0)
@@ -122,7 +115,7 @@ public class SparseCSRBuilder {
 	/*
 	 * Append nonzero at the end of nonzero list of the specified column. 
 	 */
-	public def append(r:Int, c:Int, v:Double) {
+	public def append(r:Long, c:Long, v:Double) {
 		val nz = NonZeroEntry(c, v);
 		nzrow(r).add(nz);
 		nzcount ++;
@@ -131,7 +124,7 @@ public class SparseCSRBuilder {
 	/*
 	 * Return the value at given row and column; If not found in nonzero list, 0 is returned.
 	 */
-	public def get(r:Int, c:Int) : Double {
+	public def get(r:Long, c:Long) : Double {
 		val foundnz = find(r, c);
 		return foundnz.value;
 	}
@@ -140,7 +133,7 @@ public class SparseCSRBuilder {
 	 * Set the entry of given row and column to value, if it is found. Otherwise append
 	 * new nonzero entry at the end of nonzero list;
 	 */
-	public def set(r:Int, c:Int, v:Double) : Boolean {
+	public def set(r:Long, c:Long, v:Double) : Boolean {
 		val idx = findIndex(r, c);
 		if (idx < 0) {
 			add(r, c, v);
@@ -152,12 +145,12 @@ public class SparseCSRBuilder {
 		}
 	}
 	
-	//======================================
+
 	/*
 	 * Find the index of the entry of given row and column in the nonzero list. If not found, -1 is returned.
 	 */
-	public def findIndex(r:Int, c:Int) : Int {
-		var i:Int = nzrow(r).size()-1;
+	public def findIndex(r:Long, c:Long) : Int {
+		var i:Long = nzrow(r).size()-1;
 		for (; i>=0; i--) {
 			val nz = nzrow(r).get(i);
 			if (nz.col == c ) return i;
@@ -165,15 +158,15 @@ public class SparseCSRBuilder {
 		return -1;
 	}
 	
-	public def find(r:Int, c:Int) : NonZeroEntry {
+	public def find(r:Long, c:Long) : NonZeroEntry {
 		val idx = findIndex(r, c);
 		if (idx >=0) return nzrow(r).get(idx);
 		return zeroEntry;
 	}
 
-	//=========================================
+
 	
-	public def remove(r:Int, c:Int): Boolean {
+	public def remove(r:Long, c:Long): Boolean {
 		val idx = findIndex(r, c);
 		if (idx >=0) { 
 			nzrow(r).removeAt(idx);
@@ -211,7 +204,7 @@ public class SparseCSRBuilder {
 		}
 	}
 	
-	//====================================
+
 	
 	@Inline
 	public def cmpRowMajor(nz1:NonZeroEntry,nz2:NonZeroEntry):Int {
@@ -225,13 +218,13 @@ public class SparseCSRBuilder {
 	 * This method is used to convert sparse matrix data to CSC sparse matrix memory layout
 	 */
 	public def sortRowMajor() {
-		for (var i:Int=0; i<M; i++) {
+		for (var i:Long=0; i<M; i++) {
 			if (nzrow(i).size() > 0) {
 				nzrow(i).sort((nz1:NonZeroEntry,nz2:NonZeroEntry)=>cmpRowMajor(nz1,nz2));
 			}
 		}
 	}
-	//=================================
+
 	/*
 	 * Convert nonzero list to SparseCSR data layout. The nonzero list will be
 	 * sorted in column-major first, which could be time-consuming if nonzero entries
@@ -249,13 +242,13 @@ public class SparseCSRBuilder {
 		val ca  = spa.getStorage();
 		val c2d = spa.crdata;
 		
-		var cnt:Int = 0;  //dest count at CompressArray
-		for (var l:Int=0; l<M; l++) {
+		var cnt:Long = 0;  //dest count at CompressArray
+		for (var l:Long=0; l<M; l++) {
 			val cline = c2d.cLine(l);
 			cline.offset = cnt;
 			cline.length = 0;
 			val nzr = nzrow(l);
-			for (var r:Int=0; r<nzr.size(); r++) {
+			for (var r:Long=0; r<nzr.size(); r++) {
 				val nzv = nzr.get(r).value;
 				//Remove all zero entries
 				if (MathTool.isZero(nzv)) continue;
@@ -267,30 +260,18 @@ public class SparseCSRBuilder {
 		}
 		ca.count = cnt;
 	}
-	
-	//=================================
+
 	public def toString():String {
-		
 		val str = new StringBuilder();
 		str.add("Sparse matrix builder in CSR ["+M+","+N+"] nonzero entry list:\n");
-		for (var r:Int=0; r<M; r++) {
+		for (var r:Long=0; r<M; r++) {
 			str.add("Row:"+r+" ");
-			for (var i:Int=0; i<nzrow(r).size(); i++) {
+			for (var i:Long=0; i<nzrow(r).size(); i++) {
 				val ent = nzrow(r).get(i);	
 				str.add(ent.toString());
 			}
 			str.add("\n");
 		}
 		return str.toString();
-	}
-	
-	public def print(msg:String) {
-		Console.OUT.println(msg);
-		Console.OUT.print(toString());
-		Console.OUT.flush();
-	}
-	
-	public def print():void {
-		print("");
 	}
 }

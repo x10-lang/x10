@@ -168,30 +168,36 @@ implements X10ParsedClassType
         return n;
     }
     
-    public
-    TypeParamSubst subst() {
+    public TypeParamSubst subst() {
         if (cacheSubst == null) {
             List<Type> typeArguments = new ArrayList<Type>();
             List<ParameterType> typeParameters = new ArrayList<ParameterType>();
             for (X10ParsedClassType_c c = this; c != null; c = (X10ParsedClassType_c) c.container()) {
-            	X10ClassDef cdef = c.x10Def();
+                X10ClassDef cdef = c.x10Def();
                 List<ParameterType> tp = cdef.typeParameters();
                 List<Type> ta = c.typeArguments;
-            	// [DC] ta == null can happen if the type is used to access a static member
-            	// don't add substitutions in this case
+                // [DC] ta == null can happen if the type is used to access a static member
+                // don't add substitutions in this case
                 if (ta != null) {
-                	assert ta.size() == tp.size();
-                //if (!tp.isEmpty() && !ta.isEmpty()) {
+                    if (ta.size() != tp.size() && this.error() == null) {
+                        throw new InternalCompilerError("Undetected mismatch in number of type arguments ("+ta+") and type parameters ("+tp+") for "+cdef);
+                    }
                     typeArguments.addAll(ta);
                     typeParameters.addAll(tp);
-                //}
                 }
                 if (!c.isMember() || c.flags().isStatic())
                     break;
             }
-            //if (typeArguments.isEmpty()) typeParameters = new ArrayList<ParameterType>();
-            assert typeArguments.size() == typeParameters.size();
-            cacheSubst = new TypeParamSubst((TypeSystem) ts, typeArguments, typeParameters);
+            if (this.error() != null) {
+            	// [DC] avoid tripping assertions with mismatched substitutions, just
+            	// define an identity substitution...
+                cacheSubst = new TypeParamSubst((TypeSystem) ts, null, null);
+            } else {
+	            if (typeArguments.size() != typeParameters.size()) {
+	                throw new InternalCompilerError("Undetected mismatch in number of type arguments ("+typeArguments+") and type parameters ("+typeParameters+")");
+	            }
+                cacheSubst = new TypeParamSubst((TypeSystem) ts, typeArguments, typeParameters);
+            }
         }
         return cacheSubst;
     }

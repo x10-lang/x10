@@ -17,9 +17,9 @@ import harness.x10Test;
  **/
 public class PrimitiveToPrimitive extends x10Test {
 	 
-	public def run() = 3 instanceof Int;
+	public def run() = 3 instanceof Long;
 	
-	public static def main(var args: Array[String](1)): void = {
+	public static def main(var args: Rail[String]): void = {
 		new PrimitiveToPrimitive().execute();
 	}
 }

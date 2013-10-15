@@ -17,7 +17,7 @@ import harness.x10Test;
 
 class XTENLANG_48 extends x10Test {
 
-    static class R(rank:int) {
+    static class R(rank:long) {
         def this() { property(0); }
     }
     
@@ -25,7 +25,7 @@ class XTENLANG_48 extends x10Test {
         static def make[T](): C[T] { throw new Exception(); }
     }
     
-    class Bug(foo:int) {
+    class Bug(foo:long) {
         def this() { property(0); }
 
         //var a: Rail[R{rank==foo}] = Rail.make[R{rank==foo}](10);
@@ -36,7 +36,7 @@ class XTENLANG_48 extends x10Test {
         return true;
     }
 
-    public static def main(Array[String](1)) {
+    public static def main(Rail[String]) {
         new XTENLANG_48().execute();
     }
 }

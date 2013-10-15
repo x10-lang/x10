@@ -13,6 +13,7 @@
 //OPTIONS: -STATIC_CHECKS
 
 import harness.x10Test;
+import x10.regionarray.*;
 
 /**
  * Simple array test.
@@ -24,18 +25,18 @@ public class ArrayAccessWithMismatchingPointRank_MustFailCompile extends x10Test
 
     public def run(): boolean = {
 
-        val e = 1..10;
+        val e = Region.make(1,10);
         val ia = new Array[int](e, (Point)=>0); // will infer ia:Array[int](1)
-        val p = [1,1] as Point; // will infer p:Point(2)
+        val p = [1n as Int,1n] as Point; // will infer p:Point(2)
 
-	    val p1 = [1] as Point;
-	    a(ia(p1)); // ok
-        a(ia(p)); // ERR [Method or static constructor not found for given call. Call: ia(x10.array.Point{self==p, p.x10.array.Point#rank==2})]
+        val p1 = [1n as Int] as Point;
+	a(ia(p1)); // ok
+        a(ia(p)); // ERR [Method or static constructor not found for given call. Call: ia(Point{self==p, p.Point#rank==2})]
 
         return true;
     }
 
-    public static def main(Array[String](1)) = {
+    public static def main(Rail[String]) = {
         new ArrayAccessWithMismatchingPointRank_MustFailCompile().execute();
     }
 }

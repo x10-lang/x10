@@ -17,11 +17,11 @@ import harness.x10Test;
  */
 public class CF3 extends x10Test {
 
-    static struct Reducer implements Reducible[Int] {
+    static struct Reducer implements Reducible[Long] {
      	public   def zero()=0;
-     	public   operator this(a:Int,b:Int)=a+b;
+     	public   operator this(a:Long,b:Long)=a+b;
     }
-    def m() offers Int {
+    def m() offers Long {
     	offer 6;
     }
 	public def run() {
@@ -32,7 +32,7 @@ public class CF3 extends x10Test {
 		return 6==x;
 	}
 
-	public static def main(Array[String](1)) {
+	public static def main(Rail[String]) {
 		new CF3().execute();
 	}
 }

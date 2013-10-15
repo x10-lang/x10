@@ -21,12 +21,12 @@ import harness.x10Test;
 
 public class Interfaces_multi extends x10Test {
    public def run() : boolean = (new Hook()).run();
-   public static def main(var args: Array[String](1)): void = {
+   public static def main(args:Rail[String]):void {
         new Interfaces_multi().execute();
     }
 
 
-// file Interfaces line 237
+// file Interfaces line 272
  static interface I1 { static val a = 1;}
  static interface I2 extends I1 {}
  static interface I3 extends I1 {}

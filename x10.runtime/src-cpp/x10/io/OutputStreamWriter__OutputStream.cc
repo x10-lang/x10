@@ -15,7 +15,7 @@
 
 #include <x10/io/OutputStreamWriter__OutputStream.h>
 #include <x10/io/FileWriter__FileOutputStream.h>
-#include <x10/util/IndexedMemoryChunk.h>
+#include <x10/lang/Rail.h>
 
 using namespace x10::lang;
 using namespace x10::io;
@@ -35,16 +35,6 @@ OutputStreamWriter__OutputStream* OutputStreamWriter__OutputStream::STANDARD_ERR
 	if (NULL == _STANDARD_ERR_cache)
 		_STANDARD_ERR_cache = new (x10aux::alloc<FileWriter__FileOutputStream>()) FileWriter__FileOutputStream(stderr);
 	return _STANDARD_ERR_cache;
-}
-
-void OutputStreamWriter__OutputStream::write(x10::util::IndexedMemoryChunk<x10_byte> b) {
-    this->write(b, 0, b->length());
-}
-
-void OutputStreamWriter__OutputStream::write(x10::util::IndexedMemoryChunk<x10_byte> b,
-                                             x10_int off, x10_int len) {
-    for (x10_int i = 0; i < len; i++)
-        this->write((x10_int) b->operator[](off + i));
 }
 
 void OutputStreamWriter__OutputStream::_serialize_body(x10aux::serialization_buffer& buf) {

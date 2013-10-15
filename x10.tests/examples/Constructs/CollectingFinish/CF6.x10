@@ -12,14 +12,13 @@
 
 
 import harness.x10Test;
+
 /**
  * This is to test the collecting finish sum 
  * with at each 
+ *
  * @author Li Yan
- * 
  */
-
-
 public class CF6 extends x10Test{
 
     public static class TotalsReducer1 implements Reducible[Totals2] {
@@ -27,8 +26,8 @@ public class CF6 extends x10Test{
         public  operator this(a:Totals2, other:Totals2 ) = Totals2(a.left+other.left,a.right+other.right);
         public def this() {super();};
     }
-    public static struct Totals2(left:int, right:int) {
-        public def this (l:int, r:int)  {property(l,r);}
+    public static struct Totals2(left:long, right:long) {
+        public def this (l:long, r:long)  {property(l,r);}
         public def this (){this(0,0);}
         public def toString() = "(" + left  + "," + right + ")";
     }
@@ -37,16 +36,16 @@ public class CF6 extends x10Test{
             val b = new TotalsReducer1();
             val iteration = 100;
             val result = finish(b) {
-                 ateach(p in Dist.makeUnique()){
+                 for (p in Place.places()) at (p) async {
                       val v = Totals2(1,2);
-                      for (var i:Int = 0; i < iteration; i++)
+                      for (var i:Long = 0; i < iteration; i++)
                         offer v;
                  }
             };
             Console.OUT.println("result =" + result + " P=" + Place.MAX_PLACES);
             return result == Totals2(iteration * Place.MAX_PLACES,iteration * 2 *Place.MAX_PLACES);
     }
-        public static def main(args: Array[String](1)) {
+        public static def main(args: Rail[String]) {
                 new CF6().execute();
         }
 

@@ -10,6 +10,7 @@
  */
 
 import harness.x10Test;
+import x10.regionarray.*;
 
 /**
  * Test for for loop with x10 for (point p: D) syntax
@@ -18,21 +19,21 @@ import harness.x10Test;
  */
 public class ForLoop extends x10Test {
 
-	public static N: int = 100;
-	var nActivities: int = 0;
+	public static N: long = 100;
+	var nActivities: int = 0n;
 
 	public def run(): boolean = {
-		val r = (0..(N-1)) as Region;
+		val r = Region.make(0, N-1);
 		val P0 = here;
 		val d = r->P0;
 
 		if (!d.region.equals(r)) return false;
-		//if (d.region.low() != 0) return false;
-		//if (d.region.high() != N-1) return false;
+		if (d.region.min(0) != 0L) return false;
+		if (d.region.max(0) != N-1) return false;
 
 		//Ensure iterator works in lexicographic order
-		var n: int = 0;
-		var prev: int = /*d.region.low()*/0-1;
+		var n: long = 0;
+		var prev: long = d.region.min(0)-1;
 		for (p in d) {
 			n += p(0);
 			if (prev+1 != p(0)) return false;
@@ -43,7 +44,7 @@ public class ForLoop extends x10Test {
 
 		// now iterate over a region
 		n = 0;
-		prev = /*r.low()*/0-1;
+		prev = r.min(0)-1;
 		for (val p: Point in r) {
 			n += p(0);
 			if (prev+1 != p(0)) return false;
@@ -53,7 +54,7 @@ public class ForLoop extends x10Test {
 		return true;
 	}
 
-	public static def main(Array[String](1)) {
+	public static def main(Rail[String]) {
 		new ForLoop().execute();
 	}
 }

@@ -34,7 +34,7 @@ public class ConcurrentForIterator {
         return v == 10;
     }
 
-    public static def main(args:Array[String](1)) {
+    public static def main(args:Rail[String]) {
         val r = new ConcurrentForIterator().run();
         if(r){
              x10.io.Console.OUT.println("++++++Test succeeded.");

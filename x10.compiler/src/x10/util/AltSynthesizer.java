@@ -178,7 +178,7 @@ public class AltSynthesizer {
                     return null;
                 args.add(ei);
             }
-            return nf.Tuple(pos, args).type(ts.arrayOf(ts.Any()));
+            return nf.Tuple(pos, args).type(ts.Rail(ts.Any()));
         }
         return null;
     }
@@ -1218,7 +1218,7 @@ public class AltSynthesizer {
         for (int i=0; i<numElems; i++) {
             tupleVals.add(initForAllElems);
         }
-        Type elemType = ts.Array(initForAllElems.type());
+        Type elemType = ts.Rail(initForAllElems.type());
         return nf.Tuple(pos, tupleVals).type(elemType);
     }
 

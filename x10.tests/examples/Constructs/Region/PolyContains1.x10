@@ -9,6 +9,8 @@
  *  (C) Copyright IBM Corporation 2006-2010.
  */
 
+import x10.regionarray.*;
+
 /**
  * Test banded regions.
  *
@@ -18,7 +20,7 @@ class PolyContains1 extends TestRegion {
 
     public def run() {
 
-        val u: Region = Region.makeRectangular([0,0], [4,4]);
+        val u: Region = Region.makeRectangular(0..4, 0..4);
     
         var b1: Region = Region.makeBanded(5, 1, 1);
         prArray("makeBanded(5,1,1)", b1);
@@ -88,7 +90,7 @@ class PolyContains1 extends TestRegion {
         "    3  . . . 9 2 . . . . . \n"+
         "    4  . . . . 6 . . . . . \n";
     
-    public static def main(Array[String](1)) {
+    public static def main(Rail[String]) {
         new PolyContains1().execute();
     }
 }

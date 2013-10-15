@@ -21,12 +21,12 @@ import harness.x10Test;
 
 public class Clocks80 extends x10Test {
    public def run() : boolean = (new Hook()).run();
-   public static def main(var args: Array[String](1)): void = {
+   public static def main(args:Rail[String]):void {
         new Clocks80().execute();
     }
 
 
-// file Clocks line 310
+// file Clocks line 318
  static  class Example{
  def example() {
 val c:Clock = Clock.make();

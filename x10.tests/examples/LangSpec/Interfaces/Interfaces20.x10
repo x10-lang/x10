@@ -21,12 +21,12 @@ import harness.x10Test;
 
 public class Interfaces20 extends x10Test {
    public def run() : boolean = (new Hook()).run();
-   public static def main(var args: Array[String](1)): void = {
+   public static def main(args:Rail[String]):void {
         new Interfaces20().execute();
     }
 
 
-// file Interfaces line 200
+// file Interfaces line 235
  static  interface KnowsPi {PI = 3.14159265358;}
  static class Circle implements KnowsPi {
   static def area(r:Double) = PI * r * r;

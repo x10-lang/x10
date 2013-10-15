@@ -22,10 +22,10 @@ import harness.x10Test;
 public class InconsistentInvariant_MustFailCompile extends x10Test {
 
     interface Inv {i()==0, i()==1}{ // ERR: Class invariant is inconsistent.
-        public property i():int;
+        public property i():long;
     }
     public def run()=false;
-    public static def main(Array[String](1)) {
+    public static def main(Rail[String]) {
         new InconsistentInvariant_MustFailCompile().execute();
     }
 }

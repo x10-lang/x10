@@ -18,12 +18,12 @@ import harness.x10Test;
 class XTENLANG_311 extends x10Test {
 
     public def run(): boolean {
-        var t:int = 0;
+        var t:long = 0;
         t++;
         return t==1;
     }
 
-    public static def main(Array[String](1)) {
+    public static def main(Rail[String]) {
         new XTENLANG_311().execute();
     }
 }

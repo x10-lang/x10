@@ -24,8 +24,7 @@ ReferenceLogger *x10aux::ReferenceLogger::it;
 
 ReferenceLogger::ReferenceLogger() {
     _lock = new (alloc<reentrant_lock>())reentrant_lock();
-    _buckets = x10aux::alloc<Bucket*>(NUM_BUCKETS*sizeof(Bucket*));
-    memset(_buckets, 0, NUM_BUCKETS*sizeof(Bucket*));
+    _buckets = x10aux::alloc_z<Bucket*>(NUM_BUCKETS*sizeof(Bucket*));
 }
 
 ReferenceLogger* ReferenceLogger::initMe() {

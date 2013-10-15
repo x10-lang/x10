@@ -16,7 +16,7 @@ import harness.x10Test;
 // generic type parameter.
 
 public class GenericInnerClass1[X] extends x10Test {
-  public static def main(Array[String](1)){
+  public static def main(Rail[String]){
      val p = new GenericInnerClass1[Int]();
      p.execute();
   }

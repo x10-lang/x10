@@ -27,13 +27,13 @@ public class GenericMethods2 extends GenericTest {
 
         val a = new A();
 
-        genericCheck("a.m[int](1)", a.m[int](1), 1);
+        genericCheck("a.m[long](1)", a.m[long](1), 1);
         genericCheck("a.m[String](\"1\")", a.m[String]("1"), "1");
 
         return result;
     }
 
-    public static def main(var args: Array[String](1)): void = {
+    public static def main(var args: Rail[String]): void = {
         new GenericMethods2().execute();
     }
 }

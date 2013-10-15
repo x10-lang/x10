@@ -21,12 +21,12 @@ import harness.x10Test;
 
 public class Expressions2x1f extends x10Test {
    public def run() : boolean = (new Hook()).run();
-   public static def main(var args: Array[String](1)): void = {
+   public static def main(args:Rail[String]):void {
         new Expressions2x1f().execute();
     }
 
 
-// file Expressions line 315
+// file Expressions line 312
  static  class Example[F,G] {
 public operator this(f:F, g:G) = "value";
   }

@@ -21,7 +21,7 @@ import harness.x10Test;
 
 public class Vars50 extends x10Test {
    public def run() : boolean = (new Hook()).run();
-   public static def main(var args: Array[String](1)): void = {
+   public static def main(args:Rail[String]):void {
         new Vars50().execute();
     }
 
@@ -29,7 +29,7 @@ public class Vars50 extends x10Test {
 // file Vars line 208
  static class Examplement {
 static def whatever() {
-val sq = (x:Int) => x*x;
+val sq = (x:Long) => x*x;
 x10.io.Console.OUT.println("3 squared = " + sq(3));
 x10.io.Console.OUT.println("4 squared = " + sq(4));
 }}

@@ -19,7 +19,7 @@ import x10.compiler.NonEscaping;
  * @author bdlucas 8/2008
  */
 
-public class ClosureEnclosingScope6 extends ClosureTest {
+public class ClosureEnclosingScope6 extends x10Test {
 
     val a = 1;
 
@@ -37,12 +37,12 @@ public class ClosureEnclosingScope6 extends ClosureTest {
 
     public def run(): boolean = {
         
-        check("new C().new D().sum", new C().new D().sum(), 11);
+        chk(new C().new D().sum() == 11, "new C().new D().sum");
 
-        return result;
+        return true;
     }
 
-    public static def main(var args: Array[String](1)): void = {
+    public static def main(var args: Rail[String]): void = {
         new ClosureEnclosingScope6().execute();
     }
 }

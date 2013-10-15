@@ -65,8 +65,10 @@ public class ExternAnnotationVisitor extends ContextVisitor {
         for (int i=1; i<=def.formalTypes().size(); i++) {
             if (i > 1) sb.append(",");
             sb.append("(#" + i + ")");
-            if (Types.isX10Array(def.formalTypes().get(i-1).get()))
+            if (Types.isX10RegionArray(def.formalTypes().get(i-1).get()))
                 sb.append("->raw()->raw()");
+            if (Types.isX10Rail(def.formalTypes().get(i-1).get()))
+                sb.append("->raw");
         }
         sb.append(") /* ExternAnnotationVisitor */");
         List<Expr> inits = new ArrayList<Expr>(2);

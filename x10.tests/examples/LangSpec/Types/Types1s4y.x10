@@ -17,22 +17,23 @@
 
 import harness.x10Test;
 
+ import x10.regionarray.*;
 import x10.util.*;
 
 public class Types1s4y extends x10Test {
    public def run() : boolean = (new Hook()).run();
-   public static def main(var args: Array[String](1)): void = {
+   public static def main(args:Rail[String]):void {
         new Types1s4y().execute();
     }
 
 
-// file Types line 2513
+// file Types line 2828
  static class Cl[C1, C2, C3]{}
  static class Example {
-  static def me[X1, X2](Cl[Int, X1, X2]) =
+  static def me[X1, X2](Cl[Long, X1, X2]) =
      new Cl[X1, X2, Point]();
   static def example() {
-    val a = new Cl[Int, Boolean, String]();
+    val a = new Cl[Long, Boolean, String]();
     val b : Cl[Boolean, String, Point]
           = me[Boolean, String](a);
     val c : Cl[Boolean, String, Point]

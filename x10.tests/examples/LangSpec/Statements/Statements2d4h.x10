@@ -21,16 +21,16 @@ import harness.x10Test;
 
 public class Statements2d4h extends x10Test {
    public def run() : boolean = (new Hook()).run();
-   public static def main(var args: Array[String](1)): void = {
+   public static def main(args:Rail[String]):void {
         new Statements2d4h().execute();
     }
 
 
-// file Statements line 711
+// file Statements line 707
  static  class Example {
-static def sum(a: Array[Int]): Int {
-  var s : Int = 0;
-  for(p in a) s += a(p);
+static def sum(a: Rail[Long]): Long {
+  var s : Long = 0;
+  for(v in a) s += v;
   return s;
 }
 }

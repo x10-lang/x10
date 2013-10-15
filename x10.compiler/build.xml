@@ -77,7 +77,7 @@
     </target>
     <target name="build" depends="init,prereq-jars">
         <echo message="${ant.project.name}: ${ant.file}"/>
-        <javac destdir="${build}" source="1.5" target="1.5" debug="on" includes="polyglot/**,x10/**,x10c/**,x10cpp/**,x10cuda/**,x10rose/**" excludes="polyglot/ext/x10/dom/**,polyglot/ext/x10/plugin/**,polyglot/ext/x10/visit/Propagate*AnnotationsVisitor.java">
+        <javac destdir="${build}" source="1.6" target="1.6" debug="on" includes="polyglot/**,x10/**,x10c/**,x10cpp/**,x10cuda/**,x10rose/**" excludes="polyglot/ext/x10/dom/**,polyglot/ext/x10/plugin/**,polyglot/ext/x10/visit/Propagate*AnnotationsVisitor.java">
             <src path="${src}"/>
             <classpath refid="project.classpath"/>
         </javac>
@@ -100,8 +100,7 @@
                 <equals arg1="${os.arch}" arg2="amd64"/>
             </or>
         </condition>
-        <property name="lpg.executable.location" location="${lpg.location}.${platform}_${arch}"/>
-        <property name="lpg.executable" location="${lpg.executable.location}/lpgexe/lpg-${platform}_${arch}"/>
+        <property name="lpg.executable" location="${lpg.location}/lpgexe/lpg-${platform}_${arch}"/>
         <!--
         <echo message="OS: ${os.name} ${os.arch}"/>
         <echo message="Platform: ${platform}"/>

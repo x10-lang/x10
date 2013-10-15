@@ -17,7 +17,7 @@ import x10.util.Pair;
 /**
  * Declare an instance field that is a generic struct, that is in 
  * turn instantiated on a struct.
- * Test for C++ codegen to make sure header files are included...
+ * Test for C++ codegen to make sure header files are included.
  */
 public class TestStructPair extends x10Test {
     public static struct A { };

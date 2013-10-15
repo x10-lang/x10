@@ -18,7 +18,7 @@ import harness.x10Test;
  * declaration (§4.3,§9.5,§9.7,§12.5).
  */
 
-public class ClosureTypeParameters2b_MustFailCompile extends ClosureTest {
+public class ClosureTypeParameters2b_MustFailCompile extends x10Test {
 
     class V           {public static val name = "V";}
     class W extends V {public static val name = "W";}
@@ -29,12 +29,12 @@ public class ClosureTypeParameters2b_MustFailCompile extends ClosureTest {
     public def run(): boolean = {
         
         class C[T] {val f = (){T<:Y} => "hi";} // ERR: Type constraints not permitted in closure guards.
-        check("new C[X]().f()", new C[X]().f(), "hi");
+        chk(new C[X]().f().equals("hi"));
 
-        return result;
+        return true;
     }
 
-    public static def main(var args: Array[String](1)): void = {
+    public static def main(var args: Rail[String]): void = {
         new ClosureTypeParameters2b_MustFailCompile().execute();
     }
 }

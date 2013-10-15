@@ -23,13 +23,13 @@ public class GenericMethods1 extends GenericTest {
 
     public def run() = {
 
-        genericCheck("m[int](1)", m[int](1), 1);
+        genericCheck("m[long](1)", m[long](1), 1);
         genericCheck("m[String](\"1\")", m[String]("1"), "1");
 
         return result;
     }
 
-    public static def main(var args: Array[String](1)): void = {
+    public static def main(var args: Rail[String]): void = {
         new GenericMethods1().execute();
     }
 }

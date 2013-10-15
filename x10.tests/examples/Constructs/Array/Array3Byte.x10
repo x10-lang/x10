@@ -10,6 +10,7 @@
  */
 
 import harness.x10Test;
+import x10.regionarray.*;
 
 /**
  * Ensures byte arrays are implemented.
@@ -17,14 +18,14 @@ import harness.x10Test;
 public class Array3Byte extends x10Test {
 
     public def run(): boolean = {
-        val r  = (1..10)*(1..10);
+        val r  = Region.make(1..10, 1..10);
         val ia  = new Array[Byte](r, (x:Point)=>(0 as Byte));
     
         ia(1, 1) = 42 as Byte;
         return (42y == ia(1, 1));
     }
 
-    public static def main(var args: Array[String](1)): void = {
+    public static def main(var args: Rail[String]): void = {
         new Array3Byte().execute();
     }
 }

@@ -21,14 +21,14 @@ import harness.x10Test;
 
 public class Expressions4u6l extends x10Test {
    public def run() : boolean = (new Hook()).run();
-   public static def main(var args: Array[String](1)): void = {
+   public static def main(args:Rail[String]):void {
         new Expressions4u6l().execute();
     }
 
 
-// file Expressions line 934
+// file Expressions line 923
  static  class Example{ def example() {
-for(var i : Long = 0; i != 100L; i++) {}
+for(var i : Int = 0n; i != 100n; i++) {}
 } }
 
  static class Hook {

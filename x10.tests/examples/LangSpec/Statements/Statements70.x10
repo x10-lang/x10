@@ -21,19 +21,19 @@ import harness.x10Test;
 
 public class Statements70 extends x10Test {
    public def run() : boolean = (new Hook()).run();
-   public static def main(var args: Array[String](1)): void = {
+   public static def main(args:Rail[String]):void {
         new Statements70().execute();
     }
 
 
-// file Statements line 512
+// file Statements line 511
  static  class Example {
  def example(i : Int, println: (String)=>void) {
 switch (i) {
-  case 1: println("one, and ");
-  case 2: println("two");
+  case 1n: println("one, and ");
+  case 2n: println("two");
           break;
-  case 3: println("three");
+  case 3n: println("three");
           break;
   default: println("Something else");
            break;

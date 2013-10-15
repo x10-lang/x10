@@ -21,14 +21,14 @@ import harness.x10Test;
 
 public class Vars40 extends x10Test {
    public def run() : boolean = (new Hook()).run();
-   public static def main(var args: Array[String](1)): void = {
+   public static def main(args:Rail[String]):void {
         new Vars40().execute();
     }
 
 
 // file Vars line 183
  static class Example {
-  val n : Int; // not initialized here
+  val n : Long; // not initialized here
   def this() { n = 1; }
   def this(dummy:Boolean) { n = 2;}
 }

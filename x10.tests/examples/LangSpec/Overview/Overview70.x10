@@ -21,7 +21,7 @@ import harness.x10Test;
 
 public class Overview70 extends x10Test {
    public def run() : boolean = (new Hook()).run();
-   public static def main(var args: Array[String](1)): void = {
+   public static def main(args:Rail[String]):void {
         new Overview70().execute();
     }
 
@@ -29,7 +29,7 @@ public class Overview70 extends x10Test {
 // file Overview line 310
 
  static class Overview7TestExp{
-  def check(n:Int)  = n as Int{self != 0};  }
+  def check(n:Long)  = n as Long{self != 0};  }
 
  static class Hook {
    def run():Boolean = true;

@@ -17,19 +17,19 @@
 
 import harness.x10Test;
 
-
+ import x10.regionarray.*;
 
 public class Arrays360 extends x10Test {
    public def run() : boolean = (new Hook()).run();
-   public static def main(var args: Array[String](1)): void = {
+   public static def main(args:Rail[String]):void {
         new Arrays360().execute();
     }
 
 
-// file Arrays line 560
+// file Arrays line 843
  static  class Example {
  def example() {
-val R <: Region = 1..1000;
+val R <: Region = Region.make(1..1000);
 val D <: Dist = Dist.makeBlock(R);
 val da <: DistArray[Float]
        = DistArray.make[Float](D, (Point(1))=>0.0f);

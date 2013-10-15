@@ -5,10 +5,6 @@ import x10.compiler.tests.*; // err markers
 import x10.util.*;
 import x10.lang.annotations.*; // FieldAnnotation MethodAnnotation
 
-import x10.io.CustomSerialization;
-import x10.io.SerialData;
-
-
 // tests for Accumulators
 // todo: need to test Runtime.sync()
 
@@ -21,7 +17,7 @@ public class AccumulatorRuntimeTest extends x10Test {
 			public def zero():Long = 1;
 			public operator this(x:Long,y:Long):Long = x*y;
 	}
-	public static def main(var args: Array[String](1)): void = {
+	public static def main(var args: Rail[String]): void = {
 		new AccumulatorRuntimeTest().execute();
 	}
 

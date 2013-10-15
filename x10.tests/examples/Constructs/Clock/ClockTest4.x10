@@ -19,26 +19,26 @@ import harness.x10Test;
  */
 public class ClockTest4 extends x10Test {
 
-	var value: int = 0;
-	public static N: int = 32;
+	var value: long = 0;
+	public static N: long = 32;
 
 	public def run(): boolean = {
 		val c: Clock = Clock.make();
 
-		for  ([i] in 1..(N-1)) async clocked(c) {
+		for  (i in 1..(N-1)) async clocked(c) {
 			foreachBody(i, c);
 		}
 		foreachBody(0, c);
-		var temp2: int;
+		var temp2: long;
 		atomic { temp2 = value; }
 		chk(temp2 == 0);
 		return true;
 	}
 
-	def foreachBody(i: int, c: Clock): void = {
+	def foreachBody(i: long, c: Clock): void = {
 		async clocked(c) finish async { async { atomic value += i; } }
 		Clock.advanceAll();
-		var temp: int;
+		var temp: long;
 		atomic { temp = value; }
 		chk(temp == N*(N-1)/2);
 		Clock.advanceAll();
@@ -46,7 +46,7 @@ public class ClockTest4 extends x10Test {
 		Clock.advanceAll();
 	}
 
-	public static def main(Array[String](1)) {
+	public static def main(Rail[String]) {
 		new ClockTest4().executeAsync();
 	}
 }

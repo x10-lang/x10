@@ -8,15 +8,17 @@
  *
  *  (C) Copyright Australian National University 2010.
  */
+
 import harness.x10Test;
+import x10.regionarray.*;
 
 /**
  * Tests performance of DistArray creation
  * @author milthorpe 09/2010
  */
-public class BenchmarkCreateDistArray(elementsPerPlace : Int) extends x10Test {
+public class BenchmarkCreateDistArray(elementsPerPlace : Long) extends x10Test {
 
-    public def this(elementsPerPlace : Int) {
+    public def this(elementsPerPlace : Long) {
         property(elementsPerPlace);
     }
 
@@ -27,7 +29,7 @@ public class BenchmarkCreateDistArray(elementsPerPlace : Int) extends x10Test {
         val arraySize = elementsPerPlace * Place.MAX_PLACES;
 
         val start = System.nanoTime();
-        val a = DistArray.make[Int](Dist.makeBlock(0..(arraySize-1)));
+        val a = DistArray.make[Long](Dist.makeBlock(Region.make(0, arraySize-1)));
         val stop = System.nanoTime();
 
         // do something with elements afterwards
@@ -39,10 +41,10 @@ public class BenchmarkCreateDistArray(elementsPerPlace : Int) extends x10Test {
         return true;
 	}
 
-	public static def main(var args: Array[String](1)): void = {
-        var elementsPerPlace : Int = 1;
+	public static def main(var args: Rail[String]): void = {
+        var elementsPerPlace : Long = 1;
         if (args.size > 0) {
-            elementsPerPlace = Int.parse(args(0));
+            elementsPerPlace = Long.parse(args(0));
         }
 		new BenchmarkCreateDistArray(elementsPerPlace).execute();
 	}

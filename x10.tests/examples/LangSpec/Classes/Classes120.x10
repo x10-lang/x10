@@ -21,12 +21,12 @@ import harness.x10Test;
 
 public class Classes120 extends x10Test {
    public def run() : boolean = (new Hook()).run();
-   public static def main(var args: Array[String](1)): void = {
+   public static def main(args:Rail[String]):void {
         new Classes120().execute();
     }
 
 
-// file Classes line 746
+// file Classes line 875
  static  class Waif(rect:Boolean, onePlace:Place, zeroBased:Boolean) {
 property rail(): Boolean =
    rect && onePlace == here && zeroBased;

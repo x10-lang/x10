@@ -18,8 +18,6 @@ import x10.serialization.X10JavaSerializer;
 
 public final class UnresolvedType implements Type, X10JavaSerializable {
 
-    private static final long serialVersionUID = 1L;
-
     public static final UnresolvedType THIS = new UnresolvedType(-1);
     private static final UnresolvedType[] params = {
         new UnresolvedType(0),

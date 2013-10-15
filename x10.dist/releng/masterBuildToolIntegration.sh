@@ -122,7 +122,7 @@ while [ $# != 0 ]; do
 done
 
 branchName="x10-tools-integration"
-tibURL="http://x10.svn.sourceforge.net/svnroot/x10/branches/${branchName}/"
+tibURL="http://svn.code.sourceforge.net/p/x10/code/branches/${branchName}/"
 tarballDest=/var/www/localhost/htdocs/x10dt/x10-builds
 remoteTmpDir=/tmp/x10-tib-$userID
 

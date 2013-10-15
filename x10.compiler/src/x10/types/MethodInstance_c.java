@@ -347,7 +347,7 @@ public class MethodInstance_c extends FunctionInstance_c<MethodDef> implements M
                 if (formalNames != null && i < formalNames.size()) {
                     X10LocalInstance a = (X10LocalInstance) formalNames.get(i);
                     if (a != null && ! a.x10Def().isUnnamed())
-                        s = a.name() + ": " + t;
+                        s = a.name() + ":" + t;
                     else
                         s = t;
                 }
@@ -377,7 +377,7 @@ public class MethodInstance_c extends FunctionInstance_c<MethodDef> implements M
             sb.append(x10Def().typeGuard());
         Ref<? extends Type> returnType = this.returnTypeRef();
         if (returnType != null && returnType.known()) {
-            sb.append(": ");
+            sb.append(":");
             sb.append(returnType);
         }
         return sb.toString();

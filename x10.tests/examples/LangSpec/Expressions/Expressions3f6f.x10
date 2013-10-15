@@ -21,12 +21,12 @@ import harness.x10Test;
 
 public class Expressions3f6f extends x10Test {
    public def run() : boolean = (new Hook()).run();
-   public static def main(var args: Array[String](1)): void = {
+   public static def main(args:Rail[String]):void {
         new Expressions3f6f().execute();
     }
 
 
-// file Expressions line 1962
+// file Expressions line 1963
  static class Funny {
   def f () = 1;
   val f = () => 2;

@@ -21,14 +21,14 @@ import harness.x10Test;
 
 public class Statements30 extends x10Test {
    public def run() : boolean = (new Hook()).run();
-   public static def main(var args: Array[String](1)): void = {
+   public static def main(args:Rail[String]):void {
         new Statements30().execute();
     }
 
 
-// file Statements line 223
+// file Statements line 222
  static  class Example {
- def example(b:Boolean, S1:(Int)=>void, S2:(Int)=>void ) {
+ def example(b:Boolean, S1:(Long)=>void, S2:(Long)=>void ) {
 if (b) {
   // This is a block
   val v = 1;

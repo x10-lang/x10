@@ -10,6 +10,7 @@
  */
 
 import harness.x10Test;
+import x10.regionarray.*;
 
 /**
  * Testing an at spawned to a field access.
@@ -19,18 +20,18 @@ public class AtFieldAccess extends x10Test {
 	var t: T;
 	public def run():boolean {
 		val Second = Place.FIRST_PLACE.next();
-		val r  = 0..0;
+		val r  = Region.makeRectangular(0, 0);
 		val D = r->Second;
 		for (p  in D.region) {
 			t = at (D(p)) new T();
 		}
 		val tt = this.t;
 		val ttroot = tt.root;
-		at (ttroot) ttroot().i = 3;
-		return 3 == (at(ttroot) ttroot().i);
+		at (ttroot) ttroot().i = 3n;
+		return 3n == (at(ttroot) ttroot().i);
 	}
 
-	public static def main(Array[String](1)) {
+	public static def main(Rail[String]) {
 		new AtFieldAccess().execute();
 	}
 

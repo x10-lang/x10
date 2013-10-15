@@ -17,20 +17,20 @@
 
 import harness.x10Test;
 
-
+import x10.regionarray.*;
 
 public class Arrays250 extends x10Test {
    public def run() : boolean = (new Hook()).run();
-   public static def main(var args: Array[String](1)): void = {
+   public static def main(args:Rail[String]):void {
         new Arrays250().execute();
     }
 
 
-// file Arrays line 407
+// file Arrays line 672
  static class Example{
 static def example(a:Array[Double]) {
 for (p in a) a(p) = Math.log(a(p));
 }}
- static  class Hook{ def run() { val a = [1.0,2.0]; Example.example(a); return a(0)==Math.log(1.0) && a(1)==Math.log(2.0); }}
+ static  class Hook{ def run() { val a = new Array[Double](2, [1.0,2.0]); Example.example(a); return a(0)==Math.log(1.0) && a(1)==Math.log(2.0); }}
 
 }

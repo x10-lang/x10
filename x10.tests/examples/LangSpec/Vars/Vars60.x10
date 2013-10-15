@@ -21,16 +21,16 @@ import harness.x10Test;
 
 public class Vars60 extends x10Test {
    public def run() : boolean = (new Hook()).run();
-   public static def main(var args: Array[String](1)): void = {
+   public static def main(args:Rail[String]):void {
         new Vars60().execute();
     }
 
 
-// file Vars line 255
+// file Vars line 258
  static class VarsForBears{
 def check() {
-  val immut : Int = 3;
-  var mutab : Int = immut;
+  val immut : Long = 3;
+  var mutab : Long = immut;
   val use = immut + mutab;
 }}
 

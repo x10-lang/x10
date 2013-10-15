@@ -10,6 +10,7 @@
  */
 
 import harness.x10Test;
+import x10.regionarray.*;
 
 /**
  * Test point comparison.
@@ -77,7 +78,7 @@ class PointComparison1 extends TestPoint {
         "[1,2,3,4,5]<=[1,2,3,4,5] true\n"+
         "[1,2,3,4,5].equals[1,2,3,4,5] true\n";
 
-    public static def main(Array[String](1)) {
+    public static def main(Rail[String]) {
         new PointComparison1().execute();
     }
     

@@ -18,14 +18,14 @@ import harness.x10Test;
 public class XTENLANG_472 extends x10Test {
 
     public def run(): boolean {
-        var i:Int = 5;
+        var i:Long = 5;
         do {
             if (--i <= 0) break;
         } while(true);
         return i == 0;
     }
 
-    public static def main(Array[String](1)) {
+    public static def main(Rail[String]) {
         new XTENLANG_472().execute();
     }
 }

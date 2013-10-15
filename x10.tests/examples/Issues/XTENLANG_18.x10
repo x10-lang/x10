@@ -18,7 +18,7 @@ import harness.x10Test;
 class XTENLANG_18 extends x10Test {
 
     public class C implements (int)=>int {
-        public operator this(i:int) = 0;
+        public operator this(i:int) = 0n;
     }
 
     class P {}
@@ -31,7 +31,7 @@ class XTENLANG_18 extends x10Test {
         return true;
     }
 
-    public static def main(Array[String](1)) {
+    public static def main(Rail[String]) {
         new XTENLANG_18().execute();
     }
 }

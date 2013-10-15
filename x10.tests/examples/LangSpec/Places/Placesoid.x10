@@ -1,4 +1,4 @@
-/* Current test harness gets confused by packages, but it would be in package expsome_Places5;
+/* Current test harness gets confused by packages, but it would be in package expsome_Places4;
 */
 // Warning: This file is auto-generated from the TeX source of the language spec.
 // If you need it changed, work with the specification writers.
@@ -21,14 +21,14 @@ import harness.x10Test;
 
 public class Placesoid extends x10Test {
    public def run() : boolean = (new Hook()).run();
-   public static def main(var args: Array[String](1)): void = {
+   public static def main(args:Rail[String]):void {
         new Placesoid().execute();
     }
 
 
-// file Places line 56
+// file Places line 55
 
- static class Places5TestExp{
+ static class Places4TestExp{
   def check(pl:Place)  = pl.isCUDA();  }
 
  static class Hook {

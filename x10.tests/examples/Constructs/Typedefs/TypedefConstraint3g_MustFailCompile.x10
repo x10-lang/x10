@@ -20,13 +20,13 @@ class TypedefConstraint3g_MustFailCompile extends TypedefTest {
     public def run():boolean = {
 
         type T(
-            var x:int) // ERR: Type definition parameters must be final.
-            {x==1} = int;
+            var x:long) // ERR: Type definition parameters must be final.
+            {x==1} = long;
 
         return result;
     }
 
-    public static def main(var args: Array[String](1)): void = {
+    public static def main(var args: Rail[String]): void = {
         new TypedefConstraint3g_MustFailCompile().execute();
     }
 }

@@ -18,10 +18,10 @@ import harness.x10Test;
 class XTENLANG_732 extends x10Test {
 
 	class A {
-		def this(x:Int){this.x=x;}
-		var x:Int=0;
+		def this(x:Long){this.x=x;}
+		var x:Long=0;
 		operator this()=x;
-		operator this()=(v:Int) { this.x=v;}
+		operator this()=(v:Long) { this.x=v;}
 	}
 
 	public def run(): boolean {
@@ -31,7 +31,7 @@ class XTENLANG_732 extends x10Test {
 	
 	}
 
-    public static def main(Array[String](1)) {
+    public static def main(Rail[String]) {
         new XTENLANG_732().execute();
     }
 }
