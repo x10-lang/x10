@@ -3018,9 +3018,23 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
             sw.write(StringUtil.escape(n.value()));
             sw.write("\"");
         } else {
-            sw.write("x10aux::makeStringLit(\"");
-            sw.write(StringUtil.escape(n.value()));
-            sw.write("\")");
+            if (((x10.ExtensionInfo)(tr.job().extensionInfo())).getOptions().x10_config.FLATTEN_EXPRESSIONS) {
+                sw.write("x10aux::makeStringLit(\"");
+                sw.write(StringUtil.escape(n.value()));
+                sw.write("\")");
+            } else {
+                // Localized C++ codegen trick.  
+                // Use a static local inside of a statement expression so that
+                // the literal is actually only allocated once dynamically.
+                Name litName = Name.makeFresh("strLit");
+                sw.write("(__extension__ ({ static x10::lang::String* ");
+                sw.write(mangled_non_method_name(litName.toString()));
+                sw.write(" = x10aux::makeStringLit(\"");
+                sw.write(StringUtil.escape(n.value()));
+                sw.write("\"); ");
+                sw.write(mangled_non_method_name(litName.toString()));
+                sw.write("; }))");
+            }
         }
 	}
 

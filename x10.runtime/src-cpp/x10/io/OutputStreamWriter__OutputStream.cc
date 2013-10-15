@@ -37,15 +37,6 @@ OutputStreamWriter__OutputStream* OutputStreamWriter__OutputStream::STANDARD_ERR
 	return _STANDARD_ERR_cache;
 }
 
-void OutputStreamWriter__OutputStream::write(Rail<x10_byte>* b) {
-    this->write(b, 0, b->FMGL(size));
-}
-
-void OutputStreamWriter__OutputStream::write(Rail<x10_byte>* b, x10_long off, x10_long len) {
-    for (x10_long i = 0; i < len; i++)
-        this->write((x10_int) b->raw[off + i]);
-}
-
 void OutputStreamWriter__OutputStream::_serialize_body(x10aux::serialization_buffer& buf) {
 }
 

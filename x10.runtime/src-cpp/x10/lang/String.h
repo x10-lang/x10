@@ -29,9 +29,6 @@ namespace x10 {
             const char *FMGL(content);
             std::size_t FMGL(content_length);
 
-            private:
-            static void _formatHelper(std::ostringstream &ss, char* fmt, x10::lang::Any* p);
-            
             public:
             const char *c_str() const { return FMGL(content); }
 
@@ -175,16 +172,36 @@ namespace x10 {
                 #endif
             }
 
-            template<class T1, class T2> static String* __plus(T1, T2);
+            template<class T> static String* __plus(String*, T);
+            template<class T> static String* __plus(T, String*);
+            static String* __plus(String* p1, String* p2);
+            static String* __plus(String* p1, x10_boolean p2);
+            static String* __plus(String* p1, x10_byte p2);
+            static String* __plus(String* p1, x10_ubyte p2);
+            static String* __plus(String* p1, x10_short p2);
+            static String* __plus(String* p1, x10_ushort p2);
+            static String* __plus(String* p1, x10_int p2);
+            static String* __plus(String* p1, x10_uint p2);
+            static String* __plus(String* p1, x10_long p2);
+            static String* __plus(String* p1, x10_ulong p2);
+            static String* __plus(x10_boolean p1, String* p2);
+            static String* __plus(x10_byte p1, String* p2);
+            static String* __plus(x10_ubyte p1, String* p2);
+            static String* __plus(x10_short p1, String* p2);
+            static String* __plus(x10_ushort p1, String* p2);
+            static String* __plus(x10_int p1, String* p2);
+            static String* __plus(x10_uint p1, String* p2);
+            static String* __plus(x10_long p1, String* p2);
+            static String* __plus(x10_ulong p1, String* p2);
         };
 
-        template<class T1, class T2>
-        String* x10::lang::String::__plus(T1 p1, T2 p2) {
-            return String::Steal(x10aux::alloc_printf("%s%s",
-                                                      x10aux::safe_to_string(p1)->c_str(),
-                                                      x10aux::safe_to_string(p2)->c_str()));
+        template<class T> String* x10::lang::String::__plus(T p1, String* p2) {
+            return String::__plus(x10aux::safe_to_string(p1), p2);
         }
-            
+        template<class T> String* x10::lang::String::__plus(String* p1, T p2) {
+            return String::__plus(p1, x10aux::safe_to_string(p2));
+        }
+
         #ifndef NO_IOSTREAM
         inline std::ostream &operator<<(std::ostream &o, String *v) {
             return o << v->c_str();

@@ -114,8 +114,6 @@ public final class ExpressionFlattener extends ContextVisitor {
 
     private static final boolean DEBUG = false;
 
-    private static final boolean XTENLANG_2336 = true; // bug work around: don't flatten Runtime.x10
-
     private final TypeSystem xts;
     private AltSynthesizer syn; // move functionality to Synthesizer
     private final SideEffectDetector sed;
@@ -186,12 +184,7 @@ public final class ExpressionFlattener extends ContextVisitor {
      */
     public static boolean cannotFlatten(Node n, Job job) {
         Position pos = n.position(); // for DEBUGGING
-        if (n instanceof SourceFile){
-            Source s = ((SourceFile) n).source();
-            if (XTENLANG_2336 && s.name().equals("Runtime.x10")) { // BUG: cannot flatten Runtime
-                return true;
-            }
-        }
+
         if (n instanceof ConstructorDecl && javaBackend(job)) { // can't flatten constructors unless local assignments can precede super() and this() in Java
             ClassType type = ((ConstructorDecl) n).constructorDef().container().get().toClass();
             if (ConstructorSplitterVisitor.isUnsplittable(type))

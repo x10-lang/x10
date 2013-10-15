@@ -133,7 +133,10 @@
         <istrue value="${FLATTEN_EXPRESSIONS}" />
     </condition>
     <condition property="cppmake.x10rt_mpi" value="ENABLE_X10RT_MPI=1" else="DISABLE_X10RT_MPI=1">
-        <istrue value="${X10RT_MPI}" />
+        <or>
+            <istrue value="${X10RT_MPI}" />
+            <istrue value="${CROSS_COMPILE_BGQ}" />
+        </or>
     </condition>
     <condition property="cppmake.x10rt_pami" value="ENABLE_X10RT_PAMI=1" else="DISABLE_X10RT_PAMI=1">
         <or> 
@@ -504,10 +507,10 @@
 			<sequential>
 			  <echo message="Configuring BDWGC for FX10 cross compile"/>
 			  <exec executable="${bash.exe}" dir="${bdwgc.dir}/src" failonerror="true">
-			    <env key="CXX" value="/opt/FJSVfxlang/GM-1.2.1-03/bin/FCCpx"/>
-			    <env key="CC" value="/opt/FJSVfxlang/GM-1.2.1-03/bin/fccpx"/>
-			    <env key="CFLAGS" value="-Xg" />
-			    <env key="CXXFLAGS" value="-Xg" />
+		 	    <env key="CXX" value="FCCpx"/>
+		 	    <env key="CC" value="fccpx"/>
+		 	    <env key="CFLAGS" value="-Xg -w" />
+		 	    <env key="CXXFLAGS" value="-Xg -w" />
 			    <arg value="${bdwgc.dir}/src/configure" />
 			    <arg value="--host=sparc64-unknown-linux-gnu" />
 			    <arg value="-enable-threads=posix" />
@@ -724,6 +727,8 @@
 		<patch patchfile="${basedir}/src-cpp/bdwgc-patches-${bdwgc.version}/bluegeneStackHeuristic.patch.txt"
                        dir="${bdwgc.dir}/src" strip="0" />
 		<patch patchfile="${basedir}/src-cpp/bdwgc-patches-${bdwgc.version}/fixThreadConfigureForPPC.patch.txt"
+                       dir="${bdwgc.dir}/src" strip="1" />
+		 		 <patch patchfile="${basedir}/src-cpp/bdwgc-patches-${bdwgc.version}/fx10Support.patch.txt"
                        dir="${bdwgc.dir}/src" strip="1" />
 	      </then>
 	    </if>

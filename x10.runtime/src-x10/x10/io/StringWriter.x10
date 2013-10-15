@@ -24,6 +24,10 @@ public class StringWriter extends Writer {
         b.add(x as Char);
     }
 
+    public def write(s:String):void { 
+        b.addString(s);
+    }
+
     public def write(x:Rail[Byte], off:Long, len:Long):void { 
         for (var i:long = off; i<off+len; i++) {
             b.add(x(i) as Char);

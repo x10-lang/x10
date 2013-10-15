@@ -24,13 +24,12 @@ public class FileReader extends InputStreamReader implements Unserializable {
     @NativeRep("c++", "x10::io::FileReader__FileInputStream*", "x10::io::FileReader__FileInputStream", null)
     protected final static class FileInputStream extends InputStream {
     	@Native("java", "new x10.core.io.FileInputStream((java.lang.System[]) null).x10$io$FileReader$FileInputStream$$init$S(#path)")
-        public native def this(path: String); //throws FileNotFoundException;
+        public native def this(path: String);
     }
 
     val file:File;
 
-    public def this(file: File) //throws IOException 
-    {
+    public def this(file: File) {
         super(new FileInputStream(file.getPath()));
         this.file = file;
     }

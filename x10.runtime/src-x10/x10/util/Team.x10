@@ -90,6 +90,8 @@ public struct Team {
 	        	PlaceGroup.WORLD.broadcastFlat(()=>{
 	        		if (Team.state.capacity() <= teamidcopy)
 	        			Team.state.grow(teamidcopy+1);
+	        		while (Team.state.size() < teamidcopy)
+	        			Team.state.add(null); // I am not a member of this team id.  Insert a dummy value.
 		        	Team.state(teamidcopy) = new LocalTeamState(places, teamidcopy);
 		        	Team.state(teamidcopy).init();
 		        });
@@ -379,7 +381,7 @@ public struct Team {
      */
     public def indexOfMax (v:Double, idx:Int) : Int {
         val src = new Rail[DoubleIdx](1, DoubleIdx(v, idx));
-        val dst = new Rail[DoubleIdx](1);
+        val dst = new Rail[DoubleIdx](1, DoubleIdx(0.0, -1n));
         if (nativeSupportsCollectives())
         	finish nativeIndexOfMax(id, id==0n?here.id() as Int:roles(id-1), src, dst);
         else
@@ -402,7 +404,7 @@ public struct Team {
      */
     public def indexOfMin (v:Double, idx:Int) : Int {
         val src = new Rail[DoubleIdx](1, DoubleIdx(v, idx));
-        val dst = new Rail[DoubleIdx](1);
+        val dst = new Rail[DoubleIdx](1, DoubleIdx(0.0, -1n));
         if (nativeSupportsCollectives())
         	finish nativeIndexOfMin(id, id==0n?here.id() as Int:roles(id-1), src, dst);
         else
@@ -473,8 +475,8 @@ public struct Team {
      * followed by a scatter phase from the root to all members.  Data and reduction operations
      * may be carried along as a part of these communication phases, depending on the collective.
      * 
-     * All operations are initiated by leaf nodes, who push data to the parent's buffers.  The parent
-     * then initiates a push from to its parent, and so on, up to the root.  At the root, 
+     * All operations are initiated by leaf nodes, which push data to their parent's buffers.  The parent
+     * then initiates a push to its parent, and so on, up to the root.  At the root, 
      * the direction changes, and the root pushes data to children, who push it to their children, etc.
      * 
      * For performance reasons, this implementation DOES NOT perform error checking.  It does not verify
@@ -496,37 +498,71 @@ public struct Team {
 	    private static COLL_INDEXOFMIN:Int = 6n; // data in and out
 	    private static COLL_INDEXOFMAX:Int = 7n; // data in and out
 	    
-	    private val dataLock:Lock = new Lock(); // used to protect the data below that holds the local collective data
-	    private var data:Rail[Byte] = null;
+	    // local data movement fields associated with the local arguments passed in collective_impl
+	    private var local_dst:Any = null; // becomes type Rail[T]{self!=null}
+	    private var local_dst_off:Long = 0;
+	    private var local_count:Long = 0;
+	    private var myPosition:Long = Place.INVALID_PLACE.id();
 	    
+/*	    private static def getCollName(collType:Int):String {
+	    	switch (collType) {
+	    		case COLL_BARRIER: return "Barrier";
+	    		case COLL_SCATTER: return "Scatter";
+	    		case COLL_BROADCAST: return "Broadcast";
+	    		case COLL_REDUCE: return "Reduce";
+	    		case COLL_ALLTOALL: return "AllToAll";
+	    		case COLL_ALLREDUCE: return "AllReduce";
+	    		case COLL_INDEXOFMIN: return "IndexOfMin";
+	    		case COLL_INDEXOFMAX: return "IndexOfMax";
+	    		default: return "Unknown";
+	    	}
+	    }
+*/	    
 	    
 	    /* Utility methods to traverse binary tree structure.  The tree is not built using the place id's 
 	     * to determine the position in the tree, but rather the position in the places:PlaceGroup field to 
 	     * determine the position.  The first place in 'places' is the root of the tree, the next two its children, 
 	     * and so on.  For collective operations that specify a root, the tree will use that root's position in 
-	     * 'places' as the tree root, shifting all of the parent/child relationships
+	     * 'places' as the tree root, swapping it with the place in places(0), which would otherwise be root
 	     * 
 	     * A return value of Place.INVALID_PLACE means that the parent/child does not exist.
 	     */
 	    private def getParentId(root:Place):Place {
 	        if (here == root) return Place.INVALID_PLACE;
 	        rootPosition:Long = places.indexOf(root);
-	        if (rootPosition == -1L) return Place.INVALID_PLACE;
-	        myPosition:Long = places.indexOf(Runtime.hereLong());
-	        parentPosition:Long = (((myPosition-1L)/2L)+rootPosition) % places.numPlaces();
-	        return places(parentPosition);
+	        if (rootPosition == -1) return Place.INVALID_PLACE;
+	        if (myPosition == -1) myPosition = places.indexOf(Runtime.hereLong());
+	        if (myPosition == 0) return places((rootPosition-1)/2);
+	        
+	        parentPosition:Long = (myPosition-1)/2;
+	        if (parentPosition == 0)
+	        	return root;
+	        else if (parentPosition == rootPosition)
+		        return places(0); // swap root with index 0
+	        else
+		        return places(parentPosition);
 	    }
+	    
 	    private def getChildIds(root:Place):Pair[Place,Place] {
 	    	rootPosition:Long = places.indexOf(root);
-	        if (rootPosition == -1L) return Pair[Place,Place](Place.INVALID_PLACE, Place.INVALID_PLACE); // invalid root specified
-	        myPosition:Long = places.indexOf(Runtime.hereLong());
-	        childPosition:Long = (myPosition*2L) + 1L;
-	        if (childPosition >= places.numPlaces()) 
+	        if (rootPosition == -1) return Pair[Place,Place](Place.INVALID_PLACE, Place.INVALID_PLACE); // invalid root specified
+	        val childPosition:Long;
+	        if (here == root)
+	        	childPosition = 1;	        
+	        else {
+	        	if (myPosition == -1) myPosition = places.indexOf(Runtime.hereLong());
+	        	if (myPosition == 0)
+	        		childPosition = (rootPosition*2)+1;
+	        	else
+	        		childPosition = (myPosition*2)+1;
+	        }
+	        
+	        if (childPosition >= places.numPlaces())
 	        	return Pair[Place,Place](Place.INVALID_PLACE, Place.INVALID_PLACE); // no children
-	        else if (childPosition+1L >= places.numPlaces())
-	        	return Pair[Place,Place](places((childPosition+rootPosition) % places.numPlaces()), Place.INVALID_PLACE); // one child only
+	        else if (childPosition+1 >= places.numPlaces())
+	        	return Pair[Place,Place]((childPosition==rootPosition)?places(0):places(childPosition), Place.INVALID_PLACE); // one child only
 	        else
-	        	return Pair[Place,Place](places((childPosition+rootPosition) % places.numPlaces()), places((childPosition+1+rootPosition) % places.numPlaces())); // two children
+	        	return Pair[Place,Place]((childPosition==rootPosition)?places(0):places(childPosition), (childPosition+1==rootPosition)?places(0):places(childPosition+1)); // two children
 	    }
 	    
 	    
@@ -559,18 +595,22 @@ public struct Team {
 	     * for specific collectives.
 	     */
 	    private def collective_impl[T](collType:Int, root:Place, src:Rail[T], src_off:Long, dst:Rail[T], dst_off:Long, count:Long, operation:Int):void {
-	        // TODO - none of the data movement has been implemented, so only barrier is correctly working at this point
-	        
-	        //Runtime.println(here+":team"+teamid+" entered barrier (by the way, phase = "+phase.get()+")");
+	        //Runtime.println(here+":team"+teamid+" entered "+getCollName(collType)+" (phase="+phase.get()+", root="+root+")");
 	    	// block if some other collective is in progress.
 	    	while (!this.phase.compareAndSet(PHASE_IDLE, PHASE_GATHER1))
 	    		System.sleep(10);
-	    	//Runtime.println(here+":team"+teamid+" entered barrier PHASE_GATHER1");
+	    
+	        // make my local data arrays visible to other places
+	        local_dst = dst;
+	        local_dst_off = dst_off;
+	        local_count = count;
+	        
+	    	//Runtime.println(here+":team"+teamid+" entered "+getCollName(collType)+" PHASE_GATHER1");
 	    	parent:Place = getParentId(root);
 	        children:Pair[Place,Place] = getChildIds(root);
 	    	val teamidcopy = teamid; // needed to prevent serializing "this" in at() statements	    	
-	    	//Runtime.println(here+":team"+teamidcopy+" has parent "+parent);
-	    	//Runtime.println(here+":team"+teamidcopy+" has children "+children);
+	    	//Runtime.println(here+":team"+teamidcopy+", root="+root+" has parent "+parent);
+	    	//Runtime.println(here+":team"+teamidcopy+", root="+root+" has children "+children);
 
 	    	
 	    	// Start out waiting for all children to update our state 
@@ -586,8 +626,16 @@ public struct Team {
 	    	    
 	    
 	        // all children have checked in.  Update our parent, and then wait for the parent to update us 
-	    	if (parent == Place.INVALID_PLACE) 
+	    	if (parent == Place.INVALID_PLACE) { // this is the root
+	    		// copy data locally from src to dst if needed
+	    		if (collType == COLL_BROADCAST) {
+	    			//Runtime.println(here+ " broadcasting data locally from "+src+" to "+dst);
+	    			Rail.copy(src, src_off, dst, dst_off, count);
+	    			//Runtime.println(here+ " dst now contains "+dst);
+	    		}
+	    
 	    		this.phase.set(PHASE_IDLE); // the root node has no parent, and can skip ahead
+	    	}
 	    	else {
 	    		at (parent) { // increment the phase of the parent
 	    			while(!Team.state(teamidcopy).phase.compareAndSet(PHASE_GATHER1, PHASE_GATHER2) && 
@@ -599,10 +647,46 @@ public struct Team {
 			    while (this.phase.get() != PHASE_IDLE) // wait for parent to set us free
 			    	System.sleep(10);
 	    	}
-	    
+
+	    	// move data from parent to children
+	    	if (children.first != Place.INVALID_PLACE) {
+		    	if (collType == COLL_BROADCAST) {
+		    		val notnulldst:Rail[T]{self!=null} = dst as Rail[T]{self!=null};
+		    		gr:GlobalRail[T] = new GlobalRail[T](notnulldst);
+		    		finish {
+		    			at (children.first) {
+		    				//Runtime.println(here+ " pulling data from "+gr+" into "+(local_dst as Rail[T]));
+		    				Rail.asyncCopy(gr, dst_off, Team.state(teamidcopy).local_dst as Rail[T], Team.state(teamidcopy).local_dst_off, Team.state(teamidcopy).local_count);
+		    			}
+		    			if (children.second != Place.INVALID_PLACE) {
+		    				at (children.second) {
+		    					//Runtime.println(here+ " pulling data from "+gr+" into "+(local_dst as Rail[T]));
+		    					Rail.asyncCopy(gr, src_off, Team.state(teamidcopy).local_dst as Rail[T], Team.state(teamidcopy).local_dst_off, Team.state(teamidcopy).local_count);
+		    				}
+		    			}
+		    		}
+		    		//Runtime.println(here+ " finished moving data to children");
+		    	}
+		    	else if (collType == COLL_SCATTER) {
+		    		val notnullsrc:Rail[T]{self!=null} = src as Rail[T]{self!=null};
+		    		gr:GlobalRail[T] = new GlobalRail[T](notnullsrc);
+		    		finish {
+		    			at (children.first) {
+		    				//Runtime.println(here+ " copying data to first child");
+		    				Rail.asyncCopy(gr, src_off+(local_count*myPosition), Team.state(teamidcopy).local_dst as Rail[T], Team.state(teamidcopy).local_dst_off, Team.state(teamidcopy).local_count);
+		    			}
+		    			if (children.second != Place.INVALID_PLACE) {
+		    				at (children.second) {
+		    					//Runtime.println(here+ " copying data to second child");
+		    					Rail.asyncCopy(gr, src_off+(local_count*myPosition), Team.state(teamidcopy).local_dst as Rail[T], Team.state(teamidcopy).local_dst_off, Team.state(teamidcopy).local_count);
+		    				}
+		    			}
+		    		}
+		    	}
+	    	}
 	    
 	    	// our parent has updated us - update any children, and leave the barrier
-	    	if (children.first != Place.INVALID_PLACE) { // free the first child, if it exists
+	        if (children.first != Place.INVALID_PLACE) { // free the first child, if it exists
 	    		at (children.first) {
 	    			if (!Team.state(teamidcopy).phase.compareAndSet(PHASE_SCATTER, PHASE_IDLE))
 	    				Runtime.println("ERROR root setting the first child "+here+":team"+teamidcopy+" to PHASE_IDLE");
@@ -616,9 +700,11 @@ public struct Team {
 	    			}
 	    		}
 	    	}
-	    
+	        
+	        local_dst = null;
+	        myPosition = -1; // Place.INVALID_PLACE.id();
 	        // done!
-	    	//Runtime.println(here+":team"+teamidcopy+" leaving barrier");	    
+	    	//Runtime.println(here+":team"+teamidcopy+" leaving "+getCollName(collType));
 	    }
 	}
 }

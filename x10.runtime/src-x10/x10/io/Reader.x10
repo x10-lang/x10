@@ -28,12 +28,12 @@ public abstract class Reader {
     /**
      * Close the input stream
      */
-    public abstract def close(): void; //throws IOException
+    public abstract def close():void;
 
     /**
      * Read the next Byte from the input; throws IOException if none.
      */
-    public abstract def read(): Byte; //throws IOException
+    public abstract def read():Byte;
 
     /**
      * Fill len bytes of the argument rail starting at off.
@@ -41,7 +41,7 @@ public abstract class Reader {
      * This is significantly faster than read(Marshal.BYTE,r,off,len)
      * since this reads multiple bytes at once if possible.
      */
-    public abstract def read(r:Rail[Byte], off:Long, len:Long): void; //throws IOException
+    public abstract def read(r:Rail[Byte], off:Long, len:Long):void;
 
     /**
      * How many bytes can be read from this stream without blocking?
@@ -50,12 +50,12 @@ public abstract class Reader {
      * the read is made, in particular this method may return 0 even
      * if a non-zero number of bytes are actually available.
      */
-    public abstract def available():Int; //throws IOException
+    public abstract def available():Int;
 
-    public abstract def skip(Int): void; //throws IOException
+    public abstract def skip(Int):void;
 
-    public abstract def mark(Int): void; //throws IOException
-    public abstract def reset(): void; //throws IOException
+    public abstract def mark(Int):void;
+    public abstract def reset():void;
     public abstract def markSupported(): Boolean;
     
     /**

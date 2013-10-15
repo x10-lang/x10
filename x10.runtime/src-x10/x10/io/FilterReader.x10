@@ -12,28 +12,36 @@
 package x10.io;
 
 public class FilterReader extends Reader {
-    val r: Reader;
+    val r:Reader;
     
-    protected def inner(): Reader = r;
+    protected def inner():Reader = r;
 
-    public def this(r: Reader) { this.r = r; }
-    public def close(): void //throws IOException 
-    { r.close(); }
-    public def read(): Byte //throws IOException 
-    = r.read();
-    public def read(r:Rail[Byte], off:Long, len:Long): void //throws IOException 
-    { this.r.read(r,off,len); }
-    
-    public def available(): Int //throws IOException 
-    = r.available();
-    
-    public def skip(off: Int): void //throws IOException 
-    { r.skip(off); }
+    public def this(r:Reader) { 
+        this.r = r; 
+    }
 
-    public def mark(off: Int): void //throws IOException 
-    { r.mark(off); }
-    public def reset(): void //throws IOException 
-    { r.reset(); }
-    public def markSupported(): Boolean = r.markSupported();
+    public def close():void { 
+        r.close(); 
+    }
+    public def read():Byte = r.read();
+
+    public def read(r:Rail[Byte], off:Long, len:Long):void {
+        this.r.read(r,off,len); 
+    }
     
+    public def available():Int = r.available();
+    
+    public def skip(off:Int):void {
+        r.skip(off); 
+    }
+
+    public def mark(off:Int):void  { 
+        r.mark(off); 
+    }
+
+    public def reset():void { 
+        r.reset(); 
+    }
+
+    public def markSupported():Boolean = r.markSupported();
 }

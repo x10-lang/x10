@@ -12,7 +12,6 @@
 package x10.io;
 
 import x10.util.NoSuchElementException;
-import x10.util.Box;
 
 /**
  * Usage:
@@ -27,33 +26,31 @@ import x10.util.Box;
  *    p.flush();
  * } catch (IOException) { }
  */    
-public class ReaderIterator[T] implements Iterator[T], Iterable[T] {
-    val r: Reader;
-    val m: Marshal[T];
-    var next: Box[T];
+public class ReaderIterator[T] { T haszero } implements Iterator[T], Iterable[T] {
+    val r:Reader;
+    val m:Marshal[T];
+    var next:T;
     
-    public def this(m: Marshal[T], r: Reader) {
+    public def this(m:Marshal[T], r:Reader) {
        this.m = m;
        this.r = r;
-       //       this.next = null;
     }
     
     /** Allow the iterator to be used in a for loop. */
-    public def iterator(): Iterator[T] = this;
+    public def iterator():Iterator[T] = this;
 
-    public def next(): T = {
-        if (! hasNext())
+    public def next():T = {
+        if (!hasNext())
             throw new NoSuchElementException();
-        val x: T = next.value;
-        next = null;
+        val x:T = next;
+	next = Zero.get[T]();
         return x;
     }
     
     public def hasNext(): Boolean {
-        if (next == null) {
+        if (next == Zero.get[T]()) {
             try {
-                val x: T = r.read[T](m);
-                next = new Box[T](x);
+                next = r.read[T](m);
             }
             catch (IOException) {
                 return false;

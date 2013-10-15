@@ -23,7 +23,10 @@
 #include <string.h>
 #include <errno.h> // for the strerror function
 #include <pami.h>
+
+#if !defined(__bgq__)
 #include <pami_ext_hfi.h>
+#endif
 
 void error(const char* msg, ...) {
 	char buffer[1200];
@@ -53,9 +56,10 @@ int main(int argc, char ** argv) {
 	size_t num_algorithms[2];
 	pami_xfer_type_t barrier_xfer = PAMI_XFER_BARRIER;
 	pami_xfer_t barrier;
+#if !defined(__bgq__)
 	pami_extension_t hfi_extension;
 	hfi_remote_update_fn hfi_update;
-
+#endif
 	int numAlgorithms = 6;
 	pami_xfer_type_t algorithms[] = {PAMI_XFER_BROADCAST, PAMI_XFER_BARRIER,
 			PAMI_XFER_SCATTER, PAMI_XFER_ALLTOALL, PAMI_XFER_ALLREDUCE, PAMI_XFER_ALLGATHER};
@@ -75,6 +79,7 @@ int main(int argc, char ** argv) {
 	if ((status = PAMI_Context_createv(client, &config, 1, &context, 1)) != PAMI_SUCCESS)
 		error("Unable to initialize the PAMI context: %i\n", status);
 
+#if !defined(__bgq__)
 	status = PAMI_Extension_open (client, "EXT_hfi_extension", &hfi_extension);
 	if (status == PAMI_SUCCESS)
 	{
@@ -83,6 +88,7 @@ int main(int argc, char ** argv) {
 		#endif
 		hfi_update = (hfi_remote_update_fn) PAMI_Extension_symbol(hfi_extension, "hfi_remote_update"); // This may succeed even if HFI is not available
 	}
+#endif
 
 	status = PAMI_Geometry_world(client, &world_geometry);
 		if (status != PAMI_SUCCESS) error("Unable to create the world geometry");
@@ -123,7 +129,9 @@ int main(int argc, char ** argv) {
 		}
 	}
 
+#if !defined(__bgq__)
 	PAMI_Extension_close (hfi_extension);
+#endif
 
 	if ((status = PAMI_Context_destroyv(&context, 1)) != PAMI_SUCCESS)
 		fprintf(stderr, "Error closing PAMI context: %i\n", status);

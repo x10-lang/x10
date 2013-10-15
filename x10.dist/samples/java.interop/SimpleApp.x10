@@ -21,7 +21,7 @@
 
 /*
  * This is based on db-derby-10.9.1.0-bin/demo/programs/simple/SimpleApp.java
- * Ported to X10 2.3
+ * Ported to X10 2.4
  * For embeded mode, run as "x10 -cp .:derby.jar SimpleApp"
  * For client mode, run as "x10 -cp .:derbyclient.jar SimpleApp derbyclient"
  */
@@ -194,13 +194,13 @@ public class SimpleApp {
             val psInsert = conn.prepareStatement("INSERT INTO location VALUES (?, ?)");
             statements.add(psInsert);
 
-            psInsert.setInt(1, 1956);
-            psInsert.setString(2, "Webster St.");
+            psInsert.setInt(1n, 1956n);
+            psInsert.setString(2n, "Webster St.");
             psInsert.executeUpdate();
             Console.OUT.println("Inserted 1956 Webster");
 
-            psInsert.setInt(1, 1910);
-            psInsert.setString(2, "Union St.");
+            psInsert.setInt(1n, 1910n);
+            psInsert.setString(2n, "Union St.");
             psInsert.executeUpdate();
             Console.OUT.println("Inserted 1910 Union");
 
@@ -210,15 +210,15 @@ public class SimpleApp {
             val psUpdate = conn.prepareStatement("UPDATE location SET num=?, addr=? WHERE num=?");
             statements.add(psUpdate);
 
-            psUpdate.setInt(1, 180);
-            psUpdate.setString(2, "Grand Ave.");
-            psUpdate.setInt(3, 1956);
+            psUpdate.setInt(1n, 180n);
+            psUpdate.setString(2n, "Grand Ave.");
+            psUpdate.setInt(3n, 1956n);
             psUpdate.executeUpdate();
             Console.OUT.println("Updated 1956 Webster to 180 Grand");
 
-            psUpdate.setInt(1, 300);
-            psUpdate.setString(2, "Lakeshore Ave.");
-            psUpdate.setInt(3, 180);
+            psUpdate.setInt(1n, 300n);
+            psUpdate.setString(2n, "Lakeshore Ave.");
+            psUpdate.setInt(3n, 180n);
             psUpdate.executeUpdate();
             Console.OUT.println("Updated 180 Grand to 300 Lakeshore");
 
@@ -248,7 +248,7 @@ public class SimpleApp {
                 reportFailure("No rows in ResultSet");
             }
 
-            if ((number = rs.getInt(1)) != 300) {
+            if ((number = rs.getInt(1n)) != 300n) {
                 failure = true;
                 reportFailure("Wrong row returned, expected num=300, got " + number);
             }
@@ -258,7 +258,7 @@ public class SimpleApp {
                 reportFailure("Too few rows");
             }
 
-            if ((number = rs.getInt(1)) != 1910) {
+            if ((number = rs.getInt(1n)) != 1910n) {
                 failure = true;
                 reportFailure("Wrong row returned, expected num=1910, got " + number);
             }
@@ -312,7 +312,7 @@ public class SimpleApp {
                     // databases), specify a database in the connection URL:
                     //DriverManager.getConnection("jdbc:derby:" + dbName + ";shutdown=true");
                 } catch (e:SQLException) {
-                    if (e.getErrorCode() == 50000 && "XJ015".equals(e.getSQLState())) {
+                    if (e.getErrorCode() == 50000n && "XJ015".equals(e.getSQLState())) {
                         // we got the expected exception
                         Console.OUT.println("Derby shut down normally");
                         // Note that for single database shutdown, the expected
@@ -339,7 +339,7 @@ public class SimpleApp {
             }
 
             // Statements and PreparedStatements
-            for (var i:Int = 0; i < statements.size(); ++i) {
+            for (var i:Int = 0n; i < statements.size(); ++i) {
                 val st = statements(i);
                 try {
                     if (st != null) {

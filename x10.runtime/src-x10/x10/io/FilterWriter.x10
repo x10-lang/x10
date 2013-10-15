@@ -32,6 +32,10 @@ public class FilterWriter extends Writer {
         w.write(b); 
     }
 
+    public def write(s:String):void {
+        w.write(s); 
+    }
+
     public def write(x:Rail[Byte], off:Long, len:Long):void {
         w.write(x, off, len);
     }

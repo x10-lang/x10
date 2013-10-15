@@ -30,11 +30,19 @@
 #include <math.h>
 //#include <unistd.h> // for sleep
 #include <pami.h>
+#if !defined(__bgq__)
 #include <pami_ext_hfi.h>
+#endif
 
-// datasize is fixed at 3Gb per process, which is chopped up into bits based on nplaces
-#define DATASIZE 1610612736
-//#define DATASIZE 1024000
+// Memory allocated per process is 2*DATASIZE. Memory is chopped into bits based on nplaces
+#if defined(__bgq__)
+// 128Mb
+#define DATASIZE (128*1024*1024)
+#else
+// 1.5Gb
+#define DATASIZE (3*512*1024*1024)
+#endif
+
 // how many times to repeat each test
 #define REPEAT 3
 // the smallest team worth testing.  If MP_PROCS is less than this value, we test just one team size: MP_PROCS
@@ -44,7 +52,7 @@ const char* knownBadAllReduce[] = {"I1:ShortAllreduce:P2P:P2P", "I1:HybridShortA
 const char* knownBadBroadcast[] = {"I0:Binomial:P2P:P2P", "I0:BinomialSingleTh:P2P:P2P", "I0:Sync2-nary:P2P:P2P", "I0:BinomialSingleTh:P2P:P2P", "I0:SequenceBased_Binomial:P2P:P2P",
 									"I0:2-nomial:P2P:P2P", "I0:3-nomial:P2P:P2P", "I0:4-nomial:P2P:P2P", "I0:2-nary:P2P:P2P", "I0:3-nary:P2P:P2P", "I0:4-nary:P2P:P2P",
 									"I0:RankBased_Binomial:P2P:P2P", "I0:MultiCastComposite:SHMEM:CAU", "X0:Ring:P2P:P2P", "X0:RingSingleTh:P2P:P2P"};
-
+const char* knownBadBarrier[] = {"I0:MultiSyncComposite:SHMEM:CAU", "I0:MultiSyncComposite:BSR:CAU"};
 
 pami_xfer_type_t collectives[] = {PAMI_XFER_BROADCAST, PAMI_XFER_BARRIER, PAMI_XFER_SCATTER, PAMI_XFER_ALLTOALL, PAMI_XFER_ALLREDUCE, PAMI_XFER_ALLGATHER};
 const char* collectiveNames[] = {"PAMI_XFER_BROADCAST", "PAMI_XFER_BARRIER", "PAMI_XFER_SCATTER", "PAMI_XFER_ALLTOALL", "PAMI_XFER_ALLREDUCE", "PAMI_XFER_ALLGATHER"};
@@ -93,6 +101,10 @@ int checkIfKnownBad(pami_xfer_type_t collective, char* alg)
 {
 	switch (collective)
 	{
+	case PAMI_XFER_BARRIER:
+		for (int i=0; i<(sizeof(knownBadBarrier)/sizeof(char*)); i++)
+			if (strcmp(knownBadBarrier[i], alg) == 0) return 1;
+	break;
 	case PAMI_XFER_ALLREDUCE:
 		for (int i=0; i<(sizeof(knownBadAllReduce)/sizeof(char*)); i++)
 			if (strcmp(knownBadAllReduce[i], alg) == 0) return 1;
@@ -436,8 +448,10 @@ void test(int collective, int teamSize, int algorithmId, int dataSize, pami_algo
 }
 
 int main(int argc, char ** argv) {
+#if !defined(__bgq__)
 	pami_extension_t hfi_extension;
 	hfi_remote_update_fn hfi_update;
+#endif
 	volatile unsigned waitForCompletion;
 	state.geometryId = 0;
 	size_t num_algorithms[2];
@@ -464,6 +478,7 @@ int main(int argc, char ** argv) {
 	if ((status = PAMI_Context_createv(state.client, NULL, 0, &state.context, 1)) != PAMI_SUCCESS)
 		error("Unable to initialize the PAMI context: %i\n", status);
 
+#if !defined(__bgq__)
 	status = PAMI_Extension_open(state.client, "EXT_hfi_extension", &hfi_extension);
 	if (status == PAMI_SUCCESS)
 	{
@@ -472,6 +487,7 @@ int main(int argc, char ** argv) {
 		#endif
 		hfi_update = (hfi_remote_update_fn) PAMI_Extension_symbol(hfi_extension, "hfi_remote_update"); // This may succeed even if HFI is not available
 	}
+#endif
 
 	{ // prepare the world geometry and barrier for between tests
 		status = PAMI_Geometry_world(state.client, &state.world_geometry);
@@ -573,7 +589,9 @@ int main(int argc, char ** argv) {
 		} while (teamSize <= state.numPlaces);
 	}
 
+#if !defined(__bgq__)
 	PAMI_Extension_close (hfi_extension);
+#endif
 
 	if ((status = PAMI_Context_destroyv(&state.context, 1)) != PAMI_SUCCESS)
 		fprintf(stderr, "Error closing PAMI context: %i\n", status);

@@ -52,9 +52,11 @@ public class Printer extends FilterWriter {
     public def print(s:String): void {
         lock.lock();
         try {
-            val ss = s != null ? s : "null";
-            val b = ss.bytes();
-            write(b);
+            if (s == null) {
+                write("null");
+            } else {
+                write(s);
+            }
         } finally {
             lock.unlock();
         }

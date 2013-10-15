@@ -27,8 +27,8 @@ public class OutputStreamWriter extends Writer {
         @Native("java", "#this.write(#v)")
         public native def write(v:Int):void;
         
-        @Native("java", "#this.write((#r).getByteArray())")
-        public native def write(r:Rail[Byte]):void;
+        @Native("java", "#this.write(#s)")
+        public native def write(s:String):void;
         
         @Native("java", "#this.write((#r).getByteArray(), #off, #len)")
         public native def write(r:Rail[Byte], off:Long, len:Long):void;
@@ -52,6 +52,10 @@ public class OutputStreamWriter extends Writer {
     
     public def write(x:Byte):void {
         out.write(x); 
+    }
+
+    public def write(s:String):void {
+        out.write(s); 
     }
     
     public def write(buf:Rail[Byte], off:Long, len:Long):void {

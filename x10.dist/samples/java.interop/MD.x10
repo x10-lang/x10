@@ -25,14 +25,14 @@ public class MD {
     static def printDigest(fileName:String, md:MessageDigest) {
         val digest = md.digest();
         // avoid boxing byte to Byte
-        // for (var i:Int = 0; i < digest.length; ++i) {
+        // for (var i:Int = 0n; i < digest.length; ++i) {
         //     Console.OUT.printf("%02x", digest(i));
         // }
         // Console.OUT.println("  " + fileName);
         val sb = new x10.util.StringBuilder();
-        for (var i:Int = 0; i < digest.length; ++i) {
+        for (var i:Int = 0n; i < digest.length; ++i) {
             val hex = (digest(i) as UByte).toHexString();
-            if (hex.length() == 1) sb.add('0'); // zero padding
+            if (hex.length() == 1n) sb.add('0'); // zero padding
             sb.add(hex);
         }
         sb.add("  " + fileName);
@@ -49,7 +49,7 @@ public class MD {
                 if (len > input.size) len = input.size as Int;
                 fr.read(input, 0, len);
                 val jinput = Java.convert(input);
-                md.update(jinput, 0, len);
+                md.update(jinput, 0n, len);
                 if (len < input.size) break;
             }
             fr.close();
@@ -74,8 +74,8 @@ public class MD {
         
         if (args.size == 0L) return;
         
-        if (args(0).charAt(0) == '-') {
-            val args0 = args(0).substring(1);
+        if (args(0).charAt(0n) == '-') {
+            val args0 = args(0).substring(1n);
             var newalgo:Boolean = false;
             if (args0.equalsIgnoreCase("MD5")) {
                 algoTemp = "MD5";
