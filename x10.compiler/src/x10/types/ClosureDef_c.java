@@ -13,6 +13,7 @@ package x10.types;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.LinkedList;
 import java.util.List;
 
 import polyglot.types.ClassType;
@@ -37,6 +38,9 @@ import x10.types.constraints.ConstraintManager;
 import x10.constraint.XVar;
 import x10.constraint.XTerm;
 import x10.types.constraints.CConstraint;
+import x10.types.constraints.CNativeRequirementCollection;
+import x10.types.constraints.CRequirement;
+import x10.types.constraints.CRequirementCollection;
 import x10.types.constraints.TypeConstraint;
 import x10.types.constraints.XConstrainedTerm;
 
@@ -118,6 +122,18 @@ public class ClosureDef_c extends Def_c implements ClosureDef {
     protected boolean inferReturnType;
     public boolean inferReturnType() { return inferReturnType; }
     public void inferReturnType(boolean r) { this.inferReturnType = r; }
+
+    protected boolean inferGuard;
+    @Override
+    public boolean inferGuard() { return inferGuard; }
+    @Override
+    public void inferGuard(boolean r) {
+    	// TODO if we want to infer guard for closures, do same changes as X10MethodDef_c and X10MethDecl_c
+    	// in ClosureDef_c and ClosureDecl. Modify also TypeCheckInferredGuardGoal.
+    	if (r) {
+    		throw new InternalCompilerError("Attempting to infer return type of a closure", position());
+    	}
+    }
 
     // BEGIN ANNOTATION MIXIN
     List<Ref<? extends Type>> annotations;
@@ -208,7 +224,15 @@ public class ClosureDef_c extends Def_c implements ClosureDef {
 	    this.asInstance = null;
 	    this.asType = null;
     }
-    
+
+    public Ref<CConstraint> sourceGuard() {
+    	return guard;
+    }
+
+    public void setSourceGuard(Ref<CConstraint> s) {
+        throw new InternalCompilerError("setSourceGuard should not be used in ClosureDef", position());
+    }
+
     public Ref<TypeConstraint> typeGuard() {
         return null; // typeGuard;
     }
@@ -346,4 +370,11 @@ public class ClosureDef_c extends Def_c implements ClosureDef {
     public void setThrowTypes(List<Ref<? extends Type>> l) {
         throw new Error("Internal compiler error: X10 closures do not throw java checked exceptions.");
     }
+
+	CNativeRequirementCollection requirements = new CNativeRequirementCollection();
+	@Override
+	public CRequirementCollection requirements() {
+		return this.requirements;
+	}
+
 }

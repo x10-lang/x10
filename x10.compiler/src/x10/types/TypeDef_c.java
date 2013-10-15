@@ -12,6 +12,7 @@
 package x10.types;
 
 import java.util.Collections;
+import java.util.LinkedList;
 import java.util.List;
 
 import polyglot.types.ClassType;
@@ -35,6 +36,8 @@ import x10.types.constraints.ConstraintManager;
 import x10.constraint.XVar;
 import x10.constraint.XTerm;
 import x10.types.constraints.CConstraint;
+import x10.types.constraints.CRequirement;
+import x10.types.constraints.CRequirementCollection;
 import x10.types.constraints.TypeConstraint;
 import x10.types.constraints.XConstrainedTerm;
 
@@ -71,10 +74,18 @@ public class TypeDef_c extends MemberDef_c implements TypeDef {
 
 	public boolean inferReturnType() { return false; }
 	public void inferReturnType(boolean r) {
-	    throw new InternalCompilerError("Attempting to infer return type on a typedef", position());
+		if (r) {
+			throw new InternalCompilerError("Attempting to infer return type on a typedef", position());
+		}
 	}
 
-	// BEGIN ANNOTATION MIXIN
+    public boolean inferGuard() { return false; }
+    @Override
+    public void inferGuard(boolean r) {
+	    throw new InternalCompilerError("Attempting to infer guard on a typedef", position());
+    }
+
+    // BEGIN ANNOTATION MIXIN
 	List<Ref<? extends Type>> annotations;
 
 	public List<Ref<? extends Type>> defAnnotations() {
@@ -140,6 +151,14 @@ public class TypeDef_c extends MemberDef_c implements TypeDef {
 	public void setGuard(Ref<CConstraint> guard) {
 		this.guard = guard;
 	}
+
+    public Ref<CConstraint> sourceGuard() {
+    	return guard;
+    }
+
+    public void setSourceGuard(Ref<CConstraint> s) {
+        throw new InternalCompilerError("setSourceGuard should not be used in TypeDef", position());
+    }
 
 	public Ref<TypeConstraint> typeGuard() {
 	    return typeGuard;
@@ -252,4 +271,8 @@ public class TypeDef_c extends MemberDef_c implements TypeDef {
 	    return asType();
 	}
 
+	@Override
+	public CRequirementCollection requirements() {
+	    throw new InternalCompilerError("Attempting to use requirements in a typedef", position());
+	}
 }
