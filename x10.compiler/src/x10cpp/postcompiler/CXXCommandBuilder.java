@@ -158,7 +158,7 @@ public class CXXCommandBuilder {
                     cxxCmd.add("-qhot");
                     cxxCmd.add("-qtune=qp");
                     cxxCmd.add("-qsimd=auto");
-                    cxxCmd.add("-qarch-qp");
+                    cxxCmd.add("-qarch=qp");
                 } else if (!bluegeneP()) {
                     cxxCmd.add("-qhot");
                     cxxCmd.add("-qtune=auto");
