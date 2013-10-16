@@ -153,10 +153,17 @@ public class CXXCommandBuilder {
             cxxCmd.add(usingXLC() ? "-O3" : "-O2");
             cxxCmd.add(usingXLC() ? "-qinline" : "-finline-functions");
             cxxCmd.add("-DNO_TRACING");
-            if (usingXLC() && !bluegene()) {
-                cxxCmd.add("-qhot");
-                cxxCmd.add("-qtune=auto");
-                cxxCmd.add("-qarch=auto");
+            if (usingXLC()) {
+                if (bluegeneQ()) {
+                    cxxCmd.add("-qhot");
+                    cxxCmd.add("-qtune=qp");
+                    cxxCmd.add("-qsimd=auto");
+                    cxxCmd.add("-qarch-qp");
+                } else if (!bluegeneP()) {
+                    cxxCmd.add("-qhot");
+                    cxxCmd.add("-qtune=auto");
+                    cxxCmd.add("-qarch=auto");
+                }
             }
         }
 

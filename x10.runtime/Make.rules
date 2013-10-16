@@ -206,7 +206,7 @@ ifdef ENABLE_CROSS_COMPILE_BGQ
     endif
     override MPICXX=/bgsys/drivers/ppcfloor/comm/bin/xl/mpixlcxx_r
     ifdef OPTIMIZE
-      override CXXFLAGS += -O3 -qinline
+      override CXXFLAGS += -O3 -qinline -qhot -qsimd=auto -qtune=qp -qarch=qp
     endif
     override CXXFLAGS += -qsuppress=1540-0809:1500-029:1540-1101:1540-1102
     override CXXFLAGS += $(XLC_EXTRA_FLAGS)
