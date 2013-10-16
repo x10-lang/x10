@@ -4243,7 +4243,8 @@ public class TypeSystem_c implements TypeSystem
         return hasSameClassDef(me, Any()) ||
                 hasSameClassDef(me, Arithmetic()) ||
                 hasSameClassDef(me, Ordered()) ||
-                hasSameClassDef(me, Bitwise());
+                hasSameClassDef(me, Bitwise()) ||
+                hasSameClassDef(me, Comparable());
     }
 
     public boolean isString(Type me) {
