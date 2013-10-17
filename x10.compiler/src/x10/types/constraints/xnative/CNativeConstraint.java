@@ -667,8 +667,9 @@ public class CNativeConstraint extends XNativeConstraint<Type>  implements CCons
         XVar<Type> resultSelf = result.self();
         for (XTerm<Type> term : other.constraints()) {
             try {
-                if (entailsEquality(term, otherSelf)) {
-                    term = term.subst(sys, resultSelf, otherSelf);
+            	XTerm<Type> term2 = term.subst(sys, self(), other.self());
+                if (entails(term2)) {
+                    term = term.subst(sys, resultSelf, otherSelf).copy();
                     result.addTerm(term);
                 }
             } catch (XFailure z) {
