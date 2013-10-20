@@ -122,6 +122,14 @@ namespace x10 {
                 x10_long* remoteAddr = &(target->raw[idx]);  // Just doing address arithmetic, not actually dereferencing anything.
                 x10aux::remote_op((x10rt_place)placeId, (x10rt_remote_ptr)remoteAddr, X10RT_OP_XOR, val);
             }
+
+            static void registerForRemoteOps(Rail<x10_long>* rail) {
+                x10aux::register_mem(&rail->raw[0], sizeof(x10_long)*rail->FMGL(size));
+            }
+
+            static void registerForRemoteOps(Rail<x10_ulong>* rail) {
+                x10aux::register_mem(&rail->raw[0], sizeof(x10_ulong)*rail->FMGL(size));
+            }
         };
     }
 }
