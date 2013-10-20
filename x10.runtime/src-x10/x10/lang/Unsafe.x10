@@ -55,7 +55,7 @@ public final class Unsafe {
     @Native("c++", "x10::lang::GlobalRef<#T >((x10aux::place)((#p).FMGL(id)), (x10_ulong)(#t))")
     private static native def fabricateGlobalRef[T](t:T, p:Place){T isref}:GlobalRef[T]{self.home==p};
 
-    public static def getCongruentSibling[T](r:Rail[T]{self!=null}, dst:Place):GlobalRail[T]{self.size==r.size,self.home()==dst} {
+    public static @Inline def getCongruentSibling[T](r:Rail[T]{self!=null}, dst:Place):GlobalRail[T]{self.size==r.size,self.home()==dst} {
         val remoteRail = getCongruentSibling(r, dst.id);
         val globalRef = fabricateGlobalRef[Rail[T]{self!=null}](remoteRail, dst);
         val globalRail = GlobalRail[T](r.size, globalRef);
