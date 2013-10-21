@@ -56,7 +56,7 @@ public final class Unsafe {
     private static native def fabricateGlobalRef[T](t:T, p:Place){T isref}:GlobalRef[T]{self.home==p};
 
     public static @Inline def getCongruentSibling[T](r:Rail[T]{self!=null}, dst:Place):GlobalRail[T]{self.size==r.size,self.home()==dst} {
-        val remoteRail = getCongruentSibling(r, dst.id);
+        val remoteRail:Rail[T]{self!=null} = getCongruentSibling(r, dst.id); // XTENLANG-3360, need explicit type.
         val globalRef = fabricateGlobalRef[Rail[T]{self!=null}](remoteRail, dst);
         val globalRail = GlobalRail[T](r.size, globalRef);
         return globalRail;
