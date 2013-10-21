@@ -398,11 +398,13 @@ public class X10Translator extends Translator {
             			fileManager.getJavaFileObjectsFromStrings(javacCmd.subList(javacSourcesStart, javacCmd.size()))
             			);
                 int procExitValue = task.call() ? 0 : 1;
+                /*
                 for (javax.tools.Diagnostic<? extends javax.tools.JavaFileObject> diag : diagCollector.getDiagnostics()) {
-                    String message = diag.toString();
+                    String message = diag.getMessage(null);
                     int type = diag.getKind() == javax.tools.Diagnostic.Kind.ERROR ? ErrorInfo.POST_COMPILER_ERROR : ErrorInfo.WARNING;
                     eq.enqueue(type, message);
                 }
+                */
                 fileManager.close();
 
 
