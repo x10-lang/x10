@@ -53,7 +53,7 @@ import x10.ast.X10Call_c;
 public class X10MethodDef_c extends MethodDef_c implements X10MethodDef {
     private static final long serialVersionUID = -9049001281152283179L;
 
-    Ref<CConstraint> sourceGuard;
+    Ref<CConstraint> sourceGuard; // added to support type-inferencing of guards
     Ref<CConstraint> guard;
     Ref<TypeConstraint> typeGuard;
     List<ParameterType> typeParameters;

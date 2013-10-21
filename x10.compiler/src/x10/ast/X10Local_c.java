@@ -142,7 +142,7 @@ public class X10Local_c extends Local_c {
 			CodeDef ci = context.currentCode();
 			if (ci instanceof X10ProcedureDef) {
 			    X10ProcedureDef pi = (X10ProcedureDef) ci;
-				CConstraint c = Types.get(pi.sourceGuard());
+				CConstraint c = Types.get(pi.guard());
 				if (c != null) {
 					TypeSystem xts = (TypeSystem) tc.typeSystem();
 
