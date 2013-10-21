@@ -989,15 +989,14 @@ x10rt_error x10rt_net_init (int *argc, char ***argv, x10rt_msg_type *counter)
 			error("Unable to initialize the PAMI context: %i\n", status);
 		registerHandlers(state.context[0], true);
 	}
-
-	#ifdef DEBUG
-		fprintf(stderr, "Hello from process %u of %u\n", state.myPlaceId, state.numPlaces);
-	#endif
+    #ifdef DEBUG
+        fprintf(stderr, "Hello from process %u of %u\n", state.myPlaceId, state.numPlaces);
+    #endif
 
 #if !defined(__bgq__)
 	state.hfi_update = NULL;
-#if defined(_POWER)
-	// see if HFI should be used
+#if defined(_ARCH_PPC) || defined(__PPC__)
+    // see if HFI should be used
 	if (!checkBoolEnvVar(getenv(X10RT_PAMI_DISABLE_HFI)))
 	{
 		if (sizeof(x10rt_remote_op_params)!=sizeof(hfi_remote_update_info_t))
@@ -1639,8 +1638,9 @@ void x10rt_net_remote_ops (x10rt_remote_op_params *ops, size_t numOps)
 			operation.remote = (void*)ops[i].dest_buf;
 			operation.value = &ops[i].value;
 			operation.operation = (pami_atomic_t)REMOTE_MEMORY_OP_CONVERSION_TABLE[ops[i].op];
-			status = PAMI_Rmw(context, &operation);
-		}
+			if ((status = PAMI_Rmw(context, &operation) )!= PAMI_SUCCESS)
+		        error("Unable to execute the remote operation");
+        }
 		if (!state.numParallelContexts)
 			PAMI_Context_unlock(state.context[0]);
 	}
