@@ -101,37 +101,53 @@ public final struct GlobalRail[T] (
      *        The cause is batching of operations in x10aux::network.h
      */
 
-    @Native("java", "x10.x10rt.X10RT.remoteAdd__1$u(#target, #idx, #v)")
+    // @Native("java", "x10.x10rt.X10RT.remoteAdd__1$u(#target, #idx, #v)")
     @Native("c++", "x10::lang::RemoteOps::remoteAdd((#target)->FMGL(rail), #idx ,#v)")
-    public static native def remoteAdd(target:GlobalRail[ULong], idx:Long, v:ULong):void;
+    public static def remoteAdd(target:GlobalRail[ULong], idx:Long, v:ULong):void {
+        at (target.home) { target(idx) += v; }
+    }
 
-    @Native("java", "x10.x10rt.X10RT.remoteAdd(#target, #idx, #v)")
+    // @Native("java", "x10.x10rt.X10RT.remoteAdd(#target, #idx, #v)")
     @Native("c++", "x10::lang::RemoteOps::remoteAdd((#target)->FMGL(rail), #idx ,#v)")
-    public static native def remoteAdd(target:GlobalRail[Long], idx:Long, v:Long):void;
+    public static def remoteAdd(target:GlobalRail[Long], idx:Long, v:Long):void {
+        at (target.home) { target(idx) += v; }
+    }
 
-    @Native("java", "x10.x10rt.X10RT.remoteAnd__1$u(#target, #idx, #v)")
+    // @Native("java", "x10.x10rt.X10RT.remoteAnd__1$u(#target, #idx, #v)")
     @Native("c++", "x10::lang::RemoteOps::remoteAnd((#target)->FMGL(rail), #idx ,#v)")
-    public static native def remoteAnd(target:GlobalRail[ULong], idx:Long, v:ULong):void;
+    public static def remoteAnd(target:GlobalRail[ULong], idx:Long, v:ULong):void {
+        at (target.home) { target(idx) &= v; }
+    }
 
-    @Native("java", "x10.x10rt.X10RT.remoteAnd(#target, #idx, #v)")
+    // @Native("java", "x10.x10rt.X10RT.remoteAnd(#target, #idx, #v)")
     @Native("c++", "x10::lang::RemoteOps::remoteAnd((#target)->FMGL(rail), #idx ,#v)")
-    public static native def remoteAnd(target:GlobalRail[Long], idx:Long, v:Long):void;
+    public static def remoteAnd(target:GlobalRail[Long], idx:Long, v:Long):void {
+        at (target.home) { target(idx) &= v; }
+    }
 
-    @Native("java", "x10.x10rt.X10RT.remoteOr__1$u(#target, #idx, #v)")
+    // @Native("java", "x10.x10rt.X10RT.remoteOr__1$u(#target, #idx, #v)")
     @Native("c++", "x10::lang::RemoteOps::remoteOr((#target)->FMGL(rail), #idx ,#v)")
-    public static native def remoteOr(target:GlobalRail[ULong], idx:Long, v:ULong):void;
+    public static def remoteOr(target:GlobalRail[ULong], idx:Long, v:ULong):void {
+        at (target.home) { target(idx) |= v; }
+    }
 
-    @Native("java", "x10.x10rt.X10RT.remoteOr(#target, #idx, #v)")
+    // @Native("java", "x10.x10rt.X10RT.remoteOr(#target, #idx, #v)")
     @Native("c++", "x10::lang::RemoteOps::remoteOr((#target)->FMGL(rail), #idx ,#v)")
-    public static native def remoteOr(target:GlobalRail[Long], idx:Long, v:Long):void;
+    public static def remoteOr(target:GlobalRail[Long], idx:Long, v:Long):void {
+        at (target.home) { target(idx) |= v; }
+    }
 
-    @Native("java", "x10.x10rt.X10RT.remoteXor__1$u(#target, #idx, #v)")
+    // @Native("java", "x10.x10rt.X10RT.remoteXor__1$u(#target, #idx, #v)")
     @Native("c++", "x10::lang::RemoteOps::remoteXor((#target)->FMGL(rail), #idx ,#v)")
-    public static native def remoteXor(target:GlobalRail[ULong], idx:Long, v:ULong):void;
+    public static def remoteXor(target:GlobalRail[ULong], idx:Long, v:ULong):void {
+        at (target.home) { target(idx) ^= v; }
+    }
 
-    @Native("java", "x10.x10rt.X10RT.remoteXor(#target, #idx, #v)")
+    // @Native("java", "x10.x10rt.X10RT.remoteXor(#target, #idx, #v)")
     @Native("c++", "x10::lang::RemoteOps::remoteXor((#target)->FMGL(rail), #idx ,#v)")
-    public static native def remoteXor(target:GlobalRail[Long], idx:Long, v:Long):void;
+    public static def remoteXor(target:GlobalRail[Long], idx:Long, v:Long):void {
+        at (target.home) { target(idx) ^= v; }
+    }
 
     @Native("java", "")
     @Native("c++", "x10aux::flush_remote_ops()")
