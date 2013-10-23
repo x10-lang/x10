@@ -1515,7 +1515,18 @@ void x10rt_net_finalize()
 
 int x10rt_net_supports (x10rt_opt o)
 {
-	return 1;
+#if defined(__bgq__) || !(defined(_ARCH_PPC) || defined(__PPC__))
+    switch (o) {
+        case X10RT_OPT_REMOTE_OP:
+	     // No hardware support for remote memory operations; best to use emulated layer
+             return 0;
+             break;
+        default:
+            return 1;
+    }
+#else
+        return 1;
+#endif
 }
 
 void x10rt_net_internal_barrier (){} // DEPRECATED
