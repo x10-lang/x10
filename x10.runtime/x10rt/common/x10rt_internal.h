@@ -123,6 +123,7 @@ X10RT_C void x10rt_emu_init (x10rt_msg_type *counter);
 X10RT_C void x10rt_emu_remote_op (x10rt_place place, x10rt_remote_ptr remote_addr,
                                   x10rt_op_type type, unsigned long long value);
 
+X10RT_C void x10rt_emu_remote_ops (x10rt_remote_op_params *ops, size_t num_ops);
 
 X10RT_C void x10rt_emu_coll_init (x10rt_msg_type *counter);
 

@@ -773,13 +773,8 @@ void x10rt_lgl_remote_ops (x10rt_remote_op_params *opv, size_t opc)
         #endif
         x10rt_net_remote_ops(opv, opc);
     } else {
-        for (size_t i=0 ; i<opc ; ++i) {
-            x10rt_op_type type = (x10rt_op_type)opv[i].op;
-            tame_assert(type >= X10RT_OP_ADD); tame_assert(type <= X10RT_OP_XOR);
-            x10rt_emu_remote_op(opv[i].dest, opv[i].dest_buf, type, opv[i].value);
-        }
+        x10rt_emu_remote_ops(opv, opc);
     }
-
 }
     
 void x10rt_lgl_register_mem (void *ptr, size_t len)
