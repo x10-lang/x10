@@ -975,7 +975,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
             n.print(p, sw, tr);
         }
 
-        h.write("template <class I> struct itable {"); h.newline(4); h.begin(0);
+        h.write("template <class Iface> struct itable {"); h.newline(4); h.begin(0);
         h.write("itable(");
         boolean firstMethod = true;
         for (MethodInstance meth : itable.getMethods()) {
@@ -983,7 +983,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
                 h.write(", ");
             }
             firstMethod = false;
-            itable.emitFunctionPointerDecl(h, emitter, meth, "I", true);
+            itable.emitFunctionPointerDecl(h, emitter, meth, "Iface", true);
         }
         h.write(") ");
         firstMethod = true;
@@ -1004,7 +1004,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
         for (MethodInstance meth : itable.getMethods()) {
             if (!firstMethod) h.newline();
             firstMethod = false;
-            itable.emitFunctionPointerDecl(h, emitter, meth, "I", true);
+            itable.emitFunctionPointerDecl(h, emitter, meth, "Iface", true);
             h.write(";");
         }
         h.end(); h.newline();

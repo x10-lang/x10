@@ -27,16 +27,16 @@ namespace x10 {
         public:
             RTT_H_DECLS_INTERFACE
     
-            template <class I> struct itable {
-            itable(x10_boolean (I::*equals) (x10::lang::Any*), x10_int (I::*hashCode) (), x10_boolean (I::*__lt) (TPMGL(T)), x10_boolean (I::*__le) (TPMGL(T)), x10_boolean (I::*__gt) (TPMGL(T)), x10_boolean (I::*__ge) (TPMGL(T)), x10::lang::String* (I::*toString) (), x10::lang::String* (I::*typeName) ()) : equals(equals), hashCode(hashCode), __lt(__lt), __le(__le), __gt(__gt), __ge(__ge), toString(toString), typeName(typeName) {}
-                x10_boolean (I::*equals) (x10::lang::Any*);
-                x10_int (I::*hashCode) ();
-                x10_boolean (I::*__lt) (TPMGL(T));
-                x10_boolean (I::*__le) (TPMGL(T));
-                x10_boolean (I::*__gt) (TPMGL(T));
-                x10_boolean (I::*__ge) (TPMGL(T));
-                x10::lang::String* (I::*toString) ();
-                x10::lang::String* (I::*typeName) ();
+            template <class Iface> struct itable {
+            itable(x10_boolean (Iface::*equals) (x10::lang::Any*), x10_int (Iface::*hashCode) (), x10_boolean (Iface::*__lt) (TPMGL(T)), x10_boolean (Iface::*__le) (TPMGL(T)), x10_boolean (Iface::*__gt) (TPMGL(T)), x10_boolean (Iface::*__ge) (TPMGL(T)), x10::lang::String* (Iface::*toString) (), x10::lang::String* (Iface::*typeName) ()) : equals(equals), hashCode(hashCode), __lt(__lt), __le(__le), __gt(__gt), __ge(__ge), toString(toString), typeName(typeName) {}
+                x10_boolean (Iface::*equals) (x10::lang::Any*);
+                x10_int (Iface::*hashCode) ();
+                x10_boolean (Iface::*__lt) (TPMGL(T));
+                x10_boolean (Iface::*__le) (TPMGL(T));
+                x10_boolean (Iface::*__gt) (TPMGL(T));
+                x10_boolean (Iface::*__ge) (TPMGL(T));
+                x10::lang::String* (Iface::*toString) ();
+                x10::lang::String* (Iface::*typeName) ();
             };
     
             static x10_boolean equals(Ordered<TPMGL(T)>* _recv, x10::lang::Any* arg0) {
@@ -115,16 +115,16 @@ namespace x10 {
 #define ORDERED_PRIM_DECL(PRIM) template<> class Ordered<PRIM> {        \
         public:                                                         \
             RTT_H_DECLS_INTERFACE                                       \
-                template <class I> struct itable {                      \
-                itable(x10_boolean (I::*equals) (x10::lang::Any*), x10_int (I::*hashCode) (), x10_boolean (I::*__lt) (PRIM), x10_boolean (I::*__le) (PRIM), x10_boolean (I::*__gt) (PRIM), x10_boolean (I::*__ge) (PRIM), x10::lang::String* (I::*toString) (), x10::lang::String* (I::*typeName) ()) : equals(equals), hashCode(hashCode), __lt(__lt), __le(__le), __gt(__gt), __ge(__ge), toString(toString), typeName(typeName) {} \
-                x10_boolean (I::*equals) (x10::lang::Any*);             \
-                x10_int (I::*hashCode) ();                              \
-                x10_boolean (I::*__lt) (PRIM);                          \
-                x10_boolean (I::*__le) (PRIM);                          \
-                x10_boolean (I::*__gt) (PRIM);                          \
-                x10_boolean (I::*__ge) (PRIM);                          \
-                x10::lang::String* (I::*toString) ();                   \
-                x10::lang::String* (I::*typeName) ();                   \
+                template <class Iface> struct itable {                      \
+                itable(x10_boolean (Iface::*equals) (x10::lang::Any*), x10_int (Iface::*hashCode) (), x10_boolean (Iface::*__lt) (PRIM), x10_boolean (Iface::*__le) (PRIM), x10_boolean (Iface::*__gt) (PRIM), x10_boolean (Iface::*__ge) (PRIM), x10::lang::String* (Iface::*toString) (), x10::lang::String* (Iface::*typeName) ()) : equals(equals), hashCode(hashCode), __lt(__lt), __le(__le), __gt(__gt), __ge(__ge), toString(toString), typeName(typeName) {} \
+                x10_boolean (Iface::*equals) (x10::lang::Any*);             \
+                x10_int (Iface::*hashCode) ();                              \
+                x10_boolean (Iface::*__lt) (PRIM);                          \
+                x10_boolean (Iface::*__le) (PRIM);                          \
+                x10_boolean (Iface::*__gt) (PRIM);                          \
+                x10_boolean (Iface::*__ge) (PRIM);                          \
+                x10::lang::String* (Iface::*toString) ();                   \
+                x10::lang::String* (Iface::*typeName) ();                   \
                 };                                                      \
             static x10_boolean equals(PRIM recv, PRIM arg0) { return x10aux::equals(recv, arg0); } \
             static x10_int hashCode(PRIM recv) { return x10aux::hash_code(recv); } \

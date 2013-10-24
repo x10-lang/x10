@@ -24,17 +24,17 @@ namespace x10 {
         public:
             RTT_H_DECLS_INTERFACE
 
-            template <class I> struct itable {
-                itable(x10_boolean (I::*equals)(x10::lang::Any*),
-                       x10_int (I::*hashCode)(),
-                       x10::lang::String* (I::*toString)(),
-                       x10::lang::String* (I::*typeName)()) : equals(equals), hashCode(hashCode),
+            template <class Iface> struct itable {
+                itable(x10_boolean (Iface::*equals)(x10::lang::Any*),
+                       x10_int (Iface::*hashCode)(),
+                       x10::lang::String* (Iface::*toString)(),
+                       x10::lang::String* (Iface::*typeName)()) : equals(equals), hashCode(hashCode),
                                                               toString(toString), typeName(typeName) {}
 
-                x10_boolean (I::*equals)(x10::lang::Any*);
-                x10_int (I::*hashCode)();
-                x10::lang::String* (I::*toString)();
-                x10::lang::String* (I::*typeName)();
+                x10_boolean (Iface::*equals)(x10::lang::Any*);
+                x10_int (Iface::*hashCode)();
+                x10::lang::String* (Iface::*toString)();
+                x10::lang::String* (Iface::*typeName)();
             };
         };
     }

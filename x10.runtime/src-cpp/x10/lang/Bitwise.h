@@ -26,19 +26,19 @@ namespace x10 {
         public:
             RTT_H_DECLS_INTERFACE
     
-            template <class I> struct itable {
-                itable(x10_boolean (I::*equals) (x10::lang::Any*), x10_int (I::*hashCode) (), TPMGL(T) (I::*__ampersand) (TPMGL(T)), TPMGL(T) (I::*__left) (x10_long), TPMGL(T) (I::*__right) (x10_long), TPMGL(T) (I::*__unsigned_right) (x10_long), TPMGL(T) (I::*__caret) (TPMGL(T)), TPMGL(T) (I::*__bar) (TPMGL(T)), TPMGL(T) (I::*__tilde) (), x10::lang::String* (I::*toString) (), x10::lang::String* (I::*typeName) ()) : equals(equals), hashCode(hashCode), __ampersand(__ampersand), __left(__left), __right(__right), __unsigned_right(__unsigned_right), __caret(__caret), __bar(__bar), __tilde(__tilde), toString(toString), typeName(typeName) {}
-                x10_boolean (I::*equals) (x10::lang::Any*);
-                x10_int (I::*hashCode) ();
-                TPMGL(T) (I::*__ampersand) (TPMGL(T));
-                TPMGL(T) (I::*__left) (x10_long);
-                TPMGL(T) (I::*__right) (x10_long);
-                TPMGL(T) (I::*__unsigned_right) (x10_long);
-                TPMGL(T) (I::*__caret) (TPMGL(T));
-                TPMGL(T) (I::*__bar) (TPMGL(T));
-                TPMGL(T) (I::*__tilde) ();
-                x10::lang::String* (I::*toString) ();
-                x10::lang::String* (I::*typeName) ();
+            template <class Iface> struct itable {
+                itable(x10_boolean (Iface::*equals) (x10::lang::Any*), x10_int (Iface::*hashCode) (), TPMGL(T) (Iface::*__ampersand) (TPMGL(T)), TPMGL(T) (Iface::*__left) (x10_long), TPMGL(T) (Iface::*__right) (x10_long), TPMGL(T) (Iface::*__unsigned_right) (x10_long), TPMGL(T) (Iface::*__caret) (TPMGL(T)), TPMGL(T) (Iface::*__bar) (TPMGL(T)), TPMGL(T) (Iface::*__tilde) (), x10::lang::String* (Iface::*toString) (), x10::lang::String* (Iface::*typeName) ()) : equals(equals), hashCode(hashCode), __ampersand(__ampersand), __left(__left), __right(__right), __unsigned_right(__unsigned_right), __caret(__caret), __bar(__bar), __tilde(__tilde), toString(toString), typeName(typeName) {}
+                x10_boolean (Iface::*equals) (x10::lang::Any*);
+                x10_int (Iface::*hashCode) ();
+                TPMGL(T) (Iface::*__ampersand) (TPMGL(T));
+                TPMGL(T) (Iface::*__left) (x10_long);
+                TPMGL(T) (Iface::*__right) (x10_long);
+                TPMGL(T) (Iface::*__unsigned_right) (x10_long);
+                TPMGL(T) (Iface::*__caret) (TPMGL(T));
+                TPMGL(T) (Iface::*__bar) (TPMGL(T));
+                TPMGL(T) (Iface::*__tilde) ();
+                x10::lang::String* (Iface::*toString) ();
+                x10::lang::String* (Iface::*typeName) ();
             };
     
             static x10_boolean equals(x10::lang::Bitwise<TPMGL(T)>* _recv, x10::lang::Any* arg0) {
@@ -141,19 +141,19 @@ namespace x10 {
 #define BITWISE_PRIM_DECL(PRIM,UNSIGNED_PRIM,SHIFT_MASK) template<> class Bitwise<PRIM>   { \
         public:                                                         \
             RTT_H_DECLS_INTERFACE                                       \
-                template <class I> struct itable {                      \
-                itable(x10_boolean (I::*equals) (x10::lang::Any*), x10_int (I::*hashCode) (), PRIM (I::*__ampersand) (PRIM), PRIM (I::*__left) (x10_long), PRIM (I::*__right) (x10_long), PRIM (I::*__unsigned_right) (x10_long), PRIM (I::*__caret) (PRIM), PRIM (I::*__bar) (PRIM), PRIM (I::*__tilde) (), x10::lang::String* (I::*toString) (), x10::lang::String* (I::*typeName) ()) : equals(equals), hashCode(hashCode), __ampersand(__ampersand), __left(__left), __right(__right), __unsigned_right(__unsigned_right), __caret(__caret), __bar(__bar), __tilde(__tilde), toString(toString), typeName(typeName) {} \
-                x10_boolean (I::*equals) (x10::lang::Any*); \
-                x10_int (I::*hashCode) ();                              \
-                PRIM (I::*__ampersand) (PRIM);                          \
-                PRIM (I::*__left) (x10_long);                           \
-                PRIM (I::*__right) (x10_long);                          \
-                PRIM (I::*__unsigned_right) (x10_long);                 \
-                PRIM (I::*__caret) (PRIM);                              \
-                PRIM (I::*__bar) (PRIM);                                \
-                PRIM (I::*__tilde) ();                                  \
-                x10::lang::String* (I::*toString) ();       \
-                x10::lang::String* (I::*typeName) ();       \
+                template <class Iface> struct itable {                  \
+                itable(x10_boolean (Iface::*equals) (x10::lang::Any*), x10_int (Iface::*hashCode) (), PRIM (Iface::*__ampersand) (PRIM), PRIM (Iface::*__left) (x10_long), PRIM (Iface::*__right) (x10_long), PRIM (Iface::*__unsigned_right) (x10_long), PRIM (Iface::*__caret) (PRIM), PRIM (Iface::*__bar) (PRIM), PRIM (Iface::*__tilde) (), x10::lang::String* (Iface::*toString) (), x10::lang::String* (Iface::*typeName) ()) : equals(equals), hashCode(hashCode), __ampersand(__ampersand), __left(__left), __right(__right), __unsigned_right(__unsigned_right), __caret(__caret), __bar(__bar), __tilde(__tilde), toString(toString), typeName(typeName) {} \
+                x10_boolean (Iface::*equals) (x10::lang::Any*); \
+                x10_int (Iface::*hashCode) ();                              \
+                PRIM (Iface::*__ampersand) (PRIM);                          \
+                PRIM (Iface::*__left) (x10_long);                           \
+                PRIM (Iface::*__right) (x10_long);                          \
+                PRIM (Iface::*__unsigned_right) (x10_long);                 \
+                PRIM (Iface::*__caret) (PRIM);                              \
+                PRIM (Iface::*__bar) (PRIM);                                \
+                PRIM (Iface::*__tilde) ();                                  \
+                x10::lang::String* (Iface::*toString) ();       \
+                x10::lang::String* (Iface::*typeName) ();       \
                 };                                                      \
             static x10_boolean equals(PRIM recv, PRIM arg0) { return x10aux::equals(recv, arg0); } \
             static x10_int hashCode(PRIM recv) { return x10aux::hash_code(recv); } \

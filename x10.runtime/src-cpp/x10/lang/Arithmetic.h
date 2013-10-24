@@ -27,18 +27,18 @@ namespace x10 {
         public:
             RTT_H_DECLS_INTERFACE
     
-            template <class I> struct itable {
-                itable(x10_boolean (I::*equals) (x10::lang::Any*), x10_int (I::*hashCode) (), TPMGL(T) (I::*__times) (TPMGL(T)), TPMGL(T) (I::*_m3____plus) (), TPMGL(T) (I::*_m4____plus) (TPMGL(T)), TPMGL(T) (I::*_m5____minus) (), TPMGL(T) (I::*_m6____minus) (TPMGL(T)), TPMGL(T) (I::*__over) (TPMGL(T)), x10::lang::String* (I::*toString) (), x10::lang::String* (I::*typeName) ()) : equals(equals), hashCode(hashCode), __times(__times), _m3____plus(_m3____plus), _m4____plus(_m4____plus), _m5____minus(_m5____minus), _m6____minus(_m6____minus), __over(__over), toString(toString), typeName(typeName) {}
-                x10_boolean (I::*equals) (x10::lang::Any*);
-                x10_int (I::*hashCode) ();
-                TPMGL(T) (I::*__times) (TPMGL(T));
-                TPMGL(T) (I::*_m3____plus) ();
-                TPMGL(T) (I::*_m4____plus) (TPMGL(T));
-                TPMGL(T) (I::*_m5____minus) ();
-                TPMGL(T) (I::*_m6____minus) (TPMGL(T));
-                TPMGL(T) (I::*__over) (TPMGL(T));
-                x10::lang::String* (I::*toString) ();
-                x10::lang::String* (I::*typeName) ();
+            template <class Iface> struct itable {
+                itable(x10_boolean (Iface::*equals) (x10::lang::Any*), x10_int (Iface::*hashCode) (), TPMGL(T) (Iface::*__times) (TPMGL(T)), TPMGL(T) (Iface::*_m3____plus) (), TPMGL(T) (Iface::*_m4____plus) (TPMGL(T)), TPMGL(T) (Iface::*_m5____minus) (), TPMGL(T) (Iface::*_m6____minus) (TPMGL(T)), TPMGL(T) (Iface::*__over) (TPMGL(T)), x10::lang::String* (Iface::*toString) (), x10::lang::String* (Iface::*typeName) ()) : equals(equals), hashCode(hashCode), __times(__times), _m3____plus(_m3____plus), _m4____plus(_m4____plus), _m5____minus(_m5____minus), _m6____minus(_m6____minus), __over(__over), toString(toString), typeName(typeName) {}
+                x10_boolean (Iface::*equals) (x10::lang::Any*);
+                x10_int (Iface::*hashCode) ();
+                TPMGL(T) (Iface::*__times) (TPMGL(T));
+                TPMGL(T) (Iface::*_m3____plus) ();
+                TPMGL(T) (Iface::*_m4____plus) (TPMGL(T));
+                TPMGL(T) (Iface::*_m5____minus) ();
+                TPMGL(T) (Iface::*_m6____minus) (TPMGL(T));
+                TPMGL(T) (Iface::*__over) (TPMGL(T));
+                x10::lang::String* (Iface::*toString) ();
+                x10::lang::String* (Iface::*typeName) ();
             };
     
             static x10_boolean equals(Arithmetic<TPMGL(T)>* _recv, x10::lang::Any* arg0) {
@@ -138,18 +138,18 @@ namespace x10 {
 #define ARITHMETIC_PRIM_DECL(PRIM) template<> class Arithmetic<PRIM>   { \
         public:                                                         \
             RTT_H_DECLS_INTERFACE                                       \
-                template <class I> struct itable {                      \
-                itable(x10_boolean (I::*equals) (x10::lang::Any*), x10_int (I::*hashCode) (), PRIM (I::*__times) (PRIM), PRIM (I::*_m3____plus) (), PRIM (I::*_m4____plus) (PRIM), PRIM (I::*_m5____minus) (), PRIM (I::*_m6____minus) (PRIM), PRIM (I::*__over) (PRIM), x10::lang::String* (I::*toString) (), x10::lang::String* (I::*typeName) ()) : equals(equals), hashCode(hashCode), __times(__times), _m3____plus(_m3____plus), _m4____plus(_m4____plus), _m5____minus(_m5____minus), _m6____minus(_m6____minus), __over(__over), toString(toString), typeName(typeName) {} \
-                x10_boolean (I::*equals) (x10::lang::Any*); \
-                x10_int (I::*hashCode) ();                              \
-                PRIM (I::*__times) (PRIM);                              \
-                PRIM (I::*_m3____plus) ();                              \
-                PRIM (I::*_m4____plus) (PRIM);                          \
-                PRIM (I::*_m5____minus) ();                             \
-                PRIM (I::*_m6____minus) (PRIM);                         \
-                PRIM (I::*__over) (PRIM);                               \
-                x10::lang::String* (I::*toString) ();       \
-                x10::lang::String* (I::*typeName) ();       \
+                template <class Iface> struct itable {                  \
+                itable(x10_boolean (Iface::*equals) (x10::lang::Any*), x10_int (Iface::*hashCode) (), PRIM (Iface::*__times) (PRIM), PRIM (Iface::*_m3____plus) (), PRIM (Iface::*_m4____plus) (PRIM), PRIM (Iface::*_m5____minus) (), PRIM (Iface::*_m6____minus) (PRIM), PRIM (Iface::*__over) (PRIM), x10::lang::String* (Iface::*toString) (), x10::lang::String* (Iface::*typeName) ()) : equals(equals), hashCode(hashCode), __times(__times), _m3____plus(_m3____plus), _m4____plus(_m4____plus), _m5____minus(_m5____minus), _m6____minus(_m6____minus), __over(__over), toString(toString), typeName(typeName) {} \
+                x10_boolean (Iface::*equals) (x10::lang::Any*); \
+                x10_int (Iface::*hashCode) ();                              \
+                PRIM (Iface::*__times) (PRIM);                              \
+                PRIM (Iface::*_m3____plus) ();                              \
+                PRIM (Iface::*_m4____plus) (PRIM);                          \
+                PRIM (Iface::*_m5____minus) ();                             \
+                PRIM (Iface::*_m6____minus) (PRIM);                         \
+                PRIM (Iface::*__over) (PRIM);                               \
+                x10::lang::String* (Iface::*toString) ();       \
+                x10::lang::String* (Iface::*typeName) ();       \
                 };                                                      \
             static x10_boolean equals(PRIM recv, PRIM arg0) { return x10aux::equals(recv, arg0); } \
             static x10_int hashCode(PRIM recv) { return x10aux::hash_code(recv); } \

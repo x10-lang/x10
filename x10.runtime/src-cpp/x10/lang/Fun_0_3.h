@@ -32,18 +32,18 @@ namespace x10 {
             static const x10aux::RuntimeType* getRTT() { if (!rtt.isInitialized) _initRTT(); return &rtt; }
             static void _initRTT();
 
-            template <class I> struct itable {
-                itable(x10_boolean (I::*equals)(x10::lang::Any*),
-                       x10_int (I::*hashCode)(),
-                       R(I::*__apply)(P1,P2,P3),
-                       x10::lang::String* (I::*toString)(),
-                       x10::lang::String* (I::*typeName)()
+            template <class Iface> struct itable {
+                itable(x10_boolean (Iface::*equals)(x10::lang::Any*),
+                       x10_int (Iface::*hashCode)(),
+                       R(Iface::*__apply)(P1,P2,P3),
+                       x10::lang::String* (Iface::*toString)(),
+                       x10::lang::String* (Iface::*typeName)()
                     ) : equals(equals), hashCode(hashCode), __apply(__apply), toString(toString), typeName(typeName) {}
-                x10_boolean (I::*equals)(x10::lang::Any*);
-                x10_int (I::*hashCode)();
-                R (I::*__apply)(P1,P2,P3);
-                x10::lang::String* (I::*toString)();
-                x10::lang::String* (I::*typeName)();
+                x10_boolean (Iface::*equals)(x10::lang::Any*);
+                x10_int (Iface::*hashCode)();
+                R (Iface::*__apply)(P1,P2,P3);
+                x10::lang::String* (Iface::*toString)();
+                x10::lang::String* (Iface::*typeName)();
             };
 
             static R __apply(Fun_0_3<P1,P2,P3,R>* fun, P1 arg1, P2 arg2, P3 arg3) {
