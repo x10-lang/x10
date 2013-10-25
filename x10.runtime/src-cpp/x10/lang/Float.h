@@ -24,8 +24,12 @@ namespace x10 {
             static String* toHexString(x10_float value);
             static String* toString(x10_float value);
             static x10_float parseFloat(String* s);
-            static x10_boolean isNaN(x10_float value);
-            static x10_boolean isInfinite(x10_float value);
+            static x10_boolean isNaN(x10_float value) {
+                return x10aux::math::isnan(value);
+            }
+            static x10_boolean isInfinite(x10_float value) {
+                return x10aux::math::isinf(value);
+            }
             static x10_int toIntBits(x10_float value);
             static x10_int toRawIntBits(x10_float value);
             static x10_float fromIntBits(x10_int value);

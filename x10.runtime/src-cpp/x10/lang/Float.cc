@@ -63,14 +63,6 @@ x10_float FloatNatives::parseFloat(String* s) {
     return ans;
 }
 
-x10_boolean FloatNatives::isNaN(x10_float x) {
-    return x10aux::math::isnan(x);
-}
-
-x10_boolean FloatNatives::isInfinite(x10_float x) {
-    return x10aux::math::isinf(x);
-}
-
 x10_int FloatNatives::toIntBits(x10_float x) {
     // Check for NaN and return canonical NaN value
     return isNaN(x) ? 0x7fc00000 : toRawIntBits(x);
