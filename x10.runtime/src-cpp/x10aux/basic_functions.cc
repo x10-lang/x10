@@ -11,7 +11,6 @@
 
 #include <x10aux/config.h>
 #include <x10aux/basic_functions.h>
-#include <x10aux/math.h>
 
 #include <x10/lang/Double.h>
 #include <x10/lang/Float.h>
@@ -81,11 +80,11 @@ void kill_excess_zeroes(char *buf, size_t sz) {
 String* x10aux::to_string(x10_double v_) {
     double v = (double)v_;
     char buf[120] = "";
-    if (x10aux::math::isnan(v)) {
+    if (::isnan(v)) {
         ::snprintf(buf, sizeof(buf), "NaN");
-    } else if (x10aux::math::isinf(v) && v > 0.0) {
+    } else if (::isinf(v) && v > 0.0) {
         ::snprintf(buf, sizeof(buf), "Infinity"); 
-    } else if (x10aux::math::isinf(v) && v < 0.0) {
+    } else if (::isinf(v) && v < 0.0) {
         ::snprintf(buf, sizeof(buf), "-Infinity");
     } else if (::fabs(v) >= 1E-3 && ::fabs(v) < 1E7) {
         ::snprintf(buf, sizeof(buf), "%.15f", v);

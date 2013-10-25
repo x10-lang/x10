@@ -19,11 +19,11 @@ public class Bcast extends x10Test {
 
     def bcastTest(team:Team, root:Place, res:GlobalRef[Cell[Boolean]]) {
         val count = 113L;
-        val src = new Rail[Double](count, (i:Long)=>((here.id+1) as Double) * i);
-        val dst = new Rail[Double](count, (i:Long)=>-(i as Double));
         var success: Boolean = true;
                 
         {
+	    val src = new Rail[Double](count, (i:Long)=>((here.id+1) as Double) * i);
+            val dst = new Rail[Double](count, (i:Long)=>-(i as Double));
             team.bcast(root, src, 0L, dst, 0L, count);
 
             for (i in 0..(count-1)) {
@@ -31,6 +31,21 @@ public class Bcast extends x10Test {
                 if (dst(i) != oracle) {
                     Console.OUT.printf("Team %d place %d received invalid value %f at %d instead of %f\n",
                                        team.id(), here.id, dst(i), i, oracle);
+                    success = false;
+                }
+            }
+        }
+
+        {
+	    val src = new Rail[Complex](count, (i:Long)=>(Complex(here.id+1, 0) * i));
+            val dst = new Rail[Complex](count, (i:Long)=>Complex(-i, 0));
+            team.bcast(root, src, 0L, dst, 0L, count);
+
+            for (i in 0..(count-1)) {
+                val oracle:Complex = Complex(root.id()+1,0) * i;
+                if (dst(i) != oracle) {
+                    Console.OUT.printf("Team %d place %d received invalid value (%f,%f) at %d instead of (%f,%f)\n",
+                                       [team.id(), here.id, dst(i).re, dst(i).im, i, oracle.re, oracle.im]);
                     success = false;
                 }
             }

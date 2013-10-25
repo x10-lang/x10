@@ -71,6 +71,28 @@ public class Reduce extends x10Test {
             }
         }
 
+        val src2 = new Rail[Complex](count, (i:Long)=>(Complex(here.id+1, 0) * i * i));
+        val dst2 = new Rail[Complex](count, (i:Long)=>Complex(-i, 0));
+                
+        {
+            team.reduce(root, src2, 0L, dst2, 0L, count, Team.ADD);
+
+            if (here == root) {
+                val oracle_base = Complex((team.size()*team.size() + team.size())/2, 0);
+                for (i in 0..(count-1)) {
+                    val oracle = oracle_base * i * i;
+                    if (dst2(i) != oracle) {
+                        Console.OUT.printf("Team %d place %d received invalid value (%f,%f) at %d instead of (%f,%f)\n",
+                                           [team.id(), here.id, dst2(i).re, dst2(i).im, i, oracle.re, oracle.im]);
+                        success = false;
+                    }
+                }
+            }
+        }
+
+
+
+
         if (!success) at (res.home) res().set(false);
     }
 

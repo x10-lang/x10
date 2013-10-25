@@ -13,7 +13,6 @@
 #define X10_MATH_LANG_MATHNATIVES_H
 
 #include <x10aux/config.h>
-#include <x10aux/math.h>
 #include <complex>
 
 namespace x10 {

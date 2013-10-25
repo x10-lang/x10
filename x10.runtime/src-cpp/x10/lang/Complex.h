@@ -14,7 +14,6 @@
 
 #include <x10aux/config.h>
 
-#include <x10aux/math.h>
 #include <complex>
 
 typedef std::complex<double> x10_complex;
@@ -27,11 +26,11 @@ namespace x10 {
         public:
             static x10_boolean isInfinite(x10_complex value) {
                 if (isNaN(value)) return false;
-                return x10aux::math::isinf(value.real()) || x10aux::math::isinf(value.imag());
+                return ::isinf(value.real()) || ::isinf(value.imag());
             }
                 
             static x10_boolean isNaN(x10_complex value) {
-                return x10aux::math::isnan(value.real()) || x10aux::math::isnan(value.imag());
+                return ::isnan(value.real()) || ::isnan(value.imag());
             }
         };
     }

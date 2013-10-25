@@ -11,8 +11,6 @@
 
 #include <errno.h>
 
-#include <x10aux/math.h>
-
 #include <x10/lang/Float.h>
 #include <x10/lang/String.h>
 #include <x10/lang/NumberFormatException.h>

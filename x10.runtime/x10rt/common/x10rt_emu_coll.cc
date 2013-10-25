@@ -29,6 +29,7 @@ _CRTIMP int __cdecl __MINGW_NOTHROW     vswprintf (wchar_t*, const wchar_t*, __V
 #endif
 #include <algorithm>
 #include <cfloat>
+#include<complex>
 
 #include <x10rt_types.h>
 #include <x10rt_internal.h>
@@ -988,6 +989,28 @@ namespace {
     { static double _ (const double &, const double &) { return bitwise_err(); } };
     template<> struct reduce<double,X10RT_RED_OP_XOR>
     { static double _ (const double &, const double &) { return bitwise_err(); } };
+
+
+    static std::complex<double> bitwise_err_complex (void)
+    {
+        fprintf(stderr, "X10RT: Cannot do bitwise arithmetic on complex values.\n");
+        return abortv<std::complex<double> >();
+    }
+    static std::complex<double> compare_err_complex (void)
+    {
+        fprintf(stderr, "X10RT: Cannot do compare on complex values.\n");
+        return abortv<std::complex<double> >();
+    }
+    template<> struct reduce<std::complex<double>,X10RT_RED_OP_AND>
+    { static std::complex<double> _ (const std::complex<double> &, const std::complex<double> &) { return bitwise_err_complex(); } };
+    template<> struct reduce<std::complex<double>,X10RT_RED_OP_OR>
+    { static std::complex<double> _ (const std::complex<double> &, const std::complex<double> &) { return bitwise_err_complex(); } };
+    template<> struct reduce<std::complex<double>,X10RT_RED_OP_XOR>
+    { static std::complex<double> _ (const std::complex<double> &, const std::complex<double> &) { return bitwise_err_complex(); } };
+    template<> struct reduce<std::complex<double>,X10RT_RED_OP_MAX>
+    { static std::complex<double> _ (const std::complex<double> &, const std::complex<double> &) { return compare_err_complex(); } };
+    template<> struct reduce<std::complex<double>,X10RT_RED_OP_MIN>
+    { static std::complex<double> _ (const std::complex<double> &, const std::complex<double> &) { return compare_err_complex(); } };
     
     static x10rt_dbl_s32 arith_err (void)
     {
@@ -1112,6 +1135,7 @@ void x10rt_emu_reduce (x10rt_team team, x10rt_place role, x10rt_place root,
         BORING_MACRO(X10RT_RED_TYPE_DBL);
         BORING_MACRO(X10RT_RED_TYPE_FLT);
         BORING_MACRO(X10RT_RED_TYPE_DBL_S32);
+        BORING_MACRO(X10RT_RED_TYPE_COMPLEX_DBL);
         #undef BORING_MACRO
         default: fprintf(stderr, "Corrupted type? %x\n", dtype); if (ABORT_NEEDED && !x10rt_run_as_library()) abort();
     }

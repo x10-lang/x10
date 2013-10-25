@@ -14,7 +14,7 @@
 #define X10RT_CPP_H
 
 #include <x10rt_types.h>
-
+#include <complex>
 
 
 /** \file 
@@ -50,8 +50,10 @@ template<> struct x10rt_red_type_info<X10RT_RED_TYPE_DBL> { /**The type*/ typede
 /** \copydoc x10rt_red_type_info */
 template<> struct x10rt_red_type_info<X10RT_RED_TYPE_FLT> { /**The type*/ typedef float Type; };
 /** \copydoc x10rt_red_type_info */
-template<> struct x10rt_red_type_info<X10RT_RED_TYPE_DBL_S32>
-{ /**The type*/ typedef x10rt_dbl_s32 Type; };
+template<> struct x10rt_red_type_info<X10RT_RED_TYPE_DBL_S32> { /**The type*/ typedef x10rt_dbl_s32 Type; };
+/** \copydoc x10rt_red_type_info */
+template<> struct x10rt_red_type_info<X10RT_RED_TYPE_COMPLEX_DBL> { /**The type*/ typedef std::complex<double> Type; };
+
 
 /** A template that allows statically fetching the #x10rt_red_type from a c++ type.  To be used as
  * follows:
@@ -83,8 +85,10 @@ template<> inline x10rt_red_type x10rt_get_red_type<double>   (void) { return X1
 /** \copydoc x10rt_red_type */
 template<> inline x10rt_red_type x10rt_get_red_type<float>    (void) { return X10RT_RED_TYPE_FLT; }
 /** \copydoc x10rt_red_type */
-template<> inline x10rt_red_type x10rt_get_red_type<x10rt_dbl_s32> (void)
-{ return X10RT_RED_TYPE_DBL_S32; }
+template<> inline x10rt_red_type x10rt_get_red_type<x10rt_dbl_s32> (void) { return X10RT_RED_TYPE_DBL_S32; }
+/** \copydoc x10rt_red_type */
+template<> inline x10rt_red_type x10rt_get_red_type<std::complex<double> >   (void) { return X10RT_RED_TYPE_COMPLEX_DBL; }
+
 
 #endif
 #endif
