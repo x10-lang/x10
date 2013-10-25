@@ -66,14 +66,15 @@ public final class Math {
    @Native("c++", "x10::lang::MathNatives::pow(#a,#b)")
    public static native def pow(a:Double, b:Double):Double;
 
-    /**
-     * Returns the principal value of the complex power <code>a^b</code>.
-     * The branch cuts are on the real line at (-inf, 0) for real(b) <= 0,
-     * and (-inf, 0] for real(b) > 0.   pow(0,0) is not defined.
-     * @return a raised to the power <code>b</code>
-     * @see http://mathworld.wolfram.com/Power.html
-     */
-    public static def pow(a:Complex, b:Complex) = Math.exp(Math.log(a) * b);
+   /**
+    * Returns the principal value of the complex power <code>a^b</code>.
+    * The branch cuts are on the real line at (-inf, 0) for real(b) <= 0,
+    * and (-inf, 0] for real(b) > 0.   pow(0,0) is not defined.
+    * @return a raised to the power <code>b</code>
+    * @see http://mathworld.wolfram.com/Power.html
+    */
+   @Native("c++", "x10::lang::MathNatives::pow(#a, #b)")
+   public static def pow(a:Complex, b:Complex):Complex = Math.exp(Math.log(a) * b);
 
    @Native("java", "java.lang.Math.exp(#a)")
    @Native("c++", "x10::lang::MathNatives::exp(#a)")
@@ -90,6 +91,7 @@ public final class Math {
      * @return the exponential function <code>e^a</code>
      * @see http://mathworld.wolfram.com/ExponentialFunction.html
      */
+    @Native("c++", "x10::lang::MathNatives::exp(#a)")
     public static def exp(a:Complex):Complex {
        if (a.isNaN()) {
            return Complex.NaN;
@@ -110,6 +112,7 @@ public final class Math {
      * @return the cosine of <code>z</code>
      * @see http://mathworld.wolfram.com/Cosine.html
      */
+    @Native("c++", "x10::lang::MathNatives::cos(#z)")
     public static def cos(z:Complex):Complex {
         if (z.im == 0.0) {
             return Complex(Math.cos(z.re), 0.0);
@@ -126,6 +129,7 @@ public final class Math {
      * @return the sine of <code>z</code>
      * @see http://mathworld.wolfram.com/Sine.html
      */
+    @Native("c++", "x10::lang::MathNatives::sin(#z)")
     public static def sin(z:Complex):Complex {
         if (z.im == 0.0) {
             return Complex(Math.sin(z.re), 0.0);
@@ -142,6 +146,7 @@ public final class Math {
      * @return the tangent of <code>z</code>
      * @see http://mathworld.wolfram.com/Tangent.html
      */
+    @Native("c++", "x10::lang::MathNatives::tan(#z)")
     public static def tan(z:Complex):Complex {
         if (z.im == 0.0) {
             return Complex(Math.tan(z.re), 0.0);
@@ -163,6 +168,7 @@ public final class Math {
      * @return the inverse cosine of <code>z</code>
      * @see http://mathworld.wolfram.com/InverseCosine.html
      */
+    // @Native("c++", "x10::lang::MathNatives::acos(#z)") /* C++11 */
     public static def acos(z:Complex):Complex {
         if (z.im == 0.0 && Math.abs(z.re) <= 1.0) {
             return Complex(Math.acos(z.re), 0.0);
@@ -183,6 +189,7 @@ public final class Math {
      * @return the inverse sine of <code>z</code>
      * @see http://mathworld.wolfram.com/InverseSine.html
      */
+    // @Native("c++", "x10::lang::MathNatives::asin(#z)") / * C++11 */
     public static def asin(z:Complex):Complex {
         if (z.im == 0.0 && Math.abs(z.re) <= 1.0) {
             return Complex(Math.asin(z.re), 0.0);
@@ -203,6 +210,7 @@ public final class Math {
      * @return the principal value of the inverse tangent of <code>z</code>
      * @see http://mathworld.wolfram.com/InverseTangent.html
      */
+    // @Native("c++", "x10::lang::MathNatices::atan(#z)") /* C++11 */
     public static def atan(z:Complex):Complex {
         if (z.im == 0.0) {
             return Complex(Math.atan(z.re), 0.0);
@@ -228,6 +236,7 @@ public final class Math {
      * @return the hyperbolic cosine of <code>z</code>
      * @see http://mathworld.wolfram.com/HyperbolicCosine.html
      */
+    @Native("c++", "x10::lang::MathNatives::cosh(#z)")
     public static def cosh(z:Complex):Complex {
         if (z.isNaN()) {
             return Complex.NaN;
@@ -246,6 +255,7 @@ public final class Math {
      * @return the hyperbolic sine of <code>z</code>
      * @see http://mathworld.wolfram.com/HyperbolicSine.html
      */
+    @Native("c++", "x10::lang::MathNatives::sinh(#z)")
     public static def sinh(z:Complex):Complex {
         if (z.isNaN()) {
             return Complex.NaN;
@@ -264,6 +274,7 @@ public final class Math {
      * @return the hyperbolic tangent of <code>z</code>
      * @see http://mathworld.wolfram.com/HyperbolicTangent.html
      */
+    @Native("c++", "x10::lang::MathNatives::tanh(#z)")
     public static def tanh(z:Complex):Complex {
         if (z.isNaN()) {
             return Complex.NaN;
@@ -337,6 +348,7 @@ public final class Math {
      * @return the natural logarithm of <code>a</code>
      * @see http://mathworld.wolfram.com/NaturalLogarithm.html
      */
+    @Native("c++", "x10::lang::MathNatives::log(#a)")
     public static def log(a:Complex):Complex {
         if (a.isNaN()) {
             return Complex.NaN;
