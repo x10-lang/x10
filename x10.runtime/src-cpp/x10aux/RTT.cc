@@ -17,6 +17,7 @@
 
 #include <x10/lang/Reference.h>
 #include <x10/lang/Comparable.h>
+#include <x10/lang/Arithmetic.h>
 
 #include <cstdarg>
 
@@ -229,6 +230,12 @@ void RuntimeType::initDoubleType() {
     DoubleType.initStageTwo("x10.lang.Double", struct_kind, 2, parents, 0, NULL, NULL);
     DoubleType.containsPtrs = false;
 }
+void RuntimeType::initComplexType() {
+    if (ComplexType.initStageOne(&ComplexType)) return;
+    const x10aux::RuntimeType* parents[2] = { x10aux::getRTT<x10::lang::Any>(), x10aux::getRTT<x10::lang::Arithmetic<x10_complex> >()};
+    ComplexType.initStageTwo("x10.lang.Complex", struct_kind, 2, parents, 0, NULL, NULL);
+    ComplexType.containsPtrs = false;
+}
 void RuntimeType::initUByteType() {
     if (UByteType.initStageOne(&UByteType)) return;
     const x10aux::RuntimeType* parents[2] = { x10aux::getRTT<x10::lang::Any>(), x10aux::getRTT<x10::lang::Comparable<x10_ubyte> >()};
@@ -262,6 +269,7 @@ RuntimeType RuntimeType::IntType;
 RuntimeType RuntimeType::FloatType;
 RuntimeType RuntimeType::LongType;
 RuntimeType RuntimeType::DoubleType;
+RuntimeType RuntimeType::ComplexType;
 RuntimeType RuntimeType::UByteType;
 RuntimeType RuntimeType::UShortType;
 RuntimeType RuntimeType::UIntType;

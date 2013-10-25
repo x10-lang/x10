@@ -17,10 +17,16 @@
 #include <x10/lang/Float.h>
 #include <x10/lang/String.h>
 
+#include <x10/util/StringBuilder.h>
+
 #include <stdio.h>
 
 using namespace x10aux;
 using namespace x10::lang;
+
+x10_int x10aux::hash_code(const x10_complex x) {
+    return hash_code(x.real()) ^ hash_code(x.imag());
+}
 
 x10_int x10aux::hash_code(const x10_double x) {
     return hash_code(x10::lang::DoubleNatives::toLongBits(x));
@@ -64,15 +70,13 @@ String* x10aux::to_string(x10_float v) {
     return x10aux::to_string((x10_double)v);
 }
 
-
 // precondition: buf contains decimal point
 void kill_excess_zeroes(char *buf, size_t sz) {
     for(int i=sz-1 ; i>0 && (buf[i]=='0' || buf[i]=='\0') ; --i) {
         if (buf[i-1]=='.') break;
         buf[i] = '\0';
     }   
-}   
-
+}
 
 String* x10aux::to_string(x10_double v_) {
     double v = (double)v_;
@@ -109,7 +113,20 @@ String* x10aux::to_string(x10_double v_) {
     }   
     return x10::lang::String::Lit(buf);
 }   
+
+String* x10aux::to_string(x10_complex v) {
+    static x10::lang::String* c1 = x10::lang::String::Lit("(");
+    static x10::lang::String* c2 = x10::lang::String::Lit(", ");
+    static x10::lang::String* c3 = x10::lang::String::Lit(")");
     
+    x10::util::StringBuilder * sb = x10::util::StringBuilder::_make();
+    sb->add(c1);
+    sb->add(x10aux::to_string(v.real()));
+    sb->add(c2);
+    sb->add(x10aux::to_string(v.imag()));
+    sb->add(c3);
+    return sb->toString();
+}
 
 String* x10aux::to_string(x10_boolean v) {
     static String* t = x10::lang::String::Lit("true");

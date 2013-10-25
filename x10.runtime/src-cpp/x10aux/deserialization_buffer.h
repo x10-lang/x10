@@ -15,6 +15,7 @@
 #include <x10aux/config.h>
 #include <x10aux/captured_lval.h>
 #include <x10aux/deserialization_dispatcher.h>
+#include <x10/lang/Complex.h>
 
 class Serializer;
 namespace x10 { namespace lang { template<class T> class Rail; } }
@@ -143,6 +144,7 @@ namespace x10aux {
     PRIMITIVE_READ(x10_ulong)
     PRIMITIVE_READ(x10_float)
     PRIMITIVE_READ(x10_double)
+    PRIMITIVE_READ(x10_complex)
 
     // Case for references e.g. Reference*, 
     template<class T> struct deserialization_buffer::Read<T*> {

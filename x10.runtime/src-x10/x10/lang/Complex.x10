@@ -13,33 +13,38 @@
 package x10.lang;
 
 import x10.compiler.Native;
+import x10.compiler.NativeCPPInclude;
+import x10.compiler.NativeRep;
 import x10.compiler.Inline;
 
 /**
  * Complex is a struct representing a complex number (a + b*i).
  * The real and imaginary components are represented as Doubles.
  */
+@NativeRep("c++", "x10_complex", "x10_complex", null)
 public struct Complex implements Arithmetic[Complex] {
 
     /** The real component of this complex number. */
+    @Native("c++", "(#this).real()")
     public val re:Double;
     /** The imaginary component of this complex number. */
+    @Native("c++", "(#this).imag()")
     public val im:Double;
 
     /** The complex number that corresponds to 0.0 */
-    @Native("c++", "x10::lang::Complex::_make(0.0,0.0)")
+    @Native("c++", "x10_complex(0,0)")
     public static ZERO : Complex = Complex(0.0, 0.0);
     /** The complex number that corresponds to 1.0 */
-    @Native("c++", "x10::lang::Complex::_make(1.0,0.0)")
+    @Native("c++", "std:complex<double>(1,0)")
     public static ONE : Complex = Complex(1.0, 0.0);
     /** The complex number that corresponds to 1.0i */
-    @Native("c++", "x10::lang::Complex::_make(0.0,1.0)")
+    @Native("c++", "x10_complex(0.0,1.0)")
     public static I : Complex = Complex(0.0, 1.0);
     /** The complex number that corresponds to +Inf + +Inf*i */
-    @Native("c++", "x10::lang::Complex::_make(x10::lang::DoubleNatives::fromLongBits(0x7ff0000000000000LL),x10::lang::DoubleNatives::fromLongBits(0x7ff0000000000000LL))")
+    @Native("c++", "x10_complex(x10::lang::DoubleNatives::fromLongBits(0x7ff0000000000000LL),x10::lang::DoubleNatives::fromLongBits(0x7ff0000000000000LL))")
     public static INF : Complex = Complex(Double.POSITIVE_INFINITY, Double.POSITIVE_INFINITY);
     /** The complex number that corresponds to NaN + NaN*i */
-    @Native("c++", "x10::lang::Complex::_make(x10::lang::DoubleNatives::fromLongBits(0x7ff8000000000000LL),x10::lang::DoubleNatives::fromLongBits(0x7ff8000000000000LL))")
+    @Native("c++", "x10_complex(x10::lang::DoubleNatives::fromLongBits(0x7ff8000000000000LL),x10::lang::DoubleNatives::fromLongBits(0x7ff8000000000000LL))")
     public static NaN : Complex = Complex(Double.NaN, Double.NaN);
 
     /**
@@ -49,6 +54,7 @@ public struct Complex implements Arithmetic[Complex] {
      * @imaginary the imaginary component of the Complex number
      * @return the Complex number representing (real + imaginary*i)
      */
+    @Native("c++", "x10_complex(#real,#imaginary)")
     public @Inline def this(real:Double, imaginary:Double) {
         this.re = real;
         this.im = imaginary;
@@ -57,6 +63,7 @@ public struct Complex implements Arithmetic[Complex] {
     /**
      * @return the sum of this complex number and the given complex number.
      */
+    @Native("c++", "((#this)+(#that))")
     public operator this + (that:Complex):Complex {
         return Complex(re + that.re, im + that.im);
     }
@@ -64,11 +71,13 @@ public struct Complex implements Arithmetic[Complex] {
     /**
      * @return the sum of the given double and the given complex number.
      */
+    @Native("c++", "((#x)+(#y))")
     public static operator (x:Double) + (y:Complex): Complex = y + x;
 
     /**
      * @return the sum of this complex number and the given double.
      */
+    @Native("c++", "((#this)+(#that))")
     public operator this + (that:Double):Complex {
         return Complex(re + that, im);
     }
@@ -76,6 +85,7 @@ public struct Complex implements Arithmetic[Complex] {
     /**
      * @return the difference between this complex number and the given complex number.
      */
+    @Native("c++", "((#this)-(#that))")
     public operator this - (that:Complex):Complex {
         return Complex(re - that.re, im - that.im);
     }
@@ -83,11 +93,13 @@ public struct Complex implements Arithmetic[Complex] {
     /**
      * @return the difference between the given double and this complex number.
      */
+    @Native("c++", "((#x)-(#y))")
     public static operator (x:Double) - (y:Complex): Complex = Complex(x - y.re, -y.im);
 
     /**
      * @return the difference between this complex number and the given double.
      */
+    @Native("c++", "((#this)-(#that))")
     public operator this - (that:Double):Complex {
         return Complex(re - that, im);
     }
@@ -95,6 +107,7 @@ public struct Complex implements Arithmetic[Complex] {
     /**
      * @return the product of this complex number and the given complex number.
      */
+    @Native("c++", "((#this)*(#that))")
     public operator this * (that:Complex):Complex {
         return Complex(re * that.re - im * that.im,
                        re * that.im + im * that.re);
@@ -103,11 +116,13 @@ public struct Complex implements Arithmetic[Complex] {
     /**
      * @return the product of the given double and this complex number.
      */
+    @Native("c++", "((#x)*(#y))")
     public static operator (x:Double) * (y:Complex): Complex = y * x;
 
     /**
      * @return the product of this complex number and the given double.
      */
+    @Native("c++", "((#this)*(#that))")
     public operator this * (that:Double):Complex {
         return Complex(re * that, im * that);
     }
@@ -118,6 +133,7 @@ public struct Complex implements Arithmetic[Complex] {
      * TODO: consider using Priest's algorithm {@link http://doi.acm.org/10.1145/1039813.1039814}.
      * @return the quotient of this complex number and the given complex number.
      */
+    @Native("c++", "((#this)/(#that))")
     public operator this / (that:Complex):Complex {
         if (isNaN() || that.isNaN()) {
             return Complex.NaN;
@@ -126,7 +142,11 @@ public struct Complex implements Arithmetic[Complex] {
         val c:Double = that.re;
         val d:Double = that.im;
         if (c == 0.0 && d == 0.0) {
-            return Complex.NaN;
+	    if (re == 0.0 && im == 0.0) {
+                return Complex.NaN;
+            } else {
+                return Complex.INF;
+            }
         }
 
         if (that.isInfinite() && !isInfinite()) {
@@ -155,11 +175,13 @@ public struct Complex implements Arithmetic[Complex] {
     /**
      * @return the quotient of the given double and this complex number.
      */
+    @Native("c++", "((#x)/(#y))")
     public static operator (x:Double) / (y:Complex): Complex = Complex(x, 0.0) / y;
 
     /**
      * @return the quotient of this complex number and the given double.
      */
+    @Native("c++", "((#this)/(#that))")
     public operator this / (that:Double):Complex {
         return Complex(re / that, im / that);
     }
@@ -167,16 +189,19 @@ public struct Complex implements Arithmetic[Complex] {
     /**
      * @return the conjugate of this complex number.
      */
+    @Native("c++", "std::conj(#this)")
     public def conjugate():Complex = Complex(re, -im);
 
     /**
      * @return this complex number.
      */
+    @Native("c++", "#this")
     public operator + this:Complex  = this;
 
     /**
      * @return the negation of this complex number.
      */
+    @Native("c++", "-(#this)")
     public operator - this:Complex  = isNaN() ? Complex.NaN : Complex(-re, -im);
 
     /**
@@ -189,6 +214,7 @@ public struct Complex implements Arithmetic[Complex] {
      *
      * @return the absolute value of this complex number.
      */
+    @Native("c++", "std::abs(#this)")
     public def abs():Double {
         if (isNaN()) {
             return Double.NaN;
@@ -211,6 +237,7 @@ public struct Complex implements Arithmetic[Complex] {
     /**
      * @return true if either part of this complex number is <code>NaN</code>.
      */
+    @Native("c++", "x10::lang::ComplexNatives::isNaN(#this)")
     public def isNaN():boolean {
         return re.isNaN() || im.isNaN();
     }
@@ -219,6 +246,7 @@ public struct Complex implements Arithmetic[Complex] {
      * @return true if either part of this complex number is infinite
      * and neither part is <code>NaN</code>.
      */
+    @Native("c++", "x10::lang::ComplexNatives::isInfinite(#this)")
     public def isInfinite():boolean {
         return !isNaN() &&
         (re.isInfinite() || im.isInfinite());
@@ -227,6 +255,7 @@ public struct Complex implements Arithmetic[Complex] {
     /**
      * @return the string representation of this complex number.
      */
+    @Native("c++", "x10aux::to_string(#0)")
     public def toString():String {
         return ("" + re + " + " + im + "i");
     }

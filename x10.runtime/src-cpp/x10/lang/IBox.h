@@ -66,6 +66,8 @@ namespace x10 {
 #ifndef X10_LANG_IBOX_NODEPS
 #define X10_LANG_IBOX_NODEPS
 
+#include <x10/lang/Complex.h>
+
 namespace x10 {
     namespace lang {
 
@@ -83,6 +85,7 @@ namespace x10 {
         extern x10aux::itable_entry itable_ULong[6];
         extern x10aux::itable_entry itable_Float[5];
         extern x10aux::itable_entry itable_Double[5];
+        extern x10aux::itable_entry itable_Complex[3];
         
         inline x10aux::itable_entry *getITablesForIBox(x10_boolean) { return itable_Boolean; }
         inline x10aux::itable_entry *getITablesForIBox(x10_byte) { return itable_Byte; }
@@ -96,6 +99,7 @@ namespace x10 {
         inline x10aux::itable_entry *getITablesForIBox(x10_ulong) { return itable_ULong; }
         inline x10aux::itable_entry *getITablesForIBox(x10_float) { return itable_Float; }
         inline x10aux::itable_entry *getITablesForIBox(x10_double) { return itable_Double; }
+        inline x10aux::itable_entry *getITablesForIBox(x10_complex) { return itable_Complex; }
 
         template<class T> x10aux::itable_entry* IBox<T>::_getITables() { return getITablesForIBox(value); } 
 

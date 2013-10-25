@@ -16,6 +16,7 @@
 #include <assert.h>
 #include <pthread.h>
 #include <x10aux/lock.h>
+#include <x10/lang/Complex.h>
 
 /* Macro to use in class declaration for boilerplate RTT junk */
 #define RTT_H_DECLS_CLASS \
@@ -75,6 +76,7 @@ namespace x10aux {
         static RuntimeType FloatType;
         static RuntimeType LongType;
         static RuntimeType DoubleType;
+        static RuntimeType ComplexType;
         static RuntimeType UByteType;
         static RuntimeType UShortType;
         static RuntimeType UIntType;
@@ -148,6 +150,7 @@ namespace x10aux {
         static void initFloatType();
         static void initLongType();
         static void initDoubleType();
+        static void initComplexType();
         static void initUByteType();
         static void initUShortType();
         static void initUIntType();
@@ -230,6 +233,12 @@ namespace x10aux {
             x10aux::RuntimeType::initDoubleType();
         }
         return &x10aux::RuntimeType::DoubleType;
+    }
+    template<> inline const x10aux::RuntimeType *getRTT<x10_complex >() {
+        if (!x10aux::RuntimeType::ComplexType.isInitialized) {
+            x10aux::RuntimeType::initComplexType();
+        }
+        return &x10aux::RuntimeType::ComplexType;
     }
     template<> inline const x10aux::RuntimeType *getRTT<x10_ubyte>() {
         if (!x10aux::RuntimeType::UByteType.isInitialized) {

@@ -24,6 +24,8 @@
 #include <x10/lang/IBox.h>
 #undef X10_LANG_IBOX_NODEPS
 
+#include <x10/lang/Complex.h>
+
 namespace x10 { namespace lang { class String; } }
 
 namespace x10aux {
@@ -65,6 +67,7 @@ namespace x10aux {
      *Inner level of dispatching to actually do the comparisons
      */
     
+    inline x10_boolean struct_equals_inner(const x10_complex x,  x10_complex y)  { return x==y; }
     inline x10_boolean struct_equals_inner(const x10_double x,  const x10_double y)  { return x==y; }
     inline x10_boolean struct_equals_inner(const x10_float x,   const x10_float y)   { return x==y; }
     inline x10_boolean struct_equals_inner(const x10_long x,    const x10_long y)    { return x==y; }
@@ -277,6 +280,17 @@ namespace x10aux {
         }
     }
 
+    inline x10_boolean equals(x10_complex x, x10::lang::Any* y) {
+        x10::lang::Reference* yAsRef = reinterpret_cast<x10::lang::Reference*>(y);
+        if (NULL != y && yAsRef->_type()->equals(getRTT<x10_complex >())) {
+            x10::lang::IBox<x10_complex >* yAsIBox = reinterpret_cast<x10::lang::IBox<x10_complex >*>(y);
+            return x == yAsIBox->value;
+        } else {
+            return false;
+        }
+    }
+    
+    inline x10_boolean equals(const x10_complex x,  const std::complex<x10_double> y)  { return x==y; }
     inline x10_boolean equals(const x10_double x,  const x10_double y)  { return x==y; }
     inline x10_boolean equals(const x10_float x,   const x10_float y)   { return x==y; }
     inline x10_boolean equals(const x10_long x,    const x10_long y)    { return x==y; }
@@ -323,6 +337,7 @@ namespace x10aux {
     inline x10_int hash_code(const x10_long x) {
         return hash_code((x10_ulong)x);
     }
+    x10_int hash_code(const x10_complex x);
     x10_int hash_code(const x10_double x);
     x10_int hash_code(const x10_float x);
 
@@ -366,6 +381,7 @@ namespace x10aux {
 
     x10::lang::String* to_string(x10_float v);
     x10::lang::String* to_string(x10_double v);
+    x10::lang::String* to_string(x10_complex v);
 
     x10::lang::String* to_string(x10_char v);
 
@@ -416,7 +432,8 @@ namespace x10aux {
     #undef X10_PRIM_ZERO
     template<> struct Zero<x10_boolean> { static x10_boolean _() { return false; } };
     template<> struct Zero<x10_char> { static x10_char _() { return x10_char(0); } };
-
+    template<> struct Zero<x10_complex > { static x10_complex _() { return x10_complex(0,0); } };
+    
     template <class T> T zeroValue() { return Zero<T>::_(); }
     
 }

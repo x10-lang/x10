@@ -2879,57 +2879,79 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 		X10CPPContext_c context = (X10CPPContext_c) tr.context();
 		TypeSystem xts = (TypeSystem)context.typeSystem();
 		ConstructorInstance constructor = n.constructorInstance();
-		boolean stackAllocate = false;
-		boolean stackAllocateUninit = false;
-        boolean embed = false;
-
-        // Danger Will Robinson! Give programmer plenty of rope to hang themselves!!
-        // If there's a @StackAllocate annotation on a new expression, then do what
-        // the programmer asked us to and stack allocate the storage for the object.
-        // If the programmer was incorrect about the lifetime of the object, then
-        // the program will almost certainly crash in some unexpected way.
-        if (!((X10Ext) n.ext()).annotationMatching(xts.StackAllocate()).isEmpty()) {
-            stackAllocate = true;
+        if (n.qualifier() != null) {
+            throw new InternalCompilerError("Qualified new not supported");
         }
-        if (!((X10Ext) n.ext()).annotationMatching(xts.StackAllocateUninitialized()).isEmpty()) {
-            stackAllocate = true;
-            stackAllocateUninit = true;
+        if (n.body() != null) {
+            throw new InternalCompilerError("Anonymous innner classes should have been removed.");
         }
-        if (!((X10Ext) n.ext()).annotationMatching(xts.Embed()).isEmpty()) {
-            embed = true;
-        }
-		
-		if (n.qualifier() != null)
-			throw new InternalCompilerError("Qualified new not supported");
-		if (n.body() != null)
-			throw new InternalCompilerError("Anonymous innner classes should have been removed.");
 
-		if (!stackAllocateUninit) {
-		    if (stackAllocate) {
-		        if (n.objectType().type().isRail()) {
-		            sw.write(context.getStackAllocName()+"->"+CONSTRUCTOR+"(");
-		        } else {
-		            sw.write(context.getStackAllocName()+"."+CONSTRUCTOR+"(");
-		        }
-		    } else if (embed) {
-		        sw.write("&"+context.getEmbeddedFieldName()+";");
-		        sw.newline();
-		        sw.write(context.getEmbeddedFieldName()+"."+CONSTRUCTOR+"(");
-		    } else {
-		        sw.write(Emitter.translateType(n.objectType().type())+"::"+MAKE+"(");
-		    }
+        String lang[] = new String[1];
+        String pat = getCppImplForDef(constructor.def(), lang);
+        if (pat != null) {
+            List<String> params = new ArrayList<String>();
+            for (LocalDef fn : constructor.def().formalNames()) {
+                params.add(fn.name().toString());
+            }
 
-		    sw.begin(0);
-		    for (Iterator<Expr> i = n.arguments().iterator(); i.hasNext(); ) {
-		        Expr e = i.next();
-		        n.print(e, sw, tr);
-		        if (i.hasNext()) {
-		            sw.write(",");
-		            sw.allowBreak(0, " ");
-		        }
-		    }
-		    sw.write(")");
-		    sw.end();
+            List<Type> classTypeArguments  = Collections.<Type>emptyList();
+            List<ParameterType> classTypeParams  = Collections.<ParameterType>emptyList();
+            X10ClassType ct = (X10ClassType) constructor.container().toClass();
+            classTypeArguments = ct.typeArguments();
+            classTypeParams = ct.x10Def().typeParameters();
+            if (classTypeArguments == null) classTypeArguments = Collections.<Type>emptyList();
+            if (classTypeParams == null) classTypeParams = Collections.<ParameterType>emptyList();
+
+            emitNativeAnnotation(pat, constructor.def().typeParameters(), constructor.typeParameters(), null, 
+                                 params, n.arguments(), classTypeParams, classTypeArguments);
+        } else {
+            boolean stackAllocate = false;
+            boolean stackAllocateUninit = false;
+            boolean embed = false;
+
+            // Danger Will Robinson! Give programmer plenty of rope to hang themselves!!
+            // If there's a @StackAllocate annotation on a new expression, then do what
+            // the programmer asked us to and stack allocate the storage for the object.
+            // If the programmer was incorrect about the lifetime of the object, then
+            // the program will almost certainly crash in some unexpected way.
+            if (!((X10Ext) n.ext()).annotationMatching(xts.StackAllocate()).isEmpty()) {
+                stackAllocate = true;
+            }
+            if (!((X10Ext) n.ext()).annotationMatching(xts.StackAllocateUninitialized()).isEmpty()) {
+                stackAllocate = true;
+                stackAllocateUninit = true;
+            }
+            if (!((X10Ext) n.ext()).annotationMatching(xts.Embed()).isEmpty()) {
+                embed = true;
+            }
+
+            if (!stackAllocateUninit) {
+                if (stackAllocate) {
+                    if (n.objectType().type().isRail()) {
+                        sw.write(context.getStackAllocName()+"->"+CONSTRUCTOR+"(");
+                    } else {
+                        sw.write(context.getStackAllocName()+"."+CONSTRUCTOR+"(");
+                    }
+                } else if (embed) {
+                    sw.write("&"+context.getEmbeddedFieldName()+";");
+                    sw.newline();
+                    sw.write(context.getEmbeddedFieldName()+"."+CONSTRUCTOR+"(");
+                } else {
+                    sw.write(Emitter.translateType(n.objectType().type())+"::"+MAKE+"(");
+                }
+
+                sw.begin(0);
+                for (Iterator<Expr> i = n.arguments().iterator(); i.hasNext(); ) {
+                    Expr e = i.next();
+                    n.print(e, sw, tr);
+                    if (i.hasNext()) {
+                        sw.write(",");
+                        sw.allowBreak(0, " ");
+                    }
+                }
+                sw.write(")");
+                sw.end();
+            }
 		}
 	}
 
@@ -3970,13 +3992,14 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 
 	// FIXME: generic native methods will break
 	void emitNativeAnnotation(String pat, List<ParameterType> typeParams, List<Type> typeArgs, Object receiver, List<String> params, List<? extends Object> args, List<ParameterType> typeParams2, List<Type> typeArgs2) {
-		assert (receiver != null);
-
 		//Object[] components = new Object[1+3*types.size() + args.size() + 3*typeArguments.size()];
 		Map<String,Object> components = new HashMap<String,Object>();
 
-		components.put("this", receiver);
-		components.put("0", receiver);
+		// receiver will be null when the @Native is attached to a constructor
+		if (receiver != null) {
+		    components.put("this", receiver);
+		    components.put("0", receiver);
+		}
 
 		// [DC] these ought to still work, but there may now be a better solution
 	    if (receiver instanceof X10Special_c && ((X10Special_c)receiver).kind() == X10Special_c.SUPER) {
