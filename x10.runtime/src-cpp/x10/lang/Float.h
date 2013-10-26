@@ -25,10 +25,10 @@ namespace x10 {
             static String* toString(x10_float value);
             static x10_float parseFloat(String* s);
             static x10_boolean isNaN(x10_float value) {
-                return ::isnan(value);
+                return std::isnan(value);
             }
             static x10_boolean isInfinite(x10_float value) {
-                return ::isinf(value);
+                return std::isinf(value);
             }
             static x10_int toIntBits(x10_float value);
             static x10_int toRawIntBits(x10_float value);
