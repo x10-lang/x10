@@ -54,7 +54,7 @@ public abstract class Array[T] (
     /**
      * The backing storage for the array's elements
      */
-    protected val raw:Rail[T]{self!=null, self.size==this.size};
+    protected var raw:Rail[T]{self!=null, self.size==this.size};
 
     protected def this(s:Long, zero:boolean) {
         property(s);
@@ -73,12 +73,26 @@ public abstract class Array[T] (
      * (eg BLAS, ESSL) and to support bulk copy operations using the asyncCopy 
      * methods of Rail.</p>
      * 
-     * This method should be used sparingly, since it may make client code dependent on the layout
-     * algorithm used to map rank-dimensional array indicies to 1-dimensional indicies in the backing Rail.
+     * This method should be used sparingly, since it may make client code dependent on 
+     * the layout algorithm used to map rank-dimensional array indicies to 1-dimensional
+     * indicies in the backing Rail.
      * 
      * @return the Rail[T] that is the backing storage for the Array object.
      */
     public final @Inline def raw() = raw;
+
+
+    /**
+     * Change the Rail[T] that is providing the backing storage for the array.
+     * This method can be used to support a "red/black" design pattern where
+     * the backing storage for the array is swapped at phase boundaries.
+     *
+     * @param r the new backing storage for the array.
+     */
+    public final def modifyRaw(r:Rail[T]{self!=null})/*{r.size==this.size}*/ {
+        if (raw.size != this.size) throw new IllegalArgumentException("size mismatch");
+        raw = r as Rail[T]{self!=null,self.size==this.size};
+    }
 
 
     /**
