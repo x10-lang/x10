@@ -133,11 +133,14 @@ public class Emitter {
         "bitand", "bitor", "compl",
         // X10 types
         "x10_boolean", "x10_byte", "x10_char", "x10_short", "x10_int",
-        "x10_long", "x10_float", "x10_double",
+        "x10_long", "x10_float", "x10_double", "x10_complex", 
+        "x10_ubyte", "x10_ushort", "x10_uint", "x10_ulong",
         // X10 implementation names
         "FMGL", "TPMGL", "TYPENAME", "getRTT", "rtt", "RTT_H_DECLS", "RTT_CC_DECLS1",
         // macros defined by the C++ implementation
         "i386",
+        // hack around cygwin defining log2 as a macro in math.h
+        "log2",
         // Additionally, anything starting with a '_' is reserved, and may clash
     };
     private static boolean isCPPKeyword(String name) {
