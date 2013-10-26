@@ -80,11 +80,11 @@ void kill_excess_zeroes(char *buf, size_t sz) {
 String* x10aux::to_string(x10_double v_) {
     double v = (double)v_;
     char buf[120] = "";
-    if (std::isnan(v)) {
+    if (x10::lang::DoubleNatives::isNaN(v)) {
         ::snprintf(buf, sizeof(buf), "NaN");
-    } else if (std::isinf(v) && v > 0.0) {
+    } else if (x10::lang::DoubleNatives::isInfinite(v) && v > 0.0) {
         ::snprintf(buf, sizeof(buf), "Infinity"); 
-    } else if (std::isinf(v) && v < 0.0) {
+    } else if (x10::lang::DoubleNatives::isInfinite(v) && v < 0.0) {
         ::snprintf(buf, sizeof(buf), "-Infinity");
     } else if (::fabs(v) >= 1E-3 && ::fabs(v) < 1E7) {
         ::snprintf(buf, sizeof(buf), "%.15f", v);
