@@ -448,6 +448,7 @@ public class SocketTransport {
 						if (sc.equals(channels[i].sc)) {
 							if (DEBUG) System.out.println("Place "+myPlaceId+" discovered link to place "+i+" is broken in probe");
 							channels[i].sc = null;
+							channels[i].pendingWrites = null;
 							break;
 						}
 					}
@@ -526,6 +527,7 @@ public class SocketTransport {
     		try {channels[place].sc.close();}
     		catch (Exception e2){}
     		channels[place].sc = null;
+    		channels[place].pendingWrites = null;
     		numDead.incrementAndGet();
     		return RETURNCODE.X10RT_ERR_OTHER.ordinal();
     	}
@@ -709,7 +711,7 @@ public class SocketTransport {
     		try {
     			if (channels[placeid].pendingWrites == null) return false;
     	    	
-    			while (!channels[placeid].pendingWrites.isEmpty()) {
+    			while (channels[placeid].pendingWrites != null && !channels[placeid].pendingWrites.isEmpty()) {
     				ByteBuffer data = channels[placeid].pendingWrites.peekFirst();
     				try {
     					//long startRemain = data.remaining();
@@ -729,8 +731,10 @@ public class SocketTransport {
     		    		try {channels[placeid].sc.close();}
     		    		catch (Exception e2){}
     		    		channels[placeid].sc = null;
+    		    		channels[placeid].pendingWrites = null;
     		    		numDead.incrementAndGet();
     				}
+    				catch (NullPointerException e){} // the remote place died and link was closed by another thread 
     			}
 				// at this point, all data has been written out.  Remove the OP_WRITE selector key
     			try {
