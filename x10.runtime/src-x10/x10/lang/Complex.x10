@@ -63,7 +63,7 @@ public struct Complex implements Arithmetic[Complex] {
     /**
      * @return the sum of this complex number and the given complex number.
      */
-    @Native("c++", "((#this)+(#that))")
+    @Native("c++", "x10::lang::ComplexNatives::_plus(#this, #that)")
     public operator this + (that:Complex):Complex {
         return Complex(re + that.re, im + that.im);
     }
@@ -71,13 +71,13 @@ public struct Complex implements Arithmetic[Complex] {
     /**
      * @return the sum of the given double and the given complex number.
      */
-    @Native("c++", "((#x)+(#y))")
+    @Native("c++", "x10::lang::ComplexNatives::_plus(#x, #y)")
     public static operator (x:Double) + (y:Complex): Complex = y + x;
 
     /**
      * @return the sum of this complex number and the given double.
      */
-    @Native("c++", "((#this)+(#that))")
+    @Native("c++", "x10::lang::ComplexNatives::_plus(#this, #that)")
     public operator this + (that:Double):Complex {
         return Complex(re + that, im);
     }
@@ -85,7 +85,7 @@ public struct Complex implements Arithmetic[Complex] {
     /**
      * @return the difference between this complex number and the given complex number.
      */
-    @Native("c++", "((#this)-(#that))")
+    @Native("c++", "x10::lang::ComplexNatives::_minus(#this, #that)")
     public operator this - (that:Complex):Complex {
         return Complex(re - that.re, im - that.im);
     }
@@ -93,13 +93,13 @@ public struct Complex implements Arithmetic[Complex] {
     /**
      * @return the difference between the given double and this complex number.
      */
-    @Native("c++", "((#x)-(#y))")
+    @Native("c++", "x10::lang::ComplexNatives::_minus(#x, #y)")
     public static operator (x:Double) - (y:Complex): Complex = Complex(x - y.re, -y.im);
 
     /**
      * @return the difference between this complex number and the given double.
      */
-    @Native("c++", "((#this)-(#that))")
+    @Native("c++", "x10::lang::ComplexNatives::_minus(#this, #that)")
     public operator this - (that:Double):Complex {
         return Complex(re - that, im);
     }
@@ -107,7 +107,7 @@ public struct Complex implements Arithmetic[Complex] {
     /**
      * @return the product of this complex number and the given complex number.
      */
-    @Native("c++", "((#this)*(#that))")
+    @Native("c++", "x10::lang::ComplexNatives::_times(#this, #that)")
     public operator this * (that:Complex):Complex {
         return Complex(re * that.re - im * that.im,
                        re * that.im + im * that.re);
@@ -116,13 +116,13 @@ public struct Complex implements Arithmetic[Complex] {
     /**
      * @return the product of the given double and this complex number.
      */
-    @Native("c++", "((#x)*(#y))")
+    @Native("c++", "x10::lang::ComplexNatives::_times(#x, #y)")
     public static operator (x:Double) * (y:Complex): Complex = y * x;
 
     /**
      * @return the product of this complex number and the given double.
      */
-    @Native("c++", "((#this)*(#that))")
+    @Native("c++", "x10::lang::ComplexNatives::_times(#this, #that)")
     public operator this * (that:Double):Complex {
         return Complex(re * that, im * that);
     }
@@ -189,7 +189,7 @@ public struct Complex implements Arithmetic[Complex] {
     /**
      * @return the conjugate of this complex number.
      */
-    @Native("c++", "std::conj(#this)")
+    @Native("c++", "x10::lang::ComplexNatives::conj(#this)")
     public def conjugate():Complex = Complex(re, -im);
 
     /**

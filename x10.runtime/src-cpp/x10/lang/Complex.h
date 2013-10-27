@@ -25,6 +25,41 @@ namespace x10 {
         
         class ComplexNatives {
         public:
+            static x10_complex _plus(x10_complex a, x10_complex b) {
+                return x10_complex(a.real()+b.real(), a.imag()+b.imag());
+            }
+            static x10_complex _plus(x10_double a, x10_complex b) {
+                return x10_complex(a+b.real(), b.imag());
+            }
+            static x10_complex _plus(x10_complex a, x10_double b) {
+                return x10_complex(a.real()+b, a.imag());
+            }
+
+            static x10_complex _minus(x10_complex a, x10_complex b) {
+                return x10_complex(a.real()-b.real(), a.imag()-b.imag());
+            }
+            static x10_complex _minus(x10_double a, x10_complex b) {
+                return x10_complex(a-b.real(), -b.imag());
+            }
+            static x10_complex _minus(x10_complex a, x10_double b) {
+                return x10_complex(a.real()-b, a.imag());
+            }
+
+            static x10_complex _times(x10_complex a, x10_complex b) {
+                return x10_complex(a.real() * b.real() - a.imag() * b.imag(),
+                                   a.real() * b.imag() + a.imag() * b.real());
+            }
+            static x10_complex _times(x10_double a, x10_complex b) {
+                return x10_complex(a*b.real(), a*b.imag());
+            }
+            static x10_complex _times(x10_complex a, x10_double b) {
+                return x10_complex(a.real()*b, a.imag()*b);
+            }
+
+            static x10_complex conj(x10_complex a) {
+                return x10_complex(a.real(), -a.imag());
+            }
+            
             static x10_boolean isInfinite(x10_complex value) {
                 if (isNaN(value)) return false;
                 return DoubleNatives::isInfinite(value.real()) ||
