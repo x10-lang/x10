@@ -63,6 +63,7 @@ public class ExtensionInfo extends x10.ExtensionInfo {
         return new X10CCompilerOptions(this);
     }
 
+    @Override
     public X10CCompilerOptions getOptions() {
         return (X10CCompilerOptions) super.getOptions();
     }
@@ -103,6 +104,7 @@ public class ExtensionInfo extends x10.ExtensionInfo {
             return goals;
         }
 
+        @Override
         protected Goal codegenPrereq(Job job) {
             return InlineHelped(job);
         }
@@ -137,6 +139,7 @@ public class ExtensionInfo extends x10.ExtensionInfo {
         public Goal JavaCodeGenStart(Job job) {
             Goal cg = new SourceGoal_c("JavaCodeGenStart", job) { // Is this still necessary?
                 private static final long serialVersionUID = 1L;
+                @Override
                 public boolean runTask() { return true; }
             };
             return cg.intern(this);
@@ -209,6 +212,7 @@ public class ExtensionInfo extends x10.ExtensionInfo {
         }
     }
 
+    @Override
     public Desugarer makeDesugarer(Job job) {
         return new Desugarer(job, job.extensionInfo().typeSystem(), job.extensionInfo().nodeFactory());
     }

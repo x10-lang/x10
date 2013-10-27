@@ -157,16 +157,20 @@ public class ExtensionInfo extends polyglot.frontend.ParserlessJLExtensionInfo {
         stats = new Stats();
     }
     
+    @Override
     public polyglot.main.Version version() {
     	return new Version();
     }
+    @Override
     public String[] fileExtensions() {
     	return new String[] { "x10", XML_FILE_EXTENSION };
     }
-//    public String defaultFileExtension() {
-//        return "x10";
-//    }
+    @Override
+    public String defaultFileExtension() {
+        return "x10";
+    }
 
+    @Override
     public String compilerName() {
         return "x10c";
     }
@@ -181,6 +185,7 @@ public class ExtensionInfo extends polyglot.frontend.ParserlessJLExtensionInfo {
     //    }
     //
     
+    @Override
     public Parser parser(Reader reader, FileSource source, ErrorQueue eq) {
     // ###
 //        if (source.path().endsWith(XML_FILE_DOT_EXTENSION)) {
@@ -239,6 +244,7 @@ public class ExtensionInfo extends polyglot.frontend.ParserlessJLExtensionInfo {
     }
 
     static class WarningComparator implements Comparator<ErrorInfo> { // todo: why Warnings are ordered differently than exceptions? (see ExceptionComparator)
+        @Override
         public int compare(ErrorInfo a, ErrorInfo b) {
             Position pa = a.getPosition();
             Position pb = b.getPosition();
@@ -271,6 +277,7 @@ public class ExtensionInfo extends polyglot.frontend.ParserlessJLExtensionInfo {
 
     // todo: can't we merge warning and exceptions into a single object (ErrorInfo?)
     static class ExceptionComparator implements Comparator<SemanticException> {
+        @Override
         public int compare(SemanticException a, SemanticException b) {
             int r = (a.getClass().toString().compareToIgnoreCase(b.getClass().toString()));
             if (r != 0)
@@ -324,6 +331,7 @@ public class ExtensionInfo extends polyglot.frontend.ParserlessJLExtensionInfo {
         return weakCallsCount;
     }
 
+    @Override
     protected void initTypeSystem() {
         X10CompilerOptions opts = getOptions();
         TopLevelResolver r = new X10SourceClassResolver(compiler, this, opts.constructFullClasspath(),
@@ -343,10 +351,12 @@ public class ExtensionInfo extends polyglot.frontend.ParserlessJLExtensionInfo {
         ts.initialize(r);
     }
 
+    @Override
     protected NodeFactory createNodeFactory() {
         return new X10NodeFactory_c(this);
     }
 
+    @Override
     protected TypeSystem createTypeSystem() {
         return new TypeSystem_c(this);
     }
@@ -356,6 +366,7 @@ public class ExtensionInfo extends polyglot.frontend.ParserlessJLExtensionInfo {
     // =================================
     // X10-specific goals and scheduling
     // =================================
+    @Override
     protected Scheduler createScheduler() {
         return new X10Scheduler(this);
     }
@@ -365,6 +376,7 @@ public class ExtensionInfo extends polyglot.frontend.ParserlessJLExtensionInfo {
 		   super(extInfo);
 	   }
 
+       @Override
        public ExtensionInfo extensionInfo() {
            return (ExtensionInfo) this.extInfo;
        }
@@ -579,6 +591,7 @@ public class ExtensionInfo extends polyglot.frontend.ParserlessJLExtensionInfo {
     	   goals.add(new ForgivingVisitorGoal("InstanceInvariantChecker", job, new InstanceInvariantChecker(job)).intern(this));
        }
 
+       @Override
        public List<Goal> goals(Job job) {
            List<Goal> goals = new ArrayList<Goal>();
 
@@ -636,6 +649,7 @@ public class ExtensionInfo extends polyglot.frontend.ParserlessJLExtensionInfo {
        public Goal Preoptimization(Job job) { 
            return new SourceGoal_c("Preoptimization", job) {
                private static final long serialVersionUID = 1L;
+               @Override
                public boolean runTask() { return true; }
            }.intern(this);
        }
@@ -643,6 +657,7 @@ public class ExtensionInfo extends polyglot.frontend.ParserlessJLExtensionInfo {
        public Goal Postoptimization(Job job) { 
            return new SourceGoal_c("Postoptimization", job) {
                private static final long serialVersionUID = 1L;
+               @Override
                public boolean runTask() { return true; }
            }.intern(this);
        }
@@ -666,6 +681,7 @@ public class ExtensionInfo extends polyglot.frontend.ParserlessJLExtensionInfo {
                super("PrintWeakCallsCount",extInfo.scheduler());
                this.ext = extInfo;
            }
+           @Override
            public Goal prereqForJob(Job job) {
                if (scheduler.shouldCompile(job)) {
                    return scheduler.End(job);
@@ -673,10 +689,12 @@ public class ExtensionInfo extends polyglot.frontend.ParserlessJLExtensionInfo {
                else {
                    return new SourceGoal_c("WCCDummyEnd", job) {
                        private static final long serialVersionUID = 1L;
+                       @Override
                        public boolean runTask() { return true; }
                    }.intern(scheduler);
                }
            }
+           @Override
            public boolean runTask() {
                Compiler compiler = ext.compiler();
                X10CompilerOptions opts = ext.getOptions();
@@ -711,6 +729,7 @@ public class ExtensionInfo extends polyglot.frontend.ParserlessJLExtensionInfo {
                    }
                    return goal;
                }
+               @Override
                public boolean runTask() {
                    X10CompilerOptions opts = extensionInfo().getOptions();
                    if (opts.x10_config.FINISH_ASYNCS) {
@@ -801,6 +820,7 @@ public class ExtensionInfo extends polyglot.frontend.ParserlessJLExtensionInfo {
        public Goal CheckASTForErrors(Job job) {
            return new SourceGoal_c("CheckASTForErrors", job) {
                private static final long serialVersionUID = 565345690079406384L;
+               @Override
                public boolean runTask() {
                    if (job.reportedErrors()) {
                        Node ast = job.ast();
@@ -811,6 +831,7 @@ public class ExtensionInfo extends polyglot.frontend.ParserlessJLExtensionInfo {
            }.intern(this);
        }
 
+       @Override
        public Goal Serialized(Job job) {
            Compiler compiler = job.extensionInfo().compiler();
            TypeSystem ts = job.extensionInfo().typeSystem();
@@ -818,6 +839,7 @@ public class ExtensionInfo extends polyglot.frontend.ParserlessJLExtensionInfo {
            TargetFactory tf = job.extensionInfo().targetFactory();
            return new SourceGoal_c("Serialized", job) {
                private static final long serialVersionUID = 4813624372034550114L;
+               @Override
                public boolean runTask() {
                    return true;
                }
@@ -871,6 +893,7 @@ public class ExtensionInfo extends polyglot.frontend.ParserlessJLExtensionInfo {
            public ValidatingOutputGoal(Job job, Translator translator) {
                super(job, translator);
            }
+           @Override
            public boolean runTask() {
                Node ast = job().ast();
                if (ast != null && !((X10Ext)ast.ext()).subtreeValid()) {
@@ -942,36 +965,42 @@ public class ExtensionInfo extends polyglot.frontend.ParserlessJLExtensionInfo {
            return new ForgivingVisitorGoal("TypeChecked", job, new X10TypeChecker(job, ts, nf, job.nodeMemo())).intern(this);
        }
 
+       @Override
        public Goal ConformanceChecked(Job job) {
            TypeSystem ts = job.extensionInfo().typeSystem();
            NodeFactory nf = job.extensionInfo().nodeFactory();
            return new ForgivingVisitorGoal("ConformanceChecked", job, new ConformanceChecker(job, ts, nf)).intern(this);
        }
 
+       @Override
        public Goal ReachabilityChecked(Job job) {
            TypeSystem ts = job.extensionInfo().typeSystem();
            NodeFactory nf = job.extensionInfo().nodeFactory();
            return new ForgivingVisitorGoal("ReachChecked", job, new ReachChecker(job, ts, nf)).intern(this);
        }
 
+       @Override
        public Goal ExceptionsChecked(Job job) {
            TypeSystem ts = job.extensionInfo().typeSystem();
            NodeFactory nf = job.extensionInfo().nodeFactory();
            return new ForgivingVisitorGoal("ExceptionsChecked", job, new ExceptionChecker(job, ts, nf)).intern(this);
        }
 
+       @Override
        public Goal ExitPathsChecked(Job job) {
            TypeSystem ts = job.extensionInfo().typeSystem();
            NodeFactory nf = job.extensionInfo().nodeFactory();
            return new ForgivingVisitorGoal("ExitChecked", job, new ExitChecker(job, ts, nf)).intern(this);
        }
 
+       @Override
        public Goal ConstructorCallsChecked(Job job) {
            TypeSystem ts = job.extensionInfo().typeSystem();
            NodeFactory nf = job.extensionInfo().nodeFactory();
            return new ForgivingVisitorGoal("ContructorCallsChecked", job, new ConstructorCallChecker(job, ts, nf)).intern(this);
        }
 
+       @Override
        public Goal ForwardReferencesChecked(Job job) {
            TypeSystem ts = job.extensionInfo().typeSystem();
            NodeFactory nf = job.extensionInfo().nodeFactory();
@@ -1132,6 +1161,7 @@ public class ExtensionInfo extends polyglot.frontend.ParserlessJLExtensionInfo {
                    }
                    return goal;
                }
+               @Override
                public boolean runTask() {
                    try {
                        TypeSystem ts = extInfo.typeSystem();
@@ -1172,10 +1202,12 @@ public class ExtensionInfo extends polyglot.frontend.ParserlessJLExtensionInfo {
        }
     }
     
+    @Override
     protected X10CompilerOptions createOptions() {
     	return new X10CompilerOptions(this);
     }
     
+    @Override
     public X10CompilerOptions getOptions() {
         return (X10CompilerOptions) super.getOptions();
     }

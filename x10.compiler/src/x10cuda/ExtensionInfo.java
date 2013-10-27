@@ -44,14 +44,17 @@ import x10cuda.visit.CUDAPatternMatcher;
  */
 public class ExtensionInfo extends x10cpp.ExtensionInfo {
 
+    @Override
 	protected NodeFactory createNodeFactory() {
 		return new X10NodeFactory_c(this, new X10CPPExtFactory_c(), new X10CUDADelFactory_c()) { };
 	}
 
+    @Override
     protected TypeSystem createTypeSystem() {
         return new X10CUDATypeSystem_c(this);
     }
 
+    @Override
     protected Scheduler createScheduler() {
         return new X10CUDAScheduler(this);
     }
@@ -78,9 +81,11 @@ public class ExtensionInfo extends x10cpp.ExtensionInfo {
             return goals;
 		}
 
+        @Override
 		protected Goal PostCompiled() {
             return new PostCompiled(extInfo) {
                 private static final long serialVersionUID = -2238021480659240967L;
+                @Override
                 protected boolean invokePostCompiler(Options options, Compiler compiler, ErrorQueue eq) {
                     if (System.getProperty("x10.postcompile", "TRUE").equals("FALSE"))
                         return true;
