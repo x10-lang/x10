@@ -70,18 +70,22 @@ import x10cpp.visit.CastInjector;
 public class ExtensionInfo extends x10.ExtensionInfo {
 
 
+    @Override
 	public String compilerName() {
 		return "x10c++";
 	}
 
+    @Override
 	public polyglot.main.Version version() {
 		return new Version();
 	}
 
+    @Override
 	protected NodeFactory createNodeFactory() {
 		return new X10NodeFactory_c(this, new X10CPPExtFactory_c(), new X10CPPDelFactory_c()) { };
 	}
 
+    @Override
 	protected TypeSystem createTypeSystem() {
 		return new X10CPPTypeSystem_c(this);
 	}
@@ -116,6 +120,7 @@ public class ExtensionInfo extends x10.ExtensionInfo {
     // =================================
 	// X10-specific goals and scheduling
 	// =================================
+    @Override
 	protected Scheduler createScheduler() {
 		return new X10CPPScheduler(this);
 	}
@@ -144,6 +149,7 @@ public class ExtensionInfo extends x10.ExtensionInfo {
 		    return new PostCompiled(extInfo) {
                 private static final long serialVersionUID = 1834245937046911633L;
 
+                @Override
                 protected boolean invokePostCompiler(Options options, Compiler compiler, ErrorQueue eq) {
 		            if (System.getProperty("x10.postcompile", "TRUE").equals("FALSE"))
 		                return true;
@@ -213,10 +219,12 @@ public class ExtensionInfo extends x10.ExtensionInfo {
 
 	// TODO: [IP] Override targetFactory() (rather, add createTargetFactory to polyglot)
 
+    @Override
 	protected X10CPPCompilerOptions createOptions() {
 		return new X10CPPCompilerOptions(this);
 	}
 
+    @Override
 	public X10CPPCompilerOptions getOptions() {
 	    return (X10CPPCompilerOptions) super.getOptions();
 	}

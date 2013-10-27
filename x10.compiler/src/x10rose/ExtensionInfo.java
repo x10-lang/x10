@@ -70,15 +70,19 @@ public class ExtensionInfo extends x10.ExtensionInfo {
 
 	/*** Construct an ExtensionInfo */
 
+    @Override
 	public polyglot.main.Version version() {
 		return new Version() {
+		    @Override
 			public String name() { return "x10rose"; }
 		};
 	}
+    @Override
 	public String[] fileExtensions() {
 		return new String[] { "x10" };
 	}
 
+    @Override
 	public String compilerName() {
 		return "x10rose";
 	}
@@ -87,6 +91,7 @@ public class ExtensionInfo extends x10.ExtensionInfo {
 	// ==================================================
 	// Scheduling of compiler passes for the Rose backend
 	// ==================================================
+    @Override
 	protected Scheduler createScheduler() {
 		return new X10Scheduler(this);
 	}
@@ -97,10 +102,12 @@ public class ExtensionInfo extends x10.ExtensionInfo {
 			super(extInfo);
 		}
 
+	    @Override
 		public ExtensionInfo extensionInfo() {
 			return (ExtensionInfo) this.extInfo;
 		}
 
+	    @Override
 		public List<Goal> goals(Job job) {
 			List<Goal> goals = new ArrayList<Goal>();
 
@@ -145,10 +152,12 @@ public class ExtensionInfo extends x10.ExtensionInfo {
 			return goals;
 		}
 
+	    @Override
 		protected Goal PostCompiled() {
 			return new PostCompiled(extInfo) {
 				private static final long serialVersionUID = 1834245937046911633L;
 
+			    @Override
 				protected boolean invokePostCompiler(Options options, Compiler compiler, ErrorQueue eq) {
 					if (System.getProperty("x10.postcompile", "TRUE").equals("FALSE"))
 						return true;
@@ -161,6 +170,7 @@ public class ExtensionInfo extends x10.ExtensionInfo {
 		public Goal CheckASTForErrors(Job job) {
 			return new SourceGoal_c("CheckASTForErrors", job) {
 				private static final long serialVersionUID = 565345690079406384L;
+			    @Override
 				public boolean runTask() {
 					if (job.reportedErrors()) {
 						Node ast = job.ast();
@@ -229,36 +239,42 @@ public class ExtensionInfo extends x10.ExtensionInfo {
 			return new ForgivingVisitorGoal("TypeChecked", job, new X10TypeChecker(job, ts, nf, job.nodeMemo())).intern(this);
 		}
 
+	    @Override
 		public Goal ConformanceChecked(Job job) {
 			TypeSystem ts = job.extensionInfo().typeSystem();
 			NodeFactory nf = job.extensionInfo().nodeFactory();
 			return new ForgivingVisitorGoal("ConformanceChecked", job, new ConformanceChecker(job, ts, nf)).intern(this);
 		}
 
+	    @Override
 		public Goal ReachabilityChecked(Job job) {
 			TypeSystem ts = job.extensionInfo().typeSystem();
 			NodeFactory nf = job.extensionInfo().nodeFactory();
 			return new ForgivingVisitorGoal("ReachChecked", job, new ReachChecker(job, ts, nf)).intern(this);
 		}
 
+	    @Override
 		public Goal ExceptionsChecked(Job job) {
 			TypeSystem ts = job.extensionInfo().typeSystem();
 			NodeFactory nf = job.extensionInfo().nodeFactory();
 			return new ForgivingVisitorGoal("ExceptionsChecked", job, new ExceptionChecker(job, ts, nf)).intern(this);
 		}
 
+	    @Override
 		public Goal ExitPathsChecked(Job job) {
 			TypeSystem ts = job.extensionInfo().typeSystem();
 			NodeFactory nf = job.extensionInfo().nodeFactory();
 			return new ForgivingVisitorGoal("ExitChecked", job, new ExitChecker(job, ts, nf)).intern(this);
 		}
 
+	    @Override
 		public Goal ConstructorCallsChecked(Job job) {
 			TypeSystem ts = job.extensionInfo().typeSystem();
 			NodeFactory nf = job.extensionInfo().nodeFactory();
 			return new ForgivingVisitorGoal("ContructorCallsChecked", job, new ConstructorCallChecker(job, ts, nf)).intern(this);
 		}
 
+	    @Override
 		public Goal ForwardReferencesChecked(Job job) {
 			TypeSystem ts = job.extensionInfo().typeSystem();
 			NodeFactory nf = job.extensionInfo().nodeFactory();
