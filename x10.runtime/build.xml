@@ -33,6 +33,7 @@
     <property name="FLATTEN_EXPRESSIONS" value="false" />
     <property name="HOMOGENEOUS" value="true" />
     <property name="GCC_SYMBOLS" value="false" />
+    <property name="INCLUDE_JAVA_SOURCE" value="false" />
     <path id="project.classpath">
         <path refid="mainproject.classpath"/>
         <path refid="x10.constraints.classpath"/>
@@ -313,6 +314,14 @@
         <jar jarfile="${gen}/${jar}">
             <fileset dir="${build}" includes="x10/**/*.class" excludes="${jar}"/>
             <fileset dir="${basedir}/src-x10" includes="x10/**" excludes="${jar}"/>
+            <fileset dir="${basedir}/src-java">
+                <exclude name="${jar}" />
+                <include name="x10/**/*.java" if="${INCLUDE_JAVA_SOURCE}" />
+            </fileset>
+            <fileset dir="${basedir}/src-java/gen">
+                <exclude name="${jar}" />
+                <include name="x10/**/*.java" if="${INCLUDE_JAVA_SOURCE}" />
+            </fileset>
             <fileset dir="${x10.constraints.location}/classes" includes="x10/constraint/**" excludes="x10/constraint/test/**"/>
             <fileset dir="${x10.common.location}/classes" includes="x10/**"/>
 	    <manifest>
