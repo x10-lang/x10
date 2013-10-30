@@ -32,10 +32,10 @@ public struct Complex implements Arithmetic[Complex] {
     public val im:Double;
 
     /** The complex number that corresponds to 0.0 */
-    @Native("c++", "x10_complex(0,0)")
+    @Native("c++", "x10_complex(0.0,0.0)")
     public static ZERO : Complex = Complex(0.0, 0.0);
     /** The complex number that corresponds to 1.0 */
-    @Native("c++", "std:complex<double>(1,0)")
+    @Native("c++", "x10_complex(1.0,0.0)")
     public static ONE : Complex = Complex(1.0, 0.0);
     /** The complex number that corresponds to 1.0i */
     @Native("c++", "x10_complex(0.0,1.0)")
