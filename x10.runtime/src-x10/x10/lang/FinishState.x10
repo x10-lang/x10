@@ -1044,7 +1044,7 @@ abstract class FinishState {
             }, null);
             //Runtime.println("Waiting for reply to message...");
             while (!c().get()) {
-                Runtime.probe();
+                Runtime.x10rtProbe(); // Don't use Runtime.probe() here (XTENLANG-3303)
                 if (dst.isDead()) {
                     return false;
                 }
@@ -1074,7 +1074,7 @@ abstract class FinishState {
             }, null);
             //Runtime.println("Waiting for reply to message...");
             while (!done().get()) {
-                Runtime.probe();
+                Runtime.x10rtProbe(); // Don't use Runtime.probe() here (XTENLANG-3303)
                 if (dst.isDead()) {
                     return false;
                 }
@@ -1141,7 +1141,7 @@ abstract class FinishState {
                     }, null);
                     //Runtime.println("Waiting for reply to message...");
                     while (done().get() == 0n) {
-                        Runtime.probe();
+                        Runtime.x10rtProbe(); // Don't use Runtime.probe() here (XTENLANG-3303)
                         if (place.isDead()) {
                             break;
                         }

@@ -52,7 +52,7 @@ class ResilientStorePlaceZero {
                     c.getLocalOrCopy().getAndSet(true);
                 }, null);
             }, null);
-            while (!c().get()) Runtime.probe();
+            while (!c().get()) Runtime.x10rtProbe(); // Don't use Runtime.probe() here (XTENLANG-3303)
             if (exc()() != null) throw exc()();
         }
     }
@@ -69,7 +69,7 @@ class ResilientStorePlaceZero {
                     c.getLocalOrCopy().set(r);
                 }, null);
             }, null);
-            while (c().get()==-1l) Runtime.probe();
+            while (c().get()==-1l) Runtime.x10rtProbe(); // Don't use Runtime.probe() here (XTENLANG-3303)
             return c().get();
         }
     }
