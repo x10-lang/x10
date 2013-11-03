@@ -47,7 +47,7 @@ namespace x10 {
                                  x10_int off,
                                  x10_int len);
 
-            virtual void skip(x10_int bytes);
+            virtual void skip(x10_long bytes);
 
             // Serialization
             static const x10aux::serialization_id_t _serialization_id;

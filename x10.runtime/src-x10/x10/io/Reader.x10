@@ -52,7 +52,7 @@ public abstract class Reader {
      */
     public abstract def available():Int;
 
-    public abstract def skip(Int):void;
+    public abstract def skip(Long):void;
 
     public abstract def mark(Int):void;
     public abstract def reset():void;

@@ -33,7 +33,7 @@ public class InputStreamReader extends Reader {
         public native def available():Int;
 
         @Native("java", "#this.skip(#v)")
-        public native def skip(v:Int):void;
+        public native def skip(v:Long):void;
 
         @Native("java", "#this.mark(#m)")
         public native def mark(m:Int):void;
@@ -67,7 +67,7 @@ public class InputStreamReader extends Reader {
 
     public def available():Int = stream.available();
 
-    public def skip(off:Int):void { 
+    public def skip(off:Long):void { 
         stream.skip(off); 
     }
 

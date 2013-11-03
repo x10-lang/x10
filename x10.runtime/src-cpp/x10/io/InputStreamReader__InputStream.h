@@ -49,7 +49,7 @@ namespace x10 {
             
             virtual x10_int available() { return 0; }
 
-            virtual void skip(x10_int) = 0;
+            virtual void skip(x10_long) = 0;
 
             virtual void mark(x10_int) { };
 

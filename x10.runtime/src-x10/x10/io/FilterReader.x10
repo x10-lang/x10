@@ -30,8 +30,8 @@ public class FilterReader extends Reader {
     }
     
     public def available():Int = r.available();
-    
-    public def skip(off:Int):void {
+
+    public def skip(off:Long):void {
         r.skip(off); 
     }
 

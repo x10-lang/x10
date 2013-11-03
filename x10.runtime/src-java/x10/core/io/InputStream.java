@@ -117,7 +117,7 @@ public class InputStream extends Ref {
         }
     }
 
-    public void skip(int n) {
+    public void skip(long n) {
         try {
             stream.skip(n);
         } catch (java.io.IOException e) {

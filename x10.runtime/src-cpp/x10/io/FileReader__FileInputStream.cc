@@ -62,7 +62,7 @@ x10_int FileReader__FileInputStream::read(x10::lang::Rail<x10_byte>* b,
     return (x10_int)res;
 }
 
-void FileReader__FileInputStream::skip(x10_int bytes) {
+void FileReader__FileInputStream::skip(x10_long bytes) {
     ::fseek(FMGL(file), bytes, SEEK_CUR);
 }
 
