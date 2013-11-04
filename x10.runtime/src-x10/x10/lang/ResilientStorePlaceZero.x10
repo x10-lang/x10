@@ -52,7 +52,14 @@ class ResilientStorePlaceZero {
                     c.getLocalOrCopy().getAndSet(true);
                 }, null);
             }, null);
-            while (!c().get()) Runtime.x10rtProbe(); // Don't use Runtime.probe() here (XTENLANG-3303)
+            
+            if (!c().get()) {
+                Runtime.increaseParallelism();
+                do { Runtime.x10rtProbe();
+                } while (!c().get());
+                Runtime.decreaseParallelism(1n);
+            }
+            
             if (exc()() != null) throw exc()();
         }
     }
