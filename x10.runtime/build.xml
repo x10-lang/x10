@@ -576,7 +576,9 @@
                           <os arch="ppc"/>
                           <os arch="ppc32"/>
                           <os arch="ppc64"/>
+                          <!-- POE has problems with BDWGC using the signal for "CPU time limit exceeded".  Use alternate signals -->
                           <istrue value="${X10RT_PAMI}"/>
+                          <istrue value="${X10RT_MPI}"/>
                         </or>
                       </conditions>
                       <then>
