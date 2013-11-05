@@ -52,14 +52,13 @@ class ResilientStorePlaceZero {
                     c.getLocalOrCopy().getAndSet(true);
                 }, null);
             }, null);
-            
-            if (!c().get()) {
+            // while (!c().get()) Runtime.probe();
+            if (!c().get()) { // Fix for XTENLANG-3303/3305
                 Runtime.increaseParallelism();
                 do { Runtime.x10rtProbe();
                 } while (!c().get());
                 Runtime.decreaseParallelism(1n);
             }
-            
             if (exc()() != null) throw exc()();
         }
     }
@@ -76,7 +75,13 @@ class ResilientStorePlaceZero {
                     c.getLocalOrCopy().set(r);
                 }, null);
             }, null);
-            while (c().get()==-1l) Runtime.x10rtProbe(); // Don't use Runtime.probe() here (XTENLANG-3303)
+            // while (c().get()==-1l) Runtime.probe();
+            if (c().get()==-1l) { // Fix for XTENLANG-3303/3305
+                Runtime.increaseParallelism();
+                do { Runtime.x10rtProbe();
+                } while (c().get()==-1l);
+                Runtime.decreaseParallelism(1n);
+            }
             return c().get();
         }
     }

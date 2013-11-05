@@ -1043,11 +1043,22 @@ abstract class FinishState {
                 }, null);
             }, null);
             //Runtime.println("Waiting for reply to message...");
-            while (!c().get()) {
-                Runtime.x10rtProbe(); // Don't use Runtime.probe() here (XTENLANG-3303)
-                if (dst.isDead()) {
-                    return false;
-                }
+            // while (!c().get()) {
+            //     Runtime.probe();
+            //     if (dst.isDead()) {
+            //         return false;
+            //     }
+            // }
+            if (!c().get()) { // Fix for XTENLANG-3303/3305
+                Runtime.increaseParallelism();
+                do {
+                    Runtime.x10rtProbe();
+                    if (dst.isDead()) {
+                        Runtime.decreaseParallelism(1n);
+                        return false;
+                    }
+                } while (!c().get());
+                Runtime.decreaseParallelism(1n);
             }
             //Runtime.println("Got reply.");
             return true;
@@ -1073,11 +1084,22 @@ abstract class FinishState {
                 }
             }, null);
             //Runtime.println("Waiting for reply to message...");
-            while (!done().get()) {
-                Runtime.x10rtProbe(); // Don't use Runtime.probe() here (XTENLANG-3303)
-                if (dst.isDead()) {
-                    return false;
-                }
+            // while (!done().get()) {
+            //     Runtime.probe();
+            //     if (dst.isDead()) {
+            //         return false;
+            //     }
+            // }
+            if (!done().get()) { // Fix for XTENLANG-3303/3305
+                Runtime.increaseParallelism();
+                do {
+                    Runtime.x10rtProbe();
+                    if (dst.isDead()) {
+                        Runtime.decreaseParallelism(1n);
+                        return false;
+                    }
+                } while (!done().get());
+                Runtime.decreaseParallelism(1n);
             }
             //Runtime.println("Got reply.");
             return true;
@@ -1140,11 +1162,22 @@ abstract class FinishState {
                         }
                     }, null);
                     //Runtime.println("Waiting for reply to message...");
-                    while (done().get() == 0n) {
-                        Runtime.x10rtProbe(); // Don't use Runtime.probe() here (XTENLANG-3303)
-                        if (place.isDead()) {
-                            break;
-                        }
+                    // while (done().get() == 0n) {
+                    //     Runtime.probe();
+                    //     if (place.isDead()) {
+                    //         break;
+                    //     }
+                    // }
+                    if (done().get() == 0n) { // Fix for XTENLANG-3303/3305
+                        Runtime.increaseParallelism();
+                        do {
+                            Runtime.x10rtProbe();
+                            if (place.isDead()) {
+                                Runtime.decreaseParallelism(1n);
+                                return false;
+                            }
+                        } while (done().get() == 0n);
+                        Runtime.decreaseParallelism(1n);
                     }
                 }
                 if (done().get() == 1n) return true;
