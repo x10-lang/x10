@@ -3,10 +3,18 @@
 #
 # (c) Copyright IBM Corporation 2009-2013
 #
-# $Id$
 # Harness to execute a set of tests with Native X10
 # and generate .xml files for each test case in JUnit format
 # 
+
+function writeJUnitHead {
+    printf "<testsuites>\n" >> $TLOGF
+}
+
+function writeJUnitTail {
+    printf "</testsuites>\n" >> $TLOGF
+}
+
 
 
 # display command-line help
@@ -399,24 +407,44 @@ function xmlLog {
 	if [[ -z "$TLOGF" ]]; then TLOGF=/dev/null; TOUTF=/dev/stderr; fi
 	__cat_test_end_time=$(perl -e 'print time;')
 	let '__cat_test_duration = __cat_test_end_time - __cat_test_start_time'
-	printf "\n\t<testcase>\n" >> $TLOGF
-	printf "\t\t<name>${__cat_test_name}</name>\n" >> $TLOGF
-	printf "\t\t\t<time>${__cat_test_duration}</time>\n" >> $TLOGF
+
+	# testsuite header
+	let '__cat_test_id += 1'
+	printf "\n\t<testsuite" >> $TLOGF
+	printf "\tid=\"${__cat_test_id}\"\n" >> $TLOGF
+	printf "\t\t\tpackage=\"${__cat_current_group}\"\n" >> $TLOGF
+	printf "\t\t\tname=\"${__cat_test_name}\"\n" >> $TLOGF
+	printf "\t\t\ttimestamp=\"${__cat_test_timestamp}\"\n" >> $TLOGF
+	printf "\t\t\thostname=\"${__cat_hostname}\"\n" >> $TLOGF
+	printf "\t\t\ttime=\"${__cat_test_duration}\"\n" >> $TLOGF
+	printf "\t\t\ttests=\"1\"\n" >> $TLOGF
 	if [[ "${__cat_test_result}" != "SUCCESS" ]]; then
-	    printf "\t\t<failure>\n" >> $TLOGF
-	    printf "\t\t\t<type>${__cat_test_result}</type>\n" >> $TLOGF
-	    printf "\t\t\t<message>${__cat_test_result_explanation}</message>\n" >> $TLOGF
-	    printf "\t\t</failure>\n" >> $TLOGF
+	    printf "\t\t\tfailures=\"1\"\n" >> $TLOGF
+	else
+	    printf "\t\t\tfailures=\"0\"\n" >> $TLOGF
 	fi
-	printf "\t\t\t<system-out>\n" >> $TLOGF
+	printf "\t\t\terrors=\"0\"\n" >> $TLOGF
+	printf "\t\t>\n" >> $TLOGF
+	printf "\t\t<properties></properties>\n" >> $TLOGF
+
+	# testcase (trivial...1 per test suite)
+	printf "\t\t<testcase classname=\"${__cat_test_name}\" name=\"main\" time=\"${__cat_test_duration}\">\n" >> $TLOGF
+	if [[ "${__cat_test_result}" != "SUCCESS" ]]; then
+	    printf "\t\t\t<failure type=\"${__cat_test_result}\" message=\"${__cat_test_result_explanation}\"/>\n" >> $TLOGF
+	fi
+	printf "\t\t</testcase>\n" >> $TLOGF
+
+	printf "\t\t<system-out>\n" >> $TLOGF
 	perl -pe 's/&/\&amp;/g;
 	          s/</\&lt;/g;
 	          s/>/\&gt;/g;
 	          s/"/\&quot;/g;
 	          s/'"'"'/\&apos;/g;
 	          s/([^[:print:]\t\n\r])/sprintf("\&#%04x;", ord($1))/eg' $1 >> $TOUTF
-	printf "\t\t\t</system-out>\n" >> $TLOGF
-	printf "\t\t</testcase>\n" >> $TLOGF
+	printf "\t\t</system-out>\n" >> $TLOGF
+	# TODO: include system-err in file
+	printf "\t\t<system-err></system-err>\n" >> $TLOGF
+	printf "\t</testsuite>\n" >> $TLOGF
 }
 
 # main routine that invokes the rest
@@ -505,6 +533,7 @@ function main {
 		let 'tcvalidcnt += 1'
 
 		__cat_test_start_time=$(perl -e 'print time;')
+		__cat_test_timestamp=$(date "+%FT%T")
 
 		# create the test root
 		tctarget=$(basename $tc | sed -e 's;.x10;;')
@@ -658,9 +687,6 @@ function main {
 			let 'tcexeccnt += 1'
 			let 'tcpasscnt += 1'
 			printf " *** Y ***"
-			#printf "\n<<==========OUTPUT=======\n"
-			#cat ${tcoutdat}
-			#printf "=======================>>\n"
 			__cat_test_result_explanation="${className} met expectation: Succeed."
 			__cat_test_result="SUCCESS"
 			__cat_test_exit_code=$rc
@@ -784,6 +810,7 @@ function main {
 }
 
 __cat_opened_group="invalid"
+__cat_test_id=0
 __cat_current_group=""
 __cat_test_name=""
 __cat_test_x10c_command=""
@@ -801,9 +828,12 @@ __cat_test_x10c_classpath=""
 __cat_test_x10c_directory=""
 __cat_test_x10_classpath=""
 __cat_test_x10_timeout=""
+__cat_hostname=$(hostname)
 
 init "$@"
+writeJUnitHead
 main 
+writeJUnitTail
 exit 0
 
 # vim:tabstop=4:shiftwidth=4:expandtab
