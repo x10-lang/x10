@@ -46,7 +46,7 @@ namespace x10 {
 
             virtual void _deserialize_body(x10aux::deserialization_buffer& buf);
 
-#ifndef ENABLE_CROSS_COMPILE_FX10
+#ifndef __FCC_VERSION
         private:
 #else
         public:

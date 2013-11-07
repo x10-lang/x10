@@ -20,7 +20,7 @@ namespace x10aux {
     class reentrant_lock;
 
     class place_local {
-#ifndef ENABLE_CROSS_COMPILE_FX10
+#ifndef __FCC_VERSION
     private:
 #else
     public:

@@ -25,14 +25,14 @@ namespace x10 {
             static String* toString(x10_double value);
             static x10_double parseDouble(String* s);
             static x10_boolean isNaN(x10_double value) {
-#if defined(_AIX)
+#if defined(_AIX) || defined(__FCC_VERSION)
 				return isnan(value);
 #else
 				return std::isnan(value);
 #endif
             }
             static x10_boolean isInfinite(x10_double value) {
-#if defined(_AIX)
+#if defined(_AIX) || defined(__FCC_VERSION)
 				return isinf(value);
 #else
 				return std::isinf(value);

@@ -27,7 +27,7 @@ namespace x10aux {
     class ReferenceLogger {
     public:
         static ReferenceLogger* it;
-#ifndef ENABLE_CROSS_COMPILE_FX10
+#ifndef __FCC_VERSION
     private:
 #else
     public:

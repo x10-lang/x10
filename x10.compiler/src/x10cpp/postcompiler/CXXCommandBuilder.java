@@ -122,6 +122,9 @@ public class CXXCommandBuilder {
     protected final boolean bluegeneQ() {
         return platform.contains("bgq");
     }
+    protected final boolean fx10() {
+        return platform.contains("fx10");
+    }
 
     /** 
      * Add all command line arguments to the C++ compiler
@@ -153,6 +156,9 @@ public class CXXCommandBuilder {
             cxxCmd.add(usingXLC() ? "-O3" : "-O2");
             cxxCmd.add(usingXLC() ? "-qinline" : "-finline-functions");
             cxxCmd.add("-DNO_TRACING");
+            if (fx10()) {
+                cxxCmd.add("-Kfast");
+            }
             if (usingXLC()) {
                 if (bluegeneQ()) {
                     cxxCmd.add("-qhot");
@@ -172,6 +178,9 @@ public class CXXCommandBuilder {
                                + ":1540-1101"    // Do not warn about non-void functions with no return
                                + ":1540-1102"    // Do not warn about uninitialized variables
                                + ":1500-029");   // Do not warn about being unable to inline when optimizing
+        } else if (fx10()) {
+            cxxCmd.add("-Xg");        	
+            cxxCmd.add("-w");
         } else {
             cxxCmd.add("-Wno-long-long");        // Do not warn about using long long
             cxxCmd.add("-Wno-unused-parameter"); // Do not warn about unused parameters
@@ -394,6 +403,8 @@ public class CXXCommandBuilder {
         } else if (platform.startsWith("bgp")) {
         	cbb = new Linux_CXXCommandBuilder();            
         } else if (platform.startsWith("bgq")) {
+            cbb = new Linux_CXXCommandBuilder();            
+        } else if (platform.startsWith("fx10")) {
             cbb = new Linux_CXXCommandBuilder();            
         } else {   
             eq.enqueue(ErrorInfo.WARNING,
