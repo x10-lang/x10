@@ -91,9 +91,12 @@ function parseCmdLine {
 		elif [[ "$1" == "-junit_report" && $# -ge 2 ]]; then
 		        TLOGF=$2
 			shift 2
-		elif [[ "$1" == "-compiler_options" && $# -ge 2 ]]; then
-		        tccompiler_options=$2
-			shift 2
+		elif [[ "$1" == "-opt" ]]; then
+		        tccompiler_options="-O $tccompile_options"
+			shift
+		elif [[ "$1" == "-noopt" ]]; then
+		         # nothing to do
+			shift
 		elif [[ "$1" == "-logPath" && $# -ge 2 ]]; then
 			if [[ ! -d "$2" ]]; then
 				printf "\n[${prog}: err]: Log directory $2 must exist\n"
