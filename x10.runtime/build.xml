@@ -99,6 +99,7 @@
         <or>
             <istrue value="${CROSS_COMPILE_BGP}" />
             <istrue value="${CROSS_COMPILE_BGQ}" />
+            <istrue value="${CROSS_COMPILE_FX10}" />
         </or>
     </condition>
 
@@ -206,6 +207,7 @@
             <arg value="clean"/>
             <arg value="${cppmake.cross_compile_bgp}" />
             <arg value="${cppmake.cross_compile_bgq}" />
+            <arg value="${cppmake.cross_compile_fx10}" />
         </exec>
     </target>
     <target name="prepare-clean-bdwgc" if="bdwgc.enabled">
@@ -227,6 +229,7 @@
             <arg value="${cppmake.x10rt_cuda}" />
             <arg value="${cppmake.cross_compile_bgp}" />
             <arg value="${cppmake.cross_compile_bgq}" />
+            <arg value="${cppmake.cross_compile_fx10}" />
         </exec>
     </target>
 
@@ -285,6 +288,7 @@
             <arg value="${cppmake.no_checks}" />
             <arg value="${cppmake.cross_compile_bgp}" />
             <arg value="${cppmake.cross_compile_bgq}" />
+            <arg value="${cppmake.cross_compile_fx10}" />
         </exec>
     </target>
     <target name="dist-stdlibprops" depends="init">
@@ -299,6 +303,7 @@
             <arg value="${cppmake.no_checks}" />
             <arg value="${cppmake.cross_compile_bgp}" />
             <arg value="${cppmake.cross_compile_bgq}" />
+            <arg value="${cppmake.cross_compile_fx10}" />
         </exec>
     </target>
     <target name="dist" depends="dist-java,dist-cpp" description="generate part of the distribution">
@@ -461,6 +466,7 @@
             <arg value="${cppmake.x10rt_cuda}" />
             <arg value="${cppmake.cross_compile_bgp}" />
             <arg value="${cppmake.cross_compile_bgq}" />
+            <arg value="${cppmake.cross_compile_fx10}" />
         </exec>
     </target>
 

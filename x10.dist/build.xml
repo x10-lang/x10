@@ -44,6 +44,7 @@
     <property name="bash.exe" value="bash"/>
     <property name="CROSS_COMPILE_BGP" value="false" />
     <property name="CROSS_COMPILE_BGQ" value="false" />
+    <property name="CROSS_COMPILE_FX10" value="false" />
     <property name="X10RT_MPI" value="false" />
     <property name="X10RT_PAMI" value="false" />
     <property name="X10RT_PGAS" value="true" />
