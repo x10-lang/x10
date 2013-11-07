@@ -91,6 +91,9 @@ function parseCmdLine {
 		elif [[ "$1" == "-junit_report" && $# -ge 2 ]]; then
 		        TLOGF=$2
 			shift 2
+		elif [[ "$1" == "-compiler_options" && $# -ge 2 ]]; then
+		        tccompiler_options=$2
+			shift 2
 		elif [[ "$1" == "-logPath" && $# -ge 2 ]]; then
 			if [[ ! -d "$2" ]]; then
 				printf "\n[${prog}: err]: Log directory $2 must exist\n"
@@ -319,6 +322,9 @@ typeset -i tcforce=0
 
 # default log path, where log file will be created
 typeset tclogpath=$DEFAULT_LOGPATH
+
+# extra x10c++ options 
+typeset tccompiler_options=""
 
 # test case pattern file
 # default: none
@@ -575,9 +581,9 @@ function main {
 		__cat_test_x10c_classpath="${EXTRA_CLASSPATH}"
 		__cat_test_x10c_directory="$testDir"
 		if [[ "$(uname -s)" == CYGWIN* ]]; then
-		    comp_cmd="${X10CPP} $extra_opts $extra_sourcepath $X10CPP_EXTRA_OPTS -t -v -report postcompile=1 -CHECK_INVARIANTS=true -MAIN_CLASS=$className -o \"$(cygpath -am $tcroot)/$tctarget\" -sourcepath \"$(cygpath -am $X10_HOME/x10.tests/examples/$tDirSlash)\" -sourcepath \"$(cygpath -am $X10_HOME/x10.tests/examples/$testDir)\" -sourcepath \"$(cygpath -am $X10_HOME/x10.tests/examples/x10lib)\" -sourcepath \"$(cygpath -am $tcroot)\" -sourcepath \"$(cygpath -am $X10_HOME/x10.dist/samples)\"  -sourcepath \"$(cygpath -am $X10_HOME/x10.dist/samples/tutorial)\" -sourcepath \"$(cygpath -am $X10_HOME/x10.dist/samples/CUDA)\" -sourcepath \"$(cygpath -am $X10_HOME/x10.dist/samples/work-stealing)\" -d \"$(cygpath -am $tcroot)\" $tc $extendList \"$(cygpath -am ${X10TEST_PATH}/x10lib/harness/x10Test.x10)\""
+		    comp_cmd="${X10CPP} $extra_opts $extra_sourcepath $tccompiler_options -t -v -report postcompile=1 -CHECK_INVARIANTS=true -MAIN_CLASS=$className -o \"$(cygpath -am $tcroot)/$tctarget\" -sourcepath \"$(cygpath -am $X10_HOME/x10.tests/examples/$tDirSlash)\" -sourcepath \"$(cygpath -am $X10_HOME/x10.tests/examples/$testDir)\" -sourcepath \"$(cygpath -am $X10_HOME/x10.tests/examples/x10lib)\" -sourcepath \"$(cygpath -am $tcroot)\" -sourcepath \"$(cygpath -am $X10_HOME/x10.dist/samples)\"  -sourcepath \"$(cygpath -am $X10_HOME/x10.dist/samples/tutorial)\" -sourcepath \"$(cygpath -am $X10_HOME/x10.dist/samples/CUDA)\" -sourcepath \"$(cygpath -am $X10_HOME/x10.dist/samples/work-stealing)\" -d \"$(cygpath -am $tcroot)\" $tc $extendList \"$(cygpath -am ${X10TEST_PATH}/x10lib/harness/x10Test.x10)\""
 		else
-		    comp_cmd="${X10CPP} $extra_opts $extra_sourcepath $X10CPP_EXTRA_OPTS -t -v -report postcompile=1 -CHECK_INVARIANTS=true -MAIN_CLASS=$className -o $tcroot/$tctarget -sourcepath $X10_HOME/x10.tests/examples/$tDirSlash -sourcepath $X10_HOME/x10.tests/examples/$testDir -sourcepath $X10_HOME/x10.tests/examples/x10lib -sourcepath $tcroot -sourcepath $X10_HOME/x10.dist/samples -sourcepath $X10_HOME/x10.dist/samples/tutorial -sourcepath $X10_HOME/x10.dist/samples/CUDA -sourcepath $X10_HOME/x10.dist/samples/work-stealing -d $tcroot $tc $extendList ${X10TEST_PATH}/x10lib/harness/x10Test.x10"
+		    comp_cmd="${X10CPP} $extra_opts $extra_sourcepath $tccompiler_options -t -v -report postcompile=1 -CHECK_INVARIANTS=true -MAIN_CLASS=$className -o $tcroot/$tctarget -sourcepath $X10_HOME/x10.tests/examples/$tDirSlash -sourcepath $X10_HOME/x10.tests/examples/$testDir -sourcepath $X10_HOME/x10.tests/examples/x10lib -sourcepath $tcroot -sourcepath $X10_HOME/x10.dist/samples -sourcepath $X10_HOME/x10.dist/samples/tutorial -sourcepath $X10_HOME/x10.dist/samples/CUDA -sourcepath $X10_HOME/x10.dist/samples/work-stealing -d $tcroot $tc $extendList ${X10TEST_PATH}/x10lib/harness/x10Test.x10"
 		fi
 		tccompdat=${tcroot}/${tctarget}.comp
 		printf "\n****** $tDir $className ******\n\n" >> $tccompdat
