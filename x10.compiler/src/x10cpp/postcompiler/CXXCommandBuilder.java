@@ -117,13 +117,13 @@ public class CXXCommandBuilder {
         return bluegeneP() || bluegeneQ();
     }
     protected final boolean bluegeneP() {
-        return platform.contains("bgp");
+        return getPlatform().contains("bgp");
     }
     protected final boolean bluegeneQ() {
-        return platform.contains("bgq");
+        return getPlatform().contains("bgq");
     }
     protected final boolean fx10() {
-        return platform.contains("fx10");
+        return getPlatform().contains("fx10");
     }
 
     /** 
