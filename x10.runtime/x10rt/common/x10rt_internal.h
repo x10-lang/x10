@@ -49,6 +49,10 @@ template<class T> static inline T* safe_realloc (T *old, size_t f=1, size_t a=0)
 
 static inline void safe_free (void *p) { free (p); }
 
+static inline bool checkBoolEnvVar(char* value) {
+	return (value && !(strcasecmp("false", value) == 0) && !(strcasecmp("0", value) == 0) && !(strcasecmp("f", value) == 0));
+}
+
 namespace {
 
     // Lookup table from message id to callback function

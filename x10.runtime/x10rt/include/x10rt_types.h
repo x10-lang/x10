@@ -184,9 +184,12 @@ typedef enum
 /** The list of optional x10rt_net features.
  */
 typedef enum {
-    X10RT_OPT_REMOTE_OP = 0,
-    X10RT_OPT_COLLECTIVES = 1
-} x10rt_opt;
+	X10RT_COLL_NOCOLLECTIVES = 0,
+	X10RT_COLL_BARRIERONLY = 1,
+    X10RT_COLL_ALLBLOCKINGCOLLECTIVES = 2,
+    X10RT_COLL_NONBLOCKINGBARRIER = 3,
+    X10RT_COLL_ALLNONBLOCKINGCOLLECTIVES = 4
+} x10rt_coll_type;
 
 /**
  * Structure to hold a remote update operation

@@ -71,7 +71,7 @@ namespace {
     };
 
     bool has_remote_op;
-    bool has_collectives;
+    x10rt_coll_type has_collectives;
 
     x10rt_lgl_ctx g; // note that being a global var, this is zero-initialised
 }
@@ -272,8 +272,11 @@ namespace {
 
         x10rt_emu_coll_init(counter);
         usleep(1000000); // sleep for 1 second
-        has_remote_op = getenv("X10RT_EMULATE_REMOTE_OP")==NULL && 0!=x10rt_net_supports(X10RT_OPT_REMOTE_OP);
-        has_collectives = getenv("X10RT_EMULATE_COLLECTIVES")==NULL && 0!=x10rt_net_supports(X10RT_OPT_COLLECTIVES);
+        has_remote_op = !checkBoolEnvVar(getenv("X10RT_EMULATE_REMOTE_OP")) && x10rt_net_remoteop_support();
+        if (checkBoolEnvVar(getenv("X10RT_EMULATE_COLLECTIVES")))
+        	has_collectives = X10RT_COLL_NOCOLLECTIVES;
+        else
+        	has_collectives = x10rt_net_coll_support();
         g.nhosts = x10rt_net_nhosts();
 
         x10rt_place num_local_cudas = 0;
@@ -913,8 +916,12 @@ void x10rt_lgl_finalize (void)
     free(g.parent);
     free(g.naccels);
     free(g.error_msg);
-
 }
+
+x10rt_coll_type x10rt_lgl_coll_support () {
+	return x10rt_net_coll_support();
+}
+
 
 void x10rt_lgl_team_new (x10rt_place placec, x10rt_place *placev,
                          x10rt_completion_handler2 *ch, void *arg)
@@ -926,7 +933,7 @@ void x10rt_lgl_team_new (x10rt_place placec, x10rt_place *placev,
             return;
         }
     }
-    if (has_collectives) {
+    if (has_collectives > X10RT_COLL_NOCOLLECTIVES) {
         x10rt_net_team_new(placec, placev, ch, arg);
     } else {
         x10rt_emu_team_new(placec, placev, ch, arg);
@@ -937,7 +944,7 @@ void x10rt_lgl_team_del (x10rt_team team, x10rt_place role,
                          x10rt_completion_handler *ch, void *arg)
 {
     ESCAPE_IF_ERR;
-    if (has_collectives) {
+    if (has_collectives > X10RT_COLL_NOCOLLECTIVES) {
         x10rt_net_team_del(team, role, ch, arg);
     } else {
         x10rt_emu_team_del(team, role, ch, arg);
@@ -947,7 +954,7 @@ void x10rt_lgl_team_del (x10rt_team team, x10rt_place role,
 x10rt_place x10rt_lgl_team_sz (x10rt_team team)
 {
     if (g.error_code != X10RT_ERR_OK) return 0;
-    if (has_collectives) {
+    if (has_collectives > X10RT_COLL_NOCOLLECTIVES) {
         return x10rt_net_team_sz(team);
     } else {
         return x10rt_emu_team_sz(team);
@@ -959,7 +966,7 @@ void x10rt_lgl_team_split (x10rt_team parent, x10rt_place parent_role,
                            x10rt_completion_handler2 *ch, void *arg)
 {
     ESCAPE_IF_ERR;
-    if (has_collectives) {
+    if (has_collectives > X10RT_COLL_NOCOLLECTIVES) {
         x10rt_net_team_split(parent, parent_role, color, new_role, ch, arg);
     } else {
         x10rt_emu_team_split(parent, parent_role, color, new_role, ch, arg);
@@ -970,7 +977,7 @@ void x10rt_lgl_barrier (x10rt_team team, x10rt_place role,
                         x10rt_completion_handler *ch, void *arg)
 {
     ESCAPE_IF_ERR;
-    if (has_collectives) {
+    if (has_collectives >= X10RT_COLL_NONBLOCKINGBARRIER) {
         x10rt_net_barrier(team, role, ch, arg);
     } else {
         x10rt_emu_barrier(team, role, ch, arg);
@@ -983,7 +990,7 @@ void x10rt_lgl_bcast (x10rt_team team, x10rt_place role,
                       x10rt_completion_handler *ch, void *arg)
 {
     ESCAPE_IF_ERR;
-    if (has_collectives) {
+    if (has_collectives >= X10RT_COLL_ALLNONBLOCKINGCOLLECTIVES) {
         x10rt_net_bcast(team, role, root, sbuf, dbuf, el, count, ch, arg);
     } else {
         x10rt_emu_bcast(team, role, root, sbuf, dbuf, el, count, ch, arg);
@@ -996,7 +1003,7 @@ void x10rt_lgl_scatter (x10rt_team team, x10rt_place role,
                         x10rt_completion_handler *ch, void *arg)
 {
     ESCAPE_IF_ERR;
-    if (has_collectives) {
+    if (has_collectives >= X10RT_COLL_ALLNONBLOCKINGCOLLECTIVES) {
         x10rt_net_scatter(team, role, root, sbuf, dbuf, el, count, ch, arg);
     } else {
         x10rt_emu_scatter(team, role, root, sbuf, dbuf, el, count, ch, arg);
@@ -1009,7 +1016,7 @@ void x10rt_lgl_alltoall (x10rt_team team, x10rt_place role,
                          x10rt_completion_handler *ch, void *arg)
 {
     ESCAPE_IF_ERR;
-    if (has_collectives) {
+    if (has_collectives >= X10RT_COLL_ALLNONBLOCKINGCOLLECTIVES) {
         x10rt_net_alltoall(team, role, sbuf, dbuf, el, count, ch, arg);
     } else {
         x10rt_emu_alltoall(team, role, sbuf, dbuf, el, count, ch, arg);
@@ -1024,7 +1031,7 @@ void x10rt_lgl_reduce (x10rt_team team, x10rt_place role,
                        x10rt_completion_handler *ch, void *arg)
 {
     ESCAPE_IF_ERR;
-    if (has_collectives) {
+    if (has_collectives >= X10RT_COLL_ALLNONBLOCKINGCOLLECTIVES) {
         x10rt_net_reduce(team, role, root, sbuf, dbuf, op, dtype, count, ch, arg);
     } else {
         x10rt_emu_reduce(team, role, root, sbuf, dbuf, op, dtype, count, ch, arg, false);
@@ -1039,7 +1046,7 @@ void x10rt_lgl_allreduce (x10rt_team team, x10rt_place role,
                           x10rt_completion_handler *ch, void *arg)
 {
     ESCAPE_IF_ERR;
-    if (has_collectives) {
+    if (has_collectives >= X10RT_COLL_ALLNONBLOCKINGCOLLECTIVES) {
         x10rt_net_allreduce(team, role, sbuf, dbuf, op, dtype, count, ch, arg);
     } else {
         x10rt_emu_reduce(team, role, 0, sbuf, dbuf, op, dtype, count, ch, arg, true);

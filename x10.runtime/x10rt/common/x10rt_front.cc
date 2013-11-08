@@ -161,7 +161,9 @@ x10rt_error x10rt_blocking_probe (void)
 void x10rt_finalize (void)
 { x10rt_lgl_finalize(); }
 
-
+x10rt_coll_type x10rt_coll_support () {
+	return x10rt_lgl_coll_support();
+}
 
 void x10rt_team_new (x10rt_place placec, x10rt_place *placev,
                      x10rt_completion_handler2 *ch, void *arg)

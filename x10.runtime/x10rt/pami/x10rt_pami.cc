@@ -213,11 +213,6 @@ void error(const char* msg, ...)
 	exit(EXIT_FAILURE); // TODO - support the non-exit on error mode
 }
 
-bool checkBoolEnvVar(char* value)
-{
-	return (value && !(strcasecmp("false", value) == 0) && !(strcasecmp("0", value) == 0) && !(strcasecmp("f", value) == 0));
-}
-
 // Query PAMI for the algorithm to use with a specific team and collective
 void queryAvailableAlgorithms(x10rt_pami_team* team, pami_xfer_type_t collective, size_t indexToUse)
 {
@@ -1514,23 +1509,17 @@ void x10rt_net_finalize()
 		free(state.stepOrder);
 }
 
-int x10rt_net_supports (x10rt_opt o)
-{
-#if defined(__bgq__) || !(defined(_ARCH_PPC) || defined(__PPC__))
-    switch (o) {
-        case X10RT_OPT_REMOTE_OP:
-	     // No hardware support for remote memory operations; best to use emulated layer
-             return 0;
-             break;
-        default:
-            return 1;
-    }
-#else
-        return 1;
-#endif
+x10rt_coll_type x10rt_net_coll_support () {
+	return X10RT_COLL_ALLNONBLOCKINGCOLLECTIVES;
 }
 
-void x10rt_net_internal_barrier (){} // DEPRECATED
+bool x10rt_net_remoteop_support () {
+#if defined(__bgq__) || !(defined(_ARCH_PPC) || defined(__PPC__))
+	return false; // No hardware support for remote memory operations on BG/Q; best to use emulated layer
+#else
+	return true;
+#endif
+}
 
 void x10rt_net_remote_op (x10rt_place place, x10rt_remote_ptr victim, x10rt_op_type type, unsigned long long value)
 {

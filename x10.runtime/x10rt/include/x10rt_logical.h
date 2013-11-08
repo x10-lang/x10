@@ -320,6 +320,10 @@ X10RT_C x10rt_error x10rt_lgl_blocking_probe (void);
  */
 X10RT_C void x10rt_lgl_finalize (void); 
 
+/** Return what level of collectives the network transport supports
+ */
+X10RT_C x10rt_coll_type x10rt_lgl_coll_support ();
+
 /** \see #x10rt_team_new
  * \param placec As in #x10rt_team_new
  * \param placev As in #x10rt_team_new

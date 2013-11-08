@@ -614,6 +614,10 @@ while (!finished) x10rt_probe();
 
 /** \{ */
 
+/** Return what level of collectives the network transport supports
+ */
+X10RT_C x10rt_coll_type x10rt_coll_support ();
+
 /** Asynchronously create a new team of the given distribution.  This should be called by a single
  * place, presumably before it has dispatched messages to the other places that will be playing the
  * other roles in the team.

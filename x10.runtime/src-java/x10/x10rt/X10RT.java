@@ -303,14 +303,12 @@ public class X10RT {
     		return false;
     }
 
-    public static boolean supportsCollectives() {
+    public static int collectiveSupport() {
         assert isBooted();
         if (forceSinglePlace || javaSockets != null)
-        	return false;
+        	return 0;
         else
-        	// at this point, the emulated collectives are still available in native code.
-        	// TODO: benchmark emulated collectives in X10 vs native, and drop native if it's slower.
-        	return true;
+        	return x10rt_coll_support();
       }
 
     static boolean isBooted() {
@@ -396,6 +394,8 @@ public class X10RT {
     private static native boolean x10rt_is_place_dead(int place);
     
     private static native int x10rt_here();
+    
+    private static native int x10rt_coll_support();
     
     /*
      * Subset of x10rt_front.h API related to messages that actually needs

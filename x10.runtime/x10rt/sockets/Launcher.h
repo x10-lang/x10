@@ -22,6 +22,8 @@
 #include <stdint.h>
 #include <time.h>
 
+#include <x10rt_internal.h>
+
 #ifndef __sock_launcher_h__
 #define __sock_launcher_h__
 
@@ -66,11 +68,6 @@ struct ctrl_msg
 	int datalen;
 	// followed by the data
 };
-
-static inline bool checkBoolEnvVar(char* value)
-{
-    return (value && !(strcasecmp("false", value) == 0) && !(strcasecmp("0", value) == 0) && !(strcasecmp("f", value) == 0));
-}
 
 /* ************************************************************************ */
 /*                ProcManager class definition                              */

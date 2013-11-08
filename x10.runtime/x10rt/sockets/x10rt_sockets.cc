@@ -41,7 +41,6 @@
 #include <fcntl.h>
 
 #include <x10rt_net.h>
-#include <x10rt_internal.h>
 #include "Launcher.h"
 #include "DebugHelper.h"
 #include "TCP.h"
@@ -1365,9 +1364,12 @@ void x10rt_net_finalize (void)
  * backend, and we rely on the emulation layer to
  * convert these into messages for us.
  *************************************************/
-int x10rt_net_supports (x10rt_opt o)
-{
-    return 0;
+x10rt_coll_type x10rt_net_coll_support () {
+	return X10RT_COLL_NOCOLLECTIVES;
+}
+
+bool x10rt_net_remoteop_support () {
+	return false;
 }
 
 void x10rt_net_remote_op (x10rt_place place, x10rt_remote_ptr victim, x10rt_op_type type, unsigned long long value)

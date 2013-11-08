@@ -948,12 +948,12 @@ void x10rt_net_finalize (void)
 	free(state.callBackTable);
 }
 
-int x10rt_net_supports (x10rt_opt o)
-{
-    switch (o)
-    {
-        default: return 0;
-    }
+x10rt_coll_type x10rt_net_coll_support () {
+	return X10RT_COLL_NOCOLLECTIVES;
+}
+
+bool x10rt_net_remoteop_support () {
+	return false;
 }
 
 void x10rt_net_team_new (x10rt_place placec, x10rt_place *placev,
