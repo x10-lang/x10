@@ -23,13 +23,6 @@ function printUsage {
 		printf -- "-t | -timeOut [secs]\n"
 		printf "  Enable timeout option for test case execution. This"
 		printf " overrides\nthe default timeout value of 60 seconds.\n\n"
-		printf -- "-f | -force\n"
-		printf "  Run this script in the top-level directory where the *.x10"
-		printf " \ntest cases can be located.  The current directory must"
-		printf " have a magic\nfile \".ThisIsAnX10TestDirectory\" present"
-		printf " in the directory to launch\nthe harness.  Use this option,"
-		printf " to force launch the harness, even\nif the magic file is"
-		printf " not present.\n\n"
 		printf -- "-logPath dir\n"
 		printf "  Specify the directory path where generated log files"
 		printf " will be\nstored.  If not specified, the current path's"
@@ -76,36 +69,42 @@ function parseCmdLine {
 					shift
 				fi
 			fi
-		elif [[ "$1" == "-force" || "$1" == "-f" ]]; then
-			tcforce=1
-			shift
 		elif [[ "$1" == "-report_dir" && $# -ge 2 ]]; then
 		        tcreportdir=$2
 			shift 2
-		elif [[ "$1" == "-opt" ]]; then
-		        tccompiler_options="-O $tccompile_options"
+		elif [[ "$1" == "-debug" ]]; then
+		        tccompiler_options="$tccompile_options -DEBUG"
 			shift
 		elif [[ "$1" == "-noopt" ]]; then
 		         # nothing to do
 			shift
+		elif [[ "$1" == "-opt" ]]; then
+		        tccompiler_options="$tccompile_options -O"
+			shift
+		elif [[ "$1" == "-native" ]]; then
+		        tcbackend="native"
+			shift
+		elif [[ "$1" == "-managed" ]]; then
+		        tcbackend="managed"
+			shift
 		elif [[ "$1" == "-logPath" && $# -ge 2 ]]; then
 			if [[ ! -d "$2" ]]; then
 				printf "\n[${prog}: err]: Log directory $2 must exist\n"
-				cleanUpExitHarness 1
+				exit 1
 			fi
 			tclogpath=$2
 			shift 2
 		elif [[ "$1" == "-listFile" && $# -ge 2 ]]; then
 			if [[ ! -r "$2" ]]; then
 				printf "\n[${prog}: err]: List file $2 must exist & be readable\n"
-				cleanUpExitHarness 1
+				exit 1
 			fi
 			tcpatfile=$2
 			shift 2
 		elif [[ "$1" == "-runFile" && $# -ge 2 ]]; then
 			if [[ ! -r "$2" ]]; then
 				printf "\n[${prog}: err]: Run file $2 must exist & be readable\n"
-				cleanUpExitHarness 1
+				exit 1
 			fi
 			tcrunfile=$2
 			shift 2
@@ -260,7 +259,7 @@ if [[ -z "$X10_HOME" ]]; then
 	X10_HOME=$(cd $MYDIR/../..; pwd)
 fi
 X10TEST_PATH=$X10_HOME/x10.tests/examples
-prog=x10c++th
+prog=jenkins-runTest
 
 # platform independent abstraction for certain commands
 EGREP=egrep
@@ -289,11 +288,6 @@ DEFAULT_LOGPATH="log"
 DEFAULT_NPLACES=2
 MAX_NPLACES=4
 
-# the value will be set later
-export X10CPP_LOGLOC=""
-export X10CPP_RUNLOG="${prog}.run.log"
-export X10CPP_ERRLOG="${prog}.err.log"
-
 # test case globals
 
 # test harness current run state
@@ -302,8 +296,8 @@ export X10CPP_ERRLOG="${prog}.err.log"
 # REPORT_GENERATION, UNKNOWN_STATE
 thrunstate="UNKNOWN_STATE"
 
-# debug variable
-tctestrun=0
+# backend: either native or managed. Default to native
+tcbackend="native"
 
 # enable/disable timeout option
 # default: enable
@@ -312,14 +306,11 @@ typeset -i tctimeout=1
 # default timeout value, if timeout is enabled
 typeset -i tctoutval=$DEFAULT_TIMEOUT
 typeset -i tccomptout=420
-# run tests even if the script is launched in a non-test dir
-# default: no
-typeset -i tcforce=0
 
 # default log path, where log file will be created
 typeset tclogpath=$DEFAULT_LOGPATH
 
-# extra x10c++ options 
+# extra x10c/x10c++ options 
 typeset tccompiler_options=""
 
 # test case pattern file
@@ -340,7 +331,6 @@ typeset tcpatlist=""
 tctmprlog=${tctmpdir}/${prog}.run.${tctimestamp}.log
 tctmprhlog=${tctmpdir}/${prog}.run.${tctimestamp}.head.log
 tctmpelog=${tctmpdir}/${prog}.err.${tctimestamp}.log
-tctmpreport=${tctmpdir}/${prog}.${tctimestamp}.report
 # final log(s) will be available here
 tcrlogfile=""
 tcelogfile=""
@@ -379,25 +369,12 @@ tcftoutcnt=0
 # number of expected successes
 xtcpasscnt=0
 
-# following are needed for webfication
-# start & end timings
-tcstime=""
-tcetime=""
-
 # initialize test case globals
 # usage: init args
 function init {
-
 	# parse command-line arguments
 	thrunstate=PARSING_CMDLINE
 	parseCmdLine "$@"
-
-	# validate the test launch directory
-	# exit code: 1
-	if [[ $tcforce != 1 && ! -e .ThisIsAnX10TestDirectory ]]; then
-		printf "\n[$prog: err]: $(basename $(pwd)) not a valid X10 launch dir\n"
-		exit 1
-	fi
 
 	# set final log destination(s)
 	tcrlogfile=${tclogpath}/${prog}.run.${tctimestamp}.log
@@ -453,7 +430,6 @@ function junitLog {
 
 # main routine that invokes the rest
 function main {
-
 	# log invocation options
 	printf "\n<<Invocation Options>>\n"
 	printf "\nGlobal Timeout: "
@@ -468,26 +444,26 @@ function main {
 	printf "\nTestcase Pattern List: $tcpatlist\n"
 
 	# set test case build environment
-	X10CPP=$X10CPP
-	if [[ -z "$X10CPP" ]]; then
+	if [[ "$tcbackend" == "native" ]]; then
+	    X10CPP=$X10CPP
+	    if [[ -z "$X10CPP" ]]; then
 		X10CPP=$X10_HOME/x10.dist/bin/x10c++
-	fi
-	if [[ ! -f $X10CPP ]]; then
+	    fi
+	    if [[ ! -f $X10CPP ]]; then
 		printf "\n[$prog: err]: unable to locate x10c++ compiler!\n"
 		exit 2
-	fi
-	if [[ "$(uname -s)" == "AIX" ]]; then
-		X10CPP="$X10CPP -x10rt sockets"
-	elif [[ "$(uname -s)" == "Linux" && "$(uname -m)" == "x86_64" ]]; then
-	    X10CPP="$X10CPP -x10rt sockets"
-	elif [[ "$(uname -s)" == "Linux" && "$(uname -m)" == "ppc64" ]]; then
-	    X10CPP="$X10CPP -x10rt sockets"
-	elif [[ "$(uname -s)" == "SunOS" && "$(uname -p)" == "sparc" ]]; then
-	    X10CPP="$X10CPP -x10rt sockets"
-	elif [[ "$(uname -s)" == CYGWIN* && "$(uname -m)" == "i686" ]]; then
-	    X10CPP="$X10CPP -x10rt sockets"
-	elif [[ "$(uname -s)" == "Darwin" ]]; then
-	    X10CPP="$X10CPP -x10rt sockets"
+	    fi
+	    tccompiler_script=$X10CPP
+	else
+	    X10C=$X10C
+	    if [[ -z "$X10C" ]]; then
+		X10C=$X10_HOME/x10.dist/bin/x10c
+	    fi
+	    if [[ ! -f $X10C ]]; then
+		printf "\n[$prog: err]: unable to locate x10c compiler!\n"
+		exit 2
+	    fi
+	    tccompiler_script=$X10C
 	fi
 
 	RUN_X10=$RUN_X10
@@ -579,15 +555,14 @@ function main {
 		__jen_test_x10c_classpath="${EXTRA_CLASSPATH}"
 		__jen_test_x10c_directory="$testDir"
 		if [[ "$(uname -s)" == CYGWIN* ]]; then
-		    comp_cmd="${X10CPP} $extra_opts $extra_sourcepath $tccompiler_options -t -v -report postcompile=1 -CHECK_INVARIANTS=true -MAIN_CLASS=$className -o \"$(cygpath -am $tcroot)/$tctarget\" -sourcepath \"$(cygpath -am $X10_HOME/x10.tests/examples/$tDirSlash)\" -sourcepath \"$(cygpath -am $X10_HOME/x10.tests/examples/$testDir)\" -sourcepath \"$(cygpath -am $X10_HOME/x10.tests/examples/x10lib)\" -sourcepath \"$(cygpath -am $tcroot)\" -sourcepath \"$(cygpath -am $X10_HOME/x10.dist/samples)\"  -sourcepath \"$(cygpath -am $X10_HOME/x10.dist/samples/tutorial)\" -sourcepath \"$(cygpath -am $X10_HOME/x10.dist/samples/CUDA)\" -sourcepath \"$(cygpath -am $X10_HOME/x10.dist/samples/work-stealing)\" -d \"$(cygpath -am $tcroot)\" $tc $extendList \"$(cygpath -am ${X10TEST_PATH}/x10lib/harness/x10Test.x10)\""
+		    comp_cmd="${tccompiler_script} $extra_opts $extra_sourcepath $tccompiler_options -t -v -report postcompile=1 -CHECK_INVARIANTS=true -MAIN_CLASS=$className -o \"$(cygpath -am $tcroot)/$tctarget\" -sourcepath \"$(cygpath -am $X10_HOME/x10.tests/examples/$tDirSlash)\" -sourcepath \"$(cygpath -am $X10_HOME/x10.tests/examples/$testDir)\" -sourcepath \"$(cygpath -am $X10_HOME/x10.tests/examples/x10lib)\" -sourcepath \"$(cygpath -am $tcroot)\" -sourcepath \"$(cygpath -am $X10_HOME/x10.dist/samples)\"  -sourcepath \"$(cygpath -am $X10_HOME/x10.dist/samples/tutorial)\" -sourcepath \"$(cygpath -am $X10_HOME/x10.dist/samples/CUDA)\" -sourcepath \"$(cygpath -am $X10_HOME/x10.dist/samples/work-stealing)\" -d \"$(cygpath -am $tcroot)\" $tc $extendList \"$(cygpath -am ${X10TEST_PATH}/x10lib/harness/x10Test.x10)\""
 		else
-		    comp_cmd="${X10CPP} $extra_opts $extra_sourcepath $tccompiler_options -t -v -report postcompile=1 -CHECK_INVARIANTS=true -MAIN_CLASS=$className -o $tcroot/$tctarget -sourcepath $X10_HOME/x10.tests/examples/$tDirSlash -sourcepath $X10_HOME/x10.tests/examples/$testDir -sourcepath $X10_HOME/x10.tests/examples/x10lib -sourcepath $tcroot -sourcepath $X10_HOME/x10.dist/samples -sourcepath $X10_HOME/x10.dist/samples/tutorial -sourcepath $X10_HOME/x10.dist/samples/CUDA -sourcepath $X10_HOME/x10.dist/samples/work-stealing -d $tcroot $tc $extendList ${X10TEST_PATH}/x10lib/harness/x10Test.x10"
+		    comp_cmd="${tccompiler_script} $extra_opts $extra_sourcepath $tccompiler_options -t -v -report postcompile=1 -CHECK_INVARIANTS=true -MAIN_CLASS=$className -o $tcroot/$tctarget -sourcepath $X10_HOME/x10.tests/examples/$tDirSlash -sourcepath $X10_HOME/x10.tests/examples/$testDir -sourcepath $X10_HOME/x10.tests/examples/x10lib -sourcepath $tcroot -sourcepath $X10_HOME/x10.dist/samples -sourcepath $X10_HOME/x10.dist/samples/tutorial -sourcepath $X10_HOME/x10.dist/samples/CUDA -sourcepath $X10_HOME/x10.dist/samples/work-stealing -d $tcroot $tc $extendList ${X10TEST_PATH}/x10lib/harness/x10Test.x10"
 		fi
 		tccompdat=${tcroot}/${tctarget}.comp
 		printf "\n****** $tDir $className ******\n\n" >> $tccompdat
 
 		__jen_test_x10_command=""
-		__jen_test_x10c_command="$(echo execTimeOut $tccomptout $tccompdat \"${comp_cmd}\")"
 		execTimeOut $tccomptout $tccompdat "${comp_cmd}"
 		rc=$?
 		cat ${tccompdat} 1>&2
@@ -662,13 +637,12 @@ function main {
 		fi
 
 		if [[ "$(uname -s)" == CYGWIN* ]]; then
-		    run_cmd="X10_NPLACES=${my_nplaces} X10_HOSTLIST=localhost /usr/bin/time -p $RUN_X10 ./${tctarget}.exe"
+		    run_cmd="X10_NPLACES=${my_nplaces} X10_HOSTLIST=localhost $RUN_X10 ./${tctarget}.exe"
 		else
-		    run_cmd="X10_NPLACES=${my_nplaces} X10_HOSTLIST=localhost /usr/bin/time -p ./${tctarget}"
+		    run_cmd="X10_NPLACES=${my_nplaces} X10_HOSTLIST=localhost ./${tctarget}"
 		fi
 		printf "\n${run_cmd}\n" >> $tcoutdat
 
-		__jen_test_x10_classpath="$EXTRA_CLASSPATH"
 		__jen_test_x10_timeout="$tctoutval"
 		if [[ $tctimeout == 0 ]]; then
 			__jen_test_x10_command="$(echo $run_cmd >> $tcoutdat)"
@@ -677,7 +651,6 @@ function main {
 		fi
 		printf " ++ E [EXECUTION]"
 		( \
-			printf "\n===> cd $tcroot\n" 1>&2; \
 			cd $tcroot; \
 			if [[ $tctimeout == 0 ]]; then \
 				printf "\n===> $run_cmd >> $tcoutdat\n\n" 1>&2; \
@@ -784,38 +757,36 @@ function main {
 		fi
 	done
 
-	# prepare the report
-	# simple summary for the moment
+	# Simple summary report (visible at end of console output on test job)
 	thrunstate=REPORT_GENERATION
-	printf "\n\n<<Report Generation>>\n" > ${tctmpreport}
-	printf "\n\n======================================================================\n\n" >> ${tctmpreport}
-	printf "                     X10/C++ Test Harness :: Run Report\n\n" >> ${tctmpreport}
-	printf "\n**QUEUE          : " >> ${tctmpreport}
-	printf "${tcvalidcnt}\n" >> ${tctmpreport}
+	printf "\n\n<<Report Generation>>\n"
+	printf "\n\n======================================================================\n\n"
+	printf "                     X10/C++ Test Harness :: Run Report\n\n"
+	printf "\n**QUEUE          : "
+	printf "${tcvalidcnt}\n"
 
-	printf "\n**COMPILATION    : " >> ${tctmpreport}
-	printf "${tccompcnt} Successes / ${xtcfcompcnt} Expected Failures" >> ${tctmpreport}
-	printf " / ${tcfcompcnt} Actual Failures\n" >> ${tctmpreport}
+	printf "\n**COMPILATION    : "
+	printf "${tccompcnt} Successes / ${xtcfcompcnt} Expected Failures"
+	printf " / ${tcfcompcnt} Actual Failures\n"
 
-	printf "\n**EXECUTION      : " >> ${tctmpreport}
-	printf "${tcexeccnt} Successes" >> ${tctmpreport}
-	printf " / ${tcfexeccnt} Actual Failures\n" >> ${tctmpreport}
+	printf "\n**EXECUTION      : "
+	printf "${tcexeccnt} Successes"
+	printf " / ${tcfexeccnt} Actual Failures\n"
 
-	printf "\n**TIME-OUT       : " >> ${tctmpreport}
-	printf "${xtcftoutcnt} Expected Failures / ${tcftoutcnt} Actual" >> ${tctmpreport}
-	printf " Failures\n" >> ${tctmpreport}
+	printf "\n**TIME-OUT       : "
+	printf "${xtcftoutcnt} Expected Failures / ${tcftoutcnt} Actual"
+	printf " Failures\n"
 
-	printf "\n**MISCELLANEOUS  : " >> ${tctmpreport}
-	printf "${tcfvcodecnt} Invalid Validation Codes\n" >> ${tctmpreport}
+	printf "\n**MISCELLANEOUS  : "
+	printf "${tcfvcodecnt} Invalid Validation Codes\n"
 
-	printf "\n**CONCLUSION     : " >> ${tctmpreport}
-	printf "${tcpasscnt} Successes / ${tcfailcnt} Failures\n" >> ${tctmpreport}
-	printf "\n======================================================================\n\n" >> ${tctmpreport}
+	printf "\n**CONCLUSION     : "
+	printf "${tcpasscnt} Successes / ${tcfailcnt} Failures\n"
+	printf "\n======================================================================\n\n"
 }
 
 __jen_test_id=0
 __jen_test_name=""
-__jen_test_x10c_command=""
 __jen_test_x10_command=""
 __jen_test_parameters=""
 __jen_test_exit_code=""
@@ -828,7 +799,6 @@ __jen_test_output=""
 __jen_test_x10c_sourcepath=""
 __jen_test_x10c_classpath=""
 __jen_test_x10c_directory=""
-__jen_test_x10_classpath=""
 __jen_test_x10_timeout=""
 __jen_hostname=$(hostname)
 
