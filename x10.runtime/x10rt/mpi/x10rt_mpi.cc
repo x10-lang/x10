@@ -91,10 +91,6 @@ template <class T> T* ChkRealloc(T * ptr, size_t len) {
     return ptr2;
 }
 
-bool checkBoolEnvVar(char* value) {
-	return (value && !(strcasecmp("false", value) == 0) && !(strcasecmp("0", value) == 0) && !(strcasecmp("f", value) == 0));
-}
-
 /**
  * Get count of bytes received from MPI_Status
  */
@@ -150,10 +146,19 @@ typedef enum {
     X10RT_REQ_TYPE_UNDEFINED            = -1
 } X10RT_REQ_TYPES;
 
+/* differentiate from x10rt_{get|put}_req
+ * to save precious bytes from packet size
+ * for each PUT/GET */
+typedef struct _x10rt_nw_req {
+    int                       type;
+    int                       msg_len;
+    int                       len;
+} x10rt_nw_req;
+
 typedef struct _x10rt_get_req {
     int                       type;
     int                       dest_place;
-    void                    * msg;
+    x10rt_nw_req            * msg;
     int                       msg_len;
     int                       len;
 } x10rt_get_req;
@@ -164,15 +169,6 @@ typedef struct _x10rt_put_req {
     int                       msg_len;
     int                       len;
 } x10rt_put_req;
-
-/* differentiate from x10rt_{get|put}_req
- * to save precious bytes from packet size
- * for each PUT/GET */
-typedef struct _x10rt_nw_req {
-    int                       type;
-    int                       msg_len;
-    int                       len;
-} x10rt_nw_req;
 
 class x10rt_req {
         int                   type;
@@ -608,11 +604,6 @@ void x10rt_net_register_get_receiver(x10rt_msg_type msg_type,
     global_state.getCb2Tbl[msg_type] = cb2;
 }
 
-void x10rt_net_internal_barrier (void)
-{
-    abort(); // FUNCTION IS ON DEATH ROW
-}
-
 x10rt_place x10rt_net_nhosts(void) {
     assert(global_state.init);
     assert(!global_state.finalized);
@@ -890,7 +881,8 @@ static void get_incoming_data_completion(x10rt_req_queue * q,
     getCb2 cb = global_state.getCb2Tbl[get_req->type];
     x10rt_msg_params p = { get_req->dest_place,
                            get_req->type,
-                           get_req->msg,
+                           //get_req->msg,
+		 		 		    static_cast <void *> (&get_req->msg[1]),
                            get_req->msg_len,
                            0
                          };
@@ -1247,18 +1239,16 @@ void x10rt_net_finalize(void) {
     global_state.finalized = true;
 }
 
-int x10rt_net_supports (x10rt_opt o) {
-    X10RT_NET_DEBUG("o = %d", o);
-    if (!global_state.use_collectives)
-    	return 0;
+x10rt_coll_type x10rt_net_coll_support () {
+    // TODO: this will change shortly
+    if (global_state.use_collectives)
+	    return X10RT_COLL_ALLNONBLOCKINGCOLLECTIVES;
+	else
+        return X10RT_COLL_NOCOLLECTIVES;
+}
 
-    switch (o) {
-        case X10RT_OPT_COLLECTIVES:
-             return 1;
-             break;
-        default:
-            return 0;
-    }
+bool x10rt_net_remoteop_support () {
+	return false;
 }
 
 void x10rt_net_remote_op (x10rt_place place, x10rt_remote_ptr victim,
