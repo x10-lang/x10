@@ -3,13 +3,13 @@
 #
 # (c) Copyright IBM Corporation 2009-2013
 #
-# Harness to execute a set of tests with Native X10
-# and generate .xml files for each test case in JUnit format
+# Harness to compile and execute a set of tests with 
+# either Native X10 or Managed X10. 
 # 
-
 
 # display command-line help
 # usage: printUsage excode detail
+# TODO: update this once usage stabalize
 function printUsage {
 	printf "\n=====> X10/C++ Test Harness\n\n"
 	printf "Usage: xtestScript++ [-t|-timeOut [secs]] [-f|-force]\n"
@@ -23,10 +23,6 @@ function printUsage {
 		printf -- "-t | -timeOut [secs]\n"
 		printf "  Enable timeout option for test case execution. This"
 		printf " overrides\nthe default timeout value of 60 seconds.\n\n"
-		printf -- "-logPath dir\n"
-		printf "  Specify the directory path where generated log files"
-		printf " will be\nstored.  If not specified, the current path's"
-		printf " \"log\" entry\nwill be used for this purpose.\n\n"
 		printf -- "-listFile file\n"
 		printf "  Test cases are found recursively starting at the top"
 		printf " test\ndirectory, and are executed in the same order as"
@@ -87,13 +83,6 @@ function parseCmdLine {
 		elif [[ "$1" == "-managed" ]]; then
 		        tcbackend="managed"
 			shift
-		elif [[ "$1" == "-logPath" && $# -ge 2 ]]; then
-			if [[ ! -d "$2" ]]; then
-				printf "\n[${prog}: err]: Log directory $2 must exist\n"
-				exit 1
-			fi
-			tclogpath=$2
-			shift 2
 		elif [[ "$1" == "-listFile" && $# -ge 2 ]]; then
 			if [[ ! -r "$2" ]]; then
 				printf "\n[${prog}: err]: List file $2 must exist & be readable\n"
@@ -115,7 +104,7 @@ function parseCmdLine {
 			fi
 		elif [[ "$1" == "-help" || "$1" == "-h" ]]; then
 			printUsage 0 1
-		elif [[ "$1" == "-logPath" || "$1" == "-listFile" || "$1" == "-runFile" || "$1" == "-l" || "$1" == "-list" || "$1" == "-report_dir" ]]; then
+		elif [["$1" == "-listFile" || "$1" == "-runFile" || "$1" == "-l" || "$1" == "-list" || "$1" == "-report_dir" ]]; then
 			printf "\n[${prog}: err]: Option $1 needs argument\n\n"
 			printUsage 1 0
 		elif [[ "$1" == -* ]]; then
@@ -190,11 +179,22 @@ function isTestCase {
 		return 1
 	fi
 
-	printf "\n===> ${EGREP} -q 'MANAGED_X10_ONLY' $1\n\n" 1>&2
-	${EGREP} -q 'MANAGED_X10_ONLY' $1
-	if [[ $? == 0 ]]; then
+	if [[ "$tcbackend" == "native" ]]; then 
+	    printf "\n===> ${EGREP} -q 'MANAGED_X10_ONLY' $1\n\n" 1>&2
+	    ${EGREP} -q 'MANAGED_X10_ONLY' $1
+	    if [[ $? == 0 ]]; then
 		printf "\n[$prog: err]: ${file} contains MANAGED_X10_ONLY directive\n"
 		return 1
+	    fi
+	fi
+
+	if [[ "$tcbackend" == "managed" ]]; then 
+	    printf "\n===> ${EGREP} -q 'NATIVE_X10_ONLY' $1\n\n" 1>&2
+	    ${EGREP} -q 'NATIVE_X10_ONLY' $1
+	    if [[ $? == 0 ]]; then
+		printf "\n[$prog: err]: ${file} contains NATIVE_X10_ONLY directive\n"
+		return 1
+	    fi
 	fi
 
 	return 0
@@ -636,10 +636,15 @@ function main {
 		    fi
 		fi
 
-		if [[ "$(uname -s)" == CYGWIN* ]]; then
-		    run_cmd="X10_NPLACES=${my_nplaces} X10_HOSTLIST=localhost $RUN_X10 ./${tctarget}.exe"
+
+		if [[ "$tcbackend" == "native" ]]; then
+		    if [[ "$(uname -s)" == CYGWIN* ]]; then
+			run_cmd="X10_NPLACES=${my_nplaces} X10_HOSTLIST=localhost $RUN_X10 ./${tctarget}.exe"
+		    else
+			run_cmd="X10_NPLACES=${my_nplaces} X10_HOSTLIST=localhost ./${tctarget}"
+		    fi
 		else
-		    run_cmd="X10_NPLACES=${my_nplaces} X10_HOSTLIST=localhost ./${tctarget}"
+		    run_cmd="X10_NPLACES=${my_nplaces} X10_HOSTLIST=localhost $X10_HOME/x10.dist/bin/x10 -t -v -J-ea ${tctarget}"
 		fi
 		printf "\n${run_cmd}\n" >> $tcoutdat
 
