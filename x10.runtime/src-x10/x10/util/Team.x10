@@ -120,9 +120,14 @@ public struct Team {
     	@Native("c++", "x10rt_team_new(count, (x10rt_place*)places->raw, x10aux::coll_handler2, x10aux::coll_enter2(result->raw));") {}
     }
     
-    private static def nativeCollectiveSupport() : Int {
+/*  private static def nativeCollectiveSupport() : Int {
     	@Native("java", "return x10.x10rt.X10RT.collectiveSupport();")
     	@Native("c++", "return x10rt_coll_support();") { return -1n; }
+    }
+*/    
+    @Native("java", "x10.x10rt.X10RT.collectiveSupport()")
+    private static def nativeCollectiveSupport () : Int {
+    	return X10RT_COLL_ALLNONBLOCKINGCOLLECTIVES; // c++ always has a native implementation, for now
     }
 
     /** Returns the number of places in the team.
