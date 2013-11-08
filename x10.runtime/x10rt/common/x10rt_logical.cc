@@ -919,7 +919,11 @@ void x10rt_lgl_finalize (void)
 }
 
 x10rt_coll_type x10rt_lgl_coll_support () {
-	return x10rt_net_coll_support();
+	x10rt_coll_type v = x10rt_net_coll_support();
+	if (v == X10RT_COLL_NOCOLLECTIVES)
+		return X10RT_COLL_ALLNONBLOCKINGCOLLECTIVES; // use local implementation
+	else
+		return v;
 }
 
 

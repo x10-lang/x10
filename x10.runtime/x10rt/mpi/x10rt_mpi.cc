@@ -1240,9 +1240,8 @@ void x10rt_net_finalize(void) {
 }
 
 x10rt_coll_type x10rt_net_coll_support () {
-    // TODO: this will change shortly
     if (global_state.use_collectives)
-	    return X10RT_COLL_ALLNONBLOCKINGCOLLECTIVES;
+	    return X10RT_COLL_ALLBLOCKINGCOLLECTIVES;
 	else
         return X10RT_COLL_NOCOLLECTIVES;
 }
