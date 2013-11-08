@@ -7,15 +7,6 @@
 # and generate .xml files for each test case in JUnit format
 # 
 
-function writeJUnitHead {
-    printf "<testsuites>\n" >> $TLOGF
-}
-
-function writeJUnitTail {
-    printf "</testsuites>\n" >> $TLOGF
-}
-
-
 
 # display command-line help
 # usage: printUsage excode detail
@@ -88,8 +79,8 @@ function parseCmdLine {
 		elif [[ "$1" == "-force" || "$1" == "-f" ]]; then
 			tcforce=1
 			shift
-		elif [[ "$1" == "-junit_report" && $# -ge 2 ]]; then
-		        TLOGF=$2
+		elif [[ "$1" == "-report_dir" && $# -ge 2 ]]; then
+		        tcreportdir=$2
 			shift 2
 		elif [[ "$1" == "-opt" ]]; then
 		        tccompiler_options="-O $tccompile_options"
@@ -125,7 +116,7 @@ function parseCmdLine {
 			fi
 		elif [[ "$1" == "-help" || "$1" == "-h" ]]; then
 			printUsage 0 1
-		elif [[ "$1" == "-logPath" || "$1" == "-listFile" || "$1" == "-runFile" || "$1" == "-l" || "$1" == "-list" ]]; then
+		elif [[ "$1" == "-logPath" || "$1" == "-listFile" || "$1" == "-runFile" || "$1" == "-l" || "$1" == "-list" || "$1" == "-report_dir" ]]; then
 			printf "\n[${prog}: err]: Option $1 needs argument\n\n"
 			printUsage 1 0
 		elif [[ "$1" == -* ]]; then
@@ -290,6 +281,8 @@ fi
 tctmpdir=${TMPDIR}/${prog}.$$.${tctimestamp}
 mkdir -p $tctmpdir
 
+tcreportdir=$tctmpdir
+
 # default values
 DEFAULT_TIMEOUT=360
 DEFAULT_LOGPATH="log"
@@ -409,51 +402,53 @@ function init {
 	# set final log destination(s)
 	tcrlogfile=${tclogpath}/${prog}.run.${tctimestamp}.log
 	tcelogfile=${tclogpath}/${prog}.err.${tctimestamp}.log
+
+	# ensure that the reportdir exists
+	mkdir -p $tcreportdir
 }
 
-function xmlLog {
-	TOUTF=$TLOGF
-	if [[ -z "$TLOGF" ]]; then TLOGF=/dev/null; TOUTF=/dev/stderr; fi
-	__cat_test_end_time=$(perl -e 'print time;')
-	let '__cat_test_duration = __cat_test_end_time - __cat_test_start_time'
+function junitLog {
+	__jen_test_end_time=$(perl -e 'print time;')
+	let '__jen_test_duration = __jen_test_end_time - __jen_test_start_time'
 
 	# testsuite header
-	let '__cat_test_id += 1'
-	printf "\n\t<testsuite" >> $TLOGF
-	printf "\tid=\"${__cat_test_id}\"\n" >> $TLOGF
-	printf "\t\t\tpackage=\"${__cat_current_group}\"\n" >> $TLOGF
-	printf "\t\t\tname=\"${__cat_test_name}\"\n" >> $TLOGF
-	printf "\t\t\ttimestamp=\"${__cat_test_timestamp}\"\n" >> $TLOGF
-	printf "\t\t\thostname=\"${__cat_hostname}\"\n" >> $TLOGF
-	printf "\t\t\ttime=\"${__cat_test_duration}\"\n" >> $TLOGF
-	printf "\t\t\ttests=\"1\"\n" >> $TLOGF
-	if [[ "${__cat_test_result}" != "SUCCESS" ]]; then
-	    printf "\t\t\tfailures=\"1\"\n" >> $TLOGF
+	let '__jen_test_id += 1'
+	JUFILE="${tcreportdir}/test.${__jen_test_id}.xml"
+	printf "\n\t<testsuite" > $JUFILE
+	printf "\tid=\"${__jen_test_id}\"\n" >> $JUFILE
+	printf "\t\t\tpackage=\"${__jen_current_group}\"\n" >> $JUFILE
+	printf "\t\t\tname=\"${__jen_test_name}\"\n" >> $JUFILE
+	printf "\t\t\ttimestamp=\"${__jen_test_timestamp}\"\n" >> $JUFILE
+	printf "\t\t\thostname=\"${__jen_hostname}\"\n" >> $JUFILE
+	printf "\t\t\ttime=\"${__jen_test_duration}\"\n" >> $JUFILE
+	printf "\t\t\ttests=\"1\"\n" >> $JUFILE
+	if [[ "${__jen_test_result}" != "SUCCESS" ]]; then
+	    printf "\t\t\tfailures=\"1\"\n" >> $JUFILE
 	else
-	    printf "\t\t\tfailures=\"0\"\n" >> $TLOGF
+	    printf "\t\t\tfailures=\"0\"\n" >> $JUFILE
 	fi
-	printf "\t\t\terrors=\"0\"\n" >> $TLOGF
-	printf "\t\t>\n" >> $TLOGF
-	printf "\t\t<properties></properties>\n" >> $TLOGF
+	printf "\t\t\terrors=\"0\"\n" >> $JUFILE
+	printf "\t\t>\n" >> $JUFILE
+	printf "\t\t<properties></properties>\n" >> $JUFILE
 
 	# testcase (trivial...1 per test suite)
-	printf "\t\t<testcase classname=\"${__cat_test_name}\" name=\"main\" time=\"${__cat_test_duration}\">\n" >> $TLOGF
-	if [[ "${__cat_test_result}" != "SUCCESS" ]]; then
-	    printf "\t\t\t<failure type=\"${__cat_test_result}\" message=\"${__cat_test_result_explanation}\"/>\n" >> $TLOGF
+	printf "\t\t<testcase classname=\"${__jen_test_name}\" name=\"main\" time=\"${__jen_test_duration}\">\n" >> $JUFILE
+	if [[ "${__jen_test_result}" != "SUCCESS" ]]; then
+	    printf "\t\t\t<failure type=\"${__jen_test_result}\" message=\"${__jen_test_result_explanation}\"/>\n" >> $JUFILE
 	fi
-	printf "\t\t</testcase>\n" >> $TLOGF
+	printf "\t\t</testcase>\n" >> $JUFILE
 
-	printf "\t\t<system-out>\n" >> $TLOGF
+	printf "\t\t<system-out>\n" >> $JUFILE
 	perl -pe 's/&/\&amp;/g;
 	          s/</\&lt;/g;
 	          s/>/\&gt;/g;
 	          s/"/\&quot;/g;
 	          s/'"'"'/\&apos;/g;
-	          s/([^[:print:]\t\n\r])/sprintf("\&#%04x;", ord($1))/eg' $1 >> $TOUTF
-	printf "\t\t</system-out>\n" >> $TLOGF
+	          s/([^[:print:]\t\n\r])/sprintf("\&#%04x;", ord($1))/eg' $1 >> $JUFILE
+	printf "\t\t</system-out>\n" >> $JUFILE
 	# TODO: include system-err in file
-	printf "\t\t<system-err></system-err>\n" >> $TLOGF
-	printf "\t</testsuite>\n" >> $TLOGF
+	printf "\t\t<system-err></system-err>\n" >> $JUFILE
+	printf "\t</testsuite>\n" >> $JUFILE
 }
 
 # main routine that invokes the rest
@@ -541,8 +536,8 @@ function main {
 		fi
 		let 'tcvalidcnt += 1'
 
-		__cat_test_start_time=$(perl -e 'print time;')
-		__cat_test_timestamp=$(date "+%FT%T")
+		__jen_test_start_time=$(perl -e 'print time;')
+		__jen_test_timestamp=$(date "+%FT%T")
 
 		# create the test root
 		tctarget=$(basename $tc | sed -e 's;.x10;;')
@@ -552,12 +547,12 @@ function main {
 		className=${className#\.\/}
 		className=`echo "$className" | sed -e 's/\//\./g'`
 		className=${className#\.}
-		__cat_test_name="$className"
+		__jen_test_name="$className"
 		local testDir=$(dirname $tc)
 		local tDirSlash=${testDir%/$tPkg}
 		local tDir=${tDirSlash#\.\/}
 		tDir=`echo "$tDir" | sed -e 's/\//\./g'`
-		__cat_current_group="$tDir"
+		__jen_current_group="$tDir"
 		if [[ -d ${tcroot} ]]; then
 			rm -rf ${tcroot}
 		fi
@@ -580,9 +575,9 @@ function main {
 		extra_opts="$(sed -ne 's|^\s*//\s*OPTIONS*\:\s*\(.*\)|\1|p' $tc)"
 		extra_sourcepath="$(sed -ne 's|^\s*//\s*SOURCEPATH*\:\s*\(.*\)|\1|p' $tc)"
                 [ -n "$extra_sourcepath" ] && extra_sourcepath="-sourcepath \"$extra_sourcepath\""
-		__cat_test_x10c_sourcepath="$tcroot"
-		__cat_test_x10c_classpath="${EXTRA_CLASSPATH}"
-		__cat_test_x10c_directory="$testDir"
+		__jen_test_x10c_sourcepath="$tcroot"
+		__jen_test_x10c_classpath="${EXTRA_CLASSPATH}"
+		__jen_test_x10c_directory="$testDir"
 		if [[ "$(uname -s)" == CYGWIN* ]]; then
 		    comp_cmd="${X10CPP} $extra_opts $extra_sourcepath $tccompiler_options -t -v -report postcompile=1 -CHECK_INVARIANTS=true -MAIN_CLASS=$className -o \"$(cygpath -am $tcroot)/$tctarget\" -sourcepath \"$(cygpath -am $X10_HOME/x10.tests/examples/$tDirSlash)\" -sourcepath \"$(cygpath -am $X10_HOME/x10.tests/examples/$testDir)\" -sourcepath \"$(cygpath -am $X10_HOME/x10.tests/examples/x10lib)\" -sourcepath \"$(cygpath -am $tcroot)\" -sourcepath \"$(cygpath -am $X10_HOME/x10.dist/samples)\"  -sourcepath \"$(cygpath -am $X10_HOME/x10.dist/samples/tutorial)\" -sourcepath \"$(cygpath -am $X10_HOME/x10.dist/samples/CUDA)\" -sourcepath \"$(cygpath -am $X10_HOME/x10.dist/samples/work-stealing)\" -d \"$(cygpath -am $tcroot)\" $tc $extendList \"$(cygpath -am ${X10TEST_PATH}/x10lib/harness/x10Test.x10)\""
 		else
@@ -591,52 +586,52 @@ function main {
 		tccompdat=${tcroot}/${tctarget}.comp
 		printf "\n****** $tDir $className ******\n\n" >> $tccompdat
 
-		__cat_test_x10_command=""
-		__cat_test_x10c_command="$(echo execTimeOut $tccomptout $tccompdat \"${comp_cmd}\")"
+		__jen_test_x10_command=""
+		__jen_test_x10c_command="$(echo execTimeOut $tccomptout $tccompdat \"${comp_cmd}\")"
 		execTimeOut $tccomptout $tccompdat "${comp_cmd}"
 		rc=$?
 		cat ${tccompdat} 1>&2
 		if [[ $rc != 0 && "$tcvcode" == "FAIL_COMPILE" ]]; then
 			let 'tcfcompcnt += 1'
-			__cat_test_exit_code=$rc
+			__jen_test_exit_code=$rc
             ${EGREP} "Exception in thread" $tccompdat >/dev/null 2>&1
             if [[ $? == 0 ]]; then
                 printf " *** X ***"
                 let 'tcfailcnt += 1'
                 printf "\n[$prog: err]: compile time exception for ${className}\n"
-                __cat_test_result_explanation="${className} did not meet expectation: expected=MustFailCompile actual=FailCompileWithException (exception in thread main)."
-                __cat_test_result="FAILURE"
+                __jen_test_result_explanation="${className} did not meet expectation: expected=MustFailCompile actual=FailCompileWithException (exception in thread main)."
+                __jen_test_result="FAILURE"
                 printf "\n****** $tDir $className failed: compile time exception\n" >> $tccompdat
             else
 			    printf " *** Y ***"
 			    let 'tcpasscnt += 1'
-			    __cat_test_result_explanation="${className} met expectation: MustFailCompile."
-			    __cat_test_result="SUCCESS"
+			    __jen_test_result_explanation="${className} met expectation: MustFailCompile."
+			    __jen_test_result="SUCCESS"
 			    printf "\n****** $tDir $className succeeded.\n" >> $tccompdat
             fi
-			xmlLog $tccompdat
+			junitLog $tccompdat
 			continue
 		elif [[ $rc == 0 && "$tcvcode" == "FAIL_COMPILE" ]]; then
 			printf " *** X ***"
 			let 'tcfvcodecnt += 1'
 			let 'tcfailcnt += 1'
 			printf "\n[$prog: err]: invalid validation code for ${className}\n"
-			__cat_test_result_explanation="${className} did not meet expectation: expected=MustFailCompile actual=Succeed (invalid validation code)."
-			__cat_test_result="FAILURE"
-			__cat_test_exit_code=42
+			__jen_test_result_explanation="${className} did not meet expectation: expected=MustFailCompile actual=Succeed (invalid validation code)."
+			__jen_test_result="FAILURE"
+			__jen_test_exit_code=42
 			printf "\n****** $tDir $className failed: compile\n" >> $tccompdat
-			xmlLog $tccompdat
+			junitLog $tccompdat
 			continue
 		elif [[ $rc != 0 && "$tcvcode" != "FAIL_COMPILE" ]]; then
 			let 'tcfcompcnt += 1'
 			let 'tcfailcnt += 1'
 			printf " *** X ***"
 			printf "\n[$prog: err]: can't generate c++ sources for ${className}\n"
-			__cat_test_result_explanation="${className} did not meet expectation: expected=Succeed actual=FailCompile (failed to generate c++ sources)."
-			__cat_test_result="FAILURE"
-			__cat_test_exit_code=$rc
+			__jen_test_result_explanation="${className} did not meet expectation: expected=Succeed actual=FailCompile (failed to generate c++ sources)."
+			__jen_test_result="FAILURE"
+			__jen_test_exit_code=$rc
 			printf "\n****** $tDir $className failed: compile\n" >> $tccompdat
-			xmlLog $tccompdat
+			junitLog $tccompdat
 			continue
 		fi
 		printf "\n++++++ Compilation succeeded.\n" >> $tccompdat
@@ -673,12 +668,12 @@ function main {
 		fi
 		printf "\n${run_cmd}\n" >> $tcoutdat
 
-		__cat_test_x10_classpath="$EXTRA_CLASSPATH"
-		__cat_test_x10_timeout="$tctoutval"
+		__jen_test_x10_classpath="$EXTRA_CLASSPATH"
+		__jen_test_x10_timeout="$tctoutval"
 		if [[ $tctimeout == 0 ]]; then
-			__cat_test_x10_command="$(echo $run_cmd >> $tcoutdat)"
+			__jen_test_x10_command="$(echo $run_cmd >> $tcoutdat)"
 		else
-			__cat_test_x10_command="$(echo execTimeOut $tctoutval $tcoutdat \"${run_cmd}\")"
+			__jen_test_x10_command="$(echo execTimeOut $tctoutval $tcoutdat \"${run_cmd}\")"
 		fi
 		printf " ++ E [EXECUTION]"
 		( \
@@ -696,11 +691,11 @@ function main {
 			let 'tcexeccnt += 1'
 			let 'tcpasscnt += 1'
 			printf " *** Y ***"
-			__cat_test_result_explanation="${className} met expectation: Succeed."
-			__cat_test_result="SUCCESS"
-			__cat_test_exit_code=$rc
+			__jen_test_result_explanation="${className} met expectation: Succeed."
+			__jen_test_result="SUCCESS"
+			__jen_test_exit_code=$rc
 			printf "\n****** $tDir $className succeeded.\n" >> $tcoutdat
-			xmlLog $tcoutdat
+			junitLog $tcoutdat
 			continue
 		fi
 		if [[ $tctimeout == 0 ]]; then
@@ -709,22 +704,22 @@ function main {
 				let 'tcfexeccnt += 1'
 				printf " *** X ***"
 				printf "\n[$prog: err]: failed to execute ${className}\n"
-				__cat_test_result_explanation="${className} did not meet expectation: expected=Succeed actual=FailRun."
-				__cat_test_result="FAILURE"
-				__cat_test_exit_code=$rc
+				__jen_test_result_explanation="${className} did not meet expectation: expected=Succeed actual=FailRun."
+				__jen_test_result="FAILURE"
+				__jen_test_exit_code=$rc
 				printf "\n****** $tDir $className failed: run\n" >> $tcoutdat
-				xmlLog $tcoutdat
+				junitLog $tcoutdat
 				continue
 			else
 				printf " *** X ***"
 				let 'tcfailcnt += 1'
 				let 'tcfvcodecnt += 1'
 				printf "\n[$prog: err]: invalid validation code ${className}\n"
-				__cat_test_result_explanation="${className} did not meet expectation: expected=Succeed actual=FailRun (invalid validation code)."
-				__cat_test_result="FAILURE"
-				__cat_test_exit_code=42
+				__jen_test_result_explanation="${className} did not meet expectation: expected=Succeed actual=FailRun (invalid validation code)."
+				__jen_test_result="FAILURE"
+				__jen_test_exit_code=42
 				printf "\n****** $tDir $className failed: run\n" >> $tcoutdat
-				xmlLog $tcoutdat
+				junitLog $tcoutdat
 				continue
 			fi
 		else
@@ -734,44 +729,44 @@ function main {
 				let 'tcftoutcnt += 1'
 				let 'tcfexeccnt += 1'
 				printf "\n[$prog: err]: ${className} is killed due to timeout\n"
-				__cat_test_result_explanation="${className} did not meet expectation: expected=Succeed actual=TimeOut (killed due to timeout)."
-				__cat_test_result="FAILURE"
-				__cat_test_exit_code=$rc
+				__jen_test_result_explanation="${className} did not meet expectation: expected=Succeed actual=TimeOut (killed due to timeout)."
+				__jen_test_result="FAILURE"
+				__jen_test_exit_code=$rc
 				printf "\n****** $tDir $className failed: timeout\n" >> $tcoutdat
-				xmlLog $tcoutdat
+				junitLog $tcoutdat
 				continue
 			elif [[ $rc > 0 && $tcvcode == "SUCCEED" ]]; then
 				printf " *** X ***"
 				let 'tcfailcnt += 1'
 				let 'tcfexeccnt += 1'
 				printf "\n[$prog: err]: failed to execute ${className}\n"
-				__cat_test_result_explanation="${className} did not meet expectation: expected=Succeed actual=FailRun (execution failed)."
-				__cat_test_result="FAILURE"
-				__cat_test_exit_code=$rc
+				__jen_test_result_explanation="${className} did not meet expectation: expected=Succeed actual=FailRun (execution failed)."
+				__jen_test_result="FAILURE"
+				__jen_test_exit_code=$rc
 				printf "\n****** $tDir $className failed: run\n" >> $tcoutdat
-				xmlLog $tcoutdat
+				junitLog $tcoutdat
 				continue
 			elif [[ $rc == 0 && $tcvcode == "FAIL_TIMEOUT" ]]; then
 				printf " *** X ***"
 				let 'tcfailcnt += 1'
 				let 'tcfvcodecnt += 1'
 				printf "\n[$prog: err]: invalid validation code ${tcvcode}\n"
-				__cat_test_result_explanation="${className} did not meet expectation: expected=MustFailTimeOut actual=Succeed (invalid validation code)."
-				__cat_test_result="FAILURE"
-				__cat_test_exit_code=42
+				__jen_test_result_explanation="${className} did not meet expectation: expected=MustFailTimeOut actual=Succeed (invalid validation code)."
+				__jen_test_result="FAILURE"
+				__jen_test_exit_code=42
 				printf "\n****** $tDir $className failed: run\n" >> $tcoutdat
-				xmlLog $tcoutdat
+				junitLog $tcoutdat
 				continue
 			elif [[ $rc > 128 && $tcvcode == "FAIL_TIMEOUT" ]]; then
 				printf " *** Y ***"
 				let 'tcftoutcnt += 1'
 				let 'tcfexeccnt += 1'
 				let 'tcpasscnt += 1'
-				__cat_test_result_explanation="${className} met expectation: MustFailTimeOut."
-				__cat_test_result="SUCCESS"
-				__cat_test_exit_code=0
+				__jen_test_result_explanation="${className} met expectation: MustFailTimeOut."
+				__jen_test_result="SUCCESS"
+				__jen_test_exit_code=0
 				printf "\n****** $tDir $className succeeded.\n" >> $tcoutdat
-				xmlLog $tcoutdat
+				junitLog $tcoutdat
 				continue
 			elif [[ $rc > 0 && $tcvcode == "FAIL_TIMEOUT" ]]; then
 				printf " *** X ***"
@@ -779,11 +774,11 @@ function main {
 				let 'tcftoutcnt += 1'
 				let 'tcfexeccnt += 1'
 				printf "\n[$prog: err]: failed to execute ${className}\n"
-				__cat_test_result_explanation="${className} did not meet expectation: expected=MustFailTimeOut actual=FailRun (execution failed)."
-				__cat_test_result="FAILURE"
-				__cat_test_exit_code=$rc
+				__jen_test_result_explanation="${className} did not meet expectation: expected=MustFailTimeOut actual=FailRun (execution failed)."
+				__jen_test_result="FAILURE"
+				__jen_test_exit_code=$rc
 				printf "\n****** $tDir $className failed: run\n" >> $tcoutdat
-				xmlLog $tcoutdat
+				junitLog $tcoutdat
 				continue
 			fi
 		fi
@@ -818,31 +813,27 @@ function main {
 	printf "\n======================================================================\n\n" >> ${tctmpreport}
 }
 
-__cat_opened_group="invalid"
-__cat_test_id=0
-__cat_current_group=""
-__cat_test_name=""
-__cat_test_x10c_command=""
-__cat_test_x10_command=""
-__cat_test_parameters=""
-__cat_test_exit_code=""
-__cat_test_start_time=""
-__cat_test_end_time=""
-__cat_test_duration=""
-__cat_test_result=""
-__cat_test_result_explanation=""
-__cat_test_output=""
-__cat_test_x10c_sourcepath=""
-__cat_test_x10c_classpath=""
-__cat_test_x10c_directory=""
-__cat_test_x10_classpath=""
-__cat_test_x10_timeout=""
-__cat_hostname=$(hostname)
+__jen_test_id=0
+__jen_test_name=""
+__jen_test_x10c_command=""
+__jen_test_x10_command=""
+__jen_test_parameters=""
+__jen_test_exit_code=""
+__jen_test_start_time=""
+__jen_test_end_time=""
+__jen_test_duration=""
+__jen_test_result=""
+__jen_test_result_explanation=""
+__jen_test_output=""
+__jen_test_x10c_sourcepath=""
+__jen_test_x10c_classpath=""
+__jen_test_x10c_directory=""
+__jen_test_x10_classpath=""
+__jen_test_x10_timeout=""
+__jen_hostname=$(hostname)
 
 init "$@"
-writeJUnitHead
 main 
-writeJUnitTail
 exit 0
 
 # vim:tabstop=4:shiftwidth=4:expandtab
