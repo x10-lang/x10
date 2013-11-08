@@ -134,10 +134,7 @@
     <condition property="cppmake.flatten_expressions" value="FLATTEN_EXPRESSIONS=1" else="DUMMY_ARG=1">
         <or>
             <istrue value="${FLATTEN_EXPRESSIONS}" />
-            <and>
-                <istrue value="${CROSS_COMPILE_FX10}" />
-                <istrue value="${optimize}" />
-            </and>
+            <istrue value="${CROSS_COMPILE_FX10}" />
         </or>
     </condition>
     <condition property="cppmake.x10rt_mpi" value="ENABLE_X10RT_MPI=1" else="DISABLE_X10RT_MPI=1">

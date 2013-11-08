@@ -425,8 +425,8 @@ ifdef ENABLE_CROSS_COMPILE_FX10
   ifdef OPTIMIZE
     override CFLAGS += -Kfast
     override CXXFLAGS += -Kfast
-    override X10CPPFLAGS += -FLATTEN_EXPRESSIONS
   endif
+  override X10CPPFLAGS += -FLATTEN_EXPRESSIONS
   override CXXFLAGS += -g
   ifdef TARGET_JAVA_HOME
     jarch = s64fx

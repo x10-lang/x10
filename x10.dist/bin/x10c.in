@@ -8,6 +8,7 @@ java_args=""
 args=""
 optimize=""
 debug=""
+flatexprs=""
 
 if [ "$CROSS_COMPILE_BGP" = "true" ]; then
     x10rt_impl="pgas_bgp"
@@ -41,6 +42,8 @@ while [ -n "$1" ]; do
         -O|-optimize) optimize="true";;
         -g|-DEBUG) debug="true";;
         -DEBUG=*) debug='${1##-DEBUG=}';;
+        -FLATTEN_EXPRESSIONS) flatexprs="true";;
+        -FLATTEN_EXPRESSIONS=*) flatexprs='${1##-FLATTEN_EXPRESSIONS=}';;
         -rtdev) rtdev="true";;
         -J*) java_args="${java_args} '${1##-J}'";;
         --) parse=;;
@@ -94,6 +97,10 @@ WALA_JARS="${WALA_JARS}${PATH_SEP}${LIB_DIR}${FILE_SEP}org.eclipse.equinox.commo
 
 classpath="${CP_OVERRIDE}"
 classpath="${classpath}${LIB_DIR}${FILE_SEP}x10c.jar${PATH_SEP}${LIB_DIR}${FILE_SEP}${LPG_JAR}${PATH_SEP}${WALA_JARS}"
+
+# Set flags to flatten expressions if we've been asked to do so.
+[ "$CROSS_COMPILE_FX10" = "true" ] && flatexprs="true"
+[ -n "$flatexprs" ] && args="-FLATTEN_EXPRESSIONS=$flatexprs $args"
 
 # Set flags to generate optimized code if we've been asked to do so.
 [ "$optimize" = "true" ] && args="-OPTIMIZE=true $args"
