@@ -729,7 +729,7 @@ ENABLE_X10RT_PAMI='${X10RT_PAMI}'
             <tarfileset prefix="x10.constraints" dir="${x10.constraints.location}" excludes="releng/**,**/.*.swp,classes/**"/>
             <tarfileset prefix="x10.common" dir="${x10.common.location}" excludes="releng/**,**/.*.swp,classes/**"/>
             <tarfileset prefix="x10.wala" dir="${x10.bridge.location}" excludes="releng/**,**/.*.swp,bin/**"/>
-            <tarfileset prefix="x10.tests" dir="${x10.tests.location}" excludes="releng/**,**/.*.swp,lib/**,etc/**" includes="build*,README,bin/*.in,bin/testScript*,bin/newpgrp,bin/listFailures,examples/README,**/*.x10,**/.ThisIsAnX10TestDirectory"/>
+            <tarfileset prefix="x10.tests" dir="${x10.tests.location}" excludes="releng/**,**/.*.swp,lib/**,etc/**" includes="build*,README,bin/*.in,bin/testScript*,bin/newpgrp,bin/listFailures,tests/README,**/*.x10"/>
         </tar>
     </target>
     <target name="test-tar" depends="testtar"/>
@@ -737,9 +737,7 @@ ENABLE_X10RT_PAMI='${X10RT_PAMI}'
         <tar destfile="${test.tar.location}/x10-${x10.version}-testsuite.tar.bz2" compression="bzip2" longfile="gnu">
             <tarfileset fullpath="TESTS-README" dir="${x10.tests.location}" includes="README"/>
             <tarfileset prefix="" dir="${basedir}" includes="epl-v10.html"/>
-            <tarfileset prefix="" dir="${x10.tests.location}" includes="projectList.txt"/>
-            <tarfileset prefix="" dir="${x10.tests.location}" excludes="releng/**,**/.*.swp,lib/**,etc/**" includes="build*,bin/*.in,bin/testScript*,bin/newpgrp,bin/listFailures,examples/README,**/*.x10,**/.ThisIsAnX10TestDirectory"/>
-            <!--<tarfileset prefix="" dir="${x10.tests.location}" excludes="releng/**,**/.*.swp,lib/**,etc/**" includes="examples/Constructs/Extern/*Impl.c*"/> TODO-->
+            <tarfileset prefix="" dir="${x10.tests.location}" excludes="releng/**,**/.*.swp,lib/**,etc/**" includes="build*,bin/*.in,bin/testScript*,bin/newpgrp,bin/listFailures,tests/README,**/*.x10"/>
         </tar>
     </target>
     <!--
