@@ -302,7 +302,7 @@ __cat_x10_LOAD=""
 
 export X10DIST=$X10_HOME/x10.dist
 ( \
-	cd $X10_HOME/x10.tests/examples; \
+	cd $X10_HOME/x10.tests/tests; \
 	$ABSDIR/xtestScriptCT -clean -shiftLog; \
 )
 cleanUpExit $?

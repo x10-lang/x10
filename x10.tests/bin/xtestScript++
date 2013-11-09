@@ -288,7 +288,7 @@ X10_HOME=$X10_HOME
 if [[ -z "$X10_HOME" ]]; then
 	X10_HOME=$(cd $MYDIR/../..; pwd)
 fi
-X10TEST_PATH=$X10_HOME/x10.tests/examples
+X10TEST_PATH=$X10_HOME/x10.tests/tests
 prog=x10c++th
 
 # platform independent abstraction for certain commands

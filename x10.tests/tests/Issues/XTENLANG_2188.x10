@@ -14,7 +14,7 @@ This ought to compile just fine.  However, in the Java back end, it doesn't;
 as of now, it fails with this:
 
 x10c: ----------    
-     1. ERROR in /Users/bard/x10/examples/generics/MultiBound.java (at line 17)    
+     1. ERROR in /Users/bard/x10/tests/generics/MultiBound.java (at line 17)    
      	Arithmetic & x10.    
      lang.    
      Arithmetic>void    

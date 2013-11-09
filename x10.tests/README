@@ -2,8 +2,8 @@ This is the test suite for the X10 Programming Language.
 
 To invoke the test suite, run:
 
-cd examples
-../bin/testScript
+cd tests
+../bin/jenkins-runTest.sh
 
 You might need to make the scripts in bin/ executable.
 

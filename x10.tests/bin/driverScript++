@@ -31,6 +31,6 @@ fi
 #$ABSDIR/xtestScript++ -logPath $LOGD;
 export X10LANG=$X10_HOME/x10.runtime/src-cpp
 ( \
-	cd $X10_HOME/x10.tests/examples; \
+	cd $X10_HOME/x10.tests/tests; \
 	$ABSDIR/xtestScript++ -logPath $LOGD -mailAddr srkodali@linux.vnet.ibm.com -mailList 'igorp@us.ibm.com vsaraswa@us.ibm.com groved@us.ibm.com'; \
 )

@@ -5,7 +5,7 @@
     <property name="bin" location="${basedir}/bin"/>
     <property name="etc" location="${basedir}/etc"/>
     <property name="lib" location="${basedir}/lib"/>
-    <property name="testdir"  location="${basedir}/examples"/>
+    <property name="testdir"  location="${basedir}/tests"/>
     <path id="project.classpath"/>
     <!-- get the environment variables -->
     <property environment="env"/>

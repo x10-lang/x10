@@ -55,11 +55,11 @@ time nice "$JAVA" \
     -extclass x10c.ExtensionInfo \
     -d out \
     -sourcepath "$X10_DIST/stdlib/x10.jar" \
-    -sourcepath "$TOP/x10.tests/examples/x10lib" \
+    -sourcepath "$TOP/x10.tests/tests/x10lib" \
     -sourcepath "$X10_DIST/samples" \
     -sourcepath "$X10_DIST/samples/tutorial" \
     -sourcepath "$X10_DIST/samples/CUDA" \
     -sourcepath "$X10_DIST/samples/work-stealing" \
-    -sourcepath "$TOP/x10.tests/tests/Annotations/dims"
+    -sourcepath "$TOP/x10.tests/tests-inactive/Annotations/dims"
 
 echo "Done."

@@ -360,7 +360,7 @@ if [[ -n "$TMPDIR" && -d "$TMPDIR" ]]; then
     export TMPDIR=$TMPDIR
 fi
 ( \
-	cd $X10_HOME/x10.tests/examples; \
+	cd $X10_HOME/x10.tests/tests; \
 	$ABSDIR/xtestScriptCT++ -logPath $LOGD -mailAddr srkodali@linux.vnet.ibm.com -runFile $DATADIR/testrun.dat; \
 )
 cleanUpExit $?

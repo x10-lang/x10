@@ -120,7 +120,7 @@ main() {
 	fi
 
         if [[ -d $X10_INTERNAL_TESTS_REPO ]]; then
-            cd $X10_TESTS/examples
+            cd $X10_TESTS/tests
 	    svn co $X10_INTERNAL_TESTS_SVNROOT Internal
 	    status=$?
 	    if (( $status != 0 )); then
