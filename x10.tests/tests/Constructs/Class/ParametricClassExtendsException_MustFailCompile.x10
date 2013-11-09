@@ -22,8 +22,8 @@ import harness.x10Test;
 public class ParametricClassExtendsException_MustFailCompile extends x10Test {
  
     class E extends Exception {}
-    class X[T] extends Exception {} // ERR A class with type parameters cannot extend x10.lang.Exception.
-    class Y[T] extends E {}        // ERR A class with type parameters cannot extend x10.lang.Exception.
+    class X[T] extends Exception {} // ERR A class with type parameters cannot extend x10.lang.CheckedThrowable.
+    class Y[T] extends E {}        // ERR A class with type parameters cannot extend x10.lang.CheckedThrowable.
     public def run()=false;
     public static def main(Rail[String]) {
         new ParametricClassExtendsException_MustFailCompile().execute();
