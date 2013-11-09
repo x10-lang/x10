@@ -11,12 +11,12 @@
 # usage: printUsage excode detail
 # TODO: update this once usage stabalize
 function printUsage {
-	printf "\n=====> X10/C++ Test Harness\n\n"
-	printf "Usage: xtestScript++ [-t|-timeOut [secs]] [-f|-force]\n"
+	printf "\n=====> X10 Test Harness\n\n"
+	printf "Usage: jenkins-runTest.sh [-t|-timeOut [secs]]\n"
 	printf "[-l|-list \"test1 test2 ... testn\"]]\n"
 	printf "    [-v|-verbose] [-h|-help]\n\n"
 	if [[ $2 > 0 ]]; then
-		printf "The xtestScript++ runs the pre-validated *.x10 test cases"
+		printf "This script runs the pre-validated *.x10 test cases"
 		printf " in the current\ndirectory and its subdirectories, and"
 		printf " places the test results in a log\nfile under the"
 		printf " specified log directory.\n\n"
@@ -601,8 +601,8 @@ function main {
 			let 'tcfcompcnt += 1'
 			let 'tcfailcnt += 1'
 			printf " *** X ***"
-			printf "\n[$prog: err]: can't generate c++ sources for ${className}\n"
-			__jen_test_result_explanation="${className} did not meet expectation: expected=Succeed actual=FailCompile (failed to generate c++ sources)."
+			printf "\n[$prog: err]: can't compile ${className}\n"
+			__jen_test_result_explanation="${className} did not meet expectation: expected=Succeed actual=FailCompile (compilation failed)."
 			__jen_test_result="FAILURE"
 			__jen_test_exit_code=$rc
 			printf "\n****** $tDir $className failed: compile\n" >> $tccompdat
@@ -766,7 +766,7 @@ function main {
 	thrunstate=REPORT_GENERATION
 	printf "\n\n<<Report Generation>>\n"
 	printf "\n\n======================================================================\n\n"
-	printf "                     X10/C++ Test Harness :: Run Report\n\n"
+	printf "                     X10 Test Harness :: Run Report\n\n"
 	printf "\n**QUEUE          : "
 	printf "${tcvalidcnt}\n"
 
