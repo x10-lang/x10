@@ -43,7 +43,7 @@ import polyglot.types.Types;
 
 /**
  * A TypeConstraint is a conjunction of constraints of the form T1 <: T2, or T1 == T2, 
- * or T haszero.
+ * or T haszero, or T isref.
  * 
  * Todo: This needs to be fixed. The constraints in this have to be used to figure
  * out whether c is entailed. This needs a proper constraint representation, e.g.
@@ -260,18 +260,26 @@ public class TypeConstraint implements Copy, Serializable {
      *  <li> <code>Type <: X</code>
      *  <li> <code>X <: Type</code>
      *  <li> <code>Type == X</code>
-     *  The algorithm proceeds as follows. From each formal type <code>xtype</code> and 
-     *  corresponding actual type <code>ytype</code>, we generate a set of type constraints thus:
+     *  The algorithm proceeds as follows. From each formal type <code>xtype</code> 
+     *  and corresponding actual type <code>ytype</code>, we generate a set of 
+     *  type constraints thus:
      *  
      *  <ul>
-     *  <li> Replace <code>xtype</code> with <code> baseType(xtype)</code>. It is legitimate to strip the constraint, 
-     *  because the type constraint <code>S <: X{c}</code> or <code>S == X{c}</code> can be solved by
-     *  either <code>X==S</code> or <code>X==S{c}</code>. We choose to solve it with <code>S</code>.
+     *  <li> Replace <code>xtype</code> with <code> baseType(xtype)</code>. 
+     *  It is legitimate to strip the constraint, 
+     *  because the type constraint <code>S <: X{c}</code> or <code>S == X{c}</code> 
+     *  can be solved by either <code>X==S</code> or <code>X==S{c}</code>. 
+     *  We choose to solve it with <code>S</code>.
+     *  
      *  <li> Do nothing and return if <code>xtype</code> is <code>null</code>. 
-     *  <li>If <code>xtype</code> is a class type, we call the helper <code>addTypeParameterBindings 
-     *  (X10ClassType xtype, Type ytype, boolean isEqual)</code>. This will case on <code>ytype</code>.
-     *  <li> If <code>xtype</code> is a <code>ParameterType</code>, <code>X</code>, then generate the 
-     *  constraint <code>ytype <: X </code> (if <code>isEqual</code>), else <code>ytype == X</code>.
+     *  
+     *  <li>If <code>xtype</code> is a class type, we call the helper 
+     *  <code>addTypeParameterBindings(X10ClassType xtype, Type ytype, boolean isEqual)</code>. 
+     *  This will case on <code>ytype</code>.
+     *  
+     *  <li> If <code>xtype</code> is a <code>ParameterType</code>, <code>X</code>, 
+     *  then generate the constraint <code>ytype <: X </code> (if <code>isEqual</code>), 
+     *  else <code>ytype == X</code>.
      *  </ul>
      *  <p>
      * @param xtype -- the formal type

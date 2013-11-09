@@ -4375,7 +4375,7 @@ class E[F] {F <: String } { //1
  def test(f:F):String = f; // making sure "F" refers to the type parameter
 
  @ERR val f1 = new F(1); // in Java: unexpected type. found: type parameter F.  required: class
- class F { //2 // ShouldNotBeERR  XTENLANG-3267
+ class F { //2 //
     @ShouldBeErr val ff = new F(1); // in Java: unexpected type. found: type parameter F.  required: class
     def this(i:Long) {}
  }
@@ -5777,12 +5777,12 @@ class CheckConstraintLanguage {
 }
 
 class F_Bounded_Polymorphism_example {
-	class Subj[X,Y] { X <: Subj[X,Y], Y <: Obs[X,Y] } { // ShouldNotBeERR ShouldNotBeERR (see XTENLANG-3265)
+	class Subj[X,Y] { X <: Subj[X,Y], Y <: Obs[X,Y] } { 
 		def m(x:X) {
 			val y:Subj[X,Y] = x;
 		}
 	}
-	class Obs[X,Y] { X <: Subj[X,Y], Y <: Obs[X,Y] } { // ShouldNotBeERR ShouldNotBeERR (see XTENLANG-3265)
+	class Obs[X,Y] { X <: Subj[X,Y], Y <: Obs[X,Y] } { 
 		def m(x:Y) {
 			val y:Obs[X,Y] = x;
 		}
@@ -6204,7 +6204,7 @@ class TestTypeParamShadowing { // XTENLANG-2163
 	class B {}
 	class C {}
 	class Outer[X] {X<:A} {
-		class Inner[X] {X<:B} { // ShouldNotBeERR XTENLANG-3268
+		class Inner[X] {X<:B} { 
 			def m[X](x:X) {X<:C} : C = x;
 			def m2[X](x:X) {X<:C} = new Any() {  // test anon class creation
 				def q(x:X):C = x;

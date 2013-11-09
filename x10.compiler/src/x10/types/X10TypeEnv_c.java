@@ -454,8 +454,11 @@ public class X10TypeEnv_c extends TypeEnv_c implements X10TypeEnv {
 //            }
         
             if (expanded instanceof ParameterType) {
-            	/* [DC] this code cannot handle more general type constraints like == haszero and isref
-            	 * let us remove it and implement the same functionality via appending to the context
+            	/* [DC] this code cannot handle more general type constraints 
+            	 * like == haszero and isref let us remove it and implement 
+            	 * the same functionality via appending to the context
+            	 * vj: Removing this code lead to breakage of F-bounded types.
+            	 * See XTENLANG-3265. Restoring it.*/
                 ParameterType pt = (ParameterType) expanded;
                 X10Def def = (X10Def) Types.get(pt.def());
                 Ref<TypeConstraint> ref = def.typeGuard();
@@ -464,7 +467,7 @@ public class X10TypeEnv_c extends TypeEnv_c implements X10TypeEnv {
                      List<Type> b = getBoundsFromConstraint(pt, c, kind);
                      worklist.addAll(b);
                 }
-                */
+                
                 continue;
             }
             // vj:
