@@ -2185,4 +2185,12 @@ public class Errors {
             super("Array argument must have constraint {rank==1,size=" + n + "}.", pos);
         }
     }
+    public static class ParametricClassCannotExtendException extends EqualByTypeAndPosException {
+		private static final long serialVersionUID = -5078018337334696948L;
+
+		public ParametricClassCannotExtendException(X10ClassDef cd, Position pos) {
+            super("A class with type parameters cannot extend x10.lang.Exception."
+            		+ "\n\t Class: " + cd, pos);
+        }
+    }
 }

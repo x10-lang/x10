@@ -55,7 +55,7 @@ public class X10StringLit_c extends StringLit_c {
 		    	Errors.issue(tc.job(), z);
 		    }
 		
-		Type newType = Types.xclause(Type, c);
+		Type newType = Types.toConstrainedType(Types.xclause(Type, c)).addNonNull(); // a literal is non-null
 		return type(newType);
 	}
 

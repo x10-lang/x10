@@ -775,6 +775,7 @@ public interface TypeSystem {
     boolean isFloat(Type t);
     boolean isDouble(Type t);
     boolean isBoolean(Type t);
+    boolean isException(Type t);
     boolean isVoid(Type t);
 
     public <S extends ProcedureDef, T extends ProcedureInstance<S>> Collection<T> findMostSpecificProcedures(List<T> acceptable, Matcher<T> matcher, Context context) throws SemanticException;

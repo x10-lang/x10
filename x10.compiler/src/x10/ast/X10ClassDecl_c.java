@@ -1120,6 +1120,13 @@ public class X10ClassDecl_c extends ClassDecl_c implements X10ClassDecl {
     	    }
     	}
 
+    	final X10ClassType classType = type.asType();
+    	if (ts.isException(classType) && classType.hasParams()) {
+    		SemanticException ex = new Errors.ParametricClassCannotExtendException(type, position());
+    		Errors.issue(tc.job(), ex, this);
+    	}
+     
+    
     	try {
     	    ((X10ClassDef) type).checkRealClause();
     	} catch (SemanticException e) {
