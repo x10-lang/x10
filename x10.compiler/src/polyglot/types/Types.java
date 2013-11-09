@@ -744,7 +744,7 @@ public class Types {
 	        TypeConstraint typeConst = xc.currentTypeConstraint();
 	        List<SubtypeConstraint> env =  typeConst.terms();
 	        for (SubtypeConstraint sc : env) {
-	            if (sc.isEqualityConstraint()) {
+	            if (sc.isEqualityConstraint() || sc.isSubtypeConstraint()) {
 	                Type other = null;
 	                final Type sub = sc.subtype();
 	                final Type sup = sc.supertype();
