@@ -63,7 +63,7 @@ static void x10rt_net_coll_init(int *argc, char ** *argv, x10rt_msg_type *counte
 
 #define X10RT_MPI_DEBUG_PRINT "X10RT_MPI_DEBUG_PRINT"
 #define X10RT_MPI_THREAD_MULTIPLE "X10RT_MPI_THREAD_MULTIPLE"
-#define X10RT_MPI_ENABLE_COLLECTIVES "X10RT_MPI_ENABLE_COLLECTIVES"
+#define X10RT_MPI_FORCE_COLLECTIVES "X10RT_MPI_FORCE_COLLECTIVES"
 
 /* Generic utility funcs */
 template <class T> T* ChkAlloc(size_t len) {
@@ -351,7 +351,7 @@ class x10rt_internal_state {
         bool                finalized;
         pthread_mutex_t     lock;
         bool                is_mpi_multithread;
-        bool				use_collectives;
+        bool				report_nonblocking_coll;
         int                 rank;
         int                 nprocs;
         MPI_Comm            mpi_comm;
@@ -375,7 +375,7 @@ class x10rt_internal_state {
             init                = false;
             finalized           = false;
             is_mpi_multithread  = false;
-            use_collectives		= false;
+            report_nonblocking_coll	= false;
         }
         void Init() {
             init          = true;
@@ -512,8 +512,8 @@ x10rt_error x10rt_net_init(int *argc, char ** *argv, x10rt_msg_type *counter) {
         }
     }
 
-    if (checkBoolEnvVar(getenv(X10RT_MPI_ENABLE_COLLECTIVES))) {
-    	global_state.use_collectives = true;
+    if (checkBoolEnvVar(getenv(X10RT_MPI_FORCE_COLLECTIVES))) {
+    	global_state.report_nonblocking_coll = true;
     }
 
     if (MPI_SUCCESS != MPI_Comm_size(MPI_COMM_WORLD, &global_state.nprocs)) {
@@ -549,8 +549,7 @@ x10rt_error x10rt_net_init(int *argc, char ** *argv, x10rt_msg_type *counter) {
         abort();
     }
     
-    if (global_state.use_collectives)
-	    x10rt_net_coll_init(argc, argv, counter);
+    x10rt_net_coll_init(argc, argv, counter);
 
     return X10RT_ERR_OK;
 }
@@ -1214,8 +1213,7 @@ static void x10rt_net_probe_ex (bool network_only) {
 
     release_lock(&global_state.lock);
 
-	if (global_state.use_collectives)
-	    x10rt_net_team_probe();
+    x10rt_net_team_probe();
 }
 
 void x10rt_net_finalize(void) {
@@ -1240,10 +1238,10 @@ void x10rt_net_finalize(void) {
 }
 
 x10rt_coll_type x10rt_net_coll_support () {
-    if (global_state.use_collectives)
-	    return X10RT_COLL_ALLBLOCKINGCOLLECTIVES;
+    if (global_state.report_nonblocking_coll)
+	    return X10RT_COLL_ALLNONBLOCKINGCOLLECTIVES;
 	else
-        return X10RT_COLL_NOCOLLECTIVES;
+        return X10RT_COLL_ALLBLOCKINGCOLLECTIVES;
 }
 
 bool x10rt_net_remoteop_support () {
