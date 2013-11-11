@@ -14,6 +14,7 @@ package x10.util;
 import x10.compiler.Native;
 import x10.util.concurrent.AtomicInteger;
 import x10.util.concurrent.Lock;
+import x10.util.Pair;
 import x10.compiler.Uncounted;
 import x10.compiler.Pragma;
 
@@ -508,15 +509,34 @@ public struct Team {
             finish nativeSplit(id, id==0n?here.id() as Int:Team.roles(id), color, new_role as Int, result);
             return Team(result(0), null, new_role);
         }
-        else if (collectiveSupportLevel == X10RT_COLL_ALLBLOCKINGCOLLECTIVES || collectiveSupportLevel == X10RT_COLL_NONBLOCKINGBARRIER) {
-            barrier();
-            finish nativeSplit(id, id==0n?here.id() as Int:Team.roles(id), color, new_role as Int, result);
-            return Team(result(0), null, new_role);
-        }
         else {
-            // TODO
-            Console.ERR.println("Team.split not implemented on emulated collectives; Raising exception!!!");
-            throw new UnsupportedOperationException("Team.split not implemented on emulated collectives");
+            // all-to-all to distribute team and role information around
+        	val myInfo:Rail[Pair[Int, Long]] = new Rail[Pair[Int, Long]](1);
+            myInfo(0) = new Pair[Int, Long](color, new_role);
+            val allInfo:Rail[Pair[Int, Long]] = new Rail[Pair[Int, Long]](this.size());            
+            alltoall(myInfo, 0, allInfo, 0, 1);
+            
+        	// use the above to figure out the members of *my* team
+            // count the new team size
+            var numPlacesInMyTeam:Int = 0n;
+            for (p in allInfo)
+                if (p.first == color)
+                	numPlacesInMyTeam++;
+            // create a new PlaceGroup with all members of my new team
+            val newTeamPlaceRail:Rail[Place] = new Rail[Place](numPlacesInMyTeam);
+            for (var i:long=0; i<this.size(); i++)
+            	if (allInfo(i).first == color)
+            	    newTeamPlaceRail(allInfo(i).second) = state(this.id).places(i);
+            newTeamPlaceGroup:SparsePlaceGroup = new SparsePlaceGroup(newTeamPlaceRail);
+            
+            // now that we have a PlaceGroup for the new team, create it
+            if (collectiveSupportLevel == X10RT_COLL_ALLBLOCKINGCOLLECTIVES || collectiveSupportLevel == X10RT_COLL_NONBLOCKINGBARRIER) {
+            	barrier();
+            	finish nativeSplit(id, id==0n?here.id() as Int:Team.roles(id), color, new_role as Int, result);
+            	return Team(result(0), newTeamPlaceGroup, new_role);
+            }
+            else
+            	return Team((Team.state.size() as Int) + color, newTeamPlaceGroup, new_role);
         }
     }
 
