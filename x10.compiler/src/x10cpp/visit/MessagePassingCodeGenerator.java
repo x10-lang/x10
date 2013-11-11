@@ -841,7 +841,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
         h.write("#ifndef "+cguard+"_NODEPS"); h.newline();
         h.write("#define "+cguard+"_NODEPS"); h.newline();
         
-        boolean implInHeader = n.typeParameters().size() > 0;
+        boolean implInHeader = n.typeParameters().size() > 0 || n.flags().flags().isInterface();
         if (!implInHeader) {
             Type headerAnnotation = null;
             try {
@@ -1015,7 +1015,16 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
         for (MethodInstance meth : itable.getMethods()) {
             String mname = itable.mangledName(meth);
             
+            boolean hasStructArg = false;
+            for (Type f : meth.formalTypes()) {
+                if (xts.isStructType(f) && !xts.isNumeric(f)) {
+                    hasStructArg = true;
+                }
+            }
+            
+            ClassifiedStream bs = hasStructArg ? sw.body() : h;
             // Method for x10::lang::Reference (objects, closures, boxed structs)
+            // (a) decl in header stream
             h.write("static "+Emitter.translateType(meth.returnType(), true));
             h.write(" "+mname+"("+Emitter.translateType(currentClass, true)+" _recv");
             int argNum=0;
@@ -1023,36 +1032,47 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
                 h.write(", ");
                 h.write(Emitter.translateType(f, true)+" arg"+(argNum++));
             }
-            h.write(") {"); h.newline(4); h.begin(0);
-            h.writeln("x10::lang::Reference* _refRecv = reinterpret_cast<x10::lang::Reference*>(_recv);");
+            if (hasStructArg) {
+                h.writeln(");");
+                // (b) Repeat decl in body stream
+                bs.write(Emitter.translateType(meth.returnType(), true)+" ");
+                bs.write(Emitter.translateType(currentClass, false)+"::"+mname+"("+Emitter.translateType(currentClass, true)+" _recv");
+                argNum=0;
+                for (Type f : meth.formalTypes()) {
+                    bs.write(", ");
+                    bs.write(Emitter.translateType(f, true)+" arg"+(argNum++));
+                }
+            }
+            bs.write(") {"); bs.newline(4); bs.begin(0);
+            bs.writeln("x10::lang::Reference* _refRecv = reinterpret_cast<x10::lang::Reference*>(_recv);");
             boolean needsCast = false;
             if (!meth.returnType().isVoid()) {
-                h.write("return ");
+                bs.write("return ");
                 // the cast is because our generated member function may use a more general
                 // return type and c++ does not support covariant smartptr returns
                 // TODO: See TODO in CastInjector.
                 Type ret_type = emitter.findRootMethodReturnType(meth.x10Def(), null, meth);
                 needsCast = !xts.typeDeepBaseEquals(meth.returnType(), ret_type, context);
                 if (needsCast) {
-                    h.write(selectUncheckedCast(xts, ret_type, meth.returnType()));
-                    h.write(chevrons(Emitter.translateType(meth.returnType(), true)));
-                    h.write("(");
+                    bs.write(selectUncheckedCast(xts, ret_type, meth.returnType()));
+                    bs.write(chevrons(Emitter.translateType(meth.returnType(), true)));
+                    bs.write("(");
                 }
             }
-            h.write("(_refRecv->*(x10aux::findITable"+chevrons(Emitter.translateType(currentClass, false))+"(_refRecv->_getITables())->"+mname+"))(");
+            bs.write("(_refRecv->*(x10aux::findITable"+chevrons(Emitter.translateType(currentClass, false))+"(_refRecv->_getITables())->"+mname+"))(");
             boolean first = true;
             argNum = 0;
             for (Type f : meth.formalTypes()) {
-                if (!first) h.write(", ");
-                h.write("arg"+(argNum++));
+                if (!first) bs.write(", ");
+                bs.write("arg"+(argNum++));
                 first = false;
             }
-            if (needsCast) h.write(")");
-            h.write(");");
-            h.end(); h.newline();
-            h.writeln("}");
+            if (needsCast) bs.write(")");
+            bs.write(");");
+            bs.end(); bs.newline();
+            bs.writeln("}");
             
-            
+            bs = hasStructArg ? context.genericFunctions : h;
             // Method for unboxed structs that are not C++ built-in primitives
             h.write("template <class R> static "+Emitter.translateType(meth.returnType(), true));
             h.write(" "+mname+"(R _recv");
@@ -1061,19 +1081,30 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
                 h.write(", ");
                 h.write(Emitter.translateType(f, true)+" arg"+(argNum++));
             }
-            h.write(") {"); h.newline(4); h.begin(0);
-            if (!meth.returnType().isVoid()) h.write("return ");
-            h.write("_recv->"+Emitter.mangled_method_name(meth.name().toString())+"(");
+            if (hasStructArg) {
+                h.writeln(");");
+                // (b) Repeat decl in body stream
+                bs.write("template <class R> "+Emitter.translateType(meth.returnType(), true));
+                bs.write(" "+Emitter.translateType(currentClass, false)+"::"+mname+"(R _recv");
+                argNum=0;
+                for (Type f : meth.formalTypes()) {
+                    bs.write(", ");
+                    bs.write(Emitter.translateType(f, true)+" arg"+(argNum++));
+                }
+            }
+            bs.write(") {"); bs.newline(4); bs.begin(0);
+            if (!meth.returnType().isVoid()) bs.write("return ");
+            bs.write("_recv->"+Emitter.mangled_method_name(meth.name().toString())+"(");
             argNum = 0;
             first = true;
             for (Type f : meth.formalTypes()) {
-                if (!first) h.write(", ");
-                h.write("arg"+(argNum++));
+                if (!first) bs.write(", ");
+                bs.write("arg"+(argNum++));
                 first = false;
             }
-            h.write(");");
-            h.end(); h.newline();
-            h.writeln("}");
+            bs.write(");");
+            bs.end(); bs.newline();
+            bs.writeln("}");
         }
 
         if (!members.isEmpty()) {
