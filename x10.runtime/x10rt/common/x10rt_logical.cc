@@ -981,7 +981,7 @@ void x10rt_lgl_barrier (x10rt_team team, x10rt_place role,
                         x10rt_completion_handler *ch, void *arg)
 {
     ESCAPE_IF_ERR;
-    if (has_collectives >= X10RT_COLL_NONBLOCKINGBARRIER) {
+    if (has_collectives >= X10RT_COLL_BARRIERONLY) {
         x10rt_net_barrier(team, role, ch, arg);
     } else {
         x10rt_emu_barrier(team, role, ch, arg);
@@ -994,7 +994,7 @@ void x10rt_lgl_bcast (x10rt_team team, x10rt_place role,
                       x10rt_completion_handler *ch, void *arg)
 {
     ESCAPE_IF_ERR;
-    if (has_collectives >= X10RT_COLL_ALLNONBLOCKINGCOLLECTIVES) {
+    if (has_collectives >= X10RT_COLL_ALLBLOCKINGCOLLECTIVES) {
         x10rt_net_bcast(team, role, root, sbuf, dbuf, el, count, ch, arg);
     } else {
         x10rt_emu_bcast(team, role, root, sbuf, dbuf, el, count, ch, arg);
@@ -1007,7 +1007,7 @@ void x10rt_lgl_scatter (x10rt_team team, x10rt_place role,
                         x10rt_completion_handler *ch, void *arg)
 {
     ESCAPE_IF_ERR;
-    if (has_collectives >= X10RT_COLL_ALLNONBLOCKINGCOLLECTIVES) {
+    if (has_collectives >= X10RT_COLL_ALLBLOCKINGCOLLECTIVES) {
         x10rt_net_scatter(team, role, root, sbuf, dbuf, el, count, ch, arg);
     } else {
         x10rt_emu_scatter(team, role, root, sbuf, dbuf, el, count, ch, arg);
@@ -1020,7 +1020,7 @@ void x10rt_lgl_alltoall (x10rt_team team, x10rt_place role,
                          x10rt_completion_handler *ch, void *arg)
 {
     ESCAPE_IF_ERR;
-    if (has_collectives >= X10RT_COLL_ALLNONBLOCKINGCOLLECTIVES) {
+    if (has_collectives >= X10RT_COLL_ALLBLOCKINGCOLLECTIVES) {
         x10rt_net_alltoall(team, role, sbuf, dbuf, el, count, ch, arg);
     } else {
         x10rt_emu_alltoall(team, role, sbuf, dbuf, el, count, ch, arg);
@@ -1035,7 +1035,7 @@ void x10rt_lgl_reduce (x10rt_team team, x10rt_place role,
                        x10rt_completion_handler *ch, void *arg)
 {
     ESCAPE_IF_ERR;
-    if (has_collectives >= X10RT_COLL_ALLNONBLOCKINGCOLLECTIVES) {
+    if (has_collectives >= X10RT_COLL_ALLBLOCKINGCOLLECTIVES) {
         x10rt_net_reduce(team, role, root, sbuf, dbuf, op, dtype, count, ch, arg);
     } else {
         x10rt_emu_reduce(team, role, root, sbuf, dbuf, op, dtype, count, ch, arg, false);
@@ -1050,7 +1050,7 @@ void x10rt_lgl_allreduce (x10rt_team team, x10rt_place role,
                           x10rt_completion_handler *ch, void *arg)
 {
     ESCAPE_IF_ERR;
-    if (has_collectives >= X10RT_COLL_ALLNONBLOCKINGCOLLECTIVES) {
+    if (has_collectives >= X10RT_COLL_ALLBLOCKINGCOLLECTIVES) {
         x10rt_net_allreduce(team, role, sbuf, dbuf, op, dtype, count, ch, arg);
     } else {
         x10rt_emu_reduce(team, role, 0, sbuf, dbuf, op, dtype, count, ch, arg, true);
