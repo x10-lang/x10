@@ -25,6 +25,7 @@ import x10.compiler.Pragma;
 public struct Team {
     private static struct DoubleIdx(value:Double, idx:Int) {}
     private static val DEBUG:Boolean = false;
+    private static val DEBUGINTERNALS:Boolean = false;
 
     /** A team that has one member at each place. */
     public static val WORLD = Team(0n, PlaceGroup.WORLD, here.id());
@@ -56,7 +57,7 @@ public struct Team {
             while (Team.roles.size() < id)
                 Team.roles.add(-1n); // I am not a member of this team id.  Insert a dummy value.
             Team.roles(id) = role as Int;
-            Runtime.println(here + " created native team "+id);
+            if (DEBUG) Runtime.println(here + " created native team "+id);
     	}
         if (collectiveSupportLevel < X10RT_COLL_ALLNONBLOCKINGCOLLECTIVES) {
             if (DEBUG) Runtime.println(here + " creating our own team "+id);
@@ -77,6 +78,7 @@ public struct Team {
     public def this (places:PlaceGroup) {
         if (DEBUG) Runtime.println(here + " creating new team ");
         collectiveSupportLevel = nativeCollectiveSupport();
+        if (DEBUG) Runtime.println(here + " reported native collective support level of " + collectiveSupportLevel);
 	    if (collectiveSupportLevel > X10RT_COLL_NOCOLLECTIVES) {
 	        val result = new Rail[Int](1);
 	        val count = places.size();
@@ -141,12 +143,15 @@ public struct Team {
 
     /** Blocks until all team members have reached the barrier.
      */
-    public def barrier () : void {
-        if (DEBUG) Runtime.println(here + " entering barrier of team "+id);
-    	if (collectiveSupportLevel >= X10RT_COLL_NONBLOCKINGBARRIER)
+    public def barrier () : void {        
+    	if (collectiveSupportLevel >= X10RT_COLL_NONBLOCKINGBARRIER) {
+            if (DEBUG) Runtime.println(here + " entering native barrier on team "+id);
             finish nativeBarrier(id, (id==0n?here.id() as Int:Team.roles(id)));
-    	else
+    	}
+    	else {
+            if (DEBUG) Runtime.println(here + " entering Team.x10 barrier on team "+id);
     	    state(id).collective_impl[Int](LocalTeamState.COLL_BARRIER, Place.FIRST_PLACE, null, 0, null, 0, 0, 0n);
+    	}
         if (DEBUG) Runtime.println(here + " leaving barrier of team "+id);
     }
 
@@ -245,11 +250,11 @@ public struct Team {
         else if (collectiveSupportLevel == X10RT_COLL_ALLBLOCKINGCOLLECTIVES || collectiveSupportLevel == X10RT_COLL_NONBLOCKINGBARRIER) {
             if (DEBUG) Runtime.println(here + " entering pre-alltoall barrier of team "+id);
        	    barrier();
-       	    if (DEBUG) Runtime.println(here + " entering alltoall of team "+id);
+       	    if (DEBUG) Runtime.println(here + " entering native alltoall of team "+id);
             finish nativeAlltoall(id, id==0n?here.id() as Int:Team.roles(id), src, src_off as Int, dst, dst_off as Int, count as Int);
         }
     	else {
-            if (DEBUG) Runtime.println(here + " entering alltoall of team "+id);
+            if (DEBUG) Runtime.println(here + " entering Team.x10 alltoall of team "+id);
     	    state(id).collective_impl[T](LocalTeamState.COLL_ALLTOALL, Place.FIRST_PLACE, src, src_off, dst, dst_off, count, 0n);
     	}
         if (DEBUG) Runtime.println(here + " leaving alltoall of team "+id);
@@ -369,14 +374,21 @@ public struct Team {
      * @param op The operation to perform
      */
     public def allreduce[T] (src:Rail[T], src_off:Long, dst:Rail[T], dst_off:Long, count:Long, op:Int) : void {
-        if (collectiveSupportLevel == X10RT_COLL_ALLNONBLOCKINGCOLLECTIVES)
-            finish nativeAllreduce(id, id==0n?here.id() as Int:Team.roles(id), src, src_off as Int, dst, dst_off as Int, count as Int, op);
-        else if (collectiveSupportLevel == X10RT_COLL_ALLBLOCKINGCOLLECTIVES || collectiveSupportLevel == X10RT_COLL_NONBLOCKINGBARRIER) {
-            barrier();
+        if (collectiveSupportLevel == X10RT_COLL_ALLNONBLOCKINGCOLLECTIVES) {
+            if (DEBUG) Runtime.println(here + " entering native allreduce on team "+id);
             finish nativeAllreduce(id, id==0n?here.id() as Int:Team.roles(id), src, src_off as Int, dst, dst_off as Int, count as Int, op);
         }
-    	else
+        else if (collectiveSupportLevel == X10RT_COLL_ALLBLOCKINGCOLLECTIVES || collectiveSupportLevel == X10RT_COLL_NONBLOCKINGBARRIER) {
+            if (DEBUG) Runtime.println(here + " entering pre-allreduce barrier on team "+id);
+            barrier();
+            if (DEBUG) Runtime.println(here + " entering native allreduce on team "+id);
+            finish nativeAllreduce(id, id==0n?here.id() as Int:Team.roles(id), src, src_off as Int, dst, dst_off as Int, count as Int, op);
+        }
+    	else {
+            if (DEBUG) Runtime.println(here + " entering Team.x10 allreduce on team "+id);
     	    state(id).collective_impl[T](LocalTeamState.COLL_ALLREDUCE, Place.FIRST_PLACE, src, src_off, dst, dst_off, count, op);
+    	}
+        if (DEBUG) Runtime.println(here + " Finished allreduce on team "+id);
     }
 
     private static def nativeAllreduce[T](id:Int, role:Int, src:Rail[T], src_off:Int, dst:Rail[T], dst_off:Int, count:Int, op:Int) : void {
@@ -652,18 +664,18 @@ public struct Team {
 	    // lead to deadlocks.  System.sleep(..), which internally increases then decreases 
 	    // parallelism, seems to do the trick.
 	    private def init() {
-	        if (DEBUG) Runtime.println(here + " entering init phase");
+	        if (DEBUGINTERNALS) Runtime.println(here + " entering init phase");
 		    parent:Place = getParentId(places(0));
-	        if (DEBUG) Runtime.println(here+":team"+this.teamid+", has parent "+parent);
+	        if (DEBUGINTERNALS) Runtime.println(here+":team"+this.teamid+", has parent "+parent);
 	    	val teamidcopy = this.teamid; // needed to prevent serializing "this"
 		    if (parent != Place.INVALID_PLACE) {
 			    @Pragma(Pragma.FINISH_ASYNC) finish at (parent) async {
 			        while (Team.state.size() <= teamidcopy) {
 			    	    System.sleep(10);
 			}   }   }
-		    if (DEBUG) Runtime.println(here+":team"+this.teamid+", moving on to init barrier");
+		    if (DEBUGINTERNALS) Runtime.println(here+":team"+this.teamid+", moving on to init barrier");
 		    collective_impl[Int](COLL_BARRIER, Place.FIRST_PLACE, null, 0, null, 0, 0, 0n); // barrier
-		    if (DEBUG) Runtime.println(here + " leaving init phase");
+		    if (DEBUGINTERNALS) Runtime.println(here + " leaving init phase");
 		}
 
 	    /*
@@ -671,7 +683,7 @@ public struct Team {
 	     * for specific collectives.
 	     */
 	    private def collective_impl[T](collType:Int, root:Place, src:Rail[T], src_off:Long, dst:Rail[T], dst_off:Long, count:Long, operation:Int):void {
-	        if (DEBUG) Runtime.println(here+":team"+teamid+" entered "+getCollName(collType)+" (phase="+phase.get()+", root="+root+")");
+	        if (DEBUGINTERNALS) Runtime.println(here+":team"+teamid+" entered "+getCollName(collType)+" (phase="+phase.get()+", root="+root+")");
 	    	// block if some other collective is in progress.
 	    	while (!this.phase.compareAndSet(PHASE_IDLE, PHASE_GATHER1))
 	    		System.sleep(10);
@@ -687,8 +699,8 @@ public struct Team {
 	    	parent:Place = getParentId(root);
 	        children:Pair[Place,Place] = getChildIds(root);
 	    	val teamidcopy = this.teamid; // needed to prevent serializing "this" in at() statements	    	
-	        if (DEBUG) Runtime.println(here+":team"+teamidcopy+", root="+root+" has parent "+parent);
-	        if (DEBUG) Runtime.println(here+":team"+teamidcopy+", root="+root+" has children "+children);
+	        if (DEBUGINTERNALS) Runtime.println(here+":team"+teamidcopy+", root="+root+" has parent "+parent);
+	        if (DEBUGINTERNALS) Runtime.println(here+":team"+teamidcopy+", root="+root+" has children "+children);
 
 	    	
 	    	// Start out waiting for all children to update our state 
@@ -698,23 +710,23 @@ public struct Team {
 	    		if (!this.phase.compareAndSet(PHASE_GATHER1, PHASE_GATHER2)) 
 	    			this.phase.compareAndSet(PHASE_GATHER2, PHASE_SCATTER); 
 	    	}
-	        if (DEBUG) Runtime.println(here+":team"+teamidcopy+" waiting for children");
+	        if (DEBUGINTERNALS) Runtime.println(here+":team"+teamidcopy+" waiting for children");
 	    	while (this.phase.get() != PHASE_SCATTER) // wait for updates from children, not already skipped
 	    		System.sleep(10);
-	        if (DEBUG) Runtime.println(here+":team"+teamidcopy+" released by children");
+	        if (DEBUGINTERNALS) Runtime.println(here+":team"+teamidcopy+" released by children");
 	    
 	        // all children have checked in.  Update our parent, and then wait for the parent to update us 
 	    	if (parent == Place.INVALID_PLACE) { // this is the root
 	    		// copy data locally from src to dst if needed
 	    		if (collType == COLL_BROADCAST) {
-	                if (DEBUG) Runtime.println(here+ " broadcasting data locally from "+src+" to "+dst);
+	                if (DEBUGINTERNALS) Runtime.println(here+ " broadcasting data locally from "+src+" to "+dst);
 	    			Rail.copy(src, src_off, dst, dst_off, count);
-	                if (DEBUG) Runtime.println(here+ " dst now contains "+dst);
+	                if (DEBUGINTERNALS) Runtime.println(here+ " dst now contains "+dst);
 	    		}
 	    		else if (collType == COLL_SCATTER) {
-	                if (DEBUG) Runtime.println(here+ " copying data locally from "+src+" to "+dst);
+	                if (DEBUGINTERNALS) Runtime.println(here+ " copying data locally from "+src+" to "+dst);
 			    	Rail.copy(src, src_off+(count*myPosition), dst, dst_off, count);
-			        if (DEBUG) Runtime.println(here+ " dst now contains "+dst);
+			        if (DEBUGINTERNALS) Runtime.println(here+ " dst now contains "+dst);
 			    }
 	    
 	    		this.phase.set(PHASE_IDLE); // the root node has no parent, and can skip ahead
@@ -724,12 +736,12 @@ public struct Team {
 	    			while(!Team.state(teamidcopy).phase.compareAndSet(PHASE_GATHER1, PHASE_GATHER2) && 
 	    					!Team.state(teamidcopy).phase.compareAndSet(PHASE_GATHER2, PHASE_SCATTER))
 	    				System.sleep(10);
-	                if (DEBUG) Runtime.println(here+" has been set to phase "+Team.state(teamidcopy).phase.get());
+	                if (DEBUGINTERNALS) Runtime.println(here+" has been set to phase "+Team.state(teamidcopy).phase.get());
 	    		}
-	            if (DEBUG) Runtime.println(here+ " waiting for parent "+parent+":team"+teamidcopy+" to release us from phase "+phase.get());
+	            if (DEBUGINTERNALS) Runtime.println(here+ " waiting for parent "+parent+":team"+teamidcopy+" to release us from phase "+phase.get());
 			    while (this.phase.get() != PHASE_IDLE) // wait for parent to set us free
 			    	System.sleep(10);
-			    if (DEBUG) Runtime.println(here+ " released by parent");
+			    if (DEBUGINTERNALS) Runtime.println(here+ " released by parent");
 	    	}
 
 	    	// move data from parent to children
@@ -739,17 +751,17 @@ public struct Team {
 		    		gr:GlobalRail[T] = new GlobalRail[T](notnulldst);
 		    		finish {
 		    			at (children.first) {
-		                    if (DEBUG) Runtime.println(here+ " pulling data from "+gr+" into "+(local_dst as Rail[T]));
+		                    if (DEBUGINTERNALS) Runtime.println(here+ " pulling data from "+gr+" into "+(local_dst as Rail[T]));
 		    				Rail.asyncCopy(gr, dst_off, Team.state(teamidcopy).local_dst as Rail[T], Team.state(teamidcopy).local_dst_off, Team.state(teamidcopy).local_count);
 		    			}
 		    			if (children.second != Place.INVALID_PLACE) {
 		    				at (children.second) {
-		                        if (DEBUG) Runtime.println(here+ " pulling data from "+gr+" into "+(local_dst as Rail[T]));
+		                        if (DEBUGINTERNALS) Runtime.println(here+ " pulling data from "+gr+" into "+(local_dst as Rail[T]));
 		    					Rail.asyncCopy(gr, src_off, Team.state(teamidcopy).local_dst as Rail[T], Team.state(teamidcopy).local_dst_off, Team.state(teamidcopy).local_count);
 		    				}
 		    			}
 		    		}
-		            if (DEBUG) Runtime.println(here+ " finished moving data to children");
+		            if (DEBUGINTERNALS) Runtime.println(here+ " finished moving data to children");
 		    	}
 		    	else if (collType == COLL_SCATTER) {
 		    		//Runtime.println(here+ " pulling in data from "+root);
@@ -782,7 +794,7 @@ public struct Team {
 	        local_dst = null;
 	        myPosition = -1; // Place.INVALID_PLACE.id();
 	        // done!
-	        if (DEBUG) Runtime.println(here+":team"+teamidcopy+" leaving "+getCollName(collType));
+	        if (DEBUGINTERNALS) Runtime.println(here+":team"+teamidcopy+" leaving "+getCollName(collType));
 	    }
 	}
 }
