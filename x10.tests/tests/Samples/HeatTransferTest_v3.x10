@@ -13,6 +13,8 @@
 import harness.x10Test;
 import x10.regionarray.*;
 
+// SOURCEPATH: $X10_HOME/x10.dist/samples/tutorial
+
 public class HeatTransferTest_v3 extends x10Test {
     public def run():boolean {
         val s = new HeatTransfer_v3();

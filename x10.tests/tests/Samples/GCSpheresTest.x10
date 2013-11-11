@@ -11,6 +11,8 @@
 
 import harness.x10Test;
 
+// SOURCEPATH: $X10_HOME/x10.dist/samples
+
 public class GCSpheresTest extends x10Test {
     public def run():boolean {
          return GCSpheres.compute();

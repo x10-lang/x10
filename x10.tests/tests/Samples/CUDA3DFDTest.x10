@@ -12,6 +12,8 @@
 
 import harness.x10Test;
 
+// SOURCEPATH: $X10_HOME/x10.dist/samples/CUDA
+
 public class CUDA3DFDTest extends x10Test {
     public def run():boolean {
          val args = ["16" as String, "16", "16"];

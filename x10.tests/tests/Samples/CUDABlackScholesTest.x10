@@ -12,6 +12,8 @@
 
 import harness.x10Test;
 
+// SOURCEPATH: $X10_HOME/x10.dist/samples/CUDA
+
 public class CUDABlackScholesTest extends x10Test {
     public def run():boolean {
          val args = new Rail[String](0);

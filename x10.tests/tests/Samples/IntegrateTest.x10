@@ -11,6 +11,8 @@
 
 import harness.x10Test;
 
+// SOURCEPATH: $X10_HOME/x10.dist/samples/tutorial
+
 public class IntegrateTest extends x10Test {
     public def run():boolean {
         val obj = new IntegrateTutorial((x:double)=>(x*x + 1.0) * x);

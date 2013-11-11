@@ -12,6 +12,8 @@
 
 import harness.x10Test;
 
+// SOURCEPATH: $X10_HOME/x10.dist/samples/workstealing
+
 public class WalaFibTest extends x10Test {
     public def run():boolean {
         val res = Fib.fib(10);
