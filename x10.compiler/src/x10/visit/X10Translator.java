@@ -322,6 +322,9 @@ public class X10Translator extends Translator {
             javacCmd.add("-classpath");
             javacCmd.add(options.constructPostCompilerClasspath());
             
+            javacCmd.add("-d");
+            javacCmd.add(options.output_directory.toString());
+            
             javacCmd.add("-encoding");
             javacCmd.add("utf-8");
             
