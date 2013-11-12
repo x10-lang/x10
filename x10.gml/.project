@@ -11,24 +11,18 @@
 			</arguments>
 		</buildCommand>
 		<buildCommand>
-			<name>x10dt.ui.launch.java.X10JavaBuilder</name>
+			<name>x10dt.ui.builder.java.X10JavaBuilder</name>
 			<arguments>
 			</arguments>
 		</buildCommand>
 		<buildCommand>
-			<name>org.eclipse.ui.externaltools.ExternalToolBuilder</name>
-			<triggers>full,incremental,</triggers>
+			<name>org.eclipse.jdt.core.javabuilder</name>
 			<arguments>
-				<dictionary>
-					<key>LaunchConfigHandle</key>
-					<value>&lt;project&gt;/.externalToolBuilders/org.eclipse.imp.smapifier.SmapieBuilder.launch</value>
-				</dictionary>
 			</arguments>
 		</buildCommand>
 	</buildSpec>
 	<natures>
 		<nature>org.eclipse.jdt.core.javanature</nature>
-		<nature>x10dt.ui.launch.java.x10nature</nature>
-		<nature>org.eclipse.imp.smapifier.smapinature</nature>
+		<nature>x10dt.ui.builder.java.x10nature</nature>
 	</natures>
 </projectDescription>
