@@ -247,8 +247,8 @@ public class ArrayRcast extends ArrayRemoteCopy {
 		val root   = here.id();
 		val srcden = dmlist(root);	
 
-		val rmtbuf = new GlobalRail[Double](srcden as Array[Double]{self!=null});
-		val nplist = new Array[Long](plist.size-1, (i:Long)=>plist(i+1));
+		val rmtbuf = new GlobalRail[Double](srcden as Rail[Double]{self!=null});
+		val nplist = new Rail[Long](plist.size-1, (i:Long)=>plist(i+1));
 
 		val nxtpid = plist(0);
 		at(dmlist.dist(nxtpid)) {
@@ -270,7 +270,7 @@ public class ArrayRcast extends ArrayRemoteCopy {
 		//Copy data from source place
 		if (mypid != root) {
 			//Debug.flushln("Copy data to here at Place "+mypid);
-			finish Array.asyncCopy[Double](srcbuf, 0, rcvden, 0, datCnt);
+			finish Rail.asyncCopy[Double](srcbuf, 0, rcvden, 0, datCnt);
 		}
 		
 		//Goto next place in the list
