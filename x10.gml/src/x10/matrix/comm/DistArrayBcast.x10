@@ -107,7 +107,7 @@ public class DistArrayBcast extends DistArrayRemoteCopy {
 			at(dmlist.dist(rtroot)) {
 				val dstbuf = dmlist(here.id());
 				// Using copyFrom style
-				finish Array.asyncCopy[Double](srcbuf, 0, dstbuf, 0, dataCnt);
+				finish Rail.asyncCopy[Double](srcbuf, 0, dstbuf, 0, dataCnt);
 							
 				// Perform binary bcast on the right brank
 				if (rtcnt > 1 ) async {
@@ -199,16 +199,16 @@ public class DistArrayBcast extends DistArrayRemoteCopy {
 		val srcca = smlist(myid);
 		val idxbuf    = srcca.index;
 		val valbuf = srcca.value;
-		val srcidx = new GlobalRail[Int   ](idxbuf as Array[Int   ]{self!=null});
-		val srcval = new GlobalRail[Double](valbuf as Array[Double]{self!=null});
+		val srcidx = new GlobalRail[Long](idxbuf as Rail[Long]{self!=null});
+		val srcval = new GlobalRail[Double](valbuf as Rail[Double]{self!=null});
 	
 		finish {		
 			at(smlist.dist(rtroot)) {
 				//Need: smlist, srcidx, srcval, srcOff, colOff, colCnt and datasz
 				val dstca = smlist(here.id());
-				finish Array.asyncCopy[Int   ](srcidx, 0, 
+				finish Rail.asyncCopy[Long](srcidx, 0, 
 											   dstca.index, 0, dataCnt);
-				finish Array.asyncCopy[Double](srcval, 0, 
+				finish Rail.asyncCopy[Double](srcval, 0, 
 											   dstca.value, 0, dataCnt);
 
 				// Perform binary bcast on the right brank

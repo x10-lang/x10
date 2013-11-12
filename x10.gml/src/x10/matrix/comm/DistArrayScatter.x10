@@ -39,14 +39,14 @@ public class DistArrayScatter extends ArrayRemoteCopy {
 	 * @param dst      target distributed arrays
 	 */
 	public static def scatter(
-			src:Array[Rail[Double]](1), 
+			src:Rail[Rail[Double]], 
 			dst:DistDataArray) : void {
 		
 		val nb = dst.region.size();
 		Debug.assure(nb==src.size, 
 					 "Number blocks in dist and local array mismatch");
 		
-		finish for (var bid:Int=0; bid<nb; bid++) {
+		finish for (var bid:Long=0; bid<nb; bid++) {
 			val srcbuf = src(bid);
 				
 			if (bid == here.id()) {
@@ -75,7 +75,7 @@ public class DistArrayScatter extends ArrayRemoteCopy {
 	public static def scatter(
 			src:Rail[Double], 
 			dst:DistDataArray, 
-			gp:Rail[Int]): void {
+			gp:Rail[Long]): void {
 
 		Debug.assure(gp.size == dst.region.size());
 
@@ -151,11 +151,11 @@ public class DistArrayScatter extends ArrayRemoteCopy {
 	public static def x10Scatter(
 			src:Rail[Double], 
 			dst:DistDataArray, 
-			szlist:Rail[Int]):void {
+			szlist:Rail[Long]):void {
 
 		val root = here.id();
 		var off:Long=0;
-		for (var cb:Int=0; cb<szlist.size; cb++) {
+		for (var cb:Long=0; cb<szlist.size; cb++) {
 
 			val datcnt = szlist(cb);
 			
@@ -180,14 +180,14 @@ public class DistArrayScatter extends ArrayRemoteCopy {
 	 * @param dst      target distributed arrays
 	 */
 	public static def scatter(
-			src:Array[Rail[Double]](1), 
+			src:Rail[Rail[Double]], 
 			dst:DataArrayPLH) : void {
 		
 		val nb = Place.MAX_PLACES;
 		Debug.assure(nb==src.size, 
 		"Number blocks in dist and local array mismatch");
 		
-		finish for (var bid:Int=0; bid<nb; bid++) {
+		finish for (var bid:Long=0; bid<nb; bid++) {
 			val srcbuf = src(bid);
 			
 			if (bid == here.id()) {
@@ -213,7 +213,7 @@ public class DistArrayScatter extends ArrayRemoteCopy {
 	public static def scatter(
 			src:Rail[Double], 
 			dst:DataArrayPLH, 
-			gp:Rail[Int]): void {
+			gp:Rail[Long]): void {
 
 		Debug.assure(gp.size == Place.MAX_PLACES);
 
@@ -282,11 +282,11 @@ public class DistArrayScatter extends ArrayRemoteCopy {
 	public static def x10Scatter(
 			src:Rail[Double], 
 			dst:DataArrayPLH, 
-			szlist:Rail[Int]):void {
+			szlist:Rail[Long]):void {
 
 		val root = here.id();
 		var off:Long=0;
-		for (var cb:Int=0; cb<szlist.size; cb++) {
+		for (var cb:Long=0; cb<szlist.size; cb++) {
 
 			val datcnt = szlist(cb);
 			if (cb != root) {
@@ -305,11 +305,11 @@ public class DistArrayScatter extends ArrayRemoteCopy {
 	public static def verify(
 			src:Rail[Double], 
 			dstplh:DataArrayPLH, 
-			szlist:Rail[Int]):Boolean {
+			szlist:Rail[Long]):Boolean {
 		
 		var ret:Boolean = true;
 		var j:Long=0;
-		for (val [p] in Dist.makeUnique()) {
+		for (val [p] in x10.regionarray.Dist.makeUnique()) {
 			val rmt= at(Place(p)) dstplh();
 			for (var i:Long=0; i<szlist(p); i++, j++) ret &= (src(j)==rmt(i));
 		}

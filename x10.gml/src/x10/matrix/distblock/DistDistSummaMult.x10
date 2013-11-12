@@ -177,7 +177,7 @@ public class DistDistSummaMult {
 			val bs   = distA.handleBS();
 			val plst = bs.colCastPlaceMap.getPlaceList(itCol);
 			
-			for ([p] in plst) {
+			for (p in plst.range()) {
 				val pid = plst(p);
 				if (pid != here.id()) async {
 					at(Place(pid)) {
@@ -222,7 +222,7 @@ public class DistDistSummaMult {
 			val bs   = distB.handleBS();
 			val plst = bs.rowCastPlaceMap.getPlaceList(itRow);
 			
-			for ([p] in plst) {
+			for (p in plst.range()) {
 				val pid = plst(p);
 				if (pid != here.id()) async {
 					at(Place(pid)) {

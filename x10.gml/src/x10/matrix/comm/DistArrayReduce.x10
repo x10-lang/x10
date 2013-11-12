@@ -214,13 +214,13 @@ public class DistArrayReduce extends DistArrayRemoteCopy {
 			ddmat:DistDataArray,
 			tmp:Rail[Double], 
 			datCnt:Long,
-			plist:Rail[Int]):void{
+			plist:Rail[Long]):void{
 		
 		Debug.assure(tmp.size >= datCnt, "Temp data buffer overflow");
 		val root = here.id();
 		val dstbuf = ddmat(here.id());
 		val srcbuf = tmp;
-		for (val [p]:Point in plist) {
+		for (p in plist.range()) {
 			if (plist(p) != here.id()) {
 				copy(ddmat, plist(p), 0, srcbuf, 0, datCnt);
 				for (var i:Long=0; i<datCnt; i++) dstbuf(i) += srcbuf(i);

@@ -62,7 +62,7 @@ public class DistArrayRcast extends DistArrayRemoteCopy {
 	 */
 	public static def rcast(dmlist:DistDataArray, datCnt:Long) : void{
 		val pcnt = dmlist.dist.region.size();
-		val plist = new Array[Int](pcnt, (i:Int)=>(i));
+		val plist = new Rail[Long](pcnt, (i:Long)=>(i));
 		rcast(dmlist, datCnt, plist);
 	}
 
@@ -77,7 +77,7 @@ public class DistArrayRcast extends DistArrayRemoteCopy {
 	public static def rcast(
 			dmlist:DistDataArray, 
 			datCnt:Long, 
-			plist:Rail[Int]) : void {
+			plist:Rail[Long]) : void {
 		
 		@Ifdef("MPI_COMMU") {
 			mpiRcast(dmlist, datCnt, plist);
@@ -145,7 +145,7 @@ public class DistArrayRcast extends DistArrayRemoteCopy {
 	 */
 	public static def rcast(smlist:DistCompArray, datCnt:Long) : void{
 		val pcnt = smlist.dist.region.size();
-		val plist = new Array[Int](pcnt, (i:Int)=>(i));
+		val plist = new Rail[Long](pcnt, (i:Long)=>(i));
 		rcast(smlist, datCnt, plist);
 	}
 
@@ -167,7 +167,7 @@ public class DistArrayRcast extends DistArrayRemoteCopy {
 	public static def rcast(
 			smlist:DistCompArray, 
 			datCnt:Long, 
-			plist:Rail[Int]) : void {
+			plist:Rail[Long]) : void {
 		
 		@Ifdef("MPI_COMMU") {
 			mpiRcast(smlist, datCnt, plist);
@@ -249,15 +249,15 @@ public class DistArrayRcast extends DistArrayRemoteCopy {
 	protected static def x10Rcast(
 			dmlist:DistDataArray, 
 			datCnt:Long, 
-			plist:Rail[Int]):void {
+			plist:Rail[Long]):void {
 		
 		//Check place list 
 		if (plist.size == 0 || datCnt<=0) return;
 		val root   = here.id();
 		val srcden = dmlist(root);	
 
-		val rmtbuf = new GlobalRail[Double](srcden as Array[Double]{self!=null});
-		val nplist = new Array[Int](plist.size-1, (i:Int)=>plist(i+1));
+		val rmtbuf = new GlobalRail[Double](srcden as Rail[Double]{self!=null});
+		val nplist = new Rail[Long](plist.size-1, (i:Long)=>plist(i+1));
 
 		val nxtpid = plist(0);
 		at(dmlist.dist(nxtpid)) {
@@ -270,8 +270,8 @@ public class DistArrayRcast extends DistArrayRemoteCopy {
 			srcbuf:GlobalRail[Double],
 			dmlist:DistDataArray,
 			datCnt:Long,
-			plist:Rail[Int],
-			root:Int): void {
+			plist:Rail[Long],
+			root:Long): void {
 		
 		val mypid  = here.id();
 		val rcvden = dmlist(mypid);
@@ -279,14 +279,14 @@ public class DistArrayRcast extends DistArrayRemoteCopy {
 		//Copy data from source place
 		if (mypid != root) {
 			//Debug.flushln("Copy data to here at Place "+mypid);
-			finish Array.asyncCopy[Double](srcbuf, 0, rcvden, 0, datCnt);
+			finish Rail.asyncCopy[Double](srcbuf, 0, rcvden, 0, datCnt);
 		}
 		
 		//Goto next place in the list
 		if (plist.size >= 1) {
 			val nxtpid = plist(0); // Get next place id in the list
-			val rmtbuf = new GlobalRail[Double](rcvden as Array[Double]{self!=null});
-			val nplist = new Array[Int](plist.size-1, (i:Int)=>plist(i+1));
+			val rmtbuf = new GlobalRail[Double](rcvden as Rail[Double]{self!=null});
+			val nplist = new Rail[Long](plist.size-1, (i:Long)=>plist(i+1));
 			at(dmlist.dist(nxtpid)) {
 				//Need: rmtbuf, dmlist, colOff, offset, datasz, nplist, root
 				copyToHere(rmtbuf, dmlist, datCnt, nplist, root);
@@ -305,16 +305,16 @@ public class DistArrayRcast extends DistArrayRemoteCopy {
 	protected static def x10Rcast(
 			smlist:DistCompArray, 
 			datCnt:Long, 
-			plist:Rail[Int]):void {
+			plist:Rail[Long]):void {
 		
 		//Check place list 
 		if (plist.size == 0 || datCnt<=0) return;
 		val root   = here.id();
 		val srcspa = smlist(root);	
 
-		val rmtidx = new GlobalRail[Int   ](srcspa.index as Array[Int]{self!=null});
-		val rmtval = new GlobalRail[Double](srcspa.value as Array[Double]{self!=null});
-		val nplist = new Array[Int](plist.size-1, (i:Int)=>plist(i+1));
+		val rmtidx = new GlobalRail[Long](srcspa.index as Rail[Long]{self!=null});
+		val rmtval = new GlobalRail[Double](srcspa.value as Rail[Double]{self!=null});
+		val nplist = new Rail[Long](plist.size-1, (i:Long)=>plist(i+1));
 
 		val nxtpid = plist(0);
 		
@@ -327,12 +327,12 @@ public class DistArrayRcast extends DistArrayRemoteCopy {
 	}
 
 	private static def copyToHere(
-			rmtIndex:GlobalRail[Int], 
+			rmtIndex:GlobalRail[Long], 
 			rmtValue:GlobalRail[Double],
 			smlist:DistCompArray,
 			datCnt:Long,
-			plist:Rail[Int],
-			root:Int): void {
+			plist:Rail[Long],
+			root:Long): void {
 		
 		val mypid  = here.id();
 		val rcvspa = smlist(mypid);
@@ -343,16 +343,16 @@ public class DistArrayRcast extends DistArrayRemoteCopy {
 			//If receive side does not have enough space, program will crush
 			//+++++++++++++++++++++++++++++++++++++++++++++
 			//rcvspa.initRemoteCopyAtDest(colOff, colCnt, datasz);
-			finish Array.asyncCopy[Int   ](rmtIndex, 0, rcvspa.index, 0, datCnt);
-			finish Array.asyncCopy[Double](rmtValue, 0, rcvspa.value, 0, datCnt);
+			finish Rail.asyncCopy[Long](rmtIndex, 0, rcvspa.index, 0, datCnt);
+			finish Rail.asyncCopy[Double](rmtValue, 0, rcvspa.value, 0, datCnt);
 		}
 
 		//Goto next place in the list
 		if (plist.size >= 1) {
 			val nxtpid = plist(0); // Get next place id in the list
-			val rmtidx = new GlobalRail[Int   ](rcvspa.index as Array[Int]{self!=null});
-			val rmtval = new GlobalRail[Double](rcvspa.value as Array[Double]{self!=null});
-			val nplist = new Array[Int](plist.size-1, (i:Int)=>plist(i+1));
+			val rmtidx = new GlobalRail[Long](rcvspa.index as Rail[Long]{self!=null});
+			val rmtval = new GlobalRail[Double](rcvspa.value as Rail[Double]{self!=null});
+			val nplist = new Rail[Long](plist.size-1, (i:Long)=>plist(i+1));
 			at(smlist.dist(nxtpid)) {
 				//Need: rmtidx, rmtval, dmlist, colOff, offset, datasz, nplist, root
 				copyToHere(rmtidx, rmtval, smlist, datCnt, nplist, root);

@@ -28,9 +28,9 @@ import x10.matrix.sparse.SparseCSR;
  */
 public class SparseCSRBuilder {
 	
-	static struct NonZeroEntry(col:Int, value:Double) {
+	static struct NonZeroEntry(col:Long, value:Double) {
 
-		def this(c:Int, v:Double) { 
+		def this(c:Long, v:Double) { 
 			property(c, v);
 		}
 		@Inline
@@ -52,7 +52,7 @@ public class SparseCSRBuilder {
 
 	public def this(m:Long, n:Long) {
 		M = m; N=n; 
-		nzrow    = new Array[ArrayList[NonZeroEntry]](m, (i:Int)=>new ArrayList[NonZeroEntry]());
+		nzrow    = new Rail[ArrayList[NonZeroEntry]](m, (i:Long)=>new ArrayList[NonZeroEntry]());
 	}
 
 	/*
@@ -149,7 +149,7 @@ public class SparseCSRBuilder {
 	/*
 	 * Find the index of the entry of given row and column in the nonzero list. If not found, -1 is returned.
 	 */
-	public def findIndex(r:Long, c:Long) : Int {
+	public def findIndex(r:Long, c:Long) : Long {
 		var i:Long = nzrow(r).size()-1;
 		for (; i>=0; i--) {
 			val nz = nzrow(r).get(i);
@@ -207,7 +207,7 @@ public class SparseCSRBuilder {
 
 	
 	@Inline
-	public def cmpRowMajor(nz1:NonZeroEntry,nz2:NonZeroEntry):Int {
+	public def cmpRowMajor(nz1:NonZeroEntry,nz2:NonZeroEntry):Long {
 		if (nz1.col <  nz2.col) return -1;
 		if (nz1.col == nz2.col) return 0;
 		return 1;
