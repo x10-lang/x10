@@ -372,6 +372,12 @@ public class X10Translator extends Translator {
 
                 // invoke ecj with Java Compiler API (JSR 199)
                 javax.tools.JavaCompiler javac = null;
+                if (((X10CCompilerOptions) options).preferSystemJavaCompiler) {
+                    // look up system java compiler (javac)
+                    javac = javax.tools.ToolProvider.getSystemJavaCompiler();
+                    System.out.println("x10c: Use system Java compiler for post compilation.");
+                }
+                if (javac == null) {
                 // look up user-specified java compiler from classpath and ${x10.dist}/lib/ecj.jar
                 String ecj_path = ((X10CCompilerOptions) options).x10_dist + File.separator + "lib" + File.separator + ((X10CCompilerOptions) options).ecj_jar;
                 java.net.URL ecj_url = new java.io.File(ecj_path).toURI().toURL();
@@ -388,6 +394,7 @@ public class X10Translator extends Translator {
 //                    // look up system java compiler (javac)
 //                    javac = javax.tools.ToolProvider.getSystemJavaCompiler();
 //                }
+                }
                 if (javac == null) {
                     eq.enqueue(ErrorInfo.POST_COMPILER_ERROR, "Cannot find post java compiler.");
                     return false;
