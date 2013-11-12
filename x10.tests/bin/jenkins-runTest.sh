@@ -83,6 +83,9 @@ function parseCmdLine {
 		elif [[ "$1" == "-managed" ]]; then
 		        tcbackend="managed"
 			shift
+		elif [[ "$1" == "-allow_zero_tests" ]]; then
+		        tcallowzerotests="true"
+			shift
 		elif [[ "$1" == "-listFile" && $# -ge 2 ]]; then
 			if [[ ! -r "$2" ]]; then
 				printf "\n[${prog}: err]: List file $2 must exist & be readable\n"
@@ -317,6 +320,10 @@ typeset tccompiler_options=""
 # default: none
 typeset tcpatfile=""
 
+# test case: ok to find no tests?
+# default: false
+typeset tcallowzerotests="false"
+
 # test case run data file
 # default: none
 typeset tcrunfile=""
@@ -486,8 +493,13 @@ function main {
 	printf "\n<<Testcase List Preparation>>\n"
 	declare -a tclist=($(findTests "$tcpatlist"))
 	if [[ ${#tclist[*]} == 0 ]]; then
+	    if [[ "$tcallowzerotests" == "true" ]]; then
+		printf "\n[$prog] zero tests found under $(basename $(pwd))\n"
+		exit 0
+	    else
 		printf "\n[$prog: err]: zero tests found under $(basename $(pwd))\n"
 		exit 3
+	    fi
 	fi
 	printf "\n===> ${tclist[*]}\n\n"
 	tctotalcnt=${#tclist[*]}
