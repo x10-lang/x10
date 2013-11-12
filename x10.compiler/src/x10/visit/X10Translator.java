@@ -412,15 +412,6 @@ public class X10Translator extends Translator {
 
 
                 if (!options.keep_output_files) {
-                	// TODO remove this
-                	/*
-                	java.util.ArrayList<String> rmCmd = new java.util.ArrayList<String>();
-                	rmCmd.add("rm");
-                	for (Collection<String> files : compiler.outputFiles().values()) {
-                	    rmCmd.addAll(files);
-                	}
-                    runtime.exec(rmCmd.toArray(strarray));
-                    */
                 	for (Collection<String> files : compiler.outputFiles().values()) {
                 		for (String file : files) {
                 			deleteFile(new File(file));
@@ -452,24 +443,6 @@ public class X10Translator extends Translator {
                     */
                     
                     // create manifest file
-                	// TODO remove this
-                    /*
-                    File manifest = File.createTempFile("x10c.manifest.", null);
-                    manifest.deleteOnExit();    // TODO delete explicitly
-                    PrintWriter out = new PrintWriter(new FileWriter(manifest));
-                    if (main_class != null) {
-                        // add Main-Class attribute for executable jar
-                        out.println("Main-Class: " + main_class + "$" + X10PrettyPrinterVisitor.MAIN_CLASS);
-                        String x10_jar = ((X10CCompilerOptions) options).x10_jar;
-                        String math_jar = ((X10CCompilerOptions) options).math_jar;
-                        String log_jar = ((X10CCompilerOptions) options).log_jar;
-                        // XTENLANG-2722
-                        // need a new preloading mechanism which does not use classloader to determine system classes
-                        out.println("Class-Path: " + x10_jar + " " + math_jar + " " + log_jar);
-                    }
-                    out.println("Created-By: " + compiler.sourceExtension().compilerName() + " version " + compiler.sourceExtension().version());
-                    out.close();
-                    */
                     Manifest mf = new Manifest();
                     Attributes attributes = mf.getMainAttributes();
                 	attributes.put(Attributes.Name.MANIFEST_VERSION, "1.0");
@@ -484,14 +457,6 @@ public class X10Translator extends Translator {
                     	attributes.putValue("Class-Path", x10_jar + " " + math_jar + " " + log_jar);
                     }
                     attributes.putValue("Created-By", compiler.sourceExtension().compilerName() + " version " + compiler.sourceExtension().version());
-                    // TODO remote this
-                    /*
-                    File manifest = File.createTempFile("x10c.manifest.", null);
-                    manifest.deleteOnExit();    // TODO delete explicitly
-                    FileOutputStream out = new FileOutputStream(manifest);
-                    mf.write(out);
-                    out.close();
-                    */
 
                     // create directory for jar file
                     File jarFile = new File(options.executable_path);
@@ -503,41 +468,6 @@ public class X10Translator extends Translator {
                     }
                     
                     // execute "jar cmf ${manifest_file} ${executable_path} -C ${output_directory} ."
-                    // TODO remote this
-                    /*
-                    java.util.ArrayList<String> jarCmdList = new java.util.ArrayList<String>();
-                    jarCmdList.add(X10CCompilerOptions.findJavaCommand("jar"));
-                    jarCmdList.add("cmf");
-                    jarCmdList.add(manifest.getAbsolutePath());
-                    jarCmdList.add(options.executable_path);
-                    jarCmdList.add("-C");
-                    jarCmdList.add(options.output_directory.getAbsolutePath()); // -d output_directory
-                    jarCmdList.add(".");
-                    
-                    String[] jarCmd = jarCmdList.toArray(strarray);
-                    Process jarProc = runtime.exec(jarCmd);
-                    InputStreamReader jarErr = new InputStreamReader(jarProc.getErrorStream());
-                    try {
-                        char[] c = new char[72];
-                        int len;
-                        StringBuilder sb = new StringBuilder();
-                        while ((len = jarErr.read(c)) > 0) {
-                            sb.append(String.valueOf(c, 0, len));
-                        }
-                        if (sb.length() != 0) {
-                            eq.enqueue(ErrorInfo.POST_COMPILER_ERROR, sb.toString());
-                        }
-                    }
-                    finally {
-                        jarErr.close();
-                    }
-                    jarProc.waitFor();
-
-                    if (jarProc.exitValue() > 0) {
-                        eq.enqueue(ErrorInfo.POST_COMPILER_ERROR, "Non-zero return code: " + jarProc.exitValue());
-                        return false;
-                    }
-                    */
                     createJarFile(jarFile, mf, options.output_directory); // -d output_directory
 
                     // pre XTENLANG-3199
@@ -619,16 +549,6 @@ public class X10Translator extends Translator {
 //                    	System.out.println("jarDirPath = " + jarDirPath);
                     	
                     	// generate property file for use as "x10c -x10lib foo.properties ..."
-                    	// TODO remove this
-                    	/*
-                    	String jarFileName = jarFile.getName(); // foo.jar
-                    	String propFileName = jarFileName.substring(0, jarFileName.length() - ".jar".length()) + ".properties"; // foo.properties
-                    	File propFile = new File(propDir, propFileName);
-                    	PrintWriter propFileWriter = new PrintWriter(new FileWriter(propFile));
-                    	propFileWriter.println("X10LIB_TIMESTAMP=" + String.format("%tc", Calendar.getInstance()));
-                    	propFileWriter.println("X10LIB_SRC_JAR=" + jarDirPath + jarFileName);
-                    	propFileWriter.close();
-                    	*/
                     	String jarFileName = jarFile.getName(); // foo.jar
                     	Properties props = new Properties();
                     	props.setProperty("X10LIB_TIMESTAMP", String.format("%tc", Calendar.getInstance()));
@@ -642,15 +562,6 @@ public class X10Translator extends Translator {
                 }
                 // XTENLANG-2126
                 if (!options.keep_output_files) {
-                	// TODO remove this
-                	/*
-                    java.util.ArrayList<String> rmCmd = new java.util.ArrayList<String>();
-                    rmCmd.add("rm");
-                    rmCmd.add("-rf");
-                    rmCmd.add(options.output_directory.getAbsolutePath()); // N.B. output_directory is a temporary directory
-//                    System.out.println(java.util.Arrays.toString(rmCmd.toArray(strarray)));
-                    runtime.exec(rmCmd.toArray(strarray));
-                    */
 //                	System.out.println(options.output_directory.getAbsolutePath());
                 	deleteFile(options.output_directory); // N.B. output_directory is a temporary directory
                 }
