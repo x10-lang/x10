@@ -47,7 +47,7 @@ public class SymMatrix extends DenseMatrix{self.M==self.N} {
 	
 
 	public static def make(n:Long):SymMatrix(n) {
-		val x = new Array[Double](n*n);
+		val x = new Rail[Double](n*n);
 		return new SymMatrix(n, x);
 	}
 
@@ -59,14 +59,14 @@ public class SymMatrix extends DenseMatrix{self.M==self.N} {
 
 	
 	public def clone():SymMatrix(M){
-		val nd = new Array[Double](this.d) as Rail[Double];
+		val nd = new Rail[Double](this.d);
 		val nm = new SymMatrix(M, nd);
 		return nm as SymMatrix(M);
 	}
 	
 	public  def alloc(m:Long, n:Long):SymMatrix(m,n) {
 		Debug.assure(m==n);
-		val x = new Array[Double](m*m);
+		val x = new Rail[Double](m*m);
 		val nm = new SymMatrix(m, x);
 		return nm as SymMatrix(m,n);
 	}

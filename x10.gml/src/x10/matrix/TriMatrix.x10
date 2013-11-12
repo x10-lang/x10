@@ -52,7 +52,7 @@ public class TriMatrix extends DenseMatrix{self.M==self.N} {
 	}	
 
 	public static def make(up:Boolean, n:Long):TriMatrix(n) {
-		val x = new Array[Double](n*n);
+		val x = new Rail[Double](n*n);
 		return new TriMatrix(up, n, x);
 	}
 	
@@ -60,19 +60,19 @@ public class TriMatrix extends DenseMatrix{self.M==self.N} {
  
 	public static def make(src:TriMatrix) {
 		val n = src.N;
-		val newd = new Array[Double](src.d);
+		val newd = new Rail[Double](src.d);
 		return new TriMatrix(src.uplo, n, newd);
 	}
 	
 	public def clone():TriMatrix(M,N){
-		val nd = new Array[Double](this.d) as Rail[Double];
+		val nd = new Rail[Double](this.d);
 		val nm = new TriMatrix(uplo, M, nd);
 		return nm as TriMatrix(M,N);
 	}
 	
 	public  def alloc(m:Long, n:Long):TriMatrix(m,n) {
 		Debug.assure(m==n);
-		val x = new Array[Double](m*n);
+		val x = new Rail[Double](m*n);
 		val nm = new TriMatrix(m, x);
 		return nm as TriMatrix(m,n);
 	}
