@@ -12,7 +12,7 @@
 
 import harness.x10Test;
 
-// SOURCEPATH: $X10_HOME/x10.dist/samples/workstealing
+// SOURCEPATH: $X10_HOME/x10.dist/samples/work-stealing
 
 public class WalaFibTest extends x10Test {
     public def run():boolean {

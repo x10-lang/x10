@@ -9,7 +9,7 @@
  *  (C) Copyright IBM Corporation 2006-2010.
  */
 //OPTIONS: -WORK_STEALING=true
-// SOURCEPATH: $X10_HOME/x10.dist/samples/workstealing
+// SOURCEPATH: $X10_HOME/x10.dist/samples/work-stealing
 
 import harness.x10Test;
 
