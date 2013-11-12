@@ -244,7 +244,7 @@ public class SocketTransport {
 	    				}
 	    				finally {
 	    					channels[i].writeLock.unlock();
-	    					channels[i] = null;
+	    					channels[i].pendingWrites = null;
 	    				}
    			}	}	}
 		} catch (IOException e) {
@@ -445,7 +445,7 @@ public class SocketTransport {
 				catch (IOException e) {
 					// figure out which place this is
 					for (int i=0; i<channels.length; i++) {
-						if (sc.equals(channels[i].sc)) {
+						if (channels[i] != null && sc.equals(channels[i].sc)) {
 							if (DEBUG) System.out.println("Place "+myPlaceId+" discovered link to place "+i+" is broken in probe");
 							channels[i].sc = null;
 							channels[i].pendingWrites = null;
