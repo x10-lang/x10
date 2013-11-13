@@ -428,7 +428,7 @@ function junitLog {
 	          s/>/\&gt;/g;
 	          s/"/\&quot;/g;
 	          s/'"'"'/\&apos;/g;
-	          s/([^[:print:]\t\n\r])/sprintf("\&#%04x;", ord($1))/eg' $1 >> $JUFILE
+	          s/([^[:print:]\t\n\r])/sprintf("\&#x%04x;", ord($1))/eg' $1 >> $JUFILE
 	printf "\t\t</system-out>\n" >> $JUFILE
 	# TODO: include system-err in file
 	printf "\t\t<system-err></system-err>\n" >> $JUFILE
