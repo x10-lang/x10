@@ -308,7 +308,7 @@ typeset -i tctimeout=1
 
 # default timeout value, if timeout is enabled
 typeset -i tctoutval=$DEFAULT_TIMEOUT
-typeset -i tccomptout=180
+typeset -i tccomptout=300
 
 # default log path, where log file will be created
 typeset tclogpath=$DEFAULT_LOGPATH
