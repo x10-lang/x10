@@ -158,7 +158,7 @@ typedef struct _x10rt_nw_req {
 typedef struct _x10rt_get_req {
     int                       type;
     int                       dest_place;
-    x10rt_nw_req            * msg;
+    void                    * msg;
     int                       msg_len;
     int                       len;
 } x10rt_get_req;
@@ -880,8 +880,7 @@ static void get_incoming_data_completion(x10rt_req_queue * q,
     getCb2 cb = global_state.getCb2Tbl[get_req->type];
     x10rt_msg_params p = { get_req->dest_place,
                            get_req->type,
-                           //get_req->msg,
-		 		 		    static_cast <void *> (&get_req->msg[1]),
+                           get_req->msg,
                            get_req->msg_len,
                            0
                          };
