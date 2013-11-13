@@ -60,7 +60,7 @@ abstract public class x10Test {
         if (home == null) {
             return "./"+file;
         } else {
-            return home+"/x10.tests/tests/"+prefix+"/"+file;
+            return home+"/x10.tests/"+prefix+"/"+file;
         }
     }
 
