@@ -134,7 +134,7 @@ public struct Team {
     	if (collectiveSupportLevel > X10RT_COLL_NOCOLLECTIVES)
     	    return nativeSize(id);
     	else
-    	    return state(id).places.size();
+    	    return Team.state(id).places.size();
     }
 
     private static def nativeSize (id:Int) : Int {
@@ -506,37 +506,56 @@ public struct Team {
     public def split (color:Int, new_role:Long) : Team {
         val result = new Rail[Int](1);
         if (collectiveSupportLevel == X10RT_COLL_ALLNONBLOCKINGCOLLECTIVES) {
+        	if (DEBUG) Runtime.println(here + " calling native split on team "+id+" color="+color+" new_role="+new_role);        
             finish nativeSplit(id, id==0n?here.id() as Int:Team.roles(id), color, new_role as Int, result);
+            if (DEBUG) Runtime.println(here + " finished native split on team "+id+" color="+color+" new_role="+new_role);
             return Team(result(0), null, new_role);
         }
         else {
-            // all-to-all to distribute team and role information around
-        	val myInfo:Rail[Pair[Int, Long]] = new Rail[Pair[Int, Long]](1);
-            myInfo(0) = new Pair[Int, Long](color, new_role);
-            val allInfo:Rail[Pair[Int, Long]] = new Rail[Pair[Int, Long]](this.size());            
-            alltoall(myInfo, 0, allInfo, 0, 1);
+            if (DEBUG) Runtime.println(here + " creating PlaceGroup for splitting team "+id+"(size="+this.size()+") color="+color+" new_role="+new_role);
+            // all-to-all to distribute team and role information around        
+            val myInfo:Rail[Int] = new Rail[Int](2);
+            myInfo(0) = color;
+            myInfo(1) = new_role as Int; // TODO: may need to preserve long someday
+            val allInfo:Rail[Int] = new Rail[Int](this.size() * 2);
+            alltoall(myInfo, 0, allInfo, 0, 2);
             
+            // In case the underlying alltoall does not copy my info from src to dst
+            myTeamPosition:long = Team.state(this.id).places.indexOf(here.id()) * 2;
+            allInfo(myTeamPosition) = color;
+            allInfo(myTeamPosition+1) = new_role as Int;
+            
+            if (DEBUGINTERNALS) Runtime.println(here + " completed alltoall for splitting team "+id+" color="+color+" new_role="+new_role+" allInfo="+allInfo);
         	// use the above to figure out the members of *my* team
             // count the new team size
             var numPlacesInMyTeam:Int = 0n;
-            for (p in allInfo)
-                if (p.first == color)
+            for (var i:long=0; i<allInfo.size; i+=2)
+                if (allInfo(i) == color)
                 	numPlacesInMyTeam++;
+
+            if (DEBUGINTERNALS) Runtime.println(here + " my new team has "+numPlacesInMyTeam+" places");
             // create a new PlaceGroup with all members of my new team
             val newTeamPlaceRail:Rail[Place] = new Rail[Place](numPlacesInMyTeam);
-            for (var i:long=0; i<this.size(); i++)
-            	if (allInfo(i).first == color)
-            	    newTeamPlaceRail(allInfo(i).second) = state(this.id).places(i);
+            for (var i:long=0; i<allInfo.size; i+=2) {
+            	if (allInfo(i) == color) {
+                    if (DEBUGINTERNALS) Runtime.println(here + " setting new team position "+allInfo(i+1)+" to place "+Team.state(this.id).places(i/2));
+            	    newTeamPlaceRail(allInfo(i+1)) = Team.state(this.id).places(i/2);
+            }   }
             newTeamPlaceGroup:SparsePlaceGroup = new SparsePlaceGroup(newTeamPlaceRail);
-            
+            if (DEBUGINTERNALS) Runtime.println(here + " Created PlaceGroup for splitting team "+id+" color="+color+" new_role="+new_role+": "+newTeamPlaceRail);
             // now that we have a PlaceGroup for the new team, create it
             if (collectiveSupportLevel == X10RT_COLL_ALLBLOCKINGCOLLECTIVES || collectiveSupportLevel == X10RT_COLL_NONBLOCKINGBARRIER) {
+                if (DEBUGINTERNALS) Runtime.println(here + " calling pre-native split barrier on team "+id+" color="+color+" new_role="+new_role);
             	barrier();
+                if (DEBUGINTERNALS) Runtime.println(here + " calling native split on team "+id+" color="+color+" new_role="+new_role);
             	finish nativeSplit(id, id==0n?here.id() as Int:Team.roles(id), color, new_role as Int, result);
+                if (DEBUG) Runtime.println(here + " finished native split on team "+id+" color="+color+" new_role="+new_role);
             	return Team(result(0), newTeamPlaceGroup, new_role);
             }
-            else
+            else {
+                if (DEBUG) Runtime.println(here + " returning new split team "+id+" color="+color+" new_role="+new_role);
             	return Team((Team.state.size() as Int) + color, newTeamPlaceGroup, new_role);
+            }
         }
     }
 
