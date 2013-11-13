@@ -16,10 +16,8 @@ function printUsage {
 	printf "[-l|-list \"test1 test2 ... testn\"]]\n"
 	printf "    [-v|-verbose] [-h|-help]\n\n"
 	if [[ $2 > 0 ]]; then
-		printf "This script runs the pre-validated *.x10 test cases"
-		printf " in the current\ndirectory and its subdirectories, and"
-		printf " places the test results in a log\nfile under the"
-		printf " specified log directory.\n\n"
+		printf "This script runs the *.x10 test cases"
+		printf " in the current\ndirectory and its subdirectories.\n\n"
 		printf -- "-t | -timeOut [secs]\n"
 		printf "  Enable timeout option for test case execution. This"
 		printf " overrides\nthe default timeout value of 60 seconds.\n\n"
@@ -332,16 +330,6 @@ typeset tcrunfile=""
 # default: none
 typeset tcpatlist=""
 
-# path to temporary log file(s)
-# run and error logs
-# need to capture text even before command-line parsing is done
-tctmprlog=${tctmpdir}/${prog}.run.${tctimestamp}.log
-tctmprhlog=${tctmpdir}/${prog}.run.${tctimestamp}.head.log
-tctmpelog=${tctmpdir}/${prog}.err.${tctimestamp}.log
-# final log(s) will be available here
-tcrlogfile=""
-tcelogfile=""
-
 # various micro counters
 # total number of test case files considered
 tctotalcnt=0
@@ -383,12 +371,14 @@ function init {
 	thrunstate=PARSING_CMDLINE
 	parseCmdLine "$@"
 
-	# set final log destination(s)
-	tcrlogfile=${tclogpath}/${prog}.run.${tctimestamp}.log
-	tcelogfile=${tclogpath}/${prog}.err.${tctimestamp}.log
-
 	# ensure that the reportdir exists
 	mkdir -p $tcreportdir
+}
+
+function cleanup {
+    if [[ -d ${tctmpdir} ]]; then
+	rm -rf ${tctmpdir}
+    fi
 }
 
 function junitLog {
@@ -446,8 +436,6 @@ function main {
 		printf "Disabled\n"
 	fi
 	printf "Global Timeout Value: $tctoutval\n"
-	printf "Run Log File: $tcrlogfile\n"
-	printf "Error Log File: $tcelogfile\n"
 	printf "\nTestcase Pattern List: $tcpatlist\n"
 
 	# set test case build environment
@@ -821,6 +809,7 @@ __jen_hostname=$(hostname)
 
 init "$@"
 main 
+cleanup
 exit 0
 
 # vim:tabstop=4:shiftwidth=4:expandtab
