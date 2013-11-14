@@ -20,6 +20,7 @@
 #include <sched.h> // for sched_yield()
 #include <pthread.h> // for lock on the team mapping table
 #include <x10rt_net.h>
+#include <x10rt_internal.h>
 #include <pami.h>
 #if !defined(__bgq__)
 #include <pami_ext_hfi.h>
