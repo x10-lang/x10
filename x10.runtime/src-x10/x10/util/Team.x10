@@ -709,9 +709,8 @@ public struct Team {
 	    	val teamidcopy = this.teamid; // needed to prevent serializing "this"
 		    if (parent != Place.INVALID_PLACE) {
 			    @Pragma(Pragma.FINISH_ASYNC) finish at (parent) async {
-			        while (Team.state.size() <= teamidcopy) {
-			    	    System.sleep(10);
-			}   }   }
+			        when (Team.state.size() > teamidcopy) {}
+			}   }
 		    if (DEBUGINTERNALS) Runtime.println(here+":team"+this.teamid+", moving on to init barrier");
 		    collective_impl[Int](COLL_BARRIER, Place.FIRST_PLACE, null, 0, null, 0, 0, 0n); // barrier
 		    if (DEBUGINTERNALS) Runtime.println(here + " leaving init phase");
@@ -723,10 +722,15 @@ public struct Team {
 	     */
 	    private def collective_impl[T](collType:Int, root:Place, src:Rail[T], src_off:Long, dst:Rail[T], dst_off:Long, count:Long, operation:Int):void {
 	        if (DEBUGINTERNALS) Runtime.println(here+":team"+teamid+" entered "+getCollName(collType)+" (phase="+phase.get()+", root="+root+")");
-	    	// block if some other collective is in progress.
-	    	while (!this.phase.compareAndSet(PHASE_IDLE, PHASE_GATHER1))
-	    		System.sleep(10);
-	    
+	    	
+	        // block if some other collective is in progress.
+	        if (!this.phase.compareAndSet(PHASE_IDLE, PHASE_GATHER1)) {
+	        	Runtime.increaseParallelism();
+	        	while (!this.phase.compareAndSet(PHASE_IDLE, PHASE_GATHER1))
+	                System.threadSleep(0);
+	        	Runtime.decreaseParallelism(1n);
+	        }
+	        
 	        // make my local data arrays visible to other places
 	    	local_src = src;
 	    	local_src_off = src_off;
@@ -749,9 +753,14 @@ public struct Team {
 	    		if (!this.phase.compareAndSet(PHASE_GATHER1, PHASE_GATHER2)) 
 	    			this.phase.compareAndSet(PHASE_GATHER2, PHASE_SCATTER); 
 	    	}
-	        if (DEBUGINTERNALS) Runtime.println(here+":team"+teamidcopy+" waiting for children");
-	    	while (this.phase.get() != PHASE_SCATTER) // wait for updates from children, not already skipped
-	    		System.sleep(10);
+	        // wait for updates from children, not already skipped
+	        if (this.phase.get() != PHASE_SCATTER) {
+	            if (DEBUGINTERNALS) Runtime.println(here+":team"+teamidcopy+" waiting for children");
+	            Runtime.increaseParallelism();
+	            while (this.phase.get() != PHASE_SCATTER)
+	                System.threadSleep(0);
+	            Runtime.decreaseParallelism(1n);
+	        }
 	        if (DEBUGINTERNALS) Runtime.println(here+":team"+teamidcopy+" released by children");
 	    
 	        // all children have checked in.  Update our parent, and then wait for the parent to update us 
@@ -772,14 +781,24 @@ public struct Team {
 	    	}
 	    	else {
 	            @Pragma(Pragma.FINISH_ASYNC) finish at (parent) async { // increment the phase of the parent
-	    			while(!Team.state(teamidcopy).phase.compareAndSet(PHASE_GATHER1, PHASE_GATHER2) && 
-	    					!Team.state(teamidcopy).phase.compareAndSet(PHASE_GATHER2, PHASE_SCATTER))
-	    				System.sleep(10);
+                	if (!Team.state(teamidcopy).phase.compareAndSet(PHASE_GATHER1, PHASE_GATHER2) && 
+                            !Team.state(teamidcopy).phase.compareAndSet(PHASE_GATHER2, PHASE_SCATTER)) {
+                        Runtime.increaseParallelism();
+                        while(!Team.state(teamidcopy).phase.compareAndSet(PHASE_GATHER1, PHASE_GATHER2) && 
+                    	        !Team.state(teamidcopy).phase.compareAndSet(PHASE_GATHER2, PHASE_SCATTER))
+                    	    System.threadSleep(0);
+                        Runtime.decreaseParallelism(1n);
+                    }
 	                if (DEBUGINTERNALS) Runtime.println(here+" has been set to phase "+Team.state(teamidcopy).phase.get());
 	    		}
-	            if (DEBUGINTERNALS) Runtime.println(here+ " waiting for parent "+parent+":team"+teamidcopy+" to release us from phase "+phase.get());
-			    while (this.phase.get() != PHASE_IDLE) // wait for parent to set us free
-			    	System.sleep(10);
+	            
+	            if (this.phase.get() != PHASE_IDLE) { // wait for parent to set us free
+	                if (DEBUGINTERNALS) Runtime.println(here+ " waiting for parent "+parent+":team"+teamidcopy+" to release us from phase "+phase.get());
+	                Runtime.increaseParallelism();
+	                while (this.phase.get() != PHASE_IDLE)
+	                    System.threadSleep(0);
+	                Runtime.decreaseParallelism(1n);
+	            }
 			    if (DEBUGINTERNALS) Runtime.println(here+ " released by parent");
 	    	}
 
@@ -788,15 +807,19 @@ public struct Team {
 		    	if (collType == COLL_BROADCAST) {
 		    		val notnulldst:Rail[T]{self!=null} = dst as Rail[T]{self!=null};
 		    		gr:GlobalRail[T] = new GlobalRail[T](notnulldst);
-		    		finish {
-		    			at (children.first) {
+		            @Pragma(Pragma.FINISH_SPMD) finish {
+		    			at (children.first) async {
 		                    if (DEBUGINTERNALS) Runtime.println(here+ " pulling data from "+gr+" into "+(local_dst as Rail[T]));
-		    				Rail.asyncCopy(gr, dst_off, Team.state(teamidcopy).local_dst as Rail[T], Team.state(teamidcopy).local_dst_off, Team.state(teamidcopy).local_count);
+		                    @Pragma(Pragma.FINISH_ASYNC) finish{
+		    					Rail.asyncCopy(gr, dst_off, Team.state(teamidcopy).local_dst as Rail[T], Team.state(teamidcopy).local_dst_off, Team.state(teamidcopy).local_count);
+		                    }
 		    			}
 		    			if (children.second != Place.INVALID_PLACE) {
-		    				at (children.second) {
+		    				at (children.second) async {
 		                        if (DEBUGINTERNALS) Runtime.println(here+ " pulling data from "+gr+" into "+(local_dst as Rail[T]));
-		    					Rail.asyncCopy(gr, src_off, Team.state(teamidcopy).local_dst as Rail[T], Team.state(teamidcopy).local_dst_off, Team.state(teamidcopy).local_count);
+		                        @Pragma(Pragma.FINISH_ASYNC) finish {
+		    						Rail.asyncCopy(gr, src_off, Team.state(teamidcopy).local_dst as Rail[T], Team.state(teamidcopy).local_dst_off, Team.state(teamidcopy).local_count);
+		                        }
 		    				}
 		    			}
 		    		}
@@ -807,9 +830,9 @@ public struct Team {
 		    		val notnulldst:Rail[T]{self!=null} = dst as Rail[T]{self!=null};
 		    		gr:GlobalRail[T] = new GlobalRail[T](notnulldst);
 		    		val offset:Long = src_off*count*myPosition;
-		            @Pragma(Pragma.FINISH_ASYNC_AND_BACK) finish { at (root) {
+		            @Pragma(Pragma.FINISH_ASYNC_AND_BACK) finish { at (root) { async {
 		    			Rail.asyncCopy(Team.state(teamidcopy).local_src as Rail[T], offset, gr, dst_off, Team.state(teamidcopy).local_count);
-		    		}}
+		    		}}}
 		    	}
 	    	}
 	    
