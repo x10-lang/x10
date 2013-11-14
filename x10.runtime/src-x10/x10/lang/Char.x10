@@ -99,7 +99,7 @@ public struct Char implements Comparable[Char], Ordered[Char] {
      * @return the distance between the source Char and the target Char.
      */
     @Native("java", "((#x) - (#y))")
-    @Native("c++",  "x10_char((#1).v - (#2).v)")
+    @Native("c++",  "((x10_int)((#1).v - (#2).v))")
     public native static operator (x:Char) - (y:Char): Int;
 
 
