@@ -17,8 +17,10 @@ import harness.x10Test;
  */
 public class Any1b extends x10Test {
 
+    def aFun() = ()=>{};
+
     public def run():Boolean {
-        val f = ()=>{};
+        val f = aFun();
         val ft = f.typeName();
         val fs = f.toString();
         val fh = f.hashCode();
