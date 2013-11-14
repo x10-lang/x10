@@ -388,41 +388,40 @@ function junitLog {
 	# testsuite header
 	let '__jen_test_id += 1'
 	JUFILE="${tcreportdir}/test.${__jen_test_id}.xml"
-	printf "\n\t<testsuite" > $JUFILE
+	printf "<testsuite\n" > $JUFILE
 	printf "\tid=\"${__jen_test_id}\"\n" >> $JUFILE
-	printf "\t\t\tpackage=\"${__jen_current_group}\"\n" >> $JUFILE
-	printf "\t\t\tname=\"${__jen_test_name}\"\n" >> $JUFILE
-	printf "\t\t\ttimestamp=\"${__jen_test_timestamp}\"\n" >> $JUFILE
-	printf "\t\t\thostname=\"${__jen_hostname}\"\n" >> $JUFILE
-	printf "\t\t\ttime=\"${__jen_test_duration}\"\n" >> $JUFILE
-	printf "\t\t\ttests=\"1\"\n" >> $JUFILE
+	printf "\tpackage=\"${__jen_current_group}\"\n" >> $JUFILE
+	printf "\tname=\"${__jen_test_name}\"\n" >> $JUFILE
+	printf "\ttimestamp=\"${__jen_test_timestamp}\"\n" >> $JUFILE
+	printf "\thostname=\"${__jen_hostname}\"\n" >> $JUFILE
+	printf "\ttime=\"${__jen_test_duration}\"\n" >> $JUFILE
+	printf "\ttests=\"1\"\n" >> $JUFILE
 	if [[ "${__jen_test_result}" != "SUCCESS" ]]; then
-	    printf "\t\t\tfailures=\"1\"\n" >> $JUFILE
+	    printf "\tfailures=\"1\"\n" >> $JUFILE
 	else
-	    printf "\t\t\tfailures=\"0\"\n" >> $JUFILE
+	    printf "\tfailures=\"0\"\n" >> $JUFILE
 	fi
-	printf "\t\t\terrors=\"0\"\n" >> $JUFILE
-	printf "\t\t>\n" >> $JUFILE
-	printf "\t\t<properties></properties>\n" >> $JUFILE
+	printf "\terrors=\"0\" >\n" >> $JUFILE
+	printf "\t<properties></properties>\n" >> $JUFILE
 
 	# testcase (trivial...1 per test suite)
-	printf "\t\t<testcase classname=\"${__jen_test_name}\" name=\"main\" time=\"${__jen_test_duration}\">\n" >> $JUFILE
+	printf "\t<testcase classname=\"${__jen_test_name}\" name=\"main\" time=\"${__jen_test_duration}\">\n" >> $JUFILE
 	if [[ "${__jen_test_result}" != "SUCCESS" ]]; then
-	    printf "\t\t\t<failure type=\"${__jen_test_result}\" message=\"${__jen_test_result_explanation}\"/>\n" >> $JUFILE
+	    printf "\t\t<failure type=\"${__jen_test_result}\" message=\"${__jen_test_result_explanation}\"/>\n" >> $JUFILE
 	fi
-	printf "\t\t</testcase>\n" >> $JUFILE
+	printf "\t</testcase>\n" >> $JUFILE
 
-	printf "\t\t<system-out>\n" >> $JUFILE
+	printf "\t<system-out>\n" >> $JUFILE
 	perl -pe 's/&/\&amp;/g;
 	          s/</\&lt;/g;
 	          s/>/\&gt;/g;
 	          s/"/\&quot;/g;
 	          s/'"'"'/\&apos;/g;
 	          s/([^[:print:]\t\n\r])/sprintf("\&#x%04x;", ord($1))/eg' $1 >> $JUFILE
-	printf "\t\t</system-out>\n" >> $JUFILE
+	printf "\t</system-out>\n" >> $JUFILE
 	# TODO: include system-err in file
-	printf "\t\t<system-err></system-err>\n" >> $JUFILE
-	printf "\t</testsuite>\n" >> $JUFILE
+	printf "\t<system-err></system-err>\n" >> $JUFILE
+	printf "</testsuite>\n" >> $JUFILE
 }
 
 # main routine that invokes the rest
