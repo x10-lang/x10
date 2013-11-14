@@ -24,7 +24,7 @@ using namespace x10aux;
 using namespace x10::lang;
 
 x10_int x10aux::hash_code(const x10_complex x) {
-    return hash_code(x.real()) ^ hash_code(x.imag());
+    return hash_code(x.real()) * hash_code(x.imag());
 }
 
 x10_int x10aux::hash_code(const x10_double x) {

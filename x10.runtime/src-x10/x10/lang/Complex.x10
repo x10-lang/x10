@@ -259,6 +259,12 @@ public struct Complex implements Arithmetic[Complex] {
     public def toString():String {
         return ("" + re + " + " + im + "i");
     }
+
+    @Native("c++", "x10aux::hash_code(#this)")
+    @Native("c++", "x10aux::hash_code(#this)")
+    public def hashCode():Int {
+        return re.hashCode() * im.hashCode();
+    }    
 }
 
 // vim:shiftwidth=4:tabstop=4:expandtab
