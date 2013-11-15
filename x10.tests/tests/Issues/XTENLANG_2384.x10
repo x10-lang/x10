@@ -11,6 +11,10 @@
 
 import harness.x10Test;
 
+// SKIP_NATIVE_X10: XTENLANG-2384: Catch with constrained type is a future feature
+// SKIP_MANAGED_X10: XTENLANG-2384: Catch with constrained type is a future feature
+
+
 /**
  * @author makinoy 1/2011
  */
