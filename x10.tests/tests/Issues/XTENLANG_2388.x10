@@ -11,6 +11,9 @@
 
 import harness.x10Test;
 
+// SKIP_NATIVE_X10: XTENLANG-2388: Runtime constraint solving is a future feature
+// SKIP_MANAGED_X10: XTENLANG-2388: Runtime constraint solving is a future feature
+
 /**
  * @author yzibin 1/2011
  */
