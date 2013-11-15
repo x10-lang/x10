@@ -8,11 +8,13 @@
  *
  *  (C) Copyright IBM Corporation 2006-2010.
  */
-//OPTIONS: -WALADEBUG
 
 import harness.x10Test;
 
+// OPTIONS: -WALADEBUG
 // SOURCEPATH: $X10_HOME/x10.dist/samples/work-stealing
+// SKIP_MANAGED_X10: Wala bridge broken
+// SKIP_NATIVE_X10: Wala bridge broken
 
 public class WalaFibTest extends x10Test {
     public def run():boolean {
