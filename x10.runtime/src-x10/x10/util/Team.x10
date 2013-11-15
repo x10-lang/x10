@@ -144,7 +144,7 @@ public struct Team {
 
     /** Blocks until all team members have reached the barrier.
      */
-    public def barrier () : void {        
+    public def barrier () : void {
     	if (collectiveSupportLevel >= X10RT_COLL_NONBLOCKINGBARRIER) {
             if (DEBUG) Runtime.println(here + " entering native barrier on team "+id);
             finish nativeBarrier(id, (id==0n?here.id() as Int:Team.roles(id)));
@@ -604,11 +604,13 @@ public struct Team {
      * array indexes, that all places call the same collective at the same time, that root matches, etc.
      */
     private static class LocalTeamState(places:PlaceGroup, teamid:Int) {	    
-        private static PHASE_IDLE:Int = 0n;    // normal state, nothing in progress
-        private static PHASE_GATHER1:Int = 1n; // waiting for signal/data from first child
-        private static PHASE_GATHER2:Int = 2n; // waiting for signal/data from second child
-        private static PHASE_SCATTER:Int = 3n; // waiting for signal/data from parent
-        private var phase:AtomicInteger = new AtomicInteger(PHASE_IDLE); // which of the above phases we're in
+        private static PHASE_READY:Int = 0n;   // normal state, nothing in progress
+        private static PHASE_GATHER1:Int = 1n; // waiting for data+signal from first child
+        private static PHASE_GATHER2:Int = 2n; // waiting for data+signal from second child
+        private static PHASE_SCATTER:Int = 3n; // waiting for data+signal from parent
+        private static PHASE_DONE:Int = 4n;    // done, but not yet ready for the next collective call
+        private var phase:AtomicInteger = new AtomicInteger(PHASE_READY); // which of the above phases we're in
+        private var counter:Int = 0n; // counter used only in some debug messages
 
         private static COLL_BARRIER:Int = 0n; // no data moved
         private static COLL_SCATTER:Int = 1n; // data out only
@@ -721,12 +723,12 @@ public struct Team {
 	     * for specific collectives.
 	     */
 	    private def collective_impl[T](collType:Int, root:Place, src:Rail[T], src_off:Long, dst:Rail[T], dst_off:Long, count:Long, operation:Int):void {
-	        if (DEBUGINTERNALS) Runtime.println(here+":team"+teamid+" entered "+getCollName(collType)+" (phase="+phase.get()+", root="+root+")");
+	        if (DEBUGINTERNALS) {counter++; Runtime.println(here+":team"+teamid+" entered "+getCollName(collType)+" (phase="+phase.get()+", root="+root+") counter="+counter);}
 	    	
 	        // block if some other collective is in progress.
-	        if (!this.phase.compareAndSet(PHASE_IDLE, PHASE_GATHER1)) {
+	        if (!this.phase.compareAndSet(PHASE_READY, PHASE_GATHER1)) {
 	        	Runtime.increaseParallelism();
-	        	while (!this.phase.compareAndSet(PHASE_IDLE, PHASE_GATHER1))
+	        	while (!this.phase.compareAndSet(PHASE_READY, PHASE_GATHER1))
 	                System.threadSleep(0);
 	        	Runtime.decreaseParallelism(1n);
 	        }
@@ -744,7 +746,6 @@ public struct Team {
 	    	val teamidcopy = this.teamid; // needed to prevent serializing "this" in at() statements	    	
 	        if (DEBUGINTERNALS) Runtime.println(here+":team"+teamidcopy+", root="+root+" has parent "+parent);
 	        if (DEBUGINTERNALS) Runtime.println(here+":team"+teamidcopy+", root="+root+" has children "+children);
-
 	    	
 	    	// Start out waiting for all children to update our state 
 	    	if (children.first == Place.INVALID_PLACE) // no children to wait for
@@ -777,10 +778,11 @@ public struct Team {
 			        if (DEBUGINTERNALS) Runtime.println(here+ " dst now contains "+dst);
 			    }
 	    
-	    		this.phase.set(PHASE_IDLE); // the root node has no parent, and can skip ahead
+	    		this.phase.set(PHASE_DONE); // the root node has no parent, and can skip its own state ahead
 	    	}
 	    	else {
-	            @Pragma(Pragma.FINISH_ASYNC) finish at (parent) async { // increment the phase of the parent
+	            // increment the phase of the parent
+	            @Pragma(Pragma.FINISH_ASYNC) finish at (parent) async { 
                 	if (!Team.state(teamidcopy).phase.compareAndSet(PHASE_GATHER1, PHASE_GATHER2) && 
                             !Team.state(teamidcopy).phase.compareAndSet(PHASE_GATHER2, PHASE_SCATTER)) {
                         Runtime.increaseParallelism();
@@ -792,10 +794,10 @@ public struct Team {
 	                if (DEBUGINTERNALS) Runtime.println(here+" has been set to phase "+Team.state(teamidcopy).phase.get());
 	    		}
 	            
-	            if (this.phase.get() != PHASE_IDLE) { // wait for parent to set us free
+	            if (this.phase.get() != PHASE_DONE) { // wait for parent to set us free
 	                if (DEBUGINTERNALS) Runtime.println(here+ " waiting for parent "+parent+":team"+teamidcopy+" to release us from phase "+phase.get());
 	                Runtime.increaseParallelism();
-	                while (this.phase.get() != PHASE_IDLE)
+	                while (this.phase.get() != PHASE_DONE)
 	                    System.threadSleep(0);
 	                Runtime.decreaseParallelism(1n);
 	            }
@@ -836,18 +838,18 @@ public struct Team {
 		    	}
 	    	}
 	    
-	    	// our parent has updated us - update any children, and leave the barrier
+	    	// our parent has updated us - update any children, and leave the collective
 	        if (children.first != Place.INVALID_PLACE) { // free the first child, if it exists
 	            @Pragma(Pragma.FINISH_ASYNC) finish at (children.first) async {
-	    			if (!Team.state(teamidcopy).phase.compareAndSet(PHASE_SCATTER, PHASE_IDLE))
-	    				Runtime.println("ERROR root setting the first child "+here+":team"+teamidcopy+" to PHASE_IDLE");
-	    			//else Runtime.println("set the first child "+here+":team"+teamidcopy+" to PHASE_IDLE");
+	    			if (!Team.state(teamidcopy).phase.compareAndSet(PHASE_SCATTER, PHASE_DONE))
+	    				Runtime.println("ERROR root setting the first child "+here+":team"+teamidcopy+" to PHASE_DONE");
+	    			else if (DEBUGINTERNALS) Runtime.println("set the first child "+here+":team"+teamidcopy+" to PHASE_DONE");
 	    		}
 	    		if (children.second != Place.INVALID_PLACE) {
 	                @Pragma(Pragma.FINISH_ASYNC) finish at (children.second) async {
-	    				if (!Team.state(teamidcopy).phase.compareAndSet(PHASE_SCATTER, PHASE_IDLE))
-	    					Runtime.println("ERROR root setting the second child "+here+":team"+teamidcopy+" to PHASE_IDLE");
-	    				//else Runtime.println("set the second child "+here+":team"+teamidcopy+" to PHASE_IDLE");
+	    				if (!Team.state(teamidcopy).phase.compareAndSet(PHASE_SCATTER, PHASE_DONE))
+	    					Runtime.println("ERROR root setting the second child "+here+":team"+teamidcopy+" to PHASE_DONE");
+	    				else if (DEBUGINTERNALS) Runtime.println("set the second child "+here+":team"+teamidcopy+" to PHASE_DONE");
 	    			}
 	    		}
 	    	}
@@ -855,8 +857,9 @@ public struct Team {
 	        local_src = null;
 	        local_dst = null;
 	        myPosition = -1; // Place.INVALID_PLACE.id();
+	        this.phase.set(PHASE_READY);
 	        // done!
-	        if (DEBUGINTERNALS) Runtime.println(here+":team"+teamidcopy+" leaving "+getCollName(collType));
+	        if (DEBUGINTERNALS) Runtime.println(here+":team"+teamidcopy+" leaving "+getCollName(collType)+" counter="+counter);
 	    }
 	}
 }
