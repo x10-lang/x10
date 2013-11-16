@@ -148,7 +148,6 @@ function findTests {
 
     #eval "find $1 -type d -name '.svn' -prune -o -type f -name '*.x10' -print"
     if [[ -n "$testPat" && "${testPat}" != "." ]]; then
-	#findpat="$(printf "%q " "${testPat}" | sed 's/\\\\\([\*\?]\)/\1/g')"
 	eval "find $testPat -type d -name '.svn' -prune -o -type f -name '*.x10'  -print | sort"
     else
 	dirlist="$(eval "find -type d -name '.svn' -prune -o -type d -name '*' -print | sort")"
@@ -172,7 +171,6 @@ function isTestCase {
 	return 1
     fi
 
-    printf "\n===> ${EGREP} -q 'public[ ]+static[ ]+def[ ]+main' $1\n\n" 1>&2
     ${EGREP} -q 'public[ ]+static[ ]+def[ ]+main' $1
     if [[ $? != 0 ]]; then
 	printf "\n[$prog: err]: no \"public static def main\" method in ${file}\n"
@@ -180,7 +178,6 @@ function isTestCase {
     fi
 
     if [[ "$tcbackend" == "native" ]]; then 
-	printf "\n===> ${EGREP} -q 'MANAGED_X10_ONLY' $1\n\n" 1>&2
 	${EGREP} -q 'MANAGED_X10_ONLY' $1
 	if [[ $? == 0 ]]; then
 	    printf "\n[$prog]: ${file} contains MANAGED_X10_ONLY directive\n"
@@ -189,7 +186,6 @@ function isTestCase {
     fi
 
     if [[ "$tcbackend" == "managed" ]]; then 
-	printf "\n===> ${EGREP} -q 'NATIVE_X10_ONLY' $1\n\n" 1>&2
 	${EGREP} -q 'NATIVE_X10_ONLY' $1
 	if [[ $? == 0 ]]; then
 	    printf "\n[$prog]: ${file} contains NATIVE_X10_ONLY directive\n"
@@ -255,13 +251,10 @@ function execTimeOut {
     printf "\n" >> $outfile
     "$MYDIR"/xnewpgrp "$@" >> $outfile 2>&1 &
     typeset cmd_pid=$!
-    printf "\n===> sleep $timeout && kill -9 -$cmd_pid >/dev/null 2>&1 &\n\n" 1>&2
     "$MYDIR"/xnewpgrp "sleep $timeout && kill -9 -$cmd_pid && echo 'Timeout' >> $outfile" >/dev/null 2>&1 &
     typeset sleep_pid=$!
-    printf "\n===> wait $cmd_pid 2>/dev/null\n\n" 1>&2
     wait $cmd_pid >/dev/null 2>&1
     typeset rc=$?
-    printf "\n===> kill -9 -$sleep_pid 2>/dev/null\n\n" 1>&2
     kill -9 -$sleep_pid >/dev/null 2>&1
     return $rc
 }
@@ -271,9 +264,8 @@ function execTimeOut {
 MYDIR=$(cd $(dirname $0) && pwd)
 X10_HOME=$X10_HOME
 if [[ -z "$X10_HOME" ]]; then
-    X10_HOME=$(cd $MYDIR/../..; pwd)
+    export X10_HOME=$(cd $MYDIR/../..; pwd)
 fi
-X10TEST_PATH=$X10_HOME/x10.tests/tests
 prog=jenkins-runTest
 
 # platform independent abstraction for certain commands
@@ -474,26 +466,22 @@ function main {
     printf "\nTestcase Pattern List: $tcpatlist\n"
 
     # set test case build environment
-    if [[ "$tcbackend" == "native" ]]; then
-	X10CPP=$X10CPP
-	if [[ -z "$X10CPP" ]]; then
-	    X10CPP=$X10_HOME/x10.dist/bin/x10c++
-	fi
-	if [[ ! -f $X10CPP ]]; then
-	    printf "\n[$prog: err]: unable to locate x10c++ compiler!\n"
-	    exit 2
-	fi
-	tccompiler_script=$X10CPP
-    else
-	X10C=$X10C
-	if [[ -z "$X10C" ]]; then
-	    X10C=$X10_HOME/x10.dist/bin/x10c
-	fi
-	if [[ ! -f $X10C ]]; then
-	    printf "\n[$prog: err]: unable to locate x10c compiler!\n"
-	    exit 2
-	fi
-	tccompiler_script=$X10C
+    X10CPP=$X10CPP
+    if [[ -z "$X10CPP" ]]; then
+	X10CPP=$X10_HOME/x10.dist/bin/x10c++
+    fi
+    if [[ ! -f $X10CPP ]]; then
+	printf "\n[$prog: err]: unable to locate x10c++ compiler!\n"
+	exit 2
+    fi
+
+    X10C=$X10C
+    if [[ -z "$X10C" ]]; then
+	X10C=$X10_HOME/x10.dist/bin/x10c
+    fi
+    if [[ ! -f $X10C ]]; then
+	printf "\n[$prog: err]: unable to locate x10c compiler!\n"
+	exit 2
     fi
 
     RUN_X10=$RUN_X10
@@ -524,7 +512,7 @@ function main {
 	    exit 3
 	fi
     fi
-    printf "\n===> ${tclist[*]}\n\n"
+    # printf "\n===> ${tclist[*]}\n\n"
     tctotalcnt=${#tclist[*]}
 
 
@@ -538,7 +526,7 @@ function main {
 
     for tc in ${tclist[*]}; do
 	let 'tcproccnt += 1'
-	printf "\n((${tcproccnt})) [$(basename $(dirname $tc)):$(basename $tc)]"
+	printf "\n((${tcproccnt} of ${tctotalcnt})) [$(basename $(dirname $tc)):$(basename $tc)]"
 	printf "\n===>((${tcproccnt})) [$(basename $tc)]\n\n" 1>&2
 	# pre-validate the test case
 	isTestCase $tc
@@ -568,7 +556,6 @@ function main {
 	    rm -rf ${tcroot}
 	fi
 	tcroot=$tctmpdir/$tctarget
-	printf "\n===> mkdir -p $tcroot\n\n" 1>&2
 	mkdir -p $tcroot
 
 	# resolve test case parameters
@@ -595,12 +582,12 @@ function main {
 	if [[ "$(uname -s)" == CYGWIN* ]]; then
             # FIXME:  Needs to do managed/native switch off!
             # FIXME:  Reduce sourcepath
-	    comp_cmd="${tccompiler_script} $extra_opts $extra_sourcepath $tccompiler_options -t -v -report postcompile=1 -CHECK_INVARIANTS=true -MAIN_CLASS=$className -o \"$(cygpath -am $tcroot)/$tctarget\" -sourcepath \"$(cygpath -am $X10_HOME/x10.tests/tests/$tDirSlash)\" -sourcepath \"$(cygpath -am $X10_HOME/x10.tests/tests/$testDir)\" -sourcepath \"$(cygpath -am $X10_HOME/x10.tests/tests/x10lib)\" -sourcepath \"$(cygpath -am $tcroot)\" -sourcepath \"$(cygpath -am $X10_HOME/x10.dist/samples)\"  -sourcepath \"$(cygpath -am $X10_HOME/x10.dist/samples/tutorial)\" -sourcepath \"$(cygpath -am $X10_HOME/x10.dist/samples/CUDA)\" -sourcepath \"$(cygpath -am $X10_HOME/x10.dist/samples/work-stealing)\" -d \"$(cygpath -am $tcroot)\" $tc "
+	    comp_cmd="${X10CPP} $extra_opts $extra_sourcepath $tccompiler_options -t -v -report postcompile=1 -CHECK_INVARIANTS=true -MAIN_CLASS=$className -o \"$(cygpath -am $tcroot)/$tctarget\" -sourcepath \"$(cygpath -am $X10_HOME/x10.tests/tests/$tDirSlash)\" -sourcepath \"$(cygpath -am $X10_HOME/x10.tests/tests/$testDir)\" -sourcepath \"$(cygpath -am $X10_HOME/x10.tests/tests/x10lib)\" -sourcepath \"$(cygpath -am $tcroot)\" -sourcepath \"$(cygpath -am $X10_HOME/x10.dist/samples)\"  -sourcepath \"$(cygpath -am $X10_HOME/x10.dist/samples/tutorial)\" -sourcepath \"$(cygpath -am $X10_HOME/x10.dist/samples/CUDA)\" -sourcepath \"$(cygpath -am $X10_HOME/x10.dist/samples/work-stealing)\" -d \"$(cygpath -am $tcroot)\" $tc "
 	else
 	    if [[ "$tcbackend" == "native" ]]; then
-		comp_cmd="${tccompiler_script} $extra_opts $extra_sourcepath $tccompiler_options -t -v -report postcompile=1 -CHECK_INVARIANTS=true -MAIN_CLASS=$className -o $tcroot/$tctarget -sourcepath $X10_HOME/x10.tests/tests/$tDirSlash -sourcepath $X10_HOME/x10.tests/tests/$testDir -sourcepath $X10_HOME/x10.tests/tests/x10lib -d $tcroot $tc"
+		comp_cmd="${X10CPP} $extra_opts $extra_sourcepath $tccompiler_options -t -v -report postcompile=1 -CHECK_INVARIANTS=true -MAIN_CLASS=$className -o $tcroot/$tctarget -sourcepath $X10_HOME/x10.tests/tests/$tDirSlash -sourcepath $X10_HOME/x10.tests/tests/$testDir -sourcepath $X10_HOME/x10.tests/tests/x10lib -d $tcroot $tc"
 	    else
-		comp_cmd="${tccompiler_script} $extra_opts $extra_sourcepath $tccompiler_options -t -v -report postcompile=1 -CHECK_INVARIANTS=true -MAIN_CLASS=$className -sourcepath $X10_HOME/x10.tests/tests/$tDirSlash -sourcepath $X10_HOME/x10.tests/tests/$testDir -sourcepath $X10_HOME/x10.tests/tests/x10lib -d $tcroot $tc"
+		comp_cmd="${X10C} $extra_opts $extra_sourcepath $tccompiler_options -t -v -report postcompile=1 -CHECK_INVARIANTS=true -MAIN_CLASS=$className -sourcepath $X10_HOME/x10.tests/tests/$tDirSlash -sourcepath $X10_HOME/x10.tests/tests/$testDir -sourcepath $X10_HOME/x10.tests/tests/x10lib -d $tcroot $tc"
 	    fi
 	fi
 	tccompdat=${tcroot}/${tctarget}.comp
@@ -674,7 +661,6 @@ function main {
 	    if (( $? == 0 )); then
 		for pid in $pid_list
 		do
-		    printf "\nkill -9 $pid 2>/dev/null\n\n"
 		    kill -9 $pid 2>/dev/null
 		done
 	    fi
@@ -698,7 +684,7 @@ function main {
 	else
 	    __jen_test_x10_command="$(echo execTimeOut $tctoutval $tcoutdat \"${run_cmd}\")"
 	fi
-	printf " ++ E [EXECUTION]"
+	printf "\n ++ E [EXECUTION]"
 	( \
 	    cd $tcroot; \
 	    if [[ $tctimeout == 0 ]]; then \
