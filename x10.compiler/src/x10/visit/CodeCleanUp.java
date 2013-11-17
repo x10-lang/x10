@@ -23,6 +23,7 @@ import polyglot.ast.Expr;
 import polyglot.ast.For;
 import polyglot.ast.Id;
 import polyglot.ast.Labeled;
+import polyglot.ast.Local;
 import polyglot.ast.Node;
 import polyglot.ast.NodeFactory;
 import polyglot.ast.Return;
@@ -105,6 +106,10 @@ public class CodeCleanUp extends ContextVisitor {
         
         if (n instanceof Eval && ((Eval)n).expr() instanceof StmtExpr  && !(parent instanceof For)) {
             return sinkEval((StmtExpr)((Eval)n).expr(), n.position());
+        }
+        
+        if (n instanceof Eval && ((Eval)n).expr() instanceof Local) {
+            return nf.Empty(n.position());
         }
         
         if (n instanceof StmtExpr) {
