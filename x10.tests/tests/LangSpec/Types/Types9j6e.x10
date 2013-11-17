@@ -27,6 +27,8 @@ public class Types9j6e extends x10Test {
 
 
 // file Types line 1834
+ // SKIP_NATIVE_X10: XTENLANG-2916 Implementation limitation
+ // SKIP_MANAGED_X10: XTENLANG-2916 Implementation limitation
  static class Generic {
   public static def inst[T](x:Any):Boolean = x instanceof T;
   // With -VERBOSE, the following line gets a warning
