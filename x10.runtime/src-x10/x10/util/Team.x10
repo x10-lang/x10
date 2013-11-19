@@ -131,7 +131,7 @@ public struct Team {
     /** Returns the number of places in the team.
      */
     public def size () : Long {
-    	if (collectiveSupportLevel > X10RT_COLL_NOCOLLECTIVES)
+    	if (collectiveSupportLevel >= X10RT_COLL_ALLNONBLOCKINGCOLLECTIVES)
     	    return nativeSize(id);
     	else
     	    return Team.state(id).places.size();
@@ -837,22 +837,34 @@ public struct Team {
 		    		}}}
 		    	}
 	    	}
-	    
 	    	// our parent has updated us - update any children, and leave the collective
 	        if (children.first != Place.INVALID_PLACE) { // free the first child, if it exists
-	            @Pragma(Pragma.FINISH_ASYNC) finish at (children.first) async {
-	    			if (!Team.state(teamidcopy).phase.compareAndSet(PHASE_SCATTER, PHASE_DONE))
-	    				Runtime.println("ERROR root setting the first child "+here+":team"+teamidcopy+" to PHASE_DONE");
-	    			else if (DEBUGINTERNALS) Runtime.println("set the first child "+here+":team"+teamidcopy+" to PHASE_DONE");
+	            // NOTE: there is some trickery here, which allows the parent to continue past this section
+	            //   before the children have been set free.  This is necessary when there is a blocking
+	            //   call immediately after this collective completes (e.g. the barrier before a blocking 
+	            //   collective in MPI-2), because otherwise the at may not return before the barrier
+	            //   locks up the worker thread.
+	            // TODO: convert to Runtime.runUncountedAsync(), or Runtime.x10rtSendAsync(), or other such simpler mechanism
+	            val parentPlace:Place = here;
+	            @Pragma(Pragma.FINISH_HERE) finish {
+	                at (children.first) async {
+	                    at (parentPlace) async {}
+	    		        if (!Team.state(teamidcopy).phase.compareAndSet(PHASE_SCATTER, PHASE_DONE))
+	    				    Runtime.println("ERROR root setting the first child "+here+":team"+teamidcopy+" to PHASE_DONE");
+	    			    else if (DEBUGINTERNALS) Runtime.println("set the first child "+here+":team"+teamidcopy+" to PHASE_DONE");
+	                }
 	    		}
 	    		if (children.second != Place.INVALID_PLACE) {
-	                @Pragma(Pragma.FINISH_ASYNC) finish at (children.second) async {
-	    				if (!Team.state(teamidcopy).phase.compareAndSet(PHASE_SCATTER, PHASE_DONE))
-	    					Runtime.println("ERROR root setting the second child "+here+":team"+teamidcopy+" to PHASE_DONE");
-	    				else if (DEBUGINTERNALS) Runtime.println("set the second child "+here+":team"+teamidcopy+" to PHASE_DONE");
-	    			}
-	    		}
-	    	}
+	    		    @Pragma(Pragma.FINISH_HERE) finish {
+	                    at (children.second) async {
+	                        at (parentPlace) async {}
+	    		            if (!Team.state(teamidcopy).phase.compareAndSet(PHASE_SCATTER, PHASE_DONE))
+	    					    Runtime.println("ERROR root setting the second child "+here+":team"+teamidcopy+" to PHASE_DONE");
+	    			        else if (DEBUGINTERNALS) Runtime.println("set the second child "+here+":team"+teamidcopy+" to PHASE_DONE");
+	    			    }
+	    		    }
+	    	    }
+	        }
 	        
 	        local_src = null;
 	        local_dst = null;
