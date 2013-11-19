@@ -19,6 +19,13 @@ import java.util.concurrent.ConcurrentHashMap;
 
 import x10.runtime.impl.java.Runtime;
 
+import static x10.serialization.SerializationUtils.getBundleMethod;
+import static x10.serialization.SerializationUtils.getBundleContextMethod;
+import static x10.serialization.SerializationUtils.getSymbolicNameMethod;
+import static x10.serialization.SerializationUtils.getVersionMethod;
+import static x10.serialization.SerializationUtils.loadClassMethod;
+import static x10.serialization.SerializationUtils.getBundlesMethod;
+
 abstract class DeserializationDictionary implements SerializationConstants {
     protected final Map<Short,Method> idsToMethod;
     protected final Map<Short,Class<?>> idsToClass;
@@ -97,45 +104,27 @@ abstract class DeserializationDictionary implements SerializationConstants {
 //    			return bundle.loadClass(name);
 //    		}
 //    	}
-    	// Reflection version
-		try {
-			Class<?> FrameworkUtilClass = Class.forName("org.osgi.framework.FrameworkUtil");
-			Method getBundleMethod = FrameworkUtilClass.getDeclaredMethod("getBundle", Class.class);
-			getBundleMethod.setAccessible(true);
-			Object/*Bundle*/ _bundle = getBundleMethod.invoke(null, this.getClass());
-			assert _bundle != null;
-			Class<?> BundleClass = Class.forName("org.osgi.framework.Bundle");
-			Method getBundleContextMethod = BundleClass.getDeclaredMethod("getBundleContext");
-			getBundleContextMethod.setAccessible(true);
-			Object/*BundleContext*/ bundleContext = getBundleContextMethod.invoke(_bundle);
-			Class<?> BundleContextClass = Class.forName("org.osgi.framework.BundleContext");
-			Method getBundlesMethod = BundleContextClass.getDeclaredMethod("getBundles");
-			getBundlesMethod.setAccessible(true);
-			Object/*Bundle*/[] bundles = (Object[]) getBundlesMethod.invoke(bundleContext);
-			
-			Method getSymbolicNameMethod = BundleClass.getDeclaredMethod("getSymbolicName");
-			getSymbolicNameMethod.setAccessible(true);
-			Method getVersionMethod = BundleClass.getDeclaredMethod("getVersion");
-			getVersionMethod.setAccessible(true);
-			for (Object/*Bundle*/ bundle : bundles) {
-				String bundleName_ = (String) getSymbolicNameMethod.invoke(bundle);
-				String bundleVersion_ = getVersionMethod.invoke(bundle).toString();
-				if (bundleName.equals(bundleName_) && bundleVersion.equals(bundleVersion_)) {
-					if (Runtime.TRACE_SER) Runtime.printTraceMessage("DeserializationDictionary.loadClass: loading "+name+" with bundle "+bundle);
-					Method loadClassMethod = BundleClass.getDeclaredMethod("loadClass", String.class);
-					loadClassMethod.setAccessible(true);
-					return (Class<?>) loadClassMethod.invoke(bundle, name);
-				}
-			}
-		} catch (RuntimeException e) {
-			throw e;
-		} catch (ClassNotFoundException e) {
-			throw e;
-		} catch (Exception e) {
-//			e.printStackTrace();
-			throw new ClassNotFoundException(e.getMessage(), e);
-		}
-		
+        // Reflection version
+        try {
+            Object/*Bundle*/ _bundle = getBundleMethod.invoke(null, this.getClass());
+            assert _bundle != null;
+            Object/*BundleContext*/ bundleContext = getBundleContextMethod.invoke(_bundle);
+            Object/*Bundle*/[] bundles = (Object[]) getBundlesMethod.invoke(bundleContext);
+            for (Object/*Bundle*/ bundle : bundles) {
+                String bundleName_ = (String) getSymbolicNameMethod.invoke(bundle);
+                String bundleVersion_ = getVersionMethod.invoke(bundle).toString();
+                if (bundleName.equals(bundleName_) && bundleVersion.equals(bundleVersion_)) {
+                    if (Runtime.TRACE_SER) Runtime.printTraceMessage("DeserializationDictionary.loadClass: loading "+name+" with bundle "+bundle);
+                    return (Class<?>) loadClassMethod.invoke(bundle, name);
+                }
+            }
+        } catch (RuntimeException e) {
+            throw e;
+        } catch (Exception e) {
+//            e.printStackTrace();
+            throw new ClassNotFoundException(e.getMessage(), e);
+        }
+        
     	String msg = "Cannot find bundle "+bundleName+" "+bundleVersion+" for loading class "+name;
     	throw new ClassNotFoundException(msg);
 //    	return Class.forName(name);

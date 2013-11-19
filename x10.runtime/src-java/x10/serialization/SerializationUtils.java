@@ -11,7 +11,48 @@
 
 package x10.serialization;
 
+import java.lang.reflect.Method;
+
+import x10.runtime.impl.java.Runtime;
+
 class SerializationUtils {
+
+    /* cached classes and methods for OSGi bundle based classloading */
+    static Class<?> FrameworkUtilClass;
+    static Method getBundleMethod;
+    static Class<?> BundleClass;
+    static Method getBundleContextMethod;
+    static Method getSymbolicNameMethod;
+    static Method getVersionMethod;
+    static Method loadClassMethod;
+    static Class<?> BundleContextClass;
+    static Method getBundlesMethod;
+    static {
+        if (Runtime.OSGI) {
+            try {
+                FrameworkUtilClass = Class.forName("org.osgi.framework.FrameworkUtil");
+                getBundleMethod = FrameworkUtilClass.getDeclaredMethod("getBundle", Class.class);
+                getBundleMethod.setAccessible(true);
+                BundleClass = Class.forName("org.osgi.framework.Bundle");
+                getBundleContextMethod = BundleClass.getDeclaredMethod("getBundleContext");
+                getBundleContextMethod.setAccessible(true);
+                getSymbolicNameMethod = BundleClass.getDeclaredMethod("getSymbolicName");
+                getSymbolicNameMethod.setAccessible(true);
+                getVersionMethod = BundleClass.getDeclaredMethod("getVersion");
+                getVersionMethod.setAccessible(true);
+                loadClassMethod = BundleClass.getDeclaredMethod("loadClass", String.class);
+                loadClassMethod.setAccessible(true);
+                BundleContextClass = Class.forName("org.osgi.framework.BundleContext");
+                getBundlesMethod = BundleContextClass.getDeclaredMethod("getBundles");
+                getBundlesMethod.setAccessible(true);
+            } catch (Throwable e) {
+                String msg = "FATAL ERROR! Cannot load OSGi framework.";
+                System.out.println(msg);
+                e.printStackTrace();
+            }
+        }
+    }
+
     static boolean useX10SerializationProtocol(Class<?> clazz) {
         if (!x10.serialization.X10JavaSerializable.class.isAssignableFrom(clazz)) return false;
         
