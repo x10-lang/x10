@@ -28,8 +28,27 @@ abstract class DeserializationDictionary implements SerializationConstants {
         this.idsToClass = cMap;
     }
 
+    // common entry point
+    Class<?> loadClass(X10JavaDeserializer jds) throws ClassNotFoundException {
+        String className = null;
+        try {
+            className = jds.readString();
+        } catch (IOException e) {
+            String msg = "DeserializationDictionary.loadClass: error in reading class name";
+            if (Runtime.TRACE_SER) Runtime.printTraceMessage(msg);
+            throw new RuntimeException(msg, e);
+        }
+        Class<?> clazz;
+        if (Runtime.OSGI) {
+            clazz = loadClass(className, jds);
+        } else {
+            clazz = loadClass(className);
+        }
+        return clazz;
+    }
+
     // non OSGI environment
-    Class<?> loadClass(String name) throws ClassNotFoundException {
+    private Class<?> loadClass(String name) throws ClassNotFoundException {
     	assert !Runtime.OSGI;
         if (Runtime.TRACE_SER) Runtime.printTraceMessage("DeserializationDictionary.loadClass: loading "+name);
         return Class.forName(name);
@@ -48,9 +67,20 @@ abstract class DeserializationDictionary implements SerializationConstants {
     }
 
     // OSGI environment
-    Class<?> loadClass(String name, String bundleName, String bundleVersion) throws ClassNotFoundException {
+    private Class<?> loadClass(String name, X10JavaDeserializer jds) throws ClassNotFoundException {
     	assert Runtime.OSGI;
-    	
+
+        String bundleName = null;
+        String bundleVersion = null;
+        try {
+            bundleName = jds.readStringValue();
+            bundleVersion = jds.readStringValue();
+        } catch (IOException e) {
+            String msg = "DeserializationDictionary.loadClass: error in reading bundle information. bundleName="+bundleName+", bundleVersion="+bundleVersion;
+            if (Runtime.TRACE_SER) Runtime.printTraceMessage(msg);
+            throw new RuntimeException(msg, e);
+        }
+
     	if (bundleName.equals("")) {
 			if (Runtime.TRACE_SER) Runtime.printTraceMessage("DeserializationDictionary.loadClass: loading "+name+" without bundle");
     		return Class.forName(name);
@@ -111,10 +141,10 @@ abstract class DeserializationDictionary implements SerializationConstants {
 //    	return Class.forName(name);
     }
 
-    void addEntry(short id, String name, String bundleName, String bundleVersion) {
+    void addEntry(short id, String name, X10JavaDeserializer jds) {
         Class<?> clazz;
         try {
-            clazz = loadClass(name, bundleName, bundleVersion);
+            clazz = loadClass(name, jds);
         } catch (ClassNotFoundException e) {
             String msg = "DeserializationDictionary.addEntry: failed to load class "+name;
             if (Runtime.TRACE_SER) Runtime.printTraceMessage(msg);
@@ -123,7 +153,7 @@ abstract class DeserializationDictionary implements SerializationConstants {
         addEntry(Short.valueOf(id), clazz);
     }
 
-    void addEntry(Short id, Class<?> clazz) {
+    protected final void addEntry(Short id, Class<?> clazz) {
         idsToClass.put(id, clazz);
         if (!clazz.isInterface() && SerializationUtils.useX10SerializationProtocol(clazz)) {
             Method m;
@@ -173,9 +203,9 @@ abstract class DeserializationDictionary implements SerializationConstants {
         }
 
         @Override
-        void addEntry(short id, String name, String bundleName, String bundleVersion) {
+        void addEntry(short id, String name, X10JavaDeserializer jds) {
             assert id >= FIRST_SHARED_ID && id < FIRST_DYNAMIC_ID : "invalid id in addEntry of master dictionary" + id;
-            super.addEntry(id, name, bundleName, bundleVersion);
+            super.addEntry(id, name, jds);
         }
     }
 
@@ -207,21 +237,16 @@ abstract class DeserializationDictionary implements SerializationConstants {
         void deserializeIdAssignment(X10JavaDeserializer jds) throws IOException {
             short id = jds.readShort();
             String name = jds.readStringValue();
+            if (Runtime.TRACE_SER) {
+                Runtime.printTraceMessage("\tserialization id: "+id+" = "+name);                
+            }
             if (Runtime.OSGI) {
-                String bundleName = jds.readStringValue();
-                String bundleVersion = jds.readStringValue();
-                if (Runtime.TRACE_SER) {
-                    Runtime.printTraceMessage("\tserialization id: "+id+" = "+name+", bundle = "+bundleName+" "+bundleVersion);                
-                }
-                addEntry(id, name, bundleName, bundleVersion);
+                addEntry(id, name, jds);
             } else {
-                if (Runtime.TRACE_SER) {
-                    Runtime.printTraceMessage("\tserialization id: "+id+" = "+name);                
-                }
                 addEntry(id, name);
             }
         }
-        
+
 		@Override
 		Class<?> getClassForID(short sid) {
             if (sid < FIRST_DYNAMIC_ID) {
