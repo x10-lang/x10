@@ -25,6 +25,7 @@
 #include "x10_x10rt_TeamSupport.h"
 
 static methodDescription activityTerminationFunc;
+static methodDescription copyDoubleToComplex;
 
 
 /*****************************************************
@@ -210,6 +211,22 @@ static void postCopyCallback(void *arg) {
                                  callbackArg->count,
                                  (jfloat*)callbackArg->dstData);
         break;
+    case 11:
+        // double[] representing a Complex[]
+        {
+        jdoubleArray res = env->NewDoubleArray(2*callbackArg->count);
+        env->SetDoubleArrayRegion(res,
+                                  2*callbackArg->dstOffset,
+                                  2*callbackArg->count,
+                                  (jdouble*)callbackArg->dstData);
+        env->CallStaticVoidMethod(copyDoubleToComplex.targetClass,
+                                  copyDoubleToComplex.targetMethod,
+                                  res,
+                                  (jdoubleArray)callbackArg->globalDstArray,
+                                  callbackArg->dstOffset,
+                                  callbackArg->count);
+        }
+        break;
     default:
         jniHelper_abort("Unsupported typecode %d in postCopyCallback\n", callbackArg->typecode);
     }
@@ -346,6 +363,21 @@ JNIEXPORT void JNICALL Java_x10_x10rt_TeamSupport_nativeScatterImpl(JNIEnv *env,
         env->GetFloatArrayRegion((jfloatArray)src, src_off, count, (jfloat*)srcData);
         }
         break;
+    case 11:
+        // double[] representing Complex[]
+        el = 2*sizeof(jdouble);
+        dstData = malloc(rcount*2*sizeof(jdouble));
+        if (NULL == dstData) {
+            jniHelper_abort("OOM while attempting to allocate malloced storage in nativeScatterImpl\n");
+        }
+        if (role == root) {
+        srcData = malloc(count*2*sizeof(jdouble));
+        if (NULL == srcData) {
+            jniHelper_abort("OOM while attempting to allocate malloced storage in nativeScatterImpl\n");
+        }
+        env->GetDoubleArrayRegion((jdoubleArray)src, 2*src_off, 2*count, (jdouble*)srcData);
+        }
+        break;
     default:
         jniHelper_abort("Unsupported typecode %d in nativeScatterImpl\n", typecode);
     }
@@ -478,6 +510,21 @@ JNIEXPORT void JNICALL Java_x10_x10rt_TeamSupport_nativeBcastImpl(JNIEnv *env, j
         env->GetFloatArrayRegion((jfloatArray)src, src_off, count, (jfloat*)srcData);
         }
         break;
+    case 11:
+        // double[] (representing a Complex[])
+        el = 2* sizeof(jdouble);
+        dstData = malloc(count*2*sizeof(jdouble));
+        if (NULL == dstData) {
+            jniHelper_abort("OOM while attempting to allocate malloced storage in nativeBcastImpl\n");
+        }
+        if (role == root) {
+        srcData = malloc(count*2*sizeof(jdouble));
+        if (NULL == srcData) {
+            jniHelper_abort("OOM while attempting to allocate malloced storage in nativeBcastImpl\n");
+        }
+        env->GetDoubleArrayRegion((jdoubleArray)src, 2*src_off, 2*count, (jdouble*)srcData);
+        }
+        break;
     default:
         jniHelper_abort("Unsupported typecode %d in nativeBcastImpl\n", typecode);
     }
@@ -598,6 +645,19 @@ JNIEXPORT void JNICALL Java_x10_x10rt_TeamSupport_nativeAllToAllImpl(JNIEnv *env
         }
         env->GetFloatArrayRegion((jfloatArray)src, src_off, count, (jfloat*)srcData);
         break;
+    case 11:
+        // double[] representing Complex[]
+        el = 2*sizeof(jdouble);
+        dstData = malloc(count*2*sizeof(jdouble));
+        if (NULL == dstData) {
+            jniHelper_abort("OOM while attempting to allocate malloced storage in nativeAllToAllImpl\n");
+        }
+        srcData = malloc(count*2*sizeof(jdouble));
+        if (NULL == srcData) {
+            jniHelper_abort("OOM while attempting to allocate malloced storage in nativeAllToAllImpl\n");
+        }
+        env->GetDoubleArrayRegion((jdoubleArray)src, 2*src_off, 2*count, (jdouble*)srcData);
+        break;
     default:
         jniHelper_abort("Unsupported typecode %d in nativeAllToAllImpl\n", typecode);
     }
@@ -692,6 +752,15 @@ JNIEXPORT void JNICALL Java_x10_x10rt_TeamSupport_nativeAllReduceImpl(JNIEnv *en
             jniHelper_abort("OOM while attempting to allocate malloced storage in nativeAllReduceImpl\n");
         }
         env->GetFloatArrayRegion((jfloatArray)src, src_off, count, (jfloat*)srcData);
+        break;
+    case 11:
+        // double[] representing a Complex[]
+        srcData = malloc(count*2*sizeof(jdouble));
+        dstData = malloc(count*2*sizeof(jdouble));
+        if (NULL == srcData || NULL == dstData) {
+            jniHelper_abort("OOM while attempting to allocate malloced storage in nativeAllReduceImpl\n");
+        }
+        env->GetDoubleArrayRegion((jdoubleArray)src, 2*src_off, 2*count, (jdouble*)srcData);
         break;
     default:
         jniHelper_abort("Unsupported typecode %d in nativeAllReduceImpl\n", typecode);
@@ -940,4 +1009,21 @@ JNIEXPORT void JNICALL Java_x10_x10rt_TeamSupport_initialize(JNIEnv *env, jclass
     }
     activityTerminationFunc.targetClass  = globalClass;
     activityTerminationFunc.targetMethod = terminateId;
+
+
+    /* Get a hold of TeamSupport.copyDoubleToComplex and stash away its invoke information */
+    jclass teamClass = env->FindClass("Lx10/x10rt/TeamSupport;");
+    if (NULL == teamClass) {
+        jniHelper_abort("Unable to find class x10.x10rt.TeamSupport\n");
+    }
+    jmethodID copyId = env->GetStaticMethodID(teamClass, "copyDoubleToComplex", "([DLjava/lang/Object;II)V");
+    if (NULL == copyId) {
+        jniHelper_abort("Unable to resolve methodID for TeamSupport.copyDoubleToComplex\n");
+    }
+    jclass globalClass2 = (jclass)env->NewGlobalRef(teamClass);
+    if (NULL == globalClass2) {
+        jniHelper_abort("OOM while attempting to allocate global reference for Team class\n");
+    }
+    copyDoubleToComplex.targetClass  = globalClass2;
+    copyDoubleToComplex.targetMethod = copyId;
 }

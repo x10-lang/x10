@@ -11,8 +11,10 @@
 package x10.x10rt;
 
 import x10.core.Rail;
+import x10.lang.Complex;
 import x10.lang.FinishState;
 import x10.lang.Place;
+import x10.rtt.Type;
 
 public class TeamSupport {
     
@@ -25,26 +27,48 @@ public class TeamSupport {
     private static final int RED_TYPE_LONG = 6;
     private static final int RED_TYPE_DOUBLE = 8;
     private static final int RED_TYPE_FLOAT = 9;
+    private static final int RED_TYPE_COMPLEX = 11;
     
     private static int getTypeCode(Rail<?> chunk) {
         Object chunkRaw = chunk.getBackingArray();
-        int typeCode = 0;
         if (chunkRaw instanceof byte[]) {
-            typeCode = RED_TYPE_BYTE;
+            return RED_TYPE_BYTE;
         } else if (chunkRaw instanceof short[]) {
-            typeCode = RED_TYPE_SHORT;
+            return RED_TYPE_SHORT;
         } else if (chunkRaw instanceof int[]) {
-            typeCode = RED_TYPE_INT;
+            return RED_TYPE_INT;
         } else if (chunkRaw instanceof long[]) {
-            typeCode = RED_TYPE_LONG;
+            return RED_TYPE_LONG;
         } else if (chunkRaw instanceof double[]) {
-            typeCode = RED_TYPE_DOUBLE;
+            return RED_TYPE_DOUBLE;
         } else if (chunkRaw instanceof float[]) {
-            typeCode = RED_TYPE_FLOAT;
-        } else {
-            throw new java.lang.UnsupportedOperationException("Unsupported type of src array "+chunk.$getParam(0).typeName()+" in nativeAllReduce");
+            return RED_TYPE_FLOAT;
+        } else if (chunkRaw instanceof Object[]) {
+            Type<?> elemType = chunk.$getParam(0);
+            if (elemType.equals(x10.lang.Complex.$RTT)) {
+                return RED_TYPE_COMPLEX;
+            }
         }
-        return typeCode;
+        throw new java.lang.UnsupportedOperationException("Unsupported type of src array "+chunk.$getParam(0).typeName()+" in nativeAllReduce");
+    }
+    
+    // Called from native code in jni_team.cc
+    private static void copyDoubleToComplex(double[] src, Object dstObj, int offset, int count) {
+        Object[] dst = (Object[])dstObj;
+        for (int i=0; i<count; i++) {
+            dst[i+offset] = new Complex(src[2*i], src[2*i+1]);
+        }
+    }
+    
+    private static double[] copyComplexToNewDouble(Rail<?> src, int src_off, int count) {
+        Object[] boxedSrc = src.getObjectArray();
+        double[] tmp = new double[count*2];
+        for (int i=0; i<count; i++) {
+            x10.lang.Complex c = (Complex) boxedSrc[i+src_off];
+            tmp[2*i] = c.re;
+            tmp[2*i + 1] = c.im;
+        }
+        return tmp;
     }
     
     private static void aboutToDie(String methodName) {
@@ -116,11 +140,11 @@ public class TeamSupport {
     public static void nativeBcast(int id, int role, int root, Rail<?> src, int src_off, 
                                    Rail<?> dst, int dst_off, int count) {
         if (!X10RT.forceSinglePlace) {
-        Object srcRaw = src.getBackingArray();
-        Object dstRaw = dst.getBackingArray();
-
         int typeCode = getTypeCode(src);
         assert getTypeCode(dst) == typeCode : "Incompatible src and dst arrays";
+        
+        Object srcRaw = typeCode == RED_TYPE_COMPLEX ? copyComplexToNewDouble(src, src_off, count) : src.getBackingArray();
+        Object dstRaw = dst.getBackingArray();
 
         FinishState fs = ActivityManagement.activityCreationBookkeeping();
 
@@ -131,14 +155,14 @@ public class TeamSupport {
         }
         }
     }
-    
+
     public static void nativeAllToAll(int id, int role, Rail<?> src, int src_off, 
                                       Rail<?> dst, int dst_off, int count) {
         if (!X10RT.forceSinglePlace) {
-        Object srcRaw = src.getBackingArray();
+        int typeCode = getTypeCode(src);
+        Object srcRaw = typeCode == RED_TYPE_COMPLEX ? copyComplexToNewDouble(src, src_off, count) : src.getBackingArray();
         Object dstRaw = dst.getBackingArray();
 
-        int typeCode = getTypeCode(src);
         assert getTypeCode(dst) == typeCode : "Incompatible src and dst arrays";
 
         FinishState fs = ActivityManagement.activityCreationBookkeeping();
@@ -154,10 +178,10 @@ public class TeamSupport {
     public static void nativeReduce(int id, int role, int root, Rail<?> src, int src_off, 
                                        Rail<?> dst, int dst_off, int count, int op) {
         if (!X10RT.forceSinglePlace) {
-        Object srcRaw = src.getBackingArray();
+        int typeCode = getTypeCode(src);
+        Object srcRaw = typeCode == RED_TYPE_COMPLEX ? copyComplexToNewDouble(src, src_off, count) : src.getBackingArray();
         Object dstRaw = dst.getBackingArray();
         
-        int typeCode = getTypeCode(src);
         assert getTypeCode(dst) == typeCode : "Incompatible src and dst arrays";
         
         FinishState fs = ActivityManagement.activityCreationBookkeeping();
@@ -173,10 +197,10 @@ public class TeamSupport {
     public static void nativeAllReduce(int id, int role, Rail<?> src, int src_off, 
                                        Rail<?> dst, int dst_off, int count, int op) {
         if (!X10RT.forceSinglePlace) {
-        Object srcRaw = src.getBackingArray();
+        int typeCode = getTypeCode(src);
+        Object srcRaw = typeCode == RED_TYPE_COMPLEX ? copyComplexToNewDouble(src, src_off, count) : src.getBackingArray();
         Object dstRaw = dst.getBackingArray();
         
-        int typeCode = getTypeCode(src);
         assert getTypeCode(dst) == typeCode : "Incompatible src and dst arrays";
         
         FinishState fs = ActivityManagement.activityCreationBookkeeping();
