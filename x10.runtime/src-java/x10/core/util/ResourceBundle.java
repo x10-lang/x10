@@ -28,6 +28,7 @@ import x10.serialization.X10JavaSerializer;
 @x10.runtime.impl.java.X10Generated
 final public class ResourceBundle extends Ref implements X10JavaSerializable {
 
+    @SuppressWarnings("unchecked")
     public static final RuntimeType<ResourceBundle> $RTT = NamedType.<ResourceBundle> make("x10.util.ResourceBundle", ResourceBundle.class);
     public RuntimeType<?> $getRTT() { return $RTT; }
     public Type<?> $getParam(int i) { return null; }
@@ -88,6 +89,7 @@ final public class ResourceBundle extends Ref implements X10JavaSerializable {
         return new Rail<String>(Types.STRING, ja.length, ja);
     }
 
+    @SuppressWarnings("unchecked")
     final public x10.util.Set<String> keySet() {
         java.util.Set<String> js = bundle.keySet();
         x10.util.HashSet<String> xs = new x10.util.HashSet<String>((System[]) null, Types.STRING);
