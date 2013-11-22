@@ -155,6 +155,10 @@ public struct Team {
     	}
         if (DEBUG) Runtime.println(here + " leaving barrier of team "+id);
     }
+    
+    public def nativeBarrier () : void {
+    	finish nativeBarrier(id, (id==0n?here.id() as Int:Team.roles(id)));
+    }
 
     private static def nativeBarrier (id:int, role:Int) : void {
         @Native("java", "x10.x10rt.TeamSupport.nativeBarrier(id, role);")
@@ -603,7 +607,7 @@ public struct Team {
      * For performance reasons, this implementation DOES NOT perform error checking.  It does not verify
      * array indexes, that all places call the same collective at the same time, that root matches, etc.
      */
-    private static class LocalTeamState(places:PlaceGroup, teamid:Int) {	    
+    private static class LocalTeamState(places:PlaceGroup, teamid:Int) {
         private static PHASE_READY:Int = 0n;   // normal state, nothing in progress
         private static PHASE_GATHER1:Int = 1n; // waiting for data+signal from first child
         private static PHASE_GATHER2:Int = 2n; // waiting for data+signal from second child
@@ -727,10 +731,8 @@ public struct Team {
 	    	
 	        // block if some other collective is in progress.
 	        if (!this.phase.compareAndSet(PHASE_READY, PHASE_GATHER1)) {
-	        	Runtime.increaseParallelism();
 	        	while (!this.phase.compareAndSet(PHASE_READY, PHASE_GATHER1))
-	                System.threadSleep(0);
-	        	Runtime.decreaseParallelism(1n);
+	                Runtime.probe();
 	        }
 	        
 	        // make my local data arrays visible to other places
@@ -757,10 +759,8 @@ public struct Team {
 	        // wait for updates from children, not already skipped
 	        if (this.phase.get() != PHASE_SCATTER) {
 	            if (DEBUGINTERNALS) Runtime.println(here+":team"+teamidcopy+" waiting for children");
-	            Runtime.increaseParallelism();
 	            while (this.phase.get() != PHASE_SCATTER)
-	                System.threadSleep(0);
-	            Runtime.decreaseParallelism(1n);
+	                Runtime.probe();
 	        }
 	        if (DEBUGINTERNALS) Runtime.println(here+":team"+teamidcopy+" released by children");
 	    
@@ -785,21 +785,17 @@ public struct Team {
 	            @Pragma(Pragma.FINISH_ASYNC) finish at (parent) async { 
                 	if (!Team.state(teamidcopy).phase.compareAndSet(PHASE_GATHER1, PHASE_GATHER2) && 
                             !Team.state(teamidcopy).phase.compareAndSet(PHASE_GATHER2, PHASE_SCATTER)) {
-                        Runtime.increaseParallelism();
                         while(!Team.state(teamidcopy).phase.compareAndSet(PHASE_GATHER1, PHASE_GATHER2) && 
                     	        !Team.state(teamidcopy).phase.compareAndSet(PHASE_GATHER2, PHASE_SCATTER))
-                    	    System.threadSleep(0);
-                        Runtime.decreaseParallelism(1n);
+                    	    Runtime.probe();
                     }
 	                if (DEBUGINTERNALS) Runtime.println(here+" has been set to phase "+Team.state(teamidcopy).phase.get());
 	    		}
 	            
 	            if (this.phase.get() != PHASE_DONE) { // wait for parent to set us free
 	                if (DEBUGINTERNALS) Runtime.println(here+ " waiting for parent "+parent+":team"+teamidcopy+" to release us from phase "+phase.get());
-	                Runtime.increaseParallelism();
 	                while (this.phase.get() != PHASE_DONE)
-	                    System.threadSleep(0);
-	                Runtime.decreaseParallelism(1n);
+	                    Runtime.probe();
 	            }
 			    if (DEBUGINTERNALS) Runtime.println(here+ " released by parent");
 	    	}
@@ -865,7 +861,18 @@ public struct Team {
 	    		    }
 	    	    }
 	        }
-	        
+/* alternative form of the above
+            val free_child = ()=> @x10.compiler.RemoteInvocation("free_child") {
+                if (!Team.state(teamidcopy).phase.compareAndSet(PHASE_SCATTER, PHASE_DONE))
+       		        Runtime.println("ERROR setting child "+here+" to PHASE_DONE");
+            };
+	        if (children.first != Place.INVALID_PLACE) {
+	            Runtime.x10rtSendMessage(children.first.id, free_child, null);
+	    		if (children.second != Place.INVALID_PLACE)
+	                Runtime.x10rtSendMessage(children.second.id, free_child, null);
+	        }
+	        Unsafe.dealloc(free_child);
+*/	        
 	        local_src = null;
 	        local_dst = null;
 	        myPosition = -1; // Place.INVALID_PLACE.id();
