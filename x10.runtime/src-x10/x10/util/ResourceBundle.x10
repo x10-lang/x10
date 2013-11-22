@@ -23,16 +23,16 @@ public final class ResourceBundle {
     @Native("java", "x10.core.util.ResourceBundle.getBundle(#baseName)")
     public static def getBundle(baseName:String):ResourceBundle = null;
 
-    @Native("java", "#this.containsKey$O(key)")
+    @Native("java", "#this.containsKey$O(#key)")
     public final def containsKey(key:String):Boolean = false;
 
-    @Native("java", "#this.getAny(key)")
+    @Native("java", "#this.getAny(#key)")
     public final def getAny(key:String):Any = null;
 
-    @Native("java", "#this.getString(key)")
+    @Native("java", "#this.getString(#key)")
     public final def getString(key:String):String = null;
 
-    @Native("java", "#this.getStringRail(key)")
+    @Native("java", "#this.getStringRail(#key)")
     public final def getStringRail(key:String):Rail[String] = null;
 
     @Native("java", "#this.keySet()")
