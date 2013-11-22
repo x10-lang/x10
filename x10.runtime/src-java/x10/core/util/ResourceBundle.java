@@ -12,6 +12,7 @@
 package x10.core.util;
 
 import java.io.IOException;
+import java.util.Locale;
 
 import x10.core.Rail;
 import x10.core.Ref;
@@ -69,6 +70,37 @@ final public class ResourceBundle extends Ref implements X10JavaSerializable {
     public static ResourceBundle getBundle(String baseName) {
         ResourceBundle rb = new ResourceBundle((System[]) null);
         rb.x10$util$ResourceBundle$$init$S(baseName);
+        return rb;
+    }
+
+    // creation method for java code (1-phase java constructor)
+    public ResourceBundle(String baseName, Object loaderOrLoaded) {
+        this((System[]) null);
+        x10$util$ResourceBundle$$init$S(baseName, loaderOrLoaded);
+    }
+
+    // constructor for non-virtual call
+    final public ResourceBundle x10$util$ResourceBundle$$init$S(String baseName, Object loaderOrLoaded) {
+        if (loaderOrLoaded == null) {
+            this.bundle = java.util.ResourceBundle.getBundle(baseName);
+        } else {
+            Locale locale = Locale.getDefault();
+            ClassLoader loader;
+            if (loaderOrLoaded instanceof ClassLoader) {
+                loader = (ClassLoader) loaderOrLoaded;
+            } else if (loaderOrLoaded instanceof Class<?>) {
+                loader = ((Class<?>) loaderOrLoaded).getClassLoader();
+            } else {
+                loader = loaderOrLoaded.getClass().getClassLoader();
+            }
+            this.bundle = java.util.ResourceBundle.getBundle(baseName, locale, loader);
+        }
+        return this;
+    }
+
+    public static ResourceBundle getBundle(String baseName, Object loaderOrLoaded) {
+        ResourceBundle rb = new ResourceBundle((System[]) null);
+        rb.x10$util$ResourceBundle$$init$S(baseName, loaderOrLoaded);
         return rb;
     }
 

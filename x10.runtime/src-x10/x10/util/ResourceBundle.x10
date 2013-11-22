@@ -17,11 +17,13 @@ import x10.compiler.NativeRep;
 @NativeRep("java", "x10.core.util.ResourceBundle", null, "x10.core.util.ResourceBundle.$RTT")
 public final class ResourceBundle {
 
-    @Native("java", "new x10.core.util.ResourceBundle(#baseName)")
-    private def this(baseName:String) {}
+    private def this() {}
 
     @Native("java", "x10.core.util.ResourceBundle.getBundle(#baseName)")
     public static def getBundle(baseName:String):ResourceBundle = null;
+
+    @Native("java", "x10.core.util.ResourceBundle.getBundle(#baseName, #loaderOrLoaded)")
+    public static def getBundle(baseName:String, loaderOrLoaded:Any):ResourceBundle = null;
 
     @Native("java", "#this.containsKey$O(#key)")
     public final def containsKey(key:String):Boolean = false;
