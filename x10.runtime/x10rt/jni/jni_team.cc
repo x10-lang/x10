@@ -676,6 +676,111 @@ JNIEXPORT void JNICALL Java_x10_x10rt_TeamSupport_nativeAllToAllImpl(JNIEnv *env
 
 
 /*****************************************************
+ * nativeReduceImpl
+ *****************************************************/
+
+/*
+ * Class:     x10_x10rt_TeamSupport
+ * Method:    nativeReduceImpl
+ * Signature: (IIILjava/lang/Object;ILjava/lang/Object;IIIILx10/lang/FinishState;)V
+ */
+JNIEXPORT void JNICALL Java_x10_x10rt_TeamSupport_nativeReduceImpl(JNIEnv *env, jclass klazz,
+                                                                   jint id, jint role, jint root,
+                                                                   jobject src, jint src_off,
+                                                                   jobject dst, jint dst_off,
+                                                                   jint count, jint op, jint typecode,
+                                                                   jobject finishState) {
+    jobject globalDst = env->NewGlobalRef(dst);
+    jobject globalFinishState = env->NewGlobalRef(finishState);
+    if (NULL == globalDst || NULL == globalFinishState) {
+        jniHelper_abort("OOM while attempting to create GlobalRef in nativeReduceImpl\n");
+    }
+
+    void *srcData;
+    void *dstData;
+    switch(typecode) {
+    case 1:
+        // byte []
+        srcData = malloc(count*sizeof(jbyte));
+        dstData = malloc(count*sizeof(jbyte));
+        if (NULL == srcData || NULL == dstData) {
+            jniHelper_abort("OOM while attempting to allocate malloced storage in nativeReduceImpl\n");
+        }
+        env->GetByteArrayRegion((jbyteArray)src, src_off, count, (jbyte*)srcData);
+        break;
+    case 2:
+        // short []
+        srcData = malloc(count*sizeof(jshort));
+        dstData = malloc(count*sizeof(jshort));
+        if (NULL == srcData || NULL == dstData) {
+            jniHelper_abort("OOM while attempting to allocate malloced storage in nativeReduceImpl\n");
+        }
+        env->GetShortArrayRegion((jshortArray)src, src_off, count, (jshort*)srcData);
+        break;
+    case 4:
+        // int[]
+        srcData = malloc(count*sizeof(jint));
+        dstData = malloc(count*sizeof(jint));
+        if (NULL == srcData || NULL == dstData) {
+            jniHelper_abort("OOM while attempting to allocate malloced storage in nativeReduceImpl\n");
+        }
+        env->GetIntArrayRegion((jintArray)src, src_off, count, (jint*)srcData);
+        break;
+    case 6:
+        // long[]
+        srcData = malloc(count*sizeof(jlong));
+        dstData = malloc(count*sizeof(jlong));
+        if (NULL == srcData || NULL == dstData) {
+            jniHelper_abort("OOM while attempting to allocate malloced storage in nativeReduceImpl\n");
+        }
+        env->GetLongArrayRegion((jlongArray)src, src_off, count, (jlong*)srcData);
+        break;
+    case 8:
+        // double[]
+        srcData = malloc(count*sizeof(jdouble));
+        dstData = malloc(count*sizeof(jdouble));
+        if (NULL == srcData || NULL == dstData) {
+            jniHelper_abort("OOM while attempting to allocate malloced storage in nativeReduceImpl\n");
+        }
+        env->GetDoubleArrayRegion((jdoubleArray)src, src_off, count, (jdouble*)srcData);
+        break;
+    case 9:
+        // float[]
+        srcData = malloc(count*sizeof(jfloat));
+        dstData = malloc(count*sizeof(jfloat));
+        if (NULL == srcData || NULL == dstData) {
+            jniHelper_abort("OOM while attempting to allocate malloced storage in nativeReduceImpl\n");
+        }
+        env->GetFloatArrayRegion((jfloatArray)src, src_off, count, (jfloat*)srcData);
+        break;
+    case 11:
+        // double[] representing a Complex[]
+        srcData = malloc(count*2*sizeof(jdouble));
+        dstData = malloc(count*2*sizeof(jdouble));
+        if (NULL == srcData || NULL == dstData) {
+            jniHelper_abort("OOM while attempting to allocate malloced storage in nativeReduceImpl\n");
+        }
+        env->GetDoubleArrayRegion((jdoubleArray)src, 2*src_off, 2*count, (jdouble*)srcData);
+        break;
+    default:
+        jniHelper_abort("Unsupported typecode %d in nativeReduceImpl\n", typecode);
+    }        
+
+    postCopyStruct* callbackArg = (postCopyStruct*)malloc(sizeof(postCopyStruct));
+    callbackArg->globalFinishState = globalFinishState;
+    callbackArg->globalDstArray = globalDst;
+    callbackArg->typecode = typecode;
+    callbackArg->dstOffset = dst_off;
+    callbackArg->count = count;
+    callbackArg->srcData = srcData;
+    callbackArg->dstData = dstData;
+
+    x10rt_reduce(id, role, root, srcData, dstData, (x10rt_red_op_type)op, (x10rt_red_type)typecode,
+                 count, &postCopyCallback, callbackArg);
+}
+
+
+/*****************************************************
  * nativeAllReduceImpl
  *****************************************************/
 
