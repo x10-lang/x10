@@ -288,7 +288,7 @@ class Helper2330(p:Long) {
 
         AAA7(1, [0 as Long]);
 		try { AAA7(1, [0 as Long, 0]); fail(); } catch (e:ClassCastException) {}
-		try { AAA7(2, [0 as Long, 0]); fail(); } catch (e:ClassCastException) {} // ERR
+	AAA7(2, [0 as Long, 0]);
 		try { AAA7(2, [0 as Long]); fail(); } catch (e:ClassCastException) {} // ERR
 
 		/////////////////////////////////////////////////////////////
