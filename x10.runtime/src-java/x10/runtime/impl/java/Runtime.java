@@ -15,6 +15,8 @@ import java.lang.reflect.InvocationTargetException;
 import java.nio.ByteBuffer;
 import java.util.Map;
 
+import com.sun.tools.javac.resources.javac;
+
 import x10.io.Reader;
 import x10.io.Writer;
 import x10.lang.Place;
@@ -208,6 +210,11 @@ public abstract class Runtime implements x10.core.fun.VoidFun_0_0 {
      * Trace static init
      */
     public static final boolean TRACE_STATIC_INIT = Boolean.getBoolean("X10_TRACE_STATIC_INIT");
+    
+    /**
+     * Disable use of Hadoop serialization for classes that implement org.apache.hadoop.io.Writable
+     */
+    public static final boolean DISABLE_HADOOP_SERIALIZATION = Boolean.getBoolean("X10_DISABLE_HADOOP_SERIALIZATION");
 
     /**
      * Emit detail serialization traces for java serialization. Using for debugging in preliminary stage
