@@ -540,7 +540,7 @@ function main {
 
 	# create the test root
 	tctarget=$(basename $tc | sed -e 's;.x10;;')
-	local tPkg=$(sed -ne 's|\.|/|g' -e 's|^\s*package \([^;]*\);|\1|p' "$tc")
+	local tPkg=$(sed -ne 's|\.|/|g' -e 's|^[[:space:]]*package \([^;]*\);|\1|p' "$tc")
 
 	local className="${tPkg}/${tctarget}"
 	className=${className#\.\/}
@@ -563,7 +563,7 @@ function main {
 	resolveParams $tc
 
 	if [[ "$tcvcode" == "SKIPPED" ]]; then
-	    skip_reason=$(sed -ne 's|^\s*//\s*SKIP.*\:\s*\(.*\)|\1|p' $tc)
+	    skip_reason=$(sed -ne 's|^[[:space:]]*//[[:space:]]*SKIP.*\:[[:space:]]*\(.*\)|\1|p' $tc)
 	    __jen_test_result_explanation="${className} Skipped. ${skip_reason}"
 	    __jen_test_result="SKIPPED"
 	    printf " +S [SKIPPED] ${skip_reason}"
@@ -573,8 +573,8 @@ function main {
 
 	# try & generate sources
 	printf " +C [COMPILATION]"
-	extra_opts="$(sed -ne 's|^\s*//\s*OPTIONS*\:\s*\(.*\)|\1|p' $tc)"
-	extra_sourcepath="$(sed -ne 's|^\s*//\s*SOURCEPATH*\:\s*\(.*\)|\1|p' $tc)"
+	extra_opts="$(sed -ne 's|^[[:space:]]*//[[:space:]]*OPTIONS*\:[[:space:]]*\(.*\)|\1|p' $tc)"
+	extra_sourcepath="$(sed -ne 's|^[[:space:]]*//[[:space:]]*SOURCEPATH*\:[[:space:]]*\(.*\)|\1|p' $tc)"
         [ -n "$extra_sourcepath" ] && extra_sourcepath="-sourcepath \"$extra_sourcepath\""
 	__jen_test_x10c_sourcepath="$tcroot"
 	__jen_test_x10c_classpath="${EXTRA_CLASSPATH}"
