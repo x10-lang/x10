@@ -9,6 +9,10 @@
  *  (C) Copyright IBM Corporation 2006-2013.
  */
 
+#if defined(__CYGWIN__) || defined(__FreeBSD__)
+#undef __STRICT_ANSI__ // Strict ANSI mode is too strict in Cygwin and FreeBSD
+#endif
+
 #ifndef __int64
 #define __int64 __int64_t
 #endif

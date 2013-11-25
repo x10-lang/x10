@@ -18,6 +18,9 @@
  * may be piggybacked in the second phase.  Allreduce is thus implemented as
  * a reduce followed by a broadcast.
  */
+#ifdef __CYGWIN__
+#undef __STRICT_ANSI__ // Strict ANSI mode is too strict in Cygwin
+#endif
 
 #include <cstdlib>
 #include <cstdio>

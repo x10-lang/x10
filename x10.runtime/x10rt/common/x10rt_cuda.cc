@@ -9,6 +9,10 @@
  *  (C) Copyright IBM Corporation 2006-2013.
  */
 
+#ifdef __CYGWIN__
+#undef __STRICT_ANSI__ // Strict ANSI mode is too strict in Cygwin
+#endif
+
 #include <cstdlib>
 #include <cstdio>
 #include <cassert>

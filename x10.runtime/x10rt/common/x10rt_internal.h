@@ -12,10 +12,6 @@
 #ifndef X10RT_INTERNAL_H
 #define X10RT_INTERNAL_H
 
-#ifdef __CYGWIN__
-#undef __STRICT_ANSI__ // Strict ANSI mode is too strict in Cygwin
-#endif
-
 #include <cstring>
 #include <cstdarg>
 #include <cstdio>
