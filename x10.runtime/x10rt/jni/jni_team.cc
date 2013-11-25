@@ -560,6 +560,7 @@ JNIEXPORT void JNICALL Java_x10_x10rt_TeamSupport_nativeAllToAllImpl(JNIEnv *env
                                                                       jobject dst, jint dst_off,
                                                                       jint count, jint typecode,
                                                                       jobject finishState) {
+
     jobject globalDst = env->NewGlobalRef(dst);
     jobject globalFinishState = env->NewGlobalRef(finishState);
     if (NULL == globalDst || NULL == globalFinishState) {
@@ -569,97 +570,99 @@ JNIEXPORT void JNICALL Java_x10_x10rt_TeamSupport_nativeAllToAllImpl(JNIEnv *env
     int el = 0;
     void *srcData = NULL;
     void *dstData = NULL;
+    int srcElemCount = env->GetArrayLength((jarray)src) - src_off;
+    int dstElemCount = env->GetArrayLength((jarray)dst) - dst_off;
     switch(typecode) {
     case 1:
         // byte []
         el = sizeof(jbyte);
-        dstData = malloc(count*sizeof(jbyte));
+        dstData = malloc(dstElemCount*sizeof(jbyte));
         if (NULL == dstData) {
             jniHelper_abort("OOM while attempting to allocate malloced storage in nativeAllToAllImpl\n");
         }
-        srcData = malloc(count*sizeof(jbyte));
+        srcData = malloc(srcElemCount*sizeof(jbyte));
         if (NULL == srcData) {
             jniHelper_abort("OOM while attempting to allocate malloced storage in nativeAllToAllImpl\n");
         }
-        env->GetByteArrayRegion((jbyteArray)src, src_off, count, (jbyte*)srcData);
+        env->GetByteArrayRegion((jbyteArray)src, src_off, srcElemCount, (jbyte*)srcData);
         break;
     case 2:
         // short []
         el = sizeof(jshort);
-        dstData = malloc(count*sizeof(jshort));
+        dstData = malloc(dstElemCount*sizeof(jshort));
         if (NULL == dstData) {
             jniHelper_abort("OOM while attempting to allocate malloced storage in nativeAllToAllImpl\n");
         }
-        srcData = malloc(count*sizeof(jshort));
+        srcData = malloc(srcElemCount*sizeof(jshort));
         if (NULL == srcData) {
             jniHelper_abort("OOM while attempting to allocate malloced storage in nativeAllToAllImpl\n");
         }
-        env->GetShortArrayRegion((jshortArray)src, src_off, count, (jshort*)srcData);
+        env->GetShortArrayRegion((jshortArray)src, src_off, srcElemCount, (jshort*)srcData);
         break;
     case 4:
         // int[]
         el = sizeof(jint);
-        dstData = malloc(count*sizeof(jint));
+        dstData = malloc(dstElemCount*sizeof(jint));
         if (NULL == dstData) {
             jniHelper_abort("OOM while attempting to allocate malloced storage in nativeAllToAllImpl\n");
         }
-        srcData = malloc(count*sizeof(jint));
+        srcData = malloc(srcElemCount*sizeof(jint));
         if (NULL == srcData) {
             jniHelper_abort("OOM while attempting to allocate malloced storage in nativeAllToAllImpl\n");
         }
-        env->GetIntArrayRegion((jintArray)src, src_off, count, (jint*)srcData);
+        env->GetIntArrayRegion((jintArray)src, src_off, srcElemCount, (jint*)srcData);
         break;
     case 6:
         // long[]
         el = sizeof(jlong);
-        dstData = malloc(count*sizeof(jlong));
+        dstData = malloc(dstElemCount*sizeof(jlong));
         if (NULL == dstData) {
             jniHelper_abort("OOM while attempting to allocate malloced storage in nativeAllToAllImpl\n");
         }
-        srcData = malloc(count*sizeof(jlong));
+        srcData = malloc(srcElemCount*sizeof(jlong));
         if (NULL == srcData) {
             jniHelper_abort("OOM while attempting to allocate malloced storage in nativeAllToAllImpl\n");
         }
-        env->GetLongArrayRegion((jlongArray)src, src_off, count, (jlong*)srcData);
+        env->GetLongArrayRegion((jlongArray)src, src_off, srcElemCount, (jlong*)srcData);
         break;
     case 8:
         // double[]
         el = sizeof(jdouble);
-        dstData = malloc(count*sizeof(jdouble));
+        dstData = malloc(dstElemCount*sizeof(jdouble));
         if (NULL == dstData) {
             jniHelper_abort("OOM while attempting to allocate malloced storage in nativeAllToAllImpl\n");
         }
-        srcData = malloc(count*sizeof(jdouble));
+        srcData = malloc(srcElemCount*sizeof(jdouble));
         if (NULL == srcData) {
             jniHelper_abort("OOM while attempting to allocate malloced storage in nativeAllToAllImpl\n");
         }
-        env->GetDoubleArrayRegion((jdoubleArray)src, src_off, count, (jdouble*)srcData);
+        env->GetDoubleArrayRegion((jdoubleArray)src, src_off, srcElemCount, (jdouble*)srcData);
         break;
     case 9:
         // float[]
         el = sizeof(jfloat);
-        dstData = malloc(count*sizeof(jfloat));
+        dstData = malloc(dstElemCount*sizeof(jfloat));
         if (NULL == dstData) {
             jniHelper_abort("OOM while attempting to allocate malloced storage in nativeAllToAllImpl\n");
         }
-        srcData = malloc(count*sizeof(jfloat));
+        srcData = malloc(srcElemCount*sizeof(jfloat));
         if (NULL == srcData) {
             jniHelper_abort("OOM while attempting to allocate malloced storage in nativeAllToAllImpl\n");
         }
-        env->GetFloatArrayRegion((jfloatArray)src, src_off, count, (jfloat*)srcData);
+        env->GetFloatArrayRegion((jfloatArray)src, src_off, srcElemCount, (jfloat*)srcData);
         break;
     case 11:
         // double[] representing Complex[]
         el = 2*sizeof(jdouble);
-        dstData = malloc(count*2*sizeof(jdouble));
+        dstData = malloc(dstElemCount*2*sizeof(jdouble));
         if (NULL == dstData) {
             jniHelper_abort("OOM while attempting to allocate malloced storage in nativeAllToAllImpl\n");
         }
-        srcData = malloc(count*2*sizeof(jdouble));
+        srcData = malloc(srcElemCount*2*sizeof(jdouble));
         if (NULL == srcData) {
             jniHelper_abort("OOM while attempting to allocate malloced storage in nativeAllToAllImpl\n");
         }
-        env->GetDoubleArrayRegion((jdoubleArray)src, 2*src_off, 2*count, (jdouble*)srcData);
+        env->GetDoubleArrayRegion((jdoubleArray)src, 2*src_off, 2*srcElemCount, (jdouble*)srcData);
         break;
     default:
         jniHelper_abort("Unsupported typecode %d in nativeAllToAllImpl\n", typecode);
@@ -670,7 +673,7 @@ JNIEXPORT void JNICALL Java_x10_x10rt_TeamSupport_nativeAllToAllImpl(JNIEnv *env
     callbackArg->globalDstArray = globalDst;
     callbackArg->typecode = typecode;
     callbackArg->dstOffset = dst_off;
-    callbackArg->count = count;
+    callbackArg->count = dstElemCount;
     callbackArg->srcData = srcData;
     callbackArg->dstData = dstData;
 
