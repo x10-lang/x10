@@ -580,9 +580,11 @@ function main {
 	__jen_test_x10c_classpath="${EXTRA_CLASSPATH}"
 	__jen_test_x10c_directory="$testDir"
 	if [[ "$(uname -s)" == CYGWIN* ]]; then
-            # FIXME:  Needs to do managed/native switch off!
-            # FIXME:  Reduce sourcepath
-	    comp_cmd="${X10CPP} $extra_opts $extra_sourcepath $tccompiler_options -t -v -report postcompile=1 -CHECK_INVARIANTS=true -MAIN_CLASS=$className -o \"$(cygpath -am $tcroot)/$tctarget\" -sourcepath \"$(cygpath -am $X10_HOME/x10.tests/tests/$tDirSlash)\" -sourcepath \"$(cygpath -am $X10_HOME/x10.tests/tests/$testDir)\" -sourcepath \"$(cygpath -am $X10_HOME/x10.tests/tests/x10lib)\" -sourcepath \"$(cygpath -am $tcroot)\" -sourcepath \"$(cygpath -am $X10_HOME/x10.dist/samples)\"  -sourcepath \"$(cygpath -am $X10_HOME/x10.dist/samples/tutorial)\" -sourcepath \"$(cygpath -am $X10_HOME/x10.dist/samples/CUDA)\" -sourcepath \"$(cygpath -am $X10_HOME/x10.dist/samples/work-stealing)\" -d \"$(cygpath -am $tcroot)\" $tc "
+	    if [[ "$tcbackend" == "native" ]]; then
+		comp_cmd="${X10CPP} $extra_opts $extra_sourcepath $tccompiler_options -t -v -report postcompile=1 -CHECK_INVARIANTS=true -MAIN_CLASS=$className -o \"$(cygpath -am $tcroot)/$tctarget\" -sourcepath \"$(cygpath -am $X10_HOME/x10.tests/tests/$tDirSlash)\" -sourcepath \"$(cygpath -am $X10_HOME/x10.tests/tests/$testDir)\" -sourcepath \"$(cygpath -am $X10_HOME/x10.tests/tests/x10lib)\" -d \"$(cygpath $tcroot)\" $tc"
+	    else
+		comp_cmd="${X10C} $extra_opts $extra_sourcepath $tccompiler_options -t -v -report postcompile=1 -CHECK_INVARIANTS=true -MAIN_CLASS=$className -sourcepath \"$(cygpath -am $X10_HOME/x10.tests/tests/$tDirSlash)\" -sourcepath \"$(cygpath -am $X10_HOME/x10.tests/tests/$testDir)\" -sourcepath \"$(cygpath -am $X10_HOME/x10.tests/tests/x10lib)\" -d \"$(cygpath -am $tcroot)\" $tc"
+	    fi
 	else
 	    if [[ "$tcbackend" == "native" ]]; then
 		comp_cmd="${X10CPP} $extra_opts $extra_sourcepath $tccompiler_options -t -v -report postcompile=1 -CHECK_INVARIANTS=true -MAIN_CLASS=$className -o $tcroot/$tctarget -sourcepath $X10_HOME/x10.tests/tests/$tDirSlash -sourcepath $X10_HOME/x10.tests/tests/$testDir -sourcepath $X10_HOME/x10.tests/tests/x10lib -d $tcroot $tc"
