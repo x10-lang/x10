@@ -15,6 +15,7 @@ import x10.lang.Complex;
 import x10.lang.FinishState;
 import x10.lang.Place;
 import x10.rtt.Type;
+import x10.util.Team.DoubleIdx;
 
 public class TeamSupport {
     
@@ -216,16 +217,12 @@ public class TeamSupport {
     public static void nativeIndexOfMax(int id, int role, Rail<?> src,
                                         Rail<?> dst) {
         if (!X10RT.forceSinglePlace) {
-        double v = ((x10.util.Team.DoubleIdx[])src.getBackingArray())[0].value;
-        double[] value = new double[] { v };
-        int[] idx = new int[1];
+        DoubleIdx sObj = ((x10.util.Team.DoubleIdx[])src.getBackingArray())[0];
+        DoubleIdx dObj = ((x10.util.Team.DoubleIdx[])dst.getBackingArray())[0];
         FinishState fs = ActivityManagement.activityCreationBookkeeping();
 
         try {
-            nativeIndexOfMaxImpl(id, role, value, idx, fs);
-            x10.util.Team.DoubleIdx dstTuple = ((x10.util.Team.DoubleIdx[])dst.getBackingArray())[0];
-            dstTuple.value = value[0];
-            dstTuple.idx = idx[0];
+            nativeIndexOfMaxImpl(id, role, sObj, dObj, fs);
         } catch (UnsatisfiedLinkError e) {
             aboutToDie("nativeIndexOfMax");
         }
@@ -240,16 +237,12 @@ public class TeamSupport {
     public static void nativeIndexOfMin(int id, int role, Rail<?> src,
                                         Rail<?> dst) {
         if (!X10RT.forceSinglePlace) {
-        double v = ((x10.util.Team.DoubleIdx[])src.getBackingArray())[0].value;
-        double[] value = new double[] { v };
-        int[] idx = new int[1];
+        DoubleIdx sObj = ((x10.util.Team.DoubleIdx[])src.getBackingArray())[0];
+        DoubleIdx dObj = ((x10.util.Team.DoubleIdx[])dst.getBackingArray())[0];
         FinishState fs = ActivityManagement.activityCreationBookkeeping();
 
         try {
-            nativeIndexOfMinImpl(id, role, value, idx, fs);
-            x10.util.Team.DoubleIdx dstTuple = ((x10.util.Team.DoubleIdx[])dst.getBackingArray())[0];
-            dstTuple.value = value[0];
-            dstTuple.idx = idx[0];
+            nativeIndexOfMinImpl(id, role, sObj, dObj, fs);
         } catch (UnsatisfiedLinkError e) {
             aboutToDie("nativeIndexOfMin");
         }
@@ -313,9 +306,9 @@ public class TeamSupport {
                                                    Object dstRaw, int dst_off,
                                                    int count, int op, int typecode, FinishState fs);
     
-    private static native void nativeIndexOfMaxImpl(int id, int role, double[] value, int[] idx, FinishState fs);
+    private static native void nativeIndexOfMaxImpl(int id, int role, DoubleIdx src, DoubleIdx dst, FinishState fs);
     
-    private static native void nativeIndexOfMinImpl(int id, int role, double[] value, int[] idx, FinishState fs);
+    private static native void nativeIndexOfMinImpl(int id, int role, DoubleIdx src, DoubleIdx dst, FinishState fs);
     
     private static native void nativeSplitImpl(int id, int role, int color, int new_role, int[] nr, FinishState fs);
     
