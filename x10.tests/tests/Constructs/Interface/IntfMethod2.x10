@@ -16,6 +16,8 @@
 
 import harness.x10Test;
 
+// SKIP_NATIVE_X10 : XTENLANG-3317 Native X10 generates bad code for overridding interface method that returns a subtype of supertype method
+
 public class IntfMethod2 extends x10Test {
     interface I[T] {}
     interface J[T] { def compare(I[T]):Any; }
