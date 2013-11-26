@@ -14,6 +14,8 @@ import x10.interop.Java;
 
 // MANAGED_X10_ONLY
 
+// SKIP_MANAGED_X10 : XTENLANG-3318 : Managed X10 loses generic RTT info for Comparable
+
 public class JavaType3b extends x10Test {
 
     def test():Boolean {
