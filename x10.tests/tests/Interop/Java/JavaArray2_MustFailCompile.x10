@@ -14,7 +14,7 @@ import x10.interop.Java;
 
 // MANAGED_X10_ONLY
 
-// SKIP_MANAGED_X10 : XTENLANG-2003 Implementation limitation in Managed X10 
+// SKIP_MANAGED_X10 : XTENLANG-3003 Implementation limitation in Managed X10 
 
 public class JavaArray2_MustFailCompile extends x10Test {
 
