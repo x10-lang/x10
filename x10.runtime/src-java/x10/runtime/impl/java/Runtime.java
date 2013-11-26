@@ -15,8 +15,6 @@ import java.lang.reflect.InvocationTargetException;
 import java.nio.ByteBuffer;
 import java.util.Map;
 
-import com.sun.tools.javac.resources.javac;
-
 import x10.io.Reader;
 import x10.io.Writer;
 import x10.lang.Place;
