@@ -20,7 +20,7 @@ public class IntfMethod2 extends x10Test {
     interface I[T] {}
     interface J[T] { def compare(I[T]):Any; }
     abstract static class S implements J[Int] {
-        public abstract def compare(I[Int]):Any;                
+        public abstract def compare(I[Int]):Any;
     }
         
     interface K[T] { def compare(I[T]):Int; }
@@ -30,11 +30,11 @@ public class IntfMethod2 extends x10Test {
     interface O[T] { def compare(I[T]):void; }
     interface P[T] { def compare(I[T]):Any; }
     static class C extends S implements K[Int], L[S], M[Float], N[Any], O[UInt], P[ULong] {
-        public def compare(I[Int]) = 1n;
-        public def compare(I[S]) = 2.0;
-        public def compare(I[Float]) = 3un;
-        public def compare(I[Any]) = 4n;
-        public def compare(I[UInt]) {}
+        public def compare(I[Int]):Int = 1n;
+        public def compare(I[S]):Double = 2.0;
+        public def compare(I[Float]):UInt = 3un;
+        public def compare(I[Any]):Int = 4n;
+        public def compare(I[UInt]):void {}
         public def compare(I[ULong]):Any = null;
     }
         
