@@ -15,6 +15,8 @@ import x10.regionarray.*;
 
 // MANAGED_X10_ONLY
 
+// SKIP_MANAGED_X10 : XTENLANG-3003 Implementation limitation in Managed X10 
+
 public class JavaArray2b extends x10Test {
 	
     public def run(): Boolean {
