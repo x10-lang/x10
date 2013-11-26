@@ -12,6 +12,7 @@
 import harness.x10Test;
 
 // MANAGED_X10_ONLY
+// SKIP_MANAGED_X10 :  XTENLANG-3086: Implementation limitation of Managed X10.
 
 public class JavaException8 extends x10Test {
 
