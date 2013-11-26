@@ -11,6 +11,7 @@
 
 import harness.x10Test;
 
+// SKIP_MANAGED_X10 :  XTENLANG-3086: Implementation limitation of Managed X10.
 
 public class ExceptionDepType1 extends x10Test {
 
