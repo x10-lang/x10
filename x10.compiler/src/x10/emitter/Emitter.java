@@ -60,6 +60,7 @@ import polyglot.types.Type;
 import polyglot.types.TypeSystem;
 import polyglot.types.TypeSystem_c;
 import polyglot.types.Types;
+import polyglot.types.UnknownType;
 import polyglot.util.CodeWriter;
 import polyglot.util.InternalCompilerError;
 import polyglot.util.Position;
@@ -1069,6 +1070,8 @@ public class Emitter {
 			}
 		} else if (type.isNull()) {
 			w.write(X10PrettyPrinterVisitor.JAVA_LANG_OBJECT);
+		} else if (type instanceof UnknownType){
+		    w.write("<unknown>");
 		} else {
 			w.write(mangleQName(type.fullName()).toString());
 		}
