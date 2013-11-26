@@ -10,6 +10,10 @@
  */
 
 import harness.x10Test;
+
+// SKIP_NATIVE_X10: XTENLANG-2388 Runtime evaluation of constraints 
+// SKIP_MANAGED_X10: XTENLANG-2388 Runtime evaluation of constraints 
+
 /**
  * Purpose: Check that type tests work
  * @author igorp
