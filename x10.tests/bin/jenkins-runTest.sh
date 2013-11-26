@@ -676,7 +676,7 @@ function main {
 		run_cmd="X10_NPLACES=${my_nplaces} X10_HOSTLIST=localhost ./${tctarget}"
 	    fi
 	else
-	    run_cmd="X10_NPLACES=${my_nplaces} X10_HOSTLIST=localhost $X10_HOME/x10.dist/bin/x10 -t -v -J-ea ${tctarget}"
+	    run_cmd="X10_NPLACES=${my_nplaces} X10_HOSTLIST=localhost $X10_HOME/x10.dist/bin/x10 -t -v -J-ea ${className}"
 	fi
 	printf "\n${run_cmd}\n" >> $tcoutdat
 
