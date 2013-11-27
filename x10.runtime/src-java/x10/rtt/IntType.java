@@ -18,12 +18,6 @@ import x10.serialization.SerializationConstants;
 
 public final class IntType extends RuntimeType<x10.core.Int> {
 
-    private static final long serialVersionUID = 1L;
-
-    // make sure deserialized RTT object is not duplicated
-    private Object readResolve() throws java.io.ObjectStreamException {
-        return Types.INT;
-    }
     @Override
     public short $_get_serialization_id() {
         return SerializationConstants.RTT_INT_ID;

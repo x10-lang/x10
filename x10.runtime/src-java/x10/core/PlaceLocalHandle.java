@@ -13,7 +13,6 @@ package x10.core;
 
 import java.io.IOException;
 import java.util.HashMap;
-import java.util.concurrent.atomic.AtomicLong;
 
 import x10.rtt.Type;
 import x10.serialization.X10JavaDeserializer;
@@ -24,10 +23,8 @@ import x10.serialization.X10JavaSerializer;
 /**
  * Implementation of PlaceLocalHandle service for Java-based runtime.
  */
-public final class PlaceLocalHandle<T> implements java.io.Serializable, X10JavaSerializable {
+public final class PlaceLocalHandle<T> implements X10JavaSerializable {
 
-    private static final long serialVersionUID = 1L;
- 
 //    private static final HashMap<java.lang.Long,Object> data = new HashMap<java.lang.Long,Object>();
     private static final HashMap<Id,Object> data = new HashMap<Id,Object>();
 
@@ -98,11 +95,6 @@ public final class PlaceLocalHandle<T> implements java.io.Serializable, X10JavaS
 //        newId |= (here << placeShift);
 //        return newId;
 //    }
-
-    private Object readResolve() {
-        initialized = false;
-        return this;
-    }
 
     // constructor just for allocation
     public PlaceLocalHandle(java.lang.System[] $dummy, Type<T> T) {
@@ -198,18 +190,11 @@ public final class PlaceLocalHandle<T> implements java.io.Serializable, X10JavaS
     }
     // Closure for calling PlaceLocalHandle.deleteLocalData(id1, id2)
     private static class $Closure$0 extends x10.core.Ref implements x10.core.fun.VoidFun_0_0, x10.serialization.X10JavaSerializable {
-        private static final long serialVersionUID = 1L;
         public static final x10.rtt.RuntimeType<$Closure$0> $RTT = x10.rtt.StaticVoidFunType.<$Closure$0> make(
         /* base class */$Closure$0.class, /* parents */new x10.rtt.Type[] { x10.core.fun.VoidFun_0_0.$RTT });
         public x10.rtt.RuntimeType<?> $getRTT() {return $RTT;}
         public Type<?> $getParam(int i) {return null;}
 
-        private void writeObject(java.io.ObjectOutputStream oos) throws java.io.IOException {
-            if (x10.runtime.impl.java.Runtime.TRACE_SER) {
-                java.lang.System.out.println("Serializer: writeObject(ObjectOutputStream) of " + this + " calling");
-            }
-            oos.defaultWriteObject();
-        }
         public static x10.serialization.X10JavaSerializable $_deserialize_body($Closure$0 $_obj, X10JavaDeserializer $deserializer) throws java.io.IOException {
             $_obj.id1 = $deserializer.readLong();
             $_obj.id2 = $deserializer.readLong();

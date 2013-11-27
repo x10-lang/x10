@@ -620,14 +620,6 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
         w.newline(4);
         w.begin(0);
 
-       // print the serialVersionUID
-        if (!flags.isInterface()) {
-            // TODO compute serialVersionUID with the same logic as javac
-            long serialVersionUID = 1L;
-            w.write("private static final long serialVersionUID = " + serialVersionUID + "L;");
-            w.newline();
-        }
-
         // print the clone method
         boolean mutable_struct = false;
         try {
@@ -716,19 +708,7 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 
         } else {
             if (!def.flags().isInterface()) {
-
-                if (!config.NO_TRACES && !config.OPTIMIZE) {
-                    // override to trace serialization
-                    w.write("private void writeObject(java.io.ObjectOutputStream oos) throws java.io.IOException { ");
-                    w.write("if (" + X10_RUNTIME_IMPL_JAVA_RUNTIME + ".TRACE_SER) { ");
-                    w.write("java.lang.System.out.println(\"Serializer: writeObject(ObjectOutputStream) of \" + this + \" calling\"); ");
-                    w.write("} ");
-                    w.write("oos.defaultWriteObject(); }");
-                    w.newline();
-                }
-
-                // Prints out custom serialization/deserialization code, the implementation resembles closely what the C++ backend does
-
+                // Prints out custom serialization/deserialization code, the implementation resembles closely what the C++ backend does\
                 X10ClassType ct = def.asType();
                 ASTQuery query = new ASTQuery(tr);
 

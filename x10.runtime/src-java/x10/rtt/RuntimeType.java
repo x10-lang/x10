@@ -23,8 +23,6 @@ import x10.serialization.X10JavaSerializer;
 
 public class RuntimeType<T> implements Type<T>, X10JavaSerializable {
 
-    private static final long serialVersionUID = 1L;
-
     public enum Variance {INVARIANT, COVARIANT, CONTRAVARIANT}
     
     public Class<?> javaClass;

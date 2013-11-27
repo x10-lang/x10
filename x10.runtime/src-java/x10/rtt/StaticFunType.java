@@ -16,8 +16,6 @@ import java.util.concurrent.ConcurrentHashMap;
 // for static inner classes that are compiled from closures
 public final class StaticFunType<T> extends RuntimeType<T> {
     
-    private static final long serialVersionUID = 1L;
-
     protected StaticFunType(Class<?> javaClass, int numParams, Type<?>[] parents) {
     	super(javaClass, numParams, parents);
     }
