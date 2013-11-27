@@ -15,6 +15,10 @@ import x10.compiler.Native;
 import x10.compiler.NativeRep;
 
 
+/**
+ * Signals that a resource is missing.
+ * @see ResourceBundle
+ */
 @NativeRep("java", "java.util.MissingResourceException", null, "x10.rtt.Types.MISSING_RESOURCE_EXCEPTION")
 public class MissingResourceException extends Exception {
 
@@ -28,9 +32,21 @@ public class MissingResourceException extends Exception {
      * @param className the name of the resource class
      * @param key the key for the missing resource
      */
-    @Native("java", "new java.lang.MissingResourceException(#message, #className, #key)")
+    @Native("java", "new java.util.MissingResourceException(#message, #className, #key)")
     public def this(message: String, className:String, key:String)
     { super(message); this.className = className; this.key = key; }
+
+    /**
+     * Constructs a <code>MissingResourceException</code> with <code>message</code>,
+     * <code>className</code>, <code>key</code>, and <code>cause</code>.
+     * @param message the detail message
+     * @param className the name of the resource class
+     * @param key the key for the missing resource
+     * @param cause the cause
+     */
+    @Native("java", "new Object() { java.util.ResourceBundle apply() { try { return Class.forName(\"java.util.ResourceBundle\").asSubclass(java.util.ResourceBundle.class).getDeclaredConstructor(String.class, String.class, String.class, Throwable.class).newInstance(#message, #className, #key, #cause); } catch (Throwable e) { return null; } } }.apply()")
+    public def this(message: String, className:String, key:String, cause:CheckedThrowable)
+    { super(message, cause); this.className = className; this.key = key; }
 
     /**
      * Returns the name of the resource class

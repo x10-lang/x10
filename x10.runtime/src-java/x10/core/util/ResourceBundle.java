@@ -14,7 +14,6 @@ package x10.core.util;
 import java.io.IOException;
 import java.util.Locale;
 
-import x10.core.Rail;
 import x10.core.Ref;
 
 import x10.rtt.NamedType;
@@ -108,17 +107,8 @@ final public class ResourceBundle extends Ref implements X10JavaSerializable {
         return bundle.containsKey(key);
     }
 
-    final public Object getAny(String key) {
-        return bundle.getObject(key);
-    }
-
     final public String getString(String key) {
         return bundle.getString(key);
-    }
-
-    final public Rail<String> getStringRail(String key) {
-        String[] ja = bundle.getStringArray(key);
-        return new Rail<String>(Types.STRING, ja.length, ja);
     }
 
     @SuppressWarnings("unchecked")
