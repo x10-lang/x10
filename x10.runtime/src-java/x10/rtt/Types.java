@@ -404,6 +404,13 @@ public class Types {
 	0,
 	new Type[] { EXCEPTION }
     );
+
+    public static final RuntimeType<java.util.MissingResourceException> MISSING_RESOURCE_EXCEPTION = new NamedType<java.util.MissingResourceException>(
+	"x10.util.MissingResourceException",
+	java.util.MissingResourceException.class,
+	0,
+	new Type[] { EXCEPTION }
+    );
     
     public static final RuntimeType<java.lang.ArrayIndexOutOfBoundsException> ARRAY_INDEX_OUT_OF_BOUNDS_EXCEPTION = new NamedType<java.lang.ArrayIndexOutOfBoundsException>(
 	"x10.lang.ArrayIndexOutOfBoundsException",
