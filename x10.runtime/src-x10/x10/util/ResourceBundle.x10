@@ -23,7 +23,7 @@ public final class ResourceBundle {
     public static def getBundle(baseName:String):ResourceBundle = null;
 
     @Native("java", "x10.core.util.ResourceBundle.getBundle(#baseName, #loaderOrLoaded)")
-    public static def getBundle(baseName:String, loaderOrLoaded:Any):ResourceBundle = null;
+    public static def getBundle(baseName:String, loaderOrLoaded:Any):ResourceBundle = getBundle(baseName);
 
     @Native("java", "#this.containsKey$O(#key)")
     public final def containsKey(key:String):Boolean = false;
