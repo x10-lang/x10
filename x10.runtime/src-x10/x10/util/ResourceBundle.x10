@@ -32,11 +32,11 @@ public final class ResourceBundle {
     public final def getAny(key:String):Any = null;
 
     @Native("java", "#this.getString(#key)")
-    public final def getString(key:String):String = null;
+    public final def getString(key:String):String = getAny(key) as String;
 
     @Native("java", "#this.getStringRail(#key)")
-    public final def getStringRail(key:String):Rail[String] = null;
-
+    public final def getStringRail(key:String):Rail[String] = getAny(key) as Rail[String];
+ 
     @Native("java", "#this.keySet()")
     public final def keySet():Set[String] = null;
 }
