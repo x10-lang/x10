@@ -108,17 +108,8 @@ final public class ResourceBundle extends Ref implements X10JavaSerializable {
         return bundle.containsKey(key);
     }
 
-    final public Object getAny(String key) {
-        return bundle.getObject(key);
-    }
-
     final public String getString(String key) {
         return bundle.getString(key);
-    }
-
-    final public Rail<String> getStringRail(String key) {
-        String[] ja = bundle.getStringArray(key);
-        return new Rail<String>(Types.STRING, ja.length, ja);
     }
 
     @SuppressWarnings("unchecked")

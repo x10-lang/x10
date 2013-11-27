@@ -28,15 +28,9 @@ public final class ResourceBundle {
     @Native("java", "#this.containsKey$O(#key)")
     public final def containsKey(key:String):Boolean = false;
 
-    @Native("java", "#this.getAny(#key)")
-    public final def getAny(key:String):Any = null;
-
     @Native("java", "#this.getString(#key)")
-    public final def getString(key:String):String = getAny(key) as String;
+    public final def getString(key:String):String = null;
 
-    @Native("java", "#this.getStringRail(#key)")
-    public final def getStringRail(key:String):Rail[String] = getAny(key) as Rail[String];
- 
     @Native("java", "#this.keySet()")
     public final def keySet():Set[String] = null;
 }
