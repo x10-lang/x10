@@ -14,7 +14,6 @@ package x10.core.util;
 import java.io.IOException;
 import java.util.Locale;
 
-import x10.core.Rail;
 import x10.core.Ref;
 
 import x10.rtt.NamedType;
