@@ -35,7 +35,39 @@ import x10.matrix.TriDense;
  */
 public class DenseMatrixBLAS {
 
-	// Dense multiply vector
+	/**
+	 * Use BLAS driver for dense matrix-vector multiplication to
+	 * compute y += A &#42 x if plus is true, otherwise y = A &#42 x.
+	 *
+	 * @param A      the first operand dense matrix in multiplication
+	 * @param x      the second operand vector
+	 * @param y      vector which is used to store the result
+     * @param dim    the dimensions M, N used in BLAS multiply where
+     *               M is the number of rows in A and y
+                     N is the number of columns in A and rows in x
+     * @param offset row and column offsets [Ar, Ac, xr, yr] into matrix/vectors
+	 * @param plus   the add-on flag
+	 */
+	public static def comp(
+			A:DenseMatrix, 
+            x:Vector, 
+            y:Vector, 
+            dim:Rail[Long],
+            offset:Rail[Long], 
+            plus:Boolean) :void {
+        if (CompilerFlags.checkBounds()) {
+            Debug.assure(offset(0)+dim(0) <= A.M && offset(1)+dim(1) <= A.N,
+                offset(0)+"+"+dim(0) + " <= " + A.M + " && " + offset(1)+"+"+dim(1) + " <= " + A.N);
+            Debug.assure(offset(2)+dim(1) <= x.M && offset(3)+dim(0) <= y.M,
+                offset(2)+"+"+dim(1) + " <= " + x.M + " && " + offset(3)+"+"+dim(0) + " <= " + y.M);
+        }
+		val scal = new Rail[Double](2);
+	    scal(0)=1.0;
+		scal(1)=plus?1.0:0.0;
+        val transA = 0n;
+		DriverBLAS.matrix_vector_mult(A.d, x.d, y.d, dim, A.M, offset, scal, transA);
+	}
+
 	public static def comp(
 			A:DenseMatrix, 
             B:Vector(A.N), 
@@ -47,6 +79,40 @@ public class DenseMatrixBLAS {
 		scal(1)=plus?1.0:0.0;
         val transA = 0n;
 		DriverBLAS.matrix_vector_mult(A.d, B.d, C.d, dim, scal, transA);
+	}
+
+	/**
+	 * Use BLAS driver for dense matrix-vector multiplication to
+	 * compute y += A<sup>T<sup> &#42 x if plus is true, 
+     * otherwise y = A<sup>T<sup> &#42 x.
+	 *
+	 * @param A      the first operand dense matrix in multiplication
+	 * @param x      the second operand vector
+	 * @param y      vector which is used to store the result
+     * @param dim    the dimensions M, N used in BLAS multiply where
+     *               M is the number of rows in A and x
+                     N is the number of columns in A and rows in y
+     * @param offset row and column offsets [Ar, Ac, xr, yr] into matrix/vectors
+	 * @param plus   the add-on flag
+	 */
+	public static def compTransMult(
+			A:DenseMatrix, 
+            x:Vector, 
+            y:Vector, 
+            dim:Rail[Long],
+            offset:Rail[Long], 
+            plus:Boolean) :void {
+        if (CompilerFlags.checkBounds()) {
+            Debug.assure(offset(0)+dim(0) <= A.M && offset(1)+dim(1) <= A.N,
+                offset(0)+"+"+dim(0) + " <= " + A.M + " && " + offset(1)+"+"+dim(1) + " <= " + A.N);
+            Debug.assure(offset(2)+dim(0) <= x.M && offset(3)+dim(1) <= y.M,
+                offset(2)+"+"+dim(0) + " <= " + x.M + " && " + offset(3)+"+"+dim(1) + " <= " + y.M);
+        }
+		val scal = new Rail[Double](2);
+	    scal(0)=1.0;
+		scal(1)=plus?1.0:0.0;
+        val transA = 1n;
+		DriverBLAS.matrix_vector_mult(A.d, x.d, y.d, dim, A.M, offset, scal, transA);
 	}
 
 	public static def compTransMult(

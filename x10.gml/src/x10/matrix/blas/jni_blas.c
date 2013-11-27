@@ -74,6 +74,31 @@ extern "C" {
 // Level Two 
 //------------------------------------------------------------------------
   //-------------------------------------------------------------
+  // public static native void matvecMultOff(double[] A, double[] x, double[] y, ....)
+  JNIEXPORT void JNICALL Java_x10_matrix_blas_WrapBLAS_matvecMultOff
+  (JNIEnv *env, jclass cls, jdoubleArray A, jdoubleArray x, jdoubleArray y, jlongArray dim, jlong lda, jlongArray off, jdoubleArray scale, jint tranA) {
+
+    jboolean isCopy;
+    jdouble* amat = env->GetDoubleArrayElements(A, NULL);
+    jdouble* xvec = env->GetDoubleArrayElements(x, NULL);
+    jdouble* yvec = env->GetDoubleArrayElements(y, &isCopy);
+    jdouble* scal = env->GetDoubleArrayElements(scale, NULL);
+    jlong dimlist[2];
+    jlong offlist[4];
+    // This line is necessary, since Java arrays are not guaranteed
+    // to have a continuous memory layout like C arrays.
+    env->GetLongArrayRegion(dim, 0, 2, dimlist);
+    env->GetLongArrayRegion(off, 0, 4, offlist);
+
+    matrix_vector_mult(amat, xvec, yvec, dimlist, lda, offlist, scal, tranA);
+
+    if (isCopy == JNI_TRUE) {
+       //printf("Copying data from c library back to original data in JVM\n");
+       env->ReleaseDoubleArrayElements(y, yvec, 0);
+    }
+
+  }
+  //-------------------------------------------------------------
   // public static native void matvecMult(double[] A, double[] x, double[] y, ....)
   JNIEXPORT void JNICALL Java_x10_matrix_blas_WrapBLAS_matvecMult
   (JNIEnv *env, jclass cls, jdoubleArray A, jdoubleArray x, jdoubleArray y, jlongArray dim, jdoubleArray scale, jint tranA) {

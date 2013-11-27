@@ -46,6 +46,7 @@ public class TestMultDense{
 			ret &= (testBlasMult());
 			ret &= (testMultDrivers());
 			ret &= (testMatMultVector());
+			ret &= (testMatMultVectorOffset());
 			ret &= (testSymRankKUpdate());
 			ret &= (testSymRankKUpdateOffset());
 			//ret &= (mm.testSmallMult());
@@ -228,7 +229,7 @@ public class TestMultDense{
 		}
 
         public def testMatMultVector():Boolean {
-			Console.OUT.printf("\nTest X10 Dense, Matrix-Vector, BLAS multiply driver: (%dx%d) * (%dx%d)\n",
+			Console.OUT.printf("\nTest Dense Matrix-Vector multiply: (%dx%d) * (%dx%d)\n",
 					M, K, K, N);
 			val a = DenseMatrix.make(M, K).initRandom();
 			val v = Vector.make(K).initRandom();
@@ -244,6 +245,20 @@ public class TestMultDense{
 				ret = false;
 			}
 
+            val aT = a.T();
+			val c3 = Vector.make(M);
+			DenseMatrixBLAS.compTransMult(aT, v, c3, false);
+            if (!c3.equals(c1)) {
+				Console.OUT.println("----- BLAS: (A^T)^Tv != Av -----\n");
+                ret = false;
+            }
+			val c4 = Vector.make(M);
+			DenseMultXTen.compTransMult(aT, v, c4, false);
+            if (!c4.equals(c1)) {
+				Console.OUT.println("----- X10 Dense driver: (A^T)^Tv != Av -----\n");
+                ret = false;
+            }
+
 			DenseMatrixBLAS.comp(a, v, c1, true);
 			DenseMultXTen.comp(a, v, c2, true);
 
@@ -251,9 +266,61 @@ public class TestMultDense{
 				Console.OUT.println("----- c += Av : BLAS != X10 Dense driver -----\n");
 				ret = false;
 			}
+
+
 			
 			if (ret)
-				Console.OUT.println("BLAS == X10 Dense driver\n");
+				Console.OUT.println("Dense matrix vector multiply test passed!");
+			else
+				Console.OUT.println("-----Dense matrix vector multiply test failed!-----");
+			
+			return ret;
+		}
+
+        public def testMatMultVectorOffset():Boolean {
+			Console.OUT.printf("\nTest Dense Matrix-Vector multiply with offsets: (%dx%d) * (%dx%d)\n",
+					M, K, K, N);
+			val a = DenseMatrix.make(M, K).initRandom();
+			val v = Vector.make(K).initRandom();
+			val c1 = Vector.make(M);
+			val c2 = Vector.make(M);
+
+			DenseMatrixBLAS.comp(a, v, c1, false);
+            // compare that a single GEMV is equivalent to a series of M 1-row GEMVs
+            for (i in 0..(M-1)) {
+			    DenseMatrixBLAS.comp(a, v, c2, [1, K], [i, 0, 0, i], false);
+            }
+			
+			var ret:Boolean = true;
+			if (!c1.equals(c2)) {
+				Console.OUT.println("----- c = Av : M-row GEMV != M x 1-row GEMVs -----\n");
+				ret = false;
+			}
+
+            val aT = a.T();
+			val c3 = Vector.make(M);
+            for (i in 0..(M-1)) {
+			    DenseMatrixBLAS.compTransMult(aT, v, c3, [K, 1], [0, i, 0, i], false);
+            }
+            if (!c3.equals(c1)) {
+				Console.OUT.println("----- BLAS: (A^T)^Tv != Av -----\n");
+                ret = false;
+            }
+
+			DenseMatrixBLAS.comp(a, v, c1, true);
+            for (i in 0..(M-1)) {
+			    DenseMatrixBLAS.comp(a, v, c2, [1, K], [i, 0, 0, i], true);
+            }
+
+			if (!c1.equals(c2)) {
+				Console.OUT.println("----- c = Av : M-row GEMV != M x 1-row GEMVs -----\n");
+				ret = false;
+			}
+			
+			if (ret)
+				Console.OUT.println("Dense matrix vector multiply with offset test passed!");
+			else
+				Console.OUT.println("-----Dense matrix vector multiply with offset test failed!-----");
 			
 			return ret;
 		}
@@ -308,7 +375,7 @@ public class TestMultDense{
 
             // calculate the top left quadrant of A*A^T, but write it into the bottom left quadrant of C
             val partC = new DenseMatrix(M, M);
-            DenseMatrixBLAS.symRankKUpdate(a, partC, [M - half, N], [0, 0, half, 0], false, false);
+            DenseMatrixBLAS.symRankKUpdate(a, partC, [M - half, M], [0, 0, half, 0], false, false);
 
             // check the calculated quadrant is the same for matmul and rank-K update
             var ret:Boolean=true;

@@ -1180,6 +1180,40 @@ double abs_sum(blas_long n, double* x)
 // Level Two 
 //------------------------------------------------------------------------
 //y = alpha*op(A)*x + beta * y
+void matrix_vector_mult(double* A, double* x, double* y, blas_long* dim, blas_long lda, blas_long* offset, double* scale, int transA)
+{
+#ifdef ENABLE_BLAS
+  char tA = transA?'T':'N';
+
+  double alpha = scale[0];
+  double beta  = scale[1];
+  blas_long m   = dim[0];
+  blas_long n   = dim[1];
+  blas_long incx = 1;
+  blas_long incy = 1;
+  blas_long offsetA = offset[0] + offset[1]*lda;
+  blas_long offsetX = offset[2];
+  blas_long offsetY = offset[3];
+#if defined(__bgp__)
+  dgemv(&tA, &m, &n,
+		 &alpha, A+offsetA, &lda,
+		         x+offsetX, &incx,
+		 &beta,  y+offsetY, &incy);
+#else
+  dgemv_(&tA, &m, &n,
+		 &alpha, A+offsetA, &lda,
+		         x+offsetX, &incx,
+		 &beta,  y+offsetY, &incy);
+#endif
+#else
+  printf("BLAS is not added in GML build.\n");
+  printf("Uncomment the line: add_blas = yes in system_setting.mk, and make sure blas lib and path names are correct\n");
+  fflush(stdout);
+  exit(1);
+#endif
+}
+
+//y = alpha*op(A)*x + beta * y
 void matrix_vector_mult(double* A, double* x, double* y, blas_long* dim, double* scale, int transA)
 {
 #ifdef ENABLE_BLAS

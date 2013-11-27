@@ -37,6 +37,7 @@ public class WrapBLAS {
 	public static native void symmatMult(double[] A, double[] B, double[] C, long[] dim, double[] scale);
 	public static native void matsymMult(double[] B, double[] A, double[] C, long[] dim, double[] scale);
 
+	public static native void matvecMultOff(double[] A, double[] x, double[] y, long[] dim, long lda, long[] off, double[] scale, int transA);
 	public static native void matvecMult(double[] A, double[] x, double[] y, long[] dim, double[] scale, int transA);
 	public static native void symvecMult(double[] A, double[] x, double[] y, long[] dim, double[] scale);
 	public static native void trivecMult(double[] A, int uplo, double[] bx, long lda, int tranA);

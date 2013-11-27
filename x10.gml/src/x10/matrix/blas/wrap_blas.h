@@ -65,6 +65,9 @@ void matrix_sym_mult(double* B, double* A, double* C,
 /* 						blas_long m, blas_long n); */
 //y = alpha * op(A)*x + beta * y
 void matrix_vector_mult(double* A, double* x, double* y, 
+						blas_long* dim, blas_long lda, blas_long* offset, double* scale, int transA);
+//y = alpha * op(A)*x + beta * y
+void matrix_vector_mult(double* A, double* x, double* y, 
 						blas_long* dim, double* scale, int transA);
 //y = alpha* x *A + beta * y, A is symmetrix matrix of lower triangular part
 void sym_vector_mult(double* x, double* A, double* y,

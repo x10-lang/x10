@@ -332,6 +332,32 @@ protected class DriverBLAS {
 	 * @param x      left-side operand vector
 	 * @param y      output vector
 	 * @param dim    dimension array [M, N], which are rows and columns of mA
+     * @param lda    leading dimension of mA
+     * @param offset row and column offsets into mA and offsets into vectors [Ar, Ac, xr, yr] 
+	 * @param scale  scalars [alpha, beta]
+	 * @param transA transpose flag for matrix mA
+	 */
+	@Native("java","WrapBLAS.matvecMultOff((#1).getDoubleArray(),(#2).getDoubleArray(),(#3).getDoubleArray(),(#4).getLongArray(),#5,(#6).getLongArray(),(#7).getDoubleArray(),#8)")
+	@Native("c++","matrix_vector_mult((#1)->raw,(#2)->raw,(#3)->raw,(#4)->raw,#5,(#6)->raw,(#7)->raw,#8)")
+		public static native def matrix_vector_mult(
+				mA:Rail[Double], 
+				x:Rail[Double], 
+				y:Rail[Double],
+				dim:Rail[Long], 
+				lda:Long, 
+                offset:Rail[Long],
+				scale:Rail[Double], 
+				transA:Int):void;
+
+	//y = A*x 
+	//y = alpha * op(A)*x + beta * y
+	/**
+	 * Compute y = alpha &#42 mA &#42 y + beta &#42 y, matrix-vector multiplication.
+	 *
+	 * @param mA     the first matrix (right-side)
+	 * @param x      left-side operand vector
+	 * @param y      output vector
+	 * @param dim    dimension array [M, N], which are rows and columns of mA
 	 * @param scale  scalars [alpha, beta]
 	 * @param transA transpose flag for matrix mA
 	 */
