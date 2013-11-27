@@ -443,15 +443,7 @@ abstract class DeserializerThunk {
                 return obj;
             } else if ("java.lang.Class".equals(clazz.getName())) {
                 try {
-                    T t = null;
-                    String className = jds.readString();
-                    if (Runtime.OSGI) {
-                    	String bundleName = jds.readStringValue();
-                    	String bundleVersion = jds.readStringValue();
-                    	t = (T) jds.dict.loadClass(className, bundleName, bundleVersion);                    	
-                    } else {
-                    	t = (T) jds.dict.loadClass(className);
-                    }
+                    T t = (T) jds.dict.loadClass(jds);
                     jds.update_reference(i, t);
                     return t;
                 } catch (ClassNotFoundException e) {

@@ -13,13 +13,16 @@ package x10.serialization;
 
 import java.io.DataOutputStream;
 import java.io.IOException;
-import java.lang.reflect.Method;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 import x10.rtt.RuntimeType;
 import x10.runtime.impl.java.Runtime;
+
+import static x10.serialization.SerializationUtils.getBundleMethod;
+import static x10.serialization.SerializationUtils.getSymbolicNameMethod;
+import static x10.serialization.SerializationUtils.getVersionMethod;
 
 /**
  * Used during serialization to maintain a mapping from Class to id.
@@ -65,18 +68,10 @@ abstract class SerializationDictionary implements SerializationConstants {
 //          dos.write(bundleVersion.getBytes());
             // Reflection version
             try {
-                Class<?> FrameworkUtilClass = Class.forName("org.osgi.framework.FrameworkUtil");
-                Method getBundleMethod = FrameworkUtilClass.getDeclaredMethod("getBundle", Class.class);
-                getBundleMethod.setAccessible(true);
                 Object/*Bundle*/ bundle = getBundleMethod.invoke(null, clazz);
                 String bundleName, bundleVersion;
                 if (bundle != null) {
-                    Class<?> BundleClass = Class.forName("org.osgi.framework.Bundle");
-                    Method getSymbolicNameMethod = BundleClass.getDeclaredMethod("getSymbolicName");
-                    getSymbolicNameMethod.setAccessible(true);
                     bundleName = (String) getSymbolicNameMethod.invoke(bundle);
-                    Method getVersionMethod = BundleClass.getDeclaredMethod("getVersion");
-                    getVersionMethod.setAccessible(true);
                     bundleVersion = getVersionMethod.invoke(bundle).toString();
                 } else {
                     bundleName = bundleVersion = "";
