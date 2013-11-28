@@ -44,7 +44,7 @@ public class MissingResourceException extends Exception {
      * @param key the key for the missing resource
      * @param cause the cause
      */
-    @Native("java", "new Object() { java.util.ResourceBundle apply() { try { return Class.forName(\"java.util.ResourceBundle\").asSubclass(java.util.ResourceBundle.class).getDeclaredConstructor(String.class, String.class, String.class, Throwable.class).newInstance(#message, #className, #key, #cause); } catch (Throwable e) { return null; } } }.apply()")
+    @Native("java", "new Object() { java.util.MissingResourceException apply() { try { java.lang.reflect.Constructor<java.util.MissingResourceException> ctor = java.util.MissingResourceException.class.getDeclaredConstructor(String.class, String.class, String.class, Throwable.class); ctor.setAccessible(true); return ctor.newInstance(#message, #className, #key, #cause); } catch (Throwable e) { e.printStackTrace(); return null; } } }.apply()")
     public def this(message: String, className:String, key:String, cause:CheckedThrowable)
     { super(message, cause); this.className = className; this.key = key; }
 
