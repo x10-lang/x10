@@ -65,9 +65,13 @@ abstract class DeserializationDictionary implements SerializationConstants {
         Class<?> clazz;
         try {
             clazz = loadClass(name);
+        } catch (RuntimeException e) {
+            String msg = "DeserializationDictionary.addEntry: failed to load class "+name;
+            /*if (Runtime.TRACE_SER)*/ Runtime.printTraceMessage(msg);
+            throw e;
         } catch (ClassNotFoundException e) {
             String msg = "DeserializationDictionary.addEntry: failed to load class "+name;
-            if (Runtime.TRACE_SER) Runtime.printTraceMessage(msg);
+            /*if (Runtime.TRACE_SER)*/ Runtime.printTraceMessage(msg);
             throw new RuntimeException(msg, e);
         }
         addEntry(Short.valueOf(id), clazz);
@@ -84,7 +88,7 @@ abstract class DeserializationDictionary implements SerializationConstants {
             bundleVersion = jds.readStringValue();
         } catch (IOException e) {
             String msg = "DeserializationDictionary.loadClass: error in reading bundle information. bundleName="+bundleName+", bundleVersion="+bundleVersion;
-            if (Runtime.TRACE_SER) Runtime.printTraceMessage(msg);
+            /*if (Runtime.TRACE_SER)*/ Runtime.printTraceMessage(msg);
             throw new RuntimeException(msg, e);
         }
 
@@ -105,12 +109,14 @@ abstract class DeserializationDictionary implements SerializationConstants {
 //    		}
 //    	}
         // Reflection version
+        Object/*Bundle*/ bundle = null;
         try {
             Object/*Bundle*/ _bundle = getBundleMethod.invoke(null, this.getClass());
             assert _bundle != null;
             Object/*BundleContext*/ bundleContext = getBundleContextMethod.invoke(_bundle);
             Object/*Bundle*/[] bundles = (Object[]) getBundlesMethod.invoke(bundleContext);
-            for (Object/*Bundle*/ bundle : bundles) {
+            for (int i = 0; i < bundles.length; ++i) {
+                bundle = bundles[i];
                 String bundleName_ = (String) getSymbolicNameMethod.invoke(bundle);
                 String bundleVersion_ = getVersionMethod.invoke(bundle).toString();
                 if (bundleName.equals(bundleName_) && bundleVersion.equals(bundleVersion_)) {
@@ -119,24 +125,31 @@ abstract class DeserializationDictionary implements SerializationConstants {
                 }
             }
         } catch (RuntimeException e) {
+            /*if (Runtime.TRACE_SER)*/ Runtime.printTraceMessage("DeserializationDictionary.loadClass: error in loading "+name+" with bundle "+bundle);
+            e.printStackTrace();
             throw e;
         } catch (Exception e) {
-//            e.printStackTrace();
+            /*if (Runtime.TRACE_SER)*/ Runtime.printTraceMessage("DeserializationDictionary.loadClass: error in loading "+name+" with bundle "+bundle);
+            e.printStackTrace();
             throw new ClassNotFoundException(e.getMessage(), e);
         }
         
-    	String msg = "Cannot find bundle "+bundleName+" "+bundleVersion+" for loading class "+name;
-    	throw new ClassNotFoundException(msg);
-//    	return Class.forName(name);
+        String msg = "DeserializationDictionary.loadClass: cannot find bundle "+bundleName+" "+bundleVersion+" for loading class "+name;
+        /*if (Runtime.TRACE_SER)*/ Runtime.printTraceMessage(msg);
+        throw new ClassNotFoundException(msg);
     }
 
     void addEntry(short id, String name, X10JavaDeserializer jds) {
         Class<?> clazz;
         try {
             clazz = loadClass(name, jds);
+        } catch (RuntimeException e) {
+            String msg = "DeserializationDictionary.addEntry: failed to load class "+name;
+            /*if (Runtime.TRACE_SER)*/ Runtime.printTraceMessage(msg);
+            throw e;
         } catch (ClassNotFoundException e) {
             String msg = "DeserializationDictionary.addEntry: failed to load class "+name;
-            if (Runtime.TRACE_SER) Runtime.printTraceMessage(msg);
+            /*if (Runtime.TRACE_SER)*/ Runtime.printTraceMessage(msg);
             throw new RuntimeException(msg, e);
         }
         addEntry(Short.valueOf(id), clazz);
