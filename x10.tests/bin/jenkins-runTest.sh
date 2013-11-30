@@ -208,20 +208,20 @@ function resolveParams {
 	    ;;
 	*)
 	    tcvcode=SUCCEED
-	    if [[ "$tcbackend" == "managed" ]]; then 
-		${EGREP} -q 'SKIP_MANAGED_X10' $1
-		if [[ $? == 0 ]]; then
-		    tcvcode=SKIPPED
-		fi
-	    fi
-	    if [[ "$tcbackend" == "native" ]]; then 
-		${EGREP} -q 'SKIP_NATIVE_X10' $1
-		if [[ $? == 0 ]]; then
-		    tcvcode=SKIPPED
-		fi
-	    fi
 	    ;;
     esac
+    if [[ "$tcbackend" == "managed" ]]; then 
+	${EGREP} -q 'SKIP_MANAGED_X10' $1
+	if [[ $? == 0 ]]; then
+	    tcvcode=SKIPPED
+	fi
+    fi
+    if [[ "$tcbackend" == "native" ]]; then 
+	${EGREP} -q 'SKIP_NATIVE_X10' $1
+	if [[ $? == 0 ]]; then
+	    tcvcode=SKIPPED
+	fi
+    fi
 
     # update expected counters
     case "${tcvcode}" in
