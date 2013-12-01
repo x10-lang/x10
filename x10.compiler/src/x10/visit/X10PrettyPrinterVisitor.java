@@ -1396,14 +1396,17 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
                     n.printSubStmt(n.body(), w, tr);
             } else
                 n.printSubStmt(n.body(), w, tr);
-            w.write("}");
             w.end();
+            w.newline();
+            w.write("}");
             // } else {
             // n.printSubStmt(n.body(), w, tr);
             // }
         } else {
             w.write(";");
         }
+        w.end();
+        w.newline();
     }
 
     private void printCreationMethodDecl(X10ConstructorDecl_c n) {
