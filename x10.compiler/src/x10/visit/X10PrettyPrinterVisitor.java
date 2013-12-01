@@ -1463,7 +1463,7 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
         for (int i = 0; i < formals.size(); i++) {
             Formal formal = formals.get(i);
             if (i != 0) {
-                w.write(",");
+                w.write(", ");
             }
             tr.print(n, formal.name(), w);
         }
@@ -1475,6 +1475,7 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
         w.write(";");
 
         w.end();
+        w.newline();
         w.write("}");
         w.newline();
 
