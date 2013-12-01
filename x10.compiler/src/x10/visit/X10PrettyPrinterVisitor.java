@@ -523,7 +523,8 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
         Flags flags = n.flags().flags();
 
         w.begin(0);
-        w.write("@"+X10_RUNTIME_IMPL_JAVA_X10GENERATED+" ");
+        w.write("@"+X10_RUNTIME_IMPL_JAVA_X10GENERATED);
+        w.allowBreak(0);
         if (flags.isInterface()) {
             w.write(flags.clearInterface().clearAbstract().translateJava());
         } else {
@@ -663,10 +664,11 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
             w.write("public static ");
             if (typeParameters.size() > 0) {
                 er.printTypeParams(n, context, typeParameters);
+                w.write(" ");
             }
             w.write(Emitter.X10_JAVA_SERIALIZABLE_CLASS + " " + Emitter.DESERIALIZE_BODY_METHOD + "(");
             er.printType(def.asType(), PRINT_TYPE_PARAMS | BOX_PRIMITIVES);
-            w.writeln(" $_obj , " + Emitter.X10_JAVA_DESERIALIZER_CLASS + " $deserializer) throws java.io.IOException { ");
+            w.write(" $_obj, " + Emitter.X10_JAVA_DESERIALIZER_CLASS + " $deserializer) throws java.io.IOException { ");
             w.newline(4);
             w.begin(0);
             
@@ -679,29 +681,29 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
             //_deserialize_body method
             w.writeln("$_obj.readFields($deserializer.getInpForHadoop());");
             w.writeln("$deserializer.record_reference($_obj);");
-            w.writeln("return $_obj;");
+            w.write("return $_obj;");
             w.end();
             w.newline();
             w.writeln("}");
             w.newline();
 
             // _deserializer method
-            w.writeln("public static " + Emitter.X10_JAVA_SERIALIZABLE_CLASS + " " + Emitter.DESERIALIZER_METHOD + "(" + Emitter.X10_JAVA_DESERIALIZER_CLASS + " $deserializer) throws java.io.IOException {");
+            w.write("public static " + Emitter.X10_JAVA_SERIALIZABLE_CLASS + " " + Emitter.DESERIALIZER_METHOD + "(" + Emitter.X10_JAVA_DESERIALIZER_CLASS + " $deserializer) throws java.io.IOException {");
             w.newline(4);
             w.begin(0);
             w.write(mangledDefQName + " $_obj = (" + mangledDefQName + ") ");
             w.writeln("new " + mangledDefQName + "();");
-            w.writeln("return " + Emitter.DESERIALIZE_BODY_METHOD + "($_obj, $deserializer);");
+            w.write("return " + Emitter.DESERIALIZE_BODY_METHOD + "($_obj, $deserializer);");
             w.end();
             w.newline();
             w.writeln("}");
             w.newline();
             
             // _serialize()
-            w.writeln("public void " + Emitter.SERIALIZE_METHOD + "(" + Emitter.X10_JAVA_SERIALIZER_CLASS + " $serializer) throws java.io.IOException {");
+            w.write("public void " + Emitter.SERIALIZE_METHOD + "(" + Emitter.X10_JAVA_SERIALIZER_CLASS + " $serializer) throws java.io.IOException {");
             w.newline(4);
             w.begin(0);
-            w.writeln("this.write($serializer.getOutForHadoop());");
+            w.write("this.write($serializer.getOutForHadoop());");
             w.end();
             w.newline();
             w.writeln("}");
@@ -718,10 +720,11 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
                 //                if (supportUpperBounds)
                 if (typeParameters.size() > 0) {
                     er.printTypeParams(n, context, typeParameters);
+                    w.write(" ");
                 }
                 w.write(Emitter.X10_JAVA_SERIALIZABLE_CLASS + " " + Emitter.DESERIALIZE_BODY_METHOD + "(");
                 er.printType(def.asType(), PRINT_TYPE_PARAMS | BOX_PRIMITIVES);
-                w.writeln(" $_obj , " + Emitter.X10_JAVA_DESERIALIZER_CLASS + " $deserializer) throws java.io.IOException {");
+                w.write(" $_obj, " + Emitter.X10_JAVA_DESERIALIZER_CLASS + " $deserializer) throws java.io.IOException {");
                 w.newline(4);
                 w.begin(0);
 
@@ -833,12 +836,12 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
                 w.newline();
 
                 // _deserializer  method
-                w.writeln("public static " + Emitter.X10_JAVA_SERIALIZABLE_CLASS + " " + Emitter.DESERIALIZER_METHOD + "(" + Emitter.X10_JAVA_DESERIALIZER_CLASS + " $deserializer) throws java.io.IOException {");
+                w.write("public static " + Emitter.X10_JAVA_SERIALIZABLE_CLASS + " " + Emitter.DESERIALIZER_METHOD + "(" + Emitter.X10_JAVA_DESERIALIZER_CLASS + " $deserializer) throws java.io.IOException {");
                 w.newline(4);
                 w.begin(0);
 
                 if (def.constructors().size() == 0 || def.flags().isAbstract()) {
-                    w.writeln("return null;");
+                    w.write("return null;");
                 } else {
                     if (def.isStruct()) {
                         //TODO Keith get rid of this
@@ -878,7 +881,7 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
                         }
                     }
                     w.writeln("$deserializer.record_reference($_obj);");
-                    w.writeln("return " + Emitter.DESERIALIZE_BODY_METHOD + "($_obj, $deserializer);");
+                    w.write("return " + Emitter.DESERIALIZE_BODY_METHOD + "($_obj, $deserializer);");
                 }
                 w.end();
                 w.newline();
@@ -886,7 +889,7 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
                 w.newline();
 
                 // _serialize()
-                w.writeln("public void " + Emitter.SERIALIZE_METHOD + "(" + Emitter.X10_JAVA_SERIALIZER_CLASS + " $serializer) throws java.io.IOException {");
+                w.write("public void " + Emitter.SERIALIZE_METHOD + "(" + Emitter.X10_JAVA_SERIALIZER_CLASS + " $serializer) throws java.io.IOException {");
                 w.newline(4);
                 w.begin(0);
 
@@ -915,10 +918,18 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
                             // If this is an array and not a java primitive we need to cast it into an array
                             w.writeln("$serializer.write(this." + fieldName + ");");
                         } else {
-                            w.writeln("if (" + fieldName + " instanceof " + Emitter.X10_JAVA_SERIALIZABLE_CLASS + " []) {");
-                            w.writeln("$serializer.write((" + Emitter.X10_JAVA_SERIALIZABLE_CLASS + "[]) this." + fieldName + ");");
-                            w.writeln("} else {");
-                            w.writeln("$serializer.write(this." + fieldName + ");");
+                            w.write("if (" + fieldName + " instanceof " + Emitter.X10_JAVA_SERIALIZABLE_CLASS + " []) {");
+                            w.newline(4);
+                            w.begin(0);
+                            w.write("$serializer.write((" + Emitter.X10_JAVA_SERIALIZABLE_CLASS + "[]) this." + fieldName + ");");
+                            w.end();
+                            w.newline();
+                            w.write("} else {");
+                            w.newline(4);
+                            w.begin(0);
+                            w.write("$serializer.write(this." + fieldName + ");");
+                            w.end();
+                            w.newline();
                             w.writeln("}");
                         }
                     } else {
@@ -931,13 +942,21 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
                         } else {
                             boolean canCastToX10JavaSerializable = canCastToX10JavaSerializable(n, f.type(), context);
                             if (canCastToX10JavaSerializable) {
-                            w.writeln("if (" + fieldName + " instanceof " + Emitter.X10_JAVA_SERIALIZABLE_CLASS + ") {");
-                            w.writeln("$serializer.write((" + Emitter.X10_JAVA_SERIALIZABLE_CLASS + ") this." + fieldName + ");");
-                            w.writeln("} else {");
-                            }
-                            w.writeln("$serializer.write(this." + fieldName + ");");
-                            if (canCastToX10JavaSerializable) {
-                            w.writeln("}");
+                                w.write("if (" + fieldName + " instanceof " + Emitter.X10_JAVA_SERIALIZABLE_CLASS + ") {");
+                                w.newline(4);
+                                w.begin(0);
+                                w.write("$serializer.write((" + Emitter.X10_JAVA_SERIALIZABLE_CLASS + ") this." + fieldName + ");");
+                                w.end();
+                                w.newline();
+                                w.write("} else {");
+                                w.newline(4);
+                                w.begin(0);
+                                w.write("$serializer.write(this." + fieldName + ");");
+                                w.end();
+                                w.newline();
+                                w.writeln("}");
+                            } else {
+                                w.writeln("$serializer.write(this." + fieldName + ");");
                             }
                         }
                     }
@@ -967,8 +986,9 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
                 w.write(", final " + X10_RTT_TYPE + " " + param);
                 params.add(param);
             }
-            w.write(") { ");
-            w.newline();
+            w.write(") {");
+            w.newline(4);
+            w.begin(0);
             // call super constructor
             if (flags.isStruct()
                 || (superClassNode != null && Emitter.isNativeRepedToJava(superClassNode.type()))
@@ -1047,7 +1067,12 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
                 }
             }
             printInitParams(def.asType(), params);
+            w.end();
+            w.newline();
+	    
             w.write("}");
+            w.newline();
+
             w.newline();
         }
 
@@ -1058,7 +1083,6 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 
         // print the fields for the type params
         if (typeParameters.size() > 0) {
-            w.newline(4);
             w.begin(0);
             if (!flags.isInterface()) {
                 for (TypeParamNode tp : typeParameters) {
@@ -1070,6 +1094,7 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
                     w.write(";");
                     w.newline();
                 }
+                w.newline();
 
                 w.write("// initializer of type parameters");
                 w.newline();
@@ -1099,7 +1124,8 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
                     w.write(Emitter.mangleParameterType(tp));
                 }
                 w.write(") {");
-                w.newline();
+                w.newline(4);
+                w.begin(0);
                 for (TypeParamNode tp : typeParameters) {
                     w.write("$this.");
                     w.write(Emitter.mangleParameterType(tp));
@@ -1108,16 +1134,24 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
                     w.write(";");
                     w.newline();
                 }
+                w.end();
+                w.newline();
                 w.write("}");
                 w.newline();
             }
             w.end();
         }
 
+        setConstructorIds(def);
+
+        // print synthetic types for parameter mangling
+        printExtraTypes(def);
+
         // print the props
         if (!flags.isInterface()) {
             if (n.properties().size() > 0) {
-                w.newline(4);
+                w.newline();
+                w.writeln("// properties");
                 w.begin(0);
                 for (PropertyDecl pd : n.properties()) {
                     n.print(pd, w, tr);
@@ -1127,18 +1161,14 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
             }
         }
 
-        setConstructorIds(def);
+        w.end();
+        w.newline();
 
         // print the original body
         n.print(n.body(), w, tr);
 
-        // print synthetic types for parameter mangling
-        printExtraTypes(def);
-
-        w.end();
-        w.newline();
         w.write("}");
-        w.newline(0);
+        w.newline();
     }
 
     private Expr getInitExpr(Type at) {
@@ -1342,14 +1372,15 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
         if (n.body() != null) {
             // if (typeAssignments.size() > 0) {
             w.write(" {");
-            w.begin(4);
+            w.newline(4);
+            w.begin(0);
             if (n.body().statements().size() > 0) {
                 Stmt firstStmt = getFirstStatement(n);
                 if (firstStmt instanceof X10ConstructorCall_c) {
                     X10ConstructorCall_c cc = (X10ConstructorCall_c) firstStmt;
                     // n.printSubStmt(cc, w, tr);
                     printConstructorCallForJavaCtor(cc);
-                    w.allowBreak(0, " ");
+                    w.allowBreak(0);
                     if (cc.kind() == ConstructorCall.THIS) params.clear();
                 }
             }
@@ -1415,8 +1446,9 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
         }
 
 
-        w.write("{");
-        w.begin(4);
+        w.write(" {");
+        w.newline(4);
+        w.begin(0);
 
             w.write("this");
             w.write("((" + CONSTRUCTOR_FOR_ALLOCATION_DUMMY_PARAM_TYPE + ") null");
@@ -1518,13 +1550,14 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 
             // if (typeAssignments.size() > 0) {
             w.write(" {");
-            w.begin(4);
+            w.newline(4);
+            w.begin(0);
             // if (body.statements().size() > 0) {
             // if (body.statements().get(0) instanceof X10ConstructorCall_c) {
             // X10ConstructorCall_c cc = (X10ConstructorCall_c)
             // body.statements().get(0);
             // n.printSubStmt(cc, w, tr);
-            // w.allowBreak(0, " ");
+            // w.allowBreak(0);
             // if (cc.kind() == ConstructorCall.THIS) typeAssignments.clear();
             // }
             // }
@@ -1539,13 +1572,14 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
                 printConstructorBody(n, body);
             }
 
-            w.newline();
             if (body.reachable()) {
-                w.writeln("return this;");
+                w.newline();
+                w.write("return this;");
             }
+            w.end();
+            w.newline();
 
             w.write("}");
-            w.end();
             // } else {
             // n.printSubStmt(body, w, tr);
             // }
@@ -1556,7 +1590,8 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 
         // Refractored  method that can be called by reflection
         if (isCustomSerializable) {
-            w.begin(4);
+            w.newline(4);
+            w.begin(0);
             w.writeln("public void " + methodName + "(" + DESERIALIZER +  " " + n.formals().get(0).name() + ") {");
             n.printSubStmt(body, w, tr);
             w.writeln("}");
@@ -1596,8 +1631,7 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
             String name = Emitter.mangleParameterType(p);
             w.write(name);
             if (i.hasNext() || n.formals().size() > 0) {
-                w.write(",");
-                w.allowBreak(0, " ");
+                w.write(", ");
             }
             params.add(name);
         }
@@ -1608,8 +1642,7 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
             n.print(f, w, tr);
 
             if (i.hasNext()) {
-                w.write(",");
-                w.allowBreak(0, " ");
+                w.write(", ");
             }
         }
 
@@ -1626,7 +1659,7 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
          * { TypeNode tn = (TypeNode) i.next(); er.printType(tn.type(),
          * PRINT_TYPE_PARAMS);
          * 
-         * if (i.hasNext()) { w.write(","); w.allowBreak(4, " "); } } }
+         * if (i.hasNext()) { w.write(","); w.allowBreak(4); } } }
          */
 
         return params;
@@ -1723,7 +1756,7 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
          * { TypeNode tn = (TypeNode) i.next(); er.printType(tn.type(),
          * PRINT_TYPE_PARAMS);
          * 
-         * if (i.hasNext()) { w.write(","); w.allowBreak(4, " "); } } }
+         * if (i.hasNext()) { w.write(","); w.allowBreak(4); } } }
          */
     }
 
@@ -1852,8 +1885,9 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
             // target.f.add(right)); } }.eval(x, e)
             Binary.Operator op = n.operator().binaryOperator();
             Name methodName = X10Binary_c.binaryMethodName(op);
+            // TODO pretty print
             w.write("new " + JAVA_IO_SERIALIZABLE + "() {");
-            w.allowBreak(0, " ");
+            w.allowBreak(0);
             w.write("final ");
             er.printType(n.type(), PRINT_TYPE_PARAMS);
             w.write(" eval(");
@@ -1861,7 +1895,7 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
             w.write(" target, ");
             er.printType(n.right().type(), PRINT_TYPE_PARAMS);
             w.write(" right) {");
-            w.allowBreak(0, " ");
+            w.allowBreak(0);
             w.write("return (target.");
             w.write(Emitter.mangleToJava(n.name().id()));
             w.write(" = ");
@@ -1870,7 +1904,7 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
             w.write(".");
             w.write(Emitter.mangleToJava(methodName));
             w.write("(right));");
-            w.allowBreak(0, " ");
+            w.allowBreak(0);
             w.write("} }.eval(");
             tr.print(n, n.target(), w);
             w.write(", ");
@@ -2001,8 +2035,9 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
                 return;
             }
 
+            // TODO pretty print
             w.write("new " + JAVA_IO_SERIALIZABLE + "() {");
-            w.allowBreak(0, " ");
+            w.allowBreak(0);
             w.write("final ");
             er.printType(n.type(), PRINT_TYPE_PARAMS);
             w.write(" eval(");
@@ -2021,7 +2056,7 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
             w.write(", ");
             er.printType(n.right().type(), PRINT_TYPE_PARAMS);
             w.write(" right) {");
-            w.allowBreak(0, " ");
+            w.allowBreak(0);
             if (!n.type().isVoid()) {
                 w.write("return ");
             }
@@ -2057,7 +2092,7 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
                 }
             }
             w.write(");");
-            w.allowBreak(0, " ");
+            w.allowBreak(0);
             w.write("} }.eval(");
             tr.print(n, array, w);
             if (index.size() > 0) w.write(", ");
@@ -2191,7 +2226,7 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
         if (asPrimitive) w.write(")");
         w.write(" ");
         w.write(op.toString());
-        w.allowBreak(n.type() == null || n.type().isJavaPrimitive() ? 2 : 0, " ");
+        w.write(" ");
         if (asPrimitive) {
             // TODO:CAST
             w.write("(");
@@ -2513,7 +2548,7 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 
             if (i != exprs.size() - 1) {
                 w.write(",");
-                w.allowBreak(0, " ");
+                w.allowBreak(0);
             }
         }
         w.end();
@@ -2526,7 +2561,6 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
             new RuntimeTypeExpander(er, at).expand(tr);
             if (i.hasNext() || !isLast) {
                 w.write(", ");
-//                w.allowBreak(0, " ");
             }
         }
     }
@@ -2644,7 +2678,8 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
                                 w.write(")");
                             }
                         }
-                        w.allowBreak(2, " ");
+                        // TODO pretty print
+                        w.allowBreak(2);
                         // HACK: (java.lang.Integer) -1
                         // doesn't parse correctly, but
                         // (java.lang.Integer) (-1)
@@ -2687,7 +2722,8 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
                         }
                     }
 
-                    w.allowBreak(2, " ");
+                    // TODO pretty print
+                    w.allowBreak(2);
 
                     boolean closeParen = false; // provide extra closing parenthesis
                     if (isString(exprType) && !isString(castType)) {
@@ -2836,7 +2872,6 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
                     n.printSubExpr((Expr) target, w, tr);
                 }
                 w.write(".");
-                w.allowBreak(2, 3, "", 0);
             }
             tr.print(n, n.name(), w);
             if (closeParen) w.write(")");
@@ -3166,8 +3201,9 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
                 // TODO: handle type args
                 // TODO: handle setter method
 
+                // TODO pretty print
                 w.write("new " + JAVA_IO_SERIALIZABLE + "() {");
-                w.allowBreak(0, " ");
+                w.allowBreak(0);
                 w.write("final ");
                 er.printType(t, PRINT_TYPE_PARAMS);
                 w.write(" eval(");
@@ -3183,14 +3219,14 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
                     }
                 }
                 w.write(") {");
-                w.allowBreak(0, " ");
+                w.allowBreak(0);
                 er.printType(left.type(), PRINT_TYPE_PARAMS);
                 w.write(" old = ");
                 String pat = Emitter.getJavaImplForDef(mi.x10Def());
                 if (pat != null) {
-                	Map<String,Object> components = new HashMap<String,Object>();
+                    Map<String,Object> components = new HashMap<String,Object>();
                     int j = 0;
-                	Object component;
+                    Object component;
                     component = "target";
                     if (supportNumberedParameterForNative)
                     components.put(String.valueOf(j++), component);
@@ -3220,14 +3256,14 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
                     w.write(")");
                 }
                 w.write(";");
-                w.allowBreak(0, " ");
+                w.allowBreak(0);
                 er.printType(left.type(), PRINT_TYPE_PARAMS);
                 w.write(" neu = (");
                 er.printType(left.type(), PRINT_TYPE_PARAMS);
                 w.write(") old");
                 w.write((op == Unary.POST_INC || op == Unary.PRE_INC ? "+" : "-") + "1");
                 w.write(";");
-                w.allowBreak(0, " ");
+                w.allowBreak(0);
                 w.write("target.set(neu");
                 {
                     int i = 0;
@@ -3238,13 +3274,13 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
                     }
                 }
                 w.write(");");
-                w.allowBreak(0, " ");
+                w.allowBreak(0);
                 w.write("return ");
                 w.write((op == Unary.PRE_DEC || op == Unary.PRE_INC ? "neu" : "old"));
                 w.write(";");
-                w.allowBreak(0, " ");
+                w.allowBreak(0);
                 w.write("}");
-                w.allowBreak(0, " ");
+                w.allowBreak(0);
                 w.write("}.eval(");
                 tr.print(n, target, w);
                 w.write(", ");
@@ -3529,18 +3565,23 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
                 // To extend Any, the type requires getRTT even if it has no type params (e.g. VoidFun_0_0).
                 // if (types.size() > 0) {
                 w.write("public x10.rtt.RuntimeType<?> " + GETRTT_NAME + "() { return " + RTT_NAME + "; }");
-                w.write("public x10.rtt.Type<?> " + GETPARAM_NAME + "(int i) {");
+                w.newline();
+                w.newline();
+
+                w.write("public x10.rtt.Type<?> " + GETPARAM_NAME + "(int i) { ");
                 for (int i = 0; i < types.size(); i++) {
-                    w.write("if (i ==" + i + ")");
+                    w.write("if (i == " + i + ")");
                     Type t = types.get(i);
                     w.write(" return ");
                     new RuntimeTypeExpander(er, t).expand();
-                    w.write(";");
+                    w.write("; ");
                 }
-                w.write("return null;");
-                w.newline();
+                w.write("return null; ");
                 w.write("}");
                 w.newline();
+
+                w.newline();
+
                 // }
             }
         }
@@ -3661,7 +3702,7 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
             new RuntimeTypeExpander(er, at).expand(tr);
             if (i.hasNext() || c.arguments().size() > 0) {
                 w.write(",");
-                w.allowBreak(0, " ");
+                w.allowBreak(0);
             }
         }
 
@@ -3709,7 +3750,7 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
             }
             if (i != l.size() - 1) {
                 w.write(",");
-                w.allowBreak(0, " ");
+                w.allowBreak(0);
             }
         }
         w.end();
@@ -4140,7 +4181,7 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 
             if (i != l.size() - 1) {
                 w.write(",");
-                w.allowBreak(0, " ");
+                w.allowBreak(0);
             }
         }
 
@@ -4240,8 +4281,7 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
         tr.print(n, n.name(), w);
 
         if (n.init() != null) {
-            w.write(" =");
-            w.allowBreak(2, " ");
+            w.write(" = ");
 
             // X10 unique
             er.coerce(n, n.init(), n.type().type());
@@ -4256,8 +4296,7 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
             Type type = Types.baseType(n.type().type());
             TypeSystem xts = tr.typeSystem();
 
-            w.write(" =");
-            w.allowBreak(2, " ");
+            w.write(" = ");
 
             if (xts.isBoolean(type)) {
                 w.write(" false");

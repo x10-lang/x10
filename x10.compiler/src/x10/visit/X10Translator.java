@@ -102,9 +102,10 @@ public class X10Translator extends Translator {
                  (n instanceof ConstructorDecl) ||
                  (n instanceof ClassDecl)))
         {
-//          w.write("\n//#line " + line + "\n");
-//          w.write("\n//#line " + line + " \"" + escapePath(file) + "\"\n");
-            w.write("\n//#line " + line + inlineIndicator(n.position()) + " \"" + escapePath(file) + "\"\n");
+            w.newline();
+//          w.writeln("//#line " + line);
+//          w.writeln("//#line " + line + " \"" + escapePath(file) + "\"");
+            w.writeln("//#line " + line + inlineIndicator(n.position()) + " \"" + escapePath(file) + "\"");
         }
 
         super.print(parent, n, w);
@@ -173,7 +174,7 @@ public class X10Translator extends Translator {
 
                 translateTopLevelDecl(w, sfn, decl);
 
-                w.newline(0);
+                w.newline();
             }
 
             w.flush();
