@@ -40,12 +40,10 @@ public class MakeFun {
 	private static final String fun_imports = "package " + X10PrettyPrinterVisitor.X10_FUN_PACKAGE + ";\n\n"
 			+ "import x10.rtt.FunType;\n"
 			+ "import x10.rtt.RuntimeType;\n"
-			+ "import x10.rtt.RuntimeType.Variance;\n"
 			+ "import x10.rtt.Type;\n";
 
 	private static final String voidfun_imports = "package " + X10PrettyPrinterVisitor.X10_FUN_PACKAGE + ";\n\n"
 			+ "import x10.rtt.RuntimeType;\n"
-			+ "import x10.rtt.RuntimeType.Variance;\n"
 			+ "import x10.rtt.Type;\n"
 			+ "import x10.rtt.VoidFunType;\n";
 

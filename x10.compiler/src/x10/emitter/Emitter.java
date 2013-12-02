@@ -1243,7 +1243,7 @@ public class Emitter {
             printType(n.returnType().type(), X10PrettyPrinterVisitor.supportTypeConstraintsWithErasure ? 0 : PRINT_TYPE_PARAMS);
         }
         
-        w.allowBreak(2, 2, " ", 1);
+        w.write(" ");
         
         // decl
         // print the method name
@@ -1252,15 +1252,11 @@ public class Emitter {
         // print formals
         w.write("(");
         
-        w.allowBreak(2, 2, "", 0);
-        w.begin(0);
-        
         first = true;
         // Add a formal parameter of type Type for each type parameters.
         for (TypeParamNode p : n.typeParameters()) {
             if (!first) {
-                w.write(",");
-                w.allowBreak(0, " ");
+                w.write(", ");
             } else {
                 first = false;
             }
@@ -1285,8 +1281,7 @@ public class Emitter {
                 }
             }
             if (!first) {
-                w.write(",");
-                w.allowBreak(0, " ");
+                w.write(", ");
             } else {
                 first = false;
             }
@@ -1310,7 +1305,7 @@ public class Emitter {
                 }
                 tr.print(n, f.name().id(name), w);
                 
-                w.write(",");
+                w.write(", ");
                 w.write(X10PrettyPrinterVisitor.X10_RTT_TYPE);
                 w.write(" ");
                 Name name1 = Name.make("t" + formalNum++);
@@ -1332,7 +1327,6 @@ public class Emitter {
             }
         }
         
-        w.end();
         w.write(")");
         
         isFirst = true;
@@ -1354,6 +1348,7 @@ public class Emitter {
             printNativeMethodDecl(n);
         } else {
             if (n.body() != null) {
+                w.write(" ");
                 tr.print(n, n.body(), w);
             } else {
                 w.write(";");
@@ -1385,7 +1380,7 @@ public class Emitter {
 //            }
 
             
-            w.allowBreak(2, 2, " ", 1);
+            w.write(" ");
 
             // decl
             // print the method name
@@ -1395,15 +1390,11 @@ public class Emitter {
             // print formals
             w.write("(");
             
-            w.allowBreak(2, 2, "", 0);
-            w.begin(0);
-  
             first = true;
             // Add a formal parameter of type Type for each type parameters.
             for (TypeParamNode p : n.typeParameters()) {
                 if (!first) {
-                    w.write(",");
-                    w.allowBreak(0, " ");
+                    w.write(", ");
                 } else {
                     first = false;
                 }
@@ -1428,8 +1419,7 @@ public class Emitter {
                     }
                 }
                 if (!first) {
-                    w.write(",");
-                    w.allowBreak(0, " ");
+                    w.write(", ");
                 } else {
                     first = false;
                 }
@@ -1453,7 +1443,7 @@ public class Emitter {
                     }
                     tr.print(n, f.name().id(name), w);
                     
-                    w.write(",");
+                    w.write(", ");
                     w.write(X10PrettyPrinterVisitor.X10_RTT_TYPE);
                     w.write(" ");
                     Name name1 = Name.make("t" + formalNum++);
@@ -1475,7 +1465,6 @@ public class Emitter {
                 }
             }
             
-            w.end();
             w.write(")");
             
             isFirst = true;
@@ -1732,7 +1721,7 @@ public class Emitter {
         }
         w.end();
 
-        w.write("> ");
+        w.write(">");
     }
 
     public void printTypeParams(X10MethodDecl_c n, Context context, List<TypeParamNode> typeParameters) {
@@ -1780,8 +1769,7 @@ public class Emitter {
                 final Type at = i.next();
                 printType(at, PRINT_TYPE_PARAMS | BOX_PRIMITIVES);
                 if (i.hasNext()) {
-                    w.write(",");
-                    w.allowBreak(0, " ");
+                    w.write(", ");
                 }
             }
             w.write(">");
@@ -2299,10 +2287,10 @@ public class Emitter {
             if (!X10PrettyPrinterVisitor.supportGenericOverloading) intflags |= PRINT_TYPE_PARAMS;
             printType(impl.returnType(), intflags);
 
+            w.write(" ");
+
 	    boolean isInterface = st.isClass() && st.toClass().flags().isInterface();
 	    
-	    w.allowBreak(2, 2, " ", 1);
-
 	    // decl
 	    // print the method name
             printMethodName(def, isInterface, false, false, null);
@@ -2316,8 +2304,7 @@ public class Emitter {
 //            X10MethodDef x10def = (X10MethodDef) def;
 //            for (ParameterType p : x10def.typeParameters()) {
 //                if (!first) {
-//                    w.write(",");
-//                    w.allowBreak(0, " ");
+//                    w.write(", ");
 //                }
 //                first = false;
 //                w.write("final ");
@@ -2329,8 +2316,7 @@ public class Emitter {
         if (X10PrettyPrinterVisitor.supportGenericOverloading && !isInterface) {
             for (Type t : impl.typeParameters()) {
                 if (!first) {
-                    w.write(",");
-                    w.allowBreak(0, " ");
+                    w.write(", ");
                 }
                 first = false;
                 w.write("final ");
@@ -2343,8 +2329,7 @@ public class Emitter {
 	    for (int i = 0; i < def.formalTypes().size(); i++) {
 	        Type f = impl.formalTypes().get(i);
 	        if (!first || i != 0) {
-	            w.write(",");
-	            w.allowBreak(0, " ");
+	            w.write(", ");
 	        }
 	        if (def.formalTypes().get(i).get().isParameterType()) {
 	            printType(f, (X10PrettyPrinterVisitor.supportGenericOverloading ? 0 : PRINT_TYPE_PARAMS) | BOX_PRIMITIVES);
@@ -2371,7 +2356,9 @@ public class Emitter {
 	        printType(_throws, 0);
 	    }
 
-	    w.write("{");
+	    w.write(" {");
+	    w.newline(4);
+	    w.begin(0);
 	    if (!impl.returnType().isVoid()) {
 	        w.write("return ");
 	    }
@@ -2406,16 +2393,14 @@ public class Emitter {
 	        // TODO
 	        new RuntimeTypeExpander(this, at).expand();
 	        if (i.hasNext()) {
-	            w.write(",");
-	            w.allowBreak(0, " ");
+	            w.write(", ");
 	        }
 	    }
 	    
 	    for (int i = 0; i < impl.formalTypes().size(); i++) {
 	        Type f = impl.formalTypes().get(i);
 	        if (!first2 || i != 0) {
-	            w.write(",");
-	            w.allowBreak(0, " ");
+	            w.write(", ");
 	        }
 	        Name name = Name.make("a" + (i + 1));
 	        boolean closeParenArg = false;
@@ -2432,7 +2417,12 @@ public class Emitter {
 	    }
 	    w.write(";");
 
+	    w.end();
+	    w.newline();
+
 	    w.write("}");
+	    w.newline();
+
 	    w.newline();
 	}
 
@@ -2444,14 +2434,11 @@ public class Emitter {
     	    Flags flags = mi.flags();
     
     	    w.begin(0);
-    	    w.write(flags.clearAbstract()
-    	        .clear(Flags.NATIVE)
-    	        .translateJava()
-    	    );
+    	    w.write(flags.clearAbstract().clearNative().translateJava());
     
     	    printType(mi.returnType(), PRINT_TYPE_PARAMS);
 
-    	    w.allowBreak(2, 2, " ", 1);
+            w.write(" ");
     
     	    // print the method name
     	    printMethodName(ct, mi);
@@ -2460,8 +2447,7 @@ public class Emitter {
     	    for (int i = 0; i < def.formalTypes().size(); i++) {
     	        Type f = mi.formalTypes().get(i);
     	        if (i != 0) {
-    	            w.write(",");
-    	            w.allowBreak(0, " ");
+    	            w.write(", ");
     	        }
                 printType(f, (X10PrettyPrinterVisitor.supportGenericOverloading ? 0 : PRINT_TYPE_PARAMS));
     	        w.write(" ");
@@ -2485,6 +2471,8 @@ public class Emitter {
     	    }
 
     	    w.write("{");
+            w.newline(4);
+            w.begin(0);
     	    if (!mi.returnType().isVoid()) {
     	        w.write("return ");
     	    }
@@ -2505,8 +2493,7 @@ public class Emitter {
     	    for (int i = 0; i < mi.formalTypes().size(); i++) {
     	        Type f = mi.formalTypes().get(i);
     	        if (i != 0) {
-    	            w.write(",");
-    	            w.allowBreak(0, " ");
+    	            w.write(", ");
     	        }
     	        if (isPrimitive(f) && isInstantiated(def.formalTypes().get(i).get(), f)) {
     	            printBoxConversion(f);
@@ -2520,8 +2507,11 @@ public class Emitter {
     	    if (closeParen) w.write(")");
     
     	    w.write(";");
+            w.end();
+            w.newline();
     	    w.write("}");
     	    w.newline();
+            w.newline();
     }
 
     // not used
@@ -2950,7 +2940,7 @@ public class Emitter {
         w.newline();
         
         w.begin(0);
-        w.write(flags.clearAbstract().clear(Flags.NATIVE).translateJava());
+        w.write(flags.clearAbstract().clearNative().translateJava());
         
         // print return type
 	// XTENLANG-2993
@@ -3036,7 +3026,8 @@ public class Emitter {
         }
         
         w.write(" {");
-        w.newline();
+        w.newline(4);
+        w.begin(0);
         
         for (MethodInstance mi : mis) {
             if (mis.size() != 1) {
@@ -3139,9 +3130,14 @@ public class Emitter {
             w.write("(\"dispatch mechanism not completely implemented for contra-variant types.\");");
         }
         
+        w.end();
+        w.newline();
+
         w.write("}");
         w.newline();
-        
+
+        w.newline();
+
     }
 
     
@@ -3430,6 +3426,8 @@ public class Emitter {
         w.write("<");
         printType(def.asType(), BOX_PRIMITIVES | NO_QUALIFIER);
         w.write("> " + X10PrettyPrinterVisitor.RTT_NAME + " = ");
+        w.newline(4);
+        w.begin(0);
         if (isStaticFunType) {
             if (isVoidFun) {
                 w.write("x10.rtt.StaticVoidFunType");
@@ -3447,10 +3445,11 @@ public class Emitter {
         printType(def.asType(), BOX_PRIMITIVES | NO_QUALIFIER);
         w.write(">");
         w.write(" make(");
-        w.newline();
+        w.begin(0);
         if (!isStaticFunType) {
             // Option for non-closures
-            w.write("\"" + def.asType() + "\", ");
+            w.write("\"" + def.asType() + "\",");
+            w.allowBreak(0);
         }
 //        w.write("/* base class */");
         printType(def.asType(), BOX_PRIMITIVES | NO_QUALIFIER);
@@ -3458,7 +3457,9 @@ public class Emitter {
         
         if (def.variances().size() > 0) {
         	// variance has been removed from the language. just record number of type perameters.
-            w.write(", " + def.variances().size());
+            w.write(",");
+            w.allowBreak(0);
+            w.write("" + def.variances().size());
         }
         
         TypeSystem xts = tr.typeSystem();
@@ -3473,17 +3474,20 @@ public class Emitter {
             }
         }
         if (needParents) {
-            w.write(", ");
-//            w.newline();
+            w.write(",");
+            w.allowBreak(0);
 //            w.write("/* parents */ ");
             w.write("new x10.rtt.Type[] {");
+            w.newline(4);
+            w.begin(0);
             boolean needComma = false;
             for (int i = 0 ; i < def.interfaces().size(); ++i) {
                 Type type = def.interfaces().get(i).get();
                 // we don't need to add Types.ANY as parents because everything is subtype of Any
                 if (xts.isAny(type)) continue;
                 if (needComma) {
-                    w.write(", ");
+                    w.write(",");
+                    w.allowBreak(0);
                 } else {
                     needComma = true;
                 }
@@ -3491,7 +3495,8 @@ public class Emitter {
             }
             if (def.superType() != null) {
                 if (needComma) {
-                    w.write(", ");
+                    w.write(",");
+                    w.allowBreak(0);
                 } else {
                     needComma = true;
                 }
@@ -3499,42 +3504,44 @@ public class Emitter {
             }
             if (isStruct) {
                 if (needComma) {
-                    w.write(", ");
+                    w.write(",");
+                    w.allowBreak(0);
                 } else {
                     needComma = true;
                 }
                 // Struct is not an X10 type, but it has RTT for runtime type checking such as instanceof
                 w.write(X10PrettyPrinterVisitor.X10_RTT_TYPES + ".STRUCT");
             }
+            w.end();
+            w.newline();
             w.write("}");
         }
+        w.end();
+        w.write(");");
+        w.end();
         w.newline();
-        w.write(")");
-
-        w.write(";");
         w.newline();
         
         if (!def.flags().isInterface()) {
-            w.write("public x10.rtt.RuntimeType<?> " + X10PrettyPrinterVisitor.GETRTT_NAME + "() {");
-            w.write("return " + X10PrettyPrinterVisitor.RTT_NAME + ";");
-            w.write("}");
+            w.write("public x10.rtt.RuntimeType<?> " + X10PrettyPrinterVisitor.GETRTT_NAME + "() { return " + X10PrettyPrinterVisitor.RTT_NAME + "; }");
             w.newline();
             w.newline();
             
             // To extend Any, the type requires getRTT even if it has no type params (e.g. VoidFun_0_0).
 //            if (!def.typeParameters().isEmpty()) {
-              w.write("public x10.rtt.Type<?> " + X10PrettyPrinterVisitor.GETPARAM_NAME + "(int i) {");
+              w.write("public x10.rtt.Type<?> " + X10PrettyPrinterVisitor.GETPARAM_NAME + "(int i) { ");
               for (int i = 0; i < def.typeParameters().size(); i++) {
                   ParameterType pt = def.typeParameters().get(i);
-                  w.write("if (i ==" + i + ")");
-                  w.write("return ");
+                  w.write("if (i == " + i + ")");
+                  w.write(" return ");
                   w.write(mangleParameterType(pt));
-                  w.write(";");
+                  w.write("; ");
               }
-                w.write("return null;");
+                w.write("return null; ");
                 w.write("}");
+                w.newline();
+                w.newline();
 //            }
-            w.newline();
         }
 	}
 
@@ -3822,10 +3829,11 @@ public class Emitter {
         List<TypeParamNode> typeParameters = n.typeParameters();
         if (typeParameters.size() > 0) {
             printTypeParams(n, tr.context(), typeParameters);
+            w.write(" ");
         }
         w.write(X10_JAVA_SERIALIZABLE_CLASS + " " + DESERIALIZE_BODY_METHOD + "(");
         printType(def.asType(), PRINT_TYPE_PARAMS | BOX_PRIMITIVES);
-        w.writeln(" $_obj , " + X10_JAVA_DESERIALIZER_CLASS + " $deserializer) throws java.io.IOException {");
+        w.write(" $_obj, " + X10_JAVA_DESERIALIZER_CLASS + " $deserializer) throws java.io.IOException {");
         w.newline(4);
         w.begin(0);
 
@@ -3850,7 +3858,7 @@ public class Emitter {
         w.newline();
 
         // _deserializer  method
-        w.writeln("public static " + X10_JAVA_SERIALIZABLE_CLASS + " " + DESERIALIZER_METHOD + "(" + X10_JAVA_DESERIALIZER_CLASS + " $deserializer) throws java.io.IOException {");
+        w.write("public static " + X10_JAVA_SERIALIZABLE_CLASS + " " + DESERIALIZER_METHOD + "(" + X10_JAVA_DESERIALIZER_CLASS + " $deserializer) throws java.io.IOException {");
         w.newline(4);
         w.begin(0);
         if (def.flags().isAbstract()) {
@@ -3880,7 +3888,7 @@ public class Emitter {
                 w.writeln("(x10.io.Deserializer) null);");
             }
             w.writeln("$deserializer.update_reference($obj_id, $_obj); /* Update entry in object map with the actual object before deserializing body */");
-            w.writeln("return " + DESERIALIZE_BODY_METHOD + "($_obj, $deserializer);");
+            w.write("return " + DESERIALIZE_BODY_METHOD + "($_obj, $deserializer);");
         }
         w.end();
         w.newline();
