@@ -36,11 +36,11 @@ namespace x10 {
         
         class RuntimeNatives {
         public:
-            static x10::io::Reader* execForRead(const char *command);
-            static x10::io::Writer* execForWrite(const char *command);
+            static ::x10::io::Reader* execForRead(const char *command);
+            static ::x10::io::Writer* execForWrite(const char *command);
 
             /* load environment variables into HashMap */
-            static x10::util::HashMap<x10::lang::String*, x10::lang::String*>* loadenv();
+            static ::x10::util::HashMap< ::x10::lang::String*, ::x10::lang::String*>* loadenv();
 
             /* Exit with the given exit code */
             static void exit(x10_int code);

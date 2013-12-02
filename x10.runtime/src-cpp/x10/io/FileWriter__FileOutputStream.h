@@ -21,7 +21,7 @@ namespace x10 {
 
     namespace io {
 
-        class FileWriter__FileOutputStream : public x10::io::OutputStreamWriter__OutputStream {
+        class FileWriter__FileOutputStream : public ::x10::io::OutputStreamWriter__OutputStream {
         protected:
             FILE* FMGL(file);
             
@@ -31,31 +31,31 @@ namespace x10 {
             FileWriter__FileOutputStream(FILE *f): FMGL(file)(f) { }
             FileWriter__FileOutputStream(): FMGL(file)(NULL) { }
 
-            static FileWriter__FileOutputStream* _make(x10::lang::String* name, bool append);
+            static FileWriter__FileOutputStream* _make(::x10::lang::String* name, bool append);
 
-            void _constructor (x10::lang::String* file, bool append);
+            void _constructor (::x10::lang::String* file, bool append);
             void _constructor (FILE* file);
 
             virtual void write(const char *str);
 
             virtual void write(x10_int i);
 
-            virtual void write(x10::lang::String* s); 
+            virtual void write(::x10::lang::String* s); 
 
-            virtual void write(x10::lang::Rail<x10_byte>* b, x10_long off, x10_long len);
+            virtual void write(::x10::lang::Rail<x10_byte>* b, x10_long off, x10_long len);
            
             virtual void flush();
 
             virtual void close();
 
             // Serialization
-            static const x10aux::serialization_id_t _serialization_id;
-            virtual x10aux::serialization_id_t _get_serialization_id() {
+            static const ::x10aux::serialization_id_t _serialization_id;
+            virtual ::x10aux::serialization_id_t _get_serialization_id() {
                 return _serialization_id;
             }
-            virtual void _serialize_body(x10aux::serialization_buffer& buf);
-            static x10::lang::Reference* _deserializer(x10aux::deserialization_buffer& buf);
-            void _deserialize_body(x10aux::deserialization_buffer& buf);
+            virtual void _serialize_body(::x10aux::serialization_buffer& buf);
+            static ::x10::lang::Reference* _deserializer(::x10aux::deserialization_buffer& buf);
+            void _deserialize_body(::x10aux::deserialization_buffer& buf);
         };
 
     }

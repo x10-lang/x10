@@ -122,9 +122,9 @@ namespace x10aux {
 
     template<class T> void throwException() X10_PRAGMA_NORETURN;
 
-    void throwException(x10::lang::CheckedThrowable* e) X10_PRAGMA_NORETURN;
+    void throwException(::x10::lang::CheckedThrowable* e) X10_PRAGMA_NORETURN;
 
-    inline void throwException(x10::lang::CheckedThrowable* e) {
+    inline void throwException(::x10::lang::CheckedThrowable* e) {
         throw e->fillInStackTrace();
     }
 

@@ -46,8 +46,8 @@ namespace x10aux {
                 //     to temporary objects allocated by custom serialization serialize methods.
                 //     If we don't keep those objects live here, the storage may be reused during the
                 //     serialization operation, resulting in incorrect detection of a repeated reference!
-            _ptrs(new (x10aux::alloc<const void*>((init_size)*sizeof(const void*), true)) const void*[init_size]),
-            _ptrPos(new (x10aux::alloc< x10aux::simple_hashmap<const void*, int> >()) x10aux::simple_hashmap<const void*, int>()),
+                _ptrs(new (::x10aux::alloc<const void*>((init_size)*sizeof(const void*), true)) const void*[init_size]),
+                _ptrPos(new (::x10aux::alloc< ::x10aux::simple_hashmap<const void*, int> >()) ::x10aux::simple_hashmap<const void*, int>()),
             _top(0)
         { }
         /* Returns 0 if the pointer has not been recorded yet */
@@ -71,7 +71,7 @@ namespace x10aux {
             return val;
         }
         void reset() { _top = 0; assert (false); }
-        ~addr_map() { x10aux::dealloc(_ptrs); x10aux::dealloc(_ptrPos); }
+        ~addr_map() { ::x10aux::dealloc(_ptrs); ::x10aux::dealloc(_ptrPos); }
     };
 
 
@@ -121,12 +121,12 @@ namespace x10aux {
 
         ~serialization_buffer (void) {
             if (buffer!=NULL) {
-                x10aux::dealloc(buffer);
+                ::x10aux::dealloc(buffer);
             }
         }
 
         void _constructor() {}
-        void _constructor(x10::io::OutputStreamWriter*);
+        void _constructor(::x10::io::OutputStreamWriter*);
         
         void grow (void);
 
@@ -137,14 +137,14 @@ namespace x10aux {
         char *steal() { char *buf = buffer; buffer = NULL; return buf; }
         char *borrow() { return buffer; }
 
-        static void serialize_reference(serialization_buffer &buf, x10::lang::Reference*);
+        static void serialize_reference(serialization_buffer &buf, ::x10::lang::Reference*);
         static void copyIn(serialization_buffer &buf, const void* data, x10_long length, size_t sizeOfT);
 
         template <class T> void manually_record_reference(T* val) {
             map.previous_position(val);
         }
 
-        x10::lang::Rail<x10_byte>* toRail();
+        ::x10::lang::Rail<x10_byte>* toRail();
         
         void newObjectGraph();
 
@@ -155,7 +155,7 @@ namespace x10aux {
         template<class T> struct Write<captured_struct_lval<T> >;
         template<typename T> void write(const T &val);
 
-        void writeAny(x10::lang::Any* val);
+        void writeAny(::x10::lang::Any* val);
         
         // So it can access the addr_map
         template<class T> friend struct Write;
@@ -231,12 +231,12 @@ namespace x10aux {
             int pos = buf.map.previous_position(val);
             if (pos != 0) {
                 _S_("\tRepeated ("<<pos<<") serialization of a "<<ANSI_SER<<ANSI_BOLD<<TYPENAME(T)<<ANSI_RESET<<" into buf: "<<&buf);
-                buf.write((x10aux::serialization_id_t) 0xFFFF);
+                buf.write((::x10aux::serialization_id_t) 0xFFFF);
                 buf.write((x10_int) pos);
                 return;
             }
         }
-        x10::lang::Reference* valAsRef = reinterpret_cast<x10::lang::Reference*>(val);
+        ::x10::lang::Reference* valAsRef = reinterpret_cast< ::x10::lang::Reference*>(val);
         serialize_reference(buf, valAsRef);
     }
 

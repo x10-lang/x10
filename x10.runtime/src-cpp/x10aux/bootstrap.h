@@ -25,17 +25,17 @@
 namespace x10 { namespace lang { template<class T> class Rail; } }
 
 namespace x10aux {
-    typedef void (*ApplicationMainFunction)(x10::lang::Rail<x10::lang::String*>*);
+    typedef void (*ApplicationMainFunction)(::x10::lang::Rail< ::x10::lang::String*>*);
 
-    class BootStrapClosure : public x10::lang::Closure
+    class BootStrapClosure : public ::x10::lang::Closure
     {
         protected:
 
         ApplicationMainFunction main;
-        x10::lang::Rail<x10::lang::String*>* args;
+        ::x10::lang::Rail< ::x10::lang::String*>* args;
         public:
 
-        static x10::lang::VoidFun_0_0::itable<BootStrapClosure> _itable;
+        static ::x10::lang::VoidFun_0_0::itable<BootStrapClosure> _itable;
         static x10aux::itable_entry _itables[2];
 
         virtual x10aux::itable_entry* _getITables() { return _itables; }
@@ -47,14 +47,14 @@ namespace x10aux {
         }
 
         BootStrapClosure(ApplicationMainFunction main_,
-                         x10::lang::Rail<x10::lang::String*>* args_)
+                         ::x10::lang::Rail< ::x10::lang::String*>* args_)
           : main(main_), args(args_)
         { }
 
-        const x10aux::RuntimeType *_type() const {return x10aux::getRTT<x10::lang::VoidFun_0_0>();}
+        const x10aux::RuntimeType *_type() const {return x10aux::getRTT< ::x10::lang::VoidFun_0_0>();}
 
-        x10::lang::String* toString() {
-            return x10::lang::String::Lit("x10aux::BootStrapClosure ("__FILELINE__")");
+        ::x10::lang::String* toString() {
+            return ::x10::lang::String::Lit("x10aux::BootStrapClosure ("__FILELINE__")");
         }
 
         virtual x10aux::serialization_id_t _get_serialization_id() {

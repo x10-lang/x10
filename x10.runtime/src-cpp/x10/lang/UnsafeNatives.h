@@ -21,7 +21,7 @@ namespace x10 {
         class UnsafeNatives {
         public:
             /** Congruent memory unsafe hackery. Implements x10.lang.Unsafe.getCongruentSibling */
-            template<class T> static x10::lang::Rail<T>* getCongruentSibling(x10::lang::Rail<T>*r, x10_long dstId);
+            template<class T> static ::x10::lang::Rail<T>* getCongruentSibling(::x10::lang::Rail<T>*r, x10_long dstId);
         };
     }
 }
@@ -35,13 +35,13 @@ namespace x10 {
 #include <x10aux/alloc.h>
 #include <x10/lang/UnsafeNatives.h>
 
-template<class T> x10::lang::Rail<T>* x10::lang::UnsafeNatives::getCongruentSibling(x10::lang::Rail<T>*r, x10_long dstId) {
+template<class T> ::x10::lang::Rail<T>* ::x10::lang::UnsafeNatives::getCongruentSibling(::x10::lang::Rail<T>*r, x10_long dstId) {
     // Pure Hackery.  Manufacture the desired remote Rail<T>* via allocater's congruent addr functions
-    int src = (int)x10aux::here;
+    int src = (int)::x10aux::here;
     int dst = (int)dstId;
     void *addr = r;
-    void* remoteAddr = x10aux::compute_congruent_addr(addr, (int)src, (int)dst);
-    return (x10::lang::Rail<T>*)remoteAddr;
+    void* remoteAddr = ::x10aux::compute_congruent_addr(addr, (int)src, (int)dst);
+    return (::x10::lang::Rail<T>*)remoteAddr;
 }
 
 #endif // X10_LANG_UNSAFENATIVE_IMPLEMENTATION

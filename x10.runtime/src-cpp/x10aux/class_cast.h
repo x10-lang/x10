@@ -30,7 +30,7 @@ namespace x10aux {
     template<typename T, typename F> GPUSAFE T class_cast(F obj);
     template<typename T, typename F> GPUSAFE T class_cast(F obj, bool checked);
 
-    template<class T> static inline GPUSAFE T* real_class_cast(x10::lang::Reference* obj, bool checked) {
+    template<class T> static inline GPUSAFE T* real_class_cast(::x10::lang::Reference* obj, bool checked) {
         if (checked && NULL != obj) {
             const RuntimeType *from = obj->_type();
             const RuntimeType *to = getRTT<T>();
@@ -70,7 +70,7 @@ namespace x10aux {
 
     template<class T, class F> struct ClassCastNotPrimitive<T*, F*> {
         static GPUSAFE T* _(F* obj, bool checked) {
-            x10::lang::Reference* objAsRef = reinterpret_cast<x10::lang::Reference*>(obj);
+            ::x10::lang::Reference* objAsRef = reinterpret_cast< ::x10::lang::Reference*>(obj);
             return real_class_cast<T>(objAsRef, checked);
         }
     };
@@ -88,7 +88,7 @@ namespace x10aux {
                 (void) from; (void) to;
                 #endif
             }
-            x10::lang::IBox<F>* obj = new (x10aux::alloc<x10::lang::IBox<F> >()) x10::lang::IBox<F>(val);
+            ::x10::lang::IBox<F>* obj = new (::x10aux::alloc< ::x10::lang::IBox<F> >()) ::x10::lang::IBox<F>(val);
             return reinterpret_cast<T*>(obj);
         }
     };
@@ -101,7 +101,7 @@ namespace x10aux {
                 throwClassCastException(NULL, to);
             }
             if (checked) {
-                x10::lang::Reference* asRef = reinterpret_cast<x10::lang::Reference*>(val);
+                ::x10::lang::Reference* asRef = reinterpret_cast< ::x10::lang::Reference*>(val);
                 const RuntimeType *from = asRef->_type();
                 #ifndef NO_EXCEPTIONS
                 if (!from->subtypeOf(to)) {
@@ -111,7 +111,7 @@ namespace x10aux {
                 (void) from; (void) to;
                 #endif
             }
-            x10::lang::IBox<T>* ibox = reinterpret_cast<x10::lang::IBox<T>*>(val);
+            ::x10::lang::IBox<T>* ibox = reinterpret_cast< ::x10::lang::IBox<T>*>(val);
             return ibox->value; 
         }
     };

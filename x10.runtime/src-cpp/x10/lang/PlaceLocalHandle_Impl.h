@@ -19,7 +19,7 @@
 namespace x10 {
     namespace lang {
 
-        void _initRTTHelper_PlaceLocalHandle_Impl(x10aux::RuntimeType *location, const x10aux::RuntimeType *rtt);
+        void _initRTTHelper_PlaceLocalHandle_Impl(::x10aux::RuntimeType *location, const ::x10aux::RuntimeType *rtt);
 
         template <class T> class PlaceLocalHandle_Impl  {
         public:
@@ -34,7 +34,7 @@ namespace x10 {
             void set(T newVal) {
                 FMGL(localStorage) = newVal;
                 FMGL(cached) = true;
-                x10aux::place_local::put(FMGL(id), (void*)newVal);
+                ::x10aux::place_local::put(FMGL(id), (void*)newVal);
             }
 
 	        static PlaceLocalHandle_Impl<T> _alloc () {PlaceLocalHandle_Impl<T> t; return t;}
@@ -46,30 +46,30 @@ namespace x10 {
             }
             
             void _constructor () {
-                x10_int id = x10aux::place_local::nextId();
+                x10_int id = ::x10aux::place_local::nextId();
                 FMGL(id) = id;
                 FMGL(cached) = false;
             }
             
             T __apply() {
                 if (!FMGL(cached)) {
-                    T tmp = (T)(x10aux::place_local::get(FMGL(id)));
+                    T tmp = (T)(::x10aux::place_local::get(FMGL(id)));
                     FMGL(localStorage) = tmp;
                     FMGL(cached) = true;
                 }
                 return FMGL(localStorage);
             }
 
-            x10::lang::String* toString() {
+            ::x10::lang::String* toString() {
                 if (FMGL(cached)) {
-                    return x10aux::to_string(FMGL(localStorage));
+                    return ::x10aux::to_string(FMGL(localStorage));
                 } else {
-                    return x10::lang::String::Lit("PlaceLocalHandle_Impl(uncached data)");
+                    return ::x10::lang::String::Lit("PlaceLocalHandle_Impl(uncached data)");
                 }
             }
 
             x10_int hashCode() {
-                return x10aux::hash_code(FMGL(id));
+                return ::x10aux::hash_code(FMGL(id));
             }
 
 
@@ -77,30 +77,30 @@ namespace x10 {
                 return FMGL(id) == that->FMGL(id);
             }
 
-            static void _serialize(PlaceLocalHandle_Impl<T> this_, x10aux::serialization_buffer &buf);
+            static void _serialize(PlaceLocalHandle_Impl<T> this_, ::x10aux::serialization_buffer &buf);
 
-            static PlaceLocalHandle_Impl<T> _deserialize(x10aux::deserialization_buffer& buf);
+            static PlaceLocalHandle_Impl<T> _deserialize(::x10aux::deserialization_buffer& buf);
         };
 
         template <> class PlaceLocalHandle_Impl<void>  {
         public:
-            static x10aux::RuntimeType rtt;
-            static const x10aux::RuntimeType* getRTT() { return &rtt; }
+            static ::x10aux::RuntimeType rtt;
+            static const ::x10aux::RuntimeType* getRTT() { return &rtt; }
         };
 
         template<class T> void PlaceLocalHandle_Impl<T>::_initRTT() {
-            if (rtt.initStageOne(x10aux::getRTT<PlaceLocalHandle_Impl<void> >())) return;
-            x10::lang::_initRTTHelper_PlaceLocalHandle_Impl(&rtt, x10aux::getRTT<T>());
+            if (rtt.initStageOne(::x10aux::getRTT<PlaceLocalHandle_Impl<void> >())) return;
+            ::x10::lang::_initRTTHelper_PlaceLocalHandle_Impl(&rtt, ::x10aux::getRTT<T>());
         }
 
-        template<class T> x10aux::RuntimeType PlaceLocalHandle_Impl<T>::rtt;
+        template<class T> ::x10aux::RuntimeType PlaceLocalHandle_Impl<T>::rtt;
 
-        template <class T> void PlaceLocalHandle_Impl<T>::_serialize(PlaceLocalHandle_Impl<T> this_, x10aux::serialization_buffer &buf) {
+        template <class T> void PlaceLocalHandle_Impl<T>::_serialize(PlaceLocalHandle_Impl<T> this_, ::x10aux::serialization_buffer &buf) {
             // NOTE specialized semantics.  Only id is serialized, cached and localStorage are place local!
             buf.write(this_->FMGL(id));
         }
 
-        template<class T> PlaceLocalHandle_Impl<T> PlaceLocalHandle_Impl<T>::_deserialize(x10aux::deserialization_buffer& buf) {
+        template<class T> PlaceLocalHandle_Impl<T> PlaceLocalHandle_Impl<T>::_deserialize(::x10aux::deserialization_buffer& buf) {
             // NOTE specialized semantics.  Only id is serialized, cached is automatically set to false; will be looked up on first use.
             PlaceLocalHandle_Impl<T> this_;
             this_->FMGL(id) = buf.read<x10_int>();

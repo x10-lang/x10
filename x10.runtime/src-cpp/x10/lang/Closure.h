@@ -44,11 +44,11 @@ namespace x10 {
 
             virtual x10_int hashCode();
             
-            virtual String* toString() { return x10aux::identity_to_string(this); }
+            virtual String* toString() { return ::x10aux::identity_to_string(this); }
             
             virtual const char* toNativeString();
 
-            virtual x10::lang::String* typeName();
+            virtual ::x10::lang::String* typeName();
         };
     }
 }

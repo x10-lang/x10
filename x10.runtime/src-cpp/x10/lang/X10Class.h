@@ -39,11 +39,11 @@ namespace x10 {
              *********************************************************************************/
 
             // classes that implement no interfaces will inherit this guy
-            static x10aux::itable_entry empty_itable[1];
-            virtual x10aux::itable_entry* _getITables() { return empty_itable; }
+            static ::x10aux::itable_entry empty_itable[1];
+            virtual ::x10aux::itable_entry* _getITables() { return empty_itable; }
 
 
-            virtual const x10aux::RuntimeType *_type() const = 0;
+            virtual const ::x10aux::RuntimeType *_type() const = 0;
 
             /*********************************************************************************
              * X10-level functions assumed to be defined for all types
@@ -56,9 +56,9 @@ namespace x10 {
                 return other == this;
             }
             
-            virtual x10_int hashCode() { return x10aux::identity_hash_code(this); }
+            virtual x10_int hashCode() { return ::x10aux::identity_hash_code(this); }
 
-            virtual String* toString() { return x10aux::identity_to_string(this); }
+            virtual String* toString() { return ::x10aux::identity_to_string(this); }
 
             virtual String* typeName();
 
@@ -72,14 +72,14 @@ namespace x10 {
             /*********************************************************************************
              * Serialization/Deserialization functions assumed to be defined for all types
              *********************************************************************************/
-            virtual x10aux::serialization_id_t _get_serialization_id() = 0;
-            virtual void _serialize_body(x10aux::serialization_buffer &) = 0;
+            virtual ::x10aux::serialization_id_t _get_serialization_id() = 0;
+            virtual void _serialize_body(::x10aux::serialization_buffer &) = 0;
 
         private:
             // RTT intentionally private because the only usage is meant to be in this class;
             // not meant to be availble to subclasses.
-            static x10aux::RuntimeType rtt;
-            static const x10aux::RuntimeType* getRTT() { if (!rtt.isInitialized) _initRTT(); return &rtt; }
+            static ::x10aux::RuntimeType rtt;
+            static const ::x10aux::RuntimeType* getRTT() { if (!rtt.isInitialized) _initRTT(); return &rtt; }
             static void _initRTT();
         };
     }

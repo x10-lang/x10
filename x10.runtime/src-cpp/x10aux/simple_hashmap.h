@@ -34,7 +34,7 @@ namespace x10aux {
         Bucket **_buckets;
 
         simple_hashmap() {
-            _buckets = x10aux::alloc_z<Bucket*>(NUM_BUCKETS*sizeof(Bucket*));
+            _buckets = ::x10aux::alloc_z<Bucket*>(NUM_BUCKETS*sizeof(Bucket*));
         }
 
         ~simple_hashmap() {
@@ -42,9 +42,9 @@ namespace x10aux {
             while (cur != NULL) {
                 Bucket *old = cur;
                 cur = cur->_next;
-                x10aux::dealloc(old);
+                ::x10aux::dealloc(old);
             }
-            x10aux::dealloc(_buckets);
+            ::x10aux::dealloc(_buckets);
         }
 
         T get(Key id) {
@@ -92,7 +92,7 @@ namespace x10aux {
                     // cut cur out of bucket chain by setting trailer to cur->next;
                     *trailer = cur->_next;
                     T data = cur->_data;
-                    x10aux::dealloc(cur);
+                    ::x10aux::dealloc(cur);
                     return data;
                 }
                 trailer = &(cur->_next);
@@ -103,7 +103,7 @@ namespace x10aux {
             return NULL;
         }
 
-        template<class U> friend const char *x10aux::typeName();
+        template<class U> friend const char *::x10aux::typeName();
     };
 }
 

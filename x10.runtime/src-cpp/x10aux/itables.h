@@ -81,18 +81,18 @@ namespace x10aux {
      * to find the desired interface. To avoid code space bloat, both of these
      * cases are handled in the out-of-line outlinedITableLookup routine.
      */
-    template<class Iface> inline typename Iface::template itable<x10::lang::Reference>* findITable(itable_entry* itables) {
+    template<class Iface> inline typename Iface::template itable< ::x10::lang::Reference>* findITable(itable_entry* itables) {
         const RuntimeType *id = &Iface::rtt; // NOTE: Iface::rtt may be uninitialized, but that's ok here. Make common case as fast as possible.
         for (int i=0; true; i++) {
             if (itables[i].id == id) {
-                return (typename Iface::template itable<x10::lang::Reference>*)(itables[i].itable);
+                return (typename Iface::template itable< ::x10::lang::Reference>*)(itables[i].itable);
             }
             if (NULL == itables[i].id) {
                 // Either itables hasn't been initialized yet, or we've hit the end of itables and
                 // we need to deal with complex cases involving generic types.
                 // By calling getRTT<I>(), we ensure that I::rtt will now be initialized before we need to look at its content.
                 // in the body of outlineITableLookup.
-                return (typename Iface::template itable<x10::lang::Reference>*)outlinedITableLookup(itables, x10aux::getRTT<Iface>());
+                return (typename Iface::template itable< ::x10::lang::Reference>*)outlinedITableLookup(itables, ::x10aux::getRTT<Iface>());
             }
         }
     }

@@ -20,31 +20,31 @@
 
 /* Macro to use in class declaration for boilerplate RTT junk */
 #define RTT_H_DECLS_CLASS \
-    static x10aux::RuntimeType rtt;                                     \
-    static const x10aux::RuntimeType* getRTT() { if (!rtt.isInitialized) _initRTT(); return &rtt; } \
+    static ::x10aux::RuntimeType rtt;                                   \
+    static const ::x10aux::RuntimeType* getRTT() { if (!rtt.isInitialized) _initRTT(); return &rtt; } \
     static void _initRTT(); \
-    virtual const x10aux::RuntimeType *_type() const { return getRTT(); }
+    virtual const ::x10aux::RuntimeType *_type() const { return getRTT(); }
 
 #define RTT_H_DECLS_STRUCT \
-    static x10aux::RuntimeType rtt;                                     \
-    static const x10aux::RuntimeType* getRTT() { if (!rtt.isInitialized) _initRTT(); return &rtt; } \
+    static ::x10aux::RuntimeType rtt;                                   \
+    static const ::x10aux::RuntimeType* getRTT() { if (!rtt.isInitialized) _initRTT(); return &rtt; } \
     static void _initRTT(); \
 
 #define RTT_H_DECLS_INTERFACE \
-    static x10aux::RuntimeType rtt; \
-    static const x10aux::RuntimeType* getRTT() { if (!rtt.isInitialized) _initRTT(); return &rtt; } \
+    static ::x10aux::RuntimeType rtt;                                   \
+    static const ::x10aux::RuntimeType* getRTT() { if (!rtt.isInitialized) _initRTT(); return &rtt; } \
     static void _initRTT();
 
 #define RTT_CC_DECLS1(TYPE,NAME,KIND,P1)                        \
-    x10aux::RuntimeType TYPE::rtt;                              \
+    ::x10aux::RuntimeType TYPE::rtt;                            \
     void TYPE::_initRTT() {                                     \
         if (rtt.initStageOne(&rtt)) return;                     \
-        const x10aux::RuntimeType* parents[1] = {P1::getRTT()}; \
+        const ::x10aux::RuntimeType* parents[1] = {P1::getRTT()};   \
         rtt.initStageTwo(NAME, KIND, 1, parents, 0, NULL, NULL); \
     }
 
 #define RTT_CC_DECLS0(TYPE,NAME,KIND)                        \
-    x10aux::RuntimeType TYPE::rtt;                              \
+    ::x10aux::RuntimeType TYPE::rtt;                            \
     void TYPE::_initRTT() {                                     \
         if (rtt.initStageOne(&rtt)) return;                     \
         rtt.initStageTwo(NAME, KIND, 0, NULL, 0, NULL, NULL); \
@@ -123,9 +123,9 @@ namespace x10aux {
 
         bool subtypeOf(const RuntimeType * const other) const;
 
-        bool instanceOf(const x10::lang::Reference* other) const;
+        bool instanceOf(const ::x10::lang::Reference* other) const;
 
-        bool concreteInstanceOf(const x10::lang::Reference* other) const;
+        bool concreteInstanceOf(const ::x10::lang::Reference* other) const;
 
         bool equals(const RuntimeType * const other) const {
             return other == this;
@@ -182,87 +182,87 @@ namespace x10aux {
     };
     
     // this is the function we use to get runtime types from types
-    template<class T> const x10aux::RuntimeType* getRTT() {
+    template<class T> const ::x10aux::RuntimeType* getRTT() {
         return remove_all_pointers<T>::type::getRTT();
     }
     // specializations of getRTT template for primitive types
-    template<> inline const x10aux::RuntimeType *getRTT<x10_boolean>() {
-        if (!x10aux::RuntimeType::BooleanType.isInitialized) {
-            x10aux::RuntimeType::initBooleanType();
+    template<> inline const ::x10aux::RuntimeType *getRTT<x10_boolean>() {
+        if (!::x10aux::RuntimeType::BooleanType.isInitialized) {
+            ::x10aux::RuntimeType::initBooleanType();
         }
-        return &x10aux::RuntimeType::BooleanType;
+        return &::x10aux::RuntimeType::BooleanType;
     }
-    template<> inline const x10aux::RuntimeType *getRTT<x10_byte>() {
-        if (!x10aux::RuntimeType::ByteType.isInitialized) {
-            x10aux::RuntimeType::initByteType();
+    template<> inline const ::x10aux::RuntimeType *getRTT<x10_byte>() {
+        if (!::x10aux::RuntimeType::ByteType.isInitialized) {
+            ::x10aux::RuntimeType::initByteType();
         }
-        return &x10aux::RuntimeType::ByteType;
+        return &::x10aux::RuntimeType::ByteType;
     }
-    template<> inline const x10aux::RuntimeType *getRTT<x10_char>() {
-        if (!x10aux::RuntimeType::CharType.isInitialized) {
-            x10aux::RuntimeType::initCharType();
+    template<> inline const ::x10aux::RuntimeType *getRTT<x10_char>() {
+        if (!::x10aux::RuntimeType::CharType.isInitialized) {
+            ::x10aux::RuntimeType::initCharType();
         }
-        return &x10aux::RuntimeType::CharType;
+        return &::x10aux::RuntimeType::CharType;
     }
-    template<> inline const x10aux::RuntimeType *getRTT<x10_short>() {
-        if (!x10aux::RuntimeType::ShortType.isInitialized) {
-            x10aux::RuntimeType::initShortType();
+    template<> inline const ::x10aux::RuntimeType *getRTT<x10_short>() {
+        if (!::x10aux::RuntimeType::ShortType.isInitialized) {
+            ::x10aux::RuntimeType::initShortType();
         }
-        return &x10aux::RuntimeType::ShortType;
+        return &::x10aux::RuntimeType::ShortType;
     }
-    template<> inline const x10aux::RuntimeType *getRTT<x10_int>() {
-        if (!x10aux::RuntimeType::IntType.isInitialized) {
-            x10aux::RuntimeType::initIntType();
+    template<> inline const ::x10aux::RuntimeType *getRTT<x10_int>() {
+        if (!::x10aux::RuntimeType::IntType.isInitialized) {
+            ::x10aux::RuntimeType::initIntType();
         }
-        return &x10aux::RuntimeType::IntType;
+        return &::x10aux::RuntimeType::IntType;
     }
-    template<> inline const x10aux::RuntimeType *getRTT<x10_float>() {
-        if (!x10aux::RuntimeType::FloatType.isInitialized) {
-            x10aux::RuntimeType::initFloatType();
+    template<> inline const ::x10aux::RuntimeType *getRTT<x10_float>() {
+        if (!::x10aux::RuntimeType::FloatType.isInitialized) {
+            ::x10aux::RuntimeType::initFloatType();
         }
-        return &x10aux::RuntimeType::FloatType;
+        return &::x10aux::RuntimeType::FloatType;
     }
-    template<> inline const x10aux::RuntimeType *getRTT<x10_long>() {
-        if (!x10aux::RuntimeType::LongType.isInitialized) {
-            x10aux::RuntimeType::initLongType();
+    template<> inline const ::x10aux::RuntimeType *getRTT<x10_long>() {
+        if (!::x10aux::RuntimeType::LongType.isInitialized) {
+            ::x10aux::RuntimeType::initLongType();
         }
-        return &x10aux::RuntimeType::LongType;
+        return &::x10aux::RuntimeType::LongType;
     }
-    template<> inline const x10aux::RuntimeType *getRTT<x10_double>() {
-        if (!x10aux::RuntimeType::DoubleType.isInitialized) {
-            x10aux::RuntimeType::initDoubleType();
+    template<> inline const ::x10aux::RuntimeType *getRTT<x10_double>() {
+        if (!::x10aux::RuntimeType::DoubleType.isInitialized) {
+            ::x10aux::RuntimeType::initDoubleType();
         }
-        return &x10aux::RuntimeType::DoubleType;
+        return &::x10aux::RuntimeType::DoubleType;
     }
-    template<> inline const x10aux::RuntimeType *getRTT<x10_complex >() {
-        if (!x10aux::RuntimeType::ComplexType.isInitialized) {
-            x10aux::RuntimeType::initComplexType();
+    template<> inline const ::x10aux::RuntimeType *getRTT<x10_complex >() {
+        if (!::x10aux::RuntimeType::ComplexType.isInitialized) {
+            ::x10aux::RuntimeType::initComplexType();
         }
-        return &x10aux::RuntimeType::ComplexType;
+        return &::x10aux::RuntimeType::ComplexType;
     }
-    template<> inline const x10aux::RuntimeType *getRTT<x10_ubyte>() {
-        if (!x10aux::RuntimeType::UByteType.isInitialized) {
-            x10aux::RuntimeType::initUByteType();
+    template<> inline const ::x10aux::RuntimeType *getRTT<x10_ubyte>() {
+        if (!::x10aux::RuntimeType::UByteType.isInitialized) {
+            ::x10aux::RuntimeType::initUByteType();
         }
-        return &x10aux::RuntimeType::UByteType;
+        return &::x10aux::RuntimeType::UByteType;
     }
-    template<> inline const x10aux::RuntimeType *getRTT<x10_ushort>() {
-        if (!x10aux::RuntimeType::UShortType.isInitialized) {
-            x10aux::RuntimeType::initUShortType();
+    template<> inline const ::x10aux::RuntimeType *getRTT<x10_ushort>() {
+        if (!::x10aux::RuntimeType::UShortType.isInitialized) {
+            ::x10aux::RuntimeType::initUShortType();
         }
-        return &x10aux::RuntimeType::UShortType;
+        return &::x10aux::RuntimeType::UShortType;
     }
-    template<> inline const x10aux::RuntimeType *getRTT<x10_uint>() {
-        if (!x10aux::RuntimeType::UIntType.isInitialized) {
-            x10aux::RuntimeType::initUIntType();
+    template<> inline const ::x10aux::RuntimeType *getRTT<x10_uint>() {
+        if (!::x10aux::RuntimeType::UIntType.isInitialized) {
+            ::x10aux::RuntimeType::initUIntType();
         }
-        return &x10aux::RuntimeType::UIntType;
+        return &::x10aux::RuntimeType::UIntType;
     }
-    template<> inline const x10aux::RuntimeType *getRTT<x10_ulong>() {
-        if (!x10aux::RuntimeType::ULongType.isInitialized) {
-            x10aux::RuntimeType::initULongType();
+    template<> inline const ::x10aux::RuntimeType *getRTT<x10_ulong>() {
+        if (!::x10aux::RuntimeType::ULongType.isInitialized) {
+            ::x10aux::RuntimeType::initULongType();
         }
-        return &x10aux::RuntimeType::ULongType;
+        return &::x10aux::RuntimeType::ULongType;
     }
 
     // This is different to getRTT because it distinguishes between T and T*
@@ -277,7 +277,7 @@ namespace x10aux {
         return TypeName<T>::_();
     }
 
-    #define TYPENAME(T) x10aux::typeName<T>()
+    #define TYPENAME(T) ::x10aux::typeName<T>()
     class BootStrapClosure;
     template<> inline const char *typeName<BootStrapClosure>() { return "BootStrapClosure"; }
     template<> inline const char *typeName<reentrant_lock>() { return "reentrant_lock"; }
@@ -288,8 +288,8 @@ namespace x10aux {
     template<> inline const char *typeName<char>() { return "char"; }
     template<> inline const char *typeName<const RuntimeType*>() { return "const RuntimeType *"; }
     template<> inline const char *typeName<RuntimeType::Variance>() { return "Variance"; }
-    template<> inline const char *typeName<x10::lang::Reference>() { return "Reference"; }
-    template<> inline const char *typeName<x10::lang::NullType>() { return "Null"; }
+    template<> inline const char *typeName< ::x10::lang::Reference>() { return "Reference"; }
+    template<> inline const char *typeName< ::x10::lang::NullType>() { return "Null"; }
 #ifndef NO_IOSTREAM
     template<> inline const char *typeName<std::stringstream>() { return "std::stringstream"; }
 #endif
@@ -300,27 +300,27 @@ namespace x10aux {
         //       have to have template specializations for all of the C primitive types
         //       and call a method on non-C primitive structs (which would then have to have
         //       C++-level vtables or pointers to RuntimeType*) to get the runtime RTT object for v.
-        return x10aux::getRTT<S>()->subtypeOf(x10aux::getRTT<T>());
+        return ::x10aux::getRTT<S>()->subtypeOf(::x10aux::getRTT<T>());
     } };
     template<class T> struct Instanceof<T, T> { static x10_boolean _(T v) {
         return true;
     } };
     template<class T, class S> struct Instanceof<T, S*> {
         static x10_boolean _(S* v) {
-            x10::lang::Reference* vAsRef = reinterpret_cast<x10::lang::Reference*>(v);
-            return x10aux::getRTT<T>()->instanceOf(vAsRef);
+            ::x10::lang::Reference* vAsRef = reinterpret_cast< ::x10::lang::Reference*>(v);
+            return ::x10aux::getRTT<T>()->instanceOf(vAsRef);
         }
     };
     // Have to specialize again to disambiguate
     template<class T> struct Instanceof<T*, T*> {
         static x10_boolean _(T* v) {
-            x10::lang::Reference* vAsRef = reinterpret_cast<x10::lang::Reference*>(v);
-            return x10aux::getRTT<T>()->instanceOf(vAsRef);
+            ::x10::lang::Reference* vAsRef = reinterpret_cast< ::x10::lang::Reference*>(v);
+            return ::x10aux::getRTT<T>()->instanceOf(vAsRef);
         }
     };
 
     template<class T, class S> inline x10_boolean instanceof(S v) {
-        return x10aux::Instanceof<T, S>::_(v);
+        return ::x10aux::Instanceof<T, S>::_(v);
     }
 
     template<class T, class S> struct ConcreteInstanceof { static x10_boolean _(S v) {
@@ -331,32 +331,32 @@ namespace x10aux {
     } };
     template<class T, class S> struct ConcreteInstanceof<T, S*> {
         static x10_boolean _(S* v) {
-            x10::lang::Reference* vAsRef = reinterpret_cast<x10::lang::Reference*>(v);
-            return x10aux::getRTT<T>()->concreteInstanceOf(vAsRef);
+            ::x10::lang::Reference* vAsRef = reinterpret_cast< ::x10::lang::Reference*>(v);
+            return ::x10aux::getRTT<T>()->concreteInstanceOf(vAsRef);
         }
     };
     // Have to specialize again to disambiguate
     template<class T> struct ConcreteInstanceof<T*, T*> {
         static x10_boolean _(T* v) {
-            x10::lang::Reference* vAsRef = reinterpret_cast<x10::lang::Reference*>(v);
-            return x10aux::getRTT<T>()->concreteInstanceOf(vAsRef);
+            ::x10::lang::Reference* vAsRef = reinterpret_cast< ::x10::lang::Reference*>(v);
+            return ::x10aux::getRTT<T>()->concreteInstanceOf(vAsRef);
         }
     };
 
     template<class T, class S> inline x10_boolean concrete_instanceof(S v) {
-        return x10aux::ConcreteInstanceof<T, S>::_(v);
+        return ::x10aux::ConcreteInstanceof<T, S>::_(v);
     }
 
     template<class T1,class T2> inline x10_boolean subtypeof() {
-        return x10aux::getRTT<T1>()->subtypeOf(x10aux::getRTT<T2>());
+        return ::x10aux::getRTT<T1>()->subtypeOf(::x10aux::getRTT<T2>());
     }
 
     template<class T1,class T2> inline x10_boolean sametype() {
-        return x10aux::getRTT<T1>()->equals(x10aux::getRTT<T2>());
+        return ::x10aux::getRTT<T1>()->equals(::x10aux::getRTT<T2>());
     }
 
     template<class T> inline x10_boolean haszero() {
-        return x10aux::getRTT<T>()->hasZero();
+        return ::x10aux::getRTT<T>()->hasZero();
     }
 
 }

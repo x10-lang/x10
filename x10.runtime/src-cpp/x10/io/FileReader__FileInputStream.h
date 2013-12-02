@@ -32,9 +32,9 @@ namespace x10 {
             explicit FileReader__FileInputStream(FILE* file) : FMGL(file)(file) { } 
             FileReader__FileInputStream() : FMGL(file)(NULL) { } 
             
-            static FileReader__FileInputStream* _make(x10::lang::String* name);
+            static FileReader__FileInputStream* _make(::x10::lang::String* name);
 
-            void _constructor (x10::lang::String* file);
+            void _constructor (::x10::lang::String* file);
             void _constructor (FILE* file);
 
             virtual char * gets(char *buf, int sz);
@@ -43,20 +43,20 @@ namespace x10 {
 
             virtual x10_int read();
 
-            virtual x10_int read(x10::lang::Rail<x10_byte>* b,
+            virtual x10_int read(::x10::lang::Rail<x10_byte>* b,
                                  x10_int off,
                                  x10_int len);
 
             virtual void skip(x10_long bytes);
 
             // Serialization
-            static const x10aux::serialization_id_t _serialization_id;
-            virtual x10aux::serialization_id_t _get_serialization_id() {
+            static const ::x10aux::serialization_id_t _serialization_id;
+            virtual ::x10aux::serialization_id_t _get_serialization_id() {
                 return _serialization_id;
             }
-            virtual void _serialize_body(x10aux::serialization_buffer& buf);
-            static x10::lang::Reference* _deserializer(x10aux::deserialization_buffer& buf);
-            void _deserialize_body(x10aux::deserialization_buffer& buf);
+            virtual void _serialize_body(::x10aux::serialization_buffer& buf);
+            static ::x10::lang::Reference* _deserializer(::x10aux::deserialization_buffer& buf);
+            void _deserialize_body(::x10aux::deserialization_buffer& buf);
         };
     }
 }

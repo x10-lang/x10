@@ -33,50 +33,50 @@ namespace x10 {
             static void remoteAdd(GlobalRef<Rail<x10_ulong>*> target, x10_long idx, x10_ulong val) {
                 Rail<x10_ulong>* remoteRail = (Rail<x10_ulong>*)target->value;
                 x10_ulong* remoteAddr = &(remoteRail->raw[idx]);  // Just doing address arithmetic, not actually dereferencing anything.
-                x10aux::remote_op(target->location, (x10rt_remote_ptr)remoteAddr, X10RT_OP_ADD, val);
+                ::x10aux::remote_op(target->location, (x10rt_remote_ptr)remoteAddr, X10RT_OP_ADD, val);
             }
                 
             static void remoteAdd(GlobalRef<Rail<x10_long>*> target, x10_long idx, x10_long val) {
                 Rail<x10_long>* remoteRail = (Rail<x10_long>*)target->value;
                 x10_long* remoteAddr = &(remoteRail->raw[idx]);  // Just doing address arithmetic, not actually dereferencing anything.
-                x10aux::remote_op(target->location, (x10rt_remote_ptr)remoteAddr, X10RT_OP_ADD, (x10_ulong)val);
+                ::x10aux::remote_op(target->location, (x10rt_remote_ptr)remoteAddr, X10RT_OP_ADD, (x10_ulong)val);
             }                
 
             static void remoteAnd(GlobalRef<Rail<x10_ulong>*> target, x10_long idx, x10_ulong val) {
                 Rail<x10_ulong>* remoteRail = (Rail<x10_ulong>*)target->value;
                 x10_ulong* remoteAddr = &(remoteRail->raw[idx]);  // Just doing address arithmetic, not actually dereferencing anything.
-                x10aux::remote_op(target->location, (x10rt_remote_ptr)remoteAddr, X10RT_OP_AND, val);
+                ::x10aux::remote_op(target->location, (x10rt_remote_ptr)remoteAddr, X10RT_OP_AND, val);
             }                
 
             static void remoteAnd(GlobalRef<Rail<x10_long>*> target, x10_long idx, x10_long val) {
                 Rail<x10_long>* remoteRail = (Rail<x10_long>*)target->value;
                 x10_long* remoteAddr = &(remoteRail->raw[idx]);  // Just doing address arithmetic, not actually dereferencing anything.
-                x10aux::remote_op(target->location, (x10rt_remote_ptr)remoteAddr, X10RT_OP_AND, (x10_ulong)val);
+                ::x10aux::remote_op(target->location, (x10rt_remote_ptr)remoteAddr, X10RT_OP_AND, (x10_ulong)val);
             }
                 
 
             static void remoteOr(GlobalRef<Rail<x10_ulong>*> target, x10_long idx, x10_ulong val) {
                 Rail<x10_ulong>* remoteRail = (Rail<x10_ulong>*)target->value;
                 x10_ulong* remoteAddr = &(remoteRail->raw[idx]);  // Just doing address arithmetic, not actually dereferencing anything.
-                x10aux::remote_op(target->location, (x10rt_remote_ptr)remoteAddr, X10RT_OP_OR, val);
+                ::x10aux::remote_op(target->location, (x10rt_remote_ptr)remoteAddr, X10RT_OP_OR, val);
             }                
 
             static void remoteOr(GlobalRef<Rail<x10_long>*> target, x10_long idx, x10_long val) {
                 Rail<x10_long>* remoteRail = (Rail<x10_long>*)target->value;
                 x10_long* remoteAddr = &(remoteRail->raw[idx]);  // Just doing address arithmetic, not actually dereferencing anything.
-                x10aux::remote_op(target->location, (x10rt_remote_ptr)remoteAddr, X10RT_OP_OR, (x10_ulong)val);
+                ::x10aux::remote_op(target->location, (x10rt_remote_ptr)remoteAddr, X10RT_OP_OR, (x10_ulong)val);
             }                
 
             static void remoteXor(GlobalRef<Rail<x10_ulong>*> target, x10_long idx, x10_ulong val) {
                 Rail<x10_ulong>* remoteRail = (Rail<x10_ulong>*)target->value;
                 x10_ulong* remoteAddr = &(remoteRail->raw[idx]);  // Just doing address arithmetic, not actually dereferencing anything.
-                x10aux::remote_op(target->location, (x10rt_remote_ptr)remoteAddr, X10RT_OP_XOR, val);
+                ::x10aux::remote_op(target->location, (x10rt_remote_ptr)remoteAddr, X10RT_OP_XOR, val);
             }
                 
             static void remoteXor(GlobalRef<Rail<x10_long>*> target, x10_long idx, x10_long val) {
                 Rail<x10_long>* remoteRail = (Rail<x10_long>*)target->value;
                 x10_long* remoteAddr = &(remoteRail->raw[idx]);  // Just doing address arithmetic, not actually dereferencing anything.
-                x10aux::remote_op(target->location, (x10rt_remote_ptr)remoteAddr, X10RT_OP_XOR, (x10_ulong)val);
+                ::x10aux::remote_op(target->location, (x10rt_remote_ptr)remoteAddr, X10RT_OP_XOR, (x10_ulong)val);
             }
 
             /*
@@ -85,50 +85,50 @@ namespace x10 {
              */
             static void remoteAdd(x10_long placeId, Rail<x10_ulong>* target, x10_long idx, x10_ulong val) {
                 x10_ulong* remoteAddr = &(target->raw[idx]);  // Just doing address arithmetic, not actually dereferencing anything.
-                x10aux::remote_op((x10rt_place)placeId, (x10rt_remote_ptr)remoteAddr, X10RT_OP_ADD, val);
+                ::x10aux::remote_op((x10rt_place)placeId, (x10rt_remote_ptr)remoteAddr, X10RT_OP_ADD, val);
             }
 
             static void remoteAdd(x10_long placeId, Rail<x10_long>* target, x10_long idx, x10_ulong val) {
                 x10_long* remoteAddr = &(target->raw[idx]);  // Just doing address arithmetic, not actually dereferencing anything.
-                x10aux::remote_op((x10rt_place)placeId, (x10rt_remote_ptr)remoteAddr, X10RT_OP_ADD, val);
+                ::x10aux::remote_op((x10rt_place)placeId, (x10rt_remote_ptr)remoteAddr, X10RT_OP_ADD, val);
             }
 
             static void remoteAnd(x10_long placeId, Rail<x10_ulong>* target, x10_long idx, x10_ulong val) {
                 x10_ulong* remoteAddr = &(target->raw[idx]);  // Just doing address arithmetic, not actually dereferencing anything.
-                x10aux::remote_op((x10rt_place)placeId, (x10rt_remote_ptr)remoteAddr, X10RT_OP_AND, val);
+                ::x10aux::remote_op((x10rt_place)placeId, (x10rt_remote_ptr)remoteAddr, X10RT_OP_AND, val);
             }
 
             static void remoteAnd(x10_long placeId, Rail<x10_long>* target, x10_long idx, x10_ulong val) {
                 x10_long* remoteAddr = &(target->raw[idx]);  // Just doing address arithmetic, not actually dereferencing anything.
-                x10aux::remote_op((x10rt_place)placeId, (x10rt_remote_ptr)remoteAddr, X10RT_OP_AND, val);
+                ::x10aux::remote_op((x10rt_place)placeId, (x10rt_remote_ptr)remoteAddr, X10RT_OP_AND, val);
             }
 
             static void remoteOr(x10_long placeId, Rail<x10_ulong>* target, x10_long idx, x10_ulong val) {
                 x10_ulong* remoteAddr = &(target->raw[idx]);  // Just doing address arithmetic, not actually dereferencing anything.
-                x10aux::remote_op((x10rt_place)placeId, (x10rt_remote_ptr)remoteAddr, X10RT_OP_OR, val);
+                ::x10aux::remote_op((x10rt_place)placeId, (x10rt_remote_ptr)remoteAddr, X10RT_OP_OR, val);
             }
 
             static void remoteOr(x10_long placeId, Rail<x10_long>* target, x10_long idx, x10_ulong val) {
                 x10_long* remoteAddr = &(target->raw[idx]);  // Just doing address arithmetic, not actually dereferencing anything.
-                x10aux::remote_op((x10rt_place)placeId, (x10rt_remote_ptr)remoteAddr, X10RT_OP_OR, val);
+                ::x10aux::remote_op((x10rt_place)placeId, (x10rt_remote_ptr)remoteAddr, X10RT_OP_OR, val);
             }
 
             static void remoteXor(x10_long placeId, Rail<x10_ulong>* target, x10_long idx, x10_ulong val) {
                 x10_ulong* remoteAddr = &(target->raw[idx]);  // Just doing address arithmetic, not actually dereferencing anything.
-                x10aux::remote_op((x10rt_place)placeId, (x10rt_remote_ptr)remoteAddr, X10RT_OP_XOR, val);
+                ::x10aux::remote_op((x10rt_place)placeId, (x10rt_remote_ptr)remoteAddr, X10RT_OP_XOR, val);
             }
 
             static void remoteXor(x10_long placeId, Rail<x10_long>* target, x10_long idx, x10_ulong val) {
                 x10_long* remoteAddr = &(target->raw[idx]);  // Just doing address arithmetic, not actually dereferencing anything.
-                x10aux::remote_op((x10rt_place)placeId, (x10rt_remote_ptr)remoteAddr, X10RT_OP_XOR, val);
+                ::x10aux::remote_op((x10rt_place)placeId, (x10rt_remote_ptr)remoteAddr, X10RT_OP_XOR, val);
             }
 
             static void registerForRemoteOps(Rail<x10_long>* rail) {
-                x10aux::register_mem(&rail->raw[0], sizeof(x10_long)*rail->FMGL(size));
+                ::x10aux::register_mem(&rail->raw[0], sizeof(x10_long)*rail->FMGL(size));
             }
 
             static void registerForRemoteOps(Rail<x10_ulong>* rail) {
-                x10aux::register_mem(&rail->raw[0], sizeof(x10_ulong)*rail->FMGL(size));
+                ::x10aux::register_mem(&rail->raw[0], sizeof(x10_ulong)*rail->FMGL(size));
             }
         };
     }

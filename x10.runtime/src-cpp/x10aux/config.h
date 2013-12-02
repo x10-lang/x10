@@ -204,8 +204,8 @@ namespace x10aux {
 
 #define _DEBUG_MSG(col,type,msg) do { \
     std::stringstream ss; \
-    if (x10aux::x10rt_initialized) \
-        ss << ANSI_BOLD << x10aux::here << ": " << col << type << ": " << ANSI_RESET << msg; \
+    if (::x10aux::x10rt_initialized)                                    \
+        ss << ANSI_BOLD << ::x10aux::here << ": " << col << type << ": " << ANSI_RESET << msg; \
     else \
         ss << ANSI_BOLD << col << type << ": " << ANSI_RESET << msg; \
     fprintf(stderr,"%s\n",ss.str().c_str()); \

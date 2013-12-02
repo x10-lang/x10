@@ -22,7 +22,7 @@ namespace x10 {
 
     namespace io {
 
-        class InputStreamReader__InputStream : public x10::lang::X10Class {
+        class InputStreamReader__InputStream : public ::x10::lang::X10Class {
         public:
             RTT_H_DECLS_CLASS;
 
@@ -41,9 +41,9 @@ namespace x10 {
 
             virtual x10_int read() = 0;
 
-            virtual x10_int read(x10::lang::Rail<x10_byte>* b);
+            virtual x10_int read(::x10::lang::Rail<x10_byte>* b);
 
-            virtual x10_int read(x10::lang::Rail<x10_byte>* b,
+            virtual x10_int read(::x10::lang::Rail<x10_byte>* b,
                                  x10_int off,
                                  x10_int len);
             
@@ -60,8 +60,8 @@ namespace x10 {
             static InputStreamReader__InputStream* STANDARD_IN();
 
             // Serialization
-            virtual void _serialize_body(x10aux::serialization_buffer& buf);
-            void _deserialize_body(x10aux::deserialization_buffer& buf);
+            virtual void _serialize_body(::x10aux::serialization_buffer& buf);
+            void _deserialize_body(::x10aux::deserialization_buffer& buf);
         };
     }
 }

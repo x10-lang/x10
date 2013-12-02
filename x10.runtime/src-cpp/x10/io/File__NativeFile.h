@@ -25,39 +25,39 @@ namespace x10 {
 
     namespace io {
 
-        class File__NativeFile : public x10::lang::X10Class {
+        class File__NativeFile : public ::x10::lang::X10Class {
             public:
             RTT_H_DECLS_CLASS;
 
         private:
 
-            x10::lang::String* path;
+            ::x10::lang::String* path;
 
             virtual x10_boolean mkdirs(const char *s);
 
         public:
 
-            static File__NativeFile* _make(x10::lang::String* s);
-            File__NativeFile* _constructor(x10::lang::String* s) {
+            static File__NativeFile* _make(::x10::lang::String* s);
+            File__NativeFile* _constructor(::x10::lang::String* s) {
                 path = s;
                 return this;
             }
 
-            static const x10aux::serialization_id_t _serialization_id;
+            static const ::x10aux::serialization_id_t _serialization_id;
 
-            virtual x10aux::serialization_id_t _get_serialization_id() { return _serialization_id; };
+            virtual ::x10aux::serialization_id_t _get_serialization_id() { return _serialization_id; };
 
-            virtual void _serialize_body(x10aux::serialization_buffer &buf);
+            virtual void _serialize_body(::x10aux::serialization_buffer &buf);
 
-            static x10::lang::Reference* _deserializer(x10aux::deserialization_buffer &buf);
+            static ::x10::lang::Reference* _deserializer(::x10aux::deserialization_buffer &buf);
 
-            virtual void _deserialize_body(x10aux::deserialization_buffer& buf);
+            virtual void _deserialize_body(::x10aux::deserialization_buffer& buf);
 
-            virtual x10::lang::String* getPath() { return path; }
+            virtual ::x10::lang::String* getPath() { return path; }
 
-            virtual x10::lang::String* getAbsolutePath();
+            virtual ::x10::lang::String* getAbsolutePath();
 
-            virtual x10::lang::String* getCanonicalPath();
+            virtual ::x10::lang::String* getCanonicalPath();
 
             virtual x10_boolean canRead();
 
@@ -79,7 +79,7 @@ namespace x10 {
 
             virtual x10_boolean del();
 
-            virtual x10::lang::Rail<x10::lang::String*>* list();
+            virtual ::x10::lang::Rail< ::x10::lang::String*>* list();
 
             virtual x10_boolean mkdir();
 

@@ -28,7 +28,7 @@ namespace x10 {
         * Expert Group and released to the public domain, as explained at
         * http://creativecommons.org/licenses/publicdomain
         */
-        class Deque : public x10::lang::X10Class {
+        class Deque : public ::x10::lang::X10Class {
         public:
             RTT_H_DECLS_CLASS;
 
@@ -36,15 +36,15 @@ namespace x10 {
 
             Deque* _constructor();
 
-            static const x10aux::serialization_id_t _serialization_id;
+            static const ::x10aux::serialization_id_t _serialization_id;
 
-            virtual x10aux::serialization_id_t _get_serialization_id() { return _serialization_id; };
+            virtual ::x10aux::serialization_id_t _get_serialization_id() { return _serialization_id; };
 
-            virtual void _serialize_body(x10aux::serialization_buffer &buf);
+            virtual void _serialize_body(::x10aux::serialization_buffer &buf);
 
-            static x10::lang::Reference* _deserializer(x10aux::deserialization_buffer &buf);
+            static ::x10::lang::Reference* _deserializer(::x10aux::deserialization_buffer &buf);
 
-            virtual void _deserialize_body(x10aux::deserialization_buffer& buf);
+            virtual void _deserialize_body(::x10aux::deserialization_buffer& buf);
 
 #ifndef __FCC_VERSION
         private:
@@ -56,16 +56,16 @@ namespace x10 {
                 x10_int capacity;
                 volatile void** data;
             };
-            template<class T> friend const char *x10aux::typeName();
+            template<class T> friend const char *::x10aux::typeName();
 
 
             /**
              * Add in store-order the given task at given slot of q.
              * Caller must ensure q is nonnull and index is in range.
              */
-            inline void setSlot(Slots *q, int i, x10::lang::Any *t) {
+            inline void setSlot(Slots *q, int i, ::x10::lang::Any *t) {
                 q->data[i] = t;
-                x10aux::atomic_ops::store_store_barrier();
+                ::x10aux::atomic_ops::store_store_barrier();
             }
 
 
@@ -73,8 +73,8 @@ namespace x10 {
              * CAS given slot of q to null. Caller must ensure q is nonnull
              * and index is in range.
              */
-            inline bool casSlotNull(Slots *q, int i, x10::lang::Any* t) {
-                return x10aux::atomic_ops::compareAndSet_ptr(&(q->data[i]), t, NULL) == t;
+            inline bool casSlotNull(Slots *q, int i, ::x10::lang::Any* t) {
+                return ::x10aux::atomic_ops::compareAndSet_ptr(&(q->data[i]), t, NULL) == t;
             }
 
             /**
@@ -82,7 +82,7 @@ namespace x10 {
              */
             inline void storeSp(int s) {
                 sp = s;
-                x10aux::atomic_ops::store_store_barrier();
+                ::x10aux::atomic_ops::store_store_barrier();
             }
 
             /**
@@ -97,7 +97,7 @@ namespace x10 {
              * Pushes a task. Called only by current thread.
              * @param t the task. Caller must ensure nonnull
              */
-            void push(x10::lang::Any* t) {
+            void push(::x10::lang::Any* t) {
                 Slots *q = queue;
                 int mask = q->capacity - 1;
                 int s = sp;
@@ -115,13 +115,13 @@ namespace x10 {
              * either empty or contended.
              * @return a task, or null if none or contended.
              */
-            x10::lang::Any* steal();
+            ::x10::lang::Any* steal();
 
             /**
              * Returns a popped task, or null if empty. Ensures active status
              * if nonnull. Called only by current thread.
              */
-            x10::lang::Any* poll() {
+            ::x10::lang::Any* poll() {
                 int s = sp;
                 while (s != base) {
                     Slots *q = queue;
@@ -139,9 +139,9 @@ namespace x10 {
             /**
              * Returns next task to pop.
              */
-            inline x10::lang::Any* peekTask() {
+            inline ::x10::lang::Any* peekTask() {
                 Slots *q = queue;
-                return q == NULL ? NULL : (x10::lang::Any*)(q->data[(sp - 1) & (q->capacity - 1)]);
+                return q == NULL ? NULL : (::x10::lang::Any*)(q->data[(sp - 1) & (q->capacity - 1)]);
             }
 
             /**
@@ -187,7 +187,7 @@ namespace x10 {
 }
 
 namespace x10aux {
-    template<> inline const char *typeName<x10::lang::Deque::Slots>() { return "x10::lang::Deque::Slots"; }
+    template<> inline const char *typeName< ::x10::lang::Deque::Slots>() { return "::x10::lang::Deque::Slots"; }
 }
 
 #endif /* X10_LANG_DEQUE_H */

@@ -29,15 +29,15 @@ namespace x10 {
         * is not owned by another thread.  The method will return
         * immediately if the calling thread already owns the lock.
         */
-        class Lock__ReentrantLock : public x10::lang::X10Class {
+        class Lock__ReentrantLock : public ::x10::lang::X10Class {
         public:
             RTT_H_DECLS_CLASS;
     
-            virtual x10aux::serialization_id_t _get_serialization_id() {
+            virtual ::x10aux::serialization_id_t _get_serialization_id() {
                 fprintf(stderr, "Lock cannot be serialized.  (Lock__ReentrantLock.h)\n");
                 abort();
             }
-            virtual void _serialize_body(x10aux::serialization_buffer&) {
+            virtual void _serialize_body(::x10aux::serialization_buffer&) {
                 fprintf(stderr, "Lock cannot be serialized.  (Lock__ReentrantLock.h)\n");
                 abort();
             }
@@ -94,7 +94,7 @@ namespace x10 {
             x10_int getHoldCount() { return _lock.getHoldCount(); }
 
         private:
-            x10aux::reentrant_lock _lock;
+            ::x10aux::reentrant_lock _lock;
             void raiseException();
         };
     }

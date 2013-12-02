@@ -157,21 +157,21 @@ namespace x10aux {
         _X_("X10RT shutdown complete");
     }
 
-    x10::lang::String *runtime_name (void);
+    ::x10::lang::String *runtime_name (void);
 }
 
 namespace x10aux {
 
-    void run_closure_at (place p, x10::lang::VoidFun_0_0* body, x10::lang::Runtime__Profile *prof=NULL, endpoint e=0);
-    void run_async_at (place p, x10::lang::VoidFun_0_0* body, x10::lang::FinishState* fs, x10::lang::Runtime__Profile *prof=NULL, endpoint e=0);
+    void run_closure_at (place p, ::x10::lang::VoidFun_0_0* body, ::x10::lang::Runtime__Profile *prof=NULL, endpoint e=0);
+    void run_async_at (place p, ::x10::lang::VoidFun_0_0* body, ::x10::lang::FinishState* fs, ::x10::lang::Runtime__Profile *prof=NULL, endpoint e=0);
 
     class serialization_buffer;
 
     void send_get (place p, serialization_id_t id,
-                   serialization_buffer &buf, void *data, x10aux::copy_sz len, endpoint e=0);
+                   serialization_buffer &buf, void *data, ::x10aux::copy_sz len, endpoint e=0);
    
     void send_put (place p, serialization_id_t id,
-                   serialization_buffer &buf, void *data, x10aux::copy_sz len, endpoint e=0);
+                   serialization_buffer &buf, void *data, ::x10aux::copy_sz len, endpoint e=0);
 
     void cuda_put (place gpu, x10_ulong addr, void *var, size_t sz);
 

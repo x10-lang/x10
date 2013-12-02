@@ -36,8 +36,8 @@ namespace x10 {
 
             static Comparable<String*>::itable<String> _itable_Comparable;
             static CharSequence::itable<String> _itable_CharSequence;
-            static x10aux::itable_entry _itables[3];
-            virtual x10aux::itable_entry* _getITables() { return _itables; }
+            static ::x10aux::itable_entry _itables[3];
+            virtual ::x10aux::itable_entry* _getITables() { return _itables; }
 
             void _constructor(const char *content, bool steal);
             // Set steal to true if you have just allocated the char * with
@@ -46,39 +46,39 @@ namespace x10 {
             // Leave it false for 'static' malloced char* such as the RTT type
             // names that also ought not to be freed.
             static String* _make(const char *content, bool steal) {
-                String* this_ = new (x10aux::alloc<String>()) String();
+                String* this_ = new (::x10aux::alloc<String>()) String();
                 this_->_constructor(content, steal);
                 return this_;
             }
 
             void _constructor();
             static String* _make() {
-                String* this_ = new (x10aux::alloc<String>()) String();
+                String* this_ = new (::x10aux::alloc<String>()) String();
                 this_->_constructor();
                 return this_;
             }
 
             void _constructor(String* s);
             static String* _make(String* s) {
-                String* this_ = new (x10aux::alloc<String>()) String();
+                String* this_ = new (::x10aux::alloc<String>()) String();
                 this_->_constructor(s);
                 return this_;
             }
 
-            static String* _make(x10::lang::Rail<x10_byte>* rail);
+            static String* _make(::x10::lang::Rail<x10_byte>* rail);
 
-            void _constructor(x10::lang::Rail<x10_byte>* rail, x10_int start, x10_int length);
-            static String* _make(x10::lang::Rail<x10_byte>* rail, x10_int start, x10_int length) {
-                String* this_ = new (x10aux::alloc<String>()) String();
+            void _constructor(::x10::lang::Rail<x10_byte>* rail, x10_int start, x10_int length);
+            static String* _make(::x10::lang::Rail<x10_byte>* rail, x10_int start, x10_int length) {
+                String* this_ = new (::x10aux::alloc<String>()) String();
                 this_->_constructor(rail, start, length);
                 return this_;
             }
 
-            static String* _make(x10::lang::Rail<x10_char>* rail);
+            static String* _make(::x10::lang::Rail<x10_char>* rail);
             
-            void _constructor(x10::lang::Rail<x10_char>* rail, x10_int start, x10_int length);
-            static String* _make(x10::lang::Rail<x10_char>* rail, x10_int start, x10_int length) {
-                String* this_ = new (x10aux::alloc<String>()) String();
+            void _constructor(::x10::lang::Rail<x10_char>* rail, x10_int start, x10_int length);
+            static String* _make(::x10::lang::Rail<x10_char>* rail, x10_int start, x10_int length) {
+                String* this_ = new (::x10aux::alloc<String>()) String();
                 this_->_constructor(rail, start, length);
                 return this_;
             }
@@ -131,44 +131,44 @@ namespace x10 {
             
             x10_char charAt(x10_int i);
 
-            x10::lang::Rail<x10_char>* chars();
+            ::x10::lang::Rail<x10_char>* chars();
 
-            x10::lang::Rail<x10_byte>* bytes();
+            ::x10::lang::Rail<x10_byte>* bytes();
 
-            static const x10aux::serialization_id_t _serialization_id;
+            static const ::x10aux::serialization_id_t _serialization_id;
 
-            virtual x10aux::serialization_id_t _get_serialization_id() { return _serialization_id; };
+            virtual ::x10aux::serialization_id_t _get_serialization_id() { return _serialization_id; };
 
-            virtual void _serialize_body(x10aux::serialization_buffer& buf);
+            virtual void _serialize_body(::x10aux::serialization_buffer& buf);
 
-            static Reference* _deserializer(x10aux::deserialization_buffer &buf);
+            static Reference* _deserializer(::x10aux::deserialization_buffer &buf);
 
-            void _deserialize_body(x10aux::deserialization_buffer &buf);
+            void _deserialize_body(::x10aux::deserialization_buffer &buf);
 
             virtual void _destructor();
 
-            static String* format(String* format, x10::lang::Rail<Any*>* parms);
+            static String* format(String* format, ::x10::lang::Rail<Any*>* parms);
 
-            virtual x10_boolean equals(x10::lang::Any* p0);
+            virtual x10_boolean equals(::x10::lang::Any* p0);
 
-            x10_boolean equalsIgnoreCase(x10::lang::String* s);
+            x10_boolean equalsIgnoreCase(::x10::lang::String* s);
 
             String* toLowerCase();
 
             String* toUpperCase();
 
-            x10_int compareTo(x10::lang::String* s);
+            x10_int compareTo(::x10::lang::String* s);
 
-            x10_int compareToIgnoreCase(x10::lang::String* s);
+            x10_int compareToIgnoreCase(::x10::lang::String* s);
 
-            x10_boolean startsWith(x10::lang::String* s);
+            x10_boolean startsWith(::x10::lang::String* s);
 
-            x10_boolean endsWith(x10::lang::String* s);
+            x10_boolean endsWith(::x10::lang::String* s);
 
             String () : FMGL(content)(NULL) { }
             virtual ~String () {
                 #ifndef X10_USE_BDWGC
-                x10aux::dealloc(FMGL(content));
+                ::x10aux::dealloc(FMGL(content));
                 #endif
             }
 
@@ -196,10 +196,10 @@ namespace x10 {
         };
 
         template<class T> String* x10::lang::String::__plus(T p1, String* p2) {
-            return String::__plus(x10aux::safe_to_string(p1), p2);
+            return String::__plus(::x10aux::safe_to_string(p1), p2);
         }
         template<class T> String* x10::lang::String::__plus(String* p1, T p2) {
-            return String::__plus(p1, x10aux::safe_to_string(p2));
+            return String::__plus(p1, ::x10aux::safe_to_string(p2));
         }
 
         #ifndef NO_IOSTREAM
@@ -208,7 +208,7 @@ namespace x10 {
         }
         #endif
 
-    } // namespace x10::lang
+    } // namespace ::x10::lang
 
 } // namespace x10
 

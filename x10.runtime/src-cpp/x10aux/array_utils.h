@@ -31,7 +31,7 @@ namespace x10aux {
     //
     // @Native("c++", "f(lookup_or_null(#arr, #offset))")
     // static def f(arr:Rail[C], offset:Int) { }
-    template<class T> T *lookup_or_null (x10::lang::Rail<T>* arr, x10_int offset)
+    template<class T> T *lookup_or_null (::x10::lang::Rail<T>* arr, x10_int offset)
     {
         if (NULL == arr) return NULL;
         return &arr->raw()->raw()[offset];

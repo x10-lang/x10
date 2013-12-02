@@ -44,22 +44,22 @@ namespace x10 {
         template <> class Rail<void>;
         class Place;
         
-        extern const x10aux::serialization_id_t Rail_copy_to_serialization_id;
-        extern const x10aux::serialization_id_t Rail_copy_from_serialization_id;
+        extern const ::x10aux::serialization_id_t Rail_copy_to_serialization_id;
+        extern const ::x10aux::serialization_id_t Rail_copy_from_serialization_id;
 
-        extern const x10aux::serialization_id_t Rail_uncounted_copy_to_serialization_id;
-        extern const x10aux::serialization_id_t Rail_unconuted_copy_from_serialization_id;
+        extern const ::x10aux::serialization_id_t Rail_uncounted_copy_to_serialization_id;
+        extern const ::x10aux::serialization_id_t Rail_unconuted_copy_from_serialization_id;
         
-        extern void Rail_notifyEnclosingFinish(x10aux::deserialization_buffer&);
-        extern void Rail_serialize_finish_state(x10aux::place, x10aux::serialization_buffer&);
-	    extern void *Rail_buffer_finder(x10aux::deserialization_buffer&, x10_int);
-        extern void Rail_notifier(x10aux::deserialization_buffer&, x10_int);
-        extern void Rail_uncounted_notifier(x10aux::deserialization_buffer&, x10_int);
+        extern void Rail_notifyEnclosingFinish(::x10aux::deserialization_buffer&);
+        extern void Rail_serialize_finish_state(::x10aux::place, ::x10aux::serialization_buffer&);
+	    extern void *Rail_buffer_finder(::x10aux::deserialization_buffer&, x10_int);
+        extern void Rail_notifier(::x10aux::deserialization_buffer&, x10_int);
+        extern void Rail_uncounted_notifier(::x10aux::deserialization_buffer&, x10_int);
 
         extern void Rail_copyToBody(void *srcAddr, void *dstAddr, x10_int numBytes,
-                                   x10::lang::Place dstPlace, bool overlap, x10::lang::VoidFun_0_0* notif);
+                                   ::x10::lang::Place dstPlace, bool overlap, ::x10::lang::VoidFun_0_0* notif);
         extern void Rail_copyFromBody(void *srcAddr, void *dstAddr, x10_int numBytes,
-                                     x10::lang::Place srcPlace, bool overlap, x10::lang::VoidFun_0_0* notif);
+                                     ::x10::lang::Place srcPlace, bool overlap, ::x10::lang::VoidFun_0_0* notif);
         extern void Rail_copyBody(void *srcAddr, void *dstAddr, x10_int numBytes, bool overlap);
         
         extern void failAllocNoPointers(const char* msg);
@@ -73,14 +73,14 @@ namespace x10 {
             // the bounds check can be optimized to a single unsigned comparison.
             // The C++ compiler won't do this for us, since it doesn't know that size is non-negative.
             if (((x10_ulong)index) >= ((x10_ulong)size)) {
-                x10::lang::throwArrayIndexOutOfBoundsException(index, size);
+                ::x10::lang::throwArrayIndexOutOfBoundsException(index, size);
             }
             #endif
         }
 
         extern void rail_copyRaw(void *srcAddr, void *dstAddr, x10_long numBytes, bool overlap);
 
-        template<class T> class Rail : public x10::lang::X10Class   {
+        template<class T> class Rail : public ::x10::lang::X10Class   {
           public:
             RTT_H_DECLS_CLASS
             #ifdef __i386__
@@ -92,36 +92,36 @@ namespace x10 {
 
             Rail(x10_long numElems) : FMGL(size)(numElems) { }
             
-            static x10aux::itable_entry _itables[3];
-            virtual x10aux::itable_entry* _getITables() { return _itables; }
-            static typename x10::lang::Iterable<T>::template itable<x10::lang::Rail<T> > _itable_0;
-            static typename x10::lang::Fun_0_1<x10_long, T>::template itable<x10::lang::Rail<T> > _itable_1;
+            static ::x10aux::itable_entry _itables[3];
+            virtual ::x10aux::itable_entry* _getITables() { return _itables; }
+            static typename ::x10::lang::Iterable<T>::template itable< ::x10::lang::Rail<T> > _itable_0;
+            static typename ::x10::lang::Fun_0_1<x10_long, T>::template itable< ::x10::lang::Rail<T> > _itable_1;
     
-            static x10::lang::Rail<T>* _make();
+            static ::x10::lang::Rail<T>* _make();
             void _constructor();
     
-            static x10::lang::Rail<T>* _makeUnsafe(x10_long size, x10_boolean allocatedZeroed);
+            static ::x10::lang::Rail<T>* _makeUnsafe(x10_long size, x10_boolean allocatedZeroed);
     
-            static x10::lang::Rail<T>* _make(x10::lang::Rail<T>* src);
-            void _constructor(x10::lang::Rail<T>* src);
+            static ::x10::lang::Rail<T>* _make(::x10::lang::Rail<T>* src);
+            void _constructor(::x10::lang::Rail<T>* src);
     
-            static x10::lang::Rail<T>* _make(x10_long size);
+            static ::x10::lang::Rail<T>* _make(x10_long size);
             void _constructor(x10_long size);
     
-            static x10::lang::Rail<T>* _make(x10_long size, T init);
+            static ::x10::lang::Rail<T>* _make(x10_long size, T init);
             void _constructor(x10_long size, T init);
 
-            static x10::lang::Rail<T>* _make(x10_long size, x10::lang::Fun_0_1<x10_long, T>* init);
-            void _constructor(x10_long size, x10::lang::Fun_0_1<x10_long, T>* init);
+            static ::x10::lang::Rail<T>* _make(x10_long size, ::x10::lang::Fun_0_1<x10_long, T>* init);
+            void _constructor(x10_long size, ::x10::lang::Fun_0_1<x10_long, T>* init);
 
-            static x10::lang::Rail<T>* _make(x10_long size, x10::lang::Runtime__MemoryAllocator* alloc);
-            void _constructor(x10_long size,  x10::lang::Runtime__MemoryAllocator* alloc);
+            static ::x10::lang::Rail<T>* _make(x10_long size, ::x10::lang::Runtime__MemoryAllocator* alloc);
+            void _constructor(x10_long size,  ::x10::lang::Runtime__MemoryAllocator* alloc);
             
-            x10::lang::LongRange range();
+            ::x10::lang::LongRange range();
 
-            x10::lang::Iterator<T>* iterator();
+            ::x10::lang::Iterator<T>* iterator();
 
-            virtual x10::lang::String* toString();
+            virtual ::x10::lang::String* toString();
 
             T __apply(x10_long index) {
                 checkBounds(index, FMGL(size));
@@ -156,69 +156,69 @@ namespace x10 {
             void clear(x10_long start, x10_long numElems);
     
             // Serialization
-            static const x10aux::serialization_id_t _serialization_id;
-            x10aux::serialization_id_t _get_serialization_id() {
+            static const ::x10aux::serialization_id_t _serialization_id;
+            ::x10aux::serialization_id_t _get_serialization_id() {
                 return _serialization_id;
             }
     
-            void _serialize_body(x10aux::serialization_buffer& buf);
+            void _serialize_body(::x10aux::serialization_buffer& buf);
 
-            static x10::lang::Reference* _deserializer(x10aux::deserialization_buffer& buf);
-            void _deserialize_body(x10aux::deserialization_buffer& buf);
+            static ::x10::lang::Reference* _deserializer(::x10aux::deserialization_buffer& buf);
+            void _deserialize_body(::x10aux::deserialization_buffer& buf);
         };
 
 
         // RTT
-        template<class T> x10aux::RuntimeType x10::lang::Rail<T>::rtt;
+        template<class T> ::x10aux::RuntimeType x10::lang::Rail<T>::rtt;
 
         template<class T> void x10::lang::Rail<T>::_initRTT() {
-            const x10aux::RuntimeType *canonical = x10aux::getRTT<x10::lang::Rail<void> >();
+            const ::x10aux::RuntimeType *canonical = ::x10aux::getRTT< ::x10::lang::Rail<void> >();
             if (rtt.initStageOne(canonical)) return;
-            const x10aux::RuntimeType* parents[2] = { x10aux::getRTT<x10::lang::Iterable<T> >(),
-                                                      x10aux::getRTT<x10::lang::Fun_0_1<x10_long, T> >()
+            const ::x10aux::RuntimeType* parents[2] = { ::x10aux::getRTT< ::x10::lang::Iterable<T> >(),
+                                                      ::x10aux::getRTT< ::x10::lang::Fun_0_1<x10_long, T> >()
             };
-            const x10aux::RuntimeType* params[1] = { x10aux::getRTT<T>()};
-            x10aux::RuntimeType::Variance variances[1] = { x10aux::RuntimeType::invariant};
+            const ::x10aux::RuntimeType* params[1] = { ::x10aux::getRTT<T>()};
+            ::x10aux::RuntimeType::Variance variances[1] = { ::x10aux::RuntimeType::invariant};
             const char *baseName = "x10.lang.Rail";
-            rtt.initStageTwo(baseName, x10aux::RuntimeType::class_kind, 2, parents, 1, params, variances);
+            rtt.initStageTwo(baseName, ::x10aux::RuntimeType::class_kind, 2, parents, 1, params, variances);
         }
 
 
         // Static methods
-        template <> class Rail<void> : public x10::lang::X10Class {
+        template <> class Rail<void> : public ::x10::lang::X10Class {
         public:
-            static x10aux::RuntimeType rtt;
-            static const x10aux::RuntimeType* getRTT() { return & rtt; }
-            template<class T> static void copy(x10::lang::Rail<T>* src,
-                                               x10::lang::Rail<T>* dst);
+            static ::x10aux::RuntimeType rtt;
+            static const ::x10aux::RuntimeType* getRTT() { return & rtt; }
+            template<class T> static void copy(::x10::lang::Rail<T>* src,
+                                               ::x10::lang::Rail<T>* dst);
     
-            template<class T> static void copy(x10::lang::Rail<T>* src,
-                                               x10_long srcIndex, x10::lang::Rail<T>* dst,
+            template<class T> static void copy(::x10::lang::Rail<T>* src,
+                                               x10_long srcIndex, ::x10::lang::Rail<T>* dst,
                                                x10_long dstIndex, x10_long numElems);
     
-            template<class T> static void asyncCopy(x10::lang::Rail<T>* src, x10_long srcIndex,
-                                                    x10::lang::GlobalRail<T> dst, x10_long dstIndex,
+            template<class T> static void asyncCopy(::x10::lang::Rail<T>* src, x10_long srcIndex,
+                                                    ::x10::lang::GlobalRail<T> dst, x10_long dstIndex,
                                                     x10_long numElems);
 
-            template<class T> static void asyncCopy(x10::lang::GlobalRail<T> src, x10_long srcIndex,
-                                                    x10::lang::Rail<T>* dst, x10_long dstIndex,
+            template<class T> static void asyncCopy(::x10::lang::GlobalRail<T> src, x10_long srcIndex,
+                                                    ::x10::lang::Rail<T>* dst, x10_long dstIndex,
                                                     x10_long numElems);
 
-            template<class T> static void uncountedCopy(x10::lang::Rail<T>* src, x10_long srcIndex,
-                                                        x10::lang::GlobalRail<T> dst, x10_long dstIndex,
+            template<class T> static void uncountedCopy(::x10::lang::Rail<T>* src, x10_long srcIndex,
+                                                        ::x10::lang::GlobalRail<T> dst, x10_long dstIndex,
                                                         x10_long numElems,
-                                                        x10::lang::VoidFun_0_0* notif);
+                                                        ::x10::lang::VoidFun_0_0* notif);
 
-            template<class T> static void uncountedCopy(x10::lang::GlobalRail<T> src, x10_long srcIndex,
-                                                        x10::lang::Rail<T>* dst, x10_long dstIndex,
+            template<class T> static void uncountedCopy(::x10::lang::GlobalRail<T> src, x10_long srcIndex,
+                                                        ::x10::lang::Rail<T>* dst, x10_long dstIndex,
                                                         x10_long numElems,
-                                                        x10::lang::VoidFun_0_0* notif);
+                                                        ::x10::lang::VoidFun_0_0* notif);
         };
 
-        template <class T, x10_long SZ> class StackAllocatedRail : public x10::lang::Rail<T> {
+        template <class T, x10_long SZ> class StackAllocatedRail : public ::x10::lang::Rail<T> {
         public:
             T raw2[SZ > 1 ? SZ-1 : 0]; // get the rest of the storage we need for a Rail of size SZ
-            StackAllocatedRail(x10_long numElems) : x10::lang::Rail<T>(numElems) { }
+            StackAllocatedRail(x10_long numElems) : ::x10::lang::Rail<T>(numElems) { }
         };
 
     }
@@ -252,21 +252,21 @@ namespace x10 {
  * Construction (_make methods)
  */
 
-template<class T> x10::lang::Rail<T>* x10::lang::Rail<T>::_make() {
-    x10::lang::Rail<T>* this_ = new (x10aux::alloc_internal(sizeof(x10::lang::Rail<T>), false)) x10::lang::Rail<T>(0);
+template<class T> ::x10::lang::Rail<T>* x10::lang::Rail<T>::_make() {
+    ::x10::lang::Rail<T>* this_ = new (::x10aux::alloc_internal(sizeof(::x10::lang::Rail<T>), false)) ::x10::lang::Rail<T>(0);
     return this_;
 }
-template<class T> void x10::lang::Rail<T>::_constructor() {
+template<class T> void ::x10::lang::Rail<T>::_constructor() {
 }
 
 
-template<class T> x10::lang::Rail<T>* x10::lang::Rail<T>::_makeUnsafe(x10_long size, x10_boolean allocateZeroed) {
+template<class T> ::x10::lang::Rail<T>* x10::lang::Rail<T>::_makeUnsafe(x10_long size, x10_boolean allocateZeroed) {
     if (size < 0) throwNegativeArraySizeException();
-    bool containsPtrs = x10aux::getRTT<T>()->containsPtrs;
+    bool containsPtrs = ::x10aux::getRTT<T>()->containsPtrs;
     x10_long numElems = size;
     x10_long allocElems = numElems > 0 ? numElems - 1 : numElems;   // account for raw[1]
-    size_t numBytes = sizeof(x10::lang::Rail<T>) + (allocElems * sizeof(T)); 
-    x10::lang::Rail<T>* this_ = new (x10aux::alloc_internal(numBytes, containsPtrs)) x10::lang::Rail<T>(numElems);
+    size_t numBytes = sizeof(::x10::lang::Rail<T>) + (allocElems * sizeof(T)); 
+    ::x10::lang::Rail<T>* this_ = new (::x10aux::alloc_internal(numBytes, containsPtrs)) ::x10::lang::Rail<T>(numElems);
 
     if (allocateZeroed) {
         memset(&(this_->raw), 0, numElems*sizeof(T));
@@ -275,29 +275,29 @@ template<class T> x10::lang::Rail<T>* x10::lang::Rail<T>::_makeUnsafe(x10_long s
 }
 
 
-template<class T> x10::lang::Rail<T>* x10::lang::Rail<T>::_make(x10::lang::Rail<T>* src) {
-    bool containsPtrs = x10aux::getRTT<T>()->containsPtrs;
-    x10_long numElems = x10aux::nullCheck(src)->FMGL(size);
+template<class T> ::x10::lang::Rail<T>* x10::lang::Rail<T>::_make(::x10::lang::Rail<T>* src) {
+    bool containsPtrs = ::x10aux::getRTT<T>()->containsPtrs;
+    x10_long numElems = ::x10aux::nullCheck(src)->FMGL(size);
     x10_long allocElems = numElems > 0 ? numElems - 1 : numElems;   // account for raw[1]
-    size_t numBytes = sizeof(x10::lang::Rail<T>) + (allocElems * sizeof(T));
-    x10::lang::Rail<T>* this_ = new (x10aux::alloc_internal(numBytes, containsPtrs)) x10::lang::Rail<T>(numElems);
+    size_t numBytes = sizeof(::x10::lang::Rail<T>) + (allocElems * sizeof(T));
+    ::x10::lang::Rail<T>* this_ = new (::x10aux::alloc_internal(numBytes, containsPtrs)) ::x10::lang::Rail<T>(numElems);
 
     rail_copyRaw(&src->raw, &this_->raw, numElems*sizeof(T), false);
     return this_;
 }
-template<class T> void x10::lang::Rail<T>::_constructor(x10::lang::Rail<T>* src) {
-    x10_long numElems = x10aux::nullCheck(src)->FMGL(size);
+template<class T> void ::x10::lang::Rail<T>::_constructor(::x10::lang::Rail<T>* src) {
+    x10_long numElems = ::x10aux::nullCheck(src)->FMGL(size);
     rail_copyRaw(&src->raw, &this->raw, numElems*sizeof(T), false);
 }
 
 
-template<class T> x10::lang::Rail<T>* x10::lang::Rail<T>::_make(x10_long size) {
+template<class T> ::x10::lang::Rail<T>* x10::lang::Rail<T>::_make(x10_long size) {
     if (size < 0) throwNegativeArraySizeException();
-    bool containsPtrs = x10aux::getRTT<T>()->containsPtrs;
+    bool containsPtrs = ::x10aux::getRTT<T>()->containsPtrs;
     x10_long numElems = size;
     x10_long allocElems = numElems > 0 ? numElems - 1 : numElems;   // account for raw[1]
-    size_t numBytes = sizeof(x10::lang::Rail<T>) + (allocElems * sizeof(T));
-    x10::lang::Rail<T>* this_ = new (x10aux::alloc_internal(numBytes, containsPtrs)) x10::lang::Rail<T>(numElems);
+    size_t numBytes = sizeof(::x10::lang::Rail<T>) + (allocElems * sizeof(T));
+    ::x10::lang::Rail<T>* this_ = new (::x10aux::alloc_internal(numBytes, containsPtrs)) ::x10::lang::Rail<T>(numElems);
 
     memset(&(this_->raw), 0, size*sizeof(T));
     return this_;
@@ -307,13 +307,13 @@ template<class T> void x10::lang::Rail<T>::_constructor(x10_long size) {
 }
 
 
-template<class T> x10::lang::Rail<T>* x10::lang::Rail<T>::_make(x10_long size, T init) {
+template<class T> ::x10::lang::Rail<T>* x10::lang::Rail<T>::_make(x10_long size, T init) {
     if (size < 0) throwNegativeArraySizeException();
-    bool containsPtrs = x10aux::getRTT<T>()->containsPtrs;
+    bool containsPtrs = ::x10aux::getRTT<T>()->containsPtrs;
     x10_long numElems = size;
     x10_long allocElems = numElems > 0 ? numElems - 1 : numElems;   // account for raw[1]
-    size_t numBytes = sizeof(x10::lang::Rail<T>) + (allocElems * sizeof(T));
-    x10::lang::Rail<T>* this_ = new (x10aux::alloc_internal(numBytes, containsPtrs)) x10::lang::Rail<T>(numElems);
+    size_t numBytes = sizeof(::x10::lang::Rail<T>) + (allocElems * sizeof(T));
+    ::x10::lang::Rail<T>* this_ = new (::x10aux::alloc_internal(numBytes, containsPtrs)) ::x10::lang::Rail<T>(numElems);
 
     for (x10_long i = 0ll; i < size; i++) {
         this_->raw[i] = init;
@@ -326,29 +326,29 @@ template<class T> void x10::lang::Rail<T>::_constructor(x10_long size, T init) {
     }
 }
 
-template<class T> x10::lang::Rail<T>* x10::lang::Rail<T>::_make(x10_long size, x10::lang::Fun_0_1<x10_long, T>* init) {
+template<class T> ::x10::lang::Rail<T>* x10::lang::Rail<T>::_make(x10_long size, ::x10::lang::Fun_0_1<x10_long, T>* init) {
     if (size < 0) throwNegativeArraySizeException();
-    bool containsPtrs = x10aux::getRTT<T>()->containsPtrs;
+    bool containsPtrs = ::x10aux::getRTT<T>()->containsPtrs;
     x10_long numElems = size;
     x10_long allocElems = numElems > 0 ? numElems - 1 : numElems;   // account for raw[1]
-    size_t numBytes = sizeof(x10::lang::Rail<T>) + (allocElems * sizeof(T));
-    x10::lang::Rail<T>* this_ = new (x10aux::alloc_internal(numBytes, containsPtrs)) x10::lang::Rail<T>(numElems);
+    size_t numBytes = sizeof(::x10::lang::Rail<T>) + (allocElems * sizeof(T));
+    ::x10::lang::Rail<T>* this_ = new (::x10aux::alloc_internal(numBytes, containsPtrs)) ::x10::lang::Rail<T>(numElems);
 
     if (size > 0) {
-        x10aux::nullCheck(init);
-        x10::lang::Reference* recv = reinterpret_cast<x10::lang::Reference*>(init);
-        T (x10::lang::Reference::*fun)(x10_long) = x10aux::findITable<Fun_0_1<x10_long, T> >(recv->_getITables())->__apply;
+        ::x10aux::nullCheck(init);
+        ::x10::lang::Reference* recv = reinterpret_cast< ::x10::lang::Reference*>(init);
+        T (::x10::lang::Reference::*fun)(x10_long) = ::x10aux::findITable<Fun_0_1<x10_long, T> >(recv->_getITables())->__apply;
         for (x10_long i = 0ll; i < size; i++) {
             this_->raw[i] = (recv->*(fun))(i);
         }
     }
     return this_;
 }
-template<class T> void x10::lang::Rail<T>::_constructor(x10_long size, x10::lang::Fun_0_1<x10_long, T>* init) {
+template<class T> void x10::lang::Rail<T>::_constructor(x10_long size, ::x10::lang::Fun_0_1<x10_long, T>* init) {
     if (size > 0) {
-        x10aux::nullCheck(init);
-        x10::lang::Reference* recv = reinterpret_cast<x10::lang::Reference*>(init);
-        T (x10::lang::Reference::*fun)(x10_long) = x10aux::findITable<Fun_0_1<x10_long, T> >(recv->_getITables())->__apply;
+        ::x10aux::nullCheck(init);
+        ::x10::lang::Reference* recv = reinterpret_cast< ::x10::lang::Reference*>(init);
+        T (::x10::lang::Reference::*fun)(x10_long) = ::x10aux::findITable<Fun_0_1<x10_long, T> >(recv->_getITables())->__apply;
         for (x10_long i = 0ll; i < size; i++) {
             raw[i] = (recv->*(fun))(i);
         }
@@ -356,22 +356,22 @@ template<class T> void x10::lang::Rail<T>::_constructor(x10_long size, x10::lang
 }
 
 
-template<class T> x10::lang::Rail<T>* x10::lang::Rail<T>::_make(x10_long size, x10::lang::Runtime__MemoryAllocator* alloc) {
+template<class T> ::x10::lang::Rail<T>* x10::lang::Rail<T>::_make(x10_long size, ::x10::lang::Runtime__MemoryAllocator* alloc) {
     if (size < 0) throwNegativeArraySizeException();
-    bool containsPtrs = x10aux::getRTT<T>()->containsPtrs;
+    bool containsPtrs = ::x10aux::getRTT<T>()->containsPtrs;
     x10_long numElems = size;
     x10_long allocElems = numElems > 0 ? numElems - 1 : numElems;   // account for raw[1]
-    size_t numBytes = sizeof(x10::lang::Rail<T>) + (allocElems * sizeof(T));
+    size_t numBytes = sizeof(::x10::lang::Rail<T>) + (allocElems * sizeof(T));
 
-    x10::lang::Rail<T>* this_;
+    ::x10::lang::Rail<T>* this_;
     if (alloc->FMGL(congruent)) {
         if (containsPtrs) failAllocNoPointers("Congruent memory cannot contain pointers");
-        this_ = new (x10aux::alloc_internal_congruent(numBytes)) x10::lang::Rail<T>(numElems);
+        this_ = new (::x10aux::alloc_internal_congruent(numBytes)) ::x10::lang::Rail<T>(numElems);
     } else if (alloc->FMGL(hugePages)) {
         if (containsPtrs) failAllocNoPointers("Huge pages cannot contain pointers");
-        this_ = new (x10aux::alloc_internal_huge(numBytes)) x10::lang::Rail<T>(numElems);
+        this_ = new (::x10aux::alloc_internal_huge(numBytes)) ::x10::lang::Rail<T>(numElems);
     } else {
-        this_ = new (x10aux::alloc_internal(numBytes, containsPtrs)) x10::lang::Rail<T>(numElems);
+        this_ = new (::x10aux::alloc_internal(numBytes, containsPtrs)) ::x10::lang::Rail<T>(numElems);
     }
 
     // NOT ZEROING HUGE PAGE ALLOCATION; OS WILL ZERO ON ALLOCATE
@@ -379,7 +379,7 @@ template<class T> x10::lang::Rail<T>* x10::lang::Rail<T>::_make(x10_long size, x
     
     return this_;
 }
-template<class T> void x10::lang::Rail<T>::_constructor(x10_long size, x10::lang::Runtime__MemoryAllocator* alloc) {
+template<class T> void x10::lang::Rail<T>::_constructor(x10_long size, ::x10::lang::Runtime__MemoryAllocator* alloc) {
     // NOT ZEROING HUGE PAGE ALLOCATION; OS WILL ZERO ON ALLOCATE
     if (!alloc->FMGL(hugePages)) memset(&(this->raw), 0, size*sizeof(T));
 }
@@ -388,29 +388,29 @@ template<class T> void x10::lang::Rail<T>::_constructor(x10_long size, x10::lang
  * Instance functions 
  */
 
-template<class T> x10::lang::LongRange x10::lang::Rail<T>::range() {
-    return x10::lang::LongRange::_make(0, FMGL(size)-1);
+template<class T> ::x10::lang::LongRange x10::lang::Rail<T>::range() {
+    return ::x10::lang::LongRange::_make(0, FMGL(size)-1);
 }    
 
-template<class T> x10::lang::Iterator<T>* x10::lang::Rail<T>::iterator() {
-    x10::lang::RailIterator<T>* it = x10::lang::RailIterator<T>::_make(this);
-    return reinterpret_cast<x10::lang::Iterator<T>*>(it);
+template<class T> ::x10::lang::Iterator<T>* x10::lang::Rail<T>::iterator() {
+    ::x10::lang::RailIterator<T>* it = ::x10::lang::RailIterator<T>::_make(this);
+    return reinterpret_cast< ::x10::lang::Iterator<T>*>(it);
 }
 
-template<class T> x10::lang::String* x10::lang::Rail<T>::toString() {
-    char* tmp = x10aux::alloc_printf("[");
+template<class T> ::x10::lang::String* x10::lang::Rail<T>::toString() {
+    char* tmp = ::x10aux::alloc_printf("[");
     x10_long sz = FMGL(size) > 10 ? 10 : FMGL(size);
     for (x10_long i = 0; i < sz; i++) {
         if (i > 0) {
-            tmp = x10aux::realloc_printf(tmp, ",");
+            tmp = ::x10aux::realloc_printf(tmp, ",");
         }
-        tmp = x10aux::realloc_printf(tmp,"%s",x10aux::to_string(__apply(i))->c_str());
+        tmp = ::x10aux::realloc_printf(tmp,"%s",::x10aux::to_string(__apply(i))->c_str());
     }
     if (sz < FMGL(size)) {
-        tmp = x10aux::realloc_printf(tmp, "...(omitted %lld elements", (signed long long)(FMGL(size) - sz));
+        tmp = ::x10aux::realloc_printf(tmp, "...(omitted %lld elements", (signed long long)(FMGL(size) - sz));
     }
-    tmp = x10aux::realloc_printf(tmp, "]");
-    return x10::lang::String::Steal(tmp);
+    tmp = ::x10aux::realloc_printf(tmp, "]");
+    return ::x10::lang::String::Steal(tmp);
 }
 
 template<class T> void x10::lang::Rail<T>::fill(T value) {
@@ -434,28 +434,28 @@ template<class T> void x10::lang::Rail<T>::clear(x10_long start, x10_long numEle
  * Static functions 
  */
 
-template<class T> void x10::lang::Rail<void>::copy(x10::lang::Rail<T>* src, x10::lang::Rail<T>* dst) {
-    x10aux::nullCheck(src);
-    x10aux::nullCheck(dst);
+template<class T> void x10::lang::Rail<void>::copy(::x10::lang::Rail<T>* src, ::x10::lang::Rail<T>* dst) {
+    ::x10aux::nullCheck(src);
+    ::x10aux::nullCheck(dst);
 
     if (src == dst) return;
     
     if (src->FMGL(size) != dst->FMGL(size)) {
-        x10aux::throwException(x10::lang::IllegalArgumentException::_make(x10aux::makeStringLit("source and destination do not have equal size")));
+        ::x10aux::throwException(::x10::lang::IllegalArgumentException::_make(::x10aux::makeStringLit("source and destination do not have equal size")));
     }
 
     rail_copyRaw(&src->raw[0], &dst->raw[0], sizeof(T)*src->FMGL(size), false);
 }
 
-template<class T> void x10::lang::Rail<void>::copy(x10::lang::Rail<T>* src,
+template<class T> void x10::lang::Rail<void>::copy(::x10::lang::Rail<T>* src,
                                                    x10_long srcIndex,
-                                                   x10::lang::Rail<T>* dst,
+                                                   ::x10::lang::Rail<T>* dst,
                                                    x10_long dstIndex,
                                                    x10_long numElems) {
     if (numElems <= 0) return;
 
-    x10aux::nullCheck(src);
-    x10aux::nullCheck(dst);
+    ::x10aux::nullCheck(src);
+    ::x10aux::nullCheck(dst);
     checkBounds(srcIndex, src->FMGL(size));
     checkBounds(srcIndex+numElems, src->FMGL(size)+1ll);
     checkBounds(dstIndex, dst->FMGL(size));
@@ -464,26 +464,26 @@ template<class T> void x10::lang::Rail<void>::copy(x10::lang::Rail<T>* src,
     rail_copyRaw(&src->raw[srcIndex], &dst->raw[dstIndex], sizeof(T)*numElems, src == dst);
 }
 
-template<class T> void x10::lang::Rail<void>::asyncCopy(x10::lang::Rail<T>* src, x10_long srcIndex,
-                                                        x10::lang::GlobalRail<T> dst, x10_long dstIndex,
+template<class T> void x10::lang::Rail<void>::asyncCopy(::x10::lang::Rail<T>* src, x10_long srcIndex,
+                                                        ::x10::lang::GlobalRail<T> dst, x10_long dstIndex,
                                                         x10_long numElems) {
-    x10::lang::Rail<void>::uncountedCopy(src, srcIndex, dst, dstIndex, numElems, NULL);
+    ::x10::lang::Rail<void>::uncountedCopy(src, srcIndex, dst, dstIndex, numElems, NULL);
 }
 
-template<class T> void x10::lang::Rail<void>::asyncCopy(x10::lang::GlobalRail<T> src, x10_long srcIndex,
-                                                        x10::lang::Rail<T>* dst, x10_long dstIndex,
+template<class T> void x10::lang::Rail<void>::asyncCopy(::x10::lang::GlobalRail<T> src, x10_long srcIndex,
+                                                        ::x10::lang::Rail<T>* dst, x10_long dstIndex,
                                                         x10_long numElems) {
-    x10::lang::Rail<void>::uncountedCopy(src, srcIndex, dst, dstIndex, numElems, NULL);
+    ::x10::lang::Rail<void>::uncountedCopy(src, srcIndex, dst, dstIndex, numElems, NULL);
 }
 
-template<class T> void x10::lang::Rail<void>::uncountedCopy(x10::lang::Rail<T>* src, x10_long srcIndex,
-                                                            x10::lang::GlobalRail<T> dst, x10_long dstIndex,
+template<class T> void x10::lang::Rail<void>::uncountedCopy(::x10::lang::Rail<T>* src, x10_long srcIndex,
+                                                            ::x10::lang::GlobalRail<T> dst, x10_long dstIndex,
                                                             x10_long numElems,
-                                                            x10::lang::VoidFun_0_0* notif) {
+                                                            ::x10::lang::VoidFun_0_0* notif) {
     if (numElems <= 0) return;
     void* srcAddr = (void*)(&src->raw[srcIndex]);
     void* dstAddr;
-    if (x10::lang::Place::place(dst->FMGL(rail)->location)->isCUDA()) {
+    if (::x10::lang::Place::place(dst->FMGL(rail)->location)->isCUDA()) {
         dstAddr = &((T*)(dst->FMGL(rail)->__apply()))[dstIndex];
     } else {
         dstAddr = (void*)(&dst->FMGL(rail)->__apply()->raw[dstIndex]);
@@ -493,16 +493,16 @@ template<class T> void x10::lang::Rail<void>::uncountedCopy(x10::lang::Rail<T>* 
     checkBounds(srcIndex+numElems, src->FMGL(size)+1);
     checkBounds(dstIndex, dst->FMGL(size));
     checkBounds(dstIndex+numElems, dst->FMGL(size)+1);
-    x10::lang::Rail_copyToBody(srcAddr, dstAddr, numBytes, x10::lang::Place::place(dst->FMGL(rail)->location), src->raw == dst->FMGL(rail)->__apply()->raw, notif);
+    ::x10::lang::Rail_copyToBody(srcAddr, dstAddr, numBytes, ::x10::lang::Place::place(dst->FMGL(rail)->location), src->raw == dst->FMGL(rail)->__apply()->raw, notif);
 }
 
-template<class T> void x10::lang::Rail<void>::uncountedCopy(x10::lang::GlobalRail<T> src, x10_long srcIndex,
-                                                            x10::lang::Rail<T>* dst, x10_long dstIndex,
+template<class T> void x10::lang::Rail<void>::uncountedCopy(::x10::lang::GlobalRail<T> src, x10_long srcIndex,
+                                                            ::x10::lang::Rail<T>* dst, x10_long dstIndex,
                                                             x10_long numElems,
-                                                            x10::lang::VoidFun_0_0* notif) {
+                                                            ::x10::lang::VoidFun_0_0* notif) {
     if (numElems <= 0) return;
     void* srcAddr;
-    if (x10::lang::Place::place(src->FMGL(rail)->location)->isCUDA()) {
+    if (::x10::lang::Place::place(src->FMGL(rail)->location)->isCUDA()) {
         srcAddr = &((T*)(src->FMGL(rail)->__apply()))[srcIndex];
     } else {
         srcAddr = (void*)(&src->FMGL(rail)->__apply()->raw[srcIndex]);
@@ -513,48 +513,48 @@ template<class T> void x10::lang::Rail<void>::uncountedCopy(x10::lang::GlobalRai
     checkBounds(srcIndex+numElems, src->FMGL(size)+1);
     checkBounds(dstIndex, dst->FMGL(size));
     checkBounds(dstIndex+numElems, dst->FMGL(size)+1);
-    x10::lang::Rail_copyFromBody(srcAddr, dstAddr, numBytes, x10::lang::Place::place(src->FMGL(rail)->location), src->FMGL(rail)->__apply()->raw == dst->raw, notif);
+    ::x10::lang::Rail_copyFromBody(srcAddr, dstAddr, numBytes, ::x10::lang::Place::place(src->FMGL(rail)->location), src->FMGL(rail)->__apply()->raw == dst->raw, notif);
 }
 
 /*
  * Serialization and Deserialization
  */
 
-template<class T> const x10aux::serialization_id_t x10::lang::Rail<T>::_serialization_id = 
-    x10aux::DeserializationDispatcher::addDeserializer(x10::lang::Rail<T>::_deserializer, x10aux::CLOSURE_KIND_NOT_ASYNC);
+template<class T> const ::x10aux::serialization_id_t x10::lang::Rail<T>::_serialization_id = 
+    ::x10aux::DeserializationDispatcher::addDeserializer(::x10::lang::Rail<T>::_deserializer, ::x10aux::CLOSURE_KIND_NOT_ASYNC);
 
-template<class T> void x10::lang::Rail<T>::_serialize_body(x10aux::serialization_buffer& buf) {
+template<class T> void ::x10::lang::Rail<T>::_serialize_body(::x10aux::serialization_buffer& buf) {
     buf.write<x10_long>(this->FMGL(size));
     for (x10_long i=0; i<FMGL(size); i++) {
         buf.write(raw[i]);
     }
 }
 
-template<class T> x10::lang::Reference* x10::lang::Rail<T>::_deserializer(x10aux::deserialization_buffer& buf) {
-    bool containsPtrs = x10aux::getRTT<T>()->containsPtrs;
+template<class T> ::x10::lang::Reference* x10::lang::Rail<T>::_deserializer(::x10aux::deserialization_buffer& buf) {
+    bool containsPtrs = ::x10aux::getRTT<T>()->containsPtrs;
     x10_long numElems = buf.read<x10_long>();
     x10_long allocElems = numElems > 0 ? numElems - 1 : numElems;   // account for raw[1]
-    size_t numBytes = sizeof(x10::lang::Rail<T>) + (allocElems * sizeof(T));
-    x10::lang::Rail<T>* this_ = new (x10aux::alloc_internal(numBytes, containsPtrs)) x10::lang::Rail<T>(numElems);
+    size_t numBytes = sizeof(::x10::lang::Rail<T>) + (allocElems * sizeof(T));
+    ::x10::lang::Rail<T>* this_ = new (::x10aux::alloc_internal(numBytes, containsPtrs)) ::x10::lang::Rail<T>(numElems);
 
     buf.record_reference(this_);
     this_->_deserialize_body(buf);
     return this_;
 }
 
-template<class T> void x10::lang::Rail<T>::_deserialize_body(x10aux::deserialization_buffer& buf) {
+template<class T> void x10::lang::Rail<T>::_deserialize_body(::x10aux::deserialization_buffer& buf) {
     for (x10_long i=0; i<FMGL(size); i++) {
         raw[i] = buf.read<T>();
     }
 }
 
 #define PRIMITIVE_COPY_SERIALIZATION(TYPE) \
-template<> inline void x10::lang::Rail<TYPE>::_serialize_body(x10aux::serialization_buffer& buf) {\
+template<> inline void x10::lang::Rail<TYPE>::_serialize_body(::x10aux::serialization_buffer& buf) {\
     x10_long sz = FMGL(size);\
     buf.write<x10_long>(sz);\
     buf.copyIn(buf, raw, sz, sizeof(TYPE));\
 }\
-template<> inline void x10::lang::Rail<TYPE>::_deserialize_body(x10aux::deserialization_buffer& buf) {\
+template<> inline void x10::lang::Rail<TYPE>::_deserialize_body(::x10aux::deserialization_buffer& buf) {\
     buf.copyOut(buf, raw, FMGL(size), sizeof(TYPE));\
 }
 
@@ -576,14 +576,14 @@ namespace x10 {
         PRIMITIVE_COPY_SERIALIZATION(x10_float)
         PRIMITIVE_COPY_SERIALIZATION(x10_double)
 
-        template<> inline void x10::lang::Rail<x10_complex >::_serialize_body(x10aux::serialization_buffer& buf) {
+        template<> inline void x10::lang::Rail<x10_complex >::_serialize_body(::x10aux::serialization_buffer& buf) {
             x10_long sz = FMGL(size);
             buf.write<x10_long>(sz);
             // Complex is serialized as two doubles
             buf.copyIn(buf, raw, sz*2, sizeof(x10_double));
         }
 
-        template<> inline void x10::lang::Rail<x10_complex >::_deserialize_body(x10aux::deserialization_buffer& buf) {
+        template<> inline void x10::lang::Rail<x10_complex >::_deserialize_body(::x10aux::deserialization_buffer& buf) {
             buf.copyOut(buf, raw, FMGL(size)*2, sizeof(x10_double));
         }
     }
@@ -594,14 +594,14 @@ namespace x10 {
  * ITables and object model support code
  */
 
-template<class T> typename x10::lang::Iterable<T>::template itable<x10::lang::Rail<T> >  x10::lang::Rail<T>::_itable_0(&x10::lang::Rail<T>::equals, &x10::lang::Rail<T>::hashCode, &x10::lang::Rail<T>::iterator, &x10::lang::Rail<T>::toString, &x10::lang::Rail<T>::typeName);
+template<class T> typename ::x10::lang::Iterable<T>::template itable< ::x10::lang::Rail<T> >  x10::lang::Rail<T>::_itable_0(&::x10::lang::Rail<T>::equals, &::x10::lang::Rail<T>::hashCode, &::x10::lang::Rail<T>::iterator, &::x10::lang::Rail<T>::toString, &::x10::lang::Rail<T>::typeName);
 
-template<class T> typename x10::lang::Fun_0_1<x10_long, T>::template itable<x10::lang::Rail<T> >  x10::lang::Rail<T>::_itable_1(&x10::lang::Rail<T>::equals, &x10::lang::Rail<T>::hashCode, &x10::lang::Rail<T>::__apply, &x10::lang::Rail<T>::toString, &x10::lang::Rail<T>::typeName);
+template<class T> typename ::x10::lang::Fun_0_1<x10_long, T>::template itable< ::x10::lang::Rail<T> >  x10::lang::Rail<T>::_itable_1(&::x10::lang::Rail<T>::equals, &::x10::lang::Rail<T>::hashCode, &::x10::lang::Rail<T>::__apply, &::x10::lang::Rail<T>::toString, &::x10::lang::Rail<T>::typeName);
 
-template<class T> x10aux::itable_entry x10::lang::Rail<T>::_itables[3] = {
-    x10aux::itable_entry(&x10aux::getRTT<x10::lang::Iterable<T> >, &_itable_0),
-    x10aux::itable_entry(&x10aux::getRTT<x10::lang::Fun_0_1<x10_long, T> >, &_itable_1),
-    x10aux::itable_entry(NULL, (void*)x10aux::getRTT<x10::lang::Rail<T> >())
+template<class T> ::x10aux::itable_entry x10::lang::Rail<T>::_itables[3] = {
+    ::x10aux::itable_entry(&::x10aux::getRTT< ::x10::lang::Iterable<T> >, &_itable_0),
+    ::x10aux::itable_entry(&::x10aux::getRTT< ::x10::lang::Fun_0_1<x10_long, T> >, &_itable_1),
+    ::x10aux::itable_entry(NULL, (void*)::x10aux::getRTT< ::x10::lang::Rail<T> >())
 };
 
 
