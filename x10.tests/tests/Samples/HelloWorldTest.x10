@@ -11,7 +11,7 @@
 
 import harness.x10Test;
 
-// SOURCEPATH: $X10_HOME/x10.dist/samples
+// SOURCEPATH: x10.dist/samples
 
 public class HelloWorldTest extends x10Test {
     public def run():boolean {

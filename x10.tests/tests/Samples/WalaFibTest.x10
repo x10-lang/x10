@@ -12,7 +12,7 @@
 import harness.x10Test;
 
 // OPTIONS: -WALADEBUG
-// SOURCEPATH: $X10_HOME/x10.dist/samples/work-stealing
+// SOURCEPATH: x10.dist/samples/work-stealing
 // SKIP_MANAGED_X10: Wala bridge broken
 // SKIP_NATIVE_X10: Wala bridge broken
 

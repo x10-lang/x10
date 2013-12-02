@@ -575,21 +575,25 @@ function main {
 	printf " +C [COMPILATION]"
 	extra_opts="$(sed -ne 's|^[[:space:]]*//[[:space:]]*OPTIONS*\:[[:space:]]*\(.*\)|\1|p' $tc)"
 	extra_sourcepath="$(sed -ne 's|^[[:space:]]*//[[:space:]]*SOURCEPATH*\:[[:space:]]*\(.*\)|\1|p' $tc)"
-        [ -n "$extra_sourcepath" ] && extra_sourcepath="-sourcepath \"$extra_sourcepath\""
+	if [[ -n "$extra_sourcepath" ]]; then
+	    extra_sourcepath_arg="-sourcepath $X10_HOME/$extra_sourcepath"
+	else
+	    extra_sourcepath_arg=""
+	fi
 	__jen_test_x10c_sourcepath="$tcroot"
 	__jen_test_x10c_classpath="${EXTRA_CLASSPATH}"
 	__jen_test_x10c_directory="$testDir"
 	if [[ "$(uname -s)" == CYGWIN* ]]; then
 	    if [[ "$tcbackend" == "native" ]]; then
-		comp_cmd="${X10CPP} $extra_opts $extra_sourcepath $tccompiler_options -t -v -report postcompile=1 -CHECK_INVARIANTS=true -MAIN_CLASS=$className -o \"$(cygpath -am $tcroot)/$tctarget\" -sourcepath \"$(cygpath -am $X10_HOME/x10.tests/tests/$tDirSlash)\" -sourcepath \"$(cygpath -am $X10_HOME/x10.tests/tests/$testDir)\" -sourcepath \"$(cygpath -am $X10_HOME/x10.tests/tests/x10lib)\" -d \"$(cygpath $tcroot)\" $tc"
+		comp_cmd="${X10CPP} $extra_opts $tccompiler_options -t -v -report postcompile=1 -CHECK_INVARIANTS=true -MAIN_CLASS=$className -o \"$(cygpath -am $tcroot)/$tctarget\" -sourcepath \"$(cygpath -am $X10_HOME/x10.tests/tests/$tDirSlash)\" -sourcepath \"$(cygpath -am $X10_HOME/x10.tests/tests/$testDir)\" -sourcepath \"$(cygpath -am $X10_HOME/x10.tests/tests/x10lib)\" $extra_sourcepath_arg -d \"$(cygpath $tcroot)\" $tc"
 	    else
-		comp_cmd="${X10C} $extra_opts $extra_sourcepath $tccompiler_options -t -v -report postcompile=1 -CHECK_INVARIANTS=true -MAIN_CLASS=$className -sourcepath \"$(cygpath -am $X10_HOME/x10.tests/tests/$tDirSlash)\" -sourcepath \"$(cygpath -am $X10_HOME/x10.tests/tests/$testDir)\" -sourcepath \"$(cygpath -am $X10_HOME/x10.tests/tests/x10lib)\" -d \"$(cygpath -am $tcroot)\" $tc"
+		comp_cmd="${X10C} $extra_opts $tccompiler_options -t -v -report postcompile=1 -CHECK_INVARIANTS=true -MAIN_CLASS=$className -sourcepath \"$(cygpath -am $X10_HOME/x10.tests/tests/$tDirSlash)\" -sourcepath \"$(cygpath -am $X10_HOME/x10.tests/tests/$testDir)\" -sourcepath \"$(cygpath -am $X10_HOME/x10.tests/tests/x10lib)\"  $extra_sourcepath_arg -d \"$(cygpath -am $tcroot)\" $tc"
 	    fi
 	else
 	    if [[ "$tcbackend" == "native" ]]; then
-		comp_cmd="${X10CPP} $extra_opts $extra_sourcepath $tccompiler_options -t -v -report postcompile=1 -CHECK_INVARIANTS=true -MAIN_CLASS=$className -o $tcroot/$tctarget -sourcepath $X10_HOME/x10.tests/tests/$tDirSlash -sourcepath $X10_HOME/x10.tests/tests/$testDir -sourcepath $X10_HOME/x10.tests/tests/x10lib -d $tcroot $tc"
+		comp_cmd="${X10CPP} $extra_opts $tccompiler_options -t -v -report postcompile=1 -CHECK_INVARIANTS=true -MAIN_CLASS=$className -o $tcroot/$tctarget -sourcepath $X10_HOME/x10.tests/tests/$tDirSlash -sourcepath $X10_HOME/x10.tests/tests/$testDir -sourcepath $X10_HOME/x10.tests/tests/x10lib  $extra_sourcepath_arg -d $tcroot $tc"
 	    else
-		comp_cmd="${X10C} $extra_opts $extra_sourcepath $tccompiler_options -t -v -report postcompile=1 -CHECK_INVARIANTS=true -MAIN_CLASS=$className -sourcepath $X10_HOME/x10.tests/tests/$tDirSlash -sourcepath $X10_HOME/x10.tests/tests/$testDir -sourcepath $X10_HOME/x10.tests/tests/x10lib -d $tcroot $tc"
+		comp_cmd="${X10C} $extra_opts $tccompiler_options -t -v -report postcompile=1 -CHECK_INVARIANTS=true -MAIN_CLASS=$className -sourcepath $X10_HOME/x10.tests/tests/$tDirSlash -sourcepath $X10_HOME/x10.tests/tests/$testDir -sourcepath $X10_HOME/x10.tests/tests/x10lib  $extra_sourcepath_arg -d $tcroot $tc"
 	    fi
 	fi
 	tccompdat=${tcroot}/${tctarget}.comp
