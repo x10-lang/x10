@@ -25,6 +25,7 @@ import polyglot.types.TypeSystem;
 import polyglot.util.ErrorQueue;
 import polyglot.visit.PostCompiled;
 import x10.X10CompilerOptions;
+import x10.ExtensionInfo.X10Scheduler.ValidatingVisitorGoal;
 import x10.visit.X10Translator;
 import x10c.ast.X10CNodeFactory_c;
 import x10c.types.X10CTypeSystem_c;
@@ -98,6 +99,7 @@ public class ExtensionInfo extends x10.ExtensionInfo {
                     goals.add(JavaCaster(job));
                     goals.add(InlineHelped(job));
                     goals.add(BoxingDetector(job));
+                    goals.add(PreCodegenASTInvariantChecker(job));
                 }
                 goals.add(g);
             }
@@ -214,6 +216,10 @@ public class ExtensionInfo extends x10.ExtensionInfo {
             TypeSystem ts = extInfo.typeSystem();
             NodeFactory nf = extInfo.nodeFactory();
             return new ValidatingVisitorGoal("ExpressionFlattenerForAtExpr", job, new ExpressionFlattenerForAtExpr(job, ts, nf)).intern(this);
+        }
+        
+        public Goal PreCodegenASTInvariantChecker(Job job) {
+            return new ValidatingVisitorGoal("CodegenASTInvariantChecker", job, new PreCodeGenASTChecker(job)).intern(this);
         }
     }
 
