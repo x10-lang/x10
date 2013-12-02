@@ -576,7 +576,12 @@ function main {
 	extra_opts="$(sed -ne 's|^[[:space:]]*//[[:space:]]*OPTIONS*\:[[:space:]]*\(.*\)|\1|p' $tc)"
 	extra_sourcepath="$(sed -ne 's|^[[:space:]]*//[[:space:]]*SOURCEPATH*\:[[:space:]]*\(.*\)|\1|p' $tc)"
 	if [[ -n "$extra_sourcepath" ]]; then
-	    extra_sourcepath_arg="-sourcepath $X10_HOME/$extra_sourcepath"
+	    if [[ "$(uname -s)" == CYGWIN* ]]; then
+		extra_sourcepath=$(cygpath -am $X10_HOME/$extra_sourcepath)
+		extra_sourcepath_arg="-sourcepath \"$extra_sourcepath\""
+	    else
+		extra_sourcepath_arg="-sourcepath $X10_HOME/$extra_sourcepath"
+	    fi
 	else
 	    extra_sourcepath_arg=""
 	fi
