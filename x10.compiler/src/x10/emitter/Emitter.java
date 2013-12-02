@@ -4075,6 +4075,8 @@ public class Emitter {
 
         w.write("}");
         w.newline();
+
+        w.newline();
 	}
 	
 	// N.B. these conditions are cut&pasted from printInlinedCode()
@@ -4295,9 +4297,13 @@ public class Emitter {
     		    args.add(mi.def().formalNames().get(i).name().toString());
     		}
     		
+    		w.write(" ");
     		w.write("{");
-
+    		w.newline(4);
+    		w.begin(0);
     		w.write("try {"); // XTENLANG-2686: handle Java exceptions inside @Native method
+    		w.newline(4);
+    		w.begin(0);
     		// always same?
     		if (!n.returnType().type().isVoid()) {
 //    		if (!mi.returnType().isVoid()) {
@@ -4305,9 +4311,12 @@ public class Emitter {
     		}
     		emitNativeAnnotation(pat, targetArg, mi.x10Def().typeParameters(), mi.typeParameters(), params, args, classTypeParams, classTypeArguments);
     		w.write(";");
-
+    		w.end();
+    		w.newline();
     		w.writeln("}"); // XTENLANG-2686
     		X10PrettyPrinterVisitor.catchAndThrowAsX10Exception(w); // XTENLANG-2686
+    		w.end();
+    		w.newline();
 
                 w.write("}");
     		w.newline();

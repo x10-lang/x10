@@ -1591,14 +1591,17 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
         }
         w.newline();
 
-        // Refractored  method that can be called by reflection
+        // Refactored method that can be called by reflection
         if (isCustomSerializable) {
+            w.newline();
+            w.write("public void " + methodName + "(" + DESERIALIZER +  " " + n.formals().get(0).name() + ") {");
             w.newline(4);
             w.begin(0);
-            w.writeln("public void " + methodName + "(" + DESERIALIZER +  " " + n.formals().get(0).name() + ") {");
             n.printSubStmt(body, w, tr);
-            w.writeln("}");
             w.end();
+            w.newline();
+            w.write("}");
+            w.newline();
         }
 
     }
@@ -3953,8 +3956,12 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
     
     public static void catchAndThrowAsX10Exception(CodeWriter w) {
         String TEMPORARY_EXCEPTION_VARIABLE_NAME = Name.makeFresh("exc$").toString();
-        w.writeln("catch (" + JAVA_LANG_THROWABLE + " " + TEMPORARY_EXCEPTION_VARIABLE_NAME + ") {");
-        w.writeln("throw " + X10_RUNTIME_IMPL_JAVA_THROWABLEUTILS + "." + ENSURE_X10_EXCEPTION + "(" + TEMPORARY_EXCEPTION_VARIABLE_NAME + ");");
+        w.write("catch (" + JAVA_LANG_THROWABLE + " " + TEMPORARY_EXCEPTION_VARIABLE_NAME + ") {");
+        w.newline(4);
+        w.begin(0);
+        w.write("throw " + X10_RUNTIME_IMPL_JAVA_THROWABLEUTILS + "." + ENSURE_X10_EXCEPTION + "(" + TEMPORARY_EXCEPTION_VARIABLE_NAME + ");");
+        w.end();
+        w.newline();
         w.writeln("}");
     }
 
@@ -3963,8 +3970,13 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
         String s = Emitter.getJavaImplForStmt(n, tr.typeSystem());
         if (s != null) {
             w.write("try {"); // XTENLANG-2686: handle Java exceptions inside @Native block
+            w.newline(4);
+            w.begin(0);
             w.write(s);
+            w.end();
+            w.newline();
             w.write("}"); // XTENLANG-2686
+            w.newline();
             catchAndThrowAsX10Exception(w); // XTENLANG-2686
         } else {
             n.translate(w, tr);
