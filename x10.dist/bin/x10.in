@@ -157,12 +157,8 @@ if [ -n "$extra_lib" ]; then
 fi
 
 if [[ "$UNAME" = CYGWIN* ]]; then 
-    if [ -n "$ENABLE_CYGWIN_MULTIVM" ]; then
-        JAVA="$(cygpath -au "$TOP/bin/cyglaunch")"
-        launcher="${TOP}${FILE_SEP}bin${FILE_SEP}X10Launcher"
-    else
-        java_args=("-DX10RT_IMPL=disabled" "${java_args[@]}")
-    fi
+    launcher="${TOP}${FILE_SEP}bin${FILE_SEP}X10Launcher"
+    java_args=("-DX10RT_IMPL=JavaSockets" "${java_args[@]}")
 else
     if [ -z "${x10rt_impl}" ]; then
         launcher="${TOP}${FILE_SEP}bin${FILE_SEP}X10Launcher"
@@ -242,11 +238,9 @@ fi
 
 command=("$JAVA" "${java_args[@]}" $config "${args[@]}")
 [ -n "$verbose" ] && echo "${command[*]}"
-if [[ "$UNAME" = CYGWIN* && -z "$ENABLE_CYGWIN_MULTIVM" ]]; then
-    exec $time$timelimit "${command[@]}"
-else 
-    [ ${#launcher_env[@]} -gt 0 ] && launcher_env=("/usr/bin/env" "${launcher_env[@]}")
-    exec "${launcher_env[@]}" $time$timelimit$launcher "${launcher_args[@]}" "${command[@]}"
-fi
+
+[ ${#launcher_env[@]} -gt 0 ] && launcher_env=("/usr/bin/env" "${launcher_env[@]}")
+exec "${launcher_env[@]}" $time$timelimit$launcher "${launcher_args[@]}" "${command[@]}"
+
 
 exit $?
