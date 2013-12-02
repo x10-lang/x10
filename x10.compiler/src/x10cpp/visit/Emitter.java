@@ -412,7 +412,7 @@ public class Emitter {
 			name = ((ParameterType)type).name().toString();
 			return mangled_parameter_type_name(name); // parameter types shouldn't be refs
 		} else if (type.isNull()) {
-			return asRef ? "x10::lang::NullType*" : "x10::lang::NullType";
+			return asRef ? "::x10::lang::NullType*" : "::x10::lang::NullType";
 		} else {
 			assert false : type; // unhandled type.
 		}
@@ -712,34 +712,34 @@ public class Emitter {
 	    numParents += ct.interfaces().size();
 	    String kind;
 	    if (ct.isX10Struct()) {
-	        kind = "x10aux::RuntimeType::struct_kind";
+	        kind = "::x10aux::RuntimeType::struct_kind";
 	    } else if (ct.flags().isInterface()) {
-	        kind = "x10aux::RuntimeType::interface_kind";
+	        kind = "::x10aux::RuntimeType::interface_kind";
 	    } else {
-	        kind = "x10aux::RuntimeType::class_kind";
+	        kind = "::x10aux::RuntimeType::class_kind";
 	    }
 
 	    ClassifiedStream cs;
 	    if (cd.typeParameters().isEmpty()) {
 	        cs = sw.body();
 	        boolean first = true;
-	        cs.writeln("x10aux::RuntimeType "+translateType(ct)+"::rtt;");
+	        cs.writeln("::x10aux::RuntimeType "+translateType(ct)+"::rtt;");
 	        cs.write("void "+translateType(ct)+"::_initRTT() {"); cs.newline(4); cs.begin(0);
 	        cs.writeln("if (rtt.initStageOne(&rtt)) return;");
 	        if (numParents > 0) { 
-	            cs.write("const x10aux::RuntimeType* parents["+numParents+"] = { ");
+	            cs.write("const ::x10aux::RuntimeType* parents["+numParents+"] = { ");
 	            if (ct.superClass() != null) {
-	                cs.write("x10aux::getRTT" + chevrons(translateType(ct.superClass())) + "()");
+	                cs.write("::x10aux::getRTT" + chevrons(translateType(ct.superClass())) + "()");
 	                first = false;
 	            }
 	            for (Type iface : ct.interfaces()) {
 	                if (!first) cs.write(", ");
-	                cs.write("x10aux::getRTT"+chevrons(translateType(iface))+"()");
+	                cs.write("::x10aux::getRTT"+chevrons(translateType(iface))+"()");
 	                first = false;
 	            }
 	            cs.writeln("};");
 	        } else {
-	            cs.writeln("const x10aux::RuntimeType** parents = NULL; ");
+	            cs.writeln("const ::x10aux::RuntimeType** parents = NULL; ");
 	        }
 	        cs.write("rtt.initStageTwo(\""+x10name+"\","+kind+", "+numParents+ ", parents, 0, NULL, NULL);");
 	        if (ct.isX10Struct() && isPointerless(ct)) {
@@ -752,45 +752,45 @@ public class Emitter {
 	        boolean first = true;
 	        int numTypeParams = cd.typeParameters().size();
 	        printTemplateSignature(cd.typeParameters(), cs);
-	        cs.writeln("x10aux::RuntimeType "+translateType(ct)+"::rtt;");
+	        cs.writeln("::x10aux::RuntimeType "+translateType(ct)+"::rtt;");
 
 	        printTemplateSignature(cd.typeParameters(), cs);
 	        cs.write("void "+translateType(ct)+"::_initRTT() {"); cs.newline(4); cs.begin(0);
-                cs.writeln("const x10aux::RuntimeType *canonical = x10aux::getRTT"+chevrons(translateType(MessagePassingCodeGenerator.getStaticMemberContainer(cd), false))+"();");
+                cs.writeln("const ::x10aux::RuntimeType *canonical = ::x10aux::getRTT"+chevrons(translateType(MessagePassingCodeGenerator.getStaticMemberContainer(cd), false))+"();");
                 cs.writeln("if (rtt.initStageOne(canonical)) return;");
 	        
 	        if (numParents > 0) {
-	            cs.write("const x10aux::RuntimeType* parents["+numParents+"] = { ");
+	            cs.write("const ::x10aux::RuntimeType* parents["+numParents+"] = { ");
 	            if (ct.superClass() != null) {
-	                cs.write("x10aux::getRTT" + chevrons(translateType(ct.superClass())) + "()");
+	                cs.write("::x10aux::getRTT" + chevrons(translateType(ct.superClass())) + "()");
 	                first = false;
 	            }
 	            for (Type iface : ct.interfaces()) {
 	                if (!first) cs.write(", ");
-	                cs.write("x10aux::getRTT"+chevrons(translateType(iface))+"()");
+	                cs.write("::x10aux::getRTT"+chevrons(translateType(iface))+"()");
 	                first = false;
 	            }
 	            cs.writeln("};");
 	        } else {
-	            cs.writeln("const x10aux::RuntimeType** parents = NULL; ");            
+	            cs.writeln("const ::x10aux::RuntimeType** parents = NULL; ");            
 	        }
-	        cs.write("const x10aux::RuntimeType* params["+numTypeParams+"] = { ");
+	        cs.write("const ::x10aux::RuntimeType* params["+numTypeParams+"] = { ");
 	        first = true;
 	        for (Type param : cd.typeParameters()) {
 	            if (!first) cs.write(", ");
-	            cs.write("x10aux::getRTT"+chevrons(translateType(param))+"()");
+	            cs.write("::x10aux::getRTT"+chevrons(translateType(param))+"()");
 	            first = false;
 	        }
 	        cs.writeln("};");
 
-	        cs.write("x10aux::RuntimeType::Variance variances["+numTypeParams+"] = { ");
+	        cs.write("::x10aux::RuntimeType::Variance variances["+numTypeParams+"] = { ");
 	        first = true;
 	        for (ParameterType.Variance v : ct.x10Def().variances()) {
 	            if (!first) cs.write(", ");
 	            switch(v) {
-	            case COVARIANT: cs.write("x10aux::RuntimeType::covariant"); break;
-	            case CONTRAVARIANT: cs.write("x10aux::RuntimeType::contravariant"); break;
-	            case INVARIANT: cs.write("x10aux::RuntimeType::invariant"); break;
+	            case COVARIANT: cs.write("::x10aux::RuntimeType::covariant"); break;
+	            case CONTRAVARIANT: cs.write("::x10aux::RuntimeType::contravariant"); break;
+	            case INVARIANT: cs.write("::x10aux::RuntimeType::invariant"); break;
 	            default: assert false : "Unexpected Variance";
 	            }
 	            first = false;
@@ -848,7 +848,7 @@ public class Emitter {
 		if (!n.flags().flags().isInterface() && !n.classDef().isStruct()) {
 			TypeNode sc = n.superClass();
 			if (sc == null) {
-				h.write(" : public x10::lang::X10Class");
+				h.write(" : public ::x10::lang::X10Class");
 			} else {
 				String parent = translateType(n.superClass().type());
 				h.write(" : public "+parent);
@@ -1008,29 +1008,29 @@ public class Emitter {
             h.write("virtual ");
             h.write("void "+SERIALIZE_BODY_METHOD+"("+SERIALIZATION_BUFFER+"& buf) {");
             h.newline(4); h.begin(0);
-            h.write("x10aux::throwNotSerializableException(\"Can't serialize "+type.fullName().toString()+"\");");
+            h.write("::x10aux::throwNotSerializableException(\"Can't serialize "+type.fullName().toString()+"\");");
             h.end(); h.newline();
             h.write("}"); h.newline();
             h.forceNewline();
 
             if (!type.flags().isFinal())
                 h.write("virtual ");
-            h.write("x10aux::serialization_id_t "+SERIALIZE_ID_METHOD+"() {");
+            h.write("::x10aux::serialization_id_t "+SERIALIZE_ID_METHOD+"() {");
             h.newline(4); h.begin(0);
-            h.write("x10aux::throwNotSerializableException(\"Can't serialize "+type.fullName().toString()+"\");");
+            h.write("::x10aux::throwNotSerializableException(\"Can't serialize "+type.fullName().toString()+"\");");
             h.end(); h.newline();
             h.write("}"); h.newline();
             h.forceNewline();
         } else {
             if (!type.flags().isAbstract()) {
                 // _serialization_id
-                h.write("public: static const x10aux::serialization_id_t "+SERIALIZATION_ID_FIELD+";"); h.newline();
+                h.write("public: static const ::x10aux::serialization_id_t "+SERIALIZATION_ID_FIELD+";"); h.newline();
                 h.forceNewline();
                 printTemplateSignature(ct.x10Def().typeParameters(), w);
-                w.write("const x10aux::serialization_id_t "+klass+"::"+SERIALIZATION_ID_FIELD+" = ");
+                w.write("const ::x10aux::serialization_id_t "+klass+"::"+SERIALIZATION_ID_FIELD+" = ");
                 w.newline(4);
-                w.write("x10aux::DeserializationDispatcher::addDeserializer(");
-                w.write(klass+"::"+DESERIALIZER_METHOD+", x10aux::CLOSURE_KIND_NOT_ASYNC);");
+                w.write("::x10aux::DeserializationDispatcher::addDeserializer(");
+                w.write(klass+"::"+DESERIALIZER_METHOD+", ::x10aux::CLOSURE_KIND_NOT_ASYNC);");
                 w.newline(); w.forceNewline();
             }
 
@@ -1039,7 +1039,7 @@ public class Emitter {
                 h.write("public: ");
                 if (!type.flags().isFinal())
                     h.write("virtual ");
-                h.write("x10aux::serialization_id_t "+SERIALIZE_ID_METHOD+"() {");
+                h.write("::x10aux::serialization_id_t "+SERIALIZE_ID_METHOD+"() {");
                 h.newline(4); h.begin(0);
                 h.write(" return "+SERIALIZATION_ID_FIELD+";"); h.end(); h.newline();
                 h.write("}"); h.newline();
@@ -1069,9 +1069,9 @@ public class Emitter {
             w.newline(4); w.begin(0);
             if (customSerialization) {
                 w.writeln("/* NOTE: Implements x10.io.CustomSerialization */");
-                w.writeln("x10::io::Serializer* x10_buf = x10::io::Serializer::"+MAKE+"(&buf);");
+                w.writeln("::x10::io::Serializer* x10_buf = ::x10::io::Serializer::"+MAKE+"(&buf);");
                 w.writeln("this->serialize(x10_buf);");
-                w.writeln("buf.write(x10aux::deserialization_buffer::CUSTOM_SERIALIZATION_END);");
+                w.writeln("buf.write(::x10aux::deserialization_buffer::CUSTOM_SERIALIZATION_END);");
             } else {
                 if (parent != null && parent.isClass()) {
                     w.write(translateType(parent)+"::"+SERIALIZE_BODY_METHOD+"(buf);");
@@ -1097,12 +1097,12 @@ public class Emitter {
             if (!type.flags().isAbstract()) {
                 // _deserializer()
                 h.write("public: static ");
-                h.write(make_ref("x10::lang::Reference")+" "+DESERIALIZER_METHOD+"("+DESERIALIZATION_BUFFER+"& buf);");
+                h.write(make_ref("::x10::lang::Reference")+" "+DESERIALIZER_METHOD+"("+DESERIALIZATION_BUFFER+"& buf);");
                 h.newline(); h.forceNewline();
                 printTemplateSignature(ct.x10Def().typeParameters(), sw);
-                sw.write(make_ref("x10::lang::Reference")+" "+klass+"::"+DESERIALIZER_METHOD+"("+DESERIALIZATION_BUFFER+"& buf) {");
+                sw.write(make_ref("::x10::lang::Reference")+" "+klass+"::"+DESERIALIZER_METHOD+"("+DESERIALIZATION_BUFFER+"& buf) {");
                 sw.newline(4); sw.begin(0);
-                sw.writeln(make_ref(klass)+" this_ = new (x10aux::alloc_z"+chevrons(klass)+"()) "+klass+"();");
+                sw.writeln(make_ref(klass)+" this_ = new (::x10aux::alloc_z"+chevrons(klass)+"()) "+klass+"();");
                 sw.writeln("buf.record_reference(this_);");
                 sw.writeln("this_->"+DESERIALIZE_BODY_METHOD+"(buf);");
                 sw.write("return this_;");
@@ -1118,10 +1118,10 @@ public class Emitter {
             w.newline(4); w.begin(0);
             if (customSerialization) {
                 w.writeln("/* NOTE: Implements x10.io.CustomSerialization */");
-                w.writeln("x10::io::Deserializer* x10_buf = x10::io::Deserializer::"+MAKE+"(&buf);");
+                w.writeln("::x10::io::Deserializer* x10_buf = ::x10::io::Deserializer::"+MAKE+"(&buf);");
                 w.writeln(CONSTRUCTOR+"(x10_buf);");
-                w.writeln("x10aux::serialization_id_t tmp = buf.read<x10aux::serialization_id_t>();");
-                w.writeln("if (tmp != x10aux::deserialization_buffer::CUSTOM_SERIALIZATION_END) { x10aux::raiseSerializationProtocolError(); }");
+                w.writeln("::x10aux::serialization_id_t tmp = buf.read< ::x10aux::serialization_id_t>();");
+                w.writeln("if (tmp != ::x10aux::deserialization_buffer::CUSTOM_SERIALIZATION_END) { ::x10aux::raiseSerializationProtocolError(); }");
             } else {
                 if (parent != null && parent.isClass()) {
                     w.write(translateType(parent)+"::"+DESERIALIZE_BODY_METHOD+"(buf);");

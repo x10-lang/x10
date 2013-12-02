@@ -279,7 +279,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
             // XTENLANG-1407: Replace alloc_z with alloc once we finish the default value specification/implementation.
             //                Expect it to be more efficient to explicitly initialize all of the object fields instead
             //                of first calling alloc_z, then storing into most of the fields a second time.
-            sw.write("(new (x10aux::alloc_z"+chevrons(typeName)+"()) "+typeName+"())");
+            sw.write("(new (::x10aux::alloc_z"+chevrons(typeName)+"()) "+typeName+"())");
             sw.newline();
         }
     }
@@ -355,7 +355,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 			Ref<? extends Type> st = cd.superType();
 		    h.write(" : public ");
 		    if (st == null ) {
-			    h.write("x10::lang::X10Class");
+			    h.write("::x10::lang::X10Class");
 		    } else {
 			    X10ClassDef sdef = ((X10ClassType) Types.baseType(st.get())).x10Def();
 			    h.write(Emitter.translateType(getStaticMemberContainer(sdef), false));
@@ -365,8 +365,8 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 		h.write("{");
 		h.newline(4); h.begin(0);
 		h.write("public:"); h.newline();
-		h.write("static x10aux::RuntimeType rtt;"); h.newline();
-		h.write("static const x10aux::RuntimeType* getRTT() { return & rtt; }"); h.newline();
+		h.write("static ::x10aux::RuntimeType rtt;"); h.newline();
+		h.write("static const ::x10aux::RuntimeType* getRTT() { return & rtt; }"); h.newline();
 		
 		// Process all static fields and methods
 		for (ClassMember dec : context.pendingStaticDecls()) {
@@ -408,7 +408,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 	    String declClassName = translate_mangled_FQN(cd.fullName().toString());
 	    String container = declClassName+voidTemplateInstantiation(cd.typeParameters().size());
 
-	    sw.write("x10aux::RuntimeType "+container+"::rtt;");
+	    sw.write("::x10aux::RuntimeType "+container+"::rtt;");
 	    sw.newline();
 
 	    for (ClassMember dec : context.pendingStaticDecls()) {
@@ -1023,7 +1023,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
             }
             
             ClassifiedStream bs = hasStructArg ? sw.body() : h;
-            // Method for x10::lang::Reference (objects, closures, boxed structs)
+            // Method for ::x10::lang::Reference (objects, closures, boxed structs)
             // (a) decl in header stream
             h.write("static "+Emitter.translateType(meth.returnType(), true));
             h.write(" "+mname+"("+Emitter.translateType(currentClass, true)+" _recv");
@@ -1044,7 +1044,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
                 }
             }
             bs.write(") {"); bs.newline(4); bs.begin(0);
-            bs.writeln("x10::lang::Reference* _refRecv = reinterpret_cast<x10::lang::Reference*>(_recv);");
+            bs.writeln("::x10::lang::Reference* _refRecv = reinterpret_cast< ::x10::lang::Reference*>(_recv);");
             boolean needsCast = false;
             if (!meth.returnType().isVoid()) {
                 bs.write("return ");
@@ -1059,7 +1059,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
                     bs.write("(");
                 }
             }
-            bs.write("(_refRecv->*(x10aux::findITable"+chevrons(Emitter.translateType(currentClass, false))+"(_refRecv->_getITables())->"+mname+"))(");
+            bs.write("(_refRecv->*(::x10aux::findITable"+chevrons(Emitter.translateType(currentClass, false))+"(_refRecv->_getITables())->"+mname+"))(");
             boolean first = true;
             argNum = 0;
             for (Type f : meth.formalTypes()) {
@@ -1221,8 +1221,8 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 		int numInterfaces = allInterfaces.size();
 		if (numInterfaces > 0 && !currentClass.flags().isAbstract()) {
 			/* ITables declarations */
-			h.write("static x10aux::itable_entry _itables["+(numInterfaces+1)+"];"); h.newline(); h.forceNewline();
-			h.write(maybeVirtual+"x10aux::itable_entry* _getITables() { return _itables; }"); h.newline(); h.forceNewline();
+			h.write("static ::x10aux::itable_entry _itables["+(numInterfaces+1)+"];"); h.newline(); h.forceNewline();
+			h.write(maybeVirtual+"::x10aux::itable_entry* _getITables() { return _itables; }"); h.newline(); h.forceNewline();
 			int itableNum = 0;
 			for (Type interfaceType : allInterfaces) {
 				ITable itable = context.getITable((X10ClassType) Types.baseType(interfaceType));
@@ -1240,13 +1240,13 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 			}
 
 			emitter.printTemplateSignature(cd.typeParameters(), sw);
-			sw.write("x10aux::itable_entry "+Emitter.translateType(currentClass)+"::_itables["+(numInterfaces+1)+"] = {");
+			sw.write("::x10aux::itable_entry "+Emitter.translateType(currentClass)+"::_itables["+(numInterfaces+1)+"] = {");
 			itableNum = 0;
 			for (Type interfaceType : allInterfaces) {
-				sw.write("x10aux::itable_entry(&x10aux::getRTT"+chevrons(Emitter.translateType(interfaceType, false))+", &_itable_"+itableNum+"), ");
+				sw.write("::x10aux::itable_entry(&::x10aux::getRTT"+chevrons(Emitter.translateType(interfaceType, false))+", &_itable_"+itableNum+"), ");
 				itableNum += 1;
 			}
-			sw.write("x10aux::itable_entry(NULL, (void*)x10aux::getRTT"+chevrons(Emitter.translateType(currentClass, false))+"())};"); sw.newline();
+			sw.write("::x10aux::itable_entry(NULL, (void*)::x10aux::getRTT"+chevrons(Emitter.translateType(currentClass, false))+"())};"); sw.newline();
 		}
 	}
 
@@ -1271,8 +1271,8 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
             }
 
 	        /* ITables declarations */
-	        h.writeln("static x10aux::itable_entry _itables["+(numInterfaces+1)+"];"); h.forceNewline();
-	        h.writeln("x10aux::itable_entry* _getITables() { return _itables; }"); h.forceNewline();
+	        h.writeln("static ::x10aux::itable_entry _itables["+(numInterfaces+1)+"];"); h.forceNewline();
+	        h.writeln("::x10aux::itable_entry* _getITables() { return _itables; }"); h.forceNewline();
             int itableNum = 0;
             for (Type interfaceType : allInterfaces) {
                 ITable itable = context.getITable((X10ClassType) Types.baseType(interfaceType));
@@ -1280,8 +1280,8 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
                 itableNum += 1;
                 h.forceNewline();
             }
-            h.writeln("static x10aux::itable_entry _iboxitables["+(numInterfaces+1)+"];"); h.forceNewline();
-            h.writeln("x10aux::itable_entry* _getIBoxITables() { return _iboxitables; }"); h.forceNewline();
+            h.writeln("static ::x10aux::itable_entry _iboxitables["+(numInterfaces+1)+"];"); h.forceNewline();
+            h.writeln("::x10aux::itable_entry* _getIBoxITables() { return _iboxitables; }"); h.forceNewline();
             
 	        /* ITables initialization */
             itableNum = 0;
@@ -1295,25 +1295,25 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 
 	        // Itables init for the struct itself
 	        emitter.printTemplateSignature(cd.typeParameters(), sw);
-	        sw.write("x10aux::itable_entry "+clsCType+"::_itables["+(numInterfaces+1)+"] = {");
+	        sw.write("::x10aux::itable_entry "+clsCType+"::_itables["+(numInterfaces+1)+"] = {");
 	        itableNum = 0;
 	        for (Type interfaceType : allInterfaces) {
-	            sw.write("x10aux::itable_entry(&x10aux::getRTT"+chevrons(Emitter.translateType(interfaceType, false))+", &"+
+	            sw.write("::x10aux::itable_entry(&::x10aux::getRTT"+chevrons(Emitter.translateType(interfaceType, false))+", &"+
 	                     thunkBaseName+thunkParams+"::_itable_"+itableNum+"), ");
 	            itableNum += 1;
 	        }
-	        sw.write("x10aux::itable_entry(NULL, (void*)x10aux::getRTT"+chevrons(Emitter.translateType(currentClass, false))+"())};"); sw.newline();
+	        sw.write("::x10aux::itable_entry(NULL, (void*)::x10aux::getRTT"+chevrons(Emitter.translateType(currentClass, false))+"())};"); sw.newline();
 	        
 	        // ITables init for the IBox thunk.
 	        emitter.printTemplateSignature(cd.typeParameters(), sw);
-	        sw.write("x10aux::itable_entry "+clsCType+"::_iboxitables["+(numInterfaces+1)+"] = {");
+	        sw.write("::x10aux::itable_entry "+clsCType+"::_iboxitables["+(numInterfaces+1)+"] = {");
 	        itableNum = 0;
 	        for (Type interfaceType : allInterfaces) {
-	            sw.write("x10aux::itable_entry(&x10aux::getRTT"+chevrons(Emitter.translateType(interfaceType, false))+", &"+
+	            sw.write("::x10aux::itable_entry(&::x10aux::getRTT"+chevrons(Emitter.translateType(interfaceType, false))+", &"+
 	                     thunkBaseName+"_ibox"+itableNum+thunkParams+"::itable), ");
 	            itableNum += 1;
 	        }
-	        sw.write("x10aux::itable_entry(NULL, (void*)x10aux::getRTT"+chevrons(Emitter.translateType(currentClass, false))+"())};"); sw.newline();
+	        sw.write("::x10aux::itable_entry(NULL, (void*)::x10aux::getRTT"+chevrons(Emitter.translateType(currentClass, false))+"())};"); sw.newline();
 	    }
 	}
 
@@ -1419,16 +1419,16 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 		StringBuilder sb = new StringBuilder();
         sb.append("#include <x10aux/bootstrap.h>\n");
 		String mainTypeArgs = container;
-        sb.append("extern \"C\" { int main(int ac, char **av) { return x10aux::template_main"+chevrons(mainTypeArgs)+"(ac,av); } }\n");
+        sb.append("extern \"C\" { int main(int ac, char **av) { return ::x10aux::template_main"+chevrons(mainTypeArgs)+"(ac,av); } }\n");
         if (options.x10_config.DEBUG && options.x10_config.DEBUG_ENABLE_LINEMAPS)
 		{
 			sb.append("\n// Debugger stuff\n");
 			sb.append("#include<x10aux/place_local.h>\n");
 			sb.append("#include<x10/lang/Thread.h>\n");
-			sb.append("void* x10aux_place_local__fastData = &x10aux::place_local::_fastData;\n");
+			sb.append("void* x10aux_place_local__fastData = &::x10aux::place_local::_fastData;\n");
 			sb.append("void* __x10MainRef = (void *) "+container+"::main;\n");
-			sb.append("pthread_key_t* __x10ThreadMapper = (pthread_key_t *) &x10::lang::Thread::__thread_mapper;\n");
-			sb.append("x10_boolean* __x10ThreadMapperInited = (x10_boolean *) &x10::lang::Thread::__thread_mapper_inited;\n");
+			sb.append("pthread_key_t* __x10ThreadMapper = (pthread_key_t *) &::x10::lang::Thread::__thread_mapper;\n");
+			sb.append("x10_boolean* __x10ThreadMapperInited = (x10_boolean *) &::x10::lang::Thread::__thread_mapper_inited;\n");
 		}
         return sb.toString();
 	}
@@ -1666,7 +1666,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 	            // XTENLANG-1407: Replace alloc_z with alloc once we finish the default value specification/implementation.
 	            //                Expect it to be more efficient to explicitly initialize all of the object fields instead
 	            //                of first calling alloc_z, then storing into most of the fields a second time.
-	            sw.writeln(make_ref(typeName)+" this_ = new (x10aux::alloc_z"+chevrons(typeName)+"()) "+typeName+"();");
+	            sw.writeln(make_ref(typeName)+" this_ = new (::x10aux::alloc_z"+chevrons(typeName)+"()) "+typeName+"();");
 	        }
             sw.write("this_->"+CONSTRUCTOR+"(");
 	        for (Iterator<Formal> i = dec.formals().iterator(); i.hasNext(); ) {
@@ -1742,10 +1742,10 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 	private static final String STATIC_FIELD_EXCEPTION_SUFFIX = "__exception";
 	private static final String STATIC_FIELD_INITIALIZER_SUFFIX = "__init";
 	private static final String STATIC_FIELD_REAL_INIT_SUFFIX = "__do_init";
-	private static final String STATIC_FIELD_UNINITIALIZED = "x10aux::StaticInitController::UNINITIALIZED";
-	private static final String STATIC_FIELD_INITIALIZING = "x10aux::StaticInitController::INITIALIZING";
-	private static final String STATIC_FIELD_INITIALIZED = "x10aux::StaticInitController::INITIALIZED";
-	private static final String STATIC_FIELD_EXCEPTIONAL = "x10aux::StaticInitController::EXCEPTION_RAISED";
+	private static final String STATIC_FIELD_UNINITIALIZED = "::x10aux::StaticInitController::UNINITIALIZED";
+	private static final String STATIC_FIELD_INITIALIZING = "::x10aux::StaticInitController::INITIALIZING";
+	private static final String STATIC_FIELD_INITIALIZED = "::x10aux::StaticInitController::INITIALIZED";
+	private static final String STATIC_FIELD_EXCEPTIONAL = "::x10aux::StaticInitController::EXCEPTION_RAISED";
 
 	/**
 	 * Generate an initializer method for a given field declaration.
@@ -1818,7 +1818,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 	    sw.write(container + "::" + init);
 	    sw.write("() {");
 	    sw.newline(4); sw.begin(0);
-	    sw.writeln("x10aux::StaticInitController::initField(&" + status+", &"+init_nb+", &"+except+", \""+container+"."+name+"\");");
+	    sw.writeln("::x10aux::StaticInitController::initField(&" + status+", &"+init_nb+", &"+except+", \""+container+"."+name+"\");");
 	    sw.end(); sw.newline();
 	    sw.writeln("}");
 	}
@@ -1847,10 +1847,10 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
         generateStaticFieldInitializer(dec, container, sw);
         
         // declare the initialization flag
-        h.writeln("static volatile x10aux::StaticInitController::status "+status+";");;
+        h.writeln("static volatile ::x10aux::StaticInitController::status "+status+";");;
 
         // declare the exception holder
-        h.writeln("static "+make_ref("x10::lang::CheckedThrowable")+" "+except+";");;
+        h.writeln("static "+make_ref("::x10::lang::CheckedThrowable")+" "+except+";");;
 
         // declare the accessor method
         h.write("static ");
@@ -1885,13 +1885,13 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
         gh.newline(); gh.forceNewline();
 
         // define the initialization flag
-        sw.write("volatile x10aux::StaticInitController::status ");
+        sw.write("volatile ::x10aux::StaticInitController::status ");
         sw.write(container+"::");
         sw.write(status);
         sw.writeln(";");
         
         // define the exception holder flag
-        sw.write(make_ref("x10::lang::CheckedThrowable")+" ");
+        sw.write(make_ref("::x10::lang::CheckedThrowable")+" ");
         sw.write(container+"::");
         sw.write(except);
         sw.writeln(";");
@@ -1942,9 +1942,9 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 
 		sw.write("#ifndef NO_ASSERTIONS");
 		sw.newline();
-		sw.write("if (x10aux::x10__assertions_enabled)");
+		sw.write("if (::x10aux::x10__assertions_enabled)");
 		sw.newline(4); sw.begin(0);
-		sw.write("x10aux::x10__assert(");
+		sw.write("::x10aux::x10__assert(");
 		n.print(n.cond(), sw, tr);
 		if (n.errorMessage() != null) {
 			sw.write(",");
@@ -2204,7 +2204,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 	        if (dec.type().type().isRail()) {
 	            tmpName = mangled_non_method_name(dec.name().id().toString());
 	            Type elemType = dec.type().type().toClass().typeArguments().get(0);
-	            sw.writeln("x10::lang::StackAllocatedRail<"+Emitter.translateType(elemType)+", "+sizeProperty+"> "+tmpName+"_mem("+sizeProperty+");");
+	            sw.writeln("::x10::lang::StackAllocatedRail< "+Emitter.translateType(elemType)+", "+sizeProperty+"> "+tmpName+"_mem("+sizeProperty+");");
 	            emitter.printHeader(dec, sw, tr, true);
 	            sw.write(" = &"+tmpName+"_mem;");
 	        } else {
@@ -2701,7 +2701,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 
 		            boolean assoc = !(target instanceof New_c || target instanceof Binary_c);
 		            if (!isInterfaceInvoke) {
-		                if (needsNullCheck) sw.write("x10aux::nullCheck(");
+		                if (needsNullCheck) sw.write("::x10aux::nullCheck(");
 		                n.printSubExpr((Expr) target, assoc, sw, tr);
 		                if (needsNullCheck) sw.write(")");
 		                sw.write("->");
@@ -2779,7 +2779,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 	    ITable itable= context.getITable(clsType);
 	    String targetMethodName = itable.mangledName(mi);
 	    sw.write(Emitter.translateType(clsType, false)+"::"+targetMethodName+"(");
-	    if (needsNullCheck) sw.write("x10aux::nullCheck(");
+	    if (needsNullCheck) sw.write("::x10aux::nullCheck(");
 	    n.print(target, sw, tr);
 	    if (needsNullCheck) sw.write(")");
 	    if (mi.formalTypes().size()>0) sw.write(", ");
@@ -2868,7 +2868,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 			} else {
 			    boolean needsNullCheck = !Types.isX10Struct(t) && needsNullCheck(target);
 				boolean assoc = !(target instanceof New_c || target instanceof Binary_c);
-				if (needsNullCheck) sw.write("x10aux::nullCheck(");
+				if (needsNullCheck) sw.write("::x10aux::nullCheck(");
 				n.printSubExpr((Expr) target, assoc, sw, tr);
 				if (needsNullCheck) sw.write(")");
 			}
@@ -3072,7 +3072,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
             sw.write("\"");
         } else {
             if (((x10.ExtensionInfo)(tr.job().extensionInfo())).getOptions().x10_config.FLATTEN_EXPRESSIONS) {
-                sw.write("x10aux::makeStringLit(\"");
+                sw.write("::x10aux::makeStringLit(\"");
                 sw.write(StringUtil.escape(n.value()));
                 sw.write("\")");
             } else {
@@ -3080,9 +3080,9 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
                 // Use a static local inside of a statement expression so that
                 // the literal is actually only allocated once dynamically.
                 Name litName = Name.makeFresh("strLit");
-                sw.write("(__extension__ ({ static x10::lang::String* ");
+                sw.write("(__extension__ ({ static ::x10::lang::String* ");
                 sw.write(mangled_non_method_name(litName.toString()));
-                sw.write(" = x10aux::makeStringLit(\"");
+                sw.write(" = ::x10aux::makeStringLit(\"");
                 sw.write(StringUtil.escape(n.value()));
                 sw.write("\"); ");
                 sw.write(mangled_non_method_name(litName.toString()));
@@ -3154,7 +3154,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 				    if (c.conversionType()==Converter.ConversionType.UNCHECKED) {
 				        sw.write(selectUncheckedCast(xts, f_, t_));
 				    } else {
-				        sw.write("x10aux::class_cast");
+				        sw.write("::x10aux::class_cast");
 				    }
 				    sw.write(chevrons(Emitter.translateType(t_, true)) + "(");
 				    c.printSubExpr(c.expr(), true, sw, tr);
@@ -3181,7 +3181,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
                 xts.isObjectOrInterfaceType(toType, tr.context())) {
             return "reinterpret_cast";
         } else {
-            return "x10aux::class_cast_unchecked";
+            return "::x10aux::class_cast_unchecked";
         }
     }
 
@@ -3189,13 +3189,13 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 	public void visit(SubtypeTest_c n) {
 		X10CPPContext_c context = (X10CPPContext_c) tr.context();
         if (n.equals()) {
-            sw.write("x10aux::sametype");
+            sw.write("::x10aux::sametype");
             sw.write(chevrons(
                 Emitter.translateType(n.subtype().type(), true) + "," +
                 Emitter.translateType(n.supertype().type(), true)
             ));
         } else {
-            sw.write("x10aux::subtypeof");
+            sw.write("::x10aux::subtypeof");
             sw.write(chevrons(
                 Emitter.translateType(n.subtype().type(), true) + "," +
                 Emitter.translateType(n.supertype().type(), true)
@@ -3206,7 +3206,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 
 	public void visit(HasZeroTest_c n) {
 	    X10CPPContext_c context = (X10CPPContext_c) tr.context();
-	    sw.write("x10aux::haszero");
+	    sw.write("::x10aux::haszero");
 	    sw.write(chevrons(
 	            Emitter.translateType(n.parameter().type(), true)
 	    ));
@@ -3216,7 +3216,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 	public void visit(X10Instanceof_c n) {
 		X10CPPContext_c context = (X10CPPContext_c) tr.context();
 
-		sw.write("x10aux::instanceof");
+		sw.write("::x10aux::instanceof");
 		sw.write(chevrons(Emitter.translateType(n.compareType().type(), true)));
 		sw.write("(");
 		sw.begin(0);
@@ -3227,7 +3227,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 
 	public void visit(Throw_c n) {
 		X10CPPContext_c context = (X10CPPContext_c) tr.context();
-		sw.write("x10aux::throwException(x10aux::nullCheck(");
+		sw.write("::x10aux::throwException(::x10aux::nullCheck(");
 		n.print(n.expr(), sw, tr);
 		sw.write("));");
 	}
@@ -3281,7 +3281,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
         if (n.formal().type().type().typeEquals(tr.typeSystem().CheckedThrowable(), context)) {
             sw.write("true");
 		} else {
-			sw.write("x10aux::instanceof" + chevrons(type) + "(" + excVar + ")");
+			sw.write("::x10aux::instanceof" + chevrons(type) + "(" + excVar + ")");
 		}
 		sw.write(") {");
 		sw.newline(4); sw.begin(0);
@@ -3434,8 +3434,8 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 
         /* ITables declarations */
         sw.write("static "+(in_template_closure ? "typename " : "")+superType+(in_template_closure ? "::template itable " : "::itable")+chevrons(cnamet)+" _itable;"); sw.newline();
-        sw.write("static x10aux::itable_entry _itables[2];"); sw.newline(); sw.forceNewline();
-        sw.write("virtual x10aux::itable_entry* _getITables() { return _itables; }"); sw.newline(); sw.forceNewline();
+        sw.write("static ::x10aux::itable_entry _itables[2];"); sw.newline(); sw.forceNewline();
+        sw.write("virtual ::x10aux::itable_entry* _getITables() { return _itables; }"); sw.newline(); sw.forceNewline();
 
         sw.write("// closure body"); sw.newline();
         sw.write(Emitter.translateType(retType, true)+" "+Emitter.mangled_method_name(ClosureCall.APPLY.toString())+"(");
@@ -3504,7 +3504,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
         emitter.printDeclarationList(sw, c, env, refs);
         sw.forceNewline();
 
-        sw.write("x10aux::serialization_id_t "+SERIALIZE_ID_METHOD+"() {");
+        sw.write("::x10aux::serialization_id_t "+SERIALIZE_ID_METHOD+"() {");
         sw.newline(4); sw.begin(0);
         sw.write("return "+SERIALIZATION_ID_FIELD+";"); sw.end(); sw.newline();
         sw.write("}"); sw.newline(); sw.forceNewline();
@@ -3540,14 +3540,14 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
         sw.end();
         sw.write(" { }"); sw.newline(); sw.forceNewline();
 
-        sw.write("static const x10aux::serialization_id_t "+SERIALIZATION_ID_FIELD+";");
+        sw.write("static const ::x10aux::serialization_id_t "+SERIALIZATION_ID_FIELD+";");
         sw.newline(); sw.forceNewline();
 
-        sw.write("static const x10aux::RuntimeType* getRTT() {"+
-                  " return x10aux::getRTT"+chevrons(superType)+"(); }");
+        sw.write("static const ::x10aux::RuntimeType* getRTT() {"+
+                  " return ::x10aux::getRTT"+chevrons(superType)+"(); }");
         sw.newline();
-        sw.write("virtual const x10aux::RuntimeType *_type() const {"+
-                  " return x10aux::getRTT"+chevrons(superType)+"(); }");
+        sw.write("virtual const ::x10aux::RuntimeType *_type() const {"+
+                  " return ::x10aux::getRTT"+chevrons(superType)+"(); }");
         sw.newline(); sw.forceNewline();
 
         sw.write("const char* toNativeString() {");
@@ -3572,9 +3572,9 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 
         if (in_template_closure)
             emitter.printTemplateSignature(freeTypeParams, defn_s);
-		defn_s.write("x10aux::itable_entry "+cnamet+"::_itables[2] = {");
-		defn_s.write("x10aux::itable_entry(&x10aux::getRTT"+chevrons(superType)+", &"+cnamet+"::_itable),");
-		defn_s.write("x10aux::itable_entry(NULL, NULL)};"); defn_s.newline(); defn_s.forceNewline();
+		defn_s.write("::x10aux::itable_entry "+cnamet+"::_itables[2] = {");
+		defn_s.write("::x10aux::itable_entry(&::x10aux::getRTT"+chevrons(superType)+", &"+cnamet+"::_itable),");
+		defn_s.write("::x10aux::itable_entry(NULL, NULL)};"); defn_s.newline(); defn_s.forceNewline();
 
 		int kind = 0;
 		try {
@@ -3623,7 +3623,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
         boolean stackAllocateClosure = ((X10CPPContext_c)c).closureOuter.stackAllocateClosure;
         if (!stackAllocateClosure) {
             sw.write("reinterpret_cast"+chevrons(make_ref(superType))+"(");
-            sw.write("(new (x10aux::alloc"+chevrons(superType)+"(sizeof("+cname+templateArgs+")))");
+            sw.write("(new (::x10aux::alloc"+chevrons(superType)+"(sizeof("+cname+templateArgs+")))");
         }
         sw.write(cname+templateArgs+"(");
         for (int i = 0; i < env.size(); i++) {
@@ -3700,7 +3700,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 
         inc.write("template<class __T> static "+make_ref("__T")+" "+DESERIALIZE_METHOD+"("+DESERIALIZATION_BUFFER+" &buf) {");
         inc.newline(4); inc.begin(0);
-        inc.writeln(cnamet+"* storage = x10aux::alloc_z"+chevrons(cnamet)+"();");
+        inc.writeln(cnamet+"* storage = ::x10aux::alloc_z"+chevrons(cnamet)+"();");
         inc.writeln("buf.record_reference(storage);");
         
         // FIXME: factor out this loop
@@ -3740,9 +3740,9 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
     }
 
     protected String closure_kind_strs[] = new String[] {
-    		"x10aux::CLOSURE_KIND_NOT_ASYNC",
-    		"x10aux::CLOSURE_KIND_SIMPLE_ASYNC",
-    		"x10aux::CLOSURE_KIND_GENERAL_ASYNC"
+    		"::x10aux::CLOSURE_KIND_NOT_ASYNC",
+    		"::x10aux::CLOSURE_KIND_SIMPLE_ASYNC",
+    		"::x10aux::CLOSURE_KIND_GENERAL_ASYNC"
     };
 
     protected void generateClosureDeserializationIdDef(ClassifiedStream defn_s, String cnamet, List<Type> freeTypeParams, String hostClassName, Block block, int kind) {
@@ -3750,12 +3750,12 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
         boolean in_template_closure = freeTypeParams.size()>0;
         if (in_template_closure)
             emitter.printTemplateSignature(freeTypeParams, defn_s);
-        defn_s.write("const x10aux::serialization_id_t "+cnamet+"::"+SERIALIZATION_ID_FIELD+" = ");
+        defn_s.write("const ::x10aux::serialization_id_t "+cnamet+"::"+SERIALIZATION_ID_FIELD+" = ");
         defn_s.newline(4);
         String template = in_template_closure ? "template " : "";
-        defn_s.write("x10aux::DeserializationDispatcher::addDeserializer("+
+        defn_s.write("::x10aux::DeserializationDispatcher::addDeserializer("+
                   cnamet+"::"+template+DESERIALIZE_METHOD+
-                  chevrons("x10::lang::Reference")+","+closure_kind_strs[kind]+");");
+                  chevrons("::x10::lang::Reference")+","+closure_kind_strs[kind]+");");
         defn_s.newline(); defn_s.forceNewline();
     }
 
@@ -3810,7 +3810,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 		        invokeInterface(c, target, c.arguments(), make_ref(REFERENCE_TYPE), t.toClass(), ami, needsNullCheck);
 		        return;
 		    } else {
-		        if (needsNullCheck) sw.write("x10aux::nullCheck(");
+		        if (needsNullCheck) sw.write("::x10aux::nullCheck(");
 		        c.printSubExpr(target, sw, tr);
 		        if (needsNullCheck) sw.write(")");
 		        sw.write("->"+Emitter.mangled_method_name(ClosureCall.APPLY.toString())+"(");
