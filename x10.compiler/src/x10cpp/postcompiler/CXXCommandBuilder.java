@@ -407,6 +407,7 @@ public class CXXCommandBuilder {
     	ans.add("sm_20");
     	ans.add("sm_21");
     	//ans.add("sm_30");
+    	//ans.add("sm_35"); // requires CUDA Toolkit 5.0 Version 1.1 or newer
     	return ans;
     }
 
