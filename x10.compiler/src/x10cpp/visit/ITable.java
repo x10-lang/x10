@@ -165,7 +165,7 @@ public final class ITable {
 	}
 
 	public void emitITableDecl(X10ClassType cls, int itableNum, Emitter emitter, CodeWriter h) {
-		String interfaceCType = Emitter.translateType(interfaceType, false, false);
+		String interfaceCType = Emitter.translateType(interfaceType, false);
 		X10ClassDef cd = cls.x10Def();
 		boolean doubleTemplate = cd.typeParameters().size() > 0 && interfaceType.x10Def().typeParameters().size() > 0;
 		h.write("static "+(doubleTemplate ? "typename ":"")+interfaceCType+
@@ -181,7 +181,7 @@ public final class ITable {
 	        // an additional thunk class and itable for use by the IBox of the
 	        // struct.
             String interfaceCType = Emitter.translateType(interfaceType, false);
-            String clsCType = Emitter.translateType(cls, false, false);
+            String clsCType = Emitter.translateType(cls, false, true);
             String thunkBaseType = Emitter.mangled_non_method_name(cd.name().toString());
             String thunkParams = "";
             if (cd.typeParameters().size() != 0) {
@@ -201,7 +201,7 @@ public final class ITable {
             }            
 
             String thunkType = thunkBaseType + "_ibox"+itableNum;
-            String parentCType = "x10::lang::IBox"+chevrons(clsCType);
+            String parentCType = "::x10::lang::IBox"+chevrons(clsCType);
             String recvArg = "this->value";
 
             cg.emitter.printTemplateSignature(cd.typeParameters(), sw);

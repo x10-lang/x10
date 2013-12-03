@@ -66,21 +66,21 @@ public class SharedVarsMethods {
 	static final String CONSTRUCTOR = "_constructor";
 	static final String MAKE = "_make";
 	public static final String SERIALIZATION_ID_FIELD = "_serialization_id";
-    public static final String SERIALIZATION_BUFFER = "x10aux::serialization_buffer";
+    public static final String SERIALIZATION_BUFFER = "::x10aux::serialization_buffer";
 	static final String SERIALIZE_METHOD = "_serialize";
 	static final String SERIALIZE_ID_METHOD = "_get_serialization_id";
 	public static final String SERIALIZE_BODY_METHOD = "_serialize_body";
-    public static final String DESERIALIZATION_BUFFER = "x10aux::deserialization_buffer";
+    public static final String DESERIALIZATION_BUFFER = "::x10aux::deserialization_buffer";
 	public static final String DESERIALIZE_METHOD = "_deserialize";
 	static final String DESERIALIZER_METHOD = "_deserializer";
     static final String DESERIALIZE_BODY_METHOD = "_deserialize_body";
     public static final String DESERIALIZE_CUDA_METHOD = "_deserialize_cuda";
     public static final String POST_CUDA_METHOD = "_post_cuda";
-    static final String STRUCT_EQUALS = "x10aux::struct_equals";
+    static final String STRUCT_EQUALS = "::x10aux::struct_equals";
     public static final String STRUCT_EQUALS_METHOD = "_struct_equals";
-    public static final String REFERENCE_TYPE = "x10::lang::Reference";
-    public static final String CLASS_TYPE = "x10::lang::X10Class";
-    public static final String CLOSURE_TYPE = "x10::lang::Closure";
+    public static final String REFERENCE_TYPE = "::x10::lang::Reference";
+    public static final String CLASS_TYPE = "::x10::lang::X10Class";
+    public static final String CLOSURE_TYPE = "::x10::lang::Closure";
 
     static final String VIM_MODELINE = "vim:tabstop=4:shiftwidth=4:expandtab";
     
