@@ -75,7 +75,10 @@ public class PreCodeGenASTChecker extends NodeVisitor {
         
         if (n instanceof Typed) {
             Type t = ((Typed)n).type();
-            if (t.typeSystem().isUnknown(t)) {
+            if (t != null && t.typeSystem().isUnknown(t)) {
+                // Hmm, it appears odd that a Typed can have a Type of null,
+                // but it does happen more often than one would expect.
+                // A different investigation...
                 return "<unknown> type present in AST";
             }
         }
