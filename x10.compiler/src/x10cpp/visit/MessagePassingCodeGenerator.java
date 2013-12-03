@@ -2737,7 +2737,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 		    if ((context.inTemplate() || context.isInsideTemplateClosure()) && (t.isClass() && t.toClass().hasParams())) {
 		        int firstTemplate = methodContainerType.indexOf("<");
 		        int i = methodContainerType.lastIndexOf("::", firstTemplate-1); // UGH. This is hacky, but it is really hard to restructure translateType to avoid needing a hack
-		        if (i >= 0) {
+		        if (i > 0) {
 		            methodContainerType = methodContainerType.substring(0, i+2)+"template "+methodContainerType.substring(i+2, methodContainerType.length());
 		        } else {
 		            methodContainerType = "template "+methodContainerType;
