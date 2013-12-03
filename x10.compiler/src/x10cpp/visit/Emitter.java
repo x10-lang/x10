@@ -240,7 +240,7 @@ public class Emitter {
 		printType(type,w,null);
 	}	
 	void printType(Type type, CodeWriter w, Context ctx) {
-		w.write(translateType(type, true, ctx));
+		w.write(translateType(type, true, true, ctx));
 	}
 
 	/**
@@ -324,9 +324,12 @@ public class Emitter {
 	 * @return a string representation of the type
 	 */
 	public static String translateType(Type type, boolean asRef) {
-		return translateType(type, asRef, null);
+		return translateType(type, asRef, true, null);
 	}
-	public static String translateType(Type type_, boolean asRef, Context ctx) {
+	public static String translateType(Type type, boolean asRef, boolean qualify) {
+	    return translateType(type, asRef, qualify, null);
+	}
+	public static String translateType(Type type_, boolean asRef, boolean qualify, Context ctx) {
 		assert (type_ != null);
 		TypeSystem xts = type_.typeSystem();
 		Type type = xts.expandMacros(type_);
@@ -344,7 +347,7 @@ public class Emitter {
 		if (type instanceof FunctionType) {
 		    FunctionType ft = (FunctionType) type;
 		    List<Type> args = ft.argumentTypes();
-		    name = translate_mangled_FQN(baseName(ft, true));
+		    name = (qualify ? "::":"") + translate_mangled_FQN(baseName(ft, true));
 		    String typeArgs = "";
 		    boolean firstArg = true;
 		    for (Type argType : args) {
@@ -397,7 +400,7 @@ public class Emitter {
 					name = fullName(ct).toString();
 				}
 			}
-		    name = translate_mangled_FQN(name);
+		    name = (qualify ? "::":"") + translate_mangled_FQN(name);
 			if (typeArguments.size() != 0) {
 				String args = "";
 				int s = typeArguments.size();
@@ -472,7 +475,7 @@ public class Emitter {
 	void printTemplateInstantiation(MethodInstance mi, CodeWriter w) {
 		if (mi.typeParameters().size() == 0)
 			return;
-		w.write("<");
+		w.write("< ");
 		for (Iterator<Type> i = mi.typeParameters().iterator(); i.hasNext(); ) {
 		    final Type at = i.next();
 		    w.write(translateType(at, true));
@@ -623,7 +626,7 @@ public class Emitter {
 		printType(ret, h);
 		h.allowBreak(2, 2, " ", 1);
 		if (qualify) {
-		    h.write(translateType(container)+ "::");
+		    h.write(translateType(container, false, false)+ "::");
 		}
 		h.write(mangled_method_name(name));
 		printFormalDecls(n, h, tr, flags, container);
@@ -723,8 +726,9 @@ public class Emitter {
 	    if (cd.typeParameters().isEmpty()) {
 	        cs = sw.body();
 	        boolean first = true;
-	        cs.writeln("::x10aux::RuntimeType "+translateType(ct)+"::rtt;");
-	        cs.write("void "+translateType(ct)+"::_initRTT() {"); cs.newline(4); cs.begin(0);
+	        String tn = translateType(ct, false, false);
+	        cs.writeln("::x10aux::RuntimeType "+tn+"::rtt;");
+	        cs.write("void "+tn+"::_initRTT() {"); cs.newline(4); cs.begin(0);
 	        cs.writeln("if (rtt.initStageOne(&rtt)) return;");
 	        if (numParents > 0) { 
 	            cs.write("const ::x10aux::RuntimeType* parents["+numParents+"] = { ");
@@ -752,10 +756,10 @@ public class Emitter {
 	        boolean first = true;
 	        int numTypeParams = cd.typeParameters().size();
 	        printTemplateSignature(cd.typeParameters(), cs);
-	        cs.writeln("::x10aux::RuntimeType "+translateType(ct)+"::rtt;");
+	        cs.writeln("::x10aux::RuntimeType "+translateType(ct, false, false)+"::rtt;");
 
 	        printTemplateSignature(cd.typeParameters(), cs);
-	        cs.write("void "+translateType(ct)+"::_initRTT() {"); cs.newline(4); cs.begin(0);
+	        cs.write("void "+translateType(ct, false, false)+"::_initRTT() {"); cs.newline(4); cs.begin(0);
                 cs.writeln("const ::x10aux::RuntimeType *canonical = ::x10aux::getRTT"+chevrons(translateType(MessagePassingCodeGenerator.getStaticMemberContainer(cd), false))+"();");
                 cs.writeln("if (rtt.initStageOne(canonical)) return;");
 	        
@@ -873,7 +877,7 @@ public class Emitter {
 		//printTemplateSignature(toTypeList(def.typeParameters()), h);
 
 		h.begin(0);
-		String typeName = translateType(container.def().asType());
+		String typeName = translateType(container.def().asType(), false, false);
         // not a virtual method, this function is called only when the static type is precise
         h.write(rType + " ");
 		if (define) {

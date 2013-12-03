@@ -285,7 +285,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
     }
 
     public void visit(ConstructorCall_c call) {
-        String targetClass = Emitter.translateType(call.constructorInstance().container());
+        String targetClass = Emitter.translateType(call.constructorInstance().container(),false,false);
         Expr target = call.target();
         sw.write("(");
         if (target == null) {
@@ -1240,7 +1240,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 			}
 
 			emitter.printTemplateSignature(cd.typeParameters(), sw);
-			sw.write("::x10aux::itable_entry "+Emitter.translateType(currentClass)+"::_itables["+(numInterfaces+1)+"] = {");
+			sw.write("::x10aux::itable_entry "+Emitter.translateType(currentClass, false, false)+"::_itables["+(numInterfaces+1)+"] = {");
 			itableNum = 0;
 			for (Type interfaceType : allInterfaces) {
 				sw.write("::x10aux::itable_entry(&::x10aux::getRTT"+chevrons(Emitter.translateType(interfaceType, false))+", &_itable_"+itableNum+"), ");
@@ -1291,7 +1291,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 	            itableNum += 1;
 	        }
 
-	        String clsCType = Emitter.translateType(currentClass, false);
+	        String clsCType = Emitter.translateType(currentClass, false, false);
 
 	        // Itables init for the struct itself
 	        emitter.printTemplateSignature(cd.typeParameters(), sw);
@@ -1730,7 +1730,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
         sw.popCurrentStream();
 
 	    if (isStatic) {
-	        String container = Emitter.translateType(dec.fieldDef().asInstance().container());
+	        String container = Emitter.translateType(dec.fieldDef().asInstance().container(), false ,false);
 	        generateStaticFieldSupportCode(dec, container, sw);
 	    }
 	    

@@ -90,7 +90,7 @@ public class SharedVarsMethods {
     public static final String CUDA_NATIVE_STRING = "cuda";
 
     public static String chevrons(String type) {
-        return (type.startsWith(":") ? "< ": "<") + type + (type.endsWith(">")?" ":"")+">";
+        return (type.startsWith(":") ? "< ": "<") + type + (type.endsWith(">")?" >":">");
     }
 
 	public static String make_ref(String type) {

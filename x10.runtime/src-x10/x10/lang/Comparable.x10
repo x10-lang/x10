@@ -24,7 +24,7 @@ import x10.compiler.NativeRep;
  * @param T the type of entities that this entity may be compared to
  */
 @NativeRep("java", "java.lang.Comparable<#T$box>", null, "x10.rtt.ParameterizedType.make(x10.rtt.Types.COMPARABLE, #T$rtt)")
-@NativeRep("c++", "x10::lang::Comparable<#T >*", "x10::lang::Comparable<#T >", null)
+@NativeRep("c++", "x10::lang::Comparable< #T >*", "x10::lang::Comparable< #T >", null)
 public interface Comparable[T] {
     /**
      * Compare this entity with the given entity in the total order defined by the type.
@@ -44,7 +44,7 @@ public interface Comparable[T] {
     // // N.B. stop passing rtt to java raw class's methods
     // @Native("java", "#this.compareTo(#that)")
     @Native("java", "#this.compareTo(#that)")
-    @Native("c++", "x10::lang::Comparable<#T >::compareTo(#this, #that)")
+    @Native("c++", "x10::lang::Comparable< #T >::compareTo(#this, #that)")
     def compareTo(that:T):Int;
 }
 

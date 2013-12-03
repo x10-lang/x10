@@ -110,7 +110,7 @@ public final class Runtime {
      * Return a deep copy of the parameter.
      */
     @Native("java", "x10.runtime.impl.java.Runtime.<#T$box>deepCopy(#o, #prof)")
-    @Native("c++", "x10aux::deep_copy<#T >(#o, #prof)")
+    @Native("c++", "x10aux::deep_copy< #T >(#o, #prof)")
     public static native def deepCopy[T](o:T, prof:Profile):T;
 
     public static def deepCopy[T](o:T) = deepCopy[T](o, null);

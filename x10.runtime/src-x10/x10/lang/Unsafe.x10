@@ -18,11 +18,11 @@ import x10.compiler.Inline;
 @NativeCPPInclude("x10/lang/UnsafeNatives.h")
 public final class Unsafe {
 
-    @Native("c++", "x10::lang::Rail<#T >::_makeUnsafe(#size, false)")
+    @Native("c++", "x10::lang::Rail< #T >::_makeUnsafe(#size, false)")
     @Native("java", "x10.core.Rail.<#T$box>makeUnsafe(#T$rtt, #size, false)")
     public native static def allocRailUninitialized[T](size:Long):Rail[T]{self.size==size, self!=null};
 
-    @Native("c++", "x10::lang::Rail<#T >::_makeUnsafe(#size, true)")
+    @Native("c++", "x10::lang::Rail< #T >::_makeUnsafe(#size, true)")
     @Native("java", "x10.core.Rail.<#T$box>makeUnsafe(#T$rtt, #size, true)")
     public native static def allocRailZeroed[T](size:Long):Rail[T]{self.size==size,self!=null}; 
 
@@ -52,7 +52,7 @@ public final class Unsafe {
     }
 
     @Native("java", "null")
-    @Native("c++", "x10::lang::GlobalRef<#T >((x10aux::place)((#p).FMGL(id)), (x10_ulong)(#t))")
+    @Native("c++", "x10::lang::GlobalRef< #T >((x10aux::place)((#p).FMGL(id)), (x10_ulong)(#t))")
     private static native def fabricateGlobalRef[T](t:T, p:Place){T isref}:GlobalRef[T]{self.home==p};
 
     public static @Inline def getCongruentSibling[T](r:Rail[T]{self!=null}, dst:Place):GlobalRail[T]{self.size==r.size,self.home()==dst} {
