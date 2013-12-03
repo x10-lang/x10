@@ -27,6 +27,13 @@ public struct Team {
     private static struct DoubleIdx(value:Double, idx:Int) {}
     private static val DEBUG:Boolean = false;
     private static val DEBUGINTERNALS:Boolean = false;
+    
+    // on native X10, probe is faster, but sleep works too.
+    // on Managed X10, probe sometimes deadlocks, so sleep is required
+    // TODO: Figure out why probe doesn't work on Managed X10
+    @Native("java", "false")
+    @Native("c++", "true")
+    public static native def useProbeNotSleep():boolean;
 
     /** A team that has one member at each place. */
     public static val WORLD = Team(0n, PlaceGroup.WORLD, here.id());
@@ -66,7 +73,7 @@ public struct Team {
                 Team.state.grow(id+1);
             while (Team.state.size() < id)
                 Team.state.add(null); // I am not a member of this team id.  Insert a dummy value.
-            Team.state(id) = new LocalTeamState(places, id);
+            Team.state(id) = new LocalTeamState(places, id, places.indexOf(here));
             Team.state(id).init();
             if (DEBUG) Runtime.println(here + " created our own team "+id);
     	}
@@ -111,7 +118,7 @@ public struct Team {
                         Team.state.grow(teamidcopy+1);
                     while (Team.state.size() < teamidcopy)
                         Team.state.add(null); // I am not a member of this team id.  Insert a dummy value.
-                    Team.state(teamidcopy) = new LocalTeamState(places, teamidcopy);
+                    Team.state(teamidcopy) = new LocalTeamState(places, teamidcopy, places.indexOf(here));
                     Team.state(teamidcopy).init();
                 });
 	        }
@@ -607,7 +614,9 @@ public struct Team {
      * For performance reasons, this implementation DOES NOT perform error checking.  It does not verify
      * array indexes, that all places call the same collective at the same time, that root matches, etc.
      */
-    private static class LocalTeamState(places:PlaceGroup, teamid:Int) {
+    private static class LocalTeamState(places:PlaceGroup, teamid:Int, myIndex:long) {
+        private static struct TreeStructure(parent:Place, child1:Place, child2:Place){}
+        
         private static PHASE_READY:Int = 0n;   // normal state, nothing in progress
         private static PHASE_GATHER1:Int = 1n; // waiting for data+signal from first child
         private static PHASE_GATHER2:Int = 2n; // waiting for data+signal from second child
@@ -631,7 +640,6 @@ public struct Team {
         private var local_dst:Any = null; // becomes type Rail[T]{self!=null}
         private var local_dst_off:Long = 0;
         private var local_count:Long = 0;
-        private var myPosition:Long = Place.INVALID_PLACE.id();
 
         private static def getCollName(collType:Int):String {
             switch (collType) {
@@ -646,82 +654,52 @@ public struct Team {
                 default: return "Unknown";
             }
         }
-	    
-	    /* Utility methods to traverse binary tree structure.  The tree is not built using the place id's 
-	     * to determine the position in the tree, but rather the position in the places:PlaceGroup field to 
-	     * determine the position.  The first place in 'places' is the root of the tree, the next two its children, 
-	     * and so on.  For collective operations that specify a root, the tree will use that root's position in 
-	     * 'places' as the tree root, swapping it with the place in places(0), which would otherwise be root
-	     * 
-	     * A return value of Place.INVALID_PLACE means that the parent/child does not exist.
-	     */
-	    private def getParentId(root:Place):Place {
-	        if (here == root) return Place.INVALID_PLACE;
-	        rootPosition:Long = places.indexOf(root);
-	        if (rootPosition == -1) return Place.INVALID_PLACE;
-	        if (myPosition == -1) myPosition = places.indexOf(Runtime.hereLong());
-	        if (myPosition == 0) return places((rootPosition-1)/2);
-	        
-	        parentPosition:Long = (myPosition-1)/2;
-	        if (parentPosition == 0)
-	        	return root;
-	        else if (parentPosition == rootPosition)
-		        return places(0); // swap root with index 0
-	        else
-		        return places(parentPosition);
-	    }
-	    
-	    private def getChildIds(root:Place):Pair[Place,Place] {
-	    	rootPosition:Long = places.indexOf(root);
-	        if (rootPosition == -1) return Pair[Place,Place](Place.INVALID_PLACE, Place.INVALID_PLACE); // invalid root specified
-	        val childPosition:Long;
-	        if (here == root)
-	        	childPosition = 1;
-	        else {
-	        	if (myPosition == -1) myPosition = places.indexOf(Runtime.hereLong());
-	        	if (myPosition == 0)
-	        		childPosition = (rootPosition*2)+1;
-	        	else
-	        		childPosition = (myPosition*2)+1;
-	        }
-	        
-	        if (childPosition >= places.numPlaces())
-	        	return Pair[Place,Place](Place.INVALID_PLACE, Place.INVALID_PLACE); // no children
-	        else if (childPosition+1 >= places.numPlaces())
-	        	return Pair[Place,Place]((childPosition==rootPosition)?places(0):places(childPosition), Place.INVALID_PLACE); // one child only
-	        else
-	        	return Pair[Place,Place]((childPosition==rootPosition)?places(0):places(childPosition), (childPosition+1==rootPosition)?places(0):places(childPosition+1)); // two children
-	    }
-	    
-	    
-	    /* Collective operations, to be executed on this team */
-
-	    
+        
+        // recursive method used to find our parent and child links in the tree, assuming root=places(0)
+        private def getLinks(rootIndex:long, parent:long, startIndex:long, endIndex:long):TreeStructure {
+            if (DEBUGINTERNALS) Runtime.println(here+" getLinks called with root="+rootIndex+" myIndex="+myIndex+" parent="+parent+" startIndex="+startIndex+", endIndex="+endIndex);
+            
+            if (myIndex == startIndex) { // we're at our own position in the tree
+                val p:Place;
+                if (parent == -1)
+                    p = Place.INVALID_PLACE;
+                else
+                    p = places(parent);
+                
+                if (startIndex+1 > endIndex || endIndex == myIndex) // no children
+                	return new TreeStructure(p, Place.INVALID_PLACE, Place.INVALID_PLACE);
+                else if (startIndex+1 == endIndex) // one child
+                    return new TreeStructure(p, places(startIndex+1), Place.INVALID_PLACE);
+                else // two children
+                    return new TreeStructure(p, places(startIndex+1), places(startIndex+1+((endIndex-startIndex)/2)));
+            }
+            else {
+                if (myIndex > startIndex+((endIndex-startIndex)/2)) // go down the right branch
+                	return getLinks(rootIndex, startIndex, startIndex+1+((endIndex-startIndex)/2), endIndex);
+                else // go down the left branch
+                    return getLinks(rootIndex, startIndex, startIndex+1, startIndex+((endIndex-startIndex)/2));
+            }
+        }
 	    
 	    // This is an internal barrier which can be called at the end of team creation.  The regular
 	    // barrier method assumes that the team is already in place.  This method adds some pre-checks
 	    // to ensure that the state information for the entire team is in place before running the 
 	    // regular barrier, which does not have these checks.
-	    
-	    // implementation note: There are several instances of "System.sleep(..)" in the code
-	    // below, where we are waiting for a remote entity to update the state.  I have tried 
-	    // using nohting in that position, as well as Runtime.probe(), and both of those options
-	    // lead to deadlocks.  System.sleep(..), which internally increases then decreases 
-	    // parallelism, seems to do the trick.
 	    private def init() {
-	        if (DEBUGINTERNALS) Runtime.println(here + " entering init phase");
-		    parent:Place = getParentId(places(0));
-	        if (DEBUGINTERNALS) Runtime.println(here+":team"+this.teamid+", has parent "+parent);
+            if (DEBUGINTERNALS) Runtime.println(here + " creating team "+teamid);
+	        val myLinks:TreeStructure = getLinks(0, -1, 0, places.numPlaces()-1);
+
+	        if (DEBUGINTERNALS) Runtime.println(here+":team"+this.teamid+", has parent "+myLinks.parent);
 	    	val teamidcopy = this.teamid; // needed to prevent serializing "this"
-		    if (parent != Place.INVALID_PLACE) {
-			    @Pragma(Pragma.FINISH_ASYNC) finish at (parent) async {
+		    if (myLinks.parent != Place.INVALID_PLACE) {
+			    @Pragma(Pragma.FINISH_ASYNC) finish at (myLinks.parent) async {
 			        when (Team.state.size() > teamidcopy) {}
 			}   }
 		    if (DEBUGINTERNALS) Runtime.println(here+":team"+this.teamid+", moving on to init barrier");
-		    collective_impl[Int](COLL_BARRIER, Place.FIRST_PLACE, null, 0, null, 0, 0, 0n); // barrier
+		    collective_impl[Int](COLL_BARRIER, places(0), null, 0, null, 0, 0, 0n); // barrier
 		    if (DEBUGINTERNALS) Runtime.println(here + " leaving init phase");
 		}
-
+	    
 	    /*
 	     * This method contains the implementation for all collectives.  Some arguments are only valid
 	     * for specific collectives.
@@ -731,8 +709,16 @@ public struct Team {
 	    	
 	        // block if some other collective is in progress.
 	        if (!this.phase.compareAndSet(PHASE_READY, PHASE_GATHER1)) {
-	        	while (!this.phase.compareAndSet(PHASE_READY, PHASE_GATHER1))
-	                Runtime.probe();
+	            if (useProbeNotSleep()) {
+	        	    while (!this.phase.compareAndSet(PHASE_READY, PHASE_GATHER1))
+	                    Runtime.probe();
+	            }
+	            else {
+	                Runtime.increaseParallelism();
+	                while (!this.phase.compareAndSet(PHASE_READY, PHASE_GATHER1))
+	            		System.threadSleep(0);
+	            	Runtime.decreaseParallelism(1n);
+	            }
 	        }
 	        
 	        // make my local data arrays visible to other places
@@ -741,31 +727,38 @@ public struct Team {
 	        local_dst = dst;
 	        local_dst_off = dst_off;
 	        local_count = count;
-	        
-	    	//Runtime.println(here+":team"+teamid+" entered "+getCollName(collType)+" PHASE_GATHER1");
-	    	parent:Place = getParentId(root);
-	        children:Pair[Place,Place] = getChildIds(root);
-	    	val teamidcopy = this.teamid; // needed to prevent serializing "this" in at() statements	    	
-	        if (DEBUGINTERNALS) Runtime.println(here+":team"+teamidcopy+", root="+root+" has parent "+parent);
-	        if (DEBUGINTERNALS) Runtime.println(here+":team"+teamidcopy+", root="+root+" has children "+children);
+	        val teamidcopy = this.teamid; // needed to prevent serializing "this" in at() statements	    	
+
+	        // figure out our links in the tree structure
+	        val myLinks:TreeStructure = getLinks(places.indexOf(root), -1, 0, places.numPlaces()-1);
+	        if (DEBUGINTERNALS) Runtime.println(here+":team"+teamidcopy+", root="+root+" has parent "+myLinks.parent);
+	        if (DEBUGINTERNALS) Runtime.println(here+":team"+teamidcopy+", root="+root+" has children "+myLinks.child1+", "+myLinks.child2);
 	    	
 	    	// Start out waiting for all children to update our state 
-	    	if (children.first == Place.INVALID_PLACE) // no children to wait for
+	    	if (myLinks.child1 == Place.INVALID_PLACE) // no children to wait for
 	    		this.phase.compareAndSet(PHASE_GATHER1, PHASE_SCATTER);
-	    	else if (children.second == Place.INVALID_PLACE) { // only one child, so skip a phase waiting for the second child.
+	    	else if (myLinks.child2 == Place.INVALID_PLACE) { // only one child, so skip a phase waiting for the second child.
 	    		if (!this.phase.compareAndSet(PHASE_GATHER1, PHASE_GATHER2)) 
 	    			this.phase.compareAndSet(PHASE_GATHER2, PHASE_SCATTER); 
 	    	}
 	        // wait for updates from children, not already skipped
 	        if (this.phase.get() != PHASE_SCATTER) {
 	            if (DEBUGINTERNALS) Runtime.println(here+":team"+teamidcopy+" waiting for children");
-	            while (this.phase.get() != PHASE_SCATTER)
-	                Runtime.probe();
+	            if (useProbeNotSleep()) {
+		            while (this.phase.get() != PHASE_SCATTER) 
+		                Runtime.probe();
+		        }
+		        else {
+		            Runtime.increaseParallelism();
+                    while (this.phase.get() != PHASE_SCATTER)
+	                    System.threadSleep(0);
+                    Runtime.decreaseParallelism(1n);
+		        }
 	        }
 	        if (DEBUGINTERNALS) Runtime.println(here+":team"+teamidcopy+" released by children");
 	    
 	        // all children have checked in.  Update our parent, and then wait for the parent to update us 
-	    	if (parent == Place.INVALID_PLACE) { // this is the root
+	    	if (myLinks.parent == Place.INVALID_PLACE) { // this is the root
 	    		// copy data locally from src to dst if needed
 	    		if (collType == COLL_BROADCAST) {
 	                if (DEBUGINTERNALS) Runtime.println(here+ " broadcasting data locally from "+src+" to "+dst);
@@ -774,7 +767,7 @@ public struct Team {
 	    		}
 	    		else if (collType == COLL_SCATTER) {
 	                if (DEBUGINTERNALS) Runtime.println(here+ " copying data locally from "+src+" to "+dst);
-			    	Rail.copy(src, src_off+(count*myPosition), dst, dst_off, count);
+			    	Rail.copy(src, src_off+(count*myIndex), dst, dst_off, count);
 			        if (DEBUGINTERNALS) Runtime.println(here+ " dst now contains "+dst);
 			    }
 	    
@@ -782,38 +775,55 @@ public struct Team {
 	    	}
 	    	else {
 	            // increment the phase of the parent
-	            @Pragma(Pragma.FINISH_ASYNC) finish at (parent) async { 
+	            @Pragma(Pragma.FINISH_ASYNC) finish at (myLinks.parent) async { 
                 	if (!Team.state(teamidcopy).phase.compareAndSet(PHASE_GATHER1, PHASE_GATHER2) && 
                             !Team.state(teamidcopy).phase.compareAndSet(PHASE_GATHER2, PHASE_SCATTER)) {
-                        while(!Team.state(teamidcopy).phase.compareAndSet(PHASE_GATHER1, PHASE_GATHER2) && 
-                    	        !Team.state(teamidcopy).phase.compareAndSet(PHASE_GATHER2, PHASE_SCATTER))
-                    	    Runtime.probe();
+                        if (useProbeNotSleep()) {
+                            while(!Team.state(teamidcopy).phase.compareAndSet(PHASE_GATHER1, PHASE_GATHER2) && 
+                        	        !Team.state(teamidcopy).phase.compareAndSet(PHASE_GATHER2, PHASE_SCATTER))
+                        	    Runtime.probe();
+                        }
+                        else {
+                            Runtime.increaseParallelism();
+                            while(!Team.state(teamidcopy).phase.compareAndSet(PHASE_GATHER1, PHASE_GATHER2) && 
+                    	            !Team.state(teamidcopy).phase.compareAndSet(PHASE_GATHER2, PHASE_SCATTER))
+                    	        System.threadSleep(0);
+                            Runtime.decreaseParallelism(1n);
+                        }
                     }
 	                if (DEBUGINTERNALS) Runtime.println(here+" has been set to phase "+Team.state(teamidcopy).phase.get());
 	    		}
 	            
 	            if (this.phase.get() != PHASE_DONE) { // wait for parent to set us free
-	                if (DEBUGINTERNALS) Runtime.println(here+ " waiting for parent "+parent+":team"+teamidcopy+" to release us from phase "+phase.get());
-	                while (this.phase.get() != PHASE_DONE)
-	                    Runtime.probe();
+	                if (DEBUGINTERNALS) Runtime.println(here+ " waiting for parent "+myLinks.parent+":team"+teamidcopy+" to release us from phase "+phase.get());
+	                if (useProbeNotSleep()) {
+    	                while (this.phase.get() != PHASE_DONE)
+	                        Runtime.probe();
+	                } 
+	                else {
+                        Runtime.increaseParallelism();
+	                    while (this.phase.get() != PHASE_DONE)
+	                        System.threadSleep(0);
+	                    Runtime.decreaseParallelism(1n);  
+	                }
 	            }
 			    if (DEBUGINTERNALS) Runtime.println(here+ " released by parent");
 	    	}
 
 	    	// move data from parent to children
-	    	if (children.first != Place.INVALID_PLACE) {
+	    	if (myLinks.child1 != Place.INVALID_PLACE) {
 		    	if (collType == COLL_BROADCAST) {
 		    		val notnulldst:Rail[T]{self!=null} = dst as Rail[T]{self!=null};
 		    		gr:GlobalRail[T] = new GlobalRail[T](notnulldst);
 		            @Pragma(Pragma.FINISH_SPMD) finish {
-		    			at (children.first) async {
+		    			at (myLinks.child1) async {
 		                    if (DEBUGINTERNALS) Runtime.println(here+ " pulling data from "+gr+" into "+(local_dst as Rail[T]));
 		                    @Pragma(Pragma.FINISH_ASYNC) finish{
 		    					Rail.asyncCopy(gr, dst_off, Team.state(teamidcopy).local_dst as Rail[T], Team.state(teamidcopy).local_dst_off, Team.state(teamidcopy).local_count);
 		                    }
 		    			}
-		    			if (children.second != Place.INVALID_PLACE) {
-		    				at (children.second) async {
+		    			if (myLinks.child2 != Place.INVALID_PLACE) {
+		    				at (myLinks.child2) async {
 		                        if (DEBUGINTERNALS) Runtime.println(here+ " pulling data from "+gr+" into "+(local_dst as Rail[T]));
 		                        @Pragma(Pragma.FINISH_ASYNC) finish {
 		    						Rail.asyncCopy(gr, src_off, Team.state(teamidcopy).local_dst as Rail[T], Team.state(teamidcopy).local_dst_off, Team.state(teamidcopy).local_count);
@@ -827,14 +837,14 @@ public struct Team {
 		    		//Runtime.println(here+ " pulling in data from "+root);
 		    		val notnulldst:Rail[T]{self!=null} = dst as Rail[T]{self!=null};
 		    		gr:GlobalRail[T] = new GlobalRail[T](notnulldst);
-		    		val offset:Long = src_off*count*myPosition;
+		    		val offset:Long = src_off*count*myIndex;
 		            @Pragma(Pragma.FINISH_ASYNC_AND_BACK) finish { at (root) { async {
 		    			Rail.asyncCopy(Team.state(teamidcopy).local_src as Rail[T], offset, gr, dst_off, Team.state(teamidcopy).local_count);
 		    		}}}
 		    	}
 	    	}
 	    	// our parent has updated us - update any children, and leave the collective
-	        if (children.first != Place.INVALID_PLACE) { // free the first child, if it exists
+	        if (myLinks.child1 != Place.INVALID_PLACE) { // free the first child, if it exists
 	            // NOTE: there is some trickery here, which allows the parent to continue past this section
 	            //   before the children have been set free.  This is necessary when there is a blocking
 	            //   call immediately after this collective completes (e.g. the barrier before a blocking 
@@ -843,16 +853,16 @@ public struct Team {
 	            // TODO: convert to Runtime.runUncountedAsync(), or Runtime.x10rtSendAsync(), or other such simpler mechanism
 	            val parentPlace:Place = here;
 	            @Pragma(Pragma.FINISH_HERE) finish {
-	                at (children.first) async {
+	                at (myLinks.child1) async {
 	                    at (parentPlace) async {}
 	    		        if (!Team.state(teamidcopy).phase.compareAndSet(PHASE_SCATTER, PHASE_DONE))
 	    				    Runtime.println("ERROR root setting the first child "+here+":team"+teamidcopy+" to PHASE_DONE");
 	    			    else if (DEBUGINTERNALS) Runtime.println("set the first child "+here+":team"+teamidcopy+" to PHASE_DONE");
 	                }
 	    		}
-	    		if (children.second != Place.INVALID_PLACE) {
+	    		if (myLinks.child2 != Place.INVALID_PLACE) {
 	    		    @Pragma(Pragma.FINISH_HERE) finish {
-	                    at (children.second) async {
+	                    at (myLinks.child2) async {
 	                        at (parentPlace) async {}
 	    		            if (!Team.state(teamidcopy).phase.compareAndSet(PHASE_SCATTER, PHASE_DONE))
 	    					    Runtime.println("ERROR root setting the second child "+here+":team"+teamidcopy+" to PHASE_DONE");
@@ -866,16 +876,15 @@ public struct Team {
                 if (!Team.state(teamidcopy).phase.compareAndSet(PHASE_SCATTER, PHASE_DONE))
        		        Runtime.println("ERROR setting child "+here+" to PHASE_DONE");
             };
-	        if (children.first != Place.INVALID_PLACE) {
-	            Runtime.x10rtSendMessage(children.first.id, free_child, null);
-	    		if (children.second != Place.INVALID_PLACE)
-	                Runtime.x10rtSendMessage(children.second.id, free_child, null);
+	        if (myLinks.child1 != Place.INVALID_PLACE) {
+	            Runtime.x10rtSendMessage(myLinks.child1.id, free_child, null);
+	    		if (myLinks.child2 != Place.INVALID_PLACE)
+	                Runtime.x10rtSendMessage(myLinks.child2.id, free_child, null);
 	        }
 	        Unsafe.dealloc(free_child);
 */	        
 	        local_src = null;
 	        local_dst = null;
-	        myPosition = -1; // Place.INVALID_PLACE.id();
 	        this.phase.set(PHASE_READY);
 	        // done!
 	        if (DEBUGINTERNALS) Runtime.println(here+":team"+teamidcopy+" leaving "+getCollName(collType)+" counter="+counter);
