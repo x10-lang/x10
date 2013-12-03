@@ -857,10 +857,10 @@ bool Launcher::handleDeadChild(uint32_t childNo, int type)
 				if (WTERMSIG(status) != SIGPIPE) // normal at shutdown
 				{
 					_exitcode = 128 + WTERMSIG(status);
-					if (_myproc>=0)
-					    fprintf(stderr, "Place %u exited unexpectedly with signal: %s\n", _myproc, strsignal(WTERMSIG(status)));
-					else
+					if (_myproc == (uint32_t)-1)
 						fprintf(stderr, "Launcher for place 0 exited unexpectedly with signal: %s\n", strsignal(WTERMSIG(status)));
+					else
+					    fprintf(stderr, "Place %u exited unexpectedly with signal: %s\n", _myproc, strsignal(WTERMSIG(status)));
 				}
 			}
 			else if (WIFSTOPPED(status))
