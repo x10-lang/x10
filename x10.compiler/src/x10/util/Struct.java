@@ -193,9 +193,9 @@ public class Struct {
             // So I must add a native annotation on this method.
 
             //@Native("java", "x10.rtt.Types.typeName(#this)")
-            //@Native("c++", "x10aux::type_name(#0)")
+            //@Native("c++", "::x10aux::type_name(#0)")
             //global safe def typeName():String;
-            natives = createNative(nf, pos, "x10.rtt.Types.typeName(#this)", "x10aux::type_name(#0)");
+            natives = createNative(nf, pos, "x10.rtt.Types.typeName(#this)", "::x10aux::type_name(#0)");
             AnnotationNode nonEscaping = nf.AnnotationNode(pos, nf.AmbMacroTypeNode(pos, nf.PrefixFromQualifiedName(pos,QName.make("x10.compiler")), nf.Id(pos, "NonEscaping"), Collections.<TypeNode>emptyList(), Collections.<Expr>emptyList()));
             natives.add(nonEscaping);
             methodName = "typeName";
