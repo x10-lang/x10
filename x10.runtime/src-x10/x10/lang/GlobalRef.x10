@@ -28,13 +28,13 @@ import x10.compiler.Native;
 @NativeRep("c++", "x10::lang::GlobalRef< #T >", "x10::lang::GlobalRef< #T >", null)
 public struct GlobalRef[T](
     @Native("java", "(#this).home")
-    @Native("c++", "x10::lang::Place::place((#this)->location)")
+    @Native("c++", "::x10::lang::Place::place((#this)->location)")
     home:Place) {T isref} {
 
     /** 
      * Create a value encapsulating the given object of type T.
      */
-    @Native("c++", "x10::lang::GlobalRef< #T >(#t)")
+    @Native("c++", "::x10::lang::GlobalRef< #T >(#t)")
     public native def this(t:T):GlobalRef[T]{self.home==here}; 
 
     /** 
@@ -65,7 +65,7 @@ public struct GlobalRef[T](
      * method, it avoids a dynamic place check on the first branch.
      */
     @Native("java", "x10.core.GlobalRef.LocalEval.<#T$box,#U$box>evalAtHome(#T$rtt,#U$rtt,#this,#eval)")
-    @Native("c++", "x10::lang::GlobalRef__LocalEval::evalAtHome< #T,#U >(#this, #eval)")
+    @Native("c++", "::x10::lang::GlobalRef__LocalEval::evalAtHome< #T,#U >(#this, #eval)")
     public native def evalAtHome[U](eval:(T)=> U):U;
 
     /**
@@ -79,7 +79,7 @@ public struct GlobalRef[T](
      * method, it avoids a dynamic place check on the first branch.
      */
     @Native("java", "x10.core.GlobalRef.LocalEval.<#T$box>getLocalOrCopy(#T$rtt,#this)")
-    @Native("c++", "x10::lang::GlobalRef__LocalEval::getLocalOrCopy< #T >(#this)")
+    @Native("c++", "::x10::lang::GlobalRef__LocalEval::getLocalOrCopy< #T >(#this)")
     public native def getLocalOrCopy():T;
 
     /*

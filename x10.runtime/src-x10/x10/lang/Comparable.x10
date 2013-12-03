@@ -44,7 +44,7 @@ public interface Comparable[T] {
     // // N.B. stop passing rtt to java raw class's methods
     // @Native("java", "#this.compareTo(#that)")
     @Native("java", "#this.compareTo(#that)")
-    @Native("c++", "x10::lang::Comparable< #T >::compareTo(#this, #that)")
+    @Native("c++", "::x10::lang::Comparable< #T >::compareTo(#this, #that)")
     def compareTo(that:T):Int;
 }
 

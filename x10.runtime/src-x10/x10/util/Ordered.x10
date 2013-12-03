@@ -28,7 +28,7 @@ public interface Ordered[T] {
      * @param that the other entity
      * @return true if the current entity is strictly less than the other entity.
      */
-    @Native("c++", "x10::util::Ordered< #T >::__lt(#this, #that)")
+    @Native("c++", "::x10::util::Ordered< #T >::__lt(#this, #that)")
     operator this <  (that: T): Boolean;
 
     /**
@@ -39,7 +39,7 @@ public interface Ordered[T] {
      * @param that the other entity
      * @return true if the current entity is strictly greater than the other entity.
      */
-    @Native("c++", "x10::util::Ordered< #T >::__gt(#this, #that)")
+    @Native("c++", "::x10::util::Ordered< #T >::__gt(#this, #that)")
     operator this >  (that: T): Boolean;
 
     /**
@@ -50,7 +50,7 @@ public interface Ordered[T] {
      * @param that the other entity
      * @return true if the current entity is less than or equal to the other entity.
      */
-    @Native("c++", "x10::util::Ordered< #T >::__le(#this, #that)")
+    @Native("c++", "::x10::util::Ordered< #T >::__le(#this, #that)")
     operator this <= (that: T): Boolean;
 
     /**
@@ -61,6 +61,6 @@ public interface Ordered[T] {
      * @param that the other entity
      * @return true if the current entity is greater than or equal to the other entity.
      */
-    @Native("c++", "x10::util::Ordered< #T >::__ge(#this, #that)")
+    @Native("c++", "::x10::util::Ordered< #T >::__ge(#this, #that)")
     operator this >= (that: T): Boolean;
 }

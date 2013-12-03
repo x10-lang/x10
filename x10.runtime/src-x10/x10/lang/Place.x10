@@ -35,12 +35,12 @@ public final struct Place(
      * Accelerator places have limitations on the kinds of code they can run.
      */
     @Native("java", "((long)x10.runtime.impl.java.Runtime.MAX_PLACES)")
-    @Native("c++", "((x10_long)x10aux::num_places)")
+    @Native("c++", "((x10_long)::x10aux::num_places)")
     public static ALL_PLACES:Long = 4;
 
     /** The number of places not including accelerators. */
     @Native("java", "((long)x10.runtime.impl.java.Runtime.MAX_PLACES)")
-    @Native("c++", "((x10_long)x10aux::num_hosts)")
+    @Native("c++", "((x10_long)::x10aux::num_hosts)")
     public static MAX_PLACES: Long = 4;
 
     /** The number of dead places not including accelerators. */
@@ -56,13 +56,13 @@ public final struct Place(
      * For hosts, this returns the number of accelerators at that host.
      * For accelerators, it returns 0.
      */
-    @Native("c++", "((x10_long)x10aux::num_children((x10_int)#id))")
+    @Native("c++", "((x10_long)::x10aux::num_children((x10_int)#id))")
     public static def numChildren(id:Long):Long = 0;
 
     /**
      * Returns whether a place is a host.
      */
-    @Native("c++", "x10aux::is_host((x10_int)#id)")
+    @Native("c++", "::x10aux::is_host((x10_int)#id)")
     public static def isHost(id:Long):Boolean = true;
 
     /**
@@ -75,7 +75,7 @@ public final struct Place(
     /**
      * Returns whether a place is a CUDA GPU.
      */
-    @Native("c++", "x10aux::is_cuda((x10_int)#id)")
+    @Native("c++", "::x10aux::is_cuda((x10_int)#id)")
     public static def isCUDA(id:Long):Boolean = false;
 
     /**
@@ -83,7 +83,7 @@ public final struct Place(
      * For hosts, this returns the host itself.
      * For accelerators, it is the host of the accelerator.
      */
-    @Native("c++", "x10aux::parent((x10_int)#id)")
+    @Native("c++", "::x10aux::parent((x10_int)#id)")
     public static def parent(id:Long):Long = id;
 
     /**
@@ -91,14 +91,14 @@ public final struct Place(
      * Use i between 0 and numChildren(p)-1 inclusive.
      * Throws BadPlaceException if i invalid.
      */
-    @Native("c++", "((x10_long)x10aux::child((x10_int)#p,(x10_int)#i))")
+    @Native("c++", "((x10_long)::x10aux::child((x10_int)#p,(x10_int)#i))")
     public static def child(p:Long, i:Long):Long { throw new BadPlaceException(); }
 
     /**
      * Return the index of a given child, within a place.
      * Throws BadPlaceException if given place is not a child.
      */
-    @Native("c++", "((x10_long)x10aux::child_index((x10_int)#id))")
+    @Native("c++", "((x10_long)::x10aux::child_index((x10_int)#id))")
     public static def childIndex(id:Long):Long { throw new BadPlaceException(); }
 
     public static children =
@@ -220,7 +220,7 @@ public final struct Place(
      * Converts a GlobalRef to its home.
      */
     @Native("java", "(#r).home")
-    @Native("c++", "x10::lang::Place::place(((x10_long)((#r)->location)))")
+    @Native("c++", "::x10::lang::Place::place(((x10_long)((#r)->location)))")
     public static native operator[T] (r:GlobalRef[T]){T isref}: Place{self==r.home};
 
 }

@@ -19,25 +19,25 @@ import x10.compiler.NativeRep;
 public final class AtomicReference[T]{T isref} {
 	
 	@Native("java", "new x10.core.concurrent.AtomicReference<#T$box>(#T$rtt)")
-	@Native("c++", "x10::util::concurrent::AtomicReference< #T >::_make()")
+	@Native("c++", "::x10::util::concurrent::AtomicReference< #T >::_make()")
 	public native def this():AtomicReference[T];
 
 	@Native("java", "new x10.core.concurrent.AtomicReference<#T$box>(#T$rtt,#v)")
-	@Native("c++", "x10::util::concurrent::AtomicReference< #T >::_make(#v)")
+	@Native("c++", "::x10::util::concurrent::AtomicReference< #T >::_make(#v)")
 	public native def this(v:T):AtomicReference[T];
 
 	/**
 	 * @Deprecated("Use this()")
 	 */	
 	@Native("java", "new x10.core.concurrent.AtomicReference<#T$box>(#T$rtt)")
-	@Native("c++", "x10::util::concurrent::AtomicReference< #T >::_make()")
+	@Native("c++", "::x10::util::concurrent::AtomicReference< #T >::_make()")
 	public static native def newAtomicReference[T]() {T isref} :AtomicReference[T];
 
 	/**
 	 * @Deprecated("Use this(T)")
 	 */	
 	@Native("java", "new x10.core.concurrent.AtomicReference<#T$box>(#T$rtt,#v)")
-	@Native("c++", "x10::util::concurrent::AtomicReference< #T >::_make(#v)")
+	@Native("c++", "::x10::util::concurrent::AtomicReference< #T >::_make(#v)")
 	public static native def newAtomicReference[T](v:T) {T isref} :AtomicReference[T];
 
 	@Native("java", "#this.get()")

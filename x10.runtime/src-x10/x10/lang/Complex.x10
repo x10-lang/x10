@@ -41,10 +41,10 @@ public struct Complex implements Arithmetic[Complex] {
     @Native("c++", "x10_complex(0.0,1.0)")
     public static I : Complex = Complex(0.0, 1.0);
     /** The complex number that corresponds to +Inf + +Inf*i */
-    @Native("c++", "x10_complex(x10::lang::DoubleNatives::fromLongBits(0x7ff0000000000000LL),x10::lang::DoubleNatives::fromLongBits(0x7ff0000000000000LL))")
+    @Native("c++", "x10_complex(::x10::lang::DoubleNatives::fromLongBits(0x7ff0000000000000LL),x10::lang::DoubleNatives::fromLongBits(0x7ff0000000000000LL))")
     public static INF : Complex = Complex(Double.POSITIVE_INFINITY, Double.POSITIVE_INFINITY);
     /** The complex number that corresponds to NaN + NaN*i */
-    @Native("c++", "x10_complex(x10::lang::DoubleNatives::fromLongBits(0x7ff8000000000000LL),x10::lang::DoubleNatives::fromLongBits(0x7ff8000000000000LL))")
+    @Native("c++", "x10_complex(::x10::lang::DoubleNatives::fromLongBits(0x7ff8000000000000LL),x10::lang::DoubleNatives::fromLongBits(0x7ff8000000000000LL))")
     public static NaN : Complex = Complex(Double.NaN, Double.NaN);
 
     /**
@@ -63,7 +63,7 @@ public struct Complex implements Arithmetic[Complex] {
     /**
      * @return the sum of this complex number and the given complex number.
      */
-    @Native("c++", "x10::lang::ComplexNatives::_plus(#this, #that)")
+    @Native("c++", "::x10::lang::ComplexNatives::_plus(#this, #that)")
     public operator this + (that:Complex):Complex {
         return Complex(re + that.re, im + that.im);
     }
@@ -71,13 +71,13 @@ public struct Complex implements Arithmetic[Complex] {
     /**
      * @return the sum of the given double and the given complex number.
      */
-    @Native("c++", "x10::lang::ComplexNatives::_plus(#x, #y)")
+    @Native("c++", "::x10::lang::ComplexNatives::_plus(#x, #y)")
     public static operator (x:Double) + (y:Complex): Complex = y + x;
 
     /**
      * @return the sum of this complex number and the given double.
      */
-    @Native("c++", "x10::lang::ComplexNatives::_plus(#this, #that)")
+    @Native("c++", "::x10::lang::ComplexNatives::_plus(#this, #that)")
     public operator this + (that:Double):Complex {
         return Complex(re + that, im);
     }
@@ -85,7 +85,7 @@ public struct Complex implements Arithmetic[Complex] {
     /**
      * @return the difference between this complex number and the given complex number.
      */
-    @Native("c++", "x10::lang::ComplexNatives::_minus(#this, #that)")
+    @Native("c++", "::x10::lang::ComplexNatives::_minus(#this, #that)")
     public operator this - (that:Complex):Complex {
         return Complex(re - that.re, im - that.im);
     }
@@ -93,13 +93,13 @@ public struct Complex implements Arithmetic[Complex] {
     /**
      * @return the difference between the given double and this complex number.
      */
-    @Native("c++", "x10::lang::ComplexNatives::_minus(#x, #y)")
+    @Native("c++", "::x10::lang::ComplexNatives::_minus(#x, #y)")
     public static operator (x:Double) - (y:Complex): Complex = Complex(x - y.re, -y.im);
 
     /**
      * @return the difference between this complex number and the given double.
      */
-    @Native("c++", "x10::lang::ComplexNatives::_minus(#this, #that)")
+    @Native("c++", "::x10::lang::ComplexNatives::_minus(#this, #that)")
     public operator this - (that:Double):Complex {
         return Complex(re - that, im);
     }
@@ -107,7 +107,7 @@ public struct Complex implements Arithmetic[Complex] {
     /**
      * @return the product of this complex number and the given complex number.
      */
-    @Native("c++", "x10::lang::ComplexNatives::_times(#this, #that)")
+    @Native("c++", "::x10::lang::ComplexNatives::_times(#this, #that)")
     public operator this * (that:Complex):Complex {
         return Complex(re * that.re - im * that.im,
                        re * that.im + im * that.re);
@@ -116,13 +116,13 @@ public struct Complex implements Arithmetic[Complex] {
     /**
      * @return the product of the given double and this complex number.
      */
-    @Native("c++", "x10::lang::ComplexNatives::_times(#x, #y)")
+    @Native("c++", "::x10::lang::ComplexNatives::_times(#x, #y)")
     public static operator (x:Double) * (y:Complex): Complex = y * x;
 
     /**
      * @return the product of this complex number and the given double.
      */
-    @Native("c++", "x10::lang::ComplexNatives::_times(#this, #that)")
+    @Native("c++", "::x10::lang::ComplexNatives::_times(#this, #that)")
     public operator this * (that:Double):Complex {
         return Complex(re * that, im * that);
     }
@@ -189,7 +189,7 @@ public struct Complex implements Arithmetic[Complex] {
     /**
      * @return the conjugate of this complex number.
      */
-    @Native("c++", "x10::lang::ComplexNatives::conj(#this)")
+    @Native("c++", "::x10::lang::ComplexNatives::conj(#this)")
     public def conjugate():Complex = Complex(re, -im);
 
     /**
@@ -237,7 +237,7 @@ public struct Complex implements Arithmetic[Complex] {
     /**
      * @return true if either part of this complex number is <code>NaN</code>.
      */
-    @Native("c++", "x10::lang::ComplexNatives::isNaN(#this)")
+    @Native("c++", "::x10::lang::ComplexNatives::isNaN(#this)")
     public def isNaN():boolean {
         return re.isNaN() || im.isNaN();
     }
@@ -246,7 +246,7 @@ public struct Complex implements Arithmetic[Complex] {
      * @return true if either part of this complex number is infinite
      * and neither part is <code>NaN</code>.
      */
-    @Native("c++", "x10::lang::ComplexNatives::isInfinite(#this)")
+    @Native("c++", "::x10::lang::ComplexNatives::isInfinite(#this)")
     public def isInfinite():boolean {
         return !isNaN() &&
         (re.isInfinite() || im.isInfinite());
@@ -255,13 +255,12 @@ public struct Complex implements Arithmetic[Complex] {
     /**
      * @return the string representation of this complex number.
      */
-    @Native("c++", "x10aux::to_string(#0)")
+    @Native("c++", "::x10aux::to_string(#0)")
     public def toString():String {
         return ("" + re + " + " + im + "i");
     }
 
-    @Native("c++", "x10aux::hash_code(#this)")
-    @Native("c++", "x10aux::hash_code(#this)")
+    @Native("c++", "::x10aux::hash_code(#this)")
     public def hashCode():Int {
         return re.hashCode() * im.hashCode();
     }    

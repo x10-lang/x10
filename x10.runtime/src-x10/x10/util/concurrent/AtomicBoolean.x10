@@ -53,11 +53,11 @@ public final class AtomicBoolean {
     }
 
     @Native("java", "#this.compareAndSet(#expect,#update)")
-    @Native("c++", "x10::util::concurrent::AtomicBooleanNatives::compareAndSet(#this, #expect, #update)")
+    @Native("c++", "::x10::util::concurrent::AtomicBooleanNatives::compareAndSet(#this, #expect, #update)")
     public native def compareAndSet(expect:Boolean, update:Boolean):Boolean;
 
     @Native("java", "#this.weakCompareAndSet(#expect,#update)")
-    @Native("c++", "x10::util::concurrent::AtomicBooleanNatives::weakCompareAndSet(#this, #expect, #update)")
+    @Native("c++", "::x10::util::concurrent::AtomicBooleanNatives::weakCompareAndSet(#this, #expect, #update)")
     public native def weakCompareAndSet(expect:Boolean, update:Boolean):Boolean;
     
     @Native("java", "#this.getAndSet(#v)")

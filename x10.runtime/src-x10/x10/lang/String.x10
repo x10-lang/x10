@@ -76,7 +76,7 @@ public final class String implements Comparable[String], CharSequence {
      * @return true if this String is equal to the given entity.
      */
     @Native("java", "(#this).equals(#that)")
-    @Native("c++", "x10aux::equals(#this,#that)")
+    @Native("c++", "::x10aux::equals(#this,#that)")
     public native def equals(that:Any): boolean;
 
     // FIXME: Locale sensitivity
@@ -100,7 +100,7 @@ public final class String implements Comparable[String], CharSequence {
      * @return a hash code value for this String.
      */
     @Native("java", "(#this).hashCode()")
-    @Native("c++", "x10aux::hash_code(#this)")
+    @Native("c++", "::x10aux::hash_code(#this)")
     public native def hashCode(): int;
 
 
@@ -357,7 +357,7 @@ public final class String implements Comparable[String], CharSequence {
      * @return the Rail of Strings computed by splitting this String around matches of the delimiter.
      */
     @Native("java", "x10.lang.StringHelper.split(#regex, #this)")
-    @Native("c++", "x10::lang::StringHelper::split(#regex, #this)")
+    @Native("c++", "::x10::lang::StringHelper::split(#regex, #this)")
     public native def split(regex: String):Rail[String];
 
 
@@ -376,7 +376,7 @@ public final class String implements Comparable[String], CharSequence {
      * @return a String representation of the given entity.
      */
     @Native("java", "java.lang.String.valueOf(#v)")
-    @Native("c++", "x10aux::safe_to_string(#v)")
+    @Native("c++", "::x10aux::safe_to_string(#v)")
     public native static def valueOf[T](v: T): String;
 
 
@@ -391,7 +391,7 @@ public final class String implements Comparable[String], CharSequence {
      * @return a formatted string.
      */
     @Native("java", "x10.runtime.impl.java.StringUtils.format(#fmt,(java.lang.Object[]) (#args).value)")
-    @Native("c++", "x10::lang::String::format(#fmt,#args)")
+    @Native("c++", "::x10::lang::String::format(#fmt,#args)")
     public native static def format(fmt: String, args:Rail[Any]): String;
 
 
@@ -484,7 +484,7 @@ public final class String implements Comparable[String], CharSequence {
      * @return true if this String is strictly after the other String.
      */
     @Native("java", "((#this).compareTo(#x) > 0)")
-    @Native("c++",  "(x10aux::nullCheck(#this)->compareTo(#x) > 0)")
+    @Native("c++",  "(::x10aux::nullCheck(#this)->compareTo(#x) > 0)")
     public native operator this > (x:String): Boolean;
 
     // FIXME: Locale sensitivity
@@ -496,7 +496,7 @@ public final class String implements Comparable[String], CharSequence {
      * @return true if this String is before or equal to the other String.
      */
     @Native("java", "((#this).compareTo(#x) <= 0)")
-    @Native("c++",  "(x10aux::nullCheck(#this)->compareTo(#x) <= 0)")
+    @Native("c++",  "(::x10aux::nullCheck(#this)->compareTo(#x) <= 0)")
     public native operator this <= (x:String): Boolean;
 
     // FIXME: Locale sensitivity
@@ -508,7 +508,7 @@ public final class String implements Comparable[String], CharSequence {
      * @return true if this String is after or equal to the other String.
      */
     @Native("java", "((#this).compareTo(#x) >= 0)")
-    @Native("c++",  "(x10aux::nullCheck(#this)->compareTo(#x) >= 0)")
+    @Native("c++",  "(::x10aux::nullCheck(#this)->compareTo(#x) >= 0)")
     public native operator this >= (x:String): Boolean;
 
     /**
@@ -520,7 +520,7 @@ public final class String implements Comparable[String], CharSequence {
      * @return the resulting String
      */
     @Native("java", "((#x) + (#y))")
-    @Native("c++",  "x10::lang::String::__plus(#x, #y)")
+    @Native("c++",  "::x10::lang::String::__plus(#x, #y)")
     public native static operator[T] (x:String) + (y:T): String;
 
     /**
@@ -532,7 +532,7 @@ public final class String implements Comparable[String], CharSequence {
      * @return the resulting String
      */
     @Native("java", "((#x) + (#y))")
-    @Native("c++",  "x10::lang::String::__plus(#x, #y)")
+    @Native("c++",  "::x10::lang::String::__plus(#x, #y)")
     public native static operator[T] (x:T) + (y:String): String;
 
     /**
@@ -543,7 +543,7 @@ public final class String implements Comparable[String], CharSequence {
      * @return the resulting String
      */
     @Native("java", "((#x) + (#y))")
-    @Native("c++",  "x10::lang::String::__plus(#x, #y)")
+    @Native("c++",  "::x10::lang::String::__plus(#x, #y)")
     public native static operator (x:String) + (y:String): String;
 }
 

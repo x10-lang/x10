@@ -47,7 +47,7 @@ public abstract class LogFactory {
      * @return The name of type T 
      */
     @Native("java", "#T$rtt.typeName()")
-    @Native("c++", "x10aux::makeStringLit(x10aux::getRTT< #T>()->name())")
+    @Native("c++", "::x10aux::makeStringLit(x10aux::getRTT< #T>()->name())")
     static native def typeName[T]():String;
 
 

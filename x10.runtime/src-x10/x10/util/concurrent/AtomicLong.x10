@@ -44,11 +44,11 @@ public final class AtomicLong {
     }
     
     @Native("java", "#this.compareAndSet(#expect,#update)")
-    @Native("c++", "x10::util::concurrent::AtomicLongNatives::compareAndSet(#this,#expect,#update)")
+    @Native("c++", "::x10::util::concurrent::AtomicLongNatives::compareAndSet(#this,#expect,#update)")
     public native def compareAndSet(expect:Long, update:Long):Boolean;
 
     @Native("java", "#this.weakCompareAndSet(#expect,#update)")
-    @Native("c++", "x10::util::concurrent::AtomicLongNatives::weakCompareAndSet(#this,#expect,#update)")
+    @Native("c++", "::x10::util::concurrent::AtomicLongNatives::weakCompareAndSet(#this,#expect,#update)")
     public native def weakCompareAndSet(expect:Long, update:Long):Boolean;
     
     @Native("java", "#this.getAndIncrement()")
@@ -58,7 +58,7 @@ public final class AtomicLong {
     public def getAndDecrement():Long = getAndAdd(-1);
     
     @Native("java", "#this.getAndAdd(#delta)")
-    @Native("c++", "x10::util::concurrent::AtomicLongNatives::getAndAdd(#this,#delta)")
+    @Native("c++", "::x10::util::concurrent::AtomicLongNatives::getAndAdd(#this,#delta)")
     public native def getAndAdd(delta:Long):Long;
     
     @Native("java", "#this.incrementAndGet()")
@@ -68,7 +68,7 @@ public final class AtomicLong {
     public def decrementAndGet():Long = addAndGet(-1);
     
     @Native("java", "#this.addAndGet(#delta)")
-    @Native("c++", "x10::util::concurrent::AtomicLongNatives::addAndGet(#this, #delta)")
+    @Native("c++", "::x10::util::concurrent::AtomicLongNatives::addAndGet(#this, #delta)")
     public native def addAndGet(delta:Long):Long;
     
     @Native("java", "#this.toString()")

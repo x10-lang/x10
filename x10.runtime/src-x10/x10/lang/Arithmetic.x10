@@ -24,7 +24,7 @@ public interface Arithmetic[T] {
      * A no-op.
      * @return the value of the current entity.
      */
-    @Native("c++", "x10::lang::Arithmetic< #T >::_m3____plus(#this)")
+    @Native("c++", "::x10::lang::Arithmetic< #T >::_m3____plus(#this)")
     operator + this: T;
 
     /**
@@ -32,7 +32,7 @@ public interface Arithmetic[T] {
      * Negates the operand.
      * @return the negated value of the current entity.
      */
-    @Native("c++", "x10::lang::Arithmetic< #T >::_m5____minus(#this)")
+    @Native("c++", "::x10::lang::Arithmetic< #T >::_m5____minus(#this)")
     operator - this: T;
 
     /**
@@ -41,7 +41,7 @@ public interface Arithmetic[T] {
      * @param that the other entity
      * @return the sum of the current entity and the other entity.
      */
-    @Native("c++", "x10::lang::Arithmetic< #T >::_m4____plus(#this, #that)")
+    @Native("c++", "::x10::lang::Arithmetic< #T >::_m4____plus(#this, #that)")
     operator this + (that: T): T;
 
     /**
@@ -50,7 +50,7 @@ public interface Arithmetic[T] {
      * @param that the other entity
      * @return the difference of the current entity and the other entity.
      */
-    @Native("c++", "x10::lang::Arithmetic< #T >::_m6____minus(#this, #that)")
+    @Native("c++", "::x10::lang::Arithmetic< #T >::_m6____minus(#this, #that)")
     operator this - (that: T): T;
 
     /**
@@ -59,7 +59,7 @@ public interface Arithmetic[T] {
      * @param that the other entity
      * @return the product of the current entity and the other entity.
      */
-    @Native("c++", "x10::lang::Arithmetic< #T >::__times(#this, #that)")
+    @Native("c++", "::x10::lang::Arithmetic< #T >::__times(#this, #that)")
     operator this * (that: T): T;
 
     /**
@@ -68,6 +68,6 @@ public interface Arithmetic[T] {
      * @param that the other entity
      * @return the quotient of the current entity and the other entity.
      */
-    @Native("c++", "x10::lang::Arithmetic< #T >::__over(#this, #that)")
+    @Native("c++", "::x10::lang::Arithmetic< #T >::__over(#this, #that)")
     operator this / (that: T): T;
 }

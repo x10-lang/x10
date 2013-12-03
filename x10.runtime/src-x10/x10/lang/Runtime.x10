@@ -42,15 +42,15 @@ public final class Runtime {
     // Debug print methods
 
     @Native("java", "java.lang.System.err.println(#any)")
-    @Native("c++", "x10::lang::RuntimeNatives::println(x10aux::to_string(#any)->c_str())")
+    @Native("c++", "::x10::lang::RuntimeNatives::println(::x10aux::to_string(#any)->c_str())")
     public native static def println(any:Any):void;
 
     @Native("java", "java.lang.System.err.println()")
-    @Native("c++", "x10::lang::RuntimeNatives::println(\"\")")
+    @Native("c++", "::x10::lang::RuntimeNatives::println(\"\")")
     public native static def println():void;
 
     @Native("java", "java.lang.System.err.printf(#fmt, #t)")
-    @Native("c++", "x10::lang::RuntimeNatives::printf(#fmt, #t)")
+    @Native("c++", "::x10::lang::RuntimeNatives::printf(#fmt, #t)")
     public native static def printf[T](fmt:String, t:T):void;
 
 
@@ -59,7 +59,7 @@ public final class Runtime {
      * On java it is equivalent to java.lang.management.ManagementFactory.getRuntimeMXBean().getName().
      */
     @Native("java", "java.lang.management.ManagementFactory.getRuntimeMXBean().getName()")
-    @Native("c++", "x10aux::runtime_name()")
+    @Native("c++", "::x10aux::runtime_name()")
     public native static def getName() : String;
 
     // Native runtime interface
@@ -68,7 +68,7 @@ public final class Runtime {
      * Send active message to another place.
      */
     @Native("java", "x10.runtime.impl.java.Runtime.runClosureAt((int)(#id), #body, #prof)")
-    @Native("c++", "x10aux::run_closure_at((x10_int)#id, #body, #prof)")
+    @Native("c++", "::x10aux::run_closure_at((x10_int)#id, #body, #prof)")
     public static native def x10rtSendMessage(id:Long, body:()=>void, prof:Profile):void;
 
     /**
@@ -78,7 +78,7 @@ public final class Runtime {
      * and pushing this activity onto the deque of the active worker.
      */
     @Native("java", "x10.runtime.impl.java.Runtime.runAsyncAt((int)(#id), #body, #finishState, #prof)")
-    @Native("c++", "x10aux::run_async_at((x10_long)(#id), #body, #finishState, #prof)")
+    @Native("c++", "::x10aux::run_async_at((x10_long)(#id), #body, #finishState, #prof)")
     public static native def x10rtSendAsync(id:Long, body:()=>void, finishState:FinishState, prof:Profile):void;
 
     /**
@@ -91,18 +91,18 @@ public final class Runtime {
     /**
      * Process one incoming active message if any (non-blocking).
      */
-    @Native("c++", "x10aux::event_probe()")
+    @Native("c++", "::x10aux::event_probe()")
     @Native("java", "x10.runtime.impl.java.Runtime.eventProbe()")
     public static native def x10rtProbe():void;
 
-    @Native("c++", "x10aux::blocking_probe()")
+    @Native("c++", "::x10aux::blocking_probe()")
     @Native("java", "x10.runtime.impl.java.Runtime.blockingProbe()")
     public static native def x10rtBlockingProbe():void;
 
     /**
      * Process one incoming active message if any (non-blocking).
      */
-    @Native("c++", "x10aux::event_probe()")
+    @Native("c++", "::x10aux::event_probe()")
     @Native("java", "x10.runtime.impl.java.Runtime.eventProbe()")
     public static native def wsProcessEvents():void;
 
@@ -110,7 +110,7 @@ public final class Runtime {
      * Return a deep copy of the parameter.
      */
     @Native("java", "x10.runtime.impl.java.Runtime.<#T$box>deepCopy(#o, #prof)")
-    @Native("c++", "x10aux::deep_copy< #T >(#o, #prof)")
+    @Native("c++", "::x10aux::deep_copy< #T >(#o, #prof)")
     public static native def deepCopy[T](o:T, prof:Profile):T;
 
     public static def deepCopy[T](o:T) = deepCopy[T](o, null);
@@ -139,7 +139,7 @@ public final class Runtime {
         }
 
         @Native("java", "false")
-        @Native("c++", "x10aux::congruent_huge")
+        @Native("c++", "::x10aux::congruent_huge")
         public static native def hugePagesAvailable():Boolean;
 
         @Native("java", "false")
@@ -208,7 +208,7 @@ public final class Runtime {
      * of the new process.
      */
     @Native("java", "x10.runtime.impl.java.Runtime.execForRead(#command)")
-    @Native("c++", "x10::lang::RuntimeNatives::execForRead(x10aux::to_string(#command)->c_str())")
+    @Native("c++", "::x10::lang::RuntimeNatives::execForRead(::x10aux::to_string(#command)->c_str())")
     public static native def execForRead(command:String):Reader{self!=null};
 
     /**
@@ -217,7 +217,7 @@ public final class Runtime {
      * of the new process.
      */
     @Native("java", "x10.runtime.impl.java.Runtime.execForWrite(#command)")
-    @Native("c++", "x10::lang::RuntimeNatives::execForWrite(x10aux::to_string(#command)->c_str())")
+    @Native("c++", "::x10::lang::RuntimeNatives::execForWrite(::x10aux::to_string(#command)->c_str())")
     public static native def execForWrite(command:String):Writer{self!=null};
             
     // Runtime state
@@ -687,17 +687,17 @@ public final class Runtime {
     /**
      * Return the current place
      */
-    @Native("c++", "x10::lang::Place::_make(x10aux::here)")
+    @Native("c++", "::x10::lang::Place::_make(::x10aux::here)")
     public static def home():Place = Thread.currentThread().home();
 
     /**
      * Return the id of the current place
      * @Deprecated("Use hereLong()")
      */
-    @Native("c++", "x10aux::here")
+    @Native("c++", "::x10aux::here")
     public static def hereInt():int = here.id as Int;
 
-    @Native("c++", "((x10_long)x10aux::here)")
+    @Native("c++", "((x10_long)::x10aux::here)")
     public static def hereLong():Long = here.id;
 
 
@@ -887,7 +887,7 @@ public final class Runtime {
 
     /** Subvert X10 and target language exception checking.
      */
-    @Native("c++", "x10aux::throwException(x10aux::nullCheck(#e))")
+    @Native("c++", "::x10aux::throwException(::x10aux::nullCheck(#e))")
     @Native("java", "java.lang.Thread.currentThread().stop(#e)")
     static native def throwCheckedWithoutThrows (e:CheckedThrowable) : void;
 

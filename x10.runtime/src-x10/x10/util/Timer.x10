@@ -20,7 +20,7 @@ public class Timer {
      * Milliseconds since the Epoch: midnight, Jan 1, 1970. 
      */
     @Native("java", "java.lang.System.currentTimeMillis()")
-    @Native("c++", "x10::lang::RuntimeNatives::currentTimeMillis()")
+    @Native("c++", "::x10::lang::RuntimeNatives::currentTimeMillis()")
     public native static def milliTime():Long;
         
     /** 
@@ -28,6 +28,6 @@ public class Timer {
      * May be rounded if system timer does not have nanosecond precision. 
      */
     @Native("java", "java.lang.System.nanoTime()")
-    @Native("c++", "x10::lang::RuntimeNatives::nanoTime()")
+    @Native("c++", "::x10::lang::RuntimeNatives::nanoTime()")
     public native static def nanoTime(): Long;
 }

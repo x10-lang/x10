@@ -42,7 +42,7 @@ public class System {
      * Kills the current place, as if due to a hardware or low level software failure.  Behaviour is only well-defined if executed at a place other than Place.FIRST_PLACE and the language is in resilient mode.
      */
     @Native("java", "java.lang.System.exit(1)")
-    @Native("c++", "x10::lang::RuntimeNatives::exit(1)")
+    @Native("c++", "::x10::lang::RuntimeNatives::exit(1)")
     public static native def killHere(): void;
 
     /**
@@ -51,7 +51,7 @@ public class System {
      * Can only be invoked in place 0.
      */
     @Native("java", "x10.runtime.impl.java.Runtime.setExitCode(#exitCode)")
-    @Native("c++", "(x10aux::exitCode = (#exitCode))")
+    @Native("c++", "(::x10aux::exitCode = (#exitCode))")
     public static def setExitCode(exitCode: int){here==Place.FIRST_PLACE}: void {}
 
     /**
@@ -65,14 +65,14 @@ public class System {
      * @return An upper bound in bytes on the size of the X10 heap allocated to the current place.
      */
     @Native("java", "java.lang.Runtime.getRuntime().totalMemory()")
-    @Native("c++", "x10aux::heap_size()")
+    @Native("c++", "::x10aux::heap_size()")
     public static native def heapSize():long;
 
     /**
      * Trigger a garbage collection.
      */
     @Native("java", "java.lang.System.gc()")
-    @Native("c++", "x10aux::trigger_gc()")
+    @Native("c++", "::x10aux::trigger_gc()")
     public static native def gc():void;
 
     /**
@@ -102,15 +102,15 @@ public class System {
      * @return The name of type T 
      */
     @Native("java", "#T$rtt.typeName()")
-    @Native("c++", "x10aux::makeStringLit(x10aux::getRTT< #T>()->name())")
+    @Native("c++", "::x10aux::makeStringLit(x10aux::getRTT< #T>()->name())")
     static native def typeName[T]():String;
 
     @Native("java", "x10.rtt.Types.typeName(#o)")
-    @Native("c++", "x10aux::type_name(#o)")
+    @Native("c++", "::x10aux::type_name(#o)")
     public static native def identityTypeName(o:Any) : String;
 
     @Native("java", "java.lang.System.identityHashCode(#o)")
-    @Native("c++", "x10aux::identity_hash_code(reinterpret_cast<x10::lang::Reference*>(#o))")
+    @Native("c++", "::x10aux::identity_hash_code(reinterpret_cast<x10::lang::Reference*>(#o))")
     public static native def identityHashCode(o:Any) : Int;
 
     public static def identityToString(o:Any) : String = o.typeName() + "@" + System.identityHashCode(o).toHexString();

@@ -22,11 +22,11 @@ import x10.io.Console;
 public class CheckedThrowable {
 
     @Native("java", "#this.getCause()")
-    @Native("c++", "x10aux::nullCheck(#this)->FMGL(cause)")
+    @Native("c++", "::x10aux::nullCheck(#this)->FMGL(cause)")
     val cause:CheckedThrowable;
 
     @Native("java", "#this.getMessage()")
-    @Native("c++", "x10aux::nullCheck(#this)->FMGL(message)")
+    @Native("c++", "::x10aux::nullCheck(#this)->FMGL(message)")
     val message: String;
 
     @Native("java", "new java.lang.Throwable()")
