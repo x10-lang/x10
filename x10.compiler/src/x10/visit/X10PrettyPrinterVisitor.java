@@ -4268,10 +4268,14 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
         if (statement instanceof Block_c) {
             w.write(n.labelNode() + ": ");
             w.write("{");
+            w.newline(4);
+            w.begin(0);
             Block_c block = (Block_c) statement;
             for (Stmt s : block.statements()) {
                 tr.print(n, s, w);
             }
+            w.end();
+            w.newline();
             w.write("}");
         } else {
             w.write(n.labelNode() + ": ");
