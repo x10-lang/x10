@@ -21,7 +21,7 @@ import harness.x10Test;
 public class XTENLANG_1994 extends x10Test {
 
     public def run(): boolean {
-        val x = new MyStruct(10,20).sum();
+        val x = MyStruct(10,20).sum();
         val y = new MyObj(2,4).sum();
         return x+y == 36;
     }
@@ -35,7 +35,7 @@ interface Summer {
   def sum():long;
 }
 
-class MyStruct implements Summer {
+struct MyStruct implements Summer {
   val a:long;
   val b:long;
  
