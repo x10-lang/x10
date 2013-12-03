@@ -394,7 +394,11 @@ public class Emitter {
 					if (propertyKnowledge!=null) for (String key : propertyKnowledge.keySet()) {
 							env.put(key, propertyKnowledge.get(key));
 					}
-					return nativeSubst("NativeRep", env, pat);
+					String nr_name = nativeSubst("NativeRep", env, pat);
+					if (qualify && nr_name.contains("::")) {
+					    nr_name = "::"+nr_name;
+					}
+					return nr_name;
 				}
 				else {
 					name = fullName(ct).toString();
