@@ -32,7 +32,7 @@ public struct Team {
     // on Managed X10, probe sometimes deadlocks, so sleep is required
     // TODO: Figure out why probe doesn't work on Managed X10
     @Native("java", "false")
-    @Native("c++", "true")
+    @Native("c++", "false") // was true
     public static native def useProbeNotSleep():boolean;
 
     /** A team that has one member at each place. */
@@ -615,7 +615,7 @@ public struct Team {
      * array indexes, that all places call the same collective at the same time, that root matches, etc.
      */
     private static class LocalTeamState(places:PlaceGroup, teamid:Int, myIndex:long) {
-        private static struct TreeStructure(parent:Place, child1:Place, child2:Place){}
+        private static struct TreeStructure(parentIndex:long, child1Index:long, child2Index:long){}
         
         private static PHASE_READY:Int = 0n;   // normal state, nothing in progress
         private static PHASE_GATHER1:Int = 1n; // waiting for data+signal from first child
@@ -659,22 +659,23 @@ public struct Team {
         private def getLinks(rootIndex:long, parent:long, startIndex:long, endIndex:long):TreeStructure {
             if (DEBUGINTERNALS) Runtime.println(here+" getLinks called with root="+rootIndex+" myIndex="+myIndex+" parent="+parent+" startIndex="+startIndex+", endIndex="+endIndex);
             
-            if (myIndex == startIndex) { // we're at our own position in the tree
-                val p:Place;
-                if (parent == -1)
-                    p = Place.INVALID_PLACE;
+            if (myIndex == rootIndex) { // at the top of the tree
+                if (places.numPlaces() == 1)
+                    return new TreeStructure(-1, -1, -1);
+                else if (places.numPlaces() == 2)
+                    return new TreeStructure(-1, (rootIndex+1)%places.numPlaces(), -1);
                 else
-                    p = places(parent);
-                
-                if (startIndex+1 > endIndex || endIndex == myIndex) // no children
-                	return new TreeStructure(p, Place.INVALID_PLACE, Place.INVALID_PLACE);
-                else if (startIndex+1 == endIndex) // one child
-                    return new TreeStructure(p, places(startIndex+1), Place.INVALID_PLACE);
-                else // two children
-                    return new TreeStructure(p, places(startIndex+1), places(startIndex+1+((endIndex-startIndex)/2)));
+                    return new TreeStructure(-1, (rootIndex+1)%places.numPlaces(), (rootIndex+1+((endIndex-startIndex)/2))%places.numPlaces());
+            }
+            else if (myIndex == startIndex) { // we're at our own position in the tree
+                var children:long = endIndex-startIndex-1; // overall gap of children, minus ourselves
+                if (rootIndex > startIndex && rootIndex <= endIndex) children--; // remove root if it's in the gap
+               	return new TreeStructure((parent==-1)?rootIndex:((parent+rootIndex)%places.numPlaces()), 
+                        (children<=0)?-1:(startIndex+1+rootIndex)%places.numPlaces(), 
+                        (children==1?-1:(startIndex+1+((endIndex-startIndex)/2)+rootIndex)%places.numPlaces()));
             }
             else {
-                if (myIndex > startIndex+((endIndex-startIndex)/2)) // go down the right branch
+                if (myIndex > startIndex+((endIndex-startIndex)/2)) // go down the tree, following the right branch
                 	return getLinks(rootIndex, startIndex, startIndex+1+((endIndex-startIndex)/2), endIndex);
                 else // go down the left branch
                     return getLinks(rootIndex, startIndex, startIndex+1, startIndex+((endIndex-startIndex)/2));
@@ -689,10 +690,10 @@ public struct Team {
             if (DEBUGINTERNALS) Runtime.println(here + " creating team "+teamid);
 	        val myLinks:TreeStructure = getLinks(0, -1, 0, places.numPlaces()-1);
 
-	        if (DEBUGINTERNALS) Runtime.println(here+":team"+this.teamid+", has parent "+myLinks.parent);
+	        if (DEBUGINTERNALS) Runtime.println(here+":team"+this.teamid+", has parent "+((myLinks.parentIndex==-1)?Place.INVALID_PLACE:places(myLinks.parentIndex)));
 	    	val teamidcopy = this.teamid; // needed to prevent serializing "this"
-		    if (myLinks.parent != Place.INVALID_PLACE) {
-			    @Pragma(Pragma.FINISH_ASYNC) finish at (myLinks.parent) async {
+		    if (myLinks.parentIndex != -1) {
+			    @Pragma(Pragma.FINISH_ASYNC) finish at (places(myLinks.parentIndex)) async {
 			        when (Team.state.size() > teamidcopy) {}
 			}   }
 		    if (DEBUGINTERNALS) Runtime.println(here+":team"+this.teamid+", moving on to init barrier");
@@ -731,13 +732,13 @@ public struct Team {
 
 	        // figure out our links in the tree structure
 	        val myLinks:TreeStructure = getLinks(places.indexOf(root), -1, 0, places.numPlaces()-1);
-	        if (DEBUGINTERNALS) Runtime.println(here+":team"+teamidcopy+", root="+root+" has parent "+myLinks.parent);
-	        if (DEBUGINTERNALS) Runtime.println(here+":team"+teamidcopy+", root="+root+" has children "+myLinks.child1+", "+myLinks.child2);
+	        if (DEBUGINTERNALS) Runtime.println(here+":team"+teamidcopy+", root="+root+" has parent "+((myLinks.parentIndex==-1)?Place.INVALID_PLACE:places(myLinks.parentIndex)));
+	        if (DEBUGINTERNALS) Runtime.println(here+":team"+teamidcopy+", root="+root+" has children "+((myLinks.child1Index==-1)?Place.INVALID_PLACE:places(myLinks.child1Index))+", "+((myLinks.child2Index==-1)?Place.INVALID_PLACE:places(myLinks.child2Index)));
 	    	
 	    	// Start out waiting for all children to update our state 
-	    	if (myLinks.child1 == Place.INVALID_PLACE) // no children to wait for
+	    	if (myLinks.child1Index == -1) // no children to wait for
 	    		this.phase.compareAndSet(PHASE_GATHER1, PHASE_SCATTER);
-	    	else if (myLinks.child2 == Place.INVALID_PLACE) { // only one child, so skip a phase waiting for the second child.
+	    	else if (myLinks.child2Index == -1) { // only one child, so skip a phase waiting for the second child.
 	    		if (!this.phase.compareAndSet(PHASE_GATHER1, PHASE_GATHER2)) 
 	    			this.phase.compareAndSet(PHASE_GATHER2, PHASE_SCATTER); 
 	    	}
@@ -758,7 +759,7 @@ public struct Team {
 	        if (DEBUGINTERNALS) Runtime.println(here+":team"+teamidcopy+" released by children");
 	    
 	        // all children have checked in.  Update our parent, and then wait for the parent to update us 
-	    	if (myLinks.parent == Place.INVALID_PLACE) { // this is the root
+	    	if (myLinks.parentIndex == -1) { // this is the root
 	    		// copy data locally from src to dst if needed
 	    		if (collType == COLL_BROADCAST) {
 	                if (DEBUGINTERNALS) Runtime.println(here+ " broadcasting data locally from "+src+" to "+dst);
@@ -775,7 +776,7 @@ public struct Team {
 	    	}
 	    	else {
 	            // increment the phase of the parent
-	            @Pragma(Pragma.FINISH_ASYNC) finish at (myLinks.parent) async { 
+	            @Pragma(Pragma.FINISH_ASYNC) finish at (places(myLinks.parentIndex)) async { 
                 	if (!Team.state(teamidcopy).phase.compareAndSet(PHASE_GATHER1, PHASE_GATHER2) && 
                             !Team.state(teamidcopy).phase.compareAndSet(PHASE_GATHER2, PHASE_SCATTER)) {
                         if (useProbeNotSleep()) {
@@ -795,7 +796,7 @@ public struct Team {
 	    		}
 	            
 	            if (this.phase.get() != PHASE_DONE) { // wait for parent to set us free
-	                if (DEBUGINTERNALS) Runtime.println(here+ " waiting for parent "+myLinks.parent+":team"+teamidcopy+" to release us from phase "+phase.get());
+	                if (DEBUGINTERNALS) Runtime.println(here+ " waiting for parent "+places(myLinks.parentIndex)+":team"+teamidcopy+" to release us from phase "+phase.get());
 	                if (useProbeNotSleep()) {
     	                while (this.phase.get() != PHASE_DONE)
 	                        Runtime.probe();
@@ -811,22 +812,22 @@ public struct Team {
 	    	}
 
 	    	// move data from parent to children
-	    	if (myLinks.child1 != Place.INVALID_PLACE) {
+	    	if (myLinks.child1Index != -1) {
 		    	if (collType == COLL_BROADCAST) {
 		    		val notnulldst:Rail[T]{self!=null} = dst as Rail[T]{self!=null};
 		    		gr:GlobalRail[T] = new GlobalRail[T](notnulldst);
 		            @Pragma(Pragma.FINISH_SPMD) finish {
-		    			at (myLinks.child1) async {
+		    			at (places(myLinks.child1Index)) async {
 		                    if (DEBUGINTERNALS) Runtime.println(here+ " pulling data from "+gr+" into "+(local_dst as Rail[T]));
 		                    @Pragma(Pragma.FINISH_ASYNC) finish{
 		    					Rail.asyncCopy(gr, dst_off, Team.state(teamidcopy).local_dst as Rail[T], Team.state(teamidcopy).local_dst_off, Team.state(teamidcopy).local_count);
 		                    }
 		    			}
-		    			if (myLinks.child2 != Place.INVALID_PLACE) {
-		    				at (myLinks.child2) async {
+		    			if (myLinks.child2Index != -1) {
+		    				at (places(myLinks.child2Index)) async {
 		                        if (DEBUGINTERNALS) Runtime.println(here+ " pulling data from "+gr+" into "+(local_dst as Rail[T]));
 		                        @Pragma(Pragma.FINISH_ASYNC) finish {
-		    						Rail.asyncCopy(gr, src_off, Team.state(teamidcopy).local_dst as Rail[T], Team.state(teamidcopy).local_dst_off, Team.state(teamidcopy).local_count);
+		    						Rail.asyncCopy(gr, dst_off, Team.state(teamidcopy).local_dst as Rail[T], Team.state(teamidcopy).local_dst_off, Team.state(teamidcopy).local_count);
 		                        }
 		    				}
 		    			}
@@ -844,7 +845,7 @@ public struct Team {
 		    	}
 	    	}
 	    	// our parent has updated us - update any children, and leave the collective
-	        if (myLinks.child1 != Place.INVALID_PLACE) { // free the first child, if it exists
+	        if (myLinks.child1Index != -1) { // free the first child, if it exists
 	            // NOTE: there is some trickery here, which allows the parent to continue past this section
 	            //   before the children have been set free.  This is necessary when there is a blocking
 	            //   call immediately after this collective completes (e.g. the barrier before a blocking 
@@ -853,16 +854,16 @@ public struct Team {
 	            // TODO: convert to Runtime.runUncountedAsync(), or Runtime.x10rtSendAsync(), or other such simpler mechanism
 	            val parentPlace:Place = here;
 	            @Pragma(Pragma.FINISH_HERE) finish {
-	                at (myLinks.child1) async {
+	                at (places(myLinks.child1Index)) async {
 	                    at (parentPlace) async {}
 	    		        if (!Team.state(teamidcopy).phase.compareAndSet(PHASE_SCATTER, PHASE_DONE))
 	    				    Runtime.println("ERROR root setting the first child "+here+":team"+teamidcopy+" to PHASE_DONE");
 	    			    else if (DEBUGINTERNALS) Runtime.println("set the first child "+here+":team"+teamidcopy+" to PHASE_DONE");
 	                }
 	    		}
-	    		if (myLinks.child2 != Place.INVALID_PLACE) {
+	    		if (myLinks.child2Index != -1) {
 	    		    @Pragma(Pragma.FINISH_HERE) finish {
-	                    at (myLinks.child2) async {
+	                    at (places(myLinks.child2Index)) async {
 	                        at (parentPlace) async {}
 	    		            if (!Team.state(teamidcopy).phase.compareAndSet(PHASE_SCATTER, PHASE_DONE))
 	    					    Runtime.println("ERROR root setting the second child "+here+":team"+teamidcopy+" to PHASE_DONE");
@@ -876,10 +877,10 @@ public struct Team {
                 if (!Team.state(teamidcopy).phase.compareAndSet(PHASE_SCATTER, PHASE_DONE))
        		        Runtime.println("ERROR setting child "+here+" to PHASE_DONE");
             };
-	        if (myLinks.child1 != Place.INVALID_PLACE) {
-	            Runtime.x10rtSendMessage(myLinks.child1.id, free_child, null);
-	    		if (myLinks.child2 != Place.INVALID_PLACE)
-	                Runtime.x10rtSendMessage(myLinks.child2.id, free_child, null);
+	        if (myLinks.child1Index != -1) {
+	            Runtime.x10rtSendMessage(places(myLinks.child1Index).id, free_child, null);
+	    		if (myLinks.child2Index != -1)
+	                Runtime.x10rtSendMessage(places(myLinks.child2Index).id, free_child, null);
 	        }
 	        Unsafe.dealloc(free_child);
 */	        
