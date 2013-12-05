@@ -443,8 +443,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 	            sw.end();
 	            sw.write(")");
 	            if (md.body() != null) {
-	                sw.allowBreak(0, " ");
-	                md.printBlock(md.body(), sw, tr);
+	                md.printSubStmt(md.body(), sw, tr);
 	            }
 	            sw.newline();
 	            ((X10CPPTranslator)tr).setContext(context); // FIXME
