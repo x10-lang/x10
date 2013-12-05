@@ -3608,8 +3608,8 @@ public class Emitter {
                     } else {
                         name = null;
                     }
-                    // XTENLANG-3010 : runtime type of Java.array[T] is defined as "Types.getRTT(#T[].class)" 
-                    component = new TypeExpander(this, at, PRINT_TYPE_PARAMS);
+                    // XTENLANG-3010 : runtime type of Java.array[T] is defined as "Types.getRTT(#T[].class)"
+                    component = new TypeExpander(this, at, 0);
                     // Note: to avoid changing number based key, we only register this with name based key 
 //                    if (X10PrettyPrinterVisitor.supportNumberedParameterForNative)
 //                    components.put(String.valueOf(i++), component);
