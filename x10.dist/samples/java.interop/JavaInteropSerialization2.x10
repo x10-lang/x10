@@ -86,6 +86,28 @@ public class JavaInteropSerialization2 {
             assert I1.equals(I2) : "I1.equals(I2)";
         }
 
+        val Ao1_:Any = Java.newArray[Any](0n);
+        val Ao2_ = at (here.next()) { Ao1_ };
+        val Ao1 = Ao1_ as Java.array[Any];
+        val Ao2 = Ao2_ as Java.array[Any];
+        assert Ao1.length == Ao2.length : "Ao1.length == Ao2.length";
+        for (var i:Int = 0n; i < Ao1.length; ++i) {
+            val o1 = Ao1(i);
+            val o2 = Ao2(i);
+            assert (o1 == null ? o2 == null : o1.equals(o2)) : "o1 == null ? o2 == null : o1.equals(o2)";
+        }
+
+        val AI1_:Any = Java.newArray[Int](0n);
+        val AI2_ = at (here.next()) { AI1_ };
+        val AI1 = AI1_ as Java.array[Int];
+        val AI2 = AI2_ as Java.array[Int];
+        assert AI1.length == AI2.length : "AI1.length == AI2.length";
+        for (var i:Int = 0n; i < AI1.length; ++i) {
+            val I1 = AI1(i);
+            val I2 = AI2(i);
+            assert I1.equals(I2) : "I1.equals(I2)";
+        }
+
         Console.OUT.println("Passed");
     }
 
