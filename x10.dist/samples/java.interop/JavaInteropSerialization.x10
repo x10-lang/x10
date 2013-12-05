@@ -68,6 +68,17 @@ public class JavaInteropSerialization {
         val S2 = Java.deserialize(Java.serialize(S1)) as String;
         assert S1.equals(S2) : "S1.equals(S2)";
 
+        val ao1 = Java.newArray[Any](0n);
+        val ao2 = Java.deserialize(Java.serialize(ao1)) as Java.array[Any];
+        assert ao1.length == ao2.length : "ao1.length == ao2.length";
+        for (var i:Int = 0n; i < ao1.length; ++i) {
+            val o1 = ao1(i);
+            val o2 = ao2(i);
+            assert o1 == null ? o2 == null : o1.equals(o2);
+        }
+
+        Console.OUT.println("Passed");
+
     }
 
 }
