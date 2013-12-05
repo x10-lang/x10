@@ -780,12 +780,13 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
                         w.write("$_obj." + Emitter.mangleToJava(f.name()) + " = ");
                         w.writeln("$deserializer.read" + primitiveType + "Array();");
                     } else if (xts.isJavaArray(f.type())) {
-                        String type = f.type().toClass().typeArguments().get(0).toString();
                         w.write("$_obj." + Emitter.mangleToJava(f.name()) + " = ");
                         w.write("(");
                         er.printType(f.type(), BOX_PRIMITIVES);
                         w.write(") ");
-                        w.writeln("$deserializer.readArrayUsingReflection(" + type + ".class);");
+                        w.write("$deserializer.readArrayUsingReflection(");
+                        er.printType(f.type().toClass().typeArguments().get(0), BOX_PRIMITIVES);
+                        w.writeln(".class);");
                     } else if (f.type().isArray() && f.type() instanceof JavaArrayType_c && ((JavaArrayType_c)f.type()).base().isParameterType()) {
                         // This is to get the test case XTENLANG_2299 to compile. Hope its a generic fix
                         w.write("$_obj." + Emitter.mangleToJava(f.name()) + " = ");
