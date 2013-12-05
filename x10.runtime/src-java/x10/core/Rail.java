@@ -415,18 +415,7 @@ public final class Rail<T> extends x10.core.Ref implements x10.lang.Iterable,
         public void $_serialize(X10JavaSerializer $serializer) throws IOException {
             $serializer.write(this.numElems);
             if (this.numElems > 0) {
-                Class<?> componentType = this.srcData.getClass().getComponentType();
-                if (componentType.isPrimitive()) {
-                    $serializer.writeSerializationId(SerializationConstants.JAVA_OBJECT_STREAM_ID);
-                    $serializer.writeUsingObjectOutputStream(this.srcData);
-                } else if (componentType.equals(java.lang.String.class)) {
-                    $serializer.writeSerializationId(SerializationConstants.STRING_ID);
-                    $serializer.write((java.lang.String[]) this.srcData);
-                } else if (this.srcData instanceof X10JavaSerializable[]) {
-                    $serializer.write((X10JavaSerializable[]) this.srcData);
-                } else {
-                    $serializer.write((Object[]) this.srcData);
-                }
+                $serializer.write(this.srcData);
             }
             $serializer.write(this.dst);
             $serializer.write(this.dstIndex);
@@ -441,14 +430,7 @@ public final class Rail<T> extends x10.core.Ref implements x10.lang.Iterable,
         public static X10JavaSerializable $_deserialize_body($Closure$0 $_obj, X10JavaDeserializer $deserializer) throws IOException {
             $_obj.numElems = $deserializer.readInt();
             if ($_obj.numElems > 0) {
-                short serializationID = $deserializer.readSerializationId();
-                if (serializationID == SerializationConstants.JAVA_OBJECT_STREAM_ID) {
-                    $_obj.srcData = $deserializer.readUsingObjectInputStream();
-                } else if (serializationID == SerializationConstants.STRING_ID) {
-                    $_obj.srcData = $deserializer.readStringArray();
-                } else {
-                    $_obj.srcData = $deserializer.readRef();
-                }
+                $_obj.srcData = $deserializer.readRef();
             }
             $_obj.dst = $deserializer.readRef();
             $_obj.dstIndex = $deserializer.readInt();
