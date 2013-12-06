@@ -225,7 +225,7 @@ ifndef CROSS_COMPILE_BLUEGENE
       override CXXFLAGS += -O2 -finline-functions
     endif
     ifndef CXX_NO_WARNINGS
-      CXX_WARNING_FLAGS = -ansi -pedantic -Wall -Wextra -Wno-long-long -Wno-unused-parameter
+      CXX_WARNING_FLAGS = -ansi -pedantic -Wall -Wextra -Wno-long-long -Wno-unused-parameter -Wno-unused-variable -Wno-unused-value
     endif
   endif
   ifdef USE_XLC
