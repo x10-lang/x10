@@ -979,13 +979,20 @@ abstract class FinishState {
                 return Runtime.evalAtNonResilient(place, body, prof);
             }
 
-            @StackAllocate val me = @StackAllocate new Cell[Any](null);
+            val dummy_data = new Empty(); // for XTENLANG-3324
+            @StackAllocate val me = @StackAllocate new Cell[Any](dummy_data);
             val me2 = GlobalRef(me);
             @Profile(prof) at (place) {
                 val r : Any = body();
                 at (me2) {
                     me2()(r);
                 }
+            }
+            // Fix for XTENLANG-3324
+            if (me()==dummy_data) { // no result set
+                if (VERBOSE) Runtime.println("evalAt returns no result, target place may died");
+                if (place.isDead()) throw new DeadPlaceException(place);
+                else me(null); // should throw some exception?
             }
 
             return me();
@@ -1890,13 +1897,20 @@ abstract class FinishState {
                 return Runtime.evalAtNonResilient(place, body, prof);
             }
 
-            @StackAllocate val me = @StackAllocate new Cell[Any](null);
+            val dummy_data = new Empty(); // for XTENLANG-3324
+            @StackAllocate val me = @StackAllocate new Cell[Any](dummy_data);
             val me2 = GlobalRef(me);
             @Profile(prof) at (place) {
                 val r : Any = body();
                 at (me2) {
                     me2()(r);
                 }
+            }
+            // Fix for XTENLANG-3324
+            if (me()==dummy_data) { // no result set
+                if (VERBOSE) Runtime.println("evalAt returns no result, target place may died");
+                if (place.isDead()) throw new DeadPlaceException(place);
+                else me(null); // should throw some exception?
             }
 
             return me();
