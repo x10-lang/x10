@@ -132,7 +132,8 @@ public class CastInjector extends ContextVisitor {
                 List<Expr> args = call.arguments();
                 List<Type> formals = call.methodInstance().formalTypes();
                 List<Expr> newArgs = castActualsToFormals(args, formals);
-                if (!mi.flags().isStatic() && ts.isParameterType(call.target().type())) {
+                if (!mi.flags().isStatic() && ts.isParameterType(call.target().type())
+                        && !(mi.container().isClass() && mi.container().toClass().flags().isInterface())) {
                     call = (Call_c)call.target(makeCast(call.target().position(), (Expr)call.target(), mi.container()));
                 }
                 return null == newArgs ? call : call.arguments(newArgs);
