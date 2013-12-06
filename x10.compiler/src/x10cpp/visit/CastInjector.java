@@ -125,14 +125,18 @@ public class CastInjector extends ContextVisitor {
             return newInit == init ? ld : ld.init(newInit);
         } else if (n instanceof Call_c) {
             Call_c call = (Call_c)n;
-            List<Expr> args = call.arguments();
-            List<Type> formals = call.methodInstance().formalTypes();
-            List<Expr> newArgs = castActualsToFormals(args, formals);
             MethodInstance mi = call.methodInstance();
-            if (!mi.flags().isStatic() && ts.isParameterType(call.target().type()) && !ts.isHandOptimizedInterface(mi.container())) {
-                call = (Call_c)call.target(makeCast(call.target().position(), (Expr)call.target(), mi.container()));
-             }
-            return null == newArgs ? call : call.arguments(newArgs);            
+            if (ts.isHandOptimizedInterface(mi.container())) {
+                return call;
+            } else {               
+                List<Expr> args = call.arguments();
+                List<Type> formals = call.methodInstance().formalTypes();
+                List<Expr> newArgs = castActualsToFormals(args, formals);
+                if (!mi.flags().isStatic() && ts.isParameterType(call.target().type())) {
+                    call = (Call_c)call.target(makeCast(call.target().position(), (Expr)call.target(), mi.container()));
+                }
+                return null == newArgs ? call : call.arguments(newArgs);
+            }
         } else if (n instanceof New_c) {
             New_c asNew = (New_c)n;
             List<Expr> args = asNew.arguments();
