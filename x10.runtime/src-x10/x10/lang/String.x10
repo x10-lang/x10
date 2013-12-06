@@ -79,6 +79,16 @@ public final class String implements Comparable[String], CharSequence {
     @Native("c++", "::x10aux::equals(#this,#that)")
     public native def equals(that:Any): boolean;
 
+    /**
+     * Return true if the given entity is a String, and this String is equal
+     * to the given entity.
+     * @param x the given entity
+     * @return true if this String is equal to the given entity.
+     */
+    @Native("java", "(#this).equals(#that)")
+    @Native("c++", "::x10aux::equals(#this,#that)")
+    public native def equals(that:String): boolean;
+
     // FIXME: Locale sensitivity
     /**
      * Returns true if this String is equal to the given String, ignoring case considerations.
