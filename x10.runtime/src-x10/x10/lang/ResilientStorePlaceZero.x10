@@ -431,10 +431,11 @@ class ResilientStorePlaceZero {
             notifyActivityTermination(id, s.homeId);
             // if (!Runtime.STRICT_FINISH) Runtime.worker().join(s.latch); // removed as a tentative fix for XTENLANG-3304
             s.latch.await();
-            atomic {
-                me.states(id) = null;
-            }
+            // atomic {
+            //     me.states(id) = null;
+            // }
             if (!s.adopted) {
+                atomic { me.states(id) = null; } // delete the state only if it finishes without being adopted (XTENLANG-3323)
                 if (s.multipleExceptions != null) {
                     if (FinishState.VERBOSE) Runtime.println("waitForFinish("+id+") done waiting (throwing exceptions)");
                     throw new MultipleExceptions(s.multipleExceptions);

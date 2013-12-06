@@ -1817,7 +1817,7 @@ abstract class FinishState {
             the_root.notifyActivityTermination(here.id);
             // if (!Runtime.STRICT_FINISH) Runtime.worker().join(the_root.latch); // removed as a tentative fix for XTENLANG-3304
             the_root.latch.await();
-            atomic {
+            atomic { //TODO: delete the state only if it finishes without being adopted?? (XTENLANG-3323)
                 FinishResilientDistributedMaster.ALL.remove(the_root);
             }
             if (the_root.multipleExceptions != null) {
