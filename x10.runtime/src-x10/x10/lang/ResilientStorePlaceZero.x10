@@ -429,7 +429,7 @@ class ResilientStorePlaceZero {
                 s = me.states(id);
             }
             notifyActivityTermination(id, s.homeId);
-            if (!Runtime.STRICT_FINISH) Runtime.worker().join(s.latch);
+            // if (!Runtime.STRICT_FINISH) Runtime.worker().join(s.latch); // removed as a tentative fix for XTENLANG-3304
             s.latch.await();
             atomic {
                 me.states(id) = null;

@@ -1815,7 +1815,7 @@ abstract class FinishState {
             val the_root = root.getLocalOrCopy();
             if (VERBOSE) Runtime.println("("+the_root.name+").waitForFinish()");
             the_root.notifyActivityTermination(here.id);
-            if (!Runtime.STRICT_FINISH) Runtime.worker().join(the_root.latch);
+            // if (!Runtime.STRICT_FINISH) Runtime.worker().join(the_root.latch); // removed as a tentative fix for XTENLANG-3304
             the_root.latch.await();
             atomic {
                 FinishResilientDistributedMaster.ALL.remove(the_root);
