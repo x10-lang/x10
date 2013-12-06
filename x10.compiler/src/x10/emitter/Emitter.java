@@ -519,6 +519,12 @@ public class Emitter {
     	return mangleParameterType(tpn.name().id());
     }
 
+    private void prettyPrintComponent(Object component, Translator tr) {
+        if (component instanceof Expr && !isNoArgumentType((Expr) component)) {
+            component = new CastExpander(w, this, (Node) component).castTo(((Expr) component).type(), BOX_PRIMITIVES);
+        }
+        prettyPrint(component, tr);
+    }
     public void dumpRegex(String id, Map<String,Object> components, Translator tr, String regex) {
         X10CompilerOptions opts = (X10CompilerOptions) tr.job().extensionInfo().getOptions();
         int len = regex.length();
@@ -551,10 +557,7 @@ public class Emitter {
                 }
                 pos = endpos - 1;
                 start = pos + 1;
-                if (component instanceof Expr && !isNoArgumentType((Expr) component)) {
-                    component = new CastExpander(w, this, (Node) component).castTo(((Expr) component).type(), BOX_PRIMITIVES);
-                }
-                prettyPrint(component, tr);
+                prettyPrintComponent(component, tr);
             } else if (regex.charAt(pos) == '`') {
                 w.write(regex.substring(start, pos));
                 int endpos = pos;
@@ -4355,67 +4358,73 @@ public class Emitter {
     }
 
     public boolean printMainMethod(X10MethodDecl_c n) {
-        if (HierarchyUtils.isMainMethod(n.methodDef(), tr.context())) {
-            /*Expander throwsClause = new Inline(er, "");
-            if (n.throwTypes().size() > 0) {
-                List<Expander> l = new ArrayList<Expander>();
-                for (TypeNode tn : n.throwTypes()) {
-                    l.add(new TypeExpander(er, tn.type(), PRINT_TYPE_PARAMS));
-                }
-                throwsClause = new Join(er, "", "throws ", new Join(er, ", ", l));
-            }*/
+        if (!HierarchyUtils.isMainMethod(n.methodDef(), tr.context())) return false;
 
-            Expander throwsClause = new Inline(this, "");
-            List<Ref<? extends Type>> throwsTypes = n.methodDef().throwTypes();
-            if (throwsTypes.size() > 0) {
-                List<Expander> l = new ArrayList<Expander>(throwsTypes.size());
-                for (Ref<? extends Type> _throws : throwsTypes) {
-                    l.add(new TypeExpander(this, _throws.get(), 0));
-                }
-                throwsClause = new Join(this, "", "throws ", new Join(this, ", ", l));
+        Expander throwsClause = null;
+        List<Ref<? extends Type>> throwsTypes = n.methodDef().throwTypes();
+        if (throwsTypes.size() > 0) {
+            throwsClause = new Inline(this, "");
+            List<Expander> l = new ArrayList<Expander>(throwsTypes.size());
+            for (Ref<? extends Type> _throws : throwsTypes) {
+                l.add(new TypeExpander(this, _throws.get(), 0));
             }
-
-            // SYNOPSIS: #2.main(#0) #1    #0=args #1=body #2=mainclass #3=throws
-            String regex = "public static class " + X10PrettyPrinterVisitor.MAIN_CLASS + " extends " + X10PrettyPrinterVisitor.X10_RUNTIME_IMPL_JAVA_RUNTIME + " {\n" +
-                "private static final long serialVersionUID = 1L;\n" +
-                "public static void main(java.lang.String[] args) #throws {\n" +
-                    "// start native runtime\n" +
-                    "new " + X10PrettyPrinterVisitor.MAIN_CLASS + "().start(args);\n" +
-                "}\n" +
-                "\n" +
-                "// called by native runtime inside main x10 thread\n" +
-                "public void runtimeCallback(final x10.core.Rail<java.lang.String> args) #throws {\n" +
-                    "// call the original app-main method\n" +
-                    "#mainclass.main(args);\n" +
-                "}\n" +
-            "}\n" +
-            "\n" +
-            "// the original app-main method\n" +
-            "public static void main(#args) #throws #body";
-            Map<String,Object> components = new HashMap<String,Object>();
-            Object component;
-            int i = 0;
-            component = n.formals().get(0);
-//            if (X10PrettyPrinterVisitor.supportNumberedParameterForNative)
-//            components.put(String.valueOf(i++), component);
-            components.put("args", component);
-            component = n.body();
-//            if (X10PrettyPrinterVisitor.supportNumberedParameterForNative)
-//            components.put(String.valueOf(i++), component);
-            components.put("body", component);
-            component = tr.context().currentClass().name();
-//            if (X10PrettyPrinterVisitor.supportNumberedParameterForNative)
-//            components.put(String.valueOf(i++), component);
-            components.put("mainclass", component);
-            component = throwsClause;
-//            if (X10PrettyPrinterVisitor.supportNumberedParameterForNative)
-//            components.put(String.valueOf(i++), component);
-            components.put("throws", component);
-            dumpRegex(X10PrettyPrinterVisitor.MAIN_CLASS, components, tr, regex);
-
-            return true;
+            throwsClause = new Join(this, "", "throws ", new Join(this, ", ", l));
         }
-        return false;
+
+        //w.writeln("@SuppressWarnings(\"serial\")");
+        w.writeln("public static class " + X10PrettyPrinterVisitor.MAIN_CLASS + " extends " + X10PrettyPrinterVisitor.X10_RUNTIME_IMPL_JAVA_RUNTIME);
+        w.write("{");
+        w.newline(4);
+        w.begin(0);
+        w.writeln("// java main method");
+        w.write("public static void main(java.lang.String[] args)");
+        if (throwsClause != null) {
+            w.write(" ");
+            prettyPrintComponent(throwsClause, tr);
+        }
+        w.write(" {");
+        w.newline(4);
+        w.begin(0);
+        w.writeln("// start native runtime");
+        w.write("new " + X10PrettyPrinterVisitor.MAIN_CLASS + "().start(args);");
+        w.end();
+        w.newline();
+        w.write("}");
+        w.newline();
+
+        w.newline();
+        w.writeln("// called by native runtime inside main x10 thread");
+        w.write("public void runtimeCallback(final x10.core.Rail<java.lang.String> args)");
+        if (throwsClause != null) {
+            w.write(" ");
+            prettyPrintComponent(throwsClause, tr);
+        }
+        w.write(" {");
+        w.newline(4);
+        w.begin(0);
+        w.writeln("// call the original app-main method");
+        prettyPrintComponent(tr.context().currentClass().name(), tr);
+        w.write(".main(args);");
+        w.end();
+        w.newline();
+        w.write("}");
+        w.end();
+        w.newline();
+        w.write("}");
+        w.newline();
+
+        w.newline();
+        w.writeln("// the original app-main method");
+        w.write("public static void main(");
+        prettyPrintComponent(n.formals().get(0), tr);
+        w.write(")");
+        if (throwsClause != null) {
+            w.write(" ");
+            prettyPrintComponent(throwsClause, tr);
+        }
+        w.write(" ");
+        prettyPrintComponent(n.body(), tr);
+
+        return true;
     }
-    
 }
