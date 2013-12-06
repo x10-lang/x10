@@ -2859,7 +2859,6 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 				sw.write(",");
 				sw.write(Emitter.translateType(target.type()));
 				sw.write("::");
-				sw.allowBreak(2, 3, "", 0);
 	            sw.write(mangled_field_name(name+STATIC_FIELD_ACCESSOR_SUFFIX) + "()");
 				sw.write(")");
 				sw.end();
@@ -2880,7 +2879,6 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 		} else {
 			sw.write("->");
 		}
-		sw.allowBreak(2, 3, "", 0);
 		if (!n.fieldInstance().flags().isStatic()) {
             if (target instanceof X10Special_c && ((X10Special_c)target).kind().equals(X10Special_c.SUPER)) {
                 sw.write(Emitter.translateType(context.currentClass().superClass())+"::");
