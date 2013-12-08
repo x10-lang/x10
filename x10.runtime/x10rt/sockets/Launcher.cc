@@ -334,6 +334,8 @@ void Launcher::startChildren()
                     for (int i=2; i<numArgs; i++)
                         newargv[i+2] = _argv[i];
                     newargv[numArgs+2] = (char*)NULL;
+                    if (newargv[0] == NULL)
+                    	DIE("Launcher %u: Unable to exec runtime with jdb because newargv[0] is null", _myproc);
                     if (execvp(newargv[0], newargv))
                         // can't get here, if the exec succeeded
                         DIE("Launcher %u: runtime exec with jdb failed", _myproc);
@@ -398,6 +400,8 @@ void Launcher::startChildren()
 								newargv[i+2] = _argv[i];
 							newargv[numArgs+2] = (char*)NULL;
 						}
+						if (newargv[0] == NULL)
+							DIE("Launcher %u: Unable to exec with gdb because newargv[0] is null", _myproc);
 						if (execvp(newargv[0], newargv))
 							// can't get here, if the exec succeeded
 							DIE("Launcher %u: runtime exec with gdb failed", _myproc);
@@ -407,6 +411,8 @@ void Launcher::startChildren()
 				#ifdef DEBUG
 					fprintf(stderr, "Runtime %u forked.  Running exec.\n", _myproc);
 				#endif
+				if (_argv[0] == NULL)
+					DIE("Launcher %u: Unable to exec runtime because argv[0] is null", _myproc);
 				if (execvp(_argv[0], _argv))
 					// can't get here, if the exec succeeded
 					DIE("Launcher %u: runtime exec failed", _myproc);
@@ -426,6 +432,8 @@ void Launcher::startChildren()
 					#ifdef DEBUG
 						fprintf(stderr, "Launcher %u forked launcher %s on localhost.  Running exec.\n", _myproc, idString);
 					#endif
+					if (_argv[0] == NULL)
+						DIE("Launcher %u: Unable to exec child launcher because argv[0] is null", _myproc);
 					if (execvp(_argv[0], _argv))
 						DIE("Launcher %u: local child launcher exec failed", _myproc);
 				}
@@ -1355,6 +1363,8 @@ void Launcher::startSSHclient(uint32_t id, char* masterPort, char* remotehost)
 		fprintf (stderr, "\n");
 	#endif
 
+	if (argv[0] == NULL)
+		DIE("Launcher %u: Unable to exec ssh because argv[0] is null", _myproc);
 	z = execvp(argv[0], argv);
 
 	if (z)
