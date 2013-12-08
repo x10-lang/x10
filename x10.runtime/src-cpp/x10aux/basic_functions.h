@@ -142,9 +142,6 @@ namespace x10aux {
     
     /******* equals ********/
 
-
-
-
     /*
      *Inner level of dispatching to actually do the comparisons
      */
@@ -180,7 +177,7 @@ namespace x10aux {
     // ref and struct
     template<class T, class U> inline x10_boolean equals_inner(T* x, U y) {
         ::x10::lang::IBox<U>* boxY = new (::x10aux::alloc< ::x10::lang::IBox<U> >()) ::x10::lang::IBox<U>(y);
-        ::x10::lang::Any* yAsAny = reinterpret_cast< ::x10::lang::Any*>(yAsAny);
+        ::x10::lang::Any* yAsAny = reinterpret_cast< ::x10::lang::Any*>(boxY);
         ::x10::lang::Reference* xAsRef = reinterpret_cast< ::x10::lang::Reference*>(x);
         return nullCheck(xAsRef)->equals(yAsAny);
     }
