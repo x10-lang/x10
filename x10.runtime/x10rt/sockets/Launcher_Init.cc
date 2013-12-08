@@ -102,7 +102,13 @@ void Launcher::initialize(int argc, char ** argv)
 	/* ------------------------------------------------ */
 
 	_argc = argc;
-	_argv = argv;
+	_argv = (char**)malloc(argc*sizeof(char**));
+	// make a copy, because some platforms may delete argv after we return (e.g. Windows 7)
+	for (int i=0; i<argc; i++) {
+		_argv[i] = (char*)malloc((strlen(argv[i])+1)*sizeof(char));
+		strcpy(_argv[i], argv[i]);
+	}
+
 	if (NULL==realpath(argv[0], _realpath)) {
         perror("Resolving absolute path of executable");
     }
