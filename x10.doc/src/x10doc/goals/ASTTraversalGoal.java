@@ -1,12 +1,11 @@
 package x10doc.goals;
 
 import polyglot.ast.Node;
-import polyglot.ast.TopLevelDecl;
 import polyglot.frontend.Job;
 import polyglot.frontend.SourceGoal_c;
-import x10.ast.X10SourceFile_c;
 import x10.visit.X10DelegatingVisitor;
 
+@SuppressWarnings("serial")
 public class ASTTraversalGoal extends SourceGoal_c {
 
     private final X10DelegatingVisitor v;

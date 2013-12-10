@@ -70,6 +70,7 @@ public class ExtensionInfo extends x10.ExtensionInfo {
             return new ASTTraversalGoal("X10DocGenerated", job, new X10DocGenerator(job)).intern(this);
         }
 
+        @SuppressWarnings("serial")
         public Goal EndAll() {
             return new AllBarrierGoal("DocletInvoked", this) {
                 @Override

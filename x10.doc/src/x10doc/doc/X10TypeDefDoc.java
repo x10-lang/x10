@@ -1,12 +1,9 @@
 package x10doc.doc;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 import polyglot.types.LocalDef;
-import polyglot.types.Ref;
-
 import x10.types.ParameterType;
 import x10.types.TypeDef;
 

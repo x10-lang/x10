@@ -1,21 +1,13 @@
 package x10doc.doc;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 import polyglot.types.ClassType;
-import polyglot.types.FieldDef;
 import polyglot.types.Types;
-
 import x10.constraint.XConstraint;
-import x10.constraint.XEQV;
-import x10.constraint.XFailure;
-import x10.constraint.XField;
 import x10.constraint.XFormula;
-import x10.constraint.XLocal;
 import x10.constraint.XTerm;
-import x10.constraint.XVar;
 import x10.types.ConstrainedType;
 import x10.types.FunctionType;
 import x10.types.X10ClassType;

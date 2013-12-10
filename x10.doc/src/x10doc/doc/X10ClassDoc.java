@@ -620,7 +620,6 @@ public class X10ClassDoc extends X10Doc implements ClassDoc {
     }
 
     public boolean definesSerializableFields() {
-        // TODO Auto-generated method stub
         return false;
     }
 
