@@ -29,7 +29,7 @@ sub newpgrp (@) {
 
 if ($#_ != 0 ) {usage "newpgrp: wrong number of arguments\n";};
 
-if ("$_[0]" =~ /-[-]?h.*/ ) {usage "";};
+#if ("$_[0]" =~ /-[-]?h.*/ ) {usage "";};
 
 my ($cmd) = @_;
 

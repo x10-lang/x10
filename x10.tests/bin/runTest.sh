@@ -262,9 +262,9 @@ function execTimeOut {
     shift
     printf "\n===> $@ >> $outfile &\n\n" 1>&2
     printf "\n" >> $outfile
-    "$MYDIR"/xnewpgrp "$@" >> $outfile 2>&1 &
+    "$MYDIR"/newpgrp "$@" >> $outfile 2>&1 &
     typeset cmd_pid=$!
-    "$MYDIR"/xnewpgrp "sleep $timeout && kill -9 -$cmd_pid && echo 'Timeout' >> $outfile" >/dev/null 2>&1 &
+    "$MYDIR"/newpgrp "sleep $timeout && kill -9 -$cmd_pid && echo 'Timeout' >> $outfile" >/dev/null 2>&1 &
     typeset sleep_pid=$!
     wait $cmd_pid >/dev/null 2>&1
     typeset rc=$?
