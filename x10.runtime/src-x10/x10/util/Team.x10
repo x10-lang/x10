@@ -623,7 +623,6 @@ public struct Team {
         private static PHASE_SCATTER:Int = 3n; // waiting for data+signal from parent
         private static PHASE_DONE:Int = 4n;    // done, but not yet ready for the next collective call
         private var phase:AtomicInteger = new AtomicInteger(PHASE_READY); // which of the above phases we're in
-        private var counter:Int = 0n; // counter used only in some debug messages
 
         private static COLL_BARRIER:Int = 0n; // no data moved
         private static COLL_SCATTER:Int = 1n; // data out only
@@ -639,6 +638,7 @@ public struct Team {
         private var local_src_off:Long = 0;
         private var local_dst:Any = null; // becomes type Rail[T]{self!=null}
         private var local_dst_off:Long = 0;
+//        private var local_temp_buff:Any = null; // Used to hold intermediate data moving up or down the tree structure, becomes type Rail[T]{self!=null}
         private var local_count:Long = 0;
 
         private static def getCollName(collType:Int):String {
@@ -655,30 +655,19 @@ public struct Team {
             }
         }
         
-        // recursive method used to find our parent and child links in the tree, assuming root=places(0)
-        private def getLinks(rootIndex:long, parent:long, startIndex:long, endIndex:long):TreeStructure {
-            if (DEBUGINTERNALS) Runtime.println(here+" getLinks called with root="+rootIndex+" myIndex="+myIndex+" parent="+parent+" startIndex="+startIndex+", endIndex="+endIndex);
+        // recursive method used to find our parent and child links in the tree.  This method assumes that root is not in the tree (or root is at position 0)
+        private def getLinks(parent:long, startIndex:long, endIndex:long):TreeStructure {
+            if (DEBUGINTERNALS) Runtime.println(here+" getLinks called with myIndex="+myIndex+" parent="+parent+" startIndex="+startIndex+", endIndex="+endIndex);
             
-            if (myIndex == rootIndex) { // at the top of the tree
-                if (places.numPlaces() == 1)
-                    return new TreeStructure(-1, -1, -1);
-                else if (places.numPlaces() == 2)
-                    return new TreeStructure(-1, (rootIndex+1)%places.numPlaces(), -1);
-                else
-                    return new TreeStructure(-1, (rootIndex+1)%places.numPlaces(), (rootIndex+1+((endIndex-startIndex)/2))%places.numPlaces());
-            }
-            else if (myIndex == startIndex) { // we're at our own position in the tree
-                var children:long = endIndex-startIndex-1; // overall gap of children, minus ourselves
-                if (rootIndex > startIndex && rootIndex <= endIndex) children--; // remove root if it's in the gap
-               	return new TreeStructure((parent==-1)?rootIndex:((parent+rootIndex)%places.numPlaces()), 
-                        (children<=0)?-1:(startIndex+1+rootIndex)%places.numPlaces(), 
-                        (children==1?-1:(startIndex+1+((endIndex-startIndex)/2)+rootIndex)%places.numPlaces()));
+            if (myIndex == startIndex) { // we're at our own position in the tree
+                val children:long = endIndex-startIndex; // overall gap of children
+                return new TreeStructure(parent, (children<1)?-1:(startIndex+1), (children<2)?-1:(startIndex+1+((endIndex-startIndex)/2)));
             }
             else {
-                if (myIndex > startIndex+((endIndex-startIndex)/2)) // go down the tree, following the right branch
-                	return getLinks(rootIndex, startIndex, startIndex+1+((endIndex-startIndex)/2), endIndex);
-                else // go down the left branch
-                    return getLinks(rootIndex, startIndex, startIndex+1, startIndex+((endIndex-startIndex)/2));
+                if (myIndex > startIndex+((endIndex-startIndex)/2)) // go down the tree, following the right branch (second child)
+                	return getLinks(startIndex, startIndex+1+((endIndex-startIndex)/2), endIndex);
+                else // go down the left branch (first child)
+                    return getLinks(startIndex, startIndex+1, startIndex+((endIndex-startIndex)/2));
             }
         }
 	    
@@ -688,9 +677,12 @@ public struct Team {
 	    // regular barrier, which does not have these checks.
 	    private def init() {
             if (DEBUGINTERNALS) Runtime.println(here + " creating team "+teamid);
-	        val myLinks:TreeStructure = getLinks(0, -1, 0, places.numPlaces()-1);
+	        val myLinks:TreeStructure = getLinks(-1, 0, places.numPlaces()-1);
 
-	        if (DEBUGINTERNALS) Runtime.println(here+":team"+this.teamid+", has parent "+((myLinks.parentIndex==-1)?Place.INVALID_PLACE:places(myLinks.parentIndex)));
+	        if (DEBUGINTERNALS) { 
+	        	Runtime.println(here+":team"+this.teamid+", root=0 has parent "+((myLinks.parentIndex==-1)?Place.INVALID_PLACE:places(myLinks.parentIndex)));
+	        	Runtime.println(here+":team"+this.teamid+", root=0 has children "+((myLinks.child1Index==-1)?Place.INVALID_PLACE:places(myLinks.child1Index))+", "+((myLinks.child2Index==-1)?Place.INVALID_PLACE:places(myLinks.child2Index)));
+	        }
 	    	val teamidcopy = this.teamid; // needed to prevent serializing "this"
 		    if (myLinks.parentIndex != -1) {
 			    @Pragma(Pragma.FINISH_ASYNC) finish at (places(myLinks.parentIndex)) async {
@@ -706,8 +698,10 @@ public struct Team {
 	     * for specific collectives.
 	     */
 	    private def collective_impl[T](collType:Int, root:Place, src:Rail[T], src_off:Long, dst:Rail[T], dst_off:Long, count:Long, operation:Int):void {
-	        if (DEBUGINTERNALS) {counter++; Runtime.println(here+":team"+teamid+" entered "+getCollName(collType)+" (phase="+phase.get()+", root="+root+") counter="+counter);}
-	    	
+	        if (DEBUGINTERNALS) Runtime.println(here+":team"+teamid+" entered "+getCollName(collType)+" (phase="+phase.get()+", root="+root);
+
+	        val teamidcopy = this.teamid; // needed to prevent serializing "this" in at() statements
+
 	        // block if some other collective is in progress.
 	        if (!this.phase.compareAndSet(PHASE_READY, PHASE_GATHER1)) {
 	            if (useProbeNotSleep()) {
@@ -722,19 +716,32 @@ public struct Team {
 	            }
 	        }
 	        
+	        // figure out our links in the tree structure
+	        val myLinks:TreeStructure;
+	        val rootIndex:long = places.indexOf(root);
+	        if (myIndex > rootIndex || rootIndex == 0)
+	        	myLinks = getLinks(-1, rootIndex, places.numPlaces()-1);
+	        else if (myIndex < rootIndex)
+	            myLinks = getLinks(rootIndex, 0, rootIndex-1);
+	        else // non-zero root
+	            myLinks = new TreeStructure(-1, 0, ((places.numPlaces()-1)==rootIndex)?-1:(rootIndex+1));
+
+	        if (DEBUGINTERNALS) { 
+	            Runtime.println(here+":team"+teamidcopy+", root="+root+" has parent "+((myLinks.parentIndex==-1)?Place.INVALID_PLACE:places(myLinks.parentIndex)));
+	            Runtime.println(here+":team"+teamidcopy+", root="+root+" has children "+((myLinks.child1Index==-1)?Place.INVALID_PLACE:places(myLinks.child1Index))+", "+((myLinks.child2Index==-1)?Place.INVALID_PLACE:places(myLinks.child2Index)));
+	        }
+	        
 	        // make my local data arrays visible to other places
-	    	local_src = src;
-	    	local_src_off = src_off;
+	        local_src = src;
+	        local_src_off = src_off;
 	        local_dst = dst;
 	        local_dst_off = dst_off;
 	        local_count = count;
-	        val teamidcopy = this.teamid; // needed to prevent serializing "this" in at() statements	    	
-
-	        // figure out our links in the tree structure
-	        val myLinks:TreeStructure = getLinks(places.indexOf(root), -1, 0, places.numPlaces()-1);
-	        if (DEBUGINTERNALS) Runtime.println(here+":team"+teamidcopy+", root="+root+" has parent "+((myLinks.parentIndex==-1)?Place.INVALID_PLACE:places(myLinks.parentIndex)));
-	        if (DEBUGINTERNALS) Runtime.println(here+":team"+teamidcopy+", root="+root+" has children "+((myLinks.child1Index==-1)?Place.INVALID_PLACE:places(myLinks.child1Index))+", "+((myLinks.child2Index==-1)?Place.INVALID_PLACE:places(myLinks.child2Index)));
-	    	
+/*	        if (collType == COLL_SCATTER || collType == COLL_REDUCE || collType == COLL_ALLREDUCE) // big chunks of data move around the tree
+	        	local_temp_buff = Unsafe.allocRailUninitialized[T](myLinks.dataToCarryForChildren);
+	        else if (myLinks.child1Index != -1 && (collType == COLL_INDEXOFMIN || collType == COLL_INDEXOFMAX)) // pairs of values move around
+	            local_temp_buff = Unsafe.allocRailUninitialized[T]((myLinks.child2Index==-1)?1:2);
+*/        
 	    	// Start out waiting for all children to update our state 
 	    	if (myLinks.child1Index == -1) // no children to wait for
 	    		this.phase.compareAndSet(PHASE_GATHER1, PHASE_SCATTER);
@@ -761,20 +768,19 @@ public struct Team {
 	        // all children have checked in.  Update our parent, and then wait for the parent to update us 
 	    	if (myLinks.parentIndex == -1) { // this is the root
 	    		// copy data locally from src to dst if needed
-	    		if (collType == COLL_BROADCAST) {
-	                if (DEBUGINTERNALS) Runtime.println(here+ " broadcasting data locally from "+src+" to "+dst);
+	    		if (collType == COLL_BROADCAST)
 	    			Rail.copy(src, src_off, dst, dst_off, count);
-	                if (DEBUGINTERNALS) Runtime.println(here+ " dst now contains "+dst);
-	    		}
-	    		else if (collType == COLL_SCATTER) {
-	                if (DEBUGINTERNALS) Runtime.println(here+ " copying data locally from "+src+" to "+dst);
+	    		else if (collType == COLL_SCATTER)
 			    	Rail.copy(src, src_off+(count*myIndex), dst, dst_off, count);
-			        if (DEBUGINTERNALS) Runtime.println(here+ " dst now contains "+dst);
-			    }
+                else if (collType == COLL_ALLTOALL)
+                    Rail.copy(src, src_off+(count*myIndex), dst, dst_off+(count*myIndex), count);
 	    
 	    		this.phase.set(PHASE_DONE); // the root node has no parent, and can skip its own state ahead
 	    	}
 	    	else {
+	            // TODO move data from children to parent
+	            
+	    
 	            // increment the phase of the parent
 	            @Pragma(Pragma.FINISH_ASYNC) finish at (places(myLinks.parentIndex)) async { 
                 	if (!Team.state(teamidcopy).phase.compareAndSet(PHASE_GATHER1, PHASE_GATHER2) && 
@@ -832,17 +838,11 @@ public struct Team {
 		    				}
 		    			}
 		    		}
-		            if (DEBUGINTERNALS) Runtime.println(here+ " finished moving data to children");
 		    	}
 		    	else if (collType == COLL_SCATTER) {
-		    		//Runtime.println(here+ " pulling in data from "+root);
-		    		val notnulldst:Rail[T]{self!=null} = dst as Rail[T]{self!=null};
-		    		gr:GlobalRail[T] = new GlobalRail[T](notnulldst);
-		    		val offset:Long = src_off*count*myIndex;
-		            @Pragma(Pragma.FINISH_ASYNC_AND_BACK) finish { at (root) { async {
-		    			Rail.asyncCopy(Team.state(teamidcopy).local_src as Rail[T], offset, gr, dst_off, Team.state(teamidcopy).local_count);
-		    		}}}
-		    	}
+		            // TODO
+	    		}
+		    	if (DEBUGINTERNALS) Runtime.println(here+ " finished moving data to children");
 	    	}
 	    	// our parent has updated us - update any children, and leave the collective
 	        if (myLinks.child1Index != -1) { // free the first child, if it exists
@@ -886,9 +886,10 @@ public struct Team {
 */	        
 	        local_src = null;
 	        local_dst = null;
+//	        local_temp_buff = null;
 	        this.phase.set(PHASE_READY);
 	        // done!
-	        if (DEBUGINTERNALS) Runtime.println(here+":team"+teamidcopy+" leaving "+getCollName(collType)+" counter="+counter);
+	        if (DEBUGINTERNALS) Runtime.println(here+":team"+teamidcopy+" leaving "+getCollName(collType));
 	    }
 	}
 }
