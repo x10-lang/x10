@@ -88,9 +88,23 @@ public class X10MethodDoc extends X10Doc implements MethodDoc {
             X10TypeVariable v = new X10TypeVariable(p, this);
             typeParams[i++] = v;
             // typeParams.put(typeParameterKey(p), v);
+        }    }
+
+    public int compareTo(Object other) {
+        if (other instanceof X10MethodDoc) {
+            X10MethodDoc omd = (X10MethodDoc)other;
+            int nc = name().compareTo(omd.name());
+            if (nc != 0) return nc;
+            int myNumFormals = methodDef.formalTypes().size();
+            int otherNumFormals = omd.methodDef.formalTypes().size();
+            if (myNumFormals < otherNumFormals) return -1;
+            if (myNumFormals > otherNumFormals) return 1;
+            return signature().compareTo(omd.signature());
+        } else {
+            return super.compareTo(other);
         }
     }
-
+    
     public static String typeParameterKey(ParameterType p) {
         return p.name().toString();
     }
