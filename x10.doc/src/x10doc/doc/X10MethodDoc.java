@@ -4,7 +4,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import polyglot.types.LocalDef;
-import polyglot.types.Ref;
 import x10.types.ParameterType;
 import x10.types.X10MethodDef;
 
@@ -33,7 +32,6 @@ public class X10MethodDoc extends X10Doc implements MethodDoc {
     }
 
     public X10MethodDoc(X10MethodDef methodDef, X10ClassDoc containingClass, String comment) {
-        // super(comment);
         this.methodDef = methodDef;
         this.containingClass = containingClass;
         this.rootDoc = X10RootDoc.getRootDoc();
@@ -81,7 +79,7 @@ public class X10MethodDoc extends X10Doc implements MethodDoc {
         this.included = X10Doc.isIncluded(rootDoc.accessModFilter(), this);
         super.processComment(comment);
     }
-
+    
     void initTypeParameters() {
         List<ParameterType> params = methodDef.typeParameters();
         typeParams = new X10TypeVariable[params.size()];
@@ -92,10 +90,6 @@ public class X10MethodDoc extends X10Doc implements MethodDoc {
             // typeParams.put(typeParameterKey(p), v);
         }
     }
-
-    // public X10MethodDef getMethodDef() {
-    // return methodDef;
-    // }
 
     public static String typeParameterKey(ParameterType p) {
         return p.name().toString();
@@ -114,9 +108,8 @@ public class X10MethodDoc extends X10Doc implements MethodDoc {
         X10Tag[] declTags = createInlineTags(declString, this).toArray(new X10Tag[0]);
         X10Tag[] tags = getX10Tags();
         // place declaration before the first sentence of the existing comment
-        // so that
-        // the declaration is displayed in the "Methods Summary" table before
-        // the first sentence
+        // so that the declaration is displayed in the "Methods Summary" table 
+        // before the first sentence
         firstSentenceTags = concat(declTags, firstSentenceTags);
         inlineTags = concat(concat(declTags, tags), inlineTags);
     }

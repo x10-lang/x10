@@ -83,22 +83,18 @@ public class X10TypeDefDoc extends X10Doc implements MethodDoc {
     }
 
     public ClassDoc overriddenClass() {
-        // TODO Auto-generated method stub
         return null;
     }
 
     public MethodDoc overriddenMethod() {
-        // TODO Auto-generated method stub
         return null;
     }
 
     public Type overriddenType() {
-        // TODO Auto-generated method stub
         return null;
     }
 
     public boolean overrides(MethodDoc arg0) {
-        // TODO Auto-generated method stub
         return false;
     }
 

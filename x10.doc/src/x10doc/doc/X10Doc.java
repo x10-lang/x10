@@ -2,16 +2,13 @@ package x10doc.doc;
 
 import java.text.BreakIterator;
 import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Set;
 import java.util.Map;
+import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import polyglot.types.Flags;
-import polyglot.util.CollectionUtil;
 import x10.util.CollectionFactory;
 
 import com.sun.javadoc.Doc;
@@ -20,7 +17,7 @@ import com.sun.javadoc.SeeTag;
 import com.sun.javadoc.SourcePosition;
 import com.sun.javadoc.Tag;
 
-public class X10Doc implements Doc {
+public abstract class X10Doc implements Doc {
     private String rawComment;
     private String comment;
     X10Tag[] firstSentenceTags, inlineTags;
@@ -300,17 +297,10 @@ public class X10Doc implements Doc {
 
     public String commentText() {
         if (X10RootDoc.printSwitch) System.out.println("Doc.commentText() called for " + name());
-        // new Exception().printStackTrace();
         return comment;
     }
-
-    public int compareTo(Object arg0) {
-        // TODO Auto-generated method stub
-        return 0;
-    }
-
+    
     public Tag[] firstSentenceTags() {
-        // TODO Auto-generated method stub
         if (X10RootDoc.printSwitch) System.out.println("Doc.firstSentenceTags() called for " + name());
         return firstSentenceTags;
     }
@@ -331,12 +321,10 @@ public class X10Doc implements Doc {
     }
 
     public boolean isAnnotationType() {
-        // TODO Auto-generated method stub
         return false;
     }
 
     public boolean isAnnotationTypeElement() {
-        // TODO Auto-generated method stub
         return false;
     }
 
@@ -384,6 +372,11 @@ public class X10Doc implements Doc {
         return false;
     }
 
+    
+    public int compareTo(Object other) {
+        return name().compareTo(((X10Doc)other).name());
+    }
+    
     public String name() {
         if (X10RootDoc.printSwitch) System.out.println("Doc.name() called for " + this);
         return "Dummy Doc Name";
