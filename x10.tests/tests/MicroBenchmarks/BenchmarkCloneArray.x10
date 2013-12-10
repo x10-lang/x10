@@ -85,7 +85,7 @@ public class BenchmarkCloneArray extends x10Test {
     }
 
     public static def main(var args: Rail[String]): void = {
-        var n : Int = 1000000n;
+        var n : Int = 10000n;
         if (args.size > 0) {
             n = Int.parseInt(args(0));
         }
