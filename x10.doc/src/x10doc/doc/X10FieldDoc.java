@@ -10,143 +10,147 @@ import com.sun.javadoc.SerialFieldTag;
 import com.sun.javadoc.Type;
 
 public class X10FieldDoc extends X10Doc implements FieldDoc {
-	X10FieldDef fieldDef;
-	Type type;
-	X10ClassDoc containingClass;
-	X10RootDoc rootDoc;
-	boolean included;
-	
-	public X10FieldDoc(X10FieldDef fd, X10ClassDoc containingClass, String comment) {
-		//super(comment);
-		this.fieldDef = fd;
-		this.containingClass = containingClass;
-		this.rootDoc = X10RootDoc.getRootDoc();
-		this.type = rootDoc.getType(fieldDef.type().get());
+    X10FieldDef fieldDef;
+    Type type;
+    X10ClassDoc containingClass;
+    X10RootDoc rootDoc;
+    boolean included;
 
-		// X10Doc.isIncluded(..., this) valid only if this.{isPublic(),...,isPrivate()} are valid, which requires
-		// this.fieldDef to have been set appropriately
-		this.included = X10Doc.isIncluded(this.rootDoc.accessModFilter(), this);
-		super.processComment(comment);
-	}
+    public X10FieldDoc(X10FieldDef fd, X10ClassDoc containingClass, String comment) {
+        // super(comment);
+        this.fieldDef = fd;
+        this.containingClass = containingClass;
+        this.rootDoc = X10RootDoc.getRootDoc();
+        this.type = rootDoc.getType(fieldDef.type().get());
 
-	public void addDeclTag(String declString) {
-		if (declString == null) {
-			return;
-		}
-		X10Tag[] declTags = createInlineTags(declString, this).toArray(new X10Tag[0]);
+        // X10Doc.isIncluded(..., this) valid only if
+        // this.{isPublic(),...,isPrivate()} are valid, which requires
+        // this.fieldDef to have been set appropriately
+        this.included = X10Doc.isIncluded(this.rootDoc.accessModFilter(), this);
+        super.processComment(comment);
+    }
 
-		// place declaration before the first sentence of the existing comment so that
-		// the declaration is displayed in the "Fields Summary" table before the first sentence
-		firstSentenceTags = X10Doc.concat(declTags, firstSentenceTags);
-		inlineTags = concat(declTags, inlineTags);
-	}
+    public void addDeclTag(String declString) {
+        if (declString == null) {
+            return;
+        }
+        X10Tag[] declTags = createInlineTags(declString, this).toArray(new X10Tag[0]);
 
-	public String declString() {
-		// the X10 field declaration needs to be displayed in the field's comments only if the field type
-		// is X10-specific, or if the field has associated constraints
-		// TODO: look for constraints, include constraints in declaration string
-		if (X10Type.isX10Specific(type)) {
-			String result = "<B>Field Type</B>: <TT>" + fieldDef.type().get().toString() + 
-			                "</TT><PRE>\n</PRE>";
-			return result;
-		}
-		return "";
-	}
+        // place declaration before the first sentence of the existing comment
+        // so that
+        // the declaration is displayed in the "Fields Summary" table before the
+        // first sentence
+        firstSentenceTags = X10Doc.concat(declTags, firstSentenceTags);
+        inlineTags = concat(declTags, inlineTags);
+    }
 
-	@Override
-	public String name() {
-		return fieldDef.name().toString();
-	}
+    public String declString() {
+        // the X10 field declaration needs to be displayed in the field's
+        // comments only if the field type
+        // is X10-specific, or if the field has associated constraints
+        // TODO: look for constraints, include constraints in declaration string
+        if (X10Type.isX10Specific(type)) {
+            String result = "<B>Field Type</B>: <TT>" + fieldDef.type().get().toString() + "</TT><PRE>\n</PRE>";
+            return result;
+        }
+        return "";
+    }
 
-	public Object constantValue() {
-		return fieldDef.constantValue();
-	}
+    @Override
+    public String name() {
+        return fieldDef.name().toString();
+    }
 
-	public String constantValueExpression() {
-		return "";
-	}
+    public Object constantValue() {
+        return fieldDef.constantValue();
+    }
 
-	@Override
-	public boolean isField() {
-		return true;
-	}
+    public String constantValueExpression() {
+        return "";
+    }
 
-	@Override
-	public boolean isIncluded() {
-		// return true;
-		return included;
-	}
+    @Override
+    public boolean isField() {
+        return true;
+    }
 
-	public boolean isTransient() {
-		return fieldDef.flags().isTransient();
-	}
+    @Override
+    public boolean isIncluded() {
+        // return true;
+        return included;
+    }
 
-	public boolean isVolatile() {
-		return false;
-	}
+    public boolean isTransient() {
+        return fieldDef.flags().isTransient();
+    }
 
-	public SerialFieldTag[] serialFieldTags() {
-		return new SerialFieldTag[0];
-	}
+    public boolean isVolatile() {
+        return false;
+    }
 
-	public Type type() {
-		// System.out.println("FieldDoc(" + name() + ").type() called.");
-		// return new X10Type(fieldDef.type().get());
-		return type;
-	}
+    public SerialFieldTag[] serialFieldTags() {
+        return new SerialFieldTag[0];
+    }
 
-	public boolean isSynthetic() {
-		// TODO Auto-generated method stub
-		return false;
-	}
+    public Type type() {
+        // System.out.println("FieldDoc(" + name() + ").type() called.");
+        // return new X10Type(fieldDef.type().get());
+        return type;
+    }
 
-	public AnnotationDesc[] annotations() {
-		return new AnnotationDesc[0];
-	}
+    public boolean isSynthetic() {
+        // TODO Auto-generated method stub
+        return false;
+    }
 
-	public ClassDoc containingClass() {
-		return containingClass;
-	}
+    public AnnotationDesc[] annotations() {
+        return new AnnotationDesc[0];
+    }
 
-	public PackageDoc containingPackage() {
-		return containingClass.containingPackage();
-	}
+    public ClassDoc containingClass() {
+        return containingClass;
+    }
 
-	public boolean isFinal() {
-		return fieldDef.flags().isFinal();
-	}
+    public PackageDoc containingPackage() {
+        return containingClass.containingPackage();
+    }
 
-	public boolean isPackagePrivate() {
-		return fieldDef.flags().isPackage();
-	}
+    public boolean isFinal() {
+        return fieldDef.flags().isFinal();
+    }
 
-	public boolean isPrivate() {
-		return fieldDef.flags().isPrivate();
-	}
+    public boolean isPackagePrivate() {
+        return fieldDef.flags().isPackage();
+    }
 
-	public boolean isProtected() {
-		return fieldDef.flags().isProtected();
-	}
+    public boolean isPrivate() {
+        return fieldDef.flags().isPrivate();
+    }
 
-	public boolean isPublic() {
-		return fieldDef.flags().isPublic();
-	}
+    public boolean isProtected() {
+        return fieldDef.flags().isProtected();
+    }
 
-	public boolean isStatic() {
-		return fieldDef.flags().isStatic();
-	}
+    public boolean isPublic() {
+        return fieldDef.flags().isPublic();
+    }
 
-	public int modifierSpecifier() {
-		return X10Doc.flagsToModifierSpecifier(fieldDef.flags().flags());
-	}
+    public boolean isStatic() {
+        return fieldDef.flags().isStatic();
+    }
 
-	public String modifiers() {
-		return fieldDef.flags().toString();
-	}
+    public int modifierSpecifier() {
+        return X10Doc.flagsToModifierSpecifier(fieldDef.flags().flags());
+    }
 
-	public String qualifiedName() {
-		String str = fieldDef.type().toString();
-		// System.out.println("FieldDoc.qualifiedName() called. fieldDef.type().toString() = " + str); 
-		return str;
-	}
+    public String modifiers() {
+        return fieldDef.flags().toString();
+    }
+
+    public String qualifiedName() {
+        String str = fieldDef.type().toString();
+        // System.out.println("FieldDoc.qualifiedName() called. fieldDef.type().toString() = "
+        // + str);
+        return str;
+    }
 }
