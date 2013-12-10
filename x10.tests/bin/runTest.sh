@@ -826,8 +826,8 @@ function main {
     printf "${tcvalidcnt}\n"
 
     printf "\n**SKIPPED        : "
-    printf "${xtcskipcnt} Skipped"
-    printf " / ${tcskipcnt} Actual Skips\n"
+    printf "${xtcskipcnt} Expected Skipped"
+    printf " / ${tcskipcnt} Actual Skipped\n"
 
     printf "\n**COMPILATION    : "
     printf "${tccompcnt} Successes / ${xtcfcompcnt} Expected Failures"
