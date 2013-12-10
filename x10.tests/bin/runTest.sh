@@ -581,6 +581,7 @@ function main {
 	    __jen_test_result="SKIPPED"
 	    printf " +S [SKIPPED] ${skip_reason}"
 	    junitLog /dev/null
+	    let 'tcskipcnt += 1'
 	    continue
 	fi
 
@@ -825,8 +826,8 @@ function main {
     printf "${tcvalidcnt}\n"
 
     printf "\n**SKIPPED        : "
-    printf "${tcskipcnt} Skipped"
-    printf " / ${xtcskipcnt} Actual Skips\n"
+    printf "${xtcskipcnt} Skipped"
+    printf " / ${tcskipcnt} Actual Skips\n"
 
     printf "\n**COMPILATION    : "
     printf "${tccompcnt} Successes / ${xtcfcompcnt} Expected Failures"
@@ -844,7 +845,7 @@ function main {
     printf "${tcfvcodecnt} Invalid Validation Codes\n"
 
     printf "\n**CONCLUSION     : "
-    printf "${tcpasscnt} Successes / ${tcfailcnt} Failures\n"
+    printf "${tcpasscnt} Successes / ${tcskipcnt} Skipped / ${tcfailcnt} Failures\n"
     printf "\n======================================================================\n\n"
 }
 
