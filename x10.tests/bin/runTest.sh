@@ -8,21 +8,35 @@
 
 # display command-line help
 # usage: printUsage excode detail
-# TODO: update this once usage stabalize
 function printUsage {
     printf "\n=====> X10 Test Harness\n\n"
-    printf "Usage: jenkins-runTest.sh [-t|-timeOut [secs]]\n"
-    printf "[-l|-list \"test1 test2 ... testn\"]]\n"
-    printf "    [-v|-verbose] [-h|-help]\n\n"
+    printf "Usage: runTest.sh [-native] [-managed] [-opt] [-noopt] [-debug]\n"
+    printf "    [-t|-timeOut [secs]]\n"
+    printf "    [-report_dir directory]\n"
+    printf "    [-l|-list \"test1 test2 ... testn\"]]\n"
+    printf "    [-h|-help]\n\n"
     if [[ $2 > 0 ]]; then
-	printf "This script runs the *.x10 test cases"
-	printf " in the current\ndirectory and its subdirectories.\n\n"
+	printf "Invoked with no arguments, this script runs the X10 test cases\n"
+	printf " in the current directory and its subdirectories.\n\n"
+	printf " Optional command line arguments include:\n"
+        printf -- "-native\n"
+	printf "  Run tests with Native X10 (default)\n\n"
+        printf -- "-managed\n"
+	printf "  Run tests with Managed X10\n\n"
+        printf -- "-nopt\n"
+	printf "  Compile the test cases without optimization\n\n"
+        printf -- "-opt\n"
+	printf "  Compile the test cases with optimization (-O)\n\n"
+        printf -- "-opt\n"
+	printf "  Compile the test cases with debug support (-DEBUG)\n\n"
 	printf -- "-t | -timeOut [secs]\n"
-	printf "  Enable timeout option for test case execution. This"
+	printf "  Set timeout option for test case execution. This"
 	printf " overrides\nthe default timeout value of 60 seconds.\n\n"
+	printf -- "-report_dir dir\n"
+	printf "  For each test case, generate an xml test result file in dir\n\n"
 	printf -- "-listFile file\n"
 	printf "  Test cases are found recursively starting at the top"
-	printf " test\ndirectory, and are executed in the same order as"
+	printf " test\n directory, and are executed in the same order as"
 	printf " they are found.\nThis option indicates a file containing"
 	printf " a list of shell file\npatterns denoting the tests to run."
 	printf "  The test list file can\nalso contain comment lines"
@@ -32,10 +46,6 @@ function printUsage {
 	printf "  Alternatively, use this option to indicate the file"
 	printf " pattern(s)\nfor the tests to run.  With these options,"
 	printf " only the specified tests\nare run.\n\n"
-	printf -- "-runFile file\n"
-	printf "  Additional information about test cases during execution"
-	printf " can be\nprovided through this data file. Please look into"
-	printf " the sample\nruntime data file provided for details.\n\n"
 	printf -- "-h | -help\n"
 	printf "  Print this help message.\n\n"
     fi
@@ -101,10 +111,13 @@ function parseCmdLine {
 	    if (( $# >= 2 )); then
 		tcpatlist="$2"
 		shift 2
+	    else
+		printf "\n[${prog}: err]: Option $1 needs argument\n\n"
+		printUsage 1 0
 	    fi
 	elif [[ "$1" == "-help" || "$1" == "-h" ]]; then
 	    printUsage 0 1
-	elif [["$1" == "-listFile" || "$1" == "-runFile" || "$1" == "-l" || "$1" == "-list" || "$1" == "-report_dir" ]]; then
+	elif [[ "$1" == "-listFile" || "$1" == "-runFile" || "$1" == "-l" || "$1" == "-list" || "$1" == "-report_dir" ]]; then
 	    printf "\n[${prog}: err]: Option $1 needs argument\n\n"
 	    printUsage 1 0
 	elif [[ "$1" == -* ]]; then
@@ -266,7 +279,7 @@ X10_HOME=$X10_HOME
 if [[ -z "$X10_HOME" ]]; then
     export X10_HOME=$(cd $MYDIR/../..; pwd)
 fi
-prog=jenkins-runTest
+prog=runTest.sh
 
 # platform independent abstraction for certain commands
 EGREP=egrep
