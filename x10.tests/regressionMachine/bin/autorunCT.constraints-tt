@@ -1,9 +1,0 @@
-#!/bin/bash
-
-export X10_HOME=/tmp/x10reg_c.constraint-tt
-export X10_SVNROOT="http://svn.code.sf.net/p/x10/code/branches/trunk-test"
-export CAT_BACKEND_NAME=x10c-constraints-tt
-
-. /home/x10reg/bin/autorunCT_common
-
-exit $?
