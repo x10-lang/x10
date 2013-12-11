@@ -49,6 +49,8 @@ namespace x10 {
 
             virtual void skip(x10_long bytes);
 
+            ::x10::lang::String* readLine();
+            
             // Serialization
             static const ::x10aux::serialization_id_t _serialization_id;
             virtual ::x10aux::serialization_id_t _get_serialization_id() {
