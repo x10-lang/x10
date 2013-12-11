@@ -306,7 +306,6 @@ tcreportdir=$tctmpdir
 DEFAULT_TIMEOUT=360
 DEFAULT_LOGPATH="log"
 DEFAULT_NPLACES=2
-MAX_NPLACES=4
 
 # test case globals
 
@@ -673,12 +672,10 @@ function main {
 	#tcoutdat=${tcroot}/${tctarget}.out
 	tcoutdat=${tccompdat}
 	# extract additional execution details, if available
+	numplaces_annotation="$(sed -ne 's|^[[:space:]]*//[[:space:]]*NUM_PLACES*\:[[:space:]]*\(.*\)|\1|p' $tc)"
 	my_nplaces=$DEFAULT_NPLACES
-	if [[ -n "$tcrunfile" ]]; then
-	    ${EGREP} ${tctarget}\.x10 $tcrunfile >/dev/null 2>&1
-	    if (( $? == 0 )); then
-		my_nplaces=$MAX_NPLACES
-	    fi
+	if [[ -n "$numplaces_annotation" ]]; then
+	    my_nplaces=$numplaces_annotation
 	fi
 
 	if [[ "$(uname -s)" == "Darwin" ]]; then
