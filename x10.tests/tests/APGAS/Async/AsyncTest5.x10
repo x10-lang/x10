@@ -12,6 +12,8 @@
 import harness.x10Test;
 import x10.regionarray.*;
 
+// NUM_PLACES: 4
+
 /**
  * When the async place is not specified, it is take to be 'here'.
  *

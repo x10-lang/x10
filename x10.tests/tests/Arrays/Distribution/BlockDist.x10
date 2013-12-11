@@ -11,6 +11,8 @@
 
 import x10.regionarray.*;        
 
+// NUM_PLACES: 4
+
 /**
  * Basic distributions
  *

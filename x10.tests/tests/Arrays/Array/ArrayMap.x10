@@ -12,6 +12,8 @@
 import x10.util.concurrent.Future;
 import x10.regionarray.*;
 
+// NUM_PLACES: 4
+
 /**
  * @author bdlucas
  */

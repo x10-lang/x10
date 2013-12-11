@@ -14,10 +14,11 @@ import x10.regionarray.*;
 
 import x10.util.concurrent.Future;
 
+// NUM_PLACES: 4
+
 /**
  * @author bdlucas
  */
-
 public class ArrayReduce extends TestArray {
 
     public static N: long = 9;

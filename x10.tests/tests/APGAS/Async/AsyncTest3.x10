@@ -13,9 +13,11 @@ import harness.x10Test;
 
 import x10.regionarray.*;
 import x10.compiler.Pinned;
+
+// NUM_PLACES: 4
+
 /**
  * Remote accesses must be flagged by the compiler.
- *
  *
  * @author Kemal 4/2005
  */
