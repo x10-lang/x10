@@ -615,7 +615,7 @@ public struct Team {
      * array indexes, that all places call the same collective at the same time, that root matches, etc.
      */
     private static class LocalTeamState(places:PlaceGroup, teamid:Int, myIndex:long) {
-        private static struct TreeStructure(parentIndex:long, child1Index:long, child2Index:long){}
+        private static struct TreeStructure(parentIndex:long, child1Index:long, child2Index:long, totalChildren:long){}
         
         private static PHASE_READY:Int = 0n;   // normal state, nothing in progress
         private static PHASE_GATHER1:Int = 1n; // waiting for data+signal from first child
@@ -625,10 +625,10 @@ public struct Team {
         private var phase:AtomicInteger = new AtomicInteger(PHASE_READY); // which of the above phases we're in
 
         private static COLL_BARRIER:Int = 0n; // no data moved
-        private static COLL_SCATTER:Int = 1n; // data out only
-        private static COLL_BROADCAST:Int = 2n; // data out only
-        private static COLL_REDUCE:Int = 3n; // data in only
-        private static COLL_ALLTOALL:Int = 4n; // data in and out
+        private static COLL_BROADCAST:Int = 1n; // data out only, single value
+        private static COLL_SCATTER:Int = 2n; // data out only, many values
+        private static COLL_ALLTOALL:Int = 3n; // data in and out, many values
+        private static COLL_REDUCE:Int = 4n; // data in only
         private static COLL_ALLREDUCE:Int = 5n; // data in and out
         private static COLL_INDEXOFMIN:Int = 6n; // data in and out
         private static COLL_INDEXOFMAX:Int = 7n; // data in and out
@@ -644,10 +644,10 @@ public struct Team {
         private static def getCollName(collType:Int):String {
             switch (collType) {
                 case COLL_BARRIER: return "Barrier";
-                case COLL_SCATTER: return "Scatter";
                 case COLL_BROADCAST: return "Broadcast";
-                case COLL_REDUCE: return "Reduce";
+                case COLL_SCATTER: return "Scatter";
                 case COLL_ALLTOALL: return "AllToAll";
+                case COLL_REDUCE: return "Reduce";
                 case COLL_ALLREDUCE: return "AllReduce";
                 case COLL_INDEXOFMIN: return "IndexOfMin";
                 case COLL_INDEXOFMAX: return "IndexOfMax";
@@ -661,7 +661,7 @@ public struct Team {
             
             if (myIndex == startIndex) { // we're at our own position in the tree
                 val children:long = endIndex-startIndex; // overall gap of children
-                return new TreeStructure(parent, (children<1)?-1:(startIndex+1), (children<2)?-1:(startIndex+1+((endIndex-startIndex)/2)));
+                return new TreeStructure(parent, (children<1)?-1:(startIndex+1), (children<2)?-1:(startIndex+1+((endIndex-startIndex)/2)), children);
             }
             else {
                 if (myIndex > startIndex+((endIndex-startIndex)/2)) // go down the tree, following the right branch (second child)
@@ -692,6 +692,10 @@ public struct Team {
 		    collective_impl[Int](COLL_BARRIER, places(0), null, 0, null, 0, 0, 0n); // barrier
 		    if (DEBUGINTERNALS) Runtime.println(here + " leaving init phase");
 		}
+	    
+	    private def performReduction[T](src:Rail[T], src_off:Long, dst:Rail[T], dst_off:Long, count:Long, operation:Int) {
+	        // TODO
+	    }
 	    
 	    /*
 	     * This method contains the implementation for all collectives.  Some arguments are only valid
@@ -724,7 +728,7 @@ public struct Team {
 	        else if (myIndex < rootIndex)
 	            myLinks = getLinks(rootIndex, 0, rootIndex-1);
 	        else // non-zero root
-	            myLinks = new TreeStructure(-1, 0, ((places.numPlaces()-1)==rootIndex)?-1:(rootIndex+1));
+	            myLinks = new TreeStructure(-1, 0, ((places.numPlaces()-1)==rootIndex)?-1:(rootIndex+1), places.numPlaces()-1);
 
 	        if (DEBUGINTERNALS) { 
 	            Runtime.println(here+":team"+teamidcopy+", root="+root+" has parent "+((myLinks.parentIndex==-1)?Place.INVALID_PLACE:places(myLinks.parentIndex)));
@@ -742,14 +746,20 @@ public struct Team {
 	        else if (myLinks.child1Index != -1 && (collType == COLL_INDEXOFMIN || collType == COLL_INDEXOFMAX)) // pairs of values move around
 	            local_temp_buff = Unsafe.allocRailUninitialized[T]((myLinks.child2Index==-1)?1:2);
 */        
-	    	// Start out waiting for all children to update our state 
+
+	        // Set our state based on how many children we must wait for 
 	    	if (myLinks.child1Index == -1) // no children to wait for
 	    		this.phase.compareAndSet(PHASE_GATHER1, PHASE_SCATTER);
 	    	else if (myLinks.child2Index == -1) { // only one child, so skip a phase waiting for the second child.
 	    		if (!this.phase.compareAndSet(PHASE_GATHER1, PHASE_GATHER2)) 
 	    			this.phase.compareAndSet(PHASE_GATHER2, PHASE_SCATTER); 
 	    	}
-	        // wait for updates from children, not already skipped
+	    
+	        // perform local reduction operations.  Result is stored in dst, which will be updated by the parent again later
+            if (collType == COLL_REDUCE || collType == COLL_ALLREDUCE)
+                performReduction(src, src_off, dst, dst_off, count, operation);
+
+	        // wait for phase updates from children
 	        if (this.phase.get() != PHASE_SCATTER) {
 	            if (DEBUGINTERNALS) Runtime.println(here+":team"+teamidcopy+" waiting for children");
 	            if (useProbeNotSleep()) {
@@ -774,12 +784,22 @@ public struct Team {
 			    	Rail.copy(src, src_off+(count*myIndex), dst, dst_off, count);
                 else if (collType == COLL_ALLTOALL)
                     Rail.copy(src, src_off+(count*myIndex), dst, dst_off+(count*myIndex), count);
-	    
 	    		this.phase.set(PHASE_DONE); // the root node has no parent, and can skip its own state ahead
 	    	}
 	    	else {
-	            // TODO move data from children to parent
-	            
+	            // move data from children to parent
+	            if (collType == COLL_ALLTOALL) {
+	                //TODO
+	            }
+	            else if (collType == COLL_REDUCE || collType == COLL_ALLREDUCE) {
+	                //TODO
+	            }
+	            else if (collType == COLL_INDEXOFMIN) {
+	                //TODO
+	            }
+	            else if (collType == COLL_INDEXOFMAX) {
+	                //TODO
+	            }
 	    
 	            // increment the phase of the parent
 	            @Pragma(Pragma.FINISH_ASYNC) finish at (places(myLinks.parentIndex)) async { 
@@ -842,6 +862,8 @@ public struct Team {
 		    	else if (collType == COLL_SCATTER) {
 		            // TODO
 	    		}
+		        // TODO: more collective types
+		    
 		    	if (DEBUGINTERNALS) Runtime.println(here+ " finished moving data to children");
 	    	}
 	    	// our parent has updated us - update any children, and leave the collective
