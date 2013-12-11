@@ -100,13 +100,6 @@ function parseCmdLine {
 	    fi
 	    tcpatfile=$2
 	    shift 2
-	elif [[ "$1" == "-runFile" && $# -ge 2 ]]; then
-	    if [[ ! -r "$2" ]]; then
-		printf "\n[${prog}: err]: Run file $2 must exist & be readable\n"
-		exit 1
-	    fi
-	    tcrunfile=$2
-	    shift 2
 	elif [[ "$1" == "-list" || "$1" == "-l" ]]; then
 	    if (( $# >= 2 )); then
 		tcpatlist="$2"
@@ -117,7 +110,7 @@ function parseCmdLine {
 	    fi
 	elif [[ "$1" == "-help" || "$1" == "-h" ]]; then
 	    printUsage 0 1
-	elif [[ "$1" == "-listFile" || "$1" == "-runFile" || "$1" == "-l" || "$1" == "-list" || "$1" == "-report_dir" ]]; then
+	elif [[ "$1" == "-listFile" || "$1" == "-l" || "$1" == "-list" || "$1" == "-report_dir" ]]; then
 	    printf "\n[${prog}: err]: Option $1 needs argument\n\n"
 	    printUsage 1 0
 	elif [[ "$1" == -* ]]; then
@@ -339,10 +332,6 @@ typeset tcpatfile=""
 # test case: ok to find no tests?
 # default: false
 typeset tcallowzerotests="false"
-
-# test case run data file
-# default: none
-typeset tcrunfile=""
 
 # test pattern list
 # default: none
