@@ -1438,16 +1438,12 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 		X10CPPContext_c context = (X10CPPContext_c) tr.context();
 		TypeSystem xts =  tr.typeSystem();
 		Flags flags = dec.flags().flags();
-		String nativePat = null;
+		String nativePat = getCppImplForDef(dec.methodDef());
         X10MethodDef def = dec.methodDef();
 		
-		if (flags.isNative()) {
-		    if (!flags.isStatic()) {
-		        // Must generate bodies for non-static @Native methods so
-		        // that virtual dispatch actually works.
-		        nativePat = getCppImplForDef(dec.methodDef());
-		    }
-		    if (nativePat == null) return; 
+		if (flags.isNative() && (flags.isStatic() || nativePat == null)) {
+		    // nothing to do if either the method is static or it has no @Native for C++
+		    return;
 		}
 
 		if (query.isMainMethod(def)) {
@@ -1506,7 +1502,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
         }
 
 
-        if (flags.isNative() || dec.body() != null) {
+        if (nativePat != null || dec.body() != null) {
             if (!flags.isStatic()) {
                 VarInstance<?> ti = xts.localDef(Position.COMPILER_GENERATED, Flags.FINAL,
                                                  Types.ref(container), Name.make(THIS)).asInstance();
@@ -1515,8 +1511,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
             if (!inlineInClassDecl) {
                 emitter.printHeader(dec, sw, tr, methodName, ret_type, true, inlineDirective);
             }
-            if (flags.isNative()) {
-                assert nativePat != null;
+            if (nativePat != null) {
                 sw.write("{"); sw.newline(4); sw.begin(0);
                 if (!dec.returnType().type().isVoid()) sw.write("return ");
                  
