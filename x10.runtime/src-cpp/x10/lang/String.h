@@ -22,6 +22,11 @@
 #include <x10/lang/Comparable.h>
 
 namespace x10 {
+
+    namespace util {
+    	template<class T> class GrowableRail;
+    }        
+
     namespace lang {
     	template<class T> class Rail;
     
@@ -67,6 +72,8 @@ namespace x10 {
 
             static String* _make(::x10::lang::Rail<x10_byte>* rail);
 
+            static String* _make(::x10::util::GrowableRail<x10_byte>* grail);
+            
             void _constructor(::x10::lang::Rail<x10_byte>* rail, x10_int start, x10_int length);
             static String* _make(::x10::lang::Rail<x10_byte>* rail, x10_int start, x10_int length) {
                 String* this_ = new (::x10aux::alloc<String>()) String();

@@ -50,6 +50,12 @@ public final class String implements Comparable[String], CharSequence {
     public native def this(r:Rail[Byte]): String;
 
     /**
+     * Construct a String from a GrowableRail[Byte].
+     */
+    @Native("java", "new java.lang.String((#r).rail().getByteArray(), 0, (int)(#r).size)")
+    public native def this(r:x10.util.GrowableRail[Byte]): String;
+
+    /**
      * Construct a String from a Rail[Byte], offset and length.
      * LONG_RAIL: unsafe int cast
      */

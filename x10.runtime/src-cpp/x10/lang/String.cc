@@ -70,6 +70,24 @@ String::_make(x10::lang::Rail<x10_byte>* rail) {
     return _make(rail, 0, rail->FMGL(size));
 }
 
+String*
+String::_make(x10::util::GrowableRail<x10_byte>* grail) {
+    nullCheck(grail);
+    String* this_ = new (::x10aux::alloc<String>()) String();
+    x10_int i = 0;
+    x10_int length = (x10_int)grail->size();
+    char *content= x10aux::alloc<char>(length+1);
+    x10::lang::Rail<x10_byte>* rail = grail->rail();
+    for (i=0; i<length; i++) {
+        content[i] = (char)(rail->raw[i]);
+    }
+    content[i] = '\0';
+    this_->FMGL(content) = content;
+    this_->FMGL(content_length) = i;
+    return this_;
+}
+
+
 void
 String::_constructor(x10::lang::Rail<x10_byte>* rail, x10_int start, x10_int length) {
     nullCheck(rail);

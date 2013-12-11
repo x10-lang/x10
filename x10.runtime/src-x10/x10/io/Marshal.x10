@@ -33,7 +33,7 @@ public interface Marshal[T] {
     
     public final static class LineMarshal implements Marshal[String] {
         public def read(r:Reader):String {
-            val buf = new GrowableRail[byte]();
+            val buf = new GrowableRail[byte](32);
             try {
                 while (true) {
                     val b = r.read();
@@ -45,7 +45,7 @@ public interface Marshal[T] {
                     throw e;
                 }
             }
-	    return new String(buf.toRail());
+	    return new String(buf);
         }
         public def write(w:Writer, s:String):void {
 	    w.write(s.bytes());
