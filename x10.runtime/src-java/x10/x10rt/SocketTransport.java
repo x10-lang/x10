@@ -448,12 +448,14 @@ public class SocketTransport {
 				catch (IOException e) {
 					// figure out which place this is
 					for (int i=0; i<channels.length; i++) {
-						if (channels[i] != null && sc.equals(channels[i].sc)) {
-							if (DEBUG) System.out.println("Place "+myPlaceId+" discovered link to place "+i+" is broken in probe");
-							channels[i].sc = null;
-							channels[i].pendingWrites = null;
-							break;
-						}
+						try {
+							if (channels[i] != null && sc.equals(channels[i].sc)) {
+								if (DEBUG) System.out.println("Place "+myPlaceId+" discovered link to place "+i+" is broken in probe");
+								channels[i].sc = null;
+								channels[i].pendingWrites = null;
+								break;
+							}
+						} catch (NullPointerException e2){} // channels[i] can become null after we check for null
 					}
 					try {sc.close();}
 		    		catch (Exception e2){}
