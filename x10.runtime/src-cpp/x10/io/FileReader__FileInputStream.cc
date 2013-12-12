@@ -12,6 +12,7 @@
 #include <x10/io/FileReader__FileInputStream.h>
 
 #include <x10/lang/Rail.h>
+#include <x10/io/EOFException.h>
 #include <x10/io/FileNotFoundException.h>
 #include <x10/io/NotSerializableException.h>
 
@@ -67,7 +68,11 @@ x10::lang::String* FileReader__FileInputStream::readLine() {
     size_t bufLen = 0;
     ssize_t rc = getline(&buf, &bufLen, FMGL(file));
     if (-1 == rc) {
-        x10aux::throwException<x10::io::IOException>();
+        if (feof(FMGL(file))) {
+            x10aux::throwException<x10::io::EOFException>();
+        } else {
+            x10aux::throwException<x10::io::IOException>();
+        }
     }
     // Null trailing '\n'
     size_t len = strlen(buf);
