@@ -196,9 +196,7 @@ public final class Runtime {
     public static STATIC_THREADS = Configuration.static_threads();
     public static WARN_ON_THREAD_CREATION = Configuration.warn_on_thread_creation();
     public static BUSY_WAITING = Configuration.busy_waiting();
-    public static RESILIENT_PLACE_ZERO = Configuration.envOrElse("X10_RESILIENT_PLACE_ZERO", false);
-    public static RESILIENT_ZOO_KEEPER = Configuration.envOrElse("X10_RESILIENT_ZOO_KEEPER", false);
-    public static RESILIENT_DISTRIBUTED = Configuration.envOrElse("X10_RESILIENT_DISTRIBUTED", false);
+    public static RESILIENT_MODE = Configuration.resilient_mode();
 
     // External process execution
 
@@ -1167,24 +1165,26 @@ public final class Runtime {
 
     // finish
     static def makeDefaultFinish():FinishState {
-        if (RESILIENT_PLACE_ZERO) {
+        switch (RESILIENT_MODE) {
+        case Configuration.RESILIENT_MODE_PLACE_ZERO:
             return new FinishState.FinishResilientPlaceZero(null);
-        } else if (RESILIENT_ZOO_KEEPER) {
-            return new FinishState.FinishResilientZooKeeper(null);
-        } else if (RESILIENT_DISTRIBUTED) {
+        case Configuration.RESILIENT_MODE_DISTRIBUTED:
             return new FinishState.FinishResilientDistributed(new SimpleLatch());
-        } else {
+        case Configuration.RESILIENT_MODE_ZOO_KEEPER:
+            return new FinishState.FinishResilientZooKeeper(null);
+        default:
             return new FinishState.Finish();
         }
     }
     static def makeDefaultFinish(latch:SimpleLatch):FinishState {
-        if (RESILIENT_PLACE_ZERO) {
+        switch (RESILIENT_MODE) {
+        case Configuration.RESILIENT_MODE_PLACE_ZERO:
             return new FinishState.FinishResilientPlaceZero(latch);
-        } else if (RESILIENT_ZOO_KEEPER) {
-            return new FinishState.FinishResilientZooKeeper(latch);
-        } else if (RESILIENT_DISTRIBUTED) {
+        case Configuration.RESILIENT_MODE_DISTRIBUTED:
             return new FinishState.FinishResilientDistributed(latch);
-        } else {
+        case Configuration.RESILIENT_MODE_ZOO_KEEPER:
+            return new FinishState.FinishResilientZooKeeper(latch);
+        default:
             return new FinishState.Finish(latch);
         }
     }
