@@ -2549,14 +2549,13 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
             	// if I is an interface and val i:I, t = type of the formal of method instance
             	// i.m(a) => i.m(a,t)
             	if (xts.isParameterType(containerType) || hasParams(containerType)) {
-            		w.write(",");
+                    w.write(", ");
             		new RuntimeTypeExpander(er, c.methodInstance().formalTypes().get(i)).expand();
             	}
             }
 
             if (i != exprs.size() - 1) {
-                w.write(",");
-                w.allowBreak(0);
+                w.write(", ");
             }
         }
         w.end();
@@ -3709,8 +3708,7 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
             final Type at = i.next();
             new RuntimeTypeExpander(er, at).expand(tr);
             if (i.hasNext() || c.arguments().size() > 0) {
-                w.write(",");
-                w.allowBreak(0);
+                w.write(", ");
             }
         }
 
@@ -3753,12 +3751,11 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
             }
 
             if (useSelfDispatch && (!newClosure || !needBridge((Closure_c) expr))) {
-                w.write(",");
+                w.write(", ");
                 new RuntimeTypeExpander(er, mi.formalTypes().get(i)).expand();
             }
             if (i != l.size() - 1) {
-                w.write(",");
-                w.allowBreak(0);
+                w.write(", ");
             }
         }
         w.end();
@@ -4197,8 +4194,7 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
             }
 
             if (i != l.size() - 1) {
-                w.write(",");
-                w.allowBreak(0);
+                w.write(", ");
             }
         }
 
