@@ -28,7 +28,7 @@ How to run each sample app:
 ./ResilientMontePi
 ./ResilientKMeans [num_points] [num_clusters]
 ./ResilientHeatTransfer [size]
-
+./ResilientSimpleHeatTransfer [size]
 
 MatVecMult assumes data exists on disk in a particular format.  This
 data is not publicly available, although the format is simple and
@@ -36,3 +36,5 @@ can be understood by reading the source code.  The app is included in
 SVN because it is an interesting example to read, but it is not
 expected that anyone will try to run it.
 
+You need to kill place(s) manually to test the resiliency.  Note that 
+place 0 should not be killed in current implementation.
