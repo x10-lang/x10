@@ -18,10 +18,10 @@ import x10.util.*;
  * 
  * For Managed X10:
  *   $ x10 NonResilientHeatTransfer.x10
- *   $ X10_NPLACES=4 run.sh x10 NonResilientHeatTransfer [size]
+ *   $ X10_NPLACES=4 x10 NonResilientHeatTransfer [size]
  * For Native X10:
  *   $ x10c++ NonResilientHeatTransfer.x10 -o NonResilientHeatTransfer
- *   $ X10_NPLACES=4 run.sh runx10 NonResilientHeatTransfer [size]
+ *   $ X10_NPLACES=4 runx10 NonResilientHeatTransfer [size]
  */
 public class NonResilientHeatTransfer {
     static val epsilon = 1.0e-5;

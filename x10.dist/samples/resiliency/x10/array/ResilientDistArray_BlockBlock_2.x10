@@ -152,8 +152,8 @@ public class ResilientDistArray_BlockBlock_2[T] implements (Long,Long)=>T {
      * Test program, should print "0 1 2 3 4 5 6 7 8 9" without Exception
      * 
      * Usage: [X10_RESILIENT_STORE_MODE=1] [X10_RESILIENT_STORE_VERBOSE=1] \
-     *         X10_RESILIENT_PLACE_ZERO=1 X10_NPLACES=4 \
-     *         run.sh x10 x10.array.ResilientDistArray_BlockBlock_2
+     *         X10_RESILIENT_MODE=1 X10_NPLACES=4 \
+     *         x10 x10.array.ResilientDistArray_BlockBlock_2
      */
     public static def main(ars:Rail[String]) {
         val livePlaces = new x10.util.ArrayList[Place]();

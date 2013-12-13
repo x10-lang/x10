@@ -155,8 +155,8 @@ public abstract class ResilientStoreForDistArray[K,V] {
      * Test program, should print "0 1 2 ..."
      * 
      * Usage: [X10_RESILIENT_STORE_MODE=1] [X10_RESILIENT_STORE_VERBOSE=1] \
-     *         X10_RESILIENT_PLACE_ZERO=1 X10_NPLACES=4 \
-     *         run.sh x10 x10.lang.ResilientStoreForDistArray
+     *         X10_RESILIENT_MODE=1 X10_NPLACES=4 \
+     *         x10 x10.lang.ResilientStoreForDistArray
      */
     public static def main(ars:Rail[String]) {
         if (Place.MAX_PLACES < 3) throw new Exception("numPlaces should be >=3");
