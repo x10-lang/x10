@@ -15,6 +15,7 @@ import x10.compiler.WS;
 import x10.regionarray.*;
 import x10.util.*;
 import x10.io.Console;
+import x10.io.File;
 
 
 /**
@@ -52,16 +53,26 @@ abstract public class x10Test {
     // an absolute path to the file.
     // If being run under the nightly test harness, then
     // X10_HOME will be set in the environment and will be used
-    // to build up a path.  If it is not set, the simple path ./fileName
-    // will be returned instead.
+    // to build up a path.  
+    // If X10_HOME is not set, this method simply returns file
     public static def pathCombine(prefix:String, file:String):String {
         val env = System.getenv();
         val home = env.getOrElse("X10_HOME", null);
         if (home == null) {
-            return "./"+file;
+            return file;
         } else {
-            return home+"/x10.tests/"+prefix+"/"+file;
+            return home+File.SEPARATOR+"x10.tests"+File.SEPARATOR+prefix+File.SEPARATOR+file;
         }
+    }
+    public static def pathCombine(prefix:Rail[String], file:String):String {
+        if (prefix.size == 0) return file;
+        val sb = new x10.util.StringBuilder();
+	for (i in 0..(prefix.size-2)) {
+          sb.add(prefix(i));
+          sb.add(File.SEPARATOR);
+        }
+        sb.add(prefix(prefix.size-1));
+        return pathCombine(sb.toString(), file);
     }
 
     public static PREFIX: String = "++++++ ";
