@@ -1,25 +1,23 @@
-Release 2.4.0
+X10 Release 2.4.1
 
-MAJOR CHANGES
+HIGHLIGHTS OF THIS RELEASE
 
-X10 v2.4 is not backwards compatible with X10 v2.3. 
+There were no significant language changes or class library API
+changes made in this release of X10. 
 
-The motivation for making backwards incompatible language changes with
-this release of X10 is to significantly improve the ability of the X10
-programmer to exploit the expanded memory capabilities of modern
-computer systems.  In particular, X10 v2.4 includes an extensive
-redesign of arrays and a change of the default type of unqualified
-integral literals (e.g. 2) from Int to Long. Taken together these two
-changes enable natural exploitation of large memories via 64-bit
-addressing and Long-based indexing of arrays and similar data
-structures.
-
-Please refer to the ChangeLog section of the X10 2.4.0 language
-specification for a more detailed list of language and class library
-changes.
-
-X10 2.4.0 is also the first official release of X10 with support for
-IBM's BlueGene/Q system.
+Several major new capabilities are available for the first time in X10 2.4.1
+  (1) A technology preview of Resilient X10 is including in this
+      release. Resilient X10 (described in an upcoming PPoPP'14 paper;
+      a preprint is available from x10-lang.org) adds the ability for
+      X10 programs to continue execution even if one or more places
+      fail.  For details on how to use Resilient X10, please see the
+      notes and example programs in samples/resiliency.
+  (2) Managed X10 on Windows now supports multi-place (multi-JVM)
+      execution using a new pure-Java implementation of X10RT
+      (JavaSockets).  With this release, there is still a cygwin
+      dependency for launching Managed X10 on windows.  
+  (3) Our pre-built distributions of X10 and X10DT for Windows is now
+      based on Windows 7 instead of Windows XP.
 
 LIMITATIONS OF THIS RELEASE
 
@@ -51,113 +49,55 @@ The generated C++ code requires g++ 4.2 or better to be compiled;
 we do almost all of our testing against g++ 4.4.
   + On AIX and Power/Linux, you may either use g++ 4.2 or better or 
     xlC 11.1 or better. 
-  + On MacOS compiling the generated C++ code may result in either 
-    a large number of spurious warnings (Xcode 5) or may not 
-    compile at all (some prior versions of Xcode).  On versions
-    of Xcode before Xcode 5, you can use the g++ front end by 
-    setting CC=gcc and CXX=g++ in your environment.
-    We will reduce the number of warnings generated with Xcode 5
-    in the next release of X10.
 
 SUMMARY OF ISSUES RESOLVED IN THIS RELEASE
 
-Below is a summary of JIRA issues addressed for the X10 2.4.0
+Below is a summary of JIRA issues addressed for the X10 2.4.1
 
-** Improvements and New Features
+** New Features and Improvements
+    * [XTENLANG-2151] - Multi-place Managed X10 on windows
+    * [XTENLANG-2356] - x10doc: alphabetize names wherever possible
+    * [XTENLANG-2884] - Support compilation with Intel C++ compiler
+    * [XTENLANG-3281] - java interop: Should have a way to convert x10.lang.String to java.lang.CharSequence
+    * [XTENLANG-3290] - Add output buffering to JavaSockets
+    * [XTENLANG-3291] - Specialize String.operator+ for primitives to avoid boxing
+    * [XTENLANG-3292] - Reader.readLine is 5~10x slower than in Java
+    * [XTENLANG-3297] - Unnecessary casts for receiver of interface method
+    * [XTENLANG-3230] - Use OSGi bundle for loading classes in Managed X10
+    * [XTENLANG-3314] - X10 needs a standard mechanism to globalize messages
+    * [XTENLANG-3319] - GML: add DGEMV with offsets
+    * [XTENLANG-3322] - Native X10: avoid upcast to Any for argument to equals
 
-    * [XTENLANG-1082] - "New X10 Project" wizard should offer other source code samples than "Hello, World"
-    * [XTENLANG-1199] - X10DT needs a "Show the type of the selection" operation.
-    * [XTENLANG-1244] - Compiler support for regression testing
-    * [XTENLANG-1304] - Should provide a place in project properties to specify the number of places
-    * [XTENLANG-1306] - Content assist should add import when inserting new reference to an existing type
-    * [XTENLANG-1548] - Browsable online tutorial for X10 2.3  (or programmer's guide?
-    * [XTENLANG-2833] - upgrade bdwgc tarball to version 7.2d
-    * [XTENLANG-2843] - Add @Unserializable interface
-    * [XTENLANG-2933] - Support cross-project dependencies for remote builds in X10DT
-    * [XTENLANG-3022] - Implement object identity map using true hashmap
-    * [XTENLANG-3025] - Please add a way to make a Team with a PlaceGroup
-    * [XTENLANG-3126] - Allow specification of matrix dimensions to DenseMatrixBLAS.comp[*]
-    * [XTENLANG-3155] - Native X10 should not require Java JRE in sourcepath
-    * [XTENLANG-3158] - Emulated bcast, reduce, allReduce using tree communications
-    * [XTENLANG-3161] - WorkerLocalHandle: support lazy initialization and application of closure or reduction to all instances
-    * [XTENLANG-3176] - Support MPI based X10RT with Managed X10
-    * [XTENLANG-3182] - Incorrect specification of ateach
-    * [XTENLANG-3194] - Build configuration for FX10
-    * [XTENLANG-3198] - Implemented methods of File in c++ backend
-    * [XTENLANG-3199] - Support generating property file in a different directory from jar file
-    * [XTENLANG-3210] - Support idiom where abstract property methods are used to specify constraints in abstract methods
-    * [XTENLANG-3224] - PlaceLocalHandle and DistArray collection for Managed X10
-    * [XTENLANG-3227] - Miscellaneous fixes to GML
-    * [XTENLANG-3228] - Implement SUMMA matrix multiplication for transposed A matrix
-    * [XTENLANG-3243] - GML: support copySubset from Rail to DenseMatrix
-    * [XTENLANG-3249] - Remove variance from runtime type of managed X10
-    * [XTENLANG-3252] - Update language spec for change in int/long literals
-    * [XTENLANG-3254] - Update printing of int/uint literals by X10 compiler in diagnostic methods to have n/un suffix
-    * [XTENLANG-3263] - Redesign CustomSerialzation protocol to use X10Serializer/X10Deserializer classes
-    * [XTENLANG-3270] - GML: add symmetric rank-K update (DSYRK) and DGEMM with offsets
-
-** Tasks
-    * [XTENLANG-3196] - Update to commons-math3-3.1.1.jar
-    * [XTENLANG-3203] - Rewrite Array chapter of language spec for Rail/SimpleArray/RegionArray changes
-    * [XTENLANG-3213] - Update Introduction to X10 to X10 2.4
-
-** Bugs
-    * [XTENLANG-1011] - x10c and x10 scripts should check whether JAVA_HOME points to a Java 6 JRE/JDK
-    * [XTENLANG-2055] - x10/io/Marshal.x10 cannot be flattened
-    * [XTENLANG-2126] - Compiling with -nooutput leaves some temporary files
-    * [XTENLANG-2250] - Add RunTestSuite to precommit
-    * [XTENLANG-2887] - X10 For loop performance on c++ backend
-    * [XTENLANG-2928] - Remote Array copy runtime exception running on MPI transport
-    * [XTENLANG-2949] - Guard on superclass isn't entailed when it ought to be
-    * [XTENLANG-2956] - X10DT doesn't seem to find existing classes very well
-    * [XTENLANG-2960] - T isref, T haszero should imply that null can be assigned to a variable of type T
-    * [XTENLANG-2991] - ArrayList[Rail[Int]] doesn't contain Rail[Int]s
-    * [XTENLANG-2995] - Compiler NPE upon assignment of null to a non-null type
-    * [XTENLANG-3038] - DistArray#reduce segfaults after many calls when compiled with MPI backend
-    * [XTENLANG-3053] - Need to clean generated artifacts when packages are moved/deleted
-    * [XTENLANG-3117] - No splash screen on X10DT startup on Windows 7
-    * [XTENLANG-3164] - Language spec missing explanation of at (x) where x is of type GlobalRef
-    * [XTENLANG-3167] - GML: incorrect row/column used for init function in DistDenseMatrix
-    * [XTENLANG-3168] - GlobalRef creates debug strings even when they are not being used
-    * [XTENLANG-3170] - Incorrect "No output code is generated" errors from X10DT
-    * [XTENLANG-3178] - Linking with gperftools requires --no-as-needed
-    * [XTENLANG-3179] - String.format() doesn't allow percent signs for Native X10
-    * [XTENLANG-3180] - Not all @NativeRepped java classes are hidden from X10
-    * [XTENLANG-3183] - Language spec: comments and questions on coercions/casts of numeric values
-    * [XTENLANG-3184] - No propagation of checked exceptions through at expressions
-    * [XTENLANG-3185] - javac error when using checked exceptions in at expressions
-    * [XTENLANG-3188] - Assertion fails with TestBlockColl.x10
-    * [XTENLANG-3191] - Incorrect codegen for struct with ULong property
-    * [XTENLANG-3192] - Typedef only .x10 files are not included in x10.jar etc. making the resolution of the types not possible
-    * [XTENLANG-3195] - x10c doesn't accept -x10lib option with relative path
-    * [XTENLANG-3206] - Post-compilation error for field assign to an instance of type T
-    * [XTENLANG-3207] - Bad interaction between FieldInitializerMover and Inliner generates missing __fieldInitializers calls
-    * [XTENLANG-3208] - Post-compilation error for field assign to an instance of type C[T]
-    * [XTENLANG-3209] - Managed X10: bridge method is not generated for methods with parameters with constraint based on abstract property
-    * [XTENLANG-3211] - X10DT does not "Clean" up after deleted source files
-    * [XTENLANG-3212] - Constructor splitter should not split constructor of Java types
-    * [XTENLANG-3216] - The combination of T isref and T iszero should indicate that null is a valid value of type T 
-    * [XTENLANG-3217] - NPE caused by  "-o file.jar" with x10c
-    * [XTENLANG-3218] - NPE in compiler triggering an NPE in error queueing/reporting mechanism
-    * [XTENLANG-3220] - using -o with an absolute filename generates an incorrect .properties file
-    * [XTENLANG-3222] - Java codegen bug related to generic interface method
-    * [XTENLANG-3226] - Use of Clock.advanceAll() throws a concurrent modification exception, under some conditions
-    * [XTENLANG-3229] - Post-compilation error due to name clash between user-defined SumReducer that implements Reducible with Reducible.SumReducer
-    * [XTENLANG-3232] - X10 APIs for (de-)serializing data
-    * [XTENLANG-3233] - X10 optimizer eliminates method invocation with side effect
-    * [XTENLANG-3237] - Missing explicit boxing when T is replaced with primitive type by optimizer
-    * [XTENLANG-3239] - Inlining a method that returns a value from a finally block generates invalid c++ code
-    * [XTENLANG-3240] - Compile error in C++ backend
-    * [XTENLANG-3245] - Incomplete type for PlaceLocalHandle when compiling with debug symbols
-    * [XTENLANG-3248] - NullPointerException in RuntimeType.getVariance
-    * [XTENLANG-3250] - @Profile(prof) causes compile error in Java backend
-    * [XTENLANG-3256] - init is called for unnecessary points in x10.array.DistArray_BlockBlock_2
-    * [XTENLANG-3258] - Missing stack trace from exception at remote place
-    * [XTENLANG-3259] - java interop: post compilation error for calling java constructor with Comparable parameter
-    * [XTENLANG-3261] - Post compilation error with Boolean.TRUE
+** Tasks and Bugs
+    * [XTENLANG-1454] - Confusing error messages for switch
+    * [XTENLANG-1994] - Qualify top-level x10 namespaces (x10 and x10aux) in C++ code to make sure they start in the global namespace (-> ::x10, ::x10aux)
+    * [XTENLANG-2215] - FinallyEliminator pass creates (unreachable) control flow path in which statically there is no return statement
+    * [XTENLANG-2724] - Failure to carry type information for an array of arrays of some parameterized class into method call
+    * [XTENLANG-2849] - Add text to language specification to emphasize that clocks are inter-place
+    * [XTENLANG-3088] - Generic exceptions should not be allowed.
+    * [XTENLANG-3094] - hasZero and isRef do not work with constrained types
+    * [XTENLANG-3234] - Compiler crash on inequality constraint involving type-generic args
+    * [XTENLANG-3235] - ResilientKMeans sometimes hang up when a place is killed
+    * [XTENLANG-3236] - DeadPlaceException is not thrown for "at"
+    * [XTENLANG-3238] - Asynchronous place death during repeating "at" hangs up the app without DeadPlaceException
+    * [XTENLANG-3265] - Classic F-Bounded Polymorphism example fails to typecheck
+    * [XTENLANG-3267] - TestTypeParamShaddowing from FrontEndTests failing with "inconsistient type"
+    * [XTENLANG-3268] - TestTypeParamShadowing from FrontEndTests failing to typecheck
+    * [XTENLANG-3277] - Unable to cast a Rail[T] to Rail[T]{self!=null} in argument to constructor
+    * [XTENLANG-3280] - Double.parse doesn't allow leading and trailing whitespaces in Native X10
+    * [XTENLANG-3284] - release packging scripts should also create RPMs from linux tarballs
+    * [XTENLANG-3287] - Post-compilation error with a class that implements Comparable interface and inherits compareTo method from super class
+    * [XTENLANG-3288] - Offset and length were ignored with OutputStreamWriter.OutputStream.write(Rail[Byte],Long,Long) for Native X10
+    * [XTENLANG-3289] - Printer.printf to file is absolutely slow compared to fprintf in C
+    * [XTENLANG-3296] - Team.alltoall doesn't work with Managed X10
+    * [XTENLANG-3299] - Compiler NPE when optimizing because of incorrect implementation of alpha renaming
+    * [XTENLANG-3308] - Native codegen error for interface with a method that takes a non-primitive struct as argument
+    * [XTENLANG-3309] - isref should be closed under sub typing
+    * [XTENLANG-3320] - Multi-place Native X10 crash on cygwin (during x10rt startup?)
+    * [XTENLANG-3326] - Converge the environment variable to select Resilient Finish
 
 For the details of JIRA issues fixed in this release, see
-http: http://jira.codehaus.org/secure/ReleaseNote.jspa?version=17010&projectId=11812
+http: http://jira.codehaus.org/secure/ReleaseNote.jspa?version=19142&projectId=11812
 
 Please use the X10 JIRA to report bugs, after ensuring the problem is
 not already reported:
