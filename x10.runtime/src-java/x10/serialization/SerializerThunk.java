@@ -53,7 +53,7 @@ abstract class SerializerThunk {
     static SerializerThunk getSerializerThunk(Class<? extends Object> clazz) throws SecurityException, NoSuchFieldException, NoSuchMethodException {
         SerializerThunk ans = thunks.get(clazz);
         if (ans == null) {
-            ans = SerializerThunk.getSerializerThunkHelper(clazz);
+            ans = getSerializerThunkHelper(clazz);
             thunks.put(clazz, ans);
             if (Runtime.TRACE_SER) {
                 Runtime.printTraceMessage("Creating serialization thunk "+ans.getClass()+" for "+clazz);
@@ -83,23 +83,23 @@ abstract class SerializerThunk {
         // We need to handle these classes in a special way because their 
         // implementation of serialization/deserialization is not straight forward.
         if ("java.lang.String".equals(clazz.getName())) {
-            return new SerializerThunk.JavaLangStringSerializerThunk(clazz);
+            return new JavaLangStringSerializerThunk(clazz);
         } else if ("x10.rtt.NamedType".equals(clazz.getName())) {
             SerializerThunk superThunk = getSerializerThunk(clazz.getSuperclass());
-            return new SerializerThunk.SpecialCaseSerializerThunk(clazz, superThunk);
+            return new SpecialCaseSerializerThunk(clazz, superThunk);
         } else if ("x10.rtt.NamedStructType".equals(clazz.getName())) {
             SerializerThunk superThunk = getSerializerThunk(clazz.getSuperclass());
-            return new SerializerThunk.SpecialCaseSerializerThunk(clazz, superThunk);
+            return new SpecialCaseSerializerThunk(clazz, superThunk);
         } else if ("x10.rtt.RuntimeType".equals(clazz.getName())) {
-            return new SerializerThunk.SpecialCaseSerializerThunk(clazz);
+            return new SpecialCaseSerializerThunk(clazz);
         } else if (x10.core.GlobalRef.class.getName().equals(clazz.getName())) {
-            return new SerializerThunk.SpecialCaseSerializerThunk(clazz);
+            return new SpecialCaseSerializerThunk(clazz);
         } else if ("java.lang.Throwable".equals(clazz.getName())) {
-            return new SerializerThunk.SpecialCaseSerializerThunk(clazz);
+            return new SpecialCaseSerializerThunk(clazz);
         } else if ("java.lang.Class".equals(clazz.getName())) {
-            return new SerializerThunk.SpecialCaseSerializerThunk(clazz);
+            return new SpecialCaseSerializerThunk(clazz);
         } else if ("java.lang.Object".equals(clazz.getName())) {
-            return new SerializerThunk.SpecialCaseSerializerThunk(clazz);
+            return new SpecialCaseSerializerThunk(clazz);
         }
 
         Class<?>[] interfaces = clazz.getInterfaces();
@@ -124,7 +124,7 @@ abstract class SerializerThunk {
         }
 
         if (isCustomSerializable) {
-            return new SerializerThunk.CustomSerializerThunk(clazz);
+            return new CustomSerializerThunk(clazz);
         }
         
         if (isX10JavaSerializable) {
@@ -132,7 +132,7 @@ abstract class SerializerThunk {
         }
 
         if (isHadoopSerializable) {
-            return new SerializerThunk.HadoopSerializerThunk(clazz);
+            return new HadoopSerializerThunk(clazz);
         }
 
         // A vanilla Java class that doesn't implement a special protocol.
@@ -143,7 +143,7 @@ abstract class SerializerThunk {
             superThunk = getSerializerThunk(clazz.getSuperclass());
         }
 
-        return new SerializerThunk.FieldBasedSerializerThunk(clazz, superThunk);
+        return new FieldBasedSerializerThunk(clazz, superThunk);
     }
 
 

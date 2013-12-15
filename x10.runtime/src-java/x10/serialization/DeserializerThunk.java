@@ -43,7 +43,7 @@ import x10.runtime.impl.java.Runtime;
  */
 abstract class DeserializerThunk {
 
-    protected static Unsafe unsafe = DeserializerThunk.getUnsafe();
+    protected static Unsafe unsafe = getUnsafe();
 
     protected static ConcurrentHashMap<Class<?>, DeserializerThunk> thunks = new ConcurrentHashMap<Class<?>, DeserializerThunk>(50);
 
@@ -60,10 +60,10 @@ abstract class DeserializerThunk {
      * @return The DeserializerThunk instance for the argument class.
      */
     static DeserializerThunk getDeserializerThunk(Class<? extends Object> clazz) throws SecurityException, NoSuchFieldException, NoSuchMethodException {
-        DeserializerThunk ans = DeserializerThunk.thunks.get(clazz);
+        DeserializerThunk ans = thunks.get(clazz);
         if (ans == null) {
-            ans = DeserializerThunk.getDeserializerThunkHelper(clazz);
-            DeserializerThunk.thunks.put(clazz, ans);
+            ans = getDeserializerThunkHelper(clazz);
+            thunks.put(clazz, ans);
             if (Runtime.TRACE_SER) {
                 Runtime.printTraceMessage("Creating deserialization thunk "+ans.getClass()+" for "+clazz);
             }
@@ -87,7 +87,7 @@ abstract class DeserializerThunk {
         if (!"java.lang.Class".equals(clazz.getName())) {
             try {
                 assert !Modifier.isAbstract(clazz.getModifiers());                    
-                obj = (T)DeserializerThunk.unsafe.allocateInstance(clazz);
+                obj = (T)unsafe.allocateInstance(clazz);
             } catch (InstantiationException e) {
                 throw new RuntimeException(e);
             }
