@@ -21,6 +21,8 @@ import java.lang.reflect.Array;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 
+import x10.core.Rail;
+import x10.core.GlobalRef;
 import x10.io.CustomSerialization;
 import x10.rtt.Types;
 import x10.runtime.impl.java.Runtime;
@@ -47,9 +49,9 @@ public final class X10JavaSerializer implements SerializationConstants {
     int counter = 0;
     
     // [GlobalGC] Table to remember serialized GlobalRefs, set and used in GlobalRef.java and InitDispatcher.java
-    X10IdentityHashMap<x10.core.GlobalRef<?>, Integer> grefMap = new X10IdentityHashMap<x10.core.GlobalRef<?>, Integer>(); // for GlobalGC
-    public void addToGrefMap(x10.core.GlobalRef<?> gr, int weight) { grefMap.put(gr, weight); }
-    public java.util.Map<x10.core.GlobalRef<?>, Integer> getGrefMap() { return grefMap; }
+    X10IdentityHashMap<GlobalRef<?>, Integer> grefMap = new X10IdentityHashMap<GlobalRef<?>, Integer>(); // for GlobalGC
+    public void addToGrefMap(GlobalRef<?> gr, int weight) { grefMap.put(gr, weight); }
+    public java.util.Map<GlobalRef<?>, Integer> getGrefMap() { return grefMap; }
     
     // per-message id dictionary
     protected LocalSerializationDictionary idDictionary;
@@ -91,10 +93,9 @@ public final class X10JavaSerializer implements SerializationConstants {
     }
 
     
-    @SuppressWarnings("rawtypes")
-    public x10.core.Rail toRail() {
+    public Rail<x10.core.Byte> toRail() {
         byte[] dataBytes = getDataBytes();
-        return new x10.core.Rail(Types.BYTE, dataBytes.length, dataBytes);
+        return new Rail<x10.core.Byte>(Types.BYTE, dataBytes.length, dataBytes);
     }
     
     
