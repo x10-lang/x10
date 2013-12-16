@@ -101,6 +101,10 @@ abstract class SerializerThunk {
         } else if ("java.lang.Object".equals(clazz.getName())) {
             return new SpecialCaseSerializerThunk(clazz);
         }
+        
+        if (clazz.isArray()) {
+            return new JavaArraySerializerThunk(clazz);
+        }
 
         Class<?>[] interfaces = clazz.getInterfaces();
         boolean isCustomSerializable = false;
@@ -212,6 +216,18 @@ abstract class SerializerThunk {
             }
         }
     }
+    
+    private static class JavaArraySerializerThunk extends SerializerThunk {
+        public JavaArraySerializerThunk(Class<?> clazz) {
+            super(null); // Arrays superclass is Object; nothing to do.
+        }
+
+        @Override
+        <T> void serializeBody(T obj, Class<? extends Object> clazz, X10JavaSerializer xjs) throws IOException {
+            xjs.writeArrayUsingReflection(obj);
+        }
+    }
+
 
     private static class HadoopSerializerThunk extends SerializerThunk {
         protected final Method writeMethod;
