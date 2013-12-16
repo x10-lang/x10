@@ -56,9 +56,9 @@ if [[ -z "$TAG" ]]; then
 fi
 
 if [[ $DO_CODE == 1 ]]; then
-    svn copy -r $REVISION https://svn.code.sourceforge.net/p/x10/code/trunk/ \
+    svn copy -r $REVISION https://svn.code.sourceforge.net/p/x10/code/branches/x10-2.4.1/ \
         https://svn.code.sourceforge.net/p/x10/code/tags/$TAG \
-        -m "Tagging trunk revision $REVISION as $TAG release of X10"
+        -m "Tagging branches/x10-2.4.1 revision $REVISION as $TAG release of X10"
 
     svn copy -r $REVISION https://svn.code.sourceforge.net/p/x10/code/benchmarks/trunk/ \
         https://svn.code.sourceforge.net/p/x10/code/benchmarks/tags/$TAG \
