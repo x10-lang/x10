@@ -22,7 +22,7 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 
-import x10.core.Byte;
+import x10.core.Rail;
 import x10.rtt.Types;
 import x10.runtime.impl.java.Runtime;
 import x10.serialization.DeserializationDictionary.LocalDeserializationDictionary;
@@ -66,7 +66,7 @@ public final class X10JavaDeserializer implements SerializationConstants {
     public X10JavaDeserializer(System[] ignored) {
         // for use by generated code; $init methods will set instance fields
     }
-    public X10JavaDeserializer x10$serialization$X10JavaDeserializer$$init$S(x10.core.Rail<Byte> data,
+    public X10JavaDeserializer x10$serialization$X10JavaDeserializer$$init$S(Rail<x10.core.Byte> data,
                                                                              x10.io.Deserializer.__0$1x10$lang$Byte$2 ignored) {
         init(new DataInputStream(new ByteArrayInputStream(data.getByteArray())));
         return this;
