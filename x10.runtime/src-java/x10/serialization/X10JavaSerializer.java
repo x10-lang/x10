@@ -566,12 +566,17 @@ public final class X10JavaSerializer implements SerializationConstants {
         if (pos != null) {
             return;
         }
-
+        
         try {
             Class<? extends Object> bodyClass = body.getClass();
-            writeSerializationId(getSerializationId(bodyClass, body));
-            SerializerThunk st = SerializerThunk.getSerializerThunk(bodyClass);
-            st.serializeObject(body, bodyClass, this);
+            if (bodyClass.isArray()) {
+                SerializerThunk st = SerializerThunk.getSerializerThunk(bodyClass);
+                st.serializeObject(body, bodyClass, this);
+            } else {
+                writeSerializationId(getSerializationId(bodyClass, body));
+                SerializerThunk st = SerializerThunk.getSerializerThunk(bodyClass);
+                st.serializeObject(body, bodyClass, this);
+            }
         } catch (SecurityException e) {
             e.printStackTrace();
             throw new RuntimeException(e);
@@ -631,6 +636,9 @@ public final class X10JavaSerializer implements SerializationConstants {
         Integer pos = previous_position(obj, true);
         if (pos != null) {
             return;
+        }
+        if (Runtime.TRACE_SER) {
+            Runtime.printTraceMessage("Serializing a Java Array");
         }
         writeSerializationId(JAVA_ARRAY_ID);
         int length = Array.getLength(obj);
@@ -696,6 +704,9 @@ public final class X10JavaSerializer implements SerializationConstants {
         Integer pos = previous_position(obj, true);
         if (pos != null) {
             return;
+        }
+        if (Runtime.TRACE_SER) {
+            Runtime.printTraceMessage("Serializing a Java Array");
         }
         writeSerializationId(JAVA_ARRAY_ID);
         Class<?> componentType = obj.getClass().getComponentType();

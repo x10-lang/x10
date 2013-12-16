@@ -177,41 +177,7 @@ public final class X10JavaDeserializer implements SerializationConstants {
         }
 
         if (serializationID == JAVA_ARRAY_ID) {
-            short componentTypeID = readSerializationId();
-            if (componentTypeID == INTEGER_ID) {
-                return readIntArray();
-            } else if (componentTypeID == DOUBLE_ID) {
-                return readDoubleArray();
-            } else if (componentTypeID == FLOAT_ID) {
-                return readFloatArray();
-            } else if (componentTypeID == BOOLEAN_ID) {
-                return readBooleanArray();
-            } else if (componentTypeID == BYTE_ID) {
-                return readByteArray();
-            } else if (componentTypeID == SHORT_ID) {
-                return readShortArray();
-            } else if (componentTypeID == LONG_ID) {
-                return readLongArray();
-            } else if (componentTypeID == CHARACTER_ID) {
-                return readCharArray();
-            } else if (componentTypeID == STRING_ID) {
-                return readStringArray();
-            } else {
-                Class<?> componentType = getClassForID(componentTypeID);
-                int length = readInt();
-                Object obj = Array.newInstance(componentType, length);
-                record_reference(obj);
-                if (componentType.isArray()) {
-                    for (int i = 0; i < length; ++i) {
-                        Array.set(obj, i, readArrayUsingReflection(componentType));
-                    }
-                } else {
-                    for (int i = 0; i < length; ++i) {
-                        Array.set(obj, i, readRefUsingReflection());
-                    }
-                }
-                return obj;
-            }
+            return deserializeArray();
         }
         
         if (Runtime.TRACE_SER) {
@@ -249,6 +215,47 @@ public final class X10JavaDeserializer implements SerializationConstants {
         } catch (InstantiationException e) {
             // This should never happen
             throw new RuntimeException(e);
+        }
+    }
+
+    private Object deserializeArray() throws IOException {
+        if (Runtime.TRACE_SER) {
+            Runtime.printTraceMessage("Deserializing a Java Array");
+        }
+        short componentTypeID = readSerializationId();
+        if (componentTypeID == INTEGER_ID) {
+            return readIntArray();
+        } else if (componentTypeID == DOUBLE_ID) {
+            return readDoubleArray();
+        } else if (componentTypeID == FLOAT_ID) {
+            return readFloatArray();
+        } else if (componentTypeID == BOOLEAN_ID) {
+            return readBooleanArray();
+        } else if (componentTypeID == BYTE_ID) {
+            return readByteArray();
+        } else if (componentTypeID == SHORT_ID) {
+            return readShortArray();
+        } else if (componentTypeID == LONG_ID) {
+            return readLongArray();
+        } else if (componentTypeID == CHARACTER_ID) {
+            return readCharArray();
+        } else if (componentTypeID == STRING_ID) {
+            return readStringArray();
+        } else {
+            Class<?> componentType = getClassForID(componentTypeID);
+            int length = readInt();
+            Object obj = Array.newInstance(componentType, length);
+            record_reference(obj);
+            if (componentType.isArray()) {
+                for (int i = 0; i < length; ++i) {
+                    Array.set(obj, i, readArrayUsingReflection(componentType));
+                }
+            } else {
+                for (int i = 0; i < length; ++i) {
+                    Array.set(obj, i, readRefUsingReflection());
+                }
+            }
+            return obj;
         }
     }
 
@@ -459,6 +466,9 @@ public final class X10JavaDeserializer implements SerializationConstants {
         }
         if (serializationID <= MAX_HARDCODED_ID) {
             return X10JavaDeserializer.deserializePrimitive(serializationID, this);
+        }
+        if (serializationID == JAVA_ARRAY_ID) {
+            return deserializeArray();
         }
 
         if (Runtime.TRACE_SER) {
