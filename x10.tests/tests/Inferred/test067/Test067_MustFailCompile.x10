@@ -2,8 +2,11 @@
  * recursive function.
  *
  */
+
 //OPTIONS: -STATIC_CHECKS=true -CONSTRAINT_INFERENCE=true -VERBOSE_INFERENCE=true
 
+//SKIP_MANAGED_X10: XTENLANG-3328 
+//SKIP_NATIVE_X10: XTENLANG-3328 
 
 
 import harness.x10Test;
