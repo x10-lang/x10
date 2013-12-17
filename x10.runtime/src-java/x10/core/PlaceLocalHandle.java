@@ -14,6 +14,10 @@ package x10.core;
 import java.io.IOException;
 import java.util.HashMap;
 
+import x10.core.fun.VoidFun_0_0;
+import x10.rtt.NamedType;
+import x10.rtt.RuntimeType;
+import x10.rtt.StaticVoidFunType;
 import x10.rtt.Type;
 import x10.serialization.X10JavaDeserializer;
 import x10.serialization.X10JavaSerializable;
@@ -39,15 +43,15 @@ public final class PlaceLocalHandle<T> implements X10JavaSerializable {
      * [PLH_GC] GlobalGC support for PlaceLocalHandle (kawatiya 2013/06)
      */
     public static final int PLH_DEBUG = java.lang.Integer.getInteger("PLH_DEBUG", 0); // 0:off, 1:on
-    private x10.core.GlobalRef<Sentinel> gref; // Sentinel to monitor global deletion of this PLH
+    private GlobalRef<Sentinel> gref; // Sentinel to monitor global deletion of this PLH
     
     // If GlobalRef's type is this class, Sentinel.cleanup(grefId) will be called back
     public static final class Sentinel {
-        public static final x10.rtt.RuntimeType<Sentinel> $RTT =
-                x10.rtt.NamedType.<Sentinel> make("$"/* to reduce serialization size*/, Sentinel.class);
-//                x10.rtt.NamedType.<Sentinel> make("x10.core.PlacelocalHandle.Sentinel", Sentinel.class);
-        public x10.rtt.RuntimeType<?> $getRTT() { return $RTT; }
-        public x10.rtt.Type<?> $getParam(int i) { return null; }
+        public static final RuntimeType<Sentinel> $RTT =
+                NamedType.<Sentinel> make("$"/* to reduce serialization size*/, Sentinel.class);
+//                NamedType.<Sentinel> make("x10.core.PlacelocalHandle.Sentinel", Sentinel.class);
+        public RuntimeType<?> $getRTT() { return $RTT; }
+        public Type<?> $getParam(int i) { return null; }
         public static void cleanup(long grefId) {
             if (PLH_DEBUG>=1) System.err.println("PLH_DEBUG: Sentinel.cleanup called at " + x10.lang.Runtime.home() + " for grefId=" + grefId);
             PlaceLocalHandle.deleteDataAtAllPlaces(grefId);
@@ -56,7 +60,7 @@ public final class PlaceLocalHandle<T> implements X10JavaSerializable {
     // Set the gref field, this code is equivalent to "this.gref = GlobalRef(new Sentinel());"
     private void initSentinel() {
         Sentinel o = new Sentinel();
-        this.gref = new x10.core.GlobalRef<Sentinel>(Sentinel.$RTT, o, (x10.core.GlobalRef.__0x10$lang$GlobalRef$$T)null);
+        this.gref = new GlobalRef<Sentinel>(Sentinel.$RTT, o, (GlobalRef.__0x10$lang$GlobalRef$$T)null);
     }
     
     // A class used for the HashMap key, new Id(gref.
@@ -189,18 +193,18 @@ public final class PlaceLocalHandle<T> implements X10JavaSerializable {
         synchronized(data) { data.remove(id); } // This should work if the data is already deleted explicitly.
     }
     // Closure for calling PlaceLocalHandle.deleteLocalData(id1, id2)
-    private static class $Closure$0 extends x10.core.Ref implements x10.core.fun.VoidFun_0_0, x10.serialization.X10JavaSerializable {
-        public static final x10.rtt.RuntimeType<$Closure$0> $RTT = x10.rtt.StaticVoidFunType.<$Closure$0> make(
-        /* base class */$Closure$0.class, /* parents */new x10.rtt.Type[] { x10.core.fun.VoidFun_0_0.$RTT });
-        public x10.rtt.RuntimeType<?> $getRTT() {return $RTT;}
+    private static class $Closure$0 extends Ref implements VoidFun_0_0, X10JavaSerializable {
+        public static final RuntimeType<$Closure$0> $RTT = StaticVoidFunType.<$Closure$0> make(
+        /* base class */$Closure$0.class, /* parents */new Type[] { VoidFun_0_0.$RTT });
+        public RuntimeType<?> $getRTT() {return $RTT;}
         public Type<?> $getParam(int i) {return null;}
 
-        public static x10.serialization.X10JavaSerializable $_deserialize_body($Closure$0 $_obj, X10JavaDeserializer $deserializer) throws java.io.IOException {
+        public static X10JavaSerializable $_deserialize_body($Closure$0 $_obj, X10JavaDeserializer $deserializer) throws java.io.IOException {
             $_obj.id1 = $deserializer.readLong();
             $_obj.id2 = $deserializer.readLong();
             return $_obj;
         }
-        public static x10.serialization.X10JavaSerializable $_deserializer(X10JavaDeserializer $deserializer) throws java.io.IOException {
+        public static X10JavaSerializable $_deserializer(X10JavaDeserializer $deserializer) throws java.io.IOException {
             $Closure$0 $_obj = new $Closure$0((java.lang.System[]) null);
             $deserializer.record_reference($_obj);
             return $_deserialize_body($_obj, $deserializer);

@@ -11,6 +11,7 @@
 
 package x10.core.io;
 
+import x10.core.Rail;
 import x10.core.Ref;
 import x10.rtt.NamedType;
 import x10.rtt.RuntimeType;
@@ -93,7 +94,7 @@ public class OutputStream extends Ref {
     }
     
     // XTENLANG-2680
-    public void write__0$1x10$lang$Byte$2(x10.core.Rail buf) {
+    public void write__0$1x10$lang$Byte$2(Rail buf) {
         try {
             stream.write(buf.getByteArray());
         } catch (java.io.IOException e) {
@@ -111,7 +112,7 @@ public class OutputStream extends Ref {
     
     // XTENLANG-2680
     // LONG_RAIL: unsafe int cast
-    public void write__0$1x10$lang$Byte$2(x10.core.Rail buf, long off, long len) {
+    public void write__0$1x10$lang$Byte$2(Rail buf, long off, long len) {
         try {
             stream.write(buf.getByteArray(), (int)off, (int)len);
         } catch (java.io.IOException e) {

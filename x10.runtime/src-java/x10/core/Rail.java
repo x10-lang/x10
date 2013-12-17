@@ -14,6 +14,7 @@ package x10.core;
 import java.io.IOException;
 import java.util.Arrays;
 
+import x10.core.fun.Fun_0_1;
 import x10.core.fun.VoidFun_0_0;
 import x10.lang.LongRange;
 import x10.lang.RailIterator;
@@ -21,6 +22,7 @@ import x10.lang.GlobalRail;
 import x10.rtt.NamedType;
 import x10.rtt.ParameterizedType;
 import x10.rtt.RuntimeType;
+import x10.rtt.StaticVoidFunType;
 import x10.rtt.Type;
 import x10.rtt.Types;
 import x10.rtt.UnresolvedType;
@@ -29,8 +31,8 @@ import x10.serialization.X10JavaSerializable;
 import x10.serialization.X10JavaSerializer;
 
 @SuppressWarnings("rawtypes")
-public final class Rail<T> extends x10.core.Ref implements x10.lang.Iterable, 
-                                                           x10.core.fun.Fun_0_1,
+public final class Rail<T> extends Ref implements x10.lang.Iterable, 
+                                                           Fun_0_1,
                                                            X10JavaSerializable {
     
     // synthetic types for parameter mangling
@@ -43,7 +45,7 @@ public final class Rail<T> extends x10.core.Ref implements x10.lang.Iterable,
             NamedType.<Rail> make("x10.lang.Rail", Rail.class, 1,
                                   new Type[] {
                                       ParameterizedType.make(x10.lang.Iterable.$RTT, UnresolvedType.PARAM(0)),
-                                      ParameterizedType.make(x10.core.fun.Fun_0_1.$RTT, Types.LONG, UnresolvedType.PARAM(0)) 
+                                      ParameterizedType.make(Fun_0_1.$RTT, Types.LONG, UnresolvedType.PARAM(0)) 
             });
 
     private Type T;
@@ -126,7 +128,7 @@ public final class Rail<T> extends x10.core.Ref implements x10.lang.Iterable,
         fillHelper(init);
     }
 
-    public Rail(Type T, long size, x10.core.fun.Fun_0_1<x10.core.Long, T> init, __1$1x10$lang$Long$3x10$lang$Rail$$T$2 $dummy) {
+    public Rail(Type T, long size, Fun_0_1<x10.core.Long, T> init, __1$1x10$lang$Long$3x10$lang$Rail$$T$2 $dummy) {
         this.T = T;
         this.size = size;
         this.value = T.makeArray(allocCheckSize(size));
@@ -380,7 +382,7 @@ public final class Rail<T> extends x10.core.Ref implements x10.lang.Iterable,
     }
 
     // static nested class version of copyBody
-    public static class $Closure$0<T> extends x10.core.Ref implements VoidFun_0_0 {
+    public static class $Closure$0<T> extends Ref implements VoidFun_0_0 {
         public Object srcData;
         public GlobalRail<T> dst;
         public int dstIndex;
@@ -399,7 +401,7 @@ public final class Rail<T> extends x10.core.Ref implements x10.lang.Iterable,
             Object dstData = dst.$apply().getBackingArray();
             System.arraycopy(srcData, 0, dstData, dstIndex, numElems);
         }
-        public static final RuntimeType<$Closure$0> $RTT = x10.rtt.StaticVoidFunType.<$Closure$0> make($Closure$0.class, new Type[] { VoidFun_0_0.$RTT });
+        public static final RuntimeType<$Closure$0> $RTT = StaticVoidFunType.<$Closure$0> make($Closure$0.class, new Type[] { VoidFun_0_0.$RTT });
         public RuntimeType<$Closure$0> $getRTT() {
             return $RTT;
         }
@@ -460,7 +462,7 @@ public final class Rail<T> extends x10.core.Ref implements x10.lang.Iterable,
         }
 
         // A really bad implementation!  Leaks dst!!  Non-optimized copies! Extra distributed async/finish traffic!
-        final GlobalRail<T> dstWrapper = new GlobalRail<T>(x10.rtt.ParameterizedType.make(Rail.$RTT, dst.T), dst, null);
+        final GlobalRail<T> dstWrapper = new GlobalRail<T>(ParameterizedType.make(Rail.$RTT, dst.T), dst, null);
 
         VoidFun_0_0 copyBody1 = new $Closure$1<T>(src, srcIndex, dstWrapper, dstIndex, numElems);
 
@@ -468,7 +470,7 @@ public final class Rail<T> extends x10.core.Ref implements x10.lang.Iterable,
     }
 
     // static nested class version of copyBody1
-    public static class $Closure$1<T> extends x10.core.Ref implements VoidFun_0_0 {
+    public static class $Closure$1<T> extends Ref implements VoidFun_0_0 {
         public GlobalRail<T> src;
         public int srcIndex;
         public GlobalRail<T> dstWrapper;
@@ -506,7 +508,7 @@ public final class Rail<T> extends x10.core.Ref implements x10.lang.Iterable,
 
             x10.lang.Runtime.runAsync(dstWrapper.rail.home, copyBody2, null);
         }
-        public static final RuntimeType<$Closure$1<?>> $RTT = x10.rtt.StaticVoidFunType.<$Closure$1<?>> make($Closure$1.class, new Type[] { VoidFun_0_0.$RTT });
+        public static final RuntimeType<$Closure$1<?>> $RTT = StaticVoidFunType.<$Closure$1<?>> make($Closure$1.class, new Type[] { VoidFun_0_0.$RTT });
         public RuntimeType<$Closure$1<?>> $getRTT() {
             return $RTT;
         }

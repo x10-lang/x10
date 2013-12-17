@@ -16,11 +16,19 @@ import java.lang.ref.WeakReference;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicLong;
 
+import x10.core.fun.Fun_0_0;
+import x10.core.fun.Fun_0_1;
+import x10.core.fun.VoidFun_0_0;
 import x10.lang.Place;
 import x10.lang.Runtime.Mortal;
+import x10.rtt.NamedType;
+import x10.rtt.ParameterizedType;
 import x10.rtt.RuntimeType;
+import x10.rtt.StaticFunType;
+import x10.rtt.StaticVoidFunType;
 import x10.rtt.Type;
 import x10.rtt.Types;
+import x10.rtt.UnresolvedType;
 import x10.serialization.X10JavaDeserializer;
 import x10.serialization.X10JavaSerializable;
 import x10.serialization.X10JavaSerializer;
@@ -29,9 +37,9 @@ import x10.serialization.X10JavaSerializer;
  * [GlobalGC] Managed X10 (X10 on Java) supports distributed GC, which is mainly implemented here, in GlobalRef.java.
  *            See a paper "Distributed Garbage Collection for Managed X10" in ACM SIGPLAN 2012 X10 Workshop, June 2012.
  */
-public final class GlobalRef<T> extends x10.core.Struct implements X10JavaSerializable {
+public final class GlobalRef<T> extends Struct implements X10JavaSerializable {
 	
-    public static final RuntimeType<GlobalRef<?>> $RTT = x10.rtt.NamedType.<GlobalRef<?>> make(
+    public static final RuntimeType<GlobalRef<?>> $RTT = NamedType.<GlobalRef<?>> make(
         "x10.lang.GlobalRef",
         GlobalRef.class,
         1,
@@ -195,8 +203,8 @@ public final class GlobalRef<T> extends x10.core.Struct implements X10JavaSerial
             GlobalizedObjectTracker got = null;
             while ((got = (GlobalizedObjectTracker)referenceQueue.poll()) != null) {
                 assert(got.strongRef==null && got.id!=0L && got.get()==null);
-                if (got.T.equals(x10.core.PlaceLocalHandle.Sentinel.$RTT)) { // [PLH_GC] GlobalGC support for PlaceLocalHandle (kawatiya 2013/06)
-                    x10.core.PlaceLocalHandle.Sentinel.cleanup(got.id);
+                if (got.T.equals(PlaceLocalHandle.Sentinel.$RTT)) { // [PLH_GC] GlobalGC support for PlaceLocalHandle (kawatiya 2013/06)
+                    PlaceLocalHandle.Sentinel.cleanup(got.id);
                     if(GLOBALGC_DEBUG>=2)GlobalGCDebug("GlobalizedObjectTracker.cleanup: id=" + got.id + " PLH deleted");
                 }
                 id2got.remove(got.id); // this may return null for tmpGot
@@ -362,16 +370,15 @@ public final class GlobalRef<T> extends x10.core.Struct implements X10JavaSerial
         
         // Closure for calling GlobalizedObjectTracker.changeRemoteCount(id, delta)
         // modified from the compiled code of "async at (place) { changeRemoteCount(id, delta); }"
-        private /*@@public@@*/ static class $Closure$0 extends x10.core.Ref implements x10.core.fun.VoidFun_0_0,
-                x10.serialization.X10JavaSerializable {
+        private /*@@public@@*/ static class $Closure$0 extends Ref implements VoidFun_0_0, X10JavaSerializable {
 
-            public static final x10.rtt.RuntimeType<$Closure$0> $RTT = x10.rtt.StaticVoidFunType.<$Closure$0> make(
-            /* base class */$Closure$0.class, /* parents */new x10.rtt.Type[] { x10.core.fun.VoidFun_0_0.$RTT });
+            public static final RuntimeType<$Closure$0> $RTT = StaticVoidFunType.<$Closure$0> make(
+            /* base class */$Closure$0.class, /* parents */new Type[] { VoidFun_0_0.$RTT });
 
-            public x10.rtt.RuntimeType<?> $getRTT() {return $RTT;}
+            public RuntimeType<?> $getRTT() {return $RTT;}
             public Type<?> $getParam(int i) {return null;}
 
-            public static x10.serialization.X10JavaSerializable $_deserialize_body($Closure$0 $_obj, X10JavaDeserializer $deserializer) throws java.io.IOException {
+            public static X10JavaSerializable $_deserialize_body($Closure$0 $_obj, X10JavaDeserializer $deserializer) throws java.io.IOException {
                 if (x10.runtime.impl.java.Runtime.TRACE_SER) {
                     x10.runtime.impl.java.Runtime.printTraceMessage("X10JavaSerializable: $_deserialize_body() of "
                             + $Closure$0.class + " calling");
@@ -381,7 +388,7 @@ public final class GlobalRef<T> extends x10.core.Struct implements X10JavaSerial
                 return $_obj;
             }
 
-            public static x10.serialization.X10JavaSerializable $_deserializer(X10JavaDeserializer $deserializer) throws java.io.IOException {
+            public static X10JavaSerializable $_deserializer(X10JavaDeserializer $deserializer) throws java.io.IOException {
                 $Closure$0 $_obj = new $Closure$0((java.lang.System[]) null);
                 $deserializer.record_reference($_obj);
                 return $_deserialize_body($_obj, $deserializer);
@@ -515,18 +522,18 @@ public final class GlobalRef<T> extends x10.core.Struct implements X10JavaSerial
         return this._struct_equals$O(otherGref);
     }
 
-    final public boolean equals(x10.core.GlobalRef<T> other) {
+    final public boolean equals(GlobalRef<T> other) {
         return this._struct_equals(other);
     }
 
     final public boolean _struct_equals$O(java.lang.Object other) {
-        if (!x10.core.GlobalRef.$RTT.isInstance(other, T)) {
+        if (!GlobalRef.$RTT.isInstance(other, T)) {
             return false;
         }
-        return this._struct_equals((x10.core.GlobalRef<T>) other);
+        return this._struct_equals((GlobalRef<T>) other);
     }
 
-    final public boolean _struct_equals(x10.core.GlobalRef<T> other) {
+    final public boolean _struct_equals(GlobalRef<T> other) {
         //if (T != other.T || home != other.home) return false;
         if (!T.equals(other.T) || home.id != other.home.id) return false;
         if (home.id == x10.lang.Runtime.home().id) { // local GlobalRefs
@@ -637,9 +644,9 @@ public final class GlobalRef<T> extends x10.core.Struct implements X10JavaSerial
         }
     }
 
-    public static class LocalEval extends x10.core.Ref {
+    public static class LocalEval extends Ref {
 
-	public static final RuntimeType<LocalEval> $RTT = x10.rtt.NamedType.<LocalEval> make("x10.lang.GlobalRef.LocalEval", LocalEval.class);
+	public static final RuntimeType<LocalEval> $RTT = NamedType.<LocalEval> make("x10.lang.GlobalRef.LocalEval", LocalEval.class);
 	public RuntimeType<?> $getRTT() {return $RTT;}
 	public Type<?> $getParam(int i) {return null;}
     
@@ -655,20 +662,20 @@ public final class GlobalRef<T> extends x10.core.Struct implements X10JavaSerial
         }
         
 
-	public static <$T, $U> $U evalAtHome(Type $T, Type $U, x10.core.GlobalRef<$T> ref, x10.core.fun.Fun_0_1<$T,$U> eval) {
+	public static <$T, $U> $U evalAtHome(Type $T, Type $U, GlobalRef<$T> ref, Fun_0_1<$T,$U> eval) {
 	    if (x10.lang.Runtime.home().id == ref.home.id) {
 		return eval.$apply(ref.$apply$G(),$T);
 	    } else {
-                return x10.lang.Runtime.<$U>evalAt__1$1x10$lang$Runtime$$T$2$G($U, ref.home, new $Closure$Eval<$T, $U>($T, $U, ref, eval, (x10.core.GlobalRef.LocalEval.$Closure$Eval.__0$1x10$lang$GlobalRef$LocalEval$$Closure$Eval$$T$2__1$1x10$lang$GlobalRef$LocalEval$$Closure$Eval$$T$3x10$lang$GlobalRef$LocalEval$$Closure$Eval$$U$2) null), null);
+                return x10.lang.Runtime.<$U>evalAt__1$1x10$lang$Runtime$$T$2$G($U, ref.home, new $Closure$Eval<$T, $U>($T, $U, ref, eval, (GlobalRef.LocalEval.$Closure$Eval.__0$1x10$lang$GlobalRef$LocalEval$$Closure$Eval$$T$2__1$1x10$lang$GlobalRef$LocalEval$$Closure$Eval$$T$3x10$lang$GlobalRef$LocalEval$$Closure$Eval$$U$2) null), null);
 	    }
 	}
         
         
-	public static <$T> $T getLocalOrCopy(Type $T, x10.core.GlobalRef<$T> ref) {
+	public static <$T> $T getLocalOrCopy(Type $T, GlobalRef<$T> ref) {
             if (x10.lang.Runtime.home().id == ref.home.id) {
 		return ref.$apply$G();
 	    } else {
-                return x10.lang.Runtime.<$T>evalAt__1$1x10$lang$Runtime$$T$2$G($T, ref.home, new $Closure$Apply<$T>($T, ref, (x10.core.GlobalRef.LocalEval.$Closure$Apply.__0$1x10$lang$GlobalRef$LocalEval$$Closure$Apply$$T$2) null), null);
+                return x10.lang.Runtime.<$T>evalAt__1$1x10$lang$Runtime$$T$2$G($T, ref.home, new $Closure$Apply<$T>($T, ref, (GlobalRef.LocalEval.$Closure$Apply.__0$1x10$lang$GlobalRef$LocalEval$$Closure$Apply$$T$2) null), null);
 	    }
 	}
 
@@ -686,16 +693,16 @@ public final class GlobalRef<T> extends x10.core.Struct implements X10JavaSerial
     }
 
 
-	public static class $Closure$Eval<$T, $U> extends x10.core.Ref implements x10.core.fun.Fun_0_0 {
+	public static class $Closure$Eval<$T, $U> extends Ref implements Fun_0_0 {
 	    public static final RuntimeType<$Closure$Eval> $RTT =
-		x10.rtt.StaticFunType.<$Closure$Eval> make($Closure$Eval.class, 2,
-							 new Type[] {x10.rtt.ParameterizedType.make(x10.core.fun.Fun_0_0.$RTT, x10.rtt.UnresolvedType.PARAM(1))});
+		StaticFunType.<$Closure$Eval> make($Closure$Eval.class, 2,
+							 new Type[] {ParameterizedType.make(Fun_0_0.$RTT, UnresolvedType.PARAM(1))});
 	    public RuntimeType<?> $getRTT() {return $RTT;}
 	    public Type<?> $getParam(int i) {if (i ==0)return $T;if (i ==1)return $U;return null;}
 
 	    // constructor just for allocation
 	    public $Closure$Eval(final java.lang.System[] $dummy) { super($dummy);}
-            public $Closure$Eval(Type $T, Type $U, x10.core.GlobalRef<$T> ref, x10.core.fun.Fun_0_1<$T,$U> eval, __0$1x10$lang$GlobalRef$LocalEval$$Closure$Eval$$T$2__1$1x10$lang$GlobalRef$LocalEval$$Closure$Eval$$T$3x10$lang$GlobalRef$LocalEval$$Closure$Eval$$U$2 $dummy) {
+            public $Closure$Eval(Type $T, Type $U, GlobalRef<$T> ref, Fun_0_1<$T,$U> eval, __0$1x10$lang$GlobalRef$LocalEval$$Closure$Eval$$T$2__1$1x10$lang$GlobalRef$LocalEval$$Closure$Eval$$T$3x10$lang$GlobalRef$LocalEval$$Closure$Eval$$U$2 $dummy) {
                 this.$T = $T;
                 this.$U = $U;
                 this.ref = ref;
@@ -707,8 +714,8 @@ public final class GlobalRef<T> extends x10.core.Struct implements X10JavaSerial
 	    private Type $T;
 	    private Type $U;
 
-	    public x10.core.GlobalRef<$T> ref;
-	    public x10.core.fun.Fun_0_1<$T,$U> eval;
+	    public GlobalRef<$T> ref;
+	    public Fun_0_1<$T,$U> eval;
                 
 	    public $U $apply$G() {
 		return this.eval.$apply(this.ref.$apply$G(),$T);
@@ -737,16 +744,16 @@ public final class GlobalRef<T> extends x10.core.Struct implements X10JavaSerial
 	}
 
             
-	public static class $Closure$Apply<$T> extends x10.core.Ref implements x10.core.fun.Fun_0_0 {
+	public static class $Closure$Apply<$T> extends Ref implements Fun_0_0 {
 	    public static final RuntimeType<$Closure$Apply> $RTT =
-		x10.rtt.StaticFunType.<$Closure$Apply> make($Closure$Apply.class, 1,
-							  new Type[] {x10.rtt.ParameterizedType.make(x10.core.fun.Fun_0_0.$RTT, x10.rtt.UnresolvedType.PARAM(0))});
+		StaticFunType.<$Closure$Apply> make($Closure$Apply.class, 1,
+							  new Type[] {ParameterizedType.make(Fun_0_0.$RTT, UnresolvedType.PARAM(0))});
 	    public RuntimeType<?> $getRTT() {return $RTT;}
 	    public Type<?> $getParam(int i) {if (i ==0)return $T;return null;}
 
 	    // constructor just for allocation
 	    public $Closure$Apply(final java.lang.System[] $dummy) { super($dummy);}
-            public $Closure$Apply(Type $T, x10.core.GlobalRef<$T> ref, __0$1x10$lang$GlobalRef$LocalEval$$Closure$Apply$$T$2 $dummy) {
+            public $Closure$Apply(Type $T, GlobalRef<$T> ref, __0$1x10$lang$GlobalRef$LocalEval$$Closure$Apply$$T$2 $dummy) {
                 this.$T = $T;
                 this.ref = ref;
             }
@@ -755,7 +762,7 @@ public final class GlobalRef<T> extends x10.core.Struct implements X10JavaSerial
 	
 	    private Type $T;
 
-	    public x10.core.GlobalRef<$T> ref;
+	    public GlobalRef<$T> ref;
 
 	    public $T $apply$G() {
 		return this.ref.$apply$G();
