@@ -14,27 +14,29 @@ package x10.core;
 import java.lang.reflect.Field;
 
 import sun.misc.Unsafe;
-import x10.core.Ref;
 import x10.rtt.NamedType;
 import x10.rtt.RuntimeType;
 import x10.rtt.Type;
+import x10.serialization.X10JavaDeserializer;
+import x10.serialization.X10JavaSerializable;
+import x10.serialization.X10JavaSerializer;
 
 public class Deque extends Ref {
 
-    public void $_serialize(x10.serialization.X10JavaSerializer $serializer) throws java.io.IOException {
+    public void $_serialize(X10JavaSerializer $serializer) throws java.io.IOException {
         // TODO need check
         $serializer.write(base);
         $serializer.write(sp);
         $serializer.write(queue);
     }
-    public static x10.serialization.X10JavaSerializable $_deserialize_body(Deque $_obj, x10.serialization.X10JavaDeserializer $deserializer) throws java.io.IOException {
+    public static X10JavaSerializable $_deserialize_body(Deque $_obj, X10JavaDeserializer $deserializer) throws java.io.IOException {
         // TODO need check
         $_obj.base = $deserializer.readInt();
         $_obj.sp = $deserializer.readInt();
         $_obj.queue = (java.lang.Object[]) $deserializer.readArrayUsingReflection(java.lang.Object.class);
         return $_obj;
     }
-    public static x10.serialization.X10JavaSerializable $_deserializer(x10.serialization.X10JavaDeserializer $deserializer) throws java.io.IOException {
+    public static X10JavaSerializable $_deserializer(X10JavaDeserializer $deserializer) throws java.io.IOException {
         Deque $_obj = new Deque((java.lang.System[]) null);
         $deserializer.record_reference($_obj);
         return $_deserialize_body($_obj, $deserializer);

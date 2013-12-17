@@ -12,6 +12,7 @@
 package x10.core.io;
 
 import x10.core.Any;
+import x10.core.Rail;
 import x10.rtt.NamedType;
 import x10.rtt.RuntimeType;
 import x10.rtt.Type;
@@ -39,7 +40,7 @@ public final class NativeFile extends java.io.File implements Any {
         }
     }
 
-    public x10.core.Rail listInternal() {
+    public Rail listInternal() {
         return x10.runtime.impl.java.ArrayUtils.makeRailFromJavaArray(Types.STRING, list());
     }
 
