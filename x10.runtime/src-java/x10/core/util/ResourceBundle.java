@@ -34,7 +34,7 @@ final public class ResourceBundle extends Ref implements X10JavaSerializable {
     public Type<?> $getParam(int i) { return null; }
 
     public static X10JavaSerializable $_deserialize_body(ResourceBundle $_obj, X10JavaDeserializer $deserializer) throws IOException {
-        $_obj.bundle = (java.util.ResourceBundle) $deserializer.readRefUsingReflection();
+        $_obj.bundle = (java.util.ResourceBundle) $deserializer.readObject();
         return $_obj;
     }
 
@@ -45,7 +45,7 @@ final public class ResourceBundle extends Ref implements X10JavaSerializable {
     }
 
     public void $_serialize(X10JavaSerializer $serializer) throws IOException {
-        $serializer.writeObjectUsingReflection(this.bundle);
+        $serializer.write(this.bundle);
     }
 
     // constructor just for allocation

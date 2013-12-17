@@ -18,17 +18,21 @@ import java.io.IOException;
 import java.io.ObjectOutputStream;
 import java.io.OutputStream;
 import java.lang.reflect.Array;
-import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 
-import x10.core.Rail;
 import x10.core.GlobalRef;
+import x10.core.Rail;
 import x10.io.CustomSerialization;
 import x10.rtt.Types;
 import x10.runtime.impl.java.Runtime;
 import x10.serialization.SerializationDictionary.LocalSerializationDictionary;
 
 public final class X10JavaSerializer implements SerializationConstants {
+    
+    
+    static final boolean THROWABLES_SERIALIZE_MESSAGE = true;
+    static final boolean THROWABLES_SERIALIZE_STACKTRACE = true;
+    static final boolean THROWABLES_SERIALIZE_CAUSE = true;
         
     /**
      * The primary output stream for writing; use this instead of the backing streams
@@ -141,114 +145,35 @@ public final class X10JavaSerializer implements SerializationConstants {
         objectMap.clear();
         counter = 0;
     }
+    
+    // Called from x10.io.Serializer.
+    // The only goal of this wrapper message is to avoid a throws java.io.IOException
+    // in the X10 API for Serializer.writeAny(v:Any).
+    public void writeAny(Object v) {
+        try {
+            write(v);
+        } catch (IOException e) {
+            e.printStackTrace();
+            throw new RuntimeException(e);
+        }
+    }
         
     public short getSerializationId(Class<?> clazz, Object obj) throws IOException {
         return idDictionary.getSerializationId(clazz, obj, out);
     }
     
-    public void write(X10JavaSerializable obj) throws IOException {
-        if (obj == null) {
-            writeNull();
-            return;
-        }
-
-        short i = getSerializationId(obj.getClass(), obj);
-        if (i <= MAX_HARDCODED_ID) {
-            switch (i) {
-            case RTT_ANY_ID: 
-                case RTT_BOOLEAN_ID:
-                case RTT_BYTE_ID:
-                case RTT_CHAR_ID:
-                case RTT_DOUBLE_ID:
-                case RTT_FLOAT_ID:
-                case RTT_INT_ID:
-                case RTT_LONG_ID:
-                case RTT_SHORT_ID:
-                case RTT_STRING_ID:
-                case RTT_UBYTE_ID:
-                case RTT_UINT_ID:
-                case RTT_ULONG_ID: 
-                case RTT_USHORT_ID:
-                    out.writeShort(i);
-                    if (Runtime.TRACE_SER) {
-                        Runtime.printTraceMessage("Optimized serializing [**] a " + Runtime.ANSI_CYAN + "serialization_id_t" + Runtime.ANSI_RESET + ": " + i);
-                    }
-                    return;
-            
-            default:
-                System.err.println("Unhanlded hardcoded serialization id");
-                throw new RuntimeException("Unhandled hard-wired serialization id in write(X10JavaSerializable)");    
-            }            
-        }
-        
-        Integer pos = previous_position(obj, true);
-        if (pos != null) {
-            return;
-        }
-        
-        if (Runtime.TRACE_SER) {
-            Runtime.printTraceMessage("Serializing [**] a " + Runtime.ANSI_CYAN + "serialization_id_t" + Runtime.ANSI_RESET + ": " + i);
-        }
-        out.writeShort(i);
-        if (Runtime.TRACE_SER) {
-            Runtime.printTraceMessage("Serializing a " + Runtime.ANSI_CYAN + Runtime.ANSI_BOLD + obj.getClass().getName() + Runtime.ANSI_RESET);
-        }
-        obj.$_serialize(this);
-    }
-
-    private void writeNull() throws IOException {
+    public void writeNull() throws IOException {
         writeSerializationId(NULL_ID);
         if (Runtime.TRACE_SER) {
             Runtime.printTraceMessage("Serializing a null reference");
         }
     }
-
-    public void write(CustomSerialization obj) throws IOException {
-        write((X10JavaSerializable) obj);
-    }
     
-    public void write(X10JavaSerializable obj[]) throws IOException {
-        write(obj.length);
-        for (X10JavaSerializable o : obj) {
-            write(o);
-        }
-    }
-    
-    public void write(Object[] obj) throws IOException {
-        write(obj.length);
-        for (Object o : obj) {
-            write(o);
-        }
-    }
-
     public void write(int i) throws IOException {
         if (Runtime.TRACE_SER) {
             Runtime.printTraceMessage("Serializing [****] an " + Runtime.ANSI_CYAN + "int" + Runtime.ANSI_RESET + ": " + i);
         }
         out.writeInt(i);
-    }
-
-    public void write(Integer p) throws IOException {
-        if (p == null) {
-            writeNull();
-            return;
-        }
-        Integer pos = previous_position(p, true);
-        if (pos != null) {
-            return;
-        }
-        if (Runtime.TRACE_SER) {
-            Runtime.printTraceMessage("Serializing an " + Runtime.ANSI_CYAN + "Integer" + Runtime.ANSI_RESET + ": " + p);
-        }
-        out.writeShort(INTEGER_ID);
-        out.writeInt(p.intValue());
-    }
-
-    public void write(int[] i) throws IOException {
-        out.writeInt(i.length);
-        for (int j : i) {
-            out.writeInt(j);
-        }
     }
 
     public void write(boolean b) throws IOException {
@@ -258,29 +183,6 @@ public final class X10JavaSerializer implements SerializationConstants {
         out.writeBoolean(b);
     }
 
-    public void write(Boolean p) throws IOException {
-        if (p == null) {
-            writeNull();
-            return;
-        }
-        Integer pos = previous_position(p, true);
-        if (pos != null) {
-            return;
-        }
-        if (Runtime.TRACE_SER) {
-            Runtime.printTraceMessage("Serializing a " + Runtime.ANSI_CYAN + "Boolean" + Runtime.ANSI_RESET + ": " + p);
-        }
-        out.writeShort(BOOLEAN_ID);
-        out.writeBoolean(p.booleanValue());
-    }
-
-    public void write(boolean[] v) throws IOException {
-        out.writeInt(v.length);
-        for (boolean b : v) {
-            out.writeBoolean(b);
-        }
-    }
-
     public void write(char c) throws IOException {
         if (Runtime.TRACE_SER) {
             Runtime.printTraceMessage("Serializing [**] a " + Runtime.ANSI_CYAN + "char" + Runtime.ANSI_RESET + ": " + c);
@@ -288,59 +190,11 @@ public final class X10JavaSerializer implements SerializationConstants {
         out.writeChar(c);
     }
 
-    public void write(Character p) throws IOException {
-        if (p == null) {
-            writeNull();
-            return;
-        }
-        Integer pos = previous_position(p, true);
-        if (pos != null) {
-            return;
-        }
-        if (Runtime.TRACE_SER) {
-            Runtime.printTraceMessage("Serializing a " + Runtime.ANSI_CYAN + "Character" + Runtime.ANSI_RESET + ": " + p);
-        }
-        out.writeShort(CHARACTER_ID);
-        out.writeChar(p.charValue());
-    }
-
-    public void write(char[] v) throws IOException {
-        out.writeInt(v.length);
-        for (char c : v) {
-            out.writeChar(c);
-        }
-    }
-
     public void write(byte b) throws IOException {
         if (Runtime.TRACE_SER) {
             Runtime.printTraceMessage("Serializing [*] a " + Runtime.ANSI_CYAN + "byte" + Runtime.ANSI_RESET + ": " + b);
         }
         out.writeByte(b);
-    }
-
-    public void write(Byte p) throws IOException {
-        if (p == null) {
-            writeNull();
-            return;
-        }
-        Integer pos = previous_position(p, true);
-        if (pos != null) {
-            return;
-        }
-        if (Runtime.TRACE_SER) {
-            Runtime.printTraceMessage("Serializing a " + Runtime.ANSI_CYAN + "Byte" + Runtime.ANSI_RESET + ": " + p);
-        }
-        out.writeShort(BYTE_ID);
-        out.writeByte(p.byteValue());
-    }
-
-    public void write(byte[] b) throws IOException {
-        out.writeInt(b.length);
-        _write(b);
-    }
-
-    public void _write(byte[] b) throws IOException {
-        out.write(b);
     }
 
     public void write(short s) throws IOException {
@@ -356,58 +210,12 @@ public final class X10JavaSerializer implements SerializationConstants {
         }
         out.writeShort(sid);
     }
-    
-    public void write(Short p) throws IOException {
-        if (p == null) {
-            writeNull();
-            return;
-        }
-        Integer pos = previous_position(p, true);
-        if (pos != null) {
-            return;
-        }
-        if (Runtime.TRACE_SER) {
-            Runtime.printTraceMessage("Serializing a " + Runtime.ANSI_CYAN + "Short" + Runtime.ANSI_RESET + ": " + p);
-        }
-        out.writeShort(SHORT_ID);
-        out.writeShort(p.shortValue());
-    }
-
-    public void write(short[] v) throws IOException {
-        out.writeInt(v.length);
-        for (short s : v) {
-            out.writeShort(s);
-        }
-    }
 
     public void write(long l) throws IOException {
         if (Runtime.TRACE_SER) {
             Runtime.printTraceMessage("Serializing [********] a " + Runtime.ANSI_CYAN + "long" + Runtime.ANSI_RESET + ": " + l);
         }
         out.writeLong(l);
-    }
-
-    public void write(Long p) throws IOException {
-        if (p == null) {
-            writeNull();
-            return;
-        }
-        Integer pos = previous_position(p, true);
-        if (pos != null) {
-            return;
-        }
-        if (Runtime.TRACE_SER) {
-            Runtime.printTraceMessage("Serializing a " + Runtime.ANSI_CYAN + "Long" + Runtime.ANSI_RESET + ": " + p);
-        }
-        out.writeShort(LONG_ID);
-        out.writeLong(p.longValue());
-    }
-
-    public void write(long[] v) throws IOException {
-        out.writeInt(v.length);
-        for (long l : v) {
-            out.writeLong(l);
-        }
     }
 
     public void write(double d) throws IOException {
@@ -417,29 +225,6 @@ public final class X10JavaSerializer implements SerializationConstants {
         out.writeDouble(d);
     }
 
-    public void write(Double p) throws IOException {
-        if (p == null) {
-            writeNull();
-            return;
-        }
-        Integer pos = previous_position(p, true);
-        if (pos != null) {
-            return;
-        }
-        if (Runtime.TRACE_SER) {
-            Runtime.printTraceMessage("Serializing a " + Runtime.ANSI_CYAN + "Double" + Runtime.ANSI_RESET + ": " + p);
-        }
-        out.writeShort(DOUBLE_ID);
-        out.writeDouble(p.doubleValue());
-    }
-
-    public void write(double[] v) throws IOException {
-        out.writeInt(v.length);
-        for (double d : v) {
-            out.writeDouble(d);
-        }
-    }
-
     public void write(float f) throws IOException {
         if (Runtime.TRACE_SER) {           
             Runtime.printTraceMessage("Serializing [****] a " + Runtime.ANSI_CYAN + "float" + Runtime.ANSI_RESET + ": " + f);
@@ -447,81 +232,69 @@ public final class X10JavaSerializer implements SerializationConstants {
         out.writeFloat(f);
     }
 
-    public void write(Float p) throws IOException {
-        if (p == null) {
+    public void write(Object obj) throws IOException {
+        if (obj == null) {
             writeNull();
             return;
         }
-        Integer pos = previous_position(p, true);
+
+        Class<? extends Object> objClass = obj.getClass();
+        if (objClass.isArray()) {
+            Integer pos = previous_position(obj, true);
+            if (pos != null) {
+                return;
+            }            
+            serializeArray(obj);
+            return;
+        }
+
+        short sid = getSerializationId(objClass, obj);
+        if (sid <= MAX_HARDCODED_ID) {
+            serializeSpecialType(sid, obj);
+            return;
+        }
+        
+        Integer pos = previous_position(obj, true);
         if (pos != null) {
             return;
         }
-        if (Runtime.TRACE_SER) {
-            Runtime.printTraceMessage("Serializing a " + Runtime.ANSI_CYAN + "Float" + Runtime.ANSI_RESET + ": " + p);
-        }
-        out.writeShort(FLOAT_ID);
-        out.writeFloat(p.floatValue());
-    }
+        
+        writeSerializationId(sid);
+        if (obj instanceof X10JavaSerializable) {
+             if (Runtime.TRACE_SER) {
+                Runtime.printTraceMessage("Serializing a " + Runtime.ANSI_CYAN + Runtime.ANSI_BOLD + obj.getClass().getName() + Runtime.ANSI_RESET);
+            }
+            ((X10JavaSerializable)obj).$_serialize(this);
+        } else {
+            try {
+                SerializerThunk st = SerializerThunk.getSerializerThunk(objClass);
+                st.serializeObject(obj, objClass, this);
+            } catch (SecurityException e) {
+                e.printStackTrace();
+                throw new RuntimeException(e);
+            } catch (IllegalArgumentException e) {
+                e.printStackTrace();
+                throw new RuntimeException(e);
+            } catch (IllegalAccessException e) {
+                e.printStackTrace();
+                throw new RuntimeException(e);
+            } catch (InvocationTargetException e) {
+                e.printStackTrace();
+                throw new RuntimeException(e);
+            } catch (NoSuchFieldException e) {
+                e.printStackTrace();
+                throw new RuntimeException(e);
+            } catch (NoSuchMethodException e) {
+                e.printStackTrace();
+                throw new RuntimeException(e);
+            }
 
-    public void write(float[] v) throws IOException {
-        out.writeInt(v.length);
-        for (float f : v) {
-            out.writeFloat(f);
         }
-    }
-
-    public void write(Object v) throws IOException {
-        if (v == null) {
-            writeNull();
-            return;
-        }
-        if (v.getClass().isArray()) {
-            writeArrayUsingReflectionWithType(v);
-            return;
-        }
-        writeObjectUsingReflection(v);
-    }
-    
-    // Called from x10.io.Serializer.
-    // The point of this wrapper message is to avoid a throws java.io.IOException
-    // in the X10 API for Serializer.writeAny(v:Any).
-    public void writeAny(Object v) {
-        try {
-            write(v);
-        } catch (IOException e) {
-            e.printStackTrace();
-            throw new RuntimeException(e);
-        }
-    }
-
-    public void write(String str) throws IOException {
-        if (str == null) {
-            writeNull();
-            return;
-        }
-
-        if (Runtime.TRACE_SER) {
-            Runtime.printTraceMessage("Serializing a " + Runtime.ANSI_CYAN + "String" + Runtime.ANSI_RESET + ": " + str);
-        }
-
-        Integer pos = previous_position(str, true);
-        if (pos != null) {
-            return;
-        }
-        writeSerializationId(STRING_ID);
-        writeStringValue(str);
     }
 
     void writeStringValue(String str) throws IOException {
         write(str.length());
         out.write(str.getBytes());
-    }
-
-    public void write(String[] v) throws IOException {
-        out.writeInt(v.length);
-        for (String str : v) {
-            write(str);
-        }
     }
 
     public void recordReference(Object obj) throws IOException {
@@ -549,59 +322,11 @@ public final class X10JavaSerializer implements SerializationConstants {
         return pos;
     }
 
-    public <T> void writeObjectUsingReflection(T body) throws IOException {
-        if (body == null) {
-            writeNull();
-            return;
-        }
-        
-        // Special case: optimize transmission of RTT's for primitives
-        if (body instanceof x10.rtt.RuntimeType<?>) {
-            short id = ((x10.rtt.RuntimeType<?>) body).$_get_serialization_id();
-            if (id <= MAX_HARDCODED_ID) {
-                write(id);
-                return;
-            }   
-        }
-        
-        Integer pos = previous_position(body, true);
-        if (pos != null) {
-            return;
-        }
-        
-        try {
-            Class<? extends Object> bodyClass = body.getClass();
-            if (bodyClass.isArray()) {
-                SerializerThunk st = SerializerThunk.getSerializerThunk(bodyClass);
-                st.serializeObject(body, bodyClass, this);
-            } else {
-                writeSerializationId(getSerializationId(bodyClass, body));
-                SerializerThunk st = SerializerThunk.getSerializerThunk(bodyClass);
-                st.serializeObject(body, bodyClass, this);
-            }
-        } catch (SecurityException e) {
-            e.printStackTrace();
-            throw new RuntimeException(e);
-        } catch (IllegalArgumentException e) {
-            e.printStackTrace();
-            throw new RuntimeException(e);
-        } catch (IllegalAccessException e) {
-            e.printStackTrace();
-            throw new RuntimeException(e);
-        } catch (InvocationTargetException e) {
-            e.printStackTrace();
-            throw new RuntimeException(e);
-        } catch (NoSuchFieldException e) {
-            e.printStackTrace();
-            throw new RuntimeException(e);
-        } catch (NoSuchMethodException e) {
-            e.printStackTrace();
-            throw new RuntimeException(e);
-        }
-    }
 
     // This method is called from generated code when an X10 class has a Java superclass
-    public <T> void serializeClassUsingReflection(T obj, Class<T> clazz) throws IOException {
+    // It continues the serialization process at the fields of clazz and goes up
+    // the class hierarchy from there
+    public <T> void serializeFieldsStartingFromClass(T obj, Class<T> clazz) throws IOException {
         try {
             SerializerThunk st = SerializerThunk.getSerializerThunk(clazz);
             st.serializeObject(obj, clazz, this);
@@ -626,87 +351,7 @@ public final class X10JavaSerializer implements SerializationConstants {
         }       
     }
 
-    static final boolean THROWABLES_SERIALIZE_MESSAGE = true;
-    static final boolean THROWABLES_SERIALIZE_STACKTRACE = true;
-    static final boolean THROWABLES_SERIALIZE_CAUSE = true;
-
-    public void writeArrayUsingReflection(Object obj) throws IOException {
-        if (obj == null) {
-            writeNull();
-            return;
-        }
-        Integer pos = previous_position(obj, true);
-        if (pos != null) {
-            return;
-        }
-        if (Runtime.TRACE_SER) {
-            Runtime.printTraceMessage("Serializing a Java Array");
-        }
-        writeSerializationId(JAVA_ARRAY_ID);
-        int length = Array.getLength(obj);
-        write(length);
-        Class<?> componentType = obj.getClass().getComponentType();
-        if (componentType.isPrimitive()) {
-            if ("int".equals(componentType.getName())) {
-                for (int i = 0; i < length; i++) {
-                    write(Array.getInt(obj, i));
-                }
-            } else if ("double".equals(componentType.getName())) {
-                for (int i = 0; i < length; i++) {
-                    write(Array.getDouble(obj, i));
-                }
-            } else if ("float".equals(componentType.getName())) {
-                for (int i = 0; i < length; i++) {
-                    write(Array.getFloat(obj, i));
-                }
-            } else if ("boolean".equals(componentType.getName())) {
-                for (int i = 0; i < length; i++) {
-                    write(Array.getBoolean(obj, i));
-                }
-            } else if ("byte".equals(componentType.getName())) {
-                for (int i = 0; i < length; i++) {
-                    write(Array.getByte(obj, i));
-                }
-            } else if ("short".equals(componentType.getName())) {
-                for (int i = 0; i < length; i++) {
-                    write(Array.getShort(obj, i));
-                }
-            } else if ("long".equals(componentType.getName())) {
-                for (int i = 0; i < length; i++) {
-                    write(Array.getLong(obj, i));
-                }
-            } else if ("char".equals(componentType.getName())) {
-                for (int i = 0; i < length; i++) {
-                    write(Array.getChar(obj, i));
-                }
-            }
-        } else if ("java.lang.String".equals(componentType.getName())) {
-            for (int i = 0; i < length; i++) {
-                String str = (String) Array.get(obj, i);
-                write(str);
-            }
-        } else if (componentType.isArray()) {
-            for (int i = 0; i < length; i++) {
-                Object o = Array.get(obj, i);
-                writeArrayUsingReflection(o);
-            }
-        } else {
-            for (int i = 0; i < length; i++) {
-                Object o = Array.get(obj, i);
-                writeObjectUsingReflection(o);
-            }
-        }
-    }
-
-    public void writeArrayUsingReflectionWithType(Object obj) throws IOException {
-        if (obj == null) {
-            writeNull();
-            return;
-        }
-        Integer pos = previous_position(obj, true);
-        if (pos != null) {
-            return;
-        }
+    private void serializeArray(Object obj) throws IOException {
         if (Runtime.TRACE_SER) {
             Runtime.printTraceMessage("Serializing a Java Array");
         }
@@ -715,75 +360,187 @@ public final class X10JavaSerializer implements SerializationConstants {
         if (componentType.isPrimitive()) {
             if ("int".equals(componentType.getName())) {
                 writeSerializationId(INTEGER_ID);
-                write((int[]) obj);
+                int[] array = (int[])obj;
+                out.writeInt(array.length);
+                for (int elem : array) {
+                    out.writeInt(elem);
+                }
             } else if ("double".equals(componentType.getName())) {
                 writeSerializationId(DOUBLE_ID);
-                write((double[]) obj);
+                double[] array = (double[])obj;
+                out.writeInt(array.length);
+                for (double elem : array) {
+                    out.writeDouble(elem);
+                }
             } else if ("float".equals(componentType.getName())) {
                 writeSerializationId(FLOAT_ID);
-                write((float[]) obj);
+                float[] array = (float[])obj;
+                out.writeInt(array.length);
+                for (float elem : array) {
+                    out.writeFloat(elem);
+                }
             } else if ("boolean".equals(componentType.getName())) {
                 writeSerializationId(BOOLEAN_ID);
-                write((boolean[]) obj);
+                boolean[] array = (boolean[])obj;
+                out.writeInt(array.length);
+                for (boolean elem : array) {
+                    out.writeBoolean(elem);
+                }
             } else if ("byte".equals(componentType.getName())) {
                 writeSerializationId(BYTE_ID);
-                write((byte[]) obj);
+                byte[] array = (byte[])obj;
+                out.writeInt(array.length);
+                for (byte elem : array) {
+                    out.writeByte(elem);
+                }
             } else if ("short".equals(componentType.getName())) {
                 writeSerializationId(SHORT_ID);
-                write((short[]) obj);
+                short[] array = (short[])obj;
+                out.writeInt(array.length);
+                for (short elem : array) {
+                    out.writeShort(elem);
+                }
             } else if ("long".equals(componentType.getName())) {
                 writeSerializationId(LONG_ID);
-                write((long[]) obj);
+                long[] array = (long[])obj;
+                out.writeInt(array.length);
+                for (long elem : array) {
+                    out.writeLong(elem);
+                }
             } else if ("char".equals(componentType.getName())) {
                 writeSerializationId(CHARACTER_ID);
-                write((char[]) obj);
+                char[] array = (char[])obj;
+                out.writeInt(array.length);
+                for (char elem : array) {
+                    out.writeChar(elem);
+                }
             }
         } else if ("java.lang.String".equals(componentType.getName())) {
             writeSerializationId(STRING_ID);
-            write((java.lang.String[]) obj);
+            String [] array = (String[])obj;
+            out.writeInt(array.length);
+            for (String elem : array) {
+                write(elem);
+            }
         } else {
             writeSerializationId(getSerializationId(componentType, null));
-            if (componentType.isArray()) {
-                int length = Array.getLength(obj);
-                write(length);
-                for (int i = 0; i < length; ++i) {
-                    Object o = Array.get(obj, i);
-                    writeArrayUsingReflection(o);
-                }
-            } else {
-                write((java.lang.Object[]) obj);
+            int length = Array.getLength(obj);
+            write(length);
+            for (int i = 0; i < length; ++i) {
+                Object o = Array.get(obj, i);
+                write(o);
             }
         }
     }
+    
+    private void serializeSpecialType(short sid, Object obj) throws IOException {
+        switch (sid) {
+        case STRING_ID:
+            // Preseve reference identity for Strings by looking for repeated objects
+            Integer pos = previous_position(obj, true);
+            if (pos != null) {
+                return; 
+            }
+            if (Runtime.TRACE_SER) {
+                Runtime.printTraceMessage("Serializing a " + Runtime.ANSI_CYAN + "String" + Runtime.ANSI_RESET + ": " + obj);
+            }
+            out.writeShort(STRING_ID);
+            writeStringValue((String)obj);
+            break;
+            
+        case FLOAT_ID:
+            if (Runtime.TRACE_SER) {
+                Runtime.printTraceMessage("Serializing an " + Runtime.ANSI_CYAN + "Float" + Runtime.ANSI_RESET + ": " + obj);
+            }
+            out.writeShort(FLOAT_ID);
+            out.writeFloat(((Float)obj).floatValue());
+            break;
+            
+        case DOUBLE_ID:
+            if (Runtime.TRACE_SER) {
+                Runtime.printTraceMessage("Serializing a " + Runtime.ANSI_CYAN + "Double" + Runtime.ANSI_RESET + ": " + obj);
+            }
+            out.writeShort(DOUBLE_ID);
+            out.writeDouble(((Double)obj).doubleValue());
+            break;
 
-    <T> void writeStringUsingReflection(Field field, T obj) throws IllegalAccessException, IOException {
-        String str = (String) field.get(obj);
-        write(str);
-    }
+        case INTEGER_ID:
+            if (Runtime.TRACE_SER) {
+                Runtime.printTraceMessage("Serializing an " + Runtime.ANSI_CYAN + "Integer" + Runtime.ANSI_RESET + ": " + obj);
+            }
+            out.writeShort(INTEGER_ID);
+            out.writeInt(((Integer)obj).intValue());
+            break;
+            
+        case BOOLEAN_ID:
+            if (Runtime.TRACE_SER) {
+                Runtime.printTraceMessage("Serializing a " + Runtime.ANSI_CYAN + "Boolean" + Runtime.ANSI_RESET + ": " + obj);
+            }
+            out.writeShort(BOOLEAN_ID);
+            out.writeBoolean(((Boolean)obj).booleanValue());
+            break;
+            
+        case BYTE_ID:
+            if (Runtime.TRACE_SER) {
+                Runtime.printTraceMessage("Serializing a " + Runtime.ANSI_CYAN + "Byte" + Runtime.ANSI_RESET + ": " + obj);
+            }
+            out.writeShort(BYTE_ID);
+            out.writeByte(((Byte)obj).byteValue());
+            break;
+            
+        case SHORT_ID:
+            if (Runtime.TRACE_SER) {
+                Runtime.printTraceMessage("Serializing a " + Runtime.ANSI_CYAN + "Short" + Runtime.ANSI_RESET + ": " + obj);
+            }
+            out.writeShort(SHORT_ID);
+            out.writeShort(((Short)obj).shortValue());
+            break;
 
-    <T> void writePrimitiveUsingReflection(Field field, T obj) throws IllegalAccessException, IOException {
-        Class<?> type = field.getType();
-        if ("int".equals(type.getName())) {
-            write(field.getInt(obj));
-        } else if ("double".equals(type.getName())) {
-            write(field.getDouble(obj));
-        } else if ("float".equals(type.getName())) {
-            write(field.getFloat(obj));
-        } else if ("boolean".equals(type.getName())) {
-            write(field.getBoolean(obj));
-        } else if ("byte".equals(type.getName())) {
-            write(field.getByte(obj));
-        } else if ("short".equals(type.getName())) {
-            write(field.getShort(obj));
-        } else if ("long".equals(type.getName())) {
-            write(field.getLong(obj));
-        } else if ("char".equals(type.getName())) {
-            write(field.getChar(obj));
-        }
+        case LONG_ID:
+            if (Runtime.TRACE_SER) {
+                Runtime.printTraceMessage("Serializing a " + Runtime.ANSI_CYAN + "Long" + Runtime.ANSI_RESET + ": " + obj);
+            }
+            out.writeShort(LONG_ID);
+            out.writeLong(((Long)obj).longValue());
+            break;
+
+        case CHARACTER_ID:
+            if (Runtime.TRACE_SER) {
+                Runtime.printTraceMessage("Serializing a " + Runtime.ANSI_CYAN + "Character" + Runtime.ANSI_RESET + ": " + obj);
+            }
+            out.writeShort(CHARACTER_ID);
+            out.writeChar(((Character)obj).charValue());
+            break;
+
+        case RTT_ANY_ID: 
+        case RTT_BOOLEAN_ID:
+        case RTT_BYTE_ID:
+        case RTT_CHAR_ID:
+        case RTT_DOUBLE_ID:
+        case RTT_FLOAT_ID:
+        case RTT_INT_ID:
+        case RTT_LONG_ID:
+        case RTT_SHORT_ID:
+        case RTT_STRING_ID:
+        case RTT_UBYTE_ID:
+        case RTT_UINT_ID:
+        case RTT_ULONG_ID: 
+        case RTT_USHORT_ID:
+            if (Runtime.TRACE_SER) {
+                Runtime.printTraceMessage("Optimized serializing [**] a " + Runtime.ANSI_CYAN + "serialization_id_t" + Runtime.ANSI_RESET + ": " + sid);
+            }
+            out.writeShort(sid);
+            break;
+
+        default:
+            System.err.println("Unhandled hard-wired serialization id "+sid);
+            throw new RuntimeException("Unhandled hard-wired serialization id "+sid+" (class is "+obj.getClass()+")");    
+        }            
+
     }
 
     // Write an object using java serialization. 
-    // This is used by IMC to optimize the serialization of primitive arrays
+    // This is used by Rail to optimize the serialization of primitive arrays
     public void writeUsingObjectOutputStream(Object obj) throws IOException {
         ObjectOutputStream oos = new ObjectOutputStream(this.out);
         oos.writeObject(obj);

@@ -322,7 +322,7 @@ public abstract class Runtime implements x10.core.fun.VoidFun_0_0 {
             }
 
     		X10JavaDeserializer deserializer = new X10JavaDeserializer(serializer);
-    		body = (T) deserializer.readRef();
+    		body = (T) deserializer.readObject();
 
     		if (prof!=null) {
     			long stop = System.nanoTime();

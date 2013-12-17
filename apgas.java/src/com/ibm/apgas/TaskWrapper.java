@@ -54,8 +54,7 @@ public class TaskWrapper extends x10.core.Ref implements
 					.printTraceMessage("X10JavaSerializable: $_deserialize_body() of "
 							+ TaskWrapper.class + " calling");
 		}
-		com.ibm.apgas.Task task = (com.ibm.apgas.Task) $deserializer
-				.readRefUsingReflection();
+		com.ibm.apgas.Task task = (com.ibm.apgas.Task) $deserializer.readObject();
 		$_obj.task = task;
 		return $_obj;
 
@@ -72,7 +71,7 @@ public class TaskWrapper extends x10.core.Ref implements
 
 	public void $_serialize(x10.serialization.X10JavaSerializer $serializer)
 			throws java.io.IOException {
-		$serializer.writeObjectUsingReflection(this.task);
+		$serializer.write(this.task);
 	}
 
 	// constructor just for allocation

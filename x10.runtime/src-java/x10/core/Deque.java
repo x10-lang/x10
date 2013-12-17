@@ -27,13 +27,13 @@ public class Deque extends Ref {
         // TODO need check
         $serializer.write(base);
         $serializer.write(sp);
-        $serializer.write(queue);
+        $serializer.write((Object)queue);
     }
     public static X10JavaSerializable $_deserialize_body(Deque $_obj, X10JavaDeserializer $deserializer) throws java.io.IOException {
         // TODO need check
         $_obj.base = $deserializer.readInt();
         $_obj.sp = $deserializer.readInt();
-        $_obj.queue = (java.lang.Object[]) $deserializer.readArrayUsingReflection(java.lang.Object.class);
+        $_obj.queue = (java.lang.Object[]) $deserializer.readObject();
         return $_obj;
     }
     public static X10JavaSerializable $_deserializer(X10JavaDeserializer $deserializer) throws java.io.IOException {

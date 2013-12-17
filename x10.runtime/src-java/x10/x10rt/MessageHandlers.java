@@ -68,7 +68,7 @@ public class MessageHandlers {
     		if (x10.runtime.impl.java.Runtime.TRACE_SER_DETAIL) {
     			System.out.println("Starting deserialization ");
     		}
-    		x10.core.fun.VoidFun_0_0 actObj = (x10.core.fun.VoidFun_0_0) deserializer.readRef();
+    		x10.core.fun.VoidFun_0_0 actObj = (x10.core.fun.VoidFun_0_0) deserializer.readObject();
     		if (Runtime.PROF_SER) {
     			long stop = System.nanoTime();
     			long duration = stop-start;
@@ -121,9 +121,9 @@ public class MessageHandlers {
     		if (x10.runtime.impl.java.Runtime.TRACE_SER_DETAIL) {
     			System.out.println("Starting deserialization ");
     		}
-    		FinishState finishState = (FinishState) deserializer.readRef();
-            Place src = (Place) deserializer.readRef();
-    		actObj = (x10.core.fun.VoidFun_0_0) deserializer.readRef();
+    		FinishState finishState = (FinishState) deserializer.readObject();
+            Place src = (Place) deserializer.readObject();
+    		actObj = (x10.core.fun.VoidFun_0_0) deserializer.readObject();
     		if (Runtime.PROF_SER) {
     			long stop = System.nanoTime();
     			long duration = stop-start;

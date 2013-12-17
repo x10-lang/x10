@@ -768,16 +768,16 @@ public class SocketTransport {
     private static void runClosureAtReceive(ByteBuffer input) throws IOException {
     	//X10JavaDeserializer deserializer = new X10JavaDeserializer(new DataInputStream(Channels.newInputStream(input)));
     	X10JavaDeserializer deserializer = new X10JavaDeserializer(new DataInputStream(new ByteArrayInputStream(input.array())));
-    	x10.core.fun.VoidFun_0_0 actObj = (x10.core.fun.VoidFun_0_0) deserializer.readRef();
+    	x10.core.fun.VoidFun_0_0 actObj = (x10.core.fun.VoidFun_0_0) deserializer.readObject();
     	actObj.$apply();
     }
     
     private static void runSimpleAsyncAtReceive(ByteBuffer input) throws IOException {
     	//X10JavaDeserializer deserializer = new X10JavaDeserializer(new DataInputStream(Channels.newInputStream(input)));
     	X10JavaDeserializer deserializer = new X10JavaDeserializer(new DataInputStream(new ByteArrayInputStream(input.array())));
-    	FinishState finishState = (FinishState) deserializer.readRef();
-    	Place src = (Place) deserializer.readRef();
-    	x10.core.fun.VoidFun_0_0 actObj = (x10.core.fun.VoidFun_0_0) deserializer.readRef();
+    	FinishState finishState = (FinishState) deserializer.readObject();
+    	Place src = (Place) deserializer.readObject();
+    	x10.core.fun.VoidFun_0_0 actObj = (x10.core.fun.VoidFun_0_0) deserializer.readObject();
     	x10.lang.Runtime.execute(actObj, src, finishState);
     }
 }
