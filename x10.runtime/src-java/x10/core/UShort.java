@@ -24,13 +24,12 @@ import x10.serialization.X10JavaSerializer;
  * Represents a boxed UShort value. Boxed representation is used when casting
  * a UShort value into type Any or parameter type T.
  */
+@SuppressWarnings("serial")
 final public class UShort extends java.lang.Number implements StructI, java.lang.Comparable<UShort>,
 // for X10PrettyPrinterVisitor.exposeSpecialDispatcherThroughSpecialInterface
 //    x10.lang.Arithmetic<UShort>, x10.lang.Bitwise<UShort>, x10.util.Ordered<UShort>
     x10.core.Arithmetic.x10$lang$UShort, x10.core.Bitwise.x10$lang$UShort, x10.util.Ordered<UShort>
 {
-    private static final long serialVersionUID = 1L;
-
     public static final RuntimeType<?> $RTT = Types.USHORT;
     public RuntimeType<?> $getRTT() {return $RTT;}
     public Type<?> $getParam(int i) {return null;}

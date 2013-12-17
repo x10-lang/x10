@@ -24,7 +24,6 @@ import x10.rtt.RuntimeType;
 import x10.rtt.Type;
 import x10.rtt.Types;
 import x10.rtt.UnresolvedType;
-import x10.serialization.SerializationConstants;
 import x10.serialization.X10JavaDeserializer;
 import x10.serialization.X10JavaSerializable;
 import x10.serialization.X10JavaSerializer;
@@ -38,8 +37,6 @@ public final class Rail<T> extends x10.core.Ref implements x10.lang.Iterable,
     public static final class __0$1x10$lang$Rail$$T$2 { }
     public static final class __1$1x10$lang$Long$3x10$lang$Rail$$T$2 { }
     public static final class __1x10$lang$Rail$$T { }
-
-    private static final long serialVersionUID = 1L;
 
     @SuppressWarnings("unchecked")
     public static final RuntimeType<Rail> $RTT = 
@@ -384,7 +381,6 @@ public final class Rail<T> extends x10.core.Ref implements x10.lang.Iterable,
 
     // static nested class version of copyBody
     public static class $Closure$0<T> extends x10.core.Ref implements VoidFun_0_0 {
-        private static final long serialVersionUID = 1L;
         public Object srcData;
         public GlobalRail<T> dst;
         public int dstIndex;
@@ -473,7 +469,6 @@ public final class Rail<T> extends x10.core.Ref implements x10.lang.Iterable,
 
     // static nested class version of copyBody1
     public static class $Closure$1<T> extends x10.core.Ref implements VoidFun_0_0 {
-        private static final long serialVersionUID = 1L;
         public GlobalRail<T> src;
         public int srcIndex;
         public GlobalRail<T> dstWrapper;

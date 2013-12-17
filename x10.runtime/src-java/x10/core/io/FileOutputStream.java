@@ -20,8 +20,6 @@ import x10.rtt.Type;
  */
 public class FileOutputStream extends OutputStream {
     
-    private static final long serialVersionUID = 1L;
-
     // constructor just for allocation
     public FileOutputStream(java.lang.System[] $dummy) {
         super($dummy);

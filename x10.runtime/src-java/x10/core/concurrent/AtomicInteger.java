@@ -15,16 +15,14 @@ import x10.core.Any;
 import x10.rtt.NamedType;
 import x10.rtt.RuntimeType;
 import x10.rtt.Type;
-import x10.rtt.Types;
 import x10.serialization.X10JavaDeserializer;
 import x10.serialization.X10JavaSerializable;
 import x10.serialization.X10JavaSerializer;
 
 import java.io.IOException;
 
+@SuppressWarnings("serial")
 public final class AtomicInteger extends java.util.concurrent.atomic.AtomicInteger implements Any, X10JavaSerializable {
-
-    private static final long serialVersionUID = 1L;
 
     // constructor just for allocation
     public AtomicInteger(java.lang.System[] $dummy) {

@@ -19,8 +19,6 @@ import x10.rtt.Type;
  * NOTE: In X10, all FileInputStreams are buffered (matches libC)
  */
 public class FileInputStream extends InputStream {
-    
-    private static final long serialVersionUID = 1L;
 
     // constructor just for allocation
     public FileInputStream(java.lang.System[] $dummy) {
