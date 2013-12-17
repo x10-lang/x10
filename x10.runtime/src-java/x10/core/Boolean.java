@@ -27,8 +27,6 @@ import x10.serialization.X10JavaSerializer;
  */
 final public class Boolean extends Struct implements java.lang.Comparable<Boolean>
 {
-    private static final long serialVersionUID = 1L;
-    
     public static final RuntimeType<?> $RTT = Types.BOOLEAN;
     public RuntimeType<?> $getRTT() {return $RTT;}
     public Type<?> $getParam(int i) {return null;}

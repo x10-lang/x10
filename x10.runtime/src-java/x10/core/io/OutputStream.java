@@ -18,8 +18,6 @@ import x10.rtt.Type;
 
 public class OutputStream extends Ref {
   
-    private static final long serialVersionUID = 1L;
-
     public void $_serialize(x10.serialization.X10JavaSerializer $serializer) throws java.io.IOException {
         // TODO need check
         $serializer.write(stream);
@@ -163,7 +161,6 @@ public class OutputStream extends Ref {
     // NOTE: this class is only used in @Native annotation of x10.io.Writer.getNativeOutputStream()
     //
     public static class WriterOutputStream extends OutputStream {
-        private static final long serialVersionUID = 1L;
         private x10.io.Writer w;
 
         public WriterOutputStream(java.lang.System[] $dummy) {

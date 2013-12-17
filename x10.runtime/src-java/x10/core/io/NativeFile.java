@@ -20,9 +20,8 @@ import x10.serialization.X10JavaSerializer;
 
 import java.io.IOException;
 
+@SuppressWarnings("serial")
 public final class NativeFile extends java.io.File implements Any {
-
-	private static final long serialVersionUID = 1L;
 
 	// TODO
 //	public NativeFile(java.lang.System[] $dummy){}

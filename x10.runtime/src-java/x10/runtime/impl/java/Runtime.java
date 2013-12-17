@@ -30,8 +30,6 @@ import x10.x10rt.X10RT;
 
 public abstract class Runtime implements x10.core.fun.VoidFun_0_0 {
 
-    private static final long serialVersionUID = 1L;
-
     public RuntimeType<?> $getRTT() {
         return null;
     }
@@ -107,7 +105,6 @@ public abstract class Runtime implements x10.core.fun.VoidFun_0_0 {
 
     // body of main activity
     static class $Closure$Main implements x10.core.fun.VoidFun_0_0 {
-        private static final long serialVersionUID = 1L;
         private final Runtime out$;
         private final x10.core.Rail<String> aargs;
 

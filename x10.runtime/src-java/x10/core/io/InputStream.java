@@ -18,8 +18,6 @@ import x10.rtt.Type;
 
 public class InputStream extends Ref {
   
-    private static final long serialVersionUID = 1L;
- 
     public void $_serialize(x10.serialization.X10JavaSerializer $serializer) throws java.io.IOException {
         // TODO need check
         $serializer.write(stream);

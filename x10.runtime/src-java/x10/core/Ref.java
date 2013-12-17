@@ -16,8 +16,6 @@ package x10.core;
 // Base class of all X10 ref objects -- should be generated, but we need this class to get Box to compile.
 public abstract class Ref implements Any {
     
-    private static final long serialVersionUID = 1L;
-    
     // N.B. this is called implicitly by all subclasses of Ref
     public Ref() {}
 

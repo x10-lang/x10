@@ -18,8 +18,6 @@ import x10.rtt.Types;
 // Base class for all X10 structs
 public abstract class Struct implements StructI {
 
-    private static final long serialVersionUID = 1L;
-
     // not used
 //    // constructor just for allocation
 //    public Struct(java.lang.System[] $dummy) {}

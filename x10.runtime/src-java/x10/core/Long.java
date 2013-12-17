@@ -25,13 +25,12 @@ import x10.serialization.X10JavaSerializer;
  * an Long value to type Any, parameter type T or superinterfaces such
  * as Comparable<Long>.
  */
+@SuppressWarnings("serial")
 final public class Long extends java.lang.Number implements StructI, java.lang.Comparable<Long>,
 //for X10PrettyPrinterVisitor.exposeSpecialDispatcherThroughSpecialInterface
 //    x10.lang.Arithmetic<Long>, x10.lang.Bitwise<Long>, x10.util.Ordered<Long>
     x10.core.Arithmetic.x10$lang$Long, x10.core.Bitwise.x10$lang$Long, x10.util.Ordered<Long>
 {
-    private static final long serialVersionUID = 1L;
-    
     public static final RuntimeType<?> $RTT = Types.LONG;
     public RuntimeType<?> $getRTT() {return $RTT;}
     public Type<?> $getParam(int i) {return null;}
