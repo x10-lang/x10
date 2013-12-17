@@ -42,7 +42,8 @@ abstract class DeserializationDictionary implements SerializationConstants {
             className = jds.readString();
         } catch (IOException e) {
             String msg = "DeserializationDictionary.loadClass: error in reading class name";
-            if (Runtime.TRACE_SER) Runtime.printTraceMessage(msg);
+            /*if (Runtime.TRACE_SER)*/ Runtime.printTraceMessage(msg);
+            e.printStackTrace();
             throw new RuntimeException(msg, e);
         }
         Class<?> clazz;
@@ -68,10 +69,12 @@ abstract class DeserializationDictionary implements SerializationConstants {
         } catch (RuntimeException e) {
             String msg = "DeserializationDictionary.addEntry: failed to load class "+name;
             /*if (Runtime.TRACE_SER)*/ Runtime.printTraceMessage(msg);
+            e.printStackTrace();
             throw e;
         } catch (ClassNotFoundException e) {
             String msg = "DeserializationDictionary.addEntry: failed to load class "+name;
             /*if (Runtime.TRACE_SER)*/ Runtime.printTraceMessage(msg);
+            e.printStackTrace();
             throw new RuntimeException(msg, e);
         }
         addEntry(Short.valueOf(id), clazz);
@@ -89,6 +92,7 @@ abstract class DeserializationDictionary implements SerializationConstants {
         } catch (IOException e) {
             String msg = "DeserializationDictionary.loadClass: error in reading bundle information. bundleName="+bundleName+", bundleVersion="+bundleVersion;
             /*if (Runtime.TRACE_SER)*/ Runtime.printTraceMessage(msg);
+            e.printStackTrace();
             throw new RuntimeException(msg, e);
         }
 
@@ -146,10 +150,12 @@ abstract class DeserializationDictionary implements SerializationConstants {
         } catch (RuntimeException e) {
             String msg = "DeserializationDictionary.addEntry: failed to load class "+name;
             /*if (Runtime.TRACE_SER)*/ Runtime.printTraceMessage(msg);
+            e.printStackTrace();
             throw e;
         } catch (ClassNotFoundException e) {
             String msg = "DeserializationDictionary.addEntry: failed to load class "+name;
             /*if (Runtime.TRACE_SER)*/ Runtime.printTraceMessage(msg);
+            e.printStackTrace();
             throw new RuntimeException(msg, e);
         }
         addEntry(Short.valueOf(id), clazz);
@@ -162,8 +168,10 @@ abstract class DeserializationDictionary implements SerializationConstants {
             try {
                 m = clazz.getDeclaredMethod("$_deserializer", X10JavaDeserializer.class);
             } catch (NoSuchMethodException e) {
-                throw new RuntimeException("DeserializationDictionary: class "+clazz+
-                                           " directly implements X10JavaSerializable but does not have a $_deserializer method", e);
+                String msg = "DeserializationDictionary: class "+clazz+" directly implements X10JavaSerializable but does not have a $_deserializer method";
+                /*if (Runtime.TRACE_SER)*/ Runtime.printTraceMessage(msg);
+                e.printStackTrace();
+                throw new RuntimeException(msg, e);
             }
             m.setAccessible(true);
             idsToMethod.put(id, m);
