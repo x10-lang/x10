@@ -85,6 +85,7 @@ public final class X10JavaDeserializer implements SerializationConstants {
         try {
             return readRef();
         } catch (IOException e) {
+            e.printStackTrace();
             throw new RuntimeException(e);
         }
     }
@@ -192,24 +193,33 @@ public final class X10JavaDeserializer implements SerializationConstants {
             }
         } catch (InvocationTargetException e) {
             // This should never happen
-            throw new RuntimeException("Error in deserializing non-null value with id " + serializationID, e);
+            String msg = "Error in deserializing non-null value with id " + serializationID;
+            System.err.println(msg);
+            e.printStackTrace();
+            throw new RuntimeException(msg, e);
         } catch (SecurityException e) {
             // This should never happen
+            e.printStackTrace();
             throw new RuntimeException(e);
         } catch (IllegalAccessException e) {
             // This should never happen
+            e.printStackTrace();
             throw new RuntimeException(e);
         } catch (NoSuchFieldException e) {
             // This should never happen
+            e.printStackTrace();
             throw new RuntimeException(e);
         } catch (NoSuchMethodException e) {
             // This should never happen
+            e.printStackTrace();
             throw new RuntimeException(e);
         } catch (IllegalArgumentException e) {
             // This should never happen
+            e.printStackTrace();
             throw new RuntimeException(e);
         } catch (InstantiationException e) {
             // This should never happen
+            e.printStackTrace();
             throw new RuntimeException(e);
         }
     }
@@ -476,18 +486,25 @@ public final class X10JavaDeserializer implements SerializationConstants {
             DeserializerThunk thunk = DeserializerThunk.getDeserializerThunk(clazz);
             return thunk.deserializeObject(clazz, this);
         } catch (SecurityException e) {
+            e.printStackTrace();
             throw new RuntimeException(e);
         } catch (NoSuchFieldException e) {
+            e.printStackTrace();
             throw new RuntimeException(e);
         } catch (NoSuchMethodException e) {
+            e.printStackTrace();
             throw new RuntimeException(e);
         } catch (IllegalArgumentException e) {
+            e.printStackTrace();
             throw new RuntimeException(e);
         } catch (IllegalAccessException e) {
+            e.printStackTrace();
             throw new RuntimeException(e);
         } catch (InvocationTargetException e) {
+            e.printStackTrace();
             throw new RuntimeException(e);
         } catch (InstantiationException e) {
+            e.printStackTrace();
             throw new RuntimeException(e);
         }
     }
@@ -498,18 +515,25 @@ public final class X10JavaDeserializer implements SerializationConstants {
             DeserializerThunk thunk = DeserializerThunk.getDeserializerThunk(clazz);
             return thunk.deserializeObject(clazz, obj, i, this);
         } catch (SecurityException e) {
+            e.printStackTrace();
             throw new RuntimeException(e);
         } catch (NoSuchFieldException e) {
+            e.printStackTrace();
             throw new RuntimeException(e);
         } catch (NoSuchMethodException e) {
+            e.printStackTrace();
             throw new RuntimeException(e);
         } catch (IllegalArgumentException e) {
+            e.printStackTrace();
             throw new RuntimeException(e);
         } catch (IllegalAccessException e) {
+            e.printStackTrace();
             throw new RuntimeException(e);
         } catch (InvocationTargetException e) {
+            e.printStackTrace();
             throw new RuntimeException(e);
         } catch (InstantiationException e) {
+            e.printStackTrace();
             throw new RuntimeException(e);
         }
     }
@@ -595,6 +619,7 @@ public final class X10JavaDeserializer implements SerializationConstants {
         try {
             return ois.readObject();
         } catch (ClassNotFoundException e) {
+            e.printStackTrace();
             throw new RuntimeException(e);
         }
     }
@@ -684,7 +709,9 @@ public final class X10JavaDeserializer implements SerializationConstants {
                 obj = Types.USHORT;
                 break;
             default:
-                throw new RuntimeException("Unhandled hard-wired serialization id in readPrimitive!");    
+                String msg = "Unhandled hard-wired serialization id in readPrimitive!";
+                System.err.println(msg);
+                throw new RuntimeException(msg);    
         }
         return obj;
     }
