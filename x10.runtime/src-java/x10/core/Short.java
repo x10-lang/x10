@@ -25,13 +25,12 @@ import x10.serialization.X10JavaSerializer;
  * an Short value to type Any, parameter type T or superinterfaces such
  * as Comparable<Short>.
  */
+@SuppressWarnings("serial")
 final public class Short extends java.lang.Number implements StructI, java.lang.Comparable<Short>,
 // for X10PrettyPrinterVisitor.exposeSpecialDispatcherThroughSpecialInterface
 //    x10.lang.Arithmetic<Short>, x10.lang.Bitwise<Short>, x10.util.Ordered<Short>
     x10.core.Arithmetic.x10$lang$Short, x10.core.Bitwise.x10$lang$Short, x10.util.Ordered<Short>
 {
-    private static final long serialVersionUID = 1L;
-    
     public static final RuntimeType<?> $RTT = Types.SHORT;
     public RuntimeType<?> $getRTT() {return $RTT;}
     public Type<?> $getParam(int i) {return null;}

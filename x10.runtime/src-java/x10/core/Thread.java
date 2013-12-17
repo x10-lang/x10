@@ -24,7 +24,6 @@ import x10.x10rt.X10RT;
 /**
  */
 public class Thread implements Any, Unserializable {
-    private static final long serialVersionUID = 1L;
     public static final RuntimeType<Thread> $RTT = NamedType.<Thread> make("x10.lang.Thread", Thread.class);
     public RuntimeType<?> $getRTT() { return $RTT; }
     public Type<?> $getParam(int i) { return null; }

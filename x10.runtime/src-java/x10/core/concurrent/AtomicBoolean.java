@@ -21,9 +21,8 @@ import x10.serialization.X10JavaDeserializer;
 import x10.serialization.X10JavaSerializable;
 import x10.serialization.X10JavaSerializer;
 
+@SuppressWarnings("serial")
 public final class AtomicBoolean extends java.util.concurrent.atomic.AtomicBoolean implements Any, X10JavaSerializable {
-
-    private static final long serialVersionUID = 1L;
 
     // constructor just for allocation
     public AtomicBoolean(java.lang.System[] $dummy) {
