@@ -13,6 +13,7 @@ package x10.core;
 
 import java.io.IOException;
 
+import x10.core.fun.VoidFun_0_0;
 import x10.io.Unserializable;
 import x10.lang.Place;
 import x10.rtt.NamedType;
@@ -42,7 +43,7 @@ public class Thread implements Any, Unserializable {
 
     private Place home;    // the current place
 
-    public x10.core.fun.VoidFun_0_0 body;
+    public VoidFun_0_0 body;
 
     // constructor just for allocation
     public Thread(java.lang.System[] $dummy) {}

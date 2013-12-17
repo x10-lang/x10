@@ -14,15 +14,16 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicLong;
 
+import x10.rtt.NamedType;
 import x10.rtt.RuntimeType;
 import x10.rtt.Type;
 import x10.serialization.X10JavaDeserializer;
 import x10.serialization.X10JavaSerializable;
 import x10.serialization.X10JavaSerializer;
 
-public class LocalVar<T> extends x10.core.Ref {
+public class LocalVar<T> extends Ref {
     
-    public static final RuntimeType<LocalVar<?>> $RTT = x10.rtt.NamedType.<LocalVar<?>> make("x10.compiler.LocalVar", LocalVar.class, 1);
+    public static final RuntimeType<LocalVar<?>> $RTT = NamedType.<LocalVar<?>> make("x10.compiler.LocalVar", LocalVar.class, 1);
     public RuntimeType<?> $getRTT() { return $RTT; }
     public Type<?> $getParam(int i) { if (i == 0) return T; return null; }
 

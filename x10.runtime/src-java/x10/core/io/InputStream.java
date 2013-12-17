@@ -11,6 +11,7 @@
 
 package x10.core.io;
 
+import x10.core.Rail;
 import x10.core.Ref;
 import x10.rtt.NamedType;
 import x10.rtt.RuntimeType;
@@ -90,7 +91,7 @@ public class InputStream extends Ref {
 
     // XTENLANG-2680
     // LONG_RAIL: unsafe int cast
-    public void read__0$1x10$lang$Byte$2(x10.core.Rail r, long off, long len) {
+    public void read__0$1x10$lang$Byte$2(Rail r, long off, long len) {
         try {
             stream.read(r.getByteArray(), (int)off, (int)len);
         } catch (java.io.IOException e) {
