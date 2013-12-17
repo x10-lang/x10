@@ -135,6 +135,7 @@ public final class X10JavaSerializer implements SerializationConstants {
             }
             out.writeShort(RESET_OBJECT_GRAPH_BOUNDARY_ID);
         } catch (IOException e) {
+            e.printStackTrace();
             throw new RuntimeException(e);
         }
         objectMap.clear();
@@ -488,6 +489,7 @@ public final class X10JavaSerializer implements SerializationConstants {
         try {
             write(v);
         } catch (IOException e) {
+            e.printStackTrace();
             throw new RuntimeException(e);
         }
     }

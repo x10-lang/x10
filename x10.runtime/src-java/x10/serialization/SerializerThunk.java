@@ -162,8 +162,10 @@ abstract class SerializerThunk {
             try {
                 serializeMethod = clazz.getMethod("$_serialize", X10JavaSerializer.class);
             } catch (NoSuchMethodException e) {
-                System.err.println("SerializerThunk: class "+clazz+" does not have a $_serialize method");
-                throw new RuntimeException(e);
+                String msg = "SerializerThunk: class "+clazz+" does not have a $_serialize method";
+                System.err.println(msg);
+                e.printStackTrace();
+                throw new RuntimeException(msg, e);
             }
             serializeMethod.setAccessible(true);
         }

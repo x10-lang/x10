@@ -89,6 +89,7 @@ abstract class DeserializerThunk {
                 assert !Modifier.isAbstract(clazz.getModifiers());                    
                 obj = (T)unsafe.allocateInstance(clazz);
             } catch (InstantiationException e) {
+                e.printStackTrace();
                 throw new RuntimeException(e);
             }
         }
@@ -447,12 +448,15 @@ abstract class DeserializerThunk {
                     jds.update_reference(i, t);
                     return t;
                 } catch (ClassNotFoundException e) {
+                    e.printStackTrace();
                     throw new RuntimeException(e);
                 }
             } else if ("java.lang.Object".equals(clazz.getName())) {
                 return obj;
             }
-            throw new RuntimeException("Unhandled type in special case thunk: "+obj.getClass());
+            String msg = "Unhandled type in special case thunk: "+obj.getClass();
+            System.err.println(msg);
+            throw new RuntimeException(msg);
         }
     }
 }
