@@ -246,13 +246,28 @@ abstract class DeserializerThunk {
             for (Field field : fields) {
                 Class<?> type = field.getType();
                 if (type.isPrimitive()) {
-                    jds.readPrimitiveUsingReflection(field, obj);
-                } else if (type.isArray()) {
-                    field.set(obj, jds.readArrayUsingReflection(type.getComponentType()));
+                    Class<?> type1 = field.getType();
+                    if ("int".equals(type1.getName())) {
+                        field.setInt(obj, jds.readInt());
+                    } else if ("double".equals(type1.getName())) {
+                        field.setDouble(obj, jds.readDouble());
+                    } else if ("float".equals(type1.getName())) {
+                        field.setFloat(obj, jds.readFloat());
+                    } else if ("boolean".equals(type1.getName())) {
+                        field.setBoolean(obj, jds.readBoolean());
+                    } else if ("byte".equals(type1.getName())) {
+                        field.setByte(obj, jds.readByte());
+                    } else if ("short".equals(type1.getName())) {
+                        field.setShort(obj, jds.readShort());
+                    } else if ("long".equals(type1.getName())) {
+                        field.setLong(obj, jds.readLong());
+                    } else if ("char".equals(type1.getName())) {
+                        field.setChar(obj, jds.readChar());
+                    }
                 } else if ("java.lang.String".equals(type.getName())) {
-                    field.set(obj, jds.readStringUsingReflection());
+                    field.set(obj, jds.readString());
                 } else {
-                    Object value = jds.readRefUsingReflection();
+                    Object value = jds.readObject();
                     field.set(obj, value);
                 }
             }
@@ -331,7 +346,7 @@ abstract class DeserializerThunk {
         @Override
         protected <T> T deserializeBody(Class<?> clazz, T obj, int i, X10JavaDeserializer jds) throws IOException, IllegalArgumentException, IllegalAccessException, InvocationTargetException {
             for (Field field : fields) {
-                Object value = jds.readRefUsingReflection();
+                Object value = jds.readObject();
                 field.set(obj, value);
             }
 
@@ -401,7 +416,7 @@ abstract class DeserializerThunk {
             } else if ("java.lang.Throwable".equals(clazz.getName())) {
                 if (X10JavaSerializer.THROWABLES_SERIALIZE_MESSAGE) {
                     try {
-                        String message = (String)jds.readRef();
+                        String message = (String)jds.readObject();
                         Field detailMessageField = java.lang.Throwable.class.getDeclaredField("detailMessage");
                         detailMessageField.setAccessible(true);
                         detailMessageField.set(obj, message);
@@ -410,7 +425,7 @@ abstract class DeserializerThunk {
                     }
                 }
                 if (X10JavaSerializer.THROWABLES_SERIALIZE_STACKTRACE) {
-                    java.lang.StackTraceElement[] trace = (java.lang.StackTraceElement[]) jds.readArrayUsingReflection(java.lang.StackTraceElement.class);
+                    java.lang.StackTraceElement[] trace = (java.lang.StackTraceElement[]) jds.readObject();
                 	// XTENLANG-3258: enable writable stack trace before calling setStackTrace
                     boolean nonNonIBMJavaVM = false;
                     try {
@@ -433,7 +448,7 @@ abstract class DeserializerThunk {
                 }
                 if (X10JavaSerializer.THROWABLES_SERIALIZE_CAUSE) {
                     try {
-                        java.lang.Throwable cause = (java.lang.Throwable) jds.readRef();
+                        java.lang.Throwable cause = (java.lang.Throwable) jds.readObject();
                         Field causeField = java.lang.Throwable.class.getDeclaredField("cause");
                         causeField.setAccessible(true);
                         causeField.set(obj, cause);

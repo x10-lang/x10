@@ -160,7 +160,7 @@ public final class PlaceLocalHandle<T> implements X10JavaSerializable {
 
     public static X10JavaSerializable $_deserialize_body(PlaceLocalHandle $_obj, X10JavaDeserializer $deserializer) throws IOException {
 //        $_obj.id = (java.lang.Long) $deserializer.readLong();
-        $_obj.gref = $deserializer.readRef();
+        $_obj.gref = $deserializer.readObject();
         return $_obj;
     }
 

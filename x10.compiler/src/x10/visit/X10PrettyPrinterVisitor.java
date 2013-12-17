@@ -743,7 +743,7 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
                     final Type at = i.next();
                     w.write("$_obj.");
                     er.printType(at, PRINT_TYPE_PARAMS | BOX_PRIMITIVES);
-                    w.writeln(" = (" + X10_RTT_TYPE + ") $deserializer.readRef();");
+                    w.writeln(" = (" + X10_RTT_TYPE + ") $deserializer.readObject();");
                 }
 
                 // Deserialize the public variables of this class , we do not serialize transient or static variables
@@ -770,46 +770,32 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
                             er.printType(f.type(), BOX_PRIMITIVES);
                             w.write(") ");
                         }
-                        w.writeln("$deserializer.readRef();");
+                        w.writeln("$deserializer.readObject();");
                     } else if ((str = needsCasting(f.type())) != null) {
-                        // Want these to be readInteger and so on.....  These do not need a explicit case cause we are calling special methods
+                        // Want these to be readInteger and so on.....  These do not need a explicit cast cause we are calling special methods
                         w.writeln("$_obj." + Emitter.mangleToJava(f.name()) + " = $deserializer.read" + str + "();");
-                    } else if (xts.isPrimitiveJavaArray(f.type())) {
-                        String type = f.type().toClass().typeArguments().get(0).toString();
-                        String primitiveType = type.substring(type.lastIndexOf(".") + 1);
-                        w.write("$_obj." + Emitter.mangleToJava(f.name()) + " = ");
-                        w.writeln("$deserializer.read" + primitiveType + "Array();");
                     } else if (xts.isJavaArray(f.type())) {
                         w.write("$_obj." + Emitter.mangleToJava(f.name()) + " = ");
                         w.write("(");
                         er.printType(f.type(), BOX_PRIMITIVES);
                         w.write(") ");
-                        w.write("$deserializer.readArrayUsingReflection(");
-                        er.printType(f.type().toClass().typeArguments().get(0), BOX_PRIMITIVES);
-                        w.writeln(".class);");
+                        w.write("$deserializer.readObject();");
                     } else if (f.type().isArray() && f.type() instanceof JavaArrayType_c && ((JavaArrayType_c)f.type()).base().isParameterType()) {
                         // This is to get the test case XTENLANG_2299 to compile. Hope its a generic fix
                         w.write("$_obj." + Emitter.mangleToJava(f.name()) + " = ");
-                        // not needed because readRef takes type parameters
+                        // not needed because readObject takes type parameters
                         //                            w.write("(");
                         //                            er.printType(f.type(), BOX_PRIMITIVES);
                         //                            w.write(") ");                            
-                        w.writeln("$deserializer.readRef();");
-                    } else if (f.type().toClass() != null && f.type().toClass().isJavaType()) {
-                        // deserialize the variable using reflection and cast it back to the correct type
-                        w.write("$_obj." + Emitter.mangleToJava(f.name()) + " = ");
-                        w.write("(");
-                        er.printType(f.type(), BOX_PRIMITIVES);
-                        w.write(") ");                            
-                        w.writeln("$deserializer.readRefUsingReflection();");
+                        w.writeln("$deserializer.readObject();");
                     } else {
                         // deserialize the variable and cast it back to the correct type
                         w.write("$_obj." + Emitter.mangleToJava(f.name()) + " = ");
-                        // not needed because readRef takes type parameters
+                        // not needed because readObject takes type parameters
                         //                            w.write("(");
                         //                            er.printType(f.type(), BOX_PRIMITIVES);
                         //                            w.write(") ");                            
-                        w.writeln("$deserializer.readRef();");
+                        w.writeln("$deserializer.readObject();");
                     }            
                 }
                                 
@@ -900,7 +886,7 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
                 // Serialize any type parameters
                 for (Iterator<? extends Type> i = parameterTypes.iterator(); i.hasNext(); ) {
                     final Type at = i.next();
-                    w.write("$serializer.write((" + Emitter.X10_JAVA_SERIALIZABLE_CLASS + ") this.");
+                    w.write("$serializer.write(this.");
                     er.printType(at, PRINT_TYPE_PARAMS | BOX_PRIMITIVES);
                     w.writeln(");");
                 }
@@ -914,53 +900,7 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
                     if (f.flags().isTransient()) // don't serialize transient fields
                         continue;
                     String fieldName = Emitter.mangleToJava(f.name());
-                    if (f.type().isArray()) {
-                        if (f.type() instanceof JavaArrayType_c && isPrimitive(((JavaArrayType_c)f.type()).base())) {
-                            // If this is an array and not a java primitive we need to cast it into an array
-                            w.writeln("$serializer.write(this." + fieldName + ");");
-                        } else {
-                            w.write("if (" + fieldName + " instanceof " + Emitter.X10_JAVA_SERIALIZABLE_CLASS + " []) {");
-                            w.newline(4);
-                            w.begin(0);
-                            w.write("$serializer.write((" + Emitter.X10_JAVA_SERIALIZABLE_CLASS + "[]) this." + fieldName + ");");
-                            w.end();
-                            w.newline();
-                            w.write("} else {");
-                            w.newline(4);
-                            w.begin(0);
-                            w.write("$serializer.write(this." + fieldName + ");");
-                            w.end();
-                            w.newline();
-                            w.writeln("}");
-                        }
-                    } else {
-                        if (isPrimitive(f.type()) || isString(f.type()) || xts.isPrimitiveJavaArray(f.type())) {
-                            w.writeln("$serializer.write(this." + fieldName + ");");
-                        } else if (f.type().toClass() != null && f.type().toClass().isJavaType()) {
-                            w.writeln("$serializer.writeObjectUsingReflection(this." + fieldName + ");");
-                        } else if (xts.isJavaArray(f.type())) {
-                            w.writeln("$serializer.writeArrayUsingReflection(this." + fieldName + ");");
-                        } else {
-                            boolean canCastToX10JavaSerializable = canCastToX10JavaSerializable(n, f.type(), context);
-                            if (canCastToX10JavaSerializable) {
-                                w.write("if (" + fieldName + " instanceof " + Emitter.X10_JAVA_SERIALIZABLE_CLASS + ") {");
-                                w.newline(4);
-                                w.begin(0);
-                                w.write("$serializer.write((" + Emitter.X10_JAVA_SERIALIZABLE_CLASS + ") this." + fieldName + ");");
-                                w.end();
-                                w.newline();
-                                w.write("} else {");
-                                w.newline(4);
-                                w.begin(0);
-                                w.write("$serializer.write(this." + fieldName + ");");
-                                w.end();
-                                w.newline();
-                                w.writeln("}");
-                            } else {
-                                w.writeln("$serializer.write(this." + fieldName + ");");
-                            }
-                        }
-                    }
+                    w.writeln("$serializer.write(this." + fieldName + ");");
                 }
                 w.end();
                 w.newline();

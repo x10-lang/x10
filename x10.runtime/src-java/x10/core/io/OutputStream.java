@@ -25,7 +25,7 @@ public class OutputStream extends Ref {
     }
     public static x10.serialization.X10JavaSerializable $_deserialize_body(OutputStream $_obj, x10.serialization.X10JavaDeserializer $deserializer) throws java.io.IOException {
         // TODO need check
-        $_obj.stream = (java.io.OutputStream) $deserializer.readRef();
+        $_obj.stream = (java.io.OutputStream) $deserializer.readObject();
         return $_obj;
     }
     public static x10.serialization.X10JavaSerializable $_deserializer(x10.serialization.X10JavaDeserializer $deserializer) throws java.io.IOException {
