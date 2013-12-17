@@ -551,8 +551,8 @@ public final class GlobalRef<T> extends Struct implements X10JavaSerializable {
     }
 
     public static X10JavaSerializable $_deserialize_body(GlobalRef $_obj, X10JavaDeserializer $deserializer) throws IOException {
-        $_obj.T = $deserializer.readRef();
-        $_obj.home = $deserializer.readRef();
+        $_obj.T = $deserializer.readObject();
+        $_obj.home = $deserializer.readObject();
         long id = $deserializer.readLong();
         $_obj.id = id;
         int weight = $deserializer.readInt(); // weight got from sender
@@ -712,10 +712,10 @@ public final class GlobalRef<T> extends Struct implements X10JavaSerializable {
         }
 
         public static X10JavaSerializable $_deserialize_body($Closure$Eval $_obj, X10JavaDeserializer $deserializer) throws IOException {
-            $_obj.$T = $deserializer.readRef();
-            $_obj.$U = $deserializer.readRef();
-            $_obj.ref = $deserializer.readRef();
-            $_obj.eval = $deserializer.readRef();
+            $_obj.$T = $deserializer.readObject();
+            $_obj.$U = $deserializer.readObject();
+            $_obj.ref = $deserializer.readObject();
+            $_obj.eval = $deserializer.readObject();
             return $_obj;
         }
 	}
@@ -757,8 +757,8 @@ public final class GlobalRef<T> extends Struct implements X10JavaSerializable {
         }
 
         public static X10JavaSerializable $_deserialize_body($Closure$Apply $_obj, X10JavaDeserializer $deserializer) throws IOException {
-            $_obj.$T = $deserializer.readRef();
-            $_obj.ref = $deserializer.readRef();
+            $_obj.$T = $deserializer.readObject();
+            $_obj.ref = $deserializer.readObject();
             return $_obj;
         }
 	}

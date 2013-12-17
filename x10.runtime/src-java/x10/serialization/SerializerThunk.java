@@ -103,7 +103,7 @@ abstract class SerializerThunk {
         }
         
         if (clazz.isArray()) {
-            return new JavaArraySerializerThunk(clazz);
+            throw new RuntimeException("serializer: Should not be creating a thunk to serialize array "+clazz);
         }
 
         Class<?>[] interfaces = clazz.getInterfaces();
@@ -207,30 +207,31 @@ abstract class SerializerThunk {
             for (Field field : fields) {
                 Class<?> type = field.getType();
                 if (type.isPrimitive()) {
-                    xjs.writePrimitiveUsingReflection(field, obj);
-                } else if (type.isArray()) {
-                    xjs.writeArrayUsingReflection(field.get(obj));
-                } else if ("java.lang.String".equals(type.getName())) {
-                    xjs.writeStringUsingReflection(field, obj);
+                    Class<?> type1 = field.getType();
+                    if ("int".equals(type1.getName())) {
+                        xjs.write(field.getInt(obj));
+                    } else if ("double".equals(type1.getName())) {
+                        xjs.write(field.getDouble(obj));
+                    } else if ("float".equals(type1.getName())) {
+                        xjs.write(field.getFloat(obj));
+                    } else if ("boolean".equals(type1.getName())) {
+                        xjs.write(field.getBoolean(obj));
+                    } else if ("byte".equals(type1.getName())) {
+                        xjs.write(field.getByte(obj));
+                    } else if ("short".equals(type1.getName())) {
+                        xjs.write(field.getShort(obj));
+                    } else if ("long".equals(type1.getName())) {
+                        xjs.write(field.getLong(obj));
+                    } else if ("char".equals(type1.getName())) {
+                        xjs.write(field.getChar(obj));
+                    }
                 } else {
-                    xjs.writeObjectUsingReflection(field.get(obj));
+                    xjs.write(field.get(obj));
                 }
             }
         }
     }
     
-    private static class JavaArraySerializerThunk extends SerializerThunk {
-        public JavaArraySerializerThunk(Class<?> clazz) {
-            super(null); // Arrays superclass is Object; nothing to do.
-        }
-
-        @Override
-        <T> void serializeBody(T obj, Class<? extends Object> clazz, X10JavaSerializer xjs) throws IOException {
-            xjs.writeArrayUsingReflection(obj);
-        }
-    }
-
-
     private static class HadoopSerializerThunk extends SerializerThunk {
         protected final Method writeMethod;
 
@@ -274,7 +275,7 @@ abstract class SerializerThunk {
 
         <T> void serializeBody(T obj, Class<? extends Object> clazz, X10JavaSerializer xjs) throws IllegalArgumentException, IOException, IllegalAccessException {
             for (Field field: fields) {
-                xjs.writeObjectUsingReflection(field.get(obj));
+                xjs.write(field.get(obj));
             }
             CustomSerialization cs = (CustomSerialization)obj;
             cs.serialize(new x10.io.Serializer(xjs));
@@ -326,7 +327,7 @@ abstract class SerializerThunk {
                     xjs.write(t.getMessage());
                 }
                 if (X10JavaSerializer.THROWABLES_SERIALIZE_STACKTRACE) {
-                    xjs.writeArrayUsingReflection(t.getStackTrace());
+                    xjs.write((Object)t.getStackTrace());
                 }
                 if (X10JavaSerializer.THROWABLES_SERIALIZE_CAUSE) {
                     xjs.write(t.getCause());

@@ -204,7 +204,7 @@ public final class Rail<T> extends Ref implements x10.lang.Iterable,
     
     public static <T> X10JavaSerializable $_deserialize_body(Rail<T> obj, 
                                                              X10JavaDeserializer deserializer) throws java.io.IOException {
-        obj.T = deserializer.readRef();
+        obj.T = deserializer.readObject();
         obj.size = deserializer.readLong();
 
         // If the T is a java primitive type, we use default java serialization here
@@ -220,7 +220,7 @@ public final class Rail<T> extends Ref implements x10.lang.Iterable,
         } else {
             Object[] values = (Object[]) obj.T.makeArray(allocCheckSize(obj.size));
             for (int i = 0; i < (int)obj.size; i++) {
-                values[i] = deserializer.readRef();
+                values[i] = deserializer.readObject();
             }
             obj.value = values;
         }
@@ -428,9 +428,9 @@ public final class Rail<T> extends Ref implements x10.lang.Iterable,
         public static X10JavaSerializable $_deserialize_body($Closure$0 $_obj, X10JavaDeserializer $deserializer) throws IOException {
             $_obj.numElems = $deserializer.readInt();
             if ($_obj.numElems > 0) {
-                $_obj.srcData = $deserializer.readRef();
+                $_obj.srcData = $deserializer.readObject();
             }
-            $_obj.dst = $deserializer.readRef();
+            $_obj.dst = $deserializer.readObject();
             $_obj.dstIndex = $deserializer.readInt();
             return $_obj;
         }
@@ -532,9 +532,9 @@ public final class Rail<T> extends Ref implements x10.lang.Iterable,
         }
 
         public static X10JavaSerializable $_deserialize_body($Closure$1 $_obj, X10JavaDeserializer $deserializer) throws IOException {
-            $_obj.src = $deserializer.readRef();
+            $_obj.src = $deserializer.readObject();
             $_obj.srcIndex = $deserializer.readInt();
-            $_obj.dstWrapper = $deserializer.readRef();
+            $_obj.dstWrapper = $deserializer.readObject();
             $_obj.dstIndex = $deserializer.readInt();
             $_obj.numElems = $deserializer.readInt();
             return $_obj;

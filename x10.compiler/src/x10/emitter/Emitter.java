@@ -3871,7 +3871,7 @@ public class Emitter {
             for (ParameterType typeParam : def.typeParameters()) {
                 w.write(X10PrettyPrinterVisitor.X10_RTT_TYPE + " ");
                 printType(typeParam, PRINT_TYPE_PARAMS | BOX_PRIMITIVES);
-                w.writeln(" = (" + X10PrettyPrinterVisitor.X10_RTT_TYPE + ") $deserializer.readRef();");
+                w.writeln(" = (" + X10PrettyPrinterVisitor.X10_RTT_TYPE + ") $deserializer.readObject();");
             }
             w.write(mangleToJava(def.name()) + " $_obj = new " + mangleToJava(def.name()) + "(");
             if (X10PrettyPrinterVisitor.supportConstructorSplitting
@@ -3959,7 +3959,7 @@ public class Emitter {
         if (needToSerializeSuperClass(superClassNode)) {
             // If the super class is a pure java class we need to serialize it using reflection
             if (isRawJavaClass(superClassNode.type())) {
-                w.write("$serializer.serializeClassUsingReflection(this, ");
+                w.write("$serializer.serializeFieldsStartingFromClass(this, ");
                 printType(superClassNode.type(), BOX_PRIMITIVES);
                 w.writeln(".class);");
             } else {
@@ -3974,7 +3974,7 @@ public class Emitter {
         if (needToSerializeSuperClass(superClassNode)) {
             // If the super class is a pure java class we need to deserialize it using reflection
             if (isRawJavaClass(superClassNode.type())) {
-                w.write("$deserializer.deserializeClassUsingReflection(");
+                w.write("$deserializer.deserializeFieldsStartingFromClass(");
                 printType(superClassNode.type(), BOX_PRIMITIVES);
                 w.writeln(".class, $_obj, 0);");
             } else {

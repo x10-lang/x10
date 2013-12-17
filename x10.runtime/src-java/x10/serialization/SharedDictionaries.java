@@ -11,6 +11,8 @@
 
 package x10.serialization;
 
+import com.ibm.xtq.xml.types.AnyType;
+
 import x10.runtime.impl.java.Runtime;
 import x10.serialization.DeserializationDictionary.MasterDeserializationDictionary;
 import x10.serialization.SerializationDictionary.MasterSerializationDictionary;
@@ -36,6 +38,31 @@ class SharedDictionaries implements SerializationConstants {
    
     private static synchronized void doInitialization() {
         if (initialized) return;
+        
+        // To simplify lookup in X10JavaSerializer, injecting mappings 
+        // for all special serialization IDs here.
+        serializationDict.addEntry(java.lang.String.class, STRING_ID);
+        serializationDict.addEntry(java.lang.Float.class, FLOAT_ID);
+        serializationDict.addEntry(java.lang.Double.class, DOUBLE_ID);
+        serializationDict.addEntry(java.lang.Integer.class, INTEGER_ID);
+        serializationDict.addEntry(java.lang.Boolean.class, BOOLEAN_ID);
+        serializationDict.addEntry(java.lang.Byte.class, BYTE_ID);
+        serializationDict.addEntry(java.lang.Short.class, SHORT_ID);
+        serializationDict.addEntry(java.lang.Long.class, LONG_ID);
+        serializationDict.addEntry(java.lang.Character.class, CHARACTER_ID);
+        serializationDict.addEntry(x10.rtt.AnyType.class, RTT_ANY_ID);
+        serializationDict.addEntry(x10.rtt.BooleanType.class, RTT_BOOLEAN_ID);
+        serializationDict.addEntry(x10.rtt.ByteType.class, RTT_BYTE_ID);
+        serializationDict.addEntry(x10.rtt.CharType.class, RTT_CHAR_ID);
+        serializationDict.addEntry(x10.rtt.DoubleType.class, RTT_DOUBLE_ID);
+        serializationDict.addEntry(x10.rtt.FloatType.class, RTT_FLOAT_ID);
+        serializationDict.addEntry(x10.rtt.IntType.class, RTT_INT_ID);
+        serializationDict.addEntry(x10.rtt.LongType.class, RTT_LONG_ID);
+        serializationDict.addEntry(x10.rtt.ShortType.class, RTT_SHORT_ID);
+        serializationDict.addEntry(x10.rtt.UByteType.class, RTT_UBYTE_ID);
+        serializationDict.addEntry(x10.rtt.UIntType.class, RTT_UINT_ID);
+        serializationDict.addEntry(x10.rtt.ULongType.class, RTT_ULONG_ID);
+        serializationDict.addEntry(x10.rtt.UShortType.class, RTT_USHORT_ID);
         
         String[] builtInTypes = new String[] {
                 /* Core class library: x10.lang */

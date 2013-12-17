@@ -75,9 +75,9 @@ public final class AtomicReference<T> extends java.util.concurrent.atomic.Atomic
 	}
 
 	public static X10JavaSerializable $_deserialize_body(AtomicReference ar, X10JavaDeserializer deserializer) throws IOException {
-        Type T = (Type) deserializer.readRef();
+        Type T = (Type) deserializer.readObject();
         ar.T = T;
-        Object value = deserializer.readRef();
+        Object value = deserializer.readObject();
         ar.set(value);
         return ar;
 	}
