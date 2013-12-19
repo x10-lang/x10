@@ -3052,6 +3052,8 @@ public class Emitter {
                     w.write(")");
                 }
                 w.write(") {");
+                
+                w.write(" ");
             }
             
             if (!mi.returnType().isVoid()) {
@@ -3118,10 +3120,14 @@ public class Emitter {
             // XTENLANG-2993
             if (!isSpecialTypeForDispatcher) {
             if (mi.returnType().isVoid()) {
+                w.write(" ");
+                
                 w.write("return null;");
             }
             }
             if (mis.size() != 1) {
+                w.write(" ");
+                
                 w.write("}");
             }
             w.newline();
