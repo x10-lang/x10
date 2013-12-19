@@ -152,10 +152,10 @@ final public class Byte extends java.lang.Number implements StructI, java.lang.C
     public byte $caret$B(Object b, Type t) { return (byte) ($value ^ ((Byte)b).$value); }
     
     // implements Ordered<Byte>
-    public Object $lt(Object b, Type t) { return x10.core.Boolean.$box($value < ((Byte)b).$value); }
-    public Object $gt(Object b, Type t) { return x10.core.Boolean.$box($value > ((Byte)b).$value); }
-    public Object $le(Object b, Type t) { return x10.core.Boolean.$box($value <= ((Byte)b).$value); }
-    public Object $ge(Object b, Type t) { return x10.core.Boolean.$box($value >= ((Byte)b).$value); }
+    public Object $lt(Object b, Type t) { return Boolean.$box($value < ((Byte)b).$value); }
+    public Object $gt(Object b, Type t) { return Boolean.$box($value > ((Byte)b).$value); }
+    public Object $le(Object b, Type t) { return Boolean.$box($value <= ((Byte)b).$value); }
+    public Object $ge(Object b, Type t) { return Boolean.$box($value >= ((Byte)b).$value); }
     // for X10PrettyPrinterVisitor.generateSpecialDispatcher
     public boolean $lt$Z(Object b, Type t) { return $value < ((Byte)b).$value; }
     public boolean $gt$Z(Object b, Type t) { return $value > ((Byte)b).$value; }

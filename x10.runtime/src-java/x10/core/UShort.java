@@ -16,6 +16,7 @@ import java.io.IOException;
 import x10.rtt.RuntimeType;
 import x10.rtt.Type;
 import x10.rtt.Types;
+import x10.runtime.impl.java.UIntUtils;
 import x10.serialization.X10JavaDeserializer;
 import x10.serialization.X10JavaSerializable;
 import x10.serialization.X10JavaSerializer;
@@ -149,15 +150,15 @@ final public class UShort extends java.lang.Number implements StructI, java.lang
     public short $caret$s(Object a, Type t) { return (short) ($value ^ ((UShort)a).$value); }
     
     // implements Ordered<UShort>
-    public Object $lt(Object a, Type t) { return x10.core.Boolean.$box(x10.runtime.impl.java.UIntUtils.lt($value,((UShort)a).$value)); }
-    public Object $gt(Object a, Type t) { return x10.core.Boolean.$box(x10.runtime.impl.java.UIntUtils.gt($value,((UShort)a).$value)); }
-    public Object $le(Object a, Type t) { return x10.core.Boolean.$box(x10.runtime.impl.java.UIntUtils.le($value,((UShort)a).$value)); }
-    public Object $ge(Object a, Type t) { return x10.core.Boolean.$box(x10.runtime.impl.java.UIntUtils.ge($value,((UShort)a).$value)); }
+    public Object $lt(Object a, Type t) { return Boolean.$box(UIntUtils.lt($value,((UShort)a).$value)); }
+    public Object $gt(Object a, Type t) { return Boolean.$box(UIntUtils.gt($value,((UShort)a).$value)); }
+    public Object $le(Object a, Type t) { return Boolean.$box(UIntUtils.le($value,((UShort)a).$value)); }
+    public Object $ge(Object a, Type t) { return Boolean.$box(UIntUtils.ge($value,((UShort)a).$value)); }
     // for X10PrettyPrinterVisitor.generateSpecialDispatcher
-    public boolean $lt$Z(Object a, Type t) { return x10.runtime.impl.java.UIntUtils.lt($value,((UShort)a).$value); }
-    public boolean $gt$Z(Object a, Type t) { return x10.runtime.impl.java.UIntUtils.gt($value,((UShort)a).$value); }
-    public boolean $le$Z(Object a, Type t) { return x10.runtime.impl.java.UIntUtils.le($value,((UShort)a).$value); }
-    public boolean $ge$Z(Object a, Type t) { return x10.runtime.impl.java.UIntUtils.ge($value,((UShort)a).$value); }
+    public boolean $lt$Z(Object a, Type t) { return UIntUtils.lt($value,((UShort)a).$value); }
+    public boolean $gt$Z(Object a, Type t) { return UIntUtils.gt($value,((UShort)a).$value); }
+    public boolean $le$Z(Object a, Type t) { return UIntUtils.le($value,((UShort)a).$value); }
+    public boolean $ge$Z(Object a, Type t) { return UIntUtils.ge($value,((UShort)a).$value); }
 
     public void $_serialize(X10JavaSerializer $serializer) throws IOException {
         $serializer.write($value);

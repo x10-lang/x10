@@ -115,10 +115,10 @@ final public class Float extends java.lang.Number implements StructI, java.lang.
     public float $over$F(Object b, Type t) { return $value / ((Float)b).$value; }
     
     // implements Ordered<Float>
-    public Object $lt(Object b, Type t) { return x10.core.Boolean.$box($value < ((Float)b).$value); }
-    public Object $gt(Object b, Type t) { return x10.core.Boolean.$box($value > ((Float)b).$value); }
-    public Object $le(Object b, Type t) { return x10.core.Boolean.$box($value <= ((Float)b).$value); }
-    public Object $ge(Object b, Type t) { return x10.core.Boolean.$box($value >= ((Float)b).$value); }
+    public Object $lt(Object b, Type t) { return Boolean.$box($value < ((Float)b).$value); }
+    public Object $gt(Object b, Type t) { return Boolean.$box($value > ((Float)b).$value); }
+    public Object $le(Object b, Type t) { return Boolean.$box($value <= ((Float)b).$value); }
+    public Object $ge(Object b, Type t) { return Boolean.$box($value >= ((Float)b).$value); }
     // for X10PrettyPrinterVisitor.generateSpecialDispatcher
     public boolean $lt$Z(Object b, Type t) { return $value < ((Float)b).$value; }
     public boolean $gt$Z(Object b, Type t) { return $value > ((Float)b).$value; }
