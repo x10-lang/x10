@@ -128,13 +128,13 @@ public final class Rail<T> extends Ref implements x10.lang.Iterable,
         fillHelper(init);
     }
 
-    public Rail(Type T, long size, Fun_0_1<x10.core.Long, T> init, __1$1x10$lang$Long$3x10$lang$Rail$$T$2 $dummy) {
+    public Rail(Type T, long size, Fun_0_1<Long, T> init, __1$1x10$lang$Long$3x10$lang$Rail$$T$2 $dummy) {
         this.T = T;
         this.size = size;
         this.value = T.makeArray(allocCheckSize(size));
 
         for (int i=0; i<(int)size; i++) {
-            T v =  init.$apply(x10.core.Long.$box(i), Types.LONG);
+            T v =  init.$apply(Long.$box(i), Types.LONG);
             T.setArray(this.value, i, v);
         }
     }
@@ -233,7 +233,7 @@ public final class Rail<T> extends Ref implements x10.lang.Iterable,
    
     // dispatcher for method abstract public (Z1)=>U.operator()(a1:Z1){}:U
     public Object $apply(Object a1, Type t1) {
-        return $apply$G(x10.core.Long.$unbox(a1));
+        return $apply$G(Long.$unbox(a1));
     }
 
     public T $apply$G(long index) {
@@ -250,12 +250,12 @@ public final class Rail<T> extends Ref implements x10.lang.Iterable,
 
     private void fillHelper(T v) {
         if (value instanceof boolean[]) {
-            Arrays.fill(getBooleanArray(), x10.core.Boolean.$unbox(v));
+            Arrays.fill(getBooleanArray(), Boolean.$unbox(v));
         } else if (value instanceof byte[]) {
             // T is either Byte or UByte
             Arrays.fill(getByteArray(), ((java.lang.Number)v).byteValue());
         } else if (value instanceof char[]) {
-            Arrays.fill(getCharArray(), x10.core.Char.$unbox(v));
+            Arrays.fill(getCharArray(), Char.$unbox(v));
         } else if (value instanceof short[]) {
             // T is either Short or UShort
             Arrays.fill(getShortArray(), ((java.lang.Number)v).shortValue());
@@ -263,12 +263,12 @@ public final class Rail<T> extends Ref implements x10.lang.Iterable,
             // T is either Int or UInt
             Arrays.fill(getIntArray(), ((java.lang.Number)v).intValue());
         } else if (value instanceof float[]) {
-            Arrays.fill(getFloatArray(), x10.core.Float.$unbox(v));
+            Arrays.fill(getFloatArray(), Float.$unbox(v));
         } else if (value instanceof long[]) {
             // T is either Long or ULong
             Arrays.fill(getLongArray(), ((java.lang.Number)v).longValue());
         } else if (value instanceof double[]) {
-            Arrays.fill(getDoubleArray(), x10.core.Double.$unbox(v));
+            Arrays.fill(getDoubleArray(), Double.$unbox(v));
         } else {
             Arrays.fill(getObjectArray(), v);
         }

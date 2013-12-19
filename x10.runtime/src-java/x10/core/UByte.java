@@ -16,6 +16,7 @@ import java.io.IOException;
 import x10.rtt.RuntimeType;
 import x10.rtt.Type;
 import x10.rtt.Types;
+import x10.runtime.impl.java.UIntUtils;
 import x10.serialization.X10JavaDeserializer;
 import x10.serialization.X10JavaSerializable;
 import x10.serialization.X10JavaSerializer;
@@ -162,15 +163,15 @@ final public class UByte extends java.lang.Number implements StructI, java.lang.
     public byte $caret$b(Object a, Type t) { return (byte) ($value ^ ((UByte)a).$value); }
     
     // implements Ordered<UByte>
-    public Object $lt(Object a, Type t) { return x10.core.Boolean.$box(x10.runtime.impl.java.UIntUtils.lt($value,((UByte)a).$value)); }
-    public Object $gt(Object a, Type t) { return x10.core.Boolean.$box(x10.runtime.impl.java.UIntUtils.gt($value,((UByte)a).$value)); }
-    public Object $le(Object a, Type t) { return x10.core.Boolean.$box(x10.runtime.impl.java.UIntUtils.le($value,((UByte)a).$value)); }
-    public Object $ge(Object a, Type t) { return x10.core.Boolean.$box(x10.runtime.impl.java.UIntUtils.ge($value,((UByte)a).$value)); }
+    public Object $lt(Object a, Type t) { return Boolean.$box(UIntUtils.lt($value,((UByte)a).$value)); }
+    public Object $gt(Object a, Type t) { return Boolean.$box(UIntUtils.gt($value,((UByte)a).$value)); }
+    public Object $le(Object a, Type t) { return Boolean.$box(UIntUtils.le($value,((UByte)a).$value)); }
+    public Object $ge(Object a, Type t) { return Boolean.$box(UIntUtils.ge($value,((UByte)a).$value)); }
     // for X10PrettyPrinterVisitor.generateSpecialDispatcher
-    public boolean $lt$Z(Object a, Type t) { return x10.runtime.impl.java.UIntUtils.lt($value,((UByte)a).$value); }
-    public boolean $gt$Z(Object a, Type t) { return x10.runtime.impl.java.UIntUtils.gt($value,((UByte)a).$value); }
-    public boolean $le$Z(Object a, Type t) { return x10.runtime.impl.java.UIntUtils.le($value,((UByte)a).$value); }
-    public boolean $ge$Z(Object a, Type t) { return x10.runtime.impl.java.UIntUtils.ge($value,((UByte)a).$value); }
+    public boolean $lt$Z(Object a, Type t) { return UIntUtils.lt($value,((UByte)a).$value); }
+    public boolean $gt$Z(Object a, Type t) { return UIntUtils.gt($value,((UByte)a).$value); }
+    public boolean $le$Z(Object a, Type t) { return UIntUtils.le($value,((UByte)a).$value); }
+    public boolean $ge$Z(Object a, Type t) { return UIntUtils.ge($value,((UByte)a).$value); }
 
     // extends abstract class java.lang.Number
     @Override

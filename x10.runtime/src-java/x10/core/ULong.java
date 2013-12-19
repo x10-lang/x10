@@ -16,6 +16,7 @@ import java.io.IOException;
 import x10.rtt.RuntimeType;
 import x10.rtt.Type;
 import x10.rtt.Types;
+import x10.runtime.impl.java.ULongUtils;
 import x10.serialization.X10JavaDeserializer;
 import x10.serialization.X10JavaSerializable;
 import x10.serialization.X10JavaSerializer;
@@ -120,8 +121,8 @@ final public class ULong extends java.lang.Number implements StructI, java.lang.
     
  	// implements Comparable<ULong>
     public int compareTo(ULong o) {
-        long a = x10.runtime.impl.java.ULongUtils.inject($value);
-        long b = x10.runtime.impl.java.ULongUtils.inject(o.$value);
+        long a = ULongUtils.inject($value);
+        long b = ULongUtils.inject(o.$value);
         if (a > b) return 1;
         else if (a < b) return -1;
         return 0;
@@ -148,12 +149,12 @@ final public class ULong extends java.lang.Number implements StructI, java.lang.
     public ULong $plus(Object a, Type t) { return ULong.$box($value + ((ULong)a).$value); }
     public ULong $minus(Object a, Type t) { return ULong.$box($value - ((ULong)a).$value); }
     public ULong $times(Object a, Type t) { return ULong.$box($value * ((ULong)a).$value); }
-    public ULong $over(Object a, Type t) { return ULong.$box(x10.runtime.impl.java.ULongUtils.div($value,((ULong)a).$value)); }
+    public ULong $over(Object a, Type t) { return ULong.$box(ULongUtils.div($value,((ULong)a).$value)); }
     // for X10PrettyPrinterVisitor.exposeSpecialDispatcherThroughSpecialInterface
     public long $plus$j(Object a, Type t) { return $value + ((ULong)a).$value; }
     public long $minus$j(Object a, Type t) { return $value - ((ULong)a).$value; }
     public long $times$j(Object a, Type t) { return $value * ((ULong)a).$value; }
-    public long $over$j(Object a, Type t) { return x10.runtime.impl.java.ULongUtils.div($value,((ULong)a).$value); }
+    public long $over$j(Object a, Type t) { return ULongUtils.div($value,((ULong)a).$value); }
     
     // implements Bitwise<ULong>
     public ULong $tilde$G() { return ULong.$box(~$value); }
@@ -169,15 +170,15 @@ final public class ULong extends java.lang.Number implements StructI, java.lang.
     public long $caret$j(Object a, Type t) { return $value ^ ((ULong)a).$value; }
     
     // implements Ordered<ULong>
-    public Object $lt(Object a, Type t) { return x10.core.Boolean.$box(x10.runtime.impl.java.ULongUtils.lt($value,((ULong)a).$value)); }
-    public Object $gt(Object a, Type t) { return x10.core.Boolean.$box(x10.runtime.impl.java.ULongUtils.gt($value,((ULong)a).$value)); }
-    public Object $le(Object a, Type t) { return x10.core.Boolean.$box(x10.runtime.impl.java.ULongUtils.le($value,((ULong)a).$value)); }
-    public Object $ge(Object a, Type t) { return x10.core.Boolean.$box(x10.runtime.impl.java.ULongUtils.ge($value,((ULong)a).$value)); }
+    public Object $lt(Object a, Type t) { return Boolean.$box(ULongUtils.lt($value,((ULong)a).$value)); }
+    public Object $gt(Object a, Type t) { return Boolean.$box(ULongUtils.gt($value,((ULong)a).$value)); }
+    public Object $le(Object a, Type t) { return Boolean.$box(ULongUtils.le($value,((ULong)a).$value)); }
+    public Object $ge(Object a, Type t) { return Boolean.$box(ULongUtils.ge($value,((ULong)a).$value)); }
     // for X10PrettyPrinterVisitor.generateSpecialDispatcher
-    public boolean $lt$Z(Object a, Type t) { return x10.runtime.impl.java.ULongUtils.lt($value,((ULong)a).$value); }
-    public boolean $gt$Z(Object a, Type t) { return x10.runtime.impl.java.ULongUtils.gt($value,((ULong)a).$value); }
-    public boolean $le$Z(Object a, Type t) { return x10.runtime.impl.java.ULongUtils.le($value,((ULong)a).$value); }
-    public boolean $ge$Z(Object a, Type t) { return x10.runtime.impl.java.ULongUtils.ge($value,((ULong)a).$value); }
+    public boolean $lt$Z(Object a, Type t) { return ULongUtils.lt($value,((ULong)a).$value); }
+    public boolean $gt$Z(Object a, Type t) { return ULongUtils.gt($value,((ULong)a).$value); }
+    public boolean $le$Z(Object a, Type t) { return ULongUtils.le($value,((ULong)a).$value); }
+    public boolean $ge$Z(Object a, Type t) { return ULongUtils.ge($value,((ULong)a).$value); }
 
     // extends abstract class java.lang.Number
     @Override

@@ -158,10 +158,10 @@ final public class Int extends java.lang.Number implements StructI, java.lang.Co
     public int $caret$I(Object b, Type t) { return $value ^ ((Int)b).$value; }
     
     // implements Ordered<Int>
-    public Object $lt(Object b, Type t) { return x10.core.Boolean.$box($value < ((Int)b).$value); }
-    public Object $gt(Object b, Type t) { return x10.core.Boolean.$box($value > ((Int)b).$value); }
-    public Object $le(Object b, Type t) { return x10.core.Boolean.$box($value <= ((Int)b).$value); }
-    public Object $ge(Object b, Type t) { return x10.core.Boolean.$box($value >= ((Int)b).$value); }
+    public Object $lt(Object b, Type t) { return Boolean.$box($value < ((Int)b).$value); }
+    public Object $gt(Object b, Type t) { return Boolean.$box($value > ((Int)b).$value); }
+    public Object $le(Object b, Type t) { return Boolean.$box($value <= ((Int)b).$value); }
+    public Object $ge(Object b, Type t) { return Boolean.$box($value >= ((Int)b).$value); }
     // for X10PrettyPrinterVisitor.generateSpecialDispatcher
     public boolean $lt$Z(Object b, Type t) { return $value < ((Int)b).$value; }
     public boolean $gt$Z(Object b, Type t) { return $value > ((Int)b).$value; }

@@ -128,10 +128,10 @@ final public class Char extends Struct implements java.lang.Comparable<Char>, x1
     }
     
     // implements Ordered<Char>
-    public Object $lt(Object b, Type t) { return x10.core.Boolean.$box($value < ((Char)b).$value); }
-    public Object $gt(Object b, Type t) { return x10.core.Boolean.$box($value > ((Char)b).$value); }
-    public Object $le(Object b, Type t) { return x10.core.Boolean.$box($value <= ((Char)b).$value); }
-    public Object $ge(Object b, Type t) { return x10.core.Boolean.$box($value >= ((Char)b).$value); }
+    public Object $lt(Object b, Type t) { return Boolean.$box($value < ((Char)b).$value); }
+    public Object $gt(Object b, Type t) { return Boolean.$box($value > ((Char)b).$value); }
+    public Object $le(Object b, Type t) { return Boolean.$box($value <= ((Char)b).$value); }
+    public Object $ge(Object b, Type t) { return Boolean.$box($value >= ((Char)b).$value); }
     // for X10PrettyPrinterVisitor.generateSpecialDispatcher
     public boolean $lt$Z(Object b, Type t) { return $value < ((Char)b).$value; }
     public boolean $gt$Z(Object b, Type t) { return $value > ((Char)b).$value; }

@@ -154,10 +154,10 @@ final public class Short extends java.lang.Number implements StructI, java.lang.
     public short $caret$S(Object b, Type t) { return (short) ($value ^ ((Short)b).$value); }
     
     // implements Ordered<Short>
-    public Object $lt(Object b, Type t) { return x10.core.Boolean.$box($value < ((Short)b).$value); }
-    public Object $gt(Object b, Type t) { return x10.core.Boolean.$box($value > ((Short)b).$value); }
-    public Object $le(Object b, Type t) { return x10.core.Boolean.$box($value <= ((Short)b).$value); }
-    public Object $ge(Object b, Type t) { return x10.core.Boolean.$box($value >= ((Short)b).$value); }
+    public Object $lt(Object b, Type t) { return Boolean.$box($value < ((Short)b).$value); }
+    public Object $gt(Object b, Type t) { return Boolean.$box($value > ((Short)b).$value); }
+    public Object $le(Object b, Type t) { return Boolean.$box($value <= ((Short)b).$value); }
+    public Object $ge(Object b, Type t) { return Boolean.$box($value >= ((Short)b).$value); }
     // for X10PrettyPrinterVisitor.generateSpecialDispatcher
     public boolean $lt$Z(Object b, Type t) { return $value < ((Short)b).$value; }
     public boolean $gt$Z(Object b, Type t) { return $value > ((Short)b).$value; }
