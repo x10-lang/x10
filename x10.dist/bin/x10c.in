@@ -96,6 +96,12 @@ WALA_JARS="${WALA_JARS}${PATH_SEP}${LIB_DIR}${FILE_SEP}x10wala.jar"
 WALA_JARS="${WALA_JARS}${PATH_SEP}${LIB_DIR}${FILE_SEP}org.eclipse.equinox.common_3.6.0.v20100503.jar"
 
 classpath="${CP_OVERRIDE}"
+if [[ "$DEXT" == "x10doc.ExtensionInfo" ]]; then
+   [ -z "$TOOLSJAR" ] && export TOOLSJAR="$JAVA_HOME/lib/tools.jar"
+   if [[ "$UNAME" = CYGWIN* ]]; then TOOLSJAR="$(cygpath -aw "$TOOLSJAR")"; fi
+   classpath="${classpath}${LIB_DIR}${FILE_SEP}x10doc.jar${PATH_SEP}${TOOLSJAR}${PATH_SEP}"
+fi
+
 classpath="${classpath}${LIB_DIR}${FILE_SEP}x10c.jar${PATH_SEP}${LIB_DIR}${FILE_SEP}${LPG_JAR}${PATH_SEP}${WALA_JARS}"
 
 # Set flags to flatten expressions if we've been asked to do so.
