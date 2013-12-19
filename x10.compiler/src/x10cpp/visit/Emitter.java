@@ -1011,6 +1011,7 @@ public class Emitter {
 
         h.write("// Serialization"); h.newline();
         String klass = translateType(type);
+        String klassUnq = translateType(type,false,false);
 
         if (unserializable) {
             h.write("virtual ");
@@ -1035,7 +1036,7 @@ public class Emitter {
                 h.write("public: static const ::x10aux::serialization_id_t "+SERIALIZATION_ID_FIELD+";"); h.newline();
                 h.forceNewline();
                 printTemplateSignature(ct.x10Def().typeParameters(), w);
-                w.write("const ::x10aux::serialization_id_t "+klass+"::"+SERIALIZATION_ID_FIELD+" = ");
+                w.write("const ::x10aux::serialization_id_t "+klassUnq+"::"+SERIALIZATION_ID_FIELD+" = ");
                 w.newline(4);
                 w.write("::x10aux::DeserializationDispatcher::addDeserializer(");
                 w.write(klass+"::"+DESERIALIZER_METHOD+", ::x10aux::CLOSURE_KIND_NOT_ASYNC);");
@@ -1072,7 +1073,7 @@ public class Emitter {
             h.newline(0); h.forceNewline();
 
             printTemplateSignature(ct.x10Def().typeParameters(), w);
-            w.write("void "+klass+"::"+SERIALIZE_BODY_METHOD+
+            w.write("void "+klassUnq+"::"+SERIALIZE_BODY_METHOD+
                     "("+SERIALIZATION_BUFFER+"& buf) {");
             w.newline(4); w.begin(0);
             if (customSerialization) {
@@ -1122,7 +1123,7 @@ public class Emitter {
             h.write("public: ");
             h.write("void "+DESERIALIZE_BODY_METHOD+"("+DESERIALIZATION_BUFFER+"& buf);"); h.newline(0);
             printTemplateSignature(ct.x10Def().typeParameters(), w);
-            w.write("void "+klass+"::"+DESERIALIZE_BODY_METHOD+"("+DESERIALIZATION_BUFFER+"& buf) {");
+            w.write("void "+klassUnq+"::"+DESERIALIZE_BODY_METHOD+"("+DESERIALIZATION_BUFFER+"& buf) {");
             w.newline(4); w.begin(0);
             if (customSerialization) {
                 w.writeln("/* NOTE: Implements x10.io.CustomSerialization */");
