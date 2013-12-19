@@ -1,10 +1,11 @@
 #!/bin/bash
 
-# Dave Grove
+# exit immediately on any error.
+set -e 
 
-hosts="condor.watson.ibm.com triloka1.pok.ibm.com bellatrix.watson.ibm.com nashira.watson.ibm.com p7ih x10aix.watson.ibm.com bgqfen1.watson.ibm.com"
+hosts="serenity.watson.ibm.com triloka1.pok.ibm.com bellatrix.watson.ibm.com p7ih bgqfen1.watson.ibm.com"
 
-x10dt_hosts="condor.watson.ibm.com triloka1.pok.ibm.com bellatrix.watson.ibm.com nashira.watson.ibm.com"
+x10dt_hosts="serenity.watson.ibm.com triloka1.pok.ibm.com bellatrix.watson.ibm.com"
 
 # TODO: we should get svn info by parsing svn info URL and extracting revision from there.
 while [ $# != 0 ]; do

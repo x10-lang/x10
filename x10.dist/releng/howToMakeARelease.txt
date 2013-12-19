@@ -9,54 +9,39 @@ The main artifacts are:
    4. Binary platform-dependent releases that contain both the Java 
       and C++ backend and runtimes for each supported OS/hardware target.
    5. PDF of the X10 language specification
-   6. Binary version of the PGAS runtime for BG/P (hosted on codehaus)
 
-The following is the procedure used to make a release of X10.
-Before creating the release branch (typically the day before)
+The following is the procedure used to make a release of X10 and X10DT.
+
+I. Just before creating the release branch of X10 and X10DT
 
    1. Update the version information in x10.compiler/src/x10/Version.java
 
    2. Update the plugin manifest version in all MANIFEST.MF files in 
-      X10 core projects
+      X10 core projects. Also update product files and common.properties.
+      (do recursive find/grep to find previous verison number and 
+       change it)
 
-   3. Copy the current BG/P PGAS binary found in the svn head sub dir of
-      http://dist.codehaus.org/x10/binaryReleases/ to a new subdirectory
-      named with the release number and change
-      x10.runtime/src-cpp/x10rt/pgas/pgas.mk to pull from the release
-      directory. The easiest way to move the files around is with cadaver (a
-      command line tool with similar interface to sftp).
+II. Create the release branch and enter into final testing phase
 
-      mkdir junk
-      cadaver https://dav.codehaus.org/dist/x10/binaryReleases/svn%20head
-      <login>
-      mget *timestamp*
-      cd ../<release-dir>
-      mput *timestamp*
-
-Create the release branch and enter into final testing phase
-
-   1. "Tag" the release by using x10.dist/releng/makeTag.sh 
+   1. Create a branch by using x10.dist/releng/makeBranch.sh 
       Use a svn revision number that matches one reported by a 
       night-sanity run. i.e.
 
-      makeTag -rev 12500 -tag SF_RELEASE_2_0_1 -code 
+      makeBranch.sh -rev 27050 -branch x10-2.4.1 -x10
 
-   2. Create an RC2V3 instance from image in the Watson A-40
-      data center from the image 10035259 
-      ("X10 Master Regression Image May 14 2013) 
-      to run release-branch regression testing.  
-      Login to the image x10reg, and update scripts in bin to pull from the 
-      release branch created by makeTag. 
-      Enable crontab entry for desired test runs.
+   2. Branch the internal test suite svn as well using svn copy.
 
-   3. If fixes need to be applied to the release after it is created, apply 
-      fixes to head first. After they pass regression testing on head, 
+   3. Clone the appropriate Build and Test jobs in Jenkins 
+      to enable testing on the branch you just created.
+
+   4. If fixes need to be applied to the release after it is created, apply 
+      fixes to trunk first. After they pass regression testing on svn head, 
       pull them over to the release branch using
 
         svn merge -c <change revision> ^/trunk
 
-When all necessary fixes have been propagated to the release branch,
-one can build the actual release artifacts:
+III. When all necessary fixes have been propagated to the release branch,
+     one can tag the release in svn and build the actual release artifacts:
 
    1. Update JIRA version management to indicate that version has been released.
 
@@ -64,33 +49,35 @@ one can build the actual release artifacts:
       mostly generated from JIRA.  Use svn merge to get the release
       notes from the trunk to the release branch.
 
-   3. run masterBuildRelease.sh to build tarballs for most platforms 
+   3. Tag the release by using x10.dist/releng/makeTag.sh 
+      Use a svn revision number that matches one reported by a 
+      testing run. i.e.
+
+      makeTag.sh -rev 28000 -branch x10-2.4.1 -tag SF_RELEASE_2_4_1_2 -x10
+
+   4. run masterBuildRelease.sh to build tarballs for most platforms 
       and push them to orquesta.  You will need to run this script from a
       machine where you have passwordless ssh working to all relevant machines.
 
       masterBuildRelease.sh -version 2.0.1 -tag SF_RELEASE_2_0_1
 
-      To build the BGP release on bgpfen1, you will need to manually checkout
-      and build a release branch and then use packageRelease.sh.  This
-      is due to restricted network connectivity from the front-end machine.
-
-   4. ssh into shell.sf.net and create a subdirectory of 
+   5. ssh into shell.sf.net and create a subdirectory of 
       /home/frs/project/x/x1/x10 to hold the downloads. 
       Use sftp to move all of the release artifacts from orquesta to sf.
       Rename RELEASE_NOTES.txt to README.txt in the sf download area
       Use SF web admin API to set the default downloads for each OS 
       platform to the new files
 
-   5. ssh into shell.sf.net and create a subdirectory of 
+   6. ssh into shell.sf.net and create a subdirectory of 
       /home/frs/project/x/x1/x10dt to hold the downloads. 
       Use sftp to move all of the release artifacts from orquesta to sf.
 
-   6. ssh into shell.sf.net and create a subdirectory of 
+   7. ssh into shell.sf.net and create a subdirectory of 
       /home/project-web/x10/htdocs/x10dt to hold the x10dt update site.
       create an updateSite subdir of the new directory and unzip the
       update site zip from the download section into it.
 
-   7. Make sure language manual has the right version, date, etc. 
+   8. Make sure language manual has the right version, date, etc. 
       Tag the language manual
 
         makeTag -rev 12500 -tag SF_RELEASE_2_0_1 -man
@@ -101,16 +88,16 @@ one can build the actual release artifacts:
       The release page itself will point to the x10-<version>.pdf. 
       All of the other parts of the website refer to x10-latest.pdf.
 
-   8. Generate new x10doc and upload to project web space at x10.sourceforge.net
+   9. Generate new x10doc and upload to project web space at x10.sourceforge.net
       update the "latest" sym link to point to the new directory.
 
-   9. Create a release page for the new release on the web site.  
+   10. Create a release page for the new release on the web site.  
       Update the "X10 Releases" page to link to the new download version.
       Update the "latest release" menu item in Downloads-submenu to point to 
       the new release page.
       Create a redirect entry to get a nice external URL 
          (eg  http://x10-lang.org/releases/x10-release-223) for the release.
 
-   10. Post release announcement in SF news and web page front-page news.
+   11. Post release announcement in SF news and web page front-page news.
 
-   11. Send out mail announcements to x10-users and x10-announce
+   12. Send out mail announcements to x10-users and x10-announce
