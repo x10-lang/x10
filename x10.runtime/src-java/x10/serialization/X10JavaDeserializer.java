@@ -80,7 +80,7 @@ public final class X10JavaDeserializer implements SerializationConstants {
         return this;
     }
         
-    public java.lang.Object readAny() {
+    public Object readAny() {
         try {
             return readObject();
         } catch (IOException e) {

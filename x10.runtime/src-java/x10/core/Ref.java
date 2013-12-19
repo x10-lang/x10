@@ -33,7 +33,7 @@ public abstract class Ref implements Any {
     */
 
     @Override
-    public java.lang.String toString() {
+    public String toString() {
         return x10.lang.System.identityToString(this);
     }
 
@@ -44,7 +44,7 @@ public abstract class Ref implements Any {
 //    }
 //
 //    @Override
-//    public boolean equals(java.lang.Object other) {
+//    public boolean equals(Object other) {
 //        return x10.lang.System.identityEquals$O(this, other);
 //    }
     

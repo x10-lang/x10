@@ -85,7 +85,7 @@ public class OutputStream extends Ref {
         }
     }
 
-    public void write(java.lang.String s) {
+    public void write(String s) {
         try {
             stream.write(s.getBytes());
         } catch (java.io.IOException e) {

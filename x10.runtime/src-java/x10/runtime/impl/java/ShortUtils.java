@@ -14,7 +14,7 @@ package x10.runtime.impl.java;
 
 public abstract class ShortUtils {
 
-    public static java.lang.String toString(short a, int radix) {
+    public static String toString(short a, int radix) {
         if (a >= 0) {
             return java.lang.Integer.toString(a, radix);
         } else {

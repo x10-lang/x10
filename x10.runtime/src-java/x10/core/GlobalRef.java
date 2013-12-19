@@ -58,11 +58,11 @@ public final class GlobalRef<T> extends Struct implements X10JavaSerializable {
     private static int inited = 0;
     { if (inited++ == 0) if(GLOBALGC_DEBUG>=1)GlobalGCDebug("GLOBALGC_DISABLE=" + GLOBALGC_DISABLE + " GLOBALGC_WEIGHT=" + GLOBALGC_WEIGHT + " GLOBALGC_DEBUG=" + GLOBALGC_DEBUG); }
     private static final Object debugSync = new Object();
-    private static void GlobalGCDebug(java.lang.String msg) {
+    private static void GlobalGCDebug(String msg) {
         //if (level > GLOBALGC_DEBUG) return; // XTENLANG-3168: debug level should be checked in caller
         long time = System.nanoTime();
         int placeId = (int)x10.lang.Runtime.home().id;
-        java.lang.String output = "[GlobalGC(time=" + time + ",place=" + placeId + ")] " + msg;
+        String output = "[GlobalGC(time=" + time + ",place=" + placeId + ")] " + msg;
         synchronized (debugSync) {
             System.err.println(output); System.err.flush();
         }
@@ -87,7 +87,7 @@ public final class GlobalRef<T> extends Struct implements X10JavaSerializable {
         // a singleton which represents null value
         private static final Object $null = new Object() {
             @Override
-            public java.lang.String toString() {
+            public String toString() {
                 return "<null>";
             }
         };
@@ -499,7 +499,7 @@ public final class GlobalRef<T> extends Struct implements X10JavaSerializable {
     }
 
     @Override
-    final public java.lang.String toString() {
+    final public String toString() {
         globalize(); // necessary to decide the id for this object
 //      return "GlobalRef(" + this.home + "," + this.id + ")";
         // isNull support (2013/09/09)
@@ -513,7 +513,7 @@ public final class GlobalRef<T> extends Struct implements X10JavaSerializable {
     }
 
     @Override
-    final public boolean equals(java.lang.Object other) {
+    final public boolean equals(Object other) {
         if (!(other instanceof GlobalRef<?>))
             return false;
 
@@ -526,7 +526,7 @@ public final class GlobalRef<T> extends Struct implements X10JavaSerializable {
         return this._struct_equals(other);
     }
 
-    final public boolean _struct_equals$O(java.lang.Object other) {
+    final public boolean _struct_equals$O(Object other) {
         if (!GlobalRef.$RTT.isInstance(other, T)) {
             return false;
         }

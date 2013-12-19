@@ -179,8 +179,8 @@ public final class Rail<T> extends Ref implements x10.lang.Iterable,
         if (Types.isPrimitiveType(T)) {
             serializer.writeUsingObjectOutputStream(value);
         } else if (Types.isStringType(T)) {
-            java.lang.String[] castValue = (java.lang.String[]) value;
-            for (java.lang.String v : castValue) {
+            String[] castValue = (String[]) value;
+            for (String v : castValue) {
                 serializer.write(v);
             }
         } else {
@@ -212,7 +212,7 @@ public final class Rail<T> extends Ref implements x10.lang.Iterable,
         if (Types.isPrimitiveType(obj.T)) {
             obj.value = deserializer.readUsingObjectInputStream();
         } else if (Types.isStringType(obj.T)) {
-            java.lang.String[] values = (java.lang.String[]) obj.T.makeArray(allocCheckSize(obj.size));
+            String[] values = (String[]) obj.T.makeArray(allocCheckSize(obj.size));
             for (int i = 0; i < (int)obj.size; i++) {
                 values[i] = deserializer.readString();
             }
@@ -232,7 +232,7 @@ public final class Rail<T> extends Ref implements x10.lang.Iterable,
     */
    
     // dispatcher for method abstract public (Z1)=>U.operator()(a1:Z1){}:U
-    public java.lang.Object $apply(java.lang.Object a1, Type t1) {
+    public Object $apply(Object a1, Type t1) {
         return $apply$G(x10.core.Long.$unbox(a1));
     }
 

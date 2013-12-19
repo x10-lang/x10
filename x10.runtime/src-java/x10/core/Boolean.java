@@ -93,7 +93,7 @@ final public class Boolean extends Struct implements java.lang.Comparable<Boolea
     }
 
     @Override
-    public java.lang.String toString() {
+    public String toString() {
         return java.lang.Boolean.toString($value);
     }
     

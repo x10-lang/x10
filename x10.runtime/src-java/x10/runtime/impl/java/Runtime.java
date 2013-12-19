@@ -171,7 +171,7 @@ public abstract class Runtime implements x10.core.fun.VoidFun_0_0 {
      * User code provided by Main template - start xrx runtime - run main
      * activity
      */
-    public abstract void runtimeCallback(x10.core.Rail<java.lang.String> args) throws java.lang.Throwable;
+    public abstract void runtimeCallback(x10.core.Rail<String> args) throws java.lang.Throwable;
 
     /**
      * Application exit code

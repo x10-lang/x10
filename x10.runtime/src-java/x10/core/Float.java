@@ -90,7 +90,7 @@ final public class Float extends java.lang.Number implements StructI, java.lang.
     }
 
     @Override
-    public java.lang.String toString() {
+    public String toString() {
         return java.lang.Float.toString($value);
     }
     
@@ -104,26 +104,26 @@ final public class Float extends java.lang.Number implements StructI, java.lang.
     // implements Arithmetic<Float>
     public Float $plus$G() { return this; }
     public Float $minus$G() { return Float.$box(-$value); }
-    public Float $plus(java.lang.Object b, Type t) { return Float.$box($value + ((Float)b).$value); }
-    public Float $minus(java.lang.Object b, Type t) { return Float.$box($value - ((Float)b).$value); }
-    public Float $times(java.lang.Object b, Type t) { return Float.$box($value * ((Float)b).$value); }
-    public Float $over(java.lang.Object b, Type t) { return Float.$box($value / ((Float)b).$value); }
+    public Float $plus(Object b, Type t) { return Float.$box($value + ((Float)b).$value); }
+    public Float $minus(Object b, Type t) { return Float.$box($value - ((Float)b).$value); }
+    public Float $times(Object b, Type t) { return Float.$box($value * ((Float)b).$value); }
+    public Float $over(Object b, Type t) { return Float.$box($value / ((Float)b).$value); }
     // for X10PrettyPrinterVisitor.exposeSpecialDispatcherThroughSpecialInterface
-    public float $plus$F(java.lang.Object b, Type t) { return $value + ((Float)b).$value; }
-    public float $minus$F(java.lang.Object b, Type t) { return $value - ((Float)b).$value; }
-    public float $times$F(java.lang.Object b, Type t) { return $value * ((Float)b).$value; }
-    public float $over$F(java.lang.Object b, Type t) { return $value / ((Float)b).$value; }
+    public float $plus$F(Object b, Type t) { return $value + ((Float)b).$value; }
+    public float $minus$F(Object b, Type t) { return $value - ((Float)b).$value; }
+    public float $times$F(Object b, Type t) { return $value * ((Float)b).$value; }
+    public float $over$F(Object b, Type t) { return $value / ((Float)b).$value; }
     
     // implements Ordered<Float>
-    public java.lang.Object $lt(java.lang.Object b, Type t) { return x10.core.Boolean.$box($value < ((Float)b).$value); }
-    public java.lang.Object $gt(java.lang.Object b, Type t) { return x10.core.Boolean.$box($value > ((Float)b).$value); }
-    public java.lang.Object $le(java.lang.Object b, Type t) { return x10.core.Boolean.$box($value <= ((Float)b).$value); }
-    public java.lang.Object $ge(java.lang.Object b, Type t) { return x10.core.Boolean.$box($value >= ((Float)b).$value); }
+    public Object $lt(Object b, Type t) { return x10.core.Boolean.$box($value < ((Float)b).$value); }
+    public Object $gt(Object b, Type t) { return x10.core.Boolean.$box($value > ((Float)b).$value); }
+    public Object $le(Object b, Type t) { return x10.core.Boolean.$box($value <= ((Float)b).$value); }
+    public Object $ge(Object b, Type t) { return x10.core.Boolean.$box($value >= ((Float)b).$value); }
     // for X10PrettyPrinterVisitor.generateSpecialDispatcher
-    public boolean $lt$Z(java.lang.Object b, Type t) { return $value < ((Float)b).$value; }
-    public boolean $gt$Z(java.lang.Object b, Type t) { return $value > ((Float)b).$value; }
-    public boolean $le$Z(java.lang.Object b, Type t) { return $value <= ((Float)b).$value; }
-    public boolean $ge$Z(java.lang.Object b, Type t) { return $value >= ((Float)b).$value; }
+    public boolean $lt$Z(Object b, Type t) { return $value < ((Float)b).$value; }
+    public boolean $gt$Z(Object b, Type t) { return $value > ((Float)b).$value; }
+    public boolean $le$Z(Object b, Type t) { return $value <= ((Float)b).$value; }
+    public boolean $ge$Z(Object b, Type t) { return $value >= ((Float)b).$value; }
 
     // extends abstract class java.lang.Number
     @Override

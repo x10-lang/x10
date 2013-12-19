@@ -240,7 +240,7 @@ public class RuntimeType<T> implements Type<T>, X10JavaSerializable {
         if (!target.isAnonymousClass()) {
             return false;
         }
-        if (target.getSuperclass() != java.lang.Object.class && target.getSuperclass() == javaClass) {
+        if (target.getSuperclass() != Object.class && target.getSuperclass() == javaClass) {
             return true;
         }
         if (target.getInterfaces().length == 1 && target.getInterfaces()[0] == javaClass) {
@@ -258,7 +258,7 @@ public class RuntimeType<T> implements Type<T>, X10JavaSerializable {
             }
             return instantiateCheck(params, rtt, any);
         }
-        if (o instanceof java.lang.String) {
+        if (o instanceof String) {
             RuntimeType<?> rtt = Types.STRING;
             return instantiateCheck(params, rtt, o);
         }

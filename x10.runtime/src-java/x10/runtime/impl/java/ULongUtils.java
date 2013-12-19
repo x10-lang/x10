@@ -79,21 +79,21 @@ public abstract class ULongUtils {
             return toULONG(a).remainder(toULONG(b)).longValue();
     }
 
-    public static long parseULong(java.lang.String s, int radix) {
+    public static long parseULong(String s, int radix) {
         java.math.BigInteger ulong = new java.math.BigInteger(s, radix);
         if (ulong.signum() < 0 || ulong.compareTo(ULONG_MAX) > 0) {
             throw new java.lang.NumberFormatException("For input string: \"" + s + "\"");
         }
         return ulong.longValue();
     }
-    public static long parseULong(java.lang.String s) {
+    public static long parseULong(String s) {
         return parseULong(s, 10);
     }
 
-    public static java.lang.String toString(long a, int radix) {
+    public static String toString(long a, int radix) {
         return toULONG(a).toString(radix);
     }
-    public static java.lang.String toString(long a) {
+    public static String toString(long a) {
         return toULONG(a).toString();
     }
 

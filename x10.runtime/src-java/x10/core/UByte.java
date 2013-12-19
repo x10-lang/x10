@@ -104,7 +104,7 @@ final public class UByte extends java.lang.Number implements StructI, java.lang.
     }
     
     @Override
-    public java.lang.String toString() {
+    public String toString() {
         if ($value >= 0)
             return java.lang.Byte.toString($value);
         else
@@ -138,39 +138,39 @@ final public class UByte extends java.lang.Number implements StructI, java.lang.
     // implements Arithmetic<UByte>
     public UByte $plus$G() { return this; }
     public UByte $minus$G() { return UByte.$box(-$value); }
-    public UByte $plus(java.lang.Object a, Type t) { return UByte.$box($value + ((UByte)a).$value); }
-    public UByte $minus(java.lang.Object a, Type t) { return UByte.$box($value - ((UByte)a).$value); }
-    public UByte $times(java.lang.Object a, Type t) { return UByte.$box($value * ((UByte)a).$value); }
-    public UByte $over(java.lang.Object a, Type t) { return UByte.$box((byte)((0xff & $value) / (0xff & ((UByte)a).$value))); }
+    public UByte $plus(Object a, Type t) { return UByte.$box($value + ((UByte)a).$value); }
+    public UByte $minus(Object a, Type t) { return UByte.$box($value - ((UByte)a).$value); }
+    public UByte $times(Object a, Type t) { return UByte.$box($value * ((UByte)a).$value); }
+    public UByte $over(Object a, Type t) { return UByte.$box((byte)((0xff & $value) / (0xff & ((UByte)a).$value))); }
     // for X10PrettyPrinterVisitor.exposeSpecialDispatcherThroughSpecialInterface
-    public byte $plus$b(java.lang.Object a, Type t) { return (byte) ($value + ((UByte)a).$value); }
-    public byte $minus$b(java.lang.Object a, Type t) { return (byte) ($value - ((UByte)a).$value); }
-    public byte $times$b(java.lang.Object a, Type t) { return (byte) ($value * ((UByte)a).$value); }
-    public byte $over$b(java.lang.Object a, Type t) { return (byte) ((0xff & $value) / (0xff & ((UByte)a).$value)); }
+    public byte $plus$b(Object a, Type t) { return (byte) ($value + ((UByte)a).$value); }
+    public byte $minus$b(Object a, Type t) { return (byte) ($value - ((UByte)a).$value); }
+    public byte $times$b(Object a, Type t) { return (byte) ($value * ((UByte)a).$value); }
+    public byte $over$b(Object a, Type t) { return (byte) ((0xff & $value) / (0xff & ((UByte)a).$value)); }
 
     // implements Bitwise<UByte>
     public UByte $tilde$G() { return UByte.$box(~$value); }
-    public UByte $ampersand(java.lang.Object a, Type t) { return UByte.$box($value & ((UByte)a).$value); }
-    public UByte $bar(java.lang.Object a, Type t) { return UByte.$box($value | ((UByte)a).$value); }
-    public UByte $caret(java.lang.Object a, Type t) { return UByte.$box($value ^ ((UByte)a).$value); }
+    public UByte $ampersand(Object a, Type t) { return UByte.$box($value & ((UByte)a).$value); }
+    public UByte $bar(Object a, Type t) { return UByte.$box($value | ((UByte)a).$value); }
+    public UByte $caret(Object a, Type t) { return UByte.$box($value ^ ((UByte)a).$value); }
     public UByte $left$G(long count) { return UByte.$box($value << count); }
     public UByte $right$G(long count) { return UByte.$box((0xff & $value) >>> count); } // UByte is always unsigned
     public UByte $unsigned_right$G(long count) { return UByte.$box((0xff & $value) >>> count); }
     // for X10PrettyPrinterVisitor.exposeSpecialDispatcherThroughSpecialInterface
-    public byte $ampersand$b(java.lang.Object a, Type t) { return (byte) ($value & ((UByte)a).$value); }
-    public byte $bar$b(java.lang.Object a, Type t) { return (byte) ($value | ((UByte)a).$value); }
-    public byte $caret$b(java.lang.Object a, Type t) { return (byte) ($value ^ ((UByte)a).$value); }
+    public byte $ampersand$b(Object a, Type t) { return (byte) ($value & ((UByte)a).$value); }
+    public byte $bar$b(Object a, Type t) { return (byte) ($value | ((UByte)a).$value); }
+    public byte $caret$b(Object a, Type t) { return (byte) ($value ^ ((UByte)a).$value); }
     
     // implements Ordered<UByte>
-    public java.lang.Object $lt(java.lang.Object a, Type t) { return x10.core.Boolean.$box(x10.runtime.impl.java.UIntUtils.lt($value,((UByte)a).$value)); }
-    public java.lang.Object $gt(java.lang.Object a, Type t) { return x10.core.Boolean.$box(x10.runtime.impl.java.UIntUtils.gt($value,((UByte)a).$value)); }
-    public java.lang.Object $le(java.lang.Object a, Type t) { return x10.core.Boolean.$box(x10.runtime.impl.java.UIntUtils.le($value,((UByte)a).$value)); }
-    public java.lang.Object $ge(java.lang.Object a, Type t) { return x10.core.Boolean.$box(x10.runtime.impl.java.UIntUtils.ge($value,((UByte)a).$value)); }
+    public Object $lt(Object a, Type t) { return x10.core.Boolean.$box(x10.runtime.impl.java.UIntUtils.lt($value,((UByte)a).$value)); }
+    public Object $gt(Object a, Type t) { return x10.core.Boolean.$box(x10.runtime.impl.java.UIntUtils.gt($value,((UByte)a).$value)); }
+    public Object $le(Object a, Type t) { return x10.core.Boolean.$box(x10.runtime.impl.java.UIntUtils.le($value,((UByte)a).$value)); }
+    public Object $ge(Object a, Type t) { return x10.core.Boolean.$box(x10.runtime.impl.java.UIntUtils.ge($value,((UByte)a).$value)); }
     // for X10PrettyPrinterVisitor.generateSpecialDispatcher
-    public boolean $lt$Z(java.lang.Object a, Type t) { return x10.runtime.impl.java.UIntUtils.lt($value,((UByte)a).$value); }
-    public boolean $gt$Z(java.lang.Object a, Type t) { return x10.runtime.impl.java.UIntUtils.gt($value,((UByte)a).$value); }
-    public boolean $le$Z(java.lang.Object a, Type t) { return x10.runtime.impl.java.UIntUtils.le($value,((UByte)a).$value); }
-    public boolean $ge$Z(java.lang.Object a, Type t) { return x10.runtime.impl.java.UIntUtils.ge($value,((UByte)a).$value); }
+    public boolean $lt$Z(Object a, Type t) { return x10.runtime.impl.java.UIntUtils.lt($value,((UByte)a).$value); }
+    public boolean $gt$Z(Object a, Type t) { return x10.runtime.impl.java.UIntUtils.gt($value,((UByte)a).$value); }
+    public boolean $le$Z(Object a, Type t) { return x10.runtime.impl.java.UIntUtils.le($value,((UByte)a).$value); }
+    public boolean $ge$Z(Object a, Type t) { return x10.runtime.impl.java.UIntUtils.ge($value,((UByte)a).$value); }
 
     // extends abstract class java.lang.Number
     @Override

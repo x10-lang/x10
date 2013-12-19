@@ -40,7 +40,7 @@ public abstract class Struct implements StructI {
 //    public Type<?> $getParam(int i) {return null;}
 
     @Override
-    public java.lang.String toString() {
+    public String toString() {
         return Types.typeName(this) + "@" + Integer.toHexString(System.identityHashCode(this));
     }
 
