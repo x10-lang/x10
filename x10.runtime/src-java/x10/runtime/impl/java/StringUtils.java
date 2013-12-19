@@ -14,13 +14,13 @@ package x10.runtime.impl.java;
 
 public abstract class StringUtils {
 
-    public static java.lang.String format(java.lang.String format, java.lang.Object[] args) {
-        java.lang.Object[] copy = new java.lang.Object[args.length];
+    public static String format(String format, Object[] args) {
+        Object[] copy = new Object[args.length];
 
         // rebox x10.core.Int objects into java.lang.Integers
         for (int i = 0; i < args.length; ++i) {
-            java.lang.Object oldarg = args[i];
-            java.lang.Object newarg = null;
+            Object oldarg = args[i];
+            Object newarg = null;
 
             if (oldarg instanceof x10.core.Byte)
                 newarg = java.lang.Byte.valueOf(x10.core.Byte.$unbox((x10.core.Byte)oldarg));
@@ -53,7 +53,7 @@ public abstract class StringUtils {
             copy[i] = newarg;
         }
 
-        return java.lang.String.format(format, copy);
+        return String.format(format, copy);
     }
 
 }

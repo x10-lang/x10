@@ -218,7 +218,6 @@ public class Types {
         assert !(o instanceof java.lang.Double);
         assert !(o instanceof java.lang.Character);
         assert !(o instanceof java.lang.Boolean);
-        assert !(o instanceof java.lang.String);
 //        if (o instanceof java.lang.Float) {
 //            return x10.core.Float.$box(((java.lang.Float) o).floatValue());
 //        }
@@ -230,9 +229,6 @@ public class Types {
 //        }
 //        if (o instanceof java.lang.Boolean) {
 //            return x10.core.Boolean.$box(((java.lang.Boolean) o).booleanValue());
-//        }
-//        if (o instanceof java.lang.String) {
-//            return x10.core.String.$box((java.lang.String) o);
 //        }
         return o;
     }
@@ -255,9 +251,9 @@ public class Types {
      * mainly for primitives, string and exceptions.
      */
     public static RuntimeType/*<?>*/ getRTTForKnownType(Class<?> javaClass) {
-        if (java.lang.Object.class.equals(javaClass)) {
+        if (Object.class.equals(javaClass)) {
             return ANY;
-        } else if (java.lang.String.class.equals(javaClass)) {
+        } else if (String.class.equals(javaClass)) {
             return STRING;
         } else if (java.lang.Comparable.class.equals(javaClass)) {
             return COMPARABLE;
@@ -737,7 +733,7 @@ public class Types {
     	return isNullable(rtt) || isPrimitiveType(rtt);
     }
 
-    public static <T> T cast(final java.lang.Object self, Type<?> rtt) {
+    public static <T> T cast(final Object self, Type<?> rtt) {
         // XTENLANG-3093
         if (self == null) {
             if (rtt == null || isNullable(rtt)) return null;
@@ -747,7 +743,7 @@ public class Types {
         return (T) self;
     }
     
-    public static <T> T castConversion(final java.lang.Object self, Type<?> rtt) {
+    public static <T> T castConversion(final Object self, Type<?> rtt) {
         // XTENLANG-3093
         if (self == null) {
             if (rtt == null || isNullable(rtt)) return null;

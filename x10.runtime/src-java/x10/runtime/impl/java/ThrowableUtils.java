@@ -44,9 +44,9 @@ public abstract class ThrowableUtils {
             x10Exceptions.put(javaClass, x10Class);
     }
         
-    private static java.lang.RuntimeException asX10Exception(Class<? extends java.lang.RuntimeException> x10Class, java.lang.String message, java.lang.Throwable t) {
+    private static java.lang.RuntimeException asX10Exception(Class<? extends java.lang.RuntimeException> x10Class, String message, java.lang.Throwable t) {
         try {
-            java.lang.RuntimeException xe = x10Class.getConstructor(java.lang.String.class).newInstance(message);
+            java.lang.RuntimeException xe = x10Class.getConstructor(String.class).newInstance(message);
             if (t != null) {
                 xe.setStackTrace(t.getStackTrace());
             }
@@ -58,7 +58,7 @@ public abstract class ThrowableUtils {
 
     public static java.lang.RuntimeException ensureX10Exception(java.io.IOException e) {
         Class<? extends java.lang.RuntimeException> x10Class = x10Exceptions.get(e.getClass());
-        java.lang.String message = e.getMessage();
+        String message = e.getMessage();
         if (x10Class != null) {
             return asX10Exception(x10Class, message, e);
         }
@@ -73,7 +73,7 @@ public abstract class ThrowableUtils {
             return ensureX10Exception((java.io.IOException) e);
         } else if (e instanceof java.lang.Exception) {
             Class<? extends java.lang.RuntimeException> x10Class = x10Exceptions.get(e.getClass());
-            java.lang.String message = e.getMessage();
+            String message = e.getMessage();
             if (x10Class != null) {
                 return asX10Exception(x10Class, message, e);
             }
@@ -86,19 +86,19 @@ public abstract class ThrowableUtils {
         }
     }
 
-    public static java.lang.String toString(java.lang.Throwable e) {
-        java.lang.String typeName = x10.rtt.Types.typeName(e);
-        java.lang.String message = e.getMessage();
+    public static String toString(java.lang.Throwable e) {
+        String typeName = x10.rtt.Types.typeName(e);
+        String message = e.getMessage();
         return message == null ? typeName : typeName + ": " + message;
     }
 
-    public static x10.core.Rail<java.lang.String> getStackTrace(java.lang.Throwable e) {
+    public static x10.core.Rail<String> getStackTrace(java.lang.Throwable e) {
         java.lang.StackTraceElement[] elements = e.getStackTrace();
-        java.lang.String str[] = new java.lang.String[elements.length];
+        String str[] = new String[elements.length];
         for (int i = 0; i < elements.length; ++i) {
             str[i] = elements[i].toString();
         }
-        return x10.runtime.impl.java.ArrayUtils.<java.lang.String>makeRailFromJavaArray(x10.rtt.Types.STRING, str);
+        return x10.runtime.impl.java.ArrayUtils.<String>makeRailFromJavaArray(x10.rtt.Types.STRING, str);
     }
     
     public static void printStackTrace(java.lang.Throwable t, x10.io.Printer p) {

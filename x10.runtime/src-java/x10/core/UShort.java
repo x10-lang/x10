@@ -106,7 +106,7 @@ final public class UShort extends java.lang.Number implements StructI, java.lang
     }
     
     @Override
-    public java.lang.String toString() {
+    public String toString() {
         if ($value >= 0)
             return java.lang.Short.toString($value);
         else
@@ -125,39 +125,39 @@ final public class UShort extends java.lang.Number implements StructI, java.lang
     // implements Arithmetic<UShort>
     public UShort $plus$G() { return this; }
     public UShort $minus$G() { return UShort.$box(-$value); }
-    public UShort $plus(java.lang.Object a, Type t) { return UShort.$box($value + ((UShort)a).$value); }
-    public UShort $minus(java.lang.Object a, Type t) { return UShort.$box($value - ((UShort)a).$value); }
-    public UShort $times(java.lang.Object a, Type t) { return UShort.$box($value * ((UShort)a).$value); }
-    public UShort $over(java.lang.Object a, Type t) { return UShort.$box((short)((0xffff & $value) / (0xffff & ((UShort)a).$value))); }
+    public UShort $plus(Object a, Type t) { return UShort.$box($value + ((UShort)a).$value); }
+    public UShort $minus(Object a, Type t) { return UShort.$box($value - ((UShort)a).$value); }
+    public UShort $times(Object a, Type t) { return UShort.$box($value * ((UShort)a).$value); }
+    public UShort $over(Object a, Type t) { return UShort.$box((short)((0xffff & $value) / (0xffff & ((UShort)a).$value))); }
     // for X10PrettyPrinterVisitor.exposeSpecialDispatcherThroughSpecialInterface
-    public short $plus$s(java.lang.Object a, Type t) { return (short) ($value + ((UShort)a).$value); }
-    public short $minus$s(java.lang.Object a, Type t) { return (short) ($value - ((UShort)a).$value); }
-    public short $times$s(java.lang.Object a, Type t) { return (short) ($value * ((UShort)a).$value); }
-    public short $over$s(java.lang.Object a, Type t) { return (short) ((0xffff & $value) / (0xffff & ((UShort)a).$value)); }
+    public short $plus$s(Object a, Type t) { return (short) ($value + ((UShort)a).$value); }
+    public short $minus$s(Object a, Type t) { return (short) ($value - ((UShort)a).$value); }
+    public short $times$s(Object a, Type t) { return (short) ($value * ((UShort)a).$value); }
+    public short $over$s(Object a, Type t) { return (short) ((0xffff & $value) / (0xffff & ((UShort)a).$value)); }
     
     // implements Bitwise<UShort>
     public UShort $tilde$G() { return UShort.$box(~$value); }
-    public UShort $ampersand(java.lang.Object a, Type t) { return UShort.$box($value & ((UShort)a).$value); }
-    public UShort $bar(java.lang.Object a, Type t) { return UShort.$box($value | ((UShort)a).$value); }
-    public UShort $caret(java.lang.Object a, Type t) { return UShort.$box($value ^ ((UShort)a).$value); }
+    public UShort $ampersand(Object a, Type t) { return UShort.$box($value & ((UShort)a).$value); }
+    public UShort $bar(Object a, Type t) { return UShort.$box($value | ((UShort)a).$value); }
+    public UShort $caret(Object a, Type t) { return UShort.$box($value ^ ((UShort)a).$value); }
     public UShort $left$G(long count) { return UShort.$box($value << count); }
     public UShort $right$G(long count) { return UShort.$box((0xffff & $value) >>> count); } // UShort is always unsigned
     public UShort $unsigned_right$G(long count) { return UShort.$box((0xffff & $value) >>> count); }
     // for X10PrettyPrinterVisitor.exposeSpecialDispatcherThroughSpecialInterface
-    public short $ampersand$s(java.lang.Object a, Type t) { return (short) ($value & ((UShort)a).$value); }
-    public short $bar$s(java.lang.Object a, Type t) { return (short) ($value | ((UShort)a).$value); }
-    public short $caret$s(java.lang.Object a, Type t) { return (short) ($value ^ ((UShort)a).$value); }
+    public short $ampersand$s(Object a, Type t) { return (short) ($value & ((UShort)a).$value); }
+    public short $bar$s(Object a, Type t) { return (short) ($value | ((UShort)a).$value); }
+    public short $caret$s(Object a, Type t) { return (short) ($value ^ ((UShort)a).$value); }
     
     // implements Ordered<UShort>
-    public java.lang.Object $lt(java.lang.Object a, Type t) { return x10.core.Boolean.$box(x10.runtime.impl.java.UIntUtils.lt($value,((UShort)a).$value)); }
-    public java.lang.Object $gt(java.lang.Object a, Type t) { return x10.core.Boolean.$box(x10.runtime.impl.java.UIntUtils.gt($value,((UShort)a).$value)); }
-    public java.lang.Object $le(java.lang.Object a, Type t) { return x10.core.Boolean.$box(x10.runtime.impl.java.UIntUtils.le($value,((UShort)a).$value)); }
-    public java.lang.Object $ge(java.lang.Object a, Type t) { return x10.core.Boolean.$box(x10.runtime.impl.java.UIntUtils.ge($value,((UShort)a).$value)); }
+    public Object $lt(Object a, Type t) { return x10.core.Boolean.$box(x10.runtime.impl.java.UIntUtils.lt($value,((UShort)a).$value)); }
+    public Object $gt(Object a, Type t) { return x10.core.Boolean.$box(x10.runtime.impl.java.UIntUtils.gt($value,((UShort)a).$value)); }
+    public Object $le(Object a, Type t) { return x10.core.Boolean.$box(x10.runtime.impl.java.UIntUtils.le($value,((UShort)a).$value)); }
+    public Object $ge(Object a, Type t) { return x10.core.Boolean.$box(x10.runtime.impl.java.UIntUtils.ge($value,((UShort)a).$value)); }
     // for X10PrettyPrinterVisitor.generateSpecialDispatcher
-    public boolean $lt$Z(java.lang.Object a, Type t) { return x10.runtime.impl.java.UIntUtils.lt($value,((UShort)a).$value); }
-    public boolean $gt$Z(java.lang.Object a, Type t) { return x10.runtime.impl.java.UIntUtils.gt($value,((UShort)a).$value); }
-    public boolean $le$Z(java.lang.Object a, Type t) { return x10.runtime.impl.java.UIntUtils.le($value,((UShort)a).$value); }
-    public boolean $ge$Z(java.lang.Object a, Type t) { return x10.runtime.impl.java.UIntUtils.ge($value,((UShort)a).$value); }
+    public boolean $lt$Z(Object a, Type t) { return x10.runtime.impl.java.UIntUtils.lt($value,((UShort)a).$value); }
+    public boolean $gt$Z(Object a, Type t) { return x10.runtime.impl.java.UIntUtils.gt($value,((UShort)a).$value); }
+    public boolean $le$Z(Object a, Type t) { return x10.runtime.impl.java.UIntUtils.le($value,((UShort)a).$value); }
+    public boolean $ge$Z(Object a, Type t) { return x10.runtime.impl.java.UIntUtils.ge($value,((UShort)a).$value); }
 
     public void $_serialize(X10JavaSerializer $serializer) throws IOException {
         $serializer.write($value);

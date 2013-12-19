@@ -48,7 +48,7 @@ final public class UInt extends java.lang.Number implements StructI, java.lang.C
         static {
             // high value may be configured by property
             int h = 255;
-            java.lang.String highPropValue = System.getProperty("x10.lang.UInt.Cache.high");
+            String highPropValue = System.getProperty("x10.lang.UInt.Cache.high");
             if (highPropValue != null) {
                 int i = java.lang.Integer.parseInt(highPropValue);
                 i = Math.max(i, h);
@@ -113,7 +113,7 @@ final public class UInt extends java.lang.Number implements StructI, java.lang.C
     }
 
     @Override
-    public java.lang.String toString() {
+    public String toString() {
         if ($value >= 0)
             return java.lang.Integer.toString($value);
         else
@@ -147,39 +147,39 @@ final public class UInt extends java.lang.Number implements StructI, java.lang.C
     // implements Arithmetic<UInt>
     public UInt $plus$G() { return this; }
     public UInt $minus$G() { return UInt.$box(-$value); }
-    public UInt $plus(java.lang.Object a, Type t) { return UInt.$box($value + ((UInt)a).$value); }
-    public UInt $minus(java.lang.Object a, Type t) { return UInt.$box($value - ((UInt)a).$value); }
-    public UInt $times(java.lang.Object a, Type t) { return UInt.$box($value * ((UInt)a).$value); }
-    public UInt $over(java.lang.Object a, Type t) { return UInt.$box(x10.runtime.impl.java.UIntUtils.div($value,((UInt)a).$value)); }
+    public UInt $plus(Object a, Type t) { return UInt.$box($value + ((UInt)a).$value); }
+    public UInt $minus(Object a, Type t) { return UInt.$box($value - ((UInt)a).$value); }
+    public UInt $times(Object a, Type t) { return UInt.$box($value * ((UInt)a).$value); }
+    public UInt $over(Object a, Type t) { return UInt.$box(x10.runtime.impl.java.UIntUtils.div($value,((UInt)a).$value)); }
     // for X10PrettyPrinterVisitor.exposeSpecialDispatcherThroughSpecialInterface
-    public int $plus$i(java.lang.Object a, Type t) { return $value + ((UInt)a).$value; }
-    public int $minus$i(java.lang.Object a, Type t) { return $value - ((UInt)a).$value; }
-    public int $times$i(java.lang.Object a, Type t) { return $value * ((UInt)a).$value; }
-    public int $over$i(java.lang.Object a, Type t) { return x10.runtime.impl.java.UIntUtils.div($value,((UInt)a).$value); }
+    public int $plus$i(Object a, Type t) { return $value + ((UInt)a).$value; }
+    public int $minus$i(Object a, Type t) { return $value - ((UInt)a).$value; }
+    public int $times$i(Object a, Type t) { return $value * ((UInt)a).$value; }
+    public int $over$i(Object a, Type t) { return x10.runtime.impl.java.UIntUtils.div($value,((UInt)a).$value); }
     
     // implements Bitwise<UInt>
     public UInt $tilde$G() { return UInt.$box(~$value); }
-    public UInt $ampersand(java.lang.Object a, Type t) { return UInt.$box($value & ((UInt)a).$value); }
-    public UInt $bar(java.lang.Object a, Type t) { return UInt.$box($value | ((UInt)a).$value); }
-    public UInt $caret(java.lang.Object a, Type t) { return UInt.$box($value ^ ((UInt)a).$value); }
+    public UInt $ampersand(Object a, Type t) { return UInt.$box($value & ((UInt)a).$value); }
+    public UInt $bar(Object a, Type t) { return UInt.$box($value | ((UInt)a).$value); }
+    public UInt $caret(Object a, Type t) { return UInt.$box($value ^ ((UInt)a).$value); }
     public UInt $left$G(long count) { return UInt.$box($value << count); }
     public UInt $right$G(long count) { return UInt.$box($value >>> count); } // UInt is always unsigned
     public UInt $unsigned_right$G(long count) { return UInt.$box($value >>> count); }
     // for X10PrettyPrinterVisitor.exposeSpecialDispatcherThroughSpecialInterface
-    public int $ampersand$i(java.lang.Object a, Type t) { return $value & ((UInt)a).$value; }
-    public int $bar$i(java.lang.Object a, Type t) { return $value | ((UInt)a).$value; }
-    public int $caret$i(java.lang.Object a, Type t) { return $value ^ ((UInt)a).$value; }
+    public int $ampersand$i(Object a, Type t) { return $value & ((UInt)a).$value; }
+    public int $bar$i(Object a, Type t) { return $value | ((UInt)a).$value; }
+    public int $caret$i(Object a, Type t) { return $value ^ ((UInt)a).$value; }
     
     // implements Ordered<UInt>
-    public java.lang.Object $lt(java.lang.Object a, Type t) { return x10.core.Boolean.$box(x10.runtime.impl.java.UIntUtils.lt($value,((UInt)a).$value)); }
-    public java.lang.Object $gt(java.lang.Object a, Type t) { return x10.core.Boolean.$box(x10.runtime.impl.java.UIntUtils.gt($value,((UInt)a).$value)); }
-    public java.lang.Object $le(java.lang.Object a, Type t) { return x10.core.Boolean.$box(x10.runtime.impl.java.UIntUtils.le($value,((UInt)a).$value)); }
-    public java.lang.Object $ge(java.lang.Object a, Type t) { return x10.core.Boolean.$box(x10.runtime.impl.java.UIntUtils.ge($value,((UInt)a).$value)); }
+    public Object $lt(Object a, Type t) { return x10.core.Boolean.$box(x10.runtime.impl.java.UIntUtils.lt($value,((UInt)a).$value)); }
+    public Object $gt(Object a, Type t) { return x10.core.Boolean.$box(x10.runtime.impl.java.UIntUtils.gt($value,((UInt)a).$value)); }
+    public Object $le(Object a, Type t) { return x10.core.Boolean.$box(x10.runtime.impl.java.UIntUtils.le($value,((UInt)a).$value)); }
+    public Object $ge(Object a, Type t) { return x10.core.Boolean.$box(x10.runtime.impl.java.UIntUtils.ge($value,((UInt)a).$value)); }
     // for X10PrettyPrinterVisitor.generateSpecialDispatcher
-    public boolean $lt$Z(java.lang.Object a, Type t) { return x10.runtime.impl.java.UIntUtils.lt($value,((UInt)a).$value); }
-    public boolean $gt$Z(java.lang.Object a, Type t) { return x10.runtime.impl.java.UIntUtils.gt($value,((UInt)a).$value); }
-    public boolean $le$Z(java.lang.Object a, Type t) { return x10.runtime.impl.java.UIntUtils.le($value,((UInt)a).$value); }
-    public boolean $ge$Z(java.lang.Object a, Type t) { return x10.runtime.impl.java.UIntUtils.ge($value,((UInt)a).$value); }
+    public boolean $lt$Z(Object a, Type t) { return x10.runtime.impl.java.UIntUtils.lt($value,((UInt)a).$value); }
+    public boolean $gt$Z(Object a, Type t) { return x10.runtime.impl.java.UIntUtils.gt($value,((UInt)a).$value); }
+    public boolean $le$Z(Object a, Type t) { return x10.runtime.impl.java.UIntUtils.le($value,((UInt)a).$value); }
+    public boolean $ge$Z(Object a, Type t) { return x10.runtime.impl.java.UIntUtils.ge($value,((UInt)a).$value); }
 
     // extends abstract class java.lang.Number
     @Override

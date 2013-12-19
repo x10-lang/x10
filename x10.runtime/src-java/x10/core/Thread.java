@@ -48,7 +48,7 @@ public class Thread implements Any, Unserializable {
     // constructor just for allocation
     public Thread(java.lang.System[] $dummy) {}
 
-    public final Thread x10$lang$Thread$$init$S(java.lang.String name) {
+    public final Thread x10$lang$Thread$$init$S(String name) {
         jthread = new java.lang.Thread(name) {
             public void run() {
                 context.set(Thread.this);
@@ -67,7 +67,7 @@ public class Thread implements Any, Unserializable {
         context.set(null);
     }
 
-    public Thread(java.lang.String name) {
+    public Thread(String name) {
         x10$lang$Thread$$init$S(name);
     }
 
@@ -99,11 +99,11 @@ public class Thread implements Any, Unserializable {
         return home;
     }
 
-    public java.lang.String name() {
+    public String name() {
         return jthread.getName();
     }
 
-    public void name(java.lang.String name) {
+    public void name(String name) {
         jthread.setName(name);
     }
 

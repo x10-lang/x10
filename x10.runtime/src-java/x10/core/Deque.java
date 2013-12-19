@@ -33,7 +33,7 @@ public class Deque extends Ref {
         // TODO need check
         $_obj.base = $deserializer.readInt();
         $_obj.sp = $deserializer.readInt();
-        $_obj.queue = (java.lang.Object[]) $deserializer.readObject();
+        $_obj.queue = (Object[]) $deserializer.readObject();
         return $_obj;
     }
     public static X10JavaSerializable $_deserializer(X10JavaDeserializer $deserializer) throws java.io.IOException {

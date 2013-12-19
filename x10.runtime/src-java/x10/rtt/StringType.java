@@ -15,7 +15,7 @@ import x10.serialization.SerializationConstants;
 
 
 
-public final class StringType extends RuntimeType<java.lang.String> {
+public final class StringType extends RuntimeType<String> {
 
     @Override
     public short $_get_serialization_id() {
@@ -23,7 +23,7 @@ public final class StringType extends RuntimeType<java.lang.String> {
     }
 
     public StringType() {
-        super(java.lang.String.class,
+        super(String.class,
             new Type[] {
                 ParameterizedType.make(Types.COMPARABLE, UnresolvedType.THIS),
                 Types.CHAR_SEQUENCE
@@ -33,11 +33,11 @@ public final class StringType extends RuntimeType<java.lang.String> {
     
     @Override
     public boolean isInstance(Object obj) {
-        return obj instanceof java.lang.String;
+        return obj instanceof String;
     }
     
     @Override
-    public java.lang.String typeName() {
+    public String typeName() {
         return "x10.lang.String";
     }
 }

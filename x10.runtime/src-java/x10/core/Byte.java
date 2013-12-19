@@ -114,7 +114,7 @@ final public class Byte extends java.lang.Number implements StructI, java.lang.C
     }
 
     @Override
-    public java.lang.String toString() {
+    public String toString() {
         return java.lang.Byte.toString($value);
     }
     
@@ -128,39 +128,39 @@ final public class Byte extends java.lang.Number implements StructI, java.lang.C
     // implements Arithmetic<Byte>
     public Byte $plus$G() { return this; }
     public Byte $minus$G() { return Byte.$box(-$value); }
-    public Byte $plus(java.lang.Object b, Type t) { return Byte.$box($value + ((Byte)b).$value); }
-    public Byte $minus(java.lang.Object b, Type t) { return Byte.$box($value - ((Byte)b).$value); }
-    public Byte $times(java.lang.Object b, Type t) { return Byte.$box($value * ((Byte)b).$value); }
-    public Byte $over(java.lang.Object b, Type t) { return Byte.$box($value / ((Byte)b).$value); }
+    public Byte $plus(Object b, Type t) { return Byte.$box($value + ((Byte)b).$value); }
+    public Byte $minus(Object b, Type t) { return Byte.$box($value - ((Byte)b).$value); }
+    public Byte $times(Object b, Type t) { return Byte.$box($value * ((Byte)b).$value); }
+    public Byte $over(Object b, Type t) { return Byte.$box($value / ((Byte)b).$value); }
     // for X10PrettyPrinterVisitor.exposeSpecialDispatcherThroughSpecialInterface
-    public byte $plus$B(java.lang.Object b, Type t) { return (byte) ($value + ((Byte)b).$value); }
-    public byte $minus$B(java.lang.Object b, Type t) { return (byte) ($value - ((Byte)b).$value); }
-    public byte $times$B(java.lang.Object b, Type t) { return (byte) ($value * ((Byte)b).$value); }
-    public byte $over$B(java.lang.Object b, Type t) { return (byte) ($value / ((Byte)b).$value); }
+    public byte $plus$B(Object b, Type t) { return (byte) ($value + ((Byte)b).$value); }
+    public byte $minus$B(Object b, Type t) { return (byte) ($value - ((Byte)b).$value); }
+    public byte $times$B(Object b, Type t) { return (byte) ($value * ((Byte)b).$value); }
+    public byte $over$B(Object b, Type t) { return (byte) ($value / ((Byte)b).$value); }
     
     // implements Bitwise<Byte>
     public Byte $tilde$G() { return Byte.$box(~$value); }
-    public Byte $ampersand(java.lang.Object b, Type t) { return Byte.$box($value & ((Byte)b).$value); }
-    public Byte $bar(java.lang.Object b, Type t) { return Byte.$box($value | ((Byte)b).$value); }
-    public Byte $caret(java.lang.Object b, Type t) { return Byte.$box($value ^ ((Byte)b).$value); }
+    public Byte $ampersand(Object b, Type t) { return Byte.$box($value & ((Byte)b).$value); }
+    public Byte $bar(Object b, Type t) { return Byte.$box($value | ((Byte)b).$value); }
+    public Byte $caret(Object b, Type t) { return Byte.$box($value ^ ((Byte)b).$value); }
     public Byte $left$G(long count) { return Byte.$box($value << count); }
     public Byte $right$G(long count) { return Byte.$box($value >> count); }
     public Byte $unsigned_right$G(long count) { return Byte.$box($value >>> count); }
     // for X10PrettyPrinterVisitor.exposeSpecialDispatcherThroughSpecialInterface
-    public byte $ampersand$B(java.lang.Object b, Type t) { return (byte) ($value & ((Byte)b).$value); }
-    public byte $bar$B(java.lang.Object b, Type t) { return (byte) ($value | ((Byte)b).$value); }
-    public byte $caret$B(java.lang.Object b, Type t) { return (byte) ($value ^ ((Byte)b).$value); }
+    public byte $ampersand$B(Object b, Type t) { return (byte) ($value & ((Byte)b).$value); }
+    public byte $bar$B(Object b, Type t) { return (byte) ($value | ((Byte)b).$value); }
+    public byte $caret$B(Object b, Type t) { return (byte) ($value ^ ((Byte)b).$value); }
     
     // implements Ordered<Byte>
-    public java.lang.Object $lt(java.lang.Object b, Type t) { return x10.core.Boolean.$box($value < ((Byte)b).$value); }
-    public java.lang.Object $gt(java.lang.Object b, Type t) { return x10.core.Boolean.$box($value > ((Byte)b).$value); }
-    public java.lang.Object $le(java.lang.Object b, Type t) { return x10.core.Boolean.$box($value <= ((Byte)b).$value); }
-    public java.lang.Object $ge(java.lang.Object b, Type t) { return x10.core.Boolean.$box($value >= ((Byte)b).$value); }
+    public Object $lt(Object b, Type t) { return x10.core.Boolean.$box($value < ((Byte)b).$value); }
+    public Object $gt(Object b, Type t) { return x10.core.Boolean.$box($value > ((Byte)b).$value); }
+    public Object $le(Object b, Type t) { return x10.core.Boolean.$box($value <= ((Byte)b).$value); }
+    public Object $ge(Object b, Type t) { return x10.core.Boolean.$box($value >= ((Byte)b).$value); }
     // for X10PrettyPrinterVisitor.generateSpecialDispatcher
-    public boolean $lt$Z(java.lang.Object b, Type t) { return $value < ((Byte)b).$value; }
-    public boolean $gt$Z(java.lang.Object b, Type t) { return $value > ((Byte)b).$value; }
-    public boolean $le$Z(java.lang.Object b, Type t) { return $value <= ((Byte)b).$value; }
-    public boolean $ge$Z(java.lang.Object b, Type t) { return $value >= ((Byte)b).$value; }
+    public boolean $lt$Z(Object b, Type t) { return $value < ((Byte)b).$value; }
+    public boolean $gt$Z(Object b, Type t) { return $value > ((Byte)b).$value; }
+    public boolean $le$Z(Object b, Type t) { return $value <= ((Byte)b).$value; }
+    public boolean $ge$Z(Object b, Type t) { return $value >= ((Byte)b).$value; }
     
     // extends abstract class java.lang.Number
     @Override
