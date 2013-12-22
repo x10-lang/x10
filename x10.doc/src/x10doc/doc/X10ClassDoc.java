@@ -1,3 +1,14 @@
+/*
+ *  This file is part of the X10 project (http://x10-lang.org).
+ *
+ *  This file is licensed to You under the Eclipse Public License (EPL);
+ *  You may not use this file except in compliance with the License.
+ *  You may obtain a copy of the License at
+ *      http://www.opensource.org/licenses/eclipse-1.0.php
+ *
+ *  (C) Copyright IBM Corporation 2006-2013.
+ */
+
 package x10doc.doc;
 
 import java.util.ArrayList;
@@ -108,8 +119,6 @@ public class X10ClassDoc extends X10Doc implements ClassDoc {
             }
         }
         for (MethodDoc doc : methods.values()) {
-            String n = doc.name();
-            String s = doc.signature();
             if (doc.name().equals(shortname) && doc.signature().equals(signature)) {
                 return doc;
             }
@@ -362,7 +371,6 @@ public class X10ClassDoc extends X10Doc implements ClassDoc {
         // return t.typeName();
         // }
         if (t instanceof ParameterType) {
-            ParameterType p = (ParameterType) t;
             return ("{@link " + name() + " " + ((ParameterType) t).name().toString() + "}");
         }
         X10ClassDef classDef = (X10ClassDef) t.toClass().def();
