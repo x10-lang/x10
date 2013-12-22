@@ -1,3 +1,14 @@
+/*
+ *  This file is part of the X10 project (http://x10-lang.org).
+ *
+ *  This file is licensed to You under the Eclipse Public License (EPL);
+ *  You may not use this file except in compliance with the License.
+ *  You may obtain a copy of the License at
+ *      http://www.opensource.org/licenses/eclipse-1.0.php
+ *
+ *  (C) Copyright IBM Corporation 2006-2013.
+ */
+
 package x10doc.doc;
 
 import java.util.Arrays;
@@ -692,13 +703,9 @@ public class X10RootDoc extends X10Doc implements RootDoc {
             }
         }
 
-        // x10.lang and x10.regionarray are auto-imported.
+        // x10.lang is auto-imported.
         String lang = "x10.lang." + startingName;
         classDoc = (X10ClassDoc) this.classNamed(lang);
-        if (classDoc == null) {
-            String array = "x10.regionarray." + startingName;
-            classDoc = (X10ClassDoc) this.classNamed(array);
-        }
         return classDoc;
     }
 
