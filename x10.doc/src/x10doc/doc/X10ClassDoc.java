@@ -324,7 +324,7 @@ public class X10ClassDoc extends X10Doc implements ClassDoc {
         }
 
         if (this.superclass != null) {
-            result += " extends " + this.superclass.classDef;
+            result += " extends " + X10Type.toString(this.superclassType);
         }
 
         if (this.interfaceTypes.size() > 0) {
