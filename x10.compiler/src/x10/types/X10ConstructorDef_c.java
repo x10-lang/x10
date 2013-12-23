@@ -207,6 +207,21 @@ public class X10ConstructorDef_c extends ConstructorDef_c implements X10Construc
     }
 
     public String signature() {
-	    return TypeSystem.CONSTRUCTOR_NAME + "(" + CollectionUtil.listToString(formalTypes) + ")";
+    	StringBuilder sb = new StringBuilder(TypeSystem.CONSTRUCTOR_NAME);
+    	sb.append('(');
+        boolean first = true;
+        for (LocalDef l : formalNames()) {
+            if (!first) {
+                sb.append(", ");
+            }
+            first = false;
+            if (! ((X10LocalDef) l).isUnnamed()) {
+                sb.append(l.name().toString())
+                    .append(":");
+            }
+            sb.append(l.type().get().toString());
+        }
+    	sb.append(')');
+    	return sb.toString();
     }
 }
