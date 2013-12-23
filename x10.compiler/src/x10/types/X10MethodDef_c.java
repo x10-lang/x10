@@ -243,7 +243,7 @@ public class X10MethodDef_c extends MethodDef_c implements X10MethodDef {
         boolean first = true;
         for (LocalDef l : formalNames()) {
             if (!first) {
-                sb.append(",");
+                sb.append(", ");
             }
             first = false;
             if (! ((X10LocalDef) l).isUnnamed()) {
