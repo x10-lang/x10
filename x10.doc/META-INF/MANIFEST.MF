@@ -3,7 +3,7 @@ Bundle-ManifestVersion: 2
 Bundle-Name: x10.doc
 Bundle-SymbolicName: x10.doc
 Bundle-Version: 2.4.1.qualifier
-Bundle-RequiredExecutionEnvironment: J2SE-1.5
+Bundle-RequiredExecutionEnvironment: JavaSE-1.6
 Require-Bundle: x10.common;visibility:=reexport,
  x10.compiler;visibility:=reexport
 Export-Package: x10doc,
