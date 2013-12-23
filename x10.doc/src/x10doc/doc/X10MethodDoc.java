@@ -180,9 +180,10 @@ public class X10MethodDoc extends X10Doc implements MethodDoc {
         // "}.declString(): descriptor = " + desc);
 
         String guard = (methodDef.guard() == null) ? "" : methodDef.guard().toString();
+        if ("{}".equals(guard)) guard = "";
         // construct result from X10 compiler method signatures and toString
         // functions
-        String result = "<B>Declaration:</B> <TT>" + methodDef.signature() + guard + ": "
+        String result = "<B>Declaration:</B> <TT>" + methodDef.signature() + guard + ":"
                 + methodDef.returnType().toString() + ".</TT><PRE>\n</PRE>";
         // earlier: ... + X10Doc.toString(this.returnType)
         return result;
