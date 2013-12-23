@@ -2338,7 +2338,7 @@ public class X10TypeEnv_c extends TypeEnv_c implements X10TypeEnv {
     //When we write:  new A[T](...)
     // then matcher.typeArgs is [T]
     // but the ctor instance is not like a generic method (it already has the right substitution)
-    List<Type> typeArgs = Collections.EMPTY_LIST; //matcher.typeArgs;
+    List<Type> typeArgs = Collections.<Type>emptyList(); //matcher.typeArgs;
         boolean isDumb = matcher.isDumbMatcher;
     boolean shouldTryCoercions = !isDumb && typeArgs.size() == 0 && container != null && (container instanceof X10ParsedClassType) && ((X10ParsedClassType) container).def().typeParameters().size() > 0;
     List<ConstructorInstance> resolved =
