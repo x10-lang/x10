@@ -277,7 +277,8 @@ public class ClosureSynthesizer {
         }
 
         // N.B. white space is needed to fix XTENLANG-1647
-        name = " " + name;
+//        name = " " + name;
+        name = name + " "; // "x10.lang.Fun_0_1 " is better than "x10.lang. Fun_0_1". TODO: hide from x10doc
 
         // Check if the class has already been defined.
         QName fullName = QName.make("x10.lang", name);
