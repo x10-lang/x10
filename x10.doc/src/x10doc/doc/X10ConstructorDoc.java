@@ -141,7 +141,8 @@ public class X10ConstructorDoc extends X10Doc implements ConstructorDoc {
             }
         }
         String guard = (constrDef.guard() == null) ? "" : constrDef.guard().toString();
-        String result = "<B>Declaration</B>: <TT>" + constrDef.signature() + guard + ": "
+        if ("{}".equals(guard)) guard = "";
+        String result = "<B>Declaration</B>: <TT>" + constrDef.signature() + guard + ":"
                 + constrDef.returnType().toString() + ".</TT><PRE>\n</PRE>";
         return result;
     }
