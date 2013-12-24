@@ -943,6 +943,7 @@ public interface TypeSystem {
     X10ClassType TransientInitExpr();
     X10ClassType Embed();
     X10ClassType RemoteInvocation();
+    X10ClassType Synthetic();
 
     //Type Value();
 
