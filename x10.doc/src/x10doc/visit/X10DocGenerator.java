@@ -151,7 +151,7 @@ public class X10DocGenerator extends X10DelegatingVisitor {
         // the class is included in the "specified set" if it is specified on
         // the command line
         // or it is an inner class of an included class
-        X10ClassDoc cd = rootDoc.getSpecCLass(classDef, containingClass, comments);
+        X10ClassDoc cd = rootDoc.getSpecClass(classDef, containingClass, comments);
         cd.setSource(source);
         // all classes, including inner classes are added to rootDoc
 
