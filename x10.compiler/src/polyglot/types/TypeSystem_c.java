@@ -2830,6 +2830,13 @@ public class TypeSystem_c implements TypeSystem
         return transientInitExprType_;
     }
 
+    protected X10ClassType syntheticType_;
+    public X10ClassType Synthetic() {
+        if (syntheticType_ == null)
+            syntheticType_ = load("x10.compiler.Synthetic");
+        return syntheticType_;
+    }
+
     
     public Object placeHolder(TypeObject o) {
 	return placeHolder(o, Collections.<TypeObject>emptySet());
