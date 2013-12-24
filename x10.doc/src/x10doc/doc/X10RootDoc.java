@@ -124,7 +124,7 @@ public class X10RootDoc extends X10Doc implements RootDoc {
      * This method is expected to be called from
      * X10DocGenerator.visit(X10ClassDecl_c).
      */
-    public X10ClassDoc getSpecCLass(X10ClassDef classDef, X10ClassDoc containingClass, String comments) {
+    public X10ClassDoc getSpecClass(X10ClassDef classDef, X10ClassDoc containingClass, String comments) {
         X10ClassDoc cd = null;
         String className = classKey(classDef);
         // System.out.println("X10RootDoc.addClass(...): className = " +
