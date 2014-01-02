@@ -158,8 +158,10 @@ public final class Rail[T](
      * Warning: This method is only intended to be used on Rails containing
      *   non-Object data elements.  The elements are actually copied via an
      *   optimized DMA operation if available.  Therefore object-references will
-     *   not be properly transferred. Ideally, future versions of the X10 type
-     *   system would enable this restriction to be checked statically.</p>
+     *   not be properly transferred. However, (arbitrarily nested) structs 
+     *   containing only non-Object data elements are supported by this method.
+     *   Ideally, future versions of the X10 type system would enable this 
+     *   restriction to be checked statically.</p>
      * 
      * @param src the source rail.
      * @param srcIndex the index of the first element in src to be copied.  
@@ -180,8 +182,10 @@ public final class Rail[T](
      * Warning: This method is only intended to be used on Rails containing
      *   non-Object data elements.  The elements are actually copied via an
      *   optimized DMA operation if available.  Therefore object-references will
-     *   not be properly transferred. Ideally, future versions of the X10 type
-     *   system would enable this restriction to be checked statically.</p>
+     *   not be properly transferred. However, (arbitrarily nested) structs 
+     *   containing only non-Object data elements are supported by this method.
+     *   Ideally, future versions of the X10 type system would enable this 
+     *   restriction to be checked statically.</p>
      * 
      * @param src a GlobalRail to the source rail. May actually be local or remote.
      * @param srcIndex the index of the first element in src to be copied.  
@@ -202,9 +206,11 @@ public final class Rail[T](
      * Warning: This method is only intended to be used on Rails containing
      *   non-Object data elements.  The elements are actually copied via an
      *   optimized DMA operation if available.  Therefore object-references will
-     *   not be properly transferred. Ideally, future versions of the X10 type
-     *   system would enable this restriction to be checked statically.</p>
-     * 
+     *   not be properly transferred. However, (arbitrarily nested) structs 
+     *   containing only non-Object data elements are supported by this method.
+     *   Ideally, future versions of the X10 type system would enable this 
+     *   restriction to be checked statically.</p>
+     *
      * @param src the source rail.
      * @param srcIndex the index of the first element in src to be copied.  
      * @param dst a GlobalRail to the destination rail.  May actually be local or remote
@@ -226,8 +232,10 @@ public final class Rail[T](
      * Warning: This method is only intended to be used on Rails containing
      *   non-Object data elements.  The elements are actually copied via an
      *   optimized DMA operation if available.  Therefore object-references will
-     *   not be properly transferred. Ideally, future versions of the X10 type
-     *   system would enable this restriction to be checked statically.</p>
+     *   not be properly transferred. However, (arbitrarily nested) structs 
+     *   containing only non-Object data elements are supported by this method.
+     *   Ideally, future versions of the X10 type system would enable this 
+     *   restriction to be checked statically.</p>
      * 
      * @param src a GlobalRail to the source rail. May actually be local or remote.
      * @param srcIndex the index of the first element in src to be copied.  
