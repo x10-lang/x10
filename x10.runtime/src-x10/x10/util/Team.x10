@@ -640,6 +640,7 @@ public struct Team {
         private var local_dst_off:Long = 0;
 //        private var local_temp_buff:Any = null; // Used to hold intermediate data moving up or down the tree structure, becomes type Rail[T]{self!=null}
         private var local_count:Long = 0;
+        private var local_grandchildren:Long = 0; // total number of nodes in the tree structure below us
 
         private static def getCollName(collType:Int):String {
             switch (collType) {
@@ -741,6 +742,7 @@ public struct Team {
 	        local_dst = dst;
 	        local_dst_off = dst_off;
 	        local_count = count;
+	        local_grandchildren = myLinks.totalChildren;
 /*	        if (collType == COLL_SCATTER || collType == COLL_REDUCE || collType == COLL_ALLREDUCE) // big chunks of data move around the tree
 	        	local_temp_buff = Unsafe.allocRailUninitialized[T](myLinks.dataToCarryForChildren);
 	        else if (myLinks.child1Index != -1 && (collType == COLL_INDEXOFMIN || collType == COLL_INDEXOFMAX)) // pairs of values move around
@@ -788,8 +790,15 @@ public struct Team {
 	    	}
 	    	else {
 	            // move data from children to parent
+   	            // Scatter and broadcast only move data from parent to children, so they have no code here
+                val notnulldst:Rail[T]{self!=null} = dst as Rail[T]{self!=null};
+                gr:GlobalRail[T] = new GlobalRail[T](notnulldst);
+                val totalData:long = count*(myLinks.totalChildren+1);
 	            if (collType == COLL_ALLTOALL) {
-	                //TODO
+	                @Pragma(Pragma.FINISH_ASYNC) finish at (places(myLinks.parentIndex)) async {
+	                    // copy my data, plus all the data filled in by my children, to my parent
+	                    Rail.asyncCopy(gr, dst_off, Team.state(teamidcopy).local_dst as Rail[T], Team.state(teamidcopy).local_dst_off, totalData);
+	                }
 	            }
 	            else if (collType == COLL_REDUCE || collType == COLL_ALLREDUCE) {
 	                //TODO
@@ -838,10 +847,37 @@ public struct Team {
 	    	}
 
 	    	// move data from parent to children
+	    	// reduce doesn't move data in this direction, so is not included here
 	    	if (myLinks.child1Index != -1) {
-		    	if (collType == COLL_BROADCAST) {
-		    		val notnulldst:Rail[T]{self!=null} = dst as Rail[T]{self!=null};
-		    		gr:GlobalRail[T] = new GlobalRail[T](notnulldst);
+        	    val notnulldst:Rail[T]{self!=null} = dst as Rail[T]{self!=null};
+	            gr:GlobalRail[T] = new GlobalRail[T](notnulldst);
+
+                if (collType == COLL_ALLTOALL) {
+		            // only copy over the data that did not come from this child in the first place
+		            @Pragma(Pragma.FINISH_SPMD) finish {
+		                at (places(myLinks.child1Index)) async {
+                            @Pragma(Pragma.FINISH_ASYNC) finish {
+                                // position 0 up to the child id
+                                Rail.asyncCopy(gr, dst_off, Team.state(teamidcopy).local_dst as Rail[T], Team.state(teamidcopy).local_dst_off, Team.state(teamidcopy).local_count*Team.state(teamidcopy).myIndex);
+                                // position of last child range, to the end
+                                Rail.asyncCopy(gr, dst_off+(Team.state(teamidcopy).local_count*(Team.state(teamidcopy).local_grandchildren+1)), Team.state(teamidcopy).local_dst as Rail[T], Team.state(teamidcopy).local_dst_off, Team.state(teamidcopy).local_count);
+                            }
+                        }
+		                if (myLinks.child2Index != -1) {
+		                    at (places(myLinks.child2Index)) async {
+		                        @Pragma(Pragma.FINISH_ASYNC) finish {
+		                        // position 0 up to the child id
+		                        Rail.asyncCopy(gr, dst_off, Team.state(teamidcopy).local_dst as Rail[T], Team.state(teamidcopy).local_dst_off, Team.state(teamidcopy).local_count);
+		                        // position of last child range, to the end
+		                        Rail.asyncCopy(gr, dst_off, Team.state(teamidcopy).local_dst as Rail[T], Team.state(teamidcopy).local_dst_off, Team.state(teamidcopy).local_count);
+		                        }
+		                    }
+		                }
+		            }
+		        }
+		    	else if (collType == COLL_BROADCAST || collType == COLL_ALLREDUCE || 
+		    		collType == COLL_INDEXOFMIN || collType == COLL_INDEXOFMAX) {
+		    		// these all move a single value from root to all other team members
 		            @Pragma(Pragma.FINISH_SPMD) finish {
 		    			at (places(myLinks.child1Index)) async {
 		                    if (DEBUGINTERNALS) Runtime.println(here+ " pulling data from "+gr+" into "+(local_dst as Rail[T]));
@@ -860,10 +896,8 @@ public struct Team {
 		    		}
 		    	}
 		    	else if (collType == COLL_SCATTER) {
-		            // TODO
+		            // TODO: scatter is more difficult because we want places to carry data that is not intended for them, so we need temp buffers
 	    		}
-		        // TODO: more collective types
-		    
 		    	if (DEBUGINTERNALS) Runtime.println(here+ " finished moving data to children");
 	    	}
 	    	// our parent has updated us - update any children, and leave the collective
