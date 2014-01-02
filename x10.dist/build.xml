@@ -720,7 +720,8 @@ ENABLE_X10RT_PAMI='${X10RT_PAMI}'
         <tar destfile="${src.tar.location}/x10-${x10.version}-src.tar.bz2" compression="bzip2" longfile="gnu">
             <tarfileset prefix="" dir="${basedir}" includes="epl-v10.html,RELEASE.NOTES.txt,README.txt,INSTALL.txt"/>
             <tarfileset prefix="" dir="${x10.tests.location}" includes="TESTING"/>
-            <tarfileset prefix="x10.dist" dir="${basedir}" excludes="releng/**,**/.*.swp,lib/**,stdlib/**,etc/**" includes=".launchConfigs/*,.classpath,.project,README,INSTALL,build*,exportPlugin.xml,bin/*.in,lib/${lpg.jar},lib/${ecj.jar},samples/**,tools/**"/>
+            <tarfileset prefix="x10.dist" dir="${basedir}" excludes="releng/**,**/.*.swp,lib/**,stdlib/**,etc/**"/>
+            <tarfileset prefix="x10.dist" dir="${basedir}" excludes="releng/**,**/.*.swp,lib/**,stdlib/**,etc/**" includes="bin/runx10" filemode="755"/>
             <tarfileset prefix="x10.dist" dir="${basedir}" excludes="releng/**,**/.*.swp,lib/**,stdlib/**,etc/**" includes="bin/x10c++" filemode="755"/>
             <tarfileset prefix="x10.dist" dir="${basedir}" excludes="releng/**,**/.*.swp,lib/**,stdlib/**,etc/**" includes="bin/x10doc" filemode="755"/>
             <tarfileset prefix="x10.doc" dir="${x10.doc.location}" excludes="releng/**,**/.*.swp,classes/**"/>
