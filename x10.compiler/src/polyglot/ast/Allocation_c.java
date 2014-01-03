@@ -19,9 +19,11 @@ import java.util.List;
 import polyglot.ast.Expr_c;
 import polyglot.ast.Term;
 import polyglot.ast.TypeNode;
+import polyglot.util.CodeWriter;
 import polyglot.util.Position;
 import polyglot.visit.CFGBuilder;
 import polyglot.visit.NodeVisitor;
+import polyglot.visit.PrettyPrinter;
 
 /**
  * @author Bowen Alpern
@@ -114,6 +116,14 @@ public class Allocation_c extends Expr_c implements Allocation {
     }
 
     public String toString() {
-        return "new " + objectType;
+        return "$allocate$[" + objectType +"]()";
     }
+    
+    /** Write the call to an output file. */
+    public void prettyPrint(CodeWriter w, PrettyPrinter tr) {
+        w.write("$allocate$[");
+        print(objectType, w, tr);
+        w.write("]()");
+    }
+
 }
