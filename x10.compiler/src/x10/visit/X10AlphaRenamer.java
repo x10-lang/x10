@@ -28,15 +28,7 @@ import x10.util.CollectionFactory;
 public class X10AlphaRenamer extends AlphaRenamer {
 
     protected Map<Name, LocalDef> localDefMap = CollectionFactory.newHashMap();
-    protected TypeRewriter rewriter; 
-    {
-    	Map<Name,Name> a=CollectionFactory.newHashMap();
-    	a.putAll(renamingMap); 
-
-    	Map<Name, LocalDef> b=CollectionFactory.newHashMap();
-    	b.putAll(localDefMap);
-    	rewriter = new TypeRewriter(a,b);
-    }
+    protected TypeRewriter rewriter = new TypeRewriter(renamingMap, localDefMap);
     private ContextVisitor cv;
     
     public X10AlphaRenamer(ContextVisitor visitor) {
