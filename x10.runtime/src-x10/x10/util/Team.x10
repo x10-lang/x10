@@ -658,15 +658,15 @@ public struct Team {
             }
         }
         
-        private def lockDst(teamidcopy:int) {
-        	if (!Team.state(teamidcopy).dstLock.tryLock()) {
+        private static def lockDst(teamidcopy:int, lock:Lock) {
+        	if (!lock.tryLock()) {
         		if (useProbeNotSleep()) {
-        			while (!Team.state(teamidcopy).dstLock.tryLock())
+        			while (!lock.tryLock())
         				Runtime.probe();
         		}
         		else {
         			Runtime.increaseParallelism();
-        			while (!Team.state(teamidcopy).dstLock.tryLock())
+        			while (!lock.tryLock())
         				System.threadSleep(0);
         			Runtime.decreaseParallelism(1n);
         		}
@@ -781,8 +781,8 @@ public struct Team {
 	            local_temp_buff = Unsafe.allocRailUninitialized[T]((myLinks.child2Index==-1)?1:2);
 */
             // check for valid input.  TODO: remove for performance?
-	        if (dst == null && collType != COLL_BARRIER) Runtime.println("ERROR: dst is NULL!");
-	        if (src == null && collType != COLL_BARRIER) Runtime.println("ERROR: src is NULL!");
+	        //if (dst == null && collType != COLL_BARRIER) Runtime.println("ERROR: dst is NULL!");
+	        //if (src == null && collType != COLL_BARRIER) Runtime.println("ERROR: src is NULL!");
 	        
 	        // perform local reduction operations.  Result is stored in dst, which will be updated again later
 	        if (collType == COLL_REDUCE || collType == COLL_ALLREDUCE)
@@ -832,14 +832,14 @@ public struct Team {
 	    	else {
 	    		// make sure parent is ready to recieve data
 	            @Pragma(Pragma.FINISH_ASYNC) finish at (places(myLinks.parentIndex)) async { 
-                	if (Team.state(teamidcopy).phase.get() < PHASE_GATHER1) {
+                	if (Team.state(teamidcopy).phase.get() < PHASE_GATHER1 || Team.state(teamidcopy).phase.get() > PHASE_SCATTER) {
                         if (useProbeNotSleep()) {
-                            while(Team.state(teamidcopy).phase.get() < PHASE_GATHER1)
+                            while(Team.state(teamidcopy).phase.get() < PHASE_GATHER1 || Team.state(teamidcopy).phase.get() >= PHASE_SCATTER)
                         	    Runtime.probe();
                         }
                         else {
                             Runtime.increaseParallelism();
-                            while(Team.state(teamidcopy).phase.get() < PHASE_GATHER1)
+                            while(Team.state(teamidcopy).phase.get() < PHASE_GATHER1 || Team.state(teamidcopy).phase.get() >= PHASE_SCATTER)
                     	        System.threadSleep(0);
                             Runtime.decreaseParallelism(1n);
                         }
@@ -851,8 +851,8 @@ public struct Team {
 	                if (DEBUGINTERNALS) Runtime.println(here+" moving data to parent");
 	                val notnulldst:Rail[T]{self!=null} = dst as Rail[T]{self!=null};
                     gr:GlobalRail[T] = new GlobalRail[T](notnulldst);
-                    val totalData:long = count*(myLinks.totalChildren+1);
                     if (collType == COLL_ALLTOALL) {
+                        val totalData:long = count*(myLinks.totalChildren+1);
 	                    @Pragma(Pragma.FINISH_ASYNC) finish at (places(myLinks.parentIndex)) async {
 	                        // copy my data, plus all the data filled in by my children, to my parent
 	                        Rail.asyncCopy(gr, dst_off, Team.state(teamidcopy).local_dst as Rail[T], Team.state(teamidcopy).local_dst_off, totalData);
@@ -861,25 +861,30 @@ public struct Team {
 	                else if (collType == COLL_REDUCE || collType == COLL_ALLREDUCE) {
 	                    //TODO
 	                }
-	                else if (collType == COLL_INDEXOFMIN) {
-	                    val childVal:DoubleIdx = dst(0) as DoubleIdx;
-	                    @Pragma(Pragma.FINISH_ASYNC) finish at (places(myLinks.parentIndex)) async {
-	                	    lockDst(teamidcopy);
-	                        val ldi:Rail[DoubleIdx] = (Team.state(teamidcopy).local_dst as Rail[DoubleIdx]);
-	                        if (childVal.value < ldi(0).value)
-	                            ldi(0) = childVal;
-	                        Team.state(teamidcopy).dstLock.unlock();
-	                    }
-	                }
 	                else if (collType == COLL_INDEXOFMAX) {
 	                    val childVal:DoubleIdx = dst(0) as DoubleIdx;
 	                    @Pragma(Pragma.FINISH_ASYNC) finish at (places(myLinks.parentIndex)) async {
-	                        lockDst(teamidcopy);
+	                        lockDst(teamidcopy, Team.state(teamidcopy).dstLock);
 	                        val ldi:Rail[DoubleIdx] = (Team.state(teamidcopy).local_dst as Rail[DoubleIdx]);
+	                        if (DEBUGINTERNALS) Runtime.println(here+" IndexOfMax: parent="+ldi(0).value+" child="+childVal.value);
+	                        
+	                        // TODO: If there is  more than one instance of the min/max value, this 
+	                        // implementation will return the index associated with "one of" them, not necessarily
+	                        // the first one.  Do we need to return the "first", as the API says, or is that not really necessary?
 	                        if (childVal.value > ldi(0).value)
 	                            ldi(0) = childVal;
 	                        Team.state(teamidcopy).dstLock.unlock();
 	                    }
+	                }
+	                else if (collType == COLL_INDEXOFMIN) {
+	                    val childVal:DoubleIdx = dst(0) as DoubleIdx;
+	                    @Pragma(Pragma.FINISH_ASYNC) finish at (places(myLinks.parentIndex)) async {
+	                        lockDst(teamidcopy, Team.state(teamidcopy).dstLock);
+	                        val ldi:Rail[DoubleIdx] = (Team.state(teamidcopy).local_dst as Rail[DoubleIdx]);
+	                        if (childVal.value < ldi(0).value)
+	                            ldi(0) = childVal;
+	                        Team.state(teamidcopy).dstLock.unlock();
+	                     }
 	                }
 	            }
 	            if (DEBUGINTERNALS) Runtime.println(here+" updating the phase of the parent "+places(myLinks.parentIndex));
