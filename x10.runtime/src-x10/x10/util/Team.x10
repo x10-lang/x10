@@ -618,11 +618,13 @@ public struct Team {
         private static struct TreeStructure(parentIndex:long, child1Index:long, child2Index:long, totalChildren:long){}
         
         private static PHASE_READY:Int = 0n;   // normal state, nothing in progress
-        private static PHASE_GATHER1:Int = 1n; // waiting for data+signal from first child
-        private static PHASE_GATHER2:Int = 2n; // waiting for data+signal from second child
-        private static PHASE_SCATTER:Int = 3n; // waiting for data+signal from parent
-        private static PHASE_DONE:Int = 4n;    // done, but not yet ready for the next collective call
-        private var phase:AtomicInteger = new AtomicInteger(PHASE_READY); // which of the above phases we're in
+        private static PHASE_INIT:Int = 1n;    // collective active, preparing local structures to accept data
+        private static PHASE_GATHER1:Int = 2n; // waiting for data+signal from first child
+        private static PHASE_GATHER2:Int = 3n; // waiting for data+signal from second child
+        private static PHASE_SCATTER:Int = 4n; // waiting for data+signal from parent
+        private static PHASE_DONE:Int = 5n;    // done, but not yet ready for the next collective call
+        private val phase:AtomicInteger = new AtomicInteger(PHASE_READY); // which of the above phases we're in
+        private val dstLock:Lock = new Lock();
 
         private static COLL_BARRIER:Int = 0n; // no data moved
         private static COLL_BROADCAST:Int = 1n; // data out only, single value
@@ -654,6 +656,21 @@ public struct Team {
                 case COLL_INDEXOFMAX: return "IndexOfMax";
                 default: return "Unknown";
             }
+        }
+        
+        private def lockDst(teamidcopy:int) {
+        	if (!Team.state(teamidcopy).dstLock.tryLock()) {
+        		if (useProbeNotSleep()) {
+        			while (!Team.state(teamidcopy).dstLock.tryLock())
+        				Runtime.probe();
+        		}
+        		else {
+        			Runtime.increaseParallelism();
+        			while (!Team.state(teamidcopy).dstLock.tryLock())
+        				System.threadSleep(0);
+        			Runtime.decreaseParallelism(1n);
+        		}
+        	}
         }
         
         // recursive method used to find our parent and child links in the tree.  This method assumes that root is not in the tree (or root is at position 0)
@@ -695,7 +712,24 @@ public struct Team {
 		}
 	    
 	    private def performReduction[T](src:Rail[T], src_off:Long, dst:Rail[T], dst_off:Long, count:Long, operation:Int) {
-	        // TODO
+	        switch (operation) {
+		        case ADD:
+		        break;
+		        case MUL:
+		        break;
+		        case AND:
+		        break;
+		        case OR:
+		        break;
+		        case XOR:
+		        break;
+		        case MAX:
+		        break;
+		        case MIN:
+		        break;
+		        default:
+		        	Runtime.println("ERROR: Unknown reduction operation: "+operation);
+	        }
 	    }
 	    
 	    /*
@@ -704,18 +738,16 @@ public struct Team {
 	     */
 	    private def collective_impl[T](collType:Int, root:Place, src:Rail[T], src_off:Long, dst:Rail[T], dst_off:Long, count:Long, operation:Int):void {
 	        if (DEBUGINTERNALS) Runtime.println(here+":team"+teamid+" entered "+getCollName(collType)+" (phase="+phase.get()+", root="+root);
-
 	        val teamidcopy = this.teamid; // needed to prevent serializing "this" in at() statements
-
 	        // block if some other collective is in progress.
-	        if (!this.phase.compareAndSet(PHASE_READY, PHASE_GATHER1)) {
+	        if (!this.phase.compareAndSet(PHASE_READY, PHASE_INIT)) {
 	            if (useProbeNotSleep()) {
-	        	    while (!this.phase.compareAndSet(PHASE_READY, PHASE_GATHER1))
+	        	    while (!this.phase.compareAndSet(PHASE_READY, PHASE_INIT))
 	                    Runtime.probe();
 	            }
 	            else {
 	                Runtime.increaseParallelism();
-	                while (!this.phase.compareAndSet(PHASE_READY, PHASE_GATHER1))
+	                while (!this.phase.compareAndSet(PHASE_READY, PHASE_INIT))
 	            		System.threadSleep(0);
 	            	Runtime.decreaseParallelism(1n);
 	            }
@@ -747,20 +779,29 @@ public struct Team {
 	        	local_temp_buff = Unsafe.allocRailUninitialized[T](myLinks.dataToCarryForChildren);
 	        else if (myLinks.child1Index != -1 && (collType == COLL_INDEXOFMIN || collType == COLL_INDEXOFMAX)) // pairs of values move around
 	            local_temp_buff = Unsafe.allocRailUninitialized[T]((myLinks.child2Index==-1)?1:2);
-*/        
-
-	        // Set our state based on how many children we must wait for 
+*/
+            // check for valid input.  TODO: remove for performance?
+	        if (dst == null && collType != COLL_BARRIER) Runtime.println("ERROR: dst is NULL!");
+	        if (src == null && collType != COLL_BARRIER) Runtime.println("ERROR: src is NULL!");
+	        
+	        // perform local reduction operations.  Result is stored in dst, which will be updated again later
+	        if (collType == COLL_REDUCE || collType == COLL_ALLREDUCE)
+    	        performReduction(src, src_off, dst, dst_off, count, operation);
+	        else if (collType == COLL_INDEXOFMAX || collType == COLL_INDEXOFMIN)
+	            dst(0) = src(0);
+	        
+	        // allow children to update our dst array
+	        if (DEBUGINTERNALS) Runtime.println(here+" ready to accept data");
+	        this.phase.compareAndSet(PHASE_INIT, PHASE_GATHER1);
+	        
+	        // Skip our state ahead if we have fewer than 2 children to wait for
 	    	if (myLinks.child1Index == -1) // no children to wait for
 	    		this.phase.compareAndSet(PHASE_GATHER1, PHASE_SCATTER);
 	    	else if (myLinks.child2Index == -1) { // only one child, so skip a phase waiting for the second child.
-	    		if (!this.phase.compareAndSet(PHASE_GATHER1, PHASE_GATHER2)) 
-	    			this.phase.compareAndSet(PHASE_GATHER2, PHASE_SCATTER); 
+	    		if (!this.phase.compareAndSet(PHASE_GATHER1, PHASE_GATHER2)) // the only child has not yet checked in
+	    			this.phase.compareAndSet(PHASE_GATHER2, PHASE_SCATTER); // the only child has already checked in
 	    	}
 	    
-	        // perform local reduction operations.  Result is stored in dst, which will be updated by the parent again later
-            if (collType == COLL_REDUCE || collType == COLL_ALLREDUCE)
-                performReduction(src, src_off, dst, dst_off, count, operation);
-
 	        // wait for phase updates from children
 	        if (this.phase.get() != PHASE_SCATTER) {
 	            if (DEBUGINTERNALS) Runtime.println(here+":team"+teamidcopy+" waiting for children");
@@ -789,29 +830,63 @@ public struct Team {
 	    		this.phase.set(PHASE_DONE); // the root node has no parent, and can skip its own state ahead
 	    	}
 	    	else {
+	    		// make sure parent is ready to recieve data
+	            @Pragma(Pragma.FINISH_ASYNC) finish at (places(myLinks.parentIndex)) async { 
+                	if (Team.state(teamidcopy).phase.get() < PHASE_GATHER1) {
+                        if (useProbeNotSleep()) {
+                            while(Team.state(teamidcopy).phase.get() < PHASE_GATHER1)
+                        	    Runtime.probe();
+                        }
+                        else {
+                            Runtime.increaseParallelism();
+                            while(Team.state(teamidcopy).phase.get() < PHASE_GATHER1)
+                    	        System.threadSleep(0);
+                            Runtime.decreaseParallelism(1n);
+                        }
+                    }
+	    		}
 	            // move data from children to parent
    	            // Scatter and broadcast only move data from parent to children, so they have no code here
-                val notnulldst:Rail[T]{self!=null} = dst as Rail[T]{self!=null};
-                gr:GlobalRail[T] = new GlobalRail[T](notnulldst);
-                val totalData:long = count*(myLinks.totalChildren+1);
-	            if (collType == COLL_ALLTOALL) {
-	                @Pragma(Pragma.FINISH_ASYNC) finish at (places(myLinks.parentIndex)) async {
-	                    // copy my data, plus all the data filled in by my children, to my parent
-	                    Rail.asyncCopy(gr, dst_off, Team.state(teamidcopy).local_dst as Rail[T], Team.state(teamidcopy).local_dst_off, totalData);
+	            if (collType >= COLL_ALLTOALL) {
+	                if (DEBUGINTERNALS) Runtime.println(here+" moving data to parent");
+	                val notnulldst:Rail[T]{self!=null} = dst as Rail[T]{self!=null};
+                    gr:GlobalRail[T] = new GlobalRail[T](notnulldst);
+                    val totalData:long = count*(myLinks.totalChildren+1);
+                    if (collType == COLL_ALLTOALL) {
+	                    @Pragma(Pragma.FINISH_ASYNC) finish at (places(myLinks.parentIndex)) async {
+	                        // copy my data, plus all the data filled in by my children, to my parent
+	                        Rail.asyncCopy(gr, dst_off, Team.state(teamidcopy).local_dst as Rail[T], Team.state(teamidcopy).local_dst_off, totalData);
+	                    }
+	                }
+	                else if (collType == COLL_REDUCE || collType == COLL_ALLREDUCE) {
+	                    //TODO
+	                }
+	                else if (collType == COLL_INDEXOFMIN) {
+	                    val childVal:DoubleIdx = dst(0) as DoubleIdx;
+	                    @Pragma(Pragma.FINISH_ASYNC) finish at (places(myLinks.parentIndex)) async {
+	                	    lockDst(teamidcopy);
+	                        val ldi:Rail[DoubleIdx] = (Team.state(teamidcopy).local_dst as Rail[DoubleIdx]);
+	                        if (childVal.value < ldi(0).value)
+	                            ldi(0) = childVal;
+	                        Team.state(teamidcopy).dstLock.unlock();
+	                    }
+	                }
+	                else if (collType == COLL_INDEXOFMAX) {
+	                    val childVal:DoubleIdx = dst(0) as DoubleIdx;
+	                    @Pragma(Pragma.FINISH_ASYNC) finish at (places(myLinks.parentIndex)) async {
+	                        lockDst(teamidcopy);
+	                        val ldi:Rail[DoubleIdx] = (Team.state(teamidcopy).local_dst as Rail[DoubleIdx]);
+	                        if (childVal.value > ldi(0).value)
+	                            ldi(0) = childVal;
+	                        Team.state(teamidcopy).dstLock.unlock();
+	                    }
 	                }
 	            }
-	            else if (collType == COLL_REDUCE || collType == COLL_ALLREDUCE) {
-	                //TODO
-	            }
-	            else if (collType == COLL_INDEXOFMIN) {
-	                //TODO
-	            }
-	            else if (collType == COLL_INDEXOFMAX) {
-	                //TODO
-	            }
-	    
+	            if (DEBUGINTERNALS) Runtime.println(here+" updating the phase of the parent "+places(myLinks.parentIndex));
+
 	            // increment the phase of the parent
 	            @Pragma(Pragma.FINISH_ASYNC) finish at (places(myLinks.parentIndex)) async { 
+	                if (DEBUGINTERNALS) Runtime.println(here+" in phase "+Team.state(teamidcopy).phase.get());
                 	if (!Team.state(teamidcopy).phase.compareAndSet(PHASE_GATHER1, PHASE_GATHER2) && 
                             !Team.state(teamidcopy).phase.compareAndSet(PHASE_GATHER2, PHASE_SCATTER)) {
                         if (useProbeNotSleep()) {
@@ -847,9 +922,9 @@ public struct Team {
 	    	}
 
 	    	// move data from parent to children
-	    	// reduce doesn't move data in this direction, so is not included here
-	    	if (myLinks.child1Index != -1) {
-        	    val notnulldst:Rail[T]{self!=null} = dst as Rail[T]{self!=null};
+	    	// reduce and barrier do not move data in this direction, so they are not included here
+	    	if (myLinks.child1Index != -1 && collType != COLL_BARRIER && collType != COLL_REDUCE) {
+	    		val notnulldst:Rail[T]{self!=null} = dst as Rail[T]{self!=null};
 	            gr:GlobalRail[T] = new GlobalRail[T](notnulldst);
 
                 if (collType == COLL_ALLTOALL) {
@@ -880,14 +955,14 @@ public struct Team {
 		    		// these all move a single value from root to all other team members
 		            @Pragma(Pragma.FINISH_SPMD) finish {
 		    			at (places(myLinks.child1Index)) async {
-		                    if (DEBUGINTERNALS) Runtime.println(here+ " pulling data from "+gr+" into "+(local_dst as Rail[T]));
-		                    @Pragma(Pragma.FINISH_ASYNC) finish{
+		                    if (DEBUGINTERNALS) Runtime.println(here+ " pulling data from "+gr+" into "+(Team.state(teamidcopy).local_dst as Rail[T]));
+		                    @Pragma(Pragma.FINISH_ASYNC) finish {
 		    					Rail.asyncCopy(gr, dst_off, Team.state(teamidcopy).local_dst as Rail[T], Team.state(teamidcopy).local_dst_off, Team.state(teamidcopy).local_count);
 		                    }
 		    			}
 		    			if (myLinks.child2Index != -1) {
 		    				at (places(myLinks.child2Index)) async {
-		                        if (DEBUGINTERNALS) Runtime.println(here+ " pulling data from "+gr+" into "+(local_dst as Rail[T]));
+		                        if (DEBUGINTERNALS) Runtime.println(here+ " pulling data from "+gr+" into "+(Team.state(teamidcopy).local_dst as Rail[T]));
 		                        @Pragma(Pragma.FINISH_ASYNC) finish {
 		    						Rail.asyncCopy(gr, dst_off, Team.state(teamidcopy).local_dst as Rail[T], Team.state(teamidcopy).local_dst_off, Team.state(teamidcopy).local_count);
 		                        }
@@ -900,6 +975,7 @@ public struct Team {
 	    		}
 		    	if (DEBUGINTERNALS) Runtime.println(here+ " finished moving data to children");
 	    	}
+
 	    	// our parent has updated us - update any children, and leave the collective
 	        if (myLinks.child1Index != -1) { // free the first child, if it exists
 	            // NOTE: there is some trickery here, which allows the parent to continue past this section
@@ -908,10 +984,10 @@ public struct Team {
 	            //   collective in MPI-2), because otherwise the at may not return before the barrier
 	            //   locks up the worker thread.
 	            // TODO: convert to Runtime.runUncountedAsync(), or Runtime.x10rtSendAsync(), or other such simpler mechanism
-	            val parentPlace:Place = here;
+	            val origPlace:Place = here;
 	            @Pragma(Pragma.FINISH_HERE) finish {
 	                at (places(myLinks.child1Index)) async {
-	                    at (parentPlace) async {}
+	                    at (origPlace) async {}
 	    		        if (!Team.state(teamidcopy).phase.compareAndSet(PHASE_SCATTER, PHASE_DONE))
 	    				    Runtime.println("ERROR root setting the first child "+here+":team"+teamidcopy+" to PHASE_DONE");
 	    			    else if (DEBUGINTERNALS) Runtime.println("set the first child "+here+":team"+teamidcopy+" to PHASE_DONE");
@@ -920,7 +996,7 @@ public struct Team {
 	    		if (myLinks.child2Index != -1) {
 	    		    @Pragma(Pragma.FINISH_HERE) finish {
 	                    at (places(myLinks.child2Index)) async {
-	                        at (parentPlace) async {}
+	                        at (origPlace) async {}
 	    		            if (!Team.state(teamidcopy).phase.compareAndSet(PHASE_SCATTER, PHASE_DONE))
 	    					    Runtime.println("ERROR root setting the second child "+here+":team"+teamidcopy+" to PHASE_DONE");
 	    			        else if (DEBUGINTERNALS) Runtime.println("set the second child "+here+":team"+teamidcopy+" to PHASE_DONE");
