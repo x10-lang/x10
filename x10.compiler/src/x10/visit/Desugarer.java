@@ -799,7 +799,7 @@ public class Desugarer extends ContextVisitor {
         X10Call left = (X10Call) n.left();
         MethodInstance ami = left.methodInstance();
         List<Formal> parms = new ArrayList<Formal>();
-        Name xn = Name.make("x");
+        Name xn = Name.makeFresh("x");
         Type aType = a.type();
         assert (ts.isSubtype(aType, mi.container(), v.context()));
         LocalDef xDef = ts.localDef(pos, ts.Final(), Types.ref(aType), xn);
@@ -811,7 +811,7 @@ public class Desugarer extends ContextVisitor {
         assert (ami.formalTypes().size()==n.index().size());
         for (Expr e : n.index()) {
             Type t = e.type();
-            Name yn = Name.make("y"+i);
+            Name yn = Name.makeFresh("y"+i);
             LocalDef yDef = ts.localDef(pos, ts.Final(), Types.ref(t), yn);
             Formal y = nf.Formal(pos, nf.FlagsNode(pos, ts.Final()),
                     nf.CanonicalTypeNode(pos, t), nf.Id(pos, yn)).localDef(yDef);
@@ -819,7 +819,7 @@ public class Desugarer extends ContextVisitor {
             idx1.add(nf.Local(pos, nf.Id(pos, yn)).localInstance(yDef.asInstance()).type(t));
             i++;
         }
-        Name zn = Name.make("z");
+        Name zn = Name.makeFresh("z");
         Type T = mi.formalTypes().get(mi.formalTypes().size()-1);
         Type vType = n.right().type();
         assert (ts.isSubtype(ami.returnType(), T, v.context()));
@@ -835,7 +835,7 @@ public class Desugarer extends ContextVisitor {
                 op, nf.Local(pos, nf.Id(pos, zn)).localInstance(zDef.asInstance()).type(vType)).type(T),
                 v);
         Type rType = val.type();
-        Name rn = Name.make("r");
+        Name rn = Name.makeFresh("r");
         LocalDef rDef = ts.localDef(pos, ts.Final(), Types.ref(rType), rn);
         LocalDecl r = nf.LocalDecl(pos, nf.FlagsNode(pos, ts.Final()),
                 nf.CanonicalTypeNode(pos, rType), nf.Id(pos, rn), val).localDef(rDef);
