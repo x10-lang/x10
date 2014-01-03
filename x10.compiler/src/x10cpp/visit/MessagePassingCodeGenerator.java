@@ -280,7 +280,6 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
             //                Expect it to be more efficient to explicitly initialize all of the object fields instead
             //                of first calling alloc_z, then storing into most of the fields a second time.
             sw.write("(new (::x10aux::alloc_z"+chevrons(typeName)+"()) "+typeName+"())");
-            sw.newline();
         }
     }
 
