@@ -449,13 +449,11 @@ public class Inliner extends ContextVisitor {
         }
         
         ProcedureInstance<? extends ProcedureDef> pi = call instanceof Call ? ((Call) call).procedureInstance() : ((ConstructorCall) call).procedureInstance();
-        Type formalThisType = ((MemberDef) pi.def()).container().get();
-        formalThisType = makeTypeMap(pi, call.typeArguments()).reinstantiate(formalThisType);
-        if (!ts.isSubtype(target.type(), formalThisType)) {
-            target = syn.createUncheckedCast(position, target, formalThisType, context());
-        }
-        Type localType = target.type();
-        LocalDecl thisDecl = syn.createLocalDecl(call.position(), Flags.FINAL, Name.makeFresh("this"), localType, target);
+        Type type = ((MemberDef) pi.def()).container().get();
+        type = makeTypeMap(pi, call.typeArguments()).reinstantiate(type);
+        
+        Expr expr = syn.createUncheckedCast(position, target, type, context());
+        LocalDecl thisDecl = syn.createLocalDecl(call.position(), Flags.FINAL, Name.makeFresh("this"), expr);
         return thisDecl;
     }
 
@@ -548,15 +546,12 @@ public class Inliner extends ContextVisitor {
         }
         assert (args.size() == formals.size());
         for (int i = 0; i < args.size(); i++) {
-            Expr actual = args.get(i);
+            Expr arg = args.get(i);
             X10Formal formal = (X10Formal) formals.get(i);
             X10LocalDef localDef = formal.localDef();
-            if (!ts.isSubtype(actual.type(), formal.type().type(), context)) {
-                actual = syn.createUncheckedCast(actual.position(), actual, formal.type().type(), context());
-            }
-            Type actualType = actual.type();
-            localDef.setType(Types.ref(actualType));
-            LocalDecl ld = syn.createLocalDecl(formal, actual);
+            Expr expr = syn.createUncheckedCast(arg.position(), arg, formal.type().type(), context());
+            localDef.setType(Types.ref(expr.type()));
+            LocalDecl ld = syn.createLocalDecl(formal, expr);           
             tieLocalDefToItself(ld.localDef());
             statements.add(ld);
         }
