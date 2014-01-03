@@ -18,6 +18,7 @@ import java.util.Map;
 
 import polyglot.ast.Block;
 import polyglot.ast.Branch;
+import polyglot.ast.Empty;
 import polyglot.ast.Eval;
 import polyglot.ast.Expr;
 import polyglot.ast.For;
@@ -211,6 +212,12 @@ public class CodeCleanUp extends ContextVisitor {
         // for (Stmt stmt : stl) {
         for (Iterator<Stmt> i = b.statements().iterator(); i.hasNext();) {
             Stmt stmt = i.next();
+            
+            if (stmt instanceof Empty) {
+                // remove empty statements
+                changeMade = true;
+                continue;
+            }
             stmtList.add(stmt);
 
             if (stmt instanceof Branch || stmt instanceof Return || stmt instanceof Throw) {
