@@ -144,7 +144,8 @@ public class X10MethodDoc extends X10Doc implements MethodDoc {
         // comments only if a param type
         // or return type is X10-specific (has associated closures, constraints)
         // or the method has contraints
-        if (!(X10Type.isX10Specific(returnType)) && methodDef.guard() == null) {
+        boolean hasTrivialMethodGuard = methodDef.guard() == null || methodDef.guard().get().atoms().isEmpty();
+        if (!(X10Type.isX10Specific(returnType)) && hasTrivialMethodGuard) {
             boolean hasConstraints = false;
             for (X10Parameter p : parameters) {
                 if (p.isX10Specific()) {
@@ -157,35 +158,10 @@ public class X10MethodDoc extends X10Doc implements MethodDoc {
             }
         }
 
-        // code to generate compact constraints; at present, simply prints to
-        // console
-        String desc = this.name() + "(";
-        boolean first = true;
-        for (X10Parameter p : parameters) {
-            if (first) {
-                first = false;
-            } else {
-                desc += ", ";
-            }
-            desc += p.name() + ": " + p.typeName();
-            if (p.isX10Specific()) {
-                desc += X10Type.descriptor(p.type());
-            }
-        }
-        desc += ") " + methodDef.guard() + ": " + methodDef.returnType();
-        if (X10Type.isX10Specific(returnType)) {
-            desc += X10Type.descriptor(returnType);
-        }
-        // System.out.println("X10MethodDoc{" + methodDef.signature() +
-        // "}.declString(): descriptor = " + desc);
-
-        String guard = (methodDef.guard() == null) ? "" : methodDef.guard().toString();
-        if ("{}".equals(guard)) guard = "";
-        // construct result from X10 compiler method signatures and toString
-        // functions
+        String guard = hasTrivialMethodGuard ? "" : methodDef.guard().toString();
+        // construct result from X10 compiler method signatures and toString functions
         String result = "<B>Declaration:</B> <TT>" + methodDef.signature() + guard + ":"
                 + methodDef.returnType().toString() + ".</TT><PRE>\n</PRE>";
-        // earlier: ... + X10Doc.toString(this.returnType)
         return result;
     }
 

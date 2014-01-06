@@ -17,6 +17,7 @@ import java.util.List;
 import polyglot.types.LocalDef;
 import x10.types.ParameterType;
 import x10.types.X10ConstructorDef;
+import x10.types.constraints.CConstraint;
 
 import com.sun.javadoc.AnnotationDesc;
 import com.sun.javadoc.ClassDoc;
@@ -128,7 +129,8 @@ public class X10ConstructorDoc extends X10Doc implements ConstructorDoc {
         // constructors's comments only if a param type,
         // return type or the constructor is X10-specific
 
-        if (!(X10Type.isX10Specific(returnType)) && constrDef.guard() == null) {
+        boolean hasTrivialMethodGuard = constrDef.guard() == null || constrDef.guard().get().atoms().isEmpty();
+        if (!(X10Type.isX10Specific(returnType)) && hasTrivialMethodGuard) {
             boolean hasConstraints = false;
             for (X10Parameter p : parameters) {
                 if (p.isX10Specific()) {
@@ -140,8 +142,7 @@ public class X10ConstructorDoc extends X10Doc implements ConstructorDoc {
                 return "";
             }
         }
-        String guard = (constrDef.guard() == null) ? "" : constrDef.guard().toString();
-        if ("{}".equals(guard)) guard = "";
+        String guard = hasTrivialMethodGuard ? "" : constrDef.guard().get().toString();
         String result = "<B>Declaration</B>: <TT>" + constrDef.signature() + guard + ":"
                 + constrDef.returnType().toString() + ".</TT><PRE>\n</PRE>";
         return result;
