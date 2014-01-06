@@ -189,7 +189,7 @@
 	</ant>
     </target>
     <target name="dist-bridge" depends="dist-java,bridge-jar"/>
-    <target name="dist-x10doc" depends="init,compiler-jar">
+    <target name="dist-x10doc" depends="dist-java,init,compiler-jar">
         <ant antfile="${x10.doc.location}/build.xml" target="dist" inheritAll="false" dir="${x10.doc.location}">
 	  <property name="x10.version" value="${x10.version}" />
 	</ant>
