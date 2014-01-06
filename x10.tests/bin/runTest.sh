@@ -266,12 +266,21 @@ function execTimeOut {
 }
 
 # the following needs to be defined outside main
-# program name
 MYDIR=$(cd $(dirname $0) && pwd)
 X10_HOME=$X10_HOME
 if [[ -z "$X10_HOME" ]]; then
     export X10_HOME=$(cd $MYDIR/../..; pwd)
 fi
+
+# defined separately from X10_HOME to simplify cygpath/windows path logic
+if [[ "$(uname -s)" == CYGWIN* ]]; then
+    tmp_test_root=$(cygpath -am $X10_HOME/x10.tests)
+else
+    tmp_test_root="$X10_HOME/x10.tests"
+fi
+export X10_TEST_DIR="$tmp_test_root"
+
+# program name
 prog=runTest.sh
 
 # platform independent abstraction for certain commands

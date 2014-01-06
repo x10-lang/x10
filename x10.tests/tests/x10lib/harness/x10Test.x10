@@ -52,16 +52,16 @@ abstract public class x10Test {
     // Convert a partial path and a file name into
     // an absolute path to the file.
     // If being run under the nightly test harness, then
-    // X10_HOME will be set in the environment and will be used
+    // X10_TEST_DIR will be set in the environment and will be used
     // to build up a path.  
-    // If X10_HOME is not set, this method simply returns file
+    // If X10_TEST_DIR is not set, this method simply returns file
     public static def pathCombine(prefix:String, file:String):String {
         val env = System.getenv();
-        val home = env.getOrElse("X10_HOME", null);
+        val home = env.getOrElse("X10_TEST_DIR", null);
         if (home == null) {
             return file;
         } else {
-            return home+File.SEPARATOR+"x10.tests"+File.SEPARATOR+prefix+File.SEPARATOR+file;
+            return home+File.SEPARATOR+prefix+File.SEPARATOR+file;
         }
     }
     public static def pathCombine(prefix:Rail[String], file:String):String {
