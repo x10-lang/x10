@@ -14,6 +14,6 @@ if [[ "$UNAME" = CYGWIN* ]]; then TOOLSJAR="$(cygpath -aw "$TOOLSJAR")"; fi
 
 export CP_OVERRIDE="${X10_DIST}${FILE_SEP}lib${FILE_SEP}x10doc.jar${PATH_SEP}${TOOLSJAR}${PATH_SEP}"
 export DEXT="x10doc.ExtensionInfo"
+export DDEF="__DOC__"
 
 exec "${X10_DIST}/bin/x10c" "$@"
-
