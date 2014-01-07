@@ -198,6 +198,8 @@ public class Struct {
             natives = createNative(nf, pos, "x10.rtt.Types.typeName(#this)", "::x10aux::type_name(#0)");
             AnnotationNode nonEscaping = nf.AnnotationNode(pos, nf.AmbMacroTypeNode(pos, nf.PrefixFromQualifiedName(pos,QName.make("x10.compiler")), nf.Id(pos, "NonEscaping"), Collections.<TypeNode>emptyList(), Collections.<Expr>emptyList()));
             natives.add(nonEscaping);
+            AnnotationNode synthetic = nf.AnnotationNode(pos, nf.AmbMacroTypeNode(pos, nf.PrefixFromQualifiedName(pos,QName.make("x10.compiler")), nf.Id(pos, "Synthetic"), Collections.<TypeNode>emptyList(), Collections.<Expr>emptyList()));
+            natives.add(synthetic);
             methodName = "typeName";
             md = nf.MethodDecl(pos,nf.FlagsNode(pos,nativeFlags),stringTypeNode,nf.Id(pos,Name.make(methodName)),Collections.<Formal>emptyList(),null);
             md = (X10MethodDecl) ((X10Ext) md.ext()).annotations(natives);
@@ -221,6 +223,10 @@ public class Struct {
             block = nf.Block(pos).statements(bodyStmts);
             methodName = "toString";
             md = nf.MethodDecl(pos,nf.FlagsNode(pos,flags),stringTypeNode,nf.Id(pos,Name.make(methodName)),Collections.<Formal>emptyList(),block);
+            ArrayList<AnnotationNode> ans = new ArrayList<AnnotationNode>(1);
+            AnnotationNode synthetic = nf.AnnotationNode(pos, nf.AmbMacroTypeNode(pos, nf.PrefixFromQualifiedName(pos,QName.make("x10.compiler")), nf.Id(pos, "Synthetic"), Collections.<TypeNode>emptyList(), Collections.<Expr>emptyList()));
+            ans.add(synthetic);
+            md = (X10MethodDecl) ((X10Ext) md.ext()).annotations(ans);
             n = (X10ClassDecl_c) n.body(n.body().addMember(md));
         }
         if (!seenHashCode) {
@@ -245,6 +251,10 @@ public class Struct {
             block = nf.Block(pos).statements(bodyStmts);
             methodName = "hashCode";
             md = nf.MethodDecl(pos,nf.FlagsNode(pos,flags),intTypeNode,nf.Id(pos,Name.make(methodName)),Collections.<Formal>emptyList(),block);
+            ArrayList<AnnotationNode> ans = new ArrayList<AnnotationNode>(1);
+            AnnotationNode synthetic = nf.AnnotationNode(pos, nf.AmbMacroTypeNode(pos, nf.PrefixFromQualifiedName(pos,QName.make("x10.compiler")), nf.Id(pos, "Synthetic"), Collections.<TypeNode>emptyList(), Collections.<Expr>emptyList()));
+            ans.add(synthetic);
+            md = (X10MethodDecl) ((X10Ext) md.ext()).annotations(ans);
             n = (X10ClassDecl_c) n.body(n.body().addMember(md));
         }
         // _struct_equals is used for == even when the user defined equals
@@ -266,6 +276,10 @@ public class Struct {
                 block = nf.Block(pos).statements(bodyStmts);
                 Formal formal = nf.Formal(pos,nf.FlagsNode(pos,Flags.NONE),anyTypeNode,nf.Id(pos,"other"));
                 md = nf.MethodDecl(pos,nf.FlagsNode(pos,flags),boolTypeNode,nf.Id(pos,Name.make(methodName)), Collections.singletonList(formal),block);
+                ArrayList<AnnotationNode> ans = new ArrayList<AnnotationNode>(1);
+                AnnotationNode synthetic = nf.AnnotationNode(pos, nf.AmbMacroTypeNode(pos, nf.PrefixFromQualifiedName(pos,QName.make("x10.compiler")), nf.Id(pos, "Synthetic"), Collections.<TypeNode>emptyList(), Collections.<Expr>emptyList()));
+                ans.add(synthetic);
+                md = (X10MethodDecl) ((X10Ext) md.ext()).annotations(ans);
                 n = (X10ClassDecl_c) n.body(n.body().addMember(md));
             }
 
@@ -289,6 +303,10 @@ public class Struct {
                 block = nf.Block(pos).statements(bodyStmts);
                 Formal formal = nf.Formal(pos,nf.FlagsNode(pos,Flags.NONE),structTypeNode,nf.Id(pos,"other"));
                 md = nf.MethodDecl(pos,nf.FlagsNode(pos,flags),boolTypeNode,nf.Id(pos,Name.make(methodName)),Collections.singletonList(formal),block);
+                ArrayList<AnnotationNode> ans = new ArrayList<AnnotationNode>(1);
+                AnnotationNode synthetic = nf.AnnotationNode(pos, nf.AmbMacroTypeNode(pos, nf.PrefixFromQualifiedName(pos,QName.make("x10.compiler")), nf.Id(pos, "Synthetic"), Collections.<TypeNode>emptyList(), Collections.<Expr>emptyList()));
+                ans.add(synthetic);
+                md = (X10MethodDecl) ((X10Ext) md.ext()).annotations(ans);
                 n = (X10ClassDecl_c) n.body(n.body().addMember(md));
             }
         }

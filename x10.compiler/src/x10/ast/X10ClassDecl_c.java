@@ -80,6 +80,7 @@ import polyglot.visit.TypeChecker;
 import x10.errors.Errors;
 import x10.extension.X10Del;
 import x10.extension.X10Del_c;
+import x10.extension.X10Ext;
 import x10.types.MacroType;
 import x10.types.ParameterType;
 import x10.types.TypeDef;
@@ -490,6 +491,10 @@ public class X10ClassDecl_c extends ClassDecl_c implements X10ClassDecl {
                 final QName fullName = curr.fullName();
                 MethodDecl md = nf.MethodDecl(pos,nf.FlagsNode(pos,flags),returnType,nf.Id(pos,getThisMethod(containerName,fullName)),Collections.<Formal>emptyList(),
                         nf.Block(pos,nf.Return(pos,nf.Special(pos, Special.Kind.THIS, nf.CanonicalTypeNode(pos, curr)))));
+                ArrayList<AnnotationNode> ans = new ArrayList<AnnotationNode>(1);
+                AnnotationNode synthetic = nf.AnnotationNode(pos, nf.AmbMacroTypeNode(pos, nf.PrefixFromQualifiedName(pos,QName.make("x10.compiler")), nf.Id(pos, "Synthetic"), Collections.<TypeNode>emptyList(), Collections.<Expr>emptyList()));
+                ans.add(synthetic);
+                md = (X10MethodDecl) ((X10Ext) md.ext()).annotations(ans);
                 n = (X10ClassDecl_c) n.body(n.body().addMember(md));
 
                 if (curr.flags().isStatic() || !curr.isMember()) break; // a non-member class doesn't have an outer instance
