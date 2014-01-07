@@ -117,6 +117,10 @@ classpath="${classpath}${LIB_DIR}${FILE_SEP}x10c.jar${PATH_SEP}${LIB_DIR}${FILE_
 # include libx10.properties as a x10lib unless rtdev
 [ -z "$rtdev" ] && args="-x10lib ${STDLIB_DIR}/libx10.properties $args"
 
+# define backend-specific macro
+[ -z "$DDEF" ] && DDEF="__JAVA__"
+args="-define $DDEF $args"
+
 # pass x10rt_impl via environment variable
 export X10RT_IMPL=$x10rt_impl
 
@@ -128,4 +132,3 @@ command="\"$JAVA\" -Xmx1024m -Dfile.encoding=UTF-8 -Dx10.dist=\"$TOP\" $config $
 
 eval "$time$command"
 exit $?
-

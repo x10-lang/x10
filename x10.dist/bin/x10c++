@@ -10,5 +10,6 @@ export X10_DIST="$(cd "$(dirname "$prog")/.." && pwd)"
 if [[ "$UNAME" = CYGWIN* ]]; then X10_DIST="$(cygpath -aw "$X10_DIST")"; fi
 
 export DEXT="x10cuda.ExtensionInfo"
+export DDEF="__CPP__"
 
-exec "${X10_DIST}/bin/x10c" "$@" -define __CPP__
+exec "${X10_DIST}/bin/x10c" "$@"
