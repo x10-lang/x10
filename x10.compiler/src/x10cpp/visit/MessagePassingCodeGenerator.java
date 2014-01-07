@@ -1034,6 +1034,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
             if (hasStructArg) {
                 h.writeln(");");
                 // (b) Repeat decl in body stream
+                emitter.printTemplateSignature(currentClass.x10Def().typeParameters(), bs);
                 bs.write("template <class R> "+Emitter.translateType(meth.returnType(), true)+" ");
                 bs.write(Emitter.translateType(currentClass, false)+"::"+mname+"(R* _recv");
                 argNum=0;
@@ -1083,6 +1084,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
             if (hasStructArg) {
                 h.writeln(");");
                 // (b) Repeat decl in body stream
+                emitter.printTemplateSignature(currentClass.x10Def().typeParameters(), bs);
                 bs.write("template <class R> "+Emitter.translateType(meth.returnType(), true));
                 bs.write(" "+Emitter.translateType(currentClass, false)+"::"+mname+"(R _recv");
                 argNum=0;
