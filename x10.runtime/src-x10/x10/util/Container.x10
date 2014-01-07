@@ -15,7 +15,7 @@ package x10.util;
 public interface Container[T]  extends Iterable[T] {
   public def size(): Long;
   public def isEmpty(): Boolean;
-  public def contains(T): Boolean;
-  public def containsAll(Container[T]): Boolean;
+  public def contains(y:T): Boolean;
+  public def containsAll(c:Container[T]): Boolean;
   public def clone(): Container[T];
 }

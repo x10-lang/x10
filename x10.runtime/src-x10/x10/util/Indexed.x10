@@ -12,5 +12,5 @@
 package x10.util;
 
 public interface Indexed[T] extends Container[T], (Long)=>T {
-    public operator this(Long): T;
+    public operator this(index:Long): T;
 }

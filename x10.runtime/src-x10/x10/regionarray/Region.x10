@@ -357,7 +357,7 @@ public abstract class Region(
      * to native code.  Often indexOf will be used in conjuntion with the 
      * raw() method of Array or DistArray.
      */
-    public abstract def indexOf(Point):long;
+    public abstract def indexOf(p:Point):long;
     
     public def indexOf(i0:long) = indexOf(Point.make(i0));
     public def indexOf(i0:long, i1:long) = indexOf(Point.make(i0, i1));

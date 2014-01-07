@@ -27,7 +27,7 @@ public interface Reducible[T]  {
     */
     def zero():T;
     
-    operator this(T,T):T;
+    operator this(a:T, b:T):T;
 
     public static struct AndReducer implements Reducible[Boolean] {
         public def zero():Boolean = true;

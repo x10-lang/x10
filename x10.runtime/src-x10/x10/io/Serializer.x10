@@ -40,7 +40,7 @@ public final class Serializer implements Unserializable {
      * 
      * NOTE: This constructor is currently only implemented for ManagedX10
      */
-    public native def this(OutputStreamWriter);
+    public native def this(o:OutputStreamWriter);
 
     /**
      * Write the argument value v (and the object

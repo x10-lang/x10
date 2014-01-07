@@ -14,12 +14,12 @@ package x10.util;
 public interface List[T] extends Collection[T], Indexed[T], Settable[Long,T] {
   public def indices(): List[Long];
   
-  public def addBefore(i: Long, T): void;
+  public def addBefore(i: Long, v:T): void;
   public def removeAt(i: Long): T;
-  public def indexOf(T): Long;
-  public def lastIndexOf(T): Long;
-  public def indexOf(Long, T): Long;
-  public def lastIndexOf(Long, T): Long;
+  public def indexOf(v:T): Long;
+  public def lastIndexOf(v:T): Long;
+  public def indexOf(index:Long, v:T): Long;
+  public def lastIndexOf(index:Long, v:T): Long;
   public def iterator(): ListIterator[T];
   public def iteratorFrom(i: Long): ListIterator[T];
   public def subList(fromIndex: Long, toIndex: Long): List[T];

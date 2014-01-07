@@ -20,7 +20,7 @@ import x10.compiler.Incomplete;
  * Modeled after java.nio.file.Path.
  *
  * Usage:
- *
+ * <pre>
  * try {
  *    val input = new File(inputFileName);
  *    val output = new File(outputFileName);
@@ -30,6 +30,7 @@ import x10.compiler.Incomplete;
  *    }
  *    p.flush();
  * } catch (IOException) { }
+ * </pre>
  */
 public class File {
     @NativeRep("java", "x10.core.io.NativeFile", null, "x10.core.io.NativeFile.$RTT")
@@ -198,7 +199,7 @@ FileSystem operations
     public def setLastModified(t:Long): Boolean = nativeFile().setLastModified(t);
     public def size(): Long = nativeFile().length();
 
-    @Incomplete public def compareTo(File): Int {         throw new UnsupportedOperationException();}
+    @Incomplete public def compareTo(f:File): Int {         throw new UnsupportedOperationException();}
 
     public def canRead(): Boolean = nativeFile().canRead();
     public def canWrite(): Boolean = nativeFile().canWrite();
