@@ -34,7 +34,7 @@ import x10.util.GrowableRail;
 public final class String implements Comparable[String], CharSequence {
 
     /**
-     * Default constructor.
+     * Construct the empty string.
      */
     public native def this(): String;
 
