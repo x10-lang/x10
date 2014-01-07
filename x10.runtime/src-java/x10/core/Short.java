@@ -193,7 +193,6 @@ final public class Short extends java.lang.Number implements StructI, java.lang.
     public static X10JavaSerializable $_deserialize_body(Short $_obj, X10JavaDeserializer $deserializer) throws IOException {
         short value  = $deserializer.readShort();
         $_obj = new Short(value);
-        $deserializer.record_reference($_obj);
         return $_obj;
     }
 }

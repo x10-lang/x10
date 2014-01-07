@@ -132,7 +132,6 @@ final public class UByte extends java.lang.Number implements StructI, java.lang.
     public static X10JavaSerializable $_deserialize_body(UByte $_obj, X10JavaDeserializer $deserializer) throws IOException {
         byte value = $deserializer.readByte();
         $_obj = new UByte(value);
-        $deserializer.record_reference($_obj);
         return $_obj;
     }
     

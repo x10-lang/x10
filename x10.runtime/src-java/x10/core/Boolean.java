@@ -113,7 +113,6 @@ final public class Boolean extends Struct implements java.lang.Comparable<Boolea
     public static X10JavaSerializable $_deserialize_body(Boolean $_obj, X10JavaDeserializer $deserializer) throws IOException {
         boolean value  = $deserializer.readBoolean();
         $_obj = new Boolean(value);
-        $deserializer.record_reference($_obj);
         return $_obj;
     }
 }

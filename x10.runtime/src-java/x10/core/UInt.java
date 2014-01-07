@@ -141,7 +141,6 @@ final public class UInt extends java.lang.Number implements StructI, java.lang.C
     public static X10JavaSerializable $_deserialize_body(UInt $_obj, X10JavaDeserializer $deserializer) throws IOException {
         int value = $deserializer.readInt();
         $_obj = new UInt(value);
-        $deserializer.record_reference($_obj);
         return $_obj;
     }
     

@@ -139,7 +139,6 @@ final public class ULong extends java.lang.Number implements StructI, java.lang.
     public static X10JavaSerializable $_deserialize_body(ULong $_obj, X10JavaDeserializer $deserializer) throws IOException {
         long value = $deserializer.readLong();
         $_obj = new ULong(value);
-        $deserializer.record_reference($_obj);
         return $_obj;
     }
     

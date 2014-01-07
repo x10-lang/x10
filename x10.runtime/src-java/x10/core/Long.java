@@ -184,7 +184,6 @@ final public class Long extends java.lang.Number implements StructI, java.lang.C
     public static X10JavaSerializable $_deserialize_body(Long $_obj, X10JavaDeserializer $deserializer) throws IOException {
         long value  = $deserializer.readLong();
         $_obj = new Long(value);
-        $deserializer.record_reference($_obj);
         return $_obj;
     }
 }

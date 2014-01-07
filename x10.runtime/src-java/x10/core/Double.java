@@ -154,7 +154,6 @@ final public class Double extends java.lang.Number implements StructI, java.lang
     public static X10JavaSerializable $_deserialize_body(Double $_obj, X10JavaDeserializer $deserializer) throws IOException {
         double value  = $deserializer.readDouble();
         $_obj = new Double(value);
-        $deserializer.record_reference($_obj);
         return $_obj;
     }
 }

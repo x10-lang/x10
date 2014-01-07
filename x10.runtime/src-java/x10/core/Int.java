@@ -197,7 +197,6 @@ final public class Int extends java.lang.Number implements StructI, java.lang.Co
     public static X10JavaSerializable $_deserialize_body(Int $_obj, X10JavaDeserializer $deserializer) throws IOException {
         int value  = $deserializer.readInt();
         $_obj = new Int(value);
-        $deserializer.record_reference($_obj);
         return $_obj;
     }
 }

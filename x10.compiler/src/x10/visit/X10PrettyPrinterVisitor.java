@@ -867,7 +867,9 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
                             }
                         }
                     }
-                    w.writeln("$deserializer.record_reference($_obj);");
+                    if (!def.isStruct()) {
+                        w.writeln("$deserializer.record_reference($_obj);");
+                    }
                     w.write("return " + Emitter.DESERIALIZE_BODY_METHOD + "($_obj, $deserializer);");
                 }
                 w.end();

@@ -123,7 +123,6 @@ final public class Char extends Struct implements java.lang.Comparable<Char>, x1
     public static X10JavaSerializable $_deserialize_body(Char $_obj, X10JavaDeserializer $deserializer) throws IOException {
         char value  = $deserializer.readChar();
         $_obj = new Char(value);
-        $deserializer.record_reference($_obj);
         return $_obj;
     }
     

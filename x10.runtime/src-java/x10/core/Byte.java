@@ -191,7 +191,6 @@ final public class Byte extends java.lang.Number implements StructI, java.lang.C
     public static X10JavaSerializable $_deserialize_body(Byte $_obj, X10JavaDeserializer $deserializer) throws IOException {
         byte value  = $deserializer.readByte();
         $_obj = new Byte(value);
-        $deserializer.record_reference($_obj);
         return $_obj;
     }
 }

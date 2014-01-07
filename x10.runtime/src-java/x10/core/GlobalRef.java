@@ -567,9 +567,7 @@ public final class GlobalRef<T> extends Struct implements X10JavaSerializable {
 
     public static X10JavaSerializable $_deserializer(X10JavaDeserializer $deserializer) throws java.io.IOException {
         GlobalRef $_obj = new GlobalRef();
-        int pos = $deserializer.record_reference($_obj);
         X10JavaSerializable returned = $_deserialize_body($_obj, $deserializer); // remote GlobalRefs are merged if they have same id
-        if (returned != $_obj) $deserializer.update_reference(pos, returned);
         return returned;
     }
 

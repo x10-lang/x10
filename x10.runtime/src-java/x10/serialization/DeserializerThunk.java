@@ -93,7 +93,8 @@ abstract class DeserializerThunk {
                 throw new RuntimeException(e);
             }
         }
-        int i = jds.record_reference(obj);
+        
+        int i = x10.core.StructI.class.isAssignableFrom(clazz) ? -666 : jds.record_reference(obj);
         return deserializeObject(clazz, obj, i, jds);
     }
 

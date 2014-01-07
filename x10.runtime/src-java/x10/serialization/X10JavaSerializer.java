@@ -22,7 +22,7 @@ import java.lang.reflect.InvocationTargetException;
 
 import x10.core.GlobalRef;
 import x10.core.Rail;
-import x10.io.CustomSerialization;
+import x10.core.StructI;
 import x10.rtt.Types;
 import x10.runtime.impl.java.Runtime;
 import x10.serialization.SerializationDictionary.LocalSerializationDictionary;
@@ -254,11 +254,13 @@ public final class X10JavaSerializer implements SerializationConstants {
             return;
         }
         
-        Integer pos = previous_position(obj, true);
-        if (pos != null) {
-            return;
+        if (!(obj instanceof StructI)) {
+            Integer pos = previous_position(obj, true);
+            if (pos != null) {
+                return;
+            }
         }
-        
+
         writeSerializationId(sid);
         if (obj instanceof X10JavaSerializable) {
              if (Runtime.TRACE_SER) {
