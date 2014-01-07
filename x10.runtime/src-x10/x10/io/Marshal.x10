@@ -15,7 +15,7 @@ import x10.util.GrowableRail;
 
 public interface Marshal[T] {
     public def read(r:Reader):T;
-    public def write(w:Writer, T):void;
+    public def write(w:Writer, v:T):void;
     
     public static BOOLEAN = new BooleanMarshal();
     public static BYTE = new ByteMarshal();

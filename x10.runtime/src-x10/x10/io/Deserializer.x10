@@ -33,7 +33,7 @@ public final class Deserializer implements Unserializable {
      * and calling this constructor with such a Serializer instance 
      * will raise an UnsupportedOperationException.
      */
-    public native def this(Serializer);
+    public native def this(s:Serializer);
 
     /**
      * Create a Deserializer that will read serialized values
@@ -41,7 +41,7 @@ public final class Deserializer implements Unserializable {
      * Rail should have orginated from a call to toRail() on 
      * a Serializer object.
      */
-    public native def this(Rail[byte]);
+    public native def this(r:Rail[byte]);
     
     /**
      * Create a Deserializer that will read serialized values
@@ -51,7 +51,7 @@ public final class Deserializer implements Unserializable {
      * 
      * NOTE: This constructor is currently only implemented for ManagedX10
      */
-    public native def this(InputStreamReader);
+    public native def this(i:InputStreamReader);
 
     /**
      * Deserialize a value
