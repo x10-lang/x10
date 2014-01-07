@@ -20,6 +20,7 @@ import java.util.Map;
 import java.util.StringTokenizer;
 
 import polyglot.types.ClassType;
+import polyglot.types.Flags;
 import polyglot.types.Ref;
 import x10.ast.X10SourceFile_c;
 import x10.types.ParameterType;
@@ -51,6 +52,7 @@ import com.sun.javadoc.WildcardType;
 public class X10ClassDoc extends X10Doc implements ClassDoc {
     X10SourceFile_c source;
     X10ClassDef classDef;
+    Flags flags;
     X10ClassDoc containingClass;
     X10ClassDoc superclass;
     Type superclassType;
@@ -76,6 +78,9 @@ public class X10ClassDoc extends X10Doc implements ClassDoc {
     public X10ClassDoc(X10ClassDef classDef, X10ClassDoc containingClass, String comment) {
         // super(comment);
         this.classDef = classDef;
+        flags = classDef.flags();
+        if (flags.isStruct()) flags = flags.clearFinal();       // remove redundancy
+        if (flags.isInterface()) flags = flags.clearAbstract(); // remove redundancy
         this.containingClass = containingClass;
         this.rootDoc = X10RootDoc.getRootDoc();
         this.fields = new LinkedHashMap<String, X10FieldDoc>();
@@ -747,7 +752,7 @@ public class X10ClassDoc extends X10Doc implements ClassDoc {
     }
 
     public boolean isAbstract() {
-        return (classDef.flags().isAbstract() || isInterface());
+        return flags.isAbstract();
     }
 
     public boolean isClass() {
@@ -791,18 +796,18 @@ public class X10ClassDoc extends X10Doc implements ClassDoc {
 
     @Override
     public boolean isInterface() {
-        return classDef.flags().isInterface();
+        return flags.isInterface();
     }
 
     // the following assumes that isEnum, isError, isException have been called
     // earlier
     @Override
     public boolean isOrdinaryClass() {
-        return !classDef.flags().isInterface();
+        return !flags.isInterface();
     }
 
     public boolean isPackagePrivate() {
-        return classDef.flags().isPackage();
+        return flags.isPackage();
     }
 
     public boolean isPrimitive() {
@@ -811,15 +816,15 @@ public class X10ClassDoc extends X10Doc implements ClassDoc {
     }
 
     public boolean isPrivate() {
-        return classDef.flags().isPrivate();
+        return flags.isPrivate();
     }
 
     public boolean isProtected() {
-        return classDef.flags().isProtected();
+        return flags.isProtected();
     }
 
     public boolean isPublic() {
-        return classDef.flags().isPublic();
+        return flags.isPublic();
     }
 
     public boolean isSerializable() {
@@ -828,7 +833,7 @@ public class X10ClassDoc extends X10Doc implements ClassDoc {
     }
 
     public boolean isStatic() {
-        return classDef.flags().isStatic();
+        return flags.isStatic();
     }
 
     public MethodDoc[] methods() {
@@ -863,11 +868,11 @@ public class X10ClassDoc extends X10Doc implements ClassDoc {
 
     public String modifiers() {
         if (X10RootDoc.printSwitch) System.out.println("ClassDoc.modifiers() called for " + name());
-        return classDef.flags().toString();
+        return flags.toString();
     }
 
     public int modifierSpecifier() {
-        return X10Doc.flagsToModifierSpecifier(classDef.flags().flags());
+        return X10Doc.flagsToModifierSpecifier(flags.flags());
     }
 
     public String name() {
@@ -995,7 +1000,7 @@ public class X10ClassDoc extends X10Doc implements ClassDoc {
     }
 
     public boolean isFinal() {
-        return classDef.flags().isFinal();
+        return flags.isFinal();
     }
 
     // public static String fieldKey(X10FieldDoc fd) {

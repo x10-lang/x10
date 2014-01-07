@@ -14,6 +14,7 @@ package x10doc.doc;
 import java.util.ArrayList;
 import java.util.List;
 
+import polyglot.types.Flags;
 import polyglot.types.LocalDef;
 import x10.types.ParameterType;
 import x10.types.X10MethodDef;
@@ -31,6 +32,7 @@ import com.sun.javadoc.TypeVariable;
 
 public class X10MethodDoc extends X10Doc implements MethodDoc {
     private X10MethodDef methodDef;
+    private Flags flags;
     private X10ClassDoc containingClass;
     private X10TypeVariable[] typeParams;
     private X10RootDoc rootDoc;
@@ -45,6 +47,9 @@ public class X10MethodDoc extends X10Doc implements MethodDoc {
     public X10MethodDoc(X10MethodDef methodDef, X10ClassDoc containingClass, String comment) {
         this.methodDef = methodDef;
         this.containingClass = containingClass;
+        flags = methodDef.flags();
+        if (containingClass.flags.isStruct()) flags = flags.clearFinal();       // remove redundancy
+        if (containingClass.flags.isInterface()) flags = flags.clearAbstract(); // remove redundancy
         this.rootDoc = X10RootDoc.getRootDoc();
 
         // the following lines simply retrieve the formal parameter types from
@@ -167,7 +172,7 @@ public class X10MethodDoc extends X10Doc implements MethodDoc {
 
     public boolean isAbstract() {
         if (X10RootDoc.printSwitch) System.out.println(name() + ".isAbstract() called.");
-        return methodDef.flags().isAbstract();
+        return flags.isAbstract();
     }
 
     @Override
@@ -237,7 +242,7 @@ public class X10MethodDoc extends X10Doc implements MethodDoc {
 
     public boolean isNative() {
         System.out.println(name() + ".isNative() called.");
-        return methodDef.flags().isNative();
+        return flags.isNative();
     }
 
     public boolean isSynchronized() {
@@ -352,52 +357,50 @@ public class X10MethodDoc extends X10Doc implements MethodDoc {
 
     public boolean isFinal() {
         if (X10RootDoc.printSwitch) System.out.println(name() + ".isFinal() called.");
-        return methodDef.flags().isFinal();
+        return flags.isFinal();
     }
 
     public boolean isPackagePrivate() {
         if (X10RootDoc.printSwitch) System.out.println(name() + ".isPackagePrivate() called.");
-        return methodDef.flags().isPackage();
+        return flags.isPackage();
     }
 
     public boolean isPrivate() {
         if (X10RootDoc.printSwitch) System.out.println(name() + ".isPrivate() called.");
-        return methodDef.flags().isPrivate();
+        return flags.isPrivate();
     }
 
     public boolean isProtected() {
         if (X10RootDoc.printSwitch) System.out.println(name() + ".isProtected() called.");
-        return methodDef.flags().isProtected();
+        return flags.isProtected();
     }
 
     public boolean isPublic() {
         if (X10RootDoc.printSwitch) System.out.println(name() + ".isPublic() called.");
-        return methodDef.flags().isPublic();
+        return flags.isPublic();
     }
 
     public boolean isStatic() {
         if (X10RootDoc.printSwitch) System.out.println(name() + ".isStatic() called.");
-        return methodDef.flags().isStatic();
+        return flags.isStatic();
     }
 
     public int modifierSpecifier() {
         if (X10RootDoc.printSwitch) System.out.println(name() + ".modifierSpecifier() called.");
-        // int r = 0;
-        // for (Object flag : methodDef.flags().flags()) {
-        // // flag could be "property" which is not in flagsToHex (and not
-        // recognized by
-        // // the standard doclet)
-        // if (flagsToHex.containsKey((String)flag)) {
-        // r |= flagsToHex.get((String)flag);
-        // }
-        // }
-        // return r;
-        return X10Doc.flagsToModifierSpecifier(methodDef.flags().flags());
+//        int r = 0;
+//        for (String flag : flags.flags()) {
+//            // flag could be "property" which is not in flagsToHex (and not recognized by the standard doclet)
+//            if (flagsToHex.containsKey(flag)) {
+//                r |= flagsToHex.get(flag);
+//            }
+//        }
+//        return r;
+        return X10Doc.flagsToModifierSpecifier(flags.flags());
     }
 
     public String modifiers() {
         if (X10RootDoc.printSwitch) System.out.println(name() + ".modifiers() called.");
-        return methodDef.flags().toString();
+        return flags.toString();
     }
 
     public String qualifiedName() {
