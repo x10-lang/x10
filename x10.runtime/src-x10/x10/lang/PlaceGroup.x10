@@ -13,8 +13,6 @@
 package x10.lang;
 
 import x10.compiler.Pragma;
-import x10.io.Serializer;
-import x10.io.Deserializer;
 
 /**
  * <p> A PlaceGroup represents an ordered set of Places.
@@ -114,15 +112,8 @@ public abstract class PlaceGroup implements Iterable[Place] {
    *    (any async/at must be nested inside of a finish).
    */
   public def broadcastFlat(cl:()=>void) {
-    val ser = new Serializer();
-    ser.writeAny(cl);
-    val message = ser.toRail();
     @Pragma(Pragma.FINISH_SPMD) finish for (p in this) {
-      at (p) async {
-          val dser = new x10.io.Deserializer(message);
-          val cls = dser.readAny() as ()=>void;
-          cls();
-      };
+      at (p) async cl();
     }
   }
 
@@ -132,16 +123,9 @@ public abstract class PlaceGroup implements Iterable[Place] {
    *    (any async/at must be nested inside of a finish).
    */
   public def broadcastFlat(cl:()=>void, ignoreIfDead:(Place)=>boolean) {
-    val ser = new Serializer();
-    ser.writeAny(cl);
-    val message = ser.toRail();
     @Pragma(Pragma.FINISH_SPMD) finish for (p in this) {
       if (!p.isDead() || !ignoreIfDead(p)) {
-          at (p) async {
-              val dser = new x10.io.Deserializer(message);
-              val cls = dser.readAny() as ()=>void;
-              cls();
-          };
+          at (p) async cl();
       }
     }
   }
@@ -168,19 +152,12 @@ public abstract class PlaceGroup implements Iterable[Place] {
     public def hashCode() = numPlaces.hashCode();
     public def broadcastFlat(cl:()=>void) {
         if (numPlaces() >= 1024L) {
-            val ser = new Serializer();
-            ser.writeAny(cl);
-            val message = ser.toRail();
             @Pragma(Pragma.FINISH_SPMD) finish for(var i:Long=numPlaces()-1; i>=0L; i-=32L) {
                 at (Place(i)) async {
                     val max = Runtime.hereLong();
                     val min = Math.max(max-31L, 0L);
                     @Pragma(Pragma.FINISH_SPMD) finish for (var j:Long=min; j<=max; ++j) {
-                        at (Place(j)) async {
-                            val dser = new x10.io.Deserializer(message);
-                            val cls = dser.readAny() as ()=>void;
-                            cls();
-                       }
+                        at (Place(j)) async cl();
                     }
                 }
             }
