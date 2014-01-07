@@ -64,9 +64,19 @@ public class Struct {
         String strName = fullName.name().toString();
         final QName qualifier = fullName.qualifier();
 
-        final ArrayList<Ref<? extends Type>> interfacesList = new ArrayList<Ref<? extends Type>>(cd.interfaces());
-        interfacesList.add(xts.lazyAny());
-        cd.setInterfaces(interfacesList);
+        List<Ref<? extends Type>> interfaces = cd.interfaces();
+        boolean hasAny = false;
+        for (Ref<? extends Type> intf : interfaces) {
+            if (intf.get().isAny()) {
+                hasAny = true;
+                break;
+            }
+        }
+        if (!hasAny) {
+            final ArrayList<Ref<? extends Type>> interfacesList = new ArrayList<Ref<? extends Type>>(interfaces);
+            interfacesList.add(xts.lazyAny());
+            cd.setInterfaces(interfacesList);
+        }
 
         final Position pos = Position.compilerGenerated(n.body().position());
 
