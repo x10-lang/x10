@@ -36,12 +36,14 @@ public final class String implements Comparable[String], CharSequence {
     /**
      * Construct the empty string.
      */
+    @Native("java", "new java.lang.String()")
     public native def this(): String;
 
     /**
      * Copy constructor.
      */
-    public native def this(String): String;
+    @Native("java", "new java.lang.String(#original)")
+    public native def this(original:String): String;
 
     /**
      * Construct a String from a Rail[Byte].
