@@ -113,6 +113,8 @@ public class X10DocGenerator extends X10DelegatingVisitor {
 
     @Override
     public void visit(X10ClassDecl_c n) {
+        if (X10RootDoc.isSynthetic(n.classDef())) return;
+
         String comments = getDocComments(n);
 
         /*
@@ -188,6 +190,8 @@ public class X10DocGenerator extends X10DelegatingVisitor {
 
     @Override
     public void visit(PropertyDecl_c n) {
+        if (X10RootDoc.isSynthetic(n.fieldDef())) return;
+
         String comments = "/** Property. */";
 
         FieldDef fd = n.fieldDef();
@@ -197,6 +201,8 @@ public class X10DocGenerator extends X10DelegatingVisitor {
 
     @Override
     public void visit(X10FieldDecl_c n) {
+        if (X10RootDoc.isSynthetic(n.fieldDef())) return;
+
         String comments = getDocComments(n);
 
         FieldDef fd = n.fieldDef();
@@ -222,6 +228,8 @@ public class X10DocGenerator extends X10DelegatingVisitor {
 
     @Override
     public void visit(X10ConstructorDecl_c n) {
+        if (X10RootDoc.isSynthetic(n.constructorDef())) return;
+
         String comments = getDocComments(n);
 
         /*
@@ -243,6 +251,8 @@ public class X10DocGenerator extends X10DelegatingVisitor {
 
     @Override
     public void visit(X10MethodDecl_c n) {
+        if (X10RootDoc.isSynthetic(n.methodDef())) return;
+
         String comments = getDocComments(n);
 
         /*
@@ -263,6 +273,8 @@ public class X10DocGenerator extends X10DelegatingVisitor {
 
     @Override
     public void visit(TypeDecl_c n) {
+        if (X10RootDoc.isSynthetic(n.typeDef())) return;
+
         // System.out.println("visit(TypeDecl_c{" + n + "}: node not handled");
         String comments = getDocComments(n);
         TypeDef def = n.typeDef();
