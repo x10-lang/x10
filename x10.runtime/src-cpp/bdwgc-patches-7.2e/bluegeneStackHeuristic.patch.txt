@@ -1,0 +1,30 @@
+diff --git a/include/private/gcconfig.h b/include/private/gcconfig.h
+index bea1a76..b0e25f1 100644
+--- a/include/private/gcconfig.h
++++ b/include/private/gcconfig.h
+@@ -805,7 +805,11 @@
+ #     define OS_TYPE "LINUX"
+       /* HEURISTIC1 has been reliably reported to fail for a 32-bit     */
+       /* executable on a 64 bit kernel.                                 */
+-#     define LINUX_STACKBOTTOM
++#     if defined (__bg__)
++#       define HEURISTIC2
++#     else
++#       define LINUX_STACKBOTTOM
++#     endif
+ #     define DYNAMIC_LOADING
+ #     define SEARCH_FOR_DATA_START
+       extern int _end[];
+diff --git a/os_dep.c b/os_dep.c
+index 25bd568..e5e1a78 100644
+--- a/os_dep.c
++++ b/os_dep.c
+@@ -1157,7 +1157,7 @@ GC_INNER word GC_page_size = 0;
+   ptr_t GC_get_main_stack_base(void)
+   {
+     ptr_t result;
+-#   if defined(LINUX) && !defined(NACL) \
++#   if defined(LINUX) && !defined(NACL) && !defined(__bg__) \
+        && (defined(USE_GET_STACKBASE_FOR_MAIN) \
+            || (defined(THREADS) && !defined(REDIRECT_MALLOC)))
+       pthread_attr_t attr;

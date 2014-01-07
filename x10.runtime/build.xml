@@ -2,7 +2,7 @@
 <!DOCTYPE project [<!ENTITY buildfile SYSTEM "./build-user.xml">]>
 <project name="x10.runtime" default="dist" basedir=".">
     &buildfile;
-    <property name="bdwgc.version" value="7.2d"/>
+    <property name="bdwgc.version" value="7.2e"/>
     <property name="x10.home" value="${basedir}/.."/>
     <property name="x10.dist.location" value="${x10.home}/x10.dist"/>
     <property name="x10.constraints.location" location="${x10.home}/x10.constraints"/>
@@ -737,7 +737,7 @@
 	    <!-- Patches to apply for bdwgc version 7.2d -->
 	    <if>
 	      <conditions>
-		<equals arg1="${bdwgc.version}" arg2="7.2d" />
+		  <equals arg1="${bdwgc.version}" arg2="7.2d" />
 	      </conditions>
 	      <then>
 		<patch patchfile="${basedir}/src-cpp/bdwgc-patches-${bdwgc.version}/enableRTSignals.patch.txt"
@@ -748,10 +748,30 @@
                        dir="${bdwgc.dir}/src" strip="0" />
 		<patch patchfile="${basedir}/src-cpp/bdwgc-patches-${bdwgc.version}/fixThreadConfigureForPPC.patch.txt"
                        dir="${bdwgc.dir}/src" strip="1" />
-		 		 <patch patchfile="${basedir}/src-cpp/bdwgc-patches-${bdwgc.version}/fx10Support.patch.txt"
+                <patch patchfile="${basedir}/src-cpp/bdwgc-patches-${bdwgc.version}/fx10Support.patch.txt"
                        dir="${bdwgc.dir}/src" strip="1" />
 	      </then>
 	    </if>
+
+	    <!-- Patches to apply for bdwgc version 7.2e -->
+	    <if>
+	      <conditions>
+		  <equals arg1="${bdwgc.version}" arg2="7.2e" />
+	      </conditions>
+	      <then>
+		<patch patchfile="${basedir}/src-cpp/bdwgc-patches-${bdwgc.version}/enableRTSignals.patch.txt"
+                       dir="${bdwgc.dir}/src" strip="1" />
+		<patch patchfile="${basedir}/src-cpp/bdwgc-patches-${bdwgc.version}/pthread_support.patch.txt"
+                       dir="${bdwgc.dir}/src" strip="1" />
+		<patch patchfile="${basedir}/src-cpp/bdwgc-patches-${bdwgc.version}/bluegeneStackHeuristic.patch.txt"
+                       dir="${bdwgc.dir}/src" strip="1" />
+		<patch patchfile="${basedir}/src-cpp/bdwgc-patches-${bdwgc.version}/fixThreadConfigureForPPC.patch.txt"
+                       dir="${bdwgc.dir}/src" strip="1" />
+		<patch patchfile="${basedir}/src-cpp/bdwgc-patches-${bdwgc.version}/fx10Support.patch.txt"
+                       dir="${bdwgc.dir}/src" strip="1" />
+	      </then>
+	    </if>
+
         </sequential>
     </target>
 

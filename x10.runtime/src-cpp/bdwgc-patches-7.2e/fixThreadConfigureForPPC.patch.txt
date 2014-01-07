@@ -1,0 +1,26 @@
+diff --git a/configure b/configure
+index e684752..0eb1ba3 100755
+--- a/configure
++++ b/configure
+@@ -5004,7 +5004,7 @@ fi
+ 
+     case "$host" in
+      x86-*-linux* | ia64-*-linux* | i586-*-linux* | i686-*-linux* \
+-     | x86_64-*-linux* | alpha-*-linux* | sparc*-*-linux*)
++     | x86_64-*-linux* | alpha-*-linux* | powerpc*-*-linux* | sparc*-*-linux*)
+         $as_echo "#define GC_LINUX_THREADS 1" >>confdefs.h
+ 
+         $as_echo "#define _REENTRANT 1" >>confdefs.h
+diff --git a/configure.ac b/configure.ac
+index e368741..d06e714 100644
+--- a/configure.ac
++++ b/configure.ac
+@@ -123,7 +123,7 @@ case "$THREADS" in
+     AC_CHECK_LIB(pthread, pthread_self, THREADDLLIBS="-lpthread",,)
+     case "$host" in
+      x86-*-linux* | ia64-*-linux* | i586-*-linux* | i686-*-linux* \
+-     | x86_64-*-linux* | alpha-*-linux* | sparc*-*-linux*)
++     | x86_64-*-linux* | alpha-*-linux* | powerpc*-*-linux* | sparc*-*-linux*)
+         AC_DEFINE(GC_LINUX_THREADS)
+         AC_DEFINE(_REENTRANT)
+         if test "${enable_parallel_mark}" = yes; then
