@@ -103,7 +103,7 @@ nice "$ROOT/x10.dist/bin/x10c" -O \
 
 echo "Running"
 
-"$ROOT/x10.dist/bin/x10" -classpath "$TMP_DIR/PreCommit.jar" PreCommit || testFailed
+X10_NPLACES=2 X10_HOSTLIST=localhost "$ROOT/x10.dist/bin/x10" -classpath "$TMP_DIR/PreCommit.jar" PreCommit || testFailed
 
 fi
 
