@@ -113,6 +113,14 @@ public class X10RootDoc extends X10Doc implements RootDoc {
         return cd.fullName().toString();
     }
 
+    public static boolean isSynthetic(X10Def n) {
+        for (polyglot.types.Type at : n.annotations()) {
+            if ("Synthetic".equals(at.name().toString())) return true;
+        }
+//        if (n.position().isCompilerGenerated()) return true;
+        return false;
+    }
+
     /**
      * Returns a ClassDoc object for the given X10ClassDef object. If such an
      * object exists as an unspecified class, then returns that object after
@@ -390,16 +398,19 @@ public class X10RootDoc extends X10Doc implements RootDoc {
 
         for (FieldDef fd : classDef.fields()) {
             // cd.addField(new X10FieldDoc(((X10FieldDef) fd), cd, ""));
+            if (!isSynthetic((X10FieldDef) fd))
             cd.updateField((X10FieldDef) fd, "");
         }
         for (ConstructorDef constrDef : classDef.constructors()) {
             // X10ConstructorDoc doc = new
             // X10ConstructorDoc(((X10ConstructorDef) constrDef), cd, "");
+            if (!isSynthetic((X10ConstructorDef) constrDef))
             cd.updateConstructor((X10ConstructorDef) constrDef, "");
         }
         for (MethodDef md : classDef.methods()) {
             // X10MethodDoc doc = new X10MethodDoc(((X10MethodDef) md), cd, "");
             // update cd with a MethodDoc object for method md
+            if (!isSynthetic((X10MethodDef) md))
             cd.updateMethod(((X10MethodDef) md), "");
         }
         // inner classes may need to be added
