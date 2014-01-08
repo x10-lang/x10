@@ -1522,8 +1522,9 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
                 int counter = 0;
                 for (LocalInstance f : mi.formalNames()) {
                     Type fType = mi.formalTypes().get(counter);
-                    params.add(f.name().toString());
-                    args.add(f.name().toString());
+                    String fname = Emitter.mangled_non_method_name(f.name().toString());
+                    params.add(fname);
+                    args.add(fname);
                     counter++;
                 }
                 List<Type> classTypeArguments  = Collections.<Type>emptyList();
