@@ -19,6 +19,7 @@ package x10.frontend.tests;
 import harness.x10Test;
 
 import x10.compiler.*; // @Uncounted @NonEscaping @NoThisAccess
+import x10.compiler.Synthetic;
 import x10.compiler.tests.*; // err markers
 import x10.regionarray.*;
 import x10.util.*;
@@ -4756,7 +4757,7 @@ class TestStaticInitNoCycles {
 static class A {
 	static val x13 = B.x5;//13
 	static val x3 = D.x2+2;//10
-	static val x10 = A.x3+C.x4;//20
+	static val x10_ = A.x3+C.x4;//20
 }
 static class B {
 	static val x11 = A.x3+C.x4;//20
