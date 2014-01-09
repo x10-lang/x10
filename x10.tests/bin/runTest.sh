@@ -27,8 +27,10 @@ function printUsage {
 	printf "  Compile the test cases without optimization\n\n"
         printf -- "-opt\n"
 	printf "  Compile the test cases with optimization (-O)\n\n"
-        printf -- "-opt\n"
+        printf -- "-debug\n"
 	printf "  Compile the test cases with debug support (-DEBUG)\n\n"
+        printf -- "-resilient\n"
+	printf "  Execute test cases across all resilient modes\n\n"
 	printf -- "-t | -timeOut [secs]\n"
 	printf "  Set timeout option for test case execution. This"
 	printf " overrides\nthe default timeout value of 60 seconds.\n\n"
@@ -83,6 +85,9 @@ function parseCmdLine {
 	    shift
 	elif [[ "$1" == "-opt" ]]; then
 	    tccompiler_options="$tccompile_options -O"
+	    shift
+	elif [[ "$1" == "-resilient" ]]; then
+	    tcresilient_modes="$tc_all_resilient_modes"
 	    shift
 	elif [[ "$1" == "-native" ]]; then
 	    tcbackend="native"
@@ -320,6 +325,11 @@ thrunstate="UNKNOWN_STATE"
 # backend: either native or managed. Default to native
 tcbackend="native"
 
+# resiliency modes
+tc_all_resilient_modes="0 1"
+tc_default_resilient_mode="0"
+tcresilient_modes="$tc_default_resilient_mode"
+
 # enable/disable timeout option
 # default: enable
 typeset -i tctimeout=1
@@ -405,6 +415,8 @@ function cleanup {
 function junitLog {
     __jen_test_end_time=$(perl -e 'print time;')
     let '__jen_test_duration = __jen_test_end_time - __jen_test_start_time'
+    let '__jen_compile_duration = __jen_compile_end_time - __jen_compile_start_time'
+    let '__jen_total_duration = __jen_compile_duration + __jen_test_duration'
 
     # testsuite header
     let '__jen_test_id += 1'
@@ -415,7 +427,7 @@ function junitLog {
     printf "\tname=\"${__jen_test_name}\"\n" >> $JUFILE
     printf "\ttimestamp=\"${__jen_test_timestamp}\"\n" >> $JUFILE
     printf "\thostname=\"${__jen_hostname}\"\n" >> $JUFILE
-    printf "\ttime=\"${__jen_test_duration}\"\n" >> $JUFILE
+    printf "\ttime=\"${__jen_total_duration}\"\n" >> $JUFILE
     printf "\ttests=\"1\"\n" >> $JUFILE
 
     case "${__jen_test_result}" in
@@ -436,7 +448,7 @@ function junitLog {
     printf "\t<properties></properties>\n" >> $JUFILE
 
     # testcase (trivial...1 per test suite)
-    printf "\t<testcase classname=\"${__jen_test_name}\" name=\"main\" time=\"${__jen_test_duration}\">\n" >> $JUFILE
+    printf "\t<testcase classname=\"${__jen_test_name}\" name=\"${1}\" time=\"${__jen_test_duration}\">\n" >> $JUFILE
     case "${__jen_test_result}" in
 	SUCCESS)
 	    ;;
@@ -455,7 +467,7 @@ function junitLog {
 	        s/>/\&gt;/g;
 	        s/"/\&quot;/g;
     s/'"'"'/\&apos;/g;
-	        s/([^[:print:]\t\n\r])/sprintf("\&#x%04x;", ord($1))/eg' $1 >> $JUFILE
+	        s/([^[:print:]\t\n\r])/sprintf("\&#x%04x;", ord($1))/eg' $2 $3 >> $JUFILE
     printf "\t</system-out>\n" >> $JUFILE
     # TODO: include system-err in file
     printf "\t<system-err></system-err>\n" >> $JUFILE
@@ -545,7 +557,7 @@ function main {
 	fi
 	let 'tcvalidcnt += 1'
 
-	__jen_test_start_time=$(perl -e 'print time;')
+	__jen_compile_start_time=$(perl -e 'print time;')
 	__jen_test_timestamp=$(date "+%FT%T")
 
 	# create the test root
@@ -577,7 +589,7 @@ function main {
 	    __jen_test_result_explanation="${className} Skipped. ${skip_reason}"
 	    __jen_test_result="SKIPPED"
 	    printf " +S [SKIPPED] ${skip_reason}"
-	    junitLog /dev/null
+	    junitLog "main" /dev/null /dev/null
 	    let 'tcskipcnt += 1'
 	    continue
 	fi
@@ -637,7 +649,7 @@ function main {
 		__jen_test_result="SUCCESS"
 		printf "\n****** $tDir $className succeeded.\n" >> $tccompdat
             fi
-	    junitLog $tccompdat
+	    junitLog "main" $tccompdat /dev/null
 	    continue
 	elif [[ $rc == 0 && "$tcvcode" == "FAIL_COMPILE" ]]; then
 	    printf " *** X ***"
@@ -648,7 +660,7 @@ function main {
 	    __jen_test_result="FAILURE"
 	    __jen_test_exit_code=42
 	    printf "\n****** $tDir $className failed: compile\n" >> $tccompdat
-	    junitLog $tccompdat
+	    junitLog "main" $tccompdat /dev/null
 	    continue
 	elif [[ $rc != 0 && "$tcvcode" != "FAIL_COMPILE" ]]; then
 	    let 'tcfcompcnt += 1'
@@ -659,16 +671,14 @@ function main {
 	    __jen_test_result="FAILURE"
 	    __jen_test_exit_code=$rc
 	    printf "\n****** $tDir $className failed: compile\n" >> $tccompdat
-	    junitLog $tccompdat
+	    junitLog "main" $tccompdat /dev/null
 	    continue
 	fi
 	printf "\n++++++ Compilation succeeded.\n" >> $tccompdat
 	let 'tccompcnt += 1'
 
-	# try & run the target	
-	# the actual output will be logged here
-	#tcoutdat=${tcroot}/${tctarget}.out
-	tcoutdat=${tccompdat}
+	__jen_compile_end_time=$(perl -e 'print time;')
+
 	# extract additional execution details, if available
 	numplaces_annotation="$(sed -ne 's|^[[:space:]]*//[[:space:]]*NUM_PLACES*\:[[:space:]]*\(.*\)|\1|p' $tc)"
 	my_nplaces=$DEFAULT_NPLACES
@@ -686,130 +696,156 @@ function main {
 	    fi
 	fi
 
+        # run the target for each resiliency mode
+	for jen_resiliency_mode in $tcresilient_modes
+	do
+	    case "${jen_resiliency_mode}" in
+		0)
+		    mode_name="main"
+		    ;;
+		1) 
+		    mode_name="place_zero_resilient_finish"
+		    ;;
+		2) 
+		    mode_name="distributed_resilient_finish"
+		    ;;
+		3) 
+		    mode_name="zookeeper_resilient_finish"
+		    ;;
+		*)
+		    mode_name="resilient_mode_${jen_resiliency_mode}"
+		    ;;
+	    esac
 
-	if [[ "$tcbackend" == "native" ]]; then
-	    if [[ "$(uname -s)" == CYGWIN* ]]; then
-		run_cmd="X10_NPLACES=${my_nplaces} X10_HOSTLIST=localhost $RUN_X10 ./${tctarget}.exe"
-	    else
-		run_cmd="X10_NPLACES=${my_nplaces} X10_HOSTLIST=localhost ./${tctarget}"
-	    fi
-	else
-	    run_cmd="X10_NPLACES=${my_nplaces} X10_HOSTLIST=localhost $X10_HOME/x10.dist/bin/x10 -t -v -J-ea ${className}"
-	fi
-	printf "\n${run_cmd}\n" >> $tcoutdat
+	    __jen_test_start_time=$(perl -e 'print time;')
 
-	__jen_test_x10_timeout="$tctoutval"
-	if [[ $tctimeout == 0 ]]; then
-	    __jen_test_x10_command="$(echo $run_cmd >> $tcoutdat)"
-	else
-	    __jen_test_x10_command="$(echo execTimeOut $tctoutval $tcoutdat \"${run_cmd}\")"
-	fi
-	printf "\n ++ E [EXECUTION]"
-	( \
-	    cd $tcroot; \
-	    if [[ $tctimeout == 0 ]]; then \
-	    printf "\n===> $run_cmd >> $tcoutdat\n\n" 1>&2; \
-	    $run_cmd >> $tcoutdat; \
-	    else \
-	    execTimeOut $tctoutval $tcoutdat "${run_cmd}"; \
-	    fi;
-	)
-	rc=$?
-	if [[ $rc == 0 && $tcvcode == "SUCCEED" ]]; then
-	    let 'tcexeccnt += 1'
-	    let 'tcpasscnt += 1'
-	    printf " *** Y ***"
-	    __jen_test_result_explanation="${className} met expectation: Succeed."
-	    __jen_test_result="SUCCESS"
-	    __jen_test_exit_code=$rc
-	    printf "\n****** $tDir $className succeeded.\n" >> $tcoutdat
-	    junitLog $tcoutdat
-	    continue
-	fi
-	if [[ $tctimeout == 0 ]]; then
-	    if [[ $rc > 0 && $tcvcode == "SUCCEED" ]]; then
-		let 'tcfailcnt += 1'
-		let 'tcfexeccnt += 1'
-		printf " *** X ***"
-		printf "\n[$prog: err]: failed to execute ${className}\n"
-		__jen_test_result_explanation="${className} did not meet expectation: expected=Succeed actual=FailRun."
-		__jen_test_result="FAILURE"
-		__jen_test_exit_code=$rc
-		printf "\n****** $tDir $className failed: run\n" >> $tcoutdat
-		junitLog $tcoutdat
-		continue
+	    # the actual output will be logged here
+	    tcoutdat=${tcroot}/${tctarget}.${jen_resiliency_mode}.out
+
+	    if [[ "$tcbackend" == "native" ]]; then
+		if [[ "$(uname -s)" == CYGWIN* ]]; then
+		    run_cmd="X10_RESILIENT_MODE=${jen_resiliency_mode} X10_NPLACES=${my_nplaces} X10_HOSTLIST=localhost $RUN_X10 ./${tctarget}.exe"
+		else
+		    run_cmd="X10_RESILIENT_MODE=${jen_resiliency_mode} X10_NPLACES=${my_nplaces} X10_HOSTLIST=localhost ./${tctarget}"
+		fi
 	    else
-		printf " *** X ***"
-		let 'tcfailcnt += 1'
-		let 'tcfvcodecnt += 1'
-		printf "\n[$prog: err]: invalid validation code ${className}\n"
-		__jen_test_result_explanation="${className} did not meet expectation: expected=Succeed actual=FailRun (invalid validation code)."
-		__jen_test_result="FAILURE"
-		__jen_test_exit_code=42
-		printf "\n****** $tDir $className failed: run\n" >> $tcoutdat
-		junitLog $tcoutdat
-		continue
+		run_cmd="X10_RESILIENT_MODE=${jen_resiliency_mode} X10_NPLACES=${my_nplaces} X10_HOSTLIST=localhost $X10_HOME/x10.dist/bin/x10 -t -v -J-ea ${className}"
 	    fi
-	else
-	    if [[ $rc > 128 && $tcvcode == "SUCCEED" ]]; then
-		printf " *** X ***"
-		let 'tcfailcnt += 1'
-		let 'tcftoutcnt += 1'
-		let 'tcfexeccnt += 1'
-		printf "\n[$prog: err]: ${className} is killed due to timeout\n"
-		__jen_test_result_explanation="${className} did not meet expectation: expected=Succeed actual=TimeOut (killed due to timeout)."
-		__jen_test_result="FAILURE"
-		__jen_test_exit_code=$rc
-		printf "\n****** $tDir $className failed: timeout\n" >> $tcoutdat
-		junitLog $tcoutdat
-		continue
-	    elif [[ $rc > 0 && $tcvcode == "SUCCEED" ]]; then
-		printf " *** X ***"
-		let 'tcfailcnt += 1'
-		let 'tcfexeccnt += 1'
-		printf "\n[$prog: err]: failed to execute ${className}\n"
-		__jen_test_result_explanation="${className} did not meet expectation: expected=Succeed actual=FailRun (execution failed)."
-		__jen_test_result="FAILURE"
-		__jen_test_exit_code=$rc
-		printf "\n****** $tDir $className failed: run\n" >> $tcoutdat
-		junitLog $tcoutdat
-		continue
-	    elif [[ $rc == 0 && $tcvcode == "FAIL_TIMEOUT" ]]; then
-		printf " *** X ***"
-		let 'tcfailcnt += 1'
-		let 'tcfvcodecnt += 1'
-		printf "\n[$prog: err]: invalid validation code ${tcvcode}\n"
-		__jen_test_result_explanation="${className} did not meet expectation: expected=MustFailTimeOut actual=Succeed (invalid validation code)."
-		__jen_test_result="FAILURE"
-		__jen_test_exit_code=42
-		printf "\n****** $tDir $className failed: run\n" >> $tcoutdat
-		junitLog $tcoutdat
-		continue
-	    elif [[ $rc > 128 && $tcvcode == "FAIL_TIMEOUT" ]]; then
-		printf " *** Y ***"
-		let 'tcftoutcnt += 1'
-		let 'tcfexeccnt += 1'
+	    printf "\n${run_cmd}\n" >> $tcoutdat
+
+	    __jen_test_x10_timeout="$tctoutval"
+	    if [[ $tctimeout == 0 ]]; then
+		__jen_test_x10_command="$(echo $run_cmd >> $tcoutdat)"
+	    else
+		__jen_test_x10_command="$(echo execTimeOut $tctoutval $tcoutdat \"${run_cmd}\")"
+	    fi
+	    printf "\n ++ E [EXECUTION]"
+	    ( \
+		cd $tcroot; \
+		if [[ $tctimeout == 0 ]]; then \
+		printf "\n===> $run_cmd >> $tcoutdat\n\n" 1>&2; \
+		$run_cmd >> $tcoutdat; \
+		else \
+		execTimeOut $tctoutval $tcoutdat "${run_cmd}"; \
+		fi;
+	    )
+	    rc=$?
+	    if [[ $rc == 0 && $tcvcode == "SUCCEED" ]]; then
+		let 'tcexeccnt += 1'
 		let 'tcpasscnt += 1'
-		__jen_test_result_explanation="${className} met expectation: MustFailTimeOut."
+		printf " *** Y ***"
+		__jen_test_result_explanation="${className} met expectation: Succeed."
 		__jen_test_result="SUCCESS"
-		__jen_test_exit_code=0
-		printf "\n****** $tDir $className succeeded.\n" >> $tcoutdat
-		junitLog $tcoutdat
-		continue
-	    elif [[ $rc > 0 && $tcvcode == "FAIL_TIMEOUT" ]]; then
-		printf " *** X ***"
-		let 'tcfailcnt += 1'
-		let 'tcftoutcnt += 1'
-		let 'tcfexeccnt += 1'
-		printf "\n[$prog: err]: failed to execute ${className}\n"
-		__jen_test_result_explanation="${className} did not meet expectation: expected=MustFailTimeOut actual=FailRun (execution failed)."
-		__jen_test_result="FAILURE"
 		__jen_test_exit_code=$rc
-		printf "\n****** $tDir $className failed: run\n" >> $tcoutdat
-		junitLog $tcoutdat
+		printf "\n****** $tDir $className succeeded.\n" >> $tcoutdat
+		junitLog $mode_name $tccompdat $tcoutdat
 		continue
 	    fi
-	fi
+	    if [[ $tctimeout == 0 ]]; then
+		if [[ $rc > 0 && $tcvcode == "SUCCEED" ]]; then
+		    let 'tcfailcnt += 1'
+		    let 'tcfexeccnt += 1'
+		    printf " *** X ***"
+		    printf "\n[$prog: err]: failed to execute ${className}\n"
+		    __jen_test_result_explanation="${className} did not meet expectation: expected=Succeed actual=FailRun."
+		    __jen_test_result="FAILURE"
+		    __jen_test_exit_code=$rc
+		    printf "\n****** $tDir $className failed: run\n" >> $tcoutdat
+		    junitLog $mode_name $tccompdat $tcoutdat
+		    continue
+		else
+		    printf " *** X ***"
+		    let 'tcfailcnt += 1'
+		    let 'tcfvcodecnt += 1'
+		    printf "\n[$prog: err]: invalid validation code ${className}\n"
+		    __jen_test_result_explanation="${className} did not meet expectation: expected=Succeed actual=FailRun (invalid validation code)."
+		    __jen_test_result="FAILURE"
+		    __jen_test_exit_code=42
+		    printf "\n****** $tDir $className failed: run\n" >> $tcoutdat
+		    junitLog $mode_name $tccompdat $tcoutdat
+		    continue
+		fi
+	    else
+		if [[ $rc > 128 && $tcvcode == "SUCCEED" ]]; then
+		    printf " *** X ***"
+		    let 'tcfailcnt += 1'
+		    let 'tcftoutcnt += 1'
+		    let 'tcfexeccnt += 1'
+		    printf "\n[$prog: err]: ${className} is killed due to timeout\n"
+		    __jen_test_result_explanation="${className} did not meet expectation: expected=Succeed actual=TimeOut (killed due to timeout)."
+		    __jen_test_result="FAILURE"
+		    __jen_test_exit_code=$rc
+		    printf "\n****** $tDir $className failed: timeout\n" >> $tcoutdat
+		    junitLog $mode_name $tccompdat $tcoutdat
+		    continue
+		elif [[ $rc > 0 && $tcvcode == "SUCCEED" ]]; then
+		    printf " *** X ***"
+		    let 'tcfailcnt += 1'
+		    let 'tcfexeccnt += 1'
+		    printf "\n[$prog: err]: failed to execute ${className}\n"
+		    __jen_test_result_explanation="${className} did not meet expectation: expected=Succeed actual=FailRun (execution failed)."
+		    __jen_test_result="FAILURE"
+		    __jen_test_exit_code=$rc
+		    printf "\n****** $tDir $className failed: run\n" >> $tcoutdat
+		    junitLog $mode_name $tccompdat $tcoutdat
+		    continue
+		elif [[ $rc == 0 && $tcvcode == "FAIL_TIMEOUT" ]]; then
+		    printf " *** X ***"
+		    let 'tcfailcnt += 1'
+		    let 'tcfvcodecnt += 1'
+		    printf "\n[$prog: err]: invalid validation code ${tcvcode}\n"
+		    __jen_test_result_explanation="${className} did not meet expectation: expected=MustFailTimeOut actual=Succeed (invalid validation code)."
+		    __jen_test_result="FAILURE"
+		    __jen_test_exit_code=42
+		    printf "\n****** $tDir $className failed: run\n" >> $tcoutdat
+		    junitLog $mode_name $tccompdat $tcoutdat
+		    continue
+		elif [[ $rc > 128 && $tcvcode == "FAIL_TIMEOUT" ]]; then
+		    printf " *** Y ***"
+		    let 'tcftoutcnt += 1'
+		    let 'tcfexeccnt += 1'
+		    let 'tcpasscnt += 1'
+		    __jen_test_result_explanation="${className} met expectation: MustFailTimeOut."
+		    __jen_test_result="SUCCESS"
+		    __jen_test_exit_code=0
+		    printf "\n****** $tDir $className succeeded.\n" >> $tcoutdat
+		    junitLog $mode_name $tccompdat $tcoutdat
+		    continue
+		elif [[ $rc > 0 && $tcvcode == "FAIL_TIMEOUT" ]]; then
+		    printf " *** X ***"
+		    let 'tcfailcnt += 1'
+		    let 'tcftoutcnt += 1'
+		    let 'tcfexeccnt += 1'
+		    printf "\n[$prog: err]: failed to execute ${className}\n"
+		    __jen_test_result_explanation="${className} did not meet expectation: expected=MustFailTimeOut actual=FailRun (execution failed)."
+		    __jen_test_result="FAILURE"
+		    __jen_test_exit_code=$rc
+		    printf "\n****** $tDir $className failed: run\n" >> $tcoutdat
+		    junitLog $mode_name $tccompdat $tcoutdat
+		    continue
+		fi
+	    fi
+	done
     done
 
     # Simple summary report (visible at end of console output on test job)
@@ -860,6 +896,9 @@ __jen_test_x10c_classpath=""
 __jen_test_x10c_directory=""
 __jen_test_x10_timeout=""
 __jen_hostname=$(hostname)
+__jen_compile_start_time=""
+__jen_compile_end_time=""
+__jen_compile_duration=""
 
 init "$@"
 main 
