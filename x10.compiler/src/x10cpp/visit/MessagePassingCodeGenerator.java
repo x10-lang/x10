@@ -3961,11 +3961,13 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 		assert (opString.equals("&&") || opString.equals("||"))
 		    : "visiting "+n.getClass()+" at "+n.position()+": "+n;
 
+		sw.write("(");
 		n.printSubExpr(n.left(), true, sw, tr);
 		sw.write(" ");
 		sw.write(opString);
 		sw.allowBreak(0, " ");
 		n.printSubExpr(n.right(), false, sw, tr);
+		sw.write(")");
 	}
 
     // allow overriding in subclasses (i.e. CUDACodeGenerator)
