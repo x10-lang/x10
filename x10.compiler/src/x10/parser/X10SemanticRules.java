@@ -3674,7 +3674,7 @@ public class X10SemanticRules implements Parser, ParseErrorCodes
     void rule_FormalParameter2(Object _Type) {
         TypeNode Type = (TypeNode) _Type;
         Formal f;
-        f = nf.X10Formal(pos().markCompilerGenerated(), nf.FlagsNode(pos().markCompilerGenerated(), Flags.FINAL), Type, nf.Id(pos().markCompilerGenerated(), Name.makeFresh("id$")), Collections.<Formal>emptyList(), true);
+        f = nf.X10Formal(pos().markCompilerGenerated(), nf.FlagsNode(pos().markCompilerGenerated(), Flags.FINAL), Type, nf.Id(pos().markCompilerGenerated(), Name.makeFresh("id")), Collections.<Formal>emptyList(), true);
         setResult(f);
     }
     // Production: BasicForStatement ::= for '(' ForInitopt ';' Expressionopt ';' ForUpdateopt ')' Statement

@@ -825,7 +825,7 @@ public class StaticInitializer extends ContextVisitor {
 
         // if (stickyExceptionSemantics) surround with try
         Stmt fieldAssignStmt = xnf.Eval(pos, xnf.FieldAssign(pos, receiver, xnf.Id(pos, name), Assign.ASSIGN, right).fieldInstance(fi).type(right.type()));
-        Name excName = Name.makeFresh("exc$");
+        Name excName = Name.makeFresh("exc");
         List<Catch> catchBlocks = new ArrayList<Catch>();
         // gen catch (java.lang.Throwable exc) { exception = new x10.lang.ExceptionInInitializer(exc); AtomicInteger.set(EXCEPTION_RAISED); lockInitialized(); notifyInitialized(); throw exception; }
         catchBlocks.add(genCatch(pos, fdExcept, fdCond, excName, xts.CheckedThrowable(), receiver, throwExceptStmt));

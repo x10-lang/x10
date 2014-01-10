@@ -3911,7 +3911,7 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
     // ////////////////////////////////
     
     public static void catchAndThrowAsX10Exception(CodeWriter w) {
-        String TEMPORARY_EXCEPTION_VARIABLE_NAME = Name.makeFresh("exc$").toString();
+        String TEMPORARY_EXCEPTION_VARIABLE_NAME = Name.makeFresh("exc").toString();
         w.write("catch (" + JAVA_LANG_THROWABLE + " " + TEMPORARY_EXCEPTION_VARIABLE_NAME + ") {");
         w.newline(4);
         w.begin(0);

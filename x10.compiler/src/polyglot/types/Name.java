@@ -37,11 +37,11 @@ public class Name  implements Serializable {
     static int count = 0;
     
     public static Name makeFresh() {
-        return makeFresh("id");
+        return makeFresh("t");
     }
     
     public static Name makeFresh(String prefix) {
-        return make(prefix + (count++));
+        return make(prefix +"$"+ (count++));
     }
 
     public static Name makeFresh(Name prefix) {

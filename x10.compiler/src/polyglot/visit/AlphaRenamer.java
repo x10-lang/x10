@@ -133,7 +133,7 @@ public class AlphaRenamer extends NodeVisitor {
         String prefix = n.toString();
         boolean chopped = false;
         int tail = prefix.length();
-        while (tail > 0 && Character.isDigit(prefix.charAt(tail-1))) {
+        while (tail > 0 && (Character.isDigit(prefix.charAt(tail-1)) || prefix.charAt(tail-1)=='$')) {
             tail = tail-1;
             chopped = true;
         }

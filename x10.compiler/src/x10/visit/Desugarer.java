@@ -121,12 +121,6 @@ public class Desugarer extends ContextVisitor {
         super(job, ts, nf);
     }
 
-    private static int count;
-
-    private static Name getTmp() {
-        return Name.make("__desugarer__var__" + (count++) + "__");
-    }
-
     @Override
     public Node override(Node parent, Node n) {
         if (n instanceof Eval) {
@@ -591,7 +585,7 @@ public class Desugarer extends ContextVisitor {
         List<VarDef> Ys = new ArrayList<VarDef>(args.size());
         List<VarDef> Xs = new ArrayList<VarDef>(args.size());
         for (Expr arg : args) {
-            Name pn = Name.make("p$"+i);
+            Name pn = Name.makeFresh("p"+i);
             Type pType = arg.type();
             // The argument might be null, e.g., def m(b:Z) {b.x!=null}  = 1; ... m(null);
             final LocalDef oldFormal = arg==oldReceiver ? null : oldFormals.get(oldReceiver==null ? i : i-1);
@@ -613,7 +607,7 @@ public class Desugarer extends ContextVisitor {
                     nf.CanonicalTypeNode(pos, pType), nf.Id(pos, pn)).localDef(pDef);
             params.add(pd);
             Local p = (Local) nf.Local(pos, nf.Id(pos, pn)).localInstance(pDef.asInstance()).type(pType);
-            Name xn = oldFormal!=null ? Name.make("x$"+oldFormal.name()) : Name.make("x$"+i); // to make sure it doesn't conflict/shadow an existing field
+            Name xn = oldFormal!=null ? Name.makeFresh(oldFormal.name()) : Name.makeFresh();
             LocalDef xDef = ts.localDef(pos, ts.Final(), Types.ref(tType), xn);
             Expr c = Converter.attemptCoercion(v.context(closureContext), p, tType);
             c = (Expr) c.visit(v.context(closureContext));
@@ -751,12 +745,12 @@ public class Desugarer extends ContextVisitor {
         Expr e = (Expr) left.target();
         Type E = e.type();
         List<Formal> parms = new ArrayList<Formal>();
-        Name xn = Name.make("x");
+        Name xn = Name.makeFresh("x");
         LocalDef xDef = ts.localDef(pos, ts.Final(), Types.ref(E), xn);
         Formal x = nf.Formal(pos, nf.FlagsNode(pos, ts.Final()),
                 nf.CanonicalTypeNode(pos, E), nf.Id(pos, xn)).localDef(xDef);
         parms.add(x);
-        Name yn = Name.make("y");
+        Name yn = Name.makeFresh("y");
         Type T = right.type();
         LocalDef yDef = ts.localDef(pos, ts.Final(), Types.ref(T), yn);
         Formal y = nf.Formal(pos, nf.FlagsNode(pos, ts.Final()),
@@ -934,7 +928,7 @@ public class Desugarer extends ContextVisitor {
         X10CompilerOptions opts = (X10CompilerOptions) job.extensionInfo().getOptions();
         if (depClause == null || opts.x10_config.NO_CHECKS)
             return n.castType(tn);
-        Name xn = getTmp();
+        Name xn = Name.makeFresh();
         Type t = tn.type(); // the base type of the cast
         LocalDef xDef = ts.localDef(pos, ts.Final(), Types.ref(t), xn);
         Formal x = nf.Formal(pos, nf.FlagsNode(pos, ts.Final()),
@@ -974,7 +968,7 @@ public class Desugarer extends ContextVisitor {
         tn = stripClause(tn);
         if (depClause == null)
             return n;
-        Name xn = getTmp();
+        Name xn = Name.makeFresh();
         Type et = e.type();
         LocalDef xDef = ts.localDef(pos, ts.Final(), Types.ref(et), xn);
         Formal x = nf.Formal(pos, nf.FlagsNode(pos, ts.Final()),

@@ -77,7 +77,7 @@ public class CommunicationOptimizer extends ContextVisitor {
     }
 
     private static Name getTmp() {
-        return Name.makeFresh("__comopt__var__");
+        return Name.makeFresh("comopt__var");
     }
 
     public Node override(Node parent, Node n) {
