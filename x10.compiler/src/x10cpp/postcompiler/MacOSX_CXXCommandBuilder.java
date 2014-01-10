@@ -24,8 +24,8 @@ public class MacOSX_CXXCommandBuilder extends CXXCommandBuilder {
         super.addPreArgs(cxxCmd);
         cxxCmd.add("-msse2");
         cxxCmd.add("-mfpmath=sse");
-        cxxCmd.add("-Wunused-value");
-        cxxCmd.add("-Wlogical-op-parentheses");
+        cxxCmd.add("-Wno-unused-value");
+        cxxCmd.add("-Wno-logical-op-parentheses");
     }
 
     public void addPostArgs(ArrayList<String> cxxCmd) {
