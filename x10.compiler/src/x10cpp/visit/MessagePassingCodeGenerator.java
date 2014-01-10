@@ -2729,7 +2729,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 		}
 		if (!virtual_dispatch && !already_static ) {
 		    // Statically bind call at C++ level by explictly qualifying
-		    String methodContainerType = Emitter.translateType(t);
+		    String methodContainerType = Emitter.translateType(t, false, false);
 		    if ((context.inTemplate() || context.isInsideTemplateClosure()) && (t.isClass() && t.toClass().hasParams())) {
 		        int firstTemplate = methodContainerType.indexOf("<");
 		        int i = methodContainerType.lastIndexOf("::", firstTemplate-1); // UGH. This is hacky, but it is really hard to restructure translateType to avoid needing a hack
