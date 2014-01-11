@@ -622,7 +622,7 @@ x10aux::RuntimeType String::rtt;
 
 void String::_initRTT() {
     if (rtt.initStageOne(&rtt)) return;
-    const x10aux::RuntimeType* parents[2] = { Comparable<String>::getRTT(), CharSequence::getRTT() };
+    const x10aux::RuntimeType* parents[2] = { Comparable<String*>::getRTT(), CharSequence::getRTT() };
     
     rtt.initStageTwo("x10.lang.String", RuntimeType::class_kind, 2, parents, 0, NULL, NULL);
 }    
