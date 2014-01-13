@@ -702,8 +702,8 @@ JNIEXPORT void JNICALL Java_x10_x10rt_TeamSupport_nativeReduceImpl(JNIEnv *env, 
         jniHelper_abort("OOM while attempting to create GlobalRef in nativeReduceImpl\n");
     }
 
-    void *srcData;
-    void *dstData;
+    void *srcData = NULL;
+    void *dstData = NULL;
     switch(typecode) {
     case 1:
         // byte []
@@ -807,8 +807,8 @@ JNIEXPORT void JNICALL Java_x10_x10rt_TeamSupport_nativeAllReduceImpl(JNIEnv *en
         jniHelper_abort("OOM while attempting to create GlobalRef in nativeAllReduceImpl\n");
     }
 
-    void *srcData;
-    void *dstData;
+    void *srcData = NULL;
+    void *dstData = NULL;
     switch(typecode) {
     case 1:
         // byte []
