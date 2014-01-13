@@ -357,7 +357,7 @@ ifndef CROSS_COMPILE_BLUEGENE
       endif
       ifdef CXX_NO_WARNINGS
         # even without -Wall clang++ enables some warnings we want to disable for compiling generated code
-        CXX_WARNING_FLAGS = -Wno-unused-parameter -Wno-unused-variable -Wno-unused-value -Wno-logical-op-parentheses
+        CXX_WARNING_FLAGS = -Wno-unused-parameter -Wno-unused-variable -Wno-unused-value
       endif
       export X10RT_PLATFORM=$(shell echo | gcc -E -dM - | grep -q x86_64 && echo darwin64 || echo darwin)
       ifndef X10_STATIC_LIB
