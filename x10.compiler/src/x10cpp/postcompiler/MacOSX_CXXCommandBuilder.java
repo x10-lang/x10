@@ -32,6 +32,10 @@ public class MacOSX_CXXCommandBuilder extends CXXCommandBuilder {
         super.addPostArgs(cxxCmd);
 
         for (PrecompiledLibrary pcl:options.x10libs) {
+            if (options.x10_config.DEBUG && !options.x10_config.DEBUG_APP_ONLY) {
+                cxxCmd.add("-Wl,--rpath");
+                cxxCmd.add("-Wl,"+pcl.absolutePathToRoot+"/lib-dbg");
+            }
             cxxCmd.add("-Wl,-rpath");
             cxxCmd.add("-Wl,"+pcl.absolutePathToRoot+"/lib");
         }
