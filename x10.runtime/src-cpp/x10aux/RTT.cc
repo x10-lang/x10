@@ -24,6 +24,8 @@
 using namespace x10aux;
 using namespace x10::lang;
 
+#define TRACE_RTT_INIT 0
+
 const char *RuntimeType::name() const {
     if (NULL == fullTypeName) {
         assert(paramsc > 0); // if paramssc == 0, then fullTypeName is set to baseName in initRTT();
@@ -113,8 +115,15 @@ bool RuntimeType::initStageOne(const RuntimeType *canonical_) {
         initRTTLock->lock();
     }
 
+    if (TRACE_RTT_INIT) {
+        fprintf(stdout, "RTT: entering initStageOne for %p with canonical_ %p\n", (void*)this, (void*)canonical_);
+    }
+    
     if (canonical != NULL) {
         if (isInitialized) {
+            if (TRACE_RTT_INIT) {
+                fprintf(stdout, "RTT: exiting initStageOne for %p because stageOne completed by another thread\n", (void*)this);
+            }
             if (NULL != initRTTLock) {
                 initRTTLock->unlock();
             }
@@ -123,6 +132,9 @@ bool RuntimeType::initStageOne(const RuntimeType *canonical_) {
         // We should only get here if there is a cyclic intialization in progress.
         // We don't have a 100% foolproof way to be sure that is what is happening, so
         // just hope that is what is happening and return.
+        if (TRACE_RTT_INIT) {
+            fprintf(stdout, "RTT: exiting initStageOne for %p due to apparent cyclic initialization (%p)\n", (void*)this, (void*)canonical);
+        }
         if (NULL != initRTTLock) {
             initRTTLock->unlock();
         }
@@ -131,6 +143,10 @@ bool RuntimeType::initStageOne(const RuntimeType *canonical_) {
     
     canonical = canonical_;
 
+    if (TRACE_RTT_INIT) {
+        fprintf(stdout, "RTT: exiting initStageOne for %p after setting canonical to %p\n", (void*)this, (void*)canonical);
+    }
+    
     // NOTE: Intentionally did not call unlock before returning.
     //       the unlock will happen at the end of initStageTwo
     //       Return false to indicate that the thread should continue with initStageTwo.
@@ -145,7 +161,10 @@ void RuntimeType::initStageTwo(const char* baseName_,
                                Variance* variances_) {
     // NOTE: Lock still held because it was not released before returning
     //       false from the end of initStageOne
-
+    if (TRACE_RTT_INIT) {
+        fprintf(stdout, "RTT: entering initStageTwo for %p\n", (void*)this);
+    }
+    
     baseName = baseName_;
     kind = kind_;
     parentsc = parentsc_;
@@ -176,6 +195,10 @@ void RuntimeType::initStageTwo(const char* baseName_,
     x10aux::atomic_ops::store_load_barrier();
     isInitialized = true; // must come after the store_load_barrier
 
+    if (TRACE_RTT_INIT) {
+        fprintf(stdout, "RTT: initStageTwo complete for %p %s\n", (void*)this, baseName);
+    }
+        
     // Unlock paired with lock operation at entry to initStageOne.
     if (NULL != initRTTLock) {
         initRTTLock->unlock();
