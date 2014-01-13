@@ -1246,7 +1246,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 				sw.write("::x10aux::itable_entry(&::x10aux::getRTT"+chevrons(Emitter.translateType(interfaceType, false))+", &_itable_"+itableNum+"), ");
 				itableNum += 1;
 			}
-			sw.write("::x10aux::itable_entry(NULL, (void*)::x10aux::getRTT"+chevrons(Emitter.translateType(currentClass, false))+"())};"); sw.newline();
+			sw.write("::x10aux::itable_entry(NULL, (void*)\""+Emitter.translateType(currentClass, false)+"\")};"); sw.newline();
 		}
 	}
 
@@ -1302,7 +1302,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 	                     thunkBaseName+thunkParams+"::_itable_"+itableNum+"), ");
 	            itableNum += 1;
 	        }
-	        sw.write("::x10aux::itable_entry(NULL, (void*)::x10aux::getRTT"+chevrons(Emitter.translateType(currentClass, false))+"())};"); sw.newline();
+	        sw.write("::x10aux::itable_entry(NULL, (void*)\""+Emitter.translateType(currentClass, false)+"\")};"); sw.newline();
 	        
 	        // ITables init for the IBox thunk.
 	        emitter.printTemplateSignature(cd.typeParameters(), sw);
@@ -1313,7 +1313,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 	                     thunkBaseName+"_ibox"+itableNum+thunkParams+"::itable), ");
 	            itableNum += 1;
 	        }
-	        sw.write("::x10aux::itable_entry(NULL, (void*)::x10aux::getRTT"+chevrons(Emitter.translateType(currentClass, false))+"())};"); sw.newline();
+	        sw.write("::x10aux::itable_entry(NULL, (void*)\""+Emitter.translateType(currentClass, false)+"\")};"); sw.newline();
 	    }
 	}
 
