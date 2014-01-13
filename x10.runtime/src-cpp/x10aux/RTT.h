@@ -87,16 +87,16 @@ namespace x10aux {
         
     public:
         const RuntimeType *canonical;
-        int parentsc;
-        int paramsc;
-        bool containsPtrs;
-        bool isInitialized;
-        Kind kind;
         const RuntimeType **parents;
         const RuntimeType **params;
         Variance *variances;
         const char* fullTypeName;
         const char* baseName;
+        int parentsc;
+        int paramsc;
+        Kind kind;
+        bool containsPtrs;
+        bool isInitialized;
         bool hasZ;
 
         // Initialization protocol.
