@@ -191,10 +191,10 @@ template<class T> ::x10::lang::String* x10::lang::GlobalRef<T>::typeName() {
 template<class T> ::x10aux::RuntimeType x10::lang::GlobalRef<T>::rtt;
 
 template<class T> ::x10aux::itable_entry x10::lang::GlobalRef<T>::_itables[2] = {::x10aux::itable_entry(&::x10aux::getRTT< ::x10::lang::Any>, &GlobalRef<T>::itable),
-                                                                               ::x10aux::itable_entry(NULL, (void*)::x10aux::getRTT< ::x10::lang::GlobalRef<T> >())};
+                                                                               ::x10aux::itable_entry(NULL, (void*)"x10.lang.GlobalRef[T]")};
 
 template<class T> ::x10aux::itable_entry x10::lang::GlobalRef<T>::_iboxitables[2] = {::x10aux::itable_entry(&::x10aux::getRTT< ::x10::lang::Any>, &GlobalRef_iboxithunk0<T>::itable),
-                                                                                   ::x10aux::itable_entry(NULL, (void*)::x10aux::getRTT< ::x10::lang::GlobalRef<T> >())};
+                                                                                   ::x10aux::itable_entry(NULL, (void*)"x10.lang.GlobalRef[T]")};
 
 template<class T> void x10::lang::GlobalRef<T>::_initRTT() {
     const ::x10aux::RuntimeType *canonical = ::x10aux::getRTT< ::x10::lang::GlobalRef<void> >();

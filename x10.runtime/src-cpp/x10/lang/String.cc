@@ -615,7 +615,7 @@ CharSequence::itable<String> String::_itable_CharSequence(&String::charAt,
 x10aux::itable_entry String::_itables[3] = {
     x10aux::itable_entry(&x10aux::getRTT<Comparable<String*> >, &String::_itable_Comparable),
     x10aux::itable_entry(&x10aux::getRTT<CharSequence>, &String::_itable_CharSequence),
-    x10aux::itable_entry(NULL,  (void*)x10aux::getRTT<String>())
+    x10aux::itable_entry(NULL,  (void*)"x10.lang.String")
 };
 
 x10aux::RuntimeType String::rtt;

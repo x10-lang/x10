@@ -32,6 +32,6 @@ void x10::lang::X10Class::_initRTT() {
     rtt.initStageTwo("x10.lang.X10Class", RuntimeType::class_kind, 1, parents, 0, NULL, NULL);
 }
 
-itable_entry x10::lang::X10Class::empty_itable[1] = { itable_entry(NULL,  (void*)x10::lang::X10Class::getRTT()) };
+itable_entry x10::lang::X10Class::empty_itable[1] = { itable_entry(NULL,  (void*)"x10.lang.X10Class") };
 
 // vim:tabstop=4:shiftwidth=4:expandtab

@@ -601,7 +601,7 @@ template<class T> typename ::x10::lang::Fun_0_1<x10_long, T>::template itable< :
 template<class T> ::x10aux::itable_entry x10::lang::Rail<T>::_itables[3] = {
     ::x10aux::itable_entry(&::x10aux::getRTT< ::x10::lang::Iterable<T> >, &_itable_0),
     ::x10aux::itable_entry(&::x10aux::getRTT< ::x10::lang::Fun_0_1<x10_long, T> >, &_itable_1),
-    ::x10aux::itable_entry(NULL, (void*)::x10aux::getRTT< ::x10::lang::Rail<T> >())
+    ::x10aux::itable_entry(NULL, (void*)"x10.lang.Rail[T]")
 };
 
 
