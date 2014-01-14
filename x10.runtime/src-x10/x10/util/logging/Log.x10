@@ -19,56 +19,56 @@ import x10.compiler.Native;
 public interface Log {
     /** Log a message with debug log level. */
     @Native("java", "#this.debug(#message)")
-    def debug(message: Any):void;
+    def debug(message:Any):void;
     /** Log an error with debug log level. */
     @Native("java", "#this.debug(#message, #t)")
-    def debug(message: Any, t: CheckedThrowable) : void;
+    def debug(message:Any, t:CheckedThrowable):void;
     /** Log a message with error log level. */
     @Native("java", "#this.error(#message)")
-    def error(message: Any) : void;
+    def error(message:Any):void;
     /** Log an error with error log level. */
     @Native("java", "#this.error(#message, #t)")	
-    def error(message: Any, t: CheckedThrowable) : void;
+    def error(message:Any, t:CheckedThrowable):void;
     /** Log a message with fatal log level. */
     @Native("java", "#this.fatal(#message)")
-    def fatal(message: Any) : void;
+    def fatal(message:Any):void;
     /** Log an error with fatal log level. */
     @Native("java", "#this.fatal(#message, #t)")
-    def fatal(message: Any, t: CheckedThrowable) : void;
+    def fatal(message:Any, t:CheckedThrowable):void;
     /** Log a message with info log level. */
     @Native("java", "#this.info(#message)")
-    def info(message: Any) : void;
+    def info(message:Any):void;
     /** Log an error with info log level. */
     @Native("java", "#this.info(#message, #t)")
-    def info(message: Any, t: CheckedThrowable) : void;
+    def info(message:Any, t:CheckedThrowable):void;
     /** Is debug logging currently enabled? */
     @Native("java", "#this.isDebugEnabled()")
-    def isDebugEnabled() : boolean;
+    def isDebugEnabled():Boolean;
     /** Is error logging currently enabled? */
     @Native("java", "#this.isErrorEnabled()")
-    def isErrorEnabled() : boolean;
+    def isErrorEnabled():Boolean;
     /** Is fatal logging currently enabled? */
     @Native("java", "#this.isFatalEnabled()")
-    def isFatalEnabled() : boolean;
+    def isFatalEnabled():Boolean;
     /** Is info logging currently enabled? */
     @Native("java", "#this.isInfoEnabled()")
-    def isInfoEnabled() : boolean;
+    def isInfoEnabled():Boolean;
     /** Is trace logging currently enabled? */
     @Native("java", "#this.isTraceEnabled()")
-    def isTraceEnabled() : boolean;
+    def isTraceEnabled():Boolean;
     /** Is warn logging currently enabled? */
     @Native("java", "#this.isWarnEnabled()")
-    def isWarnEnabled() : boolean;
+    def isWarnEnabled():Boolean;
     /** Log a message with trace log level. */
     @Native("java", "#this.trace(#message)")
-    def trace(message: Any) : void;
+    def trace(message:Any):void;
     /** Log an error with trace log level. */
     @Native("java", "#this.trace(#message, #t)")
-    def trace(message: Any, t: CheckedThrowable) : void;
+    def trace(message:Any, t:CheckedThrowable):void;
     /** Log a message with warn log level. */
     @Native("java", "#this.warn(#message)")
-    def warn(message: Any) : void;
+    def warn(message:Any):void;
     /** Log an error with warn log level. */
     @Native("java", "#this.warn(#message, #t)")
-    def warn(message: Any, t:CheckedThrowable) : void;
+    def warn(message:Any, t:CheckedThrowable):void;
 }
