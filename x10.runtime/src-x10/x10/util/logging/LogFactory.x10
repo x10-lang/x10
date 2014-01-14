@@ -20,22 +20,22 @@ import x10.compiler.NativeRep;
 public abstract class LogFactory {
     /** Return the configuration attribute with the specified name (if any), or null if there is no such attribute. */
     @Native("java", "#this.getAttribute(#name)")
-    public abstract def getAttribute(name: String):Any;
+    public abstract def getAttribute(name:String):Any;
     /** Return an array containing the names of all currently defined configuration attributes. */
     @Native("java", "x10.interop.Java.convert(#this.getAttributeNames())")
     public abstract def getAttributeNames():Rail[String];
     /** Construct (if necessary) and return a Log instance, using the factory's current set of configuration attributes. */
     @Native("java", "#this.getInstance(#name)")
-    public abstract def getInstance(name: String):Log;
+    public abstract def getInstance(name:String):Log;
     /** Release any internal references to previously created Log instances returned by this factory. */
     @Native("java", "#this.release()")
     public abstract def release():void;
     /** Remove any configuration attribute associated with the specified name. */
     @Native("java", "#this.removeAttribute(#name)")
-    public abstract def removeAttribute(name: String):void;
+    public abstract def removeAttribute(name:String):void;
     /** Set the configuration attribute with the specified name. */
     @Native("java", "#this.setAttribute(#name, #value)")
-    public abstract def setAttribute(name: String, value: Any):void;
+    public abstract def setAttribute(name:String, value:Any):void;
     
     /** Convenience method to derive a name from the specified class and call getInstance(String) with it. */
     @Native("java", "factory.getInstance(#T$rtt.getJavaClass().class)")
@@ -59,7 +59,7 @@ public abstract class LogFactory {
     
     /** Convenience method to return a named logger, without the application having to care about factories. */
     @Native("java", "org.apache.commons.logging.LogFactory.getLog(#name)")
-    public static def getLog(name: String):Log = getFactory().getInstance(name);
+    public static def getLog(name:String):Log = getFactory().getInstance(name);
     
     /** Release any internal references to previously created LogFactory instances that have been associated with the specified class loader (if any), after calling the instance method release() on each of them. */
     // static void release(ClassLoader classLoader)
@@ -72,7 +72,7 @@ public abstract class LogFactory {
     
     /** Returns a string that uniquely identifies the specified object, including its class. */
     @Native("java", "org.apache.commons.logging.LogFactory.objectId(#o)")
-    public static def objectId(o: Any):String {
+    public static def objectId(o:Any):String {
         if (o == null) {
             return "null";
         }

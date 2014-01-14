@@ -20,35 +20,35 @@ import x10.compiler.Native;
 class ConsoleLogger implements Log {
 
     @Native("java", "throw new java.lang.UnsupportedOperationException()")
-    static val DEFAULT_LEVEL : Int = getDefaultLevel();
+    static val DEFAULT_LEVEL:Int = getDefaultLevel();
 
     @Native("java", "throw new java.lang.UnsupportedOperationException()")
-    static val DEFAULT_LEVEL_ENV : String = "X10_LOG_LEVEL";
+    static val DEFAULT_LEVEL_ENV:String = "X10_LOG_LEVEL";
 
     @Native("java", "throw new java.lang.UnsupportedOperationException()")
-    static val LEVEL_ALL : Int = 7n;
+    static val LEVEL_ALL:Int = 7n;
     @Native("java", "throw new java.lang.UnsupportedOperationException()")
-    static val LEVEL_TRACE : Int = 6n;
+    static val LEVEL_TRACE:Int = 6n;
     @Native("java", "throw new java.lang.UnsupportedOperationException()")
-    static val LEVEL_DEBUG : Int = 5n;
+    static val LEVEL_DEBUG:Int = 5n;
     @Native("java", "throw new java.lang.UnsupportedOperationException()")
-    static val LEVEL_INFO : Int = 4n;
+    static val LEVEL_INFO:Int = 4n;
     @Native("java", "throw new java.lang.UnsupportedOperationException()")
-    static val LEVEL_WARN : Int = 3n;
+    static val LEVEL_WARN:Int = 3n;
     @Native("java", "throw new java.lang.UnsupportedOperationException()")
-    static val LEVEL_ERROR : Int = 2n;
+    static val LEVEL_ERROR:Int = 2n;
     @Native("java", "throw new java.lang.UnsupportedOperationException()")
-    static val LEVEL_FATAL : Int = 1n;
+    static val LEVEL_FATAL:Int = 1n;
     @Native("java", "throw new java.lang.UnsupportedOperationException()")
-    static val LEVEL_NONE : Int = 0n;
+    static val LEVEL_NONE:Int = 0n;
     
     @Native("java", "throw new java.lang.UnsupportedOperationException()")
-    private static val LEVEL_STRINGS : Rail[String] = ["NONE", "FATAL", "ERROR", "WARN", "INFO", "DEBUG", "TRACE","ALL"];
+    private static val LEVEL_STRINGS:Rail[String] = ["NONE", "FATAL", "ERROR", "WARN", "INFO", "DEBUG", "TRACE","ALL"];
     
 
     @Native("java", "throw new java.lang.UnsupportedOperationException()")
     private static def getDefaultLevel():Int {
-        var v : String = System.getenv(DEFAULT_LEVEL_ENV);
+        var v:String = System.getenv(DEFAULT_LEVEL_ENV);
         if (v == null) {
             return LEVEL_INFO;
         }
@@ -72,7 +72,7 @@ class ConsoleLogger implements Log {
     private static def logLevelString(logLevel:Int):String = LEVEL_STRINGS(logLevel);
         
     @Native("java", "throw new java.lang.UnsupportedOperationException()")
-    private static def getLastPartOfDotName(name:String) : String {
+    private static def getLastPartOfDotName(name:String):String {
         val index = name.lastIndexOf(".");
         if (index == -1n) {
             return name;
@@ -177,14 +177,14 @@ class ConsoleLogger implements Log {
     public def toString():String = "ConsoleLog<" + name + "@" + logLevelString(logLevel) + ">";
     
     @Native("java", "throw new java.lang.UnsupportedOperationException()")
-    private val name : String; 
+    private val name:String; 
     @Native("java", "throw new java.lang.UnsupportedOperationException()")
-    private val outputName : String;
+    private val outputName:String;
     @Native("java", "throw new java.lang.UnsupportedOperationException()")
-    private var logLevel : Int;
+    private var logLevel:Int;
         
     @Native("java", "throw new java.lang.UnsupportedOperationException()")
-    private def setLogLevel(newLevel:Int) : void {
+    private def setLogLevel(newLevel:Int):void {
         if (newLevel < LEVEL_NONE) {
             logLevel = LEVEL_NONE;
         } else if (newLevel > LEVEL_ALL) {
@@ -199,7 +199,7 @@ class ConsoleLogger implements Log {
     
     @Inline
     @Native("java", "throw new java.lang.UnsupportedOperationException()")
-    private def log(level:Int, message:Any) : void {
+    private def log(level:Int, message:Any):void {
         if (!isLogEnabled(level)) {
             return;
         }
@@ -215,7 +215,7 @@ class ConsoleLogger implements Log {
 
     @Inline
     @Native("java", "throw new java.lang.UnsupportedOperationException()")
-    private def log(level:Int, message:Any, t:CheckedThrowable) : void {
+    private def log(level:Int, message:Any, t:CheckedThrowable):void {
         if (!isLogEnabled(level)) {
             return;
         }
