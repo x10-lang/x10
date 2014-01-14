@@ -10,7 +10,6 @@
  */
 package x10.util.logging;
 
-import x10.util.concurrent.Lock;
 import x10.compiler.Native;
 import x10.compiler.NativeRep;
 
