@@ -39,6 +39,7 @@
     <property name="x10.runtime.location" location="${x10.home}/x10.runtime"/>
     <property name="xrx.src.dir" location="${x10.home}/x10.runtime/src-x10" />
     <property name="runtime.jar" value="x10.jar"/>
+    <property name="logging.properties" value="logging.properties"/>
     <property name="x10.tests.location" location="${x10.home}/x10.tests"/>
     <property name="x10.doc.location" location="${x10.home}/x10.doc"/>
     <property name="bash.exe" value="bash"/>
@@ -123,6 +124,7 @@
         <delete> <!-- TODO: download jars elsewhere and copy -->
             <fileset dir="${lib}">
                 <include name="x10*.jar"/>
+                <include name="RunJava.jar"/>
             </fileset>
         </delete>
         <!-- TODO: remove generated libs, but not downloaded ones
@@ -144,6 +146,7 @@
                 <include name="*.a"/>
                 <include name="*.la"/>
                 <include name="*.so"/>
+                <include name="*.so.*"/>
                 <include name="*.dylib"/>
                 <include name="*.jnilib"/>
                 <include name="*.dll"/>
@@ -159,8 +162,11 @@
     <target name="squeakyclean" depends="clean-java,clean-cpp,clean-bridge,clean-x10doc"/>
 
     <target name="distclean" depends="squeakyclean">
-        <delete dir="${lib}" failonerror="false"/>
-        <mkdir dir="${lib}" />
+        <delete>
+            <fileset dir="${lib}">
+                <exclude name="${logging.properties}"/>
+            </fileset>
+        </delete>
         <!-- Delete here instead of in clean rule because precommit invokes squeakyclean when it is running -->
         <delete>
             <fileset dir="${bin}">
