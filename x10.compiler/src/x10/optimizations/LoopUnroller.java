@@ -59,7 +59,8 @@ import polyglot.types.Type;
 import polyglot.types.TypeSystem;
 import polyglot.types.Types;
 import polyglot.util.Position;
-import polyglot.util.CollectionUtil; import x10.util.CollectionFactory;
+import polyglot.util.CollectionUtil; 
+import x10.util.CollectionFactory;
 import x10.util.Synthesizer;
 import polyglot.visit.ContextVisitor;
 import polyglot.visit.NodeVisitor;
@@ -98,26 +99,21 @@ public class LoopUnroller extends ContextVisitor {
     private static final String LOOP_UNROLL_TRANSFORMATION_NAME= "Loop Unroll";
     private static final String UNROLL_ANNOTATION_NAME= "x10.compiler.Unroll";
 
-    private enum LoopLeftoverHandling {
-        GENERATE_ASSERT,
-        GENERATE_TAIL_LOOP
-    }
-
     private class LoopParams {
         final VarDecl fLoopVar;
         final Expr fLoopDomain;
         Set<Expr> fLoopDomainValues= CollectionFactory.newHashSet();
-        boolean fExtentUnknown;
+        boolean fNumIterationsUnknown;
         long fMin;
         Expr fMinSymbolic;
         long fMax;
         Expr fMaxSymbolic;
-        int fStride;
+        long fStride;
 
         public LoopParams(VarDecl vd, Expr domain) {
             fLoopVar= vd;
             fLoopDomain= domain;
-            fExtentUnknown= true;
+            fNumIterationsUnknown= true;
         }
 
         public LoopParams(VarDecl vd, Expr domain, int min, int max, int stride) {
@@ -125,47 +121,7 @@ public class LoopUnroller extends ContextVisitor {
             fMin= min;
             fMax= max;
             fStride= stride;
-            fExtentUnknown= false;
-        }
-
-        protected void addDomainValue(Expr e) {
-            fLoopDomainValues.add(e);
-        }
-
-        protected long getMin() {
-            return fMin;
-        }
-
-        protected Expr getMinSymbolic() {
-            return fMinSymbolic;
-        }
-
-        protected void setMin(long min, Expr minSymbolic) {
-            fMin= min;
-            fMinSymbolic= minSymbolic;
-            fExtentUnknown= false;
-        }
-
-        protected long getMax() {
-            return fMax;
-        }
-
-        protected Expr getMaxSymbolic() {
-            return fMaxSymbolic;
-        }
-
-        protected void setMax(long max, Expr maxSymbolic) {
-            fMax= max;
-            fMaxSymbolic= maxSymbolic;
-            fExtentUnknown= false;
-        }
-
-        protected int getStride() {
-            return fStride;
-        }
-
-        protected void setStride(int stride) {
-            fStride= stride;
+            fNumIterationsUnknown= false;
         }
     }
 
@@ -177,17 +133,12 @@ public class LoopUnroller extends ContextVisitor {
     /**
      * the user-supplied number of times to unroll the loop
      */
-    private int fUnrollFactor;
+    private long fUnrollFactor;
 
     /**
      * records symbolic and constant information about the loop iteration domain
      */
     private LoopParams fLoopParams;
-
-    /**
-     * determines how to handle trailing iterations that are left over by the unrolled loop
-     */
-    private LoopLeftoverHandling fHandleLoopLeftovers;
 
     private final TypeSystem xts;
 
@@ -237,8 +188,8 @@ public class LoopUnroller extends ContextVisitor {
             return false;
         assertNumberOfInitializers(at, 1);
         Object val = getPropertyInit(at, 0);
-        assert (val instanceof Integer);
-        fUnrollFactor = ((Integer) val).intValue();
+        assert (val instanceof Long);
+        fUnrollFactor = ((Long) val).longValue();
         return okStatus();
     }
 
@@ -251,7 +202,6 @@ public class LoopUnroller extends ContextVisitor {
         boolean status= extractUnrollFactor();
         if (!status)
             return false;
-        fHandleLoopLeftovers = LoopLeftoverHandling.GENERATE_TAIL_LOOP;
         return true;
     }
 
@@ -294,106 +244,33 @@ public class LoopUnroller extends ContextVisitor {
         if (explodedVars.size() > 1) {
             return fatalStatus("Exploded variable syntax is not yet supported for multi-dimensional loop iteration domains");
         }
+        Expr domain = fLoop.domain();
 
         // use type of domain to check its rank
-        if (!checkDomainIs1D(fLoop.domain())) {
+        if (!(ts.isIntRange(domain.type()) || ts.isLongRange(domain.type()))) {
             return fatalStatus("(at " + fLoopParams.fLoopVar.position() + ": cannot statically confirm that loop iteration domain is 1-dimensional");
         }
 
-        // [DC] I think this no-longer applies:
-        /*
-        // now find the values that flow into the domain expr
-        boolean status= findDomainValues();
-
-        if (!status) {
-            return status;
-        }
-        */
-
-        // now examine the domain values to determine the loop bounds
         return extractDomainBounds();
     }
 
     private boolean extractDomainBounds() {
-    	// [DC] don't understand fLoopDomainValues, maybe redundant?
-    	/*
-        if (fLoopParams.fLoopDomainValues.size() != 1) {
-            return fatalStatus("Can only analyze loop with 1 possible iteration domain value (this one has "+fLoopParams.fLoopDomainValues.size()+")");
-        }
-        Expr v= fLoopParams.fLoopDomainValues.iterator().next();
-*/
     	Expr v= fLoopParams.fLoopDomain;
     	
         if (v instanceof Call) {
             Call call= (Call) v;
             MethodInstance mi= call.methodInstance();
             List<Expr> args= call.arguments();
-            if (isRegionConvertCall(mi)) {
-                int dimen= args.size();
-                if (dimen > 1) {
-                    return fatalStatus("Cannot unroll loops over multi-dimensional iteration domains.");
+            if (mi.name().equals(X10Binary_c.binaryMethodName(X10Binary_c.DOT_DOT)) && 
+                    (mi.container().isInt() || mi.container().isLong())) {
+                fLoopParams.fMinSymbolic= args.get(0);
+                fLoopParams.fMaxSymbolic= args.get(1);
+                fLoopParams.fStride= 1;
+                if (fLoopParams.fMinSymbolic.isConstant() && fLoopParams.fMaxSymbolic.isConstant()) {
+                    fLoopParams.fMin= fLoopParams.fMinSymbolic.constantValue().integralValue();
+                    fLoopParams.fMax= fLoopParams.fMaxSymbolic.constantValue().integralValue();
+                    fLoopParams.fNumIterationsUnknown = false;
                 }
-                Expr regionTuple= args.get(0);
-                List<Expr> dimensionArgs= ((Tuple) regionTuple).arguments();
-                Expr low, hi;
-                if (dimensionArgs.get(0) instanceof Call) {
-                    Call c= (Call) dimensionArgs.get(0);
-
-                    MethodInstance cmi = c.methodInstance();
-                    if (cmi.container().isInt() && cmi.name().equals(X10Binary_c.binaryMethodName(X10Binary_c.DOT_DOT))) {
-                        low= c.arguments().get(0);
-                        hi= c.arguments().get(1);
-                    } else {
-                        low= null;
-                        hi= null;
-                    }
-                } else {
-                    low= null;
-                    hi= null;
-                }
-                if (low != null && hi != null) {
-                    fLoopParams.fMin= getConstantValueOf(low);
-                    fLoopParams.fMinSymbolic= low;
-                    fLoopParams.fMax= getConstantValueOf(hi);
-                    fLoopParams.fMaxSymbolic= hi;
-                    fLoopParams.fStride= 1;
-                }
-            } else if (mi.container() instanceof ClassType && ((ClassType) mi.container()).fullName().toString().equals("x10.regionarray.Region") &&
-                       mi.name().toString().equals("makeRectangular")) {
-                Expr low, hi;
-                low= args.get(0);
-                hi= args.get(1);
-                fLoopParams.fMin= getConstantValueOf(low);
-                fLoopParams.fMinSymbolic= low;
-                fLoopParams.fMax= getConstantValueOf(hi);
-                fLoopParams.fMaxSymbolic= hi;
-                fLoopParams.fStride= 1;
-            } else if (mi.container() instanceof ClassType && ((ClassType) mi.container()).fullName().toString().equals("x10.lang.Rail") &&
-                    mi.name().toString().equals("makeVar")) {
-                Expr size= args.get(0);
-                fLoopParams.fMin= 1;
-                fLoopParams.fMinSymbolic= intLit(1);
-                fLoopParams.fMax= getConstantValueOf(size);
-                fLoopParams.fMaxSymbolic= size;
-                fLoopParams.fStride= 1;
-            } else if (mi.container().isInt() && mi.name().equals(X10Binary_c.binaryMethodName(X10Binary_c.DOT_DOT))) {
-                Expr low, hi;
-                low= args.get(0);
-                hi= args.get(1);
-                fLoopParams.fMin= getConstantValueOf(low);
-                fLoopParams.fMinSymbolic= low;
-                fLoopParams.fMax= getConstantValueOf(hi);
-                fLoopParams.fMaxSymbolic= hi;
-                fLoopParams.fStride= 1;
-            } else if (mi.container().isLong() && mi.name().equals(X10Binary_c.binaryMethodName(X10Binary_c.DOT_DOT))) {
-                Expr low, hi;
-                low= args.get(0);
-                hi= args.get(1);
-                fLoopParams.fMin= getConstantValueOf(low);
-                fLoopParams.fMinSymbolic= low;
-                fLoopParams.fMax= getConstantValueOf(hi);
-                fLoopParams.fMaxSymbolic= hi;
-                fLoopParams.fStride= 1;
             } else {
         		return fatalStatus("Don't understand iteration domain: " + call);
             }
@@ -403,97 +280,18 @@ public class LoopUnroller extends ContextVisitor {
         return okStatus();
     }
 
-    private boolean isRegionConvertCall(MethodInstance mi) {
-        return mi.container() instanceof ClassType && ((ClassType) mi.container()).fullName().toString().equals("x10.regionarray.Region") &&
-                mi.name().toString().equals("$convert");
-    }
-
-    private long getConstantValueOf(Expr e) {
-        // TODO Need to produce the literal value here, but elsewhere need the symbolic value (e.g. when rewriting the region bounds)
-        if (e.constantValue() != null && e.constantValue() instanceof IntegralValue) {
-            return ((IntegralValue) e.constantValue()).longValue();
-        }
-        return -1; // TOTALLY BOGUS - probably need to return a RefactoringStatus to abort the refactoring
-    }
-
-    private boolean findDomainValues() {
-        Local domainLocal;
-        Expr domain= fLoop.domain();
-
-        if (domain instanceof Field || domain instanceof Local) {
-            if (domain instanceof Field) {
-                Field f= (Field) domain;
-                if (f.name().toString().equals("dist")) {
-                    Receiver rcvr= f.target();
-                    if (rcvr instanceof Local) {
-                        domainLocal= ((Local) rcvr);
-                    } else {
-                        return fatalStatus("for-loop domain is a '.dist' pseudo-field access via something other than a local variable");
-                    }
-                } else {
-                    return fatalStatus("for-loop domain is a field access to something other than '.dist'");
-                }
-            } else if (domain instanceof Local) {
-                domainLocal= (Local) domain;
-            } else {
-                return fatalStatus("for-loop domain is neither a local var nor a 'dist' field access");
-            }
-//            VarDef localDef= domainLocal.localInstance().def();
-//            Set<Term> domainTerms= fValueMap.getValues(localDef);
-//
-//            for(Term t: domainTerms) {
-//                if (t instanceof Expr) {
-//                    fLoopParams.addDomainValue((Expr) t);
-//                } else {
-//                    warn("Don't know what to do with domain term: " + t);
-//                }
-//            }
-        } else if (domain instanceof Call) {
-            fLoopParams.addDomainValue(domain);
-        }
-        return okStatus();
-    }
-
-    private boolean checkDomainIs1D(Expr domain) {
-        ConstrainedType type= (ConstrainedType) domain.type();
-        if (type.isRank(typeSystem().ONE(), context))
-    		return true;
-        else if (ts.isIntRange(type) || ts.isLongRange(type))
-        	return true;
-        return false;
-     
-    }
-
-    private boolean constraintEq1(XTerm term) {
-        XEquals eq= (XEquals) term;
-        XTerm[] args= eq.arguments();
-        XTerm left= args[0];
-        XTerm right= args[1];
-
-        if (right instanceof XLit) {
-            XLit lit= (XLit) right;
-            Object litVal= lit.val();
-            return (litVal instanceof Number) && ((Number)litVal).intValue()==1;
-        } else if (right instanceof XLocal) {
-            // Might we need to know what values flow into this RHS operand?
-        } else if (right instanceof XField) {
-            // Might we need to know what values flow into this RHS operand?
-            XField rightField= (XField) right;
-            XVar rightRcvr= rightField.receiver();
-            //Object rightName= rightField.field();
-
-            if (rightRcvr instanceof XLocal) {
-                XLocal rightRcvrLocal= (XLocal) rightRcvr;
-                warn("Hey!");
-            }
-        }
-        return false;
-    }
-
     private static Position PCG= Position.COMPILER_GENERATED;
 
-    private IntLit intLit(int i) {
+    private IntLit longLit(long i) {
+        return (IntLit) xnf.IntLit(PCG, IntLit.LONG, i).type(xts.Long());
+    }
+    
+    private IntLit intLit(long i) {
         return (IntLit) xnf.IntLit(PCG, IntLit.INT, i).type(xts.Int());
+    }
+    
+    private IntLit lit(long i, Type t) {
+        return t.isIntOrLess() ?  intLit(i) : longLit(i);
     }
 
     private Id id(String name) {
@@ -521,14 +319,14 @@ public class LoopUnroller extends ContextVisitor {
         return (Local) xnf.Local(PCG, id(li.name())).localInstance(li).type(li.type());
     }
 
-    private LocalDecl localDecl(Name name, CanonicalTypeNode intTypeNode, Expr init) {
-        LocalDef def= xts.localDef(PCG, Flags.NONE, Types.ref(xts.Int()), name);
-        return xnf.LocalDecl(PCG, noFlags(), intTypeNode, id(name), init).localDef(def);
+    private LocalDecl localDecl(Name name, CanonicalTypeNode dTypeNode, Expr init) {
+        LocalDef def= xts.localDef(PCG, Flags.NONE, Types.ref(dTypeNode.type()), name);
+        return xnf.LocalDecl(PCG, noFlags(), dTypeNode, id(name), init).localDef(def);
     }
 
-    private LocalDecl finalLocalDecl(Name name, CanonicalTypeNode intTypeNode, Expr init) {
-        LocalDef def= xts.localDef(PCG, Flags.FINAL, Types.ref(intTypeNode.type()), name);
-        return xnf.LocalDecl(PCG, finalFlag(), intTypeNode, id(name), init).localDef(def);
+    private LocalDecl finalLocalDecl(Name name, CanonicalTypeNode dTypeNode, Expr init) {
+        LocalDef def= xts.localDef(PCG, Flags.FINAL, Types.ref(dTypeNode.type()), name);
+        return xnf.LocalDecl(PCG, finalFlag(), dTypeNode, id(name), init).localDef(def);
     }
 
     /**
@@ -546,24 +344,35 @@ public class LoopUnroller extends ContextVisitor {
         return name;
     }
 
+    private Type meetBinaryType(Type l, Type r) {
+        if (l.isLong() && r.isLong()) return xts.Long();
+        if (l.isLong() || r.isLong()) return xts.Long();
+        return xts.Int();
+    }
+    
     private Expr div(Expr left, Expr right) {
-        return xnf.Binary(PCG, left, Binary.DIV, right).type(xts.Int());
+        Type resType = meetBinaryType(left.type(), right.type());
+        return xnf.Binary(PCG, left, Binary.DIV, right).type(resType);
     }
 
     private Expr mod(Expr left, Expr right) {
-        return xnf.Binary(PCG, left, Binary.MOD, right).type(xts.Int());
+        Type resType = meetBinaryType(left.type(), right.type());
+        return xnf.Binary(PCG, left, Binary.MOD, right).type(resType);
     }
 
     private Expr mul(Expr left, Expr right) {
-        return xnf.Binary(PCG, left, Binary.MUL, right).type(xts.Int());
+        Type resType = meetBinaryType(left.type(), right.type());
+        return xnf.Binary(PCG, left, Binary.MUL, right).type(resType);
     }
 
     private Expr plus(Expr left, Expr right) {
-        return xnf.Binary(PCG, left, Binary.ADD, right).type(xts.Int());
+        Type resType = meetBinaryType(left.type(), right.type());
+        return xnf.Binary(PCG, left, Binary.ADD, right).type(resType);
     }
 
     private Expr sub(Expr left, Expr right) {
-        return xnf.Binary(PCG, left, Binary.SUB, right).type(xts.Int());
+        Type resType = meetBinaryType(left.type(), right.type());
+        return xnf.Binary(PCG, left, Binary.SUB, right).type(resType);
     }
 
     private Expr lt(Expr left, Expr right) {
@@ -611,19 +420,19 @@ public class LoopUnroller extends ContextVisitor {
     }
 
     private Expr postInc(Expr target) {
-        return xnf.Unary(PCG, target, Unary.POST_INC).type(xts.Int());
+        return xnf.Unary(PCG, target, Unary.POST_INC).type(target.type());
     }
 
     private Expr postDec(Expr target) {
-        return xnf.Unary(PCG, target, Unary.POST_DEC).type(xts.Int());
+        return xnf.Unary(PCG, target, Unary.POST_DEC).type(target.type());
     }
 
     private Expr preInc(Expr target) {
-        return xnf.Unary(PCG, target, Unary.PRE_INC).type(xts.Int());
+        return xnf.Unary(PCG, target, Unary.PRE_INC).type(target.type());
     }
 
     private Expr preDec(Expr target) {
-        return xnf.Unary(PCG, target, Unary.PRE_DEC).type(xts.Int());
+        return xnf.Unary(PCG, target, Unary.PRE_DEC).type(target.type());
     }
 
     private Expr not(Expr expr) {
@@ -635,7 +444,7 @@ public class LoopUnroller extends ContextVisitor {
     }
 
     private Expr bitNot(Expr expr) {
-        return xnf.Unary(PCG, expr, Unary.BIT_NOT).type(xts.Int());
+        return xnf.Unary(PCG, expr, Unary.BIT_NOT).type(expr.type());
     }
 
     private Stmt eval(Expr expr) {
@@ -645,50 +454,88 @@ public class LoopUnroller extends ContextVisitor {
     private Stmt unrollLoop(ForLoop fLoop) {
         if (!checkPreconditions(fLoop))
             return fLoop;
-        assert (fLoopParams.fExtentUnknown);
-        // Have to do this the hard way: Generate code to ask the loop domain for its min and max,
-        // and use those bounds to drive an ordinary for-loop. Also have to re-generate the loop
-        // to take care of the tail end of the iteration domain (if the unroll factor doesn't
-        // evenly divide the iteration bounds).
-        // The code will look like this:
-        //
-        // {
-        //   int min = r.min(0);
-        //   int max = r.max(0);
-        //   int loopMax = (max - min + 1) / `fUnrollFactor` * `fUnrollFactor` + min;
-        //   for(int loopVar = min; loopVar < loopMax; loopVar += `fUnrollFactor`) { // [(min..max) : `fUnrollFactor`]
-        //      loopBody
-        //      loopBody[loopVar+1/loopVar]
-        //      ...
-        //      loopBody[loopVar+`fUnrollFactor`-1/loopVar]
-        //   }
-        // 
-        //   for(int loopVar = loopMax; loopVar < max; loopVar++) {
-        //      loopBody
-        //   }
-        // }
-        Expr domain= fLoopParams.fLoopDomain;
-        Expr domainMin= (fLoopParams.fMinSymbolic != null) ? fLoopParams.fMinSymbolic : xnf.Call(PCG, domain, id("min"), intLit(0));
-        Expr domainMax= (fLoopParams.fMaxSymbolic != null) ? fLoopParams.fMaxSymbolic : xnf.Call(PCG, domain, id("max"), intLit(0));
-        LocalDecl minDecl= finalLocalDecl(makeFreshInContext("min"), makeTypeNode(fLoopParams.fMinSymbolic.type()), domainMin);
-        LocalDecl maxDecl= finalLocalDecl(makeFreshInContext("max"), makeTypeNode(fLoopParams.fMaxSymbolic.type()), domainMax);
-        ContextVisitor desugarer= new Desugarer(job, xts, xnf).context(this.context());
-        Expr loopMax= plus(mul(div(plus(sub(local(maxDecl.localDef()), local(minDecl.localDef())), intLit(1)), intLit(fUnrollFactor)), intLit(fUnrollFactor)), local(minDecl.localDef()));
-        loopMax= (Expr) loopMax.visit(desugarer);
-        LocalDecl loopMaxDecl= finalLocalDecl(makeFreshInContext("loopMax"), makeTypeNode(fLoopParams.fMaxSymbolic.type()), loopMax);
+ 
+        Desugarer desugarer= (Desugarer) new Desugarer(job, xts, xnf).context(this.context());
+        if (!fLoopParams.fNumIterationsUnknown && fUnrollFactor == ((fLoopParams.fMax - fLoopParams.fMin + 1)/fLoopParams.fStride)) {
+            // easy case: complete loop unroll
+            VarDecl oldLoopVar = fLoopParams.fLoopVar;
+            Name loopVarName= makeFreshInContext(oldLoopVar.name().toString());
+            LocalDecl newLoopVarInit= localDecl(loopVarName, makeTypeNode(Types.baseType(fLoopParams.fMinSymbolic.type())), fLoopParams.fMinSymbolic);            
+            List<Stmt> unrolledStatements = unrollBody(fLoop.body(), (int)fUnrollFactor, oldLoopVar, newLoopVarInit, desugarer);
+            Block newLoopBody= xnf.Block(PCG, unrolledStatements);
+            newLoopBody = newLoopBody.prepend(newLoopVarInit);
+            return newLoopBody;
+        } else {
+            // General case: 
+            // Generate code to ask the loop domain for its min and max,
+            // and use those bounds to drive an ordinary for-loop. Also have to re-generate the loop
+            // to take care of the tail end of the iteration domain (if the unroll factor doesn't
+            // evenly divide the iteration bounds).
+            // The code will look like this:
+            //
+            // {
+            //   int min = r.min(0);
+            //   int max = r.max(0);
+            //   int loopMax = (max - min + 1) / `fUnrollFactor` * `fUnrollFactor` + min;
+            //   for(int loopVar = min; loopVar < loopMax; loopVar += `fUnrollFactor`) { // [(min..max) : `fUnrollFactor`]
+            //      loopBody
+            //      loopBody[loopVar+1/loopVar]
+            //      ...
+            //      loopBody[loopVar+`fUnrollFactor`-1/loopVar]
+            //   }
+            // 
+            //   for(int loopVar = loopMax; loopVar < max; loopVar++) {
+            //      loopBody
+            //   }
+            // }
+            
+            // Compute min, max, and loopMax
+            // TODO: take advantage of compile time constants where possible
+            Expr domainMin = fLoopParams.fMinSymbolic;
+            Expr domainMax = fLoopParams.fMaxSymbolic;
+            Type loopVarType = Types.baseType(fLoopParams.fMinSymbolic.type());
+            LocalDecl minDecl= finalLocalDecl(makeFreshInContext("min"), makeTypeNode(loopVarType), domainMin);
+            LocalDecl maxDecl= finalLocalDecl(makeFreshInContext("max"), makeTypeNode(loopVarType), domainMax);
+            Expr loopMax= plus(mul(div(plus(sub(local(maxDecl.localDef()), local(minDecl.localDef())), lit(1,loopVarType)), longLit(fUnrollFactor)), longLit(fUnrollFactor)), local(minDecl.localDef()));
+            loopMax= (Expr) loopMax.visit(desugarer);
+            LocalDecl loopMaxDecl= finalLocalDecl(makeFreshInContext("loopMax"), makeTypeNode(loopVarType), loopMax);
 
-        //Formal firstDimVar= ((X10Formal) fLoopParams.fLoopVar).vars().get(0);
-        Formal firstDimVar= (X10Formal) fLoopParams.fLoopVar;
-        Name loopVarName= makeFreshInContext(firstDimVar.name().toString());
-        LocalDecl newLoopVarInit= localDecl(loopVarName, makeTypeNode(fLoopParams.fMinSymbolic.type()), local(minDecl.localDef()));
-        Expr loopCond= lt(local(newLoopVarInit.localDef()), local(loopMaxDecl.localDef()));
-        loopCond= (Expr) loopCond.visit(desugarer);
-        ForUpdate loopUpdate= (ForUpdate) eval(addAssign(local(newLoopVarInit.localDef()), intLit(fUnrollFactor)));
-        loopUpdate= (ForUpdate) loopUpdate.visit(desugarer);
-        List<ForInit> newLoopInits= Arrays.<ForInit>asList(newLoopVarInit);
-        List<ForUpdate> newLoopUpdates= Arrays.asList(loopUpdate);
-        List<Stmt> newLoopBodyStmts= new ArrayList<Stmt>(fUnrollFactor);
-        X10Formal loopVar= (X10Formal) fLoopParams.fLoopVar;
+            // Main loop, with body unrolled fUnrollFactor times
+            VarDecl oldLoopVar = fLoopParams.fLoopVar;
+            Name loopVarName= makeFreshInContext(oldLoopVar.name().toString());
+            LocalDecl newLoopVarInit= localDecl(loopVarName, makeTypeNode(loopVarType), local(minDecl.localDef()));
+            Expr loopCond= lt(local(newLoopVarInit.localDef()), local(loopMaxDecl.localDef()));
+            loopCond= (Expr) loopCond.visit(desugarer);
+            ForUpdate loopUpdate= (ForUpdate) eval(addAssign(local(newLoopVarInit.localDef()), lit(fUnrollFactor, loopVarType)));
+            loopUpdate= (ForUpdate) loopUpdate.visit(desugarer);
+            List<ForInit> newLoopInits= Arrays.<ForInit>asList(newLoopVarInit);
+            List<ForUpdate> newLoopUpdates= Arrays.asList(loopUpdate);        
+            List<Stmt> newLoopBodyStmts = unrollBody(fLoop.body(), (int)fUnrollFactor, oldLoopVar, newLoopVarInit, desugarer);
+            Block newLoopBody= xnf.Block(PCG, newLoopBodyStmts);
+            For newForStmt= xnf.For(PCG, newLoopInits, loopCond, newLoopUpdates, newLoopBody);
+            List<Stmt> unrollBlockStmts;
+
+            // Now for the "remainder loop":
+            //   for(int loopVar = (max / `fUnrollFactor`) * `fUnrollFactor`; loopVar < max; loopVar++) {
+            //      loopBody
+            //   }
+            Expr remainderLoopMinIdx= local(loopMaxDecl.localDef());
+            LocalDecl remainderLoopInit= localDecl(loopVarName, makeTypeNode(loopVarType), remainderLoopMinIdx);
+            Expr remainderCond= le(local(remainderLoopInit.localDef()), local(maxDecl.localDef()));
+            remainderCond= (Expr) remainderCond.visit(desugarer);
+            ForUpdate remainderUpdate= (ForUpdate) eval(postInc(local(remainderLoopInit.localDef())));
+            remainderUpdate= (ForUpdate) remainderUpdate.visit(desugarer);
+            Stmt subbedBody= unrollBody(fLoop.body(), 1, oldLoopVar, remainderLoopInit, desugarer).get(0);
+            Stmt remainderLoop= xnf.For(PCG, Arrays.<ForInit>asList(remainderLoopInit), remainderCond, Arrays.asList(remainderUpdate), subbedBody);
+            unrollBlockStmts= Arrays.asList(minDecl, maxDecl, loopMaxDecl, newForStmt, remainderLoop);
+
+            return xnf.Block(PCG, unrollBlockStmts);
+        }
+    }
+
+    private List<Stmt> unrollBody(Stmt body, int numCopies, VarDecl oldLoopVar, VarDecl newLoopVar,
+                                  Desugarer desugarer) {
+        List<Stmt> newLoopBodyStmts= new ArrayList<Stmt>(numCopies);
 
         final Map<LocalDef, Expr> subs= CollectionFactory.newHashMap(1);
         final Context outer= context();
@@ -715,13 +562,13 @@ public class LoopUnroller extends ContextVisitor {
                 return n;
             }
         }
-        for(int i= 0; i < fUnrollFactor; i++) {
+        for(int i= 0; i < numCopies; i++) {
             Stmt subbedBody= fLoop.body();
-            if (loopVar.type().type().isInt() || loopVar.type().type().isLong() || loopVar.vars().size() > 0) {
-                Expr varValue= intLit(i);
-                Expr newInit= plus(local(newLoopVarInit.localDef()), varValue);
+            if (newLoopVar.type().type().isLongOrLess()) {
+                Expr varValue= lit(i, newLoopVar.type().type());
+                Expr newInit= plus(local(newLoopVar.localDef()), varValue);
                 newInit= (Expr) newInit.visit(desugarer);
-                subs.put(firstDimVar.localDef(), newInit);
+                subs.put(oldLoopVar.localDef(), newInit);
                 Desugarer.Substitution<Expr> subPerformer= new ReplaceLoopVar();
                 subbedBody= (Stmt) subbedBody.visit(subPerformer);
             } else {
@@ -732,62 +579,6 @@ public class LoopUnroller extends ContextVisitor {
             subbedBody= (Stmt) subbedBody.visit(visitor); // reinstantiate locals in the body
             newLoopBodyStmts.add(subbedBody);
         }
-        Block newLoopBody= xnf.Block(PCG, newLoopBodyStmts);
-        For newForStmt= xnf.For(PCG, newLoopInits, loopCond, newLoopUpdates, newLoopBody);
-        List<Stmt> unrollBlockStmts;
-
-        if (fHandleLoopLeftovers == LoopLeftoverHandling.GENERATE_ASSERT) {
-            Expr aexpr= eq(mod(plus(sub(local(maxDecl.localDef()), local(minDecl.localDef())), intLit(1)), intLit(fUnrollFactor)), intLit(0));
-            aexpr= (Expr) aexpr.visit(desugarer);
-            Stmt assertStmt= xnf.Assert(PCG, aexpr);
-
-            unrollBlockStmts= Arrays.asList(minDecl, maxDecl, loopMaxDecl, assertStmt, newForStmt);
-        } else {
-            // Now for the "remainder loop":
-            //   for(int loopVar = (max / `fUnrollFactor`) * `fUnrollFactor`; loopVar < max; loopVar++) {
-            //      loopBody
-            //   }
-            Expr remainderLoopMinIdx= local(loopMaxDecl.localDef());
-            LocalDecl remainderLoopInit= localDecl(loopVarName, makeTypeNode(fLoopParams.fMinSymbolic.type()), remainderLoopMinIdx);
-            Expr remainderCond= le(local(remainderLoopInit.localDef()), local(maxDecl.localDef()));
-            remainderCond= (Expr) remainderCond.visit(desugarer);
-            ForUpdate remainderUpdate= (ForUpdate) eval(postInc(local(remainderLoopInit.localDef())));
-            remainderUpdate= (ForUpdate) remainderUpdate.visit(desugarer);
-            Stmt subbedBody= fLoop.body();
-            if (loopVar.type().type().isInt() || loopVar.type().type().isLong() || loopVar.vars().size() > 0) {
-                Expr newInit= local(remainderLoopInit.localDef());
-                subs.put(firstDimVar.localDef(), newInit);
-                Desugarer.Substitution<Expr> subPerformer= new ReplaceLoopVar();
-                subbedBody= (Stmt) subbedBody.visit(subPerformer);
-            } else {
-                subbedBody= (Stmt) subbedBody.copy();
-            }
-            Stmt remainderLoop= xnf.For(PCG, Arrays.<ForInit>asList(remainderLoopInit), remainderCond, Arrays.asList(remainderUpdate), subbedBody);
-
-            unrollBlockStmts= Arrays.asList(minDecl, maxDecl, loopMaxDecl, newForStmt, remainderLoop);
-        }
-
-        return xnf.Block(PCG, unrollBlockStmts);
-    }
-
-    protected int findIndexInParent(Stmt s, Block parent) {
-        for(int stmtIdx= 0; stmtIdx < parent.statements().size(); stmtIdx++) {
-            if (parent.statements().get(stmtIdx) == s) {
-                return stmtIdx;
-            }
-        }
-        return -1;
-    }
-
-    public void setUnrollFactor(int factor) {
-        fUnrollFactor= factor;
-    }
-
-    public void setAddAssertion() {
-        fHandleLoopLeftovers= LoopLeftoverHandling.GENERATE_ASSERT;
-    }
-
-    public void setGenerateTailLoop() {
-        fHandleLoopLeftovers= LoopLeftoverHandling.GENERATE_TAIL_LOOP;
+        return newLoopBodyStmts;
     }
 }

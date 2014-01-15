@@ -15,19 +15,19 @@ public class CUDAMatMul {
             A(j) = (r.nextInt(maxi*2N) - maxi) / (maxi + 1.0f);
     }
 
-    static def diff (m:Int, n:Int, A:Rail[Float], lda:Int, B:Rail[Float], ldb:Int )
+    static def diff (m:Long, n:Long, A:Rail[Float], lda:Long, B:Rail[Float], ldb:Long)
     {
         var err:Float = 0;
-        for(j in 0n..(n-1n))
-            for(i in 0n..(m-1n))
+        for(j in 0..(n-1))
+            for(i in 0..(m-1))
                 err = Math.max( err, Math.abs( A(i+j*lda) - B(i+j*ldb) ) );
         return err;
     }
 
     static def ourSgemm (gpu:Place, transa:Char, transb:Char, m:Int, n:Int, k:Int, alpha:Float,
-                         A:GlobalRail[Float]{home==gpu}, lda:Int,
-                         B:GlobalRail[Float]{home==gpu}, ldb:Int, beta:Float,
-                         C:GlobalRail[Float]{home==gpu}, ldc:Int)
+                         A:GlobalRail[Float]{home==gpu}, lda:Long,
+                         B:GlobalRail[Float]{home==gpu}, ldb:Long, beta:Float,
+                         C:GlobalRail[Float]{home==gpu}, ldc:Long)
     {
         assert transa == 'N' || transa == 'n' : "unsupported value of 'transa' in ourSgemm()";
         assert transb == 'N' || transb == 'n' || transb == 'T' || transb == 't' || transb == 'C' || transb == 'c' :
@@ -49,9 +49,9 @@ public class CUDAMatMul {
                         val iby = (block/(m/64n)) * 16n;
                         val id = inx + iny*16n;
 
-                        var A_idx:Int = ibx + id;
-                        var B_idx:Int = inx + ( iby + iny) * ( ldb );
-                        var C_idx:Int = ibx + id  + ( iby * ldc );
+                        var A_idx:Long = ibx + id;
+                        var B_idx:Long = inx + ( iby + iny) * ( ldb );
+                        var C_idx:Long = ibx + id  + ( iby * ldc );
 
                         val Blast_idx = B_idx + k;
 
@@ -61,14 +61,14 @@ public class CUDAMatMul {
                         {
                             Clock.advanceAll();
 
-                            @Unroll(4n) for (i in 0..(4-1)) {
+                            @Unroll(4) for (i in 0..3) {
                                 bs(inx*17+iny+4*i) = B(B_idx + (4*i)*ldb);
                             }
 
                             Clock.advanceAll();
 
-                            @Unroll(16n)for (i in 0..(16-1)) {
-                                @Unroll(16n) for (j in 0..(16-1)) {
+                            @Unroll(16) for (i in 0..15) {
+                                @Unroll(16) for (j in 0..15) {
                                     c(j) = c(j) + A(A_idx + i*lda) * bs(i*17 + j);
                                 }
                             }
@@ -80,7 +80,7 @@ public class CUDAMatMul {
 
                         } while( B_idx < Blast_idx );
 
-                        @Unroll(16n) for (i in 0..(16-1)) {
+                        @Unroll(16) for (i in 0..15) {
                             C(C_idx + i*ldc) = alpha*c(i) + beta*C(C_idx + i*ldc);
                         }
                     }
