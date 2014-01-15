@@ -11,7 +11,21 @@
 
 package x10.util;
 
-public interface Builder[Element,Collection] {
-    public def add(x:Element): Builder[Element,Collection];
-    public def result(): Collection;
+/**
+ * Build a result of type U from a set of elements of type T
+ */
+public interface Builder[T,U] {
+
+    /**
+     * add an element to the builder
+     * @param e an element
+     * @return the builder 
+     */
+    public def add(e:T):Builder[T,U];
+    
+    /**
+     * return a result
+     * @return a result
+     */
+    public def result():U;
 }
