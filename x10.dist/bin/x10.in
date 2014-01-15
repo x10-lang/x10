@@ -7,6 +7,8 @@ timelimit=""
 verbose=""
 extra_cp=""
 extra_lib=""
+config=""
+logconf=""
 ms=""
 mx=""
 ss=""
@@ -45,6 +47,10 @@ while [ -n "$1" ]; do
                  echo >&2 "Error: Cannot reset java.class.path, use -classpath instead"
                  exit 1
              fi
+             if [[ "${1##-D}" = java.util.logging.config.file=* ]]; then
+                 echo >&2 "Error: Cannot reset java.util.logging.config.file, use -logconf instead"
+                 exit 1
+             fi
              # TODO: add tests for more system properties above
              defs="${defs} $1";;
         -classpath|-cp)
@@ -61,6 +67,7 @@ while [ -n "$1" ]; do
         -hostfile|--hostfile) shift; export X10_HOSTFILE="$1";;
         -x10rt) shift; x10rt_impl="$1";;
         -config) shift; config="$1.cfg";;
+        -logconf) shift; logconf="$1";;
         -noassert) noassert="true";;
         -noclassloadtest) noclassloadtest="true";;
         -dev) dev="true";;
@@ -83,28 +90,28 @@ if [ -n "$help" -o -z "${args[*]}" ]; then
     cat << EOF
 Usage: x10 [options] <main-class> [arg0 arg1 ...]
 where [options] includes:
-    -t -time                 display execution time
-    -timelimit <limit>       force exit when the time limit is reached (suffix of s,m,h,d)
-    -v -verbose --verbose    print verbose debugging information
-    -h -help --help          print this message
-    -ms<size>                set initial heap size to <size>, e.g. -ms256m
-    -mx<size>                set maximum heap size to <size>, e.g. -mx1024m
-    -ss<size>                set maximum Java thread stack size to <size>
-    -D<name>=<value>         set system property <name> to <value>
-    -classpath <path>        search path for class files
-    -libpath <path>          search path for native libraries
-    -np <num>                number of places to launch (overrides X10_NPLACES or MP_PROCS)
-    -host <host1,host2,...>  list of hosts to launch places on (overrides X10_HOSTLIST. ignored with IBM PE)
-    -hostfile <file>         provide a hostfile (overrides X10_HOSTFILE or MP_HOSTFILE)
-    -x10rt <impl>            select X10RT implementation
-    -config <conf>           (IGNORED) read configuration from etc${FILE_SEP}<conf>.cfg
-    -noassert                disable assertion check
-    -noclassloadtest         disable class load test
-    -dev                     developer mode (use unpackaged X10 libraries)
-    -pkg-conf=dir            print absolute directory, where dir is one of
-                               [bin, etc, include, lib, stdlib]
-    -J<arg>                  [USE WITH CAUTION] pass <arg> directly to Java.
-        e.g., use -J-verbose to make Java execution verbose.
+   -t -time                       display execution time
+   -timelimit <limit>             force exit when the time limit is reached (suffix of s,m,h,d)
+   -v -verbose --verbose          print verbose debugging information
+   -h -help --help                print this message
+   -ms<size>                      set initial heap size to <size>, e.g. -ms256m
+   -mx<size>                      set maximum heap size to <size>, e.g. -mx1024m
+   -ss<size>                      set maximum Java thread stack size to <size>
+   -D<name>=<value>               set system property <name> to <value>
+   -classpath <path>              search path for class files
+   -libpath <path>                search path for native libraries
+   -np <num>                      number of places to launch (overrides X10_NPLACES or MP_PROCS)
+   -host <host1,host2,...>        list of hosts to launch places on (overrides X10_HOSTLIST. ignored with IBM PE)
+   -hostfile <file>               provide a hostfile (overrides X10_HOSTFILE or MP_HOSTFILE)
+   -x10rt <impl>                  select X10RT implementation
+   -config <conf>                 (IGNORED) read configuration from etc${FILE_SEP}<conf>.cfg
+   -logconf <logging.properties>  specify configuration file for java.util.logging
+   -noassert                      disable assertion check
+   -noclassloadtest               disable class load test
+   -dev                           developer mode (use unpackaged X10 libraries)
+   -pkg-conf=dir                  print absolute directory, where dir is one of [bin, etc, include, lib, stdlib]
+   -J<arg>                        [USE WITH CAUTION] pass <arg> directly to Java.
+                                    e.g., use -J-verbose to make Java execution verbose.
 EOF
     exit 1
 fi
@@ -201,6 +208,10 @@ else
     fi
 fi
 
+if [ -z "$logconf" ]; then
+  logconf="${LIB_DIR}${FILE_SEP}${LOGGING_PROPERTIES}"
+fi
+java_args=("-Djava.util.logging.config.file=$logconf" "${java_args[@]}")
 
 # TODO: executable jar
 # Note: use bootstrap class path instead of user class path to make it visible from jar file
