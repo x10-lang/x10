@@ -13,6 +13,7 @@
 import harness.x10Test;
 
 // SOURCEPATH: x10.dist/samples/CUDA
+// NUM_PLACES: 4
 
 public class CUDATopologyTest extends x10Test {
     public def run():boolean {

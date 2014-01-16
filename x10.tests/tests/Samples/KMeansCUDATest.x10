@@ -13,6 +13,7 @@
 import harness.x10Test;
 
 // SOURCEPATH: x10.dist/samples/CUDA
+// NUM_PLACES: 2
 
 public class KMeansCUDATest extends x10Test {
     public def run():boolean {
