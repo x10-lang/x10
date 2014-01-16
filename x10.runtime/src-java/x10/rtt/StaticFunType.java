@@ -13,6 +13,8 @@ package x10.rtt;
 
 import java.util.concurrent.ConcurrentHashMap;
 
+import x10.core.fun.Fun;
+
 // for static inner classes that are compiled from closures
 public final class StaticFunType<T> extends RuntimeType<T> {
     
@@ -81,7 +83,7 @@ public final class StaticFunType<T> extends RuntimeType<T> {
     @Override
     public String typeName(Object o) {
         // Note: assume that the first parent in this RuntimeType is the parameterized type which corresponds to the function type
-        assert o instanceof x10.core.fun.Fun;
+        assert o instanceof Fun;
         Type<?> parent = getParents()[0];
         String typeName;
         if (parent instanceof ParameterizedType<?>) {

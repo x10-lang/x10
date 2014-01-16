@@ -15,6 +15,7 @@ import java.lang.reflect.InvocationTargetException;
 import java.nio.ByteBuffer;
 import java.util.Map;
 
+import x10.core.fun.VoidFun_0_0;
 import x10.io.Reader;
 import x10.io.Writer;
 import x10.lang.Place;
@@ -28,7 +29,7 @@ import x10.serialization.X10JavaSerializer;
 import x10.x10rt.SocketTransport;
 import x10.x10rt.X10RT;
 
-public abstract class Runtime implements x10.core.fun.VoidFun_0_0 {
+public abstract class Runtime implements VoidFun_0_0 {
 
     public RuntimeType<?> $getRTT() {
         return null;
@@ -104,7 +105,7 @@ public abstract class Runtime implements x10.core.fun.VoidFun_0_0 {
     }
 
     // body of main activity
-    static class $Closure$Main implements x10.core.fun.VoidFun_0_0 {
+    static class $Closure$Main implements VoidFun_0_0 {
         private final Runtime out$;
         private final x10.core.Rail<String> aargs;
 
@@ -236,11 +237,11 @@ public abstract class Runtime implements x10.core.fun.VoidFun_0_0 {
         System.out.println(ANSI_BOLD + X10RT.here() + ": " + col + type + ": " + ANSI_RESET + message);
     }
 
-    public static void runAsyncAt(int place, x10.core.fun.VoidFun_0_0 body, FinishState finishState, x10.lang.Runtime.Profile prof, int endpoint) {
+    public static void runAsyncAt(int place, VoidFun_0_0 body, FinishState finishState, x10.lang.Runtime.Profile prof, int endpoint) {
          runAsyncAt(place, body, finishState, prof);
     }
 
-    public static void runAsyncAt(int place, x10.core.fun.VoidFun_0_0 body, FinishState finishState, x10.lang.Runtime.Profile prof) {
+    public static void runAsyncAt(int place, VoidFun_0_0 body, FinishState finishState, x10.lang.Runtime.Profile prof) {
 		// TODO: bherta - all of this serialization needs to be reworked to write directly to the network (when possible), 
 		// skipping the intermediate buffers contained within the X10JavaSerializer class.
         try {
@@ -288,14 +289,14 @@ public abstract class Runtime implements x10.core.fun.VoidFun_0_0 {
     /**
      * Synchronously executes body at place(id)
      */
-    public static void runClosureAt(int place, x10.core.fun.VoidFun_0_0 body, x10.lang.Runtime.Profile prof) {
+    public static void runClosureAt(int place, VoidFun_0_0 body, x10.lang.Runtime.Profile prof) {
         runAt(place, body, prof);
     }
 
     /**
      * Synchronously executes body at place(id)
      */
-    public static void runClosureCopyAt(int place, x10.core.fun.VoidFun_0_0 body, x10.lang.Runtime.Profile prof) {
+    public static void runClosureCopyAt(int place, VoidFun_0_0 body, x10.lang.Runtime.Profile prof) {
         runAt(place, body, prof);
     }
 
@@ -357,7 +358,7 @@ public abstract class Runtime implements x10.core.fun.VoidFun_0_0 {
 		return hadoopWritableClass.isAssignableFrom(clazz);
 	}
 	
-	public static void runAt(int place, x10.core.fun.VoidFun_0_0 body, x10.lang.Runtime.Profile prof) {
+	public static void runAt(int place, VoidFun_0_0 body, x10.lang.Runtime.Profile prof) {
 		try {
 			// TODO: bherta - all of this serialization needs to be reworked to write directly to the network (when possible), 
 			// skipping the intermediate buffers contained within the X10JavaSerializer class.
