@@ -13,6 +13,7 @@ package x10.x10rt;
 import java.io.ByteArrayInputStream;
 import java.io.DataInputStream;
 
+import x10.core.fun.VoidFun_0_0;
 import x10.lang.FinishState;
 import x10.lang.Place;
 import x10.runtime.impl.java.Runtime;
@@ -68,7 +69,7 @@ public class MessageHandlers {
     		if (x10.runtime.impl.java.Runtime.TRACE_SER_DETAIL) {
     			System.out.println("Starting deserialization ");
     		}
-    		x10.core.fun.VoidFun_0_0 actObj = (x10.core.fun.VoidFun_0_0) deserializer.readObject();
+    		VoidFun_0_0 actObj = (VoidFun_0_0) deserializer.readObject();
     		if (Runtime.PROF_SER) {
     			long stop = System.nanoTime();
     			long duration = stop-start;
@@ -112,7 +113,7 @@ public class MessageHandlers {
     		if (X10RT.VERBOSE) System.out.println("runSimpleAsyncAtReceive is called");
     		ByteArrayInputStream byteStream = new ByteArrayInputStream(args);
     		if (X10RT.VERBOSE) System.out.println("runSimpleAsyncAtReceive: ByteArrayInputStream");
-    		x10.core.fun.VoidFun_0_0 actObj;
+    		VoidFun_0_0 actObj;
 
     		long start = Runtime.PROF_SER ? System.nanoTime() : 0;
     		DataInputStream objStream = new DataInputStream(byteStream);
@@ -123,7 +124,7 @@ public class MessageHandlers {
     		}
     		FinishState finishState = (FinishState) deserializer.readObject();
             Place src = (Place) deserializer.readObject();
-    		actObj = (x10.core.fun.VoidFun_0_0) deserializer.readObject();
+    		actObj = (VoidFun_0_0) deserializer.readObject();
     		if (Runtime.PROF_SER) {
     			long stop = System.nanoTime();
     			long duration = stop-start;
