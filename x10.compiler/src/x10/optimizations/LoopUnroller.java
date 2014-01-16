@@ -103,7 +103,7 @@ public class LoopUnroller extends ContextVisitor {
         final VarDecl fLoopVar;
         final Expr fLoopDomain;
         Set<Expr> fLoopDomainValues= CollectionFactory.newHashSet();
-        boolean fNumIterationsUnknown;
+        boolean fNumIterationsKnown;
         long fMin;
         Expr fMinSymbolic;
         long fMax;
@@ -113,7 +113,7 @@ public class LoopUnroller extends ContextVisitor {
         public LoopParams(VarDecl vd, Expr domain) {
             fLoopVar= vd;
             fLoopDomain= domain;
-            fNumIterationsUnknown= true;
+            fNumIterationsKnown= false;
         }
 
         public LoopParams(VarDecl vd, Expr domain, int min, int max, int stride) {
@@ -121,7 +121,7 @@ public class LoopUnroller extends ContextVisitor {
             fMin= min;
             fMax= max;
             fStride= stride;
-            fNumIterationsUnknown= false;
+            fNumIterationsKnown= true;
         }
     }
 
@@ -269,7 +269,7 @@ public class LoopUnroller extends ContextVisitor {
                 if (fLoopParams.fMinSymbolic.isConstant() && fLoopParams.fMaxSymbolic.isConstant()) {
                     fLoopParams.fMin= fLoopParams.fMinSymbolic.constantValue().integralValue();
                     fLoopParams.fMax= fLoopParams.fMaxSymbolic.constantValue().integralValue();
-                    fLoopParams.fNumIterationsUnknown = false;
+                    fLoopParams.fNumIterationsKnown = true;
                 }
             } else {
         		return fatalStatus("Don't understand iteration domain: " + call);
@@ -454,9 +454,10 @@ public class LoopUnroller extends ContextVisitor {
     private Stmt unrollLoop(ForLoop fLoop) {
         if (!checkPreconditions(fLoop))
             return fLoop;
- 
+        
+        long numIterations = fLoopParams.fNumIterationsKnown ? (fLoopParams.fMax - fLoopParams.fMin + 1)/fLoopParams.fStride : -1;
         Desugarer desugarer= (Desugarer) new Desugarer(job, xts, xnf).context(this.context());
-        if (!fLoopParams.fNumIterationsUnknown && fUnrollFactor == ((fLoopParams.fMax - fLoopParams.fMin + 1)/fLoopParams.fStride)) {
+        if (fLoopParams.fNumIterationsKnown && fUnrollFactor == numIterations) {
             // easy case: complete loop unroll
             VarDecl oldLoopVar = fLoopParams.fLoopVar;
             Name loopVarName= makeFreshInContext(oldLoopVar.name().toString());
@@ -490,14 +491,19 @@ public class LoopUnroller extends ContextVisitor {
             // }
             
             // Compute min, max, and loopMax
-            // TODO: take advantage of compile time constants where possible
             Expr domainMin = fLoopParams.fMinSymbolic;
             Expr domainMax = fLoopParams.fMaxSymbolic;
             Type loopVarType = Types.baseType(fLoopParams.fMinSymbolic.type());
             LocalDecl minDecl= finalLocalDecl(makeFreshInContext("min"), makeTypeNode(loopVarType), domainMin);
             LocalDecl maxDecl= finalLocalDecl(makeFreshInContext("max"), makeTypeNode(loopVarType), domainMax);
-            Expr loopMax= plus(mul(div(plus(sub(local(maxDecl.localDef()), local(minDecl.localDef())), lit(1,loopVarType)), longLit(fUnrollFactor)), longLit(fUnrollFactor)), local(minDecl.localDef()));
-            loopMax= (Expr) loopMax.visit(desugarer);
+            Expr loopMax;
+            if (fLoopParams.fNumIterationsKnown) {
+                loopMax = lit((numIterations / fUnrollFactor) * fUnrollFactor + fLoopParams.fMin, loopVarType);                
+            } else {
+                Type lvt = loopVarType;
+                loopMax= plus(mul(div(plus(sub(local(maxDecl.localDef()), local(minDecl.localDef())), lit(1,lvt)), lit(fUnrollFactor, lvt)), lit(fUnrollFactor, lvt)), local(minDecl.localDef()));
+                loopMax= (Expr) loopMax.visit(desugarer);
+            }
             LocalDecl loopMaxDecl= finalLocalDecl(makeFreshInContext("loopMax"), makeTypeNode(loopVarType), loopMax);
 
             // Main loop, with body unrolled fUnrollFactor times
@@ -513,21 +519,26 @@ public class LoopUnroller extends ContextVisitor {
             List<Stmt> newLoopBodyStmts = unrollBody(fLoop.body(), (int)fUnrollFactor, oldLoopVar, newLoopVarInit, desugarer);
             Block newLoopBody= xnf.Block(PCG, newLoopBodyStmts);
             For newForStmt= xnf.For(PCG, newLoopInits, loopCond, newLoopUpdates, newLoopBody);
-            List<Stmt> unrollBlockStmts;
 
             // Now for the "remainder loop":
             //   for(int loopVar = (max / `fUnrollFactor`) * `fUnrollFactor`; loopVar < max; loopVar++) {
             //      loopBody
             //   }
-            Expr remainderLoopMinIdx= local(loopMaxDecl.localDef());
-            LocalDecl remainderLoopInit= localDecl(loopVarName, makeTypeNode(loopVarType), remainderLoopMinIdx);
-            Expr remainderCond= le(local(remainderLoopInit.localDef()), local(maxDecl.localDef()));
-            remainderCond= (Expr) remainderCond.visit(desugarer);
-            ForUpdate remainderUpdate= (ForUpdate) eval(postInc(local(remainderLoopInit.localDef())));
-            remainderUpdate= (ForUpdate) remainderUpdate.visit(desugarer);
-            Stmt subbedBody= unrollBody(fLoop.body(), 1, oldLoopVar, remainderLoopInit, desugarer).get(0);
-            Stmt remainderLoop= xnf.For(PCG, Arrays.<ForInit>asList(remainderLoopInit), remainderCond, Arrays.asList(remainderUpdate), subbedBody);
-            unrollBlockStmts= Arrays.asList(minDecl, maxDecl, loopMaxDecl, newForStmt, remainderLoop);
+            List<Stmt> unrollBlockStmts;
+            if (fLoopParams.fNumIterationsKnown && (numIterations % fUnrollFactor == 0)) {
+                // Divides evenly; don't need a remainder loop
+                unrollBlockStmts= Arrays.asList(minDecl, maxDecl, loopMaxDecl, newForStmt);                
+            } else {
+                Expr remainderLoopMinIdx= local(loopMaxDecl.localDef());
+                LocalDecl remainderLoopInit= localDecl(loopVarName, makeTypeNode(loopVarType), remainderLoopMinIdx);
+                Expr remainderCond= le(local(remainderLoopInit.localDef()), local(maxDecl.localDef()));
+                remainderCond= (Expr) remainderCond.visit(desugarer);
+                ForUpdate remainderUpdate= (ForUpdate) eval(postInc(local(remainderLoopInit.localDef())));
+                remainderUpdate= (ForUpdate) remainderUpdate.visit(desugarer);
+                Stmt subbedBody= unrollBody(fLoop.body(), 1, oldLoopVar, remainderLoopInit, desugarer).get(0);
+                Stmt remainderLoop= xnf.For(PCG, Arrays.<ForInit>asList(remainderLoopInit), remainderCond, Arrays.asList(remainderUpdate), subbedBody);
+                unrollBlockStmts= Arrays.asList(minDecl, maxDecl, loopMaxDecl, newForStmt, remainderLoop);
+            }
 
             return xnf.Block(PCG, unrollBlockStmts);
         }
