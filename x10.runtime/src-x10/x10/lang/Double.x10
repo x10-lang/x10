@@ -39,7 +39,7 @@ public struct Double implements Comparable[Double], Arithmetic[Double], Ordered[
      * @return true if this Double is strictly less than the other Double.
      */
     @Native("java", "((#this) < (#x))")
-    @Native("c++",  "((#0) < (#1))")
+    @Native("c++",  "((#this) < (#x))")
     public native operator this < (x:Double): Boolean;
 
     /**
@@ -51,7 +51,7 @@ public struct Double implements Comparable[Double], Arithmetic[Double], Ordered[
      * @return true if this Double is strictly greater than the other Double.
      */
     @Native("java", "((#this) > (#x))")
-    @Native("c++",  "((#0) > (#1))")
+    @Native("c++",  "((#this) > (#x))")
     public native operator this > (x:Double): Boolean;
 
     /**
@@ -63,7 +63,7 @@ public struct Double implements Comparable[Double], Arithmetic[Double], Ordered[
      * @return true if this Double is less than or equal to the other Double.
      */
     @Native("java", "((#this) <= (#x))")
-    @Native("c++",  "((#0) <= (#1))")
+    @Native("c++",  "((#this) <= (#x))")
     public native operator this <= (x:Double): Boolean;
 
     /**
@@ -75,7 +75,7 @@ public struct Double implements Comparable[Double], Arithmetic[Double], Ordered[
      * @return true if this Double is greater than or equal to the other Double.
      */
     @Native("java", "((#this) >= (#x))")
-    @Native("c++",  "((#0) >= (#1))")
+    @Native("c++",  "((#this) >= (#x))")
     public native operator this >= (x:Double): Boolean;
 
 
@@ -86,7 +86,7 @@ public struct Double implements Comparable[Double], Arithmetic[Double], Ordered[
      * @return the sum of this Double and the other Double.
      */
     @Native("java", "((#this) + (#x))")
-    @Native("c++",  "((#0) + (#1))")
+    @Native("c++",  "((#this) + (#x))")
     public native operator this + (x:Double): Double;
 
     /**
@@ -96,7 +96,7 @@ public struct Double implements Comparable[Double], Arithmetic[Double], Ordered[
      * @return the difference of this Double and the other Double.
      */
     @Native("java", "((#this) - (#x))")
-    @Native("c++",  "((#0) - (#1))")
+    @Native("c++",  "((#this) - (#x))")
     public native operator this - (x:Double): Double;
 
     /**
@@ -106,7 +106,7 @@ public struct Double implements Comparable[Double], Arithmetic[Double], Ordered[
      * @return the product of this Double and the other Double.
      */
     @Native("java", "((#this) * (#x))")
-    @Native("c++",  "((#0) * (#1))")
+    @Native("c++",  "((#this) * (#x))")
     public native operator this * (x:Double): Double;
 
     /**
@@ -116,7 +116,7 @@ public struct Double implements Comparable[Double], Arithmetic[Double], Ordered[
      * @return the quotient of this Double and the other Double.
      */
     @Native("java", "((#this) / (#x))")
-    @Native("c++",  "((#0) / (#1))")
+    @Native("c++",  "((#this) / (#x))")
     public native operator this / (x:Double): Double;
 
     /**
@@ -126,7 +126,7 @@ public struct Double implements Comparable[Double], Arithmetic[Double], Ordered[
      * @return the remainder from dividing this Double by the other Double.
      */
     @Native("java", "((#this) % (#x))")
-    @Native("c++",  "::x10::lang::DoubleNatives::mod(#0, #1)")
+    @Native("c++",  "::x10::lang::DoubleNatives::mod(#this, #x)")
     public native operator this % (x:Double): Double;
 
     /**
@@ -135,7 +135,7 @@ public struct Double implements Comparable[Double], Arithmetic[Double], Ordered[
      * @return the value of this Double.
      */
     @Native("java", "(+(#this))")
-    @Native("c++",  "(+(#0))")
+    @Native("c++",  "(+(#this))")
     public native operator + this: Double;
 
     /**
@@ -144,7 +144,7 @@ public struct Double implements Comparable[Double], Arithmetic[Double], Ordered[
      * @return the negated value of this Double.
      */
     @Native("java", "(-(#this))")
-    @Native("c++",  "(-(#0))")
+    @Native("c++",  "(-(#this))")
     public native operator - this: Double;
 
 
@@ -154,7 +154,7 @@ public struct Double implements Comparable[Double], Arithmetic[Double], Ordered[
      * @return the given Byte converted to a Double.
      */
     @Native("java", "((double)(byte)(#x))")
-    @Native("c++",  "((x10_double) (#1))")
+    @Native("c++",  "((x10_double) (#x))")
     public native static operator (x:Byte): Double;
 
     /**
@@ -163,7 +163,7 @@ public struct Double implements Comparable[Double], Arithmetic[Double], Ordered[
      * @return the given Short converted to a Double.
      */
     @Native("java", "((double)(short)(#x))")
-    @Native("c++",  "((x10_double) (#1))")
+    @Native("c++",  "((x10_double) (#x))")
     public native static operator (x:Short): Double;
 
     /**
@@ -172,7 +172,7 @@ public struct Double implements Comparable[Double], Arithmetic[Double], Ordered[
      * @return the given Int converted to a Double.
      */
     @Native("java", "((double)(int)(#x))")
-    @Native("c++",  "((x10_double) (#1))")
+    @Native("c++",  "((x10_double) (#x))")
     public native static operator (x:Int): Double;
 
     /**
@@ -181,7 +181,7 @@ public struct Double implements Comparable[Double], Arithmetic[Double], Ordered[
      * @return the given Long converted to a Double.
      */
     @Native("java", "((double)(long)(#x))")
-    @Native("c++",  "((x10_double) (#1))")
+    @Native("c++",  "((x10_double) (#x))")
     public native static operator (x:Long): Double;
 
     /**
@@ -190,7 +190,7 @@ public struct Double implements Comparable[Double], Arithmetic[Double], Ordered[
      * @return the given UByte converted to a Double.
      */
     @Native("java", "((double)((int)(#x)&0xff))")
-    @Native("c++",  "((x10_double) (#1))")
+    @Native("c++",  "((x10_double) (#x))")
     public native static operator (x:UByte): Double;
 
     /**
@@ -199,7 +199,7 @@ public struct Double implements Comparable[Double], Arithmetic[Double], Ordered[
      * @return the given UShort converted to a Double.
      */
     @Native("java", "((double)((int)(#x)&0xffff))")
-    @Native("c++",  "((x10_double) (#1))")
+    @Native("c++",  "((x10_double) (#x))")
     public native static operator (x:UShort): Double;
 
     /**
@@ -208,7 +208,7 @@ public struct Double implements Comparable[Double], Arithmetic[Double], Ordered[
      * @return the given UInt converted to a Double.
      */
     @Native("java", "((double)(((long)#x)&0xffffffffL))")
-    @Native("c++",  "((x10_double) (#1))")
+    @Native("c++",  "((x10_double) (#x))")
     public native static operator (x:UInt): Double;
 
     /**
@@ -217,7 +217,7 @@ public struct Double implements Comparable[Double], Arithmetic[Double], Ordered[
      * @return the given ULong converted to a Double.
      */
     @Native("java", "(x10.runtime.impl.java.ULongUtils.toDouble(#x))")
-    @Native("c++",  "((x10_double) (#1))")
+    @Native("c++",  "((x10_double) (#x))")
     public native static operator (x:ULong): Double;
 
     /**
@@ -226,7 +226,7 @@ public struct Double implements Comparable[Double], Arithmetic[Double], Ordered[
      * @return the given Float converted to a Double.
      */
     @Native("java", "((double)(float)(#x))")
-    @Native("c++",  "((x10_double) (#1))")
+    @Native("c++",  "((x10_double) (#x))")
     public native static operator (x:Float): Double;
 
 
@@ -290,7 +290,7 @@ public struct Double implements Comparable[Double], Arithmetic[Double], Ordered[
      * @return a hex String representation of this Double.
      */
     @Native("java", "java.lang.Double.toHexString(#this)")
-    @Native("c++", "::x10::lang::DoubleNatives::toHexString(#0)")
+    @Native("c++", "::x10::lang::DoubleNatives::toHexString(#this)")
     public native def toHexString(): String;
 
     /**
@@ -300,7 +300,7 @@ public struct Double implements Comparable[Double], Arithmetic[Double], Ordered[
      * @return a String representation of this Double.
      */
     @Native("java", "java.lang.Double.toString(#this)")
-    @Native("c++", "::x10aux::to_string(#0)")
+    @Native("c++", "::x10aux::to_string(#this)")
     public native def toString(): String;
 
 
@@ -308,7 +308,7 @@ public struct Double implements Comparable[Double], Arithmetic[Double], Ordered[
      * @deprecated use {@link #parse(String)} instead
      */
     @Native("java", "java.lang.Double.parseDouble(#s)")
-    @Native("c++", "::x10::lang::DoubleNatives::parseDouble(#1)")
+    @Native("c++", "::x10::lang::DoubleNatives::parseDouble(#s)")
     public native static def parseDouble(s:String): Double ; //throwsNumberFormatException;
 
     /**
@@ -318,7 +318,7 @@ public struct Double implements Comparable[Double], Arithmetic[Double], Ordered[
      * @throws NumberFormatException if the String does not contain a parsable Double.
      */
     @Native("java", "java.lang.Double.parseDouble(#s)")
-    @Native("c++", "::x10::lang::DoubleNatives::parseDouble(#1)")
+    @Native("c++", "::x10::lang::DoubleNatives::parseDouble(#s)")
     public native static def parse(s:String): Double ; //throwsNumberFormatException;
 
 
@@ -327,7 +327,7 @@ public struct Double implements Comparable[Double], Arithmetic[Double], Ordered[
      * @return true if this Double is NaN; false otherwise.
      */
     @Native("java", "java.lang.Double.isNaN(#this)")
-    @Native("c++", "::x10::lang::DoubleNatives::isNaN(#0)")
+    @Native("c++", "::x10::lang::DoubleNatives::isNaN(#this)")
     public native def isNaN(): boolean;
 
     /**
@@ -335,7 +335,7 @@ public struct Double implements Comparable[Double], Arithmetic[Double], Ordered[
      * @return true if this Double is positive infinity or negative infinity; false otherwise.
      */
     @Native("java", "java.lang.Double.isInfinite(#this)")
-    @Native("c++", "::x10::lang::DoubleNatives::isInfinite(#0)")
+    @Native("c++", "::x10::lang::DoubleNatives::isInfinite(#this)")
     public native def isInfinite(): boolean;
 
 
@@ -349,7 +349,7 @@ public struct Double implements Comparable[Double], Arithmetic[Double], Ordered[
      * @return the bits that represent this Double.
      */
     @Native("java", "java.lang.Double.doubleToLongBits(#this)")
-    @Native("c++", "::x10::lang::DoubleNatives::toLongBits(#0)")
+    @Native("c++", "::x10::lang::DoubleNatives::toLongBits(#this)")
     public native def toLongBits(): Long;
 
     /**
@@ -360,7 +360,7 @@ public struct Double implements Comparable[Double], Arithmetic[Double], Ordered[
      * @return the bits that represent this Double.
      */
     @Native("java", "java.lang.Double.doubleToRawLongBits(#this)")
-    @Native("c++", "::x10::lang::DoubleNatives::toRawLongBits(#0)")
+    @Native("c++", "::x10::lang::DoubleNatives::toRawLongBits(#this)")
     public native def toRawLongBits(): Long;
 
     /**
@@ -379,7 +379,7 @@ public struct Double implements Comparable[Double], Arithmetic[Double], Ordered[
      * @return the Double with the same bit pattern.
      */
     @Native("java", "java.lang.Double.longBitsToDouble(#x)")
-    @Native("c++", "::x10::lang::DoubleNatives::fromLongBits(#1)")
+    @Native("c++", "::x10::lang::DoubleNatives::fromLongBits(#x)")
     public static native def fromLongBits(x:Long): Double;
 
 
@@ -390,7 +390,7 @@ public struct Double implements Comparable[Double], Arithmetic[Double], Ordered[
      * @return true if this Double is equal to the given entity.
      */
     @Native("java", "x10.rtt.Equality.equalsequals(#this, #x)")
-    @Native("c++", "::x10aux::equals(#0,#1)")
+    @Native("c++", "::x10aux::equals(#this,#x)")
     public native def equals(x:Any):Boolean;
 
     /**
@@ -399,7 +399,7 @@ public struct Double implements Comparable[Double], Arithmetic[Double], Ordered[
      * @return true if this Double is equal to the given Double.
      */
     @Native("java", "x10.rtt.Equality.equalsequals(#this, #x)")
-    @Native("c++", "::x10aux::equals(#0,#1)")
+    @Native("c++", "::x10aux::equals(#this,#x)")
     public native def equals(x:Double):Boolean;
 
     /**
@@ -410,7 +410,7 @@ public struct Double implements Comparable[Double], Arithmetic[Double], Ordered[
     * to, or greater than the given Double.
     */
    @Native("java", "x10.rtt.Equality.compareTo(#this, #x)")
-   @Native("c++", "::x10::lang::DoubleNatives::compareTo(#0, #1)")
+   @Native("c++", "::x10::lang::DoubleNatives::compareTo(#this, #x)")
    public native def compareTo(x:Double):Int;
 }
 public type Double(b:Double) = Double{self==b};

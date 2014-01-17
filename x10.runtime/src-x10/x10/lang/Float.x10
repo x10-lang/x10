@@ -38,7 +38,7 @@ public struct Float implements Comparable[Float], Arithmetic[Float], Ordered[Flo
      * @return true if this Float is strictly less than the other Float.
      */
     @Native("java", "((#this) < (#x))")
-    @Native("c++",  "((#0) < (#1))")
+    @Native("c++",  "((#this) < (#x))")
     public native operator this < (x:Float): Boolean;
 
     /**
@@ -50,7 +50,7 @@ public struct Float implements Comparable[Float], Arithmetic[Float], Ordered[Flo
      * @return true if this Float is strictly greater than the other Float.
      */
     @Native("java", "((#this) > (#x))")
-    @Native("c++",  "((#0) > (#1))")
+    @Native("c++",  "((#this) > (#x))")
     public native operator this > (x:Float): Boolean;
 
     /**
@@ -62,7 +62,7 @@ public struct Float implements Comparable[Float], Arithmetic[Float], Ordered[Flo
      * @return true if this Float is less than or equal to the other Float.
      */
     @Native("java", "((#this) <= (#x))")
-    @Native("c++",  "((#0) <= (#1))")
+    @Native("c++",  "((#this) <= (#x))")
     public native operator this <= (x:Float): Boolean;
 
     /**
@@ -74,7 +74,7 @@ public struct Float implements Comparable[Float], Arithmetic[Float], Ordered[Flo
      * @return true if this Float is greater than or equal to the other Float.
      */
     @Native("java", "((#this) >= (#x))")
-    @Native("c++",  "((#0) >= (#1))")
+    @Native("c++",  "((#this) >= (#x))")
     public native operator this >= (x:Float): Boolean;
 
 
@@ -85,7 +85,7 @@ public struct Float implements Comparable[Float], Arithmetic[Float], Ordered[Flo
      * @return the sum of this Float and the other Float.
      */
     @Native("java", "((#this) + (#x))")
-    @Native("c++",  "((#0) + (#1))")
+    @Native("c++",  "((#this) + (#x))")
     public native operator this + (x:Float): Float;
 
     /**
@@ -95,7 +95,7 @@ public struct Float implements Comparable[Float], Arithmetic[Float], Ordered[Flo
      * @return the difference of this Float and the other Float.
      */
     @Native("java", "((#this) - (#x))")
-    @Native("c++",  "((#0) - (#1))")
+    @Native("c++",  "((#this) - (#x))")
     public native operator this - (x:Float): Float;
 
     /**
@@ -105,7 +105,7 @@ public struct Float implements Comparable[Float], Arithmetic[Float], Ordered[Flo
      * @return the product of this Float and the other Float.
      */
     @Native("java", "((#this) * (#x))")
-    @Native("c++",  "((#0) * (#1))")
+    @Native("c++",  "((#this) * (#x))")
     public native operator this * (x:Float): Float;
 
     /**
@@ -115,7 +115,7 @@ public struct Float implements Comparable[Float], Arithmetic[Float], Ordered[Flo
      * @return the quotient of this Float and the other Float.
      */
     @Native("java", "((#this) / (#x))")
-    @Native("c++",  "((#0) / (#1))")
+    @Native("c++",  "((#this) / (#x))")
     public native operator this / (x:Float): Float;
 
     /**
@@ -125,7 +125,7 @@ public struct Float implements Comparable[Float], Arithmetic[Float], Ordered[Flo
      * @return the remainder from dividing this Float by the other Float.
      */
     @Native("java", "((#this) % (#x))")
-    @Native("c++",  "::x10::lang::FloatNatives::mod(#0, #1)")
+    @Native("c++",  "::x10::lang::FloatNatives::mod(#this, #x)")
     public native operator this % (x:Float): Float;
 
     /**
@@ -134,7 +134,7 @@ public struct Float implements Comparable[Float], Arithmetic[Float], Ordered[Flo
      * @return the value of this Float.
      */
     @Native("java", "(+(#this))")
-    @Native("c++",  "(+(#0))")
+    @Native("c++",  "(+(#this))")
     public native operator + this: Float;
 
     /**
@@ -143,7 +143,7 @@ public struct Float implements Comparable[Float], Arithmetic[Float], Ordered[Flo
      * @return the negated value of this Float.
      */
     @Native("java", "(-(#this))")
-    @Native("c++",  "(-(#0))")
+    @Native("c++",  "(-(#this))")
     public native operator - this: Float;
 
 
@@ -153,7 +153,7 @@ public struct Float implements Comparable[Float], Arithmetic[Float], Ordered[Flo
      * @return the given Byte converted to a Float.
      */
     @Native("java", "((float)(byte)(#x))")
-    @Native("c++",  "((x10_float) (#1))")
+    @Native("c++",  "((x10_float) (#x))")
     public native static operator (x:Byte): Float;
 
     /**
@@ -162,7 +162,7 @@ public struct Float implements Comparable[Float], Arithmetic[Float], Ordered[Flo
      * @return the given Short converted to a Float.
      */
     @Native("java", "((float)(short)(#x))")
-    @Native("c++",  "((x10_float) (#1))")
+    @Native("c++",  "((x10_float) (#x))")
     public native static operator (x:Short): Float;
 
     /**
@@ -171,7 +171,7 @@ public struct Float implements Comparable[Float], Arithmetic[Float], Ordered[Flo
      * @return the given Int converted to a Float.
      */
     @Native("java", "((float)(int)(#x))")
-    @Native("c++",  "((x10_float) (#1))")
+    @Native("c++",  "((x10_float) (#x))")
     public native static operator (x:Int): Float;
 
     /**
@@ -180,7 +180,7 @@ public struct Float implements Comparable[Float], Arithmetic[Float], Ordered[Flo
      * @return the given Long converted to a Float.
      */
     @Native("java", "((float)(long)(#x))")
-    @Native("c++",  "((x10_float) (#1))")
+    @Native("c++",  "((x10_float) (#x))")
     public native static operator (x:Long): Float;
 
     /**
@@ -189,7 +189,7 @@ public struct Float implements Comparable[Float], Arithmetic[Float], Ordered[Flo
      * @return the given UByte converted to a Float.
      */
     @Native("java", "((float)((int)(#x)&0xff))")
-    @Native("c++",  "((x10_float) (#1))")
+    @Native("c++",  "((x10_float) (#x))")
     public native static operator (x:UByte): Float;
 
     /**
@@ -198,7 +198,7 @@ public struct Float implements Comparable[Float], Arithmetic[Float], Ordered[Flo
      * @return the given UShort converted to a Float.
      */
     @Native("java", "((float)((int)(#x)&0xffff))")
-    @Native("c++",  "((x10_float) (#1))")
+    @Native("c++",  "((x10_float) (#x))")
     public native static operator (x:UShort): Float;
 
     /**
@@ -207,7 +207,7 @@ public struct Float implements Comparable[Float], Arithmetic[Float], Ordered[Flo
      * @return the given UInt converted to a Float.
      */
     @Native("java", "((float)(((long)#x)&0xffffffffL))")
-    @Native("c++",  "((x10_float) (#1))")
+    @Native("c++",  "((x10_float) (#x))")
     public native static operator (x:UInt): Float;
 
     /**
@@ -216,7 +216,7 @@ public struct Float implements Comparable[Float], Arithmetic[Float], Ordered[Flo
      * @return the given ULong converted to a Float.
      */
     @Native("java", "(x10.runtime.impl.java.ULongUtils.toFloat(#x))")
-    @Native("c++",  "((x10_float) (#1))")
+    @Native("c++",  "((x10_float) (#x))")
     public native static operator (x:ULong): Float;
 
     /**
@@ -225,7 +225,7 @@ public struct Float implements Comparable[Float], Arithmetic[Float], Ordered[Flo
      * @return the given Double converted to a Float.
      */
     @Native("java", "((float)(double)(#x))")
-    @Native("c++",  "((x10_float) (#1))")
+    @Native("c++",  "((x10_float) (#x))")
     public native static operator (x:Double) as Float;
 
 
@@ -292,7 +292,7 @@ public struct Float implements Comparable[Float], Arithmetic[Float], Ordered[Flo
      * @return a hex String representation of this Float.
      */
     @Native("java", "java.lang.Float.toHexString(#this)")
-    @Native("c++", "::x10::lang::FloatNatives::toHexString(#0)")
+    @Native("c++", "::x10::lang::FloatNatives::toHexString(#this)")
     public native def toHexString(): String;
 
     /**
@@ -302,7 +302,7 @@ public struct Float implements Comparable[Float], Arithmetic[Float], Ordered[Flo
      * @return a String representation of this Float.
      */
     @Native("java", "java.lang.Float.toString(#this)")
-    @Native("c++", "::x10aux::to_string(#0)")
+    @Native("c++", "::x10aux::to_string(#this)")
     public native def toString(): String;
 
 
@@ -310,7 +310,7 @@ public struct Float implements Comparable[Float], Arithmetic[Float], Ordered[Flo
      * @deprecated use {@link #parse(String)} instead
      */
     @Native("java", "java.lang.Float.parseFloat(#s)")
-    @Native("c++", "::x10::lang::FloatNatives::parseFloat(#1)")
+    @Native("c++", "::x10::lang::FloatNatives::parseFloat(#s)")
     public native static def parseFloat(s:String): Float; //throwsNumberFormatException;
 
     /**
@@ -320,7 +320,7 @@ public struct Float implements Comparable[Float], Arithmetic[Float], Ordered[Flo
      * @throws NumberFormatException if the String does not contain a parsable Float.
      */
     @Native("java", "java.lang.Float.parseFloat(#s)")
-    @Native("c++", "::x10::lang::FloatNatives::parseFloat(#1)")
+    @Native("c++", "::x10::lang::FloatNatives::parseFloat(#s)")
     public native static def parse(s:String): Float; //throwsNumberFormatException;
 
 
@@ -329,7 +329,7 @@ public struct Float implements Comparable[Float], Arithmetic[Float], Ordered[Flo
      * @return true if this Float is NaN; false otherwise.
      */
     @Native("java", "java.lang.Float.isNaN(#this)")
-    @Native("c++", "::x10::lang::FloatNatives::isNaN(#0)")
+    @Native("c++", "::x10::lang::FloatNatives::isNaN(#this)")
     public native def isNaN(): boolean;
 
     /**
@@ -337,7 +337,7 @@ public struct Float implements Comparable[Float], Arithmetic[Float], Ordered[Flo
      * @return true if this Float is positive infinity or negative infinity; false otherwise.
      */
     @Native("java", "java.lang.Float.isInfinite(#this)")
-    @Native("c++", "::x10::lang::FloatNatives::isInfinite(#0)")
+    @Native("c++", "::x10::lang::FloatNatives::isInfinite(#this)")
     public native def isInfinite(): boolean;
 
 
@@ -351,7 +351,7 @@ public struct Float implements Comparable[Float], Arithmetic[Float], Ordered[Flo
      * @return the bits that represent this Float.
      */
     @Native("java", "java.lang.Float.floatToIntBits(#this)")
-    @Native("c++", "::x10::lang::FloatNatives::toIntBits(#0)")
+    @Native("c++", "::x10::lang::FloatNatives::toIntBits(#this)")
     public native def toIntBits(): Int;
 
     /**
@@ -362,7 +362,7 @@ public struct Float implements Comparable[Float], Arithmetic[Float], Ordered[Flo
      * @return the bits that represent this Float.
      */
     @Native("java", "java.lang.Float.floatToRawIntBits(#this)")
-    @Native("c++", "::x10::lang::FloatNatives::toRawIntBits(#0)")
+    @Native("c++", "::x10::lang::FloatNatives::toRawIntBits(#this)")
     public native def toRawIntBits(): Int;
 
     /**
@@ -381,7 +381,7 @@ public struct Float implements Comparable[Float], Arithmetic[Float], Ordered[Flo
      * @return the Float with the same bit pattern.
      */
     @Native("java", "java.lang.Float.intBitsToFloat(#x)")
-    @Native("c++", "::x10::lang::FloatNatives::fromIntBits(#1)")
+    @Native("c++", "::x10::lang::FloatNatives::fromIntBits(#x)")
     public static native def fromIntBits(x:Int): Float;
 
 
@@ -392,7 +392,7 @@ public struct Float implements Comparable[Float], Arithmetic[Float], Ordered[Flo
      * @return true if this Float is equal to the given entity.
      */
     @Native("java", "x10.rtt.Equality.equalsequals(#this, #x)")
-    @Native("c++", "::x10aux::equals(#0,#1)")
+    @Native("c++", "::x10aux::equals(#this,#x)")
     public native def equals(x:Any):Boolean;
 
     /**
@@ -401,7 +401,7 @@ public struct Float implements Comparable[Float], Arithmetic[Float], Ordered[Flo
      * @return true if this Float is equal to the given Float.
      */
     @Native("java", "x10.rtt.Equality.equalsequals(#this, #x)")
-    @Native("c++", "::x10aux::equals(#0,#1)")
+    @Native("c++", "::x10aux::equals(#this,#x)")
     public native def equals(x:Float):Boolean;
 
     /**
@@ -412,7 +412,7 @@ public struct Float implements Comparable[Float], Arithmetic[Float], Ordered[Flo
     * to, or greater than the given Float.
     */
    @Native("java", "x10.rtt.Equality.compareTo(#this, #x)")
-   @Native("c++", "::x10::lang::FloatNatives::compareTo(#0, #1)")
+   @Native("c++", "::x10::lang::FloatNatives::compareTo(#this, #x)")
    public native def compareTo(x:Float):Int;
 }
 public type Float(b:Float) = Float{self==b};

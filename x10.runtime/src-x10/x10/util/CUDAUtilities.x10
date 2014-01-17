@@ -109,7 +109,7 @@ public class CUDAUtilities {
         }
     }
 
-    @Native("cuda","__mul24(#1,#2)")
+    @Native("cuda","__mul24(#a, #b)")
     public static def mul24(a:Int, b:Int) : Int = a * b;
 }
 

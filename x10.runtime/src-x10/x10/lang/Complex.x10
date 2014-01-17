@@ -255,7 +255,7 @@ public struct Complex implements Arithmetic[Complex] {
     /**
      * @return the string representation of this complex number.
      */
-    @Native("c++", "::x10aux::to_string(#0)")
+    @Native("c++", "::x10aux::to_string(#this)")
     public def toString():String {
         return ("" + re + " + " + im + "i");
     }

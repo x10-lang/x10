@@ -31,7 +31,7 @@ public struct Char implements Comparable[Char], Ordered[Char] {
      * @return the Char with the same ordinal value as the given Byte.
      */
     @Native("java", "((char) (#x))")
-    @Native("c++",  "(x10_char((x10_int)(#1)))")
+    @Native("c++",  "(x10_char((x10_int)(#x)))")
     public native static operator (x:Byte) as Char;
 
     /**
@@ -40,7 +40,7 @@ public struct Char implements Comparable[Char], Ordered[Char] {
      * @return the Char with the same ordinal value as the given Short.
      */
     @Native("java", "((char) (#x))")
-    @Native("c++",  "(x10_char((x10_int)(#1)))")
+    @Native("c++",  "(x10_char((x10_int)(#x)))")
     public native static operator (x:Short) as Char;
 
     /**
@@ -49,7 +49,7 @@ public struct Char implements Comparable[Char], Ordered[Char] {
      * @return the Char with the same ordinal value as the given Int.
      */
     @Native("java", "((char) (#x))")
-    @Native("c++",  "(x10_char(#1))")
+    @Native("c++",  "(x10_char(#x))")
     public native static operator (x:Int) as Char;
 
     /**
@@ -58,7 +58,7 @@ public struct Char implements Comparable[Char], Ordered[Char] {
      * @return the Char with the same ordinal value as the given Long.
      */
     @Native("java", "((char) (#x))")
-    @Native("c++",  "(x10_char((x10_int)(#1)))")
+    @Native("c++",  "(x10_char((x10_int)(#x)))")
     public native static operator (x:Long) as Char;
 
 
@@ -69,7 +69,7 @@ public struct Char implements Comparable[Char], Ordered[Char] {
      * @return the Char whose ordinal value is the sum of the given Char's ordinal value and the given distance.
      */
     @Native("java", "((char) ((#x) + (#y)))")
-    @Native("c++",  "(x10_char(((#1).v) + (#2)))")
+    @Native("c++",  "(x10_char(((#x).v) + (#y)))")
     public native static operator (x:Char) + (y:Int): Char;
 
     /**
@@ -79,7 +79,7 @@ public struct Char implements Comparable[Char], Ordered[Char] {
      * @return the Char whose ordinal value is the sum of the given Char's ordinal value and the given distance.
      */
     @Native("java", "((char) ((#x) + (#y)))")
-    @Native("c++",  "(x10_char((#1) + ((#2).v)))")
+    @Native("c++",  "(x10_char((#x) + ((#y).v)))")
     public native static operator (x:Int) + (y:Char): Char;
 
     /**
@@ -89,7 +89,7 @@ public struct Char implements Comparable[Char], Ordered[Char] {
      * @return the Char whose ordinal value is the difference of the given Char's ordinal value and the given distance.
      */
     @Native("java", "((char) ((#x) - (#y)))")
-    @Native("c++",  "(x10_char((int)((#1).v - (#2))))")
+    @Native("c++",  "(x10_char((int)((#x).v - (#y))))")
     public native static operator (x:Char) - (y:Int): Char;
 
     /**
@@ -99,7 +99,7 @@ public struct Char implements Comparable[Char], Ordered[Char] {
      * @return the distance between the source Char and the target Char.
      */
     @Native("java", "((#x) - (#y))")
-    @Native("c++",  "((x10_int)((#1).v - (#2).v))")
+    @Native("c++",  "((x10_int)((#x).v - (#y).v))")
     public native static operator (x:Char) - (y:Char): Int;
 
 
@@ -112,7 +112,7 @@ public struct Char implements Comparable[Char], Ordered[Char] {
      * @return true if this Char is strictly before the other Char.
      */
     @Native("java", "((#this) < (#x))")
-    @Native("c++",  "((#0) < (#1))")
+    @Native("c++",  "((#this) < (#x))")
     public native operator this < (x:Char): Boolean;
 
     // FIXME: Locale sensitivity
@@ -124,7 +124,7 @@ public struct Char implements Comparable[Char], Ordered[Char] {
      * @return true if this Char is strictly after the other Char.
      */
     @Native("java", "((#this) > (#x))")
-    @Native("c++",  "((#0) > (#1))")
+    @Native("c++",  "((#this) > (#x))")
     public native operator this > (x:Char): Boolean;
 
     // FIXME: Locale sensitivity
@@ -136,7 +136,7 @@ public struct Char implements Comparable[Char], Ordered[Char] {
      * @return true if this Char is before or equal to the other Char.
      */
     @Native("java", "((#this) <= (#x))")
-    @Native("c++",  "((#0) <= (#1))")
+    @Native("c++",  "((#this) <= (#x))")
     public native operator this <= (x:Char): Boolean;
 
     // FIXME: Locale sensitivity
@@ -148,7 +148,7 @@ public struct Char implements Comparable[Char], Ordered[Char] {
      * @return true if this Char is after or equal to the other Char.
      */
     @Native("java", "((#this) >= (#x))")
-    @Native("c++",  "((#0) >= (#1))")
+    @Native("c++",  "((#this) >= (#x))")
     public native operator this >= (x:Char): Boolean;
 
 
@@ -157,7 +157,7 @@ public struct Char implements Comparable[Char], Ordered[Char] {
      * @return a String representation of this Char.
      */
     @Native("java", "java.lang.Character.toString(#this)")
-    @Native("c++", "::x10aux::to_string(#0)")
+    @Native("c++", "::x10aux::to_string(#this)")
     public native def toString(): String;
 
 
@@ -169,7 +169,7 @@ public struct Char implements Comparable[Char], Ordered[Char] {
      * @return true if this Char is lowercase; false otherwise.
      */
     @Native("java", "java.lang.Character.isLowerCase(#this)")
-    @Native("c++", "::x10::lang::CharNatives::isLowerCase(#0)")
+    @Native("c++", "::x10::lang::CharNatives::isLowerCase(#this)")
     public native def isLowerCase(): boolean;
 
     /**
@@ -177,7 +177,7 @@ public struct Char implements Comparable[Char], Ordered[Char] {
      * @return true if this Char is uppercase; false otherwise.
      */
     @Native("java", "java.lang.Character.isUpperCase(#this)")
-    @Native("c++", "::x10::lang::CharNatives::isUpperCase(#0)")
+    @Native("c++", "::x10::lang::CharNatives::isUpperCase(#this)")
     public native def isUpperCase(): boolean;
 
     /**
@@ -185,7 +185,7 @@ public struct Char implements Comparable[Char], Ordered[Char] {
      * @return true if this Char is titlecase; false otherwise.
      */
     @Native("java", "java.lang.Character.isTitleCase(#this)")
-    @Native("c++", "::x10::lang::CharNatives::isTitleCase(#0)")
+    @Native("c++", "::x10::lang::CharNatives::isTitleCase(#this)")
     public native def isTitleCase(): boolean;
 
     /**
@@ -193,7 +193,7 @@ public struct Char implements Comparable[Char], Ordered[Char] {
      * @return true if this Char is a digit; false otherwise.
      */
     @Native("java", "java.lang.Character.isDigit(#this)")
-    @Native("c++", "::x10::lang::CharNatives::isDigit(#0)")
+    @Native("c++", "::x10::lang::CharNatives::isDigit(#this)")
     public native def isDigit(): boolean;
 
     /**
@@ -201,7 +201,7 @@ public struct Char implements Comparable[Char], Ordered[Char] {
      * @return true if this Char is a letter; false otherwise.
      */
     @Native("java", "java.lang.Character.isLetter(#this)")
-    @Native("c++", "::x10::lang::CharNatives::isLetter(#0)")
+    @Native("c++", "::x10::lang::CharNatives::isLetter(#this)")
     public native def isLetter(): boolean;
 
     /**
@@ -209,7 +209,7 @@ public struct Char implements Comparable[Char], Ordered[Char] {
      * @return true if this Char is a letter or digit; false otherwise.
      */
     @Native("java", "java.lang.Character.isLetterOrDigit(#this)")
-    @Native("c++", "::x10::lang::CharNatives::isLetterOrDigit(#0)")
+    @Native("c++", "::x10::lang::CharNatives::isLetterOrDigit(#this)")
     public native def isLetterOrDigit(): boolean;
 
     /**
@@ -219,7 +219,7 @@ public struct Char implements Comparable[Char], Ordered[Char] {
      * @return true if this Char is a space character; false otherwise.
      */
     @Native("java", "java.lang.Character.isSpaceChar(#this)")
-    @Native("c++", "::x10::lang::CharNatives::isSpaceChar(#0)")
+    @Native("c++", "::x10::lang::CharNatives::isSpaceChar(#this)")
     public native def isSpaceChar(): boolean;
 
     /**
@@ -229,7 +229,7 @@ public struct Char implements Comparable[Char], Ordered[Char] {
      * @return true if this Char is an X10 whitespace character; false otherwise.
      */
     @Native("java", "java.lang.Character.isWhitespace(#this)")
-    @Native("c++", "::x10::lang::CharNatives::isWhitespace(#0)")
+    @Native("c++", "::x10::lang::CharNatives::isWhitespace(#this)")
     public native def isWhitespace(): boolean;
 
     /**
@@ -237,7 +237,7 @@ public struct Char implements Comparable[Char], Ordered[Char] {
      * @return true if this Char is an ISO control character; false otherwise.
      */
     @Native("java", "java.lang.Character.isISOControl(#this)")
-    @Native("c++", "::x10::lang::CharNatives::isISOControl(#0)")
+    @Native("c++", "::x10::lang::CharNatives::isISOControl(#this)")
     public native def isISOControl(): boolean;
 
     /**
@@ -246,7 +246,7 @@ public struct Char implements Comparable[Char], Ordered[Char] {
      * @return the lowercase equivalent of this Char, if any; otherwise, the Char itself.
      */
     @Native("java", "java.lang.Character.toLowerCase(#this)")
-    @Native("c++", "::x10::lang::CharNatives::toLowerCase(#0)")
+    @Native("c++", "::x10::lang::CharNatives::toLowerCase(#this)")
     public native def toLowerCase(): Char;
 
     /**
@@ -255,7 +255,7 @@ public struct Char implements Comparable[Char], Ordered[Char] {
      * @return the lowercase equivalent of this Char, if any; otherwise, the Char itself.
      */
     @Native("java", "java.lang.Character.toUpperCase(#this)")
-    @Native("c++", "::x10::lang::CharNatives::toUpperCase(#0)")
+    @Native("c++", "::x10::lang::CharNatives::toUpperCase(#this)")
     public native def toUpperCase(): Char;
 
     /**
@@ -268,7 +268,7 @@ public struct Char implements Comparable[Char], Ordered[Char] {
      * @return the titlecase equivalent of this Char, if any; otherwise, the Char itself.
      */
     @Native("java", "java.lang.Character.toTitleCase(#this)")
-    @Native("c++", "::x10::lang::CharNatives::toTitleCase(#0)")
+    @Native("c++", "::x10::lang::CharNatives::toTitleCase(#this)")
     public native def toTitleCase(): Char;
 
 
@@ -277,7 +277,7 @@ public struct Char implements Comparable[Char], Ordered[Char] {
      * @return the ordinal value of this Char.
      */
     @Native("java", "((int) (#this))")
-    @Native("c++", "((x10_int) (#0).v)")
+    @Native("c++", "((x10_int) (#this).v)")
     public native def ord(): Int;
 
     /**
@@ -286,7 +286,7 @@ public struct Char implements Comparable[Char], Ordered[Char] {
      * @return the ordinal value of the given Char.
      */
     @Native("java", "((int) (#c))")
-    @Native("c++", "((x10_int) (#1).v)")
+    @Native("c++", "((x10_int) (#c).v)")
     public native static def ord(c:Char): Int;
 
     /**
@@ -295,7 +295,7 @@ public struct Char implements Comparable[Char], Ordered[Char] {
      * @return the Char with the same ordinal value as the given Int.
      */
     @Native("java", "((char) (#x))")
-    @Native("c++", "(x10_char(#1))")
+    @Native("c++", "(x10_char(#x))")
     public native static def chr(x:Int): Char;
 
 
@@ -306,7 +306,7 @@ public struct Char implements Comparable[Char], Ordered[Char] {
      * @return true if this Byte is equal to the given entity.
      */
     @Native("java", "x10.rtt.Equality.equalsequals(#this, #x)")
-    @Native("c++", "::x10aux::equals(#0,#1)")
+    @Native("c++", "::x10aux::equals(#this,#x)")
     public native def equals(x:Any):Boolean;
 
     /**
@@ -315,7 +315,7 @@ public struct Char implements Comparable[Char], Ordered[Char] {
      * @return true if this Byte is equal to the given Byte.
      */
     @Native("java", "x10.rtt.Equality.equalsequals(#this, #x)")
-    @Native("c++", "::x10aux::equals(#0,#1)")
+    @Native("c++", "::x10aux::equals(#this,#x)")
     public native def equals(x:Char):Boolean;
 
     /**
@@ -326,7 +326,7 @@ public struct Char implements Comparable[Char], Ordered[Char] {
     * to, or greater than the given Char.
     */
    @Native("java", "x10.rtt.Equality.compareTo(#this, #x)")
-   @Native("c++", "::x10::lang::CharNatives::compareTo(#0, #1)")
+   @Native("c++", "::x10::lang::CharNatives::compareTo(#this, #x)")
    public native def compareTo(x:Char):Int;
 }
 public type Char(b:Char) = Char{self==b};
