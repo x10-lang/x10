@@ -49,6 +49,7 @@ import polyglot.ast.Special;
 import polyglot.ast.BooleanLit;
 import polyglot.frontend.Job;
 import polyglot.types.Context;
+import polyglot.types.Flags;
 import polyglot.types.LocalDef;
 import polyglot.types.LocalInstance;
 import polyglot.types.MemberInstance;
@@ -78,6 +79,7 @@ import x10.ast.Closure;
 import x10.ast.DepParameterExpr;
 import x10.ast.ParExpr;
 import x10.ast.SettableAssign;
+import x10.ast.StmtExpr;
 import x10.ast.X10Binary_c;
 import x10.ast.X10Call;
 import x10.ast.X10CanonicalTypeNode;
@@ -236,6 +238,8 @@ public class Desugarer extends ContextVisitor {
     }
 
     // x++ -> (x+=1)-1 or x-- -> (x-=1)+1
+    // FIXME: Use StmtExpr to instead do: do this as part of ClosureCall XTENLANG-3338.
+    // x++ -> ({ t = x; x+=1; t })
     private Expr unaryPost(Position pos, Unary.Operator op, Expr e) {
         Type ret = e.type();
         Expr one = getLiteral(pos, ret, 1);
@@ -728,7 +732,8 @@ public class Desugarer extends ContextVisitor {
     }
     private static class OuterLocalUsed extends RuntimeException {}
 
-    // T.f op=v -> T.f = T.f op v or e.f op=v -> ((x:E,y:T)=>x.f=x.f op y)(e,v)
+    // T.f op=v -> T.f = T.f op v
+    // e.f op=v -> ({ val x:E = e; e.f = e.f op v })
     public static Expr desugarFieldAssign(FieldAssign n, ContextVisitor v) {
         NodeFactory nf = v.nodeFactory();
         TypeSystem ts = v.typeSystem();
@@ -744,39 +749,33 @@ public class Desugarer extends ContextVisitor {
         }
         Expr e = (Expr) left.target();
         Type E = e.type();
-        List<Formal> parms = new ArrayList<Formal>();
-        Name xn = Name.makeFresh("x");
-        LocalDef xDef = ts.localDef(pos, ts.Final(), Types.ref(E), xn);
-        Formal x = nf.Formal(pos, nf.FlagsNode(pos, ts.Final()),
-                nf.CanonicalTypeNode(pos, E), nf.Id(pos, xn)).localDef(xDef);
-        parms.add(x);
-        Name yn = Name.makeFresh("y");
-        Type T = right.type();
-        LocalDef yDef = ts.localDef(pos, ts.Final(), Types.ref(T), yn);
-        Formal y = nf.Formal(pos, nf.FlagsNode(pos, ts.Final()),
-                nf.CanonicalTypeNode(pos, T), nf.Id(pos, yn)).localDef(yDef);
-        parms.add(y);
-        Expr lhs = nf.Field(pos,
-                nf.Local(pos, nf.Id(pos, xn)).localInstance(xDef.asInstance()).type(E),
-                nf.Id(pos, left.name().id())).fieldInstance(left.fieldInstance()).type(R);
-        Expr val = desugarBinary((Binary) nf.Binary(pos, lhs, op,
-                nf.Local(pos, nf.Id(pos, yn)).localInstance(yDef.asInstance()).type(T)).type(R),
-                v);
-        Expr res = assign(pos, lhs, Assign.ASSIGN, val, v);
-        Block body = nf.Block(pos, nf.Return(pos, res));
-        Closure c = closure(pos, R, parms, body, v);
-        MethodInstance ci = c.closureDef().asType().applyMethod();
-        List<Expr> args = new ArrayList<Expr>();
-        args.add(0, e);
-        args.add(right);
-        return nf.ClosureCall(pos, c, args).closureInstance(ci).type(R);
+        if (e instanceof Local || e instanceof Special) {
+            // optimize common special case; 
+            // e can safely be evaluated twice so don't need a temp
+            Expr lhs = nf.Field(pos, e,
+                                nf.Id(pos, left.name().id())).fieldInstance(left.fieldInstance()).type(R);
+            Expr val = desugarBinary((Binary) nf.Binary(pos, lhs, op, right).type(R), v);
+            return assign(pos, lhs, Assign.ASSIGN, val, v);
+        } else {        
+            Name xn = Name.makeFresh("obj");
+            LocalDef xDef = ts.localDef(pos, ts.Final(), Types.ref(E), xn);
+            LocalDecl xDecl = nf.LocalDecl(pos, nf.FlagsNode(pos, Flags.FINAL), nf.CanonicalTypeNode(pos, E), nf.Id(pos, xn), e).localDef(xDef);
+            Expr lhs = nf.Field(pos,
+                                nf.Local(pos, nf.Id(pos, xn)).localInstance(xDef.asInstance()).type(E),
+                                nf.Id(pos, left.name().id())).fieldInstance(left.fieldInstance()).type(R);
+            Expr val = desugarBinary((Binary) nf.Binary(pos, lhs, op, right).type(R), v);
+            Expr res = assign(pos, lhs, Assign.ASSIGN, val, v);
+            StmtExpr se = (StmtExpr)nf.StmtExpr(pos, Arrays.<Stmt>asList(xDecl), res).type(R);
+            return se;
+        }
     }
 
     protected Expr visitSettableAssign(SettableAssign n) {
         return desugarSettableAssign(n, this);
     }
 
-    // a(i)=v -> a.operator()=(i,v) or a(i)op=v -> ((x:A,y:I,z:T)=>x.operator()=(y,x.operator()(y) op z))(a,i,v)
+    // a(i)=v -> a.operator()=(i,v)
+    // a(i)op=v -> ((x:A,y:I,z:T)=>x.operator()=(y,x.operator()(y) op z))(a,i,v)
     public static Expr desugarSettableAssign(SettableAssign n, ContextVisitor v) {
         NodeFactory nf = v.nodeFactory();
         TypeSystem ts = v.typeSystem();
