@@ -17,7 +17,6 @@ import java.util.List;
 import polyglot.types.LocalDef;
 import x10.types.ParameterType;
 import x10.types.X10ConstructorDef;
-import x10.types.constraints.CConstraint;
 
 import com.sun.javadoc.AnnotationDesc;
 import com.sun.javadoc.ClassDoc;
@@ -187,6 +186,15 @@ public class X10ConstructorDoc extends X10Doc implements ConstructorDoc {
 
     public Parameter[] parameters() {
         return parameters.toArray(new Parameter[0]);
+    }
+
+    /**
+     * @since 1.8
+     * @return
+     */
+    public Type receiverType() {
+        // TODO Auto-generated method stub
+        return null;
     }
 
     public String signature() {

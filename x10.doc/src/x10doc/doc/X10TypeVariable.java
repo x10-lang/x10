@@ -13,6 +13,7 @@ package x10doc.doc;
 
 import x10.types.constraints.TypeConstraint;
 
+import com.sun.javadoc.AnnotationDesc;
 import com.sun.javadoc.ClassDoc;
 import com.sun.javadoc.ExecutableMemberDoc;
 import com.sun.javadoc.ProgramElementDoc;
@@ -83,6 +84,14 @@ public class X10TypeVariable extends X10Type implements TypeVariable {
 
     public ProgramElementDoc owner() {
         return owner;
+    }
+
+    /**
+     * @since 1.8
+     * @return
+     */
+    public AnnotationDesc[] annotations() {
+        return new AnnotationDesc[0];
     }
 
 }

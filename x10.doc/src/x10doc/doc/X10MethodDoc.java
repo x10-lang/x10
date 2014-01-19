@@ -175,6 +175,16 @@ public class X10MethodDoc extends X10Doc implements MethodDoc {
         return flags.isAbstract();
     }
 
+    /**
+     * @since 1.8
+     * @return
+     */
+    public boolean isDefault() {
+        // TODO Auto-generated method stub
+        if (X10RootDoc.printSwitch) System.out.println(name() + ".isDefault() called.");
+        return false;
+    }
+
     @Override
     public boolean isIncluded() {
         if (X10RootDoc.printSwitch) System.out.println(name() + ".isIncluded() called.");
@@ -264,6 +274,15 @@ public class X10MethodDoc extends X10Doc implements MethodDoc {
     public Parameter[] parameters() {
         // System.out.println(name() + ".parameters() called.");
         return parameters.toArray(new Parameter[0]);
+    }
+
+    /**
+     * @since 1.8
+     * @return
+     */
+    public Type receiverType() {
+        // TODO Auto-generated method stub
+        return null;
     }
 
     public String signature() {

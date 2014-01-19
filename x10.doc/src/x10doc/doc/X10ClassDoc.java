@@ -523,6 +523,15 @@ public class X10ClassDoc extends X10Doc implements ClassDoc {
         this.containingPackage = pkg;
     }
 
+    /**
+     * @since 1.8
+     * @return
+     */
+    public Type getElementType() {
+        // TODO Auto-generated method stub
+        return null;
+    }
+
     public X10FieldDoc getField(String name) {
         return fields.get(name);
     }
@@ -561,6 +570,17 @@ public class X10ClassDoc extends X10Doc implements ClassDoc {
         // TODO Auto-generated method stub
         return new AnnotationDesc[0];
     }
+
+//    /**
+//     * Note that AnnotatedType is introduced in 1.8.
+//     * (uncomment this method to build x10doc with Java 8)
+//     * @since 1.8
+//     * @return
+//     */
+//    public com.sun.javadoc.AnnotatedType asAnnotatedType() {
+//        // TODO Auto-generated method stub
+//        return null;        
+//    }
 
     // Return this type as an AnnotationTypeDoc if it represents an annotation
     // type, null otherwise.
@@ -1001,6 +1021,15 @@ public class X10ClassDoc extends X10Doc implements ClassDoc {
 
     public boolean isFinal() {
         return flags.isFinal();
+    }
+
+    /**
+     * @since 1.8
+     * @return
+     */
+    public boolean isFunctionalInterface() {
+        // TODO Auto-generated method stub
+        return false;
     }
 
     // public static String fieldKey(X10FieldDoc fd) {
