@@ -53,7 +53,8 @@ public class X10SourceClassResolver implements TopLevelResolver {
 		managedRepClasses.put("java.lang.ArithmeticException", "x10.lang.ArithmeticException"); 
 		managedRepClasses.put("java.lang.ArrayIndexOutOfBoundsException", "x10.lang.ArrayIndexOutOfBoundsException");; 
 		managedRepClasses.put("java.lang.AssertionError", "x10.lang.AssertionError"); 
-		managedRepClasses.put("java.lang.ClassCastException", "jx10.lang.ClassCastException"); 
+                managedRepClasses.put("java.lang.CharSequence", "x10.lang.CharSequence"); 
+		managedRepClasses.put("java.lang.ClassCastException", "x10.lang.ClassCastException"); 
 		managedRepClasses.put("java.lang.Comparable", "x10.lang.Comparable"); 
 		managedRepClasses.put("java.lang.Error", "x10.lang.Error"); 
 		managedRepClasses.put("java.lang.Exception", "x10.lang.CheckedException"); 
@@ -183,7 +184,7 @@ public class X10SourceClassResolver implements TopLevelResolver {
     		Resource r = loader.loadResource(fileName);
     		ClassFile clazz = classLoader.loadClass(r);
     		
-    		if (clazz == null) {
+                if (clazz == null) {
     			if (reporter.should_report(report_topics, 4)) {
     				reporter.report(4, "Java class " + name + " not found in classpath " + loader.classpath());
     			}

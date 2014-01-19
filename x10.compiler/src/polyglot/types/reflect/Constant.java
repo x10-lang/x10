@@ -101,6 +101,21 @@ public class Constant
     public static final byte UTF8               = 1;
 
     /**
+     * @since 1.8
+     */
+    public static final byte METHOD_HANDLE = 15;
+
+    /**
+     * @since 1.8
+     */
+    public static final byte METHOD_TYPE = 16;
+
+    /**
+     * @since 1.8
+     */
+    public static final byte INVOKE_DYNAMIC = 18;
+
+    /**
      * @param tag
      *        The constant's tag.
      * @param value
@@ -150,11 +165,14 @@ public class Constant
 	    case LONG:
 	    case DOUBLE:
 	    case UTF8:
+            case METHOD_TYPE: // @since 1.8
 		return tag ^ value.hashCode();
 	    case FIELD_REF:
 	    case METHOD_REF:
 	    case INTERFACE_METHOD_REF:
 	    case NAME_AND_TYPE:
+            case METHOD_HANDLE: // @since 1.8
+            case INVOKE_DYNAMIC: // @since 1.8
 		return tag ^ ((int[]) value)[0] ^ ((int[]) value)[1];
 	}
 
@@ -189,11 +207,14 @@ public class Constant
 	    case LONG:
 	    case DOUBLE:
 	    case UTF8:
+	    case METHOD_TYPE: // @since 1.8
 		return value.equals(c.value);
 	    case FIELD_REF:
 	    case METHOD_REF:
 	    case INTERFACE_METHOD_REF:
 	    case NAME_AND_TYPE:
+	    case METHOD_HANDLE: // @since 1.8
+	    case INVOKE_DYNAMIC: // @since 1.8
 		return ((int[]) value)[0] == ((int[]) c.value)[0] &&
 		       ((int[]) value)[1] == ((int[]) c.value)[1];
 	}

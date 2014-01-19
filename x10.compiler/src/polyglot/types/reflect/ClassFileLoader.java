@@ -87,6 +87,7 @@ public class ClassFileLoader
             return createClassFile(source, bytecode);
         }
         catch (ClassFormatError e) {
+            e.printStackTrace();
             throw new IOException(e.getMessage());
         }
     }
