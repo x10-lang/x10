@@ -675,7 +675,10 @@ public class ClassFileLazyClassInitializer {
     
         int index = type.indexOf(')', start+1);
         List<Ref<? extends Type>> argTypes = typeListForString(type.substring(start+1, index), bounds);
-        Ref<? extends Type> returnType = typeForString(type.substring(index+1), bounds);
+        String returnTypeString = type.substring(index+1);
+        int end = returnTypeString.indexOf('^');
+        if (end > 0) returnTypeString = returnTypeString.substring(0, end); // [MT] strip throws clause (^Txxx;)
+        Ref<? extends Type> returnType = typeForString(returnTypeString, bounds);
     
         List<Ref<? extends Type>> excTypes = new ArrayList<Ref<? extends Type>>();
         Exceptions exceptions = method.getExceptions();
