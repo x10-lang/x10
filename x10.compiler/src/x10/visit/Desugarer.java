@@ -58,6 +58,7 @@ import polyglot.types.SemanticException;
 import polyglot.types.Type;
 import polyglot.types.TypeSystem;
 import polyglot.types.Types;
+import polyglot.types.UnknownType;
 import polyglot.types.VarDef;
 import polyglot.types.VarInstance;
 import polyglot.types.QName;
@@ -237,17 +238,26 @@ public class Desugarer extends ContextVisitor {
         return a;
     }
 
-    // x++ -> (x+=1)-1 or x-- -> (x-=1)+1
-    // FIXME: Use StmtExpr to instead do: do this as part of ClosureCall XTENLANG-3338.
-    // x++ -> ({ t = x; x+=1; t })
+    // In General: x++ -> (x+=1)-1 or x-- -> (x-=1)+1
+    // Important special case: x is a local (so safe to evaulate twice)
+    //     x++ -> ({ val t = x; x+=1; t }) or x-- -> ({ val t = x; x-=1; t })
     private Expr unaryPost(Position pos, Unary.Operator op, Expr e) {
         Type ret = e.type();
         Expr one = getLiteral(pos, ret, 1);
         Assign.Operator asgn = (op == Unary.POST_INC) ? Assign.ADD_ASSIGN : Assign.SUB_ASSIGN;
-        Binary.Operator bin = (op == Unary.POST_INC) ? Binary.SUB : Binary.ADD;
-        Expr incr = assign(pos, e, asgn, one);
-        incr = visitAssign((Assign) incr);
-        return visitBinary((Binary) nf.Binary(pos, incr, bin, one).type(ret));
+        if (e instanceof Local) {
+            Name xn = Name.makeFresh("pre");
+            LocalDef xDef = ts.localDef(pos, ts.Final(), Types.ref(ret), xn);
+            LocalDecl xDecl = nf.LocalDecl(pos, nf.FlagsNode(pos, Flags.FINAL), nf.CanonicalTypeNode(pos, ret), nf.Id(pos, xn), e).localDef(xDef);
+            Expr incr = visitAssign(assign(pos, e, asgn, one));
+            Expr res = nf.Local(pos, nf.Id(pos, xn)).localInstance(xDef.asInstance()).type(ret);
+            return nf.StmtExpr(pos, Arrays.<Stmt>asList(xDecl, nf.Eval(pos, incr)), res).type(ret);
+        } else {
+            Binary.Operator bin = (op == Unary.POST_INC) ? Binary.SUB : Binary.ADD;
+            Expr incr = assign(pos, e, asgn, one);
+            incr = visitAssign((Assign) incr);
+            return visitBinary((Binary) nf.Binary(pos, incr, bin, one).type(ret));
+        }
     }
 
     // desugar unary operators
@@ -276,7 +286,7 @@ public class Desugarer extends ContextVisitor {
     }
 
     // This is called from override, so we just need to transform the statement, not desugar
-    // x++; -> ++x; or x--; -> --x; (to avoid creating an extra closure)
+    // x++; -> ++x; or x--; -> --x; (to avoid creating an extra statement expr)
     private Stmt adjustEval(Eval n) {
         Position pos = n.position();
         if (n.expr() instanceof Unary) {
@@ -765,8 +775,7 @@ public class Desugarer extends ContextVisitor {
                                 nf.Id(pos, left.name().id())).fieldInstance(left.fieldInstance()).type(R);
             Expr val = desugarBinary((Binary) nf.Binary(pos, lhs, op, right).type(R), v);
             Expr res = assign(pos, lhs, Assign.ASSIGN, val, v);
-            StmtExpr se = (StmtExpr)nf.StmtExpr(pos, Arrays.<Stmt>asList(xDecl), res).type(R);
-            return se;
+            return nf.StmtExpr(pos, Arrays.<Stmt>asList(xDecl), res).type(R);
         }
     }
 
@@ -775,7 +784,7 @@ public class Desugarer extends ContextVisitor {
     }
 
     // a(i)=v -> a.operator()=(i,v)
-    // a(i)op=v -> ((x:A,y:I,z:T)=>x.operator()=(y,x.operator()(y) op z))(a,i,v)
+    // a(i)op=v -> {( val a$ = a; val i$ = i; val r = a$.operator()(i$) op z; a$.operator()=(i$,r) )}
     public static Expr desugarSettableAssign(SettableAssign n, ContextVisitor v) {
         NodeFactory nf = v.nodeFactory();
         TypeSystem ts = v.typeSystem();
@@ -785,65 +794,57 @@ public class Desugarer extends ContextVisitor {
         Expr a = n.array();
         if (n.operator() == Assign.ASSIGN) {
             args.add(n.right());
-            return desugarCall(nf.Call(pos, a, nf.Id(pos, mi.name()),
-                    args).methodInstance(mi).type(mi.returnType()), v);
+            return desugarCall(nf.Call(pos, a, nf.Id(pos, mi.name()), args).methodInstance(mi).type(mi.returnType()), v);
         }
         Binary.Operator op = n.operator().binaryOperator();
         X10Call left = (X10Call) n.left();
         MethodInstance ami = left.methodInstance();
-        List<Formal> parms = new ArrayList<Formal>();
-        Name xn = Name.makeFresh("x");
+        List<Stmt> stmts = new ArrayList<Stmt>();
+        Name xn = Name.makeFresh("a");
         Type aType = a.type();
         assert (ts.isSubtype(aType, mi.container(), v.context()));
         LocalDef xDef = ts.localDef(pos, ts.Final(), Types.ref(aType), xn);
-        Formal x = nf.Formal(pos, nf.FlagsNode(pos, ts.Final()),
-                nf.CanonicalTypeNode(pos, aType), nf.Id(pos, xn)).localDef(xDef);
-        parms.add(x);
+        LocalDecl xDecl = nf.LocalDecl(pos, nf.FlagsNode(pos, Flags.FINAL), 
+                                       nf.CanonicalTypeNode(pos, aType), nf.Id(pos, xn), a).localDef(xDef);
+        stmts.add(xDecl);
+        
         List<Expr> idx1 = new ArrayList<Expr>();
         int i = 0;
         assert (ami.formalTypes().size()==n.index().size());
         for (Expr e : n.index()) {
             Type t = e.type();
-            Name yn = Name.makeFresh("y"+i);
+            Name yn = Name.makeFresh("i"+i);
             LocalDef yDef = ts.localDef(pos, ts.Final(), Types.ref(t), yn);
-            Formal y = nf.Formal(pos, nf.FlagsNode(pos, ts.Final()),
-                    nf.CanonicalTypeNode(pos, t), nf.Id(pos, yn)).localDef(yDef);
-            parms.add(y);
+            LocalDecl yDecl = nf.LocalDecl(pos, nf.FlagsNode(pos, Flags.FINAL), 
+                                           nf.CanonicalTypeNode(pos, t), nf.Id(pos, yn), e).localDef(yDef);
+            stmts.add(yDecl);
             idx1.add(nf.Local(pos, nf.Id(pos, yn)).localInstance(yDef.asInstance()).type(t));
             i++;
         }
-        Name zn = Name.makeFresh("z");
         Type T = mi.formalTypes().get(mi.formalTypes().size()-1);
         Type vType = n.right().type();
         assert (ts.isSubtype(ami.returnType(), T, v.context()));
         assert (ts.isSubtype(vType, T, v.context()));
-        LocalDef zDef = ts.localDef(pos, ts.Final(), Types.ref(vType), zn);
-        Formal z = nf.Formal(pos, nf.FlagsNode(pos, ts.Final()),
-                nf.CanonicalTypeNode(pos, vType), nf.Id(pos, zn)).localDef(zDef);
-        parms.add(z);
-        Expr val = desugarBinary((Binary) nf.Binary(pos,
-                desugarCall(nf.Call(pos,
-                        nf.Local(pos, nf.Id(pos, xn)).localInstance(xDef.asInstance()).type(aType),
-                        nf.Id(pos, ami.name()), idx1).methodInstance(ami).type(ami.returnType()), v),
-                op, nf.Local(pos, nf.Id(pos, zn)).localInstance(zDef.asInstance()).type(vType)).type(T),
-                v);
+        Expr val = nf.Binary(pos,
+                             desugarCall(nf.Call(pos,
+                                                 nf.Local(pos, nf.Id(pos, xn)).localInstance(xDef.asInstance()).type(aType),
+                                                 nf.Id(pos, ami.name()), idx1).methodInstance(ami).type(ami.returnType()),
+                                         v),
+                             op, 
+                             n.right()).type(T);
+        val = desugarBinary((Binary)val, v);
         Type rType = val.type();
         Name rn = Name.makeFresh("r");
         LocalDef rDef = ts.localDef(pos, ts.Final(), Types.ref(rType), rn);
         LocalDecl r = nf.LocalDecl(pos, nf.FlagsNode(pos, ts.Final()),
-                nf.CanonicalTypeNode(pos, rType), nf.Id(pos, rn), val).localDef(rDef);
+                                   nf.CanonicalTypeNode(pos, rType), nf.Id(pos, rn), val).localDef(rDef);
+        stmts.add(r);
         List<Expr> args1 = new ArrayList<Expr>(idx1);
         args1.add(nf.Local(pos, nf.Id(pos, rn)).localInstance(rDef.asInstance()).type(rType));
         Expr res = desugarCall(nf.Call(pos,
-                nf.Local(pos, nf.Id(pos, xn)).localInstance(xDef.asInstance()).type(aType),
-                nf.Id(pos, mi.name()), args1).methodInstance(mi).type(mi.returnType()), v);
-        Block block = nf.Block(pos, r, nf.Eval(pos, res),
-                nf.Return(pos, nf.Local(pos, nf.Id(pos, rn)).localInstance(rDef.asInstance()).type(rType)));
-        Closure c = closure(pos, rType, parms, block, v);
-        MethodInstance ci = c.closureDef().asType().applyMethod();
-        args.add(0, a);
-        args.add(n.right());
-        return desugarCall(nf.ClosureCall(pos, c, args).closureInstance(ci).type(rType), v);
+                                       nf.Local(pos, nf.Id(pos, xn)).localInstance(xDef.asInstance()).type(aType),
+                                       nf.Id(pos, mi.name()), args1).methodInstance(mi).type(mi.returnType()), v);
+        return nf.StmtExpr(pos, stmts, res).type(rType);
     }
 
     /**
