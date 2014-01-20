@@ -256,6 +256,17 @@ public class X10RT {
         else 
         	return 0;
     }
+    
+    /**
+     * Unblock a thread stuck in blockingProbe(), or, if none are currently blocked, 
+     * prevent the next call to blockingProbe() or probe() from blocking.
+     * ONLY WORKS WITH MANAGED X10
+     */
+    public static void unblockProbe() {
+        assert isBooted();
+        if (javaSockets != null)
+        	javaSockets.wakeup();        
+    }
 
     /**
      * Return the numeric id of the current Place.

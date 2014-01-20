@@ -276,6 +276,12 @@ public class SocketTransport {
     	return myPlaceId;
     }
     
+    // If a thread is blocked on the blocking_probe, wake it up so that it can return.  If nothing is blocked, 
+    // the next call to probe will not block.
+    public void wakeup() {
+    	selector.wakeup();
+    }
+    
     // onlyProcessAccept is set to true only during startup time, to prioritize establishing links
     // timeout is how long we're willing to block waiting for something to happen. 
     // returns true if something is processed
