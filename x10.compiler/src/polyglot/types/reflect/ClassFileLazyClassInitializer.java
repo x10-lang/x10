@@ -652,6 +652,12 @@ public class ClassFileLazyClassInitializer {
         return i;
     }
 
+    private static String stripThrowsSignature(String returnType) {
+        int end = returnType.indexOf('^');
+        if (end > 0) returnType = returnType.substring(0, end); // [MT] strip ThrowsSignature (^xxx;)
+        return returnType;
+    }
+
     /**
      * Create a MethodInstance.
      * @param method The JVM Method data structure.
@@ -675,10 +681,7 @@ public class ClassFileLazyClassInitializer {
     
         int index = type.indexOf(')', start+1);
         List<Ref<? extends Type>> argTypes = typeListForString(type.substring(start+1, index), bounds);
-        String returnTypeString = type.substring(index+1);
-        int end = returnTypeString.indexOf('^');
-        if (end > 0) returnTypeString = returnTypeString.substring(0, end); // [MT] strip throws clause (^Txxx;)
-        Ref<? extends Type> returnType = typeForString(returnTypeString, bounds);
+        Ref<? extends Type> returnType = typeForString(stripThrowsSignature(type.substring(index+1)), bounds);
     
         List<Ref<? extends Type>> excTypes = new ArrayList<Ref<? extends Type>>();
         Exceptions exceptions = method.getExceptions();
