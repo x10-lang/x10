@@ -254,12 +254,14 @@ public class ClassFile {
       {
       case Constant.CLASS:
       case Constant.STRING:
+      case Constant.METHOD_TYPE: // @since 1.8
 	value = new Integer(in.readUnsignedShort());
 	break;
       case Constant.FIELD_REF:
       case Constant.METHOD_REF:
       case Constant.INTERFACE_METHOD_REF:
       case Constant.NAME_AND_TYPE:
+      case Constant.INVOKE_DYNAMIC: // @since 1.8
 	value = new int[2];
 
 	((int[]) value)[0] = in.readUnsignedShort();
@@ -282,6 +284,12 @@ public class ClassFile {
       case Constant.UTF8:
 	value = in.readUTF();
 	break;
+      case Constant.METHOD_HANDLE: // @since 1.8
+        value = new int[2];
+
+        ((int[]) value)[0] = in.readUnsignedByte();
+        ((int[]) value)[1] = in.readUnsignedShort();
+        break;
       default:
 	throw new ClassFormatError("Invalid constant tag: " + tag);
       }
