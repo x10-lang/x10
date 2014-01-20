@@ -686,15 +686,18 @@ function main {
 	    my_nplaces=$numplaces_annotation
 	fi
 
-	if [[ "$(uname -s)" == "Darwin" ]]; then
-            pid_list=`/usr/sbin/lsof -t -i ':21053'`
-	    if (( $? == 0 )); then
-		for pid in $pid_list
-		do
-		    kill -9 $pid 2>/dev/null
-		done
-	    fi
-	fi
+	# DAVE: 1/20/14 -- disabling this code block as it isn't clear to me why 
+	#       it is needed and I'm wondering if it is causing spurious timeout 
+	#       failures to be reported on the MacOS automated testing...
+	# if [[ "$(uname -s)" == "Darwin" ]]; then
+        #     pid_list=`/usr/sbin/lsof -t -i ':21053'`
+	#     if (( $? == 0 )); then
+	# 	for pid in $pid_list
+	# 	do
+	# 	    kill -9 $pid 2>/dev/null
+	# 	done
+	#     fi
+	# fi
 
         # run the target for each resiliency mode
 	for jen_resiliency_mode in $tcresilient_modes
