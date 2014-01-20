@@ -90,6 +90,15 @@ public class X10TypeDefDoc extends X10Doc implements MethodDoc {
         return typeDef.flags().isAbstract();
     }
 
+    /**
+     * @since 1.8
+     * @return
+     */
+    public boolean isDefault() {
+        // TODO Auto-generated method stub
+        return false;
+    }
+
     public ClassDoc overriddenClass() {
         return null;
     }
@@ -156,6 +165,15 @@ public class X10TypeDefDoc extends X10Doc implements MethodDoc {
 
     public Parameter[] parameters() {
         return parameters.toArray(new Parameter[0]);
+    }
+
+    /**
+     * @since 1.8
+     * @return
+     */
+    public Type receiverType() {
+        // TODO Auto-generated method stub
+        return null;
     }
 
     public String signature() {
