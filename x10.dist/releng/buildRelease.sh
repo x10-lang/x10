@@ -128,9 +128,9 @@ if [[ -z "$SKIP_X10_BUILD" ]]; then
     cd $distdir/x10.dist
     ant $EXTRA_X10RT_BUILD_ARG -Doptimize=true -Dx10.version=$X10_VERSION testtar
     ant $EXTRA_X10RT_BUILD_ARG -Doptimize=true -Dx10.version=$X10_VERSION srctar
-    ant $EXTRA_X10RT_BUILD_ARG -Doptimize=true dist
+    ant $EXTRA_X10RT_BUILD_ARG -Doptimize=true -Davailable.procs=4 dist
     if [[ -z "$SKIP_DEBUG_BUILD" ]]; then
-        ant $EXTRA_X10RT_BUILD_ARG -Ddebug=true dist-cpp
+        ant $EXTRA_X10RT_BUILD_ARG -Ddebug=true -Davailable.procs=4 dist-cpp
     fi 
     ant xrx-xdoc
     $distdir/x10.dist/releng/packageRelease.sh -version $X10_VERSION -platform $X10_PLATFORM
