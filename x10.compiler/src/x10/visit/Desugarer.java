@@ -911,7 +911,7 @@ public class Desugarer extends ContextVisitor {
         throw new InternalCompilerError("Unknown type node type: "+tn.getClass(), tn.position());
     }
 
-    // e as T{c} -> ((x:T):T{c}=>{if (x!=null&&!c[self/x]) throwCCE(); return x;})(e as T)
+    // e as T{c} -> ({ val x:T = e as T; if (!c[self/x]) throw CCE(); x })    
     private Expr visitCast(X10Cast n) {
         // We give the DYNAMIC_CALLS warning here (and not in type-checking), because we create a lot of temp cast nodes in the process that are discarded later.
         if (n.conversionType()==Converter.ConversionType.DESUGAR_LATER) {
@@ -922,44 +922,43 @@ public class Desugarer extends ContextVisitor {
         Position pos = n.position();
         Expr e = n.expr();
         TypeNode tn = n.castType();
-        Type ot = tn.type();
+        Type castDepType = tn.type();
         DepParameterExpr depClause = getClause(tn);
         tn = stripClause(tn);
         X10CompilerOptions opts = (X10CompilerOptions) job.extensionInfo().getOptions();
         if (depClause == null || opts.x10_config.NO_CHECKS)
             return n.castType(tn);
+
+        List<Stmt> stmts = new ArrayList<Stmt>();
+
+        // x = e as T
+        Type castBaseType = tn.type();
+        boolean checked = !ts.isSubtype(Types.baseType(e.type()), castBaseType, context);
+        Expr cast = nf.X10Cast(pos, tn, e, checked ? Converter.ConversionType.CHECKED : Converter.ConversionType.UNCHECKED).type(castBaseType);
         Name xn = Name.makeFresh();
-        Type t = tn.type(); // the base type of the cast
-        LocalDef xDef = ts.localDef(pos, ts.Final(), Types.ref(t), xn);
-        Formal x = nf.Formal(pos, nf.FlagsNode(pos, ts.Final()),
-                nf.CanonicalTypeNode(pos, xDef.type()), nf.Id(pos, xn)).localDef(xDef);
-        Expr xl = nf.Local(pos, nf.Id(pos, xn)).localInstance(xDef.asInstance()).type(t);
+        LocalDef xDef = ts.localDef(pos, ts.Final(), Types.ref(castBaseType), xn);
+        LocalDecl xDecl = nf.LocalDecl(pos, nf.FlagsNode(pos, Flags.FINAL), 
+                                       nf.CanonicalTypeNode(pos, xDef.type()), nf.Id(pos, xn), cast).localDef(xDef);
+        Expr xl = nf.Local(pos, nf.Id(pos, xn)).localInstance(xDef.asInstance()).type(castBaseType);
+        stmts.add(xDecl);
+        
+        // if (!c[self/x]) throw CCE()
         List<Expr> condition = depClause.condition();
         Expr cond = visitUnary((Unary) nf.Unary(pos, conjunction(depClause.position(), condition, xl), Unary.NOT).type(ts.Boolean()));
         Type ccet = ts.ClassCastException();
-        CanonicalTypeNode CCE = nf.CanonicalTypeNode(pos, ccet);
-        Expr msg = nf.StringLit(pos, ot.toString()).type(ts.String());
+        Expr msg = nf.StringLit(pos, castDepType.toString()).type(ts.String());
         X10ConstructorInstance ni;
         try {
             ni = ts.findConstructor(ccet, ts.ConstructorMatcher(ccet, Collections.singletonList(ts.String()), context()));
         } catch (SemanticException z) {
             throw new InternalCompilerError("Unexpected exception while desugaring "+n, pos, z);
         }
-        Expr newCCE = nf.New(pos, CCE, Collections.singletonList(msg)).constructorInstance(ni).type(ccet);
-        Stmt throwCCE = nf.Throw(pos, newCCE);
-        Stmt check = nf.If(pos, cond, throwCCE);
-        Block body = nf.Block(pos, check, nf.Return(pos, xl));
-        Closure c = closure(pos, ot, Collections.singletonList(x), body);
-        c.visit(new ClosureCaptureVisitor(this.context(), c.closureDef()));
-        //if (!c.closureDef().capturedEnvironment().isEmpty())
-        //    System.out.println(c+" at "+c.position()+" captures "+c.closureDef().capturedEnvironment());
-        boolean checked = !ts.isSubtype(Types.baseType(e.type()), t, context);
-        Expr cast = nf.X10Cast(pos, tn, e, checked ? Converter.ConversionType.CHECKED : Converter.ConversionType.UNCHECKED).type(t);
-        MethodInstance ci = c.closureDef().asType().applyMethod();
-        return nf.ClosureCall(pos, c, Collections.singletonList(cast)).closureInstance(ci).type(ot);
+        Expr newCCE = nf.New(pos, nf.CanonicalTypeNode(pos, ccet), Collections.singletonList(msg)).constructorInstance(ni).type(ccet);
+        stmts.add(nf.If(pos, cond, nf.Throw(pos, newCCE)));
+        return nf.StmtExpr(pos, stmts, xl).type(castDepType);
     }
 
-    // e instanceof T{c} -> ((x:F)=>x instanceof T && c[self/x as T])(e)
+    // e instanceof T{c} -> ({ val x = e; x instanceof T && ({ x' = x as T; c[self/x'] }) })
     private Expr visitInstanceof(X10Instanceof n) {
         Position pos = n.position();
         Expr e = n.expr();
@@ -968,24 +967,30 @@ public class Desugarer extends ContextVisitor {
         tn = stripClause(tn);
         if (depClause == null)
             return n;
+        
+        // val x = e;
         Name xn = Name.makeFresh();
         Type et = e.type();
         LocalDef xDef = ts.localDef(pos, ts.Final(), Types.ref(et), xn);
-        Formal x = nf.Formal(pos, nf.FlagsNode(pos, ts.Final()),
-                nf.CanonicalTypeNode(pos, xDef.type()), nf.Id(pos, xn)).localDef(xDef);
+        LocalDecl xDecl = nf.LocalDecl(pos, nf.FlagsNode(pos, Flags.FINAL), 
+                                       nf.CanonicalTypeNode(pos, xDef.type()), nf.Id(pos, xn), e).localDef(xDef);
         Expr xl = nf.Local(pos, nf.Id(pos, xn)).localInstance(xDef.asInstance()).type(et);
+
+        // x instanceof T && ({ val x' = x as T; c[self/x'] })
         Expr iof = nf.Instanceof(pos, xl, tn).type(ts.Boolean());
-        Expr cast = nf.X10Cast(pos, tn, xl, Converter.ConversionType.CHECKED).type(tn.type());
-        List<Expr> condition = depClause.condition();
-        Expr cond = conjunction(depClause.position(), condition, cast);
-        Expr rval = visitBinary((Binary) nf.Binary(pos, iof, Binary.COND_AND, cond).type(ts.Boolean()));
-        Block body = nf.Block(pos, nf.Return(pos, rval));
-        Closure c = closure(pos, ts.Boolean(), Collections.singletonList(x), body);
-        c.visit(new ClosureCaptureVisitor(this.context(), c.closureDef()));
-        //if (!c.closureDef().capturedEnvironment().isEmpty())
-        //    System.out.println(c+" at "+c.position()+" captures "+c.closureDef().capturedEnvironment());
-        MethodInstance ci = c.closureDef().asType().applyMethod();
-        return nf.ClosureCall(pos, c, Collections.singletonList(e)).closureInstance(ci).type(ts.Boolean());
+        
+        Name xn2 = Name.makeFresh();
+        LocalDef xDef2 = ts.localDef(pos, ts.Final(), Types.ref(tn.type()), xn2);
+        Expr cast = nf.X10Cast(pos, tn, xl, Converter.ConversionType.UNCHECKED).type(tn.type());
+        LocalDecl xDecl2 = nf.LocalDecl(pos, nf.FlagsNode(pos, Flags.FINAL), 
+                                       nf.CanonicalTypeNode(pos, xDef2.type()), nf.Id(pos, xn2), cast).localDef(xDef2);
+        Expr xl2 = nf.Local(pos, nf.Id(pos, xn2)).localInstance(xDef2.asInstance()).type(tn.type());
+        Expr cond = conjunction(depClause.position(), depClause.condition(), xl2);
+        Expr inner = nf.StmtExpr(pos, Arrays.<Stmt>asList(xDecl2), cond).type(ts.Boolean());
+        
+        Expr rval = visitBinary((Binary) nf.Binary(pos, iof, Binary.COND_AND, inner).type(ts.Boolean()));
+        
+        return nf.StmtExpr(pos, Arrays.<Stmt>asList(xDecl), rval).type(ts.Boolean());
     }
 
     public static class Substitution<T extends Node> extends NodeVisitor {
