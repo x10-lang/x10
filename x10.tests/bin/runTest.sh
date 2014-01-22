@@ -233,6 +233,13 @@ function resolveParams {
 	    tcvcode=SKIPPED
 	fi
     fi
+    ${EGREP} -q 'RESILIENT_X10_ONLY' $1
+    if [[ $? == 0 ]]; then
+    tcresilient_x10_only=1
+    if [[ "$tcresilient_modes" == "0" ]]; then
+        tcvcode=SKIPPED
+    fi
+    fi
 
     # update expected counters
     case "${tcvcode}" in
@@ -329,6 +336,7 @@ tcbackend="native"
 tc_all_resilient_modes="0 1"
 tc_default_resilient_mode="0"
 tcresilient_modes="$tc_default_resilient_mode"
+typeset -i tcresilient_x10_only=0
 
 # enable/disable timeout option
 # default: enable
@@ -383,6 +391,8 @@ tcfcompcnt=0
 
 # number of test cases successfully executed
 tcexeccnt=0
+# number of test cases skipped
+tcsexeccnt=0
 # number of actual execution failures
 tcfexeccnt=0
 
@@ -545,6 +555,7 @@ function main {
     printf "#\tE - execution step\n\n"
     printf "#\tX - test failed\n"
     printf "#\tY - test passed\n"
+    printf "#\tS - test skipped\n"
 
     for tc in ${tclist[*]}; do
 	let 'tcproccnt += 1'
@@ -742,6 +753,19 @@ function main {
 	    else
 		__jen_test_x10_command="$(echo execTimeOut $tctoutval $tcoutdat \"${run_cmd}\")"
 	    fi
+
+        if [[ $tcresilient_x10_only == 1 && "$mode_name" == "main" ]]; then
+        printf "\n ++ E [EXECUTION]"
+        let 'tcsexeccnt += 1'
+        printf "\n *** S ***"
+		__jen_test_result_explanation="${className} met expectation: Skipped."
+		__jen_test_result="SKIPPED"
+		__jen_test_exit_code=0
+		printf "\n****** $tDir $className skipped.\n" >> $tcoutdat
+		junitLog $mode_name $tccompdat $tcoutdat
+        continue
+        fi
+
 	    printf "\n ++ E [EXECUTION]"
 	    ( \
 		cd $tcroot; \
@@ -869,6 +893,7 @@ function main {
 
     printf "\n**EXECUTION      : "
     printf "${tcexeccnt} Successes"
+    printf " / ${tcsexeccnt} Skipped"
     printf " / ${tcfexeccnt} Actual Failures\n"
 
     printf "\n**TIME-OUT       : "
