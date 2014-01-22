@@ -7,14 +7,15 @@ Making a weekly build is a subset of the steps to make a full-blown release.
 
       makeTag -rev 12500 -tag WB_20130620 -code -x10dt
 
-   2. run masterBuildRelease.sh to build tarballs for the x10dt platforms 
-      and push them to orquesta.  You will need to run this script from a
-      machine where you have passwordless ssh working to all relevant machines.
-
-      masterBuildRelease.sh -version 2.4.0.WB_20130620 -tag WB_20130620 -x10dt_hosts
+   2. Go to Jenkins, select the Package-X10-Release job and then select
+      "Build With Parameters".  Select the appropriate svn tag, fill in
+      the version number, and other parameters then hit the 'Build' button.
+      Note, depending on how loaded slave machines are this step may take
+      several hours to complete.  Tarballs will be automatically published
+      on orquesta as they are available.
 
    3. In the RTC build engine, edit the definitions for the X10DT and 
-      X10DT Editor Only Weekly Builds to use the tag/branch you created
+      X10DT Editor Only Weekly Builds to use the tag/version you created
       in steps 1 and 2.
 
    4. Request builds of X10DT/X10DT Editor Edition

@@ -35,7 +35,7 @@ II. Create the release branch and enter into final testing phase
       to enable testing on the branch you just created.
 
    4. If fixes need to be applied to the release after it is created, apply 
-      fixes to trunk first. After they pass regression testing on svn head, 
+      fixes to trunk first. After they pass regression testing on trunk, 
       pull them over to the release branch using
 
         svn merge -c <change revision> ^/trunk
@@ -55,11 +55,12 @@ III. When all necessary fixes have been propagated to the release branch,
 
       makeTag.sh -rev 28000 -branch x10-2.4.1 -tag SF_RELEASE_2_4_1_2 -x10
 
-   4. run masterBuildRelease.sh to build tarballs for most platforms 
-      and push them to orquesta.  You will need to run this script from a
-      machine where you have passwordless ssh working to all relevant machines.
-
-      masterBuildRelease.sh -version 2.0.1 -tag SF_RELEASE_2_0_1
+   4. Go to Jenkins, select the Package-X10-Release job and then select
+      "Build With Parameters".  Select the appropriate svn tag, fill in
+      the version number, and other parameters then hit the 'Build' button.
+      Note, depending on how loaded slave machines are this step may take
+      several hours to complete.  Tarballs will be automatically published
+      on orquesta as they are available.
 
    5. ssh into shell.sf.net and create a subdirectory of 
       /home/frs/project/x/x1/x10 to hold the downloads. 
