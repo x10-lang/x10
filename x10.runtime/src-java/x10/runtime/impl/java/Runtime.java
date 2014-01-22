@@ -417,6 +417,13 @@ public abstract class Runtime implements VoidFun_0_0 {
     public static int blockingProbe() {
         return X10RT.blockingProbe();
     }
+    
+    /**
+     * mapped to Runtime.x10 -> unblockProbe(): void
+     */
+    public static void unblockProbe() {
+        X10RT.unblockProbe();
+    }
 
     /**
      * Load environment variables.
