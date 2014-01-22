@@ -312,10 +312,6 @@ public class Desugarer extends ContextVisitor {
         }
     }
 
-    private Closure closure(Position pos, Type retType, List<Formal> parms, Block body) {
-        return closure(pos, retType, parms, body, this);
-    }
-
     private static Closure closure(Position pos, Type retType, List<Formal> parms, Block body, ContextVisitor v) {
         Synthesizer synth = new Synthesizer(v.nodeFactory(), v.typeSystem());
         return synth.makeClosure(pos, retType, parms, body, v.context());
@@ -432,7 +428,7 @@ public class Desugarer extends ContextVisitor {
         Job job = v.job();
         List<Expr> args = cc.arguments();
         List<Expr> newArgs = new ArrayList<Expr>(args.size());
-        List<Formal> params = new ArrayList<Formal>(args.size());
+        List<LocalDef> newLocals = new ArrayList<LocalDef>(args.size());
         Position pos = cc.position();
         Context context = v.context();
         Context closureContext = context.pushBlock();
@@ -442,12 +438,13 @@ public class Desugarer extends ContextVisitor {
          * {val x1=e1 as U1;..;val xn=en as Un;if(!g[x1/f1;..;xn/fn])throw new FDCE();this(x1,..,xn);}
          */
         List<Stmt> statements = new ArrayList<Stmt>(1);
-        if (!computeDynamicCheck(pi, args, null, pos, v, params, closureContext, newArgs, statements))
+        if (!computeDynamicCheck(pi, args, null, pos, v, newLocals, closureContext, newArgs, statements))
             return cc;
-        List<LocalDecl> fvars = new ArrayList<LocalDecl>(params.size());
+        List<LocalDecl> fvars = new ArrayList<LocalDecl>(newLocals.size());
         int i = 0;
-        for (Formal f : params) {
-            fvars.add(nf.LocalDecl(pos, f.flags(), f.type(), f.name(), args.get(i++)).localDef(f.localDef()));
+        for (LocalDef ld : newLocals) {
+            fvars.add(nf.LocalDecl(pos, nf.FlagsNode(pos, ts.Final()), nf.CanonicalTypeNode(pos, ld.type()), 
+                                   nf.Id(pos, ld.name()), args.get(i++)).localDef(ld));
         }
         statements.addAll(0, fvars);
         ConstructorCall newCC = cc.arguments(newArgs);
@@ -525,18 +522,27 @@ public class Desugarer extends ContextVisitor {
             args.add(0, (Expr) oldReceiver);
         }
         ArrayList<Expr> newArgs = new ArrayList<Expr>(args.size());
-        ArrayList<Formal> params = new ArrayList<Formal>(args.size());
+        ArrayList<LocalDef> newLocals = new ArrayList<LocalDef>(args.size());
         final Context context = v.context();
         final Context closureContext = context.pushBlock();
 
         /*
          * For a call r.m(e1,..,en), where r:T,e1:T1,..,en:Tn and U.m(f1:U1,..,fn:Un):R,
          * we are going to be creating the following closure call:
-         * ((p0:T,p1:T1,..,pn:Tn)=>{val x$0=p0 as U;val f1=p1 as U1;..;val fn=pn as Un;x$0.m(f1,..,fn)})(e1,..,en)
+         * ({ val p0:T=e1; val p1:T1 = e1; ,..,val pn:Tn = en; val x$0=p0 as U;val f1=p1 as U1;..;val fn=pn as Un; x$0.m(f1,..,fn) })
          */
         List<Stmt> statements = new ArrayList<Stmt>();
-        if (!computeDynamicCheck(procInst, args, oldReceiver, pos, v, params, closureContext, newArgs, statements))
+        if (!computeDynamicCheck(procInst, args, oldReceiver, pos, v, newLocals, closureContext, newArgs, statements))
             return n;
+        
+        List<LocalDecl> fvars = new ArrayList<LocalDecl>(newLocals.size());
+        int i = 0;
+        for (LocalDef ld : newLocals) {
+            fvars.add(nf.LocalDecl(pos, nf.FlagsNode(pos, ts.Final()), nf.CanonicalTypeNode(pos, ld.type()), 
+                                   nf.Id(pos, ld.name()), args.get(i++)).localDef(ld));
+        }
+        statements.addAll(0, fvars);
+
         final Expr newReceiver = oldReceiver==null ? null : newArgs.remove(0);
         final ProcedureCall newProcCall;
         if (newReceiver==null)
@@ -551,19 +557,11 @@ public class Desugarer extends ContextVisitor {
         X10TypeBuilder builder = new X10TypeBuilder(job, ts, nf);
         ContextVisitor checker = new X10TypeChecker(job, ts, nf, job.nodeMemo()).context(closureContext);
         newExpr = (Expr) newExpr.visit(builder).visit(checker);
-        final Type resType = newExpr.type();
-        // if resType is void, then we shouldn't use return
-        final boolean isVoid = ts.isVoid(resType);
-        statements.add(isVoid ? nf.Eval(pos,newExpr) : nf.Return(pos, newExpr));
-        Block body = nf.Block(pos, statements);
-        //body = (Block) body.visit(builder).visit(checker); - there is a problem type-checking the return statement
-        Type closureRet = procInst.returnType();
-        Closure c = closure(pos, closureRet, params, body, v);
-        MethodInstance ci = c.closureDef().asType().applyMethod();
-        return nf.ClosureCall(pos, c, args).closureInstance(ci).type(resType);
+        return nf.StmtExpr(pos, statements, newExpr).type(newExpr.type());
     }
+    
     public static boolean computeDynamicCheck(ProcedureInstance<?> procInst, List<Expr> args, Expr oldReceiver,
-            final Position pos, ContextVisitor v, List<Formal> params, Context closureContext,
+            final Position pos, ContextVisitor v, List<LocalDef> newLocalDefs, Context closureContext,
             List<Expr> newArgs, List<Stmt> statements) {
         // we shouldn't use the def, because sometimes the constraints come from the instance,
         // e.g.,  new Box[Int{self!=0}](v)
@@ -617,9 +615,7 @@ public class Desugarer extends ContextVisitor {
                 pType = type;
             }
             LocalDef pDef = ts.localDef(pos, ts.Final(), Types.ref(pType), pn);
-            Formal pd = nf.Formal(pos, nf.FlagsNode(pos, ts.Final()),
-                    nf.CanonicalTypeNode(pos, pType), nf.Id(pos, pn)).localDef(pDef);
-            params.add(pd);
+            newLocalDefs.add(pDef);
             Local p = (Local) nf.Local(pos, nf.Id(pos, pn)).localInstance(pDef.asInstance()).type(pType);
             Name xn = oldFormal!=null ? Name.makeFresh(oldFormal.name()) : Name.makeFresh();
             LocalDef xDef = ts.localDef(pos, ts.Final(), Types.ref(tType), xn);
