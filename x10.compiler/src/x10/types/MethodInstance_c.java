@@ -366,10 +366,13 @@ public class MethodInstance_c extends FunctionInstance_c<MethodDef> implements M
         sb.append(CollectionUtil.listToString(formals));
         sb.append(")");
         CConstraint guard = this.guard();
-        if (guard != null)
-            sb.append(guard);
-        else if (x10Def().guard() != null)
-            sb.append(x10Def().guard());
+        if (guard != null) {
+            if (!guard.atoms().isEmpty()) sb.append(guard);
+        }
+        else if (x10Def().guard() != null) {
+            guard = x10Def().guard().get();
+            if (!guard.atoms().isEmpty()) sb.append(guard);
+        }
         TypeConstraint typeGuard = this.typeGuard();
         if (typeGuard != null)
             sb.append(typeGuard);
