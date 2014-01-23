@@ -76,4 +76,25 @@ public final class Serializer implements Unserializable {
      */
     public native def newObjectGraph():void;
     
+    /**
+     * If a serialized data will be deserialized more than once,
+     * this method should be called in advance to specify the number of
+     * extra deserializations.  For example:
+     * <pre>
+     *   val ser = new Serializer();
+     *   ser.writeAny(data);
+     *   val message = ser.toRail();
+     *   ser.addDeserializeCount(Place.places().size()-1);
+     *   finish for (pl in Place.places()) {
+     *     at (pl) async {
+     *       val dser = new Deserializer(message);
+     *       val received = dser.readAny() as ...
+     *   } }
+     * </pre>
+     * This method needs not be called if the deserialization will be done
+     * only once, but for more than once deserialization, this method must 
+     * be called *before* the first deserialization, and the argument is 
+     * the number of *extra* deserializations.
+     */
+    public native def addDeserializeCount(extraCount:Long):void;
 }

@@ -148,6 +148,8 @@ namespace x10aux {
         
         void newObjectGraph();
 
+        void addDeserializeCount(long extraCount);
+
         // Default case for primitives and other things that never contain pointers
         template<class T> struct Write;
         template<class T> struct Write<T*>;

@@ -146,6 +146,13 @@ public final class X10JavaSerializer implements SerializationConstants {
         counter = 0;
     }
     
+    public void addDeserializeCount(long extraCount) {
+        // [GlobalGC] Adjust speculative increment of remoteCounts of GlobalRefs
+        if (extraCount < 0L || extraCount > Integer.MAX_VALUE)
+            throw new RuntimeException("extraCount " + extraCount + " is out of range");
+        x10.core.GlobalRef.adjustRemoteCountsInMap(getGrefMap(), (int)extraCount);
+    }
+    
     // Called from x10.io.Serializer.
     // The only goal of this wrapper message is to avoid a throws java.io.IOException
     // in the X10 API for Serializer.writeAny(v:Any).
