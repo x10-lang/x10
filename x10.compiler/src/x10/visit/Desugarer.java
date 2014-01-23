@@ -428,28 +428,20 @@ public class Desugarer extends ContextVisitor {
         Job job = v.job();
         List<Expr> args = cc.arguments();
         List<Expr> newArgs = new ArrayList<Expr>(args.size());
-        List<LocalDef> newLocals = new ArrayList<LocalDef>(args.size());
         Position pos = cc.position();
         Context context = v.context();
-        Context closureContext = context.pushBlock();
+        Context blockContext = context.pushBlock();
         /*
-         * For a constructor call this(e1,..,en), where this:T,e1:T1,..,en:Tn and T.this(f1:U1,..,fn:Un){g},
+         * For a constructor call this(e1,..,en), where this:T,e1:T1,..,en:Tn and T.this(f1:U1,..,fn:Un{),
          * we are going to be creating the following block:
          * {val x1=e1 as U1;..;val xn=en as Un;if(!g[x1/f1;..;xn/fn])throw new FDCE();this(x1,..,xn);}
          */
         List<Stmt> statements = new ArrayList<Stmt>(1);
-        if (!computeDynamicCheck(pi, args, null, pos, v, newLocals, closureContext, newArgs, statements))
+        if (!computeDynamicCheck(pi, args, null, pos, v, blockContext, newArgs, statements))
             return cc;
-        List<LocalDecl> fvars = new ArrayList<LocalDecl>(newLocals.size());
-        int i = 0;
-        for (LocalDef ld : newLocals) {
-            fvars.add(nf.LocalDecl(pos, nf.FlagsNode(pos, ts.Final()), nf.CanonicalTypeNode(pos, ld.type()), 
-                                   nf.Id(pos, ld.name()), args.get(i++)).localDef(ld));
-        }
-        statements.addAll(0, fvars);
         ConstructorCall newCC = cc.arguments(newArgs);
         X10TypeBuilder builder = new X10TypeBuilder(job, ts, nf);
-        ContextVisitor checker = new X10TypeChecker(job, ts, nf, job.nodeMemo()).context(closureContext);
+        ContextVisitor checker = new X10TypeChecker(job, ts, nf, job.nodeMemo()).context(blockContext);
         newCC = (ConstructorCall) newCC.visit(builder).visit(checker);
         statements.add(newCC);
         return nf.Block(pos, statements);
@@ -522,27 +514,19 @@ public class Desugarer extends ContextVisitor {
             args.add(0, (Expr) oldReceiver);
         }
         ArrayList<Expr> newArgs = new ArrayList<Expr>(args.size());
-        ArrayList<LocalDef> newLocals = new ArrayList<LocalDef>(args.size());
         final Context context = v.context();
-        final Context closureContext = context.pushBlock();
+        final Context blockContext = context.pushBlock();
 
         /*
-         * For a call r.m(e1,..,en), where r:T,e1:T1,..,en:Tn and U.m(f1:U1,..,fn:Un):R,
-         * we are going to be creating the following closure call:
-         * ({ val p0:T=e1; val p1:T1 = e1; ,..,val pn:Tn = en; val x$0=p0 as U;val f1=p1 as U1;..;val fn=pn as Un; x$0.m(f1,..,fn) })
+         * For a call r.m(e1,..,en), where r:T,e1:T1,..,en:Tn and U{c0}.m(f1:U1{c1},..,fn:Un{cn}):R,
+         * we are going to be creating the following statement expression:
+         * ({ val x$0=r as U;val x$1=e1 as U1;..;val x$n=en as Un;
+         *    if (!(c0&&c1&&..cn)) throw CCE();
+         *    x$0.m(f1,..,fn) })
          */
         List<Stmt> statements = new ArrayList<Stmt>();
-        if (!computeDynamicCheck(procInst, args, oldReceiver, pos, v, newLocals, closureContext, newArgs, statements))
+        if (!computeDynamicCheck(procInst, args, oldReceiver, pos, v, blockContext, newArgs, statements))
             return n;
-        
-        List<LocalDecl> fvars = new ArrayList<LocalDecl>(newLocals.size());
-        int i = 0;
-        for (LocalDef ld : newLocals) {
-            fvars.add(nf.LocalDecl(pos, nf.FlagsNode(pos, ts.Final()), nf.CanonicalTypeNode(pos, ld.type()), 
-                                   nf.Id(pos, ld.name()), args.get(i++)).localDef(ld));
-        }
-        statements.addAll(0, fvars);
-
         final Expr newReceiver = oldReceiver==null ? null : newArgs.remove(0);
         final ProcedureCall newProcCall;
         if (newReceiver==null)
@@ -555,14 +539,14 @@ public class Desugarer extends ContextVisitor {
         else
             newExpr = (Expr) newProcCall.arguments(newArgs);
         X10TypeBuilder builder = new X10TypeBuilder(job, ts, nf);
-        ContextVisitor checker = new X10TypeChecker(job, ts, nf, job.nodeMemo()).context(closureContext);
+        ContextVisitor checker = new X10TypeChecker(job, ts, nf, job.nodeMemo()).context(blockContext);
         newExpr = (Expr) newExpr.visit(builder).visit(checker);
         return nf.StmtExpr(pos, statements, newExpr).type(newExpr.type());
     }
     
     public static boolean computeDynamicCheck(ProcedureInstance<?> procInst, List<Expr> args, Expr oldReceiver,
-            final Position pos, ContextVisitor v, List<LocalDef> newLocalDefs, Context closureContext,
-            List<Expr> newArgs, List<Stmt> statements) {
+                                              final Position pos, ContextVisitor v, Context blockContext,
+                                              List<Expr> newArgs, List<Stmt> statements) {
         // we shouldn't use the def, because sometimes the constraints come from the instance,
         // e.g.,  new Box[Int{self!=0}](v)
         // dynamically checks that v!=0  (but you can't see it in the def! only in the instance).
@@ -597,7 +581,6 @@ public class Desugarer extends ContextVisitor {
         List<VarDef> Ys = new ArrayList<VarDef>(args.size());
         List<VarDef> Xs = new ArrayList<VarDef>(args.size());
         for (Expr arg : args) {
-            Name pn = Name.makeFresh("p"+i);
             Type pType = arg.type();
             // The argument might be null, e.g., def m(b:Z) {b.x!=null}  = 1; ... m(null);
             final LocalDef oldFormal = arg==oldReceiver ? null : oldFormals.get(oldReceiver==null ? i : i-1);
@@ -611,22 +594,17 @@ public class Desugarer extends ContextVisitor {
             } catch (SemanticException z) {
                 throw new InternalCompilerError("Unexpected exception while inserting a dynamic check", z);
             }
-            if (pType.isNull()) {
-                pType = type;
-            }
-            LocalDef pDef = ts.localDef(pos, ts.Final(), Types.ref(pType), pn);
-            newLocalDefs.add(pDef);
-            Local p = (Local) nf.Local(pos, nf.Id(pos, pn)).localInstance(pDef.asInstance()).type(pType);
+
             Name xn = oldFormal!=null ? Name.makeFresh(oldFormal.name()) : Name.makeFresh();
             LocalDef xDef = ts.localDef(pos, ts.Final(), Types.ref(tType), xn);
-            Expr c = Converter.attemptCoercion(v.context(closureContext), p, tType);
-            c = (Expr) c.visit(v.context(closureContext));
+            Expr c = Converter.attemptCoercion(v.context(blockContext), arg, tType);
+            c = (Expr) c.visit(v.context(blockContext));
             LocalDecl xd = nf.LocalDecl(pos, nf.FlagsNode(pos, ts.Final()),
-                    nf.CanonicalTypeNode(pos, tType), nf.Id(pos, xn), c).localDef(xDef);
+                                        nf.CanonicalTypeNode(pos, tType), nf.Id(pos, xn), c).localDef(xDef);
             locals.add(xd);
             final Local x = (Local) nf.Local(pos, nf.Id(pos, xn)).localInstance(xDef.asInstance()).type(tType);
             newArgs.add(x);
-            closureContext.addVariable(x.localInstance());
+            blockContext.addVariable(x.localInstance());
             if (oldFormal != null) {
                 Ys.add(xDef);
                 Xs.add(oldFormal);
@@ -674,7 +652,7 @@ public class Desugarer extends ContextVisitor {
         }
         // replace all AmbExpr with the new locals
         final X10TypeBuilder builder = new X10TypeBuilder(job, ts, nf);
-        final ContextVisitor checker = new X10TypeChecker(job, ts, nf, job.nodeMemo()).context(closureContext);
+        final ContextVisitor checker = new X10TypeChecker(job, ts, nf, job.nodeMemo()).context(blockContext);
         NodeVisitor replace = new NodeVisitor() {
             @Override
             public Node override(Node n) {
