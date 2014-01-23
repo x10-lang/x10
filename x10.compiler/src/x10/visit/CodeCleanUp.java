@@ -113,7 +113,6 @@ public class CodeCleanUp extends ContextVisitor {
             return nf.Empty(n.position());
         }
         
-        // FIXME: recur...
         if (n instanceof StmtExpr) {
             StmtExpr ste = (StmtExpr)n;
             if (ste.statements().isEmpty()) {
@@ -123,7 +122,8 @@ public class CodeCleanUp extends ContextVisitor {
         }
         
         if (n instanceof Return && ((Return) n).expr() instanceof StmtExpr) {
-            return sinkReturn((Return)n);
+            Block b = sinkReturn((StmtExpr)((Return)n).expr(), n.position());
+            return clean(flattenBlock(b));
         }
         
         if (!(n instanceof Block) || n instanceof SwitchBlock) {
@@ -162,14 +162,22 @@ public class CodeCleanUp extends ContextVisitor {
     }
 
     //Return(StmtExpr(Block(S), e)) ==> Block(S, return e)
-    // FIXME: DAVE: This needs to be made recursive.
-    private Block sinkReturn(Return oldRet) {
-        StmtExpr stExpr = (StmtExpr)oldRet.expr();
-        List<Stmt> statements = new ArrayList<Stmt>(stExpr.statements());
-        Expr res = stExpr.result();
-        Return newRet= nf.Return(oldRet.position(), stExpr.result());
-        statements.add(newRet);
-        return nf.Block(oldRet.position(), statements);
+    private Block sinkReturn(StmtExpr stexp, Position pos) {
+        Block b = nf.Block(pos, stexp.statements());
+        if (!((X10Ext)stexp.ext()).annotations().isEmpty()) {
+            b = (Block)((X10Ext)b.ext()).annotations(((X10Ext)stexp.ext()).annotations());
+        }
+        Expr res = stexp.result();
+        Stmt ret;
+        if (res instanceof StmtExpr) {
+            ret = clean(flattenBlock(sinkReturn((StmtExpr)res, pos)));
+        } else {
+            ret = nf.Return(pos, res);
+        }
+        
+        b = b.append(ret);
+        
+        return b;
     }
     
     
