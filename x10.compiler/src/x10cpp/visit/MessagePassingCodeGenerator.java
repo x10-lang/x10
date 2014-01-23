@@ -2028,10 +2028,11 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 
 	public void visit(Branch_c br) {
 		if (br.labelNode() != null) {
+		    String cname = Emitter.mangled_non_method_name(br.labelNode().id().toString());
 			if (br.kind() == Branch_c.CONTINUE)
-				sw.write("goto " + br.labelNode().id() + "_next_");
+				sw.write("goto " + cname + "_next_");
 			else
-				sw.write("goto " + br.labelNode().id() + "_end_");
+				sw.write("goto " + cname + "_end_");
 		} else
 			sw.write(br.kind().toString());
 		sw.write(";");
@@ -2039,8 +2040,9 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 
 
 	private void printLabel(String label, CodeWriter w) {
-	    w.write("goto " + label + "; ");
-	    w.write(label + ":");
+	    String cname = Emitter.mangled_non_method_name(label);
+	    w.write("goto " + cname + "; ");
+	    w.write(cname + ":");
 	}
 
 	public void visit(Labeled_c label) {
