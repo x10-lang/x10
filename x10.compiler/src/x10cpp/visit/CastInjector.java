@@ -52,7 +52,7 @@ import x10.types.X10FieldInstance;
 import x10.types.checker.Converter;
 import x10.util.AltSynthesizer;
 import x10.util.Synthesizer;
-import x10.visit.Desugarer.ClosureCaptureVisitor;
+import x10.visit.ClosureCaptureVisitor;
 
 /**
  * A pass to run right before final C++ codegeneration

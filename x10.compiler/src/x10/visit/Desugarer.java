@@ -60,7 +60,6 @@ import polyglot.types.TypeSystem;
 import polyglot.types.Types;
 import polyglot.types.UnknownType;
 import polyglot.types.VarDef;
-import polyglot.types.VarInstance;
 import polyglot.types.QName;
 import polyglot.types.ProcedureInstance;
 import polyglot.types.ProcedureDef;
@@ -85,7 +84,6 @@ import x10.ast.X10Binary_c;
 import x10.ast.X10Call;
 import x10.ast.X10CanonicalTypeNode;
 import x10.ast.X10Cast;
-import x10.ast.X10Field_c;
 import x10.ast.X10Instanceof;
 import x10.ast.X10Local_c;
 import x10.ast.X10Special;
@@ -93,10 +91,7 @@ import x10.ast.X10Unary_c;
 import x10.ast.X10ClassDecl_c;
 import x10.constraint.XFailure;
 import x10.constraint.XVar;
-import x10.types.EnvironmentCapture;
-import x10.types.ThisDef;
 import x10.types.X10ConstructorInstance;
-import x10.types.X10MemberDef;
 import x10.types.MethodInstance;
 import x10.types.TypeParamSubst;
 import x10.types.ReinstantiatedMethodInstance;
@@ -312,45 +307,6 @@ public class Desugarer extends ContextVisitor {
         }
     }
 
-    private static Closure closure(Position pos, Type retType, List<Formal> parms, Block body, ContextVisitor v) {
-        Synthesizer synth = new Synthesizer(v.nodeFactory(), v.typeSystem());
-        return synth.makeClosure(pos, retType, parms, body, v.context());
-    }
-
-    public static class ClosureCaptureVisitor extends NodeVisitor {
-        private final Context context;
-        private final EnvironmentCapture cd;
-        public ClosureCaptureVisitor(Context context, EnvironmentCapture cd) {
-            this.context = context;
-            this.cd = cd;
-            this.cd.setCapturedEnvironment(new ArrayList<VarInstance<?>>());
-        }
-        @Override
-        public Node leave(Node old, Node n, NodeVisitor v) {
-            if (n instanceof Local) {
-                LocalInstance li = ((Local) n).localInstance();
-                VarInstance<?> o = context.findVariableSilent(li.name());
-                if (li == o || (o != null && li.def() == o.def())) {
-                    cd.addCapturedVariable(li);
-                }
-            } else if (n instanceof Field) {
-                Field f = (Field) n;
-                if (X10Field_c.isFieldOfThis(f)) {
-                    cd.addCapturedVariable(f.fieldInstance());
-                }
-            } else if (n instanceof X10Special) {
-                X10MemberDef code = (X10MemberDef) context.currentCode();
-                ThisDef thisDef = code.thisDef();
-                if (null == thisDef) {
-                    throw new InternalCompilerError(n.position(), "ClosureCaptureVisitor.leave: thisDef is null for containing code " +code);
-                }
-                assert (thisDef != null);
-                cd.addCapturedVariable(thisDef.asInstance());
-            }
-            return n;
-        }
-    }
-
     private Expr visitAssign(Assign n) {
         if (n instanceof SettableAssign)
             return visitSettableAssign((SettableAssign) n);
@@ -518,10 +474,10 @@ public class Desugarer extends ContextVisitor {
         final Context blockContext = context.pushBlock();
 
         /*
-         * For a call r.m(e1,..,en), where r:T,e1:T1,..,en:Tn and U{c0}.m(f1:U1{c1},..,fn:Un{cn}):R,
+         * For a call r.m(e1,..,en), where r:T,e1:T1,..,en:Tn and U.m(f1:U1,..,fn:Un){g}:R,
          * we are going to be creating the following statement expression:
          * ({ val x$0=r as U;val x$1=e1 as U1;..;val x$n=en as Un;
-         *    if (!(c0&&c1&&..cn)) throw CCE();
+         *    if(!g[r/this;x1/f1;..;xn/fn])throw new FDCE();
          *    x$0.m(f1,..,fn) })
          */
         List<Stmt> statements = new ArrayList<Stmt>();

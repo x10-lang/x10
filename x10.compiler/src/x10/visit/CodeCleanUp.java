@@ -113,6 +113,7 @@ public class CodeCleanUp extends ContextVisitor {
             return nf.Empty(n.position());
         }
         
+        // FIXME: recur...
         if (n instanceof StmtExpr) {
             StmtExpr ste = (StmtExpr)n;
             if (ste.statements().isEmpty()) {
@@ -161,9 +162,11 @@ public class CodeCleanUp extends ContextVisitor {
     }
 
     //Return(StmtExpr(Block(S), e)) ==> Block(S, return e)
+    // FIXME: DAVE: This needs to be made recursive.
     private Block sinkReturn(Return oldRet) {
         StmtExpr stExpr = (StmtExpr)oldRet.expr();
         List<Stmt> statements = new ArrayList<Stmt>(stExpr.statements());
+        Expr res = stExpr.result();
         Return newRet= nf.Return(oldRet.position(), stExpr.result());
         statements.add(newRet);
         return nf.Block(oldRet.position(), statements);
