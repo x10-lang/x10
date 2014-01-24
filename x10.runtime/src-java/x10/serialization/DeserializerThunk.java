@@ -157,7 +157,6 @@ abstract class DeserializerThunk {
 
         Class<?>[] interfaces = clazz.getInterfaces();
         boolean isCustomSerializable = false;
-        boolean isHadoopSerializable = !Runtime.DISABLE_HADOOP_SERIALIZATION && Runtime.implementsHadoopWritable(clazz);
         boolean isX10JavaSerializable = SerializationUtils.useX10SerializationProtocol(clazz);
         for (Class<?> aInterface : interfaces) {
             if ("x10.io.CustomSerialization".equals(aInterface.getName())) {
@@ -170,10 +169,6 @@ abstract class DeserializerThunk {
             return new CustomDeserializerThunk(clazz);
         }
 
-        if (isHadoopSerializable) {
-            return new HadoopDeserializerThunk(clazz);
-        }
-        
         if (isX10JavaSerializable) {
             return new X10JavaSerializableDeserializerThunk(clazz);
         }
@@ -274,45 +269,6 @@ abstract class DeserializerThunk {
             }
             return obj;
         }
-    }
-
-    private static class HadoopDeserializerThunk extends DeserializerThunk {
-        private static final Class<?>[] EMPTY_ARRAY = new Class[]{};
-        
-        protected final Constructor<?> constructor;
-        protected final Method readMethod;
-
-        HadoopDeserializerThunk(Class<? extends Object> clazz) throws SecurityException, NoSuchMethodException {
-            super(null);
-            constructor = clazz.getDeclaredConstructor(EMPTY_ARRAY);
-            constructor.setAccessible(true);
-
-            readMethod = clazz.getMethod("readFields", java.io.DataInput.class);
-            readMethod.setAccessible(true);
-        }
-
-        @SuppressWarnings("unchecked")
-        @Override
-        <T> T deserializeObject(Class<?> clazz, X10JavaDeserializer jds) throws IOException, IllegalArgumentException, IllegalAccessException, InvocationTargetException, InstantiationException {
-            if (Runtime.TRACE_SER) {
-                Runtime.printTraceMessage("Calling hadoop deserializer with object of type " + clazz);
-            }
-
-            // Hadoop assumes that the default constructor will be used to create the instance.
-            // The default constructor will execute field initialization expressions.  
-            // So we have to mimic that behavior here.
-            T obj = (T)constructor.newInstance();
-            int i = jds.record_reference(obj);
-
-            return deserializeObject(clazz, obj, i, jds);
-        }
-
-        @Override
-        protected <T> T deserializeBody(Class<?> clazz, T obj, int i, X10JavaDeserializer jds) throws IllegalArgumentException, InstantiationException, IllegalAccessException, InvocationTargetException {
-            readMethod.invoke(obj, jds.in);
-            return obj;
-        }
-
     }
 
     private static class CustomDeserializerThunk extends DeserializerThunk {

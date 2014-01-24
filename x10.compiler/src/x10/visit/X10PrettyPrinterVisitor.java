@@ -660,55 +660,6 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
             w.newline();
             w.writeln("}");
             w.newline();
-        } else if (subtypeOfHadoopWritable(def)) {
-            w.write("public static ");
-            if (typeParameters.size() > 0) {
-                er.printTypeParams(n, context, typeParameters);
-                w.write(" ");
-            }
-            w.write(Emitter.X10_JAVA_SERIALIZABLE_CLASS + " " + Emitter.DESERIALIZE_BODY_METHOD + "(");
-            er.printType(def.asType(), PRINT_TYPE_PARAMS | BOX_PRIMITIVES);
-            w.write(" $_obj, " + Emitter.X10_JAVA_DESERIALIZER_CLASS + " $deserializer) throws java.io.IOException { ");
-            w.newline(4);
-            w.begin(0);
-            
-            if (!config.NO_TRACES && !config.OPTIMIZE) {
-                w.write("if (" + X10_RUNTIME_IMPL_JAVA_RUNTIME + ".TRACE_SER) { ");
-                w.write(X10_RUNTIME_IMPL_JAVA_RUNTIME + ".printTraceMessage(\"X10JavaSerializable for Hadoop Writable: " + Emitter.DESERIALIZE_BODY_METHOD + "() of \" + "  + mangledDefName + ".class + \" calling\"); ");
-                w.writeln("} ");
-            }
-            
-            //_deserialize_body method
-            w.writeln("$_obj.readFields($deserializer.getInpForHadoop());");
-            w.writeln("$deserializer.record_reference($_obj);");
-            w.write("return $_obj;");
-            w.end();
-            w.newline();
-            w.writeln("}");
-            w.newline();
-
-            // _deserializer method
-            w.write("public static " + Emitter.X10_JAVA_SERIALIZABLE_CLASS + " " + Emitter.DESERIALIZER_METHOD + "(" + Emitter.X10_JAVA_DESERIALIZER_CLASS + " $deserializer) throws java.io.IOException {");
-            w.newline(4);
-            w.begin(0);
-            w.write(mangledDefQName + " $_obj = (" + mangledDefQName + ") ");
-            w.writeln("new " + mangledDefQName + "();");
-            w.write("return " + Emitter.DESERIALIZE_BODY_METHOD + "($_obj, $deserializer);");
-            w.end();
-            w.newline();
-            w.writeln("}");
-            w.newline();
-            
-            // _serialize()
-            w.write("public void " + Emitter.SERIALIZE_METHOD + "(" + Emitter.X10_JAVA_SERIALIZER_CLASS + " $serializer) throws java.io.IOException {");
-            w.newline(4);
-            w.begin(0);
-            w.write("this.write($serializer.getOutForHadoop());");
-            w.end();
-            w.newline();
-            w.writeln("}");
-            w.newline();
-
         } else {
             if (!def.flags().isInterface()) {
                 // Prints out custom serialization/deserialization code, the implementation resembles closely what the C++ backend does\
@@ -1150,11 +1101,6 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
     private static final String UNSERIALIZABLE = "x10.io.Unserializable";
     private static boolean subtypeOfUnserializable(X10ClassDef def) {
         return subtypeOfInterface(def, UNSERIALIZABLE);
-    }
-
-    private static final String HADOOP_WRITABLE = "org.apache.hadoop.io.Writable";
-    private static boolean subtypeOfHadoopWritable(X10ClassDef def) {
-        return subtypeOfInterface(def, HADOOP_WRITABLE);
     }
 
     private static boolean subtypeOfInterface(X10ClassDef def, String interfaceName) {

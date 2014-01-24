@@ -208,11 +208,6 @@ public abstract class Runtime implements VoidFun_0_0 {
     public static final boolean TRACE_STATIC_INIT = Boolean.getBoolean("X10_TRACE_STATIC_INIT");
     
     /**
-     * Disable use of Hadoop serialization for classes that implement org.apache.hadoop.io.Writable
-     */
-    public static final boolean DISABLE_HADOOP_SERIALIZATION = Boolean.getBoolean("X10_DISABLE_HADOOP_SERIALIZATION");
-
-    /**
      * Emit detail serialization traces for java serialization. Using for debugging in preliminary stage
      */
     public static final boolean TRACE_SER_DETAIL = Boolean.getBoolean("x10.TRACE_SER_DETAIL");
@@ -341,22 +336,6 @@ public abstract class Runtime implements VoidFun_0_0 {
     		throw xe;
     	}
     }
-
-    private static Class<? extends Object> hadoopWritableClass = getHadoopClass();
-	private static Class<? extends Object> getHadoopClass() {
-		try {
-			return Class.forName("org.apache.hadoop.io.Writable");
-		} catch (ClassNotFoundException e) {
-			return null;
-		}    			
-	}
-	
-	public static boolean implementsHadoopWritable(Class<? extends Object> clazz) {
-		if(hadoopWritableClass == null) {
-			return false;
-		}
-		return hadoopWritableClass.isAssignableFrom(clazz);
-	}
 	
 	public static void runAt(int place, VoidFun_0_0 body, x10.lang.Runtime.Profile prof) {
 		try {

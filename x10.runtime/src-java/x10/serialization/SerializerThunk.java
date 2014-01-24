@@ -108,22 +108,11 @@ abstract class SerializerThunk {
 
         Class<?>[] interfaces = clazz.getInterfaces();
         boolean isCustomSerializable = false;
-        boolean isHadoopSerializable = !Runtime.DISABLE_HADOOP_SERIALIZATION && Runtime.implementsHadoopWritable(clazz);
         boolean isX10JavaSerializable = SerializationUtils.useX10SerializationProtocol(clazz);
         for (Class<?> aInterface : interfaces) {
             if ("x10.io.CustomSerialization".equals(aInterface.getName())) {
                 isCustomSerializable = true;
                 break;
-            }
-        }
-
-        // Error checking. We don't support classes that try to implement both Hadoop and X10 serialization protocols
-        if (isHadoopSerializable) {
-            if (isCustomSerializable) {
-                throw new RuntimeException("serializer: " + clazz + " implements both x10.io.CustomSerialization and org.apache.hadoop.io.Writable.");
-            }
-            if (isX10JavaSerializable) {
-                throw new RuntimeException("serializer: " + clazz + " implements both x10.serialization.X10JavaSerializable and org.apache.hadoop.io.Writable.");                
             }
         }
 
@@ -133,10 +122,6 @@ abstract class SerializerThunk {
         
         if (isX10JavaSerializable) {
             return new X10JavaSerializableSerializerThunk(clazz);
-        }
-
-        if (isHadoopSerializable) {
-            return new HadoopSerializerThunk(clazz);
         }
 
         // A vanilla Java class that doesn't implement a special protocol.
@@ -229,23 +214,6 @@ abstract class SerializerThunk {
                     xjs.write(field.get(obj));
                 }
             }
-        }
-    }
-    
-    private static class HadoopSerializerThunk extends SerializerThunk {
-        protected final Method writeMethod;
-
-        HadoopSerializerThunk(Class<? extends Object> clazz) throws SecurityException, NoSuchMethodException {
-            super(null);
-            writeMethod = clazz.getMethod("write", java.io.DataOutput.class);
-            writeMethod.setAccessible(true);
-        }
-
-        <T> void serializeBody(T obj, Class<? extends Object> clazz, X10JavaSerializer xjs) throws IllegalArgumentException, IllegalAccessException, InvocationTargetException {
-            if (Runtime.TRACE_SER) {
-                Runtime.printTraceMessage("\tInvoking "+writeMethod);
-            }
-            writeMethod.invoke(obj, xjs.out);
         }
     }
     

@@ -89,10 +89,6 @@ public final class X10JavaDeserializer implements SerializationConstants {
         }
     }
     
-    public DataInput getInpForHadoop() {
-        return in;
-    }
-    
     public int record_reference(Object obj) {
         if (Runtime.TRACE_SER) {
             String className = obj == null ? "null" : obj.getClass().getName();
