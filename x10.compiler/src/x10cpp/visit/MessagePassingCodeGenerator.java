@@ -3694,7 +3694,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
         inc.end(); inc.newline();
         inc.write("}"); inc.newline(); inc.forceNewline();
 
-        inc.write("template<class __T> static "+make_ref("__T")+" "+DESERIALIZE_METHOD+"("+DESERIALIZATION_BUFFER+" &buf) {");
+        inc.write("static x10::lang::Reference* "+DESERIALIZE_METHOD+"("+DESERIALIZATION_BUFFER+" &buf) {");
         inc.newline(4); inc.begin(0);
         inc.writeln(cnamet+"* storage = ::x10aux::alloc_z"+chevrons(cnamet)+"();");
         inc.writeln("buf.record_reference(storage);");
@@ -3748,10 +3748,8 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
             emitter.printTemplateSignature(freeTypeParams, defn_s);
         defn_s.write("const ::x10aux::serialization_id_t "+cnamet+"::"+SERIALIZATION_ID_FIELD+" = ");
         defn_s.newline(4);
-        String template = in_template_closure ? "template " : "";
         defn_s.write("::x10aux::DeserializationDispatcher::addDeserializer("+
-                  cnamet+"::"+template+DESERIALIZE_METHOD+
-                  chevrons("::x10::lang::Reference")+","+closure_kind_strs[kind]+");");
+                  cnamet+"::"+DESERIALIZE_METHOD+","+closure_kind_strs[kind]+");");
         defn_s.newline(); defn_s.forceNewline();
     }
 

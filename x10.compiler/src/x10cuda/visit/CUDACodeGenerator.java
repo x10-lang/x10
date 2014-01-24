@@ -487,16 +487,12 @@ public class CUDACodeGenerator extends MessagePassingCodeGenerator {
 			defn_s.write("const x10aux::serialization_id_t " + cnamet + "::"
 					+ SharedVarsMethods.SERIALIZATION_ID_FIELD + " = ");
 			defn_s.newline(4);
-			String template = in_template_closure ? "template " : "";
 			defn_s.write("x10aux::DeserializationDispatcher::addDeserializer("
-					+ cnamet + "::" + template
-					+ SharedVarsMethods.DESERIALIZE_METHOD
-					+ chevrons("x10::lang::Reference") + ", "+closure_kind_strs[kind]+", " + cnamet
-					+ "::" + template
-					+ SharedVarsMethods.DESERIALIZE_CUDA_METHOD + ", " + cnamet
-					+ "::" + template + SharedVarsMethods.POST_CUDA_METHOD
-					+ ", " + "\"" + hostClassName + "\", \"" + cnamet
-					+ "\");");
+					+ cnamet + "::"+ SharedVarsMethods.DESERIALIZE_METHOD+ ", "
+			        + closure_kind_strs[kind]+", "
+					+ cnamet + "::" + SharedVarsMethods.DESERIALIZE_CUDA_METHOD + ", "
+			        + cnamet + "::" + SharedVarsMethods.POST_CUDA_METHOD+ ", "
+					+ "\"" + hostClassName + "\", \"" + cnamet + "\");");
 			defn_s.newline();
 			defn_s.forceNewline();
 		} else {
@@ -570,7 +566,7 @@ public class CUDACodeGenerator extends MessagePassingCodeGenerator {
 			inc.newline(4);
 			inc.begin(0);
 
-			inc.write(make_ref(cnamet) + " __this = " + cnamet + "::" + DESERIALIZE_METHOD + "<" + cnamet + ">(__buf);");
+			inc.write(make_ref(cnamet) + " __this = reinterpret_cast"+chevrons(make_ref(cnamet)) +"("+ cnamet + "::" + DESERIALIZE_METHOD + "(__buf));");
 			inc.newline();
 
 			for (VarInstance<?> var : env) {

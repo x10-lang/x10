@@ -44,7 +44,7 @@ namespace x10aux {
     enum ClosureKind {
         CLOSURE_KIND_NOT_ASYNC,    // is not a closure, or is a closure that is not created in place of an async by the desugarer
         CLOSURE_KIND_SIMPLE_ASYNC, // is an async with just finish state
-        CLOSURE_KIND_GENERAL_ASYNC // is an async represented with generial XRX closure
+        CLOSURE_KIND_GENERAL_ASYNC // is an async represented with general XRX closure
     };
 
     class DeserializationDispatcher {
