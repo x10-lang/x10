@@ -2,6 +2,8 @@
 #ifndef MPI_API_H
 #define MPI_API_H
 
+#include <stdint.h>
+
 #ifdef jniport_h
 typedef long long blas_long;
 #else

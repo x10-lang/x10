@@ -31,7 +31,6 @@ struct BlockMatrix
 void summa_init();
 void assemble_matrix(struct BlockMatrix* bm, double* matdata);
 
-//void new_matrix(int m, int n, struct BlockMatrix* bm);
 struct BlockMatrix* new_matrix(int m, int n);
 struct BlockMatrix* new_matrix_rand(int m, int n);
 void  free_matrix(struct BlockMatrix* bm);
@@ -40,9 +39,7 @@ void  free_matrix(struct BlockMatrix* bm);
 void print_block(struct BlockMatrix* bm);
 void print_matrix_summa(struct BlockMatrix* bm);
 
-
 //=========================================
-
 void summa_mult_c(struct BlockMatrix* A, 
 				  struct BlockMatrix* B, int trans,
 				  struct BlockMatrix* C,
@@ -55,7 +52,7 @@ void summa_mult_c(struct BlockMatrix* A,
 void print_proc_info();
 void set_panel_size(int);
 void setup_grid_partition(int pid, int nr, int nc, int rowid, int colid);
-//
+
 void summa_mult_T(int* mat,   double* scal ,
 				  int* Arows, int* Acols, double* Adata, 
 				  int* Brows, double* Bdata,
