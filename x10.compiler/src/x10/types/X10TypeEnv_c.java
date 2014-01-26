@@ -103,6 +103,7 @@ public class X10TypeEnv_c extends TypeEnv_c implements X10TypeEnv {
      * it is an abstract class then any methods that it overrides are overridden 
      * correctly.
      */
+    @Override
     public void checkClassConformance(ClassType ct) throws SemanticException {
         if (ct.flags().isAbstract()) {
             // don't need to check interfaces of abstract classes
@@ -155,6 +156,11 @@ public class X10TypeEnv_c extends TypeEnv_c implements X10TypeEnv {
                     	if (mi.name().toString().equals("toString"))
                     		continue;
                     	if (mi.name().toString().equals("typeName"))
+                    		continue;
+
+                    	// workaround for XTENLANG-3348
+                    	boolean isManaged = ts.extensionInfo() instanceof x10c.ExtensionInfo;
+                    	if (isManaged && mi.name().toString().equals("compareTo") && rt.fullName().toString().equals("x10.lang.Comparable"))
                     		continue;
 
                     	if (!ct.flags().isAbstract()) {
