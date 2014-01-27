@@ -747,10 +747,6 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 		    Emitter.openNamespaces(h, pkgName);
 		    h.newline(0);
 		    h.forceNewline(0);
-		    if (def.fullName().toString().equals("x10.lang.Place")) {
-		        h.write("class Any; class String; // Forward reference are required in Place to prevent circularity");
-		        h.newline();
-		    }
 		}
 
         /*
