@@ -337,11 +337,11 @@ public class CUDAPatternMatcher extends ContextVisitor {
 						Expr init_expr = ld.init();
 						// TODO: primitive vals and shared vars
 						complainIfNot(init_expr instanceof X10New,
-								"val <var> = new Array[T](...)", init_expr);
+								"val <var> = new Rail[T](...)", init_expr);
 						X10New init_new = (X10New) init_expr;
 						Type instantiatedType = init_new.objectType().type();
 						complainIfNot(xts().isRail(instantiatedType),
-								"Initialisation expression to have Array[T] type.",
+								"Initialisation expression to have Rail[T] type.",
 								init_new);
 						TypeNode rail_type_arg_node = init_new.typeArguments().get(
 								0);
@@ -356,7 +356,7 @@ public class CUDAPatternMatcher extends ContextVisitor {
 									(Expr) setReachable(rail_init_closure), rail_type_arg_);
 						} else {
 							complainIfNot(init_new.arguments().size() == 1,
-									"val <var> = new Array[T](other_array)",
+									"val <var> = new Rail[T](other_array)",
 									init_new);
 							Expr src_array = init_new.arguments().get(0);
 							complainIfNot(
