@@ -25,7 +25,7 @@ public class MacOSX_CXXCommandBuilder extends CXXCommandBuilder {
         cxxCmd.add("-msse2");
         cxxCmd.add("-mfpmath=sse");
         cxxCmd.add("-Wno-unused-value");
-        cxxCmd.add("-Wno-logical-op-parentheses");
+//        cxxCmd.add("-Wno-logical-op-parentheses"); gcc does not like this flag
     }
 
     public void addPostArgs(ArrayList<String> cxxCmd) {
