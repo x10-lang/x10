@@ -44,6 +44,7 @@ import x10.compiler.NativeRep;
 @NativeRep("c++", "x10::lang::Rail< #T >*", "x10::lang::Rail< #T >", null)
 public final class Rail[T](
     @Native("c++", "(x10_long)(::x10aux::nullCheck(#this)->FMGL(size))")
+    @Native("cuda", "(#this).FMGL(size)")
     /** The number of elements in the Rail */
     size:Long
 ) implements Iterable[T],(Long)=>T {
