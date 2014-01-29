@@ -34,6 +34,7 @@ import x10.ast.PropertyDecl;
 import x10.types.X10ClassDef;
 import x10.types.X10ClassType;
 import polyglot.types.Context;
+import polyglot.util.Position;
 import x10.util.CollectionFactory;
 import x10.types.X10MethodDef;
 import x10.util.ClassifiedStream;
@@ -81,6 +82,8 @@ public class X10CPPContext_c extends Context {
     public List<PropertyDecl> classProperties() { return classProperties; }
     public List<ClassMember> pendingStaticDecls() { return pendingStaticDecls; }
 
+    public Position lastLine;
+    
     /**
      * For each new class reset the classProperties and pendingStaticDecls structures,
      * ready for fresh accumulation of data.
