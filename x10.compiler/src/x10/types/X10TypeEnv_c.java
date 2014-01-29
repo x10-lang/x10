@@ -53,6 +53,8 @@ import polyglot.types.TypeSystem_c.ConstructorMatcher;
 import polyglot.types.TypeSystem_c.TypeEquals;
 import polyglot.util.CodedErrorInfo;
 import polyglot.util.CollectionUtil; import x10.util.CollectionFactory;
+import polyglot.util.ErrorInfo;
+import polyglot.util.ErrorQueue;
 import polyglot.util.InternalCompilerError;
 import polyglot.util.TransformingList;
 import polyglot.util.Transformation;
@@ -160,8 +162,11 @@ public class X10TypeEnv_c extends TypeEnv_c implements X10TypeEnv {
 
                     	// workaround for XTENLANG-3348
                     	boolean isManaged = ts.extensionInfo() instanceof x10c.ExtensionInfo;
-                    	if (isManaged && mi.name().toString().equals("compareTo") && rt.fullName().toString().equals("x10.lang.Comparable"))
+                    	if (isManaged && mi.name().toString().equals("compareTo") && rt.fullName().toString().equals("x10.lang.Comparable")) {
+                    		ErrorQueue eq = ts.extensionInfo().compiler().errorQueue();
+                    		eq.enqueue(ErrorInfo.WARNING, ct.fullName()+" does not define "+mi.signature()+", which is declared in "+rt.fullName()+".  This is usually an error, but skipping this for Java interop.", ct.errorPosition());
                     		continue;
+                    	}
 
                     	if (!ct.flags().isAbstract()) {
                             SemanticException e = new SemanticException(ct.fullName()
