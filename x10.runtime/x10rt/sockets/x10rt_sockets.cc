@@ -15,9 +15,6 @@
  * an SSH daemon, and public/private keys configured so that there isn't any password prompt.
  * As long as you have SSH daemons, you shouldn't need any other system dependencies.
  *
- * The pgas_socket backend has its own buffers and it spawns threads to populate those buffers,
- * getting data out of the network as quickly as possible.  This implementation does not do this.
- * The network is read/written directly.
  **********************************************************************************************/
 
 #ifdef __CYGWIN__

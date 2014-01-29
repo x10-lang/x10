@@ -15,14 +15,14 @@ package x10cpp.postcompiler;
  * An enumeration describing the key properties
  * of the x10rt implementations supported by X10.
  * Primarily intended for use by X10DT to encapsulate
- * the mapping of human consumable 
+ * the mapping of human consumable names/information to property files.
  */
 public enum X10RT_Transports {
     SOCKETS("Sockets", "x10rt_sockets.properties", 
             "Connects places using TCP/IP sockets as the network transport. Uses ssh to connect spawn places on multiple hosts"),
     STANDALONE("Standalone", "x10rt_standalone.properties", "Connects places using shared memory.  Only supports a single host."),
     PAMI("PAMI", "x10rt_pami.properties", "Uses IBM PAMI as the network transport and IBM POE for process creation."),
-    BGP("Blue Gene/P", "x10rt_pgas_bgp.properties", "Uses the BlueGene DCMF network transport and process creation mechanisms.");
+    MPI("MPI", "x10rt_mpi.properties", "Uses MPI as the network transport and mpirun for process creation.");
     
     private final String displayName;
     private final String propFileName;

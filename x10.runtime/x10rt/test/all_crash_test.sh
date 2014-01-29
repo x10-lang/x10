@@ -9,10 +9,6 @@ for X10_NPLACES in 1 2 ; do
         ./x10rt_crash.standalone 2>&1
         echo -e "== Test exit code: $?\n"
 
-        echo "== Test: pgas_sockets X10_NPLACES=$X10_NPLACES CRASH_MODE=$CRASH_MODE"
-        launcher -t $X10_NPLACES ./x10rt_crash.pgas_sockets 2>&1
-        echo -e "== Test exit code: $?\n"
-
         echo "== Test: sockets with fork X10_NPLACES=$X10_NPLACES CRASH_MODE=$CRASH_MODE"
         ./x10rt_crash.sockets 2>&1
         echo -e "== Test exit code: $?\n"

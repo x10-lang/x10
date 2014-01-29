@@ -55,6 +55,7 @@ typedef void x10rt_completion_handler2 (x10rt_team, void *arg);
 // use 32 bits to maintain 4 byte alignment for PAMI
 typedef uint32_t x10rt_msg_type;
 #else
+// TODO: Remove?  We no longer support bgp or lapi
 // only need 16 bits; optimize message size & maintain compatibility with binary pgas libraries (bgp, lapi)
 typedef uint16_t x10rt_msg_type;
 #endif

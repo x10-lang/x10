@@ -45,28 +45,15 @@ $(target)_sock	: $(x10src) $(depend_src) $(gml_inc)
 		$(XC) -x10rt sockets $(GML_NAT_OPT) $(X10_FLAG) $< -o $@ \
 		-post '$(CPP) # $(POST_PATH) # $(POST_LIBS)'
 
-$(target)_lapi	: $(x10src) $(depend_src) $(gml_inc)
-		$(XC) -x10rt pgas_lapi $(GML_NAT_OPT) $(X10_FLAG) $< -o $@ \
-		-post '$(CPP) # $(POST_PATH) # $(POST_LIBS)'
-
 $(target)_pami	: $(x10src) $(depend_src) $(gml_inc)
 		$(XC) -x10rt pami $(GML_NAT_OPT) $(X10_FLAG) $< -o $@ \
 		-post '$(CPP) # $(POST_PATH) # $(POST_LIBS)'
 
-$(target)_bgp	: $(x10src) $(depend_src) $(gml_inc)
-		$(XC) -x10rt pgas_bgp $(GML_NAT_OPT) $(X10_FLAG) $< -o $@ \
-		-post '$(CPP) # $(POST_PATH) # $(POST_LIBS)'
-
-
 ###short-keys
 #Build in native for socket transport
 sock		: $(target)_sock
-#build in native for lapi transport
-lapi		: $(target)_lapi
 #build in native for pami transport
 pami		: $(target)_pami
-#build in native for pgas blue gene/P
-bgp		: $(target)_bgp
 
 ###
 all_sock	:
@@ -77,9 +64,6 @@ all_lapi	:
 
 all_pami	:
 			$(foreach src, $(target_list), $(MAKE) target=$(src) pami; )
-
-all_bgp		:
-			$(foreach src, $(target_list), $(MAKE) target=$(src) bgp; )
 
 ##--------
 ## clean
@@ -98,8 +82,6 @@ help	::
 	@echo " make all_lapi   : build all targets [ $(target_list) ] for native backend running on lapi transport";
 	@echo " make pami       : build default target $(target) for native backend running on pami transport";
 	@echo " make all_pami   : build all targets [ $(target_list) ] for native backend running on pami transport";
-	@echo " make bgp        : build default target $(target) for native backend running on BlueGene/P system";
-	@echo " make all_bgp    : build all targets [ $(target_list) ] for native backend running on BlueGene/P system";
 	@echo " make clean      : remove default built binary $(target)_sock $(target)_lapi";
 	@echo " make clean_all  : remove all builds for the list of targets";
 	@echo "";

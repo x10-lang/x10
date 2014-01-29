@@ -80,11 +80,7 @@
 #define PLACE_CHECK_BOOL true
 #endif
 
-#ifdef __bgp__
-#define DEFAULT_STATIC_THREADS true
-#else
 #define DEFAULT_STATIC_THREADS false
-#endif
 
 #define ENV_CONGRUENT_BASE "X10_CONGRUENT_BASE"
 #define ENV_CONGRUENT_SIZE "X10_CONGRUENT_SIZE"

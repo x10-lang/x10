@@ -10,9 +10,7 @@ optimize=""
 debug=""
 flatexprs=""
 
-if [ "$CROSS_COMPILE_BGP" = "true" ]; then
-    x10rt_impl="pgas_bgp"
-elif [ "$CROSS_COMPILE_BGQ" = "true" ]; then
+if [ "$CROSS_COMPILE_BGQ" = "true" ]; then
     x10rt_impl="pami"
 elif [ "$ENABLE_X10RT_PAMI" = "true" ]; then
     x10rt_impl="pami"
@@ -62,7 +60,7 @@ where [options] includes:
     -buildx10lib <dir>       generate property file in <dir>
     -config <conf>           read configuration <conf> from etc${FILE_SEP}<conf>.cfg
     -version                 print version info
-    -x10rt <impl>            select x10rt impl (sockets, standalone, pami, mpi, bgas_bgp)
+    -x10rt <impl>            select x10rt impl (sockets, standalone, pami, mpi)
     -t -time                 display execution time
     -v -verbose --verbose    print verbose debugging information
     -h -help --help          print this message

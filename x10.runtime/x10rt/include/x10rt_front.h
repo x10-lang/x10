@@ -107,8 +107,7 @@
  * x10rt_net.h which provides the links between hosts.  There are currently many implementations of
  * the core networking layer:  There is a standalone implementation that allows multiple places via
  * inter-process communication on a single host.  There is an MPI implementation that uses MPI for
- * communication between hosts.  There is also a proprietary implementation on top of the PGAS
- * library, which internally supports many HPC libraries and also has a sockets implementation.  All
+ * communication between hosts.  There is a sockets implementation that uses TCP/IP sockets. All
  * of these implement the symbols in x10rt_net.h so they cannot currently be used simultaneously.
  * However one can link against whichever implementation is preferred for inter-host communication.
  * Details on the available implementations of the Core Networking Layer can be found <a

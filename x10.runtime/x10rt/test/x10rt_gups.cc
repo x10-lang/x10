@@ -11,11 +11,6 @@
 #include <x10rt_net.h>
 #include <x10rt_logical.h>
 
-#ifdef X10RT_PANE_HACK
-#define TRANSPORT pane
-#include <pgasrt.h>
-#endif
-
 #ifdef _AIX
 #define PAGESIZE_4K  0x1000
 #define PAGESIZE_64K 0x10000
@@ -354,9 +349,6 @@ static void recv_pong (const x10rt_msg_params *)
 }
 
 static void do_main (uint64_t logLocalTableSize, uint64_t numUpdates) {
-    #ifdef X10RT_PANE_HACK
-    __pgasrt_tsp_barrier();
-    #endif
     uint64_t mask = (1<<logLocalTableSize)-1;
     uint64_t local_updates = numUpdates / x10rt_nhosts();
 
@@ -378,10 +370,6 @@ static void do_main (uint64_t logLocalTableSize, uint64_t numUpdates) {
         }
     }
     // HOT LOOP ENDS
-
-    #ifdef X10RT_PANE_HACK
-    __pgasrt_tsp_barrier();
-    #endif
 
     decrement(0);
 }

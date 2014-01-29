@@ -43,12 +43,10 @@
     <property name="x10.tests.location" location="${x10.home}/x10.tests"/>
     <property name="x10.doc.location" location="${x10.home}/x10.doc"/>
     <property name="bash.exe" value="bash"/>
-    <property name="CROSS_COMPILE_BGP" value="false" />
     <property name="CROSS_COMPILE_BGQ" value="false" />
     <property name="CROSS_COMPILE_FX10" value="false" />
     <property name="X10RT_MPI" value="false" />
     <property name="X10RT_PAMI" value="false" />
-    <property name="X10RT_PGAS" value="true" />
     <property name="X10RT_CUDA" value="false" />
     <path id="project.classpath"/>
     <!-- get the environment variables -->
@@ -598,7 +596,6 @@ WALA4_JAR='${wala4.jar}'
 MATH_JAR='${math.jar}'
 LOG_JAR='${log.jar}'
 LOGGING_PROPERTIES='${logging.properties}'
-CROSS_COMPILE_BGP='${CROSS_COMPILE_BGP}'
 CROSS_COMPILE_BGQ='${CROSS_COMPILE_BGQ}'
 CROSS_COMPILE_FX10='${CROSS_COMPILE_FX10}'
 ENABLE_X10RT_PAMI='${X10RT_PAMI}'
