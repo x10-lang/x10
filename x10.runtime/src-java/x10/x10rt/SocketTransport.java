@@ -126,7 +126,7 @@ public class SocketTransport {
 		}
 		catch (NumberFormatException e){} // not set.		
 		
-		if (DEBUG) System.out.println("Socket library initialized");
+		if (DEBUG) System.err.println("Socket library initialized");
 	}
 	
 	public String getLocalConnectionInfo() {
@@ -169,6 +169,7 @@ public class SocketTransport {
 	}
 	
     public int establishLinks(int myPlaceId, String[] connectionStrings, boolean remoteStart) {
+    	if (DEBUG) System.err.println("Place "+myPlaceId+" establishing links.  id="+this.myPlaceId+" np="+this.nplaces);
     	if (this.myPlaceId != 0 || this.nplaces != 1) // make we are in the right state to establish links
     		return RETURNCODE.X10RT_ERR_INVALID.ordinal();
     		
@@ -239,7 +240,7 @@ public class SocketTransport {
     }
     
     public int shutdown() {
-    	if (DEBUG) System.out.println("shutting down");
+    	if (DEBUG) System.err.println("shutting down");
     	bufferedWrites = false;
    		try {
    			if (localListenSocket != null)
@@ -328,7 +329,7 @@ public class SocketTransport {
 					if (to == myPlaceId) {
 						remote = controlMsg.getInt();
 						if (remote < channels.length) {
-							if (DEBUG) System.out.println("Incoming HELLO message to "+to+" from "+remote);
+							if (DEBUG) System.err.println("Incoming HELLO message to "+to+" from "+remote);
 							controlMsg.clear();
 							controlMsg.putInt(CTRL_MSG_TYPE.HELLO.ordinal());
 							controlMsg.putInt(remote);
@@ -340,21 +341,21 @@ public class SocketTransport {
 							sc.configureBlocking(false);
 							if (socketTimeout != -1) sc.socket().setSoTimeout(socketTimeout);
 							sc.register(selector, SelectionKey.OP_READ);
-							if (DEBUG) System.out.println("Place "+myPlaceId+" accepted a connection from place "+remote);
+							if (DEBUG) System.err.println("Place "+myPlaceId+" accepted a connection from place "+remote);
 						}
 						else {
 							remote = -1;
-							if (DEBUG) System.out.println("Incoming HELLO message from "+remote+" dropped because "+remote+" is an unknown place ID");
+							if (DEBUG) System.err.println("Incoming HELLO message from "+remote+" dropped because "+remote+" is an unknown place ID");
 						}
 					}
 					else if (DEBUG) 
-						System.out.println("Incoming HELLO message to place "+to+" ignored, because my place is ."+myPlaceId);
+						System.err.println("Incoming HELLO message to place "+to+" ignored, because my place is ."+myPlaceId);
 				}
 				else if (CTRL_MSG_TYPE.CONFIGURE.ordinal() == msgtype) {
 					int mynewid = controlMsg.getInt();
 					if (onlyProcessAccept) {
 						remote = controlMsg.getInt();
-						if (DEBUG) System.out.println("Incoming CONFIGURE message to "+mynewid+" from "+remote);
+						if (DEBUG) System.err.println("Incoming CONFIGURE message to "+mynewid+" from "+remote);
 						// read in the list of host:port,host:port,host:port etc for all places
 						int datalen = controlMsg.getInt();
 						byte[] chars = new byte[datalen];
@@ -363,7 +364,7 @@ public class SocketTransport {
 		    			String allPlaces = new String(chars, Charset.forName("UTF-8"));
 		    			String[] places = allPlaces.split(",");
 		    			controlMsg.clear();						
-		    			if (DEBUG) System.out.println("Recieved place list: "+allPlaces);
+		    			if (DEBUG) System.err.println("Recieved place list: "+allPlaces);
 		    			
 						controlMsg.putInt(CTRL_MSG_TYPE.HELLO.ordinal());
 						controlMsg.putInt(remote);
@@ -405,10 +406,10 @@ public class SocketTransport {
 						x10.runtime.impl.java.Runtime.MAX_PLACES = this.nplaces;
 				        X10RT.state = State.RUNNING;
 						
-						if (DEBUG) System.out.println("X10RT reconfigured as place "+myPlaceId+" of "+nplaces+" places");
+						if (DEBUG) System.err.println("X10RT reconfigured as place "+myPlaceId+" of "+nplaces+" places");
 					}
 					else if (DEBUG) 
-						System.out.println("Recieved a CONFIGURE message, but we're already configured.  Ignored.");
+						System.err.println("Recieved a CONFIGURE message, but we're already configured.  Ignored.");
 				}
 				if (remote == -1) {
 					controlMsg.clear();
@@ -426,7 +427,7 @@ public class SocketTransport {
 					flushBufferedBytes(key, place.intValue());
 			}
 			if (key.isReadable()) {
-				if (DEBUG) System.out.println("Place "+myPlaceId+" detected incoming message");
+				if (DEBUG) System.err.println("Place "+myPlaceId+" detected incoming message");
 				SocketChannel sc = (SocketChannel) key.channel();
 				ByteBuffer controlData = ByteBuffer.allocateDirect(12);
 				ByteBuffer bb = null;
@@ -457,8 +458,8 @@ public class SocketTransport {
 						else
 							System.err.println("Unknown message callback type: "+callbackId);
 						
-						//if (DEBUG) System.out.println("Place "+myPlaceId+" finished processing message type "+callbackId+" and size "+datalen);
-						if (DEBUG) System.out.println("done");
+						//if (DEBUG) System.err.println("Place "+myPlaceId+" finished processing message type "+callbackId+" and size "+datalen);
+						if (DEBUG) System.err.println("done");
 					}
 					else 
 						System.err.println("Unknown message type: "+msgType);
@@ -468,7 +469,7 @@ public class SocketTransport {
 					for (int i=0; i<channels.length; i++) {
 						try {
 							if (channels[i] != null && sc.equals(channels[i].sc)) {
-								if (DEBUG) System.out.println("Place "+myPlaceId+" discovered link to place "+i+" is broken in probe");
+								if (DEBUG) System.err.println("Place "+myPlaceId+" discovered link to place "+i+" is broken in probe");
 								channels[i].sc = null;
 								channels[i].pendingWrites = null;
 								break;
@@ -484,7 +485,7 @@ public class SocketTransport {
 				return true;
 			}
 			else if (DEBUG)
-				System.out.println("Unhandled key type in probe: "+ key);
+				System.err.println("Unhandled key type in probe: "+ key);
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -539,14 +540,14 @@ public class SocketTransport {
 		    	if (bytes != null)
 		    		for (int i=0; i<bytes.length; i++)
 		    			writeBytes(place, bytes[i]);
-				if (DEBUG) System.out.println("Sent");
+				if (DEBUG) System.err.println("Sent");
 	    	} 
 	    	finally {
 	    		channels[place].writeLock.unlock();
 	    	}
     	}
     	catch (IOException e) {
-    		if (DEBUG) System.out.println("Place "+myPlaceId+" discovered link to place "+place+" is broken in send");
+    		if (DEBUG) System.err.println("Place "+myPlaceId+" discovered link to place "+place+" is broken in send");
     		try {channels[place].sc.close();}
     		catch (Exception e2){}
     		channels[place].sc = null;
@@ -596,7 +597,7 @@ public class SocketTransport {
     			ByteBuffer bb = ByteBuffer.wrap(chars);
     			while (!readNBytes(channels[myPlaceId].sc, bb, strlen)){}
     			connectionInfo = new String(chars);
-    			if (DEBUG) System.out.println("Place "+myPlaceId+" lookup of place "+remotePlace+" returned \""+connectionInfo+"\" (len="+strlen+")");
+    			if (DEBUG) System.err.println("Place "+myPlaceId+" lookup of place "+remotePlace+" returned \""+connectionInfo+"\" (len="+strlen+")");
     		}
     		String[] split = connectionInfo.split(":");
     		hostname = split[0];
@@ -643,7 +644,7 @@ public class SocketTransport {
 			channels[myPlaceId] = new CommunicationLink(sc);
 			sc.configureBlocking(false);
 			sc.register(selector, SelectionKey.OP_READ);
-			if (DEBUG) System.out.println("Place "+myPlaceId+" established a link to local launcher, sent local port="+myPort);
+			if (DEBUG) System.err.println("Place "+myPlaceId+" established a link to local launcher, sent local port="+myPort);
 		}
 		else {
 			if (null == allPlaces)
@@ -664,7 +665,7 @@ public class SocketTransport {
 				sc.configureBlocking(false);
 				if (socketTimeout != -1) sc.socket().setSoTimeout(socketTimeout);
 				sc.register(selector, SelectionKey.OP_READ);
-				if (DEBUG) System.out.println("Place "+myPlaceId+" established a link to place "+remotePlace+" and sent place info");
+				if (DEBUG) System.err.println("Place "+myPlaceId+" established a link to place "+remotePlace+" and sent place info");
 			}
 			else
 				System.err.println("Bad response to HELLO");
@@ -720,7 +721,7 @@ public class SocketTransport {
     				channels[placeid].pendingWrites = new LinkedList<ByteBuffer>();
     				channels[placeid].pendingWrites.addLast(data);
     				channels[placeid].sc.register(selector, (SelectionKey.OP_WRITE | SelectionKey.OP_READ), placeid);
-    				if (DEBUG) System.out.println("Stashed "+data.remaining()+" bytes in the buffer for place "+placeid);
+    				if (DEBUG) System.err.println("Stashed "+data.remaining()+" bytes in the buffer for place "+placeid);
     			}
     		}
     	}
@@ -728,7 +729,7 @@ public class SocketTransport {
     
     // returns true if at least some data was sent out
     private boolean flushBufferedBytes(SelectionKey key, int placeid) {
-    	if (DEBUG) System.out.println("Flush called for place "+placeid);
+    	if (DEBUG) System.err.println("Flush called for place "+placeid);
     	
     	if (channels[placeid] != null && channels[placeid].writeLock.tryLock()) {
     		try {
@@ -742,7 +743,7 @@ public class SocketTransport {
 	        			do { bytesWrittenThisRound=channels[placeid].sc.write(data);
 	        			} while (bytesWrittenThisRound > 0 && data.hasRemaining());
 	        			
-	        			//if (DEBUG) System.out.println("Flushed "+(startRemain-data.remaining())+" bytes in the buffer to place "+placeid);
+	        			//if (DEBUG) System.err.println("Flushed "+(startRemain-data.remaining())+" bytes in the buffer to place "+placeid);
 	        			
 	        			if (!data.hasRemaining()) // all data was written out
 	        				channels[placeid].pendingWrites.removeFirst();
@@ -750,7 +751,7 @@ public class SocketTransport {
 	        				return true; //(startRemain==data.remaining()); // data remains, but the channel is not accepting more
     				}
     				catch (IOException e) {
-    					if (DEBUG) System.out.println("Place "+myPlaceId+" discovered link to place "+placeid+" is broken in buffer flush");
+    					if (DEBUG) System.err.println("Place "+myPlaceId+" discovered link to place "+placeid+" is broken in buffer flush");
     		    		try {channels[placeid].sc.close();}
     		    		catch (Exception e2){}
     		    		channels[placeid].sc = null;

@@ -145,8 +145,9 @@ public class X10RT {
     		TeamSupport.initialize();
     	}
         if (errcode != 0) {
-            System.err.println("Failed to initialize X10RT.");
-            x10rt_finalize();
+            System.err.println("Failed to initialize X10RT. errorcode = "+errcode);
+            try { x10rt_finalize();
+            } catch (java.lang.UnsatisfiedLinkError e){}
             return false;
         }
         x10.runtime.impl.java.Runtime.MAX_PLACES = numPlaces;
