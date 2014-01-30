@@ -6,7 +6,7 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.io.PrintStream;
-import java.lang.ProcessBuilder.Redirect;
+//import java.lang.ProcessBuilder.Redirect;
 
 public class Launcher {
 	
@@ -14,6 +14,12 @@ public class Launcher {
 	 * @param args
 	 */
 	public static void main(String[] args) {
+		
+		if (args.length < 1) {
+			System.out.println("Example Usage: java -jar x10.jar YourClass");
+			return;
+		}
+		
 		// determine the number of places to launch
 		int numPlaces = 1;
 		try { numPlaces = Integer.parseInt(System.getenv(SocketTransport.X10_NPLACES));			
@@ -40,7 +46,7 @@ public class Launcher {
 		ProcessBuilder pb = new ProcessBuilder(newArgs);
 		pb.environment().remove("X10_NPLACES");
 		pb.environment().remove("X10_LAUNCHER_PLACE");
-		pb.redirectError(Redirect.INHERIT);
+		//pb.redirectError(Redirect.INHERIT);
 		for (int i=0; i<numPlaces; i++) {
 			try {
 				//System.err.println("Launcher: launching place "+i+" with: ");
@@ -181,7 +187,7 @@ public class Launcher {
 				for (int i=0; i<lessArgs.length; i++)
 					lessArgs[i] = args[i+1];
 				try {
-					Class.forName(args[0]).getMethod("main", String[].class).invoke(null, (Object) lessArgs);
+					Class.forName(args[0]+"$$Main").getMethod("main", String[].class).invoke(null, (Object) lessArgs);
 				} catch (Throwable e) {
 					e.printStackTrace();
 				}				
