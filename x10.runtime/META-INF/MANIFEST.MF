@@ -6,4 +6,5 @@ Bundle-Version: 2.4.1.qualifier
 Eclipse-AutoStart: true
 Bundle-Vendor: x10-users@lists.sourceforge.net
 Require-Bundle: x10.common
+Bundle-RequiredExecutionEnvironment: JavaSE-1.6
 
