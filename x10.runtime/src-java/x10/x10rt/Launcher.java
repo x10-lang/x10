@@ -22,7 +22,7 @@ public class Launcher {
 		
 		// determine the number of places to launch
 		int numPlaces = 1;
-		try { numPlaces = Integer.parseInt(System.getenv(SocketTransport.X10_NPLACES));			
+		try { numPlaces = Integer.parseInt(System.getenv(SocketTransport.X10_NPLACES));
 		} catch (NumberFormatException e) {} // run single place
 		
 		final InputStream[] inFrom = new InputStream[numPlaces];
@@ -50,9 +50,9 @@ public class Launcher {
 		for (int i=0; i<numPlaces; i++) {
 			try {
 				//System.err.println("Launcher: launching place "+i+" with: ");
-				for (int j=0; j<newArgs.length; j++)
-					System.err.print(newArgs[j]+" ");
-				//System.err.println();
+				//for (int j=0; j<newArgs.length; j++)
+				//	System.err.print(newArgs[j]+" ");
+				////System.err.println();
 				child[i] = pb.start();
 			    //child[i] = Runtime.getRuntime().exec(newArgs, null);
 			    inFrom[i] = child[i].getInputStream();
@@ -96,17 +96,24 @@ public class Launcher {
 				e.printStackTrace();
 			}
 		}
+
+		// since we can't use ProcessBuilder.redirectError(Redirect.INHERIT), we do this instead...
+		// TODO: there are better ways to do this.
+		for (int i=0; i<numPlaces; i++) {
+			Thread t = new Thread(new Piper(child[i].getErrorStream(), System.err));
+			t.setName("pipe stderr for place "+i);
+			t.start();
+		}
 		
 		// pipe stdin to place 0, stdout of all places to here
 		// TODO: there are better ways to do this.
-		
 		for (int i=1; i<numPlaces; i++) {
-			Thread t = new Thread(new Piper(inFrom[i]));
+			Thread t = new Thread(new Piper(inFrom[i], System.out));
 			t.setName("pipe stdout for place "+i);
 			t.start();
 		}
 		
-		Piper p0 = new Piper(inFrom[0]);
+		Piper p0 = new Piper(inFrom[0], System.out);
 		Thread.currentThread().setName("pipe stdout for place 0");
 		p0.run();
 		
@@ -115,8 +122,11 @@ public class Launcher {
 	
 	private static class Piper implements Runnable {
 		private BufferedReader reader;
-		Piper(InputStream in){
+		private PrintStream out;
+		
+		Piper(InputStream in, PrintStream out){
 			reader = new BufferedReader(new InputStreamReader(in), 10240);
+			this.out = out;
 		}
 		@Override
 		public void run() {
@@ -126,8 +136,8 @@ public class Launcher {
 					if (line == null)
 						break;
 					else {
-						System.out.println(line);
-						System.out.flush();
+						this.out.println(line);
+						this.out.flush();
 					}
 				}
 			} catch (IOException e) {}
