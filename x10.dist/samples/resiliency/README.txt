@@ -38,3 +38,11 @@ expected that anyone will try to run it.
 
 You need to kill place(s) manually to test the resiliency.  Note that 
 place 0 should not be killed in current implementation.
+
+Known limitations:
+- Currently, only "X10_RESILIENT_MODE=1" is supported.
+- Current implementation needs more internal threads to run.  If you
+  encounter a "TOO MANY THREADS" error, try to increase "X10_MAX_THREADS".
+- Both of native and managed X10 are supported, but only for sockets
+  (default) backend.
+- Clocked finish and workstealing are not supported yet.
