@@ -1,3 +1,16 @@
+/*
+ *  This file is part of the X10 project (http://x10-lang.org).
+ *
+ *  This file is licensed to You under the Eclipse Public License (EPL);
+ *  You may not use this file except in compliance with the License.
+ *  You may obtain a copy of the License at
+ *      http://www.opensource.org/licenses/eclipse-1.0.php
+ *
+ *  (C) Copyright IBM Corporation 2014.
+ *  
+ */
+
+
 package x10.x10rt;
 
 import java.io.BufferedReader;
@@ -6,7 +19,7 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.io.PrintStream;
-//import java.lang.ProcessBuilder.Redirect;
+//import java.lang.ProcessBuilder.Redirect;  // Java 7.  Sigh.
 
 public class Launcher {
 	
@@ -16,7 +29,7 @@ public class Launcher {
 	public static void main(String[] args) {
 		
 		if (args.length < 1) {
-			System.out.println("Example Usage: java -jar x10.jar YourClass");
+			System.out.println("Example Usage: java -cp .:../stdlib/x10.jar x10.x10rt.Launcher HelloWholeWorld hi");
 			return;
 		}
 		
