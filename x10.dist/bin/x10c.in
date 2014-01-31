@@ -95,8 +95,13 @@ WALA_JARS="${WALA_JARS}${PATH_SEP}${LIB_DIR}${FILE_SEP}org.eclipse.equinox.commo
 
 classpath="${CP_OVERRIDE}"
 if [[ "$DEXT" == "x10doc.ExtensionInfo" ]]; then
-   [ -z "$TOOLSJAR" ] && export TOOLSJAR="${JAVA_HOME}${FILE_SEP}lib${FILE_SEP}tools.jar"
-   classpath="${classpath}${LIB_DIR}${FILE_SEP}x10doc.jar${PATH_SEP}${TOOLSJAR}${PATH_SEP}"
+   if [[ "$UNAME" == Darwin* ]]; then 
+       # on Mac don't need to find & add tools.jar
+       classpath="${classpath}${LIB_DIR}${FILE_SEP}x10doc.jar${PATH_SEP}"
+    else
+       [ -z "$TOOLSJAR" ] && export TOOLSJAR="${JAVA_HOME}${FILE_SEP}lib${FILE_SEP}tools.jar"
+       classpath="${classpath}${LIB_DIR}${FILE_SEP}x10doc.jar${PATH_SEP}${TOOLSJAR}${PATH_SEP}"
+   fi
 fi
 
 classpath="${classpath}${LIB_DIR}${FILE_SEP}x10c.jar${PATH_SEP}${LIB_DIR}${FILE_SEP}${LPG_JAR}${PATH_SEP}${WALA_JARS}"
