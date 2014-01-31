@@ -118,19 +118,23 @@ public class Launcher {
 			t.start();
 		}
 		
-		// pipe stdin to place 0, stdout of all places to here
 		// TODO: there are better ways to do this.
-		for (int i=1; i<numPlaces; i++) {
+		for (int i=0; i<numPlaces; i++) {
 			Thread t = new Thread(new Piper(inFrom[i], System.out));
 			t.setName("pipe stdout for place "+i);
 			t.start();
 		}
 		
-		Piper p0 = new Piper(inFrom[0], System.out);
-		Thread.currentThread().setName("pipe stdout for place 0");
-		p0.run();
+		// TODO: send stdin to place 0
 		
-		// TODO: catch ctrl-c, send stdin to place 0
+		// places have exited.  Pass the exit code of place 0 on
+		while (true) {
+			try {
+				System.exit(child[0].waitFor());
+			} catch (InterruptedException e) {
+				Thread.yield();
+			}
+		}
 	}
 	
 	private static class Piper implements Runnable {
