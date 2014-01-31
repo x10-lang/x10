@@ -157,6 +157,8 @@ x10rt_error x10rt_probe (void)
 x10rt_error x10rt_blocking_probe (void)
 { return x10rt_lgl_blocking_probe(); }
 
+x10rt_error x10rt_unblock_probe (void)
+{ return x10rt_lgl_unblock_probe(); }
 
 void x10rt_finalize (void)
 { x10rt_lgl_finalize(); }

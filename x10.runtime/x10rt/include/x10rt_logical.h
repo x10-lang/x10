@@ -315,6 +315,9 @@ X10RT_C x10rt_error x10rt_lgl_probe (void);
  */
 X10RT_C x10rt_error x10rt_lgl_blocking_probe (void);
 
+/** Unblock anything stuck in blocking_probe  \see #x10rt_unblock_probe
+ */
+X10RT_C x10rt_error x10rt_lgl_unblock_probe (void);
 
 /** Clean up the logical layer.  Called by #x10rt_finalize.
  */

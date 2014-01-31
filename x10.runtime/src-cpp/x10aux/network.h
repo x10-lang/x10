@@ -70,6 +70,15 @@ namespace x10aux {
             abort();
         }
     }
+    inline void unblock_probe (void)
+	{
+		x10rt_error err = x10rt_unblock_probe();
+		if (err != X10RT_ERR_OK) {
+			if (x10rt_error_msg() != NULL)
+				fprintf(stderr, "X10RT fatal error: %s\n", x10rt_error_msg());
+			abort();
+		}
+	}
 
     extern const int cuda_cfgs[];
     void blocks_threads (place p, msg_type t, int shm, x10_ubyte &bs, x10_ubyte &ts, const int *cfgs=cuda_cfgs);

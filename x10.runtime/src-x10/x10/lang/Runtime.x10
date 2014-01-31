@@ -99,6 +99,10 @@ public final class Runtime {
     @Native("java", "x10.runtime.impl.java.Runtime.blockingProbe()")
     public static native def x10rtBlockingProbe():void;
 
+    @Native("c++", "::x10aux::unblock_probe()")
+    @Native("java", "x10.runtime.impl.java.Runtime.unblockProbe()")
+    public static native def x10rtUnblockProbe():void;
+    
     /**
      * Process one incoming active message if any (non-blocking).
      */

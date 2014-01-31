@@ -207,6 +207,22 @@ JNIEXPORT jint JNICALL Java_x10_x10rt_X10RT_x10rt_1blocking_1probe(JNIEnv *, jcl
     return X10RT_ERR_OK;
 }
 
+/*
+ * Class:     x10_x10rt_X10RT
+ * Method:    x10rt_unblock_probe
+ * Signature: ()I
+ */
+JNIEXPORT jint JNICALL Java_x10_x10rt_X10RT_x10rt_1unblock_1probe(JNIEnv *, jclass) {
+    x10rt_error err = x10rt_unblock_probe();
+    if (err != X10RT_ERR_OK) {
+        if (x10rt_error_msg() != NULL)
+            fprintf(stderr,"X10RT fatal error: %s\n", x10rt_error_msg());
+        if (ABORT_NEEDED && !x10rt_run_as_library()) abort();
+        return err;
+    }
+    return X10RT_ERR_OK;
+}
+
 
 /*
  * Following functions are optionally called by JVM to determine

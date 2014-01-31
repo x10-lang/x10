@@ -247,6 +247,11 @@ public class X10RT {
 
     /**
      * This is a blocking call.
+     * Blocking probe will not block if there is any live activity
+     * in the network or GPU.  Incoming network data, outging network
+     * data, or outstanding asynchronous kernels/DMA's in the GPU
+     * will cause blockingProbe() to act as probe.  If none of these 
+     * are true, then blockingProbe() will block on the network.
      */
     public static int blockingProbe() {
         assert isBooted();
@@ -260,13 +265,15 @@ public class X10RT {
     
     /**
      * Unblock a thread stuck in blockingProbe(), or, if none are currently blocked, 
-     * prevent the next call to blockingProbe() or probe() from blocking.
-     * ONLY WORKS WITH MANAGED X10
+     * prevent the next call to blockingProbe() from blocking.
+     * Safe to call at any time, or to call multiple times in a row.
      */
     public static void unblockProbe() {
         assert isBooted();
         if (javaSockets != null)
-        	javaSockets.wakeup();        
+        	javaSockets.wakeup();
+        else if (!forceSinglePlace)
+        	x10rt_unblock_probe();
     }
 
     /**
@@ -417,4 +424,6 @@ public class X10RT {
     private static native int x10rt_probe();
     
     private static native int x10rt_blocking_probe();
+    
+    private static native int x10rt_unblock_probe();
 }
