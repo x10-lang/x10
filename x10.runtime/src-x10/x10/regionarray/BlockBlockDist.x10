@@ -34,12 +34,12 @@ final class BlockBlockDist extends Dist {
     /**
      * The first axis along which the region is distributed
      */
-    private val axis0:long;
+    private val axis0:Long;
 
     /**
      * The second axis along which the region is distributed
      */
-    private val axis1:long;
+    private val axis1:Long;
 
     /**
      * Cached restricted region for the current place.
@@ -47,7 +47,7 @@ final class BlockBlockDist extends Dist {
     private transient var regionForHere:Region(this.rank);
 
 
-    public def this(r:Region, axis0:long, axis1:long, pg:PlaceGroup):BlockBlockDist{self.region==r} {
+    public def this(r:Region, axis0:Long, axis1:Long, pg:PlaceGroup):BlockBlockDist{self.region==r} {
         super(r);
         this.axis0 = axis0;
         this.axis1 = axis1;
@@ -70,17 +70,17 @@ final class BlockBlockDist extends Dist {
         val max1 = b.max(axis1);
         val size0 = (max0 - min0 + 1);
         val size1 = (max1 - min1 + 1);
-        val divisions0:long;
-        val P:long;
+        val divisions0:Long;
+        val P:Long;
         if (size0 > 1) {
             val size0Even = size0 % 2 == 0L ? size0 : size0-1;
             P = Math.min(pg.numPlaces() as Long, size0Even * size1);
-            divisions0 = Math.min(size0Even, Math.pow2(Math.ceil((Math.log(P as Double) / Math.log(2.0)) / 2.0) as long));
+            divisions0 = Math.min(size0Even, Math.pow2(Math.ceil((Math.log(P as Double) / Math.log(2.0)) / 2.0) as Long));
         } else {
            P = Math.min(pg.numPlaces(), size1);
            divisions0 = 1;
         }            
-        val divisions1 = Math.min(size1, Math.ceil((P as Double) / divisions0) as long);
+        val divisions1 = Math.min(size1, Math.ceil((P as Double) / divisions0) as Long);
         val leftOver = divisions0*divisions1 - P;
 
         val i = pg.indexOf(place);
@@ -91,17 +91,17 @@ final class BlockBlockDist extends Dist {
         val blockIndex0 = i < leftOver ? (i*2-leftOverOddOffset) % divisions0 : (i+leftOver) % divisions0;
         val blockIndex1 = i < leftOver ? (i*2) / divisions0 : (i+leftOver) / divisions0;
 
-        val low0 = min0 + Math.ceil(blockIndex0 * size0 / divisions0 as Double) as long;
+        val low0 = min0 + Math.ceil(blockIndex0 * size0 / divisions0 as Double) as Long;
         val blockHi0 = blockIndex0 + (i < leftOver ? 2L : 1L);
-        val hi0 = min0 + Math.ceil(blockHi0 * size0 / divisions0 as Double) as long - 1;
+        val hi0 = min0 + Math.ceil(blockHi0 * size0 / divisions0 as Double) as Long - 1;
 
-        val low1 = min1 + Math.ceil(blockIndex1 * size1 / divisions1 as Double) as long;
-        val hi1 = min1 + Math.ceil((blockIndex1+1) * size1 / divisions1 as Double) as long - 1;
+        val low1 = min1 + Math.ceil(blockIndex1 * size1 / divisions1 as Double) as Long;
+        val hi1 = min1 + Math.ceil((blockIndex1+1) * size1 / divisions1 as Double) as Long - 1;
 
         if (region instanceof RectRegion) {
             // Optimize common case.
-            val newMin = new Rail[long](rank, (i:long) => region.min(i as int));
-            val newMax = new Rail[long](rank, (i:long) => region.max(i as int));
+            val newMin = new Rail[Long](rank, (i:Long) => region.min(i as Int));
+            val newMax = new Rail[Long](rank, (i:Long) => region.max(i as Int));
             newMin(axis0) = low0;
             newMin(axis1) = low1;
             newMax(axis0) = hi0;
@@ -112,10 +112,10 @@ final class BlockBlockDist extends Dist {
             val beforeAxes = (axis1 > axis0) ? Region.makeFull(axis0) : Region.makeFull(axis1);
             val betweenAxes = (axis1 > axis0) ? Region.makeFull(axis1-axis0-1n) : Region.makeFull(axis0-axis1-1n);
             val afterAxes = (axis1 > axis0) ? Region.makeFull(region.rank-axis1-1n) : Region.makeFull(region.rank-axis0-1n);
-            var lowFirst:long;
-            val hiFirst:long;
-            val lowSecond:long;
-            val hiSecond:long;
+            var lowFirst:Long;
+            val hiFirst:Long;
+            val lowSecond:Long;
+            val hiSecond:Long;
             if (axis1 > axis0) {
                 lowFirst = low0;
                 lowSecond = low1;
@@ -140,7 +140,7 @@ final class BlockBlockDist extends Dist {
      * Assumption: Caller has done error checking to ensure that index is 
      *   actually within the bounds of the axis dimension.
      */
-    private def mapIndexToPlace(index0:long, index1:long) {
+    private def mapIndexToPlace(index0:Long, index1:Long) {
         val b = region.boundingBox();
         val min0 = b.min(axis0);
         val max0 = b.max(axis0);
@@ -148,17 +148,17 @@ final class BlockBlockDist extends Dist {
         val max1 = b.max(axis1);
         val size0 = (max0 - min0 + 1);
         val size1 = (max1 - min1 + 1);
-        val divisions0:long;
-        val P:long;
+        val divisions0:Long;
+        val P:Long;
         if (size0 > 1) {
             val size0Even = size0 % 2 == 0L ? size0 : size0-1;
             P = Math.min(pg.numPlaces() as Long, size0Even * size1);
-            divisions0 = Math.min(size0Even, Math.pow2(Math.ceil((Math.log(P as Double) / Math.log(2.0)) / 2.0) as long));
+            divisions0 = Math.min(size0Even, Math.pow2(Math.ceil((Math.log(P as Double) / Math.log(2.0)) / 2.0) as Long));
         } else {
            P = Math.min(pg.numPlaces(), size1);
            divisions0 = 1;
         }            
-        val divisions1 = Math.min(size1, Math.ceil((P as Double) / divisions0) as long);
+        val divisions1 = Math.min(size1, Math.ceil((P as Double) / divisions0) as Long);
         val numBlocks = divisions0 * divisions1;
         val leftOver = numBlocks - P;
 
@@ -175,10 +175,10 @@ final class BlockBlockDist extends Dist {
 
     public def places():PlaceGroup = pg;
 
-    public def numPlaces():long = pg.numPlaces();
+    public def numPlaces():Long = pg.numPlaces();
 
     public def regions():Iterable[Region(rank)] {
-        return new Rail[Region(rank)](pg.numPlaces(), (i:long)=>blockBlockRegionForPlace(pg(i as Int)));
+        return new Rail[Region(rank)](pg.numPlaces(), (i:Long)=>blockBlockRegionForPlace(pg(i as Int)));
     }
 
     public def get(p:Place):Region(rank) {
@@ -192,7 +192,7 @@ final class BlockBlockDist extends Dist {
         }
     }
 
-    public def containsLocally(p:Point):boolean = get(here).contains(p);
+    public def containsLocally(p:Point):Boolean = get(here).contains(p);
 
     // replicated from superclass to workaround xlC bug with using & itables
     public operator this(p:Place):Region(rank) = get(p);
@@ -202,17 +202,17 @@ final class BlockBlockDist extends Dist {
             return mapIndexToPlace(pt(axis0), pt(axis1));
     }
 
-    public operator this(i0:long){rank==1}:Place {
+    public operator this(i0:Long){rank==1}:Place {
         // block,block dist only supported for rank>=2
-        throw new UnsupportedOperationException("operator(i0:long)");
+        throw new UnsupportedOperationException("operator(i0:Long)");
     }
 
-    public operator this(i0:long, i1:long){rank==2}:Place {
+    public operator this(i0:Long, i1:Long){rank==2}:Place {
         if (CompilerFlags.checkBounds() && !region.contains(i0, i1)) raiseBoundsError(i0,i1);
         return axis0 == 0 ? mapIndexToPlace(i0,i1) : mapIndexToPlace(i1,i0);
     }
 
-    public operator this(i0:long, i1:long, i2:long){rank==3}:Place {
+    public operator this(i0:Long, i1:Long, i2:Long){rank==3}:Place {
         if (CompilerFlags.checkBounds() && !region.contains(i0, i1, i2)) raiseBoundsError(i0,i1,i2);
         if (axis0 == 0) {
             return axis1 == 1 ? mapIndexToPlace(i0,i1) : mapIndexToPlace(i0,i2);
@@ -223,13 +223,13 @@ final class BlockBlockDist extends Dist {
         }
     }
 
-    public operator this(i0:long, i1:long, i2:long, i3:long){rank==4}:Place {
+    public operator this(i0:Long, i1:Long, i2:Long, i3:Long){rank==4}:Place {
         val pt = Point.make(i0, i1, i2, i3);
         if (CompilerFlags.checkBounds() && !region.contains(pt)) raiseBoundsError(pt);
         return mapIndexToPlace(pt(axis0), pt(axis1));
     }
 
-    public def offset(pt:Point(rank)):long {
+    public def offset(pt:Point(rank)):Long {
         val r = get(here);
         val offset = r.indexOf(pt);
         if (offset == -1L) {
@@ -239,7 +239,7 @@ final class BlockBlockDist extends Dist {
         return offset;
     }
 
-    public def offset(i0:long){rank==1}:long {
+    public def offset(i0:Long){rank==1}:Long {
         val r = get(here);
         val offset = r.indexOf(i0);
         if (offset == -1L) {
@@ -249,7 +249,7 @@ final class BlockBlockDist extends Dist {
         return offset;
     }
 
-    public def offset(i0:long, i1:long){rank==2}:long {
+    public def offset(i0:Long, i1:Long){rank==2}:Long {
         val r = get(here);
 	    val offset = r.indexOf(i0,i1);
 	    if (offset == -1L) {
@@ -259,7 +259,7 @@ final class BlockBlockDist extends Dist {
         return offset;
     }
 
-    public def offset(i0:long, i1:long, i2:long){rank==3}:long {
+    public def offset(i0:Long, i1:Long, i2:Long){rank==3}:Long {
         val r = get(here);
 	    val offset = r.indexOf(i0,i1,i2);
 	    if (offset == -1L) {
@@ -269,7 +269,7 @@ final class BlockBlockDist extends Dist {
         return offset;
     }
 
-    public def offset(i0:long, i1:long, i2:long, i3:long){rank==4}:long {
+    public def offset(i0:Long, i1:Long, i2:Long, i3:Long){rank==4}:Long {
         val r = get(here);
 	    val offset = r.indexOf(i0,i1,i2,i3);
 	    if (offset == -1L) {
@@ -293,7 +293,7 @@ final class BlockBlockDist extends Dist {
     }
 
 
-    public def equals(thatObj:Any):boolean {
+    public def equals(thatObj:Any):Boolean {
         if (!(thatObj instanceof BlockBlockDist)) return false;
         val that = thatObj as BlockBlockDist;
         return this.axis0.equals(that.axis0) && this.axis1.equals(that.axis1) && this.region.equals(that.region);

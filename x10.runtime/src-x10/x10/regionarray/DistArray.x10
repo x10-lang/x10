@@ -62,7 +62,7 @@ public final class DistArray[T] (
     /**
      * The rank of this array.
      */
-    public property rank(): long = dist.rank;
+    public property rank():Long = dist.rank;
 
     protected static class LocalState[T](dist:Dist, data:Rail[T]{self!=null}) {
       public def this(d:Dist, c:Rail[T]{self!=null}) { 
@@ -227,7 +227,7 @@ public final class DistArray[T] (
      * 
      * @param pt the given point
      * @return the element of this array corresponding to the given point.
-     * @see #operator(long)
+     * @see #operator(Long)
      * @see #set(T, Point)
      */
     public final operator this(pt:Point(rank)): T {
@@ -245,9 +245,9 @@ public final class DistArray[T] (
      * @param i0 the given index in the first dimension
      * @return the element of this array corresponding to the given index.
      * @see #operator(Point)
-     * @see #set(T, long)
+     * @see #set(T, Long)
      */
-    public final operator this(i0:long){rank==1}: T {
+    public final operator this(i0:Long){rank==1}: T {
         val offset = dist.offset(i0);
         return raw(offset);
     }
@@ -263,9 +263,9 @@ public final class DistArray[T] (
      * @param i1 the given index in the second dimension
      * @return the element of this array corresponding to the given pair of indices.
      * @see #operator(Point)
-     * @see #set(T, long, long)
+     * @see #set(T, Long, Long)
      */
-    public final operator this(i0:long, i1:long){rank==2}: T {
+    public final operator this(i0:Long, i1:Long){rank==2}: T {
         val offset = dist.offset(i0, i1);
         return raw(offset);
     }
@@ -282,9 +282,9 @@ public final class DistArray[T] (
      * @param i2 the given index in the third dimension
      * @return the element of this array corresponding to the given triple of indices.
      * @see #operator(Point)
-     * @see #set(T, long, long, long)
+     * @see #set(T, Long, Long, Long)
      */
-    public final operator this(i0:long, i1:long, i2:long){rank==3}: T {
+    public final operator this(i0:Long, i1:Long, i2:Long){rank==3}: T {
         val offset = dist.offset(i0, i1, i2);
         return raw(offset);
     }
@@ -302,9 +302,9 @@ public final class DistArray[T] (
      * @param i3 the given index in the fourth dimension
      * @return the element of this array corresponding to the given quartet of indices.
      * @see #operator(Point)
-     * @see #set(T, long, long, long, long)
+     * @see #set(T, Long, Long, Long, Long)
      */
-    public final operator this(i0:long, i1:long, i2:long, i3:long){rank==4}: T {
+    public final operator this(i0:Long, i1:Long, i2:Long, i3:Long){rank==4}: T {
         val offset = dist.offset(i0, i1, i2, i3);
         return raw(offset);
     }
@@ -321,7 +321,7 @@ public final class DistArray[T] (
      * @param pt the given point
      * @return the new value of the element of this array corresponding to the given point.
      * @see #operator(Point)
-     * @see #set(T, long)
+     * @see #set(T, Long)
      */    
     public final operator this(pt: Point(rank))=(v: T): T {
         val offset = dist.offset(pt);
@@ -340,10 +340,10 @@ public final class DistArray[T] (
      * @param v the given value
      * @param i0 the given index in the first dimension
      * @return the new value of the element of this array corresponding to the given index.
-     * @see #operator(long)
+     * @see #operator(Long)
      * @see #set(T, Point)
      */    
-    public final operator this(i0:long)=(v: T){rank==1}: T {
+    public final operator this(i0:Long)=(v: T){rank==1}: T {
         val offset = dist.offset(i0);
         raw(offset) = v;
         return v;
@@ -361,10 +361,10 @@ public final class DistArray[T] (
      * @param i0 the given index in the first dimension
      * @param i1 the given index in the second dimension
      * @return the new value of the element of this array corresponding to the given pair of indices.
-     * @see #operator(long, long)
+     * @see #operator(Long, Long)
      * @see #set(T, Point)
      */
-    public final operator this(i0:long, i1:long)=(v: T){rank==2}: T {
+    public final operator this(i0:Long, i1:Long)=(v: T){rank==2}: T {
         val offset = dist.offset(i0, i1);
         raw(offset) = v;
         return v;
@@ -383,10 +383,10 @@ public final class DistArray[T] (
      * @param i1 the given index in the second dimension
      * @param i2 the given index in the third dimension
      * @return the new value of the element of this array corresponding to the given triple of indices.
-     * @see #operator(long, long, long)
+     * @see #operator(Long, Long, Long)
      * @see #set(T, Point)
      */
-    public final operator this(i0:long, i1:long, i2:long)=(v: T){rank==3}: T {
+    public final operator this(i0:Long, i1:Long, i2:Long)=(v: T){rank==3}: T {
         val offset = dist.offset(i0,i1,i2);
         raw(offset) = v;
         return v;
@@ -406,10 +406,10 @@ public final class DistArray[T] (
      * @param i2 the given index in the third dimension
      * @param i3 the given index in the fourth dimension
      * @return the new value of the element of this array corresponding to the given quartet of indices.
-     * @see #operator(long, long, long, long)
+     * @see #operator(Long, Long, Long, Long)
      * @see #set(T, Point)
      */
-    public final operator this(i0:long, i1:long, i2:long, i3:long)=(v: T){rank==4}: T {
+    public final operator this(i0:Long, i1:Long, i2:Long, i3:Long)=(v: T){rank==4}: T {
         val offset = dist.offset(i0,i1,i2,i3);
         raw(offset) = v;
         return v;
@@ -729,7 +729,7 @@ public final class DistArray[T] (
      */
     public def iterator(): Iterator[Point(rank)] = region.iterator() as Iterator[Point(rank)];
 }
-public type DistArray[T](r:long) = DistArray[T]{self.rank==r};
+public type DistArray[T](r:Long) = DistArray[T]{self.rank==r};
 public type DistArray[T](r:Region) = DistArray[T]{self.region==r};
 public type DistArray[T](d:Dist) = DistArray[T]{self.dist==d};
 public type DistArray[T](a:DistArray[T]) = DistArray[T]{self==a};

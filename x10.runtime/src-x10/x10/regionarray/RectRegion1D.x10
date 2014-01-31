@@ -20,14 +20,14 @@ import x10.compiler.CompilerFlags;
  * overhead and serialization cost of Array meta-data.
  */
 final class RectRegion1D extends Region{rect,rank==1} {
-    private val size:long;            /* Will be < 0 iff the true size of the region is not expressible as a long */
-    private val min:long;
-    private val max:long;
+    private val size:Long;            /* Will be < 0 iff the true size of the region is not expressible as a long */
+    private val min:Long;
+    private val max:Long;
 
     /**
      * Create a 1-dim region min..max.
      */
-    def this(minArg:long, maxArg:long):RectRegion1D{self.rank==1, self.rect} {
+    def this(minArg:Long, maxArg:Long):RectRegion1D{self.rank==1, self.rect} {
         super(1, true, minArg==0L);
 
        
@@ -47,7 +47,7 @@ final class RectRegion1D extends Region{rect,rank==1} {
      * statically that the zeroBased and rail properties are true for all regions
      * made via this constructor.
      */
-    def this(maxArg:long):RectRegion1D{self.rank==1, self.rect, self.rail, self.zeroBased} {
+    def this(maxArg:Long):RectRegion1D{self.rank==1, self.rect, self.rail, self.zeroBased} {
         super(1n);
 
         size = maxArg +1L;
@@ -55,21 +55,21 @@ final class RectRegion1D extends Region{rect,rank==1} {
         max = maxArg;
     }
 
-    public def size():long {
+    public def size():Long {
         if (size < 0) throw new UnboundedRegionException("size exceeds capacity of long");
         return size;
     }
 
-    public def isConvex():boolean = true;
+    public def isConvex():Boolean = true;
 
-    public def isEmpty():boolean = size == 0L;
+    public def isEmpty():Boolean = size == 0L;
 
-    public def indexOf(pt:Point):long {
+    public def indexOf(pt:Point):Long {
 	if (!contains(pt)) return -1L;
         return pt(0) - min;
     }
 
-    public def indexOf(i0:long):long {
+    public def indexOf(i0:Long):Long {
         if (zeroBased) {
 	    if (!containsInternal(i0)) return -1L;
             return i0;
@@ -79,19 +79,19 @@ final class RectRegion1D extends Region{rect,rank==1} {
         }
     }
 
-    public def indexOf(i0:long, i1:long):long = -1L;
+    public def indexOf(i0:Long, i1:Long):Long = -1L;
 
-    public def indexOf(i0:long, i1:long, i2:long):long = -1L;
+    public def indexOf(i0:Long, i1:Long, i2:Long):Long = -1L;
 
-    public def indexOf(i0:long, i1:long, i2:long, i3:long):long = -1L;
+    public def indexOf(i0:Long, i1:Long, i2:Long, i3:Long):Long = -1L;
 
 
-    public def min(i:long):long {
+    public def min(i:Long):Long {
         if (i != 0) throw new ArrayIndexOutOfBoundsException("min: "+i+" is not a valid rank for "+this);
         return min;
     }
 
-    public def max(i:long):long {
+    public def max(i:Long):Long {
         if (i != 0) throw new ArrayIndexOutOfBoundsException("max: "+i+" is not a valid rank for "+this);
         return max;
     }
@@ -105,20 +105,20 @@ final class RectRegion1D extends Region{rect,rank==1} {
 
     def toRectRegion() = new RectRegion(min, max);
     
-    public def min():(long)=>long = (i:long)=> min(i);
-    public def max():(long)=>long = (i:long)=> max(i);
+    public def min():(Long)=>Long = (i:Long)=> min(i);
+    public def max():(Long)=>Long = (i:Long)=> max(i);
 
-    public def contains(that:Region(rank)): boolean {
+    public def contains(that:Region(rank)): Boolean {
        return toRectRegion().contains(that);
     }
 
-    public def contains(p:Point):boolean {
+    public def contains(p:Point):Boolean {
         return toRectRegion().contains(p);
     }
 
-    public def contains(i0:long){rank==1}:boolean = containsInternal(i0);
+    public def contains(i0:Long){rank==1}:Boolean = containsInternal(i0);
 
-    private def containsInternal(i0:long):boolean {
+    private def containsInternal(i0:Long):Boolean {
         return i0>=min && i0<=max;
     }
 
@@ -139,19 +139,19 @@ final class RectRegion1D extends Region{rect,rank==1} {
         return new RectRegion1D(min+v(0), max+v(0));
     }
 
-    public def projection(axis:long):Region(1){self.rect} {
+    public def projection(axis:Long):Region(1){self.rect} {
         if (axis == 0) return this;
         throw new ArrayIndexOutOfBoundsException("projection: "+axis+" is not a valid rank for "+this);
     }
 
-    public def eliminate(axis:long):Region{self.rect} /*(rank-1)*/ {
+    public def eliminate(axis:Long):Region{self.rect} /*(rank-1)*/ {
         return toRectRegion().eliminate(axis);
     }    
 
     private static class RRIterator implements Iterator[Point(1)] {
-        val min:long;
-        val max:long;
-        var cur:long;
+        val min:Long;
+        val max:Long;
+        var cur:Long;
 
         def this(rr:RectRegion1D) {
             min = rr.min;

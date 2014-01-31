@@ -13,20 +13,20 @@ package x10.regionarray;
 
 final class VarRow extends Row {
 
-    private val row:Rail[int];
+    private val row:Rail[Int];
 
-    public def this(cols: Int, init: (Int)=>int) {
+    public def this(cols:Int, init:(Int)=>Int) {
         super(cols);
-        row = new Rail[int](cols, (i:long)=>init(i as int));
+        row = new Rail[Int](cols, (i:Long)=>init(i as Int));
     }
     
-    public def this(cols: Int) {
+    public def this(cols:Int) {
         super(cols);
-        row = new Rail[int](cols);
+        row = new Rail[Int](cols);
     }
     
-    def row():Rail[int] = row;
+    def row():Rail[Int] = row;
     public operator this(i:Int) = row()(i);
 
-    public operator this(i:Int)=(v:int) = (row()(i) = v);
+    public operator this(i:Int)=(v:Int) = (row()(i) = v);
 }

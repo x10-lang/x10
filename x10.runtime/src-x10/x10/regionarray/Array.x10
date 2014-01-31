@@ -61,28 +61,28 @@ public final class Array[T] (
         /**
          * The rank of this array.
          */
-        rank:long,//(region.rank), //{self==region.rank},
+        rank:Long,//(region.rank), //{self==region.rank},
         
         /**
          * Is this array defined over a rectangular region?  
          */
-        rect:boolean,//(region.rect), //{self==region.rect},
+        rect:Boolean,//(region.rect), //{self==region.rect},
         
         /**
          * Is this array's region zero-based?
          */
-        zeroBased:boolean,//(region.zeroBased), // {self==region.zeroBased},
+        zeroBased:Boolean,//(region.zeroBased), // {self==region.zeroBased},
         
         /**
          * Is this array's region a "rail" (one-dimensional, rect, and zero-based)?
          */
-        rail:boolean,//(region.rail), //{self==region.rail},
+        rail:Boolean,//(region.rail), //{self==region.rail},
         
         /**
          * The number of points/data values in the array.
          * Will always be equal to region.size(), but cached here to make it available as a property.
          */
-        size:long
+        size:Long
 ) {rank==region.rank,
 	   rect==region.rect,
 	   zeroBased==region.zeroBased,
@@ -137,7 +137,7 @@ public final class Array[T] (
      * 
      * @param reg The region over which to construct the array.
      */
-    private @Inline def this(zeroed:boolean, reg:Region) {T haszero}
+    private @Inline def this(zeroed:Boolean, reg:Region) {T haszero}
     {
     	property(reg as Region{self != null}, reg.rank, reg.rect, reg.zeroBased, reg.rail, reg.size());
     	val crh = new LayoutHelper(reg);
@@ -265,7 +265,7 @@ public final class Array[T] (
     /**
      * Construct Array over the region 0..(size-1) whose elements are zero-initialized.
      */
-    public @Inline def this(size:long) {T haszero}
+    public @Inline def this(size:Long) {T haszero}
     {
         val myReg = new RectRegion1D(size-1);
         property(myReg, 1, true, true, true, size);
@@ -279,7 +279,7 @@ public final class Array[T] (
     /*
      * Construct Array over the region 0..(size-1).
      */
-    private @Inline def this(zeroed:boolean, size:long) {T haszero}
+    private @Inline def this(zeroed:Boolean, size:Long) {T haszero}
     {
     	val myReg = new RectRegion1D(size-1);
     	property(myReg, 1, true, true, true, size);
@@ -309,7 +309,7 @@ public final class Array[T] (
      * @param reg The region over which to construct the array.
      * @param init The function to use to initialize the array.
      */    
-    public @Inline def this(size:long, init:(long)=>T)
+    public @Inline def this(size:Long, init:(Long)=>T)
     {
         val myReg = new RectRegion1D(size-1);
         property(myReg, 1, true, true, true, size);
@@ -330,7 +330,7 @@ public final class Array[T] (
      * @param reg The region over which to construct the array.
      * @param init The function to use to initialize the array.
      */    
-    public @Inline def this(size:long, init:T)
+    public @Inline def this(size:Long, init:T)
     {
         val myReg = new RectRegion1D(size-1);
         property(myReg, 1, true, true, true, size);
@@ -413,7 +413,7 @@ public final class Array[T] (
         if (rect) {
             return new Iterable[T]() {
     	        public def iterator() = new Iterator[T]() {
-    		    var cur:long = 0L;
+    		    var cur:Long = 0L;
     		    public def next() = Array.this.raw(cur++);
     		    public def hasNext() = cur < Array.this.raw.size;
     	        };
@@ -437,10 +437,10 @@ public final class Array[T] (
      * @param i0 the given index in the first dimension
      * @return the element of this array corresponding to the given index.
      * @see #operator(Point)
-     * @see #set(T, long)
+     * @see #set(T, Long)
      */
     @Native("cuda", "(#this).raw[#i0]")
-    public @Inline operator this(i0:long){rank==1}:T {
+    public @Inline operator this(i0:Long){rank==1}:T {
         if (rail) {
             // Bounds checking by backing Rail is sufficient
             return raw(i0);
@@ -461,13 +461,13 @@ public final class Array[T] (
      * @param i1 the given index in the second dimension
      * @return the element of this array corresponding to the given pair of indices.
      * @see #operator(Point)
-     * @see #set(T, long, long)
+     * @see #set(T, Long, Long)
      */
-    public @Inline operator this(i0:long, i1:long){rank==2}:T {
+    public @Inline operator this(i0:Long, i1:Long){rank==2}:T {
         if (CompilerFlags.checkBounds() && !region.contains(i0, i1)) {
             raiseBoundsError(i0, i1);
         }
-        var offset:long  = i0 - layout_min0;
+        var offset:Long  = i0 - layout_min0;
         offset = offset*layout_stride1 + i1 - layout_min1;
         return raw(offset);
     }
@@ -482,9 +482,9 @@ public final class Array[T] (
      * @param i2 the given index in the third dimension
      * @return the element of this array corresponding to the given triple of indices.
      * @see #operator(Point)
-     * @see #set(T, long, long, long)
+     * @see #set(T, Long, Long, Long)
      */
-    public @Inline operator this(i0:long, i1:long, i2:long){rank==3}:T {
+    public @Inline operator this(i0:Long, i1:Long, i2:Long){rank==3}:T {
         if (CompilerFlags.checkBounds() && !region.contains(i0, i1, i2)) {
             raiseBoundsError(i0, i1, i2);
         }
@@ -502,9 +502,9 @@ public final class Array[T] (
      * @param i3 the given index in the fourth dimension
      * @return the element of this array corresponding to the given quartet of indices.
      * @see #operator(Point)
-     * @see #set(T, long, long, long, long)
+     * @see #set(T, Long, Long, Long, Long)
      */
-    public @Inline operator this(i0:long, i1:long, i2:long, i3:long){rank==4}:T {
+    public @Inline operator this(i0:Long, i1:Long, i2:Long, i3:Long){rank==4}:T {
         if (CompilerFlags.checkBounds() && !region.contains(i0, i1, i2, i3)) {
             raiseBoundsError(i0, i1, i2, i3);
         }
@@ -517,7 +517,7 @@ public final class Array[T] (
      * 
      * @param pt the given point
      * @return the element of this array corresponding to the given point.
-     * @see #operator(long)
+     * @see #operator(Long)
      * @see #set(T, Point)
      */
     public @Inline operator this(pt:Point{self.rank==this.rank}):T {
@@ -537,11 +537,11 @@ public final class Array[T] (
      * @param v the given value
      * @param i0 the given index in the first dimension
      * @return the new value of the element of this array corresponding to the given index.
-     * @see #operator(long)
+     * @see #operator(Long)
      * @see #set(T, Point)
      */
     @Native("cuda", "(#this).raw[#i0] = (#v)")
-    public @Inline operator this(i0:long)=(v:T){rank==1}:T{self==v} {
+    public @Inline operator this(i0:Long)=(v:T){rank==1}:T{self==v} {
         if (rail) {
             // Bounds checking by backing Rail is sufficient
             raw(i0) = v;
@@ -564,14 +564,14 @@ public final class Array[T] (
      * @param i0 the given index in the first dimension
      * @param i1 the given index in the second dimension
      * @return the new value of the element of this array corresponding to the given pair of indices.
-     * @see #operator(long, long)
+     * @see #operator(Long, Long)
      * @see #set(T, Point)
      */
-    public @Inline operator this(i0:long,i1:long)=(v:T){rank==2}:T{self==v} {
+    public @Inline operator this(i0:Long,i1:Long)=(v:T){rank==2}:T{self==v} {
         if (CompilerFlags.checkBounds() && !region.contains(i0, i1)) {
             raiseBoundsError(i0, i1);
         }
-        var offset:long  = i0 - layout_min0;
+        var offset:Long  = i0 - layout_min0;
         offset = offset*layout_stride1 + i1 - layout_min1;
         raw(offset) = v;
         return v;
@@ -588,10 +588,10 @@ public final class Array[T] (
      * @param i1 the given index in the second dimension
      * @param i2 the given index in the third dimension
      * @return the new value of the element of this array corresponding to the given triple of indices.
-     * @see #operator(long, long, long)
+     * @see #operator(Long, Long, Long)
      * @see #set(T, Point)
      */
-    public @Inline operator this(i0:long, i1:long, i2:long)=(v:T){rank==3}:T{self==v} {
+    public @Inline operator this(i0:Long, i1:Long, i2:Long)=(v:T){rank==3}:T{self==v} {
         if (CompilerFlags.checkBounds() && !region.contains(i0, i1, i2)) {
             raiseBoundsError(i0, i1, i2);
         }
@@ -611,10 +611,10 @@ public final class Array[T] (
      * @param i2 the given index in the third dimension
      * @param i3 the given index in the fourth dimension
      * @return the new value of the element of this array corresponding to the given quartet of indices.
-     * @see #operator(long, long, long, long)
+     * @see #operator(Long, Long, Long, Long)
      * @see #set(T, Point)
      */
-    public @Inline operator this(i0:long, i1:long, i2:long, i3:long)=(v:T){rank==4}:T{self==v} {
+    public @Inline operator this(i0:Long, i1:Long, i2:Long, i3:Long)=(v:T){rank==4}:T{self==v} {
         if (CompilerFlags.checkBounds() && !region.contains(i0, i1, i2, i3)) {
             raiseBoundsError(i0, i1, i2, i3);
         }
@@ -631,7 +631,7 @@ public final class Array[T] (
      * @param pt the given point
      * @return the new value of the element of this array corresponding to the given point.
      * @see #operator(Point)
-     * @see #set(T, long)
+     * @see #set(T, Long)
      */
     public @Inline operator this(p:Point{self.rank==this.rank})=(v:T):T{self==v} {
         if (CompilerFlags.checkBounds() && !region.contains(p)) {
@@ -933,7 +933,7 @@ public final class Array[T] (
      */
     public static def asyncCopy[T](src:Array[T], srcPoint:Point, 
                                    dst:RemoteArray[T], dstPoint:Point, 
-                                   numElems:long) {
+                                   numElems:Long) {
         val gra = dst.array;
         val dstIndex = at (gra) gra().region.indexOf(dstPoint);
         asyncCopy(src, src.region.indexOf(srcPoint), dst, dstIndex, numElems);
@@ -975,9 +975,9 @@ public final class Array[T] (
      * @throws IllegalArgumentException if the specified copy regions would 
      *         result in an ArrayIndexOutOfBoundsException.
      */
-    public static def asyncCopy[T](src:Array[T], srcIndex:long, 
-                                   dst:RemoteArray[T], dstIndex:long, 
-                                   numElems:long) {
+    public static def asyncCopy[T](src:Array[T], srcIndex:Long, 
+                                   dst:RemoteArray[T], dstIndex:Long, 
+                                   numElems:Long) {
         Rail.asyncCopy(src.raw, srcIndex, dst.rawData, dstIndex, numElems);
     }
     
@@ -1036,7 +1036,7 @@ public final class Array[T] (
      */
     public static def asyncCopy[T](src:RemoteArray[T], srcPoint:Point, 
                                    dst:Array[T], dstPoint:Point, 
-                                   numElems:long) {
+                                   numElems:Long) {
         val gra = src.array;
         val srcIndex = at (gra) gra().region.indexOf(srcPoint);
         asyncCopy(src, srcIndex, dst, dst.region.indexOf(dstPoint), numElems);
@@ -1078,9 +1078,9 @@ public final class Array[T] (
      * @throws IllegalArgumentException if the specified copy regions would 
      *         result in an ArrayIndexOutOfBoundsException.
      */
-    public static def asyncCopy[T](src:RemoteArray[T], srcIndex:long, 
-                                   dst:Array[T], dstIndex:long, 
-                                   numElems:long) {
+    public static def asyncCopy[T](src:RemoteArray[T], srcIndex:Long, 
+                                   dst:Array[T], dstIndex:Long, 
+                                   numElems:Long) {
         Rail.asyncCopy(src.rawData, srcIndex, dst.raw, dstIndex, numElems);
     }
     
@@ -1120,7 +1120,7 @@ public final class Array[T] (
      */
     public static def copy[T](src:Array[T], srcPoint:Point, 
                               dst:Array[T], dstPoint:Point, 
-                              numElems:long) {
+                              numElems:Long) {
         copy(src, src.region.indexOf(srcPoint), dst, dst.region.indexOf(dstPoint), numElems);
     }
     
@@ -1151,23 +1151,23 @@ public final class Array[T] (
      * @throws IllegalArgumentException if the specified copy regions would 
      *         result in an ArrayIndexOutOfBoundsException.
      */
-    public static def copy[T](src:Array[T], srcIndex:long, 
-                              dst:Array[T], dstIndex:long, 
-                              numElems:long) {
+    public static def copy[T](src:Array[T], srcIndex:Long, 
+                              dst:Array[T], dstIndex:Long, 
+                              numElems:Long) {
         Rail.copy(src.raw, srcIndex, dst.raw, dstIndex, numElems);
     }
     
     
-    private static @NoInline @NoReturn def raiseBoundsError(i0:long) {
+    private static @NoInline @NoReturn def raiseBoundsError(i0:Long) {
         throw new ArrayIndexOutOfBoundsException("point (" + i0 + ") not contained in array");
     }    
-    private static @NoInline @NoReturn def raiseBoundsError(i0:long, i1:long) {
+    private static @NoInline @NoReturn def raiseBoundsError(i0:Long, i1:Long) {
         throw new ArrayIndexOutOfBoundsException("point (" + i0 + ", "+i1+") not contained in array");
     }    
-    private static @NoInline @NoReturn def raiseBoundsError(i0:long, i1:long, i2:long) {
+    private static @NoInline @NoReturn def raiseBoundsError(i0:Long, i1:Long, i2:Long) {
         throw new ArrayIndexOutOfBoundsException("point (" + i0 + ", "+i1+", "+i2+") not contained in array");
     }    
-    private static @NoInline @NoReturn def raiseBoundsError(i0:long, i1:long, i2:long, i3:long) {
+    private static @NoInline @NoReturn def raiseBoundsError(i0:Long, i1:Long, i2:Long, i3:Long) {
         throw new ArrayIndexOutOfBoundsException("point (" + i0 + ", "+i1+", "+i2+", "+i3+") not contained in array");
     }    
     private static @NoInline @NoReturn def raiseBoundsError(pt:Point) {
@@ -1181,9 +1181,9 @@ public final class Array[T] (
      * on both Managed and Native X10 for arrays of rank 1 and 2.
      */
 
-    val layout_min0:long;
-    val layout_stride1:long;
-    val layout_min1:long;
+    val layout_min0:Long;
+    val layout_stride1:Long;
+    val layout_min1:Long;
 
     /*
      * Contains stride and min information for dimensions > 2.
@@ -1191,35 +1191,35 @@ public final class Array[T] (
      * layout(2*(i-2)) is the stride for dimension i.
      * layout(2*(i-2)+1) is the min value for dimension i.
      */
-    val layout:Rail[long];
+    val layout:Rail[Long];
 
     // NOTE: Hand-inlined into operator this() 
-    private @Inline def offset(i0:long):long = i0 - layout_min0;
+    private @Inline def offset(i0:Long):Long = i0 - layout_min0;
 
     // NOTE: Hand-inlined into operator this() 
-    private @Inline def offset(i0:long, i1:long):long {
-        var offset:long  = i0 - layout_min0;
+    private @Inline def offset(i0:Long, i1:Long):Long {
+        var offset:Long  = i0 - layout_min0;
         offset = offset*layout_stride1 + i1 - layout_min1;
         return offset;
     }
 
-    private @Inline def offset(i0:long, i1:long, i2:long):long {
-        var offset:long  = i0 - layout_min0;
+    private @Inline def offset(i0:Long, i1:Long, i2:Long):Long {
+        var offset:Long  = i0 - layout_min0;
         offset = offset*layout_stride1 + i1 - layout_min1;
         offset = offset*layout(0) + i2 - layout(1);
         return offset;
     }
 
-    private @Inline def offset(i0:long, i1:long, i2:long, i3:long):long {
-        var offset:long = i0 - layout_min0;
+    private @Inline def offset(i0:Long, i1:Long, i2:Long, i3:Long):Long {
+        var offset:Long = i0 - layout_min0;
         offset = offset*layout_stride1 + i1 - layout_min1;
         offset = offset*layout(0) + i2 - layout(1);
         offset = offset*layout(2) + i3 - layout(3);
         return offset;
     }
 
-    private @Inline def offset(pt:Point):long {
-        var offset:long = pt(0n) - layout_min0;
+    private @Inline def offset(pt:Point):Long {
+        var offset:Long = pt(0n) - layout_min0;
         if (pt.rank>1) {
             offset = offset*layout_stride1 + pt(1) - layout_min1;
             for (i in 2..(pt.rank-1)) {
@@ -1236,11 +1236,11 @@ public final class Array[T] (
     // bundle up the initial values of the instance fields and then copy them
     // to the actual fields in the various Array constructors.
     private static struct LayoutHelper {
-        val min0:long;
-        val stride1:long;
-        val min1:long;
-        val size:long;
-        val layout:Rail[long];
+        val min0:Long;
+        val stride1:Long;
+        val min1:Long;
+        val size:Long;
+        val layout:Rail[Long];
 
         def this(reg:Region) {
             if (reg.isEmpty()) {
@@ -1261,11 +1261,11 @@ public final class Array[T] (
                     size = stride1 * (reg.max(0)-reg.min(0)+1);
                     layout = null;
                 } else {
-                    layout = new Rail[long](2*(reg.rank-2));
+                    layout = new Rail[Long](2*(reg.rank-2));
                     min0 = reg.min(0);
                     min1 = reg.min(1);
                     stride1 = reg.max(1) - reg.min(1) + 1;
-                    var sz:long = stride1 * (reg.max(0n)-reg.min(0n)+1);
+                    var sz:Long = stride1 * (reg.max(0n)-reg.min(0n)+1);
                     for (i in 2..(reg.rank-1)) {
                         val stride = reg.max(i) - reg.min(i) + 1;
 	                sz *= stride;

@@ -13,7 +13,7 @@ package x10.array;
 
 /**
  * A DenseIterationSpace_3 represents the rank 3 
- * iteration space of points [min1,min2,min3]..[max1,max2.max3] inclusive.
+ * iteration space of points [min0,min1,min2]..[max0,max1,max2] inclusive.
  */
 public final class DenseIterationSpace_3 extends IterationSpace(3){rect} {
 

@@ -56,7 +56,7 @@ public abstract class Array[T] (
      */
     protected var raw:Rail[T]{self!=null, self.size==this.size};
 
-    protected def this(s:Long, zero:boolean) {
+    protected def this(s:Long, zero:Boolean) {
         property(s);
         raw = zero ? Unsafe.allocRailZeroed[T](s) : Unsafe.allocRailUninitialized[T](s);
     }

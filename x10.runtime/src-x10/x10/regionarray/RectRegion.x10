@@ -20,23 +20,23 @@ import x10.compiler.Inline;
  */
 final class RectRegion extends Region{rect} {
 
-    private val size:long;       /* Will be < 0 iff the true size of the region is not expressible as a long */
-    private val mins:Rail[long]; /* will be null if rank<5 */
-    private val maxs:Rail[long]; /* will be null if rank<5 */
+    private val size:Long;       /* Will be < 0 iff the true size of the region is not expressible as a long */
+    private val mins:Rail[Long]; /* will be null if rank<5 */
+    private val maxs:Rail[Long]; /* will be null if rank<5 */
 
-    private val min0:long;
-    private val min1:long;
-    private val min2:long;
-    private val min3:long;
-    private val max0:long;
-    private val max1:long;
-    private val max2:long;
-    private val max3:long;
+    private val min0:Long;
+    private val min1:Long;
+    private val min2:Long;
+    private val min3:Long;
+    private val max0:Long;
+    private val max1:Long;
+    private val max2:Long;
+    private val max3:Long;
 
     // cached polyRep representation; space inefficient, so don't want to serialize it.
     transient protected var polyRep:Region(rank)=null;
 
-    private static def allZeros(a:Rail[long]) {
+    private static def allZeros(a:Rail[Long]) {
        for (i in a.range) if (a(i) != 0L) return false;
        return true;
     }
@@ -44,14 +44,14 @@ final class RectRegion extends Region{rect} {
     /**
      * Create a rectangular region containing all points p such that min <= p and p <= max.
      */
-    def this(minArg:Rail[long], maxArg:Rail[long]):RectRegion{self.rank==minArg.size} {
+    def this(minArg:Rail[Long], maxArg:Rail[Long]):RectRegion{self.rank==minArg.size} {
         super(minArg.size, true, allZeros(minArg));
 
 	if (minArg.size != maxArg.size) throw new IllegalArgumentException("size of min and max args are not equal");
 
-        var s:long = 1;
+        var s:Long = 1;
         for (i in minArg.range) {
-	    var rs:long = maxArg(i) - minArg(i) + 1;
+	    var rs:Long = maxArg(i) - minArg(i) + 1;
             if (rs < 0) rs = 0;
             if (maxArg(i) == Long.MAX_VALUE && minArg(i) == Long.MIN_VALUE) {
                 s = -1L;
@@ -101,7 +101,7 @@ final class RectRegion extends Region{rect} {
     /**
      * Create a 1-dim region min..max.
      */
-    @Inline def this(min:long, max:long):RectRegion{self.rank==1,self.rect} {
+    @Inline def this(min:Long, max:Long):RectRegion{self.rank==1,self.rect} {
         super(1, true, min==0L);
 
         size = (min == Long.MIN_VALUE && max == Long.MAX_VALUE) ? -1L : max - min + 1;
@@ -114,7 +114,7 @@ final class RectRegion extends Region{rect} {
         maxs = null;
     }
 
-    public def size():long {
+    public def size():Long {
         if (size < 0) throw new UnboundedRegionException("size exceeds capacity of long");
         return size;
     }
@@ -123,9 +123,9 @@ final class RectRegion extends Region{rect} {
 
     public def isEmpty() = size == 0L;
 
-    public def indexOf(pt:Point):long {
+    public def indexOf(pt:Point):Long {
 	if (!contains(pt)) return -1L;
-        var offset: long = pt(0n) - min(0n);
+        var offset:Long = pt(0n) - min(0n);
         for (i in 1..(rank-1)) {
             val min_i = min(i);
             val max_i = max(i);
@@ -136,7 +136,7 @@ final class RectRegion extends Region{rect} {
         return offset;
     }
 
-    public def indexOf(i0:long):long {
+    public def indexOf(i0:Long):Long {
         if (zeroBased) {
 	    if (rank != 1 || !containsInternal(i0)) return -1L;
             return i0;
@@ -146,47 +146,47 @@ final class RectRegion extends Region{rect} {
         }
     }
 
-    public def indexOf(i0:long, i1:long):long {
+    public def indexOf(i0:Long, i1:Long):Long {
         if (zeroBased) {
 	    if (rank != 2 || !containsInternal(i0,i1)) return -1L;
-            var offset:long = i0;
+            var offset:Long = i0;
             offset = offset*(max1 + 1) + i1;
             return offset;
         } else { 
 	    if (rank != 2 || !containsInternal(i0,i1)) return -1;
-            var offset:long = i0 - min0;
+            var offset:Long = i0 - min0;
             offset = offset*(max1 - min1 + 1) + i1 - min1;
             return offset;
         }
     }
 
-    public def indexOf(i0:long, i1:long, i2:long):long {
+    public def indexOf(i0:Long, i1:Long, i2:Long):Long {
         if (zeroBased) {
 	    if (rank != 3 || !containsInternal(i0,i1,i2)) return -1L;
-            var offset:long = i0;
+            var offset:Long = i0;
             offset = offset*(max1 + 1) + i1;
             offset = offset*(max2 + 1) + i2;
             return offset;
         } else { 
 	    if (rank != 3 || !containsInternal(i0,i1,i2)) return -1L;
-            var offset:long = i0 - min0;
+            var offset:Long = i0 - min0;
             offset = offset*(max1 - min1 + 1) + i1 - min1;
             offset = offset*(max2 - min2 + 1) + i2 - min2;
             return offset;
         }
     }
 
-    public def indexOf(i0:long, i1:long, i2:long, i3:long):long {
+    public def indexOf(i0:Long, i1:Long, i2:Long, i3:Long):Long {
         if (zeroBased) {
 	    if (rank != 4 || !containsInternal(i0,i1,i2,i3)) return -1L;
-            var offset:long = i0;
+            var offset:Long = i0;
             offset = offset*(max1 + 1) + i1;
             offset = offset*(max2 + 1) + i2;
             offset = offset*(max3 + 1) + i3;
             return offset;
         } else { 
 	    if (rank != 4 || !containsInternal(i0,i1,i2,i3)) return -1L;
-            var offset:long = i0 - min0;
+            var offset:Long = i0 - min0;
             offset = offset*(max1 - min1 + 1) + i1 - min1;
             offset = offset*(max2 - min2 + 1) + i2 - min2;
             offset = offset*(max3 - min3 + 1) + i3 - min3;
@@ -195,7 +195,7 @@ final class RectRegion extends Region{rect} {
     }
 
 
-    public def min(i:long):long {
+    public def min(i:Long):Long {
         if (i == 0) return min0;
         if (i == 1) return min1;
         if (i == 2) return min2;
@@ -204,7 +204,7 @@ final class RectRegion extends Region{rect} {
 	return mins(i);
     }
 
-    public def max(i:long):long {
+    public def max(i:Long):Long {
         if (i == 0) return max0;
         if (i == 1) return max1;
         if (i == 2) return max2;
@@ -220,10 +220,10 @@ final class RectRegion extends Region{rect} {
 
     protected def computeBoundingBox():Region(rank)=this; 
     
-    public def min():(long)=>long = (i:long)=> min(i);
-    public def max():(long)=>long = (i:long)=> max(i);
+    public def min():(Long)=>Long = (i:Long)=> min(i);
+    public def max():(Long)=>Long = (i:Long)=> max(i);
 
-    public def contains(that:Region(rank)): boolean {
+    public def contains(that:Region(rank)): Boolean {
        if (that instanceof RectRegion) {
            val thatMin = (that as RectRegion).min();
            val thatMax = (that as RectRegion).max();
@@ -239,10 +239,10 @@ final class RectRegion extends Region{rect} {
        }
     }
 
-    public def contains(p:Point):boolean {
+    public def contains(p:Point):Boolean {
         if (p.rank != rank) return false;
 	// NOTE: intentional fall through of cases!
-        switch((p.rank-1)as int) {
+        switch((p.rank-1) as Int) {
            default:
                for (r in (p.rank-1)..4) {
                    if (p(r)<mins(r) || p(r)>maxs(r)) return false;
@@ -255,16 +255,16 @@ final class RectRegion extends Region{rect} {
 	return true;
     }
 
-    public def contains(i0:long){rank==1}:boolean = containsInternal(i0);
-    public def contains(i0:long, i1:long){rank==2}:boolean = containsInternal(i0,i1);
-    public def contains(i0:long, i1:long, i2:long){rank==3}:boolean = containsInternal(i0,i1,i2);
-    public def contains(i0:long, i1:long, i2:long, i3:long){rank==4}:boolean = containsInternal(i0,i1,i2,i3);
+    public def contains(i0:Long){rank==1}:Boolean = containsInternal(i0);
+    public def contains(i0:Long, i1:Long){rank==2}:Boolean = containsInternal(i0,i1);
+    public def contains(i0:Long, i1:Long, i2:Long){rank==3}:Boolean = containsInternal(i0,i1,i2);
+    public def contains(i0:Long, i1:Long, i2:Long, i3:Long){rank==4}:Boolean = containsInternal(i0,i1,i2,i3);
 
-    private def containsInternal(i0:long):boolean {
+    private def containsInternal(i0:Long):Boolean {
         return i0>=min0 && i0<=max0;
     }
 
-    private def containsInternal(i0:long, i1:long):boolean { 
+    private def containsInternal(i0:Long, i1:Long):Boolean { 
         if (CompilerFlags.useUnsigned() && zeroBased) {
             return ((i0 as ULong) <= (max0 as ULong)) &&
                    ((i1 as ULong) <= (max1 as ULong));
@@ -274,7 +274,7 @@ final class RectRegion extends Region{rect} {
         }
     }
 
-    private def containsInternal(i0:long, i1:long, i2:long):boolean {
+    private def containsInternal(i0:Long, i1:Long, i2:Long):Boolean {
         if (CompilerFlags.useUnsigned() && zeroBased) {
             return ((i0 as ULong) <= (max0 as ULong)) &&
                    ((i1 as ULong) <= (max1 as ULong)) &&
@@ -286,7 +286,7 @@ final class RectRegion extends Region{rect} {
         }
     }
 
-    private def containsInternal(i0:long, i1:long, i2:long, i3:long):boolean {
+    private def containsInternal(i0:Long, i1:Long, i2:Long, i3:Long):Boolean {
         if (CompilerFlags.useUnsigned() && zeroBased) {
             return ((i0 as ULong) <= (max0 as ULong)) &&
                    ((i1 as ULong) <= (max1 as ULong)) &&
@@ -307,8 +307,8 @@ final class RectRegion extends Region{rect} {
      */
     public def toPolyRegion() {
     	if (polyRep==null) {
-            polyRep = Region.makeRectangularPoly(new Rail[long](rank, (i:long)=>min(i)), 
-                                                 new Rail[long](rank, (i:long)=>max(i))) as Region(rank);
+            polyRep = Region.makeRectangularPoly(new Rail[Long](rank, (i:Long)=>min(i)), 
+                                                 new Rail[Long](rank, (i:Long)=>max(i))) as Region(rank);
     	}
     	return polyRep;
     }
@@ -322,8 +322,8 @@ final class RectRegion extends Region{rect} {
         } else if (that instanceof RectRegion) {
             val thatMin = (that as RectRegion).min();
             val thatMax = (that as RectRegion).max();
-	    val newMin = new Rail[long](rank, (i:long)=>Math.max(min(i), thatMin(i)));
-	    val newMax = new Rail[long](rank, (i:long)=>Math.min(max(i), thatMax(i)));
+	    val newMin = new Rail[Long](rank, (i:Long)=>Math.max(min(i), thatMin(i)));
+	    val newMax = new Rail[Long](rank, (i:Long)=>Math.min(max(i), thatMax(i)));
 	    for (i in 0..(newMin.size-1)) {
                 if (newMax(i)<newMin(i)) return Region.makeEmpty(rank);
             }
@@ -348,20 +348,20 @@ final class RectRegion extends Region{rect} {
             val thatMin = (that as RectRegion).min();
             val thatMax = (that as RectRegion).max();
             val k = rank+that.rank;
-            val newMin = new Rail[long](k, (i:long)=>i<rank?min(i):thatMin(i-rank));
-            val newMax = new Rail[long](k, (i:long)=>i<rank?max(i):thatMax(i-rank));
+            val newMin = new Rail[Long](k, (i:Long)=>i<rank?min(i):thatMin(i-rank));
+            val newMax = new Rail[Long](k, (i:Long)=>i<rank?max(i):thatMax(i-rank));
             return new RectRegion(newMin, newMax);
         } else if (that instanceof RectRegion1D) {
             val thatMin = that.min(0);
             val thatMax = that.max(0);
             val k = rank+1;
-            val newMin = new Rail[long](k, (i:long)=>i<rank?min(i):thatMin);
-            val newMax = new Rail[long](k, (i:long)=>i<rank?max(i):thatMax);
+            val newMin = new Rail[Long](k, (i:Long)=>i<rank?min(i):thatMin);
+            val newMax = new Rail[Long](k, (i:Long)=>i<rank?max(i):thatMax);
             return new RectRegion(newMin, newMax);
         } else if (that instanceof FullRegion) {
        	    val k = rank+that.rank;
-            val newMin = new Rail[long](k, (i:long)=>i<rank?min(i):Long.MIN_VALUE);
-            val newMax = new Rail[long](k, (i:long)=>i<rank?max(i):Long.MAX_VALUE);
+            val newMin = new Rail[Long](k, (i:Long)=>i<rank?min(i):Long.MIN_VALUE);
+            val newMax = new Rail[Long](k, (i:Long)=>i<rank?max(i):Long.MAX_VALUE);
 	    return new RectRegion(newMin,newMax);
         } else {
 	   return (toPolyRegion() as Region(rank)).product(that);
@@ -369,28 +369,28 @@ final class RectRegion extends Region{rect} {
     }
 
     public def translate(v:Point(rank)):Region(rank){self.rect} {
-        val newMin = new Rail[long](rank, (i:long)=>min(i)+v(i));
-        val newMax = new Rail[long](rank, (i:long)=>max(i)+v(i));
+        val newMin = new Rail[Long](rank, (i:Long)=>min(i)+v(i));
+        val newMax = new Rail[Long](rank, (i:Long)=>max(i)+v(i));
         return new RectRegion(newMin, newMax) as Region(rank){self.rect};
     }
 
-    public def projection(axis:long):Region(1){self.rect} {
+    public def projection(axis:Long):Region(1){self.rect} {
         return new RectRegion(min(axis), max(axis));
     }
 
-    public def eliminate(axis:long):Region{self.rect} /*(rank-1)*/ {
+    public def eliminate(axis:Long):Region{self.rect} /*(rank-1)*/ {
     	val k = rank-1;
-        val newMin = new Rail[long](k, (i:long)=>i<axis?min(i):min((i)+1));
-        val newMax = new Rail[long](k, (i:long)=>i<axis?max(i):max((i)+1));
+        val newMin = new Rail[Long](k, (i:Long)=>i<axis?min(i):min((i)+1));
+        val newMax = new Rail[Long](k, (i:Long)=>i<axis?max(i):max((i)+1));
         return new RectRegion(newMin, newMax);
     }    
 
 
-    private static class RRIterator(myRank:long) implements Iterator[Point(myRank)] {
-        val min:(long)=>long;
-        val max:(long)=>long;
-        var done:boolean;
-        val cur:Rail[long]{self.size==myRank};
+    private static class RRIterator(myRank:Long) implements Iterator[Point(myRank)] {
+        val min:(Long)=>Long;
+        val max:(Long)=>Long;
+        var done:Boolean;
+        val cur:Rail[Long]{self.size==myRank};
 
         def this(rr:RectRegion):RRIterator{self.myRank==rr.rank} {
             property(rr.rank);
@@ -398,7 +398,7 @@ final class RectRegion extends Region{rect} {
             min = t;
             max = rr.max();
             done = rr.size == 0L;
-            cur = new Rail[long](myRank, (l:long)=>t(l));
+            cur = new Rail[Long](myRank, (l:Long)=>t(l));
         }        
 
         public def hasNext() = !done;
@@ -414,7 +414,7 @@ final class RectRegion extends Region{rect} {
 	            // reset lowest rank to min and ripple carry
                     cur(myRank-1) = min(myRank-1);
 	            cur(myRank-2)++;
-	            var carryRank:long = myRank-2;
+	            var carryRank:Long = myRank-2;
 	            while (carryRank>0 && cur(carryRank) > max(carryRank)) {
                         cur(carryRank) = min(carryRank);
 	                cur(carryRank-1n)++;
@@ -433,7 +433,7 @@ final class RectRegion extends Region{rect} {
     }
 
 
-    public def equals(thatObj:Any):boolean {
+    public def equals(thatObj:Any):Boolean {
 	if (this == thatObj) return true;
         if (!(thatObj instanceof Region)) return false; 
         val that:Region = thatObj as Region;

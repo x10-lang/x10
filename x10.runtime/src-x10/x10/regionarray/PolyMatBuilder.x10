@@ -19,7 +19,7 @@ import x10.io.Printer;
  * Additional builder utility functions for Mats destined to become
  * PolyMats.
  */
-class PolyMatBuilder(rank:long) extends MatBuilder {
+class PolyMatBuilder(rank:Long) extends MatBuilder {
 
     // XTENLANG-49
 
@@ -28,8 +28,8 @@ class PolyMatBuilder(rank:long) extends MatBuilder {
      * Create a new empty builder.
      */
 
-    public def this(rank:long): PolyMatBuilder{self.rank==rank} {
-        super((rank+1) as int);
+    public def this(rank:Long): PolyMatBuilder{self.rank==rank} {
+        super((rank+1) as Int);
         property(rank);
     }
 
@@ -38,9 +38,9 @@ class PolyMatBuilder(rank:long) extends MatBuilder {
      * Get the result.
      */
 
-    public def toSortedPolyMat(isSimplified:boolean): PolyMat(rank) {
+    public def toSortedPolyMat(isSimplified:Boolean): PolyMat(rank) {
         mat.sort((x:Row,y:Row)=>PolyRow.compare(x,y));
-        val result = new PolyMat(mat.size() as Int, (rank+1) as int, (i:Int,j:Int)=>mat(i)(j), isSimplified);
+        val result = new PolyMat(mat.size() as Int, (rank+1) as Int, (i:Int,j:Int)=>mat(i)(j), isSimplified);
         return result as PolyMat(rank); // XXXX
     }
 
@@ -54,19 +54,19 @@ class PolyMatBuilder(rank:long) extends MatBuilder {
      * by increasing # bits per coeff
      */
 
-    private static ZERO: int = 0xAAAAAAAn;
+    private static ZERO:Int = 0xAAAAAAAn;
 
-    public static GE: int = 0n;
-    public static LE: int = 1n;
+    public static GE:Int = 0n;
+    public static LE:Int = 1n;
 
-    final public static def X(axis: int): int {
+    final public static def X(axis:Int):Int {
         return 0x1n<<2n*axis;
     }
 
-    public def add(var coeff: int, op: int, k: int): void {
+    public def add(var coeff:Int, op:Int, k:Int): void {
         coeff += ZERO;
-        val as_ = new Array[int](rank+1);
-        for (var i: int = 0n; i<rank; i++) {
+        val as_ = new Array[Int](rank+1);
+        for (var i:Int = 0n; i<rank; i++) {
             val a = (coeff&3n) - 2n;
             as_(i) = op==LE? a : - a;
             coeff = coeff >> 2n;
