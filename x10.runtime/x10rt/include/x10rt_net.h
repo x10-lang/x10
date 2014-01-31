@@ -134,6 +134,9 @@ X10RT_C x10rt_error x10rt_net_probe (void);
  */
 X10RT_C x10rt_error x10rt_net_blocking_probe (void);
 
+/** Unblock anything stuck in blocking_probe  \see #x10rt_unblock_probe
+ */
+X10RT_C x10rt_error x10rt_net_unblock_probe (void);
 
 /** \see #x10rt_lgl_remote_op
  * \param place As in #x10rt_lgl_remote_op

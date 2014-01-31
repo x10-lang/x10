@@ -1148,6 +1148,12 @@ x10rt_error x10rt_net_blocking_probe (void) {
     return X10RT_ERR_OK;
 }
 
+x10rt_error x10rt_net_unblock_probe (void)
+{
+	// TODO: once blocking_probe is implemented, this needs to do something.  Fine for now.
+	return X10RT_ERR_OK;
+}
+
 static void x10rt_net_probe_ex (bool network_only) {
     int arrived;
     MPI_Status msg_status;

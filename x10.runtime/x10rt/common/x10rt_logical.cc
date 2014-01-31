@@ -852,8 +852,7 @@ x10rt_error x10rt_lgl_blocking_probe (void)
 
 x10rt_error x10rt_lgl_unblock_probe (void)
 {
-	// TODO: check GPU, pass on to network
-	return X10RT_ERR_UNSUPPORTED;
+	return x10rt_net_unblock_probe();
 }
 
 void x10rt_lgl_finalize (void)

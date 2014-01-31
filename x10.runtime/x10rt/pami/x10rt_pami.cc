@@ -1453,6 +1453,12 @@ x10rt_error x10rt_net_blocking_probe (void)
 	return x10rt_net_probe();
 }
 
+x10rt_error x10rt_net_unblock_probe (void)
+{
+	// TODO: once blocking_probe is implemented, this needs to do something.  Fine for now.
+	return X10RT_ERR_OK;
+}
+
 /** Shut down the network layer.  \see #x10rt_lgl_finalize
  */
 void x10rt_net_finalize()

@@ -1045,6 +1045,12 @@ x10rt_error x10rt_net_blocking_probe ()
     return context.errorCode;
 }
 
+x10rt_error x10rt_net_unblock_probe (void)
+{
+	// TODO
+	return X10RT_ERR_UNSUPPORTED;
+}
+
 // return T if data was processed or sent, F if not
 bool probe (bool onlyProcessAccept, bool block)
 {
