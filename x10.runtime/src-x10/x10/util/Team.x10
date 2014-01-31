@@ -298,16 +298,16 @@ public struct Team {
      */
 
     /** Blocks until all members have received the computed result.  Note that not all values of T are valid.
-     * The dst array is populated for all members with the result of the operation applied pointwise to all given src arrays.
      *
-     * @param src The data that will be sent (will only be used by the root
-     * member)
+     * @param root Which place will recieve the reduced value(s)
+     * 
+     * @param src The data that will be sent 
      *
      * @param src_off The offset into src at which to start reading
      *
-     * @param dst The rail into which the data will be received for this member
+     * @param dst The rail into which the data will be received for (will only be used by the root member)
      *
-     * @param dst_off The offset into dst at which to start writing
+     * @param dst_off The offset into dst at which to start writing (will only be used by the root member)
      *
      * @param count The number of elements being transferred
      *
@@ -372,8 +372,7 @@ public struct Team {
     /** Blocks until all members have received the computed result.  Note that not all values of T are valid.
      * The dst array is populated for all members with the result of the operation applied pointwise to all given src arrays.
      *
-     * @param src The data that will be sent (will only be used by the root
-     * member)
+     * @param src The data that will be sent to all members
      *
      * @param src_off The offset into src at which to start reading
      *
