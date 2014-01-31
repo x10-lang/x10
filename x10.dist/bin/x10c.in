@@ -12,7 +12,7 @@ flatexprs=""
 
 if [ "$CROSS_COMPILE_BGQ" = "true" ]; then
     x10rt_impl="pami"
-elif [ "$ENABLE_X10RT_PAMI" = "true" ]; then
+elif [ "$X10RT_PAMI_IS_DEFAULT" = "true" ]; then
     x10rt_impl="pami"
 else
     x10rt_impl="sockets"

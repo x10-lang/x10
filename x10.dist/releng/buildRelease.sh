@@ -69,7 +69,7 @@ case "$UNAME" in
   Linux,ppc*,*) X10_PLATFORM='linux_ppc'
       SHORT_HOSTNAME=`hostname -s`
       if [[ "$SHORT_HOSTNAME" == "f01c08n02-hf0" ]]; then 
-          EXTRA_X10RT_BUILD_ARG="-DX10RT_PAMI=true"
+          EXTRA_X10RT_BUILD_ARG="-DX10RT_PAMI=true -DX10RT_PAMI_IS_DEFAULT=true"
           export USE_XLC=1
       fi
       if [[ "$SHORT_HOSTNAME" == "bgqfen1" ]]; then 

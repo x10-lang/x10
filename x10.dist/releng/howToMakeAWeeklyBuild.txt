@@ -5,7 +5,7 @@ Making a weekly build is a subset of the steps to make a full-blown release.
       Use a "good" svn revision number that matches one reported by a 
       night-sanity run. i.e.
 
-      makeTag -rev 12500 -tag WB_20130620 -code -x10dt
+      makeTag -rev 12500 -tag WB_20130620 -x10 -x10dt
 
    2. Go to Jenkins, select the Package-X10-Release job and then select
       "Build With Parameters".  Select the appropriate svn tag, fill in
