@@ -139,7 +139,7 @@ public class DistArray_BlockBlock_2[T] extends DistArray[T]{this.rank()==2} impl
      * of this DistArray
      *
      * @param i the index in the first dimension
-     * @param j the index in the first dimension
+     * @param j the index in the second dimension
      * @return the Place where (i,j) is a valid index in the DistArray; 
      *          will return Place.INVALID_PLACE if (i,j) is not contained in globalIndices
      */
