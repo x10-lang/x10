@@ -27,12 +27,12 @@ class PolyRegion extends Region {
 
     public val mat: PolyMat{self.rank==this.rank};
 
-    public def isConvex(): boolean {
+    public def isConvex(): Boolean {
         return true;
     }
 
     var size:Long = -1; // uninitialized
-    public def size():long {
+    public def size():Long {
     	if (size < 0) {
     	  var s:Long=0;
           val it= iterator();
@@ -43,7 +43,7 @@ class PolyRegion extends Region {
         return size;     
     }
 
-    @Incomplete public def indexOf(Point):long {
+    @Incomplete public def indexOf(Point):Long {
         throw new UnsupportedOperationException();
     }
 
@@ -91,7 +91,7 @@ class PolyRegion extends Region {
     }
                           
                           
-    public def contains(that: Region(rank)): boolean = 
+    public def contains(that: Region(rank)): Boolean = 
     	computeBoundingBox().contains(that.computeBoundingBox());
      
     /**
@@ -99,12 +99,12 @@ class PolyRegion extends Region {
      * all but the axis of interest.
      */
 
-    public def projection(axis: long): Region(1) {
+    public def projection(axis:Long): Region(1) {
         var pm: PolyMat{self.rank==this.rank} = mat;
-        for (var k: int = 0n; k<rank; k++)
-            if (k!=(axis as int))
+        for (var k:Int = 0n; k<rank; k++)
+            if (k!=(axis as Int))
                 pm = pm.eliminate(k, true);
-        return Region.makeRectangular(pm.rectMin(axis as int), pm.rectMax(axis as int));// as Region(1);
+        return Region.makeRectangular(pm.rectMin(axis as Int), pm.rectMax(axis as Int));// as Region(1);
     }
 
     /**
@@ -113,8 +113,8 @@ class PolyRegion extends Region {
 
     // XXX add a test case for this; also for projection!
   
-    public def eliminate(axis: long): Region/*(rank1)*/ {
-        val pm = mat.eliminate(axis as int, true); 
+    public def eliminate(axis:Long): Region/*(rank1)*/ {
+        val pm = mat.eliminate(axis as Int, true); 
         val result = PolyRegion.make(pm);
         return result /*as Region(rank1)*/;
     }
@@ -130,18 +130,18 @@ class PolyRegion extends Region {
         val that = r as PolyRegion;
         val pmb = new PolyMatBuilder(this.rank + that.rank);
         copy(pmb, this.mat, 0n);         // padded w/ 0s on the right
-        copy(pmb, that.mat, this.rank as int); // padded w/ 0s on the left
+        copy(pmb, that.mat, this.rank as Int); // padded w/ 0s on the left
         val pm = pmb.toSortedPolyMat(false);
         return PolyRegion.make(pm);
     }
 
-    private static def copy(tt: PolyMatBuilder, ff: PolyMat, offset: int): void {
+    private static def copy(tt: PolyMatBuilder, ff: PolyMat, offset:Int): void {
         for (r:PolyRow in ff) {
             val f = r;
-            val t = new Rail[int](tt.rank+1);
-            for (var i: int = 0n; i<ff.rank; i++)
+            val t = new Rail[Int](tt.rank+1);
+            for (var i:Int = 0n; i<ff.rank; i++)
                 t(offset+i) = f(i);
-            t(tt.rank) = f(ff.rank as int);
+            t(tt.rank) = f(ff.rank as Int);
             tt.add(new PolyRow(t));
         }
     }
@@ -157,13 +157,13 @@ class PolyRegion extends Region {
     private static def translate(tt: PolyMatBuilder, ff: PolyMat, v: Point(ff.rank)): void {
         for (r:PolyRow in ff) {
             val f = r;
-            val t = new Rail[int](ff.rank+1);
+            val t = new Rail[Int](ff.rank+1);
             var s:Int = 0n;
-            for (var i: int = 0n; i<ff.rank; i++) {
+            for (var i:Int = 0n; i<ff.rank; i++) {
                 t(i) = f(i);
                 s += f(i)*v(i);
             }
-            t(ff.rank) = f(ff.rank as int) - s;
+            t(ff.rank) = f(ff.rank as Int) - s;
             tt.add(new PolyRow(t));
         }
     }
@@ -193,18 +193,18 @@ class PolyRegion extends Region {
         return new UnionRegion(prlb as PolyRegionListBuilder{self.rank == this.rank}); 
     }
 */
-    public def isEmpty(): boolean {
+    public def isEmpty(): Boolean {
         val tmp = mat.isEmpty();
         return tmp;
     }
 
     protected def computeBoundingBox(): Region(rank){self.rect} {
-        val min = new Rail[long](rank);
-        val max = new Rail[long](rank);
+        val min = new Rail[Long](rank);
+        val max = new Rail[Long](rank);
         var pm: PolyMat{self.rank==this.rank} = mat;
-        for (var axis: int = 0n; axis<rank; axis++) {
+        for (var axis:Int = 0n; axis<rank; axis++) {
             var x: PolyMat = pm;
-            for (var k: int = axis+1n; k<rank; k++)
+            for (var k:Int = axis+1n; k<rank; k++)
                 x = x.eliminate(k, true);
             min(axis) = x.rectMin(axis);
             max(axis) = x.rectMax(axis);
@@ -218,7 +218,7 @@ class PolyRegion extends Region {
      * point
      */
 
-    public def contains(p: Point): boolean {
+    public def contains(p: Point): Boolean {
 
         for (r:PolyRow in mat) {
             if (!r.contains(p))
@@ -241,10 +241,10 @@ class PolyRegion extends Region {
      * col-row <= colMin-rowMin + (upper-1)
      */
 
-    private static ROW: int = PolyMatBuilder.X(0n);
-    private static COL: int = PolyMatBuilder.X(1n);
+    private static ROW:Int = PolyMatBuilder.X(0n);
+    private static COL:Int = PolyMatBuilder.X(1n);
 
-    public static def makeBanded(rowMin: int, colMin: int, rowMax: int, colMax: int, upper: int, lower: int): Region(2) {
+    public static def makeBanded(rowMin:Int, colMin:Int, rowMax:Int, colMax:Int, upper:Int, lower:Int): Region(2) {
         val pmb = new PolyMatBuilder(2);
         pmb.add(ROW, pmb.GE, rowMin);
         pmb.add(ROW, pmb.LE, rowMax);
@@ -256,11 +256,11 @@ class PolyRegion extends Region {
         return PolyRegion.make(pm);
     }
 
-    public static def makeBanded(size: int, upper: int, lower: int): Region(2) {
+    public static def makeBanded(size:Int, upper:Int, lower:Int): Region(2) {
         return makeBanded(0n, 0n, size-1n, size-1n, upper, lower);
     }
 
-    public static def makeUpperTriangular2(rowMin: int, colMin: int, size: int): Region(2) {
+    public static def makeUpperTriangular2(rowMin:Int, colMin:Int, size:Int): Region(2) {
         val pmb = new PolyMatBuilder(2n);
         pmb.add(ROW, pmb.GE, rowMin);
         pmb.add(COL, pmb.LE, colMin+size-1n);
@@ -269,7 +269,7 @@ class PolyRegion extends Region {
         return PolyRegion.make(pm) as Region(2);
     }
 
-    public static def makeLowerTriangular2(rowMin: int, colMin: int, size: int): Region(2) {
+    public static def makeLowerTriangular2(rowMin:Int, colMin:Int, size:Int): Region(2) {
         val pmb = new PolyMatBuilder(2n);
         pmb.add(COL, pmb.GE, colMin);
         pmb.add(ROW, pmb.LE, rowMin+size-1n);
@@ -293,7 +293,7 @@ class PolyRegion extends Region {
         }
     }
 
-    protected def this(pm: PolyMat, hack198:boolean): PolyRegion(pm.rank) {
+    protected def this(pm: PolyMat, hack198:Boolean): PolyRegion(pm.rank) {
 
         super(pm.rank, pm.isRect(), pm.isZeroBased());
 
@@ -307,14 +307,14 @@ class PolyRegion extends Region {
 	//        cache = new Cache(this, hack198);
     }
 
-    public def min(): (long)=>long {
+    public def min(): (Long)=>Long {
         val t = boundingBox().min();
-        return (i:long)=>t(i as int);
+        return (i:Long)=>t(i as Int);
     }
 
-    public def max(): (long)=>long {
+    public def max(): (Long)=>Long {
         val t = boundingBox().max();
-        return (i:long)=>t(i as int);
+        return (i:Long)=>t(i as Int);
     }
 
 
@@ -331,4 +331,4 @@ class PolyRegion extends Region {
     }
 
 }
-public type PolyRegion(rank:long) = PolyRegion{self.rank==rank};
+public type PolyRegion(rank:Long) = PolyRegion{self.rank==rank};

@@ -16,9 +16,9 @@ package x10.array;
  * ie. a lexograpically ordered finite collection of 
  * equal rank Points.
  */
-public abstract class IterationSpace(rank:Long,rect:boolean) implements Iterable[Point(this.rank)] {
+public abstract class IterationSpace(rank:Long,rect:Boolean) implements Iterable[Point(this.rank)] {
 
-    protected def this(rank:Long, rect:boolean) {
+    protected def this(rank:Long, rect:Boolean) {
         property(rank, rect);
     }
 
@@ -35,7 +35,7 @@ public abstract class IterationSpace(rank:Long,rect:boolean) implements Iterable
         val it = iterator();
 
         sb.add("{");
-        for (var c:int = 0n; c < 10n && it.hasNext(); c++) {
+        for (var c:Int = 0n; c < 10n && it.hasNext(); c++) {
             sb.add(it.next());
             if (it.hasNext()) sb.add(", ");
         }

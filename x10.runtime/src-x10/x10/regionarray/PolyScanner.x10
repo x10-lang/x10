@@ -65,18 +65,18 @@ import x10.io.*;
  * The loop bounds for Xk are then obtained by computing mins and
  * maxes over the sum[k]/Ak for the halfspaces in elim[k].
  */
-final class PolyScanner(rank:long)/*(C:PolyMat)*/ {
+final class PolyScanner(rank:Long)/*(C:PolyMat)*/ {
 
      public val C: PolyMat;
 
-  //  public val rank: int;
+  //  public val rank:Int;
 
     private val myMin: Array[VarMat]{self.rank==1,self.zeroBased,self.rect,self.rail};
     private val myMax: Array[VarMat]{self.rank==1,self.zeroBased,self.rect,self.rail};
     private val minSum: Array[VarMat]{self.rank==1,self.zeroBased,self.rect,self.rail};
     private val maxSum: Array[VarMat]{self.rank==1,self.zeroBased,self.rect,self.rail};
 
-    private val parFlags: Array[boolean]{self.rank==1,self.zeroBased,self.rect,self.rail};
+    private val parFlags: Array[Boolean]{self.rank==1,self.zeroBased,self.rect,self.rail};
     private val min2: Array[Array[PolyRow]{self.rank==1,self.zeroBased,self.rect,self.rail}]{self.rank==1,self.zeroBased,self.rect,self.rail};
     private val max2: Array[Array[PolyRow]{self.rank==1,self.zeroBased,self.rect,self.rail}]{self.rank==1,self.zeroBased,self.rect,self.rail};
 
@@ -86,7 +86,7 @@ final class PolyScanner(rank:long)/*(C:PolyMat)*/ {
 	return x;
     }
 
-    private def this(pm: PolyMat):PolyScanner{self.rank==pm.rank} {
+    private def this(pm:PolyMat):PolyScanner{self.rank==pm.rank} {
 	property(pm.rank);
         var pm0:PolyMat = pm.simplifyAll();
        
@@ -106,26 +106,25 @@ final class PolyScanner(rank:long)/*(C:PolyMat)*/ {
         max2 = x2;
         //printInfo(Console.OUT);
 
-        parFlags = new Array[boolean](r);
+        parFlags = new Array[Boolean](r);
     }
 
     private def init() {
 	var pm:PolyMat =C;
-        init(pm, (rank as int)-1n);
-        for (var k: int = (rank as int)-2n; k>=0n; k--) {
+        init(pm, (rank as Int)-1n);
+        for (var k:Int = (rank as Int)-2n; k>=0n; k--) {
             pm = pm.eliminate(k+1n, true);
             init(pm, k);
         }
-
     }
 
-    final private def init(pm: PolyMat, axis: int) {
+    final private def init(pm:PolyMat, axis:Int) {
 
         //pm.printInfo(Console.OUT, "pm for axis " + axis);
 
         // count
-        var imin: int = 0n;
-        var imax: int = 0n;
+        var imin:Int = 0n;
+        var imax:Int = 0n;
         for (r:PolyRow in pm) {
             if (r(axis)<0n) imin++;
             if (r(axis)>0n) imax++;
@@ -150,16 +149,16 @@ final class PolyScanner(rank:long)/*(C:PolyMat)*/ {
         imin=0n; imax=0n;
         for (r:PolyRow in pm) {
             if (r(axis)<0n) {
-                for (var i: int = 0n; i<=axis; i++)
+                for (var i:Int = 0n; i<=axis; i++)
                     myMin(axis)(imin)(i) = r(i);
-                minSum(axis)(imin)(0n) = r(rank as int);
+                minSum(axis)(imin)(0n) = r(rank as Int);
                 min2(axis)(imin) = r;
                 imin++;
             }
             if (r(axis)>0n) {
-                for (var i: int = 0n; i<=axis; i++)
+                for (var i:Int = 0n; i<=axis; i++)
                     myMax(axis)(imax)(i) = r(i);
-                maxSum(axis)(imax)(0n) = r(rank as int);
+                maxSum(axis)(imax)(0n) = r(rank as Int);
                 max2(axis)(imax) = r;
                 imax++;
             }
@@ -168,29 +167,29 @@ final class PolyScanner(rank:long)/*(C:PolyMat)*/ {
         /*
         min(axis).printInfo(Console.OUT, "min for axis " + axis);
         Console.OUT.println("min2 for axis " + axis);
-        for (var i:int=0; i<min2(axis).length; i++)
+        for (var i:Int=0; i<min2(axis).length; i++)
             min2(axis)(i).printInfo(Console.OUT, i);
         */
     }
 
     // todo: Message: Semantic Error: set(axis: x10.lang.Int, v: x10.lang.Int): void in x10.regionarray.PolyScanner cannot override set(axis: x10.lang.Int, v: x10.lang.Int): void in x10.regionarray.PolyScanner; overridden method is final
     // Duplicate method "method final public x10.regionarray.PolyScanner.set(axis:x10.lang.Int,v:x10.lang.Int): void"; previous declaration at C:\cygwin\home\Yoav\intellij\sourceforge\x10.runtime\src-x10\x10.regionarray\PolyScanner.x10:176,5-178,5.
-    final public operator this(v: int)=(axis: int): void { set(axis,v); }
+    final public operator this(v:Int)=(axis:Int): void { set(axis,v); }
 
-    final public def set(axis: int, v: int): void {
-        for (var k: int = axis+1n; k<rank; k++)
-            for (var l: int = 0n; l<minSum(k).rows; l++)
+    final public def set(axis:Int, v:Int):void {
+        for (var k:Int = axis+1n; k<rank; k++)
+            for (var l:Int = 0n; l<minSum(k).rows; l++)
                 minSum(k)(l)(axis+1n) = myMin(k)(l)(axis)*v + minSum(k)(l)(axis);
-        for (var k: int = axis+1n; k<rank; k++)
-            for (var l: int = 0n; l<maxSum(k).rows; l++)
+        for (var k:Int = axis+1n; k<rank; k++)
+            for (var l:Int = 0n; l<maxSum(k).rows; l++)
                 maxSum(k)(l)(axis+1n) = myMax(k)(l)(axis)*v + maxSum(k)(l)(axis);
     }
 
-    final public def min(axis: int): int {
-        var result: int = Int.MIN_VALUE;
-        for (var k: int = 0n; k<myMin(axis).rows; k++) {
+    final public def min(axis:Int):Int {
+        var result:Int = Int.MIN_VALUE;
+        for (var k:Int = 0n; k<myMin(axis).rows; k++) {
             val a = myMin(axis)(k)(axis);
-            var b: int = minSum(axis)(k)(axis);
+            var b:Int = minSum(axis)(k)(axis);
             // ax+b<=0 where a<0 => x>=ceil(-b/a)
             val m = b>0n? (-b+a+1n)/a : -b/a;
             if (m > result) result = m;
@@ -198,9 +197,9 @@ final class PolyScanner(rank:long)/*(C:PolyMat)*/ {
         return result;
     }
 
-    final public def max(axis: int): int {
-        var result: int = Int.MAX_VALUE;
-        for (var k: int = 0n; k<myMax(axis).rows; k++) {
+    final public def max(axis:Int):Int {
+        var result:Int = Int.MAX_VALUE;
+        for (var k:Int = 0n; k<myMax(axis).rows; k++) {
             val a = myMax(axis)(k)(axis);
             val b = maxSum(axis)(k)(axis);
             // ax+b<=0 where a>0 => x<=floor(-b/a)
@@ -227,18 +226,16 @@ final class PolyScanner(rank:long)/*(C:PolyMat)*/ {
      *
      * assumes no degenerate axes, which is guaranteeed by Scanner API
      */
-
-
-    final private class RailIt implements Iterator[Rail[int]] {
-        private val rank: long = PolyScanner.this.rank;
+    final private class RailIt implements Iterator[Rail[Int]] {
+        private val rank:Long = PolyScanner.this.rank;
         private val s =  PolyScanner.this;
 
-        private val x = new Rail[int](rank);
-        private val myMin = new Rail[int](rank);
-        private val myMax = new Rail[int](rank);
+        private val x = new Rail[Int](rank);
+        private val myMin = new Rail[Int](rank);
+        private val myMax = new Rail[Int](rank);
 
-        private var k: int;
-        private var doesHaveNext:boolean;
+        private var k:Int;
+        private var doesHaveNext:Boolean;
         def this() {
             myMin(0n) = s.min(0n);
             myMax(0n) = s.max(0n);
@@ -257,7 +254,7 @@ final class PolyScanner(rank:long)/*(C:PolyMat)*/ {
         public def hasNext() = doesHaveNext;
 
         private def checkHasNext():void {
-            k = (rank as int)-1n;
+            k = (rank as Int)-1n;
             while (x(k)>=myMax(k)) {
                 if (--k<0) {
                     doesHaveNext = false;
@@ -289,13 +286,12 @@ final class PolyScanner(rank:long)/*(C:PolyMat)*/ {
      *   1. Any/Var/ValPoint?
      *   2. hide inside iterator(body:(Point)=>void)?
      */
-
     public def iterator():Iterator[Point(rank)] = new Iterator[Point(rank)]() {
     	val it = new RailIt();
         public final def hasNext() = it.hasNext();
         public final def next(): Point(rank) {
             val t:Rail[Int] = it.next();
-            return Point.make(new Rail[long](t.size, (i:long)=>t(i as int) as long)) as Point(rank);
+            return Point.make(new Rail[Long](t.size, (i:Long)=>t(i as Int) as Long)) as Point(rank);
         }
     };
 
@@ -305,31 +301,31 @@ final class PolyScanner(rank:long)/*(C:PolyMat)*/ {
     //
 
     // XXX doesn't handle multi-body case
-    public def printInfo(ps: Printer) {
+    public def printInfo(ps:Printer) {
         ps.println("PolyScanner");
         C.printInfo(ps, "  C");
     }
 
-    public def printInfo2(ps: Printer): void {
-        for (var k: int = 0n; k<myMin.size; k++) {
+    public def printInfo2(ps:Printer):void {
+        for (var k:Int = 0n; k<myMin.size; k++) {
             ps.println("axis "+k);
             ps.println("  min");
-            for (var l: int = 0n; l<myMin(k).rows; l++) {
+            for (var l:Int = 0n; l<myMin(k).rows; l++) {
                 ps.print("  ");
-                for (var m: int = 0n; m<myMin(k)(l).cols; m++)
+                for (var m:Int = 0n; m<myMin(k)(l).cols; m++)
                     ps.print(" "+myMin(k)(l)(m));
                 ps.print("  sum");
-                for (var m: int = 0n; m<minSum(k)(l).cols; m++)
+                for (var m:Int = 0n; m<minSum(k)(l).cols; m++)
                     ps.print(" "+minSum(k)(l)(m));
                 ps.print("\n");
             }
             ps.printf("  max\n");
-            for (var l: int = 0n; l<myMax(k).rows; l++) {
+            for (var l:Int = 0n; l<myMax(k).rows; l++) {
                 ps.print("  ");
-                for (var m: int = 0n; m<myMax(k)(l).cols; m++)
+                for (var m:Int = 0n; m<myMax(k)(l).cols; m++)
                     ps.print(" "+myMax(k)(l)(m));
                 ps.print("  sum");
-                for (var m: int = 0n; m<maxSum(k)(l).cols; m++)
+                for (var m:Int = 0n; m<maxSum(k)(l).cols; m++)
                     ps.print(" "+maxSum(k)(l)(m));
                 ps.println();
             }

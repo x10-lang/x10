@@ -35,7 +35,7 @@ public abstract class Dist(
     /**
      * The rank of this distribution.
      */
-    property rank():long = region.rank;
+    property rank():Long = region.rank;
 
     //
     // factories - place is all applicable places
@@ -84,7 +84,7 @@ public abstract class Dist(
      * @param axis the dimension to cycle over
      * @return a "cyclic" distribution over r.
      */     
-    public static def makeCyclic(r:Region, axis:long):Dist(r) = makeBlockCyclic(r, axis, 1);
+    public static def makeCyclic(r:Region, axis:Long):Dist(r) = makeBlockCyclic(r, axis, 1);
     
     /**
      * Create a distribution over the specified region that varies in
@@ -109,7 +109,7 @@ public abstract class Dist(
      * @param axis the dimension to block over
      * @return a "block" distribution over r.
      */
-    public static def makeBlock(r:Region, axis:long):Dist(r) = makeBlock(r, axis, PlaceGroup.WORLD);
+    public static def makeBlock(r:Region, axis:Long):Dist(r) = makeBlock(r, axis, PlaceGroup.WORLD);
 
     /**
      * Creates a block, block distribution across all places.
@@ -128,7 +128,7 @@ public abstract class Dist(
      * @param axis1 the second dimension to block over
      * @return a "block,block" distribution over r.
      */
-    public static def makeBlockBlock(r:Region, axis0:long, axis1:long):Dist(r) {
+    public static def makeBlockBlock(r:Region, axis0:Long, axis1:Long):Dist(r) {
         return new BlockBlockDist(r, axis0, axis1, PlaceGroup.WORLD);
     }
 
@@ -157,7 +157,7 @@ public abstract class Dist(
      * @param blockSize the size of the block
      * @return a "block-cyclic" distribution over r.
      */
-    public static def makeBlockCyclic(r:Region, axis:long, blockSize:long):Dist(r) {
+    public static def makeBlockCyclic(r:Region, axis:Long, blockSize:Long):Dist(r) {
         throw new UnsupportedOperationException(); // short term while eliminating BaseDist
     }
 
@@ -199,7 +199,7 @@ public abstract class Dist(
      * @param pg the PlaceGroup over which to distribute the region
      * @return a "cyclic" distribution over r, cycling over the places in ps.
      */
-    public static def makeCyclic(r:Region, axis:long, pg:PlaceGroup):Dist(r) {
+    public static def makeCyclic(r:Region, axis:Long, pg:PlaceGroup):Dist(r) {
         throw new UnsupportedOperationException(); // short term while eliminating BaseDist
     }
 
@@ -217,7 +217,7 @@ public abstract class Dist(
      * @param pg the PlaceGroup over which to distribute the region
      * @return a "block" distribution over r, blocking over the places in ps.
      */
-    public static def makeBlock(r:Region, axis:long, pg:PlaceGroup):Dist(r) {
+    public static def makeBlock(r:Region, axis:Long, pg:PlaceGroup):Dist(r) {
         return new BlockDist(r, axis, pg);
     }
 
@@ -233,7 +233,7 @@ public abstract class Dist(
     /**
      * How many places are included in the distribution?
      */
-    abstract public def numPlaces():long;
+    abstract public def numPlaces():Long;
 
     /**
      * @return an object that implements Iterable[Region] that can be used to
@@ -282,7 +282,7 @@ public abstract class Dist(
      * @return the place that this distribution maps the given index to.
      * @see #operator(Point)
      */
-    public operator this(i0:long){rank==1}:Place = this(Point.make(i0));
+    public operator this(i0:Long){rank==1}:Place = this(Point.make(i0));
 
     /**
      * Return the place which this distribution maps the specified pair of indices to.
@@ -294,7 +294,7 @@ public abstract class Dist(
      * @return the place that this distribution maps the given pair of indices to.
      * @see #operator(Point)
      */
-    public operator this(i0:long, i1:long){rank==2}:Place = this(Point.make(i0, i1));
+    public operator this(i0:Long, i1:Long){rank==2}:Place = this(Point.make(i0, i1));
 
     /**
      * Return the place which this distribution maps the specified triple of indices to.
@@ -307,7 +307,7 @@ public abstract class Dist(
      * @return the place that this distribution maps the given triple of indices to.
      * @see #operator(Point)
      */
-    public operator this(i0:long, i1:long, i2:long){rank==3}:Place = this(Point.make(i0, i1, i2));
+    public operator this(i0:Long, i1:Long, i2:Long){rank==3}:Place = this(Point.make(i0, i1, i2));
 
     /**
      * Return the place which this distribution maps the specified quartet of indices to.
@@ -321,7 +321,7 @@ public abstract class Dist(
      * @return the place that this distribution maps the given quartet of indices to.
      * @see #operator(Point)
      */
-    public operator this(i0:long, i1:long, i2:long, i3:long){rank==4}:Place = this(Point.make(i0,i1,i2,i3));
+    public operator this(i0:Long, i1:Long, i2:Long, i3:Long){rank==4}:Place = this(Point.make(i0,i1,i2,i3));
 
 
 
@@ -335,7 +335,7 @@ public abstract class Dist(
      * @param pt the given point
      * @return the storage offset assigned to pt by this distribution
      */
-    abstract public def offset(pt:Point(rank)):long;
+    abstract public def offset(pt:Point(rank)):Long;
 
     /**
      * Return the offset in linearized place-local storage of the point [i0]
@@ -350,7 +350,7 @@ public abstract class Dist(
      * @return the storage offset assigned to [i0] by this distribution
      * @see #offset(Point)
      */
-    public def offset(i0:long){rank==1}:long = offset(Point.make(i0));
+    public def offset(i0:Long){rank==1}:Long = offset(Point.make(i0));
 
     /**
      * Return the offset in linearized place-local storage of the point [i0,i1].
@@ -366,7 +366,7 @@ public abstract class Dist(
      * @return the storage offset assigned to [i0,i1] by this distribution
      * @see #offset(Point)
      */
-    public def offset(i0:long, i1:long){rank==2}:long = offset(Point.make(i0, i1));
+    public def offset(i0:Long, i1:Long){rank==2}:Long = offset(Point.make(i0, i1));
 
     /**
      * Return the offset in linearized place-local storage of the point [i0,i1,i2].
@@ -383,7 +383,7 @@ public abstract class Dist(
      * @return the storage offset assigned to [i0,i1,i2] by this distribution
      * @see #offset(Point)
      */
-    public def offset(i0:long, i1:long, i2:long){rank==3}:long = offset(Point.make(i0, i1, i2));
+    public def offset(i0:Long, i1:Long, i2:Long){rank==3}:Long = offset(Point.make(i0, i1, i2));
 
     /**
      * Return the offset in linearized place-local storage of the point [i0,i1,i2,i3].
@@ -401,14 +401,14 @@ public abstract class Dist(
      * @return the storage offset assigned to [i0,i1,i2,i3] by this distribution
      * @see #offset(Point)
      */
-    public def offset(i0:long, i1:long, i2:long, i3:long){rank==4}:long = offset(Point.make(i0,i1,i2,i3));
+    public def offset(i0:Long, i1:Long, i2:Long, i3:Long){rank==4}:Long = offset(Point.make(i0,i1,i2,i3));
 
     /**
      * @return the maximum value returned by the offset method for
      *         the current place for any possible argument Point
      * @see #offset(Point)
      */
-    public abstract def maxOffset():long;
+    public abstract def maxOffset():Long;
 
 
     //
@@ -477,7 +477,7 @@ public abstract class Dist(
      * @param that the given distribution
      * @return true if that is a sub-distribution of this distribution.
      */
-    public def isSubdistribution(that:Dist(rank)): boolean {
+    public def isSubdistribution(that:Dist(rank)): Boolean {
         for (p:Place in Place.places())
             if (!that.get(p).contains(this.get(p)))
                 return false;
@@ -536,7 +536,7 @@ public abstract class Dist(
      * @param that the given distribution
      * @return true if that is equal to this distribution.
      */
-    public def equals(thatObj:Any):boolean {
+    public def equals(thatObj:Any):Boolean {
         if (this == thatObj) return true;
         if (!(thatObj instanceof Dist)) return false;
         val that = thatObj as Dist;
@@ -568,7 +568,7 @@ public abstract class Dist(
      * @param p the given point
      * @return true if this distribution contains p.
      */
-    public def contains(p:Point):boolean = region.contains(p);
+    public def contains(p:Point):Boolean = region.contains(p);
 
     /**
      * Returns true iff this.region contains p and
@@ -576,7 +576,7 @@ public abstract class Dist(
      * This method is intended to be overriden in subclasses
      * that can provide more efficient implementations of this operation.
      */
-    public def containsLocally(p:Point):boolean = contains(p) && this(here).contains(p);
+    public def containsLocally(p:Point):Boolean = contains(p) && this(here).contains(p);
 
     //
     // ops
@@ -637,7 +637,7 @@ public abstract class Dist(
 
     public def toString():String {
         var s:String = "Dist(";
-        var first:boolean = true;
+        var first:Boolean = true;
         for (p:Place in places()) {
             if (!first) s += ",";
             s +=  "" + get(p) + "->" + p.id;
@@ -660,39 +660,39 @@ public abstract class Dist(
         property(region);
     }
 
-    protected static @NoInline @NoReturn def raiseBoundsError(i0:long) {
+    protected static @NoInline @NoReturn def raiseBoundsError(i0:Long) {
         throw new ArrayIndexOutOfBoundsException("point (" + i0 + ") not contained in distribution");
     }    
-    protected static @NoInline @NoReturn def raiseBoundsError(i0:long, i1:long) {
+    protected static @NoInline @NoReturn def raiseBoundsError(i0:Long, i1:Long) {
         throw new ArrayIndexOutOfBoundsException("point (" + i0 + ", "+i1+") not contained in distribution");
     }    
-    protected static @NoInline @NoReturn def raiseBoundsError(i0:long, i1:long, i2:long) {
+    protected static @NoInline @NoReturn def raiseBoundsError(i0:Long, i1:Long, i2:Long) {
         throw new ArrayIndexOutOfBoundsException("point (" + i0 + ", "+i1+", "+i2+") not contained in distribution");
     }    
-    protected static @NoInline @NoReturn def raiseBoundsError(i0:long, i1:long, i2:long, i3:long) {
+    protected static @NoInline @NoReturn def raiseBoundsError(i0:Long, i1:Long, i2:Long, i3:Long) {
         throw new ArrayIndexOutOfBoundsException("point (" + i0 + ", "+i1+", "+i2+", "+i3+") not contained in distribution");
     }    
     protected static @NoInline @NoReturn def raiseBoundsError(pt:Point) {
         throw new ArrayIndexOutOfBoundsException("point " + pt + " not contained in distribution");
     }    
 
-    protected static @NoInline @NoReturn def raisePlaceError(i0:long) {
+    protected static @NoInline @NoReturn def raisePlaceError(i0:Long) {
         throw new BadPlaceException("point (" + i0 + ") not defined at " + here);
     }    
-    protected static @NoInline @NoReturn def raisePlaceError(i0:long, i1:long) {
+    protected static @NoInline @NoReturn def raisePlaceError(i0:Long, i1:Long) {
         throw new BadPlaceException("point (" + i0 + ", "+i1+") not defined at " + here);
     }    
-    protected static @NoInline @NoReturn def raisePlaceError(i0:long, i1:long, i2:long) {
+    protected static @NoInline @NoReturn def raisePlaceError(i0:Long, i1:Long, i2:Long) {
         throw new BadPlaceException("point (" + i0 + ", "+i1+", "+i2+") not defined at " + here);
     }    
-    protected static @NoInline @NoReturn def raisePlaceError(i0:long, i1:long, i2:long, i3:long) {
+    protected static @NoInline @NoReturn def raisePlaceError(i0:Long, i1:Long, i2:Long, i3:Long) {
         throw new BadPlaceException("point (" + i0 + ", "+i1+", "+i2+", "+i3+") not defined at " + here);
     }    
     protected static @NoInline @NoReturn def raisePlaceError(pt:Point) {
         throw new BadPlaceException("point " + pt + " not defined at " + here);
     }    
 }
-public type Dist(r:long) = Dist{self.rank==r};
+public type Dist(r:Long) = Dist{self.rank==r};
 public type Dist(r:Region) = Dist{self.region==r};
 public type Dist(d:Dist) = Dist{self==d};
 

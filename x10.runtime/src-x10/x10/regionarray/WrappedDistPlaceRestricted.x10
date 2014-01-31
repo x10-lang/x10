@@ -54,18 +54,18 @@ final class WrappedDistPlaceRestricted extends Dist {
     }
 
     // replicated from superclass to workaround xlC bug with using & itables
-    public operator this(i0:long){rank==1}:Place = this(Point.make(i0));
+    public operator this(i0:Long){rank==1}:Place = this(Point.make(i0));
 
     // replicated from superclass to workaround xlC bug with using & itables
-    public operator this(i0:long, i1:long){rank==2}:Place = this(Point.make(i0, i1));
+    public operator this(i0:Long, i1:Long){rank==2}:Place = this(Point.make(i0, i1));
 
     // replicated from superclass to workaround xlC bug with using & itables
-    public operator this(i0:long, i1:long, i2:long){rank==3}:Place = this(Point.make(i0, i1, i2));
+    public operator this(i0:Long, i1:Long, i2:Long){rank==3}:Place = this(Point.make(i0, i1, i2));
 
     // replicated from superclass to workaround xlC bug with using & itables
-    public operator this(i0:long, i1:long, i2:long, i3:long){rank==4}:Place = this(Point.make(i0,i1,i2,i3));
+    public operator this(i0:Long, i1:Long, i2:Long, i3:Long){rank==4}:Place = this(Point.make(i0,i1,i2,i3));
 
-    public def offset(pt:Point(rank)):long {
+    public def offset(pt:Point(rank)):Long {
         if (here == filter) {
             return base.offset(pt);
        } else {
@@ -73,7 +73,7 @@ final class WrappedDistPlaceRestricted extends Dist {
         }
     }
 
-    public def maxOffset():long = base.maxOffset();
+    public def maxOffset():Long = base.maxOffset();
 
     public def restriction(r:Region(rank)):Dist(rank) {
         return new WrappedDistRegionRestricted(this, r); 
@@ -87,10 +87,10 @@ final class WrappedDistPlaceRestricted extends Dist {
         }
     }
 
-    public def equals(thatObj:Any):boolean {
+    public def equals(thatObj:Any):Boolean {
 	if (!(thatObj instanceof WrappedDistPlaceRestricted)) return false;
         val that = thatObj as WrappedDistPlaceRestricted;
 	return this.base.equals(that.base) && this.filter.equals(that.filter);
     }
 }
-public type WrappedDistPlaceRestricted(r:long)=WrappedDistPlaceRestricted{self.rank==r};
+public type WrappedDistPlaceRestricted(r:Long)=WrappedDistPlaceRestricted{self.rank==r};

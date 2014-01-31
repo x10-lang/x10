@@ -35,7 +35,7 @@ final class BlockDist extends Dist {
     /**
      * The axis along which the region is being distributed
      */
-    private val axis:long;
+    private val axis:Long;
 
     /**
      * Cached restricted region for the current place.
@@ -43,7 +43,7 @@ final class BlockDist extends Dist {
     private transient var regionForHere:Region(this.rank);
 
 
-    def this(r:Region, axis:long, pg:PlaceGroup):BlockDist{self.region==r} {
+    def this(r:Region, axis:Long, pg:PlaceGroup):BlockDist{self.region==r} {
         super(r);
         this.axis = axis;
         this.pg = pg;
@@ -61,18 +61,18 @@ final class BlockDist extends Dist {
         val b = region.boundingBox();
         val min = b.min(axis);
         val max = b.max(axis);
-        val P = pg.numPlaces() as long;
+        val P = pg.numPlaces() as Long;
         val numElems = max - min + 1L;
         val blockSize = numElems/P;
         val leftOver = numElems - P*blockSize;
-        val i = pg.indexOf(place) as long;
+        val i = pg.indexOf(place) as Long;
         val low = min + blockSize*i + (i< leftOver ? i : leftOver);
         val hi = low + blockSize + (i < leftOver ? 0 : -1);
         
         if (region instanceof RectRegion) {
             // Optimize common case.
-            val newMin = new Rail[long](rank, (i:long) => region.min(i));
-            val newMax = new Rail[long](rank, (i:long) => region.max(i));
+            val newMin = new Rail[Long](rank, (i:Long) => region.min(i));
+            val newMax = new Rail[Long](rank, (i:Long) => region.max(i));
             newMin(axis) = low;
             newMax(axis) = hi;
             return new RectRegion(newMin, newMax) as Region(rank);
@@ -94,7 +94,7 @@ final class BlockDist extends Dist {
      * Assumption: Caller has done error checking to ensure that index is 
      *   actually within the bounds of the axis dimension.
      */
-    private def mapIndexToPlace(index:long):Place {
+    private def mapIndexToPlace(index:Long):Place {
         val bb = region.boundingBox();
         val min = bb.min(axis);
         val max = bb.max(axis);
@@ -116,10 +116,10 @@ final class BlockDist extends Dist {
     
     public def places():PlaceGroup = pg;
     
-    public def numPlaces():long = pg.numPlaces();
+    public def numPlaces():Long = pg.numPlaces();
 
     public def regions():Iterable[Region(rank)] {
-        return new Rail[Region(rank)](pg.numPlaces(), (i:long)=>blockRegionForPlace(pg(i)));
+        return new Rail[Region(rank)](pg.numPlaces(), (i:Long)=>blockRegionForPlace(pg(i)));
     }
 
     public def get(p:Place):Region(rank) {
@@ -133,7 +133,7 @@ final class BlockDist extends Dist {
         }
     }
 
-    public def containsLocally(p:Point):boolean = get(here).contains(p);
+    public def containsLocally(p:Point):Boolean = get(here).contains(p);
 
     
     // replicated from superclass to workaround xlC bug with using & itables
@@ -144,24 +144,24 @@ final class BlockDist extends Dist {
         return mapIndexToPlace(pt(axis));
     }
 
-    public operator this(i0:long){rank==1}:Place {
+    public operator this(i0:Long){rank==1}:Place {
         if (CompilerFlags.checkBounds() && !region.contains(i0)) raiseBoundsError(i0);
         return mapIndexToPlace(i0);
     }
 
-    public operator this(i0:long, i1:long){rank==2}:Place {
+    public operator this(i0:Long, i1:Long){rank==2}:Place {
         if (CompilerFlags.checkBounds() && !region.contains(i0, i1)) raiseBoundsError(i0,i1);
         return axis == 0 ? mapIndexToPlace(i0) : mapIndexToPlace(i1);
     }
 
-    public operator this(i0:long, i1:long, i2:long){rank==3}:Place {
+    public operator this(i0:Long, i1:Long, i2:Long){rank==3}:Place {
         if (CompilerFlags.checkBounds() && !region.contains(i0, i1, i2)) raiseBoundsError(i0,i1,i2);
         if (axis == 0) return mapIndexToPlace(i0);
         if (axis == 1) return mapIndexToPlace(i1);
         return mapIndexToPlace(i2);
     }
 
-    public operator this(i0:long, i1:long, i2:long, i3:long){rank==4}:Place {
+    public operator this(i0:Long, i1:Long, i2:Long, i3:Long){rank==4}:Place {
         if (CompilerFlags.checkBounds() && !region.contains(i0, i1, i2, i3)) raiseBoundsError(i0,i1,i2,i3);
         if (axis == 0) return mapIndexToPlace(i0);
         if (axis == 1) return mapIndexToPlace(i1);
@@ -169,7 +169,7 @@ final class BlockDist extends Dist {
         return mapIndexToPlace(i3);
     }
 
-    public def offset(pt:Point(rank)):long {
+    public def offset(pt:Point(rank)):Long {
         val r = get(here);
         val offset = r.indexOf(pt);
         if (offset == -1L) {
@@ -180,7 +180,7 @@ final class BlockDist extends Dist {
     }
 
 
-    public def offset(i0:long){rank==1}:long {
+    public def offset(i0:Long){rank==1}:Long {
         val r = get(here);
         val offset = r.indexOf(i0);
         if (offset == -1L) {
@@ -190,7 +190,7 @@ final class BlockDist extends Dist {
         return offset;
     }
 
-    public def offset(i0:long, i1:long){rank==2}:long {
+    public def offset(i0:Long, i1:Long){rank==2}:Long {
         val r = get(here);
         val offset = r.indexOf(i0,i1);
         if (offset == -1L) {
@@ -200,7 +200,7 @@ final class BlockDist extends Dist {
         return offset;
     }
 
-    public def offset(i0:long, i1:long, i2:long){rank==3}:long {
+    public def offset(i0:Long, i1:Long, i2:Long){rank==3}:Long {
         val r = get(here);
         val offset = r.indexOf(i0,i1,i2);
         if (offset == -1L) {
@@ -210,7 +210,7 @@ final class BlockDist extends Dist {
         return offset;
     }
 
-    public def offset(i0:long, i1:long, i2:long, i3:long){rank==4}:long {
+    public def offset(i0:Long, i1:Long, i2:Long, i3:Long){rank==4}:Long {
         val r = get(here);
         val offset = r.indexOf(i0,i1,i2,i3);
         if (offset == -1L) {
@@ -233,7 +233,7 @@ final class BlockDist extends Dist {
         return new WrappedDistPlaceRestricted(this, p);
     }
 
-    public def equals(thatObj:Any):boolean {
+    public def equals(thatObj:Any):Boolean {
         if (this == thatObj) return true;
         if (!(thatObj instanceof BlockDist)) return super.equals(thatObj);
         val that = thatObj as BlockDist;

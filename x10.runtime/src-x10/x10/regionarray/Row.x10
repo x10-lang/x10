@@ -15,20 +15,19 @@ import x10.io.Printer;
 import x10.io.StringWriter;
 
 
-abstract class Row(cols:Int) implements (Int)=>int {
+abstract class Row(cols:Int) implements (Int)=>Int {
 
-    public abstract operator this(i:Int): int;
-    public abstract operator this(i:Int)=(v:int): int;
+    public abstract operator this(i:Int):Int;
+    public abstract operator this(i:Int)=(v:Int):Int;
 
     protected def this(cols:Int) = property(cols);
 
     /**
      * print a row in both matrix and equation form
      */
-
-    public def printInfo(ps: Printer, row:int) {
+    public def printInfo(ps:Printer, row:Int) {
         ps.print("[");
-        for (var i: int = 0n; i<cols; i++) {
+        for (var i:Int = 0n; i<cols; i++) {
             ps.print(this(i));
             if (i==cols-2n) ps.print(" |");
         }
@@ -40,11 +39,10 @@ abstract class Row(cols:Int) implements (Int)=>int {
     /**
      * print a row in equation form
      */
-
-    def printEqn(ps: Printer, spc: String, row: int) {
-        var first: boolean = true;
+    def printEqn(ps:Printer, spc:String, row:Int) {
+        var first:Boolean = true;
         ps.print("y" + row + " = ");
-        for (var i: int = 0n; i<cols-1n; i++) {
+        for (var i:Int = 0n; i<cols-1n; i++) {
             val c = this(i);
             if (c==1n) {
                 if (first)
@@ -62,12 +60,11 @@ abstract class Row(cols:Int) implements (Int)=>int {
         if (c!=0n||first) ps.print((c>=0n&&!first?"+":"") + c);
     }
 
-    public def toString(): String {
+    public def toString():String {
         val os = new StringWriter();
         val ps = new Printer(os);
         printEqn(ps, "", 0n);
         return os.result();
     }
-
 
 }

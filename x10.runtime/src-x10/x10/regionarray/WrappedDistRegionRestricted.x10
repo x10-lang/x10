@@ -32,7 +32,7 @@ final class WrappedDistRegionRestricted extends Dist {
 
     public def regions():Iterable[Region(rank)] {
         return new Rail[Region(rank)](Place.MAX_PLACES, 
-                                      (i:long)=>base.get(Place(i as int)).intersection(filter));
+                                      (i:Long)=>base.get(Place(i as Int)).intersection(filter));
     }
 
     public def get(p:Place):Region(rank) {
@@ -51,18 +51,18 @@ final class WrappedDistRegionRestricted extends Dist {
     }
 
     // replicated from superclass to workaround xlC bug with using & itables
-    public operator this(i0:long){rank==1}:Place = this(Point.make(i0));
+    public operator this(i0:Long){rank==1}:Place = this(Point.make(i0));
 
     // replicated from superclass to workaround xlC bug with using & itables
-    public operator this(i0:long, i1:long){rank==2}:Place = this(Point.make(i0, i1));
+    public operator this(i0:Long, i1:Long){rank==2}:Place = this(Point.make(i0, i1));
 
     // replicated from superclass to workaround xlC bug with using & itables
-    public operator this(i0:long, i1:long, i2:long){rank==3}:Place = this(Point.make(i0, i1, i2));
+    public operator this(i0:Long, i1:Long, i2:Long){rank==3}:Place = this(Point.make(i0, i1, i2));
 
     // replicated from superclass to workaround xlC bug with using & itables
-    public operator this(i0:long, i1:long, i2:long, i3:long){rank==4}:Place = this(Point.make(i0,i1,i2,i3));
+    public operator this(i0:Long, i1:Long, i2:Long, i3:Long){rank==4}:Place = this(Point.make(i0,i1,i2,i3));
 
-    public def offset(pt:Point(rank)):long {
+    public def offset(pt:Point(rank)):Long {
         if (filter.contains(pt)) {
             return base.offset(pt);
         } else {
@@ -70,7 +70,7 @@ final class WrappedDistRegionRestricted extends Dist {
         }
     }
 
-    public def maxOffset():long = base.maxOffset();
+    public def maxOffset():Long = base.maxOffset();
 
     public def restriction(r:Region(rank)):Dist(rank) {
         return new WrappedDistRegionRestricted(base, filter.intersection(r)); 
@@ -80,10 +80,10 @@ final class WrappedDistRegionRestricted extends Dist {
         return new WrappedDistPlaceRestricted(this, p);
     }
 
-    public def equals(thatObj:Any):boolean {
+    public def equals(thatObj:Any):Boolean {
 	if (!(thatObj instanceof WrappedDistRegionRestricted)) return false;
         val that = thatObj as WrappedDistRegionRestricted;
 	return this.base.equals(that.base) && this.filter.equals(that.filter);
     }
 }
-public type WrappedDistRegionRestricted(r:long) = WrappedDistRegionRestricted{self.rank==r};
+public type WrappedDistRegionRestricted(r:Long) = WrappedDistRegionRestricted{self.rank==r};

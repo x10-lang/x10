@@ -13,23 +13,21 @@ package x10.regionarray;
 
 class ValRow extends Row {
 
-    private val row:Rail[int];
+    private val row:Rail[Int];
 
-    public def this(row:Rail[int]) {
-        super(row.size as int);
+    public def this(row:Rail[Int]) {
+        super(row.size as Int);
         this.row = row;
     }
 
-    public def this(cols:Int, init:(Int)=>int) {
+    public def this(cols:Int, init:(Int)=>Int) {
         super(cols);
-        row = new Rail[int](cols, (i:long)=>init(i as int));
+        row = new Rail[Int](cols, (i:Long)=>init(i as Int));
     }
     
     public operator this(i:Int) = row(i);
     
-    public operator this(i:Int)=(v:int):int {
+    public operator this(i:Int)=(v:Int):Int {
         throw new IllegalOperationException("ValRow.set");
     }
 }
-
-

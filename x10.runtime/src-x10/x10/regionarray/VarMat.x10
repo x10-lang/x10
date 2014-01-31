@@ -14,14 +14,14 @@ package x10.regionarray;
 final class VarMat extends Mat[VarRow] {
     
     public def this(cols:Int, mat:Rail[VarRow]) {
-        super(mat.size as int, cols, mat);
+        super(mat.size as Int, cols, mat);
     }
 
     public def this(rows:Int, cols:Int, init:(Int)=>VarRow) {
-        super(rows, cols, new Rail[VarRow](rows, (i:long)=>init(i as int)));
+        super(rows, cols, new Rail[VarRow](rows, (i:Long)=>init(i as Int)));
     }
 
-    public def this(rows:Int, cols: Int, init:(i:Int,j:Int)=>int) {
+    public def this(rows:Int, cols:Int, init:(i:Int,j:Int)=>Int) {
         this(rows, cols, (i:Int)=>new VarRow(cols, (j:Int)=>init(i,j)));
     }
 

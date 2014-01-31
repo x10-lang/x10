@@ -74,7 +74,7 @@ public final class DistArray_Unique[T] extends DistArray[T]{this.rank()==1} impl
      * @return the Place where i is a valid index in the DistArray; 
      *          will return Place.INVALID_PLACE if i is not contained in globalIndices
      */
-    public def place(i:long):Place = (i>=0 && i<placeGroup.size()) ? placeGroup(i) : Place.INVALID_PLACE;
+    public def place(i:Long):Place = (i>=0 && i<placeGroup.size()) ? placeGroup(i) : Place.INVALID_PLACE;
 
 
     /**
@@ -96,7 +96,7 @@ public final class DistArray_Unique[T] extends DistArray[T]{this.rank()==1} impl
      * @return the element of this array corresponding to the given index.
      * @see #set(T, Long)
      */
-    public @Inline operator this(i:long):T {
+    public @Inline operator this(i:Long):T {
         if (CompilerFlags.checkPlace() || CompilerFlags.checkBounds()) validateIndex(i);
         return raw(0);
     }
@@ -120,7 +120,7 @@ public final class DistArray_Unique[T] extends DistArray[T]{this.rank()==1} impl
      * @return the new value of the element of this array corresponding to the given index.
      * @see #operator(Long)
      */
-    public @Inline operator this(i:long)=(v:T):T{self==v} {
+    public @Inline operator this(i:Long)=(v:T):T{self==v} {
         if (CompilerFlags.checkPlace() || CompilerFlags.checkBounds()) validateIndex(i);
 	raw(0) = v;
         return v;
@@ -142,7 +142,7 @@ public final class DistArray_Unique[T] extends DistArray[T]{this.rank()==1} impl
      * on valid access, while still preferring to raise a bounds error rather than
      * a place error when an index is not even contained in the globalIndices of the array.
      */
-    private @Inline def validateIndex(i:long) {
+    private @Inline def validateIndex(i:Long) {
         if (CompilerFlags.checkBounds() || CompilerFlags.checkPlace()) {
             if (placeGroup.indexOf(here) != i) { 
                 if (CompilerFlags.checkBounds() && (i < 0 || i >= placeGroup.size())) raiseBoundsError(i);

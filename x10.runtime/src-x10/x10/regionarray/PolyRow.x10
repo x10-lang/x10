@@ -26,22 +26,22 @@ import x10.io.Printer;
  */
 class PolyRow(rank:Long) extends ValRow {
 
-    def this(as_:Rail[int])= this(as_, as_.size-1);
+    def this(as_:Rail[Int])= this(as_, as_.size-1);
 
-    private def this(as_:Rail[int], n:long): PolyRow(n) {
+    private def this(as_:Rail[Int], n:Long):PolyRow(n) {
         super(as_);
-        property(n as long);
+        property(n as Long);
     }
 
-    def this(p:Point, k:int) {
-        super((p.rank+1) as int, (i:Int) => i<p.rank? p(i) as int : k);
+    def this(p:Point, k:Int) {
+        super((p.rank+1) as Int, (i:Int) => i<p.rank? p(i) as Int : k);
         property(p.rank);
     }
 
-    def this(cols:int, init: (i:Int)=>int) {
+    def this(cols:Int, init:(i:Int)=>Int) {
         super(cols, init);
         val cols1 = cols-1n;
-        property(cols1 as long);
+        property(cols1 as Long);
     }
 
 
@@ -50,9 +50,8 @@ class PolyRow(rank:Long) extends ValRow {
      * axis, from most major to least major axis, with constant as
      * least siginficant part of key
      */
-
-    static def compare(a: Row, b: Row): int {
-        for (var i: int = 0n; i<a.cols; i++) {
+    static def compare(a: Row, b: Row):Int {
+        for (var i:Int = 0n; i<a.cols; i++) {
             if (a(i) < b(i))
                 return -1n;
             else if (a(i) > b(i))
@@ -69,9 +68,8 @@ class PolyRow(rank:Long) extends ValRow {
      * XXX only right if first coefficients are the same; needs to
      * allow for multiplication by positive constant
      */
-
-    def isParallel(that: PolyRow): boolean {
-        for (var i: int = 0n; i<cols-1n; i++)
+    def isParallel(that:PolyRow):Boolean {
+        for (var i:Int = 0n; i<cols-1n; i++)
             if (this(i)!=that(i))
                 return false;
         return true;
@@ -82,10 +80,9 @@ class PolyRow(rank:Long) extends ValRow {
      * halfspace is rectangular if only one coefficent is
      * non-zero
      */
-
-    def isRect(): boolean {
-        var nz: boolean = false;
-        for (var i: int = 0n; i<cols-1n; i++) {
+    def isRect():Boolean {
+        var nz:Boolean = false;
+        for (var i:Int = 0n; i<cols-1n; i++) {
             if (this(i)!=0n) {
                 if (nz) return false;
                 nz = true;
@@ -98,10 +95,9 @@ class PolyRow(rank:Long) extends ValRow {
     /**
      * determine whether point satisfies halfspace
      */
-
-    def contains(p: Point): boolean {
-        var sum: int = this(rank as int);
-        for (var i: int = 0n; i<rank; i++)
+    def contains(p: Point):Boolean {
+        var sum:Int = this(rank as Int);
+        for (var i:Int = 0n; i<rank; i++)
             sum += this(i)*p(i);
         return sum <= 0n;
     }
@@ -116,10 +112,9 @@ class PolyRow(rank:Long) extends ValRow {
      *   -a0*x0 - ... -ar   <= -1
      *   -a0*x0 - ... -ar+1 <=  0
      */
-
-    def complement(): PolyRow {
-        val init = (i:long) => (i as int)<rank? -this(i as int) : -this(rank as int)+1n;
-        val as_ = new Rail[int](rank+1n, init);
+    def complement():PolyRow {
+        val init = (i:Long) => (i as Int)<rank? -this(i as Int) : -this(rank as Int)+1n;
+        val as_ = new Rail[Int](rank+1n, init);
         return new PolyRow(as_);
     }
 
@@ -127,11 +122,10 @@ class PolyRow(rank:Long) extends ValRow {
     /**
      * print a halfspace in equation form
      */
-
-    def printEqn(ps: Printer, spc: String, row: int) {
-        var sgn: int = 0n;
-        var first: boolean = true;
-        for (var i: int = 0n; i<cols-1; i++) {
+    def printEqn(ps: Printer, spc: String, row:Int) {
+        var sgn:Int = 0n;
+        var first:Boolean = true;
+        for (var i:Int = 0n; i<cols-1; i++) {
             if (sgn==0n) {
                 if (this(i)<0n)
                     sgn = -1n;
@@ -160,4 +154,4 @@ class PolyRow(rank:Long) extends ValRow {
     }
 
 }
-public type PolyRow(rank:long) = PolyRow{self.rank==rank};
+public type PolyRow(rank:Long) = PolyRow{self.rank==rank};
