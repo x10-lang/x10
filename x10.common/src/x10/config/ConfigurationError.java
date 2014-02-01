@@ -17,6 +17,7 @@ package x10.config;
  * Configuration class.
  * @author igor
  */
+@SuppressWarnings("serial")
 public class ConfigurationError extends Exception {
 	/**
 	 * Construct a configuration error with a detail message.
