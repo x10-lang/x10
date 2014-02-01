@@ -16,6 +16,7 @@ package x10.config;
  * Used to report an error in option value in the Configuration class.
  * @author igor
  */
+@SuppressWarnings("serial")
 public class OptionError extends Exception {
 	/**
 	 * Construct an option error with a detail message.
