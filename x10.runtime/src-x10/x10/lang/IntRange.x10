@@ -52,16 +52,16 @@ public struct IntRange(
         return false;
     }
     
-    public def hashCode():int = (max-min).hashCode();
+    public def hashCode():Int = (max-min).hashCode();
     
     public def iterator():Iterator[Int] {
         return new IntRangeIt(min, max);
     }  
 
     private static class IntRangeIt implements Iterator[Int] {
-        var cur:int;
-        val max:int;
-        def this(min:int, max:int) {
+        var cur:Int;
+        val max:Int;
+        def this(min:Int, max:Int) {
             this.cur = min;
             this.max = max;
         }

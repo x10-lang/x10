@@ -23,7 +23,7 @@ public final class Worker {
     public val workers:Rail[Worker];
     private val random:Random;
 
-    public val id:int;
+    public val id:Int;
     public val deque = new Deque();
     public var fifo:Deque = deque; // hack to avoid stealing from null fifo
     public val lock = new Lock();
@@ -107,7 +107,7 @@ public final class Worker {
         }
     }
 
-    public static def wsRunAsync(id:long, body:()=>void):void {
+    public static def wsRunAsync(id:Long, body:()=>void):void {
         if (id == Runtime.hereLong()) {
             val copy = Runtime.deepCopy(body);
             copy();

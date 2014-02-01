@@ -33,7 +33,7 @@ public struct Team {
     // TODO: Figure out why probe doesn't work on Managed X10
     @Native("java", "false")
     @Native("c++", "false") // was true
-    public static native def useProbeNotSleep():boolean;
+    public static native def useProbeNotSleep():Boolean;
 
     /** A team that has one member at each place. */
     public static val WORLD = Team(0n, PlaceGroup.WORLD, here.id());
@@ -43,13 +43,13 @@ public struct Team {
     private static val roles:GrowableRail[Int] = new GrowableRail[Int](); // only used with native collectives
     private static val state:GrowableRail[LocalTeamState] = new GrowableRail[LocalTeamState](); // only used with X10 emulated collectives
 
-    private val collectiveSupportLevel:int; // what level of collectives are supported
+    private val collectiveSupportLevel:Int; // what level of collectives are supported
     // these values correspond to x10rt_types:x10rt_coll_support
-    private static val X10RT_COLL_NOCOLLECTIVES:int = 0n;
-    private static val X10RT_COLL_BARRIERONLY:int = 1n;
-    private static val X10RT_COLL_ALLBLOCKINGCOLLECTIVES:int = 2n;
-    private static val X10RT_COLL_NONBLOCKINGBARRIER:int = 3n;
-    private static val X10RT_COLL_ALLNONBLOCKINGCOLLECTIVES:int = 4n;
+    private static val X10RT_COLL_NOCOLLECTIVES:Int = 0n;
+    private static val X10RT_COLL_BARRIERONLY:Int = 1n;
+    private static val X10RT_COLL_ALLBLOCKINGCOLLECTIVES:Int = 2n;
+    private static val X10RT_COLL_NONBLOCKINGBARRIER:Int = 3n;
+    private static val X10RT_COLL_ALLNONBLOCKINGCOLLECTIVES:Int = 4n;
     
     private val id:Int; // team ID
     public def id() = id;
@@ -167,7 +167,7 @@ public struct Team {
     	finish nativeBarrier(id, (id==0n?here.id() as Int:Team.roles(id)));
     }
 
-    private static def nativeBarrier (id:int, role:Int) : void {
+    private static def nativeBarrier (id:Int, role:Int) : void {
         @Native("java", "x10.x10rt.TeamSupport.nativeBarrier(id, role);")
         @Native("c++", "x10rt_barrier(id, role, ::x10aux::coll_handler, ::x10aux::coll_enter());") {}
     }
@@ -531,7 +531,7 @@ public struct Team {
             alltoall(myInfo, 0, allInfo, 0, 2);
             
             // In case the underlying alltoall does not copy my info from src to dst
-            myTeamPosition:long = Team.state(this.id).places.indexOf(here.id()) * 2;
+            myTeamPosition:Long = Team.state(this.id).places.indexOf(here.id()) * 2;
             allInfo(myTeamPosition) = color;
             allInfo(myTeamPosition+1) = new_role as Int;
             
@@ -539,14 +539,14 @@ public struct Team {
         	// use the above to figure out the members of *my* team
             // count the new team size
             var numPlacesInMyTeam:Int = 0n;
-            for (var i:long=0; i<allInfo.size; i+=2)
+            for (var i:Long=0; i<allInfo.size; i+=2)
                 if (allInfo(i) == color)
                 	numPlacesInMyTeam++;
 
             if (DEBUGINTERNALS) Runtime.println(here + " my new team has "+numPlacesInMyTeam+" places");
             // create a new PlaceGroup with all members of my new team
             val newTeamPlaceRail:Rail[Place] = new Rail[Place](numPlacesInMyTeam);
-            for (var i:long=0; i<allInfo.size; i+=2) {
+            for (var i:Long=0; i<allInfo.size; i+=2) {
             	if (allInfo(i) == color) {
                     if (DEBUGINTERNALS) Runtime.println(here + " setting new team position "+allInfo(i+1)+" to place "+Team.state(this.id).places(i/2));
             	    newTeamPlaceRail(allInfo(i+1)) = Team.state(this.id).places(i/2);
@@ -613,8 +613,8 @@ public struct Team {
      * For performance reasons, this implementation DOES NOT perform error checking.  It does not verify
      * array indexes, that all places call the same collective at the same time, that root matches, etc.
      */
-    private static class LocalTeamState(places:PlaceGroup, teamid:Int, myIndex:long) {
-        private static struct TreeStructure(parentIndex:long, child1Index:long, child2Index:long, totalChildren:long){}
+    private static class LocalTeamState(places:PlaceGroup, teamid:Int, myIndex:Long) {
+        private static struct TreeStructure(parentIndex:Long, child1Index:Long, child2Index:Long, totalChildren:Long){}
         
         private static PHASE_READY:Int = 0n;   // normal state, nothing in progress
         private static PHASE_INIT:Int = 1n;    // collective active, preparing local structures to accept data
@@ -657,7 +657,7 @@ public struct Team {
             }
         }
         
-        private static def lockDst(teamidcopy:int, lock:Lock) {
+        private static def lockDst(teamidcopy:Int, lock:Lock) {
         	if (!lock.tryLock()) {
         		if (useProbeNotSleep()) {
         			while (!lock.tryLock())
@@ -673,11 +673,11 @@ public struct Team {
         }
         
         // recursive method used to find our parent and child links in the tree.  This method assumes that root is not in the tree (or root is at position 0)
-        private def getLinks(parent:long, startIndex:long, endIndex:long):TreeStructure {
+        private def getLinks(parent:Long, startIndex:Long, endIndex:Long):TreeStructure {
             if (DEBUGINTERNALS) Runtime.println(here+" getLinks called with myIndex="+myIndex+" parent="+parent+" startIndex="+startIndex+", endIndex="+endIndex);
             
             if (myIndex == startIndex) { // we're at our own position in the tree
-                val children:long = endIndex-startIndex; // overall gap of children
+                val children:Long = endIndex-startIndex; // overall gap of children
                 return new TreeStructure(parent, (children<1)?-1:(startIndex+1), (children<2)?-1:(startIndex+1+((endIndex-startIndex)/2)), children);
             }
             else {
@@ -754,7 +754,7 @@ public struct Team {
 	        
 	        // figure out our links in the tree structure
 	        val myLinks:TreeStructure;
-	        val rootIndex:long = places.indexOf(root);
+	        val rootIndex:Long = places.indexOf(root);
 	        if (myIndex > rootIndex || rootIndex == 0)
 	        	myLinks = getLinks(-1, rootIndex, places.numPlaces()-1);
 	        else if (myIndex < rootIndex)
@@ -851,7 +851,7 @@ public struct Team {
 	                val notnulldst:Rail[T]{self!=null} = dst as Rail[T]{self!=null};
                     gr:GlobalRail[T] = new GlobalRail[T](notnulldst);
                     if (collType == COLL_ALLTOALL) {
-                        val totalData:long = count*(myLinks.totalChildren+1);
+                        val totalData:Long = count*(myLinks.totalChildren+1);
 	                    @Pragma(Pragma.FINISH_ASYNC) finish at (places(myLinks.parentIndex)) async {
 	                        // copy my data, plus all the data filled in by my children, to my parent
 	                        Rail.asyncCopy(gr, dst_off, Team.state(teamidcopy).local_dst as Rail[T], Team.state(teamidcopy).local_dst_off, totalData);

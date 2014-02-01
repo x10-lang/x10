@@ -29,7 +29,7 @@ public class StringWriter extends Writer {
     }
 
     public def write(x:Rail[Byte], off:Long, len:Long):void { 
-        for (var i:long = off; i<off+len; i++) {
+        for (var i:Long = off; i<off+len; i++) {
             b.add(x(i) as Char);
         }
     }

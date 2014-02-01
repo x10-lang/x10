@@ -36,7 +36,7 @@ class PolyMat(rank:Long) extends Mat[PolyRow] {
      * Low-level constructor. For greater convenience use PolyMatBuilder.
      */
 
-    public def this(rows:Int, cols:Int, init: (i:Int,j:Int)=>int, isSimplified:Boolean) {
+    public def this(rows:Int, cols:Int, init: (i:Int,j:Int)=>Int, isSimplified:Boolean) {
         super(rows, cols, new Rail[PolyRow](rows, (i:Long)=>new PolyRow(cols, (j:Int)=>init(i as Int,j))));
         val cols1 = cols-1n;
         property(cols1 as Long);

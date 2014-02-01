@@ -25,15 +25,15 @@ public class Random {
     private static val N = 624;
     private static val M = 397;
 
-    private var index:long;
-    private val mt:Rail[int]{self!=null,self.size==N};
+    private var index:Long;
+    private val mt:Rail[Int]{self!=null,self.size==N};
 
     public def this() {
         this(System.nanoTime());
     }
 
     public def this(seed:Long) {
-        mt = Unsafe.allocRailUninitialized[int](N); // No need to zero; initialized by init
+        mt = Unsafe.allocRailUninitialized[Int](N); // No need to zero; initialized by init
         init(seed);
     }
     
@@ -48,18 +48,18 @@ public class Random {
      * when maxPlus1 > 0. Return 0 if maxPlus1 <= 0 instead of throwing 
      * an IllegalArgumentException, to simplify user code.
      */
-    public def nextInt(maxPlus1:int):int {
+    public def nextInt(maxPlus1:Int):Int {
         if (maxPlus1 <= 0n)
             return 0n;
         
-        var n:int = maxPlus1;
+        var n:Int = maxPlus1;
 
         if ((n & -n) == n) {
             // If a power of 2, just mask nextInt
             return nextInt() & (n-1n);
         }
 
-        var mask:int = 1n;
+        var mask:Int = 1n;
         while ((n & ~mask) != 0n) {
             mask <<= 1n;
             mask |= 1n;
@@ -67,7 +67,7 @@ public class Random {
 
         // Keep generating numbers of the right size until we get
         // one in range.  The expected number of iterations is 2.
-        var x:int;
+        var x:Int;
 
         do {
             x = nextInt() & mask;
@@ -77,10 +77,10 @@ public class Random {
     }
 
     public def nextBytes(buf:Rail[Byte]):void {
-        var i:int = 0n;
+        var i:Int = 0n;
         while (true) {
-            var x:int = nextInt();
-            for (var j:int = 0n; j < 4n; j++) {
+            var x:Int = nextInt();
+            for (var j:Int = 0n; j < 4n; j++) {
                 if (i >= buf.size)
                     return;
                 buf(i) = (x & 0xff) as Byte;
@@ -90,21 +90,21 @@ public class Random {
         }
     }
      
-    /** Return a 64-bit random (long) integer */
-    public def nextLong():long = ((nextInt() as Long) << 32n) | (nextInt() & 0xFFFFFFFFL);
+    /** Return a 64-bit random (Long) integer */
+    public def nextLong():Long = ((nextInt() as Long) << 32n) | (nextInt() & 0xFFFFFFFFL);
 
-    public def nextLong(maxPlus1:long):long {
+    public def nextLong(maxPlus1:Long):Long {
         if (maxPlus1 <= 0n)
             return 0L;
         
-        var n:long = maxPlus1;
+        var n:Long = maxPlus1;
 
         if ((n & -n) == n) {
             // If a power of 2, just mask nextInt
             return nextLong() & (n-1);
         }
 
-        var mask:long = 1L;
+        var mask:Long = 1L;
         while ((n & ~mask) != 0L) {
             mask <<= 1n;
             mask |= 1L;
@@ -112,7 +112,7 @@ public class Random {
 
         // Keep generating numbers of the right size until we get
         // one in range.  The expected number of iterations is 2.
-        var x:long;
+        var x:Long;
 
         do {
             x = nextLong() & mask;
@@ -122,7 +122,7 @@ public class Random {
     }
 
     /** Return a random boolean. */
-    public def nextBoolean():boolean = nextInt() < 0n;
+    public def nextBoolean():Boolean = nextInt() < 0n;
 
     /** Return a random float between 0.0f and 1.0f. */
     public def nextFloat():float = (nextInt() >>> (32n-24n)) / ((1<<24n) as Float);
@@ -146,7 +146,7 @@ public class Random {
  * Modeling and Computer Simulation, 8(1), January, pp. 3--30 (1998)
  */
 
-    @NonEscaping public final def init(seed:long):void {
+    @NonEscaping public final def init(seed:Long):void {
 	// If provided seed was 0, use 4357 instead.
         mt(0) = seed == 0 ? 4357n : (seed as Int);
 
@@ -161,7 +161,7 @@ public class Random {
         twist();
     }
 
-    public def random():int {
+    public def random():Int {
         if (index == N) {
             index = 0;
             twist();
@@ -175,8 +175,8 @@ public class Random {
     }
 
     private def twist():void {
-        var i:long = 0;
-        var s:int;
+        var i:Long = 0;
+        var s:Int;
         for (; i < N - M; i++) {
             s = (mt(i) & 0x80000000n) | (mt(i+1) & 0x7FFFFFFFn);
             mt(i) = mt(i+M) ^ (s >>> 1n) ^ ((s & 1n) * 0x9908B0DFn);

@@ -15,6 +15,6 @@ import x10.compiler.NativeRep;
 import x10.compiler.Native;
 
 public interface Iterator[T] {
-    public def hasNext(): boolean;
+    public def hasNext():Boolean;
     public def next():T;
 }

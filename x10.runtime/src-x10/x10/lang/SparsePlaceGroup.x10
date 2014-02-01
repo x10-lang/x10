@@ -53,7 +53,7 @@ public final class SparsePlaceGroup extends PlaceGroup {
    * Construct a SparsePlaceGroup from another PlaceGroup.
    */
   public def this(pg:PlaceGroup) {
-    places = new Rail[Place](pg.size(), (i:long)=>pg(i));
+    places = new Rail[Place](pg.size(), (i:Long)=>pg(i));
   }
 
   /**
@@ -64,20 +64,20 @@ public final class SparsePlaceGroup extends PlaceGroup {
     places = new Rail[Place](1, p);
   }
 
-  public operator this(i:long):Place = places(i);
+  public operator this(i:Long):Place = places(i);
 
   public def iterator() = places.iterator();
 
   public def numPlaces() = places.size;
 
-  public def contains(id:long):Boolean {
+  public def contains(id:Long):Boolean {
     for (p in places) {
         if (p.id == id) return true;
     }
     return false;
   }
 
-  public def indexOf(id:long):long {
+  public def indexOf(id:Long):Long {
     for (i in places.range()) {
         if (places(i).id == id) return i;
     }

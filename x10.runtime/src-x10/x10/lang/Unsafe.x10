@@ -32,13 +32,13 @@ public final class Unsafe {
 
     @Native("c++", "(#x)->clear(#start, #numElems)")
     @Native("java", "(#x).clear(#start, #numElems)")
-    public native static def clearRail[T](x:Rail[T], start:long, numElems:long):void;
+    public native static def clearRail[T](x:Rail[T], start:Long, numElems:Long):void;
 
     @Native("c++", "(#r)->unchecked_apply(#i)")
-    public static @Inline def uncheckedRailApply[T](r:Rail[T], i:long):T = r(i);
+    public static @Inline def uncheckedRailApply[T](r:Rail[T], i:Long):T = r(i);
 
     @Native("c++", "(#r)->unchecked_set(#i, #v)")
-    public static @Inline def uncheckedRailSet[T](r:Rail[T], i:long, v:T):T {
+    public static @Inline def uncheckedRailSet[T](r:Rail[T], i:Long, v:T):T {
         r(i) = v;
         return v;
     }
@@ -47,7 +47,7 @@ public final class Unsafe {
     public static def dealloc[T](o:T){ T isref } :void {}
 
     @Native("c++", "::x10::lang::UnsafeNatives::getCongruentSibling(#r, #dst)")
-    private static def getCongruentSibling[T](r:Rail[T]{self!=null}, dst:long):Rail[T]{self.size==r.size,self!=null} {
+    private static def getCongruentSibling[T](r:Rail[T]{self!=null}, dst:Long):Rail[T]{self.size==r.size,self!=null} {
         throw new UnsupportedOperationException("Congruent memory not available on Managed X10");
     }
 

@@ -34,7 +34,7 @@ abstract public class CollectingFinish[T] extends FinishFrame {
         @Ifndef("__CPP__"){ //java path 
             val size = Runtime.NTHREADS;
             this.resultRail = Unsafe.allocRailUninitialized[T](size);
-            for(var i:int = 0n; i < size; i++){
+            for(var i:Int = 0n; i < size; i++){
                 resultRail(i) = reducer.zero();
             }
         }
@@ -47,7 +47,7 @@ abstract public class CollectingFinish[T] extends FinishFrame {
         this.reducer = o.reducer;
         val size = Runtime.NTHREADS;
         this.resultRail = Unsafe.allocRailUninitialized[T](size);
-        for(var i:int = 0n; i < size; i++){
+        for(var i:Int = 0n; i < size; i++){
             resultRail(i) = reducer.zero();
         }
     }
@@ -104,7 +104,7 @@ abstract public class CollectingFinish[T] extends FinishFrame {
         //do merge
         @Ifdef("__CPP__"){
             val size = Runtime.NTHREADS;
-            for(var i:int = 0n; i < size; i++){
+            for(var i:Int = 0n; i < size; i++){
                 result = reducer(result, resultRail(i));
             }
             Unsafe.dealloc(resultRail);
@@ -113,7 +113,7 @@ abstract public class CollectingFinish[T] extends FinishFrame {
         @Ifndef("__CPP__"){
             var result:T = resultRail(0);
             val size = Runtime.NTHREADS;
-            for(var i:int = 1n; i < size; i++){
+            for(var i:Int = 1n; i < size; i++){
                 result = reducer(result, resultRail(i));
             }
             Unsafe.dealloc(resultRail);

@@ -64,7 +64,7 @@ public class CUDAUtilities {
         if (place.isCUDA()) {
             return makeCUDARail(place, numElements, init);
         } else {
-            return (at (place) GlobalRail(new Rail[T](numElements, (p:Long)=>init(p as int)))) as GlobalRail[T]{self.home==place};
+            return (at (place) GlobalRail(new Rail[T](numElements, (p:Long)=>init(p as Int)))) as GlobalRail[T]{self.home==place};
         }
     }
 
@@ -92,7 +92,7 @@ public class CUDAUtilities {
             val chunk = new Rail[T](numElements, init);
             return makeCUDARail(place, numElements, chunk);
         } else {
-            return (at (place) GlobalRail(new Rail[T](numElements, (p:long)=>init(p as int)))) as GlobalRail[T]{self.home==place};
+            return (at (place) GlobalRail(new Rail[T](numElements, (p:Long)=>init(p as Int)))) as GlobalRail[T]{self.home==place};
         }
     }
 

@@ -75,14 +75,14 @@ public final class AtomicLong {
     public def toString():String = get().toString();
 
     @Native("java", "#this.intValue()")
-    public def intValue():int = get() as Int;
+    public def intValue():Int = get() as Int;
 
     @Native("java", "#this.longValue()")
     public def longValue():Long = get();
     
     @Native("java", "#this.floatValue()")
-    public def floatValue():float = get() as Float;
+    public def floatValue():Float = get() as Float;
     
     @Native("java", "#this.doubleValue()")
-    public def doubleValue():double = get() as Double;
+    public def doubleValue():Double = get() as Double;
 }

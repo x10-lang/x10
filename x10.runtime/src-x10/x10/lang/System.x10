@@ -52,7 +52,7 @@ public class System {
      */
     @Native("java", "x10.runtime.impl.java.Runtime.setExitCode(#exitCode)")
     @Native("c++", "(::x10aux::exitCode = (#exitCode))")
-    public static def setExitCode(exitCode: int){here==Place.FIRST_PLACE}: void {}
+    public static def setExitCode(exitCode: Int){here==Place.FIRST_PLACE}: void {}
 
     /**
      * Provides an estimate in bytes of the size of the X10 heap
@@ -66,7 +66,7 @@ public class System {
      */
     @Native("java", "java.lang.Runtime.getRuntime().totalMemory()")
     @Native("c++", "::x10aux::heap_size()")
-    public static native def heapSize():long;
+    public static native def heapSize():Long;
 
     /**
      * Trigger a garbage collection.
@@ -123,7 +123,7 @@ public class System {
      * @param millis the number of milliseconds to sleep
      * @return true if completed normally, false if interrupted
      */
-    public static def sleep(millis:long):Boolean {
+    public static def sleep(millis:Long):Boolean {
         try {
             Runtime.increaseParallelism();
             Thread.sleep(millis);
@@ -140,7 +140,7 @@ public class System {
      * @param millis the number of milliseconds to sleep
      * @return true if completed normally, false if interrupted
      */
-    public static def threadSleep(millis:long):Boolean {
+    public static def threadSleep(millis:Long):Boolean {
         try {
             Thread.sleep(millis);
             return true;

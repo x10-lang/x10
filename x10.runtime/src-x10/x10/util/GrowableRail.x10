@@ -40,7 +40,7 @@ public final class GrowableRail[T] implements CustomSerialization {
     * It is an invariant of this class, that such elements
     * will never be accessed.
     */
-    private var size:long;
+    private var size:Long;
 
     /** 
      * Create a GrowableRail with an initial 
@@ -54,7 +54,7 @@ public final class GrowableRail[T] implements CustomSerialization {
      * Create a GrowableRail with an initial 
      * capacity of cap.
      */
-    public def this(cap:long) {
+    public def this(cap:Long) {
         data = Unsafe.allocRailZeroed[T](cap);
         size = 0L;
     }
@@ -99,7 +99,7 @@ public final class GrowableRail[T] implements CustomSerialization {
      * If p==size, then insert is equivalent to calling add for
      * each element of items in turn.
      */
-    public def insert(p:long, items:Rail[T]):void {
+    public def insert(p:Long, items:Rail[T]):void {
         val addLen = items.size;
         val newLen = size + addLen;
         val movLen = size - p;
@@ -112,12 +112,12 @@ public final class GrowableRail[T] implements CustomSerialization {
         size = newLen;
     }
 
-    public @Inline operator this(idx:long):T {
+    public @Inline operator this(idx:Long):T {
         if (CompilerFlags.checkBounds() && idx >= size) raiseIndexOutOfBounds(idx, size);
         return data(idx);
     }
 
-    public @Inline operator this(idx:long)=(v:T):void {
+    public @Inline operator this(idx:Long)=(v:T):void {
         if (CompilerFlags.checkBounds() && idx > size) illegalGap(idx, size);
         if (idx == size) {
             add(v);
@@ -156,12 +156,12 @@ public final class GrowableRail[T] implements CustomSerialization {
      * Get the current size; indices from 0..size-1 are currently valid 
      * values of type T and may be accessed.
      */
-    public def size():long = size;
+    public def size():Long = size;
 
     /**
      * What is the current capacity (size of backing storage)
      */
-    public def capacity():long = data.size;
+    public def capacity():Long = data.size;
 
     /** 
      * Remove the last element and return it. May shrink backing storage.
@@ -190,7 +190,7 @@ public final class GrowableRail[T] implements CustomSerialization {
      * On return the rail has s-(j-i+1) elements.
      * May shrink backing storage.
      */
-    public def moveSectionToRail(i:long, j:long):Rail[T] {
+    public def moveSectionToRail(i:Long, j:Long):Rail[T] {
         val len = j - i + 1;
         if (len < 1) return Unsafe.allocRailUninitialized[T](0L);
 	val tmp = Unsafe.allocRailUninitialized[T](len);
@@ -211,8 +211,8 @@ public final class GrowableRail[T] implements CustomSerialization {
        return ans;
     }
 
-    public def grow(var newCapacity:long):void {
-        var oldCapacity:long = capacity();
+    public def grow(var newCapacity:Long):void {
+        var oldCapacity:Long = capacity();
         if (newCapacity < oldCapacity*2) {
             newCapacity = oldCapacity*2;
         } 
@@ -227,32 +227,32 @@ public final class GrowableRail[T] implements CustomSerialization {
         data = tmp;
     }
 
-    public def shrink(var newCapacity:long):void {
+    public def shrink(var newCapacity:Long):void {
         if (newCapacity > capacity()/4 || newCapacity < 8)
             return;
         newCapacity = x10.lang.Math.max(newCapacity, size);
         newCapacity = x10.lang.Math.max(newCapacity, 8L);
         val tmp = Unsafe.allocRailUninitialized[T](newCapacity);        
-        Rail.copy(data, 0L, tmp, 0L, size);
+        Rail.copy(data, 0, tmp, 0, size);
         Unsafe.clearRail(tmp, size, newCapacity-size);
         Unsafe.dealloc(data);
         data = tmp;
     }
 
-    private static @NoInline @NoReturn def raiseIndexOutOfBounds(idx:long, size:long) {
+    private static @NoInline @NoReturn def raiseIndexOutOfBounds(idx:Long, size:Long) {
         throw new ArrayIndexOutOfBoundsException("Index is "+idx+"; size is "+size);
     }
 
-    private static @NoInline @NoReturn def illegalGap(idx:long, size:long) {
+    private static @NoInline @NoReturn def illegalGap(idx:Long, size:Long) {
         throw new UnsupportedOperationException("Insert at "+idx+" would have created gap (size = "+size+")");
     }
 
     public def toString():String {
         val sb = new StringBuilder();
         sb.add("[");
-        val sz = size > 10L ? 10L : size;
-        for (var i : Long = 0L; i < sz; i++) {
-            if (i > 0L)
+        val sz = size > 10 ? 10 : size;
+        for (var i:Long = 0; i < sz; i++) {
+            if (i > 0)
                 sb.add(",");
             sb.add(data(i).toString());
         }

@@ -93,7 +93,7 @@ class Activity {
     /**
      * Depth of enclosong atomic blocks
      */
-    private var atomicDepth:int = 0n;
+    private var atomicDepth:Int = 0n;
 
     /**
      * Create activity.

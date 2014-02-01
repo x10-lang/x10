@@ -213,7 +213,7 @@ public final struct Place(
     public def toString() = "Place(" + this.id + ")";
     public def equals(p:Place) = p.id==this.id;
     public def equals(p:Any) = p instanceof Place && (p as Place).id==this.id;
-    public def hashCode() = id as int;
+    public def hashCode() = id as Int;
 
     
     /**

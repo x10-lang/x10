@@ -245,7 +245,7 @@ public struct UByte implements Comparable[UByte], Arithmetic[UByte], Bitwise[UBy
      */
     @Native("java", "((byte) ((#this) << (0x7 & (int)(#count))))")
     @Native("c++",  "((x10_ubyte) ((#this) << (0x7 & (x10_int)(#count))))")
-    public native operator this << (count:Long): UByte; /*  = UByte(byteVal << (0x7 & (count as int)); */
+    public native operator this << (count:Long): UByte; /*  = UByte(byteVal << (0x7 & (count as Int)); */
 
     /**
      * A bitwise right shift operator.
@@ -257,7 +257,7 @@ public struct UByte implements Comparable[UByte], Arithmetic[UByte], Bitwise[UBy
      */
     @Native("java", "((byte) ((0xff & #this) >>> (0x7 & (int)(#count))))")
     @Native("c++",  "((x10_ubyte) ((#this) >> (0x7 & (x10_int)(#count))))")
-    public native operator this >> (count:Long): UByte; /*  = UByte(byteVal >>> (0x7 & count as int)); */
+    public native operator this >> (count:Long): UByte; /*  = UByte(byteVal >>> (0x7 & count as Int)); */
 
     /**
      * A bitwise logical right shift operator (zero-fill).
@@ -270,7 +270,7 @@ public struct UByte implements Comparable[UByte], Arithmetic[UByte], Bitwise[UBy
      */
     @Native("java", "((byte) ((0xff & #this) >>> (0x7 & (int)(#count))))")
     @Native("c++",  "((x10_ubyte) ((#this) >> (0x7 & (int)(#count))))")
-    public native operator this >>> (count:Long): UByte; /*  = UByte(byteVal >>> (0x7 & count as int)); */
+    public native operator this >>> (count:Long): UByte; /*  = UByte(byteVal >>> (0x7 & count as Int)); */
 
     /**
      * A bitwise complement operator.

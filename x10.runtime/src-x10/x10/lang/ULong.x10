@@ -250,7 +250,7 @@ public struct ULong implements Comparable[ULong], Arithmetic[ULong], Bitwise[ULo
      */
     @Native("java", "((#this) << (int)(#count))")  // no mask. Java defines shift as masked.
     @Native("c++",  "((x10_ulong) ((#this) << (x10_int)(0x3f & (#count))))")
-    public native operator this << (count:Long): ULong; /* = ULong(longVal << (count as int)); */
+    public native operator this << (count:Long): ULong; /* = ULong(longVal << (count as Int)); */
 
     /**
      * A bitwise right shift operator.
@@ -262,7 +262,7 @@ public struct ULong implements Comparable[ULong], Arithmetic[ULong], Bitwise[ULo
      */
     @Native("java", "((#this) >>> (int)(#count))")  // no mask. Java defines shift as masked.
     @Native("c++",  "((x10_ulong) ((#this) >> (x10_int)(0x3f & (#count))))")
-    public native operator this >> (count:Long): ULong; /* = ULong(longVal >>> (count as int)); */
+    public native operator this >> (count:Long): ULong; /* = ULong(longVal >>> (count as Int)); */
 
     /**
      * A bitwise logical right shift operator (zero-fill).
@@ -275,7 +275,7 @@ public struct ULong implements Comparable[ULong], Arithmetic[ULong], Bitwise[ULo
      */
     @Native("java", "((#this) >>> (int)(#count))")  // no mask. Java defines shift as masked.
     @Native("c++",  "((x10_ulong) ((#this) >> (x10_int)(0x3f & (#count))))")
-    public native operator this >>> (count:Long): ULong; /* = ULong(longVal >>> (count as int)); */
+    public native operator this >>> (count:Long): ULong; /* = ULong(longVal >>> (count as Int)); */
 
     /**
      * A bitwise complement operator.

@@ -245,7 +245,7 @@ public struct UShort implements Comparable[UShort], Arithmetic[UShort], Bitwise[
      */
     @Native("java", "((short) ((#this) << (0xf & (int)(#count))))")
     @Native("c++",  "((x10_ushort) ((#this) << (0xf & (x10_int)(#count))))")
-    public native operator this << (count:Long): UShort; /*  = UShort(shortVal << (0xf & (count as int))); */
+    public native operator this << (count:Long): UShort; /*  = UShort(shortVal << (0xf & (count as Int))); */
 
     /**
      * A bitwise right shift operator.
@@ -257,7 +257,7 @@ public struct UShort implements Comparable[UShort], Arithmetic[UShort], Bitwise[
      */
     @Native("java", "((short) ((0xffff & #this) >>> (0xf & (int)(#count))))")
     @Native("c++",  "((x10_ushort) ((#this) >> (0xf & (x10_int)(#count))))")
-    public native operator this >> (count:Long): UShort; /*  = UShort(shortVal >>> (0xf & (count as int))); */
+    public native operator this >> (count:Long): UShort; /*  = UShort(shortVal >>> (0xf & (count as Int))); */
 
     /**
      * A bitwise logical right shift operator (zero-fill).
@@ -270,7 +270,7 @@ public struct UShort implements Comparable[UShort], Arithmetic[UShort], Bitwise[
      */
     @Native("java", "((short) ((0xffff & #this) >>> (0xf & (int)(#count))))")
     @Native("c++",  "((x10_ushort) ((#this) >> (0xf & (x10_int)(#count))))")
-    public native operator this >>> (count:Long): UShort; /*  = UShort(shortVal >>> (0xf & (count as int))); */
+    public native operator this >>> (count:Long): UShort; /*  = UShort(shortVal >>> (0xf & (count as Int))); */
 
     /**
      * A bitwise complement operator.

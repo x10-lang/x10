@@ -170,7 +170,7 @@ public struct Char implements Comparable[Char], Ordered[Char] {
      */
     @Native("java", "java.lang.Character.isLowerCase(#this)")
     @Native("c++", "::x10::lang::CharNatives::isLowerCase(#this)")
-    public native def isLowerCase(): boolean;
+    public native def isLowerCase(): Boolean;
 
     /**
      * Determines if this Char is an uppercase character.
@@ -178,7 +178,7 @@ public struct Char implements Comparable[Char], Ordered[Char] {
      */
     @Native("java", "java.lang.Character.isUpperCase(#this)")
     @Native("c++", "::x10::lang::CharNatives::isUpperCase(#this)")
-    public native def isUpperCase(): boolean;
+    public native def isUpperCase(): Boolean;
 
     /**
      * Determines if this Char is a titlecase character.
@@ -186,7 +186,7 @@ public struct Char implements Comparable[Char], Ordered[Char] {
      */
     @Native("java", "java.lang.Character.isTitleCase(#this)")
     @Native("c++", "::x10::lang::CharNatives::isTitleCase(#this)")
-    public native def isTitleCase(): boolean;
+    public native def isTitleCase(): Boolean;
 
     /**
      * Determines if this Char is a digit.
@@ -194,7 +194,7 @@ public struct Char implements Comparable[Char], Ordered[Char] {
      */
     @Native("java", "java.lang.Character.isDigit(#this)")
     @Native("c++", "::x10::lang::CharNatives::isDigit(#this)")
-    public native def isDigit(): boolean;
+    public native def isDigit(): Boolean;
 
     /**
      * Determines if this Char is a letter.
@@ -202,7 +202,7 @@ public struct Char implements Comparable[Char], Ordered[Char] {
      */
     @Native("java", "java.lang.Character.isLetter(#this)")
     @Native("c++", "::x10::lang::CharNatives::isLetter(#this)")
-    public native def isLetter(): boolean;
+    public native def isLetter(): Boolean;
 
     /**
      * Determines if this Char is a letter or digit.
@@ -210,7 +210,7 @@ public struct Char implements Comparable[Char], Ordered[Char] {
      */
     @Native("java", "java.lang.Character.isLetterOrDigit(#this)")
     @Native("c++", "::x10::lang::CharNatives::isLetterOrDigit(#this)")
-    public native def isLetterOrDigit(): boolean;
+    public native def isLetterOrDigit(): Boolean;
 
     /**
      * Determines if this Char is a Unicode space character.
@@ -220,7 +220,7 @@ public struct Char implements Comparable[Char], Ordered[Char] {
      */
     @Native("java", "java.lang.Character.isSpaceChar(#this)")
     @Native("c++", "::x10::lang::CharNatives::isSpaceChar(#this)")
-    public native def isSpaceChar(): boolean;
+    public native def isSpaceChar(): Boolean;
 
     /**
      * Determines if this Char is whitespace according to X10.
@@ -230,7 +230,7 @@ public struct Char implements Comparable[Char], Ordered[Char] {
      */
     @Native("java", "java.lang.Character.isWhitespace(#this)")
     @Native("c++", "::x10::lang::CharNatives::isWhitespace(#this)")
-    public native def isWhitespace(): boolean;
+    public native def isWhitespace(): Boolean;
 
     /**
      * Determines if this Char is an ISO control character.
@@ -238,7 +238,7 @@ public struct Char implements Comparable[Char], Ordered[Char] {
      */
     @Native("java", "java.lang.Character.isISOControl(#this)")
     @Native("c++", "::x10::lang::CharNatives::isISOControl(#this)")
-    public native def isISOControl(): boolean;
+    public native def isISOControl(): Boolean;
 
     /**
      * Converts this Char to lowercase using case mapping information from

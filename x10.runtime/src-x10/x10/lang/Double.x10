@@ -328,7 +328,7 @@ public struct Double implements Comparable[Double], Arithmetic[Double], Ordered[
      */
     @Native("java", "java.lang.Double.isNaN(#this)")
     @Native("c++", "::x10::lang::DoubleNatives::isNaN(#this)")
-    public native def isNaN(): boolean;
+    public native def isNaN(): Boolean;
 
     /**
      * Returns true if this Double is infinitely large in magnitude, false otherwise.
@@ -336,7 +336,7 @@ public struct Double implements Comparable[Double], Arithmetic[Double], Ordered[
      */
     @Native("java", "java.lang.Double.isInfinite(#this)")
     @Native("c++", "::x10::lang::DoubleNatives::isInfinite(#this)")
-    public native def isInfinite(): boolean;
+    public native def isInfinite(): Boolean;
 
 
     /**

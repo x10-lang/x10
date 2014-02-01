@@ -134,10 +134,10 @@ public final class Runtime {
         private static val ALLOC_H = hugePagesAvailable() ? new MemoryAllocator(true, false) : null;
         private static val ALLOC_C = congruentAvailable() ? new MemoryAllocator(false, true) : null;
 
-        private val hugePages:boolean;
-        private val congruent:boolean;
+        private val hugePages:Boolean;
+        private val congruent:Boolean;
         
-        private def this(h:boolean, c:boolean) {
+        private def this(h:Boolean, c:Boolean) {
             hugePages = h; 
             congruent = c;
         }
@@ -158,7 +158,7 @@ public final class Runtime {
          * @param hugePages allocate from pool of large pages?
          * @param congurent allocate from congruent memory?
          */
-        public static def requestAllocator(hugePages:boolean, congruent:boolean):MemoryAllocator {
+        public static def requestAllocator(hugePages:Boolean, congruent:Boolean):MemoryAllocator {
             if (congruent && hugePages && ALLOC_HC != null) return ALLOC_HC;
 	    if (congruent && ALLOC_C != null) return ALLOC_C;
             if (hugePages && ALLOC_H != null) return ALLOC_H;
@@ -172,7 +172,7 @@ public final class Runtime {
          * @param hugePages allocate from pool of large pages?
          * @param congurent allocate from congruent memory?
          */
-        public static def requireAllocator(hugePages:boolean, congruent:boolean):MemoryAllocator {
+        public static def requireAllocator(hugePages:Boolean, congruent:Boolean):MemoryAllocator {
             if (congruent && hugePages) {
                 if (ALLOC_HC == null) throw new OutOfMemoryError("Required Memory Allocator unavailable");
                 return ALLOC_HC;
@@ -697,7 +697,7 @@ public final class Runtime {
      * @Deprecated("Use hereLong()")
      */
     @Native("c++", "::x10aux::here")
-    public static def hereInt():int = here.id as Int;
+    public static def hereInt():Int = here.id as Int;
 
     @Native("c++", "((x10_long)::x10aux::here)")
     public static def hereLong():Long = here.id;
@@ -708,7 +708,7 @@ public final class Runtime {
      * Intended for use in heuristics that control async spawning
      * based on the current amount of surplus work.
      */
-    public static def surplusActivityCount():int = worker().size();
+    public static def surplusActivityCount():Int = worker().size();
 
     /** The finish state that manages the 'main' activity and sub activities. */
     static rootFinish = makeDefaultFinish(pool.latch);

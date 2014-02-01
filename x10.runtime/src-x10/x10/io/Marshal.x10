@@ -185,7 +185,7 @@ public interface Marshal[T] {
         }
         
         public def write(w:Writer, l:Long):void {
-            var shift: int = 64n;
+            var shift: Int = 64n;
             while (shift > 0) {
                 shift -= 8;
                 val b = (l >> shift) as Byte;

@@ -67,7 +67,7 @@ public class StringBuilder implements Builder[Any,String] {
     public def insert(p:Int, x:String) = x == null ? insertString(p, "null") : insertString(p, x);
 
     public def addString(s:String/*{self!=null}*/): StringBuilder {
-        for (var i: int = 0n; i < s.length(); i++) {
+        for (var i:Int = 0n; i < s.length(); i++) {
             val ch = s(i);
             buf.add(ch);
         }
@@ -86,7 +86,7 @@ public class StringBuilder implements Builder[Any,String] {
         if (loc < 0n)    // Ensure loc is a valid index.
             loc = 0n;
 
-        for (var i: int = 0n; i < s.length(); i++) {
+        for (var i:Int = 0n; i < s.length(); i++) {
             val ch = s(i);
             buf(loc+i)= ch;
         }

@@ -471,8 +471,8 @@ abstract class FinishState {
         }
 
         protected def process(rail:Rail[Pair[Int,Int]]):void {
-            for(var i:long=0; i<rail.size; i++) {
-                counts(rail(i).first as long) += rail(i).second;
+            for(var i:Long=0; i<rail.size; i++) {
+                counts(rail(i).first as Long) += rail(i).second;
                 seen(rail(i).first) = true;
             }
             count += counts(ref().home.id);
@@ -533,12 +533,12 @@ abstract class FinishState {
             if (counts == null || counts.size == 0L) {
                 counts = new Rail[Int](Place.MAX_PLACES);
                 places = new Rail[Int](Place.MAX_PLACES);
-                places(0) = id as int; // WARNING: assuming 32 bit places at X10 level.
+                places(0) = id as Int; // WARNING: assuming 32 bit places at X10 level.
             }
             val old = counts(place.id);
             counts(place.id)++;
             if (old == 0n && id != place.id) {
-                places(length++) = place.id as int; // WARNING: assuming 32 bit places at X10 level.
+                places(length++) = place.id as Int; // WARNING: assuming 32 bit places at X10 level.
             }
             lock.unlock();
         }
@@ -649,12 +649,12 @@ abstract class FinishState {
             if (counts == null || counts.size == 0L) {
                 counts = new Rail[Int](Place.MAX_PLACES);
                 places = new Rail[Int](Place.MAX_PLACES);
-                places(0) = id as int; // WARNING: assuming 32 bit places at X10 level.
+                places(0) = id as Int; // WARNING: assuming 32 bit places at X10 level.
             }
             val old = counts(place.id);
             counts(place.id)++;
             if (old == 0n && id != place.id) {
-                places(length++) = place.id as int; // WARNING: assuming 32 bit places at X10 level.
+                places(length++) = place.id as Int; // WARNING: assuming 32 bit places at X10 level.
             }
             lock.unlock();
         }
@@ -710,7 +710,7 @@ abstract class FinishState {
             exceptions = null;
             lock.unlock();
             val h = Runtime.hereInt();
-            if ((Place.MAX_PLACES < 1024) || (h%32n == 0n) || (h-h%32n == (ref.home.id as int))) {
+            if ((Place.MAX_PLACES < 1024) || (h%32n == 0n) || (h-h%32n == (ref.home.id as Int))) {
                 Runtime.x10rtSendMessage(ref.home.id, closure, null);
             } else {
                 val clx = ()=>@RemoteInvocation("notifyActivityTermination_7") { Runtime.x10rtSendMessage(ref.home.id, closure, null); };

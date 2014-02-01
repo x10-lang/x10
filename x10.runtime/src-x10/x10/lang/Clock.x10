@@ -126,7 +126,7 @@ public final class Clock(name:String) {
     }
     public @Global def registered():Boolean = Runtime.activity().clockPhases().containsKey(this);
     public @Global def dropped():Boolean = !registered();
-    public @Global def phase():int {
+    public @Global def phase():Int {
         if (dropped()) clockUseException("phase");
         return Math.abs(get());
     }

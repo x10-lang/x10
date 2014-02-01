@@ -12,14 +12,14 @@
 package x10.util;
 
 public interface ListIterator[T] extends CollectionIterator[T] {
-    public def hasNext():boolean;
+    public def hasNext():Boolean;
     public def next():T;
-    public def nextIndex(): Long;
+    public def nextIndex():Long;
 
-    public def hasPrevious():boolean;
+    public def hasPrevious():Boolean;
     public def previous():T;
-    public def previousIndex(): Long;
+    public def previousIndex():Long;
 
-    public def set(v:T): void;
-    public def add(v:T): void;
+    public def set(v:T):void;
+    public def add(v:T):void;
 }

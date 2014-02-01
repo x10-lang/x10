@@ -84,7 +84,7 @@ public final class AtomicInteger {
     public def intValue():Int = get();
 
     @Native("java", "#this.longValue()")
-    public def longValue():long = get() as Long;
+    public def longValue():Long = get() as Long;
     
     @Native("java", "#this.floatValue()")
     public def floatValue():float = get() as Float;

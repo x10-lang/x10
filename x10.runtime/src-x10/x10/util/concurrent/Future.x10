@@ -51,7 +51,7 @@ public class Future[T] implements ()=>T {
     /**
      * Return true if this activity has completed.
      */
-    public def forced():boolean = at (root) root().latch();
+    public def forced():Boolean = at (root) root().latch();
     public operator this():T = force();
 
     /**

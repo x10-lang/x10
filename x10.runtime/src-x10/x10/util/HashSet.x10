@@ -12,11 +12,11 @@
 package x10.util;
 
 public class HashSet[T] extends MapSet[T] {
-    public def this() { super(new HashMap[T,boolean]()); }
-    public def this(sz: int) { super(new HashMap[T,boolean](sz)); }
-    public def this(map: HashMap[T,boolean]) { super(map); }
-    public def clone(): HashSet[T] {
-        val tmp = new HashMap[T,boolean](map.size());
+    public def this() { super(new HashMap[T,Boolean]()); }
+    public def this(sz:Int) { super(new HashMap[T,Boolean](sz)); }
+    public def this(map:HashMap[T,Boolean]) { super(map); }
+    public def clone():HashSet[T] {
+        val tmp = new HashMap[T,Boolean](map.size());
         for (e in map.entries()) {
            tmp.put(e.getKey(), e.getValue());
         }

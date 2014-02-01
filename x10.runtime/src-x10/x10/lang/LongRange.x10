@@ -52,7 +52,7 @@ public struct LongRange(
         return false;
     }
     
-    public def hashCode():int = (max-min).hashCode();
+    public def hashCode():Int = (max-min).hashCode();
     
     public def iterator():Iterator[Long] {
         return new LongRangeIt(min, max);

@@ -330,7 +330,7 @@ public struct Float implements Comparable[Float], Arithmetic[Float], Ordered[Flo
      */
     @Native("java", "java.lang.Float.isNaN(#this)")
     @Native("c++", "::x10::lang::FloatNatives::isNaN(#this)")
-    public native def isNaN(): boolean;
+    public native def isNaN(): Boolean;
 
     /**
      * Returns true if this Float is infinitely large in magnitude, false otherwise.
@@ -338,7 +338,7 @@ public struct Float implements Comparable[Float], Arithmetic[Float], Ordered[Flo
      */
     @Native("java", "java.lang.Float.isInfinite(#this)")
     @Native("c++", "::x10::lang::FloatNatives::isInfinite(#this)")
-    public native def isInfinite(): boolean;
+    public native def isInfinite(): Boolean;
 
 
     /**
