@@ -287,11 +287,8 @@ public class SocketTransport {
     // timeout is how long we're willing to block waiting for something to happen. 
     // returns true if something is processed
     boolean x10rt_probe(boolean onlyProcessAccept, long timeout) {
-    	if (!onlyProcessAccept && nplaces == 1) {
-    		// This is managed X10, which should be more CPU friendly, until the runtime is less aggressive in looping
-    		Thread.yield();
+    	if (!onlyProcessAccept && nplaces == 1)
     		return false;
-    	}
     	
     	int eventCount = 0;
     	try {
