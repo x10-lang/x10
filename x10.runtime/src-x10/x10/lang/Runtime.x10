@@ -275,6 +275,7 @@ public final class Runtime {
         var idleCount:Int = 0n; // idle thread count
         var deadCount:Int = 0n; // dead thread count
         var spareNeeded:Int = 0n; // running threads - NTHREADS
+        val multiplace = Place.MAX_PLACES>1;
 
         // reduce permits by n
         def reduce(n:Int):void {
@@ -365,10 +366,10 @@ public final class Runtime {
         // park until given work to do -> idle thread
         def take(worker:Worker):Activity {
             if (BUSY_WAITING) return null;
-            if (idleCount - spareNeeded >= NTHREADS - 1) return null; // better safe than sorry
+            if (multiplace && (idleCount - spareNeeded >= NTHREADS - 1)) return null; // better safe than sorry
             lock.lock();
             convert();
-            if (idleCount >= NTHREADS - 1) {
+            if (multiplace && (idleCount >= NTHREADS - 1)) {
                 lock.unlock();
                 return null;
             }
