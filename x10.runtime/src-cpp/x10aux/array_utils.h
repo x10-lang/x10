@@ -22,7 +22,7 @@ namespace x10aux {
     // This is a convenience for writing @Native annotations.
     //
     // Often one will bind a c++ function e.g. f(C*) with
-    // An x10 function of the form f(arr:Array[C], offset:Int).
+    // An x10 function of the form f(arr:Rail[C], offset:Int).
     // In this case we would like to have an elegant way of
     // handling the case where arr == null while avoiding duplication
     // which would cause the 'arr' argument to be evaluated twice.
@@ -34,7 +34,7 @@ namespace x10aux {
     template<class T> T *lookup_or_null (::x10::lang::Rail<T>* arr, x10_int offset)
     {
         if (NULL == arr) return NULL;
-        return &arr->raw()->raw()[offset];
+        return &arr->raw[offset];
     }
 
 } //namespace x10aux
