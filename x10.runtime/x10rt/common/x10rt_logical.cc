@@ -941,6 +941,7 @@ void x10rt_lgl_team_new (x10rt_place placec, x10rt_place *placev,
         x10rt_net_team_new(placec, placev, ch, arg);
     } else {
         x10rt_emu_team_new(placec, placev, ch, arg);
+        while (x10rt_emu_coll_probe());
     }
 }
 
@@ -952,6 +953,7 @@ void x10rt_lgl_team_del (x10rt_team team, x10rt_place role,
         x10rt_net_team_del(team, role, ch, arg);
     } else {
         x10rt_emu_team_del(team, role, ch, arg);
+        while (x10rt_emu_coll_probe());
     }
 }
 
@@ -962,6 +964,7 @@ x10rt_place x10rt_lgl_team_sz (x10rt_team team)
         return x10rt_net_team_sz(team);
     } else {
         return x10rt_emu_team_sz(team);
+        while (x10rt_emu_coll_probe());
     }
 }
 
@@ -974,6 +977,7 @@ void x10rt_lgl_team_split (x10rt_team parent, x10rt_place parent_role,
         x10rt_net_team_split(parent, parent_role, color, new_role, ch, arg);
     } else {
         x10rt_emu_team_split(parent, parent_role, color, new_role, ch, arg);
+        while (x10rt_emu_coll_probe());
     }
 }
 
@@ -985,6 +989,7 @@ void x10rt_lgl_barrier (x10rt_team team, x10rt_place role,
         x10rt_net_barrier(team, role, ch, arg);
     } else {
         x10rt_emu_barrier(team, role, ch, arg);
+        while (x10rt_emu_coll_probe());
     }
 }
 
@@ -998,6 +1003,7 @@ void x10rt_lgl_bcast (x10rt_team team, x10rt_place role,
         x10rt_net_bcast(team, role, root, sbuf, dbuf, el, count, ch, arg);
     } else {
         x10rt_emu_bcast(team, role, root, sbuf, dbuf, el, count, ch, arg);
+        while (x10rt_emu_coll_probe());
     }
 }
 
@@ -1011,6 +1017,7 @@ void x10rt_lgl_scatter (x10rt_team team, x10rt_place role,
         x10rt_net_scatter(team, role, root, sbuf, dbuf, el, count, ch, arg);
     } else {
         x10rt_emu_scatter(team, role, root, sbuf, dbuf, el, count, ch, arg);
+        while (x10rt_emu_coll_probe());
     }
 }
 
@@ -1024,6 +1031,7 @@ void x10rt_lgl_alltoall (x10rt_team team, x10rt_place role,
         x10rt_net_alltoall(team, role, sbuf, dbuf, el, count, ch, arg);
     } else {
         x10rt_emu_alltoall(team, role, sbuf, dbuf, el, count, ch, arg);
+        while (x10rt_emu_coll_probe());
     }
 }
 
@@ -1039,6 +1047,7 @@ void x10rt_lgl_reduce (x10rt_team team, x10rt_place role,
         x10rt_net_reduce(team, role, root, sbuf, dbuf, op, dtype, count, ch, arg);
     } else {
         x10rt_emu_reduce(team, role, root, sbuf, dbuf, op, dtype, count, ch, arg, false);
+        while (x10rt_emu_coll_probe());
     }
 }
 
@@ -1054,5 +1063,6 @@ void x10rt_lgl_allreduce (x10rt_team team, x10rt_place role,
         x10rt_net_allreduce(team, role, sbuf, dbuf, op, dtype, count, ch, arg);
     } else {
         x10rt_emu_reduce(team, role, 0, sbuf, dbuf, op, dtype, count, ch, arg, true);
+        while (x10rt_emu_coll_probe());
     }
 }
