@@ -275,7 +275,7 @@ public final class Runtime {
         var idleCount:Int = 0n; // idle thread count
         var deadCount:Int = 0n; // dead thread count
         var spareNeeded:Int = 0n; // running threads - NTHREADS
-        val multiplace = Place.MAX_PLACES>1;
+        val multiplace = Place.ALL_PLACES>1; // ALL_PLACES includes accelerators
 
         // reduce permits by n
         def reduce(n:Int):void {
