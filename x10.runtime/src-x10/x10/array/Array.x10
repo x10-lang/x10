@@ -162,7 +162,7 @@ public abstract class Array[T] (
 
     /**
      * Map the given function onto the elements of this array
-     * and the argument src arrary storing the results in the dst array. 
+     * and the argument src array storing the results in the dst array. 
      * For maximum flexibility of use, map does not require that the three arrays
      * have the same dimesionality or rank, only that they have the same
      * number of elements.  When applied to arrays that use the same IterationSpace,
