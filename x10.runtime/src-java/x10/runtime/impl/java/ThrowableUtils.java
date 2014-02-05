@@ -96,11 +96,23 @@ public abstract class ThrowableUtils {
         java.lang.StackTraceElement[] elements = e.getStackTrace();
         String str[] = new String[elements.length];
         for (int i = 0; i < elements.length; ++i) {
-            str[i] = elements[i].toString();
+            str[i] = elements[i].toString(); //TODO replace the use of j.l.StackTraceElement#getClassName() with x10.rtt.Types#typeName(Object)
         }
         return x10.runtime.impl.java.ArrayUtils.<String>makeRailFromJavaArray(x10.rtt.Types.STRING, str);
     }
-    
+
+    private static void printStackTrace(java.lang.Throwable t, java.io.PrintStream ps) {
+        if (t instanceof x10.lang.MultipleExceptions) {
+            x10.lang.MultipleExceptions me = (x10.lang.MultipleExceptions) t;
+            x10.core.Rail<java.lang.RuntimeException> exceptions = (x10.core.Rail<java.lang.RuntimeException>) me.exceptions;
+            for (java.lang.RuntimeException re : exceptions.getGenericArray()) {
+                printStackTrace(re, ps);
+            }
+        } else {
+            t.printStackTrace(ps); //TODO replace the use of j.l.StackTraceElement#getClassName() with x10.rtt.Types#typeName(Object)
+        }
+    }
+
     public static void printStackTrace(java.lang.Throwable t, x10.io.Printer p) {
         x10.core.io.OutputStream os = p.getNativeOutputStream();
         java.io.PrintStream ps = null;
@@ -109,7 +121,7 @@ public abstract class ThrowableUtils {
         } else {
             ps = new java.io.PrintStream(os.stream);
         }
-        t.printStackTrace(ps);
+        printStackTrace(t, ps);
     }
 
 }

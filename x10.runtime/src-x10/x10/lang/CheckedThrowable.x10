@@ -27,19 +27,19 @@ public class CheckedThrowable {
 
     @Native("java", "#this.getMessage()")
     @Native("c++", "::x10aux::nullCheck(#this)->FMGL(message)")
-    val message: String;
+    val message:String;
 
     @Native("java", "new java.lang.Throwable()")
     public native def this();
 
     @Native("java", "new java.lang.Throwable(#message)")
-    public native def this(message: String);
+    public native def this(message:String);
 
     @Native("java", "new java.lang.Throwable(#cause)")
-    public native def this(cause: CheckedThrowable);
+    public native def this(cause:CheckedThrowable);
 
     @Native("java", "new java.lang.Throwable(#message, #cause)")
-    public native def this(message: String, cause: CheckedThrowable);
+    public native def this(message:String, cause:CheckedThrowable);
     
     @Native("java", "#this.getMessage()")
     public native def getMessage():String;
@@ -57,27 +57,26 @@ public class CheckedThrowable {
     public final native def toString():String;
 
     @Native("java", "x10.runtime.impl.java.ThrowableUtils.getStackTrace(#this)")
-    //@Native("java", "#this.$getStackTrace()")
-    public final native def getStackTrace() : Rail[String];
+    public final native def getStackTrace():Rail[String];
 
     @Native("java", "#this.printStackTrace()")
-    public native def printStackTrace() : void;
+    public native def printStackTrace():void;
 
     @Native("java", "x10.runtime.impl.java.ThrowableUtils.printStackTrace(#this, #p)")
     // @Native("java", "#this.printStackTrace(#p)")
     // virtual method with @Native needs to be final in managed x10
-    public final native def printStackTrace(p: Printer) : void;
+    public final native def printStackTrace(p:Printer):void;
 
     @Native("java", "#this.fillInStackTrace()")
-    public native def fillInStackTrace() : CheckedThrowable;
+    public native def fillInStackTrace():CheckedThrowable;
 
     // work-around for XTENLANG-3086
     // this code should be uncommented in x10.lang.Runtime when bug is fixed
     @Native("java", "if (false) throw (#T)null; else { }")
     @Native("c++", "do { } while (0)")
-    public static native def pretendToThrow[T] () { T<: CheckedThrowable } : void;
+    public static native def pretendToThrow[T](){T<:CheckedThrowable}:void;
 
     @Native("java", "false ? throw (#T)null : (#x)")
     @Native("c++", "(#x)")
-    public static native def pretendToThrow[T,R] (x:R) { T<: CheckedThrowable } : R;
+    public static native def pretendToThrow[T,R](x:R){T<:CheckedThrowable}:R;
 }
