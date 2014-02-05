@@ -92,6 +92,10 @@ public final class Rail<T> extends Ref implements x10.lang.Iterable,
     public Object[] getObjectArray() {
         return (Object[]) value;
     }
+    @SuppressWarnings("unchecked")
+    public T[] getGenericArray() {
+        return (T[]) value;
+    }
 
     /*
      * Constructors
