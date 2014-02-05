@@ -24,6 +24,7 @@ import static x10cpp.visit.SharedVarsMethods.SAVED_THIS;
 import static x10cpp.visit.SharedVarsMethods.chevrons;
 import static x10cpp.visit.SharedVarsMethods.make_ref;
 
+import java.io.File;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -950,7 +951,7 @@ public class CUDACodeGenerator extends MessagePassingCodeGenerator {
 				nvccCmd.add("-arch="+arch);
 				nvccCmd.add(f);
 				nvccCmd.add("-o");
-				nvccCmd.add(f.substring(0,f.length() - 3) + "_" + arch + ".cubin");
+				nvccCmd.add(f.replace(File.separatorChar, '_').substring(0,f.length() - 3) + "_" + arch + ".cubin");
 				if (!X10CPPTranslator.doPostCompile(options, eq, compilationUnits, nvccCmd.toArray(new String[nvccCmd.size()]), true)) {
 					eq.enqueue(ErrorInfo.WARNING, "Found @CUDA annotation, but not compiling for GPU because nvcc could not be run (check your $PATH).");
 					return true;

@@ -18,6 +18,8 @@ package x10cuda.types;
  * @author Dave Cunningham
  */
 
+import static x10cpp.visit.Emitter.mangled_non_method_name;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 
@@ -29,6 +31,7 @@ import x10.ast.Closure_c;
 import x10cpp.X10CPPCompilerOptions;
 import x10cpp.types.X10CPPContext_c;
 import x10cpp.visit.Emitter;
+import x10cpp.visit.X10CPPTranslator;
 import x10cuda.ast.CUDAKernel;
 import polyglot.types.Name;
 import polyglot.types.QName;
@@ -87,8 +90,8 @@ public class X10CUDAContext_c extends X10CPPContext_c {
         cudaStreams.put("classBody", sw.getNewStream("cu",false));
         cudaStreams.put("classFooter", sw.getNewStream("cu",false));
         cudaStreams.put("kernels", sw.getNewStream("cu",false));
-        
-        ((X10CPPCompilerOptions)j.extensionInfo().getOptions()).compilationUnits().add(wrappingClass()+".cu");
+                
+        ((X10CPPCompilerOptions)j.extensionInfo().getOptions()).compilationUnits().add(sw.getStreamName("cu"));
         
         fileHeader.write("#include <x10aux/config.h>"); fileHeader.newline();
         fileHeader.write("#include <x10aux/cuda_kernel.cuh>"); fileHeader.newline();
@@ -124,7 +127,7 @@ public class X10CUDAContext_c extends X10CPPContext_c {
     			QName pkg_name = wrappingClass.package_().get().fullName();
     			Emitter.openNamespaces(h, pkg_name); h.newline();
     		}
-		    String class_name = Emitter.translate_mangled_FQN(wrappingClass.asType().fullName().toString(), "_");
+		    String class_name = mangled_non_method_name(wrappingClass().name().toString());
 		    h.writeln("class "+class_name+" {");
 		    h.writeln("    public:");
 		    f.writeln("};");
