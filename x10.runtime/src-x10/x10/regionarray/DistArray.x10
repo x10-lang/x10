@@ -677,7 +677,7 @@ public final class DistArray[T] (
      * @param unit the given initial value
      * @return the final result of the reduction.
      * @see #map((T)=>S)
-     * @see #reduce(U,T)=>U,(U,U)=>U,U)
+     * @see #reduce((U,T)=>U,(U,U)=>U,U)
      */
     public final def reduce(op:(T,T)=>T, unit:T):T  = reduce[T](op, op, unit);
     

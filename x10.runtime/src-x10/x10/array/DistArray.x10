@@ -16,6 +16,7 @@ import x10.compiler.NoInline;
 import x10.compiler.NoReturn;
 import x10.compiler.NonEscaping;
 import x10.compiler.TransientInitExpr;
+import x10.util.RailUtils;
 
 /**
  * <p> This class hierarchy provides high-performance implementations of
@@ -158,6 +159,101 @@ public abstract class DistArray[T] (
      * @see #operator(Point)
      */
     public abstract operator this(p:Point(this.rank()))=(v:T):T{self==v};
+
+    /**
+     * Reduce this array using the given function and the given initial value.
+     * Each element of the array will be given as an argument to the reduction
+     * function exactly once, but in an arbitrary order.  The reduction function
+     * may be applied concurrently to implement a parallel reduction.
+     * 
+     * @param op the reduction function
+     * @param unit the given initial value
+     * @return the final result of the reduction.
+     * @see #reduce((U,T)=>U,(U,U)=>U,U)
+     */
+    public final def reduce(op:(T,T)=>T, unit:T):T  = reduce[T](op, op, unit);
+    
+    /**
+     * Reduce this array using the given function and the given initial value.
+     * Each element of the array will be given as an argument to the reduction
+     * function exactly once, but in an arbitrary order.  The reduction function
+     * may be applied concurrently to implement a parallel reduction.
+     * 
+     * @param lop the local reduction function
+     * @param gop the global reduction function
+     * @param unit the given initial value
+     * @return the final result of the reduction.
+     */
+    public final def reduce[U](lop:(U,T)=>U, gop:(U,U)=>U, unit:U):U {
+        val reducer = new Reducible[U]() {
+        	public def zero():U = unit;
+        	public operator this(a:U, b:U):U = gop(a,b);
+        };
+
+        val result = finish(reducer) {
+            for (where in placeGroup) {
+                at (where) async {
+                    val localRes:U = RailUtils.reduce(raw, lop, unit);
+                    offer(localRes);
+                }
+            }
+        };
+
+        return result;
+    }
+
+    /**
+     * Map the given function onto the elements of this array
+     * storing the results in the dst array. For maximum flexibility
+     * of use, map does not require that the src and destination array
+     * have the same dimesionality, rank or distribution, only that they have the same
+     * number of elements as every Place.  
+     * When applied to arrays that use the same IterationSpace,
+     * the result will be that for all <code>pt</code> in the IterationSpace
+     * </code> dst(pt) == op(src(pt)) </code>.  When applied to arrays that use
+     * a different iteration space, the mapping from src to dst is defined in
+     * terms of the index of the backing rails, that is <code>dst.raw()(i) = op(src.raw()(i))</code>
+     * for i in <code>0..(src.size()-1)</code>.
+     * 
+     * @param dst the destination array for the results of the map operation
+     * @param op the function to apply to each element of the array
+     * @return dst after updating its contents to contain the result of the map operation.
+     */
+    public @Inline final def map[U](dst:DistArray[U], op:(T)=>U):DistArray[U]{self==dst} {
+        placeGroup.broadcastFlat(()=> {
+            RailUtils.map(this.raw, dst.raw, op);
+        });
+        return dst;
+    }
+
+    /**
+     * Map the given function onto the elements of this array
+     * and the argument src array storing the results in the dst array. 
+     * For maximum flexibility of use, map does not require that the three arrays
+     * have the same dimesionality, rank or distribution, only that they have the same
+     * number of elements at every Place.  
+     * When applied to arrays that use the same IterationSpace,
+     * the result will be that for all <code>pt</code> in the IterationSpace
+     * </code> dst(pt) == op(this(pt), src(pt)) </code>.  When applied to arrays that use
+     * a different iteration space, the mapping from src to dst is defined in
+     * terms of the index of the backing rails, that is 
+     * <code>dst.raw()(i) = op(this.raw()(i), src.raw()(i))</code>
+     * for i in <code>0..(src.size()-1)</code>.
+     * 
+     * @param src2 the second source array to use as input to the map function
+     * @param dst the destination array for the results of the map operation
+     * @param op the function to apply to each element of the arrays
+     * @return dst after updating its contents to contain the result of the map operation.
+     */
+    public @Inline final def map[S,U](src2:DistArray[S], dst:DistArray[U], op:(T,S)=>U):DistArray[U]{self==dst} {
+        placeGroup.broadcastFlat(()=> {
+            if (this.raw.size != src2.raw.size) {
+                throw new IllegalArgumentException("Source arrays have different sizes ("+this.raw.size+", "+src2.raw.size+") at "+here);
+            }
+            RailUtils.map(this.raw, src2.raw as Rail[S]{self.size==this.raw.size}, dst.raw, op);
+        });
+        return dst;
+    }
 
     protected static @NoInline @NoReturn def raiseBoundsError(i:Long) {
         throw new ArrayIndexOutOfBoundsException("(" + i + ") not contained in array");
