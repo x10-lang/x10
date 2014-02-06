@@ -932,6 +932,23 @@ public class CUDACodeGenerator extends MessagePassingCodeGenerator {
 					X10CPPTranslator.loadSharedLibProperties(),
 					eq);
     		
+    		String pc = ccb.getCUDAPostCompiler();
+
+    		Runtime runtime = Runtime.getRuntime();
+    		boolean foundNVCC = false;
+    		try {
+    		    Process proc = runtime.exec(new String[] {"which", pc});
+    		    proc.waitFor();
+    		    foundNVCC = proc.exitValue() == 0;
+    		} catch (Exception e) {
+    		    // Failure indicated by not setting foundNVCC to true...
+    		}
+
+            if (!foundNVCC) {
+                eq.enqueue(ErrorInfo.WARNING, "Found @CUDA annotation, but nvcc is not on path.  Not compiling for GPU.");
+                return false;
+            }
+  		
     	    for (String arch : ccb.getCUDAArchitectures()) {
     	        if (!postCompile(options, compiler, eq, arch, ccb)) return false;
     	    }       
@@ -952,9 +969,9 @@ public class CUDACodeGenerator extends MessagePassingCodeGenerator {
 				nvccCmd.add(f);
 				nvccCmd.add("-o");
 				nvccCmd.add(f.replace(File.separatorChar, '_').substring(0,f.length() - 3) + "_" + arch + ".cubin");
-				if (!X10CPPTranslator.doPostCompile(options, eq, compilationUnits, nvccCmd.toArray(new String[nvccCmd.size()]), true)) {
-					eq.enqueue(ErrorInfo.WARNING, "Found @CUDA annotation, but not compiling for GPU because nvcc could not be run (check your $PATH).");
-					return true;
+				if (!X10CPPTranslator.doPostCompile(options, eq, compilationUnits, nvccCmd.toArray(new String[nvccCmd.size()]))) {
+					eq.enqueue(ErrorInfo.POST_COMPILER_ERROR, "Found @CUDA annotation, but compilation of "+f+" with nvcc -arch="+arch+" failed.");
+					return false;
 				}
 			}
 		}

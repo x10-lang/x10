@@ -746,9 +746,6 @@ public class X10CPPTranslator extends Translator {
 	}
 
     public static boolean doPostCompile(Options options, ErrorQueue eq, Collection<String> outputFiles, String[] cxxCmd) {
-    	return doPostCompile(options, eq, outputFiles, cxxCmd, false);
-    }
-    public static boolean doPostCompile(Options options, ErrorQueue eq, Collection<String> outputFiles, String[] cxxCmd, boolean noError) {
         Reporter reporter = options.reporter;
         if (reporter.should_report(postcompile, 1)) {
         	StringBuffer cmdStr = new StringBuffer();
@@ -791,16 +788,16 @@ public class X10CPPTranslator extends Translator {
         		runtime.exec(rmCmd, null, options.output_directory);
         	}
 
-        	if (output != null)
-        		eq.enqueue((proc.exitValue() > 0 && !noError) ? ErrorInfo.POST_COMPILER_ERROR : ErrorInfo.WARNING, output);
+        	if (output != null) {
+        		eq.enqueue((proc.exitValue() > 0) ? ErrorInfo.POST_COMPILER_ERROR : ErrorInfo.WARNING, output);
+        	}
         	if (proc.exitValue() > 0) {
-        		eq.enqueue(noError?ErrorInfo.WARNING:ErrorInfo.POST_COMPILER_ERROR,
-        				"Non-zero return code: " + proc.exitValue());
+        		eq.enqueue(ErrorInfo.POST_COMPILER_ERROR,"Non-zero return code: " + proc.exitValue());
         		return false;
         	}
         }
         catch(Exception e) {
-        	eq.enqueue(noError?ErrorInfo.WARNING:ErrorInfo.POST_COMPILER_ERROR, e.getMessage() != null ? e.getMessage() : e.toString());
+        	eq.enqueue(ErrorInfo.POST_COMPILER_ERROR, e.getMessage() != null ? e.getMessage() : e.toString());
         	return false;
         }
         return true;
