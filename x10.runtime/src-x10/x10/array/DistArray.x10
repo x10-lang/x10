@@ -193,7 +193,7 @@ public abstract class DistArray[T] (
         val result = finish(reducer) {
             for (where in placeGroup) {
                 at (where) async {
-                    val localRes:U = RailUtils.reduce(raw, lop, unit);
+                    val localRes:U = RailUtils.reduce(raw(), lop, unit);
                     offer(localRes);
                 }
             }
@@ -221,7 +221,9 @@ public abstract class DistArray[T] (
      */
     public @Inline final def map[U](dst:DistArray[U], op:(T)=>U):DistArray[U]{self==dst} {
         placeGroup.broadcastFlat(()=> {
-            RailUtils.map(this.raw, dst.raw, op);
+            val s = this.raw();
+            val d = dst.raw();
+            RailUtils.map(s, d, op);
         });
         return dst;
     }
@@ -247,10 +249,13 @@ public abstract class DistArray[T] (
      */
     public @Inline final def map[S,U](src2:DistArray[S], dst:DistArray[U], op:(T,S)=>U):DistArray[U]{self==dst} {
         placeGroup.broadcastFlat(()=> {
-            if (this.raw.size != src2.raw.size) {
-                throw new IllegalArgumentException("Source arrays have different sizes ("+this.raw.size+", "+src2.raw.size+") at "+here);
+            val s1 = this.raw();
+            val s2 = src2.raw();
+            val d = dst.raw();
+            if (s1.size != s2.size) {
+                throw new IllegalArgumentException("Source arrays have different sizes ("+s1.size+", "+s2.size+") at "+here);
             }
-            RailUtils.map(this.raw, src2.raw as Rail[S]{self.size==this.raw.size}, dst.raw, op);
+            RailUtils.map(s1, s2 as Rail[S]{self.size==s1.size}, d, op);
         });
         return dst;
     }
