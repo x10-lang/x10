@@ -30,7 +30,7 @@ public class FileReader extends InputStreamReader implements Unserializable {
 
     val file:File;
 
-    private val buf = new GrowableRail[byte]();
+    private val buf = new GrowableRail[Byte]();
 
     @Native("c++", "reinterpret_cast< ::x10::io::FileReader__FileInputStream* >((#this)->FMGL(stream))->readLine()")
     public def readLine():String { 

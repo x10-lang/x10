@@ -125,10 +125,10 @@ public class Random {
     public def nextBoolean():Boolean = nextInt() < 0n;
 
     /** Return a random float between 0.0f and 1.0f. */
-    public def nextFloat():float = (nextInt() >>> (32n-24n)) / ((1<<24n) as Float);
+    public def nextFloat():Float = (nextInt() >>> (32n-24n)) / ((1<<24n) as Float);
 
     /** Return a random double between 0.0 and 1.0. */
-    public def nextDouble():double = (nextLong() >>> (64n-53n)) / ((1L<<53n) as Double);
+    public def nextDouble():Double = (nextLong() >>> (64n-53n)) / ((1L<<53n) as Double);
 
 /*
  * Mersenne twister implementation.

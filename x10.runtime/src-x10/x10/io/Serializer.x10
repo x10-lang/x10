@@ -50,12 +50,12 @@ public final class Serializer implements Unserializable {
     public native def writeAny(v:Any):void;
 
     /**
-     * Get the serialized values as a Rail[byte].
+     * Get the serialized values as a Rail[Byte].
      * If this Serializer was created with a user-provided
      * OutputStreamWriter, then toRail will throw an
      * UnsupportedOperationException.
      */
-    public native def toRail():Rail[byte];
+    public native def toRail():Rail[Byte];
     
     /**
      * Return the number of bytes of data that

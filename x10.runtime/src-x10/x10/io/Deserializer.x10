@@ -27,7 +27,7 @@ public final class Deserializer implements Unserializable {
      * Create a Deserializer that will read serialized values
      * from the argument Serializer. The argument Serializer must
      * have been created using the default constructor that
-     * serializes to an in-memory Rail[byte].  Deserializing directly
+     * serializes to an in-memory Rail[Byte].  Deserializing directly
      * from a Serializer that serializes to an OutputStreamWriter
      * {@link Serializer#Serializer(OutputStreamWriter)} is not supported
      * and calling this constructor with such a Serializer instance 
@@ -37,11 +37,11 @@ public final class Deserializer implements Unserializable {
 
     /**
      * Create a Deserializer that will read serialized values
-     * from the argument Rail[byte].  The contents of the argument 
+     * from the argument Rail[Byte].  The contents of the argument 
      * Rail should have orginated from a call to toRail() on 
      * a Serializer object.
      */
-    public native def this(r:Rail[byte]);
+    public native def this(r:Rail[Byte]);
     
     /**
      * Create a Deserializer that will read serialized values
