@@ -425,6 +425,9 @@ public class CXXCommandBuilder {
         //ans.add("-Xptxas");
         //ans.add("-v");
         for (PrecompiledLibrary pcl : options.x10libs) {
+            if (options.x10_config.DEBUG) {
+                ans.add("-I"+pcl.absolutePathToRoot+"/include-dbg");
+            }
         	ans.add("-I"+pcl.absolutePathToRoot+"/include");
         }
         return ans;
