@@ -22,8 +22,6 @@ public class ArrayMap2 extends x10Test {
     public static N: long = 9;
 
     public def run(): boolean {
-	chk(Place.numPlaces() == 4L, "This test must be run with 4 places");
-
         val a = new DistArray_Block_1[Long](100, (i:long)=>i);
 	val b = new DistArray_Block_1[Long](100, (i:long)=>10*i);
 	val c = new DistArray_Block_1[Long](100);

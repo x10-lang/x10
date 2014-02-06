@@ -22,8 +22,6 @@ public class ArrayReduce2 extends x10Test {
     public static N: long = 9;
 
     public def run(): boolean {
-	chk(Place.numPlaces() == 4L, "This test must be run with 4 places");
-
         val a = new DistArray_Block_1[Double](10, (i:long)=>(i as double));
 
         val sum = a.reduce((a:double,b:double) => a+b, 0.0);
