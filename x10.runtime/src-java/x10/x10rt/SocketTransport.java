@@ -20,6 +20,7 @@ import java.net.InetSocketAddress;
 import java.net.UnknownHostException;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
+import java.nio.channels.CancelledKeyException;
 import java.nio.channels.ClosedChannelException;
 import java.nio.channels.SelectionKey;
 import java.nio.channels.Selector;
@@ -483,10 +484,10 @@ public class SocketTransport {
 			}
 			else if (DEBUG)
 				System.err.println("Unhandled key type in probe: "+ key);
+		} catch (CancelledKeyException e) {
+			// a key may be cancelled on us if the runtime disconnects while there is active communication
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
-			return false;
 		}
 		return false;
     }
