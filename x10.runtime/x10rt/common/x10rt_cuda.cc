@@ -143,6 +143,41 @@ namespace {
             case CUDA_ERROR_OPERATING_SYSTEM:
                 errstr = "CUDA_ERROR_OPERATING_SYSTEM"; break;
             #endif
+
+            #if CUDA_VERSION >= 5050
+            case CUDA_ERROR_PROFILER_DISABLED:
+                errstr = "CUDA_ERROR_PROFILER_DISABLED"; break;
+            case CUDA_ERROR_PROFILER_NOT_INITIALIZED:
+                errstr = "CUDA_ERROR_PROFILER_NOT_INITIALIZED"; break;
+            case CUDA_ERROR_PROFILER_ALREADY_STARTED:
+                errstr = "CUDA_ERROR_PROFILER_ALREADY_STARTED"; break;
+            case CUDA_ERROR_PROFILER_ALREADY_STOPPED:
+                errstr = "CUDA_ERROR_PROFILER_ALREADY_STOPPED"; break;
+            case CUDA_ERROR_CONTEXT_ALREADY_IN_USE:
+                errstr = "CUDA_ERROR_CONTEXT_ALREADY_IN_USE"; break;
+            case CUDA_ERROR_PEER_ACCESS_UNSUPPORTED:
+                errstr = "CUDA_ERROR_PEER_ACCESS_UNSUPPORTED"; break;
+            case CUDA_ERROR_PEER_ACCESS_ALREADY_ENABLED:
+                errstr = "CUDA_ERROR_PEER_ACCESS_ALREADY_ENABLED"; break;
+            case CUDA_ERROR_PEER_ACCESS_NOT_ENABLED:
+                errstr = "CUDA_ERROR_PEER_ACCESS_NOT_ENABLED"; break;
+            case CUDA_ERROR_PRIMARY_CONTEXT_ACTIVE:
+                errstr = "CUDA_ERROR_PRIMARY_CONTEXT_ACTIVE"; break;
+            case CUDA_ERROR_CONTEXT_IS_DESTROYED:
+                errstr = "CUDA_ERROR_CONTEXT_IS_DESTROYED"; break;
+            case CUDA_ERROR_ASSERT:
+                errstr = "CUDA_ERROR_ASSERT"; break;
+            case CUDA_ERROR_TOO_MANY_PEERS:
+                errstr = "CUDA_ERROR_TOO_MANY_PEERS"; break;
+            case CUDA_ERROR_HOST_MEMORY_ALREADY_REGISTERED:
+                errstr = "CUDA_ERROR_HOST_MEMORY_ALREADY_REGISTERED"; break;
+            case CUDA_ERROR_HOST_MEMORY_NOT_REGISTERED:
+                errstr = "CUDA_ERROR_HOST_MEMORY_NOT_REGISTERED"; break;
+            case CUDA_ERROR_NOT_PERMITTED:
+                errstr = "CUDA_ERROR_NOT_PERMITTED"; break;
+            case CUDA_ERROR_NOT_SUPPORTED:
+                errstr = "CUDA_ERROR_NOT_SUPPORTED"; break;
+            #endif
         }
         fprintf(stderr,"%s (At %s:%d)\n",errstr,file,line);
         abort();
