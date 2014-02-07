@@ -15,6 +15,7 @@
 import harness.x10Test;
 
 // SOURCEPATH: x10.dist/samples/GLB/uts
+// SKIP_MANAGED_X10
 public class UTSGTest extends x10Test {
     public def run():boolean {
 	val args = new Rail[String](0L);
