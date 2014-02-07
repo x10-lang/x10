@@ -935,7 +935,7 @@ public class CUDACodeGenerator extends MessagePassingCodeGenerator {
            Collection<String> compilationUnits = options.compilationUnits();
             for (String f : compilationUnits) {
                 if (f.endsWith(".cu")) {
-                    if (!canFindNNCC(ccb)) {
+                    if (!canFindNVCC(ccb)) {
                         eq.enqueue(ErrorInfo.WARNING, "Found @CUDA annotation, but nvcc is not on path.  Not compiling for GPU.");
                         return true; // Pretend that we succeeded (non-fatal condition)
                     }
@@ -961,7 +961,7 @@ public class CUDACodeGenerator extends MessagePassingCodeGenerator {
 	    return true;
 	}
 
-    private static boolean canFindNNCC(CXXCommandBuilder ccb) {
+    private static boolean canFindNVCC(CXXCommandBuilder ccb) {
         try {
             String pc = ccb.getCUDAPostCompiler();
             Process proc = Runtime.getRuntime().exec(new String[] {"which", pc});
