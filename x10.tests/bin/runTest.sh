@@ -1,7 +1,7 @@
 #!/bin/bash
 
 #
-# (c) Copyright IBM Corporation 2009-2013
+# (c) Copyright IBM Corporation 2009-2014
 #
 # Harness to compile and execute a set of X10 test cases
 # 

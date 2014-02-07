@@ -6,7 +6,7 @@
  *  You may obtain a copy of the License at
  *      http://www.opensource.org/licenses/eclipse-1.0.php
  *
- *  (C) Copyright IBM Corporation 2010-2011.
+ *  (C) Copyright IBM Corporation 2010-2014.
  *
  *  This file was written by Ben Herta for IBM: bherta@us.ibm.com
  */

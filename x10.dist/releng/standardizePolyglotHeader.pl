@@ -15,7 +15,7 @@ sub printHeader {
     print " * This file was originally derived from the Polyglot extensible compiler framework.\n";
     print " *\n";
     print " *  (C) Copyright 2000-2007 Polyglot project group, Cornell University\n";
-    print " *  (C) Copyright IBM Corporation 2007-2012.\n";
+    print " *  (C) Copyright IBM Corporation 2007-2014.\n";
     print " */\n\n";
 }
 
