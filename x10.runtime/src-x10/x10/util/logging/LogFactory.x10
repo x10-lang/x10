@@ -50,7 +50,7 @@ public abstract class LogFactory {
     @Native("java", "#this.getInstance(#name)")
     public abstract def getInstance(name:String):Log;
     /** Convenience method to derive a name from the specified class and call getInstance(String) with it. */
-    @Native("java", "#factory.getInstance(#T$rtt.getJavaClass().class)")
+    @Native("java", "#factory.getInstance(#T$rtt.getJavaClass())")
     public static def getInstance[T](factory:LogFactory):Log = factory.getInstance(typeName[T]());
 
 
