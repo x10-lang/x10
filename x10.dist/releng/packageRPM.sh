@@ -84,7 +84,7 @@ echo "from multi-core desktops, to GPUs, on up to large clusters with thousands 
 echo "with C++ or Java, then you'll quickly become comfortable with the basic syntax of X10.  On top of that, we add" >> ${spec}
 echo "features that make expressing computational parallelism, and the movement of data across memory spaces, as" >> ${spec}
 echo "elegant as standard sequential program features.  X10 developers have access to a full eclipse-based IDE called" >> ${spec}
-echo "X10DT, a parallel debugger, and a community of developers to help you get started." >> ${spec}
+echo "X10DT, and a community of developers to help you get started." >> ${spec}
 echo "" >> ${spec}
 echo "%prep" >> ${spec}
 echo "" >> ${spec}
