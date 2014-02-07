@@ -932,51 +932,46 @@ public class CUDACodeGenerator extends MessagePassingCodeGenerator {
 					X10CPPTranslator.loadSharedLibProperties(),
 					eq);
     		
-    		String pc = ccb.getCUDAPostCompiler();
+           Collection<String> compilationUnits = options.compilationUnits();
+            for (String f : compilationUnits) {
+                if (f.endsWith(".cu")) {
+                    if (!canFindNNCC(ccb)) {
+                        eq.enqueue(ErrorInfo.WARNING, "Found @CUDA annotation, but nvcc is not on path.  Not compiling for GPU.");
+                        return true; // Pretend that we succeeded (non-fatal condition)
+                    }
 
-    		Runtime runtime = Runtime.getRuntime();
-    		boolean foundNVCC = false;
-    		try {
-    		    Process proc = runtime.exec(new String[] {"which", pc});
-    		    proc.waitFor();
-    		    foundNVCC = proc.exitValue() == 0;
-    		} catch (Exception e) {
-    		    // Failure indicated by not setting foundNVCC to true...
-    		}
-
-            if (!foundNVCC) {
-                eq.enqueue(ErrorInfo.WARNING, "Found @CUDA annotation, but nvcc is not on path.  Not compiling for GPU.");
-                return false;
-            }
-  		
-    	    for (String arch : ccb.getCUDAArchitectures()) {
-    	        if (!postCompile(options, compiler, eq, arch, ccb)) return false;
-    	    }       
+                    for (String arch : ccb.getCUDAArchitectures()) {
+                        ArrayList<String> nvccCmd = new ArrayList<String>();
+                        nvccCmd.add(ccb.getCUDAPostCompiler());
+                        for (String s : ccb.getCUDAPreFileArgs()) {
+                            nvccCmd.add(s);
+                        }
+                        nvccCmd.add("-arch="+arch);
+                        nvccCmd.add(f);
+                        nvccCmd.add("-o");
+                        nvccCmd.add(f.replace(File.separatorChar, '_').substring(0,f.length() - 3) + "_" + arch + ".cubin");
+                        if (!X10CPPTranslator.doPostCompile(options, eq, compilationUnits, nvccCmd.toArray(new String[nvccCmd.size()]))) {
+                            eq.enqueue(ErrorInfo.POST_COMPILER_ERROR, "Found @CUDA annotation, but compilation of "+f+" with nvcc -arch="+arch+" failed.");
+                            return false;
+                        }
+                    }
+                }
+            }       
         }
 	    return true;
 	}
 
-	private static boolean postCompile(X10CPPCompilerOptions options, Compiler compiler, ErrorQueue eq, String arch, CXXCommandBuilder ccb) {
-		Collection<String> compilationUnits = options.compilationUnits();
-		for (String f : compilationUnits) {
-			if (f.endsWith(".cu")) {
-				ArrayList<String> nvccCmd = new ArrayList<String>();
-				nvccCmd.add(ccb.getCUDAPostCompiler());
-				for (String s : ccb.getCUDAPreFileArgs()) {
-					nvccCmd.add(s);
-				}
-				nvccCmd.add("-arch="+arch);
-				nvccCmd.add(f);
-				nvccCmd.add("-o");
-				nvccCmd.add(f.replace(File.separatorChar, '_').substring(0,f.length() - 3) + "_" + arch + ".cubin");
-				if (!X10CPPTranslator.doPostCompile(options, eq, compilationUnits, nvccCmd.toArray(new String[nvccCmd.size()]))) {
-					eq.enqueue(ErrorInfo.POST_COMPILER_ERROR, "Found @CUDA annotation, but compilation of "+f+" with nvcc -arch="+arch+" failed.");
-					return false;
-				}
-			}
-		}
-		return true;
-	}
+    private static boolean canFindNNCC(CXXCommandBuilder ccb) {
+        try {
+            String pc = ccb.getCUDAPostCompiler();
+            Process proc = Runtime.getRuntime().exec(new String[] {"which", pc});
+            proc.waitFor();
+            return proc.exitValue() == 0;
+        } catch (Exception e) {
+            // Failure indicated by falling thru to return false
+        }
+        return false;
+    }
 
 } // end of CUDACodeGenerator
 
