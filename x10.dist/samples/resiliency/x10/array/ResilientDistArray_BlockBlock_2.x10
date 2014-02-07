@@ -19,24 +19,33 @@ package x10.array;
 public class ResilientDistArray_BlockBlock_2[T] implements (Long,Long)=>T {
     public property rank() = 2;
     private var da:DistArray_BlockBlock_2[T];
-    public def this(m:long, n:long, pg:PlaceGroup{self!=null}, init:(long,long)=>T) {
+    public def this(m:Long, n:Long, pg:PlaceGroup{self!=null}, init:(Long,Long)=>T) {
         this.da = new DistArray_BlockBlock_2[T](m, n, pg, init);
         this.savedPg = null;
     }
-    public def this(m:long, n:long, init:(long,long)=>T) { this(m, n, PlaceGroup.WORLD, init); }
-    public def this(m:long, n:long, pg:PlaceGroup{self!=null}){T haszero} { this(m, n, pg, (long,long)=>Zero.get[T]()); }
-    public def this(m:long, n:long){T haszero} { this(m, n, PlaceGroup.WORLD, (long,long)=>Zero.get[T]()); }
+    public def this(m:Long, n:Long, init:(Long,Long)=>T) { this(m, n, PlaceGroup.WORLD, init); }
+    public def this(m:Long, n:Long, pg:PlaceGroup{self!=null}){T haszero} { this(m, n, pg, (Long,Long)=>Zero.get[T]()); }
+    public def this(m:Long, n:Long){T haszero} { this(m, n, PlaceGroup.WORLD, (Long,Long)=>Zero.get[T]()); }
     
     public final def placeGroup():PlaceGroup = da.placeGroup();
     public final def globalIndices():DenseIterationSpace_2{self!=null} = da.globalIndices();
     public final def localIndices():DenseIterationSpace_2{self!=null} = da.localIndices();
-    public final def place(i:long,j:long):Place = da.place(i,j);
+    public final def place(i:Long,j:Long):Place = da.place(i,j);
     public final def place(p:Point(2)):Place = place(p(0), p(1));
     
-    public final operator this(i:long, j:long):T = da(i,j);
+    public final operator this(i:Long, j:Long):T = da(i,j);
     public final operator this(p:Point(2)):T  = this(p(0),p(1));
-    public final operator this(i:long,j:long)=(v:T):T{self==v} = da(i,j)=v;
+    public final operator this(i:Long,j:Long)=(v:T):T{self==v} = da(i,j)=v;
     public final operator this(p:Point(2))=(v:T):T{self==v} = this(p(0),p(1))=v;
+    
+    public final def map[U](dst:ResilientDistArray_BlockBlock_2[U], op:(T)=>U):ResilientDistArray_BlockBlock_2[U]{self==dst} {
+        da.map[U](dst.da, op); return dst;
+    }
+    public final def map[S,U](src2:ResilientDistArray_BlockBlock_2[S], dst:ResilientDistArray_BlockBlock_2[U], op:(T,S)=>U):ResilientDistArray_BlockBlock_2[U]{self==dst} {
+        da.map[S,U](src2.da, dst.da, op); return dst;
+    }
+    public final def reduce(op:(T,T)=>T, unit:T):T  = da.reduce(op, unit);
+    public final def reduce[U](lop:(U,T)=>U, gop:(U,U)=>U, unit:U):U = da.reduce[U](lop, gop, unit);
     
     /*
      * Snapshot mechanism
@@ -44,7 +53,7 @@ public class ResilientDistArray_BlockBlock_2[T] implements (Long,Long)=>T {
     /**
      * Remake the ResilientDistArray over a new PlaceGroup using specified initializer
      */
-    public def remake(pg:PlaceGroup{self!=null}, init:(long,long)=>T) {
+    public def remake(pg:PlaceGroup{self!=null}, init:(Long,Long)=>T) {
         val m = da.numElems_1;
         val n = da.numElems_2;
         this.da = new DistArray_BlockBlock_2[T](m, n, pg, init);

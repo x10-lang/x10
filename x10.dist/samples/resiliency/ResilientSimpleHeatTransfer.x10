@@ -56,6 +56,7 @@ public class ResilientSimpleHeatTransfer {
         // val Scratch = ResilientDistArray.make[Double](BigD);
         val A = new ResilientDistArray_BlockBlock_2[Double](n+2, n+2, pg, (x:Long,y:Long)=>{ x==0 ? 1.0 : 0.0 });
         val Temp = new ResilientDistArray_BlockBlock_2[Double](n+2, n+2, pg);
+        val Scratch = new ResilientDistArray_BlockBlock_2[Double](n+2, n+2, pg); // necessary to use map()
         printDist(A, n+2, n+2);
         
         /*
@@ -84,6 +85,7 @@ public class ResilientSimpleHeatTransfer {
                     // Scratch.remake(BigD);
                     A.restore(pg);
                     Temp.remake(pg);
+                    Scratch.remake(pg);
                     printDist(A, n+2, n+2);
                     restore_needed() = false;
                 }
@@ -96,12 +98,17 @@ public class ResilientSimpleHeatTransfer {
                 finish for (pl in A.placeGroup()) at (pl) async {
                     // for (p:Point(2) in D|here) {
                     for (p in A.localIndices()) {
-                        if (isEdge(p,n)) continue;
-                        Temp(p) = stencil_1(A, p);
+                        // if (isEdge(p,n)) continue;
+                        if (isEdge(p,n)) Temp(p) = A(p); // necessary to use map()
+                        else Temp(p) = stencil_1(A, p);
                     }
                 }
                 // delta = A.map(Scratch, Temp, D.region, (x:Double,y:Double)=>Math.abs(x-y))
                 //          .reduce((x:Double,y:Double)=>Math.max(x,y), 0.0);
+                delta = A.map[Double,Double](Temp, Scratch, (x:Double,y:Double)=>Math.abs(x-y))
+                         .reduce((x:Double,y:Double)=>Math.max(x,y), 0.0);
+                         // Note that abs(x-y) becomes 0.0 for "isEdge" elements
+            /** Old code when map/reduce were not available
                 delta = finish(Reducible.MaxReducer[Double](0.0)) {
                     for (pl in A.placeGroup()) {
                         at (pl) async {
@@ -114,6 +121,7 @@ public class ResilientSimpleHeatTransfer {
                         }
                     }
                 };
+             **/
                 // finish ateach (p in D) {
                 //     A(p) = Temp(p);
                 // }
