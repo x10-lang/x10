@@ -7,6 +7,32 @@
  *      http://www.opensource.org/licenses/eclipse-1.0.php
  *
  *  (C) Copyright IBM Corporation 2006-2014.
+ * 
+ * 
+ * This is an interactive graphical demonstration of running
+ * K-Means on population clusters within the United States, 
+ * running the algorithm on CUDA hardware.
+ * 
+ * This program requires the GL library.
+ * Build it with a command something like this:
+ * ../../x10.dist/bin/x10c++ -x10lib ../x10_gl.properties KMeansCUDADemo.x10
+ * 
+ * It requires a larger than normal points.dat file.  Download it from
+ * http://dist.codehaus.org/x10/misc/points.dat
+ * 
+ * Run the program with "X10RT_ACCELS=ALL ./a.out"
+ * Optional argument for the number of clusters, defaults to 60
+ * 
+ * Once the program is running, you should see a map of the US, with population
+ * clusters in green boxes.  Hit 'g' to begin running k-means to adjust their 
+ * positions.  They turn red.  Other keys that you can use while running:
+ * +/- zoom in or out
+ * B,b,V,v adjust brightness
+ * w,a,s,d shift image position in the frame
+ * c centers the image
+ * r resets the map to the start
+ * g starts iterating k-means
+ * f single-step of k-means
  */
 
 import x10.io.Console;
