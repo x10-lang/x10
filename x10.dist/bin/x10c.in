@@ -95,13 +95,13 @@ WALA_JARS="${WALA_JARS}${PATH_SEP}${LIB_DIR}${FILE_SEP}org.eclipse.equinox.commo
 
 classpath="${CP_OVERRIDE}"
 if [[ "$DEXT" == "x10doc.ExtensionInfo" ]]; then
-   if [[ "$UNAME" == Darwin* ]]; then 
-       # on Mac don't need to find & add tools.jar
-       classpath="${classpath}${LIB_DIR}${FILE_SEP}x10doc.jar${PATH_SEP}"
+    classpath="${classpath}${LIB_DIR}${FILE_SEP}x10doc.jar${PATH_SEP}"
+    [ -z "$TOOLSJAR" ] && TOOLSJAR="${JAVA_HOME}${FILE_SEP}lib${FILE_SEP}tools.jar"
+    if [ -f "$TOOLSJAR" ]; then
+        classpath="${classpath}${TOOLSJAR}${PATH_SEP}"
     else
-       [ -z "$TOOLSJAR" ] && export TOOLSJAR="${JAVA_HOME}${FILE_SEP}lib${FILE_SEP}tools.jar"
-       classpath="${classpath}${LIB_DIR}${FILE_SEP}x10doc.jar${PATH_SEP}${TOOLSJAR}${PATH_SEP}"
-   fi
+        echo "Warning: x10doc requires javadoc framework in JDK"
+    fi
 fi
 
 classpath="${classpath}${LIB_DIR}${FILE_SEP}x10c.jar${PATH_SEP}${LIB_DIR}${FILE_SEP}${LPG_JAR}${PATH_SEP}${WALA_JARS}"
