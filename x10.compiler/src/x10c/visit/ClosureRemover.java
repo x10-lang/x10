@@ -274,6 +274,10 @@ public class ClosureRemover extends ContextVisitor {
                                 if (!var.flags().isFinal()) {
                                     continue;
                                 }
+                                // XTENLANG-3362: skip transient fields to give chance to initialize with @TransientInitExpr
+                                if (var.flags().isTransient()) {
+                                    continue;
+                                }
                                 // because of coming not the same VarInstance
                                 if (var.def().equals(field.fieldInstance().def())) {
                                     Receiver target = field.target();
@@ -587,6 +591,10 @@ public class ClosureRemover extends ContextVisitor {
                             }
                             for (VarInstance<? extends VarDef> var : capturedEnv) {
                                 if (!var.flags().isFinal()) {
+                                    continue;
+                                }
+                                // XTENLANG-3362: skip transient fields to give chance to initialize with @TransientInitExpr
+                                if (var.flags().isTransient()) {
                                     continue;
                                 }
                                 // because of coming not the same VarInstance
