@@ -230,12 +230,16 @@
             <map from="${xrx.src.dir}${file.separator}" to=""/>
         </pathconvert>
         <pathconvert property="xrx.list" refid="xrx.files" dirsep="/" pathsep=" "/>
-        <echo message="x10doc -d '${stdlib}/x10doc' -rtdev -sourcepath '${xrx.src.dir}' ${xrx.list}"/>
+	<tempfile destdir="${java.io.tmpdir}" prefix="XRXFiles" property="xrx.filelist"/>
+	<echo file="${xrx.filelist}" message="${xrx.list}"/>
+	<echo message="Invoking x10doc on X10 source files ${xrx.list}"/>
+        <echo message="x10doc -d '${stdlib}/x10doc' -rtdev -sourcepath '${xrx.src.dir}' @${xrx.filelist}"/>
         <exec executable="${bash.exe}" failonerror="true" dir="${xrx.src.dir}">
             <env key="X10_ROOT" value="${x10.home}" />
             <arg value="-c" />
-            <arg value="'${bin}/x10doc' -d '${stdlib}/x10doc' -rtdev -sourcepath '${xrx.src.dir}' ${xrx.list}" />
+            <arg value="'${bin}/x10doc' -d '${stdlib}/x10doc' -rtdev -sourcepath '${xrx.src.dir}' @'${xrx.filelist}'" />
         </exec>
+	<delete file="${xrx.filelist}" quiet="true"/>
     </target>
 
     <target name="lpg-jar" depends="init,lpg-local-jar" unless="local.lpg.jar">
