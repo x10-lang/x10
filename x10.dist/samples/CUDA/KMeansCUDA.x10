@@ -104,7 +104,7 @@ class KernelWorker {
                     for (var p:Long=tid ; p<kernel_num_points ; p+=tids) {
                         var closest:Int = -1n;
                         var closest_dist:Float = Float.MAX_VALUE;
-                        for (k in 0n..(the_num_clusters-1n)) { 
+                        @Unroll(20) for (k in 0n..(the_num_clusters-1n)) { 
                             // Pythagoras (in dim dimensions)
                             var dist : Float = 0;
                             for (d in 0l..(the_dim-1l)) { 
