@@ -38,6 +38,10 @@ while [ $# != 0 ]; do
 	  SKIP_DEBUG_BUILD=1
     ;;
 
+    -rpm)
+	  BUILD_RPM=1
+    ;;
+
    esac
    shift
 done
@@ -135,4 +139,8 @@ if [[ -z "$SKIP_X10_BUILD" ]]; then
     ant xrx-xdoc
     $distdir/x10.dist/releng/packageRelease.sh -version $X10_VERSION -platform $X10_PLATFORM
     echo "Platform specific distribuiton tarball created"
+    if [[ "$BUILD_RPM" == 1 ]]; then
+	$distdir/x10.dist/releng/packageRPM.sh -version $X10_VERSION -platform $X10_PLATFORM
+	echo "Platform specific distribuiton rpm created"
+    fi
 fi
