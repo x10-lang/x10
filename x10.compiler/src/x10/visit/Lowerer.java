@@ -301,7 +301,7 @@ public class Lowerer extends ContextVisitor {
     			} catch (SemanticException e) {
     			}
     		}
-            if (!ExpressionFlattener.isPrimary(place)) return null;
+            if (!ExpressionFlattener.isPrimary(place) && !(atStm.body() instanceof CUDAKernel)) return null;
     		List<Expr> clocks = async.clocks();
     		place = (Expr) visitEdgeNoOverride(atStm, place);
     		body = (Stmt) visitEdgeNoOverride(atStm, atStm.body());

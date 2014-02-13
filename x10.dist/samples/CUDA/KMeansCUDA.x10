@@ -89,11 +89,10 @@ class KernelWorker {
         val the_host_clusters = this.hostClusters;
         val the_num_clusters = this.numClusters;
         val the_dim = 4l;
-        val g = gpu;
 
         val kernel_start_time : Long = System.currentTimeMillis();
         // classify kernel
-        finish async at (g) @CUDA @CUDADirectParams {
+        finish async at (gpu) @CUDA @CUDADirectParams {
             val blocks = CUDAUtilities.autoBlocks();
             val threads = CUDAUtilities.autoThreads();
             finish for (block in 0n..(blocks-1n)) async {
