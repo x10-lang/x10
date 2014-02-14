@@ -270,7 +270,7 @@ public final class Array[T] (
         val myReg = new RectRegion1D(size-1);
         property(myReg, 1, true, true, true, size);
 
-	layout_min0 = layout_stride1 = layout_min1 = 0L;
+	layout_min0 = layout_stride1 = layout_min1 = 0;
         layout = null;
         raw = new Rail[T](size);
     }
@@ -284,7 +284,7 @@ public final class Array[T] (
     	val myReg = new RectRegion1D(size-1);
     	property(myReg, 1, true, true, true, size);
 
-    	layout_min0 = layout_stride1 = layout_min1 = 0L;
+    	layout_min0 = layout_stride1 = layout_min1 = 0;
     	layout = null;
     	if (zeroed) {
     		raw = new Rail[T](size);
@@ -314,7 +314,7 @@ public final class Array[T] (
         val myReg = new RectRegion1D(size-1);
         property(myReg, 1, true, true, true, size);
         
-        layout_min0 = layout_stride1 = layout_min1 = 0L;
+        layout_min0 = layout_stride1 = layout_min1 = 0;
         layout = null;
         val r  = Unsafe.allocRailUninitialized[T](size);
         for (i in 0..(size-1)) {
@@ -335,7 +335,7 @@ public final class Array[T] (
         val myReg = new RectRegion1D(size-1);
         property(myReg, 1, true, true, true, size);
         
-	layout_min0 = layout_stride1 = layout_min1 = 0L;
+	layout_min0 = layout_stride1 = layout_min1 = 0;
         layout = null;
         val r  = Unsafe.allocRailUninitialized[T](size);
         for (i in 0..(size-1)) {
@@ -358,7 +358,7 @@ public final class Array[T] (
         layout_min1 = init.layout_min1;
         layout = init.layout;
         val r  = Unsafe.allocRailUninitialized[T](init.raw.size);
-        Rail.copy(init.raw, 0L, r, 0L, r.size);
+        Rail.copy(init.raw, 0, r, 0, r.size);
         raw = r;
     }
     
@@ -382,7 +382,7 @@ public final class Array[T] (
         if (rail) {
             val sb = new x10.util.StringBuilder();
             sb.add("[");
-            val sz = Math.min(size, 10L);
+            val sz = Math.min(size, 10);
             for (i in 0..(sz-1)) {
                 if (i > 0) sb.add(",");
                 sb.add("" + raw(i));
@@ -413,7 +413,7 @@ public final class Array[T] (
         if (rect) {
             return new Iterable[T]() {
     	        public def iterator() = new Iterator[T]() {
-    		    var cur:Long = 0L;
+    		    var cur:Long = 0;
     		    public def next() = Array.this.raw(cur++);
     		    public def hasNext() = cur < Array.this.raw.size;
     	        };
@@ -901,7 +901,7 @@ public final class Array[T] (
      *         of the two arrays.
      */
     public static def asyncCopy[T](src:Array[T], dst:RemoteArray[T]) {
-        Rail.asyncCopy(src.raw, 0L, dst.rawData, 0L, src.raw.size);
+        Rail.asyncCopy(src.raw, 0, dst.rawData, 0, src.raw.size);
     }
     
     
@@ -1004,7 +1004,7 @@ public final class Array[T] (
      *         of the two arrays.
      */
     public static def asyncCopy[T](src:RemoteArray[T], dst:Array[T]) {
-        Rail.asyncCopy(src.rawData, 0L, dst.raw, 0L, dst.raw.size);
+        Rail.asyncCopy(src.rawData, 0, dst.raw, 0, dst.raw.size);
     }
     
     
@@ -1097,7 +1097,7 @@ public final class Array[T] (
      *         of the two arrays.
      */
     public static def copy[T](src:Array[T], dst:Array[T]) {
-        Rail.copy(src.raw, 0L, dst.raw, 0L, src.raw.size);
+        Rail.copy(src.raw, 0, dst.raw, 0, src.raw.size);
     }
     
     
@@ -1244,14 +1244,14 @@ public final class Array[T] (
 
         def this(reg:Region) {
             if (reg.isEmpty()) {
-                min0 = stride1 = min1 = 0L;
-                size = 0L;
+                min0 = stride1 = min1 = 0;
+                size = 0;
                 layout = null;
             } else {
                 if (reg.rank == 1) {
                     min0 = reg.min(0n);
-                    stride1 = 0L;
-                    min1 = 0L;
+                    stride1 = 0;
+                    min1 = 0;
                     size = reg.max(0) - reg.min(0) + 1;
                     layout = null;
                 } else if (reg.rank == 2) {

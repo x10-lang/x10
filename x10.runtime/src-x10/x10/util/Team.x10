@@ -92,7 +92,7 @@ public struct Team {
 	        val count = places.size();
 	        // CRITICAL!! placeRail is a Rail of Int because in x10rt "x10rt_place" is 32bits
 	        val placeRail = new Rail[Int](count);
-	        for (var i:Long=0L; i<count; i++)
+	        for (var i:Long=0; i<count; i++)
 	            placeRail(i) = places(i).id() as Int;
 	        finish nativeMake(placeRail, count as Int, result);
 	        this.id = result(0);

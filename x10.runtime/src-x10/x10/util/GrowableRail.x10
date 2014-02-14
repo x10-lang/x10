@@ -47,7 +47,7 @@ public final class GrowableRail[T] implements CustomSerialization {
      * capacity of 0.
      */
     public def this() {
-        this(0L);
+        this(0);
     }
 
     /** 
@@ -56,19 +56,19 @@ public final class GrowableRail[T] implements CustomSerialization {
      */
     public def this(cap:Long) {
         data = Unsafe.allocRailZeroed[T](cap);
-        size = 0L;
+        size = 0;
     }
 
     private def this(ds:Deserializer) {
         val src = ds.readAny() as Rail[T];
         data = Unsafe.allocRailUninitialized[T](src.size);
-        Rail.copy(src, 0L, data, 0L, src.size);
+        Rail.copy(src, 0, data, 0, src.size);
         size = src.size;
     }
 
     public def serialize(s:Serializer) {
         val tmp = Unsafe.allocRailUninitialized[T](size);
-        Rail.copy(data, 0L, tmp, 0L, size);
+        Rail.copy(data, 0, tmp, 0, size);
 	s.writeAny(tmp);
     }
 
@@ -103,12 +103,12 @@ public final class GrowableRail[T] implements CustomSerialization {
         val addLen = items.size;
         val newLen = size + addLen;
         val movLen = size - p;
-        if (CompilerFlags.checkBounds() && movLen < 0L) illegalGap(p, size);
+        if (CompilerFlags.checkBounds() && movLen < 0) illegalGap(p, size);
         if (newLen > capacity()) grow(newLen);
-        if (movLen > 0L) {
+        if (movLen > 0) {
             Rail.copy(data, p, data, p+addLen, movLen);
         }
-        Rail.copy(items, 0L, data, p, items.size);
+        Rail.copy(items, 0, data, p, items.size);
         size = newLen;
     }
 
@@ -135,11 +135,11 @@ public final class GrowableRail[T] implements CustomSerialization {
      */
     public def contains(v:T):Boolean {
         if (v == null) {
-            for (i in 0L..(size()-1)) {
+            for (i in 0..(size()-1)) {
                 if (data(i) == null) return true;
             }
         } else {
-            for (i in 0L..(size()-1)) {
+            for (i in 0..(size()-1)) {
                 if (v.equals(data(i))) return true;
             }
         }
@@ -148,9 +148,9 @@ public final class GrowableRail[T] implements CustomSerialization {
 
     /**
      * Is the GrowableRail empty? 
-     * @return the value of the expession size() == 0L
+     * @return the value of the expession size() == 0
      */
-    public def isEmpty():Boolean = size == 0L;
+    public def isEmpty():Boolean = size == 0;
 
     /** 
      * Get the current size; indices from 0..size-1 are currently valid 
@@ -168,7 +168,7 @@ public final class GrowableRail[T] implements CustomSerialization {
      */
     public def removeLast():T {
         val res = this(size-1);
-        Unsafe.clearRail(data, size-1, 1L);
+        Unsafe.clearRail(data, size-1, 1);
         size = size-1;
         shrink(size+1);
         return res;
@@ -192,9 +192,9 @@ public final class GrowableRail[T] implements CustomSerialization {
      */
     public def moveSectionToRail(i:Long, j:Long):Rail[T] {
         val len = j - i + 1;
-        if (len < 1) return Unsafe.allocRailUninitialized[T](0L);
+        if (len < 1) return Unsafe.allocRailUninitialized[T](0);
 	val tmp = Unsafe.allocRailUninitialized[T](len);
-        Rail.copy(data, i, tmp, 0L, len);
+        Rail.copy(data, i, tmp, 0, len);
         Rail.copy(data, j+1, data, i, size-j-1);
         Unsafe.clearRail(data, size-len, len);
         size-=len;
@@ -207,7 +207,7 @@ public final class GrowableRail[T] implements CustomSerialization {
      */
     public def toRail():Rail[T] {
        val ans = Unsafe.allocRailUninitialized[T](size);
-       Rail.copy(data, 0L, ans, 0L, size);
+       Rail.copy(data, 0, ans, 0, size);
        return ans;
     }
 
@@ -221,7 +221,7 @@ public final class GrowableRail[T] implements CustomSerialization {
         }
         
         val tmp = Unsafe.allocRailUninitialized[T](newCapacity);
-        Rail.copy(data, 0L, tmp, 0L, size);
+        Rail.copy(data, 0, tmp, 0, size);
         Unsafe.clearRail(tmp, size, newCapacity-size);
 	Unsafe.dealloc(data);
         data = tmp;
@@ -231,7 +231,7 @@ public final class GrowableRail[T] implements CustomSerialization {
         if (newCapacity > capacity()/4 || newCapacity < 8)
             return;
         newCapacity = x10.lang.Math.max(newCapacity, size);
-        newCapacity = x10.lang.Math.max(newCapacity, 8L);
+        newCapacity = x10.lang.Math.max(newCapacity, 8);
         val tmp = Unsafe.allocRailUninitialized[T](newCapacity);        
         Rail.copy(data, 0, tmp, 0, size);
         Unsafe.clearRail(tmp, size, newCapacity-size);

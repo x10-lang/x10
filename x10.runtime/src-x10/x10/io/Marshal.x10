@@ -176,7 +176,7 @@ public interface Marshal[T] {
     
     public final static class LongMarshal implements Marshal[Long] {
         public def read(r:Reader):Long {
-            var l: Long = 0l;
+            var l: Long = 0;
             for (var i: Int = 0n; i < 8n; i++) {
                 val b = r.read();
                 l = (l << 8n) | (b & 0xffn);

@@ -28,14 +28,14 @@ final class RectRegion1D extends Region{rect,rank==1} {
      * Create a 1-dim region min..max.
      */
     def this(minArg:Long, maxArg:Long):RectRegion1D{self.rank==1, self.rect} {
-        super(1, true, minArg==0L);
+        super(1, true, minArg==0);
 
        
-        val s = maxArg - minArg +1L;
+        val s = maxArg - minArg +1;
         if (minArg == Long.MIN_VALUE && maxArg == Long.MAX_VALUE) {
-            size = -1L; // overflow;
+            size = -1; // overflow;
          } else {
-            size = s > 0L ? s : 0L;
+            size = s > 0 ? s : 0;
         }        
         min = minArg;
         max = maxArg;
@@ -50,8 +50,8 @@ final class RectRegion1D extends Region{rect,rank==1} {
     def this(maxArg:Long):RectRegion1D{self.rank==1, self.rect, self.rail, self.zeroBased} {
         super(1n);
 
-        size = maxArg +1L;
-        min = 0L;
+        size = maxArg +1;
+        min = 0;
         max = maxArg;
     }
 
@@ -62,28 +62,28 @@ final class RectRegion1D extends Region{rect,rank==1} {
 
     public def isConvex():Boolean = true;
 
-    public def isEmpty():Boolean = size == 0L;
+    public def isEmpty():Boolean = size == 0;
 
     public def indexOf(pt:Point):Long {
-	if (!contains(pt)) return -1L;
+	if (!contains(pt)) return -1;
         return pt(0) - min;
     }
 
     public def indexOf(i0:Long):Long {
         if (zeroBased) {
-	    if (!containsInternal(i0)) return -1L;
+	    if (!containsInternal(i0)) return -1;
             return i0;
         } else { 
-	    if (!containsInternal(i0)) return -1L;
+	    if (!containsInternal(i0)) return -1;
             return i0 - min;
         }
     }
 
-    public def indexOf(i0:Long, i1:Long):Long = -1L;
+    public def indexOf(i0:Long, i1:Long):Long = -1;
 
-    public def indexOf(i0:Long, i1:Long, i2:Long):Long = -1L;
+    public def indexOf(i0:Long, i1:Long, i2:Long):Long = -1;
 
-    public def indexOf(i0:Long, i1:Long, i2:Long, i3:Long):Long = -1L;
+    public def indexOf(i0:Long, i1:Long, i2:Long, i3:Long):Long = -1;
 
 
     public def min(i:Long):Long {

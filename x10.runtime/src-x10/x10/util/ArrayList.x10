@@ -22,7 +22,7 @@ public class ArrayList[T] extends AbstractCollection[T] implements List[T] {
     }
     
     public def contains(v: T): Boolean {
-        for (i in 0L..(a.size()-1)) {
+        for (i in 0..(a.size()-1)) {
             if (v == null ? a(i) == null : v.equals(a(i))) {
                 return true;
             }
@@ -46,7 +46,7 @@ public class ArrayList[T] extends AbstractCollection[T] implements List[T] {
     }
     
     public def remove(v: T): Boolean {
-        for (i in 0L..(a.size()-1)) {
+        for (i in 0..(a.size()-1)) {
             if (v == null ? a(i) == null : v.equals(a(i))) {
                 removeAt(i);
                 return true;
@@ -85,7 +85,7 @@ public class ArrayList[T] extends AbstractCollection[T] implements List[T] {
 
     public def size(): Long = a.size();
     
-    public def isEmpty(): Boolean = size() == 0L;
+    public def isEmpty(): Boolean = size() == 0;
 
     public def toRail() = a.toRail();
 
@@ -155,7 +155,7 @@ public class ArrayList[T] extends AbstractCollection[T] implements List[T] {
         private val al: ArrayList[S];
         
         def this(al: ArrayList[S]) {
-            this(al, -1L);
+            this(al, -1);
         }
 
         def this(al: ArrayList[S], i: Long) {
@@ -210,7 +210,7 @@ public class ArrayList[T] extends AbstractCollection[T] implements List[T] {
     
     public def reverse(): void {
         val length = a.size();
-        for (var i: Long = 0L; i < length/2; i++) {
+        for (var i: Long = 0; i < length/2; i++) {
             exch(a, i, length-1-i);
         }
     }
@@ -249,7 +249,7 @@ public class ArrayList[T] extends AbstractCollection[T] implements List[T] {
     public def toString(): String {
         val sb = new x10.util.StringBuilder();
         sb.add("[");
-        val sz = Math.min(size(), 10L);
+        val sz = Math.min(size(), 10);
         for (var i:Long = 0; i < sz; ++i) {
             if (i > 0) sb.add(",");
             sb.add("" + this(i));

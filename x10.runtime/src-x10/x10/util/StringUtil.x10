@@ -100,7 +100,7 @@ public class StringUtil {
     public static def parseByte(s: String) = (s(0n)=='-'?-1Y:1Y)*Byte.parse(stripRadix(s), radix(s));
     public static def parseShort(s: String) = (s(0n)=='-'?-1S:1S)*Short.parse(stripRadix(s), radix(s));
     public static def parseInt(s: String) = (s(0n)=='-'?-1n:1n)*Int.parse(stripRadix(s), radix(s));
-    public static def parseLong(s: String) = (s(0n)=='-'?-1L:1L)*Long.parse(stripRadix(s), radix(s));
+    public static def parseLong(s: String) = (s(0n)=='-'?-1:1)*Long.parse(stripRadix(s), radix(s));
     public static def parseUByte(s: String) = UByte.parse(stripRadix(s), radix(s));
     public static def parseUShort(s: String) = UShort.parse(stripRadix(s), radix(s));
     public static def parseUInt(s: String) = UInt.parse(stripRadix(s), radix(s));
@@ -108,11 +108,11 @@ public class StringUtil {
     
     public static def formatArray[T](a: Rail[T]) = formatArray[T](a, ", ", "    ", 80n);
     public static def formatArray[T](a: Rail[T], separator:String, leftPad: String, maxLength: Int) {
-        if(a.size == 0L) return "";
+        if(a.size == 0) return "";
         val lines = new StringBuilder();
         var aLine: StringBuilder = new StringBuilder();
         aLine.add(leftPad);
-        for(n in 0L..(a.size-2)) {
+        for(n in 0..(a.size-2)) {
             aLine.add(a(n).toString());
             aLine.add(separator);
             if(aLine.length() >= maxLength) {

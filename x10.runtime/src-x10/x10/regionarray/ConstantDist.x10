@@ -76,7 +76,7 @@ final class ConstantDist(onePlace:Place) extends Dist {
     public def offset(pt:Point(rank)):Long {
         if (CompilerFlags.checkPlace() && here!=onePlace) raisePlaceError(pt);
         val offset = region.indexOf(pt);
-        if (CompilerFlags.checkBounds() && offset == -1L) {
+        if (CompilerFlags.checkBounds() && offset == -1) {
             raiseBoundsError(pt);
         }
         return offset;
@@ -85,7 +85,7 @@ final class ConstantDist(onePlace:Place) extends Dist {
     public def offset(i0:Long){rank==1}:Long {
         if (CompilerFlags.checkPlace() && here!=onePlace) raisePlaceError(i0);
         val offset = region.indexOf(i0);
-        if (CompilerFlags.checkBounds() && offset == -1L) {
+        if (CompilerFlags.checkBounds() && offset == -1) {
             raiseBoundsError(i0);
         }
         return offset;
@@ -94,7 +94,7 @@ final class ConstantDist(onePlace:Place) extends Dist {
     public def offset(i0:Long, i1:Long){rank==2}:Long {
         if (CompilerFlags.checkPlace() && here!=onePlace) raisePlaceError(i0, i1);
         val offset = region.indexOf(i0, i1);
-        if (CompilerFlags.checkBounds() && offset == -1L) {
+        if (CompilerFlags.checkBounds() && offset == -1) {
             raiseBoundsError(i0, i1);
         }
         return offset;
@@ -103,7 +103,7 @@ final class ConstantDist(onePlace:Place) extends Dist {
     public def offset(i0:Long, i1:Long, i2:Long){rank==3}:Long {
         if (CompilerFlags.checkPlace() && here!=onePlace) raisePlaceError(i0, i1, i2);
         val offset = region.indexOf(i0, i1, i2);
-        if (CompilerFlags.checkBounds() && offset == -1L) {
+        if (CompilerFlags.checkBounds() && offset == -1) {
             raiseBoundsError(i0, i1, i2);
         }
         return offset;
@@ -112,7 +112,7 @@ final class ConstantDist(onePlace:Place) extends Dist {
     public def offset(i0:Long, i1:Long, i2:Long, i3:Long){rank==4}:Long {
         if (CompilerFlags.checkPlace() && here!=onePlace) raisePlaceError(i0, i1, i2, i3);
         val offset = region.indexOf(i0, i1, i2, i3);
-        if (CompilerFlags.checkBounds() && offset == -1L) {
+        if (CompilerFlags.checkBounds() && offset == -1) {
             raiseBoundsError(i0, i1, i2, i3);
         }
         return offset;

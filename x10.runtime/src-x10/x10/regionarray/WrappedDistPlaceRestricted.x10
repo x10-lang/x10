@@ -27,7 +27,7 @@ final class WrappedDistPlaceRestricted extends Dist {
 
     public def places():PlaceGroup = new SparsePlaceGroup(filter);
 
-    public def numPlaces():Long = 1L;
+    public def numPlaces():Long = 1;
 
     public def regions():Iterable[Region(rank)] {
         return new Rail[Region(rank)](1, region);

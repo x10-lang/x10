@@ -42,7 +42,7 @@ public class CUDAUtilities {
     private static def initCUDARail[T](local:Rail[T],
                                        remote:GlobalRail[T],
                                        numElements:Long) : void {
-          finish Rail.asyncCopy(local, 0l, remote, 0l, numElements);
+          finish Rail.asyncCopy(local, 0, remote, 0, numElements);
     }
 
     private static def makeCUDARail[T](gpu:Place, numElements:Long, init:Rail[T])

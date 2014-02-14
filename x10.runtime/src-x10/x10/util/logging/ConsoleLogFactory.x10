@@ -56,7 +56,7 @@ class ConsoleLogFactory extends LogFactory {
     @Native("java", "throw new java.lang.UnsupportedOperationException()")
         private static def toRail[K](c:Container[K]):Rail[K]{self!=null} {
         val arr = Unsafe.allocRailUninitialized[K](c.size());
-        var i:Long = 0L;
+        var i:Long = 0;
         for (k in c) {
             arr(i++) = k;
         }

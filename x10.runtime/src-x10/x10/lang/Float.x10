@@ -232,7 +232,7 @@ public struct Float implements Comparable[Float], Arithmetic[Float], Ordered[Flo
     /**
      * A constant holding the smallest positive nonzero value of type Float,
      * 2<sup>-149</sup>.
-     * It is equal to Float.fromIntBits(0x1).
+     * It is equal to Float.fromIntBits(0x1n).
      */
     // TODO: hexadecimal floating-point literal 0x0.000002P-126f
     @Native("java", "java.lang.Float.MIN_VALUE")
@@ -243,7 +243,7 @@ public struct Float implements Comparable[Float], Arithmetic[Float], Ordered[Flo
     /**
      * A constant holding the smallest positive normal value of type Float,
      * 2<sup>-126</sup>.
-     * It is equal to Float.fromIntBits(0x00800000).
+     * It is equal to Float.fromIntBits(0x00800000n).
      */
     // TODO: hexadecimal floating-point literal 0x1.0P-126f
     @Native("java", "java.lang.Float.intBitsToFloat(0x00800000)")
@@ -254,7 +254,7 @@ public struct Float implements Comparable[Float], Arithmetic[Float], Ordered[Flo
     /**
      * A constant holding the largest positive finite value of type Float,
      * (2-2<sup>-23</sup>)*2<sup>127</sup>.
-     * It is equal to Float.fromIntBits(0x7f7fffff).
+     * It is equal to Float.fromIntBits(0x7f7fffffn).
      */
     // TODO: hexadecimal floating-point literal 0x1.fffffeP+127f
     @Native("java", "java.lang.Float.MAX_VALUE")
@@ -264,7 +264,7 @@ public struct Float implements Comparable[Float], Arithmetic[Float], Ordered[Flo
 
     /**
      * A constant holding the positive infinity of type Float.
-     * It is equal to Float.fromIntBits(0x7f800000).
+     * It is equal to Float.fromIntBits(0x7f800000n).
      */
     @Native("java", "java.lang.Float.POSITIVE_INFINITY")
     @Native("c++", "::x10::lang::FloatNatives::fromIntBits(0x7f800000)")
@@ -272,7 +272,7 @@ public struct Float implements Comparable[Float], Arithmetic[Float], Ordered[Flo
 
     /**
      * A constant holding the negative infinity of type Float.
-     * It is equal to Float.fromIntBits(0xff800000).
+     * It is equal to Float.fromIntBits(0xff800000n).
      */
     @Native("java", "java.lang.Float.NEGATIVE_INFINITY")
     @Native("c++", "::x10::lang::FloatNatives::fromIntBits(0xff800000)")
@@ -280,7 +280,7 @@ public struct Float implements Comparable[Float], Arithmetic[Float], Ordered[Flo
 
     /**
      * A constant holding a Not-a-Number (NaN) value of type Float.
-     * It is equal to Float.fromIntBits(0x7fc00000).
+     * It is equal to Float.fromIntBits(0x7fc00000n).
      */
     @Native("java", "java.lang.Float.NaN")
     @Native("c++", "::x10::lang::FloatNatives::fromIntBits(0x7fc00000)")

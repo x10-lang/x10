@@ -34,9 +34,9 @@ public final class Point(rank:Long) implements (Long) => Long,
         property(coords.size);
 
 	c0 = coords(0);
-	c1 = rank>1 ? coords(1) : 0L;
-        c2 = rank>2 ? coords(2) : 0L;
-        c3 = rank>3 ? coords(3) : 0L;
+	c1 = rank>1 ? coords(1) : 0;
+        c2 = rank>2 ? coords(2) : 0;
+        c3 = rank>3 ? coords(3) : 0;
         cs = rank>4 ? coords : null;
     }
 

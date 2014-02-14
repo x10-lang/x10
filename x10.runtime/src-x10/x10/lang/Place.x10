@@ -113,12 +113,12 @@ public final struct Place(
     /**
      * The place that runs 'main'.
      */
-    public static FIRST_PLACE:Place(0L) = Place(0L);
+    public static FIRST_PLACE:Place(0) = Place(0);
     
     /**
      * Special place type for non-existent places
      */
-    public static INVALID_PLACE:Place(-1L) = Place(-1L);
+    public static INVALID_PLACE:Place(-1) = Place(-1);
 
     /**
      * Creates a Place struct from an integer place id.
@@ -171,8 +171,8 @@ public final struct Place(
     /**
      * 
      */
-    public def isFirst():Boolean = id == 0L;
-    public def isLast():Boolean = id == MAX_PLACES - 1L;
+    public def isFirst():Boolean = id == 0;
+    public def isLast():Boolean = id == MAX_PLACES - 1;
 
     /** Is this place a host (i.e. not an accelerator)? */
     public def isHost():Boolean = isHost(id);
@@ -184,7 +184,7 @@ public final struct Place(
     public def isDead():Boolean = isDead(id);
 
     /** 
-     *How many accelerators does this place have?
+     * How many accelerators does this place have?
      * Returns 0 if this place is an accelerator. 
      */
     public def numChildren() = numChildren(id);

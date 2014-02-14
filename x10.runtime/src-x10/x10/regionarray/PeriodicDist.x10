@@ -40,8 +40,8 @@ public final class PeriodicDist extends Dist {
         baseDist = base;
         val reg = base.region;
         if (reg.isEmpty()) {
-            min0 = min1 = min2 = min3 = 0L;
-            delta0 = delta1 = delta2 = delta3 = 0L;
+            min0 = min1 = min2 = min3 = 0;
+            delta0 = delta1 = delta2 = delta3 = 0;
             if (rank>4) {
                 min = new Rail[Long](rank);
                 delta = new Rail[Long](rank);

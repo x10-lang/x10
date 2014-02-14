@@ -49,8 +49,8 @@ public class HashMap[K,V] implements Map[K,V], CustomSerialization {
 
 	var modCount:Long = 0; // to discover concurrent modifications
     
-    static val MAX_PROBES = 3L;
-    static val MIN_SIZE = 4L;
+    static val MAX_PROBES = 3;
+    static val MIN_SIZE = 4;
     
     public def this() {
         init(MIN_SIZE);
@@ -106,7 +106,7 @@ public class HashMap[K,V] implements Map[K,V], CustomSerialization {
     }
     
     protected def getEntry(k: K): HashEntry[K,V] {
-        if (size == 0L)
+        if (size == 0)
             return null;
 
         val h = hash(k);

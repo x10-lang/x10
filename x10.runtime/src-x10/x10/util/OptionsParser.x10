@@ -496,14 +496,14 @@ public class OptionsParser {
         }
         keyIndex.add(tailStart); // a sentinel: may be a bit low, we'll reset later
         val howManyMissing = reqNotSeen.size();
-        if (helpOnly || howManyMissing == 0L) {
+        if (helpOnly || howManyMissing == 0) {
             this.args = expanded;
             return keyIndex.result();
         }
         else {
             val sb = new StringBuilder();
             sb.add("The following ");
-            if (howManyMissing == 1L) sb.add("option is missing:\n\t");
+            if (howManyMissing == 1) sb.add("option is missing:\n\t");
             else sb.add(howManyMissing+" options are missing\n\t");
             for(o in reqNotSeen) {
                 sb.add(o.usage());
@@ -520,7 +520,7 @@ public class OptionsParser {
     // The expanded array is assigned here to this.args.
     @NonEscaping 
     private def expandArgs(args: Rail[String]): Rail[String] {
-        val builder = new RailBuilder[String](Math.min(8L,2*args.size));
+        val builder = new RailBuilder[String](Math.min(8,2*args.size));
         var inTail: Boolean = false; // we have seen a key that is not recognized
         for(n in args.range()) {
             val argN = args(n);
@@ -635,7 +635,7 @@ public class OptionsParser {
     @NonEscaping 
     public final def getOrElse(var key: String, orElse: Rail[String]): Rail[String] {
         val found = get(key);
-        return found == null || found.size == 0L ? orElse : found;
+        return found == null || found.size == 0 ? orElse : found;
     }
     
     /**
@@ -681,8 +681,8 @@ public class OptionsParser {
      */
     @NonEscaping public final operator this(key:String, d:String): String {
         val raw = get(key);
-        if(raw == null || raw.size == 0L) return d; 
-        else if (raw.size == 1L) return raw(0);
+        if(raw == null || raw.size == 0) return d; 
+        else if (raw.size == 1) return raw(0);
         else return onMoreThanOne(key, d, raw);
     }
 

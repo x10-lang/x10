@@ -22,11 +22,11 @@ public final class Math {
 
    @Native("java", "java.lang.Math.abs(#a)") // @Native for performance
    @Native("c++", "((x10_int)::labs(#a))") // @Native for performance
-   public static def abs(a:Int):Int = a<0 ? -a : a;
+   public static def abs(a:Int):Int = a<0n ? -a : a;
 
    @Native("java", "java.lang.Math.abs(#a)") // @Native for performance
    @Native("c++", "((x10_long)::llabs(#a))") // @Native for performance
-   public static def abs(a:Long):Long = a<0l ? -a : a;
+   public static def abs(a:Long):Long = a<0 ? -a : a;
 
    @Native("java", "java.lang.Math.abs(#a)") // @Native for performance
    @Native("cuda", "fabsf(#a)")
@@ -386,7 +386,7 @@ public final class Math {
     public static def min(a:Double, b:Double):Double = a<b?a:b;
 
     public static def signum(a:Int):Int = (a == 0n) ? 0n : ((a>0n) ? 1n : -1n);
-    public static def signum(a:Long):Long = (a == 0L) ? 0L : ((a>0L) ? 1L : -1L);
+    public static def signum(a:Long):Long = (a == 0) ? 0 : ((a>0) ? 1 : -1);
     @Native("java", "java.lang.Math.signum(#a)") // @Native for performance
     public static def signum(a:Float):Float = (a == 0.0f) ? 0.0f : ((a>0.0f) ? 1.0f : -1.0f);
     @Native("java", "java.lang.Math.signum(#a)") // @Native for performance
@@ -408,8 +408,8 @@ public final class Math {
     }
 
     public static def nextPowerOf2(p:Long):Long {
-    	if (p==0L) return 0L;
-    	var pow2:Long = 1L;
+    	if (p==0) return 0;
+    	var pow2:Long = 1;
     	while (pow2 < p)
     		pow2 <<= 1n;
     	return pow2;
@@ -427,8 +427,8 @@ public final class Math {
 
     public static def log2(var p:Long):Long {
     	assert powerOf2(p);
-    	var i:Long = 0L;
-    	while (p > 1L) { p = p/2L; i++; }
+    	var i:Long = 0;
+    	while (p > 1) { p = p/2; i++; }
     	return i;
     }
 
@@ -439,6 +439,6 @@ public final class Math {
 
     // returns 2^(max(0,i))
     public static def pow2(i:Long):Long {
-        return 1L << (i as Int);
+        return 1 << (i as Int);
     }
 }

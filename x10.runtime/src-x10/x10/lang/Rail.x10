@@ -49,7 +49,7 @@ public final class Rail[T](
     size:Long
 ) implements Iterable[T],(Long)=>T {
 
-    /** @return the LongRange 0L..(size-1L) */
+    /** @return the LongRange 0..(size-1) */
     public native property def range():LongRange;
 
     /** @return an iterator over the elements of the Rail */
@@ -61,7 +61,7 @@ public final class Rail[T](
     /**
      * Construct an empty (size 0) Rail
      */
-    public native def this():Rail[T]{self.size==0L};
+    public native def this():Rail[T]{self.size==0};
 
     /**
      * Construct a new Rail by copying all elements of src.
