@@ -52,7 +52,7 @@ public final class DistArray_Unique[T] extends DistArray[T]{this.rank()==1} impl
      * @return an IterationSpace for the DistArray
      */
     public def globalIndices():DenseIterationSpace_1{self!=null} {
-        return new DenseIterationSpace_1(0L, placeGroup.size()-1L);
+        return new DenseIterationSpace_1(0, placeGroup.size()-1);
     }
 
     /**

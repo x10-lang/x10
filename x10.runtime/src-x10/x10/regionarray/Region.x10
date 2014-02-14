@@ -107,12 +107,12 @@ public abstract class Region(
            for (i in 0..(rank-1)) {
                if (minArg(i) > Long.MIN_VALUE) {
                    // add -1*x(i) + minArg(i) <= 0, i.e. x(i) >= minArg(i)
-                   val r = new PolyRow(Point.make(rank, (j:Long) => i==j ? -1L : 0L), minArg(i) as Int);
+                   val r = new PolyRow(Point.make(rank, (j:Long) => i==j ? -1 : 0), minArg(i) as Int);
                    pmb.add(r);
                 }
                 if (maxArg(i) < Long.MAX_VALUE) {
                    // add 1*x(i) - maxArg(i) <= 0, i.e. x(i) <= maxArg(i)
-                   val s = new PolyRow(Point.make(rank, (j:Long) => i==j ? 1L : 0L), -maxArg(i) as Int);
+                   val s = new PolyRow(Point.make(rank, (j:Long) => i==j ? 1 : 0), -maxArg(i) as Int);
                    pmb.add(s);
                }
            }
@@ -125,7 +125,7 @@ public abstract class Region(
      * rails of longs.
      */
     public static def makeRectangular(minArg:Rail[Long], maxArg:Rail[Long]):Region(minArg.size){self.rect} {
-        if (minArg.size == 1L) {
+        if (minArg.size == 1) {
             // To remove the cast, the constraint solver should be able to handle arithmetic.
             return new RectRegion1D(minArg(0), maxArg(0)) as Region(minArg.size){rect}; 
         } else {
@@ -137,7 +137,7 @@ public abstract class Region(
      * Construct a rectangular region from a Rail of IntRange that represent the min/max of each dimension.
      */
     public static def makeRectangular(ranges:Rail[IntRange]):Region(ranges.size){self.rect} {
-        if (ranges.size == 1L) {
+        if (ranges.size == 1) {
             // To remove the cast, the constraint solver should be able to handle arithmetic.
             return new RectRegion1D(ranges(0).min,ranges(0).max) as Region(ranges.size){rect}; 
         } else {
@@ -155,7 +155,7 @@ public abstract class Region(
      * Construct a rectangular region from a Rail of LongRange that represent the min/max of each dimension.
      */
     public static def makeRectangular(ranges:Rail[LongRange]):Region(ranges.size){self.rect} {
-        if (ranges.size == 1L) {
+        if (ranges.size == 1) {
             // To remove the cast, the constraint solver should be able to handle arithmetic.
             return new RectRegion1D(ranges(0).min,ranges(0).max) as Region(ranges.size){rect}; 
         } else {

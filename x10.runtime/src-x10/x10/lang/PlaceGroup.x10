@@ -169,10 +169,10 @@ public abstract class PlaceGroup implements Iterable[Place] {
     def this(numPlaces:Long) { this.numPlaces = numPlaces; }
     public operator this(i:Long):Place = Place(i);
     public def numPlaces() = numPlaces;
-    public def contains(id:Long) = id >= 0L && id < numPlaces;
-    public def indexOf(id:Long) = contains(id) ? id : -1L;
+    public def contains(id:Long) = id >= 0 && id < numPlaces;
+    public def indexOf(id:Long) = contains(id) ? id : -1;
     public def iterator():Iterator[Place]{self!=null} = new Iterator[Place](){
-      private var i:Long = 0L;
+      private var i:Long = 0;
       public def hasNext() = i < numPlaces;
       public def next() = Place(i++);
     };
@@ -185,15 +185,15 @@ public abstract class PlaceGroup implements Iterable[Place] {
     }
     public def hashCode() = numPlaces.hashCode();
     public def broadcastFlat(cl:()=>void) {
-        if (numPlaces() >= 1024L) {
+        if (numPlaces() >= 1024) {
             val ser = new Serializer();
             ser.writeAny(cl);
             ser.addDeserializeCount(this.size()-1);
             val message = ser.toRail();
-            @Pragma(Pragma.FINISH_SPMD) finish for(var i:Long=numPlaces()-1; i>=0L; i-=32L) {
+            @Pragma(Pragma.FINISH_SPMD) finish for(var i:Long=numPlaces()-1; i>=0; i-=32) {
                 at (Place(i)) async {
                     val max = Runtime.hereLong();
-                    val min = Math.max(max-31L, 0L);
+                    val min = Math.max(max-31, 0);
                     @Pragma(Pragma.FINISH_SPMD) finish for (var j:Long=min; j<=max; ++j) {
                         at (Place(j)) async {
                             val dser = new x10.io.Deserializer(message);

@@ -125,7 +125,7 @@ public final class GLB[Queue, R]{Queue<:TaskQueue[Queue, R]} {
 	 */
 	private def collectLifelineStatus(st:PlaceLocalHandle[Worker[Queue, R]]):void{
 		val logs:Rail[Logger];
-		//val groupSize:Long = 128l;
+		//val groupSize:Long = 128;
 		if (P >= 1024) {
 			logs = new Rail[Logger](P/32, (i:Long)=>at (Place(i*32)) {
 				val h = Runtime.hereLong();
@@ -190,7 +190,7 @@ public final class GLB[Queue, R]{Queue<:TaskQueue[Queue, R]} {
 	 */
 	private def printLog(st:PlaceLocalHandle[Worker[Queue, R]]):void{
 		val P = Place.MAX_PLACES;
-		for(var i:Long =0L; i < P; ++i){
+		for(var i:Long =0; i < P; ++i){
 			at(Place(i)){
 				st().queue.printLog();
 			}

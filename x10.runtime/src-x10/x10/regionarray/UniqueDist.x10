@@ -84,7 +84,7 @@ final class UniqueDist extends Dist/*(1)*/ {
             raiseBoundsError(pt);
         }
         if (CompilerFlags.checkPlace() && pt(0n) != (pg.indexOf(here) as Long)) raisePlaceError(pt);
-        return 0L;
+        return 0;
     }
 
     public def offset(i0:Long){rank==1}:Long {
@@ -92,7 +92,7 @@ final class UniqueDist extends Dist/*(1)*/ {
             raiseBoundsError(i0);
         }
         if (CompilerFlags.checkPlace() && i0 != (pg.indexOf(here) as Long)) raisePlaceError(i0);
-        return 0L;
+        return 0;
     }
 
     // replicated from superclass to workaround xlC bug with using & itables

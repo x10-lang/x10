@@ -62,7 +62,7 @@ final class BlockDist extends Dist {
         val min = b.min(axis);
         val max = b.max(axis);
         val P = pg.numPlaces() as Long;
-        val numElems = max - min + 1L;
+        val numElems = max - min + 1;
         val blockSize = numElems/P;
         val leftOver = numElems - P*blockSize;
         val i = pg.indexOf(place) as Long;
@@ -172,7 +172,7 @@ final class BlockDist extends Dist {
     public def offset(pt:Point(rank)):Long {
         val r = get(here);
         val offset = r.indexOf(pt);
-        if (offset == -1L) {
+        if (offset == -1) {
             if (CompilerFlags.checkBounds() && !region.contains(pt)) raiseBoundsError(pt);
             if (CompilerFlags.checkPlace()) raisePlaceError(pt);
         }
@@ -183,7 +183,7 @@ final class BlockDist extends Dist {
     public def offset(i0:Long){rank==1}:Long {
         val r = get(here);
         val offset = r.indexOf(i0);
-        if (offset == -1L) {
+        if (offset == -1) {
             if (CompilerFlags.checkBounds() && !region.contains(i0)) raiseBoundsError(i0);
             if (CompilerFlags.checkPlace()) raisePlaceError(i0);
         }
@@ -193,7 +193,7 @@ final class BlockDist extends Dist {
     public def offset(i0:Long, i1:Long){rank==2}:Long {
         val r = get(here);
         val offset = r.indexOf(i0,i1);
-        if (offset == -1L) {
+        if (offset == -1) {
             if (CompilerFlags.checkBounds() && !region.contains(i0,i1)) raiseBoundsError(i0,i1);
             if (CompilerFlags.checkPlace()) raisePlaceError(i0,i1);
         }
@@ -203,7 +203,7 @@ final class BlockDist extends Dist {
     public def offset(i0:Long, i1:Long, i2:Long){rank==3}:Long {
         val r = get(here);
         val offset = r.indexOf(i0,i1,i2);
-        if (offset == -1L) {
+        if (offset == -1) {
             if (CompilerFlags.checkBounds() && !region.contains(i0,i1,i2)) raiseBoundsError(i0,i1,i2);
             if (CompilerFlags.checkPlace()) raisePlaceError(i0,i1,i2);
         }
@@ -213,7 +213,7 @@ final class BlockDist extends Dist {
     public def offset(i0:Long, i1:Long, i2:Long, i3:Long){rank==4}:Long {
         val r = get(here);
         val offset = r.indexOf(i0,i1,i2,i3);
-        if (offset == -1L) {
+        if (offset == -1) {
             if (CompilerFlags.checkBounds() && !region.contains(i0,i1,i2,i3)) raiseBoundsError(i0,i1,i2,i3);
             if (CompilerFlags.checkPlace()) raisePlaceError(i0,i1,i2,i3);
         }

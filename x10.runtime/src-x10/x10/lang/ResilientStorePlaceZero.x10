@@ -33,7 +33,7 @@ class ResilientStorePlaceZero {
       * Propagates back the exception, if thrown.
       */
     private static def lowLevelAt(cl:()=>void) {
-        if (here.id == 0l) {
+        if (here.id == 0) {
             cl();
         } else {
             val exc = new GlobalRef(new Cell[Exception](null));
@@ -65,21 +65,21 @@ class ResilientStorePlaceZero {
 
     /** Simply utility function to send a message to place zero, that returns an Int (-1 used internally), at the x10rt level. */
     private static def lowLevelAtExprLong(cl:()=>Long) : Long {
-        if (here.id == 0l) {
+        if (here.id == 0) {
             return cl();
         } else {
-            val c = new GlobalRef(new AtomicLong(-1l));
+            val c = new GlobalRef(new AtomicLong(-1));
             Runtime.x10rtSendMessage(0, () => @RemoteInvocation("low_level_at_int_out") {
                 val r = cl();
                 Runtime.x10rtSendMessage(c.home.id, () => @RemoteInvocation("low_level_at_int_back") {
                     c.getLocalOrCopy().set(r);
                 }, null);
             }, null);
-            // while (c().get()==-1l) Runtime.probe();
-            if (c().get()==-1l) { // Fix for XTENLANG-3303/3305
+            // while (c().get()==-1) Runtime.probe();
+            if (c().get()==-1) { // Fix for XTENLANG-3303/3305
                 Runtime.increaseParallelism();
                 do { Runtime.x10rtProbe();
-                } while (c().get()==-1l);
+                } while (c().get()==-1);
                 Runtime.decreaseParallelism(1n);
             }
             return c().get();
@@ -226,7 +226,7 @@ class ResilientStorePlaceZero {
     static def make(homeId:Long, parentId:Long, latch:SimpleLatch) : Long {
         return lowLevelAtExprLong(() => {
             atomic {
-                val pfs = parentId==-1l ? null : me.states(parentId);
+                val pfs = parentId==-1 ? null : me.states(parentId);
                 val id = me.states.size();
                 if (FinishState.VERBOSE) Runtime.println("make("+parentId+","+id+") @ "+homeId);
                 val fs = new State(pfs, homeId, id, latch == null ? new SimpleLatch() : latch);
@@ -264,9 +264,9 @@ class ResilientStorePlaceZero {
     }
 
     static def notifyActivityCreation(id:Long, srcId:Long, dstId:Long) {
-        return 1l==lowLevelAtExprLong(() => { atomic {
+        return 1==lowLevelAtExprLong(() => { atomic {
             if (FinishState.VERBOSE) Runtime.println("notifyActivityCreation("+id+", "+srcId+", "+dstId+")");
-            if (Place(srcId).isDead()) return 0l;
+            if (Place(srcId).isDead()) return 0;
             val pair = getStateAccountingForAdoption(id);
             val fs = pair.first;
             val adopted = pair.second;
@@ -281,7 +281,7 @@ class ResilientStorePlaceZero {
                 if (FinishState.VERBOSE) Runtime.println("    live("+dstId+") == "+fs.live(dstId));
                 if (FinishState.VERBOSE) Runtime.println("    transit("+srcId+","+dstId+") == "+fs.transitGet(srcId, dstId));
             }
-            return 1l;
+            return 1;
         } });
     }
 

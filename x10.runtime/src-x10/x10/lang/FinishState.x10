@@ -396,7 +396,7 @@ abstract class FinishState {
                 latch.unlock();
                 return;
             }
-            if (counts == null || counts.size == 0L) {
+            if (counts == null || counts.size == 0) {
                 counts = new Rail[Int](Place.MAX_PLACES);
                 seen = new Rail[Boolean](Place.MAX_PLACES);
             }
@@ -409,7 +409,7 @@ abstract class FinishState {
                 latch.unlock();
                 return;
             }
-            if (counts != null && counts.size != 0L) {
+            if (counts != null && counts.size != 0) {
                 for(var i:Int=0n; i<Place.MAX_PLACES; i++) {
                     if (counts(i) != 0n) {
                         latch.unlock();
@@ -431,11 +431,11 @@ abstract class FinishState {
         }
         public def waitForFinish():void {
             notifyActivityTermination();
-            if ((!Runtime.STRICT_FINISH) && (Runtime.STATIC_THREADS || (counts == null || counts.size == 0L))) {
+            if ((!Runtime.STRICT_FINISH) && (Runtime.STATIC_THREADS || (counts == null || counts.size == 0))) {
                 Runtime.worker().join(latch);
             }
             latch.await();
-            if (counts != null && counts.size != 0L) {
+            if (counts != null && counts.size != 0) {
                 if (Place.MAX_PLACES < 1024) {
                     val root = ref();
                     val closure = ()=>@RemoteInvocation("remoteFinishCleanup") { Runtime.finishStates.remove(root); };
@@ -530,7 +530,7 @@ abstract class FinishState {
                 lock.unlock();
                 return;
             }
-            if (counts == null || counts.size == 0L) {
+            if (counts == null || counts.size == 0) {
                 counts = new Rail[Int](Place.MAX_PLACES);
                 places = new Rail[Int](Place.MAX_PLACES);
                 places(0) = id as Int; // WARNING: assuming 32 bit places at X10 level.
@@ -558,11 +558,11 @@ abstract class FinishState {
             val t = MultipleExceptions.make(exceptions);
             val ref = this.ref();
             val closure:()=>void;
-            if (counts != null && counts.size != 0L) {
+            if (counts != null && counts.size != 0) {
                 counts(Runtime.hereLong()) = count;
                 if (2*length > Place.MAX_PLACES) {
                     val message = Unsafe.allocRailUninitialized[Int](counts.size);
-                    Rail.copy(counts, 0L, message, 0L, counts.size);
+                    Rail.copy(counts, 0, message, 0, counts.size);
                     if (null != t) {
                         closure = ()=>@RemoteInvocation("notifyActivityTermination_1") { deref[RootFinish](ref).notify(message, t); };
                     } else {
@@ -646,7 +646,7 @@ abstract class FinishState {
                 lock.unlock();
                 return;
             }
-            if (counts == null || counts.size == 0L) {
+            if (counts == null || counts.size == 0) {
                 counts = new Rail[Int](Place.MAX_PLACES);
                 places = new Rail[Int](Place.MAX_PLACES);
                 places(0) = id as Int; // WARNING: assuming 32 bit places at X10 level.
@@ -674,11 +674,11 @@ abstract class FinishState {
             val t = MultipleExceptions.make(exceptions);
             val ref = this.ref();
             val closure:()=>void;
-            if (counts != null && counts.size != 0L) {
+            if (counts != null && counts.size != 0) {
                 counts(Runtime.hereLong()) = count;
                 if (2*length > Place.MAX_PLACES) {
                     val message = Unsafe.allocRailUninitialized[Int](counts.size);
-                    Rail.copy(counts, 0L, message, 0L, counts.size);
+                    Rail.copy(counts, 0, message, 0, counts.size);
                     if (null != t) {
                         closure = ()=>@RemoteInvocation("notifyActivityTermination_1") { deref[RootFinish](ref).notify(message, t); };
                     } else {
@@ -732,7 +732,7 @@ abstract class FinishState {
             val zero = reducer.zero();
             result = zero;
             resultRail = Unsafe.allocRailUninitialized[T](Runtime.MAX_THREADS);
-            for (i in 0L..(resultRail.size-1L)) {
+            for (i in 0..(resultRail.size-1)) {
                 resultRail(i) = zero;
             }
         }
@@ -840,11 +840,11 @@ abstract class FinishState {
             sr.placeMerge();
             val result = sr.result();
             sr.reset();
-            if (counts != null && counts.size != 0L) {
+            if (counts != null && counts.size != 0) {
                 counts(Runtime.hereLong()) = count;
                 if (2*length > Place.MAX_PLACES) {
                     val message = Unsafe.allocRailUninitialized[Int](counts.size);
-                    Rail.copy(counts, 0L, message, 0L, counts.size);
+                    Rail.copy(counts, 0, message, 0, counts.size);
                     if (null != t) {
                         closure = ()=>@RemoteInvocation("notifyActivityTermination_1") { deref[RootCollectingFinish[T]](ref).notify(message, t); };
                     } else {
@@ -887,15 +887,15 @@ abstract class FinishState {
             if (a == null) return -1; // creating the main activity (root finish)
             val par = a.finishState();
             if (par instanceof FinishResilientPlaceZero) return (par as FinishResilientPlaceZero).id;
-            return -1l;
+            return -1;
         }
         def this(parent:Long, latch:SimpleLatch) {
             property(ResilientStorePlaceZero.make(here.id, parent, latch));
-            assert latch==null || here.id == 0l;
+            assert latch==null || here.id == 0;
         }
         def this(latch:SimpleLatch) {
             property(ResilientStorePlaceZero.make(here.id, parentFinish(), latch));
-            assert latch==null || here.id == 0l;
+            assert latch==null || here.id == 0;
         }
         def notifySubActivitySpawn(place:Place) {
             val srcId = here.id;
@@ -982,7 +982,7 @@ abstract class FinishState {
                 if (VERBOSE) Runtime.println("Exiting resilient at waitForFinish");
                 myActivity.clockPhases = cpCell(); // XTENLANG-3357: set the (maybe modified) clockPhases
             } catch (e:MultipleExceptions) {
-                assert e.exceptions.size == 1l : e.exceptions();
+                assert e.exceptions.size == 1 : e.exceptions();
                 val e2 = e.exceptions(0);
                 if (VERBOSE) Runtime.println("Received from resilient at: "+e2);
                 if (e2 instanceof WrappedThrowable) {
@@ -1024,7 +1024,7 @@ abstract class FinishState {
         // note that it is not ok to call .release() within waitForFinish, it must be called when the counters are updated for the last time
         val latch:SimpleLatch;
         def this(latch:SimpleLatch) {
-            property(0l);
+            property(0);
             this.latch = latch;
             throw new Exception("under implementation");
         }
@@ -1899,7 +1899,7 @@ abstract class FinishState {
                 tmp_finish.waitForFinish();
                 if (VERBOSE) Runtime.println("Exiting resilient at waitForFinish");
             } catch (e:MultipleExceptions) {
-                assert e.exceptions.size == 1l : e.exceptions();
+                assert e.exceptions.size == 1 : e.exceptions();
                 val e2 = e.exceptions(0);
                 if (VERBOSE) Runtime.println("Received from resilient at: "+e2);
                 if (e2 instanceof WrappedThrowable) {
@@ -1941,7 +1941,7 @@ abstract class FinishState {
     static def notifyPlaceDeath() : void {
         switch (Runtime.RESILIENT_MODE) {
         case Configuration.RESILIENT_MODE_PLACE_ZERO:
-            if (here.id == 0l) {
+            if (here.id == 0) {
                 // most finishes are woken up by 'atomic'
                 atomic { }
                 // the root one also needs to have its latch released

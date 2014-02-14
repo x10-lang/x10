@@ -132,7 +132,7 @@ public struct ULong implements Comparable[ULong], Arithmetic[ULong], Bitwise[ULo
     @Native("c++",  "((x10_ulong) ((#this) / ::x10aux::zeroCheck(#x)))")
     public native operator this / (x:ULong): ULong; /*{
     	// TODO implement in X10
-    	return 0UL;
+    	return 0U;
     }
     */
 
@@ -146,7 +146,7 @@ public struct ULong implements Comparable[ULong], Arithmetic[ULong], Bitwise[ULo
     @Native("c++",  "((x10_ulong) ((#this) % ::x10aux::zeroCheck(#x)))")
     public native operator this % (x:ULong): ULong; /* {
     	// TODO implement in X10
-    	return 0UL;
+    	return 0U;
     } */
 
     /**
@@ -294,7 +294,7 @@ public struct ULong implements Comparable[ULong], Arithmetic[ULong], Bitwise[ULo
      */
     @Native("java", "((long) ((#x) & 0xffL))")
     @Native("c++",  "((x10_ulong) (#x))")
-    public static native operator (x:UByte): ULong; /* = ULong(x.byteVal & 0xffL); */
+    public static native operator (x:UByte): ULong; /* = ULong(x.byteVal & 0xff); */
 
     /**
      * Coerce a given UShort to a ULong.
@@ -303,7 +303,7 @@ public struct ULong implements Comparable[ULong], Arithmetic[ULong], Bitwise[ULo
      */
     @Native("java", "((long) ((#x) & 0xffffL))")
     @Native("c++",  "((x10_ulong) (#x))")
-    public static native operator (x:UShort): ULong; /* = ULong(x.shortVal & 0xffffL); */
+    public static native operator (x:UShort): ULong; /* = ULong(x.shortVal & 0xffff); */
 
     /**
      * Coerce a given UInt to a ULong.
@@ -312,7 +312,7 @@ public struct ULong implements Comparable[ULong], Arithmetic[ULong], Bitwise[ULo
      */
     @Native("java", "((long) ((#x) & 0xffffffffL))")
     @Native("c++",  "((x10_ulong) (#x))")
-    public static native operator (x:UInt): ULong; /* = ULong(0xffffffffL & (x as Int)); */
+    public static native operator (x:UInt): ULong; /* = ULong(0xffffffff & (x as Int)); */
 
 
     /**
@@ -375,14 +375,14 @@ public struct ULong implements Comparable[ULong], Arithmetic[ULong], Bitwise[ULo
      */
     @Native("java", "0L")
     @Native("c++", "((x10_ulong)0LLU)")
-    public static MIN_VALUE: ULong{self==0ul} = 0UL;
+    public static MIN_VALUE: ULong{self==0u} = 0U;
 
     /**
      * A constant holding the maximum value a ULong can have, 2<sup>64</sup>-1.
      */
     @Native("java", "0xffffffffffffffffL")
     @Native("c++", "((x10_ulong)0xffffffffffffffffLLU)")
-    public static MAX_VALUE: ULong{self==0xffffffffffffffffUL} = 0xffffffffffffffffUL;
+    public static MAX_VALUE: ULong{self==0xffffffffffffffffU} = 0xffffffffffffffffU;
 
 
     /**
@@ -585,7 +585,7 @@ public struct ULong implements Comparable[ULong], Arithmetic[ULong], Bitwise[ULo
      */
     @Native("java", "(((#this)==0L) ? 0 : 1)")
     @Native("c++",  "(((#this)==0LLU) ? 0 : 1)")
-    public native def signum(): Int; /*  = (this.longVal == 0L) ? 0 : 1; */
+    public native def signum(): Int; /*  = (this.longVal == 0) ? 0 : 1; */
 
     /**
      * Returns the value obtained by reversing the order of the bytes in the

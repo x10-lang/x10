@@ -233,56 +233,56 @@ public struct Double implements Comparable[Double], Arithmetic[Double], Ordered[
     /**
      * A constant holding the smallest positive nonzero value of type Double,
      * 2<sup>-1074</sup>.
-     * It is equal to Double.fromLongBits(0x1L).
+     * It is equal to Double.fromLongBits(0x1).
      */
     // TODO: hexadecimal floating-point literal 0x0.0000000000001P-1022
     @Native("java", "java.lang.Double.MIN_VALUE")
     @Native("c++", "::x10::lang::DoubleNatives::fromLongBits(0x1LL)")
-    public static MIN_VALUE: Double = Double.fromLongBits(0x1L);
+    public static MIN_VALUE: Double = Double.fromLongBits(0x1);
 
     /**
      * A constant holding the smallest positive normal value of type Double,
      * 2<sup>-1022</sup>.
-     * It is equal to Double.fromLongBits(0x0010000000000000L).
+     * It is equal to Double.fromLongBits(0x0010000000000000).
      */
     // TODO: hexadecimal floating-point literal 0x1.0P-1022
     @Native("java", "java.lang.Double.longBitsToDouble(0x0010000000000000L)")
     @Native("c++", "::x10::lang::DoubleNatives::fromLongBits(0x0010000000000000LL)")
-    public static MIN_NORMAL: Double = Double.fromLongBits(0x0010000000000000L);
+    public static MIN_NORMAL: Double = Double.fromLongBits(0x0010000000000000);
 
     /**
      * A constant holding the largest positive finite value of type Double,
      * (2-2<sup>-52</sup>)*2<sup>1023</sup>.
-     * It is equal to Double.fromLongBits(0x7fefffffffffffffL).
+     * It is equal to Double.fromLongBits(0x7fefffffffffffff).
      */
     // TODO: hexadecimal floating-point literal 0x1.fffffffffffffP+1023
     @Native("java", "java.lang.Double.MAX_VALUE")
     @Native("c++", "::x10::lang::DoubleNatives::fromLongBits(0x7fefffffffffffffLL)")
-    public static MAX_VALUE: Double = Double.fromLongBits(0x7fefffffffffffffL);
+    public static MAX_VALUE: Double = Double.fromLongBits(0x7fefffffffffffff);
 
     /**
      * A constant holding the positive infinity of type Double.
-     * It is equal to Double.fromLongBits(0x7ff0000000000000L).
+     * It is equal to Double.fromLongBits(0x7ff0000000000000).
      */
     @Native("java", "java.lang.Double.POSITIVE_INFINITY")
     @Native("c++", "::x10::lang::DoubleNatives::fromLongBits(0x7ff0000000000000LL)")
-    public static POSITIVE_INFINITY: Double = Double.fromLongBits(0x7ff0000000000000L);
+    public static POSITIVE_INFINITY: Double = Double.fromLongBits(0x7ff0000000000000);
 
     /**
      * A constant holding the negative infinity of type Double.
-     * It is equal to Double.fromLongBits(0xfff0000000000000L).
+     * It is equal to Double.fromLongBits(0xfff0000000000000).
      */
     @Native("java", "java.lang.Double.NEGATIVE_INFINITY")
     @Native("c++", "::x10::lang::DoubleNatives::fromLongBits(0xfff0000000000000LL)")
-    public static NEGATIVE_INFINITY: Double = Double.fromLongBits(0xfff0000000000000L);
+    public static NEGATIVE_INFINITY: Double = Double.fromLongBits(0xfff0000000000000);
 
     /**
      * A constant holding a Not-a-Number (NaN) value of type Double.
-     * It is equal to Double.fromLongBits(0x7ff8000000000000L).
+     * It is equal to Double.fromLongBits(0x7ff8000000000000).
      */
     @Native("java", "java.lang.Double.NaN")
     @Native("c++", "::x10::lang::DoubleNatives::fromLongBits(0x7ff8000000000000LL)")
-    public static NaN: Double = Double.fromLongBits(0x7ff8000000000000L);
+    public static NaN: Double = Double.fromLongBits(0x7ff8000000000000);
 
 
     /**

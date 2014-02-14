@@ -95,7 +95,7 @@ public class Random {
 
     public def nextLong(maxPlus1:Long):Long {
         if (maxPlus1 <= 0n)
-            return 0L;
+            return 0;
         
         var n:Long = maxPlus1;
 
@@ -104,10 +104,10 @@ public class Random {
             return nextLong() & (n-1);
         }
 
-        var mask:Long = 1L;
-        while ((n & ~mask) != 0L) {
+        var mask:Long = 1;
+        while ((n & ~mask) != 0) {
             mask <<= 1n;
-            mask |= 1L;
+            mask |= 1;
         }
 
         // Keep generating numbers of the right size until we get
@@ -128,7 +128,7 @@ public class Random {
     public def nextFloat():Float = (nextInt() >>> (32n-24n)) / ((1<<24n) as Float);
 
     /** Return a random double between 0.0 and 1.0. */
-    public def nextDouble():Double = (nextLong() >>> (64n-53n)) / ((1L<<53n) as Double);
+    public def nextDouble():Double = (nextLong() >>> (64n-53n)) / ((1<<53n) as Double);
 
 /*
  * Mersenne twister implementation.

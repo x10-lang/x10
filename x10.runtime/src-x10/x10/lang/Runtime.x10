@@ -759,12 +759,12 @@ public final class Runtime {
                         }
                         pool.latch.release();
                     };
-                    for(var i:Long=Place.MAX_PLACES-1L; i>0L; i-=32L) {
+                    for(var i:Long=Place.MAX_PLACES-1; i>0; i-=32) {
                         x10rtSendMessage(i, cl1, null);
                     }
                 } else {
                     val cl = ()=> @x10.compiler.RemoteInvocation("start_3") {pool.latch.release();};
-                    for (var i:Long=Place.MAX_PLACES-1L; i>0L; --i) {
+                    for (var i:Long=Place.MAX_PLACES-1; i>0; --i) {
                         x10rtSendMessage(i, cl, null);
                     }
                 }

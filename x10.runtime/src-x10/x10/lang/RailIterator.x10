@@ -22,7 +22,7 @@ final class RailIterator[T] implements Iterator[T] {
 
   def this(x:Rail[T]) { 
     this.rail = x;
-    cur = 0L;
+    cur = 0;
   }
 
   public def next():T = rail(cur++);

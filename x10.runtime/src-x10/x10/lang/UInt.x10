@@ -397,7 +397,7 @@ public struct UInt implements Comparable[UInt], Arithmetic[UInt], Bitwise[UInt],
      */
     @Native("java", "java.lang.Long.toString((#this) & 0xffffffffL, #radix)")
     @Native("c++", "::x10::lang::UIntNatives::toString(#this, #radix)")
-    public native def toString(radix:Int): String; /*  = ((this.intVal & 0xFFFFFFFFL) as Long).toString(radix); */
+    public native def toString(radix:Int): String; /*  = (this.intVal & 0xFFFFFFFF).toString(radix); */
 
     /**
      * Returns a String representation of this UInt as a hexadecimal number.
@@ -429,7 +429,7 @@ public struct UInt implements Comparable[UInt], Arithmetic[UInt], Bitwise[UInt],
      */
     @Native("java", "java.lang.Long.toString((#this) & 0xffffffffL)")
     @Native("c++", "::x10aux::to_string(#this)")
-    public native def toString(): String; /*  = ((this.intVal & 0xFFFFFFFFL) as Long).toString(); */
+    public native def toString(): String; /*  = (this.intVal & 0xFFFFFFFF).toString(); */
 
     /**
      * @deprecated use {@link #parse(String,Int)} instead
@@ -463,7 +463,7 @@ public struct UInt implements Comparable[UInt], Arithmetic[UInt], Bitwise[UInt],
     public static native def parse(s:String, radix:Int): UInt; /*  //throwsNumberFormatException 
     {
     	val l = Long.parse(s, radix);
-    	if (l < 0 || l > 0xffffffffL) {
+    	if (l < 0 || l > 0xffffffff) {
     		throw new NumberFormatException("Value out of range. Value:\"" + s + "\" Radix:" + radix);
     	}
     	return l as UInt;

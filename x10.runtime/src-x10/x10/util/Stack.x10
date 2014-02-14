@@ -42,6 +42,6 @@ public class Stack[T] extends ArrayList[T] {
         if (i >= 0)
             return size() - i;
         else
-            return -1L;
+            return -1;
     }
 }

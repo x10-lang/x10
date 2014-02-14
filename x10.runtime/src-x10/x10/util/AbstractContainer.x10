@@ -15,7 +15,7 @@ package x10.util;
 public abstract class AbstractContainer[T] implements Container[T] {
   public abstract def size(): Long;
   
-  public def isEmpty(): Boolean = size() == 0L;
+  public def isEmpty(): Boolean = size() == 0;
   
   public abstract def contains(y: T): Boolean;
   public abstract def clone(): Container[T];
