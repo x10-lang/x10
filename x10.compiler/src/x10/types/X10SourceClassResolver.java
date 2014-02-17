@@ -61,6 +61,8 @@ public class X10SourceClassResolver implements TopLevelResolver {
 		managedRepClasses.put("java.lang.IllegalArgumentException", "x10.lang.IllegalArgumentException"); 
 		managedRepClasses.put("java.lang.IllegalStateException", "x10.lang.IllegalStateException"); 
 		managedRepClasses.put("java.lang.IndexOutOfBoundsException", "x10.lang.IndexOutOfBoundsException"); 
+		managedRepClasses.put("java.lang.InternalError", "x10.lang.InternalError"); 
+		managedRepClasses.put("java.lang.NegativeArraySizeException", "x10.lang.NegativeArraySizeException"); 
 		managedRepClasses.put("java.lang.NullPointerException", "x10.lang.NullPointerException"); 
 		managedRepClasses.put("java.lang.NumberFormatException", "x10.lang.NumberFormatException"); 
 		managedRepClasses.put("java.lang.Object", "x10.lang.Any"); 
@@ -71,7 +73,10 @@ public class X10SourceClassResolver implements TopLevelResolver {
 		managedRepClasses.put("java.lang.StringIndexOutOfBoundsException", "x10.lang.StringIndexOutOfBoundsException"); 
 		managedRepClasses.put("java.lang.Throwable", "x10.lang.CheckedThrowable"); 
 		managedRepClasses.put("java.lang.UnsupportedOperationException", "x10.lang.UnsupportedOperationException"); 
+		managedRepClasses.put("java.util.MissingResourceException", "x10.util.MissingResourceException"); 
 		managedRepClasses.put("java.util.NoSuchElementException", "x10.util.NoSuchElementException"); 
+		managedRepClasses.put("org.apache.commons.logging.Log", "x10.util.logging.Log"); 
+		managedRepClasses.put("org.apache.commons.logging.LogFactory", "x10.util.logging.LogFactory"); 
 	}
 	
 	protected TypeSystem ts;
