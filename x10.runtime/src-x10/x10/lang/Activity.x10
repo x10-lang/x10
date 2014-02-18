@@ -19,7 +19,7 @@ import x10.util.HashMap;
 /**
  * Runtime representation of an async. Only to be used in the runtime implementation.
  */
-class Activity {
+public class Activity {
 
     // This flag is hacked to be false in the APGAS C++ library
     // TODO: refactor XRX so body is more than a ()=>void so that run
@@ -135,7 +135,7 @@ class Activity {
     /**
      * Return the innermost finish state
      */
-    def finishState():FinishState = finishState;
+    public def finishState():FinishState = finishState;
 
     /**
      * Enter finish block
