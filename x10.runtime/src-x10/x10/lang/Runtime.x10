@@ -685,7 +685,7 @@ public final class Runtime {
     /**
      * Return the current activity
      */
-    static def activity():Activity = worker().activity();
+    public static def activity():Activity = worker().activity();
 
     /**
      * Return the current place
