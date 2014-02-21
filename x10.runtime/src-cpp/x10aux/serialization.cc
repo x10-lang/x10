@@ -106,7 +106,7 @@ void serialization_buffer::serialize_reference(serialization_buffer &buf,
         buf.write((x10aux::serialization_id_t)0);
     } else {
         x10aux::serialization_id_t id = this_->_get_serialization_id();
-        _S_("Serializing id "<<id<<" of type "<< ANSI_SER<<ANSI_BOLD<<this_->_type()->name()<<"and address "<<(void*)(this_));
+        _S_("Serializing id "<<id<<" of type "<< ANSI_SER<<ANSI_BOLD<<this_->_type()->name()<<" and address "<<(void*)(this_));
         buf.write(id);
         this_->_serialize_body(buf);
         _S_("Completed serialization of "<<(void*)(this_));
