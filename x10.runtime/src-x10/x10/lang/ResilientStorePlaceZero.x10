@@ -39,18 +39,23 @@ class ResilientStorePlaceZero {
             val exc = new GlobalRef(new Cell[Exception](null));
             val c = new GlobalRef(new AtomicBoolean());
             Runtime.x10rtSendMessage(0, () => @RemoteInvocation("low_level_at_out") {
+                var exc_thrown:Boolean = false;
                 try {
                     cl();
                 } catch (t:Exception) {
+                    if (FinishState.VERBOSE) Runtime.println("lowLevelAt caught exception " + t);
+                    exc_thrown = true;
                     Runtime.x10rtSendMessage(c.home.id, () => @RemoteInvocation("low_level_at_back_exc") {
                         // [DC] assume that the write barrier on c is enough to see update on exc
                         exc.getLocalOrCopy()(t);
                         c.getLocalOrCopy().getAndSet(true);
                     }, null);
                 }
+              if (!exc_thrown) { // Fix for XTENLANG-3368
                 Runtime.x10rtSendMessage(c.home.id, () => @RemoteInvocation("low_level_at_back") {
                     c.getLocalOrCopy().getAndSet(true);
                 }, null);
+              }
             }, null);
             // while (!c().get()) Runtime.probe();
             if (!c().get()) { // Fix for XTENLANG-3303/3305
@@ -403,6 +408,7 @@ class ResilientStorePlaceZero {
     /** Grandfather activities under a dead finish into the nearest parent finish at a place that is still alive. */
     private def pushUp() : void {
         atomic {
+            if (FinishState.VERBOSE) Runtime.println("pushUp called");
             for (i in 0..(states.size()-1)) {
                 val fs = states(i);
                 if (fs==null || fs.adopted) continue;
@@ -418,6 +424,7 @@ class ResilientStorePlaceZero {
                 if (fs==null || fs.adopted) continue;
                 if (me.quiescent(fs)) fs.latch.release();
             }
+            if (FinishState.VERBOSE) Runtime.println("pushUp returning");
         }
     }
 
