@@ -15,6 +15,7 @@
 #include <x10aux/config.h>
 #include <x10aux/network.h>
 #include <x10aux/RTT.h>
+#include <x10aux/chunked_array.h>
 
 namespace x10 { namespace lang { class Reference; } }
 
@@ -23,41 +24,23 @@ namespace x10aux {
     class deserialization_buffer;
 
     class DeserializationDispatcher {
-        protected:
+      protected:
         static DeserializationDispatcher *it;
 
-        public:
-        struct Data {
-            Deserializer deser;
-            x10aux::serialization_id_t sid;
-        };
-        protected:
-
-        Data *data_v;
-        size_t data_c;
+        chunked_array<Deserializer> data;
         size_t next_id;
 
-        public:
-        DeserializationDispatcher () : data_v(NULL), data_c(0), next_id(1) { }
-        ~DeserializationDispatcher () {
-            ::free(data_v); // do not use GC
-        }
+      public:
+        DeserializationDispatcher () : data(true), next_id(1) { }
         
-        static ::x10::lang::Reference* create(deserialization_buffer &buf) {
-            return it->create_(buf);
-        }
         static ::x10::lang::Reference* create(deserialization_buffer &buf, serialization_id_t id) {
             return it->create_(buf, id);
         }
-        ::x10::lang::Reference* create_(deserialization_buffer &buf);
         ::x10::lang::Reference* create_(deserialization_buffer &buf, serialization_id_t id);
 
-        static serialization_id_t addDeserializer (Deserializer deser);
-        serialization_id_t addDeserializer_ (Deserializer deser);
+        static serialization_id_t addDeserializer(Deserializer deser);
+        serialization_id_t addDeserializer_(Deserializer deser);
     };
-
-    template<> inline const char *typeName<DeserializationDispatcher>()
-    { return "DeserializationDispatcher"; }
 }
 
 #endif
