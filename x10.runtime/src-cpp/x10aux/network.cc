@@ -21,6 +21,7 @@
 
 #include <x10aux/serialization.h>
 #include <x10aux/deserialization_dispatcher.h>
+#include <x10aux/network_dispatcher.h>
 
 #include <x10/lang/RuntimeNatives.h>
 
@@ -171,25 +172,24 @@ void x10aux::run_async_at(x10aux::place p, x10::lang::VoidFun_0_0* body_fun,
 
     x10::lang::Reference* real_body = reinterpret_cast<x10::lang::Reference*>(body_fun);
     
-    serialization_id_t real_sid = real_body->_get_serialization_id();
+    serialization_id_t net_id = real_body->_get_network_id();
     if (!is_cuda(p)) {
         _X_(ANSI_BOLD<<ANSI_X10RT<<"Transmitting a simple async: "<<ANSI_RESET
             <<real_body->toString()->c_str()
-            <<" sid "<<real_sid<<" to place: "<<p);
+            <<" nid "<<net_id<<" to place: "<<p);
 
     } else {
         _X_(ANSI_BOLD<<ANSI_X10RT<<"This is actually a kernel: "<<ANSI_RESET
             <<real_body->toString()->c_str()
-            <<" sid "<<real_sid<<" at GPU: "<<p);
+            <<" nid "<<net_id<<" at GPU: "<<p);
     }
 
-    x10aux::msg_type real_id = DeserializationDispatcher::getMsgType(real_sid);
+    x10aux::msg_type msg_id = NetworkDispatcher::getMsgType(net_id);
     serialization_buffer buf;
 
-    _X_(ANSI_BOLD<<ANSI_X10RT<<"Async id: "<<ANSI_RESET<<real_id);
+    _X_(ANSI_BOLD<<ANSI_X10RT<<"Async msg id: "<<ANSI_RESET<<msg_id);
 
-    assert(DeserializationDispatcher::getClosureKind(real_sid)!=x10aux::CLOSURE_KIND_NOT_ASYNC);
-    assert(DeserializationDispatcher::getClosureKind(real_sid)!=x10aux::CLOSURE_KIND_GENERAL_ASYNC);
+    assert(NetworkDispatcher::getClosureKind(net_id)==x10aux::CLOSURE_KIND_SIMPLE_ASYNC);
 
     // WRITE FINISH STATE
     buf.write(fs);
@@ -228,7 +228,7 @@ void x10aux::run_async_at(x10aux::place p, x10::lang::VoidFun_0_0* body_fun,
     if (prof!=NULL) {
         before_nanos = x10::lang::RuntimeNatives::nanoTime();
     }
-    x10rt_msg_params params = {x10rt_place(p), real_id, buf.borrow(), sz, endpoint};
+    x10rt_msg_params params = {x10rt_place(p), msg_id, buf.borrow(), sz, endpoint};
     x10rt_send_msg(&params);
     if (prof!=NULL) {
         prof->FMGL(communicationNanos) += x10::lang::RuntimeNatives::nanoTime() - before_nanos;
@@ -240,11 +240,11 @@ void x10aux::run_closure_at(x10aux::place p, x10::lang::VoidFun_0_0* body_fun,
 
     x10::lang::Reference* body = reinterpret_cast<x10::lang::Reference*>(body_fun);
 
-    serialization_id_t sid = body->_get_serialization_id();
+    serialization_id_t net_id = body->_get_network_id();
 
     _X_(ANSI_BOLD<<ANSI_X10RT<<"Transmitting a general async: "<<ANSI_RESET
         <<body->toString()->c_str()
-        <<" sid "<<sid<<" to place: "<<p);
+        <<" nid "<<net_id<<" to place: "<<p);
 
     assert(p!=here); // this case should be handled earlier
     assert(p<num_places); // this is ensured by XRX runtime
@@ -253,11 +253,10 @@ void x10aux::run_closure_at(x10aux::place p, x10::lang::VoidFun_0_0* body_fun,
 
     serialization_buffer buf;
 
-    assert(DeserializationDispatcher::getClosureKind(sid)!=x10aux::CLOSURE_KIND_NOT_ASYNC);
-    assert(DeserializationDispatcher::getClosureKind(sid)!=x10aux::CLOSURE_KIND_SIMPLE_ASYNC);
-    msg_type id = DeserializationDispatcher::getMsgType(sid);
+    assert(NetworkDispatcher::getClosureKind(net_id)==x10aux::CLOSURE_KIND_GENERAL_ASYNC);
+    msg_type msg_id = NetworkDispatcher::getMsgType(net_id);
 
-    _X_(ANSI_BOLD<<ANSI_X10RT<<"Async id: "<<ANSI_RESET<<id);
+    _X_(ANSI_BOLD<<ANSI_X10RT<<"Async msg id: "<<ANSI_RESET<<msg_id);
 
     // We're playing a sleazy trick here and not following the general
     // serialization protocol. We should be calling buf.write(body),
@@ -279,17 +278,16 @@ void x10aux::run_closure_at(x10aux::place p, x10::lang::VoidFun_0_0* body_fun,
 
     _X_(ANSI_BOLD<<ANSI_X10RT<<"async size: "<<ANSI_RESET<<sz);
 
-    x10rt_msg_params params = {x10rt_place(p), id, buf.borrow(), sz, endpoint};
+    x10rt_msg_params params = {x10rt_place(p), msg_id, buf.borrow(), sz, endpoint};
     x10rt_send_msg(&params);
-
 }
 
 void x10aux::send_get (x10aux::place place, x10aux::serialization_id_t id_,
                        serialization_buffer &buf, void *data, x10aux::copy_sz len, x10aux::endpoint endpoint)
 {
-    msg_type id = DeserializationDispatcher::getMsgType(id_);
+    msg_type id = NetworkDispatcher::getMsgType(id_);
     x10rt_msg_params p = { x10rt_place(place), id, buf.borrow(), buf.length(), endpoint};
-    _X_(ANSI_BOLD<<ANSI_X10RT<<"Transmitting a get: "<<ANSI_RESET<<data<<" sid "<<id_<<" id "<<id
+    _X_(ANSI_BOLD<<ANSI_X10RT<<"Transmitting a get: "<<ANSI_RESET<<data<<" nid "<<id_<<" id "<<id
     		<<" size "<<len<<" header "<<buf.length()<<" to place: "<<place<<" endpoint: "<<endpoint);
     x10rt_send_get(&p, data, len);
 }
@@ -297,9 +295,9 @@ void x10aux::send_get (x10aux::place place, x10aux::serialization_id_t id_,
 void x10aux::send_put (x10aux::place place, x10aux::serialization_id_t id_,
                        serialization_buffer &buf, void *data, x10aux::copy_sz len, x10aux::endpoint endpoint)
 {
-    msg_type id = DeserializationDispatcher::getMsgType(id_);
+    msg_type id = NetworkDispatcher::getMsgType(id_);
     x10rt_msg_params p = { x10rt_place(place), id, buf.borrow(), buf.length(), endpoint};
-    _X_(ANSI_BOLD<<ANSI_X10RT<<"Transmitting a put: "<<ANSI_RESET<<data<<" sid "<<id_<<" id "<<id
+    _X_(ANSI_BOLD<<ANSI_X10RT<<"Transmitting a put: "<<ANSI_RESET<<data<<" nid "<<id_<<" id "<<id
     		<<" size "<<len<<" header "<<buf.length()<<" to place: "<<place<<" endpoint: "<<endpoint);
     x10rt_send_put(&p, data, len);
 }
@@ -307,13 +305,12 @@ void x10aux::send_put (x10aux::place place, x10aux::serialization_id_t id_,
 static void receive_async (const x10rt_msg_params *p) {
     _X_(ANSI_X10RT<<"Receiving an async, id ("<<p->type<<"), deserialising..."<<ANSI_RESET);
     x10aux::deserialization_buffer buf(static_cast<char*>(p->msg), p->len);
-    // note: high bytes thrown away in implicit conversion
-    serialization_id_t sid = x10aux::DeserializationDispatcher::getSerializationId(p->type);
-    _X_(ANSI_X10RT<<"async sid: ("<<sid<<ANSI_RESET);
-    x10aux::ClosureKind ck = DeserializationDispatcher::getClosureKind(sid);
+    serialization_id_t nid = x10aux::NetworkDispatcher::getNetworkId(p->type);
+    _X_(ANSI_X10RT<<"async nid: ("<<nid<<ANSI_RESET);
+    x10aux::ClosureKind ck = NetworkDispatcher::getClosureKind(nid);
     switch (ck) {
         case x10aux::CLOSURE_KIND_GENERAL_ASYNC: {
-            Reference* body(x10aux::DeserializationDispatcher::create(buf, sid));
+            Reference* body(x10aux::NetworkDispatcher::create(buf, nid));
             assert(buf.consumed() <= p->len);
             _X_("The deserialised general async was: "<<x10aux::safe_to_string(body));
             deserialized_bytes += buf.consumed()  ; asyncs_received++;
@@ -324,7 +321,7 @@ static void receive_async (const x10rt_msg_params *p) {
         case x10aux::CLOSURE_KIND_SIMPLE_ASYNC: {
             x10::lang::FinishState* fs = buf.read<x10::lang::FinishState*>();
             x10::lang::Place src = buf.read<x10::lang::Place>();
-            Reference* body(x10aux::DeserializationDispatcher::create(buf, sid));
+            Reference* body(x10aux::NetworkDispatcher::create(buf, nid));
             assert(buf.consumed() <= p->len);
             _X_("The deserialised simple async was: "<<x10aux::safe_to_string(body));
             deserialized_bytes += buf.consumed()  ; asyncs_received++;
@@ -338,14 +335,14 @@ static void receive_async (const x10rt_msg_params *p) {
 static void cuda_pre (const x10rt_msg_params *p, size_t *blocks, size_t *threads, size_t *shm,
                       size_t *argc, char **argv, size_t *cmemc, char **cmemv)
 {
-    _X_(ANSI_X10RT<<"Receiving a kernel pre callback, deserialising..."<<ANSI_RESET);
+    _X_(ANSI_X10RT<<"Receiving a kernel pre callback with mid "<<p->type<<", deserialising..."<<ANSI_RESET);
     x10aux::deserialization_buffer buf(static_cast<char*>(p->msg), p->len);
     x10::lang::FinishState* fs = buf.read<x10::lang::FinishState*>();
     x10::lang::Place sendingPlace = buf.read<x10::lang::Place>();
     fs->notifyActivityCreation(sendingPlace);
-    // note: high bytes thrown away in implicit conversion
-    serialization_id_t sid = x10aux::DeserializationDispatcher::getSerializationId(p->type);
-    x10aux::CUDAPre pre = x10aux::DeserializationDispatcher::getCUDAPre(sid);
+    serialization_id_t nid = x10aux::NetworkDispatcher::getNetworkId(p->type);
+    _X_(ANSI_X10RT<<"mapped mid "<<p->type<<" to nid "<<nid<<ANSI_RESET);
+    x10aux::CUDAPre pre = x10aux::NetworkDispatcher::getCUDAPre(nid);
     pre(buf, p->dest_place, *blocks, *threads, *shm, *argc, *argv, *cmemc, *cmemv);
     assert(buf.consumed() <= p->len);
 }
@@ -355,9 +352,9 @@ static void cuda_post (const x10rt_msg_params *p, size_t blocks, size_t threads,
 {
     _X_(ANSI_X10RT<<"Receiving a kernel post callback, deserialising..."<<ANSI_RESET);
     {
-        serialization_id_t sid = x10aux::DeserializationDispatcher::getSerializationId(p->type);
+        serialization_id_t nid = x10aux::NetworkDispatcher::getNetworkId(p->type);
         x10aux::deserialization_buffer buf(static_cast<char*>(p->msg), p->len);
-        x10aux::CUDAPost post = x10aux::DeserializationDispatcher::getCUDAPost(sid);
+        x10aux::CUDAPost post = x10aux::NetworkDispatcher::getCUDAPost(nid);
         post(buf, p->dest_place, blocks, threads, shm, argc, argv, cmemc, cmemv);
     }
     {
@@ -379,9 +376,8 @@ x10aux::msg_type x10aux::register_async_handler (const char *cubin, const char *
 static void *receive_put (const x10rt_msg_params *p, x10aux::copy_sz len) {
     _X_(ANSI_X10RT<<"Receiving a put, deserialising for buffer finder..."<<ANSI_RESET);
     x10aux::deserialization_buffer buf(static_cast<char*>(p->msg), p->len);
-    // note: high bytes thrown away in implicit conversion
-    serialization_id_t sid = x10aux::DeserializationDispatcher::getSerializationId(p->type);
-    x10aux::BufferFinder bf = x10aux::DeserializationDispatcher::getPutBufferFinder(sid);
+    serialization_id_t nid = x10aux::NetworkDispatcher::getNetworkId(p->type);
+    x10aux::BufferFinder bf = x10aux::NetworkDispatcher::getPutBufferFinder(nid);
     void *dropzone = bf(buf,len);
     assert(buf.consumed() <= p->len);
     return dropzone;
@@ -390,9 +386,8 @@ static void *receive_put (const x10rt_msg_params *p, x10aux::copy_sz len) {
 static void *cuda_receive_put (const x10rt_msg_params *p, x10aux::copy_sz len) {
     _X_(ANSI_X10RT<<"Receiving a put, deserialising for cuda buffer finder..."<<ANSI_RESET);
     x10aux::deserialization_buffer buf(static_cast<char*>(p->msg), p->len);
-    // note: high bytes thrown away in implicit conversion
-    serialization_id_t sid = x10aux::DeserializationDispatcher::getSerializationId(p->type);
-    x10aux::BufferFinder bf = x10aux::DeserializationDispatcher::getCUDAPutBufferFinder(sid);
+    serialization_id_t nid = x10aux::NetworkDispatcher::getNetworkId(p->type);
+    x10aux::BufferFinder bf = x10aux::NetworkDispatcher::getCUDAPutBufferFinder(nid);
     void *dropzone = bf(buf,len);
     assert(buf.consumed() <= p->len);
     return dropzone;
@@ -401,9 +396,8 @@ static void *cuda_receive_put (const x10rt_msg_params *p, x10aux::copy_sz len) {
 static void finished_put (const x10rt_msg_params *p, x10aux::copy_sz len) {
     _X_(ANSI_X10RT<<"Receiving a put, deserialising for notifier..."<<ANSI_RESET);
     x10aux::deserialization_buffer buf(static_cast<char*>(p->msg), p->len);
-    // note: high bytes thrown away in implicit conversion
-    serialization_id_t sid = x10aux::DeserializationDispatcher::getSerializationId(p->type);
-    x10aux::Notifier n = x10aux::DeserializationDispatcher::getPutNotifier(sid);
+    serialization_id_t nid = x10aux::NetworkDispatcher::getNetworkId(p->type);
+    x10aux::Notifier n = x10aux::NetworkDispatcher::getPutNotifier(nid);
     n(buf,len);
     assert(buf.consumed() <= p->len);
     deserialized_bytes += buf.consumed()  ; asyncs_received++;
@@ -412,9 +406,8 @@ static void finished_put (const x10rt_msg_params *p, x10aux::copy_sz len) {
 static void cuda_finished_put (const x10rt_msg_params *p, x10aux::copy_sz len) {
     _X_(ANSI_X10RT<<"Receiving a put, deserialising for cuda notifier..."<<ANSI_RESET);
     x10aux::deserialization_buffer buf(static_cast<char*>(p->msg), p->len);
-    // note: high bytes thrown away in implicit conversion
-    serialization_id_t sid = x10aux::DeserializationDispatcher::getSerializationId(p->type);
-    x10aux::Notifier n = x10aux::DeserializationDispatcher::getCUDAPutNotifier(sid);
+    serialization_id_t nid = x10aux::NetworkDispatcher::getNetworkId(p->type);
+    x10aux::Notifier n = x10aux::NetworkDispatcher::getCUDAPutNotifier(nid);
     n(buf,len);
     assert(buf.consumed() <= p->len);
     deserialized_bytes += buf.consumed()  ; asyncs_received++;
@@ -428,9 +421,8 @@ x10aux::msg_type x10aux::register_put_handler () {
 static void *receive_get (const x10rt_msg_params *p, x10aux::copy_sz len) {
     _X_(ANSI_X10RT<<"Receiving a get, deserialising for buffer finder..."<<ANSI_RESET);
     x10aux::deserialization_buffer buf(static_cast<char*>(p->msg), p->len);
-    // note: high bytes thrown away in implicit conversion
-    serialization_id_t sid = x10aux::DeserializationDispatcher::getSerializationId(p->type);
-    x10aux::BufferFinder bf = x10aux::DeserializationDispatcher::getGetBufferFinder(sid);
+    serialization_id_t nid = x10aux::NetworkDispatcher::getNetworkId(p->type);
+    x10aux::BufferFinder bf = x10aux::NetworkDispatcher::getGetBufferFinder(nid);
     void *dropzone = bf(buf,len);
     assert(buf.consumed() <= p->len);
     deserialized_bytes += buf.consumed()  ; asyncs_received++;
@@ -440,9 +432,8 @@ static void *receive_get (const x10rt_msg_params *p, x10aux::copy_sz len) {
 static void *cuda_receive_get (const x10rt_msg_params *p, x10aux::copy_sz len) {
     _X_(ANSI_X10RT<<"Receiving a get, deserialising for cuda buffer finder..."<<ANSI_RESET);
     x10aux::deserialization_buffer buf(static_cast<char*>(p->msg), p->len);
-    // note: high bytes thrown away in implicit conversion
-    serialization_id_t sid = x10aux::DeserializationDispatcher::getSerializationId(p->type);
-    x10aux::BufferFinder bf = x10aux::DeserializationDispatcher::getCUDAGetBufferFinder(sid);
+    serialization_id_t nid = x10aux::NetworkDispatcher::getNetworkId(p->type);
+    x10aux::BufferFinder bf = x10aux::NetworkDispatcher::getCUDAGetBufferFinder(nid);
     void *dropzone = bf(buf,len);
     assert(buf.consumed() <= p->len);
     deserialized_bytes += buf.consumed()  ; asyncs_received++;
@@ -452,9 +443,8 @@ static void *cuda_receive_get (const x10rt_msg_params *p, x10aux::copy_sz len) {
 static void finished_get (const x10rt_msg_params *p, x10aux::copy_sz len) {
     _X_(ANSI_X10RT<<"Receiving a get, deserialising for notifier..."<<ANSI_RESET);
     x10aux::deserialization_buffer buf(static_cast<char*>(p->msg), p->len);
-    // note: high bytes thrown away in implicit conversion
-    serialization_id_t sid = x10aux::DeserializationDispatcher::getSerializationId(p->type);
-    x10aux::Notifier n = x10aux::DeserializationDispatcher::getGetNotifier(sid);
+    serialization_id_t nid = x10aux::NetworkDispatcher::getNetworkId(p->type);
+    x10aux::Notifier n = x10aux::NetworkDispatcher::getGetNotifier(nid);
     n(buf,len);
     assert(buf.consumed() <= p->len);
     deserialized_bytes += buf.consumed()  ; asyncs_received++;
@@ -463,9 +453,8 @@ static void finished_get (const x10rt_msg_params *p, x10aux::copy_sz len) {
 static void cuda_finished_get (const x10rt_msg_params *p, x10aux::copy_sz len) {
     _X_(ANSI_X10RT<<"Receiving a get, deserialising for cuda notifier..."<<ANSI_RESET);
     x10aux::deserialization_buffer buf(static_cast<char*>(p->msg), p->len);
-    // note: high bytes thrown away in implicit conversion
-    serialization_id_t sid = x10aux::DeserializationDispatcher::getSerializationId(p->type);
-    x10aux::Notifier n = x10aux::DeserializationDispatcher::getCUDAGetNotifier(sid);
+    serialization_id_t nid = x10aux::NetworkDispatcher::getNetworkId(p->type);
+    x10aux::Notifier n = x10aux::NetworkDispatcher::getCUDAGetNotifier(nid);
     n(buf,len);
     assert(buf.consumed() <= p->len);
     deserialized_bytes += buf.consumed()  ; asyncs_received++;

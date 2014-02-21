@@ -20,28 +20,28 @@ namespace x10 {
     namespace lang {
 
         const serialization_id_t Rail_copy_to_serialization_id =
-            DeserializationDispatcher::addPutFunctions(Rail_buffer_finder,
-                                                       Rail_notifier,
-                                                       Rail_buffer_finder,
-                                                       Rail_notifier);
+            NetworkDispatcher::addPutFunctions(Rail_buffer_finder,
+                                               Rail_notifier,
+                                               Rail_buffer_finder,
+                                               Rail_notifier);
 
         const serialization_id_t Rail_uncounted_copy_to_serialization_id =
-            DeserializationDispatcher::addPutFunctions(Rail_buffer_finder,
-                                                       Rail_uncounted_notifier,
-                                                       Rail_buffer_finder,
-                                                       Rail_uncounted_notifier);
+            NetworkDispatcher::addPutFunctions(Rail_buffer_finder,
+                                               Rail_uncounted_notifier,
+                                               Rail_buffer_finder,
+                                               Rail_uncounted_notifier);
 
         const serialization_id_t Rail_copy_from_serialization_id =
-            DeserializationDispatcher::addGetFunctions(Rail_buffer_finder,
-                                                       Rail_notifier,
-                                                       Rail_buffer_finder,
-                                                       Rail_notifier);
+            NetworkDispatcher::addGetFunctions(Rail_buffer_finder,
+                                               Rail_notifier,
+                                               Rail_buffer_finder,
+                                               Rail_notifier);
 
         const serialization_id_t Rail_uncounted_copy_from_serialization_id =
-            DeserializationDispatcher::addGetFunctions(Rail_buffer_finder,
-                                                       Rail_uncounted_notifier,
-                                                       Rail_buffer_finder,
-                                                       Rail_uncounted_notifier);
+            NetworkDispatcher::addGetFunctions(Rail_buffer_finder,
+                                               Rail_uncounted_notifier,
+                                               Rail_buffer_finder,
+                                               Rail_uncounted_notifier);
 
         
         void Rail_notifyEnclosingFinish(deserialization_buffer& buf) {

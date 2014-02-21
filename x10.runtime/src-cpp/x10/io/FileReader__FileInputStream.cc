@@ -87,7 +87,7 @@ void FileReader__FileInputStream::skip(x10_long bytes) {
 }
 
 const x10aux::serialization_id_t FileReader__FileInputStream::_serialization_id = 
-    x10aux::DeserializationDispatcher::addDeserializer(FileReader__FileInputStream::_deserializer, x10aux::CLOSURE_KIND_NOT_ASYNC);
+    x10aux::DeserializationDispatcher::addDeserializer(FileReader__FileInputStream::_deserializer);
 
 void FileReader__FileInputStream::_serialize_body(x10aux::serialization_buffer& buf) {
     x10aux::throwException(NotSerializableException::_make(String::Lit("FileReader.FileInputStream")));

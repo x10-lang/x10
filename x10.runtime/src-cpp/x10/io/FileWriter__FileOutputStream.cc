@@ -69,7 +69,7 @@ void FileWriter__FileOutputStream::close() {
 }
 
 const x10aux::serialization_id_t FileWriter__FileOutputStream::_serialization_id = 
-    x10aux::DeserializationDispatcher::addDeserializer(FileWriter__FileOutputStream::_deserializer, x10aux::CLOSURE_KIND_NOT_ASYNC);
+    x10aux::DeserializationDispatcher::addDeserializer(FileWriter__FileOutputStream::_deserializer);
 
 void FileWriter__FileOutputStream::_serialize_body(x10aux::serialization_buffer& buf) {
     x10aux::throwException(NotSerializableException::_make(String::Lit("FileWriter.FileOutputStream")));

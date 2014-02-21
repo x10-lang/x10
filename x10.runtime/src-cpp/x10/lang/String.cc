@@ -568,7 +568,7 @@ STRING_PLUS_DEFS(21, x10_long, signed long long, "%lld")
 
 
 const serialization_id_t String::_serialization_id =
-    DeserializationDispatcher::addDeserializer(String::_deserializer, x10aux::CLOSURE_KIND_NOT_ASYNC);
+    DeserializationDispatcher::addDeserializer(String::_deserializer);
 
 void String::_serialize_body(x10aux::serialization_buffer& buf) {
     // only support strings that are shorter than 4billion chars

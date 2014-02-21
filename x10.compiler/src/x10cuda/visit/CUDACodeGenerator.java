@@ -483,18 +483,27 @@ public class CUDACodeGenerator extends MessagePassingCodeGenerator {
 
 			TypeSystem xts = tr.typeSystem();
 			boolean in_template_closure = freeTypeParams.size() > 0;
-			if (in_template_closure)
+			if (in_template_closure) {
 				emitter.printTemplateSignature(freeTypeParams, defn_s);
+			}
 			defn_s.write("const x10aux::serialization_id_t " + cnamet + "::"
-					+ SharedVarsMethods.SERIALIZATION_ID_FIELD + " = ");
+			        + SharedVarsMethods.SERIALIZATION_ID_FIELD + " = ");
 			defn_s.newline(4);
-			defn_s.write("x10aux::DeserializationDispatcher::addDeserializer("
+			defn_s.writeln("x10aux::DeserializationDispatcher::addDeserializer("
+			        + cnamet + "::"+ SharedVarsMethods.DESERIALIZE_METHOD+ ");");
+
+			if (in_template_closure) {
+			    emitter.printTemplateSignature(freeTypeParams, defn_s);
+			}
+			defn_s.write("const x10aux::serialization_id_t " + cnamet + "::"
+					+ SharedVarsMethods.NETWORK_ID_FIELD + " = ");
+			defn_s.newline(4);
+			defn_s.writeln("x10aux::NetworkDispatcher::addNetworkDeserializer("
 					+ cnamet + "::"+ SharedVarsMethods.DESERIALIZE_METHOD+ ", "
 			        + closure_kind_strs[kind]+", "
 					+ cnamet + "::" + SharedVarsMethods.DESERIALIZE_CUDA_METHOD + ", "
 			        + cnamet + "::" + SharedVarsMethods.POST_CUDA_METHOD+ ", "
 					+ "\"" + hostClassName + "\", \"" + cnamet + "\");");
-			defn_s.newline();
 			defn_s.forceNewline();
 		} else {
 			super.generateClosureDeserializationIdDef(defn_s, cnamet,
@@ -609,7 +618,7 @@ public class CUDACodeGenerator extends MessagePassingCodeGenerator {
 					&& cuda_kernel.autoThreads != null) {
 				String bname = cuda_kernel.autoBlocks.name().id().toString();
 				String tname = cuda_kernel.autoThreads.name().id().toString();
-				inc.write("x10aux::blocks_threads(__gpu, x10aux::DeserializationDispatcher::getMsgType(_serialization_id), __shm, "
+				inc.write("x10aux::blocks_threads(__gpu, x10aux::NetworkDispatcher::getMsgType(_network_id), __shm, "
 								+ bname + ", " + tname + ");");
 				inc.newline();
 			}

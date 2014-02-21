@@ -139,8 +139,8 @@ static void* real_x10_main_inner(void* _main_args) {
         x10::lang::VoidFun_0_0* main_closure =
             reinterpret_cast<x10::lang::VoidFun_0_0*>(new (x10aux::alloc<x10::lang::VoidFun_0_0>(sizeof(x10aux::BootStrapClosure))) x10aux::BootStrapClosure(main_args->mainFunc, args));
 
-        // Bootup the serialization/deserialization code
-        x10aux::DeserializationDispatcher::registerHandlers();
+        // Bootup the network message handling code
+        x10aux::NetworkDispatcher::registerHandlers();
 
         // Actually start up the runtime and execute the program.
         // When this function returns, the program will have exited.

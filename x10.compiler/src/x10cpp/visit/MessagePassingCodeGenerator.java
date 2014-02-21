@@ -29,8 +29,10 @@ import static x10cpp.visit.SharedVarsMethods.CPP_NATIVE_STRING;
 import static x10cpp.visit.SharedVarsMethods.SAVED_THIS;
 import static x10cpp.visit.SharedVarsMethods.SERIALIZATION_BUFFER;
 import static x10cpp.visit.SharedVarsMethods.SERIALIZATION_ID_FIELD;
+import static x10cpp.visit.SharedVarsMethods.NETWORK_ID_FIELD;
 import static x10cpp.visit.SharedVarsMethods.SERIALIZE_BODY_METHOD;
 import static x10cpp.visit.SharedVarsMethods.SERIALIZE_ID_METHOD;
+import static x10cpp.visit.SharedVarsMethods.NETWORK_ID_METHOD;
 import static x10cpp.visit.SharedVarsMethods.STRUCT_EQUALS;
 import static x10cpp.visit.SharedVarsMethods.STRUCT_EQUALS_METHOD;
 import static x10cpp.visit.SharedVarsMethods.STRUCT_THIS;
@@ -3495,11 +3497,38 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 
         emitter.printDeclarationList(sw, c, env, refs);
         sw.forceNewline();
+        
+        int kind = 0;
+        try {
+            if (!((X10Ext)(n.body()).ext()).annotationMatching(xts.systemResolver().findOne(QName.make("x10.compiler.AsyncClosure"))).isEmpty()) {
+                kind = 1;
+            }
+            if (!((X10Ext)(n).ext()).annotationMatching(xts.systemResolver().findOne(QName.make("x10.compiler.AsyncClosure"))).isEmpty()) {
+                kind = 1;
+            }
+        } catch (SemanticException e) {
+        }
+        try {
+            if (!((X10Ext)(n.body()).ext()).annotationMatching(xts.systemResolver().findOne(QName.make("x10.compiler.RemoteInvocation"))).isEmpty()) {
+                kind = 2;
+            }
+            if (!((X10Ext)(n).ext()).annotationMatching(xts.systemResolver().findOne(QName.make("x10.compiler.RemoteInvocation"))).isEmpty()) {
+                kind = 2;
+            }
+        } catch (SemanticException e) {
+        }
 
         sw.write("::x10aux::serialization_id_t "+SERIALIZE_ID_METHOD+"() {");
         sw.newline(4); sw.begin(0);
         sw.write("return "+SERIALIZATION_ID_FIELD+";"); sw.end(); sw.newline();
         sw.write("}"); sw.newline(); sw.forceNewline();
+        
+        if (kind != 0) {
+            sw.write("::x10aux::serialization_id_t "+NETWORK_ID_METHOD+"() {");
+            sw.newline(4); sw.begin(0);
+            sw.write("return "+NETWORK_ID_FIELD+";"); sw.end(); sw.newline();
+            sw.write("}"); sw.newline(); sw.forceNewline();
+        }
 
         generateClosureSerializationFunctions(c, cnamet, sw, n.body(), env, refs);
 
@@ -3534,6 +3563,11 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 
         sw.write("static const ::x10aux::serialization_id_t "+SERIALIZATION_ID_FIELD+";");
         sw.newline(); sw.forceNewline();
+        
+        if (kind != 0) {
+            sw.write("static const ::x10aux::serialization_id_t "+NETWORK_ID_FIELD+";");
+            sw.newline(); sw.forceNewline();           
+        }
 
         sw.write("static const ::x10aux::RuntimeType* getRTT() {"+
                   " return ::x10aux::getRTT"+chevrons(superType)+"(); }");
@@ -3568,27 +3602,8 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 		defn_s.write("::x10aux::itable_entry(&::x10aux::getRTT"+chevrons(superType)+", &"+cnamet+"::_itable),");
 		defn_s.write("::x10aux::itable_entry(NULL, NULL)};"); defn_s.newline(); defn_s.forceNewline();
 
-		int kind = 0;
-		try {
-			if (!((X10Ext)(n.body()).ext()).annotationMatching(xts.systemResolver().findOne(QName.make("x10.compiler.AsyncClosure"))).isEmpty()) {
-				kind = 1;
-			}
-			if (!((X10Ext)(n).ext()).annotationMatching(xts.systemResolver().findOne(QName.make("x10.compiler.AsyncClosure"))).isEmpty()) {
-				kind = 1;
-			}
-		} catch (SemanticException e) {
-		}
-		try {
-			if (!((X10Ext)(n.body()).ext()).annotationMatching(xts.systemResolver().findOne(QName.make("x10.compiler.RemoteInvocation"))).isEmpty()) {
-				kind = 2;
-			}
-			if (!((X10Ext)(n).ext()).annotationMatching(xts.systemResolver().findOne(QName.make("x10.compiler.RemoteInvocation"))).isEmpty()) {
-				kind = 2;
-			}
-		} catch (SemanticException e) {
-		}
 		generateClosureDeserializationIdDef(defn_s, cnamet, freeTypeParams, hostClassName, n.body(), kind);
-
+		
 		sw.write("#endif // "+headerGuard+"_CLOSURE"); sw.newline();
 
 		// Done generating closure definition.  Pop streams.
@@ -3740,13 +3755,24 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
     protected void generateClosureDeserializationIdDef(ClassifiedStream defn_s, String cnamet, List<Type> freeTypeParams, String hostClassName, Block block, int kind) {
         TypeSystem xts =  tr.typeSystem();
         boolean in_template_closure = freeTypeParams.size()>0;
-        if (in_template_closure)
+        if (in_template_closure) {
             emitter.printTemplateSignature(freeTypeParams, defn_s);
+        }
         defn_s.write("const ::x10aux::serialization_id_t "+cnamet+"::"+SERIALIZATION_ID_FIELD+" = ");
-        defn_s.newline(4);
-        defn_s.write("::x10aux::DeserializationDispatcher::addDeserializer("+
-                  cnamet+"::"+DESERIALIZE_METHOD+","+closure_kind_strs[kind]+");");
-        defn_s.newline(); defn_s.forceNewline();
+        defn_s.newline(4);        
+        defn_s.writeln("::x10aux::DeserializationDispatcher::addDeserializer("+
+                cnamet+"::"+DESERIALIZE_METHOD+");");
+
+        if (kind != 0) {
+            if (in_template_closure) {
+                emitter.printTemplateSignature(freeTypeParams, defn_s);
+            }
+            defn_s.write("const ::x10aux::serialization_id_t "+cnamet+"::"+NETWORK_ID_FIELD+" = ");
+            defn_s.newline(4);        
+            defn_s.writeln("::x10aux::NetworkDispatcher::addNetworkDeserializer("+
+                    cnamet+"::"+DESERIALIZE_METHOD+","+closure_kind_strs[kind]+");");           
+        }
+        defn_s.forceNewline();
     }
 
 	private Closure_c getClosureLiteral(Expr target) {

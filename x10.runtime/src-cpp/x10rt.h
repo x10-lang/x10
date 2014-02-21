@@ -17,6 +17,7 @@
 #include <x10aux/alloc.h>
 #include <x10aux/serialization.h>
 #include <x10aux/deserialization_dispatcher.h>
+#include <x10aux/network_dispatcher.h>
 #include <x10aux/static_init.h>
 #include <x10aux/basic_functions.h>
 

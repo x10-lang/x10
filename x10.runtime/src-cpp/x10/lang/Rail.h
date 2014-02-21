@@ -521,7 +521,7 @@ template<class T> void x10::lang::Rail<void>::uncountedCopy(::x10::lang::GlobalR
  */
 
 template<class T> const ::x10aux::serialization_id_t x10::lang::Rail<T>::_serialization_id = 
-    ::x10aux::DeserializationDispatcher::addDeserializer(::x10::lang::Rail<T>::_deserializer, ::x10aux::CLOSURE_KIND_NOT_ASYNC);
+    ::x10aux::DeserializationDispatcher::addDeserializer(::x10::lang::Rail<T>::_deserializer);
 
 template<class T> void ::x10::lang::Rail<T>::_serialize_body(::x10aux::serialization_buffer& buf) {
     buf.write<x10_long>(this->FMGL(size));

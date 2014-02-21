@@ -73,6 +73,9 @@ namespace x10 {
              *********************************************************************************/
             virtual ::x10aux::serialization_id_t _get_serialization_id() = 0;
             virtual void _serialize_body(::x10aux::serialization_buffer &) = 0;
+            virtual ::x10aux::serialization_id_t _get_network_id() {
+                return 0;
+            }
         };
 
         /**

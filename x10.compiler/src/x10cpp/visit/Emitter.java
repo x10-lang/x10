@@ -1039,7 +1039,7 @@ public class Emitter {
                 w.write("const ::x10aux::serialization_id_t "+klassUnq+"::"+SERIALIZATION_ID_FIELD+" = ");
                 w.newline(4);
                 w.write("::x10aux::DeserializationDispatcher::addDeserializer(");
-                w.write(klass+"::"+DESERIALIZER_METHOD+", ::x10aux::CLOSURE_KIND_NOT_ASYNC);");
+                w.write(klass+"::"+DESERIALIZER_METHOD+");");
                 w.newline(); w.forceNewline();
             }
 

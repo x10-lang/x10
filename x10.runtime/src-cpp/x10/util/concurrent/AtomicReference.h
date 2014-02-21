@@ -157,7 +157,7 @@ namespace x10 {
                 }
 
                 template<class T> const ::x10aux::serialization_id_t AtomicReference<T>::_serialization_id =
-                    ::x10aux::DeserializationDispatcher::addDeserializer(AtomicReference<T>::_deserializer, ::x10aux::CLOSURE_KIND_NOT_ASYNC);
+                    ::x10aux::DeserializationDispatcher::addDeserializer(AtomicReference<T>::_deserializer);
 
                 template<> class AtomicReference<void> {
                 public:

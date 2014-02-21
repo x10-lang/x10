@@ -141,6 +141,7 @@ ALL_XRCPP_OBJECTS = \
 	x10aux/itables.o \
 	x10aux/lock.o \
 	x10aux/network.o \
+	x10aux/network_dispatcher.o \
 	x10aux/place_local.o \
 	x10aux/reference_logger.o \
 	x10aux/RTT.o \

@@ -50,7 +50,7 @@ void File__NativeFile::_deserialize_body(deserialization_buffer& buf) {
 }
 
 const x10aux::serialization_id_t File__NativeFile::_serialization_id =
-    x10aux::DeserializationDispatcher::addDeserializer(File__NativeFile::_deserializer, x10aux::CLOSURE_KIND_NOT_ASYNC);
+    x10aux::DeserializationDispatcher::addDeserializer(File__NativeFile::_deserializer);
 
 Reference* File__NativeFile::_deserializer(x10aux::deserialization_buffer &buf) {
     File__NativeFile* this_ = new (x10aux::alloc<File__NativeFile>()) File__NativeFile();

@@ -34,6 +34,20 @@ namespace x10aux {
     typedef x10_int place; // FIXME: should be x10rt_place, but place ids are signed everywhere
     typedef x10rt_endpoint endpoint;
 
+    class deserialization_buffer;
+
+    typedef ::x10::lang::Reference* (*Deserializer)(deserialization_buffer &buf);
+
+    typedef void (*CUDAPre)(deserialization_buffer &buf, place p,
+                            size_t &blocks, size_t &threads, size_t &shm, size_t &argc, char *&argv, size_t &cmemc, char *&cmemv);
+
+    typedef void (*CUDAPost)(deserialization_buffer &buf, place p,
+                             size_t blocks, size_t threads, size_t shm, size_t argc, char *argv, size_t cmemc, char *cmemv);
+
+    typedef void *(*BufferFinder)(deserialization_buffer &buf, x10_int len);
+
+    typedef void (*Notifier)(deserialization_buffer &buf, x10_int len);
+    
     // a message type used for putting serialised kernel data on a gpu 
     extern msg_type kernel_put;
 
