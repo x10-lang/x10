@@ -32,6 +32,7 @@
 
 #include <x10/lang/Runtime.h>
 #include <x10/lang/FinishState.h>
+#include <x10/io/DeserializationException.h>
 
 using namespace x10::lang;
 using namespace x10aux;
@@ -174,7 +175,7 @@ void x10aux::run_async_at(x10aux::place p, x10::lang::VoidFun_0_0* body_fun,
     
     serialization_id_t net_id = real_body->_get_network_id();
     if (!is_cuda(p)) {
-        _X_(ANSI_BOLD<<ANSI_X10RT<<"Transmitting a simple async: "<<ANSI_RESET
+        _X_(ANSI_BOLD<<ANSI_X10RT<<"Transmitting an async: "<<ANSI_RESET
             <<real_body->toString()->c_str()
             <<" nid "<<net_id<<" to place: "<<p);
 
@@ -189,7 +190,7 @@ void x10aux::run_async_at(x10aux::place p, x10::lang::VoidFun_0_0* body_fun,
 
     _X_(ANSI_BOLD<<ANSI_X10RT<<"Async msg id: "<<ANSI_RESET<<msg_id);
 
-    assert(NetworkDispatcher::getClosureKind(net_id)==x10aux::CLOSURE_KIND_SIMPLE_ASYNC);
+    assert(NetworkDispatcher::getClosureKind(net_id)==x10aux::CLOSURE_KIND_ASYNC_CLOSURE);
 
     // WRITE FINISH STATE
     buf.write(fs);
@@ -242,7 +243,7 @@ void x10aux::run_closure_at(x10aux::place p, x10::lang::VoidFun_0_0* body_fun,
 
     serialization_id_t net_id = body->_get_network_id();
 
-    _X_(ANSI_BOLD<<ANSI_X10RT<<"Transmitting a general async: "<<ANSI_RESET
+    _X_(ANSI_BOLD<<ANSI_X10RT<<"Transmitting a remote invocation: "<<ANSI_RESET
         <<body->toString()->c_str()
         <<" nid "<<net_id<<" to place: "<<p);
 
@@ -253,10 +254,10 @@ void x10aux::run_closure_at(x10aux::place p, x10::lang::VoidFun_0_0* body_fun,
 
     serialization_buffer buf;
 
-    assert(NetworkDispatcher::getClosureKind(net_id)==x10aux::CLOSURE_KIND_GENERAL_ASYNC);
+    assert(NetworkDispatcher::getClosureKind(net_id)==x10aux::CLOSURE_KIND_REMOTE_INVOCATION);
     msg_type msg_id = NetworkDispatcher::getMsgType(net_id);
 
-    _X_(ANSI_BOLD<<ANSI_X10RT<<"Async msg id: "<<ANSI_RESET<<msg_id);
+    _X_(ANSI_BOLD<<ANSI_X10RT<<"Remote invocation msg id: "<<ANSI_RESET<<msg_id);
 
     // We're playing a sleazy trick here and not following the general
     // serialization protocol. We should be calling buf.write(body),
@@ -306,24 +307,42 @@ static void receive_async (const x10rt_msg_params *p) {
     _X_(ANSI_X10RT<<"Receiving an async, id ("<<p->type<<"), deserialising..."<<ANSI_RESET);
     x10aux::deserialization_buffer buf(static_cast<char*>(p->msg), p->len);
     serialization_id_t nid = x10aux::NetworkDispatcher::getNetworkId(p->type);
-    _X_(ANSI_X10RT<<"async nid: ("<<nid<<ANSI_RESET);
     x10aux::ClosureKind ck = NetworkDispatcher::getClosureKind(nid);
+    _X_(ANSI_X10RT<<"async nid: "<<nid<<" of kind: "<<ck<<ANSI_RESET);
     switch (ck) {
-        case x10aux::CLOSURE_KIND_GENERAL_ASYNC: {
+        case x10aux::CLOSURE_KIND_REMOTE_INVOCATION: {
             Reference* body(x10aux::NetworkDispatcher::create(buf, nid));
             assert(buf.consumed() <= p->len);
-            _X_("The deserialised general async was: "<<x10aux::safe_to_string(body));
+            _X_("The deserialised remote invocation was: "<<x10aux::safe_to_string(body));
             deserialized_bytes += buf.consumed()  ; asyncs_received++;
             if (NULL == body) return;
             VoidFun_0_0::__apply(reinterpret_cast<VoidFun_0_0*>(body));
             x10aux::dealloc(body);
         } break;
-        case x10aux::CLOSURE_KIND_SIMPLE_ASYNC: {
+        case x10aux::CLOSURE_KIND_ASYNC_CLOSURE: {
             x10::lang::FinishState* fs = buf.read<x10::lang::FinishState*>();
             x10::lang::Place src = buf.read<x10::lang::Place>();
-            Reference* body(x10aux::NetworkDispatcher::create(buf, nid));
+            Reference* body = NULL;
+#ifndef NO_EXCEPTIONS
+            try {
+#endif
+                body = x10aux::NetworkDispatcher::create(buf, nid);
+#ifndef NO_EXCEPTIONS
+            } catch(x10::lang::CheckedThrowable* e) {
+                _X_("Exception during deserialization; posting to FinishState "<<fs);
+                if (NULL == fs) {
+                    fprintf(stderr, "Exception during deserialization with null FinishState.  Unrecoverable error.");
+                    abort();
+                }
+                x10::io::DeserializationException* de = x10::io::DeserializationException::_make(e);
+                fs->notifyActivityCreation(src);
+                fs->pushException(de);
+                fs->notifyActivityTermination();
+                return;
+            }
+#endif
             assert(buf.consumed() <= p->len);
-            _X_("The deserialised simple async was: "<<x10aux::safe_to_string(body));
+            _X_("The deserialised async closure was: "<<x10aux::safe_to_string(body));
             deserialized_bytes += buf.consumed()  ; asyncs_received++;
             if (NULL == body) return;
             x10::lang::Runtime::execute(reinterpret_cast<VoidFun_0_0*>(body), src, fs);

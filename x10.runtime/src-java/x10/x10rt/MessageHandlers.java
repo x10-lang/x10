@@ -124,18 +124,28 @@ public class MessageHandlers {
     		}
     		FinishState finishState = (FinishState) deserializer.readObject();
             Place src = (Place) deserializer.readObject();
-    		actObj = (VoidFun_0_0) deserializer.readObject();
-    		if (Runtime.PROF_SER) {
-    			long stop = System.nanoTime();
-    			long duration = stop-start;
-    			if (duration >= Runtime.PROF_SER_FILTER) {
-    				System.out.println("Deserialization took "+(((double)duration)/1e6)+" ms.");
-    			}
-    		}
-    		if (x10.runtime.impl.java.Runtime.TRACE_SER_DETAIL) {
-    			System.out.println("Ending deserialization ");
-    		}
-
+            
+            try {
+                actObj = (VoidFun_0_0) deserializer.readObject();
+                if (Runtime.PROF_SER) {
+                    long stop = System.nanoTime();
+                    long duration = stop-start;
+                    if (duration >= Runtime.PROF_SER_FILTER) {
+                        System.out.println("Deserialization took "+(((double)duration)/1e6)+" ms.");
+                    }
+                }
+                if (x10.runtime.impl.java.Runtime.TRACE_SER_DETAIL) {
+                    System.out.println("Ending deserialization ");
+                }
+            } catch (Throwable e) {
+                if (X10RT.VERBOSE) System.out.println("runSimpleAsyncAtReceive: handling exception during deserialization");
+                finishState.notifyActivityCreation$O(src);
+                finishState.pushException(new x10.io.DeserializationException(e));
+                finishState.notifyActivityTermination();
+                if (X10RT.VERBOSE) System.out.println("runSimpleAsyncAtReceive: exception pushed; bookkeeping complete");
+                return;
+            }
+    		
     		if (X10RT.VERBOSE) System.out.println("runSimpleAsyncAtReceive: after cast and deserialization");
     		x10.lang.Runtime.execute(actObj, src, finishState);
     		if (X10RT.VERBOSE) System.out.println("runSimpleAsyncAtReceive: after apply");

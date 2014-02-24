@@ -3747,9 +3747,9 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
     }
 
     protected String closure_kind_strs[] = new String[] {
-    		"::x10aux::CLOSURE_KIND_NOT_ASYNC",
-    		"::x10aux::CLOSURE_KIND_SIMPLE_ASYNC",
-    		"::x10aux::CLOSURE_KIND_GENERAL_ASYNC"
+    		"", // UNUSED
+    		"::x10aux::CLOSURE_KIND_ASYNC_CLOSURE",
+    		"::x10aux::CLOSURE_KIND_REMOTE_INVOCATION"
     };
 
     protected void generateClosureDeserializationIdDef(ClassifiedStream defn_s, String cnamet, List<Type> freeTypeParams, String hostClassName, Block block, int kind) {

@@ -22,8 +22,8 @@ namespace x10 { namespace lang { class Reference; } }
 namespace x10aux {
 
     enum ClosureKind {
-        CLOSURE_KIND_SIMPLE_ASYNC, // is an async with just finish state
-        CLOSURE_KIND_GENERAL_ASYNC // is an async represented with general XRX closure
+        CLOSURE_KIND_ASYNC_CLOSURE = 1,    // a closure whose body should be enqueued for latter execution as an Activity
+        CLOSURE_KIND_REMOTE_INVOCATION = 2 // a closure whose body should be directly within network's receive_async
     };
 
     /*
