@@ -82,6 +82,7 @@ public class SocketTransport {
 	private AtomicInteger numDead = new AtomicInteger(0);
 	private boolean bufferedWrites = true;
 	private int socketTimeout = -1;
+	private boolean shuttingDown = false;
     
 	
 	public SocketTransport() {
@@ -156,7 +157,7 @@ public class SocketTransport {
 				} // connect to all lower places
 			}
 			for (int i=myPlaceId+1; i<nplaces; i++)
-				while (channels[i] == null)
+				while (!shuttingDown && channels[i] == null)
 					x10rt_probe(true, 0); // wait for connections from all upper places
 		} 
 		else {
@@ -196,7 +197,9 @@ public class SocketTransport {
     	else
     		channels = new CommunicationLink[nplaces];
     	
-    	if (remoteStart) {
+    	if (shuttingDown)
+    		return RETURNCODE.X10RT_ERR_OTHER.ordinal();
+    	else if (remoteStart) {
     		StringBuffer sb = new StringBuffer();
     		for (int i=0; i<connectionStrings.length; i++) {
     			sb.append(connectionStrings[i]);
@@ -223,9 +226,10 @@ public class SocketTransport {
 				} // connect to all lower places
 	    	}
 			for (int i=myPlaceId+1; i<nplaces; i++)
-				while (channels[i] == null)
+				while (!shuttingDown && channels[i] == null)
 					x10rt_probe(true, 0); // wait for connections from all upper places
 	    }
+    	
     	return RETURNCODE.X10RT_ERR_OK.ordinal();
     }
     
@@ -240,8 +244,12 @@ public class SocketTransport {
     	return (channels[place] != null && channels[place].sc == null);
     }
     
+    // this method will cause the establishLinks method to return, even if it is 
+    // waiting for links to be established.  This allows that thread to get unstuck
+    // in the event that the place list is invalid.
     public int shutdown() {
     	if (DEBUG) System.err.println("shutting down");
+    	shuttingDown = true;
     	bufferedWrites = false;
    		try {
    			if (localListenSocket != null)
@@ -558,7 +566,7 @@ public class SocketTransport {
     }
     
     private void initLink(int remotePlace, String connectionInfo, ByteBuffer allPlaces) throws IOException{
-    	if (channels[remotePlace] != null) return;
+    	if (channels[remotePlace] != null || shuttingDown) return;
     	
     	String hostname;
     	int port;
@@ -612,7 +620,7 @@ public class SocketTransport {
 	    		try {
 					Thread.sleep(100);
 					delay-=100;
-					if (delay <= 0)
+					if (delay <= 0 || shuttingDown)
 						throw new IOException("Place "+myPlaceId+" unable to connect to place "+remotePlace);
 				} catch (InterruptedException e1) {
 					// TODO Auto-generated catch block
@@ -685,7 +693,7 @@ public class SocketTransport {
 			}
 			else if (bytesRead < -100)
 				throw new IOException("End of stream");
-			else if (totalBytesRead == 0) // nothing is available to read, but the socket is alive
+			else if (totalBytesRead == 0 || shuttingDown) // nothing is available to read, but the socket is alive
 				return false;
 			else if (bufferedWrites) {
 				// while we wait for data to come in, flush anything waiting to go out
@@ -703,7 +711,7 @@ public class SocketTransport {
     private void writeBytes(int placeid, ByteBuffer data) throws IOException {
     	if (!bufferedWrites)
     		writeNBytes(channels[placeid].sc, data);
-    	else {
+    	else if (!shuttingDown) {
     		if (channels[placeid].pendingWrites != null) {
     			// data is already pending.  Add this new data to the back of the queue
     			channels[placeid].pendingWrites.addLast(data); // store the current write request at the end of the queue
@@ -729,21 +737,21 @@ public class SocketTransport {
     private boolean flushBufferedBytes(SelectionKey key, int placeid) {
     	if (DEBUG) System.err.println("Flush called for place "+placeid);
     	
-    	if (channels[placeid] != null && channels[placeid].writeLock.tryLock()) {
+    	if (!shuttingDown && channels[placeid] != null && channels[placeid].writeLock.tryLock()) {
     		try {
     			if (channels[placeid].pendingWrites == null) return false;
     	    	
-    			while (channels[placeid].pendingWrites != null && !channels[placeid].pendingWrites.isEmpty()) {
+    			while (!shuttingDown && channels[placeid].pendingWrites != null && !channels[placeid].pendingWrites.isEmpty()) {
     				ByteBuffer data = channels[placeid].pendingWrites.peekFirst();
     				try {
     					//long startRemain = data.remaining();
 	    				long bytesWrittenThisRound;
 	        			do { bytesWrittenThisRound=channels[placeid].sc.write(data);
-	        			} while (bytesWrittenThisRound > 0 && data.hasRemaining());
+	        			} while (!shuttingDown && bytesWrittenThisRound > 0 && data.hasRemaining());
 	        			
 	        			//if (DEBUG) System.err.println("Flushed "+(startRemain-data.remaining())+" bytes in the buffer to place "+placeid);
 	        			
-	        			if (!data.hasRemaining()) // all data was written out
+	        			if (!shuttingDown && !data.hasRemaining()) // all data was written out
 	        				channels[placeid].pendingWrites.removeFirst();
 	        			else
 	        				return true; //(startRemain==data.remaining()); // data remains, but the channel is not accepting more
@@ -779,7 +787,7 @@ public class SocketTransport {
     // simple utility method which forces out a specific number of bytes before returning
     private void writeNBytes(SocketChannel sc, ByteBuffer data) throws IOException {    	
 		do { sc.write(data);
-		} while (data.hasRemaining());
+		} while (!shuttingDown && data.hasRemaining());
     }
 
     private static void runClosureAtReceive(ByteBuffer input) throws IOException {
