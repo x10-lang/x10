@@ -15,6 +15,7 @@
 #include <x10aux/config.h>
 #include <x10aux/network.h>
 #include <x10aux/RTT.h>
+#include <x10aux/chunked_array.h>
 
 namespace x10 { namespace lang { class Reference; } }
 
@@ -27,15 +28,16 @@ namespace x10aux {
 
     /*
      * General architecture.
-     * The NetworkDispatcher accumulates functions (asyncs, puts, gets)
-     * that need to be registered with the x10rt layer during C++ static
-     * initialization.  Once the program is running and x10rt is ready
+     *
+     * During C++ static initialization, the NetworkDispatcher accumulates
+     * functions (remote asyncs, puts, gets)that need to be registered
+     * with the x10rt layer. Once the program is running and x10rt is ready
      * to be initialized, it registers all of the accumulated functions.
      *
      * It also maintains a mapping from the message ids assigned by x10rt
      * to the network ids it assigned as functions were registered.
      * This mapping can be used to go back and forth between x10rt msg_ids
-     * and NetworkDispatcher network ids
+     * and NetworkDispatcher network ids (nids)
      */
     class NetworkDispatcher {
       protected:
@@ -73,19 +75,20 @@ namespace x10aux {
             };
             Tag tag;
             x10aux::msg_type mt;
-            x10aux::serialization_id_t nid;
         };
 
       protected:
-        Data *data_v;
-        size_t data_c;
-        size_t next_id;
+        // primary data entry, indexed by nid
+        chunked_array<Data> data;
+
+        // mapping from mt to nid (indexed by mt, data is nid>
+        chunked_array<serialization_id_t> mt_to_nid;
+        
+        // next available nid 
+        size_t next_id; 
 
       public:
-        NetworkDispatcher () : data_v(NULL), data_c(0), next_id(1) { }
-        ~NetworkDispatcher () {
-            ::free(data_v); // do not use GC
-        }
+        NetworkDispatcher () : data(true), mt_to_nid(true), next_id(1) { }
 
         static void registerHandlers(void);
         void registerHandlers_(void);
