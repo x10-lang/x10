@@ -71,5 +71,3 @@ public class DeserializationFailure1 extends x10Test {
         new DeserializationFailure1().execute();
     }
 }
-  
- 

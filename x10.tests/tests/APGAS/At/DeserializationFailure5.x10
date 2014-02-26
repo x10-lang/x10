@@ -69,5 +69,3 @@ public class DeserializationFailure5 extends x10Test {
         new DeserializationFailure5().execute();
     }
 }
-  
- 

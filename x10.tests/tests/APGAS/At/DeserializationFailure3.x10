@@ -74,4 +74,3 @@ public class DeserializationFailure3 extends x10Test {
     }
 }
   
- 
