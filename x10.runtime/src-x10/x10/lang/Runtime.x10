@@ -795,7 +795,17 @@ public final class Runtime {
         val clockPhases = a.clockPhases().make(clocks);
         state.notifySubActivitySpawn(place);
         if (place.id == hereLong()) {
-            executeLocal(new Activity(deepCopy(body, prof), here, state, clockPhases));
+            var bodyCopy:()=>void = null;
+	    try {
+                bodyCopy = deepCopy(body, prof);
+            } catch (e:CheckedThrowable) {
+                state.notifyActivityCreation(here);
+                state.pushException(new x10.io.DeserializationException(e));
+                state.notifyActivityTermination();
+            }
+            if (bodyCopy != null) {
+                executeLocal(new Activity(bodyCopy, here, state, clockPhases));
+            }
         } else {
             val src = here;
             val closure = ()=> @x10.compiler.RemoteInvocation("runAsync") { execute(new Activity(body, src, state, clockPhases)); };
@@ -813,7 +823,17 @@ public final class Runtime {
         val state = a.finishState();
         state.notifySubActivitySpawn(place);
         if (place.id == hereLong()) {
-            executeLocal(new Activity(deepCopy(body, prof), here, state));
+            var bodyCopy:()=>void = null;
+	    try {
+                bodyCopy = deepCopy(body, prof);
+            } catch (e:CheckedThrowable) {
+                state.notifyActivityCreation(here);
+                state.pushException(new x10.io.DeserializationException(e));
+                state.notifyActivityTermination();
+            }
+            if (bodyCopy != null) {
+                executeLocal(new Activity(bodyCopy, here, state));
+            }
         } else {
             x10rtSendAsync(place.id, body, state, prof); // optimized case
         }
@@ -857,7 +877,18 @@ public final class Runtime {
         a.ensureNotInAtomic();
         
         if (place.id == hereLong()) {
-            executeLocal(new Activity(deepCopy(body, prof), here, FinishState.UNCOUNTED_FINISH));
+            var bodyCopy:()=>void = null;
+	    try {
+                bodyCopy = deepCopy(body, prof);
+            } catch (e:CheckedThrowable) {
+                // Hygiene: currently these calls do nothing, but put them here for completeness.
+                FinishState.UNCOUNTED_FINISH.notifyActivityCreation(here);
+                FinishState.UNCOUNTED_FINISH.pushException(new x10.io.DeserializationException(e));
+                FinishState.UNCOUNTED_FINISH.notifyActivityTermination();
+            }
+            if (bodyCopy != null) {
+                executeLocal(new Activity(bodyCopy, here, FinishState.UNCOUNTED_FINISH));
+            }
         } else {
             // [DC] passing FIRST_PLACE instead of the correct src, since UNCOUNTED_FINISH does not use this value
             // and it saves sending some bytes over the network
