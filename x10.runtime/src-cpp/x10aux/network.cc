@@ -32,7 +32,7 @@
 
 #include <x10/lang/Runtime.h>
 #include <x10/lang/FinishState.h>
-#include <x10/io/DeserializationException.h>
+#include <x10/io/SerializationException.h>
 
 using namespace x10::lang;
 using namespace x10aux;
@@ -334,9 +334,9 @@ static void receive_async (const x10rt_msg_params *p) {
                     fprintf(stderr, "Exception during deserialization with null FinishState.  Unrecoverable error.");
                     abort();
                 }
-                x10::io::DeserializationException* de = x10::io::DeserializationException::_make(e);
+                x10::io::SerializationException* se = x10::io::SerializationException::_make(e);
                 fs->notifyActivityCreation(src);
-                fs->pushException(de);
+                fs->pushException(se);
                 fs->notifyActivityTermination();
                 return;
             }

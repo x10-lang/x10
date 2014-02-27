@@ -20,7 +20,7 @@
 #include <x10/lang/Rail.h>
 #include <x10/lang/Runtime__Profile.h>
 #include <x10/io/Serializer.h>
-#include <x10/io/DeserializationException.h>
+#include <x10/io/SerializationException.h>
 
 using namespace x10aux;
 using namespace x10::lang;
@@ -171,7 +171,7 @@ void x10aux::set_prof_data(x10::lang::Runtime__Profile *prof, unsigned long long
 void x10aux::raiseSerializationProtocolError() {
     const char* msg = "Error detected in custom serialization protocol";
 #ifndef NO_EXCEPTIONS
-    throwException(x10::io::DeserializationException::_make(String::Lit(msg)));
+    throwException(x10::io::SerializationException::_make(String::Lit(msg)));
 #else
     fprintf(stderr, "%s. Aborting\n", msg);
     abort();

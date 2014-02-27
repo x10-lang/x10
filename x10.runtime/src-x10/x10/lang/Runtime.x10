@@ -800,7 +800,7 @@ public final class Runtime {
                 bodyCopy = deepCopy(body, prof);
             } catch (e:CheckedThrowable) {
                 state.notifyActivityCreation(here);
-                state.pushException(new x10.io.DeserializationException(e));
+                state.pushException(new x10.io.SerializationException(e));
                 state.notifyActivityTermination();
             }
             if (bodyCopy != null) {
@@ -828,7 +828,7 @@ public final class Runtime {
                 bodyCopy = deepCopy(body, prof);
             } catch (e:CheckedThrowable) {
                 state.notifyActivityCreation(here);
-                state.pushException(new x10.io.DeserializationException(e));
+                state.pushException(new x10.io.SerializationException(e));
                 state.notifyActivityTermination();
             }
             if (bodyCopy != null) {
@@ -883,7 +883,7 @@ public final class Runtime {
             } catch (e:CheckedThrowable) {
                 // Hygiene: currently these calls do nothing, but put them here for completeness.
                 FinishState.UNCOUNTED_FINISH.notifyActivityCreation(here);
-                FinishState.UNCOUNTED_FINISH.pushException(new x10.io.DeserializationException(e));
+                FinishState.UNCOUNTED_FINISH.pushException(new x10.io.SerializationException(e));
                 FinishState.UNCOUNTED_FINISH.notifyActivityTermination();
             }
             if (bodyCopy != null) {
