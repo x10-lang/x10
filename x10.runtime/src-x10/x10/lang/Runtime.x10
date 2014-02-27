@@ -971,11 +971,17 @@ public final class Runtime {
         @StackAllocate val me = @StackAllocate new RemoteControl();
         val box:GlobalRef[RemoteControl] = GlobalRef(me as RemoteControl);
         val clockPhases = activity().clockPhases;
+        @StackAllocate val ser = @StackAllocate new x10.io.Serializer();
+        ser.writeAny(body);
+        val bytes = ser.toRail();
         @x10.compiler.Profile(prof) at(place) async {
             activity().clockPhases = clockPhases;
             try {
                 try {
-                    body();
+                    // We use manual deserialization to get correct handling of exceptions
+                    @StackAllocate val deser = @StackAllocate new x10.io.Deserializer(bytes);
+                    val bodyPrime = deser.readAny() as ()=>void;
+                    bodyPrime();
                     val closure = ()=> @x10.compiler.RemoteInvocation("runAt_1") { 
                         val me2 = (box as GlobalRef[RemoteControl]{home==here})();
                         me2.clockPhases = clockPhases;
@@ -1000,6 +1006,7 @@ public final class Runtime {
         }
         me.await();
         Unsafe.dealloc(body);
+        Unsafe.dealloc(bytes);
         activity().clockPhases = me.clockPhases;
         if (null != me.e) {
             throwCheckedWithoutThrows(me.e);
@@ -1081,7 +1088,6 @@ public final class Runtime {
         if (place.id == hereLong()) {
             try {
                 try {
-                    // TODO the second deep copy is needed only if eval makes its result escaped (it is very rare).
                     val result = deepCopy(eval,prof)();
                     return deepCopy(result,prof);
                 } catch (t:AtCheckedWrapper) {
@@ -1094,16 +1100,31 @@ public final class Runtime {
         @StackAllocate val me = @StackAllocate new Remote[Any]();
         val box = GlobalRef(me as Remote[Any]);
         val clockPhases = activity().clockPhases;
+        @StackAllocate val ser = @StackAllocate new x10.io.Serializer();
+        ser.writeAny(eval);
+        val bytes = ser.toRail();
         @x10.compiler.Profile(prof) at(place) async {
             activity().clockPhases = clockPhases;
             try {
                 try {
-                    val result = eval();
+                    // We use manual deserialization to get correct handling of exceptions
+                    @StackAllocate val deser = @StackAllocate new x10.io.Deserializer(bytes);
+                    val evalPrime = deser.readAny() as ()=>Any;
+                    val result = evalPrime();
+                    @StackAllocate val ser2 = @StackAllocate new x10.io.Serializer();
+                    ser2.writeAny(result);
+                    val bytes2 = ser2.toRail();
                     val closure = ()=> @x10.compiler.RemoteInvocation("evalAt_1") { 
                         val me2 = (box as GlobalRef[Remote[Any]]{home==here})();
                         // me2 has type Box[T{box.home==here}]... weird
-                        me2.t = new Box[Any](result as Any);
                         me2.clockPhases = clockPhases;
+                        @StackAllocate val deser2 = @StackAllocate new x10.io.Deserializer(bytes2);
+                        try {
+                            val resultPrime = deser2.readAny();
+                            me2.t = new Box[Any](resultPrime as Any);
+                        } catch (e:CheckedThrowable) {
+                            me2.e = e;
+                        }
                         me2.release();
                     };
                     x10rtSendMessage(box.home.id, closure, null);
