@@ -21,6 +21,9 @@ public class SerializationException extends Exception {
 
     public def this(cause:CheckedThrowable) { super(cause); }
 
-    public def this(message: String) { super(message); }
+    public def this(message:String) { super(message); }
 
+    public def this(message:String, cause:CheckedThrowable) { 
+        super(message, cause); 
+    }
 }

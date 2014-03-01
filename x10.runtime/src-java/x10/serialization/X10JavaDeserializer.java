@@ -12,7 +12,6 @@
 package x10.serialization;
 
 import java.io.ByteArrayInputStream;
-import java.io.DataInput;
 import java.io.DataInputStream;
 import java.io.IOException;
 import java.io.ObjectInputStream;
@@ -22,6 +21,7 @@ import java.lang.reflect.Method;
 import java.util.ArrayList;
 
 import x10.core.Rail;
+import x10.io.SerializationException;
 import x10.rtt.Types;
 import x10.runtime.impl.java.Runtime;
 import x10.serialization.DeserializationDictionary.LocalDeserializationDictionary;
@@ -83,9 +83,12 @@ public final class X10JavaDeserializer implements SerializationConstants {
     public Object readAny() {
         try {
             return readObject();
-        } catch (IOException e) {
-            e.printStackTrace();
-            throw new RuntimeException(e);
+        } catch (SerializationException e) {
+            throw e;
+        } catch (RuntimeException e) {
+            throw e; // don't wrap
+        } catch (Throwable e) {
+            throw new SerializationException(e);
         }
     }
     
@@ -128,7 +131,7 @@ public final class X10JavaDeserializer implements SerializationConstants {
     public short readSerializationId() throws IOException {
         short sid = in.readShort();
         while (sid == DYNAMIC_ID_ID) {
-            // A dictionary entry; read it and recurse to read the real ref that is next
+            // A dictionary entry; process it and keep looking for the actual sid
             if (Runtime.TRACE_SER) {
                 Runtime.printTraceMessage("Adding a dynamic serialization id to the dictionary");
             }
@@ -188,35 +191,18 @@ public final class X10JavaDeserializer implements SerializationConstants {
                 return dt.deserializeObject(clazz, this);
             }
         } catch (InvocationTargetException e) {
-            // This should never happen
-            String msg = "Error in deserializing non-null value with id " + serializationID;
-            System.err.println(msg);
-            e.printStackTrace();
-            throw new RuntimeException(msg, e);
-        } catch (SecurityException e) {
-            // This should never happen
-            e.printStackTrace();
-            throw new RuntimeException(e);
-        } catch (IllegalAccessException e) {
-            // This should never happen
-            e.printStackTrace();
-            throw new RuntimeException(e);
-        } catch (NoSuchFieldException e) {
-            // This should never happen
-            e.printStackTrace();
-            throw new RuntimeException(e);
-        } catch (NoSuchMethodException e) {
-            // This should never happen
-            e.printStackTrace();
-            throw new RuntimeException(e);
-        } catch (IllegalArgumentException e) {
-            // This should never happen
-            e.printStackTrace();
-            throw new RuntimeException(e);
-        } catch (InstantiationException e) {
-            // This should never happen
-            e.printStackTrace();
-            throw new RuntimeException(e);
+            Throwable cause = e.getCause();
+            if (cause instanceof RuntimeException) {
+                throw (RuntimeException)cause; // don't wrap
+            } else {
+                throw new SerializationException(cause != null ? cause : e);
+            }
+        } catch (SerializationException e) {
+            throw e;
+        } catch (RuntimeException e) {
+            throw e; // don't wrap
+        } catch (Throwable e) {
+            throw new SerializationException(e);
         }
     }
 
@@ -402,27 +388,12 @@ public final class X10JavaDeserializer implements SerializationConstants {
         try {
             DeserializerThunk thunk = DeserializerThunk.getDeserializerThunk(clazz);
             return thunk.deserializeObject(clazz, obj, i, this);
-        } catch (SecurityException e) {
-            e.printStackTrace();
-            throw new RuntimeException(e);
-        } catch (NoSuchFieldException e) {
-            e.printStackTrace();
-            throw new RuntimeException(e);
-        } catch (NoSuchMethodException e) {
-            e.printStackTrace();
-            throw new RuntimeException(e);
-        } catch (IllegalArgumentException e) {
-            e.printStackTrace();
-            throw new RuntimeException(e);
-        } catch (IllegalAccessException e) {
-            e.printStackTrace();
-            throw new RuntimeException(e);
-        } catch (InvocationTargetException e) {
-            e.printStackTrace();
-            throw new RuntimeException(e);
-        } catch (InstantiationException e) {
-            e.printStackTrace();
-            throw new RuntimeException(e);
+        } catch (SerializationException e) {
+            throw e;
+        } catch (RuntimeException e) {
+            throw e; // don't wrap
+        } catch (Throwable e) {
+            throw new SerializationException(e);
         }
     }
     
@@ -433,8 +404,7 @@ public final class X10JavaDeserializer implements SerializationConstants {
         try {
             return ois.readObject();
         } catch (ClassNotFoundException e) {
-            e.printStackTrace();
-            throw new RuntimeException(e);
+            throw new SerializationException(e);
         }
     }
     
@@ -517,13 +487,13 @@ public final class X10JavaDeserializer implements SerializationConstants {
             default:
                 String msg = "Unhandled hard-wired serialization id in readPrimitive!";
                 System.err.println(msg);
-                throw new RuntimeException(msg);    
+                throw new SerializationException(msg);    
         }
         return obj;
     }
     
     public static void raiseSerializationProtocolError() {
         Runtime.printTraceMessage("Protocol error in custom deserialization; raising exception");
-        throw new RuntimeException("CustomSerialization protocol error");
+        throw new SerializationException("CustomSerialization protocol error");
     }
 }
