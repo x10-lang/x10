@@ -55,7 +55,7 @@ namespace apgas {
 
         
         template<class T> static inline T* alloc(size_t size = sizeof(T)) { return x10aux::alloc<T>(size); }
-        template<class T> static inline void dealloc(const T* obj) { x10aux::dealloc<T>(obj); }
+        template<class T> static inline void dealloc(const T* obj) { x10aux::dealloc(obj); }
         template<class T> static inline T* realloc(T* src, size_t dsz) { return x10aux::realloc<T>(src, dsz); }
     };
 }

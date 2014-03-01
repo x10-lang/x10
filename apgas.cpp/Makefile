@@ -52,9 +52,9 @@ SELECTED_COMPILER = Native.x10 NativeRep.x10 NoThisAccess.x10 NonEscaping.x10 Em
 		NoInferType.x10 StackAllocate.x10 StackAllocateUninitialized.x10 \
 		RemoteInvocation.x10 Volatile.x10 NativeCPPInclude.x10 \
 		SuppressTransientError.x10 NoInline.x10 Inline.x10 InlineOnly.x10 NoReturn.x10 NativeClass.x10 \
-		PerProcess.x10 Pragma.x10 CompilerFlags.x10 CompileTimeConstant.x10 Profile.x10 Header.x10 \
+		Pragma.x10 CompilerFlags.x10 CompileTimeConstant.x10 Profile.x10 Header.x10 \
 		Finalization.x10 Abort.x10 NativeDef.x10 FinishAsync.x10 AsyncClosure.x10 Endpoint.x10 CUDA.x10 \
-		Opaque.x10 TransientInitExpr.x10
+		Opaque.x10 TransientInitExpr.x10 Synthetic.x10
 
 SELECTED_UTIL = HashMap.x10 Map.x10 Box.x10 Ordered.x10 Pair.x10 Triple.x10 Set.x10 Random.x10 \
 		AbstractCollection.x10 AbstractContainer.x10  Collection.x10 GrowableRail.x10 \
@@ -62,7 +62,9 @@ SELECTED_UTIL = HashMap.x10 Map.x10 Box.x10 Ordered.x10 Pair.x10 Triple.x10 Set.
 		CollectionIterator.x10 MapIterator.x10 StringBuilder.x10 Builder.x10 \
 		HashSet.x10 MapSet.x10
 
-SELECTED_IO = 	CustomSerialization.x10 Serializer.x10 Deserializer.x10 Unserializable.x10 NotSerializableException.x10 \
+SELECTED_IO = 	CustomSerialization.x10 Serializer.x10 Deserializer.x10 \
+		Unserializable.x10 NotSerializableException.x10 \
+		SerializationException.x10 \
 		Printer.x10 Reader.x10 Writer.x10 Marshal.x10 \
 		IOException.x10 ReaderIterator.x10 EOFException.x10 Console.x10 OutputStreamWriter.x10 \
 		InputStreamReader.x10 FilterWriter.x10 FileNotFoundException.x10 NotSerializableException.x10 
