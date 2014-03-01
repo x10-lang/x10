@@ -12,14 +12,18 @@
 package x10.io;
 
 /**
- * An exception to indicate an error during deserialization.
+ * An exception indicates an error occured during 
+ * serialization or deserialization. 
  */
-public class DeserializationException extends Exception {
+public class SerializationException extends Exception {
 
     public def this() { super(); }
 
     public def this(cause:CheckedThrowable) { super(cause); }
 
-    public def this(message: String) { super(message); }
+    public def this(message:String) { super(message); }
 
+    public def this(message:String, cause:CheckedThrowable) { 
+        super(message, cause); 
+    }
 }

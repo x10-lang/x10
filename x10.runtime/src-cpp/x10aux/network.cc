@@ -31,6 +31,7 @@
 
 #include <x10/lang/Runtime.h>
 #include <x10/lang/FinishState.h>
+#include <x10/io/SerializationException.h>
 
 using namespace x10::lang;
 using namespace x10aux;
@@ -324,7 +325,25 @@ static void receive_async (const x10rt_msg_params *p) {
         case x10aux::CLOSURE_KIND_SIMPLE_ASYNC: {
             x10::lang::FinishState* fs = buf.read<x10::lang::FinishState*>();
             x10::lang::Place src = buf.read<x10::lang::Place>();
-            Reference* body(x10aux::DeserializationDispatcher::create(buf, sid));
+            Reference* body = NULL;
+#ifndef NO_EXCEPTIONS
+            try {
+#endif
+                body = x10aux::DeserializationDispatcher::create(buf, sid);
+#ifndef NO_EXCEPTIONS
+            } catch(x10::lang::CheckedThrowable* e) {
+                _X_("Exception during deserialization; posting to FinishState "<<fs);
+                if (NULL == fs) {
+                    fprintf(stderr, "Exception during deserialization with null FinishState.  Unrecoverable error.");
+                    abort();
+                }
+                x10::io::SerializationException* se = x10::io::SerializationException::_make(e);
+                fs->notifyActivityCreation(src);
+                fs->pushException(se);
+                fs->notifyActivityTermination();
+                return;
+            }
+#endif
             assert(buf.consumed() <= p->len);
             _X_("The deserialised simple async was: "<<x10aux::safe_to_string(body));
             deserialized_bytes += buf.consumed()  ; asyncs_received++;

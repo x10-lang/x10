@@ -12,7 +12,6 @@
 package x10.serialization;
 
 import java.io.IOException;
-import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
@@ -24,6 +23,7 @@ import java.util.concurrent.ConcurrentHashMap;
 
 import sun.misc.Unsafe;
 import x10.io.Deserializer;
+import x10.io.SerializationException;
 import x10.rtt.NamedStructType;
 import x10.rtt.NamedType;
 import x10.rtt.RuntimeType;
@@ -59,7 +59,7 @@ abstract class DeserializerThunk {
      * @param clazz The class to be deserialized.
      * @return The DeserializerThunk instance for the argument class.
      */
-    static DeserializerThunk getDeserializerThunk(Class<? extends Object> clazz) throws SecurityException, NoSuchFieldException, NoSuchMethodException {
+    static DeserializerThunk getDeserializerThunk(Class<? extends Object> clazz) {
         DeserializerThunk ans = thunks.get(clazz);
         if (ans == null) {
             ans = getDeserializerThunkHelper(clazz);
@@ -80,7 +80,7 @@ abstract class DeserializerThunk {
      * @return the deserialized object.
      */
     @SuppressWarnings("unchecked")
-    <T> T deserializeObject(Class<?> clazz, X10JavaDeserializer jds) throws IOException, IllegalArgumentException, IllegalAccessException, InvocationTargetException, InstantiationException {
+    <T> T deserializeObject(Class<?> clazz, X10JavaDeserializer jds) throws IOException {
         T obj = null;
 
         // If the class is java.lang.Class we cannot create an instance in the following manner so we just skip it
@@ -89,8 +89,7 @@ abstract class DeserializerThunk {
                 assert !Modifier.isAbstract(clazz.getModifiers());                    
                 obj = (T)unsafe.allocateInstance(clazz);
             } catch (InstantiationException e) {
-                e.printStackTrace();
-                throw new RuntimeException(e);
+                throw new SerializationException(e);
             }
         }
         
@@ -107,14 +106,14 @@ abstract class DeserializerThunk {
      * @param jds The deserializer from which to obtain the new object's state.
      * @return The deserialized object. 
      */
-    <T> T deserializeObject(Class<?> clazz, T obj, int i, X10JavaDeserializer jds) throws IOException, IllegalArgumentException, IllegalAccessException, InvocationTargetException, InstantiationException {
+    <T> T deserializeObject(Class<?> clazz, T obj, int i, X10JavaDeserializer jds) throws IOException {
         if (superThunk != null) {
             obj = superThunk.deserializeObject(clazz.getSuperclass(), obj, i, jds);
         }
         return deserializeBody(clazz, obj, i, jds);
     }
 
-    protected abstract <T> T deserializeBody(Class<?> clazz, T obj, int i, X10JavaDeserializer jds) throws IOException, IllegalArgumentException, IllegalAccessException, InvocationTargetException, InstantiationException;
+    protected abstract <T> T deserializeBody(Class<?> clazz, T obj, int i, X10JavaDeserializer jds) throws IOException;
 
     protected static Unsafe getUnsafe() {
         Unsafe unsafe = null;
@@ -133,7 +132,7 @@ abstract class DeserializerThunk {
         return unsafe;
     }
 
-    private static DeserializerThunk getDeserializerThunkHelper(Class<?> clazz) throws SecurityException, NoSuchFieldException, NoSuchMethodException {
+    private static DeserializerThunk getDeserializerThunkHelper(Class<?> clazz) {
 
         // We need to handle these classes in a special way cause there implementation of serialization/deserialization is
         // not straight forward. Hence we just call into the custom serialization of these classes.
@@ -195,19 +194,32 @@ abstract class DeserializerThunk {
                 deserializeBodyMethod = clazz.getDeclaredMethod("$_deserialize_body", clazz, X10JavaDeserializer.class);
             } catch (SecurityException e) {
                 System.err.println("DeserializerThunk: class "+clazz+" does not have a $_deserialize_body method");
-                throw new RuntimeException(e);
+                throw new SerializationException(e);
             } catch (NoSuchMethodException e) {
                 System.err.println("DeserializerThunk: class "+clazz+" does not have a $_deserialize_body method");
-                throw new RuntimeException(e);
+                throw new SerializationException(e);
             }
             deserializeBodyMethod.setAccessible(true);
         }
 
         @Override
-        protected <T> T deserializeBody(Class<?> clazz, T obj, int i, X10JavaDeserializer jds) throws IOException,
-                IllegalArgumentException, IllegalAccessException, InvocationTargetException, InstantiationException {
-
-            deserializeBodyMethod.invoke(null, obj, jds);
+        protected <T> T deserializeBody(Class<?> clazz, T obj, int i, X10JavaDeserializer jds) throws IOException {
+            try {
+                deserializeBodyMethod.invoke(null, obj, jds);
+            } catch (InvocationTargetException e) {
+                Throwable cause = e.getCause();
+                if (cause instanceof RuntimeException) {
+                    throw (RuntimeException)cause; // don't wrap
+                } else {
+                    throw new SerializationException(cause != null ? cause : e);
+                }
+            } catch (SerializationException e) {
+                throw e;
+            } catch (RuntimeException e) {
+                throw e; // don't wrap
+            } catch (Throwable e) {
+                throw new SerializationException(e);
+            }
             return obj;
         }
     }
@@ -238,33 +250,41 @@ abstract class DeserializerThunk {
             fields = flds.toArray(new Field[flds.size()]);
         }
 
-        protected <T> T deserializeBody(Class<?> clazz, T obj, int i, X10JavaDeserializer jds) throws IOException, IllegalAccessException {             
+        protected <T> T deserializeBody(Class<?> clazz, T obj, int i, X10JavaDeserializer jds) throws IOException {
             for (Field field : fields) {
-                Class<?> type = field.getType();
-                if (type.isPrimitive()) {
-                    Class<?> type1 = field.getType();
-                    if ("int".equals(type1.getName())) {
-                        field.setInt(obj, jds.readInt());
-                    } else if ("double".equals(type1.getName())) {
-                        field.setDouble(obj, jds.readDouble());
-                    } else if ("float".equals(type1.getName())) {
-                        field.setFloat(obj, jds.readFloat());
-                    } else if ("boolean".equals(type1.getName())) {
-                        field.setBoolean(obj, jds.readBoolean());
-                    } else if ("byte".equals(type1.getName())) {
-                        field.setByte(obj, jds.readByte());
-                    } else if ("short".equals(type1.getName())) {
-                        field.setShort(obj, jds.readShort());
-                    } else if ("long".equals(type1.getName())) {
-                        field.setLong(obj, jds.readLong());
-                    } else if ("char".equals(type1.getName())) {
-                        field.setChar(obj, jds.readChar());
+                try {
+                    Class<?> type = field.getType();
+                    if (type.isPrimitive()) {
+                        Class<?> type1 = field.getType();
+                        if ("int".equals(type1.getName())) {
+                            field.setInt(obj, jds.readInt());
+                        } else if ("double".equals(type1.getName())) {
+                            field.setDouble(obj, jds.readDouble());
+                        } else if ("float".equals(type1.getName())) {
+                            field.setFloat(obj, jds.readFloat());
+                        } else if ("boolean".equals(type1.getName())) {
+                            field.setBoolean(obj, jds.readBoolean());
+                        } else if ("byte".equals(type1.getName())) {
+                            field.setByte(obj, jds.readByte());
+                        } else if ("short".equals(type1.getName())) {
+                            field.setShort(obj, jds.readShort());
+                        } else if ("long".equals(type1.getName())) {
+                            field.setLong(obj, jds.readLong());
+                        } else if ("char".equals(type1.getName())) {
+                            field.setChar(obj, jds.readChar());
+                        }
+                    } else if ("java.lang.String".equals(type.getName())) {
+                        field.set(obj, jds.readString());
+                    } else {
+                        Object value = jds.readObject();
+                        field.set(obj, value);
                     }
-                } else if ("java.lang.String".equals(type.getName())) {
-                    field.set(obj, jds.readString());
-                } else {
-                    Object value = jds.readObject();
-                    field.set(obj, value);
+                } catch (SerializationException e) {
+                    throw e;
+                } catch (RuntimeException e) {
+                    throw e; // don't wrap
+                } catch (Throwable e) {
+                    throw new SerializationException(e);
                 }
             }
             return obj;
@@ -275,7 +295,7 @@ abstract class DeserializerThunk {
         protected final Field[] fields;
         protected final Method deserializationConstructor;
 
-        CustomDeserializerThunk(Class<? extends Object> clazz) throws SecurityException, NoSuchFieldException, NoSuchMethodException {
+        CustomDeserializerThunk(Class<? extends Object> clazz) {
             super(null);
 
             // Even though this class implements a custom serialization protocol,
@@ -286,9 +306,13 @@ abstract class DeserializerThunk {
                 // Must sort the fields to get JVM-independent ordering.
                 Set<Field> flds = new TreeSet<Field>(new FieldComparator());
                 for (TypeVariable<? extends Class<? extends Object>> typeParameter: typeParameters) {
-                    Field field = clazz.getDeclaredField(typeParameter.getName());
-                    field.setAccessible(true);
-                    flds.add(field);
+                    try {
+                        Field field = clazz.getDeclaredField(typeParameter.getName());
+                        field.setAccessible(true);
+                        flds.add(field);
+                    } catch (NoSuchFieldException e) {
+                        throw new SerializationException(e);
+                    }
                 }
                 fields = flds.toArray(new Field[flds.size()]); 
             } else {
@@ -296,18 +320,43 @@ abstract class DeserializerThunk {
             }
 
             // We can't use the same method name in all classes cause it creates an endless loop cause when super.init is called it calls back to this method
-            deserializationConstructor = clazz.getMethod(clazz.getName().replace(".", "$") + "$_deserialize_body", Deserializer.class);
-            deserializationConstructor.setAccessible(true);
+            try {
+                deserializationConstructor = clazz.getMethod(clazz.getName().replace(".", "$") + "$_deserialize_body", Deserializer.class);
+                deserializationConstructor.setAccessible(true);
+            } catch (NoSuchMethodException e) {
+                throw new SerializationException(e);
+            }
         }
 
         @Override
-        protected <T> T deserializeBody(Class<?> clazz, T obj, int i, X10JavaDeserializer jds) throws IOException, IllegalArgumentException, IllegalAccessException, InvocationTargetException {
+        protected <T> T deserializeBody(Class<?> clazz, T obj, int i, X10JavaDeserializer jds) throws IOException {
             for (Field field : fields) {
                 Object value = jds.readObject();
-                field.set(obj, value);
+                try {
+                    field.set(obj, value);
+                } catch (IllegalArgumentException e) {
+                    throw new SerializationException(e);
+                } catch (IllegalAccessException e) {
+                    throw new SerializationException(e);
+                }
             }
 
-            deserializationConstructor.invoke(obj, new Deserializer(jds));
+            try {
+                deserializationConstructor.invoke(obj, new Deserializer(jds));
+            } catch (InvocationTargetException e) {
+                Throwable cause = e.getCause();
+                if (cause instanceof RuntimeException) {
+                    throw (RuntimeException)cause; // don't wrap
+                } else {
+                    throw new SerializationException(cause != null ? cause : e);
+                }
+            } catch (SerializationException e) {
+                throw e;
+            } catch (RuntimeException e) {
+                throw e; // don't wrap
+            } catch (Throwable e) {
+                throw new SerializationException(e);
+            }
             short marker = jds.readSerializationId();
             if (marker != SerializationConstants.CUSTOM_SERIALIZATION_END) {
                 X10JavaDeserializer.raiseSerializationProtocolError();
@@ -323,13 +372,13 @@ abstract class DeserializerThunk {
         }
         
         @Override
-        <T> T deserializeObject(Class<?> clazz, X10JavaDeserializer jds) throws IOException, IllegalArgumentException, IllegalAccessException, InvocationTargetException, InstantiationException {
+        <T> T deserializeObject(Class<?> clazz, X10JavaDeserializer jds) throws IOException {
             int i = jds.record_reference(null);
             return deserializeObject(clazz, null, i, jds);
         }
 
         @Override
-        <T> T deserializeObject(Class<?> clazz, T obj, int i, X10JavaDeserializer jds) throws IOException, IllegalArgumentException, IllegalAccessException, InvocationTargetException, InstantiationException {
+        <T> T deserializeObject(Class<?> clazz, T obj, int i, X10JavaDeserializer jds) throws IOException {
             return deserializeBody(clazz, obj, i, jds);
         }
 
@@ -377,8 +426,12 @@ abstract class DeserializerThunk {
                         Field detailMessageField = java.lang.Throwable.class.getDeclaredField("detailMessage");
                         detailMessageField.setAccessible(true);
                         detailMessageField.set(obj, message);
-                    } catch (Exception e) {
-                        e.printStackTrace();
+                    } catch (SerializationException e) {
+                        throw e;
+                    } catch (RuntimeException e) {
+                        throw e; // don't wrap
+                    } catch (Throwable e) {
+                        throw new SerializationException(e);
                     }
                 }
                 if (X10JavaSerializer.THROWABLES_SERIALIZE_STACKTRACE) {
@@ -394,12 +447,12 @@ abstract class DeserializerThunk {
                     	nonNonIBMJavaVM = true;
                     }
                     if (nonNonIBMJavaVM) {
-                    try {
-                        // For Oracle Java VM: set stackTrace before calling setStackTrace
-                    	Field stackTraceField = Throwable.class.getDeclaredField("stackTrace");
-                    	stackTraceField.setAccessible(true);
-                    	stackTraceField.set(obj, UNASSIGNED_STACK);
-                    } catch (Exception e) { }
+                        try {
+                            // For Oracle Java VM: set stackTrace before calling setStackTrace
+                            Field stackTraceField = Throwable.class.getDeclaredField("stackTrace");
+                            stackTraceField.setAccessible(true);
+                            stackTraceField.set(obj, UNASSIGNED_STACK);
+                        } catch (Exception e) { }
                     }
                     ((Throwable) obj).setStackTrace(trace);
                 }
@@ -409,8 +462,12 @@ abstract class DeserializerThunk {
                         Field causeField = java.lang.Throwable.class.getDeclaredField("cause");
                         causeField.setAccessible(true);
                         causeField.set(obj, cause);
-                    } catch (Exception e) {
-                        e.printStackTrace();
+                    } catch (SerializationException e) {
+                        throw e;
+                    } catch (RuntimeException e) {
+                        throw e; // don't wrap
+                    } catch (Throwable e) {
+                        throw new SerializationException(e);
                     }
                 }
                 return obj;
@@ -420,15 +477,14 @@ abstract class DeserializerThunk {
                     jds.update_reference(i, t);
                     return t;
                 } catch (ClassNotFoundException e) {
-                    e.printStackTrace();
-                    throw new RuntimeException(e);
+                    throw new SerializationException(e);
                 }
             } else if ("java.lang.Object".equals(clazz.getName())) {
                 return obj;
             }
             String msg = "Unhandled type in special case thunk: "+obj.getClass();
             System.err.println(msg);
-            throw new RuntimeException(msg);
+            throw new SerializationException(msg);
         }
     }
 }
