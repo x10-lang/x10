@@ -17,10 +17,10 @@ import x10.io.Serializer;
 // NUM_PLACES: 4 
 
 /**
- * Test that exceptions during deserialization do not hang X10
- * Pattern: Simple at (p) async loop
+ * Test that exceptions during serialization do not hang X10
+ * Pattern: nested loop of at (p) async at (q)
  */
-public class DeserializationFailure1a extends x10Test {
+public class SerializationFailure4 extends x10Test {
 
     static class BoomBoom extends Exception {}
 
@@ -49,21 +49,22 @@ public class DeserializationFailure1a extends x10Test {
            val tb = new TimeBomb(victim);
            try {
                finish for (p in Place.places()) {
-                   at (p) async { 
-                       Console.OUT.println(here+" received timebomb with target "+tb.target);
+                   at (p) async {
+                       for (q in Place.places()) {
+                           at (q) async { 
+                               Console.OUT.println(here+" received timebomb with target "+tb.target);
+                           }
+                       }
                    }
                }
-               if (victim == here) {
-                   Console.OUT.println("Sub-test fail: exception was not raised with victim "+victim);
-                   passed = false;
-               }
+               Console.OUT.println("Sub-test fail: exception was not raised with victim "+victim);
+               passed = false;
             } catch (e:MultipleExceptions) {
-                if (victim != here) {
-                    Console.OUT.println("Sub-test fail: got supurious exception ");
-                    passed = false;
-                }
-                if (e.exceptions().size != 1) {
-                    Console.OUT.println("Sub-test fail: got wrong number of exceptions ");
+                val expected = victim == here ? 1 : Place.numPlaces();
+                if (e.exceptions().size == expected) {
+                    Console.OUT.println("Sub-test pass: got exactly "+expected+" exceptions");
+                } else {
+                    Console.OUT.println("Sub-test fail: got "+e.exceptions().size+" exceptions; not "+expected);
                     passed = false;
                 }
             }
@@ -72,6 +73,6 @@ public class DeserializationFailure1a extends x10Test {
     }
 
     public static def main(Rail[String]) {
-        new DeserializationFailure1a().execute();
+        new SerializationFailure4().execute();
     }
 }

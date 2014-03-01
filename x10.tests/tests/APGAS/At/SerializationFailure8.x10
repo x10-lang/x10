@@ -17,10 +17,10 @@ import x10.io.Serializer;
 // NUM_PLACES: 4 
 
 /**
- * Test that exceptions during deserialization do not hang X10
- * Pattern: loop with at (p) E with exception in return of result
+ * Test that exceptions during serialization do not hang X10
+ * Pattern: Simple async at (p) loop
  */
-public class DeserializationFailure7a extends x10Test {
+public class SerializationFailure8 extends x10Test {
 
     static class BoomBoom extends Exception {}
 
@@ -46,27 +46,32 @@ public class DeserializationFailure7a extends x10Test {
        var passed:boolean = true;
 
        for (victim in Place.places()) {
-           var count:long = 0;
+           val tb = new TimeBomb(victim);
            try {
-               for (p in Place.places()) {
-                   val res = at (p) new TimeBomb(victim);
-                   count += res.target != here ? 1 : 0;
+               finish for (p in Place.places()) {
+                   async at (p) { 
+                       Console.OUT.println(here+" received timebomb with target "+tb.target);
+                   }
                }
-               Console.OUT.println("Sub-test fail: exception was not raised with victim "+victim);
-               passed = false;
-            } catch (e:BoomBoom) {
-                if (count == victim.id) {
-                    Console.OUT.println("Sub-test pass: got BoomBoom and correct count "+count);
-                } else {
-                    Console.OUT.println("Sub-test pass: got BoomBoom, but incorrect count "+count);
+               if (victim == here) {
+                   Console.OUT.println("Sub-test fail: exception was not raised with victim "+victim);
+                   passed = false;
+               }
+            } catch (e:MultipleExceptions) {
+                if (victim != here) {
+                    Console.OUT.println("Sub-test fail: got supurious exception ");
+                    passed = false;
+                }
+                if (e.exceptions().size != Place.numPlaces()) {
+                    Console.OUT.println("Sub-test fail: got wrong number of exceptions ");
                     passed = false;
                 }
             }
-       }
+       }                          
        return passed;
     }
 
     public static def main(Rail[String]) {
-        new DeserializationFailure7a().execute();
+        new SerializationFailure8().execute();
     }
 }

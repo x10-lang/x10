@@ -17,10 +17,10 @@ import x10.io.Serializer;
 // NUM_PLACES: 4 
 
 /**
- * Test that exceptions during deserialization do not hang X10
- * Pattern: nested loop of at (p) async at (q)
+ * Test that exceptions during serialization do not hang X10
+ * Pattern: loop with at (p) E
  */
-public class DeserializationFailure4a extends x10Test {
+public class SerializationFailure6 extends x10Test {
 
     static class BoomBoom extends Exception {}
 
@@ -46,33 +46,29 @@ public class DeserializationFailure4a extends x10Test {
        var passed:boolean = true;
 
        for (victim in Place.places()) {
-           val tb = new TimeBomb(victim);
+           var count:long = 0;
            try {
-               finish for (p in Place.places()) {
-                   at (p) async {
-                       for (q in Place.places()) {
-                           at (q) async { 
-                               Console.OUT.println(here+" received timebomb with target "+tb.target);
-                           }
-                       }
-                   }
+               for (p in Place.places()) {
+                   val tb = at (p) new TimeBomb(victim);
+                   count++;
                }
-               Console.OUT.println("Sub-test fail: exception was not raised with victim "+victim);
-               passed = false;
-            } catch (e:MultipleExceptions) {
-                val expected = victim == here ? 1 : Place.numPlaces();
-                if (e.exceptions().size == expected) {
-                    Console.OUT.println("Sub-test pass: got exactly "+expected+" exceptions");
+               if (victim == here) {
+                   Console.OUT.println("Sub-test fail: exception was not raised with victim "+victim);
+                   passed = false;
+               }
+            } catch (e:BoomBoom) {
+                if (count == victim.id) {
+                    Console.OUT.println("Sub-test pass: got BoomBoom and correct count "+count);
                 } else {
-                    Console.OUT.println("Sub-test fail: got "+e.exceptions().size+" exceptions; not "+expected);
+                    Console.OUT.println("Sub-test fail: got BoomBoom, but incorrect count "+count);
                     passed = false;
                 }
             }
-       }                          
+       }
        return passed;
     }
 
     public static def main(Rail[String]) {
-        new DeserializationFailure4a().execute();
+        new SerializationFailure6().execute();
     }
 }

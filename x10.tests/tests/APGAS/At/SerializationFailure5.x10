@@ -17,10 +17,10 @@ import x10.io.Serializer;
 // NUM_PLACES: 4 
 
 /**
- * Test that exceptions during deserialization do not hang X10
- * Pattern: Simple sequential at (p) loop
+ * Test that exceptions during serialization do not hang X10
+ * Pattern: PlaceGroup.broadcastFlat
  */
-public class DeserializationFailure2a extends x10Test {
+public class SerializationFailure5 extends x10Test {
 
     static class BoomBoom extends Exception {}
 
@@ -48,26 +48,24 @@ public class DeserializationFailure2a extends x10Test {
        for (victim in Place.places()) {
            val tb = new TimeBomb(victim);
            try {
-               for (p in Place.places()) {
-                   at (p) { 
-                       Console.OUT.println(here+" received timebomb with target "+tb.target);
-                   }
-                   if (victim == here) {
-                       Console.OUT.println("Sub-test fail: exception was not raised with victim "+victim);
-                       passed = false;
-                   }
+               PlaceGroup.WORLD.broadcastFlat(()=> {
+                   Console.OUT.println(here+" received timebomb with target "+tb.target);
+               });
+               if (victim == here) {
+                   Console.OUT.println("Sub-test fail: exception was not raised with victim "+victim);
+                   passed = false;
                }
             } catch (e:BoomBoom) {
                 if (victim != here) {
-                    Console.OUT.println("Sub-test fail: unexpected exception");
+                    Console.OUT.println("Sub-test fail: got supurious exception ");
                     passed = false;
                 }
-            } 
-       }                          
+            }
+       }                      
        return passed;
     }
 
     public static def main(Rail[String]) {
-        new DeserializationFailure2a().execute();
+        new SerializationFailure5().execute();
     }
 }

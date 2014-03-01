@@ -17,10 +17,10 @@ import x10.io.Serializer;
 // NUM_PLACES: 4 
 
 /**
- * Test that exceptions during deserialization do not hang X10
- * Pattern: Simple async at (p) loop
+ * Test that exceptions during serialization do not hang X10
+ * Pattern: Simple sequential at (p) loop
  */
-public class DeserializationFailure8a extends x10Test {
+public class SerializationFailure2 extends x10Test {
 
     static class BoomBoom extends Exception {}
 
@@ -48,30 +48,26 @@ public class DeserializationFailure8a extends x10Test {
        for (victim in Place.places()) {
            val tb = new TimeBomb(victim);
            try {
-               finish for (p in Place.places()) {
-                   async at (p) { 
+               for (p in Place.places()) {
+                   at (p) { 
                        Console.OUT.println(here+" received timebomb with target "+tb.target);
                    }
+                   if (victim == here) {
+                       Console.OUT.println("Sub-test fail: exception was not raised with victim "+victim);
+                       passed = false;
+                   }
                }
-               if (victim == here) {
-                   Console.OUT.println("Sub-test fail: exception was not raised with victim "+victim);
-                   passed = false;
-               }
-            } catch (e:MultipleExceptions) {
+            } catch (e:BoomBoom) {
                 if (victim != here) {
-                    Console.OUT.println("Sub-test fail: got supurious exception ");
+                    Console.OUT.println("Sub-test fail: unexpected exception");
                     passed = false;
                 }
-                if (e.exceptions().size != Place.numPlaces()) {
-                    Console.OUT.println("Sub-test fail: got wrong number of exceptions ");
-                    passed = false;
-                }
-            }
+            } 
        }                          
        return passed;
     }
 
     public static def main(Rail[String]) {
-        new DeserializationFailure8a().execute();
+        new SerializationFailure2().execute();
     }
 }

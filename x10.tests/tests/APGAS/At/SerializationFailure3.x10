@@ -17,10 +17,10 @@ import x10.io.Serializer;
 // NUM_PLACES: 4 
 
 /**
- * Test that exceptions during deserialization do not hang X10
- * Pattern: loop with at (p) E
+ * Test that exceptions during serialization do not hang X10
+ * Pattern: at (p) async at (p.next()) loop
  */
-public class DeserializationFailure6a extends x10Test {
+public class SerializationFailure3 extends x10Test {
 
     static class BoomBoom extends Exception {}
 
@@ -46,29 +46,31 @@ public class DeserializationFailure6a extends x10Test {
        var passed:boolean = true;
 
        for (victim in Place.places()) {
-           var count:long = 0;
+           val tb = new TimeBomb(victim);
            try {
-               for (p in Place.places()) {
-                   val tb = at (p) new TimeBomb(victim);
-                   count++;
+               finish for (p in Place.places()) {
+                   at (p) async {
+                       at (p.next()) async { 
+                           Console.OUT.println(here+" received timebomb with target "+tb.target);
+                       }
+                   }
                }
                if (victim == here) {
                    Console.OUT.println("Sub-test fail: exception was not raised with victim "+victim);
                    passed = false;
                }
-            } catch (e:BoomBoom) {
-                if (count == victim.id) {
-                    Console.OUT.println("Sub-test pass: got BoomBoom and correct count "+count);
-                } else {
-                    Console.OUT.println("Sub-test fail: got BoomBoom, but incorrect count "+count);
+            } catch (e:MultipleExceptions) {
+                if (victim != here) {
+                    Console.OUT.println("Sub-test fail: unexpected exception");
                     passed = false;
                 }
             }
-       }
+       }                          
        return passed;
     }
 
     public static def main(Rail[String]) {
-        new DeserializationFailure6a().execute();
+        new SerializationFailure3().execute();
     }
 }
+  
