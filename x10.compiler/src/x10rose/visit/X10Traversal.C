@@ -280,16 +280,12 @@ Java_x10rose_visit_JNI_cactionInsertClassStart(JNIEnv *env, jclass, jstring java
     SgScopeStatement *outerScope = astJavaScopeStack.top();
     ROSE_ASSERT(outerScope != NULL);
     SgClassDeclaration *class_declaration = buildDefiningClassDeclaration(name, outerScope);
-#if 1
-	SgClassType *unknown = SgClassType::createType(class_declaration, NULL);
-    astJavaComponentStack.push(unknown);
-	printf("**1**\n");
-#else
+    setJavaSourcePosition(class_declaration, env, jToken);
     SgClassDefinition *class_definition = class_declaration -> get_definition();
     ROSE_ASSERT(class_definition && (! class_definition -> attributeExists("namespace")));
     setJavaSourcePosition(class_definition, env, jToken);
+
     astJavaScopeStack.push(class_definition); // to contain the class members...
-#endif
 }
 
 
@@ -481,7 +477,7 @@ Java_x10rose_visit_JNI_cactionTypeReference(JNIEnv *env, jclass,
 #if 1
 	if (type == NULL) {
 		// cactionInsertClassStart() does not have a parameter for specifying a package name, although
-		// this is fine for x10 because x10 classes have been fully qualified with package  name
+		// this is fine for x10 because x10 classes have been fully qualified with package 
 		Java_x10rose_visit_JNI_cactionInsertClassStart(env, NULL, java_type_name, jToken);
 	}	
 #else
@@ -494,7 +490,7 @@ Java_x10rose_visit_JNI_cactionTypeReference(JNIEnv *env, jclass,
 //cout << "Came across type " << getTypeName(class_type) << endl;
 //cout.flush();
 //}
-	else
+
     astJavaComponentStack.push(type);
 
     if (SgProject::get_verbose() > 0)
