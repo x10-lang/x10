@@ -47,6 +47,7 @@ public class SerializationFailure4 extends x10Test {
 
        for (victim in Place.places()) {
            val tb = new TimeBomb(victim);
+           var someException:boolean = false;
            try {
                finish for (p in Place.places()) {
                    at (p) async {
@@ -57,16 +58,18 @@ public class SerializationFailure4 extends x10Test {
                        }
                    }
                }
-               Console.OUT.println("Sub-test fail: exception was not raised with victim "+victim);
+               Console.OUT.println("Sub-test fail no exception was not raised with victim "+victim);
                passed = false;
             } catch (e:MultipleExceptions) {
-                val expected = victim == here ? 1 : Place.numPlaces();
-                if (e.exceptions().size == expected) {
-                    Console.OUT.println("Sub-test pass: got exactly "+expected+" exceptions");
-                } else {
-                    Console.OUT.println("Sub-test fail: got "+e.exceptions().size+" exceptions; not "+expected);
+                someException = true;
+                if (e.exceptions().size != 1) {
+                    Console.OUT.println("Sub-test fail: got "+e.exceptions().size+" exceptions; not 1");
                     passed = false;
                 }
+            }
+            if (!someException) {
+                Console.OUT.println("Sub-test fail: no exception raised with victim "+victim);
+                passed = false;
             }
        }                          
        return passed;

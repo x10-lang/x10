@@ -62,8 +62,9 @@ public class SerializationFailure1 extends x10Test {
                     Console.OUT.println("Sub-test fail: got supurious exception ");
                     passed = false;
                 }
-                if (e.exceptions().size != 1) {
-                    Console.OUT.println("Sub-test fail: got wrong number of exceptions ");
+                val numExceptions = e.exceptions().size;
+                if (numExceptions != 1) {
+                    Console.OUT.println("Sub-test fail: got wrong number of exceptions "+numExceptions);
                     passed = false;
                 }
             }

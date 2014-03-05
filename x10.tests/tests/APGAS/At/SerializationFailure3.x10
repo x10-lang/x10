@@ -43,30 +43,43 @@ public class SerializationFailure3 extends x10Test {
     }
 
     public def run():boolean {
-       var passed:boolean = true;
+       val passed = new Cell[Boolean](true);
+       val gPass = GlobalRef[Cell[Boolean]](passed);
 
        for (victim in Place.places()) {
            val tb = new TimeBomb(victim);
+           var someException:Boolean = false;
            try {
                finish for (p in Place.places()) {
                    at (p) async {
                        at (p.next()) async { 
                            Console.OUT.println(here+" received timebomb with target "+tb.target);
                        }
+		       if (victim == here) {
+                           Console.OUT.println("Sub-test fail inner: exception was not raised with victim "+victim);
+                           at (gPass) gPass()()=false;
+                       }
                    }
                }
                if (victim == here) {
                    Console.OUT.println("Sub-test fail: exception was not raised with victim "+victim);
-                   passed = false;
+                   passed()=false;
                }
             } catch (e:MultipleExceptions) {
-                if (victim != here) {
-                    Console.OUT.println("Sub-test fail: unexpected exception");
-                    passed = false;
+                someException = true;
+                if (victim == here && e.exceptions().size != Place.numPlaces()) {
+                    Console.OUT.println("Sub-test fail: victim == rootPlace raised "+e.exceptions().size+" exceptions");
+                }
+                if (victim != here && e.exceptions().size != 1) {
+                    Console.OUT.println("Sub-test fail: victim == rootPlace raised "+e.exceptions().size+" exceptions");
                 }
             }
-       }                          
-       return passed;
+            if (!someException) {
+                Console.OUT.println("Sub-test fail: no exception raised with victim "+victim);
+                passed()=false;
+            }
+       }
+       return passed();
     }
 
     public static def main(Rail[String]) {
