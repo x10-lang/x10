@@ -232,11 +232,8 @@ public abstract class Runtime implements VoidFun_0_0 {
         System.out.println(ANSI_BOLD + X10RT.here() + ": " + col + type + ": " + ANSI_RESET + message);
     }
 
-    public static void runAsyncAt(int place, VoidFun_0_0 body, FinishState finishState, x10.lang.Runtime.Profile prof, int endpoint) {
-         runAsyncAt(place, body, finishState, prof);
-    }
-
-    public static void runAsyncAt(int place, VoidFun_0_0 body, FinishState finishState, x10.lang.Runtime.Profile prof) {
+    public static void runAsyncAt(int place, VoidFun_0_0 body, FinishState finishState, 
+                                  x10.lang.Runtime.Profile prof, VoidFun_0_0 preSendAction) {
 		// TODO: bherta - all of this serialization needs to be reworked to write directly to the network (when possible), 
 		// skipping the intermediate buffers contained within the X10JavaSerializer class.
         try {
@@ -245,7 +242,7 @@ public abstract class Runtime implements VoidFun_0_0 {
             }
             long start = prof!=null ? System.nanoTime() : 0;
             X10JavaSerializer serializer = new X10JavaSerializer();
-         
+            
             serializer.write(finishState);
             serializer.write(Place.place(X10RT.here()));
             long before_bytes = serializer.dataBytesWritten();
@@ -261,6 +258,11 @@ public abstract class Runtime implements VoidFun_0_0 {
             if (TRACE_SER_DETAIL) {
             	System.out.println("Done with serialization for runAsyncAt " + body.getClass());
             }
+            
+            if (preSendAction != null) {
+                preSendAction.$apply();
+            }
+            
             start = prof!=null ? System.nanoTime() : 0;
             // TODO: these methods return an error code if the communication fails.  Use it.
             if (X10RT.javaSockets != null) {
@@ -284,15 +286,8 @@ public abstract class Runtime implements VoidFun_0_0 {
     /**
      * Synchronously executes body at place(id)
      */
-    public static void runClosureAt(int place, VoidFun_0_0 body, x10.lang.Runtime.Profile prof) {
-        runAt(place, body, prof);
-    }
-
-    /**
-     * Synchronously executes body at place(id)
-     */
-    public static void runClosureCopyAt(int place, VoidFun_0_0 body, x10.lang.Runtime.Profile prof) {
-        runAt(place, body, prof);
+    public static void runClosureAt(int place, VoidFun_0_0 body, x10.lang.Runtime.Profile prof, VoidFun_0_0 preSendAction) {
+        runAt(place, body, prof, preSendAction);
     }
 
     /**
@@ -337,7 +332,7 @@ public abstract class Runtime implements VoidFun_0_0 {
     	}
     }
 	
-	public static void runAt(int place, VoidFun_0_0 body, x10.lang.Runtime.Profile prof) {
+	public static void runAt(int place, VoidFun_0_0 body, x10.lang.Runtime.Profile prof, VoidFun_0_0 preSendAction) {
 		try {
 			// TODO: bherta - all of this serialization needs to be reworked to write directly to the network (when possible), 
 			// skipping the intermediate buffers contained within the X10JavaSerializer class.
@@ -355,6 +350,10 @@ public abstract class Runtime implements VoidFun_0_0 {
 			}
 			if (TRACE_SER_DETAIL) {
 				System.out.println("Done with serialization for runAt " + body.getClass());
+			}
+			
+			if (preSendAction != null) {
+			    preSendAction.$apply();
 			}
 
 			start = prof!=null ? System.nanoTime() : 0;

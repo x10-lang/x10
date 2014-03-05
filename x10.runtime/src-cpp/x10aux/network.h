@@ -32,7 +32,6 @@ namespace x10aux {
     typedef x10rt_msg_type msg_type;
     typedef x10rt_copy_sz copy_sz;
     typedef x10_int place; // FIXME: should be x10rt_place, but place ids are signed everywhere
-    typedef x10rt_endpoint endpoint;
 
     // a message type used for putting serialised kernel data on a gpu 
     extern msg_type kernel_put;
@@ -171,16 +170,21 @@ namespace x10aux {
 
 namespace x10aux {
 
-    void run_closure_at (place p, ::x10::lang::VoidFun_0_0* body, ::x10::lang::Runtime__Profile *prof=NULL, endpoint e=0);
-    void run_async_at (place p, ::x10::lang::VoidFun_0_0* body, ::x10::lang::FinishState* fs, ::x10::lang::Runtime__Profile *prof=NULL, endpoint e=0);
+    void run_closure_at(place p, ::x10::lang::VoidFun_0_0* body,
+                        ::x10::lang::Runtime__Profile *prof,
+                        ::x10::lang::VoidFun_0_0* preSendAction);
+    void run_async_at(place p, ::x10::lang::VoidFun_0_0* body,
+                      ::x10::lang::FinishState* fs,
+                      ::x10::lang::Runtime__Profile *prof,
+                      ::x10::lang::VoidFun_0_0* preSendAction);
 
     class serialization_buffer;
 
     void send_get (place p, serialization_id_t id,
-                   serialization_buffer &buf, void *data, ::x10aux::copy_sz len, endpoint e=0);
+                   serialization_buffer &buf, void *data, ::x10aux::copy_sz len);
    
     void send_put (place p, serialization_id_t id,
-                   serialization_buffer &buf, void *data, ::x10aux::copy_sz len, endpoint e=0);
+                   serialization_buffer &buf, void *data, ::x10aux::copy_sz len);
 
     void cuda_put (place gpu, x10_ulong addr, void *var, size_t sz);
 
