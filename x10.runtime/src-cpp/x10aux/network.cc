@@ -169,7 +169,7 @@ void x10aux::network_init (int ac, char **av) {
 
 void x10aux::run_async_at(x10aux::place p, x10::lang::VoidFun_0_0* body_fun,
                           x10::lang::FinishState* fs, x10::lang::Runtime__Profile *prof,
-                          x10aux::endpoint endpoint) {
+                          x10::lang::VoidFun_0_0* preSendAction) {
 
     x10::lang::Reference* real_body = reinterpret_cast<x10::lang::Reference*>(body_fun);
     
@@ -226,10 +226,14 @@ void x10aux::run_async_at(x10aux::place p, x10::lang::VoidFun_0_0* body_fun,
 
     _X_(ANSI_BOLD<<ANSI_X10RT<<"async size: "<<ANSI_RESET<<sz);
 
+    if (NULL != preSendAction) {
+        VoidFun_0_0::__apply(preSendAction);
+    }
+    
     if (prof!=NULL) {
         before_nanos = x10::lang::RuntimeNatives::nanoTime();
     }
-    x10rt_msg_params params = {x10rt_place(p), msg_id, buf.borrow(), sz, endpoint};
+    x10rt_msg_params params = {x10rt_place(p), msg_id, buf.borrow(), sz, 0};
     x10rt_send_msg(&params);
     if (prof!=NULL) {
         prof->FMGL(communicationNanos) += x10::lang::RuntimeNatives::nanoTime() - before_nanos;
@@ -237,7 +241,8 @@ void x10aux::run_async_at(x10aux::place p, x10::lang::VoidFun_0_0* body_fun,
 }
 
 void x10aux::run_closure_at(x10aux::place p, x10::lang::VoidFun_0_0* body_fun,
-                            x10::lang::Runtime__Profile *prof, x10aux::endpoint endpoint) {
+                            x10::lang::Runtime__Profile *prof,
+                            x10::lang::VoidFun_0_0* preSendAction) {
 
     x10::lang::Reference* body = reinterpret_cast<x10::lang::Reference*>(body_fun);
 
@@ -279,27 +284,31 @@ void x10aux::run_closure_at(x10aux::place p, x10::lang::VoidFun_0_0* body_fun,
 
     _X_(ANSI_BOLD<<ANSI_X10RT<<"async size: "<<ANSI_RESET<<sz);
 
-    x10rt_msg_params params = {x10rt_place(p), msg_id, buf.borrow(), sz, endpoint};
+    if (NULL != preSendAction) {
+        VoidFun_0_0::__apply(preSendAction);
+    }
+    
+    x10rt_msg_params params = {x10rt_place(p), msg_id, buf.borrow(), sz, 0};
     x10rt_send_msg(&params);
 }
 
 void x10aux::send_get (x10aux::place place, x10aux::serialization_id_t id_,
-                       serialization_buffer &buf, void *data, x10aux::copy_sz len, x10aux::endpoint endpoint)
+                       serialization_buffer &buf, void *data, x10aux::copy_sz len)
 {
     msg_type id = NetworkDispatcher::getMsgType(id_);
-    x10rt_msg_params p = { x10rt_place(place), id, buf.borrow(), buf.length(), endpoint};
+    x10rt_msg_params p = { x10rt_place(place), id, buf.borrow(), buf.length(), 0};
     _X_(ANSI_BOLD<<ANSI_X10RT<<"Transmitting a get: "<<ANSI_RESET<<data<<" nid "<<id_<<" id "<<id
-    		<<" size "<<len<<" header "<<buf.length()<<" to place: "<<place<<" endpoint: "<<endpoint);
+    		<<" size "<<len<<" header "<<buf.length()<<" to place: "<<place);
     x10rt_send_get(&p, data, len);
 }
 
 void x10aux::send_put (x10aux::place place, x10aux::serialization_id_t id_,
-                       serialization_buffer &buf, void *data, x10aux::copy_sz len, x10aux::endpoint endpoint)
+                       serialization_buffer &buf, void *data, x10aux::copy_sz len)
 {
     msg_type id = NetworkDispatcher::getMsgType(id_);
-    x10rt_msg_params p = { x10rt_place(place), id, buf.borrow(), buf.length(), endpoint};
+    x10rt_msg_params p = { x10rt_place(place), id, buf.borrow(), buf.length(), 0 };
     _X_(ANSI_BOLD<<ANSI_X10RT<<"Transmitting a put: "<<ANSI_RESET<<data<<" nid "<<id_<<" id "<<id
-    		<<" size "<<len<<" header "<<buf.length()<<" to place: "<<place<<" endpoint: "<<endpoint);
+    		<<" size "<<len<<" header "<<buf.length()<<" to place: "<<place);
     x10rt_send_put(&p, data, len);
 }
 

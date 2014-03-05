@@ -66,20 +66,43 @@ public final class Runtime {
 
     /**
      * Send active message to another place.
+     * @param id The id of the message handler
+     * @param msgBody The body of the active message
+     * @param prof A profile object to use for this message (may be null)
      */
-    @Native("java", "x10.runtime.impl.java.Runtime.runClosureAt((int)(#id), #body, #prof)")
-    @Native("c++", "::x10aux::run_closure_at((x10_int)#id, #body, #prof)")
-    public static native def x10rtSendMessage(id:Long, body:()=>void, prof:Profile):void;
+    public static def x10rtSendMessage(id:Long, msgBody:()=>void, prof:Profile):void {
+        x10rtSendMessage(id, msgBody, prof, null);
+    }
+
+    /**
+     * Send active message to another place.
+     * @param id The id of the message handler
+     * @param msgBody The body of the active message
+     * @param prof A profile object to use for this message (may be null)
+     * @param preSendAction A closure to evaluate at the current place immediately
+     *            before sending the message (but after msgBody is serialized) (may be null).
+     */
+    @Native("java", "x10.runtime.impl.java.Runtime.runClosureAt((int)(#id), #msgBody, #prof, #preSendAction)")
+    @Native("c++", "::x10aux::run_closure_at((x10_int)#id, #msgBody, #prof, #preSendAction)")
+    public static native def x10rtSendMessage(id:Long, msgBody:()=>void, prof:Profile, preSendAction:()=>void):void;
 
     /**
      * Send async to another place.
      * This is a special case of x10rtSendMessage where the active message consists in
      * creating an activity at the destination place with the specified body and finish state
      * and pushing this activity onto the deque of the active worker.
+     * @param id The id of the message handler
+     * @param body The body of the remote activity
+     * @param finishState The governing FinishState
+     * @param prof A profile object to use for this message (may be null)
+     * @param preSendAction A closure to evaluate at the current place immediately
+     *            before sending the message (but after finishState and body are serialized)
+     *            (may be null)
      */
-    @Native("java", "x10.runtime.impl.java.Runtime.runAsyncAt((int)(#id), #body, #finishState, #prof)")
-    @Native("c++", "::x10aux::run_async_at((x10_long)(#id), #body, #finishState, #prof)")
-    public static native def x10rtSendAsync(id:Long, body:()=>void, finishState:FinishState, prof:Profile):void;
+    @Native("java", "x10.runtime.impl.java.Runtime.runAsyncAt((int)(#id), #body, #finishState, #prof, #preSendAction)")
+    @Native("c++", "::x10aux::run_async_at((x10_long)(#id), #body, #finishState, #prof, #preSendAction)")
+    public static native def x10rtSendAsync(id:Long, body:()=>void, finishState:FinishState, 
+                                            prof:Profile, preSendAction:()=>void):void;
 
     /**
      * Complete X10RT initialization.
@@ -793,9 +816,9 @@ public final class Runtime {
         
         val state = a.finishState();
         val clockPhases = a.clockPhases().make(clocks);
-        state.notifySubActivitySpawn(place);
         if (place.id == hereLong()) {
             var bodyCopy:()=>void = null;
+            state.notifySubActivitySpawn(place);
 	    try {
                 bodyCopy = deepCopy(body, prof);
             } catch (e:CheckedThrowable) {
@@ -809,7 +832,8 @@ public final class Runtime {
         } else {
             val src = here;
             val closure = ()=> @x10.compiler.RemoteInvocation("runAsync") { execute(new Activity(body, src, state, clockPhases)); };
-            x10rtSendMessage(place.id, closure, prof);
+            val preSendAction = ()=> { state.notifySubActivitySpawn(place); };
+            x10rtSendMessage(place.id, closure, prof, preSendAction);
             Unsafe.dealloc(closure);
         }
         Unsafe.dealloc(body);
@@ -821,9 +845,9 @@ public final class Runtime {
         a.ensureNotInAtomic();
         
         val state = a.finishState();
-        state.notifySubActivitySpawn(place);
         if (place.id == hereLong()) {
             var bodyCopy:()=>void = null;
+            state.notifySubActivitySpawn(place);
 	    try {
                 bodyCopy = deepCopy(body, prof);
             } catch (e:CheckedThrowable) {
@@ -835,7 +859,8 @@ public final class Runtime {
                 executeLocal(new Activity(bodyCopy, here, state));
             }
         } else {
-            x10rtSendAsync(place.id, body, state, prof); // optimized case
+            val preSendAction = ()=>{ state.notifySubActivitySpawn(place); };
+            x10rtSendAsync(place.id, body, state, prof, preSendAction); // optimized case
         }
         Unsafe.dealloc(body);
     }
