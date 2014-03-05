@@ -61,16 +61,11 @@ using namespace x10::io;
 
 
 void RuntimeNatives::exit(x10_int code) {
-#ifndef NO_EXCEPTIONS
     // Cannot do ::exit here, as we'll need to clean up.
     // We need not worry about user code catching the int
     // because such a catch block can only be generated
     // by us.
     throw (int)code;
-#else
-    // No choice here: die without cleanup.
-    ::exit((int)code);
-#endif
 }
 
 x10_long RuntimeNatives::currentTimeMillis() {
@@ -103,12 +98,10 @@ void RuntimeNatives::println(const char *msg) {
 
 Reader* RuntimeNatives::execForRead(const char *command) {
     FILE* inFd = popen(command, "r");
-#ifndef NO_EXCEPTIONS
     if (inFd == NULL) {
         String* s = String::__plus(String::Lit("execForRead: "), String::Lit(command));
         x10aux::throwException(IOException::_make(s));
     }
-#endif
     InputStreamReader__InputStream* in_ = new (x10aux::alloc<FileReader__FileInputStream>()) FileReader__FileInputStream(inFd);
     Reader* inReader_ = InputStreamReader::_make(in_);
     return inReader_;
@@ -116,12 +109,10 @@ Reader* RuntimeNatives::execForRead(const char *command) {
 
 Writer* RuntimeNatives::execForWrite(const char *command) {
     FILE* outFd = popen(command, "w");
-#ifndef NO_EXCEPTIONS
     if (outFd == NULL) {
         String* s = String::__plus(String::Lit("execForWrite: "), String::Lit(command));
         x10aux::throwException(IOException::_make(s));
     }
-#endif
     OutputStreamWriter__OutputStream* out_ = new (x10aux::alloc<FileWriter__FileOutputStream>()) FileWriter__FileOutputStream(outFd);
     Writer* outWriter_ = OutputStreamWriter::_make(out_);
     return outWriter_;

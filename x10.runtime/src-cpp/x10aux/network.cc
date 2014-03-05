@@ -332,11 +332,8 @@ static void receive_async (const x10rt_msg_params *p) {
             x10::lang::FinishState* fs = buf.read<x10::lang::FinishState*>();
             x10::lang::Place src = buf.read<x10::lang::Place>();
             Reference* body = NULL;
-#ifndef NO_EXCEPTIONS
             try {
-#endif
                 body = x10aux::NetworkDispatcher::create(buf, nid);
-#ifndef NO_EXCEPTIONS
             } catch(x10::lang::CheckedThrowable* e) {
                 _X_("Exception during deserialization; posting to FinishState "<<fs);
                 if (NULL == fs) {
@@ -349,7 +346,6 @@ static void receive_async (const x10rt_msg_params *p) {
                 fs->notifyActivityTermination();
                 return;
             }
-#endif
             assert(buf.consumed() <= p->len);
             _X_("The deserialised async closure was: "<<x10aux::safe_to_string(body));
             deserialized_bytes += buf.consumed()  ; asyncs_received++;

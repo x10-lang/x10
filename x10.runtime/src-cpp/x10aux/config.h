@@ -18,7 +18,6 @@
 
 /*
  * The following performance macros are supported:
- *   NO_EXCEPTIONS     - remove all exception-related code
  *   NO_CHECKS         - same as NO_BOUNDS_CHECKS NO_NULL_CHECKS NO_PLACE_CHECKS NO_ASSERTIONS
  *   NO_BOUNDS_CHECKS  - remove all bounds-checking code
  *   NO_NULL_CHECKS    - remove all null-checking code

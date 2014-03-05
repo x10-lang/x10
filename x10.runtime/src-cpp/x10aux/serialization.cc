@@ -170,12 +170,7 @@ void x10aux::set_prof_data(x10::lang::Runtime__Profile *prof, unsigned long long
 
 void x10aux::raiseSerializationProtocolError() {
     const char* msg = "Error detected in custom serialization protocol";
-#ifndef NO_EXCEPTIONS
     throwException(x10::io::SerializationException::_make(String::Lit(msg)));
-#else
-    fprintf(stderr, "%s. Aborting\n", msg);
-    abort();
-#endif
 }
 
 // vim:tabstop=4:shiftwidth=4:expandtab:textwidth=100

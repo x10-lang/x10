@@ -146,16 +146,12 @@ namespace x10 {
         }
 
         void throwArrayIndexOutOfBoundsException(x10_long index, x10_long length) {
-            #ifndef NO_EXCEPTIONS
             char *msg = alloc_printf("Index %lld out of range (length is %lld)", (long long)index, (long long)length);
             throwException(x10::lang::ArrayIndexOutOfBoundsException::_make(String::Lit(msg)));
-            #endif
         }
 
         void throwNegativeArraySizeException() {
-            #ifndef NO_EXCEPTIONS
             throwException(x10::lang::NegativeArraySizeException::_make());
-            #endif
         }            
 
         void failAllocNoPointers(const char* msg) {

@@ -34,13 +34,9 @@ namespace x10aux {
         if (checked && NULL != obj) {
             const RuntimeType *from = obj->_type();
             const RuntimeType *to = getRTT<T>();
-            #ifndef NO_EXCEPTIONS
             if (!from->subtypeOf(to)) {
                 throwClassCastException(from, to);
             }
-            #else
-            (void) from; (void) to;
-            #endif
         }
         return reinterpret_cast<T*>(obj);
     }
@@ -80,13 +76,9 @@ namespace x10aux {
             if (checked) {
                 const RuntimeType *from = getRTT<F>();
                 const RuntimeType *to = getRTT<T>();
-                #ifndef NO_EXCEPTIONS
                 if (!from->subtypeOf(to)) {
                     throwClassCastException(from, to);
                 }
-                #else
-                (void) from; (void) to;
-                #endif
             }
             ::x10::lang::IBox<F>* obj = new (::x10aux::alloc< ::x10::lang::IBox<F> >()) ::x10::lang::IBox<F>(val);
             return reinterpret_cast<T*>(obj);
@@ -103,13 +95,9 @@ namespace x10aux {
             if (checked) {
                 ::x10::lang::Reference* asRef = reinterpret_cast< ::x10::lang::Reference*>(val);
                 const RuntimeType *from = asRef->_type();
-                #ifndef NO_EXCEPTIONS
                 if (!from->subtypeOf(to)) {
                     throwClassCastException(from, to);
                 }
-                #else
-                (void) from; (void) to;
-                #endif
             }
             ::x10::lang::IBox<T>* ibox = reinterpret_cast< ::x10::lang::IBox<T>*>(val);
             return ibox->value; 

@@ -119,9 +119,7 @@ static void* real_x10_main_inner(void* _main_args) {
 
     x10aux::RuntimeType::initializeForMultiThreading();
 
-#ifndef NO_EXCEPTIONS
     try {
-#endif
         x10aux::place_local::initialize();
 
         // Initialize a few key fields of XRX that must be set before any X10 code can execute
@@ -146,7 +144,6 @@ static void* real_x10_main_inner(void* _main_args) {
         // When this function returns, the program will have exited.
         x10::lang::Runtime::start(main_closure);
 
-#ifndef NO_EXCEPTIONS
     } catch(int exitCode) {
 
         x10aux::exitCode = exitCode;
@@ -164,7 +161,6 @@ static void* real_x10_main_inner(void* _main_args) {
         x10aux::exitCode = 1;
 
     }
-#endif
 
     // We're done.  Shutdown the place.
     x10aux::shutdown();

@@ -32,10 +32,8 @@ void FileReader__FileInputStream::_constructor(x10::lang::String* name) {
 
     const char *filename = name->c_str();
     this->FMGL(file) = fopen(filename, "r");
-#ifndef NO_EXCEPTIONS
     if (NULL == this->FMGL(file))
         throwException(FileNotFoundException::_make(name));
-#endif
 }
 
 void FileReader__FileInputStream::_constructor(FILE* file) {
