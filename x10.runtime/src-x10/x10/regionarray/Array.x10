@@ -252,8 +252,8 @@ public final class Array[T] (
      */
     public @Inline def this(backingStore:Rail[T])
     {
-        val s = backingStore.size-1;
-        val myReg = new RectRegion1D(s);
+        val s = backingStore.size;
+        val myReg = new RectRegion1D(s-1);
         property(myReg, 1, true, true, true, s);
 
 	layout_min0 = layout_stride1 = layout_min1 = 0;
