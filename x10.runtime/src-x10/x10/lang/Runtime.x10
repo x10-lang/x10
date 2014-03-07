@@ -298,7 +298,7 @@ public final class Runtime {
         var idleCount:Int = 0n; // idle thread count
         var deadCount:Int = 0n; // dead thread count
         var spareNeeded:Int = 0n; // running threads - NTHREADS
-        val multiplace = Place.ALL_PLACES>1; // ALL_PLACES includes accelerators
+        var multiplace:Boolean = true; // better safe than sorry
 
         // reduce permits by n
         def reduce(n:Int):void {
@@ -599,6 +599,7 @@ public final class Runtime {
         }
 
         operator this(n:Int):void {
+            workers.multiplace = Place.ALL_PLACES>1; // ALL_PLACES includes accelerators
             workers.count = n;
             workers(0n) = worker();
             for (var i:Int = 1n; i<n; i++) {
