@@ -47,7 +47,7 @@ public class SharedVarsMethods {
 	private static int nextId_;
 	/* to provide a unique name for local variables introduce in the templates */
 	static Integer getUniqueId_() {
-		return new Integer(nextId_++);
+		return Integer.valueOf(nextId_++);
 	}
 
 	public static String getId() {
