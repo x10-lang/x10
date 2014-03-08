@@ -79,17 +79,19 @@ namespace {
 static x10rt_error fatal (const char *format, ...)
 {
     va_list va_args;
-    va_start(va_args, format);
 
     x10rt_error e = X10RT_ERR_INTL;
-
-    int sz = vsnprintf(NULL, 0, format, va_args);
-    free(g.error_msg);
-    g.error_msg = (char*)malloc(sz);
-    vsprintf(g.error_msg, format, va_args);
-
     g.error_code = e;
 
+    va_start(va_args, format);
+    int sz = vsnprintf(NULL, 0, format, va_args);
+    va_end(va_args);
+
+    free(g.error_msg);
+    g.error_msg = (char*)malloc(sz);
+
+    va_start(va_args, format);
+    vsprintf(g.error_msg, format, va_args);
     va_end(va_args);
 
     return e;
