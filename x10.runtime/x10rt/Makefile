@@ -26,8 +26,6 @@ endif
 
 BASE_TESTS      = test/x10rt_basic test/x10rt_gups test/x10rt_topology test/x10rt_coll test/x10rt_crash test/x10rt_remote_op test/x10rt_resilient_monte_pi
 
-EXECUTABLES     =
-
 X10_HOME        = ${CURDIR}/../..
 
 COMMON_OBJS     = common/x10rt_front.o common/x10rt_logical.o common/x10rt_cuda.o common/x10rt_emu.o common/x10rt_emu_coll.o
