@@ -18,10 +18,13 @@ while [ -n "$1" ]; do
     shift
 done
 
-cp="${TOP}${FILE_SEP}stdlib${FILE_SEP}x10.jar${PATH_SEP}${TOP}${FILE_SEP}lib${FILE_SEP}${MATH_JAR}"
-[ -n "${extra_cp}" ] && cp="${extra_cp}${PATH_SEP}${cp}"
+LIB_DIR="${TOP}${FILE_SEP}lib"
+STDLIB_DIR="${TOP}${FILE_SEP}stdlib"
 
-command="\"${JAVA}\" -jar \"${TOP}${FILE_SEP}lib${FILE_SEP}${ECJ_JAR}\" -1.6 -nowarn -encoding utf-8 -classpath \"${cp}\" ${args}"
+classpath="${STDLIB_DIR}${FILE_SEP}x10.jar${PATH_SEP}${LIB_DIR}${FILE_SEP}${MATH_JAR}${PATH_SEP}${LIB_DIR}${FILE_SEP}${LOG_JAR}"
+[ -n "${extra_cp}" ] && classpath="${extra_cp}${PATH_SEP}${classpath}"
+
+command="\"${JAVA}\" -jar \"${LIB_DIR}${FILE_SEP}${ECJ_JAR}\" -1.6 -nowarn -encoding utf-8 -classpath \"${classpath}\" ${args}"
 
 [ -n "$verbose" ] && echo "$command"
 
