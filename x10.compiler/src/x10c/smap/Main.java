@@ -26,7 +26,7 @@ import com.ibm.wala.shrikeCT.SourceDebugExtensionWriter;
 import com.ibm.wala.shrikeCT.ClassReader.AttrIterator;
 
 public class Main {
-    public static boolean debug= true;
+    public static boolean debug= false;
 
     /**
 	 * @param args
