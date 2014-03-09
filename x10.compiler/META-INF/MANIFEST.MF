@@ -6,7 +6,8 @@ Bundle-Version: 2.4.2.qualifier
 Bundle-Localization: plugin
 Require-Bundle: x10.common;visibility:=reexport,
  x10.constraints;visibility:=reexport,
- lpg.runtime.java;visibility:=reexport
+ lpg.runtime.java;visibility:=reexport,
+ com.ibm.wala.shrike
 Export-Package: polyglot.ast,
  polyglot.frontend,
  polyglot.lex,
@@ -38,6 +39,7 @@ Export-Package: polyglot.ast,
  x10.visit,
  x10c,
  x10c.ast,
+ x10c.smap,
  x10c.types,
  x10c.util,
  x10c.visit,

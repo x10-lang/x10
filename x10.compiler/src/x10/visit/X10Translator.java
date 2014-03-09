@@ -26,11 +26,14 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map.Entry;
 import java.util.Properties;
 import java.util.jar.Attributes;
 import java.util.jar.JarEntry;
 import java.util.jar.JarOutputStream;
 import java.util.jar.Manifest;
+
+import javax.tools.JavaFileObject;
 
 import polyglot.ast.Block;
 import polyglot.ast.ClassDecl;
@@ -52,6 +55,7 @@ import polyglot.types.TypeSystem;
 import polyglot.util.CodeWriter;
 import polyglot.util.ErrorInfo;
 import polyglot.util.ErrorQueue;
+import polyglot.util.InternalCompilerError;
 import polyglot.util.Position;
 import polyglot.util.QuotedStringTokenizer;
 import polyglot.visit.Translator;
@@ -308,28 +312,28 @@ public class X10Translator extends Translator {
             String[] strarray = new String[0];
             QuotedStringTokenizer st = new QuotedStringTokenizer(options.post_compiler, '?');
             while (st.hasMoreTokens()) {
-            	javacCmd.add(st.nextToken());
+                javacCmd.add(st.nextToken());
             }
-            
+
             int javacOptionsStart = javacCmd.size();
             javacCmd.add("-source");
             javacCmd.add("1.6");
-            
+
             javacCmd.add("-target");
             javacCmd.add("1.6");
-            
+
             javacCmd.add("-nowarn");
-            
+
             javacCmd.add("-classpath");
             javacCmd.add(options.constructPostCompilerClasspath());
-            
+
             javacCmd.add("-d");
             javacCmd.add(options.output_directory.toString());
-            
+
             javacCmd.add("-encoding");
             javacCmd.add("utf-8");
-            
-//            javacCmd.add("-warn:+boxing");	// only for ecj
+
+            //            javacCmd.add("-warn:+boxing");	// only for ecj
 
             if (options.x10_config.DEBUG) {
                 javacCmd.add("-g");                
@@ -342,14 +346,14 @@ public class X10Translator extends Translator {
 
             Reporter reporter = options.reporter;
             if (reporter.should_report(postcompile, 1)) {
-            	StringBuilder cmdStr = new StringBuilder();                
+                StringBuilder cmdStr = new StringBuilder();                
                 for (int i = 0; i < javacCmd.size(); i++)
                     cmdStr.append(javacCmd.get(i)+" ");
                 reporter.report(1, "Executing post-compiler " + cmdStr);
             }
 
             try {
-            	/*
+                /*
             	// invoke ecj as an external process
                 Process proc = runtime.exec(javacCmd.toArray(strarray));
                 InputStreamReader err = new InputStreamReader(proc.getErrorStream());
@@ -368,7 +372,7 @@ public class X10Translator extends Translator {
                     err.close();
                 }
                 int procExitValue = proc.waitFor();
-                */
+                 */
 
 
                 // invoke ecj with Java Compiler API (JSR 199)
@@ -379,22 +383,22 @@ public class X10Translator extends Translator {
                     System.out.println("x10c: Use system Java compiler for post compilation.");
                 }
                 if (javac == null) {
-                // look up user-specified java compiler from classpath and ${x10.dist}/lib/ecj.jar
-                String ecj_path = ((X10CCompilerOptions) options).x10_dist + File.separator + "lib" + File.separator + ((X10CCompilerOptions) options).ecj_jar;
-                java.net.URL ecj_url = new java.io.File(ecj_path).toURI().toURL();
-                ClassLoader cl = new java.net.URLClassLoader(new java.net.URL[] { ecj_url });
-                java.util.Iterator<javax.tools.JavaCompiler> iter = java.util.ServiceLoader.load(javax.tools.JavaCompiler.class, cl).iterator();
-                while (iter.hasNext()) {
-                    try {
-                        javac = iter.next();
-                        assert javac != null;
-                        break;
-                    } catch (Throwable e) { }
-                }
-//                if (javac == null) {
-//                    // look up system java compiler (javac)
-//                    javac = javax.tools.ToolProvider.getSystemJavaCompiler();
-//                }
+                    // look up user-specified java compiler from classpath and ${x10.dist}/lib/ecj.jar
+                    String ecj_path = ((X10CCompilerOptions) options).x10_dist + File.separator + "lib" + File.separator + ((X10CCompilerOptions) options).ecj_jar;
+                    java.net.URL ecj_url = new java.io.File(ecj_path).toURI().toURL();
+                    ClassLoader cl = new java.net.URLClassLoader(new java.net.URL[] { ecj_url });
+                    java.util.Iterator<javax.tools.JavaCompiler> iter = java.util.ServiceLoader.load(javax.tools.JavaCompiler.class, cl).iterator();
+                    while (iter.hasNext()) {
+                        try {
+                            javac = iter.next();
+                            assert javac != null;
+                            break;
+                        } catch (Throwable e) { }
+                    }
+                    //                if (javac == null) {
+                    //                    // look up system java compiler (javac)
+                    //                    javac = javax.tools.ToolProvider.getSystemJavaCompiler();
+                    //                }
                 }
                 if (javac == null) {
                     eq.enqueue(ErrorInfo.POST_COMPILER_ERROR, "Cannot find post java compiler.");
@@ -403,11 +407,11 @@ public class X10Translator extends Translator {
                 javax.tools.DiagnosticCollector<javax.tools.JavaFileObject> diagCollector = new javax.tools.DiagnosticCollector<javax.tools.JavaFileObject>();
                 javax.tools.StandardJavaFileManager fileManager = javac.getStandardFileManager(null, null, null);
                 javax.tools.JavaCompiler.CompilationTask task = javac.getTask(null, null,
-            			diagCollector,
-            			javacCmd.subList(javacOptionsStart, javacSourcesStart),
-            			null,
-            			fileManager.getJavaFileObjectsFromStrings(javacCmd.subList(javacSourcesStart, javacCmd.size()))
-            			);
+                                                                              diagCollector,
+                                                                              javacCmd.subList(javacOptionsStart, javacSourcesStart),
+                                                                              null,
+                                                                              fileManager.getJavaFileObjectsFromStrings(javacCmd.subList(javacSourcesStart, javacCmd.size()))
+                        );
                 int procExitValue = task.call() ? 0 : 1;
                 /*
                 for (javax.tools.Diagnostic<? extends javax.tools.JavaFileObject> diag : diagCollector.getDiagnostics()) {
@@ -415,26 +419,43 @@ public class X10Translator extends Translator {
                     int type = diag.getKind() == javax.tools.Diagnostic.Kind.ERROR ? ErrorInfo.POST_COMPILER_ERROR : ErrorInfo.WARNING;
                     eq.enqueue(type, message);
                 }
-                */
+                 */
+                               
                 fileManager.close();
-
+                               
+                if (options.x10_config.DEBUG) {
+                    try {
+                        for (Entry<String, Collection<String>> es : compiler.outputFiles().entrySet()) {
+                            String x10_src = es.getKey();
+                            int endPack = x10_src.lastIndexOf('/');
+                            String pack = endPack > 0 ? x10_src.substring(0, endPack) : "";
+                            for (String java_src : es.getValue()) {
+                                // FIXME: need to look in file system for all derived class files, not just the primary one
+                                String class_file = java_src.substring(0, java_src.length()-5) + ".class";
+                                x10c.smap.Main.smapify(x10_src+".x10", pack, java_src, class_file); 
+                            }
+                        }
+                    } catch (InternalCompilerError e) {
+                        eq.enqueue(ErrorInfo.POST_COMPILER_ERROR, e.getMessage());
+                    }
+                }
 
                 if (!options.keep_output_files) {
-                	for (Collection<String> files : compiler.outputFiles().values()) {
-                		for (String file : files) {
-                			deleteFile(new File(file));
-                		}
-                	}
+                    for (Collection<String> files : compiler.outputFiles().values()) {
+                        for (String file : files) {
+                            deleteFile(new File(file));
+                        }
+                    }
                 }
 
                 if (procExitValue > 0) {
-                	eq.enqueue(ErrorInfo.POST_COMPILER_ERROR, "Non-zero return code: " + procExitValue);
-                	return false;
+                    eq.enqueue(ErrorInfo.POST_COMPILER_ERROR, "Non-zero return code: " + procExitValue);
+                    return false;
                 }
 
                 if (options.executable_path != null) {  // -o executable_path
                     // create jar file
-                    
+
                     // create Main-Class attribute from main (= first) source name if MAIN_CLASS is not specified
                     String main_class = options.x10_config.MAIN_CLASS;
                     // Fix for XTENLANG-2410
@@ -448,21 +469,21 @@ public class X10Translator extends Translator {
                             main_class = main_source.substring(0, main_source.length() - ".x10".length());
                         }
                     }
-                    */
-                    
+                     */
+
                     // create manifest file
                     Manifest mf = new Manifest();
                     Attributes attributes = mf.getMainAttributes();
-                	attributes.put(Attributes.Name.MANIFEST_VERSION, "1.0");
+                    attributes.put(Attributes.Name.MANIFEST_VERSION, "1.0");
                     if (main_class != null) {
-                    	// add Main-Class attribute for executable jar
-                    	attributes.putValue("Main-Class", main_class + "$" + X10PrettyPrinterVisitor.MAIN_CLASS);
-                    	String x10_jar = ((X10CCompilerOptions) options).x10_jar;
-                    	String math_jar = ((X10CCompilerOptions) options).math_jar;
-                    	String log_jar = ((X10CCompilerOptions) options).log_jar;
-                    	// XTENLANG-2722
-                    	// need a new preloading mechanism which does not use classloader to determine system classes
-                    	attributes.putValue("Class-Path", x10_jar + " " + math_jar + " " + log_jar);
+                        // add Main-Class attribute for executable jar
+                        attributes.putValue("Main-Class", main_class + "$" + X10PrettyPrinterVisitor.MAIN_CLASS);
+                        String x10_jar = ((X10CCompilerOptions) options).x10_jar;
+                        String math_jar = ((X10CCompilerOptions) options).math_jar;
+                        String log_jar = ((X10CCompilerOptions) options).log_jar;
+                        // XTENLANG-2722
+                        // need a new preloading mechanism which does not use classloader to determine system classes
+                        attributes.putValue("Class-Path", x10_jar + " " + math_jar + " " + log_jar);
                     }
                     attributes.putValue("Created-By", compiler.sourceExtension().compilerName() + " version " + compiler.sourceExtension().version());
 
@@ -470,113 +491,112 @@ public class X10Translator extends Translator {
                     File jarFile = new File(options.executable_path);
                     File directoryHoldingJarFile = jarFile.getParentFile();
                     if (directoryHoldingJarFile != null) {
-                    	directoryHoldingJarFile.mkdirs();
+                        directoryHoldingJarFile.mkdirs();
                     } else {
-                    	directoryHoldingJarFile = new File(".");
+                        directoryHoldingJarFile = new File(".");
                     }
-                    
+
                     // execute "jar cmf ${manifest_file} ${executable_path} -C ${output_directory} ."
                     createJarFile(jarFile, mf, options.output_directory); // -d output_directory
 
                     // pre XTENLANG-3199
-//                    if (options.buildX10Lib != null) {  // ignore lib from -buildx10lib <lib>
-//                    	// generate property file for use as "x10c -x10lib foo.properties ..."
-//                    	String jarFileName = jarFile.getName(); // foo.jar
-//                    	String propFileName = jarFileName.substring(0, jarFileName.length() - ".jar".length()) + ".properties"; // foo.properties
-//                    	File propFile = new File(directoryHoldingJarFile, propFileName);
-//                    	PrintWriter propFileWriter = new PrintWriter(new FileWriter(propFile));
-//                    	propFileWriter.println("X10LIB_TIMESTAMP=" + String.format("%tc", Calendar.getInstance()));
-//                    	propFileWriter.println("X10LIB_SRC_JAR=" + jarFileName);
-//                    	propFileWriter.close();
-//                    }
+                    //                    if (options.buildX10Lib != null) {  // ignore lib from -buildx10lib <lib>
+                    //                    	// generate property file for use as "x10c -x10lib foo.properties ..."
+                    //                    	String jarFileName = jarFile.getName(); // foo.jar
+                    //                    	String propFileName = jarFileName.substring(0, jarFileName.length() - ".jar".length()) + ".properties"; // foo.properties
+                    //                    	File propFile = new File(directoryHoldingJarFile, propFileName);
+                    //                    	PrintWriter propFileWriter = new PrintWriter(new FileWriter(propFile));
+                    //                    	propFileWriter.println("X10LIB_TIMESTAMP=" + String.format("%tc", Calendar.getInstance()));
+                    //                    	propFileWriter.println("X10LIB_SRC_JAR=" + jarFileName);
+                    //                    	propFileWriter.close();
+                    //                    }
                     // post XTENLANG-3199
                     if (options.buildX10Lib != null) {	// "-buildx10lib <dir> -o foo.jar" generates <dir>/foo.properties
-                    	File propDir = new File(options.buildX10Lib);
-//                    	System.out.println("buildx10lib = " + options.buildX10Lib);
-                    	
+                        File propDir = new File(options.buildX10Lib);
+                        //                    	System.out.println("buildx10lib = " + options.buildX10Lib);
+
                         // ensure propDir exists and is a directory
-                    	if (propDir.exists()) {
-                    		if (!propDir.isDirectory()) {
+                        if (propDir.exists()) {
+                            if (!propDir.isDirectory()) {
                                 eq.enqueue(ErrorInfo.SEMANTIC_ERROR, "-buildx10lib <dir> only accepts directory name. property file was not generated.");
                                 return false;
-                    		}
-                    	} else {
-                    		propDir.mkdirs();
-                    	}
-                    	
-                    	String jarDirPath; // either absolute or relative
-                    	if (directoryHoldingJarFile.isAbsolute()) {
-                    		// When jar file is specified with absolute path, refer it with absolute path.
-                    		jarDirPath = directoryHoldingJarFile.getCanonicalPath();
-                    		if (!jarDirPath.endsWith("/")) jarDirPath += "/";
-                    	} else {
-                    		// Otherwise, refer the jar file with relative path from prop file.
-                    		File f;
-                    		
-                    		List<File> listPropDir = new ArrayList<File>();
-                    		f = propDir.getCanonicalFile(); // "/usr/local/bin"
-                    		do {
-                    			listPropDir.add(f);
-                    			f = f.getParentFile();
-                    		} while (f != null);
-                    		Collections.reverse(listPropDir); // [ "/", "/usr", "/usr/local", "/usr/local/bin" ]
-//                    		System.out.println("listPropDir = " + listPropDir);
-                    		
-                    		List<File> listJarDir = new ArrayList<File>();
-                    		File jarDir = directoryHoldingJarFile;
-                    		f = jarDir.getCanonicalFile(); // "/usr/bin"
-                    		do {
-                    			listJarDir.add(f);
-                    			f = f.getParentFile();                        	
-                    		} while (f != null);
-                    		Collections.reverse(listJarDir); // [ "/", "/usr", "/usr/bin" ]
-//                    		System.out.println("listJarDir = " + listJarDir);
-                    		
-                    		// compute relative path from propDir /usr/local/bin to jarDir /usr/bin
-                    		
-                    		// first compute the same header length
-                    		int i = 0;
-                    		while (i < listPropDir.size() && i < listJarDir.size() && listPropDir.get(i).equals(listJarDir.get(i))) {
-                    			++i;
-                    		}
-                    		// i == 2
-                    		
-                    		// compute relative path from propDir to list{Prop,Jar}Dir(i)
-                    		StringBuilder sb = new StringBuilder();
-                    		for (int j = i; j < listPropDir.size(); ++j) {
-                    			sb.append(".." + "/");
-                    		}
-                    		
-                    		// compute relative path from list{Prop,Jar}Dir(i) to jarDir
-                    		for (int j = i; j < listJarDir.size(); ++j) {
-                    			sb.append(listJarDir.get(j).getName() + "/");
-                    		}
-                    		
-                    		jarDirPath = sb.toString();
-                    	}
-//                    	System.out.println("jarDirPath = " + jarDirPath);
-                    	
-                    	// generate property file for use as "x10c -x10lib foo.properties ..."
-                    	String jarFileName = jarFile.getName(); // foo.jar
-                    	Properties props = new Properties();
-                    	props.setProperty("X10LIB_TIMESTAMP", String.format("%tc", Calendar.getInstance()));
-                    	props.setProperty("X10LIB_SRC_JAR", jarDirPath + jarFileName);
-                    	String propFileName = jarFileName.substring(0, jarFileName.length() - ".jar".length()) + ".properties"; // foo.properties
-                    	File propFile = new File(propDir, propFileName);
-                    	FileWriter propFileWriter = new FileWriter(propFile);
-                    	props.store(propFileWriter, "Created by " + compiler.sourceExtension().compilerName() + " version " + compiler.sourceExtension().version());
-                    	propFileWriter.close();
+                            }
+                        } else {
+                            propDir.mkdirs();
+                        }
+
+                        String jarDirPath; // either absolute or relative
+                        if (directoryHoldingJarFile.isAbsolute()) {
+                            // When jar file is specified with absolute path, refer it with absolute path.
+                            jarDirPath = directoryHoldingJarFile.getCanonicalPath();
+                            if (!jarDirPath.endsWith("/")) jarDirPath += "/";
+                        } else {
+                            // Otherwise, refer the jar file with relative path from prop file.
+                            File f;
+
+                            List<File> listPropDir = new ArrayList<File>();
+                            f = propDir.getCanonicalFile(); // "/usr/local/bin"
+                            do {
+                                listPropDir.add(f);
+                                f = f.getParentFile();
+                            } while (f != null);
+                            Collections.reverse(listPropDir); // [ "/", "/usr", "/usr/local", "/usr/local/bin" ]
+                            //                    		System.out.println("listPropDir = " + listPropDir);
+
+                            List<File> listJarDir = new ArrayList<File>();
+                            File jarDir = directoryHoldingJarFile;
+                            f = jarDir.getCanonicalFile(); // "/usr/bin"
+                            do {
+                                listJarDir.add(f);
+                                f = f.getParentFile();                        	
+                            } while (f != null);
+                            Collections.reverse(listJarDir); // [ "/", "/usr", "/usr/bin" ]
+                            // System.out.println("listJarDir = " + listJarDir);
+
+                            // compute relative path from propDir /usr/local/bin to jarDir /usr/bin
+
+                            // first compute the same header length
+                            int i = 0;
+                            while (i < listPropDir.size() && i < listJarDir.size() && listPropDir.get(i).equals(listJarDir.get(i))) {
+                                ++i;
+                            }
+                            // i == 2
+
+                            // compute relative path from propDir to list{Prop,Jar}Dir(i)
+                            StringBuilder sb = new StringBuilder();
+                            for (int j = i; j < listPropDir.size(); ++j) {
+                                sb.append(".." + "/");
+                            }
+
+                            // compute relative path from list{Prop,Jar}Dir(i) to jarDir
+                            for (int j = i; j < listJarDir.size(); ++j) {
+                                sb.append(listJarDir.get(j).getName() + "/");
+                            }
+
+                            jarDirPath = sb.toString();
+                        }
+                        //                    	System.out.println("jarDirPath = " + jarDirPath);
+
+                        // generate property file for use as "x10c -x10lib foo.properties ..."
+                        String jarFileName = jarFile.getName(); // foo.jar
+                        Properties props = new Properties();
+                        props.setProperty("X10LIB_TIMESTAMP", String.format("%tc", Calendar.getInstance()));
+                        props.setProperty("X10LIB_SRC_JAR", jarDirPath + jarFileName);
+                        String propFileName = jarFileName.substring(0, jarFileName.length() - ".jar".length()) + ".properties"; // foo.properties
+                        File propFile = new File(propDir, propFileName);
+                        FileWriter propFileWriter = new FileWriter(propFile);
+                        props.store(propFileWriter, "Created by " + compiler.sourceExtension().compilerName() + " version " + compiler.sourceExtension().version());
+                        propFileWriter.close();
                     }
                 }
                 // XTENLANG-2126
                 if (!options.keep_output_files) {
-//                	System.out.println(options.output_directory.getAbsolutePath());
-                	deleteFile(options.output_directory); // N.B. output_directory is a temporary directory
+                    deleteFile(options.output_directory); // N.B. output_directory is a temporary directory
                 }
             }
             catch(Exception e) {
-            	ByteArrayOutputStream baos = new ByteArrayOutputStream();
-            	e.printStackTrace(new PrintWriter(baos, true));
+                ByteArrayOutputStream baos = new ByteArrayOutputStream();
+                e.printStackTrace(new PrintWriter(baos, true));
                 eq.enqueue(ErrorInfo.POST_COMPILER_ERROR, baos.toString());
                 return false;
             }
