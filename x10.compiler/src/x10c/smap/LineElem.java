@@ -35,4 +35,8 @@ public class LineElem {
     public int getIncr() {
         return incr;
     }
+    
+    public String toString() {
+    	return getOrigSrcStart() + ":" + getJavaStart() + "," + getIncr();
+    }
 }

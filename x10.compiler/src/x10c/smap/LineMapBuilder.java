@@ -27,7 +27,7 @@ import polyglot.util.InternalCompilerError;
 public class LineMapBuilder {
     private static final String LINE_INFO_COMMENT_PREFIX= "//#line ";
 
-    private static final Pattern LINE_COMMENT_REGEXP= Pattern.compile("\\s*//#line ([0-9]+)(\\s\"(.*)\")?");
+    private static final Pattern LINE_COMMENT_REGEXP= Pattern.compile("\\s*//#line ([0-9]+)(\\s*(.)*\"(.*)\")?");
 
     private String fFileName;
 
