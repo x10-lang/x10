@@ -304,7 +304,7 @@
         <tstamp/>
         <jar jarfile="${gen}/${jar}">
             <fileset dir="${build}" includes="x10/**/*.class" excludes="${jar}"/>
-            <fileset dir="${basedir}/src-x10" includes="x10/**" excludes="${jar}"/>
+            <fileset dir="${basedir}/src-x10" includes="x10/**/*.x10" excludes="${jar}"/>
             <fileset dir="${basedir}/src-java">
                 <exclude name="${jar}" />
                 <include name="x10/**/*.java" if="${INCLUDE_JAVA_SOURCE}" />
@@ -349,6 +349,7 @@
             <istrue value="${debug}" />
 	  </conditions>
           <then>
+            <echo message="Constructing SMAP debug info for XRX"/>
             <java classname="x10c.smap.Main" classpath="${x10.dist.location}/lib/x10c.jar:${shrike.jar}" fork="true" dir="${basedir}">
 	        <arg value="-x10_dir" />
 		<arg value="src-x10" />
@@ -357,6 +358,7 @@
 		<arg value="-class_dir" />
 		<arg value="classes" />
 		<arg value="-exhaustive" />
+		<arg value="-verbose" />
 	    </java>
 	  </then>
 	</if>
