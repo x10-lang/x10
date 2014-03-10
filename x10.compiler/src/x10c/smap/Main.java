@@ -13,6 +13,7 @@ package x10c.smap;
 
 import java.io.File;
 import java.io.FileOutputStream;
+import java.io.FilenameFilter;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -42,6 +43,7 @@ public class Main {
 	    String javadir = "";
 	    String classdir = "";
 	    boolean exhaustive  = false;
+	    boolean verbose = false;
 	    int idx = 0;
 	    while (idx < args.length) {
 	        String cur = args[idx];
@@ -53,17 +55,15 @@ public class Main {
 	            classdir = args[++idx];
 	        } else if (cur.equals("-exhaustive")) {
 	            exhaustive = true;
+            } else if (cur.equals("-verbose")) {
+                verbose = true;
 	        } else {
 	            x10_srcs.add(cur);
 	        }
 	        idx++;
 	    }
 
-	    System.out.println("x10dir is "+x10dir);
-	    System.out.println("javadir is "+javadir);
-	    System.out.println("classdir is"+classdir);
 	    if (exhaustive) {
-	        System.out.println("Will search for X10 sources");
 	        File root = new File(x10dir);
 	        Stack<File> dirs = new Stack<File>();
 	        dirs.push(root);
@@ -84,17 +84,28 @@ public class Main {
 	    }
 	    
 	    for (String x10FileName : x10_srcs) {
+            int sepIndex = x10FileName.lastIndexOf(File.separator);
+            boolean hasPackage = sepIndex > 0;
+            String relPathPrefix = sepIndex > 0 ? x10FileName.substring(0, sepIndex) : "";
+            final String className = x10FileName.substring(hasPackage ? relPathPrefix.length()+1 : 0, x10FileName.length()-4);
 	        String javaFileName = javadir+File.separator+(x10FileName.substring(0, x10FileName.length()-4))+".java";
 	        File javaFile = new File(javaFileName);
 	        if (javaFile.exists() && javaFile.isFile()) {
-	            String primaryClassFileName = classdir+File.separator+(x10FileName.substring(0, x10FileName.length()-4))+".class";
-	            File primaryClassFile = new File(primaryClassFileName);
-	            if (primaryClassFile.exists() && primaryClassFile.isFile() && primaryClassFile.canRead() && primaryClassFile.canWrite()) {
-	                int sepIndex = x10FileName.lastIndexOf(File.separator);
-	                String relPathPrefix = sepIndex > 0 ? x10FileName.substring(0, sepIndex) : "";
-	                smapify(x10FileName, relPathPrefix, javaFileName, primaryClassFileName);
+	            File classDir = new File(classdir+File.separator+relPathPrefix);
+	            if (classDir.exists() && classDir.isDirectory()) {
+	                File[] classFiles = classDir.listFiles(new FilenameFilter(){
+                        public boolean accept(File arg0, String arg1) {
+                            if (!arg1.endsWith(".class")) return false;
+                            if (arg1.equals(className+".class")) return true;
+                            return arg1.startsWith(className+"$");
+                        }});
+	                if (classFiles != null && classFiles.length > 0) {
+	                    if (verbose) {
+	                        System.out.println("Smapify "+classFiles.length+" class files for " +x10FileName+" ("+javaFileName+")");
+	                    }
+	                    smapify(x10FileName, relPathPrefix, javaFileName, classFiles);
+	                }
 	            }
-	            // TODO: Need to handle all the secondary class files too (for Foo.java, Foo$ANYTHING.class)
 	        }
 	    }
 	}
@@ -116,6 +127,12 @@ public class Main {
 	 * information in SMAP becomes: bar/bla.x
 	 */
 	public static void smapify(final String filename, final String relPathPrefix, final String javaFile, String classFileName) {
+	    String prefix = removeExt(filename);
+        String inputName = (classFileName == null) ? prefix + ".class" : classFileName;
+	    smapify(filename, relPathPrefix, javaFile, new File[]{ new File(inputName) });
+	}
+	    
+	public static void smapify(final String filename, final String relPathPrefix, final String javaFile, File[] classFiles) {
 		String prefix = removeExt(filename);
 		String origExten = filename.substring(filename.lastIndexOf('.')+1);
 
@@ -123,48 +140,50 @@ public class Main {
 			System.out.println("origExten=" + origExten);
 			System.out.println("smapify filename: " + filename);
 			System.out.println("with pathPrefix: " + relPathPrefix);
-			System.out.println("and outputfile: " + classFileName);
 		}
 		
 		LineMapBuilder lmb = new LineMapBuilder(removeExt(javaFile));
 		String smap = SMAPCreator.get(prefix, relPathPrefix, lmb.get(), origExten);
 
 		if (debug)
-			System.out.println(smap);
-		
+		    System.out.println(smap);
+
 		FileOutputStream fw = null;
 		OfflineInstrumenter oi = null;
-		try {
-			String inputName = (classFileName == null) ? prefix + ".class" : classFileName;
-			File input = new File(inputName);
 
-			oi = new OfflineInstrumenter();
-			oi.addInputClass(input);
-			oi.beginTraversal();
+		for (File classFile : classFiles) {
+		    if (debug) {
+		          System.out.println("with classfile: " + classFile.getPath());
+		    }
+		    try {
+		        oi = new OfflineInstrumenter();
+		        oi.addInputClass(classFile);
+		        oi.beginTraversal();
 
-			ClassInstrumenter ci = oi.nextClass();
-			ClassReader cr = ci.getReader();
-			ClassWriter w = new ClassWriter();
+		        ClassInstrumenter ci = oi.nextClass();
+		        ClassReader cr = ci.getReader();
+		        ClassWriter w = new ClassWriter();
 
-			copyClassProperties(cr, w);
-			copyMembersAndAttributes(cr, w);
-			addSMAPAttribute(smap, w);
+		        copyClassProperties(cr, w);
+		        copyMembersAndAttributes(cr, w);
+		        addSMAPAttribute(smap, w);
 
-			fw = new FileOutputStream(new File(inputName));
-			fw.write(w.makeBytes());
-		} catch (Exception e) {
-          throw new InternalCompilerError("Exception encountered while rewriting .class file '" + classFileName + "'", e);
-		} finally {
-			try {
-			    if (fw != null) {
-			        fw.close();
-			    }
-			    if (oi != null) {
-			        oi.close();
-			    }
-			} catch (IOException e) {
-	          throw new InternalCompilerError("Exception encountered while rewriting .class file '" + classFileName + "'", e);
-			}
+		        fw = new FileOutputStream(classFile);
+		        fw.write(w.makeBytes());
+		    } catch (Exception e) {
+		        throw new InternalCompilerError("Exception encountered while rewriting .class file '" + classFile.getPath() + "'", e);
+		    } finally {
+		        try {
+		            if (fw != null) {
+		                fw.close();
+		            }
+		            if (oi != null) {
+		                oi.close();
+		            }
+		        } catch (IOException e) {
+		            throw new InternalCompilerError("Exception encountered while rewriting .class file '" + classFile.getPath() + "'", e);
+		        }
+		    }
 		}
 	}
 

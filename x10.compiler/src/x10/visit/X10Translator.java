@@ -17,6 +17,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.FileWriter;
+import java.io.FilenameFilter;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
@@ -427,12 +428,31 @@ public class X10Translator extends Translator {
                     try {
                         for (Entry<String, Collection<String>> es : compiler.outputFiles().entrySet()) {
                             String x10_src = es.getKey();
-                            int endPack = x10_src.lastIndexOf('/');
-                            String pack = endPack > 0 ? x10_src.substring(0, endPack) : "";
+                            int endPack = x10_src.lastIndexOf(File.separator);
+                            boolean hasPackage = endPack > 0;
+                            String pack = hasPackage ? x10_src.substring(0, endPack) : "";
                             for (String java_src : es.getValue()) {
                                 // FIXME: need to look in file system for all derived class files, not just the primary one
                                 String class_file = java_src.substring(0, java_src.length()-5) + ".class";
-                                x10c.smap.Main.smapify(x10_src+".x10", pack, java_src, class_file); 
+                                File cf = new File(class_file);
+                                if (cf.exists()) {
+                                    File dir = cf.getParentFile();
+                                    if (dir.exists() && dir.isDirectory()) {
+                                        final String baseName = x10_src.substring(hasPackage ? endPack+1 : 0, x10_src.length());
+                                        File[] classFiles = dir.listFiles(new FilenameFilter(){
+                                            public boolean accept(File arg0, String arg1) {
+                                                if (!arg1.endsWith(".class")) return false;
+                                                if (arg1.equals(baseName+".class")) return true;
+                                                return arg1.startsWith(baseName+"$");
+                                            }});
+                                        if (classFiles != null && classFiles.length > 0) {
+                                            if (reporter.should_report(postcompile, 1)) {
+                                                reporter.report(1, "\tSmapify "+classFiles.length+" class files for " +x10_src+" ("+java_src+")");
+                                            }
+                                            x10c.smap.Main.smapify(x10_src+".x10", pack, java_src, classFiles);
+                                        }
+                                    }
+                                }
                             }
                         }
                     } catch (InternalCompilerError e) {
