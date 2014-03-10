@@ -14,6 +14,11 @@ package x10c.smap;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.Set;
+import java.util.Stack;
 
 import polyglot.util.InternalCompilerError;
 
@@ -32,12 +37,66 @@ public class Main {
 	 * @param args
 	 */
 	public static void main(String[] args) {
-	    String fileName = args[0];
-	    String relPathPrefix = args[1];
-	    String javaFile = args[2];
-	    String classFileName = args[3];
+	    ArrayList<String> x10_srcs = new ArrayList<String>();
+	    String x10dir = "";
+	    String javadir = "";
+	    String classdir = "";
+	    boolean exhaustive  = false;
+	    int idx = 0;
+	    while (idx < args.length) {
+	        String cur = args[idx];
+	        if (cur.equals("-x10_dir")) {
+	            x10dir = args[++idx];
+	        } else if (cur.equals("-java_dir")) {
+	            javadir = args[++idx];
+	        } else if (cur.equals("-class_dir")) {
+	            classdir = args[++idx];
+	        } else if (cur.equals("-exhaustive")) {
+	            exhaustive = true;
+	        } else {
+	            x10_srcs.add(cur);
+	        }
+	        idx++;
+	    }
 
-	    smapify(fileName, relPathPrefix, javaFile, classFileName);
+	    System.out.println("x10dir is "+x10dir);
+	    System.out.println("javadir is "+javadir);
+	    System.out.println("classdir is"+classdir);
+	    if (exhaustive) {
+	        System.out.println("Will search for X10 sources");
+	        File root = new File(x10dir);
+	        Stack<File> dirs = new Stack<File>();
+	        dirs.push(root);
+	        while (!dirs.isEmpty()) {
+	            File dir = dirs.pop();
+	            assert dir.isDirectory();
+	            for (File f : dir.listFiles()) {
+	                if (f.isDirectory()) {
+	                    dirs.push(f);
+	                } else {
+	                    if (f.getName().endsWith(".x10")) {
+	                        String fname = f.getPath();
+	                        x10_srcs.add(fname.substring(x10dir.length()+File.separator.length(), fname.length())); 
+	                    }
+	                }
+	            }
+	        }
+	    }
+	    
+	    for (String x10FileName : x10_srcs) {
+	        String javaFileName = javadir+File.separator+(x10FileName.substring(0, x10FileName.length()-4))+".java";
+	        File javaFile = new File(javaFileName);
+	        if (javaFile.exists() && javaFile.isFile()) {
+	            String primaryClassFileName = classdir+File.separator+(x10FileName.substring(0, x10FileName.length()-4))+".class";
+	            File primaryClassFile = new File(primaryClassFileName);
+	            if (primaryClassFile.exists() && primaryClassFile.isFile() && primaryClassFile.canRead() && primaryClassFile.canWrite()) {
+	                int sepIndex = x10FileName.lastIndexOf(File.separator);
+	                String relPathPrefix = sepIndex > 0 ? x10FileName.substring(0, sepIndex) : "";
+	                smapify(x10FileName, relPathPrefix, javaFileName, primaryClassFileName);
+	            }
+	            // TODO: Need to handle all the secondary class files too (for Foo.java, Foo$ANYTHING.class)
+	        }
+	    }
 	}
 
 	/**
