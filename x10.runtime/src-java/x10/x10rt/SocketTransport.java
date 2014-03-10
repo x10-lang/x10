@@ -77,9 +77,12 @@ public class SocketTransport {
 	private int myPlaceId = 0; // my place ID
 	private ServerSocketChannel localListenSocket = null;
 	private CommunicationLink channels[] = null; // communication links to remote places, and launcher at [myPlaceId]
+	
+	private final ReentrantLock selectorLock = new ReentrantLock(); // protects both the selector and events objects
 	private Selector selector = null;
 	private Iterator<SelectionKey> events = null;
-	private AtomicInteger numDead = new AtomicInteger(0);
+
+	private final AtomicInteger numDead = new AtomicInteger(0);
 	private boolean bufferedWrites = true;
 	private int socketTimeout = -1;
 	private boolean shuttingDown = false;
@@ -302,7 +305,12 @@ public class SocketTransport {
     	int eventCount = 0;
     	try {
     		SelectionKey key;
-    		synchronized (selector) {
+    		if (timeout == 0) // blocking probe, wait for the selector to become available
+    			selectorLock.lock();
+    		else if (!selectorLock.tryLock()) // non-blocking probe, return immediately if selector is busy
+    			return false;
+    		// we have the selector lock.  go ahead and get the next event, or call select
+    		try {
     			if (events != null && events.hasNext()) {
     				key = events.next();
 	    			events.remove();
@@ -315,6 +323,8 @@ public class SocketTransport {
 	    			key = events.next();
 	    			events.remove();
     			}
+    		} finally {
+    			selectorLock.unlock();
     		}
 			if (key.isAcceptable()) {
 				ServerSocketChannel ssc = (ServerSocketChannel)key.channel();
