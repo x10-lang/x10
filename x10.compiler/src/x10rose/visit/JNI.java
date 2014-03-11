@@ -6,7 +6,7 @@
  *  You may obtain a copy of the License at
  *      http://www.opensource.org/licenses/eclipse-1.0.php
  *
- *  (C) Copyright IBM Corporation 2006-2014.
+ *  (C) Copyright IBM Corporation 2006-2010.
  */
 
 package x10rose.visit;
@@ -41,6 +41,8 @@ public class JNI {
 	public static native void cactionCompilationUnitDeclaration(String packageName, String path);
 	
 	public static native void cactionTypeReference(String packageName, String name);
+	
+   public static native void cactionBuildArgumentSupport(String name, boolean is_var_args, boolean is_final, JavaToken jToken);
 
 //	JNIEXPORT void JNICALL Java_JavaParser_cactionCatchArgument(JNIEnv *, jclass, jstring, jobject);
 //

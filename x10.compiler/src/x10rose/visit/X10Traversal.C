@@ -283,7 +283,7 @@ Java_x10rose_visit_JNI_cactionInsertClassStart(JNIEnv *env, jclass, jstring java
 #if 1
 	SgClassType *unknown = SgClassType::createType(class_declaration, NULL);
     astJavaComponentStack.push(unknown);
-	printf("**1**\n");
+//	printf("**1**\n");
 #else
     SgClassDefinition *class_definition = class_declaration -> get_definition();
     ROSE_ASSERT(class_definition && (! class_definition -> attributeExists("namespace")));
@@ -499,6 +499,72 @@ Java_x10rose_visit_JNI_cactionTypeReference(JNIEnv *env, jclass,
 
     if (SgProject::get_verbose() > 0)
         printf ("Exiting cactionTypeReference\n");
+}
+
+JNIEXPORT void JNICALL
+Java_x10rose_visit_JNI_cactionBuildArgumentSupport(JNIEnv *env, jclass, jstring java_argument_name, jboolean java_is_var_args, jboolean java_is_final, jobject jToken) {
+    if (SgProject::get_verbose() > 0)
+        printf ("Inside of Build argument support\n");
+
+// TODO: Remove this !!!
+//    SgFunctionDefinition *method_definition = isSgFunctionDefinition(astJavaScopeStack.top());
+//    ROSE_ASSERT(method_definition);
+
+    SgName argument_name = convertJavaStringToCxxString(env, java_argument_name);
+    bool is_final = java_is_final;
+    bool is_var_args = java_is_var_args;
+
+    if (SgProject::get_verbose() > 0)
+        printf ("argument argument_name = %s \n", argument_name.str());
+
+    SgType *argument_type = astJavaComponentStack.popType();
+
+    ROSE_ASSERT(argument_type);
+
+    // Until we attached this to the AST, this will generate an error in the AST consistancy tests.
+    SgInitializedName *initialized_name = SageBuilder::buildInitializedName(argument_name, argument_type, NULL);
+
+//    setJavaSourcePosition(initialized_name, env, jToken);
+    ROSE_ASSERT(initialized_name != NULL);
+
+    //
+    // TODO: This is a patch.  Currently, the final attribute can only be associated with a
+    //       variable declaration. However, a parameter declaration is an SgInitializedName
+    //       in the Sage III representation and not an SgVariableDeclaration.
+    //
+    // The correct code should look something like this:
+    //
+    //    if (is_final) {
+    //        initialized_name -> get_declarationModifier().setFinal();
+    //    }
+    //
+    if (is_final) {
+        initialized_name -> setAttribute("final", new AstRegExAttribute(""));
+    }
+
+    //
+    // Identify Arguments with var arguments.
+    //
+    if (is_var_args) {
+        SgPointerType *array_type = isSgPointerType(argument_type);
+        ROSE_ASSERT(array_type);
+        SgType *element_type = array_type -> get_base_type();
+
+        initialized_name -> setAttribute("var_args", new AstSgNodeAttribute(element_type));
+        initialized_name -> setAttribute("type", new AstRegExAttribute(getTypeName(element_type) + "..."));
+    }
+    else initialized_name -> setAttribute("type", new AstRegExAttribute(getTypeName(argument_type)));
+
+// TODO: Remove this !!!
+//    initialized_name -> set_scope(method_definition);
+//    method_definition -> insert_symbol(argument_name, new SgVariableSymbol(initialized_name));
+
+    astJavaComponentStack.push(initialized_name);
+// TODO: Remove this!
+//cout << "Pushed " << initialized_name -> class_name() << endl; cout.flush();
+
+    if (SgProject::get_verbose() > 0)
+        printf ("Exiting Build argument support\n");
 }
 
 

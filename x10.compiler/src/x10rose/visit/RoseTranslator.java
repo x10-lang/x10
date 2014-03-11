@@ -6,10 +6,11 @@
  *  You may obtain a copy of the License at
  *      http://www.opensource.org/licenses/eclipse-1.0.php
  *
- *  (C) Copyright IBM Corporation 2006-2014.
+ *  (C) Copyright IBM Corporation 2006-2010.
  */
 
 package x10rose.visit;
+
 
 import java.io.File;
 import java.io.IOException;
@@ -411,12 +412,27 @@ static int method_index = 0;
 //			visitChild(n, n.guard());
 //			visitChild(n, n.offerType());
 //			visitChildren(n, n.throwsTypes());
-//			visitChild(n, n.body());
+			visitChild(n, n.body());
 		}
 
 		public void visit(X10Formal_c n) {
 			toRose(n, "formal: ", n.name().id().toString());
+
+//                args_location = createJavaToken(args[0], args[args.length - 1]); 
+//
+//                for (int j = 0; j < args.length; j++) {
+//                    Argument arg = args[j];
+//                    JavaToken arg_location = createJavaToken(arg);
+//                    generateAndPushType(arg.type.resolvedType, arg_location);
+//                    String argument_name = new String(arg.name);
+//                    JavaParser.cactionBuildArgumentSupport(argument_name,
+//                                                           arg.isVarArgs(),
+//                                                           arg.binding.isFinal(),
+//                                                           arg_location);
+//                }
 			visitChild(n, n.type());
+			// so far, all parameters's modifier are set as final
+			JNI.cactionBuildArgumentSupport(n.name().toString(), n.vars().size()>0, false, createJavaToken());
 		}
 
 		public void visit(X10Call_c n) {
@@ -446,6 +462,20 @@ static int method_index = 0;
 
 		public void visit(Block_c n) {
 			toRose(n, "Block:", null);
+			System.out.println("block-->p" + n);
+			
+//			   if (javaParserSupport.verboseLevel > 0)
+//		            System.out.println("Inside of enter (Block,BlockScope)");
+//
+//		        JavaParser.cactionBlock(javaParserSupport.createJavaToken(node));
+//
+//		        if (javaParserSupport.verboseLevel > 0)
+//		            System.out.println("Leaving enter (Block,BlockScope)");
+//
+//		        return true; // do nothing by node, keep traversing
+			
+			
+			
 			visitChildren(n, n.statements());
 		}
 
@@ -456,11 +486,14 @@ static int method_index = 0;
 
 		public void visit(AssignPropertyCall_c n) {
 			toRose(n, "AssignPropertyCall:", null);
+			System.out.println("AssignPropppertyCall-->" + n);
 			visitChildren(n, n.arguments());
 		}
 
 		public void visit(Empty_c n) {
 			toRose(n, "Empty:", null);
+			
+			System.out.println("Empty-->" + n);
 		}
 
 		public void visit(X10CanonicalTypeNode_c n) {
@@ -503,7 +536,8 @@ static int method_index = 0;
 				// If I use a representation such as "x10.lang.Rail", lookupTypeByName() function tries
 				// to look for a type name whether the type name is already registered or not. (and, there is
 				// no registration for Rail, so ROSE compiler fails.)
-				JNI.cactionTypeReference(pkg, type);
+//				JNI.cactionTypeReference(pkg, type);
+				JNI.cactionTypeReference("", n.nameString());
 			}
 //			JNI.cactionTypeDeclaration("", n.nameString(), false, false, false, false, false, false, false, false, false, false);
 		}

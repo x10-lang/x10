@@ -108,6 +108,8 @@ JNIEXPORT void JNICALL Java_x10rose_visit_JNI_cactionLongLiteral(JNIEnv *, jclas
 
 JNIEXPORT void JNICALL Java_x10rose_visit_JNI_cactionSwitchStatement(JNIEnv *, jclass, jobject);
 
+JNIEXPORT void JNICALL Java_x10rose_visit_JNI_cactionBuildArgumentSupport(JNIEnv *, jclass, jstring, jboolean, jboolean, jobject);
+
 
 #ifdef __cplusplus
 }
