@@ -50,17 +50,18 @@ public class Launcher {
 		String[] newArgs;
 		
 		if (isDebug){
-			newArgs = new String[args.length+7];
+			newArgs = new String[args.length+8];
 			newArgs[0] = System.getProperty("java.home").concat("/bin/java");
-			newArgs[1] = "-Xdebug";
-			newArgs[2] = "-Xrunjdwp:transport=dt_socket,server=y,suspend=y";
-			newArgs[3] = "-ea";
-			newArgs[4] = "-Djava.library.path="+System.getProperty("java.library.path");
-			newArgs[5] = "-Djava.class.path="+System.getProperty("java.class.path");
-			newArgs[6] = "-Djava.util.logging.config.file="+System.getProperty("java.util.logging.config.file");
-			newArgs[7] = SlaveLauncher.class.getName();
+			newArgs[1] = "-XX:+UseParallelGC";
+			newArgs[2] = "-Xdebug";
+			newArgs[3] = "-Xrunjdwp:transport=dt_socket,server=y,suspend=y";
+			newArgs[4] = "-ea";
+			newArgs[5] = "-Djava.library.path="+System.getProperty("java.library.path");
+			newArgs[6] = "-Djava.class.path="+System.getProperty("java.class.path");
+			newArgs[7] = "-Djava.util.logging.config.file="+System.getProperty("java.util.logging.config.file");
+			newArgs[8] = SlaveLauncher.class.getName();
 			for (int i=1; i<args.length; i++)
-				newArgs[i+7] = args[i];
+				newArgs[i+8] = args[i];
 		} else {
 			newArgs = new String[args.length+6];
 			newArgs[0] = System.getProperty("java.home").concat("/bin/java");
