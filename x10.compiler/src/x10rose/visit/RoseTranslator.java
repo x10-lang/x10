@@ -380,6 +380,7 @@ static int method_index = 0;
 			visitChild(n, n.superClass());
 			visitChildren(n, n.interfaces());
 			visitChild(n, n.body());
+//			JNI.cactionTypeDeclaration("", n.name().id().toString(), false, false, false, false, false, false, false, false, false, false);
 		}
 
 		public void visit(LocalClassDecl_c n) {
@@ -398,17 +399,35 @@ static int method_index = 0;
 			List formals = n.formals();
 			System.out.println("ReturnType==" + n.returnType());
 			
+
+			String method_name = n.name().id().toString();
 //			if (n.returnType().toString().indexOf("{") >= 0) {
 //				
 //			}
+
+
+            JNI.cactionBuildMethodSupportStart(method_name, method_index,
+                                                              createJavaToken());
+
 			
 			visitChild(n, n.returnType());
-			// Tentatively, parameter size is set to 0
-			JNI.cactionMethodDeclaration(n.name().id().toString(), method_index++, 0/*formals.size()*/, 
+	
+			visitChildren(n, n.formals());
+			
+/*
+			JNI.cactionMethodDeclaration(n.name().id().toString(), method_index++, formals.size(), 
 					new JavaToken(n.name().id().toString(), new JavaSourcePositionInformation(n.position().line())), 
 					new JavaToken(n.name().id().toString()+"_args", new JavaSourcePositionInformation(n.position().line())));
+*/
+
+           JNI.cactionBuildMethodSupportEnd(method_name,
+                                                            method_index, // method index 
+															false, false, false, 0, formals.size(),
+                                                            true, /* user-defined-method */
+					new JavaToken(n.name().id().toString(), new JavaSourcePositionInformation(n.position().line())), 
+					new JavaToken(n.name().id().toString()+"_args", new JavaSourcePositionInformation(n.position().line())));
+
 			
-			visitChildren(n, n.formals());
 //			visitChild(n, n.guard());
 //			visitChild(n, n.offerType());
 //			visitChildren(n, n.throwsTypes());
@@ -551,6 +570,7 @@ static int method_index = 0;
 			toRose(n, "X10Binary:", n.operator().toString());
 			visitChild(n, n.left());
 			visitChild(n, n.right());
+			
 		}
 
 		public void visit(X10Unary_c n) {
@@ -572,7 +592,10 @@ static int method_index = 0;
 		}
 
 		public void visit(X10Local_c n) {
-			toRose(n, "X10Local:", n.name().id().toString());
+			toRose(n, "X10Local :", n.name().id().toString());
+//            JavaParser.cactionSingleNameReference(package_name, type_name, varRefName, javaParserSupport.createJavaToken(node));
+			JNI.cactionSingleNameReference("", "", n.name().id().toString(), createJavaToken());
+			System.out.println("X10Local end");
 		}
 
 		public void visit(Eval_c n) {

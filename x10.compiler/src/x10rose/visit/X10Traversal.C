@@ -325,6 +325,11 @@ Java_x10rose_visit_JNI_cactionTypeDeclaration(JNIEnv *env, jclass,
 	SgClassDefinition *definition = class_declaration->get_definition(); 
 	ROSE_ASSERT(definition);
 //	astJavaScopeStack.push(class_declaration->get_definition()); 
+
+	// MH-20140311
+    definition -> setAttribute("class_members", new AstSgNodeListAttribute());
+    definition -> setAttribute("type_parameter_space", new AstSgNodeListAttribute());
+
 	astJavaScopeStack.push(definition); 
 	astJavaComponentStack.push(definition);
 
@@ -335,6 +340,10 @@ Java_x10rose_visit_JNI_cactionTypeDeclaration(JNIEnv *env, jclass,
 	cout << "class symbol=" << class_declaration->get_symbol_from_symbol_table() << endl;
 
 	cout << "cactionTypeDecl=" << type_name << ", decl=" << definition << endl;
+
+
+
+
 #if 0
 	    SgType *type = lookupTypeByName(package_name, type_name, 0 /* not an array - number of dimensions is 0 */);
 		
@@ -421,6 +430,7 @@ Java_x10rose_visit_JNI_cactionMethodDeclaration(JNIEnv *env, jclass,
  																jobject method_location, 
 																jobject args_location,
 																jobject jToken) {
+#if 0
 	printf("MethodDeclaration start\n");
    SgName name = convertJavaStringToCxxString(env, java_string);
 	
@@ -438,15 +448,55 @@ Java_x10rose_visit_JNI_cactionMethodDeclaration(JNIEnv *env, jclass,
    SgFunctionDefinition *method_definition = method_declaration -> get_definition();
    ROSE_ASSERT(method_definition);
 
-	astJavaScopeStack.push(method_definition); 
+
+/////////////////////////////////////
+/////////////////////////////////////
+
+//	astJavaScopeStack.push(method_definition); 
 	astJavaComponentStack.push(method_definition);
 
 // MH-20140226
 // this is a temporary approach to avoid errors
+// 
+// MH-20140311
+// seemed to be fixed
+#if 1
 	astJavaScopeStack.push(class_definition); 
 	astJavaComponentStack.push(class_definition);
+#endif
 
 	printf("MethodDeclaration end\n");
+#else
+    if (SgProject::get_verbose() > 0)
+        printf ("Build a SgMemberFunctionDeclaration \n");
+
+    SgName name = convertJavaStringToCxxString(env, java_string);
+
+    SgClassDefinition *class_definition = isSgClassDefinition(astJavaScopeStack.top());
+    ROSE_ASSERT(class_definition != NULL  && (! class_definition -> attributeExists("namespace")));
+cout << "classdef=" << class_definition << endl;
+    AstSgNodeListAttribute *attribute = (AstSgNodeListAttribute *) class_definition -> getAttribute("type_parameter_space");
+    ROSE_ASSERT(attribute);
+    SgScopeStatement *type_space = isSgScopeStatement(attribute -> getNode(method_index));
+cout << "1" << endl; 
+    ROSE_ASSERT(type_space);
+cout << "2" << endl; 
+
+    attribute = (AstSgNodeListAttribute *) class_definition -> getAttribute("class_members");
+    ROSE_ASSERT(attribute);
+    SgFunctionDefinition *method_definition = isSgFunctionDefinition(attribute -> getNode(method_index));
+    ROSE_ASSERT(method_definition);
+    SgMemberFunctionDeclaration *method_declaration = isSgMemberFunctionDeclaration(method_definition -> get_declaration());
+    ROSE_ASSERT(method_declaration);
+    ROSE_ASSERT(method_declaration -> get_type());
+    ROSE_ASSERT(method_declaration -> get_type() -> get_return_type());
+    method_declaration -> setAttribute("type", new AstRegExAttribute(getTypeName(method_declaration -> get_type() -> get_return_type())));
+
+//    astJavaScopeStack.push(type_space);
+    astJavaScopeStack.push(method_definition);
+    ROSE_ASSERT(astJavaScopeStack.top() -> get_parent() != NULL);
+
+#endif
 }
 
 
@@ -501,6 +551,145 @@ Java_x10rose_visit_JNI_cactionTypeReference(JNIEnv *env, jclass,
         printf ("Exiting cactionTypeReference\n");
 }
 
+
+
+JNIEXPORT void JNICALL Java_x10rose_visit_JNI_cactionBuildMethodSupportStart(JNIEnv *env, jclass,
+                                                                      jstring java_name,
+                                                                      jint method_index,
+                                                                      jobject method_location) {
+    SgName name = convertJavaStringToCxxString(env, java_name);
+    if (SgProject::get_verbose() > 1)
+          printf ("Inside of BuildMethodSupportStart for method = %s \n", name.str());
+
+    SgClassDefinition *class_definition = isSgClassDefinition(astJavaScopeStack.top());
+    ROSE_ASSERT(class_definition && (! class_definition -> attributeExists("namespace")));
+
+    //
+    // This scope will be used to store Type Parameters, if there are any.
+    //
+    SgScopeStatement *type_space = new SgScopeStatement();
+    type_space -> set_parent(class_definition);
+//    setJavaSourcePosition(type_space, env, method_location);
+
+    if (method_index >= 0) {
+        AstSgNodeListAttribute *attribute = (AstSgNodeListAttribute *) class_definition -> getAttribute("type_parameter_space");
+        ROSE_ASSERT(attribute);
+        attribute -> setNode(type_space, method_index);
+    }
+
+    astJavaScopeStack.push(type_space);
+
+    if (SgProject::get_verbose() > 1)
+        printf ("Exiting BuildMethodSupportStart for method = %s \n", name.str());
+}
+
+
+JNIEXPORT void JNICALL Java_x10rose_visit_JNI_cactionBuildMethodSupportEnd(JNIEnv *env, jclass xxx,
+                                                                    jstring java_string,
+                                                                    jint method_index,
+                                                                    jboolean java_is_constructor,
+                                                                    jboolean java_is_abstract,
+                                                                    jboolean java_is_native,
+                                                                    jint java_number_of_type_parameters,
+                                                                    jint java_number_of_arguments,
+                                                                    jboolean java_is_user_defined,
+                                                                    jobject method_location,
+                                                                    jobject args_location) {
+    SgName name = convertJavaStringToCxxString(env, java_string);
+    int number_of_type_parameters = java_number_of_type_parameters;
+    int number_of_arguments = java_number_of_arguments;
+    bool is_constructor = java_is_constructor,
+         is_abstract = java_is_abstract,
+         is_native = java_is_native,
+         is_user_defined = java_is_user_defined;
+
+    if (SgProject::get_verbose() > 1)
+        printf ("Build support for implicit class member function (method) name = %s \n", name.str());
+
+    SgScopeStatement *type_space = isSgScopeStatement(astJavaScopeStack.pop());
+    ROSE_ASSERT(type_space);
+
+
+// TODO: Remove this !!!
+//    SgFunctionDefinition *method_definition = isSgFunctionDefinition(((AstSgNodeAttribute *) type_space -> getAttribute("method")) -> getNode());
+//    ROSE_ASSERT(method_definition);
+
+    SgClassDefinition *class_definition = isSgClassDefinition(astJavaScopeStack.top());
+    ROSE_ASSERT(class_definition != NULL && (! class_definition -> attributeExists("namespace")));
+
+	cout << "***** name=" << name << ", def=" << class_definition << endl;
+
+    //
+    // There is no reason to distinguish between defining and non-defining declarations in Java...
+    //
+    SgMemberFunctionDeclaration *method_declaration = buildDefiningMemberFunction(name, class_definition, number_of_arguments, env, method_location, args_location);
+    setJavaSourcePosition(method_declaration, env, method_location);
+    ROSE_ASSERT(method_declaration != NULL);
+
+    SgFunctionDefinition *method_definition = method_declaration -> get_definition();
+    ROSE_ASSERT(method_definition);
+    if (method_index >= 0) {
+// TODO: Remove this !!!
+//        method_definition -> setAttribute("type_space", new AstSgNodeAttribute(type_space));
+//        AstSgNodeListAttribute *attribute = (AstSgNodeListAttribute *) class_definition -> getAttribute("class_members");
+//        ROSE_ASSERT(attribute);
+//        attribute -> setNode(method_definition, method_index);
+
+        AstSgNodeListAttribute *attribute = (AstSgNodeListAttribute *) class_definition -> getAttribute("class_members");
+        ROSE_ASSERT(attribute);
+        attribute -> setNode(method_definition, method_index);
+    }
+
+    if (is_constructor) {
+        method_declaration -> get_specialFunctionModifier().setConstructor();
+    }
+    if (is_abstract) {
+        method_declaration -> get_declarationModifier().setJavaAbstract();
+        method_declaration -> setForward(); // indicate that this function does not contain a body.
+    }
+    if (is_native) {
+        method_declaration -> get_functionModifier().setJavaNative();
+        method_declaration -> setForward(); // indicate that this function does not contain a body.
+    }
+
+    if (number_of_type_parameters > 0) {
+        list<SgTemplateParameter *> parameter_list;
+        for (int i = 0; i < number_of_type_parameters; i++) { // Reverse the content of the stack.
+            SgClassDeclaration *parameter_decl = isSgClassDeclaration(astJavaComponentStack.pop());
+            ROSE_ASSERT(parameter_decl);
+            SgTemplateParameter *parameter = new SgTemplateParameter(parameter_decl -> get_type(), NULL);
+            parameter_list.push_front(parameter);
+        }
+
+        SgTemplateParameterPtrList final_list;
+        while (! parameter_list.empty()) { // Now that we have the parameters in the right order, create the final list.
+            SgTemplateParameter *parameter = parameter_list.front();
+            parameter_list.pop_front();
+            final_list.push_back(parameter);
+        }
+
+        SgTemplateParameterList *template_parameter_list = new SgTemplateParameterList();
+        template_parameter_list -> set_args(final_list);
+        method_declaration -> setAttribute("type_parameters", new AstSgNodeAttribute(template_parameter_list));
+    }
+
+    // TODO: We need the next 3 lines for EDG4 
+    // SgMemberFunctionDeclaration *nondefining_method_declaration = isSgMemberFunctionDeclaration(method_declaration -> get_firstNondefiningDeclaration());
+    // ROSE_ASSERT(nondefining_method_declaration);
+    // nondefining_method_declaration -> get_declarationModifier().get_accessModifier().set_modifier(method_declaration -> get_declarationModifier().get_accessModifier().get_modifier());
+
+    astJavaComponentStack.push(method_declaration);
+
+// Tried to push method_definition if lookup can find formals. This did not work.
+	astJavaScopeStack.push(::globalScope); 
+
+    if (SgProject::get_verbose() > 1)
+        printf ("Exiting build support for implicit class member function (method) name = %s \n", name.str());
+}
+
+
+
+
 JNIEXPORT void JNICALL
 Java_x10rose_visit_JNI_cactionBuildArgumentSupport(JNIEnv *env, jclass, jstring java_argument_name, jboolean java_is_var_args, jboolean java_is_final, jobject jToken) {
     if (SgProject::get_verbose() > 0)
@@ -518,7 +707,7 @@ Java_x10rose_visit_JNI_cactionBuildArgumentSupport(JNIEnv *env, jclass, jstring 
         printf ("argument argument_name = %s \n", argument_name.str());
 
     SgType *argument_type = astJavaComponentStack.popType();
-
+//cout << "ArgType="<< argument_type << endl;
     ROSE_ASSERT(argument_type);
 
     // Until we attached this to the AST, this will generate an error in the AST consistancy tests.
@@ -560,8 +749,9 @@ Java_x10rose_visit_JNI_cactionBuildArgumentSupport(JNIEnv *env, jclass, jstring 
 //    method_definition -> insert_symbol(argument_name, new SgVariableSymbol(initialized_name));
 
     astJavaComponentStack.push(initialized_name);
+
 // TODO: Remove this!
-//cout << "Pushed " << initialized_name -> class_name() << endl; cout.flush();
+cout << "Pushed " << initialized_name -> class_name() << endl; cout.flush();
 
     if (SgProject::get_verbose() > 0)
         printf ("Exiting Build argument support\n");
@@ -582,6 +772,46 @@ Java_x10rose_visit_JNI_cactionCatchArgument(JNIEnv *env, jclass, jstring java_ar
     astJavaScopeStack.push(catch_option_stmt);
 }
 
+JNIEXPORT void JNICALL
+Java_x10rose_visit_JNI_cactionSingleNameReference(JNIEnv *env, jclass, jstring java_package_name, jstring java_type_name, jstring java_name, jobject jToken) {
+    SgName package_name = convertJavaPackageNameToCxxString(env, java_package_name),
+           type_name = convertJavaStringToCxxString(env, java_type_name),
+           name = convertJavaStringToCxxString(env, java_name);
+//cout << "NAME=" << name << endl;
+    SgVariableSymbol *variable_symbol = NULL;
+    if (! type_name.getString().empty()) { // an instance variable?
+        if (SgProject::get_verbose() > 0)
+            printf ("Building a Single Name reference for name = %s%s%s \n", (package_name.getString().empty() ? "" : (package_name.getString() + ".")).c_str(), (type_name.getString() + ".").c_str(), name.str());
+
+        SgType *type = lookupTypeByName(package_name, type_name, 0 /* not an array - number of dimensions is 0 */);
+        ROSE_ASSERT(type);
+        SgClassType *class_type = isSgClassType(type);
+        ROSE_ASSERT(class_type);
+        SgClassDeclaration *declaration = isSgClassDeclaration(class_type -> get_declaration() -> get_definingDeclaration());
+        ROSE_ASSERT(declaration);
+        ROSE_ASSERT(declaration -> get_definition());
+        variable_symbol = lookupSimpleNameVariableInClass(name, declaration -> get_definition());
+    }
+    else { // a local variable!
+        if (SgProject::get_verbose() > 0)
+            printf ("Building a Single Name reference for name = %s \n", name.str());
+        variable_symbol = lookupVariableByName(name);
+    }
+
+    ROSE_ASSERT(variable_symbol);
+    SgVarRefExp *varRefExp = SageBuilder::buildVarRefExp(variable_symbol);
+    ROSE_ASSERT(varRefExp != NULL);
+
+    if (SgProject::get_verbose() > 0)
+        printf ("In cactionSingleNameReference(): varRefExp = %p type = %p = %s \n", varRefExp, varRefExp -> get_type(), varRefExp -> get_type() -> class_name().c_str());
+
+    setJavaSourcePosition(varRefExp, env, jToken);
+
+    ROSE_ASSERT(! varRefExp -> get_file_info() -> isTransformation());
+    ROSE_ASSERT(! varRefExp -> get_file_info() -> isCompilerGenerated());
+
+    astJavaComponentStack.push(varRefExp);
+}
 
 JNIEXPORT void JNICALL
 Java_x10rose_visit_JNI_cactionArrayTypeReference(JNIEnv *env, jclass, jint java_num_dimensions, jobject jToken) {

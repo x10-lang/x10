@@ -41,9 +41,15 @@ public class JNI {
 	public static native void cactionCompilationUnitDeclaration(String packageName, String path);
 	
 	public static native void cactionTypeReference(String packageName, String name);
+
+	public static native void cactionBuildMethodSupportStart(String methodName, int method_index, JavaToken method_loc);
+
+    public static native void cactionBuildMethodSupportEnd(String methodName, int method_index, boolean is_constructor, boolean is_abstract, boolean is_native, int num_type_parameters, int num_arguments, boolean isUserDefined, JavaToken method_loc, JavaToken args_loc);
 	
    public static native void cactionBuildArgumentSupport(String name, boolean is_var_args, boolean is_final, JavaToken jToken);
 
+   public static native void cactionSingleNameReference(String package_name, String type_name, String varRefName, JavaToken jToken);
+   
 //	JNIEXPORT void JNICALL Java_JavaParser_cactionCatchArgument(JNIEnv *, jclass, jstring, jobject);
 //
 //
