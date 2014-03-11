@@ -386,7 +386,7 @@ Thread::sleep(x10_long millis, x10_int nanos)
             done = true;
         } else {
             // might be a spurious wakeup
-            throwException<InterruptedException>();
+            // throwException<InterruptedException>();
             break;
             /*
             struct timeval cval;
@@ -402,6 +402,7 @@ Thread::sleep(x10_long millis, x10_int nanos)
         }
     }
     pthread_cleanup_pop(1);
+    if (!done) throwException<InterruptedException>();
     __xrxDPrEnd();
 }
 
