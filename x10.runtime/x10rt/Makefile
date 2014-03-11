@@ -50,8 +50,9 @@ SO_LDFLAGS = $(LDFLAGS_SHARED)
 X10RT_TEST_LDFLAGS += -L"$(X10_HOME)"/x10.runtime/x10rt/lib
 
 ifdef ENABLE_X10RT_CUDA
-	override CXXFLAGS += -DENABLE_CUDA -isystem/usr/local/cuda/include
-	override MOV_LDFLAGS += -L/usr/local/cuda/lib
+	CUDA_PATH ?= /usr/local/cuda
+	override CXXFLAGS += -DENABLE_CUDA -isystem$(CUDA_PATH)/include
+	override MOV_LDFLAGS += -L$(CUDA_PATH)/lib
 	override MOV_LDLIBS += -lcuda
 endif
 
