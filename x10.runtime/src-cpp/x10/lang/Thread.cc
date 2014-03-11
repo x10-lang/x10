@@ -332,7 +332,7 @@ Thread::thread_sleep_cleanup(void *arg)
 
     __xrxDPrStart();
     pthread_mutex_unlock(&(cmp->mutex));
-    signal(SIGINT, SIG_DFL);
+//    signal(SIGINT, SIG_DFL);
     __xrxDPrEnd();
 }
 
@@ -371,7 +371,7 @@ Thread::sleep(x10_long millis, x10_int nanos)
     int rc;
 
     __xrxDPrStart();
-    signal(SIGINT, intr_hndlr);
+//    signal(SIGINT, intr_hndlr);
     pthread_mutex_lock(&(cmp->mutex));
     pthread_cleanup_push(thread_sleep_cleanup, (void *)cmp);
     gettimeofday(&tval, NULL);
