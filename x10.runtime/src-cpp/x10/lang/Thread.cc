@@ -201,6 +201,8 @@ Thread::thread_init(String* name)
     }
     // create this thread's permit object
     thread_permit_init(&__thread_permit);
+    // create this thread's cond_mutex object
+    thread_cmp_init(&__thread_cmp);
 
     __xrxDPrEnd();
 }
@@ -263,6 +265,8 @@ Thread::~Thread()
     pthread_attr_destroy(&__xthread_attr);
     // free thread permit
     thread_permit_destroy(&__thread_permit);
+    // free thread cond_mutex
+    thread_cmp_destroy(&__thread_cmp);
     __xrxDPrEnd();
 }
 
@@ -328,9 +332,6 @@ Thread::thread_sleep_cleanup(void *arg)
 
     __xrxDPrStart();
     pthread_mutex_unlock(&(cmp->mutex));
-    pthread_mutex_destroy(&(cmp->mutex));
-    pthread_cond_destroy(&(cmp->cond));
-    delete cmp;
     signal(SIGINT, SIG_DFL);
     __xrxDPrEnd();
 }
@@ -360,7 +361,9 @@ Thread::intr_hndlr(int signo)
 void
 Thread::sleep(x10_long millis, x10_int nanos)
 {
-    cond_mutex_t *cmp;
+    Thread* th = currentThread();
+    cond_mutex_t *cmp = &(th->__thread_cmp);
+
     x10_boolean done = false;
     struct timeval tval;
     struct timespec tout;
@@ -369,9 +372,6 @@ Thread::sleep(x10_long millis, x10_int nanos)
 
     __xrxDPrStart();
     signal(SIGINT, intr_hndlr);
-    cmp = new (cond_mutex_t);
-    pthread_mutex_init(&(cmp->mutex), NULL);
-    pthread_cond_init(&(cmp->cond), NULL);
     pthread_mutex_lock(&(cmp->mutex));
     pthread_cleanup_push(thread_sleep_cleanup, (void *)cmp);
     gettimeofday(&tval, NULL);
@@ -415,12 +415,28 @@ Thread::thread_permit_init(permit_t *perm)
     perm->permit = false;
 }
 
+// cond_mutex initialization
+void
+Thread::thread_cmp_init(cond_mutex_t *cmp)
+{
+    pthread_mutex_init(&(cmp->mutex), NULL);
+    pthread_cond_init(&(cmp->cond), NULL);
+}
+
 // permit finalization
 void
 Thread::thread_permit_destroy(permit_t *perm)
 {
     pthread_mutex_destroy(&(perm->mutex));
     pthread_cond_destroy(&(perm->cond));
+}
+
+// cond_mutex finalization
+void
+Thread::thread_cmp_destroy(cond_mutex_t *cmp)
+{
+    pthread_mutex_destroy(&(cmp->mutex));
+    pthread_cond_destroy(&(cmp->cond));
 }
 
 // permit cleanup
