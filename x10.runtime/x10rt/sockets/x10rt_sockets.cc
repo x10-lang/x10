@@ -1062,8 +1062,7 @@ x10rt_error x10rt_net_blocking_probe ()
 	// Call the blocking form of probe, returning after the one call.
 	probe(false, true);
 	// then, loop again to gather everything from the network before returning.
-	while (probe(false, false)) { }
-
+	while (probe(false, false));
     return context.errorCode;
 }
 
@@ -1136,11 +1135,19 @@ bool probe (bool onlyProcessAccept, bool block)
 				pthread_mutex_unlock(&context.readLock);
 			}
 			else if (whichPlaceToHandle == context.numPlaces) { // unblockProbe was called
+				#ifdef DEBUG
+					fprintf(stderr, "saw that unblock probe was called in place %u\n", context.myPlaceId);
+				#endif
 				char dummy;
-				// clear out anything in the pipe
-				while (::recv(context.unblockFD[0], &dummy, 1, MSG_DONTWAIT) > 0);
+				// clear out one unblock signal
+				::read(context.socketLinks[context.numPlaces].fd, &dummy, 1);
 				// re-enable unblockProbe
+				pthread_mutex_lock(&context.readLock);
 				context.socketLinks[whichPlaceToHandle].events = POLLIN | POLLPRI;
+				pthread_mutex_unlock(&context.readLock);
+				#ifdef DEBUG				
+					fprintf(stderr, "finished processing unblock probe in place %u\n\n", context.myPlaceId);
+				#endif
 				return false;
 			}
 			else
