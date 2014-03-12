@@ -269,13 +269,46 @@ Java_x10rose_visit_JNI_cactionSetupObject(JNIEnv *env, jclass) {
 }
 
 
-
-JNIEXPORT void JNICALL
-Java_x10rose_visit_JNI_cactionInsertClassStart(JNIEnv *env, jclass, jstring java_string, jobject jToken) {
+JNIEXPORT void JNICALL 
+Java_x10rose_visit_JNI_cactionInsertClassStart(JNIEnv *env, jclass xxx, jstring java_string, jobject jToken) {
     SgName name = convertJavaStringToCxxString(env, java_string);
 
     if (SgProject::get_verbose() > 0)
         printf ("Inside of Java_JavaParser_cactionInsertClassStart(): = %s \n", name.str());
+    SgScopeStatement *outerScope = astJavaScopeStack.top();
+    ROSE_ASSERT(outerScope != NULL);
+    SgClassDeclaration *class_declaration = buildDefiningClassDeclaration(name, outerScope);
+//    setJavaSourcePosition(class_declaration, env, jToken);
+    SgClassDefinition *class_definition = class_declaration -> get_definition();
+    ROSE_ASSERT(class_definition && (! class_definition -> attributeExists("namespace")));
+//    setJavaSourcePosition(class_definition, env, jToken);
+
+    astJavaScopeStack.push(class_definition); // to contain the class members...
+}
+
+
+JNIEXPORT void JNICALL 
+Java_x10rose_visit_JNI_cactionInsertClassEnd(JNIEnv *env, jclass xxx, jstring java_string, jobject jToken) {
+    SgName name = convertJavaStringToCxxString(env, java_string);
+
+    if (SgProject::get_verbose() > 0)
+        printf ("Inside of Java_JavaParser_cactionInsertClassEnd: %s \n", name.str());
+
+    ROSE_ASSERT(! astJavaScopeStack.empty());
+
+    SgClassDefinition *class_definition = astJavaScopeStack.popClassDefinition();
+    ROSE_ASSERT(! class_definition -> attributeExists("namespace"));
+}
+
+
+
+
+JNIEXPORT void JNICALL
+Java_x10rose_visit_JNI_cactionInsertClassStart2(JNIEnv *env, jclass, jstring java_string, jobject jToken) {
+    SgName name = convertJavaStringToCxxString(env, java_string);
+
+    if (SgProject::get_verbose() > 0)
+        printf ("Inside of Java_JavaParser_cactionInsertClassStart2(): = %s \n", name.str());
 
     SgScopeStatement *outerScope = astJavaScopeStack.top();
     ROSE_ASSERT(outerScope != NULL);
@@ -291,6 +324,64 @@ Java_x10rose_visit_JNI_cactionInsertClassStart(JNIEnv *env, jclass, jstring java
     astJavaScopeStack.push(class_definition); // to contain the class members...
 #endif
 }
+
+JNIEXPORT void JNICALL 
+Java_x10rose_visit_JNI_cactionBuildClassSupportStart(JNIEnv *env, jclass xxx, jstring java_name, jstring java_external_name, jboolean java_user_defined_class, jboolean java_has_conflicts, jboolean java_is_interface, jboolean java_is_enum, jboolean java_is_anonymous, jobject jToken) {
+    SgName name = convertJavaStringToCxxString(env, java_name);
+    SgName external_name = convertJavaStringToCxxString(env, java_external_name);
+    bool user_defined_class = java_user_defined_class;
+    bool has_conflicts = java_has_conflicts;
+    bool is_interface = java_is_interface;
+    bool is_enum = java_is_enum;
+    bool is_anonymous = java_is_anonymous;
+
+    if (SgProject::get_verbose() > 0)
+        printf ("Inside of Java_JavaParser_cactionBuildClassSupportStart(): %s %s \n", (is_interface ? "interface" : "class"), name.str());
+
+    SgScopeStatement *outerScope = astJavaScopeStack.top();
+    ROSE_ASSERT(outerScope != NULL);
+
+    SgClassSymbol *class_symbol = outerScope -> lookup_class_symbol(name);
+    ROSE_ASSERT(class_symbol);
+    SgClassDeclaration *declaration = (SgClassDeclaration *) class_symbol -> get_declaration() -> get_definingDeclaration();
+    ROSE_ASSERT(declaration);
+    SgClassDefinition *class_definition = declaration -> get_definition();
+    ROSE_ASSERT(class_definition && (! class_definition -> attributeExists("namespace")));
+    astJavaScopeStack.push(class_definition); // to contain the class members...
+
+    declaration -> set_explicit_interface(is_interface); // Identify whether or not this is an interface.
+    declaration -> set_explicit_enum(is_enum);           // Identify whether or not this is an enum.
+
+    SgClassType *class_type = declaration -> get_type();
+    if (external_name.getString().size() > 0) {
+        ROSE_ASSERT(class_type);
+        class_type -> setAttribute("name", new AstRegExAttribute(external_name.getString()));
+        if (is_anonymous) {
+            class_type -> setAttribute("anonymous", new AstRegExAttribute(""));
+            declaration -> setAttribute("anonymous", new AstRegExAttribute(""));
+        }
+    }
+    //
+    // Identify classes that are conflicting that must be fully-qualified when used.
+    //
+    if (has_conflicts) {
+        class_type -> setAttribute("has_conflicts", new AstRegExAttribute(""));
+    }
+
+    //
+    // If this is a user-defined class, we may need to keep track of some of its class members.
+    //
+    if (user_defined_class) {
+        class_definition -> setAttribute("class_members", new AstSgNodeListAttribute());
+        class_definition -> setAttribute("type_parameter_space", new AstSgNodeListAttribute());
+    }
+
+    astJavaComponentStack.push(class_definition); // To mark the end of the list of components in this type.
+
+    if (SgProject::get_verbose() > 0)
+        printf ("Exiting Java_JavaParser_cactionBuildClassSupportStart(): %s %s \n", (is_interface ? "interface" : "class"), name.str());
+}
+
 
 
 
@@ -417,10 +508,68 @@ Java_x10rose_visit_JNI_cactionTypeDeclaration(JNIEnv *env, jclass,
 #endif
 
 
-//Java_x10rose_visit_JNI_cactionInsertClassStart();
+//Java_x10rose_visit_JNI_cactionInsertClassStart2();
 
 	    printf("TypeDeclaration ends\n");
 }
+
+JNIEXPORT void JNICALL
+Java_x10rose_visit_JNI_cactionBuildClassSupportEnd(JNIEnv *env, jclass xxx, jstring java_string, jobject jToken) {
+    SgName name = convertJavaStringToCxxString(env, java_string);
+
+    if (SgProject::get_verbose() > 0)
+        printf ("Inside of Java_JavaParser_cactionBuildClassSupportEnd: %s \n", name.str());
+
+    ROSE_ASSERT(! astJavaScopeStack.empty());
+
+    SgClassDefinition *class_definition = astJavaScopeStack.popClassDefinition();
+    ROSE_ASSERT(! class_definition -> attributeExists("namespace"));
+
+    for (SgStatement *statement = astJavaComponentStack.popStatement();
+        statement != class_definition;
+        statement = astJavaComponentStack.popStatement()) {
+        if (SgProject::get_verbose() > 2) {
+            cerr << "(1) Adding statement "
+                 << statement -> class_name()
+                 << " to an implicit Type Declaration"
+                 << endl;
+            cerr.flush();
+        }
+        ROSE_ASSERT(statement != NULL);
+
+        class_definition -> prepend_statement(statement);
+    }
+
+    ROSE_ASSERT(! astJavaScopeStack.empty());
+    SgScopeStatement *outerScope = astJavaScopeStack.top();
+
+    SgClassDeclaration *class_declaration = class_definition -> get_declaration();
+    ROSE_ASSERT(class_declaration);
+
+    //
+    // TODO:  Review this because of the package issue and the inability to build a global AST.
+    //
+    ROSE_ASSERT(outerScope != NULL);
+    if (isSgClassDefinition(outerScope) && isSgClassDefinition(outerScope) -> attributeExists("namespace")) { // a type in a package?
+        isSgClassDefinition(outerScope) -> append_statement(class_declaration);
+    }
+    else if (isSgClassDefinition(outerScope) && (! isSgClassDefinition(outerScope) -> attributeExists("namespace"))) { // an inner type?
+        astJavaComponentStack.push(class_declaration);
+    }
+    else if (isSgBasicBlock(outerScope)) { // a local type declaration?
+        astJavaComponentStack.push(class_declaration);
+    }
+    else if (outerScope == ::globalScope) { // a user-defined type?
+        ::globalScope -> append_statement(class_declaration);
+    }
+    else { // What is this?
+        ROSE_ASSERT(false);
+    }
+
+    if (SgProject::get_verbose() > 0)
+        printf ("Leaving Java_JavaParser_cactionBuildClassSupportEnd: %s \n", name.str());
+}
+
 
 JNIEXPORT void JNICALL 
 Java_x10rose_visit_JNI_cactionMethodDeclaration(JNIEnv *env, jclass, 
@@ -530,9 +679,9 @@ Java_x10rose_visit_JNI_cactionTypeReference(JNIEnv *env, jclass,
 		cout << "PACKAGE_NAME=" << package_name << ", TYPE_NAME=" << type_name << endl;
 #if 1
 	if (type == NULL) {
-		// cactionInsertClassStart() does not have a parameter for specifying a package name, although
+		// cactionInsertClassStart2() does not have a parameter for specifying a package name, although
 		// this is fine for x10 because x10 classes have been fully qualified with package  name
-		Java_x10rose_visit_JNI_cactionInsertClassStart(env, NULL, java_type_name, jToken);
+		Java_x10rose_visit_JNI_cactionInsertClassStart2(env, NULL, java_type_name, jToken);
 	}	
 #else
 	ROSE_ASSERT(type != NULL);

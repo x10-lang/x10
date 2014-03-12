@@ -28,8 +28,14 @@ public class JNI {
    public static native void cactionPushPackage(String package_name);
    public static native void cactionPopPackage();
    public static native void cactionSetupObject();
-   public static native void cactionInsertClassStart(String java_string);  
+   public static native void cactionInsertClassStart2(String java_string);  
+   public static native void cactionInsertClassStart(String java_string, JavaToken jToken);  
+   public static native void cactionInsertClassEnd(String java_string, JavaToken jToken);  
 
+	public static native void cactionBuildClassSupportStart(String className, String externalName, boolean user_defined_class, boolean has_conflicts, boolean is_interface, boolean is_enum, boolean is_anonymous, JavaToken jToken);
+
+    public static native void cactionBuildClassSupportEnd(String className, JavaToken jToken);
+	
 	public static native void cactionTypeDeclaration(String package_name, String type_name, boolean is_annotation_interface, boolean is_interface, boolean is_enum, boolean is_abstract, boolean is_final, boolean is_private, boolean is_public, boolean is_protected, boolean is_static, boolean is_strictfp);
 
 	public static native void cactionMethodDeclaration(String name, int method_index, int number_of_arguments, JavaToken method_location, JavaToken args_location);

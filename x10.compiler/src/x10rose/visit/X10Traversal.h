@@ -31,7 +31,13 @@ JNIEXPORT void JNICALL
 Java_x10rose_visit_JNI_cactionSetupObject(JNIEnv *env, jclass);
 
 JNIEXPORT void JNICALL 
+Java_x10rose_visit_JNI_cactionInsertClassStart2(JNIEnv *, jclass, jstring, jobject); 
+
+JNIEXPORT void JNICALL 
 Java_x10rose_visit_JNI_cactionInsertClassStart(JNIEnv *, jclass, jstring, jobject); 
+
+JNIEXPORT void JNICALL 
+Java_x10rose_visit_JNI_cactionInsertClassEnd(JNIEnv *, jclass, jstring, jobject); 
 
 JNIEXPORT void JNICALL 
 Java_x10rose_visit_JNI_cactionInsertImportedPackage(JNIEnv *, jclass, jstring, jobject); 
@@ -44,6 +50,9 @@ Java_x10rose_visit_JNI_cactionCompilationUnitList(JNIEnv *, jclass, jint, jobjec
 
 JNIEXPORT void JNICALL 
 Java_x10rose_visit_JNI_cactionCompilationUnitDeclaration(JNIEnv *, jclass, jstring, jstring, jobject);
+
+JNIEXPORT void JNICALL 
+Java_x10rose_visit_JNI_cactionBuildClassSupportStart(JNIEnv *, jclass, jstring, jstring, jboolean, jboolean, jboolean, jboolean, jboolean, jobject);
 
 JNIEXPORT void JNICALL
 Java_x10rose_visit_JNI_cactionTypeDeclaration(JNIEnv *, jclass,

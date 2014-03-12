@@ -34,6 +34,8 @@ import polyglot.ast.Block_c;
 import polyglot.ast.Branch_c;
 import polyglot.ast.Case_c;
 import polyglot.ast.Catch_c;
+import polyglot.ast.ClassBody_c;
+import polyglot.ast.ClassDecl_c;
 import polyglot.ast.ClassLit_c;
 import polyglot.ast.Do_c;
 import polyglot.ast.Empty_c;
@@ -43,6 +45,7 @@ import polyglot.ast.FieldAssign_c;
 import polyglot.ast.For_c;
 import polyglot.ast.Import_c;
 import polyglot.ast.IntLit_c;
+import polyglot.ast.JL;
 import polyglot.ast.Labeled_c;
 import polyglot.ast.LocalAssign_c;
 import polyglot.ast.LocalClassDecl_c;
@@ -321,6 +324,40 @@ static int method_index = 0;
 			System.out.println();
 /*
 */
+		}		
+		
+		public void previsitAppropriate(JL n) {
+			if (n instanceof X10MethodDecl_c) { previsit((X10MethodDecl_c)n); return; }
+			if (n instanceof TypeNode_c) { System.out.println(11); return; }
+			if (n instanceof TypeDecl_c) { System.out.println(12); return; }		
+			if (n instanceof X10ClassDecl_c) {  System.out.println(13); return; }
+			if (n instanceof ClassDecl_c) { System.out.println(14); return; }
+			if (n instanceof X10ClassBody_c) { previsit((X10ClassBody_c)n); return; }
+			if (n instanceof ClassBody_c) { System.out.println(16); return; }
+			else {
+				System.out.println("RoseTranslater.previsitAppropriate(): Not implemented yet.");
+			}
+		}
+		
+		public void previsit(X10ClassBody_c n) {
+			// TODO Auto-generated method stub
+			toRose(n, "previsit classBody: ", null);
+			// don't know what kind of caction* should be invoked here! (2014/01/30 horie)
+			previsitChildren(n, n.members());
+		}
+		
+
+		void previsitChild(Node p, Node n) {
+			if (n == null)
+				return;
+			previsitAppropriate(n);
+		}
+		
+		void previsitChildren(Node p, List<? extends Node> l) {
+			if (l == null)
+				return;
+			for (Node n : l)
+				previsitChild(p, n);
 		}
 		
 		void visitChild(Node p, Node n) {
@@ -371,7 +408,21 @@ static int method_index = 0;
 //			System.out.println(111);
 //			JNI.cactionSetupObject();
 //			System.out.println(222);
-			JNI.cactionTypeDeclaration("", n.name().id().toString(), false, false, false, false, false, false, false, false, false, false);
+			
+//			JNI.cactionTypeDeclaration("", n.name().id().toString(), false, false, false, false, false, false, false, false, false, false);
+		
+			String class_name = n.name().id().toString();
+			
+			JNI.cactionInsertClassStart(class_name, createJavaToken());
+			// does not consider nested class so far
+			JNI.cactionInsertClassEnd(class_name, createJavaToken());
+			
+	        JNI.cactionBuildClassSupportStart(class_name, "", true, // a user-defined class?
+                    false, false, false,	false,	createJavaToken());
+	        previsitChild(n, n.body());
+	        JNI.cactionBuildClassSupportEnd(class_name, createJavaToken());
+			
+			// does not care a nested class
 			method_index=0;
 //			toRose(n, "class", n.name().id().toString());
 			visitChildren(n, n.typeParameters());
@@ -381,6 +432,8 @@ static int method_index = 0;
 			visitChildren(n, n.interfaces());
 			visitChild(n, n.body());
 //			JNI.cactionTypeDeclaration("", n.name().id().toString(), false, false, false, false, false, false, false, false, false, false);
+		
+			
 		}
 
 		public void visit(LocalClassDecl_c n) {
@@ -405,33 +458,59 @@ static int method_index = 0;
 //				
 //			}
 
-
-            JNI.cactionBuildMethodSupportStart(method_name, method_index,
-                                                              createJavaToken());
-
-			
+          JNI.cactionBuildMethodSupportStart(method_name, method_index, createJavaToken());
 			visitChild(n, n.returnType());
-	
 			visitChildren(n, n.formals());
-			
+		
 /*
 			JNI.cactionMethodDeclaration(n.name().id().toString(), method_index++, formals.size(), 
 					new JavaToken(n.name().id().toString(), new JavaSourcePositionInformation(n.position().line())), 
 					new JavaToken(n.name().id().toString()+"_args", new JavaSourcePositionInformation(n.position().line())));
 */
 
-           JNI.cactionBuildMethodSupportEnd(method_name,
-                                                            method_index, // method index 
-															false, false, false, 0, formals.size(),
-                                                            true, /* user-defined-method */
+           JNI.cactionBuildMethodSupportEnd(method_name, method_index, // method index 
+												 false, false, false, 0, formals.size(),
+                                           true, /* user-defined-method */
 					new JavaToken(n.name().id().toString(), new JavaSourcePositionInformation(n.position().line())), 
 					new JavaToken(n.name().id().toString()+"_args", new JavaSourcePositionInformation(n.position().line())));
 
-			
 //			visitChild(n, n.guard());
 //			visitChild(n, n.offerType());
 //			visitChildren(n, n.throwsTypes());
 			visitChild(n, n.body());
+		}
+		
+		public void previsit(X10MethodDecl_c n) {
+			toRose(n, "method decl: ", n.name().id().toString());
+			List formals = n.formals();
+			System.out.println("ReturnType==" + n.returnType());
+			
+
+			String method_name = n.name().id().toString();
+//			if (n.returnType().toString().indexOf("{") >= 0) {
+//				
+//			}
+
+          JNI.cactionBuildMethodSupportStart(method_name, method_index, createJavaToken());
+			visitChild(n, n.returnType());
+			visitChildren(n, n.formals());
+		
+/*
+			JNI.cactionMethodDeclaration(n.name().id().toString(), method_index++, formals.size(), 
+					new JavaToken(n.name().id().toString(), new JavaSourcePositionInformation(n.position().line())), 
+					new JavaToken(n.name().id().toString()+"_args", new JavaSourcePositionInformation(n.position().line())));
+*/
+
+           JNI.cactionBuildMethodSupportEnd(method_name, method_index, // method index 
+												 false, false, false, 0, formals.size(),
+                                           true, /* user-defined-method */
+					new JavaToken(n.name().id().toString(), new JavaSourcePositionInformation(n.position().line())), 
+					new JavaToken(n.name().id().toString()+"_args", new JavaSourcePositionInformation(n.position().line())));
+
+//			visitChild(n, n.guard());
+//			visitChild(n, n.offerType());
+//			visitChildren(n, n.throwsTypes());
+//			visitChild(n, n.body());
 		}
 
 		public void visit(X10Formal_c n) {
