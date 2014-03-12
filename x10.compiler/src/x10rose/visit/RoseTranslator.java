@@ -30,6 +30,7 @@ import polyglot.ast.ArrayAccess_c;
 import polyglot.ast.ArrayInit_c;
 import polyglot.ast.Assert_c;
 import polyglot.ast.Assign_c;
+import polyglot.ast.Binary.Operator;
 import polyglot.ast.Block_c;
 import polyglot.ast.Branch_c;
 import polyglot.ast.Case_c;
@@ -37,6 +38,7 @@ import polyglot.ast.Catch_c;
 import polyglot.ast.ClassBody_c;
 import polyglot.ast.ClassDecl_c;
 import polyglot.ast.ClassLit_c;
+import polyglot.ast.ClassMember;
 import polyglot.ast.Do_c;
 import polyglot.ast.Empty_c;
 import polyglot.ast.Eval_c;
@@ -141,6 +143,63 @@ import x10.visit.X10DelegatingVisitor;
 
 public class RoseTranslator extends Translator {
 
+	private HashMap<String, HashMap<String, Integer>> classMemberMap = new HashMap<String, HashMap<String, Integer>>();
+	private HashMap<String, Integer> memberMap = new HashMap<String, Integer>();
+	private HashMap<Operator, Integer> opTable = new HashMap<Operator, Integer>();
+	
+	/**     
+	 * 
+	 * operator code values are directly derived from ECJ.
+	 * 
+     * enum ops {
+     *    ERROR_OPERATOR       = 0, // This is not a ECJ value 
+     *   AND                  = 2,
+     *   DIVIDE               = 9,
+     *   GREATER              = 6,
+     *   GREATER_EQUAL        = 7,
+     *   LEFT_SHIFT           = 10,
+     *   LESS                 = 4,
+     *   LESS_EQUAL           = 5,
+     *   MINUS                = 13,
+     *   MULTIPLY             = 15,
+     *   OR                   = 3,
+     *   PLUS                 = 14,
+     *   REMAINDER            = 16,
+     *   RIGHT_SHIFT          = 17,
+     *   UNSIGNED_RIGHT_SHIFT = 19,
+     *   XOR                  = 8,
+     *   OR_OR                = 100, // Handled by separate function 
+     *   AND_AND              = 101, // Handled by separate function 
+     *   LAST_OPERATOR
+      *};
+	  *
+	  *@see JavaParserActionROSE.C:Java_JavaParser_cactionBinaryExpressionEnd(JNIEnv *env, jclass, jint java_operator_kind, jobject jToken)
+	 * @param op
+	 * @return
+	 */
+	private int getOperatorKind(Operator op) {
+		if (opTable.isEmpty()) {
+			opTable.put(Operator.ADD, 14);
+			opTable.put(Operator.SUB, 13);
+			opTable.put(Operator.MUL, 15);
+			opTable.put(Operator.DIV, 9);
+			opTable.put(Operator.MOD, 16);
+			opTable.put(Operator.GT, 6);
+			opTable.put(Operator.GE, 7);
+			opTable.put(Operator.LT, 4);
+			opTable.put(Operator.LE, 5);
+			opTable.put(Operator.SHL, 10);
+			opTable.put(Operator.SHR, 17);
+			opTable.put(Operator.USHR, 19);
+			opTable.put(Operator.BIT_AND, 2); // or COND_AND?
+			opTable.put(Operator.BIT_OR, 3);  // or COND_OR?
+			opTable.put(Operator.BIT_XOR, 8);
+			opTable.put(Operator.COND_OR, 100);
+			opTable.put(Operator.COND_AND, 101);
+		}
+		return opTable.get(op);
+	}
+		
     public JavaToken createJavaToken(/*ASTNode node*/) {
         JavaSourcePositionInformation pos = null;//this.posFactory.createPosInfo(node);
         // For now we return dummy text
@@ -304,7 +363,6 @@ public class RoseTranslator extends Translator {
 
 	Map<Node, String> dotNode = new HashMap<Node, String>();
 
-static int method_index = 0;
 	public class ToRoseVisitor extends X10DelegatingVisitor {
 		Node parent;
 		CodeWriter w;
@@ -412,28 +470,51 @@ static int method_index = 0;
 //			JNI.cactionTypeDeclaration("", n.name().id().toString(), false, false, false, false, false, false, false, false, false, false);
 		
 			String class_name = n.name().id().toString();
+
+
+			classMemberMap.put(class_name, memberMap);
 			
 			JNI.cactionInsertClassStart(class_name, createJavaToken());
 			// does not consider nested class so far
 			JNI.cactionInsertClassEnd(class_name, createJavaToken());
 			
-	        JNI.cactionBuildClassSupportStart(class_name, "", true, // a user-defined class?
+	        List<ClassMember> members = ((X10ClassBody_c)n.body()).members();
+	        
+        	JNI.cactionBuildClassSupportStart(class_name, "", true, // a user-defined class?
                     false, false, false,	false,	createJavaToken());
-	        previsitChild(n, n.body());
-	        JNI.cactionBuildClassSupportEnd(class_name, createJavaToken());
-			
+	        for (int i = 0; i < members.size(); ++i) {
+	        	JL m = members.get(i);
+//	        	System.out.println("member" + i + " : " + m);
+	 			if (m instanceof X10MethodDecl_c) {
+	 				memberMap.put(((X10MethodDecl_c) m).name().toString(), i);
+	 				classMemberMap.put(class_name, memberMap);
+	 				previsit((X10MethodDecl_c)m); 
+	 			}
+				if (m instanceof TypeNode_c) { System.out.println(31);  }
+				if (m instanceof TypeDecl_c) { System.out.println(32);  }		
+				if (m instanceof X10ClassDecl_c) {  System.out.println(33);  }
+				if (m instanceof ClassDecl_c) { System.out.println(34);  }
+				if (m instanceof X10ClassBody_c) { previsit((X10ClassBody_c)m);  }
+				if (m instanceof ClassBody_c) { System.out.println(36);  }
+				else {
+					System.out.println("Unhandled node : " + m);
+				}
+	         }			
+	        
+//	        previsitChild(n, n.body());
+
 			// does not care a nested class
-			method_index=0;
 //			toRose(n, "class", n.name().id().toString());
 			visitChildren(n, n.typeParameters());
 			visitChildren(n, n.properties());
 			visitChild(n, n.classInvariant());
 			visitChild(n, n.superClass());
 			visitChildren(n, n.interfaces());
+			System.out.println("before body visit");
 			visitChild(n, n.body());
 //			JNI.cactionTypeDeclaration("", n.name().id().toString(), false, false, false, false, false, false, false, false, false, false);
 		
-			
+	        JNI.cactionBuildClassSupportEnd(class_name, createJavaToken());
 		}
 
 		public void visit(LocalClassDecl_c n) {
@@ -452,27 +533,25 @@ static int method_index = 0;
 			List formals = n.formals();
 			System.out.println("ReturnType==" + n.returnType());
 			
-
 			String method_name = n.name().id().toString();
 //			if (n.returnType().toString().indexOf("{") >= 0) {
 //				
 //			}
 
-          JNI.cactionBuildMethodSupportStart(method_name, method_index, createJavaToken());
-			visitChild(n, n.returnType());
-			visitChildren(n, n.formals());
-		
-/*
-			JNI.cactionMethodDeclaration(n.name().id().toString(), method_index++, formals.size(), 
-					new JavaToken(n.name().id().toString(), new JavaSourcePositionInformation(n.position().line())), 
-					new JavaToken(n.name().id().toString()+"_args", new JavaSourcePositionInformation(n.position().line())));
-*/
+//          JNI.cactionBuildMethodSupportStart(method_name, method_index, createJavaToken());
+//			visitChild(n, n.returnType());
+//			visitChildren(n, n.formals());
+			int method_index = memberMap.get(method_name);
 
-           JNI.cactionBuildMethodSupportEnd(method_name, method_index, // method index 
-												 false, false, false, 0, formals.size(),
-                                           true, /* user-defined-method */
+			JNI.cactionMethodDeclaration(n.name().id().toString(), method_index, formals.size(), 
 					new JavaToken(n.name().id().toString(), new JavaSourcePositionInformation(n.position().line())), 
 					new JavaToken(n.name().id().toString()+"_args", new JavaSourcePositionInformation(n.position().line())));
+
+//           JNI.cactionBuildMethodSupportEnd(method_name, method_index, // method index 
+//												 false, false, false, 0, formals.size(),
+//                                           true, /* user-defined-method */
+//					new JavaToken(n.name().id().toString(), new JavaSourcePositionInformation(n.position().line())), 
+//					new JavaToken(n.name().id().toString()+"_args", new JavaSourcePositionInformation(n.position().line())));
 
 //			visitChild(n, n.guard());
 //			visitChild(n, n.offerType());
@@ -481,16 +560,18 @@ static int method_index = 0;
 		}
 		
 		public void previsit(X10MethodDecl_c n) {
-			toRose(n, "method decl: ", n.name().id().toString());
+			toRose(n, "previsit method decl: ", n.name().id().toString());
 			List formals = n.formals();
 			System.out.println("ReturnType==" + n.returnType());
 			
-
+			
 			String method_name = n.name().id().toString();
 //			if (n.returnType().toString().indexOf("{") >= 0) {
 //				
 //			}
-
+			String class_name = n.name().toString();
+			int method_index = memberMap.get(method_name);
+					
           JNI.cactionBuildMethodSupportStart(method_name, method_index, createJavaToken());
 			visitChild(n, n.returnType());
 			visitChildren(n, n.formals());
@@ -565,16 +646,16 @@ static int method_index = 0;
 //			   if (javaParserSupport.verboseLevel > 0)
 //		            System.out.println("Inside of enter (Block,BlockScope)");
 //
-//		        JavaParser.cactionBlock(javaParserSupport.createJavaToken(node));
 //
 //		        if (javaParserSupport.verboseLevel > 0)
 //		            System.out.println("Leaving enter (Block,BlockScope)");
 //
 //		        return true; // do nothing by node, keep traversing
-			
-			
-			
+
+		   JNI.cactionBlock(createJavaToken());
 			visitChildren(n, n.statements());
+			JNI.cactionBlockEnd(n.statements().size(), createJavaToken());
+			System.out.println("Block resolved");
 		}
 
 		public void visit(StmtSeq_c n) {
@@ -642,14 +723,18 @@ static int method_index = 0;
 
 		public void visit(Return_c n) {
 			toRose(n, "Return:", null);
+			JNI.cactionReturnStatement(createJavaToken());
 			visitChild(n, n.expr());
+			JNI.cactionReturnStatementEnd((n.expr() != null), createJavaToken());
 		}
 
 		public void visit(X10Binary_c n) {
 			toRose(n, "X10Binary:", n.operator().toString());
+			JNI.cactionBinaryExpression(createJavaToken());
 			visitChild(n, n.left());
 			visitChild(n, n.right());
-			
+
+			JNI.cactionBinaryExpressionEnd(getOperatorKind(n.operator()), createJavaToken());
 		}
 
 		public void visit(X10Unary_c n) {

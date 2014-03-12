@@ -32,6 +32,15 @@ public class JNI {
    public static native void cactionInsertClassStart(String java_string, JavaToken jToken);  
    public static native void cactionInsertClassEnd(String java_string, JavaToken jToken);  
 
+	public static native void cactionBlock(JavaToken jToken);
+    public static native void cactionBlockEnd(int java_numberOfStatement, JavaToken jTokens);
+
+    public static native void cactionReturnStatement(JavaToken jToken);
+    public static native void cactionReturnStatementEnd(boolean hasExpression, JavaToken jToken);
+
+    public static native void cactionBinaryExpression(JavaToken jToken);
+    public static native void cactionBinaryExpressionEnd(int java_operator_kind, JavaToken jToken);
+
 	public static native void cactionBuildClassSupportStart(String className, String externalName, boolean user_defined_class, boolean has_conflicts, boolean is_interface, boolean is_enum, boolean is_anonymous, JavaToken jToken);
 
     public static native void cactionBuildClassSupportEnd(String className, JavaToken jToken);

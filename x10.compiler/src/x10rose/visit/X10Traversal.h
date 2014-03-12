@@ -69,6 +69,25 @@ Java_x10rose_visit_JNI_cactionTypeDeclaration(JNIEnv *, jclass,
                                               jboolean,
                                               jboolean);
 
+JNIEXPORT void JNICALL 
+Java_x10rose_visit_JNI_cactionBlock(JNIEnv *, jclass, jobject);
+
+JNIEXPORT void JNICALL 
+Java_x10rose_visit_JNI_cactionBlockEnd(JNIEnv *, jclass, jint, jobject); 
+
+
+JNIEXPORT void JNICALL 
+Java_x10rose_visit_JNI_cactionReturnStatement(JNIEnv *, jclass, jobject);
+
+JNIEXPORT void JNICALL
+Java_x10rose_visit_JNI_cactionReturnStatementEnd(JNIEnv *, jclass, jboolean, jobject);
+
+JNIEXPORT void JNICALL 
+Java_x10rose_visit_JNI_cactionBinaryExpression(JNIEnv *, jclass, jobject); 
+
+JNIEXPORT void JNICALL 
+Java_x10rose_visit_JNI_cactionBinaryExpressionEnd(JNIEnv *, jclass, jint, jobject);
+
 JNIEXPORT void JNICALL
 Java_x10rose_visit_JNI_cactionMethodDeclaration(JNIEnv *, jclass,
                                                 jstring, 

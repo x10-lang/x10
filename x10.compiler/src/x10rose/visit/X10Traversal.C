@@ -293,7 +293,6 @@ Java_x10rose_visit_JNI_cactionInsertClassEnd(JNIEnv *env, jclass xxx, jstring ja
 
     if (SgProject::get_verbose() > 0)
         printf ("Inside of Java_JavaParser_cactionInsertClassEnd: %s \n", name.str());
-
     ROSE_ASSERT(! astJavaScopeStack.empty());
 
     SgClassDefinition *class_definition = astJavaScopeStack.popClassDefinition();
@@ -570,6 +569,195 @@ Java_x10rose_visit_JNI_cactionBuildClassSupportEnd(JNIEnv *env, jclass xxx, jstr
         printf ("Leaving Java_JavaParser_cactionBuildClassSupportEnd: %s \n", name.str());
 }
 
+JNIEXPORT void JNICALL 
+Java_x10rose_visit_JNI_cactionBlock(JNIEnv *env, jclass, jobject jToken) {
+    if (SgProject::get_verbose() > 2)
+        printf ("Build an SgBasicBlock scope \n");
+
+    // There could be a conditional from an IF statement on the stack.
+    // ROSE_ASSERT(astJavaExpressionStack.empty());
+
+    // If there is an expression on the expression stack and an SgIfStmt on the scope stack then 
+    // this might be a good time to associate the conditional with the SgIfStmt and have a more
+    // enforceble rules going forward.  But then there might not be a SgBasicBlock, so don't do this.
+
+    // Since we build the true body when we build the ifStmt, we need to detect and reuse this 
+    // SgBasicBlock instead of building a new one.
+    // SgBasicBlock *block = SageBuilder::buildBasicBlock();
+    SgBasicBlock *block = NULL;
+    if (isSgIfStmt(astJavaScopeStack.top())) {
+        SgIfStmt *ifStatement = (SgIfStmt*) astJavaScopeStack.top();
+        SgNullStatement *nullStatement = isSgNullStatement(ifStatement -> get_true_body());
+        if (nullStatement != NULL) {
+            // block = ifStatement -> get_true_body();
+            block = SageBuilder::buildBasicBlock();
+            ROSE_ASSERT(block != NULL);
+            ifStatement -> set_true_body(block);
+
+            delete nullStatement;
+        }
+        else {
+            // Set the false body
+            block = SageBuilder::buildBasicBlock();
+            ROSE_ASSERT(block != NULL);
+            ifStatement -> set_false_body(block);
+        }
+    }
+    else if (isSgForStatement(astJavaScopeStack.top())) {
+        // DQ (7/30/2011): Handle the case of a block after a SgForStatement
+        // Because we build the SgForStatement on the stack and then the cactionBlock 
+        // function is called, we have to detect and fixup the SgForStatement.
+        SgForStatement *forStatement = (SgForStatement*) astJavaScopeStack.top();
+        SgNullStatement *nullStatement = isSgNullStatement(forStatement -> get_loop_body());
+        if (nullStatement != NULL) {
+            block = SageBuilder::buildBasicBlock();
+            ROSE_ASSERT(block != NULL);
+            forStatement -> set_loop_body(block);
+            delete nullStatement;
+        }
+    }
+    else {
+        block = SageBuilder::buildBasicBlock();
+    }
+    ROSE_ASSERT(block != NULL);
+
+//    setJavaSourcePosition(block, env, jToken);
+
+    block -> set_parent(astJavaScopeStack.top());
+    ROSE_ASSERT(block -> get_parent() != NULL);
+
+    astJavaScopeStack.push(block);
+}
+
+
+JNIEXPORT void JNICALL 
+Java_x10rose_visit_JNI_cactionBlockEnd(JNIEnv *env, jclass, jint java_numberOfStatements, jobject jToken) {
+    if (SgProject::get_verbose() > 2)
+        printf ("Pop the current SgBasicBlock scope off the scope stack...\n");
+
+    int numberOfStatements = java_numberOfStatements;
+
+    if (SgProject::get_verbose() > 2)
+        printf ("In cactionBlockEnd(): numberOfStatements = %d \n", numberOfStatements);
+
+    ROSE_ASSERT(! astJavaScopeStack.empty());
+
+    // DQ (7/30/2011): Take the block off of the scope stack and put it onto the statement stack so that we can 
+    // process either blocks of other statements uniformally.
+    SgBasicBlock *body = astJavaScopeStack.popBasicBlock();
+    for (int i = 0; i  < numberOfStatements; i++) {
+        SgStatement *statement = astJavaComponentStack.popStatement();
+        if (SgProject::get_verbose() > 2) {
+            cerr << "(7) Adding statement "
+                 << statement -> class_name()
+                 << " to a block"
+                 << endl;
+            cerr.flush();
+        }
+        body -> prepend_statement(statement);
+    }
+
+    astJavaComponentStack.push(body);
+}
+
+
+JNIEXPORT void JNICALL 
+Java_x10rose_visit_JNI_cactionReturnStatement(JNIEnv *env, jclass, jobject jToken) {
+    // Nothing to do !!!
+}
+
+
+JNIEXPORT void JNICALL 
+Java_x10rose_visit_JNI_cactionReturnStatementEnd(JNIEnv *env, jclass, jboolean has_expression, jobject jToken) {
+    if (SgProject::get_verbose() > 2)
+        printf ("Inside of Java_JavaParser_cactionReturnStatementEnd() \n");
+
+    // Build the Return Statement
+    SgExpression *expression = (has_expression ? astJavaComponentStack.popExpression() : NULL);
+    SgReturnStmt *returnStatement = SageBuilder::buildReturnStmt_nfi(expression);
+    ROSE_ASSERT(has_expression || returnStatement -> get_expression() == NULL); // TODO: there is an issue with the implementation of buildReturnStmt()...
+//    setJavaSourcePosition(returnStatement, env, jToken);
+
+    // Pushing 'return' on the statement stack
+    astJavaComponentStack.push(returnStatement);
+
+}
+
+JNIEXPORT void JNICALL 
+Java_x10rose_visit_JNI_cactionBinaryExpression(JNIEnv *env, jclass, jobject jToken) {
+    // I don't think we need this function.
+}
+
+
+JNIEXPORT void JNICALL 
+Java_x10rose_visit_JNI_cactionBinaryExpressionEnd(JNIEnv *env, jclass, jint java_operator_kind, jobject jToken) {
+    if (SgProject::get_verbose() > 2)
+        printf ("Build an Binary Expression End \n");
+
+    // These are the operator code values directly from ECJ.
+    enum ops {
+        ERROR_OPERATOR       = 0, // This is not a ECJ value 
+        AND                  = 2,
+        DIVIDE               = 9,
+        GREATER              = 6,
+        GREATER_EQUAL        = 7,
+        LEFT_SHIFT           = 10,
+        LESS                 = 4,
+        LESS_EQUAL           = 5,
+        MINUS                = 13,
+        MULTIPLY             = 15,
+        OR                   = 3,
+        PLUS                 = 14,
+        REMAINDER            = 16,
+        RIGHT_SHIFT          = 17,
+        UNSIGNED_RIGHT_SHIFT = 19,
+        XOR                  = 8,
+        OR_OR                = 100, // Handled by separate function 
+        AND_AND              = 101, // Handled by separate function 
+        LAST_OPERATOR
+    };
+
+    // printf ("PLUS = %d \n", PLUS);
+
+    int operator_kind = java_operator_kind;
+    //printf ("operator_kind = %d \n", operator_kind);
+
+    switch(operator_kind) {
+        // Operator codes used by the BinaryExpression in ECJ.
+        case LESS:                 binaryExpressionSupport<SgLessThanOp>();       break;
+        case LESS_EQUAL:           binaryExpressionSupport<SgLessOrEqualOp>();    break;
+        case GREATER:              binaryExpressionSupport<SgGreaterThanOp>();    break;
+        case GREATER_EQUAL:        binaryExpressionSupport<SgGreaterOrEqualOp>(); break;
+        case AND:                  binaryExpressionSupport<SgBitAndOp>();         break;
+        case OR:                   binaryExpressionSupport<SgBitOrOp>();          break;
+        case XOR:                  binaryExpressionSupport<SgBitXorOp>();         break;
+        case DIVIDE:               binaryExpressionSupport<SgDivideOp>();         break;
+        case MINUS:                binaryExpressionSupport<SgSubtractOp>();       break;
+        case PLUS:                 binaryExpressionSupport<SgAddOp>();            break;
+        case MULTIPLY:             binaryExpressionSupport<SgMultiplyOp>();       break;
+        case RIGHT_SHIFT:          binaryExpressionSupport<SgRshiftOp>();         break;
+        case LEFT_SHIFT:           binaryExpressionSupport<SgLshiftOp>();         break;
+        case REMAINDER:            binaryExpressionSupport<SgModOp>();            break;
+
+        // This may have to handled special in ROSE. ROSE does not represent the semantics,
+        // and so this support my require a special operator to support Java in ROSE. For
+        // now we will use the more common SgRshiftOp.
+        case UNSIGNED_RIGHT_SHIFT: binaryExpressionSupport<SgJavaUnsignedRshiftOp>();         break;
+
+        // These are handled through separate functions (not a BinaryExpression in ECJ).
+        case OR_OR:   ROSE_ASSERT(false); break;
+        case AND_AND: ROSE_ASSERT(false); break;
+
+        default:
+            printf ("Error: default reached in cactionBinaryExpressionEnd() operator_kind = %d \n", operator_kind);
+            ROSE_ASSERT(false);
+    }
+
+//    setJavaSourcePosition((SgLocatedNode *) astJavaComponentStack.top(), env, jToken);
+}
+
+
+
 
 JNIEXPORT void JNICALL 
 Java_x10rose_visit_JNI_cactionMethodDeclaration(JNIEnv *env, jclass, 
@@ -641,8 +829,13 @@ cout << "2" << endl;
     ROSE_ASSERT(method_declaration -> get_type() -> get_return_type());
     method_declaration -> setAttribute("type", new AstRegExAttribute(getTypeName(method_declaration -> get_type() -> get_return_type())));
 
-//    astJavaScopeStack.push(type_space);
+    astJavaScopeStack.push(type_space);
     astJavaScopeStack.push(method_definition);
+//MH-20140312
+//temtatively push class_definition into astJavaScopeStack to pass assertion for checking if 
+//stack top is class definition or not
+    astJavaScopeStack.push(class_definition);
+
     ROSE_ASSERT(astJavaScopeStack.top() -> get_parent() != NULL);
 
 #endif
@@ -711,6 +904,7 @@ JNIEXPORT void JNICALL Java_x10rose_visit_JNI_cactionBuildMethodSupportStart(JNI
           printf ("Inside of BuildMethodSupportStart for method = %s \n", name.str());
 
     SgClassDefinition *class_definition = isSgClassDefinition(astJavaScopeStack.top());
+printf("class_definition=%p\n", class_definition);
     ROSE_ASSERT(class_definition && (! class_definition -> attributeExists("namespace")));
 
     //
@@ -727,6 +921,7 @@ JNIEXPORT void JNICALL Java_x10rose_visit_JNI_cactionBuildMethodSupportStart(JNI
     }
 
     astJavaScopeStack.push(type_space);
+
 
     if (SgProject::get_verbose() > 1)
         printf ("Exiting BuildMethodSupportStart for method = %s \n", name.str());
@@ -829,8 +1024,20 @@ JNIEXPORT void JNICALL Java_x10rose_visit_JNI_cactionBuildMethodSupportEnd(JNIEn
 
     astJavaComponentStack.push(method_declaration);
 
-// Tried to push method_definition if lookup can find formals. This did not work.
-	astJavaScopeStack.push(::globalScope); 
+//MH-20140312
+// Tentatively push class definition onto stack top.
+// So far, this is necessary for passing an assertion in Java_x10rose_visit_JNI_cactionBuildMethodSupportStart 
+// for checking if stack top is class definition or not.
+#if 1
+    astJavaScopeStack.push(method_definition);
+    astJavaScopeStack.push(class_definition);
+#endif
+
+
+	SgSymbolTable *tab = class_definition->get_symbol_table();
+	int size = tab->size();
+	printf("Symbol table size=%d\n", size);
+	tab->print();
 
     if (SgProject::get_verbose() > 1)
         printf ("Exiting build support for implicit class member function (method) name = %s \n", name.str());
@@ -949,16 +1156,19 @@ Java_x10rose_visit_JNI_cactionSingleNameReference(JNIEnv *env, jclass, jstring j
 
     ROSE_ASSERT(variable_symbol);
     SgVarRefExp *varRefExp = SageBuilder::buildVarRefExp(variable_symbol);
+cout << "varRefExp=" << varRefExp << endl;
     ROSE_ASSERT(varRefExp != NULL);
-
     if (SgProject::get_verbose() > 0)
         printf ("In cactionSingleNameReference(): varRefExp = %p type = %p = %s \n", varRefExp, varRefExp -> get_type(), varRefExp -> get_type() -> class_name().c_str());
 
-    setJavaSourcePosition(varRefExp, env, jToken);
+//    setJavaSourcePosition(varRefExp, env, jToken);
 
+	varRefExp->get_file_info()->display("TEST DISPLAY");
+
+#if 0
     ROSE_ASSERT(! varRefExp -> get_file_info() -> isTransformation());
     ROSE_ASSERT(! varRefExp -> get_file_info() -> isCompilerGenerated());
-
+#endif
     astJavaComponentStack.push(varRefExp);
 }
 

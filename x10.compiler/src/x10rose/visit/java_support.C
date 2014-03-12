@@ -745,6 +745,8 @@ SgMemberFunctionDeclaration *buildDefiningMemberFunction(const SgName &inputName
     for (int i = 0; i < num_arguments; i++) { // charles4 10/12/2011: Reverse the content of the stack.
         SgNode *node = astJavaComponentStack.pop();
         SgInitializedName *initializedName = isSgInitializedName(node);
+//confirmed that parameters are set properly
+cout << "initializedName1=" << initializedName->get_name() << endl;
         ROSE_ASSERT(initializedName);
         names.push_front(initializedName);
         startLocation.push_front(initializedName -> get_startOfConstruct());
@@ -754,6 +756,8 @@ SgMemberFunctionDeclaration *buildDefiningMemberFunction(const SgName &inputName
     // charles4 10/12/2011: Now, iterate over the list in the proper order
     while (! names.empty()) {
         SgInitializedName *initializedName = names.front();
+//confirmed that parameters are set properly
+cout << "initializedName2=" << initializedName->get_name() << endl;
         ROSE_ASSERT(initializedName != NULL);
         names.pop_front();
 
@@ -1060,28 +1064,31 @@ SgClassSymbol *lookupSimpleNameTypeInClass(const SgName &name, SgClassDefinition
     ROSE_ASSERT(class_definition);
     ROSE_ASSERT(class_definition -> get_declaration());
 
-cout << "lookupSimpleNameTypeInClass 1 " << endl;
+//cout << "lookupSimpleNameTypeInClass 1 " << endl;
 #if 0
     SgClassSymbol *symbol = class_definition -> lookup_class_symbol(name);
 #else
 	SgClassSymbol *symbol = (SgClassSymbol *)globalScope->lookup_symbol(name);
 #endif
-cout << "lookupSimpleNameTypeInClass 2 " << symbol << endl;
+//cout << "lookupSimpleNameTypeInClass 2 " << symbol << endl;
     vector<SgBaseClass *> &inheritances = class_definition -> get_inheritances();
-cout << "lookupSimpleNameTypeInClass 3 " << endl;
+//cout << "lookupSimpleNameTypeInClass 3 " << endl;
     for (int k = 0; symbol == NULL && k < (int) inheritances.size(); k++) {
         SgClassDeclaration *super_declaration = inheritances[k] -> get_base_class();
         class_definition = super_declaration -> get_definition(); // get the super class definition
         symbol = lookupSimpleNameTypeInClass(name, class_definition);
     }
-cout << "lookupSimpleNameTypeInClass 4 " << endl;
+//cout << "lookupSimpleNameTypeInClass 4 " << endl;
 
     if (symbol == NULL) {
-cout << "lookupSimpleNameTypeInClass 5 " << name << endl;
+//cout << "lookupSimpleNameTypeInClass 5 " << name << endl;
+#if 0
         symbol = ::ObjectClassDefinition -> lookup_class_symbol(name);
-cout << "lookupSimpleNameTypeInClass 6 " << endl;
+#else
+#endif
+//cout << "lookupSimpleNameTypeInClass 6 " << endl;
     }
-cout << "lookupSimpleNameTypeInClass 7 " << endl;
+//cout << "lookupSimpleNameTypeInClass 7 " << endl;
 
     return symbol;
 }
@@ -1114,16 +1121,25 @@ SgVariableSymbol *lookupVariableByName(const SgName &name) {
     ROSE_ASSERT(! astJavaScopeStack.empty());
 
     SgSymbol *symbol = NULL;
-
     //
     // Iterate over the scope stack... At each point, look to see if the variable is there.
     // Note that in the case of a class, we recursively search the class as well as its
     // super class and interfaces.
     //
+int counter = 0;
     for (std::list<SgScopeStatement*>::iterator i = astJavaScopeStack.begin(); (symbol == NULL || (! isSgVariableSymbol(symbol))) && i != astJavaScopeStack.end(); i++) {
+//MH-20140311 for debug
+printf("-------------***%d, %p\n", counter++, *i);
+#if 1 // MH-20140311 only for local variable
+        if (isSgClassDefinition(*i)) 
+			continue;
+		else 
+        	symbol = (*i) -> lookup_symbol(name);
+#else
         symbol = (isSgClassDefinition(*i)
                       ? lookupSimpleNameVariableInClass(name, (SgClassDefinition *) (*i))
                       : (*i) -> lookup_symbol(name));
+#endif
         if ((*i) == ::globalScope)
             break;
     }
@@ -1160,14 +1176,14 @@ SgJavaLabelSymbol *lookupLabelByName(const SgName &name) {
 
 SgClassSymbol *lookupTypeSymbol(SgName &type_name) {
     SgClassSymbol *class_symbol = NULL;
-cout << "java_support.C lookupTypeSymbol 1 " << type_name << endl;
+//cout << "java_support.C lookupTypeSymbol 1 " << type_name << endl;
     //
     // Iterate over the scope stack... At each point, look to see if the variable is there.
     // Note that in the case of a class, we recursively search the class as well as its
     // super class and interfaces.
     //
     for (std::list<SgScopeStatement*>::iterator i = astJavaScopeStack.begin(); class_symbol == NULL && i != astJavaScopeStack.end(); i++) {
-cout << "java_support.C lookupTypeSymbol 2" << *i << endl;
+//cout << "java_support.C lookupTypeSymbol 2" << *i << endl;
 // TODO: Remove this!
 /*
 cout << "Looking for type parameter "
@@ -1185,7 +1201,7 @@ cout.flush();
         class_symbol = (isSgClassDefinition(*i)
                             ? lookupSimpleNameTypeInClass((type_name), (SgClassDefinition *) (*i))
                             : (*i) -> lookup_class_symbol(type_name));
-cout << "java_support.C lookupTypeSymbol 3" << endl;
+//cout << "java_support.C lookupTypeSymbol 3" << endl;
         if ((*i) == ::globalScope)
             break;
     }
@@ -1193,7 +1209,12 @@ cout << "java_support.C lookupTypeSymbol 3" << endl;
     // If the class_symbol still has not been found, look for it in java.lang! -> should be fixed to find x10.lang? 
     // At this point, the type_symbol in qustion must be a class_symbol.
     //
+//MH-20140302
+// "#if 1" is default
+#if 1
     if (class_symbol == NULL) {
+//MH-20140302
+return NULL;
         SgClassSymbol *namespace_symbol = ::globalScope -> lookup_class_symbol("java_lang");
         ROSE_ASSERT(namespace_symbol);
         SgClassDeclaration *declaration = (SgClassDeclaration *) namespace_symbol -> get_declaration() -> get_definingDeclaration();
@@ -1201,6 +1222,7 @@ cout << "java_support.C lookupTypeSymbol 3" << endl;
         ROSE_ASSERT(package);
         class_symbol = package -> lookup_class_symbol(type_name);
     }
+#endif
 
 cout << "java_support.C lookupTypeSymbol 4" << endl;
     return class_symbol;
@@ -1249,6 +1271,9 @@ SgType *lookupTypeByName(SgName &package_name, SgName &type_name, int num_dimens
         }
         else {
             class_symbol = lookupTypeSymbol(*name);
+// MH-20140302
+				if (!class_symbol)
+					return NULL;
         }
     }
     else {
