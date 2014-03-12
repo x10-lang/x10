@@ -154,6 +154,9 @@ void x10rt_blocks_threads (x10rt_place d, x10rt_msg_type type, int dyn_shm,
 x10rt_error x10rt_probe (void)
 { return x10rt_lgl_probe(); }
 
+bool x10rt_blocking_probe_support (void)
+{ return x10rt_lgl_blocking_probe_support(); }
+
 x10rt_error x10rt_blocking_probe (void)
 { return x10rt_lgl_blocking_probe(); }
 

@@ -1051,6 +1051,11 @@ x10rt_error x10rt_net_probe ()
     return context.errorCode;
 }
 
+bool x10rt_net_blocking_probe_support(void)
+{
+	return true;
+}
+
 x10rt_error x10rt_net_blocking_probe ()
 {
     CHECK_ERR_AND_RETURN;

@@ -118,6 +118,11 @@ public final class Runtime {
     @Native("java", "x10.runtime.impl.java.Runtime.eventProbe()")
     public static native def x10rtProbe():void;
 
+    
+    @Native("c++", "x10rt_blocking_probe_support()")
+    @Native("java", "x10.x10rt.X10RT.blockingProbeSupport()")
+    private static native def x10rtBlockingProbeSupport():Boolean;
+
     @Native("c++", "::x10aux::blocking_probe()")
     @Native("java", "x10.runtime.impl.java.Runtime.blockingProbe()")
     public static native def x10rtBlockingProbe():void;

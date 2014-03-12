@@ -1142,6 +1142,11 @@ x10rt_error x10rt_net_probe (void) {
     return X10RT_ERR_OK;
 }
 
+bool x10rt_net_blocking_probe_support(void)
+{
+	return false;
+}
+
 x10rt_error x10rt_net_blocking_probe (void) {
     // TODO: make this blocking.  For now, just call probe.
     x10rt_net_probe_ex(false);

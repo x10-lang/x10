@@ -128,6 +128,11 @@ X10RT_C void x10rt_net_send_put (x10rt_msg_params *p, void *buf, x10rt_copy_sz l
  */
 X10RT_C x10rt_error x10rt_net_probe (void);
 
+/**
+ * Check to see if a call to blocking_probe has been implemented, or if it's just a wrapper for probe
+ * Returns true if blocking_probe is real, or false if it will always return immediately
+ */
+X10RT_C bool x10rt_net_blocking_probe_support (void);
 
 /** Handle any oustanding message from the network by calling the registered callbacks, blocking if nothing is available.
  * \see #x10rt_lgl_probe

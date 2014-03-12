@@ -329,6 +329,18 @@ public class X10RT {
         else
         	return x10rt_coll_support();
       }
+    
+    // returns false if blocking_probe is just a call to probe and unblock_probe is a no-op 
+    // returns true if blocking_probe actually blocks
+    public static boolean blockingProbeSupport() {
+        assert isBooted();
+        if (forceSinglePlace)
+        	return false;
+        else if (javaSockets != null)
+        	return true;
+        else
+        	return x10rt_blocking_probe_support();
+      }
 
     static boolean isBooted() {
       return state.compareTo(State.RUNNING) >= 0;
@@ -422,6 +434,8 @@ public class X10RT {
      * in the native code backing the native methods of MessageHandlers.
      */
     private static native int x10rt_probe();
+    
+    private static native boolean x10rt_blocking_probe_support();
     
     private static native int x10rt_blocking_probe();
     

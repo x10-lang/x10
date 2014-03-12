@@ -743,7 +743,6 @@ x10rt_error x10rt_net_probe (void)
 			#endif
 
 			if (pthread_mutex_unlock(&myPlace->messageQueueLock) != 0) error("Unable to unlock the message queue after finding it empty");
-			sched_yield(); // to help prevent the constant probes from preventing anything else from getting done.
             return X10RT_ERR_OK;
 		}
 
@@ -915,6 +914,11 @@ x10rt_error x10rt_net_probe (void)
 	}
 
     return X10RT_ERR_OK;
+}
+
+bool x10rt_net_blocking_probe_support(void)
+{
+	return false;
 }
 
 x10rt_error x10rt_net_blocking_probe (void)

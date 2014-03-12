@@ -193,6 +193,16 @@ JNIEXPORT jint JNICALL Java_x10_x10rt_X10RT_x10rt_1probe(JNIEnv *, jclass) {
 
 /*
  * Class:     x10_x10rt_X10RT
+ * Method:    x10rt_blocking_probe_support
+ * Signature: ()Z
+ */
+JNIEXPORT jboolean JNICALL Java_x10_x10rt_X10RT_x10rt_1blocking_1probe_1support(JNIEnv *, jclass) {
+    return x10rt_blocking_probe_support();
+}
+
+
+/*
+ * Class:     x10_x10rt_X10RT
  * Method:    x10rt_blocking_probe
  * Signature: ()I
  */

@@ -17,7 +17,6 @@
 #include <string.h>
 #include <unistd.h> // sleep()
 #include <errno.h> // for the strerror function
-#include <sched.h> // for sched_yield()
 #include <pthread.h> // for lock on the team mapping table
 #include <x10rt_net.h>
 #include <x10rt_internal.h>
@@ -1445,6 +1444,11 @@ x10rt_error x10rt_net_probe()
 		if (PAMI_Context_unlock(state.context[0]) != PAMI_SUCCESS) error ("Unable to unlock the PAMI context");
 	}
 	return X10RT_ERR_OK;
+}
+
+bool x10rt_net_blocking_probe_support(void)
+{
+	return false;
 }
 
 x10rt_error x10rt_net_blocking_probe (void)

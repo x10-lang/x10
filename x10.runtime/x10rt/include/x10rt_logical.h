@@ -310,6 +310,11 @@ X10RT_C void x10rt_lgl_blocks_threads (x10rt_place d, x10rt_msg_type type, int d
  */
 X10RT_C x10rt_error x10rt_lgl_probe (void);
 
+/**
+ * Check to see if a call to blocking_probe has been implemented, or if it's just a wrapper for probe
+ * Returns true if blocking_probe is real, or false if it will always return immediately
+ */
+X10RT_C bool x10rt_lgl_blocking_probe_support (void);
 
 /** Probe all the underlying backends, blocking if nothing is available.  \see #x10rt_blocking_probe
  */
