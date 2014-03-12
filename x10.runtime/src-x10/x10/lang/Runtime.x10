@@ -838,18 +838,24 @@ public final class Runtime {
         val state = a.finishState();
         val clockPhases = a.clockPhases().make(clocks);
         if (place.id == hereLong()) {
-            var bodyCopy:()=>void = null;
+            // Synchronous serialization
+	    val start = prof != null ? System.nanoTime() : 0;
+            val ser = new Serializer();
+            ser.writeAny(body);
+            if (prof != null) {
+                val end = System.nanoTime();
+                prof.serializationNanos += (end-start);
+                prof.bytes += ser.dataBytesWritten();
+            }
+
+            // Spawn asynchronous activity
             state.notifySubActivitySpawn(place);
-	    try {
-                bodyCopy = deepCopy(body, prof);
-            } catch (e:CheckedThrowable) {
-                state.notifyActivityCreation(here);
-                state.pushException(new x10.io.SerializationException(e));
-                state.notifyActivityTermination();
-            }
-            if (bodyCopy != null) {
-                executeLocal(new Activity(bodyCopy, here, state, clockPhases));
-            }
+            val asyncBody = ()=>{
+                val deser = new Deserializer(ser);
+                val bodyCopy = deser.readAny() as ()=>void;
+                bodyCopy();
+            };
+            executeLocal(new Activity(asyncBody, here, state, clockPhases));
         } else {
             val src = here;
             val closure = ()=> @x10.compiler.RemoteInvocation("runAsync") { execute(new Activity(body, src, state, clockPhases)); };
@@ -867,18 +873,24 @@ public final class Runtime {
         
         val state = a.finishState();
         if (place.id == hereLong()) {
-            var bodyCopy:()=>void = null;
+            // Synchronous serialization
+	    val start = prof != null ? System.nanoTime() : 0;
+            val ser = new Serializer();
+            ser.writeAny(body);
+            if (prof != null) {
+                val end = System.nanoTime();
+                prof.serializationNanos += (end-start);
+                prof.bytes += ser.dataBytesWritten();
+            }
+
+            // Spawn asynchronous activity
             state.notifySubActivitySpawn(place);
-	    try {
-                bodyCopy = deepCopy(body, prof);
-            } catch (e:CheckedThrowable) {
-                state.notifyActivityCreation(here);
-                state.pushException(new x10.io.SerializationException(e));
-                state.notifyActivityTermination();
-            }
-            if (bodyCopy != null) {
-                executeLocal(new Activity(bodyCopy, here, state));
-            }
+            val asyncBody = ()=>{
+                val deser = new Deserializer(ser);
+                val bodyCopy = deser.readAny() as ()=>void;
+                bodyCopy();
+            };
+            executeLocal(new Activity(asyncBody, here, state));
         } else {
             val preSendAction = ()=>{ state.notifySubActivitySpawn(place); };
             x10rtSendAsync(place.id, body, state, prof, preSendAction); // optimized case
@@ -923,18 +935,23 @@ public final class Runtime {
         a.ensureNotInAtomic();
         
         if (place.id == hereLong()) {
-            var bodyCopy:()=>void = null;
-	    try {
-                bodyCopy = deepCopy(body, prof);
-            } catch (e:CheckedThrowable) {
-                // Hygiene: currently these calls do nothing, but put them here for completeness.
-                FinishState.UNCOUNTED_FINISH.notifyActivityCreation(here);
-                FinishState.UNCOUNTED_FINISH.pushException(new x10.io.SerializationException(e));
-                FinishState.UNCOUNTED_FINISH.notifyActivityTermination();
+            // Synchronous serialization
+	    val start = prof != null ? System.nanoTime() : 0;
+            val ser = new Serializer();
+            ser.writeAny(body);
+            if (prof != null) {
+                val end = System.nanoTime();
+                prof.serializationNanos += (end-start);
+                prof.bytes += ser.dataBytesWritten();
             }
-            if (bodyCopy != null) {
-                executeLocal(new Activity(bodyCopy, here, FinishState.UNCOUNTED_FINISH));
-            }
+
+            // Spawn asynchronous activity
+            val asyncBody = ()=>{
+                val deser = new Deserializer(ser);
+                val bodyCopy = deser.readAny() as ()=>void;
+                bodyCopy();
+            };
+            executeLocal(new Activity(asyncBody, here, FinishState.UNCOUNTED_FINISH));
         } else {
             // [DC] passing FIRST_PLACE instead of the correct src, since UNCOUNTED_FINISH does not use this value
             // and it saves sending some bytes over the network
