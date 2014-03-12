@@ -92,25 +92,7 @@ namespace x10 { namespace lang { class Runtime__Profile; } }
 
 namespace x10aux {
 
-    // avoid header inclusion problem, do this in a cc file
-    void set_prof_data(::x10::lang::Runtime__Profile *prof, unsigned long long bytes, unsigned long long nanos);
-
     void raiseSerializationProtocolError();
-    
-    template <class T> T deep_copy(T o, ::x10::lang::Runtime__Profile *prof) {
-        serialization_buffer buf;
-        unsigned long long before_nanos, before_bytes;
-        if (prof!=NULL) {
-            before_nanos = ::x10::lang::RuntimeNatives::nanoTime();
-        }
-        buf.write(o);
-        deserialization_buffer buf2(buf.borrow(), buf.length());
-        T res = buf2.read<T>();
-        if (prof!=NULL) {
-            set_prof_data(prof, buf.length(), ::x10::lang::RuntimeNatives::nanoTime() - before_nanos);
-        }
-        return res;
-    }
 }
 
 #endif

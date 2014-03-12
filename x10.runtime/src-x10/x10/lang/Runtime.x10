@@ -17,6 +17,8 @@ import x10.compiler.Pragma;
 import x10.compiler.StackAllocate;
 import x10.compiler.NativeCPPInclude;
 
+import x10.io.Serializer;
+import x10.io.Deserializer;
 import x10.io.Unserializable;
 import x10.io.Reader;
 import x10.io.Writer;
@@ -139,13 +141,26 @@ public final class Runtime {
     public static native def wsProcessEvents():void;
 
     /**
-     * Return a deep copy of the parameter.
+     * Return a deep copy of the object graph rooted at o.
      */
-    @Native("java", "x10.runtime.impl.java.Runtime.<#T$box>deepCopy(#o, #prof)")
-    @Native("c++", "::x10aux::deep_copy< #T >(#o, #prof)")
-    public static native def deepCopy[T](o:T, prof:Profile):T;
+    public static def deepCopy[T](o:T, prof:Profile):T {
+        val start = prof != null ? System.nanoTime() : 0;
 
-    public static def deepCopy[T](o:T) = deepCopy[T](o, null);
+        @StackAllocate val ser = @StackAllocate new Serializer();
+        ser.writeAny(o);
+        @StackAllocate val deser = @StackAllocate new Deserializer(ser);
+        val copy:T = deser.readAny() as T;
+
+        if (prof != null) {
+            val end = System.nanoTime();
+            prof.serializationNanos += (end-start);
+            prof.bytes += ser.dataBytesWritten();
+        }
+
+        return copy;
+    }
+
+    public static def deepCopy[T](o:T):T = deepCopy[T](o, null);
 
     // Memory management
 

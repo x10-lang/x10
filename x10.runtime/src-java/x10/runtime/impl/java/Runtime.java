@@ -290,48 +290,6 @@ public abstract class Runtime implements VoidFun_0_0 {
         runAt(place, body, prof, preSendAction);
     }
 
-    /**
-     * Copy body (same place)
-     */
-    @SuppressWarnings("unchecked")
-    public static <T> T deepCopy(T body, x10.lang.Runtime.Profile prof) {
-
-    	try {
-    		if (TRACE_SER_DETAIL) {
-    			System.out.println("Starting deepCopy of " + body.getClass());
-    		}
-    		long start = prof!=null ? System.nanoTime() : 0;
-            
-            X10JavaSerializer serializer = new X10JavaSerializer();
-            if (body instanceof X10JavaSerializable) {
-            	serializer.write((X10JavaSerializable) body);
-            } else {
-            	serializer.write(body);
-            }
-            if (TRACE_SER_DETAIL) {
-            	System.out.println("Done with serialization for deepCopy " + body.getClass());
-            }
-
-    		X10JavaDeserializer deserializer = new X10JavaDeserializer(serializer);
-    		body = (T) deserializer.readObject();
-
-    		if (prof!=null) {
-    			long stop = System.nanoTime();
-    			long duration = stop-start;
-                prof.serializationNanos += duration;
-                prof.bytes += serializer.dataBytesWritten();
-    		}
-    		if (TRACE_SER_DETAIL) {
-    			System.out.println("Done with deserialization for deepCopy of " + body.getClass());
-    		}
-    		return body;
-    	} catch (java.io.IOException e) {
-    		java.lang.RuntimeException xe = x10.runtime.impl.java.ThrowableUtils.ensureX10Exception(e);
-    		xe.printStackTrace();
-    		throw xe;
-    	}
-    }
-	
 	public static void runAt(int place, VoidFun_0_0 body, x10.lang.Runtime.Profile prof, VoidFun_0_0 preSendAction) {
 		try {
 			// TODO: bherta - all of this serialization needs to be reworked to write directly to the network (when possible), 

@@ -162,12 +162,6 @@ x10::lang::Any* deserialization_buffer::readAny() {
     return val;
 }    
 
-void x10aux::set_prof_data(x10::lang::Runtime__Profile *prof, unsigned long long bytes, unsigned long long nanos)
-{
-    prof->FMGL(bytes) += bytes;
-    prof->FMGL(serializationNanos) += nanos;
-}
-
 void x10aux::raiseSerializationProtocolError() {
     const char* msg = "Error detected in custom serialization protocol";
     throwException(x10::io::SerializationException::_make(String::Lit(msg)));
