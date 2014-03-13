@@ -83,6 +83,7 @@ public class Main {
 	        }
 	    }
 	    
+	    int numModified = 0;
 	    for (String x10FileName : x10_srcs) {
             int sepIndex = x10FileName.lastIndexOf(File.separator);
             boolean hasPackage = sepIndex > 0;
@@ -103,11 +104,12 @@ public class Main {
 	                    if (verbose) {
 	                        System.out.println("Smapify "+classFiles.length+" class files for " +x10FileName+" ("+javaFileName+")");
 	                    }
-	                    smapify(x10FileName, relPathPrefix, javaFileName, classFiles);
+	                    numModified += smapify(x10FileName, relPathPrefix, javaFileName, classFiles);
 	                }
 	            }
 	        }
 	    }
+	    System.out.println("SMAPIFY: Examined "+x10_srcs.size()+" X10 files and edited "+numModified+" class files.");
 	}
 
 	/**
@@ -126,15 +128,16 @@ public class Main {
 	 * </ul>
 	 * information in SMAP becomes: bar/bla.x
 	 */
-	public static void smapify(final String filename, final String relPathPrefix, final String javaFile, String classFileName) {
+	public static int smapify(final String filename, final String relPathPrefix, final String javaFile, String classFileName) {
 	    String prefix = removeExt(filename);
         String inputName = (classFileName == null) ? prefix + ".class" : classFileName;
-	    smapify(filename, relPathPrefix, javaFile, new File[]{ new File(inputName) });
+	    return smapify(filename, relPathPrefix, javaFile, new File[]{ new File(inputName) });
 	}
 	    
-	public static void smapify(final String filename, final String relPathPrefix, final String javaFile, File[] classFiles) {
+	public static int smapify(final String filename, final String relPathPrefix, final String javaFile, File[] classFiles) {
 		String prefix = removeExt(filename);
 		String origExten = filename.substring(filename.lastIndexOf('.')+1);
+		int numModified = 0;
 
 		if (debug) {
 			System.out.println("origExten=" + origExten);
@@ -162,14 +165,29 @@ public class Main {
 
 		        ClassInstrumenter ci = oi.nextClass();
 		        ClassReader cr = ci.getReader();
-		        ClassWriter w = new ClassWriter();
+		        
+		        // Check to see if there is already a SMAP attribute in the class file.
+		        ClassReader.AttrIterator iter = new ClassReader.AttrIterator();
+		        cr.initClassAttributeIterator(iter);
+		        boolean alreadyHasSMAP = false;
+		        for (; iter.isValid(); iter.advance()) {
+		            alreadyHasSMAP |= iter.getName().equals("SourceDebugExtension");
+		        }
+		        if (alreadyHasSMAP) {
+		            if (debug) {
+		                System.out.println("\talready has SMAP attribute; skipping");
+		            }
+		        } else {
+		            ClassWriter w = new ClassWriter();
 
-		        copyClassProperties(cr, w);
-		        copyMembersAndAttributes(cr, w);
-		        addSMAPAttribute(smap, w);
+		            copyClassProperties(cr, w);
+		            copyMembersAndAttributes(cr, w);
+		            addSMAPAttribute(smap, w);
 
-		        fw = new FileOutputStream(classFile);
-		        fw.write(w.makeBytes());
+		            fw = new FileOutputStream(classFile);
+		            fw.write(w.makeBytes());
+		            numModified++;
+		        }
 		    } catch (Exception e) {
 		        throw new InternalCompilerError("Exception encountered while rewriting .class file '" + classFile.getPath() + "'", e);
 		    } finally {
@@ -185,6 +203,7 @@ public class Main {
 		        }
 		    }
 		}
+		return numModified;
 	}
 
     private static void copyClassProperties(ClassReader cr, ClassWriter w) throws InvalidClassFileException {

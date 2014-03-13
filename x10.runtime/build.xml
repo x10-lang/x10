@@ -344,24 +344,16 @@
               </path>
             </classpath>
         </ejc>
-	<if>
-          <conditions>
-            <istrue value="${debug}" />
-	  </conditions>
-          <then>
-            <echo message="Constructing SMAP debug info for XRX"/>
-            <java classname="x10c.smap.Main" classpath="${x10.dist.location}/lib/x10c.jar:${shrike.jar}" fork="true" dir="${basedir}">
-	        <arg value="-x10_dir" />
-		<arg value="src-x10" />
-		<arg value="-java_dir" />
-		<arg value="src-java/gen" />
-		<arg value="-class_dir" />
-		<arg value="classes" />
-		<arg value="-exhaustive" />
-		<arg value="-verbose" />
-	    </java>
-	  </then>
-	</if>
+        <echo message="Updating SMAP debug info for XRX"/>
+        <java classname="x10c.smap.Main" classpath="${x10.dist.location}/lib/x10c.jar:${shrike.jar}" fork="true" dir="${basedir}">
+	  <arg value="-x10_dir" />
+	  <arg value="src-x10" />
+	  <arg value="-java_dir" />
+	  <arg value="src-java/gen" />
+	  <arg value="-class_dir" />
+	  <arg value="classes" />
+	  <arg value="-exhaustive" />
+	</java>
       </sequential>
 
     </target>
