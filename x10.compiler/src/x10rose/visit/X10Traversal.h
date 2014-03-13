@@ -28,6 +28,36 @@ Java_x10rose_visit_JNI_cactionImportReference(JNIEnv *, jclass,
                                                         jobject);
 
 JNIEXPORT void JNICALL 
+Java_x10rose_visit_JNI_cactionThisReference(JNIEnv *, jclass, jobject);
+
+JNIEXPORT void JNICALL 
+Java_x10rose_visit_JNI_cactionSuperReference(JNIEnv *env, jclass, jobject jToken); 
+
+JNIEXPORT void JNICALL
+Java_x10rose_visit_JNI_cactionEmptyStatement(JNIEnv *, jclass, jobject);
+
+JNIEXPORT void JNICALL
+Java_x10rose_visit_JNI_cactionEmptyStatementEnd(JNIEnv *, jclass, jobject);
+
+
+JNIEXPORT void JNICALL
+Java_x10rose_visit_JNI_cactionConstructorDeclaration(JNIEnv *, jclass, jstring, jint, jobject);
+
+JNIEXPORT void JNICALL
+Java_x10rose_visit_JNI_cactionConstructorDeclarationHeader(JNIEnv *, jclass,
+                                                                    jstring,
+                                                                           jboolean,
+                                                                           jboolean,
+                                                                           jint,
+                                                                           jint,
+                                                                           jint,
+                                                                           jobject);
+
+
+JNIEXPORT void JNICALL
+Java_x10rose_visit_JNI_cactionConstructorDeclarationEnd(JNIEnv *, jclass, jint, jobject); 
+
+JNIEXPORT void JNICALL 
 Java_x10rose_visit_JNI_cactionSetupObject(JNIEnv *env, jclass);
 
 JNIEXPORT void JNICALL 
@@ -53,6 +83,9 @@ Java_x10rose_visit_JNI_cactionCompilationUnitDeclaration(JNIEnv *, jclass, jstri
 
 JNIEXPORT void JNICALL 
 Java_x10rose_visit_JNI_cactionBuildClassSupportStart(JNIEnv *, jclass, jstring, jstring, jboolean, jboolean, jboolean, jboolean, jboolean, jobject);
+
+JNIEXPORT void JNICALL
+Java_x10rose_visit_JNI_cactionBuildClassSupportEnd(JNIEnv *, jclass, jstring, jobject); 
 
 JNIEXPORT void JNICALL
 Java_x10rose_visit_JNI_cactionTypeDeclaration(JNIEnv *, jclass,
@@ -97,9 +130,8 @@ Java_x10rose_visit_JNI_cactionMethodDeclaration(JNIEnv *, jclass,
 																jobject,
 																jobject);
 
-JNIEXPORT void JNICALL
-Java_x10rose_visit_JNI_cactionConstructorDeclaration(JNIEnv *, jclass,
-                                                      jstring, jint, jobject); 
+JNIEXPORT void JNICALL 
+Java_x10rose_visit_JNI_cactionMethodDeclarationEnd(JNIEnv *v, jclass, jint, jobject);
 
 
 JNIEXPORT void JNICALL 

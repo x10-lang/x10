@@ -150,6 +150,240 @@ JNIEXPORT void JNICALL Java_x10rose_visit_JNI_cactionImportReference(JNIEnv *env
         printf ("Leaving Java_x10rose_visit_JNI_cactionImportReference() \n");
 }
 
+JNIEXPORT void JNICALL 
+Java_x10rose_visit_JNI_cactionThisReference(JNIEnv *env, jclass, jobject jToken) {
+    SgClassDefinition *class_definition = getCurrentTypeDefinition();
+    ROSE_ASSERT(! class_definition -> attributeExists("namespace"));
+
+    string className = class_definition -> get_declaration() -> get_name();
+    // printf ("Current class for ThisReference is: %s \n", className.c_str());
+
+    SgClassSymbol *class_symbol = isSgClassSymbol(class_definition -> get_declaration() -> search_for_symbol_from_symbol_table());
+    ROSE_ASSERT(class_symbol != NULL);
+
+    SgThisExp *thisExp = SageBuilder::buildThisExp(class_symbol);
+    ROSE_ASSERT(thisExp != NULL);
+
+    astJavaComponentStack.push(thisExp);
+}
+
+JNIEXPORT void JNICALL 
+Java_x10rose_visit_JNI_cactionSuperReference(JNIEnv *env, jclass, jobject jToken) {
+    SgClassDefinition *class_definition = getCurrentTypeDefinition();
+    ROSE_ASSERT(class_definition -> get_declaration() && (! class_definition -> attributeExists("namespace")));
+
+    vector<SgBaseClass *> &inheritances = class_definition -> get_inheritances();
+    if (inheritances.size() == 0 || inheritances[0] -> get_base_class() -> get_explicit_interface()) { // no super class specified?
+        class_definition = ::ObjectClassDefinition; // ... then Object is the super class.
+    }
+    else {
+        SgClassDeclaration *super_declaration = inheritances[0] -> get_base_class();
+        ROSE_ASSERT(super_declaration && (! super_declaration -> get_explicit_interface())); // this class must have a super class
+        class_definition = super_declaration -> get_definition(); // get the super class definition
+    }
+
+    SgClassSymbol *class_symbol = isSgClassSymbol(class_definition -> get_declaration() -> search_for_symbol_from_symbol_table());
+    ROSE_ASSERT(class_symbol != NULL);
+
+    SgSuperExp *superExp = SageBuilder::buildSuperExp(class_symbol);
+    ROSE_ASSERT(superExp != NULL);
+
+    astJavaComponentStack.push(superExp);
+}
+
+
+JNIEXPORT void JNICALL 
+Java_x10rose_visit_JNI_cactionEmptyStatement(JNIEnv *env, jclass, jobject jToken) {
+    // Nothing to do;
+}
+
+
+JNIEXPORT void JNICALL 
+Java_x10rose_visit_JNI_cactionEmptyStatementEnd(JNIEnv *env, jclass, jobject jToken) {
+    SgNullStatement *stmt = SageBuilder::buildNullStatement();
+    ROSE_ASSERT(stmt != NULL);
+//    setJavaSourcePosition(stmt, env, jToken);
+    astJavaComponentStack.push(stmt);
+}
+
+
+
+JNIEXPORT void JNICALL 
+Java_x10rose_visit_JNI_cactionConstructorDeclaration(JNIEnv *env, jclass, jstring java_string, jint constructor_index, jobject jToken) {
+    if (SgProject::get_verbose() > 0)
+        printf ("Build a SgMemberFunctionDeclaration (constructor) \n");
+
+    SgName name = convertJavaStringToCxxString(env, java_string);
+
+    SgClassDefinition *class_definition = isSgClassDefinition(astJavaScopeStack.top());
+    ROSE_ASSERT(class_definition != NULL  && (! class_definition -> attributeExists("namespace")));
+
+// MH-20140313 test
+    SgScopeStatement *type_space = new SgScopeStatement();
+    type_space -> set_parent(class_definition);
+
+	
+    AstSgNodeListAttribute *attribute = (AstSgNodeListAttribute *) class_definition -> getAttribute("type_parameter_space");
+    ROSE_ASSERT(attribute);
+//    SgScopeStatement *type_space = isSgScopeStatement(attribute -> getNode(constructor_index));
+//    ROSE_ASSERT(type_space);
+        attribute -> setNode(type_space, constructor_index);
+
+    astJavaScopeStack.push(type_space);
+/*
+    if (method_index >= 0) {
+        AstSgNodeListAttribute *attribute = (AstSgNodeListAttribute *) class_definition -> getAttribute("type_parameter_space");
+        ROSE_ASSERT(attribute);
+        attribute -> setNode(type_space, method_index);
+    }
+
+    astJavaScopeStack.push(type_space);
+*/
+
+    attribute = (AstSgNodeListAttribute *) class_definition -> getAttribute("class_members");
+    ROSE_ASSERT(attribute);
+    SgFunctionDefinition *constructor_definition = isSgFunctionDefinition(attribute -> getNode(constructor_index));
+    ROSE_ASSERT(constructor_definition);
+    astJavaScopeStack.push(constructor_definition);
+    ROSE_ASSERT(astJavaScopeStack.top() -> get_parent() != NULL);
+
+    //TODO: REMOVE this!!!
+    //
+    // We start by pushing a VOID return type to make the constructor look like a method.
+    //
+    //    astJavaComponentStack.push(SgTypeVoid::createType()); 
+}
+
+
+JNIEXPORT void JNICALL 
+Java_x10rose_visit_JNI_cactionConstructorDeclarationHeader(JNIEnv *env, jclass,
+                                                                           jstring java_string,
+                                                                           jboolean java_is_native,
+                                                                           jboolean java_is_private,
+                                                                           jint java_numberOfTypeParameters,
+                                                                           jint java_numberOfArguments,
+                                                                           jint java_numberOfThrownExceptions,
+                                                                           jobject jToken) {
+    if (SgProject::get_verbose() > 0)
+        printf ("End of SgMemberFunctionDeclaration (constructor) \n");
+
+    SgName name   = convertJavaStringToCxxString(env, java_string);
+    bool is_native = java_is_native;
+    bool is_private = java_is_private;
+
+    // DQ (7/31/2011): Add more precise handling of the statement stack.
+    // This does not count (include) explicit constructor calls...
+    int number_of_type_parameters = java_numberOfTypeParameters;
+    int numberOfArguments = java_numberOfArguments;
+    int numberOfThrownExceptions = java_numberOfThrownExceptions;
+
+    //
+    // TODO:
+    //
+    string exceptions = "";
+    for (int i = 0; i < numberOfThrownExceptions; i++) { // Pop the Thrown types
+        SgType *type = astJavaComponentStack.popType();
+        SgClassType *class_type = isSgClassType(type);
+        ROSE_ASSERT(class_type);
+
+        string throw_name = getTypeName(class_type); // getFullyQualifiedTypeName(class_type);
+
+        exceptions += throw_name;
+
+        if (i < numberOfThrownExceptions - 1)
+            exceptions += ", ";
+    }
+
+// TODO: Remove this!
+    /*
+    SgClassDefinition *class_definition = isSgClassDefinition(astJavaScopeStack.top());
+    ROSE_ASSERT(class_definition != NULL  && (! class_definition -> attributeExists("namespace"))); // we must be inside a class scope
+
+    //
+    // NOTE that we left the arguments and the return type on the Component stack.  They will be processed
+    // by this function call. 
+    //
+    SgMemberFunctionDeclaration *constructor_declaration = lookupMemberFunctionDeclarationInClassScope(class_definition, name, numberOfArguments); // buildDefiningMemberFunction(name, class_definition, numberOfArguments);
+    ROSE_ASSERT(constructor_declaration);
+
+    SgFunctionDefinition *constructor_definition = constructor_declaration -> get_definition();
+    ROSE_ASSERT(constructor_definition != NULL);
+
+    ROSE_ASSERT(numberOfTypeParameters == 0); // TODO: pop and process the Type Parameters.
+
+    astJavaScopeStack.push(constructor_definition);
+    ROSE_ASSERT(astJavaScopeStack.top() -> get_parent() != NULL);
+    ROSE_ASSERT(constructor_definition -> get_body() != NULL);
+    astJavaScopeStack.push(constructor_definition -> get_body());
+    ROSE_ASSERT(astJavaScopeStack.top() -> get_parent() != NULL);
+
+    setJavaSourcePosition(constructor_definition -> get_body(), env, jToken);
+
+    */
+
+    SgFunctionDefinition *constructor_definition = isSgFunctionDefinition(astJavaScopeStack.top());
+    ROSE_ASSERT(constructor_definition -> get_body() != NULL);
+    astJavaScopeStack.push(constructor_definition -> get_body());
+    ROSE_ASSERT(astJavaScopeStack.top() -> get_parent() != NULL);
+
+    setJavaSourcePosition(constructor_definition -> get_body(), env, jToken);
+
+    SgFunctionDeclaration *constructor_declaration = constructor_definition -> get_declaration();
+    if (exceptions.size()) {
+        constructor_declaration -> setAttribute("exception", new AstRegExAttribute(exceptions));
+    }
+
+    // Since this is a constructor, set it explicitly as such.
+    constructor_declaration -> get_specialFunctionModifier().setConstructor();
+
+    // Set the Java specific modifiers
+    if (is_native) {
+        constructor_declaration -> get_functionModifier().setJavaNative();
+    }
+
+
+    // TODO: We need the next 3 lines for EDG4 
+    // SgMemberFunctionDeclaration *nondefining_constructor_declaration = isSgMemberFunctionDeclaration(constructor_declaration -> get_firstNondefiningDeclaration());
+    // ROSE_ASSERT(nondefining_constructor_declaration);
+    // nondefining_constructor_declaration -> get_declarationModifier().get_accessModifier().set_modifier(constructor_declaration -> get_declarationModifier().get_accessModifier().get_modifier());
+}
+
+
+
+JNIEXPORT void JNICALL 
+Java_x10rose_visit_JNI_cactionConstructorDeclarationEnd(JNIEnv *env, jclass, jint java_numberOfStatements, jobject jToken) {
+    if (SgProject::get_verbose() > 0)
+        printf ("End of SgMemberFunctionDeclaration (constructor) \n");
+
+    // DQ (7/31/2011): Add more precise handling of the statement stack.
+    // This does not count (include) explicit constructor calls...
+    int numberOfStatements = java_numberOfStatements;
+
+    if (SgProject::get_verbose() > 0)
+        printf ("cactionConstructorDeclarationEnd(): numberOfStatements = %d\n", numberOfStatements);
+
+    // Pop the constructor body...
+    ROSE_ASSERT(! astJavaScopeStack.empty());
+    SgBasicBlock *constructor_body = astJavaScopeStack.popBasicBlock();
+    for (int i = 0; i  < numberOfStatements; i++) {
+        SgStatement *statement = astJavaComponentStack.popStatement();
+        if (SgProject::get_verbose() > 2) {
+            cerr << "(4) Adding statement "
+                 << statement -> class_name()
+                 << " to a constructor declaration block"
+                 << endl;
+            cerr.flush();
+        }
+        constructor_body -> prepend_statement(statement);
+    }
+
+    /* SgFunctionDefinition *memberFunctionDefinition = */
+    astJavaScopeStack.popFunctionDefinition();
+
+    SgScopeStatement *type_space = isSgScopeStatement(astJavaScopeStack.pop());
+    ROSE_ASSERT(type_space);
+}
+
 
 JNIEXPORT void JNICALL 
 Java_x10rose_visit_JNI_cactionCompilationUnitDeclaration(JNIEnv *env, jclass, jstring java_package_name, jstring java_filename, jobject jToken) {
@@ -523,10 +757,16 @@ Java_x10rose_visit_JNI_cactionBuildClassSupportEnd(JNIEnv *env, jclass xxx, jstr
 
     SgClassDefinition *class_definition = astJavaScopeStack.popClassDefinition();
     ROSE_ASSERT(! class_definition -> attributeExists("namespace"));
-
     for (SgStatement *statement = astJavaComponentStack.popStatement();
+#if 1
         statement != class_definition;
+#else
+		statement != NULL;
+#endif
         statement = astJavaComponentStack.popStatement()) {
+		
+		cout << "statement=" << statement << endl;
+#if 1	
         if (SgProject::get_verbose() > 2) {
             cerr << "(1) Adding statement "
                  << statement -> class_name()
@@ -537,13 +777,16 @@ Java_x10rose_visit_JNI_cactionBuildClassSupportEnd(JNIEnv *env, jclass xxx, jstr
         ROSE_ASSERT(statement != NULL);
 
         class_definition -> prepend_statement(statement);
+#endif
     }
+
 
     ROSE_ASSERT(! astJavaScopeStack.empty());
     SgScopeStatement *outerScope = astJavaScopeStack.top();
 
     SgClassDeclaration *class_declaration = class_definition -> get_declaration();
     ROSE_ASSERT(class_declaration);
+
 
     //
     // TODO:  Review this because of the package issue and the inability to build a global AST.
@@ -562,7 +805,11 @@ Java_x10rose_visit_JNI_cactionBuildClassSupportEnd(JNIEnv *env, jclass xxx, jstr
         ::globalScope -> append_statement(class_declaration);
     }
     else { // What is this?
+#if 1 //MH-20140313 so far push global scope
+        ::globalScope -> append_statement(class_declaration);
+#else
         ROSE_ASSERT(false);
+#endif
     }
 
     if (SgProject::get_verbose() > 0)
@@ -626,6 +873,9 @@ Java_x10rose_visit_JNI_cactionBlock(JNIEnv *env, jclass, jobject jToken) {
     block -> set_parent(astJavaScopeStack.top());
     ROSE_ASSERT(block -> get_parent() != NULL);
 
+//MH-20140313
+printf("BasicBlock push=%p\n", block);
+
     astJavaScopeStack.push(block);
 }
 
@@ -656,8 +906,8 @@ Java_x10rose_visit_JNI_cactionBlockEnd(JNIEnv *env, jclass, jint java_numberOfSt
         }
         body -> prepend_statement(statement);
     }
-
-    astJavaComponentStack.push(body);
+//MH-20140313
+//    astJavaComponentStack.push(body);
 }
 
 
@@ -811,13 +1061,10 @@ Java_x10rose_visit_JNI_cactionMethodDeclaration(JNIEnv *env, jclass,
 
     SgClassDefinition *class_definition = isSgClassDefinition(astJavaScopeStack.top());
     ROSE_ASSERT(class_definition != NULL  && (! class_definition -> attributeExists("namespace")));
-cout << "classdef=" << class_definition << endl;
     AstSgNodeListAttribute *attribute = (AstSgNodeListAttribute *) class_definition -> getAttribute("type_parameter_space");
     ROSE_ASSERT(attribute);
     SgScopeStatement *type_space = isSgScopeStatement(attribute -> getNode(method_index));
-cout << "1" << endl; 
     ROSE_ASSERT(type_space);
-cout << "2" << endl; 
 
     attribute = (AstSgNodeListAttribute *) class_definition -> getAttribute("class_members");
     ROSE_ASSERT(attribute);
@@ -843,15 +1090,48 @@ cout << "2" << endl;
 
 
 
-
 JNIEXPORT void JNICALL 
-Java_x10rose_visit_JNI_cactionConstructorDeclaration(JNIEnv *env, jclass, 
-																		jstring java_string, jint constructor_index, jobject jToken) {
+Java_x10rose_visit_JNI_cactionMethodDeclarationEnd(JNIEnv *env, jclass, jint java_numberOfStatements, jobject jToken) {
+    if (SgProject::get_verbose() > 0)
+        printf ("Entering  cactionMethodDeclarationEnd (method) \n");
 
-#ifdef DEBUG
-	printf("ConstructorDeclaration\n");
-#endif
+    // Pop the constructor body...
+    ROSE_ASSERT(! astJavaScopeStack.empty());
+
+
+    int numberOfStatements = java_numberOfStatements;
+
+    if (SgProject::get_verbose() > 0)
+        printf ("In cactionMethodDeclarationEnd(): numberOfStatements = %d\n", numberOfStatements);
+
+    SgBasicBlock *method_body = astJavaScopeStack.popBasicBlock(); // pop the body block
+    for (int i = 0; i < numberOfStatements; i++) {
+         SgStatement *statement = astJavaComponentStack.popStatement();
+         if (SgProject::get_verbose() > 2) {
+             cerr << "(5) Adding statement "
+                  << statement -> class_name()
+                  << " to a method declaration block"
+                  << endl;
+             cerr.flush();
+        }
+printf("109\n");
+        method_body -> prepend_statement(statement);
+    }
+
+printf("110\n");
+    /* SgFunctionDefinition *memberFunctionDefinition = */
+    astJavaScopeStack.popFunctionDefinition();
+
+printf("111\n");
+    SgScopeStatement *type_space = isSgScopeStatement(astJavaScopeStack.pop());
+printf("112\n");
+    ROSE_ASSERT(type_space);
+
+    if (SgProject::get_verbose() > 0)
+        printf ("Exiting  cactionMethodDeclarationEnd (method) \n");
 }
+
+
 
 
 JNIEXPORT void JNICALL
@@ -1034,10 +1314,12 @@ JNIEXPORT void JNICALL Java_x10rose_visit_JNI_cactionBuildMethodSupportEnd(JNIEn
 #endif
 
 
+#if 0
 	SgSymbolTable *tab = class_definition->get_symbol_table();
 	int size = tab->size();
 	printf("Symbol table size=%d\n", size);
 	tab->print();
+#endif
 
     if (SgProject::get_verbose() > 1)
         printf ("Exiting build support for implicit class member function (method) name = %s \n", name.str());

@@ -41,6 +41,16 @@ public class JNI {
     public static native void cactionBinaryExpression(JavaToken jToken);
     public static native void cactionBinaryExpressionEnd(int java_operator_kind, JavaToken jToken);
 
+    public static native void cactionThisReference(JavaToken jToken);
+    public static native void cactionSuperReference(JavaToken jToken);
+
+    public static native void cactionEmptyStatement(JavaToken jToken);
+    public static native void cactionEmptyStatementEnd(JavaToken jToken);
+
+    public static native void cactionConstructorDeclaration(String filename, int constructor_index, JavaToken jToken);
+    public static native void cactionConstructorDeclarationHeader(String filename, boolean java_is_native, boolean java_is_private, int numberOfTypeParameters, int numberOfArguments, int numberOfThrows, JavaToken jToken);
+    public static native void cactionConstructorDeclarationEnd(int java_numberOfStatements, JavaToken jToken);
+
 	public static native void cactionBuildClassSupportStart(String className, String externalName, boolean user_defined_class, boolean has_conflicts, boolean is_interface, boolean is_enum, boolean is_anonymous, JavaToken jToken);
 
     public static native void cactionBuildClassSupportEnd(String className, JavaToken jToken);
@@ -48,9 +58,8 @@ public class JNI {
 	public static native void cactionTypeDeclaration(String package_name, String type_name, boolean is_annotation_interface, boolean is_interface, boolean is_enum, boolean is_abstract, boolean is_final, boolean is_private, boolean is_public, boolean is_protected, boolean is_static, boolean is_strictfp);
 
 	public static native void cactionMethodDeclaration(String name, int method_index, int number_of_arguments, JavaToken method_location, JavaToken args_location);
+    public static native void cactionMethodDeclarationEnd(int numberOfStatements, JavaToken jToken);
 
-	public static native void cactionConstructorDeclaration(String filename, int constructor_index);
-	
 	public static native void cactionCompilationUnitList(int argc, String[] argv);
 	
 	public static native void cactionCompilationUnitDeclaration(String packageName, String path);
