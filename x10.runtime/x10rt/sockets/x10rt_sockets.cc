@@ -86,7 +86,7 @@ struct x10SocketState
 	// the slot at numPlaces holds a special FD used by x10rt_net_unblock_probe to wake up a blocked thread
 	struct pollfd* socketLinks;
 	int unblockFD[2];
-	bool noBlockWindow; // a flag so that a thread won't block in blocking_probe while some other socket is busy reading off a socket
+	int noBlockWindow; // a flag so that a thread won't block in blocking_probe while some other socket is busy reading off a socket
 
 	pthread_mutex_t* writeLocks; // a lock to prevent overlapping writes on each socket
 	// special case for index=myPlaceId on the above three.  The socket link is the local listen socket,
@@ -691,7 +691,7 @@ x10rt_error x10rt_net_init (int * argc, char ***argv, x10rt_msg_type *counter)
 				fcntl(context.unblockFD[0], F_SETFL, O_NONBLOCK) != -1 &&
 				fcntl(context.unblockFD[1], F_SETFL, O_NONBLOCK) != -1) {
 			context.socketLinks[context.numPlaces].fd = context.unblockFD[0];
-			context.noBlockWindow = false;
+			context.noBlockWindow = 0;
 		}
 		else
 			fatal("Unable to initialize unblock pipe structure");
@@ -766,7 +766,7 @@ x10rt_error x10rt_net_init (int * argc, char ***argv, x10rt_msg_type *counter)
 				fcntl(context.unblockFD[0], F_SETFL, O_NONBLOCK) != -1 &&
 				fcntl(context.unblockFD[1], F_SETFL, O_NONBLOCK) != -1) {
 			context.socketLinks[context.numPlaces].fd = context.unblockFD[0];
-			context.noBlockWindow = false;
+			context.noBlockWindow = 0;
 		}
 		else
 			fatal("Unable to initialize unblock pipe structure");
@@ -1091,7 +1091,7 @@ bool probe (bool onlyProcessAccept, bool block)
 	    return false;
 	// we aquired the readLock
 	uint32_t whichPlaceToHandle = context.nextSocketToCheck;
-	int ret = poll(context.socketLinks, context.numPlaces+1, (!context.noBlockWindow && block && context.pendingWrites == NULL)?-1:(context.linkAtStartup?100:0));
+	int ret = poll(context.socketLinks, context.numPlaces+1, (context.noBlockWindow==0 && block && context.pendingWrites == NULL)?-1:(context.linkAtStartup?100:0));
 	if (ret > 0)
 	{ // There is at least one socket with something interesting to look at
 
@@ -1128,7 +1128,7 @@ bool probe (bool onlyProcessAccept, bool block)
 				context.nextSocketToCheck = whichPlaceToHandle+1;
 		}
 		context.socketLinks[whichPlaceToHandle].events = 0; // disable any further polls on this socket
-		context.noBlockWindow = true;
+		context.noBlockWindow++; // don't allow threads to block while a socket is not visible to poll
 		pthread_mutex_unlock(&context.readLock);
 
 		if ((context.socketLinks[whichPlaceToHandle].revents & POLLIN) || (context.socketLinks[whichPlaceToHandle].revents & POLLPRI))
@@ -1140,7 +1140,7 @@ bool probe (bool onlyProcessAccept, bool block)
 				#endif
 				handleConnectionRequest();
 				pthread_mutex_lock(&context.readLock);
-				context.noBlockWindow = false;
+				context.noBlockWindow--;
 				context.socketLinks[whichPlaceToHandle].events = POLLIN | POLLPRI;
 				pthread_mutex_unlock(&context.readLock);
 			}
@@ -1153,7 +1153,7 @@ bool probe (bool onlyProcessAccept, bool block)
 				while (::read(context.socketLinks[whichPlaceToHandle].fd, &dummy, 1) > 0);
 				// re-enable unblockProbe
 				pthread_mutex_lock(&context.readLock);
-				context.noBlockWindow = false;
+				context.noBlockWindow--;
 				context.socketLinks[whichPlaceToHandle].events = POLLIN | POLLPRI;
 				pthread_mutex_unlock(&context.readLock);
 				#ifdef DEBUG				
@@ -1218,7 +1218,7 @@ bool probe (bool onlyProcessAccept, bool block)
 					case STANDARD:
 					{
 						pthread_mutex_lock(&context.readLock);
-						context.noBlockWindow = false;
+						context.noBlockWindow--;
 						context.socketLinks[whichPlaceToHandle].events = POLLIN | POLLPRI;
 						pthread_mutex_unlock(&context.readLock);
 
@@ -1243,7 +1243,7 @@ bool probe (bool onlyProcessAccept, bool block)
 						if (nonBlockingRead(context.socketLinks[whichPlaceToHandle].fd, dest, dataLen) < (int)dataLen)
 							return fatal_error("reading PUT data"), false;
 						pthread_mutex_lock(&context.readLock);
-						context.noBlockWindow = false;
+						context.noBlockWindow--;
 						context.socketLinks[whichPlaceToHandle].events = POLLIN | POLLPRI;
 						pthread_mutex_unlock(&context.readLock);
 
@@ -1265,7 +1265,7 @@ bool probe (bool onlyProcessAccept, bool block)
 								return fatal_error("reading GET pointer"), false;
 
 						pthread_mutex_lock(&context.readLock);
-						context.noBlockWindow = false;
+						context.noBlockWindow--;
 						context.socketLinks[whichPlaceToHandle].events = POLLIN | POLLPRI;
 						pthread_mutex_unlock(&context.readLock);
 
@@ -1315,7 +1315,7 @@ bool probe (bool onlyProcessAccept, bool block)
 								return fatal_error("reading GET_COMPLETED data"), false;
 						}
 						pthread_mutex_lock(&context.readLock);
-						context.noBlockWindow = false;
+						context.noBlockWindow--;
 						context.socketLinks[whichPlaceToHandle].events = POLLIN | POLLPRI;
 						pthread_mutex_unlock(&context.readLock);
 
@@ -1357,7 +1357,7 @@ bool probe (bool onlyProcessAccept, bool block)
 				fprintf(stderr, "X10rt.Sockets: place %u got a dud message from place %u\n", context.myPlaceId, whichPlaceToHandle);
 			#endif
 			pthread_mutex_lock(&context.readLock);
-			context.noBlockWindow = false;
+			context.noBlockWindow--;
 			context.socketLinks[whichPlaceToHandle].events = POLLIN | POLLPRI;
 			pthread_mutex_unlock(&context.readLock);
 		}
