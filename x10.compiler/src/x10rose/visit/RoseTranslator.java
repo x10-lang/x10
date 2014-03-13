@@ -48,6 +48,7 @@ import polyglot.ast.FieldAssign_c;
 import polyglot.ast.For_c;
 import polyglot.ast.Formal;
 import polyglot.ast.Import_c;
+import polyglot.ast.IntLit;
 import polyglot.ast.IntLit_c;
 import polyglot.ast.JL;
 import polyglot.ast.Labeled_c;
@@ -133,6 +134,7 @@ import x10.ast.X10FloatLit_c;
 import x10.ast.X10Formal_c;
 import x10.ast.X10If_c;
 import x10.ast.X10Instanceof_c;
+import x10.ast.X10LocalAssign_c;
 import x10.ast.X10LocalDecl_c;
 import x10.ast.X10Local_c;
 import x10.ast.X10Loop_c;
@@ -391,6 +393,8 @@ public class RoseTranslator extends Translator {
 		void visitChild(Node p, Node n) {
 			if (n == null)
 				return;
+			
+			System.out.println("#####" + n);
 			new ToRoseVisitor(w, p).visitAppropriate(n);
 		}
 
@@ -424,7 +428,7 @@ public class RoseTranslator extends Translator {
 		public void visit(Import_c n) {
 			toRose(n, "Import:", n.kind() + " " + n.name().toString());
 		}
-
+		
 		public void visit(PackageNode_c n) {
 			toRose(n, "Package:", n.package_().get().toString());
 			JNI.cactionPushPackage(n.package_().get().toString());
@@ -714,6 +718,7 @@ public class RoseTranslator extends Translator {
 //
 //		        return true; // do nothing by node, keep traversing
 
+			System.out.println("Block start : " + n.statements().size());
 		   JNI.cactionBlock(createJavaToken());
 			visitChildren(n, n.statements());
 			JNI.cactionBlockEnd(n.statements().size(), createJavaToken());
@@ -988,6 +993,16 @@ public class RoseTranslator extends Translator {
 
 		public void visit(IntLit_c n) {
 			toRose(n, "IntLit:", Long.toString(n.value()));
+			
+			if (n.kind() == IntLit.INT) {
+				JNI.cactionIntLiteral((int)n.value(), n.toString(), createJavaToken());
+			} else if (n.kind() == IntLit.LONG) {
+				JNI.cactionLongLiteral(n.value(), n.toString(), createJavaToken());
+				
+			} else {
+				System.out.println("Unhandled literal : " + n.toString());
+			}
+			System.out.println("IntLiteral end");
 		}
 
 		public void visit(X10StringLit_c n) {
@@ -1064,10 +1079,18 @@ public class RoseTranslator extends Translator {
 				
 		public void visit(LocalAssign_c n) {
 			toRose(n, "LocalAssign:", null);
+			JNI.cactionAssignment(createJavaToken());
+			visitChild(n, n.local());
+			visitChild(n, n.right());
+			JNI.cactionAssignmentEnd(createJavaToken());
+		}
+		
+		public void visit(X10LocalAssign_c n) {
+			toRose(n, "X10LocalAssign:", null);
 			visitChild(n, n.local());
 			visitChild(n, n.right());
 		}
-
+		
 		public void visit(X10Cast_c n) {
 			toRose(n, "X10Cast:", null);
 			visitChild(n, n.castType());

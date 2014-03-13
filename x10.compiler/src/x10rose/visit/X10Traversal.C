@@ -25,6 +25,68 @@ Java_x10rose_visit_JNI_cactionTest(JNIEnv *, jclass)
 #endif
 }
 
+JNIEXPORT void JNICALL 
+Java_x10rose_visit_JNI_cactionAssignment(JNIEnv *env, jclass, jobject jToken) {
+    if (SgProject::get_verbose() > 2)
+        printf ("Build an assignement statement (expression?) \n");
+
+    // Nothing to do !!!
+}
+
+
+JNIEXPORT void JNICALL 
+Java_x10rose_visit_JNI_cactionAssignmentEnd(JNIEnv *env, jclass, jobject jToken) {
+    // This function builds an assignement statement (not an expression).
+    if (SgProject::get_verbose() > 2)
+        printf ("Build an assignement statement (expression?) \n");
+
+    binaryExpressionSupport<SgAssignOp>();
+
+//    setJavaSourcePosition((SgLocatedNode *) astJavaComponentStack.top(), env, jToken);
+}
+
+
+JNIEXPORT void JNICALL 
+Java_x10rose_visit_JNI_cactionIntLiteral(JNIEnv *env, jclass, jint java_value, jstring java_source, jobject jToken) {
+    if (SgProject::get_verbose() > 0)
+        printf ("Build IntVal \n");
+
+    ROSE_ASSERT(! astJavaScopeStack.empty());
+
+    int value = java_value;
+    SgName source = convertJavaStringToCxxString(env, java_source);
+
+    // printf ("Building an integer value expression = %d = %s \n", value, valueString.c_str());
+
+    SgIntVal *integerValue = new SgIntVal(value, source);
+    ROSE_ASSERT(integerValue != NULL);
+
+//    setJavaSourcePosition(integerValue, env, jToken);
+
+    astJavaComponentStack.push(integerValue);
+}
+
+JNIEXPORT void JNICALL 
+Java_x10rose_visit_JNI_cactionLongLiteral(JNIEnv *env, jclass, jlong java_value, jstring java_source, jobject jToken) {
+    if (SgProject::get_verbose() > 0)
+        printf ("Build LongVal \n");
+
+    ROSE_ASSERT(! astJavaScopeStack.empty());
+
+    long value = java_value;
+    SgName source = convertJavaStringToCxxString(env, java_source);
+
+    // printf ("Building an integer value expression = %d = %s \n", value, valueString.c_str());
+
+    SgLongIntVal *longValue = new SgLongIntVal(value, source);
+    ROSE_ASSERT(longValue != NULL);
+
+//    setJavaSourcePosition(longValue, env, jToken);
+
+    astJavaComponentStack.push(longValue);
+}
+
+
 
 JNIEXPORT void JNICALL 
 Java_x10rose_visit_JNI_cactionPushPackage(JNIEnv *env, jclass, jstring package_name, jobject jToken) {
@@ -1647,46 +1709,6 @@ Java_x10rose_visit_JNI_cactionIfStatement(JNIEnv *env, jclass, jobject jToken) {
     ROSE_ASSERT(astJavaScopeStack.top() -> get_parent() != NULL);
 }
 
-
-JNIEXPORT void JNICALL
-Java_x10rose_visit_JNI_cactionIntLiteral(JNIEnv *env, jclass, jint java_value, jstring java_source, jobject jToken) {
-    if (SgProject::get_verbose() > 0)
-        printf ("Build IntVal \n");
-
-    ROSE_ASSERT(! astJavaScopeStack.empty());
-
-    int value = java_value;
-    SgName source = convertJavaStringToCxxString(env, java_source);
-
-    // printf ("Building an integer value expression = %d = %s \n", value, valueString.c_str());
-
-    SgIntVal *integerValue = new SgIntVal(value, source);
-    ROSE_ASSERT(integerValue != NULL);
-
-    setJavaSourcePosition(integerValue, env, jToken);
-
-    astJavaComponentStack.push(integerValue);
-}
-
-JNIEXPORT void JNICALL
-Java_x10rose_visit_JNI_cactionLongLiteral(JNIEnv *env, jclass, jlong java_value, jstring java_source, jobject jToken) {
-    if (SgProject::get_verbose() > 0)
-        printf ("Build LongVal \n");
-
-    ROSE_ASSERT(! astJavaScopeStack.empty());
-
-    long value = java_value;
-    SgName source = convertJavaStringToCxxString(env, java_source);
-
-    // printf ("Building an integer value expression = %d = %s \n", value, valueString.c_str());
-
-    SgLongIntVal *longValue = new SgLongIntVal(value, source);
-    ROSE_ASSERT(longValue != NULL);
-
-    setJavaSourcePosition(longValue, env, jToken);
-
-    astJavaComponentStack.push(longValue);
-}
 
 
 JNIEXPORT void JNICALL

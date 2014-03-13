@@ -23,6 +23,12 @@ public class JNI {
 	
 	public static native void cactionTest();
 
+    public static native void cactionAssignment(JavaToken jToken);
+    public static native void cactionAssignmentEnd(JavaToken jToken);
+
+    public static native void cactionIntLiteral(int value, String source, JavaToken jToken);
+	public static native void cactionLongLiteral(long value, String source, JavaToken jToken);
+
    public static native void cactionInsertImportedPackage(String package_name);
    public static native void cactionInsertImportedType(String package_name, String type_name);
    public static native void cactionPushPackage(String package_name);

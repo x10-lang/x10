@@ -16,6 +16,18 @@ JNIEXPORT void JNICALL
 Java_x10rose_visit_JNI_cactionTest(JNIEnv *, jclass);
 
 JNIEXPORT void JNICALL 
+Java_x10rose_visit_JNI_cactionAssignment(JNIEnv *, jclass, jobject);
+    
+JNIEXPORT void JNICALL 
+Java_x10rose_visit_JNI_cactionAssignmentEnd(JNIEnv *, jclass, jobject);
+
+JNIEXPORT void JNICALL 
+Java_x10rose_visit_JNI_cactionIntLiteral(JNIEnv *, jclass, jint, jstring, jobject); 
+
+JNIEXPORT void JNICALL
+Java_x10rose_visit_JNI_cactionLongLiteral(JNIEnv *, jclass, jlong, jstring, jobject);
+
+JNIEXPORT void JNICALL 
 Java_x10rose_visit_JNI_cactionPushPackage(JNIEnv *, jclass, jstring, jobject);
 
 JNIEXPORT void JNICALL 
@@ -162,9 +174,6 @@ JNIEXPORT void JNICALL Java_x10rose_visit_JNI_cactionForStatement(JNIEnv *, jcla
 
 JNIEXPORT void JNICALL Java_x10rose_visit_JNI_cactionIfStatement(JNIEnv *, jclass, jobject);
 
-JNIEXPORT void JNICALL Java_x10rose_visit_JNI_cactionIntLiteral(JNIEnv *, jclass, jint, jstring, jobject);
-
-JNIEXPORT void JNICALL Java_x10rose_visit_JNI_cactionLongLiteral(JNIEnv *, jclass, jlong, jstring, jobject);
 
 JNIEXPORT void JNICALL Java_x10rose_visit_JNI_cactionSwitchStatement(JNIEnv *, jclass, jobject);
 
