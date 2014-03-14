@@ -318,7 +318,9 @@ public final class Runtime {
         var idleCount:Int = 0n; // idle thread count
         var deadCount:Int = 0n; // dead thread count
         var spareNeeded:Int = 0n; // running threads - NTHREADS
-        var multiplace:Boolean = true; // better safe than sorry
+        var multiplace:Boolean = true; // is running with multiple places
+        var busyWaiting:Boolean = true; // should busy wait
+        var probing:Boolean = false; // is already in bloking probe
 
         // reduce permits by n
         def reduce(n:Int):void {
@@ -408,13 +410,21 @@ public final class Runtime {
 
         // park until given work to do -> idle thread
         def take(worker:Worker):Activity {
-            if (BUSY_WAITING) return null;
-            if (multiplace && (idleCount - spareNeeded >= NTHREADS - 1)) return null; // better safe than sorry
+            if (multiplace && busyWaiting && (idleCount - spareNeeded >= NTHREADS - 1)) return null;
             lock.lock();
             convert();
-            if (multiplace && (idleCount >= NTHREADS - 1)) {
+            if (multiplace && busyWaiting && (idleCount >= NTHREADS - 1)) {
                 lock.unlock();
                 return null;
+            }
+            if (multiplace && !busyWaiting && !probing) {
+                probing = true;
+                lock.unlock();
+                x10rtBlockingProbe();
+                lock.lock();
+                probing = false;
+                lock.unlock();
+                return worker.poll();
             }
             val i = spareCount + idleCount++;
             parkedWorkers(i) = worker;
@@ -430,12 +440,13 @@ public final class Runtime {
         // deal to idle worker if any
         // return true on success
         def give(activity:Activity):Boolean {
-            if (BUSY_WAITING) return false;
-            if (idleCount - spareNeeded <= 0n) return false;
+            if (idleCount - spareNeeded <= 0n && !probing) return false;
             lock.lock();
             convert();
             if (idleCount <= 0n) {
+                val p = probing;
                 lock.unlock();
+                if (p && multiplace) x10rtUnblockProbe();
                 return false;
             }
             val i = spareCount + --idleCount;
@@ -462,7 +473,9 @@ public final class Runtime {
                 parkedWorkers(spareCount) = null;
                 worker.unpark();
             }
+            val p = probing;
             lock.unlock();
+            if (p && multiplace) x10rtUnblockProbe();
         }
 
         public operator this(i:Int) = workers(i);
@@ -620,6 +633,7 @@ public final class Runtime {
 
         operator this(n:Int):void {
             workers.multiplace = Place.ALL_PLACES>1; // ALL_PLACES includes accelerators
+            workers.busyWaiting = BUSY_WAITING || !x10rtBlockingProbeSupport();
             workers.count = n;
             workers(0n) = worker();
             for (var i:Int = 1n; i<n; i++) {
