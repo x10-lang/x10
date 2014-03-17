@@ -550,9 +550,9 @@ public class RoseTranslator extends Translator {
 //			visitChild(n, n.offerType());
 //			visitChildren(n, n.throwsTypes());
 			visitChild(n, n.body());
-//		    JNI.cactionMethodDeclarationEnd(n.body().statements().size(), createJavaToken());
+			
+		    JNI.cactionMethodDeclarationEnd(n.body().statements().size(), createJavaToken());
 //		    JNI.cactionMethodDeclarationEnd(0, createJavaToken());
-
 		}
 		
 		public void previsit(X10MethodDecl_c n) {
@@ -571,9 +571,11 @@ public class RoseTranslator extends Translator {
 //			}
 			String class_name = n.name().toString();
 			int method_index = memberMap.get(method_name+"("+param+")");
-					
+
+			
           JNI.cactionBuildMethodSupportStart(method_name, method_index, createJavaToken());
-			visitChild(n, n.returnType());
+
+			visitChild(n, n.returnType());			
 			visitChildren(n, n.formals());
 		
 /*
@@ -682,7 +684,8 @@ public class RoseTranslator extends Translator {
 //			visitChild(n, n.offerType());
 //			visitChildren(n, n.throwsTypes());
 			visitChild(n, n.body());
-			
+
+		    JNI.cactionMethodDeclarationEnd(n.body().statements().size(), createJavaToken());
 //			String constructor_name = n.name().toString();
 //
 //			JNI.cactionConstructorDeclarationHeader(constructor_name, false,
@@ -760,7 +763,7 @@ public class RoseTranslator extends Translator {
 				|| canonicalTypeName.equals("double")) {
 				JNI.cactionTypeReference("", n.nameString());
 			}
-			if (n.node().toString().indexOf("self==this") >= 0) { 
+			else if (n.node().toString().indexOf("self==this") >= 0) { 
 				JNI.cactionTypeReference("", n.nameString());
 			}
 			else {
@@ -925,9 +928,14 @@ public class RoseTranslator extends Translator {
 		
 		public void visit(X10If_c n) {
 			toRose(n, "X10If:", "if");
+			
+			System.out.println(">>>>>>>****************************************");
 			visitChild(n, n.cond());
 			visitChild(n, n.consequent());
 			visitChild(n, n.alternative());
+			System.out.println("<<<<<<<****************************************");
+			JNI.cactionIfStatement(createJavaToken());
+			JNI.cactionIfStatementEnd(n.alternative() != null, createJavaToken());
 		}
 
 		public void visit(X10Conditional_c n) {
@@ -972,6 +980,11 @@ public class RoseTranslator extends Translator {
 		
 		public void visit(X10BooleanLit_c n) {
 			toRose(n, "X10BooleanLit:", Boolean.toString(n.value()));
+			if (n.value()) 
+				JNI.cactionTrueLiteral(createJavaToken());
+			else
+				JNI.cactionFalseLiteral(createJavaToken());
+			
 		}
 
 		public void visit(ClassLit_c n) {
