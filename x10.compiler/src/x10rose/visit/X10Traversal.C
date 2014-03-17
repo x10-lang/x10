@@ -25,6 +25,98 @@ Java_x10rose_visit_JNI_cactionTest(JNIEnv *, jclass)
 #endif
 }
 
+
+JNIEXPORT void JNICALL 
+Java_x10rose_visit_JNI_cactionFalseLiteral(JNIEnv *env, jclass, jobject jToken) {
+    SgExpression *expression = SageBuilder::buildBoolValExp(false);
+    astJavaComponentStack.push(expression);
+}
+
+
+JNIEXPORT void JNICALL 
+Java_x10rose_visit_JNI_cactionTrueLiteral(JNIEnv *env, jclass, jobject jToken) {
+    SgExpression *expression = SageBuilder::buildBoolValExp(true);
+cout << "Push TrueLiteral : " << expression << endl;;
+    astJavaComponentStack.push(expression);
+}
+
+
+JNIEXPORT void JNICALL 
+Java_x10rose_visit_JNI_cactionIfStatement(JNIEnv *env, jclass, jobject jToken) {
+    if (SgProject::get_verbose() > 2)
+        printf ("Inside of Java_JavaParser_cactionIfStatement() \n");
+
+    // Build a SgIfStatement and push it onto the stack with a true block.
+
+    // We need a predicate to use to call the SageBuilder::buildIfStmt() function.  So build a SgNullExpression for now. 
+    SgNullStatement *temp_conditional = SageBuilder::buildNullStatement();
+    SgNullStatement *true_block = SageBuilder::buildNullStatement();
+    ROSE_ASSERT(true_block != NULL);
+
+    SgIfStmt *ifStatement = SageBuilder::buildIfStmt(temp_conditional, true_block, NULL);
+    ROSE_ASSERT(ifStatement != NULL);
+
+    ifStatement -> set_parent(astJavaScopeStack.top());
+
+//    setJavaSourcePosition(ifStatement, env, jToken);
+
+    // Push the SgIfStmt onto the stack, but not the true block.
+    astJavaScopeStack.push(ifStatement);
+    ROSE_ASSERT(astJavaScopeStack.top() -> get_parent() != NULL);
+}
+
+
+JNIEXPORT void JNICALL 
+Java_x10rose_visit_JNI_cactionIfStatementEnd(JNIEnv *env, jclass, jboolean has_false_body, jobject jToken) {
+    if (SgProject::get_verbose() > 2)
+        printf ("Inside of Java_JavaParser_cactionIfStatementEnd() \n");
+
+    // There should be a predicate on the stack for us to use as a final step in construction of the SgIfStmt.
+
+    ROSE_ASSERT(! astJavaScopeStack.empty());
+
+    SgIfStmt *ifStatement = astJavaScopeStack.popIfStmt();
+    ROSE_ASSERT(ifStatement -> get_parent() != NULL);
+
+//    setJavaSourcePosition(ifStatement, env, jToken);
+
+    // If there are two required then the first is for the false branch.
+    if (has_false_body) {
+        SgStatement *false_body = astJavaComponentStack.popStatement();
+        ifStatement -> set_false_body(false_body);
+        false_body -> set_parent(ifStatement);
+        ROSE_ASSERT(false_body -> get_parent() != NULL);
+    }
+
+    SgStatement *true_body = astJavaComponentStack.popStatement();
+cout << "True_body : " << true_body << endl;
+    ifStatement -> set_true_body(true_body);
+    true_body -> set_parent(ifStatement);
+    ROSE_ASSERT(true_body -> get_parent() != NULL);
+
+    SgExpression *condititonalExpr = astJavaComponentStack.popExpression();
+
+    SgExprStatement *exprStatement = SageBuilder::buildExprStatement(condititonalExpr);
+
+//    setJavaSourcePosition(exprStatement, env, jToken);
+
+    ROSE_ASSERT(exprStatement != NULL);
+    ROSE_ASSERT(condititonalExpr -> get_parent() != NULL);
+
+    ifStatement -> set_conditional(exprStatement);
+
+    ROSE_ASSERT(exprStatement -> get_parent() == NULL);
+    exprStatement -> set_parent(ifStatement);
+    ROSE_ASSERT(exprStatement -> get_parent() != NULL);
+
+    // DQ (7/30/2011): Take the block off of the scope stack and put it onto the statement stack so that we can 
+    // process either blocks of other statements uniformally.
+    astJavaComponentStack.push(ifStatement);
+}
+
+
+
+
 JNIEXPORT void JNICALL 
 Java_x10rose_visit_JNI_cactionAssignment(JNIEnv *env, jclass, jobject jToken) {
     if (SgProject::get_verbose() > 2)
@@ -608,6 +700,7 @@ Java_x10rose_visit_JNI_cactionInsertClassStart2(JNIEnv *env, jclass, jstring jav
     SgScopeStatement *outerScope = astJavaScopeStack.top();
     ROSE_ASSERT(outerScope != NULL);
     SgClassDeclaration *class_declaration = buildDefiningClassDeclaration(name, outerScope);
+//MH-20140314
 #if 1
 	SgClassType *unknown = SgClassType::createType(class_declaration, NULL);
     astJavaComponentStack.push(unknown);
@@ -615,7 +708,7 @@ Java_x10rose_visit_JNI_cactionInsertClassStart2(JNIEnv *env, jclass, jstring jav
 #else
     SgClassDefinition *class_definition = class_declaration -> get_definition();
     ROSE_ASSERT(class_definition && (! class_definition -> attributeExists("namespace")));
-    setJavaSourcePosition(class_definition, env, jToken);
+//    setJavaSourcePosition(class_definition, env, jToken);
     astJavaScopeStack.push(class_definition); // to contain the class members...
 #endif
 }
@@ -816,7 +909,6 @@ Java_x10rose_visit_JNI_cactionBuildClassSupportEnd(JNIEnv *env, jclass xxx, jstr
         printf ("Inside of Java_JavaParser_cactionBuildClassSupportEnd: %s \n", name.str());
 
     ROSE_ASSERT(! astJavaScopeStack.empty());
-
     SgClassDefinition *class_definition = astJavaScopeStack.popClassDefinition();
     ROSE_ASSERT(! class_definition -> attributeExists("namespace"));
     for (SgStatement *statement = astJavaComponentStack.popStatement();
@@ -968,8 +1060,11 @@ Java_x10rose_visit_JNI_cactionBlockEnd(JNIEnv *env, jclass, jint java_numberOfSt
         }
         body -> prepend_statement(statement);
     }
-//MH-20140313
-//    astJavaComponentStack.push(body);
+
+
+    astJavaComponentStack.push(body);
+//MH-20140317
+    astJavaScopeStack.push(body);
 }
 
 
@@ -1143,7 +1238,9 @@ Java_x10rose_visit_JNI_cactionMethodDeclaration(JNIEnv *env, jclass,
 //MH-20140312
 //temtatively push class_definition into astJavaScopeStack to pass assertion for checking if 
 //stack top is class definition or not
+#if 1
     astJavaScopeStack.push(class_definition);
+#endif
 
     ROSE_ASSERT(astJavaScopeStack.top() -> get_parent() != NULL);
 
@@ -1165,9 +1262,13 @@ Java_x10rose_visit_JNI_cactionMethodDeclarationEnd(JNIEnv *env, jclass, jint jav
 
     if (SgProject::get_verbose() > 0)
         printf ("In cactionMethodDeclarationEnd(): numberOfStatements = %d\n", numberOfStatements);
+	
 
+#if 0
     SgBasicBlock *method_body = astJavaScopeStack.popBasicBlock(); // pop the body block
-    for (int i = 0; i < numberOfStatements; i++) {
+
+//    for (int i = 0; i < numberOfStatements; i++) {
+    for (int i = 0; i < 0; i++) {
          SgStatement *statement = astJavaComponentStack.popStatement();
          if (SgProject::get_verbose() > 2) {
              cerr << "(5) Adding statement "
@@ -1176,21 +1277,55 @@ Java_x10rose_visit_JNI_cactionMethodDeclarationEnd(JNIEnv *env, jclass, jint jav
                   << endl;
              cerr.flush();
         }
-printf("109\n");
         method_body -> prepend_statement(statement);
     }
 
-printf("110\n");
     /* SgFunctionDefinition *memberFunctionDefinition = */
     astJavaScopeStack.popFunctionDefinition();
 
-printf("111\n");
     SgScopeStatement *type_space = isSgScopeStatement(astJavaScopeStack.pop());
-printf("112\n");
     ROSE_ASSERT(type_space);
 
     if (SgProject::get_verbose() > 0)
         printf ("Exiting  cactionMethodDeclarationEnd (method) \n");
+#else
+//MH-20140317
+// pop unnecessary node to have classdefinition as the top of astJavaScopeStack 
+    astJavaScopeStack.pop();
+#if 0
+#endif
+
+    SgScopeStatement *type_space = isSgScopeStatement(astJavaScopeStack.pop());
+    ROSE_ASSERT(type_space);
+    astJavaScopeStack.pop();
+
+/*
+    for (int i = 0; i < numberOfStatements-1; i++) {
+    	astJavaScopeStack.pop();
+	}
+*/
+
+/*
+    SgClassDefinition *class_definition = isSgClassDefinition(astJavaScopeStack.top());
+    ROSE_ASSERT(class_definition != NULL  && (! class_definition -> attributeExists("namespace")));
+*/
+
+//    SgFunctionDefinition *memberFunctionDefinition = astJavaScopeStack.popFunctionDefinition();
+
+	SgStatement *method_body = astJavaComponentStack.popStatement();
+	SgStatement *function_declaration = astJavaComponentStack.popStatement();
+//    SgFunctionDeclaration *memberFunctionDeclaration = astJavaComponentStack.popStatement();
+//	SgFunctionDefinition *memberFunctionDefinition = memberFunctionDeclaration -> get_definition();
+	SgFunctionDefinition *memberFunctionDefinition = ((SgMemberFunctionDeclaration *)function_declaration) -> get_definition();
+    memberFunctionDefinition -> set_body((SgBasicBlock *)method_body);
+	astJavaComponentStack.push(function_declaration);
+	astJavaScopeStack.push(((SgMemberFunctionDeclaration *)function_declaration)->get_class_scope());
+
+    if (SgProject::get_verbose() > 0)
+        printf ("Exiting  cactionMethodDeclarationEnd (method) \n");
+/*
+*/
+#endif
 }
 
 
@@ -1218,6 +1353,7 @@ Java_x10rose_visit_JNI_cactionTypeReference(JNIEnv *env, jclass,
 		// this is fine for x10 because x10 classes have been fully qualified with package  name
 		Java_x10rose_visit_JNI_cactionInsertClassStart2(env, NULL, java_type_name, jToken);
 	}	
+	else
 #else
 	ROSE_ASSERT(type != NULL);
 #endif
@@ -1228,7 +1364,6 @@ Java_x10rose_visit_JNI_cactionTypeReference(JNIEnv *env, jclass,
 //cout << "Came across type " << getTypeName(class_type) << endl;
 //cout.flush();
 //}
-	else
     astJavaComponentStack.push(type);
 
     if (SgProject::get_verbose() > 0)
@@ -1262,8 +1397,9 @@ printf("class_definition=%p\n", class_definition);
         attribute -> setNode(type_space, method_index);
     }
 
+//MH-20140315
+//    astJavaScopeStack.push(class_definition);
     astJavaScopeStack.push(type_space);
-
 
     if (SgProject::get_verbose() > 1)
         printf ("Exiting BuildMethodSupportStart for method = %s \n", name.str());
@@ -1371,7 +1507,7 @@ JNIEXPORT void JNICALL Java_x10rose_visit_JNI_cactionBuildMethodSupportEnd(JNIEn
 // So far, this is necessary for passing an assertion in Java_x10rose_visit_JNI_cactionBuildMethodSupportStart 
 // for checking if stack top is class definition or not.
 #if 1
-    astJavaScopeStack.push(method_definition);
+//    astJavaScopeStack.push(method_definition);
     astJavaScopeStack.push(class_definition);
 #endif
 
@@ -1611,24 +1747,6 @@ Java_x10rose_visit_JNI_cactionCharLiteral(JNIEnv *env, jclass, jchar java_char_v
     astJavaComponentStack.push(charValue);
 }
 
-JNIEXPORT void JNICALL
-Java_x10rose_visit_JNI_cactionConditionalExpressionEnd(JNIEnv *env, jclass, jobject jToken) {
-    if (SgProject::get_verbose() > 0)
-        printf ("Inside of Java_x10rose_visit_JNI_cactionConditionalExpressionEnd() \n");
-
-    SgExpression *false_exp = astJavaComponentStack.popExpression();
-
-    SgExpression *true_exp = astJavaComponentStack.popExpression();
-
-    SgExpression *test_exp = astJavaComponentStack.popExpression();
-
-    // Build the assignment operator and push it onto the stack.
-    SgConditionalExp *conditional = SageBuilder::buildConditionalExp(test_exp, true_exp, false_exp);
-    ROSE_ASSERT(conditional != NULL);
-
-    astJavaComponentStack.push(conditional);
-}
-
 
 JNIEXPORT void JNICALL
 Java_x10rose_visit_JNI_cactionContinueStatement(JNIEnv *env, jclass, jstring java_string, jobject jToken) {
@@ -1684,31 +1802,6 @@ Java_x10rose_visit_JNI_cactionForStatement(JNIEnv *env, jclass, jobject jToken) 
 
     astJavaScopeStack.push(forStatement);
 }
-
-JNIEXPORT void JNICALL
-Java_x10rose_visit_JNI_cactionIfStatement(JNIEnv *env, jclass, jobject jToken) {
-    if (SgProject::get_verbose() > 2)
-        printf ("Inside of Java_x10rose_visit_JNI_cactionIfStatement() \n");
-
-    // Build a SgIfStatement and push it onto the stack with a true block.
-
-    // We need a predicate to use to call the SageBuilder::buildIfStmt() function.  So build a SgNullExpression for now. 
-    SgNullStatement *temp_conditional = SageBuilder::buildNullStatement();
-    SgNullStatement *true_block = SageBuilder::buildNullStatement();
-    ROSE_ASSERT(true_block != NULL);
-
-    SgIfStmt *ifStatement = SageBuilder::buildIfStmt(temp_conditional, true_block, NULL);
-    ROSE_ASSERT(ifStatement != NULL);
-
-    ifStatement -> set_parent(astJavaScopeStack.top());
-
-    setJavaSourcePosition(ifStatement, env, jToken);
-
-    // Push the SgIfStmt onto the stack, but not the true block.
-    astJavaScopeStack.push(ifStatement);
-    ROSE_ASSERT(astJavaScopeStack.top() -> get_parent() != NULL);
-}
-
 
 
 JNIEXPORT void JNICALL

@@ -15,6 +15,24 @@ extern "C" {
 JNIEXPORT void JNICALL 
 Java_x10rose_visit_JNI_cactionTest(JNIEnv *, jclass);
 
+JNIEXPORT void JNICALL
+Java_x10rose_visit_JNI_cactionConditionalExpression(JNIEnv *, jclass, jobject); 
+
+JNIEXPORT void JNICALL
+Java_x10rose_visit_JNI_cactionConditionalExpressionEnd(JNIEnv *, jclass, jobject);
+
+JNIEXPORT void JNICALL
+Java_x10rose_visit_JNI_cactionFalseLiteral(JNIEnv *, jclass, jobject);
+
+JNIEXPORT void JNICALL
+Java_x10rose_visit_JNI_cactionTrueLiteral(JNIEnv *, jclass, jobject); 
+
+JNIEXPORT void JNICALL
+Java_x10rose_visit_JNI_cactionIfStatement(JNIEnv *, jclass, jobject); 
+
+JNIEXPORT void JNICALL
+Java_x10rose_visit_JNI_cactionIfStatementEnd(JNIEnv *, jclass, jboolean, jobject);
+
 JNIEXPORT void JNICALL 
 Java_x10rose_visit_JNI_cactionAssignment(JNIEnv *, jclass, jobject);
     

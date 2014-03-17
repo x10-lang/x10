@@ -23,6 +23,18 @@ public class JNI {
 	
 	public static native void cactionTest();
 
+    public static native void cactionArgument(String argumentName, JavaToken jToken);
+    public static native void cactionArgumentEnd(String argument_name, boolean is_final, JavaToken jToken);
+
+    public static native void cactionConditionalExpression(JavaToken jToken);
+    public static native void cactionConditionalExpressionEnd(JavaToken jToken);
+
+    public static native void cactionFalseLiteral(JavaToken jToken);
+    public static native void cactionTrueLiteral(JavaToken jToken);
+
+    public static native void cactionIfStatement(JavaToken jToken);
+    public static native void cactionIfStatementEnd(boolean has_false_body, JavaToken jToken);
+
     public static native void cactionAssignment(JavaToken jToken);
     public static native void cactionAssignmentEnd(JavaToken jToken);
 
