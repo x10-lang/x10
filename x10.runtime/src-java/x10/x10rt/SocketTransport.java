@@ -215,7 +215,13 @@ public class SocketTransport {
 				try {
 					initLink(i, connectionStrings[i], allPlaces);
 				} catch (IOException e) {
-					e.printStackTrace();
+					// try one more time.  Maybe a transient issue
+					try {
+						initLink(i, connectionStrings[i], allPlaces);
+					} catch (IOException e2) {
+						e2.printStackTrace();
+						return RETURNCODE.X10RT_ERR_OTHER.ordinal();
+					}
 				}
 	    	}
     	}
@@ -224,8 +230,13 @@ public class SocketTransport {
 				try {
 					initLink(i, connectionStrings[i], null);
 				} catch (IOException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
+					// try one more time.  Maybe a transient issue
+					try {
+						initLink(i, connectionStrings[i], null);
+					} catch (IOException e2) {
+						e2.printStackTrace();
+						return RETURNCODE.X10RT_ERR_OTHER.ordinal();
+					}
 				} // connect to all lower places
 	    	}
 			for (int i=myPlaceId+1; i<nplaces; i++)
