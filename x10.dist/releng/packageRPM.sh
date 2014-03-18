@@ -61,6 +61,12 @@ cdir="`pwd`"
 [ "$cdir" = "/" ] && cdir="$cdir."
 cd "$top"
 
+if [[ "${PLATFORM}" == "linux_ppc64" ]]; then
+    RPM_PLATFORM="ppc64"
+else
+    RPM_PLATFORM="${PLATFORM}"
+fi
+
 bindir="${HOME}/rpmbuild/BUILDROOT/x10-${X10_VERSION}-1.${PLATFORM}/opt/ibm/x10/${X10_VERSION}/"
 mkdir -p ${HOME}/rpmbuild/BUILD ${HOME}/rpmbuild/BUILDROOT ${HOME}/rpmbuild/RPMS ${HOME}/rpmbuild/SOURCES ${HOME}/rpmbuild/SPECS ${HOME}/rpmbuild/SRPMS "$bindir"
 eval tar -xzf "$cdir/$tarfile" -C ${bindir} 
@@ -97,7 +103,7 @@ sedarg="s/^/\/opt\/ibm\/x10\/${X10_VERSION}\//"
 eval tar -tzf "$cdir/$tarfile" | sed ${sedarg} >> ${spec}
 #tar -tzf x10-2.4.0_linux_ppc.tgz | sed 's/^/\/opt\/ibm\/x10\//'
 
-eval rpmbuild --buildroot ${HOME}/rpmbuild/BUILDROOT/x10-${X10_VERSION}-1.${PLATFORM} -bb --target ${PLATFORM} ${spec}
-mv ${HOME}/rpmbuild/RPMS/${PLATFORM}/x10-${X10_VERSION}-1.${PLATFORM}.rpm ${cdir}
+eval rpmbuild --buildroot ${HOME}/rpmbuild/BUILDROOT/x10-${X10_VERSION}-1.${PLATFORM} -bb --target ${RPM_PLATFORM} ${spec}
+mv ${HOME}/rpmbuild/RPMS/${RPM_PLATFORM}/x10-${X10_VERSION}-1.${RPM_PLATFORM}.rpm ${cdir}/x10-${X10_VERSION}-1.${PLATFORM}.rpm
 rm -rf ${HOME}/rpmbuild
 echo "RPM built.  Type \"rpm -qpil ${cdir}/x10-${X10_VERSION}-1.${PLATFORM}.rpm\" to see details"
