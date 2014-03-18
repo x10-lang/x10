@@ -33,7 +33,14 @@ public class RailUtils {
         sort[T](a, (x:T,y:T) => x.compareTo(y));
     }
 
-    static def qsort[T](a:Rail[T], lo:Long, hi:Long, cmp:(T,T)=>Int) {
+    /**
+     * Sorts a portion of the given rail into ascending order.
+     * @param a the rail to be sorted
+     * @param lo the index of the start of the range to be sorted
+     * @param hi the index of the end of the range to be sorted
+     * @param cmp the comparison function to use
+     */
+    public static def qsort[T](a:Rail[T], lo:Long, hi:Long, cmp:(T,T)=>Int) {
         if (hi <= lo) return;
         var l:Long = lo - 1;
         var h:Long = hi;
