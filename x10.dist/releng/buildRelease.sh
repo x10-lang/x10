@@ -121,7 +121,7 @@ for i in \
 	x10.tests \
 	x10.wala
 do
-    svn $svn_command -q https://svn.code.sourceforge.net/p/x10/code/tags/$X10_TAG/$i
+    svn $svn_command -q http://svn.code.sourceforge.net/p/x10/code/tags/$X10_TAG/$i
 done
 )
 
