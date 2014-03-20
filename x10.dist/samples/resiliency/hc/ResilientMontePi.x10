@@ -21,6 +21,8 @@ public class ResilientMontePi {
 
     public static def main (args : Rail[String]) {
 
+        val victim = args.size > 0 ? Long.parse(args(0)) : -1;
+
         val result = GlobalRef(new Cell(Pair[Long,Long](0l, 0l))); // (points_in_circle, points_tested)
 	val hcInstance = hcInstance();
 	val resultsMap = hcInstance.getMap("result");
@@ -38,6 +40,10 @@ public class ResilientMontePi {
 			if (iter % 1000 == 0) {
                             val id = here.id;
 			    myResultsMap.put(id, total + " " + iter);
+                            if (here.id == victim && iter > ITERS/2) {
+                                Console.OUT.println("BOOM: at "+here+" on iteration "+iter);
+                                System.killHere();
+                            }
 			}
                     }
                     val total_ = total;
