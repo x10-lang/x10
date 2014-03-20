@@ -106,6 +106,7 @@ fi
 
 classpath="${classpath}${LIB_DIR}${FILE_SEP}x10c.jar${PATH_SEP}${LIB_DIR}${FILE_SEP}${LPG_JAR}${PATH_SEP}${WALA_JARS}"
 classpath="${classpath}${PATH_SEP}${LIB_DIR}${FILE_SEP}${MATH_JAR}${PATH_SEP}${LIB_DIR}${FILE_SEP}${LOG_JAR}"
+classpath="${classpath}${PATH_SEP}${LIB_DIR}${FILE_SEP}${HAZELCAST_JAR}"
 
 # Set flags to flatten expressions if we've been asked to do so.
 [ "$CROSS_COMPILE_FX10" = "true" ] && flatexprs="true"
