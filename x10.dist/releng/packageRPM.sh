@@ -110,6 +110,6 @@ sedarg="s/^/\/opt\/ibm\/x10\/${X10_VERSION}\//"
 eval tar -tzf "$cdir/$tarfile" | sed ${sedarg} >> ${spec}
 
 eval rpmbuild --buildroot ${HOME}/rpmbuild/BUILDROOT/x10-${X10_VERSION}-1.${PLATFORM} -bb --target ${RPM_PLATFORM} ${spec}
-mv ${HOME}/rpmbuild/RPMS/${RPM_PLATFORM}/x10-${X10_VERSION}-1.${RPM_PLATFORM}.rpm ${cdir}/x10-${X10_VERSION}-1.${PLATFORM}.rpm
+cp ${HOME}/rpmbuild/RPMS/${RPM_PLATFORM}/x10-${X10_VERSION}-1.${RPM_PLATFORM}.rpm ${cdir}/x10-${X10_VERSION}-1.${PLATFORM}.rpm
 rm -rf ${HOME}/rpmbuild
 echo "RPM built.  Type \"rpm -qpil ${cdir}/x10-${X10_VERSION}-1.${PLATFORM}.rpm\" to see details"
