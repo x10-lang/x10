@@ -16,6 +16,20 @@ JNIEXPORT void JNICALL
 Java_x10rose_visit_JNI_cactionTest(JNIEnv *, jclass);
 
 JNIEXPORT void JNICALL
+Java_x10rose_visit_JNI_cactionMessageSend(JNIEnv *env, jclass, jstring java_package_name, jstring java_type_name, jstring java_function_name, jobject jToken); 
+
+JNIEXPORT void JNICALL 
+Java_x10rose_visit_JNI_cactionMessageSendEnd(JNIEnv *env, jclass,
+                                                             jboolean java_is_static,
+                                                             jboolean java_has_receiver,
+                                                             jstring java_function_name,
+                                                             jint java_number_of_parameters,
+                                                             jint numTypeArguments,
+                                                             jint numArguments,
+                                                             jobject jToken); 
+
+
+JNIEXPORT void JNICALL
 Java_x10rose_visit_JNI_cactionConditionalExpression(JNIEnv *, jclass, jobject); 
 
 JNIEXPORT void JNICALL

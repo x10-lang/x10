@@ -23,6 +23,10 @@ public class JNI {
 	
 	public static native void cactionTest();
 
+    public static native void cactionMessageSend(String packageName, String typeName, String functionName, JavaToken jToken);
+    public static native void cactionMessageSendEnd(boolean java_is_static, boolean has_receiver, String functionName, int num_parameters, int numTypeArguments, int numArguments, JavaToken jToken);
+
+
     public static native void cactionArgument(String argumentName, JavaToken jToken);
     public static native void cactionArgumentEnd(String argument_name, boolean is_final, JavaToken jToken);
 

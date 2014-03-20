@@ -487,7 +487,8 @@ public class RoseTranslator extends Translator {
 					System.out.println("Unhandled node : " + m);
 				}
 	         }			
-	        
+
+	        JNI.cactionBuildClassSupportEnd(class_name, createJavaToken());
 //	        previsitChild(n, n.body());
 
 			// does not care a nested class
@@ -501,7 +502,7 @@ public class RoseTranslator extends Translator {
 			visitChild(n, n.body());
 //			JNI.cactionTypeDeclaration("", n.name().id().toString(), false, false, false, false, false, false, false, false, false, false);
 		
-	        JNI.cactionBuildClassSupportEnd(class_name, createJavaToken());
+//	        JNI.cactionBuildClassSupportEnd(class_name, createJavaToken());
 	        
 	        System.out.println("ClassDecl end");
 		}
@@ -645,9 +646,23 @@ public class RoseTranslator extends Translator {
 
 		public void visit(X10Call_c n) {
 			toRose(n, "x10call: ", n.name().id().toString());
-			visitChild(n, n.target());
+			
+			
+			JNI.cactionMessageSend("", n.type().name().toString(), n.name().id().toString(), createJavaToken());
+			
+			visitChild(n, n.target());			
+
 			visitChildren(n, n.typeArguments());
 			visitChildren(n, n.arguments());
+			
+			JNI.cactionTypeReference("", n.target().type().name().toString());
+			
+			int num_parameters = n.typeArguments().size();
+			int numTypeArguments = n.arguments().size();
+			int numArguments = n.arguments().size();
+			
+			JNI.cactionMessageSendEnd(n.methodInstance().flags().isStatic(), n.target() != null, n.name().toString(), num_parameters, numTypeArguments, numArguments, createJavaToken());
+			System.out.println("x10call end");
 		}
 
 		public void visit(X10ConstructorDecl_c n) {
@@ -824,7 +839,7 @@ public class RoseTranslator extends Translator {
 		public void visit(X10Special_c n) {
 			toRose(n, "X10Special:", n.kind().toString());
 			String kind = n.kind().toString();
-
+			
 			if (kind.equals(Special.Kind.THIS.toString())) {
 				JNI.cactionThisReference(createJavaToken());
 			} else if (kind.equals(Special.Kind.SUPER.toString())) {

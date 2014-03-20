@@ -770,11 +770,13 @@ cout << "initializedName2=" << initializedName->get_name() << endl;
         initializedName -> set_parent(parameterlist);
     }
 // TODO: Remove this !!!
-/*
 cout << "Adding function " 
-<< name
+<< inputName.str()
 << " in type "
 << class_definition -> get_qualified_name()
+<< "("
+<< class_definition
+<< ")"
 << " with parameter types: (";
  SgTypePtrList::iterator i = typeList -> get_arguments().begin();
  if (i != typeList -> get_arguments().end()) {
@@ -786,6 +788,7 @@ cout << ", " << getTypeName(*i);
 cout << ")"
 << endl;
 cout.flush();
+/*
 */
     // This is the return type for the member function (top of the stack).
     SgType *return_type = astJavaComponentStack.popType();
@@ -875,6 +878,7 @@ cout.flush();
 SgMemberFunctionDeclaration *findMemberFunctionDeclarationInClass(SgClassDefinition *class_definition, const SgName &function_name, list<SgType *>& formal_types) {
     SgMemberFunctionDeclaration *method_declaration = lookupMemberFunctionDeclarationInClassScope(class_definition, function_name, formal_types);
     if (method_declaration == NULL) {
+
         const SgBaseClassPtrList &inheritance = class_definition->get_inheritances();
         for (SgBaseClassPtrList::const_iterator it = inheritance.begin(); method_declaration == NULL && it != inheritance.end(); it++) { // Iterate over super class, if any, then the interfaces, if any.
             SgClassDeclaration *decl = (*it) -> get_base_class();
@@ -897,10 +901,13 @@ cout.flush();
  * Lookup a member function in current class only (doesn't look in super and interfaces classes)
  */
 SgMemberFunctionDeclaration *lookupMemberFunctionDeclarationInClassScope(SgClassDefinition *class_definition, const SgName &function_name, list<SgType *>& types) {
+printf("In lookupMemberFunctionDeclarationInClassScope\n");
     int num_arguments = types.size();
     SgMemberFunctionDeclaration *method_declaration = NULL;
     vector<SgDeclarationStatement *> declarations = class_definition -> get_members();
+printf("Class definition:%p, member size=%d\n", class_definition, declarations.size());
     for (int i = 0; i < declarations.size(); i++, method_declaration = NULL) {
+printf("Iteration %d\n", i);
         SgDeclarationStatement *declaration = declarations[i];
         method_declaration = isSgMemberFunctionDeclaration(declaration);
         if (method_declaration && method_declaration -> get_name().getString().compare(function_name) == 0) {
@@ -963,7 +970,6 @@ cout.flush();
 
 SgMemberFunctionSymbol *findFunctionSymbolInClass(SgClassDefinition *class_definition, const SgName &function_name, list<SgType *> &formal_types) {
     ROSE_ASSERT(class_definition != NULL);
-
     SgMemberFunctionDeclaration *method_declaration = findMemberFunctionDeclarationInClass(class_definition, function_name, formal_types);
     if (method_declaration == NULL) {
         method_declaration = lookupMemberFunctionDeclarationInClassScope(ObjectClassDefinition, function_name, formal_types);

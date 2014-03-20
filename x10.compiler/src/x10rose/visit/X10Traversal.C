@@ -25,6 +25,203 @@ Java_x10rose_visit_JNI_cactionTest(JNIEnv *, jclass)
 #endif
 }
 
+JNIEXPORT void JNICALL 
+Java_x10rose_visit_JNI_cactionMessageSend(JNIEnv *env, jclass, jstring java_package_name, jstring java_type_name, jstring java_function_name, jobject jToken) {
+    if (SgProject::get_verbose() > 0)
+        printf ("Build a function call (Message Send) \n");
+
+    // Do Nothing on the way down !!!
+}
+
+
+JNIEXPORT void JNICALL 
+Java_x10rose_visit_JNI_cactionMessageSendEnd(JNIEnv *env, jclass,
+                                                             jboolean java_is_static,
+                                                             jboolean java_has_receiver,
+                                                             jstring java_function_name,
+                                                             jint java_number_of_parameters,
+                                                             jint numTypeArguments,
+                                                             jint numArguments,
+                                                             jobject jToken) {
+    if (SgProject::get_verbose() > 2)
+        printf ("Inside of Java_JavaParser_cactionMessageSendEnd() \n");
+
+    bool is_static = java_is_static,
+         has_receiver = java_has_receiver;
+
+    SgName function_name  = convertJavaStringToCxxString(env, java_function_name);
+    int num_parameters = java_number_of_parameters;
+
+    //
+    // TODO: Since array types are not properly represented as class types but as (C++) pointer types,
+    // when an array type is used to call a function, we have to substitute the Object class for the
+    // array type in question as the Object type is its (only) super type and contains all the method
+    // that is invokable from an array.
+    //
+    SgType *containing_type = astJavaComponentStack.popType();
+    if (isSgPointerType(containing_type)) { // is this type an array type?
+        containing_type = ::ObjectClassType;
+    }
+    else if (isSgJavaWildcardType(containing_type)) { // is this type a wildcard type?
+        SgJavaWildcardType *wildcard_type = isSgJavaWildcardType(containing_type);
+        if (wildcard_type -> get_is_unbound()) {
+            containing_type = ::ObjectClassType;
+        }
+        else if (wildcard_type -> get_has_extends()) {
+            containing_type = wildcard_type -> get_bound_type();
+        }
+        else {
+            ROSE_ASSERT(false && "! yet support wildcard with super bound");
+        }
+    }
+    SgClassDeclaration *class_declaration = isSgClassDeclaration(containing_type -> getAssociatedDeclaration() -> get_definingDeclaration());
+    ROSE_ASSERT(class_declaration);
+    SgClassDefinition *targetClassScope = class_declaration -> get_definition();
+    ROSE_ASSERT(targetClassScope != NULL && (! targetClassScope -> attributeExists("namespace")));
+// TODO: Remove this !!!
+/*
+    SgType *return_type = astJavaComponentStack.popType(); // The return type of the function
+    ROSE_ASSERT(return_type);
+*/
+
+    //
+    // The astJavaComponentStack has all of the types of the parameters of the function being called. Note that
+    // it is necessary to use the original types of the formal parameters of the function in order to find the
+    // perfect match for the function.
+    //
+    list<SgType *> function_parameter_types;
+    for (int i = 0; i < num_parameters; i++) { // reverse the arguments' order
+        SgType *type = astJavaComponentStack.popType();
+        function_parameter_types.push_front(type);
+    }
+
+// TODO: Remove this !!!
+cout << "Looking for function " 
+<< function_name
+<< " in type "
+<< targetClassScope -> get_qualified_name()
+<< "("
+<< targetClassScope
+<< ")"
+<< " with parameter types: (";
+std::list<SgType*>::iterator i = function_parameter_types.begin();
+if (i != function_parameter_types.end()) {
+cout << getTypeName(*i);
+for (i++; i != function_parameter_types.end(); i++) {
+cout << ", " << getTypeName(*i);
+}
+}
+cout << ")"
+<< endl;
+cout.flush();
+/*
+*/
+
+    SgMemberFunctionSymbol *function_symbol = findFunctionSymbolInClass(targetClassScope, function_name, function_parameter_types);
+    ROSE_ASSERT(function_symbol);
+    SgMemberFunctionType *function_type = isSgMemberFunctionType(function_symbol -> get_type());
+    ROSE_ASSERT(function_type);
+
+// TODO: Remove this !!!
+/*
+    //
+    // If we have an accurate return type for this function, set it !!!
+    // This occurs when the method being invoked belongs to a parameterized type.
+    // We need this temporary "zapping" so that the result of this expression will have
+    // the correct type in case it is used for further dereferencing.
+    //
+    if (function_type -> get_return_type() != return_type) {
+        function_type -> set_return_type(return_type);
+    }
+*/
+
+    // The astJavaComponentStack has all of the arguments to the function call.
+    SgExprListExp *arguments = new SgExprListExp();
+    for (int i = 0; i < numArguments; i++) { // reverse the arguments' order
+        SgExpression *expr = astJavaComponentStack.popExpression();
+        arguments -> prepend_expression(expr);
+    }
+//    setJavaSourcePosition(arguments, env, jToken);
+
+    SgFunctionCallExp *function_call_exp = SageBuilder::buildFunctionCallExp(function_symbol, arguments);
+//    setJavaSourcePosition(function_call_exp, env, jToken);
+    if (numTypeArguments > 0) {
+        string parm_names = "";
+        AstSgNodeListAttribute *attribute = new AstSgNodeListAttribute();
+        for (int i = numTypeArguments - 1; i >= 0; i--) { // Note that we are reversing the type parameters here!
+            SgType *type_argument = astJavaComponentStack.popType();
+            ROSE_ASSERT(type_argument);
+            attribute -> setNode(type_argument, i);
+
+            string name = getTypeName(type_argument);
+            parm_names = (parm_names.size() == 0 ? name : (name + ", " + parm_names));
+        }
+        parm_names = "<" + parm_names + ">";
+        function_call_exp -> setAttribute("invocation_parameter_types", attribute);
+        function_call_exp -> setAttribute("function_parameter_types", new AstRegExAttribute(parm_names));
+    }
+
+    SgExpression *exprForFunction = function_call_exp;
+
+    //
+    // This receiver, if present, is an expression or type that indicates the enclosing type of
+    // the function being invoked. 
+    //
+    SgNode *receiver = (has_receiver ? astJavaComponentStack.pop() : NULL);
+
+    //
+    // If this function call has a receiver, finalize its invocation by adding the "receiver" prefix.  Note
+    // that it is illegal to add a "this." prefix in front of a static method call - Hence the guard statement
+    // below. (ECJ always adds a "this." prefix in front of every function whose receiver was not specified by
+    // the user.)
+    //
+    if (receiver != NULL) {
+        if (isSgNamedType(receiver)) { // Note that if this is true then the function must be static... See unparseJava_expression.C: unparseFucnCall
+            if (isSgClassType(receiver)) { // Note that if this is true then the function must be static... See unparseJava_expression.C: unparseFucnCall
+                SgClassType *type = isSgClassType(receiver);
+// TODO: Remove this !
+/*
+                string type_name = isSgNamedType(receiver) -> get_name();
+                string full_name = getFullyQualifiedTypeName(type);
+
+                string class_name = (full_name.size() == type_name.size() ? type_name : full_name.substr(0, full_name.size() - type_name.size()) + type_name);
+*/
+                string class_name = getTypeName(type);
+                exprForFunction -> setAttribute("prefix", new AstRegExAttribute(class_name));
+            }
+            else { // this can't happen!?
+                // TODO: What if the class is a parameterized type?
+                ROSE_ASSERT(false);
+            }
+        }
+        else if (is_static && isSgThisExp(receiver) && (! receiver -> attributeExists("class"))) { // A sgThisExp receiver in front of a static function?
+            delete receiver; // Ignore the receiver!
+        }
+        else {
+            exprForFunction = SageBuilder::buildBinaryExpression<SgDotExp>((SgExpression *) receiver, exprForFunction);
+//            setJavaSourcePosition(exprForFunction, env, jToken);
+
+            SgClassDefinition *current_class_definition = getCurrentTypeDefinition();
+            SgType *enclosing_type = current_class_definition -> get_declaration() -> get_type();
+            if (isSgThisExp(receiver) && (! receiver -> attributeExists("class")) && (! receiver -> attributeExists("prefix")) && (! isCompatibleTypes(containing_type, enclosing_type))) {
+                SgClassType *c_type = isSgClassType(containing_type);
+                SgJavaParameterizedType *p_type = isSgJavaParameterizedType(containing_type);
+                string prefix_name = (c_type ? getTypeName(c_type) // getFullyQualifiedTypeName(c_type)
+                                             : p_type ? getTypeName(p_type) // getFullyQualifiedTypeName(p_type)
+                                                      : "");
+                ROSE_ASSERT(prefix_name.size() != 0);
+                receiver -> setAttribute("prefix", new AstRegExAttribute(prefix_name));
+            }
+        }
+    }
+
+    astJavaComponentStack.push(exprForFunction);
+
+    if (SgProject::get_verbose() > 2)
+        printf ("Leaving Java_JavaParser_cactionMessageSendEnd(): %s\n", function_name.getString().c_str());
+}
+
+
 
 JNIEXPORT void JNICALL 
 Java_x10rose_visit_JNI_cactionFalseLiteral(JNIEnv *env, jclass, jobject jToken) {
@@ -933,6 +1130,10 @@ Java_x10rose_visit_JNI_cactionBuildClassSupportEnd(JNIEnv *env, jclass xxx, jstr
         class_definition -> prepend_statement(statement);
 #endif
     }
+#if 1
+vector<SgDeclarationStatement *> declarations = class_definition -> get_members();
+printf("**Class definition:%p, member size=%d\n", class_definition, declarations.size());
+#endif
 
 
     ROSE_ASSERT(! astJavaScopeStack.empty());
@@ -968,6 +1169,9 @@ Java_x10rose_visit_JNI_cactionBuildClassSupportEnd(JNIEnv *env, jclass xxx, jstr
 
     if (SgProject::get_verbose() > 0)
         printf ("Leaving Java_JavaParser_cactionBuildClassSupportEnd: %s \n", name.str());
+
+	astJavaScopeStack.push(::globalScope);
+	astJavaScopeStack.push(class_definition);
 }
 
 JNIEXPORT void JNICALL 
@@ -1063,8 +1267,9 @@ Java_x10rose_visit_JNI_cactionBlockEnd(JNIEnv *env, jclass, jint java_numberOfSt
 
 
     astJavaComponentStack.push(body);
-//MH-20140317
-    astJavaScopeStack.push(body);
+//MH-20140317 added 
+//MH-20140320 comment out again
+//    astJavaScopeStack.push(body);
 }
 
 
@@ -1238,12 +1443,11 @@ Java_x10rose_visit_JNI_cactionMethodDeclaration(JNIEnv *env, jclass,
 //MH-20140312
 //temtatively push class_definition into astJavaScopeStack to pass assertion for checking if 
 //stack top is class definition or not
-#if 1
+#if 0 // MH-20140320 comment out again
     astJavaScopeStack.push(class_definition);
 #endif
 
     ROSE_ASSERT(astJavaScopeStack.top() -> get_parent() != NULL);
-
 #endif
 }
 
@@ -1291,13 +1495,11 @@ Java_x10rose_visit_JNI_cactionMethodDeclarationEnd(JNIEnv *env, jclass, jint jav
 #else
 //MH-20140317
 // pop unnecessary node to have classdefinition as the top of astJavaScopeStack 
-    astJavaScopeStack.pop();
+//    astJavaScopeStack.pop();
 #if 0
 #endif
 
-    SgScopeStatement *type_space = isSgScopeStatement(astJavaScopeStack.pop());
-    ROSE_ASSERT(type_space);
-    astJavaScopeStack.pop();
+//    astJavaScopeStack.pop();
 
 /*
     for (int i = 0; i < numberOfStatements-1; i++) {
@@ -1313,18 +1515,25 @@ Java_x10rose_visit_JNI_cactionMethodDeclarationEnd(JNIEnv *env, jclass, jint jav
 //    SgFunctionDefinition *memberFunctionDefinition = astJavaScopeStack.popFunctionDefinition();
 
 	SgStatement *method_body = astJavaComponentStack.popStatement();
-	SgStatement *function_declaration = astJavaComponentStack.popStatement();
+/*
+    SgClassDefinition *class_definition = isSgClassDefinition(astJavaScopeStack.top());
+	printf("class_definition=%p\n", class_definition);
+    ROSE_ASSERT(class_definition && (! class_definition -> attributeExists("namespace")));
+*/	
+//	SgStatement *function_declaration = astJavaComponentStack.popStatement();
+    SgFunctionDefinition *memberFunctionDefinition = astJavaScopeStack.popFunctionDefinition();
 //    SgFunctionDeclaration *memberFunctionDeclaration = astJavaComponentStack.popStatement();
 //	SgFunctionDefinition *memberFunctionDefinition = memberFunctionDeclaration -> get_definition();
-	SgFunctionDefinition *memberFunctionDefinition = ((SgMemberFunctionDeclaration *)function_declaration) -> get_definition();
+//	SgFunctionDefinition *memberFunctionDefinition = ((SgMemberFunctionDeclaration *)function_declaration) -> get_definition();
     memberFunctionDefinition -> set_body((SgBasicBlock *)method_body);
-	astJavaComponentStack.push(function_declaration);
-	astJavaScopeStack.push(((SgMemberFunctionDeclaration *)function_declaration)->get_class_scope());
+//	astJavaComponentStack.push(function_declaration);
+//	astJavaScopeStack.push(((SgMemberFunctionDeclaration *)function_declaration)->get_class_scope());
+
+    SgScopeStatement *type_space = isSgScopeStatement(astJavaScopeStack.pop());
+    ROSE_ASSERT(type_space);
 
     if (SgProject::get_verbose() > 0)
         printf ("Exiting  cactionMethodDeclarationEnd (method) \n");
-/*
-*/
 #endif
 }
 
@@ -1431,7 +1640,6 @@ JNIEXPORT void JNICALL Java_x10rose_visit_JNI_cactionBuildMethodSupportEnd(JNIEn
     SgScopeStatement *type_space = isSgScopeStatement(astJavaScopeStack.pop());
     ROSE_ASSERT(type_space);
 
-
 // TODO: Remove this !!!
 //    SgFunctionDefinition *method_definition = isSgFunctionDefinition(((AstSgNodeAttribute *) type_space -> getAttribute("method")) -> getNode());
 //    ROSE_ASSERT(method_definition);
@@ -1460,7 +1668,18 @@ JNIEXPORT void JNICALL Java_x10rose_visit_JNI_cactionBuildMethodSupportEnd(JNIEn
         AstSgNodeListAttribute *attribute = (AstSgNodeListAttribute *) class_definition -> getAttribute("class_members");
         ROSE_ASSERT(attribute);
         attribute -> setNode(method_definition, method_index);
+
+//MH-20140320
+#if 0
+		class_definition -> setAttribute("class_members", attribute);
+#endif
     }
+
+//MH-20140320
+#if 1
+vector<SgDeclarationStatement *> declarations = class_definition -> get_members();
+printf("*Class definition:%p, member size=%d\n", class_definition, declarations.size());
+#endif
 
     if (is_constructor) {
         method_declaration -> get_specialFunctionModifier().setConstructor();
