@@ -61,12 +61,19 @@ cdir="`pwd`"
 [ "$cdir" = "/" ] && cdir="$cdir."
 cd "$top"
 
-if [[ "${PLATFORM}" == "linux_ppc64" ]]; then
-    RPM_PLATFORM="ppc64"
-else
-    RPM_PLATFORM="${PLATFORM}"
-fi
-
+case "$PLATFORM" in
+    *_x86) 
+	RPM_PLATFORM="i686"
+	;;
+    *_x86_64)
+	RPM_PLATFORM="x86_64"
+	;;
+    *_ppc64)
+	RPM_PLATFORM="ppc64"
+	;;
+    *) echo "Unrecognized platform: '$UNAME'"; exit 1;;
+esac    
+	
 bindir="${HOME}/rpmbuild/BUILDROOT/x10-${X10_VERSION}-1.${PLATFORM}/opt/ibm/x10/${X10_VERSION}/"
 mkdir -p ${HOME}/rpmbuild/BUILD ${HOME}/rpmbuild/BUILDROOT ${HOME}/rpmbuild/RPMS ${HOME}/rpmbuild/SOURCES ${HOME}/rpmbuild/SPECS ${HOME}/rpmbuild/SRPMS "$bindir"
 eval tar -xzf "$cdir/$tarfile" -C ${bindir} 
@@ -101,7 +108,6 @@ echo "" >> ${spec}
 echo "%files" >> ${spec}
 sedarg="s/^/\/opt\/ibm\/x10\/${X10_VERSION}\//"
 eval tar -tzf "$cdir/$tarfile" | sed ${sedarg} >> ${spec}
-#tar -tzf x10-2.4.0_linux_ppc.tgz | sed 's/^/\/opt\/ibm\/x10\//'
 
 eval rpmbuild --buildroot ${HOME}/rpmbuild/BUILDROOT/x10-${X10_VERSION}-1.${PLATFORM} -bb --target ${RPM_PLATFORM} ${spec}
 mv ${HOME}/rpmbuild/RPMS/${RPM_PLATFORM}/x10-${X10_VERSION}-1.${RPM_PLATFORM}.rpm ${cdir}/x10-${X10_VERSION}-1.${PLATFORM}.rpm
