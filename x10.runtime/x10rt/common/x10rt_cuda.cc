@@ -765,16 +765,16 @@ void x10rt_cuda_blocks_threads (x10rt_cuda_ctx *ctx, x10rt_msg_type type, int dy
 bool x10rt_cuda_probe (x10rt_cuda_ctx *ctx)
 {
 #ifdef ENABLE_CUDA
+    bool isAnythingActive = false;
     big_lock_of_doom.acquire();
     CU_SAFE(cuCtxPushCurrent(ctx->ctx));
-
-    bool isAnythingActive = false;
 
     // spool kernels
     if (stream_ready(ctx->kernel_q.stream)) {
         if (ctx->kernel_q.current == NULL) {
             BaseOpKernel *kop = ctx->kernel_q.pop();
             if (kop != NULL) {
+                isAnythingActive = true;
                 assert(kop->is_kernel());
                 assert(!kop->begun);
                 x10rt_msg_type type = kop->p.type;
@@ -793,9 +793,9 @@ bool x10rt_cuda_probe (x10rt_cuda_ctx *ctx)
                 kop->begun = true;
                 assert(ctx->kernel_q.current == NULL);
                 ctx->kernel_q.current = kop;
-                isAnythingActive = true;
             }
         } else {
+           	isAnythingActive = true;
             BaseOpKernel *kop = ctx->kernel_q.current;
             ctx->kernel_q.current = NULL;
             assert(kop->is_kernel());
@@ -813,8 +813,6 @@ bool x10rt_cuda_probe (x10rt_cuda_ctx *ctx)
             safe_free(kop->p.msg);
             kop->~BaseOpKernel();
             free(kop);
-            if (ctx->kernel_q.size > 0) // check if there are still jobs in the work queue to run
-            	isAnythingActive = true;
         }
     }
     else
@@ -831,9 +829,8 @@ bool x10rt_cuda_probe (x10rt_cuda_ctx *ctx)
             assert(!cop->begun);
             cop->begun = true;
             ctx->dma_q.current = cop;
-            isAnythingActive = true;
         }
-
+       	isAnythingActive = true;
         assert(cop->begun);
         char *&src = reinterpret_cast<char*&>(cop->src);
         char *&dst = reinterpret_cast<char*&>(cop->dst);
@@ -892,17 +889,14 @@ bool x10rt_cuda_probe (x10rt_cuda_ctx *ctx)
             ctx->dma_q.current = NULL;
             x10rt_msg_type type = cop->p.type;
             x10rt_notifier *ch = ctx->cbs[type].copy_cbs.ch;
-            if (ctx->dma_q.size > 0) // check for queued jobs
-            	isAnythingActive = true;
             CU_SAFE(cuCtxPopCurrent(NULL));
             big_lock_of_doom.release();
             ch(&cop->p, len); /****CALLBACK****/
             safe_free(cop->p.msg);
             cop->~BaseOpCopy();
             free(cop);
-            return isAnythingActive;
+            return isAnythingActive; // always true
         }
-
     }
     else
     	isAnythingActive = true;
