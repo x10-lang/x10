@@ -15,6 +15,7 @@ package x10rose.visit;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -43,6 +44,7 @@ import polyglot.ast.ClassMember;
 import polyglot.ast.Do_c;
 import polyglot.ast.Empty_c;
 import polyglot.ast.Eval_c;
+import polyglot.ast.Expr;
 import polyglot.ast.Expr_c;
 import polyglot.ast.FieldAssign_c;
 import polyglot.ast.For_c;
@@ -73,12 +75,14 @@ import polyglot.ast.Throw_c;
 import polyglot.ast.TopLevelDecl;
 import polyglot.ast.Try_c;
 import polyglot.ast.TypeNode_c;
+import polyglot.ast.Typed;
 import polyglot.ast.While_c;
 import polyglot.frontend.Compiler;
 import polyglot.frontend.Job;
 import polyglot.frontend.Source;
 import polyglot.frontend.TargetFactory;
 import polyglot.main.Options;
+import polyglot.types.Type;
 import polyglot.types.TypeSystem;
 import polyglot.util.CodeWriter;
 import polyglot.util.ErrorInfo;
@@ -647,20 +651,28 @@ public class RoseTranslator extends Translator {
 		public void visit(X10Call_c n) {
 			toRose(n, "x10call: ", n.name().id().toString());
 			
-			
-			JNI.cactionMessageSend("", n.type().name().toString(), n.name().id().toString(), createJavaToken());
-			
-			visitChild(n, n.target());			
-
-			visitChildren(n, n.typeArguments());
-			visitChildren(n, n.arguments());
+			JNI.cactionMessageSend("", n.target().type().name().toString(), n.name().id().toString(), createJavaToken());
+			visitChild(n, n.target());
+			System.out.println("----------------->");
+			List<Expr> args = n.arguments();
+			List<Expr> argTypes = new ArrayList<Expr>();
+			for (int i = 0; i < args.size(); ++i) {
+				Type t = args.get(i).type();
+				System.out.println(i + ":" + t);
+				JNI.cactionTypeReference("", t.name().toString());
+			}
+// 			visitChildren(n, argTypes);
+ 			
+//			visitChildren(n, n.typeArguments());
+			System.out.println("<-----------------");
+//			visitChildren(n, n.arguments());
 			
 			JNI.cactionTypeReference("", n.target().type().name().toString());
+
 			
-			int num_parameters = n.typeArguments().size();
-			int numTypeArguments = n.arguments().size();
+			int num_parameters = n.arguments().size();
+			int numTypeArguments = n.typeArguments().size();
 			int numArguments = n.arguments().size();
-			
 			JNI.cactionMessageSendEnd(n.methodInstance().flags().isStatic(), n.target() != null, n.name().toString(), num_parameters, numTypeArguments, numArguments, createJavaToken());
 			System.out.println("x10call end");
 		}

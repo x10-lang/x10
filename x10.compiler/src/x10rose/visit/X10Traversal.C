@@ -134,7 +134,6 @@ cout.flush();
         function_type -> set_return_type(return_type);
     }
 */
-
     // The astJavaComponentStack has all of the arguments to the function call.
     SgExprListExp *arguments = new SgExprListExp();
     for (int i = 0; i < numArguments; i++) { // reverse the arguments' order
@@ -902,6 +901,7 @@ Java_x10rose_visit_JNI_cactionInsertClassStart2(JNIEnv *env, jclass, jstring jav
 	SgClassType *unknown = SgClassType::createType(class_declaration, NULL);
     astJavaComponentStack.push(unknown);
 //	printf("**1**\n");
+	cout << "Type address=" << unknown << endl;
 #else
     SgClassDefinition *class_definition = class_declaration -> get_definition();
     ROSE_ASSERT(class_definition && (! class_definition -> attributeExists("namespace")));
@@ -1555,7 +1555,7 @@ Java_x10rose_visit_JNI_cactionTypeReference(JNIEnv *env, jclass,
 
 // MH-20140226
 // If type is null, a new type should be defined
-		cout << "PACKAGE_NAME=" << package_name << ", TYPE_NAME=" << type_name << endl;
+	cout << "PACKAGE_NAME=" << package_name << ", TYPE_NAME=" << type_name << endl;
 #if 1
 	if (type == NULL) {
 		// cactionInsertClassStart2() does not have a parameter for specifying a package name, although
@@ -1573,6 +1573,7 @@ Java_x10rose_visit_JNI_cactionTypeReference(JNIEnv *env, jclass,
 //cout << "Came across type " << getTypeName(class_type) << endl;
 //cout.flush();
 //}
+
     astJavaComponentStack.push(type);
 
     if (SgProject::get_verbose() > 0)
