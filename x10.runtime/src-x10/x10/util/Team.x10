@@ -111,17 +111,15 @@ public struct Team {
 	    	this.id = Team.state.size() as Int; // id is determined by the number of pre-defined places
 	    if (DEBUG) Runtime.println(here + " new team ID is "+this.id);
 	    if (collectiveSupportLevel < X10RT_COLL_ALLNONBLOCKINGCOLLECTIVES) {
-            atomic {
-                val teamidcopy = this.id;
-                PlaceGroup.WORLD.broadcastFlat(()=>{
-                    if (Team.state.capacity() <= teamidcopy)
-                        Team.state.grow(teamidcopy+1);
-                    while (Team.state.size() < teamidcopy)
-                        Team.state.add(null); // I am not a member of this team id.  Insert a dummy value.
-                    Team.state(teamidcopy) = new LocalTeamState(places, teamidcopy, places.indexOf(here));
-                    Team.state(teamidcopy).init();
-                });
-	        }
+            val teamidcopy = this.id;
+            PlaceGroup.WORLD.broadcastFlat(()=>{
+                if (Team.state.capacity() <= teamidcopy)
+                    Team.state.grow(teamidcopy+1);
+                while (Team.state.size() < teamidcopy)
+                    Team.state.add(null); // I am not a member of this team id.  Insert a dummy value.
+                Team.state(teamidcopy) = new LocalTeamState(places, teamidcopy, places.indexOf(here));
+                Team.state(teamidcopy).init();
+            });
 	    }
     }
 
