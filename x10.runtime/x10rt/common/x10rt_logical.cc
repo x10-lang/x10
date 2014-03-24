@@ -849,8 +849,30 @@ x10rt_error x10rt_lgl_blocking_probe (void)
         // unsafe to block if collectives have made progress
         return x10rt_lgl_probe();
     }
+
+#ifdef ENABLE_CUDA
+    // check to see if there is anything in the GPU
+    bool activeGPU = false;
+    for (x10rt_place i=0 ; i<g.naccels[x10rt_lgl_here()] ; ++i) {
+        switch (g.type[g.child[x10rt_lgl_here()][i]]) {
+            case X10RT_LGL_CUDA:
+            if (x10rt_cuda_probe(static_cast<x10rt_cuda_ctx*>(g.accel_ctxs[i])))
+            	activeGPU = true;
+            break;
+            default:
+            return fatal("Invalid node category.\n");
+            return g.error_code;
+        }
+    }
+    if (activeGPU) // unsafe to block if the GPU is active
+        X10RT_NET_PROBE_PROP_ERR;
+    else
+    	x10rt_net_blocking_probe();
+#else
     // blocking probe
     x10rt_net_blocking_probe();
+#endif
+
     // advance collectives as much as possible
     while (x10rt_emu_coll_probe());
 
