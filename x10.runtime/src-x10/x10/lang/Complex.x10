@@ -133,7 +133,7 @@ public struct Complex implements Arithmetic[Complex] {
      * TODO: consider using Priest's algorithm {@link http://doi.acm.org/10.1145/1039813.1039814}.
      * @return the quotient of this complex number and the given complex number.
      */
-    @Native("c++", "((#this)/(#that))")
+    @Native("c++", "::x10::lang::ComplexNatives::_divide(#this, #that)")
     public operator this / (that:Complex):Complex {
         if (isNaN() || that.isNaN()) {
             return Complex.NaN;
@@ -175,13 +175,13 @@ public struct Complex implements Arithmetic[Complex] {
     /**
      * @return the quotient of the given double and this complex number.
      */
-    @Native("c++", "((#x)/(#y))")
+    @Native("c++", "::x10::lang::ComplexNatives::_divide(#x, #y)")
     public static operator (x:Double) / (y:Complex): Complex = Complex(x, 0.0) / y;
 
     /**
      * @return the quotient of this complex number and the given double.
      */
-    @Native("c++", "((#this)/(#that))")
+    @Native("c++", "::x10::lang::ComplexNatives::_divide(#this, #that)")
     public operator this / (that:Double):Complex {
         return Complex(re / that, im / that);
     }

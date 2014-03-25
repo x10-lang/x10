@@ -163,6 +163,7 @@ ALL_XRCPP_OBJECTS = \
 	x10/lang/CheckedThrowable.o \
 	x10/lang/Closure.o \
 	x10/lang/Comparable.o \
+	x10/lang/Complex.o \
 	x10/lang/Double.o \
 	x10/lang/Fun.o \
 	x10/lang/GlobalRef.o \
