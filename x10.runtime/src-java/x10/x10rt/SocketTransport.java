@@ -811,14 +811,14 @@ public class SocketTransport {
 		} while (!shuttingDown && data.hasRemaining());
     }
 
-    private static void runClosureAtReceive(ByteBuffer input) throws IOException {
+    static void runClosureAtReceive(ByteBuffer input) throws IOException {
     	//X10JavaDeserializer deserializer = new X10JavaDeserializer(new DataInputStream(Channels.newInputStream(input)));
     	X10JavaDeserializer deserializer = new X10JavaDeserializer(new DataInputStream(new ByteArrayInputStream(input.array())));
     	VoidFun_0_0 actObj = (VoidFun_0_0) deserializer.readObject();
     	actObj.$apply();
     }
     
-    private static void runSimpleAsyncAtReceive(ByteBuffer input) throws IOException {
+    static void runSimpleAsyncAtReceive(ByteBuffer input) throws IOException {
     	//X10JavaDeserializer deserializer = new X10JavaDeserializer(new DataInputStream(Channels.newInputStream(input)));
     	X10JavaDeserializer deserializer = new X10JavaDeserializer(new DataInputStream(new ByteArrayInputStream(input.array())));
     	FinishState finishState = (FinishState) deserializer.readObject();

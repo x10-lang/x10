@@ -22,6 +22,7 @@ public class X10RT {
     static int numPlaces;
     static boolean forceSinglePlace = false;
     public static SocketTransport javaSockets = null;
+    public static HazelcastTransport hazelcastTransport = null;
     
     public static boolean X10_EXITING_NORMALLY = false;
     static final boolean REPORT_UNCAUGHT_USER_EXCEPTIONS = true;
@@ -86,6 +87,8 @@ public class X10RT {
       	    }      	    
       	  	return X10RT.javaSockets.getLocalConnectionInfo();
         }
+        else if (X10RT.hazelcastTransport != null)
+    		throw new AssertionError("init_library not supported in Hazelcast");
         else {
             libName = "x10rt_" + libName;
             try {
@@ -140,6 +143,8 @@ public class X10RT {
     	int errcode;
     	if (X10RT.javaSockets != null)
     		errcode = X10RT.javaSockets.establishLinks(myPlace, connectionInfo, remoteStart);
+    	else if (X10RT.hazelcastTransport!= null)
+    		throw new AssertionError("connect_library not supported in Hazelcast");
     	else {
     		errcode = x10rt_init(myPlace, connectionInfo);
     		TeamSupport.initialize();
@@ -178,6 +183,12 @@ public class X10RT {
     		  here = X10RT.javaSockets.x10rt_here();
     		  numPlaces = X10RT.javaSockets.x10rt_nplaces();
     	  }
+      }
+      else if (libName.equalsIgnoreCase("Hazelcast")) {
+    	  X10RT.hazelcastTransport = new HazelcastTransport();
+    	  // TODO: remove here and numPlaces from X10RT
+    	  here = X10RT.hazelcastTransport.x10rt_here();
+		  numPlaces = X10RT.hazelcastTransport.x10rt_nplaces();
       }
       else {
           libName = "x10rt_" + libName;
@@ -239,6 +250,8 @@ public class X10RT {
         assert isBooted();
         if (javaSockets != null)
         	return javaSockets.x10rt_probe();
+        else if (hazelcastTransport != null) 
+    		return hazelcastTransport.x10rt_probe();
         else if (!forceSinglePlace)
         	return x10rt_probe();
         else
@@ -257,6 +270,8 @@ public class X10RT {
         assert isBooted();
         if (javaSockets != null)
         	return javaSockets.x10rt_blocking_probe();
+        else if (hazelcastTransport != null)
+        	return hazelcastTransport.x10rt_probe();
         else if (!forceSinglePlace)
         	return x10rt_blocking_probe();
         else 
@@ -272,6 +287,8 @@ public class X10RT {
         assert isBooted();
         if (javaSockets != null)
         	javaSockets.wakeup();
+        else if (hazelcastTransport != null) 
+    		return;
         else if (!forceSinglePlace)
         	x10rt_unblock_probe();
     }
@@ -302,6 +319,8 @@ public class X10RT {
     	assert isBooted();
     	if (javaSockets != null) 
     		return javaSockets.numDead();
+    	else if (hazelcastTransport != null) 
+    		return hazelcastTransport.numDead();
     	else if (!forceSinglePlace) 
     		return x10rt_ndead();
     	else
@@ -316,6 +335,8 @@ public class X10RT {
     	assert isBooted();
     	if (javaSockets != null) 
     		return javaSockets.isPlaceDead(place);
+    	else if (hazelcastTransport != null) 
+    		return hazelcastTransport.isPlaceDead(place);
     	else if (!forceSinglePlace) 
     		return x10rt_is_place_dead(place);
     	else
@@ -324,7 +345,7 @@ public class X10RT {
 
     public static int collectiveSupport() {
         assert isBooted();
-        if (forceSinglePlace || javaSockets != null)
+        if (forceSinglePlace || javaSockets != null || hazelcastTransport != null)
         	return 0;
         else
         	return x10rt_coll_support();
@@ -338,6 +359,8 @@ public class X10RT {
         	return false;
         else if (javaSockets != null)
         	return true;
+        else if (hazelcastTransport != null)
+        	return false;
         else
         	return x10rt_blocking_probe_support();
       }
@@ -365,6 +388,8 @@ public class X10RT {
     	int ret = 0;
     	if (javaSockets != null)
     		ret = javaSockets.shutdown();
+    	else if (hazelcastTransport != null)
+    		ret = hazelcastTransport.shutdown();
     	else
     		ret = x10rt_finalize();
     	state = State.TORN_DOWN;
