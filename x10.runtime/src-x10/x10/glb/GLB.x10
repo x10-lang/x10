@@ -10,7 +10,7 @@ public final class GLB[Queue, R]{Queue<:TaskQueue[Queue, R]} {
 	/**
 	 * Number of places.
 	 */
-	private val P = Place.MAX_PLACES;
+	private val P = Place.getNumPlaces();
 	/**
 	 * Home PlaceLocalHandle of {@link Worker}
 	 */
@@ -189,7 +189,7 @@ public final class GLB[Queue, R]{Queue<:TaskQueue[Queue, R]} {
 	 * @param st PLH for {@link Worker}
 	 */
 	private def printLog(st:PlaceLocalHandle[Worker[Queue, R]]):void{
-		val P = Place.MAX_PLACES;
+		val P = Place.getNumPlaces();
 		for(var i:Long =0; i < P; ++i){
 			at(Place(i)){
 				st().queue.printLog();

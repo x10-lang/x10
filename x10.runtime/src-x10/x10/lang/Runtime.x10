@@ -632,7 +632,7 @@ public final class Runtime {
         }
 
         operator this(n:Int):void {
-            workers.multiplace = Place.ALL_PLACES>1; // ALL_PLACES includes accelerators
+            workers.multiplace = Place.getNumPlacesPlusAccels()>1; // ALL_PLACES includes accelerators
             workers.busyWaiting = BUSY_WAITING || !x10rtBlockingProbeSupport();
             workers.count = n;
             workers(0n) = worker();
@@ -808,7 +808,7 @@ public final class Runtime {
                 // [DC] finish counters may now be negative due to implicit call to notifyActivityTermination inside waitForFinish
             } finally {
                 // root finish has terminated, kill remote processes if any
-                if (Place.MAX_PLACES >= 1024) {
+                if (Place.getNumPlaces() >= 1024) {
                     val cl1 = ()=> @x10.compiler.RemoteInvocation("start_1") {
                         val h = hereInt();
                         val cl = ()=> @x10.compiler.RemoteInvocation("start_2") {pool.latch.release();};
@@ -817,12 +817,12 @@ public final class Runtime {
                         }
                         pool.latch.release();
                     };
-                    for(var i:Long=Place.MAX_PLACES-1; i>0; i-=32) {
+                    for(var i:Long=Place.getNumPlaces()-1; i>0; i-=32) {
                         x10rtSendMessage(i, cl1, null);
                     }
                 } else {
                     val cl = ()=> @x10.compiler.RemoteInvocation("start_3") {pool.latch.release();};
-                    for (var i:Long=Place.MAX_PLACES-1; i>0; --i) {
+                    for (var i:Long=Place.getNumPlaces()-1; i>0; --i) {
                         x10rtSendMessage(i, cl, null);
                     }
                 }

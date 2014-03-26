@@ -18,8 +18,6 @@ public class X10RT {
     enum State { UNINITIALIZED, INITIALIZED, RUNNING, TEARING_DOWN, TORN_DOWN };
 
     static State state = State.UNINITIALIZED;
-    static int here;
-    static int numPlaces;
     static boolean forceSinglePlace = false;
     public static SocketTransport javaSockets = null;
     public static HazelcastTransport hazelcastTransport = null;
@@ -110,9 +108,6 @@ public class X10RT {
 
         state = State.INITIALIZED;
         if (forceSinglePlace) {
-        	here = 0;
-        	numPlaces = 1;
-        	x10.runtime.impl.java.Runtime.MAX_PLACES = numPlaces;
             state = State.RUNNING;
         	return null;
         }
@@ -133,12 +128,6 @@ public class X10RT {
      */
     public static synchronized boolean connect_library(int myPlace, String[] connectionInfo, boolean remoteStart) {
     	if (state != State.INITIALIZED) return true; // already initialized
-
-        X10RT.here = myPlace;
-        if (connectionInfo == null)
-        	numPlaces = 1;
-        else
-        	numPlaces = connectionInfo.length;
     
     	int errcode;
     	if (X10RT.javaSockets != null)
@@ -155,7 +144,6 @@ public class X10RT {
             } catch (java.lang.UnsatisfiedLinkError e){}
             return false;
         }
-        x10.runtime.impl.java.Runtime.MAX_PLACES = numPlaces;
         state = State.RUNNING;
         return true;
     }
@@ -179,16 +167,9 @@ public class X10RT {
     		  forceSinglePlace = true;
     		  System.err.println("Unable to establish links!  errorcode: "+ret+". Forcing single place execution");
     	  }
-    	  else {
-    		  here = X10RT.javaSockets.x10rt_here();
-    		  numPlaces = X10RT.javaSockets.x10rt_nplaces();
-    	  }
       }
       else if (libName.equalsIgnoreCase("Hazelcast")) {
     	  X10RT.hazelcastTransport = new HazelcastTransport();
-    	  // TODO: remove here and numPlaces from X10RT
-    	  here = X10RT.hazelcastTransport.x10rt_here();
-		  numPlaces = X10RT.hazelcastTransport.x10rt_nplaces();
       }
       else {
           libName = "x10rt_" + libName;
@@ -203,19 +184,13 @@ public class X10RT {
 
               TeamSupport.initialize();
 
-              here = x10rt_here();
-              numPlaces = x10rt_nplaces();
           } catch (UnsatisfiedLinkError e) {
               System.err.println("Unable to load "+libName+". Forcing single place execution");
               forceSinglePlace = true;
           }
       }
 
-      if (forceSinglePlace) {
-          here = 0;
-          numPlaces = 1;
-      }
-      else {
+      if (!forceSinglePlace) {
           // Add a shutdown hook to automatically teardown X10RT as part of JVM teardown
           Runtime.getRuntime().addShutdownHook(new Thread(new Runnable(){
               public void run() {
@@ -237,7 +212,6 @@ public class X10RT {
                   }
               }}));
       }
-      x10.runtime.impl.java.Runtime.MAX_PLACES = numPlaces;
       state = State.RUNNING;
       return true;
     }
@@ -299,7 +273,14 @@ public class X10RT {
      */
     public static int here() {
       assert isBooted();
-      return here;
+      if (javaSockets != null)
+      	return javaSockets.x10rt_here();
+      else if (hazelcastTransport != null)
+      	return hazelcastTransport.x10rt_here();
+      else if (!forceSinglePlace)
+      	return x10rt_here();
+      else 
+      	return 0;
     }
 
     /**
@@ -308,7 +289,14 @@ public class X10RT {
      */
     public static int numPlaces() {
       assert isBooted();
-      return numPlaces;
+      if (javaSockets != null)
+    	  return javaSockets.x10rt_nplaces();
+      else if (hazelcastTransport != null)
+    	  return hazelcastTransport.x10rt_nplaces();
+      else if (!forceSinglePlace)
+    	  return x10rt_nplaces();
+      else 
+    	  return 1;
     }
 
     /**

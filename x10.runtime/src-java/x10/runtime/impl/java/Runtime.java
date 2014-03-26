@@ -185,11 +185,6 @@ public abstract class Runtime implements VoidFun_0_0 {
     public static void setExitCode(int code) {
         exitCode = code;
     }
-
-    /**
-     * The number of places in the system
-     */
-    public static int MAX_PLACES = 0; // updated in initialization
     
     /**
      * Disable Assertions

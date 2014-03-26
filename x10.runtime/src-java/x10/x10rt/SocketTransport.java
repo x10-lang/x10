@@ -427,10 +427,6 @@ public class SocketTransport {
 							}
 				    	}
 			    	
-						// configure X10RT from the bottom up, instead of top-down
-						X10RT.here = this.myPlaceId;
-						X10RT.numPlaces = this.nplaces;
-						x10.runtime.impl.java.Runtime.MAX_PLACES = this.nplaces;
 				        X10RT.state = State.RUNNING;
 						
 						if (DEBUG) System.err.println("X10RT reconfigured as place "+myPlaceId+" of "+nplaces+" places");
