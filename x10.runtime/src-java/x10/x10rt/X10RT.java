@@ -353,7 +353,7 @@ public class X10RT {
         	return x10rt_blocking_probe_support();
       }
 
-    static boolean isBooted() {
+    public static boolean isBooted() {
       return state.compareTo(State.RUNNING) >= 0;
     }
 
