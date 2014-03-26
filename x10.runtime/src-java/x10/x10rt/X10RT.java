@@ -19,6 +19,8 @@ public class X10RT {
 
     static State state = State.UNINITIALIZED;
     static boolean forceSinglePlace = false;
+    // TODO: These transports should be defined by an interface, and calls to them made through
+    // that interface, removing all the "if (javaSockets!=null)" switch statements below
     public static SocketTransport javaSockets = null;
     public static HazelcastTransport hazelcastTransport = null;
     
@@ -200,6 +202,8 @@ public class X10RT {
                           if (VERBOSE) System.err.println("Normal exit; x10rt_finalize called");
                           if (javaSockets != null)
                         	  javaSockets.shutdown();
+                          else if (hazelcastTransport != null)
+                        	  hazelcastTransport.shutdown();
                           else
                         	  x10rt_finalize();
                           if (VERBOSE) System.err.println("Normal exit; x10rt_finalize returned");
@@ -361,12 +365,12 @@ public class X10RT {
      * To be called once XRX is ready to process incoming asyncs.
      */
     public static void registration_complete() {
-        if (!forceSinglePlace && javaSockets == null)
+        if (!forceSinglePlace && javaSockets == null && hazelcastTransport == null)
         	x10rt_registration_complete();
     }
     
     public static void registerHandlers() {
-    	if (!forceSinglePlace && javaSockets == null)
+    	if (!forceSinglePlace && javaSockets == null && hazelcastTransport == null)
     		x10.x10rt.MessageHandlers.registerHandlers();
     }
     
