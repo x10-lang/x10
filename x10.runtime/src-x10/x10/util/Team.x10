@@ -73,8 +73,9 @@ public struct Team {
                 Team.state.grow(id+1);
             while (Team.state.size() < id)
                 Team.state.add(null); // I am not a member of this team id.  Insert a dummy value.
-            Team.state(id) = new LocalTeamState(places, id, places.indexOf(here));
-            Team.state(id).init();
+            val teamState = new LocalTeamState(places, id, places.indexOf(here));
+            atomic { Team.state(id) = teamState; }
+            teamState.init();
             if (DEBUG) Runtime.println(here + " created our own team "+id);
     	}
     }
