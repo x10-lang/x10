@@ -262,6 +262,8 @@ public abstract class Runtime implements VoidFun_0_0 {
             // TODO: these methods return an error code if the communication fails.  Use it.
             if (X10RT.javaSockets != null) {
                 X10RT.javaSockets.sendMessage(place, SocketTransport.CALLBACKID.simpleAsyncMessageID.ordinal(), new ByteBuffer[]{ByteBuffer.wrap(serializer.getDataBytes())});
+            } else if (X10RT.hazelcastTransport != null) {
+                X10RT.hazelcastTransport.sendAsync(place, serializer.getDataBytes());
             } else {
                 x10.x10rt.MessageHandlers.runSimpleAsyncAtSend(place, serializer.getDataBytes());
             }
@@ -312,7 +314,10 @@ public abstract class Runtime implements VoidFun_0_0 {
 			start = prof!=null ? System.nanoTime() : 0;
 			if (X10RT.javaSockets != null) {
 			    X10RT.javaSockets.sendMessage(place, SocketTransport.CALLBACKID.closureMessageID.ordinal(), new ByteBuffer[]{ByteBuffer.wrap(serializer.getDataBytes())});
-			} else {
+			} else if (X10RT.hazelcastTransport != null) {
+				X10RT.hazelcastTransport.sendClosure(place, serializer.getDataBytes());
+			}
+			else {
 			    x10.x10rt.MessageHandlers.runClosureAtSend(place, serializer.getDataBytes());
 			}
 			if (prof!=null) {
