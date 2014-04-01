@@ -9,6 +9,7 @@ import java.util.TreeSet;
 import x10.x10rt.SocketTransport.RETURNCODE;
 
 import com.hazelcast.config.Config;
+import com.hazelcast.core.Cluster;
 import com.hazelcast.core.Hazelcast;
 import com.hazelcast.core.HazelcastException;
 import com.hazelcast.core.HazelcastInstance;
@@ -61,7 +62,11 @@ public class HazelcastTransport implements MembershipListener {
 		asyncCommunicator = new Communicator(X10RTASYNC+'_'+Integer.toString(myPlaceId));
 		
 		// store my place ID as an attribute of the container
-		hazelcast.getCluster().getLocalMember().setIntAttribute(X10RT, myPlaceId);
+		Cluster cluster = hazelcast.getCluster();
+		cluster.getLocalMember().setIntAttribute(X10RT, myPlaceId);
+		
+		// register for notification of container removals
+		cluster.addMembershipListener(this);
 
 		// wait here until all expected places have joined
 		while (placeGen.get() < initialNumPlaces) {
@@ -73,6 +78,7 @@ public class HazelcastTransport implements MembershipListener {
 	
 	public int x10rt_nplaces() {
 		IAtomicLong placeGen = hazelcast.getAtomicLong(X10RT);
+		if (DEBUG) System.err.println("Hazelcast says there are "+placeGen.get()+" places");
 		return (int) placeGen.get();
 	}
 	
