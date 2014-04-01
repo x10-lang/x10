@@ -4,19 +4,26 @@ import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.util.LinkedList;
 import java.util.Queue;
+import java.util.TreeSet;
 
 import x10.x10rt.SocketTransport.RETURNCODE;
 
 import com.hazelcast.config.Config;
 import com.hazelcast.core.Hazelcast;
+import com.hazelcast.core.HazelcastException;
 import com.hazelcast.core.HazelcastInstance;
 import com.hazelcast.core.HazelcastInstanceNotActiveException;
 import com.hazelcast.core.IAtomicLong;
 import com.hazelcast.core.ITopic;
+import com.hazelcast.core.MemberAttributeEvent;
+import com.hazelcast.core.MembershipEvent;
+import com.hazelcast.core.MembershipListener;
 import com.hazelcast.core.Message;
 import com.hazelcast.core.MessageListener;
 
-public class HazelcastTransport {
+public class HazelcastTransport implements MembershipListener {
+
+	private static final boolean DEBUG = false;
 	
 	private static final String X10RT = "X10RT";
 	private static final String X10RTCLOSURE = "X10RTCLOSURE";
@@ -26,7 +33,7 @@ public class HazelcastTransport {
 	private Communicator closureCommunicator;
 	private Communicator asyncCommunicator;
 	private int initialNumPlaces = 0; // when the launcher is used, we expect some known number of places before running
-	private static final boolean DEBUG = false;
+	private final TreeSet<Integer> deadPlaces = new TreeSet<Integer>();
 
 	public HazelcastTransport() {
 		Config config = new Config();
@@ -48,11 +55,14 @@ public class HazelcastTransport {
 			if (DEBUG) System.err.println("changed place ID to "+myPlaceId);
 			initialNumPlaces = Integer.parseInt(System.getenv(SocketTransport.X10_NPLACES));
 		}
-		
+				
 		// establish link to other places
 		closureCommunicator = new Communicator(X10RTCLOSURE+'_'+Integer.toString(myPlaceId));
 		asyncCommunicator = new Communicator(X10RTASYNC+'_'+Integer.toString(myPlaceId));
 		
+		// store my place ID as an attribute of the container
+		hazelcast.getCluster().getLocalMember().setIntAttribute(X10RT, myPlaceId);
+
 		// wait here until all expected places have joined
 		while (placeGen.get() < initialNumPlaces) {
 			// wait at startup time for all expected places to join here
@@ -71,11 +81,15 @@ public class HazelcastTransport {
 	}
 	
 	public int numDead() {
-    	return 0;
+		synchronized (deadPlaces) {
+	    	return deadPlaces.size();
+		}
     }
     
     public boolean isPlaceDead(int place) {
-    	return false;
+    	synchronized (deadPlaces) {
+    		return deadPlaces.contains(place);
+    	}
     }
 
     public int sendAsync(int place, byte[] data) {
@@ -145,7 +159,8 @@ public class HazelcastTransport {
 				ITopic<String> link = hazelcast.getTopic(topic);
 				link.removeMessageListener(registration);
 			}
-			catch (HazelcastInstanceNotActiveException e){} // nothing to shut down
+			catch (HazelcastException e){} // nothing to shut down
+			catch (HazelcastInstanceNotActiveException e){}
 		}
 		
 		byte[] poll() {
@@ -160,6 +175,26 @@ public class HazelcastTransport {
 			synchronized (queue) {
 				queue.add(msg.getMessageObject());
 			}
+		}
+	}
+
+	@Override
+	public void memberAdded(MembershipEvent arg0) {
+		// ignore
+	}
+
+	@Override
+	public void memberAttributeChanged(MemberAttributeEvent arg0) {
+		// ignore
+	}
+
+	@Override
+	public void memberRemoved(MembershipEvent arg0) {
+		// figure out who left
+		int wasPlace = arg0.getMember().getIntAttribute(X10RT);
+		if (DEBUG) System.err.println("Detected place "+wasPlace+" was removed");
+		synchronized (deadPlaces) {
+			deadPlaces.add(wasPlace);
 		}
 	}
 }
