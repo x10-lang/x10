@@ -43,8 +43,8 @@ Token_t *convert_Java_token(JNIEnv *env, jobject token) {
     }
     // Get the method ID for the getJavaSourcePositionInformation() method.
     method_id = get_method(env, cls, "getJavaSourcePositionInformation", "()Lx10rose/visit/JavaSourcePositionInformation;");
-
     jpos_info = (jobject) env->CallObjectMethod(token, method_id);
+printf("jpos_info=%p\n", jpos_info);
 
     // Convert position to its C-based representation
     pos_info = convert_Java_SourcePosition(env, jpos_info);

@@ -6,14 +6,19 @@
 
 #include "X10Traversal.h"
 
-
 #include "java_support.h"
 #include "jni_token.h"
 #include "VisitorContext.h"
 
+#include "jserver.h"
+
 //#include <string>
 
 //#define DEBUG
+#define POSITION
+
+using namespace std;
+using namespace Rose::Frontend::Java;
 
 
 
@@ -140,10 +145,14 @@ cout.flush();
         SgExpression *expr = astJavaComponentStack.popExpression();
         arguments -> prepend_expression(expr);
     }
-//    setJavaSourcePosition(arguments, env, jToken);
+#ifdef POSITION
+    setJavaSourcePosition(arguments, env, jToken);
+#endif
 
     SgFunctionCallExp *function_call_exp = SageBuilder::buildFunctionCallExp(function_symbol, arguments);
-//    setJavaSourcePosition(function_call_exp, env, jToken);
+#ifdef POSITION
+    setJavaSourcePosition(function_call_exp, env, jToken);
+#endif
     if (numTypeArguments > 0) {
         string parm_names = "";
         AstSgNodeListAttribute *attribute = new AstSgNodeListAttribute();
@@ -198,7 +207,9 @@ cout.flush();
         }
         else {
             exprForFunction = SageBuilder::buildBinaryExpression<SgDotExp>((SgExpression *) receiver, exprForFunction);
-//            setJavaSourcePosition(exprForFunction, env, jToken);
+#ifdef POSITION
+            setJavaSourcePosition(exprForFunction, env, jToken);
+#endif
 
             SgClassDefinition *current_class_definition = getCurrentTypeDefinition();
             SgType *enclosing_type = current_class_definition -> get_declaration() -> get_type();
@@ -254,7 +265,9 @@ Java_x10rose_visit_JNI_cactionIfStatement(JNIEnv *env, jclass, jobject jToken) {
 
     ifStatement -> set_parent(astJavaScopeStack.top());
 
-//    setJavaSourcePosition(ifStatement, env, jToken);
+#ifdef POSITION
+    setJavaSourcePosition(ifStatement, env, jToken);
+#endif
 
     // Push the SgIfStmt onto the stack, but not the true block.
     astJavaScopeStack.push(ifStatement);
@@ -274,7 +287,9 @@ Java_x10rose_visit_JNI_cactionIfStatementEnd(JNIEnv *env, jclass, jboolean has_f
     SgIfStmt *ifStatement = astJavaScopeStack.popIfStmt();
     ROSE_ASSERT(ifStatement -> get_parent() != NULL);
 
-//    setJavaSourcePosition(ifStatement, env, jToken);
+#ifdef POSITION
+    setJavaSourcePosition(ifStatement, env, jToken);
+#endif
 
     // If there are two required then the first is for the false branch.
     if (has_false_body) {
@@ -294,7 +309,9 @@ cout << "True_body : " << true_body << endl;
 
     SgExprStatement *exprStatement = SageBuilder::buildExprStatement(condititonalExpr);
 
-//    setJavaSourcePosition(exprStatement, env, jToken);
+#ifdef POSITION
+    setJavaSourcePosition(exprStatement, env, jToken);
+#endif
 
     ROSE_ASSERT(exprStatement != NULL);
     ROSE_ASSERT(condititonalExpr -> get_parent() != NULL);
@@ -330,7 +347,9 @@ Java_x10rose_visit_JNI_cactionAssignmentEnd(JNIEnv *env, jclass, jobject jToken)
 
     binaryExpressionSupport<SgAssignOp>();
 
-//    setJavaSourcePosition((SgLocatedNode *) astJavaComponentStack.top(), env, jToken);
+#ifdef POSITION
+    setJavaSourcePosition((SgLocatedNode *) astJavaComponentStack.top(), env, jToken);
+#endif
 }
 
 
@@ -349,7 +368,9 @@ Java_x10rose_visit_JNI_cactionIntLiteral(JNIEnv *env, jclass, jint java_value, j
     SgIntVal *integerValue = new SgIntVal(value, source);
     ROSE_ASSERT(integerValue != NULL);
 
-//    setJavaSourcePosition(integerValue, env, jToken);
+#ifdef POSITION
+    setJavaSourcePosition(integerValue, env, jToken);
+#endif
 
     astJavaComponentStack.push(integerValue);
 }
@@ -369,7 +390,9 @@ Java_x10rose_visit_JNI_cactionLongLiteral(JNIEnv *env, jclass, jlong java_value,
     SgLongIntVal *longValue = new SgLongIntVal(value, source);
     ROSE_ASSERT(longValue != NULL);
 
-//    setJavaSourcePosition(longValue, env, jToken);
+#ifdef POSITION
+    setJavaSourcePosition(longValue, env, jToken);
+#endif
 
     astJavaComponentStack.push(longValue);
 }
@@ -430,7 +453,9 @@ JNIEXPORT void JNICALL Java_x10rose_visit_JNI_cactionImportReference(JNIEnv *env
     ROSE_ASSERT(importStatement == importStatement ->  get_firstNondefiningDeclaration());
     ROSE_ASSERT(importStatement == importStatement ->  get_definingDeclaration());
     importStatement -> set_parent(astJavaScopeStack.top()); // We also have to set the parent so that the stack debugging output will work.
+#ifdef POSITION
     setJavaSourcePosition(importStatement, env, jToken);
+#endif
 
     if (is_static) {
         importStatement -> get_declarationModifier().get_storageModifier().setStatic();
@@ -552,12 +577,14 @@ JNIEXPORT void JNICALL
 Java_x10rose_visit_JNI_cactionEmptyStatementEnd(JNIEnv *env, jclass, jobject jToken) {
     SgNullStatement *stmt = SageBuilder::buildNullStatement();
     ROSE_ASSERT(stmt != NULL);
-//    setJavaSourcePosition(stmt, env, jToken);
+#ifdef POSITION
+    setJavaSourcePosition(stmt, env, jToken);
+#endif
     astJavaComponentStack.push(stmt);
 }
 
 
-
+#if 0
 JNIEXPORT void JNICALL 
 Java_x10rose_visit_JNI_cactionConstructorDeclaration(JNIEnv *env, jclass, jstring java_string, jint constructor_index, jobject jToken) {
     if (SgProject::get_verbose() > 0)
@@ -676,7 +703,9 @@ Java_x10rose_visit_JNI_cactionConstructorDeclarationHeader(JNIEnv *env, jclass,
     astJavaScopeStack.push(constructor_definition -> get_body());
     ROSE_ASSERT(astJavaScopeStack.top() -> get_parent() != NULL);
 
+#ifdef POSITION
     setJavaSourcePosition(constructor_definition -> get_body(), env, jToken);
+#endif
 
     SgFunctionDeclaration *constructor_declaration = constructor_definition -> get_declaration();
     if (exceptions.size()) {
@@ -733,7 +762,7 @@ Java_x10rose_visit_JNI_cactionConstructorDeclarationEnd(JNIEnv *env, jclass, jin
     SgScopeStatement *type_space = isSgScopeStatement(astJavaScopeStack.pop());
     ROSE_ASSERT(type_space);
 }
-
+#endif
 
 JNIEXPORT void JNICALL 
 Java_x10rose_visit_JNI_cactionCompilationUnitDeclaration(JNIEnv *env, jclass, jstring java_package_name, jstring java_filename, jobject jToken) {
@@ -798,14 +827,25 @@ Java_x10rose_visit_JNI_cactionCompilationUnitList(JNIEnv *env, jclass, jint, job
         printf ("Inside of Java_x10rose_visit_JNI_cactionCompilationUnitList \n");
 
     // This is already setup by ROSE as part of basic file initialization before calling ECJ.
+//MH-20140401
+#if 0
     ROSE_ASSERT(OpenFortranParser_globalFilePointer != NULL);
+#else
+	ROSE_ASSERT(Rose::Frontend::Java::Ecj::Ecj_globalFilePointer != NULL);
+#endif
     if (SgProject::get_verbose() > 0)
         printf ("OpenFortranParser_globalFilePointer = %s \n", OpenFortranParser_globalFilePointer -> class_name().c_str());
 
     // TODO: We need the next line for EDG4 
     // SageBuilder::setSourcePositionClassificationMode(SageBuilder::e_sourcePositionFrontendConstruction);
+     SageBuilder::setSourcePositionClassificationMode(SageBuilder::e_sourcePositionFrontendConstruction);
 
+#if 0
     SgSourceFile *sourceFile = isSgSourceFile(OpenFortranParser_globalFilePointer);
+#else
+    SgSourceFile *sourceFile = isSgSourceFile(Rose::Frontend::Java::Ecj::Ecj_globalFilePointer);
+#endif
+
     ROSE_ASSERT(sourceFile != NULL);
 
     if (SgProject::get_verbose() > 0)
@@ -822,8 +862,26 @@ Java_x10rose_visit_JNI_cactionCompilationUnitList(JNIEnv *env, jclass, jint, job
     //
     // At this point, the scope stack should be empty. Push the global scope into it.
     //
-    ROSE_ASSERT(astJavaScopeStack.empty());
+//    ROSE_ASSERT(astJavaScopeStack.empty());
     astJavaScopeStack.push(::globalScope); // Push the global scope onto the stack.
+
+
+#if 1 //MH-20140326
+for (std::list<SgScopeStatement*>::iterator i = astJavaScopeStack.begin(); i != astJavaScopeStack.end(); i++) {
+//cout << "java_support.C lookupTypeSymbol 2" << *i << endl;
+// TODO: Remove this!
+cout << "Stored type "
+<< (isSgClassDefinition(*i) ? isSgClassDefinition(*i) -> get_qualified_name().getString()
+                            : isSgFunctionDefinition(*i) ? isSgFunctionDefinition(*i) -> get_qualified_name().getString()
+                                                         : (*i) -> class_name())
+<< " ("
+<< (isSgClassDefinition(*i) ? isSgClassDefinition(*i) 
+                            : isSgFunctionDefinition(*i) ? isSgFunctionDefinition(*i)
+                                                         : (*i)) 
+<< ") "
+<< endl;
+}
+#endif
 
     // Verify that the parent is set, these AST nodes are already setup by ROSE before calling this function.
     ROSE_ASSERT(astJavaScopeStack.top() -> get_parent() != NULL);
@@ -861,11 +919,19 @@ Java_x10rose_visit_JNI_cactionInsertClassStart(JNIEnv *env, jclass xxx, jstring 
         printf ("Inside of Java_JavaParser_cactionInsertClassStart(): = %s \n", name.str());
     SgScopeStatement *outerScope = astJavaScopeStack.top();
     ROSE_ASSERT(outerScope != NULL);
+
+//MH-20140403
+	printf("cactionInsertClassStart:outerScope=%p\n", outerScope);
+
     SgClassDeclaration *class_declaration = buildDefiningClassDeclaration(name, outerScope);
-//    setJavaSourcePosition(class_declaration, env, jToken);
+#ifdef POSITION
+    setJavaSourcePosition(class_declaration, env, jToken);
+#endif
     SgClassDefinition *class_definition = class_declaration -> get_definition();
     ROSE_ASSERT(class_definition && (! class_definition -> attributeExists("namespace")));
-//    setJavaSourcePosition(class_definition, env, jToken);
+#ifdef POSITION
+    setJavaSourcePosition(class_definition, env, jToken);
+#endif
 
     astJavaScopeStack.push(class_definition); // to contain the class members...
 }
@@ -905,7 +971,9 @@ Java_x10rose_visit_JNI_cactionInsertClassStart2(JNIEnv *env, jclass, jstring jav
 #else
     SgClassDefinition *class_definition = class_declaration -> get_definition();
     ROSE_ASSERT(class_definition && (! class_definition -> attributeExists("namespace")));
-//    setJavaSourcePosition(class_definition, env, jToken);
+#ifdef POSITION
+    setJavaSourcePosition(class_definition, env, jToken);
+#endif
     astJavaScopeStack.push(class_definition); // to contain the class members...
 #endif
 }
@@ -1172,6 +1240,22 @@ printf("**Class definition:%p, member size=%d\n", class_definition, declarations
 
 	astJavaScopeStack.push(::globalScope);
 	astJavaScopeStack.push(class_definition);
+
+// MH-20140326
+#if 0
+for (std::list<SgScopeStatement*>::iterator i = astJavaScopeStack.begin(); i != astJavaScopeStack.end(); i++) {
+cout << "Resolved type : "
+<< (isSgClassDefinition(*i) ? isSgClassDefinition(*i) -> get_qualified_name().getString()
+                            : isSgFunctionDefinition(*i) ? isSgFunctionDefinition(*i) -> get_qualified_name().getString()
+                                                         : (*i) -> class_name())
+<< " ("
+<< (isSgClassDefinition(*i) ? isSgClassDefinition(*i) 
+                            : isSgFunctionDefinition(*i) ? isSgFunctionDefinition(*i) 
+                                                         : (*i)) 
+<< ") "
+<< endl;
+}
+#endif
 }
 
 JNIEXPORT void JNICALL 
@@ -1226,7 +1310,9 @@ Java_x10rose_visit_JNI_cactionBlock(JNIEnv *env, jclass, jobject jToken) {
     }
     ROSE_ASSERT(block != NULL);
 
-//    setJavaSourcePosition(block, env, jToken);
+#ifdef POSITION
+    setJavaSourcePosition(block, env, jToken);
+#endif
 
     block -> set_parent(astJavaScopeStack.top());
     ROSE_ASSERT(block -> get_parent() != NULL);
@@ -1288,7 +1374,9 @@ Java_x10rose_visit_JNI_cactionReturnStatementEnd(JNIEnv *env, jclass, jboolean h
     SgExpression *expression = (has_expression ? astJavaComponentStack.popExpression() : NULL);
     SgReturnStmt *returnStatement = SageBuilder::buildReturnStmt_nfi(expression);
     ROSE_ASSERT(has_expression || returnStatement -> get_expression() == NULL); // TODO: there is an issue with the implementation of buildReturnStmt()...
-//    setJavaSourcePosition(returnStatement, env, jToken);
+#ifdef POSITION
+    setJavaSourcePosition(returnStatement, env, jToken);
+#endif
 
     // Pushing 'return' on the statement stack
     astJavaComponentStack.push(returnStatement);
@@ -1365,7 +1453,9 @@ Java_x10rose_visit_JNI_cactionBinaryExpressionEnd(JNIEnv *env, jclass, jint java
             ROSE_ASSERT(false);
     }
 
-//    setJavaSourcePosition((SgLocatedNode *) astJavaComponentStack.top(), env, jToken);
+#ifdef POSITION
+    setJavaSourcePosition((SgLocatedNode *) astJavaComponentStack.top(), env, jToken);
+#endif
 }
 
 
@@ -1422,12 +1512,16 @@ Java_x10rose_visit_JNI_cactionMethodDeclaration(JNIEnv *env, jclass,
     SgName name = convertJavaStringToCxxString(env, java_string);
 
     SgClassDefinition *class_definition = isSgClassDefinition(astJavaScopeStack.top());
+//MH-20140403
+    ROSE_ASSERT(class_definition != NULL);
+	ROSE_ASSERT(! class_definition -> attributeExists("namespace"));
+
     ROSE_ASSERT(class_definition != NULL  && (! class_definition -> attributeExists("namespace")));
     AstSgNodeListAttribute *attribute = (AstSgNodeListAttribute *) class_definition -> getAttribute("type_parameter_space");
     ROSE_ASSERT(attribute);
     SgScopeStatement *type_space = isSgScopeStatement(attribute -> getNode(method_index));
     ROSE_ASSERT(type_space);
-
+printf("type_space2=%p\n", type_space);
     attribute = (AstSgNodeListAttribute *) class_definition -> getAttribute("class_members");
     ROSE_ASSERT(attribute);
     SgFunctionDefinition *method_definition = isSgFunctionDefinition(attribute -> getNode(method_index));
@@ -1438,6 +1532,7 @@ Java_x10rose_visit_JNI_cactionMethodDeclaration(JNIEnv *env, jclass,
     ROSE_ASSERT(method_declaration -> get_type() -> get_return_type());
     method_declaration -> setAttribute("type", new AstRegExAttribute(getTypeName(method_declaration -> get_type() -> get_return_type())));
 
+//MH-20140403
     astJavaScopeStack.push(type_space);
     astJavaScopeStack.push(method_definition);
 //MH-20140312
@@ -1555,9 +1650,9 @@ Java_x10rose_visit_JNI_cactionTypeReference(JNIEnv *env, jclass,
 
 // MH-20140226
 // If type is null, a new type should be defined
-	cout << "PACKAGE_NAME=" << package_name << ", TYPE_NAME=" << type_name << endl;
 #if 1
 	if (type == NULL) {
+		cout << "PACKAGE_NAME=" << package_name << ", TYPE_NAME=" << type_name << endl;
 		// cactionInsertClassStart2() does not have a parameter for specifying a package name, although
 		// this is fine for x10 because x10 classes have been fully qualified with package  name
 		Java_x10rose_visit_JNI_cactionInsertClassStart2(env, NULL, java_type_name, jToken);
@@ -1589,26 +1684,32 @@ JNIEXPORT void JNICALL Java_x10rose_visit_JNI_cactionBuildMethodSupportStart(JNI
     SgName name = convertJavaStringToCxxString(env, java_name);
     if (SgProject::get_verbose() > 1)
           printf ("Inside of BuildMethodSupportStart for method = %s \n", name.str());
-
     SgClassDefinition *class_definition = isSgClassDefinition(astJavaScopeStack.top());
 printf("class_definition=%p\n", class_definition);
     ROSE_ASSERT(class_definition && (! class_definition -> attributeExists("namespace")));
 
+//MH-20140403
+#if 1
     //
     // This scope will be used to store Type Parameters, if there are any.
     //
     SgScopeStatement *type_space = new SgScopeStatement();
     type_space -> set_parent(class_definition);
-//    setJavaSourcePosition(type_space, env, method_location);
-
+#ifdef POSITION
+    setJavaSourcePosition(type_space, env, method_location);
+#endif
+	//MH-20140403
+	printf("type_space=%p\n", type_space);
     if (method_index >= 0) {
         AstSgNodeListAttribute *attribute = (AstSgNodeListAttribute *) class_definition -> getAttribute("type_parameter_space");
         ROSE_ASSERT(attribute);
         attribute -> setNode(type_space, method_index);
     }
-
+#endif
 //MH-20140315
 //    astJavaScopeStack.push(class_definition);
+//MH-20140403
+	printf("type_space->get_startOfConstruct()=%p\n", type_space->get_startOfConstruct());
     astJavaScopeStack.push(type_space);
 
     if (SgProject::get_verbose() > 1)
@@ -1638,6 +1739,7 @@ JNIEXPORT void JNICALL Java_x10rose_visit_JNI_cactionBuildMethodSupportEnd(JNIEn
     if (SgProject::get_verbose() > 1)
         printf ("Build support for implicit class member function (method) name = %s \n", name.str());
 
+//MH-20140403
     SgScopeStatement *type_space = isSgScopeStatement(astJavaScopeStack.pop());
     ROSE_ASSERT(type_space);
 
@@ -1654,7 +1756,9 @@ JNIEXPORT void JNICALL Java_x10rose_visit_JNI_cactionBuildMethodSupportEnd(JNIEn
     // There is no reason to distinguish between defining and non-defining declarations in Java...
     //
     SgMemberFunctionDeclaration *method_declaration = buildDefiningMemberFunction(name, class_definition, number_of_arguments, env, method_location, args_location);
+#ifdef POSITION
     setJavaSourcePosition(method_declaration, env, method_location);
+#endif
     ROSE_ASSERT(method_declaration != NULL);
 
     SgFunctionDefinition *method_definition = method_declaration -> get_definition();
@@ -1720,6 +1824,11 @@ printf("*Class definition:%p, member size=%d\n", class_definition, declarations.
     // ROSE_ASSERT(nondefining_method_declaration);
     // nondefining_method_declaration -> get_declarationModifier().get_accessModifier().set_modifier(method_declaration -> get_declarationModifier().get_accessModifier().get_modifier());
 
+#if 0 
+//MH-20140403 just to check emthod_declaration has sg_file_info 
+	printf("method_declaration->get_startOfConstruct()=%p\n", method_declaration->get_startOfConstruct());
+#endif
+
     astJavaComponentStack.push(method_declaration);
 
 //MH-20140312
@@ -1769,7 +1878,9 @@ Java_x10rose_visit_JNI_cactionBuildArgumentSupport(JNIEnv *env, jclass, jstring 
     // Until we attached this to the AST, this will generate an error in the AST consistancy tests.
     SgInitializedName *initialized_name = SageBuilder::buildInitializedName(argument_name, argument_type, NULL);
 
-//    setJavaSourcePosition(initialized_name, env, jToken);
+#ifdef POSITION
+    setJavaSourcePosition(initialized_name, env, jToken);
+#endif
     ROSE_ASSERT(initialized_name != NULL);
 
     //
@@ -1823,7 +1934,9 @@ Java_x10rose_visit_JNI_cactionCatchArgument(JNIEnv *env, jclass, jstring java_ar
 
     SgCatchOptionStmt *catch_option_stmt = SageBuilder::buildCatchOptionStmt();
     ROSE_ASSERT(catch_option_stmt != NULL);
+#ifdef POSITION
     setJavaSourcePosition(catch_option_stmt, env, jToken);
+#endif
     catch_option_stmt -> set_parent(astJavaScopeStack.top());
     astJavaScopeStack.push(catch_option_stmt);
 }
@@ -1861,7 +1974,9 @@ cout << "varRefExp=" << varRefExp << endl;
     if (SgProject::get_verbose() > 0)
         printf ("In cactionSingleNameReference(): varRefExp = %p type = %p = %s \n", varRefExp, varRefExp -> get_type(), varRefExp -> get_type() -> class_name().c_str());
 
-//    setJavaSourcePosition(varRefExp, env, jToken);
+#ifdef POSITION
+    setJavaSourcePosition(varRefExp, env, jToken);
+#endif
 
 	varRefExp->get_file_info()->display("TEST DISPLAY");
 
@@ -1905,7 +2020,9 @@ Java_x10rose_visit_JNI_cactionStringLiteral(JNIEnv *env, jclass, jstring java_st
 
     // Set the source code position (default values for now).
     // setJavaSourcePosition(stringValue);
+#ifdef POSITION
     setJavaSourcePosition(stringValue, env, jToken);
+#endif
 
     astJavaComponentStack.push(stringValue);
 }
@@ -1921,7 +2038,9 @@ Java_x10rose_visit_JNI_cactionBreakStatement(JNIEnv *env, jclass, jstring java_s
         stmt -> set_do_string_label(label_name);
     }
 
+#ifdef POSITION
     setJavaSourcePosition(stmt, env, jToken);
+#endif
     astJavaComponentStack.push(stmt);
 }
 
@@ -1942,7 +2061,9 @@ Java_x10rose_visit_JNI_cactionCaseStatement(JNIEnv *env, jclass, jboolean hasCas
     }
     ROSE_ASSERT(caseStatement != NULL);
 
+#ifdef POSITION
     setJavaSourcePosition(caseStatement, env, jToken);
+#endif
 
     // DQ (7/30/2011): For the build interface to work we have to initialize the parent pointer to the SgForStatement.
     // Charles4 (8/23/2011): When and why parent pointers should be set needs to be clarified. Perhaps the SageBuilder
@@ -1962,7 +2083,9 @@ Java_x10rose_visit_JNI_cactionCharLiteral(JNIEnv *env, jclass, jchar java_char_v
     SgWcharVal *charValue = SageBuilder::buildWcharVal(value);
     ROSE_ASSERT(charValue != NULL);
 
+#ifdef POSITION
     setJavaSourcePosition(charValue, env, jToken);
+#endif
 
     astJavaComponentStack.push(charValue);
 }
@@ -1979,7 +2102,9 @@ Java_x10rose_visit_JNI_cactionContinueStatement(JNIEnv *env, jclass, jstring jav
         stmt -> set_do_string_label(label_name);
     }
 
+#ifdef POSITION
     setJavaSourcePosition(stmt, env, jToken);
+#endif
     astJavaComponentStack.push(stmt);
 }
 
@@ -2036,7 +2161,9 @@ Java_x10rose_visit_JNI_cactionSwitchStatement(JNIEnv *env, jclass, jobject jToke
     SgSwitchStatement *switchStatement = SageBuilder::buildSwitchStatement();
     ROSE_ASSERT(switchStatement != NULL);
 
+#ifdef POSITION
     setJavaSourcePosition(switchStatement, env, jToken);
+#endif
 
     // DQ (7/30/2011): For the build interface to work we have to initialize the parent pointer to the SgForStatement.
     // Charles4 (8/23/2011): When and why parent pointers should be set needs to be clarified. Perhaps the SageBuilder

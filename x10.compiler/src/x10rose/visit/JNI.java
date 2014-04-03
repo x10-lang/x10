@@ -126,10 +126,8 @@ public class JNI {
 	
     static {
         // Requires a ROSE installation, but only if x10rose.ExtensionInfo is classloaded
-//        System.loadLibrary("astRewriteExample1");
 			try {
-//        		System.loadLibrary("Test");
-        System.loadLibrary("X10Traversal");
+        		System.loadLibrary("X10Traversal");
 //        System.loadLibrary("JavaTraversal");
 			} catch (Exception e) {
 				e.printStackTrace();
@@ -137,4 +135,9 @@ public class JNI {
 				er.printStackTrace();
 			}
     }
+/*
+
+	public static void main(String[] args) {
+	}	
+*/
 }

@@ -14,7 +14,6 @@ JavaSourceCodePosition *convert_Java_SourcePosition(JNIEnv *env, jobject sourceP
     int col_end    = -1;
 
     assert(env != NULL);
-
     // Need to get the object class so we can use it to retrieve the methods.
     cls = get_class(env, sourcePosition);
 
