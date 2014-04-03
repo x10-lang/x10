@@ -21,7 +21,6 @@ import x10.compiler.Inline;
  * Complex is a struct representing a complex number (a + b*i).
  * The real and imaginary components are represented as Doubles.
  */
-@NativeRep("java", null, null, "x10.rtt.Types.COMPLEX")
 @NativeRep("c++", "x10_complex", "x10_complex", null)
 public struct Complex implements Arithmetic[Complex] {
 

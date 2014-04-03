@@ -123,6 +123,10 @@ public final class Rail<T> extends Ref implements x10.lang.Iterable,
         this.T = T;
         this.size = size;
         this.value = T.makeArray(allocCheckSize(size));
+        if (!Types.hasNaturalZero(T)) {
+            Object zeroValue = Types.zeroValue(T);
+            java.util.Arrays.fill((Object[])value, zeroValue);
+        }
     }
 
     public Rail(Type T, long size, T init, __1x10$lang$Rail$$T $dummy) {
