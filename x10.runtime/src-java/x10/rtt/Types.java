@@ -511,6 +511,7 @@ public class Types {
     public static final RuntimeType<x10.core.UShort> USHORT = new UShortType();
     public static final RuntimeType<x10.core.UInt> UINT = new UIntType();
     public static final RuntimeType<x10.core.ULong> ULONG = new ULongType();
+    public static final RuntimeType<x10.lang.Complex> COMPLEX = new ComplexType();
     public static final x10.core.Boolean BOOLEAN_ZERO = x10.core.Boolean.$box(false);
     public static final x10.core.Char CHAR_ZERO = x10.core.Char.$box((char)0);
     public static final x10.core.Byte BYTE_ZERO = x10.core.Byte.$box(0);
@@ -523,6 +524,7 @@ public class Types {
     public static final x10.core.UShort USHORT_ZERO = x10.core.UShort.$box(0);
     public static final x10.core.UInt UINT_ZERO = x10.core.UInt.$box(0);
     public static final x10.core.ULong ULONG_ZERO = x10.core.ULong.$box(0L);
+    public static final x10.lang.Complex COMPLEX_ZERO = new x10.lang.Complex((java.lang.System)null);
 
     public static final RuntimeType<String> STRING = new StringType();
 
@@ -535,7 +537,7 @@ public class Types {
         return false;
     }
     public static boolean isPrimitiveType(Type<?> rtt) {
-        return isNumericType(rtt) || rtt == CHAR || rtt == BOOLEAN;
+        return isNumericType(rtt) || rtt == COMPLEX || rtt == CHAR || rtt == BOOLEAN;
     }
     static boolean isStructType(Type<?> rtt) {
     	return isPrimitiveType(rtt) || rtt.isAssignableTo(STRUCT);
@@ -774,6 +776,7 @@ public class Types {
             if (rtt == DOUBLE) return DOUBLE_ZERO;
             if (rtt == CHAR) return CHAR_ZERO;
             if (rtt == BOOLEAN) return BOOLEAN_ZERO;
+            if (rtt == COMPLEX) return COMPLEX_ZERO;
             // N.B. to enable following special paths, make corresponding $RTTs singleton
             // N.B. since GlobalRef has their own zero value constructor, special paths are no longer needed
 //            if (rtt == x10.core.GlobalRef.$RTT) return new x10.core.GlobalRef(actualTypeArguments[0], (java.lang.System) null);

@@ -25,23 +25,25 @@ public interface SerializationConstants {
     public static final short SHORT_ID = 7;
     public static final short LONG_ID = 8;
     public static final short CHARACTER_ID = 9;
+    public static final short COMPLEX_ID = 10;
     
-    public static final short RTT_ANY_ID = 10;
-    public static final short RTT_BOOLEAN_ID = 11;
-    public static final short RTT_BYTE_ID = 12;
-    public static final short RTT_CHAR_ID = 13;
-    public static final short RTT_DOUBLE_ID = 14;
-    public static final short RTT_FLOAT_ID = 15;
-    public static final short RTT_INT_ID = 16;
-    public static final short RTT_LONG_ID = 17;
-    public static final short RTT_SHORT_ID = 18;
-    public static final short RTT_STRING_ID = 19;
-    public static final short RTT_UBYTE_ID = 20;
-    public static final short RTT_UINT_ID = 21;
-    public static final short RTT_ULONG_ID = 22;
-    public static final short RTT_USHORT_ID = 23;
+    public static final short RTT_ANY_ID = 11;
+    public static final short RTT_BOOLEAN_ID = 12;
+    public static final short RTT_BYTE_ID = 13;
+    public static final short RTT_CHAR_ID = 14;
+    public static final short RTT_COMPLEX_ID = 15;
+    public static final short RTT_DOUBLE_ID = 16;
+    public static final short RTT_FLOAT_ID = 17;
+    public static final short RTT_INT_ID = 18;
+    public static final short RTT_LONG_ID = 19;
+    public static final short RTT_SHORT_ID = 20;
+    public static final short RTT_STRING_ID = 21;
+    public static final short RTT_UBYTE_ID = 22;
+    public static final short RTT_UINT_ID = 23;
+    public static final short RTT_ULONG_ID = 24;
+    public static final short RTT_USHORT_ID = 25;
     
-    public static final short MAX_HARDCODED_ID = 23;
+    public static final short MAX_HARDCODED_ID = 25;
     
     public static final short NO_PREASSIGNED_ID = MAX_HARDCODED_ID + 1;
     public static final short FIRST_SHARED_ID = NO_PREASSIGNED_ID + 1;
