@@ -771,6 +771,7 @@ Java_x10rose_visit_JNI_cactionCompilationUnitDeclaration(JNIEnv *env, jclass, js
 
     SgName package_name = convertJavaPackageNameToCxxString(env, java_package_name);
     ROSE_ASSERT(astJavaScopeStack.top() == ::globalScope); // There must be a scope element in the scope stack.
+#if 0
     SgClassSymbol *namespace_symbol = ::globalScope -> lookup_class_symbol(package_name);
 //printf("namespace_symbol=%p\n", namespace_symbol);	
     ROSE_ASSERT(namespace_symbol);
@@ -784,6 +785,7 @@ Java_x10rose_visit_JNI_cactionCompilationUnitDeclaration(JNIEnv *env, jclass, js
     AstRegExAttribute *attribute =  new AstRegExAttribute(convertJavaStringToCxxString(env, java_package_name));
     package -> setAttribute("translated_package", attribute);
     astJavaScopeStack.push(package); // Push the package onto the scopestack.
+#endif
 
     // Example of how to get the string...but we don't really use the absolutePathFilename in this function.
     const char *absolutePathFilename = env -> GetStringUTFChars(java_filename, NULL);
@@ -792,10 +794,22 @@ Java_x10rose_visit_JNI_cactionCompilationUnitDeclaration(JNIEnv *env, jclass, js
     env -> ReleaseStringUTFChars(java_filename, absolutePathFilename);
 
     // This is already setup by ROSE as part of basic file initialization before calling ECJ.
+#if 0
     ROSE_ASSERT(OpenFortranParser_globalFilePointer != NULL);
+#else
+    ROSE_ASSERT(Rose::Frontend::Java::Ecj::Ecj_globalFilePointer != NULL);
+#endif
+
+//////////// MH-20140404
+	SgSourceFile *sourceFile = isSgSourceFile(Rose::Frontend::Java::Ecj::Ecj_globalFilePointer);
+    SgJavaClassDeclarationList* class_declaration_list = new SgJavaClassDeclarationList();
+    // setJavaSourcePosition(class_declaration_list, env, jToken);
+    sourceFile -> set_class_list(class_declaration_list);
+//////////// 
 
     astJavaComponentStack.push(astJavaScopeStack.top()); // To mark the end of the list of components in this Compilation unit.
 printf("cactionCompilationUnitDeclaration\n");
+
 }
 
 
@@ -1033,6 +1047,114 @@ Java_x10rose_visit_JNI_cactionBuildClassSupportStart(JNIEnv *env, jclass xxx, js
 
     if (SgProject::get_verbose() > 0)
         printf ("Exiting Java_JavaParser_cactionBuildClassSupportStart(): %s %s \n", (is_interface ? "interface" : "class"), name.str());
+}
+
+
+JNIEXPORT void JNICALL 
+Java_x10rose_visit_JNI_cactionTypeDeclarationEnd(JNIEnv *env, jclass, jobject jToken) {
+    if (SgProject::get_verbose() > 0)
+        printf ("Build a SgClassDeclaration (cactionTypeDeclarationEnd) \n");
+
+//MH-20140403
+    SgSourceFile *sourceFile = isSgSourceFile(Rose::Frontend::Java::Ecj::Ecj_globalFilePointer);
+
+    ROSE_ASSERT(astJavaScopeStack.top() != NULL);
+    SgClassDefinition *class_definition = astJavaScopeStack.popClassDefinition(); // pop the class definition
+    ROSE_ASSERT(class_definition);
+
+    SgScopeStatement *type_space = isSgScopeStatement(astJavaScopeStack.pop());  // Pop the type parameters scope from the stack.
+    ROSE_ASSERT(type_space);
+
+    SgClassDeclaration *class_declaration = isSgClassDeclaration(class_definition -> get_declaration() -> get_definingDeclaration());
+    ROSE_ASSERT(class_declaration != NULL);
+
+/*
+    ROSE_ASSERT(class_definition == astJavaComponentStack.top());
+    astJavaComponentStack.pop(); // remove the class definition from the stack
+*/
+
+#if 1 //MH-20140404
+                SgJavaClassDeclarationList *class_list = sourceFile -> get_class_list();
+				if (class_list == NULL) {
+					printf("class_list NULL\n");
+				}
+                else if (class_list -> get_file_info() == NULL) { // The first
+//                    setJavaSourcePosition(class_list, env, jToken);
+					printf("file info NULL\n");
+                }
+                class_list -> get_java_class_list().push_back(class_declaration);
+#endif
+
+    //
+    // Now that we are processing declarations in two passes, type declarations are always entered in their
+    // respective scope during the first pass. Thus, in general, we don't need to process a type declaration
+    // here unless it is an Anonymous type that needs to be associated with an Allocation expression.
+    //
+// TODO: Remove this!
+/*
+    if (class_declaration -> attributeExists("anonymous")) {
+        astJavaComponentStack.push(class_declaration);
+    }
+*/
+    if (class_declaration -> get_explicit_anonymous()) {
+        astJavaComponentStack.push(class_declaration);
+    }
+    else { // Check if this is a type-level type. If so, add it to its sourcefile list.
+        SgClassDefinition *package_definition = isSgClassDefinition(astJavaScopeStack.top());
+// TODO: Remove this!
+/*
+if (! package_definition) {
+cout << "A package definition was expected, but we found a " << astJavaScopeStack.top() -> class_name().c_str() << endl;
+cout.flush();
+}
+*/
+        if (package_definition) { // if the type is a local type, its scope is an SgBasicBlock
+            SgJavaPackageDeclaration *package_declaration = isSgJavaPackageDeclaration(package_definition -> get_parent());
+            if (package_declaration) {
+// TODO: Remove this!
+/*
+                SgJavaImportStatementList *import_list = ::currentSourceFile -> get_import_list();
+                if (import_list -> get_file_info() == NULL) { // If the import list is empty
+                    setJavaSourcePosition(import_list, env, jToken);
+                }
+*/
+                SgJavaClassDeclarationList *class_list = sourceFile -> get_class_list();
+// TODO: Remove this!
+/*
+                if (class_list -> get_file_info() == NULL) { // The first
+                    setJavaSourcePosition(class_list, env, jToken);
+                }
+*/
+                class_list -> get_java_class_list().push_back(class_declaration);
+
+// TODO: Remove this!
+/*
+cout << "The type " << class_declaration -> get_qualified_name() << " is a top level type declaration of " << ::currentSourceFile -> getFileName() << endl
+     << "It is associated with file name " << class_declaration -> get_file_info() -> get_filenameString() << endl
+     << "It contains " << class_definition -> get_members().size() << " statements" << endl;
+for (int i = 0; i < class_definition -> get_members().size(); i++) {
+  SgNode *statement = class_definition -> get_members()[i];
+  cout << "    " << statement -> class_name()  << " statements" << endl;
+}
+cout.flush();
+*/
+            }
+        }
+// TODO: Remove this!
+/*
+else {
+cout << "NO, the type " << class_declaration -> get_qualified_name() << " is NOT a top level type declaration" << endl;
+cout.flush();
+}
+*/
+    }
+
+    ROSE_ASSERT(astJavaScopeStack.top() != NULL);
+    if (SgProject::get_verbose() > 0)
+        astJavaScopeStack.top() -> get_file_info() -> display("source position in Java_JavaParser_cactionTypeDeclarationEnd(): debug");
+
+    if (SgProject::get_verbose() > 0)
+        printf ("Leaving Java_JavaParser_cactionTypeDeclarationEnd() (cactionTypeDeclarationEnd) \n");
 }
 
 

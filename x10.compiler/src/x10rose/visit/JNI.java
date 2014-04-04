@@ -76,6 +76,8 @@ public class JNI {
 	public static native void cactionBuildClassSupportStart(String className, String externalName, boolean user_defined_class, boolean has_conflicts, boolean is_interface, boolean is_enum, boolean is_anonymous, JavaToken jToken);
 
     public static native void cactionBuildClassSupportEnd(String className, JavaToken jToken);
+
+    public static native void cactionTypeDeclarationEnd(JavaToken jToken);
 	
 	public static native void cactionTypeDeclaration(String package_name, String type_name, boolean is_annotation_interface, boolean is_interface, boolean is_enum, boolean is_abstract, boolean is_final, boolean is_private, boolean is_public, boolean is_protected, boolean is_static, boolean is_strictfp);
 
@@ -84,7 +86,7 @@ public class JNI {
 
 	public static native void cactionCompilationUnitList(int argc, String[] argv);
 	
-	public static native void cactionCompilationUnitDeclaration(String packageName, String path);
+	public static native void cactionCompilationUnitDeclaration(String packageName, String path, JavaToken jToken);
 	
 	public static native void cactionTypeReference(String packageName, String name);
 

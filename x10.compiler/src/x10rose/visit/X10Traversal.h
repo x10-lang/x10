@@ -131,6 +131,9 @@ Java_x10rose_visit_JNI_cactionBuildClassSupportStart(JNIEnv *, jclass, jstring, 
 JNIEXPORT void JNICALL
 Java_x10rose_visit_JNI_cactionBuildClassSupportEnd(JNIEnv *, jclass, jstring, jobject); 
 
+JNIEXPORT void JNICALL 
+Java_x10rose_visit_JNI_cactionTypeDeclarationEnd(JNIEnv *env, jclass, jobject jToken);
+
 JNIEXPORT void JNICALL
 Java_x10rose_visit_JNI_cactionTypeDeclaration(JNIEnv *, jclass,
                                               jstring,
