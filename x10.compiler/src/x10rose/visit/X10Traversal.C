@@ -30,6 +30,317 @@ Java_x10rose_visit_JNI_cactionTest(JNIEnv *, jclass)
 #endif
 }
 
+JNIEXPORT void JNICALL
+Java_x10rose_visit_JNI_cactionFieldReference(JNIEnv *env, jclass, jstring java_field, jobject jToken) {
+    if (SgProject::get_verbose() > 2)
+        printf ("Inside of Java_JavaParser_cactionFieldReference() \n");
+    // Nothing to do !!!
+}
+
+JNIEXPORT void JNICALL
+Java_x10rose_visit_JNI_cactionFieldReferenceEnd(JNIEnv *env, jclass, jboolean explicit_type, jstring java_field, jobject jToken) {
+    if (SgProject::get_verbose() > 2)
+        printf ("Inside of Java_JavaParser_cactionFieldReference() \n");
+
+    SgName field_name = convertJavaStringToCxxString(env, java_field);
+
+    if (SgProject::get_verbose() > 0)
+        printf ("Building a Field reference for name = %s \n", field_name.str());
+
+    SgType *receiver_type = (explicit_type ? astJavaComponentStack.popType() : NULL);
+    SgNode *prefix = astJavaComponentStack.pop();
+    SgExpression *receiver = isSgExpression(prefix);
+    ROSE_ASSERT(receiver || isSgType(prefix));
+    if (! explicit_type) {
+        receiver_type = (receiver ? receiver -> get_type() : isSgType(prefix));
+    }
+// TODO: Remove this !!!
+cout <<  "The receiver type is "
+     << getTypeName(receiver_type)
+     << endl
+     << " The prefix type is "
+     << prefix -> class_name()
+     << endl
+     << " The field name "
+     << field_name
+     << endl;
+cout.flush();
+
+    SgType *type = isSgType(prefix);
+    ROSE_ASSERT(receiver || type);
+    if (type == NULL) {
+        type = receiver -> get_type();
+        if (isSgMemberFunctionType(type)) {
+            type = ((SgMemberFunctionType *) type) -> get_return_type();
+        }
+    }
+    ROSE_ASSERT(type);
+
+ROSE_ASSERT(! isSgMemberFunctionType(receiver_type));
+/*
+*/
+
+    SgExpression *result;
+// TODO: Remove this !!!
+/*
+    if (isSgThisExp(receiver) || isSgSuperExp(receiver)) { // First, take care of these special pointer types:  "this" and "super"
+        SgClassType *class_type = isSgClassType(isSgPointerType(receiver_type) -> get_base_type());
+        ROSE_ASSERT(class_type);
+        SgClassDeclaration *declaration = isSgClassDeclaration(class_type -> get_declaration() -> get_definingDeclaration());
+        ROSE_ASSERT(declaration);
+        ROSE_ASSERT(declaration -> get_definition());
+        SgVariableSymbol *variable_symbol = lookupSimpleNameVariableInClass(field_name, declaration -> get_definition());
+        ROSE_ASSERT(variable_symbol);
+        SgVarRefExp *field = SageBuilder::buildVarRefExp(variable_symbol);
+        ROSE_ASSERT(field != NULL);
+        setJavaSourcePosition(field, env, jToken);
+        result = SageBuilder::buildBinaryExpression<SgDotExp>(receiver, field);
+    }
+    else 
+*/
+
+    //
+    // TODO: Note that the use of attributes is not a valid substitute for supporting these features!
+    // In particular, this approach is not robust enough to fully support parenthesized expressions
+    // as we have no way of indicating whether or not an expression involving a suffix was
+    // parenthesized - In other words, we can't add a "java-parenthesis-info" attribute to a "length"
+    // attribute.
+    //
+    if (isSgPointerType(receiver_type) && field_name.getString().compare("length") == 0) { // In fact, this is a Java array which is a type !!!
+        receiver -> setAttribute("suffix", new AstRegExAttribute("length")); // TODO: The field "length" does not exist since we don't have a real type!
+        result = receiver;
+    }
+    else {
+        //
+        // TODO: (PC) This is very sloppy and imprecise because we do not yet have an array type !!!
+        //
+        if (isSgPointerType(receiver_type)) { // In fact, this is a Java array which is a type!!!
+            SgType *base_type = isSgPointerType(receiver_type) -> get_base_type();
+            if (! isSgClassType(base_type)) {
+                receiver_type = ::ObjectClassType;
+            }
+            else receiver_type = base_type;
+        }
+
+        //
+        // TODO: Parameterized types should be class types... Need to review this!
+        //
+        if (isSgJavaParameterizedType(receiver_type)) {
+            receiver_type = isSgJavaParameterizedType(receiver_type) -> get_raw_type();
+        }
+
+        SgClassType *class_type = isSgClassType(receiver_type);
+        ROSE_ASSERT(class_type);
+        SgClassDeclaration *declaration = isSgClassDeclaration(class_type -> get_declaration() -> get_definingDeclaration());
+        ROSE_ASSERT(declaration);
+        ROSE_ASSERT(declaration -> get_definition());
+        SgVariableSymbol *variable_symbol = lookupSimpleNameVariableInClass(field_name, declaration -> get_definition());
+// TODO: Remove this !
+if (! variable_symbol) {
+  cout << "Could not find variable " << field_name.getString()
+       << " in type " << getTypeName(class_type)
+       << endl;
+  cout.flush();
+}
+else {
+  cout << "Found variable " << field_name.getString()
+       << " in type " << getTypeName(class_type)
+       << endl;
+  cout.flush();
+}
+/*
+*/
+        ROSE_ASSERT(variable_symbol);
+        SgVarRefExp *field = SageBuilder::buildVarRefExp(variable_symbol);
+        ROSE_ASSERT(field != NULL);
+//        setJavaSourcePosition(field, env, jToken);
+
+        if (receiver) {
+            result = SageBuilder::buildBinaryExpression<SgDotExp>(receiver, field);
+// TODO: Remove this !
+  cout << "Emitted a SgDotExp"
+       << endl;
+  cout.flush();
+/*
+*/
+        }
+        else {
+            string class_name = getTypeName(class_type); // getFullyQualifiedTypeName(class_type);
+
+            field -> setAttribute("prefix", new AstRegExAttribute(class_name));
+            result = field;
+// TODO: Remove this !
+  cout << "Decorating a field name"
+       << endl;
+  cout.flush();
+/*
+*/
+        }
+    }
+
+    astJavaComponentStack.push(result);
+}
+
+JNIEXPORT void JNICALL
+Java_x10rose_visit_JNI_cactionFieldDeclarationEnd(JNIEnv *env, jclass,
+                                                                  jstring variableName,
+                                                                  jboolean is_enum_field,
+                                                                  jboolean has_initializer,
+                                                                  jboolean java_is_final,
+                                                                  jboolean java_is_private,
+                                                                  jboolean java_is_protected,
+                                                                  jboolean java_is_public,
+                                                                  jboolean java_is_volatile,
+                                                                  jboolean java_is_synthetic,
+                                                                  jboolean java_is_static,
+                                                                  jboolean java_is_transient,
+                                                                  jobject jToken) {
+    if (SgProject::get_verbose() > 2)
+        printf ("Inside of Java_JavaParser_cactionFieldDeclarationEnd() \n");
+
+    SgName name = convertJavaStringToCxxString(env, variableName);
+
+    // if (SgProject::get_verbose() > 2)
+    //      printf ("hasInitializer = %s (but not used except in bottom up processing) \n", hasInitializer ? "true" : "false");
+
+    bool isFinal     = java_is_final;
+    bool isPrivate   = java_is_private;
+    bool isProtected = java_is_protected;
+    bool isPublic    = java_is_public;
+    bool isVolatile  = java_is_volatile;
+    bool isSynthetic = java_is_synthetic;
+    bool isStatic    = java_is_static;
+    bool isTransient = java_is_transient;
+
+    if (SgProject::get_verbose() > 2)
+        printf ("Building a Field declaration for name = %s \n", name.str());
+
+    SgExpression *initializer_expression = (((! is_enum_field) && has_initializer) ? astJavaComponentStack.popExpression() : NULL);
+
+    SgScopeStatement *outer_scope = astJavaScopeStack.top();
+    ROSE_ASSERT(outer_scope);
+    SgVariableSymbol *symbol = outer_scope -> lookup_variable_symbol(name);
+    ROSE_ASSERT(symbol);
+    SgInitializedName *initializedName = symbol -> get_declaration();
+    ROSE_ASSERT(initializedName);
+    SgVariableDeclaration *variableDeclaration = isSgVariableDeclaration(initializedName -> get_declaration());
+    ROSE_ASSERT(variableDeclaration);
+
+    // By default, the access modifier is set to unknown
+    variableDeclaration -> get_declarationModifier().get_accessModifier().set_modifier(SgAccessModifier::e_unknown);
+
+    if (! is_enum_field) { // if this is not an ENUM field then it has a type on the stack.
+#if 0
+        SgType *type = astJavaComponentStack.popType();
+        ROSE_ASSERT(type);
+#endif
+        initializedName -> setAttribute("type", 
+#if 0
+								new AstRegExAttribute(getTypeName(type))
+#else
+								new AstRegExAttribute(getTypeName(initializedName -> get_type()))
+#endif
+							);
+    }
+printf("1\n");
+
+    // Set the modifiers (shared between PHP and Java)
+    if (isFinal) {
+        variableDeclaration -> get_declarationModifier().setFinal();
+    }
+
+    // DQ (8/13/2011): Added modifier support.
+    if (isPrivate) {
+        if (SgProject::get_verbose() > 2)
+            printf ("Setting modifier as Private \n");
+        variableDeclaration -> get_declarationModifier().get_accessModifier().setPrivate();
+    }
+
+    if (isProtected) {
+        if (SgProject::get_verbose() > 2)
+            printf ("Setting modifier as Protected \n");
+        variableDeclaration -> get_declarationModifier().get_accessModifier().setProtected();
+    }
+
+    if (isPublic) {
+        if (SgProject::get_verbose() > 2)
+            printf ("Setting modifier as Public \n");
+        variableDeclaration -> get_declarationModifier().get_accessModifier().setPublic();
+    }
+
+    if (isVolatile) {
+        if (SgProject::get_verbose() > 2)
+            printf ("Setting modifier as Volatile \n");
+        variableDeclaration -> get_declarationModifier().get_typeModifier().get_constVolatileModifier().setVolatile();
+    }
+    if (isSynthetic) {
+        // Synthetic is not a keyword, not clear if we want to record this explicitly.
+        printf ("Specification of isSynthetic is not supported in the IR (should it be?) \n");
+    }
+
+    if (isStatic) {
+        if (SgProject::get_verbose() > 2)
+            printf ("Setting modifier as Static \n");
+        variableDeclaration -> get_declarationModifier().get_storageModifier().setStatic();
+    }
+
+    if (isTransient) {
+        if (SgProject::get_verbose() > 2)
+            printf ("Setting modifier as Transient \n");
+        variableDeclaration -> get_declarationModifier().get_typeModifier().get_constVolatileModifier().setJavaTransient();
+    }
+
+    if (SgProject::get_verbose() > 0)
+        variableDeclaration -> get_file_info() -> display("source position in Java_JavaParser_cactionFieldDeclarationEnd(): debug");
+
+    // DQ (9/5/2011): Added from previous Java_JavaParser_cactionFieldDeclarationEnd() function.
+    if (has_initializer) {
+        SgInitializer *initializer = SageBuilder::buildAssignInitializer(initializer_expression);
+        ROSE_ASSERT(initializer != NULL);
+
+//        setJavaSourcePosition(initializer_expression, env, jToken);
+//        setJavaSourcePosition(initializer, env, jToken);
+
+        initializer_expression -> set_parent(initializer);
+
+        // printf ("In cactionFieldDeclarationEnd(): initializer = %p = %s \n", initializer, initializer -> class_name().c_str());
+        initializer -> get_file_info() -> display("cactionFieldDeclarationEnd()");
+
+        initializedName -> set_initptr(initializer);
+        initializer -> set_parent(initializedName);
+    }
+}
+
+JNIEXPORT void JNICALL
+Java_x10rose_visit_JNI_cactionBuildFieldSupport(JNIEnv *env, jclass xxx, jstring java_string, jobject jToken) {
+    if (SgProject::get_verbose() > 0)
+        printf ("Inside of Java_JavaParser_cactionBuildFieldSupport (variable declaration for field) \n");
+
+    SgName name = convertJavaStringToCxxString(env, java_string);
+
+    SgType *type = astJavaComponentStack.popType();
+    SgVariableDeclaration *variableDeclaration = SageBuilder::buildVariableDeclaration (name, type, NULL, astJavaScopeStack.top());
+    ROSE_ASSERT(variableDeclaration != NULL);
+    variableDeclaration -> set_parent(astJavaScopeStack.top());
+//    setJavaSourcePosition(variableDeclaration, env, jToken);
+    vector<SgInitializedName *> vars = variableDeclaration -> get_variables();
+/*
+    for (vector<SgInitializedName *>::iterator name_it = vars.begin(); name_it != vars.end(); name_it++) {
+        setJavaSourcePosition(*name_it, env, jToken);
+    }
+*/
+
+    astJavaComponentStack.push(variableDeclaration);
+
+    if (SgProject::get_verbose() > 0)
+        variableDeclaration -> get_file_info() -> display("source position in Java_JavaParser_cactionBuildFieldSupport(): debug");
+
+    if (SgProject::get_verbose() > 0)
+        printf ("Exiting Java_JavaParser_cactionBuildFieldSupport (variable declaration for field) \n");
+}
+
+   
+
 JNIEXPORT void JNICALL 
 Java_x10rose_visit_JNI_cactionMessageSend(JNIEnv *env, jclass, jstring java_package_name, jstring java_type_name, jstring java_function_name, jobject jToken) {
     if (SgProject::get_verbose() > 0)
@@ -273,6 +584,8 @@ Java_x10rose_visit_JNI_cactionIfStatement(JNIEnv *env, jclass, jobject jToken) {
     astJavaScopeStack.push(ifStatement);
     ROSE_ASSERT(astJavaScopeStack.top() -> get_parent() != NULL);
 }
+
+
 
 
 JNIEXPORT void JNICALL 

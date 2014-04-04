@@ -16,6 +16,31 @@ JNIEXPORT void JNICALL
 Java_x10rose_visit_JNI_cactionTest(JNIEnv *, jclass);
 
 JNIEXPORT void JNICALL
+Java_x10rose_visit_JNI_cactionFieldReference(JNIEnv *env, jclass, jstring java_field, jobject jToken);
+
+JNIEXPORT void JNICALL
+Java_x10rose_visit_JNI_cactionFieldReferenceEnd(JNIEnv *env, jclass, jboolean explicit_type, jstring java_field, jobject jToken);
+
+JNIEXPORT void JNICALL
+Java_x10rose_visit_JNI_cactionFieldDeclarationEnd(JNIEnv *, jclass,
+                                                                  jstring,
+                                                                  jboolean,
+                                                                  jboolean,
+                                                                  jboolean,
+                                                                  jboolean,
+                                                                  jboolean,
+                                                                  jboolean,
+                                                                  jboolean,
+                                                                  jboolean,
+                                                                  jboolean,
+                                                                  jboolean,
+                                                                  jobject);
+
+JNIEXPORT void JNICALL
+Java_x10rose_visit_JNI_cactionBuildFieldSupport(JNIEnv *, jclass, jstring, jobject);
+
+
+JNIEXPORT void JNICALL
 Java_x10rose_visit_JNI_cactionMessageSend(JNIEnv *env, jclass, jstring java_package_name, jstring java_type_name, jstring java_function_name, jobject jToken); 
 
 JNIEXPORT void JNICALL 

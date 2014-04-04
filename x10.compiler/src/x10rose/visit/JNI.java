@@ -23,6 +23,13 @@ public class JNI {
 	
 	public static native void cactionTest();
 
+    public static native void cactionFieldReference(String field_name, JavaToken jToken);
+    public static native void cactionFieldReferenceEnd(boolean explicit_type, String field_name, JavaToken jToken);
+
+    public static native void cactionFieldDeclarationEnd(String variableName, boolean java_is_enum_field, boolean java_hasInitializer, boolean java_is_final, boolean java_is_private, boolean java_is_protected, boolean java_is_public, boolean java_is_volatile, boolean java_is_synthetic, boolean java_is_static, boolean java_is_transient, JavaToken jToken);
+
+    public static native void cactionBuildFieldSupport(String fieldName, JavaToken jToken);
+
     public static native void cactionMessageSend(String packageName, String typeName, String functionName, JavaToken jToken);
     public static native void cactionMessageSendEnd(boolean java_is_static, boolean has_receiver, String functionName, int num_parameters, int numTypeArguments, int numArguments, JavaToken jToken);
 

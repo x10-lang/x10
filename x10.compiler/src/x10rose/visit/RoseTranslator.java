@@ -81,6 +81,7 @@ import polyglot.frontend.Job;
 import polyglot.frontend.Source;
 import polyglot.frontend.TargetFactory;
 import polyglot.main.Options;
+import polyglot.types.Flags;
 import polyglot.types.Type;
 import polyglot.types.TypeSystem;
 import polyglot.util.CodeWriter;
@@ -434,7 +435,7 @@ public class RoseTranslator extends Translator {
 				System.out.println("Package: " + pnode);
 */
 			JNI.cactionCompilationUnitList(1, new String[]{n.source().path()});
-//			JNI.cactionCompilationUnitDeclaration(pnode==null ? "":pnode+"", n.source().path());
+			JNI.cactionCompilationUnitDeclaration("", n.source().path(), createJavaToken(n, n.source().path()));
 			visitChildren(n, n.decls());
 		}
 
@@ -490,7 +491,14 @@ public class RoseTranslator extends Translator {
 	 				memberMap.put(((X10ConstructorDecl_c) m).name().toString() + "(" + param + ")", i);
 	 				classMemberMap.put(class_name, memberMap);
 	 				previsit(constructorDecl); 
-	 			}
+	 			}                
+	 			if (m instanceof X10FieldDecl_c) {
+                    X10FieldDecl_c fieldDecl = (X10FieldDecl_c)m;
+                    memberMap.put(((X10FieldDecl_c) m).name().toString(), i);
+                    classMemberMap.put(class_name, memberMap);
+                    previsit(fieldDecl);
+                }
+
 				if (m instanceof TypeNode_c) { System.out.println(31);  }
 				if (m instanceof TypeDecl_c) { System.out.println(32);  }		
 				if (m instanceof X10ClassDecl_c) {  System.out.println(33);  }
@@ -513,7 +521,9 @@ public class RoseTranslator extends Translator {
 			System.out.println("before body visit");
 			visitChild(n, n.body());
 //			JNI.cactionTypeDeclaration("", n.name().id().toString(), false, false, false, false, false, false, false, false, false, false);
-		
+			
+			JNI.cactionTypeDeclarationEnd(createJavaToken(n, class_name));
+			
 //	        JNI.cactionBuildClassSupportEnd(class_name, createJavaToken());
 	        
 	        System.out.println("ClassDecl end");
@@ -635,6 +645,55 @@ public class RoseTranslator extends Translator {
 //			visitChild(n, n.offerType());
 //			visitChildren(n, n.throwsTypes());
 		}
+		
+	     public void previsit(X10FieldDecl_c fieldDecl) {
+	            String fieldName = fieldDecl.name().id().toString();
+	            toRose(fieldDecl, "Previsit field decl: ", fieldName);
+	            
+//	            System.out.println("typeref start");
+	            JNI.cactionTypeReference("", fieldDecl.type().nameString());
+//
+//	            System.out.println("typeref end");
+	            
+	            JNI.cactionBuildFieldSupport(fieldName, createJavaToken());
+	            System.out.println("buildBuildSupport end");
+	            
+	            
+	            boolean hasInitializer = (fieldDecl.init() != null);
+	            if (hasInitializer) {
+	                System.out.println("FieldDecl.init=" + fieldDecl.init());
+	                visitChild(fieldDecl, fieldDecl.init());
+//						int field_index = memberMap.get(fieldName);
+//	              	
+//	              JNI.cactionBuildInitializerSupport(flags.isStatic(), fieldName,
+//	                                                  field_index,
+//	                                                  createJavaToken());
+	            }
+
+	            // MH-20140401 
+	            // needs to invoke cactionTypeReference again, since cactionFieldDeclarationEnd
+	            // first pop SgType for "!is_enum_field"
+//	            JNI.cactionTypeReference("", fieldDecl.type().nameString());
+
+	            Flags flags = fieldDecl.flags().flags();
+
+	            JNI.cactionFieldDeclarationEnd(fieldName,
+	                                            false, // is_enum_field
+	                                            hasInitializer,
+	                                            flags.isFinal(),
+	                                            flags.isPrivate(),
+	                                            flags.isProtected(),
+	                                            flags.isPublic(),
+	                                            false, // java_is_volatile
+	                                            false, // java_is_synthetic
+	                                            flags.isStatic(),
+	                                            flags.isTransient(),
+	                                            createJavaToken());
+
+
+	            toRose(fieldDecl, "Previsit field decl end: ", fieldName);
+	        }
+
 
 		public void visit(X10Formal_c n) {
 			toRose(n, "formal: ", n.name().id().toString());
@@ -855,7 +914,7 @@ public class RoseTranslator extends Translator {
 		public void visit(X10Special_c n) {
 			toRose(n, "X10Special:", n.kind().toString());
 			String kind = n.kind().toString();
-			
+
 			if (kind.equals(Special.Kind.THIS.toString())) {
 				JNI.cactionThisReference(createJavaToken(n, n.kind().toString()));
 			} else if (kind.equals(Special.Kind.SUPER.toString())) {
@@ -929,19 +988,32 @@ public class RoseTranslator extends Translator {
 		
 		public void visit(FieldAssign_c n) {
 			toRose(n, "FieldAssign:", n.name().id().toString());
-			visit(n.target());
-			visit(n.right());
+//			System.out.println("target=" + n.target() + ", right=" + n.right());
+			String fieldName = n.name().id().toString();
+			visitChild(n, n.target());
+			JNI.cactionTypeReference("", n.target().type().name().toString());
+			JNI.cactionFieldReferenceEnd(true /* explicit type passed */, fieldName, createJavaToken(n, fieldName));
+			visitChild(n, n.right());			
+			JNI.cactionAssignmentEnd(createJavaToken(n, n.right().toString()));
 		}
 
 		public void visit(X10Field_c n) {
 			toRose(n, "X10Field:", n.name().id().toString());
+			System.out.println("target=" + n.target() 
+									+ ", target type=" + n.target().type().name() 
+									+ ", name=" + n.name().id() 
+									+ ", instnace=" + n.fieldInstance());
+			String fieldName = n.name().id().toString();
 			visit(n.target());
+			JNI.cactionTypeReference("", n.target().type().name().toString());
+			JNI.cactionFieldReferenceEnd(true /* explicit type passed */, fieldName, createJavaToken(n, fieldName));
+			System.out.println("X10Field end");
 		}
 
 		public void visit(X10FieldDecl_c n) {
 			toRose(n, "X10FieldDecl:", n.name().id().toString());
-			visitChild(n, n.type());
-			visitChild(n, n.init());
+//			visitChild(n, n.type());
+//			visitChild(n, n.init());
 		}
 
 		public void visit(X10LocalDecl_c n) {
