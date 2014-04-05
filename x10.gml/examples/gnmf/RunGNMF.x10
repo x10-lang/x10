@@ -1,16 +1,17 @@
 /*
- *  This file is part of the X10 Applications project.
+ *  This file is part of the X10 project (http://x10-lang.org).
  *
- *  (C) Copyright IBM Corporation 2011.
+ *  This file is licensed to You under the Eclipse Public License (EPL);
+ *  You may not use this file except in compliance with the License.
+ *  You may obtain a copy of the License at
+ *      http://www.opensource.org/licenses/eclipse-1.0.php
+ *
+ *  (C) Copyright IBM Corporation 2011-2014.
  */
-
-import x10.util.Timer;
 
 import x10.matrix.Debug;
 import x10.matrix.Matrix;
-import x10.matrix.DenseMatrix;
 import x10.matrix.VerifyTools;
-import x10.matrix.distblock.DistBlockMatrix;
 
 import gnmf.GNNMF;
 import gnmf.SeqGNNMF;
@@ -37,13 +38,13 @@ import gnmf.SeqGNNMF;
  */
 public class RunGNMF {
 	public static def main(args:Rail[String]): void {
-		val mD = args.size > 0 ? Int.parse(args(0)):1000;
+		val mD = args.size > 0 ? Long.parse(args(0)):1000;
 		val nZ = args.size > 1 ? Double.parse(args(1)):0.001;
-		val iT = args.size > 2 ? Int.parse(args(2)):10;
-		val rbV= args.size > 3 ? Int.parse(args(3)):(Place.MAX_PLACES as Int);
-		val cbV= args.size > 4 ? Int.parse(args(4)):1;
-		val tV = args.size > 5 ? Int.parse(args(5)):0;
-		val nV = args.size > 6 ? Int.parse(args(6)):100000;
+		val iT = args.size > 2 ? Int.parse(args(2)):10n;
+		val rbV= args.size > 3 ? Long.parse(args(3)):Place.MAX_PLACES;
+		val cbV= args.size > 4 ? Long.parse(args(4)):1;
+		val tV = args.size > 5 ? Long.parse(args(5)):0;
+		val nV = args.size > 6 ? Long.parse(args(6)):100000;
 
 		Console.OUT.println("Set d:"+mD+" density:"+nZ+" iteration:"+iT);
 		if ((mD<=0) || (iT<1) || (tV<0))

@@ -1,7 +1,12 @@
 /*
- *  This file is part of the X10 Applications project.
+ *  This file is part of the X10 project (http://x10-lang.org).
  *
- *  (C) Copyright IBM Corporation 2011.
+ *  This file is licensed to You under the Eclipse Public License (EPL);
+ *  You may not use this file except in compliance with the License.
+ *  You may obtain a copy of the License at
+ *      http://www.opensource.org/licenses/eclipse-1.0.php
+ *
+ *  (C) Copyright IBM Corporation 2011-2014.
  */
 
 package gnmf;
@@ -9,24 +14,18 @@ package gnmf;
 import x10.util.Timer;
 
 import x10.matrix.Debug;
-import x10.matrix.Matrix;
-import x10.matrix.DenseMatrix;
-import x10.matrix.VerifyTools;
 import x10.matrix.block.Grid;
 import x10.matrix.distblock.DistGrid;
 import x10.matrix.distblock.DistMap;
 import x10.matrix.distblock.DistBlockMatrix;
 import x10.matrix.distblock.DupBlockMatrix;
-import x10.matrix.distblock.DistDupMult;
-//import x10.matrix.dist.DistMultDistToDup;
-//import x10.matrix.dist.DistMultDupToDist;
 
 /**
  * Parallel GNNMF implementation is based on GML distributed dense/sparse matrix.
  * Input V, and input-output W and H use grid partitioning, where V and W
  * have the same number of rows and same row partitioning, and
- * W's columns and H's rows are same and share the same partitioning,
- * same as V's columns and H's columns.
+ * W's columns and H's rows are same and share the same partitioning as
+ * V's columns and H's columns.
  * 
  * Input matrix V is partitioned into (rowBsV &#42 colBsV) blocks
  * <p>
@@ -55,7 +54,7 @@ import x10.matrix.distblock.DistDupMult;
  * are duplicated in all places.
  */ 
 public class GNNMF {
-	static val wN = 10L;
+	static val wN = 10;
 	// ------GNNMF execution parameters------
 	public val iteration:Int;
 	// ------Input and output matrix------
@@ -128,7 +127,7 @@ public class GNNMF {
 		return new GNNMF(v, w, h, it);
 	}
 
-	public static def make(vM:Long, vN:Long, nzd:Double, it:Int, vRowBs:Int, vColBs:Int) {
+	public static def make(vM:Long, vN:Long, nzd:Double, it:Int, vRowBs:Long, vColBs:Long) {
 		//Preset parameters
 		val wColBs = 1;
 		//Vertical distribution
