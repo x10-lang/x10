@@ -376,9 +376,10 @@ Thread::sleep(x10_long millis, x10_int nanos)
     pthread_cleanup_push(thread_sleep_cleanup, (void *)cmp);
     gettimeofday(&tval, NULL);
     tout.tv_sec = tval.tv_sec + (millis/1000);
-    tout.tv_nsec = ((tval.tv_usec + ((millis%1000) * 1000)) * 1000) + nanos;
-    sleep_usec = (tout.tv_sec * 1000 * 1000) +
-                (tout.tv_nsec / 1000);
+    x10_long tout_nanos = ((tval.tv_usec + ((millis%1000) * 1000)) * 1000) + nanos;
+    tout.tv_sec += tout_nanos / 1000000000UL;
+    tout.tv_nsec = tout_nanos % 1000000000UL;
+    sleep_usec = (tout.tv_sec * 1000 * 1000) + (tout.tv_nsec / 1000);
     while (!done) {
         rc = pthread_cond_timedwait(&(cmp->cond), &(cmp->mutex), &tout);
         if (rc == ETIMEDOUT) {
