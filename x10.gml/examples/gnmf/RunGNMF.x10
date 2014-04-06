@@ -32,7 +32,7 @@ import gnmf.SeqGNNMF;
  * <p> (3) Number of iterations. Default 10
  * <p> (4) Number of row blocks partitioning V and W. Default is the number of places, or Place.MAX_PLACES.
  * <p> (5) Number of column blocks partitioning V. Default 1
- * <p> (6) Verification flag. Default 0 (no verification); 1 (sequentail verison run); 
+ * <p> (6) Verification flag. Default 0 (no verification); 1 (sequential version run); 
  * 2 (parallel version run and full matrix verification); 3 (parallel version run and random sampling verification).
  * <p> (7) Column of V. Default: 100000
  */
@@ -70,7 +70,7 @@ public class RunGNMF {
 				Debug.flushln("Start sequential run");
 				seq.run();
 				Debug.flushln("Verify W");
-				t.W.equals(seq.W as Matrix(t.W.M, t.W.N));
+				// t.W.equals(seq.W as Matrix(t.W.M, t.W.N)); // XTENLANG-3384
 				VerifyTools.testSame(t.W, seq.W, tV);
 				Debug.flushln("Verify H");
 				VerifyTools.testSame(t.H, seq.H, tV);

@@ -20,7 +20,7 @@ import x10.matrix.distblock.DupBlockMatrix;
 
 /**
  * Sequential implementation of GNNMF based on GML dense/sparse matrix.
- * This is used for verificaiton purpose.
+ * This is used for verification purpose.
  */
 public class SeqGNNMF {
 
@@ -144,5 +144,4 @@ public class SeqGNNMF {
 		return verifyH(vH)&&verifyW(vW);
 	}
 
-	
 }

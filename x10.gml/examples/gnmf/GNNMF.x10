@@ -157,7 +157,7 @@ public class GNNMF {
 		val gV = V.getGrid();
 	
 		Debug.flushln("Starting X10 GNNMF ");
-		Console.OUT.printf("Input matrix V:(%dx%d), partitioning:(%dx%d) blocks, veritical distribution\n", 
+		Console.OUT.printf("Input matrix V:(%dx%d), partitioning:(%dx%d) blocks, vertical distribution\n", 
 						   V.M, V.N, gV.numRowBlocks, gV.numColBlocks);
 		Console.OUT.printf("V nonzero density: %f, total nonzero count: %f\n", nzd, nzc);
 						   
