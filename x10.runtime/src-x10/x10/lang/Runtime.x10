@@ -1299,28 +1299,16 @@ public final class Runtime {
 
     // finish
     static def makeDefaultFinish():FinishState {
-        switch (RESILIENT_MODE) {
-        case Configuration.RESILIENT_MODE_PLACE_ZERO:
-            return new FinishState.FinishResilientPlaceZero(null);
-        case Configuration.RESILIENT_MODE_DISTRIBUTED:
-            return new FinishState.FinishResilientDistributed(new SimpleLatch());
-        case Configuration.RESILIENT_MODE_ZOO_KEEPER:
-            return new FinishState.FinishResilientZooKeeper(null);
-        default:
+        if (RESILIENT_MODE == Configuration.RESILIENT_MODE_NONE)
             return new FinishState.Finish();
-        }
+        else
+            return FinishResilient.makeDefaultFinish(null);
     }
-    static def makeDefaultFinish(latch:SimpleLatch):FinishState {
-        switch (RESILIENT_MODE) {
-        case Configuration.RESILIENT_MODE_PLACE_ZERO:
-            return new FinishState.FinishResilientPlaceZero(latch);
-        case Configuration.RESILIENT_MODE_DISTRIBUTED:
-            return new FinishState.FinishResilientDistributed(latch);
-        case Configuration.RESILIENT_MODE_ZOO_KEEPER:
-            return new FinishState.FinishResilientZooKeeper(latch);
-        default:
+    static def makeDefaultFinish(latch:SimpleLatch):FinishState { // only for rootFinish
+        if (RESILIENT_MODE == Configuration.RESILIENT_MODE_NONE)
             return new FinishState.Finish(latch);
-        }
+        else
+            return FinishResilient.makeDefaultFinish(latch);
     }
 
     /**

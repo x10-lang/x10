@@ -1939,29 +1939,12 @@ abstract class FinishState {
     }
 
     static def notifyPlaceDeath() : void {
-        switch (Runtime.RESILIENT_MODE) {
-        case Configuration.RESILIENT_MODE_PLACE_ZERO:
-            if (here.id == 0) {
-                // most finishes are woken up by 'atomic'
-                atomic { }
-                // the root one also needs to have its latch released
-                // also adopt activities of finishes whose homes are dead into closest live parent
-                ResilientStorePlaceZero.notifyPlaceDeath((Runtime.rootFinish as FinishResilientPlaceZero).id);
-            }
-            break;
-        case Configuration.RESILIENT_MODE_DISTRIBUTED:
-            FinishResilientDistributedMaster.notifyAllPlaceDeath();
-            // merge backups to parent
-            break;
-        case Configuration.RESILIENT_MODE_ZOO_KEEPER:
-            //
-            break;
-        default:
+        if (Runtime.RESILIENT_MODE == Configuration.RESILIENT_MODE_NONE) {
             // This case seems occur naturally on shutdown, so transparently ignore it.
             // The launcher is responsible for tear-down in the case of place death, nothing we need to do.
             //throw new Exception("Only resilient X10 handles place death");
-            break;
-        }
+        } else
+            FinishResilient.notifyPlaceDeath();
     }
 }
 
