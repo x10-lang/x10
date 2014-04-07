@@ -134,6 +134,7 @@ import x10.ast.X10ConstructorDecl_c;
 import x10.ast.X10Do_c;
 import x10.ast.X10FieldDecl_c;
 import x10.ast.X10Field_c;
+import x10.ast.X10Field_c;
 import x10.ast.X10FloatLit_c;
 import x10.ast.X10Formal_c;
 import x10.ast.X10If_c;
@@ -599,6 +600,7 @@ public class RoseTranslator extends Translator {
 
 			visitChild(n, n.returnType());			
 			visitChildren(n, n.formals());
+			
 		
 /*
 			JNI.cactionMethodDeclaration(n.name().id().toString(), method_index++, formals.size(), 
@@ -723,20 +725,25 @@ public class RoseTranslator extends Translator {
 			
 			List<Expr> args = n.arguments();
 			List<Expr> argTypes = new ArrayList<Expr>();
+			
+			for (int i = 0; i < args.size(); ++i) {
+				Node n2 = args.get(i);
+				visitChild(n2, n2.node());
+			}
+			
 			for (int i = 0; i < args.size(); ++i) {
 				Type t = args.get(i).type();
-				System.out.println(i + ":" + t);
+				System.out.println(i + ":" + t + ", " + args.get(i));
+				Node n2 = args.get(i);
 				JNI.cactionTypeReference("", t.name().toString());
 			}
 // 			visitChildren(n, argTypes);
 //			visitChildren(n, n.typeArguments());
 //			visitChildren(n, n.arguments());
-			
 			JNI.cactionTypeReference("", n.target().type().name().toString());
-
 			int num_parameters = n.arguments().size();
 			int numTypeArguments = n.typeArguments().size();
-			int numArguments = n.typeArguments().size();
+			int numArguments = n.arguments().size();
 			JNI.cactionMessageSendEnd(n.methodInstance().flags().isStatic(), n.target() != null, n.name().toString(), num_parameters, numTypeArguments, numArguments, createJavaToken(n, n.name().id().toString()));
 		}
 
@@ -899,6 +906,7 @@ public class RoseTranslator extends Translator {
 			visitChild(n, n.right());
 			System.out.println("Operation Kind=" + getOperatorKind(n.operator()));
 			JNI.cactionBinaryExpressionEnd(getOperatorKind(n.operator()), createJavaToken(n, n.toString()));
+			System.out.println("X10Binary end");
 		}
 
 		public void visit(X10Unary_c n) {

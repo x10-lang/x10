@@ -698,7 +698,7 @@ Java_x10rose_visit_JNI_cactionLongLiteral(JNIEnv *env, jclass, jlong java_value,
     long value = java_value;
     SgName source = convertJavaStringToCxxString(env, java_source);
 
-    // printf ("Building an integer value expression = %d = %s \n", value, valueString.c_str());
+//   printf ("Building an integer value expression = %d = %s \n", value, valueString.c_str());
 
     SgLongIntVal *longValue = new SgLongIntVal(value, source);
     ROSE_ASSERT(longValue != NULL);
@@ -706,7 +706,8 @@ Java_x10rose_visit_JNI_cactionLongLiteral(JNIEnv *env, jclass, jlong java_value,
 #ifdef POSITION
     setJavaSourcePosition(longValue, env, jToken);
 #endif
-
+// MH-20140407 confirmed that value is properly set to longValue, although DOT file does not have information about value...
+//printf("longValue.get_value()=%d \n", longValue->get_value());
     astJavaComponentStack.push(longValue);
 }
 
@@ -1855,7 +1856,6 @@ Java_x10rose_visit_JNI_cactionBinaryExpressionEnd(JNIEnv *env, jclass, jint java
     // printf ("PLUS = %d \n", PLUS);
 
     int operator_kind = java_operator_kind;
-    //printf ("operator_kind = %d \n", operator_kind);
 
     switch(operator_kind) {
         // Operator codes used by the BinaryExpression in ECJ.
