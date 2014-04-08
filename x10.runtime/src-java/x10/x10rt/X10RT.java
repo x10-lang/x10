@@ -11,6 +11,8 @@
 
 package x10.x10rt;
 
+import java.util.concurrent.ConcurrentMap;
+
 import x10.lang.GlobalRail;
 import x10.x10rt.SocketTransport.RETURNCODE;
 
@@ -386,6 +388,16 @@ public class X10RT {
     		ret = x10rt_finalize();
     	state = State.TORN_DOWN;
     	return ret;
+    }
+    
+    // Retrieve a resilient data store from the underlying network transport
+    // See details of the implementation here: http://hazelcast.org/docs/latest/javadoc/com/hazelcast/core/IMap.html
+    @SuppressWarnings("rawtypes")
+	public static ConcurrentMap getResilientMap(String name) {
+    	if (hazelcastTransport != null)
+    		return hazelcastTransport.getResilientMap(name);
+    	else
+    		return null;
     }
     
     /*

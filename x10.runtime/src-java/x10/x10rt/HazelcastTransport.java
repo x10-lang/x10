@@ -5,6 +5,7 @@ import java.nio.ByteBuffer;
 import java.util.LinkedList;
 import java.util.Queue;
 import java.util.TreeSet;
+import java.util.concurrent.ConcurrentMap;
 
 import x10.x10rt.SocketTransport.RETURNCODE;
 
@@ -74,6 +75,11 @@ public class HazelcastTransport implements MembershipListener {
 			try {Thread.sleep(10);} 
 			catch (InterruptedException e){}
 		}
+	}
+	
+	@SuppressWarnings("rawtypes")
+	ConcurrentMap getResilientMap(String name) {
+		return hazelcast.getMap(name);
 	}
 	
 	public int x10rt_nplaces() {
