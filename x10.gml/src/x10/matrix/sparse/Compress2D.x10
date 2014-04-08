@@ -773,7 +773,7 @@ public class Compress2D {
 	public def toString():String {
 		var outstr:String = "Compressed 2D  "+cLine.size+" compress lines\n";
 		for (var i:Long =0; i<cLine.size; i++) {
-			outstr += i.toString() + "\t"+cLine(i).toString() + "\n";
+			outstr += i + "\t"+cLine(i).toString() + "\n";
 		}
 		return outstr;
 	}

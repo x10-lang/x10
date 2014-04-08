@@ -415,12 +415,6 @@ public class Grid(M:Long, N:Long, numRowBlocks:Long, numColBlocks:Long) {
 	 * Return a grid partition for the transposed matrix.
 	 */
 	public def newT():Grid = new Grid(this.colBs, this.rowBs);
-	//{
-		//val g = new Grid(this.N, this.M, this.numColBlocks, this.numRowBlocks);
-		//g.transpose = !this.transpose;
-		//return g;
-	//}
-
 
 	/**
 	 * Test two partitions are same or not. This method only
@@ -460,9 +454,7 @@ public class Grid(M:Long, N:Long, numRowBlocks:Long, numColBlocks:Long) {
 	 * which locate in the same row as the entry's index
 	 */
 	public def getRowBsPsMap():DistArray[Rail[Long]](1) {
-		val map:DistArray[Rail[Long]](1);
-		val d:Dist(1) = Dist.makeUnique();
-		map = DistArray.make[Rail[Long]](d);			
+		val map = DistArray.make[Rail[Long]](Dist.makeUnique());			
 		finish ateach(p in map.dist){
 			val pid = here.id();
 			map(here.id()) = new Rail[Long](numColBlocks,
@@ -472,10 +464,8 @@ public class Grid(M:Long, N:Long, numRowBlocks:Long, numColBlocks:Long) {
 	}
 	
 	public def getColBsPsMap():DistArray[Rail[Long]](1) {
-		val map : DistArray[Rail[Long]](1);
-		val d   = Dist.makeUnique();
-		map = DistArray.make[Rail[Long]](d);
-		finish ateach(val [p]:Point in map.dist) {
+		val map = DistArray.make[Rail[Long]](Dist.makeUnique());
+		finish ateach(p in map.dist) {
 			val pid = here.id();
 			map(here.id())= new Rail[Long](numRowBlocks, 
 					(r:Long)=>getBlockId(r, getColBlockId(pid))); 

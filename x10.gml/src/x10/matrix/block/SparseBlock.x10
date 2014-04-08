@@ -29,8 +29,6 @@ import x10.matrix.builder.TriSparseBuilder;
 public class SparseBlock extends MatrixBlock {
 	public val sparse:SparseCSC;
 	public var builder:SparseCSCBuilder(sparse.M,sparse.N) = null;
-	public var calcTime:Long=0;
-	public var commTime:Long=0;
 
 	/**
 	 * Construct a sparse CSC matrix block.

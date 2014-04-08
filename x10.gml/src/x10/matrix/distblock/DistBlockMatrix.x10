@@ -459,7 +459,7 @@ public class DistBlockMatrix extends Matrix {
 			val blk:MatrixBlock = blkset.find(bid);
 			if (blk == null) 
 				Debug.exit("Error in search blocks in block set");
-			
+
 			blk(bx, by)
 		};
 		return dv;

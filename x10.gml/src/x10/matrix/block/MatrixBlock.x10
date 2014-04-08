@@ -15,7 +15,6 @@ package x10.matrix.block;
 import x10.util.Timer;
 import x10.compiler.Inline;
 
-import x10.matrix.Debug;
 import x10.matrix.Matrix;
 import x10.matrix.builder.MatrixBuilder;
 import x10.matrix.DenseMatrix;

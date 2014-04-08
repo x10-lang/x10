@@ -26,13 +26,6 @@ public type DupMatrix(C:DupMatrix)=DupMatrix{self==C};
  * Abstract duplicated matrix. Imcomplete.
  */
 public abstract class DupMatrix extends Matrix{
-
-
-
-	public var calcTime:Long=0;
-	public var commTime:Long=0;
-
-
 	public def this(m:Long, n:Long) {
 		super(m, n);
 	}

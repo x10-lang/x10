@@ -27,12 +27,12 @@ public type SparseCSC(C:SparseCSC)=SparseCSC{self==C};
 
 /**
  * This sparse matrix class uses CSC-LT format to store matrix nonzero elements.
- * The underlying storage is defined in ComressArray.
+ * The underlying storage is defined in CompressArray.
  * 
- * <p> For testing purpose, the initialization of nonzero elements in the same
- * column are generated one after another.  The distance of the row index
- * of two adjacent nonzero elements is determined randomly, while using the sparsity
- * (nonzero density) to determine its average/mean. 
+ * <p> For testing purposes, the initialization of nonzero elements in the same
+ * column are generated one after another.
+ * The distance between two adjacent nonzero elements in the same column
+ * is generated from the uniform distribution over [1..2/sparsity].
  */
 public class SparseCSC extends Matrix {
 	/**
@@ -40,8 +40,6 @@ public class SparseCSC extends Matrix {
 	 */
 	public val ccdata:Compress2D;
 		
-	//public var sparsity:Double= 0.0;
-
 	// Temporary memory space used for type conversion and
 	// data compression
 	private var tmprow:Rail[Double];
@@ -67,7 +65,6 @@ public class SparseCSC extends Matrix {
 		Debug.assure(n<=cd.size());
 
 		ccdata = cd;
-		//sparsity = 1.0*countNonZero()/m/n;
 		//No memory allocation for temp space
 		tmprow = new Rail[Double](0);
 		tmpcol = new Rail[Double](0);
@@ -83,7 +80,6 @@ public class SparseCSC extends Matrix {
 	public def this(m:Long, n:Long, ca:CompressArray):SparseCSC(m,n) {
 		super(m, n);
 		ccdata = Compress2D.make(n, ca);
-		//sparsity = 1.0*countNonZero() /m/n;
 
 		tmprow = new Rail[Double](0);
 		tmpcol = new Rail[Double](0);
@@ -163,21 +159,20 @@ public class SparseCSC extends Matrix {
 
     // Initialization
 
-	/**
-	 * For testing purpose,
-	 * <p> Initialize sparse matrix with a specified value and nonzero elements' 
-	 * positions are generated for the specified sparsity. The index distance
-	 * between two adjacent nonzero elements in the same column is computed by
-	 * a random method, and its average is determined by the sparsity. 
-	 *
-	 * @param v      Initial value for all elements
-	 * @param sp     Nonzero sparsity
-	 * @see Compress2D.initConst()
-	 */
+    /**
+     * For testing purposes,
+     * <p> Initialize sparse matrix with a specified value, selecting
+     * indices for nonzero elements using the random-fast method.
+     * The distance between two adjacent nonzero elements in the same column
+     * is generated from the uniform distribution over [1..2/sparsity].
+     *
+     * @param v      Initial value for all elements
+     * @param sp     Nonzero sparsity
+     * @see Compress2D.initConst()
+     */
 	public def init(v:Double, sp:Double):SparseCSC(this) {
 		val cnt = ccdata.initConst(M, v, sp);
 		return this;
-		//sparsity = 1.0 * cnt/M/N;
 	}
 	
 
@@ -193,12 +188,11 @@ public class SparseCSC extends Matrix {
 	}
 	
 	/**
-	 * For testing purpose,
-	 * 
-	 * <p> Initial sparse matrix elements with random values, and
-	 * and positions of nonzero elements are computed by the random-fast method.
+	 * For testing purposes,
+	 * <p> Initialize sparse matrix elements with random values, selecting
+	 * indices for nonzero elements using the random-fast method.
 	 * The distance between two adjacent nonzero elements in the same column
-	 * is randomly generated. This random method is controled by the sparity.
+	 * is generated from the uniform distribution over [1..2/sparsity].
 	 * 
 	 * @param lb     lower bound of random value
 	 * @param up     upper bound of random value
@@ -207,24 +201,23 @@ public class SparseCSC extends Matrix {
 	 */
 	public def initRandom(lb:Long, ub:Long, sp:Double) : SparseCSC(this) {
 		val cnt = ccdata.initRandomFast(M, sp, lb, ub);
-		//sparsity = 1.0 * cnt/M/N;
 		return this;
 	}
 	
 	public def initRandom(sp:Double) : SparseCSC(this) {
 		val cnt = ccdata.initRandomFast(M, sp);
-		//sparsity = 1.0 * cnt/M/N;
 		return this;
 	}
-	/**
-	 * For testing purpose,
-	 * 
-	 * <p> Use the size of available storage space to compute sparsity, and
-	 * then use the sparity to initial sparse matrix elements with random values.
-	 * 
-	 * @param lb     lower bound of random value
-	 * @param up     upper bound of random value
-	 */
+
+    /**
+     * For testing purposes,
+     * <p> Use the size of available storage space to compute sparsity, and
+     * then initialize sparse matrix elements with random values.
+     * 
+     * @param lb     lower bound of random value
+     * @param up     upper bound of random value
+     * @see initRandom(lb:Long, ub:Long, sp:Double)
+     */
 	public def initRandom(lb:Long, ub:Long): SparseCSC(this) { 
 		val nzd = 1.0 * getStorageSize() /M/N;
 		initRandom(lb, ub, nzd);
@@ -241,7 +234,6 @@ public class SparseCSC extends Matrix {
 	 * Initialize with given function with range [0..M, 0..N]
 	 */
 	public def init(f:(Long, Long)=>Double): SparseCSC(this) {
-		
 		var offset:Long=0;
 		val ca = getStorage();
 		for (var c:Long=0; c<N; c++) {
@@ -315,8 +307,7 @@ public class SparseCSC extends Matrix {
 	
 	
 	/**
-	 * For testing purpose.
-	 *
+	 * For testing purposes,
 	 * <p> Create a sparse matrix instance and initialize with random values
 	 * and positions of nonzero positions computed randomly.
 	 * 
@@ -803,7 +794,6 @@ public class SparseCSC extends Matrix {
 	 */
 	public def getColNonZeroCount(col:Long) = ccdata.cLine(col).length;
 
-	//---
 	/**
 	 * Get the offset in CompressArray for the col-th column starting position
 	 */
@@ -1304,15 +1294,12 @@ public class SparseCSC extends Matrix {
 		return m instanceof SparseCSC && m.M==M && m.N==N;
 	}
 
-	//public def equal(m:SparseCSC(M,N)) = equals(m);
 	public def equals(m:SparseCSC(M,N)) = 
 		VerifyTools.testSame(this as Matrix(M,N), m as Matrix(M,N));
 
 	public def equals(m:SparseCSR(M,N)) = 
 		VerifyTools.testSame(this as Matrix(M,N), m as Matrix(M,N));
 
-
-	
 	public def toString():String {
 		val outstr:String =  
 			"------- Sparse Matrix in CSC "+M+"x"+N+"-------\n"+
