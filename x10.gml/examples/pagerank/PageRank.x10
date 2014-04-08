@@ -1,18 +1,21 @@
 /*
- *  This file is part of the X10 Applications project.
+ *  This file is part of the X10 project (http://x10-lang.org).
  *
- *  (C) Copyright IBM Corporation 2011.
+ *  This file is licensed to You under the Eclipse Public License (EPL);
+ *  You may not use this file except in compliance with the License.
+ *  You may obtain a copy of the License at
+ *      http://www.opensource.org/licenses/eclipse-1.0.php
+ *
+ *  (C) Copyright IBM Corporation 2011-2014.
  */
+
 package pagerank;
 
 import x10.util.Timer;
 
 import x10.matrix.Debug;
-import x10.matrix.Matrix;
-import x10.matrix.DenseMatrix;
 import x10.matrix.Vector;
 import x10.matrix.block.Grid;
-import x10.matrix.block.BlockMatrix;
 import x10.matrix.distblock.DistGrid;
 import x10.matrix.distblock.DistMap;
 
@@ -25,7 +28,7 @@ import x10.matrix.distblock.DistBlockMatrix;
  * 
  * Input parameters:
  * <p> 1) Sparse matrix G
- * <p> 4) Iteration
+ * <p> 4) Iterations
  * <p>
  * <p> Input matrix G is partitioned into (numRowBsG &#42 numColBsG) blocks. All blocks
  * are distributed to (Place.MAX_PLACES, 1) places, or vertical distribution.
@@ -42,7 +45,7 @@ import x10.matrix.distblock.DistBlockMatrix;
  */
 public class PageRank {
 	static val pN:Long = 1;
-	public val iteration:Long;
+	public val iterations:Long;
 	public val alpha:Double= 0.85;
 
 	public val G:DistBlockMatrix{self.M==self.N};
@@ -63,21 +66,20 @@ public class PageRank {
 			p:DupVector(g.N), 
 			e:Vector(g.N), 
 			u:Vector(g.N), 
-			it:Int) {
+			it:Long) {
 		Debug.assure(DistGrid.isVertical(g.getGrid(), g.getMap()), 
 				"Input block matrix g does not have vertical distribution.");
 		G = g;
 		P = p as DupVector(G.N);
 		E = e as Vector(G.N); 
 		U = u as Vector(G.N);
-		iteration = it;
+		iterations = it;
 		
 		GP    = DistVector.make(G.N, G.getAggRowBs());//G must have vertical distribution
 		vGP	  = Vector.make(G.N);
 	}
 
-	public static def make(gN:Long, nzd:Double, it:Int, numRowBs:Int, numColBs:Int) {
-
+	public static def make(gN:Long, nzd:Double, it:Long, numRowBs:Long, numColBs:Long) {
 		//---- Distribution---
 		val numRowPs = Place.MAX_PLACES;
 		val numColPs = 1;
@@ -100,7 +102,6 @@ public class PageRank {
 	
 	
 	public def init():void {
-
 		Debug.flushln("Start initialize input matrices");		
 		G.initRandom();
 		Debug.flushln("Dist sparse matrix initialization completes");		
@@ -121,8 +122,7 @@ public class PageRank {
 		tt = P.getCommTime();
 		Debug.flushln("Start parallel PageRank at "+tt);	
 		val st = Timer.milliTime();		
-		for (var i:Long=0; i<iteration; i++) {
-			
+		for (i in 1..iterations) {
 			GP.mult(G, P, false).scale(alpha);
 			
 			stt = Timer.milliTime();
@@ -141,7 +141,7 @@ public class PageRank {
 		val pmultime = GP.getCalcTime();
 		val commtime = GP.getCommTime() + P.getCommTime();
 		Console.OUT.printf("Total comm Time:%d ms, Gather:%d ms Bcast:%d ms\n", comtime, GP.getCommTime(), P.getCommTime());
-		Console.OUT.printf("G:%d PageRank total runtime for %d iter: %d ms, ", G.M, iteration, tt );
+		Console.OUT.printf("G:%d PageRank total runtime for %d iter: %d ms, ", G.M, iterations, tt );
 		Console.OUT.printf("comm: %d ms, mult time: %d seq calc: %d ms\n", commtime, pmultime, seqtime);
 		Console.OUT.flush();
 		

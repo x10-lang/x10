@@ -1,13 +1,17 @@
 /*
- *  This file is part of the X10 Applications project.
+ *  This file is part of the X10 project (http://x10-lang.org).
  *
- *  (C) Copyright IBM Corporation 2011.
+ *  This file is licensed to You under the Eclipse Public License (EPL);
+ *  You may not use this file except in compliance with the License.
+ *  You may obtain a copy of the License at
+ *      http://www.opensource.org/licenses/eclipse-1.0.php
+ *
+ *  (C) Copyright IBM Corporation 2011-2014.
  */
 
 import x10.util.Timer;
 
 import x10.matrix.Debug;
-import x10.matrix.Matrix;
 import x10.matrix.DenseMatrix;
 import x10.matrix.block.Grid;
 import x10.matrix.block.DenseBlockMatrix;
@@ -23,7 +27,7 @@ public class PageRank {
 	val rowG:Long;
 	val colP:Long;
 
-	public val iteration:Long;
+	public val iterations:Long;
 	public val nzDensity:Double;
 	public val alpha:Double= 0.85;
 
@@ -44,11 +48,11 @@ public class PageRank {
 	val ts:Long = Timer.milliTime();
 	var tt:Long = 0;
 
-	public def this(mg:Int, np:Int, nzd:Double, it:Int) {
+	public def this(mg:Long, np:Long, nzd:Double, it:Long) {
 		rowG = mg;
 		colP = np;
 
-		iteration = it;
+		iterations = it;
 		nzDensity=nzd;
 
 		gridG = new Grid(rowG, rowG, Place.MAX_PLACES, 1);
@@ -85,7 +89,7 @@ public class PageRank {
 		Debug.flushln("Start parallel PageRank");	
 		val st = Timer.milliTime();
 				
-		for (var i:Long=0; i<iteration; i++) {
+		for (i in 1..iterations) {
 			startt = Timer.milliTime();
 			distGP.mult(G, P)
 				.scale(alpha)
@@ -105,7 +109,7 @@ public class PageRank {
 		val pcomtime = distGP.getCalcTime();
 		val commtime = blckGP.getCommTime() + P.getCommTime();
 
-		Console.OUT.printf("G:%d PageRank total runtime for %d iter: %d ms, ", rowG, iteration, tt );
+		Console.OUT.printf("G:%d PageRank total runtime for %d iter: %d ms, ", rowG, iterations, tt );
 		Console.OUT.printf("comm: %d ms, seq calc: %d ms\n", commtime, scompt);
 		Console.OUT.flush();
 		

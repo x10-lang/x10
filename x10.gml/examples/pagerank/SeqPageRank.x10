@@ -1,7 +1,12 @@
 /*
- *  This file is part of the X10 Applications project.
+ *  This file is part of the X10 project (http://x10-lang.org).
  *
- *  (C) Copyright IBM Corporation 2011.
+ *  This file is licensed to You under the Eclipse Public License (EPL);
+ *  You may not use this file except in compliance with the License.
+ *  You may obtain a copy of the License at
+ *      http://www.opensource.org/licenses/eclipse-1.0.php
+ *
+ *  (C) Copyright IBM Corporation 2011-2014.
  */
 
 package pagerank;
@@ -19,7 +24,7 @@ import x10.matrix.blas.DenseMatrixBLAS;
 public class SeqPageRank {
 	val rowG:Long;
 
-	public val iteration:Int;
+	val iterations:Long;
 	val nzDensity:Double;
 	val alpha:Double= 0.85;
 
@@ -34,7 +39,7 @@ public class SeqPageRank {
 	
 	public def this(g:DenseMatrix, p:Vector, 
 					e:Vector, u:Vector, 
-					it:Int, nz:Double) {
+					it:Long, nz:Double) {
 		rowG = g.M;
 		//
 		G = g as DenseMatrix(rowG, rowG); 
@@ -42,7 +47,7 @@ public class SeqPageRank {
 		E = e as Vector(rowG); 
 		U = u as Vector(rowG);
 		//
-		iteration = it;
+		iterations = it;
 		nzDensity = nz;
 		//
 		GP = Vector.make(rowG);
@@ -50,7 +55,7 @@ public class SeqPageRank {
 	
 	public def run():Vector {
 		Debug.flushln("Start sequential PageRank");
-		for (var i:Long=0; i<iteration; i++) {
+		for (i in 1..iterations) {
 			GP.mult(G, P, false).scale(alpha);			
 			//DenseMatrixBLAS.comp(G, P, GP);
 			//GP.scale(alpha);
