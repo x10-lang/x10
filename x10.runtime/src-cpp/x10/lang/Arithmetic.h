@@ -215,6 +215,7 @@ namespace x10 {
         ARITHMETIC_PRIM_DECL(x10_ulong)
         ARITHMETIC_PRIM_DECL(x10_float)
         ARITHMETIC_PRIM_DECL(x10_double)
+        ARITHMETIC_PRIM_DECL(x10_complex)
 
 #undef ARITHMETIC_PRIM_DECL
 
