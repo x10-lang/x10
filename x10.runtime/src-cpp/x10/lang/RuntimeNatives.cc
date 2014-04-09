@@ -32,9 +32,8 @@
 #  else
 #    define CLOCK_X10 CLOCK_REALTIME
 #  endif
-#else
-#  include <sys/time.h>  // for gettimeofday (POSIX)
 #endif
+#include <sys/time.h>  // for gettimeofday (POSIX)
 
 #include <strings.h>
 
@@ -69,15 +68,9 @@ void RuntimeNatives::exit(x10_int code) {
 }
 
 x10_long RuntimeNatives::currentTimeMillis() {
-#ifdef DISABLE_CLOCK_GETTIME
     struct ::timeval tv;
     gettimeofday(&tv, NULL);
     return (x10_long)(tv.tv_sec * 1000LL + tv.tv_usec / 1000);
-#else
-    struct ::timespec ts;
-    ::clock_gettime(CLOCK_X10, &ts);
-    return (x10_long)(ts.tv_sec * 1000LL + ts.tv_nsec / 1000000);
-#endif
 }
 
 x10_long RuntimeNatives::nanoTime() {
