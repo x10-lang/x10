@@ -42,11 +42,7 @@ public class PageRank {
 	val distGP:DistDenseMatrix(rowG, colP); // Distributed version of G*P
 	val blckGP:DenseBlockMatrix(rowG, colP);// Used to collecte dist block of P
 	val GP:DenseMatrix(rowG, colP);
-	//val dupGP:DupDenseMatrix(rowG, colP);   // Duplicated version of G*P
 	val UP:DenseMatrix(colP, colP);
-
-	val ts:Long = Timer.milliTime();
-	var tt:Long = 0;
 
 	public def this(mg:Long, np:Long, nzd:Double, it:Long) {
 		rowG = mg;
@@ -66,7 +62,6 @@ public class PageRank {
 		distGP = DistDenseMatrix.make(gridGP) as DistDenseMatrix(rowG, colP);
 		blckGP = DenseBlockMatrix.make(gridGP) as DenseBlockMatrix(rowG, colP);
 		GP     = DenseMatrix.make(rowG, colP);
-		//dupGP  = DupDenseMatrix.make(rowG, colP); //Need to perform MPI_getherv
 		UP     = DenseMatrix.make(colP, colP);
 	}
 	

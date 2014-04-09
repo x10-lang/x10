@@ -12,7 +12,6 @@
 import x10.matrix.Debug;
 import x10.matrix.Matrix;
 import x10.matrix.DenseMatrix;
-import x10.matrix.blas.DenseMatrixBLAS;
 
 /**
  * Sequential implementation of page rank algorithm based on GML dense/sparse 
@@ -40,15 +39,14 @@ public class SeqPageRank {
 					e:DenseMatrix, u:DenseMatrix, 
 					it:Long, nz:Double) {
 		rowG = g.M;  colP = p.N;
-		//
 		G = g as DenseMatrix(rowG, rowG); 
 		P = p as DenseMatrix(rowG, colP); 
 		E = e as DenseMatrix(rowG, colP); 
 		U = u as DenseMatrix(colP, rowG);
-		//
+
 		iterations = it;
 		nzDensity = nz;
-		//
+
 		GP = DenseMatrix.make(rowG, colP);
 		UP = DenseMatrix.make(colP, colP);
 	}
@@ -57,14 +55,7 @@ public class SeqPageRank {
 		Debug.flushln("Start sequential PageRank");
 		for (1..iterations) {
 			GP.mult(G, P).scale(alpha);			
-			//DenseMatrixBLAS.comp(G, P, GP);
-			//GP.scale(alpha);
-			//
 			P.mult(E, UP.mult(U, P)).scale(1-alpha).cellAdd(GP);
-			//DenseMatrixBLAS.comp(U, P, UP);
-			//DenseMatrixBLAS.comp(E, UP, P);
-			//P.scale(1-alpha);
-			//P.cellAdd(GP);
 		}
 		Debug.flushln("Sequential PageRank completes");
 		return P;
