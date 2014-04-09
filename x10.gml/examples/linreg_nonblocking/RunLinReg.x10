@@ -1,9 +1,13 @@
-/**
- *  This file is part of the X10 Applications project.
+/*
+ *  This file is part of the X10 project (http://x10-lang.org).
  *
- *  (C) Copyright IBM Corporation 2011.
+ *  This file is licensed to You under the Eclipse Public License (EPL);
+ *  You may not use this file except in compliance with the License.
+ *  You may obtain a copy of the License at
+ *      http://www.opensource.org/licenses/eclipse-1.0.php
+ *
+ *  (C) Copyright IBM Corporation 2011-2014.
  */
-
 import x10.util.Timer;
 
 import x10.matrix.Debug;
@@ -15,12 +19,12 @@ import x10.matrix.DenseMatrix;
  */
 public class RunLinReg {
 	public static def main(args:Rail[String]): void {
-		val mV = args.size > 0 ? Int.parse(args(0)):100; // Rows and columns of V
-		val nV = args.size > 1 ? Int.parse(args(1)):100; //column of V
+		val mV = args.size > 0 ? Long.parse(args(0)):100; // Rows and columns of V
+		val nV = args.size > 1 ? Long.parse(args(1)):100; //column of V
 		val nZ = args.size > 2 ? Double.parse(args(2)):0.1; //V's nonzero density
-		val iT = args.size > 3 ? Int.parse(args(3)):10;//Iterations
-		val vf = args.size > 4 ? Int.parse(args(4)):0; //Verify result or not
-		val pP = args.size > 5 ? Int.parse(args(5)):0; // print V, d and w out
+		val iT = args.size > 3 ? Long.parse(args(3)):10;//Iterations
+		val vf = args.size > 4 ? Int.parse(args(4)):0n; //Verify result or not
+		val pP = args.size > 5 ? Int.parse(args(5)):0n; // print V, d and w out
 
 		Console.OUT.println("Set row V:"+mV+" col V:"+nV+" density:"+nZ+" iteration:"+iT);
 		if (mV<=0 || nV<=0 || iT<1 || nZ<0.0)
@@ -39,7 +43,7 @@ public class RunLinReg {
 							"commuTime:"+parLR.commT+" ms " +
 					        "paraComp:"+parLR.parCompT + " ms");
 
-			if (pP !=0) {
+			if (pP != 0n) {
 				Console.OUT.println("Input sparse matrix V\n" + parLR.V);
 				Console.OUT.println("Input dense matrix b\n" + parLR.b);
 				Console.OUT.println("Output dense matrix w\n" + parLR.w);

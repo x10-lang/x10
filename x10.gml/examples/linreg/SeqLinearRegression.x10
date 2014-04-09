@@ -1,28 +1,22 @@
 /*
- *  This file is part of the X10 Applications project.
+ *  This file is part of the X10 project (http://x10-lang.org).
  *
- *  (C) Copyright IBM Corporation 2011.
+ *  This file is licensed to You under the Eclipse Public License (EPL);
+ *  You may not use this file except in compliance with the License.
+ *  You may obtain a copy of the License at
+ *      http://www.opensource.org/licenses/eclipse-1.0.php
+ *
+ *  (C) Copyright IBM Corporation 2011-2014.
  */
 package linreg;
 
 import x10.util.Timer;
-//
-import x10.matrix.Debug;
-//
-import x10.matrix.Matrix;
+
 import x10.matrix.DenseMatrix;
-import x10.matrix.sparse.SparseCSC;
 import x10.matrix.Vector;
-
-
-import x10.matrix.blas.DenseMatrixBLAS;
-import x10.matrix.sparse.SparseMultDenseToDense;
 
 /**
    Sequential implementation of linear regression
-   <p>
-
-   <p>
  */
 public class SeqLinearRegression{
 
@@ -39,7 +33,7 @@ public class SeqLinearRegression{
 	val r:Vector(V.N);
 	val q:Vector(V.N);
 	
-	public def this(v:DenseMatrix, inb:Vector(v.N), it:Int) {
+	public def this(v:DenseMatrix, inb:Vector(v.N), it:Long) {
 		V =v; 
 		b = inb; 
 		iteration = it;

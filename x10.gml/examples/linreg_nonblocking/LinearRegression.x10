@@ -1,7 +1,12 @@
 /*
- *  This file is part of the X10 Applications project.
+ *  This file is part of the X10 project (http://x10-lang.org).
  *
- *  (C) Copyright IBM Corporation 2011.
+ *  This file is licensed to You under the Eclipse Public License (EPL);
+ *  You may not use this file except in compliance with the License.
+ *  You may obtain a copy of the License at
+ *      http://www.opensource.org/licenses/eclipse-1.0.php
+ *
+ *  (C) Copyright IBM Corporation 2011-2014.
  */
 
 import x10.util.Timer;
@@ -43,7 +48,7 @@ public class LinearRegression{
 	public var seqCompT:Long=0;
 	public var commT:Long;
 	
-	public def this(mV:Int, nV:Int, nzd:Double, it:Int) {
+	public def this(mV:Long, nV:Long, nzd:Double, it:Long) {
 		grid = new Grid(mV, nV, Place.MAX_PLACES, 1);
 		V = DistSparseMatrix.make(grid, nzd);
 		b = DenseMatrix.make(nV, 1L);

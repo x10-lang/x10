@@ -1,7 +1,12 @@
 /*
- *  This file is part of the X10 Applications project.
+ *  This file is part of the X10 project (http://x10-lang.org).
  *
- *  (C) Copyright IBM Corporation 2011.
+ *  This file is licensed to You under the Eclipse Public License (EPL);
+ *  You may not use this file except in compliance with the License.
+ *  You may obtain a copy of the License at
+ *      http://www.opensource.org/licenses/eclipse-1.0.php
+ *
+ *  (C) Copyright IBM Corporation 2011-2014.
  */
 package linreg;
 
@@ -50,7 +55,7 @@ public class LinearRegression{
 	public var seqCompT:Long=0;
 	public var commT:Long;
 	
-	public def this(v:DistBlockMatrix, b_:Vector(v.N), it:Int) {
+	public def this(v:DistBlockMatrix, b_:Vector(v.N), it:Long) {
 		iteration = it;
 		V =v;
 		b =b_ as Vector(V.N);
@@ -67,7 +72,7 @@ public class LinearRegression{
 		w  = Vector.make(V.N);
 	}
 	
-	public static def make(mV:Int, nV:Int, nRowBs:Int, nColBs:Int, nzd:Double, it:Int) {
+	public static def make(mV:Long, nV:Long, nRowBs:Long, nColBs:Long, nzd:Double, it:Long) {
 		//grid = new Grid(mV, nV, Place.MAX_PLACES, 1);
 		val V = DistBlockMatrix.makeSparse(mV, nV, nRowBs, nColBs, Place.MAX_PLACES, 1, nzd);
 		val b = Vector.make(nV);

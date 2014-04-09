@@ -123,7 +123,7 @@ public class PageRank {
 		Debug.flushln("Start parallel PageRank at "+tt);	
 		val st = Timer.milliTime();		
 		for (i in 1..iterations) {
-			GP.mult(G, P, false).scale(alpha);
+			GP.mult(G, P).scale(alpha);
 			
 			stt = Timer.milliTime();
 			GP.copyTo(vGP);     // dist -> local dense

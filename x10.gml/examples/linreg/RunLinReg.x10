@@ -1,14 +1,18 @@
-/**
- *  This file is part of the X10 Applications project.
+/*
+ *  This file is part of the X10 project (http://x10-lang.org).
  *
- *  (C) Copyright IBM Corporation 2011.
+ *  This file is licensed to You under the Eclipse Public License (EPL);
+ *  You may not use this file except in compliance with the License.
+ *  You may obtain a copy of the License at
+ *      http://www.opensource.org/licenses/eclipse-1.0.php
+ *
+ *  (C) Copyright IBM Corporation 2011-2014.
  */
 
 import x10.util.Timer;
 
 import x10.matrix.Debug;
 import x10.matrix.MathTool;
-import x10.matrix.Matrix;
 import x10.matrix.DenseMatrix;
 import x10.matrix.Vector;
 import x10.matrix.block.BlockMatrix;
@@ -37,14 +41,14 @@ public class RunLinReg {
 	}
 
 	public static def main(args:Rail[String]): void {
-		val mV = args.size > 0 ? Int.parse(args(0)):10; // Rows and columns of V
-		val nV = args.size > 1 ? Int.parse(args(1)):10; //column of V
-		val mB = args.size > 2 ? Int.parse(args(2)):5;
-		val nB = args.size > 3 ? Int.parse(args(3)):5;
+		val mV = args.size > 0 ? Long.parse(args(0)):10; // Rows and columns of V
+		val nV = args.size > 1 ? Long.parse(args(1)):10; //column of V
+		val mB = args.size > 2 ? Long.parse(args(2)):5;
+		val nB = args.size > 3 ? Long.parse(args(3)):5;
 		val nZ = args.size > 4 ? Double.parse(args(4)):0.9; //V's nonzero density
-		val iT = args.size > 5 ? Int.parse(args(5)):2;//Iterations
-		val vf = args.size > 6 ? Int.parse(args(6)):0; //Verify result or not
-		val pP = args.size > 7 ? Int.parse(args(7)):0; // print V, d and w out
+		val iT = args.size > 5 ? Long.parse(args(5)):2;//Iterations
+		val vf = args.size > 6 ? Int.parse(args(6)):0n; //Verify result or not
+		val pP = args.size > 7 ? Int.parse(args(7)):0n; // print V, d and w out
 
 		Console.OUT.println("Set row V:"+mV+" col V:"+nV+" density:"+nZ+" iteration:"+iT);
 		if (mV<=0 || nV<=0 || iT<1 || nZ<0.0)
@@ -63,10 +67,10 @@ public class RunLinReg {
 							"commuTime:"+parLR.commT+" ms " +
 					        "paraComp:"+parLR.parCompT + " ms");
 
-			if (pP !=0) {
-				Console.OUT.println(("Input sparse matrix V\n" + parLR.V);
-				Console.OUT.println(("Input dense matrix b\n" + parLR.b);
-				Console.OUT.println(("Output dense matrix w\n" + parLR.w);
+			if (pP != 0n) {
+				Console.OUT.println("Input sparse matrix V\n" + parLR.V);
+				Console.OUT.println("Input dense matrix b\n" + parLR.b);
+				Console.OUT.println("Output dense matrix w\n" + parLR.w);
 			}
 			
 			if (vf > 0) {			 
