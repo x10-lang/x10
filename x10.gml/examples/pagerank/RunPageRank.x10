@@ -42,11 +42,10 @@ public class RunPageRank {
 		else {
 			val paraPR = PageRank.make(mG, nZ, iT, rG, cG);
 			paraPR.init();
-			//Console.OUT.println("Input G sparse matrix\n" + paraPR.G);
 
 			paraPR.printInfo();
 
-			val orgP = paraPR.P.local().clone();//for verification purpose
+			val orgP = paraPR.P.local().clone(); //for verification purpose
 
 			val paraP = paraPR.run();
 			
@@ -57,7 +56,6 @@ public class RunPageRank {
 			
 			if (vf > 0){
 				val g = paraPR.G;
-				
 				val seqPR = new SeqPageRank(g.toDense(), orgP, 
 						paraPR.E, paraPR.U, iT, nZ);
 				val seqP = seqPR.run();

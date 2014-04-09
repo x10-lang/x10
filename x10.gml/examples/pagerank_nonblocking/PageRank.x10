@@ -83,34 +83,39 @@ public class PageRank {
 	}
 
 	public def run():DenseMatrix {
-		var startt:Long =0;
-		var pcompt:Long =0;
-		var scompt:Long =0;
-		Debug.flushln("Start parallel PageRank");	
-		val st = Timer.milliTime();
-				
-		for (i in 1..iterations) {
-			startt = Timer.milliTime();
-			distGP.mult(G, P)
-				.scale(alpha)
-				.copyTo(blckGP, GP);// dist -> dup
-			//blckGP.copyTo(GP);
-			pcompt += Timer.milliTime() - startt;
-			startt = Timer.milliTime();
+		var parTime:Long = 0;
+		var seqTime:Long = 0;
+        var bcastTime:Long = 0;
+        var gatherTime:Long = 0;
+        var totalTime:Long = 0;
 
+		totalTime -= Timer.milliTime();	
+		for (1..iterations) {
+			parTime -= Timer.milliTime();
+			distGP.mult(G, P).scale(alpha);
+			parTime += Timer.milliTime();
+
+			gatherTime -= Timer.milliTime();
+            distGP.copyTo(blckGP, GP);// dist -> dup
+			gatherTime += Timer.milliTime();
+
+			seqTime -= Timer.milliTime();
 			P.local()
 				.mult(E, UP.mult(U, P.local()))
 				.scale(1-alpha)
 				.cellAdd(GP);
-			scompt += Timer.milliTime() - startt;
-			P.sync(); // broadcast
-		}
-		tt = Timer.milliTime() - st;
-		val pcomtime = distGP.getCalcTime();
-		val commtime = blckGP.getCommTime() + P.getCommTime();
+			seqTime += Timer.milliTime();
 
-		Console.OUT.printf("G:%d PageRank total runtime for %d iter: %d ms, ", rowG, iterations, tt );
-		Console.OUT.printf("comm: %d ms, seq calc: %d ms\n", commtime, scompt);
+			bcastTime -= Timer.milliTime();
+			P.sync(); // broadcast
+			bcastTime += Timer.milliTime();
+		}
+		totalTime += Timer.milliTime();
+		val mulTime = distGP.getCalcTime();
+		val commTime = bcastTime + gatherTime;
+		Console.OUT.printf("Gather: %d ms Bcast: %d ms Mul: %d ms\n", gatherTime, bcastTime, mulTime);
+		Console.OUT.printf("G:%d PageRank total runtime for %d iter: %d ms, ", G.M, iterations, totalTime);
+		Console.OUT.printf("comm: %d ms, par calc: %d ms, seq calc: %d ms\n", commTime, parTime, seqTime);
 		Console.OUT.flush();
 		
 		return P.local();

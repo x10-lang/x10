@@ -55,7 +55,7 @@ public class SeqPageRank {
 	
 	public def run():DenseMatrix {
 		Debug.flushln("Start sequential PageRank");
-		for (i in 1..iterations) {
+		for (1..iterations) {
 			GP.mult(G, P).scale(alpha);			
 			//DenseMatrixBLAS.comp(G, P, GP);
 			//GP.scale(alpha);

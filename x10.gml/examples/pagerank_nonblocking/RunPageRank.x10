@@ -27,7 +27,6 @@ public class RunPageRank {
 		else {
 			val paraPR = new PageRank(mG, nP, nZ, iT);
 			paraPR.init();
-			Console.OUT.println("Input G sparse matrix\n" + paraPR.G);
 
 			paraPR.printInfo();
 

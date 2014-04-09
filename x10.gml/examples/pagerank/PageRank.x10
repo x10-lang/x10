@@ -57,10 +57,6 @@ public class PageRank {
 	val GP:DistVector(G.N); // Distributed version of G*P
 	val vGP:Vector(G.N);  // Used to collect GP and store in dense format (single column)
 	
-	// Time profiling
-	var tt:Long = 0;
-	var ct:Long = 0;
-	
 	public def this(
 			g:DistBlockMatrix{self.M==self.N}, 
 			p:DupVector(g.N), 
@@ -114,35 +110,37 @@ public class PageRank {
 	}
 
 	public def run():Vector(G.N) {
-		var seqtime:Long =0;
-		var comtime:Long =0;
-		var stt:Long =0;
-		var UP:Double=0;
+		var parTime:Long = 0;
+		var seqTime:Long = 0;
+        var bcastTime:Long = 0;
+        var gatherTime:Long = 0;
+        var totalTime:Long = 0;
+
 		val vP = P.local() as Vector(G.N);
-		tt = P.getCommTime();
-		Debug.flushln("Start parallel PageRank at "+tt);	
-		val st = Timer.milliTime();		
-		for (i in 1..iterations) {
+		totalTime -= Timer.milliTime();		
+		for (1..iterations) {
+			parTime -= Timer.milliTime();
 			GP.mult(G, P).scale(alpha);
+			parTime += Timer.milliTime();
 			
-			stt = Timer.milliTime();
+			gatherTime -= Timer.milliTime();
 			GP.copyTo(vGP);     // dist -> local dense
-			comtime += Timer.milliTime()-stt;
+			gatherTime += Timer.milliTime();
 			
-			stt = Timer.milliTime();
+			seqTime -= Timer.milliTime();
 			vP.mult(E, U.dotProd(vP)).scale(1-alpha).cellAdd(vGP);
-			seqtime += Timer.milliTime() - stt;
+			seqTime += Timer.milliTime();
 			
-			stt = Timer.milliTime();
+			bcastTime -= Timer.milliTime();
 			P.sync(); // broadcast
-			comtime += Timer.milliTime() - stt;
+			bcastTime += Timer.milliTime();
 		}
-		tt += Timer.milliTime() - st;
-		val pmultime = GP.getCalcTime();
-		val commtime = GP.getCommTime() + P.getCommTime();
-		Console.OUT.printf("Total comm Time:%d ms, Gather:%d ms Bcast:%d ms\n", comtime, GP.getCommTime(), P.getCommTime());
-		Console.OUT.printf("G:%d PageRank total runtime for %d iter: %d ms, ", G.M, iterations, tt );
-		Console.OUT.printf("comm: %d ms, mult time: %d seq calc: %d ms\n", commtime, pmultime, seqtime);
+		totalTime += Timer.milliTime();
+		val mulTime = GP.getCalcTime();
+		val commTime = bcastTime + gatherTime;
+		Console.OUT.printf("Gather: %d ms Bcast: %d ms Mul: %d ms\n", gatherTime, bcastTime, mulTime);
+		Console.OUT.printf("G:%d PageRank total runtime for %d iter: %d ms, ", G.M, iterations, totalTime);
+		Console.OUT.printf("comm: %d ms, par calc: %d ms, seq calc: %d ms\n", commTime, parTime, seqTime);
 		Console.OUT.flush();
 		
 		return vP;
