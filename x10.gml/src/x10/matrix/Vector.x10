@@ -20,20 +20,19 @@ public type Vector(m:Long)=Vector{self.M==m};
 public type Vector(v:Vector)=Vector{self==v};
 
 /**
- * Class Vector uses a Rail of length M as data storage)
-
- <p> This implemnetation has a dense, single-place representation.
-
- <p> Methods include 
- <p> 1) product of two vectors: Mx1 * 1xM,
- <p> 2) product of vector and a scalar: Mx1 * 1,
- <p> 3) product of a scalar and a vector: 1 * 1xM,
- <p> 4) addition of two vectors: Mx1 + Mx1,
- <p> 5) subtraction between two vectors: Mx1 - Mx1,
- <p> 6) addition of a vector and a scalar: Mx1 + 1,
- <p> 7) subtraction of a scalar from a vector: Mx1 - 1,
- <p> 8) inverse of a vector: Mx1
- <p> 9) norm of a vector: Mx1
+ * A vector of length M.
+ * This implementation has a dense, single-place representation, using
+ * a Rail as backing storage.
+ * <p> Methods include:
+ * <p> 1) product of two vectors: Mx1 * 1xM,
+ * <p> 2) product of vector and a scalar: Mx1 * 1,
+ * <p> 3) product of a scalar and a vector: 1 * 1xM,
+ * <p> 4) addition of two vectors: Mx1 + Mx1,
+ * <p> 5) subtraction of two vectors: Mx1 - Mx1,
+ * <p> 6) addition of a vector and a scalar: Mx1 + 1,
+ * <p> 7) subtraction of a scalar from a vector: Mx1 - 1,
+ * <p> 8) inverse of a vector: Mx1
+ * <p> 9) norm of a vector: Mx1
  */
 public class Vector(M:Long) implements (Long) => Double {
     /** Vector data */
@@ -65,7 +64,7 @@ public class Vector(M:Long) implements (Long) => Double {
      * @param  iv 	the constant value
      */	
     public def init(iv:Double): Vector(this) {
-    	for (var i:Long=0; i<M; i++)	
+ 		for (i in 0..(M-1))	
     		this.d(i) = iv;
     	return this;
     }
@@ -75,9 +74,8 @@ public class Vector(M:Long) implements (Long) => Double {
      */	
     public def initRandom(): Vector(this) {
     	val rgen = RandTool.getRandGen();
-    	for (var i:Long=0; i<M; i++) {
+ 		for (i in 0..(M-1))
     		this.d(i) = rgen.nextDouble();
-    	}
     	return this;
     }
     
@@ -92,9 +90,8 @@ public class Vector(M:Long) implements (Long) => Double {
     	val len = Math.abs(ub-lb)+1;
     	val rgen = RandTool.getRandGen();
     	//val ll = M*M / 100;
-    	for (var i:Long=0; i<M; i++) {
+ 		for (i in 0..(M-1))
     		this.d(i) = rgen.nextLong(len)+lb;
-    	}
     	return this;
     }
     
@@ -102,7 +99,7 @@ public class Vector(M:Long) implements (Long) => Double {
      * Init with function
      */
     public def init(f:(Long)=>Double): Vector(this) {
-    	for (var i:Long=0; i<M; i++)
+ 		for (i in 0..(M-1))
     		this.d(i) = f(i);
     	return this;
     }
@@ -133,7 +130,8 @@ public class Vector(M:Long) implements (Long) => Double {
 	}
 	
 	public  def reset():void {
-		for (var i:Long=0; i< M; i++) this.d(i) = 0.0;
+ 		for (i in 0..(M-1))
+            this.d(i) = 0.0;
 	}
 
 	// Copy all data from vector v to local at dst_off
@@ -158,7 +156,7 @@ public class Vector(M:Long) implements (Long) => Double {
 	 * Product of a vector and a scalar: Mx1 * 1
 	 */
     public  def scale(a:Double) :Vector(this) {
-		for (var i:Long=0; i < M; ++i)
+ 		for (i in 0..(M-1))
 			this.d(i) = a * this.d(i);
 		return this;
     }
@@ -167,7 +165,7 @@ public class Vector(M:Long) implements (Long) => Double {
      * this = V * dv + this
      */
     public def scaleAdd(V:Vector(M), dv:Double): Vector(this) {
-    	for (var i:Long=0; i < M; ++i) 
+ 		for (i in 0..(M-1))
     		this.d(i) += dv * V.d(i);	
     	return this;
     }
@@ -178,7 +176,7 @@ public class Vector(M:Long) implements (Long) => Double {
 	 * Cell-wise mulitply of two vectors
 	 */
     public def cellMult(V:Vector(M)): Vector(this) {
-        for (var i:Long=0; i < M; ++i) 
+ 		for (i in 0..(M-1)) 
 			this.d(i) *= V.d(i);
         return this;
     }
@@ -188,12 +186,14 @@ public class Vector(M:Long) implements (Long) => Double {
 	 * Addition of two vectors: Mx1 + Mx1
 	 */
     public def cellAdd (V:Vector(M)):Vector(this) {
-		for (var i:Long=0; i < M; ++i) 	this.d(i) += V.d(i);
+ 		for (i in 0..(M-1))
+            this.d(i) += V.d(i);
 		return this;
     }
 
     public def cellAdd (d:Double):Vector(this) {
-    	for (var i:Long=0; i < M; ++i) 	this.d(i) += d;
+ 		for (i in 0..(M-1))
+            this.d(i) += d;
     	return this;
     }
 
@@ -202,7 +202,7 @@ public class Vector(M:Long) implements (Long) => Double {
 	 * Subtract vector B from this vector
 	 */
     public  def cellSub(B:Vector(M)):Vector(this) {
-		for (var i:Long=0; i < M; ++i) 
+ 		for (i in 0..(M-1))
 			this.d(i) -= B.d(i);
 		return this;
     }
@@ -211,12 +211,14 @@ public class Vector(M:Long) implements (Long) => Double {
 	 * Subtract the scalar d from this vector
 	 */
     public  def cellSub(d:Double):Vector(this) {
-		for (var i:Long=0; i < M; ++i) this.d(i) -= d;
+ 		for (i in 0..(M-1))
+            this.d(i) -= d;
 		return this;
     }
     
     public def cellSubFrom(d:Double):Vector(this) {
-    	for (var i:Long=0; i < M; ++i) this.d(i) = d - this.d(i);
+ 		for (i in 0..(M-1))
+            this.d(i) = d - this.d(i);
     	return this;   	
     }
     
@@ -225,19 +227,20 @@ public class Vector(M:Long) implements (Long) => Double {
      * cellwise division: this = dv / this;
      */
     public  def cellDiv(dv:Double):Vector(this) {
-    	for (var i:Long=0; i < M; ++i) this.d(i) /= dv;
+ 		for (i in 0..(M-1))
+            this.d(i) /= dv;
     	return this;
     }
 
     public def cellDiv(v:Vector(this.M)):Vector(this) {
-    	for (var i:Long=0; i< M; ++i) {
+ 		for (i in 0..(M-1))
     		this.d(i) /= v.d(i);
-    	}
     	return this;
     }
         
     public def cellDivBy(dv:Double) : Vector(this) {
-    	for (var i:Long=0; i < M; ++i) this.d(i) = dv / this.d(i);
+ 		for (i in 0..(M-1))
+            this.d(i) = dv / this.d(i);
     	return this;    	
     }
 
@@ -251,7 +254,8 @@ public class Vector(M:Long) implements (Long) => Double {
 
 	public def dotProd(v:Vector(M)):Double {
 		var d:Double = 0.0;
-		for(var i:Long=0; i<M; i++) d += this.d(i) * v.d(i);
+ 		for (i in 0..(M-1))
+            d += this.d(i) * v.d(i);
 		return d;
 	}
 	
@@ -372,57 +376,95 @@ public class Vector(M:Long) implements (Long) => Double {
  	public  operator (that:TriDense{self.N==this.M}) % this =
  		VectorMult.comp(that, this.clone()) as Vector(that.M);
 
- 	/**
- 	 * Inverse of a vector: Mx1
- 	 */
- 	public def inverse():Vector(this) = this.cellDivBy(1.0);
+ 	/** Inverse of this vector */
+ 	public def inverse() = this.clone().cellDivBy(1.0) as Vector(M);
+
+    /**
+     * L1-norm (Manhattan norm, taxicab norm) of this vector,
+     * i.e. the sum of the absolute values of all elements of this vector.
+     */
+ 	public def l1Norm():Double {
+ 		var d:Double = 0.0;
+ 		for (i in 0..(M-1))
+ 			d += Math.abs(this.d(i));
+ 		return d;
+ 	}
 
  	/**
- 	 * Norm of a vector: Mx1
+     * Manhattan distance ||a - b||_1 (L1-distance, taxicab distance)
+     * between vectors a and b
+     */
+ 	public static def manhattanDistance(a:Vector, b:Vector(a.M)):Double {
+ 		var d:Double = 0.0;
+ 		for (i in 0..(a.M-1))
+ 			d += Math.abs(a.d(i)-b.d(i));
+ 		return d;
+ 	}
+
+    /* Manhattan distance between this vector and another vector V */
+ 	public def manhattanDistance(V:Vector(M)) = manhattanDistance(this, V);
+
+    public static def l1Norm(a:Vector, b:Vector(a.M)) = manhattanDistance(a,b);
+ 	public def l1Norm(V:Vector(M)) = manhattanDistance(this, V);
+
+ 	/**
+ 	 * L2-norm (Euclidean norm) of this vector, i.e. the square root of the
+     * sum of squares of all elements
  	 */
- 	public def norm():Double = 
- 		BLAS.compNorm(this.M, this.d);
- 	
+ 	public def norm():Double = BLAS.compNorm(this.M, this.d);
+    public def l2Norm() = norm();
  	
  	/*
-     * Euclidean distance between two vectors
+     * Euclidean distance ||a - b||_2 (L2-distance) between vectors a and b
      */
- 	public static def compDistance(a:Vector, b:Vector(a.M)):Double {
+ 	public static def distance(a:Vector, b:Vector(a.M)):Double {
  		var d:Double = 0.0;
- 		for (var i:Long=0; i<a.M; i++)
+ 		for (i in 0..(a.M-1))
  			d += (a.d(i)-b.d(i)) * (a.d(i)-b.d(i));
  		return Math.sqrt(d);
  	}
  	
- 	/*
-     * Euclidean distance between this vector and another vector V
-     */
- 	public def compDistance(V:Vector(M)):Double =
- 		compDistance(this, V);
+ 	/* Euclidean distance between this vector and another vector V */
+ 	public def distance(V:Vector(M)) = distance(this, V);
  	
- 	public static def norm(a:Vector, b:Vector(a.M))=compDistance(a,b);
- 	public def norm(V:Vector(M)) = compDistance(this, V);
+ 	public static def norm(a:Vector, b:Vector(a.M)) = distance(a,b);
+ 	public def norm(V:Vector(M)) = distance(this, V);
 
     /**
-     * Compute the maximum absolute value of all elements of this vector
-     * (the vector norm with p==Inf)
-     *
-     * @return max absolute value of any element
+     * L_{Inf} norm (uniform norm, Chebyshev norm) of this vector, i.e.
+     * the maximum absolute value of all elements of this vector
      */
     public def maxNorm():Double {
  		var max:Double = 0.0;
- 		for (var i:Long=0; i<M; i++) max = Math.max(Math.abs(d(i)), max);
+ 		for (i in 0..(M-1))
+            max = Math.max(Math.abs(d(i)), max);
         return max;
     }
+
+    public def lInfNorm() = maxNorm();
+
+    /**
+     * Chebyshev distance ||a - b||_{Inf} (L_{Inf}-distance, maximum metric)
+     * between vectors a and b
+     */
+ 	public static def chebyshevDistance(a:Vector, b:Vector(a.M)):Double {
+ 		var d:Double = 0.0;
+ 		for (i in 0..(a.M-1))
+ 			d = Math.max(d, Math.abs(a.d(i)-b.d(i)));
+ 		return d;
+ 	}
+
+    public static def lInfNorm(a:Vector, b:Vector(a.M)) = chebyshevDistance(a,b);
+ 	public def lInfNorm(V:Vector(M)) = chebyshevDistance(this, V);
  	
- 	// Sum
+ 	/** Sum of all elements of this vector */
  	public def sum():Double {
  		var s:Double = 0.0;
- 		for (var i:Long=0; i<M; i++) s+= this.d(i);
+ 		for (i in 0..(M-1))
+            s+= this.d(i);
  		return s;
  	}
  	
- 	// Solver
  	/**
  	 * Solve equation A &#42 x = this, wehre A is triangular matrix.
  	 * The solution x is overwritten on this object
@@ -435,14 +477,12 @@ public class Vector(M:Long) implements (Long) => Double {
  		return this;
  	}
  	
-
  	public def likeMe(v:Vector):Boolean {
  		return this.M==v.M;
  	}
  	
-
  	public def equals(dval:Double):Boolean {
- 		for (var c:Long=0; c< M; c++)
+ 		for (c in 0..(M-1))
  			if (MathTool.isZero(this.d(c) - dval) == false) {
  				Console.OUT.println("Diff found [" + c + "] : "+ 
  						this.d(c) + " <> "+ dval);
@@ -452,7 +492,7 @@ public class Vector(M:Long) implements (Long) => Double {
  	}
  	
 	public def equals(v:Vector(M)):Boolean {
-		for (var c:Long=0; c< M; c++)
+ 		for (c in 0..(M-1))
 			if (MathTool.isZero(this.d(c) - v.d(c)) == false) {
 				Console.OUT.println("Diff found [" + c + "] : "+ 
 									this.d(c) + " <> "+ v.d(c));
@@ -463,7 +503,7 @@ public class Vector(M:Long) implements (Long) => Double {
 	
 	public def equals(mat:Matrix) :Boolean {
 		if (mat.M == 1L && mat.N == this.M) {
-			for (var c:Long=0; c<M; c++) {
+ 		    for (c in 0..(M-1)) {
 				if (MathTool.isZero(this.d(c) - mat(0,c)) == false) {
 					Console.OUT.println("Diff found [" + c + "] : "+ 
 							this.d(c) + " <> "+ mat(0,c));
@@ -474,7 +514,7 @@ public class Vector(M:Long) implements (Long) => Double {
 		}
 		
 		if (mat.N == 1L && mat.M == this.M) {
-			for (var c:Long=0; c<M; c++) {
+ 		    for (c in 0..(M-1)) {
 				if (MathTool.isZero(this.d(c) - mat(c, 0)) == false) {
 					Console.OUT.println("Diff found [" + c + "] : "+ 
 							this.d(c) + " <> "+ mat(c, 0));
@@ -493,16 +533,15 @@ public class Vector(M:Long) implements (Long) => Double {
 	 * @return 		result ("this" instance)
 	 */
     public def exp():Vector(this) {
-        for (var i:Long=0; i<M; i++) {
+ 		for (i in 0..(M-1))
             d(i) = Math.exp(d(i));
-        }
         return this;
     }
 
 	public def toString():String {
 		val output=new StringBuilder();
 		output.add("Vector("+this.M+") [ ");
-		for (var i:Long=0; i<M; i++)
+ 		for (i in 0..(M-1))
 			output.add(this.d(i).toString()+" ");
 		output.add("]\n");
 		return output.toString();

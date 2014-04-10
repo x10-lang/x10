@@ -1,7 +1,7 @@
 /*
  *  This file is part of the X10 Applications project.
  *
- *  (C) Copyright IBM Corporation 2011.
+ *  (C) Copyright IBM Corporation 2011-2014.
  *  (C) Copyright Australian National University 2011.
  */
 
@@ -38,7 +38,7 @@ class VectorTest {
 		ret &= (testScaleAdd());
 		ret &= (testCellMult());
 		ret &= (testCellDiv());
-		ret &= (testNorm());
+		ret &= (testNorms());
 		ret &= (testDotProduct());
 		ret &= (testExp());
 
@@ -177,19 +177,54 @@ class VectorTest {
 		return ret;
 	}
 
-    public def testNorm():Boolean {
-        Console.OUT.println("Starting vector norm test");
+    public def testNorms():Boolean {
+        Console.OUT.println("Starting vector norm tests");
+
+        var ret:Boolean = true;
 
         val a = Vector.make(M).initRandom();
         val alpha = 2.5;
         val b = a * alpha;
+        val zero = Vector.make(M, 0.0);
+        val negA = zero - a;
+
+        // L_1 norm and distance
+        val a1Norm = a.l1Norm();
+        val b1Norm = b.l1Norm();
+
+        ret &= MathTool.equals(b1Norm, a1Norm*alpha);
+
+        val a1Distance = Vector.manhattanDistance(a, zero);
+        val negA1Distance = Vector.manhattanDistance(negA, zero);
+
+        ret &= MathTool.equals(a1Distance, negA1Distance);
+
+        // L_2 norm and distance
         val aNorm = a.norm();
         val bNorm = b.norm();
-        val ret = MathTool.equals(bNorm, aNorm*alpha);
+
+        ret &= MathTool.equals(bNorm, aNorm*alpha);
+
+        val aDistance = Vector.distance(a, zero);
+        val negADistance = Vector.distance(negA, zero);
+
+        ret &= MathTool.equals(aDistance, negADistance);
+
+        // L_Inf norm and distance
+        val aMaxNorm = a.lInfNorm();
+        val bMaxNorm = b.lInfNorm();
+
+        ret &= MathTool.equals(bMaxNorm, aMaxNorm*alpha);
+
+        val aMaxDistance = Vector.chebyshevDistance(a, zero);
+        val negAMaxDistance = Vector.chebyshevDistance(negA, zero);
+
+        ret &= MathTool.equals(aMaxDistance, negAMaxDistance);
+
         if (ret)
-            Console.OUT.println("Vector norm test passed!");
+            Console.OUT.println("Vector norm tests passed!");
         else
-            Console.OUT.println("--------Vector norm test failed!--------");
+            Console.OUT.println("--------Vector norm tests failed!--------");
         return ret;
     }
 
