@@ -24,63 +24,75 @@ abstract class FinishResilient extends FinishState {
     protected static def getEnvLong(name:String) {
         val env = System.getenv(name);
         val v = (env!=null) ? Long.parseLong(env) : 0;
-        if (v>0 && here.id==0) Console.OUT.println(name + "=" + v);
+        if (v>0 && here.id==0) Runtime.println(name + "=" + v);
         return v;
     }
     protected static def debug(msg:String) {
         val nsec = System.nanoTime();
         val output = "[FR nsec=" + nsec + " place=" + here.id + " " + Runtime.activity() + "] ---- " + msg;
-        Console.OUT.println(output); Console.OUT.flush();
+        Runtime.println(output); //Runtime.flush();
     }
     protected static def dumpStack(msg:String) {
         try { throw new Exception(msg); } catch (e:Exception) { e.printStackTrace(); }
     }
     
     /*
-     * New methods to be implemented in subclasses
+     * Static methods to be implemented in subclasses
      */
-    // def this(latch:SimpleLatch); // constructor should have this signature
+    // static def make(parent:FinishResilient, latch:SimpleLatch):FinishResilient;
     // static def notifyPlaceDeath():void;
-    abstract def makeChildFinish():FinishResilient;
     
     /*
      * Other methods to be implemented in subclasses (declared in FinishState class)
      */
-    // abstract def notifySubActivitySpawn(place:Place):void;
-    // abstract def notifyActivityCreation(srcPlace:Place):Boolean;
-    // abstract def notifyActivityTermination():void;
-    // abstract def pushException(t:Exception):void;
-    // abstract def waitForFinish():void;
+    // def notifySubActivitySpawn(place:Place):void;
+    // def notifyActivityCreation(srcPlace:Place):Boolean;
+    // def notifyActivityTermination():void;
+    // def pushException(t:Exception):void;
+    // def waitForFinish():void;
     
     /*
-     * Factory(-like) methods
+     * Dispatcher methods
      */
-    static def makeDefaultFinish(latch:SimpleLatch) { // latch may be null
-        if (verbose>=2) debug("FinishResilient.makeDefaultFinish called, latch=" + latch);
+    private static def getCurrentFS() {
+        val a = Runtime.activity();
+        return (a!=null) ? a.finishState() : null;
+    }
+    static def make(parent:FinishState, latch:SimpleLatch):FinishState { // parent/latch may be null
+        if (verbose>=1) debug("FinishResilient.make called, parent=" + parent + " latch=" + latch);
+        var fs:FinishState;
         switch (Runtime.RESILIENT_MODE) {
         case Configuration.RESILIENT_MODE_SAMPLE:
-            return new FinishResilientSample(latch);
+            val p = (parent!=null) ? parent : getCurrentFS();
+            val l = (latch!=null) ? latch : new SimpleLatch();
+            fs = FinishResilientSample.make(p, l);
+            break;
             
-            // followings will be restrucutured
+            //TODO: followings will be restrucutured
         case Configuration.RESILIENT_MODE_PLACE_ZERO:
-            return new FinishState.FinishResilientPlaceZero(latch);
+            fs = new FinishState.FinishResilientPlaceZero(latch);
+            break;
         case Configuration.RESILIENT_MODE_DISTRIBUTED:
-            return new FinishState.FinishResilientDistributed(latch==null ? new SimpleLatch() : latch);
+            fs = new FinishState.FinishResilientDistributed(latch==null ? new SimpleLatch() : latch);
+            break;
         case Configuration.RESILIENT_MODE_ZOO_KEEPER:
-            return new FinishState.FinishResilientZooKeeper(latch);
+            fs = new FinishState.FinishResilientZooKeeper(latch);
+            break;
         default:
             throw new UnsupportedOperationException("Unsupported RESILIENT_MODE " + Runtime.RESILIENT_MODE);
         }
+        if (verbose>=1) debug("FinishResilient.make returning, fs=" + fs);
+        return fs;
     }
     
     static def notifyPlaceDeath() {
-        if (verbose>=2) debug("FinishResilient.notifyPlaceDeath called");
+        if (verbose>=1) debug("FinishResilient.notifyPlaceDeath called");
         switch (Runtime.RESILIENT_MODE) {
         case Configuration.RESILIENT_MODE_SAMPLE:
             FinishResilientSample.notifyPlaceDeath();
             break;
             
-            // followings will be restructured
+            //TODO: followings will be restructured
         case Configuration.RESILIENT_MODE_PLACE_ZERO:
             if (here.id == 0) {
                 // most finishes are woken up by 'atomic'
@@ -100,6 +112,7 @@ abstract class FinishResilient extends FinishState {
         default:
             throw new UnsupportedOperationException("Unsupported RESILIENT_MODE " + Runtime.RESILIENT_MODE);
         }
+        if (verbose>=1) debug("FinishResilient.notifyPlaceDeath returning");
     }
     
     /*
@@ -108,19 +121,21 @@ abstract class FinishResilient extends FinishState {
     public def simpleLatch():SimpleLatch { // have been used only in Runtime.Worker.loop2()
         throw new UnsupportedOperationException("Obsolete function");
     }
+    
     public def runAt(place:Place, body:()=>void, prof:Runtime.Profile):void {
-        if (verbose>=2) debug("FinishResilient.runAt called, place.id=" + place.id);
+        if (verbose>=1) debug("FinishResilient.runAt called, place.id=" + place.id);
         Runtime.ensureNotInAtomic();
         if (place.id == Runtime.hereLong()) {
             // local path can be the same as before
             Runtime.runAtNonResilient(place, body, prof);
+            if (verbose>=1) debug("FinishResilient.runAt returning (locally executed)");
             return;
         }
         
         val real_finish = this;
         //real_finish.notifySubActivitySpawn(place);
         
-        val tmp_finish = makeChildFinish();
+        val tmp_finish = make(this/*parent*/, null/*latch*/);
         // TODO: clockPhases are now passed but their resiliency is not supported yet
         // TODO: This implementation of runAt does not explicitly dealloc things
         val home = here;
@@ -165,59 +180,56 @@ abstract class FinishResilient extends FinishState {
             Runtime.execute(new Activity(exec_body, home, real_finish, false, false));
             // TODO: Unsafe.dealloc(exec_body); needs to be called somewhere
         };
+        if (verbose>=2) debug("FinishResilient.runAt sending closure");
         Runtime.x10rtSendMessage(place.id, cl, prof);
         
         try {
-            if (VERBOSE) Runtime.println("Entering resilient at waitForFinish");
+            if (verbose>=2) debug("FinishResilient.runAt calling tmp_finish.waitForFinish");
             tmp_finish.waitForFinish();
-            if (VERBOSE) Runtime.println("Exiting resilient at waitForFinish");
+            if (verbose>=2) debug("FinishResilient.runAt returned from tmp_finish.waitForFinish");
             myActivity.clockPhases = cpCell(); // XTENLANG-3357: set the (maybe modified) clockPhases
         } catch (e:MultipleExceptions) {
             assert e.exceptions.size == 1 : e.exceptions();
             val e2 = e.exceptions(0);
-            if (VERBOSE) Runtime.println("Received from resilient at: "+e2);
-            if (e2 instanceof WrappedThrowable) {
-                Runtime.throwCheckedWithoutThrows(e2.getCause());
-            } else {
-                throw e2;
-            }
+            if (verbose>=1) Runtime.println("FinishResilient.runAt received exception="+e2);
+            if (e2 instanceof WrappedThrowable) Runtime.throwCheckedWithoutThrows(e2.getCause());
+            else throw e2;
         }
+        if (verbose>=1) debug("FinishResilient.runAt returning (remotely executed)");
     }
     
     public def evalAt(place:Place, body:()=>Any, prof:Runtime.Profile):Any {
-        if (verbose>=2) debug("FinishResilient.evalAt called, place.id=" + place.id);
+        if (verbose>=1) debug("FinishResilient.evalAt called, place.id=" + place.id);
         Runtime.ensureNotInAtomic();
         if (place.id == Runtime.hereLong()) {
             // local path can be the same as before
-            return Runtime.evalAtNonResilient(place, body, prof);
+            val result = Runtime.evalAtNonResilient(place, body, prof);
+            if (verbose>=1) debug("FinishResilient.evalAt returning result=" + result +" (locally executed)");
+            return result;
         }
         
         val dummy_data = new Empty(); // for XTENLANG-3324
         @StackAllocate val me = @StackAllocate new Cell[Any](dummy_data);
         val me2 = GlobalRef(me);
         @Profile(prof) at (place) {
-            val r : Any = body();
+            val r:Any = body();
             at (me2) { me2()(r); }
         }
         // Fix for XTENLANG-3324
         if (me()==dummy_data) { // no result set
-            if (VERBOSE) Runtime.println("evalAt returns no result, target place may died");
+            if (verbose>=1) debug("FinishResilient.evalAt returns no result, target place may be dead");
             if (place.isDead()) throw new DeadPlaceException(place);
             else me(null); // should throw some exception?
         }
         
-        return me();
+        val result = me();
+        if (verbose>=1) debug("FinishResilient.evalAt returning result=" + result +" (remotely executed)");
+        return result;
     }
     
     /*
      * Utility methods used in subclasses
      */
-    protected static def currentFS():FinishState {
-        val a = Runtime.activity();
-        if (a != null) return a.finishState();
-        else return null;
-    }
-    
     // returns true if cl is processed at dst
     protected static def lowLevelAt(dst:Place, cl:()=>void):Boolean {
         if (verbose>=3) debug("FinishResilient.lowLevelAt called, dst.id=" + dst.id);
@@ -230,23 +242,31 @@ abstract class FinishResilient extends FinishState {
         // remote call
         val exc = GlobalRef(new Cell[Exception](null));
         val done = GlobalRef(new AtomicBoolean());
+        if (verbose>=4) debug("FinishResilient.lowLevelAt remote execution");
         Runtime.x10rtSendMessage(dst.id, () => @RemoteInvocation("finish_resilient_low_level_at_out") {
             // callee
             try {
+                if (verbose>=4) debug("(remote) calling cl()");
                 cl();
+                if (verbose>=4) debug("(remote) returned from cl()");
                 Runtime.x10rtSendMessage(done.home.id, () => @RemoteInvocation("finish_resilient_low_level_at_back") {
+                    if (verbose>=4) debug("(home) setting done");
                     done.getLocalOrCopy().getAndSet(true);
                 }, null);
             } catch (t:Exception) {
+                if (verbose>=4) debug("(remote) caught exception="+t);
                 Runtime.x10rtSendMessage(done.home.id, () => @RemoteInvocation("finish_resilient_low_level_at_back_exc") {
                     // [DC] assume that the write barrier on "done" is enough to see update on exc
+                    if (verbose>=4) debug("(home) setting exc and done");
                     exc.getLocalOrCopy()(t);
                     done.getLocalOrCopy().getAndSet(true);
                 }, null);
             }
+            if (verbose>=4) debug("(remote) done");
         }, null);
         
         // caller
+        if (verbose>=4) debug("FinishResilient.lowLevelAt waiting for done");
         if (!done().get()) { // Fix for XTENLANG-3303/3305
             Runtime.increaseParallelism();
             do {
@@ -259,6 +279,7 @@ abstract class FinishResilient extends FinishState {
             } while (!done().get());
             Runtime.decreaseParallelism(1n);
         }
+        if (verbose>=4) debug("FinishResilient.lowLevelAt returned from waiting loop");
         val t = exc()();
         if (t != null) {
             if (verbose>=3) debug("FinishResilient.lowLevelAt throwing exception " + t);

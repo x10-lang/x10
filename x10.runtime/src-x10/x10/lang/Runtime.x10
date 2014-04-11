@@ -1302,13 +1302,13 @@ public final class Runtime {
         if (RESILIENT_MODE == Configuration.RESILIENT_MODE_NONE)
             return new FinishState.Finish();
         else
-            return FinishResilient.makeDefaultFinish(null);
+            return FinishResilient.make(null/*parent*/, null/*latch*/);
     }
     static def makeDefaultFinish(latch:SimpleLatch):FinishState { // only for rootFinish
         if (RESILIENT_MODE == Configuration.RESILIENT_MODE_NONE)
             return new FinishState.Finish(latch);
         else
-            return FinishResilient.makeDefaultFinish(latch);
+            return FinishResilient.make(null/*parent*/, latch);
     }
 
     /**
