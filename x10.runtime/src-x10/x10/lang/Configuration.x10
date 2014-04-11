@@ -72,17 +72,12 @@ final class Configuration {
     static val RESILIENT_MODE_PLACE_ZERO = 1n;
     static val RESILIENT_MODE_DISTRIBUTED = 2n;
     static val RESILIENT_MODE_ZOO_KEEPER = 3n;
-    static val RESILIENT_MODE_SAMPLE = 4n; // to be revised
-    static val NUM_RESILIENT_MODES = 4n;
+    static val RESILIENT_MODE_SAMPLE = 9n;
     static def resilient_mode():Int { // called from Runtime.x10
         var v:Int = RESILIENT_MODE_NONE;
         try {
             v = Int.parse(Runtime.env.getOrElse("X10_RESILIENT_MODE", "0"));
         } catch (NumberFormatException) {
-        }
-        if (v > NUM_RESILIENT_MODES) {
-            Runtime.println("Unsupported RESILIENT_MODE " + v + ", disabled");
-            v = 0n;
         }
         return v;
     }
