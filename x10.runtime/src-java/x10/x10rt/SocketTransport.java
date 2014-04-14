@@ -26,17 +26,17 @@ import java.nio.channels.SelectionKey;
 import java.nio.channels.Selector;
 import java.nio.channels.ServerSocketChannel;
 import java.nio.channels.SocketChannel;
-import java.nio.charset.Charset;
 import java.util.Iterator;
 import java.util.LinkedList;
-import java.util.concurrent.atomic.AtomicInteger;
+import java.util.TreeSet;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentLinkedDeque;
 import java.util.concurrent.locks.ReentrantLock;
 
 import x10.core.fun.VoidFun_0_0;
 import x10.lang.FinishState;
 import x10.lang.Place;
 import x10.serialization.X10JavaDeserializer;
-import x10.x10rt.X10RT.State;
 
 /**
  * Implementation of JavaSockets transport
@@ -49,7 +49,7 @@ public class SocketTransport {
 	public static final String X10_LAUNCHER_PARENT = "X10_LAUNCHER_PARENT";
 	public static final String X10_NOWRITEBUFFER = "X10_NOWRITEBUFFER"; // turns off non-blocking sockets
 	public static final String X10_SOCKET_TIMEOUT = "X10_SOCKET_TIMEOUT";
-	private static enum CTRL_MSG_TYPE {HELLO, CONFIGURE, GOODBYE, PORT_REQUEST, PORT_RESPONSE};
+	private static enum CTRL_MSG_TYPE {HELLO, GOODBYE, PORT_REQUEST, PORT_RESPONSE}; // Correspond to values in Launcher.h
 	private static enum MSGTYPE {STANDARD, PUT, GET, GET_COMPLETED};
 	public static enum CALLBACKID {closureMessageID, simpleAsyncMessageID};
 	public static enum RETURNCODE { // see matching list of error codes "x10rt_error" in x10rt_types.h 
@@ -62,40 +62,37 @@ public class SocketTransport {
 	};
 	
 	private class CommunicationLink {
-    	private CommunicationLink(SocketChannel sc) {
+    	private CommunicationLink(SocketChannel sc, int placeId) {
 			super();
 			this.sc = sc;
 			this.writeLock = new ReentrantLock();
 			this.pendingWrites = null;
+			this.placeid = placeId;
 		}
-		SocketChannel sc;
-		ReentrantLock writeLock;
+    	final int placeid;
+		final SocketChannel sc;
+		final ReentrantLock writeLock;
 		LinkedList<ByteBuffer> pendingWrites;
     }
 	
 	private int nplaces = 1; // number of places
 	private int myPlaceId = 0; // my place ID
 	private ServerSocketChannel localListenSocket = null;
-	private CommunicationLink channels[] = null; // communication links to remote places, and launcher at [myPlaceId]
+	private final ConcurrentHashMap<Integer,CommunicationLink> channels = new ConcurrentHashMap<Integer, SocketTransport.CommunicationLink>(); // communication links to remote places, and launcher stored at myPlaceId
+	private final TreeSet<Integer> deadPlaces = new TreeSet<Integer>();
+	private final ConcurrentLinkedDeque<CommunicationLink> bufferedWrites;
 	
 	private final ReentrantLock selectorLock = new ReentrantLock(); // protects both the selector and events objects
 	private Selector selector = null;
 	private Iterator<SelectionKey> events = null;
-
-	private final AtomicInteger numDead = new AtomicInteger(0);
-	private boolean bufferedWrites = true;
 	private int socketTimeout = -1;
-	private boolean shuttingDown = false;
+	private volatile boolean shuttingDown = false;
     
 	
 	public SocketTransport() {
 		String nplacesFlag = System.getenv(X10_NPLACES);
-		if (nplacesFlag != null) {
+		if (nplacesFlag != null)
 			nplaces = Integer.parseInt(nplacesFlag);
-			channels = new CommunicationLink[nplaces];
-		}
-		else
-			channels = new CommunicationLink[1];
 		
 		String placeFlag = System.getenv(X10_LAUNCHER_PLACE);
 		if (placeFlag != null) myPlaceId = Integer.parseInt(placeFlag);
@@ -116,7 +113,7 @@ public class SocketTransport {
 				// we may be under the control of a launcher.  If so, link up
 				String launcherLocation = System.getenv(X10_LAUNCHER_PARENT);
 				if (launcherLocation != null)
-					initLink(myPlaceId, launcherLocation, null);
+					initLink(myPlaceId, launcherLocation);
 			}
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
@@ -124,8 +121,9 @@ public class SocketTransport {
 		}
 		
 		if (Boolean.parseBoolean(System.getenv(X10_NOWRITEBUFFER)) || Boolean.parseBoolean(System.getProperty(X10_NOWRITEBUFFER)))
-			bufferedWrites = false;
-		
+			bufferedWrites = null;
+		else
+			bufferedWrites = new ConcurrentLinkedDeque<CommunicationLink>();
 		try {
 			socketTimeout = Integer.parseInt(System.getProperty(X10_SOCKET_TIMEOUT));
 		}
@@ -153,14 +151,14 @@ public class SocketTransport {
 		if (nplaces > 1) {
 			for (int i=0; i<myPlaceId; i++) {
 				try {
-					initLink(i, null, null);
+					initLink(i, null);
 				} catch (IOException e) {
 					// TODO Auto-generated catch block
 					e.printStackTrace();
 				} // connect to all lower places
 			}
 			for (int i=myPlaceId+1; i<nplaces; i++)
-				while (!shuttingDown && channels[i] == null)
+				while (!shuttingDown && !channels.containsKey(i))
 					x10rt_probe(true, 0); // wait for connections from all upper places
 		} 
 		else {
@@ -173,7 +171,7 @@ public class SocketTransport {
 		return RETURNCODE.X10RT_ERR_OK.ordinal();
 	}
 	
-    public int establishLinks(int myPlaceId, String[] connectionStrings, boolean remoteStart) {
+    public int establishLinks(int myPlaceId, String[] connectionStrings) {
     	if (DEBUG) System.err.println("Place "+myPlaceId+" establishing links.  id="+this.myPlaceId+" np="+this.nplaces);
     	if (this.myPlaceId != 0 || this.nplaces != 1) // make we are in the right state to establish links
     		return RETURNCODE.X10RT_ERR_INVALID.ordinal();
@@ -191,48 +189,17 @@ public class SocketTransport {
     		}
     		return RETURNCODE.X10RT_ERR_OK.ordinal();
     	}
-    	if (channels.length == 1 && channels[0] != null) {
-    		// save the launcher link
-    		CommunicationLink ll = channels[0];
-    		channels = new CommunicationLink[nplaces];
-    		channels[myPlaceId] = ll;
-    	}
-    	else
-    		channels = new CommunicationLink[nplaces];
     	
     	if (shuttingDown)
     		return RETURNCODE.X10RT_ERR_OTHER.ordinal();
-    	else if (remoteStart) {
-    		StringBuffer sb = new StringBuffer();
-    		for (int i=0; i<connectionStrings.length; i++) {
-    			sb.append(connectionStrings[i]);
-    			sb.append(',');
-    		}
-    		ByteBuffer allPlaces = ByteBuffer.wrap(sb.toString().getBytes(Charset.forName("UTF-8")));
-
-    		for (int i=0; i<nplaces; i++) {
-    			if (i == myPlaceId) continue; // skip myself
-				try {
-					initLink(i, connectionStrings[i], allPlaces);
-				} catch (IOException e) {
-					// try one more time.  Maybe a transient issue
-					try {
-						initLink(i, connectionStrings[i], allPlaces);
-					} catch (IOException e2) {
-						e2.printStackTrace();
-						return RETURNCODE.X10RT_ERR_OTHER.ordinal();
-					}
-				}
-	    	}
-    	}
     	else {
 	    	for (int i=0; i<myPlaceId; i++) {
 				try {
-					initLink(i, connectionStrings[i], null);
+					initLink(i, connectionStrings[i]);
 				} catch (IOException e) {
 					// try one more time.  Maybe a transient issue
 					try {
-						initLink(i, connectionStrings[i], null);
+						initLink(i, connectionStrings[i]);
 					} catch (IOException e2) {
 						e2.printStackTrace();
 						return RETURNCODE.X10RT_ERR_OTHER.ordinal();
@@ -240,7 +207,7 @@ public class SocketTransport {
 				} // connect to all lower places
 	    	}
 			for (int i=myPlaceId+1; i<nplaces; i++)
-				while (!shuttingDown && channels[i] == null)
+				while (!shuttingDown && !channels.containsKey(i))
 					x10rt_probe(true, 0); // wait for connections from all upper places
 	    }
     	
@@ -248,41 +215,37 @@ public class SocketTransport {
     }
     
     public int numDead() {
-    	return numDead.get();
+    	return deadPlaces.size();
     }
     
     public boolean isPlaceDead(int place) {
-    	if (place < 0 || place >= channels.length)
-    		return true;
-    	
-    	return (channels[place] != null && channels[place].sc == null);
+    	return deadPlaces.contains(place);
     }
     
     // this method will cause the establishLinks method to return, even if it is 
     // waiting for links to be established.  This allows that thread to get unstuck
     // in the event that the place list is invalid.
-    public int shutdown() {
+    public synchronized int shutdown() {
     	if (DEBUG) System.err.println("shutting down");
     	shuttingDown = true;
-    	bufferedWrites = false;
+    	if (bufferedWrites != null)
+    		bufferedWrites.clear();
    		try {
    			if (localListenSocket != null)
     			localListenSocket.close();
-   			if (channels != null) {
-	   		   	for (int i=0; i<channels.length; i++) {
-	    			if (channels[i] != null) {
-	    				channels[i].writeLock.lock();
-	    				try {
-	    					if (channels[i].sc != null) {
-	    						 channels[i].sc.close();
-	    						 channels[i].sc = null;
-	    					}
-	    				}
-	    				finally {
-	    					channels[i].writeLock.unlock();
-	    					channels[i].pendingWrites = null;
-	    				}
-   			}	}	}
+   			
+   			for (CommunicationLink channel : channels.values()) {
+	   		   	channel.writeLock.lock();
+	    		try {
+    				 channel.sc.close();
+	    		}
+	    		catch (Exception e){}// ignore... shutting down
+	    		finally {
+	    			channel.writeLock.unlock();
+	    			channel.pendingWrites = null;
+	    		}
+   			}
+   			channels.clear();
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -355,7 +318,7 @@ public class SocketTransport {
 					int to = controlMsg.getInt();										
 					if (to == myPlaceId) {
 						remote = controlMsg.getInt();
-						if (remote < channels.length) {
+						if (remote < nplaces) {
 							if (DEBUG) System.err.println("Incoming HELLO message to "+to+" from "+remote);
 							controlMsg.clear();
 							controlMsg.putInt(CTRL_MSG_TYPE.HELLO.ordinal());
@@ -364,7 +327,7 @@ public class SocketTransport {
 							controlMsg.putInt(0);
 							controlMsg.flip();
 							writeNBytes(sc, controlMsg);
-							channels[remote] = new CommunicationLink(sc);
+							channels.put(remote, new CommunicationLink(sc, remote));
 							sc.configureBlocking(false);
 							if (socketTimeout != -1) sc.socket().setSoTimeout(socketTimeout);
 							sc.register(selector, SelectionKey.OP_READ);
@@ -377,66 +340,6 @@ public class SocketTransport {
 					}
 					else if (DEBUG) 
 						System.err.println("Incoming HELLO message to place "+to+" ignored, because my place is ."+myPlaceId);
-				}
-				else if (CTRL_MSG_TYPE.CONFIGURE.ordinal() == msgtype) {
-					int mynewid = controlMsg.getInt();
-					if (onlyProcessAccept) {
-						remote = controlMsg.getInt();
-						if (DEBUG) System.err.println("Incoming CONFIGURE message to "+mynewid+" from "+remote);
-						// read in the list of host:port,host:port,host:port etc for all places
-						int datalen = controlMsg.getInt();
-						byte[] chars = new byte[datalen];
-						ByteBuffer placeList = ByteBuffer.wrap(chars);
-						while (!readNBytes(sc, placeList, datalen)){}
-		    			String allPlaces = new String(chars, Charset.forName("UTF-8"));
-		    			String[] places = allPlaces.split(",");
-		    			controlMsg.clear();						
-		    			if (DEBUG) System.err.println("Recieved place list: "+allPlaces);
-		    			
-						controlMsg.putInt(CTRL_MSG_TYPE.HELLO.ordinal());
-						controlMsg.putInt(remote);
-						controlMsg.putInt(mynewid);
-						controlMsg.putInt(0);
-						controlMsg.flip();
-						writeNBytes(sc, controlMsg);
-
-						// configure myself
-						this.myPlaceId = mynewid;
-				    	this.nplaces = places.length;
-				    	if (channels.length == 1 && channels[0] != null) {
-				    		// save the launcher link
-				    		CommunicationLink ll = channels[0];
-				    		channels = new CommunicationLink[nplaces];
-				    		channels[myPlaceId] = ll;
-				    	}
-				    	else
-				    		channels = new CommunicationLink[nplaces];
-				    	
-				    	channels[remote] = new CommunicationLink(sc);
-						sc.configureBlocking(false);
-						sc.register(selector, SelectionKey.OP_READ);
-						
-						// establish remote links to lower-numbered places
-						for (int i=0; i<myPlaceId; i++) {
-							if (i == remote) continue;
-							try {
-								initLink(i, places[i], null);
-							} catch (IOException e) {
-								// TODO Auto-generated catch block
-								e.printStackTrace();
-							}
-				    	}
-			    	
-						// configure X10RT from the bottom up, instead of top-down
-						X10RT.here = this.myPlaceId;
-						X10RT.numPlaces = this.nplaces;
-						x10.runtime.impl.java.Runtime.MAX_PLACES = this.nplaces;
-				        X10RT.state = State.RUNNING;
-						
-						if (DEBUG) System.err.println("X10RT reconfigured as place "+myPlaceId+" of "+nplaces+" places");
-					}
-					else if (DEBUG) 
-						System.err.println("Recieved a CONFIGURE message, but we're already configured.  Ignored.");
 				}
 				if (remote == -1) {
 					controlMsg.clear();
@@ -451,7 +354,7 @@ public class SocketTransport {
 			if (key.isWritable()) {
 				Integer place = (Integer)key.attachment();
 				if (place != null && !isPlaceDead(place.intValue()))
-					flushBufferedBytes(key, place.intValue());
+					flushBufferedBytes(key, channels.get(place));
 			}
 			if (key.isReadable()) {
 				if (DEBUG) System.err.println("Place "+myPlaceId+" detected incoming message");
@@ -493,19 +396,20 @@ public class SocketTransport {
 				}
 				catch (IOException e) {
 					// figure out which place this is
-					for (int i=0; i<channels.length; i++) {
+					for (Integer place : channels.keySet()) {
 						try {
-							if (channels[i] != null && sc.equals(channels[i].sc)) {
-								if (DEBUG) System.err.println("Place "+myPlaceId+" discovered link to place "+i+" is broken in probe");
-								channels[i].sc = null;
-								channels[i].pendingWrites = null;
+							CommunicationLink cl = channels.get(place);
+							if (cl != null && sc.equals(cl.sc)) {
+								if (DEBUG) System.err.println("Place "+myPlaceId+" discovered link to place "+place+" is broken in probe");
+								deadPlaces.add(place);
+								cl.pendingWrites = null;
+								channels.remove(place);
 								break;
 							}
 						} catch (NullPointerException e2){} // channels[i] can become null after we check for null
 					}
 					try {sc.close();}
 		    		catch (Exception e2){}
-		    		numDead.incrementAndGet();
 		    		return false;
 				}
 				// TODO GET & PUT message types
@@ -535,15 +439,15 @@ public class SocketTransport {
     }
     
     public int sendMessage(int place, int msg_id, ByteBuffer[] bytes) {
-    	if (numDead.get() == 0) {// don't try to re-establish links after we find dead ones, or we'll get into a loop
-    		try {
-    			initLink(place, null, null);
-    		} catch (IOException e) {
-    			return RETURNCODE.X10RT_ERR_OTHER.ordinal();
-    		}
-    	}
-    	else if (channels[place] == null || channels[place].sc == null) // don't send messages to dead or uninitialized places
+    	if (isPlaceDead(place)) // don't send messages to dead or uninitialized places
     		return RETURNCODE.X10RT_ERR_OTHER.ordinal();
+
+    	// connect to remote place, if not already connected
+    	try {
+			initLink(place, null);
+		} catch (IOException e) {
+			return RETURNCODE.X10RT_ERR_OTHER.ordinal();
+		}
     	
     	// write out the x10SocketMessage data
     	// Format: type, p.type, p.len, p.msg
@@ -560,39 +464,40 @@ public class SocketTransport {
     		System.out.print("Place "+myPlaceId+" sending a message to place "+place+" of type "+msg_id+" and size "+len+"...");
     		System.out.flush();
     	}
+    	CommunicationLink cl = channels.get(place);
     	try {
-	    	channels[place].writeLock.lock();
+	    	cl.writeLock.lock();
 	    	try {
-		    	writeBytes(place, controlData);
+		    	writeBytes(cl, controlData);
 		    	if (bytes != null)
 		    		for (int i=0; i<bytes.length; i++)
-		    			writeBytes(place, bytes[i]);
+		    			writeBytes(cl, bytes[i]);
 				if (DEBUG) System.err.println("Sent");
 	    	} 
 	    	finally {
-	    		channels[place].writeLock.unlock();
+	    		cl.writeLock.unlock();
 	    	}
     	}
     	catch (IOException e) {
     		if (DEBUG) System.err.println("Place "+myPlaceId+" discovered link to place "+place+" is broken in send");
-    		try {channels[place].sc.close();}
+    		try {cl.sc.close();}
     		catch (Exception e2){}
-    		channels[place].sc = null;
-    		channels[place].pendingWrites = null;
-    		numDead.incrementAndGet();
+    		deadPlaces.add(place);
+    		cl.pendingWrites = null;
+    		channels.remove(place);
     		return RETURNCODE.X10RT_ERR_OTHER.ordinal();
     	}
 		
     	return RETURNCODE.X10RT_ERR_OK.ordinal();
     }
     
-    private void initLink(int remotePlace, String connectionInfo, ByteBuffer allPlaces) throws IOException{
-    	if (channels[remotePlace] != null || shuttingDown) return;
+    private void initLink(int remotePlace, String connectionInfo) throws IOException{
+    	if (shuttingDown || channels.containsKey(remotePlace)) return;
     	
     	String hostname;
     	int port;
     	
-    	if (connectionInfo == null && channels[myPlaceId] == null) {
+    	if (connectionInfo == null && !channels.containsKey(myPlaceId)) { // link does not exist, and no link to launcher
     		String forcePortsFlag = System.getenv(X10_FORCEPORTS);
     		if (forcePortsFlag == null) throw new IOException("Unknown location for place "+remotePlace);
     		hostname = "localhost";		
@@ -601,6 +506,7 @@ public class SocketTransport {
     	else {
     		if (connectionInfo == null) {
     			// ask the launcher
+    			CommunicationLink launcherLink = channels.get(myPlaceId);
     			ByteBuffer placeRequest = ByteBuffer.allocateDirect(16);
     			placeRequest.order(ByteOrder.nativeOrder());
     			placeRequest.putInt(CTRL_MSG_TYPE.PORT_REQUEST.ordinal());
@@ -608,9 +514,9 @@ public class SocketTransport {
     			placeRequest.putInt(myPlaceId);
     			placeRequest.putInt(0);
     			placeRequest.flip();
-    			writeNBytes(channels[myPlaceId].sc, placeRequest);
+    			writeNBytes(launcherLink.sc, placeRequest);
     			placeRequest.clear();
-    			while (!readNBytes(channels[myPlaceId].sc, placeRequest, placeRequest.capacity())){}
+    			while (!readNBytes(launcherLink.sc, placeRequest, placeRequest.capacity())){}
     			placeRequest.flip();
     			int type = placeRequest.getInt();
     			if (type != CTRL_MSG_TYPE.PORT_RESPONSE.ordinal()) 
@@ -622,7 +528,7 @@ public class SocketTransport {
     				throw new IOException("Invalid response length to launcher lookup for place "+remotePlace);
     			byte[] chars = new byte[strlen];
     			ByteBuffer bb = ByteBuffer.wrap(chars);
-    			while (!readNBytes(channels[myPlaceId].sc, bb, strlen)){}
+    			while (!readNBytes(launcherLink.sc, bb, strlen)){}
     			connectionInfo = new String(chars);
     			if (DEBUG) System.err.println("Place "+myPlaceId+" lookup of place "+remotePlace+" returned \""+connectionInfo+"\" (len="+strlen+")");
     		}
@@ -653,10 +559,7 @@ public class SocketTransport {
 		ByteBuffer controlMsg = ByteBuffer.allocateDirect(20);
 		if (remotePlace == myPlaceId)
 			controlMsg.order(ByteOrder.nativeOrder()); // the launcher is native code, and probably uses a different endian order
-		if (null == allPlaces)
-			controlMsg.putInt(CTRL_MSG_TYPE.HELLO.ordinal());
-		else
-			controlMsg.putInt(CTRL_MSG_TYPE.CONFIGURE.ordinal());
+		controlMsg.putInt(CTRL_MSG_TYPE.HELLO.ordinal());
 		controlMsg.putInt(remotePlace);
 		controlMsg.putInt(myPlaceId);
 		if (remotePlace == myPlaceId) { // send connection details to launcher
@@ -668,27 +571,20 @@ public class SocketTransport {
 			controlMsg.putShort((short)0);
 			controlMsg.flip();
 			writeNBytes(sc, controlMsg);
-			channels[myPlaceId] = new CommunicationLink(sc);
+			channels.put(myPlaceId, new CommunicationLink(sc, myPlaceId));
 			sc.configureBlocking(false);
 			sc.register(selector, SelectionKey.OP_READ);
 			if (DEBUG) System.err.println("Place "+myPlaceId+" established a link to local launcher, sent local port="+myPort);
 		}
 		else {
-			if (null == allPlaces)
-				controlMsg.putInt(0);
-			else
-				controlMsg.putInt(allPlaces.remaining());			
+			controlMsg.putInt(0);
 			controlMsg.flip();
 			writeNBytes(sc, controlMsg);
-			if (null != allPlaces) {
-				writeNBytes(sc, allPlaces);
-				allPlaces.rewind();
-			}
 			controlMsg.clear();
 			while (!readNBytes(sc, controlMsg, 16)){}
 			controlMsg.flip();
 			if (controlMsg.getInt() == CTRL_MSG_TYPE.HELLO.ordinal()) {
-				channels[remotePlace] = new CommunicationLink(sc);
+				channels.put(remotePlace, new CommunicationLink(sc, remotePlace));
 				sc.configureBlocking(false);
 				if (socketTimeout != -1) sc.socket().setSoTimeout(socketTimeout);
 				sc.register(selector, SelectionKey.OP_READ);
@@ -705,7 +601,6 @@ public class SocketTransport {
     boolean readNBytes(SocketChannel sc, ByteBuffer data, int bytes) throws IOException {    	
     	int totalBytesRead = 0;
     	int bytesRead = 0;
-    	int flush=0;
 		do {
 			bytesRead+=sc.read(data);
 			if (bytesRead > 0) {
@@ -716,88 +611,89 @@ public class SocketTransport {
 				throw new IOException("End of stream");
 			else if (totalBytesRead == 0 || shuttingDown) // nothing is available to read, but the socket is alive
 				return false;
-			else if (bufferedWrites) {
+			else if (bufferedWrites != null && !bufferedWrites.isEmpty()) {
 				// while we wait for data to come in, flush anything waiting to go out
-				if (flush==channels.length)
-					flush=0;
-				for (; flush<channels.length; flush++) {
-		    		if (!isPlaceDead(flush) && flushBufferedBytes(null, flush))
-		    			break;
-		    	}
+				CommunicationLink cl = bufferedWrites.removeFirst();
+				if (flushBufferedBytes(null, cl))
+		    		break;
 			}
 		} while (totalBytesRead < bytes);
 		return true;
     }
 
-    private void writeBytes(int placeid, ByteBuffer data) throws IOException {
-    	if (!bufferedWrites)
-    		writeNBytes(channels[placeid].sc, data);
+    private void writeBytes(CommunicationLink link, ByteBuffer data) throws IOException {
+    	if (bufferedWrites == null)
+    		writeNBytes(link.sc, data);
     	else if (!shuttingDown) {
-    		if (channels[placeid].pendingWrites != null) {
+    		if (link.pendingWrites != null) {
     			// data is already pending.  Add this new data to the back of the queue
-    			channels[placeid].pendingWrites.addLast(data); // store the current write request at the end of the queue
+    			link.pendingWrites.addLast(data); // store the current write request at the end of the queue
     		}
     		else { // nothing pending.  Write immediately
     			long bytesWrittenThisRound;
-    			do { bytesWrittenThisRound=channels[placeid].sc.write(data);
+    			do { bytesWrittenThisRound=link.sc.write(data);
     			} while (bytesWrittenThisRound > 0 && data.hasRemaining());
     			
     			// Did we get the whole message out?
     			if (data.hasRemaining()) {
     				// nope.  Set the buffer aside and register with the selector to write when ready
-    				channels[placeid].pendingWrites = new LinkedList<ByteBuffer>();
-    				channels[placeid].pendingWrites.addLast(data);
-    				channels[placeid].sc.register(selector, (SelectionKey.OP_WRITE | SelectionKey.OP_READ), placeid);
-    				if (DEBUG) System.err.println("Stashed "+data.remaining()+" bytes in the buffer for place "+placeid);
+    				link.pendingWrites = new LinkedList<ByteBuffer>();
+    				link.pendingWrites.addLast(data);
+    				bufferedWrites.add(link);
+    				link.sc.register(selector, (SelectionKey.OP_WRITE | SelectionKey.OP_READ), link.placeid);
+    				if (DEBUG) System.err.println("Stashed "+data.remaining()+" bytes in the buffer for place "+link.placeid);
     			}
     		}
     	}
     }
     
     // returns true if at least some data was sent out
-    private boolean flushBufferedBytes(SelectionKey key, int placeid) {
-    	if (DEBUG) System.err.println("Flush called for place "+placeid);
+    private boolean flushBufferedBytes(SelectionKey key, CommunicationLink link) {
+    	if (DEBUG) System.err.println("Flushing data");
     	
-    	if (!shuttingDown && channels[placeid] != null && channels[placeid].writeLock.tryLock()) {
+    	if (!shuttingDown && !deadPlaces.contains(link.placeid) && link.writeLock.tryLock()) {
     		try {
-    			if (channels[placeid].pendingWrites == null) return false;
+    			if (link.pendingWrites == null) return false;
     	    	
-    			while (!shuttingDown && channels[placeid].pendingWrites != null && !channels[placeid].pendingWrites.isEmpty()) {
-    				ByteBuffer data = channels[placeid].pendingWrites.peekFirst();
+    			while (!shuttingDown && link.pendingWrites != null && !link.pendingWrites.isEmpty()) {
+    				ByteBuffer data = link.pendingWrites.peekFirst();
     				try {
     					//long startRemain = data.remaining();
 	    				long bytesWrittenThisRound;
-	        			do { bytesWrittenThisRound=channels[placeid].sc.write(data);
+	        			do { bytesWrittenThisRound=link.sc.write(data);
 	        			} while (!shuttingDown && bytesWrittenThisRound > 0 && data.hasRemaining());
 	        			
 	        			//if (DEBUG) System.err.println("Flushed "+(startRemain-data.remaining())+" bytes in the buffer to place "+placeid);
 	        			
 	        			if (!shuttingDown && !data.hasRemaining()) // all data was written out
-	        				channels[placeid].pendingWrites.removeFirst();
-	        			else
-	        				return true; //(startRemain==data.remaining()); // data remains, but the channel is not accepting more
+	        				link.pendingWrites.removeFirst();
+	        			else {
+	        				// data remains, but the channel is not accepting more
+	        				bufferedWrites.add(link); // put this link at the back of the buffered writes deque
+	        				return true; 
+	        			}
     				}
     				catch (IOException e) {
-    					if (DEBUG) System.err.println("Place "+myPlaceId+" discovered link to place "+placeid+" is broken in buffer flush");
-    		    		try {channels[placeid].sc.close();}
+    					if (DEBUG) System.err.println("Place "+myPlaceId+" discovered link to place "+link.placeid+" is broken in buffer flush");
+    		    		try {link.sc.close();}
     		    		catch (Exception e2){}
-    		    		channels[placeid].sc = null;
-    		    		channels[placeid].pendingWrites = null;
-    		    		numDead.incrementAndGet();
+    		    		deadPlaces.add(link.placeid);
+    		    		link.pendingWrites = null;
+    		    		channels.remove(link.placeid);
     				}
     				catch (NullPointerException e){} // the remote place died and link was closed by another thread 
     			}
 				// at this point, all data has been written out.  Remove the OP_WRITE selector key
     			try {
-					channels[placeid].sc.register(selector, SelectionKey.OP_READ);
+					link.sc.register(selector, SelectionKey.OP_READ);
 				} catch (ClosedChannelException e) {
 					// TODO Auto-generated catch block
 					e.printStackTrace();
 				}
-				channels[placeid].pendingWrites = null;
+				link.pendingWrites = null;
     		}
     		finally {
-    			channels[placeid].writeLock.unlock();
+    			link.writeLock.unlock();
     		}
     		return true;
     	}
@@ -811,14 +707,14 @@ public class SocketTransport {
 		} while (!shuttingDown && data.hasRemaining());
     }
 
-    private static void runClosureAtReceive(ByteBuffer input) throws IOException {
+    static void runClosureAtReceive(ByteBuffer input) throws IOException {
     	//X10JavaDeserializer deserializer = new X10JavaDeserializer(new DataInputStream(Channels.newInputStream(input)));
     	X10JavaDeserializer deserializer = new X10JavaDeserializer(new DataInputStream(new ByteArrayInputStream(input.array())));
     	VoidFun_0_0 actObj = (VoidFun_0_0) deserializer.readObject();
     	actObj.$apply();
     }
     
-    private static void runSimpleAsyncAtReceive(ByteBuffer input) throws IOException {
+    static void runSimpleAsyncAtReceive(ByteBuffer input) throws IOException {
     	//X10JavaDeserializer deserializer = new X10JavaDeserializer(new DataInputStream(Channels.newInputStream(input)));
     	X10JavaDeserializer deserializer = new X10JavaDeserializer(new DataInputStream(new ByteArrayInputStream(input.array())));
     	FinishState finishState = (FinishState) deserializer.readObject();
