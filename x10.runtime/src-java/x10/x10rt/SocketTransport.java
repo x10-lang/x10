@@ -30,7 +30,7 @@ import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.TreeSet;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ConcurrentLinkedDeque;
+import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.locks.ReentrantLock;
 
 import x10.core.fun.VoidFun_0_0;
@@ -80,7 +80,7 @@ public class SocketTransport {
 	private ServerSocketChannel localListenSocket = null;
 	private final ConcurrentHashMap<Integer,CommunicationLink> channels = new ConcurrentHashMap<Integer, SocketTransport.CommunicationLink>(); // communication links to remote places, and launcher stored at myPlaceId
 	private final TreeSet<Integer> deadPlaces = new TreeSet<Integer>();
-	private final ConcurrentLinkedDeque<CommunicationLink> bufferedWrites;
+	private final ConcurrentLinkedQueue<CommunicationLink> bufferedWrites;
 	
 	private final ReentrantLock selectorLock = new ReentrantLock(); // protects both the selector and events objects
 	private Selector selector = null;
@@ -123,7 +123,7 @@ public class SocketTransport {
 		if (Boolean.parseBoolean(System.getenv(X10_NOWRITEBUFFER)) || Boolean.parseBoolean(System.getProperty(X10_NOWRITEBUFFER)))
 			bufferedWrites = null;
 		else
-			bufferedWrites = new ConcurrentLinkedDeque<CommunicationLink>();
+			bufferedWrites = new ConcurrentLinkedQueue<CommunicationLink>();
 		try {
 			socketTimeout = Integer.parseInt(System.getProperty(X10_SOCKET_TIMEOUT));
 		}
@@ -613,7 +613,7 @@ public class SocketTransport {
 				return false;
 			else if (bufferedWrites != null && !bufferedWrites.isEmpty()) {
 				// while we wait for data to come in, flush anything waiting to go out
-				CommunicationLink cl = bufferedWrites.removeFirst();
+				CommunicationLink cl = bufferedWrites.poll();
 				if (flushBufferedBytes(null, cl))
 		    		break;
 			}
