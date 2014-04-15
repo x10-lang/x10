@@ -145,6 +145,7 @@ public abstract class Runtime implements VoidFun_0_0 {
     public void $apply() {
         // x10rt-level registration of MessageHandlers
         X10RT.registerHandlers();
+        X10RT.registration_complete();
 
         // build up Rail[String] for args
         final x10.core.Rail<String> aargs = new x10.core.Rail<String>(Types.STRING, (args == null) ? 0 : args.length);

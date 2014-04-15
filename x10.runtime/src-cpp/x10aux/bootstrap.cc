@@ -139,6 +139,7 @@ static void* real_x10_main_inner(void* _main_args) {
 
         // Bootup the network message handling code
         x10aux::NetworkDispatcher::registerHandlers();
+        x10rt_registration_complete();
 
         // Actually start up the runtime and execute the program.
         // When this function returns, the program will have exited.

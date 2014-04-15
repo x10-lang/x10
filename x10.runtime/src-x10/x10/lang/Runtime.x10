@@ -107,20 +107,12 @@ public final class Runtime {
                                             prof:Profile, preSendAction:()=>void):void;
 
     /**
-     * Complete X10RT initialization.
-     */
-    @Native("c++", "x10rt_registration_complete()")
-    @Native("java", "x10.x10rt.X10RT.registration_complete()")
-    public static native def x10rtInit():void;
-
-    /**
      * Process one incoming active message if any (non-blocking).
      */
     @Native("c++", "::x10aux::event_probe()")
     @Native("java", "x10.runtime.impl.java.Runtime.eventProbe()")
     public static native def x10rtProbe():void;
 
-    
     @Native("c++", "x10rt_blocking_probe_support()")
     @Native("java", "x10.x10rt.X10RT.blockingProbeSupport()")
     private static native def x10rtBlockingProbeSupport():Boolean;
@@ -783,7 +775,6 @@ public final class Runtime {
     public static def start(body:()=>void):void {
         // initialize thread pool for the current process
         // initialize runtime
-        x10rtInit();
 
         processStartNanos_(System.nanoTime());
 
