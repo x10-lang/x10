@@ -191,7 +191,7 @@ abstract class FinishResilient extends FinishState {
         } catch (e:MultipleExceptions) {
             assert e.exceptions.size == 1 : e.exceptions();
             val e2 = e.exceptions(0);
-            if (verbose>=1) Runtime.println("FinishResilient.runAt received exception="+e2);
+            if (verbose>=1) debug("FinishResilient.runAt received exception="+e2);
             if (e2 instanceof WrappedThrowable) Runtime.throwCheckedWithoutThrows(e2.getCause());
             else throw e2;
         }
@@ -232,10 +232,11 @@ abstract class FinishResilient extends FinishState {
      */
     // returns true if cl is processed at dst
     protected static def lowLevelAt(dst:Place, cl:()=>void):Boolean {
-        if (verbose>=3) debug("FinishResilient.lowLevelAt called, dst.id=" + dst.id);
+        if (verbose>=4) debug("FinishResilient.lowLevelAt called, dst.id=" + dst.id);
         if (here == dst) {
+            if (verbose>=4) debug("FinishResilient.lowLevelAt locally calling cl()");
             cl();
-            if (verbose>=3) debug("FinishResilient.lowLevelAt locally executed, returning true");
+            if (verbose>=4) debug("FinishResilient.lowLevelAt locally executed, returning true");
             return true;
         }
         
@@ -250,30 +251,30 @@ abstract class FinishResilient extends FinishState {
                 cl();
                 if (verbose>=4) debug("(remote) returned from cl()");
                 Runtime.x10rtSendMessage(done.home.id, () => @RemoteInvocation("finish_resilient_low_level_at_back") {
-                    if (verbose>=4) debug("(home) setting done");
+                    if (verbose>=4) debug("(home) setting done-flag");
                     done.getLocalOrCopy().getAndSet(true);
                 }, null);
             } catch (t:Exception) {
                 if (verbose>=4) debug("(remote) caught exception="+t);
                 Runtime.x10rtSendMessage(done.home.id, () => @RemoteInvocation("finish_resilient_low_level_at_back_exc") {
                     // [DC] assume that the write barrier on "done" is enough to see update on exc
-                    if (verbose>=4) debug("(home) setting exc and done");
+                    if (verbose>=4) debug("(home) setting exc and done-flag");
                     exc.getLocalOrCopy()(t);
                     done.getLocalOrCopy().getAndSet(true);
                 }, null);
             }
-            if (verbose>=4) debug("(remote) done");
+            if (verbose>=4) debug("(remote) finished");
         }, null);
         
         // caller
-        if (verbose>=4) debug("FinishResilient.lowLevelAt waiting for done");
+        if (verbose>=4) debug("FinishResilient.lowLevelAt waiting for done-flag");
         if (!done().get()) { // Fix for XTENLANG-3303/3305
             Runtime.increaseParallelism();
             do {
                 Runtime.x10rtProbe();
                 if (dst.isDead()) {
                     Runtime.decreaseParallelism(1n);
-                    if (verbose>=3) debug("FinishResilient.lowLevelAt returning false");
+                    if (verbose>=4) debug("FinishResilient.lowLevelAt returning false");
                     return false;
                 }
             } while (!done().get());
@@ -282,19 +283,20 @@ abstract class FinishResilient extends FinishState {
         if (verbose>=4) debug("FinishResilient.lowLevelAt returned from waiting loop");
         val t = exc()();
         if (t != null) {
-            if (verbose>=3) debug("FinishResilient.lowLevelAt throwing exception " + t);
+            if (verbose>=4) debug("FinishResilient.lowLevelAt throwing exception " + t);
             throw t;
         }
-        if (verbose>=3) debug("FinishResilient.lowLevelAt returning true");
+        if (verbose>=4) debug("FinishResilient.lowLevelAt returning true");
         return true; // success
     }
     
     // returns true if cl is processed at dst
     protected static def lowLevelFetch[T](dst:Place, result:Cell[T], cl:()=>T):Boolean {
-        if (verbose>=3) debug("FinishResilient.lowLevelFetch called, dst.id=" + dst.id);
+        if (verbose>=4) debug("FinishResilient.lowLevelFetch called, dst.id=" + dst.id);
         if (here == dst) {
+            if (verbose>=4) debug("FinishResilient.lowLevelFetch locally calling cl()");
             result(cl()); // set the result
-            if (verbose>=3) debug("FinishResilient.lowLevelFetch locally executed, returning true");
+            if (verbose>=4) debug("FinishResilient.lowLevelFetch locally executed, returning true");
             return true;
         }
         
@@ -302,42 +304,50 @@ abstract class FinishResilient extends FinishState {
         val exc = GlobalRef(new Cell[Exception](null));
         val done = GlobalRef(new AtomicBoolean(false));
         val gresult = GlobalRef(result);
+        if (verbose>=4) debug("FinishResilient.lowLevelFetch remote execution");
         Runtime.x10rtSendMessage(dst.id, () => @RemoteInvocation("finish_resilient_low_level_fetch_out") {
             // callee
             try {
+                if (verbose>=4) debug("(remote) calling cl()");
                 val r = cl();
+                if (verbose>=4) debug("(remote) returned from cl()");
                 Runtime.x10rtSendMessage(done.home.id, () => @RemoteInvocation("fiish_resilient_low_level_fetch_back") {
+                    if (verbose>=4) debug("(home) setting the result and done-flag");
                     gresult.getLocalOrCopy()(r); // set the result
                     done.getLocalOrCopy().getAndSet(true);
                 }, null);
             } catch (t:Exception) {
                 Runtime.x10rtSendMessage(done.home.id, () => @RemoteInvocation("finish_resilient_low_level_fetch_back_exc") {
                     // [DC] assume that the write barrier on "done" is enough to see update on exc
+                    if (verbose>=4) debug("(home) setting exc and done-flag");
                     exc.getLocalOrCopy()(t);
                     done.getLocalOrCopy().getAndSet(true);
                 }, null);
             }
+            if (verbose>=4) debug("(remote) finished");
         }, null);
         
         // caller
+        if (verbose>=4) debug("FinishResilient.lowLevelFetch waiting for done-flag");
         if (!done().get()) { // Fix for XTENLANG-3303/3305
             Runtime.increaseParallelism();
             do {
                 Runtime.x10rtProbe();
                 if (dst.isDead()) {
                     Runtime.decreaseParallelism(1n);
-                    if (verbose>=3) debug("FinishResilient.lowLevelFetch returning false");
+                    if (verbose>=4) debug("FinishResilient.lowLevelFetch returning false");
                     return false;
                 }
             } while (!done().get());
             Runtime.decreaseParallelism(1n);
         }
+        if (verbose>=4) debug("FinishResilient.lowLevelFetch returned from waiting loop");
         val t = exc()();
         if (t != null) {
-            if (verbose>=3) debug("FinishResilient.lowLevelFetch throwing exception " + t);
+            if (verbose>=4) debug("FinishResilient.lowLevelFetch throwing exception " + t);
             throw t;
         }
-        if (verbose>=3) debug("FinishResilient.lowLevelFetch returning true");
+        if (verbose>=4) debug("FinishResilient.lowLevelFetch returning true");
         return true; // success
     }
 }

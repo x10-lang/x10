@@ -33,6 +33,7 @@ class ResilientStorePlace0[K,V] extends ResilientStore[K,V] {
     }
     
     public static def make[K,V](name:Any):ResilientStorePlace0[K,V] {
+        if (verbose>=3) debug("make called, name="+name);
         val result = new Cell[ResilientStorePlace0[K,V]](null);
         lowLevelFetch(Place(0), result, ()=>{
             var rs:ResilientStorePlace0[K,V];
@@ -45,11 +46,15 @@ class ResilientStorePlace0[K,V] extends ResilientStore[K,V] {
             }
             return rs;
         });
-        return result();
+        val r = result();
+        if (verbose>=3) debug("make returning result="+r);
+        return r;
     }
     
     public static def delete(name:Any):void {
+        if (verbose>=3) debug("delete called, name="+name);
         lowLevelAt(Place(0), ()=>{ atomic { ALL.remove(name); } });
+        if (verbose>=3) debug("delete returning");
     }
     
     private def getHM() {
@@ -60,15 +65,20 @@ class ResilientStorePlace0[K,V] extends ResilientStore[K,V] {
     public def create(key:K, value:V):void { put(key, value); }
     
     public def put(key:K, value:V):void {
+        if (verbose>=3) debug("put called, key="+key + " value="+value);
         lowLevelAt(root.home, ()=>{ atomic { getHM().put(key, value); } });
+        if (verbose>=3) debug("put returning");
     }
     
     public def getOrElse(key:K, orelse:V):V {
+        if (verbose>=3) debug("getOrElse called, key="+key);
         val result = new Cell[V](orelse);
         lowLevelFetch(root.home, result, ()=>{
             val v:V; atomic { v = getHM().getOrElse(key, orelse); } return v;
         });
-        return result();
+        val r = result();
+        if (verbose>=3) debug("getOrElse returning, result="+r);
+        return r;
     }
     
     public def remove(key:K):void {
@@ -83,12 +93,12 @@ class ResilientStorePlace0[K,V] extends ResilientStore[K,V] {
     public def lock():void {
         if (verbose>=3) debug("lock called");
         lowLevelAt(root.home, ()=>{ getLK().lock(); });
-        if (verbose>=3) debug("lock returning");
+        if (verbose>=3) debug("lock returning (locked)");
     }
     
     public def unlock():void {
         if (verbose>=3) debug("unlock called");
         lowLevelAt(root.home, ()=>{ getLK().unlock(); });
-        if (verbose>=3) debug("unlock returning");
+        if (verbose>=3) debug("unlock returning (unlocked)");
     }
 }
