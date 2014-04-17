@@ -39,7 +39,7 @@ public abstract class Runtime implements VoidFun_0_0 {
         return null;
     }
 
-    protected String[] args;
+    protected x10.core.Rail<String> aargs;
 
     // not used
 //    // constructor just for allocation
@@ -59,7 +59,6 @@ public abstract class Runtime implements VoidFun_0_0 {
      * (only called in non-library mode)
      */
     protected void start(final String[] args) {
-        this.args = args;
 
         // load libraries
         String property = System.getProperty("x10.LOAD");
@@ -88,6 +87,18 @@ public abstract class Runtime implements VoidFun_0_0 {
                 System.out.flush();
             }
         });
+
+        // x10rt-level registration of MessageHandlers
+        X10RT.registerHandlers();
+        X10RT.registration_complete();
+
+        // build up Rail[String] for args
+        aargs = new x10.core.Rail<String>(Types.STRING, (args == null) ? 0 : args.length);
+        if (args != null) {
+            for (int i = 0; i < args.length; i++) {
+                aargs.$set__1x10$lang$Rail$$T$G(i, args[i]);
+            }
+        }
 
         // start and join main x10 thread in place 0
         x10.lang.Runtime.Worker worker = new x10.lang.Runtime.Worker(0);
@@ -143,18 +154,6 @@ public abstract class Runtime implements VoidFun_0_0 {
     }
 
     public void $apply() {
-        // x10rt-level registration of MessageHandlers
-        X10RT.registerHandlers();
-        X10RT.registration_complete();
-
-        // build up Rail[String] for args
-        final x10.core.Rail<String> aargs = new x10.core.Rail<String>(Types.STRING, (args == null) ? 0 : args.length);
-        if (args != null) {
-	        for (int i = 0; i < args.length; i++) {
-	            aargs.$set__1x10$lang$Rail$$T$G(i, args[i]);
-	        }
-        }
-
         // execute root x10 activity
         try {
             // start xrx
