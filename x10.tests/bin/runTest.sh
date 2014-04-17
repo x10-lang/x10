@@ -736,6 +736,9 @@ function main {
 	    # the actual output will be logged here
 	    tcoutdat=${tcroot}/${tctarget}.${jen_resiliency_mode}.out
 
+        # temporary patch (else part)
+        # set X10_BUSY_WAITING=TRUE to test Resilient X10
+        if [[ ${jen_resiliency_mode} -eq 0 ]]; then
 	    if [[ "$tcbackend" == "native" ]]; then
 		if [[ "$(uname -s)" == CYGWIN* ]]; then
 		    run_cmd="X10_RESILIENT_MODE=${jen_resiliency_mode} X10_NPLACES=${my_nplaces} X10_HOSTLIST=localhost $RUN_X10 ./${tctarget}.exe"
@@ -745,6 +748,17 @@ function main {
 	    else
 		run_cmd="X10_RESILIENT_MODE=${jen_resiliency_mode} X10_NPLACES=${my_nplaces} X10_HOSTLIST=localhost $X10_HOME/x10.dist/bin/x10 -ms128M -mx512M -t -v -J-ea ${className}"
 	    fi
+        else
+	    if [[ "$tcbackend" == "native" ]]; then
+		if [[ "$(uname -s)" == CYGWIN* ]]; then
+		    run_cmd="X10_BUSY_WAITING=TRUE X10_RESILIENT_MODE=${jen_resiliency_mode} X10_NPLACES=${my_nplaces} X10_HOSTLIST=localhost $RUN_X10 ./${tctarget}.exe"
+		else
+		    run_cmd="X10_BUSY_WAITING=TRUE X10_RESILIENT_MODE=${jen_resiliency_mode} X10_NPLACES=${my_nplaces} X10_HOSTLIST=localhost ./${tctarget}"
+		fi
+	    else
+		run_cmd="X10_BUSY_WAITING=TRUE X10_RESILIENT_MODE=${jen_resiliency_mode} X10_NPLACES=${my_nplaces} X10_HOSTLIST=localhost $X10_HOME/x10.dist/bin/x10 -ms128M -mx512M -t -v -J-ea ${className}"
+	    fi
+        fi
 	    printf "\n${run_cmd}\n" >> $tcoutdat
 
 	    __jen_test_x10_timeout="$tctoutval"
