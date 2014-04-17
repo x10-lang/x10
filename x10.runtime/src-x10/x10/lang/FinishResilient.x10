@@ -230,6 +230,29 @@ abstract class FinishResilient extends FinishState {
     /*
      * Utility methods used in subclasses
      */
+    // returns true if dst is not dead, does not wait for the completion
+    protected static def lowLevelSend(dst:Place, cl:()=>void):Boolean {
+        if (verbose>=4) debug("FinishResilient.lowLevelSend called, dst.id=" + dst.id);
+        if (here == dst) {
+            if (verbose>=4) debug("FinishResilient.lowLevelSend locally calling cl()");
+            cl();
+            if (verbose>=4) debug("FinishResilient.lowLevelSend locally executed, returning true");
+            return true;
+        }
+        if (verbose>=4) debug("FinishResilient.lowLevelSend remote execution");
+        if (dst.isDead()) {
+            if (verbose>=4) debug("FinishResilient.lowLevelSend returning false");
+            return false;
+        }
+        Runtime.x10rtSendMessage(dst.id, () => @RemoteInvocation("finish_resilient_low_level_send_out") {
+            if (verbose>=4) debug("(remote) calling cl()");
+            cl();
+            if (verbose>=4) debug("(remote) returned from cl()");
+        }, null);
+        if (verbose>=4) debug("FinishResilient.lowLevelSend returning true");
+        return true;
+    }
+    
     // returns true if cl is processed at dst
     protected static def lowLevelAt(dst:Place, cl:()=>void):Boolean {
         if (verbose>=4) debug("FinishResilient.lowLevelAt called, dst.id=" + dst.id);
@@ -350,4 +373,5 @@ abstract class FinishResilient extends FinishState {
         if (verbose>=4) debug("FinishResilient.lowLevelFetch returning true");
         return true; // success
     }
+
 }

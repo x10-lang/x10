@@ -67,7 +67,8 @@ class FinishResilientSample extends FinishResilient implements Runtime.Mortal {
             s.add("    liveAdopted:"); for (v in liveAdopted   ) s.add(" " + v); s.add('\n');
             s.add("        transit:"); for (v in transit       ) s.add(" " + v); s.add('\n');
             s.add(" transitAdopted:"); for (v in transitAdopted) s.add(" " + v); s.add('\n');
-            s.add("  children.size: " + children.size()); s.add("  adopterId: " + adopterId);
+            s.add("  children.size: " + children.size()); s.add('\n');
+            s.add("      adopterId: " + adopterId);
             debug(s.toString());
         }
     }
@@ -112,17 +113,11 @@ class FinishResilientSample extends FinishResilient implements Runtime.Mortal {
     }
     private def releaseLatch() { // can be called from any place
         if (verbose>=2) debug("releaseLatch(fs="+this+") called");
-        val home = id.home;
-        if (here == home) {
-            // assert this==id();
-            latch.release(); // latch.wait is in waitForFinish
-        } else {
-            Runtime.x10rtSendMessage(home.id, () => @RemoteInvocation("finish_resilient_sample_release") {
-                val fs = (id as FinishID{home==here})();
-                if (verbose>=2) debug("calling latch.release for fs="+fs);
-                fs.latch.release();
-            }, null);
-        }
+        lowLevelSend(id.home, ()=>{
+            val fs = id.getLocalOrCopy();
+            if (verbose>=2) debug("calling latch.release for fs="+fs);
+            fs.latch.release(); // latch.wait is in waitForFinish
+        });
         if (verbose>=2) debug("releaseLatch(fs="+this+") returning");
     }
     
