@@ -51,6 +51,9 @@ namespace x10 {
             /** Current value of the system timer, in nanoseconds.  May be rounded if system timer does not have nanosecond precision. */
             static x10_long nanoTime();
 
+            /** Converts a time in seconds to a string representation. */
+            static ::x10::lang::String* timeToString(long seconds);
+
             /** Low-level println to stderr; intended only for low-level debugging of XRX */
             static void println(const char *msg);
 

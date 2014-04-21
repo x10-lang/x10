@@ -85,6 +85,14 @@ x10_long RuntimeNatives::nanoTime() {
 #endif
 }
 
+::x10::lang::String* RuntimeNatives::timeToString(long seconds) {
+    time_t t = static_cast<const time_t>(seconds);
+    struct tm *timeinfo = localtime(&t);
+    char buffer[80];
+    strftime(buffer, 80, "%a %b %d %H:%M:%S %Z %Y", timeinfo);
+    return ::x10aux::makeStringLit(buffer);
+}
+
 void RuntimeNatives::println(const char *msg) {
     fprintf(stderr, "%s\n", msg);
 }
