@@ -600,8 +600,7 @@ public class RoseTranslator extends Translator {
 
 			visitChild(n, n.returnType());			
 			visitChildren(n, n.formals());
-			
-		
+
 /*
 			JNI.cactionMethodDeclaration(n.name().id().toString(), method_index++, formals.size(), 
 					new JavaToken(n.name().id().toString(), new JavaSourcePositionInformation(n.position().line())), 
