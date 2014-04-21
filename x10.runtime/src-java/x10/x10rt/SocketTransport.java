@@ -75,8 +75,8 @@ public class SocketTransport {
 		LinkedList<ByteBuffer> pendingWrites;
     }
 	
-	private int nplaces = 1; // number of places
-	private int myPlaceId = 0; // my place ID
+	private int nplaces = -1; // number of places
+	private int myPlaceId = -1; // my place ID
 	private ServerSocketChannel localListenSocket = null;
 	private final ConcurrentHashMap<Integer,CommunicationLink> channels = new ConcurrentHashMap<Integer, SocketTransport.CommunicationLink>(); // communication links to remote places, and launcher stored at myPlaceId
 	private final TreeSet<Integer> deadPlaces = new TreeSet<Integer>();
@@ -129,7 +129,7 @@ public class SocketTransport {
 		}
 		catch (NumberFormatException e){} // not set.		
 		
-		if (DEBUG) System.err.println("Socket library initialized");
+		if (DEBUG) System.err.println("Socket library initialized. myPlaceid="+this.myPlaceId+" nplaces="+this.nplaces);
 	}
 	
 	public String getLocalConnectionInfo() {
@@ -147,7 +147,26 @@ public class SocketTransport {
 		return hostname+":"+port;
 	}
 	
+	// this form is used in elastic X10. It links to any known place 
+	// and gets config information from it
+	public int establishLinks(String initialLink) {
+		try {
+			initLink(-1, initialLink);
+		} catch (IOException e) {
+			e.printStackTrace();
+			return RETURNCODE.X10RT_ERR_OTHER.ordinal();
+		}
+		return RETURNCODE.X10RT_ERR_OK.ordinal();
+	}
+	
+	// this form is used when the launcher provides config information, 
+	// or, when there is a single place and no launcher
 	public int establishLinks() {
+		if (this.myPlaceId == -1 && this.nplaces == -1) {
+			this.nplaces = 1;
+			this.myPlaceId = 0;
+		}
+
 		if (nplaces > 1) {
 			for (int i=0; i<myPlaceId; i++) {
 				try {
@@ -171,17 +190,21 @@ public class SocketTransport {
 		return RETURNCODE.X10RT_ERR_OK.ordinal();
 	}
 	
+	// this form is used when config information is provided from outside, after initial loading
     public int establishLinks(int myPlaceId, String[] connectionStrings) {
-    	if (DEBUG) System.err.println("Place "+myPlaceId+" establishing links.  id="+this.myPlaceId+" np="+this.nplaces);
-    	if (this.myPlaceId != 0 || this.nplaces != 1) // make we are in the right state to establish links
+    	if (this.myPlaceId != -1 || this.nplaces != -1) // make we are in the right state to establish links
     		return RETURNCODE.X10RT_ERR_INVALID.ordinal();
-    		
-    	this.myPlaceId = myPlaceId;
-    	if (connectionStrings != null && connectionStrings.length > 1)
+
+    	if (connectionStrings != null && connectionStrings.length > 1) {
     		this.nplaces = connectionStrings.length;
+        	this.myPlaceId = myPlaceId;
+    	}
     	else {
     		// single place.  No need to establish any links.
+    		if (myPlaceId != 0)
+    			return RETURNCODE.X10RT_ERR_INVALID.ordinal();
     		this.nplaces = 1;
+    		this.myPlaceId = 0;
     		if (localListenSocket != null) {
     			try {
 					localListenSocket.close();
@@ -193,6 +216,8 @@ public class SocketTransport {
     	if (shuttingDown)
     		return RETURNCODE.X10RT_ERR_OTHER.ordinal();
     	else {
+    		if (DEBUG) System.err.println("Place "+myPlaceId+" establishing links.  id="+myPlaceId+" np="+((connectionStrings==null)?'1':connectionStrings.length));
+        	
 	    	for (int i=0; i<myPlaceId; i++) {
 				try {
 					initLink(i, connectionStrings[i]);
@@ -256,11 +281,11 @@ public class SocketTransport {
     }
 
     public int x10rt_nplaces(){
-    	return nplaces;
+    	return this.nplaces;
     }
         
     public int x10rt_here(){
-    	return myPlaceId;
+    	return this.myPlaceId;
     }
     
     // If a thread is blocked on the blocking_probe, wake it up so that it can return.  If nothing is blocked, 
@@ -315,7 +340,7 @@ public class SocketTransport {
 				int msgtype = controlMsg.getInt();
 				
 				if (CTRL_MSG_TYPE.HELLO.ordinal() == msgtype) {
-					int to = controlMsg.getInt();										
+					int to = controlMsg.getInt();
 					if (to == myPlaceId) {
 						remote = controlMsg.getInt();
 						if (remote < nplaces) {
@@ -497,14 +522,14 @@ public class SocketTransport {
     	String hostname;
     	int port;
     	
-    	if (connectionInfo == null && !channels.containsKey(myPlaceId)) { // link does not exist, and no link to launcher
+    	if (connectionInfo == null && !channels.containsKey(myPlaceId) && remotePlace > -1) { // link does not exist, and no link to launcher
     		String forcePortsFlag = System.getenv(X10_FORCEPORTS);
     		if (forcePortsFlag == null) throw new IOException("Unknown location for place "+remotePlace);
     		hostname = "localhost";		
     		port = Integer.parseInt(forcePortsFlag)+remotePlace;
     	}
     	else {
-    		if (connectionInfo == null) {
+    		if (connectionInfo == null && remotePlace > -1) {
     			// ask the launcher
     			CommunicationLink launcherLink = channels.get(myPlaceId);
     			ByteBuffer placeRequest = ByteBuffer.allocateDirect(16);
