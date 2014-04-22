@@ -142,6 +142,7 @@ ALL_XRCPP_OBJECTS = \
 	x10aux/lock.o \
 	x10aux/network.o \
 	x10aux/network_dispatcher.o \
+	x10aux/pcond.o \
 	x10aux/place_local.o \
 	x10aux/reference_logger.o \
 	x10aux/RTT.o \
@@ -164,6 +165,7 @@ ALL_XRCPP_OBJECTS = \
 	x10/lang/Closure.o \
 	x10/lang/Comparable.o \
 	x10/lang/Complex.o \
+	x10/lang/Condition.o \
 	x10/lang/Double.o \
 	x10/lang/Fun.o \
 	x10/lang/GlobalRef.o \
