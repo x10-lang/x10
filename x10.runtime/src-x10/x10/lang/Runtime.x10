@@ -26,6 +26,7 @@ import x10.io.Writer;
 import x10.util.Random;
 import x10.util.Box;
 
+import x10.util.concurrent.Condition;
 import x10.util.concurrent.Lock;
 import x10.util.concurrent.Monitor;
 import x10.util.concurrent.SimpleLatch;
@@ -428,6 +429,23 @@ public final class Runtime {
             lock.unlock();
             return worker.activity;
         }
+        
+        def wakeup():void {
+            if (idleCount - spareNeeded <= 0n && !probing) return;
+            lock.lock();
+            convert();
+            if (idleCount <= 0n) {
+                val p = probing;
+                lock.unlock();
+                if (p && multiplace) x10rtUnblockProbe();
+                return;
+            }
+            val i = spareCount + --idleCount;
+            val worker = parkedWorkers(i);
+            parkedWorkers(i) = null;
+            lock.unlock();
+            worker.unpark();
+        }
 
         // deal to idle worker if any
         // return true on success
@@ -609,6 +627,7 @@ public final class Runtime {
 
     static class Pool {
         val latch = new SimpleLatch();
+        val watcher = new Watcher();
         
         var wsEnd:Boolean = false;
 
@@ -638,7 +657,7 @@ public final class Runtime {
 
         def run():void {
             workers(0n)();
-            while (workers.count > workers.deadCount) Worker.park();
+            join();
         }
 
         // notify the pool a worker is about to execute a blocking operation
@@ -671,7 +690,7 @@ public final class Runtime {
         // release permit (called by worker upon termination)
         def release():void {
             workers.reclaim();
-            if (workers.count == workers.deadCount) workers(0n).unpark();
+            if (workers.count == workers.deadCount) pool.watcher.release();
         }
 
         // scan workers and network for pending activities
@@ -770,12 +789,79 @@ public final class Runtime {
     private static val processStartNanos_ = new Cell[Long](0);
     public static def processStartNanos() = processStartNanos_();
 
+    public static final class Watcher extends Condition {
+        private var t:MultipleExceptions = null;
+
+        public def raise(t:MultipleExceptions):void { this.t = t; }
+
+        public def await():void {
+            super.await();
+            if (null != t) throw t;
+        }
+    }
+
+    public static def submit(job:()=>void):void {
+        pool.workers(0n).push(new Activity(job, here, FinishState.UNCOUNTED_FINISH));
+        pool.workers.wakeup();
+    }
+
+    public static def watch(job:()=>void):Watcher {
+        val watcher = new Watcher();
+        val wrapper = ()=>{ try { finish job(); } catch (t:MultipleExceptions) { watcher.raise(t); } finally { watcher.release(); } };
+        submit(wrapper);
+        return watcher;
+    }
+
+    public static def start(n:Int):void {
+        processStartNanos_(System.nanoTime());
+        pool(n+1n);
+    }
+
+    public static def join():void {
+        pool.watcher.await();
+    }
+
+    public static def main0(job:()=>void):void {
+        if (hereLong() == 0) {
+            val wrapper = ()=>{ try { finish job(); } catch (t:MultipleExceptions) { pool.watcher.raise(t); } finally { terminate0(); } };
+            submit(wrapper);
+        }
+    }
+
+    public static def start(job:()=>void):void {
+        start(NTHREADS-1n);
+        main0(job);
+        pool.run();
+    }
+
+    public static def terminate0() {
+        if (Place.MAX_PLACES >= 1024) {
+            val cl1 = ()=> @x10.compiler.RemoteInvocation("start_1") {
+                val h = hereInt();
+                val cl = ()=> @x10.compiler.RemoteInvocation("start_2") {pool.latch.release();};
+                for (var j:Int=Math.max(1n, h-31n); j<h; ++j) {
+                    x10rtSendMessage(j, cl, null);
+                }
+                pool.latch.release();
+            };
+            for(var i:Long=Place.MAX_PLACES-1; i>0; i-=32) {
+                x10rtSendMessage(i, cl1, null);
+            }
+        } else {
+            val cl = ()=> @x10.compiler.RemoteInvocation("start_3") {pool.latch.release();};
+            for (var i:Long=Place.MAX_PLACES-1; i>0; --i) {
+                x10rtSendMessage(i, cl, null);
+            }
+        }
+        pool.latch.release();
+    }
+
     /**
      * Run main activity in a finish.
      * @param init Static initializers
      * @param body Main activity
      */
-    public static def start(body:()=>void):void {
+    public static def startDeprecated(body:()=>void):void {
         // initialize thread pool for the current process
         // initialize runtime
 
@@ -802,24 +888,7 @@ public final class Runtime {
                 // [DC] finish counters may now be negative due to implicit call to notifyActivityTermination inside waitForFinish
             } finally {
                 // root finish has terminated, kill remote processes if any
-                if (Place.MAX_PLACES >= 1024) {
-                    val cl1 = ()=> @x10.compiler.RemoteInvocation("start_1") {
-                        val h = hereInt();
-                        val cl = ()=> @x10.compiler.RemoteInvocation("start_2") {pool.latch.release();};
-                        for (var j:Int=Math.max(1n, h-31n); j<h; ++j) {
-                            x10rtSendMessage(j, cl, null);
-                        }
-                        pool.latch.release();
-                    };
-                    for(var i:Long=Place.MAX_PLACES-1; i>0; i-=32) {
-                        x10rtSendMessage(i, cl1, null);
-                    }
-                } else {
-                    val cl = ()=> @x10.compiler.RemoteInvocation("start_3") {pool.latch.release();};
-                    for (var i:Long=Place.MAX_PLACES-1; i>0; --i) {
-                        x10rtSendMessage(i, cl, null);
-                    }
-                }
+                terminate0();
             }
         } else {
             // wait for thread pool to die
