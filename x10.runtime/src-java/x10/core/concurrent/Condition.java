@@ -2,7 +2,7 @@ package x10.core.concurrent;
 
 @SuppressWarnings("serial")
 public class Condition extends java.util.concurrent.locks.ReentrantLock {
-    protected Boolean blocked = true;
+    protected boolean unblocked;
     protected java.lang.Thread thread = null;
     
     public Condition(System[] $dummy) {
@@ -14,17 +14,17 @@ public class Condition extends java.util.concurrent.locks.ReentrantLock {
     
     public void release() {
         lock();
-        blocked = false;
+        unblocked = true;
         if (null != thread) java.util.concurrent.locks.LockSupport.unpark(thread);
         unlock();
     }
     
     public void await() {
-        if (blocked) {
+        if (!unblocked) {
             lock();
-            if (blocked) {
+            if (!unblocked) {
                 thread = java.lang.Thread.currentThread();
-                while (blocked) {
+                while (!unblocked) {
                     unlock();
                     java.util.concurrent.locks.LockSupport.park();
                     lock();
