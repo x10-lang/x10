@@ -14,9 +14,9 @@
 #include <errno.h>
 
 void x10aux::pcond::initialize() {
+    unblocked = false;
     pthread_mutex_init(&__mutex, NULL);
     pthread_cond_init(&__cond, NULL);
-    blocked = true;
 }
 
 void x10aux::pcond::teardown() {
@@ -34,19 +34,17 @@ void x10aux::pcond::unlock() {
 
 void x10aux::pcond::release() {
     pthread_mutex_lock(&__mutex);
-    blocked = false;
-    pthread_mutex_unlock(&__mutex);
+    unblocked = true;
     pthread_cond_signal(&__cond);
+    pthread_mutex_unlock(&__mutex);
 }
 
 void x10aux::pcond::await() {
-    if (blocked) {
-        pthread_mutex_lock(&__mutex);
-        while (blocked) {
-           pthread_cond_wait(&__cond, &__mutex);
-        }
-        pthread_mutex_unlock(&__mutex);
+    pthread_mutex_lock(&__mutex);
+    while (!unblocked) {
+       pthread_cond_wait(&__cond, &__mutex);
     }
+    pthread_mutex_unlock(&__mutex);
 }
 
 // vim:tabstop=4:shiftwidth=4:expandtab

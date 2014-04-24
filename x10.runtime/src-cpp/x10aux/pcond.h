@@ -27,7 +27,7 @@ namespace x10aux {
     private:
         pthread_mutex_t __mutex;
         pthread_cond_t __cond;
-        bool blocked;
+        bool unblocked;
         void initialize();
         void teardown();
     };
