@@ -10,7 +10,7 @@
  */
 package x10.lang;
 
-abstract class ResilientStore[K,V] {
+abstract public class ResilientStore[K,V] {
     protected static val verbose = FinishResilient.verbose; //TODO: to be separated
     protected static def debug(msg:String) { FinishResilient.debug(msg); }
     

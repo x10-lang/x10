@@ -84,7 +84,7 @@ class FinishResilientSample extends FinishResilient implements Runtime.Mortal {
         this.id = new FinishID(this);
     }    
     static def make(parent:FinishState, latch:SimpleLatch):FinishResilientSample { // parent is null for rootFinish
-        if (verbose>=1) debug("make called, parent="+parent + " latch="+latch);
+        if (verbose>=1) debug(">>>> make called, parent="+parent + " latch="+latch);
         val fs = new FinishResilientSample(parent, latch);
         val id = fs.id;
         val state = new State();
@@ -99,26 +99,26 @@ class FinishResilientSample extends FinishResilient implements Runtime.Mortal {
         }
         atomic { ALL.add(fs); } // will be used in notifyPlaceDeath, and removed in waitForFinish
        RS.unlock();
-        if (verbose>=1) debug("make returning fs="+fs);
+        if (verbose>=1) debug("<<<< make returning fs="+fs);
         return fs;
     }
     static def notifyPlaceDeath():void {
-        if (verbose>=1) debug("notifyPlaceDeath called");
+        if (verbose>=1) debug(">>>> notifyPlaceDeath called");
         for (fs in ALL) {
            RS.lock();
             if (fs.quiescent()) fs.releaseLatch();
            RS.unlock();
         }
-        if (verbose>=1) debug("notifyPlaceDeath returning");
+        if (verbose>=1) debug("<<<< notifyPlaceDeath returning");
     }
     private def releaseLatch() { // can be called from any place
-        if (verbose>=2) debug("releaseLatch(fs="+this+") called");
+        if (verbose>=2) debug("releaseLatch(id="+id+") called");
         lowLevelSend(id.home, ()=>{
             val fs = id.getLocalOrCopy();
-            if (verbose>=2) debug("calling latch.release for fs="+fs);
+            if (verbose>=2) debug("calling latch.release for id="+id);
             fs.latch.release(); // latch.wait is in waitForFinish
         });
-        if (verbose>=2) debug("releaseLatch(fs="+this+") returning");
+        if (verbose>=2) debug("releaseLatch(id="+id+") returning");
     }
     
     private def getCurrentAdopterId():FinishID {
@@ -133,48 +133,50 @@ class FinishResilientSample extends FinishResilient implements Runtime.Mortal {
     }
     def notifySubActivitySpawn(place:Place):void {
         val srcId = here.id, dstId = place.id;
-        if (verbose>=1) debug("notifySubActivitySpawn(fs="+this+") called, srcId="+srcId + "dstId="+dstId);
+        if (verbose>=1) debug(">>>> notifySubActivitySpawn(id="+id+") called, srcId="+srcId + " dstId="+dstId);
        RS.lock();
         val state = RS.getOrElse(id, null);
         if (!state.isAdopted()) {
-            state.transit(srcId + dstId*Place.MAX_PLACES)++;
+            state.transit(srcId*Place.MAX_PLACES + dstId)++;
             RS.put(id, state);
         } else {
             val adopterId = getCurrentAdopterId();
             val adopterState = RS.getOrElse(adopterId, null);
-            adopterState.transitAdopted(srcId + dstId*Place.MAX_PLACES)++;
+            adopterState.transitAdopted(srcId*Place.MAX_PLACES + dstId)++;
             RS.put(adopterId, adopterState);
         }
+        if (verbose>=3) state.dump("DUMP id="+id);
        RS.unlock();
-        if (verbose>=1) debug("notifySubActivitySpawn(fs="+this+") returning");
+        if (verbose>=1) debug("<<<< notifySubActivitySpawn(id="+id+") returning");
     }
     def notifyActivityCreation(srcPlace:Place):Boolean {
         val srcId = srcPlace.id, dstId = here.id;
-        if (verbose>=1) debug("notifyActivityCreation(fs="+this+") called, srcId="+srcId + "dstId="+dstId);
+        if (verbose>=1) debug(">>>> notifyActivityCreation(id="+id+") called, srcId="+srcId + " dstId="+dstId);
         if (srcPlace.isDead()) {
-            if (verbose>=1) debug("notifyActivityCreation(fs="+this+") returning false");
+            if (verbose>=1) debug("<<<< notifyActivityCreation(id="+id+") returning false");
             return false;
         }
         RS.lock();
         val state = RS.getOrElse(id, null);
         if (!state.isAdopted()) {
             state.live(dstId)++;
-            state.transit(srcId + dstId*Place.MAX_PLACES)--;
+            state.transit(srcId*Place.MAX_PLACES + dstId)--;
             RS.put(id, state);
         } else {
             val adopterId = getCurrentAdopterId();
             val adopterState = RS.getOrElse(adopterId, null);
             adopterState.liveAdopted(dstId)++;
-            adopterState.transitAdopted(srcId + dstId*Place.MAX_PLACES)--;
+            adopterState.transitAdopted(srcId*Place.MAX_PLACES + dstId)--;
             RS.put(adopterId, adopterState);
         }
+        if (verbose>=3) state.dump("DUMP id="+id);
        RS.unlock();
-        if (verbose>=1) debug("notifyActivityCreation(fs="+this+") returning true");
+        if (verbose>=1) debug("<<<< notifyActivityCreation(id="+id+") returning true");
         return true;
     }
     def notifyActivityTermination():void {
         val dstId = here.id;
-        if (verbose>=1) debug("notifyActivityTermination(fs="+this+") called, dstId="+dstId);
+        if (verbose>=1) debug(">>>> notifyActivityTermination(id="+id+") called, dstId="+dstId);
        RS.lock();
         val state = RS.getOrElse(id, null);
         if (!state.isAdopted()) {
@@ -188,25 +190,25 @@ class FinishResilientSample extends FinishResilient implements Runtime.Mortal {
         }
         if (quiescent()) releaseLatch();
        RS.unlock();
-        if (verbose>=1) debug("notifyActivityTermination(fs="+this+") returning");
+        if (verbose>=1) debug("<<<< notifyActivityTermination(id="+id+") returning");
     }
     def pushException(t:Exception):void {
-        if (verbose>=1) debug("pushException(fs="+this+") called, t="+t);
+        if (verbose>=1) debug(">>>> pushException(id="+id+") called, t="+t);
        RS.lock();
         val state = RS.getOrElse(id, null);
         state.excs.add(t); // need not consider the adopter
         RS.put(id, state);
        RS.unlock();
-        if (verbose>=1) debug("pushException(fs="+this+") returning");
+        if (verbose>=1) debug("<<<< pushException(id="+id+") returning");
     }
     
     def waitForFinish():void {
         assert id.home==here;
-        if (verbose>=1) debug("waitForFinish(fs="+this+") called");
+        if (verbose>=1) debug(">>>> waitForFinish(id="+id+") called");
         notifyActivityTermination(); // terminate myself
-        if (verbose>=2) debug("calling latch.await for fs="+this);
-        latch.await(); // wait for the termination
-        if (verbose>=2) debug("returned from latch.await for fs="+this);
+        if (verbose>=2) debug("calling latch.await for id="+id);
+        latch.await(); // wait for the termination (latch may already be released)
+        if (verbose>=2) debug("returned from latch.await for id="+id);
         var e:MultipleExceptions = null;
        RS.lock();
         val state = RS.getOrElse(id, null);
@@ -218,12 +220,12 @@ class FinishResilientSample extends FinishResilient implements Runtime.Mortal {
         }
         atomic { ALL.remove(this); }
        RS.unlock();
-        if (verbose>=1) debug("waitForFinish(fs="+this+") returning, exc="+e);
+        if (verbose>=1) debug("<<<< waitForFinish(id="+id+") returning, exc="+e);
         if (e != null) throw e;
     }
     
     private def quiescent():Boolean {
-        if (verbose>=2) debug("quiescent(fs="+this+") called");
+        if (verbose>=2) debug("quiescent(id="+id+") called");
         // assert RS.isLocked();
         val state = RS.getOrElse(id, null);
         
@@ -248,7 +250,7 @@ class FinishResilientSample extends FinishResilient implements Runtime.Mortal {
                 for (i in 0..(Place.MAX_PLACES-1)) {
                     state.liveAdopted(i) += (childState.live(i) + childState.liveAdopted(i));
                     for (j in 0..(Place.MAX_PLACES-1)) {
-                        val idx = i + j*Place.MAX_PLACES;
+                        val idx = i*Place.MAX_PLACES + j;
                         state.transitAdopted(idx) += (childState.transit(idx) + childState.transitAdopted(idx));
                     }
                 }
@@ -263,9 +265,9 @@ class FinishResilientSample extends FinishResilient implements Runtime.Mortal {
                 }
                 state.live(i) = 0n; state.liveAdopted(i) = 0n;
                 for (j in 0..(Place.MAX_PLACES-1)) {
-                    val idx = i + j*Place.MAX_PLACES;
+                    val idx = i*Place.MAX_PLACES + j;
                     state.transit(idx) = 0n; state.transitAdopted(idx) = 0n;
-                    val idx2 = j + i*Place.MAX_PLACES;
+                    val idx2 = j*Place.MAX_PLACES + i;
                     for (unused in 1..state.transit(idx2)) {
                         if (verbose>=3) debug("adding DPE for transit("+j+","+i+")");
                         addDeadPlaceException(state, i);
@@ -278,19 +280,19 @@ class FinishResilientSample extends FinishResilient implements Runtime.Mortal {
         RS.put(id, state);
         
         // 3 quiescent check
-        if (verbose>=3) state.dump(this);
+        if (verbose>=3) state.dump("DUMP id="+id);
         var quiet:Boolean = true;
         for (i in 0..(Place.MAX_PLACES-1)) {
             if (state.live(i) > 0) { quiet = false; break; }
             if (state.liveAdopted(i) > 0) { quiet = false; break; }
             for (j in 0..(Place.MAX_PLACES-1)) {
-                val idx = i + j*Place.MAX_PLACES;
+                val idx = i*Place.MAX_PLACES + j;
                 if (state.transit(idx) > 0) { quiet = false; break; }
                 if (state.transitAdopted(idx) > 0) { quiet = false; break; }
             }
             if (!quiet) break;
         }
-        if (verbose>=2) debug("quiescent(fs="+this+") returning " + quiet);
+        if (verbose>=2) debug("quiescent(id="+id+") returning " + quiet);
         return quiet;
     }
     private def addDeadPlaceException(state:State, placeId:Long) {

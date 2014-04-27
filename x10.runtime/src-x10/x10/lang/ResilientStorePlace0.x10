@@ -129,6 +129,7 @@ class ResilientStorePlace0[K,V] extends ResilientStore[K,V] {
         if (needWait()) {
             if (verbose>=3) debug("lock waiting gLatch="+gLatch);
             latch.await();
+            if (verbose>=2) debug("lock waited gLatch="+gLatch);
         } else {
             if (verbose>=3) debug("lock need not wait");
         }
@@ -137,19 +138,44 @@ class ResilientStorePlace0[K,V] extends ResilientStore[K,V] {
     
     public def unlock():void {
         if (verbose>=3) debug("unlock called");
-        lowLevelAt(root.home, ()=>{
+        val toRelease = new Cell[GlobalRef[MyLatch]](GlobalRef(null as MyLatch));
+        lowLevelFetch(root.home, toRelease, ()=>{
             val me = getMe();
             var gLatch:GlobalRef[MyLatch] = GlobalRef(null as MyLatch);
             atomic {
                 if (--me.waitCount >= 0) gLatch = me.waitQueue.remove();
             }
-            if (gLatch.isNull()) return;
-            if (verbose>=3) debug("unlock releasing gLatch="+gLatch);
+            return gLatch;
+        });
+        val gLatch = toRelease();
+        if (!gLatch.isNull()) {
+            if (verbose>=3) debug("unlock need to release gLatch="+gLatch);
             val g = gLatch;
             lowLevelSend(g.home, ()=>{
+                if (verbose>=3) debug("unlock releasing gLatch="+g);
                 g.getLocalOrCopy().release();
+                if (verbose>=3) debug("unlock released gLatch="+g);
             });
-        });
+        }
         if (verbose>=3) debug("unlock returning (unlocked)");
     }
+    // public def unlock():void {
+    //     if (verbose>=3) debug("unlock called");
+    //     lowLevelAt(root.home, ()=>{
+    //         val me = getMe();
+    //         var gLatch:GlobalRef[MyLatch] = GlobalRef(null as MyLatch);
+    //         atomic {
+    //             if (--me.waitCount >= 0) gLatch = me.waitQueue.remove();
+    //         }
+    //         if (gLatch.isNull()) return;
+    //         if (verbose>=3) debug("unlock need to release gLatch="+gLatch);
+    //         val g = gLatch;
+    //         lowLevelSend(g.home, ()=>{
+    //             if (verbose>=3) debug("unlock releasing gLatch="+g);
+    //             g.getLocalOrCopy().release();
+    //             if (verbose>=3) debug("unlock released gLatch="+g);
+    //         });
+    //     });
+    //     if (verbose>=3) debug("unlock returning (unlocked)");
+    // }
 }
