@@ -73,6 +73,13 @@ public final struct Place(
     public static def isDead(id:Long):Boolean = false;
 
     /**
+     * The number of places including accelerators.
+     */
+    @Native("java", "((long)x10.x10rt.X10RT.numPlaces())")
+    @Native("c++", "((x10_long)::x10aux::num_places)")
+    public static def numPlaces():Long = ALL_PLACES;
+    
+    /**
      * Returns whether a place is a CUDA GPU.
      */
     @Native("c++", "::x10aux::is_cuda((x10_int)#id)")
@@ -125,7 +132,7 @@ public final struct Place(
      */
     public def this(id:Long):Place(id) { 
         property(id); 
-        if (CompilerFlags.checkPlace() && (id < -1 || id >= ALL_PLACES)) {
+        if (CompilerFlags.checkPlace() && (id < -1 || id >= numPlaces())) {
             throw new IllegalArgumentException(id+" is not a valid Place id");
         }
     }
@@ -162,11 +169,6 @@ public final struct Place(
         // FIXME: iterate through peers
         return this;
     }
-
-    /**
-     * The number of places including accelerators.
-     */
-    public static def numPlaces():Long = ALL_PLACES;
 
     /**
      * 

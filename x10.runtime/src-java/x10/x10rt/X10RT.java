@@ -16,10 +16,10 @@ import x10.x10rt.SocketTransport.RETURNCODE;
 
 public class X10RT {
     enum State { UNINITIALIZED, INITIALIZED, RUNNING, TEARING_DOWN, TORN_DOWN };
+	public static final String X10_JOIN_EXISTING = "X10_JOIN_EXISTING";
 
     static State state = State.UNINITIALIZED;
     static int here;
-    static int numPlaces;
     static boolean forceSinglePlace = false;
     public static SocketTransport javaSockets = null;
     
@@ -74,8 +74,7 @@ public class X10RT {
         state = State.INITIALIZED;
         if (forceSinglePlace) {
         	here = 0;
-        	numPlaces = 1;
-        	x10.runtime.impl.java.Runtime.MAX_PLACES = numPlaces;
+        	x10.runtime.impl.java.Runtime.MAX_PLACES = 1;
             state = State.RUNNING;
         	return null;
         }
@@ -98,11 +97,7 @@ public class X10RT {
     	if (state != State.INITIALIZED) return true; // already initialized
 
         X10RT.here = myPlace;
-        if (connectionInfo == null)
-        	numPlaces = 1;
-        else
-        	numPlaces = connectionInfo.length;
-    
+        
     	int errcode;
     	if (X10RT.javaSockets != null)
     		errcode = X10RT.javaSockets.establishLinks(myPlace, connectionInfo);
@@ -116,7 +111,12 @@ public class X10RT {
             } catch (java.lang.UnsatisfiedLinkError e){}
             return false;
         }
-        x10.runtime.impl.java.Runtime.MAX_PLACES = numPlaces;
+
+        if (connectionInfo == null)
+        	x10.runtime.impl.java.Runtime.MAX_PLACES = 1;
+        else
+        	x10.runtime.impl.java.Runtime.MAX_PLACES = connectionInfo.length;
+
         state = State.RUNNING;
         return true;
     }
@@ -134,15 +134,22 @@ public class X10RT {
           forceSinglePlace = true;
       } 
       else if (libName.equalsIgnoreCase("JavaSockets")) {
+    	  int ret;
     	  X10RT.javaSockets = new SocketTransport();
-    	  int ret = X10RT.javaSockets.establishLinks();
+    	  // check if we are joining an existing computation
+  		  String join = System.getProperty(X10_JOIN_EXISTING);
+  		  if (join != null)
+  			  ret = X10RT.javaSockets.establishLinks(join);
+  		  else
+  			  ret = X10RT.javaSockets.establishLinks();
+  		  
     	  if (ret != RETURNCODE.X10RT_ERR_OK.ordinal()) {
     		  forceSinglePlace = true;
     		  System.err.println("Unable to establish links!  errorcode: "+ret+". Forcing single place execution");
     	  }
     	  else {
     		  here = X10RT.javaSockets.x10rt_here();
-    		  numPlaces = X10RT.javaSockets.x10rt_nplaces();
+    		  x10.runtime.impl.java.Runtime.MAX_PLACES = X10RT.javaSockets.x10rt_nplaces();
     	  }
       }
       else {
@@ -159,7 +166,7 @@ public class X10RT {
               TeamSupport.initialize();
 
               here = x10rt_here();
-              numPlaces = x10rt_nplaces();
+              x10.runtime.impl.java.Runtime.MAX_PLACES = x10rt_nplaces();
           } catch (UnsatisfiedLinkError e) {
               System.err.println("Unable to load "+libName+". Forcing single place execution");
               forceSinglePlace = true;
@@ -168,7 +175,7 @@ public class X10RT {
 
       if (forceSinglePlace) {
           here = 0;
-          numPlaces = 1;
+          x10.runtime.impl.java.Runtime.MAX_PLACES = 1;
       }
       else {
           // Add a shutdown hook to automatically teardown X10RT as part of JVM teardown
@@ -192,7 +199,6 @@ public class X10RT {
                   }
               }}));
       }
-      x10.runtime.impl.java.Runtime.MAX_PLACES = numPlaces;
       state = State.RUNNING;
       return true;
     }
@@ -257,7 +263,12 @@ public class X10RT {
      */
     public static int numPlaces() {
       assert isBooted();
-      return numPlaces;
+      if (javaSockets != null) 
+    	  return javaSockets.x10rt_nplaces();
+      else if (!forceSinglePlace) 
+    	  return x10rt_nplaces();
+      else
+    	  return 1;
     }
 
     /**

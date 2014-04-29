@@ -397,8 +397,8 @@ abstract class FinishState {
                 return;
             }
             if (counts == null || counts.size == 0) {
-                counts = new Rail[Int](Place.MAX_PLACES);
-                seen = new Rail[Boolean](Place.MAX_PLACES);
+                counts = new Rail[Int](Place.numPlaces());
+                seen = new Rail[Boolean](counts.size);
             }
             counts(p.id)++;
             latch.unlock();
@@ -410,7 +410,7 @@ abstract class FinishState {
                 return;
             }
             if (counts != null && counts.size != 0) {
-                for(var i:Int=0n; i<Place.MAX_PLACES; i++) {
+                for(var i:Int=0n; i<counts.size; i++) {
                     if (counts(i) != 0n) {
                         latch.unlock();
                         return;
@@ -436,11 +436,11 @@ abstract class FinishState {
             }
             latch.await();
             if (counts != null && counts.size != 0) {
-                if (Place.MAX_PLACES < 1024) {
+                if (counts.size < 1024) {
                     val root = ref();
                     val closure = ()=>@RemoteInvocation("remoteFinishCleanup") { Runtime.finishStates.remove(root); };
                     seen(Runtime.hereInt()) = false;
-                    for(var i:Int=0n; i<Place.MAX_PLACES; i++) {
+                    for(var i:Int=0n; i<counts.size; i++) {
                         if (seen(i)) Runtime.x10rtSendMessage(i, closure, null);
                     }
                     Unsafe.dealloc(closure);
@@ -456,7 +456,7 @@ abstract class FinishState {
             counts(ref().home.id) = -rail(ref().home.id);
             count += rail(ref().home.id);
             var b:Boolean = count == 0n;
-            for(var i:Long=0; i<Place.MAX_PLACES; i++) {
+            for(var i:Long=0; i<counts.size; i++) {
                 counts(i) += rail(i);
                 seen(i) |= counts(i) != 0n;
                 if (counts(i) != 0n) b = false;
@@ -478,7 +478,7 @@ abstract class FinishState {
             count += counts(ref().home.id);
             counts(ref().home.id) = 0n;
             if (count != 0n) return;
-            for(var i:Int=0n; i<Place.MAX_PLACES; i++) {
+            for(var i:Int=0n; i<counts.size; i++) {
                 if (counts(i) != 0n) return;
             }
             latch.release();
@@ -531,8 +531,8 @@ abstract class FinishState {
                 return;
             }
             if (counts == null || counts.size == 0) {
-                counts = new Rail[Int](Place.MAX_PLACES);
-                places = new Rail[Int](Place.MAX_PLACES);
+                counts = new Rail[Int](Place.numPlaces());
+                places = new Rail[Int](counts.size);
                 places(0) = id as Int; // WARNING: assuming 32 bit places at X10 level.
             }
             val old = counts(place.id);
@@ -560,7 +560,7 @@ abstract class FinishState {
             val closure:()=>void;
             if (counts != null && counts.size != 0) {
                 counts(Runtime.hereLong()) = count;
-                if (2*length > Place.MAX_PLACES) {
+                if (2*length > counts.size) {
                     val message = Unsafe.allocRailUninitialized[Int](counts.size);
                     Rail.copy(counts, 0, message, 0, counts.size);
                     if (null != t) {
@@ -647,8 +647,8 @@ abstract class FinishState {
                 return;
             }
             if (counts == null || counts.size == 0) {
-                counts = new Rail[Int](Place.MAX_PLACES);
-                places = new Rail[Int](Place.MAX_PLACES);
+                counts = new Rail[Int](Place.numPlaces());
+                places = new Rail[Int](counts.size);
                 places(0) = id as Int; // WARNING: assuming 32 bit places at X10 level.
             }
             val old = counts(place.id);
@@ -676,7 +676,7 @@ abstract class FinishState {
             val closure:()=>void;
             if (counts != null && counts.size != 0) {
                 counts(Runtime.hereLong()) = count;
-                if (2*length > Place.MAX_PLACES) {
+                if (2*length > counts.size) {
                     val message = Unsafe.allocRailUninitialized[Int](counts.size);
                     Rail.copy(counts, 0, message, 0, counts.size);
                     if (null != t) {
@@ -710,7 +710,7 @@ abstract class FinishState {
             exceptions = null;
             lock.unlock();
             val h = Runtime.hereInt();
-            if ((Place.MAX_PLACES < 1024) || (h%32n == 0n) || (h-h%32n == (ref.home.id as Int))) {
+            if ((counts.size < 1024) || (h%32n == 0n) || (h-h%32n == (ref.home.id as Int))) {
                 Runtime.x10rtSendMessage(ref.home.id, closure, null);
             } else {
                 val clx = ()=>@RemoteInvocation("notifyActivityTermination_7") { Runtime.x10rtSendMessage(ref.home.id, closure, null); };
@@ -842,7 +842,7 @@ abstract class FinishState {
             sr.reset();
             if (counts != null && counts.size != 0) {
                 counts(Runtime.hereLong()) = count;
-                if (2*length > Place.MAX_PLACES) {
+                if (2*length > counts.size) {
                     val message = Unsafe.allocRailUninitialized[Int](counts.size);
                     Rail.copy(counts, 0, message, 0, counts.size);
                     if (null != t) {
@@ -1238,8 +1238,8 @@ abstract class FinishState {
         var adoptedRoot : GlobalRef[FinishResilientDistributedMaster];
 
         private def this(root:GlobalRef[FinishResilientDistributedMaster]) {
-            this.transit = new Rail[Int](Place.MAX_PLACES * Place.MAX_PLACES, 0n);
-            this.live = new Rail[Int](Place.MAX_PLACES, 0n);
+            this.live = new Rail[Int](Place.numPlaces(), 0n);
+            this.transit = new Rail[Int](live.size * live.size, 0n);
             this.adoptedRoot = root;
         }
         static def make(root:GlobalRef[FinishResilientDistributedMaster]) {
@@ -1252,7 +1252,7 @@ abstract class FinishState {
 
         def notifySubActivitySpawn(srcId:Long, dstId:Long) {
             atomic {
-                transit(srcId + dstId*Place.MAX_PLACES)++;
+                transit(srcId + dstId*live.size)++;
             }
         }
         def notifyActivityCreation(srcId:Long, dstId:Long) {
@@ -1261,7 +1261,7 @@ abstract class FinishState {
                 if (Place(srcId).isDead()) {
                     return false;
                 }
-                transit(srcId + dstId*Place.MAX_PLACES)--;
+                transit(srcId + dstId*live.size)--;
                 live(dstId)++;
             }
             return true;

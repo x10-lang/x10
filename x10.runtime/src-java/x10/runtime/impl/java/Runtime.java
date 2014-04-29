@@ -18,6 +18,7 @@ import java.util.Map;
 import x10.core.fun.VoidFun_0_0;
 import x10.io.Reader;
 import x10.io.Writer;
+import x10.lang.DeadPlaceException;
 import x10.lang.Place;
 import x10.lang.FinishState;
 import x10.rtt.RuntimeType;
@@ -28,6 +29,7 @@ import x10.serialization.X10JavaSerializable;
 import x10.serialization.X10JavaSerializer;
 import x10.x10rt.SocketTransport;
 import x10.x10rt.X10RT;
+import x10.x10rt.SocketTransport.RETURNCODE;
 
 public abstract class Runtime implements VoidFun_0_0 {
 
@@ -265,11 +267,13 @@ public abstract class Runtime implements VoidFun_0_0 {
             }
             
             start = prof!=null ? System.nanoTime() : 0;
-            // TODO: these methods return an error code if the communication fails.  Use it.
             if (X10RT.javaSockets != null) {
-                X10RT.javaSockets.sendMessage(place, SocketTransport.CALLBACKID.simpleAsyncMessageID.ordinal(), new ByteBuffer[]{ByteBuffer.wrap(serializer.getDataBytes())});
+            	if (X10RT.javaSockets.sendMessage(place, SocketTransport.CALLBACKID.simpleAsyncMessageID.ordinal(), new ByteBuffer[]{ByteBuffer.wrap(serializer.getDataBytes())}) != RETURNCODE.X10RT_ERR_OK.ordinal()) {
+            		System.err.println("Unable to send a message to "+place);
+            		throw new DeadPlaceException("Unable to send a message to "+place);
+            	}
             } else {
-                x10.x10rt.MessageHandlers.runSimpleAsyncAtSend(place, serializer.getDataBytes());
+            	x10.x10rt.MessageHandlers.runSimpleAsyncAtSend(place, serializer.getDataBytes());
             }
             if (prof!=null) {
                 prof.communicationNanos += System.nanoTime() - start;
