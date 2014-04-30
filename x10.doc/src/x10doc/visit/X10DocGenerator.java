@@ -287,7 +287,7 @@ public class X10DocGenerator extends X10DelegatingVisitor {
             try {
                 String typeDeclFullName = n.type().qualifierRef().get().toType().fullName().toString();
                 String packageName = typeDeclFullName.substring(0, typeDeclFullName.lastIndexOf('.'));
-                X10PackageDoc pkgDoc = (X10PackageDoc) rootDoc.packageNamed(packageName);
+                X10PackageDoc pkgDoc = rootDoc.getPackage(n.typeDef().package_(), packageName);
                 // com.sun.javadoc.ClassDoc[] pkgClasses = pkgDoc.allClasses();
 
                 xcd = pkgDoc.classDocForName(PACKAGE_DUMMY_CLASS_NAME);

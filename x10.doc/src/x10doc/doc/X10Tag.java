@@ -75,9 +75,8 @@ public class X10Tag implements Tag {
     }
 
     public Tag[] firstSentenceTags() {
-        // TODO Auto-generated method stub
-        System.out.println("Tag.firstSentenceTags() called.");
-        return null;
+        System.out.println("Tag.firstSentenceTags() ignored " + name + ", text: " + text);
+        return new Tag[0];
     }
 
     public Doc holder() {
