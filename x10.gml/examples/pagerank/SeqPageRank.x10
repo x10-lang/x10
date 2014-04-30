@@ -24,7 +24,6 @@ public class SeqPageRank {
 	val rowG:Long;
 
 	val iterations:Long;
-	val nzDensity:Double;
 	val alpha:Double= 0.85;
 
 	// Input and output data
@@ -38,7 +37,7 @@ public class SeqPageRank {
 	
 	public def this(g:DenseMatrix, p:Vector, 
 					e:Vector, u:Vector, 
-					it:Long, nz:Double) {
+					it:Long) {
 		rowG = g.M;
 		G = g as DenseMatrix(rowG, rowG); 
 		P = p as Vector(rowG); 
@@ -46,7 +45,6 @@ public class SeqPageRank {
 		U = u as Vector(rowG);
 
 		iterations = it;
-		nzDensity = nz;
 
 		GP = Vector.make(rowG);
 	}

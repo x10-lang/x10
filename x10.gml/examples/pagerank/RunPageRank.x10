@@ -20,21 +20,21 @@ import pagerank.SeqPageRank;
  * Execution input parameters:
  * <p> (1) Rows and columns of G. Default 10000
  * <p> (2) Iterations number. Default 20
- * <p> (3) Row-wise partition of G. Default Place.MAX_PLACES, or number of places
- * <p> (4) Column-wise partition of G. Default 1.
- * <p> (5) Verification flag. Default 0 or false.
+ * <p> (3) Verification flag. Default 0 or false.
+ * <p> (4) Row-wise partition of G. Default Place.MAX_PLACES, or number of places
+ * <p> (5) Column-wise partition of G. Default 1.
  * <p> (6) Nonzero density of G: Default 0.001
  * <p> (7) Print output flag: Default false. 
  */
 public class RunPageRank {
 	public static def main(args:Rail[String]): void {
-		val mG = args.size > 0 ? Long.parse(args(0)):100; // Rows and columns of G
-		val rG = args.size > 1 ? Long.parse(args(1)):Place.MAX_PLACES;
-		val cG = args.size > 2 ? Long.parse(args(2)):1;
-		val nZ = args.size > 3 ? Double.parse(args(3)):0.9001; //G's nonzero density
-		val iT = args.size > 4 ? Long.parse(args(4)):20; //Iterations
-		val vf = args.size > 5 ? Int.parse(args(5)):0n; //Verify result or not
-		val pP = args.size > 6 ? Int.parse(args(6)):0n; //Print out input and output matrices
+        val mG = args.size > 0 ? Long.parse(args(0)):100; // Rows and columns of G
+        val iT = args.size > 1 ? Long.parse(args(1)):20; // Iterations
+        val vf = args.size > 2 ? Int.parse(args(2)):0n; // Verify result or not
+        val rG = args.size > 3 ? Long.parse(args(3)):Place.MAX_PLACES;
+        val cG = args.size > 4 ? Long.parse(args(4)):1;
+        val nZ = args.size > 5 ? Double.parse(args(5)):0.9001; //G's nonzero density
+        val pP = args.size > 6 ? Int.parse(args(6)):0n; //Print out input and output matrices
 
 		Console.OUT.println("Set row/col G:"+mG+" density:"+nZ+" iterations:"+iT);
 		if (mG<=0 || iT<1 || nZ<0.0)
@@ -57,7 +57,7 @@ public class RunPageRank {
 			if (vf > 0){
 				val g = paraPR.G;
 				val seqPR = new SeqPageRank(g.toDense(), orgP, 
-						paraPR.E, paraPR.U, iT, nZ);
+						paraPR.E, paraPR.U, iT);
 				val seqP = seqPR.run();
 				if (paraP.equals(seqP as Vector(paraP.M))) 
 					Console.OUT.println("Result verified");
