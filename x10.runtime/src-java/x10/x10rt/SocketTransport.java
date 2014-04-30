@@ -80,13 +80,14 @@ public class SocketTransport {
 		LinkedList<ByteBuffer> pendingWrites;
     }
 	
-	private int nplaces = -1; // number of places
+	private volatile int nplaces = -1; // number of places
 	private int myPlaceId = -1; // my place ID
 	private volatile int lowestValidPlaceId = 0; // responsible for global knowledge of nplaces. Increases as places die
 	private ServerSocketChannel localListenSocket = null;
 	private final ConcurrentHashMap<Integer,CommunicationLink> channels = new ConcurrentHashMap<Integer, SocketTransport.CommunicationLink>(); // communication links to remote places, and launcher stored at myPlaceId
 	private final TreeSet<Integer> deadPlaces = new TreeSet<Integer>();
 	private final ConcurrentLinkedQueue<CommunicationLink> bufferedWrites;
+	private final LinkedList<CommunicationLink> pendingJoins = new LinkedList<CommunicationLink>();
 	
 	private final ReentrantLock selectorLock = new ReentrantLock(); // protects both the selector and events objects
 	private Selector selector = null;
@@ -297,8 +298,8 @@ public class SocketTransport {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-    	myPlaceId = 0;
-    	nplaces = 1;
+    	myPlaceId = -1;
+    	nplaces = -1;
     	return RETURNCODE.X10RT_ERR_OK.ordinal();
     }
 
@@ -426,8 +427,7 @@ public class SocketTransport {
 								controlMsg = ByteBuffer.allocateDirect(16+allPlaceLinksBytes.length);
 								controlMsg.putInt(CTRL_MSG_TYPE.HELLO.ordinal());
 								// we handle new place id assignment directly here
-								remote = this.nplaces;
-								this.nplaces++;
+								remote = this.nplaces++;
 								controlMsg.putInt(remote);
 								controlMsg.putInt(myPlaceId);
 								controlMsg.putInt(allPlaceLinksBytes.length);
@@ -441,9 +441,10 @@ public class SocketTransport {
 								if (DEBUG) System.err.println("Place "+myPlaceId+" initialized new place "+remote);
 							}
 							else { // Ask the lowest numbered place for a new place ID
-								// store link for later under place -1
-								// TODO: using -1 only works when a single connection is pending, not for more.  Fix!!
-								channels.put(remote, new CommunicationLink(sc, remote, linkString));
+								// store link for later, when the GET_PLACE_RESPONSE comes in
+								synchronized (pendingJoins) {
+									pendingJoins.add(new CommunicationLink(sc, remote, linkString));
+								}
 								// send the place request to the lowest place
 								if (sendMessage(MSGTYPE.GET_PLACE_REQUEST, lowestValidPlaceId, -1, null) != RETURNCODE.X10RT_ERR_OK.ordinal() &&
 									    // try again.  Maybe the place died while transmitting
@@ -512,11 +513,9 @@ public class SocketTransport {
 					else if (msgType == MSGTYPE.GET_PLACE_REQUEST.ordinal()) {
 						// this comes into the lowest numbered place, which is responsible for place assignment
 						// assign a new place id, increment nplaces
-						int remote = this.nplaces;
-						this.nplaces++;
 						controlData.clear(); 
 						controlData.putInt(MSGTYPE.GET_PLACE_RESPONSE.ordinal());
-						controlData.putInt(remote);
+						controlData.putInt(this.nplaces++);
 						controlData.putInt(myPlaceId);
 						controlData.flip();// switch from write to read mode (for outputting to the socket)
 						writeNBytes(sc, controlData); // write back to the original requester, not "remote"
@@ -524,27 +523,33 @@ public class SocketTransport {
 					else if (msgType == MSGTYPE.GET_PLACE_RESPONSE.ordinal()) {
 						// get the socket channel we stashed earlier
 						int remote = callbackId;
-						CommunicationLink newPlace = channels.remove(-1);
-						
-						String allPlaceLinks = getAllPlaceLinks();
-						byte[] allPlaceLinksBytes = allPlaceLinks.getBytes(Charset.forName(UTF8));
-						ByteBuffer controlMsg = ByteBuffer.allocateDirect(16+allPlaceLinksBytes.length);
-						controlMsg.putInt(CTRL_MSG_TYPE.HELLO.ordinal());
-						controlMsg.putInt(remote); // actually the new place id
-						controlMsg.putInt(myPlaceId);
-						controlMsg.putInt(allPlaceLinksBytes.length);
-						controlMsg.put(allPlaceLinksBytes);
-						controlMsg.flip();
-						writeNBytes(newPlace.sc, controlMsg);
-						channels.put(remote, new CommunicationLink(sc, remote, newPlace.portInfo));
-						sc.configureBlocking(false);
-						if (socketTimeout != -1) sc.socket().setSoTimeout(socketTimeout);
-						sc.register(selector, SelectionKey.OP_READ);
-						if (DEBUG) System.err.println("Place "+myPlaceId+" initialized new place "+remote);
-						
-						// update nplaces here, because we won't get a connection from the new place, as it already exists
-						if (remote >= nplaces)
-							this.nplaces = remote+1;
+						CommunicationLink newPlace = null;
+						synchronized (pendingJoins) {
+							newPlace = pendingJoins.poll();
+						}
+						if (newPlace != null) {
+							String allPlaceLinks = getAllPlaceLinks();
+							byte[] allPlaceLinksBytes = allPlaceLinks.getBytes(Charset.forName(UTF8));
+							ByteBuffer controlMsg = ByteBuffer.allocateDirect(16+allPlaceLinksBytes.length);
+							controlMsg.putInt(CTRL_MSG_TYPE.HELLO.ordinal());
+							controlMsg.putInt(remote); // actually the new place id
+							controlMsg.putInt(myPlaceId);
+							controlMsg.putInt(allPlaceLinksBytes.length);
+							controlMsg.put(allPlaceLinksBytes);
+							controlMsg.flip();
+							writeNBytes(newPlace.sc, controlMsg);
+							channels.put(remote, new CommunicationLink(sc, remote, newPlace.portInfo));
+							sc.configureBlocking(false);
+							if (socketTimeout != -1) sc.socket().setSoTimeout(socketTimeout);
+							sc.register(selector, SelectionKey.OP_READ);
+							if (DEBUG) System.err.println("Place "+myPlaceId+" initialized new place "+remote);
+							
+							// update nplaces here, because we won't get a connection from the new place, as it already exists
+							if (remote >= nplaces)
+								this.nplaces = remote+1;
+						}
+						else
+							System.err.println("Unexpected GET_PLACE_RESPONSE arrived!!");
 					}
 					else 
 						System.err.println("Unknown message type: "+msgType);
