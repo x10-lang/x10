@@ -53,7 +53,7 @@ public class SocketTransport {
 	private static final String UTF8 = "UTF-8";
 	private static final String DEAD = "DEAD";
 	private static enum CTRL_MSG_TYPE {HELLO, GOODBYE, PORT_REQUEST, PORT_RESPONSE}; // Correspond to values in Launcher.h
-	private static enum MSGTYPE {STANDARD, PUT, GET, GET_COMPLETED, GET_PLACE_REQUEST, GET_PLACE_RESPONSE};
+	private static enum MSGTYPE {STANDARD, PUT, GET, GET_COMPLETED, GET_PLACE_REQUEST, GET_PLACE_RESPONSE}; // note that GET_PLACE_REQUEST does not overlap with CTRL_MSG_TYPE
 	public static enum CALLBACKID {closureMessageID, simpleAsyncMessageID};
 	public static enum RETURNCODE { // see matching list of error codes "x10rt_error" in x10rt_types.h 
 	    X10RT_ERR_OK,   /* No error */
@@ -442,6 +442,7 @@ public class SocketTransport {
 							}
 							else { // Ask the lowest numbered place for a new place ID
 								// store link for later under place -1
+								// TODO: using -1 only works when a single connection is pending, not for more.  Fix!!
 								channels.put(remote, new CommunicationLink(sc, remote, linkString));
 								// send the place request to the lowest place
 								if (sendMessage(MSGTYPE.GET_PLACE_REQUEST, lowestValidPlaceId, -1, null) != RETURNCODE.X10RT_ERR_OK.ordinal() &&
@@ -513,20 +514,17 @@ public class SocketTransport {
 						// assign a new place id, increment nplaces
 						int remote = this.nplaces;
 						this.nplaces++;
-						controlData.flip(); // switch from write to read mode
-						controlData.putInt(CTRL_MSG_TYPE.PORT_RESPONSE.ordinal());
+						controlData.clear(); 
+						controlData.putInt(MSGTYPE.GET_PLACE_RESPONSE.ordinal());
 						controlData.putInt(remote);
 						controlData.putInt(myPlaceId);
+						controlData.flip();// switch from write to read mode (for outputting to the socket)
 						writeNBytes(sc, controlData); // write back to the original requester, not "remote"
 					}
 					else if (msgType == MSGTYPE.GET_PLACE_RESPONSE.ordinal()) {
 						// get the socket channel we stashed earlier
 						int remote = callbackId;
 						CommunicationLink newPlace = channels.remove(-1);
-
-						// update nplaces here, because we won't get a connection from the new place, as it already exists
-						if (remote >= nplaces)
-							this.nplaces = remote+1;
 						
 						String allPlaceLinks = getAllPlaceLinks();
 						byte[] allPlaceLinksBytes = allPlaceLinks.getBytes(Charset.forName(UTF8));
@@ -543,6 +541,10 @@ public class SocketTransport {
 						if (socketTimeout != -1) sc.socket().setSoTimeout(socketTimeout);
 						sc.register(selector, SelectionKey.OP_READ);
 						if (DEBUG) System.err.println("Place "+myPlaceId+" initialized new place "+remote);
+						
+						// update nplaces here, because we won't get a connection from the new place, as it already exists
+						if (remote >= nplaces)
+							this.nplaces = remote+1;
 					}
 					else 
 						System.err.println("Unknown message type: "+msgType);
@@ -654,6 +656,7 @@ public class SocketTransport {
     		if (forcePortsFlag == null) throw new IOException("Unknown location for place "+remotePlace);
     		hostname = "localhost";		
     		port = Integer.parseInt(forcePortsFlag)+remotePlace;
+    		connectionInfo = new String(hostname+":"+port);
     	}
     	else {
     		if (connectionInfo == null && remotePlace > -1) {
@@ -752,7 +755,7 @@ public class SocketTransport {
 				sc.configureBlocking(false);
 				if (socketTimeout != -1) sc.socket().setSoTimeout(socketTimeout);
 				sc.register(selector, SelectionKey.OP_READ);
-				if (DEBUG) System.err.println("Place "+this.myPlaceId+" established a link to place "+remotePlace+" of "+this.nplaces+" places");
+				if (DEBUG) System.err.println("Place "+this.myPlaceId+" established a link to place "+remotePlace+" of "+this.nplaces+" places at "+connectionInfo);
 
 				// now we have one link.  Establish the rest of them
 				int datalen = controlMsg.getInt();
