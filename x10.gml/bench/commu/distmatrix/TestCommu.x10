@@ -28,7 +28,6 @@ import x10.matrix.dist.DupDenseMatrix;
 
 import x10.matrix.comm.MatrixRemoteCopy;
 import x10.matrix.comm.MatrixBcast;
-import x10.matrix.comm.MatrixGather;
 import x10.matrix.comm.MatrixScatter;
 import x10.matrix.comm.MatrixReduce;
 
@@ -56,7 +55,7 @@ class TestDistMatrixCommu {
 	public var allgatherTime:Long = 0;
 	public var reduceTime:Long = 0;
 	
-	public val dist:Dist= Dist.makeUnique();
+	public val dist = Dist.makeUnique();
 	
 	public val dA:DistDenseMatrix;
 	public val dB:DistDenseMatrix;
@@ -70,8 +69,6 @@ class TestDistMatrixCommu {
 	public val gpart:Grid;
 	
 	public val szlist:Rail[Long];
-	
-	public val checkTime = new Rail[Long](Place.MAX_PLACES);
 	
 	public def this(args:Rail[String]) {
 		val m = args.size > 0 ? Long.parse(args(0)):1024;
@@ -123,10 +120,8 @@ class TestDistMatrixCommu {
 		for (var i:Long=0; i<iter; i++) {
 			for (var p:Long=0; p<nplace; p++) {
 				if (p != here.id()) {
-					//var st:Long =  Timer.milliTime();
 					val srcden=ddA.local();
 					op.copy(srcden, 0, ddA.dupMs, p, 0, srcden.N);
-					//checkTime(p) =  Timer.milliTime() - st; 
 				}
 			}
 		}
@@ -137,21 +132,18 @@ class TestDistMatrixCommu {
 		if (vrfy) {
 			ret = ddA.syncCheck();
 			if (ret)
-				Console.OUT.println("Test P2P copy for DupMatrix commu test passed!");
+				Console.OUT.println("Test P2P copy for DupDenseMatrix commu test passed!");
 			else
-				Console.OUT.println("-----Test P2P copy for DupMatrix commu failed!-----");
+				Console.OUT.println("-----Test P2P copy for DupDenseMatrix commu failed!-----");
 		}
 		return ret;
-		
 	}	
-	
-	
 
 	public def testBcast():Boolean {
 		val op:MatrixBcast = new MatrixBcast();
 		var ret:Boolean = true;
 		ddA.local().initRandom();
-		Console.OUT.printf("\nTest DupMatrix bcast over %d places\n", nplace);
+		Console.OUT.printf("\nTest DupDenseMatrix bcast over %d places\n", nplace);
 		
 		//denA.initRandom();
 		val stt=Timer.milliTime();
@@ -164,9 +156,9 @@ class TestDistMatrixCommu {
 		if (vrfy) {
 			ret = ddA.syncCheck();
 			if (ret)
-				Console.OUT.println("Test bcast for DupMatrix commu test passed!");
+				Console.OUT.println("Test bcast for DupDenseMatrix commu test passed!");
 			else
-				Console.OUT.println("-----Test bcast for DupMatrix commu failed!-----");
+				Console.OUT.println("-----Test bcast for DupDenseMatrix commu failed!-----");
 		}
 		return ret;
 	}
@@ -222,7 +214,7 @@ class TestDistMatrixCommu {
 		var ret:Boolean = true;
 		ddA.init(1.0);
 		//dd.print("Source");
-		Console.OUT.printf("\nTest reduce of DupMatrix over %d places\n", nplace);
+		Console.OUT.printf("\nTest reduce of DupDenseMatrix over %d places\n", nplace);
 
 		val stt=Timer.milliTime();
 		for (var i:Long=0; i<iter; i++) {
@@ -235,9 +227,9 @@ class TestDistMatrixCommu {
 			//dat.print("Result");
 			ret = ddA.equals(1.0*nplace);
 			if (ret)
-				Console.OUT.println("Test reduce of DupMatrix passed!");
+				Console.OUT.println("Test reduce of DupDenseMatrix passed!");
 			else
-				Console.OUT.println("-----Test reduce of DupMatrix failed!-----");
+				Console.OUT.println("-----Test reduce of DupDenseMatrix failed!-----");
 		}
 		return ret;
 	}

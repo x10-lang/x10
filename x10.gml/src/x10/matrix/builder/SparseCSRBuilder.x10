@@ -207,10 +207,10 @@ public class SparseCSRBuilder {
 
 	
 	@Inline
-	public def cmpRowMajor(nz1:NonZeroEntry,nz2:NonZeroEntry):Long {
-		if (nz1.col <  nz2.col) return -1;
-		if (nz1.col == nz2.col) return 0;
-		return 1;
+	public def cmpRowMajor(nz1:NonZeroEntry,nz2:NonZeroEntry):Int {
+		if (nz1.col <  nz2.col) return -1n;
+		if (nz1.col == nz2.col) return 0n;
+		return 1n;
 	}
 
 	

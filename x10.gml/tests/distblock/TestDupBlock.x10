@@ -1,7 +1,7 @@
 /*
  *  This file is part of the X10 Applications project.
  *
- *  (C) Copyright IBM Corporation 2011.
+ *  (C) Copyright IBM Corporation 2011-2014.
  */
 
 import x10.compiler.Ifndef;
@@ -37,7 +37,7 @@ class TestDupBlk {
 
 		grid = new Grid(M, N, bM, bN);
 		//dmap = DistGrid.make(grid).dmap; 
-		Console.OUT.printf("DupMatrix M:%d K:%d N:%d, blocks(%d, %d) \n", M, N, K, bM, bN);
+		Console.OUT.printf("DupBlockMatrix M:%d K:%d N:%d, blocks(%d, %d) \n", M, N, K, bM, bN);
 		
 	}
 

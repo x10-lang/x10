@@ -185,13 +185,13 @@ public class Vector(M:Long) implements (Long) => Double {
 	/**
 	 * Addition of two vectors: Mx1 + Mx1
 	 */
-    public def cellAdd (V:Vector(M)):Vector(this) {
+    public def cellAdd(V:Vector(M)):Vector(this) {
  		for (i in 0..(M-1))
             this.d(i) += V.d(i);
 		return this;
     }
 
-    public def cellAdd (d:Double):Vector(this) {
+    public def cellAdd(d:Double):Vector(this) {
  		for (i in 0..(M-1))
             this.d(i) += d;
     	return this;
