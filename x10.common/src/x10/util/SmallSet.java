@@ -1,6 +1,7 @@
 package x10.util;
 
 import java.util.AbstractSet;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.LinkedHashSet;
@@ -14,6 +15,7 @@ public final class SmallSet<K> extends AbstractSet<K> {
     public SmallSet() {
         this(CollectionFactory.DEFAULT_SIZE);
     }
+    @SuppressWarnings("unchecked")
     public SmallSet(int size) {
         elems = (K[])new Object[size];
     }
@@ -61,7 +63,8 @@ public final class SmallSet<K> extends AbstractSet<K> {
     @Override
     public boolean containsAll(Collection<?> c) {
         if (c instanceof SmallSet) {
-            SmallSet<K> s = (SmallSet) c;
+            @SuppressWarnings("unchecked")
+            SmallSet<K> s = (SmallSet<K>) c;
             for (int i=0; i<s.curIndex; i++)
                 if (!contains(s.elems[i])) return false;
             if (s.overflow!=null)
@@ -75,7 +78,8 @@ public final class SmallSet<K> extends AbstractSet<K> {
     public boolean addAll(Collection<? extends K> c) {
         if (c instanceof SmallSet) {
             boolean modified = false;
-            SmallSet<K> s = (SmallSet) c;
+            @SuppressWarnings("unchecked")
+            SmallSet<K> s = (SmallSet<K>) c;
             for (int i=0; i<s.curIndex; i++)
                 if (add(s.elems[i])) modified = true;
             if (s.overflow!=null)
@@ -96,19 +100,19 @@ public final class SmallSet<K> extends AbstractSet<K> {
     @Override
     public Object[] toArray() {
         if (overflow==null) {
-            return CollectionFactory.copyOf(elems,curIndex);
+            return Arrays.copyOf(elems, curIndex);
         }
         return super.toArray(); // uses an iterator
     }
 
-    @Override
+	@Override
     public <T> T[] toArray(T[] a) {
         if (overflow==null) {
             if (a.length>=curIndex) {
                 System.arraycopy(elems,0,a,0,curIndex);
                 return a;
             }
-            return (T[])CollectionFactory.copyOf(elems,curIndex,a.getClass());
+            Arrays.copyOf(elems, curIndex, a.getClass());
         }
         return super.toArray(a); 
     }
