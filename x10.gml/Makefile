@@ -135,7 +135,6 @@ dist_src=\
 	x10/matrix/dist/DupDenseMatrix.x10  \
 	x10/matrix/dist/DupSparseMatrix.x10 \
 	x10/matrix/dist/DistMultDupToDist.x10 \
-	x10/matrix/dist/DupMatrix.x10 \
 	x10/matrix/dist/DistMatrix.x10 \
 	x10/matrix/dist/DistSparseMatrix.x10  \
 	x10/matrix/dist/DupMultToDup.x10 \
@@ -206,7 +205,7 @@ include scripts/system_setting.mk
 
 
 #X10_FLAG	= -d $(build_path) -report postcompile=2 -v -errors 5 -VERBOSE_CHECKS #-O -NO_CHECKS
-X10_FLAG	= -VERBOSE_CHECKS # -O -NO_CHECKS
+X10_FLAG	= -VERBOSE_CHECKS -O -NO_CHECKS
 ifdef COVERAGE
     X10_FLAG += -cxx-prearg --coverage
     POST_LIBS += --coverage
