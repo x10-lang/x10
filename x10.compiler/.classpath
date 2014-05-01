@@ -3,5 +3,7 @@
 	<classpathentry kind="src" path="src"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
 	<classpathentry kind="con" path="org.eclipse.pde.core.requiredPlugins"/>
+	<classpathentry kind="lib" path="/x10.dist/lib/com.ibm.wala.shrike_1.3.1.201101071300.jar"/>
+	<classpathentry kind="lib" path="/x10.dist/lib/lpg.jar"/>
 	<classpathentry kind="output" path="classes"/>
 </classpath>
