@@ -11,7 +11,6 @@
 
 package x10.core.fun;
 
-import x10.core.Any;
-
-public interface Fun extends Any {
+//public interface Fun extends x10.core.Any {
+public interface Fun {
 }

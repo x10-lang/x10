@@ -11,7 +11,6 @@
 
 package x10.core.fun;
 
-import x10.core.Any;
-
-public interface VoidFun extends Any {
+//public interface VoidFun extends x10.core.Any {
+public interface VoidFun {
 }
