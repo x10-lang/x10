@@ -47,9 +47,7 @@ class JNI implements Callable<Boolean> {
     public static native void cactionInsertImportedTypeOnDemand(String package_name, String type_name, JavaToken jToken);
     public static native void cactionInsertImportedType(String package_name, String type_name, JavaToken jToken);
     public static native void cactionInsertImportedStaticField(String name, JavaToken jToken);
-//MH-20140414
-//    public static native void cactionPushPackage(String package_name, JavaToken jToken);
-	public static native void cactionPushPackage(String package_name);
+    public static native void cactionPushPackage(String package_name, JavaToken jToken);
     public static native void cactionUpdatePushPackage(String package_name, JavaToken jToken);
     public static native void cactionPopPackage();
     public static native void cactionPushTypeScope(String package_name, String type_name, JavaToken jToken);
@@ -70,7 +68,7 @@ class JNI implements Callable<Boolean> {
     public static native void cactionPackageAnnotations(int num_annotations, JavaToken jToken);
 //MH-20140414
 //    public static native void cactionCompilationUnitDeclaration(String full_file_name, String package_name, String filename, JavaToken jToken);
-    public static native void cactionCompilationUnitDeclaration(String packageName, String path, JavaToken jToken);
+    public static native void cactionCompilationUnitDeclaration(String full_file_name, String packageName, String path, JavaToken jToken);
     public static native void cactionCompilationUnitDeclarationEnd(JavaToken jToken);
     public static native void cactionCompilationUnitDeclarationError(String error_message, JavaToken jToken);
     public static native void cactionTypeDeclaration(String package_name, String type_name, int num_annotations, boolean has_super_class, boolean is_annotation_interface, boolean is_interface, boolean is_enum, boolean is_abstract, boolean is_final, boolean is_private, boolean is_public, boolean is_protected, boolean is_static, boolean is_strictfp, JavaToken jToken);
@@ -226,8 +224,8 @@ class JNI implements Callable<Boolean> {
     public static native void cactionSetupSourceFilename(String full_file_name);
     public static native void cactionClearSourceFilename();
 //MH-20140414
-//    public static native void cactionInsertClassStart(String className, boolean is_interface, boolean is_enum, boolean is_anonymous, JavaToken jToken);
-   public static native void cactionInsertClassStart(String java_string, JavaToken jToken);
+    public static native void cactionInsertClassStart(String className, boolean is_interface, boolean is_enum, boolean is_anonymous, JavaToken jToken);
+//   public static native void cactionInsertClassStart(String java_string, JavaToken jToken);
     public static native void cactionInsertClassEnd(String className, JavaToken jToken);
 //MH-20140414
 //    public static native void cactionBuildClassSupportStart(String className, String externalName, boolean user_defined_class, boolean is_interface, boolean is_enum, boolean is_anonymous, JavaToken jToken);

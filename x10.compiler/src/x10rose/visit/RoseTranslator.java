@@ -427,7 +427,7 @@ public class RoseTranslator extends Translator {
 
 		
 		public void visit(SourceFile_c n) {
-			toRose(n, n.source().path());
+			toRose(n, "SourceFile_c:" + n.source().path());
 			PackageNode pnode = n.package_();			
 /*
 			if (pnode == null)
@@ -436,7 +436,10 @@ public class RoseTranslator extends Translator {
 				System.out.println("Package: " + pnode);
 */
 			JNI.cactionCompilationUnitList(1, new String[]{n.source().path()});
-			JNI.cactionCompilationUnitDeclaration("", n.source().path(), createJavaToken(n, n.source().path()));
+			JNI.cactionSetupSourceFilename(n.source().path());
+			JNI.cactionPushPackage("", createJavaToken(n, n.source().path()));
+			JNI.cactionCompilationUnitDeclaration(n.source().path(), "", n.source().path(), createJavaToken(n, n.source().path()));
+			
 			visitChildren(n, n.decls());
 		}
 
@@ -446,7 +449,6 @@ public class RoseTranslator extends Translator {
 		
 		public void visit(PackageNode_c n) {
 			toRose(n, "Package:", n.package_().get().toString());
-			JNI.cactionPushPackage(n.package_().get().toString());
 		}
 
 		public void visit(X10ClassDecl_c n) {
@@ -462,7 +464,9 @@ public class RoseTranslator extends Translator {
 
 			classMemberMap.put(class_name, memberMap);
 			
-			JNI.cactionInsertClassStart(class_name, createJavaToken(n, class_name));
+//			JNI.cactionInsertClassStart(class_name, createJavaToken(n, class_name));
+			JNI.cactionInsertClassStart(class_name, false, false, false, createJavaToken(n, class_name));
+//			JNI.cactionPushPack	age("", createJavaToken(n, class_name));
 			// does not consider nested class so far
 			JNI.cactionInsertClassEnd(class_name, createJavaToken(n, class_name));
 			
@@ -816,8 +820,8 @@ public class RoseTranslator extends Translator {
 //		            System.out.println("Leaving enter (Block,BlockScope)");
 //
 //		        return true; // do nothing by node, keep traversing
-
-			System.out.println("Block start : " + n.statements().size());
+//
+//			System.out.println("Block start : " + n.statements().size() + ", " + n.statements());
 		   JNI.cactionBlock(createJavaToken(n, n.toString()));
 			visitChildren(n, n.statements());
 			JNI.cactionBlockEnd(n.statements().size(), createJavaToken(n, n.toString()));
@@ -1024,9 +1028,11 @@ public class RoseTranslator extends Translator {
 		}
 
 		public void visit(X10LocalDecl_c n) {
-			toRose(n, "X10LocalDecl:", n.name().id().toString());
-			visitChild(n, n.type());
-			visitChild(n, n.init());
+			toRose(n, "X10LocalDecl:", n.name().id().toString());		
+//			System.out.println("init=" + n.init());
+			visitChild(n, n.type());		
+			JNI.cactionLocalDeclaration(0, n.name().id().toString(), false, createJavaToken(n, n.name().id().toString()));
+			JNI.cactionLocalDeclarationEnd(n.name().id().toString(), false, createJavaToken(n, n.name().id().toString()));
 		}
 
 		public void visit(PropertyDecl_c n) {
@@ -1205,6 +1211,7 @@ public class RoseTranslator extends Translator {
 			visitChild(n, n.local());
 			visitChild(n, n.right());
 			JNI.cactionAssignmentEnd(createJavaToken(n, n.toString()));
+			System.out.println("LocalAssign end");
 		}
 		
 		public void visit(X10LocalAssign_c n) {
