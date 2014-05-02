@@ -256,7 +256,7 @@ public class Lowerer extends ContextVisitor {
 			}
     	}
     	
-        // handle at(p) async S and treat it as the old async(p) S.
+        // match at (p) async S and treat it as if it were async (p) S.
     	if (n instanceof AtStmt) {
     	    AtStmt atStm = (AtStmt) n;
     	    Stmt body = atStm.body();
@@ -287,13 +287,20 @@ public class Lowerer extends ContextVisitor {
                 return null;
             }
     	}
-    	// handle async at(p) S and treat it as the old async(p) S.
+    	
+    	// CUDA KLUDGE: match async at(p) @CUDA S and compile it as if it were async(p) @CUDA S.
+    	// TODO: Think about whether we can instead use a pattern that matches current (X10 2.4.3)
+    	//       idioms for remote activity spawning.
     	if (n instanceof Async) {
     		Async async = (Async) n;
     		Stmt body = async.body();
     		AtStmt atStm = toAtStmt(body);
-    		if (atStm==null)
+    		if (atStm==null) {
     			return null;
+    		}
+            if (!(atStm.body() instanceof CUDAKernel)) {
+                return null;
+            }
     		Expr place = atStm.place(); 
     		if (ts.hasSameClassDef(Types.baseType(place.type()), ts.GlobalRef())) {
     			try {
@@ -301,7 +308,6 @@ public class Lowerer extends ContextVisitor {
     			} catch (SemanticException e) {
     			}
     		}
-            if (!ExpressionFlattener.isPrimary(place) && !(atStm.body() instanceof CUDAKernel)) return null;
     		List<Expr> clocks = async.clocks();
     		place = (Expr) visitEdgeNoOverride(atStm, place);
     		body = (Stmt) visitEdgeNoOverride(atStm, atStm.body());

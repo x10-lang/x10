@@ -23,7 +23,7 @@ public class CharacterLiteral extends Literal {
   public CharacterLiteral(Position position, char c, int sym)
   {
     super(position, sym); 
-    this.val = new Character(c); 
+    this.val = Character.valueOf(c); 
   }
   
   public Character getValue() 

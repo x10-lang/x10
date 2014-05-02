@@ -923,6 +923,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 		            if (!f.flags().isStatic()) {
 		                extractAllClassTypes(f.fieldInstance().container(), types, dupes);
 		            }
+		            extractAllClassTypes(f.type(), types, dupes);
 		        } else if (tn instanceof FieldAssign_c) {
 		            FieldAssign_c f = (FieldAssign_c) tn;
 		            if (!f.fieldInstance().flags().isStatic()) {

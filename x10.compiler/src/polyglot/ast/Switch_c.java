@@ -223,7 +223,7 @@ public class Switch_c extends Stmt_c implements Switch
         // If there is no default case, add an edge to the end of the switch.
         if (! hasDefault) {
             cases.add(this);
-            entry.add(new Integer(EXIT));
+            entry.add(Integer.valueOf(EXIT));
         }
 
         v.visitCFG(expr, FlowGraph.EDGE_KEY_OTHER, cases, entry);

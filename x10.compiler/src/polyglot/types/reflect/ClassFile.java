@@ -255,7 +255,7 @@ public class ClassFile {
       case Constant.CLASS:
       case Constant.STRING:
       case Constant.METHOD_TYPE: // @since 1.8
-	value = new Integer(in.readUnsignedShort());
+	value = Integer.valueOf(in.readUnsignedShort());
 	break;
       case Constant.FIELD_REF:
       case Constant.METHOD_REF:
@@ -268,18 +268,18 @@ public class ClassFile {
 	((int[]) value)[1] = in.readUnsignedShort();
 	break;
       case Constant.INTEGER:
-	value = new Integer(in.readInt());
+	value = Integer.valueOf(in.readInt());
 	break;
       case Constant.FLOAT:
-	value = new Float(in.readFloat());
+	value = Float.valueOf(in.readFloat());
 	break;
       case Constant.LONG:
 	// Longs take up 2 constant pool entries.
-	value = new Long(in.readLong());
+	value = Long.valueOf(in.readLong());
 	break;
       case Constant.DOUBLE:
 	// Doubles take up 2 constant pool entries.
-	value = new Double(in.readDouble());
+	value = Double.valueOf(in.readDouble());
 	break;
       case Constant.UTF8:
 	value = in.readUTF();

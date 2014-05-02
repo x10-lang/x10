@@ -252,7 +252,7 @@ public class Synthesizer {
 	/*
 	public Type addRankConstraint(Type type, XVar receiver, int n, X10TypeSystem ts) {
 	    XTerm v = makeRegionRankTerm(receiver);
-	    XTerm rank = XTerms.makeLit(new Integer(n));
+	    XTerm rank = XTerms.makeLit(Integer.valueOf(n));
 	    return X10TypeMixin.addBinding(type, v, rank);
 	}
 
@@ -264,7 +264,7 @@ public class Synthesizer {
 	        receiver = c.self();
 	    }
 	    XTerm v = makeRegionRankTerm(receiver);
-	    XTerm rank = XTerms.makeLit(new Integer(n));
+	    XTerm rank = XTerms.makeLit(Integer.valueOf(n));
 	    return X10TypeMixin.addBinding(type, v, rank);
 	}
 	*/
