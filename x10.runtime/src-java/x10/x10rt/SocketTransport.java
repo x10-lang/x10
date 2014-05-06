@@ -755,27 +755,35 @@ public class SocketTransport {
 					this.myPlaceId = toPlace; // save the "to" as my own ID
 					this.nplaces = toPlace+1; // I'm the highest place ID, so nplaces is my ID+1
 					remotePlace = controlMsg.getInt(); // save the ID of the place we're linked to
-				}
-				channels.put(remotePlace, new CommunicationLink(sc, remotePlace, connectionInfo));
-				sc.configureBlocking(false);
-				if (socketTimeout != -1) sc.socket().setSoTimeout(socketTimeout);
-				sc.register(selector, SelectionKey.OP_READ);
-				if (DEBUG) System.err.println("Place "+this.myPlaceId+" established a link to place "+remotePlace+" of "+this.nplaces+" places at "+connectionInfo);
+					
+					channels.put(remotePlace, new CommunicationLink(sc, remotePlace, connectionInfo));
+					sc.configureBlocking(false);
+					if (socketTimeout != -1) sc.socket().setSoTimeout(socketTimeout);
+					sc.register(selector, SelectionKey.OP_READ);
+					if (DEBUG) System.err.println("Place "+this.myPlaceId+" established a link to place "+remotePlace+" of "+this.nplaces+" places at "+connectionInfo);
 
-				// now we have one link.  Establish the rest of them
-				int datalen = controlMsg.getInt();
-				byte[] connectionStringBuffer = new byte[datalen];
-				ByteBuffer connectionStringBB = ByteBuffer.wrap(connectionStringBuffer);
-				while (!readNBytes(sc, connectionStringBB, datalen));
-				String connectionStrings = new String(connectionStringBuffer, UTF8);
-				String[] placeStrings = connectionStrings.split(",");
-				for (int i=0; i<placeStrings.length; i++) {
-					if (DEAD.equals(placeStrings[i]))
-						deadPlaces.add(i);
-					else if (remotePlace != i)
-						initLink(i, placeStrings[i]);
+					// now we have one link.  Establish the rest of them
+					int datalen = controlMsg.getInt();
+					byte[] connectionStringBuffer = new byte[datalen];
+					ByteBuffer connectionStringBB = ByteBuffer.wrap(connectionStringBuffer);
+					while (!readNBytes(sc, connectionStringBB, datalen));
+					String connectionStrings = new String(connectionStringBuffer, UTF8);
+					String[] placeStrings = connectionStrings.split(",");
+					for (int i=0; i<placeStrings.length; i++) {
+						if (DEAD.equals(placeStrings[i]))
+							deadPlaces.add(i);
+						else if (remotePlace != i)
+							initLink(i, placeStrings[i]);
+					}
+					if (DEBUG) System.err.println("Place "+myPlaceId+" established links to "+placeStrings.length+" additional places");
 				}
-				if (DEBUG) System.err.println("Place "+myPlaceId+" established links to "+placeStrings.length+" additional places");
+				else {
+					channels.put(remotePlace, new CommunicationLink(sc, remotePlace, connectionInfo));
+					sc.configureBlocking(false);
+					if (socketTimeout != -1) sc.socket().setSoTimeout(socketTimeout);
+					sc.register(selector, SelectionKey.OP_READ);
+					if (DEBUG) System.err.println("Place "+this.myPlaceId+" established a link to place "+remotePlace+" of "+this.nplaces+" places at "+connectionInfo);
+				}
 			}
 			else
 				System.err.println("Bad response to HELLO");
