@@ -31,7 +31,6 @@ import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.TreeSet;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.locks.ReentrantLock;
 
 import x10.core.fun.VoidFun_0_0;
@@ -52,6 +51,7 @@ public class SocketTransport {
 	public static final String X10_SOCKET_TIMEOUT = "X10_SOCKET_TIMEOUT";
 	private static final String UTF8 = "UTF-8";
 	private static final String DEAD = "DEAD";
+	private static enum PROBE_TYPE {ACCEPT, ACCEPTORWRITE, ALL};
 	private static enum CTRL_MSG_TYPE {HELLO, GOODBYE, PORT_REQUEST, PORT_RESPONSE}; // Correspond to values in Launcher.h
 	private static enum MSGTYPE {STANDARD, PUT, GET, GET_COMPLETED, GET_PLACE_REQUEST, GET_PLACE_RESPONSE}; // note that GET_PLACE_REQUEST does not overlap with CTRL_MSG_TYPE
 	public static enum CALLBACKID {closureMessageID, simpleAsyncMessageID};
@@ -86,7 +86,7 @@ public class SocketTransport {
 	private ServerSocketChannel localListenSocket = null;
 	private final ConcurrentHashMap<Integer,CommunicationLink> channels = new ConcurrentHashMap<Integer, SocketTransport.CommunicationLink>(); // communication links to remote places, and launcher stored at myPlaceId
 	private final TreeSet<Integer> deadPlaces = new TreeSet<Integer>();
-	private final ConcurrentLinkedQueue<CommunicationLink> bufferedWrites;
+	private final boolean bufferedWrites;
 	private final LinkedList<CommunicationLink> pendingJoins = new LinkedList<CommunicationLink>();
 	
 	private final ReentrantLock selectorLock = new ReentrantLock(); // protects both the selector and events objects
@@ -127,10 +127,7 @@ public class SocketTransport {
 			e.printStackTrace();
 		}
 		
-		if (Boolean.parseBoolean(System.getenv(X10_NOWRITEBUFFER)) || Boolean.parseBoolean(System.getProperty(X10_NOWRITEBUFFER)))
-			bufferedWrites = null;
-		else
-			bufferedWrites = new ConcurrentLinkedQueue<CommunicationLink>();
+		bufferedWrites = !(Boolean.parseBoolean(System.getenv(X10_NOWRITEBUFFER)) || Boolean.parseBoolean(System.getProperty(X10_NOWRITEBUFFER)));
 		try {
 			socketTimeout = Integer.parseInt(System.getProperty(X10_SOCKET_TIMEOUT));
 		}
@@ -186,7 +183,7 @@ public class SocketTransport {
 			}
 			for (int i=myPlaceId+1; i<nplaces; i++)
 				while (!shuttingDown && !channels.containsKey(i))
-					x10rt_probe(true, 0); // wait for connections from all upper places
+					x10rt_probe(PROBE_TYPE.ACCEPT, 0); // wait for connections from all upper places
 		} 
 /* a single place may have other places join it later		
 		else {
@@ -242,7 +239,7 @@ public class SocketTransport {
 	    	}
 			for (int i=myPlaceId+1; i<nplaces; i++)
 				while (!shuttingDown && !channels.containsKey(i))
-					x10rt_probe(true, 0); // wait for connections from all upper places
+					x10rt_probe(PROBE_TYPE.ACCEPT, 0); // wait for connections from all upper places
 	    }
     	
     	return RETURNCODE.X10RT_ERR_OK.ordinal();
@@ -276,8 +273,6 @@ public class SocketTransport {
     public synchronized int shutdown() {
     	if (DEBUG) System.err.println("shutting down");
     	shuttingDown = true;
-    	if (bufferedWrites != null)
-    		bufferedWrites.clear();
    		try {
    			if (localListenSocket != null)
     			localListenSocket.close();
@@ -337,7 +332,7 @@ public class SocketTransport {
     // onlyProcessAccept is set to true only during startup time, to prioritize establishing links
     // timeout is how long we're willing to block waiting for something to happen. 
     // returns true if something is processed
-    boolean x10rt_probe(boolean onlyProcessAccept, long timeout) {
+    boolean x10rt_probe(PROBE_TYPE probeType, long timeout) {
 /* a single place may have other places join it later
     	if (!onlyProcessAccept && nplaces == 1)
     		return false;
@@ -472,12 +467,14 @@ public class SocketTransport {
 				}
 				return true;
 			}
-			if (onlyProcessAccept) return false;
+			if (probeType == PROBE_TYPE.ACCEPT) return false;
 			if (key.isWritable()) {
 				Integer place = (Integer)key.attachment();
+				if (DEBUG) System.err.println(myPlaceId+" Flushing data to "+place);
 				if (place != null && !isPlaceDead(place.intValue()))
-					flushBufferedBytes(key, channels.get(place));
+					flushBufferedBytes(channels.get(place));
 			}
+			if (probeType == PROBE_TYPE.ACCEPTORWRITE) return false;
 			if (key.isReadable()) {
 				if (DEBUG) System.err.println("Place "+myPlaceId+" detected incoming message");
 				SocketChannel sc = (SocketChannel) key.channel();
@@ -574,8 +571,6 @@ public class SocketTransport {
 				// TODO GET & PUT message types
 				return true;
 			}
-			else if (DEBUG)
-				System.err.println("Unhandled key type in probe: "+ key);
 		} catch (CancelledKeyException e) {
 			// a key may be cancelled on us if the runtime disconnects while there is active communication
 		} catch (IOException e) {
@@ -586,14 +581,14 @@ public class SocketTransport {
     
     public int x10rt_probe() {
     	boolean somethingProcessed;
-    	do somethingProcessed = x10rt_probe(false, 1);
+    	do somethingProcessed = x10rt_probe(PROBE_TYPE.ALL, 1);
     	while (somethingProcessed);
     	
     	return RETURNCODE.X10RT_ERR_OK.ordinal();
     }
     
     public int x10rt_blocking_probe() {
-    	x10rt_probe(false, 0);
+    	x10rt_probe(PROBE_TYPE.ALL, 0);
     	return RETURNCODE.X10RT_ERR_OK.ordinal();
     }
     
@@ -804,19 +799,18 @@ public class SocketTransport {
 			}
 			else if (bytesRead < -100)
 				throw new IOException("End of stream");
-			else if (bufferedWrites != null && !bufferedWrites.isEmpty()) {
+			else if ((bytesRead == 0 && totalBytesRead == 0) || shuttingDown) // nothing is available to read, but the socket is alive
+				return false;
+			else if (bufferedWrites) {
 				// while we wait for data to come in, flush anything waiting to go out
-				CommunicationLink cl = bufferedWrites.poll();
-				if (flushBufferedBytes(null, cl))
-		    		break;
+				x10rt_probe(PROBE_TYPE.ACCEPTORWRITE, 100);
 			}
 		} while (totalBytesRead < bytes);
 		return true;
     }
 
     private void writeBytes(CommunicationLink link, ByteBuffer data) throws IOException {
-    	if (bufferedWrites == null)
-    		writeNBytes(link.sc, data);
+    	if (!bufferedWrites) writeNBytes(link.sc, data);
     	else if (!shuttingDown) {
     		if (link.pendingWrites != null) {
     			// data is already pending.  Add this new data to the back of the queue
@@ -832,7 +826,6 @@ public class SocketTransport {
     				// nope.  Set the buffer aside and register with the selector to write when ready
     				link.pendingWrites = new LinkedList<ByteBuffer>();
     				link.pendingWrites.addLast(data);
-    				bufferedWrites.add(link);
     				link.sc.register(selector, (SelectionKey.OP_WRITE | SelectionKey.OP_READ), link.placeid);
     				if (DEBUG) System.err.println("Stashed "+data.remaining()+" bytes in the buffer for place "+link.placeid);
     			}
@@ -841,12 +834,12 @@ public class SocketTransport {
     }
     
     // returns true if at least some data was sent out
-    private boolean flushBufferedBytes(SelectionKey key, CommunicationLink link) {
+    private void flushBufferedBytes(CommunicationLink link) {
     	if (DEBUG) System.err.println("Flushing data");
     	
     	if (!shuttingDown && !deadPlaces.contains(link.placeid) && link.writeLock.tryLock()) {
     		try {
-    			if (link.pendingWrites == null) return false;
+    			if (link.pendingWrites == null) return;
     	    	
     			while (!shuttingDown && link.pendingWrites != null && !link.pendingWrites.isEmpty()) {
     				ByteBuffer data = link.pendingWrites.peekFirst();
@@ -856,15 +849,12 @@ public class SocketTransport {
 	        			do { bytesWrittenThisRound=link.sc.write(data);
 	        			} while (!shuttingDown && bytesWrittenThisRound > 0 && data.hasRemaining());
 	        			
-	        			//if (DEBUG) System.err.println("Flushed "+(startRemain-data.remaining())+" bytes in the buffer to place "+placeid);
+	        			if (DEBUG) System.err.println("Flushed "+bytesWrittenThisRound+" bytes in the buffer to place "+link.placeid);
 	        			
 	        			if (!shuttingDown && !data.hasRemaining()) // all data was written out
 	        				link.pendingWrites.removeFirst();
-	        			else {
-	        				// data remains, but the channel is not accepting more
-	        				bufferedWrites.add(link); // put this link at the back of the buffered writes deque
-	        				return true; 
-	        			}
+	        			else // data remains, but the channel is not accepting more
+	        				return;
     				}
     				catch (IOException e) {
     					if (DEBUG) System.err.println("Place "+myPlaceId+" discovered link to place "+link.placeid+" is broken in buffer flush");
@@ -887,9 +877,7 @@ public class SocketTransport {
     		finally {
     			link.writeLock.unlock();
     		}
-    		return true;
     	}
-    	return false;
     }
     
     	
