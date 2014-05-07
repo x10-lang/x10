@@ -110,7 +110,6 @@ public class ExtensionInfo extends x10.ExtensionInfo {
 	    @Override
 		public List<Goal> goals(Job job) {
 			List<Goal> goals = new ArrayList<Goal>();
-System.out.println("20140331 - 1");
 			// PARSE
 			goals.add(Parsed(job));
 
