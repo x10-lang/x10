@@ -14,7 +14,8 @@ package x10.compiler;
 import x10.lang.annotations.StatementAnnotation;
 
 /**
- * @Uncounted may be used to annotate a non-clocked async.
+ * This annotation on an async indicates that the async should be ignored
+ * in the context of finish and clocks.
  * The body of an @Uncounted async may only contain @Uncounted asyncs.
  * The body of an @Uncounted async may contain a finish, which in turn can contain both regular and @Uncounted asyncs.
  * @Uncounted asyncs are not accounted for by the enclosing finish.

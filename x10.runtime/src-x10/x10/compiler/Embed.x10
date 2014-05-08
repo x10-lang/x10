@@ -15,12 +15,14 @@ import x10.lang.annotations.*;
 
 /** An annotation that requests the compiler to embed an object inside another object
  * must be used *exactly* as the following for now:
+ * <code>
  * class C {
  *   @Embed val v:T;
  *   def this() {
  *     v = @Embed new T(...);
  *   }
  * }
+ * </code>
  * EXPERIMENTAL
  */
 public interface Embed extends FieldAnnotation, StatementAnnotation,ExpressionAnnotation { }

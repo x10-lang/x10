@@ -17,7 +17,8 @@ import x10.lang.annotations.ExpressionAnnotation;
 import x10.lang.annotations.StatementAnnotation;
 
 /**
- * <tt>@Immediate</tt> may be used to annotate <tt>async</tt> and <tt>finish</tt>.
+ * This annotation on <tt>async</tt> and <tt>finish</tt> indicates that a
+ * portion of code may be executed in a network header handler.
  * The body of an <tt>@Immediate async</tt> satisfies significant restrictions. (1) It must execute only a short piece of sequential code
  * (i.e. the code cannot use <tt>at</tt>, <tt>async</tt>, </tt>finish</tt>, <tt>when</tt> constructs). 
  * (2) It accesses a very small amount of memory, (3) The <tt>finish</tt> it is governed by must be marked <tt>@immediate</tt>.

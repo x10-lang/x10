@@ -14,7 +14,8 @@ package x10.compiler;
 import x10.lang.annotations.*;
 
 /**
- *  @Profile can be used on at statements to make information about that at operation available to applications.
+ * This annotation on an at statement makes profiling information relating to
+ * the statement available to applications.
  *
  * EXAMPLE:
  *

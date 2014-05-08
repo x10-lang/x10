@@ -14,7 +14,7 @@ package x10.compiler;
 import x10.lang.annotations.FieldAnnotation;
 
 /**
- * The @Uninitialized annotation on a var field instructs the frontend not to implicitely
- * initialize this field in constructors to the type default value.
+ * This annotation on a var field instructs the compiler frontend to not
+ * implicitly initialize this field to the type's default value.
  */
 public interface Uninitialized extends FieldAnnotation { }

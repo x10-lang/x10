@@ -14,7 +14,7 @@ package x10.compiler;
 import x10.lang.annotations.MethodAnnotation;
 
 /**
- * @NoThisAccess is an annotation that can be used on methods for doing dynamic dispatching during construction.
+ * This annotation on a method allows it to be called by dynamically dispatching during construction.
  * (See also @NonEscaping annotation.)
  *
  * <p>@NoThisAccess marks the fact that "this" cannot be used at all in the method.
