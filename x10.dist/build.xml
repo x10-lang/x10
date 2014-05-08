@@ -225,7 +225,7 @@
     </target>
 
     <target name="xrx-xdoc" depends="dist-x10doc">
-        <fileset id="xrx.files" dir="${xrx.src.dir}" includes="**/*.x10" excludes="**/compiler/ws/**/*.x10" />
+        <fileset id="xrx.files" dir="${xrx.src.dir}" includes="**/*.x10" excludes="**/compiler/ws/**,**/compiler/tests/**" />
         <pathconvert property="xrx.list" refid="xrx.files" dirsep="/" pathsep=" ">
             <map from="${xrx.src.dir}${file.separator}" to=""/>
         </pathconvert>
