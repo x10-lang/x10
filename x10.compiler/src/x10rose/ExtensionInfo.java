@@ -110,7 +110,6 @@ public class ExtensionInfo extends x10.ExtensionInfo {
 	    @Override
 		public List<Goal> goals(Job job) {
 			List<Goal> goals = new ArrayList<Goal>();
-
 			// PARSE
 			goals.add(Parsed(job));
 
