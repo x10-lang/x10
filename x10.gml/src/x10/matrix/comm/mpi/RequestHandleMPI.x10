@@ -15,12 +15,11 @@ import x10.compiler.Native;
 import x10.compiler.NativeCPPInclude;
 import x10.compiler.NativeCPPCompilationUnit;
 
-@NativeCPPInclude("mpi_api.h")		
-@NativeCPPCompilationUnit("mpi_api.c")
-
 /**
- * This class provides handle for nonblocking MPI communication.
+ * This class provides a request handle for nonblocking MPI communication.
  */
+@NativeCPPInclude("mpi_api.h")
+@NativeCPPCompilationUnit("mpi_api.c")
 public class RequestHandleMPI {
 
     @Native("c++","mpi_get_request_memsize((#1)->raw)")

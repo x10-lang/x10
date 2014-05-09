@@ -18,43 +18,9 @@ public type Matrix(M:Long, N:Long)=Matrix{self.M==M, self.N==N};
 public type Matrix(C:Matrix)=Matrix{self==C};
 
 /**
- * The base class, has many specialized representations, e.g. for a
- * dense matrix, sparse matrix, dense/sparse block matrix,
+ * The base class for all matrices; has many specialized representations, 
+ * e.g. dense matrix, sparse matrix, dense/sparse block matrix,
  * distributed dense/sparse matrix, and duplicated dense/sparse matrix, etc.
- * 
- * <p> Operations supported by this library includes scaling, add, sub,
- * cellwise multiplication, and matrix multiplication.  In order to reus
- * memory space, matrix operation methods requires all inputs and output
- * matrix with memory allocated. Output matrix also serves as the method 
- * invocation instance, therefore, allowing chain operations. 
- * Only operators allocate memory within their implementations.
- * 
- * <p> In most cases, outputs of matrix operations are stored in dense matrix 
- * or matrix built with dense matrices. 
- * Only few operations allow using the sparse matrix as output, such as scaling 
- * operation.
- * Sparse matrix has confined memory space, and handling more nonzero elements 
- * than its storage space is complex. 
- * Therefore, this library generally does not support to use sparse matrix to store
- * results.
- * 
- * <p> One may first develop a sequential program, and then introduce
- * parallelization in place by merely choosing to distribute the
- * arrays involved and use finish, async and etc. That is, the
- * parallel, distributed program looks very similar to the sequential
- * program. Indeed, the parallelization scheme is much more easily
- * described in async-finish style rather than in SPMD style.
- * 
- * <p> X10's object-oriented features are adequate to describe the nature of the 
- * specialization scheme. Constrained types can be used to get more static assurances about
- * the correctness of the code (the compiler is doing more reasoning
- * on the programmer's behalf).  
- * 
- * <p> The program can be easily interfaced with native code,
- * e.g. for Cholesky factorization, in those cases in which efficient
- * native libraries are already available.
- * 
- * <p> Author vj and Jeff
  */
 public abstract class Matrix(M:Long, N:Long) {
     /**

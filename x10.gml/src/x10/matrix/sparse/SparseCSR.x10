@@ -24,7 +24,7 @@ public type SparseCSR(M:Long,N:Long)=SparseCSR{self.M==M, self.N==N};
 public type SparseCSR(C:SparseCSR)=SparseCSR{self==C};
 
 /**
- * User be advised. SparseCSR is outdated, and is not fully supported as SparseCSC.
+ * User be advised: SparseCSR is outdated, and is not fully supported as SparseCSC.
  * <p>
  * This class defines sparse matrix compressed in row order, or CSR format.
  * The class is used as temporary storage when SparseCSC needs to be

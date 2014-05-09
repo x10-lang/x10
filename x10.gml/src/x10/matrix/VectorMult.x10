@@ -11,15 +11,12 @@
 
 package x10.matrix;
 
-import x10.util.Random;
-import x10.util.Timer;
-
 import x10.matrix.blas.BLAS;
 import x10.matrix.blas.DenseMatrixBLAS;
 import x10.matrix.sparse.SparseCSC;
 
 /**
- * 
+ * Performs matrix-vector multiplication.
  */
 public class VectorMult {
 	

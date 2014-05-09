@@ -14,25 +14,24 @@ package x10.matrix.blas;
 import x10.compiler.Native;
 import x10.compiler.NativeCPPInclude;
 import x10.compiler.NativeCPPCompilationUnit;
-
-@NativeCPPInclude("wrap_blas.h")
-@NativeCPPCompilationUnit("wrap_blas.c")
 	
 /**
- *  This class provides BLAS interface in X10 via native calls.
- *  Only Double based matrix data is supported in the current version.
- *  All matrix data is stored in column-major format. 
- *  All methods declared here have corresponding specification defined by
- *  BLAS, please refer to BLAS specification for detailed information.
+ * This class provides BLAS interface in X10 via native calls.
+ * Only Double based matrix data is supported in the current version.
+ * All matrix data is stored in column-major format. 
+ * All methods declared here have corresponding specification defined by
+ * BLAS, please refer to BLAS specification for detailed information.
  *  
- *  <p> 
+ * <p> 
  * NOTE: This class has been changed to be protected, so that calls of BLAS routines
  * are made through BLAS or DenseMultBLAS.  This is a workaround for managed backend
  * when inlining Java methods from WrapBLAS.java in packages other than blas, which causes 
- * compiler complains that WrapBLAS cannot be found.
+ * the compiler to complain that WrapBLAS cannot be found.
  * 
- *  <p>To compile BLAS library, add your system blas path and library in post compile options.
+ * <p>To compile BLAS library, add your system blas path and library in post compile options.
  */
+@NativeCPPInclude("wrap_blas.h")
+@NativeCPPCompilationUnit("wrap_blas.c")
 protected class DriverBLAS {
 	// Level One 
 

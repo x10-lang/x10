@@ -21,18 +21,16 @@ import x10.matrix.DenseMatrix;
 import x10.matrix.block.Grid;
 import x10.matrix.dist.DistDenseMatrix;
 
-// SUMMA C implementation and API
-@NativeCPPInclude("summa_api.h")
-@NativeCPPCompilationUnit("summa_api.c")
-@NativeCPPInclude("summa.h")
-@NativeCPPCompilationUnit("summa.c")
-
 /**
  * This is C-MPI implementation X10 API.
  * The C-MPI implementation can be found at 
  * "Summa: Scalable universal matrix multiplication algorithm" 
  * by Robert A. Van De Geijn ,  Jerrell Watts
  */
+@NativeCPPInclude("summa_api.h")
+@NativeCPPCompilationUnit("summa_api.c")
+@NativeCPPInclude("summa.h")
+@NativeCPPCompilationUnit("summa.c")
 public class SummaMPI {
     @Native("c++","print_proc_info()")
 		public static native def print_proc():void;

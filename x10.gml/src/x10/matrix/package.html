@@ -1,0 +1,72 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2 Final//EN">
+<html>
+<head>
+<!--
+/*
+ This file is part of the X10 project (http://x10-lang.org).
+ *
+ This file is licensed to You under the Eclipse Public License (EPL);
+ You may not use this file except in compliance with the License.
+ You may obtain a copy of the License at
+     http://www.opensource.org/licenses/eclipse-1.0.php
+ *
+ (C) Copyright IBM Corporation 2014.
+ */
+
+-->
+</head>
+<body bgcolor="white">
+
+<p>Provides dense matrix and vector classes and the abstract matrix class from which other matrix types are derived. </p>
+
+<h2>Package Specification</h2>
+
+<p>
+Operations supported by this library include scaling, addition, subtraction, 
+cellwise multiplication, and matrix multiplication.
+In order to reuse memory space, matrix operation methods require all inputs 
+and output matrix with memory allocated. 
+Output matrix also serves as the method invocation instance thereby allowing 
+chain operations. 
+Only operators allocate memory within their implementations.
+</p>
+
+<p>
+In most cases, outputs of matrix operations are stored in dense matrix 
+or matrix built with dense matrices. 
+Only few operations allow using the sparse matrix as output, such as scaling 
+operation.
+Sparse matrix has confined memory space, and handling more nonzero elements 
+than its storage space is complex. 
+Therefore, this library generally does not support to use sparse matrix to store
+results.
+</p>
+
+<p>
+One may first develop a sequential program, and then introduce
+parallelization in place by merely choosing to distribute the
+arrays involved and use finish, async and etc. That is, the
+parallel, distributed program looks very similar to the sequential
+program. Indeed, the parallelization scheme is much more easily
+described in async-finish style rather than in SPMD style.
+</p>
+
+<p>
+X10's object-oriented features are adequate to describe the nature of the 
+specialization scheme. Constrained types can be used to get more static assurances about
+the correctness of the code (the compiler is doing more reasoning
+on the programmer's behalf).  
+</p>
+
+<p>
+The program can be easily interfaced with native code,
+e.g. for Cholesky factorization, in those cases in which efficient
+native libraries are already available.
+</p>
+
+<p>
+Author vj and Jeff
+</p>
+
+</body>
+</html>
