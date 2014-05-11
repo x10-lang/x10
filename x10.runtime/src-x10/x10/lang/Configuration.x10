@@ -73,6 +73,7 @@ final class Configuration {
     static val RESILIENT_MODE_DISTRIBUTED = 2n;
     static val RESILIENT_MODE_ZOO_KEEPER = 3n;
     static val RESILIENT_MODE_SAMPLE = 9n;
+    static val RESILIENT_MODE_PLACE0 = 11n; //TODO: to be changed
     static def resilient_mode():Int { // called from Runtime.x10
         var v:Int = RESILIENT_MODE_NONE;
         try {

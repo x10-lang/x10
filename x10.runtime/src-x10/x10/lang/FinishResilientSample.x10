@@ -91,8 +91,8 @@ class FinishResilientSample extends FinishResilient implements Runtime.Mortal {
         state.live(here.id) = 1n; // for myself, will be decremented in waitForFinish
        RS.lock();
         RS.create(id, state);
-        if (parent != null) {
-            val parentId = (parent as FinishResilientSample).id; // should not throw ClassCastException
+        if (parent instanceof FinishResilientSample) { // ok to ignore other cases?
+            val parentId = (parent as FinishResilientSample).id;
             val parentState = RS.getOrElse(parentId, null);
             parentState.children.add(id);
             RS.put(parentId, parentState);

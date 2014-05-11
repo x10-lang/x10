@@ -63,10 +63,19 @@ abstract class FinishResilient extends FinishState {
         var fs:FinishState;
         switch (Runtime.RESILIENT_MODE) {
         case Configuration.RESILIENT_MODE_SAMPLE:
+        {
             val p = (parent!=null) ? parent : getCurrentFS();
             val l = (latch!=null) ? latch : new SimpleLatch();
             fs = FinishResilientSample.make(p, l);
             break;
+        }
+        case Configuration.RESILIENT_MODE_PLACE0:
+        {
+            val p = (parent!=null) ? parent : getCurrentFS();
+            val l = (latch!=null) ? latch : new SimpleLatch();
+            fs = FinishResilientPlace0.make(p, l);
+            break;
+        }
             
             //TODO: followings will be restrucutured
         case Configuration.RESILIENT_MODE_PLACE_ZERO:
@@ -90,6 +99,9 @@ abstract class FinishResilient extends FinishState {
         switch (Runtime.RESILIENT_MODE) {
         case Configuration.RESILIENT_MODE_SAMPLE:
             FinishResilientSample.notifyPlaceDeath();
+            break;
+        case Configuration.RESILIENT_MODE_PLACE0:
+            FinishResilientPlace0.notifyPlaceDeath();
             break;
             
             //TODO: followings will be restructured
