@@ -16,8 +16,8 @@ import x10.util.Pair;
 import x10.util.StringBuilder;
 
 import x10.matrix.Matrix;
-import x10.matrix.Debug;
-import x10.matrix.MathTool;
+import x10.matrix.util.Debug;
+import x10.matrix.util.MathTool;
 import x10.matrix.Vector;
 import x10.matrix.block.Grid;
 import x10.matrix.block.BlockMatrix;

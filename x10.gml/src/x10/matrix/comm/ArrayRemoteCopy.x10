@@ -16,7 +16,7 @@ import x10.compiler.Ifndef;
 
 import x10.matrix.comm.mpi.WrapMPI;
 import x10.matrix.sparse.CompressArray;
-import x10.matrix.Debug;
+import x10.matrix.util.Debug;
 
 /**
  * This class supports inter-place communication for data arrays which are defined

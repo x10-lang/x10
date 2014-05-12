@@ -11,7 +11,7 @@
 
 import x10.util.Timer;
 
-import x10.matrix.Debug;
+import x10.matrix.util.Debug;
 import x10.matrix.Matrix;
 import x10.matrix.block.Grid;
 import x10.matrix.dist.DistDenseMatrix;
@@ -27,7 +27,7 @@ public class GNNMF {
 	val Vn:Long;// = 100000;
 	val Wn:Long = 10;	
 	// ------GNNMF parameters------
-	public val iteration:Int;
+	public val iterations:Int;
 	val nzDensity:Double;
 	// ------Data partitioning------
 	val gridV:Grid;
@@ -55,7 +55,7 @@ public class GNNMF {
 	public def this(d:Long, nv:Long, nz:Double, i:Int) {
 		Vm = d; Vn =nv;
 		nzDensity=nz;
-		iteration = i;
+		iterations = i;
 		//
 		gridV = new Grid(Vm, Vn, Place.MAX_PLACES, 1);
 		gridW = new Grid(Vm, Wn, Place.MAX_PLACES, 1);
@@ -152,7 +152,7 @@ public class GNNMF {
 
 	public def run() : void {
 		/* Timing */ val st = Timer.milliTime();
-		for (var i:Long =0; i<iteration; i++) {
+		for (i in 1..iterations) {
 			comp_WV_WWH();
 			/* Timing */ t1 += Timer.milliTime() - st;
 			comp_VH_WHH();
@@ -165,9 +165,9 @@ public class GNNMF {
 		//V.print("Input V:");
 		//H.print("Input H:");
 		//W.print("Input W:");
-		val seq = new SeqGNNMF(V, H, W, iteration);
+		val seq = new SeqGNNMF(V, H, W, iterations);
 
-		for (var i:Long =0; i<iteration; i++) {
+		for (i in 1..iterations) {
 			Debug.flushln("Iteration "+i+" start parallel computing H");
 			comp_WV_WWH();
 			seq.comp_WV_WWH();

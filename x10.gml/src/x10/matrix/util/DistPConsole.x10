@@ -9,7 +9,7 @@
  *  (C) Copyright IBM Corporation 2006-2014.
  */
 
-package x10.matrix;
+package x10.matrix.util;
 
 import x10.regionarray.Dist;
 import x10.regionarray.DistArray;

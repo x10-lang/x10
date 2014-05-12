@@ -14,9 +14,9 @@ package x10.matrix.builder;
 import x10.matrix.Matrix;
 import x10.matrix.DenseMatrix;
 import x10.matrix.TriDense;
-import x10.matrix.Debug;
-import x10.matrix.RandTool;
-import x10.matrix.MathTool;
+import x10.matrix.util.Debug;
+import x10.matrix.util.RandTool;
+import x10.matrix.util.MathTool;
 
 public type TriDenseBuilder(blder:TriDenseBuilder)=TriDenseBuilder{self==blder};
 public type TriDenseBuilder(m:Long)=TriDenseBuilder{self.M==m,self.N==m};

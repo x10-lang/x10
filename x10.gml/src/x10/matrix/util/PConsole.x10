@@ -9,14 +9,14 @@
  *  (C) Copyright IBM Corporation 2006-2014.
  */
 
-package x10.matrix;
+package x10.matrix.util;
 
 import x10.io.File;
 import x10.util.Timer;
 import x10.util.StringBuilder;
 
 /**
- * For debugging purpose, this class provides methods to serialize the print out
+ * For debugging purposes, this class provides methods to serialize the printout
  * from different places based on time stamps.
  */
 public class PConsole {

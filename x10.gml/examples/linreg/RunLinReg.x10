@@ -11,8 +11,8 @@
 
 import x10.util.Timer;
 
-import x10.matrix.Debug;
-import x10.matrix.MathTool;
+import x10.matrix.util.Debug;
+import x10.matrix.util.MathTool;
 import x10.matrix.DenseMatrix;
 import x10.matrix.Vector;
 import x10.matrix.block.BlockMatrix;

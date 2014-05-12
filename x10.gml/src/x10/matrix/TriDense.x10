@@ -14,6 +14,8 @@ package x10.matrix;
 import x10.util.StringBuilder;
 
 import x10.matrix.blas.DenseMatrixBLAS;
+import x10.matrix.util.Debug;
+import x10.matrix.util.RandTool;
 
 public type TriDense(m:Long, n:Long)=TriDense{m==n, self.M==m, m==n};
 public type TriDense(m:Long)=TriDense{self.M==m,self.N==m};

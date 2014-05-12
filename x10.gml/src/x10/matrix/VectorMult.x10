@@ -14,6 +14,7 @@ package x10.matrix;
 import x10.matrix.blas.BLAS;
 import x10.matrix.blas.DenseMatrixBLAS;
 import x10.matrix.sparse.SparseCSC;
+import x10.matrix.util.Debug;
 
 /**
  * Performs matrix-vector multiplication.

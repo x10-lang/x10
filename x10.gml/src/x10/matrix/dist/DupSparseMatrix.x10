@@ -15,11 +15,11 @@ import x10.regionarray.Dist;
 import x10.regionarray.DistArray;
 import x10.util.Timer;
 
-import x10.matrix.Debug;
 import x10.matrix.Matrix;
 import x10.matrix.DenseMatrix;
 import x10.matrix.comm.MatrixBcast;
 import x10.matrix.sparse.SparseCSC;
+import x10.matrix.util.Debug;
 
 public  type DupSparseMatrix(M:Long)=DupSparseMatrix{self.M==M};
 public  type DupSparseMatrix(M:Long, N:Long)=DupSparseMatrix{self.M==M, self.N==N};

@@ -16,7 +16,7 @@ import x10.util.Timer;
 import x10.regionarray.Dist;
 import x10.regionarray.DistArray;
 
-import x10.matrix.Debug;
+import x10.matrix.util.Debug;
 import x10.matrix.DenseMatrix;
 import x10.matrix.block.Grid;
 import x10.matrix.dist.DistDenseMatrix;

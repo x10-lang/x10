@@ -9,7 +9,7 @@
  *  (C) Copyright IBM Corporation 2006-2014.
  */
 
-package x10.matrix;
+package x10.matrix.util;
 
 import x10.util.Random;
 import x10.lang.Math;
@@ -73,22 +73,16 @@ public class RandTool {
 			val s:Double = u*u + v*v;
 
 			if (MathTool.isZero(s)|| (s>=1.0)) continue; // try another set
-			//Console.OUT.print(" s="+s);
 
 			val lns:Double = Math.log(s);
 			p = Math.sqrt(-2.0*lns/s) * u;
-			//p = x10.lang.Math.sqrt(s);
-			//p = u<0?-p:p;
-			//Console.OUT.print(" p="+p);
 			if (p < -1.0 || p >  1.0)  p = 0.0;
-			//SysTool.assure(-1.0<=p && p<=1.0);
 
 			// mean + std_deviation * p;
 			d = Math.floor((avg + avg/2.0*p) + 0.5) as Int ;
 			if (d < 1n) d = 1n;
 			break;
 		}
-		//Console.OUT.println(" dst:"+d);
 		return d;
 	}
 	
@@ -98,7 +92,6 @@ public class RandTool {
 	 */
 	public static def nextUniRandDst(max:Double): Int {
 		val rg = RandTool.getRandGen();
-		//val max= (avg * 1.99 - 2) as Int;
 		val retval = 1n + Math.floor(rg.nextFloat()*max) as Int;
 		return retval; 
 	}

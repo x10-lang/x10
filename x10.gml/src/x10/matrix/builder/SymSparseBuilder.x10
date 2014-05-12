@@ -13,8 +13,8 @@ package x10.matrix.builder;
 
 import x10.compiler.Inline;
 
-import x10.matrix.MathTool;
-import x10.matrix.RandTool;
+import x10.matrix.util.MathTool;
+import x10.matrix.util.RandTool;
 import x10.matrix.sparse.SparseCSC;
 import x10.matrix.sparse.SymSparseCSC;
 

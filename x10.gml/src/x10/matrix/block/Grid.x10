@@ -16,7 +16,7 @@ import x10.regionarray.DistArray;
 import x10.compiler.Inline;
 import x10.util.StringBuilder;
 
-import x10.matrix.Debug;
+import x10.matrix.util.Debug;
 
 /**
  * This class represents meta-information for block matrices, 

@@ -16,7 +16,7 @@ import x10.regionarray.Region;
 import x10.util.ArrayList;
 import x10.util.StringBuilder;
 
-import x10.matrix.Debug;
+import x10.matrix.util.Debug;
 import x10.matrix.Matrix;
 import x10.matrix.DenseMatrix;
 import x10.matrix.sparse.SparseCSC;

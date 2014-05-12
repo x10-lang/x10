@@ -15,14 +15,14 @@ package x10.matrix;
 import x10.compiler.CompilerFlags;
 import x10.util.StringBuilder;
 
-//import x10.matrix.blas.DriverBLAS; 
-//Cannot call DriverBLAS static method from here. Must be in the same path as WrapBLAS.java
-
 import x10.matrix.blas.DenseMatrixBLAS;
 import x10.matrix.sparse.SparseCSC;
 import x10.matrix.sparse.SparseMultSparseToDense;
 import x10.matrix.sparse.SparseMultDenseToDense;
 import x10.matrix.sparse.DenseMultSparseToDense;
+import x10.matrix.util.Debug;
+import x10.matrix.util.MathTool;
+import x10.matrix.util.RandTool;
 
 public type DenseMatrix(m:Long, n:Long)=DenseMatrix{self.M==m, self.N==n};
 public type DenseMatrix(m:Long)=DenseMatrix{self.M==m};

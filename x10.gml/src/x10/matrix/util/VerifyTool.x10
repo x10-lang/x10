@@ -9,12 +9,14 @@
  *  (C) Copyright IBM Corporation 2006-2014.
  */
 
-package x10.matrix;
+package x10.matrix.util;
+
+import x10.matrix.Matrix;
 
 /**
  * This class is used to verify matrix multiplication result. 
  */
-public class VerifyTools {
+public class VerifyTool {
     /**
      * Verify matrix multiplication for a number of random positions in the result.
 	 *

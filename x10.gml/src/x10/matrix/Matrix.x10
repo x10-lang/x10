@@ -12,6 +12,7 @@
 package x10.matrix;
 
 import x10.util.StringBuilder;
+import x10.matrix.util.VerifyTool;
 
 public type Matrix(M:Long)=Matrix{self.M==M};
 public type Matrix(M:Long, N:Long)=Matrix{self.M==M, self.N==N};
@@ -335,12 +336,12 @@ public abstract class Matrix(M:Long, N:Long) {
      * @param m   the comparison matrix
      * @return true if elements in m are same as this
      */
-    public def equals(m:Matrix(M,N)) = VerifyTools.testSame(this, m);
+    public def equals(m:Matrix(M,N)) = VerifyTool.testSame(this, m);
     
     /**
      * Return true if every element in this matrix is equal to v.
      */    
-    public def equals(v:Double):Boolean = VerifyTools.testSame(this, v);
+    public def equals(v:Double):Boolean = VerifyTool.testSame(this, v);
     
     /** 
      * Instance type check 

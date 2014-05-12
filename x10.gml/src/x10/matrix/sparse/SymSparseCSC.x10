@@ -14,7 +14,7 @@ package x10.matrix.sparse;
 import x10.util.Pair;
 
 import x10.matrix.Matrix;
-import x10.matrix.MathTool;
+import x10.matrix.util.MathTool;
 import x10.matrix.builder.SymSparseBuilder;
 
 public type SymSparseCSC(m:Long)         =SymSparseCSC{self.M==m,self.N==m};

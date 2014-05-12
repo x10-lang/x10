@@ -11,9 +11,9 @@
 
 package x10.matrix.block;
 
-import x10.matrix.Debug;
+import x10.matrix.util.Debug;
 import x10.matrix.Matrix;
-import x10.matrix.RandTool;
+import x10.matrix.util.RandTool;
 import x10.matrix.DenseMatrix;
 import x10.matrix.sparse.CompressArray;
 import x10.matrix.sparse.Compress2D;

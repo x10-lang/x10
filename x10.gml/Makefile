@@ -50,20 +50,20 @@ bwrap_path =$(src_path)/x10/matrix/blas
 lwrap_path =$(src_path)/x10/matrix/lapack
 
 base_src=\
-	x10/matrix/Debug.x10 \
 	x10/matrix/DenseMultXTen.x10 \
 	x10/matrix/SymDense.x10 \
 	x10/matrix/TriDense.x10 \
 	x10/matrix/Vector.x10 \
-	x10/matrix/MathTool.x10 \
 	x10/matrix/Matrix.x10 \
-	x10/matrix/RandTool.x10 \
 	x10/matrix/DenseMatrix.x10 \
 	x10/matrix/VectorMult.x10 \
-	x10/matrix/DistPConsole.x10	\
 	x10/matrix/MatrixMultXTen.x10  \
-	x10/matrix/PConsole.x10 \
-	x10/matrix/VerifyTools.x10 
+	x10/matrix/util/Debug.x10 \
+	x10/matrix/util/DistPConsole.x10	\
+	x10/matrix/util/MathTool.x10 \
+	x10/matrix/util/PConsole.x10 \
+	x10/matrix/util/RandTool.x10 \
+	x10/matrix/util/VerifyTool.x10 
 
 comm_src=\
 	x10/matrix/comm/ArrayBcast.x10 \

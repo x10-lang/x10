@@ -9,13 +9,13 @@
  *  (C) Copyright IBM Corporation 2006-2014.
  */
 
-package x10.matrix;
+package x10.matrix.util;
 
 /**
  * This debug tool provides self defined assertion and print methods.
  * 
- * In a multi-place execution, print-out of the same place will be display together, after
- * calling flush() method.
+ * In a multi-place execution, printout of the same place will be displayed
+ * together, after calling flush() method.
  */
 public class Debug {
 	public static val console = new DistPConsole();

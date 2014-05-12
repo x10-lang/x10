@@ -9,8 +9,8 @@
  *  (C) Copyright IBM Corporation 2011-2014.
  */
 
-import x10.matrix.Debug;
-import x10.matrix.VerifyTools;
+import x10.matrix.util.Debug;
+import x10.matrix.util.VerifyTool;
 
 /**
  * 	Gaussian non-negative matrix factorization demo run
@@ -48,9 +48,9 @@ public class RunGNMF {
 				seq.run();
 				Debug.flushln("Verify W");
 				t.W.equals(seq.W);
-				VerifyTools.testSame(t.W, seq.W, tV);
+				VerifyTool.testSame(t.W, seq.W, tV);
 				Debug.flushln("Verify H");
-				VerifyTools.testSame(t.H, seq.H, tV);
+				VerifyTool.testSame(t.H, seq.H, tV);
 			}
 		}
 	}

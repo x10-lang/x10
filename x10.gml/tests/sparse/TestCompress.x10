@@ -9,7 +9,7 @@
  *  (C) Copyright IBM Corporation 2006-2014.
  */
 
-import x10.matrix.Debug;
+import x10.matrix.util.Debug;
 import x10.matrix.sparse.CompressArray;
 import x10.matrix.sparse.Compress1D;
 import x10.matrix.sparse.Compress2D;

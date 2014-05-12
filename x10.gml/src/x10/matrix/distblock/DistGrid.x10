@@ -11,7 +11,7 @@
 
 package x10.matrix.distblock;
 
-import x10.matrix.Debug;
+import x10.matrix.util.Debug;
 import x10.matrix.block.Grid;
 
 /**

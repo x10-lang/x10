@@ -9,9 +9,9 @@
  *  (C) Copyright IBM Corporation 2011-2014.
  */
 
-import x10.matrix.Debug;
+import x10.matrix.util.Debug;
 import x10.matrix.Matrix;
-import x10.matrix.VerifyTools;
+import x10.matrix.util.VerifyTool;
 
 import gnmf.GNNMF;
 import gnmf.SeqGNNMF;
@@ -57,23 +57,23 @@ public class RunGNMF {
 				t.run();
 				t.printTiming();
 			} else if (tV == 1) { /* Sequential run */
-				val seq = new SeqGNNMF(t.V, t.H, t.W, t.iteration);
+				val seq = new SeqGNNMF(t.V, t.H, t.W, t.iterations);
 				seq.run();
 				seq.printTiming();
 			} else if (tV == 2) { /* Verification of whole matrices*/
 				t.verifyRun();
 			} else { /* Random sampling verification */
 				Debug.flushln("Prepare sequential run");
-				val seq = new SeqGNNMF(t.V, t.H, t.W, t.iteration);
+				val seq = new SeqGNNMF(t.V, t.H, t.W, t.iterations);
 				Debug.flushln("Start parallel run");
 				t.run();
 				Debug.flushln("Start sequential run");
 				seq.run();
 				Debug.flushln("Verify W");
 				// t.W.equals(seq.W as Matrix(t.W.M, t.W.N)); // XTENLANG-3384
-				VerifyTools.testSame(t.W, seq.W, tV);
+				VerifyTool.testSame(t.W, seq.W, tV);
 				Debug.flushln("Verify H");
-				VerifyTools.testSame(t.H, seq.H, tV);
+				VerifyTool.testSame(t.H, seq.H, tV);
 			}
 		}
 	}

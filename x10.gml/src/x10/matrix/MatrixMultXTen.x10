@@ -11,6 +11,8 @@
 
 package x10.matrix;
 
+import x10.matrix.util.MathTool;
+
 /**
  *  This class provides matrix multiplication driver in X10, when the actual matrix type is unknown.
  *  All elements are accessed via the abstract method, which could have high latency.

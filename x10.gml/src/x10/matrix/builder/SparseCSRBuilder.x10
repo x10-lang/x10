@@ -16,7 +16,7 @@ import x10.util.StringBuilder;
 import x10.util.ArrayList;
 
 import x10.matrix.Matrix;
-import x10.matrix.MathTool;
+import x10.matrix.util.MathTool;
 import x10.matrix.DenseMatrix;
 import x10.matrix.sparse.CompressArray;
 import x10.matrix.sparse.Compress2D;

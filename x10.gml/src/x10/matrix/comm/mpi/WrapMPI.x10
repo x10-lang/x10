@@ -18,7 +18,7 @@ import x10.compiler.Native;
 import x10.compiler.NativeCPPInclude;
 import x10.compiler.NativeCPPCompilationUnit;
 
-import x10.matrix.Debug;
+import x10.matrix.util.Debug;
 
 /**
  * This class provides methods in X10 to invoke MPI routines.  

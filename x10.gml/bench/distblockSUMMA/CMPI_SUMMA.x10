@@ -9,10 +9,10 @@ import x10.compiler.Ifdef;
 import x10.compiler.Ifndef;
 
 import x10.matrix.Matrix;
-import x10.matrix.Debug;
+import x10.matrix.util.Debug;
 import x10.matrix.DenseMatrix;
 import x10.matrix.DenseMultXTen;
-import x10.matrix.VerifyTools;
+import x10.matrix.util.VerifyTool;
 
 import x10.matrix.block.Grid;
 import x10.matrix.dist.DistDenseMatrix;

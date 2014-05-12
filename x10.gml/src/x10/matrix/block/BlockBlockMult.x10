@@ -14,7 +14,7 @@ package x10.matrix.block;
 import x10.regionarray.Array;
 import x10.util.ArrayList;
 
-import x10.matrix.Debug;
+import x10.matrix.util.Debug;
 import x10.matrix.Matrix;
 
 /**

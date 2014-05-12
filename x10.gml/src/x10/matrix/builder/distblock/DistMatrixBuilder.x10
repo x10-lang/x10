@@ -14,9 +14,9 @@ package x10.matrix.builder.distblock;
 import x10.regionarray.Dist;
 
 import x10.matrix.Matrix;
-import x10.matrix.RandTool;
+import x10.matrix.util.RandTool;
 
-import x10.matrix.Debug;
+import x10.matrix.util.Debug;
 import x10.matrix.block.Grid;
 import x10.matrix.block.MatrixBlock;
 import x10.matrix.distblock.DistBlockMatrix;

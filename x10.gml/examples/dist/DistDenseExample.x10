@@ -10,7 +10,7 @@
  */
 
 
-import x10.matrix.Debug;
+import x10.matrix.util.Debug;
 import x10.matrix.DenseMatrix;
 
 import x10.matrix.block.Grid;

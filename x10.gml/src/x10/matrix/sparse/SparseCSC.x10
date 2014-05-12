@@ -13,11 +13,11 @@ package x10.matrix.sparse;
 
 import x10.util.Pair;
 
-import x10.matrix.Debug;
+import x10.matrix.util.Debug;
 import x10.matrix.Matrix;
-import x10.matrix.MathTool;
+import x10.matrix.util.MathTool;
 import x10.matrix.DenseMatrix;
-import x10.matrix.VerifyTools;
+import x10.matrix.util.VerifyTool;
 import x10.matrix.builder.SparseCSCBuilder;
 
 public type SparseCSC(M:Long)=SparseCSC{self.M==M};
@@ -1295,10 +1295,10 @@ public class SparseCSC extends Matrix {
 	}
 
 	public def equals(m:SparseCSC(M,N)) = 
-		VerifyTools.testSame(this as Matrix(M,N), m as Matrix(M,N));
+		VerifyTool.testSame(this as Matrix(M,N), m as Matrix(M,N));
 
 	public def equals(m:SparseCSR(M,N)) = 
-		VerifyTools.testSame(this as Matrix(M,N), m as Matrix(M,N));
+		VerifyTool.testSame(this as Matrix(M,N), m as Matrix(M,N));
 
 	public def toString():String {
 		val outstr:String =  

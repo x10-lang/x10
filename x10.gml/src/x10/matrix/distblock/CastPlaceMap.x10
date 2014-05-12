@@ -16,7 +16,7 @@ import x10.util.ArrayList;
 import x10.util.HashMap;
 import x10.util.Box;
 
-import x10.matrix.Debug;
+import x10.matrix.util.Debug;
 import x10.matrix.block.Grid;
 import x10.matrix.distblock.DistMap;
 

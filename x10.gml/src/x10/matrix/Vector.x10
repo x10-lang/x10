@@ -15,6 +15,9 @@ import x10.util.StringBuilder;
 
 import x10.matrix.blas.BLAS;
 import x10.matrix.blas.DenseMatrixBLAS;
+import x10.matrix.util.Debug;
+import x10.matrix.util.MathTool;
+import x10.matrix.util.RandTool;
 
 public type Vector(m:Long)=Vector{self.M==m};
 public type Vector(v:Vector)=Vector{self==v};

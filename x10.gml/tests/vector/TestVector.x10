@@ -6,7 +6,7 @@
  */
 
 import x10.matrix.Vector;
-import x10.matrix.MathTool;
+import x10.matrix.util.MathTool;
 
 /**
  * This class contains test cases for vector operations.

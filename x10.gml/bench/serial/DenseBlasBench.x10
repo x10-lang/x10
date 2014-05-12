@@ -12,10 +12,10 @@
 import x10.util.Timer;
 
 import x10.matrix.Matrix;
-import x10.matrix.Debug;
+import x10.matrix.util.Debug;
 import x10.matrix.DenseMatrix;
 import x10.matrix.DenseMultXTen;
-import x10.matrix.VerifyTools;
+import x10.matrix.util.VerifyTool;
 import x10.matrix.blas.DenseMatrixBLAS;
 
 public class DenseBlasBench {

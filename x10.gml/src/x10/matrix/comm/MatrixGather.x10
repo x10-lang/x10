@@ -16,7 +16,7 @@ import x10.regionarray.DistArray;
 import x10.compiler.Ifdef;
 import x10.compiler.Ifndef;
 
-import x10.matrix.Debug;
+import x10.matrix.util.Debug;
 
 import x10.matrix.Matrix;
 import x10.matrix.DenseMatrix;

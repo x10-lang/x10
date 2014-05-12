@@ -15,10 +15,8 @@ import x10.regionarray.Dist;
 import x10.regionarray.DistArray;
 import x10.util.Timer;
 
-import x10.matrix.Debug;
 import x10.matrix.Matrix;
 import x10.matrix.DenseMatrix;
-import x10.matrix.VerifyTools;
 import x10.matrix.block.Grid;
 import x10.matrix.block.DenseBlock;
 import x10.matrix.block.DenseBlockMatrix;
@@ -29,6 +27,8 @@ import x10.matrix.dist.summa.SummaDense;
 import x10.matrix.dist.summa.SummaDenseMultSparse;
 import x10.matrix.dist.summa.SummaSparseMultDense;
 import x10.matrix.dist.summa.SummaSparse;
+import x10.matrix.util.Debug;
+import x10.matrix.util.VerifyTool;
 
 public type DistDenseMatrix(M:Long,N:Long)=DistDenseMatrix{self.M==M, self.N==N};
 public type DistDenseMatrix(M:Long)=DistDenseMatrix{self.M==M};
@@ -879,14 +879,14 @@ public class DistDenseMatrix(grid:Grid){grid.M==M,grid.N==N} extends Matrix {
 		if (! this.grid.equals(m.grid)) {
 			Console.OUT.println("Grid dist differs!");
 		}
-		return VerifyTools.testSame(this as Matrix(M,N), m as Matrix(M,N));
+		return VerifyTool.testSame(this as Matrix(M,N), m as Matrix(M,N));
 	}
 
 	public def equals(m:DistDenseMatrix(M,N)) =
-		VerifyTools.testSame(this as Matrix(M,N), m as Matrix(M,N));
+		VerifyTool.testSame(this as Matrix(M,N), m as Matrix(M,N));
 	
 	public def equals(m:DenseMatrix(M,N)) = 
-		VerifyTools.testSame(this as Matrix(M,N), m as Matrix(M,N));
+		VerifyTool.testSame(this as Matrix(M,N), m as Matrix(M,N));
 	
 
 	public def toStringBlock() :String {

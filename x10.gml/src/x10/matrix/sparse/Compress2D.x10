@@ -12,7 +12,7 @@
 package x10.matrix.sparse;
 
 import x10.util.Pair;
-import x10.matrix.Debug;
+import x10.matrix.util.Debug;
 
 /**
  * This class provides abstraction of 2-dimension compressed array based on Rail

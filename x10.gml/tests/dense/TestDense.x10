@@ -7,7 +7,7 @@
 
 import x10.matrix.Matrix;
 import x10.matrix.DenseMatrix;
-import x10.matrix.MathTool;
+import x10.matrix.util.MathTool;
 
 /**
    This class contains test cases for dense matrix addition, scaling, and negation operations.
