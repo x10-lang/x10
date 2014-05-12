@@ -531,12 +531,12 @@ public class RoseTranslator extends Translator {
 		}
 
 		public void visit(LocalClassDecl_c n) {
-			toRose(n, "LocalClassDecl:", null);
+			toRose(n, "LocalClassDecl:");
 			visitChild(n, n.decl());
 		}
 
 		public void visit(X10ClassBody_c n) {
-			toRose(n, "classBody: ", null);
+			toRose(n, "classBody: ");
 			// don't know what kind of caction* should be invoked here! (2014/01/30 horie)
 			visitChildren(n, n.members());
 		}
@@ -792,14 +792,14 @@ public class RoseTranslator extends Translator {
 		}
 
 		public void visit(X10ConstructorCall_c n) {
-			toRose(n, "X10ConstructorCall:", null);
+			toRose(n, "X10ConstructorCall:");
 			visitChild(n, n.target());
 			visitChildren(n, n.typeArguments());
 			visitChildren(n, n.arguments());
 		}
 
 		public void visit(Block_c n) {
-			toRose(n, "Block:", null);
+			toRose(n, "Block:");
 			
 //			   if (javaParserSupport.verboseLevel > 0)
 //		            System.out.println("Inside of enter (Block,BlockScope)");
@@ -817,12 +817,12 @@ public class RoseTranslator extends Translator {
 		}
 
 		public void visit(StmtSeq_c n) {
-			toRose(n, "StmtSeq: ", null);
+			toRose(n, "StmtSeq: ");
 			visitChildren(n, n.statements());
 		}
 
 		public void visit(AssignPropertyCall_c n) {
-			toRose(n, "AssignPropertyCall:", null);
+			toRose(n, "AssignPropertyCall:");
 			// MH-20140313 go through at this moment
 			// Tentatively process empty statement instead of propertycall
 			JNI.cactionEmptyStatement(createJavaToken(n, n.toString()));
@@ -831,7 +831,7 @@ public class RoseTranslator extends Translator {
 		}
 
 		public void visit(Empty_c n) {
-			toRose(n, "Empty:", null);
+			toRose(n, "Empty:");
 			JNI.cactionEmptyStatement(createJavaToken(n, n.toString()));
 			JNI.cactionEmptyStatementEnd(createJavaToken(n, n.toString()));
 		}
@@ -883,7 +883,7 @@ public class RoseTranslator extends Translator {
 		}
 
 		public void visit(Return_c n) {
-			toRose(n, "Return:", null);
+			toRose(n, "Return:", (String)null);
 			JNI.cactionReturnStatement(createJavaToken(n, n.toString()));
 			visitChild(n, n.expr());
 			JNI.cactionReturnStatementEnd((n.expr() != null), createJavaToken(n, n.toString()));
@@ -931,12 +931,12 @@ public class RoseTranslator extends Translator {
 		}
 
 		public void visit(Eval_c n) {
-			toRose(n, "Eval:", null);
+			toRose(n, "Eval:");
 			visitChild(n, n.expr());
 		}
 
 		public void visit(For_c n) {
-			toRose(n, "For:", null);
+			toRose(n, "For:");
 			visitChildren(n, n.inits());
 			visitChild(n, n.cond());
 			visitChildren(n, n.iters());
@@ -944,7 +944,7 @@ public class RoseTranslator extends Translator {
 		}
 
 		public void visit(ForLoop_c n) {
-			toRose(n, "ForLoop:", null);
+			toRose(n, "ForLoop:");
 			visitChild(n, n.formal());
 			visitChild(n, n.cond());
 			visitChild(n, n.domain());
@@ -956,25 +956,25 @@ public class RoseTranslator extends Translator {
 		}
 		
 		public void visit(X10Do_c n) {
-			toRose(n, "X10Do:", null);
+			toRose(n, "X10Do:");
 			visitChild(n, n.cond());
 			visitChild(n, n.body());
 		}
 
 		public void visit(X10While_c n) {
-			toRose(n, "X10While:", null);
+			toRose(n, "X10While:");
 			visitChild(n, n.cond());
 			visitChild(n, n.body());
 		}
 
 
 		public void visit(Tuple_c n) {
-			toRose(n, "Tuple:", null);
+			toRose(n, "Tuple:");
 			visitChildren(n, n.arguments());
 		}
 
 		public void visit(SettableAssign_c n) {
-			toRose(n, "SettableAssign:",  null);
+			toRose(n, "SettableAssign:");
 			visitChild(n, n.left());
 			visitChildren(n, n.index());
 			visitChild(n, n.right());
@@ -1037,33 +1037,33 @@ public class RoseTranslator extends Translator {
 		}
 
 		public void visit(X10Conditional_c n) {
-			toRose(n, "X10Conditional:", null);
+			toRose(n, "X10Conditional:");
 			visitChild(n, n.cond());
 			visitChild(n, n.consequent());
 			visitChild(n, n.alternative());
 		}
 
 		public void visit(Assert_c n) {
-			toRose(n, "Assert:", null);
+			toRose(n, "Assert:");
 			visitChild(n, n.cond());
 			visitChild(n, n.errorMessage());
 		}
 
 
 		public void visit(Throw_c n) {
-			toRose(n, "Throw:", null);
+			toRose(n, "Throw:");
 			visitChild(n, n.expr());
 		}
 
 		public void visit(Try_c n) {
-			toRose(n, "Try:", null);
+			toRose(n, "Try:");
 			visitChild(n, n.tryBlock());
 			visitChildren(n, n.catchBlocks());
 			visitChild(n, n.finallyBlock());
 		}
 
 		public void visit(Catch_c n) {
-			toRose(n, "Catch:", null);
+			toRose(n, "Catch:");
 			visitChild(n, n.formal());
 			visitChild(n, n.body());
 		}
@@ -1086,7 +1086,7 @@ public class RoseTranslator extends Translator {
 		}
 
 		public void visit(ClassLit_c n) {
-			toRose(n, "ClassLit: ", null);
+			toRose(n, "ClassLit: ");
 			visitChild(n, n.typeNode());
 		}
 
@@ -1095,7 +1095,7 @@ public class RoseTranslator extends Translator {
 		}
 
 		public void visit(NullLit_c n) {
-			toRose(n, "NullLit:", "null");
+			toRose(n, "NullLit:");
 		}
 
 		public void visit(X10CharLit_c n) {
@@ -1121,53 +1121,53 @@ public class RoseTranslator extends Translator {
 
 		
 		public void visit(Finish_c n) {
-			toRose(n, "Finish:", null);
+			toRose(n, "Finish:");
 			visitChild(n, n.body());
 		}
 
 		public void visit(AtStmt_c n) {
-			toRose(n, "AtStmt:", null);
+			toRose(n, "AtStmt:");
 			visitChild(n, n.place());
 			visitChild(n, n.body());
 		}
 
 		public void visit(AtHomeStmt_c n) {
-			toRose(n, "AtHomeStmt:", null);
+			toRose(n, "AtHomeStmt:");
 			visitChild(n, n.place());
 			visitChild(n, n.body());
 		}
 
 		public void visit(AtExpr_c n) {
-			toRose(n, "AtExpr:", null);
+			toRose(n, "AtExpr:");
 			visitChild(n, n.place());
 			visitChild(n, n.body());
 		}
 
 		public void visit(AtHomeExpr_c n) {
-			toRose(n, "AtHomeExpr:", null);
+			toRose(n, "AtHomeExpr:");
 			visitChild(n, n.place());
 			visitChild(n, n.body());
 		}
 
 		public void visit(AtEach_c n) {
-			toRose(n, "AtEach:", null);
+			toRose(n, "AtEach:");
 			visitChild(n, n.formal());
 			visitChild(n, n.domain());
 			visitChild(n, n.body());
 		}
 
 		public void visit(Async_c n) {
-			toRose(n, "Async:", null);
+			toRose(n, "Async:");
 			visitChild(n, n.body());
 		}
 		
 		public void visit(Atomic_c n) {
-			toRose(n, "Atomic:", null);
+			toRose(n, "Atomic:");
 			visitChild(n, n.body());
 		}
 
 		public void visit(When_c n) {
-			toRose(n, "When:", null);
+			toRose(n, "When:");
 			visitChild(n, n.expr());
 			visitChild(n, n.stmt());
 		}
@@ -1175,7 +1175,7 @@ public class RoseTranslator extends Translator {
 
 
 		public void visit(X10New_c n) {
-			toRose(n, "X10New:", null);
+			toRose(n, "X10New:");
 			visitChildren(n, n.typeArguments());
 			visitChildren(n, n.arguments());
 			visitChild(n, n.objectType());
@@ -1183,12 +1183,12 @@ public class RoseTranslator extends Translator {
 		}
 
 		public void visit(Allocation_c n) {
-			toRose(n, "Allocation:", null);
+			toRose(n, "Allocation:");
 			visitChild(n, n.objectType());
 		}
 				
 		public void visit(LocalAssign_c n) {
-			toRose(n, "LocalAssign:", null);
+			toRose(n, "LocalAssign:");
 			JNI.cactionAssignment(createJavaToken(n, n.toString()));
 			visitChild(n, n.local());
 			visitChild(n, n.right());
@@ -1196,54 +1196,54 @@ public class RoseTranslator extends Translator {
 		}
 		
 		public void visit(X10LocalAssign_c n) {
-			toRose(n, "X10LocalAssign:", null);
+			toRose(n, "X10LocalAssign:");
 			visitChild(n, n.local());
 			visitChild(n, n.right());
 		}
 		
 		public void visit(X10Cast_c n) {
-			toRose(n, "X10Cast:", null);
+			toRose(n, "X10Cast:");
 			visitChild(n, n.castType());
 			visitChild(n, n.expr());
 		}
 
 		public void visit(X10Instanceof_c n) {
-			toRose(n, "X10Instanceof:", null);
+			toRose(n, "X10Instanceof:");
 			visitChild(n, n.compareType());
 			visitChild(n, n.expr());
 		}
 
 		public void visit(SubtypeTest_c n) {
-			toRose(n, "SubtypeTest:", null);
+			toRose(n, "SubtypeTest:");
 			visitChild(n, n.subtype());
 			visitChild(n, n.supertype());
 		}
 
 		public void visit(DepParameterExpr_c n) {
-			toRose(n, "DepParameterExpr:", null);
+			toRose(n, "DepParameterExpr:");
 			visitChildren(n, n.formals());
 			visitChildren(n, n.condition());
 		}
 
 		public void visit(HasZeroTest_c n) {
-			toRose(n, "HasZeroTest:", null);
+			toRose(n, "HasZeroTest:");
 			visitChild(n, n.parameter());
 		}
 
 		public void visit(Closure_c n) {
-			toRose(n, "Closure:", null);
+			toRose(n, "Closure:");
 			visitChildren(n, n.formals());
 			visitChild(n, n.body());
 		}
 
 		public void visit(ClosureCall_c n) {
-			toRose(n, "ClosureCall:", null);
+			toRose(n, "ClosureCall:");
 			visitChild(n, n.target());
 			visitChildren(n, n.arguments());
 		}
 
 		public void visit(StmtExpr_c n) {
-			toRose(n, "StmtExpr:", null);
+			toRose(n, "StmtExpr:");
 			visitChildren(n, n.statements());
 		}
 
@@ -1254,23 +1254,23 @@ public class RoseTranslator extends Translator {
 
 		
 		public void visit(Switch_c n) {
-			toRose(n, "Switch:", null);
+			toRose(n, "Switch:");
 			visitChild(n, n.expr());
 			visitChildren(n, n.elements());
 		}
 
 		public void visit(SwitchBlock_c n) {
-			toRose(n, "SwitchBlock:", null);
+			toRose(n, "SwitchBlock:");
 			visitChildren(n, n.statements());
 		}
 
 		public void visit(Case_c n) {
-			toRose(n, "Case:", null);
+			toRose(n, "Case:");
 			visitChild(n, n.expr());
 		}
 
 		public void visit(LocalTypeDef_c n) {
-			toRose(n, "LocalTypeDef:", null);
+			toRose(n, "LocalTypeDef:");
 			visitChild(n, n.typeDef());
 		}
 
