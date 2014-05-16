@@ -16,6 +16,7 @@ import com.hazelcast.core.HazelcastException;
 import com.hazelcast.core.HazelcastInstance;
 import com.hazelcast.core.HazelcastInstanceNotActiveException;
 import com.hazelcast.core.IAtomicLong;
+import com.hazelcast.core.IMap;
 import com.hazelcast.core.ITopic;
 import com.hazelcast.core.MemberAttributeEvent;
 import com.hazelcast.core.MembershipEvent;
@@ -78,7 +79,7 @@ public class HazelcastTransport implements MembershipListener {
 	}
 	
 	@SuppressWarnings("rawtypes")
-	ConcurrentMap getResilientMap(String name) {
+	IMap getResilientMap(String name) {
 		return hazelcast.getMap(name);
 	}
 	
