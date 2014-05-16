@@ -290,9 +290,11 @@ public class X10RT {
      */
     public static int numPlaces() {
       assert isBooted();
-      if (javaSockets != null) 
+      if (javaSockets != null)
     	  return javaSockets.x10rt_nplaces();
-      else if (!forceSinglePlace) 
+      else if (hazelcastTransport != null)
+    	  return hazelcastTransport.x10rt_nplaces();
+      else if (!forceSinglePlace)
     	  return x10rt_nplaces();
       else
     	  return 1;
