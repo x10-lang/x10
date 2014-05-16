@@ -16,6 +16,8 @@ import java.util.concurrent.ConcurrentMap;
 import x10.lang.GlobalRail;
 import x10.x10rt.SocketTransport.RETURNCODE;
 
+import com.hazelcast.core.IMap;
+
 public class X10RT {
     enum State { UNINITIALIZED, INITIALIZED, RUNNING, TEARING_DOWN, TORN_DOWN };
 	public static final String X10_JOIN_EXISTING = "X10_JOIN_EXISTING";
@@ -388,7 +390,7 @@ public class X10RT {
     // Retrieve a resilient data store from the underlying network transport
     // See details of the implementation here: http://hazelcast.org/docs/latest/javadoc/com/hazelcast/core/IMap.html
     @SuppressWarnings("rawtypes")
-	public static ConcurrentMap getResilientMap(String name) {
+	public static IMap getResilientMap(String name) {
     	if (hazelcastTransport != null)
     		return hazelcastTransport.getResilientMap(name);
     	else
