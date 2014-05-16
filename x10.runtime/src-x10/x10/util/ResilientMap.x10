@@ -13,7 +13,8 @@ package x10.util;
 
 import x10.compiler.Native;
 import x10.compiler.NativeRep;
-import java.util.concurrent.ConcurrentMap;
+
+import java.util.Set;
 
 /**
  * The ResilientMap class implements a resilient Map using Hazelcast as the underlying implementation.
@@ -21,14 +22,14 @@ import java.util.concurrent.ConcurrentMap;
 
 public class ResilientMap[K,V] {
 
-    var keyValueMap: java.util.concurrent.ConcurrentMap;
+    var keyValueMap: com.hazelcast.core.IMap;
 
 
     /**
      * Get the key-value map.
      */
     @Native("java", "x10.x10rt.X10RT.getResilientMap(#mapName)")
-    native def getMap(mapName: String): java.util.concurrent.ConcurrentMap;
+    native def getMap(mapName: String): com.hazelcast.core.IMap;
 
 
     /**
@@ -58,6 +59,13 @@ public class ResilientMap[K,V] {
     public native def containsValue(v: V): Boolean;
 
     /**
+     * Return a set view of the mappings contained in this map.
+     */
+    public def entrySet(): java.util.Set {
+        return keyValueMap.entrySet();
+    };
+
+    /**
      * Get the value of key k in the resilient map.
      */
 //    @Native("java", "(#V)((keyValueMap).get(#k))")
@@ -72,6 +80,13 @@ public class ResilientMap[K,V] {
      */
     @Native("java", "(keyValueMap).isEmpty()")
     public native def isEmpty(): Boolean;
+
+    /**
+     * Return native Java IMap of the map.
+     */
+    public def nativeMap(): com.hazelcast.core.IMap {
+        return keyValueMap;
+    };
 
     /**
      * Associate value v with key k in the resilient map.
@@ -98,5 +113,11 @@ public class ResilientMap[K,V] {
     @Native("java", "(keyValueMap).size()")
     public native def size(): Long;
 
+    /**
+     * Query map based on a predicate, return values of matching entries.
+    public def values(predicate: SqlPredicate): SetJava {
+        return new SetJava((keyValueMap.values(predicate.get()) as java.util.Set));
+    };
+*/
 
 }
