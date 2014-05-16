@@ -33,15 +33,16 @@ public final struct Place(
 
     /** The number of places including accelerators.
      * Accelerator places have limitations on the kinds of code they can run.
+     * TODO: THIS APPROACH DOES NOT WORK WITH ELASTIC X10
      */
-    @Native("java", "((long)x10.x10rt.X10RT.numPlaces())")
+    @Native("java", "((long)x10.runtime.impl.java.Runtime.MAX_PLACES)")
     @Native("c++", "((x10_long)::x10aux::num_places)")
-    public static getNumPlacesPlusAccels():Long = 4;
+    public static ALL_PLACES:Long = 4;
 
     /** The number of places not including accelerators. */
-    @Native("java", "((long)x10.x10rt.X10RT.numPlaces())")
+    @Native("java", "((long)x10.runtime.impl.java.Runtime.MAX_PLACES)")
     @Native("c++", "((x10_long)::x10aux::num_hosts)")
-    public static getNumPlaces(): Long = 4;
+    public static MAX_PLACES: Long = 4;
 
     /** The number of dead places not including accelerators. */
     @Native("java", "((long)x10.x10rt.X10RT.numDead())")
@@ -49,11 +50,8 @@ public final struct Place(
     public static numDead(): Long = 0;
 
     /** The number of accelerators. */
-    public static def getNumAccels() {
-        // return getNumPlacesPlusAccels() - getNumPlaces();
-        // TODO: THIS APPROACH DOES NOT WORK WITH ELASTIC X10
-        return 0;
-    }
+    // TODO: THIS APPROACH DOES NOT WORK WITH ELASTIC X10
+    public static NUM_ACCELS = ALL_PLACES - MAX_PLACES;
 
     /**
      * Find number of children under a place.
@@ -76,6 +74,13 @@ public final struct Place(
     @Native("c++", "x10rt_is_place_dead((x10_int)#id)")
     public static def isDead(id:Long):Boolean = false;
 
+    /**
+     * The number of places including accelerators.
+     */
+    @Native("java", "((long)x10.x10rt.X10RT.numPlaces())")
+    @Native("c++", "((x10_long)::x10aux::num_places)")
+    public static def numPlaces():Long = ALL_PLACES;
+    
     /**
      * Returns whether a place is a CUDA GPU.
      */
@@ -106,7 +111,7 @@ public final struct Place(
     public static def childIndex(id:Long):Long { throw new BadPlaceException(); }
 
     public static children =
-        new Rail[Rail[Place]](getNumPlacesPlusAccels(),
+        new Rail[Rail[Place]](ALL_PLACES,
             (p: Long) => new Rail[Place](numChildren(p), (i:Long) => Place(child(p, i))));
 
     /**
@@ -129,7 +134,7 @@ public final struct Place(
      */
     public def this(id:Long):Place(id) { 
         property(id); 
-        if (CompilerFlags.checkPlace() && (id < -1 || id >= getNumPlacesPlusAccels())) {
+        if (CompilerFlags.checkPlace() && (id < -1 || id >= numPlaces())) {
             throw new IllegalArgumentException(id+" is not a valid Place id");
         }
     }
@@ -160,7 +165,7 @@ public final struct Place(
     public def next(i:Long):Place {
         // -1 % n == -1, not n-1, so need to add n
         if (isHost(id)) {
-            val k = (id + i % getNumPlaces() + getNumPlaces()) % getNumPlaces();
+            val k = (id + i % numPlaces() + numPlaces()) % numPlaces();
             return place(k);
         }
         // FIXME: iterate through peers
@@ -168,15 +173,10 @@ public final struct Place(
     }
 
     /**
-     * The number of places including accelerators.
-     */
-    public static def numPlaces():Long = getNumPlacesPlusAccels();
-
-    /**
      * 
      */
     public def isFirst():Boolean = id == 0;
-    public def isLast():Boolean = id == getNumPlaces() - 1;
+    public def isLast():Boolean = id == numPlaces() - 1;
 
     /** Is this place a host (i.e. not an accelerator)? */
     public def isHost():Boolean = isHost(id);

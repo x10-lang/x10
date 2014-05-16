@@ -6,7 +6,6 @@ import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Set;
-import java.util.Map.Entry;
 
 public final class SmallMap<K,V> implements Map<K,V>, Cloneable {
     // we must support null key and values (TypeCheckFragmentGoal.runTask puts a null value)
@@ -18,6 +17,7 @@ public final class SmallMap<K,V> implements Map<K,V>, Cloneable {
     public SmallMap() {
         this(CollectionFactory.DEFAULT_SIZE);
     }
+    @SuppressWarnings("unchecked")
     public SmallMap(int size) {
         entries = (Entry<K,V>[])new Entry[size];
     }
@@ -26,6 +26,7 @@ public final class SmallMap<K,V> implements Map<K,V>, Cloneable {
         putAll(map);
     }
 
+    @SuppressWarnings("unchecked")
     public SmallMap<K,V> clone() {
         try {
             return (SmallMap<K,V>) super.clone();
@@ -79,6 +80,7 @@ public final class SmallMap<K,V> implements Map<K,V>, Cloneable {
             return true;
         if (!(o instanceof Map))
             return false;
+        @SuppressWarnings("unchecked")
         Map<K,V> m = (Map<K,V>) o;
         if (m.size() != size())
             return false;
@@ -91,7 +93,8 @@ public final class SmallMap<K,V> implements Map<K,V>, Cloneable {
 
     public void putAll(Map<? extends K, ? extends V> m) {
         if (m instanceof SmallMap) {
-            SmallMap<K,V> s = (SmallMap) m;
+            @SuppressWarnings("unchecked")
+            SmallMap<K,V> s = (SmallMap<K,V>) m;
             for (int i=0; i<s.curIndex; i++) {
                 final Entry<K, V> en = s.entries[i];
                 put(en.getKey(),en.getValue());
@@ -222,6 +225,7 @@ public final class SmallMap<K,V> implements Map<K,V>, Cloneable {
         public final boolean equals(Object o) {
             if (!(o instanceof Map.Entry))
                 return false;
+            @SuppressWarnings("rawtypes")
             Map.Entry e = (Map.Entry)o;
             Object k1 = getKey();
             Object k2 = e.getKey();
@@ -348,13 +352,15 @@ public final class SmallMap<K,V> implements Map<K,V>, Cloneable {
         public boolean contains(Object o) {
             if (!(o instanceof Map.Entry))
                 return false;
+            @SuppressWarnings("unchecked")
             Map.Entry<K,V> en = (Map.Entry<K,V>) o;
             return containsPair(en.getKey(), en.getValue());
         }
         public boolean remove(Object o) {
             if (!(o instanceof Map.Entry))
                 return false;
-            Map.Entry<K,V> en = (Map.Entry) o;
+            @SuppressWarnings("unchecked")
+            Map.Entry<K,V> en = (Map.Entry<K,V>) o;
             final V value = en.getValue();
             final K key = en.getKey();
             boolean contained = containsPair(key, value);

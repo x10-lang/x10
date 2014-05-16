@@ -43,8 +43,6 @@ class Thread implements Unserializable {
 
     public native def name(name:String):void;
 
-    public native def home():Place;
-
     public native operator this():void;
 
     public native def removeWorkerContext():void;

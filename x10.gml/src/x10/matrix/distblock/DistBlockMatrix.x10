@@ -17,8 +17,8 @@ import x10.util.StringBuilder;
 
 import x10.matrix.Matrix;
 import x10.matrix.DenseMatrix;
-import x10.matrix.Debug;
-import x10.matrix.MathTool;
+import x10.matrix.util.Debug;
+import x10.matrix.util.MathTool;
 import x10.matrix.block.Grid;
 import x10.matrix.block.MatrixBlock;
 import x10.matrix.block.BlockMatrix;
@@ -459,7 +459,7 @@ public class DistBlockMatrix extends Matrix {
 			val blk:MatrixBlock = blkset.find(bid);
 			if (blk == null) 
 				Debug.exit("Error in search blocks in block set");
-			
+
 			blk(bx, by)
 		};
 		return dv;

@@ -93,7 +93,7 @@ public abstract class Dist(
      *
      * @param r the given region
      * @return a "cyclic" distribution over r, cycling over the zeroth axis.
-     
+     */
     public static def makeCyclic(r:Region):Dist(r) = makeBlockCyclic(r, 0, 1);
     
     /**

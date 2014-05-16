@@ -56,6 +56,27 @@ namespace x10 {
                 return x10_complex(a.real()*b, a.imag()*b);
             }
 
+            #if defined(__APPLE__) && defined(__MACH__)
+            static x10_complex divideByZeroHandling(x10_complex a, x10_complex b);
+            #endif
+            static x10_complex _divide(x10_complex a, x10_complex b) {
+                #if defined(__APPLE__) && defined(__MACH__)
+	        // Compensate for nonstandard impl of division by zero in MacOS X std::complex
+	        if (b.real() == 0 && b.imag() == 0) {
+		    return divideByZeroHandling(a, b);
+                }
+                return a / b;
+                #else
+	        return a / b;
+		#endif
+            }
+            static x10_complex _divide(x10_double a, x10_complex b) {
+	        return a / b;
+            }
+            static x10_complex _divide(x10_complex a, x10_double b) {
+	        return a / b;
+            }
+
             static x10_complex conj(x10_complex a) {
                 return x10_complex(a.real(), -a.imag());
             }

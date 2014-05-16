@@ -693,7 +693,7 @@ public class X10RootDoc extends X10Doc implements RootDoc {
             pack = holder.name();
         } else {
             X10ClassDoc holderClass = holderClass(holder);
-            if (holderClass != null) {
+            if (holderClass != null && holderClass.classDef.package_() != null) {
                 pack = holderClass.classDef.package_().toString();
             }
         }

@@ -606,6 +606,7 @@ void x10rt_lgl_send_msg (x10rt_msg_params *p)
             case X10RT_LGL_CUDA: {
                 x10rt_cuda_ctx *cctx = static_cast<x10rt_cuda_ctx*>(g.accel_ctxs[g.index[d]]);
                 x10rt_cuda_send_msg(cctx, p);
+                x10rt_net_unblock_probe();
             } break;
             default: {
                 fatal("Place %lu has invalid type %d in send_msg.\n",
@@ -632,6 +633,7 @@ void x10rt_lgl_send_get (x10rt_msg_params *p, void *buf, x10rt_copy_sz len)
             case X10RT_LGL_CUDA: {
                 x10rt_cuda_ctx *cctx = static_cast<x10rt_cuda_ctx*>(g.accel_ctxs[g.index[d]]);
                 x10rt_cuda_send_get(cctx, p, buf, len);
+                x10rt_net_unblock_probe();
             } break;
             default: {
                 fatal("Place %lu has invalid type %d in send_get.\n",
@@ -658,6 +660,7 @@ void x10rt_lgl_send_put (x10rt_msg_params *p, void *buf, x10rt_copy_sz len)
             case X10RT_LGL_CUDA: {
                 x10rt_cuda_ctx *cctx = static_cast<x10rt_cuda_ctx*>(g.accel_ctxs[g.index[d]]);
                 x10rt_cuda_send_put(cctx, p, buf, len);
+               	x10rt_net_unblock_probe();
             } break;
             default: {
                 fatal("Place %lu has invalid type %d in send_put.\n",
@@ -849,8 +852,31 @@ x10rt_error x10rt_lgl_blocking_probe (void)
         // unsafe to block if collectives have made progress
         return x10rt_lgl_probe();
     }
+
+#ifdef ENABLE_CUDA
+    // check to see if there is anything in the GPUs
+    bool activeGPU = false;
+    for (x10rt_place i=0 ; i<g.naccels[x10rt_lgl_here()] ; ++i) {
+        switch (g.type[g.child[x10rt_lgl_here()][i]]) {
+            case X10RT_LGL_CUDA:
+            if (x10rt_cuda_probe(static_cast<x10rt_cuda_ctx*>(g.accel_ctxs[i])))
+            	activeGPU = true;
+            break;
+            default:
+            return fatal("Invalid node category.\n");
+            return g.error_code;
+        }
+    }
+    if (activeGPU) { // unsafe to block if the GPU is active
+        X10RT_NET_PROBE_PROP_ERR;
+    }
+    else
+    	x10rt_net_blocking_probe();
+#else
     // blocking probe
     x10rt_net_blocking_probe();
+#endif
+
     // advance collectives as much as possible
     while (x10rt_emu_coll_probe());
 

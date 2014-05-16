@@ -12,7 +12,7 @@
 
 import x10.compiler.Ifndef;
 
-import x10.matrix.Debug;
+import x10.matrix.util.Debug;
 import x10.matrix.DenseMatrix;
 import x10.matrix.blas.DenseMatrixBLAS;
 import x10.matrix.dist.DupDenseMatrix;

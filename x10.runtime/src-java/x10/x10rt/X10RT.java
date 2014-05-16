@@ -18,8 +18,10 @@ import x10.x10rt.SocketTransport.RETURNCODE;
 
 public class X10RT {
     enum State { UNINITIALIZED, INITIALIZED, RUNNING, TEARING_DOWN, TORN_DOWN };
+	public static final String X10_JOIN_EXISTING = "X10_JOIN_EXISTING";
 
     static State state = State.UNINITIALIZED;
+    static int here;
     static boolean forceSinglePlace = false;
     // TODO: These transports should be defined by an interface, and calls to them made through
     // that interface, removing all the "if (javaSockets!=null)" switch statements below
@@ -35,11 +37,7 @@ public class X10RT {
      * must be called before any other methods on this class or on any other X10RT 
      * related class can be successfully invoked.
      */
-    public static String init_library(final x10.runtime.impl.java.Runtime mainClass) {
-    	return init_library(mainClass, true);
-    }
-    
-    public static synchronized String init_library(final x10.runtime.impl.java.Runtime mainClass, boolean createThread) {
+    public static synchronized String init_library(final x10.runtime.impl.java.Runtime mainClass) {
     	if (state != State.UNINITIALIZED && 
     			state != State.TORN_DOWN) return null; // already initialized
 
@@ -57,36 +55,6 @@ public class X10RT {
         else if (libName.equalsIgnoreCase("JavaSockets")) {
       	  	X10RT.javaSockets = new SocketTransport();
       	    state = State.INITIALIZED;
-      	    
-      	    // create a thread which can accept configuration connections, and exits once X10 is up
-      	    if (createThread) {
-	     	    new Thread("x10rt internally created worker thread") {
-		  			public void run() {
-		  				while (X10RT.state == x10.x10rt.X10RT.State.INITIALIZED) {
-		  					X10RT.javaSockets.x10rt_probe(true, 500);
-		  				}
-		  				// place 0 takes over the worker thread that called connect_library(..), but other
-		  				// places need a worker thread.  This becomes that worker thread.
-		  				if (X10RT.javaSockets.x10rt_here() > 0) {
-			  				x10.lang.Runtime.get$staticMonitor();
-			  				x10.lang.Runtime.get$STRICT_FINISH();
-			  				x10.lang.Runtime.get$NTHREADS();
-			  				x10.lang.Runtime.get$MAX_THREADS();
-			  				x10.lang.Runtime.get$STATIC_THREADS();
-			  				x10.lang.Runtime.get$WARN_ON_THREAD_CREATION();
-			  				x10.lang.Runtime.get$BUSY_WAITING();
-			  		        
-			  				// start and join main x10 thread
-			  				x10.lang.Runtime.Worker worker = new x10.lang.Runtime.Worker(0);
-			  				worker.body = mainClass;
-			  				worker.start();
-			  				try {
-			  					worker.join();
-			  				} catch (InterruptedException e) {}
-		  				}
-		  			}
-		  		}.start();
-      	    }      	    
       	  	return X10RT.javaSockets.getLocalConnectionInfo();
         }
         else if (X10RT.hazelcastTransport != null)
@@ -112,6 +80,8 @@ public class X10RT {
 
         state = State.INITIALIZED;
         if (forceSinglePlace) {
+        	here = 0;
+        	x10.runtime.impl.java.Runtime.MAX_PLACES = 1;
             state = State.RUNNING;
         	return null;
         }
@@ -130,12 +100,14 @@ public class X10RT {
      * This method returns true if the runtime was successfully initialized.
      * If false is returned, the caller should call this method again until true is returned.
      */
-    public static synchronized boolean connect_library(int myPlace, String[] connectionInfo, boolean remoteStart) {
+    public static synchronized boolean connect_library(int myPlace, String[] connectionInfo) {
     	if (state != State.INITIALIZED) return true; // already initialized
-    
+
+        X10RT.here = myPlace;
+        
     	int errcode;
     	if (X10RT.javaSockets != null)
-    		errcode = X10RT.javaSockets.establishLinks(myPlace, connectionInfo, remoteStart);
+    		errcode = X10RT.javaSockets.establishLinks(myPlace, connectionInfo);
     	else if (X10RT.hazelcastTransport!= null)
     		throw new AssertionError("connect_library not supported in Hazelcast");
     	else {
@@ -148,6 +120,12 @@ public class X10RT {
             } catch (java.lang.UnsatisfiedLinkError e){}
             return false;
         }
+
+        if (connectionInfo == null)
+        	x10.runtime.impl.java.Runtime.MAX_PLACES = 1;
+        else
+        	x10.runtime.impl.java.Runtime.MAX_PLACES = connectionInfo.length;
+
         state = State.RUNNING;
         return true;
     }
@@ -165,11 +143,22 @@ public class X10RT {
           forceSinglePlace = true;
       } 
       else if (libName.equalsIgnoreCase("JavaSockets")) {
+    	  int ret;
     	  X10RT.javaSockets = new SocketTransport();
-    	  int ret = X10RT.javaSockets.establishLinks();
+    	  // check if we are joining an existing computation
+  		  String join = System.getProperty(X10_JOIN_EXISTING);
+  		  if (join != null)
+  			  ret = X10RT.javaSockets.establishLinks(join);
+  		  else
+  			  ret = X10RT.javaSockets.establishLinks();
+  		  
     	  if (ret != RETURNCODE.X10RT_ERR_OK.ordinal()) {
     		  forceSinglePlace = true;
     		  System.err.println("Unable to establish links!  errorcode: "+ret+". Forcing single place execution");
+    	  }
+    	  else {
+    		  here = X10RT.javaSockets.x10rt_here();
+    		  x10.runtime.impl.java.Runtime.MAX_PLACES = X10RT.javaSockets.x10rt_nplaces();
     	  }
       }
       else if (libName.equalsIgnoreCase("Hazelcast")) {
@@ -188,13 +177,19 @@ public class X10RT {
 
               TeamSupport.initialize();
 
+              here = x10rt_here();
+              x10.runtime.impl.java.Runtime.MAX_PLACES = x10rt_nplaces();
           } catch (UnsatisfiedLinkError e) {
               System.err.println("Unable to load "+libName+". Forcing single place execution");
               forceSinglePlace = true;
           }
       }
 
-      if (!forceSinglePlace) {
+      if (forceSinglePlace) {
+          here = 0;
+          x10.runtime.impl.java.Runtime.MAX_PLACES = 1;
+      }
+      else {
           // Add a shutdown hook to automatically teardown X10RT as part of JVM teardown
           Runtime.getRuntime().addShutdownHook(new Thread(new Runnable(){
               public void run() {
@@ -295,13 +290,11 @@ public class X10RT {
      */
     public static int numPlaces() {
       assert isBooted();
-      if (javaSockets != null)
+      if (javaSockets != null) 
     	  return javaSockets.x10rt_nplaces();
-      else if (hazelcastTransport != null)
-    	  return hazelcastTransport.x10rt_nplaces();
-      else if (!forceSinglePlace)
+      else if (!forceSinglePlace) 
     	  return x10rt_nplaces();
-      else 
+      else
     	  return 1;
     }
 

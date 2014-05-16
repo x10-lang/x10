@@ -16,6 +16,8 @@ import x10.lang.annotations.StatementAnnotation;
 
 /**
  * Used to specify the target endpoint of an active message as in:
+ * <code>
  * @Endpoint(endpoint) at (place) statement
+ * </code>
  */
 public interface Endpoint(n:Int) extends ExpressionAnnotation, StatementAnnotation { }

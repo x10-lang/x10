@@ -18,6 +18,8 @@
 #include <x10/lang/Reference.h>
 #include <x10/lang/Comparable.h>
 #include <x10/lang/Arithmetic.h>
+#include <x10/lang/Bitwise.h>
+#include <x10/util/Ordered.h>
 
 #include <cstdarg>
 
@@ -213,44 +215,44 @@ void RuntimeType::initBooleanType() {
 }
 void RuntimeType::initByteType() {
     if (ByteType.initStageOne(&ByteType)) return;
-    const x10aux::RuntimeType* parents[2] = { x10aux::getRTT<x10::lang::Any>(), x10aux::getRTT<x10::lang::Comparable<x10_byte> >()};
-    ByteType.initStageTwo("x10.lang.Byte", struct_kind, 2, parents, 0, NULL, NULL);
+    const x10aux::RuntimeType* parents[5] = { x10aux::getRTT<x10::lang::Any>(), x10aux::getRTT<x10::lang::Comparable<x10_byte> >(), x10aux::getRTT<x10::lang::Arithmetic<x10_byte> >(), x10aux::getRTT<x10::lang::Bitwise<x10_byte> >(), x10aux::getRTT<x10::util::Ordered<x10_byte> >()};
+    ByteType.initStageTwo("x10.lang.Byte", struct_kind, 5, parents, 0, NULL, NULL);
     ByteType.containsPtrs = false;
 }
 void RuntimeType::initCharType() {
     if (CharType.initStageOne(&CharType)) return;
-    const x10aux::RuntimeType* parents[2] = { x10aux::getRTT<x10::lang::Any>(), x10aux::getRTT<x10::lang::Comparable<x10_char> >()};
-    CharType.initStageTwo("x10.lang.Char", struct_kind, 2, parents, 0, NULL, NULL);
+    const x10aux::RuntimeType* parents[3] = { x10aux::getRTT<x10::lang::Any>(), x10aux::getRTT<x10::lang::Comparable<x10_char> >(), x10aux::getRTT<x10::util::Ordered<x10_char> >()};
+    CharType.initStageTwo("x10.lang.Char", struct_kind, 3, parents, 0, NULL, NULL);
     CharType.containsPtrs = false;
 }
 void RuntimeType::initShortType() {
     if (ShortType.initStageOne(&ShortType)) return;
-    const x10aux::RuntimeType* parents[2] = { x10aux::getRTT<x10::lang::Any>(), x10aux::getRTT<x10::lang::Comparable<x10_short> >()};
-    ShortType.initStageTwo("x10.lang.Short", struct_kind, 2, parents, 0, NULL, NULL);
+    const x10aux::RuntimeType* parents[5] = { x10aux::getRTT<x10::lang::Any>(), x10aux::getRTT<x10::lang::Comparable<x10_short> >(), x10aux::getRTT<x10::lang::Arithmetic<x10_short> >(), x10aux::getRTT<x10::lang::Bitwise<x10_short> >(), x10aux::getRTT<x10::util::Ordered<x10_short> >()};
+    ShortType.initStageTwo("x10.lang.Short", struct_kind, 5, parents, 0, NULL, NULL);
     ShortType.containsPtrs = false;
 }
 void RuntimeType::initIntType() {
     if (IntType.initStageOne(&IntType)) return;
-    const x10aux::RuntimeType* parents[2] = { x10aux::getRTT<x10::lang::Any>(), x10aux::getRTT<x10::lang::Comparable<x10_int> >()};
-    IntType.initStageTwo("x10.lang.Int", struct_kind, 2, parents, 0, NULL, NULL);
+    const x10aux::RuntimeType* parents[5] = { x10aux::getRTT<x10::lang::Any>(), x10aux::getRTT<x10::lang::Comparable<x10_int> >(), x10aux::getRTT<x10::lang::Arithmetic<x10_int> >(), x10aux::getRTT<x10::lang::Bitwise<x10_int> >(), x10aux::getRTT<x10::util::Ordered<x10_int> >()};
+    IntType.initStageTwo("x10.lang.Int", struct_kind, 5, parents, 0, NULL, NULL);
     IntType.containsPtrs = false;
 }
 void RuntimeType::initFloatType() {
     if (FloatType.initStageOne(&FloatType)) return;
-    const x10aux::RuntimeType* parents[2] = { x10aux::getRTT<x10::lang::Any>(), x10aux::getRTT<x10::lang::Comparable<x10_float> >()};
-    FloatType.initStageTwo("x10.lang.Float", struct_kind, 2, parents, 0, NULL, NULL);
+    const x10aux::RuntimeType* parents[4] = { x10aux::getRTT<x10::lang::Any>(), x10aux::getRTT<x10::lang::Comparable<x10_float> >(), x10aux::getRTT<x10::lang::Arithmetic<x10_float> >(), x10aux::getRTT<x10::util::Ordered<x10_float> >()};
+    FloatType.initStageTwo("x10.lang.Float", struct_kind, 4, parents, 0, NULL, NULL);
     FloatType.containsPtrs = false;
 }
 void RuntimeType::initLongType() {
     if (LongType.initStageOne(&LongType)) return;
-    const x10aux::RuntimeType* parents[2] = { x10aux::getRTT<x10::lang::Any>(), x10aux::getRTT<x10::lang::Comparable<x10_long> >()};
-    LongType.initStageTwo("x10.lang.Long", struct_kind, 2, parents, 0, NULL, NULL);
+    const x10aux::RuntimeType* parents[5] = { x10aux::getRTT<x10::lang::Any>(), x10aux::getRTT<x10::lang::Comparable<x10_long> >(), x10aux::getRTT<x10::lang::Arithmetic<x10_long> >(), x10aux::getRTT<x10::lang::Bitwise<x10_long> >(), x10aux::getRTT<x10::util::Ordered<x10_long> >()};
+    LongType.initStageTwo("x10.lang.Long", struct_kind, 5, parents, 0, NULL, NULL);
     LongType.containsPtrs = false;
 }
 void RuntimeType::initDoubleType() {
     if (DoubleType.initStageOne(&DoubleType)) return;
-    const x10aux::RuntimeType* parents[2] = { x10aux::getRTT<x10::lang::Any>(), x10aux::getRTT<x10::lang::Comparable<x10_double> >()};
-    DoubleType.initStageTwo("x10.lang.Double", struct_kind, 2, parents, 0, NULL, NULL);
+    const x10aux::RuntimeType* parents[4] = { x10aux::getRTT<x10::lang::Any>(), x10aux::getRTT<x10::lang::Comparable<x10_double> >(), x10aux::getRTT<x10::lang::Arithmetic<x10_double> >(), x10aux::getRTT<x10::util::Ordered<x10_double> >()};
+    DoubleType.initStageTwo("x10.lang.Double", struct_kind, 4, parents, 0, NULL, NULL);
     DoubleType.containsPtrs = false;
 }
 void RuntimeType::initComplexType() {
@@ -261,26 +263,26 @@ void RuntimeType::initComplexType() {
 }
 void RuntimeType::initUByteType() {
     if (UByteType.initStageOne(&UByteType)) return;
-    const x10aux::RuntimeType* parents[2] = { x10aux::getRTT<x10::lang::Any>(), x10aux::getRTT<x10::lang::Comparable<x10_ubyte> >()};
-    UByteType.initStageTwo("x10.lang.UByte", struct_kind, 2, parents, 0, NULL, NULL);
+    const x10aux::RuntimeType* parents[5] = { x10aux::getRTT<x10::lang::Any>(), x10aux::getRTT<x10::lang::Comparable<x10_ubyte> >(), x10aux::getRTT<x10::lang::Arithmetic<x10_ubyte> >(), x10aux::getRTT<x10::lang::Bitwise<x10_ubyte> >(), x10aux::getRTT<x10::util::Ordered<x10_ubyte> >()};
+    UByteType.initStageTwo("x10.lang.UByte", struct_kind, 5, parents, 0, NULL, NULL);
     UByteType.containsPtrs = false;
 }
 void RuntimeType::initUShortType() {
     if (UShortType.initStageOne(&UShortType)) return;
-    const x10aux::RuntimeType* parents[2] = { x10aux::getRTT<x10::lang::Any>(), x10aux::getRTT<x10::lang::Comparable<x10_ushort> >()};
-    UShortType.initStageTwo("x10.lang.UShort", struct_kind, 2, parents, 0, NULL, NULL);
+    const x10aux::RuntimeType* parents[5] = { x10aux::getRTT<x10::lang::Any>(), x10aux::getRTT<x10::lang::Comparable<x10_ushort> >(), x10aux::getRTT<x10::lang::Arithmetic<x10_ushort> >(), x10aux::getRTT<x10::lang::Bitwise<x10_ushort> >(), x10aux::getRTT<x10::util::Ordered<x10_ushort> >()};
+    UShortType.initStageTwo("x10.lang.UShort", struct_kind, 5, parents, 0, NULL, NULL);
     UShortType.containsPtrs = false;
 }
 void RuntimeType::initUIntType() {
     if (UIntType.initStageOne(&UIntType)) return;
-    const x10aux::RuntimeType* parents[2] = { x10aux::getRTT<x10::lang::Any>(), x10aux::getRTT<x10::lang::Comparable<x10_uint> >()};
-    UIntType.initStageTwo("x10.lang.UInt", struct_kind, 2, parents, 0, NULL, NULL);
+    const x10aux::RuntimeType* parents[5] = { x10aux::getRTT<x10::lang::Any>(), x10aux::getRTT<x10::lang::Comparable<x10_uint> >(), x10aux::getRTT<x10::lang::Arithmetic<x10_uint> >(), x10aux::getRTT<x10::lang::Bitwise<x10_uint> >(), x10aux::getRTT<x10::util::Ordered<x10_uint> >()};
+    UIntType.initStageTwo("x10.lang.UInt", struct_kind, 5, parents, 0, NULL, NULL);
     UIntType.containsPtrs = false;
 }
 void RuntimeType::initULongType() {
     if (ULongType.initStageOne(&ULongType)) return;
-    const x10aux::RuntimeType* parents[2] = { x10aux::getRTT<x10::lang::Any>(), x10aux::getRTT<x10::lang::Comparable<x10_ulong> >()};
-    ULongType.initStageTwo("x10.lang.ULong", struct_kind, 2, parents, 0, NULL, NULL);
+    const x10aux::RuntimeType* parents[5] = { x10aux::getRTT<x10::lang::Any>(), x10aux::getRTT<x10::lang::Comparable<x10_ulong> >(), x10aux::getRTT<x10::lang::Arithmetic<x10_ulong> >(), x10aux::getRTT<x10::lang::Bitwise<x10_ulong> >(), x10aux::getRTT<x10::util::Ordered<x10_ulong> >()};
+    ULongType.initStageTwo("x10.lang.ULong", struct_kind, 5, parents, 0, NULL, NULL);
     ULongType.containsPtrs = false;
 }
 

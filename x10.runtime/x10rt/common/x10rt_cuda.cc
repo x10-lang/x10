@@ -761,10 +761,11 @@ void x10rt_cuda_blocks_threads (x10rt_cuda_ctx *ctx, x10rt_msg_type type, int dy
 #endif
 }
 
-
-void x10rt_cuda_probe (x10rt_cuda_ctx *ctx)
+// returns true if something is active in the GPU, or false if the GPU is idle
+bool x10rt_cuda_probe (x10rt_cuda_ctx *ctx)
 {
 #ifdef ENABLE_CUDA
+    bool isAnythingActive = false;
     big_lock_of_doom.acquire();
     CU_SAFE(cuCtxPushCurrent(ctx->ctx));
 
@@ -773,6 +774,7 @@ void x10rt_cuda_probe (x10rt_cuda_ctx *ctx)
         if (ctx->kernel_q.current == NULL) {
             BaseOpKernel *kop = ctx->kernel_q.pop();
             if (kop != NULL) {
+                isAnythingActive = true;
                 assert(kop->is_kernel());
                 assert(!kop->begun);
                 x10rt_msg_type type = kop->p.type;
@@ -793,6 +795,7 @@ void x10rt_cuda_probe (x10rt_cuda_ctx *ctx)
                 ctx->kernel_q.current = kop;
             }
         } else {
+           	isAnythingActive = true;
             BaseOpKernel *kop = ctx->kernel_q.current;
             ctx->kernel_q.current = NULL;
             assert(kop->is_kernel());
@@ -812,6 +815,8 @@ void x10rt_cuda_probe (x10rt_cuda_ctx *ctx)
             free(kop);
         }
     }
+    else
+    	isAnythingActive = true;
 
     // spool DMAs
     if (stream_ready(ctx->dma_q.stream)) {
@@ -825,7 +830,7 @@ void x10rt_cuda_probe (x10rt_cuda_ctx *ctx)
             cop->begun = true;
             ctx->dma_q.current = cop;
         }
-
+       	isAnythingActive = true;
         assert(cop->begun);
         char *&src = reinterpret_cast<char*&>(cop->src);
         char *&dst = reinterpret_cast<char*&>(cop->dst);
@@ -890,16 +895,18 @@ void x10rt_cuda_probe (x10rt_cuda_ctx *ctx)
             safe_free(cop->p.msg);
             cop->~BaseOpCopy();
             free(cop);
-            return;
+            return isAnythingActive; // always true
         }
-
     }
+    else
+    	isAnythingActive = true;
 
     landingzone:
 
     CU_SAFE(cuCtxPopCurrent(NULL));
     big_lock_of_doom.release();
 
+    return isAnythingActive;
 #else
     (void) ctx;
     abort();

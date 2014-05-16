@@ -15,10 +15,10 @@ import x10.compiler.Inline;
 import x10.util.StringBuilder;
 import x10.util.ArrayList;
 
-import x10.matrix.Debug;
+import x10.matrix.util.Debug;
 import x10.matrix.Matrix;
-import x10.matrix.MathTool;
-import x10.matrix.RandTool;
+import x10.matrix.util.MathTool;
+import x10.matrix.util.RandTool;
 import x10.matrix.sparse.SparseCSC;
 
 public type SparseCSCBuilder(bld:SparseCSCBuilder)=SparseCSCBuilder{self==bld};

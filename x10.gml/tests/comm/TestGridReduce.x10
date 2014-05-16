@@ -7,7 +7,7 @@
 import x10.compiler.Ifndef;
 import x10.regionarray.Dist;
 
-import x10.matrix.Debug;
+import x10.matrix.util.Debug;
 import x10.matrix.block.Grid;
 import x10.matrix.distblock.DistBlockMatrix;
 import x10.matrix.distblock.BlockSet;

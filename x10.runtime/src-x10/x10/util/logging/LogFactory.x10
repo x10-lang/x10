@@ -49,7 +49,11 @@ public abstract class LogFactory {
     /** Construct (if necessary) and return a Log instance, using the factory's current set of configuration attributes. */
     @Native("java", "#this.getInstance(#name)")
     public abstract def getInstance(name:String):Log;
-    /** Convenience method to derive a name from the specified class and call getInstance(String) with it. */
+    /**
+     * Convenience method to derive a name from the specified class and call getInstance(String) with it.
+     * Note that all type parameters in T must be specified and bound.
+     * E.g. LogFactory.getInstance[Cell[Int]](LogFactory.getFactory()) is OK, but LogFactory.getInstance[Cell](LogFactory.getFactory()) is not. 
+     */
     @Native("java", "#factory.getInstance(#T$rtt.getJavaClass())")
     public static def getInstance[T](factory:LogFactory):Log = factory.getInstance(typeName[T]());
 
@@ -57,7 +61,11 @@ public abstract class LogFactory {
     /** Convenience method to return a named logger, without the application having to care about factories. */
     @Native("java", "org.apache.commons.logging.LogFactory.getLog(#name)")
     public static def getLog(name:String):Log = getFactory().getInstance(name);
-    /** Convenience method to return a named logger, without the application having to care about factories. */
+    /** 
+     * Convenience method to return a named logger, without the application having to care about factories.
+     * Note that all type parameters in T must be specified and bound.
+     * E.g. LogFactory.getLog[Cell[Int]]() is OK, but LogFactory.getLog[Cell]() is not.
+     */
     @Native("java", "org.apache.commons.logging.LogFactory.getLog(#T$rtt.getJavaClass())")
     public static def getLog[T]():Log = getInstance[T](getFactory());    
 

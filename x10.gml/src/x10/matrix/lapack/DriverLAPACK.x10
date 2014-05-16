@@ -14,9 +14,6 @@ package x10.matrix.lapack;
 import x10.compiler.Native;
 import x10.compiler.NativeCPPInclude;
 import x10.compiler.NativeCPPCompilationUnit;
-
-@NativeCPPInclude("wrap_lapack.h")
-@NativeCPPCompilationUnit("wrap_lapack.c")
 	
 /**
  *  This class provides LAPACK interface in X10 via native calls.
@@ -24,8 +21,9 @@ import x10.compiler.NativeCPPCompilationUnit;
  *  All matrix data is stored in column-major arrays. 
  *  All methods declared here have corresponding specification defined by
  *  BLAS, please refer to BLAS specification for detailed information.
- *  
  */
+@NativeCPPInclude("wrap_lapack.h")
+@NativeCPPCompilationUnit("wrap_lapack.c")
 protected class DriverLAPACK {
 	/**
 	 * Solve linear equations A * X = B

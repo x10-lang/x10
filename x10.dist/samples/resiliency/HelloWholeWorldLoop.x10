@@ -18,9 +18,11 @@ class HelloWholeWorldLoop {
          return;
      }
      
-     for (i:Long in 0..(Long.parse(args(1)))){     
+     for (i:Long in 0..(Long.parse(args(1)))){
          try {
-             finish for (p in 0..(Place.numPlaces()-1)) { // can't use Place.places() because that caches numplaces in Place.WORLD
+             val nplaces = Place.numPlaces();
+             Console.OUT.println(here+" sees "+nplaces+" places");
+             finish for (p in 0..(nplaces-1)) { // can't use Place.places() because that caches numplaces in Place.WORLD
                  at (Place(p)) async Console.OUT.println(here+" says hello and "+args(0)+" "+i);
              }
          }
@@ -28,7 +30,7 @@ class HelloWholeWorldLoop {
              Console.OUT.println("Got DeadPlaceException from "+e.place+" in round "+i);
          }
          
-         System.sleep(1000);
+         System.sleep(10000);
      }
      
      Console.OUT.println("Goodbye");

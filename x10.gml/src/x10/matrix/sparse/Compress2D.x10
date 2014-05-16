@@ -12,7 +12,7 @@
 package x10.matrix.sparse;
 
 import x10.util.Pair;
-import x10.matrix.Debug;
+import x10.matrix.util.Debug;
 
 /**
  * This class provides abstraction of 2-dimension compressed array based on Rail
@@ -773,7 +773,7 @@ public class Compress2D {
 	public def toString():String {
 		var outstr:String = "Compressed 2D  "+cLine.size+" compress lines\n";
 		for (var i:Long =0; i<cLine.size; i++) {
-			outstr += i.toString() + "\t"+cLine(i).toString() + "\n";
+			outstr += i + "\t"+cLine(i).toString() + "\n";
 		}
 		return outstr;
 	}

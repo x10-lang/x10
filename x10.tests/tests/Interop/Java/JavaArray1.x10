@@ -74,6 +74,14 @@ public class JavaArray1 extends x10Test {
         val ijai0 = jai0 instanceof Java.array[Int];
         Console.OUT.println(ijai0);
 
+        val jac = Java.newArray[Complex](10n,20n);
+        val ijac = jac instanceof Java.array[Java.array[Complex]];
+        Console.OUT.println(ijac);
+
+        val jac0 = jac(0n);
+        val ijac0 = jac0 instanceof Java.array[Complex];
+        Console.OUT.println(ijac0);
+
         return true;
     }
 

@@ -16,8 +16,8 @@ import x10.util.Pair;
 import x10.util.StringBuilder;
 import x10.compiler.Inline;
 
-import x10.matrix.Debug;
-import x10.matrix.RandTool;
+import x10.matrix.util.Debug;
+import x10.matrix.util.RandTool;
 import x10.matrix.block.Grid;
 
 /**

@@ -11,9 +11,9 @@
 
 import x10.compiler.Ifndef;
 
-import x10.matrix.Debug;
+import x10.matrix.util.Debug;
 import x10.matrix.Matrix;
-import x10.matrix.MathTool;
+import x10.matrix.util.MathTool;
 import x10.matrix.DenseMatrix;
 import x10.matrix.Vector;
 import x10.matrix.distblock.DistBlockMatrix;

@@ -11,8 +11,8 @@ import x10.matrix.DenseMatrix;
 import x10.matrix.blas.DenseMatrixBLAS;
 import x10.matrix.MatrixMultXTen;
 import x10.matrix.DenseMultXTen;
-import x10.matrix.MathTool;
-import x10.matrix.VerifyTools;
+import x10.matrix.util.MathTool;
+import x10.matrix.util.VerifyTool;
 
 /**
  * This class contains test cases for dense matrix multiplication.
@@ -125,7 +125,7 @@ public class TestMultDense{
 			
 			Console.OUT.printf("Result matrix: %dx%d\n", c.M, c.N);
 			
-			val ret = VerifyTools.verifyMatMult(a, b, c);
+			val ret = VerifyTool.verifyMatMult(a, b, c);
 			if (ret)
 				Console.OUT.println("Matrix base X10 multiply driver test passed!");
 			else
@@ -141,7 +141,7 @@ public class TestMultDense{
 			val c:DenseMatrix(a.M,b.N) = DenseMultXTen.comp(a, b);
 			
 			Console.OUT.printf("Result matrix: %dx%d\n", c.M, c.N);
-			val ret = VerifyTools.verifyMatMult(a, b, c);
+			val ret = VerifyTool.verifyMatMult(a, b, c);
 			
 			if (ret)
 				Console.OUT.println("Dense matrix X10 multiply driver test passed!");
@@ -192,7 +192,7 @@ public class TestMultDense{
 			
 			Console.OUT.printf("Result matrix: %dx%d\n", c.M, c.N);
 			
-			val ret = VerifyTools.verifyMatMult(a, b, c);
+			val ret = VerifyTool.verifyMatMult(a, b, c);
 			if (ret)
 				Console.OUT.println("Dense matrix BLAS multiply driver test passed!");
 			else

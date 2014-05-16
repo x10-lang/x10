@@ -13,10 +13,10 @@ package x10.matrix.block;
 
 import x10.util.StringBuilder;
 
-import x10.matrix.Debug;
+import x10.matrix.util.Debug;
 import x10.matrix.Matrix;
 import x10.matrix.DenseMatrix;
-import x10.matrix.VerifyTools;
+import x10.matrix.util.VerifyTool;
 
 public type DenseBlockMatrix(M:Long)=DenseBlockMatrix{self.M==M};
 public type DenseBlockMatrix(M:Long, N:Long)=DenseBlockMatrix{self.M==M, self.N==N};
@@ -670,7 +670,7 @@ public class DenseBlockMatrix(grid:Grid) extends Matrix  {
 	 * @return 		true or false
 	 */		
 	public def equals(m:DenseBlockMatrix(M,N)) =
-		VerifyTools.testSame(this as Matrix(M,N), m as Matrix(M,N));
+		VerifyTool.testSame(this as Matrix(M,N), m as Matrix(M,N));
 
 	/**
 	 * Convert matrix data into string

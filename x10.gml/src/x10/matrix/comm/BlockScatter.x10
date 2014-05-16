@@ -13,7 +13,7 @@ package x10.matrix.comm;
 
 import x10.util.ArrayList;
 
-import x10.matrix.Debug;
+import x10.matrix.util.Debug;
 import x10.matrix.Matrix;
 import x10.matrix.DenseMatrix;
 import x10.matrix.block.MatrixBlock;

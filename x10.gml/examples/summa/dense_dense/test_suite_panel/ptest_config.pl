@@ -41,7 +41,7 @@ printf "\#Set number of cores per node        : $ProcPerNode\n";
 #--------------------------
 
 # Batch job submition options. The following is an example used for Triloka cluster.
-$BatchModeOpt = "--mem=15000 -p Batch2h";
+$BatchModeOpt = "--mem=15000 -p all";
 printf "\#Set batch job submission options    : $BatchModeOpt\n";
 
 $gml_path="../../../..";             # x10.gml root path

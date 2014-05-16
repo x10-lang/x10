@@ -110,7 +110,7 @@ class ResilientStorePlaceZero {
 
         private def recalculateTotal() {
             totalCounter = 0;
-            for (i in 0..(Place.getNumPlaces()-1)) {
+            for (i in 0..(Place.numPlaces()-1)) {
                 totalCounter += live(i);
                 totalCounter += liveAdopted(i);
             }
@@ -130,12 +130,12 @@ class ResilientStorePlaceZero {
         public def this(pfs:State, homeId:Long, id:Long, latch:SimpleLatch) {
             this.id = id;
             this.parent = pfs;
-            //this.transit = new Rail[Int](Place.getNumPlaces() * Place.getNumPlaces(), 0n);
+            //this.transit = new Rail[Int](Place.numPlaces() * Place.numPlaces(), 0n);
             this.transit = new HashMap[Pair[Long,Long],Int]();
-            this.live = new Rail[Int](Place.getNumPlaces(), 0n);
-            //this.transitAdopted = new Rail[Int](Place.getNumPlaces() * Place.getNumPlaces(), 0n);
+            this.live = new Rail[Int](Place.numPlaces(), 0n);
+            //this.transitAdopted = new Rail[Int](Place.numPlaces() * Place.numPlaces(), 0n);
             this.transitAdopted = new HashMap[Pair[Long,Long],Int]();
-            this.liveAdopted = new Rail[Int](Place.getNumPlaces(), 0n);
+            this.liveAdopted = new Rail[Int](Place.numPlaces(), 0n);
             this.live(homeId) = 1n;
             if (FinishState.VERBOSE) Runtime.println("    initial live("+homeId+") == 1");
             this.totalCounter = 1;
@@ -144,10 +144,10 @@ class ResilientStorePlaceZero {
             this.latch = latch;
         }
 
-        //def transitInc(src:Long, dst:Long, v:Int) { transit(src + dst*Place.getNumPlaces()) += v; }
-        //def transitDec(src:Long, dst:Long) { transit(src + dst*Place.getNumPlaces())--; }
-        //def transitGet(src:Long, dst:Long) = transit(src + dst*Place.getNumPlaces());
-        //def transitSet(src:Long, dst:Long, v:Int) { transit(src + dst*Place.getNumPlaces()) = v; }
+        //def transitInc(src:Long, dst:Long, v:Int) { transit(src + dst*Place.numPlaces()) += v; }
+        //def transitDec(src:Long, dst:Long) { transit(src + dst*Place.numPlaces())--; }
+        //def transitGet(src:Long, dst:Long) = transit(src + dst*Place.numPlaces());
+        //def transitSet(src:Long, dst:Long, v:Int) { transit(src + dst*Place.numPlaces()) = v; }
         def transitInc(src:Long, dst:Long, v:Int) {
             if (v==0n) return;
             val p = Pair[Long, Long](src, dst);
@@ -167,10 +167,10 @@ class ResilientStorePlaceZero {
             val p = Pair[Long, Long](src, dst);
             transit.put(p, v);
         }
-        //def transitAdoptedInc(src:Long, dst:Long, v:Int) { transitAdopted(src + dst*Place.getNumPlaces()) += v; }
-        //def transitAdoptedDec(src:Long, dst:Long) { transitAdopted(src + dst*Place.getNumPlaces())--; }
-        //def transitAdoptedGet(src:Long, dst:Long) = transitAdopted(src + dst*Place.getNumPlaces());
-        //def transitAdoptedSet(src:Long, dst:Long, v:Int) { transitAdopted(src + dst*Place.getNumPlaces()) = v; }
+        //def transitAdoptedInc(src:Long, dst:Long, v:Int) { transitAdopted(src + dst*Place.numPlaces()) += v; }
+        //def transitAdoptedDec(src:Long, dst:Long) { transitAdopted(src + dst*Place.numPlaces())--; }
+        //def transitAdoptedGet(src:Long, dst:Long) = transitAdopted(src + dst*Place.numPlaces());
+        //def transitAdoptedSet(src:Long, dst:Long, v:Int) { transitAdopted(src + dst*Place.numPlaces()) = v; }
         def transitAdoptedInc(src:Long, dst:Long, v:Int) {
             if (v==0n) return;
             val p = Pair[Long, Long](src, dst);
@@ -200,10 +200,10 @@ class ResilientStorePlaceZero {
         }
 
         def adopt(child:State) : void {
-            for (i in 0..(Place.getNumPlaces()-1)) {
+            for (i in 0..(Place.numPlaces()-1)) {
                 liveAdopted(i) += child.live(i);
                 liveAdopted(i) += child.liveAdopted(i);
-                for (j in 0..(Place.getNumPlaces()-1)) {
+                for (j in 0..(Place.numPlaces()-1)) {
                     transitAdoptedInc(j, i, child.transitGet(j, i));
                     transitAdoptedInc(j, i, child.transitAdoptedGet(j, i));
                 }
@@ -343,7 +343,7 @@ class ResilientStorePlaceZero {
 
         // overwrite counters with 0 if places have died, accumuluate exceptions
         var recalc_needed : Boolean = false;
-        for (i in 0..(Place.getNumPlaces()-1)) {
+        for (i in 0..(Place.numPlaces()-1)) {
             if (Place.isDead(i)) {
                 for (unused in 1..fs.live(i)) {
                     fs.addDeadPlaceException(Place(i));
@@ -352,7 +352,7 @@ class ResilientStorePlaceZero {
                 fs.liveAdopted(i) = 0n;
 
                 // kill horizontal and vertical lines in transit matrix
-                for (j in 0..(Place.getNumPlaces()-1)) {
+                for (j in 0..(Place.numPlaces()-1)) {
                     // do not generate DPEs for these guys, they were technically never sent!
                     fs.transitSet(i, j, 0n);
                     fs.transitAdoptedSet(i, j, 0n);
@@ -374,7 +374,7 @@ class ResilientStorePlaceZero {
 
         if (FinishState.VERBOSE) {
             Runtime.println("quiescent("+fs.id+")");
-            for (i in 0..(Place.getNumPlaces()-1)) {
+            for (i in 0..(Place.numPlaces()-1)) {
                 if (fs.live(i)>0) {
                     if (FinishState.VERBOSE) Runtime.println("    "+fs.id+" Live at "+i);
                     return false;
@@ -387,7 +387,7 @@ class ResilientStorePlaceZero {
                     return false;
                 }
             }
-            for (i in 0..(Place.getNumPlaces()-1)) {
+            for (i in 0..(Place.numPlaces()-1)) {
                 if (fs.liveAdopted(i)>0) {
                     if (FinishState.VERBOSE) Runtime.println("    "+fs.id+" Live (adopted) at "+i);
                     return false;

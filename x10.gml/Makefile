@@ -50,20 +50,20 @@ bwrap_path =$(src_path)/x10/matrix/blas
 lwrap_path =$(src_path)/x10/matrix/lapack
 
 base_src=\
-	x10/matrix/Debug.x10 \
 	x10/matrix/DenseMultXTen.x10 \
 	x10/matrix/SymDense.x10 \
 	x10/matrix/TriDense.x10 \
 	x10/matrix/Vector.x10 \
-	x10/matrix/MathTool.x10 \
 	x10/matrix/Matrix.x10 \
-	x10/matrix/RandTool.x10 \
 	x10/matrix/DenseMatrix.x10 \
 	x10/matrix/VectorMult.x10 \
-	x10/matrix/DistPConsole.x10	\
 	x10/matrix/MatrixMultXTen.x10  \
-	x10/matrix/PConsole.x10 \
-	x10/matrix/VerifyTools.x10 
+	x10/matrix/util/Debug.x10 \
+	x10/matrix/util/DistPConsole.x10	\
+	x10/matrix/util/MathTool.x10 \
+	x10/matrix/util/PConsole.x10 \
+	x10/matrix/util/RandTool.x10 \
+	x10/matrix/util/VerifyTool.x10 
 
 comm_src=\
 	x10/matrix/comm/ArrayBcast.x10 \
@@ -135,7 +135,6 @@ dist_src=\
 	x10/matrix/dist/DupDenseMatrix.x10  \
 	x10/matrix/dist/DupSparseMatrix.x10 \
 	x10/matrix/dist/DistMultDupToDist.x10 \
-	x10/matrix/dist/DupMatrix.x10 \
 	x10/matrix/dist/DistMatrix.x10 \
 	x10/matrix/dist/DistSparseMatrix.x10  \
 	x10/matrix/dist/DupMultToDup.x10 \
@@ -206,7 +205,7 @@ include scripts/system_setting.mk
 
 
 #X10_FLAG	= -d $(build_path) -report postcompile=2 -v -errors 5 -VERBOSE_CHECKS #-O -NO_CHECKS
-X10_FLAG	= -VERBOSE_CHECKS # -O -NO_CHECKS
+X10_FLAG	= -VERBOSE_CHECKS -O -NO_CHECKS
 ifdef COVERAGE
     X10_FLAG += -cxx-prearg --coverage
     POST_LIBS += --coverage

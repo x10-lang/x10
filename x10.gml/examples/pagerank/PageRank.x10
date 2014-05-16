@@ -1,18 +1,21 @@
 /*
- *  This file is part of the X10 Applications project.
+ *  This file is part of the X10 project (http://x10-lang.org).
  *
- *  (C) Copyright IBM Corporation 2011.
+ *  This file is licensed to You under the Eclipse Public License (EPL);
+ *  You may not use this file except in compliance with the License.
+ *  You may obtain a copy of the License at
+ *      http://www.opensource.org/licenses/eclipse-1.0.php
+ *
+ *  (C) Copyright IBM Corporation 2011-2014.
  */
+
 package pagerank;
 
 import x10.util.Timer;
 
-import x10.matrix.Debug;
-import x10.matrix.Matrix;
-import x10.matrix.DenseMatrix;
+import x10.matrix.util.Debug;
 import x10.matrix.Vector;
 import x10.matrix.block.Grid;
-import x10.matrix.block.BlockMatrix;
 import x10.matrix.distblock.DistGrid;
 import x10.matrix.distblock.DistMap;
 
@@ -25,7 +28,7 @@ import x10.matrix.distblock.DistBlockMatrix;
  * 
  * Input parameters:
  * <p> 1) Sparse matrix G
- * <p> 4) Iteration
+ * <p> 4) Iterations
  * <p>
  * <p> Input matrix G is partitioned into (numRowBsG &#42 numColBsG) blocks. All blocks
  * are distributed to (Place.MAX_PLACES, 1) places, or vertical distribution.
@@ -42,7 +45,7 @@ import x10.matrix.distblock.DistBlockMatrix;
  */
 public class PageRank {
 	static val pN:Long = 1;
-	public val iteration:Long;
+	public val iterations:Long;
 	public val alpha:Double= 0.85;
 
 	public val G:DistBlockMatrix{self.M==self.N};
@@ -54,30 +57,25 @@ public class PageRank {
 	val GP:DistVector(G.N); // Distributed version of G*P
 	val vGP:Vector(G.N);  // Used to collect GP and store in dense format (single column)
 	
-	// Time profiling
-	var tt:Long = 0;
-	var ct:Long = 0;
-	
 	public def this(
 			g:DistBlockMatrix{self.M==self.N}, 
 			p:DupVector(g.N), 
 			e:Vector(g.N), 
 			u:Vector(g.N), 
-			it:Int) {
+			it:Long) {
 		Debug.assure(DistGrid.isVertical(g.getGrid(), g.getMap()), 
 				"Input block matrix g does not have vertical distribution.");
 		G = g;
 		P = p as DupVector(G.N);
 		E = e as Vector(G.N); 
 		U = u as Vector(G.N);
-		iteration = it;
+		iterations = it;
 		
 		GP    = DistVector.make(G.N, G.getAggRowBs());//G must have vertical distribution
 		vGP	  = Vector.make(G.N);
 	}
 
-	public static def make(gN:Long, nzd:Double, it:Int, numRowBs:Int, numColBs:Int) {
-
+	public static def make(gN:Long, nzd:Double, it:Long, numRowBs:Long, numColBs:Long) {
 		//---- Distribution---
 		val numRowPs = Place.MAX_PLACES;
 		val numColPs = 1;
@@ -100,7 +98,6 @@ public class PageRank {
 	
 	
 	public def init():void {
-
 		Debug.flushln("Start initialize input matrices");		
 		G.initRandom();
 		Debug.flushln("Dist sparse matrix initialization completes");		
@@ -113,36 +110,37 @@ public class PageRank {
 	}
 
 	public def run():Vector(G.N) {
-		var seqtime:Long =0;
-		var comtime:Long =0;
-		var stt:Long =0;
-		var UP:Double=0;
+		var parTime:Long = 0;
+		var seqTime:Long = 0;
+        var bcastTime:Long = 0;
+        var gatherTime:Long = 0;
+        var totalTime:Long = 0;
+
 		val vP = P.local() as Vector(G.N);
-		tt = P.getCommTime();
-		Debug.flushln("Start parallel PageRank at "+tt);	
-		val st = Timer.milliTime();		
-		for (var i:Long=0; i<iteration; i++) {
+		totalTime -= Timer.milliTime();		
+		for (1..iterations) {
+			parTime -= Timer.milliTime();
+			GP.mult(G, P).scale(alpha);
+			parTime += Timer.milliTime();
 			
-			GP.mult(G, P, false).scale(alpha);
-			
-			stt = Timer.milliTime();
+			gatherTime -= Timer.milliTime();
 			GP.copyTo(vGP);     // dist -> local dense
-			comtime += Timer.milliTime()-stt;
+			gatherTime += Timer.milliTime();
 			
-			stt = Timer.milliTime();
+			seqTime -= Timer.milliTime();
 			vP.mult(E, U.dotProd(vP)).scale(1-alpha).cellAdd(vGP);
-			seqtime += Timer.milliTime() - stt;
+			seqTime += Timer.milliTime();
 			
-			stt = Timer.milliTime();
+			bcastTime -= Timer.milliTime();
 			P.sync(); // broadcast
-			comtime += Timer.milliTime() - stt;
+			bcastTime += Timer.milliTime();
 		}
-		tt += Timer.milliTime() - st;
-		val pmultime = GP.getCalcTime();
-		val commtime = GP.getCommTime() + P.getCommTime();
-		Console.OUT.printf("Total comm Time:%d ms, Gather:%d ms Bcast:%d ms\n", comtime, GP.getCommTime(), P.getCommTime());
-		Console.OUT.printf("G:%d PageRank total runtime for %d iter: %d ms, ", G.M, iteration, tt );
-		Console.OUT.printf("comm: %d ms, mult time: %d seq calc: %d ms\n", commtime, pmultime, seqtime);
+		totalTime += Timer.milliTime();
+		val mulTime = GP.getCalcTime();
+		val commTime = bcastTime + gatherTime;
+		Console.OUT.printf("Gather: %d ms Bcast: %d ms Mul: %d ms\n", gatherTime, bcastTime, mulTime);
+		Console.OUT.printf("G:%d PageRank total runtime for %d iter: %d ms, ", G.M, iterations, totalTime);
+		Console.OUT.printf("comm: %d ms, par calc: %d ms, seq calc: %d ms\n", commTime, parTime, seqTime);
 		Console.OUT.flush();
 		
 		return vP;

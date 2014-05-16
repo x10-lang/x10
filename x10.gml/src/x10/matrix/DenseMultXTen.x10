@@ -11,6 +11,8 @@
 
 package x10.matrix;
 
+import x10.matrix.util.MathTool;
+
 /**
  * This class provides dense matrix multiplication driver in x10.
  * All input matrices are DenseMatrix objects.

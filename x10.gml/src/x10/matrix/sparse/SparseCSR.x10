@@ -14,9 +14,9 @@ package x10.matrix.sparse;
 import x10.util.Pair;
 import x10.util.StringBuilder;
 
-import x10.matrix.Debug;
+import x10.matrix.util.Debug;
 import x10.matrix.Matrix;
-import x10.matrix.MathTool;
+import x10.matrix.util.MathTool;
 import x10.matrix.DenseMatrix;
 
 public type SparseCSR(M:Long)=SparseCSR{self.M==M};
@@ -24,7 +24,7 @@ public type SparseCSR(M:Long,N:Long)=SparseCSR{self.M==M, self.N==N};
 public type SparseCSR(C:SparseCSR)=SparseCSR{self==C};
 
 /**
- * User be advised. SparseCSR is outdated, and is not fully supported as SparseCSC.
+ * User be advised: SparseCSR is outdated, and is not fully supported as SparseCSC.
  * <p>
  * This class defines sparse matrix compressed in row order, or CSR format.
  * The class is used as temporary storage when SparseCSC needs to be

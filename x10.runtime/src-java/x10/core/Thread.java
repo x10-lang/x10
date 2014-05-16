@@ -15,12 +15,10 @@ import java.io.IOException;
 
 import x10.core.fun.VoidFun_0_0;
 import x10.io.Unserializable;
-import x10.lang.Place;
 import x10.rtt.NamedType;
 import x10.rtt.RuntimeType;
 import x10.rtt.Type;
 import x10.serialization.X10JavaSerializer;
-import x10.x10rt.X10RT;
 
 /**
  */
@@ -41,8 +39,6 @@ public class Thread implements Any, Unserializable {
         return context.get();
     }
 
-    private Place home;    // the current place
-
     public VoidFun_0_0 body;
 
     // constructor just for allocation
@@ -59,7 +55,6 @@ public class Thread implements Any, Unserializable {
                 }
             }
         };
-        home = Place.place(X10RT.here());
         return this;
     }
     
@@ -73,7 +68,6 @@ public class Thread implements Any, Unserializable {
 
     public final Thread x10$lang$Thread$$init$S() {
         jthread = java.lang.Thread.currentThread();
-        home = Place.place(X10RT.here());
         return this;
     }
 
@@ -90,13 +84,6 @@ public class Thread implements Any, Unserializable {
     // Note: since this isn't user visible, java.lang.InterruptedException is used.
     public void join() throws java.lang.InterruptedException {
         jthread.join();
-    }
-
-    /**
-     * Return current place
-     */
-    public Place home() {
-        return home;
     }
 
     public String name() {

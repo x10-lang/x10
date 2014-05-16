@@ -1,32 +1,31 @@
 /*
- *  This file is part of the X10 Applications project.
+ *  This file is part of the X10 project (http://x10-lang.org).
  *
- *  (C) Copyright IBM Corporation 2011.
+ *  This file is licensed to You under the Eclipse Public License (EPL);
+ *  You may not use this file except in compliance with the License.
+ *  You may obtain a copy of the License at
+ *      http://www.opensource.org/licenses/eclipse-1.0.php
+ *
+ *  (C) Copyright IBM Corporation 2011-2014.
  */
 
 package gnmf;
 
 import x10.util.Timer;
 
-import x10.matrix.Debug;
-import x10.matrix.Matrix;
-import x10.matrix.DenseMatrix;
-import x10.matrix.VerifyTools;
+import x10.matrix.util.Debug;
 import x10.matrix.block.Grid;
 import x10.matrix.distblock.DistGrid;
 import x10.matrix.distblock.DistMap;
 import x10.matrix.distblock.DistBlockMatrix;
 import x10.matrix.distblock.DupBlockMatrix;
-import x10.matrix.distblock.DistDupMult;
-//import x10.matrix.dist.DistMultDistToDup;
-//import x10.matrix.dist.DistMultDupToDist;
 
 /**
  * Parallel GNNMF implementation is based on GML distributed dense/sparse matrix.
  * Input V, and input-output W and H use grid partitioning, where V and W
  * have the same number of rows and same row partitioning, and
- * W's columns and H's rows are same and share the same partitioning,
- * same as V's columns and H's columns.
+ * W's columns and H's rows are same and share the same partitioning as
+ * V's columns and H's columns.
  * 
  * Input matrix V is partitioned into (rowBsV &#42 colBsV) blocks
  * <p>
@@ -55,9 +54,9 @@ import x10.matrix.distblock.DistDupMult;
  * are duplicated in all places.
  */ 
 public class GNNMF {
-	static val wN = 10L;
+	static val wN = 10;
 	// ------GNNMF execution parameters------
-	public val iteration:Int;
+	public val iterations:Int;
 	// ------Input and output matrix------
 	public val V:DistBlockMatrix;
 	public val W:DistBlockMatrix(V.M, wN);
@@ -81,7 +80,7 @@ public class GNNMF {
 		V = v; 
 		W = w as DistBlockMatrix(V.M, wN); 
 		H = h as DupBlockMatrix(W.N,V.N);
-		iteration = it;
+		iterations = it;
 
 		Debug.assure(DistGrid.isVertical(v.getGrid(), v.getMap()), 
 		"Input distributed block matrix V does not have vertical distribution");
@@ -128,7 +127,7 @@ public class GNNMF {
 		return new GNNMF(v, w, h, it);
 	}
 
-	public static def make(vM:Long, vN:Long, nzd:Double, it:Int, vRowBs:Int, vColBs:Int) {
+	public static def make(vM:Long, vN:Long, nzd:Double, it:Int, vRowBs:Long, vColBs:Long) {
 		//Preset parameters
 		val wColBs = 1;
 		//Vertical distribution
@@ -145,7 +144,7 @@ public class GNNMF {
 	public def init():void {
 		Debug.flushln("Start initialize input data");		
 		V.initRandom();
-		Debug.flushln("Dist block matrix in sparse blocks initialization completes");		
+		Debug.flushln("Dist block matrix in sparse blocks initialization completes");
 		W.initRandom();
 		Debug.flushln("Dist block matrix in dense blocks initialization completes");
 		H.initRandom();
@@ -158,7 +157,7 @@ public class GNNMF {
 		val gV = V.getGrid();
 	
 		Debug.flushln("Starting X10 GNNMF ");
-		Console.OUT.printf("Input matrix V:(%dx%d), partitioning:(%dx%d) blocks, veritical distribution\n", 
+		Console.OUT.printf("Input matrix V:(%dx%d), partitioning:(%dx%d) blocks, vertical distribution\n", 
 						   V.M, V.N, gV.numRowBlocks, gV.numColBlocks);
 		Console.OUT.printf("V nonzero density: %f, total nonzero count: %f\n", nzd, nzc);
 						   
@@ -177,19 +176,19 @@ public class GNNMF {
 	public def comp_WV_WWH() : void {
 		/* H . (W^t * V / (W^t * W) * H) -> H */
 		WtV.transMult(W, V); // W^t * V  -> WV
+        //Console.OUT.println("Parallel W^t * V =" + WtV);
 
-		//WtV.print("Parallel W^t * V =");
 		WtW.transMult(W, W); // W^t * W  -> WW
-		
-		//WtW.print("Parallel W^t * W = ");
+		//Console.OUT.println("Parallel W^t * W =" + WtW);
+
 		WtWH.mult(WtW, H);
+		//Console.OUT.println("Parallel dup WW * H = " + WtWH);
 
-		//WtWH.print("Parallel dup WW * H = ");
 		WtV.cellDiv(WtWH);                     // WV / WWH -> WV
+		//Console.OUT.println("Parallel WV ./ WWH = " + WtV);
 
-		//WtV.print("Parallel WV ./ WWH = ");
 		H.cellMult(WtV);                      // H . WV   -> H		
-		//H.print("Parallel H update:");
+		//Console.OUT.println("Parallel H update:" + H);
 	}
 
 	public def comp_VH_WHH() : void {
@@ -215,7 +214,7 @@ public class GNNMF {
 	public def run() : void {
 		tt += H.getCommTime();
 		/* Timing */ st = Timer.milliTime();
-		for (var i:Long =0; i<iteration; i++) {
+		for (i in 1..iterations) {
 			comp_WV_WWH();
 			/* Timing */ t1 += Timer.milliTime() - st;
 			comp_VH_WHH();
@@ -228,9 +227,9 @@ public class GNNMF {
 		//V.print("Input V:");
 		//H.print("Input H:");
 		//W.print("Input W:");
-		val seq = new SeqGNNMF(V, H, W, iteration);
+		val seq = new SeqGNNMF(V, H, W, iterations);
 
-		for (var i:Long =0; i<iteration; i++) {
+		for (i in 1..iterations) {
 			Debug.flushln("Iteration "+i+" start parallel computing H");
 			comp_WV_WWH();
 			seq.comp_WV_WWH();

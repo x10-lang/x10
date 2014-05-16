@@ -208,7 +208,7 @@ public class Launcher {
 				System.setProperty("X10RT_IMPL", "JavaSockets"); // use java communication library
 				//x10.runtime.impl.java.Runtime userClass = (x10.runtime.impl.java.Runtime) Class.forName(args[0]).newInstance();
 				//String connectionInfo = X10RT.init_library(userClass, false);
-				String connectionInfo = X10RT.init_library(null, false);
+				String connectionInfo = X10RT.init_library(null);
 
 				// write connection string to the parent
 				System.out.println(connectionInfo);
@@ -241,7 +241,7 @@ public class Launcher {
 				}
 				
 				// link up
-				if (!X10RT.connect_library(myPlace, placeStrings, false)) {
+				if (!X10RT.connect_library(myPlace, placeStrings)) {
 					//System.err.println("Place "+myPlace+" was unable to establish links across places");
 					return;
 				}

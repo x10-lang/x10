@@ -16,7 +16,7 @@ import x10.matrix.Matrix;
 import x10.matrix.DenseMatrix;
 import x10.matrix.Vector;
 import x10.matrix.VectorMult;
-import x10.matrix.Debug;
+import x10.matrix.util.Debug;
 import x10.matrix.block.Grid;
 
 /**

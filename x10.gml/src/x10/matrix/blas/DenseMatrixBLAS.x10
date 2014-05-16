@@ -12,8 +12,9 @@
 package x10.matrix.blas;
 
 import x10.compiler.CompilerFlags;
+import x10.matrix.util.Debug;
 
-import x10.matrix.Debug;
+import x10.matrix.util.Debug;
 import x10.matrix.DenseMatrix;
 import x10.matrix.Vector;
 import x10.matrix.SymDense;

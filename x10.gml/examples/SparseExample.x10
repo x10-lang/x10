@@ -10,9 +10,9 @@
  */
 
 
-import x10.matrix.Debug;
+import x10.matrix.util.Debug;
 import x10.matrix.DenseMatrix;
-import x10.matrix.VerifyTools;
+import x10.matrix.util.VerifyTool;
 
 import x10.matrix.sparse.CompressArray;
 import x10.matrix.sparse.Compress2D;

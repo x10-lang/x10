@@ -11,11 +11,11 @@
 
 package x10.matrix;
 
-import x10.util.Random;
-import x10.util.Timer;
 import x10.util.StringBuilder;
 
 import x10.matrix.blas.DenseMatrixBLAS;
+import x10.matrix.util.Debug;
+import x10.matrix.util.RandTool;
 
 public type SymDense(m:Long, n:Long)=SymDense{m==n, self.M==m, self.N==n};
 public type SymDense(m:Long)=SymDense{self.M==m,self.N==m};

@@ -23,6 +23,9 @@ final class Configuration {
     @Native("c++", "DEFAULT_STATIC_THREADS")
     private static DEFAULT_STATIC_THREADS: Boolean = false;
 
+    @Native("java", "java.lang.Runtime.getRuntime().availableProcessors()")
+    private static AVAILABLE_PROCESSORS:Int = 1n;
+
     @Native("java", "x10.runtime.impl.java.Runtime.loadenv()")
     @Native("c++", "::x10::lang::RuntimeNatives::loadenv()")
     static native def loadEnv():x10.util.HashMap[String,String];
@@ -44,10 +47,10 @@ final class Configuration {
     static def nthreads():Int {
         var v:Int = 0n;
         try {
-            v = Int.parse(Runtime.env.getOrElse("X10_NTHREADS", "0"));
+            v = Int.parse(Runtime.env.getOrElse("X10_NTHREADS", "1"));
         } catch (NumberFormatException) {
         }
-        if (v <= 0) v = 1n;
+        if (v <= 0) v = AVAILABLE_PROCESSORS;
         if (v > PLATFORM_MAX_THREADS) v = PLATFORM_MAX_THREADS;
         return v;
     }
@@ -69,16 +72,13 @@ final class Configuration {
     static val RESILIENT_MODE_PLACE_ZERO = 1n;
     static val RESILIENT_MODE_DISTRIBUTED = 2n;
     static val RESILIENT_MODE_ZOO_KEEPER = 3n;
-    static val NUM_RESILIENT_MODES = 3n;
+    static val RESILIENT_MODE_SAMPLE = 9n;
+    static val RESILIENT_MODE_PLACE0 = 11n; //TODO: to be changed
     static def resilient_mode():Int { // called from Runtime.x10
         var v:Int = RESILIENT_MODE_NONE;
         try {
             v = Int.parse(Runtime.env.getOrElse("X10_RESILIENT_MODE", "0"));
         } catch (NumberFormatException) {
-        }
-        if (v > NUM_RESILIENT_MODES) {
-            Runtime.println("Unsupported RESILIENT_MODE " + v + ", disabled");
-            v = 0n;
         }
         return v;
     }

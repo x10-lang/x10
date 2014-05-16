@@ -14,9 +14,9 @@ package x10.matrix.dist.summa;
 import x10.regionarray.DistArray;
 import x10.util.Timer;
 
-import x10.matrix.Debug;
+import x10.matrix.util.Debug;
 import x10.matrix.Matrix;
-import x10.matrix.MathTool;
+import x10.matrix.util.MathTool;
 import x10.matrix.DenseMatrix;
 import x10.matrix.comm.MatrixReduce;
 import x10.matrix.comm.MatrixRingCast;

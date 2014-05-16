@@ -14,7 +14,7 @@ package x10.compiler;
 import x10.lang.annotations.StatementAnnotation;
 
 /**
- * <tt>@Unroll</tt> may be used to annotate a loop.
- * The body of the loop will be unrolled the specified number of times.
+ * This annotation on a loop requests that the body of the loop should
+ * be unrolled the specified number of times.
  */
 public interface Unroll(factor: Long) extends StatementAnnotation { }

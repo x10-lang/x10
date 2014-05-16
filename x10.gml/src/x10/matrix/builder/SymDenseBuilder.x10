@@ -14,8 +14,8 @@ package x10.matrix.builder;
 import x10.matrix.Matrix;
 import x10.matrix.DenseMatrix;
 import x10.matrix.SymDense;
-import x10.matrix.Debug;
-import x10.matrix.RandTool;
+import x10.matrix.util.Debug;
+import x10.matrix.util.RandTool;
 
 public type SymDenseBuilder(blder:SymDenseBuilder)=SymDenseBuilder{self==blder};
 public type SymDenseBuilder(m:Long)=SymDenseBuilder{self.M==m,self.N==m};

@@ -5,7 +5,7 @@
  */
 
 import x10.matrix.TriDense;
-import x10.matrix.MathTool;
+import x10.matrix.util.MathTool;
 import x10.matrix.builder.SparseCSCBuilder;
 import x10.matrix.builder.TriDenseBuilder;
 import x10.matrix.builder.TriSparseBuilder;

@@ -15,8 +15,8 @@ import x10.compiler.Inline;
 import x10.util.Pair;
 import x10.util.StringBuilder;
 
-import x10.matrix.Debug;
-import x10.matrix.MathTool;
+import x10.matrix.util.Debug;
+import x10.matrix.util.MathTool;
 
 /**
  * This class provides abstraction of compressed 1-dimension array or

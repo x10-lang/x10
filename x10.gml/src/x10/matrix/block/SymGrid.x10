@@ -13,8 +13,8 @@ package x10.matrix.block;
 import x10.compiler.Inline;
 import x10.util.StringBuilder;
 
-import x10.matrix.Debug;
-import x10.matrix.MathTool;
+import x10.matrix.util.Debug;
+import x10.matrix.util.MathTool;
 
 /**
  * This class represents meta-information of how matrix is partitioned into symmetric block matrices.

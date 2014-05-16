@@ -18,10 +18,7 @@ import x10.compiler.Native;
 import x10.compiler.NativeCPPInclude;
 import x10.compiler.NativeCPPCompilationUnit;
 
-import x10.matrix.Debug;
-
-@NativeCPPInclude("mpi_api.h")
-@NativeCPPCompilationUnit("mpi_api.c")
+import x10.matrix.util.Debug;
 
 /**
  * This class provides methods in X10 to invoke MPI routines.  
@@ -40,6 +37,8 @@ import x10.matrix.Debug;
  * <p> Third, collective communication methods including bcast, scatter, gather
  * and reduce sum are available.  X10.team collective communication can be used. 
  */
+@NativeCPPInclude("mpi_api.h")
+@NativeCPPCompilationUnit("mpi_api.c")
 public class WrapMPI {
     
 	@Native("c++","mpi_new_comm()")
