@@ -25,7 +25,7 @@ import x10.serialization.X10JavaSerializer;
  * an Char value to type Any, parameter type T or superinterfaces such
  * as Comparable<Char>.
  */
-final public class Char extends Struct implements java.lang.Comparable<Char>, x10.util.Ordered<Char>
+final public class Char implements StructI, java.lang.Comparable<Char>, x10.util.Ordered<Char>
 {
     public static final RuntimeType<?> $RTT = Types.CHAR;
     public RuntimeType<?> $getRTT() {return $RTT;}
