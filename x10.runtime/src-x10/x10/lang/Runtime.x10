@@ -644,7 +644,8 @@ public final class Runtime {
 
         operator this(n:Int):void {
             workers.multiplace = Place.ALL_PLACES>1; // ALL_PLACES includes accelerators
-            workers.busyWaiting = BUSY_WAITING || !x10rtBlockingProbeSupport();
+            // workers.busyWaiting = BUSY_WAITING || !x10rtBlockingProbeSupport();
+            workers.busyWaiting = BUSY_WAITING || !x10rtBlockingProbeSupport() || (RESILIENT_MODE!=Configuration.RESILIENT_MODE_NONE);
             workers.count = n;
             workers(0n) = worker();
             for (var i:Int = 1n; i<n; i++) {
