@@ -23,13 +23,11 @@ I. Just before creating the release branch of X10 and X10DT
 
 II. Create the release branch and enter into final testing phase
 
-   1. Create a branch by using x10.dist/releng/makeBranch.sh 
-      Use a svn revision number that matches one reported by a 
-      night-sanity run. i.e.
+   1. Create a branch of X10 by using x10.dist/releng/makeBranch.sh 
+        makeBranch.sh -rev 27050 -branch x10-2.4.1 -x10
 
-      makeBranch.sh -rev 27050 -branch x10-2.4.1 -x10
-
-   2. Branch the internal test suite svn as well using svn copy.
+   2. Create a matching branch of the internal test suite as well.
+        makeBranch.sh -rev 222 -branch x10-2.4.1 -torTest
 
    3. Clone the appropriate Build and Test jobs in Jenkins 
       to enable testing on the branch you just created.
