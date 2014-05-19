@@ -741,6 +741,10 @@ X10RT_PAMI_IS_DEFAULT='${X10RT_PAMI_IS_DEFAULT}'
             <tarfileset prefix="x10.common" dir="${x10.common.location}" excludes="releng/**,**/.*.swp,classes/**"/>
             <tarfileset prefix="x10.wala" dir="${x10.bridge.location}" excludes="releng/**,**/.*.swp,bin/**"/>
             <tarfileset prefix="x10.tests" dir="${x10.tests.location}" excludes="releng/**,**/.*.swp,lib/**,etc/**" includes="build*,README,bin/*.in,bin/testScript*,bin/newpgrp,bin/listFailures,tests/README,**/*.x10"/>
+            <tarfileset prefix="apgas.cpp" dir="${x10.home}/apgas.cpp" excludes="bin/**,**/.*.swp,classes/**"/>
+            <tarfileset prefix="apgas.cpp.examples" dir="${x10.home}/apgas.cpp.examples" excludes="bin/**,**/.*.swp,classes/**"/>
+            <tarfileset prefix="apgas.java" dir="${x10.home}/apgas.java" excludes="bin/**,**/.*.swp,classes/**"/>
+            <tarfileset prefix="apgas.java.examples" dir="${x10.home}/apgas.java.examples" excludes="bin/**,**/.*.swp,classes/**"/>
         </tar>
     </target>
     <target name="test-tar" depends="testtar"/>
