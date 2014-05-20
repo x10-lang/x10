@@ -162,7 +162,9 @@ abstract class FinishResilient extends FinishState {
         // [DC] do not use at (place) async since the finish state is handled internally
         // [DC] go to the lower level...
         val cl = () => @RemoteInvocation("fiish_resilient_run_at") {
+            if (verbose>=2) debug("FinishResilient.runAt closure received");
             val exec_body = () => {
+                if (verbose>=2) debug("FinishResilient.runAt exec_body started");
                 val remoteActivity = Runtime.activity();
                 remoteActivity.clockPhases = clockPhases; // XTENLANG-3357: set passed clockPhases
                 if (tmp_finish.notifyActivityCreation(home)) {
@@ -179,16 +181,19 @@ abstract class FinishResilient extends FinishState {
                     // XTENLANG-3357: return the (maybe modified) clockPhases, similar code as "at (cpGref) { cpGref().set(clockPhases); }"
                     // TODO: better to merge this with notifyActivityTermination to reduce send
                     val cl1 = ()=> @RemoteInvocation("finish_resilient_run_at_1") {
-                        val gref = cpGref as GlobalRef[Cell[Activity.ClockPhases]{self==cpCell,cpCell!=null}]{home==here,cpCell!=null};
-                        val cell = gref(); cell.set(clockPhases); // this will be set to myActivity.clockPhases
+                        if (verbose>=2) debug("FinishResilient.runAt setting new clockPhases");
+                        cpGref.getLocalOrCopy().set(clockPhases); // this will be set to myActivity.clockPhases
                     };
-                    Runtime.x10rtSendMessage(cpGref.home.id, cl1, null);
+                    if (verbose>=2) debug("FinishResilient.runAt exec_body sending closure to set clockPhases");
+                    Runtime.x10rtSendMessage(cpGref.home.id, cl1, null); // TODO: should use lowLevelAt
                     Unsafe.dealloc(cl1);
                     
                     tmp_finish.notifyActivityTermination();
                 }
                 remoteActivity.clockPhases = null; // XTENLANG-3357
+                if (verbose>=2) debug("FinishResilient.runAt exec_body finished");
             };
+            if (verbose>=2) debug("FinishResilient.runAt create a new activity to execute");
             Runtime.execute(new Activity(exec_body, home, real_finish, false, false));
             // TODO: Unsafe.dealloc(exec_body); needs to be called somewhere
         };
