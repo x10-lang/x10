@@ -790,74 +790,135 @@ public final class Runtime {
     private static val processStartNanos_ = new Cell[Long](0);
     public static def processStartNanos() = processStartNanos_();
 
-    public static final class Watcher extends Condition {
+    public static final class Watcher extends Condition implements Unserializable {
         private var t:MultipleExceptions = null;
 
         public def raise(t:MultipleExceptions):void { this.t = t; }
 
+        /**
+         * Wait for job to complete.
+         * Block calling thread.
+         * Rethrow MultipleException collected by root finish for the job if any.
+         * May be called multiple times (idempotent).
+         */
         public def await():void {
             super.await();
             if (null != t) throw t;
         }
+
+        /**
+         * Request cooperative cancellation of job.
+         * Non-blocking.
+         * Not implemented (TODO).
+         */
+        public def cancel():void {}
     }
 
-    public static def submit(job:()=>void):void {
+    /**
+     * Submit uncounted job (possibly distributed) at current place to XRX.
+     * Job is to be executed asynchronously be the XRX pool.
+     * @param job Job being submitted
+     */
+    public static def submitUncounted(job:()=>void):void {
         pool.workers(0n).push(new Activity(job, here, FinishState.UNCOUNTED_FINISH));
         pool.workers.wakeup();
     }
 
-    public static def watch(job:()=>void):Watcher {
+    /**
+     * Submit job (possibly distributed) at current place to XRX.
+     * Job is to be executed asynchronously be the XRX pool under an implicit root finish.
+     * @param job Job being submitted
+     * @return the Watcher object associated with the job
+     */
+    public static def submit(job:()=>void):Watcher {
         val watcher = new Watcher();
         val wrapper = ()=>{ try { finish job(); } catch (t:MultipleExceptions) { watcher.raise(t); } finally { watcher.release(); } };
-        submit(wrapper);
+        submitUncounted(wrapper);
         return watcher;
     }
 
+    /**
+     * Start XRX at the current place.
+     * @param n Number of threads to spawn in the XRX pool
+     * Must be called in each place exactly once.
+     */
     public static def start(n:Int):void {
         processStartNanos_(System.nanoTime());
         pool(n+1n);
     }
 
+    /**
+     * Wait for XRX to terminate at the current place.
+     * Block calling thread.
+     * XRX termination should be requested first by calling terminate().
+     * Rethrow MultipleException collected by XRX if any.
+     * join() at place 0 will rethrow the MultipleException collected by the root finish if any.
+     * May be called multiple times (idempotent).
+     */
     public static def join():void {
         pool.watcher.await();
     }
 
-    public static def main0(job:()=>void):void {
-        if (hereLong() == 0) {
-            val wrapper = ()=>{ try { finish job(); } catch (t:MultipleExceptions) { pool.watcher.raise(t); } finally { terminate0(); } };
-            submit(wrapper);
-        }
-    }
-
+    /**
+     * Start XRX, run single job at place 0 (possibly distributed) under an implicit root finish, and terminate XRX.
+     * @param job Main job to execute at place 0 (argument is ignored in other places)
+     * Helper method for the X10 compiler. Not used in XRX library mode.
+     * Must be called in each place exactly once.
+     * Calling thread is added to the XRX pool for the duration of the execution (blocking call).
+     * NTHREADS-1n are added to the pool for the duration of the execution.
+     * join() should be called in each place after this call.
+     * join() at place 0 will rethrow the MultipleException collected by the root finish if any.
+     */
     public static def start(job:()=>void):void {
         start(NTHREADS-1n);
-        main0(job);
+        if (hereLong() == 0) {
+            val wrapper = ()=>{ try { finish job(); } catch (t:MultipleExceptions) { pool.watcher.raise(t); } finally { terminateAll(); } };
+            submitUncounted(wrapper);
+        }
         pool.run();
     }
 
-    public static def terminate0() {
+    /**
+     * Request XRX to release its resources (TODO) and threads at the current place.
+     * Should be called in each place.
+     * No job should be submitted to XRX past this call.
+     * May be called multiple times (idempotent).
+     * join() should be called in each place after this call.
+     */
+    public static def terminate() {
+        pool.latch.release();
+    }
+
+    /**
+     * Request XRX to release its resources (TODO) and threads in every place.
+     * Must be called from place 0 (TODO: lift place-0 restriction).
+     * Must be submitted to XRX (not called directly) possibly as the last step of a longer job.
+     * No job should be submitted to XRX past this call.
+     */
+    public static def terminateAll() {
         if (Place.MAX_PLACES >= 1024) {
             val cl1 = ()=> @x10.compiler.RemoteInvocation("start_1") {
                 val h = hereInt();
-                val cl = ()=> @x10.compiler.RemoteInvocation("start_2") {pool.latch.release();};
+                val cl = ()=> @x10.compiler.RemoteInvocation("start_2") {terminate();};
                 for (var j:Int=Math.max(1n, h-31n); j<h; ++j) {
                     x10rtSendMessage(j, cl, null);
                 }
-                pool.latch.release();
+                terminate();
             };
             for(var i:Long=Place.MAX_PLACES-1; i>0; i-=32) {
                 x10rtSendMessage(i, cl1, null);
             }
         } else {
-            val cl = ()=> @x10.compiler.RemoteInvocation("start_3") {pool.latch.release();};
+            val cl = ()=> @x10.compiler.RemoteInvocation("start_3") {terminate();};
             for (var i:Long=Place.MAX_PLACES-1; i>0; --i) {
                 x10rtSendMessage(i, cl, null);
             }
         }
-        pool.latch.release();
+        terminate();
     }
 
     /**
+     * @deprecated
      * Run main activity in a finish.
      * @param init Static initializers
      * @param body Main activity
@@ -889,7 +950,7 @@ public final class Runtime {
                 // [DC] finish counters may now be negative due to implicit call to notifyActivityTermination inside waitForFinish
             } finally {
                 // root finish has terminated, kill remote processes if any
-                terminate0();
+                terminateAll();
             }
         } else {
             // wait for thread pool to die
