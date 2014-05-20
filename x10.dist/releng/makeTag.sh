@@ -11,7 +11,7 @@ DO_BENCH=0
 DO_MAN=0
 DO_X10=0
 DO_X10DT=0
-BRANCH=trunk
+BRANCH=x10-2.4.3
 
 while [ $# != 0 ]; do
 
