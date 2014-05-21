@@ -23,18 +23,17 @@ public type TriDense(C:TriDense)=TriDense{self==C};
 public type TriDense(C:Matrix)=TriDense{self==C};
 
 /**
- * Triangular dense matrix is derived from dense matrix. In default,  it uses the lower 
- * part to store matrix data. Therefore, it uses the same amount of memory 
- * space as dense matrix of the same dimension.  This memory layout complies with
- * symmetric matrix specification of BLAS, so the memory space can be passed to
- * BLAS routinges.
+ * A triangular dense matrix only stores data in one triangular half of the
+ * matrix (by default, the lower half). Therefore, it uses the same amount of  
+ * memory space as dense matrix of the same dimension.  This memory layout 
+ * complies with the symmetric matrix specification of BLAS, so the memory space
+ * can be passed to BLAS routines.
  * <p>
  * By default, the lower part is accessed. 
- * Results of cell-wise operations on triangular matrix is stored in dense instance.
- * 
+ * Result of cell-wise operations on triangular matrix is stored in DenseMatrix.
  */
 public class TriDense extends DenseMatrix{self.M==self.N} {
-	/*
+	/**
 	 * Upper or lower triangular matrix flag. If true, upper triangular.
 	 * Default is false, lower triangular.
 	 */
@@ -229,8 +228,7 @@ public class TriDense extends DenseMatrix{self.M==self.N} {
 	}	
 	
 
-	// Transpose
-
+    /** Return the transpose of this matrix. */
 	public def selfT():TriDense(this) {
 		var src_idx:Long =0;
 		var dst_idx:Long =0;

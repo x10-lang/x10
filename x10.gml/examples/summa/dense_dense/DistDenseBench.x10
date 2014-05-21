@@ -20,8 +20,8 @@ public class DistDenseBench {
 		val M = args.size > 0 ? Long.parse(args(0)):50;
 		val K = args.size > 1 ? Long.parse(args(1)):50;
 		val N = args.size > 2 ? Long.parse(args(2)):50;
-		val iter = args.size > 3 ? Int.parse(args(3)):1;
-		val ps = args.size > 4 ? Int.parse(args(4)):0;
+		val iter = args.size > 3 ? Long.parse(args(3)):1;
+		val ps = args.size > 4 ? Long.parse(args(4)):0;
 		
 		val tc = new RunDistDenseBench(M, K, N, iter, ps);
 		tc.run();
@@ -29,7 +29,7 @@ public class DistDenseBench {
 }
 
 class RunDistDenseBench{
-	public val iter:Int;
+	public val iter:Long;
 	public val testps:Long, lastps:Long;
 	public val M:Long, N:Long, K:Long;
 	public val nplace = Place.MAX_PLACES;
@@ -42,7 +42,7 @@ class RunDistDenseBench{
 	val C:DistDenseMatrix(cPart.M, cPart.N);
 	
 	
-	public def this(m:Long, k:Long, n:Long, it:Int, p:Long) {
+	public def this(m:Long, k:Long, n:Long, it:Long, p:Long) {
 		M = m; N = n; K=k; iter=it; 
 		aPart  = Grid.make(M, K);
 		bPart  = Grid.make(K, N);

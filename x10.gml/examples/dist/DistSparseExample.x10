@@ -31,7 +31,7 @@ public class DistSparseExample {
 		public val g:Grid;
 		public val grow:Grid;
 		
-		public def this(m:Long, n:Long, k:Int, p:Double) {
+		public def this(m:Long, n:Long, k:Long, p:Double) {
 			property(m, n, k, p);
 
 			//Partition matrix in MxN into blocks same as the number of places

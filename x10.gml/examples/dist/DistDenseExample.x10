@@ -35,7 +35,7 @@ public class DistDenseExample {
 	
 	static class RunDistDense(M:Long, N:Long, K:Long, nzp:Double) {
 		
-		public def this(m:Long, n:Long, k:Int, p:Double) {
+		public def this(m:Long, n:Long, k:Long, p:Double) {
 			property(m, n, k, p);
 		}
 		
