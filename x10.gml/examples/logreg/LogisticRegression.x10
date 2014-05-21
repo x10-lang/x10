@@ -7,38 +7,28 @@
 package logreg;
 
 import x10.util.Timer;
-//
-import x10.matrix.util.Debug;
-//
+
 import x10.matrix.Matrix;
 import x10.matrix.Vector;
 import x10.matrix.blas.DenseMatrixBLAS;
-//
 import x10.matrix.block.Grid;
 import x10.matrix.distblock.DistVector;
 import x10.matrix.distblock.DupVector;
 import x10.matrix.distblock.DistBlockMatrix;
 import x10.matrix.distblock.DupBlockMatrix;
-
-
-/**
-   <p>
-
-   <p>
- */
+import x10.matrix.util.Debug;
 
 public class LogisticRegression {
 	val C = 2;
 	val tol = 0.000001;
-	val maxiter:Int;
-	val maxinneriter:Int; 
+	val maxiter:Long;
+	val maxinneriter:Long; 
 	
 	//X = Rand(rows = 1000, cols = 1000, min = 1, max = 10, pdf = "uniform");
 	val X:DistBlockMatrix;
 	val y:Vector(X.M);
 	//w = Rand(rows=D, cols=1, min=0.0, max=0.0);
 	val w:Vector(X.N);
-	
 
 	val dup_w:DupVector(X.N); 
 	val dst_y:DistVector(X.M);
@@ -47,7 +37,6 @@ public class LogisticRegression {
 	val tmp_y:Vector(X.M);
 	
 	val dst_ty:DistVector(X.M);
-	
 
 	val eta0 = 0.0;
 	val eta1 = 0.25;
@@ -60,7 +49,7 @@ public class LogisticRegression {
 	public var paraRunTime:Long=0;
 	public var commUseTime:Long=0;
 	
-	public def this(x_:DistBlockMatrix, y_:Vector, w_:Vector, it:Int, nit:Int) {
+	public def this(x_:DistBlockMatrix, y_:Vector, w_:Vector, it:Long, nit:Long) {
 		X=x_; y=y_ as Vector(X.M);	w=w_ as Vector(X.N);
 		
 		dst_y  = DistVector.make(X.M, X.getAggRowBs()) as DistVector(X.M);
@@ -105,7 +94,7 @@ public class LogisticRegression {
 		
 		//# number of iterations
 		//iter = 0
-		var iter:Int =0;
+		var iter:Long =0;
 		
 		//# starting point for CG
 		//zeros_D = Rand(rows = D, cols = 1, min = 0.0, max = 0.0);
@@ -139,7 +128,7 @@ public class LogisticRegression {
 			// 			d = r
 			r.copyTo(d);
 			// 			inneriter = 0
-			val inneriter:Int=0;
+			val inneriter:Long=0;
 			// 			innerconverge = ( sqrt(sum(r*r)) <= psi * norm_grad) 
 			var innerconverge:Boolean;// = (Math.sqrt(r.norm(r)) <= psi * norm_grad);
 			innerconverge = false;

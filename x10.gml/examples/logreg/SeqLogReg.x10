@@ -7,25 +7,17 @@
 package logreg;
 
 import x10.util.Timer;
-//
-import x10.matrix.util.Debug;
-//
+
 import x10.matrix.DenseMatrix;
 import x10.matrix.Vector;
 import x10.matrix.blas.DenseMatrixBLAS;
-//
-
-/**
-   <p>
-
-   <p>
- */
+import x10.matrix.util.Debug;
 
 public class SeqLogReg {
 	val C = 2;
 	val tol = 0.000001;
-	val maxiter:Int;
-	val maxinneriter:Int;
+	val maxiter:Long;
+	val maxinneriter:Long;
 	
 	//X = Rand(rows = 1000, cols = 1000, min = 1, max = 10, pdf = "uniform");
 	val X:DenseMatrix;
@@ -48,7 +40,7 @@ public class SeqLogReg {
 	val tmp_y:Vector(X.M);
 	
 	public def this(x_:DenseMatrix, y_:Vector(x_.M), w_:Vector(x_.N),
-					it:Int, nit:Int) {
+					it:Long, nit:Long) {
 		X=x_; 
 		y=y_ as Vector(X.M);
 		w=w_ as Vector(X.N);
@@ -87,7 +79,7 @@ public class SeqLogReg {
 		
 		//# number of iterations
 		//iter = 0
-		var iter:Int =0;
+		var iter:Long =0;
 		
 		//# starting point for CG
 		//zeros_D = Rand(rows = D, cols = 1, min = 0.0, max = 0.0);
@@ -121,7 +113,7 @@ public class SeqLogReg {
 // 			d = r
 			r.copyTo(d);
 // 			inneriter = 0
-			val inneriter:Int=0;
+			val inneriter:Long=0;
 // 			innerconverge = ( sqrt(sum(r*r)) <= psi * norm_grad) 
 			var innerconverge:Boolean;// = (Math.sqrt(r.norm(r)) <= psi * norm_grad);
  			innerconverge = false;

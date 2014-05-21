@@ -6,46 +6,32 @@
 
 
 import x10.util.Timer;
-//
-import x10.matrix.util.Debug;
-//
+
 import x10.matrix.Matrix;
 import x10.matrix.DenseMatrix;
-import x10.matrix.util.VerifyTool;
-//
 import x10.matrix.block.Grid;
 import x10.matrix.dist.DistDenseMatrix;
 import x10.matrix.dist.DistSparseMatrix;
-//
-
-import logreg.SeqLogReg;
-import logreg.LogisticRegression;
-//
-
-/**
- * <p>
- * <p>
- */
+import x10.matrix.util.Debug;
+import x10.matrix.util.VerifyTool;
 
 public class RunLogReg {
 
 	public static def main(args:Rail[String]): void {
-		
-		val mX = args.size > 0 ? Int.parse(args(0)):1000; //
-		val nX = args.size > 1 ? Int.parse(args(1)):1000; //
+		val mX = args.size > 0 ? Long.parse(args(0)):1000; //
+		val nX = args.size > 1 ? Long.parse(args(1)):1000; //
 		val nzd= args.size > 2 ? Double.parse(args(2)):0.5;
-		val it = args.size > 3 ? Int.parse(args(3)):3;
-		val tV = args.size > 4 ? Int.parse(args(4)):0;
-
+		val it = args.size > 3 ? Long.parse(args(3)):3;
+		val tV = args.size > 4 ? Long.parse(args(4)):0;
 
 		Console.OUT.println("Set X row:"+mX+ " col:"+nX);
 		if ((mX<=0) ||(nX<=0) ||(tV<0))
 			Console.OUT.println("Error in settings");
 		else {
 			val prt:Grid = new Grid(mX, nX, Place.MAX_PLACES, 1);
-			val X:DistSparseMatrix(mX, nX) = DistSparseMatrix.make(prt, nzd) as DistSparseMatrix(mX, nX);
-			val y:DenseMatrix(X.M, 1) = DenseMatrix.make(X.M, 1);
-			val w:DenseMatrix(X.N, 1) = DenseMatrix.make(X.N, 1);
+			val X = DistSparseMatrix.make(prt, nzd) as DistSparseMatrix(mX, nX);
+			val y = DenseMatrix.make(X.M, 1);
+			val w = DenseMatrix.make(X.N, 1);
 			
 			//X = Rand(rows = 1000, cols = 1000, min = 1, max = 10, pdf = "uniform");
 			X.initRandom(1, 10);

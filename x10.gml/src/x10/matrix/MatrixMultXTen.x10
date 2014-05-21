@@ -14,15 +14,16 @@ package x10.matrix;
 import x10.matrix.util.MathTool;
 
 /**
- *  This class provides matrix multiplication driver in X10, when the actual matrix type is unknown.
- *  All elements are accessed via the abstract method, which could have high latency.
- *  The result of multiply is stored in dense format.
+ * This class implements matrix multiplication purely in X10 for matrices
+ * for which the concrete matrix type is unknown at compile time.
+ * Element access uses a virtual method call, which could be expensive.
+ * The result of multiply is stored in dense format.
  */
 public class MatrixMultXTen {
 	// C = A * B + plus * C
 
 	/**
-	 * X10 driver of matrix multiplication: C+= A &#42 B if plus is true, else C = A &#42 B
+	 * Performs the matrix multiplication: C+= A &#42 B if plus is true, else C = A &#42 B
 	 * If A or B (or both) needs to be transposed , using different methods,
 	 * compMatrixMultTrans (A &#42 B<sup>T<sup>) or compTransMultMatrix (A<sup>T<sup> &#42 B)
 	 *
@@ -31,7 +32,6 @@ public class MatrixMultXTen {
 	 * @param B     second matrix
 	 * @param C     dense matrix used to store the result
 	 * @param plus  add-on flag
-	 *
 	 */
 	public static def comp(
 			A:Matrix, 
@@ -59,9 +59,8 @@ public class MatrixMultXTen {
 	}
 
 	/**
-	 * X10 driver of matrix multiplication: C+= A<sup>T</sup> &#42 B if plus is true, 
+	 * Performs the matrix multiplication: C+= A<sup>T</sup> &#42 B if plus is true, 
 	 * else C = A<sup>T</sup> &#42 B
-	 *
 	 *
 	 * @param A     first matrix which will be used in transposed form
 	 * @param B     second matrix
@@ -93,7 +92,7 @@ public class MatrixMultXTen {
 	}
 
 	/**
-	 * x10 matrix driver of matrix multiplication, C = A &#42 B<sup>T</sup> if plus is true
+	 * Performs the matrix multiplication: C = A &#42 B<sup>T</sup> if plus is true
 	 * else C = A &#42 B<sup>T</sup> 
 	 *
 	 * @param A     first matrix
@@ -126,7 +125,7 @@ public class MatrixMultXTen {
 	}
 	
 	/**
-	 * x10 driver of matrix multiplication, C += A<sup>T</sup> &#42 B<sup>T</sup> 
+	 * Performs the matrix multiplication: C += A<sup>T</sup> &#42 B<sup>T</sup> 
 	 * if plus is true
 	 *
 	 * @param A     first matrix which will be used in transposed
@@ -140,8 +139,6 @@ public class MatrixMultXTen {
 			C:DenseMatrix(A.N, B.M),
 			plus:Boolean):DenseMatrix(C) {
 		var startcol:Long = 0;
-		//SysUtil.assure(C.M==A.N&&A.M==B.N&&B.M==C.N, 
-		//			   "Dimension mismatch in Matrix.T()*Matrix.T()");
 
 		for (var c:Long=0; c<B.M; c++) {
 			if (!plus) {
@@ -163,7 +160,7 @@ public class MatrixMultXTen {
 	// Simplified mult interface
 
 	/**
-	 * X10 driver of matrix multiplication in short: C = A &#42 B,
+	 * Performs the matrix multiplication: C = A &#42 B,
 	 * where C is user-provided dense matrix
 	 *
 	 * @param A     first matrix
@@ -176,9 +173,10 @@ public class MatrixMultXTen {
 			C:DenseMatrix{C.M==A.M&&C.N==B.N}) : void {
 		MatrixMultXTen.comp(A, B, C, false);
 	}
+
 	/**
-	 * X10 driver of matrix multiplication. Return A &#42 B in a new 
-	 * dense matrix object
+	 * Performs the matrix multiplication: A &#42 B returning the result 
+	 * in a new DenseMatrix instance.
 	 *
 	 * @param A   first matrix
 	 * @param B   second matrix
