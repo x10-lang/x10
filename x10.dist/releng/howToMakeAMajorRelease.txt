@@ -5,10 +5,11 @@ The main artifacts are:
 
    1. A source release of X10.
    2. A source release of the X10 test suite.
-   3. A source release of the X10 benchmarks.
+   3. A source release of the X10 benchmarks and applications
    4. Binary platform-dependent releases that contain both the Java 
       and C++ backend and runtimes for each supported OS/hardware target.
-   5. PDF of the X10 language specification
+   5. X10DT all-in-one-zips and update sites.
+   6. PDF of the X10 language specification
 
 The following is the procedure used to make a release of X10 and X10DT.
 
@@ -48,43 +49,51 @@ III. When all necessary fixes have been propagated to the release branch,
       notes from the trunk to the release branch.
 
    3. Tag the release by using x10.dist/releng/makeTag.sh 
-      Use a svn revision number that matches one reported by a 
-      testing run. i.e.
+      Use a svn revision number that matches one reported as good 
+      by a testing run.
 
-      makeTag.sh -rev 28000 -branch x10-2.4.1 -tag SF_RELEASE_2_4_1_2 -x10
+      makeTag.sh -rev 28000 -branch x10-2.4.1 -tag SF_RELEASE_2_4_1 -x10
 
-      Also use the same tag/revision to tag the benchmarks and applications.
-      Do this as a separate makeTag operation because you'll be tagging using
-      the trunk of benchmarks & applications as the base (not a branch).
+   4. Also use the same tag/revision to tag the applications, benchmarks
+      and x10dt. Do this as a separate makeTag operation because you'll be 
+      tagging using the trunk of these parts of the svn repository as the base. 
 
-      makeTag.sh -rev 28000 -tag SF_RELEASE_2_4_1_2 -app -bench
+      makeTag.sh -rev 28000 -tag SF_RELEASE_2_4_1 -app -bench -x10dt
 
-   4. Go to Jenkins, select the Package-X10-Release job and then select
+   5. Go to Jenkins, select the Package-X10-Release job and then select
       "Build With Parameters".  Select the appropriate svn tag, fill in
       the version number, and other parameters then hit the 'Build' button.
       Note, depending on how loaded slave machines are this step may take
       several hours to complete.  Tarballs will be automatically published
       on orquesta as they are available.
 
-   5. ssh into shell.sf.net and create a subdirectory of 
+   6. Once the X10 tarballs are available on orquesta, you can build X10DT.
+      Using the RTC build server, edit the build defintions for the X10DT 
+      and X10DT Editor Only Edition to match the tags you just created.  
+      Also login to orquesta as x10dt and do an svn update in x10dt.build
+      and x10dt.editor.edition.build to make sure they are in synch.  
+      Finally, request builds of X10DT and X10DT Editor Only Edition from 
+      the build server.
+
+   7. ssh into shell.sf.net and create a subdirectory of 
       /home/frs/project/x/x1/x10 to hold the downloads. 
       Use sftp to move all of the release artifacts from orquesta to sf.
       Rename RELEASE_NOTES.txt to README.txt in the sf download area
       Use SF web admin API to set the default downloads for each OS 
       platform to the new files
 
-   6. ssh into shell.sf.net and create a subdirectory of 
+   8. ssh into shell.sf.net and create a subdirectory of 
       /home/frs/project/x/x1/x10dt to hold the downloads. 
       Use sftp to move all of the release artifacts from orquesta to sf.
 
-   7. ssh into shell.sf.net and create a subdirectory of 
+   9. ssh into shell.sf.net and create a subdirectory of 
       /home/project-web/x10/htdocs/x10dt to hold the x10dt update site.
       create an updateSite subdir of the new directory and unzip the
       update site zip from the download section into it.
       Also create an updateSite-EditorOnly subdir and unzip 
       the X10DT Editor Only Edition update site into it.
 
-   8. Make sure language manual has the right version, date, etc. 
+   10. Make sure language manual has the right version, date, etc. 
       Tag the language manual
 
         makeTag -rev 12500 -tag SF_RELEASE_2_0_1 -man
@@ -95,16 +104,16 @@ III. When all necessary fixes have been propagated to the release branch,
       The release page itself will point to the x10-<version>.pdf. 
       All of the other parts of the website refer to x10-latest.pdf.
 
-   9. Generate new x10doc and upload to project web space at x10.sourceforge.net
+   11. Generate new x10doc and upload to project web space at x10.sourceforge.net
       update the "latest" sym link to point to the new directory.
 
-   10. Create a release page for the new release on the web site.  
+   12. Create a release page for the new release on the web site.  
       Update the "X10 Releases" page to link to the new download version.
       Update the "latest release" menu item in Downloads-submenu to point to 
       the new release page.
       Create a redirect entry to get a nice external URL 
          (eg  http://x10-lang.org/releases/x10-release-223) for the release.
 
-   11. Post release announcement in SF news and web page front-page news.
+   13. Post release announcement in SF news and web page front-page news.
 
-   12. Send out mail announcements to x10-users and x10-announce
+   14. Send out mail announcements to x10-users and x10-announce
