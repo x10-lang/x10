@@ -53,6 +53,12 @@ III. When all necessary fixes have been propagated to the release branch,
 
       makeTag.sh -rev 28000 -branch x10-2.4.1 -tag SF_RELEASE_2_4_1_2 -x10
 
+      Also use the same tag/revision to tag the benchmarks and applications.
+      Do this as a separate makeTag operation because you'll be tagging using
+      the trunk of benchmarks & applications as the base (not a branch).
+
+      makeTag.sh -rev 28000 -tag SF_RELEASE_2_4_1_2 -app -bench
+
    4. Go to Jenkins, select the Package-X10-Release job and then select
       "Build With Parameters".  Select the appropriate svn tag, fill in
       the version number, and other parameters then hit the 'Build' button.
