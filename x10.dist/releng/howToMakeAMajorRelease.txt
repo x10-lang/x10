@@ -65,7 +65,8 @@ III. When all necessary fixes have been propagated to the release branch,
       the version number, and other parameters then hit the 'Build' button.
       Note, depending on how loaded slave machines are this step may take
       several hours to complete.  Tarballs will be automatically published
-      on orquesta as they are available.
+      on orquesta as they are available.  Also use masterBuildRelease.sh
+      to build BlueGene/Q release (not integrated with Jenkins build).
 
    6. Once the X10 tarballs are available on orquesta, you can build X10DT.
       Using the RTC build server, edit the build defintions for the X10DT 
@@ -78,7 +79,6 @@ III. When all necessary fixes have been propagated to the release branch,
    7. ssh into shell.sf.net and create a subdirectory of 
       /home/frs/project/x/x1/x10 to hold the downloads. 
       Use sftp to move all of the release artifacts from orquesta to sf.
-      Rename RELEASE_NOTES.txt to README.txt in the sf download area
       Use SF web admin API to set the default downloads for each OS 
       platform to the new files
 
