@@ -57,7 +57,7 @@ static void x10rt_net_coll_init(int *argc, char ** *argv, x10rt_msg_type *counte
 #define X10RT_REQ_FREELIST_INIT_LEN     (256)
 #define X10RT_REQ_BUMP                  (32)
 #define X10RT_CB_TBL_SIZE               (128)
-#define X10RT_MAX_PEEK_DEPTH            (16)
+#define X10RT_MAX_PEEK_DEPTH            (32)
 #define X10RT_MAX_OUTSTANDING_SENDS     (256)
 #define X10RT_DATATYPE_TBL_SIZE         (256)
 
@@ -157,7 +157,6 @@ typedef struct _x10rt_nw_req {
 
 typedef struct _x10rt_get_req {
     int                       type;
-    int                       dest_place;
     void                    * msg;
     int                       msg_len;
     int                       len;
@@ -177,6 +176,8 @@ class x10rt_req {
         x10rt_req           * prev;
         void                * buf;
         x10rt_get_req         get_req;
+        int 				  remote;
+        int 				  buf_length;
     public:
         x10rt_req()  {
             next = prev = NULL;
@@ -190,12 +191,15 @@ class x10rt_req {
         }
         void setType(int t) { this->type = t; }
         int  getType() { return this->type; }
+        void setRemote(int r) { this->remote = r; }
+        int  getRemote() { return this->remote; }
+        void setBufLen(int l) { this->buf_length = l; }
+        int  getBufLen() { return this->buf_length; }
         MPI_Request * getMPIRequest() { return &this->mpi_req; }
         void setBuf(void * buf) { this->buf = buf; }
         void * getBuf() { return this->buf; }
         void setUserGetReq(x10rt_get_req * r) {
             this->get_req.type       = r->type;
-            this->get_req.dest_place = r->dest_place;
             this->get_req.msg        = r->msg;
             this->get_req.msg_len    = r->msg_len;
             this->get_req.len        = r->len;
@@ -350,6 +354,7 @@ class x10rt_internal_state {
         bool                init;
         bool                finalized;
         pthread_mutex_t     lock;
+        pthread_mutex_t     putlock;
         bool                is_mpi_multithread;
         bool				report_nonblocking_coll;
         int                 rank;
@@ -398,6 +403,10 @@ class x10rt_internal_state {
                 perror("pthread_mutex_init");
                 abort();
             }
+            if (pthread_mutex_init(&putlock, NULL)) {
+                perror("pthread_mutex_init");
+                abort();
+            }
         }
         ~x10rt_internal_state() {
             free(amCbTbl);
@@ -406,6 +415,10 @@ class x10rt_internal_state {
             free(getCb1Tbl);
             free(getCb2Tbl);
             if (pthread_mutex_destroy(&lock)) {
+                perror("pthread_mutex_destroy");
+                abort();
+            }
+            if (pthread_mutex_destroy(&putlock)) {
                 perror("pthread_mutex_destroy");
                 abort();
             }
@@ -692,7 +705,6 @@ void x10rt_net_send_get(x10rt_msg_params *p, void *buf, x10rt_copy_sz len) {
     assert(global_state.init);
     assert(!global_state.finalized);
     get_req.type       = p->type;
-    get_req.dest_place = p->dest_place;
     get_req.len        = len;
 
     /*      GET Message
@@ -724,6 +736,8 @@ void x10rt_net_send_get(x10rt_msg_params *p, void *buf, x10rt_copy_sz len) {
     req->setBuf(get_msg);
     req->setUserGetReq(&get_req);
     req->setType(X10RT_REQ_TYPE_GET_INCOMING_DATA);
+    req->setRemote(p->dest_place);
+    req->setBufLen(len);
     global_state.pending_recv_list.enqueue(req);
 
     /* send the GET request */
@@ -762,6 +776,12 @@ void x10rt_net_send_get(x10rt_msg_params *p, void *buf, x10rt_copy_sz len) {
 
 }
 
+static void put_outgoing_req_completion(x10rt_req_queue * q,
+        x10rt_req * req) {
+    free(req->getBuf());
+    q->remove(req);
+    global_state.free_list.enqueue(req);
+}
 
 void x10rt_net_send_put(x10rt_msg_params *p, void *buf, x10rt_copy_sz len) {
     x10rt_lgl_stats.put.messages_sent++ ;
@@ -789,6 +809,27 @@ void x10rt_net_send_put(x10rt_msg_params *p, void *buf, x10rt_copy_sz len) {
     put_msg->len        = len;
     memcpy(static_cast <void *> (&put_msg[1]), p->msg, p->len);
 
+    /* We can't have multiple puts to the same location of the same size running in 
+     * parallel, because we use the same tag for all puts, and MPI may put the wrong
+     * message into the wrong buffer.  To prevent this, we only allow one PUT per place per size
+     * to be in flight at a time, by keeping the PUT_REQ in the send queue until the actual
+     * data has been sent, and checking against that queue when sending puts.
+     */
+   	get_lock(&global_state.putlock);
+   	x10rt_req* pending = global_state.pending_send_list.start();
+   	while (pending != NULL) {
+   		if (pending->getRemote() == p->dest_place &&
+   				pending->getType() == X10RT_REQ_TYPE_PUT_OUTGOING_REQ &&
+   				pending->getBufLen() == put_msg_len) {
+   			release_lock(&global_state.putlock);
+   			x10rt_net_probe_ex(true);
+   			get_lock(&global_state.putlock);
+   			pending = global_state.pending_send_list.start();
+   		}
+   		else
+   			pending = global_state.pending_send_list.next(pending);
+   	}
+
     LOCK_IF_MPI_IS_NOT_MULTITHREADED;
     if (MPI_SUCCESS != MPI_Isend(put_msg,
                 put_msg_len,
@@ -803,7 +844,10 @@ void x10rt_net_send_put(x10rt_msg_params *p, void *buf, x10rt_copy_sz len) {
     UNLOCK_IF_MPI_IS_NOT_MULTITHREADED;
     req->setBuf(put_msg);
     req->setType(X10RT_REQ_TYPE_PUT_OUTGOING_REQ);
+    req->setRemote(p->dest_place);
+    req->setBufLen(put_msg_len);
     global_state.pending_send_list.enqueue(req);
+    release_lock(&global_state.putlock);
 
     /* Block this send until all pending sends
      * and receives have been completed. It is
@@ -821,6 +865,7 @@ void x10rt_net_send_put(x10rt_msg_params *p, void *buf, x10rt_copy_sz len) {
         x10rt_net_probe_ex(true);
     } while (!complete);
 
+    x10rt_req * req_copy = req;
     req = global_state.free_list.popNoFail();
     LOCK_IF_MPI_IS_NOT_MULTITHREADED;
     if (MPI_SUCCESS != MPI_Isend(buf,
@@ -835,7 +880,7 @@ void x10rt_net_send_put(x10rt_msg_params *p, void *buf, x10rt_copy_sz len) {
     }
     UNLOCK_IF_MPI_IS_NOT_MULTITHREADED;
     global_state.free_list.enqueue(req);
-
+    put_outgoing_req_completion(&global_state.pending_send_list, req_copy);
 }
 
 static void send_completion(x10rt_req_queue * q,
@@ -878,7 +923,7 @@ static void get_incoming_data_completion(x10rt_req_queue * q,
         x10rt_req * req) {
     x10rt_get_req * get_req = req->getUserGetReq();
     getCb2 cb = global_state.getCb2Tbl[get_req->type];
-    x10rt_msg_params p = { get_req->dest_place,
+    x10rt_msg_params p = { req->getRemote(),
                            get_req->type,
                            get_req->msg,
                            get_req->msg_len,
@@ -948,13 +993,6 @@ static void get_incoming_req_completion(int dest_place,
 static void get_outgoing_data_completion(x10rt_req_queue * q,
         x10rt_req * req) {
     assert(NULL == req->getBuf());
-    q->remove(req);
-    global_state.free_list.enqueue(req);
-}
-
-static void put_outgoing_req_completion(x10rt_req_queue * q,
-        x10rt_req * req) {
-    free(req->getBuf());
     q->remove(req);
     global_state.free_list.enqueue(req);
 }
@@ -1049,7 +1087,7 @@ static void check_pending_sends() {
             abort();
         }
         req = q->next(req);
-        if (complete) {
+        if (complete && req_copy->getType() != X10RT_REQ_TYPE_PUT_OUTGOING_REQ) {
             switch (req_copy->getType()) {
                 case X10RT_REQ_TYPE_SEND:
                     send_completion(q, req_copy);
@@ -1059,9 +1097,6 @@ static void check_pending_sends() {
                     break;
                 case X10RT_REQ_TYPE_GET_OUTGOING_DATA:
                     get_outgoing_data_completion(q, req_copy);
-                    break;
-                case X10RT_REQ_TYPE_PUT_OUTGOING_REQ:
-                    put_outgoing_req_completion(q, req_copy);
                     break;
                 case X10RT_REQ_TYPE_PUT_OUTGOING_DATA:
                     put_outgoing_data_completion(q, req_copy);
