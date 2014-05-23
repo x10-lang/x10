@@ -13,6 +13,8 @@
     <property name="lpg.jar.url" value="http://x10.sourceforge.net/dependencies/lpg.runtime.java_2.0.22.jar"/>
     <property name="ecj.jar" value="ecj-4.3.2.jar"/>
     <property name="ecj.jar.url" value="http://x10.sourceforge.net/dependencies/ecj-4.3.2.jar"/>
+    <property name="hazelcast.jar" value="hazelcast-3.2.jar"/>
+    <property name="hazelcast.jar.url" value="http://x10.sourceforge.net/dependencies/hazelcast-3.2.jar"/>
     <property name="wala.jar" value="com.ibm.wala.cast.java_1.0.0.201101071300.jar"/>
     <property name="wala.jar.url" value="http://x10.sourceforge.net/dependencies/com.ibm.wala.cast.java_1.0.0.201101071300.jar"/>
     <property name="wala2.jar" value="com.ibm.wala.cast_1.0.0.201101071300.jar"/>
@@ -78,6 +80,9 @@
         </condition>
         <condition property="local.ecj.jar" value="${env.LOCAL_ECJ_JAR}">
             <isset property="env.LOCAL_ECJ_JAR"/>
+        </condition>
+        <condition property="local.hazelcast.jar" value="${env.LOCAL_HAZELCAST_JAR}">
+            <isset property="env.LOCAL_HAZELCAST_JAR"/>
         </condition>
         <condition property="local.wala.jar" value="${env.LOCAL_WALA_JAR}">
             <isset property="env.LOCAL_WALA_JAR"/>
@@ -202,6 +207,7 @@
     <target name="check-jar-cache" depends="init">
         <available property="lpg.jar.present" file="${lib}/${lpg.jar}"/>
         <available property="ecj.jar.present" file="${lib}/${ecj.jar}"/>
+        <available property="hazelcast.jar.present" file="${lib}/${hazelcast.jar}"/>
         <available property="wala.jar.present" file="${lib}/${wala.jar}"/>
         <available property="wala2.jar.present" file="${lib}/${wala2.jar}"/>
         <available property="wala3.jar.present" file="${lib}/${wala3.jar}"/>
@@ -213,6 +219,7 @@
             <and>
                 <isset property="lpg.jar.present"/>
                 <isset property="ecj.jar.present"/>
+                <isset property="hazelcast.jar.present"/>
                 <isset property="wala.jar.present"/>
                 <isset property="wala2.jar.present"/>
                 <isset property="wala3.jar.present"/>
@@ -271,6 +278,21 @@
         <copy file="${local.ecj.jar}" tofile="${lib}/${ecj.jar}"/>
         <available property="ecj.jar.present" file="${lib}/${ecj.jar}"/>
         <fail message="Unable to find ${ecj.jar} at ${local.ecj.jar}" unless="ecj.jar.present"/>
+    </target>
+
+    <target name="hazelcast-jar" depends="init,hazelcast-local-jar" unless="local.hazelcast.jar">
+        <mkdir dir="${lib}"/>
+	<retry>
+          <get usetimestamp="true" src="${hazelcast.jar.url}" dest="${lib}/${hazelcast.jar}"/>
+	</retry>
+        <available property="hazelcast.jar.present" file="${lib}/${hazelcast.jar}"/>
+        <fail message="Unable to get ${hazelcast.jar} from ${hazelcast.jar.url}" unless="hazelcast.jar.present"/>
+    </target>
+    <target name="hazelcast-local-jar" depends="init" if="local.hazelcast.jar">
+        <mkdir dir="${lib}"/>
+        <copy file="${local.hazelcast.jar}" tofile="${lib}/${hazelcast.jar}"/>
+        <available property="hazelcast.jar.present" file="${lib}/${hazelcast.jar}"/>
+        <fail message="Unable to find ${hazelcast.jar} at ${local.hazelcast.jar}" unless="hazelcast.jar.present"/>
     </target>
 
     <target name="wala-jar" depends="init,wala-local-jar" unless="local.wala.jar">
@@ -378,7 +400,7 @@
         <fail message="Unable to find ${log.jar} at ${local.log.jar}" unless="log.jar.present"/>
     </target>
 
-    <target name="update-jar-cache" depends="init,lpg-jar,ecj-jar,wala-jar,wala2-jar,wala3-jar,shrike-jar,equinox-jar,math-jar,log-jar"/>
+    <target name="update-jar-cache" depends="init,lpg-jar,ecj-jar,hazelcast-jar,wala-jar,wala2-jar,wala3-jar,shrike-jar,equinox-jar,math-jar,log-jar"/>
 
 	<target name="download-dependencies" depends="init,check-jar-cache" unless="cache.up-to-date">
         <antcall target="update-jar-cache"/>
@@ -594,6 +616,7 @@ if [[ "$UNAME" = CYGWIN* ]]; then JAVA="$(cygpath -au "$JAVA")"; JAR="$(cygpath 
 #CONFIG_FILE='${config}'
 LPG_JAR='${lpg.jar}'
 ECJ_JAR='${ecj.jar}'
+HAZELCAST_JAR='${hazelcast.jar}'
 WALA_JAR='${wala.jar}'
 WALA2_JAR='${wala2.jar}'
 WALA3_JAR='${wala3.jar}'
