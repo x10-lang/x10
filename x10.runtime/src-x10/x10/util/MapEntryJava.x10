@@ -11,6 +11,8 @@
 
 package x10.util;
 
+import x10.interop.Java;
+
 import java.util.Map;
 
 /**
@@ -38,7 +40,7 @@ public class MapEntryJava {
      * Return the value corresponding to this entry.
      */
     public def getValue(): Any {
-        return javaMapEntry.getValue() as Any;
+        return Java.deserialize(javaMapEntry.getValue() as Java.array[Byte]) as Any;
     };
 
     /**
