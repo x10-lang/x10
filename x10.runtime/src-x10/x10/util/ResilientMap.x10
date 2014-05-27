@@ -13,6 +13,7 @@ package x10.util;
 
 import x10.compiler.Native;
 import x10.compiler.NativeRep;
+import x10.interop.Java;
 
 import java.util.Set;
 
@@ -71,7 +72,7 @@ public class ResilientMap[K,V] {
 //    @Native("java", "(#V)((keyValueMap).get(#k))")
     public def get(k: K): Box[V] {
         val v = keyValueMap.get(k);
-        return v == null ? null : new Box[V](v as V);
+        return v == null ? null : new Box[V](Java.deserialize(v as Java.array[Byte]) as V);
     };
 
 
@@ -93,8 +94,8 @@ public class ResilientMap[K,V] {
      */
 //    @Native("java", "(#V)((keyValueMap).put(#k, #v))")
     public def put(k: K, v: V): Box[V] {
-        val oldv = keyValueMap.put(k, v);
-        return oldv == null ? null : new Box[V](oldv as V);
+        val oldv = keyValueMap.put(k, Java.serialize(v));
+        return oldv == null ? null : new Box[V](Java.deserialize(oldv as Java.array[Byte]) as V);
 
     };
 
@@ -104,7 +105,7 @@ public class ResilientMap[K,V] {
 //    @Native("java", "(#V)((keyValueMap).remove(#k))")
     public def remove(k: K): Box[V] {
         val v = keyValueMap.remove(k);
-        return v == null ? null : new Box[V](v as V);
+        return v == null ? null : new Box[V](Java.deserialize(v as Java.array[Byte]) as V);
     };
 
     /**
