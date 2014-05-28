@@ -47,7 +47,7 @@ public class MapEntryJava {
      * Replaces the value corresponding to this entry with the specified value.  Return previous value.
      */
     public def setValue(value: Any): Any {
-        return javaMapEntry.setValue(value) as Any;
+        return Java.deserialize(javaMapEntry.setValue(value) as Java.array[Byte])  as Any;
     };
 
 
