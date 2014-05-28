@@ -90,6 +90,22 @@ public class ResilientMap[K,V] {
     };
 
     /**
+     * Return a key that is specific to the current place.  Useful for
+     * storing place local handles.
+     */
+    static def placeSpecificKey(key: String): String {
+        return key + here.id();
+    }
+
+    /**
+     * Return a key that is specific to place "placeID".  Useful for
+     * storing place local handles.
+     */
+    static def placeSpecificKey(key: String, placeID: Long): String {
+        return key + placeID;
+    }
+
+    /**
      * Associate value v with key k in the resilient map.
      */
 //    @Native("java", "(#V)((keyValueMap).put(#k, #v))")
