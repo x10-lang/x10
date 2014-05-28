@@ -16,15 +16,15 @@ import x10.compiler.Inline;
 
 import x10.matrix.Matrix;
 import x10.matrix.DenseMatrix;
-import x10.matrix.util.Debug;
 import x10.matrix.block.Grid;
 import x10.matrix.block.SymGrid;
-import x10.matrix.sparse.SparseCSC;
+import x10.matrix.builder.MatrixBuilder;
 import x10.matrix.comm.BlockSetRemoteCopy;
 import x10.matrix.distblock.DistBlockMatrix;
 import x10.matrix.distblock.DistMap;
 import x10.matrix.distblock.DistGrid;
-import x10.matrix.builder.MatrixBuilder;
+import x10.matrix.sparse.SparseCSC;
+import x10.matrix.util.RandTool;
 
 public type DistSymMatrixBuilder(b:DistSymMatrixBuilder)=DistSymMatrixBuilder{self==b};
 public type DistSymMatrixBuilder(m:Long)=DistSymMatrixBuilder{self.M==m,self.N==m};
@@ -106,6 +106,26 @@ public class DistSymMatrixBuilder extends DistMatrixBuilder{self.M==self.N} impl
 		return this;
 	}
 
+    // replicated from superclass to workaround xlC bug with using & itables
+	public def initRandom(nonZeroDensity:Double):DistMatrixBuilder(this) {
+		finish ateach(d in Dist.makeUnique()) {
+			val itr = dmat.handleBS().iterator();
+			while (itr.hasNext()) {
+				itr.next().initRandom(nonZeroDensity, (Long,Long)=>RandTool.getRandGen().nextDouble());
+			}
+		}
+		return this;
+	}
+	public def initRandom() : DistMatrixBuilder(this) {
+		finish ateach(d in Dist.makeUnique()) {
+			val itr = dmat.handleBS().iterator();
+			while (itr.hasNext()) {
+				itr.next().initRandom();
+			}
+		}
+		return this;
+	}
+
 	public def mirror(toUpper:Boolean) {
 		finish ateach(d in Dist.makeUnique()) {
 			val blkitr = dmat.handleBS().iterator();
@@ -144,13 +164,11 @@ public class DistSymMatrixBuilder extends DistMatrixBuilder{self.M==self.N} impl
 		return this;		
 	}
 	
-	@Inline
-	public def mirrorToUpper() {
+	public @Inline def mirrorToUpper() {
 		mirror(true);
 	}
 	
-	@Inline	
-	public def mirrorToLower() {
+	public @Inline def mirrorToLower() {
 		mirror(false);
 	}
 

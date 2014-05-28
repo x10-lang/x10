@@ -21,8 +21,6 @@ import x10.matrix.sparse.SymSparseCSC;
 public type SymSparseBuilder(bld:SymSparseBuilder)=SymSparseBuilder{self==bld};
 public type SymSparseBuilder(m:Long)=SymSparseBuilder{self.M==m};
 
-//public class SymSparseBuilder(M:Long) implements MatrixBuilder {
-//public val builder:SparseCSCBuilder(M,M);
 public class SymSparseBuilder extends SparseCSCBuilder{self.M==self.N} implements MatrixBuilder {
 	/**
 	 * Cast Sparse matrix builder to symmetric sparse matrix, while using the 
@@ -51,6 +49,19 @@ public class SymSparseBuilder extends SparseCSCBuilder{self.M==self.N} implement
 				if (! MathTool.isZero(v)) {
 					this.append(r, c, v);
 				}
+			}
+		}
+		return this;
+	}
+
+    // replicated from superclass to workaround xlC bug with using & itables
+	public def init(spamat:SparseCSC(M,N)): SparseCSCBuilder(this) {
+		val ca = spamat.getStorage();
+		var offset:Long = 0;
+		for (var c:Long=0; c<N; c++) {
+			val cnt = spamat.ccdata.cLine(c).length;
+			for (var i:Long=0; i<cnt; i++, offset++) {
+				append(ca.index(offset), c, ca.value(offset));
 			}
 		}
 		return this;
@@ -196,11 +207,6 @@ public class SymSparseBuilder extends SparseCSCBuilder{self.M==self.N} implement
 		val bdr = new SymSparseCSC(M, spa.ccdata);
 		return bdr as SymSparseCSC(M);
 	}
-	
-	//public def toSparseCSC() : SparseCSC(M,M) = toSparseCSC() as SparseCSC(M,M);
-
-	//public def toMatrix():Matrix(M,M) = toSparseCSC() as Matrix(M,M);
-
 	
 	public def toString() :String = "Symmetric sparse builder\n"+toString();
 }

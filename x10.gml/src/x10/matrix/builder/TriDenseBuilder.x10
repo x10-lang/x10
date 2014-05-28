@@ -47,8 +47,6 @@ public class TriDenseBuilder extends DenseBuilder{self.M==self.N} implements Mat
 		return bdr as TriDenseBuilder(m);
 	}
 	
-
-	
 	/**
 	 * Initial triangular dense matrix with initial function.
 	 */
@@ -74,6 +72,17 @@ public class TriDenseBuilder extends DenseBuilder{self.M==self.N} implements Mat
 		
 	public def init(initFunc:(Long,Long)=>Double):TriDenseBuilder(this) =
 		upper?initUpper(initFunc):initLower(initFunc);
+
+    // replicated from superclass to workaround xlC bug with using & itables
+	public def init(srcden:DenseMatrix) = init(0, 0, srcden);
+	public def init(rowOff:Long, colOff:Long, srcden:DenseMatrix) : DenseBuilder(this) {
+		Debug.assure(rowOff+srcden.M<=dense.M, "Dense builder cannot using given matrix to initialize. Row overflow");
+		Debug.assure(colOff+srcden.N<=dense.N, "Dense builder cannot using given matrix to initialize. Column overflow");
+		var stt:Long = rowOff;
+		for (var c:Long=colOff; c<colOff+srcden.N; c++, stt+= dense.M)
+			Rail.copy[Double](srcden.d, 0, dense.d, stt, srcden.M);
+		return this;
+	}
 
 	
 	/**
@@ -171,7 +180,6 @@ public class TriDenseBuilder extends DenseBuilder{self.M==self.N} implements Mat
 
 	/**
 	 * Convert to symmetric dense builder use the same memory space.
-	 * 
 	 */
 	public def toSymDenseBuilder():SymDenseBuilder(M) {
 		val symbld = new SymDenseBuilder(dense as DenseMatrix{self.M==self.N});
@@ -187,6 +195,4 @@ public class TriDenseBuilder extends DenseBuilder{self.M==self.N} implements Mat
 		val tri = new TriDense(upper, M, dense.d);
 		return tri as TriDense(M);
 	}
-	
-	
 }
