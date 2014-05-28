@@ -90,9 +90,8 @@ class JNI implements Callable<Boolean> {
     public static native void cactionMethodDeclarationEnd(int numberOfStatements, JavaToken jToken);
 
     public static native void cactionTypeParameterReference(String package_name, String type_name, int method_index, String type_parameter_name, JavaToken jToken);
-//MH-20140414
-//    public static native void cactionTypeReference(String package_name, String type_name, JavaToken jToken);
-    public static native void cactionTypeReference(String packageName, String name);
+    public static native void cactionTypeReference(String package_name, String type_name, RoseTranslator.ToRoseVisitor visitor, JavaToken jToken);
+//    public static native void cactionTypeReference(String packageName, String name);
 
     public static native void cactionQualifiedTypeReference(String package_name, String type_name, JavaToken jToken);
     public static native void cactionArgument(String argumentName, JavaToken jToken);
@@ -261,6 +260,8 @@ class JNI implements Callable<Boolean> {
     // Added new support functions for Argument IR nodes.
     public static native void cactionArgumentName(String name);
     public static native void cactionArgumentModifiers(int modifiers);
+    
+	public static native void cactionSetCurrentFilePath(String filepath);
 
     //**********************************************************
     //*                                                        *
