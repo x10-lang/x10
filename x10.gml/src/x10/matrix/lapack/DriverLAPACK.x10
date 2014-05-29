@@ -23,7 +23,7 @@ import x10.compiler.NativeCPPCompilationUnit;
  *  BLAS, please refer to BLAS specification for detailed information.
  */
 @NativeCPPInclude("wrap_lapack.h")
-@NativeCPPCompilationUnit("wrap_lapack.c")
+@NativeCPPCompilationUnit("wrap_lapack.cc")
 protected class DriverLAPACK {
 	/**
 	 * Solve linear equations A * X = B

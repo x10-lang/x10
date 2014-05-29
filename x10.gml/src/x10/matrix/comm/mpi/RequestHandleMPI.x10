@@ -19,7 +19,7 @@ import x10.compiler.NativeCPPCompilationUnit;
  * This class provides a request handle for nonblocking MPI communication.
  */
 @NativeCPPInclude("mpi_api.h")
-@NativeCPPCompilationUnit("mpi_api.c")
+@NativeCPPCompilationUnit("mpi_api.cc")
 public class RequestHandleMPI {
 
     @Native("c++","mpi_get_request_memsize((#1)->raw)")

@@ -25,23 +25,19 @@ import x10.matrix.distblock.DupVector;
  * has the final result.
  */
 public class DistDistToDup{
-	
     public static def main(args:Rail[String]) {
-    	
     	val M   = args.size > 0 ? Long.parse(args(0)):100;
     	val bM  = args.size > 1 ? Long.parse(args(1)):-1;
-    	val nzd = args.size > 2 ?Double.parse(args(2)):0.5;
+    	val nzd = args.size > 2 ? Double.parse(args(2)):0.5;
     	val it  = args.size > 3 ? Long.parse(args(3)):3;
     	val vrf = args.size > 4 ? Long.parse(args(4)):0;
-    	
    	
 		val testcase = new DistDistToDup(M, bM, nzd, it, vrf);
 		testcase.run();
     }
     
-	val it:Int;
-	val vrf:Int;
-	
+	val it:Long;
+	val vrf:Long;
 
 	val M:Long;
 	val bN:Long;
@@ -51,13 +47,11 @@ public class DistDistToDup{
 	val V:Vector(M);
 	val dupP:DupVector(M);
 	
-
-    public def this(m:Long, b:Int, nnz:Double, i:Int, v:Int) {
+    public def this(m:Long, b:Long, nnz:Double, i:Long, v:Long) {
     	val pN = Place.MAX_PLACES;
     	M=m;
     	it = i; vrf=v;
     	bN = b<0?pN:b;
-    	
     	
     	dstrA = (nnz > 0.99) ? DistBlockMatrix.makeDense(M, M, 1, bN, 1, pN): 
     		DistBlockMatrix.makeSparse(M, M, 1, bN, 1, pN, nnz);
@@ -76,7 +70,6 @@ public class DistDistToDup{
     }
 	
 	public def run(): void {
-		
 		val stt = Timer.milliTime();
 		dstrV.copyFrom(V);
 		for (1..it)

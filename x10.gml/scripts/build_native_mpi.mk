@@ -18,8 +18,7 @@
 #$(target)      ## application target name
 #$(target_list) ## list of targets
 #$(X10_FLAG)    ## X10 compiling option flags
-#$(XC)          ## X10 compiler
-#$(MCC)         ## Post MPI compiler
+#$(X10CXX)      ## X10 compiler
 #$(POST_PATH)   ## Post compiling include path
 #$(POST_LIBS)   ## Post compiling include libs.
 
@@ -47,8 +46,8 @@ MPI_GML_LIB	= -classpath $(gml_lib)/native_mpi_gml.jar -x10lib $(gml_path)/nativ
 # X10 file build rules
 ################################################### 
 $(target)_mpi	: $(x10src) $(depend_src) $(gml_inc)
-		$(XC)  -x10rt mpi $(MPI_GML_LIB) $(X10_FLAG) $(MPI_FLAG) $< -o $@ \
-		-post '$(MCC) # $(POST_PATH) # $(POST_LIBS)'
+		$(X10CXX)  -x10rt mpi $(MPI_GML_LIB) $(X10_FLAG) $(MPI_FLAG) $< -o $@ \
+		-post ' \# $(POST_PATH) \# $(POST_LIBS)'
 
 ###----------
 mpi		: $(target)_mpi

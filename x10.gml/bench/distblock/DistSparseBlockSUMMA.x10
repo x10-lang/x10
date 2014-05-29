@@ -4,37 +4,26 @@
  *  (C) Copyright IBM Corporation 2012.
  */
 
-
 import x10.matrix.util.Debug;
 import x10.matrix.Matrix;
 import x10.matrix.DenseMatrix;
-
 import x10.matrix.block.Grid;
 import x10.matrix.block.BlockMatrix;
 import x10.matrix.block.DenseBlockMatrix;
-
 import x10.matrix.distblock.DistMap;
 import x10.matrix.distblock.DistGrid;
-
 import x10.matrix.distblock.DistBlockMatrix;
 import x10.matrix.distblock.summa.SummaMult;
 import x10.matrix.distblock.summa.SummaMultTrans;
 
-
-/**
-   <p>
-
-   <p>
- */
 public class DistSparseBlockSUMMA {
-	
     public static def main(args:Rail[String]) {
     	val M = args.size > 0 ? Long.parse(args(0)):100;
     	val K = args.size > 1 ? Long.parse(args(1)):100;
     	val N = args.size > 2 ? Long.parse(args(2)):100;
     	val it = args.size > 3 ? Long.parse(args(3)):4;
     	val pnl = args.size > 4 ? Long.parse(args(4)):10;
-    	val bMN = args.size > 5 ? Int.parse(args(5)):-1;
+    	val bMN = args.size > 5 ? Long.parse(args(5)):-1;
     	
 		val testcase = new BenchRunSumma(M,K,N,it,pnl,bMN);
 		testcase.run();
@@ -59,7 +48,7 @@ class BenchRunSumma {
 	val dB:DistMap;
 	val dC:DistMap;
 	val itnum:Long;
-	val panel:Int;
+	val panel:Long;
 
 	val A:DistBlockMatrix(M,K);
 	val B:DistBlockMatrix(K,N);
@@ -69,9 +58,7 @@ class BenchRunSumma {
 	val summa:SummaMult;
 	val summaT:SummaMultTrans;
 	
-	
-	public def this(m:Long, k:Int, n:Long, it:Int, pnl:Int, blkmn:Long) {
-		
+	public def this(m:Long, k:Long, n:Long, it:Long, pnl:Long, blkmn:Long) {
 		M = m; K=k; N=n;
 		itnum = it;	panel = pnl; bM=blkmn; bN=blkmn;
 		nzd = 0.01;

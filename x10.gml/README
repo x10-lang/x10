@@ -32,21 +32,21 @@ Instructions
 
 1) System dependency and settings (scripts/system_setting.mk)
    * BLAS (basic linear algebra subprograms). 
-     This library is generally avaiable in most computing systems.
-     If not found, you can download the standard BLAS from http://netlib.org/blas 
-     or multi-thread enabled GotoBLAS2 from http://www.tacc.utexas.edu/tacc-projects/gotoblas2. 
+     This library is generally available in most HPC computing systems.
+     If not found, you can download the reference BLAS implementation from http://netlib.org/blas 
+     or multi-threaded GotoBLAS2 from http://www.tacc.utexas.edu/tacc-projects/gotoblas2 .
   
-     To configure BLAS pathname, check x10.gml/scripts/system_setting.mk, in which you
+     To configure BLAS path, check x10.gml/scripts/system_setting.mk, in which you
      will find definition lines for "blas_path" and "blas_name".
 
-   * Native-MPI backend: MPI library. 
-     In system_setting.mk, check "MCC" is defined to the desired MPI compiler
+   * Native-MPI backend:
+     Uses x10rt=mpi with the corresponding MPI post-compiler.
 
-   * Managed backend: Java SDK include pathname
-     In system_setting.mk, check "JNI_inc" is defined correcly
+   * Managed backend: Java SDK include path
+     In system_setting.mk, check "JNI_LIBS" is defined correctly.
 
 	- LAPACK - Linear Algebra PACKage (optional)
-	Currently, LAPACK is used to find eigen values/vectors and solve linear equations.
+	Currently, LAPACK is used to find eigenvalues/vectors and solve linear equations.
 	It is not required by GML, as far as its corresponding methods are not used, otherwise 
 	java.lang.NoClassDefFoundError exception is thrown.
 	
@@ -75,27 +75,27 @@ property files
 3) Building applications
 - Add [native|native_mpi|managed]_gml.jar in "-classpath" 
 - Add [native|native_mpi|managed].properties in "-x10lib"
-NOTE: Problem with specifying gml path name before jar and properities file names.
+NOTE: Problem with specifying gml path name before jar and properties file names.
 If using "~" in the path name, and compiler complains about not 
-finding the library, replacing "~" with either absolute pathname or relative 
-pathname of the gml library.
+finding the library, replacing "~" with either absolute path or relative 
+path of the gml library.
 
 4) Running applications
 - Native MPI transport
   No different from running MPI applications
   mpirun -np [number of processes] [app name] [args]
 - Native backend on socket transport
-  [absolute pathname]/X10Launcher -np [number of places] [app name] names] [args]
+  [absolute path]/X10Launcher -np [number of places] [app name] names] [args]
 - Managed backend
   Add managed_gml.jar to "-classpath"
   Add gml library path to "-libpath"
-  [absolute pathname]/X10Launcher -np [number of places] x10 -classpath [managed_gml.jar] -libpath [gml lib] [app name] [args] 
+  [absolute path]/X10Launcher -np [number of places] x10 -classpath [managed_gml.jar] -libpath [gml lib] [app name] [args] 
    
 
 ==============================================================
 1) Matrix types:
 
-The current implementation of x10 parallel matrix library supports
+The current implementation of X10 parallel matrix library supports
 two matrix structures: dense and sparse, which are compatible with
 column-major and CSC-LT format.
  
@@ -104,11 +104,11 @@ column-major and CSC-LT format.
     a continuous memory space. 
   - Symmetric and triangular matrix. Current implementation supports
     the lower part of matrix data stored in column-major.
-  - Sparse matrix: compatible to CSC-LT format, which stores nonzeros 
+  - Sparse matrix: compatible to CSC-LT format, which stores non-zero
     element values and corresponding indexes in the column-major order.
 
 
-Matrix data can be partitioned into blocks in a partitioning grid. Each 
+Matrix data can be partitioned into blocks in a grid. Each 
 block stores data in dense or sparse structure.
 1.2) Block-partitioned matrix
   - Dense block matrix: matrix is partitioned in (m x n) blocks, where m 
@@ -118,9 +118,9 @@ block stores data in dense or sparse structure.
     matrix format to store data of all matrix blocks.
 
 
-Partitioned matrix can distribute blocks to all places.  Current 
-implementation constrains 1-to-1 mapping between blocks and places. 
-Future version may left this constrains.
+Partitioned matrix can distribute blocks to all places.  The current 
+implementation is restricted to 1-to-1 mapping between blocks and places. 
+Future versions may remove this restriction.
 
 1.3) Distributed matrix
   - Distributed dense matrix: matrix is partitioned and each place is 
