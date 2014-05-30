@@ -11,8 +11,6 @@
 
 package x10.x10rt;
 
-import java.util.concurrent.ConcurrentMap;
-
 import x10.lang.GlobalRail;
 import x10.x10rt.SocketTransport.RETURNCODE;
 
@@ -165,6 +163,7 @@ public class X10RT {
       }
       else if (libName.equalsIgnoreCase("Hazelcast")) {
     	  X10RT.hazelcastTransport = new HazelcastTransport();
+    	  x10.runtime.impl.java.Runtime.MAX_PLACES = X10RT.hazelcastTransport.x10rt_nplaces();
       }
       else {
           libName = "x10rt_" + libName;
