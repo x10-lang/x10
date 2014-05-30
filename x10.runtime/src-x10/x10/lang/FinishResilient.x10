@@ -194,7 +194,7 @@ abstract class FinishResilient extends FinishState {
                 if (verbose>=2) debug("FinishResilient.runAt exec_body finished");
             };
             if (verbose>=2) debug("FinishResilient.runAt create a new activity to execute");
-            Runtime.execute(new Activity(exec_body, home, real_finish, false, false));
+            Runtime.executeLocal(new Activity(exec_body, home, real_finish, false, false));
             // TODO: Unsafe.dealloc(exec_body); needs to be called somewhere
         };
         if (verbose>=2) debug("FinishResilient.runAt sending closure");
