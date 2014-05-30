@@ -93,7 +93,7 @@ public class ResilientMap[K,V] {
      * Return a key that is specific to the current place.  Useful for
      * storing place local handles.
      */
-    static def placeSpecificKey(key: String): String {
+    public static def placeSpecificKey(key: String): String {
         return key + here.id();
     }
 
@@ -101,7 +101,7 @@ public class ResilientMap[K,V] {
      * Return a key that is specific to place "placeID".  Useful for
      * storing place local handles.
      */
-    static def placeSpecificKey(key: String, placeID: Long): String {
+    public static def placeSpecificKey(key: String, placeID: Long): String {
         return key + placeID;
     }
 
