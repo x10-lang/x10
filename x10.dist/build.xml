@@ -810,6 +810,7 @@ X10RT_PAMI_IS_DEFAULT='${X10RT_PAMI_IS_DEFAULT}'
         <mkdir dir="${targetDir}/include" />
         <mkdir dir="${targetDir}/lib" />
         <mkdir dir="${targetDir}/stdlib" />
+        <mkdir dir="${targetDir}/src-x10" />
         <echo message="Cleaning out bin, etc, include, lib, and stdlib of old files from ${targetDir}..."/>
         <delete>
           <fileset dir="${targetDir}/bin"     includes="**"/>
@@ -817,6 +818,7 @@ X10RT_PAMI_IS_DEFAULT='${X10RT_PAMI_IS_DEFAULT}'
           <fileset dir="${targetDir}/include" includes="**"/>
           <fileset dir="${targetDir}/lib"     includes="**"/>
           <fileset dir="${targetDir}/stdlib"  includes="**"/>
+          <fileset dir="${targetDir}/src-x10"  includes="**"/>
         </delete>
 
     	<echo message="Copying bin, etc, include, lib and stdlib files to ${targetDir}..."/>
@@ -830,6 +832,13 @@ X10RT_PAMI_IS_DEFAULT='${X10RT_PAMI_IS_DEFAULT}'
         <chmod file="${targetDir}/bin/x10c++" perm="u+x"/>
         <chmod file="${targetDir}/bin/X10Launcher" perm="u+x"/>
         <chmod file="${targetDir}/bin/X10MPIJava" perm="u+x"/>
+
+        <echo message="Extracting X10 sources to src-x10..."/>
+        <unzip src="${targetDir}/stdlib/x10.jar" dest="${targetDir}/src-x10">
+	  <patternset>
+	    <include name="**/*.x10" />
+	  </patternset>
+	</unzip>
 
         <echo message="Attempting to compile Hello, World..."/>
         <exec executable="${bash.exe}" failonerror="true" dir="${targetDir}">
