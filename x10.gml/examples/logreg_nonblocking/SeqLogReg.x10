@@ -4,28 +4,18 @@
  *  (C) Copyright IBM Corporation 2011.
  */
 
-package logreg;
-
 import x10.util.Timer;
-//
-import x10.matrix.util.Debug;
-//
+
 import x10.matrix.Matrix;
 import x10.matrix.DenseMatrix;
 import x10.matrix.blas.DenseMatrixBLAS;
-//
-
-/**
-   <p>
-
-   <p>
- */
+import x10.matrix.util.Debug;
 
 public class SeqLogReg {
 	val C = 2;
 	val tol = 0.000001;
-	val maxiter:Int;
-	val maxinneriter:Int;
+	val maxiter:Long;
+	val maxinneriter:Long;
 	
 	//X = Rand(rows = 1000, cols = 1000, min = 1, max = 10, pdf = "uniform");
 	val X:DenseMatrix;
@@ -48,7 +38,7 @@ public class SeqLogReg {
 	val tmp_y:DenseMatrix(X.M, 1);
 	
 	public def this(x_:DenseMatrix, y_:DenseMatrix(x_.M,1), w_:DenseMatrix(x_.N,1),
-					it:Int, nit:Int) {
+					it:Long, nit:Long) {
 		X=x_; 
 		y=y_ as DenseMatrix(X.M, 1);
 		w=w_ as DenseMatrix(X.N, 1);
@@ -87,7 +77,7 @@ public class SeqLogReg {
 		
 		//# number of iterations
 		//iter = 0
-		var iter:Int =0;
+		var iter:Long =0;
 		
 		//# starting point for CG
 		//zeros_D = Rand(rows = D, cols = 1, min = 0.0, max = 0.0);
@@ -121,7 +111,7 @@ public class SeqLogReg {
 // 			d = r
 			r.copyTo(d);
 // 			inneriter = 0
-			val inneriter:Int=0;
+			val inneriter:Long=0;
 // 			innerconverge = ( sqrt(sum(r*r)) <= psi * norm_grad) 
 			var innerconverge:Boolean;// = (Math.sqrt(r.norm(r)) <= psi * norm_grad);
  			innerconverge = false;

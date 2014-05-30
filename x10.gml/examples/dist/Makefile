@@ -29,7 +29,7 @@ target		= DistDenseExample
 x10src		= $(target).x10
 
 # lib source
-gml_path    = ../../../matrix
+gml_path    = ../..
 
 
 # build path

@@ -1,4 +1,4 @@
-X10 Release 2.4.2
+X10 Release 2.4.3
 
 HIGHLIGHTS OF THIS RELEASE
 
@@ -6,25 +6,23 @@ There were no significant language changes or
 incompatible class library API changes made in 
 this release of X10. 
 
-An implementation of the X10 GlobalLoadBalancing framework (GLB)
-has been incorporated into the x10 standard library in the
-x10.glb package. Additional sample X10 programs using GLB 
-are available in samples/GLB.
+A major new feature in X10DT 2.4.3 is support for basic 
+source-level debugging of X10 programs running on Managed X10. 
+With this release debugging operations that rely on source
+line information (e.g. breakpoints, single stepping) can be
+done at the X10 source level.  Debugging operations like variable
+inspection can only be done at the level of the generated Java
+code (due to limitations of JSR-045 SMAP mappings). To try this
+new feature, simply launch a Managed X10 program using the usual
+Eclipse debugging procedures. 
 
-We have completed the work on a (single host) pure Java launcher
-for Managed X10.  This allows multi-place execution on Managed X10
-on a single Windows host without requiring cygwin.  This capability
-is available from X10DT when launching a Managed X10 application on
-a local Windows host.
-
-Support for the closed source x10rt_pgas implementation and
-the BlueGene/P platform was removed from X10 starting with 
-this release.
-
-Several bugs in the CUDA backend present in X10 2.4.0 and 2.4.1
-were corrected in this release.  All CUDA sample programs 
-now compile and run successfully using the latest (v5.5) release
-of the NVIDIA CUDA Toolkit.
+In previous versions of X10, when a Place had no activities
+to execute the XRX runtime would consume CPU by actively pooling
+the network for incoming activities.  In X10 2.4.3 the default has
+been changed to instead block the polling thread on the network, 
+thus allowing idle X10 Places to not consume CPU resources.  
+If the previous behavior is desired (active polling), set the 
+environment variable X10_BUSY_WAITING to true.
 
 LIMITATIONS OF THIS RELEASE
 
@@ -42,50 +40,41 @@ distinct constraints.
 
 Additionally, the following features described in the language
 manual do not currently work with Native X10.
-  - Garbage collection on AIX
   - Non-final generic instance methods
   - Exception stack traces on Cygwin
 
-Although greatly improved from previous releases, the X10 runtime 
-still uses a modified "busy wait" loop in the worker threads that 
-execute asyncs. A consequence of this is that even if a Place has 
-no asyncs to execute, one worker thread in the Place will still consume
-CPU cycles busy waiting for messages to arrive from the network.  
-
 The generated C++ code requires g++ 4.2 or better to be compiled; 
 we do almost all of our testing against g++ 4.4.
-  + On AIX and Power/Linux, you may either use g++ 4.2 or better or 
-    xlC 11.1 or better. 
+  + On Power/Linux and BG/Q, you may either use g++ 4.2 or better
+    or xlC 11.1 or better. 
 
 SUMMARY OF ISSUES RESOLVED IN THIS RELEASE
 
-Below is a summary of JIRA issues addressed for the X10 2.4.2
+Below is a summary of JIRA issues addressed for the X10 2.4.3
 
-** New Features and Improvement
-    * [XTENLANG-2970] - Editing pass over X10 website updating for X10 2.4
-    * [XTENLANG-3276] - Incorporate Global Load Balancing Framework (GLB) into X10 standard library
-    * [XTENLANG-3325] - Pure Java launcher for Managed X10 (single node)
-    * [XTENLANG-3335] - Add Synthetic annotation to classes, fields, or methods that don't appear in the source code
-    * [XTENLANG-3336] - Hide synthetic classes, methods, and fields from x10doc
-    * [XTENLANG-3338] - Use statement expressions instead of apply of closure literals in internal expansions of ASTs
-    * [XTENLANG-3339] - Remove x10rt_pgas and BlueGene/P support
-    * [XTENLANG-3345] - File should have a useful toString method
-    * [XTENLANG-3359] - Implement map and reduce for x10.array.DistArray
+** New Features and Improvements
+    * [XTENLANG-1012] - Busy wait in x10::runtime::Pool::scan()
+    * [XTENLANG-3367] - Handle non-trivial at() expressions in CUDA kernels
+    * [XTENLANG-3370] - generate SMAPI debug info in command line builds
+    * [XTENLANG-3385] - GML: add Manhattan, Chebyshev distances to x10.matrix.Vector
+    * [XTENLANG-3386] - New class x10.util.Date
 
 ** Bugs
-    * [XTENLANG-3299] - Compiler NPE when optimizing because of incorrect implementation of alpha renaming
-    * [XTENLANG-3334] - Method/constructor guard is not printed properly
-    * [XTENLANG-3346] - x10c with Java8 dislikes methods returning java.lang.Class
-    * [XTENLANG-3347] - x10doc doesn't work with Java8
-    * [XTENLANG-3348] - Cannot define an X10 class that implements a java interface that extends java.lang.Comparable
-    * [XTENLANG-3357] - Resilient X10 fails with ClockUseException
-    * [XTENLANG-3362] - Closure captures transient instance field directly instead of 'this'
+    * [XTENLANG-3219] - Exceptions during serialization/deserialization can hang XRX
+    * [XTENLANG-3368] - Resilient X10: failure to reliably raise DPE when System.killHere is called
+    * [XTENLANG-3374] - Team: illegal broadcastFlat within atomic block
+    * [XTENLANG-3376] - bugs in x10.io.File.list() 
+    * [XTENLANG-3377] - Team.WORLD.barrier() intermittent hang with X10RT MPI
+    * [XTENLANG-3383] - Elements of Rail[struct] not initialized to zero
+    * [XTENLANG-3384] - Incomplete type error on cast to constrained type in postcompile
+    * [XTENLANG-3387] - Machine architecture unknown for X10RT MPI bindings
 
+** Tasks
+    * [XTENLANG-3332] - Update install instructions on website
 
 For the details of JIRA issues fixed in this release, see
-http: http://jira.codehaus.org/secure/ReleaseNote.jspa?version=19827&projectId=11812
+http: http://jira.codehaus.org/secure/ReleaseNote.jspa?version=20024&projectId=11812
 
 Please use the X10 JIRA to report bugs, after ensuring the problem is
 not already reported:
 http://jira.codehaus.org/secure/IssueNavigator.jspa?reset=true&&pid=11812&resolution=-1
-

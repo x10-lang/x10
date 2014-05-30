@@ -33,8 +33,6 @@ public class VectorMult {
 			comp(A as SymDense, B, C, plus);
 		else if (A instanceof TriDense)
 			comp(A as TriDense, B, C, plus);
-		//else if (A instanceof Diagonal)
-		//	this.mult(A as Diagonal, B, plus);
 		else
 			throw new UnsupportedOperationException("Operation not supported in vector multiply: " +
 					A.typeName() + " * " + B.typeName()+" = "+C.typeName() );
@@ -109,7 +107,6 @@ public class VectorMult {
 		return C;
 	}
 
-
 	public static def comp(A:SparseCSC, B:Vector(A.N), C:Vector(A.M), plus:Boolean)=
 		comp(A, B, 0, C, 0, plus);
 	
@@ -136,7 +133,6 @@ public class VectorMult {
 		return C;
 	}
 	
-
 	public static def x10Mult(B:Vector, A:DenseMatrix(B.M), C:Vector(A.N), plus:Boolean) =
 		comp(B, 0, A, C, 0, plus);
 	
@@ -180,11 +176,6 @@ public class VectorMult {
 		return C;
 	}
 
-
-
-
-	// Using Blas routines: C = A * b, or self += A * b,
-
 	/**
 	 * Using BLAS routine: C = A * B or C = A * B + C
 	 */
@@ -201,7 +192,6 @@ public class VectorMult {
 		return C;
 	}
 
-
 	public static def comp(A:SymDense, B:Vector(A.N), C:Vector(A.M), plus:Boolean):Vector(C) {
 		val beta = plus?1.0:0.0;
 		BLAS.compSymMultVec(A.d, B.d, C.d, 
@@ -213,7 +203,6 @@ public class VectorMult {
 	public static def comp(B:Vector, A:SymDense(B.M), C:Vector(A.N), plus:Boolean):Vector(C) =
 		comp(A, B as Vector(A.N), C, plus);
 
-
 	public static def comp(A:TriDense, C:Vector(A.M)):Vector(C) {
 		BLAS.compTriMultVec(A.d, A.upper, C.d, C.M, 0n);
 		return C;
@@ -223,6 +212,4 @@ public class VectorMult {
 		BLAS.compTriMultVec(A.d, A.upper, C.d, C.M, 1n); 
 		return C;
 	}
-
-	
 }

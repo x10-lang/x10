@@ -939,7 +939,7 @@ abstract class FinishState {
                     }
                     remoteActivity.clockPhases = null; // XTENLANG-3357
                 };
-                Runtime.execute(new Activity(exc_body, home, real_finish, false, false));
+                Runtime.executeLocal(new Activity(exc_body, home, real_finish, false, false));
                 // TODO: Unsafe.dealloc(exc_body); needs to be called somewhere
             };
             Runtime.x10rtSendMessage(place.id, cl, prof);
@@ -1858,7 +1858,7 @@ abstract class FinishState {
                         tmp_finish.notifyActivityTermination();
                     }
                 };
-                Runtime.execute(new Activity(exc_body, home, real_finish, false, false));
+                Runtime.executeLocal(new Activity(exc_body, home, real_finish, false, false));
             };
             Runtime.x10rtSendMessage(place.id, cl, prof);
 

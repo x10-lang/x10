@@ -21,7 +21,6 @@ import x10.matrix.dist.DistDenseMatrix;
 import x10.matrix.dist.DistSparseMatrix;
 import x10.matrix.dist.DistSparseMatrix;
 
-//import x10.matrix.dist.summa.mpi.SummaMPI;
 import x10.matrix.dist.summa.SummaDense;
 import x10.matrix.dist.summa.SummaSparse;
 
@@ -39,14 +38,12 @@ public class SummaExample{
 		testcase.run();
 	}
 
-
     static class RunSummaExample(M:Long, N:Long, K:Long, nzd:Double) {
-    	
     	public val pA:Grid;
     	public val pB:Grid;
     	public val pC:Grid;
     	
-    	public def this(m:Long, n:Long, k:Int, p:Double) {
+    	public def this(m:Long, n:Long, k:Long, p:Double) {
     		property(m, n, k, p);
     		
     		val numP = Place.numPlaces();//Place.MAX_PLACES;
@@ -68,8 +65,6 @@ public class SummaExample{
     		
     	}
 
-  	
-
     	public def testDenseMult():DistDenseMatrix {
     		val numP = Place.numPlaces();//Place.MAX_PLACES;
     		Console.OUT.printf("\nTest SUMMA dist dense matrix over %d places\n", numP);
@@ -89,7 +84,6 @@ public class SummaExample{
     		
     		return dc;
     	}
-
     	
     	public def testDenseMultTrans():DistDenseMatrix {
     		val numP = Place.numPlaces();//Place.MAX_PLACES;
@@ -111,7 +105,6 @@ public class SummaExample{
     		
     		return dc;
     	}
-    	
 
     	public def testSparse():DistDenseMatrix {
     		val numP = Place.numPlaces();//Place.MAX_PLACES;
@@ -134,7 +127,6 @@ public class SummaExample{
     		return dc;
     	}
 
-    	
     	public def testSparseMultTrans():DistDenseMatrix {
     		val numP = Place.numPlaces();//Place.MAX_PLACES;
     		Console.OUT.printf("\nTest SUMMA x10 dist dense matrix multTrans over %d places\n", numP);
@@ -152,6 +144,5 @@ public class SummaExample{
     		
     		return dc;
     	}
-
     }
 }

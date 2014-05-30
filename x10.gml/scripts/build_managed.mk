@@ -10,14 +10,16 @@
 ##---------------
 #Input settings
 ##---------------
-#$(gml_path)
-#$(gml_inc)
-#$(gml_lib)
-#$(build_path)
-#$(target)
-#$(target_list)
-#$(X10_FLAG)
-#$(XJ)
+#$(gml_path)    ## gml installation path
+#$(gml_inc)     ## gml include path
+#$(gml_lib)     ## gml library path
+#$(build_path)  ## application target build path
+#$(target)      ## application target name
+#$(target_list) ## list of targets
+#$(X10_FLAG)    ## X10 compiling option flags
+#$(X10CXX)      ## X10 compiler
+#$(POST_PATH)   ## Post compiling include path
+#$(POST_LIBS)   ## Post compiling include libs.
 
 ###################################################
 # Source files and paths
@@ -32,7 +34,7 @@ GML_LIB_JAVA= -x10lib $(gml_path)/managed_gml.properties
 ################################################### 
 
 $(build_path)/$(target).class	: $(x10src) $(depend_src)
-			$(XJ) $(X10_FLAG) $(GML_LIB_JAVA) $< 
+			$(X10C) $(X10_FLAG) $(GML_LIB_JAVA) $< -post ' \# $(POST_PATH) \# $(POST_LIBS)'
 
 ###----------------
 java		: $(build_path)/$(target).class

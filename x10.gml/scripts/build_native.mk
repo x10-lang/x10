@@ -19,8 +19,7 @@
 #$(target)      ## application target name
 #$(target_list) ## list of targets
 #$(X10_FLAG)    ## X10 compiling option flags
-#$(XC)          ## X10 compiler
-#$(CPP)         ## Post compiler
+#$(X10CXX)      ## X10 compiler
 #$(POST_PATH)   ## Post compiling include path
 #$(POST_LIBS)   ## Post compiling include libs.
 
@@ -42,12 +41,12 @@ GML_NAT_OPT	= -classpath $(gml_lib)/native_gml.jar -x10lib $(gml_path)/native_gm
 ################################################### 
 
 $(target)_sock	: $(x10src) $(depend_src) $(gml_inc)
-		$(XC) -x10rt sockets $(GML_NAT_OPT) $(X10_FLAG) $< -o $@ \
-		-post '$(CPP) # $(POST_PATH) # $(POST_LIBS)'
+		$(X10CXX) -x10rt sockets $(GML_NAT_OPT) $(X10_FLAG) $< -o $@ \
+		-post ' \# $(POST_PATH) \# $(POST_LIBS)'
 
 $(target)_pami	: $(x10src) $(depend_src) $(gml_inc)
-		$(XC) -x10rt pami $(GML_NAT_OPT) $(X10_FLAG) $< -o $@ \
-		-post '$(CPP) # $(POST_PATH) # $(POST_LIBS)'
+		$(X10CXX) -x10rt pami $(GML_NAT_OPT) $(X10_FLAG) $< -o $@ \
+		-post ' \# $(POST_PATH) \# $(POST_LIBS)'
 
 ###short-keys
 #Build in native for socket transport

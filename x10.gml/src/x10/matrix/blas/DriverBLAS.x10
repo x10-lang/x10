@@ -31,7 +31,7 @@ import x10.compiler.NativeCPPCompilationUnit;
  * <p>To compile BLAS library, add your system blas path and library in post compile options.
  */
 @NativeCPPInclude("wrap_blas.h")
-@NativeCPPCompilationUnit("wrap_blas.c")
+@NativeCPPCompilationUnit("wrap_blas.cc")
 protected class DriverBLAS {
 	// Level One 
 

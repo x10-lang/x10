@@ -28,9 +28,9 @@ import x10.matrix.dist.DistDenseMatrix;
  * by Robert A. Van De Geijn ,  Jerrell Watts
  */
 @NativeCPPInclude("summa_api.h")
-@NativeCPPCompilationUnit("summa_api.c")
+@NativeCPPCompilationUnit("summa_api.cc")
 @NativeCPPInclude("summa.h")
-@NativeCPPCompilationUnit("summa.c")
+@NativeCPPCompilationUnit("summa.cc")
 public class SummaMPI {
     @Native("c++","print_proc_info()")
 		public static native def print_proc():void;

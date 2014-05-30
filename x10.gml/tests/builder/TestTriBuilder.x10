@@ -75,10 +75,6 @@ class TestBuilder {
     	
     	val spa = SparseCSCBuilder.make(M, M).initRandom(nzd).toSparseCSC();
     	val ntr = TriSparseBuilder.make(false, M).init(spa).toSparseCSC();
-    	if (ret) {
-    		Console.OUT.print("spa\n" + spa);
-    		Console.OUT.print("ntr\n" + ntr);
-    	}
     	for (var c:Long=0; c<M&&ret; c++)
     		for (var r:Long=c; r<M&&ret; r++)
     			ret &= (spa(r,c)==ntr(r,c));

@@ -4,35 +4,24 @@
  *  (C) Copyright IBM Corporation 2011.
  */
 
-package logreg;
-
 import x10.util.Timer;
-//
-import x10.matrix.util.Debug;
-//
+
 import x10.matrix.Matrix;
 import x10.matrix.DenseMatrix;
 import x10.matrix.blas.DenseMatrixBLAS;
-//
 import x10.matrix.block.Grid;
 import x10.matrix.dist.DistDenseMatrix;
 import x10.matrix.dist.DistSparseMatrix;
 import x10.matrix.dist.DupDenseMatrix;
-
 import x10.matrix.dist.DistMultDupToDist;
 import x10.matrix.dist.DistMultDistToDup;
-
-/**
-   <p>
-
-   <p>
- */
+import x10.matrix.util.Debug;
 
 public class LogisticRegression {
 	val C = 2;
 	val tol = 0.000001;
-	val maxiter:Int;
-	val maxinneriter:Int; 
+	val maxiter:Long;
+	val maxinneriter:Long; 
 	
 	//X = Rand(rows = 1000, cols = 1000, min = 1, max = 10, pdf = "uniform");
 	val X:DistSparseMatrix;
@@ -42,7 +31,6 @@ public class LogisticRegression {
 	val y:DenseMatrix(X.M,1);
 	//w = Rand(rows=D, cols=1, min=0.0, max=0.0);
 	val w:DenseMatrix(X.N,1);
-	
 
 	val prt_y:Grid; 
 	val dup_w:DupDenseMatrix(X.N, 1); 
@@ -54,7 +42,6 @@ public class LogisticRegression {
 	
 	val prt_ty:Grid;
 	val dst_ty:DistDenseMatrix(1, X.M);
-	
 
 	val eta0 = 0.0;
 	val eta1 = 0.25;
@@ -67,8 +54,8 @@ public class LogisticRegression {
 	public var paraRunTime:Long=0;
 	public var commUseTime:Long=0;
 	
-	public def this(x_:DistSparseMatrix, y_:DenseMatrix, w_:DenseMatrix,
-					it:Int, nit:Int) {
+	public def this(x_:DistSparseMatrix, y_:DenseMatrix(x_.M,1), w_:DenseMatrix(x_.N,1),
+					it:Long, nit:Long) {
 		X=x_; y=y_ as DenseMatrix(X.M, 1);	w=w_ as DenseMatrix(X.N, 1);
 		
 		prt_y = new Grid(X.M, 1, Place.MAX_PLACES, 1);
@@ -116,7 +103,7 @@ public class LogisticRegression {
 		
 		//# number of iterations
 		//iter = 0
-		var iter:Int =0;
+		var iter:Long =0;
 		
 		//# starting point for CG
 		//zeros_D = Rand(rows = D, cols = 1, min = 0.0, max = 0.0);
@@ -150,7 +137,7 @@ public class LogisticRegression {
 			// 			d = r
 			r.copyTo(d);
 			// 			inneriter = 0
-			val inneriter:Int=0;
+			val inneriter:Long=0;
 			// 			innerconverge = ( sqrt(sum(r*r)) <= psi * norm_grad) 
 			var innerconverge:Boolean;// = (Math.sqrt(r.norm(r)) <= psi * norm_grad);
 			innerconverge = false;

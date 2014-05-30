@@ -23,6 +23,7 @@
 
 #include <pthread.h>
 #include <errno.h>
+#include <limits.h>
 #define __STDC_FORMAT_MACROS
 #include <stdint.h>
 #include <inttypes.h>
@@ -153,6 +154,7 @@ typedef struct _x10rt_nw_req {
     int                       type;
     int                       msg_len;
     int                       len;
+    unsigned char             tag;
 } x10rt_nw_req;
 
 typedef struct _x10rt_get_req {
@@ -168,20 +170,23 @@ typedef struct _x10rt_put_req {
     void                    * msg;
     int                       msg_len;
     int                       len;
+    unsigned char             tag;
 } x10rt_put_req;
 
 class x10rt_req {
         int                   type;
         MPI_Request           mpi_req;
+        unsigned char		  tag; // each req gets a pre-assigned unique tag
         x10rt_req           * next;
         x10rt_req           * prev;
         void                * buf;
         x10rt_get_req         get_req;
     public:
-        x10rt_req()  {
+        x10rt_req(unsigned char uniqueid)  {
             next = prev = NULL;
             buf = NULL;
             type = X10RT_REQ_TYPE_UNDEFINED;
+            tag = uniqueid;
         }
         ~x10rt_req() {
             next = prev = NULL;
@@ -190,6 +195,7 @@ class x10rt_req {
         }
         void setType(int t) { this->type = t; }
         int  getType() { return this->type; }
+        unsigned char getTag() { return this->tag; }
         MPI_Request * getMPIRequest() { return &this->mpi_req; }
         void setBuf(void * buf) { this->buf = buf; }
         void * getBuf() { return this->buf; }
@@ -255,10 +261,11 @@ class x10rt_req_queue {
          * Append a few empty requests to queue
          */
         void addRequests(int num) {
+            assert(num-1 <= UCHAR_MAX); // no more than 256
             /* wrap around enqueue (which is thread safe) */
             for (int i = 0; i < num; ++i) {
                 char * mem = ChkAlloc<char>(sizeof(x10rt_req));
-                x10rt_req * r = new(mem) x10rt_req();
+                x10rt_req * r = new(mem) x10rt_req((unsigned char)i);
                 enqueue(r);
             }
         }
@@ -528,10 +535,12 @@ x10rt_error x10rt_net_init(int *argc, char ** *argv, x10rt_msg_type *counter) {
     }
 
     /* Reserve tags for internal use */
+    assert((*counter) <= 0x7FFFFF); // ensure we don't loose values when we shift by one byte
     global_state._reserved_tag_put_req  = (*counter)++;
     global_state._reserved_tag_put_data = (*counter)++;
     global_state._reserved_tag_get_req  = (*counter)++;
     global_state._reserved_tag_get_data = (*counter)++;
+    (*counter) = (global_state._reserved_tag_get_data << 8)+1; // allocate a block of tags for parallel operations
 
     /* X10RT uses its own communicator so user messages don't
      * collide with internal messages (Mixed mode programming,
@@ -685,38 +694,40 @@ void x10rt_net_send_get(x10rt_msg_params *p, void *buf, x10rt_copy_sz len) {
     x10rt_lgl_stats.get.bytes_sent += p->len;
 
     int                 get_msg_len;
-    x10rt_req         * req;
     x10rt_nw_req      * get_msg;
     x10rt_get_req       get_req;
-
     assert(global_state.init);
     assert(!global_state.finalized);
+    x10rt_req* req = global_state.free_list.popNoFail();
+    unsigned char tag = req->getTag();
+    
     get_req.type       = p->type;
     get_req.dest_place = p->dest_place;
     get_req.len        = len;
+    
 
     /*      GET Message
-     * +-------------------------------------+
-     * | type | msg_len | len | <- msg ... ->|
-     * +-------------------------------------+
-     *  <--- x10rt_nw_req --->
+     * +-------------------------------------------+
+     * | type | msg_len | len | tag | <- msg ... ->|
+     * +-------------------------------------------+
+     *  <--- x10rt_nw_req --------->
      */
     get_msg_len         = sizeof(*get_msg) + p->len;
     get_msg             = ChkAlloc<x10rt_nw_req>(get_msg_len);
     get_msg->type       = p->type;
     get_msg->msg_len    = p->len;
     get_msg->len        = len;
+    get_msg->tag        = tag;
 
     get_req.msg        = &get_msg[1];
     get_req.msg_len    = p->len;
 
     /* pre-post a recv that matches the GET request */
-    req = global_state.free_list.popNoFail();
     LOCK_IF_MPI_IS_NOT_MULTITHREADED;
     if (MPI_Irecv(buf, len,
                 MPI_BYTE,
                 p->dest_place,
-                global_state._reserved_tag_get_data,
+                (global_state._reserved_tag_get_data << 8) | tag,
                 global_state.mpi_comm,
                 req->getMPIRequest())) {
     }
@@ -735,7 +746,7 @@ void x10rt_net_send_get(x10rt_msg_params *p, void *buf, x10rt_copy_sz len) {
                 get_msg_len,
                 MPI_BYTE,
                 p->dest_place,
-                global_state._reserved_tag_get_req,
+                (global_state._reserved_tag_get_req << 8) | tag,
                 global_state.mpi_comm,
                 req->getMPIRequest())) {
         fprintf(stderr, "[%s:%d] Error in MPI_Isend\n", __FILE__, __LINE__);
@@ -774,12 +785,13 @@ void x10rt_net_send_put(x10rt_msg_params *p, void *buf, x10rt_copy_sz len) {
     assert(!global_state.finalized);
 
     x10rt_req * req = global_state.free_list.popNoFail();
+    unsigned char tag = req->getTag();
 
     /*      PUT Message
-     * +-------------------------------------------+
-     * | type | msg | msg_len | len | <- msg ... ->|
-     * +-------------------------------------------+
-     *  <------ x10rt_put_req ----->
+     * +-------------------------------------------------+
+     * | type | msg | msg_len | len | tag | <- msg ... ->|
+     * +-------------------------------------------------+
+     *  <------ x10rt_put_req ----------->
      */
     put_msg_len         = sizeof(*put_msg) + p->len;
     put_msg             = ChkAlloc<x10rt_put_req>(put_msg_len);
@@ -787,6 +799,7 @@ void x10rt_net_send_put(x10rt_msg_params *p, void *buf, x10rt_copy_sz len) {
     put_msg->msg        = p->msg;
     put_msg->msg_len    = p->len;
     put_msg->len        = len;
+    put_msg->tag		= tag;
     memcpy(static_cast <void *> (&put_msg[1]), p->msg, p->len);
 
     LOCK_IF_MPI_IS_NOT_MULTITHREADED;
@@ -794,7 +807,7 @@ void x10rt_net_send_put(x10rt_msg_params *p, void *buf, x10rt_copy_sz len) {
                 put_msg_len,
                 MPI_BYTE,
                 p->dest_place,
-                global_state._reserved_tag_put_req,
+                (global_state._reserved_tag_put_req << 8) | tag,
                 global_state.mpi_comm,
                 req->getMPIRequest())) {
         fprintf(stderr, "[%s:%d] Error in MPI_Isend\n", __FILE__, __LINE__);
@@ -827,7 +840,7 @@ void x10rt_net_send_put(x10rt_msg_params *p, void *buf, x10rt_copy_sz len) {
                 len,
                 MPI_BYTE,
                 p->dest_place,
-                global_state._reserved_tag_put_data,
+                (global_state._reserved_tag_put_data << 8) | tag,
                 global_state.mpi_comm,
                 req->getMPIRequest())) {
         fprintf(stderr, "[%s:%d] Error in MPI_Isend\n", __FILE__, __LINE__);
@@ -904,13 +917,14 @@ static void get_outgoing_req_completion(x10rt_req_queue * q, x10rt_req * req) {
 static void get_incoming_req_completion(int dest_place,
         x10rt_req_queue * q, x10rt_req * req) {
     /*      GET Message
-     * +-------------------------------------+
-     * | type | msg_len | len | <- msg ... ->|
-     * +-------------------------------------+
-     *  <--- x10rt_nw_req --->
+     * +-------------------------------------------+
+     * | type | msg_len | len | tag | <- msg ... ->|
+     * +-------------------------------------------+
+     *  <--- x10rt_nw_req --------->
      */
     x10rt_nw_req * get_nw_req = static_cast <x10rt_nw_req *> (req->getBuf());
     int len = get_nw_req->len;
+    unsigned char tag = get_nw_req->tag;
     getCb1 cb = global_state.getCb1Tbl[get_nw_req->type];
     x10rt_msg_params p = { x10rt_net_here(),
                            get_nw_req->type,
@@ -933,7 +947,7 @@ static void get_incoming_req_completion(int dest_place,
                 len,
                 MPI_BYTE,
                 dest_place,
-                global_state._reserved_tag_get_data,
+                (global_state._reserved_tag_get_data << 8) | tag,
                 global_state.mpi_comm,
                 req->getMPIRequest())) {
         fprintf(stderr, "[%s:%d] Error in MPI_Isend\n", __FILE__, __LINE__);
@@ -970,13 +984,14 @@ static void put_incoming_req_completion(int src_place,
         x10rt_req_queue * q,
         x10rt_req * req) {
     /*      PUT Message
-     * +-------------------------------------------+
-     * | type | msg | msg_len | len | <- msg ... ->|
-     * +-------------------------------------------+
-     *  <------ x10rt_put_req ----->
+     * +-------------------------------------------------+
+     * | type | msg | msg_len | len | tag | <- msg ... ->|
+     * +-------------------------------------------------+
+     *  <------ x10rt_put_req ----------->
      */
     x10rt_put_req * put_req = static_cast <x10rt_put_req *> (req->getBuf());
     int len = put_req->len;
+    int tag = put_req->tag;
     putCb1 cb = global_state.putCb1Tbl[put_req->type];
     x10rt_msg_params p = { x10rt_net_here(),
                            put_req->type,
@@ -997,7 +1012,7 @@ static void put_incoming_req_completion(int src_place,
                 len,
                 MPI_BYTE,
                 src_place,
-                global_state._reserved_tag_put_data,
+                (global_state._reserved_tag_put_data << 8) | tag,
                 global_state.mpi_comm,
                 req->getMPIRequest())) {
         fprintf(stderr, "[%s:%d] Error in posting Irecv\n", __FILE__, __LINE__);
@@ -1179,7 +1194,8 @@ static void x10rt_net_probe_ex (bool network_only) {
 
         /* Post recv for incoming message */
         if (arrived) {
-            if (global_state._reserved_tag_put_data == msg_status.MPI_TAG) {
+            int tagtype = (msg_status.MPI_TAG >> 8);
+            if (tagtype == global_state._reserved_tag_put_data) {
                 /* Break out of loop, give up lock. At some point we have
                  * discovered the PUT request, and the thread that has
                  * processed it, will post the corresponding receive.
@@ -1191,7 +1207,6 @@ static void x10rt_net_probe_ex (bool network_only) {
                 /* Don't need to post recv for incoming puts, they
                  * will be matched by X10RT_PUT_INCOMING_REQ handler */
                 void * recv_buf = ChkAlloc<char>(get_recvd_bytes(&msg_status));
-                int tag = msg_status.MPI_TAG;
                 x10rt_req * req = global_state.free_list.popNoFail();
                 req->setBuf(recv_buf);
                 if (MPI_SUCCESS != MPI_Irecv(recv_buf,
@@ -1205,9 +1220,9 @@ static void x10rt_net_probe_ex (bool network_only) {
                             __FILE__, __LINE__);
                     abort();
                 }
-                if (tag == global_state._reserved_tag_get_req) {
+                if (tagtype == global_state._reserved_tag_get_req) {
                     req->setType(X10RT_REQ_TYPE_GET_INCOMING_REQ);
-                } else if (tag == global_state._reserved_tag_put_req) {
+                } else if (tagtype == global_state._reserved_tag_put_req) {
                     req->setType(X10RT_REQ_TYPE_PUT_INCOMING_REQ);
                 } else {
                     req->setType(X10RT_REQ_TYPE_RECV);

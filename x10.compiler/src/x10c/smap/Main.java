@@ -104,7 +104,7 @@ public class Main {
 	                    if (verbose) {
 	                        System.out.println("Smapify "+classFiles.length+" class files for " +x10FileName+" ("+javaFileName+")");
 	                    }
-	                    numModified += smapify(x10FileName, relPathPrefix, javaFileName, classFiles);
+	                    numModified += smapify(x10FileName, null, javaFileName, classFiles);
 	                }
 	            }
 	        }

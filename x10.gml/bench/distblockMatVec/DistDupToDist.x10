@@ -22,26 +22,21 @@ import x10.matrix.distblock.DupVector;
  * Test benchmark Matrix-Vector multiplication.
  * Matrix is partitioned in blocks and has horizontal distribution, while vector is replicated in all places.
  * The result is stored in distributed vector.
- * 
  */
 public class DistDupToDist{
-	
     public static def main(args:Rail[String]) {
-    	
     	val M   = args.size > 0 ? Long.parse(args(0)):100;
     	val bM  = args.size > 1 ? Long.parse(args(1)):-1;
-    	val nzd = args.size > 2 ?Double.parse(args(2)):0.5;
+    	val nzd = args.size > 2 ? Double.parse(args(2)):0.5;
     	val it  = args.size > 3 ? Long.parse(args(3)):3;
     	val vrf = args.size > 4 ? Long.parse(args(4)):0;
-    	
    	
 		val testcase = new DistDupToDist(M, bM, nzd, it, vrf);
 		testcase.run();
     }
     
-	val it:Int;
-	val vrf:Int;
-	
+	val it:Long;
+	val vrf:Long;
 
 	val M:Long;
 	val bM:Long;
@@ -51,13 +46,11 @@ public class DistDupToDist{
 	val dstrP:DistVector(M);
 	val P:Vector(M);
 	
-
-    public def this(m:Long, b:Int, nnz:Double, i:Int, v:Int) {
+    public def this(m:Long, b:Long, nnz:Double, i:Long, v:Long) {
     	val pM = Place.MAX_PLACES;
     	M=m;
     	it = i; vrf=v;
     	bM = b<0?pM:b;
-    	
     	
     	dstrA = (nnz > 0.99) ? DistBlockMatrix.makeDense(M, M, bM, 1, pM, 1): 
     		DistBlockMatrix.makeSparse(M, M, bM, 1, pM, 1, nnz);
@@ -76,7 +69,6 @@ public class DistDupToDist{
     }
 	
 	public def run(): void {
-		
 		val stt = Timer.milliTime();
 		dupV.sync();
 		for (1..it)

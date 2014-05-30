@@ -280,9 +280,6 @@
         <fail message="Unable to find ${ecj.jar} at ${local.ecj.jar}" unless="ecj.jar.present"/>
     </target>
 
-
-
-
     <target name="hazelcast-jar" depends="init,hazelcast-local-jar" unless="local.hazelcast.jar">
         <mkdir dir="${lib}"/>
 	<retry>
@@ -297,21 +294,6 @@
         <available property="hazelcast.jar.present" file="${lib}/${hazelcast.jar}"/>
         <fail message="Unable to find ${hazelcast.jar} at ${local.hazelcast.jar}" unless="hazelcast.jar.present"/>
     </target>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
     <target name="wala-jar" depends="init,wala-local-jar" unless="local.wala.jar">
         <mkdir dir="${lib}"/>
@@ -782,6 +764,10 @@ X10RT_PAMI_IS_DEFAULT='${X10RT_PAMI_IS_DEFAULT}'
             <tarfileset prefix="x10.common" dir="${x10.common.location}" excludes="releng/**,**/.*.swp,classes/**"/>
             <tarfileset prefix="x10.wala" dir="${x10.bridge.location}" excludes="releng/**,**/.*.swp,bin/**"/>
             <tarfileset prefix="x10.tests" dir="${x10.tests.location}" excludes="releng/**,**/.*.swp,lib/**,etc/**" includes="build*,README,bin/*.in,bin/testScript*,bin/newpgrp,bin/listFailures,tests/README,**/*.x10"/>
+            <tarfileset prefix="apgas.cpp" dir="${x10.home}/apgas.cpp" excludes="bin/**,**/.*.swp,classes/**"/>
+            <tarfileset prefix="apgas.cpp.examples" dir="${x10.home}/apgas.cpp.examples" excludes="bin/**,**/.*.swp,classes/**"/>
+            <tarfileset prefix="apgas.java" dir="${x10.home}/apgas.java" excludes="bin/**,**/.*.swp,classes/**"/>
+            <tarfileset prefix="apgas.java.examples" dir="${x10.home}/apgas.java.examples" excludes="bin/**,**/.*.swp,classes/**"/>
         </tar>
     </target>
     <target name="test-tar" depends="testtar"/>
@@ -824,6 +810,7 @@ X10RT_PAMI_IS_DEFAULT='${X10RT_PAMI_IS_DEFAULT}'
         <mkdir dir="${targetDir}/include" />
         <mkdir dir="${targetDir}/lib" />
         <mkdir dir="${targetDir}/stdlib" />
+        <mkdir dir="${targetDir}/src-x10" />
         <echo message="Cleaning out bin, etc, include, lib, and stdlib of old files from ${targetDir}..."/>
         <delete>
           <fileset dir="${targetDir}/bin"     includes="**"/>
@@ -831,6 +818,7 @@ X10RT_PAMI_IS_DEFAULT='${X10RT_PAMI_IS_DEFAULT}'
           <fileset dir="${targetDir}/include" includes="**"/>
           <fileset dir="${targetDir}/lib"     includes="**"/>
           <fileset dir="${targetDir}/stdlib"  includes="**"/>
+          <fileset dir="${targetDir}/src-x10"  includes="**"/>
         </delete>
 
     	<echo message="Copying bin, etc, include, lib and stdlib files to ${targetDir}..."/>
@@ -844,6 +832,13 @@ X10RT_PAMI_IS_DEFAULT='${X10RT_PAMI_IS_DEFAULT}'
         <chmod file="${targetDir}/bin/x10c++" perm="u+x"/>
         <chmod file="${targetDir}/bin/X10Launcher" perm="u+x"/>
         <chmod file="${targetDir}/bin/X10MPIJava" perm="u+x"/>
+
+        <echo message="Extracting X10 sources to src-x10..."/>
+        <unzip src="${targetDir}/stdlib/x10.jar" dest="${targetDir}/src-x10">
+	  <patternset>
+	    <include name="**/*.x10" />
+	  </patternset>
+	</unzip>
 
         <echo message="Attempting to compile Hello, World..."/>
         <exec executable="${bash.exe}" failonerror="true" dir="${targetDir}">
