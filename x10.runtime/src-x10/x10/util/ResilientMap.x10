@@ -83,6 +83,15 @@ public class ResilientMap[K,V] {
     public native def isEmpty(): Boolean;
 
     /**
+     * Acquires the lock for the specified key.
+     */
+    public def lock(k: K): void {
+        keyValueMap.lock(k);
+    };
+
+    /**
+
+    /**
      * Return native Java IMap of the map.
      */
     public def nativeMap(): com.hazelcast.core.IMap {
@@ -129,6 +138,13 @@ public class ResilientMap[K,V] {
      */
     @Native("java", "(keyValueMap).size()")
     public native def size(): Long;
+
+    /**
+     * Acquires the lock for the specified key.
+     */
+    public def unlock(k: K): void {
+        keyValueMap.unlock(k);
+    };
 
     /**
      * Query map based on a predicate, return values of matching entries.
